@@ -1151,17 +1151,36 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   /* Cache old dir, then cd into subdir because stat is given relative file names. */
   memset (subdir, 0, sizeof subdir);
   memset (olddir, 0, sizeof olddir);
-  GetWorkingDirectory(olddir); 
+  if (GetWorkingDirectory (olddir) == NULL)
+    {
+      Message (_("LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"));
+      return 0;
+    }
+
   strcpy (subdir, libpath);
-  chdir(subdir);
-  GetWorkingDirectory(subdir);  /* subdir is abs path */
+  if (chdir (subdir))
+    {
+      ChdirErrorMessage (subdir);
+      return 0;
+    }
+
+  /* Determine subdir is abs path */
+  if (GetWorkingDirectory (subdir) == NULL)
+    {
+      Message (_("LoadNewlibFootprintsFromDir: Could not determine new working directory\n"));
+      if (chdir (olddir))
+        ChdirErrorMessage (olddir);
+      return 0;
+    }
 
   /* First try opening the directory specified by path */
   if ( (subdirobj = opendir (subdir)) == NULL )
-  {
+    {
       OpendirErrorMessage (subdir);
+      if (chdir (olddir))
+        ChdirErrorMessage (olddir);
       return 0;
-  }
+    }
 
   /* Get pointer to memory holding menu */
   menu = GetLibraryMenuMemory (&Library);
@@ -1221,7 +1240,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   }
   /* Done.  Clean up, cd back into old dir, and return */
   closedir (subdirobj);
-  chdir(olddir);
+  if (chdir (olddir))
+    ChdirErrorMessage (olddir);
   return n_footprints;
 }
 
@@ -1252,7 +1272,11 @@ ParseLibraryTree (void)
   /* Save the current working directory as an absolute path.
    * This fcn writes the abs path into the memory pointed to by the input arg.
    */
-  GetWorkingDirectory (working);
+  if (GetWorkingDirectory (working) == NULL)
+    {
+      Message (_("ParseLibraryTree: Could not determine initial working directory\n"));
+      return 0;
+    }
 
   /* Additional loop to allow for multiple 'newlib' style library directories 
    * called out in Settings.LibraryTree
@@ -1266,14 +1290,28 @@ ParseLibraryTree (void)
       /* start out in the working directory in case the path is a
        * relative path 
        */
-      chdir (working);
+      if (chdir (working))
+        {
+          ChdirErrorMessage (working);
+          free (libpaths);
+          return 0;
+        }
 
       /*
        * Next change to the directory which is the top of the library tree
        * and extract its abs path.
        */
-      chdir (toppath);
-      GetWorkingDirectory (toppath);
+      if (chdir (toppath))
+        {
+          ChdirErrorMessage (toppath);
+          continue;
+        }
+
+      if (GetWorkingDirectory (toppath) == NULL)
+        {
+          Message (_("ParseLibraryTree: Could not determine new working directory\n"));
+          continue;
+        }
 
 #ifdef DEBUG
       printf("In ParseLibraryTree, looking for newlib footprints inside top level directory %s ... \n", 
@@ -1316,7 +1354,8 @@ ParseLibraryTree (void)
     }
 
   /* restore the original working directory */
-  chdir (working);
+  if (chdir (working))
+    ChdirErrorMessage (working);
 
 #ifdef DEBUG
   printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
