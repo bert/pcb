@@ -1408,8 +1408,6 @@ NotifyMode (void)
 		    Draw ();
 		  }
 		}
-
-	    /* free memory allocated by gui->prompt_for() */
 	    free (string);
 	  }
 	break;
@@ -4651,7 +4649,8 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	case F_Layout:
 	  name =
 	    gui->prompt_for (_("Enter the layout name:"), EMPTY (PCB->Name));
-	  if (name && ChangeLayoutName (name))	/* XXX memory leak */
+	  /* NB: ChangeLayoutName takes ownership of the passed memory */
+	  if (name && ChangeLayoutName (name))
 	    SetChangedFlag (true);
 	  break;
 
@@ -4659,7 +4658,8 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	case F_Layer:
 	  name = gui->prompt_for (_("Enter the layer name:"),
 				  EMPTY (CURRENT->Name));
-	  if (name && ChangeLayerName (CURRENT, name))	/* XXX memory leak */
+	  /* NB: ChangeLayerName takes ownership of the passed memory */
+	  if (name && ChangeLayerName (CURRENT, name))
 	    SetChangedFlag (true);
 	  break;
 	}
@@ -5951,7 +5951,8 @@ ActionNew (int argc, char **argv, int x, int y)
       CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */
-      PCB->Name = name;		/* XXX memory leak */
+      free (PCB->Name);
+      PCB->Name = name;
 
       ResetStackAndVisibility ();
       CreateDefaultFont ();
@@ -7605,7 +7606,7 @@ ActionImport (int argc, char **argv, int x, int y)
 
   if (mode && strcasecmp (mode, "setdisperse") == 0)
     {
-      const char *ds, *units;
+      char *ds, *units;
       char buf[50];
 
       ds = ARG (1);
@@ -7622,6 +7623,8 @@ ActionImport (int argc, char **argv, int x, int y)
 	}
       else
 	AttributePut (PCB, "import::disperse", ds);
+      if (ARG (1) == NULL)
+        free (ds);
       return 0;
     }
 

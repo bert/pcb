@@ -1079,6 +1079,7 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
 bool
 ChangeLayoutName (char *Name)
 {
+  free (PCB->Name);
   PCB->Name = Name;
   hid_action ("PCBChanged");
   return (true);
@@ -1106,6 +1107,7 @@ ChangeElementSide (ElementTypePtr Element, LocationType yoff)
 bool
 ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
+  free (CURRENT->Name);
   CURRENT->Name = Name;
   hid_action ("LayersChanged");
   return (true);
@@ -2280,7 +2282,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     }
   if (name)
     {
-      /* XXX Memory leak!! */
+      /* NB: ChangeObjectName takes ownership of the passed memory */
       char *old = ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
       if (old != (char *) -1)
 	{
