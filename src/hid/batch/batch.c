@@ -332,73 +332,6 @@ batch_stop_block_hook (hidval mlpoll)
 {
 }
 
-static void
-batch_log (const char *fmt, ...)
-{
-  va_list ap;
-  va_start (ap, fmt);
-  vprintf (fmt, ap);
-  va_end (ap);
-}
-
-static void
-batch_logv (const char *fmt, va_list ap)
-{
-  vprintf (fmt, ap);
-}
-
-static int
-batch_confirm_dialog (char *msg, ...)
-{
-  int rv;
-  printf ("%s ? 0=cancel 1=ok : ", msg);
-  fflush (stdout);
-  scanf ("%d", &rv);
-  return rv;
-}
-
-static int
-batch_close_confirm_dialog ()
-{
-  return batch_confirm_dialog (_("OK to lose data ?"), NULL);
-}
-
-static void
-batch_report_dialog (char *title, char *msg)
-{
-  printf ("--- %s ---\n%s\n", title, msg);
-}
-
-static char *
-batch_prompt_for (const char *msg, const char *default_string)
-{
-  static char buf[1024];
-  if (default_string)
-    printf ("%s [%s] : ", msg, default_string);
-  else
-    printf ("%s : ", msg);
-  fgets (buf, 1024, stdin);
-  if (buf[0] == 0 && default_string)
-    strcpy (buf, default_string);
-  return buf;
-}
-
-static char *
-batch_fileselect (const char *title, const char *descr,
-		  char *default_file, char *default_ext,
-		  const char *history_tag, int flags)
-{
-  static char buf[1024];
-  if (default_file)
-    printf ("%s [%s] : ", title, default_file);
-  else
-    printf ("%s : ", title);
-  fgets (buf, 1024, stdin);
-  if (buf[0] == 0 && default_file)
-    strcpy (buf, default_file);
-  return buf;
-}
-
 static int
 batch_attribute_dialog (HID_Attribute * attrs_,
 			int n_attrs_, HID_Attr_Val * results_,
@@ -410,19 +343,6 @@ batch_attribute_dialog (HID_Attribute * attrs_,
 static void
 batch_show_item (void *item)
 {
-}
-
-static void
-batch_beep (void)
-{
-  putchar (7);
-  fflush (stdout);
-}
-
-static int
-batch_progress (int so_far_, int total_, const char *message_)
-{
-  return 0;
 }
 
 HID batch_gui = {
@@ -465,18 +385,18 @@ HID batch_gui = {
   batch_unwatch_file,
   batch_add_block_hook,
   batch_stop_block_hook,
-  batch_log,
-  batch_logv,
-  batch_confirm_dialog,
-  batch_close_confirm_dialog,
-  batch_report_dialog,
-  batch_prompt_for,
-  batch_fileselect,
+  0 /* batch_log */,
+  0 /* batch_logv */,
+  0 /* batch_confirm_dialog */,
+  0 /* batch_close_confirm_dialog */,
+  0 /* batch_report_dialog */,
+  0 /* batch_prompt_for */,
+  0 /* batch_fileselect */,
   batch_attribute_dialog,
   batch_show_item,
-  batch_beep,
-  batch_progress,
-  0 /* batch_drc_gui */ ,
+  0 /* batch_beep */,
+  0 /* batch_progress */,
+  0 /* batch_drc_gui */,
   0 /* batch_edit_attributes */
 };
 
@@ -485,6 +405,7 @@ HID batch_gui = {
 void
 hid_batch_init ()
 {
+  apply_default_hid (&batch_gui, 0);
   hid_register_hid (&batch_gui);
 #include "batch_lists.h"
 }
