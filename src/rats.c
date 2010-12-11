@@ -341,6 +341,7 @@ TransferNet (NetListTypePtr Netl, NetTypePtr SourceNet, NetTypePtr DestNet)
 {
   ConnectionTypePtr conn;
 
+  /* It would be worth checking if SourceNet is NULL here to avoid a segfault. Seb James. */
   CONNECTION_LOOP (SourceNet);
   {
     conn = GetConnectionMemory (DestNet);
@@ -562,8 +563,12 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   register ConnectionTypePtr conn1, conn2, firstpoint, secondpoint;
   PolygonTypePtr polygon;
   bool changed = false;
+  bool havepoints = false;
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
+
+  if (Netl->NetN < 2)
+    return false;
 
   /*
    * Everything inside the NetList Netl should be connected together.
@@ -575,9 +580,10 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
    * one big blob.
    */
   distance = 0.0;
-  while (Netl->NetN > 1)
+  do
     {
       firstpoint = secondpoint = NULL;
+      havepoints = false;
       subnet = &Netl->Net[0];
       for (j = 1; j < Netl->NetN; j++)
 	{
@@ -604,6 +610,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		      firstpoint = conn2;
 		      secondpoint = conn1;
 		      theSubnet = next;
+		      havepoints = true;
 		    }
 		  else if (conn2->type == POLYGON_TYPE &&
 		      (polygon = (PolygonTypePtr)conn2->ptr2) &&
@@ -615,6 +622,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		      firstpoint = conn1;
 		      secondpoint = conn2;
 		      theSubnet = next;
+		      havepoints = true;
 		    }
 		  else if ((temp = SQUARE (conn1->X - conn2->X) +
 		       SQUARE (conn1->Y - conn2->Y)) < distance || !firstpoint)
@@ -623,35 +631,41 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		      firstpoint = conn1;
 		      secondpoint = conn2;
 		      theSubnet = next;
+		      havepoints = true;
 		    }
 		}
 	    }
 	}
-      if (funcp)
-	{
-	  (*funcp) (firstpoint, secondpoint, subnet->Style);
-	}
-      else
-	{
-	  /* found the shortest distance subnet, draw the rat */
-	  if ((line = CreateNewRat (PCB->Data,
-				    firstpoint->X, firstpoint->Y,
-				    secondpoint->X, secondpoint->Y,
-				    firstpoint->group, secondpoint->group,
-				    Settings.RatThickness,
-				    NoFlags ())) != NULL)
-	    {
-	      if (distance == 0)
-		SET_FLAG (VIAFLAG, line);
-	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
-	      DrawRat (line, 0);
-	      changed = true;
-	    }
-	}
 
-      /* copy theSubnet into the current subnet */
-      TransferNet (Netl, theSubnet, subnet);
-    }
+      if (havepoints)
+	{
+	  if (funcp)
+	    {
+	      (*funcp) (firstpoint, secondpoint, subnet->Style);
+	    }
+	  else
+	    {
+	      /* found the shortest distance subnet, draw the rat */
+	      if ((line = CreateNewRat (PCB->Data,
+					firstpoint->X, firstpoint->Y,
+					secondpoint->X, secondpoint->Y,
+					firstpoint->group, secondpoint->group,
+					Settings.RatThickness,
+					NoFlags ())) != NULL)
+		{
+		  if (distance == 0)
+		    SET_FLAG (VIAFLAG, line);
+		  AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
+		  DrawRat (line, 0);
+		  changed = true;
+		}
+	    }
+
+	  /* copy theSubnet into the current subnet */
+	  TransferNet (Netl, theSubnet, subnet);
+	}
+    } while (Netl->NetN > 1 && havepoints);
+
   /* presently nothing to do with the new subnet */
   /* so we throw it away and free the space */
   FreeNetMemory (&Netl->Net[--(Netl->NetN)]);
