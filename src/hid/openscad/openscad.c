@@ -86,19 +86,26 @@ RCSID ("$Id$");
 static HID_Attribute openscad_options[] =
 {
     {
-        "openscadfile",
-        "OpenSCAD output file",
+        "OpenSCAD include directory",
+        "OpenSCAD include directory where package models reside",
         HID_String,
         0, 0, {0, 0, 0}, 0, 0
     },
-#define HA_openscad_file 0
+#define HA_openscad_include_dir 0
     {
-        "openscad-in-mm",
-        "OpenSCAD dimensions in mm instead of mils",
+        "OpenSCAD output filename",
+        "OpenSCAD output top model filename",
+        HID_String,
+        0, 0, {0, 0, 0}, 0, 0
+    },
+#define HA_openscad_file 1
+    {
+        "OpenSCAD in mm",
+        "tick for OpenSCAD dimensions in mm instead of mils",
         HID_Boolean,
         0, 0, {0, 0, 0}, 0, 0
     },
-#define HA_openscad_mm 1
+#define HA_openscad_mm 2
 };
 
 
@@ -106,6 +113,7 @@ static HID_Attribute openscad_options[] =
 
 
 static HID_Attr_Val openscad_values[NUM_OPTIONS];
+static char *openscad_include_dir;
 static char *openscad_filename;
 static int openscad_dim_type;
 
@@ -784,12 +792,21 @@ openscad_do_export (HID_Attr_Val * options)
             openscad_values[i] = openscad_options[i].default_val;
         options = openscad_values;
     }
+    /* Get the directory name. */
+    openscad_include_dir = options[HA_openscad_include_dir].str_value;
+    if (!openscad_include_dir)
+    {
+        openscad_include_dir = strdup ("openscad");
+    }
+    /* Get the filename. */
     openscad_filename = options[HA_openscad_file].str_value;
     if (!openscad_filename)
     {
-        openscad_filename = "pcb-out.scad";
+        openscad_filename = strdup ("pcb-out.scad");
     }
+    /* Get the dimension type. */
     openscad_dim_type = options[HA_openscad_mm].int_value;
+    /* Call the worker function which is creating the output files. */
     openscad_print ();
 }
 
