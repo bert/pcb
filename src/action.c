@@ -2831,7 +2831,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	    oldGrid = PCB->Grid;
 	    PCB->Grid = 1.0;
-	    if (MoveCrosshairAbsolute (childX, childY))
+	    if (MoveCrosshairAbsolute (Crosshair.X, Crosshair.Y))
 	      RestoreCrosshair (false);	/* was hidden by MoveCrosshairAbs */
 	    SetGrid (oldGrid, true);
 	  }
