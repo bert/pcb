@@ -120,18 +120,18 @@ static int openscad_dim_type;
 
 typedef struct _StringList
 {
-  char *str;
-  struct _StringList *next;
+    char *str;
+    struct _StringList *next;
 } StringList;
 
 
 typedef struct _OpenscadList
 {
-  char *modelname;
-  char *value;
-  int num;
-  StringList *refdes;
-  struct _OpenscadList *next;
+    char *modelname;
+    char *value;
+    int num;
+    StringList *refdes;
+    struct _OpenscadList *next;
 } OpenscadList;
 
 
@@ -725,45 +725,45 @@ openscad_print (void)
             /* Write part model data to file test for dimension type. */
             if (openscad_dim_type)
             {
-            fprintf
-            (
-                fp,
-                "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
-                package_type,
-                modelname,
+                fprintf
+                (
+                    fp,
+                    "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                    package_type,
+                    modelname,
 #if 0
-                (double) element->MarkX,
-                (double) element->MarkY,
+                    (double) element->MarkX,
+                    (double) element->MarkY,
 #else
-                user_x,
-                user_y,
+                    user_x,
+                    user_y,
 #endif
-                theta,
-                FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
-                value,
-                name
-            );
+                    theta,
+                    FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
+                    value,
+                    name
+                );
             }
             else
             {
-            fprintf
-            (
-                fp,
-                "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
-                package_type,
-                modelname,
+                fprintf
+                (
+                    fp,
+                    "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                    package_type,
+                    modelname,
 #if 0
-                (double) (element->MarkX / 100),
-                (double) (element->MarkY / 100),
+                    (double) (element->MarkX / 100),
+                    (double) (element->MarkY / 100),
 #else
-                user_x,
-                user_y,
+                    user_x,
+                    user_y,
 #endif
-                theta,
-                FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
-                value,
-                name
-            );
+                    theta,
+                    FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
+                    value,
+                    name
+                );
             }
             free (name);
             free (modelname);
