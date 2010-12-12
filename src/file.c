@@ -1157,7 +1157,11 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
       return 0;
     }
 
-  strcpy (subdir, libpath);
+  if (strcmp (libpath, "(local)") == 0)
+    strcpy (subdir, ".");
+  else
+    strcpy (subdir, libpath);
+
   if (chdir (subdir))
     {
       ChdirErrorMessage (subdir);
