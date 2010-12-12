@@ -1,10 +1,8 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,2010 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +16,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -104,8 +102,6 @@ dicer output is used for HIDs which cannot render things with holes
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
-
 #define ROUND(x) ((long)(((x) >= 0 ? (x) + 0.5  : (x) - 0.5)))
 
 #define UNSUBTRACT_BLOAT 10
@@ -121,6 +117,11 @@ static double circleVerticies[] = {
   1.0, 0.0,
   0.98768834059513777, 0.15643446504023087,
 };
+/* adjustment to make the segments
+ * outline the circle rather than connect
+ * points on the circle
+ * 1 - cos(\alpha/2) < (\alpha/2)^2/2 */
+static double radius_adjustment = (M_PI/CIRC_SEGS)*(M_PI/CIRC_SEGS)/2;
 
 Cardinal
 polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point)
@@ -400,11 +401,11 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
 
   poly_InclVertex (c->head.prev, poly_CreateNode (v));
   /* move vector to origin */
-  e1 = v[0] - X;
-  e2 = v[1] - Y;
+  e1 = (v[0] - X) * (1 + radius_adjustment);
+  e2 = (v[1] - Y) * (1 + radius_adjustment);
 
   /* NB: the caller adds the last vertex, hence the -1 */
-  range = CIRC_SEGS / range - 1;
+  range = range == 1 ? CIRC_SEGS-1 : (CIRC_SEGS / range) - 1;
   for (i = 0; i < range; i++)
     {
       /* rotate the vector */
@@ -479,6 +480,9 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
   int i, segs;
   double ang, da, rx, ry;
   long half;
+  static const double delta_th = 0.02; /* polygon diverges from modelled arc
+					  no more than delta_th * thick */
+  double radius_adj;
 
   if (thick <= 0)
     return NULL;
@@ -492,9 +496,15 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
   /* start with inner radius */
   rx = MAX (a->Width - half, 0);
   ry = MAX (a->Height - half, 0);
-  segs = a->Delta / ARC_ANGLE;
+  segs = 1;
+  if(thick > 0)
+    segs = a->Delta * M_PI / 360
+	    * sqrt(sqrt((double)rx*rx + (double)ry*ry)/delta_th/2/thick);
+  segs = MAX(segs, a->Delta / ARC_ANGLE);
+
   ang = a->StartAngle;
   da = (1.0 * a->Delta) / segs;
+  radius_adj = (M_PI*da/360)*(M_PI*da/360)/2;
   v[0] = a->X - rx * cos (ang * M180);
   v[1] = a->Y + ry * sin (ang * M180);
   if ((contour = poly_NewContour (v)) == NULL)
@@ -508,13 +518,13 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
     }
   /* find last point */
   ang = a->StartAngle + a->Delta;
-  v[0] = a->X - rx * cos (ang * M180);
-  v[1] = a->Y + ry * sin (ang * M180);
+  v[0] = a->X - rx * cos (ang * M180) * (1 - radius_adj);
+  v[1] = a->Y + ry * sin (ang * M180) * (1 - radius_adj);
   /* add the round cap at the end */
   frac_circle (contour, ends->X2, ends->Y2, v, 2);
   /* and now do the outer arc (going backwards) */
-  rx = a->Width + half;
-  ry = a->Width + half;
+  rx = (a->Width + half) * (1+radius_adj);
+  ry = (a->Width + half) * (1+radius_adj);
   da = -da;
   for (i = 0; i < segs; i++)
     {
@@ -525,8 +535,8 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
     }
   /* now add other round cap */
   ang = a->StartAngle;
-  v[0] = a->X - rx * cos (ang * M180);
-  v[1] = a->Y + ry * sin (ang * M180);
+  v[0] = a->X - rx * cos (ang * M180) * (1 - radius_adj);
+  v[1] = a->Y + ry * sin (ang * M180) * (1 - radius_adj);
   frac_circle (contour, ends->X1, ends->Y1, v, 2);
   /* now we have the whole contour */
   if (!(np = ContourToPoly (contour)))
