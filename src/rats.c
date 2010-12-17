@@ -553,6 +553,11 @@ GatherSubnets (NetListTypePtr Netl, bool NoWarn, bool AndRats)
 /* ---------------------------------------------------------------------------
  * Draw a rat net (tree) having the shortest lines
  * this also frees the subnet memory as they are consumed
+ *
+ * Note that the Netl we are passed is NOT the main netlist - it's the
+ * connectivity for ONE net.  It represents the CURRENT connectivity
+ * state for the net, with each Netl->Net[N] representing one
+ * copper-connected subset of the net.
  */
 
 static bool
@@ -563,11 +568,14 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   register ConnectionTypePtr conn1, conn2, firstpoint, secondpoint;
   PolygonTypePtr polygon;
   bool changed = false;
-  bool havepoints = false;
+  bool havepoints;
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
 
-  if (Netl->Net[0].ConnectionN < 2)
+  /* This is just a sanity check, to make sure we're passed
+   * *something*.
+   */
+  if (!Netl || Netl->NetN < 1)
     return false;
 
   /*
@@ -578,15 +586,41 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
    * connected items.  This loop finds the closest vertex pairs between
    * each blob and draws rats that merge the blobs until there's just
    * one big blob.
+   *
+   * Just to clarify, with some examples:
+   *
+   * Each Netl is one full net from a netlist, like from gnetlist.
+   * Each Netl->Net[N] is a subset of that net that's already
+   * physically connected on the pcb.
+   *
+   * So a new design with no traces yet, would have a huge list of Net[N],
+   * each with one pin in it.
+   *
+   * A fully routed design would have one Net[N] with all the pins
+   * (for that net) in it.
+   */
+
+  /*
+   * We keep doing this do/while loop until everything's connected.
+   * I.e. once per rat we add.
    */
   distance = 0.0;
-  do
+  havepoints = true; /* so we run the loop at least once */
+  while (Netl->NetN > 1 && havepoints)
     {
-      firstpoint = secondpoint = NULL;
+      /* This is the top of the "find one rat" logic.  */
       havepoints = false;
+      firstpoint = secondpoint = NULL;
+
+      /* Test Net[0] vs Net[N] for N=1..max.  Find the shortest
+	 distance between any two points in different blobs.  */
       subnet = &Netl->Net[0];
       for (j = 1; j < Netl->NetN; j++)
 	{
+	  /*
+	   * Scan between Net[0] blob (subnet) and Net[N] blob (next).
+	   * Note the shortest distance we find.
+	   */
 	  next = &Netl->Net[j];
 	  for (n = subnet->ConnectionN - 1; n != -1; n--)
 	    {
@@ -594,6 +628,13 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	      for (m = next->ConnectionN - 1; m != -1; m--)
 		{
 		  conn2 = &next->Connection[m];
+		  /*
+		   * At this point, conn1 and conn2 are two pins in
+		   * different blobs of the same net.  See how far
+		   * apart they are, and if they're "closer" than what
+		   * we already have.
+		   */
+
 		  /*
 		   * Prefer to connect Connections over polygons to the
 		   * polygons (ie assume the user wants a via to a plane,
@@ -637,6 +678,10 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	    }
 	}
 
+      /*
+       * If HAVEPOINTS is true, we've found a pair of points in two
+       * separate blobs of the net, and need to connect them together.
+       */
       if (havepoints)
 	{
 	  if (funcp)
@@ -664,7 +709,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	  /* copy theSubnet into the current subnet */
 	  TransferNet (Netl, theSubnet, subnet);
 	}
-    } while (Netl->NetN > 1 && havepoints);
+    }
 
   /* presently nothing to do with the new subnet */
   /* so we throw it away and free the space */
