@@ -567,7 +567,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
 
-  if (Netl->NetN < 2)
+  if (Netl->Net[0].ConnectionN < 2)
     return false;
 
   /*
