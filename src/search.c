@@ -1601,3 +1601,17 @@ SearchScreen (LocationType X, LocationType Y, int Type, void **Result1,
 				X, Y, SLOP * pixel_slop);
   return (ans);
 }
+
+/* ---------------------------------------------------------------------------
+ * searches the cursor position for the type
+ */
+int
+SearchScreenGridSlop (LocationType X, LocationType Y, int Type, void **Result1,
+	      void **Result2, void **Result3)
+{
+  int ans;
+
+  ans = SearchObjectByLocation (Type, Result1, Result2, Result3,
+				X, Y, PCB->Grid / 2);
+  return (ans);
+}

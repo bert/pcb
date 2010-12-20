@@ -774,6 +774,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 {
   LocationType x2, y2, x0, y0;
   void *ptr1, *ptr2, *ptr3;
+  float nearest, sq_dist;
   int ans;
 
   x0 = 0;
@@ -782,41 +783,6 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   y2 = PCB->MaxHeight;
   Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, X));
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Y));
-
-  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
-    {
-      ans =
-	SearchScreen (Crosshair.X, Crosshair.Y,
-		      PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3);
-      if (ans == NO_TYPE && !PCB->RatDraw)
-	ans =
-	  SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE | LINEPOINT_TYPE,
-			&ptr1, &ptr2, &ptr3);
-      if (ans == NO_TYPE && !PCB->RatDraw)
-	ans =
-	  SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE, &ptr1, &ptr2,
-			&ptr3);
-    }
-  else
-    ans = NO_TYPE;
-
-  /* avoid self-snapping */
-  if (Settings.Mode == MOVE_MODE)
-    {
-      switch (Crosshair.AttachedObject.Type)
-	{
-	case ELEMENT_TYPE:
-	  if ((ans & (PAD_TYPE | PIN_TYPE)) &&
-	      ptr1 == Crosshair.AttachedObject.Ptr1)
-	    ans = NO_TYPE;
-	  break;
-	case VIA_TYPE:
-	  /* just avoid snapping to any other vias */
-	  if (ans & PIN_TYPES)
-	    ans = NO_TYPE;
-	  break;
-	}
-    }
 
   if (PCB->RatDraw)
     {
@@ -867,7 +833,58 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 	}
 
     }
-  if (ans & PAD_TYPE)
+
+  nearest = -1;
+
+  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                PAD_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  /* Avoid self-snapping when moving */
+  if (ans && Settings.Mode == MOVE_MODE &&
+      Crosshair.AttachedObject.Type == ELEMENT_TYPE &&
+      ptr1 == Crosshair.AttachedObject.Ptr1)
+    ans = NO_TYPE;
+
+  if (ans && (Settings.Mode == LINE_MODE ||
+              (Settings.Mode == MOVE_MODE &&
+               Crosshair.AttachedObject.Type == LINEPOINT_TYPE)))
+    {
+      PadTypePtr pad = (PadTypePtr) ptr2;
+      LayerType *desired_layer;
+      Cardinal desired_group;
+      Cardinal SLayer, CLayer;
+      int found_our_layer = false;
+
+      desired_layer = CURRENT;
+      if (Settings.Mode == MOVE_MODE &&
+          Crosshair.AttachedObject.Type == LINEPOINT_TYPE)
+        {
+          desired_layer = (LayerType *)Crosshair.AttachedObject.Ptr1;
+        }
+
+      /* find layer groups of the component side and solder side */
+      SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
+      CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
+      desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? SLayer : CLayer;
+
+      GROUP_LOOP (PCB->Data, desired_group);
+      {
+        if (layer == desired_layer)
+          {
+            found_our_layer = true;
+            break;
+          }
+      }
+      END_LOOP;
+
+      if (found_our_layer == false)
+        ans = NO_TYPE;
+    }
+
+  if (ans)
     {
       PadTypePtr pad = (PadTypePtr) ptr2;
       LocationType px, py;
@@ -875,64 +892,147 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       px = (pad->Point1.X + pad->Point2.X) / 2;
       py = (pad->Point1.Y + pad->Point2.Y) / 2;
 
-      if (!gui->shift_is_pressed()
-	  || (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
-	      SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y)))
-	{
-	  x0 = px;
-	  y0 = py;
-	}
+      sq_dist = SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y);
+
+      if (!gui->shift_is_pressed() ||
+          SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist)
+        {
+          x0 = px;
+          y0 = py;
+          nearest = sq_dist;
+        }
     }
 
-  else if (ans & (PIN_TYPE | VIA_TYPE))
+  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                PIN_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  /* Avoid self-snapping when moving */
+  if (ans && Settings.Mode == MOVE_MODE &&
+      Crosshair.AttachedObject.Type == ELEMENT_TYPE &&
+      ptr1 == Crosshair.AttachedObject.Ptr1)
+    ans = NO_TYPE;
+
+  if (ans)
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      if (!gui->shift_is_pressed()
-	  || (SQUARE (x0 - Crosshair.X) +
-	      SQUARE (y0 - Crosshair.Y) >
-	      SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y)))
-	{
-	  x0 = pin->X;
-	  y0 = pin->Y;
-	}
+      sq_dist = SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y);
+      if ((nearest == -1 || sq_dist < nearest) &&
+          (!gui->shift_is_pressed() ||
+           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+        {
+          x0 = pin->X;
+          y0 = pin->Y;
+          nearest = sq_dist;
+        }
     }
-  else if (ans & LINEPOINT_TYPE)
+
+  if (TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                VIA_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  /* Avoid snapping vias to any other vias */
+  if (Settings.Mode == MOVE_MODE &&
+      Crosshair.AttachedObject.Type == VIA_TYPE)
+    {
+        if (ans & PIN_TYPES)
+          ans = NO_TYPE;
+    }
+
+  if (ans)
+    {
+      PinTypePtr pin = (PinTypePtr) ptr2;
+      sq_dist = SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y);
+      if ((nearest == -1 || sq_dist < nearest) &&
+          (!gui->shift_is_pressed() ||
+           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+        {
+          x0 = pin->X;
+          y0 = pin->Y;
+          nearest = sq_dist;
+        }
+    }
+
+  if (TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                LINEPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  if (ans)
     {
       PointTypePtr pnt = (PointTypePtr) ptr3;
-      if (((x0 - Crosshair.X) * (x0 - Crosshair.X) +
-	   (y0 - Crosshair.Y) * (y0 - Crosshair.Y)) >
-	  ((pnt->X - Crosshair.X) * (pnt->X - Crosshair.X) +
-	   (pnt->Y - Crosshair.Y) * (pnt->Y - Crosshair.Y)))
-	{
-	  x0 = pnt->X;
-	  y0 = pnt->Y;
-	}
+      sq_dist = SQUARE (pnt->X - Crosshair.X) + SQUARE (pnt->Y - Crosshair.Y);
+      if ((nearest == -1 || sq_dist < nearest) &&
+          (!gui->shift_is_pressed() ||
+           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+        {
+          x0 = pnt->X;
+          y0 = pnt->Y;
+          nearest = sq_dist;
+        }
     }
-  else if (ans & ELEMENT_TYPE)
+
+  if (TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                POLYGONPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  if (ans)
+    {
+      PointTypePtr pnt = (PointTypePtr) ptr3;
+      sq_dist = SQUARE (pnt->X - Crosshair.X) + SQUARE (pnt->Y - Crosshair.Y);
+      if ((nearest == -1 || sq_dist < nearest) &&
+          (!gui->shift_is_pressed() ||
+           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+        {
+          x0 = pnt->X;
+          y0 = pnt->Y;
+          nearest = sq_dist;
+        }
+    }
+
+
+  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+  else
+    ans = NO_TYPE;
+
+  if (ans & ELEMENT_TYPE)
     {
       ElementTypePtr el = (ElementTypePtr) ptr1;
-      if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
-	  SQUARE (el->MarkX - Crosshair.X) + SQUARE (el->MarkY - Crosshair.Y))
-	{
-	  x0 = el->MarkX;
-	  y0 = el->MarkY;
-	}
+      sq_dist = SQUARE (el->MarkX - Crosshair.X) + SQUARE (el->MarkY - Crosshair.Y);
+      if ((nearest == -1 || sq_dist < nearest) &&
+           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist)
+        {
+          x0 = el->MarkX;
+          y0 = el->MarkY;
+          nearest = sq_dist;
+        }
     }
+
   if (x0 >= 0 && y0 >= 0)
     {
       Crosshair.X = x0;
       Crosshair.Y = y0;
     }
+
   if (Settings.Mode == ARROW_MODE)
     {
-	ans =
-	  SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
-			&ptr1, &ptr2, &ptr3);
-	if (ans == NO_TYPE)
-	  hid_action("PointCursor");
-	else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
-	  hid_actionl("PointCursor","True", NULL);
+      ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                  LINEPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+      if (ans == NO_TYPE)
+        hid_action("PointCursor");
+      else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
+        hid_actionl("PointCursor","True", NULL);
     }
+
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
       && TEST_FLAG (AUTODRCFLAG, PCB))
