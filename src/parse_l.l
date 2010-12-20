@@ -275,6 +275,8 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 		 * on termination.
 		 */
 
+	CreateBeLenient (true);
+
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
 	if (PCB)
 	  SaveTMPData();
@@ -285,6 +287,8 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 #endif
 	/* clean up parse buffer */
 	yy_delete_buffer(YY_CURRENT_BUFFER);
+
+	CreateBeLenient (false);
 
 	if (used_popen)
 	  return(pclose(yyin) ? 1 : returncode);

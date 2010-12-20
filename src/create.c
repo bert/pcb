@@ -66,12 +66,24 @@ RCSID ("$Id$");
 static int ID = 1;		/* current object ID; incremented after */
 				/* each creation of an object */
 
+static bool be_lenient = false;
+
 /* ----------------------------------------------------------------------
  * some local prototypes
  */
 static void AddTextToElement (TextTypePtr, FontTypePtr,
 			      LocationType, LocationType, BYTE, char *, int,
 			      FlagType);
+
+/* ---------------------------------------------------------------------------
+ *  Set the lenience mode.
+ */
+
+void
+CreateBeLenient (bool v)
+{
+  be_lenient = v;
+}
 
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
@@ -229,17 +241,20 @@ CreateNewVia (DataTypePtr Data,
 {
   PinTypePtr Via;
 
-  VIA_LOOP (Data);
-  {
-    if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
-	SQUARE (via->Thickness / 2 + Thickness / 2)) 
+  if (!be_lenient)
     {
-      Message (_("Dropping via at (%d, %d) because it would overlap with the via "
-	"at (%d, %d)\n"), X/100, Y/100, via->X/100, via->Y/100);
-      return (NULL);		/* don't allow via stacking */
+      VIA_LOOP (Data);
+      {
+	if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
+	    SQUARE (via->DrillingHole / 2 + DrillingHole / 2)) 
+	  {
+	    Message (_("Dropping via at (%d, %d) because it's hole would overlap with the via "
+		       "at (%d, %d)\n"), X/100, Y/100, via->X/100, via->Y/100);
+	    return (NULL);		/* don't allow via stacking */
+	  }
+      }
+      END_LOOP;
     }
-  }
-  END_LOOP;
 
   Via = GetViaMemory (Data);
 

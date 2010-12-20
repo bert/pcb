@@ -33,6 +33,11 @@
 
 #include "global.h"
 
+/* TRUE during file loads, for example to allow overlapping vias.
+   FALSE otherwise, to stop the user from doing normally dangerous
+   things.  */
+void CreateBeLenient (bool);
+
 DataTypePtr CreateNewBuffer (void);
 void pcb_colors_from_settings (PCBTypePtr);
 PCBTypePtr CreateNewPCB (bool);
