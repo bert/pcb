@@ -61,6 +61,7 @@ RCSID("$Id$");
 #include "strflags.h"
 #include "parse_l.h"
 #include "parse_y.h"
+#include "create.h"
 
 #define YY_NO_INPUT
 
