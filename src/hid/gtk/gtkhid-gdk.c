@@ -21,7 +21,6 @@ RCSID ("$Id$");
 
 extern HID ghid_hid;
 
-
 /* Sets gport->u_gc to the "right" GC to use (wrt mask or window)
 */
 #define USE_GC(gc) if (!use_gc(gc)) return
@@ -79,7 +78,7 @@ ghid_make_gc (void)
   return rv;
 }
 
-void
+static void
 ghid_draw_grid (void)
 {
   static GdkPoint *points = 0;
@@ -153,7 +152,7 @@ ghid_draw_grid (void)
 }
 
 /* ------------------------------------------------------------ */
-void
+static void
 ghid_draw_bg_image (void)
 {
   static GdkPixbuf *pixbuf;
@@ -648,4 +647,239 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   USE_GC (gc);
   gdk_draw_rectangle (gport->drawable, gport->u_gc, TRUE,
 		      x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+}
+
+void
+ghid_invalidate_lr (int left, int right, int top, int bottom)
+{
+  ghid_invalidate_all ();
+}
+
+void
+ghid_invalidate_all ()
+{
+  int eleft, eright, etop, ebottom;
+  BoxType region;
+
+  if (!gport->pixmap)
+    return;
+
+  region.X1 = MIN(Px(0), Px(gport->width + 1));
+  region.Y1 = MIN(Py(0), Py(gport->height + 1));
+  region.X2 = MAX(Px(0), Px(gport->width + 1));
+  region.Y2 = MAX(Py(0), Py(gport->height + 1));
+
+  eleft = Vx (0);
+  eright = Vx (PCB->MaxWidth);
+  etop = Vy (0);
+  ebottom = Vy (PCB->MaxHeight);
+  if (eleft > eright)
+    {
+      int tmp = eleft;
+      eleft = eright;
+      eright = tmp;
+    }
+  if (etop > ebottom)
+    {
+      int tmp = etop;
+      etop = ebottom;
+      ebottom = tmp;
+    }
+
+  if (eleft > 0)
+    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
+			1, 0, 0, eleft, gport->height);
+  else
+    eleft = 0;
+  if (eright < gport->width)
+    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
+			1, eright, 0, gport->width - eright, gport->height);
+  else
+    eright = gport->width;
+  if (etop > 0)
+    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
+			1, eleft, 0, eright - eleft + 1, etop);
+  else
+    etop = 0;
+  if (ebottom < gport->height)
+    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
+			1, eleft, ebottom, eright - eleft + 1,
+			gport->height - ebottom);
+  else
+    ebottom = gport->height;
+
+  gdk_draw_rectangle (gport->drawable, gport->bg_gc, 1,
+		      eleft, etop, eright - eleft + 1, ebottom - etop + 1);
+
+  ghid_draw_bg_image();
+
+  hid_expose_callback (&ghid_hid, &region, 0);
+  ghid_draw_grid ();
+  if (ghidgui->need_restore_crosshair)
+    RestoreCrosshair (FALSE);
+  ghidgui->need_restore_crosshair = FALSE;
+  ghid_screen_update ();
+}
+
+static void
+draw_right_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x, 0, x, gport->height);
+  gdk_draw_line (gport->drawing_area->window, xor_gc, 0, y, gport->width, y);
+}
+
+static void
+draw_slanted_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gint x0, y0, x1, y1;
+
+  x0 = x + (gport->height - y);
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x);
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+
+  x0 = x - (gport->height - y);
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x);
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+}
+
+static void
+draw_dozen_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gint x0, y0, x1, y1;
+  gdouble tan60 = sqrt (3);
+
+  x0 = x + (gport->height - y) / tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y / tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x) * tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x * tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+
+  x0 = x + (gport->height - y) * tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y * tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x) / tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x / tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+
+  x0 = x - (gport->height - y) / tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y / tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x * tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x) * tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+
+  x0 = x - (gport->height - y) * tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y * tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x / tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x) / tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc, x0, y0, x1, y1);
+}
+
+static void
+draw_crosshair (GdkGC *xor_gc, gint x, gint y)
+{
+  static enum crosshair_shape prev = Basic_Crosshair_Shape;
+
+  draw_right_cross (xor_gc, x, y);
+  if (prev == Union_Jack_Crosshair_Shape)
+    draw_slanted_cross (xor_gc, x, y);
+  if (prev == Dozen_Crosshair_Shape)
+    draw_dozen_cross (xor_gc, x, y);
+  prev = Crosshair.shape;
+}
+
+#define VCW 16
+#define VCD 8
+
+void
+ghid_show_crosshair (gboolean show)
+{
+  gint x, y;
+  static gint x_prev = -1, y_prev = -1;
+  static gboolean draw_markers, draw_markers_prev = FALSE;
+  static GdkGC *xor_gc;
+  static GdkColor cross_color;
+
+  if (gport->x_crosshair < 0 || ghidgui->creating || !gport->has_entered)
+    return;
+
+  if (!xor_gc)
+    {
+      xor_gc = gdk_gc_new (ghid_port.drawing_area->window);
+      gdk_gc_copy (xor_gc, ghid_port.drawing_area->style->white_gc);
+      gdk_gc_set_function (xor_gc, GDK_XOR);
+      /* FIXME: when CrossColor changed from config */
+      ghid_map_color_string (Settings.CrossColor, &cross_color);
+    }
+  x = DRAW_X (gport->x_crosshair);
+  y = DRAW_Y (gport->y_crosshair);
+
+  gdk_gc_set_foreground (xor_gc, &cross_color);
+
+  if (x_prev >= 0)
+    {
+      draw_crosshair (xor_gc, x_prev, y_prev);
+      if (draw_markers_prev)
+	{
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      0, y_prev - VCD, VCD, VCW);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      gport->width - VCD, y_prev - VCD, VCD, VCW);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      x_prev - VCD, 0, VCW, VCD);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      x_prev - VCD, gport->height - VCD, VCW, VCD);
+	}
+    }
+
+  if (x >= 0 && show)
+    {
+      draw_crosshair (xor_gc, x, y);
+      draw_markers = ghidgui->auto_pan_on && have_crosshair_attachments ();
+      if (draw_markers)
+	{
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      0, y - VCD, VCD, VCW);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      gport->width - VCD, y - VCD, VCD, VCW);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      x - VCD, 0, VCW, VCD);
+	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
+			      x - VCD, gport->height - VCD, VCW, VCD);
+	}
+      x_prev = x;
+      y_prev = y;
+      draw_markers_prev = draw_markers;
+    }
+  else
+    {
+      x_prev = y_prev = -1;
+      draw_markers_prev = FALSE;
+    }
 }

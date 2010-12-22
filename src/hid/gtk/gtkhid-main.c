@@ -33,9 +33,6 @@
 RCSID ("$Id$");
 
 
-extern HID ghid_hid;
-
-
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
 
@@ -310,79 +307,6 @@ zoom_by (double factor, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
-
-void
-ghid_invalidate_lr (int left, int right, int top, int bottom)
-{
-  ghid_invalidate_all ();
-}
-
-void
-ghid_invalidate_all ()
-{
-  int eleft, eright, etop, ebottom;
-  BoxType region;
-
-  if (!gport->pixmap)
-    return;
-
-  region.X1 = MIN(Px(0), Px(gport->width + 1));
-  region.Y1 = MIN(Py(0), Py(gport->height + 1));
-  region.X2 = MAX(Px(0), Px(gport->width + 1));
-  region.Y2 = MAX(Py(0), Py(gport->height + 1));
-
-  eleft = Vx (0);
-  eright = Vx (PCB->MaxWidth);
-  etop = Vy (0);
-  ebottom = Vy (PCB->MaxHeight);
-  if (eleft > eright)
-    {
-      int tmp = eleft;
-      eleft = eright;
-      eright = tmp;
-    }
-  if (etop > ebottom)
-    {
-      int tmp = etop;
-      etop = ebottom;
-      ebottom = tmp;
-    }
-
-  if (eleft > 0)
-    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
-			1, 0, 0, eleft, gport->height);
-  else
-    eleft = 0;
-  if (eright < gport->width)
-    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
-			1, eright, 0, gport->width - eright, gport->height);
-  else
-    eright = gport->width;
-  if (etop > 0)
-    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
-			1, eleft, 0, eright - eleft + 1, etop);
-  else
-    etop = 0;
-  if (ebottom < gport->height)
-    gdk_draw_rectangle (gport->drawable, gport->offlimits_gc,
-			1, eleft, ebottom, eright - eleft + 1,
-			gport->height - ebottom);
-  else
-    ebottom = gport->height;
-
-  gdk_draw_rectangle (gport->drawable, gport->bg_gc, 1,
-		      eleft, etop, eright - eleft + 1, ebottom - etop + 1);
-
-  ghid_draw_bg_image();
-
-  hid_expose_callback (&ghid_hid, &region, 0);
-  ghid_draw_grid ();
-  if (ghidgui->need_restore_crosshair)
-    RestoreCrosshair (FALSE);
-  ghidgui->need_restore_crosshair = FALSE;
-  ghid_screen_update ();
-}
-
 
 int
 ghid_set_layer (const char *name, int group, int empty)
