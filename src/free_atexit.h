@@ -23,6 +23,9 @@ void leaky_uninit (void);
 /* allocate memory, remember the pointer and free it after exit from the application */
 void *leaky_malloc (size_t size);
 
+/* same as leaky_malloc but this one wraps calloc() */
+void *leaky_calloc (size_t nmemb, size_t size);
+
 /* reallocate memory, remember the new pointer and free it after exit from the application */
 void *leaky_realloc (void* old_memory, size_t size);
 

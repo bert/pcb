@@ -22,8 +22,8 @@
  *
  */
 
-
 #include <stdlib.h>
+#include <string.h>
 
 /* we need one ID per context - short int with 64k IDs should be enough */
 typedef unsigned int leaky_idx_t;
@@ -54,6 +54,15 @@ void *leaky_malloc (size_t size)
 
   free_size++;
   return new_memory + sizeof(leaky_admin_t);
+}
+
+void *leaky_calloc (size_t nmemb, size_t size)
+{
+  size_t size_ = size * nmemb;
+  void *new_memory = leaky_malloc (size_);
+
+  memset (new_memory, 0, size_);
+  return new_memory;
 }
 
 void *leaky_realloc (void* old_memory, size_t size)
