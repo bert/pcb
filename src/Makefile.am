@@ -72,6 +72,8 @@ PCB_SRCS = \
 	find.h \
 	flags.c \
 	fontmode.c \
+	free_atexit.c \
+	free_atexit.h \
 	global.h \
 	heap.c \
 	heap.h \

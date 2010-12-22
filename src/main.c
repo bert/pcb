@@ -53,6 +53,7 @@
 #include "action.h"
 #include "misc.h"
 #include "lrealpath.h"
+#include "free_atexit.h"
 
 #include "hid/common/actions.h"
 
@@ -1027,6 +1028,13 @@ main (int argc, char *argv[])
 
   /*    FIX_ME
      LoadBackgroundImage (Settings.BackgroundImage); */
+
+  /* This must be called before any other atexit functions
+   * are registered, as it configures an atexit function to
+   * clean up and free various items of allocated memory,
+   * and must be the last last atexit function to run.
+   */
+  leaky_init ();
 
   /* Register a function to be called when the program terminates.
    * This makes sure that data is saved even if LEX/YACC routines
