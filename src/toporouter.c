@@ -303,14 +303,14 @@ lookup_thickness(char *name)
   return Settings.LineThickness;
 }
 
-inline gdouble
+static inline gdouble
 cluster_keepaway(toporouter_cluster_t *cluster) 
 {
   if(cluster) return lookup_keepaway(cluster->netlist->style);
   return lookup_keepaway(NULL);
 }
 
-inline gdouble
+static inline gdouble
 cluster_thickness(toporouter_cluster_t *cluster) 
 {
   if(cluster) return lookup_thickness(cluster->netlist->style);
@@ -555,7 +555,7 @@ constraint_netlist(toporouter_constraint_t *c)
   return NULL;
 }
 
-inline guint
+static inline guint
 epsilon_equals(gdouble a, gdouble b) 
 {
   if(a > b - EPSILON && a < b + EPSILON) return 1;
@@ -763,7 +763,7 @@ point_from_point_to_point(toporouter_vertex_t *a, toporouter_vertex_t *b, gdoubl
 }
 
 
-inline gint 
+static inline gint
 coord_wind(gdouble ax, gdouble ay, gdouble bx, gdouble by, gdouble cx, gdouble cy) 
 {
   gdouble rval, dx1, dx2, dy1, dy2;
@@ -786,13 +786,13 @@ point_wind(GtsPoint *a, GtsPoint *b, GtsPoint *c)
   return (rval > EPSILON) ? 1 : ((rval < -EPSILON) ? -1 : 0);
 }
 
-inline int
+static inline int
 vertex_wind(GtsVertex *a, GtsVertex *b, GtsVertex *c) 
 {
   return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
 }
 
-inline int
+static inline int
 tvertex_wind(toporouter_vertex_t  *a, toporouter_vertex_t  *b, toporouter_vertex_t  *c) 
 {
   return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
@@ -808,7 +808,7 @@ sloppy_point_wind(GtsPoint *a, GtsPoint *b, GtsPoint *c)
   return (rval > 10.) ? 1 : ((rval < -10.) ? -1 : 0);
 }
 
-inline int
+static inline int
 sloppy_vertex_wind(GtsVertex *a, GtsVertex *b, GtsVertex *c) 
 {
   return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
@@ -925,7 +925,7 @@ vertex_move_towards_vertex_values(GtsVertex *v, GtsVertex *p, gdouble d, gdouble
 
 #define tv_on_layer(v,l) (l == TOPOROUTER_BBOX(TOPOROUTER_VERTEX(v)->boxes->data)->layer)
 
-inline gdouble
+static inline gdouble
 min_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
 
@@ -949,7 +949,7 @@ min_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 }
 
 // v1 is a vertex in the CDT, and v2 is a net... other way around?
-inline gdouble
+static inline gdouble
 min_vertex_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
 
@@ -966,7 +966,7 @@ min_vertex_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
   return ms;
 }
 
-inline gdouble
+static inline gdouble
 min_oproute_vertex_spacing(toporouter_oproute_t *oproute, toporouter_vertex_t *v2)
 {
 
@@ -1301,7 +1301,7 @@ wind_double(gdouble p1_x, gdouble p1_y, gdouble p2_x, gdouble p2_y, gdouble p3_x
   return (rval > 0.0001) ? 1 : ((rval < -0.0001) ? -1 : 0);
 }
 
-inline void
+static inline void
 print_toporouter_constraint(toporouter_constraint_t *tc) 
 {
   printf("%f,%f -> %f,%f ", 
@@ -1311,7 +1311,7 @@ print_toporouter_constraint(toporouter_constraint_t *tc)
       tc->c.edge.segment.v2->p.y);
 }
 
-inline void
+static inline void
 print_toporouter_vertex(toporouter_vertex_t *tv) 
 {
   printf("%f,%f ", tv->v.p.x, tv->v.p.y); 
@@ -1434,7 +1434,7 @@ vertex_gradient(toporouter_spoint_t *a, toporouter_spoint_t *b)
 /*
  * Returns gradient of segment given by (x0,y0) & (x1,y1)
  */
-inline gdouble
+static inline gdouble
 cartesian_gradient(gdouble x0, gdouble y0, gdouble x1, gdouble y1) 
 {
   if(epsilon_equals(x0,x1)) return INFINITY;
@@ -1445,7 +1445,7 @@ cartesian_gradient(gdouble x0, gdouble y0, gdouble x1, gdouble y1)
 /*
  * Returns gradient of segment given by (x0,y0) & (x1,y1)
  */
-inline gdouble
+static inline gdouble
 point_gradient(GtsPoint *a, GtsPoint *b) 
 {
   return cartesian_gradient(a->x, a->y, b->x, b->y);
@@ -1483,7 +1483,7 @@ vertices_plane_distance(toporouter_spoint_t *a, toporouter_spoint_t *b) {
 /*
  * Finds the point p distance r away from a on the line segment of a & b 
  */
-inline void
+static inline void
 vertex_outside_segment(toporouter_spoint_t *a, toporouter_spoint_t *b, gdouble r, toporouter_spoint_t *p) 
 {
   gdouble m;
@@ -1537,19 +1537,19 @@ point_intersect_prop(GtsPoint *a, GtsPoint *b, GtsPoint *c, GtsPoint *d)
     ( point_wind(c, d, a) ^ point_wind(c, d, b) );
 }
 
-inline int
+static inline int
 vertex_intersect_prop(GtsVertex *a, GtsVertex *b, GtsVertex *c, GtsVertex *d) 
 {
   return point_intersect_prop(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c), GTS_POINT(d));
 }
 
-inline int
+static inline int
 tvertex_intersect_prop(toporouter_vertex_t *a, toporouter_vertex_t *b, toporouter_vertex_t *c, toporouter_vertex_t *d) 
 {
   return point_intersect_prop(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c), GTS_POINT(d));
 }
 /*
-inline int
+static inline int
 tvertex_intersect(toporouter_vertex_t *a, toporouter_vertex_t *b, toporouter_vertex_t *c, toporouter_vertex_t *d) 
 {
   if( !point_wind(GTS_POINT(a), GTS_POINT(d), GTS_POINT(b)) || !point_wind(GTS_POINT(a), GTS_POINT(c), GTS_POINT(b)) ) return 1;
@@ -1625,7 +1625,7 @@ point_between(GtsPoint *a, GtsPoint *b, GtsPoint *c)
      (c->y >= b->y));
 }
 
-inline int
+static inline int
 vertex_between(GtsVertex *a, GtsVertex *b, GtsVertex *c) 
 {
   return point_between(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
@@ -1846,13 +1846,13 @@ midpoint(GtsPoint *a, GtsPoint *b)
   return gts_point_new(gts_point_class(), (a->x + b->x) / 2., (a->y + b->y) / 2., 0.);
 }
 
-inline gdouble
+static inline gdouble
 pad_rad(PadType *pad)
 {
   return (lookup_thickness(pad->Name) / 2.) + lookup_keepaway(pad->Name);
 }
 
-inline gdouble
+static inline gdouble
 pin_rad(PinType *pin)
 {
   return (lookup_thickness(pin->Name) / 2.) + lookup_keepaway(pin->Name);
@@ -3087,7 +3087,7 @@ toporouter_heap_color(gpointer data, gpointer user_data)
   v->flags |= (guint) user_data;
 }
 */
-inline gdouble
+static inline gdouble
 angle_span(gdouble a1, gdouble a2)
 {
   if(a1 > a2) 
@@ -3445,7 +3445,7 @@ triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v)
   return INFINITY;
 }
 
-inline toporouter_vertex_t *
+static inline toporouter_vertex_t *
 segment_common_vertex(GtsSegment *s1, GtsSegment *s2) 
 {
   if(!s1 || !s2) return NULL;
@@ -3456,14 +3456,14 @@ segment_common_vertex(GtsSegment *s1, GtsSegment *s2)
   return NULL;
 }
 
-inline toporouter_vertex_t *
+static inline toporouter_vertex_t *
 route_vertices_common_vertex(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
   return segment_common_vertex(GTS_SEGMENT(v1->routingedge), GTS_SEGMENT(v2->routingedge));
 }
 
 
-inline guint
+static inline guint
 edges_third_edge(GtsSegment *s1, GtsSegment *s2, toporouter_vertex_t **v1, toporouter_vertex_t **v2) 
 {
   if(!s1 || !s2) return 0;
@@ -3976,7 +3976,7 @@ routedata_insert_temppoints(toporouter_route_t *data, GList *temppoints) {
 }
 
 
-inline gint
+static inline gint
 constraint_route_test(toporouter_constraint_t *c, toporouter_route_t *routedata)
 {
   if(c->box->cluster && c->box->cluster->netlist == routedata->src->netlist) {
@@ -7038,7 +7038,7 @@ print_costmatrix(gdouble *m, guint n)
 }
 
 
-inline void
+static inline void
 init_cost_matrix(gdouble *m, guint n) 
 {
   for(guint i=0;i<n;i++) {
@@ -7086,7 +7086,7 @@ netscore_create(toporouter_t *r, toporouter_route_t *routedata, guint n, guint i
   return netscore;
 }
 
-inline void
+static inline void
 netscore_destroy(toporouter_netscore_t *netscore)
 {
   free(netscore->pairwise_nodetour);
