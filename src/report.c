@@ -327,7 +327,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->polygon_tree->root, 0);
-	    return;
+	    return 0;
 	  }
 #endif
 	Polygon = (PolygonTypePtr) ptr2;
