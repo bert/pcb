@@ -11,7 +11,8 @@
 #define leaky_init()
 #define leaky_uninit()
 #define leaky_malloc(size) malloc(size)
-#define leaky_realloc(ptr, size) malloc(ptr, size)
+#define leaky_calloc(nmemb, size) calloc(nmemb, size)
+#define leaky_realloc(old_memory, size) realloc(old_memory, size)
 #else
 
 /* set up atexit() hook - can be avoided if leaky_uninit() is called by hand */
