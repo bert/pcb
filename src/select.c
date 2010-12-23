@@ -850,7 +850,6 @@ SelectConnection (bool Flag)
       }
   }
   END_LOOP;
-  Draw ();
   return (changed);
 }
 

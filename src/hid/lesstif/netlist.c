@@ -149,6 +149,7 @@ nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
   ResetFoundLinesAndPolygons (false);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
+  Draw ();
 }
 
 static void

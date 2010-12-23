@@ -529,7 +529,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
   ResetFoundLinesAndPolygons (false);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
-  ghid_invalidate_all ();
+  Draw ();
 }
 
 static void

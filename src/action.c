@@ -5484,6 +5484,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 	case F_Connection:
 	  if (SelectConnection (true))
 	    {
+              Draw ();
 	      IncrementUndoSerialNumber ();
 	      SetChangedFlag (true);
 	    }
@@ -5660,6 +5661,7 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	case F_Connection:
 	  if (SelectConnection (false))
 	    {
+              Draw ();
 	      IncrementUndoSerialNumber ();
 	      SetChangedFlag (true);
 	    }
