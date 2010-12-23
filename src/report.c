@@ -46,6 +46,7 @@
 #include "macro.h"
 #include "undo.h"
 #include "find.h"
+#include "draw.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -688,7 +689,8 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
       continue;
 
     got_one:
-      ResetConnections (true);
+      if (ResetConnections (true))
+        Draw ();
       /* NB: XYtoNetLength calls LookupConnection, which performs an undo
        *     serial number update, so we don't need to add one here.
        */
@@ -706,7 +708,8 @@ ReportNetLength (int argc, char **argv, int x, int y)
   char *netname = 0;
   int found = 0;
 
-  ResetConnections (true);
+  if (ResetConnections (true))
+    Draw ();
   /* NB: XYtoNetLength calls LookupConnection, which performs an undo
    *     serial number update, so we don't need to add one here.
    */

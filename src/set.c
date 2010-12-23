@@ -293,7 +293,10 @@ SetMode (int Mode)
       if (Mode == LINE_MODE && TEST_FLAG (AUTODRCFLAG, PCB))
 	{
 	  if (ResetConnections (true))
-	    IncrementUndoSerialNumber ();
+	    {
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
 	}
     }
 

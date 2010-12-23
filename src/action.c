@@ -2365,17 +2365,26 @@ ActionConnection (int argc, char **argv, int x, int y)
 
 	case F_ResetLinesAndPolygons:
 	  if (ResetFoundLinesAndPolygons (true))
-	    IncrementUndoSerialNumber ();
+	    {
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
 	  break;
 
 	case F_ResetPinsViasAndPads:
 	  if (ResetFoundPinsViasAndPads (true))
-	    IncrementUndoSerialNumber ();
+	    {
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
 	  break;
 
 	case F_Reset:
 	  if (ResetConnections (true))
-	    IncrementUndoSerialNumber ();
+	    {
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
 	  break;
 	}
       RestoreCrosshair (true);
@@ -2789,7 +2798,10 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
 	      if (ResetConnections (true))
-		IncrementUndoSerialNumber ();
+		{
+		  IncrementUndoSerialNumber ();
+		  Draw ();
+		}
 	      if (Crosshair.AttachedLine.State != STATE_FIRST)
 		LookupConnection (Crosshair.AttachedLine.Point1.X,
 				  Crosshair.AttachedLine.Point1.Y, true, 1,
