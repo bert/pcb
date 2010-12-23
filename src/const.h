@@ -310,6 +310,7 @@ When set, element names are not drawn.
 #define ELEMENTARC_TYPE		0x08000
 
 #define LOCKED_TYPE 		0x10000	/* used to tell search to include locked items. */
+#define NET_TYPE		0x20000 /* used to select whole net. */
 
 #define PIN_TYPES     (VIA_TYPE | PIN_TYPE)
 #define LOCK_TYPES    (VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE | ELEMENT_TYPE \

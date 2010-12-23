@@ -135,6 +135,7 @@ typedef enum
   F_Move,
   F_NameOnPCB,
   F_Netlist,
+  F_NetByName,
   F_None,
   F_Notify,
   F_Object,
@@ -371,6 +372,7 @@ static FunctionType Functions[] = {
   {"Move", F_Move},
   {"NameOnPCB", F_NameOnPCB},
   {"Netlist", F_Netlist},
+  {"NetByName", F_NetByName},
   {"None", F_None},
   {"Notify", F_Notify},
   {"Object", F_Object},
@@ -5343,8 +5345,9 @@ static const char select_syntax[] =
   "Select(All|Block|Connection)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-  "Select(TextByName|ViaByName)\n"
-  "Select(TextByName|ViaByName, Name)\n" "Select(Convert)";
+  "Select(TextByName|ViaByName|NetByName)\n"
+  "Select(TextByName|ViaByName|NetByName, Name)\n"
+  "Select(Convert)";
 
 static const char select_help[] = "Toggles or sets the selection";
 
@@ -5358,6 +5361,7 @@ static const char select_help[] = "Toggles or sets the selection";
 @item PinByName
 @item TextByName
 @item ViaByName
+@item NetByName
 
 These all rely on having a regular expression parser built into
 @code{pcb}.  If the name is not specified then the user is prompted
@@ -5391,7 +5395,6 @@ ActionSelect (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-
       HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
@@ -5415,6 +5418,9 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  goto commonByName;
 	case F_ViaByName:
 	  type = VIA_TYPE;
+	  goto commonByName;
+	case F_NetByName:
+	  type = NET_TYPE;
 	  goto commonByName;
 
 	commonByName:
@@ -5573,7 +5579,6 @@ static int
 ActionUnselect (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
-
   if (function)
     {
       HideCrosshair (true);
@@ -5599,6 +5604,9 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	  goto commonByName;
 	case F_ViaByName:
 	  type = VIA_TYPE;
+	  goto commonByName;
+	case F_NetByName:
+	  type = NET_TYPE;
 	  goto commonByName;
 
 	commonByName:

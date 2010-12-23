@@ -44,6 +44,7 @@
 #include "undo.h"
 #include "rats.h"
 #include "misc.h"
+#include "find.h"
 
 #include <sys/types.h>
 #ifdef HAVE_REGEX_H
@@ -1011,6 +1012,32 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       }
   }
   END_LOOP;
+  if (Type & NET_TYPE)
+    {
+      InitConnectionLookup ();
+      changed = ResetConnections (true) || changed;
+
+      MENU_LOOP (&PCB->NetlistLib);
+      {
+        Cardinal i;
+        LibraryEntryType *entry;
+        ConnectionType conn;
+
+        /* Name[0] and Name[1] are special purpose, not the actual name*/
+        if (menu->Name && menu->Name[0] != '\0' && menu->Name[1] != '\0' &&
+            REGEXEC (menu->Name + 2))
+          {
+            for (i = menu->EntryN, entry = menu->Entry; i; i--, entry++)
+              if (SeekPad (entry, &conn, false))
+                RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true);
+          }
+      }
+      END_LOOP;
+
+      changed = SelectConnection (Flag) || changed;
+      changed = ResetConnections (false) || changed;
+      FreeConnectionLookupMemory ();
+    }
 
 #if defined(HAVE_REGCOMP)
 #if !defined(sgi)
