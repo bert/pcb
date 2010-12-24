@@ -465,8 +465,7 @@ GatherSubnets (NetListTypePtr Netl, bool NoWarn, bool AndRats)
       a = &Netl->Net[m];
       ResetConnections (false);
       RatFindHook (a->Connection[0].type, a->Connection[0].ptr1,
-		   a->Connection[0].ptr2, a->Connection[0].ptr2, false,
-		   AndRats);
+		   a->Connection[0].ptr2, a->Connection[0].ptr2, AndRats);
       /* now anybody connected to the first point has DRCFLAG set */
       /* so move those to this subnet */
       CLEAR_FLAG (DRCFLAG, (PinTypePtr) a->Connection[0].ptr2);

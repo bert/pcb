@@ -63,7 +63,7 @@ void InitLayoutLookup (void);
 void FreeConnectionLookupMemory (void);
 void FreeComponentLookupMemory (void);
 void FreeLayoutLookupMemory (void);
-void RatFindHook (int, void *, void *, void *, bool, bool);
+void RatFindHook (int, void *, void *, void *, bool);
 void SaveFindFlag (int);
 void RestoreFindFlag (void);
 int DRCAll (void);
