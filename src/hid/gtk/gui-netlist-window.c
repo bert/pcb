@@ -520,7 +520,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
 
   for (i = selected_net->EntryN, entry = selected_net->Entry; i; i--, entry++)
     if (SeekPad (entry, &conn, false))
-      RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, true);
+      RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, false, true);
 
   SelectConnection (select_flag);
   ResetConnections (false);
