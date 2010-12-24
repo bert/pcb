@@ -2799,8 +2799,7 @@ void
 import_clusters(toporouter_t *r)
 {
   NetListListType nets;
-  ResetFoundPinsViasAndPads (false);
-  ResetFoundLinesAndPolygons (false);
+  ResetConnections (false);
   nets = CollectSubnets(false);
   NETLIST_LOOP(&nets);
   {

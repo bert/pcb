@@ -345,7 +345,6 @@ static void PrintPinConnections (FILE *, bool);
 static bool PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr,
                                                          FILE *);
 static void DrawNewConnections (void);
-static void ResetConnections (bool);
 static void DumpList (void);
 static void LocateError (LocationType *, LocationType *);
 static void BuildObjectList (int *, long int **, int **);
@@ -3418,9 +3417,7 @@ LookupUnusedPins (FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
-  SaveUndoSerialNumber ();
   ResetConnections (true);
-  RestoreUndoSerialNumber ();
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3444,11 +3441,10 @@ LookupUnusedPins (FILE * FP)
 /* ---------------------------------------------------------------------------
  * resets all used flags of pins and vias
  */
-void
+bool
 ResetFoundPinsViasAndPads (bool AndDraw)
 {
   bool change = false;
-
 
   VIA_LOOP (PCB->Data);
   {
@@ -3497,21 +3493,18 @@ ResetFoundPinsViasAndPads (bool AndDraw)
     {
       SetChangedFlag (true);
       if (AndDraw)
-        {
-          IncrementUndoSerialNumber ();
-          Draw ();
-        }
+        Draw ();
     }
+  return change;
 }
 
 /* ---------------------------------------------------------------------------
  * resets all used flags of LOs
  */
-void
+bool
 ResetFoundLinesAndPolygons (bool AndDraw)
 {
   bool change = false;
-
 
   RAT_LOOP (PCB->Data);
   {
@@ -3569,25 +3562,23 @@ ResetFoundLinesAndPolygons (bool AndDraw)
     {
       SetChangedFlag (true);
       if (AndDraw)
-        {
-          IncrementUndoSerialNumber ();
-          Draw ();
-        }
+        Draw ();
     }
+  return change;
 }
 
 /* ---------------------------------------------------------------------------
  * resets all found connections
  */
-static void
+bool
 ResetConnections (bool AndDraw)
 {
-  if (AndDraw)
-    SaveUndoSerialNumber ();
-  ResetFoundPinsViasAndPads (AndDraw);
-  if (AndDraw)
-    RestoreUndoSerialNumber ();
-  ResetFoundLinesAndPolygons (AndDraw);
+  bool change = false;
+
+  change = ResetFoundPinsViasAndPads  (AndDraw) || change;
+  change = ResetFoundLinesAndPolygons (AndDraw) || change;
+
+  return change;
 }
 
 /*----------------------------------------------------------------------------
@@ -3934,7 +3925,8 @@ DRCAll (void)
 
   TheFlag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
 
-  ResetConnections (true);
+  if (ResetConnections (true))
+    IncrementUndoSerialNumber ();
 
   User = false;
 

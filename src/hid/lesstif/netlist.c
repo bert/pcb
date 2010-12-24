@@ -136,17 +136,16 @@ nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
   int i;
 
   InitConnectionLookup ();
-  ResetFoundPinsViasAndPads (false);
-  ResetFoundLinesAndPolygons (false);
-  SaveUndoSerialNumber ();
+  ResetConnections (false);
 
+  SaveUndoSerialNumber ();
   for (i = net->EntryN, entry = net->Entry; i; i--, entry++)
     if (SeekPad (entry, &conn, false))
       RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, true);
   RestoreUndoSerialNumber ();
+
   SelectConnection (select_flag);
-  ResetFoundPinsViasAndPads (false);
-  ResetFoundLinesAndPolygons (false);
+  ResetConncetions (false);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   Draw ();
