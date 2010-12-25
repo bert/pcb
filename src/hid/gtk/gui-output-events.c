@@ -717,8 +717,6 @@ ghid_port_window_motion_cb (GtkWidget * widget,
 
   if (out->panning)
     {
-      if (gtk_events_pending ())
-	return FALSE;
       dx = gport->zoom * (x_prev - ev->x);
       dy = gport->zoom * (y_prev - ev->y);
       if (x_prev > 0)
