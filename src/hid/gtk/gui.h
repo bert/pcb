@@ -68,8 +68,8 @@ extern int ghid_flip_x, ghid_flip_y;
 #define	DRAW_X(x)	(gint)((SIDE_X(x) - gport->view_x0) / gport->zoom)
 #define	DRAW_Y(y)	(gint)((SIDE_Y(y) - gport->view_y0) / gport->zoom)
 
-#define	VIEW_X(x)	SIDE_X((gint)((x) * gport->zoom + gport->view_x0))
-#define	VIEW_Y(y)	SIDE_Y((gint)((y) * gport->zoom + gport->view_y0))
+#define	EVENT_TO_PCB_X(x)	SIDE_X((gint)((x) * gport->zoom + gport->view_x0))
+#define	EVENT_TO_PCB_Y(y)	SIDE_Y((gint)((y) * gport->zoom + gport->view_y0))
 
 /*
  * Used to intercept "special" hotkeys that gtk doesn't usually pass
@@ -177,7 +177,8 @@ typedef struct
   gdouble zoom;			/* PCB units per screen pixel.  Larger */
   /* numbers mean zooming out. */
   gint view_x0,			/* Viewport in PCB coordinates */
-    view_y0, view_width, view_height, view_x, view_y;
+    view_y0, view_width, view_height;
+  Coord pcb_x, pcb_y;
 
   gint crosshair_x, crosshair_y;
 }

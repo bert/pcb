@@ -241,28 +241,30 @@ zoom_to (double new_zoom, int x, int y)
       gdouble xtmp, ytmp;
       gint x0, y0;
 
-      xtmp = (gport->view_x - gport->view_x0) / (gdouble) gport->view_width;
-      ytmp = (gport->view_y - gport->view_y0) / (gdouble) gport->view_height;
-      
+      xtmp = (SIDE_X (gport->pcb_x) - gport->view_x0) /
+                (gdouble) gport->view_width;
+      ytmp = (SIDE_Y (gport->pcb_y) - gport->view_y0) /
+                (gdouble) gport->view_height;
+
       gport->zoom = new_zoom;
       pixel_slop = new_zoom;
       ghid_port_ranges_scale(FALSE);
 
-      x0 = gport->view_x - xtmp * gport->view_width;
+      x0 = SIDE_X (gport->pcb_x) - xtmp * gport->view_width;
       if (x0 < 0)
-	x0 = 0;
+        x0 = 0;
       gport->view_x0 = x0;
 
-      y0 = gport->view_y - ytmp * gport->view_height;
+      y0 = SIDE_Y (gport->pcb_y) - ytmp * gport->view_height;
       if (y0 < 0)
-	y0 = 0;
+        y0 = 0;
       gport->view_y0 = y0;
-      
+
       ghidgui->adjustment_changed_holdoff = TRUE;
       gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
       gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
       ghidgui->adjustment_changed_holdoff = FALSE;
-      
+
       ghid_port_ranges_changed();
     }
 
@@ -1516,12 +1518,12 @@ SwapSides (int argc, char **argv, int x, int y)
      location */
   if (do_flip_x)
     {
-	flipd = PCB->MaxWidth / 2 - gport->view_x;
+	flipd = PCB->MaxWidth / 2 - SIDE_X (gport->pcb_x);
 	ghid_port_ranges_pan (2 * flipd, 0, TRUE);
     }
   if (do_flip_y)
     {
-	flipd = PCB->MaxHeight / 2 - gport->view_y;
+	flipd = PCB->MaxHeight / 2 - SIDE_Y (gport->pcb_y);
 	ghid_port_ranges_pan (0, 2 * flipd, TRUE);
     }
 
