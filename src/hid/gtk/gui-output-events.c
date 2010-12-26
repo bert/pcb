@@ -214,8 +214,6 @@ ghid_port_ranges_zoom (gdouble zoom)
  * handles all events from PCB drawing area
  */
 
-static gint event_x, event_y;
-
 void
 ghid_get_coords (const char *msg, int *x, int *y)
 {
@@ -231,14 +229,13 @@ ghid_get_coords (const char *msg, int *x, int *y)
 gboolean
 ghid_note_event_location (GdkEventButton * ev)
 {
-  gint x, y;
+  gint event_x, event_y;
   gboolean moved;
 
   if (!ev)
     {
-      gdk_window_get_pointer (ghid_port.drawing_area->window, &x, &y, NULL);
-      event_x = x;
-      event_y = y;
+      gdk_window_get_pointer (ghid_port.drawing_area->window,
+                              &event_x, &event_y, NULL);
     }
   else
     {
