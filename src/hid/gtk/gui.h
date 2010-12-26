@@ -70,11 +70,9 @@ extern int ghid_flip_x, ghid_flip_y;
 
 #define	DRAW_X(x)	(gint)((SIDE_X(x) - gport->view_x0) / gport->zoom)
 #define	DRAW_Y(y)	(gint)((SIDE_Y(y) - gport->view_y0) / gport->zoom)
-#define	DRAW_Z(z)	(gint)((z) / gport->zoom)
 
 #define	VIEW_X(x)	SIDE_X((gint)((x) * gport->zoom + gport->view_x0))
 #define	VIEW_Y(y)	SIDE_Y((gint)((y) * gport->zoom + gport->view_y0))
-#define	VIEW_Z(z)	(gint)((z) * gport->zoom)
 
 /*
  * Used to intercept "special" hotkeys that gtk doesn't usually pass
