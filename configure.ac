@@ -715,8 +715,8 @@ for e in $HIDLIST; do
 		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
 	fi
 
-	PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, , 
-		[AC_MSG_ERROR([Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+	PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.12.0, ,
+		[AC_MSG_ERROR([Cannot find gtk+ >= 2.12.0, install it and rerun ./configure
 Please review the following errors:
 $GTK_PKG_ERRORS])]
 	)
