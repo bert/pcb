@@ -1652,10 +1652,10 @@ currently within the window already.
 static int
 Center(int argc, char **argv, int x, int y)
 {
-  int x0, y0, w2, h2, dx, dy;
+  int x0, y0, w2, h2;
   GdkDisplay *display;
   GdkScreen *screen;
-  gint cx, cy;
+  int xofs, yofs;
 
   if (argc != 0)
     AFAIL (center);
@@ -1680,8 +1680,6 @@ Center(int argc, char **argv, int x, int y)
       y = y0 + h2;
     }
 
-  dx = (x0 - gport->view_x0) / gport->zoom ;
-  dy = (y0 - gport->view_y0) / gport->zoom;
   gport->view_x0 = x0;
   gport->view_y0 = y0;
 
@@ -1694,9 +1692,13 @@ Center(int argc, char **argv, int x, int y)
   display = gdk_display_get_default ();
   screen = gdk_display_get_default_screen (display);
 
-  /* figure out where the pointer is and then move it from there by the specified delta */
-  gdk_display_get_pointer (display, NULL, &cx, &cy, NULL);
-  gdk_display_warp_pointer (display, screen, cx - dx, cy - dy);
+  /*
+   * Figure out where the drawing area is on the screen because
+   * gdk_display_warp_pointer will warp relative to the whole display
+   * but the value we've been given is relative to your drawing area
+   */
+  gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
+  gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
 
   return 0;
 }
