@@ -33,21 +33,6 @@ static void zoom_by (double factor, int x, int y);
 
 int ghid_flip_x = 0, ghid_flip_y = 0;
 
-/* ------------------------------------------------------------ */
-
-static inline int 
-Vx2 (int x)
-{     
-  return (x - gport->view_x0) / gport->zoom + 0.5;
-}       
-        
-static inline int 
-Vy2 (int y)
-{     
-  return (y - gport->view_y0) / gport->zoom + 0.5;
-}       
-
-/* ------------------------------------------------------------ */
 
 static void
 ghid_pan_fixup ()

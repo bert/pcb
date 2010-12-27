@@ -28,21 +28,6 @@ extern HID ghid_hid;
 static int cur_mask = -1;
 static int mask_seq = 0;
 
-/* ------------------------------------------------------------ */
-
-static inline int
-Vx2 (int x)
-{
-  return (x - gport->view_x0) / gport->zoom + 0.5;
-}
-
-static inline int
-Vy2 (int y)
-{
-  return (y - gport->view_y0) / gport->zoom + 0.5;
-}
-
-/* ------------------------------------------------------------ */
 
 typedef struct hid_gc_struct
 {
