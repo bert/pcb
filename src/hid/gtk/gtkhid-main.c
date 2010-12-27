@@ -20,11 +20,6 @@
 #include "gui.h"
 #include "hid/common/draw_helpers.h"
 
-
-#if !GTK_CHECK_VERSION(2,8,0) && defined(HAVE_GDK_GDKX_H)
-#include <gdk/gdkx.h>
-#endif
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -489,41 +484,20 @@ ghid_set_crosshair (int x, int y, int action)
 
   if (action == HID_SC_WARP_POINTER)
     {
-#if GTK_CHECK_VERSION(2,8,0)
-    gint xofs, yofs;
-    GdkDisplay *display;
-    GdkScreen *screen;
+      gint xofs, yofs;
+      GdkDisplay *display;
+      GdkScreen *screen;
 
-    display = gdk_display_get_default ();
-    screen = gdk_display_get_default_screen (display); 
+      display = gdk_display_get_default ();
+      screen = gdk_display_get_default_screen (display);
 
-    /*
-     * Figure out where the drawing area is on the screen because
-     * gdk_display_warp_pointer will warp relative to the whole display
-     * but the value we've been given is relative to your drawing area
-     */ 
-    gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
-
-    /* 
-     * Note that under X11, gdk_display_warp_pointer is just a wrapper around XWarpPointer, but
-     * hopefully by avoiding the direct call to an X function we might still work under windows
-     * and other non-X11 based gdk's
-     */
-    gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
-
-
-#else
-#  ifdef HAVE_GDK_GDKX_H
-    gint xofs, yofs;
-    gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
-    XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
-		  None, GDK_WINDOW_XID (gport->drawing_area->window),
-		  0, 0, 0, 0,
-		  xofs + Vx (x), yofs + Vy (y));
-#  else
-#    error  "sorry.  You need gtk+>=2.8.0 unless you are on X windows"
-#  endif
-#endif
+      /*
+       * Figure out where the drawing area is on the screen because
+       * gdk_display_warp_pointer will warp relative to the whole display
+       * but the value we've been given is relative to your drawing area
+       */
+      gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
+      gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
     }
 }
 
@@ -1679,7 +1653,10 @@ static int
 Center(int argc, char **argv, int x, int y)
 {
   int x0, y0, w2, h2, dx, dy;
- 
+  GdkDisplay *display;
+  GdkScreen *screen;
+  gint cx, cy;
+
   if (argc != 0)
     AFAIL (center);
 
@@ -1708,61 +1685,18 @@ Center(int argc, char **argv, int x, int y)
   gport->view_x0 = x0;
   gport->view_y0 = y0;
 
-
   ghid_pan_fixup ();
 
   /* Move the pointer to the center of the window, but only if it's
      currently within the window already.  Watch out for edges,
      though.  */
 
-#if GTK_CHECK_VERSION(2,8,0)
-  {
-    GdkDisplay *display;
-    GdkScreen *screen;
-    gint cx, cy;
+  display = gdk_display_get_default ();
+  screen = gdk_display_get_default_screen (display);
 
-    display = gdk_display_get_default ();
-    screen = gdk_display_get_default_screen (display); 
-
-    /* figure out where the pointer is and then move it from there by the specified delta */
-    gdk_display_get_pointer (display, NULL, &cx, &cy, NULL); 
-    gdk_display_warp_pointer (display, screen, cx - dx, cy - dy);
-
-    /* 
-     * Note that under X11, gdk_display_warp_pointer is just a wrapper around XWarpPointer, but
-     * hopefully by avoiding the direct call to an X function we might still work under windows
-     * and other non-X11 based gdk's
-     */
-  }
-#else  
-#  ifdef HAVE_GDK_GDKX_H
-  {
-
-    Window w_src, w_dst; 
-    w_src = GDK_WINDOW_XID (gport->drawing_area->window);
-    w_dst = w_src;
-
-    /* don't warp with the auto drc - that creates auto-scroll chaos */
-    if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
-	&& Crosshair.AttachedLine.State != STATE_FIRST)
-      return 0;
-    
-    XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
-		 w_src, w_dst,
-		 0, 0, 0, 0,
-		 Vx2 (x), Vy2 (y));
-    
-    /* XWarpPointer creates Motion events normally bound to
-     *  EventMoveCrosshair.
-     *  We don't do any updates when EventMoveCrosshair
-     *  is called the next time to prevent from rounding errors
-     */
-    /* FIXME?
-     * IgnoreMotionEvents = ignore;
-     */
-  }
-#  endif
-#endif
+  /* figure out where the pointer is and then move it from there by the specified delta */
+  gdk_display_get_pointer (display, NULL, &cx, &cy, NULL);
+  gdk_display_warp_pointer (display, screen, cx - dx, cy - dy);
 
   return 0;
 }
