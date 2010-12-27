@@ -53,14 +53,14 @@ static void
 ghid_pan_fixup ()
 {
 
-  /* 
+  /*
    * don't pan so far to the right that we see way past the right 
    * edge of the board.
    */
   if (gport->view_x0 > PCB->MaxWidth - gport->view_width)
     gport->view_x0 = PCB->MaxWidth - gport->view_width;
 
-  /* 
+  /*
    * don't pan so far down that we see way past the bottom edge of
    * the board.
    */
@@ -74,20 +74,20 @@ ghid_pan_fixup ()
    if (gport->view_y0 < 0)
     gport->view_y0 = 0;
 
+  /* if we can see the entire board and some, then zoom to fit */
+  if (gport->view_width > PCB->MaxWidth &&
+      gport->view_height > PCB->MaxHeight)
+    {
+      zoom_by (1, 0, 0);
+      return;
+    }
 
-   /* if we can see the entire board and some, then zoom to fit */
-   if (gport->view_width > PCB->MaxWidth &&
-       gport->view_height > PCB->MaxHeight)
-     {
-       zoom_by (1, 0, 0);
-       return;
-     }
+  ghidgui->adjustment_changed_holdoff = TRUE;
+  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
+  ghidgui->adjustment_changed_holdoff = FALSE;
 
-   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
-   gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
-
-   ghid_invalidate_all ();
-
+  ghid_port_ranges_changed();
 }
 
 /* ------------------------------------------------------------ */
@@ -1668,7 +1668,7 @@ Center(int argc, char **argv, int x, int y)
   x0 = x - w2;
   y0 = y - h2;
 
-  if (x0 < 0) 
+  if (x0 < 0)
     {
       x0 = 0;
       x = x0 + w2;
@@ -1677,7 +1677,7 @@ Center(int argc, char **argv, int x, int y)
   if (y0 < 0)
     {
       y0 = 0;
-      y = y0 + w2;
+      y = y0 + h2;
     }
 
   dx = (x0 - gport->view_x0) / gport->zoom ;
