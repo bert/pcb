@@ -229,14 +229,12 @@ ghid_dialog_close_confirm ()
                           GTK_STOCK_SAVE,            GTK_RESPONSE_YES,
                           NULL);
 
-#if GTK_CHECK_VERSION (2,6,0)
   /* Set the alternative button order (ok, cancel, help) for other systems */
   gtk_dialog_set_alternative_button_order(GTK_DIALOG(dialog),
                                           GTK_RESPONSE_YES,
                                           GTK_RESPONSE_NO,
                                           GTK_RESPONSE_CANCEL,
                                           -1);
-#endif
 
   switch (gtk_dialog_run (GTK_DIALOG (dialog)))
     {
