@@ -518,13 +518,6 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 }
 
 
-#if GTK_CHECK_VERSION(2,12,0)
-# define ENABLE_TOOLTIPS 1
-#else
-# define ENABLE_TOOLTIPS 0
-#endif
-
-#if ENABLE_TOOLTIPS
 static char *
 describe_location (LocationType X, LocationType Y)
 {
@@ -638,7 +631,6 @@ queue_tooltip_update (GHidPort *out)
                      (GSourceFunc) check_object_tooltips,
                      out);
 }
-#endif
 
 gint
 ghid_port_window_motion_cb (GtkWidget * widget,
