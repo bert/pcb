@@ -334,5 +334,6 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
     }
 
   gtk_widget_destroy (dialog);
+  ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
 }

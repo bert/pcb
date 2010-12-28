@@ -500,7 +500,7 @@ ghid_set_status_line_label (void)
 
   if (!Settings.grid_units_mm)
     snprintf (text, sizeof (text),
-	      _("<b>%c  view</b>=%s  "
+	      _("<b>view</b>=%s  "
 		"<b>grid</b>=%.1f:%i  "
 		"%s%s  "
 		"<b>line</b>=%.1f  "
@@ -508,7 +508,6 @@ ghid_set_status_line_label (void)
 		"<b>clearance</b>=%.1f  "
 		"<b>text</b>=%i%%  "
 		"<b>buffer</b>=#%i"),
-	      PCB->Changed ? '*' : ' ',
 	      Settings.ShowSolderSide ? _("solder") : _("component"),
 	      PCB->Grid / 100.0,
 	      (int) Settings.GridFactor,
@@ -524,7 +523,7 @@ ghid_set_status_line_label (void)
 	      Settings.TextScale, Settings.BufferNumber + 1);
   else
     snprintf (text, sizeof (text),
-	      _("<b>%c  view</b>=%s  "
+	      _("<b>view</b>=%s  "
 		"<b>grid</b>=%5.3f:%i  "
 		"%s%s  "
 		"<b>line</b>=%5.3f  "
@@ -532,7 +531,6 @@ ghid_set_status_line_label (void)
 		"<b>clearance</b>=%5.3f  "
 		"<b>text</b>=%i%%  "
 		"<b>buffer</b>=#%i"),
-	      PCB->Changed ? '*' : ' ',
 	      Settings.ShowSolderSide ? _("solder") : _("component"),
 	      PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
 	      TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :

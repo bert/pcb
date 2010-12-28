@@ -661,6 +661,7 @@ ghid_menu_cb (GtkAction * action, gpointer data)
       ghid_invalidate_all ();
       RestoreCrosshair (TRUE);
       ghid_screen_update ();
+      ghid_window_set_name_label (PCB->Name);
       ghid_set_status_line_label ();
 #ifdef FIXME
       g_idle_add (ghid_idle_cb, NULL);
@@ -876,6 +877,7 @@ ghid_sync_with_new_layout (void)
   ghid_route_style_button_set_active (0);
   ghid_config_handle_units_changed ();
 
+  ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
 }
 
@@ -1199,12 +1201,14 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
 }
 
 
-/* Set the PCB name on a label or on the window title bar.
+/* Refreshes the window title bar and sets the PCB name to the
+ * window title bar or to a seperate label
  */
 void
 ghid_window_set_name_label (gchar * name)
 {
   gchar *str;
+  gchar *filename;
 
   /* FIXME -- should this happen?  It does... */
   /* This happens if we're calling an exporter from the command line */
@@ -1218,21 +1222,29 @@ ghid_window_set_name_label (gchar * name)
   if (!ghidgui->name_label)
     return;
 
+  if (!PCB->Filename  || !*PCB->Filename)
+    filename = g_strdup(_("Unsaved.pcb"));
+  else
+    filename = g_strdup(PCB->Filename);
+
   if (ghidgui->ghid_title_window)
     {
       gtk_widget_hide (ghidgui->label_hbox);
-      str = g_strdup_printf ("PCB:  %s", ghidgui->name_label_string);
-      gtk_window_set_title (GTK_WINDOW (gport->top_window), str);
+      str = g_strdup_printf ("%s%s (%s) - PCB", PCB->Changed ? "*": "",
+                             ghidgui->name_label_string, filename);
     }
   else
     {
-			gtk_widget_show (ghidgui->label_hbox);
+      gtk_widget_show (ghidgui->label_hbox);
       str = g_strdup_printf (" <b><big>%s</big></b> ",
-			     ghidgui->name_label_string);
+                             ghidgui->name_label_string);
       gtk_label_set_markup (GTK_LABEL (ghidgui->name_label), str);
-      gtk_window_set_title (GTK_WINDOW (gport->top_window), "PCB");
+      str = g_strdup_printf ("%s%s - PCB", PCB->Changed ? "*": "",
+                             filename);
     }
+  gtk_window_set_title (GTK_WINDOW (gport->top_window), str);
   g_free (str);
+  g_free (filename);
 }
 
 static void

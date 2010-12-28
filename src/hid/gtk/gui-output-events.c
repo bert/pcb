@@ -470,6 +470,7 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
 
   ghid_invalidate_all ();
   RestoreCrosshair (TRUE);
+  ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
   ghid_show_crosshair (TRUE);
   if (!gport->panning)
@@ -503,6 +504,7 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
       RestoreCrosshair (TRUE);
       ghid_screen_update ();
     }
+  ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
   g_idle_add (ghid_idle_cb, NULL);
   return TRUE;

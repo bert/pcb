@@ -481,5 +481,6 @@ ghid_handle_user_command (gboolean raise)
 	}
       RestoreCrosshair (true);
     }
+  ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
 }
