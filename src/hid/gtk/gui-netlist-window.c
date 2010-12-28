@@ -270,11 +270,15 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
 	    || Crosshair.Y < gport->view_y0 + margin
 	    || Crosshair.Y > gport->view_y0 + gport->view_height - margin
 	   )
-		{
-		x0 = Crosshair.X - gport->view_width / 2;
-		y0 = Crosshair.Y - gport->view_height / 2;
-		ghid_port_ranges_pan(x0, y0, FALSE);
-		}
+	  {
+
+	    x0 = SIDE_X (Crosshair.X) - gport->view_width / 2;
+	    y0 = SIDE_Y (Crosshair.Y) - gport->view_height / 2;
+	    gport->view_x0 = x0;
+	    gport->view_y0 = y0;
+	    ghid_pan_fixup ();
+	    gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
+	  }
 	ghid_screen_update();
 }
 

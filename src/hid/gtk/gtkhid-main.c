@@ -34,7 +34,7 @@ static void zoom_by (double factor, int x, int y);
 int ghid_flip_x = 0, ghid_flip_y = 0;
 
 
-static void
+void
 ghid_pan_fixup ()
 {
 
