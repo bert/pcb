@@ -1,0 +1,2543 @@
+# Dutch translation for the gEDA pcb package.
+# Copyright (C) 1994,1995,1996 Thomas Nau
+# Copyright (C) 1997, 1998, 1999, 2000, 2001 Harry Eaton
+# This file is distributed under the same license as the pcb package.
+# Bert Timmerman <bert.timmerman@xs4all.nl>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pcb VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-12-31 19:41+0100\n"
+"PO-Revision-Date: 2010-12-31 19:42+0100\n"
+"Last-Translator: Bert Timmerman <bert.timmerman@xs4all.nl>\n"
+"Language-Team: Bert Timmerman <bert.timmerman@xs4all.nl>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/pcb.desktop.in.h:1
+msgid "Create and edit printed circuit board designs"
+msgstr "Creer en bewerk gedrukte bedrading ontwerpen"
+
+#: ../data/pcb.desktop.in.h:2
+msgid "PCB Design"
+msgstr "PCB Ontwerp"
+
+#: ../data/pcb.desktop.in.h:3
+msgid "PCB Designer"
+msgstr "PCB Ontwerper"
+
+#: ../data/pcb.xml.in.h:1
+#: ../data/x-excellon.desktop.in.h:1
+msgid "Excellon drill file"
+msgstr "Excellon boor bestand"
+
+#: ../data/pcb.xml.in.h:2
+#: ../data/x-gerber.desktop.in.h:1
+msgid "Gerber file"
+msgstr "Gerber bestand"
+
+#: ../data/pcb.xml.in.h:3
+#: ../data/x-pcb-footprint.desktop.in.h:1
+msgid "PCB footprint"
+msgstr "PCB voetafdruk"
+
+#: ../data/pcb.xml.in.h:4
+#: ../data/x-pcb-layout.desktop.in.h:1
+msgid "PCB layout"
+msgstr "PCB opmaak"
+
+#: ../data/pcb.xml.in.h:5
+#: ../data/x-pcb-netlist.desktop.in.h:1
+msgid "PCB netlist"
+msgstr "PCB netlijst"
+
+#: ../src/action.c:567
+#, c-format
+msgid "Unknown stroke %s\n"
+msgstr "Onbekende slag %s\n"
+
+#: ../src/action.c:764
+#, c-format
+msgid "Error: function hash size too small (%d vs %lu at %s:%d)\n"
+msgstr "Fout: functie hash grootte te klein (%d vs. %lu op %s:%d)\n"
+
+#. Change 'char' to 'int' and remove this when we get to 256
+#. strings to hash.
+#: ../src/action.c:772
+#, c-format
+msgid "Error: function hash type too small (%d vs %lu at %s:%d)\n"
+msgstr "Fout: functie hash type te klein (%d vs. %lu op %s:%d)\n"
+
+#: ../src/action.c:1027
+msgid ""
+"You must turn via visibility on before\n"
+"you can place vias\n"
+msgstr ""
+"Je moet zichtbaarheid aanzetten voordat\n"
+"je vias kan plaatsen\n"
+
+#: ../src/action.c:1393
+#: ../src/change.c:2273
+msgid "Enter text:"
+msgstr "Voer tekst in:"
+
+#: ../src/action.c:1471
+#: ../src/action.c:1614
+#: ../src/action.c:1673
+#: ../src/action.c:1727
+#: ../src/action.c:4102
+#: ../src/action.c:6825
+#: ../src/move.c:490
+#: ../src/move.c:581
+#: ../src/move.c:681
+#: ../src/move.c:758
+#: ../src/rotate.c:434
+msgid "Sorry, the object is locked\n"
+msgstr "Sorry, het object is op slot\n"
+
+#: ../src/action.c:1863
+#, c-format
+msgid ""
+"Rules are minspace %d.%02d, minoverlap %d.%d minwidth %d.%02d, minsilk %d.%02d\n"
+"min drill %d.%02d, min annular ring %d.%02d\n"
+msgstr ""
+"Regels zijn min ruimte %d.%02d, min overlappend %d.%d min wijdte %d.%02d, min opdruk %d.%02d\n"
+"min boordiam %d.%02d, min ring %d.%02d\n"
+
+#: ../src/action.c:1878
+msgid "No DRC problems found.\n"
+msgstr "Geen DRC problemen gevonden.\n"
+
+#: ../src/action.c:1880
+#, c-format
+msgid "Found %d design rule errors.\n"
+msgstr "Vond %d fouten op ontwerp regels.\n"
+
+#: ../src/action.c:1882
+#, c-format
+msgid "Aborted DRC after %d design rule errors.\n"
+msgstr "DRC afgebroken na %d fouten in ontwerp regels.\n"
+
+# FIXME: original string needs correction.
+# "Don't combine metric/imperial grids like that!\n"
+#: ../src/action.c:2252
+msgid "Don't combine metric/English grids like that!\n"
+msgstr "Combineer geen Engelse/metrische rasters op deze manier!\n"
+
+#: ../src/action.c:2361
+msgid "Click on a connection"
+msgstr "Klik op een verbinding"
+
+#: ../src/action.c:2865
+#: ../src/action.c:8000
+msgid "Click on an element"
+msgstr "Klik op een element"
+
+#.
+#. * We deal with the case where name already exists in this
+#. * function so the GUI doesn't need to deal with it
+#.
+#: ../src/action.c:3316
+msgid "Save Renumber Annotation File As ..."
+msgstr "Sla het hernummer annotatie bestand op als ..."
+
+#: ../src/action.c:3317
+msgid ""
+"Choose a file to record the renumbering to.\n"
+"This file may be used to back annotate the\n"
+"change to the schematics.\n"
+msgstr ""
+"Kies een bestand om de hernummering op te nemen.\n"
+"Dit bestand kan genruikt worden om de veranderingen\n"
+"naar het schema over te brengen.\n"
+
+#: ../src/action.c:3342
+#: ../src/action.c:6147
+#: ../src/hid/gtk/gtkhid-main.c:1318
+msgid "File exists!  Ok to overwrite?"
+msgstr "Bestand bestaat! Ok om te overschrijven ?"
+
+#: ../src/action.c:3352
+#, c-format
+msgid "Could not open %s\n"
+msgstr "Kan %s niet openen\n"
+
+#: ../src/action.c:3941
+msgid ""
+"Auto-placement can NOT be undone.\n"
+"Do you want to continue anyway?\n"
+msgstr ""
+"Automatisch plaatsen kan NIET ongedaan worden.\n"
+"Wil je evengoed toch door gaan?\n"
+
+#: ../src/action.c:4192
+#: ../src/action.c:4261
+#: ../src/action.c:4625
+#: ../src/action.c:4715
+#: ../src/action.c:4770
+#: ../src/action.c:4848
+#: ../src/action.c:4911
+#: ../src/action.c:4971
+#: ../src/action.c:5032
+#: ../src/action.c:5092
+#: ../src/action.c:5155
+#: ../src/action.c:5220
+#: ../src/action.c:5284
+#: ../src/action.c:5334
+#: ../src/action.c:6594
+#: ../src/action.c:8201
+msgid "Select an Object"
+msgstr "Selecteer een Object"
+
+#: ../src/action.c:4663
+#: ../src/action.c:5955
+msgid "Enter the layout name:"
+msgstr "Voer de layout naam in:"
+
+#: ../src/action.c:4671
+msgid "Enter the layer name:"
+msgstr "Voer de laagnaam in:"
+
+#: ../src/action.c:5444
+#: ../src/action.c:5630
+msgid "Enter pattern:"
+msgstr "Voer het patroon in:"
+
+#: ../src/action.c:5515
+msgid "Select the Element's Mark Location"
+msgstr "Selecteer het lokatiemerk van het Element"
+
+#: ../src/action.c:5907
+msgid "OK to override layout data?"
+msgstr "OK om opmaak gegevens te overschrijven ?"
+
+#: ../src/action.c:5922
+msgid "OK to override changes?"
+msgstr "OK om wijzigingen door te voeren ?"
+
+#: ../src/action.c:5950
+msgid "OK to clear layout data?"
+msgstr "OK om opmaak gegevens te wissen ?"
+
+#: ../src/action.c:6113
+msgid "Buffer has no elements!\n"
+msgstr "Buffer heeft geen elementen!\n"
+
+#: ../src/action.c:6119
+msgid "Save Paste Buffer As ..."
+msgstr "Sla plak buffer op als ..."
+
+#: ../src/action.c:6120
+msgid ""
+"Choose a file to save the contents of the\n"
+"paste buffer to.\n"
+msgstr ""
+"Kies een bestand om de inhoud van de\n"
+"plak buffer in op te slaan.\n"
+
+#: ../src/action.c:6547
+msgid "Nothing found under crosshair\n"
+msgstr "Niets onder kruisdraad gevonden\n"
+
+#: ../src/action.c:6809
+#, c-format
+msgid "%s():  Flag \"%s\" is not valid\n"
+msgstr "%s():  Vlag \"%s\" is niet geldig\n"
+
+#: ../src/action.c:6904
+#, c-format
+msgid "Could not open actions file \"%s\".\n"
+msgstr "Kon aktiebestand \"%s\" niet openen.\n"
+
+#: ../src/action.c:7254
+#, c-format
+msgid "Cannot change attribute of %s - element not found\n"
+msgstr "Kan attribuut van %s niet wijzigen - element niet gevonden\n"
+
+#. error
+#: ../src/action.c:7322
+msgid "Cannot fork!"
+msgstr "Kan niet afsplitsen!"
+
+#: ../src/action.c:7470
+#, c-format
+msgid "%s():  Unable to determine temp directory name from the temp file\n"
+msgstr "%s():  Onmogelijk om de naam van de tijdelijke werkmap vast te stellen aan de hand van het tijdelijke bestand\n"
+
+#: ../src/action.c:7493
+#, c-format
+msgid "Failed to unlink \"%s\"\n"
+msgstr "Faalde om \"%s\" te ontkoppelen\n"
+
+#: ../src/action.c:7645
+msgid "Enter dispersion:"
+msgstr "Voer een verspreiding in:"
+
+#: ../src/action.c:7671
+msgid "Click on a location"
+msgstr "Klik op een locatie"
+
+#: ../src/action.c:7695
+msgid "Bad syntax for Import(setnewpoint)"
+msgstr "Slechte spelling voor Import(setnewpoint)"
+
+#: ../src/action.c:7781
+#: ../src/action.c:7843
+msgid "Could not create temp file"
+msgstr "Kan geen tijdelijk bestand creeren"
+
+#: ../src/action.c:7897
+#, c-format
+msgid "Unknown import mode: %s\n"
+msgstr "Onbekende importmodus: %s\n"
+
+#: ../src/action.c:7941
+msgid "This GUI doesn't support Attribute Editing\n"
+msgstr "Deze GUI ondersteund geen Attribuut bewerkingen\n"
+
+#: ../src/action.c:7968
+#, c-format
+msgid "No layer named %s\n"
+msgstr "Geen laag genaamd %s\n"
+
+#: ../src/action.c:7994
+msgid "Too many elements selected\n"
+msgstr "Te veel elementen geselecteerd\n"
+
+#: ../src/action.c:8007
+msgid "No element found there\n"
+msgstr "Geen element hier gevonden\n"
+
+#: ../src/action.c:8111
+msgid "Click on Object or Flip Point"
+msgstr "Klik op Object of Draaipunt"
+
+#: ../src/action.c:8183
+msgid "Select item to use attributes from"
+msgstr "Selecteer een item om attributen van te gebruiken"
+
+#: ../src/autoplace.c:776
+#: ../src/rats.c:746
+#: ../src/rats.c:840
+msgid "Can't add rat lines because no netlist is loaded.\n"
+msgstr "Kan geen ratlijnen toevogen omdat er geen netlijst geladen is.\n"
+
+#: ../src/autoplace.c:783
+msgid "No elements selected to autoplace.\n"
+msgstr "Geen elementen geselecteerd voor automatisch plaatsen.\n"
+
+#: ../src/buffer.c:933
+msgid "Error!  Buffer doesn't contain a single element\n"
+msgstr "Fout! Buffer bevat geen enkel element\n"
+
+#: ../src/buffer.c:1154
+msgid ""
+"Warning: All of the pads are on the opposite\n"
+"side from the component - that's probably not what\n"
+"you wanted\n"
+msgstr ""
+"Waarschuwing: Alle pads zijn aan de tegenovergestelde\n"
+"zijde van het component - dat is waarschijnlijk niet wat\n"
+"U wilde\n"
+
+#: ../src/buffer.c:1185
+msgid ""
+"There was nothing to convert!\n"
+"Elements must have some silk, pads or pins.\n"
+msgstr ""
+"Er was niets te converteren!\n"
+"Elementen moeten opdruk, pads of pennen hebben.\n"
+
+#: ../src/buffer.c:1190
+msgid ""
+"There were polygons that can't be made into pins!\n"
+"So they were not included in the element\n"
+msgstr ""
+"Er waren polygons die niet tot pen gemaakt kunnen worden !\n"
+"Deze zijn niet in het element opgenomen\n"
+
+#: ../src/buffer.c:1494
+msgid "You can't mirror a buffer that has elements!\n"
+msgstr "Je kunt geen buffer spiegelen die elementen bevat!\n"
+
+#: ../src/buffer.c:1502
+msgid "You can't mirror a buffer that has text!\n"
+msgstr "je kunt geen buffer spiegelen die een tekst bevat!\n"
+
+#: ../src/change.c:753
+msgid ""
+"To change the clearance of objects in a polygon, change the objects, not the polygon.\n"
+"Hint: To set a minimum clearance for a group of objects, select them all then :MinClearGap(Selected,=10,mil)"
+msgstr ""
+"Om de vrijloop van een objekt te wijzigen in een polygoon, wijzig de objekten, niet het polygoon.\n"
+"Hint: Om een minimum vrijloop in te stellen voor een groep van objekten, selecteer deze allemaal en dan :MinClearGap(Selected,=10,mil)"
+
+#: ../src/change.c:1044
+#, c-format
+msgid "Error: The name \"%s\" is not unique!\n"
+msgstr "Fout: De naam \"%s\" is niet uniek!\n"
+
+#: ../src/change.c:2253
+msgid "Linename:"
+msgstr "Lijnnaam:"
+
+#: ../src/change.c:2258
+msgid "Vianame:"
+msgstr "Vianaam:"
+
+#: ../src/change.c:2263
+#, c-format
+msgid "%s Pin Name:"
+msgstr "%s Pennaam:"
+
+#: ../src/change.c:2268
+#, c-format
+msgid "%s Pad Name:"
+msgstr "%s Padnaam:"
+
+#: ../src/change.c:2278
+msgid "Elementname:"
+msgstr "Elementnaam:"
+
+#: ../src/create.c:251
+#, c-format
+msgid "Dropping via at (%d, %d) because it's hole would overlap with the via at (%d, %d)\n"
+msgstr "Laat via op (%d, %d) vallen omdat het gat de via op (%d, %d) bedekt\n"
+
+#: ../src/create.c:273
+#, c-format
+msgid "Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"
+msgstr "Opgezochte via boorgat naar %.2f mils vanaf %.2f mils uit de vendor tabel\n"
+
+#: ../src/create.c:291
+#, c-format
+msgid "Increased via thickness to %.2f mils to allow enough copper at (%.2f,%.2f).\n"
+msgstr "Vergrootte de via dikte naar %.2f mils om genoeg koper te hebben op (%.2f,%.2f).\n"
+
+#: ../src/create.c:823
+#, c-format
+msgid "Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n"
+msgstr "Heb pen #%s (%s) boorgat niet opgezocht omdat %6.2f mil beneden de minimaal toeglaten afmeting is\n"
+
+#: ../src/create.c:831
+#, c-format
+msgid "Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n"
+msgstr "Heb pen #%s (%s) boorgat niet opgezocht omdat %6.2f mil boven de maximaal toegelaten afmeting is\n"
+
+#: ../src/create.c:840
+#, c-format
+msgid "Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n"
+msgstr "Heb pen #%s (%s) boorgat niet opgezocht omdat %6.2f mil laat niet genoeg koper over\n"
+
+#: ../src/create.c:854
+#, c-format
+msgid "Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"
+msgstr "Opgezochte pen boorgat naar %.2f mils vanaf %.2f mils uit de vendor tabel\n"
+
+#: ../src/create.c:959
+#, c-format
+msgid "Can't find font-symbol-file '%s'\n"
+msgstr "Kan font-symbol-file '%s' niet vinden\n"
+
+#: ../src/error.c:109
+#: ../src/error.c:113
+#, c-format
+msgid ""
+"Can't open file\n"
+"   '%s'\n"
+"fopen() returned: '%s'\n"
+msgstr ""
+"Kan bestand niet openen\n"
+"   '%s'\n"
+"fopen() retourneerde: '%s'\n"
+
+#: ../src/error.c:129
+#: ../src/error.c:133
+#, c-format
+msgid ""
+"Can't execute command\n"
+"   '%s'\n"
+"popen() returned: '%s'\n"
+msgstr ""
+"Kan opdracht niet uitvoeren\n"
+"   '%s'\n"
+"popen() retourneerdd: '%s'\n"
+
+#: ../src/error.c:149
+#: ../src/error.c:153
+#, c-format
+msgid ""
+"Can't scan directory\n"
+"   '%s'\n"
+"opendir() returned: '%s'\n"
+msgstr ""
+"Kan bestandenmap niet doorzoeken\n"
+"   '%s'\n"
+"opendir() retourneerde: '%s'\n"
+
+#: ../src/error.c:169
+#: ../src/error.c:173
+#, c-format
+msgid ""
+"Can't change working directory to\n"
+"   '%s'\n"
+"chdir() returned: '%s'\n"
+msgstr ""
+"Kan werkmap niet veranderen naar\n"
+"   '%s'\n"
+"chdir() retourneerde: '%s'\n"
+
+#: ../src/file.c:226
+#, c-format
+msgid "File '%s' exists, use anyway?"
+msgstr "Bestand '%s' bestaat al, evengoed gebruiken?"
+
+#. not used
+#. CheckAndOpenFile deals with the case where fname already exists
+#: ../src/file.c:268
+msgid "Save Connection Data As ..."
+msgstr "Sla Verbinding gegevens op als ..."
+
+#: ../src/file.c:269
+msgid "Choose a file to save all connection data to."
+msgstr "Kies een bestand om alle verbindinggegevens op te slaan."
+
+#: ../src/file.c:386
+#, c-format
+msgid "File '%s' has no font information, using default font\n"
+msgstr "Bestand '%s' heeft geen lettertype informatie, gebruik standaard lettertype\n"
+
+#: ../src/file.c:992
+#, c-format
+msgid "Trying to save your layout in '%s'\n"
+msgstr "Probeer jouw opmaak op te slaan in '%s'\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1156
+msgid "LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"
+msgstr "LoadNewlibFootprintsFromDir: Kon geen initieele werkmap vaststellen\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1174
+msgid "LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
+msgstr "LoadNewlibFootprintsFromDir: Kon geen nieuwe werkmap vaststellen\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1281
+msgid "ParseLibraryTree: Could not determine initial working directory\n"
+msgstr "ParseLibraryTree: Kon geen initieele erkmap vaststellen\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1316
+msgid "ParseLibraryTree: Could not determine new working directory\n"
+msgstr "ParseLibraryTree: Kon geen nieuwe werkmap vaststellen\n"
+
+#. nothing to do
+#: ../src/file.c:1499
+#, c-format
+msgid "Importing PCB netlist %s\n"
+msgstr "Importeer PCB netlijst %s\n"
+
+#: ../src/file.c:1537
+#, c-format
+msgid ""
+"Line length (%i) exceeded in netlist file.\n"
+"additional characters will be ignored.\n"
+msgstr ""
+"Lijn lengte (%i) overschreden in netlijst bestand.\n"
+"toegevoegde karakters worden genegeerd.\n"
+
+#: ../src/file.c:1591
+msgid "Empty netlist file!\n"
+msgstr "Leeg netlijst bestand!\n"
+
+#: ../src/file.c:1632
+#, c-format
+msgid "Importing edif netlist %s\n"
+msgstr "Importeer edif netlijst %s\n"
+
+#: ../src/find.c:248
+#, c-format
+msgid "near (%.*f, %.*f)\n"
+msgstr "bij (%.*f, %.*f)\n"
+
+#: ../src/find.c:256
+#, c-format
+msgid "WARNING!  Design Rule error - %s\n"
+msgstr "WAARSCHUWING!  Ontwerp Regel fout - %s\n"
+
+#: ../src/find.c:257
+#, c-format
+msgid "near location (%.*f, %.*f)\n"
+msgstr "nabij locatie (%.*f, %.*f)\n"
+
+#.
+#. * message when asked about continuing DRC checks after next
+#. * violation is found.
+#.
+#: ../src/find.c:266
+msgid "Press Next to continue DRC checking"
+msgstr "Druk op Volgende om DRC controle voor te zetten"
+
+#: ../src/find.c:267
+msgid "Next"
+msgstr "Volgende"
+
+#: ../src/find.c:268
+msgid "Cancel"
+msgstr "Afbreken"
+
+#: ../src/find.c:947
+#, c-format
+msgid "bad layer number %d max_copper_layer=%d in find.c\n"
+msgstr "slecht laag nummer %d max_copper_layer=%d in find.c\n"
+
+#: ../src/find.c:994
+msgid "WARNING: Hole too close to pin.\n"
+msgstr "WAARSCHUWING: Gat te dicht bij pen.\n"
+
+#: ../src/find.c:996
+msgid "WARNING: Hole too close to via.\n"
+msgstr "WAARSCHUWING: Gat te dicht bij via.\n"
+
+#: ../src/find.c:1060
+msgid "WARNING: Hole too close to line.\n"
+msgstr "WAARSCHUWING: Gat te dicht bij lijn.\n"
+
+#: ../src/find.c:1080
+msgid "WARNING: Hole too close to pad.\n"
+msgstr "WAARSCHUWING: Gat te dicht bij pad.\n"
+
+#: ../src/find.c:1100
+msgid "WARNING: Hole touches arc.\n"
+msgstr "WAARSCHUWING: Gat raakt boog.\n"
+
+#: ../src/find.c:3664
+msgid "Potential for broken trace"
+msgstr "Mogelijk gebroken spoor"
+
+#: ../src/find.c:3665
+msgid ""
+"Insufficient overlap between objects can lead to broken tracks\n"
+"due to registration errors with old wheel style photo-plotters."
+msgstr ""
+"Onvoldoende overlapping tussen objecten kan leiden tot gebroken sporen\n"
+"door de registratie fouten met oude wiel stijl foto-plotters."
+
+#: ../src/find.c:3722
+msgid "Copper areas too close"
+msgstr "Kopergebieden te dicht bijeen"
+
+#: ../src/find.c:3723
+#: ../src/find.c:3867
+msgid ""
+"Circuits that are too close may bridge during imaging, etching,\n"
+"plating, or soldering processes resulting in a direct short."
+msgstr ""
+"Circuits die te dicht bijeen zijn kunnen bruggen vormen tijdens belichten, etsen,\n"
+"beplaten, of soldeer processen resulterend in een directe kortsluiting."
+
+#: ../src/find.c:3812
+msgid "Line with insufficient clearance inside polygon\n"
+msgstr "Lijn met onvoldoende vrijloop binnen polygoon\n"
+
+#: ../src/find.c:3821
+msgid "Arc with insufficient clearance inside polygon\n"
+msgstr "Boog met onvoldoende vrijloop binnen polygoon\n"
+
+#: ../src/find.c:3831
+msgid "Pad with insufficient clearance inside polygon\n"
+msgstr "Pad met onvoldoende vrijloop binnen polygoon\n"
+
+#: ../src/find.c:3840
+msgid "Pin with insufficient clearance inside polygon\n"
+msgstr "Pen met onvoldoende vrijloop binnen polygoon\n"
+
+#: ../src/find.c:3849
+msgid "Via with insufficient clearance inside polygon\n"
+msgstr "Via met onvoldoende vrijloop binnen polygoon\n"
+
+#: ../src/find.c:3993
+msgid "Line width is too thin"
+msgstr "Lijn wijdte is te dun"
+
+#: ../src/find.c:3994
+#: ../src/find.c:4038
+msgid ""
+"Process specifications dictate a minimum feature-width\n"
+"that can reliably be reproduced"
+msgstr ""
+"Proces specificaties dicteren een minimum voorwerp-wijdte\n"
+"die betrouwbaar gereproduceerd kan worden"
+
+# FIXME: original string has room for improvement.
+# "Arc width is too small"
+#: ../src/find.c:4037
+msgid "Arc width is too thin"
+msgstr "Boogwijdte is te dun"
+
+#: ../src/find.c:4082
+msgid "Pin annular ring too small"
+msgstr "Pen ring is te smal"
+
+#: ../src/find.c:4083
+#: ../src/find.c:4205
+msgid ""
+"Annular rings that are too small may erode during etching,\n"
+"resulting in a broken connection"
+msgstr ""
+"Ringen die te smal zijn kunnen eroderen tijdens het etsen,\n"
+"resulterend in een verbroken verbinding"
+
+#: ../src/find.c:4116
+msgid "Pin drill size is too small"
+msgstr "Pen boordiameter is te smal"
+
+#: ../src/find.c:4117
+#: ../src/find.c:4239
+msgid "Process rules dictate the minimum drill size which can be used"
+msgstr "Proces regels dicteren een minimum boordiameter die gebruikt kan worden"
+
+# FIXME: original string has room for improvement.
+# "Pad is too small"
+#: ../src/find.c:4159
+msgid "Pad is too thin"
+msgstr "Pad is te dun"
+
+#: ../src/find.c:4160
+msgid ""
+"Pads which are too thin may erode during etching,\n"
+"resulting in a broken or unreliable connection"
+msgstr ""
+"Pads die te dun zijn kunnen eroderen tijdens het etsen,\n"
+"resulerend in een onbetrouwbare verbinding"
+
+#: ../src/find.c:4204
+msgid "Via annular ring too small"
+msgstr "Via ring te smal"
+
+#: ../src/find.c:4238
+msgid "Via drill size is too small"
+msgstr "Via boordiameter is te klein"
+
+# FIXME: original string has room for improvement.
+# "Silk line is too small"
+#: ../src/find.c:4286
+msgid "Silk line is too thin"
+msgstr "Opdruklijn is te dun"
+
+#: ../src/find.c:4287
+msgid ""
+"Process specifications dictate a minimum silkscreen feature-width\n"
+"that can reliably be reproduced"
+msgstr ""
+"Proces specificaties dicteren een minimum opdruk wijdte\n"
+"die betrouwbaar kan worden gereproduceerd"
+
+# FIXME: original string has room for improvement.
+# "Element %s has %i silk lines which are too small"
+#: ../src/find.c:4341
+#, c-format
+msgid "Element %s has %i silk lines which are too thin"
+msgstr "Element %s heeft %i opdruklijnen welke te dun zijn"
+
+#: ../src/find.c:4352
+msgid ""
+"Process specifications dictate a minimum silkscreen\n"
+"feature-width that can reliably be reproduced"
+msgstr ""
+"Proces specificaties dicteren een minimum opdruk wijdte\n"
+"die betrouwbaar kan worden gereproduceerd"
+
+#: ../src/find.c:4392
+#, c-format
+msgid "Warning:  %d pad%s the nopaste flag set.\n"
+msgstr "Waarschuwing:  %d pad%s de geen-pasta flag gezet.\n"
+
+#: ../src/find.c:4489
+#, c-format
+msgid "Internal error in BuildObjectList: unknown object type %i\n"
+msgstr "Interne fout in BuildObjectList: onbekend object type %i\n"
+
+#: ../src/hid/common/actions.c:51
+#, c-format
+msgid "ERROR! Invalid action name, action \"%s\" not registered.\n"
+msgstr "FOUT! Ongeldige aktienaam, aktie \"%s\" is niet geregistreerd.\n"
+
+#: ../src/hid/common/actions.c:315
+#, c-format
+msgid "Syntax error: %s\n"
+msgstr "Spelfout: %s\n"
+
+#: ../src/hid/common/actions.c:316
+msgid "    expected: Action(arg1, arg2)"
+msgstr "    verwachtte: Action(arg1, arg2)"
+
+#: ../src/hid/common/hidnogui.c:339
+msgid "OK to lose data ?"
+msgstr "OK om gegevens te verliezen ?"
+
+#: ../src/hid/gerber/gerber.c:160
+msgid "Error, too many apertures needed for Gerber file.\n"
+msgstr "Fout, te veel openingen nodig voor Gerber bestand.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:86
+msgid "Various zoom factor changes."
+msgstr "Verschillende zoomfactoren gewijzigd."
+
+#: ../src/hid/gtk/gtkhid-main.c:339
+#, c-format
+msgid "ghid_calibrate() -- not implemented\n"
+msgstr "ghid_calibrate() -- niet geïmplementeerd\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:689
+#: ../src/hid/gtk/gui-dialog.c:165
+msgid "_Cancel"
+msgstr "Afbreken"
+
+#: ../src/hid/gtk/gtkhid-main.c:690
+#: ../src/hid/gtk/gui-dialog.c:169
+msgid "_OK"
+msgstr "_OK"
+
+#: ../src/hid/gtk/gtkhid-main.c:1095
+msgid "Tell the user about this version of PCB."
+msgstr "Vertel de gebruiker over deze versie van PCB."
+
+#: ../src/hid/gtk/gtkhid-main.c:1117
+msgid "Get a coordinate."
+msgstr "Verkrijg een coordinaat."
+
+#: ../src/hid/gtk/gtkhid-main.c:1184
+#, c-format
+msgid "LayerGroupsChanged -- not implemented\n"
+msgstr "LayerGroupsChanged -- niet geïmplementeerd\n"
+
+#. in case we have a dialog for loading a netlist file
+#: ../src/hid/gtk/gtkhid-main.c:1228
+#: ../src/hid/gtk/gui-dialog.c:316
+msgid "Load netlist file"
+msgstr "Laad netlijst bestand"
+
+#. in case we have a dialog for loading a footprint file
+#: ../src/hid/gtk/gtkhid-main.c:1234
+#: ../src/hid/gtk/gui-dialog.c:289
+msgid "Load element to buffer"
+msgstr "Laad element naar buffer"
+
+#: ../src/hid/gtk/gtkhid-main.c:1240
+#: ../src/hid/gtk/gui-dialog.c:303
+msgid "Load layout file to buffer"
+msgstr "Laad opmaak bestand naar buffer"
+
+#. in case we have a dialog for loading a layout file
+#: ../src/hid/gtk/gtkhid-main.c:1246
+#: ../src/hid/gtk/gui-dialog.c:302
+msgid "Load layout file"
+msgstr "Laad opmaak bestand"
+
+#: ../src/hid/gtk/gtkhid-main.c:1272
+msgid "Save layout and/or element data to a user-selected file."
+msgstr "Sla opmaak en/of element data op naar een door de gebruiker geselecteerd bestand."
+
+#: ../src/hid/gtk/gtkhid-main.c:1303
+msgid "Save element as"
+msgstr "Sla element op als"
+
+#: ../src/hid/gtk/gtkhid-main.c:1305
+msgid "Save layout as"
+msgstr "Sla opmaak op als "
+
+#: ../src/hid/gtk/gtkhid-main.c:1321
+#, c-format
+msgid "Overwriting %s\n"
+msgstr "Overschrijf %s\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1364
+msgid "Swaps the side of the board you're looking at."
+msgstr "Verwissel de zijde van het bord waar U naar kijkt."
+
+#: ../src/hid/gtk/gtkhid-main.c:1489
+msgid "Print the layout."
+msgstr "Druk de opmaak af."
+
+#: ../src/hid/gtk/gtkhid-main.c:1514
+msgid "Can't find a suitable printer HID"
+msgstr "Kan geen bruikbare printer HID vinden"
+
+#: ../src/hid/gtk/gtkhid-main.c:1524
+msgid "Can't print empty layout"
+msgstr "Kan geen lege laag printen"
+
+#: ../src/hid/gtk/gtkhid-main.c:1534
+msgid "Enter Values here:"
+msgstr "Voer waarden in:"
+
+#: ../src/hid/gtk/gtkhid-main.c:1536
+msgid "x-calibration"
+msgstr "x-calibratie"
+
+#: ../src/hid/gtk/gtkhid-main.c:1536
+msgid "X scale for calibrating your printer"
+msgstr "X schaal om de afdrukker te kalibreren"
+
+#: ../src/hid/gtk/gtkhid-main.c:1538
+msgid "y-calibration"
+msgstr "y-calibratie"
+
+#: ../src/hid/gtk/gtkhid-main.c:1538
+msgid "Y scale for calibrating your printer"
+msgstr "Y schaal om de afdrukker te kalibreren"
+
+#: ../src/hid/gtk/gtkhid-main.c:1547
+msgid "Calibrate the printer."
+msgstr "Kalibreer de afdrukker."
+
+#: ../src/hid/gtk/gtkhid-main.c:1564
+msgid "Printer Calibration Values"
+msgstr "Afdrukker kalibreer waarden"
+
+#: ../src/hid/gtk/gtkhid-main.c:1565
+msgid "Enter calibration values for your printer"
+msgstr "Voer kalibreerwaarden in voor Uw afdrukker"
+
+#: ../src/hid/gtk/gtkhid-main.c:1584
+msgid "Can't export empty layout"
+msgstr "Kan geen lege laag exporteren"
+
+#: ../src/hid/gtk/gtkhid-main.c:1617
+#, c-format
+msgid "%g redraws per second\n"
+msgstr "%g hertekenen per seconde\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1628
+msgid "Moves the pointer to the center of the window."
+msgstr "Verplaats de aanwijzer naar het minden van het venster."
+
+#: ../src/hid/gtk/gtkhid-main.c:1696
+msgid "Move the cursor."
+msgstr "Verplaats de aanwijzer."
+
+#: ../src/hid/gtk/gtkhid-main.c:1790
+msgid "Open various GUI windows."
+msgstr "Open verschillende GUI vensters."
+
+#: ../src/hid/gtk/gtkhid-main.c:1866
+msgid "Set the default measurement units."
+msgstr "Ste de standaard meetunits in."
+
+#: ../src/hid/gtk/gtkhid-main.c:1908
+msgid "Scroll the viewport."
+msgstr "Verschuif het uitzicht."
+
+#: ../src/hid/gtk/gtkhid-main.c:1962
+msgid ""
+"Start or stop panning (Mode = 1 to start, 0 to stop)\n"
+"Optional thumb argument is ignored for now in gtk hid.\n"
+msgstr ""
+"Start of stop schuiven (Modus = 1 om te starten, 0 om te stoppen)\n"
+"Optioneel duimargument is voorlopig genegeerd in gtk hid.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1990
+msgid ""
+"The gtk gui currently ignores the optional first argument to the Pan action.\n"
+"Feel free to provide patches.\n"
+msgstr ""
+"De huidige gtk gui negeert het optionele eerste argument van de schuif actie.\n"
+"Voel U niet belemmert om verbeterstukjes te geven.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:2016
+msgid ""
+"Bring up the popup menu specified by @code{MenuName}.\n"
+"If called by a mouse event then the mouse button number\n"
+"must be specified as the optional second argument."
+msgstr ""
+"Breng een opduikmenu gespecificeerd met @code{MenuName}.\n"
+"Als door een muisgebeurtenis geroepen dan moet het muisknopnummer\n"
+"gespecificeerd worden als tweede optionele argument."
+
+#: ../src/hid/gtk/gtkhid-main.c:2047
+#, c-format
+msgid "Popup():  malloc failed\n"
+msgstr "Popup():  malloc faalde\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:2052
+#, c-format
+msgid "Loading popup \"%s\". Button = %u\n"
+msgstr "Laad  opduikvenster \"%s\". Knop = %u\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:2059
+#, c-format
+msgid "The specified popup menu \"%s\" has not been defined.\n"
+msgstr "Het gespecificeerde opduikmenu \"%s\" is niet gedefiniëerd.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:2076
+msgid "Asks user which schematics to import into PCB.\n"
+msgstr "Vraag de gebruiker welke schema's geïmporteerd in PCB moeten worden.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:2097
+msgid "Load schematics"
+msgstr "Laad schema's"
+
+#: ../src/hid/gtk/gtkhid-main.c:2127
+msgid "Click on a location to center"
+msgstr "Klik op een locatie om te centreren"
+
+#: ../src/hid/gtk/gtkhid-main.c:2137
+msgid "Click on a place to pan"
+msgstr "Klik op een plaats om te schuiven"
+
+#: ../src/hid/gtk/gtkhid-main.c:2147
+msgid "Click on a place to scroll"
+msgstr "Klik op een plaats om te rollen"
+
+#: ../src/hid/gtk/gtkhid-main.c:2150
+msgid "Click on zoom focus"
+msgstr "Klik op zoom focus"
+
+#: ../src/hid/gtk/gui-command-window.c:80
+msgid "Common commands easily accessible via the gui may not be included here.\n"
+msgstr "Gemakkelijk bereikbare algemene opdrachten middels de gui zijn hier niet bijgesloten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:82
+msgid ""
+"In user commands below, 'size' values may be absolute or relative\n"
+"if preceded by a '+' or '-'.  Where 'units' are indicated, use \n"
+"'mil' or 'mm' otherwise PCB internal units will be used.\n"
+msgstr ""
+"In de gebruikers opdrachten hieronder, kunnen 'size' waarden kunnen absoluut of relatief zijn\n"
+"als deze voorzien zijn van een '+' of '-'.  Waar 'units' zijn aangegeven, gebruik \n"
+"'mil' of 'mm' anders worden interne PCB eenheden gebruikt.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:96
+msgid "\tChanges the clearance of objects.\n"
+msgstr "\tVerander de vrijloop van objecten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:101
+msgid "\tChanges values.  Omit 'units' for 'grid' and 'zoom'.\n"
+msgstr "\tVerander waarden. Laat 'units' voor 'grid' en 'zoom' weg.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:105
+msgid "\tChanges the join (clearance through polygons) of objects.\n"
+msgstr "\tVerander de koppeling (vrijloop door polygoons) van objecten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:111
+msgid "\tToggles, sets, or clears the square flag of objects.\n"
+msgstr "\tWissel, zet, of wis de vierkant vlag van objecten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:117
+msgid "\tToggles, sets, or clears the octagon flag of objects.\n"
+msgstr "\tWissel, zet, of wis de achtkant vlag van objecten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:121
+msgid "\tChanges the hole flag of objects.\n"
+msgstr "\tVerander de gat vlag van objecten.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:125
+msgid "\tFlip elements to the opposite side of the board.\n"
+msgstr "\tVerplaats elementen naar de andere zijde van het bord.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:131
+msgid "\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"
+msgstr "\tWissel, zet, of wis de thermal (op de huidige laag) naar pennen of vias.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:135
+msgid "\tLoad a vendor file.  If 'filename' omitted, pop up file select dialog.\n"
+msgstr "\tLaad een leverancier bestand.  Als de 'bestandnaam' is weggelaten, toon een selectie venster.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:318
+msgid "PCB Command Entry"
+msgstr "PCB Opdracht Invoer"
+
+#. Make the command reference scrolled text view.  Use high level
+#. |  utility functions in gui-utils.c
+#.
+#: ../src/hid/gtk/gui-command-window.c:336
+msgid "Command Reference"
+msgstr "Opdrachtreferentie"
+
+#: ../src/hid/gtk/gui-command-window.c:466
+msgid "Enter command:"
+msgstr "Voer opdracht in:"
+
+#: ../src/hid/gtk/gui-config.c:883
+msgid "Enables"
+msgstr "Activeer"
+
+#: ../src/hid/gtk/gui-config.c:888
+msgid "Use separate window for command entry"
+msgstr "Gebruik afzonderlijke vensters voor opdracht invoer"
+
+#: ../src/hid/gtk/gui-config.c:893
+msgid "Alternate window layout to allow smaller horizontal size"
+msgstr "Wissel venster opmaak voor een kleinere horizontale afmeting"
+
+#: ../src/hid/gtk/gui-config.c:898
+msgid "Alternate window layout to allow smaller vertical size"
+msgstr "Wissel venster opmaak voor een kleinere verticale afmeting"
+
+#: ../src/hid/gtk/gui-config.c:903
+msgid "Put layout name on the window title bar"
+msgstr "Plaats de opmaak naam in de title van het venster"
+
+#: ../src/hid/gtk/gui-config.c:905
+msgid "Backups"
+msgstr "Reserverkopie"
+
+#: ../src/hid/gtk/gui-config.c:909
+#, c-format
+msgid "If layout is modified at exit, save into PCB.%i.save"
+msgstr "Als bij het afsluiten de opmaak gewijzigd is, sla op in  PCB.%i.save"
+
+#: ../src/hid/gtk/gui-config.c:912
+msgid ""
+"Seconds between auto backups\n"
+"(set to zero to disable auto backups)"
+msgstr ""
+"Seconden tussen automatisch reservekopie maken\n"
+"(zet op nul om het maken van reservekopieen uit te schakelen)"
+
+#: ../src/hid/gtk/gui-config.c:915
+msgid "Misc"
+msgstr "Div"
+
+#: ../src/hid/gtk/gui-config.c:919
+msgid "Number of commands to remember in the history list"
+msgstr "Aantal opdrachten om te onthouden in de geschiedenis lijst"
+
+#: ../src/hid/gtk/gui-config.c:923
+msgid "Auto pan speed"
+msgstr "Auto schuif snelheid"
+
+#: ../src/hid/gtk/gui-config.c:1021
+#: ../src/hid/gtk/gui-dialog-size.c:173
+#, c-format
+msgid "<b>%s</b> grid units are selected"
+msgstr "<b>%s</b> raster eenheden zijn geselecteerd"
+
+#: ../src/hid/gtk/gui-config.c:1022
+#: ../src/hid/gtk/gui-config.c:1186
+#: ../src/hid/gtk/gui-dialog-size.c:174
+msgid "mm"
+msgstr "mm"
+
+#: ../src/hid/gtk/gui-config.c:1022
+#: ../src/hid/gtk/gui-config.c:1186
+#: ../src/hid/gtk/gui-dialog-size.c:174
+msgid "mil"
+msgstr "mil"
+
+#. ---- Board Size ----
+#: ../src/hid/gtk/gui-config.c:1032
+msgid "Board Size"
+msgstr "Printplaat Afmetingen"
+
+#: ../src/hid/gtk/gui-config.c:1048
+msgid "Width"
+msgstr "Breedte"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/hid/gtk/gui-config.c:1055
+msgid "Height"
+msgstr "Hoogte"
+
+#: ../src/hid/gtk/gui-config.c:1059
+msgid "Use this board size as the default for new layouts"
+msgstr "Gebruik deze printplaat afmetingen als standaard voor nieuwe opmaken"
+
+#. ---- Text Scale ----
+#: ../src/hid/gtk/gui-config.c:1062
+msgid "Text Scale"
+msgstr "Tekst Schaal"
+
+#. ---- DRC Sizes ----
+#: ../src/hid/gtk/gui-config.c:1080
+msgid "Design Rule Checking"
+msgstr "Ontwerp Regel Controle"
+
+#: ../src/hid/gtk/gui-config.c:1095
+msgid "Minimum copper spacing"
+msgstr "Minimum koper afstand"
+
+#: ../src/hid/gtk/gui-config.c:1103
+msgid "Minimum copper width"
+msgstr "Minimum koper breedte"
+
+#: ../src/hid/gtk/gui-config.c:1111
+msgid "Minimum touching copper overlap"
+msgstr "Minimum overlap overlappend koper"
+
+#: ../src/hid/gtk/gui-config.c:1119
+msgid "Minimum silk width"
+msgstr "Minimum opdruk breedte"
+
+#: ../src/hid/gtk/gui-config.c:1127
+msgid "Minimum drill diameter"
+msgstr "Minimum boor diameter"
+
+#: ../src/hid/gtk/gui-config.c:1135
+msgid "Minimum annular ring"
+msgstr "Minimum annulaire ring"
+
+#: ../src/hid/gtk/gui-config.c:1140
+msgid "Use DRC values as the default for new layouts"
+msgstr "Gebruik DRC waarden als de standaard voor nieuwe opmaken"
+
+#: ../src/hid/gtk/gui-config.c:1185
+#, c-format
+msgid "Increment/Decrement values to use in <b>%s</b> units mode.\n"
+msgstr "Vergroot/Verklein waarden om in <b>%s</b> eenheden modus te gebruiken.\n"
+
+#: ../src/hid/gtk/gui-config.c:1197
+msgid "Grid Increment/Decrement"
+msgstr "Raster Vergroten/Verkleinen"
+
+#: ../src/hid/gtk/gui-config.c:1214
+msgid "For 'g' and '<shift>g' grid change actions"
+msgstr "Voor 'g' en '<shift>g' raster wijzig acties"
+
+#: ../src/hid/gtk/gui-config.c:1219
+msgid "Size Increment/Decrement"
+msgstr "Afmeting Vergroten/Verkleinen"
+
+#: ../src/hid/gtk/gui-config.c:1236
+msgid ""
+"For 's' and '<shift>s' size change actions on lines,\n"
+"pads, pins and text.\n"
+"Use '<ctrl>s' and '<shift><ctrl>s' for drill holes."
+msgstr ""
+"Voor 's' en '<shift>s' afmeting wijzig acties voor lijnen,\n"
+"pads, pennen en tekst.\n"
+"Gebruik '<ctrl>s' en '<shift><ctrl>s' voor boorgaten."
+
+#: ../src/hid/gtk/gui-config.c:1242
+msgid "Line Increment/Decrement"
+msgstr "Lijn Vergroten/Verkleinen"
+
+#: ../src/hid/gtk/gui-config.c:1261
+msgid "For 'l' and '<shift>l' routing line width change actions"
+msgstr "Voor 'l' en '<shift>l' routing lijn breedte wijzig acties"
+
+#: ../src/hid/gtk/gui-config.c:1265
+msgid "Clear Increment/Decrement"
+msgstr "Wis Vergroten/Verkleinen"
+
+#: ../src/hid/gtk/gui-config.c:1285
+msgid ""
+"For 'k' and '<shift>k' line clearance inside polygon size\n"
+"change actions"
+msgstr ""
+"Voor 'k' en '<shift>k' lijn vrijloop binnen polygoon afmeting\n"
+"wijzig acties"
+
+#: ../src/hid/gtk/gui-config.c:1310
+msgid "Element Directories"
+msgstr "Element bestandsmappen"
+
+#: ../src/hid/gtk/gui-config.c:1316
+msgid "<small>Enter a \""
+msgstr "<small>Voer een \""
+
+#: ../src/hid/gtk/gui-config.c:1357
+msgid "<h>Layer Names\n"
+msgstr "<h>Laag Namen\n"
+
+#: ../src/hid/gtk/gui-config.c:1358
+msgid ""
+"You may enter layer names for the layers drawn on the screen.\n"
+"The special 'component side' and 'solder side' are layers which\n"
+"will be printed out, so they must have in their group at least one\n"
+"of the other layers that are drawn on the screen.\n"
+msgstr ""
+"Je kunt laagnamen invoeren voor lagen die op het scherm getekend zijn.\n"
+"De speciale 'component side' en 'solder side' zijn lagen welke\n"
+"worden afgedrukt, dus deze moeten minstens een van de andere lagen die\n"
+"op het scherm getekend zijn in hun groep hebben\n"
+
+#: ../src/hid/gtk/gui-config.c:1363
+msgid "<h>Layer Groups\n"
+msgstr "<h>Laag Groepen\n"
+
+#: ../src/hid/gtk/gui-config.c:1364
+msgid ""
+"Each layer on the screen may be in its own group which allows the\n"
+"maximum number of board layers.  However, for boards with fewer\n"
+"layers, you may group layers together which will then print as a\n"
+"single layer on a printout.  This allows a visual color distinction\n"
+"to be displayed on the screen for signal groups which will print as\n"
+"a single layer\n"
+msgstr ""
+"Elke laag op het scherm kan in een eigen groep geplaatst worden,\n"
+"het welke het maximum aantal printlagen toestaat. Hoewel, voor\n"
+"printen met minder lagen, kun je lagen samen groeperen die dan\n"
+"als enkele laag op een afdruk komen. Dit laat toe dat verschillende\n"
+"signaal groepen met zichtbare kleuren op het scherm\n"
+"onderscheiden kunnen worden\n"
+
+#: ../src/hid/gtk/gui-config.c:1371
+msgid ""
+"For example, for a 4 layer board a useful layer group arrangement\n"
+"can be to have 3 screen displayed layers grouped into the same group\n"
+"as the 'component side' and 'solder side' printout layers.  Then\n"
+"groups such as signals, ground, and supply traces can be color\n"
+"coded on the screen while printing as a single layer.  For this\n"
+"you would select buttons and enter names on the Setup page to\n"
+"structure four layer groups similar to this:\n"
+msgstr ""
+"Als voorbeeld, voor een 4 lagen print kan een zinvol lagengroep ordening\n"
+"3 op het scherm getoonde lagen gegroupeerd in dezelfde groep\n"
+"als de 'component side' en 'solder side' afdruk lagen.  Dan\n"
+"groepen zoals signalen, aarde, en voeding sporen kunnen met kleur\n"
+"gecodeerd op het scherm terwijl afgedrukt als een ekele laag. Voor dit\n"
+"Zou jij knoppen selecteren en namen invoeren op de Setup pagina voor\n"
+"een struktuur met vier laag groepen gelijkend op deze:\n"
+
+#: ../src/hid/gtk/gui-config.c:1379
+msgid "<b>Group 1:"
+msgstr "<b>Groep 1:"
+
+#: ../src/hid/gtk/gui-config.c:1381
+#: ../src/hid/gtk/gui-misc.c:512
+#: ../src/hid/gtk/gui-misc.c:536
+msgid "solder"
+msgstr "soldeer"
+
+#: ../src/hid/gtk/gui-config.c:1383
+msgid "GND-solder"
+msgstr "Aarde-soldeer"
+
+#: ../src/hid/gtk/gui-config.c:1385
+msgid "Vcc-solder"
+msgstr "Voeding-soldeer"
+
+#: ../src/hid/gtk/gui-config.c:1387
+#: ../src/hid/gtk/gui-config.c:1639
+msgid "solder side"
+msgstr "soldeer zijde"
+
+#: ../src/hid/gtk/gui-config.c:1389
+msgid "<b>Group 2:"
+msgstr "<b>Groep 2:"
+
+#: ../src/hid/gtk/gui-config.c:1391
+#: ../src/hid/gtk/gui-misc.c:512
+#: ../src/hid/gtk/gui-misc.c:536
+msgid "component"
+msgstr "komponent"
+
+#: ../src/hid/gtk/gui-config.c:1393
+msgid "GND-component"
+msgstr "Aarde-komponent"
+
+#: ../src/hid/gtk/gui-config.c:1395
+msgid "Vcc-component"
+msgstr "Voeding-komponent"
+
+#: ../src/hid/gtk/gui-config.c:1397
+#: ../src/hid/gtk/gui-config.c:1637
+msgid "component side"
+msgstr "komponent zijde"
+
+#: ../src/hid/gtk/gui-config.c:1399
+msgid "<b>Group 3:"
+msgstr "<b>Groep 3:"
+
+#: ../src/hid/gtk/gui-config.c:1401
+msgid "signal1"
+msgstr "signaal1"
+
+#: ../src/hid/gtk/gui-config.c:1403
+msgid "<b>Group 4:"
+msgstr "<b>Groep 4:"
+
+#: ../src/hid/gtk/gui-config.c:1405
+msgid "signal2"
+msgstr "signaal2"
+
+#: ../src/hid/gtk/gui-config.c:1519
+msgid ""
+"Both 'solder side' or 'component side' layers must have at least\n"
+"\tone other layer in their group.\n"
+msgstr ""
+"Zowel 'soldeer zijde' als 'komponent zijde' lagen moeten tenminste\n"
+"\teen andere laag in hun groep hebben.\n"
+
+#: ../src/hid/gtk/gui-config.c:1526
+msgid ""
+"The 'solder side' and 'component side' layers are not allowed\n"
+"\tto be in the same layer group #\n"
+msgstr ""
+"De 'soldeer zijde' en 'komponent zijde' lagen mogen niet in\n"
+"\tdezelfde lagengroep #\n"
+
+#. working copy
+#. So can know if PCB changes on us
+#: ../src/hid/gtk/gui-config.c:1617
+msgid "Group #"
+msgstr "Groep #"
+
+#. -- Change tab
+#: ../src/hid/gtk/gui-config.c:1705
+msgid "Change"
+msgstr "Verandering"
+
+#: ../src/hid/gtk/gui-config.c:1707
+msgid "Operations on currently selected layer:"
+msgstr "Handelingen op huidige geselecteerde laag:"
+
+#: ../src/hid/gtk/gui-config.c:1736
+msgid "Add new layer above currently selected layer:"
+msgstr "Voeg nieuwe laag boven de huidige geselecteerde laag toe:"
+
+#. -- Groups tab
+#: ../src/hid/gtk/gui-config.c:1746
+msgid "Groups"
+msgstr "Groepen"
+
+#. -- Info tab
+#: ../src/hid/gtk/gui-config.c:1762
+msgid "Info"
+msgstr "Info"
+
+#: ../src/hid/gtk/gui-config.c:1811
+#, c-format
+msgid "Current colors loaded: <b>%s</b>"
+msgstr "Huidige geladen kleuren: <b>%s</b>"
+
+#: ../src/hid/gtk/gui-config.c:1856
+msgid "Load Color File"
+msgstr "Laad Kleur Bestand"
+
+#: ../src/hid/gtk/gui-config.c:1885
+msgid "Save Color File"
+msgstr "Sla Kleur Bestand op"
+
+#: ../src/hid/gtk/gui-config.c:1891
+msgid "Sorry, not overwriting the default color file!"
+msgstr "Sorry, het standaard kleur bestand niet overschreven!"
+
+#: ../src/hid/gtk/gui-config.c:1945
+#, c-format
+msgid "PCB %s Color"
+msgstr "PCB %s Kleur"
+
+#. ---- Main colors ----
+#: ../src/hid/gtk/gui-config.c:1975
+msgid "Main colors"
+msgstr "Hoofd kleuren"
+
+#. ---- Layer colors ----
+#: ../src/hid/gtk/gui-config.c:1990
+msgid "Layer colors"
+msgstr "Laag kleuren"
+
+#. ---- Selected colors ----
+#: ../src/hid/gtk/gui-config.c:2005
+msgid "Selected colors"
+msgstr "Geselecteerde kleuren"
+
+#: ../src/hid/gtk/gui-config.c:2031
+msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
+msgstr "<b>Waarschuwing:</b> niet opgeslagen kleur veranderingen zullen verloren gaan bij programma einde."
+
+#: ../src/hid/gtk/gui-config.c:2046
+msgid "Load"
+msgstr "Laad"
+
+#: ../src/hid/gtk/gui-config.c:2049
+msgid "Save"
+msgstr "Opslaan"
+
+#: ../src/hid/gtk/gui-config.c:2051
+msgid "Defaults"
+msgstr "Defaults"
+
+#: ../src/hid/gtk/gui-config.c:2091
+msgid "<b>mm</b> "
+msgstr "<b>mm</b> "
+
+#: ../src/hid/gtk/gui-config.c:2091
+msgid "<b>mil</b> "
+msgstr "<b>mil</b> "
+
+#: ../src/hid/gtk/gui-config.c:2183
+msgid "PCB Preferences"
+msgstr "PCB Instellingen"
+
+#: ../src/hid/gtk/gui-config.c:2208
+msgid "General"
+msgstr "Algemeen"
+
+#. XXX not used yet
+#: ../src/hid/gtk/gui-config.c:2215
+#: ../src/hid/gtk/gui-dialog-size.c:190
+msgid "Sizes"
+msgstr "Afmetingen"
+
+#: ../src/hid/gtk/gui-config.c:2221
+msgid "Increments"
+msgstr "Stappen"
+
+#: ../src/hid/gtk/gui-config.c:2227
+msgid "Library"
+msgstr "Bibliotheek"
+
+#: ../src/hid/gtk/gui-config.c:2233
+msgid "Layers"
+msgstr "Lagen"
+
+#: ../src/hid/gtk/gui-config.c:2240
+msgid "Colors"
+msgstr "Kleuren"
+
+#. non-zero means cancel was picked
+#: ../src/hid/gtk/gui-dialog-print.c:342
+msgid "PCB Print Layout"
+msgstr "PCB Print Opmaak"
+
+#: ../src/hid/gtk/gui-dialog-print.c:374
+msgid "PCB Export Layout"
+msgstr "PCB Export Opmaak"
+
+#: ../src/hid/gtk/gui-dialog-print.c:410
+msgid "Can't find a suitable exporter HID"
+msgstr "Kan geen geschikte exporteer HID vinden"
+
+#: ../src/hid/gtk/gui-dialog-size.c:160
+#, c-format
+msgid "%s Sizes"
+msgstr "%s Afmetingen"
+
+#: ../src/hid/gtk/gui-dialog-size.c:183
+msgid "Route style name"
+msgstr "Route stijl naam"
+
+#: ../src/hid/gtk/gui-dialog-size.c:202
+msgid "Line width"
+msgstr "Lijn breedte"
+
+#: ../src/hid/gtk/gui-dialog-size.c:209
+msgid "Via hole"
+msgstr "Via gat"
+
+#: ../src/hid/gtk/gui-dialog-size.c:216
+msgid "Via size"
+msgstr "Via afmeting"
+
+#: ../src/hid/gtk/gui-dialog-size.c:222
+msgid "Clearance"
+msgstr "Vrijloop"
+
+#: ../src/hid/gtk/gui-dialog-size.c:227
+msgid "Temporary Styles"
+msgstr "Tijdelijke Stijlen"
+
+#: ../src/hid/gtk/gui-dialog-size.c:231
+#, c-format
+msgid "<small>Use values in a temporary route style instead of <b>%s</b>.</small>"
+msgstr "<small>Gebruik waarden in een tijdelijke route stijl in plaats van <b>%s</b>.</small>"
+
+#: ../src/hid/gtk/gui-dialog-size.c:241
+msgid "Temp1"
+msgstr "Temp1"
+
+#: ../src/hid/gtk/gui-dialog-size.c:244
+msgid "Temp2"
+msgstr "Temp2"
+
+#: ../src/hid/gtk/gui-dialog-size.c:246
+msgid "Default Style"
+msgstr "Standaard Stijl"
+
+#: ../src/hid/gtk/gui-dialog-size.c:249
+#, c-format
+msgid "<small>Use values as the default route style for new layouts.</small>"
+msgstr "<small>Gebruik waarden voor de standaard route stijl voor nieuwe opmaken.</small>"
+
+#: ../src/hid/gtk/gui-dialog-size.c:257
+msgid "Set as default"
+msgstr "Stel in als standaard"
+
+#: ../src/hid/gtk/gui-dialog.c:209
+#, c-format
+msgid "Save the changes to layout before closing?"
+msgstr "Opslaan van veranderingen van de opmaak voor het afsluiten?"
+
+#: ../src/hid/gtk/gui-dialog.c:212
+#, c-format
+msgid "Save the changes to layout \"%s\" before closing?"
+msgstr "De veranderingen opslaan naar opmaak \"%s\" voor het afsluiten?"
+
+#: ../src/hid/gtk/gui-dialog.c:217
+msgid "If you don't save, all your changes will be permanently lost."
+msgstr "Als je niet opslaat, zullen alle veranderingen permanent verloren gaan."
+
+#: ../src/hid/gtk/gui-dialog.c:227
+msgid "Close _without saving"
+msgstr "Afsluiten _zonder opslaan"
+
+#: ../src/hid/gtk/gui-drc-window.c:228
+#, c-format
+msgid "Object ID %i identified during DRC was not found. Stale DRC window?\n"
+msgstr "Object ID %i geidentificeerd tijdens DRC was niet gevonden. Verlopen DRC venster?\n"
+
+#: ../src/hid/gtk/gui-drc-window.c:896
+msgid "PCB DRC"
+msgstr "PCB DRC"
+
+#. APPEND
+#: ../src/hid/gtk/gui-drc-window.c:930
+msgid "No."
+msgstr "Nr."
+
+#. APPEND
+#: ../src/hid/gtk/gui-drc-window.c:938
+msgid "Violation details"
+msgstr "Overtreding details"
+
+#: ../src/hid/gtk/gui-keyref-window.c:48
+msgid "Keyboard\n"
+msgstr "Toetsenbord\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:49
+msgid "Keyboard shortcuts and actions available in PCB.\n"
+msgstr "Toetsenbord snelkoppelingen en acties beschikbaar in PCB.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:50
+msgid "In below key actions, <s> is <shift>, <c> is <ctrl>\n"
+msgstr "In onderstaande toets acties, <s> is <shift>, <c> is <ctrl>\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:51
+msgid "and <a> is <alt> or <mod>\n"
+msgstr "en <a> is <alt> of <mod>\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:55
+msgid "Set layer and size from line or arc\n"
+msgstr "Neem laag en afmeting over van lijn of boog\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:59
+msgid "Unselect all objects\n"
+msgstr "Deselecteer alle objecten\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:63
+msgid "Flip element to opposite side of the board\n"
+msgstr "Verplaats element naar tegenovergestelde zijde van het bord\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:65
+msgid "Flip selected objects to opposite side of the board\n"
+msgstr "Verplaats geselecteerde objecten naar tegenovergestelde zijde van het bord\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:69
+msgid "Copy selected to buffer and unselect\n"
+msgstr "Kopieer het geselecteerde naar de buffer en deselecteer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:73
+msgid "Display pin/pad names (numbers with View->Enable pinout shows number)\n"
+msgstr "Toon pen/pad namen (nummers met Zien->Activeren pinout toont nummer)\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:75
+msgid "Open pinout window for element under cursor\n"
+msgstr "Open pinout venster voor het element onder de aanwijzer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:79
+msgid "Delete all rats\n"
+msgstr "Verwijder alle ratlijnen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:81
+msgid "Delete selected rats\n"
+msgstr "Verwijder geselecteerde ratlijnen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:85
+msgid "Highlight connections to object\n"
+msgstr "Laat verbinding met object oplichten\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:87
+msgid "Reset highlighted connections\n"
+msgstr "Oplichtende verbindingen terugzetten\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:89
+msgid "Cumulative highlight connections to object\n"
+msgstr "Laat cumulatieve verbindingen naar objecten oplichten\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:93
+msgid "Increment grid by configured grid increment\n"
+msgstr "Vergroot raster met de geconfigureerde toename\n"
+
+# FIXME: original string needs correction.
+# "Decrement grid by configured grid decrement\n"
+#: ../src/hid/gtk/gui-keyref-window.c:96
+msgid "Decrement grid by configured grid increment\n"
+msgstr "Verklein raster met de geconfigureerde afname\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:100
+msgid "Toggle visibility of element name under cursor\n"
+msgstr "Schakel de zichtbaarheid van element onder de aanwijzer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:103
+msgid "Toggle visibility of selected element names\n"
+msgstr "Schakel de zichtbaarheid van geselecteerde elementnamen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:106
+msgid "Toggle the hole flag of object under cursor\n"
+msgstr "Schakel de gat-vlag van het object onder de aanwijzer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:110
+msgid "Toggle line/arc should clear polygons flag of object under cursor\n"
+msgstr "Schakel lijn/boog zou de polygoon-vlag moeten wissen van het object onder de aanwijzer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:113
+msgid "Toggle line/arc should clear polygons flag of selected\n"
+msgstr "Schakel lijn/boog zou de polygoon-vlag moeten wissen van het geselecteerde\n"
+
+# FIXME: original string has room for improvement.
+# "Increase clearance of object by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:117
+msgid "Increase clearance of object by configured clearance\n"
+msgstr "Vergroot vrijloop met de geconfigureerde vrijloop\n"
+
+# FIXME: original string has room for improvement.
+# "Decrease clearance of object by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:120
+msgid "Decrease clearance of object by configured clearance\n"
+msgstr "Verklein vrijloop met de geconfigureerde vrijloop\n"
+
+# FIXME: original string has room for improvement.
+# "Increase clearance of selected objects by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:123
+msgid "Increase clearance of selected objects by configured clearance\n"
+msgstr "Vergroot vrijloop van geselecteerde objecten met de geconfigureerde vrijloop\n"
+
+# FIXME: original string has room for improvement.
+# "Decrease clearance of selected objects by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:126
+msgid "Decrease clearance of selected objects by configured clearance\n"
+msgstr "Verklein vrijloop van geselecteerde objecten met de geconfigureerde vrijloop\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:130
+msgid "Increment current route style line size by configured line increment\n"
+msgstr "Vergroot huidige route stijl lijn maat met de geconfigureerde toename\n"
+
+# FIXME: original string needs correction.
+# "Decrement current route style line size by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:133
+msgid "Decrement current route style line size by configured line increment\n"
+msgstr "Verklein huidige route stijl lijn maat met de geconfigureerde toename\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:137
+msgid "Move object to current layer\n"
+msgstr "Verplaats object naar huidige laag\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:140
+msgid "Move selected objects to current layer\n"
+msgstr "Verplaats geselecteerd object naar huidige laag\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:143
+msgid "Mark at cursor location for showing relative offsets\n"
+msgstr "Mer op aanwijzer lokatie voor het tonen van relatieve offsets\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:147
+msgid "Select the shortest unselected rat on the board\n"
+msgstr "Selecteer de kortste ongeselecteerde ratlijn op het bord\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:151
+msgid "Optimize and draw all rats\n"
+msgstr "Optimaliseer en teken alle ratlijnen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:154
+msgid "Optimize and draw selected rats\n"
+msgstr "Optimaliseer en teken geselecteerde ratlijnen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:158
+msgid "Change octagon flag of object\n"
+msgstr "Verander achthoek vlag van een object\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:162
+msgid "Backup polygon drawing to previous point\n"
+msgstr "Zet polygoon tekenen terug naar vorig punt\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:165
+msgid "Close polygon\n"
+msgstr "Sluit polygoon\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:169
+msgid "Toggle the square flag of an object\n"
+msgstr "Schakel de vierkant vlag van een object\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:173
+msgid "Redo last undone operation\n"
+msgstr "Herstel laatste ongedaan gemaakte handeling\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:177
+msgid "Increment size of an object by configured size increment\n"
+msgstr "Vergroot de afmetingen van een object met een ingestelde hoeveelheid\n"
+
+# FIXME: original string needs correction.
+# "Decrement size of an object by configured size decrement\n"
+#: ../src/hid/gtk/gui-keyref-window.c:179
+msgid "Decrement size of an object by configured size increment\n"
+msgstr "Verklein de afmetingen van een object met een ingestelde hoeveelheid\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:181
+msgid "Increment drill size of a pin or via\n"
+msgstr "Vergroot de boormaat van een pen of via\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:183
+msgid "Decrement drill size of a pin or via\n"
+msgstr "Verklein de boormaat van een pen of via\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:187
+msgid "Adjust text scale so new text increases by the configured size increment\n"
+msgstr "Verstel tekstschaal opdat nieuwe tekst vergroot met de ingestelde grootte verhoging\n"
+
+# increment is to be replaced with decrement
+#: ../src/hid/gtk/gui-keyref-window.c:189
+msgid "Adjust text scale so new text decreases by the configured size increment\n"
+msgstr "Verstel tekstschaal opdat nieuwe tekst verkleind met de ingestelde grootte verhoging\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:193
+msgid "Undo last operation\n"
+msgstr "Maak laatste handeling ongedaan\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:197
+msgid "Zoom to board extents\n"
+msgstr "Verschaal naar bord omvang\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:199
+msgid "Increment current route style via size\n"
+msgstr "Vergroot via afmetingen huidige route stijl\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:201
+msgid "Decrement current route style via size\n"
+msgstr "Verklein via afmetingen huidige route stijl\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:203
+msgid "Increment current route style via hole size\n"
+msgstr "Vergroot gat afmetingen huidige route stijl\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:205
+msgid "Decrement current route style via hole size\n"
+msgstr "Verklein gat afmetingen huidige route stijl\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:209
+msgid "Copy selection to buffer and enter pastebuffer mode\n"
+msgstr "Kopieer selektie naar buffer en ga in plakbuffer modus\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:211
+msgid "Cut selection to buffer and enter pastebuffer mode\n"
+msgstr "Knip selektie naar buffer en ga in plakbuffer modus\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:215
+msgid "Zoom in\n"
+msgstr "Vergroot in\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:217
+msgid "Zoom out\n"
+msgstr "Vergroot uit\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:221
+msgid "Toggle thin draw mode\n"
+msgstr "Schakel dun tekenen mous\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:225
+msgid "Cycle multiline mode (Using <s> overrides)\n"
+msgstr "Ronddraaien door meervoudigelijn modus (Gebruik <s> overschrijven)\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:229
+msgid "Toggle all direction lines mode\n"
+msgstr "Schakel lijnen in alle richtingen modus\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:233
+msgid "If drawing an object, return to a neutral state.\n"
+msgstr "Als een objekt getekend wordt, ga terug naar een neutrale staat.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:237
+msgid "Switch view to other side\n"
+msgstr "Schakel venster naar andere zijde\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:241
+msgid "Switch to select mode\n"
+msgstr "Schakel naar selekteer modus\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:245
+msgid "Enter user command or pop up command window\n"
+msgstr "Voer een gebruikerscommando in of een opduikend opdrachtvenster\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:249
+msgid "Delete object\n"
+msgstr "Verwijder object\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:253
+msgid "Select drawing layers\n"
+msgstr "Selecteer tekeing lagen\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:257
+msgid "Select current buffer\n"
+msgstr "Selecteer huidige buffer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:261
+msgid "Mouse\n"
+msgstr "Muis\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:262
+msgid ""
+"Modifier key use can be combined with mouse button presses\n"
+"to modify mouse button actions.\n"
+msgstr ""
+"Modificatietoets kan gebruikt in combinatie met muisknoppendrukken\n"
+"om muisknoppen te modificeren.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:265
+msgid "<b>Left button\n"
+msgstr "<b>Linker knop\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:266
+msgid "\tPerform or initiate action determined by current mode.\n"
+msgstr "\tVoer een initialisatie actie uit bepaald door de huidige modus.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:269
+#: ../src/hid/gtk/gui-keyref-window.c:275
+#: ../src/hid/gtk/gui-keyref-window.c:289
+#: ../src/hid/gtk/gui-keyref-window.c:295
+msgid "<b><shift>"
+msgstr "<b><shift>"
+
+#: ../src/hid/gtk/gui-keyref-window.c:270
+msgid " - change rotation direction for rotation tool actions.\n"
+msgstr "- verander draairichting voor rotatiegereedschapacties.\n"
+
+# FIXME: This message has room for improvement !
+#: ../src/hid/gtk/gui-keyref-window.c:272
+msgid ""
+"\tAfter a draw operation has been left mouse button initiated,\n"
+"\tmodifier key effects:\n"
+msgstr ""
+"\tNa een tekenoperatie die de linkermuisknop initialiseerde,\n"
+"\tverandertoets beinvloed:\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:276
+msgid " - change line 45 degree direction and arc angle direction,\n"
+msgstr "- verander 45 graden lijnrichting en booghoek richting,\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:278
+msgid "<b>Middle button\n"
+msgstr "<b>Midden knop\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:279
+msgid ""
+"\tIf a line, arc, rectangle, or polygon draw operation has been\n"
+"\tinitiated, a click restarts the draw operation at the cursor position.\n"
+msgstr ""
+"\tAls een lijn, boog, rechthoek, of polygoon tekenoperatie is\n"
+"\tgeïnitieerd, een klik herstart de tekenoperatie op de aanwijzerpositie.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:282
+msgid ""
+"\tIf such a draw has not been initiated, a click selects objects and\n"
+"\ta press and drag moves objects.\n"
+msgstr ""
+"\tAls tekenen niet is geïnitieerd, een klik selecteerd objecten en\n"
+"\tdrukken en slepen verplaatst objecten.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:285
+msgid "<b>Right button\n"
+msgstr "<b>Rechter knop\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:286
+msgid ""
+"\tPress and drag to pan.\n"
+"\tWhile drawing or moving, a click without a drag toggles auto pan mode.\n"
+msgstr ""
+"\tDruk en sleep om te schuiven.\n"
+"\tTijdens tekenen of verplaatsen, een klik zonder slepen schakelt autoschuifmodus.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:290
+msgid " - Popup a menu.\n"
+msgstr "- Laat een menu opduiken.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:292
+msgid "<b>Scroll wheel\n"
+msgstr "<b>Muiswiel\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:293
+msgid "\tZoom in/out.\n"
+msgstr "\tZoom in/uit.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:296
+msgid " - pan vertically.\n"
+msgstr "- schuif verticaal.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:298
+msgid "<b><ctrl>"
+msgstr "<b><ctrl>"
+
+# two decimal points ?
+#: ../src/hid/gtk/gui-keyref-window.c:299
+msgid " - pan horizontally.\n"
+msgstr "- schuif horizontaal.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:301
+msgid "<b>Usage:\n"
+msgstr "<b>Gebruik:\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:302
+msgid ""
+"\tMouse actions can typically be combined.  For example: while moving\n"
+"\tan object (with left or middle press and drag), the right button may\n"
+"\tbe simultaneously clicked to toggle auto pan or pressed and dragged\n"
+"\tto manually pan.  Mouse moving or drawing may also be combined with\n"
+"\tkey actions.\n"
+msgstr ""
+"tMuis akties kunnen typisch worden gecombineerd.  Bijvoorbeeld: tijdens het verplaatsen\n"
+"\tvan een object (met linker of midden gedrukt en slepen), de rechterknop kan\n"
+"\tsimultaan geklikt worden om te schakelen autoschuiven of gedrukt en slepen\n"
+"\ton handmatig te schuiven.  Muis verplaatsen of tekenen kan ook gecombineerd met\n"
+"\ttoetsakties.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:354
+msgid "PCB Key Reference"
+msgstr "PCB Toets Referentie"
+
+#: ../src/hid/gtk/gui-library-window.c:168
+msgid "PCB Library"
+msgstr "PCB Bibliotheek"
+
+#. GtkTreeViewColumn
+#: ../src/hid/gtk/gui-library-window.c:624
+msgid "Components"
+msgstr "Componenten"
+
+#. GtkLabel
+#: ../src/hid/gtk/gui-library-window.c:650
+msgid "Filter:"
+msgstr "Filter:"
+
+#: ../src/hid/gtk/gui-library-window.c:744
+msgid "Select Footprint..."
+msgstr "Selecteer Footprint..."
+
+#: ../src/hid/gtk/gui-library-window.c:766
+msgid "Libraries"
+msgstr "Bibliotheken"
+
+#. GtkFrame
+#: ../src/hid/gtk/gui-library-window.c:775
+msgid "Preview"
+msgstr "Preview"
+
+#: ../src/hid/gtk/gui-log-window.c:85
+msgid "PCB Log"
+msgstr "PCB Log"
+
+#: ../src/hid/gtk/gui-misc.c:503
+#, c-format
+msgid "<b>%c  view</b>=%s  <b>grid</b>=%.1f:%i  %s%s  <b>line</b>=%.1f  <b>via</b>=%.1f(%.1f)  %s<b>clearance</b>=%.1f  <b>text</b>=%i%%  <b>buffer</b>=#%i"
+msgstr "<b>%c  uitzicht</b>=%s  <b>raster</b>=%.1f:%i  %s%s  <b>lijn</b>=%.1f  <b>via</b>=%.1f(%.1f)  %s<b>vrijloop</b>=%.1f  <b>tekst</b>=%i%%  <b>buffer</b>=#%i"
+
+#: ../src/hid/gtk/gui-misc.c:527
+#, c-format
+msgid "<b>%c  view</b>=%s  <b>grid</b>=%5.3f:%i  %s%s  <b>line</b>=%5.3f  <b>via</b>=%5.3f(%5.3f)  %s<b>clearance</b>=%5.3f  <b>text</b>=%i%%  <b>buffer</b>=#%i"
+msgstr "<b>%c  uitzicht</b>=%s  <b>raster</b>=%5.3f:%i  %s%s  <b>lijn</b>=%5.3f  <b>via</b>=%5.3f(%5.3f)  %s<b>vrijloop</b>=%5.3f  <b>tekst</b>=%i%%  <b>buffer</b>=#%i"
+
+#: ../src/hid/gtk/gui-netlist-window.c:673
+msgid "PCB Netlist"
+msgstr "PCB Netlijst"
+
+#: ../src/hid/gtk/gui-netlist-window.c:700
+msgid " "
+msgstr " "
+
+#: ../src/hid/gtk/gui-netlist-window.c:706
+msgid "Net Name"
+msgstr "Net Naam"
+
+#: ../src/hid/gtk/gui-netlist-window.c:737
+msgid "Nodes"
+msgstr "Knooppunten"
+
+#: ../src/hid/gtk/gui-netlist-window.c:750
+msgid "Operations on selected 'Net Name':"
+msgstr "Operaties op geselekteerde 'Netnaam':"
+
+#: ../src/hid/gtk/gui-netlist-window.c:757
+msgid "Select"
+msgstr "Selecteer"
+
+#: ../src/hid/gtk/gui-netlist-window.c:762
+msgid "Unselect"
+msgstr "Deselecteer"
+
+#: ../src/hid/gtk/gui-netlist-window.c:767
+msgid "Find"
+msgstr "Vindt"
+
+#: ../src/hid/gtk/gui-netlist-window.c:772
+msgid "Rip Up"
+msgstr "Openrijten"
+
+#: ../src/hid/gtk/gui-netlist-window.c:779
+msgid "Disable all nets for adding rats"
+msgstr "Schakel alle netten uit voor het toevoegen van ratlijnen"
+
+#: ../src/hid/gtk/gui-top-window.c:278
+#, c-format
+msgid ""
+"Duplicate accelerator found: \"%s\"\n"
+"The second occurance will be dropped\n"
+msgstr ""
+"Duplicaat versneller gevonden: \"%s\"\n"
+"De tweede gebeurtenis zal vervallen\n"
+
+#: ../src/hid/gtk/gui-top-window.c:998
+msgid "silk"
+msgstr "zijde"
+
+#: ../src/hid/gtk/gui-top-window.c:1003
+msgid "rat lines"
+msgstr "rat lijnen"
+
+#: ../src/hid/gtk/gui-top-window.c:1008
+msgid "pins/pads"
+msgstr "pennen/pads"
+
+#: ../src/hid/gtk/gui-top-window.c:1013
+msgid "vias"
+msgstr "vias"
+
+#: ../src/hid/gtk/gui-top-window.c:1018
+msgid "far side"
+msgstr "overkant"
+
+#: ../src/hid/gtk/gui-top-window.c:1023
+msgid "solder mask"
+msgstr "soldeer masker"
+
+#: ../src/hid/gtk/gui-top-window.c:1216
+msgid "Unnamed"
+msgstr "Naamloos"
+
+#: ../src/hid/gtk/gui-top-window.c:1848
+msgid "Route Style"
+msgstr "Route Stijl"
+
+#: ../src/hid/gtk/gui-top-window.c:1867
+#, c-format
+msgid "Temp%d"
+msgstr "Temp%d"
+
+#: ../src/hid/gtk/gui-top-window.c:3204
+#, c-format
+msgid "Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n"
+msgstr "Weet niet hoe \"%s\" te ontleden als een versneller in het menubronbestand.\n"
+
+#: ../src/hid/gtk/gui-top-window.c:3210
+msgid ""
+"Format is:\n"
+"modifiers<Key>k\n"
+"where \"modifiers\" is a space separated list of key modifiers\n"
+"and \"k\" is the name of the key.\n"
+"Allowed modifiers are:\n"
+"   Ctrl\n"
+"   Shift\n"
+"   Alt\n"
+"Please note that case is important.\n"
+msgstr ""
+"Formaat is:\n"
+"modificatoren<Toets>k\n"
+"waar \"modificatoren\" een spatie gescheiden lijst is van toets modificatoren\n"
+"en \"k\" is de naam van de toets.\n"
+"Toegestane modificatoren zijn:\n"
+"   Ctrl\n"
+"   Shift\n"
+"   Alt\n"
+"Merk alstublieft op dat gebruik van kleine of hoofdletters belangrijk is.\n"
+
+#. if we got this far it is supposed to be an X
+#. * resource.  For now ignore it and warn the user
+#.
+#: ../src/hid/gtk/gui-top-window.c:3538
+#, c-format
+msgid ""
+"The gtk gui currently ignores \"%s\"as part of a menuitem resource.\n"
+"Feel free to provide patches\n"
+msgstr ""
+"De huidige gtk gui negeerd \"%s\" als deel van een menuitembron.\n"
+"Voel U vrij om inzetstukjes te leveren\n"
+
+#: ../src/hid/gtk/gui-top-window.c:3611
+#, c-format
+msgid ""
+"GTK GUI currently ignores \"%s\" in the menu\n"
+"resource file.\n"
+msgstr ""
+"De huidige GTK GUI negeerd \"%s\" in het menu\n"
+"bronnenbestand.\n"
+
+#: ../src/hid/gtk/gui-top-window.c:3733
+msgid "Warning:  could not determine home directory\n"
+msgstr "Waarschuwing: kon geen thuismap vaststellen\n"
+
+#: ../src/hid/gtk/gui-top-window.c:3737
+#, c-format
+msgid "Note:  home directory is \"%s\"\n"
+msgstr "Noot: thuismap is \"%s\"\n"
+
+#: ../src/hid/gtk/gui-top-window.c:3754
+#, c-format
+msgid "Error: internal menu resource didn't parse\n"
+msgstr "Fout: interne menubron heeft niet ontleed\n"
+
+#: ../src/hid/ps/ps.c:1285
+msgid "Print Calibration Page"
+msgstr "Druk een kalibratiepagina af"
+
+#: ../src/hid/ps/ps.c:1285
+msgid "Generates a printer calibration page"
+msgstr "Genereer een afdrukker kalibratiepagina"
+
+#: ../src/main.c:1058
+#, c-format
+msgid "Executing startup script file %s\n"
+msgstr "Uitvoeren van opstart scriptbestand %s\n"
+
+#: ../src/main.c:1064
+#, c-format
+msgid "Executing startup action %s\n"
+msgstr "Uitvoeren van opstart actie %s\n"
+
+#: ../src/netlist.c:452
+#: ../src/select.c:898
+#, c-format
+msgid "regexp error: %s\n"
+msgstr "regexp fout: %s\n"
+
+#: ../src/netlist.c:460
+#: ../src/select.c:910
+#, c-format
+msgid "re_comp error: %s\n"
+msgstr "re_comp fout: %s\n"
+
+#: ../src/polygon.c:1381
+msgid "Cannot close polygon because 45 degree lines are requested.\n"
+msgstr "Kan polygoon niet sluiten omdat 45 graden lijnen gevraagd worden.\n"
+
+#: ../src/polygon.c:1389
+msgid "A polygon has to have at least 3 points\n"
+msgstr "Een polygoon moet minstens 3 punten hebben\n"
+
+#: ../src/rats.c:113
+#, c-format
+msgid "Bad net-list format encountered near: \"%s\"\n"
+msgstr "Slecht netlijstformaat tegengekomen bij: \"%s\"\n"
+
+#: ../src/rats.c:194
+#, c-format
+msgid ""
+"Error! Netlist file is missing pin!\n"
+"white space after \"%s-\"\n"
+msgstr ""
+"Fout! Netlijstbestand mist een pen!\n"
+"spatie na \"%s-\"\n"
+
+#: ../src/rats.c:211
+#, c-format
+msgid "Can't find %s pin %s called for in netlist.\n"
+msgstr "Kan %s pen %s aangeroepen in netlijst niet vinden.\n"
+
+#: ../src/rats.c:281
+#, c-format
+msgid "Error! Element %s pin %s appears multiple times in the netlist file.\n"
+msgstr "Fout! Element %s pen %s komt meerdere keren voor in het netlijstbestand.\n"
+
+#: ../src/rats.c:378
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to %s pin %s\n"
+msgstr "Waarschuwing! Net \"%s\" is kortgesloten met %s pen %s\n"
+
+#: ../src/rats.c:399
+#: ../src/rats.c:435
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to net \"%s\"\n"
+msgstr "Waarschuwing! Net \"%s\" is kortgesloten met net \"%s\"\n"
+
+#: ../src/rats.c:414
+#, c-format
+msgid "Warning! Net \"%s\" is shorted  to %s pad %s\n"
+msgstr "Waarschuwing! Net \"%s\" is kortgesloten met %s pad %s\n"
+
+#: ../src/rats.c:811
+msgid ""
+"Congratulations!!\n"
+"The layout is complete and has no shorted nets.\n"
+msgstr ""
+"Gefeliciteerd!!\n"
+"De opmaak is compleet en heeft geen kortgesloten netten.\n"
+
+#: ../src/rats.c:814
+msgid ""
+"Nothing more to add, but there are\n"
+"either rat-lines in the layout, disabled nets\n"
+"in the net-list, or missing components\n"
+msgstr ""
+"Niets meer toe te voegen, maar er zijn\n"
+"ofwel ratlijnen in de opmaak, uitgeschakelde netten\n"
+"in de netlijst, of ontbrekende componenten\n"
+
+#: ../src/rats.c:926
+#: ../src/rats.c:946
+msgid "No pad/pin under rat line\n"
+msgstr "Geen pad/pen onder ratlijn\n"
+
+#: ../src/rats.c:932
+msgid "You must name the starting element first\n"
+msgstr "Geef het beginnende element eerst een naam\n"
+
+#: ../src/rats.c:952
+msgid "You must name the ending element first\n"
+msgstr "Geef het eindigende element eerst een naam\n"
+
+#: ../src/rats.c:966
+msgid "Both connections already in netlist - cannot merge nets\n"
+msgstr "Beide verbindingen al in de netlijst - kan geen netten samenvoegen\n"
+
+#: ../src/report.c:515
+msgid "Nothing found to report on\n"
+msgstr "Niets gevonden om te rapporteren\n"
+
+#: ../src/set.c:260
+msgid "That mode is NOT allowed when drawing ratlines!\n"
+msgstr "Die modus is NIET toegestaan wanneer ratlijnen getekend worden !\n"
+
+#: ../src/toporouter.c:1272
+#, c-format
+msgid "Elapsed time: %d.%02d seconds\n"
+msgstr "Verstreken tijd: %d.%02d seconden\n"
+
+#: ../src/toporouter.c:6824
+msgid ""
+"Reticulating splines... successful\n"
+"\n"
+msgstr ""
+"Netvormende splines... succesvol\n"
+"\n"
+
+#: ../src/toporouter.c:6825
+#, c-format
+msgid "Wiring cost: %f inches\n"
+msgstr "Bedradingkosten: %f inches\n"
+
+#: ../src/toporouter.c:7613
+msgid "ROAR router: "
+msgstr "ROAR router: "
+
+#: ../src/toporouter.c:7627
+#, c-format
+msgid "%d nets remaining\n"
+msgstr "%d netten zijn over\n"
+
+#: ../src/toporouter.c:7630
+#, c-format
+msgid "%d -> "
+msgstr "%d -> "
+
+#: ../src/toporouter.c:7806
+#, c-format
+msgid "RUBIX router: %d nets remaining\n"
+msgstr "RUBIX router: %d netten zijn over\n"
+
+#: ../src/toporouter.c:7892
+msgid "Topological Autorouter\n"
+msgstr "Topologische Autorouter\n"
+
+#: ../src/toporouter.c:7893
+#, c-format
+msgid "Started %s"
+msgstr "Startte %s"
+
+#: ../src/toporouter.c:7894
+msgid "-------------------------------------\n"
+msgstr "-------------------------------------\n"
+
+#: ../src/toporouter.c:7895
+msgid ""
+"Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n"
+"\n"
+msgstr ""
+"Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n"
+"\n"
+
+#: ../src/undo.c:233
+#, c-format
+msgid "Size of 'undo-list' exceeds %li kb\n"
+msgstr "Grootte van de 'undo-list' overschrijdt %li kb\n"
+
+#: ../src/undo.c:977
+msgid "Nothing to undo - buffer is empty\n"
+msgstr "Niets om ongedaan te maken - buffer is leeg\n"
+
+#: ../src/undo.c:989
+#, c-format
+msgid "Undo bad serial number %d expecting %d\n"
+msgstr "Maak slecht serieel nummer %d ongedaan verwacht %d\n"
+
+#: ../src/undo.c:1138
+msgid "Nothing to redo. Perhaps changes have been made since last undo\n"
+msgstr "Niets te herdoen. Misschien zijn er veranderingen sinds de laatste ongedaanmaking\n"
+
+#: ../src/vendor.c:285
+msgid "Load Vendor Resource File..."
+msgstr "Laad Verkoper Bron Bestand..."
+
+#: ../src/vendor.c:286
+msgid ""
+"Picks a vendor resource file to load.\n"
+"This file can contain drc settings for a\n"
+"particular vendor as well as a list of\n"
+"predefined drills which are allowed."
+msgstr ""
+"Kies een leverancier bronbestand om te laden.\n"
+"Dit bestand kan drc instellingen bevatten voor een\n"
+"bepaalde leverancier alsook een lijst van\n"
+"voorgedefinïeerde boren die toegelaten zijn."
+
+#: ../src/vendor.c:319
+#, c-format
+msgid "Could not load vendor resource file \"%s\"\n"
+msgstr "Kan leverancier bronbestand \"%s\" niet laden\n"
+
+#: ../src/vendor.c:363
+msgid "No drillmap resource found\n"
+msgstr "Geen boorindeling bron gevonden\n"
+
+#: ../src/vendor.c:381
+#, c-format
+msgid "\"%s\" is not a valid rounding type.  Defaulting to up\n"
+msgstr "\"%s\" is geen geldig afrondingstype.  Ga terug naar standaard omhoog\n"
+
+#: ../src/vendor.c:412
+#: ../src/vendor.c:428
+#, c-format
+msgid "Set DRC minimum copper spacing to %.2f mils\n"
+msgstr "Stel DRC minimum koper tussenruimte op %.2f mils in\n"
+
+#: ../src/vendor.c:420
+#, c-format
+msgid "Set DRC minimum copper overlap to %.2f mils\n"
+msgstr "Stel DRC minimum koper overlap op %.2f mils in\n"
+
+#: ../src/vendor.c:436
+#, c-format
+msgid "Set DRC minimum silk width to %.2f mils\n"
+msgstr "Stel DRC minimum opdrukbreedte op %.2f mils in\n"
+
+#: ../src/vendor.c:444
+#, c-format
+msgid "Set DRC minimum drill diameter to %.2f mils\n"
+msgstr "Stel DRC minimum boordiameter op %.2f mils in\n"
+
+# annular is already ring shaped (pleonastic)
+#: ../src/vendor.c:452
+#, c-format
+msgid "Set DRC minimum annular ring to %.2f mils\n"
+msgstr "Stel DRC minimum annulaire ring op %.2f mils in\n"
+
+#: ../src/vendor.c:456
+#, c-format
+msgid "Loaded %d vendor drills from %s\n"
+msgstr "Laadde %d leverancier boren van %s\n"
+
+#: ../src/vendor.c:457
+#, c-format
+msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
+msgstr "Laadde %d RefDes overgeslagen, %d Value overgeslagen, %d Descr overgeslagen\n"
+
+#: ../src/vendor.c:503
+#, c-format
+msgid ""
+"Via at %.2f, %.2f not changed.  Possible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+"Via op %.2f, %.2f niet gewijzigd.  Mogelijke redenen:\n"
+"\t- pad afmeting te klein\n"
+"\t- nieuwe afmeting zou te groot of te klein zijn\n"
+
+#: ../src/vendor.c:511
+#, c-format
+msgid "Locked via at %.2f, %.2f not changed.\n"
+msgstr "Afgesloten via op %.2f, %.2f niet gewijzigd.\n"
+
+#: ../src/vendor.c:543
+#, c-format
+msgid ""
+"Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
+"\tPossible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+"Pen %s (%s) op %.2f, %.2f (element %s, %s, %s) niet gewijzigd.\n"
+"\tMogelijke redenen:\n"
+"\t- pad afmeting te klein\n"
+"\t- nieuwe afmeting zou te groot of te klein zijn\n"
+
+#: ../src/vendor.c:557
+#, c-format
+msgid "Locked pin at %-6.2f, %-6.2f not changed.\n"
+msgstr "Vergrendelde pen op %-6.2f, %-6.2f niet gewijzigd.\n"
+
+#: ../src/vendor.c:567
+#, c-format
+msgid "Updated %d drill sizes out of %d total\n"
+msgstr "%d boordiameters bijgewerkt van totaal %d\n"
+
+#: ../src/vendor.c:576
+#, c-format
+msgid "Adjusted active via hole size to be %6.2f mils\n"
+msgstr "Verstelde de actieve viaboordiameter naar %6.2f mils\n"
+
+#: ../src/vendor.c:590
+#, c-format
+msgid "Adjusted %s routing style via hole size to be %6.2f mils\n"
+msgstr "Routestijl %s verstelde de via boordiameter naar %6.2f mils\n"
+
+#: ../src/vendor.c:599
+#, c-format
+msgid "Increased %s routing style via diameter to %6.2f mils\n"
+msgstr "Routestijl %s verhoogde de via diameter naar %6.2f mils\n"
+
+#: ../src/vendor.c:650
+#, c-format
+msgid ""
+"Vendor drill list does not contain a drill >= %6.2f mil\n"
+"Using %6.2f mil instead.\n"
+msgstr ""
+"Leverancier boorlijst bevat geen boor >= %6.2f mil\n"
+"Gebruik hiervoor %6.2f mil.\n"
+
+#: ../src/vendor.c:815
+#, c-format
+msgid "Ignored resource type = %d in skips= section\n"
+msgstr "Genegeerd brontype = %d in skips= sectie\n"
+
+#: ../src/vendor.c:838
+#, c-format
+msgid "Vendor mapping skipped because refdes = %s matches %s\n"
+msgstr "Leverancier indeling overgeslagen omdat refdes = %s overeenkomt met %s\n"
+
+#: ../src/vendor.c:850
+#, c-format
+msgid "Vendor mapping skipped because value = %s matches %s\n"
+msgstr "Leverancier indeling overgeslagen omdat value = %s overeenkomt met %s\n"
+
+#: ../src/vendor.c:865
+#, c-format
+msgid "Vendor mapping skipped because descr = %s matches %s\n"
+msgstr "Leverancier indeling overgeslagen omdat descr = %s overeenkomt met %s\n"
+
+#: ../src/vendor.c:873
+#, c-format
+msgid "Vendor mapping skipped because element %s is locked\n"
+msgstr "Leverancier indeling overgeslagen omdat element %s op slot is\n"
+
