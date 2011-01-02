@@ -125,13 +125,28 @@ typedef struct _StringList
 } StringList;
 
 
+/*!
+ * \brief List of OpenSCAD models.
+ */
 typedef struct _OpenscadList
 {
+    char *package_type;
+        /*!< component package type, refers to a generic type of
+         * packages (taxonomy).\n
+         * derived from the modelname
+         * (see the \c openscad_get_package_type_string function). */
     char *modelname;
+        /*!< openscad component model name, derived from the footprint
+         * name. */
     char *value;
+        /*!< component value. */
     int num;
+        /*!< number of identical components on the pcb
+         * (the refdes makes them unique). */
     StringList *refdes;
+        /*!< list of component reference designator(s). */
     struct _OpenscadList *next;
+        /*!< pointer to the next entry in the list. */
 } OpenscadList;
 
 
