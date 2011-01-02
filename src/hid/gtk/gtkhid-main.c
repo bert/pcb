@@ -1382,23 +1382,6 @@ Save (int argc, char **argv, int x, int y)
   
   if (name)
     {
-      FILE *exist;
-      exist = fopen (name, "r");
-      if (exist)
-	{
-	  fclose (exist);
-	  if (ghid_dialog_confirm (_("File exists!  Ok to overwrite?"), NULL, NULL))
-	    {
-	      if (Settings.verbose)
-		fprintf (stderr, _("Overwriting %s\n"), name);
-	    }
-	  else
-	    {
-	      g_free (name);
-	      return 1;
-	    }
-	}
-      
       if (Settings.verbose)
 	fprintf (stderr, "%s:  Calling SaveTo(%s, %s)\n", 
 		 __FUNCTION__, function, name);

@@ -375,6 +375,8 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
 					GTK_STOCK_OK, GTK_RESPONSE_OK,
 					NULL);
 
+  gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog),
+                                                  TRUE);
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
   if (path && *path && **path)
