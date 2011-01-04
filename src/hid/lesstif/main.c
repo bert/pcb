@@ -44,6 +44,9 @@ RCSID ("$Id$");
 #define XtRDouble "Double"
 #endif
 
+/* How big the viewport can be relative to the pcb size.  */
+#define MAX_ZOOM_SCALE	10
+
 typedef struct hid_gc_struct
 {
   HID *me_pointer;
@@ -190,6 +193,7 @@ HID_Attribute lesstif_attribute_list[] = {
 REGISTER_ATTRIBUTES (lesstif_attribute_list)
 
 static void lesstif_use_mask (int use_it);
+static void zoom_max ();
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
 static void zoom_toggle (int x, int y);
@@ -337,7 +341,7 @@ PCBChanged (int argc, char **argv, int x, int y)
   stdarg (XmNsliderSize, PCB->MaxHeight ? PCB->MaxHeight : 1);
   stdarg (XmNmaximum, PCB->MaxHeight ? PCB->MaxHeight : 1);
   XtSetValues (vscroll, args, n);
-  zoom_by (1000000, 0, 0);
+  zoom_max ();
 
   hid_action ("NetlistChanged");
   hid_action ("LayersChanged");
@@ -452,7 +456,7 @@ ZoomAction (int argc, char **argv, int x, int y)
     }
   if (argc < 1)
     {
-      zoom_to (1000000, 0, 0);
+      zoom_max ();
       return 0;
     }
   vp = argv[0];
@@ -1131,6 +1135,7 @@ set_scroll (Widget s, int pos, int view, int pcb)
 void
 lesstif_pan_fixup ()
 {
+#if 0
   if (view_left_x > PCB->MaxWidth - (view_width * view_zoom))
     view_left_x = PCB->MaxWidth - (view_width * view_zoom);
   if (view_top_y > PCB->MaxHeight - (view_height * view_zoom))
@@ -1145,11 +1150,26 @@ lesstif_pan_fixup ()
       zoom_by (1, 0, 0);
       return;
     }
+#endif
 
   set_scroll (hscroll, view_left_x, view_width, PCB->MaxWidth);
   set_scroll (vscroll, view_top_y, view_height, PCB->MaxHeight);
 
   lesstif_invalidate_all ();
+}
+
+static void
+zoom_max ()
+{
+  double new_zoom = PCB->MaxWidth / view_width;
+  if (new_zoom < PCB->MaxHeight / view_height)
+    new_zoom = PCB->MaxHeight / view_height;
+
+  view_left_x = -(view_width * new_zoom - PCB->MaxWidth) / 2;
+  view_top_y = -(view_height * new_zoom - PCB->MaxHeight) / 2;
+  view_zoom = new_zoom;
+  pixel_slop = view_zoom;
+  lesstif_pan_fixup ();
 }
 
 static void
@@ -1169,6 +1189,8 @@ zoom_to (double new_zoom, int x, int y)
   max_zoom = PCB->MaxWidth / view_width;
   if (max_zoom < PCB->MaxHeight / view_height)
     max_zoom = PCB->MaxHeight / view_height;
+
+  max_zoom *= MAX_ZOOM_SCALE;
 
   if (new_zoom < 1)
     new_zoom = 1;
@@ -2429,29 +2451,60 @@ idle_proc (XtPointer dummy)
 	}
       XSetForeground (display, bg_gc, bgcolor);
       XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
-      if (region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
-	{
-	  XSetForeground (display, bg_gc, offlimit_color);
-	  if (region.X2 > PCB->MaxWidth)
-	    {
-	      mx = Vx (PCB->MaxWidth);
-	      if (flip_x)
-		XFillRectangle (display, main_pixmap, bg_gc, 0, 0,
-				mx-1, my);
-	      else
-		XFillRectangle (display, main_pixmap, bg_gc, mx+1, 0,
-				view_width - mx + 1, my);
 
-	    }
-	  if (region.Y2 > PCB->MaxHeight)
+      if (region.X1 < 0 || region.Y1 < 0
+	  || region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
+	{
+	  int leftmost, rightmost, topmost, bottommost;
+
+	  leftmost = Vx (0);
+	  rightmost = Vx (PCB->MaxWidth);
+	  topmost = Vy (0);
+	  bottommost = Vy (PCB->MaxHeight);
+	  if (leftmost > rightmost) {
+	    int t = leftmost;
+	    leftmost = rightmost;
+	    rightmost = t;
+	  }
+	  if (topmost > bottommost) {
+	    int t = topmost;
+	    topmost = bottommost;
+	    bottommost = t;
+	  }
+	  if (leftmost < 0)
+	    leftmost = 0;
+	  if (topmost < 0)
+	    topmost = 0;
+	  if (rightmost > view_width)
+	    rightmost = view_width;
+	  if (bottommost > view_height)
+	    bottommost = view_height;
+
+	  XSetForeground (display, bg_gc, offlimit_color);
+
+	  /* L T R
+             L x R
+             L B R */
+
+	  if (leftmost > 0)
 	    {
-	      my = Vy (PCB->MaxHeight) + 1;
-	      if (flip_y)
-		XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx,
-				my-1);
-	      else
-		XFillRectangle (display, main_pixmap, bg_gc, 0, my, mx,
-				view_height - my + 1);
+	      XFillRectangle (display, main_pixmap, bg_gc, 0, 0,
+			      leftmost, view_height);
+	    }
+	  if (rightmost < view_width)
+	    {
+	      XFillRectangle (display, main_pixmap, bg_gc, rightmost+1, 0,
+			      view_width-rightmost+1, view_height);
+	    }
+	  if (topmost > 0)
+	    {
+	      XFillRectangle (display, main_pixmap, bg_gc, leftmost, 0,
+			      rightmost-leftmost+1, topmost);
+	    }
+	  if (bottommost < view_height)
+	    {
+	      XFillRectangle (display, main_pixmap, bg_gc, leftmost, bottommost+1,
+			      rightmost-leftmost+1, view_height-bottommost+1);
 	    }
 	}
       DrawBackgroundImage();
