@@ -143,7 +143,7 @@ nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
       RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, true);
 
   SelectConnection (select_flag);
-  ResetConncetions (false);
+  ResetConnections (false);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   Draw ();
