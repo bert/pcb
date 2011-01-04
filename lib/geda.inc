@@ -793,6 +793,7 @@ define(`PKG_HEADER58_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 29)');
 define(`PKG_HEADER60_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 30)');
 define(`PKG_HEADER62_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 31)');
 define(`PKG_HEADER64_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 32)');
+define(`PKG_HEADER80_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 40)');
 
 #
 ## Header connector, ribbon cable numbering
@@ -830,6 +831,7 @@ define(`PKG_HEADER58_2', `PKG_CONNECTOR(`$1', `$2', `$3', 29, 2)');
 define(`PKG_HEADER60_2', `PKG_CONNECTOR(`$1', `$2', `$3', 30, 2)');
 define(`PKG_HEADER62_2', `PKG_CONNECTOR(`$1', `$2', `$3', 31, 2)');
 define(`PKG_HEADER64_2', `PKG_CONNECTOR(`$1', `$2', `$3', 32, 2)');
+define(`PKG_HEADER80_2', `PKG_CONNECTOR(`$1', `$2', `$3', 40, 2)');
 
 #
 ## Header connector with latches
