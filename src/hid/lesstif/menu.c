@@ -1098,6 +1098,7 @@ lesstif_key_event (XKeyEvent * e)
   int mods = 0;
   int i, vi;
   static int sorted = 0;
+  acc_table_t *my_table = 0;
 
   if (!sorted)
     {
@@ -1202,10 +1203,13 @@ lesstif_key_event (XKeyEvent * e)
   else
     have_xy = 0;
 
-  for (vi = 1; vi < cur_table[i].u.a.node->c; vi++)
-    if (resource_type (cur_table[i].u.a.node->v[vi]) == 10)
+  /* Parsing actions may not return until more user interaction
+     happens, so remember which table we're scanning.  */
+  my_table = cur_table;
+  for (vi = 1; vi < my_table[i].u.a.node->c; vi++)
+    if (resource_type (my_table[i].u.a.node->v[vi]) == 10)
       if (hid_parse_actions
-	  (cur_table[i].u.a.node->v[vi].value))
+	  (my_table[i].u.a.node->v[vi].value))
 	break;
   cur_table = 0;
   return 1;
