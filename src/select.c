@@ -451,7 +451,10 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	  PAD_LOOP (element);
 	  {
 	    if (PAD_IN_BOX (pad, Box)
-		&& TEST_FLAG (SELECTEDFLAG, pad) != Flag)
+		&& TEST_FLAG (SELECTEDFLAG, pad) != Flag
+		&& (TEST_FLAG (ONSOLDERFLAG, pad) == SWAP_IDENT
+		    || PCB->InvisibleObjectsOn
+		    || !Flag))
 	      {
 		AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 		ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
