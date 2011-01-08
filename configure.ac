@@ -264,7 +264,7 @@ if test "x$GCC" = "xyes"; then
 AC_MSG_CHECKING([If the compiler accepts -rdynamic])
 old_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -rdynamic"
-AC_LINK_IFELSE([int main(){}],
+AC_LINK_IFELSE([AC_LANG_PROGRAM()],
 	[AC_MSG_RESULT([yes])],
 	[LDFLAGS="$old_LDFLAGS"
 	AC_MSG_RESULT([no])
