@@ -7782,20 +7782,21 @@ ActionImport (int argc, char **argv, int x, int y)
 	return 1;
       }
 
-      cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
+      cmd = (char **) malloc ((7 + nsources) * sizeof (char *));
       cmd[0] =  Settings.GnetlistProgram;
       cmd[1] = "-g";
       cmd[2] = "pcbfwd";
       cmd[3] = "-o";
       cmd[4] = tmpfile;
+      cmd[5] = "--";
       for (i=0; i<nsources; i++)
-	cmd[5+i] = sources[i];
-      cmd[5+nsources] = NULL;
+	cmd[6+i] = sources[i];
+      cmd[6+nsources] = NULL;
 
 #ifdef DEBUG
       printf("ActionImport:  ===========  About to run gnetlist  ============\n");
-      printf("%s %s %s %s %s %s ...\n", 
-	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5]);
+      printf("%s %s %s %s %s %s %s ...\n", 
+	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
 #endif
 
       if (pcb_spawnvp (cmd))
