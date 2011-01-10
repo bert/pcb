@@ -427,58 +427,98 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 {
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  LocationType width = 0, height = 0;
-  BDimension maxThick = 0;
+  BDimension minThick = 0;
   int i;
+  int space = 0;
+
+  LocationType minx=0, miny=0, maxx=0, maxy=0;
+  LocationType tx;
+  int first_time = 1;
+
+  if (PCB->minSlk < PCB->minWid)
+    minThick = PCB->minWid;
+  else
+    minThick = PCB->minSlk;
+
+  minThick /= Text->Scale / 50.0;
+
+  tx = 0;
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
-    if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
-      {
-        LineTypePtr line = symbol[*s].Line;
-        for (i = 0; i < symbol[*s].LineN; line++, i++)
-          if (line->Thickness > maxThick)
-            maxThick = line->Thickness;
-        width += symbol[*s].Width + symbol[*s].Delta;
-        height = MAX (height, (LocationType) symbol[*s].Height);
-      }
-    else
-      {
-        width +=
-          ((FontPtr->DefaultSymbol.X2 - FontPtr->DefaultSymbol.X1) * 6 / 5);
-        height = (FontPtr->DefaultSymbol.Y2 - FontPtr->DefaultSymbol.Y1);
-      }
+    {
+      if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
+	{
+	  LineTypePtr line = symbol[*s].Line;
+	  for (i = 0; i < symbol[*s].LineN; line++, i++)
+	    {
+	      int t = line->Thickness / 4;
+	      if (t < minThick)
+		t = minThick;
+
+	      if (first_time)
+		{
+		  minx = maxx = line->Point1.X;
+		  miny = maxy = line->Point1.Y;
+		  first_time = 0;
+		}
+
+	      minx = MIN (minx, line->Point1.X - t + tx);
+	      miny = MIN (miny, line->Point1.Y - t);
+	      minx = MIN (minx, line->Point2.X - t + tx);
+	      miny = MIN (miny, line->Point2.Y - t);
+	      maxx = MAX (maxx, line->Point1.X + t + tx);
+	      maxy = MAX (maxy, line->Point1.Y + t);
+	      maxx = MAX (maxx, line->Point2.X + t + tx);
+	      maxy = MAX (maxy, line->Point2.Y + t);
+	    }
+	  space = symbol[*s].Delta;
+	}
+      else
+	{
+	  BoxType *ds = &FontPtr->DefaultSymbol;
+	  int w = ds->X2 - ds->X1;
+
+	  minx = MIN (minx, ds->X1 + tx);
+	  miny = MIN (miny, ds->Y1);
+	  minx = MIN (minx, ds->X2 + tx);
+	  miny = MIN (miny, ds->Y2);
+	  maxx = MAX (maxx, ds->X1 + tx);
+	  maxy = MAX (maxy, ds->Y1);
+	  maxx = MAX (maxx, ds->X2 + tx);
+	  maxy = MAX (maxy, ds->Y2);
+
+	  space = w / 5;
+	}
+      tx += symbol[*s].Width + space;
+    }
 
   /* scale values */
-  width *= Text->Scale / 100.;
-  height *= Text->Scale / 100.;
-  maxThick *= Text->Scale / 200.;
-  if (maxThick < 400)
-    maxThick = 400;
+  minx *= Text->Scale / 100.;
+  miny *= Text->Scale / 100.;
+  maxx *= Text->Scale / 100.;
+  maxy *= Text->Scale / 100.;
 
   /* set upper-left and lower-right corner;
    * swap coordinates if necessary (origin is already in 'swapped')
    * and rotate box
    */
-  Text->BoundingBox.X1 = Text->X;
-  Text->BoundingBox.Y1 = Text->Y;
+
   if (TEST_FLAG (ONSOLDERFLAG, Text))
     {
-      Text->BoundingBox.X1 -= maxThick;
-      Text->BoundingBox.Y1 -= SWAP_SIGN_Y (maxThick);
-      Text->BoundingBox.X2 =
-        Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
-      Text->BoundingBox.Y2 =
-        Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2 * maxThick);
+      Text->BoundingBox.X1 = Text->X + minx;
+      Text->BoundingBox.Y1 = Text->Y - miny;
+      Text->BoundingBox.X2 = Text->X + maxx;
+      Text->BoundingBox.Y2 = Text->Y - maxy;
       RotateBoxLowLevel (&Text->BoundingBox, Text->X, Text->Y,
                          (4 - Text->Direction) & 0x03);
     }
   else
     {
-      Text->BoundingBox.X1 -= maxThick;
-      Text->BoundingBox.Y1 -= maxThick;
-      Text->BoundingBox.X2 = Text->BoundingBox.X1 + width + maxThick;
-      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height + 2 * maxThick;
+      Text->BoundingBox.X1 = Text->X + minx;
+      Text->BoundingBox.Y1 = Text->Y + miny;
+      Text->BoundingBox.X2 = Text->X + maxx;
+      Text->BoundingBox.Y2 = Text->Y + maxy;
       RotateBoxLowLevel (&Text->BoundingBox,
                          Text->X, Text->Y, Text->Direction);
     }
