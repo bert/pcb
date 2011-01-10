@@ -4,6 +4,9 @@
 
 SUBDIRS=	icons
 
+CC = @CC_OR_CXX@
+CFLAGS = @CC_OR_CXX_FLAGS@
+
 pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
 
@@ -12,7 +15,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a libgts.a \
+	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
 	libgcode.a
 
 pcblib_DATA=	\
@@ -181,9 +184,8 @@ pcb_DEPENDENCIES = @HIDLIBS@
 
 if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
-noinst_LIBRARIES += libgts.a
-pcb_LDADD += libgts.a
-pcb_DEPENDENCIES += libgts.a
+pcb_LDADD += ../gts/libgts.a
+pcb_DEPENDENCIES += ../gts/libgts.a
 endif
 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
@@ -195,7 +197,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	mv $@.tmp $@
 
 # for globalconst.h
-INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/gts
+INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/../gts
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
@@ -328,56 +330,6 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libgts_a_CPPFLAGS = -I./gts
-LIBGTS_SRCS = \
-	gts/object.c \
-	gts/point.c \
-	gts/vertex.c \
-	gts/segment.c \
-	gts/edge.c \
-	gts/triangle.c \
-	gts/face.c \
-	gts/kdtree.c \
-	gts/bbtree.c \
-	gts/misc.c \
-	gts/gts-private.h \
-	gts/predicates.c \
-	gts/predicates.h \
-	gts/rounding.h \
-	gts/heap.c \
-	gts/eheap.c \
-	gts/fifo.c \
-	gts/gts.h \
-	gts/matrix.c \
-	gts/surface.c \
-	gts/stripe.c \
-	gts/vopt.c \
-	gts/refine.c \
-	gts/iso.c \
-	gts/isotetra.c \
-	gts/split.c \
-	gts/psurface.c \
-	gts/hsurface.c \
-	gts/cdt.c \
-	gts/boolean.c \
-	gts/named.c \
-	gts/oocs.c \
-	gts/container.c \
-	gts/graph.c \
-	gts/pgraph.c \
-	gts/partition.c \
-	gts/curvature.c \
-	gts/tribox3.c
-libgts_a_SOURCES = ${LIBGTS_SRCS} gts/gts_lists.h
- 
-gts/gts_lists.h : ${LIBGTS_SRCS} Makefile
-	$(MKDIR_P) gts
-	true > $@
-# Uncomment out the following if/when we ever end up with REGISTER in any of the gts
-# source files.  For now, there aren't any and so the grep fails and make stops
-#	(for f in ${LIBGTS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
-#	mv $@.tmp $@
-
 libbatch_a_CPPFLAGS = -I./hid/batch
 LIBBATCH_SRCS = \
 	hid/hidint.h \
@@ -478,7 +430,6 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
-	gts/gts_lists.h \
 	core_lists.h \
 	dbus-introspect.h
 

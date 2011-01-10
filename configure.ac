@@ -120,6 +120,7 @@ AC_DEFINE_UNQUOTED(PCB_PATH_DELIMETER,"$PCB_PATH_DELIMETER",[Search path separat
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 
 if test "x$WIN32" = "xyes" ; then
 	AC_CHECK_TOOL(WINDRES, windres, [no])
@@ -1036,6 +1037,27 @@ if test "x$GCC" = "xyes"; then
 	done
 fi
 
+CXXFLAGS="$CFLAGS"
+
+# See if we are building gcc with C++.
+AC_ARG_ENABLE(build-with-cxx,
+[  --enable-build-with-cxx build with C++ compiler instead of C compiler],
+ENABLE_BUILD_WITH_CXX=$enableval,
+ENABLE_BUILD_WITH_CXX=no)
+
+case "$ENABLE_BUILD_WITH_CXX" in
+  yes)
+    CC_OR_CXX="$CXX"
+    CC_OR_CXX_FLAGS="$CXXFLAGS"
+    ;;
+  no)
+    CC_OR_CXX="$CC"
+    CC_OR_CXX_FLAGS="$CFLAGS"
+    ;;
+esac
+AC_SUBST(CC_OR_CXX)
+AC_SUBST(CC_OR_CXX_FLAGS)
+
 # font filename
 FONTFILENAME=${FONTFILENAME:-"default_font"}
 AC_SUBST(FONTFILENAME)
@@ -1174,6 +1196,9 @@ AC_CONFIG_FILES(tests/Makefile)
 dnl win32 build scripts
 AC_CONFIG_FILES(win32/Makefile)
 
+dnl GTS 0.7.6 - http://gts.sourceforge.net/
+AC_CONFIG_FILES(gts/Makefile)
+
 AC_OUTPUT
 
 with_gui=`echo $with_gui`
@@ -1200,8 +1225,10 @@ AC_MSG_RESULT([
 
    Cross Compiling:          $cross_compiling
    CC:                       $CC
+   CXX:                      $CXX
    CPPFLAGS:                 $CPPFLAGS
    CFLAGS:                   $CFLAGS
+   CXXFLAGS:                 $CXXFLAGS
    LIBS:                     $LIBS
    PCB:                      $PCB
 
