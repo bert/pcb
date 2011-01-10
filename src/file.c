@@ -351,6 +351,7 @@ int
 LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (false);
+  PCBTypePtr oldPCB;
   bool units_mm;
 #ifdef DEBUG
   double elapsed;
@@ -359,11 +360,13 @@ LoadPCB (char *Filename)
   start = clock ();
 #endif
 
+  oldPCB = PCB;
+  PCB = newPCB;
+
   /* new data isn't added to the undo list */
-  if (!ParsePCB (newPCB, Filename))
+  if (!ParsePCB (PCB, Filename))
     {
-      RemovePCB (PCB);
-      PCB = newPCB;
+      RemovePCB (oldPCB);
 
       CreateNewPCBPost (PCB, 0);
       ResetStackAndVisibility ();
@@ -412,6 +415,7 @@ LoadPCB (char *Filename)
 
       return (0);
     }
+  PCB = oldPCB;
   hid_action ("PCBChanged");
 
   /* release unused memory */
