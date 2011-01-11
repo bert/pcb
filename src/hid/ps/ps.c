@@ -339,6 +339,21 @@ ps_start_file (FILE *f)
    */
   fprintf (f, "%%%%Pages: (atend)\n" );
 
+  /*
+   * %%DocumentMedia: <name> <width> <height> <weight> <color> <type>
+   *
+   * Substitute 0 or "" for N/A.  Width and height are in points
+   * (1/72").
+   *
+   * Media sizes are in PCB units
+   */
+  fprintf (f, "%%%%DocumentMedia: %s %g %g 0 \"\" \"\"\n",
+	   media_data[media].name,
+	   media_data[media].Width * 72.0 / 100000.0,
+	   media_data[media].Height * 72.0 / 100000.0);
+  fprintf (f, "%%%%DocumentPaperSizes: %s\n",
+	   media_data[media].name);
+
   /* End General Header Comments. */
 
   /* General Body Comments go here. Currently there are none. */
@@ -446,6 +461,9 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   drillcopper = options[HA_drillcopper].int_value;
   legend = options[HA_legend].int_value;
 
+  if (f)
+    ps_start_file (f);
+
   if (fade_ratio < 0)
     fade_ratio = 0;
   if (fade_ratio > 1)
@@ -488,7 +506,6 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       if (strcmp (layer->Name, "outline") == 0 ||
 	  strcmp (layer->Name, "route") == 0)
 	{
-	  printf("see outline layer\n");
 	  outline_layer = layer;
 	}
     }
@@ -568,7 +585,6 @@ ps_do_export (HID_Attr_Val * options)
 	  perror (filename);
 	  return;
 	}
-      ps_start_file (f);
     }
 
   hid_save_and_show_layer_ons (save_ons);
@@ -850,7 +866,6 @@ ps_set_layer (const char *name, int group, int empty)
       && strcmp (name, "outline")
       && strcmp (name, "route"))
     {
-      printf("attempting to draw outlines on %s\n", name);
       DrawLayer (outline_layer, &region);
     }
 
