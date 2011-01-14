@@ -2,6 +2,14 @@ PCB uses a standard GNU autoconf/automake based build
 system which should make compilation go smoothly on most unix-like
 systems.  Please do read this first section however.
 
+If there is no "configure" script, e.g. because you pulled sources
+from the Git repository, make sure you have autopoint and autoconf
+installed, then run:
+
+  ./autogen.sh
+
+This will set up and run autoconf to create configure.
+
 PCB is organized into a core program that deals with all of the
 internal database procedures and a collection of Human Interface
 Devices (HID's).  The HID's provide exporting/printing capability
