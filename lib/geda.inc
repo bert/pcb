@@ -1180,9 +1180,10 @@ define(`PKG_SC70_4',   `PKG_SMT_TRANSISTOR4( `$1', `$2', `$3', 13, 18)');
 
 ## SMT transistor, 5 pins
 # aka SOT23-5
-define(`PKG_SOT25',    `PKG_SMT_TRANSISTOR5( `$1', `$2', `$3', 20, 21)');
-define(`PKG_SOT325',   `PKG_SMT_TRANSISTOR5( `$1', `$2', `$3', 13, 18)');
+define(`PKG_SOT25',    `PKG_SMT_TRANSISTOR5A( `$1', `$2', `$3', 20, 21)');
+define(`PKG_SOT353',   `PKG_SMT_TRANSISTOR5A( `$1', `$2', `$3', 13, 18)');
 define(`PKG_SC70_5',   `PKG_SMT_TRANSISTOR5A(`$1', `$2', `$3', 13, 18)');
+define(`PKG_SC88A',   `PKG_SMT_TRANSISTOR5A(`$1', `$2', `$3', 13, 18)');
 
 ## SMT transistor, 6 pins
 # aka SOT23-6
