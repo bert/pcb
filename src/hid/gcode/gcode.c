@@ -45,6 +45,7 @@
 #include <time.h>
 
 #include "global.h"
+#include "error.h" /* Message() */
 #include "data.h"
 #include "misc.h"
 #include "rats.h"
