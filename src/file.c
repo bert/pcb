@@ -491,44 +491,16 @@ WriteAttributeList (FILE * FP, AttributeListTypePtr list, char *prefix)
 
 /* ---------------------------------------------------------------------------
  * writes layout header information
- * date, UID and name of user
  */
 static void
 WritePCBInfoHeader (FILE * FP)
 {
-#ifdef HAVE_GETPWUID
-  struct passwd *pwentry;
-#endif
-
-#ifdef HAVE_GETHOSTNAME
-  static struct hostent *hostentry = NULL;
-  char hostname[256];
-#endif
-  time_t currenttime;
-
   /* write some useful comments */
-  currenttime = time (NULL);
   fprintf (FP, "# release: %s " VERSION "\n", Progname);
-  fprintf (FP, "# date:    %s", asctime (localtime (&currenttime)));
 
-#ifdef HAVE_GETPWUID
-  pwentry = getpwuid (getuid ());
-  fprintf (FP, "# user:    %s (%s)\n", pwentry->pw_name, pwentry->pw_gecos);
-#else
-  fprintf (FP, "# user:    Unknown\n");
-#endif
-
-#ifdef HAVE_GETHOSTNAME
-  if (gethostname (hostname, 255) != -1)
-    {
-      if (hostentry == NULL)
-	hostentry = gethostbyname (hostname);
-      fprintf (FP, "# host:    %s\n",
-	       hostentry ? hostentry->h_name : hostname);
-    }
-#else
-  fprintf (FP, "# host:    Unknown\n");
-#endif
+  /* avoid writing things like user name or date, as these cause merge
+   * conflicts in collaborative environments using version control systems
+   */
 }
 
 /* ---------------------------------------------------------------------------
