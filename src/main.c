@@ -40,6 +40,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h> /* Seed for srand() */
 
 #include "global.h"
 #include "data.h"
@@ -905,6 +906,8 @@ main (int argc, char *argv[])
 
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+
+  srand ( time(NULL) ); /* Set seed for rand() */
 
   hid_init ();
 

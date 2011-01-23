@@ -768,12 +768,12 @@ png_do_export (HID_Attr_Val * options)
 		  else
 		    {
 		      rgb (&cop, 140, 150, 160);
-#if 1
-		      r = (random() % 5 - 2) * 2;
+
+		      r = (rand() % 5 - 2) * 2;
 		      cop.r += r;
 		      cop.g += r;
 		      cop.b += r;
-#endif
+
 		    }
 		  
 		  if (cc == TOP_SHADOW)

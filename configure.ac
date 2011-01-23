@@ -651,7 +651,7 @@ AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
 AC_CHECK_FUNCS(vsnprintf)
 AC_CHECK_FUNCS(getpwuid getcwd)
-AC_CHECK_FUNCS(random)
+AC_CHECK_FUNCS(rand random)
 AC_CHECK_FUNCS(stat)
 
 AC_CHECK_FUNCS(mkdtemp)

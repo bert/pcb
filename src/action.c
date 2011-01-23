@@ -72,6 +72,7 @@
 #include "macro.h"
 
 #include <assert.h>
+#include <stdlib.h> /* rand() */
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -7158,8 +7159,8 @@ ActionElementList (int argc, char **argv, int x, int y)
 
       if (d > 0)
 	{
-	  nx += random () % (d*2) - d;
-	  ny += random () % (d*2) - d;
+	  nx += rand () % (d*2) - d;
+	  ny += rand () % (d*2) - d;
 	}
 
       if (nx < 0)
