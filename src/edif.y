@@ -4147,7 +4147,7 @@ void ParseEDIF(char* filename,FILE* err)
      */
     CSP = (ContextCar *) Malloc(sizeof(ContextCar));
     CSP->Next = NULL;
-    CSP->Context = FindContext(NULL);
+    CSP->Context = FindContext(0);
     CSP->u.Used = NULL;
     ContextDefined = 0;
   }
