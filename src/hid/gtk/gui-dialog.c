@@ -95,8 +95,8 @@ ghid_dialog_about (void)
   GtkWidget *dialog;
   GHidPort *out = &ghid_port;
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL
-				   | GTK_DIALOG_DESTROY_WITH_PARENT,
+				   (GtkDialogFlags)(GTK_DIALOG_MODAL
+						    | GTK_DIALOG_DESTROY_WITH_PARENT),
 				   GTK_MESSAGE_INFO,
 				   GTK_BUTTONS_OK,
 				   "%s", GetInfoString ());
@@ -115,8 +115,8 @@ ghid_dialog_confirm_all (gchar * all_message)
 
   dialog = gtk_dialog_new_with_buttons ("Confirm",
 					GTK_WINDOW (out->top_window),
-					GTK_DIALOG_MODAL |
-					GTK_DIALOG_DESTROY_WITH_PARENT,
+					(GtkDialogFlags)(GTK_DIALOG_MODAL |
+							 GTK_DIALOG_DESTROY_WITH_PARENT),
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_OK, GTK_RESPONSE_OK,
 					"Sequence OK",
@@ -142,8 +142,8 @@ ghid_dialog_message (gchar * message)
   GHidPort *out = &ghid_port;
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL |
-				   GTK_DIALOG_DESTROY_WITH_PARENT,
+				   (GtkDialogFlags)(GTK_DIALOG_MODAL |
+						    GTK_DIALOG_DESTROY_WITH_PARENT),
 				   GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
 				   "%s", message);
 
@@ -170,8 +170,8 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
     }
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL |
-				   GTK_DIALOG_DESTROY_WITH_PARENT,
+				   (GtkDialogFlags)(GTK_DIALOG_MODAL |
+						    GTK_DIALOG_DESTROY_WITH_PARENT),
 				   GTK_MESSAGE_QUESTION,
 				   GTK_BUTTONS_NONE,
 				   "%s", message);
@@ -218,8 +218,8 @@ ghid_dialog_close_confirm ()
   str = g_strconcat (str, "\n\n", tmp, NULL);
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-                                   GTK_DIALOG_MODAL |
-                                     GTK_DIALOG_DESTROY_WITH_PARENT,
+                                   (GtkDialogFlags)(GTK_DIALOG_MODAL |
+						    GTK_DIALOG_DESTROY_WITH_PARENT),
                                      GTK_MESSAGE_WARNING,
                                    GTK_BUTTONS_NONE, NULL);
   gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (dialog), str);
@@ -472,7 +472,7 @@ ghid_fileselect (const char *title, const char *descr,
 	{
 	  n_recent_dirs++;
 
-	  recent_dirs = realloc (recent_dirs, 
+	  recent_dirs = (ghid_file_history *)realloc (recent_dirs, 
 				  n_recent_dirs * sizeof (ghid_file_history));
 
 	  if (recent_dirs == NULL)

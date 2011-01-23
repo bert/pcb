@@ -72,7 +72,7 @@ RCSID ("$Id$");
  */
 static bool FindPad (char *, char *, ConnectionType *, bool);
 static bool ParseConnection (char *, char *, char *);
-static bool DrawShortestRats (NetListTypePtr, void (*)());
+static bool DrawShortestRats (NetListTypePtr, void (*)(register ConnectionTypePtr, register ConnectionTypePtr, register RouteStyleTypePtr));
 static bool GatherSubnets (NetListTypePtr, bool, bool);
 static bool CheckShorts (LibraryMenuTypePtr);
 static void TransferNet (NetListTypePtr, NetTypePtr, NetTypePtr);
@@ -235,7 +235,7 @@ ProcNetlist (LibraryTypePtr net_menu)
   SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
   CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
 
-  Wantlist = calloc (1, sizeof (NetListType));
+  Wantlist = (NetListTypePtr)calloc (1, sizeof (NetListType));
   if (Wantlist)
     {
       ALLPIN_LOOP (PCB->Data);
@@ -360,8 +360,8 @@ TransferNet (NetListTypePtr Netl, NetTypePtr SourceNet, NetTypePtr DestNet)
 static bool
 CheckShorts (LibraryMenuTypePtr theNet)
 {
-  bool new, warn = false;
-  PointerListTypePtr generic = calloc (1, sizeof (PointerListType));
+  bool newone, warn = false;
+  PointerListTypePtr generic = (PointerListTypePtr)calloc (1, sizeof (PointerListType));
   /* the first connection was starting point so
    * the menu is always non-null
    */
@@ -382,17 +382,17 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	    SET_FLAG (WARNFLAG, pin);
 	    continue;
 	  }
-	new = true;
+	newone = true;
 	POINTER_LOOP (generic);
 	{
 	  if (*ptr == pin->Spare)
 	    {
-	      new = false;
+	      newone = false;
 	      break;
 	    }
 	}
 	END_LOOP;
-	if (new)
+	if (newone)
 	  {
 	    menu = GetPointerMemory (generic);
 	    *menu = pin->Spare;
@@ -418,17 +418,17 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	    SET_FLAG (WARNFLAG, pad);
 	    continue;
 	  }
-	new = true;
+	newone = true;
 	POINTER_LOOP (generic);
 	{
 	  if (*ptr == pad->Spare)
 	    {
-	      new = false;
+	      newone = false;
 	      break;
 	    }
 	}
 	END_LOOP;
-	if (new)
+	if (newone)
 	  {
 	    menu = GetPointerMemory (generic);
 	    *menu = pad->Spare;
@@ -559,7 +559,7 @@ GatherSubnets (NetListTypePtr Netl, bool NoWarn, bool AndRats)
  */
 
 static bool
-DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
+DrawShortestRats (NetListTypePtr Netl, void (*funcp) (register ConnectionTypePtr, register ConnectionTypePtr, register RouteStyleTypePtr))
 {
   RatTypePtr line;
   register float distance, temp;
@@ -728,7 +728,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
  *  if SelectedOnly is true, it will only draw rats to selected pins and pads
  */
 bool
-AddAllRats (bool SelectedOnly, void (*funcp) ())
+AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionTypePtr, register ConnectionTypePtr, register RouteStyleTypePtr))
 {
   NetListTypePtr Nets, Wantlist;
   NetTypePtr lonesome;
@@ -750,7 +750,7 @@ AddAllRats (bool SelectedOnly, void (*funcp) ())
   /* initialize finding engine */
   InitConnectionLookup ();
   SaveFindFlag (DRCFLAG);
-  Nets = calloc (1, sizeof (NetListType));
+  Nets = (NetListTypePtr)calloc (1, sizeof (NetListType));
   /* now we build another netlist (Nets) for each
    * net in Wantlist that shows how it actually looks now,
    * then fill in any missing connections with rat lines.

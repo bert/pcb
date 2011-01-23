@@ -260,7 +260,7 @@ ghid_pinout_preview_set_property (GObject * object, guint property_id,
   switch (property_id)
     {
     case PROP_ELEMENT_DATA:
-      pinout_set_data (pinout, g_value_get_pointer (value));
+      pinout_set_data (pinout, (ElementType *)g_value_get_pointer (value));
       if (GTK_WIDGET_REALIZED (GTK_WIDGET (pinout)))
 	gdk_window_invalidate_rect (GTK_WIDGET (pinout)->window, NULL, FALSE);
       break;
@@ -316,7 +316,7 @@ ghid_pinout_preview_class_init (GhidPinoutPreviewClass * klass)
 
   gtk_widget_class->expose_event = ghid_pinout_preview_expose;
 
-  ghid_pinout_preview_parent_class = g_type_class_peek_parent (klass);
+  ghid_pinout_preview_parent_class = (GObjectClass *)g_type_class_peek_parent (klass);
 
   g_object_class_install_property (gobject_class, PROP_ELEMENT_DATA,
 				   g_param_spec_pointer ("element-data",
@@ -356,7 +356,7 @@ ghid_pinout_preview_get_type ()
 
       ghid_pinout_preview_type =
 	g_type_register_static (GTK_TYPE_DRAWING_AREA, "GhidPinoutPreview",
-				&ghid_pinout_preview_info, 0);
+				&ghid_pinout_preview_info, (GTypeFlags)0);
     }
 
   return ghid_pinout_preview_type;
@@ -375,7 +375,7 @@ ghid_pinout_preview_new (ElementType * element)
 {
   GhidPinoutPreview *pinout_preview;
 
-  pinout_preview = g_object_new (GHID_TYPE_PINOUT_PREVIEW,
+  pinout_preview = (GhidPinoutPreview *)g_object_new (GHID_TYPE_PINOUT_PREVIEW,
 				 "element-data", element, NULL);
 
   return GTK_WIDGET (pinout_preview);

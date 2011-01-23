@@ -68,7 +68,7 @@ hid_find_flag (const char *name)
   if (all_flags == 0)
     {
       n = 0;
-      all_flags = malloc (n_flags * sizeof (HID_Flag));
+      all_flags = (HID_Flag *)malloc (n_flags * sizeof (HID_Flag));
       for (hf = hid_flag_nodes; hf; hf = hf->next)
 	for (i = 0; i < hf->n; i++)
 	  all_flags[n++] = hf->flags[i];
@@ -110,7 +110,7 @@ hid_get_flag (const char *name)
       if (nbuf < (cp - name + 1))
 	{
 	  nbuf = cp - name + 10;
-	  buf = realloc (buf, nbuf);
+	  buf = (char *)realloc (buf, nbuf);
 	}
       memcpy (buf, name, cp - name);
       buf[cp - name] = 0;

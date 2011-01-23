@@ -64,7 +64,7 @@ extents_set_layer (const char *name, int group, int empty)
 static hidGC
 extents_make_gc (void)
 {
-  hidGC rv = malloc (sizeof (hid_gc_struct));
+  hidGC rv = (hidGC)malloc (sizeof (hid_gc_struct));
   memset (rv, 0, sizeof (hid_gc_struct));
   return rv;
 }
@@ -97,7 +97,7 @@ extents_set_line_width (hidGC gc, int width)
 }
 
 static void
-extents_set_draw_xor (hidGC gc, int xor)
+extents_set_draw_xor (hidGC gc, int xor_)
 {
 }
 

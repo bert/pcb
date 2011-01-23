@@ -356,7 +356,7 @@ net_model_create (void)
         hash_string = g_strjoinv (NET_HIERARCHY_SEPARATOR, join_array);
         g_free (join_array);
 
-        row_ref = g_hash_table_lookup (prefix_hash, hash_string);
+        row_ref = (GtkTreeRowReference *)g_hash_table_lookup (prefix_hash, hash_string);
         g_free (hash_string);
 
         /* If we didn't find the path at this level, keep looping */
@@ -817,7 +817,7 @@ static gboolean
 hunt_named_node (GtkTreeModel *model, GtkTreePath *path,
                  GtkTreeIter *iter, gpointer data)
 {
-  struct ggnfnn_task *task = data;
+  struct ggnfnn_task *task = (struct ggnfnn_task *)data;
   LibraryMenuType *net;
   LibraryEntryType *node;
   gchar *str;

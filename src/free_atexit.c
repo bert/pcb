@@ -48,7 +48,7 @@ void *leaky_malloc (size_t size)
 {
   void *new_memory = malloc(size + sizeof(leaky_admin_t));
 
-  free_list = realloc (free_list, (free_size + 1) * sizeof(void *));
+  free_list = (void **)realloc (free_list, (free_size + 1) * sizeof(void *));
   free_list[free_size] = new_memory;
   *(leaky_idx_t *)new_memory = free_size;
 

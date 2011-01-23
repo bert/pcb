@@ -365,7 +365,6 @@ gboolean dup_string (gchar ** dst, gchar * src);
 gboolean utf8_dup_string (gchar ** dst_utf8, gchar * src);
 void free_glist_and_data (GList ** list_head);
 
-
 ModifierKeysState ghid_modifier_keys_state (GdkModifierType * state);
 ButtonState ghid_button_state (GdkModifierType * state);
 gboolean ghid_is_modifier_key_sym (gint ksym);
@@ -382,23 +381,24 @@ gchar *ghid_entry_get_text (GtkWidget * entry);
 void ghid_check_button_connected (GtkWidget * box, GtkWidget ** button,
 				  gboolean active, gboolean pack_start,
 				  gboolean expand, gboolean fill, gint pad,
-				  void (*cb_func) (), gpointer data,
+				  void (*cb_func) (GtkToggleButton *, gpointer), gpointer data,
 				  gchar * string);
 void ghid_button_connected (GtkWidget * box, GtkWidget ** button,
 			    gboolean pack_start, gboolean expand,
-			    gboolean fill, gint pad, void (*cb_func) (),
+			    gboolean fill, gint pad, void (*cb_func) (gpointer),
 			    gpointer data, gchar * string);
 void ghid_spin_button (GtkWidget * box, GtkWidget ** spin_button,
 		       gfloat value, gfloat low, gfloat high, gfloat step0,
 		       gfloat step1, gint digits, gint width,
-		       void (*cb_func) (), gpointer data,
+		       void (*cb_func) (GtkSpinButton *, gpointer), gpointer data,
 		       gboolean right_align, gchar * string);
 void ghid_table_spin_button (GtkWidget * box, gint row, gint column,
 			     GtkWidget ** spin_button, gfloat value,
 			     gfloat low, gfloat high, gfloat step0,
 			     gfloat step1, gint digits, gint width,
-			     void (*cb_func) (), gpointer data,
+			     void (*cb_func) (GtkSpinButton *, gpointer), gpointer data,
 			     gboolean right_align, gchar * string);
+
 void ghid_range_control (GtkWidget * box, GtkWidget ** scale_res,
 			 gboolean horizontal, GtkPositionType pos,
 			 gboolean set_draw_value, gint digits,
@@ -435,7 +435,7 @@ GtkTreeSelection *ghid_scrolled_selection (GtkTreeView * treeview,
 					   GtkSelectionMode s_mode,
 					   GtkPolicyType h_policy,
 					   GtkPolicyType v_policy,
-					   void (*func_cb) (), gpointer data);
+					   void (*func_cb) (GtkTreeSelection *, gpointer), gpointer data);
 
 void ghid_dialog_report (gchar * title, gchar * message);
 void ghid_label_set_markup (GtkWidget * label, const gchar * text);
@@ -492,7 +492,7 @@ void ghid_use_mask (int use_it);
 void ghid_set_color (hidGC gc, const char *name);
 void ghid_set_line_cap (hidGC gc, EndCapStyle style);
 void ghid_set_line_width (hidGC gc, int width);
-void ghid_set_draw_xor (hidGC gc, int xor);
+void ghid_set_draw_xor (hidGC gc, int _xor);
 void ghid_set_draw_faded (hidGC gc, int faded);
 void ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
@@ -502,7 +502,7 @@ void ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_fill_circle (hidGC gc, int cx, int cy, int radius);
 void ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
-void ghid_invalidate_lr ();
+void ghid_invalidate_lr (int left, int right, int top, int bottom);
 void ghid_invalidate_all ();
 void ghid_show_crosshair (gboolean show);
 

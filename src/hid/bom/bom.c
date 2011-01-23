@@ -90,7 +90,7 @@ CleanBOMString (char *in)
   char *out;
   int i;
 
-  if ((out = malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
+  if ((out = (char *)malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
     {
       fprintf (stderr, "Error:  CleanBOMString() malloc() failed\n");
       exit (1);
@@ -144,25 +144,25 @@ xyToAngle (double x, double y)
 static StringList *
 string_insert (char *str, StringList * list)
 {
-  StringList *new, *cur;
+  StringList *newlist, *cur;
 
-  if ((new = (StringList *) malloc (sizeof (StringList))) == NULL)
+  if ((newlist = (StringList *) malloc (sizeof (StringList))) == NULL)
     {
       fprintf (stderr, "malloc() failed in string_insert()\n");
       exit (1);
     }
 
-  new->next = NULL;
-  new->str = strdup (str);
+  newlist->next = NULL;
+  newlist->str = strdup (str);
 
   if (list == NULL)
-    return (new);
+    return (newlist);
 
   cur = list;
   while (cur->next != NULL)
     cur = cur->next;
 
-  cur->next = new;
+  cur->next = newlist;
 
   return (list);
 }
@@ -170,23 +170,23 @@ string_insert (char *str, StringList * list)
 static BomList *
 bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 {
-  BomList *new, *cur, *prev = NULL;
+  BomList *newlist, *cur, *prev = NULL;
 
   if (bom == NULL)
     {
       /* this is the first element so automatically create an entry */
-      if ((new = (BomList *) malloc (sizeof (BomList))) == NULL)
+      if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
 	{
 	  fprintf (stderr, "malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
 
-      new->next = NULL;
-      new->descr = strdup (descr);
-      new->value = strdup (value);
-      new->num = 1;
-      new->refdes = string_insert (refdes, NULL);
-      return (new);
+      newlist->next = NULL;
+      newlist->descr = strdup (descr);
+      newlist->value = strdup (value);
+      newlist->num = 1;
+      newlist->refdes = string_insert (refdes, NULL);
+      return (newlist);
     }
 
   /* search and see if we already have used one of these
@@ -207,19 +207,19 @@ bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 
   if (cur == NULL)
     {
-      if ((new = (BomList *) malloc (sizeof (BomList))) == NULL)
+      if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
 	{
 	  fprintf (stderr, "malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
 
-      prev->next = new;
+      prev->next = newlist;
 
-      new->next = NULL;
-      new->descr = strdup (descr);
-      new->value = strdup (value);
-      new->num = 1;
-      new->refdes = string_insert (refdes, NULL);
+      newlist->next = NULL;
+      newlist->descr = strdup (descr);
+      newlist->value = strdup (value);
+      newlist->num = 1;
+      newlist->refdes = string_insert (refdes, NULL);
     }
 
   return (bom);
@@ -331,9 +331,9 @@ PrintBOM (void)
     found_pin2 = 0;
 
     /* insert this component into the bill of materials list */
-    bom = bom_insert (UNKNOWN (NAMEONPCB_NAME (element)),
-		      UNKNOWN (DESCRIPTION_NAME (element)),
-		      UNKNOWN (VALUE_NAME (element)), bom);
+    bom = bom_insert ((char *)UNKNOWN (NAMEONPCB_NAME (element)),
+		      (char *)UNKNOWN (DESCRIPTION_NAME (element)),
+		      (char *)UNKNOWN (VALUE_NAME (element)), bom);
 
 
     /*
@@ -446,9 +446,9 @@ PrintBOM (void)
 	       UNKNOWN (NAMEONPCB_NAME (element)), theta);
 	  }
 
-	name = CleanBOMString (UNKNOWN (NAMEONPCB_NAME (element)));
-	descr = CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element)));
-	value = CleanBOMString (UNKNOWN (VALUE_NAME (element)));
+	name = CleanBOMString ((char *)UNKNOWN (NAMEONPCB_NAME (element)));
+	descr = CleanBOMString ((char *)UNKNOWN (DESCRIPTION_NAME (element)));
+	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
  	if (xy_dim_type) {

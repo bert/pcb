@@ -1495,7 +1495,7 @@ NotifyMode (void)
 		{
 		  /* Create POLYAREAs from the original polygon
 		   * and the new hole polygon */
-		  original = PolygonToPoly (Crosshair.AttachedObject.Ptr2);
+		  original = PolygonToPoly ((PolygonType *)Crosshair.AttachedObject.Ptr2);
 		  new_hole = PolygonToPoly (&Crosshair.AttachedPolygon);
 
 		  /* Subtract the hole from the original polygon shape */
@@ -1506,7 +1506,7 @@ NotifyMode (void)
 		   */
 		  SaveUndoSerialNumber ();
 		  Flags = ((PolygonType *)Crosshair.AttachedObject.Ptr2)->Flags;
-		  PolyToPolygonsOnLayer (PCB->Data, Crosshair.AttachedObject.Ptr1,
+		  PolyToPolygonsOnLayer (PCB->Data, (LayerType *)Crosshair.AttachedObject.Ptr1,
 					 result, Flags);
 		  RemoveObject (POLYGON_TYPE,
 				Crosshair.AttachedObject.Ptr1,
@@ -2654,6 +2654,27 @@ the crosshair steps along the grid.
 
 %end-doc */
 
+static enum crosshair_shape
+CrosshairShapeIncrement (enum crosshair_shape shape)
+{
+  switch(shape)
+    {
+    case Basic_Crosshair_Shape:
+      shape = Union_Jack_Crosshair_Shape;
+      break;
+    case Union_Jack_Crosshair_Shape:
+      shape = Dozen_Crosshair_Shape;
+      break;
+    case Dozen_Crosshair_Shape:
+      shape = Crosshair_Shapes_Number;
+      break;
+    case Crosshair_Shapes_Number:
+      shape = Basic_Crosshair_Shape;
+      break;
+    }
+  return shape;
+}
+
 static int
 ActionDisplay (int argc, char **argv, int childX, int childY)
 {
@@ -2735,7 +2756,8 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  break;
 
 	case F_CycleCrosshair:
-	  Crosshair.shape++;
+	  //Crosshair.shape++;
+	  Crosshair.shape = CrosshairShapeIncrement(Crosshair.shape);
 	  if (Crosshair_Shapes_Number == Crosshair.shape)
 	    Crosshair.shape = Basic_Crosshair_Shape;
 	  break;
@@ -3368,10 +3390,10 @@ ActionRenumber (int argc, char **argv, int x, int y)
    *
    * We'll actually renumber things in the 2nd pass.
    */
-  element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
-  locked_element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
-  was = calloc (PCB->Data->ElementN, sizeof (char *));
-  is = calloc (PCB->Data->ElementN, sizeof (char *));
+  element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
+  locked_element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
+  was = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
+  is = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
   if (element_list == NULL || locked_element_list == NULL || was == NULL
       || is == NULL)
     {
@@ -3441,7 +3463,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
   unique = TEST_FLAG (UNIQUENAMEFLAG, PCB);
   CLEAR_FLAG (UNIQUENAMEFLAG, PCB);
 
-  cnt_list = calloc (cnt_list_sz, sizeof (struct _cnt_list));
+  cnt_list = (struct _cnt_list *)calloc (cnt_list_sz, sizeof (struct _cnt_list));
   for (i = 0; i < cnt; i++)
     {
       /* If there is no refdes, maybe just spit out a warning */
@@ -3464,7 +3486,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  if (j == cnt_list_sz)
 	    {
 	      cnt_list_sz += 100;
-	      cnt_list = realloc (cnt_list, cnt_list_sz);
+	      cnt_list = (struct _cnt_list *)realloc (cnt_list, cnt_list_sz);
 	      if (cnt_list == NULL)
 		{
 		  fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
@@ -3508,7 +3530,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 		  sz++;
 		  tmpi = tmpi / 10;
 		}
-	      tmps = malloc (sz * sizeof (char));
+	      tmps = (char *)malloc (sz * sizeof (char));
 	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
 
 	      /* 
@@ -3598,7 +3620,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 		    {
 		      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
 		      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
-			malloc ((strlen (is[k]) + strlen (pin) +
+			(char *)malloc ((strlen (is[k]) + strlen (pin) +
 				 2) * sizeof (char));
 		      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
 			       "%s-%s", is[k], pin);
@@ -6063,8 +6085,8 @@ Selects the given buffer to be the current paste buffer.
 static int
 ActionPasteBuffer (int argc, char **argv, int x, int y)
 {
-  char *function = argc ? argv[0] : "";
-  char *sbufnum = argc > 1 ? argv[1] : "";
+  char *function = argc ? argv[0] : (char *)"";
+  char *sbufnum = argc > 1 ? argv[1] : (char *)"";
   char *name;
   static char *default_file = NULL;
   int free_name = 0;
@@ -7870,7 +7892,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	  cmd[i++] = "-f";
 	  cmd[i++] = user_makefile;
 	}
-      cmd[i++] = user_target ? user_target : "pcb_import";
+      cmd[i++] = user_target ? user_target : (char *)"pcb_import";
       cmd[i++] = NULL;
 
       if (pcb_spawnvp (cmd))

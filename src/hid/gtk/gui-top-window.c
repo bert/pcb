@@ -264,7 +264,7 @@ ghid_check_unique_accel (const char *accelerator)
   if (amax >= n_list) 
     {
       n_list += 128;
-      if ( (accel_list = realloc (accel_list, n_list * sizeof (char *))) == NULL)
+      if ( (accel_list = (char **)realloc (accel_list, n_list * sizeof (char *))) == NULL)
 	{
 	  fprintf (stderr, "%s():  realloc failed\n", __FUNCTION__);
 	  exit (1);
@@ -304,7 +304,7 @@ note_toggle_flag (const char *actionname, MenuFlagType type, char *name)
   if (n_tflags >= max_tflags)
     {
       max_tflags += 20;
-      tflags = realloc (tflags, max_tflags * sizeof (ToggleFlagType));
+      tflags = (ToggleFlagType *)realloc (tflags, max_tflags * sizeof (ToggleFlagType));
     }
   tflags[n_tflags].actionname = strdup (actionname);
   tflags[n_tflags].flagname = name;
@@ -1027,7 +1027,7 @@ layer_process (gchar **color_string, char **text, int *set, int i)
       break;
     default:		/* layers */
       *color_string = PCB->Data->Layer[i].Color;
-      *text = UNKNOWN (PCB->Data->Layer[i].Name);
+      *text = (char *)UNKNOWN (PCB->Data->Layer[i].Name);
       *set = PCB->Data->Layer[i].On;
       break;
     }
@@ -1638,7 +1638,7 @@ ghid_layer_enable_buttons_update (void)
   for (i = 0; i < max_copper_layer; ++i)
     {
       lb = &layer_buttons[i];
-      s = UNKNOWN (PCB->Data->Layer[i].Name);
+      s = (gchar *)UNKNOWN (PCB->Data->Layer[i].Name);
       if (dup_string (&lb->text, s))
 	{
 	  layer_enable_button_set_label (lb->label, _(s));
@@ -1646,15 +1646,15 @@ ghid_layer_enable_buttons_update (void)
 	}
       if (Settings.verbose)
 	{
-	  gboolean active, new;
+	  gboolean active, newone;
 
 	  active =
 	    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 					  (lb->layer_enable_button));
-	  new = PCB->Data->Layer[i].On;
-	  if (active != new)
+	  newone = PCB->Data->Layer[i].On;
+	  if (active != newone)
 	    printf ("ghid_layer_enable_buttons_update: active=%d new=%d\n",
-		    active, new);
+		    active, newone);
 	}
       layer_process (&color_string, NULL, NULL, i);
       layer_button_set_color (lb, color_string, PCB->Data->Layer[i].On);
@@ -3010,7 +3010,7 @@ ghid_append_action (const char * name, const char *stock_id,
 
   accelerator = ghid_check_unique_accel (accelerator);
 
-  if ( (new_entries = realloc (new_entries, 
+  if ( (new_entries = (GtkActionEntry *)realloc (new_entries, 
 			       (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
     {
       fprintf (stderr, "ghid_append_action():  realloc of new_entries failed\n");
@@ -3018,7 +3018,7 @@ ghid_append_action (const char * name, const char *stock_id,
     }
   
 
-  if ( (action_resources = realloc (action_resources,
+  if ( (action_resources = (Resource **)realloc (action_resources,
 				    (menuitem_cnt + 1) * sizeof (Resource *))) == NULL)
     {
       fprintf (stderr, "ghid_append_action():  realloc of action_resources failed\n");
@@ -3047,7 +3047,7 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
 
   accelerator = ghid_check_unique_accel (accelerator);
 
-  if ( (new_toggle_entries = realloc (new_toggle_entries, 
+  if ( (new_toggle_entries = (GtkToggleActionEntry *)realloc (new_toggle_entries, 
 				      (tmenuitem_cnt + 1) * sizeof (GtkToggleActionEntry))) == NULL)
     {
       fprintf (stderr, "ghid_append_toggle_action():  realloc of new_toggle_entries failed\n");
@@ -3055,7 +3055,7 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
     }
   
 
-  if ( (toggle_action_resources = realloc (toggle_action_resources,
+  if ( (toggle_action_resources = (Resource **)realloc (toggle_action_resources,
 				    (tmenuitem_cnt + 1) * sizeof (Resource *))) == NULL)
     {
       fprintf (stderr, "ghid_append_toggle_action():  realloc of toggle_action_resources failed\n");
@@ -3693,23 +3693,23 @@ ghid_ui_info_indent (int indent)
  */
 
 static void
-ghid_ui_info_append (const gchar * new)
+ghid_ui_info_append (const gchar * newone)
 {
   gchar *p;
 
   if (new_ui_info_sz == 0) 
     {
       new_ui_info_sz = 1024;
-      new_ui_info = leaky_calloc (new_ui_info_sz, sizeof (gchar));
+      new_ui_info = (gchar *)leaky_calloc (new_ui_info_sz, sizeof (gchar));
     }
 
-  while (strlen (new_ui_info) + strlen (new) + 1 > new_ui_info_sz)
+  while (strlen (new_ui_info) + strlen (newone) + 1 > new_ui_info_sz)
     {
       size_t n;
       gchar * np;
 
       n = new_ui_info_sz + 1024;
-      if ((np = leaky_realloc (new_ui_info, n)) == NULL)
+      if ((np = (gchar *)leaky_realloc (new_ui_info, n)) == NULL)
 	{
 	  fprintf (stderr, "ghid_ui_info_append():  realloc of size %ld failed\n",
 		   (long int) n);
@@ -3720,11 +3720,11 @@ ghid_ui_info_append (const gchar * new)
     }
 
   p = new_ui_info + strlen (new_ui_info) ;
-  while (*new != '\0')
+  while (*newone != '\0')
     {
-      *p = *new;
+      *p = *newone;
       p++;
-      new++;
+      newone++;
     }
   
   *p = '\0';

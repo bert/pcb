@@ -42,7 +42,7 @@ hid_register_actions (HID_Action * a, int n)
 {
   int i, count = 0;
   
-  all_actions = realloc (all_actions,
+  all_actions = (HID_Action **)realloc (all_actions,
                          (n_actions + n) * sizeof (HID_Action*));
   for (i = 0; i < n; i++)
     {
@@ -99,7 +99,7 @@ hid_find_action (const char *name)
   if (!all_actions_sorted)
     sort_actions ();
 
-  action = bsearch (name, all_actions, n_actions, sizeof (HID_Action*),
+  action = (HID_Action **)bsearch (name, all_actions, n_actions, sizeof (HID_Action*),
                     action_search_compar);
   if (action)
     return *action;
@@ -266,7 +266,7 @@ hid_parse_actionstring (const char *rstr, char require_parens)
   /*fprintf(stderr, "invoke: `%s'\n", rstr);*/
 
   sp = rstr;
-  str = malloc(strlen(rstr)+1);
+  str = (char *)malloc(strlen(rstr)+1);
 
 another:
   num = 0;

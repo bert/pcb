@@ -105,7 +105,7 @@ static gdImagePtr im = NULL, master_im, mask_im = NULL;
 static FILE *f = 0;
 static int linewidth = -1;
 static int lastgroup = -1;
-static gdImagePtr lastbrush = (void *) -1;
+static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 static int lastcap = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
@@ -392,7 +392,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	}
     }
   linewidth = -1;
-  lastbrush = (void *) -1;
+  lastbrush = (gdImagePtr)((void *) -1);
   lastcap = -1;
   lastgroup = -1;
   show_solder_side = Settings.ShowSolderSide;
@@ -1124,7 +1124,7 @@ png_set_color (hidGC gc, const char *name)
 
   if (hid_cache_color (0, name, &cval, &color_cache))
     {
-      gc->color = cval.ptr;
+      gc->color = (color_struct *)cval.ptr;
     }
   else if (name[0] == '#')
     {
@@ -1162,7 +1162,7 @@ png_set_line_width (hidGC gc, int width)
 }
 
 static void
-png_set_draw_xor (hidGC gc, int xor)
+png_set_draw_xor (hidGC gc, int xor_)
 {
   ;
 }
@@ -1235,7 +1235,7 @@ use_gc (hidGC gc)
 
       if (hid_cache_color (0, name, &bval, &brush_cache))
 	{
-	  gc->brush = bval.ptr;
+	  gc->brush = (gdImagePtr)bval.ptr;
 	}
       else
 	{

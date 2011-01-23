@@ -308,12 +308,12 @@ ghid_drc_violation_finalize (GObject * object)
   G_OBJECT_CLASS (ghid_drc_violation_parent_class)->finalize (object);
 }
 
-struct object_list
+typedef struct object_list
 {
   int count;
   long int *id_list;
   int *type_list;
-};
+} object_list;
 
 /*! \brief GObject property setter function
  *
@@ -332,7 +332,7 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
 				  const GValue * value, GParamSpec * pspec)
 {
   GhidDrcViolation *violation = GHID_DRC_VIOLATION (object);
-  struct object_list *obj_list;
+  object_list *obj_list;
 
   switch (property_id)
     {
@@ -373,7 +373,7 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
       /* Copy the passed data to make new lists */
       g_free (violation->object_id_list);
       g_free (violation->object_type_list);
-      obj_list = g_value_get_pointer (value);
+      obj_list = (object_list *)g_value_get_pointer (value);
       violation->object_count = obj_list->count;
       violation->object_id_list   = g_new (long int, obj_list->count);
       violation->object_type_list = g_new (int,      obj_list->count);
@@ -385,7 +385,7 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
     case PROP_PIXMAP:
       if (violation->pixmap)
 	g_object_unref (violation->pixmap);           /* Frees our old reference */
-      violation->pixmap = g_value_dup_object (value); /* Takes a new reference */
+      violation->pixmap = (GdkDrawable *)g_value_dup_object (value); /* Takes a new reference */
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -436,7 +436,7 @@ ghid_drc_violation_class_init (GhidViolationRendererClass * klass)
   gobject_class->set_property = ghid_drc_violation_set_property;
   gobject_class->get_property = ghid_drc_violation_get_property;
 
-  ghid_drc_violation_parent_class = g_type_class_peek_parent (klass);
+  ghid_drc_violation_parent_class = (GObjectClass *)g_type_class_peek_parent (klass);
 
   g_object_class_install_property (gobject_class, PROP_TITLE,
 				   g_param_spec_string ("title",
@@ -557,7 +557,7 @@ ghid_drc_violation_get_type ()
 
       ghid_drc_violation_type =
 	g_type_register_static (G_TYPE_OBJECT, "GhidDrcViolation",
-				&ghid_drc_violation_info, 0);
+				&ghid_drc_violation_info, (GTypeFlags)0);
     }
 
   return ghid_drc_violation_type;
@@ -567,13 +567,13 @@ ghid_drc_violation_get_type ()
 GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
 					  GdkDrawable *pixmap)
 {
-  struct object_list obj_list;
+  object_list obj_list;
 
   obj_list.count = violation->object_count;
   obj_list.id_list = violation->object_id_list;
   obj_list.type_list = violation->object_type_list;
 
-  return g_object_new (GHID_TYPE_DRC_VIOLATION,
+  return (GhidDrcViolation *)g_object_new (GHID_TYPE_DRC_VIOLATION,
 		       "title",            violation->title,
 		       "explanation",      violation->explanation,
 		       "x-coord",          violation->x,
@@ -642,7 +642,7 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
     case PROP_VIOLATION:
       if (renderer->violation != NULL)
 	g_object_unref (renderer->violation);
-      renderer->violation = g_value_dup_object (value);
+      renderer->violation = (GhidDrcViolation *)g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -807,7 +807,7 @@ ghid_violation_renderer_class_init (GhidViolationRendererClass * klass)
   cellrenderer_class->get_size = ghid_violation_renderer_get_size;
   cellrenderer_class->render = ghid_violation_renderer_render;
 
-  ghid_violation_renderer_parent_class = g_type_class_peek_parent (klass);
+  ghid_violation_renderer_parent_class = (GObjectClass *)g_type_class_peek_parent (klass);
 
   g_object_class_install_property (gobject_class, PROP_VIOLATION,
 				   g_param_spec_object ("violation",
@@ -848,7 +848,7 @@ ghid_violation_renderer_get_type ()
 
       ghid_violation_renderer_type =
 	g_type_register_static (GTK_TYPE_CELL_RENDERER_TEXT, "GhidViolationRenderer",
-				&ghid_violation_renderer_info, 0);
+				&ghid_violation_renderer_info, (GTypeFlags)0);
     }
 
   return ghid_violation_renderer_type;
@@ -867,7 +867,7 @@ ghid_violation_renderer_new (void)
 {
   GhidViolationRenderer *renderer;
 
-  renderer = g_object_new (GHID_TYPE_VIOLATION_RENDERER,
+  renderer = (GhidViolationRenderer *)g_object_new (GHID_TYPE_VIOLATION_RENDERER,
 			   "ypad", 6,
 			   NULL);
 

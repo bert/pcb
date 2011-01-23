@@ -153,7 +153,7 @@ parsepcb
 					LayerFlag[i] = false;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
-				yyData->pcb = (void *)yyPCB;
+				yyData->pcb = yyPCB;
 				yyData->LayerN = 0;
 				layer_group_string = NULL;
 			}
@@ -1913,7 +1913,7 @@ attributes	: attribute
 attribute
 		: T_ATTRIBUTE '(' STRING STRING ')'
 			{
-				CreateNewAttribute (attr_list, $3, $4 ? $4 : "");
+			  CreateNewAttribute (attr_list, $3, $4 ? $4 : (char *)"");
 				free ($3);
 				free ($4);
 			}
@@ -1928,8 +1928,7 @@ opt_string	: STRING { $$ = $1; }
 /* ---------------------------------------------------------------------------
  * error routine called by parser library
  */
-int yyerror(s)
-const char *s;
+int yyerror(const char * s)
 {
 	Message("ERROR parsing file '%s'\n"
 		"    line:        %i\n"

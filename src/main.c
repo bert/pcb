@@ -227,7 +227,7 @@ usage_hid (HID * h)
       exporter = NULL;
     }
 
-  note = malloc (sizeof (UsageNotes));
+  note = (UsageNotes *)malloc (sizeof (UsageNotes));
   note->next = usage_notes;
   note->seen = attributes;
   usage_notes = note;
@@ -721,7 +721,7 @@ InitPaths (char *argv0)
 #ifdef DEBUG
 	      printf ("Looking for %s in %s\n", argv0, p);
 #endif
-	      if ( (tmps = malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
+	      if ( (tmps = (char *)malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
 		{
 		  fprintf (stderr, "InitPaths():  malloc failed\n");
 		  exit (1);

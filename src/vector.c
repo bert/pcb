@@ -91,7 +91,7 @@ vector_create ()
 {
   vector_t *vector;
   /* okay, create empty vector */
-  vector = calloc (1, sizeof (*vector));
+  vector = (vector_t *)calloc (1, sizeof (*vector));
   assert (vector);
   assert (__vector_is_good (vector));
   return vector;
@@ -189,7 +189,7 @@ vector_insert_many (vector_t * vector, int N,
   if (vector->size + count > vector->max)
     {
       vector->max = MAX (32, MAX (vector->size + count, vector->max * 2));
-      vector->element = realloc (vector->element,
+      vector->element = (void **)realloc (vector->element,
 				 vector->max * sizeof (*vector->element));
     }
   memmove (vector->element + N + count, vector->element + N,
@@ -202,15 +202,15 @@ vector_insert_many (vector_t * vector, int N,
 vector_t *
 vector_duplicate (vector_t * orig)
 {
-  vector_t * new = vector_create();
+  vector_t * newone = vector_create();
   if (!orig)
-    return new;
-  new->element = malloc (orig->max * sizeof (*orig->element));
-  new->max = orig->max;
-  new->size = orig->size;
-  memcpy (new->element, orig->element, orig->size * sizeof (vector_element_t));
-  assert (__vector_is_good (new));
-  return new;
+    return newone;
+  newone->element = (void **)malloc (orig->max * sizeof (*orig->element));
+  newone->max = orig->max;
+  newone->size = orig->size;
+  memcpy (newone->element, orig->element, orig->size * sizeof (vector_element_t));
+  assert (__vector_is_good (newone));
+  return newone;
 }
 
 /* return and delete the *last* element of vector */

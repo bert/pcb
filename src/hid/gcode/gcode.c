@@ -92,7 +92,7 @@ struct hid_gc_struct
 static struct color_struct *black = NULL, *white = NULL;
 static int linewidth = -1;
 static int lastgroup = -1;
-static gdImagePtr lastbrush = (void *) -1;
+static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 static int lastcap = -1;
 static int lastcolor = -1;
 
@@ -198,7 +198,7 @@ gcode_get_png_name (const char *basename, const char *suffix)
   int len;
 
   len = strlen (basename) + strlen (suffix) + 6;
-  buf = malloc (sizeof (*buf) * len);
+  buf = (char *)malloc (sizeof (*buf) * len);
 
   sprintf (buf, "%s.%s.png", basename, suffix);
 
@@ -212,7 +212,7 @@ sort_drill (struct drill_struct *drill, int n_drill)
   int i, j, imin;
   double dmin, d;
   struct drill_struct p = { 0, 0 };
-  struct drill_struct *temp = malloc (n_drill * sizeof (struct drill_struct));
+  struct drill_struct *temp = (struct drill_struct *)malloc (n_drill * sizeof (struct drill_struct));
   for (j = 0; j < n_drill; j++)
     {
       dmin = 1e20;
@@ -368,7 +368,7 @@ gcode_start_png_export ()
   region.Y2 = PCB->MaxHeight;
 
   linewidth = -1;
-  lastbrush = (void *) -1;
+  lastbrush = (gdImagePtr)((void *) -1);
   lastcap = -1;
   lastgroup = -1;
   lastcolor = -1;
@@ -473,7 +473,7 @@ gcode_do_export (HID_Attr_Val * options)
 /* ***************** gcode conversion *************************** */
 /* potrace uses a different kind of bitmap; for simplicity gcode_im is copied to this format */
 	  bm = bm_new (gdImageSX (gcode_im), gdImageSY (gcode_im));
-	  filename = malloc (512);
+	  filename = (char *)malloc (512);
 	  plist = NULL;
 	  if (is_solder)
 	    {			/* only for back layer */
@@ -728,7 +728,7 @@ gcode_set_line_width (hidGC gc, int width)
 }
 
 static void
-gcode_set_draw_xor (hidGC gc, int xor)
+gcode_set_draw_xor (hidGC gc, int xor_)
 {
   ;
 }
@@ -794,7 +794,7 @@ use_gc (hidGC gc)
 
       if (hid_cache_color (0, name, &bval, &bcache))
 	{
-	  gc->brush = bval.ptr;
+	  gc->brush = (gdImagePtr)bval.ptr;
 	}
       else
 	{

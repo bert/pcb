@@ -39,8 +39,30 @@ RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented Gerber function %s.\n", __FUNCTION__); abort()
 
-static HID gerber_hid;
+/*----------------------------------------------------------------------------*/
+/* Function prototypes                                                        */
+/*----------------------------------------------------------------------------*/
 
+static HID_Attribute * gerber_get_export_options (int *n);
+static void gerber_do_export (HID_Attr_Val * options);
+static void gerber_parse_arguments (int *argc, char ***argv);
+static int gerber_set_layer (const char *name, int group, int empty);
+static hidGC gerber_make_gc (void);
+static void gerber_destroy_gc (hidGC gc);
+static void gerber_use_mask (int use_it);
+static void gerber_set_color (hidGC gc, const char *name);
+static void gerber_set_line_cap (hidGC gc, EndCapStyle style);
+static void gerber_set_line_width (hidGC gc, int width);
+static void gerber_set_draw_xor (hidGC gc, int _xor);
+static void gerber_set_draw_faded (hidGC gc, int faded);
+static void gerber_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2);
+static void gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
+static void gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
+static void gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void gerber_fill_circle (hidGC gc, int cx, int cy, int radius);
+static void gerber_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void gerber_calibrate (double xval, double yval);
+static void gerber_set_crosshair (int x, int y, int action);
 static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 
 /*----------------------------------------------------------------------------*/
@@ -230,7 +252,7 @@ SetAppLayer (int l)
     {
       int prev = n_layerapps;
       n_layerapps = l + 1;
-      layerapps = realloc (layerapps, n_layerapps * sizeof (Apertures));
+      layerapps = (Apertures *)realloc (layerapps, n_layerapps * sizeof (Apertures));
       curapp = layerapps + prev;
       while (curapp < layerapps + n_layerapps)
 	{
@@ -245,6 +267,61 @@ SetAppLayer (int l)
 }
 
 /* --------------------------------------------------------------------------- */
+
+static HID gerber_hid = {
+  sizeof (HID),
+  "gerber",
+  "RS-274X (Gerber) export.",
+  0, 0, 1, 0, 0, 1,
+  gerber_get_export_options,
+  gerber_do_export,
+  gerber_parse_arguments,
+  0 /* gerber_invalidate_lr */ ,
+  0 /* gerber_invalidate_all */ ,
+  gerber_set_layer,
+  gerber_make_gc,
+  gerber_destroy_gc,
+  gerber_use_mask,
+  gerber_set_color,
+  gerber_set_line_cap,
+  gerber_set_line_width,
+  gerber_set_draw_xor,
+  gerber_set_draw_faded,
+  gerber_set_line_cap_angle,
+  gerber_draw_line,
+  gerber_draw_arc,
+  gerber_draw_rect,
+  gerber_fill_circle,
+  gerber_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* gerber_thindraw_pcb_polygon */ ,
+  gerber_fill_rect,
+  gerber_calibrate,
+  0 /* gerber_shift_is_pressed */ ,
+  0 /* gerber_control_is_pressed */ ,
+  0 /* gerber_mod1_is_pressed */ ,
+  0 /* gerber_get_coords */ ,
+  gerber_set_crosshair,
+  0 /* gerber_add_timer */ ,
+  0 /* gerber_stop_timer */ ,
+  0 /* gerber_watch_file */ ,
+  0 /* gerber_unwatch_file */ ,
+  0 /* gerber_add_block_hook */ ,
+  0 /* gerber_stop_block_hook */ ,
+  0 /* gerber_log */ ,
+  0 /* gerber_logv */ ,
+  0 /* gerber_confirm_dialog */ ,
+  0 /* gerber_close_confirm_dialog */ ,
+  0 /* gerber_report_dialog */ ,
+  0 /* gerber_prompt_for */ ,
+  0 /* gerber_fileselect */ ,
+  0 /* gerber_attribute_dialog */ ,
+  0 /* gerber_show_item */ ,
+  0 /* gerber_beep */ ,
+  0 /* gerber_progress */ ,
+  0 /* gerber_drc_gui */
+};
+
 
 typedef struct hid_gc_struct
 {
@@ -362,7 +439,7 @@ gerber_do_export (HID_Attr_Val * options)
   all_layers = options[HA_all_layers].int_value;
 
   i = strlen (fnbase);
-  filename = realloc (filename, i + 40);
+  filename = (char *)realloc (filename, i + 40);
   strcpy (filename, fnbase);
   strcat (filename, ".");
   filesuff = filename + strlen (filename);
@@ -689,7 +766,7 @@ gerber_set_line_width (hidGC gc, int width)
 }
 
 static void
-gerber_set_draw_xor (hidGC gc, int xor)
+gerber_set_draw_xor (hidGC gc, int xor_)
 {
   ;
 }
@@ -744,7 +821,7 @@ use_gc (hidGC gc, int radius)
 	  c = SQUARE;
 	  break;
 	}
-      ap = findApertureCode (linewidth, c);
+      ap = findApertureCode (linewidth, (ApertureShape)c);
       if (ap <= 0)
 	{
 	  fprintf (stderr, "error: aperture for width %d type %s is %d\n",
@@ -1068,59 +1145,6 @@ gerber_set_crosshair (int x, int y, int action)
 {
 }
 
-static HID gerber_hid = {
-  sizeof (HID),
-  "gerber",
-  "RS-274X (Gerber) export.",
-  0, 0, 1, 0, 0, 1,
-  gerber_get_export_options,
-  gerber_do_export,
-  gerber_parse_arguments,
-  0 /* gerber_invalidate_lr */ ,
-  0 /* gerber_invalidate_all */ ,
-  gerber_set_layer,
-  gerber_make_gc,
-  gerber_destroy_gc,
-  gerber_use_mask,
-  gerber_set_color,
-  gerber_set_line_cap,
-  gerber_set_line_width,
-  gerber_set_draw_xor,
-  gerber_set_draw_faded,
-  gerber_set_line_cap_angle,
-  gerber_draw_line,
-  gerber_draw_arc,
-  gerber_draw_rect,
-  gerber_fill_circle,
-  gerber_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* gerber_thindraw_pcb_polygon */ ,
-  gerber_fill_rect,
-  gerber_calibrate,
-  0 /* gerber_shift_is_pressed */ ,
-  0 /* gerber_control_is_pressed */ ,
-  0 /* gerber_mod1_is_pressed */ ,
-  0 /* gerber_get_coords */ ,
-  gerber_set_crosshair,
-  0 /* gerber_add_timer */ ,
-  0 /* gerber_stop_timer */ ,
-  0 /* gerber_watch_file */ ,
-  0 /* gerber_unwatch_file */ ,
-  0 /* gerber_add_block_hook */ ,
-  0 /* gerber_stop_block_hook */ ,
-  0 /* gerber_log */ ,
-  0 /* gerber_logv */ ,
-  0 /* gerber_confirm_dialog */ ,
-  0 /* gerber_close_confirm_dialog */ ,
-  0 /* gerber_report_dialog */ ,
-  0 /* gerber_prompt_for */ ,
-  0 /* gerber_fileselect */ ,
-  0 /* gerber_attribute_dialog */ ,
-  0 /* gerber_show_item */ ,
-  0 /* gerber_beep */ ,
-  0 /* gerber_progress */ ,
-  0 /* gerber_drc_gui */
-};
 
 void
 hid_gerber_init ()

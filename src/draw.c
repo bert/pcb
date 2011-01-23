@@ -1209,9 +1209,9 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
   TextType text;
 
   if (!Ptr->Name || !Ptr->Name[0])
-    name = EMPTY (Ptr->Number);
+    name = (char *)EMPTY (Ptr->Number);
   else
-    name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
+    name = (char *)EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
 
   vert = TEST_FLAG (EDGE2FLAG, Ptr);
 
@@ -1425,9 +1425,9 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   TextType text;
 
   if (!Pad->Name || !Pad->Name[0])
-    name = EMPTY (Pad->Number);
+    name = (char *)EMPTY (Pad->Number);
   else
-    name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
+    name = (char *)EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
 
   /* should text be vertical ? */
   vert = (Pad->Point1.X == Pad->Point2.X);
@@ -2292,7 +2292,7 @@ EraseObject (int type, void *lptr, void *ptr)
       break;
     case TEXT_TYPE:
     case ELEMENTNAME_TYPE:
-      EraseText (lptr, (TextTypePtr) ptr);
+      EraseText ((LayerTypePtr)lptr, (TextTypePtr) ptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonTypePtr) ptr);
@@ -2396,7 +2396,7 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   if (item)
     {
       doing_pinout = true;
-      DrawElement (item, 0);
+      DrawElement ((ElementTypePtr)item, 0);
       doing_pinout = false;
     }
   else

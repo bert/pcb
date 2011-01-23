@@ -69,7 +69,7 @@ RCSID("$Id$");
  * some shared parser identifiers
  */
 #ifdef FLEX_SCANNER
-int				yylineno;		/* linenumber */
+
 #define yyunput ATTRIBUTE_UNUSED yyunput
 #endif
 
@@ -172,7 +172,7 @@ Attribute	{ return(T_ATTRIBUTE); }
 							 * leading and trailing '"'
 							 */
 						yyleng -= 2;
-						yylval.string = calloc (yyleng+1, sizeof (char));
+						yylval.string = (char *)calloc (yyleng+1, sizeof (char));
 						p1 = (char *) (yytext +1);
 						p2 = yylval.string;
 						while(yyleng--)

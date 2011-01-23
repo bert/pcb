@@ -417,7 +417,7 @@ set_config_attribute (gchar * option, gchar * arg)
       break;
 
     case CONFIG_String:
-      dup_string ((char **) ca->value, arg ? arg : "");
+      dup_string ((gchar **) ca->value, arg ? arg : (gchar *)"");
       break;
     default:
       break;
@@ -844,9 +844,9 @@ config_title_window_cb (GtkToggleButton * button, gpointer data)
 }
 
 static void
-config_general_toggle_cb (GtkToggleButton * button, gint * setting)
+config_general_toggle_cb (GtkToggleButton * button, void * setting)
 {
-  *setting = gtk_toggle_button_get_active (button);
+  *(gint *)setting = gtk_toggle_button_get_active (button);
   ghidgui->config_modified = TRUE;
 }
 
@@ -983,21 +983,21 @@ config_sizes_apply (void)
 }
 
 static void
-text_spin_button_cb (GtkSpinButton * spin, gint * dst)
+text_spin_button_cb (GtkSpinButton * spin, void * dst)
 {
-  *dst = gtk_spin_button_get_value_as_int (spin);
+  *(gint *)dst = gtk_spin_button_get_value_as_int (spin);
   ghidgui->config_modified = TRUE;
   ghid_set_status_line_label ();
 }
 
 
 static void
-size_spin_button_cb (GtkSpinButton * spin, gint * dst)
+size_spin_button_cb (GtkSpinButton * spin, void * dst)
 {
   gdouble value;
 
   value = gtk_spin_button_get_value (spin);
-  *dst = TO_PCB_UNITS (value);
+  *(gint *)dst = TO_PCB_UNITS (value);
   ghidgui->config_modified = TRUE;
 }
 
@@ -1151,12 +1151,12 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 static GtkWidget *config_increments_vbox, *config_increments_tab_vbox;
 
 static void
-increment_spin_button_cb (GtkSpinButton * spin, gdouble * dst)
+increment_spin_button_cb (GtkSpinButton * spin, void * dst)
 {
   gdouble value;
 
   value = gtk_spin_button_get_value (spin);
-  *dst = value;			/* Not using PCB units */
+  *(gdouble *)dst = value;			/* Not using PCB units */
 
 
   ghidgui->config_modified = TRUE;
@@ -1638,7 +1638,7 @@ ghid_config_groups_changed(void)
       else if (layer == solder_silk_layer)
 	name = _("solder side");
       else
-	name = UNKNOWN (PCB->Data->Layer[layer].Name);
+	name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
 
       if (layer >= max_copper_layer)
 	{
@@ -1710,8 +1710,8 @@ config_layers_tab_create (GtkWidget * tab_vbox)
   button = gtk_button_new();
   arrow = gtk_arrow_new(GTK_ARROW_UP, GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(button), arrow);
-  g_signal_connect(G_OBJECT(button), "clicked",
-		G_CALLBACK(edit_layer_button_cb), "c,up");
+  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,up");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -1719,15 +1719,15 @@ config_layers_tab_create (GtkWidget * tab_vbox)
   button = gtk_button_new();
   arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(button), arrow);
-  g_signal_connect(G_OBJECT(button), "clicked",
-		G_CALLBACK(edit_layer_button_cb), "c,down");
+  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,down");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
   button = gtk_button_new_from_stock(GTK_STOCK_DELETE);
-  g_signal_connect(G_OBJECT(button), "clicked",
-		G_CALLBACK(edit_layer_button_cb), "c,-1");
+  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,-1");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -1736,8 +1736,8 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 			_("Add new layer above currently selected layer:"),
 			4, 2, TRUE, TRUE);
   button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-  g_signal_connect(G_OBJECT(button), "clicked",
-		G_CALLBACK(edit_layer_button_cb), "-1,c");
+  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (gchar *)"-1,c");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);

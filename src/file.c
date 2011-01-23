@@ -440,7 +440,7 @@ PreLoadElementPCB ()
 
   yyFont = &yyPCB->Font;
   yyData = yyPCB->Data;
-  yyData->pcb = (void *)yyPCB;
+  yyData->pcb = yyPCB;
   yyData->LayerN = 0;
 }
 
@@ -556,7 +556,7 @@ WritePCBDataHeader (FILE * FP)
   fprintf (FP, "FileVersion[%i]\n", PCB_FILE_VERSION);
 
   fputs ("\nPCB[", FP);
-  PrintQuotedString (FP, EMPTY (PCB->Name));
+  PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
   fprintf (FP, " %i %i]\n\n", (int) PCB->MaxWidth, (int) PCB->MaxHeight);
   fprintf (FP, "Grid[%s %i %i %i]\n",
 	   c_dtostr (PCB->Grid), (int) PCB->GridOffsetX,
@@ -639,7 +639,7 @@ WriteViaData (FILE * FP, DataTypePtr Data)
       fprintf (FP, "Via[%i %i %i %i %i %i ",
 	       via->X, via->Y,
 	       via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
-      PrintQuotedString (FP, EMPTY (via->Name));
+      PrintQuotedString (FP, (char *)EMPTY (via->Name));
       fprintf (FP, " %s]\n", F2S (via, VIA_TYPE));
     }
 }
@@ -681,7 +681,7 @@ WritePCBNetlistData (FILE * FP)
 	  fprintf (FP, "\tNet(");
 	  PrintQuotedString(FP, &menu->Name[2]);
 	  fprintf (FP, " ");
-	  PrintQuotedString(FP, UNKNOWN (menu->Style));
+	  PrintQuotedString(FP, (char *)UNKNOWN (menu->Style));
 	  fprintf (FP, ")\n\t(\n");
 	  for (p = 0; p < menu->EntryN; p++)
 	    {
@@ -714,11 +714,11 @@ WriteElementData (FILE * FP, DataTypePtr Data)
        * both names of an element
        */
       fprintf (FP, "\nElement[%s ", F2S (element, ELEMENT_TYPE));
-      PrintQuotedString (FP, EMPTY (DESCRIPTION_NAME (element)));
+      PrintQuotedString (FP, (char *)EMPTY (DESCRIPTION_NAME (element)));
       fputc (' ', FP);
-      PrintQuotedString (FP, EMPTY (NAMEONPCB_NAME (element)));
+      PrintQuotedString (FP, (char *)EMPTY (NAMEONPCB_NAME (element)));
       fputc (' ', FP);
-      PrintQuotedString (FP, EMPTY (VALUE_NAME (element)));
+      PrintQuotedString (FP, (char *)EMPTY (VALUE_NAME (element)));
       fprintf (FP, " %i %i %i %i %i %i %s]\n(\n",
 	       (int) element->MarkX, (int) element->MarkY,
 	       (int) (DESCRIPTION_TEXT (element).X -
@@ -737,9 +737,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		   (int) (pin->Y - element->MarkY),
 		   (int) pin->Thickness, (int) pin->Clearance,
 		   (int) pin->Mask, (int) pin->DrillingHole);
-	  PrintQuotedString (FP, EMPTY (pin->Name));
+	  PrintQuotedString (FP, (char *)EMPTY (pin->Name));
 	  fprintf (FP, " ");
-	  PrintQuotedString (FP, EMPTY (pin->Number));
+	  PrintQuotedString (FP, (char *)EMPTY (pin->Number));
 	  fprintf (FP, " %s]\n", F2S (pin, PIN_TYPE));
 	}
       for (p = 0; p < element->PadN; p++)
@@ -752,9 +752,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		   (int) (pad->Point2.Y - element->MarkY),
 		   (int) pad->Thickness, (int) pad->Clearance,
 		   (int) pad->Mask);
-	  PrintQuotedString (FP, EMPTY (pad->Name));
+	  PrintQuotedString (FP, (char *)EMPTY (pad->Name));
 	  fprintf (FP, " ");
-	  PrintQuotedString (FP, EMPTY (pad->Number));
+	  PrintQuotedString (FP, (char *)EMPTY (pad->Number));
 	  fprintf (FP, " %s]\n", F2S (pad, PAD_TYPE));
 	}
       for (p = 0; p < element->LineN; p++)
@@ -798,7 +798,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       (layer->Name && *layer->Name))
     {
       fprintf (FP, "Layer(%i ", (int) Number + 1);
-      PrintQuotedString (FP, EMPTY (layer->Name));
+      PrintQuotedString (FP, (char *)EMPTY (layer->Name));
       fputs (")\n(\n", FP);
       WriteAttributeList (FP, &layer->Attributes, "\t");
 
@@ -826,7 +826,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 	  fprintf (FP, "\tText[%i %i %i %i ",
 		   (int) text->X, (int) text->Y,
 		   (int) text->Direction, (int) text->Scale);
-	  PrintQuotedString (FP, EMPTY (text->TextString));
+	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
 	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
       for (n = 0; n < layer->PolygonN; n++)
@@ -1231,7 +1231,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 	 * entry->ListEntry points to fp name itself.
 	 */
 	len = strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1;
-	entry->AllocatedMemory = calloc (1, len);
+	entry->AllocatedMemory = (char *)calloc (1, len);
 	strcat (entry->AllocatedMemory, subdir);
 	strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
 
@@ -1455,7 +1455,7 @@ ReadLibraryContents (void)
 	  /* create the list entry */
 	  len = strlen (EMPTY (entry->Value)) +
 	    strlen (EMPTY (entry->Description)) + 4;
-	  entry->ListEntry = calloc (len, sizeof (char));
+	  entry->ListEntry = (char *)calloc (len, sizeof (char));
 	  sprintf (entry->ListEntry,
 		   "%s, %s", EMPTY (entry->Value),
 		   EMPTY (entry->Description));

@@ -47,26 +47,26 @@ RCSID ("$Id$");
 static GtkWidget *export_dialog = NULL;
 
 static void
-set_flag_cb (GtkToggleButton * button, gboolean * flag)
+set_flag_cb (GtkToggleButton * button, void * flag)
 {
-  *flag = gtk_toggle_button_get_active (button);
+  *(gboolean *)flag = gtk_toggle_button_get_active (button);
 }
 
 
 static void
-intspinner_changed_cb (GtkWidget * spin_button, gpointer data)
+intspinner_changed_cb (GtkSpinButton * spin_button, gpointer data)
 {
-  int *ival = data;
+  int *ival = (int *)data;
 
-  *ival = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin_button));
+  *ival = gtk_spin_button_get_value (GTK_SPIN_BUTTON ((GtkWidget *)spin_button));
 }
 
 static void
-dblspinner_changed_cb (GtkWidget * spin_button, gpointer data)
+dblspinner_changed_cb (GtkSpinButton * spin_button, gpointer data)
 {
-  double *dval = data;
+  double *dval = (double *)data;
 
-  *dval = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin_button));
+  *dval = gtk_spin_button_get_value (GTK_SPIN_BUTTON ((GtkWidget *)spin_button));
 }
 
 
@@ -110,8 +110,8 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 
   dialog = gtk_dialog_new_with_buttons (_(title),
 					GTK_WINDOW (out->top_window),
-					GTK_DIALOG_MODAL
-					| GTK_DIALOG_DESTROY_WITH_PARENT,
+					(GtkDialogFlags)(GTK_DIALOG_MODAL
+							 | GTK_DIALOG_DESTROY_WITH_PARENT),
 					GTK_STOCK_CANCEL, GTK_RESPONSE_NONE,
 					GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
   gtk_window_set_wmclass (GTK_WINDOW (dialog), "PCB_attribute_editor", "PCB");
@@ -373,9 +373,9 @@ ghid_dialog_export (void)
 
   export_dialog = gtk_dialog_new_with_buttons (_("PCB Export Layout"),
 					       GTK_WINDOW (out->top_window),
-					       GTK_DIALOG_MODAL
+					       (GtkDialogFlags)(GTK_DIALOG_MODAL
 					       |
-					       GTK_DIALOG_DESTROY_WITH_PARENT,
+								GTK_DIALOG_DESTROY_WITH_PARENT),
 					       GTK_STOCK_CANCEL,
 					       GTK_RESPONSE_CANCEL, NULL);
   gtk_window_set_wmclass (GTK_WINDOW (export_dialog), "PCB_Export", "PCB");

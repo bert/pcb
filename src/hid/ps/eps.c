@@ -27,7 +27,86 @@
 RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented EPS function %s.\n", __FUNCTION__); abort()
-static HID eps_hid;
+
+/*----------------------------------------------------------------------------*/
+/* Function prototypes                                                        */
+/*----------------------------------------------------------------------------*/
+static HID_Attribute * eps_get_export_options (int *n);
+static void eps_do_export (HID_Attr_Val * options);
+static void eps_parse_arguments (int *argc, char ***argv);
+static int eps_set_layer (const char *name, int group, int empty);
+static hidGC eps_make_gc (void);
+static void eps_destroy_gc (hidGC gc);
+static void eps_use_mask (int use_it);
+static void eps_set_color (hidGC gc, const char *name);
+static void eps_set_line_cap (hidGC gc, EndCapStyle style);
+static void eps_set_line_width (hidGC gc, int width);
+static void eps_set_draw_xor (hidGC gc, int _xor);
+static void eps_set_draw_faded (hidGC gc, int faded);
+static void eps_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2);
+static void eps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
+static void eps_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
+static void eps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void eps_fill_circle (hidGC gc, int cx, int cy, int radius);
+static void eps_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
+static void eps_calibrate (double xval, double yval);
+static void eps_set_crosshair (int x, int y, int action);
+/*----------------------------------------------------------------------------*/
+
+static HID eps_hid = {
+  sizeof (HID),
+  "eps",
+  "Encapsulated Postscript",
+  0, 0, 1, 0, 1, 0,
+  eps_get_export_options,
+  eps_do_export,
+  eps_parse_arguments,
+  0 /* eps_invalidate_lr */ ,
+  0 /* eps_invalidate_all */ ,
+  eps_set_layer,
+  eps_make_gc,
+  eps_destroy_gc,
+  eps_use_mask,
+  eps_set_color,
+  eps_set_line_cap,
+  eps_set_line_width,
+  eps_set_draw_xor,
+  eps_set_draw_faded,
+  eps_set_line_cap_angle,
+  eps_draw_line,
+  eps_draw_arc,
+  eps_draw_rect,
+  eps_fill_circle,
+  eps_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* eps_thindraw_pcb_polygon */ ,
+  eps_fill_rect,
+  eps_calibrate,
+  0 /* eps_shift_is_pressed */ ,
+  0 /* eps_control_is_pressed */ ,
+  0 /* eps_mod1_is_pressed */ ,
+  0 /* eps_get_coords */ ,
+  eps_set_crosshair,
+  0 /* eps_add_timer */ ,
+  0 /* eps_stop_timer */ ,
+  0 /* eps_watch_file */ ,
+  0 /* eps_unwatch_file */ ,
+  0 /* eps_add_block_hook */ ,
+  0 /* eps_stop_block_hook */ ,
+  0 /* eps_log */ ,
+  0 /* eps_logv */ ,
+  0 /* eps_confirm_dialog */ ,
+  0 /* eps_close_confirm_dialog */ ,
+  0 /* eps_report_dialog */ ,
+  0 /* eps_prompt_for */ ,
+  0 /* eps_attribute_dialog */ ,
+  0 /* eps_show_item */ ,
+  0 /* eps_beep */ ,
+  0 /* eps_progress */ ,
+  0 /* eps_drc_gui */ ,
+  0 /* eps_edit_attributes */
+};
 
 typedef struct hid_gc_struct
 {
@@ -454,7 +533,7 @@ eps_set_line_width (hidGC gc, int width)
 }
 
 static void
-eps_set_draw_xor (hidGC gc, int xor)
+eps_set_draw_xor (hidGC gc, int xor_)
 {
   ;
 }
@@ -610,59 +689,6 @@ eps_set_crosshair (int x, int y, int action)
 {
 }
 
-static HID eps_hid = {
-  sizeof (HID),
-  "eps",
-  "Encapsulated Postscript",
-  0, 0, 1, 0, 1, 0,
-  eps_get_export_options,
-  eps_do_export,
-  eps_parse_arguments,
-  0 /* eps_invalidate_lr */ ,
-  0 /* eps_invalidate_all */ ,
-  eps_set_layer,
-  eps_make_gc,
-  eps_destroy_gc,
-  eps_use_mask,
-  eps_set_color,
-  eps_set_line_cap,
-  eps_set_line_width,
-  eps_set_draw_xor,
-  eps_set_draw_faded,
-  eps_set_line_cap_angle,
-  eps_draw_line,
-  eps_draw_arc,
-  eps_draw_rect,
-  eps_fill_circle,
-  eps_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* eps_thindraw_pcb_polygon */ ,
-  eps_fill_rect,
-  eps_calibrate,
-  0 /* eps_shift_is_pressed */ ,
-  0 /* eps_control_is_pressed */ ,
-  0 /* eps_mod1_is_pressed */ ,
-  0 /* eps_get_coords */ ,
-  eps_set_crosshair,
-  0 /* eps_add_timer */ ,
-  0 /* eps_stop_timer */ ,
-  0 /* eps_watch_file */ ,
-  0 /* eps_unwatch_file */ ,
-  0 /* eps_add_block_hook */ ,
-  0 /* eps_stop_block_hook */ ,
-  0 /* eps_log */ ,
-  0 /* eps_logv */ ,
-  0 /* eps_confirm_dialog */ ,
-  0 /* eps_close_confirm_dialog */ ,
-  0 /* eps_report_dialog */ ,
-  0 /* eps_prompt_for */ ,
-  0 /* eps_attribute_dialog */ ,
-  0 /* eps_show_item */ ,
-  0 /* eps_beep */ ,
-  0 /* eps_progress */ ,
-  0 /* eps_drc_gui */ ,
-  0 /* eps_edit_attributes */
-};
 
 void
 hid_eps_init ()

@@ -109,7 +109,7 @@ struct hid_gc_struct {
 static struct color_struct *black = NULL, *white = NULL;
 static int      linewidth = -1;
 static int      lastgroup = -1;
-static gdImagePtr lastbrush = (void *) -1;
+static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 static int      lastcap = -1;
 static int      lastcolor = -1;
 
@@ -197,7 +197,7 @@ nelma_get_png_name(const char *basename, const char *suffix)
 	int             len;
 
 	len = strlen(basename) + strlen(suffix) + 6;
-	buf = malloc(sizeof(*buf) * len);
+	buf = (char *)malloc(sizeof(*buf) * len);
 
 	sprintf(buf, "%s.%s.png", basename, suffix);
 
@@ -613,7 +613,7 @@ nelma_start_png_export()
 	region.Y2 = PCB->MaxHeight;
 
 	linewidth = -1;
-	lastbrush = (void *) -1;
+	lastbrush = (gdImagePtr)((void *) -1);
 	lastcap = -1;
 	lastgroup = -1;
 	lastcolor = -1;
@@ -676,7 +676,7 @@ nelma_do_export(HID_Attr_Val * options)
 	}
 
 	len = strlen(nelma_basename) + 4;
-	buf = malloc(sizeof(*buf) * len);
+	buf = (char *)malloc(sizeof(*buf) * len);
 
 	sprintf(buf, "%s.em", nelma_basename);
 	nelma_config = fopen(buf, "w");
@@ -793,7 +793,7 @@ nelma_set_line_width(hidGC gc, int width)
 }
 
 static void
-nelma_set_draw_xor(hidGC gc, int xor)
+nelma_set_draw_xor(hidGC gc, int xor_)
 {
 	;
 }
@@ -853,7 +853,7 @@ use_gc(hidGC gc)
 			gc->color->b, type, r);
 
 		if (hid_cache_color(0, name, &bval, &bcache)) {
-			gc->brush = bval.ptr;
+		  gc->brush = (gdImagePtr)bval.ptr;
 		} else {
 			int             bg, fg;
 			if (type == 'C')

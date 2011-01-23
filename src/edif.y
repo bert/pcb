@@ -57,7 +57,7 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
 
  str_pair* new_str_pair(char* s1, char* s2)
  {
-     str_pair* ps = malloc(sizeof(str_pair));
+   str_pair* ps = (str_pair *)malloc(sizeof(str_pair));
      ps->str1 = s1;
      ps->str2 = s2;
      ps->next = NULL;
@@ -66,7 +66,7 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
  
  pair_list* new_pair_list(str_pair* ps)
  {
-     pair_list* pl = malloc(sizeof(pair_list));
+   pair_list* pl = (pair_list *)malloc(sizeof(pair_list));
      pl->list = ps;
      pl->name = NULL;
      return pl;
@@ -116,7 +116,7 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
      /* if renamed str2 also exists and must be freed */
      if ( name->str2 )  free(name->str2);
      free(name);
-     buf = malloc(256);
+     buf = (char *)malloc(256);
      if ( !buf )
      {
 	 /* no memory */
@@ -143,7 +143,7 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
 	 if ( tl + 3 > 256 )
 	 {
 	     free(buf);
-	     buf = malloc(tl+3);
+	     buf = (char *)malloc(tl+3);
 	     if ( !buf )
 	     {
 		 /* no memory */
@@ -2601,10 +2601,9 @@ Keyword :	EDIF_TOK_KEYWORD	{ $$=$1; }
  *
  *	  Garbage function for 'alloca()'.
  */
-char *xmalloc(siz)
-int siz;
+char *xmalloc(int siz)
 {
-  return (Malloc(siz));
+  return ((char *)Malloc(siz));
 }
 /*
  *	Token & context carriers:
@@ -3762,8 +3761,7 @@ static Keyword *KeywordTable[KEYWORD_HASH];
  *
  *	  The passed string is entered into the keyword hash table.
  */
-static void EnterKeyword(str)
-char *str;
+static void EnterKeyword(char * str)
 {
   /* 
    *	Locals.
@@ -3788,8 +3786,7 @@ char *str;
  *	is real useful for doing string comparisons by pointer value later.
  *	If there is no match, a NULL is returned.
  */
-static char *FindKeyword(str)
-char *str;
+static char *FindKeyword(char * str)
 {
   /*
    *	Locals.
@@ -3837,8 +3834,7 @@ static Token *TokenHash[TOKEN_HASH];
  *	  A pointer to the token of the passed code is returned. If
  *	no such beastie is present a NULL is returned instead.
  */
-static Token *FindToken(cod)
-register int cod;
+static Token *FindToken(register int cod)
 {
   /*
    *	Locals.
@@ -3871,8 +3867,7 @@ static Context *ContextHash[CONTEXT_HASH];
  *	  A pointer to the context of the passed code is returned. If
  *	no such beastie is present a NULL is returned instead.
  */
-static Context *FindContext(cod)
-register int cod;
+static Context *FindContext(register int cod)
 {
   /*
    *	Locals.
@@ -3909,16 +3904,14 @@ static short TokenType[TS_DEPTH];	/* token types */
  *	  Add a token to the debug stack. The passed string and type are
  *	what is to be pushed.
  */
-static Stack(str,typ)
-char *str;
-int typ;
+static Stack(char * str, int typ)
 {
   /*
    *	Free any previous string, then push.
    */
   if (TokenStack[TSP & TS_MASK])
     Free(TokenStack[TSP & TS_MASK]);
-  TokenStack[TSP & TS_MASK] = strcpy(Malloc(strlen(str) + 1),str);
+  TokenStack[TSP & TS_MASK] = strcpy((char *)Malloc(strlen(str) + 1),str);
   TokenType[TSP & TS_MASK] = typ;
   TSP += 1;
 }
@@ -4006,8 +3999,7 @@ static int StringSize = 0;		/* current string length */
  *
  *	  This adds the passed charater to the current string bucket.
  */
-static void PushString(chr)
-char chr;
+static void PushString(char chr)
 {
   /*
    *	Locals.
@@ -4178,8 +4170,7 @@ void ParseEDIF(char* filename,FILE* err)
  *	list to see if it is enabled. If so the token value is returned,
  *	if not then zero.
  */
-static int MatchToken(str)
-register char *str;
+static int MatchToken(register char * str)
 {
   /*
    *	Locals.
@@ -4207,8 +4198,7 @@ register char *str;
  *	  If the passed keyword string is within the current context, the
  *	new context is pushed and token value is returned. A zero otherwise.
  */
-static int MatchContext(str)
-register char *str;
+static int MatchContext(register char * str)
 {
   /*
    *	Locals.
@@ -4350,7 +4340,7 @@ static int yylex()
           break;
         Ungetc(c);
         yytext[--l] = '\0';
-        yylval.s = strcpy(Malloc(l + 1),yytext);
+        yylval.s = strcpy((char *)Malloc(l + 1),yytext);
         Stack(yytext,EDIF_TOK_INT);
         return (EDIF_TOK_INT);
       /*
@@ -4366,7 +4356,7 @@ static int yylex()
           Stack(yytext,c);
           return (c);
         }
-        yylval.s = strcpy(Malloc(l + 1),yytext);
+        yylval.s = strcpy((char *)Malloc(l + 1),yytext);
         Stack(yytext, EDIF_TOK_IDENT);
         return (EDIF_TOK_IDENT);
       /*
@@ -4398,7 +4388,7 @@ static int yylex()
           Stack(yytext,c);
           return (c);
         }
-        yylval.s = strcpy(Malloc(l + 1),yytext);
+        yylval.s = strcpy((char *)Malloc(l + 1),yytext);
         Stack(yytext, EDIF_TOK_KEYWORD);
         return (EDIF_TOK_KEYWORD);
       /*

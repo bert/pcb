@@ -405,9 +405,9 @@ psopen (const char *base, const char *which)
   if (!multi_file)
     return fopen (base, "w");
 
-  buf = malloc (strlen (base) + strlen (which) + 5);
+  buf = (char *)malloc (strlen (base) + strlen (which) + 5);
 
-  suff = strrchr (base, '.');
+  suff = (char *)strrchr (base, '.');
   if (suff)
     {
       strcpy (buf, base);
@@ -930,7 +930,7 @@ ps_set_line_width (hidGC gc, int width)
 }
 
 static void
-ps_set_draw_xor (hidGC gc, int xor)
+ps_set_draw_xor (hidGC gc, int xor_)
 {
   ;
 }

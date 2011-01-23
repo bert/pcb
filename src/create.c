@@ -93,7 +93,7 @@ CreateNewBuffer (void)
 {
   DataTypePtr data;
   data = (DataTypePtr) calloc (1, sizeof (DataType));
-  data->pcb = (void *) PCB;
+  data->pcb = (PCBTypePtr) PCB;
   return data;
 }
 
@@ -148,9 +148,9 @@ CreateNewPCB (bool SetDefaultNames)
   int i;
 
   /* allocate memory, switch all layers on and copy resources */
-  ptr = calloc (1, sizeof (PCBType));
+  ptr = (PCBTypePtr)calloc (1, sizeof (PCBType));
   ptr->Data = CreateNewBuffer ();
-  ptr->Data->pcb = (void *) ptr;
+  ptr->Data->pcb = (PCBTypePtr) ptr;
 
   ptr->ThermStyle = 4;
   ptr->IsleArea = 2.e8;
@@ -719,7 +719,7 @@ CreateNewArcInElement (ElementTypePtr Element,
   if (Element->ArcN >= Element->ArcMax)
     {
       Element->ArcMax += STEP_ELEMENTARC;
-      arc = realloc (arc, Element->ArcMax * sizeof (ArcType));
+      arc = (ArcTypePtr)realloc (arc, Element->ArcMax * sizeof (ArcType));
       Element->Arc = arc;
       memset (arc + Element->ArcN, 0, STEP_ELEMENTARC * sizeof (ArcType));
     }
@@ -765,7 +765,7 @@ CreateNewLineInElement (ElementTypePtr Element,
   if (Element->LineN >= Element->LineMax)
     {
       Element->LineMax += STEP_ELEMENTLINE;
-      line = realloc (line, Element->LineMax * sizeof (LineType));
+      line = (LineTypePtr)realloc (line, Element->LineMax * sizeof (LineType));
       Element->Line = line;
       memset (line + Element->LineN, 0, STEP_ELEMENTLINE * sizeof (LineType));
     }
@@ -932,7 +932,7 @@ CreateNewLineInSymbol (SymbolTypePtr Symbol,
   if (Symbol->LineN >= Symbol->LineMax)
     {
       Symbol->LineMax += STEP_SYMBOLLINE;
-      line = realloc (line, Symbol->LineMax * sizeof (LineType));
+      line = (LineTypePtr)realloc (line, Symbol->LineMax * sizeof (LineType));
       Symbol->Line = line;
       memset (line + Symbol->LineN, 0, STEP_SYMBOLLINE * sizeof (LineType));
     }
@@ -1019,7 +1019,7 @@ CreateNewAttribute (AttributeListTypePtr list, char *name, char *value)
   if (list->Number >= list->Max)
     {
       list->Max += 10;
-      list->List = realloc (list->List, list->Max * sizeof (AttributeType));
+      list->List = (AttributeType *)realloc (list->List, list->Max * sizeof (AttributeType));
     }
   list->List[list->Number].name = STRDUP (name);
   list->List[list->Number].value = STRDUP (value);

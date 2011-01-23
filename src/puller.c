@@ -1793,10 +1793,10 @@ gp_pad_cb (const BoxType *b, void *cb)
 }
 
 static void
-adjust_pointers_1 (Extra *old, Extra *new, int num, Extra *l, int n)
+adjust_pointers_1 (Extra *old, Extra *newone, int num, Extra *l, int n)
 {
-  int delta = new - old;
-  long cdelta = (char *)new - (char *)old;
+  int delta = newone - old;
+  long cdelta = (char *)newone - (char *)old;
   Extra *last = old + num;
   int i;
 
@@ -1844,10 +1844,10 @@ adjust_pointers_1 (Extra *old, Extra *new, int num, Extra *l, int n)
 }
 
 static void
-adjust_pointers (Extra *old, Extra *new, int num)
+adjust_pointers (Extra *old, Extra *newone, int num)
 {
-  adjust_pointers_1 (old, new, num, lines, nlines);
-  adjust_pointers_1 (old, new, num, arcs, narcs);
+  adjust_pointers_1 (old, newone, num, lines, nlines);
+  adjust_pointers_1 (old, newone, num, arcs, narcs);
 }
 
 static LineTypePtr

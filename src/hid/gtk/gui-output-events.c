@@ -597,7 +597,7 @@ describe_location (LocationType X, LocationType Y)
     return NULL;
 
   if (type == PIN_TYPE || type == PAD_TYPE)
-    elename = UNKNOWN (NAMEONPCB_NAME ((ElementTypePtr) ptr1));
+    elename = (char *)UNKNOWN (NAMEONPCB_NAME ((ElementTypePtr) ptr1));
 
   pinname = ConnectionName (type, ptr1, ptr2);
 

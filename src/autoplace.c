@@ -132,12 +132,13 @@ typedef struct
 }
 ElementPtrListType;
 
+enum ewhich
+  { SHIFT, ROTATE, EXCHANGE };
+
 typedef struct
 {
   ElementTypePtr element;
-  enum
-  { SHIFT, ROTATE, EXCHANGE }
-  which;
+  enum ewhich which;
   LocationType DX, DY;		/* for shift */
   BYTE rotate;			/* for rotate/flip */
   ElementTypePtr other;		/* for exchange */
@@ -528,7 +529,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       boxpp = (struct ebox **)
 	GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			  &seboxes : &ceboxes);
-      *boxpp = malloc (sizeof (**boxpp));
+      *boxpp = (struct ebox *)malloc (sizeof (**boxpp));
       if (*boxpp == NULL ) 
 	{
 	  fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);

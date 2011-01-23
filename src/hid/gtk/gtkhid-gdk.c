@@ -37,7 +37,7 @@ typedef struct hid_gc_struct
   gchar *colorname;
   gint width;
   gint cap, join;
-  gchar xor;
+  gchar xor_mask;
   gchar erase;
   gint mask_seq;
 }
@@ -117,7 +117,7 @@ ghid_draw_grid (void)
   if (n > npoints)
     {
       npoints = n + 10;
-      points = realloc (points, npoints * sizeof (GdkPoint));
+      points = (GdkPoint *)realloc (points, npoints * sizeof (GdkPoint));
     }
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
@@ -346,7 +346,7 @@ ghid_set_color (hidGC gc, const char *name)
 	    gdk_color_white (gport->colormap, &cc->color);
 	  cc->color_set = 1;
 	}
-      if (gc->xor)
+      if (gc->xor_mask)
 	{
 	  if (!cc->xor_set)
 	    {
@@ -387,7 +387,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
 				Vz (gc->width), GDK_LINE_SOLID,
-				gc->cap, gc->join);
+				(GdkCapStyle)gc->cap, (GdkJoinStyle)gc->join);
 }
 
 void
@@ -398,16 +398,16 @@ ghid_set_line_width (hidGC gc, int width)
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
 				Vz (gc->width), GDK_LINE_SOLID,
-				gc->cap, gc->join);
+				(GdkCapStyle)gc->cap, (GdkJoinStyle)gc->join);
 }
 
 void
-ghid_set_draw_xor (hidGC gc, int xor)
+ghid_set_draw_xor (hidGC gc, int xor_mask)
 {
-  gc->xor = xor;
+  gc->xor_mask = xor_mask;
   if (!gc->gc)
     return;
-  gdk_gc_set_function (gc->gc, xor ? GDK_XOR : GDK_COPY);
+  gdk_gc_set_function (gc->gc, xor_mask ? GDK_XOR : GDK_COPY);
   ghid_set_color (gc, gc->colorname);
 }
 
@@ -440,8 +440,8 @@ use_gc (hidGC gc)
       gc->gc = gdk_gc_new (gport->top_window->window);
       ghid_set_color (gc, gc->colorname);
       ghid_set_line_width (gc, gc->width);
-      ghid_set_line_cap (gc, gc->cap);
-      ghid_set_draw_xor (gc, gc->xor);
+      ghid_set_line_cap (gc, (EndCapStyle)gc->cap);
+      ghid_set_draw_xor (gc, gc->xor_mask);
     }
   if (gc->mask_seq != mask_seq)
     {
@@ -584,7 +584,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   if (npoints < n_coords)
     {
       npoints = n_coords + 1;
-      points = realloc (points, npoints * sizeof (GdkPoint));
+      points = (GdkPoint *)realloc (points, npoints * sizeof (GdkPoint));
     }
   for (i = 0; i < n_coords; i++)
     {

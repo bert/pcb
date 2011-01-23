@@ -2283,7 +2283,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   if (name)
     {
       /* NB: ChangeObjectName takes ownership of the passed memory */
-      char *old = ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
+      char *old = (char *)ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
       if (old != (char *) -1)
 	{
 	  AddObjectToChangeNameUndoList (Type, Ptr1, Ptr2, Ptr3, old);

@@ -104,7 +104,7 @@ nogui_set_line_width (hidGC gc, int width)
 }
 
 static void
-nogui_set_draw_xor (hidGC gc, int xor)
+nogui_set_draw_xor (hidGC gc, int xor_)
 {
   CRASH;
 }

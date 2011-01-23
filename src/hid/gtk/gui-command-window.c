@@ -464,7 +464,7 @@ ghid_handle_user_command (gboolean raise)
     {
       HideCrosshair (true);
       command = ghid_command_entry_get (_("Enter command:"),
-		      (Settings.SaveLastCommand && previous) ? previous : "");
+					(Settings.SaveLastCommand && previous) ? previous : (gchar *)"");
       if (command != NULL)
 	{
 	  /* copy new comand line to save buffer */

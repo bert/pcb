@@ -86,8 +86,8 @@ load_mouse_resource (Resource *res)
 #endif
 
   button_count = res->c;
-  button_nums = malloc(res->c * sizeof(int));
-  mod_count = malloc(res->c * sizeof(int));
+  button_nums = (int *)malloc(res->c * sizeof(int));
+  mod_count = (int *)malloc(res->c * sizeof(int));
   action_count = 0;
   for (bi=0; bi<res->c; bi++)
     {
@@ -98,8 +98,8 @@ load_mouse_resource (Resource *res)
         action_count += res->v[bi].subres->c;
 
     }
-  mods = malloc(action_count * sizeof(int));
-  actions = malloc(action_count * sizeof(Resource*));
+  mods = (unsigned int *)malloc(action_count * sizeof(int));
+  actions = (Resource **)malloc(action_count * sizeof(Resource*));
 
   a = 0;
   for (bi=0; bi<res->c; bi++)

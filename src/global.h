@@ -153,7 +153,7 @@ typedef struct
 	BoxType		BoundingBox;	\
 	long int	ID;		\
 	FlagType	Flags;		\
-	struct LibraryEntryType *net
+	//	struct LibraryEntryType *net
 
 /* Lines, pads, and rats all use this so they can be cross-cast.  */
 #define	ANYLINEFIELDS			\
@@ -434,6 +434,7 @@ typedef struct
    *Value,			/* the value field */
    *Description;		/* some descritional text */
 } LibraryEntryType, *LibraryEntryTypePtr;
+//typedef LibraryEntryType *LibraryEntryTypePtr;
 
 /* If the internal flag is set, the only field that is valid is Name,
    and the struct is allocated with malloc instead of

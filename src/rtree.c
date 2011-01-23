@@ -452,9 +452,9 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   int i;
 
   assert (N >= 0);
-  rtree = calloc (1, sizeof (*rtree));
+  rtree = (rtree_t *)calloc (1, sizeof (*rtree));
   /* start with a single empty leaf node */
-  node = calloc (1, sizeof (*node));
+  node = (struct rtree_node *)calloc (1, sizeof (*node));
   node->flags.is_leaf = 1;
   node->parent = NULL;
   rtree->root = node;
@@ -761,7 +761,7 @@ find_clusters (struct rtree_node *node)
         break;
     }
   /* Now 'belong' has the partition map */
-  new_node = calloc (1, sizeof (*new_node));
+  new_node = (struct rtree_node *)calloc (1, sizeof (*new_node));
   new_node->parent = node->parent;
   new_node->flags.is_leaf = node->flags.is_leaf;
   clust_a = clust_b = 0;
@@ -834,7 +834,7 @@ split_node (struct rtree_node *node)
     {
       struct rtree_node *second;
 
-      second = calloc (1, sizeof (*second));
+      second = (struct rtree_node *)calloc (1, sizeof (*second));
       *second = *node;
       if (!second->flags.is_leaf)
         for (i = 0; i < M_SIZE; i++)
@@ -991,7 +991,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
         {
           struct rtree_node *new_node;
-          new_node = calloc (1, sizeof (*new_node));
+          new_node = (struct rtree_node *)calloc (1, sizeof (*new_node));
           new_node->parent = node;
           new_node->flags.is_leaf = true;
           node->u.kids[i] = new_node;

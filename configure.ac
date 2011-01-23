@@ -1017,7 +1017,7 @@ LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_L
 # if we have gcc then add -Wall
 if test "x$GCC" = "xyes"; then
 	# see about adding some extra checks if the compiler takes them
-	for flag in -Wall -Wdeclaration-after-statement ; do
+	for flag in -Wall ; do
 		case " ${CFLAGS} " in
 			*\ ${flag}\ *)
 				# flag is already present
@@ -1038,6 +1038,29 @@ if test "x$GCC" = "xyes"; then
 fi
 
 CXXFLAGS="$CFLAGS"
+
+# Now add C-specific flags
+if test "x$GCC" = "xyes"; then
+	# see about adding some extra checks if the compiler takes them
+	for flag in -Wdeclaration-after-statement ; do
+		case " ${CFLAGS} " in
+			*\ ${flag}\ *)
+				# flag is already present
+				;;
+			*)
+				AC_MSG_CHECKING([if the compiler accepts ${flag}])
+				ac_save_CFLAGS="$CFLAGS"
+				CFLAGS="$CFLAGS ${flag}"
+				AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+					[AC_MSG_RESULT([yes])],
+					[AC_MSG_RESULT([no])
+					 CFLAGS="$ac_save_CFLAGS"
+					]
+				)
+				;;
+		esac
+	done
+fi
 
 # See if we are building gcc with C++.
 AC_ARG_ENABLE(build-with-cxx,

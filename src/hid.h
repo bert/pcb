@@ -161,16 +161,18 @@ extern "C"
     double real_value;
   } HID_Attr_Val;
 
+  enum hids
+    { HID_Label, HID_Integer, HID_Real, HID_String,
+      HID_Boolean, HID_Enum, HID_Mixed, HID_Path
+    };
+
   typedef struct
   {
     char *name;
     /* If the help_text is this, usage() won't show this option */
 #define ATTR_UNDOCUMENTED ((char *)(1))
     char *help_text;
-    enum
-    { HID_Label, HID_Integer, HID_Real, HID_String,
-      HID_Boolean, HID_Enum, HID_Mixed, HID_Path
-    } type;
+    enum hids type;
     int min_val, max_val;	/* for integer and real */
     HID_Attr_Val default_val;	/* Also actual value for global attributes.  */
     const char **enumerations;

@@ -488,7 +488,7 @@ ghid_set_crosshair (int x, int y, int action)
 
 typedef struct
 {
-  void (*func) ();
+  void (*func) (hidval);
   gint id;
   hidval user_data;
 }
@@ -584,7 +584,7 @@ ghid_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, int
   watch->user_data = user_data;
   watch->fd = fd;
   watch->channel = g_io_channel_unix_new( fd );
-  watch->id = g_io_add_watch( watch->channel, glib_condition, ghid_watch, watch );
+  watch->id = g_io_add_watch( watch->channel, (GIOCondition)glib_condition, ghid_watch, watch );
 
   ret.ptr = (void *) watch;
   return ret;
@@ -691,8 +691,8 @@ ghid_confirm_dialog (char *msg, ...)
     }
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL |
-				   GTK_DIALOG_DESTROY_WITH_PARENT,
+				   (GtkDialogFlags) (GTK_DIALOG_MODAL |
+						     GTK_DIALOG_DESTROY_WITH_PARENT),
 				   GTK_MESSAGE_QUESTION,
 				   GTK_BUTTONS_NONE,
 				   "%s", msg);
@@ -833,7 +833,7 @@ ghid_attributes_need_rows (int new_max)
       gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].del,
 			0, 1,
 			attr_max_rows, attr_max_rows+1,
-			GTK_FILL | GTK_EXPAND,
+			(GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
 			GTK_FILL,
 			0, 0);
       g_signal_connect (G_OBJECT (attr_row[attr_max_rows].del), "clicked",
@@ -843,7 +843,7 @@ ghid_attributes_need_rows (int new_max)
       gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].w_name,
 			1, 2,
 			attr_max_rows, attr_max_rows+1,
-			GTK_FILL | GTK_EXPAND,
+			(GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
 			GTK_FILL,
 			0, 0);
 
@@ -851,7 +851,7 @@ ghid_attributes_need_rows (int new_max)
       gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].w_value,
 			2, 3,
 			attr_max_rows, attr_max_rows+1,
-			GTK_FILL | GTK_EXPAND,
+			(GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
 			GTK_FILL,
 			0, 0);
 
@@ -1221,7 +1221,7 @@ Load (int argc, char **argv, int x, int y)
   if (argc > 1)
     return hid_actionv ("LoadFrom", argc, argv);
 
-  function = argc ? argv[0] : "Layout";
+  function = argc ? argv[0] : (char *)"Layout";
 
   if (strcasecmp (function, "Netlist") == 0)
     {
@@ -1293,7 +1293,7 @@ Save (int argc, char **argv, int x, int y)
   if (argc > 1)
     return hid_actionv ("SaveTo", argc, argv);
 
-  function = argc ? argv[0] : "Layout";
+  function = argc ? argv[0] : (char *)"Layout";
 
   if (strcasecmp (function, "Layout") == 0)
     if (PCB->Filename)
@@ -1825,7 +1825,7 @@ Open the DRC violations window.
 static int
 DoWindows (int argc, char **argv, int x, int y)
 {
-  char *a = argc == 1 ? argv[0] : "";
+  char *a = argc == 1 ? argv[0] : (char *)"";
 
   if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
     {

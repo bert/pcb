@@ -97,27 +97,27 @@ static ObjectFunctionType InsertFunctions = {
 static void *
 InsertPointIntoRat (RatTypePtr Rat)
 {
-  LineTypePtr new;
+  LineTypePtr newone;
 
-  new = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
+  newone = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
 				InsertX, InsertY, Settings.LineThickness,
 				2 * Settings.Keepaway, Rat->Flags);
-  if (!new)
-    return new;
-  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
+  if (!newone)
+    return newone;
+  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, newone, newone);
   EraseRat (Rat);
-  DrawLine (CURRENT, new, 0);
-  new = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
+  DrawLine (CURRENT, newone, 0);
+  newone = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
 				InsertX, InsertY, Settings.LineThickness,
 				2 * Settings.Keepaway, Rat->Flags);
-  if (new)
+  if (newone)
     {
-      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
-      DrawLine (CURRENT, new, 0);
+      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, newone, newone);
+      DrawLine (CURRENT, newone, 0);
     }
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
   Draw ();
-  return (new);
+  return (newone);
 }
 
 /* ---------------------------------------------------------------------------

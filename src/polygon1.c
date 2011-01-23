@@ -95,7 +95,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #define error(code)  longjmp(*(e), code)
 
 #define MemGet(ptr, type) \
-if (UNLIKELY (((ptr) = malloc(sizeof(type))) == NULL)) \
+  if (UNLIKELY (((ptr) = (type *)malloc(sizeof(type))) == NULL))	\
     error(err_no_memory);
 
 #undef DEBUG_LABEL
@@ -276,16 +276,16 @@ insert_descriptor
 static CVCList *
 insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 {
-  CVCList *l, *new, *big, *small;
+  CVCList *l, *newone, *big, *small;
 
-  if (!(new = new_descriptor (a, poly, side)))
+  if (!(newone = new_descriptor (a, poly, side)))
     return NULL;
   /* search for the CVCList for this point */
   if (!start)
     {
-      start = new;		/* return is also new, so we know where start is */
-      start->head = new;	/* circular list */
-      return new;
+      start = newone;		/* return is also new, so we know where start is */
+      start->head = newone;	/* circular list */
+      return newone;
     }
   else
     {
@@ -297,7 +297,7 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 	      && l->parent->point[1] == a->point[1])
 	    {			/* this CVCList is at our point */
 	      start = l;
-	      new->head = l->head;
+	      newone->head = l->head;
 	      break;
 	    }
 	  if (l->head->parent->point[0] == start->parent->point[0]
@@ -305,10 +305,10 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 	    {
 	      /* this seems to be a new point */
 	      /* link this cvclist to the list of all cvclists */
-	      for (; l->head != new; l = l->next)
-		l->head = new;
-	      new->head = start;
-	      return new;
+	      for (; l->head != newone; l = l->next)
+		l->head = newone;
+	      newone->head = start;
+	      return newone;
 	    }
 	  l = l->head;
 	}
@@ -323,29 +323,29 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 	  small = l->next;
 	  big = l;
 	}
-      else if (new->angle >= l->angle && new->angle <= l->next->angle)
+      else if (newone->angle >= l->angle && newone->angle <= l->next->angle)
 	{
 	  /* insert new cvc if it lies between existing points */
-	  new->prev = l;
-	  new->next = l->next;
-	  l->next = l->next->prev = new;
-	  return new;
+	  newone->prev = l;
+	  newone->next = l->next;
+	  l->next = l->next->prev = newone;
+	  return newone;
 	}
     }
   while ((l = l->next) != start);
   /* didn't find it between points, it must go on an end */
-  if (big->angle <= new->angle)
+  if (big->angle <= newone->angle)
     {
-      new->prev = big;
-      new->next = big->next;
-      big->next = big->next->prev = new;
-      return new;
+      newone->prev = big;
+      newone->next = big->next;
+      big->next = big->next->prev = newone;
+      return newone;
     }
-  assert (small->angle >= new->angle);
-  new->next = small;
-  new->prev = small->prev;
-  small->prev = small->prev->next = new;
-  return new;
+  assert (small->angle >= newone->angle);
+  newone->next = small;
+  newone->prev = small->prev;
+  small->prev = small->prev->next = newone;
+  return newone;
 }
 
 /*
@@ -503,7 +503,7 @@ typedef struct _insert_node_task insert_node_task;
 struct _insert_node_task
 {
   insert_node_task *next;
-  seg *seg;
+  seg * node_seg;
   VNODE *new_node;
 };
 
@@ -539,7 +539,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
 {
   struct seg *q;
 
-  q = malloc (sizeof (struct seg));
+  q = (seg *)malloc (sizeof (struct seg));
   if (!q)
     return 1;
   q->intersected = 0;
@@ -550,7 +550,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
   q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
   r_insert_entry (tree, (const BoxType *) q, 1);
-  q = malloc (sizeof (struct seg));
+  q = (seg *)malloc (sizeof (struct seg));
   if (!q)
     return 1;
   q->intersected = 0;
@@ -591,8 +591,8 @@ seg_in_region (const BoxType * b, void *cl)
 static insert_node_task *
 prepend_insert_node_task (insert_node_task *list, seg *seg, VNODE *new_node)
 {
-  insert_node_task *task = malloc (sizeof (*task));
-  task->seg = seg;
+  insert_node_task *task = (insert_node_task *)malloc (sizeof (*task));
+  task->node_seg = seg;
   task->new_node = new_node;
   task->next = list;
   return task;
@@ -678,7 +678,7 @@ make_edge_tree (PLINE * pb)
   bv = &pb->head;
   do
     {
-      s = malloc (sizeof (struct seg));
+      s = (seg *)malloc (sizeof (struct seg));
       s->intersected = 0;
       if (bv->point[0] < bv->next->point[0])
 	{
@@ -879,14 +879,14 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       insert_node_task *next = task->next;
 
       /* Do insersion */
-      task->new_node->prev = task->seg->v;
-      task->new_node->next = task->seg->v->next;
-      task->seg->v->next->prev = task->new_node;
-      task->seg->v->next = task->new_node;
-      task->seg->p->Count++;
+      task->new_node->prev = task->node_seg->v;
+      task->new_node->next = task->node_seg->v->next;
+      task->node_seg->v->next->prev = task->new_node;
+      task->node_seg->v->next = task->new_node;
+      task->node_seg->p->Count++;
 
-      cntrbox_adjust (task->seg->p, task->new_node->point);
-      if (adjust_tree (task->seg->p->tree, task->seg))
+      cntrbox_adjust (task->node_seg->p, task->new_node->point);
+      if (adjust_tree (task->node_seg->p->tree, task->node_seg))
 	assert (0); /* XXX: Memory allocation failure */
 
       need_restart = 1; /* Any new nodes could intersect */
@@ -967,7 +967,7 @@ cntrbox_inside (PLINE * c1, PLINE * c2)
 static int
 count_contours_i_am_inside (const BoxType * b, void *cl)
 {
-  PLINE *me = cl;
+  PLINE *me = (PLINE *) cl;
   PLINE *check = (PLINE *) b;
 
   if (poly_ContourInContour (check, me))
@@ -1276,7 +1276,7 @@ struct find_inside_info
 static int
 find_inside (const BoxType * b, void *cl)
 {
-  struct find_inside_info *info = cl;
+  struct find_inside_info *info = (struct find_inside_info *) cl;
   PLINE *check = (PLINE *) b;
   /* Do test on check to see if it inside info->want_inside */
   /* If it is: */
@@ -1318,7 +1318,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 
   /* make a polyarea info table */
   /* make an rtree of polyarea info table */
-  all_pa_info = malloc (sizeof (struct polyarea_info) * num_polyareas);
+  all_pa_info = (struct polyarea_info *) malloc (sizeof (struct polyarea_info) * num_polyareas);
   tree = r_create_tree (NULL, 0, 0);
   i = 0;
   curc = dest;
@@ -1357,7 +1357,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
        * in the heap, assume it is the container without the expense of
        * proving it.
        */
-      pa_info = heap_remove_smallest (heap);
+      pa_info = (struct polyarea_info *) heap_remove_smallest (heap);
       if (heap_is_empty (heap))
 	{			/* only one possibility it must be the right one */
 	  assert (poly_ContourInContour (pa_info->pa->contours, curh));
@@ -1374,7 +1374,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 		}
 	      if (heap_is_empty (heap))
 		break;
-	      pa_info = heap_remove_smallest (heap);
+	      pa_info = (struct polyarea_info *) heap_remove_smallest (heap);
 	    }
 	  while (1);
 	}
@@ -1562,7 +1562,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 {
   CVCList *d, *start;
   VNODE *e;
-  DIRECTION new;
+  DIRECTION newone;
 
   if (!(*cur)->cvc_prev)	/* not a cross-vertex */
     {
@@ -1584,14 +1584,14 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
       e = d->parent;
       if (d->side == 'P')
 	e = e->prev;
-      new = *cdir;
-      if (!e->Flags.mark && rule (d->poly, e, &new))
+      newone = *cdir;
+      if (!e->Flags.mark && rule (d->poly, e, &newone))
 	{
-	  if ((d->side == 'N' && new == FORW) ||
-	      (d->side == 'P' && new == BACKW))
+	  if ((d->side == 'N' && newone == FORW) ||
+	      (d->side == 'P' && newone == BACKW))
 	    {
 #ifdef DEBUG_JUMP
-	      if (new == FORW)
+	      if (newone == FORW)
 		DEBUGP ("jump leaving node at (%d, %d)\n",
 			e->next->point[0], e->next->point[1]);
 	      else
@@ -1599,7 +1599,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 			e->point[0], e->point[1]);
 #endif
 	      *cur = d->parent;
-	      *cdir = new;
+	      *cdir = newone;
 	      return TRUE;
 	    }
 	}
@@ -1958,7 +1958,7 @@ struct find_inside_m_pa_info
 static int
 find_inside_m_pa (const BoxType * b, void *cl)
 {
-  struct find_inside_m_pa_info *info = cl;
+  struct find_inside_m_pa_info *info = (struct find_inside_m_pa_info *) cl;
   PLINE *check = (PLINE *) b;
   /* Don't report for the main contour */
   if (check->Flags.orient == PLF_DIR)
@@ -2638,7 +2638,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
   C->area = ABS (area);
   if (C->Count > 2)
     C->Flags.orient = ((area < 0) ? PLF_INV : PLF_DIR);
-  C->tree = make_edge_tree (C);
+  C->tree = (rtree_t *)make_edge_tree (C);
 }				/* poly_PreContour */
 
 static int
@@ -2736,7 +2736,7 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
       // newnode->Flags = cur->Flags;
       poly_InclVertex ((*dst)->head.prev, newnode);
     }
-  (*dst)->tree = make_edge_tree (*dst);
+  (*dst)->tree = (rtree_t *)make_edge_tree (*dst);
   return TRUE;
 }
 
@@ -2748,7 +2748,7 @@ poly_Copy0 (POLYAREA ** dst, const POLYAREA * src)
 {
   *dst = NULL;
   if (src != NULL)
-    *dst = calloc (1, sizeof (POLYAREA));
+    *dst = (POLYAREA *)calloc (1, sizeof (POLYAREA));
   if (*dst == NULL)
     return FALSE;
   (*dst)->contour_tree = r_create_tree (NULL, 0, 0);
@@ -3106,7 +3106,7 @@ poly_Create (void)
 {
   POLYAREA *res;
 
-  if ((res = malloc (sizeof (POLYAREA))) != NULL)
+  if ((res = (POLYAREA *)malloc (sizeof (POLYAREA))) != NULL)
     poly_Init (res);
   return res;
 }

@@ -154,7 +154,7 @@ ghid_library_window_create (GHidPort * out)
   if (library_window)
     return;
 
-  library_window = g_object_new (GHID_TYPE_LIBRARY_WINDOW, NULL);
+  library_window = (GtkWidget *)g_object_new (GHID_TYPE_LIBRARY_WINDOW, NULL);
 
   g_signal_connect (library_window,
                     "response",
@@ -782,7 +782,7 @@ library_window_constructor (GType type,
 					"xscale", 1.0,
 					"yscale", 1.0,
 					"xalign", 0.5, "yalign", 0.5, NULL));
-  preview = g_object_new (GHID_TYPE_PINOUT_PREVIEW,
+  preview = (GtkWidget *)g_object_new (GHID_TYPE_PINOUT_PREVIEW,
 			  /* GhidPinoutPreview */
 			  "element-data", NULL,
 			  /* GtkWidget */
@@ -831,7 +831,7 @@ library_window_class_init (GhidLibraryWindowClass * klass)
   gobject_class->constructor = library_window_constructor;
   gobject_class->finalize = library_window_finalize;
 
-  library_window_parent_class = g_type_class_peek_parent (klass);
+  library_window_parent_class = (GObjectClass *)g_type_class_peek_parent (klass);
 }
 
 
@@ -856,7 +856,7 @@ ghid_library_window_get_type ()
 
       library_window_type = g_type_register_static (GTK_TYPE_DIALOG,
 						    "GhidLibraryWindow",
-						    &library_window_info, 0);
+						    &library_window_info, (GTypeFlags)0);
     }
 
   return library_window_type;

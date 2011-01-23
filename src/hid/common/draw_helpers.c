@@ -8,8 +8,8 @@ static void fill_contour (hidGC gc, PLINE *pl)
   VNODE *v;
 
   n = pl->Count;
-  x = malloc (n * sizeof (int));
-  y = malloc (n * sizeof (int));
+  x = (int *)malloc (n * sizeof (int));
+  y = (int *)malloc (n * sizeof (int));
 
   for (v = &pl->head; i < n; v = v->next)
     {
@@ -63,7 +63,7 @@ static void thindraw_contour (hidGC gc, PLINE *pl)
 
 static void fill_contour_cb (PLINE *pl, void *user_data)
 {
-  hidGC gc = user_data;
+  hidGC gc = (hidGC)user_data;
   PLINE *local_pl = pl;
 
   fill_contour (gc, pl);
@@ -182,7 +182,7 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
 
 static int thindraw_hole_cb (PLINE *pl, void *user_data)
 {
-  hidGC gc = user_data;
+  hidGC gc = (hidGC)user_data;
   thindraw_contour (gc, pl);
   return 0;
 }

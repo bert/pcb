@@ -321,7 +321,7 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
     }
 
   /* figure out the vendor name, if specified */
-  vendor_name = UNKNOWN (resource_value (res, "vendor"));
+  vendor_name = (char *)UNKNOWN (resource_value (res, "vendor"));
 
   /* figure out the units, if specified */
   sval = resource_value (res, "units");
@@ -701,7 +701,7 @@ add_to_drills (char *sval)
 
   /* increment the count and make sure we have memory */
   n_vendor_drills++;
-  if ((vendor_drills = realloc (vendor_drills,
+  if ((vendor_drills = (int *)realloc (vendor_drills,
 				n_vendor_drills * sizeof (int))) == NULL)
     {
       fprintf (stderr, "realloc() failed to allocate %ld bytes\n",

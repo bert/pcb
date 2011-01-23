@@ -120,7 +120,7 @@ heap_create ()
     MIN_COST = -1e23;
   assert (MIN_COST < 0);
   /* okay, create empty heap */
-  heap = calloc (1, sizeof (*heap));
+  heap = (heap_t *)calloc (1, sizeof (*heap));
   assert (heap);
   assert (__heap_is_good (heap));
   return heap;
@@ -179,7 +179,7 @@ heap_insert (heap_t * heap, cost_t cost, void *data)
       if (heap->max == 0)
 	heap->max = 256;		/* default initial heap size */
       heap->element =
-	realloc (heap->element, heap->max * sizeof (*heap->element));
+	(struct heap_element *)realloc (heap->element, heap->max * sizeof (*heap->element));
     }
   heap->size++;
   assert (heap->size < heap->max);

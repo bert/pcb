@@ -1002,13 +1002,13 @@ ExpandFilename (char *Dirname, char *Filename)
   DSClearString (&answer);
   if (Dirname)
     {
-      command = calloc (strlen (Filename) + strlen (Dirname) + 7,
+      command = (char *)calloc (strlen (Filename) + strlen (Dirname) + 7,
                         sizeof (char));
       sprintf (command, "echo %s/%s", Dirname, Filename);
     }
   else
     {
-      command = calloc (strlen (Filename) + 6, sizeof (char));
+      command = (char *)calloc (strlen (Filename) + 6, sizeof (char));
       sprintf (command, "echo %s", Filename);
     }
 
@@ -1904,7 +1904,7 @@ pcb_author (void)
             len = comma - gecos;
           else
             len = strlen (gecos);
-          fab_author = malloc (len + 1);
+          fab_author = (char *)malloc (len + 1);
           if (!fab_author)
             {
               perror ("pcb: out of memory.\n");

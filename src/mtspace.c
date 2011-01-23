@@ -104,7 +104,7 @@ mtspace_create_box (const BoxType * box, BDimension keepaway)
 {
   mtspacebox_t *mtsb;
   assert (box_is_good (box));
-  mtsb = malloc (sizeof (*mtsb));
+  mtsb = (mtspacebox_t *)malloc (sizeof (*mtsb));
   /* the box was sent to us pre-bloated by the keepaway amount */
   *((BoxTypePtr) & mtsb->box) = *box;
   mtsb->keepaway = keepaway;
@@ -119,7 +119,7 @@ mtspace_create (void)
   mtspace_t *mtspace;
 
   /* create mtspace data structure */
-  mtspace = malloc (sizeof (*mtspace));
+  mtspace = (mtspace_t *)malloc (sizeof (*mtspace));
   mtspace->ftree = r_create_tree (NULL, 0, 0);
   mtspace->etree = r_create_tree (NULL, 0, 0);
   mtspace->otree = r_create_tree (NULL, 0, 0);
@@ -220,21 +220,21 @@ struct query_closure
 };
 
 static inline void
-heap_append (heap_t *heap, CheapPointType *desired, BoxType *new)
+heap_append (heap_t *heap, CheapPointType *desired, BoxType *newone)
 {
   CheapPointType p = *desired;
   assert (desired);
-  closest_point_in_box (&p, new);
-  heap_insert (heap, ABS(p.X - desired->X) + (p.Y - desired->Y), new);
+  closest_point_in_box (&p, newone);
+  heap_insert (heap, ABS(p.X - desired->X) + (p.Y - desired->Y), newone);
 }
 
 static inline void
-append (struct query_closure * qc, BoxType *new)
+append (struct query_closure * qc, BoxType *newone)
 { 
   if (qc->desired)
-    heap_append (qc->checking.h, qc->desired, new);
+    heap_append (qc->checking.h, qc->desired, newone);
   else
-    vector_append (qc->checking.v, new);
+    vector_append (qc->checking.v, newone);
 }
 
 /* we found some space filler that may intersect this query.
@@ -267,13 +267,13 @@ query_one (const BoxType * box, void *cl)
       int Y2 = mtsb->box.Y1 + shrink;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
 	{
-	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-	  new->X1 = qc->cbox->X1;
-	  new->X2 = qc->cbox->X2;
-	  new->Y1 = Y1;
-	  new->Y2 = Y2;
-	  assert (new->Y2 < qc->cbox->Y2);
-          append(qc, new);
+	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
+	  newone->X1 = qc->cbox->X1;
+	  newone->X2 = qc->cbox->X2;
+	  newone->Y1 = Y1;
+	  newone->Y2 = Y2;
+	  assert (newone->Y2 < qc->cbox->Y2);
+          append(qc, newone);
 	}
     }
   if (mtsb->box.Y2 < qc->cbox->Y2 - shrink)	/* bottom region exists */
@@ -282,13 +282,13 @@ query_one (const BoxType * box, void *cl)
       int Y2 = qc->cbox->Y2;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
 	{
-	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-	  new->X1 = qc->cbox->X1;
-	  new->X2 = qc->cbox->X2;
-	  new->Y2 = qc->cbox->Y2;
-	  new->Y1 = Y1;
-	  assert (new->Y1 > qc->cbox->Y1);
-	  append (qc, new);
+	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
+	  newone->X1 = qc->cbox->X1;
+	  newone->X2 = qc->cbox->X2;
+	  newone->Y2 = qc->cbox->Y2;
+	  newone->Y1 = Y1;
+	  assert (newone->Y1 > qc->cbox->Y1);
+	  append (qc, newone);
 	}
     }
   if (mtsb->box.X1 > qc->cbox->X1 + shrink)	/* left region exists */
@@ -297,14 +297,14 @@ query_one (const BoxType * box, void *cl)
       int X2 = mtsb->box.X1 + shrink;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
 	{
-	  BoxType *new;
-	  new = (BoxType *) malloc (sizeof (BoxType));
-	  new->Y1 = qc->cbox->Y1;
-	  new->Y2 = qc->cbox->Y2;
-	  new->X1 = qc->cbox->X1;
-	  new->X2 = X2;
-	  assert (new->X2 < qc->cbox->X2);
-	  append (qc, new);
+	  BoxType *newone;
+	  newone = (BoxType *) malloc (sizeof (BoxType));
+	  newone->Y1 = qc->cbox->Y1;
+	  newone->Y2 = qc->cbox->Y2;
+	  newone->X1 = qc->cbox->X1;
+	  newone->X2 = X2;
+	  assert (newone->X2 < qc->cbox->X2);
+	  append (qc, newone);
 	}
     }
   if (mtsb->box.X2 < qc->cbox->X2 - shrink)	/* right region exists */
@@ -313,13 +313,13 @@ query_one (const BoxType * box, void *cl)
       int X2 = qc->cbox->X2;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
 	{
-	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-	  new->Y1 = qc->cbox->Y1;
-	  new->Y2 = qc->cbox->Y2;
-	  new->X2 = qc->cbox->X2;
-	  new->X1 = X1;
-	  assert (new->X1 > qc->cbox->X1);
-	  append (qc, new);
+	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
+	  newone->Y1 = qc->cbox->Y1;
+	  newone->Y2 = qc->cbox->Y2;
+	  newone->X2 = qc->cbox->X2;
+	  newone->X1 = X1;
+	  assert (newone->X1 > qc->cbox->X1);
+	  append (qc, newone);
 	}
     }
   if (qc->touching.v)
@@ -352,7 +352,7 @@ qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, bool is_vec
 #endif
   while (!(qc->desired ? heap_is_empty (qc->checking.h) : vector_is_empty (qc->checking.v)))
     {
-      cbox = qc->desired ? heap_remove_smallest (qc->checking.h) : vector_remove_last (qc->checking.v);
+      cbox = qc->desired ? (BoxTypePtr)heap_remove_smallest (qc->checking.h) : (BoxTypePtr)vector_remove_last (qc->checking.v);
       if (setjmp (qc->env) == 0)
 	{
 	  assert (box_is_good (cbox));
@@ -490,6 +490,7 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
   /* do the query */
   do
     {
+      heap_or_vector temporary = {free_space_vec};
       /* search the fixed object tree discarding any intersections
        * and placing empty regions in the no_fix vector.
        */
@@ -512,7 +513,9 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
 /* XXX lo_conflict_space_vec will be treated like a heap! */
       qc.touching.v = (with_conflicts ? lo_conflict_space_vec : NULL);
       qc.touch_is_vec = true;
-      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, (heap_or_vector)free_space_vec, true);
+      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, temporary, true);
+
+      /* qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, (heap_or_vector)free_space_vec, true); */
       if (!vector_is_empty (free_space_vec))
 	{
 	  if (qc.desired)
@@ -533,10 +536,14 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
        */
       if (with_conflicts)
 	{
+	  heap_or_vector temporary = {hi_conflict_space_vec};
 	  qc.checking = work->hi_candidate;
 	  qc.touching.v = NULL;
 	  qloop (&qc, is_odd ? mtspace->etree : mtspace->otree,
-		 (heap_or_vector)hi_conflict_space_vec, true);
+		 temporary, true);
+
+	  /* qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, */
+	  /* 	 (heap_or_vector)hi_conflict_space_vec, true); */
 	}
     }
   while (!(qc.desired ? heap_is_empty(work->untested.h) : vector_is_empty (work->untested.v)));

@@ -225,7 +225,7 @@ ghid_check_button_connected (GtkWidget * box,
 			     gboolean expand,
 			     gboolean fill,
 			     gint pad,
-			     void (*cb_func) (),
+			     void (*cb_func) (GtkToggleButton *, gpointer),
 			     gpointer data, gchar * string)
 {
   GtkWidget *b;
@@ -249,7 +249,7 @@ ghid_check_button_connected (GtkWidget * box,
 void
 ghid_button_connected (GtkWidget * box, GtkWidget ** button,
 		       gboolean pack_start, gboolean expand, gboolean fill,
-		       gint pad, void (*cb_func) (), gpointer data,
+		       gint pad, void (*cb_func) (gpointer), gpointer data,
 		       gchar * string)
 {
   GtkWidget *b;
@@ -273,7 +273,7 @@ void
 ghid_spin_button (GtkWidget * box, GtkWidget ** spin_button, gfloat value,
 		  gfloat low, gfloat high, gfloat step0, gfloat step1,
 		  gint digits, gint width,
-		  void (*cb_func) (), gpointer data, gboolean right_align,
+		  void (*cb_func) (GtkSpinButton *, gpointer), gpointer data, gboolean right_align,
 		  gchar * string)
 {
   GtkWidget *hbox = NULL, *label, *spin_but;
@@ -323,7 +323,7 @@ ghid_table_spin_button (GtkWidget * table, gint row, gint column,
 			GtkWidget ** spin_button, gfloat value,
 			gfloat low, gfloat high, gfloat step0, gfloat step1,
 			gint digits, gint width,
-			void (*cb_func) (), gpointer data,
+			void (*cb_func) (GtkSpinButton *, gpointer), gpointer data,
 			gboolean right_align, gchar * string)
 {
   GtkWidget *label, *spin_but;
@@ -516,7 +516,7 @@ GtkTreeSelection *
 ghid_scrolled_selection (GtkTreeView * treeview, GtkWidget * box,
 			 GtkSelectionMode s_mode,
 			 GtkPolicyType h_policy, GtkPolicyType v_policy,
-			 void (*func_cb) (), gpointer data)
+			 void (*func_cb) (GtkTreeSelection *, gpointer), gpointer data)
 {
   GtkTreeSelection *selection;
   GtkWidget *scrolled;

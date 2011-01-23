@@ -69,7 +69,7 @@ GetRubberbandMemory (void)
       Crosshair.AttachedObject.RubberbandMax)
     {
       Crosshair.AttachedObject.RubberbandMax += STEP_RUBBERBAND;
-      ptr = realloc (ptr, Crosshair.AttachedObject.RubberbandMax *
+      ptr = (RubberbandTypePtr)realloc (ptr, Crosshair.AttachedObject.RubberbandMax *
                           sizeof (RubberbandType));
       Crosshair.AttachedObject.Rubberband = ptr;
       memset (ptr + Crosshair.AttachedObject.RubberbandN, 0,
@@ -87,7 +87,7 @@ GetPointerMemory (PointerListTypePtr list)
   if (list->PtrN >= list->PtrMax)
     {
       list->PtrMax = STEP_POINT + (2 * list->PtrMax);
-      ptr = realloc (ptr, list->PtrMax * sizeof (void *));
+      ptr = (void **)realloc (ptr, list->PtrMax * sizeof (void *));
       list->Ptr = ptr;
       memset (ptr + list->PtrN, 0,
 	      (list->PtrMax - list->PtrN) * sizeof (void *));
@@ -114,7 +114,7 @@ GetBoxMemory (BoxListTypePtr Boxes)
   if (Boxes->BoxN >= Boxes->BoxMax)
     {
       Boxes->BoxMax = STEP_POINT + (2 * Boxes->BoxMax);
-      box = realloc (box, Boxes->BoxMax * sizeof (BoxType));
+      box = (BoxTypePtr)realloc (box, Boxes->BoxMax * sizeof (BoxType));
       Boxes->Box = box;
       memset (box + Boxes->BoxN, 0,
 	      (Boxes->BoxMax - Boxes->BoxN) * sizeof (BoxType));
@@ -135,7 +135,7 @@ GetConnectionMemory (NetTypePtr Net)
   if (Net->ConnectionN >= Net->ConnectionMax)
     {
       Net->ConnectionMax += STEP_POINT;
-      con = realloc (con, Net->ConnectionMax * sizeof (ConnectionType));
+      con = (ConnectionTypePtr)realloc (con, Net->ConnectionMax * sizeof (ConnectionType));
       Net->Connection = con;
       memset (con + Net->ConnectionN, 0,
 	      STEP_POINT * sizeof (ConnectionType));
@@ -155,7 +155,7 @@ GetNetMemory (NetListTypePtr Netlist)
   if (Netlist->NetN >= Netlist->NetMax)
     {
       Netlist->NetMax += STEP_POINT;
-      net = realloc (net, Netlist->NetMax * sizeof (NetType));
+      net = (NetTypePtr)realloc (net, Netlist->NetMax * sizeof (NetType));
       Netlist->Net = net;
       memset (net + Netlist->NetN, 0, STEP_POINT * sizeof (NetType));
     }
@@ -174,7 +174,7 @@ GetNetListMemory (NetListListTypePtr Netlistlist)
   if (Netlistlist->NetListN >= Netlistlist->NetListMax)
     {
       Netlistlist->NetListMax += STEP_POINT;
-      netlist = realloc (netlist,
+      netlist = (NetListTypePtr)realloc (netlist,
                          Netlistlist->NetListMax * sizeof (NetListType));
       Netlistlist->NetList = netlist;
       memset (netlist + Netlistlist->NetListN, 0,
@@ -205,7 +205,7 @@ GetPinMemory (ElementTypePtr Element)
 	  END_LOOP;
 	}
       Element->PinMax += STEP_PIN;
-      pin = realloc (pin, Element->PinMax * sizeof (PinType));
+      pin = (PinTypePtr)realloc (pin, Element->PinMax * sizeof (PinType));
       Element->Pin = pin;
       memset (pin + Element->PinN, 0, STEP_PIN * sizeof (PinType));
       if (onBoard)
@@ -242,7 +242,7 @@ GetPadMemory (ElementTypePtr Element)
 	  END_LOOP;
 	}
       Element->PadMax += STEP_PAD;
-      pad = realloc (pad, Element->PadMax * sizeof (PadType));
+      pad = (PadTypePtr)realloc (pad, Element->PadMax * sizeof (PadType));
       Element->Pad = pad;
       memset (pad + Element->PadN, 0, STEP_PAD * sizeof (PadType));
       if (onBoard)
@@ -271,7 +271,7 @@ GetViaMemory (DataTypePtr Data)
       Data->ViaMax += STEP_VIA;
       if (Data->via_tree)
 	r_destroy_tree (&Data->via_tree);
-      via = realloc (via, Data->ViaMax * sizeof (PinType));
+      via = (PinTypePtr)realloc (via, Data->ViaMax * sizeof (PinType));
       Data->Via = via;
       memset (via + Data->ViaN, 0, STEP_VIA * sizeof (PinType));
       Data->via_tree = r_create_tree (NULL, 0, 0);
@@ -299,7 +299,7 @@ GetRatMemory (DataTypePtr Data)
       /* all of the pointers move, so rebuild the whole tree */
       if (Data->rat_tree)
         r_destroy_tree (&Data->rat_tree);
-      rat = realloc (rat, Data->RatMax * sizeof (RatType));
+      rat = (RatTypePtr)realloc (rat, Data->RatMax * sizeof (RatType));
       Data->Rat = rat;
       memset (rat + Data->RatN, 0, STEP_RAT * sizeof (RatType));
       Data->rat_tree = r_create_tree (NULL, 0, 0);
@@ -327,7 +327,7 @@ GetLineMemory (LayerTypePtr Layer)
       /* all of the pointers move, so rebuild the whole tree */
       if (Layer->line_tree)
 	r_destroy_tree (&Layer->line_tree);
-      line = realloc (line, Layer->LineMax * sizeof (LineType));
+      line = (LineTypePtr)realloc (line, Layer->LineMax * sizeof (LineType));
       Layer->Line = line;
       memset (line + Layer->LineN, 0, STEP_LINE * sizeof (LineType));
       Layer->line_tree = r_create_tree (NULL, 0, 0);
@@ -354,7 +354,7 @@ GetArcMemory (LayerTypePtr Layer)
       Layer->ArcMax += STEP_ARC;
       if (Layer->arc_tree)
 	r_destroy_tree (&Layer->arc_tree);
-      arc = realloc (arc, Layer->ArcMax * sizeof (ArcType));
+      arc = (ArcTypePtr)realloc (arc, Layer->ArcMax * sizeof (ArcType));
       Layer->Arc = arc;
       memset (arc + Layer->ArcN, 0, STEP_ARC * sizeof (ArcType));
       Layer->arc_tree = r_create_tree (NULL, 0, 0);
@@ -381,7 +381,7 @@ GetTextMemory (LayerTypePtr Layer)
       Layer->TextMax += STEP_TEXT;
       if (Layer->text_tree)
 	r_destroy_tree (&Layer->text_tree);
-      text = realloc (text, Layer->TextMax * sizeof (TextType));
+      text = (TextTypePtr)realloc (text, Layer->TextMax * sizeof (TextType));
       Layer->Text = text;
       memset (text + Layer->TextN, 0, STEP_TEXT * sizeof (TextType));
       Layer->text_tree = r_create_tree (NULL, 0, 0);
@@ -408,7 +408,7 @@ GetPolygonMemory (LayerTypePtr Layer)
       Layer->PolygonMax += STEP_POLYGON;
       if (Layer->polygon_tree)
 	r_destroy_tree (&Layer->polygon_tree);
-      polygon = realloc (polygon, Layer->PolygonMax * sizeof (PolygonType));
+      polygon = (PolygonTypePtr)realloc (polygon, Layer->PolygonMax * sizeof (PolygonType));
       Layer->Polygon = polygon;
       memset (polygon + Layer->PolygonN, 0,
 	      STEP_POLYGON * sizeof (PolygonType));
@@ -435,7 +435,7 @@ GetPointMemoryInPolygon (PolygonTypePtr Polygon)
   if (Polygon->PointN >= Polygon->PointMax)
     {
       Polygon->PointMax += STEP_POLYGONPOINT;
-      points = realloc (points, Polygon->PointMax * sizeof (PointType));
+      points = (PointTypePtr)realloc (points, Polygon->PointMax * sizeof (PointType));
       Polygon->Points = points;
       memset (points + Polygon->PointN, 0,
 	      STEP_POLYGONPOINT * sizeof (PointType));
@@ -456,7 +456,7 @@ GetHoleIndexMemoryInPolygon (PolygonTypePtr Polygon)
   if (Polygon->HoleIndexN >= Polygon->HoleIndexMax)
     {
       Polygon->HoleIndexMax += STEP_POLYGONHOLEINDEX;
-      holeindex = realloc (holeindex, Polygon->HoleIndexMax * sizeof (int));
+      holeindex = (Cardinal *)realloc (holeindex, Polygon->HoleIndexMax * sizeof (int));
       Polygon->HoleIndex = holeindex;
       memset (holeindex + Polygon->HoleIndexN, 0,
 	      STEP_POLYGONHOLEINDEX * sizeof (int));
@@ -479,7 +479,7 @@ GetElementMemory (DataTypePtr Data)
       Data->ElementMax += STEP_ELEMENT;
       if (Data->element_tree)
 	r_destroy_tree (&Data->element_tree);
-      element = realloc (element, Data->ElementMax * sizeof (ElementType));
+      element = (ElementTypePtr)realloc (element, Data->ElementMax * sizeof (ElementType));
       Data->Element = element;
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
@@ -528,7 +528,7 @@ GetLibraryMenuMemory (LibraryTypePtr lib)
   if (lib->MenuN >= lib->MenuMax)
     {
       lib->MenuMax += STEP_LIBRARYMENU;
-      menu = realloc (menu, lib->MenuMax * sizeof (LibraryMenuType));
+      menu = (LibraryMenuTypePtr)realloc (menu, lib->MenuMax * sizeof (LibraryMenuType));
       lib->Menu = menu;
       memset (menu + lib->MenuN, 0,
 	      STEP_LIBRARYMENU * sizeof (LibraryMenuType));
@@ -548,7 +548,7 @@ GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
   if (Menu->EntryN >= Menu->EntryMax)
     {
       Menu->EntryMax += STEP_LIBRARYENTRY;
-      entry = realloc (entry, Menu->EntryMax * sizeof (LibraryEntryType));
+      entry = (LibraryEntryTypePtr)realloc (entry, Menu->EntryMax * sizeof (LibraryEntryType));
       Menu->Entry = entry;
       memset (entry + Menu->EntryN, 0,
 	      STEP_LIBRARYENTRY * sizeof (LibraryEntryType));
@@ -570,7 +570,7 @@ GetDrillElementMemory (DrillTypePtr Drill)
   if (Drill->ElementN >= Drill->ElementMax)
     {
       Drill->ElementMax += STEP_ELEMENT;
-      element = realloc (element,
+      element = (ElementTypePtr *)realloc (element,
                          Drill->ElementMax * sizeof (ElementTypeHandle));
       Drill->Element = element;
       memset (element + Drill->ElementN, 0,
@@ -593,7 +593,7 @@ GetDrillPinMemory (DrillTypePtr Drill)
   if (Drill->PinN >= Drill->PinMax)
     {
       Drill->PinMax += STEP_POINT;
-      pin = realloc (pin, Drill->PinMax * sizeof (PinTypeHandle));
+      pin = (PinTypePtr *)realloc (pin, Drill->PinMax * sizeof (PinTypeHandle));
       Drill->Pin = pin;
       memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinTypeHandle));
     }
@@ -612,7 +612,7 @@ GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
   if (DrillInfo->DrillN >= DrillInfo->DrillMax)
     {
       DrillInfo->DrillMax += STEP_DRILL;
-      drill = realloc (drill, DrillInfo->DrillMax * sizeof (DrillType));
+      drill = (DrillTypePtr)realloc (drill, DrillInfo->DrillMax * sizeof (DrillType));
       DrillInfo->Drill = drill;
       memset (drill + DrillInfo->DrillN, 0, STEP_DRILL * sizeof (DrillType));
     }
@@ -895,7 +895,7 @@ DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
   if (input_null || Length >= Ptr->MaxLength)
     {
       Ptr->MaxLength = Length + 512;
-      Ptr->Data = realloc (Ptr->Data, Ptr->MaxLength);
+      Ptr->Data = (char *)realloc (Ptr->Data, Ptr->MaxLength);
       if (input_null)
 	Ptr->Data[0] = '\0';
     }
@@ -963,7 +963,7 @@ StripWhiteSpaceAndDup (char *S)
   /* string is not empty -> allocate memory */
   if (length)
     {
-      p2 = realloc (NULL, length + 1);
+      p2 = (char *)realloc (NULL, length + 1);
       strncpy (p2, p1, length);
       *(p2 + length) = '\0';
       return (p2);

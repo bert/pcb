@@ -77,7 +77,7 @@ ReportDrills (int argc, char **argv, int x, int y)
       total_drills += AllDrills->Drill[n].UnplatedCount;
     }
 
-  stringlist = malloc (512L + AllDrills->DrillN * 64L);
+  stringlist = (char *)malloc (512L + AllDrills->DrillN * 64L);
 
   /* Use tabs for formatting since can't count on a fixed font anymore.
      |  And even that probably isn't going to work in all cases.

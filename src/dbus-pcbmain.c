@@ -74,7 +74,7 @@ static void
 io_watch_handler_dbus_freed (void *data)
 {
   IOWatchHandler *handler;
-  handler = data;
+  handler = (IOWatchHandler *)data;
 
   // Remove the watch registered with the HID
   gui->unwatch_file (handler->pcb_watch);
@@ -121,7 +121,7 @@ static void
 timeout_handler_dbus_freed (void *data)
 {
   TimeoutHandler *handler;
-  handler = data;
+  handler = (TimeoutHandler *)data;
 
   // Remove the timeout registered with the HID
   gui->stop_timer (handler->pcb_timer);
@@ -133,7 +133,7 @@ void
 timeout_handler_cb (hidval data)
 {
   TimeoutHandler *handler;
-  handler = data.ptr;
+  handler = (TimeoutHandler *)data.ptr;
 
   // Re-add the timeout, as PCB will remove the current one
   // Do this before calling to dbus, incase DBus removes the timeout.
@@ -152,6 +152,7 @@ watch_add (DBusWatch * dbus_watch, void *data)
   int fd;
   unsigned int pcb_condition;
   unsigned int dbus_flags;
+  hidval temp;
 
   // We won't create a watch until it becomes enabled.
   if (!dbus_watch_get_enabled (dbus_watch))
@@ -171,11 +172,11 @@ watch_add (DBusWatch * dbus_watch, void *data)
   fd = dbus_watch_get_fd (dbus_watch);
 #endif
 
-  handler = malloc (sizeof (IOWatchHandler));
+  handler = (IOWatchHandler *)malloc (sizeof (IOWatchHandler));
+  temp.ptr = (void *)handler;
   handler->dbus_watch = dbus_watch;
   handler->pcb_watch =
-    gui->watch_file (fd, pcb_condition, io_watch_handler_cb,
-		     (hidval) (void *) handler);
+    gui->watch_file (fd, pcb_condition, io_watch_handler_cb, temp);
 
   dbus_watch_set_data (dbus_watch, handler, io_watch_handler_dbus_freed);
   return TRUE;
@@ -203,6 +204,7 @@ static dbus_bool_t
 timeout_add (DBusTimeout * timeout, void *data)
 {
   TimeoutHandler *handler;
+  hidval temp;
 
   // We won't create a timeout until it becomes enabled.
   if (!dbus_timeout_get_enabled (timeout))
@@ -212,12 +214,12 @@ timeout_add (DBusTimeout * timeout, void *data)
   //       to manually re-add the timer each time it expires.
   //       This is non-ideal, and hopefully can be changed?
 
-  handler = malloc (sizeof (TimeoutHandler));
+  handler = (TimeoutHandler *)malloc (sizeof (TimeoutHandler));
+  temp.ptr = (void *)handler;
   handler->dbus_timeout = timeout;
   handler->interval = dbus_timeout_get_interval (timeout);
   handler->pcb_timer =
-    gui->add_timer (timeout_handler_cb, handler->interval,
-		    (hidval) (void *) handler);
+    gui->add_timer (timeout_handler_cb, handler->interval, temp);
 
   dbus_timeout_set_data (timeout, handler, timeout_handler_dbus_freed);
   return TRUE;
@@ -264,6 +266,7 @@ void
 pcb_dbus_connection_setup_with_mainloop (DBusConnection * connection)
 {
   //ConnectionSetup *cs;
+  hidval temp;
 
   /* FIXME we never free the slot, so its refcount just keeps growing,
    * which is kind of broken.
@@ -300,7 +303,8 @@ pcb_dbus_connection_setup_with_mainloop (DBusConnection * connection)
 //                                                cs, NULL);
 
   /* Register a new mainloop hook to mop up any unfinished IO. */
-  gui->add_block_hook (block_hook_cb, (hidval) (void *) connection);
+  temp.ptr = (void *)connection;
+  gui->add_block_hook (block_hook_cb, temp);
 
   return;
 nomem:

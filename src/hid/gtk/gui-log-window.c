@@ -208,7 +208,7 @@ be shown.";
 static gint
 GhidLogShowOnAppend (int argc, char **argv, int x, int y)
 {
-  char *a = argc == 1 ? argv[0] : "";
+  char *a = argc == 1 ? argv[0] : (char *)"";
 
   if (strncasecmp(a, "t", 1) == 0)
     {

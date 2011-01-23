@@ -103,6 +103,42 @@ RCSID ("$Id$");
 //#define DEBUG_SHOW_ZIGZAG
 */
 
+static direction_t
+directionIncrement(direction_t dir)
+{
+  switch(dir)
+  {
+  case NORTH:
+    dir = EAST;
+    break;
+  case EAST:
+    dir = SOUTH;
+    break;
+  case SOUTH:
+    dir = WEST;
+    break;
+  case WEST:
+    dir = NE;
+    break;
+  case NE:
+    dir = SE;
+    break;
+  case SE:
+    dir = SW;
+    break;
+  case SW:
+    dir = NW;
+    break;
+  case NW:
+    dir = ALL;
+    break;
+  case ALL:
+    dir = NORTH;
+    break;
+  }
+return dir;
+}
+
 static hidGC ar_gc = 0;
 
 #define EXPENSIVE 3e28
@@ -185,9 +221,18 @@ typedef enum
 { NO_CONFLICT = 0, LO_CONFLICT = 1, HI_CONFLICT = 2 }
 conflict_t;
 
+typedef struct routebox_list
+{
+  struct routebox *next, *prev;
+}routebox_list;
+
+typedef enum etype
+  { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE, THERMAL }
+  etype;
+
 typedef struct routebox
 {
-  const BoxType box, sbox;
+  BoxType box, sbox;
   union
   {
     PadTypePtr pad;
@@ -202,9 +247,7 @@ typedef struct routebox
   parent;
   unsigned short group;
   unsigned short layer;
-  enum
-  { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE, THERMAL }
-  type;
+  etype type;
   struct
   {
     unsigned nonstraight:1;
@@ -263,11 +306,7 @@ typedef struct routebox
   /* the direction this came from, if any */
   direction_t came_from;
   /* circular lists with connectivity information. */
-  struct routebox_list
-  {
-    struct routebox *next, *prev;
-  }
-  same_net, same_subnet, original_subnet, different_net;
+  routebox_list same_net, same_subnet, original_subnet, different_net;
 }
 routebox_t;
 
@@ -609,7 +648,7 @@ AddPin (PointerListType layergroupboxes[], PinTypePtr pin, bool is_via,
   for (i = 0; i < max_group; i++)
     {
       rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[i]);
-      *rbpp = malloc (sizeof (**rbpp));
+      *rbpp = (routebox_t *)malloc (sizeof (**rbpp));
       memset ((void *) *rbpp, 0, sizeof (**rbpp));
       (*rbpp)->group = i;
       ht = HALF_THICK (MAX (pin->Thickness, pin->DrillingHole));
@@ -657,7 +696,7 @@ AddPad (PointerListType layergroupboxes[],
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
   assert (rbpp);
-  *rbpp = malloc (sizeof (**rbpp));
+  *rbpp = (routebox_t *)malloc (sizeof (**rbpp));
   assert (*rbpp);
   memset (*rbpp, 0, sizeof (**rbpp));
   (*rbpp)->group = layergroup;
@@ -691,7 +730,7 @@ AddLine (PointerListType layergroupboxes[], int layergroup, LineTypePtr line,
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
-  *rbpp = malloc (sizeof (**rbpp));
+  *rbpp = (routebox_t *)malloc (sizeof (**rbpp));
   memset (*rbpp, 0, sizeof (**rbpp));
   (*rbpp)->group = layergroup;
   init_const_box (*rbpp,
@@ -739,7 +778,7 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
-  *rbpp = malloc (sizeof (**rbpp));
+  *rbpp = (routebox_t *)malloc (sizeof (**rbpp));
   memset (*rbpp, 0, sizeof (**rbpp));
   (*rbpp)->group = layergroup;
   init_const_box (*rbpp, X1, Y1, X2, Y2, keep);
@@ -942,7 +981,7 @@ CreateRouteData ()
 	}
     }
   /* create routedata */
-  rd = malloc (sizeof (*rd));
+  rd = (routedata_t *)malloc (sizeof (*rd));
   memset ((void *) rd, 0, sizeof (*rd));
   /* create default style */
   rd->defaultstyle.Thick = Settings.LineThickness;
@@ -1059,24 +1098,24 @@ CreateRouteData ()
 	      {
 	      case PAD_TYPE:
 		rb =
-		  AddPad (layergroupboxes, connection->ptr1,
-			  connection->ptr2, rd->styles[j]);
+		  AddPad (layergroupboxes, (ElementType *)connection->ptr1,
+			  (PadType *)connection->ptr2, rd->styles[j]);
 		break;
 	      case PIN_TYPE:
 		rb =
-		  AddPin (layergroupboxes, connection->ptr2, false,
+		  AddPin (layergroupboxes, (PinType *)connection->ptr2, false,
 			  rd->styles[j]);
 		break;
 	      case VIA_TYPE:
 		rb =
-		  AddPin (layergroupboxes, connection->ptr2, true,
+		  AddPin (layergroupboxes, (PinType *)connection->ptr2, true,
 			  rd->styles[j]);
 		break;
 	      case POLYGON_TYPE:
 		rb =
 		  AddPolygon (layergroupboxes,
-			      GetLayerNumber (PCB->Data, connection->ptr1),
-			      connection->ptr2, rd->styles[j]);
+			      GetLayerNumber (PCB->Data, (LayerType *)connection->ptr1),
+			      (struct polygon_st *)connection->ptr2, rd->styles[j]);
 		break;
 	      }
 	  assert (rb);
@@ -1706,7 +1745,7 @@ CreateEdge (routebox_t * rb,
 {
   edge_t *e;
   assert (__routebox_is_good (rb));
-  e = malloc (sizeof (*e));
+  e = (edge_t *)malloc (sizeof (*e));
   memset ((void *) e, 0, sizeof (*e));
   assert (e);
   e->rb = rb;
@@ -2757,7 +2796,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
   if (e->expand_dir == NE || e->expand_dir == SE ||
       e->expand_dir == SW || e->expand_dir == NW)
     {
-      BoxType *fb = (BoxType *) & fake.sbox;
+      BoxType *fb = (BoxType *) &fake.sbox;
       memset (&fake, 0, sizeof (fake));
       *fb = e->rb->sbox;
       fake.flags.fixed = 1;	/* this stops expansion there */
@@ -2766,7 +2805,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 #ifndef NDEBUG
       /* the routbox_is_good checker wants a lot more! */
       fake.flags.inited = 1;
-      fb = (BoxType *) & fake.box;
+      fb = (BoxType *) &fake.box;
       *fb = e->rb->sbox;
       fake.same_net.next = fake.same_net.prev = &fake;
       fake.same_subnet.next = fake.same_subnet.prev = &fake;
@@ -2778,7 +2817,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
    * in clockwise order, which allows finding corners that can
    * be expanded.
    */
-  for (dir = NORTH; dir <= WEST; dir++)
+  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
     {
       /* don't break the edge we came from */
       if (e->expand_dir != ((dir + 2) % 4))
@@ -2855,7 +2894,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
  * moveable as possible.
  */
   first = last = -1;
-  for (dir = NORTH; dir <= WEST; dir++)
+  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
     {
       if (heap[dir] && !heap_is_empty (heap[dir]))
 	{
@@ -2895,7 +2934,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 		      assert (0);
 		      break;
 		    }
-		  moveable_edge (edges, &db, dir + 3, rb, NULL, e, targets,
+		  moveable_edge (edges, &db, (direction_t)(dir + 3), rb, NULL, e, targets,
 				 s, NULL, NULL);
 		}
 	      else if (dir == NORTH)	/* north is start, so nothing "before" it */
@@ -2922,7 +2961,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	       * which it belongs to. 
 	       */
 	      BoxType db = previous_edge (last, dir, &rb->sbox);
-	      moveable_edge (edges, &db, dir - 1, rb, NULL, e, targets, s,
+	      moveable_edge (edges, &db, (direction_t)(dir - 1), rb, NULL, e, targets, s,
 			     NULL, NULL);
 	    }
 	  if (broke.is_valid_center && !blk->flags.source)
@@ -2954,7 +2993,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 		}
 	      if (heap_is_empty (heap[dir]))
 		break;
-	      blk = heap_remove_smallest (heap[dir]);
+	      blk = (routebox_t *)heap_remove_smallest (heap[dir]);
 	      broke = break_box_edge (&b, dir, blk);
 	      if (broke.is_valid_left)
 		moveable_edge (edges, &broke.left, dir, rb, NULL, e, targets,
@@ -2986,7 +3025,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	    {
 	      /* expand the leftover from the prior direction */
 	      BoxType db = previous_edge (last, dir, &rb->sbox);
-	      moveable_edge (edges, &db, dir - 1, rb, NULL, e, targets, s,
+	      moveable_edge (edges, &db, (direction_t)(dir - 1), rb, NULL, e, targets, s,
 			     NULL, NULL);
 	    }
 	  last = -1;
@@ -3018,7 +3057,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	}
     }
   /* done with all expansion edges of this box */
-  for (dir = NORTH; dir <= WEST; dir++)
+  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
     {
       if (heap[dir])
 	heap_destroy (&heap[dir]);
@@ -3680,7 +3719,7 @@ CreateSearchEdge (struct routeone_state *s, vetting_t * work, edge_t * parent,
   if (cost < s->best_cost)
     {
       edge_t *ne;
-      ne = malloc (sizeof (*ne));
+      ne = (edge_t *)malloc (sizeof (*ne));
       memset ((void *) ne, 0, sizeof (*ne));
       assert (ne);
       ne->flags.via_search = 1;
@@ -3809,7 +3848,7 @@ do_via_search (edge_t * search, struct routeone_state *s,
       while (!vector_is_empty (v))
 	{
 	  BoxType cliparea;
-	  BoxType *area = vector_remove_last (v);
+	  BoxType *area = (BoxType *)vector_remove_last (v);
 	  if (!(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
 	    {
 	      free (area);
@@ -3827,7 +3866,7 @@ do_via_search (edge_t * search, struct routeone_state *s,
 	      if (j == within->group || !is_layer_group_active[j])
 		continue;
 	      ne = CreateViaEdge (&cliparea, j, within, search,
-				  within_conflict_level, i, targets);
+				  within_conflict_level, (conflict_t)i, targets);
 	      add_or_destroy_edge (s, ne);
 	    }
 	}
@@ -3965,9 +4004,9 @@ __conflict_source (const BoxType * box, void *cl)
     return 0;
   else
     {
-      routebox_t *this = (routebox_t *) cl;
-      path_conflicts (this, rb, false);
-      touch_conflicts (this->conflicts_with, 1);
+      routebox_t *dis = (routebox_t *) cl;
+      path_conflicts (dis, rb, false);
+      touch_conflicts (dis->conflicts_with, 1);
     }
   return 1;
 }
@@ -4080,7 +4119,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   assert (!from->flags.target);
   assert (num_targets > 0);
   /* create list of target pointers and from that a r-tree of targets */
-  target_list = malloc (num_targets * sizeof (*target_list));
+  target_list = (const BoxType **)malloc (num_targets * sizeof (*target_list));
   i = 0;
   LIST_LOOP (from, same_net, p);
   if (p->flags.target)
@@ -4091,7 +4130,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 #endif
     }
   END_LOOP;
-  targets = r_create_tree (target_list, i, 0);
+  targets = r_create_tree ((const BoxType **)target_list, i, 0);
   assert (i <= num_targets);
   free (target_list);
 
@@ -4139,7 +4178,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   assert (s.workheap);
   while (!vector_is_empty (source_vec))
     {
-      edge_t *e = vector_remove_last (source_vec);
+      edge_t *e = (edge_t *)vector_remove_last (source_vec);
       assert (is_layer_group_active[e->rb->group]);
       e->cost = edge_cost (e, EXPENSIVE);
       heap_insert (s.workheap, e->cost, e);
@@ -4155,7 +4194,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   vss.hi_conflict_space_vec = vector_create ();
   while (!heap_is_empty (s.workheap))
     {
-      edge_t *e = heap_remove_smallest (s.workheap);
+      edge_t *e = (edge_t *)heap_remove_smallest (s.workheap);
 #ifdef ROUTE_DEBUG
       if (aabort)
 	goto dontexpand;
@@ -4431,7 +4470,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 			    area_vec, ans, nrb, e);
 	  while (!vector_is_empty (broken))
 	    {
-	      edge_t *ne = vector_remove_last (broken);
+	      edge_t *ne = (edge_t *)vector_remove_last (broken);
 	      add_or_destroy_edge (&s, ne);
 	    }
 	  vector_destroy (&broken);
@@ -4468,7 +4507,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	{
 	  while (!vector_is_empty (s.best_path->conflicts_with))
 	    {
-	      rb = vector_remove_last (s.best_path->conflicts_with);
+	      rb = (routebox_t *)vector_remove_last (s.best_path->conflicts_with);
 	      rb->flags.is_bad = 1;
 	      result.route_had_conflicts++;
 	    }
@@ -4506,7 +4545,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   /* now remove all expansion areas from the r-tree. */
   while (!vector_is_empty (area_vec))
     {
-      routebox_t *rb = vector_remove_last (area_vec);
+      routebox_t *rb = (routebox_t *)vector_remove_last (area_vec);
       assert (!rb->flags.homeless);
       if (rb->conflicts_with
 	  && rb->parent.expansion_area->conflicts_with != rb->conflicts_with)

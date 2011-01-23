@@ -193,7 +193,7 @@ prev_contour_point (PolygonTypePtr polygon, Cardinal point)
 static void
 add_noholes_polyarea (PLINE *pline, void *user_data)
 {
-  PolygonType *poly = user_data;
+  PolygonType *poly = (PolygonType *)user_data;
 
   /* Prepend the pline into the NoHoles linked list */
   pline->next = poly->NoHoles;
@@ -1583,7 +1583,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
         return 0;
       /* silk doesn't plow */
-      if (GetLayerNumber (Data, ptr1) >= max_copper_layer)
+      if (GetLayerNumber (Data, (LayerTypePtr)ptr1) >= max_copper_layer)
         return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
                                                                      ((LayerTypePtr) ptr1))));
@@ -1819,28 +1819,28 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
   do
     {
       VNODE *v;
-      PolygonTypePtr new;
+      PolygonTypePtr newone;
 
       if (p->contours->area > PCB->IsleArea)
         {
-          new = CreateNewPolygon (layer, flags);
-          if (!new)
+          newone = CreateNewPolygon (layer, flags);
+          if (!newone)
             return false;
           many = true;
           v = &p->contours->head;
-          CreateNewPointInPolygon (new, v->point[0], v->point[1]);
+          CreateNewPointInPolygon (newone, v->point[0], v->point[1]);
           for (v = v->next; v != &p->contours->head; v = v->next)
-            CreateNewPointInPolygon (new, v->point[0], v->point[1]);
-          new->BoundingBox.X1 = p->contours->xmin;
-          new->BoundingBox.X2 = p->contours->xmax + 1;
-          new->BoundingBox.Y1 = p->contours->ymin;
-          new->BoundingBox.Y2 = p->contours->ymax + 1;
-          AddObjectToCreateUndoList (POLYGON_TYPE, layer, new, new);
-          new->Clipped = p;
+            CreateNewPointInPolygon (newone, v->point[0], v->point[1]);
+          newone->BoundingBox.X1 = p->contours->xmin;
+          newone->BoundingBox.X2 = p->contours->xmax + 1;
+          newone->BoundingBox.Y1 = p->contours->ymin;
+          newone->BoundingBox.Y2 = p->contours->ymax + 1;
+          AddObjectToCreateUndoList (POLYGON_TYPE, layer, newone, newone);
+          newone->Clipped = p;
           p = p->f;             /* go to next pline */
-          new->Clipped->b = new->Clipped->f = new->Clipped;     /* unlink from others */
-          r_insert_entry (layer->polygon_tree, (BoxType *) new, 0);
-          DrawPolygon (layer, new, 0);
+          newone->Clipped->b = newone->Clipped->f = newone->Clipped;     /* unlink from others */
+          r_insert_entry (layer->polygon_tree, (BoxType *) newone, 0);
+          DrawPolygon (layer, newone, 0);
         }
       else
         {

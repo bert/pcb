@@ -80,7 +80,7 @@ make_route_string(RouteStyleType * rs)
     {
       s = g_strdup_printf ("%s,%d,%d,%d,%d", rs->Name,
                rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
-      colon = (i == NUM_STYLES - 1) ? NULL : ":";
+      colon = (i == NUM_STYLES - 1) ? NULL : (gchar *)":";
       t = str;
       str = g_strconcat (str, s, colon, NULL);
       g_free (t);
@@ -88,12 +88,43 @@ make_route_string(RouteStyleType * rs)
   return str;
 }
 
+/* static void */
+/* via_hole_cb (GtkWidget * widget, SizesDialog * sd) */
+/* { */
+/*   gdouble via_hole_size, via_size; */
+
+/*   via_hole_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget)); */
+/*   via_size = */
+/*     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_size_spin_button)); */
+
+/*   if (via_size < via_hole_size + FROM_PCB_UNITS (MIN_PINORVIACOPPER)) */
+/*     gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_size_spin_button), */
+/* 			       via_hole_size + */
+/* 			       FROM_PCB_UNITS (MIN_PINORVIACOPPER)); */
+/* } */
+
+/* static void */
+/* via_size_cb (GtkWidget * widget, SizesDialog * sd) */
+/* { */
+/*   gdouble via_hole_size, via_size; */
+
+/*   via_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget)); */
+/*   via_hole_size = */
+/*     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button)); */
+
+/*   if (via_hole_size > via_size - FROM_PCB_UNITS (MIN_PINORVIACOPPER)) */
+/*     gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button), */
+/* 			       via_size - */
+/* 			       FROM_PCB_UNITS (MIN_PINORVIACOPPER)); */
+/* } */
+
 static void
-via_hole_cb (GtkWidget * widget, SizesDialog * sd)
+via_hole_cb (GtkSpinButton * spinbutton, gpointer data)//SizesDialog * sd)
 {
+  SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_hole_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget));
+  via_hole_size = gtk_spin_button_get_value (spinbutton);
   via_size =
     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_size_spin_button));
 
@@ -104,11 +135,12 @@ via_hole_cb (GtkWidget * widget, SizesDialog * sd)
 }
 
 static void
-via_size_cb (GtkWidget * widget, SizesDialog * sd)
+via_size_cb (GtkSpinButton * spinbutton, gpointer data)//SizesDialog * sd)
 {
+  SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget));
+  via_size = gtk_spin_button_get_value (spinbutton);
   via_hole_size =
     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button));
 
@@ -118,13 +150,29 @@ via_size_cb (GtkWidget * widget, SizesDialog * sd)
 			       FROM_PCB_UNITS (MIN_PINORVIACOPPER));
 }
 
+
+/* static void */
+/* use_temp_cb (GtkWidget * button, gpointer data) */
+/* { */
+/*   gint which = GPOINTER_TO_INT (data); */
+/*   gboolean active; */
+
+/*   active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)); */
+/*   if (which == 1 && active) */
+/*     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON */
+/* 				  (route_sizes.set_temp2_button), FALSE); */
+/*   else if (which == 2 && active) */
+/*     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON */
+/* 				  (route_sizes.set_temp1_button), FALSE); */
+/* } */
+
 static void
-use_temp_cb (GtkWidget * button, gpointer data)
+use_temp_cb (GtkToggleButton * button, gpointer data)
 {
   gint which = GPOINTER_TO_INT (data);
   gboolean active;
 
-  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button));
+  active = gtk_toggle_button_get_active (button);
   if (which == 1 && active)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
 				  (route_sizes.set_temp2_button), FALSE);
@@ -160,8 +208,8 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
   snprintf (buf, sizeof (buf), _("%s Sizes"), rst->Name);
   dialog = gtk_dialog_new_with_buttons (buf,
 					GTK_WINDOW (out->top_window),
-					GTK_DIALOG_MODAL |
-					GTK_DIALOG_DESTROY_WITH_PARENT,
+					(GtkDialogFlags)(GTK_DIALOG_MODAL |
+							 GTK_DIALOG_DESTROY_WITH_PARENT),
 					GTK_STOCK_CANCEL, GTK_RESPONSE_NONE,
 					GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
   gtk_window_set_wmclass (GTK_WINDOW (dialog), "Sizes_dialog", "PCB");
