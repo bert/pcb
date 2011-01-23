@@ -7330,7 +7330,7 @@ static int
 pcb_spawnvp (char **argv)
 {
 #ifdef HAVE__SPAWNVP
-  int result = _spawnvp (_P_WAIT, argv[0], argv);
+  int result = _spawnvp (_P_WAIT, argv[0], (const char * const *) argv);
   if (result == -1)
     return 1;
   else
