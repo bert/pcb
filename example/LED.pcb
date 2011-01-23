@@ -1,7 +1,4 @@
 # release: pcb 1.7.0.ALPHA
-# date:    Wed Apr 11 11:54:53 2001
-# user:    root (root)
-# host:    tse-eatonha2
 
 PCB("" 3500 3300)
 

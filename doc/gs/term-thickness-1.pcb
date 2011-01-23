@@ -1,7 +1,4 @@
 # release: pcb 1.99w
-# date:    Sun Dec  2 00:40:19 2007
-# user:    dj (DJ Delorie)
-# host:    envy.delorie.com
 
 # To read pcb files, the pcb version (or the cvs source date) must be >= the file version
 FileVersion[20070407]

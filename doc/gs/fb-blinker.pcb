@@ -1,7 +1,4 @@
 # release: gpcb 1.99w
-# date:    Sun Mar 16 03:12:26 2008
-# user:    dj (DJ Delorie)
-# host:    envy.delorie.com
 
 # To read pcb files, the pcb version (or the cvs source date) must be >= the file version
 FileVersion[20070407]

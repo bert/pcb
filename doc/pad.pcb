@@ -1,6 +1,4 @@
 # release: pcb-bin 1.99q
-# date:    Tue Mar 21 18:28:39 2006
-# user:    mcmahill (Dan McMahill)
 
 PCB["pad" 600000 500000]
 

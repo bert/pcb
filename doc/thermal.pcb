@@ -1,7 +1,4 @@
 # release: pcb-bin 1.99q
-# date:    Fri Mar 24 21:29:02 2006
-# user:    Dan
-# host:    none
 
 PCB["thermal" 300000 300000]
 

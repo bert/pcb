@@ -1,7 +1,4 @@
 # release: pcb 1.99s
-# date:    Fri Apr 14 23:17:49 2006
-# user:    dj (DJ Delorie)
-# host:    envy.delorie.com
 
 PCB["" 110000 30000]
 

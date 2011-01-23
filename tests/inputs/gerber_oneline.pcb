@@ -1,7 +1,4 @@
 # release: pcb 1.99y
-# date:    Wed Jun 24 12:26:14 2009
-# user:    dan (Dan McMahill,At Home ,258-8142,)
-# host:    bondage
 
 # To read pcb files, the pcb version (or the cvs source date) must be >= the file version
 FileVersion[20070407]
