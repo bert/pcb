@@ -3016,7 +3016,7 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
   VNODE *pt1, *pt2, *pt3, *q;
   VNODE *min_q = NULL;
   double dist;
-  double min_dist;
+  double min_dist = 0.0;
   double dir = (poly->Flags.orient == PLF_DIR) ? 1. : -1;
 
   /* Find a convex node on the polygon */
