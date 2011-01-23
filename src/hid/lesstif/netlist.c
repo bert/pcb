@@ -21,6 +21,7 @@
 #include "undo.h"
 #include "remove.h"
 #include "crosshair.h"
+#include "draw.h"
 
 #include "hid.h"
 #include "../hidint.h"
