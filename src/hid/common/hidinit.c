@@ -431,11 +431,7 @@ hid_save_settings (int locally)
       fname = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb", NULL);
 
       if (stat (fname, &st))
-#ifdef WIN32
-	if (mkdir (fname))
-#else
-	if (mkdir (fname, 0777))
-#endif
+	if (MKDIR (fname, 0777))
 	  {
 	    free (fname);
 	    return;

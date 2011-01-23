@@ -1007,6 +1007,11 @@ AC_ARG_ENABLE([debug],
 AC_MSG_RESULT([$enable_debug])
 AM_CONDITIONAL(DEBUG_BUILD, test x$enable_debug = xyes)
 
+# ------------- mkdir required for win32 compatibility ------------
+# WIN32 mkdir takes only one argument, POSIX takes two.
+# #include "misc.h" where mkdir is required.
+m4_include([m4/m4_ax_func_mkdir.m4])
+AX_FUNC_MKDIR
 
 # ------------- Complete set of CFLAGS and LIBS -------------------
 

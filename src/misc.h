@@ -127,4 +127,27 @@ int ElementOrientation (ElementType *e);
 
 void NetlistChanged (int force_unfreeze);
 
+/*
+ * Check whether mkdir() is mkdir or _mkdir, and whether it takes one
+ * or two arguments.  WIN32 mkdir takes one argument and POSIX takes
+ * two.
+ */
+#if HAVE_MKDIR
+#include <io.h> /* mkdir under MinGW only takes one argument */
+        #if MKDIR_TAKES_ONE_ARG
+         /* MinGW32 */
+         #define MKDIR(a, b) mkdir(a)
+        #else
+         #define MKDIR(a, b) mkdir(a, b)
+        #endif
+#else
+        #if HAVE__MKDIR
+         /* plain Windows 32 */
+         #define MKDIR(a, b) _mkdir(a)
+        #else
+         #error "Don't know how to create a directory on this system."
+        #endif
 #endif
+
+#endif /* __MISC_INCLUDED__ */
+

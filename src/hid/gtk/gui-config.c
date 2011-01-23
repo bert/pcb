@@ -45,6 +45,7 @@
 #include "file.h"
 #include "error.h"
 #include "draw.h"
+#include "misc.h" /* MKDIR() */
 #include "set.h"
 
 #if 0
@@ -196,7 +197,7 @@ config_file_open (gchar * mode)
       config_dir =
 	g_build_path (G_DIR_SEPARATOR_S, homedir, PCB_CONFIG_DIR, NULL);
       if (!g_file_test (config_dir, G_FILE_TEST_IS_DIR)
-	  && mkdir (config_dir, 0755) < 0)
+	  && MKDIR (config_dir, 0755) < 0)
 	{
 	  g_message ("config_file_open: Can't make \"%s\" directory!",
 		     config_dir);
@@ -212,7 +213,7 @@ config_file_open (gchar * mode)
 	g_build_path (G_DIR_SEPARATOR_S, config_dir, PCB_COLORS_DIR, NULL);
       if (!g_file_test (color_dir, G_FILE_TEST_IS_DIR))
 	{
-	  if (mkdir (color_dir, 0755) < 0)
+	  if (MKDIR (color_dir, 0755) < 0)
 	    {
 	      g_message ("config_file_open: Can't make \"%s\" directory!",
 			 color_dir);
