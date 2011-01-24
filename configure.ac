@@ -650,7 +650,7 @@ AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
 AC_CHECK_FUNCS(vsnprintf)
-AC_CHECK_FUNCS(getpwuid gethostname getcwd)
+AC_CHECK_FUNCS(getpwuid getcwd)
 AC_CHECK_FUNCS(random)
 AC_CHECK_FUNCS(stat)
 
