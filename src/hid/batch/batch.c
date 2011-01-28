@@ -203,7 +203,7 @@ batch_set_line_width (hidGC gc, int width)
 }
 
 static void
-batch_set_draw_xor (hidGC gc, int xor)
+batch_set_draw_xor (hidGC gc, int xor_set)
 {
 }
 
