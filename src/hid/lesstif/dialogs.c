@@ -903,7 +903,7 @@ Open the netlist window.
 static int
 DoWindows (int argc, char **argv, int x, int y)
 {
-  char *a = argc == 1 ? argv[0] : "";
+  const char *a = argc == 1 ? argv[0] : "";
   if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
     {
     }
@@ -1356,10 +1356,10 @@ typedef struct {
 static LgResource lgr;
 
 static XtResource lg_resources[] = {
-  { "font", "Font", XtRFontStruct, sizeof(XFontStruct*), XtOffset(LgResource*, font), XtRString, "fixed" },
-  { "foreground", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, fg), XtRString, "black" },
-  { "selectColor", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, sel), XtRString, "blue" },
-  { "background", "Background", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, bg), XtRString, "white" }
+  { "font", "Font", XtRFontStruct, sizeof(XFontStruct*), XtOffset(LgResource*, font), XtRString, (void *)"fixed" },
+  { "foreground", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, fg), XtRString, (void *)"black" },
+  { "selectColor", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, sel), XtRString, (void *)"blue" },
+  { "background", "Background", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, bg), XtRString, (void *)"white" }
 };
 
 #if 0

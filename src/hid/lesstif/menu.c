@@ -37,7 +37,6 @@ RCSID ("$Id$");
 #define R_OK 4
 #endif
 
-Display *display;
 static Colormap cmap;
 
 static Arg args[30];
@@ -672,7 +671,7 @@ note_widget_flag (Widget w, char *type, char *name)
   if (n_wflags >= max_wflags)
     {
       max_wflags += 20;
-      wflags = realloc (wflags, max_wflags * sizeof (WidgetFlagType));
+      wflags = (WidgetFlagType *) realloc (wflags, max_wflags * sizeof (WidgetFlagType));
     }
   wflags[n_wflags].w = w;
   wflags[n_wflags].flagname = name;

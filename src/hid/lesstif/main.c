@@ -54,7 +54,7 @@ typedef struct hid_gc_struct
   const char *colorname;
   int width;
   EndCapStyle cap;
-  char xor;
+  char xor_set;
   char erase;
 } hid_gc_struct;
 
@@ -121,6 +121,7 @@ static PinoutData *pinout = 0;
 static int crosshair_x = 0, crosshair_y = 0;
 static int in_move_event = 0, crosshair_in_window = 1;
 
+Widget mainwind;
 Widget work_area, messages, command, hscroll, vscroll;
 static Widget m_mark, m_crosshair, m_grid, m_zoom, m_mode, m_status;
 static Widget m_rats;
@@ -1005,14 +1006,14 @@ LoadBackgroundFile (FILE *f, char *filename)
 	 vinfo->depth, vinfo->class);
 #endif
 
-  if (vinfo->class == TrueColor
+  if (vinfo->c_class == TrueColor
       && vinfo->depth == 16
       && vinfo->red_mask == 0xf800
       && vinfo->green_mask == 0x07e0
       && vinfo->blue_mask == 0x001f)
     pixel_type = PT_RGB565;
 
-  if (vinfo->class == TrueColor
+  if (vinfo->c_class == TrueColor
       && vinfo->depth == 24
       && vinfo->red_mask == 0xff0000
       && vinfo->green_mask == 0x00ff00
@@ -2010,7 +2011,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
   amax = acount;
 #endif
 
-  new_options = malloc ((amax + 1) * sizeof (XrmOptionDescRec));
+  new_options = (XrmOptionDescRec *) malloc ((amax + 1) * sizeof (XrmOptionDescRec));
 
 #if 0
   memcpy (new_options + acount, lesstif_options, sizeof (lesstif_options));
@@ -2023,8 +2024,8 @@ lesstif_parse_arguments (int *argc, char ***argv)
   rmax = rcount;
 #endif
 
-  new_resources = malloc ((rmax + 1) * sizeof (XtResource));
-  new_values = malloc ((rmax + 1) * sizeof (val_union));
+  new_resources = (XtResource *) malloc ((rmax + 1) * sizeof (XtResource));
+  new_values = (val_union *) malloc ((rmax + 1) * sizeof (val_union));
 #if 0
   memcpy (new_resources + acount, lesstif_resources,
 	  sizeof (lesstif_resources));
@@ -2258,7 +2259,7 @@ draw_grid ()
   if (n > npoints)
     {
       npoints = n + 10;
-      points = realloc (points, npoints * sizeof (XPoint));
+      points = (XPoint *) realloc (points, npoints * sizeof (XPoint));
     }
   n = 0;
   prevx = 0;
@@ -2933,7 +2934,7 @@ lesstif_set_layer (const char *name, int group, int empty)
 static hidGC
 lesstif_make_gc (void)
 {
-  hidGC rv = malloc (sizeof (hid_gc_struct));
+  hidGC rv = (hid_gc_struct *) malloc (sizeof (hid_gc_struct));
   memset (rv, 0, sizeof (hid_gc_struct));
   rv->me_pointer = &lesstif_gui;
   return rv;
@@ -3087,7 +3088,7 @@ set_gc (hidGC gc)
     }
 #if 0
   printf ("set_gc c%s %08lx w%d c%d x%d e%d\n",
-	  gc->colorname, gc->color, gc->width, gc->cap, gc->xor, gc->erase);
+	  gc->colorname, gc->color, gc->width, gc->cap, gc->xor_set, gc->erase);
 #endif
   switch (gc->cap)
     {
@@ -3109,7 +3110,7 @@ set_gc (hidGC gc)
       join = JoinBevel;
       break;
     }
-  if (gc->xor)
+  if (gc->xor_set)
     {
       XSetFunction (display, my_gc, GXxor);
       XSetForeground (display, my_gc, gc->color ^ bgcolor);
@@ -3153,9 +3154,9 @@ lesstif_set_line_width (hidGC gc, int width)
 }
 
 static void
-lesstif_set_draw_xor (hidGC gc, int xor)
+lesstif_set_draw_xor (hidGC gc, int xor_set)
 {
-  gc->xor = xor;
+  gc->xor_set = xor_set;
 }
 
 static void
@@ -3545,7 +3546,7 @@ hidval
 lesstif_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
     hidval user_data)
 {
-  WatchStruct *watch = malloc (sizeof(WatchStruct));
+  WatchStruct *watch = (WatchStruct *) malloc (sizeof(WatchStruct));
   hidval ret;
   unsigned int xt_condition = 0;
 
@@ -3595,7 +3596,7 @@ static hidval
 lesstif_add_block_hook (void (*func) (hidval data), hidval user_data )
 {
   hidval ret;
-  BlockHookStruct *block_hook = malloc( sizeof( BlockHookStruct ));
+  BlockHookStruct *block_hook = (BlockHookStruct *) malloc( sizeof( BlockHookStruct ));
 
   block_hook->func = func;
   block_hook->user_data = user_data;
@@ -3727,7 +3728,7 @@ lesstif_show_item (void *item)
   if (!mainwind)
     return;
 
-  pd = calloc (1, sizeof (PinoutData));
+  pd = (PinoutData *) calloc (1, sizeof (PinoutData));
 
   pd->item = item;
 

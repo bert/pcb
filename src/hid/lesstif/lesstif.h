@@ -19,8 +19,8 @@ extern Display *display;
 extern Screen *screen_s;
 extern int screen;
 
-Widget mainwind, work_area, command, hscroll, vscroll;
-Widget m_click;
+extern Widget mainwind, work_area, command, hscroll, vscroll;
+extern Widget m_click;
 
 extern Widget lesstif_menu (Widget, char *, Arg *, int);
 extern int lesstif_key_event (XKeyEvent *);
