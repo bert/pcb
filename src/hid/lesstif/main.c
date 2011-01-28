@@ -1006,6 +1006,10 @@ LoadBackgroundFile (FILE *f, char *filename)
 	 vinfo->depth, vinfo->class);
 #endif
 
+#if !defined(__cplusplus)
+#define c_class class
+#endif
+
   if (vinfo->c_class == TrueColor
       && vinfo->depth == 16
       && vinfo->red_mask == 0xf800
