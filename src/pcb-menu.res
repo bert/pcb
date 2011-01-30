@@ -29,8 +29,8 @@ MainMenu =
 {
   {File
    {"About..." About()}
-   {"Save layout" Save(Layout)}
-   {"Save layout as..." Save(LayoutAs)}
+   {"Save layout" Save(Layout) m=S a={"Ctrl-S" "Ctrl<Key>s"}}
+   {"Save layout as..." Save(LayoutAs) m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
 	{"Revert" Load(Revert,none)}
    {"Import Schematics" Import() }
    {"Load layout" Load(Layout)}
@@ -47,7 +47,7 @@ MainMenu =
    {" all elements" Save(AllConnections)}
    {" unused pins" Save(AllUnusedPins)}
    -
-   {"Start new layout" New()}
+   {"Start new layout" New() a={"Ctrl-N" "Ctrl<Key>n"}}
    -
    {"Quit Program" Quit() m=Q a={"Ctrl-Q" "Ctrl<Key>q"}}
   }

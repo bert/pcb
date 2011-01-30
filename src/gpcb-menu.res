@@ -46,8 +46,8 @@ MainMenu =
 # File Menu
 #
   {"File"
-   {"Save layout" Save(Layout) tip="Saves current layout"}
-   {"Save layout as..." Save(LayoutAs) tip="Saves current layout into a new file"}
+   {"Save Layout" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
+   {"Save Layout As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    -
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
@@ -68,7 +68,7 @@ MainMenu =
    {"Export layout..." Export()}
    {"Calibrate Printer..." PrintCalibrate()}
    -
-   {"Start new layout" New()}
+   {"Start New Layout" New() a={"Ctrl-N" "Ctrl<Key>n"}}
    -
    {"Preferences..." DoWindows(Preferences)}
    -
