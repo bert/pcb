@@ -1151,47 +1151,6 @@ ClearOnlyPin (PinTypePtr Pin, bool mask)
     }
 }
 
-
-#if VERTICAL_TEXT
-/* vertical text handling provided by Martin Devera with fixes by harry eaton */
-
-/* draw vertical text; xywh is bounding, de is text's descend used for
-   positioning */
-static void
-DrawVText (int x, int y, int w, int h, char *str)
-{
-  GdkPixmap *pm;
-  GdkImage *im;
-  GdkGCValues values;
-  guint32 pixel;
-  int i, j;
-
-  if (!str || !*str)
-    return;
-
-  pm = gdk_pixmap_new (DrawingWindow, w, h, -1);
-
-  /* draw into pixmap */
-  gdk_draw_rectangle (pm, Output.bgGC, TRUE, 0, 0, w, h);
-
-  gui_draw_string_markup (DrawingWindow, Output.font_desc, Output.fgGC,
-			  0, 0, str);
-
-  im = gdk_drawable_get_image (pm, 0, 0, w, h);
-  gdk_gc_get_values (Output.fgGC, &values);
-
-  /* draw Transpose(im).  TODO: Pango should be doing vertical text soon */
-  for (i = 0; i < w; i++)
-    for (j = 0; j < h; j++)
-      {
-	pixel = gdk_image_get_pixel (im, i, j);
-	if (pixel == values.foreground.pixel)
-	  gdk_draw_point (DrawingWindow, Output.fgGC, x + j, y + w - i - 1);
-      }
-  g_object_unref (G_OBJECT (pm));
-}
-#endif
-
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pin and via names
  */
