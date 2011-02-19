@@ -672,7 +672,7 @@ static int
 clearPad_callback (const BoxType * b, void *cl)
 {
   PadTypePtr pad = (PadTypePtr) b;
-  if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT))
+  if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT) && pad->Mask)
     ClearPad (pad, true);
   return 1;
 }
