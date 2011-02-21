@@ -498,8 +498,8 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
   ry = MAX (a->Height - half, 0);
   segs = 1;
   if(thick > 0)
-    segs = a->Delta * M_PI / 360
-	    * sqrt(sqrt((double)rx*rx + (double)ry*ry)/delta_th/2/thick);
+    segs = MAX (segs, a->Delta * M_PI / 360
+		* sqrt(sqrt((double)rx*rx + (double)ry*ry)/delta_th/2/thick));
   segs = MAX(segs, a->Delta / ARC_ANGLE);
 
   ang = a->StartAngle;
