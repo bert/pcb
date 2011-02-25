@@ -2817,7 +2817,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
    * in clockwise order, which allows finding corners that can
    * be expanded.
    */
-  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
+  for (dir = NORTH; dir <= WEST; dir = directionIncrement(dir))
     {
       /* don't break the edge we came from */
       if (e->expand_dir != ((dir + 2) % 4))
@@ -2894,7 +2894,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
  * moveable as possible.
  */
   first = last = -1;
-  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
+  for (dir = NORTH; dir <= WEST; dir = directionIncrement(dir))
     {
       if (heap[dir] && !heap_is_empty (heap[dir]))
 	{
@@ -3057,7 +3057,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	}
     }
   /* done with all expansion edges of this box */
-  for (dir = NORTH; dir <= WEST; directionIncrement(dir))
+  for (dir = NORTH; dir <= WEST; dir = directionIncrement(dir))
     {
       if (heap[dir])
 	heap_destroy (&heap[dir]);
