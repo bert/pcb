@@ -543,8 +543,13 @@ DrawEverything (BoxTypePtr drawn_area)
 	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
 		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
 		    && side == COMPONENT_LAYER))
-	      if (!TEST_FLAG (NOPASTEFLAG, pad))
-		DrawPadLowLevel (Output.fgGC, pad, false, false);
+	      if (!TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
+		{
+		  if (pad->Mask < pad->Thickness)
+		    DrawPadLowLevel (Output.fgGC, pad, true, true);
+		  else
+		    DrawPadLowLevel (Output.fgGC, pad, false, false);
+		}
 	  }
 	  ENDALL_LOOP;
 	}
