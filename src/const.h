@@ -66,9 +66,9 @@
 #define	TAN_30_DEGREE		0.577350269	/* tan(30) */
 #define	TAN_60_DEGREE		1.732050808	/* tan(60) */
 #define MIL_TO_MM               0.025400000
-#define MM_TO_MIL               39.37007874
+#define MM_TO_MIL               (1./MIL_TO_MM)
 #define COOR_TO_MM		0.000254000
-#define MM_TO_COOR		3937.007874
+#define MM_TO_COOR		(1./COOR_TO_MM)
 #define LN_2_OVER_2		0.346573590
 
 /* ---------------------------------------------------------------------------

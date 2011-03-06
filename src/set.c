@@ -69,7 +69,7 @@ static int mode_stack[MAX_MODESTACK_DEPTH];
  * sets cursor grid with respect to grid offset values
  */
 void
-SetGrid (float Grid, bool align)
+SetGrid (double Grid, bool align)
 {
   if (Grid >= 1 && Grid <= MAX_GRID)
     {

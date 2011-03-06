@@ -104,12 +104,12 @@ MainMenu =
     { "50 mil"   checked=gridsize,5000 SetUnits(mil) SetValue(Grid,5000)}
     {"100 mil"   checked=gridsize,10000 SetUnits(mil) SetValue(Grid,10000)}
     -
-    {"0.01 mm" checked=gridsize,39 SetUnits(mm) SetValue(Grid,39.37007874)}
-    {"0.05 mm" checked=gridsize,197 SetUnits(mm) SetValue(Grid,196.85039370)}
-    {"0.1 mm"  checked=gridsize,394 SetUnits(mm) SetValue(Grid,393.70078740)}
-    {"0.25 mm" checked=gridsize,984 SetUnits(mm) SetValue(Grid,984.25197)}
-    {"0.5 mm"  checked=gridsize,1969 SetUnits(mm) SetValue(Grid,1968.503937)}
-    {"1 mm"    checked=gridsize,3937 SetUnits(mm) SetValue(Grid,3937.00787400)}
+    {"0.01 mm" checked=gridsize,39 SetUnits(mm) SetValue(Grid,0.01mm)}
+    {"0.05 mm" checked=gridsize,197 SetUnits(mm) SetValue(Grid,0.05mm)}
+    {"0.1 mm"  checked=gridsize,394 SetUnits(mm) SetValue(Grid,0.1mm)}
+    {"0.25 mm" checked=gridsize,984 SetUnits(mm) SetValue(Grid,0.25mm)}
+    {"0.5 mm"  checked=gridsize,1969 SetUnits(mm) SetValue(Grid,0.5mm)}
+    {"1 mm"    checked=gridsize,3937 SetUnits(mm) SetValue(Grid,1mm)}
     -
     {"Grid -5mil" SetValue(Grid,-5,mil) a={"Shift-G" "Shift<Key>g"}}
     {"Grid +5mil" SetValue(Grid,+5,mil) a={"G" "<Key>g"}}

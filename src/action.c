@@ -2213,7 +2213,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
   char *val = ARG (1);
   char *units = ARG (2);
   bool absolute;			/* flag for 'absolute' value */
-  float value;
+  double value;
   int err = 0;
 
   if (function && val)

@@ -766,6 +766,12 @@ RestoreCrosshair (bool BlockToo)
     }
 }
 
+static double
+square (double x)
+{
+  return x * x;
+}
+
 /* ---------------------------------------------------------------------------
  * recalculates the passed coordinates to fit the current grid setting
  */
@@ -774,7 +780,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 {
   LocationType x2, y2, x0, y0;
   void *ptr1, *ptr2, *ptr3;
-  float nearest, sq_dist;
+  double nearest, sq_dist;
   int ans;
 
   x0 = 0;
@@ -892,10 +898,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       px = (pad->Point1.X + pad->Point2.X) / 2;
       py = (pad->Point1.Y + pad->Point2.Y) / 2;
 
-      sq_dist = SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y);
+      sq_dist = square (px - Crosshair.X) + square (py - Crosshair.Y);
 
       if (!gui->shift_is_pressed() ||
-          SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist)
+          square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist)
         {
           x0 = px;
           y0 = py;
@@ -918,10 +924,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   if (ans)
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      sq_dist = SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y);
+      sq_dist = square (pin->X - Crosshair.X) + square (pin->Y - Crosshair.Y);
       if ((nearest == -1 || sq_dist < nearest) &&
           (!gui->shift_is_pressed() ||
-           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
         {
           x0 = pin->X;
           y0 = pin->Y;
@@ -946,10 +952,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   if (ans)
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      sq_dist = SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y);
+      sq_dist = square (pin->X - Crosshair.X) + square (pin->Y - Crosshair.Y);
       if ((nearest == -1 || sq_dist < nearest) &&
           (!gui->shift_is_pressed() ||
-           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
         {
           x0 = pin->X;
           y0 = pin->Y;
@@ -966,10 +972,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   if (ans)
     {
       PointTypePtr pnt = (PointTypePtr) ptr3;
-      sq_dist = SQUARE (pnt->X - Crosshair.X) + SQUARE (pnt->Y - Crosshair.Y);
+      sq_dist = square (pnt->X - Crosshair.X) + square (pnt->Y - Crosshair.Y);
       if ((nearest == -1 || sq_dist < nearest) &&
           (!gui->shift_is_pressed() ||
-           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
         {
           x0 = pnt->X;
           y0 = pnt->Y;
@@ -986,10 +992,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   if (ans)
     {
       PointTypePtr pnt = (PointTypePtr) ptr3;
-      sq_dist = SQUARE (pnt->X - Crosshair.X) + SQUARE (pnt->Y - Crosshair.Y);
+      sq_dist = square (pnt->X - Crosshair.X) + square (pnt->Y - Crosshair.Y);
       if ((nearest == -1 || sq_dist < nearest) &&
           (!gui->shift_is_pressed() ||
-           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist))
+           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
         {
           x0 = pnt->X;
           y0 = pnt->Y;
@@ -1007,9 +1013,9 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   if (ans & ELEMENT_TYPE)
     {
       ElementTypePtr el = (ElementTypePtr) ptr1;
-      sq_dist = SQUARE (el->MarkX - Crosshair.X) + SQUARE (el->MarkY - Crosshair.Y);
+      sq_dist = square (el->MarkX - Crosshair.X) + square (el->MarkY - Crosshair.Y);
       if ((nearest == -1 || sq_dist < nearest) &&
-           SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) > sq_dist)
+           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist)
         {
           x0 = el->MarkX;
           y0 = el->MarkY;

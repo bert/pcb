@@ -107,7 +107,7 @@ static struct
 /* Get Value returns a numeric value passed from the string and sets the
  * bool variable absolute to false if it leads with a +/- character
  */
-float
+double
 GetValue (const char *val, const char *units, bool * absolute)
 {
   double value;

@@ -547,6 +547,65 @@ ghid_set_status_line_label (void)
   ghid_status_line_set_text (text);
 }
 
+/* returns an auxiliary value needed to adjust mm grid.
+   the adjustment is needed to prevent ..99 tails in position labels.
+
+   All these are a workaround to precision lost
+   because of double->integer transform
+   while fitting Crosshair to grid in crosshair.c
+
+   There is another workaround: report mm dimensions with %.2f, like
+   in the Lesstif hid; but this reduces the information */
+static double
+ghid_get_grid_factor(void)
+{
+  /* when grid units are mm, they shall be an integer of
+     1 mm / grid_scale */
+  const int grid_scale = 10000; /* metric grid step is .1 um */
+  double factor, rounded_factor;
+
+  /* adjustment is not needed for inches
+     probably because x/100 is always 'integer' enough */
+  if (!Settings.grid_units_mm)
+    return -1;
+
+  factor = PCB->Grid * COOR_TO_MM * grid_scale;
+  rounded_factor = floor (factor + .5);
+
+  /* check whether the grid is actually metric
+     (as of Feb 2011, Settings.grid_units_mm may indicate just that
+      the _displayed_ units are mm) */
+  if (fabs (factor - rounded_factor) > 1e-3)
+    return -1;
+
+  return rounded_factor / grid_scale;
+}
+/* transforms a pcb coordinate to selected units
+   adjusted to the nearest grid point for mm grid */
+static double
+ghid_grid_pcb_to_units (double x, double grid_factor)
+{
+  double x_scaled = (Settings.grid_units_mm? COOR_TO_MM: 1./100) * x;
+  double nearest_gridpoint;
+
+  if (grid_factor < 0)
+    return x_scaled;
+
+  x *= COOR_TO_MM;
+
+  nearest_gridpoint = floor (x / grid_factor + .5);
+  /* honour snapping to an unaligned object */
+  if (fabs (nearest_gridpoint * grid_factor - x) > 0.55 * COOR_TO_MM)
+    return x_scaled;
+  /* without mm-adjusted grid_factor
+     (return floor (x / PCB->Grid + .5) *  PCB->Grid * COOR_TO_MM),
+     the round-off errors redintroduce the bug for 0.1 or 0.05 mm grid
+     at coordinates more than 1500 mm.
+     grid_factor makes the stuff work at least up to 254 m,
+     which is 100 times more than default maximum board size as of Feb 2011. */
+  return nearest_gridpoint * grid_factor;
+}
+
 /* ---------------------------------------------------------------------------
  * output of cursor position
  */
@@ -554,32 +613,27 @@ void
 ghid_set_cursor_position_labels (void)
 {
   gchar text[128];
+  int prec = Settings.grid_units_mm ? 4: 2;
+  double grid_factor = ghid_get_grid_factor();
 
   if (Marked.status)
-    {double scale, dx, dy, r, a;
-      scale = Settings.grid_units_mm ? COOR_TO_MM: 1. / 100;
-      dx = (Crosshair.X - Marked.X) * scale;
-      dy = (Marked.Y - Crosshair.Y) * scale;
-      r = sqrt( dx * dx + dy * dy);
-      a = atan2(dy, dx) * 180 / M_PI;
-      if (Settings.grid_units_mm)
-	snprintf (text, sizeof (text), "r %-.4f; phi %-.1f; %-.4f %-.4f",
-		  r, a, dx, dy);
+    {
+      double dx, dy, r, a;
 
-      else
-	snprintf (text, sizeof (text), "r %-.2f; phi %-.1f; %-.2f %-.2f",
-		  r, a, dx, dy);
+      dx = ghid_grid_pcb_to_units (Crosshair.X - Marked.X, grid_factor);
+      dy = ghid_grid_pcb_to_units (Crosshair.Y - Marked.Y, grid_factor);
+      r = sqrt (dx * dx + dy * dy);
+      a = atan2 (dy, dx) * RAD_TO_DEG;
+      snprintf (text, sizeof (text), "r %-.*f; phi %-.1f; %-.*f %-.*f",
+		prec, r, a, prec, dx, prec, dy);
       ghid_cursor_position_relative_label_set_text (text);
     }
   else
     ghid_cursor_position_relative_label_set_text ("r __.__; phi __._; __.__ __.__");
 
-  if (Settings.grid_units_mm)
-    snprintf (text, sizeof (text), "%-.4f %-.4f",
-	      COOR_TO_MM * Crosshair.X, COOR_TO_MM * Crosshair.Y);
-  else
-    snprintf (text, sizeof (text), "%-.2f %-.2f",
-	      Crosshair.X / 100.,  Crosshair.Y / 100.);
+  snprintf (text, sizeof (text), "%-.*f %-.*f",
+              prec, ghid_grid_pcb_to_units (Crosshair.X, grid_factor),
+              prec, ghid_grid_pcb_to_units (Crosshair.Y, grid_factor));
 
   ghid_cursor_position_label_set_text (text);
 }
