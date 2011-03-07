@@ -5752,51 +5752,114 @@ Regular Expressions are supported by @pcb{} if the regex library was
 available when @pcb{} was built.  One difference from the regular
 expressions found in tools like awk or grep is that PCB implicitly
 adds a ``^'' to the begining of a regular expression and ``$'' to the
-end of the regular expression.  For example if you enter ``C1'', the
-actual regular expression used internally is ``^C1$''.  
-It is easier to show by example how to search than explain POSIX 1003.2.  The following table shows the most common
-Regular Expression characters used to find elements in @pcb{}:
+end of the regular expression.  For example, if you enter ``C1'', the
+actual regular expression used internally is ``^C1$''.  Another difference
+is that search patterns in pcb are not case sensitive. That is, ``CON'' is
+treated the same as ``con''.
+
+It is easier to show by example how to search than explain
+POSIX 1003.2.  With regular expressions most characters are just
+themselves, but some are special:
 
 @table @samp
-@item \
-Indicates next character should not be interpreted literally if it
-normally is, and should be interpreted literally if it normally isn't.
 @item *
 Matches 0 or more instances of preceding character.
+
 @item +
 Matches 1 or more instances of preceding character.
+
 @item ?
 Matches 0 or 1 instances of preceding character.
+
 @item .
 Matches any single character other than the newline character.
 
+@item |
+The vertical vertical bar is the alternation operator. It combines two
+regular expressions. The result matches if either of them matches.
+
+@item \
+A backslash indicates the next character should not be interpreted literally
+if it normally is, and should be interpreted literally if it normally isn't.
+
+@item @{n@}
+An integer n enclosed in curly brackets matches the preceding item if
+it occurs exactly n times.
+
+@item [ ]
+A pair of square brackets matches every character they contain.  Characters
+may be given explicitly, or as ranges.
+
+@item -
+A hyphen in the context of square brackets denotes the range between the
+preceding and the following character.  E.g., the range of digits is
+``0-9'' .  The range of letters from C to K is ``C-K'' .
+
+@item \^ inside square brackets
+Inside square brackets the caret is an anti operator. Its presence makes
+the square prackets match anything except the contents of the brackets.
+
+@item ( )
+Round parenthesis group parts of a regular expression. This is very much
+like they do in math formulars.
+
 @end table
 
-The following examples illustrate how regular expressions are used to
+If you need a special character literally, you can escape it with a
+backslash.
+
+The following examples illustrate how regular expressions can be used to
 specify element names (reference designators) to search for.
 @table @samp
 
-@item Search for the element whose name is exactly ``C1''.
-Enter ``C1''.
+@item C5
+Select the element whose name is exactly ``C5''.
 
-@item Search for all elements that start with ``C'', such as capacitors:
-Enter ``C.*''.
+@item C5 | R3
+Select C5 and R3.
 
-@item Search for all elements that start with ``C'' and end with ``1'', such as ``C1'', or ``C51'':
-Enter ``C.*1''.
+@item C.*
+Select all elements whose name start with the letter ``C'', such as C5, or
+C42, or CF1.
 
-@item Search for only R1 or R10, will not match R100:
-Enter ``R10?''.
+@item C.*1
+Select all elements that start with ``C'' and end with ``1'', such as C1,
+or C51 or C5/9B71.
 
-@item Search for all parts starting with ``R12'' and ending with the number eight, or eighty-eight etc:
-Enter ``R128+''.
+@item R10?
+Search for R1 or R10, but will not select R100 or R105. The question mark
+is a quantifier for the character ``0''.
 
-@item Search for all terminal blocks having a one digit designator
-such as ``TB1'', ``TB2'', or ``TBx'':
-"TB.".
+@item R128+
+Selects R128, R1288, R12888, etc.
 
-@item Search for all terminal blocks having a two digit designator such as TB21 or TB15:
-"TB..".
+@item TB.
+Select all terminal blocks having exactly one character designator after
+``TB'' such as TB1, TBA, or TBx but not TB.
+
+@item TB..
+Select all terminal blocks having a two character designator such as TB21 or
+TB1a.
+
+@item TB.*
+Select all terminal blocks with any designator.
+
+@item .*31
+Select all items, whose name ends with ``31'' such as Q31, or R31, or R531.
+
+@item Q[12]
+Select Q1 and Q2.
+
+@item [A-D].*
+Select all items, whose name starts with ``A'', ``B'', ``C'', or ``D''.
+
+@item .*N@{2@}.*
+Select all items, whose name contains two ``N'' in a row such as
+CONN23, or connA, but not CON5
+
+@item [^D].*
+Select all items that do not start with the letter ``D'', such as C2, or
+R34, but not D34
 
 @end table
 
