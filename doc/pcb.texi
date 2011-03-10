@@ -1088,8 +1088,9 @@ layers in the same group reside on the same physical layer of
 the actual board. Notice that this example has 2 groups each having
 3 layers, plus two other layers named @samp{unused}.
 Use the @samp{Edit layer groups} option in the @samp{Settings} menu to
-change the layer groupings. Note that changing the groupings can
-radically alter the connectivity on the board.
+change the layer groupings in the lesstif GUI or the @samp{Preferences}
+dialog from the @samp{File} menu in the GTK+ GUI. Note that changing the
+groupings can radically alter the connectivity on the board.
 Grouping layers is only useful for helping you to color-code
 signals in your layout. Note that grouping layers actually reduces the number
 of different physical layers available for your board, so to make an eight
