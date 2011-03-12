@@ -11,7 +11,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
-	libgtk.a liblesstif.a libbatch.a \
+	libgtk.a liblesstif.a libbatch.a libjnihid.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
 	libgcode.a
 
@@ -186,6 +186,7 @@ BUILT_SOURCES = \
 	gpcb-menu.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
+	hid/jnihid/jnihid_lists.h \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
@@ -375,6 +376,23 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	true > $@
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+
+
+libjnihid_a_CPPFLAGS = -I./hid/jnihid
+LIBJNIHID_SRCS = \
+		 dolists.h \
+		 hid/hidint.h \
+		 hid/jnihid/jni_main.c
+libjnihid_a_SOURCES = ${LIBJNIHID_SRCS} hid/jnihid/jnihid_lists.h
+
+hid/jnihid/jnihid_lists.h : ${LIBJNIHID_SRCS} Makefile
+	$(MKDIR_P) hid/jnihid
+	true > $@
+	(for f in ${LIBJNIHID_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
+
+
 
 libbatch_a_CPPFLAGS = -I./hid/batch
 LIBBATCH_SRCS = \
