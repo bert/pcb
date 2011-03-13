@@ -133,9 +133,9 @@ void NetlistChanged (int force_unfreeze);
  * two.
  */
 #if HAVE_MKDIR
-#include <io.h> /* mkdir under MinGW only takes one argument */
         #if MKDIR_TAKES_ONE_ARG
          /* MinGW32 */
+#include <io.h> /* mkdir under MinGW only takes one argument */
          #define MKDIR(a, b) mkdir(a)
         #else
          #define MKDIR(a, b) mkdir(a, b)
