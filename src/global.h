@@ -510,6 +510,8 @@ typedef struct PCBType
   LibraryType NetlistLib;
   AttributeListType Attributes;
   DataTypePtr Data;		/* entire database */
+
+  bool is_footprint;		/* If set, the user has loaded a footprint, not a pcb. */
 }
 PCBType, *PCBTypePtr;
 

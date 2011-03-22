@@ -462,6 +462,7 @@ PostLoadElementPCB ()
   PCB = pcb_save;
   yyPCB->MaxWidth = e->BoundingBox.X2;
   yyPCB->MaxHeight = e->BoundingBox.Y2;
+  yyPCB->is_footprint = 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -942,7 +943,15 @@ WritePipe (char *Filename, bool thePcb)
 	}
     }
   if (thePcb)
-    result = WritePCB (fp);
+    {
+      if (PCB->is_footprint)
+	{
+	  WriteElementData (fp, PCB->Data);
+	  result = 0;
+	}
+      else
+	result = WritePCB (fp);
+    }
   else
     result = WriteBuffer (fp);
 
