@@ -25,6 +25,7 @@
 #include "data.h"
 #include "misc.h"
 #include "error.h"
+#include "draw.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -91,6 +92,9 @@ static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
 static int flash_drills;
+static int copy_outline_mode;
+static int outline_trace_size;
+static LayerTypePtr outline_layer;
 
 enum ApertureShape
 {
@@ -348,6 +352,18 @@ static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 static int lastX, lastY;	/* the last X and Y coordinate */
 
+static const char *copy_outline_names[] = {
+#define COPY_OUTLINE_NONE 0
+  "none",
+#define COPY_OUTLINE_MASK 1
+  "mask",
+#define COPY_OUTLINE_SILK 2
+  "silk",
+#define COPY_OUTLINE_ALL 3
+  "all",
+  0
+};
+
 static HID_Attribute gerber_options[] = {
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
@@ -358,6 +374,12 @@ static HID_Attribute gerber_options[] = {
   {"verbose", "print file names and aperture counts",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_verbose 2
+  {"copy-outline", "Copy outline onto other layers",
+   HID_Enum, 0, 0, {0, 0, 0}, copy_outline_names, 0},
+#define HA_copy_outline 3
+  {"outline-thickness", "size, in mils/mm, of the trace used to draw the outline",
+   HID_String, 0, 0, {0, "10mil", 0}, 0, 0},
+#define HA_copy_outline_size 4
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -409,15 +431,17 @@ maybe_close_f ()
   f = 0;
 }
 
+static BoxType region;
+
 static void
 gerber_do_export (HID_Attr_Val * options)
 {
   char *fnbase;
   int i;
   static int saved_layer_stack[MAX_LAYER];
-  BoxType region;
   int save_ons[MAX_LAYER + 2];
   FlagType save_thindraw;
+  bool absolute;
 
   save_thindraw = PCB->Flags;
   CLEAR_FLAG(THINDRAWFLAG, PCB);
@@ -437,6 +461,21 @@ gerber_do_export (HID_Attr_Val * options)
 
   verbose = options[HA_verbose].int_value;
   all_layers = options[HA_all_layers].int_value;
+
+  copy_outline_mode = options[HA_copy_outline].int_value;
+  outline_trace_size = GetValue (options[HA_copy_outline_size].str_value, NULL, &absolute);
+
+  outline_layer = NULL;
+
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      LayerType *layer = PCB->Data->Layer + i;
+      if (strcmp (layer->Name, "outline") == 0 ||
+	  strcmp (layer->Name, "route") == 0)
+	{
+	  outline_layer = layer;
+	}
+    }
 
   i = strlen (fnbase);
   filename = (char *)realloc (filename, i + 40);
@@ -524,6 +563,7 @@ drill_sort (const void *va, const void *vb)
 static int
 gerber_set_layer (const char *name, int group, int empty)
 {
+  int want_outline;
   char *cp;
   int idx = (group >= 0
 	     && group <
@@ -597,7 +637,7 @@ gerber_set_layer (const char *name, int group, int empty)
       c_layerapps++;
 
       if (finding_apertures)
-	return 1;
+	goto emit_outline;
 
       if (!curapp->some_apertures && !all_layers)
 	return 0;
@@ -705,6 +745,44 @@ gerber_set_layer (const char *name, int group, int empty)
 	/* We need to put *something* in the file to make it be parsed
 	   as RS-274X instead of RS-274D. */
 	fprintf (f, "%%ADD11C,0.0100*%%\r\n");
+    }
+
+ emit_outline:
+  /* If we're printing a copper layer other than the outline layer,
+     and we want to "print outlines", and we have an outline layer,
+     print the outline layer on this layer also.  */
+  want_outline = 0;
+  if (copy_outline_mode == COPY_OUTLINE_MASK
+      && SL_TYPE (idx) == SL_MASK)
+    want_outline = 1;
+  if (copy_outline_mode == COPY_OUTLINE_SILK
+      && SL_TYPE (idx) == SL_SILK)
+    want_outline = 1;
+  if (copy_outline_mode == COPY_OUTLINE_ALL
+      && (SL_TYPE (idx) == SL_SILK
+	  || SL_TYPE (idx) == SL_MASK
+	  || SL_TYPE (idx) == SL_FAB
+	  || SL_TYPE (idx) == SL_ASSY
+	  || SL_TYPE (idx) == 0))
+    want_outline = 1;
+
+  if (want_outline
+      && strcmp (name, "outline")
+      && strcmp (name, "route"))
+    {
+      if (outline_layer
+	  && outline_layer != PCB->Data->Layer+idx)
+	DrawLayer (outline_layer, &region);
+      else if (!outline_layer)
+	{
+	  hidGC gc = gui->make_gc ();
+	  gui->set_line_width (gc, outline_trace_size);
+	  gui->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
+	  gui->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
+	  gui->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
+	  gui->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
+	  gui->destroy_gc (gc);
+	}
     }
 
   return 1;
