@@ -2186,6 +2186,20 @@ GetInfoString (void)
 }
 
 /* ---------------------------------------------------------------------------
+ * mkdir() implentation, mostly for plugins, which don't have our config.h.
+ */
+
+#ifdef MKDIR_IS_PCBMKDIR
+#error "Don't know how to create a directory on this system."
+#endif
+
+int
+pcb_mkdir (const char *path, int mode)
+{
+  return MKDIR (path, mode);
+}
+
+/* ---------------------------------------------------------------------------
  * Returns a best guess about the orientation of an element.  The
  * value corresponds to the rotation; a difference is the right value
  * to pass to RotateElementLowLevel.  However, the actual value is no
