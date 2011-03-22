@@ -132,6 +132,9 @@ GetValue (const char *val, const char *units, bool * absolute)
     }
   if (!units && n > 0)
     units = val + n;
+
+  while (units && *units == ' ')
+    units ++;
     
   if (units && *units)
     {
