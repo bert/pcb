@@ -1239,7 +1239,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
       && NSTRCMP (subdirentry->d_name, "Makefile.am") != 0
       && NSTRCMP (subdirentry->d_name, "Makefile.in") != 0
       && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0) 
-      && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0) )
+      && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0)
+      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
       {
 #ifdef DEBUG
 /*	printf("...  Found a footprint %s ... \n", subdirentry->d_name); */
