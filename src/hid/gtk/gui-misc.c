@@ -595,7 +595,7 @@ ghid_grid_pcb_to_units (double x, double grid_factor)
 
   nearest_gridpoint = floor (x / grid_factor + .5);
   /* honour snapping to an unaligned object */
-  if (fabs (nearest_gridpoint * grid_factor - x) > 0.55 * COOR_TO_MM)
+  if (fabs (nearest_gridpoint * grid_factor - x) > COOR_TO_MM)
     return x_scaled;
   /* without mm-adjusted grid_factor
      (return floor (x / PCB->Grid + .5) *  PCB->Grid * COOR_TO_MM),
