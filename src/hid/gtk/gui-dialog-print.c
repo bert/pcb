@@ -188,8 +188,9 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 
 	  entry = gtk_entry_new ();
 	  gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
-	  gtk_entry_set_text (GTK_ENTRY (entry),
-			      attrs[j].default_val.str_value);
+	  if(attrs[j].default_val.str_value != NULL)
+	    gtk_entry_set_text (GTK_ENTRY (entry),
+				attrs[j].default_val.str_value);
 	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
 	  g_signal_connect (G_OBJECT (entry), "changed",
 			    G_CALLBACK (entry_changed_cb),
