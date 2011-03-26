@@ -288,51 +288,6 @@ zoom_by (double factor, int x, int y)
 
 /* ------------------------------------------------------------ */
 
-int
-ghid_set_layer (const char *name, int group, int empty)
-{
-  int idx = group;
-  if (idx >= 0 && idx < max_group)
-    {
-      int n = PCB->LayerGroups.Number[group];
-      for (idx = 0; idx < n-1; idx ++)
-	{
-	  int ni = PCB->LayerGroups.Entries[group][idx];
-	  if (ni >= 0 && ni < max_copper_layer + 2
-	      && PCB->Data->Layer[ni].On)
-	    break;
-	}
-      idx = PCB->LayerGroups.Entries[group][idx];
-    }
-
-  if (idx >= 0 && idx < max_copper_layer + 2)
-    return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
-  if (idx < 0)
-    {
-      switch (SL_TYPE (idx))
-	{
-	case SL_INVISIBLE:
-	  return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
-	case SL_MASK:
-	  if (SL_MYSIDE (idx) /*&& !pinout */ )
-	    return TEST_FLAG (SHOWMASKFLAG, PCB);
-	  return 0;
-	case SL_SILK:
-	  if (SL_MYSIDE (idx) /*|| pinout */ )
-	    return PCB->ElementOn;
-	  return 0;
-	case SL_ASSY:
-	  return 0;
-	case SL_PDRILL:
-	case SL_UDRILL:
-	  return 1;
-	case SL_RATS:
-	  return PCB->RatOn;
-	}
-    }
-  return 0;
-}
-
 void
 ghid_calibrate (double xval, double yval)
 {
