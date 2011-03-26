@@ -144,6 +144,12 @@ PendingDrills *pending_drills = 0;
 int n_pending_drills = 0, max_pending_drills = 0;
 
 /*----------------------------------------------------------------------------*/
+/* Defined Constants                                                          */
+/*----------------------------------------------------------------------------*/
+#define AUTO_OUTLINE_WIDTH 800       /* Auto-geneated outline width of 8 mils */
+
+
+/*----------------------------------------------------------------------------*/
 /* Aperture Routines                                                          */
 /*----------------------------------------------------------------------------*/
 
@@ -377,9 +383,6 @@ static HID_Attribute gerber_options[] = {
   {"copy-outline", "Copy outline onto other layers",
    HID_Enum, 0, 0, {0, 0, 0}, copy_outline_names, 0},
 #define HA_copy_outline 3
-  {"outline-thickness", "size, in mils/mm, of the trace used to draw the outline",
-   HID_String, 0, 0, {0, "10mil", 0}, 0, 0},
-#define HA_copy_outline_size 4
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -463,7 +466,6 @@ gerber_do_export (HID_Attr_Val * options)
   all_layers = options[HA_all_layers].int_value;
 
   copy_outline_mode = options[HA_copy_outline].int_value;
-  outline_trace_size = GetValue (options[HA_copy_outline_size].str_value, NULL, &absolute);
 
   outline_layer = NULL;
 
@@ -776,7 +778,7 @@ gerber_set_layer (const char *name, int group, int empty)
       else if (!outline_layer)
 	{
 	  hidGC gc = gui->make_gc ();
-	  gui->set_line_width (gc, outline_trace_size);
+	  gui->set_line_width (gc, AUTO_OUTLINE_WIDTH);
 	  gui->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
 	  gui->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
 	  gui->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
