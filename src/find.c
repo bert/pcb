@@ -3823,7 +3823,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
         }
       break;
     case PAD_TYPE:
-      if (pad->Clearance < 2 * PCB->Bloat)
+      if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
 	if (IsPadInPolygon(pad,polygon))
 	  {
 	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
@@ -3833,7 +3833,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
 	  }
       break;
     case PIN_TYPE:
-      if (pin->Clearance < 2 * PCB->Bloat)
+      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
         {
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, pin);

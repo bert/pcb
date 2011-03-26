@@ -531,7 +531,13 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
+  value = MIN (MAX_LINESIZE, value);
+  if (value < 0)
+    value = 0;
+  if (Delta < 0 && value < PCB->Bloat * 2)
+    value = 0;
+  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
+    value = PCB->Bloat * 2 + 2;
   if (Pin->Clearance == value)
     return NULL;
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
@@ -586,21 +592,25 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
-  if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Clearance)
-    {
-      AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
-      RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
-      ErasePad (Pad);
-      r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
-      Pad->Clearance = value;
-      /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-      ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
-      DrawPad (Pad, 0);
-      return (Pad);
-    }
-  return (NULL);
+  value = MIN (MAX_LINESIZE, value);
+  if (value < 0)
+    value = 0;
+  if (Delta < 0 && value < PCB->Bloat * 2)
+    value = 0;
+  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
+    value = PCB->Bloat * 2 + 2;
+  if (value == Pad->Clearance)
+    return NULL;
+  AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
+  RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
+  ErasePad (Pad);
+  r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
+  Pad->Clearance = value;
+  /* SetElementBB updates all associated rtrees */
+  SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+  ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
+  DrawPad (Pad, 0);
+  return Pad;
 }
 
 /* ---------------------------------------------------------------------------
