@@ -2086,7 +2086,6 @@ DrawElementPinsAndPads (ElementTypePtr Element, int unused)
 void
 EraseVia (PinTypePtr Via)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Via, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
@@ -2098,7 +2097,6 @@ EraseVia (PinTypePtr Via)
 void
 EraseRat (RatTypePtr Rat)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   if (TEST_FLAG(VIAFLAG, Rat))
     {
       int w = Rat->Thickness;
@@ -2121,7 +2119,6 @@ EraseRat (RatTypePtr Rat)
 void
 EraseViaName (PinTypePtr Via)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaNameLowLevel (Via);
 }
 
@@ -2131,7 +2128,6 @@ EraseViaName (PinTypePtr Via)
 void
 ErasePad (PadTypePtr Pad)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPadLowLevel (Output.fgGC, Pad, false, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
@@ -2143,7 +2139,6 @@ ErasePad (PadTypePtr Pad)
 void
 ErasePadName (PadTypePtr Pad)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPadNameLowLevel (Pad);
 }
 
@@ -2153,7 +2148,6 @@ ErasePadName (PadTypePtr Pad)
 void
 ErasePin (PinTypePtr Pin)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Pin, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     DrawPinOrViaNameLowLevel (Pin);
@@ -2165,7 +2159,6 @@ ErasePin (PinTypePtr Pin)
 void
 ErasePinName (PinTypePtr Pin)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaNameLowLevel (Pin);
 }
 
@@ -2175,7 +2168,6 @@ ErasePinName (PinTypePtr Pin)
 void
 EraseLine (LineTypePtr Line)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawLineLowLevel (Line);
 }
 
@@ -2187,7 +2179,6 @@ EraseArc (ArcTypePtr Arc)
 {
   if (!Arc->Thickness)
     return;
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawArcLowLevel (Arc);
 }
 
@@ -2198,7 +2189,6 @@ void
 EraseText (LayerTypePtr Layer, TextTypePtr Text)
 {
   int min_silk_line;
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   if (Layer == & PCB->Data->SILKLAYER
       || Layer == & PCB->Data->BACKSILKLAYER)
     min_silk_line = PCB->minSlk;
@@ -2213,7 +2203,6 @@ EraseText (LayerTypePtr Layer, TextTypePtr Text)
 void
 ErasePolygon (PolygonTypePtr Polygon)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPolygonLowLevel (Polygon);
 }
 
@@ -2223,8 +2212,6 @@ ErasePolygon (PolygonTypePtr Polygon)
 void
 EraseElement (ElementTypePtr Element)
 {
-  /* set color and draw lines, arcs, text and pins */
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   ELEMENTLINE_LOOP (Element);
   {
     DrawLineLowLevel (line);
@@ -2246,7 +2233,6 @@ EraseElement (ElementTypePtr Element)
 void
 EraseElementPinsAndPads (ElementTypePtr Element)
 {
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
     DrawPinOrViaLowLevel (pin, false);
@@ -2271,7 +2257,6 @@ EraseElementName (ElementTypePtr Element)
 {
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
-  gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
 }
 
