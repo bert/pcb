@@ -319,9 +319,9 @@ PrintFab (void)
 	       "Maximum Dimensions: %d mils wide, %d mils high",
 	       PCB->MaxWidth / 100, PCB->MaxHeight / 100);
       text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
-	       "Board outline is the centerline of this 10 mil"
+	       "Board outline is the centerline of this %d mil"
 	       " rectangle - 0,0 to %d,%d mils",
-	       PCB->MaxWidth / 100, PCB->MaxHeight / 100);
+	       FAB_LINE_W / 100, PCB->MaxWidth / 100, PCB->MaxHeight / 100);
     }
   else
     {
