@@ -1562,8 +1562,8 @@ Benchmark (int argc, char **argv, int x, int y)
   time (&start);
   do
     {
-      hid_expose_callback (&ghid_hid, &region, 0);
-      gdk_display_sync (display);
+      ghid_invalidate_all ();
+      gdk_window_process_updates (gport->drawing_area->window, FALSE);
       time (&end);
       i++;
     }
