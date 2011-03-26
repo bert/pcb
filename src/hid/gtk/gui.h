@@ -162,7 +162,7 @@ typedef struct
   GdkDrawable *drawable;	/* Current drawable for drawing routines */
   gint width, height;
 
-  GdkGC *bg_gc, *offlimits_gc, *mask_gc, *u_gc, *grid_gc;
+  struct render_priv *render_priv;
 
   GdkColor bg_color, offlimits_color, grid_color;
 
@@ -494,6 +494,8 @@ void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_invalidate_lr (int left, int right, int top, int bottom);
 void ghid_invalidate_all ();
 void ghid_show_crosshair (gboolean show);
+void ghid_init_renderer (int *, char ***, GHidPort *);
+void ghid_drawing_area_configure_hook (GHidPort *port);
 void ghid_screen_update (void);
 gboolean ghid_drawing_area_expose_cb (GtkWidget *, GdkEventExpose *,
                                       GHidPort *);

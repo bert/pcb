@@ -2693,6 +2693,8 @@ ghid_parse_arguments (int *argc, char ***argv)
   gport->zoom = 300.0;
   pixel_slop = 300;
 
+  ghid_init_renderer (argc, argv, gport);
+
   ghid_config_files_read (argc, argv);
 
   Settings.AutoPlace = 0;
