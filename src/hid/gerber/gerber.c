@@ -93,7 +93,6 @@ static int is_drill;
 static int current_mask;
 static int flash_drills;
 static int copy_outline_mode;
-static int outline_trace_size;
 static LayerTypePtr outline_layer;
 
 enum ApertureShape
@@ -444,7 +443,6 @@ gerber_do_export (HID_Attr_Val * options)
   static int saved_layer_stack[MAX_LAYER];
   int save_ons[MAX_LAYER + 2];
   FlagType save_thindraw;
-  bool absolute;
 
   save_thindraw = PCB->Flags;
   CLEAR_FLAG(THINDRAWFLAG, PCB);
