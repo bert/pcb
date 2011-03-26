@@ -36,7 +36,7 @@
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
-
+#include "gui-pinout-preview.h"
 
 
   /* Silk and rats lines are the two additional selectable to draw on.
@@ -306,9 +306,6 @@ gint ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
 				       GdkEventScroll * ev, GHidPort * out);
 
 
-gint ghid_port_drawing_area_expose_event_cb (GtkWidget * widget,
-					     GdkEventExpose * ev,
-					     GHidPort * out);
 gint ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 						GdkEventConfigure * ev,
 						GHidPort * out);
@@ -477,14 +474,6 @@ void ghid_logv (const char *fmt, va_list args);
 /* gui-pinout-window.c */
 void ghid_pinout_window_show (GHidPort * out, ElementTypePtr Element);
 
-/* gui-render-pixmap.c */
-GdkPixmap *ghid_render_pixmap (int cx,
-			       int cy,
-			       double zoom,
-			       int width,
-			       int height,
-			       int depth);
-
 /* gtkhid-gdk.c */
 hidGC ghid_make_gc (void);
 void ghid_destroy_gc (hidGC);
@@ -505,6 +494,12 @@ void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_invalidate_lr (int left, int right, int top, int bottom);
 void ghid_invalidate_all ();
 void ghid_show_crosshair (gboolean show);
+void ghid_screen_update (void);
+gboolean ghid_drawing_area_expose_cb (GtkWidget *, GdkEventExpose *,
+                                      GHidPort *);
+gboolean ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * ev);
+GdkPixmap *ghid_render_pixmap (int cx, int cy, double zoom,
+                               int width, int height, int depth);
 
 /* gtkhid-main.c */
 void ghid_pan_fixup (void);

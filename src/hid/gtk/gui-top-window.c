@@ -2370,7 +2370,7 @@ ghid_build_pcb_top_window (void)
    */
 
   g_signal_connect (G_OBJECT (gport->drawing_area), "expose_event",
-		    G_CALLBACK (ghid_port_drawing_area_expose_event_cb),
+		    G_CALLBACK (ghid_drawing_area_expose_cb),
 		    port);
   g_signal_connect (G_OBJECT (gport->top_window), "configure_event",
 		    G_CALLBACK (top_window_configure_event_cb), port);

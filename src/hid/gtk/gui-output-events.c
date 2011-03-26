@@ -544,28 +544,6 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 }
 
 
-void
-ghid_screen_update (void)
-{
-
-  ghid_show_crosshair (FALSE);
-  gdk_draw_drawable (gport->drawing_area->window, gport->bg_gc, gport->pixmap,
-		     0, 0, 0, 0, gport->width, gport->height);
-  ghid_show_crosshair (TRUE);
-}
-
-gboolean
-ghid_port_drawing_area_expose_event_cb (GtkWidget * widget,
-					GdkEventExpose * ev, GHidPort * port)
-{
-  ghid_show_crosshair (FALSE);
-  gdk_draw_drawable (widget->window, port->bg_gc, port->pixmap,
-		     ev->area.x, ev->area.y, ev->area.x, ev->area.y,
-		     ev->area.width, ev->area.height);
-  ghid_show_crosshair (TRUE);
-  return FALSE;
-}
-
 #if GTK_CHECK_VERSION(2,12,0)
 # define ENABLE_TOOLTIPS 1
 #else
