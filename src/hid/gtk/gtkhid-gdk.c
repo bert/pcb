@@ -902,6 +902,11 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 }
 
 void
+ghid_init_drawing_widget (GtkWidget *widget, GHidPort *port)
+{
+}
+
+void
 ghid_drawing_area_configure_hook (GHidPort *port)
 {
   static int done_once = 0;

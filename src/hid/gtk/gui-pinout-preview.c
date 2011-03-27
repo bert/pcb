@@ -159,6 +159,26 @@ enum
 static GObjectClass *ghid_pinout_preview_parent_class = NULL;
 
 
+/*! \brief GObject constructed
+ *
+ *  \par Function Description
+ *  Initialise the pinout preview object once it is constructed.
+ *  Chain up in case the parent class wants to do anything too.
+ *
+ *  \param [in] object  The pinout preview object
+ */
+static void
+ghid_pinout_preview_constructed (GObject *object)
+{
+  /* chain up to the parent class */
+  if (G_OBJECT_CLASS (ghid_pinout_preview_parent_class)->constructed != NULL)
+    G_OBJECT_CLASS (ghid_pinout_preview_parent_class)->constructed (object);
+
+  ghid_init_drawing_widget (GTK_WIDGET (object), gport);
+}
+
+
+
 /*! \brief GObject finalise handler
  *
  *  \par Function Description
@@ -253,6 +273,7 @@ ghid_pinout_preview_class_init (GhidPinoutPreviewClass * klass)
   gobject_class->finalize = ghid_pinout_preview_finalize;
   gobject_class->set_property = ghid_pinout_preview_set_property;
   gobject_class->get_property = ghid_pinout_preview_get_property;
+  gobject_class->constructed = ghid_pinout_preview_constructed;
 
   gtk_widget_class->expose_event = ghid_pinout_preview_expose;
 
