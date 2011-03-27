@@ -270,8 +270,8 @@ ghid_use_mask (int use_it)
       break;
 
     case HID_MASK_BEFORE:
-      printf ("gtk doesn't support mask_before!\n");
-      abort ();
+      /* The HID asks not to receive this mask type, so warn if we get it */
+      g_return_if_reached ();
 
     case HID_MASK_CLEAR:
       if (!gport->mask)
