@@ -735,7 +735,7 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
 
 
 static void
-DrawMaskBoardArea (int mask_type)
+DrawMaskBoardArea (int mask_type, BoxType *screen)
 {
   /* Skip the mask drawing if the GUI doesn't want this type */
   if ((mask_type == HID_MASK_BEFORE && !gui->poly_before) ||
@@ -744,7 +744,11 @@ DrawMaskBoardArea (int mask_type)
 
   gui->use_mask (mask_type);
   gui->set_color (Output.fgGC, PCB->MaskColor);
-  gui->fill_rect (Output.fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+  if (screen == NULL)
+    gui->fill_rect (Output.fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+  else
+    gui->fill_rect (Output.fgGC, screen->X1, screen->Y1,
+                                 screen->X2, screen->Y2);
 }
 
 /* ---------------------------------------------------------------------------
@@ -762,7 +766,7 @@ DrawMask (BoxType * screen)
     gui->set_color (Output.pmGC, PCB->MaskColor);
   else
     {
-      DrawMaskBoardArea (HID_MASK_BEFORE);
+      DrawMaskBoardArea (HID_MASK_BEFORE, screen);
       gui->use_mask (HID_MASK_CLEAR);
     }
 
@@ -774,7 +778,7 @@ DrawMask (BoxType * screen)
     gui->set_color (Output.pmGC, "erase");
   else
     {
-      DrawMaskBoardArea (HID_MASK_AFTER);
+      DrawMaskBoardArea (HID_MASK_AFTER, screen);
       gui->use_mask (HID_MASK_OFF);
     }
 }
