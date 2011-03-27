@@ -1900,11 +1900,11 @@ ScrollAction (int argc, char **argv, int x, int y)
   else
     AFAIL (scroll);
 
-  HideCrosshair (FALSE);
+  HideCrosshair ();
   ghid_port_ranges_pan (dx, dy, TRUE);
   MoveCrosshairRelative (dx, dy);
   AdjustAttachedObjects ();
-  RestoreCrosshair (FALSE);
+  RestoreCrosshair ();
 
   return 0;
 }

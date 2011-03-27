@@ -661,7 +661,7 @@ CenterDisplay (LocationType X, LocationType Y, bool Delta)
     {
       if (MoveCrosshairAbsolute (X, Y))
         {
-          RestoreCrosshair(false);
+          RestoreCrosshair ();
         }
     }
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);

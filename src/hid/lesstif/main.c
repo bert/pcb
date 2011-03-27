@@ -1311,12 +1311,12 @@ mod_changed (XKeyEvent * e, int set)
       return;
     }
   in_move_event = 1;
-  HideCrosshair (1);
+  HideCrosshair ();
   if (panning)
     Pan (2, e->x, e->y);
   EventMoveCrosshair (Px (e->x), Py (e->y));
   AdjustAttachedObjects ();
-  RestoreCrosshair (1);
+  RestoreCrosshair ();
   in_move_event = 0;
 }
 
@@ -1352,7 +1352,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 	}
         ignore_release = 0;
 
-        HideCrosshair (true);
+        HideCrosshair ();
         pressed_button = e->xbutton.button;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
@@ -1362,7 +1362,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
 #endif
         do_mouse_action(e->xbutton.button, mods);
-        RestoreCrosshair (true);
+        RestoreCrosshair ();
         break;
       }
 
@@ -1372,7 +1372,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         if (e->xbutton.button != pressed_button)
           return;
         lesstif_button_event (w, e);
-        HideCrosshair (true);
+        HideCrosshair ();
         pressed_button = 0;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
@@ -1383,7 +1383,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 #endif
           + M_Release;
         do_mouse_action (e->xbutton.button, mods);
-        RestoreCrosshair (true);
+        RestoreCrosshair ();
         break;
       }
 
@@ -1414,7 +1414,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 
     case LeaveNotify:
       crosshair_in_window = 0;
-      CrosshairOff (1);
+      CrosshairOff ();
       need_idle_proc ();
       break;
 
@@ -1422,7 +1422,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       crosshair_in_window = 1;
       in_move_event = 1;
       EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
-      CrosshairOn (1);
+      CrosshairOn ();
       in_move_event = 0;
       need_idle_proc ();
       break;
@@ -2520,7 +2520,7 @@ idle_proc (XtPointer dummy)
       XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
 		 view_height, 0, 0);
       pixmap = window;
-      CrosshairOn (0);
+      CrosshairOn ();
       need_redraw = 0;
     }
 

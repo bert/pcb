@@ -244,7 +244,7 @@ SetMode (int Mode)
   if (recursing)
     return;
   recursing = true;
-  HideCrosshair (true);
+  HideCrosshair ();
   addedLines = 0;
   Crosshair.AttachedObject.Type = NO_TYPE;
   Crosshair.AttachedObject.State = STATE_FIRST;
@@ -314,7 +314,7 @@ SetMode (int Mode)
    * may have changed
    */
   MoveCrosshairRelative (0, 0);
-  RestoreCrosshair (true);
+  RestoreCrosshair ();
 }
 
 void
@@ -342,20 +342,20 @@ SetLocalRef (LocationType X, LocationType Y, bool Showing)
 
   if (Showing)
     {
-      HideCrosshair (true);
+      HideCrosshair ();
       if (count == 0)
 	old = Marked;
       Marked.X = X;
       Marked.Y = Y;
       Marked.status = true;
       count++;
-      RestoreCrosshair (false);
+      RestoreCrosshair ();
     }
   else if (count > 0)
     {
-      HideCrosshair (false);
+      HideCrosshair ();
       count = 0;
       Marked = old;
-      RestoreCrosshair (false);
+      RestoreCrosshair ();
     }
 }
