@@ -733,6 +733,20 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
   SWAP_IDENT = save_swap;
 }
 
+
+static void
+DrawMaskBoardArea (int mask_type)
+{
+  /* Skip the mask drawing if the GUI doesn't want this type */
+  if ((mask_type == HID_MASK_BEFORE && !gui->poly_before) ||
+      (mask_type == HID_MASK_AFTER  && !gui->poly_after))
+    return;
+
+  gui->use_mask (mask_type);
+  gui->set_color (Output.fgGC, PCB->MaskColor);
+  gui->fill_rect (Output.fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+}
+
 /* ---------------------------------------------------------------------------
  * draws solder mask layer - this will cover nearly everything
  */
@@ -742,20 +756,13 @@ DrawMask (BoxType * screen)
   struct pin_info info;
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
 
-  OutputType *out = &Output;
-
   info.arg = true;
 
   if (thin)
     gui->set_color (Output.pmGC, PCB->MaskColor);
   else
     {
-      if (gui->poly_before)
-	{
-	  gui->use_mask (HID_MASK_BEFORE);
-	  gui->set_color (out->fgGC, PCB->MaskColor);
-	  gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
-	}
+      DrawMaskBoardArea (HID_MASK_BEFORE);
       gui->use_mask (HID_MASK_CLEAR);
     }
 
@@ -767,30 +774,9 @@ DrawMask (BoxType * screen)
     gui->set_color (Output.pmGC, "erase");
   else
     {
-      if (gui->poly_after)
-	{
-	  gui->use_mask (HID_MASK_AFTER);
-	  gui->set_color (out->fgGC, PCB->MaskColor);
-	  gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
-	}
+      DrawMaskBoardArea (HID_MASK_AFTER);
       gui->use_mask (HID_MASK_OFF);
     }
-
-#if 0
-  /* Some fabs want the board outline on the solder mask layer.  If
-     you need this, change the '0' above to '1', and the code below
-     will copy the outline layer to the mask layers.  */
-  if (!gui->gui)
-    {
-      int i;
-      for (i=PCB->Data->LayerN; i>=0; i--)
-	{
-	  LayerTypePtr Layer = PCB->Data->Layer + i;
-	  if (strcmp (Layer->Name, "outline") == 0)
-	    DrawLayer (Layer, screen);
-	}
-    }
-#endif
 }
 
 static void
