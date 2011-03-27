@@ -695,7 +695,7 @@ CrosshairOn (bool BlockToo)
     {
       Crosshair.On = true;
       DrawAttached (BlockToo);
-      DrawMark (true);
+      DrawMark ();
     }
 }
 
@@ -709,7 +709,7 @@ CrosshairOff (bool BlockToo)
     {
       Crosshair.On = false;
       DrawAttached (BlockToo);
-      DrawMark (true);
+      DrawMark ();
     }
 }
 
@@ -1105,9 +1105,9 @@ SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
  * if argument is true, draw only if it is visible, otherwise draw it regardless
  */
 void
-DrawMark (bool ifvis)
+DrawMark (void)
 {
-  if (Marked.status || !ifvis)
+  if (Marked.status)
     {
       gui->draw_line (Crosshair.GC,
 		      Marked.X - MARK_SIZE,
