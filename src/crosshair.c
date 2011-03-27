@@ -712,15 +712,6 @@ CrosshairOff (void)
     }
 }
 
-/*
- * The parameter to HideCrosshair() and RestoreCrosshair() dictates whether 
- * the object you're dragging should be drawn or not.
- *
- * This argument is _not_ saved in the stack, so whether you have drawings
- * following the cursor around or not is dependant on the parameter passed 
- * LAST to either of these two functions.
- */
-
 /* ---------------------------------------------------------------------------
  * saves crosshair state (on/off) and hides him
  */
