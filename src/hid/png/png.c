@@ -146,7 +146,7 @@ static const char *filetypes[] = {
   FMT_jpg,
 #endif
 
-  NULL
+  ""
 };
 
 HID_Attribute png_attribute_list[] = {
