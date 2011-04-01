@@ -381,7 +381,12 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
 
   if (file && *file)
-    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), file);
+    {
+      gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog),
+                                         g_path_get_basename(file));
+      gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog),
+                                           g_path_get_dirname (file));
+    }
 
   if (shortcuts && *shortcuts)
     {
