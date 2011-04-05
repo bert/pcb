@@ -515,11 +515,9 @@ ReportDialog (int argc, char **argv, int x, int y)
       Message (_("Nothing found to report on\n"));
       return 1;
     }
-  HideCrosshair ();
   /* create dialog box */
   gui->report_dialog ("Report", &report[0]);
 
-  RestoreCrosshair ();
   return 0;
 }
 
@@ -560,9 +558,7 @@ ReportFoundPins (int argc, char **argv, int x, int y)
   }
   END_LOOP;
 
-  HideCrosshair ();
   gui->report_dialog ("Report", list.Data);
-  RestoreCrosshair ();
   return 0;
 }
 
@@ -779,7 +775,6 @@ ReportNetLength (int argc, char **argv, int x, int y)
   END_LOOP;
  got_net_name:
 
-  HideCrosshair ();
   {
     int prec = Settings.grid_units_mm? 4: 2;
     if (netname)
@@ -787,7 +782,6 @@ ReportNetLength (int argc, char **argv, int x, int y)
     else
       gui->log ("Net length: %.*f %s\n", prec, UNIT (length));
   }
-  RestoreCrosshair ();
   return 0;
 }
 /* ---------------------------------------------------------------------------

@@ -1452,13 +1452,12 @@ ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
   char *angle_s;
 
-  HideCrosshair ();
-
   if (argc < 1)
     angle_s = gui->prompt_for ("Enter Rotation (degrees, CCW):", "0");
   else
     angle_s = argv[0];
 
+  HideCrosshair ();
   FreeRotateBuffer(PASTEBUFFER, strtod(angle_s, 0));
   RestoreCrosshair ();
   return 0;

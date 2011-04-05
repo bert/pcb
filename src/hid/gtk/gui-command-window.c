@@ -211,9 +211,7 @@ command_entry_activate_cb (GtkWidget * widget, gpointer data)
 
   if (ghidgui->use_command_window)
     {
-      HideCrosshair ();
       hid_parse_command (command);
-      RestoreCrosshair ();
       g_free (command);
     }
   else
@@ -462,7 +460,6 @@ ghid_handle_user_command (gboolean raise)
     ghid_command_window_show (raise);
   else
     {
-      HideCrosshair ();
       command = ghid_command_entry_get (_("Enter command:"),
 					(Settings.SaveLastCommand && previous) ? previous : (gchar *)"");
       if (command != NULL)
@@ -479,7 +476,6 @@ ghid_handle_user_command (gboolean raise)
 	  hid_parse_command (command);
 	  g_free (command);
 	}
-      RestoreCrosshair ();
     }
   ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();

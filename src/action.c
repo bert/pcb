@@ -1871,7 +1871,6 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 	       PCB->minDrill / 100, PCB->minDrill % 100,
 	       PCB->minRing / 100, PCB->minRing % 100);
     }
-  HideCrosshair ();
   count = DRCAll ();
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
     {
@@ -1882,7 +1881,6 @@ ActionDRCheck (int argc, char **argv, int x, int y)
       else
 	Message (_("Aborted DRC after %d design rule errors.\n"), -count);
     }
-  RestoreCrosshair ();
   return 0;
 }
 
@@ -5976,7 +5974,6 @@ ActionNew (int argc, char **argv, int x, int y)
 {
   char *name = ARG (0);
 
-  HideCrosshair ();
   if (!PCB->Changed || gui->confirm_dialog (_("OK to clear layout data?"), 0))
     {
       if (name)
@@ -5985,11 +5982,9 @@ ActionNew (int argc, char **argv, int x, int y)
 	name = gui->prompt_for (_("Enter the layout name:"), "");
 
       if (!name)
-	{
-	  RestoreCrosshair ();
-	  return 1;
-	}
+        return 1;
 
+      HideCrosshair ();
       /* do emergency saving
        * clear the old struct and allocate memory for the new one
        */
@@ -6014,7 +6009,6 @@ ActionNew (int argc, char **argv, int x, int y)
       RestoreCrosshair ();
       return 0;
     }
-  RestoreCrosshair ();
   return 1;
 }
 
