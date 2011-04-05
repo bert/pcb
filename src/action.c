@@ -2758,7 +2758,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  break;
 
 	case F_CycleCrosshair:
-	  //Crosshair.shape++;
 	  Crosshair.shape = CrosshairShapeIncrement(Crosshair.shape);
 	  if (Crosshair_Shapes_Number == Crosshair.shape)
 	    Crosshair.shape = Basic_Crosshair_Shape;
