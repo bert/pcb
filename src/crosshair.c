@@ -1144,7 +1144,6 @@ InitCrosshair (void)
 void
 DestroyCrosshair (void)
 {
-  CrosshairOff ();
   FreePolygonMemory (&Crosshair.AttachedPolygon);
   gui->destroy_gc (Crosshair.GC);
 }
