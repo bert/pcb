@@ -607,10 +607,10 @@ click_cb (hidval hv)
 {
   if (Note.Click)
     {
+      HideCrosshair ();
       Note.Click = false;
       if (Note.Moving && !gui->shift_is_pressed ())
 	{
-	  HideCrosshair ();
 	  Note.Buffer = Settings.BufferNumber;
 	  SetBufferNumber (MAX_BUFFER - 1);
 	  ClearBuffer (PASTEBUFFER);
@@ -620,11 +620,9 @@ click_cb (hidval hv)
 	  SaveMode ();
 	  saved_mode = true;
 	  SetMode (PASTEBUFFER_MODE);
-	  RestoreCrosshair ();
 	}
       else if (Note.Hit && !gui->shift_is_pressed ())
 	{
-	  HideCrosshair ();
 	  SaveMode ();
 	  saved_mode = true;
 	  SetMode (gui->control_is_pressed ()? COPY_MODE : MOVE_MODE);
@@ -633,7 +631,6 @@ click_cb (hidval hv)
 	  Crosshair.AttachedObject.Ptr3 = Note.ptr3;
 	  Crosshair.AttachedObject.Type = Note.Hit;
 	  AttachForCopy (Note.X, Note.Y);
-	  RestoreCrosshair ();
 	}
       else
 	{
@@ -641,7 +638,6 @@ click_cb (hidval hv)
 
 	  Note.Hit = 0;
 	  Note.Moving = false;
-	  HideCrosshair ();
 	  SaveUndoSerialNumber ();
 	  box.X1 = -MAX_COORD;
 	  box.Y1 = -MAX_COORD;
@@ -653,8 +649,8 @@ click_cb (hidval hv)
 	  NotifyBlock ();
 	  Crosshair.AttachedBox.Point1.X = Note.X;
 	  Crosshair.AttachedBox.Point1.Y = Note.Y;
-	  RestoreCrosshair ();
 	}
+      RestoreCrosshair ();
     }
 }
 
