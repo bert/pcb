@@ -2683,7 +2683,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
   if (function && (!str_dir || !*str_dir))
     {
-      HideCrosshair ();
       switch (id = GetFunctionID (function))
 	{
 
@@ -2740,6 +2739,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  break;
 
 	case F_CycleClip:
+	  HideCrosshair ();
 	  if TEST_FLAG
 	    (ALLDIRECTIONFLAG, PCB)
 	    {
@@ -2749,20 +2749,27 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  else
 	    PCB->Clipping = (PCB->Clipping + 1) % 3;
 	  AdjustAttachedObjects ();
+	  RestoreCrosshair ();
 	  break;
 
 	case F_CycleCrosshair:
+	  HideCrosshair ();
 	  Crosshair.shape = CrosshairShapeIncrement(Crosshair.shape);
 	  if (Crosshair_Shapes_Number == Crosshair.shape)
 	    Crosshair.shape = Basic_Crosshair_Shape;
+	  RestoreCrosshair ();
 	  break;
 
 	case F_ToggleRubberBandMode:
+	  HideCrosshair ();
 	  TOGGLE_FLAG (RUBBERBANDFLAG, PCB);
+	  RestoreCrosshair ();
 	  break;
 
 	case F_ToggleStartDirection:
+	  HideCrosshair ();
 	  TOGGLE_FLAG (SWAPSTARTDIRFLAG, PCB);
+	  RestoreCrosshair ();
 	  break;
 
 	case F_ToggleUniqueNames:
@@ -2770,7 +2777,9 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  break;
 
 	case F_ToggleSnapPin:
+	  HideCrosshair ();
 	  TOGGLE_FLAG (SNAPPINFLAG, PCB);
+	  RestoreCrosshair ();
 	  break;
 
 	case F_ToggleLocalRef:
@@ -2811,6 +2820,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  break;
 
 	case F_ToggleAutoDRC:
+	  HideCrosshair ();
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
@@ -2824,6 +2834,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 				  Crosshair.AttachedLine.Point1.Y, true, 1,
 				  FOUNDFLAG);
 	    }
+	  RestoreCrosshair ();
 	  break;
 
 	case F_ToggleCheckPlanes:
@@ -2966,7 +2977,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	default:
 	  err = 1;
 	}
-      RestoreCrosshair ();
     }
   else if (function && str_dir)
     {
