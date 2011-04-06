@@ -58,14 +58,7 @@ ghid_port_ranges_changed (void)
 {
   GtkAdjustment *h_adj, *v_adj;
 
-  if (!ghidgui->combine_adjustments)
-    HideCrosshair ();
-  if (ghidgui->combine_adjustments)
-    {
-      ghidgui->combine_adjustments = FALSE;
-      return;
-    }
-
+  HideCrosshair ();
   ghidgui->need_restore_crosshair = TRUE;
 
   h_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
@@ -108,12 +101,13 @@ ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
   if (y1 > v_adj->upper - v_adj->page_size)
     y1 = v_adj->upper - v_adj->page_size;
 
-  if (x0 != x1 && y0 != y1)
-    ghidgui->combine_adjustments = TRUE;
-  if (x0 != x1)
-    gtk_range_set_value (GTK_RANGE (ghidgui->h_range), x1);
-  if (y0 != y1)
-    gtk_range_set_value (GTK_RANGE (ghidgui->v_range), y1);
+  ghidgui->adjustment_changed_holdoff = TRUE;
+  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), x1);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), y1);
+  ghidgui->adjustment_changed_holdoff = FALSE;
+
+  if ((x0 != x1) || (y0 != y1))
+    ghid_port_ranges_changed();
 
   ghid_note_event_location (NULL);
   return ((x0 != x1) || (y0 != y1));

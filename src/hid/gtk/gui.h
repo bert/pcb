@@ -126,7 +126,7 @@ typedef struct
   gboolean adjustment_changed_holdoff,
     toggle_holdoff,
     command_entry_status_line_active,
-    auto_pan_on, in_popup, combine_adjustments;
+    auto_pan_on, in_popup;
 
   gboolean config_modified,
     small_label_markup,
