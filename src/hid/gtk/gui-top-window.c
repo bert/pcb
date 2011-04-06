@@ -465,24 +465,18 @@ get_grid_value_index (gboolean allow_fail)
 static void
 h_adjustment_changed_cb (GtkAdjustment * adj, GhidGui * g)
 {
-  gdouble xval, yval;
-
   if (g->adjustment_changed_holdoff)
     return;
-  xval = gtk_adjustment_get_value (adj);
-  yval = gtk_adjustment_get_value (GTK_ADJUSTMENT (ghidgui->v_adjustment));
+
   ghid_port_ranges_changed ();
 }
 
 static void
 v_adjustment_changed_cb (GtkAdjustment * adj, GhidGui * g)
 {
-  gdouble xval, yval;
-
   if (g->adjustment_changed_holdoff)
     return;
-  yval = gtk_adjustment_get_value (adj);
-  xval = gtk_adjustment_get_value (GTK_ADJUSTMENT (ghidgui->h_adjustment));
+
   ghid_port_ranges_changed ();
 }
 
