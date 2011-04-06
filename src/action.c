@@ -5439,7 +5439,6 @@ ActionSelect (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair ();
       switch (GetFunctionID (function))
 	{
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
@@ -5504,6 +5503,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 			  Crosshair.AttachedBox.Point2.X);
 	    box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
 			  Crosshair.AttachedBox.Point2.Y);
+	    HideCrosshair ();
 	    NotifyBlock ();
 	    if (Crosshair.AttachedBox.State == STATE_THIRD &&
 		SelectBlock (&box, true))
@@ -5511,6 +5511,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 		SetChangedFlag (true);
 		Crosshair.AttachedBox.State = STATE_FIRST;
 	      }
+	    RestoreCrosshair ();
 	    break;
 	  }
 
@@ -5558,11 +5559,9 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  break;
 
 	default:
-	  RestoreCrosshair ();
 	  AFAIL (select);
 	  break;
 	}
-      RestoreCrosshair ();
     }
   return 0;
 }
