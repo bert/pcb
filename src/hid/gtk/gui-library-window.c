@@ -432,7 +432,16 @@ library_window_filter_timeout (gpointer data)
 
   if (model != NULL)
     {
+      const gchar *text = gtk_entry_get_text (library_window->entry_filter);
       gtk_tree_model_filter_refilter ((GtkTreeModelFilter *) model);
+      if (strcmp (text, "") != 0)
+        {
+          /* filter text not-empty */
+          gtk_tree_view_expand_all (library_window->libtreeview);
+        } else {
+          /* filter text is empty, collapse expanded tree */
+          gtk_tree_view_collapse_all (library_window->libtreeview);
+        }
     }
 
   /* return FALSE to remove the source */
