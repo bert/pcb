@@ -147,9 +147,6 @@ MainMenu =
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
    -
-   {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
-   {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
-   -
    {"Edit Names..." foreground=grey50 sensitive=false}
    {" Change text on layout" ChangeName(Object) a={"N" "<Key>n"}}
    {" Edit name of layout" ChangeName(Layout)}
@@ -240,6 +237,7 @@ MainMenu =
    {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
    {"Disperse all elements" DisperseElements(All)}
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
+   {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
    {"Delete selected objects" Delete(Selected) a={"Delete" "<Key>Delete"}}
    {"Convert selection to element" Select(Convert)}
    -
@@ -391,6 +389,7 @@ MainMenu =
     {"Clear Selected -2 mil" a={"Shift-Ctrl-K" "Shift Ctrl<Key>k"} ChangeClearSize(SelectedObjects,-2,mil)}
     {"Line Tool size +5 mil" a={"L" "<Key>l"} SetValue(LineSize,+5,mil)}
     {"Line Tool size -5 mil" a={"Shift-L" "Shift<Key>l"} SetValue(LineSize,-5,mil)}
+    {"Move Object to current layer" a={"M" "<Key>m"} MoveToCurrentLayer(Object)}
     {"MarkCrosshair" a={"Ctrl-M" "Ctrl<Key>m"} MarkCrosshair()}
     {"Select shortest rat" a={"Shift-N" "Shift<Key>n"} AddRats(Close)}
     {"AddRats to selected pins" a={"Shift-O" "Shift<Key>o"}

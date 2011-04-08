@@ -105,8 +105,6 @@ MainMenu =
     {"Element" Attributes(Element)}
    }
    -
-   {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
-   {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
    {"Route Styles" @routestyles
     -
     {"Edit..." AdjustStyle(0)}
@@ -251,6 +249,7 @@ MainMenu =
    {"Disperse selected elements" DisperseElements(Selected)}
    -
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
+   {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
    {"Remove selected objects" RemoveSelected() a={"Shift-Delete" "Shift<Key>Delete"}}
    {"Convert selection to element" Select(Convert)}
    -
@@ -420,6 +419,7 @@ MainMenu =
     {"Clear Selected -2 mil" a={"Shift-Ctrl-K" "Shift Ctrl<Key>k"} ChangeClearSize(SelectedObjects,-2,mil)}
     {"Line Tool size +5 mil" a={"L" "<Key>l"} SetValue(LineSize,+5,mil)}
     {"Line Tool size -5 mil" a={"Shift-L" "Shift<Key>l"} SetValue(LineSize,-5,mil)}
+    {"Move Object to current layer" a={"M" "<Key>m"} MoveToCurrentLayer(Object)}
     {"MarkCrosshair" a={"Ctrl-M" "Ctrl<Key>m"} MarkCrosshair()}
     {"Select shortest rat" a={"Shift-N" "Shift<Key>n"} AddRats(Close)}
     {"AddRats to selected pins" a={"Shift-O" "Shift<Key>o"}
