@@ -830,16 +830,14 @@ ps_set_layer (const char *name, int group, int empty)
       lastcolor = -1;
 
       fprintf (f, "/ts 10000 def\n");
-      fprintf (f,
-	       "/ty ts neg def /tx 0 def /Helvetica findfont ts scalefont setfont\n");
+      fprintf (f, "/ty ts neg def /tx 0 def /Helvetica findfont ts scalefont setfont\n");
       fprintf (f, "/t { moveto lineto stroke } bind def\n");
-      fprintf (f,
-	       "/r { /y2 exch def /x2 exch def /y1 exch def /x1 exch def\n");
-      fprintf (f,
-	       "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
+      fprintf (f, "/dr { /y2 exch def /x2 exch def /y1 exch def /x1 exch def\n");
+      fprintf (f, "      x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath stroke } bind def\n");
+      fprintf (f, "/r { /y2 exch def /x2 exch def /y1 exch def /x1 exch def\n");
+      fprintf (f, "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
       fprintf (f, "/c { 0 360 arc fill } bind def\n");
-      fprintf (f,
-	       "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
+      fprintf (f, "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
       if (drill_helper)
 	fprintf (f,
 		 "/dh { gsave %d setlinewidth 0 gray %d 0 360 arc stroke grestore} bind def\n",
@@ -862,7 +860,6 @@ ps_set_layer (const char *name, int group, int empty)
   if (outline
       && outline_layer
       && outline_layer != PCB->Data->Layer+idx
-      && SL_TYPE (idx) == 0 /* copper */
       && strcmp (name, "outline")
       && strcmp (name, "route"))
     {
@@ -1011,7 +1008,7 @@ static void
 ps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
+  fprintf (f, "%d %d %d %d dr\n", x1, y1, x2, y2);
 }
 
 static void ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
