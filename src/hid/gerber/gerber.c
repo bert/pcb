@@ -776,7 +776,13 @@ gerber_set_layer (const char *name, int group, int empty)
       else if (!outline_layer)
 	{
 	  hidGC gc = gui->make_gc ();
-	  gui->set_line_width (gc, AUTO_OUTLINE_WIDTH);
+	  printf("name %s idx %d\n", name, idx);
+	  if (SL_TYPE (idx) == SL_SILK)
+	    gui->set_line_width (gc, PCB->minSlk);
+	  else if (group >= 0)
+	    gui->set_line_width (gc, PCB->minWid);
+	  else
+	    gui->set_line_width (gc, AUTO_OUTLINE_WIDTH);
 	  gui->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
 	  gui->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
 	  gui->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
@@ -937,17 +943,10 @@ use_gc (hidGC gc, int radius)
 static void
 gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  int x[5];
-  int y[5];
-  x[0] = x[4] = x1;
-  y[0] = y[4] = y1;
-  x[1] = x1;
-  y[1] = y2;
-  x[2] = x2;
-  y[2] = y2;
-  x[3] = x2;
-  y[3] = y1;
-  gerber_fill_polygon (gc, 5, x, y);
+  gerber_draw_line (gc, x1, y1, x1, y2);
+  gerber_draw_line (gc, x1, y1, x2, y1);
+  gerber_draw_line (gc, x1, y2, x2, y2);
+  gerber_draw_line (gc, x2, y1, x2, y2);
 }
 
 static void
