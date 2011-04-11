@@ -513,14 +513,15 @@ HID_Attribute main_attribute_list[] = {
 
   ISET (BackupInterval, 60, "backup-interval", 0),
 
-  LAYERNAME (1, "component"),
-  LAYERNAME (2, "solder"),
-  LAYERNAME (3, "GND"),
-  LAYERNAME (4, "power"),
-  LAYERNAME (5, "signal1"),
-  LAYERNAME (6, "signal2"),
-  LAYERNAME (7, "signal3"),
-  LAYERNAME (8, "signal4"),
+  LAYERNAME (1, "top"),
+  LAYERNAME (2, "ground"),
+  LAYERNAME (3, "signal2"),
+  LAYERNAME (4, "signal3"),
+  LAYERNAME (5, "power"),
+  LAYERNAME (6, "bottom"),
+  LAYERNAME (7, "outline"),
+  LAYERNAME (8, "spare"),
+  SSET (Groups, "1,c:2:3:4:5:6,s:7:8", "groups", 0),
 
   SSET (FontCommand, "",
 	"font-command", 0),
@@ -540,7 +541,6 @@ HID_Attribute main_attribute_list[] = {
   SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
   SSET (FontFile, "default_font", "default-font",
 	"File name of default font."),
-  SSET (Groups, "1,c:2,s:3:4:5:6:7:8", "groups", 0),
   SSET (Routes, "Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000"
 	":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600", "route-styles",
 	0),
