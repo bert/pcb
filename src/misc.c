@@ -565,6 +565,31 @@ FlagIsDataEmpty (int parm)
 /* FLAG(DataEmpty,FlagIsDataEmpty,0) */
 /* FLAG(DataNonEmpty,FlagIsDataEmpty,1) */
 
+bool
+IsLayerEmpty (LayerTypePtr layer)
+{
+  return (layer->LineN == 0
+	  && layer->TextN == 0
+	  && layer->PolygonN == 0
+	  && layer->ArcN == 0);
+}
+
+bool
+IsLayerNumEmpty (int num)
+{
+  return IsLayerEmpty (PCB->Data->Layer+num);
+}
+
+bool
+IsLayerGroupEmpty (int num)
+{
+  int i;
+  for (i=0; i<PCB->LayerGroups.Number[num]; i++)
+    if (!IsLayerNumEmpty (PCB->LayerGroups.Entries[num][i]))
+      return false;
+  return true;
+}
+
 /* ---------------------------------------------------------------------------
  * gets minimum and maximum coordinates
  * returns NULL if layout is empty
