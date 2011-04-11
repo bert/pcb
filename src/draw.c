@@ -826,15 +826,18 @@ text_callback (const BoxType * b, void *cl)
  * draws one non-copper layer
  */
 void
-DrawLayer (LayerTypePtr Layer, const BoxType * screen)
+DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
 {
   struct pin_info info;
 
   /* print the non-clearing polys */
   info.Layer = Layer;
-  info.arg = false;
+  info.arg = clear_pins;
   clip_box = screen;
   r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
+
+  if (clear_pins && TEST_FLAG (CHECKPLANESFLAG, PCB))
+    return;
 
   /* draw all visible lines this layer */
   r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
@@ -844,7 +847,28 @@ DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 
   /* draw the layer text on screen */
   r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+
+  /* We should check for gui->gui here, but it's kinda cool seeing the
+     auto-outline magically disappear when you first add something to
+     the "outline" layer.  */
+  if (IsLayerEmpty (Layer)
+      && (strcmp (Layer->Name, "outline") == 0
+	  || strcmp (Layer->Name, "route") == 0))
+    {
+      gui->set_color (Output.fgGC, Layer->Color);
+      gui->set_line_width (Output.fgGC, PCB->minWid);
+      gui->draw_rect (Output.fgGC,
+		      0, 0,
+		      PCB->MaxWidth, PCB->MaxHeight);
+    }
+
   clip_box = NULL;
+}
+
+void
+DrawLayer (LayerTypePtr Layer, const BoxType * screen)
+{
+  DrawLayerCommon (Layer, screen, false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -870,30 +894,7 @@ DrawLayerGroup (int group, const BoxType * screen)
 	  strcmp (Layer->Name, "route") == 0)
 	rv = 0;
       if (layernum < max_copper_layer && Layer->On)
-	{
-	  /* draw all polygons on this layer */
-	  if (Layer->PolygonN)
-	    {
-	      info.Layer = Layer;
-	      info.arg = true;
-	      r_search (Layer->polygon_tree, screen, NULL, poly_callback,
-			&info);
-	      info.arg = false;
-	    }
-
-	  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-	    continue;
-
-	  /* draw all visible lines this layer */
-	  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
-
-	  /* draw the layer arcs on screen */
-	  r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
-
-	  /* draw the layer text on screen */
-	  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
-
-	}
+	DrawLayerCommon (Layer, screen, true);
     }
   if (n_entries > 1)
     rv = 1;
