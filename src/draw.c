@@ -880,7 +880,6 @@ DrawLayerGroup (int group, const BoxType * screen)
 {
   int i, rv = 1;
   int layernum;
-  struct pin_info info;
   LayerTypePtr Layer;
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
