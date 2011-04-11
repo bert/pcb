@@ -155,35 +155,35 @@ layer_type_to_file_name (int idx)
   switch (idx)
     {
     case SL (SILK, TOP):
-      return "frontsilk";
+      return "topsilk";
     case SL (SILK, BOTTOM):
-      return "backsilk";
+      return "bottomsilk";
     case SL (MASK, TOP):
-      return "frontmask";
+      return "topmask";
     case SL (MASK, BOTTOM):
-      return "backmask";
+      return "bottommask";
     case SL (PDRILL, 0):
       return "plated-drill";
     case SL (UDRILL, 0):
       return "unplated-drill";
     case SL (PASTE, TOP):
-      return "frontpaste";
+      return "toppaste";
     case SL (PASTE, BOTTOM):
-      return "backpaste";
+      return "bottompaste";
     case SL (INVISIBLE, 0):
       return "invisible";
     case SL (FAB, 0):
       return "fab";
     case SL (ASSY, TOP):
-      return "frontassembly";
+      return "topassembly";
     case SL (ASSY, BOTTOM):
-      return "backassembly";
+      return "bottomassembly";
     default:
       group = GetLayerGroupNumberByNumber(idx);
       if (group == GetLayerGroupNumberByNumber(component_silk_layer))
-	return "front";
+	return "top";
       else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
-	return "back";
+	return "bottom";
       else if (PCB->LayerGroups.Number[group] == 1
 	       && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
 		   strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
