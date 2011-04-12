@@ -882,12 +882,16 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
             {
             case 'c':
             case 'C':
+            case 't':
+            case 'T':
               layer = LayerN + COMPONENT_LAYER;
               c_set = true;
               break;
 
             case 's':
             case 'S':
+            case 'b':
+            case 'B':
               layer = LayerN + SOLDER_LAYER;
               s_set = true;
               break;
