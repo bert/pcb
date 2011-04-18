@@ -46,18 +46,18 @@
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
 
-
 void CrosshairOn (void);
 void CrosshairOff (void);
 void HideCrosshair (void);
 void RestoreCrosshair (void);
+void DrawAttached (void);
+void DrawMark (void);
 void MoveCrosshairRelative (LocationType, LocationType);
 bool MoveCrosshairAbsolute (LocationType, LocationType);
 void SetCrosshairRange (LocationType, LocationType, LocationType,
 			LocationType);
 void InitCrosshair (void);
 void DestroyCrosshair (void);
-void DrawMark (void);
 void FitCrosshairIntoGrid (LocationType, LocationType);
 
 #endif

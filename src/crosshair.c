@@ -565,10 +565,14 @@ XORDrawMoveOrCopyObject (void)
 /* ---------------------------------------------------------------------------
  * draws additional stuff that follows the crosshair
  */
-static void
+void
 DrawAttached (void)
 {
   BDimension s;
+
+  if (!Crosshair.On)
+    return;
+
   switch (Settings.Mode)
     {
     case VIA_MODE:
@@ -684,6 +688,28 @@ DrawAttached (void)
     }
 }
 
+
+/* --------------------------------------------------------------------------
+ * draw the marker position
+ */
+void
+DrawMark (void)
+{
+  /* Mark is not drawn when the crosshair is off, or when it is not set */
+  if (!Crosshair.On || !Marked.status)
+    return;
+
+  gui->draw_line (Crosshair.GC,
+                  Marked.X - MARK_SIZE,
+                  Marked.Y - MARK_SIZE,
+                  Marked.X + MARK_SIZE, Marked.Y + MARK_SIZE);
+  gui->draw_line (Crosshair.GC,
+                  Marked.X + MARK_SIZE,
+                  Marked.Y - MARK_SIZE,
+                  Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
+}
+
+
 /* ---------------------------------------------------------------------------
  * switches crosshair on
  */
@@ -706,9 +732,9 @@ CrosshairOff (void)
 {
   if (Crosshair.On)
     {
-      Crosshair.On = false;
       DrawAttached ();
       DrawMark ();
+      Crosshair.On = false;
     }
 }
 
@@ -1084,26 +1110,6 @@ SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
 
   /* force update of position */
   MoveCrosshairRelative (0, 0);
-}
-
-/* --------------------------------------------------------------------------
- * draw the marker position
- * if argument is true, draw only if it is visible, otherwise draw it regardless
- */
-void
-DrawMark (void)
-{
-  if (Marked.status)
-    {
-      gui->draw_line (Crosshair.GC,
-		      Marked.X - MARK_SIZE,
-		      Marked.Y - MARK_SIZE,
-		      Marked.X + MARK_SIZE, Marked.Y + MARK_SIZE);
-      gui->draw_line (Crosshair.GC,
-		      Marked.X + MARK_SIZE,
-		      Marked.Y - MARK_SIZE,
-		      Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
-    }
 }
 
 /* ---------------------------------------------------------------------------

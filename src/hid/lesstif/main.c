@@ -2433,7 +2433,6 @@ idle_proc (XtPointer dummy)
       int mx, my;
       BoxType region;
       lesstif_use_mask (0);
-      Crosshair.On = 0;
       pixmap = main_pixmap;
       mx = view_width;
       my = view_height;
@@ -2519,7 +2518,8 @@ idle_proc (XtPointer dummy)
       XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
 		 view_height, 0, 0);
       pixmap = window;
-      CrosshairOn ();
+      DrawAttached ();
+      DrawMark ();
       need_redraw = 0;
     }
 
