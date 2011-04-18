@@ -1124,7 +1124,7 @@ InitCrosshair (void)
   /* fake a crosshair off entry on stack */
   CrosshairStackLocation = 0;
   CrosshairStack[CrosshairStackLocation++] = true;
-  Crosshair.On = false;
+  Crosshair.On = true;
 
   /* set initial shape */
   Crosshair.shape = Basic_Crosshair_Shape;

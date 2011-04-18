@@ -728,7 +728,6 @@ ghid_port_window_enter_cb (GtkWidget * widget,
     {
       ghid_screen_update ();
     }
-  CrosshairOn ();
   return FALSE;
 }
 
