@@ -54,6 +54,10 @@
 #include <dmalloc.h>
 #endif
 
+#ifndef MAXINT
+#define MAXINT (((unsigned int)(~0))>>1)
+#endif
+
 RCSID ("$Id$");
 
 #define	SMALL_SMALL_TEXT_SIZE	0
@@ -75,7 +79,7 @@ FloatPolyType, *FloatPolyTypePtr;
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static BoxType Block;
+static BoxType Block = {MAXINT, MAXINT, -MAXINT, -MAXINT};
 static bool Gathering = true;
 
 static int doing_pinout = 0;
@@ -190,12 +194,14 @@ Draw (void)
 
   /* clear and create event if not drawing to a pixmap
    */
-  gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2);
+  if (Block.X1 <= Block.X2 && Block.Y1 <= Block.Y2)
+    gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2);
 
   RestoreCrosshair ();
 
   /* shrink the update block */
-  Block.X1 = Block.Y1 = Block.X2 = Block.Y2 = 0;
+  Block.X1 = Block.Y1 =  MAXINT;
+  Block.X2 = Block.Y2 = -MAXINT;
 }
 
 /* ---------------------------------------------------------------------------
