@@ -406,8 +406,7 @@ libnelma_a_CPPFLAGS = -I./hid/nelma
 LIBNELMA_SRCS = \
 	dolists.h \
 	hid/hidint.h \
-	hid/nelma/nelma.c \
-	hid/nelma/nelma.h 
+	hid/nelma/nelma.c
 libnelma_a_SOURCES = ${LIBNELMA_SRCS} hid/nelma/nelma_lists.h
 
 hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile

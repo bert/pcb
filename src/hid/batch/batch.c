@@ -345,67 +345,59 @@ batch_show_item (void *item)
 {
 }
 
-HID batch_gui = {
-  sizeof (HID),
-  "batch",
-  "Batch-mode GUI for non-interactive use.",
-  1, 0, 0, 0, 0, 0,
-  batch_get_export_options,
-  batch_do_export,
-  batch_parse_arguments,
-  batch_invalidate_lr,
-  batch_invalidate_all,
-  batch_set_layer,
-  batch_make_gc,
-  batch_destroy_gc,
-  batch_use_mask,
-  batch_set_color,
-  batch_set_line_cap,
-  batch_set_line_width,
-  batch_set_draw_xor,
-  batch_set_draw_faded,
-  batch_set_line_cap_angle,
-  batch_draw_line,
-  batch_draw_arc,
-  batch_draw_rect,
-  batch_fill_circle,
-  batch_fill_polygon,
-  batch_fill_pcb_polygon,
-  batch_thindraw_pcb_polygon,
-  batch_fill_rect,
-  batch_calibrate,
-  batch_shift_is_pressed,
-  batch_control_is_pressed,
-  batch_mod1_is_pressed,
-  batch_get_coords,
-  batch_set_crosshair,
-  batch_add_timer,
-  batch_stop_timer,
-  batch_watch_file,
-  batch_unwatch_file,
-  batch_add_block_hook,
-  batch_stop_block_hook,
-  0 /* batch_log */,
-  0 /* batch_logv */,
-  0 /* batch_confirm_dialog */,
-  0 /* batch_close_confirm_dialog */,
-  0 /* batch_report_dialog */,
-  0 /* batch_prompt_for */,
-  0 /* batch_fileselect */,
-  batch_attribute_dialog,
-  batch_show_item,
-  0 /* batch_beep */,
-  0 /* batch_progress */,
-  0 /* batch_drc_gui */,
-  0 /* batch_edit_attributes */
-};
-
 #include "dolists.h"
+
+static HID batch_hid;
 
 void
 hid_batch_init ()
 {
-  apply_default_hid (&batch_gui, 0);
-  hid_register_hid (&batch_gui);
+  memset (&batch_hid, 0, sizeof (HID));
+
+  batch_hid.struct_size           = sizeof (HID);
+  batch_hid.name                  = "batch";
+  batch_hid.description           = "Batch-mode GUI for non-interactive use.";
+  batch_hid.gui                   = 1;
+
+  batch_hid.get_export_options    = batch_get_export_options;
+  batch_hid.do_export             = batch_do_export;
+  batch_hid.parse_arguments       = batch_parse_arguments;
+  batch_hid.invalidate_lr         = batch_invalidate_lr;
+  batch_hid.invalidate_all        = batch_invalidate_all;
+  batch_hid.set_layer             = batch_set_layer;
+  batch_hid.make_gc               = batch_make_gc;
+  batch_hid.destroy_gc            = batch_destroy_gc;
+  batch_hid.use_mask              = batch_use_mask;
+  batch_hid.set_color             = batch_set_color;
+  batch_hid.set_line_cap          = batch_set_line_cap;
+  batch_hid.set_line_width        = batch_set_line_width;
+  batch_hid.set_draw_xor          = batch_set_draw_xor;
+  batch_hid.set_draw_faded        = batch_set_draw_faded;
+  batch_hid.set_line_cap_angle    = batch_set_line_cap_angle;
+  batch_hid.draw_line             = batch_draw_line;
+  batch_hid.draw_arc              = batch_draw_arc;
+  batch_hid.draw_rect             = batch_draw_rect;
+  batch_hid.fill_circle           = batch_fill_circle;
+  batch_hid.fill_polygon          = batch_fill_polygon;
+  batch_hid.fill_pcb_polygon      = batch_fill_pcb_polygon;
+  batch_hid.thindraw_pcb_polygon  = batch_thindraw_pcb_polygon;
+  batch_hid.fill_rect             = batch_fill_rect;
+  batch_hid.calibrate             = batch_calibrate;
+  batch_hid.shift_is_pressed      = batch_shift_is_pressed;
+  batch_hid.control_is_pressed    = batch_control_is_pressed;
+  batch_hid.mod1_is_pressed       = batch_mod1_is_pressed;
+  batch_hid.get_coords            = batch_get_coords;
+  batch_hid.set_crosshair         = batch_set_crosshair;
+  batch_hid.add_timer             = batch_add_timer;
+  batch_hid.stop_timer            = batch_stop_timer;
+  batch_hid.watch_file            = batch_watch_file;
+  batch_hid.unwatch_file          = batch_unwatch_file;
+  batch_hid.add_block_hook        = batch_add_block_hook;
+  batch_hid.stop_block_hook       = batch_stop_block_hook;
+  batch_hid.attribute_dialog      = batch_attribute_dialog;
+  batch_hid.show_item             = batch_show_item;
+
+  apply_default_hid (&batch_hid, 0);
+  hid_register_hid (&batch_hid);
 #include "batch_lists.h"
 }

@@ -72,7 +72,6 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "hid/common/draw_helpers.h"
-#include "nelma.h"
 
 #include <gd.h>
 
@@ -106,6 +105,8 @@ struct hid_gc_struct {
 	struct color_struct *color;
 	gdImagePtr      brush;
 };
+
+static HID nelma_hid;
 
 static struct color_struct *black = NULL, *white = NULL;
 static int      linewidth = -1;
@@ -1044,73 +1045,44 @@ nelma_set_crosshair(int x, int y, int a)
 
 /* *** Miscellaneous ******************************************************* */
 
-HID             nelma_hid = {
-	sizeof(HID),
-	"nelma",
-	"Numerical analysis package export.",
-	0,			/* gui */
-	0,			/* printer */
-	1,			/* exporter */
-	1,			/* poly before */
-	0,			/* poly after */
-	0,			/* poly dicer */
-	nelma_get_export_options,
-	nelma_do_export,
-	nelma_parse_arguments,
-	0 /* nelma_invalidate_lr */ ,
-	0 /* nelma_invalidate_all */ ,
-	nelma_set_layer,
-	nelma_make_gc,
-	nelma_destroy_gc,
-	nelma_use_mask,
-	nelma_set_color,
-	nelma_set_line_cap,
-	nelma_set_line_width,
-	nelma_set_draw_xor,
-	nelma_set_draw_faded,
-	nelma_set_line_cap_angle,
-	nelma_draw_line,
-	nelma_draw_arc,
-	nelma_draw_rect,
-	nelma_fill_circle,
-	nelma_fill_polygon,
-	common_fill_pcb_polygon,
-	0 /* nelma_thindraw_pcb_polygon */ ,
-	nelma_fill_rect,
-	nelma_calibrate,
-	0 /* nelma_shift_is_pressed */ ,
-	0 /* nelma_control_is_pressed */ ,
-	0 /* nelma_mod1_is_pressed */ ,
-	0 /* nelma_get_coords */ ,
-	nelma_set_crosshair,
-	0 /* nelma_add_timer */ ,
-	0 /* nelma_stop_timer */ ,
-	0 /* nelma_watch_file */ ,
-	0 /* nelma_unwatch_file */ ,
-	0 /* nelma_add_block_hook */ ,
-	0 /* nelma_stop_block_hook */ ,
-	0 /* nelma_log */ ,
-	0 /* nelma_logv */ ,
-	0 /* nelma_confirm_dialog */ ,
-	0 /* nelma_close_confirm_dialog */ ,
-	0 /* nelma_report_dialog */ ,
-	0 /* nelma_prompt_for */ ,
-	0 /* nelma_fileselect */ ,
-	0 /* nelma_attribute_dialog */ ,
-	0 /* nelma_show_item */ ,
-	0 /* nelma_beep */ ,
-	0 /* nelma_progress */ ,
-	0 /* nelma_drc_gui */ ,
-	0 /* nelma_edit_attributes */
-};
-
 #include "dolists.h"
 
 void
 hid_nelma_init()
 {
-	apply_default_hid(&nelma_hid, 0);
-	hid_register_hid(&nelma_hid);
+  memset (&nelma_hid, 0, sizeof (HID));
+
+  nelma_hid.struct_size         = sizeof (HID);
+  nelma_hid.name                = "nelma";
+  nelma_hid.description         = "Numerical analysis package export.";
+  nelma_hid.exporter            = 1;
+  nelma_hid.poly_before         = 1;
+
+  nelma_hid.get_export_options  = nelma_get_export_options;
+  nelma_hid.do_export           = nelma_do_export;
+  nelma_hid.parse_arguments     = nelma_parse_arguments;
+  nelma_hid.set_layer           = nelma_set_layer;
+  nelma_hid.make_gc             = nelma_make_gc;
+  nelma_hid.destroy_gc          = nelma_destroy_gc;
+  nelma_hid.use_mask            = nelma_use_mask;
+  nelma_hid.set_color           = nelma_set_color;
+  nelma_hid.set_line_cap        = nelma_set_line_cap;
+  nelma_hid.set_line_width      = nelma_set_line_width;
+  nelma_hid.set_draw_xor        = nelma_set_draw_xor;
+  nelma_hid.set_draw_faded      = nelma_set_draw_faded;
+  nelma_hid.set_line_cap_angle  = nelma_set_line_cap_angle;
+  nelma_hid.draw_line           = nelma_draw_line;
+  nelma_hid.draw_arc            = nelma_draw_arc;
+  nelma_hid.draw_rect           = nelma_draw_rect;
+  nelma_hid.fill_circle         = nelma_fill_circle;
+  nelma_hid.fill_polygon        = nelma_fill_polygon;
+  nelma_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
+  nelma_hid.fill_rect           = nelma_fill_rect;
+  nelma_hid.calibrate           = nelma_calibrate;
+  nelma_hid.set_crosshair       = nelma_set_crosshair;
+
+  apply_default_hid (&nelma_hid, 0);
+  hid_register_hid (&nelma_hid);
 
 #include "nelma_lists.h"
 }

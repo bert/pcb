@@ -1028,70 +1028,42 @@ gcode_set_crosshair (int x, int y, int a)
 
 /* *** Miscellaneous ******************************************************* */
 
-HID gcode_hid = {
-  sizeof (HID),
-  "gcode",
-  "G-CODE export.",
-  0,				/* gui */
-  0,				/* printer */
-  1,				/* exporter */
-  1,				/* poly before */
-  0,				/* poly after */
-  0,				/* poly dicer */
-  gcode_get_export_options,
-  gcode_do_export,
-  gcode_parse_arguments,
-  0 /* gcode_invalidate_lr */ ,
-  0 /* gcode_invalidate_all */ ,
-  gcode_set_layer,
-  gcode_make_gc,
-  gcode_destroy_gc,
-  gcode_use_mask,
-  gcode_set_color,
-  gcode_set_line_cap,
-  gcode_set_line_width,
-  gcode_set_draw_xor,
-  gcode_set_draw_faded,
-  gcode_set_line_cap_angle,
-  gcode_draw_line,
-  gcode_draw_arc,
-  gcode_draw_rect,
-  gcode_fill_circle,
-  gcode_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* nelma_thindraw_pcb_polygon */ ,
-  gcode_fill_rect,
-  gcode_calibrate,
-  0 /* gcode_shift_is_pressed */ ,
-  0 /* gcode_control_is_pressed */ ,
-  0 /* gcode_mod1_is_pressed */ ,
-  0 /* gcode_get_coords */ ,
-  gcode_set_crosshair,
-  0 /* gcode_add_timer */ ,
-  0 /* gcode_stop_timer */ ,
-  0 /* gcode_watch_file */ ,
-  0 /* gcode_unwatch_file */ ,
-  0 /* gcode_add_block_hook */ ,
-  0 /* gcode_stop_block_hook */ ,
-  0 /* gcode_log */ ,
-  0 /* gcode_logv */ ,
-  0 /* gcode_confirm_dialog */ ,
-  0 /* gcode_close_confirm_dialog */ ,
-  0 /* gcode_report_dialog */ ,
-  0 /* gcode_prompt_for */ ,
-  0 /* gcode_fileselect */ ,
-  0 /* gcode_attribute_dialog */ ,
-  0 /* gcode_show_item */ ,
-  0 /* gcode_beep */ ,
-  0 /* gcode_progress */ ,
-  0				/* gcode_drc_gui */
-};
-
 #include "dolists.h"
+
+HID gcode_hid;
 
 void
 hid_gcode_init ()
 {
+  gcode_hid.struct_size         = sizeof (HID);
+  gcode_hid.name                = "gcode";
+  gcode_hid.description         = "G-CODE export.";
+  gcode_hid.exporter            = 1;
+  gcode_hid.poly_before         = 1;
+
+  gcode_hid.get_export_options  = gcode_get_export_options;
+  gcode_hid.do_export           = gcode_do_export;
+  gcode_hid.parse_arguments     = gcode_parse_arguments;
+  gcode_hid.set_layer           = gcode_set_layer;
+  gcode_hid.make_gc             = gcode_make_gc;
+  gcode_hid.destroy_gc          = gcode_destroy_gc;
+  gcode_hid.use_mask            = gcode_use_mask;
+  gcode_hid.set_color           = gcode_set_color;
+  gcode_hid.set_line_cap        = gcode_set_line_cap;
+  gcode_hid.set_line_width      = gcode_set_line_width;
+  gcode_hid.set_draw_xor        = gcode_set_draw_xor;
+  gcode_hid.set_draw_faded      = gcode_set_draw_faded;
+  gcode_hid.set_line_cap_angle  = gcode_set_line_cap_angle;
+  gcode_hid.draw_line           = gcode_draw_line;
+  gcode_hid.draw_arc            = gcode_draw_arc;
+  gcode_hid.draw_rect           = gcode_draw_rect;
+  gcode_hid.fill_circle         = gcode_fill_circle;
+  gcode_hid.fill_polygon        = gcode_fill_polygon;
+  gcode_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
+  gcode_hid.fill_rect           = gcode_fill_rect;
+  gcode_hid.calibrate           = gcode_calibrate;
+  gcode_hid.set_crosshair       = gcode_set_crosshair;
+
   apply_default_hid (&gcode_hid, 0);
   hid_register_hid (&gcode_hid);
 

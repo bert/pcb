@@ -972,68 +972,6 @@ HID_DRC_GUI ghid_drc_gui = {
 
 extern HID_Attribute *ghid_get_export_options (int *);
 
-HID ghid_hid = {
-  sizeof (HID),
-  "gtk",
-  "Gtk - The Gimp Toolkit",
-  1,				/* gui */
-  0,				/* printer */
-  0,				/* exporter */
-  0,				/* poly before */
-  1,				/* poly after */
-  0,				/* poly dicer */
-
-  ghid_get_export_options,
-  ghid_do_export,
-  ghid_parse_arguments,
-  ghid_invalidate_lr,
-  ghid_invalidate_all,
-  ghid_set_layer,
-  ghid_make_gc,
-  ghid_destroy_gc,
-  ghid_use_mask,
-  ghid_set_color,
-  ghid_set_line_cap,
-  ghid_set_line_width,
-  ghid_set_draw_xor,
-  ghid_set_draw_faded,
-  ghid_set_line_cap_angle,
-  ghid_draw_line,
-  ghid_draw_arc,
-  ghid_draw_rect,
-  ghid_fill_circle,
-  ghid_fill_polygon,
-  common_fill_pcb_polygon,
-  common_thindraw_pcb_polygon,
-  ghid_fill_rect,
-
-  ghid_calibrate,
-  ghid_shift_is_pressed,
-  ghid_control_is_pressed,
-  ghid_mod1_is_pressed,
-  ghid_get_coords,
-  ghid_set_crosshair,
-  ghid_add_timer,
-  ghid_stop_timer,
-  ghid_watch_file,
-  ghid_unwatch_file,
-  ghid_add_block_hook,
-  ghid_stop_block_hook,
-
-  ghid_log,
-  ghid_logv,
-  ghid_confirm_dialog,
-  ghid_close_confirm_dialog,
-  ghid_report_dialog,
-  ghid_prompt_for,
-  ghid_fileselect,
-  ghid_attribute_dialog,
-  ghid_show_item,
-  ghid_beep,
-  ghid_progress,
-  &ghid_drc_gui,
-  ghid_attributes
-};
 
 /* ------------------------------------------------------------ 
  *
@@ -2138,14 +2076,17 @@ REGISTER_FLAGS (ghid_main_flag_list)
 #include <winreg.h>
 #endif
 
+HID ghid_hid;
+
 void
 hid_gtk_init ()
 {
-  #ifdef WIN32
-
+#ifdef WIN32
   char * tmps;
   char * share_dir;
+#endif
 
+#ifdef WIN32
   tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
   share_dir = (char *) malloc(strlen(tmps) + 
@@ -2155,7 +2096,66 @@ hid_gtk_init ()
   free (tmps);
 #undef REST_OF_PATH
   printf ("\"Share\" installation path is \"%s\"\n", share_dir);
-#endif  
+#endif
+
+  memset (&ghid_hid, 0, sizeof (HID));
+
+  ghid_hid.struct_size          = sizeof (HID);
+  ghid_hid.name                 = "gtk";
+  ghid_hid.description          = "Gtk - The Gimp Toolkit";
+  ghid_hid.gui                  = 1;
+  ghid_hid.poly_after           = 1;
+
+  ghid_hid.get_export_options   = ghid_get_export_options;
+  ghid_hid.do_export            = ghid_do_export;
+  ghid_hid.parse_arguments      = ghid_parse_arguments;
+  ghid_hid.invalidate_lr        = ghid_invalidate_lr;
+  ghid_hid.invalidate_all       = ghid_invalidate_all;
+  ghid_hid.set_layer            = ghid_set_layer;
+  ghid_hid.make_gc              = ghid_make_gc;
+  ghid_hid.destroy_gc           = ghid_destroy_gc;
+  ghid_hid.use_mask             = ghid_use_mask;
+  ghid_hid.set_color            = ghid_set_color;
+  ghid_hid.set_line_cap         = ghid_set_line_cap;
+  ghid_hid.set_line_width       = ghid_set_line_width;
+  ghid_hid.set_draw_xor         = ghid_set_draw_xor;
+  ghid_hid.set_draw_faded       = ghid_set_draw_faded;
+  ghid_hid.set_line_cap_angle   = ghid_set_line_cap_angle;
+  ghid_hid.draw_line            = ghid_draw_line;
+  ghid_hid.draw_arc             = ghid_draw_arc;
+  ghid_hid.draw_rect            = ghid_draw_rect;
+  ghid_hid.fill_circle          = ghid_fill_circle;
+  ghid_hid.fill_polygon         = ghid_fill_polygon;
+  ghid_hid.fill_pcb_polygon     = common_fill_pcb_polygon;
+  ghid_hid.thindraw_pcb_polygon = common_thindraw_pcb_polygon;
+  ghid_hid.fill_rect            = ghid_fill_rect;
+
+  ghid_hid.calibrate            = ghid_calibrate;
+  ghid_hid.shift_is_pressed     = ghid_shift_is_pressed;
+  ghid_hid.control_is_pressed   = ghid_control_is_pressed;
+  ghid_hid.mod1_is_pressed      = ghid_mod1_is_pressed,
+  ghid_hid.get_coords           = ghid_get_coords;
+  ghid_hid.set_crosshair        = ghid_set_crosshair;
+  ghid_hid.add_timer            = ghid_add_timer;
+  ghid_hid.stop_timer           = ghid_stop_timer;
+  ghid_hid.watch_file           = ghid_watch_file;
+  ghid_hid.unwatch_file         = ghid_unwatch_file;
+  ghid_hid.add_block_hook       = ghid_add_block_hook;
+  ghid_hid.stop_block_hook      = ghid_stop_block_hook;
+
+  ghid_hid.log                  = ghid_log;
+  ghid_hid.logv                 = ghid_logv;
+  ghid_hid.confirm_dialog       = ghid_confirm_dialog;
+  ghid_hid.close_confirm_dialog = ghid_close_confirm_dialog;
+  ghid_hid.report_dialog        = ghid_report_dialog;
+  ghid_hid.prompt_for           = ghid_prompt_for;
+  ghid_hid.fileselect           = ghid_fileselect;
+  ghid_hid.attribute_dialog     = ghid_attribute_dialog;
+  ghid_hid.show_item            = ghid_show_item;
+  ghid_hid.beep                 = ghid_beep;
+  ghid_hid.progress             = ghid_progress;
+  ghid_hid.drc_gui              = &ghid_drc_gui,
+  ghid_hid.edit_attributes      = ghid_attributes;
 
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"

@@ -111,64 +111,24 @@ lpr_calibrate (double xval, double yval)
   ps_calibrate_1 (xval, yval, 1);
 }
 
-HID lpr_hid = {
-  sizeof (HID),
-  "lpr",
-  "Postscript print.",
-  0, 1, 0, 1, 0, 0,
-  lpr_get_export_options,
-  lpr_do_export,
-  lpr_parse_arguments,
-  0 /* lpr_invalidate_lr */ ,
-  0 /* lpr_invalidate_all */ ,
-  0 /* lpr_set_layer */ ,
-  0 /* lpr_make_gc */ ,
-  0 /* lpr_destroy_gc */ ,
-  0 /* lpr_use_mask */ ,
-  0 /* lpr_set_color */ ,
-  0 /* lpr_set_line_cap */ ,
-  0 /* lpr_set_line_width */ ,
-  0 /* lpr_set_draw_xor */ ,
-  0 /* lpr_set_draw_faded */ ,
-  0 /* lpr_set_line_cap_angle */ ,
-  0 /* lpr_draw_line */ ,
-  0 /* lpr_draw_arc */ ,
-  0 /* lpr_draw_rect */ ,
-  0 /* lpr_fill_circle */ ,
-  0 /* lpr_fill_polygon */ ,
-  0 /* lpr_fill_pcb_polygon */ ,
-  0 /* lpr_thindraw_pcb_polygon */ ,
-  0 /* lpr_fill_rect */ ,
-  lpr_calibrate,
-  0 /* lpr_shift_is_pressed */ ,
-  0 /* lpr_control_is_pressed */ ,
-  0 /* lpr_mod1_is_pressed */ ,
-  0 /* lpr_get_coords */ ,
-  0 /* lpr_set_crosshair */ ,
-  0 /* lpr_add_timer */ ,
-  0 /* lpr_stop_timer */ ,
-  0 /* lpr_watch_file */ ,
-  0 /* lpr_unwatch_file */ ,
-  0 /* lpr_add_block_hook */ ,
-  0 /* lpr_stop_block_hook */ ,
-  0 /* lpr_log */ ,
-  0 /* lpr_logv */ ,
-  0 /* lpr_confirm_dialog */ ,
-  0 /* lpr_close_confirm_dialog */ ,
-  0 /* lpr_report_dialog */ ,
-  0 /* lpr_prompt_for */ ,
-  0 /* lpr_fileselect */ ,
-  0 /* lpr_attribute_dialog */ ,
-  0 /* lpr_show_item */ ,
-  0 /* lpr_beep */ ,
-  0 /* lpr_progress */ ,
-  0 /* lpr_drc_gui */ ,
-  0 /* lpr_edit_attributes */
-};
+static HID lpr_hid;
 
 void
 hid_lpr_init ()
 {
+  memset (&lpr_hid, 0, sizeof (HID));
+
+  lpr_hid.struct_size         = sizeof (HID);
+  lpr_hid.name                = "lpr";
+  lpr_hid.description         = "Postscript print.";
+  lpr_hid.printer             = 1;
+  lpr_hid.poly_before         = 1;
+
+  lpr_hid.get_export_options  = lpr_get_export_options;
+  lpr_hid.do_export           = lpr_do_export;
+  lpr_hid.parse_arguments     = lpr_parse_arguments;
+  lpr_hid.calibrate           = lpr_calibrate;
+
   apply_default_hid (&lpr_hid, &ps_hid);
   apply_default_hid (&lpr_hid, 0);
   hid_register_hid (&lpr_hid);

@@ -536,64 +536,22 @@ bom_parse_arguments (int *argc, char ***argv)
   hid_parse_command_line (argc, argv);
 }
 
-HID bom_hid = {
-  sizeof (HID),
-  "bom",
-  "Exports a Bill of Materials",
-  0, 0, 1, 0, 0, 0,
-  bom_get_export_options,
-  bom_do_export,
-  bom_parse_arguments,
-  0,				/* bom_invalidate_lr */
-  0,				/* bom_invalidate_all */
-  0,				/* bom_set_layer */
-  0,				/* bom_make_gc */
-  0,				/* bom_destroy_gc */
-  0,				/* bom_use_mask */
-  0,				/* bom_set_color */
-  0,				/* bom_set_line_cap */
-  0,				/* bom_set_line_width */
-  0,				/* bom_set_draw_xor */
-  0,				/* bom_set_draw_faded */
-  0,				/* bom_set_line_cap_angle */
-  0,				/* bom_draw_line */
-  0,				/* bom_draw_arc */
-  0,				/* bom_draw_rect */
-  0,				/* bom_fill_circle */
-  0,				/* bom_fill_polygon */
-  0,				/* bom_fill_pcb_polygon */
-  0,				/* bom_thindraw_pcb_polygon */
-  0,				/* bom_fill_rect */
-  0,				/* bom_calibrate */
-  0,				/* bom_shift_is_pressed */
-  0,				/* bom_control_is_pressed */
-  0,				/* bom_mod1_is_pressed */
-  0,				/* bom_get_coords */
-  0,				/* bom_set_crosshair */
-  0,				/* bom_add_timer */
-  0,				/* bom_stop_timer */
-  0,				/* bom_watch_file */
-  0,				/* bom_unwatch_file */
-  0,				/* bom_add_block_hook */
-  0,				/* bom_stop_block_hook */
-  0,				/* bom_log */
-  0,				/* bom_logv */
-  0,				/* bom_confirm_dialog */
-  0,				/* bom_close_confirm_dialog */
-  0,				/* bom_report_dialog */
-  0,				/* bom_prompt_for */
-  0,				/* bom_fileselect */
-  0,				/* bom_attribute_dialog */
-  0,				/* bom_show_item */
-  0,				/* bom_beep */
-  0,				/* bom_progress */
-  0,				/* bom_drc_gui */
-  0,				/* bom_edit_attributes */
-};
+HID bom_hid;
 
 void
 hid_bom_init ()
 {
+  memset (&bom_hid, 0, sizeof (HID));
+
+  bom_hid.struct_size         = sizeof (HID);
+  bom_hid.name                = "bom";
+  bom_hid.description         = "Exports a Bill of Materials";
+  bom_hid.exporter            = 1;
+
+  bom_hid.get_export_options  = bom_get_export_options;
+  bom_hid.do_export           = bom_do_export;
+  bom_hid.parse_arguments     = bom_parse_arguments;
+
   apply_default_hid (&bom_hid, 0);
   hid_register_hid (&bom_hid);
 }

@@ -58,8 +58,7 @@ typedef struct hid_gc_struct
   char erase;
 } hid_gc_struct;
 
-extern HID lesstif_gui;
-extern HID lesstif_extents;
+static HID lesstif_hid;
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GUI function %s\n", __FUNCTION__), abort()
 
@@ -779,7 +778,7 @@ Benchmark (int argc, char **argv, int x, int y)
   do
     {
       XFillRectangle (display, pixmap, bg_gc, 0, 0, view_width, view_height);
-      hid_expose_callback (&lesstif_gui, &region, 0);
+      hid_expose_callback (&lesstif_hid, &region, 0);
       XSync (display, 0);
       time (&end);
       i++;
@@ -2513,7 +2512,7 @@ idle_proc (XtPointer dummy)
 	    }
 	}
       DrawBackgroundImage();
-      hid_expose_callback (&lesstif_gui, &region, 0);
+      hid_expose_callback (&lesstif_hid, &region, 0);
       draw_grid ();
       lesstif_use_mask (0);
       XSetFunction (display, my_gc, GXcopy);
@@ -2940,7 +2939,7 @@ lesstif_make_gc (void)
 {
   hidGC rv = (hid_gc_struct *) malloc (sizeof (hid_gc_struct));
   memset (rv, 0, sizeof (hid_gc_struct));
-  rv->me_pointer = &lesstif_gui;
+  rv->me_pointer = &lesstif_hid;
   return rv;
 }
 
@@ -3085,7 +3084,7 @@ static void
 set_gc (hidGC gc)
 {
   int cap, join, width;
-  if (gc->me_pointer != &lesstif_gui)
+  if (gc->me_pointer != &lesstif_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to lesstif HID\n");
       abort ();
@@ -3692,7 +3691,7 @@ pinout_callback (Widget da, PinoutData * pd,
   region.Y2 = PCB->MaxHeight;
 
   XFillRectangle (display, pixmap, bg_gc, 0, 0, pd->v_width, pd->v_height);
-  hid_expose_callback (&lesstif_gui, &region, pd->item);
+  hid_expose_callback (&lesstif_hid, &region, pd->item);
 
   pinout = 0;
   view_left_x = save_vx;
@@ -3796,74 +3795,69 @@ lesstif_progress (int so_far, int total, const char *message)
   return 0;
 }
 
-HID lesstif_gui = {
-  sizeof (HID),
-  "lesstif",
-  "LessTif - a Motif clone for X/Unix",
-  1,				/* gui */
-  0,				/* printer */
-  0,				/* exporter */
-  1,				/* poly before */
-  0,				/* poly after */
-  0,				/* poly dicer */
-
-  lesstif_get_export_options,
-  lesstif_do_export,
-  lesstif_parse_arguments,
-  lesstif_invalidate_lr,
-  lesstif_invalidate_all,
-  lesstif_set_layer,
-  lesstif_make_gc,
-  lesstif_destroy_gc,
-  lesstif_use_mask,
-  lesstif_set_color,
-  lesstif_set_line_cap,
-  lesstif_set_line_width,
-  lesstif_set_draw_xor,
-  lesstif_set_draw_faded,
-  lesstif_set_line_cap_angle,
-  lesstif_draw_line,
-  lesstif_draw_arc,
-  lesstif_draw_rect,
-  lesstif_fill_circle,
-  lesstif_fill_polygon,
-  common_fill_pcb_polygon,
-  common_thindraw_pcb_polygon,
-  lesstif_fill_rect,
-
-  lesstif_calibrate,
-  lesstif_shift_is_pressed,
-  lesstif_control_is_pressed,
-  lesstif_mod1_is_pressed,
-  lesstif_get_coords,
-  lesstif_set_crosshair,
-  lesstif_add_timer,
-  lesstif_stop_timer,
-  lesstif_watch_file,
-  lesstif_unwatch_file,
-  lesstif_add_block_hook,
-  lesstif_stop_block_hook,
-
-  lesstif_log,
-  lesstif_logv,
-  lesstif_confirm_dialog,
-  lesstif_close_confirm_dialog,
-  lesstif_report_dialog,
-  lesstif_prompt_for,
-  lesstif_fileselect,
-  lesstif_attribute_dialog,
-  lesstif_show_item,
-  lesstif_beep,
-  lesstif_progress,
-  0, /* lesstif_drc_gui */
-  lesstif_attributes_dialog
-};
-
 #include "dolists.h"
 
 void
 hid_lesstif_init ()
 {
-  hid_register_hid (&lesstif_gui);
+  memset (&lesstif_hid, 0, sizeof (HID));
+
+  lesstif_hid.struct_size           = sizeof (HID);
+  lesstif_hid.name                  = "lesstif";
+  lesstif_hid.description           = "LessTif - a Motif clone for X/Unix";
+  lesstif_hid.gui                   = 1;
+  lesstif_hid.poly_before           = 1;
+
+  lesstif_hid.get_export_options    = lesstif_get_export_options;
+  lesstif_hid.do_export             = lesstif_do_export;
+  lesstif_hid.parse_arguments       = lesstif_parse_arguments;
+  lesstif_hid.invalidate_lr         = lesstif_invalidate_lr;
+  lesstif_hid.invalidate_all        = lesstif_invalidate_all;
+  lesstif_hid.set_layer             = lesstif_set_layer;
+  lesstif_hid.make_gc               = lesstif_make_gc;
+  lesstif_hid.destroy_gc            = lesstif_destroy_gc;
+  lesstif_hid.use_mask              = lesstif_use_mask;
+  lesstif_hid.set_color             = lesstif_set_color;
+  lesstif_hid.set_line_cap          = lesstif_set_line_cap;
+  lesstif_hid.set_line_width        = lesstif_set_line_width;
+  lesstif_hid.set_draw_xor          = lesstif_set_draw_xor;
+  lesstif_hid.set_draw_faded        = lesstif_set_draw_faded;
+  lesstif_hid.set_line_cap_angle    = lesstif_set_line_cap_angle;
+  lesstif_hid.draw_line             = lesstif_draw_line;
+  lesstif_hid.draw_arc              = lesstif_draw_arc;
+  lesstif_hid.draw_rect             = lesstif_draw_rect;
+  lesstif_hid.fill_circle           = lesstif_fill_circle;
+  lesstif_hid.fill_polygon          = lesstif_fill_polygon;
+  lesstif_hid.fill_pcb_polygon      = common_fill_pcb_polygon;
+  lesstif_hid.thindraw_pcb_polygon  = common_thindraw_pcb_polygon;
+  lesstif_hid.fill_rect             = lesstif_fill_rect;
+
+  lesstif_hid.calibrate             = lesstif_calibrate;
+  lesstif_hid.shift_is_pressed      = lesstif_shift_is_pressed;
+  lesstif_hid.control_is_pressed    = lesstif_control_is_pressed;
+  lesstif_hid.mod1_is_pressed       = lesstif_mod1_is_pressed;
+  lesstif_hid.get_coords            = lesstif_get_coords;
+  lesstif_hid.set_crosshair         = lesstif_set_crosshair;
+  lesstif_hid.add_timer             = lesstif_add_timer;
+  lesstif_hid.stop_timer            = lesstif_stop_timer;
+  lesstif_hid.watch_file            = lesstif_watch_file;
+  lesstif_hid.unwatch_file          = lesstif_unwatch_file;
+  lesstif_hid.add_block_hook        = lesstif_add_block_hook;
+  lesstif_hid.stop_block_hook       = lesstif_stop_block_hook;
+
+  lesstif_hid.log                   = lesstif_log;
+  lesstif_hid.logv                  = lesstif_logv;
+  lesstif_hid.confirm_dialog        = lesstif_confirm_dialog;
+  lesstif_hid.close_confirm_dialog  = lesstif_close_confirm_dialog;
+  lesstif_hid.report_dialog         = lesstif_report_dialog;
+  lesstif_hid.prompt_for            = lesstif_prompt_for;
+  lesstif_hid.fileselect            = lesstif_fileselect;
+  lesstif_hid.attribute_dialog      = lesstif_attribute_dialog;
+  lesstif_hid.show_item             = lesstif_show_item;
+  lesstif_hid.beep                  = lesstif_beep;
+  lesstif_hid.progress              = lesstif_progress;
+  lesstif_hid.edit_attributes       = lesstif_attributes_dialog;
+
+  hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"
 }

@@ -55,6 +55,8 @@
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
+static HID png_hid;
+
 static void *color_cache = NULL;
 static void *brush_cache = NULL;
 
@@ -1512,71 +1514,41 @@ png_set_crosshair (int x, int y, int a)
 {
 }
 
-HID png_hid = {
-  sizeof (HID),
-  "png",
-  "GIF/JPEG/PNG export.",
-  0,				/* gui */
-  0,				/* printer */
-  1,				/* exporter */
-  1,				/* poly before */
-  0,				/* poly after */
-  1,				/* poly dicer */
-  png_get_export_options,
-  png_do_export,
-  png_parse_arguments,
-  0 /* png_invalidate_lr */ ,
-  0 /* png_invalidate_all */ ,
-  png_set_layer,
-  png_make_gc,
-  png_destroy_gc,
-  png_use_mask,
-  png_set_color,
-  png_set_line_cap,
-  png_set_line_width,
-  png_set_draw_xor,
-  png_set_draw_faded,
-  png_set_line_cap_angle,
-  png_draw_line,
-  png_draw_arc,
-  png_draw_rect,
-  png_fill_circle,
-  png_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* png_thindraw_pcb_polygon */ ,
-  png_fill_rect,
-  png_calibrate,
-  0 /* png_shift_is_pressed */ ,
-  0 /* png_control_is_pressed */ ,
-  0 /* png_mod1_is_pressed */ ,
-  0 /* png_get_coords */ ,
-  png_set_crosshair,
-  0 /* png_add_timer */ ,
-  0 /* png_stop_timer */ ,
-  0 /* png_watch_file */ ,
-  0 /* png_unwatch_file */ ,
-  0 /* png_add_block_hook */ ,
-  0 /* png_stop_block_hook */ ,
-  0 /* png_log */ ,
-  0 /* png_logv */ ,
-  0 /* png_confirm_dialog */ ,
-  0 /* png_close_confirm_dialog */ ,
-  0 /* png_report_dialog */ ,
-  0 /* png_prompt_for */ ,
-  0 /* png_fileselect */ ,
-  0 /* png_attribute_dialog */ ,
-  0 /* png_show_item */ ,
-  0 /* png_beep */ ,
-  0 /* png_progress */ ,
-  0 /* png_drc_gui */ ,
-  0 /* png_edit_attributes */
-};
-
 #include "dolists.h"
 
 void
 hid_png_init ()
 {
+  png_hid.struct_size = sizeof (HID);
+  png_hid.name        = "png";
+  png_hid.description = "GIF/JPEG/PNG export.";
+  png_hid.exporter    = 1;
+  png_hid.poly_before = 1;
+  png_hid.poly_dicer  = 1;
+
+  png_hid.get_export_options  = png_get_export_options;
+  png_hid.do_export           = png_do_export;
+  png_hid.parse_arguments     = png_parse_arguments;
+  png_hid.set_layer           = png_set_layer;
+  png_hid.make_gc             = png_make_gc;
+  png_hid.destroy_gc          = png_destroy_gc;
+  png_hid.use_mask            = png_use_mask;
+  png_hid.set_color           = png_set_color;
+  png_hid.set_line_cap        = png_set_line_cap;
+  png_hid.set_line_width      = png_set_line_width;
+  png_hid.set_draw_xor        = png_set_draw_xor;
+  png_hid.set_draw_faded      = png_set_draw_faded;
+  png_hid.set_line_cap_angle  = png_set_line_cap_angle;
+  png_hid.draw_line           = png_draw_line;
+  png_hid.draw_arc            = png_draw_arc;
+  png_hid.draw_rect           = png_draw_rect;
+  png_hid.fill_circle         = png_fill_circle;
+  png_hid.fill_polygon        = png_fill_polygon;
+  png_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
+  png_hid.fill_rect           = png_fill_rect;
+  png_hid.calibrate           = png_calibrate;
+  png_hid.set_crosshair       = png_set_crosshair;
+
   apply_default_hid (&png_hid, 0);
   hid_register_hid (&png_hid);
 

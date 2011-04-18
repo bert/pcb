@@ -28,7 +28,6 @@ RCSID ("$Id$");
 
 static BoxType box;
 
-
 typedef struct hid_gc_struct
 {
   int width;
@@ -170,69 +169,51 @@ extents_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   PEY (y2, 0);
 }
 
-static HID extents_hid = {
-  sizeof (HID),
-  "extents-extents",
-  "used to calculate extents",
-  0,				/* gui */
-  0,				/* printer */
-  0,				/* exporter */
-  1,				/* poly before */
-  0,				/* poly after */
-  0,				/* poly dicer */
+static HID extents_hid;
 
-  0 /* extents_get_export_options */ ,
-  0 /* extents_do_export */ ,
-  0 /* extents_parse_arguments */ ,
-  0 /* extents_invalidate_lr */ ,
-  0 /* extents_invalidate_all */ ,
-  extents_set_layer,
-  extents_make_gc,
-  extents_destroy_gc,
-  extents_use_mask,
-  extents_set_color,
-  extents_set_line_cap,
-  extents_set_line_width,
-  extents_set_draw_xor,
-  extents_set_draw_faded,
-  extents_set_line_cap_angle,
-  extents_draw_line,
-  extents_draw_arc,
-  extents_draw_rect,
-  extents_fill_circle,
-  extents_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* extents_thindraw_pcb_polygon */,
-  extents_fill_rect,
+void
+hid_extents_init (void)
+{
+  static bool initialised = false;
 
-  0 /* extents_calibrate */ ,
-  0 /* extents_shift_is_pressed */ ,
-  0 /* extents_control_is_pressed */ ,
-  0 /* extents_mod1_is_pressed */ ,
-  0 /* extents_get_coords */ ,
-  0 /* extents_set_crosshair */ ,
-  0 /* extents_add_timer */ ,
-  0 /* extents_stop_timer */ ,
-  0 /* extents_watch_file */ ,
-  0 /* extents_unwatch_file */ ,
-  0 /* extents_add_block_hook */ ,
-  0 /* extents_stop_block_hook */ ,
+  if (initialised)
+    return;
 
-  0 /* extents_log */ ,
-  0 /* extents_logv */ ,
-  0 /* extents_confirm_dialog */ ,
-  0 /* extents_close_confirm_dialog */ ,
-  0 /* extents_report_dialog */ ,
-  0 /* extents_prompt_for */ ,
-  0 /* extents_attribute_dialog */ ,
-  0 /* extents_show_item */ ,
-  0				/* extents_beep */
-};
+  memset (&extents_hid, 0, sizeof (HID));
+
+  extents_hid.struct_size         = sizeof (HID);
+  extents_hid.name                = "extents-extents";
+  extents_hid.description         = "used to calculate extents";
+  extents_hid.poly_before         = 1;
+
+  extents_hid.set_layer           = extents_set_layer;
+  extents_hid.make_gc             = extents_make_gc;
+  extents_hid.destroy_gc          = extents_destroy_gc;
+  extents_hid.use_mask            = extents_use_mask;
+  extents_hid.set_color           = extents_set_color;
+  extents_hid.set_line_cap        = extents_set_line_cap;
+  extents_hid.set_line_width      = extents_set_line_width;
+  extents_hid.set_draw_xor        = extents_set_draw_xor;
+  extents_hid.set_draw_faded      = extents_set_draw_faded;
+  extents_hid.set_line_cap_angle  = extents_set_line_cap_angle;
+  extents_hid.draw_line           = extents_draw_line;
+  extents_hid.draw_arc            = extents_draw_arc;
+  extents_hid.draw_rect           = extents_draw_rect;
+  extents_hid.fill_circle         = extents_fill_circle;
+  extents_hid.fill_polygon        = extents_fill_polygon;
+  extents_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
+  extents_hid.fill_rect           = extents_fill_rect;
+
+  initialised = true;
+}
 
 BoxType *
 hid_get_extents (void *item)
 {
   BoxType region;
+
+  /* As this isn't a real "HID", we need to ensure we are initialised. */
+  hid_extents_init ();
 
   box.X1 = MAXINT;
   box.Y1 = MAXINT;

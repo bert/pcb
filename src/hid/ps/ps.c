@@ -1340,66 +1340,44 @@ ps_set_crosshair (int x, int y, int action)
 {
 }
 
-HID ps_hid = {
-  sizeof (HID),
-  "ps",
-  "Postscript export.",
-  0, 0, 1, 1, 0, 0,
-  ps_get_export_options,
-  ps_do_export,
-  ps_parse_arguments,
-  0 /* ps_invalidate_lr */ ,
-  0 /* ps_invalidate_all */ ,
-  ps_set_layer,
-  ps_make_gc,
-  ps_destroy_gc,
-  ps_use_mask,
-  ps_set_color,
-  ps_set_line_cap,
-  ps_set_line_width,
-  ps_set_draw_xor,
-  ps_set_draw_faded,
-  ps_set_line_cap_angle,
-  ps_draw_line,
-  ps_draw_arc,
-  ps_draw_rect,
-  ps_fill_circle,
-  ps_fill_polygon,
-  ps_fill_pcb_polygon,
-  0 /* ps_thindraw_pcb_polygon */,
-  ps_fill_rect,
-  ps_calibrate,
-  0 /* ps_shift_is_pressed */ ,
-  0 /* ps_control_is_pressed */ ,
-  0 /* ps_mod1_is_pressed */ ,
-  0 /* ps_get_coords */ ,
-  ps_set_crosshair,
-  0 /* ps_add_timer */ ,
-  0 /* ps_stop_timer */ ,
-  0 /* ps_watch_file */ ,
-  0 /* ps_unwatch_file */ ,
-  0 /* ps_add_block_hook */ ,
-  0 /* ps_stop_block_hook */ ,
-  0 /* ps_log */ ,
-  0 /* ps_logv */ ,
-  0 /* ps_confirm_dialog */ ,
-  0 /* ps_close_confirm_dialog */ ,
-  0 /* ps_report_dialog */ ,
-  0 /* ps_prompt_for */ ,
-  0 /* ps_fileselect */ ,
-  0 /* ps_attribute_dialog */ ,
-  0 /* ps_show_item */ ,
-  0 /* ps_beep */ ,
-  0 /* ps_progress */ ,
-  0 /* ps_drc_gui */ ,
-  0 /* ps_edit_attributes */
-};
-
 #include "dolists.h"
+
+HID ps_hid;
 
 void
 hid_ps_init ()
 {
+  memset (&ps_hid, 0, sizeof (HID));
+
+  ps_hid.struct_size        = sizeof (HID);
+  ps_hid.name               = "ps";
+  ps_hid.description        = "Postscript export.";
+  ps_hid.exporter           = 1;
+  ps_hid.poly_before        = 1;
+
+  ps_hid.get_export_options = ps_get_export_options;
+  ps_hid.do_export          = ps_do_export;
+  ps_hid.parse_arguments    = ps_parse_arguments;
+  ps_hid.set_layer          = ps_set_layer;
+  ps_hid.make_gc            = ps_make_gc;
+  ps_hid.destroy_gc         = ps_destroy_gc;
+  ps_hid.use_mask           = ps_use_mask;
+  ps_hid.set_color          = ps_set_color;
+  ps_hid.set_line_cap       = ps_set_line_cap;
+  ps_hid.set_line_width     = ps_set_line_width;
+  ps_hid.set_draw_xor       = ps_set_draw_xor;
+  ps_hid.set_draw_faded     = ps_set_draw_faded;
+  ps_hid.set_line_cap_angle = ps_set_line_cap_angle;
+  ps_hid.draw_line          = ps_draw_line;
+  ps_hid.draw_arc           = ps_draw_arc;
+  ps_hid.draw_rect          = ps_draw_rect;
+  ps_hid.fill_circle        = ps_fill_circle;
+  ps_hid.fill_polygon       = ps_fill_polygon;
+  ps_hid.fill_pcb_polygon   = ps_fill_pcb_polygon;
+  ps_hid.fill_rect          = ps_fill_rect;
+  ps_hid.calibrate          = ps_calibrate;
+  ps_hid.set_crosshair      = ps_set_crosshair;
+
   apply_default_hid (&ps_hid, 0);
   hid_register_hid (&ps_hid);
 
