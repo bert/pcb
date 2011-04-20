@@ -181,6 +181,8 @@ hid_extents_init (void)
 
   memset (&extents_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&extents_hid);
+
   extents_hid.struct_size         = sizeof (HID);
   extents_hid.name                = "extents-extents";
   extents_hid.description         = "used to calculate extents";
@@ -201,7 +203,6 @@ hid_extents_init (void)
   extents_hid.draw_rect           = extents_draw_rect;
   extents_hid.fill_circle         = extents_fill_circle;
   extents_hid.fill_polygon        = extents_fill_polygon;
-  extents_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
   extents_hid.fill_rect           = extents_fill_rect;
 
   initialised = true;

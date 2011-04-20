@@ -2100,6 +2100,8 @@ hid_gtk_init ()
 
   memset (&ghid_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&ghid_hid);
+
   ghid_hid.struct_size          = sizeof (HID);
   ghid_hid.name                 = "gtk";
   ghid_hid.description          = "Gtk - The Gimp Toolkit";
@@ -2126,8 +2128,6 @@ hid_gtk_init ()
   ghid_hid.draw_rect            = ghid_draw_rect;
   ghid_hid.fill_circle          = ghid_fill_circle;
   ghid_hid.fill_polygon         = ghid_fill_polygon;
-  ghid_hid.fill_pcb_polygon     = common_fill_pcb_polygon;
-  ghid_hid.thindraw_pcb_polygon = common_thindraw_pcb_polygon;
   ghid_hid.fill_rect            = ghid_fill_rect;
 
   ghid_hid.calibrate            = ghid_calibrate;

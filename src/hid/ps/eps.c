@@ -642,6 +642,8 @@ hid_eps_init ()
 {
   memset (&eps_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&eps_hid);
+
   eps_hid.struct_size         = sizeof (HID);
   eps_hid.name                = "eps";
   eps_hid.description         = "Encapsulated Postscript";
@@ -666,7 +668,6 @@ hid_eps_init ()
   eps_hid.draw_rect           = eps_draw_rect;
   eps_hid.fill_circle         = eps_fill_circle;
   eps_hid.fill_polygon        = eps_fill_polygon;
-  eps_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
   eps_hid.fill_rect           = eps_fill_rect;
   eps_hid.calibrate           = eps_calibrate;
   eps_hid.set_crosshair       = eps_set_crosshair;

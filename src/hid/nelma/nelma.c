@@ -1052,6 +1052,8 @@ hid_nelma_init()
 {
   memset (&nelma_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&nelma_hid);
+
   nelma_hid.struct_size         = sizeof (HID);
   nelma_hid.name                = "nelma";
   nelma_hid.description         = "Numerical analysis package export.";
@@ -1076,7 +1078,6 @@ hid_nelma_init()
   nelma_hid.draw_rect           = nelma_draw_rect;
   nelma_hid.fill_circle         = nelma_fill_circle;
   nelma_hid.fill_polygon        = nelma_fill_polygon;
-  nelma_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
   nelma_hid.fill_rect           = nelma_fill_rect;
   nelma_hid.calibrate           = nelma_calibrate;
   nelma_hid.set_crosshair       = nelma_set_crosshair;

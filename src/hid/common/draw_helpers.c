@@ -198,3 +198,10 @@ common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
   thindraw_contour (gc, poly->Clipped->contours);
   PolygonHoles (poly, clip_box, thindraw_hole_cb, gc);
 }
+
+void
+common_draw_helpers_init (HID *hid)
+{
+  hid->fill_pcb_polygon     = common_fill_pcb_polygon;
+  hid->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
+}

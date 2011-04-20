@@ -1349,6 +1349,8 @@ hid_ps_init ()
 {
   memset (&ps_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&ps_hid);
+
   ps_hid.struct_size        = sizeof (HID);
   ps_hid.name               = "ps";
   ps_hid.description        = "Postscript export.";

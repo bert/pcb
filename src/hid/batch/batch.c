@@ -244,16 +244,6 @@ batch_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
-batch_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
-{
-}
-
-static void
-batch_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
-{
-}
-
-static void
 batch_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
 }
@@ -354,6 +344,8 @@ hid_batch_init ()
 {
   memset (&batch_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&batch_hid);
+
   batch_hid.struct_size           = sizeof (HID);
   batch_hid.name                  = "batch";
   batch_hid.description           = "Batch-mode GUI for non-interactive use.";
@@ -379,8 +371,6 @@ hid_batch_init ()
   batch_hid.draw_rect             = batch_draw_rect;
   batch_hid.fill_circle           = batch_fill_circle;
   batch_hid.fill_polygon          = batch_fill_polygon;
-  batch_hid.fill_pcb_polygon      = batch_fill_pcb_polygon;
-  batch_hid.thindraw_pcb_polygon  = batch_thindraw_pcb_polygon;
   batch_hid.fill_rect             = batch_fill_rect;
   batch_hid.calibrate             = batch_calibrate;
   batch_hid.shift_is_pressed      = batch_shift_is_pressed;

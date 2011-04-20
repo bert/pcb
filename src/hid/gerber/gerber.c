@@ -1174,6 +1174,8 @@ hid_gerber_init ()
 {
   memset (&gerber_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&gerber_hid);
+
   gerber_hid.struct_size         = sizeof (HID);
   gerber_hid.name                = "gerber";
   gerber_hid.description         = "RS-274X (Gerber) export.";
@@ -1198,7 +1200,6 @@ hid_gerber_init ()
   gerber_hid.draw_rect           = gerber_draw_rect;
   gerber_hid.fill_circle         = gerber_fill_circle;
   gerber_hid.fill_polygon        = gerber_fill_polygon;
-  gerber_hid.fill_pcb_polygon    = common_fill_pcb_polygon;
   gerber_hid.fill_rect           = gerber_fill_rect;
   gerber_hid.calibrate           = gerber_calibrate;
   gerber_hid.set_crosshair       = gerber_set_crosshair;

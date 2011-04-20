@@ -3802,6 +3802,8 @@ hid_lesstif_init ()
 {
   memset (&lesstif_hid, 0, sizeof (HID));
 
+  common_draw_helpers_init (&lesstif_hid);
+
   lesstif_hid.struct_size           = sizeof (HID);
   lesstif_hid.name                  = "lesstif";
   lesstif_hid.description           = "LessTif - a Motif clone for X/Unix";
@@ -3828,8 +3830,6 @@ hid_lesstif_init ()
   lesstif_hid.draw_rect             = lesstif_draw_rect;
   lesstif_hid.fill_circle           = lesstif_fill_circle;
   lesstif_hid.fill_polygon          = lesstif_fill_polygon;
-  lesstif_hid.fill_pcb_polygon      = common_fill_pcb_polygon;
-  lesstif_hid.thindraw_pcb_polygon  = common_thindraw_pcb_polygon;
   lesstif_hid.fill_rect             = lesstif_fill_rect;
 
   lesstif_hid.calibrate             = lesstif_calibrate;
