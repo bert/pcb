@@ -86,6 +86,17 @@ static void XORDrawAttachedLine (LocationType, LocationType, LocationType,
 				 LocationType, BDimension);
 static void XORDrawAttachedArc (BDimension);
 
+static void
+thindraw_moved_pv (PinType *pv, int x, int y)
+{
+  /* Make a copy of the pin structure, moved to the correct position */
+  PinType moved_pv = *pv;
+  moved_pv.X += x;
+  moved_pv.Y += y;
+
+  gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &moved_pv, false, false);
+}
+
 /* ---------------------------------------------------------------------------
  * creates a tmp polygon with coordinates converted to screen system
  */
@@ -245,10 +256,7 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   /* pin coordinates and angles have to be converted to X11 notation */
   PIN_LOOP (Element);
   {
-    gui->draw_arc (Crosshair.GC,
-		   DX + pin->X,
-		   DY + pin->Y,
-		   pin->Thickness / 2, pin->Thickness / 2, 0, 360);
+    thindraw_moved_pv (pin, DX, DY);
   }
   END_LOOP;
 
@@ -352,13 +360,11 @@ XORDrawBuffer (BufferTypePtr Buffer)
   }
   END_LOOP;
 
-  /* and the vias, move offset by thickness/2 */
+  /* and the vias */
   if (PCB->ViaOn)
     VIA_LOOP (Buffer->Data);
   {
-    gui->draw_arc (Crosshair.GC,
-		   x + via->X, y + via->Y,
-		   via->Thickness / 2, via->Thickness / 2, 0, 360);
+    thindraw_moved_pv (via, x, y);
   }
   END_LOOP;
 }
@@ -396,13 +402,9 @@ XORDrawMoveOrCopyObject (void)
     {
     case VIA_TYPE:
       {
-	PinTypePtr via = (PinTypePtr) Crosshair.AttachedObject.Ptr1;
-
-	gui->draw_arc (Crosshair.GC,
-		       via->X + dx,
-		       via->Y + dy,
-		       via->Thickness / 2, via->Thickness / 2, 0, 360);
-	break;
+        PinTypePtr via = (PinTypePtr) Crosshair.AttachedObject.Ptr1;
+        thindraw_moved_pv (via, dx, dy);
+        break;
       }
 
     case LINE_TYPE:

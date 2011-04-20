@@ -171,6 +171,18 @@ nogui_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 }
 
 static void
+nogui_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bool mask)
+{
+  CRASH;
+}
+
+static void
+nogui_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bool mask)
+{
+  CRASH;
+}
+
+static void
 nogui_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   CRASH;
@@ -451,6 +463,8 @@ HID hid_nogui = {
   0 /* nogui_thindraw_pcb_polygon */ ,
   nogui_fill_pcb_pad,
   nogui_thindraw_pcb_pad,
+  nogui_fill_pcb_pv,
+  nogui_thindraw_pcb_pv,
   nogui_fill_rect,
   nogui_calibrate,
   nogui_shift_is_pressed,
@@ -508,6 +522,8 @@ apply_default_hid (HID * d, HID * s)
   AD (thindraw_pcb_polygon);
   AD (fill_pcb_pad);
   AD (thindraw_pcb_pad);
+  AD (fill_pcb_pv);
+  AD (thindraw_pcb_pv);
   AD (calibrate);
   AD (shift_is_pressed);
   AD (control_is_pressed);

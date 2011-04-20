@@ -55,6 +55,7 @@
 typedef struct BoxType BoxType, *BoxTypePtr;
 typedef struct polygon_st PolygonType, *PolygonTypePtr;
 typedef struct pad_st PadType, *PadTypePtr;
+typedef struct pin_st PinType, *PinTypePtr, **PinTypeHandle;
 typedef struct drc_violation_st DrcViolationType, *DrcViolationTypePtr;
 typedef struct rtree rtree_t;
 typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
@@ -320,7 +321,7 @@ struct pad_st			/* a SMD pad */
   void *Spare;
 };
 
-typedef struct
+struct pin_st
 {
   ANYOBJECTFIELDS;
   BDimension Thickness, Clearance, Mask, DrillingHole;
@@ -329,7 +330,7 @@ typedef struct
   char *Name, *Number;
   void *Element;
   void *Spare;
-} PinType, *PinTypePtr, **PinTypeHandle;
+};
 
 typedef struct
 {
