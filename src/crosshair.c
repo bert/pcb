@@ -556,28 +556,35 @@ XORDrawMoveOrCopyObject (void)
 void
 DrawAttached (void)
 {
-  BDimension s;
-
   if (!Crosshair.On)
     return;
 
   switch (Settings.Mode)
     {
     case VIA_MODE:
-      gui->draw_arc (Crosshair.GC,
-		     Crosshair.X,
-		     Crosshair.Y,
-		     Settings.ViaThickness / 2,
-		     Settings.ViaThickness / 2, 0, 360);
-      if (TEST_FLAG (SHOWDRCFLAG, PCB))
-	{
-	  s = Settings.ViaThickness / 2 + PCB->Bloat + 1;
-	  gui->set_color (Crosshair.GC, Settings.CrossColor);
-	  gui->draw_arc (Crosshair.GC,
-			 Crosshair.X, Crosshair.Y, s, s, 0, 360);
-	  gui->set_color (Crosshair.GC, Settings.CrosshairColor);
-	}
-      break;
+      {
+        /* Make a dummy via structure to draw from */
+        PinType via;
+        via.X = Crosshair.X;
+        via.Y = Crosshair.Y;
+        via.Thickness = Settings.ViaThickness;
+        via.Clearance = 2 * Settings.Keepaway;
+        via.DrillingHole = Settings.ViaDrillingHole;
+        via.Mask = 0;
+        via.Flags = NoFlags ();
+
+        gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, false);
+
+        if (TEST_FLAG (SHOWDRCFLAG, PCB))
+          {
+            /* XXX: Naughty cheat - use the mask to draw DRC clearance! */
+            via.Mask = Settings.ViaThickness + PCB->Bloat * 2;
+            gui->set_color (Crosshair.GC, Settings.CrossColor);
+            gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, true);
+            gui->set_color (Crosshair.GC, Settings.CrosshairColor);
+          }
+        break;
+      }
 
       /* the attached line is used by both LINEMODE, POLYGON_MODE and POLYGONHOLE_MODE*/
     case POLYGON_MODE:
