@@ -1035,6 +1035,8 @@ HID gcode_hid;
 void
 hid_gcode_init ()
 {
+  memset (&gcode_hid, 0, sizeof (HID));
+
   gcode_hid.struct_size         = sizeof (HID);
   gcode_hid.name                = "gcode";
   gcode_hid.description         = "G-CODE export.";

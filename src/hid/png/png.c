@@ -1519,6 +1519,8 @@ png_set_crosshair (int x, int y, int a)
 void
 hid_png_init ()
 {
+  memset (&png_hid, 0, sizeof (HID));
+
   png_hid.struct_size = sizeof (HID);
   png_hid.name        = "png";
   png_hid.description = "GIF/JPEG/PNG export.";
