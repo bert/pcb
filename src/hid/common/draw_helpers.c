@@ -2,7 +2,8 @@
 #include "hid.h"
 #include "polygon.h"
 
-static void fill_contour (hidGC gc, PLINE *pl)
+static void
+fill_contour (hidGC gc, PLINE *pl)
 {
   int *x, *y, n, i = 0;
   VNODE *v;
@@ -23,7 +24,8 @@ static void fill_contour (hidGC gc, PLINE *pl)
   free (y);
 }
 
-static void thindraw_contour (hidGC gc, PLINE *pl)
+static void
+thindraw_contour (hidGC gc, PLINE *pl)
 {
   VNODE *v;
   int last_x, last_y;
@@ -61,7 +63,8 @@ static void thindraw_contour (hidGC gc, PLINE *pl)
   while ((v = v->next) != pl->head.next);
 }
 
-static void fill_contour_cb (PLINE *pl, void *user_data)
+static void
+fill_contour_cb (PLINE *pl, void *user_data)
 {
   hidGC gc = (hidGC)user_data;
   PLINE *local_pl = pl;
@@ -136,8 +139,8 @@ should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
 }
 #undef BOUNDS_INSIDE_CLIP_THRESHOLD
 
-void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
-                              const BoxType *clip_box)
+void
+common_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   /* FIXME: We aren't checking the gui's dicer flag..
             we are dicing for every case. Some GUIs
@@ -180,15 +183,17 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
     }
 }
 
-static int thindraw_hole_cb (PLINE *pl, void *user_data)
+static int
+thindraw_hole_cb (PLINE *pl, void *user_data)
 {
   hidGC gc = (hidGC)user_data;
   thindraw_contour (gc, pl);
   return 0;
 }
 
-void common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
-                                  const BoxType *clip_box)
+void
+common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
+                             const BoxType *clip_box)
 {
   thindraw_contour (gc, poly->Clipped->contours);
   PolygonHoles (poly, clip_box, thindraw_hole_cb, gc);
