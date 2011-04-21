@@ -1,7 +1,7 @@
 ## -*- makefile -*-
 
 EXTRA_DIST= \
-	out.back.gbr \
+	out.bottom.gbr \
 	out.fab.gbr \
-	out.front.gbr \
+	out.top.gbr \
 	out.plated-drill.cnc

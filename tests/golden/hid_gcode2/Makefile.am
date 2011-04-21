@@ -1,6 +1,6 @@
 ## -*- makefile -*-
 
 EXTRA_DIST= \
-	out.back.cnc \
+	out.bottom.cnc \
 	out.drill.cnc \
-	out.front.cnc
+	out.top.cnc
