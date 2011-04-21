@@ -81,64 +81,6 @@
 #define TO_RADIANS(degrees)	(M180 * (degrees))
 
 /* ---------------------------------------------------------------------------
- * macros to determine if something is on the visible part of the screen
- */
-
-#define VELEMENT(e)	((e)->BoundingBox.X1 <= vxh && \
-	(e)->BoundingBox.X2 >= vxl && \
-	(e)->BoundingBox.Y1 <= vyh && \
-	(e)->BoundingBox.Y2 >= vyl)
-#define VELTEXT(e) 	(ELEMENT_TEXT(PCB,(e)).BoundingBox.X1 <= vxh && \
-	ELEMENT_TEXT(PCB,(e)).BoundingBox.X2 >= vxl && \
-	ELEMENT_TEXT(PCB,(e)).BoundingBox.Y1 <= vyh && \
-	ELEMENT_TEXT(PCB,(e)).BoundingBox.Y2 >= vyl)
-#define VTEXT(t) 	((t)->BoundingBox.X1 <= vxh && \
-	(t)->BoundingBox.X2 >= vxl && \
-	(t)->BoundingBox.Y1 <= vyh && \
-	(t)->BoundingBox.Y2 >= vyl)
-#define VLINE(l)	((((l)->Point2.X >= vxl - (l)->Thickness && \
-        (l)->Point1.X <= vxh + (l)->Thickness) || \
-	((l)->Point1.X >= vxl - (l)->Thickness && \
-	(l)->Point2.X <= vxh + (l)->Thickness)) && \
-	((((l)->Point2.Y >= vyl - (l)->Thickness && \
-	(l)->Point1.Y <= vyh + (l)->Thickness) || \
-	((l)->Point1.Y >= vyl - (l)->Thickness && \
-	(l)->Point2.Y <= vyh + (l)->Thickness))))
-#define VARC(a) 	((a)->BoundingBox.X1 <= vxh && \
-	(a)->BoundingBox.X2 >= vxl && \
-	(a)->BoundingBox.Y1 <= vyh && \
-	(a)->BoundingBox.Y2 >= vyl)
-#define VPOLY(p) 	(IsRectangleInPolygon(vxl, vyl, vxh, vyh, (p)))
-/* (p)->BoundingBox.X1 <= vxh && \
-	(p)->BoundingBox.X2 >= vxl && \
-	(p)->BoundingBox.Y1 <= vyh && \
-	(p)->BoundingBox.Y2 >= vyl)
-*/
-#define VVIA(v) 	((v)->X+(v)->Thickness >= vxl && (v)->X - (v)->Thickness <= vxh && \
-			(v)->Y+(v)->Thickness >= vyl && (v)->Y - (v)->Thickness  <= vyh)
-#define VTHERM(v) 	((v)->X + (v)->Thickness + (v)->Clearance >= vxl && \
-			(v)->X - (v)->Thickness - (v)->Clearance <= vxh && \
-			(v)->Y + (v)->Thickness + (v)->Thickness >= vyl && \
-			(v)->Y - (v)->Thickness - (v)->Clearance <= vyh)
-
-#undef VELEMENT
-#define VELEMENT(e) 1
-#undef VELTEXT
-#define VELTEXT(e) 1
-#undef VTEXT
-#define VTEXT(e) 1
-#undef VLINE
-#define VLINE(e) 1
-#undef VARC
-#define VARC(e) 1
-#undef VPOLY
-#define VPOLY(e) 1
-#undef VVIA
-#define VVIA(e) 1
-#undef VTHERM
-#define VTHERM(e) 1
-
-/* ---------------------------------------------------------------------------
  * layer macros
  */
 #define	LAYER_ON_STACK(n)	(&PCB->Data->Layer[LayerStack[(n)]])
