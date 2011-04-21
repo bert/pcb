@@ -106,17 +106,17 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 # --drill depth <num>            Drilling depth.
 # --measurement unit <mm|mil|um|inch>    Measurement unit
 #
-hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode2 | gcode_oneline.pcb | gcode | --basename out | | gcode:out.front.cnc gcode:out.back.cnc gcode:out.drill.cnc
-hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode4 | gcode_oneline.pcb | gcode | --mill-depth 5 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode5 | gcode_oneline.pcb | gcode | --safe-Z 10 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode6 | gcode_oneline.pcb | gcode | --tool-radius 15 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode7 | gcode_oneline.pcb | gcode | --drill-depth 70 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode8 | gcode_oneline.pcb | gcode | --measurement-unit mm | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode9 | gcode_oneline.pcb | gcode | --measurement-unit mil | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode10 | gcode_oneline.pcb | gcode | --measurement-unit um | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
-hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode2 | gcode_oneline.pcb | gcode | --basename out | | gcode:out.top.cnc gcode:out.bottom.cnc gcode:out.drill.cnc
+hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode4 | gcode_oneline.pcb | gcode | --mill-depth 5 | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode5 | gcode_oneline.pcb | gcode | --safe-Z 10 | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode6 | gcode_oneline.pcb | gcode | --tool-radius 15 | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode7 | gcode_oneline.pcb | gcode | --drill-depth 70 | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode8 | gcode_oneline.pcb | gcode | --measurement-unit mm | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode9 | gcode_oneline.pcb | gcode | --measurement-unit mil | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode10 | gcode_oneline.pcb | gcode | --measurement-unit um | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcode_oneline.gcode.top.cnc gcode:gcode_oneline.gcode.bottom.cnc gcode:gcode_oneline.gcode.drill.cnc
 #
 ######################################################################
 # ---------------------------------------------
@@ -130,8 +130,8 @@ hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcod
 # Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files
 #
 # we can't include gbx:gerber_oneline.fab.gbr yet because it has a name and a date stamp
-hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.back.gbr  gbx:gerber_oneline.front.gbr cnc:gerber_oneline.plated-drill.cnc
-hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gbr  gbx:out.front.gbr cnc:out.plated-drill.cnc
+hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.bottom.gbr  gbx:gerber_oneline.top.gbr cnc:gerber_oneline.plated-drill.cnc
+hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.bottom.gbr  gbx:out.top.gbr cnc:out.plated-drill.cnc
 #
 
 
@@ -150,7 +150,7 @@ hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gb
 #   --as-shown                     Export layers as shown on screen
 #   --monochrome                   Convert to monochrome
 #   --only-visible                 Limit the bounds of the PNG file to the visible items
-#   --use-alpha                    Make the background and any holes transparent
+#   --use-alpha                    Make the bottomground and any holes transparent
 #   --format <GIF|JPEG|PNG>        Graphics file format
 #   --photo-mode                   Photo-realistic mode
 #   --photo-flip-x                 Show reverse side of the board, left-right flip
