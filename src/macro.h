@@ -40,28 +40,13 @@
 #define	SWAP_IDENT			Settings.ShowSolderSide
 #endif
 
-#ifndef XORIG
-#define XORIG Xorig
-#define YORIG Yorig
-#endif
-
 #define	SWAP_SIGN_X(x)		(x)
 #define	SWAP_SIGN_Y(y)		(-(y))
 #define	SWAP_ANGLE(a)		(-(a))
 #define	SWAP_DELTA(d)		(-(d))
 #define	SWAP_X(x)		(SWAP_SIGN_X(x))
 #define	SWAP_Y(y)		(PCB->MaxHeight +SWAP_SIGN_Y(y))
-#define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
-#define	TO_DRAW_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - XORIG)
-#define	TO_DRAWABS_X(x)		(TO_SCREEN((x) - XORIG))
-#define	TO_DRAW_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG)
-#define	TO_DRAWABS_Y(y)		(TO_SCREEN((y) - YORIG))
-#define TO_LIMIT_X(x)           ((Position)(SATURATE(Local_Zoom * ((x) - XORIG))))
-#define TO_LIMIT_Y(y)           ((Position)(SATURATE(Local_Zoom * \
-                                ((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG))))
-#define	TO_SCREEN_ANGLE(a)	(SWAP_IDENT ? SWAP_ANGLE((a)) : (a))
-#define	TO_SCREEN_DELTA(d)	(SWAP_IDENT ? SWAP_DELTA((d)) : (d))
 #define	TO_SCREEN_SIGN_X(x)	(SWAP_IDENT ? SWAP_SIGN_X(x) : (x))
 #define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
 
@@ -71,9 +56,6 @@
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
 				PCB->MaxHeight - TO_PCB(y) - Yorig : TO_PCB(y) + Yorig)
-#ifdef __GNUC__
-#pragma GCC poison TO_SCREEN TO_SCREEN_X TO_SCREEN_Y
-#endif
 
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>

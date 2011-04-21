@@ -31,8 +31,6 @@
 #include "config.h"
 #endif
 
-#define NUDGE (TO_PCB (6))
-
 #include <math.h>
 #include <setjmp.h>
 #include <stdlib.h>

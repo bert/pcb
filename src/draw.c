@@ -1001,8 +1001,6 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
       AddPart (&box);
       return;
     }
-/*printf("DrawPin(%d,%d): x=%d y=%d w=%d h=%d\n",
-  TO_DRAW_X(Ptr->X), TO_DRAW_Y(Ptr->Y), box.X1, box.Y1, width, height);*/
 
   gui->set_color (Output.fgGC, PCB->PinNameColor);
 
