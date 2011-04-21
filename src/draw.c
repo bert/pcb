@@ -645,32 +645,22 @@ DrawTop (const BoxType * screen)
     r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
 }
 
-struct pin_info
-{
-  bool arg;
-  LayerTypePtr Layer;
-};
-
 static int
 clearPin_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinTypePtr) b;
-  struct pin_info *i = (struct pin_info *) cl;
-  if (i->arg)
-    {
-      if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-        gui->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
-      else
-        gui->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
-    }
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+    gui->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+  else
+    gui->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
   return 1;
 }
 static int
 poly_callback (const BoxType * b, void *cl)
 {
-  struct pin_info *i = (struct pin_info *) cl;
+  LayerType *layer = cl;
 
-  DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
+  DrawPlainPolygon (layer, (PolygonTypePtr) b);
   return 1;
 }
 
@@ -694,7 +684,6 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
   /* This code is used when you want to mask silk to avoid exposed
      pins and pads.  We decided it was a bad idea to do this
      unconditionally, but the code remains.  */
-  struct pin_info info;
 #endif
   int save_swap = SWAP_IDENT;
   SWAP_IDENT = new_swap;
@@ -714,10 +703,9 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
     }
 
   gui->use_mask (HID_MASK_CLEAR);
-  info.arg = true;
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->pad_tree, drawn_area, NULL, clearPad_callback, &info);
+  r_search (PCB->Data->pin_tree, drawn_area, NULL, clearPin_callback, NULL);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, clearPin_callback, NULL);
+  r_search (PCB->Data->pad_tree, drawn_area, NULL, clearPad_callback, NULL);
 
   if (gui->poly_after)
     {
@@ -758,10 +746,7 @@ DrawMaskBoardArea (int mask_type, BoxType *screen)
 static void
 DrawMask (BoxType * screen)
 {
-  struct pin_info info;
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
-
-  info.arg = true;
 
   if (thin)
     gui->set_color (Output.pmGC, PCB->MaskColor);
@@ -771,9 +756,9 @@ DrawMask (BoxType * screen)
       gui->use_mask (HID_MASK_CLEAR);
     }
 
-  r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, &info);
+  r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, NULL);
+  r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, NULL);
+  r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, NULL);
 
   if (thin)
     gui->set_color (Output.pmGC, "erase");
@@ -829,13 +814,9 @@ text_callback (const BoxType * b, void *cl)
 void
 DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
 {
-  struct pin_info info;
-
   /* print the non-clearing polys */
-  info.Layer = Layer;
-  info.arg = clear_pins;
   clip_box = screen;
-  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
+  r_search (Layer->polygon_tree, screen, NULL, poly_callback, Layer);
 
   if (clear_pins && TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
