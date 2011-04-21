@@ -149,20 +149,6 @@ extern int mem_any_set (unsigned char *, int);
 #define	NAMEONPCB_TEXT(e)	((e)->Name[NAMEONPCB_INDEX])
 #define	VALUE_TEXT(e)		((e)->Name[VALUE_INDEX])
 
-/* ----------------------------------------------------------------------
- * checks for correct X values
- */
-#define	VALID_PIXMAP(p)	((p) != BadValue && \
-	(p) != BadAlloc && \
-	(p) != BadDrawable)
-
-#define	VALID_GC(p)	((p) != BadValue && \
-	(p) != BadAlloc && \
-	(p) != BadDrawable && \
-	(p) != BadFont && \
-	(p) != BadMatch && \
-	(p) != BadPixmap)
-
 /* ---------------------------------------------------------------------------
  *  Determines if text is actually visible
 #define TEXT_IS_VISIBLE(b, l, t)					\
