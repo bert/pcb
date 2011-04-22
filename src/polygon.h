@@ -33,6 +33,23 @@
 
 #include "global.h"
 
+/* Implementation constants */
+
+#define POLY_CIRC_SEGS 40
+#define POLY_CIRC_SEGS_F ((float)POLY_CIRC_SEGS)
+
+/* adjustment to make the segments outline the circle rather than connect
+ * points on the circle: 1 - cos (\alpha / 2) < (\alpha / 2) ^ 2 / 2
+ */
+#define POLY_CIRC_RADIUS_ADJ (1.0 + M_PI / POLY_CIRC_SEGS_F * \
+                                    M_PI / POLY_CIRC_SEGS_F / 2.0)
+
+/* polygon diverges from modelled arc no more than MAX_ARC_DEVIATION * thick */
+#define POLY_ARC_MAX_DEVIATION 0.02
+
+/* Prototypes */
+
+void polygon_init (void);
 Cardinal polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point);
 Cardinal polygon_point_contour (PolygonTypePtr polygon, Cardinal point);
 Cardinal prev_contour_point (PolygonTypePtr polygon, Cardinal point);

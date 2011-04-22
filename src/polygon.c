@@ -108,20 +108,17 @@ dicer output is used for HIDs which cannot render things with holes
 #define SUBTRACT_PIN_VIA_BATCH_SIZE 100
 #define SUBTRACT_LINE_BATCH_SIZE 20
 
-/* ---------------------------------------------------------------------------
- * local prototypes
- */
+static double rotate_circle_seg[4];
 
-#define CIRC_SEGS 40
-static double circleVerticies[] = {
-  1.0, 0.0,
-  0.98768834059513777, 0.15643446504023087,
-};
-/* adjustment to make the segments
- * outline the circle rather than connect
- * points on the circle
- * 1 - cos(\alpha/2) < (\alpha/2)^2/2 */
-static double radius_adjustment = (M_PI/CIRC_SEGS)*(M_PI/CIRC_SEGS)/2;
+void
+polygon_init (void)
+{
+  double cos_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F);
+  double sin_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F);
+
+  rotate_circle_seg[0] = cos_ang;  rotate_circle_seg[1] = -sin_ang;
+  rotate_circle_seg[2] = sin_ang;  rotate_circle_seg[3] =  cos_ang;
+}
 
 Cardinal
 polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point)
@@ -401,16 +398,16 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
 
   poly_InclVertex (c->head.prev, poly_CreateNode (v));
   /* move vector to origin */
-  e1 = (v[0] - X) * (1 + radius_adjustment);
-  e2 = (v[1] - Y) * (1 + radius_adjustment);
+  e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
+  e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
 
   /* NB: the caller adds the last vertex, hence the -1 */
-  range = CIRC_SEGS / range - 1;
+  range = POLY_CIRC_SEGS / range - 1;
   for (i = 0; i < range; i++)
     {
       /* rotate the vector */
-      t1 = e1 * circleVerticies[2] - e2 * circleVerticies[3];
-      e2 = e1 * circleVerticies[3] + e2 * circleVerticies[2];
+      t1 = rotate_circle_seg[0] * e1 + rotate_circle_seg[1] * e2;
+      e2 = rotate_circle_seg[2] * e1 + rotate_circle_seg[3] * e2;
       e1 = t1;
       v[0] = X + ROUND (e1);
       v[1] = Y + ROUND (e2);
@@ -480,8 +477,6 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
   int i, segs;
   double ang, da, rx, ry;
   long half;
-  static const double delta_th = 0.02; /* polygon diverges from modelled arc
-					  no more than delta_th * thick */
   double radius_adj;
 
   if (thick <= 0)
@@ -498,8 +493,9 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
   ry = MAX (a->Height - half, 0);
   segs = 1;
   if(thick > 0)
-    segs = MAX (segs, a->Delta * M_PI / 360
-		* sqrt(sqrt((double)rx*rx + (double)ry*ry)/delta_th/2/thick));
+    segs = MAX (segs, a->Delta * M_PI / 360 *
+                      sqrt (sqrt ((double)rx * rx + (double)ry * ry) /
+                            POLY_ARC_MAX_DEVIATION / 2 / thick));
   segs = MAX(segs, a->Delta / ARC_ANGLE);
 
   ang = a->StartAngle;

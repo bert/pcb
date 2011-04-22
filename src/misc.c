@@ -173,6 +173,10 @@ SetPinBoundingBox (PinTypePtr Pin)
    */
   width = (Pin->Clearance + Pin->Thickness + 1) / 2;
   width = MAX (width, (Pin->Mask + 1) / 2);
+
+  /* Adjust for our discrete polygon approximation */
+  width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
+
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
   Pin->BoundingBox.X2 = Pin->X + width;
@@ -226,6 +230,9 @@ SetPadBoundingBox (PadTypePtr Pad)
     }
   else
     {
+      /* Adjust for our discrete polygon approximation */
+      width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
+
       Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
       Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
       Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
@@ -243,6 +250,9 @@ SetLineBoundingBox (LineTypePtr Line)
   BDimension width;
 
   width = (Line->Thickness + Line->Clearance + 1) / 2;
+
+  /* Adjust for our discrete polygon approximation */
+  width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
 
   Line->BoundingBox.X1 = MIN (Line->Point1.X, Line->Point2.X) - width;
   Line->BoundingBox.X2 = MAX (Line->Point1.X, Line->Point2.X) + width;
@@ -1333,10 +1343,10 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 void
 SetArcBoundingBox (ArcTypePtr Arc)
 {
-  register double ca1, ca2, sa1, sa2;
+  double ca1, ca2, sa1, sa2;
   double minx, maxx, miny, maxy;
-  register LocationType ang1, ang2, delta, a;
-  register LocationType width;
+  LocationType ang1, ang2, delta, a;
+  LocationType width;
 
   /* first put angles into standard form */
   if (Arc->Delta > 360)
@@ -1398,14 +1408,16 @@ SetArcBoundingBox (ArcTypePtr Arc)
     }
 
   Arc->BoundingBox.X2 = Arc->X - Arc->Width * minx;
-
   Arc->BoundingBox.X1 = Arc->X - Arc->Width * maxx;
-
   Arc->BoundingBox.Y2 = Arc->Y + Arc->Height * maxy;
-
   Arc->BoundingBox.Y1 = Arc->Y + Arc->Height * miny;
 
   width = (Arc->Thickness + Arc->Clearance) / 2;
+
+  /* Adjust for our discrete polygon approximation */
+  width = (int)((float)width * MAX (POLY_CIRC_RADIUS_ADJ,
+                                     (1.0 + POLY_ARC_MAX_DEVIATION)) + 0.5);
+
   Arc->BoundingBox.X1 -= width;
   Arc->BoundingBox.X2 += width;
   Arc->BoundingBox.Y1 -= width;

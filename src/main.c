@@ -55,6 +55,7 @@
 #include "misc.h"
 #include "lrealpath.h"
 #include "free_atexit.h"
+#include "polygon.h"
 
 #include "hid/common/actions.h"
 
@@ -909,6 +910,7 @@ main (int argc, char *argv[])
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
+  polygon_init ();
   hid_init ();
 
   hid_load_settings ();

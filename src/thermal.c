@@ -436,15 +436,21 @@ ThermPoly (PCBTypePtr p, PinTypePtr pin, Cardinal laynum)
         /* fix me needs error checking */
         if (style == 2)
           {
-            pa = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+            /* t is the theoretically required length, but we use twice that
+             * to avoid descritisation errors in our circle approximation.
+             */
+            pa = RectPoly (pin->X - t * 2, pin->X + t * 2, pin->Y - w, pin->Y + w);
             poly_Boolean_free (m, pa, &arc, PBO_SUB);
-            pa = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
+            pa = RectPoly (pin->X - w, pin->X + w, pin->Y - t * 2, pin->Y + t * 2);
           }
         else
           {
-            pa = diag_line (pin->X, pin->Y, t, w, true);
+            /* t is the theoretically required length, but we use twice that
+             * to avoid descritisation errors in our circle approximation.
+             */
+            pa = diag_line (pin->X, pin->Y, t * 2, w, true);
             poly_Boolean_free (m, pa, &arc, PBO_SUB);
-            pa = diag_line (pin->X, pin->Y, t, w, false);
+            pa = diag_line (pin->X, pin->Y, t * 2, w, false);
           }
         poly_Boolean_free (arc, pa, &m, PBO_SUB);
         return m;
