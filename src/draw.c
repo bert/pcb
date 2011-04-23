@@ -365,13 +365,13 @@ DrawEverything (BoxTypePtr drawn_area)
       && gui->set_layer ("invisible", SL (INVISIBLE, 0), 0))
     {
       side = SWAP_IDENT ? COMPONENT_LAYER : SOLDER_LAYER;
-      r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
       if (PCB->ElementOn)
 	{
 	  r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
 	  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL, name_callback, &side);
 	  DrawLayer (&(PCB->Data->Layer[max_copper_layer + side]), drawn_area);
 	}
+      r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
     }
 
   /* draw all layers in layerstack order */
