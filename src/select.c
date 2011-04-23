@@ -91,7 +91,7 @@ SelectPin (LibraryEntryTypePtr entry, bool toggle)
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pin);
-	    DrawPin (pin, 0);
+	    DrawPin (pin);
 	    break;
 	  }
 	case PAD_TYPE:
@@ -107,7 +107,7 @@ SelectPin (LibraryEntryTypePtr entry, bool toggle)
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pad);
-	    DrawPad (pad, 0);
+	    DrawPad (pad);
 	    break;
 	  }
 	}
@@ -137,7 +137,7 @@ SelectObject (void)
     case VIA_TYPE:
       AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr1, ptr1);
       TOGGLE_FLAG (SELECTEDFLAG, (PinTypePtr) ptr1);
-      DrawVia ((PinTypePtr) ptr1, 0);
+      DrawVia ((PinTypePtr) ptr1);
       break;
 
     case LINE_TYPE:
@@ -147,7 +147,7 @@ SelectObject (void)
 	layer = (LayerTypePtr) ptr1;
 	AddObjectToFlagUndoList (LINE_TYPE, ptr1, ptr2, ptr2);
 	TOGGLE_FLAG (SELECTEDFLAG, line);
-	DrawLine (layer, line, 0);
+	DrawLine (layer, line);
 	break;
       }
 
@@ -157,7 +157,7 @@ SelectObject (void)
 
 	AddObjectToFlagUndoList (RATLINE_TYPE, ptr1, ptr1, ptr1);
 	TOGGLE_FLAG (SELECTEDFLAG, rat);
-	DrawRat (rat, 0);
+	DrawRat (rat);
 	break;
       }
 
@@ -168,7 +168,7 @@ SelectObject (void)
 	layer = (LayerTypePtr) ptr1;
 	AddObjectToFlagUndoList (ARC_TYPE, ptr1, ptr2, ptr2);
 	TOGGLE_FLAG (SELECTEDFLAG, arc);
-	DrawArc (layer, arc, 0);
+	DrawArc (layer, arc);
 	break;
       }
 
@@ -179,7 +179,7 @@ SelectObject (void)
 	layer = (LayerTypePtr) ptr1;
 	AddObjectToFlagUndoList (TEXT_TYPE, ptr1, ptr2, ptr2);
 	TOGGLE_FLAG (SELECTEDFLAG, text);
-	DrawText (layer, text, 0);
+	DrawText (layer, text);
 	break;
       }
 
@@ -190,7 +190,7 @@ SelectObject (void)
 	layer = (LayerTypePtr) ptr1;
 	AddObjectToFlagUndoList (POLYGON_TYPE, ptr1, ptr2, ptr2);
 	TOGGLE_FLAG (SELECTEDFLAG, poly);
-	DrawPolygon (layer, poly, 0);
+	DrawPolygon (layer, poly);
 	/* changing memory order no longer effects draw order */
 	break;
       }
@@ -198,13 +198,13 @@ SelectObject (void)
     case PIN_TYPE:
       AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr2);
       TOGGLE_FLAG (SELECTEDFLAG, (PinTypePtr) ptr2);
-      DrawPin ((PinTypePtr) ptr2, 0);
+      DrawPin ((PinTypePtr) ptr2);
       break;
 
     case PAD_TYPE:
       AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr2);
       TOGGLE_FLAG (SELECTEDFLAG, (PadTypePtr) ptr2);
-      DrawPad ((PadTypePtr) ptr2, 0);
+      DrawPad ((PadTypePtr) ptr2);
       break;
 
     case ELEMENTNAME_TYPE:
@@ -218,7 +218,7 @@ SelectObject (void)
 	  TOGGLE_FLAG (SELECTEDFLAG, text);
 	}
 	END_LOOP;
-	DrawElementName (element, 0);
+	DrawElementName (element);
 	break;
       }
 
@@ -252,11 +252,11 @@ SelectObject (void)
 	     PCB->InvisibleObjectsOn))
 	  if (PCB->ElementOn)
 	    {
-	      DrawElementName (element, 0);
-	      DrawElementPackage (element, 0);
+	      DrawElementName (element);
+	      DrawElementPackage (element);
 	    }
 	if (PCB->PinOn)
-	  DrawElementPinsAndPads (element, 0);
+	  DrawElementPinsAndPads (element);
 	break;
       }
     }
@@ -284,7 +284,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	if (PCB->RatOn)
-	  DrawRat (line, 0);
+	  DrawRat (line);
 	changed = true;
       }
   }
@@ -316,7 +316,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	  AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	  if (layer->On)
-	    DrawLine (layer, line, 0);
+	    DrawLine (layer, line);
 	  changed = true;
 	}
     }
@@ -330,7 +330,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	  AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
 	  if (layer->On)
-	    DrawArc (layer, arc, 0);
+	    DrawArc (layer, arc);
 	  changed = true;
 	}
     }
@@ -346,7 +346,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	      AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
 	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	      if (TEXT_IS_VISIBLE(PCB, layer, text))
-		DrawText (layer, text, 0);
+		DrawText (layer, text);
 	      changed = true;
 	    }
 	}
@@ -361,7 +361,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	  AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
 	  if (layer->On)
-	    DrawPolygon (layer, polygon, 0);
+	    DrawPolygon (layer, polygon);
 	  changed = true;
 	}
     }
@@ -394,7 +394,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	      }
 	      END_LOOP;
 	      if (PCB->ElementOn)
-		DrawElementName (element, 0);
+		DrawElementName (element);
 	      changed = true;
 	    }
 	  if ((PCB->PinOn || !Flag) && ELEMENT_IN_BOX (element, Box))
@@ -410,7 +410,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 		      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 		      if (PCB->PinOn)
-			DrawPin (pin, 0);
+			DrawPin (pin);
 		      changed = true;
 		    }
 		}
@@ -422,13 +422,13 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 		      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 		      if (PCB->PinOn)
-			DrawPad (pad, 0);
+			DrawPad (pad);
 		      changed = true;
 		    }
 		}
 		END_LOOP;
 		if (PCB->PinOn)
-		  DrawElement (element, 0);
+		  DrawElement (element);
 		changed = true;
 		gotElement = true;
 	      }
@@ -443,7 +443,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 		AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 		ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 		if (PCB->PinOn)
-		  DrawPin (pin, 0);
+		  DrawPin (pin);
 		changed = true;
 	      }
 	  }
@@ -459,7 +459,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 		AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 		ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 		if (PCB->PinOn)
-		  DrawPad (pad, 0);
+		  DrawPad (pad);
 		changed = true;
 	      }
 	  }
@@ -479,7 +479,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
 	if (PCB->ViaOn)
-	  DrawVia (via, 0);
+	  DrawVia (via);
 	changed = true;
       }
   }
@@ -776,7 +776,7 @@ SelectConnection (bool Flag)
       {
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
-	DrawRat (line, 0);
+	DrawRat (line);
 	changed = true;
       }
   }
@@ -788,7 +788,7 @@ SelectConnection (bool Flag)
       {
 	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
-	DrawLine (layer, line, 0);
+	DrawLine (layer, line);
 	changed = true;
       }
   }
@@ -799,7 +799,7 @@ SelectConnection (bool Flag)
       {
 	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
-	DrawArc (layer, arc, 0);
+	DrawArc (layer, arc);
 	changed = true;
       }
   }
@@ -810,7 +810,7 @@ SelectConnection (bool Flag)
       {
 	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
-	DrawPolygon (layer, polygon, 0);
+	DrawPolygon (layer, polygon);
 	changed = true;
       }
   }
@@ -824,7 +824,7 @@ SelectConnection (bool Flag)
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
-	    DrawPin (pin, 0);
+	    DrawPin (pin);
 	    changed = true;
 	  }
       }
@@ -835,7 +835,7 @@ SelectConnection (bool Flag)
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
-	    DrawPad (pad, 0);
+	    DrawPad (pad);
 	    changed = true;
 	  }
       }
@@ -849,7 +849,7 @@ SelectConnection (bool Flag)
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
-	DrawVia (via, 0);
+	DrawVia (via);
 	changed = true;
       }
   }
@@ -927,7 +927,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       {
 	AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
-	DrawText (layer, text, 0);
+	DrawText (layer, text);
 	changed = true;
       }
   }
@@ -964,8 +964,8 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
 	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	    }
 	    END_LOOP;
-	    DrawElementName (element, 0);
-	    DrawElement (element, 0);
+	    DrawElementName (element);
+	    DrawElement (element);
 	    changed = true;
 	  }
       }
@@ -980,7 +980,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       {
 	AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
-	DrawPin (pin, 0);
+	DrawPin (pin);
 	changed = true;
       }
   }
@@ -996,7 +996,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
 	{
 	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
-	  DrawPad (pad, 0);
+	  DrawPad (pad);
 	  changed = true;
 	}
   }
@@ -1010,7 +1010,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
-	DrawVia (via, 0);
+	DrawVia (via);
 	changed = true;
       }
   }

@@ -541,7 +541,7 @@ RemovePolygonContour (LayerTypePtr Layer,
   /* redraw polygon if necessary */
   if (Layer->On)
     {
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       if (!Bulk)
         Draw ();
     }
@@ -595,7 +595,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
   /* redraw polygon if necessary */
   if (Layer->On)
     {
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       if (!Bulk)
 	Draw ();
     }

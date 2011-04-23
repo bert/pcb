@@ -362,7 +362,7 @@ ChangeViaThermal (PinTypePtr Via)
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Via);
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
-  DrawVia (Via, 0);
+  DrawVia (Via);
   return Via;
 }
 
@@ -382,7 +382,7 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
-  DrawPin (Pin, 0);
+  DrawPin (Pin);
   return Pin;
 }
 
@@ -415,7 +415,7 @@ ChangeViaSize (PinTypePtr Via)
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
       ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
-      DrawVia (Via, 0);
+      DrawVia (Via);
       return (Via);
     }
   return (NULL);
@@ -448,7 +448,7 @@ ChangeVia2ndSize (PinTypePtr Via)
 	  Via->Thickness = value;
 	}
       ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
-      DrawVia (Via, 0);
+      DrawVia (Via);
       return (Via);
     }
   return (NULL);
@@ -482,7 +482,7 @@ ChangeViaClearSize (PinTypePtr Via)
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
-  DrawVia (Via, 0);
+  DrawVia (Via);
   Via->Element = NULL;
   return (Via);
 }
@@ -514,7 +514,7 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-      DrawPin (Pin, 0);
+      DrawPin (Pin);
       return (Pin);
     }
   return (NULL);
@@ -548,7 +548,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-  DrawPin (Pin, 0);
+  DrawPin (Pin);
   return (Pin);
 }
 
@@ -575,7 +575,7 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
-      DrawPad (Pad, 0);
+      DrawPad (Pad);
       return (Pad);
     }
   return (NULL);
@@ -609,7 +609,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
-  DrawPad (Pad, 0);
+  DrawPad (Pad);
   return Pad;
 }
 
@@ -646,7 +646,7 @@ ChangeElement2ndSize (ElementTypePtr Element)
 	    pin->Thickness = value;
 	  }
 	ClearFromPolygon (PCB->Data, PIN_TYPE, Element, pin);
-	DrawPin (pin, 0);
+	DrawPin (pin);
       }
   }
   END_LOOP;
@@ -683,7 +683,7 @@ ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
 	  Pin->Thickness = value;
 	}
       ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-      DrawPin (Pin, 0);
+      DrawPin (Pin);
       return (Pin);
     }
   return (NULL);
@@ -711,7 +711,7 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-      DrawLine (Layer, Line, 0);
+      DrawLine (Layer, Line);
       return (Line);
     }
   return (NULL);
@@ -744,7 +744,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-      DrawLine (Layer, Line, 0);
+      DrawLine (Layer, Line);
       return (Line);
     }
   return (NULL);
@@ -792,7 +792,7 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-      DrawArc (Layer, Arc, 0);
+      DrawArc (Layer, Arc);
       return (Arc);
     }
   return (NULL);
@@ -825,7 +825,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-      DrawArc (Layer, Arc, 0);
+      DrawArc (Layer, Arc);
       return (Arc);
     }
   return (NULL);
@@ -853,7 +853,7 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
       SetTextBoundingBox (&PCB->Font, Text);
       r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
       ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
-      DrawText (Layer, Text, 0);
+      DrawText (Layer, Text);
       return (Text);
     }
   return (NULL);
@@ -899,7 +899,7 @@ ChangeElementSize (ElementTypePtr Element)
   END_LOOP;
   if (PCB->ElementOn)
     {
-      DrawElement (Element, 0);
+      DrawElement (Element);
     }
   if (changed)
     return (Element);
@@ -931,7 +931,7 @@ ChangeElementNameSize (ElementTypePtr Element)
 	r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
-      DrawElementName (Element, 0);
+      DrawElementName (Element);
       return (Element);
     }
   return (NULL);
@@ -949,7 +949,7 @@ ChangeViaName (PinTypePtr Via)
     {
       ErasePinName (Via);
       Via->Name = NewName;
-      DrawPinName (Via, 0);
+      DrawPinName (Via);
     }
   else
     Via->Name = NewName;
@@ -969,7 +969,7 @@ ChangePinName (ElementTypePtr Element, PinTypePtr Pin)
     {
       ErasePinName (Pin);
       Pin->Name = NewName;
-      DrawPinName (Pin, 0);
+      DrawPinName (Pin);
     }
   else
     Pin->Name = NewName;
@@ -989,7 +989,7 @@ ChangePadName (ElementTypePtr Element, PadTypePtr Pad)
     {
       ErasePadName (Pad);
       Pad->Name = NewName;
-      DrawPadName (Pad, 0);
+      DrawPadName (Pad);
     }
   else
     Pad->Name = NewName;
@@ -1035,7 +1035,7 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 		  & Element->Name[which].BoundingBox, 0);
 
   if (pcb && which == NAME_INDEX (pcb))
-    DrawElementName (Element, 0);
+    DrawElementName (Element);
 
   return old;
 }
@@ -1078,7 +1078,7 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
   /* calculate size of the bounding box */
   SetTextBoundingBox (&PCB->Font, Text);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
-  DrawText (Layer, Text, 0);
+  DrawText (Layer, Text);
   return (old);
 }
 
@@ -1106,7 +1106,7 @@ ChangeElementSide (ElementTypePtr Element, LocationType yoff)
   EraseElement (Element);
   AddObjectToMirrorUndoList (ELEMENT_TYPE, Element, Element, Element, yoff);
   MirrorElementCoordinates (PCB->Data, Element, yoff);
-  DrawElement (Element, 0);
+  DrawElement (Element);
   return (true);
 }
 
@@ -1143,7 +1143,7 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, true);
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   }
-  DrawLine (Layer, Line, 0);
+  DrawLine (Layer, Line);
   return (Line);
 }
 
@@ -1190,7 +1190,7 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
     ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, true);
   }
-  DrawArc (Layer, Arc, 0);
+  DrawArc (Layer, Arc);
   return (Arc);
 }
 
@@ -1237,7 +1237,7 @@ ChangeTextJoin (LayerTypePtr Layer, TextTypePtr Text)
   AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, true);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   }
-  DrawText (Layer, Text, 0);
+  DrawText (Layer, Text);
   return (Text);
 }
 
@@ -1404,7 +1404,7 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
   TOGGLE_FLAG (SQUAREFLAG, Pad);
   AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, true);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
-  DrawPad (Pad, 0);
+  DrawPad (Pad);
   return (Pad);
 }
 
@@ -1451,7 +1451,7 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
   TOGGLE_FLAG (SQUAREFLAG, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-  DrawPin (Pin, 0);
+  DrawPin (Pin);
   return (Pin);
 }
 
@@ -1494,7 +1494,7 @@ ChangeViaOctagon (PinTypePtr Via)
   TOGGLE_FLAG (OCTAGONFLAG, Via);
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
-  DrawVia (Via, 0);
+  DrawVia (Via);
   return (Via);
 }
 
@@ -1537,7 +1537,7 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-  DrawPin (Pin, 0);
+  DrawPin (Pin);
   return (Pin);
 }
 
@@ -1588,7 +1588,7 @@ ChangeHole (PinTypePtr Via)
       AddObjectTo2ndSizeUndoList (VIA_TYPE, Via, Via, Via);
       Via->DrillingHole = Via->Thickness - MIN_PINORVIACOPPER;
     }
-  DrawVia (Via, 0);
+  DrawVia (Via);
   Draw ();
   return (true);
 }
@@ -1604,7 +1604,7 @@ ChangePaste (PadTypePtr Pad)
   ErasePad (Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Pad, Pad, Pad);
   TOGGLE_FLAG (NOPASTEFLAG, Pad);
-  DrawPad (Pad, 0);
+  DrawPad (Pad);
   Draw ();
   return (true);
 }
@@ -1621,7 +1621,7 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
   AddObjectToFlagUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   TOGGLE_FLAG (CLEARPOLYFLAG, Polygon);
   InitClip (PCB->Data, Layer, Polygon);
-  DrawPolygon (Layer, Polygon, 0);
+  DrawPolygon (Layer, Polygon);
   return (Polygon);
 }
 
@@ -2354,7 +2354,7 @@ ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask = value;
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-      DrawPad (Pad, 0);
+      DrawPad (Pad);
       return (Pad);
     }
   return (NULL);
@@ -2379,7 +2379,7 @@ ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask = value;
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-      DrawPin (Pin, 0);
+      DrawPin (Pin);
       return (Pin);
     }
   return (NULL);
@@ -2404,7 +2404,7 @@ ChangeViaMaskSize (PinTypePtr Via)
       Via->Mask = value;
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, &Via->BoundingBox, 0);
-      DrawVia (Via, 0);
+      DrawVia (Via);
       return (Via);
     }
   return (NULL);

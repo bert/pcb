@@ -586,7 +586,7 @@ ClearWarnings ()
     if (TEST_FLAG (WARNFLAG, pin))
       {
 	CLEAR_FLAG (WARNFLAG, pin);
-	DrawPin (pin, 0);
+	DrawPin (pin);
       }
   }
   ENDALL_LOOP;
@@ -595,7 +595,7 @@ ClearWarnings ()
     if (TEST_FLAG (WARNFLAG, pad))
       {
 	CLEAR_FLAG (WARNFLAG, pad);
-	DrawPad (pad, 0);
+	DrawPad (pad);
       }
   }
   ENDALL_LOOP;
@@ -1034,7 +1034,7 @@ NotifyMode (void)
 	    if (gui->shift_is_pressed ())
 	      ChangeObjectThermal (VIA_TYPE, via, via, via, PCB->ThermStyle);
 	    IncrementUndoSerialNumber ();
-	    DrawVia (via, 0);
+	    DrawVia (via);
 	    Draw ();
 	  }
 	break;
@@ -1118,7 +1118,7 @@ NotifyMode (void)
 		  AddObjectToCreateUndoList (ARC_TYPE, CURRENT, arc, arc);
 		  IncrementUndoSerialNumber ();
 		  addedLines++;
-		  DrawArc (CURRENT, arc, 0);
+		  DrawArc (CURRENT, arc);
 		  Draw ();
 		  Crosshair.AttachedBox.State = STATE_THIRD;
 		}
@@ -1151,7 +1151,7 @@ NotifyMode (void)
 	    /* always re-draw it since I'm too lazy
 	     * to tell if a selected flag changed
 	     */
-	    DrawElement (element, 0);
+	    DrawElement (element);
 	    Draw ();
 	    hid_actionl ("Report", "Object", NULL);
 	  }
@@ -1164,7 +1164,7 @@ NotifyMode (void)
 	      {
 		/* this is not un-doable since LOCK isn't */
 		CLEAR_FLAG (SELECTEDFLAG, thing);
-		DrawObject (type, ptr1, ptr2, 0);
+		DrawObject (type, ptr1, ptr2);
 		Draw ();
 	      }
 	    hid_actionl ("Report", "Object", NULL);
@@ -1222,7 +1222,7 @@ NotifyMode (void)
 	      addedLines++;
 	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
 	      IncrementUndoSerialNumber ();
-	      DrawRat (line, 0);
+	      DrawRat (line);
 	      Crosshair.AttachedLine.Point1.X =
 		Crosshair.AttachedLine.Point2.X;
 	      Crosshair.AttachedLine.Point1.Y =
@@ -1275,7 +1275,7 @@ NotifyMode (void)
 
 	      addedLines++;
 	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-	      DrawLine (CURRENT, line, 0);
+	      DrawLine (CURRENT, line);
 	      /* place a via if vias are visible, the layer is
 	         in a new group since the last line and there
 	         isn't a pin already here */
@@ -1296,7 +1296,7 @@ NotifyMode (void)
 				    NoFlags ())) != NULL)
 		{
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-		  DrawVia (via, 0);
+		  DrawVia (via);
 		}
 	      /* copy the coordinates */
 	      Crosshair.AttachedLine.Point1.X =
@@ -1327,7 +1327,7 @@ NotifyMode (void)
 	      addedLines++;
 	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
 	      IncrementUndoSerialNumber ();
-	      DrawLine (CURRENT, line, 0);
+	      DrawLine (CURRENT, line);
 	      /* move to new start point */
 	      Crosshair.AttachedLine.Point1.X = Note.X;
 	      Crosshair.AttachedLine.Point1.Y = Note.Y;
@@ -1374,7 +1374,7 @@ NotifyMode (void)
 	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
 					 polygon, polygon);
 	      IncrementUndoSerialNumber ();
-	      DrawPolygon (CURRENT, polygon, 0);
+	      DrawPolygon (CURRENT, polygon);
 	      Draw ();
 	    }
 
@@ -1403,7 +1403,7 @@ NotifyMode (void)
 		  {
 		    AddObjectToCreateUndoList (TEXT_TYPE, CURRENT, text, text);
 		    IncrementUndoSerialNumber ();
-		    DrawText (CURRENT, text, 0);
+		    DrawText (CURRENT, text);
 		    Draw ();
 		  }
 		}
@@ -1594,7 +1594,7 @@ NotifyMode (void)
 		    r_insert_entry (PCB->Data->name_tree[i],
 				    (BoxType *) & (e->Name[i]), 0);
 		    if (i == save_n)
-		      DrawElementName (e, 0);
+		      DrawElementName (e);
 		  }
 	      }
 	  }
@@ -2718,7 +2718,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	    }
 	  ELEMENT_LOOP (PCB->Data);
 	  {
-	    DrawElementName (element, 0);
+	    DrawElementName (element);
 	  }
 	  END_LOOP;
 	  Draw ();
@@ -2909,7 +2909,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
 		    ErasePinName (pin);
 		  else
-		    DrawPinName (pin, 0);
+		    DrawPinName (pin);
 		  AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
 		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
 		}
@@ -2919,7 +2919,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
 		    ErasePadName (pad);
 		  else
-		    DrawPadName (pad, 0);
+		    DrawPadName (pad);
 		  AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
 		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
 		}
@@ -2933,7 +2933,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
 		  ErasePinName ((PinTypePtr) ptr2);
 		else
-		  DrawPinName ((PinTypePtr) ptr2, 0);
+		  DrawPinName ((PinTypePtr) ptr2);
 		AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
 		SetChangedFlag (true);
@@ -2945,7 +2945,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		if (TEST_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2))
 		  ErasePadName ((PadTypePtr) ptr2);
 		else
-		  DrawPadName ((PadTypePtr) ptr2, 0);
+		  DrawPadName ((PadTypePtr) ptr2);
 		AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2);
 		SetChangedFlag (true);
@@ -2956,7 +2956,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
 		  EraseViaName ((PinTypePtr) ptr2);
 		else
-		  DrawViaName ((PinTypePtr) ptr2, 0);
+		  DrawViaName ((PinTypePtr) ptr2);
 		AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
 		SetChangedFlag (true);
@@ -3833,7 +3833,7 @@ ActionAddRats (int argc, char **argv, int x, int y)
 	    {
 	      AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
 	      SET_FLAG (SELECTEDFLAG, shorty);
-	      DrawRat (shorty, 0);
+	      DrawRat (shorty);
 	      Draw ();
 	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
 			     (shorty->Point2.Y + shorty->Point1.Y) / 2,
@@ -4772,7 +4772,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 		AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 		EraseElementName ((ElementTypePtr) ptr2);
 		TOGGLE_FLAG (HIDENAMEFLAG, (ElementTypePtr) ptr2);
-		DrawElementName ((ElementTypePtr) ptr2, 0);
+		DrawElementName ((ElementTypePtr) ptr2);
 		Draw ();
 		IncrementUndoSerialNumber ();
 	      }
@@ -4793,7 +4793,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 					   element, element);
 		  EraseElementName (element);
 		  TOGGLE_FLAG (HIDENAMEFLAG, element);
-		  DrawElementName (element, 0);
+		  DrawElementName (element);
 		  changed = true;
 		}
 	    }
@@ -6284,7 +6284,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 		    {
 		      /* undo loses FOUNDFLAG */
 		      SET_FLAG(FOUNDFLAG, ptr2);
-		      DrawLine (CURRENT, ptr2, 0);
+		      DrawLine (CURRENT, ptr2);
 		    }
 		  Crosshair.AttachedLine.Point1.X =
 		    Crosshair.AttachedLine.Point2.X = ptr2->Point2.X;

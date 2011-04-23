@@ -8040,14 +8040,14 @@ escape (int argc, char **argv, int x, int y)
         AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 //        if (gui->shift_is_pressed ())
 //          ChangeObjectThermal (VIA_TYPE, via, via, via, PCB->ThermStyle);
-        DrawVia (via, 0);
+        DrawVia (via);
         if((line = CreateDrawnLineOnLayer (CURRENT, pad->Point1.X + 1., pad->Point1.Y + 1., viax + 1., viay + 1.,
                 Settings.LineThickness, 2 * Settings.Keepaway,
                 NoFlags())))        
         {
 
           AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-          DrawLine (CURRENT, line, 0);
+          DrawLine (CURRENT, line);
 
         }
       

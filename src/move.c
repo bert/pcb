@@ -192,7 +192,7 @@ MoveElementName (ElementTypePtr Element)
 	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
-      DrawElementName (Element, 0);
+      DrawElementName (Element);
       Draw ();
     }
   else
@@ -222,8 +222,8 @@ MoveElement (ElementTypePtr Element)
     {
       EraseElement (Element);
       MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
-      DrawElementName (Element, 0);
-      DrawElementPackage (Element, 0);
+      DrawElementName (Element);
+      DrawElementPackage (Element);
       didDraw = true;
     }
   else
@@ -234,7 +234,7 @@ MoveElement (ElementTypePtr Element)
     }
   if (PCB->PinOn)
     {
-      DrawElementPinsAndPads (Element, 0);
+      DrawElementPinsAndPads (Element);
       didDraw = true;
     }
   if (didDraw)
@@ -257,7 +257,7 @@ MoveVia (PinTypePtr Via)
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   if (PCB->ViaOn)
     {
-      DrawVia (Via, 0);
+      DrawVia (Via);
       Draw ();
     }
   return (Via);
@@ -278,7 +278,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   if (Layer->On)
     {
-      DrawLine (Layer, Line, 0);
+      DrawLine (Layer, Line);
       Draw ();
     }
   return (Line);
@@ -296,7 +296,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       EraseArc (Arc);
       MOVE_ARC_LOWLEVEL (Arc, DeltaX, DeltaY);
-      DrawArc (Layer, Arc, 0);
+      DrawArc (Layer, Arc);
       Draw ();
     }
   else
@@ -320,7 +320,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
     {
       EraseText (Layer, Text);
       MOVE_TEXT_LOWLEVEL (Text, DeltaX, DeltaY);
-      DrawText (Layer, Text, 0);
+      DrawText (Layer, Text);
       Draw ();
     }
   else
@@ -361,7 +361,7 @@ MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   InitClip (PCB->Data, Layer, Polygon);
   if (Layer->On)
     {
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       Draw ();
     }
   return (Polygon);
@@ -385,7 +385,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       if (Layer->On)
 	{
-	  DrawLine (Layer, Line, 0);
+	  DrawLine (Layer, Line);
 	  Draw ();
 	}
       return (Line);
@@ -400,7 +400,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
       r_insert_entry (PCB->Data->rat_tree, &Line->BoundingBox, 0);
       if (PCB->RatOn)
 	{
-	  DrawRat ((RatTypePtr) Line, 0);
+	  DrawRat ((RatTypePtr) Line);
 	  Draw ();
 	}
       return (Line);
@@ -426,7 +426,7 @@ MovePolygonPoint (LayerTypePtr Layer, PolygonTypePtr Polygon,
   InitClip (PCB->Data, Layer, Polygon);
   if (Layer->On)
     {
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       Draw ();
     }
   return (Point);
@@ -492,7 +492,7 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
     }
   if (Dest == Layer && Layer->On)
     {
-      DrawArc (Layer, Arc, 0);
+      DrawArc (Layer, Arc);
       Draw ();
     }
   if (((long int) Dest == -1) || Dest == Layer)
@@ -504,7 +504,7 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
   newone = (ArcTypePtr)MoveArcToLayerLowLevel (Layer, Arc, Dest);
   ClearFromPolygon (PCB->Data, ARC_TYPE, Dest, Arc);
   if (Dest->On)
-    DrawArc (Dest, newone, 0);
+    DrawArc (Dest, newone);
   Draw ();
   return (newone);
 }
@@ -535,7 +535,7 @@ MoveRatToLayer (RatTypePtr Rat)
   if (PCB->RatOn)
     EraseRat (Rat);
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
-  DrawLine (Dest, newone, 0);
+  DrawLine (Dest, newone);
   Draw ();
   return (newone);
 }
@@ -563,7 +563,7 @@ moveline_callback (const BoxType * b, void *cl)
 		     NoFlags ())) != NULL)
     {
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-      DrawVia (via, 0);
+      DrawVia (via);
     }
   longjmp (i->env, 1);
 }
@@ -583,7 +583,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
     }
   if (Dest == Layer && Layer->On)
     {
-      DrawLine (Layer, Line, 0);
+      DrawLine (Layer, Line);
       Draw ();
     }
   if (((long int) Dest == -1) || Dest == Layer)
@@ -597,7 +597,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
   Line = NULL;
   ClearFromPolygon (PCB->Data, LINE_TYPE, Dest, newone);
   if (Dest->On)
-    DrawLine (Dest, newone, 0);
+    DrawLine (Dest, newone);
   Draw ();
   if (!PCB->ViaOn || MoreToCome ||
       GetLayerGroupNumberByPointer (Layer) ==
@@ -688,7 +688,7 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
 	EraseText (Layer, Text);
       newone = (TextTypePtr)MoveTextToLayerLowLevel (Layer, Text, Dest);
       if (Dest->On)
-	DrawText (Dest, newone, 0);
+	DrawText (Dest, newone);
       if (Layer->On || Dest->On)
 	Draw ();
       return (newone);
@@ -775,7 +775,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   InitClip (PCB->Data, Dest, newone);
   if (Dest->On)
     {
-      DrawPolygon (Dest, newone, 0);
+      DrawPolygon (Dest, newone);
       Draw ();
     }
   return (newone);

@@ -699,7 +699,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) (register ConnectionTypePtr
 		  if (distance == 0)
 		    SET_FLAG (VIAFLAG, line);
 		  AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
-		  DrawRat (line, 0);
+		  DrawRat (line);
 		  changed = true;
 		}
 	    }

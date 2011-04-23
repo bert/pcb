@@ -184,7 +184,7 @@ RotateText (LayerTypePtr Layer, TextTypePtr Text)
   RotateTextLowLevel (Text, CenterX, CenterY, Number);
   r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
-  DrawText (Layer, Text, 0);
+  DrawText (Layer, Text);
   Draw ();
   return (Text);
 }
@@ -285,12 +285,12 @@ RotateLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
     {
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-      DrawLine (Layer, Line, 0);
+      DrawLine (Layer, Line);
     }
   else
     {
       r_insert_entry (PCB->Data->rat_tree, (BoxTypePtr) Line, 0);
-      DrawRat ((RatTypePtr) Line, 0);
+      DrawRat ((RatTypePtr) Line);
     }
   Draw ();
   return (Line);
@@ -306,7 +306,7 @@ RotateArc (LayerTypePtr Layer, ArcTypePtr Arc)
   r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   RotateArcLowLevel (Arc, CenterX, CenterY, Number);
   r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
-  DrawArc (Layer, Arc, 0);
+  DrawArc (Layer, Arc);
   Draw ();
   return (Arc);
 }
@@ -319,7 +319,7 @@ RotateElement (ElementTypePtr Element)
 {
   EraseElement (Element);
   RotateElementLowLevel (PCB->Data, Element, CenterX, CenterY, Number);
-  DrawElement (Element, 0);
+  DrawElement (Element);
   Draw ();
   return (Element);
 }
@@ -338,7 +338,7 @@ RotateElementName (ElementTypePtr Element)
     r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
   }
   END_LOOP;
-  DrawElementName (Element, 0);
+  DrawElementName (Element);
   Draw ();
   return (Element);
 }
@@ -399,12 +399,12 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 	{
 	  r_insert_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line, 0);
 	  ClearFromPolygon (PCB->Data, LINE_TYPE, ptr->Layer, ptr->Line);
-	  DrawLine (ptr->Layer, ptr->Line, 0);
+	  DrawLine (ptr->Layer, ptr->Line);
 	}
       else
 	{
 	  r_insert_entry (PCB->Data->rat_tree, (BoxType *) ptr->Line, 0);
-	  DrawRat ((RatTypePtr) ptr->Line, 0);
+	  DrawRat ((RatTypePtr) ptr->Line);
 	}
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;

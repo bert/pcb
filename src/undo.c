@@ -276,10 +276,10 @@ DrawRecoveredObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       LayerTypePtr layer;
 
       layer = LAYER_PTR (GetLayerNumber (RemoveList, (LayerTypePtr) Ptr1));
-      DrawObject (Type, (void *) layer, Ptr2, 0);
+      DrawObject (Type, (void *) layer, Ptr2);
     }
   else
-    DrawObject (Type, Ptr1, Ptr2, 0);
+    DrawObject (Type, Ptr1, Ptr2);
 }
 
 /* ---------------------------------------------------------------------------
@@ -379,7 +379,7 @@ UndoChange2ndSize (UndoListTypePtr Entry)
 	EraseObject (type, ptr1, ptr2);
       ((PinTypePtr) ptr2)->DrillingHole = Entry->Data.Size;
       Entry->Data.Size = swap;
-      DrawObject (type, ptr1, ptr2, 0);
+      DrawObject (type, ptr1, ptr2);
       return (true);
     }
   return (false);
@@ -415,7 +415,7 @@ UndoChangeAngles (UndoListTypePtr Entry)
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
       Entry->Data.Move.DX = old_sa;
       Entry->Data.Move.DY = old_da;;
-      DrawObject (type, ptr1, a, 0);
+      DrawObject (type, ptr1, a);
       return (true);
     }
   return (false);
@@ -446,7 +446,7 @@ UndoChangeClearSize (UndoListTypePtr Entry)
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       Entry->Data.Size = swap;
       if (andDraw)
-	DrawObject (type, ptr1, ptr2, 0);
+	DrawObject (type, ptr1, ptr2);
       return (true);
     }
   return (false);
@@ -480,7 +480,7 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
 	((PinTypePtr) ptr2)->Mask = Entry->Data.Size;
       Entry->Data.Size = swap;
       if (andDraw)
-	DrawObject (type, ptr1, ptr2, 0);
+	DrawObject (type, ptr1, ptr2);
       return (true);
     }
   return (false);
@@ -514,7 +514,7 @@ UndoChangeSize (UndoListTypePtr Entry)
       Entry->Data.Size = swap;
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
-	DrawObject (type, ptr1, ptr2, 0);
+	DrawObject (type, ptr1, ptr2);
       return (true);
     }
   return (false);
@@ -559,7 +559,7 @@ UndoFlag (UndoListTypePtr Entry)
       Entry->Data.Flags = swap;
 
       if (andDraw && must_redraw)
-	DrawObject (type, ptr1, ptr2, 0);
+	DrawObject (type, ptr1, ptr2);
       return (true);
     }
   Message ("hace Internal error: Can't find ID %d type %08x\n", Entry->ID,
@@ -591,7 +591,7 @@ UndoMirror (UndoListTypePtr Entry)
 	EraseElement (element);
       MirrorElementCoordinates (PCB->Data, element, Entry->Data.Move.DY);
       if (andDraw)
-	DrawElement (element, 0);
+	DrawElement (element);
       return (true);
     }
   Message ("hace Internal error: UndoMirror on object type %d\n", type);
@@ -740,7 +740,7 @@ UndoRemovePoint (UndoListTypePtr Entry)
 	polygon->Points[Entry->Data.RemovedPoint.Index].ID =
 	  Entry->Data.RemovedPoint.ID;
 	if (andDraw && layer->On)
-	  DrawPolygon (layer, polygon, 0);
+	  DrawPolygon (layer, polygon);
 	Entry->Type = UNDO_INSERT_POINT;
 	Entry->ID = Entry->Data.RemovedPoint.ID;
 	Entry->Kind = POLYGONPOINT_TYPE;
@@ -802,7 +802,7 @@ UndoInsertPoint (UndoListTypePtr Entry)
 	Entry->Data.RemovedPoint.Index = point_idx;
 	DestroyObject (PCB->Data, POLYGONPOINT_TYPE, layer, polygon, pnt);
 	if (andDraw && layer->On)
-	  DrawPolygon (layer, polygon, 0);
+	  DrawPolygon (layer, polygon);
 	return (true);
       }
 

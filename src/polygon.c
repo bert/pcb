@@ -1408,7 +1408,7 @@ CopyAttachedPolygonToLayer (void)
     CURRENT->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (CURRENT->polygon_tree, (BoxType *) polygon, 0);
   InitClip (PCB->Data, CURRENT, polygon);
-  DrawPolygon (CURRENT, polygon, 0);
+  DrawPolygon (CURRENT, polygon);
   SetChangedFlag (true);
 
   /* reset state of attached line */
@@ -1836,7 +1836,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
           p = p->f;             /* go to next pline */
           newone->Clipped->b = newone->Clipped->f = newone->Clipped;     /* unlink from others */
           r_insert_entry (layer->polygon_tree, (BoxType *) newone, 0);
-          DrawPolygon (layer, newone, 0);
+          DrawPolygon (layer, newone);
         }
       else
         {
@@ -1951,7 +1951,7 @@ PolyToPolygonsOnLayer (DataType *Destination, LayerType *Layer,
         Layer->polygon_tree = r_create_tree (NULL, 0, 0);
       r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
 
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       /* add to undo list */
       AddObjectToCreateUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
     }

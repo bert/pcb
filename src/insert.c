@@ -106,14 +106,14 @@ InsertPointIntoRat (RatTypePtr Rat)
     return newone;
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, newone, newone);
   EraseRat (Rat);
-  DrawLine (CURRENT, newone, 0);
+  DrawLine (CURRENT, newone);
   newone = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
 				InsertX, InsertY, Settings.LineThickness,
 				2 * Settings.Keepaway, Rat->Flags);
   if (newone)
     {
       AddObjectToCreateUndoList (LINE_TYPE, CURRENT, newone, newone);
-      DrawLine (CURRENT, newone, 0);
+      DrawLine (CURRENT, newone);
     }
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
   Draw ();
@@ -142,7 +142,7 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
   Line->Point2.Y = InsertY;
   SetLineBoundingBox (Line);
   r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
-  DrawLine (Layer, Line, 0);
+  DrawLine (Layer, Line);
   /* we must create after playing with Line since creation may
    * invalidate the line pointer
    */
@@ -152,7 +152,7 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 				      Line->Flags)))
     {
       AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
-      DrawLine (Layer, line, 0);
+      DrawLine (Layer, line);
       /* creation call adds it to the rtree */
     }
   Draw ();
@@ -205,7 +205,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   InitClip (PCB->Data, Layer, Polygon);
   if (Forcible || !RemoveExcessPolygonPoints (Layer, Polygon))
     {
-      DrawPolygon (Layer, Polygon, 0);
+      DrawPolygon (Layer, Polygon);
       Draw ();
     }
   return (&Polygon->Points[InsertAt]);

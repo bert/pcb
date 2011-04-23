@@ -198,7 +198,7 @@ CopyVia (PinTypePtr Via)
 		      MaskFlags (Via->Flags, FOUNDFLAG));
   if (!via)
     return (via);
-  DrawVia (via, 0);
+  DrawVia (via);
   AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
   return (via);
 }
@@ -221,7 +221,7 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
     return (line);
   if (Line->Number)
     line->Number = strdup (Line->Number);
-  DrawLine (Layer, line, 0);
+  DrawLine (Layer, line);
   AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
   return (line);
 }
@@ -240,7 +240,7 @@ CopyArc (LayerTypePtr Layer, ArcTypePtr Arc)
 			     MaskFlags (Arc->Flags, FOUNDFLAG));
   if (!arc)
     return (arc);
-  DrawArc (Layer, arc, 0);
+  DrawArc (Layer, arc);
   AddObjectToCreateUndoList (ARC_TYPE, Layer, arc, arc);
   return (arc);
 }
@@ -257,7 +257,7 @@ CopyText (LayerTypePtr Layer, TextTypePtr Text)
 			Text->Y + DeltaY, Text->Direction,
 			Text->Scale, Text->TextString,
 			MaskFlags (Text->Flags, FOUNDFLAG));
-  DrawText (Layer, text, 0);
+  DrawText (Layer, text);
   AddObjectToCreateUndoList (TEXT_TYPE, Layer, text, text);
   return (text);
 }
@@ -277,7 +277,7 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
   InitClip (PCB->Data, Layer, polygon);
-  DrawPolygon (Layer, polygon, 0);
+  DrawPolygon (Layer, polygon);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
   return (polygon);
 }
@@ -305,13 +305,13 @@ CopyElement (ElementTypePtr Element)
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
   if (PCB->ElementOn && (FRONT (element) || PCB->InvisibleObjectsOn))
     {
-      DrawElementName (element, 0);
-      DrawElementPackage (element, 0);
+      DrawElementName (element);
+      DrawElementPackage (element);
       didDraw = true;
     }
   if (PCB->PinOn)
     {
-      DrawElementPinsAndPads (element, 0);
+      DrawElementPinsAndPads (element);
       didDraw = true;
     }
 #ifdef DEBUG
