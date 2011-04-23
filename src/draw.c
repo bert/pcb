@@ -309,9 +309,9 @@ rat_callback (const BoxType * b, void *cl)
  */
 
 static void
-PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
+PrintAssembly (int side, const BoxType * drawn_area)
 {
-  int side = swap_ident ? SOLDER_LAYER : COMPONENT_LAYER;
+  int side_group = GetLayerGroupNumberByNumber (max_copper_layer + side);
 
   gui->set_draw_faded (Output.fgGC, 1);
   DrawLayerGroup (side_group, drawn_area);
@@ -491,10 +491,10 @@ DrawEverything (BoxTypePtr drawn_area)
 
   doing_assy = true;
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
-    PrintAssembly (drawn_area, component, 0);
+    PrintAssembly (COMPONENT_LAYER, drawn_area);
 
   if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM), 0))
-    PrintAssembly (drawn_area, solder, 1);
+    PrintAssembly (SOLDER_LAYER, drawn_area);
   doing_assy = false;
 
   if (gui->set_layer ("fab", SL (FAB, 0), 0))
