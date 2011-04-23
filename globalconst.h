@@ -86,9 +86,6 @@
 #define	MAX_DRC_RING		10000
 #define	MIN_GRID		1	/* min grid in 1/100 mils */
 #define	MAX_GRID		100000 /* max grid in 1/100 mils */ 
-#define	CHUNK			100	/* step size for size sliders */
-#define	MIN_ZOOM		-12	/* min zoom */
-#define	MAX_ZOOM		12	/* max zoom */
 #define	MAX_FONTPOSITION	255	/* upper limit of characters in my font */
 
 #define	MAX_COORD		LARGE_VALUE	/* coordinate limits */
