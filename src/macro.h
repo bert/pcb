@@ -151,12 +151,7 @@ extern int mem_any_set (unsigned char *, int);
 
 /* ---------------------------------------------------------------------------
  *  Determines if text is actually visible
-#define TEXT_IS_VISIBLE(b, l, t)					\
-		(((l)->On && !TEST_FLAG(ONSILKFLAG, (t))) ||     	\
-		(TEST_FLAG(ONSILKFLAG, (t)) && (b)->ElementOn   	\
-		&& ((b)->InvisibleObjectsOn ||                  	\
-		(TEST_FLAG(ONSOLDERFLAG, (t)) != 0) == SWAP_IDENT)))
-*/
+ */
 #define TEXT_IS_VISIBLE(b, l, t) \
 	((l)->On)
 
