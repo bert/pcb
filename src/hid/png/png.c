@@ -322,7 +322,7 @@ parse_bloat (char *str)
   else if (strcasecmp (suf, "mm") == 0)
     bloat = val * MM_TO_COOR;
   else if (strcasecmp (suf, "um") == 0)
-    bloat = val * MM_TO_COOR * 1000.0;
+    bloat = val * MM_TO_COOR / 1000.0;
   else if (strcasecmp (suf, "pix") == 0
 	   || strcasecmp (suf, "px") == 0)
     bloat = val * scale;
