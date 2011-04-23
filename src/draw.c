@@ -382,12 +382,8 @@ DrawEverything (BoxTypePtr drawn_area)
 	{
 	  if (DrawLayerGroup (group, drawn_area) && !gui->gui)
 	    {
-	      if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
-		continue;
-	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
-			NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback,
-			NULL);
+	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
+	      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
 	      /* draw element pads */
 	      if (group == component || group == solder)
 		{
@@ -395,15 +391,10 @@ DrawEverything (BoxTypePtr drawn_area)
 		  r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
 		}
 
-	      if (!gui->gui)
-		{
-		  /* draw holes */
-		  plated = -1;
-		  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-			    &plated);
-		  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-			    &plated);
-		}
+	      /* draw holes */
+	      plated = -1;
+	      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
+	      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
 	    }
 	}
     }
