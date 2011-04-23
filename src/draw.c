@@ -83,7 +83,7 @@ static const BoxType *clip_box = NULL;
  */
 static void Redraw (bool, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
-static void DrawTop (const BoxType *);
+static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, bool);
 static void DrawPlainPin (PinTypePtr, bool);
@@ -314,12 +314,12 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   int save_swap = SWAP_IDENT;
 
   gui->set_draw_faded (Output.fgGC, 1);
-  SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
-  DrawTop (drawn_area);
+  DrawPPV (side_group, drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
   /* draw package */
+  SWAP_IDENT = swap_ident;
   DrawSilk (swap_ident,
 	    swap_ident ? solder_silk_layer : component_silk_layer,
 	    drawn_area);
@@ -404,7 +404,7 @@ DrawEverything (BoxTypePtr drawn_area)
 
   /* Draw pins, pads, vias below silk */
   if (gui->gui)
-    DrawTop (drawn_area);
+    DrawPPV (SWAP_IDENT ? solder : component, drawn_area);
   else
     {
       HoleCountStruct hcs;
@@ -569,17 +569,31 @@ pad_callback (const BoxType * b, void *cl)
  * draws pins pads and vias
  */
 static void
-DrawTop (const BoxType *drawn_area)
+DrawPPV (int group, const BoxType *drawn_area)
 {
-  int side = SWAP_IDENT ? SOLDER_LAYER : COMPONENT_LAYER;
+  int component_group = GetLayerGroupNumberByNumber (component_silk_layer);
+  int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
+  int side;
 
   if (PCB->PinOn || doing_assy)
     {
       /* draw element pins */
       r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
+
       /* draw element pads */
-      r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
+      if (group == component_group)
+        {
+          side = COMPONENT_LAYER;
+          r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
+        }
+
+      if (group == solder_group)
+        {
+          side = SOLDER_LAYER;
+          r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
+        }
     }
+
   /* draw vias */
   if (PCB->ViaOn || doing_assy)
     {
