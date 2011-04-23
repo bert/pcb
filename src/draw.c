@@ -66,6 +66,7 @@ RCSID ("$Id$");
 #define	LARGE_TEXT_SIZE			3
 #define	N_TEXT_SIZES			4
 
+#define ON_SIDE(element, side) (TEST_FLAG (ONSOLDERFLAG, element) == (*side == SOLDER_LAYER))
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -229,48 +230,29 @@ Redraw (bool ClearWindow, BoxTypePtr screen_area)
 }
 
 static int
-backE_callback (const BoxType * b, void *cl)
+element_callback (const BoxType * b, void *cl)
 {
   ElementTypePtr element = (ElementTypePtr) b;
+  int *side = cl;
 
-  if (!FRONT (element))
-    {
-      DrawElementPackage (element);
-    }
+  if (ON_SIDE (element, side))
+    DrawElementPackage (element);
   return 1;
 }
 
 static int
-backN_callback (const BoxType * b, void *cl)
+name_callback (const BoxType * b, void *cl)
 {
   TextTypePtr text = (TextTypePtr) b;
   ElementTypePtr element = (ElementTypePtr) text->Element;
+  int *side = cl;
 
-  if (!FRONT (element) && !TEST_FLAG (HIDENAMEFLAG, element))
+  if (TEST_FLAG (HIDENAMEFLAG, element))
+    return 0;
+
+  if (ON_SIDE (element, side))
     DrawElementName (element);
   return 0;
-}
-
-static int
-backPad_callback (const BoxType * b, void *cl)
-{
-  PadTypePtr pad = (PadTypePtr) b;
-
-  if (!FRONT (pad))
-    DrawPad (pad);
-  return 1;
-}
-
-static int
-frontE_callback (const BoxType * b, void *cl)
-{
-  ElementTypePtr element = (ElementTypePtr) b;
-
-  if (FRONT (element))
-    {
-      DrawElementPackage (element);
-    }
-  return 1;
 }
 
 static int
@@ -280,17 +262,6 @@ EMark_callback (const BoxType * b, void *cl)
 
   DrawEMark (element, element->MarkX, element->MarkY, !FRONT (element));
   return 1;
-}
-
-static int
-frontN_callback (const BoxType * b, void *cl)
-{
-  TextTypePtr text = (TextTypePtr) b;
-  ElementTypePtr element = (ElementTypePtr) text->Element;
-
-  if (FRONT (element) && !TEST_FLAG (HIDENAMEFLAG, element))
-    DrawElementName (element);
-  return 0;
 }
 
 static int
@@ -392,15 +363,13 @@ DrawEverything (BoxTypePtr drawn_area)
   if (!TEST_FLAG (CHECKPLANESFLAG, PCB)
       && gui->set_layer ("invisible", SL (INVISIBLE, 0), 0))
     {
-      r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
-		NULL);
+      side = SWAP_IDENT ? COMPONENT_LAYER : SOLDER_LAYER;
+      r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
       if (PCB->ElementOn)
 	{
-	  r_search (PCB->Data->element_tree, drawn_area, NULL, backE_callback,
-		    NULL);
-	  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		    backN_callback, NULL);
-	  DrawLayer (&(PCB->Data->BACKSILKLAYER), drawn_area);
+	  r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
+	  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL, name_callback, &side);
+	  DrawLayer (&(PCB->Data->Layer[max_copper_layer + side]), drawn_area);
 	}
     }
 
@@ -413,8 +382,6 @@ DrawEverything (BoxTypePtr drawn_area)
 	{
 	  if (DrawLayerGroup (group, drawn_area) && !gui->gui)
 	    {
-	      int save_swap = SWAP_IDENT;
-
 	      if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
 		continue;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
@@ -424,11 +391,9 @@ DrawEverything (BoxTypePtr drawn_area)
 	      /* draw element pads */
 	      if (group == component || group == solder)
 		{
-		  SWAP_IDENT = (group == solder);
-		  r_search (PCB->Data->pad_tree, drawn_area, NULL,
-			    pad_callback, NULL);
+                  side = (group == solder) ? SOLDER_LAYER : COMPONENT_LAYER;
+		  r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
 		}
-	      SWAP_IDENT = save_swap;
 
 	      if (!gui->gui)
 		{
@@ -609,7 +574,9 @@ static int
 pad_callback (const BoxType * b, void *cl)
 {
   PadTypePtr pad = (PadTypePtr) b;
-  if (FRONT (pad))
+  int *side = cl;
+
+  if (TEST_FLAG (ONSOLDERFLAG, pad) == (*side == SOLDER_LAYER))
     DrawPad (pad);
   return 1;
 }
@@ -620,12 +587,14 @@ pad_callback (const BoxType * b, void *cl)
 static void
 DrawTop (const BoxType * screen)
 {
+  int side = SWAP_IDENT ? SOLDER_LAYER : COMPONENT_LAYER;
+
   if (PCB->PinOn || doing_assy)
     {
       /* draw element pins */
       r_search (PCB->Data->pin_tree, screen, NULL, pin_callback, NULL);
       /* draw element pads */
-      r_search (PCB->Data->pad_tree, screen, NULL, pad_callback, NULL);
+      r_search (PCB->Data->pad_tree, screen, NULL, pad_callback, &side);
     }
   /* draw vias */
   if (PCB->ViaOn || doing_assy)
@@ -672,6 +641,7 @@ clearPad_callback (const BoxType * b, void *cl)
 static void
 DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
 {
+  int side = new_swap ? SOLDER_LAYER : COMPONENT_LAYER;
 #if 0
   /* This code is used when you want to mask silk to avoid exposed
      pins and pads.  We decided it was a bad idea to do this
@@ -687,10 +657,8 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
 #endif
       DrawLayer (LAYER_PTR (layer), drawn_area);
       /* draw package */
-      r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
-		NULL);
-      r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		frontN_callback, NULL);
+      r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
+      r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL, name_callback, &side);
 #if 0
     }
 
@@ -704,10 +672,8 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
       gui->use_mask (HID_MASK_AFTER);
       DrawLayer (LAYER_PTR (max_copper_layer + layer), drawn_area);
       /* draw package */
-      r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
-		NULL);
-      r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		frontN_callback, NULL);
+      r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
+      r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL, name_callback, &side);
     }
   gui->use_mask (HID_MASK_OFF);
 #endif
