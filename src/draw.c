@@ -104,7 +104,7 @@ static void ClearPad (PadTypePtr, bool);
 static void DrawHole (PinTypePtr);
 static void DrawMask (int side, BoxType *);
 static void DrawRats (BoxType *);
-static void DrawSilk (int, int, const BoxType *);
+static void DrawSilk (int side, const BoxType *);
 static int via_callback (const BoxType * b, void *cl);
 static int pin_callback (const BoxType * b, void *cl);
 static int pad_callback (const BoxType * b, void *cl);
@@ -311,7 +311,7 @@ rat_callback (const BoxType * b, void *cl)
 static void
 PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
 {
-  int save_swap = SWAP_IDENT;
+  int side = swap_ident ? SOLDER_LAYER : COMPONENT_LAYER;
 
   gui->set_draw_faded (Output.fgGC, 1);
   DrawLayerGroup (side_group, drawn_area);
@@ -319,11 +319,7 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 0);
 
   /* draw package */
-  SWAP_IDENT = swap_ident;
-  DrawSilk (swap_ident,
-	    swap_ident ? solder_silk_layer : component_silk_layer,
-	    drawn_area);
-  SWAP_IDENT = save_swap;
+  DrawSilk (side, drawn_area);
 }
 
 /* ---------------------------------------------------------------------------
@@ -437,11 +433,12 @@ DrawEverything (BoxTypePtr drawn_area)
   if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
     DrawMask (SOLDER_LAYER, drawn_area);
 
-  /* Draw top silkscreen */
   if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
-    DrawSilk (0, component_silk_layer, drawn_area);
+    DrawSilk (COMPONENT_LAYER, drawn_area);
+
   if (gui->set_layer ("bottomsilk", SL (SILK, BOTTOM), 0))
-    DrawSilk (1, solder_silk_layer, drawn_area);
+    DrawSilk (SOLDER_LAYER, drawn_area);
+
   if (gui->gui)
     {
       /* Draw element Marks */
@@ -639,9 +636,8 @@ clearPad_callback (const BoxType * b, void *cl)
  */
 
 static void
-DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
+DrawSilk (int side, const BoxType * drawn_area)
 {
-  int side = new_swap ? SOLDER_LAYER : COMPONENT_LAYER;
 #if 0
   /* This code is used when you want to mask silk to avoid exposed
      pins and pads.  We decided it was a bad idea to do this
@@ -653,7 +649,7 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
     {
       gui->use_mask (HID_MASK_BEFORE);
 #endif
-      DrawLayer (LAYER_PTR (layer), drawn_area);
+      DrawLayer (LAYER_PTR (max_copper_layer + side), drawn_area);
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
       r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL, name_callback, &side);
