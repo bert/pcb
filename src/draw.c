@@ -386,7 +386,7 @@ DrawEverything (BoxTypePtr drawn_area)
 		continue;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
 			NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, pin_callback,
+	      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback,
 			NULL);
 	      /* draw element pads */
 	      if (group == component || group == solder)
