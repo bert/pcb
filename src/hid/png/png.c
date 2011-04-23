@@ -230,17 +230,26 @@ static HID_Attr_Val png_values[NUM_OPTIONS];
 
 static const char *get_file_suffix(void)
 {
-	const char *fmt;
-	const char *result;
-	fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
-	     if (strcmp (fmt, FMT_gif) == 0)  result=".gif";
-	else if (strcmp (fmt, FMT_jpg) == 0)  result=".jpg";
-	else if (strcmp (fmt, FMT_png) == 0)  result=".png";
-	else {
-		fprintf (stderr, "Error:  Invalid graphic file format\n");
-		result=".???";
-	}
-	return result;
+  const char *result = NULL;
+  const char *fmt;
+
+  fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
+
+  if (fmt == NULL)
+    ; /* Do nothing */
+  else if (strcmp (fmt, FMT_gif) == 0)
+    result=".gif";
+  else if (strcmp (fmt, FMT_jpg) == 0)
+    result=".jpg";
+  else if (strcmp (fmt, FMT_png) == 0)
+    result=".png";
+
+  if (result == NULL)
+    {
+      fprintf (stderr, "Error:  Invalid graphic file format\n");
+      result=".???";
+    }
+  return result;
 }
 
 static HID_Attribute *
@@ -249,7 +258,11 @@ png_get_export_options (int *n)
   static char *last_made_filename = 0;
   const char *suffix = get_file_suffix();
 
-  if (PCB) derive_default_filename(PCB->Filename, &png_attribute_list[HA_pngfile], suffix, &last_made_filename);
+  if (PCB)
+    derive_default_filename (PCB->Filename,
+                             &png_attribute_list[HA_pngfile],
+                             suffix,
+                             &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
@@ -506,6 +519,7 @@ png_do_export (HID_Attr_Val * options)
   int w, h;
   int xmax, ymax, dpi;
   const char *fmt;
+  bool format_error = false;
 
   if (color_cache)
     {
@@ -843,37 +857,33 @@ png_do_export (HID_Attr_Val * options)
 
   /* actually write out the image */
   fmt = filetypes[options[HA_filetype].int_value];
-  
-  if (strcmp (fmt, FMT_gif) == 0)
+
+  if (fmt == NULL)
+    format_error = true;
+  else if (strcmp (fmt, FMT_gif) == 0)
 #ifdef HAVE_GDIMAGEGIF
     gdImageGif (im, f);
 #else
-    {
-      gdImageDestroy (im);
-      return;
-    }
+    format_error = true;
 #endif
   else if (strcmp (fmt, FMT_jpg) == 0)
 #ifdef HAVE_GDIMAGEJPEG
     gdImageJpeg (im, f, -1);
 #else
-    {
-      gdImageDestroy (im);
-      return;
-    }
+    format_error = true;
 #endif
   else if (strcmp (fmt, FMT_png) == 0)
 #ifdef HAVE_GDIMAGEPNG
     gdImagePng (im, f);
 #else
-    {
-      gdImageDestroy (im);
-      return;
-    }
+    format_error = true;
 #endif
   else
+    format_error = true;
+
+  if (format_error)
     fprintf (stderr, "Error:  Invalid graphic file format."
-	     "  This is a bug.  Please report it.\n");
+                     "  This is a bug.  Please report it.\n");
 
   fclose (f);
 
