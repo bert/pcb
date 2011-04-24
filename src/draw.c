@@ -376,25 +376,10 @@ DrawEverything (BoxTypePtr drawn_area)
       int group = drawn_groups[i];
 
       if (gui->set_layer (0, group, 0))
-	{
-	  if (DrawLayerGroup (group, drawn_area) && !gui->gui)
-	    {
-	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
-	      /* draw element pads */
-	      if (group == component || group == solder)
-		{
-                  side = (group == solder) ? SOLDER_LAYER : COMPONENT_LAYER;
-		  r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
-		}
-
-	      /* draw holes */
-	      plated = -1;
-	      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
-	    }
-	}
+        if (DrawLayerGroup (group, drawn_area) && !gui->gui)
+          DrawPPV (group, drawn_area);
     }
+
   if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
     return;
 
