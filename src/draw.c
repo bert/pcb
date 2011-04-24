@@ -512,7 +512,7 @@ pad_callback (const BoxType * b, void *cl)
   PadTypePtr pad = (PadTypePtr) b;
   int *side = cl;
 
-  if (TEST_FLAG (ONSOLDERFLAG, pad) == (*side == SOLDER_LAYER))
+  if (ON_SIDE (pad, *side))
     DrawPad (pad);
   return 1;
 }
