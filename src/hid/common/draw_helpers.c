@@ -225,7 +225,7 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
       /* slanted square pad */
       float tx, ty, theta;
 
-      if (x1 == x2 || y1 == y2)
+      if (x1 == x2 && y1 == y2)
         theta = 0;
       else
         theta = atan2 (y2 - y1, x2 - x1);
