@@ -566,7 +566,8 @@ pad_callback (const BoxType * b, void *cl)
 }
 
 /* ---------------------------------------------------------------------------
- * draws pins pads and vias
+ * Draws pins pads and vias - Always draws for non-gui HIDs,
+ * otherwise drawing depends on PCB->PinOn and PCB->ViaOn
  */
 static void
 DrawPPV (int group, const BoxType *drawn_area)
@@ -575,7 +576,7 @@ DrawPPV (int group, const BoxType *drawn_area)
   int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
   int side;
 
-  if (PCB->PinOn || doing_assy)
+  if (PCB->PinOn || !gui->gui)
     {
       /* draw element pins */
       r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
@@ -595,7 +596,7 @@ DrawPPV (int group, const BoxType *drawn_area)
     }
 
   /* draw vias */
-  if (PCB->ViaOn || doing_assy)
+  if (PCB->ViaOn || !gui->gui)
     {
       r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
