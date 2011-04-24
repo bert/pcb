@@ -162,6 +162,13 @@ extern int mem_any_set (unsigned char *, int);
 	((TEST_FLAG(ONSOLDERFLAG, (o)) != 0) == SWAP_IDENT)
 
 /* ---------------------------------------------------------------------------
+ *  Determines if an object is on the given side. side is either SOLDER_LAYER
+ *  or COMPONENT_LAYER.
+ */
+#define ON_SIDE(element, side) \
+        (TEST_FLAG (ONSOLDERFLAG, element) == (side == SOLDER_LAYER))
+
+/* ---------------------------------------------------------------------------
  * some loop shortcuts
  * all object loops run backwards to prevent from errors when deleting objects
  *

@@ -66,7 +66,6 @@ RCSID ("$Id$");
 #define	LARGE_TEXT_SIZE			3
 #define	N_TEXT_SIZES			4
 
-#define ON_SIDE(element, side) (TEST_FLAG (ONSOLDERFLAG, element) == (*side == SOLDER_LAYER))
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -236,7 +235,7 @@ element_callback (const BoxType * b, void *cl)
   ElementTypePtr element = (ElementTypePtr) b;
   int *side = cl;
 
-  if (ON_SIDE (element, side))
+  if (ON_SIDE (element, *side))
     DrawElementPackage (element);
   return 1;
 }
@@ -251,7 +250,7 @@ name_callback (const BoxType * b, void *cl)
   if (TEST_FLAG (HIDENAMEFLAG, element))
     return 0;
 
-  if (ON_SIDE (element, side))
+  if (ON_SIDE (element, *side))
     DrawElementName (element);
   return 0;
 }
@@ -611,7 +610,7 @@ clearPad_callback (const BoxType * b, void *cl)
 {
   PadTypePtr pad = (PadTypePtr) b;
   int *side = cl;
-  if (ON_SIDE (pad, side) && pad->Mask)
+  if (ON_SIDE (pad, *side) && pad->Mask)
     ClearPad (pad, true);
   return 1;
 }
