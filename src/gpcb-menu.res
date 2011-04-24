@@ -215,13 +215,12 @@ MainMenu =
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
-   {"Import Settings"
-    {"New elements added at..." foreground=grey50 sensitive=false}
-    {" Center" Import(setnewpoint,center)}
-    {" Mark" Import(setnewpoint,mark)}
-    {" Crosshair" Import(setnewpoint)}
+   {"Import New Elements at" m=I
+    {" Center" Import(setnewpoint,center) m=C}
+    {" Mark" Import(setnewpoint,mark) m=M}
+    {" Crosshair" Import(setnewpoint) m=h}
     -
-    {"Set Dispersion" Import(setdisperse)}
+    {"Set Dispersion" Import(setdisperse) m=D}
    }
   }
 
@@ -304,12 +303,11 @@ MainMenu =
    {"Break buffer elements to pieces" PasteBuffer(Restore)}
    {"Save buffer elements to file" Save(PasteBuffer)}
    -
-   {"Select current buffer" foreground=grey50 sensitive=false}
-   {"#1" checked=buffer,1 PasteBuffer(1) a={"Shift-1" "Shift<Key>1"}}
-   {"#2" checked=buffer,2 PasteBuffer(2) a={"Shift-2" "Shift<Key>2"}}
-   {"#3" checked=buffer,3 PasteBuffer(3) a={"Shift-3" "Shift<Key>3"}}
-   {"#4" checked=buffer,4 PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
-   {"#5" checked=buffer,5 PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
+   {"Select Buffer #1" checked=buffer,1 PasteBuffer(1) m=1 a={"Shift-1" "Shift<Key>1"}}
+   {"Select Buffer #2" checked=buffer,2 PasteBuffer(2) m=2 a={"Shift-2" "Shift<Key>2"}}
+   {"Select Buffer #3" checked=buffer,3 PasteBuffer(3) m=3 a={"Shift-3" "Shift<Key>3"}}
+   {"Select Buffer #4" checked=buffer,4 PasteBuffer(4) m=4 a={"Shift-4" "Shift<Key>4"}}
+   {"Select Buffer #5" checked=buffer,5 PasteBuffer(5) m=5 a={"Shift-5" "Shift<Key>5"}}
   }
 
 #
