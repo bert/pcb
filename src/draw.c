@@ -569,25 +569,25 @@ pad_callback (const BoxType * b, void *cl)
  * draws pins pads and vias
  */
 static void
-DrawTop (const BoxType * screen)
+DrawTop (const BoxType *drawn_area)
 {
   int side = SWAP_IDENT ? SOLDER_LAYER : COMPONENT_LAYER;
 
   if (PCB->PinOn || doing_assy)
     {
       /* draw element pins */
-      r_search (PCB->Data->pin_tree, screen, NULL, pin_callback, NULL);
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
       /* draw element pads */
-      r_search (PCB->Data->pad_tree, screen, NULL, pad_callback, &side);
+      r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
     }
   /* draw vias */
   if (PCB->ViaOn || doing_assy)
     {
-      r_search (PCB->Data->via_tree, screen, NULL, via_callback, NULL);
-      r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
     }
   if (PCB->PinOn || doing_assy)
-    r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
+    r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
 }
 
 static int
