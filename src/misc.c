@@ -600,6 +600,22 @@ IsLayerGroupEmpty (int num)
   return true;
 }
 
+bool
+IsPasteEmpty (int side)
+{
+  bool paste_empty = true;
+  ALLPAD_LOOP (PCB->Data);
+  {
+    if (ON_SIDE (pad, side) && !TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
+      {
+        paste_empty = false;
+        break;
+      }
+  }
+  ENDALL_LOOP;
+  return paste_empty;
+}
+
 /* ---------------------------------------------------------------------------
  * gets minimum and maximum coordinates
  * returns NULL if layout is empty

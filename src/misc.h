@@ -47,6 +47,7 @@ bool IsDataEmpty (DataTypePtr);
 bool IsLayerEmpty (LayerTypePtr);
 bool IsLayerNumEmpty (int);
 bool IsLayerGroupEmpty (int);
+bool IsPasteEmpty (int);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
 void CenterDisplay (LocationType, LocationType, bool);
 void SetFontInfo (FontTypePtr);
