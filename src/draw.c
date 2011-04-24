@@ -102,6 +102,7 @@ static void DrawEMark (ElementTypePtr, LocationType, LocationType, bool);
 static void ClearPad (PadTypePtr, bool);
 static void DrawHole (PinTypePtr);
 static void DrawMask (int side, BoxType *);
+static void DrawPaste (int side, BoxType *);
 static void DrawRats (BoxType *);
 static void DrawSilk (int side, const BoxType *);
 static int via_callback (const BoxType * b, void *cl);
@@ -334,6 +335,7 @@ DrawEverything (BoxTypePtr drawn_area)
   int do_group[MAX_LAYER];
   /* This is the reverse of the order in which we draw them.  */
   int drawn_groups[MAX_LAYER];
+  bool paste_empty;
 
   PCB->Data->SILKLAYER.Color = PCB->ElementColor;
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
@@ -434,44 +436,13 @@ DrawEverything (BoxTypePtr drawn_area)
 	DrawRats(drawn_area);
     }
 
-  for (side = 0; side <= 1; side++)
-    {
-      int doit;
-      bool NoData = true;
-      ALLPAD_LOOP (PCB->Data);
-      {
-	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
-	  {
-	    NoData = false;
-	    break;
-	  }
-      }
-      ENDALL_LOOP;
+  paste_empty = IsPasteEmpty (COMPONENT_LAYER);
+  if (gui->set_layer ("toppaste", SL (PASTE, TOP), paste_empty))
+    DrawPaste (COMPONENT_LAYER, drawn_area);
 
-      if (side == SOLDER_LAYER)
-	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM), NoData);
-      else
-	doit = gui->set_layer ("toppaste", SL (PASTE, TOP), NoData);
-      if (doit)
-	{
-	  gui->set_color (Output.fgGC, PCB->ElementColor);
-	  ALLPAD_LOOP (PCB->Data);
-	  {
-	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
-		    && side == COMPONENT_LAYER))
-	      if (!TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
-		{
-		  if (pad->Mask < pad->Thickness)
-		    DrawPadLowLevel (Output.fgGC, pad, true, true);
-		  else
-		    DrawPadLowLevel (Output.fgGC, pad, false, false);
-		}
-	  }
-	  ENDALL_LOOP;
-	}
-    }
+  paste_empty = IsPasteEmpty (SOLDER_LAYER);
+  if (gui->set_layer ("bottompaste", SL (PASTE, BOTTOM), paste_empty))
+    DrawPaste (SOLDER_LAYER, drawn_area);
 
   doing_assy = true;
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
@@ -702,6 +673,26 @@ DrawMask (int side, BoxType * screen)
       DrawMaskBoardArea (HID_MASK_AFTER, screen);
       gui->use_mask (HID_MASK_OFF);
     }
+}
+
+/* ---------------------------------------------------------------------------
+ * draws solder paste layer for a given side of the board
+ */
+static void
+DrawPaste (int side, BoxType *drawn_area)
+{
+  gui->set_color (Output.fgGC, PCB->ElementColor);
+  ALLPAD_LOOP (PCB->Data);
+  {
+    if (ON_SIDE (pad, side) && !TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
+      {
+        if (pad->Mask < pad->Thickness)
+          DrawPadLowLevel (Output.fgGC, pad, true, true);
+        else
+          DrawPadLowLevel (Output.fgGC, pad, false, false);
+      }
+  }
+  ENDALL_LOOP;
 }
 
 static void
