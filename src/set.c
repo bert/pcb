@@ -82,7 +82,7 @@ SetGrid (double Grid, bool align)
 	}
       PCB->Grid = Grid;
       if (Settings.DrawGrid)
-	UpdateAll ();
+	Redraw ();
     }
 }
 

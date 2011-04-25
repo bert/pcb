@@ -165,15 +165,6 @@ AddPart (void *b)
 }
 
 /*
- * force the whole output to be updated
- */
-void
-UpdateAll (void)
-{
-  gui->invalidate_all ();
-}
-
-/*
  * initiate the actual drawing to the pixmap/screen
  * make the update block slightly larger to handle round-off
  * caused by the TO_SCREEN operation
@@ -201,7 +192,7 @@ Draw (void)
 void
 ClearAndRedrawOutput (void)
 {
-  UpdateAll ();
+  Redraw ();
 }
 
 

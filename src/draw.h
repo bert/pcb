@@ -72,7 +72,6 @@ void EraseElementPinsAndPads (ElementTypePtr);
 void EraseElementName (ElementTypePtr);
 void EraseObject (int, void *, void *);
 void LoadBackgroundImage (char *);
-void UpdateAll (void);
 
 /*GdkDrawable *draw_get_current_drawable(void);*/
 

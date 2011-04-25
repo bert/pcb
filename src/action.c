@@ -2829,12 +2829,12 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	case F_ToggleName:
 	  TOGGLE_FLAG (SHOWNUMBERFLAG, PCB);
-	  UpdateAll ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleMask:
 	  TOGGLE_FLAG (SHOWMASKFLAG, PCB);
-	  UpdateAll ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleClearLine:
@@ -2861,7 +2861,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  /* toggle displaying of the grid */
 	case F_Grid:
 	  Settings.DrawGrid = !Settings.DrawGrid;
-	  UpdateAll ();
+	  Redraw ();
 	  break;
 
 	  /* display the pinout of an element */
@@ -2970,7 +2970,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	      PCB->GridOffsetX = atoi (argv[1]);
 	      PCB->GridOffsetY = atoi (argv[2]);
 	      if (Settings.DrawGrid)
-		UpdateAll ();
+		Redraw ();
 	    }
 	  break;
 
