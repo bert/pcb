@@ -89,8 +89,6 @@ static const BoxType *clip_box = NULL;
 static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
-static void DrawPadLowLevel (hidGC, PadTypePtr, bool, bool);
-static void DrawPadNameLowLevel (PadTypePtr);
 static void DrawLineLowLevel (LineTypePtr);
 static void DrawRegularText (LayerTypePtr, TextTypePtr);
 static void DrawPolygonLowLevel (PolygonTypePtr);
@@ -99,12 +97,10 @@ static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawEMark (ElementTypePtr, LocationType, LocationType, bool);
-static void ClearPad (PadTypePtr, bool);
 static void DrawMask (int side, BoxType *);
 static void DrawPaste (int side, BoxType *);
 static void DrawRats (BoxType *);
 static void DrawSilk (int side, const BoxType *);
-static int pad_callback (const BoxType * b, void *cl);
 
 /*--------------------------------------------------------------------------------------
  * setup color for pin or via
@@ -275,6 +271,95 @@ via_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static void
+draw_pad_name (PadType *pad)
+{
+  BoxType box;
+  bool vert;
+  TextType text;
+
+  if (!pad->Name || !pad->Name[0])
+    text.TextString = EMPTY (pad->Number);
+  else
+    text.TextString = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? pad->Number : pad->Name);
+
+  /* should text be vertical ? */
+  vert = (pad->Point1.X == pad->Point2.X);
+
+  if (vert)
+    {
+      box.X1 = pad->Point1.X                      - pad->Thickness / 2;
+      box.Y1 = MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2;
+      box.X1 += Settings.PinoutTextOffsetY;
+      box.Y1 -= Settings.PinoutTextOffsetX;
+    }
+  else
+    {
+      box.X1 = MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2;
+      box.Y1 = pad->Point1.Y                      - pad->Thickness / 2;
+      box.X1 += Settings.PinoutTextOffsetX;
+      box.Y1 += Settings.PinoutTextOffsetY;
+    }
+
+  gui->set_color (Output.fgGC, PCB->PinNameColor);
+
+  text.Flags = NoFlags ();
+  text.Scale = pad->Thickness / 50;
+  text.X = box.X1;
+  text.Y = box.Y1;
+  text.Direction = vert ? 1 : 0;
+
+  DrawTextLowLevel (&text, 0);
+}
+
+static void
+_draw_pad (hidGC gc, PadType *pad, bool clear, bool mask)
+{
+  if (clear && !mask && pad->Clearance <= 0)
+    return;
+
+  if (TEST_FLAG (THINDRAWFLAG, PCB) ||
+      (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
+    gui->thindraw_pcb_pad (gc, pad, clear, mask);
+  else
+    gui->fill_pcb_pad (gc, pad, clear, mask);
+}
+
+static void
+draw_pad (PadType *pad)
+{
+  if (doing_pinout)
+   gui->set_color (Output.fgGC, PCB->PinColor);
+  else if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, pad))
+   {
+     if (TEST_FLAG (WARNFLAG, pad))
+       gui->set_color (Output.fgGC, PCB->WarnColor);
+     else if (TEST_FLAG (SELECTEDFLAG, pad))
+       gui->set_color (Output.fgGC, PCB->PinSelectedColor);
+     else
+       gui->set_color (Output.fgGC, PCB->ConnectedColor);
+   }
+  else if (FRONT (pad))
+   gui->set_color (Output.fgGC, PCB->PinColor);
+  else
+   gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
+
+  _draw_pad (Output.fgGC, pad, false, false);
+
+  if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, pad))
+    draw_pad_name (pad);
+}
+
+static int
+pad_callback (const BoxType * b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr) b;
+  int *side = cl;
+
+  if (ON_SIDE (pad, *side))
+    draw_pad (pad);
+  return 1;
+}
 
 static void
 draw_element_name (ElementType *element)
@@ -314,7 +399,7 @@ draw_element_pins_and_pads (ElementType *element)
   PAD_LOOP (element);
   {
     if (doing_pinout || doing_assy || FRONT (pad) || PCB->InvisibleObjectsOn)
-      DrawPad (pad);
+      draw_pad (pad);
   }
   END_LOOP;
   PIN_LOOP (element);
@@ -623,17 +708,6 @@ DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
     }
 }
 
-static int
-pad_callback (const BoxType * b, void *cl)
-{
-  PadTypePtr pad = (PadTypePtr) b;
-  int *side = cl;
-
-  if (ON_SIDE (pad, *side))
-    DrawPad (pad);
-  return 1;
-}
-
 /* ---------------------------------------------------------------------------
  * Draws pins pads and vias - Always draws for non-gui HIDs,
  * otherwise drawing depends on PCB->PinOn and PCB->ViaOn
@@ -699,7 +773,7 @@ clearPad_callback (const BoxType * b, void *cl)
   PadTypePtr pad = (PadTypePtr) b;
   int *side = cl;
   if (ON_SIDE (pad, *side) && pad->Mask)
-    ClearPad (pad, true);
+    _draw_pad (Output.pmGC, pad, true, true);
   return 1;
 }
 
@@ -804,9 +878,9 @@ DrawPaste (int side, BoxType *drawn_area)
     if (ON_SIDE (pad, side) && !TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
       {
         if (pad->Mask < pad->Thickness)
-          DrawPadLowLevel (Output.fgGC, pad, true, true);
+          _draw_pad (Output.fgGC, pad, true, true);
         else
-          DrawPadLowLevel (Output.fgGC, pad, false, false);
+          _draw_pad (Output.fgGC, pad, false, false);
       }
   }
   ENDALL_LOOP;
@@ -924,9 +998,6 @@ DrawLayerGroup (int group, const BoxType *drawn_area)
   return rv;
 }
 
-/* ---------------------------------------------------------------------------
- * lowlevel drawing routine for pin and via names
- */
 static void
 GatherPVName (PinTypePtr Ptr)
 {
@@ -957,107 +1028,36 @@ GatherPVName (PinTypePtr Ptr)
   AddPart (&box);
 }
 
-/* ---------------------------------------------------------------------------
- * lowlevel drawing routine for pads
- */
-
 static void
-DrawPadLowLevel (hidGC gc, PadTypePtr Pad, bool clear, bool mask)
-{
-  if (Gathering)
-    {
-      AddPart (Pad);
-      return;
-    }
-
-  if (clear && !mask && Pad->Clearance <= 0)
-    return;
-
-  if (TEST_FLAG (THINDRAWFLAG, PCB) ||
-      (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->thindraw_pcb_pad (gc, Pad, clear, mask);
-  else
-    gui->fill_pcb_pad (gc, Pad, clear, mask);
-}
-
-/* ---------------------------------------------------------------------------
- * lowlevel drawing routine for pad names
- */
-
-static void
-DrawPadNameLowLevel (PadTypePtr Pad)
+GatherPadName (PadTypePtr Pad)
 {
   BoxType box;
-  char *name;
   bool vert;
-  TextType text;
-
-  if (!Pad->Name || !Pad->Name[0])
-    name = (char *)EMPTY (Pad->Number);
-  else
-    name = (char *)EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
 
   /* should text be vertical ? */
   vert = (Pad->Point1.X == Pad->Point2.X);
 
   if (vert)
     {
-      box.X1 = Pad->Point1.X - Pad->Thickness / 2;
+      box.X1 = Pad->Point1.X                      - Pad->Thickness / 2;
       box.Y1 = MAX (Pad->Point1.Y, Pad->Point2.Y) + Pad->Thickness / 2;
+      box.X1 += Settings.PinoutTextOffsetY;
+      box.Y1 -= Settings.PinoutTextOffsetX;
+      box.X2 = box.X1;
+      box.Y2 = box.Y1;
     }
   else
     {
       box.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - Pad->Thickness / 2;
-      box.Y1 = Pad->Point1.Y - Pad->Thickness / 2;
-    }
-
-  if (vert)
-    {
-      box.X1 += Settings.PinoutTextOffsetY;
-      box.Y1 -= Settings.PinoutTextOffsetX;
-    }
-  else
-    {
+      box.Y1 = Pad->Point1.Y                      - Pad->Thickness / 2;
       box.X1 += Settings.PinoutTextOffsetX;
       box.Y1 += Settings.PinoutTextOffsetY;
+      box.X2 = box.X1;
+      box.Y2 = box.Y1;
     }
 
-  if (Gathering)
-    {
-      if (vert)
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
-      else
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
-      AddPart (&box);
-      return;
-    }
-
-  gui->set_color (Output.fgGC, PCB->PinNameColor);
-
-  text.Flags = NoFlags ();
-  text.Scale = Pad->Thickness / 50;
-  text.X = box.X1;
-  text.Y = box.Y1;
-  text.Direction = vert ? 1 : 0;
-  text.TextString = name;
-
-  DrawTextLowLevel (&text, 0);
-
-}
-
-/* ---------------------------------------------------------------------------
- * clearance for pads
- */
-static void
-ClearPad (PadTypePtr Pad, bool mask)
-{
-  DrawPadLowLevel(Output.pmGC, Pad, true, mask);
+  AddPart (&box);
+  return;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1269,27 +1269,11 @@ DrawPinName (PinTypePtr Pin)
 void
 DrawPad (PadTypePtr Pad)
 {
-  if (!Gathering)
-    {
-      if (doing_pinout)
-	gui->set_color (Output.fgGC, PCB->PinColor);
-      else if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pad))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pad))
-	    gui->set_color (Output.fgGC, PCB->WarnColor);
-	  else if (TEST_FLAG (SELECTEDFLAG, Pad))
-	    gui->set_color (Output.fgGC, PCB->PinSelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
-      else if (FRONT (Pad))
-	gui->set_color (Output.fgGC, PCB->PinColor);
-      else
-	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
-    }
-  DrawPadLowLevel (Output.fgGC, Pad, false, false);
+  assert (Gathering);
+
+  AddPart (Pad);
   if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, Pad))
-    DrawPadNameLowLevel (Pad);
+    DrawPadName (Pad);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1298,16 +1282,9 @@ DrawPad (PadTypePtr Pad)
 void
 DrawPadName (PadTypePtr Pad)
 {
-  if (!Gathering)
-    {
-      if (TEST_FLAG (SELECTEDFLAG, Pad))
-	gui->set_color (Output.fgGC, PCB->PinSelectedColor);
-      else if (FRONT (Pad))
-	gui->set_color (Output.fgGC, PCB->PinColor);
-      else
-	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
-    }
-  DrawPadNameLowLevel (Pad);
+  assert (Gathering);
+
+  GatherPadName (Pad);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1646,9 +1623,11 @@ EraseViaName (PinTypePtr Via)
 void
 ErasePad (PadTypePtr Pad)
 {
-  DrawPadLowLevel (Output.fgGC, Pad, false, false);
+  assert (Gathering);
+
+  AddPart (Pad);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
-    DrawPadNameLowLevel (Pad);
+    ErasePadName (Pad);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1657,7 +1636,9 @@ ErasePad (PadTypePtr Pad)
 void
 ErasePadName (PadTypePtr Pad)
 {
-  DrawPadNameLowLevel (Pad);
+  assert (Gathering);
+
+  GatherPadName (Pad);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1764,9 +1745,7 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   END_LOOP;
   PAD_LOOP (Element);
   {
-    DrawPadLowLevel (Output.fgGC, pad, false, false);
-    if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-      DrawPadNameLowLevel (pad);
+    ErasePad (pad);
   }
   END_LOOP;
 }
