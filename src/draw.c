@@ -84,8 +84,6 @@ static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, bool);
-static void DrawPlainPin (PinTypePtr, bool);
-static void DrawPlainVia (PinTypePtr, bool);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
 static void DrawPadLowLevel (hidGC, PadTypePtr, bool, bool);
 static void DrawPadNameLowLevel (PadTypePtr);
@@ -460,14 +458,21 @@ static int
 via_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
-  DrawPlainVia (via, false);
+  SetPVColor (via, VIA_TYPE);
+  DrawPinOrViaLowLevel (via, false);
+  if (!TEST_FLAG (HOLEFLAG, via) && TEST_FLAG (DISPLAYNAMEFLAG, via))
+    DrawPinOrViaNameLowLevel (via);
   return 1;
 }
 
 static int
 pin_callback (const BoxType * b, void *cl)
 {
-  DrawPlainPin ((PinTypePtr) b, false);
+  PinTypePtr pin = (PinTypePtr) b;
+  SetPVColor (pin, PIN_TYPE);
+  DrawPinOrViaLowLevel (pin, false);
+  if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (DISPLAYNAMEFLAG, pin))
+    DrawPinOrViaNameLowLevel (pin);
   return 1;
 }
 
@@ -1180,19 +1185,6 @@ DrawVia (PinTypePtr Via)
 }
 
 /* ---------------------------------------------------------------------------
- * draw a via without dealing with polygon clearance 
- */
-static void
-DrawPlainVia (PinTypePtr Via, bool holeToo)
-{
-  if (!Gathering)
-    SetPVColor (Via, VIA_TYPE);
-  DrawPinOrViaLowLevel (Via, holeToo);
-  if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
-    DrawPinOrViaNameLowLevel (Via);
-}
-
-/* ---------------------------------------------------------------------------
  * draws the name of a via
  */
 void
@@ -1221,19 +1213,6 @@ DrawPin (PinTypePtr Pin)
   }
   if ((!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
       || doing_pinout)
-    DrawPinOrViaNameLowLevel (Pin);
-}
-
-/* ---------------------------------------------------------------------------
- * draw a pin without clearing around polygons 
- */
-static void
-DrawPlainPin (PinTypePtr Pin, bool holeToo)
-{
-  if (!Gathering)
-    SetPVColor (Pin, PIN_TYPE);
-  DrawPinOrViaLowLevel (Pin, holeToo);
-  if (!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     DrawPinOrViaNameLowLevel (Pin);
 }
 
