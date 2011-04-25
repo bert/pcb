@@ -54,6 +54,9 @@
 #include <dmalloc.h>
 #endif
 
+#undef NDEBUG
+#include <assert.h>
+
 #ifndef MAXINT
 #define MAXINT (((unsigned int)(~0))>>1)
 #endif
@@ -1491,6 +1494,8 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 void
 DrawElement (ElementTypePtr Element)
 {
+  assert (Gathering);
+
   DrawElementPackage (Element);
   DrawElementName (Element);
   DrawElementPinsAndPads (Element);
@@ -1823,6 +1828,14 @@ DrawObject (int type, void *ptr1, void *ptr2)
     }
 }
 
+static void
+draw_element (ElementTypePtr element)
+{
+  DrawElementPackage (element);
+  DrawElementName (element);
+  DrawElementPinsAndPads (element);
+}
+
 /* ---------------------------------------------------------------------------
  * HID drawing callback.
  */
@@ -1850,7 +1863,7 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   if (item)
     {
       doing_pinout = true;
-      DrawElement ((ElementTypePtr)item);
+      draw_element ((ElementType *)item);
       doing_pinout = false;
     }
   else
