@@ -186,18 +186,6 @@ Draw (void)
   Block.X2 = Block.Y2 = -MAXINT;
 }
 
-/* ---------------------------------------------------------------------------
- * redraws the output area after clearing it
- */
-void
-ClearAndRedrawOutput (void)
-{
-  Redraw ();
-}
-
-
-
-
 /* ---------------------------------------------------------------------- 
  * redraws all the data by the event handlers
  */

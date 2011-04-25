@@ -856,7 +856,7 @@ done:
     {
       DeleteRats (false);
       AddAllRats (false, NULL);
-      ClearAndRedrawOutput ();
+      Redraw ();
     }
   FreePointerListMemory (&Selected);
   return (changed);

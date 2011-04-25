@@ -610,7 +610,7 @@ apply_vendor_map (void)
       if (changed)
 	{
 	  SetChangedFlag (true);
-	  ClearAndRedrawOutput ();
+	  Redraw ();
 	  IncrementUndoSerialNumber ();
 	}
     }

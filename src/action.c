@@ -2496,7 +2496,7 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
   /* done with our action so increment the undo # */
   IncrementUndoSerialNumber ();
 
-  ClearAndRedrawOutput ();
+  Redraw ();
   SetChangedFlag (true);
 
   return 0;
@@ -2769,12 +2769,12 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	case F_ToggleThindraw:
 	  TOGGLE_FLAG (THINDRAWFLAG, PCB);
-	  ClearAndRedrawOutput ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleThindrawPoly:
 	  TOGGLE_FLAG (THINDRAWPOLYFLAG, PCB);
-	  ClearAndRedrawOutput ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleLockNames:
@@ -2789,7 +2789,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	case F_ToggleHideNames:
 	  TOGGLE_FLAG (HIDENAMESFLAG, PCB);
-	  ClearAndRedrawOutput ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleShowDRC:
@@ -2820,7 +2820,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	case F_ToggleCheckPlanes:
 	  TOGGLE_FLAG (CHECKPLANESFLAG, PCB);
-	  ClearAndRedrawOutput ();
+	  Redraw ();
 	  break;
 
 	case F_ToggleOrthoMove:
@@ -5944,7 +5944,7 @@ ActionNew (int argc, char **argv, int x, int y)
       CreateDefaultFont ();
       SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
       CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, false);
-      ClearAndRedrawOutput ();
+      Redraw ();
 
       hid_action ("PCBChanged");
       RestoreCrosshair ();
@@ -6643,7 +6643,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
   if (layer != CURRENT)
     {
       ChangeGroupVisibility (GetLayerNumber (PCB->Data, layer), true, true);
-      ClearAndRedrawOutput ();
+      Redraw ();
     }
   return 0;
 }

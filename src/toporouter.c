@@ -7965,7 +7965,7 @@ toporouter (int argc, char **argv, int x, int y)
   AddAllRats (false, NULL);
   RestoreUndoSerialNumber ();
   IncrementUndoSerialNumber ();
-  ClearAndRedrawOutput ();
+  Redraw ();
 
   return 0;
 }

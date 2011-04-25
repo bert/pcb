@@ -5314,7 +5314,7 @@ donerouting:
 
       IncrementUndoSerialNumber ();
 
-      ClearAndRedrawOutput ();
+      Redraw ();
     }
   RestoreFindFlag ();
 #if defined (ROUTE_DEBUG)

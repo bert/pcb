@@ -3258,7 +3258,7 @@ LookupConnectionsToAllElements (FILE * FP)
     gui->beep ();
   ResetConnections (false);
   FreeConnectionLookupMemory ();
-  ClearAndRedrawOutput ();
+  Redraw ();
 }
 
 /*---------------------------------------------------------------------------
