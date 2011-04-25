@@ -94,7 +94,6 @@ static void DrawLineLowLevel (LineTypePtr);
 static void DrawRegularText (LayerTypePtr, TextTypePtr);
 static void DrawPolygonLowLevel (PolygonTypePtr);
 static void DrawArcLowLevel (ArcTypePtr);
-static void DrawElementPackageLowLevel (ElementTypePtr Element);
 static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
@@ -196,17 +195,6 @@ Redraw (void)
 }
 
 static int
-element_callback (const BoxType * b, void *cl)
-{
-  ElementTypePtr element = (ElementTypePtr) b;
-  int *side = cl;
-
-  if (ON_SIDE (element, *side))
-    DrawElementPackage (element);
-  return 1;
-}
-
-static int
 name_callback (const BoxType * b, void *cl)
 {
   TextTypePtr text = (TextTypePtr) b;
@@ -294,6 +282,43 @@ static int
 rat_callback (const BoxType * b, void *cl)
 {
   DrawRat ((RatTypePtr) b);
+  return 1;
+}
+
+static void
+draw_element_package (ElementType *element)
+{
+  /* set color and draw lines, arcs, text and pins */
+  if (doing_pinout || doing_assy)
+    gui->set_color (Output.fgGC, PCB->ElementColor);
+  else if (TEST_FLAG (SELECTEDFLAG, element))
+    gui->set_color (Output.fgGC, PCB->ElementSelectedColor);
+  else if (FRONT (element))
+    gui->set_color (Output.fgGC, PCB->ElementColor);
+  else
+    gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
+
+  /* draw lines, arcs, text and pins */
+  ELEMENTLINE_LOOP (element);
+  {
+    DrawLineLowLevel (line);
+  }
+  END_LOOP;
+  ARC_LOOP (element);
+  {
+    DrawArcLowLevel (arc);
+  }
+  END_LOOP;
+}
+
+static int
+element_callback (const BoxType * b, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr) b;
+  int *side = cl;
+
+  if (ON_SIDE (element, *side))
+    draw_element_package (element);
   return 1;
 }
 
@@ -733,7 +758,6 @@ text_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-
 /* ---------------------------------------------------------------------------
  * draws one non-copper layer
  */
@@ -1145,25 +1169,6 @@ DrawArcLowLevel (ArcTypePtr Arc)
 }
 
 /* ---------------------------------------------------------------------------
- * draws the package of an element
- */
-static void
-DrawElementPackageLowLevel (ElementTypePtr Element)
-{
-  /* draw lines, arcs, text and pins */
-  ELEMENTLINE_LOOP (Element);
-  {
-    DrawLineLowLevel (line);
-  }
-  END_LOOP;
-  ARC_LOOP (Element);
-  {
-    DrawArcLowLevel (arc);
-  }
-  END_LOOP;
-}
-
-/* ---------------------------------------------------------------------------
  * draw a via object
  */
 void
@@ -1528,16 +1533,18 @@ DrawElementName (ElementTypePtr Element)
 void
 DrawElementPackage (ElementTypePtr Element)
 {
-  /* set color and draw lines, arcs, text and pins */
-  if (doing_pinout || doing_assy)
-    gui->set_color (Output.fgGC, PCB->ElementColor);
-  else if (TEST_FLAG (SELECTEDFLAG, Element))
-    gui->set_color (Output.fgGC, PCB->ElementSelectedColor);
-  else if (FRONT (Element))
-    gui->set_color (Output.fgGC, PCB->ElementColor);
-  else
-    gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
-  DrawElementPackageLowLevel (Element);
+  assert (Gathering);
+
+  ELEMENTLINE_LOOP (Element);
+  {
+    DrawLineLowLevel (line);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    DrawArcLowLevel (arc);
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1831,7 +1838,7 @@ DrawObject (int type, void *ptr1, void *ptr2)
 static void
 draw_element (ElementTypePtr element)
 {
-  DrawElementPackage (element);
+  draw_element_package (element);
   DrawElementName (element);
   DrawElementPinsAndPads (element);
 }
