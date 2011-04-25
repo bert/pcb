@@ -80,7 +80,7 @@ static const BoxType *clip_box = NULL;
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void Redraw (bool, BoxTypePtr);
+static void Redraw (void);
 static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
@@ -202,7 +202,7 @@ Draw (void)
 void
 RedrawOutput (BoxTypePtr area)
 {
-  Redraw (true, area);
+  Redraw ();
 }
 
 /* ---------------------------------------------------------------------------
@@ -218,12 +218,10 @@ ClearAndRedrawOutput (void)
 
 
 /* ---------------------------------------------------------------------- 
- * redraws all the data
- * all necessary sizes are already set by the porthole widget and
- * by the event handlers
+ * redraws all the data by the event handlers
  */
 static void
-Redraw (bool ClearWindow, BoxTypePtr screen_area)
+Redraw (void)
 {
   gui->invalidate_all ();
 }
