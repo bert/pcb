@@ -36,7 +36,7 @@
 /*bool	SwitchDrawingWindow(double, GdkDrawable *, gboolean, gboolean);*/
 
 void Draw (void);
-void RedrawOutput (BoxTypePtr area);
+void Redraw (void);
 void ClearAndRedrawOutput (void);
 void DrawVia (PinTypePtr);
 void DrawRat (RatTypePtr);

@@ -2678,22 +2678,11 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
       switch (id = GetFunctionID (function))
 	{
 
-	  /* redraw layout with clearing the background */
+	  /* redraw layout */
 	case F_ClearAndRedraw:
-	  gui->invalidate_all();
-	  break;
-
-	  /* redraw layout without clearing the background */
 	case F_Redraw:
-	  {
-	    BoxType area;
-	    area.X1 = 0;
-	    area.Y1 = 0;
-	    area.X2 = Output.Width;
-	    area.Y2 = Output.Height;
-	    RedrawOutput (&area);
-	    break;
-	  }
+	  Redraw ();
+	  break;
 
 	  /* change the displayed name of elements */
 	case F_Value:

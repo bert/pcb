@@ -80,7 +80,6 @@ static const BoxType *clip_box = NULL;
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void Redraw (void);
 static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
@@ -197,15 +196,6 @@ Draw (void)
 }
 
 /* ---------------------------------------------------------------------------
- * redraws the output area without clearing it
- */
-void
-RedrawOutput (BoxTypePtr area)
-{
-  Redraw ();
-}
-
-/* ---------------------------------------------------------------------------
  * redraws the output area after clearing it
  */
 void
@@ -220,7 +210,7 @@ ClearAndRedrawOutput (void)
 /* ---------------------------------------------------------------------- 
  * redraws all the data by the event handlers
  */
-static void
+void
 Redraw (void)
 {
   gui->invalidate_all ();
