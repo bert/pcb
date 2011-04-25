@@ -211,7 +211,6 @@ RedrawOutput (BoxTypePtr area)
 void
 ClearAndRedrawOutput (void)
 {
-  Gathering = false;
   UpdateAll ();
 }
 
@@ -227,7 +226,6 @@ static void
 Redraw (bool ClearWindow, BoxTypePtr screen_area)
 {
   gui->invalidate_all ();
-  Gathering = true;
 }
 
 static int
