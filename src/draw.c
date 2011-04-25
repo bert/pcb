@@ -90,8 +90,6 @@ static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
 static void DrawRegularText (LayerTypePtr, TextTypePtr);
-static void DrawPolygonLowLevel (PolygonTypePtr);
-static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawEMark (ElementTypePtr, LocationType, LocationType, bool);
@@ -858,12 +856,45 @@ clearPin_callback (const BoxType * b, void *cl)
     gui->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
   return 1;
 }
+
 static int
 poly_callback (const BoxType * b, void *cl)
 {
   LayerType *layer = cl;
+  PolygonType *polygon = (PolygonType *)b;
+  static char *color;
 
-  DrawPlainPolygon (layer, (PolygonTypePtr) b);
+  if (!polygon->Clipped)
+    return 0;
+
+  if (TEST_FLAG (SELECTEDFLAG, polygon))
+    color = layer->SelectedColor;
+  else if (TEST_FLAG (FOUNDFLAG, polygon))
+    color = PCB->ConnectedColor;
+  else
+    color = layer->Color;
+  gui->set_color (Output.fgGC, color);
+
+  if (gui->thindraw_pcb_polygon != NULL &&
+      (TEST_FLAG (THINDRAWFLAG, PCB) ||
+       TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
+    gui->thindraw_pcb_polygon (Output.fgGC, polygon, clip_box);
+  else
+    gui->fill_pcb_polygon (Output.fgGC, polygon, clip_box);
+
+  /* If checking planes, thin-draw any pieces which have been clipped away */
+  if (gui->thindraw_pcb_polygon != NULL &&
+      TEST_FLAG (CHECKPLANESFLAG, PCB) &&
+      !TEST_FLAG (FULLPOLYFLAG, polygon))
+    {
+      PolygonType poly = *polygon;
+
+      for (poly.Clipped = polygon->Clipped->f;
+           poly.Clipped != polygon->Clipped;
+           poly.Clipped = poly.Clipped->f)
+        gui->thindraw_pcb_polygon (Output.fgGC, &poly, clip_box);
+    }
+
   return 1;
 }
 
@@ -1236,24 +1267,6 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 }
 
 /* ---------------------------------------------------------------------------
- * lowlevel drawing routine for polygons
- */
-static void
-DrawPolygonLowLevel (PolygonTypePtr Polygon)
-{
-  if (!Polygon->Clipped)
-    return;
-
-  if (Gathering)
-    {
-      AddPart (Polygon);
-      return;
-    }
-
-  printf ("DrawPolygonLowLevel: Called without Gathering set!\n");
-}
-
-/* ---------------------------------------------------------------------------
  * draw a via object
  */
 void
@@ -1421,7 +1434,9 @@ DrawRegularText (LayerTypePtr Layer, TextTypePtr Text)
 void
 DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
-  DrawPolygonLowLevel (Polygon);
+  assert (Gathering);
+
+  AddPart (Polygon);
 }
 
 int
@@ -1450,53 +1465,6 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
   free (x);
   free (y);
   return 0;
-}
-
-
-/* ---------------------------------------------------------------------------
- * draws a polygon
- */
-static void
-DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
-{
-  static char *color;
-
-  if (!Polygon->Clipped)
-    return;
-
-  if (Gathering)
-    {
-      AddPart (Polygon);
-      return;
-    }
-
-  if (TEST_FLAG (SELECTEDFLAG, Polygon))
-    color = Layer->SelectedColor;
-  else if (TEST_FLAG (FOUNDFLAG, Polygon))
-    color = PCB->ConnectedColor;
-  else
-    color = Layer->Color;
-  gui->set_color (Output.fgGC, color);
-
-  if (gui->thindraw_pcb_polygon != NULL &&
-      (TEST_FLAG (THINDRAWFLAG, PCB) ||
-       TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->thindraw_pcb_polygon (Output.fgGC, Polygon, clip_box);
-  else
-    gui->fill_pcb_polygon (Output.fgGC, Polygon, clip_box);
-
-  /* If checking planes, thin-draw any pieces which have been clipped away */
-  if (gui->thindraw_pcb_polygon != NULL &&
-      TEST_FLAG (CHECKPLANESFLAG, PCB) &&
-      !TEST_FLAG (FULLPOLYFLAG, Polygon))
-    {
-      PolygonType poly = *Polygon;
-
-      for (poly.Clipped = Polygon->Clipped->f;
-           poly.Clipped != Polygon->Clipped;
-           poly.Clipped = poly.Clipped->f)
-        gui->thindraw_pcb_polygon (Output.fgGC, &poly, clip_box);
-    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1705,7 +1673,9 @@ EraseText (LayerTypePtr Layer, TextTypePtr Text)
 void
 ErasePolygon (PolygonTypePtr Polygon)
 {
-  DrawPolygonLowLevel (Polygon);
+  assert (Gathering);
+
+  AddPart (Polygon);
 }
 
 /* ---------------------------------------------------------------------------
