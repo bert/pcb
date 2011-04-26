@@ -2878,6 +2878,60 @@ lesstif_invalidate_all (void)
   lesstif_invalidate_lr (0, PCB->MaxWidth, 0, PCB->MaxHeight);
 }
 
+static void
+lesstif_notify_crosshair_change (bool changes_complete)
+{
+  static int invalidate_depth = 0;
+
+  if (changes_complete)
+    invalidate_depth --;
+
+  if (invalidate_depth < 0)
+    {
+      invalidate_depth = 0;
+      /* A mismatch of changes_complete == false and == true notifications
+       * is not expected to occur, but we will try to handle it gracefully.
+       * As we know the crosshair will have been shown already, we must
+       * repaint the entire view to be sure not to leave an artaefact.
+       */
+      need_idle_proc ();
+      return;
+    }
+
+  if (invalidate_depth == 0)
+    DrawAttached ();
+
+  if (!changes_complete)
+    invalidate_depth ++;
+}
+
+static void
+lesstif_notify_mark_change (bool changes_complete)
+{
+  static int invalidate_depth = 0;
+
+  if (changes_complete)
+    invalidate_depth --;
+
+  if (invalidate_depth < 0)
+    {
+      invalidate_depth = 0;
+      /* A mismatch of changes_complete == false and == true notifications
+       * is not expected to occur, but we will try to handle it gracefully.
+       * As we know the mark will have been shown already, we must
+       * repaint the entire view to be sure not to leave an artaefact.
+       */
+      need_idle_proc ();
+      return;
+    }
+
+  if (invalidate_depth == 0)
+    DrawMark ();
+
+  if (!changes_complete)
+    invalidate_depth ++;
+}
+
 static int
 lesstif_set_layer (const char *name, int group, int empty)
 {
@@ -3804,59 +3858,61 @@ hid_lesstif_init ()
 
   common_draw_helpers_init (&lesstif_hid);
 
-  lesstif_hid.struct_size           = sizeof (HID);
-  lesstif_hid.name                  = "lesstif";
-  lesstif_hid.description           = "LessTif - a Motif clone for X/Unix";
-  lesstif_hid.gui                   = 1;
-  lesstif_hid.poly_before           = 1;
+  lesstif_hid.struct_size             = sizeof (HID);
+  lesstif_hid.name                    = "lesstif";
+  lesstif_hid.description             = "LessTif - a Motif clone for X/Unix";
+  lesstif_hid.gui                     = 1;
+  lesstif_hid.poly_before             = 1;
 
-  lesstif_hid.get_export_options    = lesstif_get_export_options;
-  lesstif_hid.do_export             = lesstif_do_export;
-  lesstif_hid.parse_arguments       = lesstif_parse_arguments;
-  lesstif_hid.invalidate_lr         = lesstif_invalidate_lr;
-  lesstif_hid.invalidate_all        = lesstif_invalidate_all;
-  lesstif_hid.set_layer             = lesstif_set_layer;
-  lesstif_hid.make_gc               = lesstif_make_gc;
-  lesstif_hid.destroy_gc            = lesstif_destroy_gc;
-  lesstif_hid.use_mask              = lesstif_use_mask;
-  lesstif_hid.set_color             = lesstif_set_color;
-  lesstif_hid.set_line_cap          = lesstif_set_line_cap;
-  lesstif_hid.set_line_width        = lesstif_set_line_width;
-  lesstif_hid.set_draw_xor          = lesstif_set_draw_xor;
-  lesstif_hid.set_draw_faded        = lesstif_set_draw_faded;
-  lesstif_hid.set_line_cap_angle    = lesstif_set_line_cap_angle;
-  lesstif_hid.draw_line             = lesstif_draw_line;
-  lesstif_hid.draw_arc              = lesstif_draw_arc;
-  lesstif_hid.draw_rect             = lesstif_draw_rect;
-  lesstif_hid.fill_circle           = lesstif_fill_circle;
-  lesstif_hid.fill_polygon          = lesstif_fill_polygon;
-  lesstif_hid.fill_rect             = lesstif_fill_rect;
+  lesstif_hid.get_export_options      = lesstif_get_export_options;
+  lesstif_hid.do_export               = lesstif_do_export;
+  lesstif_hid.parse_arguments         = lesstif_parse_arguments;
+  lesstif_hid.invalidate_lr           = lesstif_invalidate_lr;
+  lesstif_hid.invalidate_all          = lesstif_invalidate_all;
+  lesstif_hid.notify_crosshair_change = lesstif_notify_crosshair_change;
+  lesstif_hid.notify_mark_change      = lesstif_notify_mark_change;
+  lesstif_hid.set_layer               = lesstif_set_layer;
+  lesstif_hid.make_gc                 = lesstif_make_gc;
+  lesstif_hid.destroy_gc              = lesstif_destroy_gc;
+  lesstif_hid.use_mask                = lesstif_use_mask;
+  lesstif_hid.set_color               = lesstif_set_color;
+  lesstif_hid.set_line_cap            = lesstif_set_line_cap;
+  lesstif_hid.set_line_width          = lesstif_set_line_width;
+  lesstif_hid.set_draw_xor            = lesstif_set_draw_xor;
+  lesstif_hid.set_draw_faded          = lesstif_set_draw_faded;
+  lesstif_hid.set_line_cap_angle      = lesstif_set_line_cap_angle;
+  lesstif_hid.draw_line               = lesstif_draw_line;
+  lesstif_hid.draw_arc                = lesstif_draw_arc;
+  lesstif_hid.draw_rect               = lesstif_draw_rect;
+  lesstif_hid.fill_circle             = lesstif_fill_circle;
+  lesstif_hid.fill_polygon            = lesstif_fill_polygon;
+  lesstif_hid.fill_rect               = lesstif_fill_rect;
 
-  lesstif_hid.calibrate             = lesstif_calibrate;
-  lesstif_hid.shift_is_pressed      = lesstif_shift_is_pressed;
-  lesstif_hid.control_is_pressed    = lesstif_control_is_pressed;
-  lesstif_hid.mod1_is_pressed       = lesstif_mod1_is_pressed;
-  lesstif_hid.get_coords            = lesstif_get_coords;
-  lesstif_hid.set_crosshair         = lesstif_set_crosshair;
-  lesstif_hid.add_timer             = lesstif_add_timer;
-  lesstif_hid.stop_timer            = lesstif_stop_timer;
-  lesstif_hid.watch_file            = lesstif_watch_file;
-  lesstif_hid.unwatch_file          = lesstif_unwatch_file;
-  lesstif_hid.add_block_hook        = lesstif_add_block_hook;
-  lesstif_hid.stop_block_hook       = lesstif_stop_block_hook;
+  lesstif_hid.calibrate               = lesstif_calibrate;
+  lesstif_hid.shift_is_pressed        = lesstif_shift_is_pressed;
+  lesstif_hid.control_is_pressed      = lesstif_control_is_pressed;
+  lesstif_hid.mod1_is_pressed         = lesstif_mod1_is_pressed;
+  lesstif_hid.get_coords              = lesstif_get_coords;
+  lesstif_hid.set_crosshair           = lesstif_set_crosshair;
+  lesstif_hid.add_timer               = lesstif_add_timer;
+  lesstif_hid.stop_timer              = lesstif_stop_timer;
+  lesstif_hid.watch_file              = lesstif_watch_file;
+  lesstif_hid.unwatch_file            = lesstif_unwatch_file;
+  lesstif_hid.add_block_hook          = lesstif_add_block_hook;
+  lesstif_hid.stop_block_hook         = lesstif_stop_block_hook;
 
-  lesstif_hid.log                   = lesstif_log;
-  lesstif_hid.logv                  = lesstif_logv;
-  lesstif_hid.confirm_dialog        = lesstif_confirm_dialog;
-  lesstif_hid.close_confirm_dialog  = lesstif_close_confirm_dialog;
-  lesstif_hid.report_dialog         = lesstif_report_dialog;
-  lesstif_hid.prompt_for            = lesstif_prompt_for;
-  lesstif_hid.fileselect            = lesstif_fileselect;
-  lesstif_hid.attribute_dialog      = lesstif_attribute_dialog;
-  lesstif_hid.show_item             = lesstif_show_item;
-  lesstif_hid.beep                  = lesstif_beep;
-  lesstif_hid.progress              = lesstif_progress;
-  lesstif_hid.edit_attributes       = lesstif_attributes_dialog;
+  lesstif_hid.log                     = lesstif_log;
+  lesstif_hid.logv                    = lesstif_logv;
+  lesstif_hid.confirm_dialog          = lesstif_confirm_dialog;
+  lesstif_hid.close_confirm_dialog    = lesstif_close_confirm_dialog;
+  lesstif_hid.report_dialog           = lesstif_report_dialog;
+  lesstif_hid.prompt_for              = lesstif_prompt_for;
+  lesstif_hid.fileselect              = lesstif_fileselect;
+  lesstif_hid.attribute_dialog        = lesstif_attribute_dialog;
+  lesstif_hid.show_item               = lesstif_show_item;
+  lesstif_hid.beep                    = lesstif_beep;
+  lesstif_hid.progress                = lesstif_progress;
+  lesstif_hid.edit_attributes         = lesstif_attributes_dialog;
 
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"

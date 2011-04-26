@@ -298,6 +298,8 @@ typedef enum
     /* This may be called to ask the GUI to force a redraw of a given area */
     void (*invalidate_lr) (int left_, int right_, int top_, int bottom_);
     void (*invalidate_all) (void);
+    void (*notify_crosshair_change) (bool changes_complete);
+    void (*notify_mark_change) (bool changes_complete);
 
     /* During redraw or print/export cycles, this is called once per
        layer (or layer group, for copper layers).  If it returns false
