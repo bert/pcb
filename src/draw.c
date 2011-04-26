@@ -77,7 +77,6 @@ static BoxType Block = {MAXINT, MAXINT, -MAXINT, -MAXINT};
 
 static int doing_pinout = 0;
 static bool doing_assy = false;
-static const BoxType *clip_box = NULL;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -860,10 +859,15 @@ clearPin_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+struct poly_info {
+  const BoxType *drawn_area;
+  LayerType *layer;
+};
+
 static int
 poly_callback (const BoxType * b, void *cl)
 {
-  LayerType *layer = cl;
+  struct poly_info *i = cl;
   PolygonType *polygon = (PolygonType *)b;
   static char *color;
 
@@ -871,19 +875,19 @@ poly_callback (const BoxType * b, void *cl)
     return 0;
 
   if (TEST_FLAG (SELECTEDFLAG, polygon))
-    color = layer->SelectedColor;
+    color = i->layer->SelectedColor;
   else if (TEST_FLAG (FOUNDFLAG, polygon))
     color = PCB->ConnectedColor;
   else
-    color = layer->Color;
+    color = i->layer->Color;
   gui->set_color (Output.fgGC, color);
 
   if (gui->thindraw_pcb_polygon != NULL &&
       (TEST_FLAG (THINDRAWFLAG, PCB) ||
        TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->thindraw_pcb_polygon (Output.fgGC, polygon, clip_box);
+    gui->thindraw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
   else
-    gui->fill_pcb_polygon (Output.fgGC, polygon, clip_box);
+    gui->fill_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
 
   /* If checking planes, thin-draw any pieces which have been clipped away */
   if (gui->thindraw_pcb_polygon != NULL &&
@@ -895,7 +899,7 @@ poly_callback (const BoxType * b, void *cl)
       for (poly.Clipped = polygon->Clipped->f;
            poly.Clipped != polygon->Clipped;
            poly.Clipped = poly.Clipped->f)
-        gui->thindraw_pcb_polygon (Output.fgGC, &poly, clip_box);
+        gui->thindraw_pcb_polygon (Output.fgGC, &poly, i->drawn_area);
     }
 
   return 1;
@@ -1063,9 +1067,10 @@ text_callback (const BoxType * b, void *cl)
 void
 DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
 {
+  struct poly_info info = {screen, Layer};
+
   /* print the non-clearing polys */
-  clip_box = screen;
-  r_search (Layer->polygon_tree, screen, NULL, poly_callback, Layer);
+  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
   if (clear_pins && TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
@@ -1092,8 +1097,6 @@ DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
 		      0, 0,
 		      PCB->MaxWidth, PCB->MaxHeight);
     }
-
-  clip_box = NULL;
 }
 
 void
@@ -1115,7 +1118,6 @@ DrawLayerGroup (int group, const BoxType *drawn_area)
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
-  clip_box = drawn_area;
   for (i = n_entries - 1; i >= 0; i--)
     {
       layernum = layers[i];
