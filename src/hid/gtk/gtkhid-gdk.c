@@ -772,6 +772,7 @@ ghid_invalidate_all ()
   ghid_draw_grid ();
 
   DrawAttached ();
+  DrawMark ();
   ghid_screen_update ();
 }
 
