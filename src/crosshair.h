@@ -46,6 +46,7 @@
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
 
+void notify_crosshair_change (bool changes_complete);
 void CrosshairOn (void);
 void CrosshairOff (void);
 void HideCrosshair (void);

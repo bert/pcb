@@ -706,6 +706,57 @@ DrawMark (void)
 
 
 /* ---------------------------------------------------------------------------
+ * notify the GUI that data relating to the crosshair is being changed.
+ *
+ * The argument passed is false to notify "changes are about to happen",
+ * and true to notify "changes have finished".
+ *
+ * Each call with a 'false' parameter must be matched with a following one
+ * with a 'true' parameter. Unmatched 'true' calls are currently not permitted,
+ * but might be allowed in the future.
+ *
+ * GUIs should not complain if they receive extra calls with 'true' as parameter.
+ * They should initiate a redraw of the crosshair attached objects - which may
+ * (if necessary) mean repainting the whole screen if the GUI hasn't tracked the
+ * location of existing attached drawing.
+ */
+void
+notify_crosshair_change (bool changes_complete)
+{
+  if (changes_complete)
+    {
+      /* fprintf(stderr, "RestoreCrosshair stack %d\n", CrosshairStackLocation); */
+      if (CrosshairStackLocation <= 0)
+        {
+          fprintf(stderr, "Error: CrosshairStackLocation underflow\n");
+          return;
+        }
+
+      CrosshairStackLocation--;
+
+      if (CrosshairStack[CrosshairStackLocation])
+        CrosshairOn ();
+      else
+        CrosshairOff ();
+    }
+  else
+    {
+      /* fprintf(stderr, "HideCrosshair stack %d\n", CrosshairStackLocation); */
+      if (CrosshairStackLocation >= MAX_CROSSHAIRSTACK_DEPTH)
+        {
+          fprintf(stderr, "Error: CrosshairStackLocation overflow\n");
+          return;
+        }
+
+      CrosshairStack[CrosshairStackLocation] = Crosshair.On;
+      CrosshairStackLocation++;
+
+      CrosshairOff ();
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
  * switches crosshair on
  */
 void
@@ -734,45 +785,46 @@ CrosshairOff (void)
 }
 
 /* ---------------------------------------------------------------------------
- * saves crosshair state (on/off) and hides him
+ * Convenience for plugins using the old {Hide,Restore}Crosshair API.
+ * This links up to notify the GUI of the expected changes using the new APIs.
+ *
+ * Use of this old API is deprecated, as the names don't necessarily reflect
+ * what all GUIs may do in response to the notifications. Keeping these APIs
+ * is aimed at easing transition to the newer API, they will emit a harmless
+ * warning at the time of their first use.
+ *
  */
 void
-HideCrosshair ()
+HideCrosshair (void)
 {
-  /* fprintf(stderr, "HideCrosshair stack %d\n", CrosshairStackLocation); */
-  if (CrosshairStackLocation >= MAX_CROSSHAIRSTACK_DEPTH)
+  static bool warned_old_api = false;
+  if (!warned_old_api)
     {
-      fprintf(stderr, "Error: CrosshairStackLocation overflow\n");
-      return;
+      Message (_("WARNING: A plugin is using the deprecated API HideCrosshair().\n"
+                 "         This API may be removed in a future release of PCB.\n"));
+      warned_old_api = true;
     }
 
-  CrosshairStack[CrosshairStackLocation] = Crosshair.On;
-  CrosshairStackLocation++;
-
-  CrosshairOff ();
+  notify_crosshair_change (false);
 }
 
-/* ---------------------------------------------------------------------------
- * restores last crosshair state
- */
 void
 RestoreCrosshair (void)
 {
-  /* fprintf(stderr, "RestoreCrosshair stack %d\n", CrosshairStackLocation); */
-  if (CrosshairStackLocation <= 0)
+  static bool warned_old_api = false;
+  if (!warned_old_api)
     {
-      fprintf(stderr, "Error: CrosshairStackLocation underflow\n");
-      return;
+      Message (_("WARNING: A plugin is using the deprecated API RestoreCrosshair().\n"
+                 "         This API may be removed in a future release of PCB.\n"));
+      warned_old_api = true;
     }
 
-  CrosshairStackLocation--;
-
-  if (CrosshairStack[CrosshairStackLocation])
-    CrosshairOn ();
-  else
-    CrosshairOff ();
+  notify_crosshair_change (true);
 }
 
+/* ---------------------------------------------------------------------------
+ * Returns the square of the given number
+ */
 static double
 square (double x)
 {
@@ -1064,8 +1116,8 @@ MoveCrosshairRelative (LocationType DeltaX, LocationType DeltaY)
 }
 
 /* ---------------------------------------------------------------------------
- * move crosshair absolute switched off if it moved
- * return true if it switched off
+ * move crosshair absolute
+ * return true if the crosshair was moved from its existing position
  */
 bool
 MoveCrosshairAbsolute (LocationType X, LocationType Y)
@@ -1076,13 +1128,14 @@ MoveCrosshairAbsolute (LocationType X, LocationType Y)
   FitCrosshairIntoGrid (X, Y);
   if (Crosshair.X != x || Crosshair.Y != y)
     {
-      /* back up to old position and erase crosshair */
+      /* back up to old position to notify the GUI
+       * (which might want to erase the old crosshair) */
       z = Crosshair.X;
       Crosshair.X = x;
       x = z;
       z = Crosshair.Y;
       Crosshair.Y = y;
-      HideCrosshair ();
+      notify_crosshair_change (false); /* Our caller notifies when it has done */
       /* now move forward again */
       Crosshair.X = x;
       Crosshair.Y = z;

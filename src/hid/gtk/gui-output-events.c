@@ -232,7 +232,7 @@ ghid_note_event_location (GdkEventButton * ev)
   if (moved)
     {
       AdjustAttachedObjects ();
-      RestoreCrosshair ();
+      notify_crosshair_change (true);
     }
   ghid_set_cursor_position_labels ();
   return moved;

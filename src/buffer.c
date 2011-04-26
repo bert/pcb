@@ -526,7 +526,7 @@ AddSelectedToBuffer (BufferTypePtr Buffer, LocationType X, LocationType Y,
    */
   if (!LeaveSelected)
     ExtraFlag = SELECTEDFLAG;
-  HideCrosshair ();
+  notify_crosshair_change (false);
   Source = PCB->Data;
   Dest = Buffer->Data;
   SelectedOperation (&AddBufferFunctions, false, ALL_TYPES);
@@ -542,7 +542,7 @@ AddSelectedToBuffer (BufferTypePtr Buffer, LocationType X, LocationType Y,
       Buffer->X = Crosshair.X;
       Buffer->Y = Crosshair.Y;
     }
-  RestoreCrosshair ();
+  notify_crosshair_change (true);
   ExtraFlag = 0;
 }
 
@@ -1457,9 +1457,9 @@ ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
   else
     angle_s = argv[0];
 
-  HideCrosshair ();
+  notify_crosshair_change (false);
   FreeRotateBuffer(PASTEBUFFER, strtod(angle_s, 0));
-  RestoreCrosshair ();
+  notify_crosshair_change (true);
   return 0;
 }
 
