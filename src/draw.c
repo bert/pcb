@@ -34,9 +34,6 @@
 #include "config.h"
 #endif
 
-#undef NDEBUG
-#include <assert.h>
-
 #include "global.h"
 
 /*#include "clip.h"*/
@@ -77,7 +74,6 @@ RCSID ("$Id$");
  * some local identifiers
  */
 static BoxType Block = {MAXINT, MAXINT, -MAXINT, -MAXINT};
-static bool Gathering = true;
 
 static int doing_pinout = 0;
 static bool doing_assy = false;
@@ -190,8 +186,6 @@ _draw_pv_name (PinType *pv)
   BoxType box;
   bool vert;
   TextType text;
-
-  assert (!Gathering);
 
   if (!pv->Name || !pv->Name[0])
     text.TextString = EMPTY (pv->Number);
@@ -1278,8 +1272,6 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 void
 DrawVia (PinTypePtr Via)
 {
-  assert (Gathering);
-
   AddPart (Via);
   if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawViaName (Via);
@@ -1291,8 +1283,6 @@ DrawVia (PinTypePtr Via)
 void
 DrawViaName (PinTypePtr Via)
 {
-  assert (Gathering);
-
   GatherPVName (Via);
 }
 
@@ -1302,8 +1292,6 @@ DrawViaName (PinTypePtr Via)
 void
 DrawPin (PinTypePtr Pin)
 {
-  assert (Gathering);
-
   AddPart (Pin);
   if ((!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
       || doing_pinout)
@@ -1316,8 +1304,6 @@ DrawPin (PinTypePtr Pin)
 void
 DrawPinName (PinTypePtr Pin)
 {
-  assert (Gathering);
-
   GatherPVName (Pin);
 }
 
@@ -1327,8 +1313,6 @@ DrawPinName (PinTypePtr Pin)
 void
 DrawPad (PadTypePtr Pad)
 {
-  assert (Gathering);
-
   AddPart (Pad);
   if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadName (Pad);
@@ -1340,8 +1324,6 @@ DrawPad (PadTypePtr Pad)
 void
 DrawPadName (PadTypePtr Pad)
 {
-  assert (Gathering);
-
   GatherPadName (Pad);
 }
 
@@ -1351,8 +1333,6 @@ DrawPadName (PadTypePtr Pad)
 void
 DrawLine (LayerTypePtr Layer, LineTypePtr Line)
 {
-  assert (Gathering);
-
   AddPart (Line);
 }
 
@@ -1362,8 +1342,6 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line)
 void
 DrawRat (RatTypePtr Line)
 {
-  assert (Gathering);
-
   if (Settings.RatThickness < 20)
     Line->Thickness = pixel_slop * Settings.RatThickness;
   /* rats.c set VIAFLAG if this rat goes to a containing poly: draw a donut */
@@ -1389,8 +1367,6 @@ DrawRat (RatTypePtr Line)
 void
 DrawArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  assert (Gathering);
-
   AddPart (Arc);
 }
 
@@ -1400,8 +1376,6 @@ DrawArc (LayerTypePtr Layer, ArcTypePtr Arc)
 void
 DrawText (LayerTypePtr Layer, TextTypePtr Text)
 {
-  assert (Gathering);
-
   AddPart (Text);
 }
 
@@ -1412,8 +1386,6 @@ DrawText (LayerTypePtr Layer, TextTypePtr Text)
 void
 DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
-  assert (Gathering);
-
   AddPart (Polygon);
 }
 
@@ -1451,8 +1423,6 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
 void
 DrawElement (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   DrawElementPackage (Element);
   DrawElementName (Element);
   DrawElementPinsAndPads (Element);
@@ -1464,8 +1434,6 @@ DrawElement (ElementTypePtr Element)
 void
 DrawElementName (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
   DrawText (NULL, &ELEMENT_TEXT (PCB, Element));
@@ -1477,8 +1445,6 @@ DrawElementName (ElementTypePtr Element)
 void
 DrawElementPackage (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   ELEMENTLINE_LOOP (Element);
   {
     DrawLine (NULL, line);
@@ -1497,8 +1463,6 @@ DrawElementPackage (ElementTypePtr Element)
 void
 DrawElementPinsAndPads (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   PAD_LOOP (Element);
   {
     if (doing_pinout || doing_assy || FRONT (pad) || PCB->InvisibleObjectsOn)
@@ -1518,8 +1482,6 @@ DrawElementPinsAndPads (ElementTypePtr Element)
 void
 EraseVia (PinTypePtr Via)
 {
-  assert (Gathering);
-
   AddPart (Via);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
     EraseViaName (Via);
@@ -1553,8 +1515,6 @@ EraseRat (RatTypePtr Rat)
 void
 EraseViaName (PinTypePtr Via)
 {
-  assert (Gathering);
-
   GatherPVName (Via);
 }
 
@@ -1564,8 +1524,6 @@ EraseViaName (PinTypePtr Via)
 void
 ErasePad (PadTypePtr Pad)
 {
-  assert (Gathering);
-
   AddPart (Pad);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     ErasePadName (Pad);
@@ -1577,8 +1535,6 @@ ErasePad (PadTypePtr Pad)
 void
 ErasePadName (PadTypePtr Pad)
 {
-  assert (Gathering);
-
   GatherPadName (Pad);
 }
 
@@ -1588,8 +1544,6 @@ ErasePadName (PadTypePtr Pad)
 void
 ErasePin (PinTypePtr Pin)
 {
-  assert (Gathering);
-
   AddPart (Pin);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     ErasePinName (Pin);
@@ -1601,8 +1555,6 @@ ErasePin (PinTypePtr Pin)
 void
 ErasePinName (PinTypePtr Pin)
 {
-  assert (Gathering);
-
   GatherPVName (Pin);
 }
 
@@ -1612,8 +1564,6 @@ ErasePinName (PinTypePtr Pin)
 void
 EraseLine (LineTypePtr Line)
 {
-  assert (Gathering);
-
   AddPart (Line);
 }
 
@@ -1623,8 +1573,6 @@ EraseLine (LineTypePtr Line)
 void
 EraseArc (ArcTypePtr Arc)
 {
-  assert (Gathering);
-
   if (!Arc->Thickness)
     return;
   AddPart (Arc);
@@ -1636,8 +1584,6 @@ EraseArc (ArcTypePtr Arc)
 void
 EraseText (LayerTypePtr Layer, TextTypePtr Text)
 {
-  assert (Gathering);
-
   AddPart (Text);
 }
 
@@ -1647,8 +1593,6 @@ EraseText (LayerTypePtr Layer, TextTypePtr Text)
 void
 ErasePolygon (PolygonTypePtr Polygon)
 {
-  assert (Gathering);
-
   AddPart (Polygon);
 }
 
@@ -1678,8 +1622,6 @@ EraseElement (ElementTypePtr Element)
 void
 EraseElementPinsAndPads (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   PIN_LOOP (Element);
   {
     ErasePin (pin);
@@ -1698,8 +1640,6 @@ EraseElementPinsAndPads (ElementTypePtr Element)
 void
 EraseElementName (ElementTypePtr Element)
 {
-  assert (Gathering);
-
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
   DrawText (NULL, &ELEMENT_TEXT (PCB, Element));
@@ -1819,8 +1759,6 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.bgGC = gui->make_gc ();
   Output.pmGC = gui->make_gc ();
 
-  Gathering = false;
-
   /*printf("\033[32mhid_expose_callback, s=%p %d\033[0m\n", &(SWAP_IDENT), SWAP_IDENT); */
 
   hid->set_color (Output.pmGC, "erase");
@@ -1842,6 +1780,4 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.fgGC = savefg;
   Output.bgGC = savebg;
   Output.pmGC = savepm;
-
-  Gathering = true;
 }
