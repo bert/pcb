@@ -755,6 +755,26 @@ notify_crosshair_change (bool changes_complete)
     }
 }
 
+/* ---------------------------------------------------------------------------
+ * notify the GUI that data relating to the mark is being changed.
+ *
+ * The argument passed is false to notify "changes are about to happen",
+ * and true to notify "changes have finished".
+ *
+ * Each call with a 'false' parameter must be matched with a following one
+ * with a 'true' parameter. Unmatched 'true' calls are currently not permitted,
+ * but might be allowed in the future.
+ *
+ * GUIs should not complain if they receive extra calls with 'true' as parameter.
+ * They should initiate a redraw of the mark - which may (if necessary) mean
+ * repainting the whole screen if the GUI hasn't tracked the mark's location.
+ */
+void
+notify_mark_change (bool changes_complete)
+{
+  /* For now, just piggy back on the crosshair changes redrawing the mark */
+  notify_crosshair_change (changes_complete);
+}
 
 /* ---------------------------------------------------------------------------
  * switches crosshair on
@@ -806,6 +826,7 @@ HideCrosshair (void)
     }
 
   notify_crosshair_change (false);
+  notify_mark_change (false);
 }
 
 void
@@ -820,6 +841,7 @@ RestoreCrosshair (void)
     }
 
   notify_crosshair_change (true);
+  notify_mark_change (true);
 }
 
 /* ---------------------------------------------------------------------------

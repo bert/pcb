@@ -342,20 +342,20 @@ SetLocalRef (LocationType X, LocationType Y, bool Showing)
 
   if (Showing)
     {
-      notify_crosshair_change (false);
+      notify_mark_change (false);
       if (count == 0)
 	old = Marked;
       Marked.X = X;
       Marked.Y = Y;
       Marked.status = true;
       count++;
-      notify_crosshair_change (true);
+      notify_mark_change (true);
     }
   else if (count > 0)
     {
-      notify_crosshair_change (false);
+      notify_mark_change (false);
       count = 0;
       Marked = old;
-      notify_crosshair_change (true);
+      notify_mark_change (true);
     }
 }
