@@ -481,7 +481,34 @@ hole_counting_callback (const BoxType * b, void *cl)
 static int
 rat_callback (const BoxType * b, void *cl)
 {
-  DrawRat ((RatTypePtr) b);
+  RatType *rat = (RatType *)b;
+
+  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, rat))
+    {
+      if (TEST_FLAG (SELECTEDFLAG, rat))
+        gui->set_color (Output.fgGC, PCB->RatSelectedColor);
+      else
+        gui->set_color (Output.fgGC, PCB->ConnectedColor);
+    }
+  else
+    gui->set_color (Output.fgGC, PCB->RatColor);
+
+  if (Settings.RatThickness < 20)
+    rat->Thickness = pixel_slop * Settings.RatThickness;
+  /* rats.c set VIAFLAG if this rat goes to a containing poly: draw a donut */
+  if (TEST_FLAG(VIAFLAG, rat))
+    {
+      int w = rat->Thickness;
+
+      if (TEST_FLAG (THINDRAWFLAG, PCB))
+        gui->set_line_width (Output.fgGC, 0);
+      else
+        gui->set_line_width (Output.fgGC, w);
+      gui->draw_arc (Output.fgGC, rat->Point1.X, rat->Point1.Y,
+                     w * 2, w * 2, 0, 360);
+    }
+  else
+    DrawLineLowLevel ((LineType *) rat);
   return 1;
 }
 
@@ -1314,18 +1341,8 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line)
 void
 DrawRat (RatTypePtr Line)
 {
-  if (!Gathering)
-    {
-      if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Line))
-	{
-	  if (TEST_FLAG (SELECTEDFLAG, Line))
-	    gui->set_color (Output.fgGC, PCB->RatSelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
-      else
-	gui->set_color (Output.fgGC, PCB->RatColor);
-    }
+  assert (Gathering);
+
   if (Settings.RatThickness < 20)
     Line->Thickness = pixel_slop * Settings.RatThickness;
   /* rats.c set VIAFLAG if this rat goes to a containing poly: draw a donut */
@@ -1333,28 +1350,16 @@ DrawRat (RatTypePtr Line)
     {
       int w = Line->Thickness;
 
-      if (Gathering)
-	{
-	  BoxType b;
+      BoxType b;
 
-	  b.X1 = Line->Point1.X - w * 2 - w / 2;
-	  b.X2 = Line->Point1.X + w * 2 + w / 2;
-	  b.Y1 = Line->Point1.Y - w * 2 - w / 2;
-	  b.Y2 = Line->Point1.Y + w * 2 + w / 2;
-	  AddPart(&b);
-	}
-      else
-	{
-	  if (TEST_FLAG (THINDRAWFLAG, PCB))
-	    gui->set_line_width (Output.fgGC, 0);
-	  else
-	    gui->set_line_width (Output.fgGC, w);
-	  gui->draw_arc (Output.fgGC, Line->Point1.X, Line->Point1.Y,
-			 w * 2, w * 2, 0, 360);
-	}
+      b.X1 = Line->Point1.X - w * 2 - w / 2;
+      b.X2 = Line->Point1.X + w * 2 + w / 2;
+      b.Y1 = Line->Point1.Y - w * 2 - w / 2;
+      b.Y2 = Line->Point1.Y + w * 2 + w / 2;
+      AddPart(&b);
     }
   else
-    DrawLineLowLevel ((LineTypePtr) Line);
+    DrawLineLowLevel ((LineType *) Line);
 }
 
 /* ---------------------------------------------------------------------------
