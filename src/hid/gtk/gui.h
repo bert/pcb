@@ -282,7 +282,6 @@ void ghid_port_ranges_zoom (gdouble zoom);
 gboolean ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative);
 void ghid_port_ranges_scale (gboolean emit_changed);
 void ghid_port_ranges_update_ranges (void);
-void ghid_screen_update (void);
 
 gboolean ghid_note_event_location (GdkEventButton * ev);
 gboolean have_crosshair_attachments (void);
