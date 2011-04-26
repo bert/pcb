@@ -770,9 +770,8 @@ ghid_invalidate_all ()
 
   hid_expose_callback (&ghid_hid, &region, 0);
   ghid_draw_grid ();
-  if (ghidgui->need_restore_crosshair)
-    RestoreCrosshair ();
-  ghidgui->need_restore_crosshair = FALSE;
+
+  DrawAttached ();
   ghid_screen_update ();
 }
 

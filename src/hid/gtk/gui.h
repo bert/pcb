@@ -132,7 +132,7 @@ typedef struct
     small_label_markup,
     compact_horizontal,
     compact_vertical,
-    ghid_title_window, use_command_window, need_restore_crosshair, creating;
+    ghid_title_window, use_command_window, creating;
 
   gint n_mode_button_columns,
     top_window_width,

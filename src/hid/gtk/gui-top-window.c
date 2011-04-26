@@ -650,11 +650,8 @@ ghid_menu_cb (GtkAction * action, gpointer data)
    */
   if (ghidgui->toggle_holdoff == FALSE) 
     {
-      HideCrosshair ();
       AdjustAttachedObjects ();
       ghid_invalidate_all ();
-      RestoreCrosshair ();
-      ghid_screen_update ();
       ghid_window_set_name_label (PCB->Name);
       ghid_set_status_line_label ();
 #ifdef FIXME
