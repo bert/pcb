@@ -449,6 +449,18 @@ hole_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static void
+DrawHoles (bool draw_plated, bool draw_unplated, BoxType *drawn_area)
+{
+  int plated = -1;
+
+  if ( draw_plated && !draw_unplated) plated = 1;
+  if (!draw_plated &&  draw_unplated) plated = 0;
+
+  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+}
+
 typedef struct
 {
   int nplated;
@@ -465,6 +477,18 @@ hole_counting_callback (const BoxType * b, void *cl)
   else
     hcs->nplated++;
   return 1;
+}
+
+static void
+CountHoles (int *plated, int *unplated, BoxType *drawn_area)
+{
+  HoleCountStruct hcs = {0, 0};
+
+  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+
+  if (plated != NULL) *plated = hcs.nplated;
+  if (unplated != NULL) *unplated = hcs.nunplated;
 }
 
 static void
@@ -638,12 +662,12 @@ static void
 DrawEverything (BoxTypePtr drawn_area)
 {
   int i, ngroups, side;
-  int plated;
   int component, solder;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
   /* This is the reverse of the order in which we draw them.  */
   int drawn_groups[MAX_LAYER];
+  int plated, unplated;
   bool paste_empty;
 
   PCB->Data->SILKLAYER.Color = PCB->ElementColor;
@@ -698,29 +722,15 @@ DrawEverything (BoxTypePtr drawn_area)
     DrawPPV (SWAP_IDENT ? solder : component, drawn_area);
   else
     {
-      HoleCountStruct hcs;
-      hcs.nplated = hcs.nunplated = 0;
-      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
-		&hcs);
-      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
-		&hcs);
-      if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
-	{
-	  plated = 1;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	}
-      if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0), 0))
-	{
-	  plated = 0;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	}
+      CountHoles (&plated, &unplated, drawn_area);
+
+      if (plated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
+        DrawHoles (true, false, drawn_area);
+
+      if (unplated && gui->set_layer ("unplated-drill", SL (PDRILL, 0), 0))
+        DrawHoles (false, true, drawn_area);
     }
+
   /* Draw the solder mask if turned on */
   if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
     DrawMask (COMPONENT_LAYER, drawn_area);
