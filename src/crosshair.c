@@ -547,9 +547,6 @@ XORDrawMoveOrCopyObject (void)
 void
 DrawAttached (void)
 {
-  if (!Crosshair.On)
-    return;
-
   switch (Settings.Mode)
     {
     case VIA_MODE:
@@ -681,8 +678,8 @@ DrawAttached (void)
 void
 DrawMark (void)
 {
-  /* Mark is not drawn when the crosshair is off, or when it is not set */
-  if (!Crosshair.On || !Marked.status)
+  /* Mark is not drawn when it is not set */
+  if (!Marked.status)
     return;
 
   gui->draw_line (Crosshair.GC,
@@ -740,45 +737,6 @@ notify_mark_change (bool changes_complete)
     gui->notify_mark_change (changes_complete);
 }
 
-/* ---------------------------------------------------------------------------
- * switches crosshair on
- */
-void
-CrosshairOn (void)
-{
-  if (Crosshair.On)
-    return;
-
-  notify_crosshair_change (false);
-  if (Marked.status)
-    notify_mark_change (false);
-
-  Crosshair.On = true;
-
-  notify_crosshair_change (true);
-  if (Marked.status)
-    notify_mark_change (true);
-}
-
-/* ---------------------------------------------------------------------------
- * switches crosshair off
- */
-void
-CrosshairOff (void)
-{
-  if (!Crosshair.On)
-    return;
-
-  notify_crosshair_change (false);
-  if (Marked.status)
-    notify_mark_change (false);
-
-  Crosshair.On = false;
-
-  notify_crosshair_change (true);
-  if (Marked.status)
-    notify_mark_change (true);
-}
 
 /* ---------------------------------------------------------------------------
  * Convenience for plugins using the old {Hide,Restore}Crosshair API.
@@ -1171,8 +1129,6 @@ InitCrosshair (void)
   gui->set_draw_xor (Crosshair.GC, 1);
   gui->set_line_cap (Crosshair.GC, Trace_Cap);
   gui->set_line_width (Crosshair.GC, 1);
-
-  Crosshair.On = true;
 
   /* set initial shape */
   Crosshair.shape = Basic_Crosshair_Shape;

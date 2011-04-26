@@ -48,8 +48,6 @@
 
 void notify_crosshair_change (bool changes_complete);
 void notify_mark_change (bool changes_complete);
-void CrosshairOn (void);
-void CrosshairOff (void);
 void HideCrosshair (void);
 void RestoreCrosshair (void);
 void DrawAttached (void);

@@ -139,6 +139,24 @@ static int view_left_x = 0, view_top_y = 0;
 static double view_zoom = 1000, prev_view_zoom = 1000;
 static int flip_x = 0, flip_y = 0;
 static int autofade = 0;
+static bool crosshair_on = true;
+
+static void
+ShowCrosshair (bool show)
+{
+  if (crosshair_on == show)
+    return;
+
+  notify_crosshair_change (false);
+  if (Marked.status)
+    notify_mark_change (false);
+
+  crosshair_on = show;
+
+  notify_crosshair_change (true);
+  if (Marked.status)
+    notify_mark_change (true);
+}
 
 static int
 flag_flipx (int x)
@@ -1413,7 +1431,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 
     case LeaveNotify:
       crosshair_in_window = 0;
-      CrosshairOff ();
+      ShowCrosshair (false);
       need_idle_proc ();
       break;
 
@@ -1421,7 +1439,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       crosshair_in_window = 1;
       in_move_event = 1;
       EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
-      CrosshairOn ();
+      ShowCrosshair (true);
       in_move_event = 0;
       need_idle_proc ();
       break;
@@ -2518,8 +2536,11 @@ idle_proc (XtPointer dummy)
       XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
 		 view_height, 0, 0);
       pixmap = window;
-      DrawAttached ();
-      DrawMark ();
+      if (crosshair_on)
+        {
+          DrawAttached ();
+          DrawMark ();
+        }
       need_redraw = 0;
     }
 
@@ -2898,7 +2919,7 @@ lesstif_notify_crosshair_change (bool changes_complete)
       return;
     }
 
-  if (invalidate_depth == 0)
+  if (invalidate_depth == 0 && crosshair_on)
     DrawAttached ();
 
   if (!changes_complete)
@@ -2925,7 +2946,7 @@ lesstif_notify_mark_change (bool changes_complete)
       return;
     }
 
-  if (invalidate_depth == 0)
+  if (invalidate_depth == 0 && crosshair_on)
     DrawMark ();
 
   if (!changes_complete)

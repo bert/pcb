@@ -583,7 +583,6 @@ typedef struct			/* holds cursor information */
   LocationType X,		/* position in PCB coordinates */
     Y, MinX,			/* lowest and highest coordinates */
     MinY, MaxX, MaxY;
-  bool On;			/* flag for 'is visible' */
   AttachedLineType AttachedLine;	/* data of new lines... */
   AttachedBoxType AttachedBox;
   PolygonType AttachedPolygon;
