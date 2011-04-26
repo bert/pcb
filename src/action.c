@@ -4027,24 +4027,27 @@ ActionMarkCrosshair (int argc, char **argv, int x, int y)
     {
       if (Marked.status)
 	{
-	  DrawMark ();
+	  notify_mark_change (false);
 	  Marked.status = false;
+	  notify_mark_change (true);
 	}
       else
 	{
+	  notify_mark_change (false);
+	  Marked.status = false;
 	  Marked.status = true;
 	  Marked.X = Crosshair.X;
 	  Marked.Y = Crosshair.Y;
-	  DrawMark ();
+	  notify_mark_change (true);
 	}
     }
   else if (GetFunctionID (function) == F_Center)
     {
-      DrawMark ();
+      notify_mark_change (false);
       Marked.status = true;
       Marked.X = Crosshair.X;
       Marked.Y = Crosshair.Y;
-      DrawMark ();
+      notify_mark_change (true);
     }
   return 0;
 }
