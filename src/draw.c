@@ -1393,34 +1393,6 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   AddPart (Polygon);
 }
 
-int
-thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
-{
-  int i, *x, *y;
-  VNODE *v;
-
-  i = 0;
-  x = (int *) malloc (pl->Count * sizeof (int));
-  y = (int *) malloc (pl->Count * sizeof (int));
-  for (v = &pl->head; i < pl->Count; v = v->next)
-    {
-      x[i] = v->point[0];
-      y[i++] = v->point[1];
-    }
-  gui->set_line_cap (Output.fgGC, Round_Cap);
-  gui->set_line_width (Output.fgGC, 0);
-  for (i = 0; i < pl->Count - 1; i++)
-    {
-      gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-      //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
-    }
-  gui->draw_line (Output.fgGC, x[pl->Count - 1], y[pl->Count - 1], x[0],
-		  y[0]);
-  free (x);
-  free (y);
-  return 0;
-}
-
 /* ---------------------------------------------------------------------------
  * draws an element
  */
