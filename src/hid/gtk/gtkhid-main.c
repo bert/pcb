@@ -1893,9 +1893,9 @@ PanAction (int argc, char **argv, int x, int y)
     }
   else if (x == on_x && y == on_y)
     {
-      ghid_show_crosshair (FALSE);
+      notify_crosshair_change (false);
       ghidgui->auto_pan_on = !ghidgui->auto_pan_on;
-      ghid_show_crosshair (TRUE);
+      notify_crosshair_change (true);
     }
 
   return 0;
