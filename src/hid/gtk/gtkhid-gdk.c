@@ -958,8 +958,8 @@ draw_crosshair (GdkGC *xor_gc, gint x, gint y)
 #define VCW 16
 #define VCD 8
 
-void
-ghid_show_crosshair (gboolean paint_new_location)
+static void
+show_crosshair (gboolean paint_new_location)
 {
   gint x, y;
   static gint x_prev = -1, y_prev = -1;
@@ -1067,7 +1067,7 @@ ghid_screen_update (void)
 
   gdk_draw_drawable (gport->drawing_area->window, priv->bg_gc, gport->pixmap,
 		     0, 0, 0, 0, gport->width, gport->height);
-  ghid_show_crosshair (TRUE);
+  show_crosshair (TRUE);
 }
 
 gboolean
@@ -1080,7 +1080,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   gdk_draw_drawable (widget->window, priv->bg_gc, port->pixmap,
                     ev->area.x, ev->area.y, ev->area.x, ev->area.y,
                     ev->area.width, ev->area.height);
-  ghid_show_crosshair (TRUE);
+  show_crosshair (TRUE);
   return FALSE;
 }
 
