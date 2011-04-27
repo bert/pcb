@@ -335,8 +335,6 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   state = (GdkModifierType) (kev->state);
   mk = ghid_modifier_keys_state (&state);
 
-  ghid_show_crosshair (FALSE);
-
   handled = TRUE;		/* Start off assuming we handle it */
   switch (ksym)
     {
@@ -440,7 +438,6 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   ghid_note_event_location (ev);
   state = (GdkModifierType) (ev->state);
   mk = ghid_modifier_keys_state (&state);
-  ghid_show_crosshair (FALSE);
 
   do_mouse_action(ev->button, mk);
 
@@ -648,7 +645,6 @@ ghid_port_window_motion_cb (GtkWidget * widget,
 {
   gdouble dx, dy;
   static gint x_prev = -1, y_prev = -1;
-  gboolean moved;
 
 
   gdk_event_request_motions (ev);
@@ -668,16 +664,11 @@ ghid_port_window_motion_cb (GtkWidget * widget,
       return FALSE;
     }
   x_prev = y_prev = -1;
-  moved = ghid_note_event_location ((GdkEventButton *)ev);
+  ghid_note_event_location ((GdkEventButton *)ev);
 
 #if ENABLE_TOOLTIPS
   queue_tooltip_update (out);
 #endif
-
-  ghid_show_crosshair (FALSE);
-  ghid_show_crosshair (TRUE);
-  if (moved && have_crosshair_attachments ())
-    ghid_draw_area_update (gport, NULL);
 
   ghid_end_drawing (out);
   return FALSE;
@@ -804,7 +795,6 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	}
     }
 
-  ghid_show_crosshair (FALSE);
   out->has_entered = FALSE;
 
   ghid_screen_update ();
