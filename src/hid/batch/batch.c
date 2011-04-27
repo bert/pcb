@@ -85,8 +85,8 @@ info (int argc, char **argv, int x, int y)
     }
   printf("Filename: %s\n", PCB->Filename);
   printf("Size: %g x %g mils, %g x %g mm\n",
-	 PCB->MaxWidth / 100.0,
-	 PCB->MaxHeight / 100.0,
+	 COORD_TO_MIL(PCB->MaxWidth),
+	 COORD_TO_MIL(PCB->MaxHeight),
 	 PCB->MaxWidth * COOR_TO_MM,
 	 PCB->MaxHeight * COOR_TO_MM);
   cg = GetLayerGroupNumberByNumber (component_silk_layer);

@@ -1719,7 +1719,7 @@ orthopull ()
       c = c->next;
     }
   if (rv)
-    printf ("orthopull: %d mils saved\n", rv / 100);
+    printf ("orthopull: %f mils saved\n", COORD_TO_MIL(rv));
   return rv;
 }
 
@@ -2099,8 +2099,8 @@ vianudge ()
 
       /* at this point, we know we can move it */
 
-      dprintf ("vianudge: nudging via at %d,%d by %d mils saving %d\n",
-	       c->x, c->y, len / 100, saved / 100);
+      dprintf ("vianudge: nudging via at %d,%d by %f mils saving %f\n",
+	       c->x, c->y, COORD_TO_MIL(len), COORD_TO_MIL(saved));
       rv += len * saved;
       move_corner (c, c2->x, c2->y);
 
@@ -2111,7 +2111,7 @@ vianudge ()
     }
 
   if (rv)
-    printf ("vianudge: %d mils saved\n", rv / 100);
+    printf ("vianudge: %f mils saved\n", COORD_TO_MIL(rv));
   return rv;
 }
 

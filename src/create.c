@@ -248,8 +248,8 @@ CreateNewVia (DataTypePtr Data,
 	if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
 	    SQUARE (via->DrillingHole / 2 + DrillingHole / 2)) 
 	  {
-	    Message (_("Dropping via at (%d, %d) because it's hole would overlap with the via "
-		       "at (%d, %d)\n"), X/100, Y/100, via->X/100, via->Y/100);
+	    Message (_("Dropping via at (%f, %f) because it's hole would overlap with the via "
+		       "at (%f, %f)\n"), COORD_TO_MIL(X), COORD_TO_MIL(Y), COORD_TO_MIL(via->X), COORD_TO_MIL(via->Y));
 	    return (NULL);		/* don't allow via stacking */
 	  }
       }

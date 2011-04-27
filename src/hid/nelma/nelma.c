@@ -182,12 +182,12 @@ REGISTER_ATTRIBUTES(nelma_attribute_list)
 
 /* *** Utility funcions **************************************************** */
 
-/* convert from default PCB units (1/100 mil) to nelma units */
+/* convert from default PCB units to nelma units */
 	static int      pcb_to_nelma(int pcb)
 {
 	int             nelma;
 
-	nelma = (pcb * nelma_dpi) / 100000;
+	nelma = COORD_TO_INCH(pcb) * nelma_dpi;
 
 	return nelma;
 }

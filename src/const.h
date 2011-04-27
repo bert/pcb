@@ -65,11 +65,15 @@
 #define COS_22_5_DEGREE		0.923879533	/* cos(22.5) */
 #define	TAN_30_DEGREE		0.577350269	/* tan(30) */
 #define	TAN_60_DEGREE		1.732050808	/* tan(60) */
-#define MIL_TO_MM               0.025400000
-#define MM_TO_MIL               (1./MIL_TO_MM)
-#define COOR_TO_MM		0.000254000
-#define MM_TO_COOR		(1./COOR_TO_MM)
 #define LN_2_OVER_2		0.346573590
+
+/* PCB/physical unit conversions */
+#define COORD_TO_MIL(n)	((n) / 100.0)
+#define MIL_TO_COORD(n)	((n) * 100.0)
+#define COORD_TO_MM(n)	((n) * 0.000254)
+#define MM_TO_COORD(n)	((n) / 0.000254)
+#define COORD_TO_INCH(n)	(COORD_TO_MIL(n) / 1000.0)
+#define INCH_TO_COORD(n)	(MIL_TO_COORD(n) * 1000.0)
 
 /* ---------------------------------------------------------------------------
  * modes

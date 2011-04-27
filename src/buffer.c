@@ -1064,7 +1064,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   {
     char num[8];
     if (via->Mask < via->Thickness)
-      via->Mask = via->Thickness + 2 * MASKFRAME * 100;	/* MASKFRAME is in mils */
+      via->Mask = via->Thickness + 2 * MIL_TO_COORD(MASKFRAME);	/* MASKFRAME is in mils */
     if (via->Name)
       CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		    via->Clearance, via->Mask, via->DrillingHole,

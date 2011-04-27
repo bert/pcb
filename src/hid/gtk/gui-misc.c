@@ -509,17 +509,17 @@ ghid_set_status_line_label (void)
 		"<b>text</b>=%i%%  "
 		"<b>buffer</b>=#%i"),
 	      Settings.ShowSolderSide ? _("solder") : _("component"),
-	      PCB->Grid / 100.0,
+	      COORD_TO_MIL(PCB->Grid),
 	      (int) Settings.GridFactor,
 	      TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
 	      (PCB->Clipping == 0 ? "45" :
 	       (PCB->Clipping == 1 ? "45_/" : "45\\_")),
 	      TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-	      Settings.LineThickness / 100.0,
-	      Settings.ViaThickness / 100.0,
-	      Settings.ViaDrillingHole / 100.0,
+	      COORD_TO_MIL(Settings.LineThickness),
+	      COORD_TO_MIL(Settings.ViaThickness),
+	      COORD_TO_MIL(Settings.ViaDrillingHole),
 	      ghidgui->compact_horizontal ? "\n" : "",
-	      Settings.Keepaway / 100.0,
+	      COORD_TO_MIL(Settings.Keepaway),
 	      Settings.TextScale, Settings.BufferNumber + 1);
   else
     snprintf (text, sizeof (text),
@@ -532,16 +532,16 @@ ghid_set_status_line_label (void)
 		"<b>text</b>=%i%%  "
 		"<b>buffer</b>=#%i"),
 	      Settings.ShowSolderSide ? _("solder") : _("component"),
-	      PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
+	      COORD_TO_MM(PCB->Grid), (int) Settings.GridFactor,
 	      TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
 	      (PCB->Clipping == 0 ? "45" :
 	       (PCB->Clipping == 1 ? "45_/" : "45\\_")),
 	      TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-	      Settings.LineThickness * COOR_TO_MM,
-	      Settings.ViaThickness * COOR_TO_MM,
-	      Settings.ViaDrillingHole * COOR_TO_MM,
+	      COORD_TO_MM(Settings.LineThickness),
+	      COORD_TO_MM(Settings.ViaThickness),
+	      COORD_TO_MM(Settings.ViaDrillingHole),
 	      ghidgui->compact_horizontal ? "\n" : "",
-	      Settings.Keepaway * COOR_TO_MM,
+	      COORD_TO_MM(Settings.Keepaway),
 	      Settings.TextScale, Settings.BufferNumber + 1);
 
   ghid_status_line_set_text (text);
@@ -569,7 +569,7 @@ ghid_get_grid_factor(void)
   if (!Settings.grid_units_mm)
     return -1;
 
-  factor = PCB->Grid * COOR_TO_MM * grid_scale;
+  factor = COORD_TO_MM(PCB->Grid) * grid_scale;
   rounded_factor = floor (factor + .5);
 
   /* check whether the grid is actually metric
@@ -585,20 +585,20 @@ ghid_get_grid_factor(void)
 static double
 ghid_grid_pcb_to_units (double x, double grid_factor)
 {
-  double x_scaled = (Settings.grid_units_mm? COOR_TO_MM: 1./100) * x;
+  double x_scaled = (Settings.grid_units_mm ? COORD_TO_MM(1): COORD_TO_MIL(1)) * x;
   double nearest_gridpoint;
 
   if (grid_factor < 0)
     return x_scaled;
 
-  x *= COOR_TO_MM;
+  x = COORD_TO_MM(x);
 
   nearest_gridpoint = floor (x / grid_factor + .5);
   /* honour snapping to an unaligned object */
-  if (fabs (nearest_gridpoint * grid_factor - x) > COOR_TO_MM)
+  if (fabs (nearest_gridpoint * grid_factor - x) > COORD_TO_MM(1))
     return x_scaled;
   /* without mm-adjusted grid_factor
-     (return floor (x / PCB->Grid + .5) *  PCB->Grid * COOR_TO_MM),
+     (return floor (x / PCB->Grid + .5) * COORD_TO_MM(PCB->Grid)),
      the round-off errors redintroduce the bug for 0.1 or 0.05 mm grid
      at coordinates more than 1500 mm.
      grid_factor makes the stuff work at least up to 254 m,

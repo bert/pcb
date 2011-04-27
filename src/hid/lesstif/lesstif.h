@@ -60,7 +60,3 @@ extern void lesstif_attributes_dialog (char *, AttributeListType *);
 #define need_idle_proc lesstif_need_idle_proc
 #define show_crosshair lesstif_show_crosshair
 
-#define PCB_TO_MIL(n) ((n) / 100.0)
-#define PCB_TO_MM(n) ((n) / 100000.0 * 25.4)
-#define MIL_TO_PCB(n) (int)((n) * 100.0 + 0.2)
-#define MM_TO_PCB(n) (int)((n) / 25.4 * 100000.0 + 0.2)

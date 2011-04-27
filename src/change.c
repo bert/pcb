@@ -739,7 +739,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       if (Line->Clearance == 0)
 	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Line);
-	  Line->Clearance = 1000;
+	  Line->Clearance = MIL_TO_COORD(10);
 	}
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
@@ -820,7 +820,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
       if (Arc->Clearance == 0)
 	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Arc);
-	  Arc->Clearance = 1000;
+	  Arc->Clearance = MIL_TO_COORD(10);
 	}
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);

@@ -1652,9 +1652,9 @@ CursorAction(int argc, char **argv, int x, int y)
    * come up with PCB internal units.
    */
   if (strncasecmp (argv[3], "mm", 2) == 0)
-    xu = yu = MM_TO_COOR;
+    xu = yu = MM_TO_COORD(1);
   else if (strncasecmp (argv[3], "mil", 3) == 0)
-    xu = yu = 100;
+    xu = yu = MIL_TO_COORD(1);
   else if (strncasecmp (argv[3], "grid", 4) == 0)
     xu = yu = PCB->Grid;
   else if (strncasecmp (argv[3], "view", 4) == 0)

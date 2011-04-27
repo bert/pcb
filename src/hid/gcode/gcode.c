@@ -68,7 +68,7 @@
 #endif
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
-#define pcb_unit 100000.0	/* pcb internal units per inch */
+#define pcb_unit (INCH_TO_COORD(1)) /* pcb internal units per inch */
 struct color_struct
 {
   /* the descriptor used by the gd library */
@@ -182,7 +182,7 @@ REGISTER_ATTRIBUTES (gcode_attribute_list)
 
 /* *** Utility funcions **************************************************** */
 
-/* convert from default PCB units (1/100 mil) to gcode units */
+/* convert from default PCB units to gcode units */
      static int pcb_to_gcode (int pcb)
 {
   int gcode;
@@ -446,7 +446,7 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_cutdepth = options[HA_cutdepth].real_value * scale;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
-  gcode_toolradius = options[HA_toolradius].real_value * scale * pcb_unit;	/* in PCB units (1/100 mil) */
+  gcode_toolradius = options[HA_toolradius].real_value * scale * pcb_unit;	/* in PCB units */
   if (metric)
     gcode_toolradius *= 1 / 25.4;
   gcode_choose_groups ();

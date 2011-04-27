@@ -101,9 +101,9 @@ update_one_value (int i, int v)
   char buf[100];
   double d;
   if (use_mm)
-    d = PCB_TO_MM (v);
+    d = COORD_TO_MM (v);
   else
-    d = PCB_TO_MIL (v);
+    d = COORD_TO_MIL (v);
 
   sprintf (buf, "%.2f", d);
   XmTextSetString (style_values[i], buf);
@@ -172,9 +172,9 @@ style_value_cb (Widget w, int i, void *cbs)
   s = XmTextGetString (w);
   sscanf (s, "%lf", &d);
   if (use_mm)
-    n = MM_TO_PCB (d);
+    n = MM_TO_COORD (d);
   else
-    n = MIL_TO_PCB (d);
+    n = MIL_TO_COORD (d);
   switch (i)
     {
     case SSthick:

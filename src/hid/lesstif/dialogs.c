@@ -1140,9 +1140,9 @@ sz_str2val (Widget w, int pcbu)
     return atoi (buf);
   sscanf (buf, "%lf", &d);
   if (Settings.grid_units_mm)
-    return MM_TO_PCB (d);
+    return MM_TO_COORD (d);
   else
-    return MIL_TO_PCB (d);
+    return MIL_TO_COORD (d);
 }
 
 static void
@@ -1153,9 +1153,9 @@ sz_val2str (Widget w, int u, int pcbu)
   if (pcbu)
     {
       if (Settings.grid_units_mm)
-	d = PCB_TO_MM (u);
+	d = COORD_TO_MM (u);
       else
-	d = PCB_TO_MIL (u);
+	d = COORD_TO_MIL (u);
       sprintf (buf, "%.2f", d + 0.002);
     }
   else

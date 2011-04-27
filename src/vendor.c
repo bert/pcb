@@ -327,29 +327,25 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
   sval = resource_value (res, "units");
   if (sval == NULL)
     {
-      sf = 100;
+      sf = MIL_TO_COORD(1);
     }
   else if ((NSTRCMP (sval, "mil") == 0) || (NSTRCMP (sval, "mils") == 0))
     {
-      sf = 100;
+      sf = MIL_TO_COORD(1);
     }
   else if ((NSTRCMP (sval, "inch") == 0) || (NSTRCMP (sval, "inches") == 0))
     {
-      sf = 100000;
+      sf = INCH_TO_COORD(1);
     }
   else if (NSTRCMP (sval, "mm") == 0)
     {
-      /* 
-       * divide by .0254 to convert mm to mils.  Then multiply by 100
-       * for PCB units
-       */
-      sf = (100.0 / 0.0254);
+      sf = MM_TO_COORD(1);
     }
   else
     {
       Message ("\"%s\" is not a supported units.  Defaulting to inch\n",
 	       sval);
-      sf = 100000;
+      sf = INCH_TO_COORD(1);
     }
 
 

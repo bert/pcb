@@ -408,34 +408,32 @@ ghid_update_toggle_flags ()
 
 #define	N_GRID_SETTINGS		11
 
-#define	MM_TO_PCB(mm)	((mm) * 100000 / 25.4)
-
 static gdouble grid_mil_values[N_GRID_SETTINGS] = {
-  10.0,
-  20.0,
-  50.0,
-  100.0,
-  200.0,
-  500.0,
-  1000.0,
-  2000.0,
-  2500.0,
-  5000.0,
-  10000.0
+  MIL_TO_COORD (0.10),
+  MIL_TO_COORD (0.20),
+  MIL_TO_COORD (0.50),
+  MIL_TO_COORD (1.00),
+  MIL_TO_COORD (2.00),
+  MIL_TO_COORD (5.00),
+  MIL_TO_COORD (10.0),
+  MIL_TO_COORD (20.0),
+  MIL_TO_COORD (25.0),
+  MIL_TO_COORD (50.0),
+  MIL_TO_COORD (100)
 };
 
 static gdouble grid_mm_values[N_GRID_SETTINGS] = {
-  MM_TO_PCB (0.002),
-  MM_TO_PCB (0.005),
-  MM_TO_PCB (0.01),
-  MM_TO_PCB (0.02),
-  MM_TO_PCB (0.05),
-  MM_TO_PCB (0.1),
-  MM_TO_PCB (0.2),
-  MM_TO_PCB (0.25),
-  MM_TO_PCB (0.5),
-  MM_TO_PCB (1.0),
-  MM_TO_PCB (2.0)
+  MM_TO_COORD (0.002),
+  MM_TO_COORD (0.005),
+  MM_TO_COORD (0.01),
+  MM_TO_COORD (0.02),
+  MM_TO_COORD (0.05),
+  MM_TO_COORD (0.1),
+  MM_TO_COORD (0.2),
+  MM_TO_COORD (0.25),
+  MM_TO_COORD (0.5),
+  MM_TO_COORD (1.0),
+  MM_TO_COORD (2.0)
 };
 
   /* When the user toggles grid units mil<->mm, call this to get an

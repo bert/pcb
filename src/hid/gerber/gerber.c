@@ -145,7 +145,7 @@ int n_pending_drills = 0, max_pending_drills = 0;
 /*----------------------------------------------------------------------------*/
 /* Defined Constants                                                          */
 /*----------------------------------------------------------------------------*/
-#define AUTO_OUTLINE_WIDTH 800       /* Auto-geneated outline width of 8 mils */
+#define AUTO_OUTLINE_WIDTH MIL_TO_COORD(8)       /* Auto-geneated outline width of 8 mils */
 
 
 /*----------------------------------------------------------------------------*/
@@ -203,16 +203,16 @@ printAperture(FILE *f, int i)
     {
     case ROUND:
       fprintf (f, "%%ADD%dC,%.4f*%%\015\012", dCode,
-	       width / 100000.0);
+	       COORD_TO_INCH(width));
       break;
     case SQUARE:
       fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\015\012",
-	       dCode, width / 100000.0, width / 100000.0);
+	       dCode, COORD_TO_INCH(width), COORD_TO_INCH(width));
       break;
     case OCTAGON:
       fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
 	       "%%ADD%dOCT%d*%%\015\012", dCode,
-	       width / (100000.0 * COS_22_5_DEGREE), dCode,
+	       COORD_TO_INCH(width) / COS_22_5_DEGREE, dCode,
 	       dCode);
       break;
 #if 0
@@ -628,7 +628,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	    if (curapp->aperture_used[i])
 	      fprintf (f, "T%02dC%.3f\015\012",
 		       i + DCODE_BASE,
-		       global_aperture_sizes[i] / 100000.0);
+		       COORD_TO_INCH(global_aperture_sizes[i]));
 	  fprintf (f, "%%\015\012");
 	  /* FIXME */
 	  return 1;

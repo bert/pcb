@@ -379,7 +379,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	box->Y2 = maxy;
       }
       /* okay, add half-perimeter to cost! */
-      W += (maxx - minx) / 100 + (maxy - miny) / 100 +
+      W += COORD_TO_MIL(maxx - minx) + COORD_TO_MIL(maxy - miny) +
 	((allpads && !allsameside) ? CostParameter.via_cost : 0);
     }
   /* now compute penalty function Wc which is proportional to

@@ -316,13 +316,13 @@ parse_bloat (char *str)
   suf[0] = 0;
   sscanf (str, "%lf %s", &val, suf);
   if (strcasecmp (suf, "in") == 0)
-    bloat = val * 100000.0;
+    bloat = INCH_TO_COORD(val);
   else if (strcasecmp (suf, "mil") == 0)
-    bloat = val * 100.0;
+    bloat = MIL_TO_COORD(val);
   else if (strcasecmp (suf, "mm") == 0)
-    bloat = val * MM_TO_COOR;
+    bloat = MM_TO_COORD(val);
   else if (strcasecmp (suf, "um") == 0)
-    bloat = val * MM_TO_COOR / 1000.0;
+    bloat = MM_TO_COORD(val) / 1000.0;
   else if (strcasecmp (suf, "pix") == 0
 	   || strcasecmp (suf, "px") == 0)
     bloat = val * scale;
@@ -628,13 +628,10 @@ png_do_export (HID_Attr_Val * options)
   if (dpi > 0)
     {
       /*
-       * a scale of 1 means 1 pixel is 1/100 mil 
-       * a scale of 100,000 means 1 pixel is 1 inch
-       * FIXME -- need to use a macro to go from PCB units
-       * so if we ever change pcb's internal units, this 
-       * will get updated.
+       * a scale of 1  means 1 pixel is 1 inch
+       * a scale of 10 means 1 pixel is 10 inches
        */
-      scale = 100000.0 / dpi;
+      scale = INCH_TO_COORD(1) / dpi;
       w = w / scale;
       h = h / scale;
     }

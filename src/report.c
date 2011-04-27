@@ -54,7 +54,7 @@
 
 static double
 units(double value)
-{return (Settings.grid_units_mm ? (value * COOR_TO_MM) : (value / 100.0));}
+{return (Settings.grid_units_mm ? COORD_TO_MM(value) : COORD_TO_MIL(value));}
 
 #define UNIT(value) units(value), (Settings.grid_units_mm ? "mm" : "mils")
 
@@ -619,17 +619,17 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
   if (strcasecmp (units_name, "mm") == 0)
     {
       prec = 4;
-      scale = COOR_TO_MM;
+      scale = COORD_TO_MM(1);
     }
   else if (strcasecmp (units_name, "mil") == 0)
     {
       prec = 2;
-      scale = .01;
+      scale = COORD_TO_MIL(1);
     }
   else if (strcasecmp (units_name, "in") == 0)
     {
       prec = 5;
-      scale = 1./100000;
+      scale = COORD_TO_INCH(1);
     }
   else
     {

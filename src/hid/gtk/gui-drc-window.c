@@ -962,9 +962,6 @@ ghid_drc_window_show (gboolean raise)
   gtk_widget_show_all (drc_window);
 }
 
-#define UNIT1(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0))
-#define UNIT(value) UNIT1(value) , (Settings.grid_units_mm ? "mm" : "mils")
-
 void ghid_drc_window_append_violation (DrcViolationType *violation)
 {
   GhidDrcViolation *violation_obj;

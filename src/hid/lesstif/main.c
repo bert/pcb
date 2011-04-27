@@ -890,9 +890,9 @@ CursorAction(int argc, char **argv, int x, int y)
     dy = -dy;
 
   if (strncasecmp (argv[3], "mm", 2) == 0)
-    xu = yu = MM_TO_COOR;
+    xu = yu = MM_TO_COORD(1);
   else if (strncasecmp (argv[3], "mil", 3) == 0)
-    xu = yu = 100;
+    xu = yu = MIL_TO_COORD(1);
   else if (strncasecmp (argv[3], "grid", 4) == 0)
     xu = yu = PCB->Grid;
   else if (strncasecmp (argv[3], "view", 4) == 0)
@@ -906,7 +906,7 @@ CursorAction(int argc, char **argv, int x, int y)
       yu = PCB->MaxHeight / 100.0;
     }
   else
-    xu = yu = 100;
+    xu = yu = MIL_TO_COORD(1);
 
   EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
@@ -2316,16 +2316,16 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
   if (Settings.grid_units_mm)
     {
       /* MM */
-      dx = PCB_TO_MM (x);
-      dy = PCB_TO_MM (y);
-      g = PCB_TO_MM (PCB->Grid);
+      dx = COORD_TO_MM (x);
+      dy = COORD_TO_MM (y);
+      g = COORD_TO_MM (PCB->Grid);
     }
   else
     {
       /* Mils */
-      dx = PCB_TO_MIL (x);
-      dy = PCB_TO_MIL (y);
-      g = PCB_TO_MIL (PCB->Grid);
+      dx = COORD_TO_MIL (x);
+      dy = COORD_TO_MIL (y);
+      g = COORD_TO_MIL (PCB->Grid);
     }
   if (x < 0 && prev_state >= 0)
     buf[0] = 0;
@@ -2376,9 +2376,9 @@ pcb2str (int pcbval)
 
   bufp = (bufp + 1) % 20;
   if (Settings.grid_units_mm)
-    d = PCB_TO_MM (pcbval);
+    d = COORD_TO_MM (pcbval);
   else
-    d = PCB_TO_MIL (pcbval);
+    d = COORD_TO_MIL (pcbval);
 
   if ((int) (d * 100 + 0.5) == (int) (d + 0.005) * 100)
     sprintf (buf[bufp], "%d", (int) d);
@@ -2638,16 +2638,16 @@ idle_proc (XtPointer dummy)
 	  {
 	    if (Settings.grid_units_mm)
 	      {
-		g = PCB_TO_MM (old_grid);
-		x = PCB_TO_MM (old_gx);
-		y = PCB_TO_MM (old_gy);
+		g = COORD_TO_MM (old_grid);
+		x = COORD_TO_MM (old_gx);
+		y = COORD_TO_MM (old_gy);
 		u = "mm";
 	      }
 	    else
 	      {
-		g = PCB_TO_MIL (old_grid);
-		x = PCB_TO_MIL (old_gx);
-		y = PCB_TO_MIL (old_gy);
+		g = COORD_TO_MIL (old_grid);
+		x = COORD_TO_MIL (old_gx);
+		y = COORD_TO_MIL (old_gy);
 		u = "mil";
 	      }
 	    if (x || y)
@@ -2677,12 +2677,12 @@ idle_proc (XtPointer dummy)
 
 	if (Settings.grid_units_mm)
 	  {
-	    g = PCB_TO_MM (view_zoom);
+	    g = COORD_TO_MM (view_zoom);
 	    units = "mm";
 	  }
 	else
 	  {
-	    g = PCB_TO_MIL (view_zoom);
+	    g = COORD_TO_MIL (view_zoom);
 	    units = "mil";
 	  }
 	if ((int) (g * 100 + 0.5) == (int) (g + 0.005) * 100)

@@ -143,10 +143,10 @@ Attribute	{ return(T_ATTRIBUTE); }
 						yylval.number = (unsigned) *(yytext+1);
 						return(CHAR_CONST);
 					}
-{FLOATINGMM}		{	return parse_number(3937.0079); }
-{FLOATINGUM}		{	return parse_number(3.9370079); }
-{FLOATINGIN}		{	return parse_number(100000.0); }
-{FLOATINGMIL}		{	return parse_number(100.0); }
+{FLOATINGMM}		{	return parse_number(MM_TO_COORD(1)); }
+{FLOATINGUM}		{	return parse_number(MM_TO_COORD(1) * 1000); }
+{FLOATINGIN}		{	return parse_number(INCH_TO_COORD(1)); }
+{FLOATINGMIL}		{	return parse_number(MIL_TO_COORD(1)); }
 {DECIMAL}		{	return parse_number(1.0); }
 
 {HEX}			{

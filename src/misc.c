@@ -139,13 +139,13 @@ GetValue (const char *val, const char *units, bool * absolute)
   if (units && *units)
     {
       if (strncasecmp (units, "mm", 2) == 0)
-        value *= MM_TO_COOR;
+        value = MM_TO_COORD(value);
       else if (strncasecmp (units, "cm", 2) == 0)
-        value *= MM_TO_COOR * 10;
+        value = 10 * MM_TO_COORD(value);
       else if (strncasecmp (units, "mil", 3) == 0)
-        value *= 100;
+        value = MIL_TO_COORD(value);
       else if (strncasecmp (units, "in", 3) == 0)
-        value *= 100000;
+        value = INCH_TO_COORD(value);
     }
   return value;
 }
@@ -841,7 +841,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
       /* for backwards-compatibility, we use a 10-mil default
        * for styles which omit the keepaway specification. */
       if (*s != ',')
-        routeStyle->Keepaway = 1000;
+        routeStyle->Keepaway = MIL_TO_COORD(10);
       else
         {
           s++;

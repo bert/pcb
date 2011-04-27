@@ -1857,15 +1857,15 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
     {
-      Message (_("Rules are minspace %d.%02d, minoverlap %d.%d "
-		 "minwidth %d.%02d, minsilk %d.%02d\n"
-		 "min drill %d.%02d, min annular ring %d.%02d\n"),
-	       (PCB->Bloat + 1) / 100, (PCB->Bloat + 1) % 100,
-	       PCB->Shrink / 100, PCB->Shrink % 100,
-	       PCB->minWid / 100, PCB->minWid % 100,
-	       PCB->minSlk / 100, PCB->minSlk % 100,
-	       PCB->minDrill / 100, PCB->minDrill % 100,
-	       PCB->minRing / 100, PCB->minRing % 100);
+      Message (_("Rules are minspace %.2f, minoverlap %.2f "
+		 "minwidth %.2f, minsilk %.2f\n"
+		 "min drill %.2f, min annular ring %.2f\n"),
+	       COORD_TO_MIL(PCB->Bloat + 1),
+	       COORD_TO_MIL(PCB->Shrink),
+	       COORD_TO_MIL(PCB->minWid),
+	       COORD_TO_MIL(PCB->minSlk),
+	       COORD_TO_MIL(PCB->minDrill),
+	       COORD_TO_MIL(PCB->minRing));
     }
   count = DRCAll ();
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
@@ -2393,7 +2393,7 @@ from.
 
 %end-doc */
 
-#define GAP 10000
+#define GAP MIL_TO_COORD(100)
 
 static int
 ActionDisperseElements (int argc, char **argv, int x, int y)

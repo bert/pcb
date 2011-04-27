@@ -316,12 +316,12 @@ PrintFab (void)
       /*FPrintOutline (); */
       gui->set_line_width (Output.fgGC, FAB_LINE_W);
       text_at (200000, yoff, 0,
-	       "Maximum Dimensions: %d mils wide, %d mils high",
-	       PCB->MaxWidth / 100, PCB->MaxHeight / 100);
+	       "Maximum Dimensions: %f mils wide, %f mils high",
+	       COORD_TO_MIL(PCB->MaxWidth), COORD_TO_MIL(PCB->MaxHeight));
       text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
-	       "Board outline is the centerline of this %d mil"
-	       " rectangle - 0,0 to %d,%d mils",
-	       FAB_LINE_W / 100, PCB->MaxWidth / 100, PCB->MaxHeight / 100);
+	       "Board outline is the centerline of this %f mil"
+	       " rectangle - 0,0 to %f,%f mils",
+	       COORD_TO_MIL(FAB_LINE_W), COORD_TO_MIL(PCB->MaxWidth), COORD_TO_MIL(PCB->MaxHeight));
     }
   else
     {

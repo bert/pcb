@@ -55,14 +55,11 @@
 
   /* Go from from the grid units in use (millimeters or mils) to PCB units
      |  and back again.
-     |  PCB keeps values internally to 1/100000 inch (0.01 mils), but gui
+     |  PCB keeps values internally higher precision, but gui
      |  widgets (spin buttons, labels, etc) need mils or millimeters.
    */
-#define	FROM_PCB_UNITS(v)	(Settings.grid_units_mm ? \
-								((v) * 0.000254) : ((v) * 0.01))
-
-#define TO_PCB_UNITS(v)		(Settings.grid_units_mm ? \
-								((v) / 0.000254 + 0.5) : ((v) * 100.0 + 0.5))
+#define	FROM_PCB_UNITS(v)	(Settings.grid_units_mm ? COORD_TO_MM(v) : COORD_TO_MIL(v))
+#define	TO_PCB_UNITS(v)		(Settings.grid_units_mm ? MM_TO_COORD(v) : MIL_TO_COORD(v))
 
 extern int ghid_flip_x, ghid_flip_y;
 #define SIDE_X(x)   ((ghid_flip_x ? PCB->MaxWidth - (x) : (x)))

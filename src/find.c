@@ -157,7 +157,7 @@ RCSID ("$Id$");
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
-#define LENGTH_TO_HUMAN(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0))
+#define LENGTH_TO_HUMAN(value) (Settings.grid_units_mm ? COORD_TO_MM(value) : COORD_TO_MIL(value))
 #define LENGTH_DIGITS (Settings.grid_units_mm ? 4 : 2)
 #define LENGTH_UNITS_STRING (Settings.grid_units_mm ? "mm" : "mils")
 

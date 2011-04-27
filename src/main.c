@@ -484,24 +484,24 @@ HID_Attribute main_attribute_list[] = {
   COLOR (WarnColor, "#ff8000", "warn-color", "color for warnings"),
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
-  ISET (ViaThickness, 6000, "via-thickness", 0),
-  ISET (ViaDrillingHole, 2800, "via-drilling-hole", 0),
-  ISET (LineThickness, 1000, "line-thickness",
+  ISET (ViaThickness, MIL_TO_COORD(60), "via-thickness", 0),
+  ISET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole", 0),
+  ISET (LineThickness, MIL_TO_COORD(10), "line-thickness",
 	"Initial thickness of new lines."),
-  ISET (RatThickness, 1000, "rat-thickness", 0),
-  ISET (Keepaway, 1000, "keepaway", 0),
-  ISET (MaxWidth, 600000, "default-PCB-width", 0),
-  ISET (MaxHeight, 500000, "default-PCB-height", 0),
+  ISET (RatThickness, MIL_TO_COORD(10), "rat-thickness", 0),
+  ISET (Keepaway, MIL_TO_COORD(10), "keepaway", 0),
+  ISET (MaxWidth, MIL_TO_COORD(MIL_TO_COORD(60)), "default-PCB-width", 0),
+  ISET (MaxHeight, MIL_TO_COORD(MIL_TO_COORD(50)), "default-PCB-height", 0),
   ISET (TextScale, 100, "text-scale", 0),
-  ISET (AlignmentDistance, 200, "alignment-distance", 0),
-  ISET (Bloat, 1000, "bloat", 0),
-  ISET (Shrink, 1000, "shrink", 0),
-  ISET (minWid, 1000, "min-width", "DRC minimum copper spacing"),
-  ISET (minSlk, 1000, "min-silk", "DRC minimum silk width"),
-  ISET (minDrill, 1500, "min-drill", "DRC minimum drill diameter"),
-  ISET (minRing, 1000, "min-ring", "DRC minimum annular ring"),
+  ISET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance", 0),
+  ISET (Bloat, MIL_TO_COORD(10), "bloat", 0),
+  ISET (Shrink, MIL_TO_COORD(10), "shrink", 0),
+  ISET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
+  ISET (minSlk, MIL_TO_COORD(10), "min-silk", "DRC minimum silk width"),
+  ISET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
+  ISET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
 
-  RSET (Grid, 1000, "grid", 0),
+  RSET (Grid, MIL_TO_COORD(10), "grid", 0),
   RSET (grid_increment_mm, 0.1, "grid-increment-mm", 0),
   RSET (grid_increment_mil, 5.0, "grid-increment-mil", 0),
   RSET (size_increment_mm, 0.2, "size-increment-mm", 0),
@@ -510,7 +510,7 @@ HID_Attribute main_attribute_list[] = {
   RSET (line_increment_mil, 5.0, "line-increment-mil", 0),
   RSET (clear_increment_mm, 0.05, "clear-increment-mm", 0),
   RSET (clear_increment_mil, 2.0, "clear-increment-mil", 0),
-  RSET (IsleArea, 200000000, "minimum polygon area", 0),
+  RSET (IsleArea, MIL_TO_COORD(1400) * MIL_TO_COORD(1400), "minimum polygon area", 0),
 
   ISET (BackupInterval, 60, "backup-interval", 0),
 
@@ -564,10 +564,10 @@ HID_Attribute main_attribute_list[] = {
   SSET (GnetlistProgram, NULL, "gnetlist",
 	"Sets the name and optionally full path to the gnetlist(3) program"),
 
-  ISET (PinoutOffsetX, 100, "pinout-offset-x", 0),
-  ISET (PinoutOffsetY, 100, "pinout-offset-y", 0),
-  ISET (PinoutTextOffsetX, 800, "pinout-text-offset-x", 0),
-  ISET (PinoutTextOffsetY, -100, "pinout-text-offset-y", 0),
+  ISET (PinoutOffsetX, MIL_TO_COORD(1), "pinout-offset-x", 0),
+  ISET (PinoutOffsetY, MIL_TO_COORD(1), "pinout-offset-y", 0),
+  ISET (PinoutTextOffsetX, MIL_TO_COORD(8), "pinout-text-offset-x", 0),
+  ISET (PinoutTextOffsetY, MIL_TO_COORD(-1), "pinout-text-offset-y", 0),
 
   BSET (DrawGrid, 0, "draw-grid", "default to drawing the grid at startup"),
   BSET (ClearLine, 1, "clear-line", 0),
@@ -609,11 +609,11 @@ REGISTER_ATTRIBUTES (main_attribute_list)
 
   if (Settings.LineThickness > MAX_LINESIZE
       || Settings.LineThickness < MIN_LINESIZE)
-    Settings.LineThickness = 1000;
+    Settings.LineThickness = MIL_TO_COORD(10);
 
   if (Settings.ViaThickness > MAX_PINORVIASIZE
       || Settings.ViaThickness < MIN_PINORVIASIZE)
-    Settings.ViaThickness = 4000;
+    Settings.ViaThickness = MIL_TO_COORD(40);
 
   if (Settings.ViaDrillingHole <= 0)
     Settings.ViaDrillingHole =

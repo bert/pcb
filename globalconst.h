@@ -60,36 +60,36 @@
 /* ---------------------------------------------------------------------------
  * some limit specifications
  */
-#define LARGE_VALUE		10000000 /* maximum extent of board and elements in 1/100 mil */
+#define LARGE_VALUE		10000000 /* maximum extent of board and elements */
  
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
 #define DEF_LAYER		8	/* default number of layers for new boards */
 #define NUM_STYLES		4
-#define	MIN_LINESIZE		1	/* thickness of lines in 1/100000'' */
+#define	MIN_LINESIZE		MIL_TO_COORD(0.01)	/* thickness of lines */
 #define	MAX_LINESIZE		LARGE_VALUE
 #define	MIN_TEXTSCALE		10	/* scaling of text objects in percent */
 #define	MAX_TEXTSCALE		10000
-#define	MIN_PINORVIASIZE	2000	/* size of a pin or via in 1/100 mils */
-#define	MIN_PINORVIAHOLE	400	/* size of a pins or vias drilling hole */
+#define	MIN_PINORVIASIZE	MIL_TO_COORD(20)	/* size of a pin or via */
+#define	MIN_PINORVIAHOLE	MIL_TO_COORD(4)	/* size of a pins or vias drilling hole */
 #define	MAX_PINORVIASIZE	LARGE_VALUE
-#define	MIN_PINORVIACOPPER	400	/* min difference outer-inner diameter */
-#define	MIN_PADSIZE		100	/* min size of a pad */
+#define	MIN_PINORVIACOPPER	MIL_TO_COORD(4)	/* min difference outer-inner diameter */
+#define	MIN_PADSIZE		MIL_TO_COORD(1)	/* min size of a pad */
 #define	MAX_PADSIZE		LARGE_VALUE   /* max size of a pad */
-#define	MIN_DRC_VALUE		10
-#define	MAX_DRC_VALUE		50000
-#define	MIN_DRC_SILK		100
-#define	MAX_DRC_SILK		3000
-#define	MIN_DRC_DRILL		100
-#define	MAX_DRC_DRILL		5000
+#define	MIN_DRC_VALUE		MIL_TO_COORD(0.1)
+#define	MAX_DRC_VALUE		MIL_TO_COORD(500)
+#define	MIN_DRC_SILK		MIL_TO_COORD(1)
+#define	MAX_DRC_SILK		MIL_TO_COORD(30)
+#define	MIN_DRC_DRILL		MIL_TO_COORD(1)
+#define	MAX_DRC_DRILL		MIL_TO_COORD(50)
 #define	MIN_DRC_RING		0
-#define	MAX_DRC_RING		10000
-#define	MIN_GRID		1	/* min grid in 1/100 mils */
-#define	MAX_GRID		100000 /* max grid in 1/100 mils */ 
+#define	MAX_DRC_RING		MIL_TO_COORD(100)
+#define	MIN_GRID		1
+#define	MAX_GRID		MIL_TO_COORD(1000)
 #define	MAX_FONTPOSITION	255	/* upper limit of characters in my font */
 
 #define	MAX_COORD		LARGE_VALUE	/* coordinate limits */
-#define	MIN_SIZE		1000	/* lowest width and height of the board */
+#define	MIN_SIZE		MIL_TO_COORD(10)	/* lowest width and height of the board */
 #define	MAX_BUFFER		5	/* number of pastebuffers */
 					/* additional changes in menu.c are */
 					/* also required to select more buffers */
