@@ -1060,17 +1060,6 @@ ghid_drawing_area_configure_hook (GHidPort *port)
     }
 }
 
-gboolean
-ghid_start_drawing (GHidPort *port)
-{
-  return TRUE;
-}
-
-void
-ghid_end_drawing (GHidPort *port)
-{
-}
-
 void
 ghid_screen_update (void)
 {

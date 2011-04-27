@@ -646,12 +646,7 @@ ghid_port_window_motion_cb (GtkWidget * widget,
   gdouble dx, dy;
   static gint x_prev = -1, y_prev = -1;
 
-
   gdk_event_request_motions (ev);
-
-  if (!ghid_start_drawing (out))
-    return FALSE;
-
 
   if (out->panning)
     {
@@ -670,7 +665,6 @@ ghid_port_window_motion_cb (GtkWidget * widget,
   queue_tooltip_update (out);
 #endif
 
-  ghid_end_drawing (out);
   return FALSE;
 }
 
