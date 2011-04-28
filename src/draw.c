@@ -763,7 +763,7 @@ DrawEverything (BoxTypePtr drawn_area)
   doing_assy = false;
 
   if (gui->set_layer ("fab", SL (FAB, 0), 0))
-    PrintFab ();
+    PrintFab (Output.fgGC);
 }
 
 static void
