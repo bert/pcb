@@ -112,7 +112,6 @@ nogui_set_draw_xor (hidGC gc, int xor_)
 static void
 nogui_set_draw_faded (hidGC gc, int faded)
 {
-  CRASH;
 }
 
 static void
@@ -510,6 +509,7 @@ apply_default_hid (HID * d, HID * s)
   AD (set_line_cap);
   AD (set_line_width);
   AD (set_draw_xor);
+  AD (set_draw_faded);
   AD (draw_line);
   AD (draw_arc);
   AD (fill_circle);
