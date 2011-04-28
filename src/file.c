@@ -534,8 +534,8 @@ WritePCBDataHeader (FILE * FP)
   fprintf (FP, "Grid[%s %i %i %i]\n",
 	   c_dtostr (PCB->Grid), (int) PCB->GridOffsetX,
 	   (int) PCB->GridOffsetY, (int) Settings.DrawGrid);
-  fprintf (FP, "Cursor[%i %i %s]\n", (int) TO_PCB_X (Output.Width / 2),
-	   (int) TO_PCB_Y (Output.Height / 2), c_dtostr (PCB->Zoom));
+  fprintf (FP, "Cursor[%i %i %s]\n",
+           Crosshair.X, Crosshair.Y, c_dtostr (PCB->Zoom));
   fprintf (FP, "PolyArea[%s]\n", c_dtostr (PCB->IsleArea));
   fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
   fprintf (FP, "DRC[%i %i %i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
