@@ -2141,9 +2141,9 @@ EventMoveCrosshair (int ev_x, int ev_y)
 #ifdef HAVE_LIBSTROKE
   if (mid_stroke)
     {
-      StrokeBox.X2 = TO_PCB_X (ev_x);
-      StrokeBox.Y2 = TO_PCB_Y (ev_y);
-      stroke_record (Event->x, ev_y);
+      StrokeBox.X2 = ev_x;
+      StrokeBox.Y2 = ev_y;
+      stroke_record (ev_x, ev_y);
       return;
     }
 #endif /* HAVE_LIBSTROKE */
