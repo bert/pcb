@@ -176,8 +176,6 @@ typedef struct			/* holds information about output window */
 
   int Width,			/* sizes of output window (porthole) */
     Height;
-  int oldObjState,		/* Helpers for GetLocation */
-    oldLineState, oldBoxState;
 }
 OutputType, *OutputTypePtr;
 
