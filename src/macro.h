@@ -50,10 +50,6 @@
 #define	TO_SCREEN_SIGN_X(x)	(SWAP_IDENT ? SWAP_SIGN_X(x) : (x))
 #define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
 
-#ifndef	TO_PCB
-#define	TO_PCB(x)		((LocationType)((x)/Zoom_Multiplier))
-#endif
-
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
  */
