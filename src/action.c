@@ -549,14 +549,18 @@ FinishStroke (void)
 	    LocationType x = (StrokeBox.X1 + StrokeBox.X2) / 2;
 	    LocationType y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
 	    int z;
+	    /* XXX: PCB->MaxWidth and PCB->MaxHeight may be the wrong
+	     *      divisors below. The old code WAS broken, but this
+             *      replacement has not been tested for correctness.
+	     */
 	    z =
 	      1 +
-	      log (fabs (StrokeBox.X2 - StrokeBox.X1) / Output.Width) /
+	      log (fabs (StrokeBox.X2 - StrokeBox.X1) / PCB->MaxWidth) /
 	      log (2.0);
 	    z =
 	      MAX (z,
 		   1 +
-		   log (fabs (StrokeBox.Y2 - StrokeBox.Y1) / Output.Height) /
+		   log (fabs (StrokeBox.Y2 - StrokeBox.Y1) / PCB->MaxHeight) /
 		   log (2.0));
 	    SetZoom (z);
 
