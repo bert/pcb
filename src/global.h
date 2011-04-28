@@ -173,9 +173,6 @@ typedef struct			/* holds information about output window */
   hidGC bgGC,			/* background and foreground; */
     fgGC,			/* changed from some routines */
     pmGC;			/* depth 1 pixmap GC to store clip */
-
-  int Width,			/* sizes of output window (porthole) */
-    Height;
 }
 OutputType, *OutputTypePtr;
 
