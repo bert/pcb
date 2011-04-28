@@ -980,7 +980,6 @@ main (int argc, char *argv[])
   Output.bgGC = gui->make_gc ();
   Output.fgGC = gui->make_gc ();
   Output.pmGC = gui->make_gc ();
-  Output.GridGC = gui->make_gc ();
 
   settings_post_process ();
 
