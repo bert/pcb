@@ -977,10 +977,6 @@ main (int argc, char *argv[])
   if (show_copyright)
     copyright ();
 
-  Output.bgGC = gui->make_gc ();
-  Output.fgGC = gui->make_gc ();
-  Output.pmGC = gui->make_gc ();
-
   settings_post_process ();
 
 
