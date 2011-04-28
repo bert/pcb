@@ -61,8 +61,6 @@ extern LibraryType Library;
 
 extern LocationType Xorig, Yorig;
 
-extern BoxType theScreen, clipBox;
-
 extern double Zoom_Multiplier;
 
 extern char *Progname;

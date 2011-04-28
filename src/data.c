@@ -61,11 +61,6 @@ LocationType Xorig, Yorig;	/* origin offset for drawing in pixmap */
 
 int addedLines;
 
-LocationType vxl, vxh, vyl, vyh;	/* visible pcb coordinates */
-
-BoxType theScreen;		/* box of screen in pcb coordinates */
-BoxType clipBox;		/* box for clipping of drawing */
-
 double Zoom_Multiplier = 0.01;
 
 /*  { 1.5625, 2.2097, 3.125, 4.4194, 6.25, 8.8388,
