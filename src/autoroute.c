@@ -1460,8 +1460,8 @@ void
 fillbox (const BoxType * b)
 {
   LayerTypePtr SLayer = LAYER_PTR (0);
-  gui->set_color (Output.fgGC, SLayer->Color);
-  gui->fill_rect (Output.fgGC, b->X1, b->Y1, b->X2, b->Y2);
+  gui->set_color (ar_gc, SLayer->Color);
+  gui->fill_rect (ar_gc, b->X1, b->Y1, b->X2, b->Y2);
 }
 
 /* makes a line on the solder layer silk surrounding the box */
@@ -1476,14 +1476,14 @@ showbox (BoxType b, Dimension thickness, int group)
     return;
 
 
-  gui->set_line_width (Output.fgGC, thickness);
-  gui->set_line_cap (Output.fgGC, Trace_Cap);
-  gui->set_color (Output.fgGC, SLayer->Color);
+  gui->set_line_width (ar_gc, thickness);
+  gui->set_line_cap (ar_gc, Trace_Cap);
+  gui->set_color (ar_gc, SLayer->Color);
 
-  gui->draw_line (Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
-  gui->draw_line (Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
-  gui->draw_line (Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
-  gui->draw_line (Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
+  gui->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
+  gui->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
+  gui->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
+  gui->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
   gui->use_mask (HID_FLUSH_DRAW_Q);
 
 #if 1
@@ -1529,23 +1529,23 @@ showedge (edge_t * e)
 {
   BoxType *b = (BoxType *) e->rb;
 
-  gui->set_line_cap (Output.fgGC, Trace_Cap);
-  gui->set_line_width (Output.fgGC, 1);
-  gui->set_color (Output.fgGC, Settings.MaskColor);
+  gui->set_line_cap (ar_gc, Trace_Cap);
+  gui->set_line_width (ar_gc, 1);
+  gui->set_color (ar_gc, Settings.MaskColor);
 
   switch (e->expand_dir)
     {
     case NORTH:
-      gui->draw_line (Output.fgGC, b->X1, b->Y1, b->X2, b->Y1);
+      gui->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
       break;
     case SOUTH:
-      gui->draw_line (Output.fgGC, b->X1, b->Y2, b->X2, b->Y2);
+      gui->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
       break;
     case WEST:
-      gui->draw_line (Output.fgGC, b->X1, b->Y1, b->X1, b->Y2);
+      gui->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
       break;
     case EAST:
-      gui->draw_line (Output.fgGC, b->X2, b->Y1, b->X2, b->Y2);
+      gui->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
       break;
     default:
       break;
