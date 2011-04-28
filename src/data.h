@@ -59,8 +59,6 @@ extern LibraryType Library;
 
 /*extern	DeviceInfoType	PrintingDevice[];*/
 
-extern double Zoom_Multiplier;
-
 extern char *Progname;
 extern char *InputTranslations;
 
