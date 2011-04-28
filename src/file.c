@@ -376,9 +376,6 @@ LoadPCB (char *Filename)
       Crosshair.Y =
 	MAX (0, MIN (PCB->CursorY, (LocationType) PCB->MaxHeight));
 
-      Xorig = Crosshair.X - TO_PCB (Output.Width / 2);
-      Yorig = Crosshair.Y - TO_PCB (Output.Height / 2);
-
       /* update cursor confinement and output area (scrollbars) */
       ChangePCBSize (PCB->MaxWidth, PCB->MaxHeight);
 

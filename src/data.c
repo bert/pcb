@@ -57,8 +57,6 @@ BufferType Buffers[MAX_BUFFER];	/* my buffers */
 LibraryType Library;		/* the library */
 bool Bumped;			/* if the undo serial number has changed */
 
-LocationType Xorig, Yorig;	/* origin offset for drawing in pixmap */
-
 int addedLines;
 
 double Zoom_Multiplier = 0.01;

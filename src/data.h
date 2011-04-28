@@ -59,8 +59,6 @@ extern LibraryType Library;
 
 /*extern	DeviceInfoType	PrintingDevice[];*/
 
-extern LocationType Xorig, Yorig;
-
 extern double Zoom_Multiplier;
 
 extern char *Progname;
