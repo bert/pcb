@@ -891,7 +891,7 @@ NotifyLine (void)
 	  type = SearchScreen (Crosshair.X, Crosshair.Y,
 			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
 			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, TO_PCB (1),
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1,
 			    FOUNDFLAG);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
