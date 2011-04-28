@@ -53,9 +53,6 @@
 #ifndef	TO_PCB
 #define	TO_PCB(x)		((LocationType)((x)/Zoom_Multiplier))
 #endif
-#define	TO_PCB_X(x)		TO_PCB(x) + Xorig
-#define	TO_PCB_Y(y)		(SWAP_IDENT ? \
-				PCB->MaxHeight - TO_PCB(y) - Yorig : TO_PCB(y) + Yorig)
 
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
