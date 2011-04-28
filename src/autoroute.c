@@ -1456,14 +1456,6 @@ bloat_routebox (routebox_t * rb)
 
 #ifdef ROUTE_DEBUG		/* only for debugging expansion areas */
 
-void
-fillbox (const BoxType * b)
-{
-  LayerTypePtr SLayer = LAYER_PTR (0);
-  gui->set_color (ar_gc, SLayer->Color);
-  gui->fill_rect (ar_gc, b->X1, b->Y1, b->X2, b->Y2);
-}
-
 /* makes a line on the solder layer silk surrounding the box */
 void
 showbox (BoxType b, Dimension thickness, int group)
@@ -3975,23 +3967,6 @@ show_sources (routebox_t * rb)
   if (p->flags.source)
     show_one (p);
   END_LOOP;
-}
-
-int
-__show_tree (const BoxType * b, void *cl)
-{
-  int eo = (int) cl;
-  routebox_t *rb = (routebox_t *) b;
-  if (eo < 0 || eo == rb->flags.is_odd)
-    fillbox (b);
-  return 1;
-}
-
-static void
-show_tree (rtree_t * tree, int even_odd)
-{
-  r_search (tree, NULL, NULL, __show_tree, (void *) even_odd);
-  gui->use_mask (HID_FLUSH_DRAW_Q);
 }
 
 #endif
