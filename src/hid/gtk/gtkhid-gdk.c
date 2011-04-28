@@ -475,12 +475,6 @@ ghid_set_draw_xor (hidGC gc, int xor_mask)
   ghid_set_color (gc, gc->colorname);
 }
 
-void
-ghid_set_draw_faded (hidGC gc, int faded)
-{
-  printf ("ghid_set_draw_faded(%p,%d) -- not implemented\n", gc, faded);
-}
-
 static int
 use_gc (hidGC gc)
 {

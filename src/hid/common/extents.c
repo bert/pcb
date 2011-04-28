@@ -100,11 +100,6 @@ extents_set_draw_xor (hidGC gc, int xor_)
 {
 }
 
-static void
-extents_set_draw_faded (hidGC gc, int faded)
-{
-}
-
 #define PEX(x,w) if (box.X1 > (x)-(w)) box.X1 = (x)-(w); \
 	if (box.X2 < (x)+(w)) box.X2 = (x)+(w)
 #define PEY(y,w) if (box.Y1 > (y)-(w)) box.Y1 = (y)-(w); \
@@ -191,7 +186,6 @@ hid_extents_init (void)
   extents_hid.set_line_cap        = extents_set_line_cap;
   extents_hid.set_line_width      = extents_set_line_width;
   extents_hid.set_draw_xor        = extents_set_draw_xor;
-  extents_hid.set_draw_faded      = extents_set_draw_faded;
   extents_hid.draw_line           = extents_draw_line;
   extents_hid.draw_arc            = extents_draw_arc;
   extents_hid.draw_rect           = extents_draw_rect;

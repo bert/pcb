@@ -208,11 +208,6 @@ batch_set_draw_xor (hidGC gc, int xor_set)
 }
 
 static void
-batch_set_draw_faded (hidGC gc, int faded)
-{
-}
-
-static void
 batch_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
 }
@@ -359,7 +354,6 @@ hid_batch_init ()
   batch_hid.set_line_cap          = batch_set_line_cap;
   batch_hid.set_line_width        = batch_set_line_width;
   batch_hid.set_draw_xor          = batch_set_draw_xor;
-  batch_hid.set_draw_faded        = batch_set_draw_faded;
   batch_hid.draw_line             = batch_draw_line;
   batch_hid.draw_arc              = batch_draw_arc;
   batch_hid.draw_rect             = batch_draw_rect;

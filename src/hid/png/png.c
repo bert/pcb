@@ -96,7 +96,6 @@ typedef struct hid_gc_struct
   EndCapStyle cap;
   int width;
   unsigned char r, g, b;
-  int faded;
   color_struct *color;
   gdImagePtr brush;
   int is_erase;
@@ -1177,12 +1176,6 @@ png_set_draw_xor (hidGC gc, int xor_)
 }
 
 static void
-png_set_draw_faded (hidGC gc, int faded)
-{
-  gc->faded = faded;
-}
-
-static void
 use_gc (hidGC gc)
 {
   int need_brush = 0;
@@ -1542,7 +1535,6 @@ hid_png_init ()
   png_hid.set_line_cap        = png_set_line_cap;
   png_hid.set_line_width      = png_set_line_width;
   png_hid.set_draw_xor        = png_set_draw_xor;
-  png_hid.set_draw_faded      = png_set_draw_faded;
   png_hid.draw_line           = png_draw_line;
   png_hid.draw_arc            = png_draw_arc;
   png_hid.draw_rect           = png_draw_rect;

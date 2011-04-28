@@ -479,7 +479,6 @@ void ghid_set_color (hidGC gc, const char *name);
 void ghid_set_line_cap (hidGC gc, EndCapStyle style);
 void ghid_set_line_width (hidGC gc, int width);
 void ghid_set_draw_xor (hidGC gc, int _xor);
-void ghid_set_draw_faded (hidGC gc, int faded);
 void ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
                     int start_angle, int delta_angle);

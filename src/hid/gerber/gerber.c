@@ -55,7 +55,6 @@ static void gerber_set_color (hidGC gc, const char *name);
 static void gerber_set_line_cap (hidGC gc, EndCapStyle style);
 static void gerber_set_line_width (hidGC gc, int width);
 static void gerber_set_draw_xor (hidGC gc, int _xor);
-static void gerber_set_draw_faded (hidGC gc, int faded);
 static void gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
 static void gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
 static void gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
@@ -802,12 +801,6 @@ gerber_set_draw_xor (hidGC gc, int xor_)
 }
 
 static void
-gerber_set_draw_faded (hidGC gc, int faded)
-{
-  ;
-}
-
-static void
 use_gc (hidGC gc, int radius)
 {
   int c;
@@ -1186,7 +1179,6 @@ hid_gerber_init ()
   gerber_hid.set_line_cap        = gerber_set_line_cap;
   gerber_hid.set_line_width      = gerber_set_line_width;
   gerber_hid.set_draw_xor        = gerber_set_draw_xor;
-  gerber_hid.set_draw_faded      = gerber_set_draw_faded;
   gerber_hid.draw_line           = gerber_draw_line;
   gerber_hid.draw_arc            = gerber_draw_arc;
   gerber_hid.draw_rect           = gerber_draw_rect;

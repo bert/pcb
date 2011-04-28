@@ -3237,12 +3237,6 @@ lesstif_set_draw_xor (hidGC gc, int xor_set)
   gc->xor_set = xor_set;
 }
 
-static void
-lesstif_set_draw_faded (hidGC gc, int faded)
-{
-  /* We don't use this */
-}
-
 #define ISORT(a,b) if (a>b) { a^=b; b^=a; a^=b; }
 
 static void
@@ -3894,7 +3888,6 @@ hid_lesstif_init ()
   lesstif_hid.set_line_cap            = lesstif_set_line_cap;
   lesstif_hid.set_line_width          = lesstif_set_line_width;
   lesstif_hid.set_draw_xor            = lesstif_set_draw_xor;
-  lesstif_hid.set_draw_faded          = lesstif_set_draw_faded;
   lesstif_hid.draw_line               = lesstif_draw_line;
   lesstif_hid.draw_arc                = lesstif_draw_arc;
   lesstif_hid.draw_rect               = lesstif_draw_rect;
