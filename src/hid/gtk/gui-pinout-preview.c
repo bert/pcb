@@ -52,7 +52,7 @@
 RCSID ("$Id$");
 
 
-static gboolean
+static void
 pinout_zoom_fit (GhidPinoutPreview * pinout, gint zoom)
 {
   pinout->zoom = zoom;
@@ -69,11 +69,6 @@ pinout_zoom_fit (GhidPinoutPreview * pinout, gint zoom)
   pinout->h_pixels = (gint) (pinout->scale *
 			     (pinout->element.BoundingBox.Y2 -
 			      pinout->element.BoundingBox.Y1));
-
-  if (pinout->w_pixels > 3 * Output.Width / 4 ||
-      pinout->h_pixels > 3 * Output.Height / 4)
-    return FALSE;
-  return TRUE;
 }
 
 
@@ -128,8 +123,7 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 		       Settings.PinoutOffsetY -
 		       pinout->element.BoundingBox.Y1);
 
-  if (!pinout_zoom_fit (pinout, 2))
-    pinout_zoom_fit (pinout, 3);
+  pinout_zoom_fit (pinout, 3);
 
   ELEMENTLINE_LOOP (&pinout->element);
   {
