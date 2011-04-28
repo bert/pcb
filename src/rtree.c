@@ -45,12 +45,6 @@
 #include <assert.h>
 #include <setjmp.h>
 
-/* #define DRAWBOX */
-
-#ifdef DRAWBOX
-#include "clip.h"
-#include "data.h"
-#endif
 #include "mymem.h"
 
 #include "rtree.h"
@@ -243,41 +237,9 @@ __r_dump_tree (struct rtree_node *node, int depth)
     {
       printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
               node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
-#ifdef DRAWBOX
-      gdk_gc_set_line_attributes (Output.fgGC, 4,
-                                  GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                  GDK_JOIN_ROUND);
-
-      if (depth < max_copper_layer + 1)
-        gdk_gc_set_foreground (Output.fgGC, (LAYER_PTR (depth)->Color));
-      else
-        gdk_gc_set_foreground (Output.fgGC, PCB->WarnColor);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
-#endif
     }
   else
     {
-#ifdef DRAWBOX
-      gdk_gc_set_line_attributes (Output.fgGC, 2,
-                                  GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                  GDK_JOIN_ROUND);
-      gdk_gc_set_foreground (Output.fgGC, PCB->MaskColor);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
-      XDrawCLine (Output.top_window->window, Output.fgGC,
-                  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
-#endif
       printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", (void *) node,
               node->flags.manage, node->box.X1, node->box.X2, node->box.Y1,
               node->box.Y2);
@@ -291,24 +253,6 @@ __r_dump_tree (struct rtree_node *node, int depth)
             (double) (node->u.rects[j].bounds.Y2 -
                       node->u.rects[j].bounds.Y1);
           count++;
-#ifdef DRAWBOX
-          gdk_gc_set_line_attributes (Output.fgGC, 1,
-                                      GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                      GDK_JOIN_ROUND);
-          gdk_gc_set_foreground (Output.fgGC, PCB->ViaSelectedColor);
-          XDrawCLine (Output.top_window->window, Output.fgGC,
-                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1,
-                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1);
-          XDrawCLine (Output.top_window->window, Output.fgGC,
-                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
-                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2);
-          XDrawCLine (Output.top_window->window, Output.fgGC,
-                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2,
-                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2);
-          XDrawCLine (Output.top_window->window, Output.fgGC,
-                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2,
-                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1);
-#endif
           for (i = 0; i < depth + 1; i++)
             printf ("  ");
           printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n",
