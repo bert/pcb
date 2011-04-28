@@ -1183,12 +1183,6 @@ png_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-png_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  CRASH;
-}
-
-static void
 use_gc (hidGC gc)
 {
   int need_brush = 0;
@@ -1549,7 +1543,6 @@ hid_png_init ()
   png_hid.set_line_width      = png_set_line_width;
   png_hid.set_draw_xor        = png_set_draw_xor;
   png_hid.set_draw_faded      = png_set_draw_faded;
-  png_hid.set_line_cap_angle  = png_set_line_cap_angle;
   png_hid.draw_line           = png_draw_line;
   png_hid.draw_arc            = png_draw_arc;
   png_hid.draw_rect           = png_draw_rect;

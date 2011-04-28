@@ -43,7 +43,6 @@ static void eps_set_line_cap (hidGC gc, EndCapStyle style);
 static void eps_set_line_width (hidGC gc, int width);
 static void eps_set_draw_xor (hidGC gc, int _xor);
 static void eps_set_draw_faded (hidGC gc, int faded);
-static void eps_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2);
 static void eps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
 static void eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
 static void eps_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
@@ -493,12 +492,6 @@ eps_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-eps_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  CRASH;
-}
-
-static void
 use_gc (hidGC gc)
 {
   if (linewidth != gc->width)
@@ -662,7 +655,6 @@ hid_eps_init ()
   eps_hid.set_line_width      = eps_set_line_width;
   eps_hid.set_draw_xor        = eps_set_draw_xor;
   eps_hid.set_draw_faded      = eps_set_draw_faded;
-  eps_hid.set_line_cap_angle  = eps_set_line_cap_angle;
   eps_hid.draw_line           = eps_draw_line;
   eps_hid.draw_arc            = eps_draw_arc;
   eps_hid.draw_rect           = eps_draw_rect;

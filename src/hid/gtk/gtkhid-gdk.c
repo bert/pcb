@@ -481,12 +481,6 @@ ghid_set_draw_faded (hidGC gc, int faded)
   printf ("ghid_set_draw_faded(%p,%d) -- not implemented\n", gc, faded);
 }
 
-void
-ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  printf ("ghid_set_line_cap_angle() -- not implemented\n");
-}
-
 static int
 use_gc (hidGC gc)
 {

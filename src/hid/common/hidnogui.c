@@ -116,12 +116,6 @@ nogui_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-nogui_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  CRASH;
-}
-
-static void
 nogui_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
   CRASH;
@@ -455,7 +449,6 @@ HID hid_nogui = {
   nogui_set_line_width,
   nogui_set_draw_xor,
   nogui_set_draw_faded,
-  nogui_set_line_cap_angle,
   nogui_draw_line,
   nogui_draw_arc,
   nogui_draw_rect,
@@ -517,7 +510,6 @@ apply_default_hid (HID * d, HID * s)
   AD (set_line_cap);
   AD (set_line_width);
   AD (set_draw_xor);
-  AD (set_line_cap_angle);
   AD (draw_line);
   AD (draw_arc);
   AD (fill_circle);

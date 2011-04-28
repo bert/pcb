@@ -366,11 +366,6 @@ typedef enum
        assembly drawings so far. */
     void (*set_draw_faded) (hidGC gc_, int faded_);
 
-    /* When you pass the same x,y twice to draw_line, the end caps are
-       drawn as if the "line" were parallel to the line defined by these
-       coordinates.  Use this for rotating non-round pads.  */
-    void (*set_line_cap_angle) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
-
     /* The usual drawing functions.  "draw" means to use segments of the
        given width, whereas "fill" means to fill to a zero-width
        outline.  */

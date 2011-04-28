@@ -807,12 +807,6 @@ nelma_set_draw_faded(hidGC gc, int faded)
 }
 
 static void
-nelma_set_line_cap_angle(hidGC gc, int x1, int y1, int x2, int y2)
-{
-	CRASH;
-}
-
-static void
 use_gc(hidGC gc)
 {
 	int             need_brush = 0;
@@ -1072,7 +1066,6 @@ hid_nelma_init()
   nelma_hid.set_line_width      = nelma_set_line_width;
   nelma_hid.set_draw_xor        = nelma_set_draw_xor;
   nelma_hid.set_draw_faded      = nelma_set_draw_faded;
-  nelma_hid.set_line_cap_angle  = nelma_set_line_cap_angle;
   nelma_hid.draw_line           = nelma_draw_line;
   nelma_hid.draw_arc            = nelma_draw_arc;
   nelma_hid.draw_rect           = nelma_draw_rect;

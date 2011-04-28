@@ -939,12 +939,6 @@ ps_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-ps_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  CRASH;
-}
-
-static void
 use_gc (hidGC gc)
 {
   if (gc->me_pointer != &ps_hid)
@@ -1369,7 +1363,6 @@ hid_ps_init ()
   ps_hid.set_line_width     = ps_set_line_width;
   ps_hid.set_draw_xor       = ps_set_draw_xor;
   ps_hid.set_draw_faded     = ps_set_draw_faded;
-  ps_hid.set_line_cap_angle = ps_set_line_cap_angle;
   ps_hid.draw_line          = ps_draw_line;
   ps_hid.draw_arc           = ps_draw_arc;
   ps_hid.draw_rect          = ps_draw_rect;

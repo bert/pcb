@@ -741,12 +741,6 @@ gcode_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-gcode_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  CRASH;
-}
-
-static void
 use_gc (hidGC gc)
 {
   int need_brush = 0;
@@ -1057,7 +1051,6 @@ hid_gcode_init ()
   gcode_hid.set_line_width      = gcode_set_line_width;
   gcode_hid.set_draw_xor        = gcode_set_draw_xor;
   gcode_hid.set_draw_faded      = gcode_set_draw_faded;
-  gcode_hid.set_line_cap_angle  = gcode_set_line_cap_angle;
   gcode_hid.draw_line           = gcode_draw_line;
   gcode_hid.draw_arc            = gcode_draw_arc;
   gcode_hid.draw_rect           = gcode_draw_rect;
