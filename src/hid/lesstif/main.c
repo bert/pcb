@@ -3870,6 +3870,38 @@ lesstif_progress (int so_far, int total, const char *message)
   return 0;
 }
 
+static HID *
+lesstif_request_debug_draw (void)
+{
+  /* Send drawing to the backing pixmap */
+  pixmap = main_pixmap;
+  return &lesstif_hid;
+}
+
+static void
+lesstif_flush_debug_draw (void)
+{
+  /* Copy the backing pixmap to the display and redraw any attached objects */
+  XSetFunction (display, my_gc, GXcopy);
+  XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
+             view_height, 0, 0);
+  pixmap = window;
+  if (crosshair_on)
+    {
+      DrawAttached ();
+      DrawMark ();
+    }
+  pixmap = main_pixmap;
+}
+
+static void
+lesstif_finish_debug_draw (void)
+{
+  lesstif_flush_debug_draw ();
+  /* No special tear down requirements
+   */
+}
+
 #include "dolists.h"
 
 void
@@ -3932,6 +3964,10 @@ hid_lesstif_init ()
   lesstif_hid.beep                    = lesstif_beep;
   lesstif_hid.progress                = lesstif_progress;
   lesstif_hid.edit_attributes         = lesstif_attributes_dialog;
+
+  lesstif_hid.request_debug_draw      = lesstif_request_debug_draw;
+  lesstif_hid.flush_debug_draw        = lesstif_flush_debug_draw;
+  lesstif_hid.finish_debug_draw       = lesstif_finish_debug_draw;
 
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"
