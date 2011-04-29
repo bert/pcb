@@ -72,9 +72,10 @@ RCSID ("$Id$");
  * prints a FAB drawing.
  */
 
-#define TEXT_SIZE	150
-#define TEXT_LINE	15000
-#define FAB_LINE_W      800
+#define TEXT_SIZE	MIL_TO_COORD(150)
+#define TEXT_LINE	MIL_TO_COORD(150)
+#define DRILL_MARK_SIZE	MIL_TO_COORD(16)
+#define FAB_LINE_W      MIL_TO_COORD(8)
 
 static void
 fab_line (hidGC gc, int x1, int y1, int x2, int y2)
@@ -103,24 +104,23 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
   va_end (a);
   t.Direction = 0;
   t.TextString = tmp;
-  t.Scale = TEXT_SIZE;
+  t.Scale = COORD_TO_MIL(TEXT_SIZE);  /* pcnt of 100mil base height */
   t.Flags = NoFlags ();
   t.X = x;
   t.Y = y;
   for (i = 0; tmp[i]; i++)
     w +=
       (font->Symbol[(int) tmp[i]].Width + font->Symbol[(int) tmp[i]].Delta);
-  w = w * TEXT_SIZE / 100;
+  w = w * t.Scale / 100;
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
     t.X = 0;
   DrawTextLowLevel (&t, 0);
   if (align & 8)
     fab_line (gc, t.X,
-              t.Y +
-              font->MaxHeight * TEXT_SIZE /
-              100 + 1000, t.X + w,
-              t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000);
+              t.Y + font->MaxHeight * t.Scale / 100 + MIL_TO_COORD(10),
+              t.X + w,
+              t.Y + font->MaxHeight * t.Scale / 100 + MIL_TO_COORD(10));
 }
 
 /* Y, +, X, circle, square */
@@ -129,7 +129,7 @@ drill_sym (hidGC gc, int idx, int x, int y)
 {
   int type = idx % 5;
   int size = idx / 5;
-  int s2 = (size + 1) * 1600;
+  int s2 = (size + 1) * DRILL_MARK_SIZE;
   int i;
   switch (type)
     {
@@ -138,19 +138,23 @@ drill_sym (hidGC gc, int idx, int x, int y)
       fab_line (gc, x, y, x + s2 * 13 / 15, y - s2 / 2);
       fab_line (gc, x, y, x - s2 * 13 / 15, y - s2 / 2);
       for (i = 1; i <= size; i++)
-	fab_circle (gc, x, y, i * 1600);
+        fab_circle (gc, x, y, i * DRILL_MARK_SIZE);
       break;
     case 1:			/* + */
       ;
       fab_line (gc, x, y - s2, x, y + s2);
       fab_line (gc, x - s2, y, x + s2, y);
       for (i = 1; i <= size; i++)
-	{
-	  fab_line (gc, x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600);
-	  fab_line (gc, x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600);
-	  fab_line (gc, x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600);
-	  fab_line (gc, x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600);
-	}
+        {
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+        }
       break;
     case 2:			/* X */ ;
       fab_line (gc, x - s2 * 3 / 4, y - s2 * 3 / 4, x + s2 * 3 / 4,
@@ -158,25 +162,33 @@ drill_sym (hidGC gc, int idx, int x, int y)
       fab_line (gc, x - s2 * 3 / 4, y + s2 * 3 / 4, x + s2 * 3 / 4,
 		y - s2 * 3 / 4);
       for (i = 1; i <= size; i++)
-	{
-	  fab_line (gc, x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600);
-	  fab_line (gc, x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600);
-	  fab_line (gc, x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600);
-	  fab_line (gc, x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600);
-	}
+        {
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+        }
       break;
     case 3:			/* circle */ ;
       for (i = 0; i <= size; i++)
-	fab_circle (gc, x, y, (i + 1) * 1600 - 800);
+        fab_circle (gc, x, y, (i + 1) * DRILL_MARK_SIZE - DRILL_MARK_SIZE / 2);
       break;
     case 4:			/* square */
       for (i = 1; i <= size + 1; i++)
-	{
-	  fab_line (gc, x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600);
-	  fab_line (gc, x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600);
-	  fab_line (gc, x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600);
-	  fab_line (gc, x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600);
-	}
+        {
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x - i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+          fab_line (gc, x + i * DRILL_MARK_SIZE, y - i * DRILL_MARK_SIZE,
+                        x + i * DRILL_MARK_SIZE, y + i * DRILL_MARK_SIZE);
+        }
       break;
     }
 }
@@ -217,7 +229,7 @@ PrintFab (hidGC gc)
   char utcTime[64];
   tmp_pin.Flags = NoFlags ();
   AllDrills = GetDrillInfo (PCB->Data);
-  RoundDrillInfo (AllDrills, 100);
+  RoundDrillInfo (AllDrills, MIL_TO_COORD(1));
   yoff = -TEXT_LINE;
 
   /* count how many drill description lines will be needed */
@@ -250,9 +262,9 @@ PrintFab (hidGC gc)
 		   drill->Pin[i]->Y);
       if (plated_sym != -1)
 	{
-	  drill_sym (gc, plated_sym, 100 * TEXT_SIZE, yoff + 100 * TEXT_SIZE / 4);
-	  text_at (gc, 135000, yoff, 200, "YES");
-	  text_at (gc, 98000, yoff, 200, "%d",
+	  drill_sym (gc, plated_sym, TEXT_SIZE, yoff + TEXT_SIZE / 4);
+	  text_at (gc, MIL_TO_COORD(1350), yoff, MIL_TO_COORD(2), "YES");
+	  text_at (gc, MIL_TO_COORD(980), yoff, MIL_TO_COORD(2), "%d",
 		   drill->PinCount + drill->ViaCount - drill->UnplatedCount);
 
 	  if (unplated_sym != -1)
@@ -260,27 +272,26 @@ PrintFab (hidGC gc)
 	}
       if (unplated_sym != -1)
 	{
-	  drill_sym (gc, unplated_sym, 100 * TEXT_SIZE,
-		     yoff + 100 * TEXT_SIZE / 4);
-	  text_at (gc, 140000, yoff, 200, "NO");
-	  text_at (gc, 98000, yoff, 200, "%d", drill->UnplatedCount);
+	  drill_sym (gc, unplated_sym, TEXT_SIZE, yoff + TEXT_SIZE / 4);
+	  text_at (gc, MIL_TO_COORD(1400), yoff, MIL_TO_COORD(2), "NO");
+	  text_at (gc, MIL_TO_COORD(980), yoff, MIL_TO_COORD(2), "%d", drill->UnplatedCount);
 	}
       gui->set_color (gc, PCB->ElementColor);
-      text_at (gc, 45000, yoff, 200, "%0.3f",
-	       drill->DrillSize / 100000. + 0.0004);
+      text_at (gc, MIL_TO_COORD(450), yoff, MIL_TO_COORD(2), "%0.3f",
+	       COORD_TO_INCH(drill->DrillSize) + 0.0004);
       if (plated_sym != -1 && unplated_sym != -1)
-	text_at (gc, 45000, yoff + TEXT_LINE, 200, "%0.3f",
-		 drill->DrillSize / 100000. + 0.0004);
+	text_at (gc, MIL_TO_COORD(450), yoff + TEXT_LINE, MIL_TO_COORD(2), "%0.3f",
+	         COORD_TO_INCH(drill->DrillSize) + 0.0004);
       yoff -= TEXT_LINE;
       total_drills += drill->PinCount;
       total_drills += drill->ViaCount;
     }
 
   gui->set_color (gc, PCB->ElementColor);
-  text_at (gc, 0, yoff, 900, "Symbol");
-  text_at (gc, 41000, yoff, 900, "Diam. (Inch)");
-  text_at (gc, 95000, yoff, 900, "Count");
-  text_at (gc, 130000, yoff, 900, "Plated?");
+  text_at (gc, 0, yoff, MIL_TO_COORD(9), "Symbol");
+  text_at (gc, MIL_TO_COORD(410), yoff, MIL_TO_COORD(9), "Diam. (Inch)");
+  text_at (gc, MIL_TO_COORD(950), yoff, MIL_TO_COORD(9), "Count");
+  text_at (gc, MIL_TO_COORD(1300), yoff, MIL_TO_COORD(9), "Plated?");
   yoff -= TEXT_LINE;
   text_at (gc, 0, yoff, 0,
 	   "There are %d different drill sizes used in this layout, %d holes total",
@@ -306,7 +317,7 @@ PrintFab (hidGC gc)
     }
   if (i == max_copper_layer)
     {
-      gui->set_line_width (gc, 1000);
+      gui->set_line_width (gc,  MIL_TO_COORD(10));
       gui->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
       gui->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
       gui->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth,
@@ -315,10 +326,10 @@ PrintFab (hidGC gc)
 		      PCB->MaxHeight);
       /*FPrintOutline (); */
       gui->set_line_width (gc, FAB_LINE_W);
-      text_at (gc, 200000, yoff, 0,
+      text_at (gc, MIL_TO_COORD(2000), yoff, 0,
 	       "Maximum Dimensions: %f mils wide, %f mils high",
 	       COORD_TO_MIL(PCB->MaxWidth), COORD_TO_MIL(PCB->MaxHeight));
-      text_at (gc, PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
+      text_at (gc, PCB->MaxWidth / 2, PCB->MaxHeight + MIL_TO_COORD(20), 1,
 	       "Board outline is the centerline of this %f mil"
 	       " rectangle - 0,0 to %f,%f mils",
 	       COORD_TO_MIL(FAB_LINE_W), COORD_TO_MIL(PCB->MaxWidth), COORD_TO_MIL(PCB->MaxHeight));
@@ -326,7 +337,7 @@ PrintFab (hidGC gc)
   else
     {
       LayerTypePtr layer = LAYER_PTR (i);
-      gui->set_line_width (gc, 1000);
+      gui->set_line_width (gc, MIL_TO_COORD(10));
       LINE_LOOP (layer);
       {
 	gui->draw_line (gc, line->Point1.X, line->Point1.Y,
@@ -345,14 +356,14 @@ PrintFab (hidGC gc)
       }
       END_LOOP;
       gui->set_line_width (gc, FAB_LINE_W);
-      text_at (gc, PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
+      text_at (gc, PCB->MaxWidth / 2, PCB->MaxHeight + MIL_TO_COORD(20), 1,
 	       "Board outline is the centerline of this path");
     }
   yoff -= TEXT_LINE;
-  text_at (gc, 200000, yoff, 0, "Date: %s", utcTime);
+  text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Date: %s", utcTime);
   yoff -= TEXT_LINE;
-  text_at (gc, 200000, yoff, 0, "Author: %s", pcb_author ());
+  text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Author: %s", pcb_author ());
   yoff -= TEXT_LINE;
-  text_at (gc, 200000, yoff, 0,
+  text_at (gc, MIL_TO_COORD(2000), yoff, 0,
 	   "Title: %s - Fabrication Drawing", UNKNOWN (PCB->Name));
 }
