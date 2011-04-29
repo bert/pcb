@@ -2903,6 +2903,7 @@ static void
 lesstif_notify_crosshair_change (bool changes_complete)
 {
   static int invalidate_depth = 0;
+  Pixmap save_pixmap;
 
   if (changes_complete)
     invalidate_depth --;
@@ -2920,7 +2921,12 @@ lesstif_notify_crosshair_change (bool changes_complete)
     }
 
   if (invalidate_depth == 0 && crosshair_on)
-    DrawAttached ();
+    {
+      save_pixmap = pixmap;
+      pixmap = window;
+      DrawAttached ();
+      pixmap = save_pixmap;
+    }
 
   if (!changes_complete)
     invalidate_depth ++;
@@ -2930,6 +2936,7 @@ static void
 lesstif_notify_mark_change (bool changes_complete)
 {
   static int invalidate_depth = 0;
+  Pixmap save_pixmap;
 
   if (changes_complete)
     invalidate_depth --;
@@ -2947,7 +2954,12 @@ lesstif_notify_mark_change (bool changes_complete)
     }
 
   if (invalidate_depth == 0 && crosshair_on)
-    DrawMark ();
+    {
+      save_pixmap = pixmap;
+      pixmap = window;
+      DrawMark ();
+      pixmap = save_pixmap;
+    }
 
   if (!changes_complete)
     invalidate_depth ++;
