@@ -427,6 +427,22 @@ nogui_progress (int so_far, int total, const char *message)
   return 0;
 }
 
+static HID *
+nogui_request_debug_draw (void)
+{
+  return NULL;
+}
+
+static void
+nogui_flush_debug_draw (void)
+{
+}
+
+static void
+nogui_finish_debug_draw (void)
+{
+}
+
 HID hid_nogui = {
   sizeof (HID),
   "nogui",
@@ -484,7 +500,10 @@ HID hid_nogui = {
   nogui_beep,
   nogui_progress,
   0 /* nogui_drc_gui */ ,
-  0 /* edit_attributes */
+  0 /* edit_attributes */,
+  nogui_request_debug_draw,
+  nogui_flush_debug_draw,
+  nogui_finish_debug_draw,
 };
 
 #define AD(x) if (!d->x) d->x = s->x
@@ -545,4 +564,7 @@ apply_default_hid (HID * d, HID * s)
   AD (progress);
   AD (drc_gui);
   AD (edit_attributes);
+  AD (request_debug_draw);
+  AD (flush_debug_draw);
+  AD (finish_debug_draw);
 }

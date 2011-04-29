@@ -230,9 +230,10 @@ typedef enum
     int (*throw_drc_dialog) (void);
   } HID_DRC_GUI;
 
+  typedef struct hid_st HID;
 
 /* This is the main HID structure.  */
-  typedef struct
+  struct hid_st
   {
     /* The size of this structure.  We use this as a compatibility
        check; a HID built with a different hid.h than we're expecting
@@ -543,7 +544,35 @@ typedef enum
 
     void (*edit_attributes) (char *owner, AttributeListType *attrlist_);
 
-  } HID;
+    /* Debug drawing support. These APIs must be implemented (non NULL),
+     * but they do not have to be functional. request_debug_draw can
+     * return NULL to indicate debug drawing is not permitted.
+     *
+     * Debug drawing is not gauranteed to be re-entrant.
+     * The caller must not nest requests for debug drawing.
+     */
+
+    /* Request permission for debug drawing
+     *
+     * Returns a HID pointer which should be used rather than the global
+     * gui-> for making drawing calls. If the return value is NULL, then
+     * permission has been denied, and the drawing must not continue.
+     */
+    HID *(*request_debug_draw) (void);
+
+    /* Flush pending drawing to the screen
+     *
+     * May be implemented as a NOOP if the GUI has chosen to send the
+     * debug drawing directly to the screen.
+     */
+    void (*flush_debug_draw)   (void);
+
+    /* When finished, the user must inform the GUI to clean up resources
+     *
+     * Any remaining rendering will be flushed to the screen.
+     */
+    void (*finish_debug_draw)  (void);
+  };
 
 /* Call this as soon as possible from main().  No other HID calls are
    valid until this is called.  */
