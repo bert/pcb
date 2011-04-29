@@ -499,6 +499,9 @@ gboolean ghid_drawing_area_expose_cb (GtkWidget *, GdkEventExpose *,
 gboolean ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * ev);
 GdkPixmap *ghid_render_pixmap (int cx, int cy, double zoom,
                                int width, int height, int depth);
+HID *ghid_request_debug_draw (void);
+void ghid_flush_debug_draw (void);
+void ghid_finish_debug_draw (void);
 
 /* gtkhid-main.c */
 void ghid_pan_fixup (void);

@@ -2157,6 +2157,10 @@ hid_gtk_init ()
   ghid_hid.drc_gui                  = &ghid_drc_gui,
   ghid_hid.edit_attributes          = ghid_attributes;
 
+  ghid_hid.request_debug_draw       = ghid_request_debug_draw;
+  ghid_hid.flush_debug_draw         = ghid_flush_debug_draw;
+  ghid_hid.finish_debug_draw        = ghid_finish_debug_draw;
+
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"
 }

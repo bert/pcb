@@ -1299,3 +1299,26 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
 
   return pixmap;
 }
+
+HID *
+ghid_request_debug_draw (void)
+{
+  /* No special setup requirements, drawing goes into
+   * the backing pixmap. */
+  return &ghid_hid;
+}
+
+void
+ghid_flush_debug_draw (void)
+{
+  ghid_screen_update ();
+  gdk_flush ();
+}
+
+void
+ghid_finish_debug_draw (void)
+{
+  ghid_flush_debug_draw ();
+  /* No special tear down requirements
+   */
+}
