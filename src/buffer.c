@@ -241,7 +241,7 @@ MoveViaToBuffer (PinTypePtr Via)
   PinTypePtr via;
 
   RestoreToPolygon (Source, VIA_TYPE, Via, Via);
-  r_delete_entry (Source->via_tree, (BoxType *) Via);
+  r_delete_entry (Source->via_tree, (BoxType *)Via);
   via = GetViaMemory (Dest);
   *via = *Via;
   CLEAR_FLAG (WARNFLAG | FOUNDFLAG, via);
@@ -254,7 +254,7 @@ MoveViaToBuffer (PinTypePtr Via)
   memset (&Source->Via[Source->ViaN], 0, sizeof (PinType));
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Dest->via_tree, (BoxType *) via, 0);
+  r_insert_entry (Dest->via_tree, (BoxType *)via, 0);
   ClearFromPolygon (Dest, VIA_TYPE, via, via);
   return (via);
 }
@@ -267,7 +267,7 @@ MoveRatToBuffer (RatTypePtr Rat)
 {
   RatTypePtr rat;
 
-  r_delete_entry (Source->rat_tree, &Rat->BoundingBox);
+  r_delete_entry (Source->rat_tree, (BoxType *)Rat);
   rat = GetRatMemory (Dest);
   *rat = *Rat;
   CLEAR_FLAG (FOUNDFLAG, rat);
@@ -280,7 +280,7 @@ MoveRatToBuffer (RatTypePtr Rat)
   memset (&Source->Rat[Source->RatN], 0, sizeof (RatType));
   if (!Dest->rat_tree)
     Dest->rat_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Dest->rat_tree, &rat->BoundingBox, 0);
+  r_insert_entry (Dest->rat_tree, (BoxType *)rat, 0);
   return (rat);
 }
 
@@ -294,7 +294,7 @@ MoveLineToBuffer (LayerType *layer, LineType *Line)
   LineTypePtr line;
 
   RestoreToPolygon (Source, LINE_TYPE, layer, Line);
-  r_delete_entry (layer->line_tree, (BoxTypePtr) Line);
+  r_delete_entry (layer->line_tree, (BoxType *)Line);
   line = GetLineMemory (lay);
   *line = *Line;
   CLEAR_FLAG (FOUNDFLAG, line);
@@ -308,7 +308,7 @@ MoveLineToBuffer (LayerType *layer, LineType *Line)
   memset (&layer->Line[layer->LineN], 0, sizeof (LineType));
   if (!lay->line_tree)
     lay->line_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (lay->line_tree, (BoxTypePtr) line, 0);
+  r_insert_entry (lay->line_tree, (BoxType *)line, 0);
   ClearFromPolygon (Dest, LINE_TYPE, lay, line);
   return (line);
 }
@@ -323,7 +323,7 @@ MoveArcToBuffer (LayerType *layer, ArcType *Arc)
   ArcTypePtr arc;
 
   RestoreToPolygon (Source, ARC_TYPE, layer, Arc);
-  r_delete_entry (layer->arc_tree, (BoxTypePtr) Arc);
+  r_delete_entry (layer->arc_tree, (BoxType *)Arc);
   arc = GetArcMemory (lay);
   *arc = *Arc;
   CLEAR_FLAG (FOUNDFLAG, arc);
@@ -337,7 +337,7 @@ MoveArcToBuffer (LayerType *layer, ArcType *Arc)
   memset (&layer->Arc[layer->ArcN], 0, sizeof (ArcType));
   if (!lay->arc_tree)
     lay->arc_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (lay->arc_tree, (BoxTypePtr) arc, 0);
+  r_insert_entry (lay->arc_tree, (BoxType *)arc, 0);
   ClearFromPolygon (Dest, ARC_TYPE, lay, arc);
   return (arc);
 }
@@ -351,7 +351,7 @@ MoveTextToBuffer (LayerType *layer, TextType *Text)
   LayerType *lay = &Dest->Layer[GetLayerNumber (Source, layer)];
   TextTypePtr text;
 
-  r_delete_entry (layer->text_tree, (BoxTypePtr) Text);
+  r_delete_entry (layer->text_tree, (BoxType *)Text);
   RestoreToPolygon (Source, TEXT_TYPE, layer, Text);
   text = GetTextMemory (lay);
   *text = *Text;
@@ -364,7 +364,7 @@ MoveTextToBuffer (LayerType *layer, TextType *Text)
   memset (&layer->Text[layer->TextN], 0, sizeof (TextType));
   if (!lay->text_tree)
     lay->text_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (lay->text_tree, (BoxTypePtr) text, 0);
+  r_insert_entry (lay->text_tree, (BoxType *)text, 0);
   ClearFromPolygon (Dest, TEXT_TYPE, lay, text);
   return (text);
 }
@@ -378,7 +378,7 @@ MovePolygonToBuffer (LayerType *layer, PolygonType *Polygon)
   LayerType *lay = &Dest->Layer[GetLayerNumber (Source, layer)];
   PolygonTypePtr polygon;
 
-  r_delete_entry (layer->polygon_tree, (BoxTypePtr) Polygon);
+  r_delete_entry (layer->polygon_tree, (BoxType *)Polygon);
   polygon = GetPolygonMemory (lay);
   *polygon = *Polygon;
   CLEAR_FLAG (FOUNDFLAG, polygon);
@@ -392,7 +392,7 @@ MovePolygonToBuffer (LayerType *layer, PolygonType *Polygon)
   memset (&layer->Polygon[layer->PolygonN], 0, sizeof (PolygonType));
   if (!lay->polygon_tree)
     lay->polygon_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (lay->polygon_tree, (BoxTypePtr) polygon, 0);
+  r_insert_entry (lay->polygon_tree, (BoxType *)polygon, 0);
   return (polygon);
 }
 
@@ -1239,10 +1239,10 @@ RotateBuffer (BufferTypePtr Buffer, BYTE Number)
   /* rotate vias */
   VIA_LOOP (Buffer->Data);
   {
-    r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
+    r_delete_entry (Buffer->Data->via_tree, (BoxType *)via);
     ROTATE_VIA_LOWLEVEL (via, Buffer->X, Buffer->Y, Number);
     SetPinBoundingBox (via);
-    r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
+    r_insert_entry (Buffer->Data->via_tree, (BoxType *)via, 0);
   }
   END_LOOP;
 
@@ -1257,30 +1257,30 @@ RotateBuffer (BufferTypePtr Buffer, BYTE Number)
   /* all layer related objects */
   ALLLINE_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->line_tree, (BoxTypePtr) line);
+    r_delete_entry (layer->line_tree, (BoxType *)line);
     RotateLineLowLevel (line, Buffer->X, Buffer->Y, Number);
-    r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
+    r_insert_entry (layer->line_tree, (BoxType *)line, 0);
   }
   ENDALL_LOOP;
   ALLARC_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
+    r_delete_entry (layer->arc_tree, (BoxType *)arc);
     RotateArcLowLevel (arc, Buffer->X, Buffer->Y, Number);
-    r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
+    r_insert_entry (layer->arc_tree, (BoxType *)arc, 0);
   }
   ENDALL_LOOP;
   ALLTEXT_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->text_tree, (BoxTypePtr) text);
+    r_delete_entry (layer->text_tree, (BoxType *)text);
     RotateTextLowLevel (text, Buffer->X, Buffer->Y, Number);
-    r_insert_entry (layer->text_tree, (BoxTypePtr) text, 0);
+    r_insert_entry (layer->text_tree, (BoxType *)text, 0);
   }
   ENDALL_LOOP;
   ALLPOLYGON_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->polygon_tree, (BoxTypePtr) polygon);
+    r_delete_entry (layer->polygon_tree, (BoxType *)polygon);
     RotatePolygonLowLevel (polygon, Buffer->X, Buffer->Y, Number);
-    r_insert_entry (layer->polygon_tree, (BoxTypePtr) polygon, 0);
+    r_insert_entry (layer->polygon_tree, (BoxType *)polygon, 0);
   }
   ENDALL_LOOP;
 
@@ -1317,7 +1317,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   ELEMENTTEXT_LOOP (Element);
   {
     if (Data && Data->name_tree[n])
-      r_delete_entry (Data->name_tree[n], (BoxType *) text);
+      r_delete_entry (Data->name_tree[n], (BoxType *)text);
     RotateTextLowLevel (text, X, Y, Number);
   }
   END_LOOP;
@@ -1333,7 +1333,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   {
     /* pre-delete the pins from the pin-tree before their coordinates change */
     if (Data)
-      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+      r_delete_entry (Data->pin_tree, (BoxType *)pin);
     RestoreToPolygon (Data, PIN_TYPE, Element, pin);
     free_rotate (&pin->X, &pin->Y, X, Y, cosa, sina);
     SetPinBoundingBox (pin);
@@ -1343,7 +1343,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   {
     /* pre-delete the pads before their coordinates change */
     if (Data)
-      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+      r_delete_entry (Data->pad_tree, (BoxType *)pad);
     RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     free_rotate (&pad->Point1.X, &pad->Point1.Y, X, Y, cosa, sina);
     free_rotate (&pad->Point2.X, &pad->Point2.Y, X, Y, cosa, sina);
@@ -1374,10 +1374,10 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   /* rotate vias */
   VIA_LOOP (Buffer->Data);
   {
-    r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
+    r_delete_entry (Buffer->Data->via_tree, (BoxType *)via);
     free_rotate (&via->X, &via->Y, Buffer->X, Buffer->Y, cosa, sina);
     SetPinBoundingBox (via);
-    r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
+    r_insert_entry (Buffer->Data->via_tree, (BoxType *)via, 0);
   }
   END_LOOP;
 
@@ -1392,33 +1392,33 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   /* all layer related objects */
   ALLLINE_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->line_tree, (BoxTypePtr) line);
+    r_delete_entry (layer->line_tree, (BoxType *)line);
     free_rotate (&line->Point1.X, &line->Point1.Y, Buffer->X, Buffer->Y, cosa, sina);
     free_rotate (&line->Point2.X, &line->Point2.Y, Buffer->X, Buffer->Y, cosa, sina);
     SetLineBoundingBox (line);
-    r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
+    r_insert_entry (layer->line_tree, (BoxType *)line, 0);
   }
   ENDALL_LOOP;
   ALLARC_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
+    r_delete_entry (layer->arc_tree, (BoxType *)arc);
     free_rotate (&arc->X, &arc->Y, Buffer->X, Buffer->Y, cosa, sina);
     arc->StartAngle += Angle;
     arc->StartAngle %= 360;
-    r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
+    r_insert_entry (layer->arc_tree, (BoxType *)arc, 0);
   }
   ENDALL_LOOP;
   /* FIXME: rotate text */
   ALLPOLYGON_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->polygon_tree, (BoxTypePtr) polygon);
+    r_delete_entry (layer->polygon_tree, (BoxType *)polygon);
     POLYGONPOINT_LOOP (polygon);
     {
       free_rotate (&point->X, &point->Y, Buffer->X, Buffer->Y, cosa, sina);
     }
     END_LOOP;
     SetPolygonBoundingBox (polygon);
-    r_insert_entry (layer->polygon_tree, (BoxTypePtr) polygon, 0);
+    r_insert_entry (layer->polygon_tree, (BoxType *)polygon, 0);
   }
   ENDALL_LOOP;
 
@@ -1562,38 +1562,38 @@ SwapBuffer (BufferTypePtr Buffer)
   Buffer->Y = SWAP_Y (Buffer->Y);
   VIA_LOOP (Buffer->Data);
   {
-    r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
+    r_delete_entry (Buffer->Data->via_tree, (BoxType *)via);
     via->X = SWAP_X (via->X);
     via->Y = SWAP_Y (via->Y);
     SetPinBoundingBox (via);
-    r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
+    r_insert_entry (Buffer->Data->via_tree, (BoxType *)via, 0);
   }
   END_LOOP;
   ALLLINE_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->line_tree, (BoxTypePtr) line);
+    r_delete_entry (layer->line_tree, (BoxType *)line);
     line->Point1.X = SWAP_X (line->Point1.X);
     line->Point1.Y = SWAP_Y (line->Point1.Y);
     line->Point2.X = SWAP_X (line->Point2.X);
     line->Point2.Y = SWAP_Y (line->Point2.Y);
     SetLineBoundingBox (line);
-    r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
+    r_insert_entry (layer->line_tree, (BoxType *)line, 0);
   }
   ENDALL_LOOP;
   ALLARC_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
+    r_delete_entry (layer->arc_tree, (BoxType *)arc);
     arc->X = SWAP_X (arc->X);
     arc->Y = SWAP_Y (arc->Y);
     arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
     arc->Delta = SWAP_DELTA (arc->Delta);
     SetArcBoundingBox (arc);
-    r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
+    r_insert_entry (layer->arc_tree, (BoxType *)arc, 0);
   }
   ENDALL_LOOP;
   ALLPOLYGON_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->polygon_tree, (BoxTypePtr) polygon);
+    r_delete_entry (layer->polygon_tree, (BoxType *)polygon);
     POLYGONPOINT_LOOP (polygon);
     {
       point->X = SWAP_X (point->X);
@@ -1601,18 +1601,18 @@ SwapBuffer (BufferTypePtr Buffer)
     }
     END_LOOP;
     SetPolygonBoundingBox (polygon);
-    r_insert_entry (layer->polygon_tree, (BoxTypePtr) polygon, 0);
+    r_insert_entry (layer->polygon_tree, (BoxType *)polygon, 0);
     /* hmmm, how to handle clip */
   }
   ENDALL_LOOP;
   ALLTEXT_LOOP (Buffer->Data);
   {
-    r_delete_entry (layer->text_tree, (BoxTypePtr) text);
+    r_delete_entry (layer->text_tree, (BoxType *)text);
     text->X = SWAP_X (text->X);
     text->Y = SWAP_Y (text->Y);
     TOGGLE_FLAG (ONSOLDERFLAG, text);
     SetTextBoundingBox (&PCB->Font, text);
-    r_insert_entry (layer->text_tree, (BoxTypePtr) text, 0);
+    r_insert_entry (layer->text_tree, (BoxType *)text, 0);
   }
   ENDALL_LOOP;
   /* swap silkscreen layers */
