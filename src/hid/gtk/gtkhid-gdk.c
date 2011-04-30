@@ -255,7 +255,6 @@ void
 ghid_use_mask (int use_it)
 {
   static int mask_seq_id = 0;
-  static GdkDrawable *old;
   GdkColor color;
   render_priv *priv = gport->render_priv;
 
