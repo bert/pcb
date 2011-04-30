@@ -5,6 +5,7 @@
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 2006 DJ Delorie
+ *  Copyright (C) 2011 PCB Contributers (See ChangeLog for details)
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -623,12 +624,16 @@ typedef struct Extra {
   End end;
   unsigned char found:1;
   unsigned char deleted:1;
+  int type;
+  union {
+    LineType *line;
+    ArcType *arc;
+  } parent;
 } Extra;
 
 static Extra multi_next;
-static Extra *lines;
-static Extra *arcs;
-static int nlines, narcs, max_lines, max_arcs;
+static GHashTable *lines;
+static GHashTable *arcs;
 static int did_something;
 static int current_is_component, current_is_solder;
 
@@ -640,12 +645,12 @@ static void trace_paths ();
 #endif
 static void mark_line_for_deletion (LineTypePtr);
 
-#define LINE2EXTRA(l) (lines[(l)-CURRENT->Line])
-#define ARC2EXTRA(a) (arcs[(a)-CURRENT->Arc])
-#define EXTRA2LINE(e) (CURRENT->Line[(e)-lines])
-#define EXTRA2ARC(e) (CURRENT->Arc[(e)-arcs])
-#define EXTRA_IS_LINE(e) ((unsigned)(e-lines) < nlines)
-#define EXTRA_IS_ARC(e) ((unsigned)(e-arcs) < narcs)
+#define LINE2EXTRA(l)    ((Extra *)g_hash_table_lookup (lines, l))
+#define ARC2EXTRA(a)     ((Extra *)g_hash_table_lookup (arcs, a))
+#define EXTRA2LINE(e)    (e->parent.line)
+#define EXTRA2ARC(e)     (e->parent.arc)
+#define EXTRA_IS_LINE(e) (e->type == LINE_TYPE)
+#define EXTRA_IS_ARC(e)  (e->type == ARC_TYPE)
 
 static void
 unlink_end (Extra *x, Extra **e)
@@ -674,14 +679,18 @@ unlink_end (Extra *x, Extra **e)
 }
 
 #if TRACE1
+
+static void
+clear_found_cb (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  extra->found = 0;
+}
+
 static void
 clear_found ()
 {
-  int i;
-  for (i=0; i<nlines; i++)
-    lines[i].found = 0;
-  for (i=0; i<narcs; i++)
-    arcs[i].found = 0;
+  g_hash_table_foreach (lines, (GHFunc)clear_found_cb, NULL);
+  g_hash_table_foreach (arcs, (GHFunc)clear_found_cb, NULL);
 }
 #endif
 
@@ -714,7 +723,7 @@ find_pair_line_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
 #if TRACE1
-  Extra *e = & LINE2EXTRA (line);
+  Extra *e = LINE2EXTRA (line);
 #endif
   FindPairCallbackStruct *fpcs = (FindPairCallbackStruct *) cl;
 
@@ -740,7 +749,7 @@ find_pair_line_callback (const BoxType * b, void *cl)
 	}
       else
 	{
-	  *fpcs->extra_ptr = & LINE2EXTRA (line);
+	  *fpcs->extra_ptr = LINE2EXTRA (line);
 #if TRACE1
 	  printf(" - next now %p\n", *fpcs->extra_ptr);
 #endif
@@ -753,7 +762,7 @@ static int
 find_pair_arc_callback (const BoxType * b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr) b;
-  Extra *e = & ARC2EXTRA (arc);
+  Extra *e = ARC2EXTRA (arc);
   FindPairCallbackStruct *fpcs = (FindPairCallbackStruct *) cl;
 
   if (arc == fpcs->me)
@@ -828,7 +837,7 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
   PinTypePtr pin = (PinTypePtr) cl;
-  Extra *e = & LINE2EXTRA (line);
+  Extra *e = LINE2EXTRA (line);
   int hits;
 
 #ifdef CHECK_LINE_PT_NEG
@@ -866,7 +875,7 @@ find_pair_pinarc_callback (const BoxType * b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr) b;
   PinTypePtr pin = (PinTypePtr) cl;
-  Extra *e = & ARC2EXTRA (arc);
+  Extra *e = ARC2EXTRA (arc);
   int hits;
 
   hits = check_point_in_pin (pin, e->start.x, e->start.y, &(e->start));
@@ -934,7 +943,7 @@ find_pair_padline_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
   PadTypePtr pad = (PadTypePtr) cl;
-  Extra *e = & LINE2EXTRA (line);
+  Extra *e = LINE2EXTRA (line);
   int hits;
   double t;
   int intersect;
@@ -1005,7 +1014,7 @@ find_pair_padarc_callback (const BoxType * b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr) b;
   PadTypePtr pad = (PadTypePtr) cl;
-  Extra *e = & ARC2EXTRA (arc);
+  Extra *e = ARC2EXTRA (arc);
   int hits;
 
   if (TEST_FLAG (ONSOLDERFLAG, pad))
@@ -1023,18 +1032,51 @@ find_pair_padarc_callback (const BoxType * b, void *cl)
   hits += check_point_in_pad (pad, e->end.x, e->end.y, &(e->end));
   return 0;
 }
- 
+
+static void
+null_multi_next_ends (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  if (extra->start.next == &multi_next)
+    extra->start.next = NULL;
+
+  if (extra->end.next == &multi_next)
+    extra->end.next = NULL;
+}
+
+static Extra *
+new_line_extra (LineType *line)
+{
+  Extra *extra = g_slice_new0 (Extra);
+  g_hash_table_insert (lines, line, extra);
+  extra->parent.line = line;
+  extra->type = LINE_TYPE;
+  return extra;
+}
+
+static Extra *
+new_arc_extra (ArcType *arc)
+{
+  Extra *extra = g_slice_new0 (Extra);
+  g_hash_table_insert (arcs, arc, extra);
+  extra->parent.arc = arc;
+  extra->type = ARC_TYPE;
+  return extra;
+}
+
 static void
 find_pairs ()
 {
-  int i;
   ARC_LOOP (CURRENT); {
-    Extra *e = & ARC2EXTRA (arc);
+    Extra *e = new_arc_extra (arc);
     fix_arc_extra (arc, e);
   } END_LOOP;
 
   LINE_LOOP (CURRENT); {
-    Extra *e = & LINE2EXTRA (line);
+    new_line_extra (line);
+  } END_LOOP;
+
+  LINE_LOOP (CURRENT); {
+    Extra *e = LINE2EXTRA (line);
     if (line->Point1.X >= 0)
       {
 	find_pairs_1 (line, & e->start.next, line->Point1.X, line->Point1.Y);
@@ -1043,7 +1085,7 @@ find_pairs ()
   } END_LOOP;
 
   ARC_LOOP (CURRENT); {
-    Extra *e = & ARC2EXTRA (arc);
+    Extra *e = ARC2EXTRA (arc);
     if (!e->deleted)
       {
 	find_pairs_1 (arc, & e->start.next, e->start.x, e->start.y);
@@ -1082,20 +1124,8 @@ find_pairs ()
     
   } ENDALL_LOOP;
 
-  for (i=0; i<nlines; i++)
-    {
-      if (lines[i].start.next == &multi_next)
-	lines[i].start.next = 0;
-      if (lines[i].end.next == &multi_next)
-	lines[i].end.next = 0;
-    }
-  for (i=0; i<narcs; i++)
-    {
-      if (arcs[i].start.next == &multi_next)
-	arcs[i].start.next = 0;
-      if (arcs[i].end.next == &multi_next)
-	arcs[i].end.next = 0;
-    }
+  g_hash_table_foreach (lines, (GHFunc)null_multi_next_ends, NULL);
+  g_hash_table_foreach (arcs, (GHFunc)null_multi_next_ends, NULL);
 }
 
 #define PROP_NEXT(e,n,f) 		\
@@ -1137,52 +1167,62 @@ propogate_end_pin (Extra *e, End *near, End *far)
 }
 
 static void
+propogate_end_step1_cb (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  if (extra->start.next != NULL &&
+      extra->start.next == extra->end.next)
+    {
+      extra->end.next = NULL;
+      mark_line_for_deletion ((LineType *)ptr);
+    }
+
+  if (extra->start.at_pin)
+    propogate_ends_at (extra, &extra->start, &extra->end);
+
+  if (extra->end.at_pin)
+    propogate_ends_at (extra, &extra->end, &extra->start);
+}
+
+static void
+propogate_end_step2_cb (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  if (extra->start.in_pin)
+    {
+#if TRACE1
+      printf("MULTI at %d: was %p\n", __LINE__, extra->start.next);
+#endif
+      extra->start.next = NULL;
+    }
+  if (extra->end.in_pin)
+    {
+#if TRACE1
+      printf("MULTI at %d: was %p\n", __LINE__, extra->end.next);
+#endif
+      extra->end.next = NULL;
+    }
+}
+
+static void
+propogate_end_step3_cb (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  if (extra->start.next)
+    propogate_end_pin (extra, &extra->end, &extra->start);
+  if (extra->end.next)
+    propogate_end_pin (extra, &extra->start, &extra->end);
+}
+
+static void
 propogate_ends ()
 {
-  int i;
-
   /* First, shut of "in pin" when we have an "at pin".  We also clean
      up zero-length lines.  */
-  for (i=0; i<nlines; i++)
-    {
-      if (lines[i].start.next && lines[i].start.next == lines[i].end.next)
-	{
-	  lines[i].end.next = 0;
-	  mark_line_for_deletion (CURRENT->Line + i);
-	}
-      if (lines[i].start.at_pin)
-	propogate_ends_at (&lines[i], &lines[i].start, &lines[i].end);
-      if (lines[i].end.at_pin)
-	propogate_ends_at (&lines[i], &lines[i].end, &lines[i].start);
-    }
+  g_hash_table_foreach (lines, (GHFunc)propogate_end_step1_cb, NULL);
 
   /* Now end all paths at pins/pads.  */
-  for (i=0; i<nlines; i++)
-    {
-      if (lines[i].start.in_pin)
-	{
-#if TRACE1
-	  printf("MULTI at %d: %d was %p\n", __LINE__, i, lines[i].start.next);
-#endif
-	  lines[i].start.next = 0;
-	}
-      if (lines[i].end.in_pin)
-	{
-#if TRACE1
-	  printf("MULTI at %d: %d was %p\n", __LINE__, i, lines[i].end.next);
-#endif
-	  lines[i].end.next = 0;
-	}
-    }
+  g_hash_table_foreach (lines, (GHFunc)propogate_end_step2_cb, NULL);
 
   /* Now, propogate the pin/pad/vias along paths.  */
-  for (i=0; i<nlines; i++)
-    {
-      if (lines[i].start.next)
-	propogate_end_pin (&lines[i], &lines[i].end, &lines[i].start);
-      if (lines[i].end.next)
-	propogate_end_pin (&lines[i], &lines[i].start, &lines[i].end);
-    }
+  g_hash_table_foreach (lines, (GHFunc)propogate_end_step3_cb, NULL);
 }
 
 static Extra *last_pextra = 0;
@@ -1223,7 +1263,7 @@ print_extra (Extra *e, Extra *prev)
 	 
   if (EXTRA_IS_LINE (e))
     {
-      LineTypePtr line = & EXTRA2LINE (e);
+      LineTypePtr line = EXTRA2LINE (e);
       printf(" %4d L %d,%d-%d,%d", (int)(line-CURRENT->Line), line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
       printf("  %s %p %s %p\n",
 	     e->start.is_pad ? "pad" : "pin", e->start.pin,
@@ -1231,7 +1271,7 @@ print_extra (Extra *e, Extra *prev)
     }
   else if (EXTRA_IS_ARC (e))
     {
-      ArcTypePtr arc = & EXTRA2ARC (e);
+      ArcTypePtr arc = EXTRA2ARC (e);
       printf(" %4d A %d,%d-%d,%d", (int) (arc-CURRENT->Arc), e->start.x, e->start.y, e->end.x, e->end.y);
       printf(" at %d,%d ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
     }
@@ -1281,11 +1321,11 @@ trace_paths ()
 
   clear_found ();
   LINE_LOOP (CURRENT); {
-    e = & LINE2EXTRA (line);
+    e = LINE2EXTRA (line);
     trace_path (e);
   } END_LOOP;
   ARC_LOOP (CURRENT); {
-    e = & ARC2EXTRA (arc);
+    e = ARC2EXTRA (arc);
     trace_path (e);
   } END_LOOP;
 }
@@ -1294,7 +1334,7 @@ trace_paths ()
 static void
 reverse_line (LineTypePtr line)
 {
-  Extra *e = & LINE2EXTRA (line);
+  Extra *e = LINE2EXTRA (line);
   int x, y;
   End etmp;
 
@@ -1322,7 +1362,7 @@ reverse_line (LineTypePtr line)
 static void
 reverse_arc (ArcTypePtr arc)
 {
-  Extra *e = & ARC2EXTRA (arc);
+  Extra *e = ARC2EXTRA (arc);
   End etmp;
 
 #if 1
@@ -1647,7 +1687,7 @@ static int
 gp_line_cb (const BoxType *b, void *cb)
 {
   const LineTypePtr l = (LineTypePtr) b;
-  Extra *e = &LINE2EXTRA(l);
+  Extra *e = LINE2EXTRA(l);
   if (l == start_line || l == end_line)
     return 0;
   if (e->deleted)
@@ -1669,7 +1709,7 @@ static int
 gp_arc_cb (const BoxType *b, void *cb)
 {
   const ArcTypePtr a = (ArcTypePtr) b;
-  Extra *e = & ARC2EXTRA(a);
+  Extra *e = ARC2EXTRA(a);
   if (a == start_arc || a == end_arc)
     return 0;
   if (e->deleted)
@@ -1792,102 +1832,28 @@ gp_pad_cb (const BoxType *b, void *cb)
   return 0;
 }
 
-static void
-adjust_pointers_1 (Extra *old, Extra *newone, int num, Extra *l, int n)
-{
-  int delta = newone - old;
-  long cdelta = (char *)newone - (char *)old;
-  Extra *last = old + num;
-  int i;
-
-  for (i=0; i<n; i++)
-    {
-      if (l[i].start.waiting_for
-	  && (Extra *) l[i].start.waiting_for > old
-	  && (Extra *) l[i].start.waiting_for < last+1)
-	{
-	  l[i].start.waiting_for
-	    = (End *)((char *)l[i].start.waiting_for
-		      + cdelta);
-	}
-      if (l[i].end.waiting_for
-	  && (Extra *) l[i].end.waiting_for > old
-	  && (Extra *) l[i].end.waiting_for < last+1)
-	{
-	  l[i].end.waiting_for
-	    = (End *)((char *)l[i].end.waiting_for
-		      + cdelta);
-	}
-      if (l[i].start.next >= old
-	  && l[i].start.next < last)
-	{
-#if TRACE1
-	  printf(" - lstart %p to ", l[i].start.next);
-#endif
-	  l[i].start.next += delta;
-#if TRACE1
-	  printf(" %p\n", l[i].start.next);
-#endif
-	}
-      if (l[i].end.next >= old
-	  && l[i].end.next < last)
-	{
-#if TRACE1
-	  printf(" - lend   %p to ", l[i].end.next);
-#endif
-	  l[i].end.next += delta;
-#if TRACE1
-	  printf(" %p\n", l[i].end.next);
-#endif
-	}
-    }
-}
-
-static void
-adjust_pointers (Extra *old, Extra *newone, int num)
-{
-  adjust_pointers_1 (old, newone, num, lines, nlines);
-  adjust_pointers_1 (old, newone, num, arcs, narcs);
-}
-
 static LineTypePtr
 create_line (LineTypePtr sample, int x1, int y1, int x2, int y2)
 {
-  Extra *e, *new_lines;
+  Extra *e;
 #if TRACE1
   printf("create_line from %d,%d to %d,%d\n", x1, y1, x2, y2);
 #endif
   LineTypePtr line = CreateNewLineOnLayer (CURRENT, x1, y1, x2, y2,
 					   sample->Thickness, sample->Clearance, sample->Flags);
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-  if (CURRENT->LineN >= max_lines)
-    {
-      max_lines += 100;
-      new_lines = (Extra *) realloc (lines, max_lines * sizeof(Extra));
-      if (new_lines != lines)
-	{
-	  Extra *old = lines;
-#if TRACE1
-	  printf("\033[32mMoving lines from %p to %p\033[0m\n", lines, new_lines);
-#endif
-	  lines = new_lines;
-	  adjust_pointers (old, lines, nlines);
-	}
-      memset (lines+nlines, 0, (max_lines-nlines)*sizeof(Extra));
-    }
-  nlines = CURRENT->LineN;
-  e = & LINE2EXTRA (line);
+
+  e = new_line_extra (line);
 #if TRACE1
   printf(" - line extra is %p\n", e);
 #endif
-  memset (e, 0, sizeof(Extra));
   return line;
 }
 
 static ArcTypePtr
 create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
 {
-  Extra *e, *new_arcs;
+  Extra *e;
   ArcTypePtr arc;
 
   if (r % 100 == 1)
@@ -1909,27 +1875,10 @@ create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
   if (!arc)
     longjmp (abort_buf, 1);
 
-  if (CURRENT->ArcN >= max_arcs)
-    {
-      max_arcs += 100;
-      new_arcs = (Extra *) realloc (arcs, max_arcs * sizeof(Extra));
-      if (new_arcs != arcs)
-	{
-	  Extra *old = arcs;
-#if TRACE1
-	  printf("\033[32mMoving arcs from %p to %p\033[0m\n", arcs, new_arcs);
-#endif
-	  arcs = new_arcs;
-	  adjust_pointers (old, arcs, narcs);
-	}
-      memset (arcs+narcs, 0, (max_arcs-narcs)*sizeof(Extra));
-    }
-  narcs = CURRENT->ArcN;
-  e = & ARC2EXTRA (arc);
+  e = new_arc_extra (arc);
 #if TRACE1
   printf(" - arc extra is %p\n", e);
 #endif
-  memset (e, 0, sizeof(Extra));
   fix_arc_extra (arc, e);
   return arc;
 }
@@ -1997,7 +1946,7 @@ unlink_extras (Extra *e)
 static void
 mark_line_for_deletion (LineTypePtr l)
 {
-  Extra *e = & LINE2EXTRA(l);
+  Extra *e = LINE2EXTRA(l);
   if (e->deleted)
     {
       fprintf(stderr, "double delete?\n");
@@ -2027,7 +1976,7 @@ mark_line_for_deletion (LineTypePtr l)
 static void
 mark_arc_for_deletion (ArcTypePtr a)
 {
-  Extra *e = & ARC2EXTRA(a);
+  Extra *e = ARC2EXTRA(a);
   e->deleted = 1;
   unlink_extras (e);
 #if TRACE1
@@ -2062,9 +2011,9 @@ maybe_pull_1 (LineTypePtr line)
   double abs_angle;
 
   start_line = line;
-  start_extra = & LINE2EXTRA (start_line);
+  start_extra = LINE2EXTRA (start_line);
   end_extra = start_extra->end.next;
-  end_line = & EXTRA2LINE (end_extra);
+  end_line = EXTRA2LINE (end_extra);
   if (end_extra->deleted)
     {
       start_extra->end.pending = 0;
@@ -2078,7 +2027,7 @@ maybe_pull_1 (LineTypePtr line)
       && EXTRA_IS_ARC (start_extra->start.next))
     {
       sarc_extra = start_extra->start.next;
-      start_arc = & EXTRA2ARC (sarc_extra);
+      start_arc = EXTRA2ARC (sarc_extra);
       if (sarc_extra->start.next == start_extra)
 	reverse_arc (start_arc);
     }
@@ -2092,7 +2041,7 @@ maybe_pull_1 (LineTypePtr line)
       && EXTRA_IS_ARC (end_extra->end.next))
     {
       earc_extra = end_extra->end.next;
-      end_arc = & EXTRA2ARC (earc_extra);
+      end_arc = EXTRA2ARC (earc_extra);
       if (earc_extra->start.next == end_extra)
 	reverse_arc (end_arc);
     }
@@ -2473,19 +2422,19 @@ maybe_pull_1 (LineTypePtr line)
 
   new_arc = create_arc (start_line, fx, fy, fr,
 			90-(int)(r2d(start_angle+fa)+0.5) + 90 + 90*se_sign, -se_sign);
-  new_aextra = & ARC2EXTRA (new_arc);
+  new_aextra = ARC2EXTRA (new_arc);
 
-  if (start_arc) sarc_extra = & ARC2EXTRA (start_arc);
-  if (end_arc) earc_extra = & ARC2EXTRA (end_arc);
+  if (start_arc) sarc_extra = ARC2EXTRA (start_arc);
+  if (end_arc) earc_extra = ARC2EXTRA (end_arc);
 
   MoveObject (LINEPOINT_TYPE, CURRENT, start_line, &(start_line->Point2),
 	      new_aextra->start.x - start_line->Point2.X,
 	      new_aextra->start.y - start_line->Point2.Y);
 
   new_line = create_line (start_line, new_aextra->end.x, new_aextra->end.y, ex, ey);
-  start_extra = & LINE2EXTRA (start_line);
-  new_lextra = & LINE2EXTRA (new_line);
-  end_extra = & LINE2EXTRA (end_line);
+  start_extra = LINE2EXTRA (start_line);
+  new_lextra = LINE2EXTRA (new_line);
+  end_extra = LINE2EXTRA (end_line);
 
   new_lextra->start.pin = start_extra->start.pin;
   new_lextra->end.pin = start_extra->end.pin;
@@ -2559,23 +2508,59 @@ validate_pair (Extra *e, End *end)
 }
 
 static void
+validate_pair_cb (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+  validate_pair (extra, &extra->start);
+  validate_pair (extra, &extra->end);
+}
+
+static void
 validate_pairs ()
 {
-  int i;
-  for (i=0; i<nlines; i++)
-    {
-      validate_pair (&lines[i], &lines[i].start);
-      validate_pair (&lines[i], &lines[i].end);
-    }
+  g_hash_table_foreach (lines, (GHFunc)validate_pair_cb, NULL);
 #if TRACE1
   printf("\narcs\n");
 #endif
-  for (i=0; i<narcs; i++)
+  g_hash_table_foreach (arcs, (GHFunc)validate_pair_cb, NULL);
+}
+
+static void
+FreeExtra (Extra *extra)
+{
+  g_slice_free (Extra, extra);
+}
+
+static void
+mark_ends_pending (LineType *line, Extra *extra, void *userdata)
+{
+  int *select_flags = userdata;
+  if (TEST_FLAGS (*select_flags, line))
     {
-      validate_pair (&arcs[i], &arcs[i].start);
-      validate_pair (&arcs[i], &arcs[i].end);
+      extra->start.pending = 1;
+      extra->end.pending = 1;
     }
 }
+
+#if TRACE1
+static void
+trace_print_extra (AnyObjectType *ptr, Extra *extra, void *userdata)
+{
+    last_pextra = (Extra *)1;
+    print_extra(extra, 0);
+}
+
+static void
+trace_print_lines_arcs (void)
+{
+  printf("\nlines\n");
+  g_hash_table_foreach (lines, (GHFunc)trace_print_extra, NULL);
+
+  printf("\narcs\n");
+  g_hash_table_foreach (arcs, (GHFunc)trace_print_extra, NULL);
+
+  printf("\n");
+}
+#endif
 
 static int
 GlobalPuller(int argc, char **argv, int x, int y)
@@ -2602,54 +2587,23 @@ GlobalPuller(int argc, char **argv, int x, int y)
   current_is_component = (GetLayerGroupNumberByPointer(CURRENT)
 			  == GetLayerGroupNumberByNumber (component_silk_layer));
 
-  max_lines = nlines = CURRENT->LineN;
-  lines = (Extra *) calloc (nlines, sizeof (Extra));
-  max_arcs = narcs = CURRENT->ArcN;
-  arcs = (Extra *) calloc (narcs, sizeof (Extra));
+  lines = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
+  arcs  = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
 
   printf("pairing...\n");
   find_pairs ();
   validate_pairs ();
 
-  for (i=0; i<nlines; i++)
-    if (TEST_FLAGS (select_flags, &CURRENT->Line[i]))
-      {
-	lines[i].start.pending = 1;
-	lines[i].end.pending = 1;
-      }
+  g_hash_table_foreach (lines, (GHFunc)mark_ends_pending, &select_flags);
 
 #if TRACE1
-  printf("\nlines\n");
-  for (i=0; i<nlines; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&lines[i], 0);
-    }
-  printf("\narcs\n");
-  for (i=0; i<narcs; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&arcs[i], 0);
-    }
-  printf("\n");
+  trace_print_lines_arcs ();
 #endif
 
   propogate_ends ();
 
 #if TRACE1
-  printf("\nlines\n");
-  for (i=0; i<nlines; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&lines[i], 0);
-    }
-  printf("\narcs\n");
-  for (i=0; i<narcs; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&arcs[i], 0);
-    }
-  printf("\n");
+  trace_print_lines_arcs ();
   trace_paths ();
 #endif
 
@@ -2666,7 +2620,7 @@ GlobalPuller(int argc, char **argv, int x, int y)
 	  status();
 	  did_something = 0;
 	  LINE_LOOP (CURRENT); {
-	    Extra *e = & LINE2EXTRA (line);
+	    Extra *e = LINE2EXTRA (line);
 	    if (e->deleted)
 	      continue;
 #ifdef CHECK_LINE_PT_NEG
@@ -2694,25 +2648,18 @@ GlobalPuller(int argc, char **argv, int x, int y)
 
 #if TRACE0
   printf("\nlines\n");
-  for (i=0; i<nlines; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&lines[i], 0);
-    }
+  g_hash_table_foreach (lines, (GHFunc)trace_print_extra, NULL);
   printf("\narcs\n");
-  for (i=0; i<narcs; i++)
-    {
-      last_pextra = (Extra *)1;
-      print_extra(&arcs[i], 0);
-    }
+  g_hash_table_foreach (arcs, (GHFunc)trace_print_extra, NULL);
   printf("\n");
+  printf("\nlines\n");
 #endif
 
   /* We do this backwards so we don't have to edit the extras.  */
   for (i=CURRENT->LineN-1; i>=0; i--)
     {
       LineTypePtr line = & CURRENT->Line[i];
-      if (LINE2EXTRA (line).deleted)
+      if (LINE2EXTRA (line)->deleted)
 	RemoveLine (CURRENT, line);
     }
 
@@ -2720,14 +2667,12 @@ GlobalPuller(int argc, char **argv, int x, int y)
   for (i=CURRENT->ArcN-1; i>=0; i--)
     {
       ArcTypePtr arc = & CURRENT->Arc[i];
-      if (ARC2EXTRA (arc).deleted)
+      if (ARC2EXTRA (arc)->deleted)
 	RemoveArc (CURRENT, arc);
     }
 
-  free (lines);
-  free (arcs);
-  lines = arcs = 0;
-  nlines = narcs = max_lines = max_arcs = 0;
+  g_hash_table_unref (lines);
+  g_hash_table_unref (arcs);
 
   IncrementUndoSerialNumber();
   return 0;
