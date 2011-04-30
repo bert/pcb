@@ -7987,8 +7987,11 @@ escape (int argc, char **argv, int x, int y)
       PinTypePtr via;
       LineTypePtr line;
 
-      pitch = sqrt( pow(abs(element->Pad[0].Point1.X - element->Pad[1].Point1.X), 2) + 
-        pow(abs(element->Pad[0].Point1.Y - element->Pad[1].Point1.Y), 2) );
+      PadType *pad0 = &element->Pad[0];
+      PadType *pad1 = &element->Pad[1];
+
+      pitch = sqrt (pow (abs (pad0->Point1.X - pad1->Point1.X), 2) +
+                    pow (abs (pad0->Point1.Y - pad1->Point1.Y), 2) );
       length = sqrt(pow(pitch,2) + pow(pitch,2)) / 2.;
 
       dx = length * sin(M_PI/4.);
