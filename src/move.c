@@ -435,7 +435,7 @@ MovePolygonPoint (LayerTypePtr Layer, PolygonTypePtr Polygon,
 /* ---------------------------------------------------------------------------
  * moves a line between layers; lowlevel routines
  */
-void *
+static void *
 MoveLineToLayerLowLevel (LayerTypePtr Source, LineTypePtr Line,
 			 LayerTypePtr Destination)
 {
@@ -457,7 +457,7 @@ MoveLineToLayerLowLevel (LayerTypePtr Source, LineTypePtr Line,
 /* ---------------------------------------------------------------------------
  * moves an arc between layers; lowlevel routines
  */
-void *
+static void *
 MoveArcToLayerLowLevel (LayerTypePtr Source, ArcTypePtr Arc,
 			LayerTypePtr Destination)
 {
@@ -640,7 +640,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
 /* ---------------------------------------------------------------------------
  * moves a text object between layers; lowlevel routines
  */
-void *
+static void *
 MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
 			 LayerTypePtr Destination)
 {
@@ -699,7 +699,7 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
 /* ---------------------------------------------------------------------------
  * moves a polygon between layers; lowlevel routines
  */
-void *
+static void *
 MovePolygonToLayerLowLevel (LayerTypePtr Source, PolygonTypePtr Polygon,
 			    LayerTypePtr Destination)
 {

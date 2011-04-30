@@ -100,9 +100,6 @@ void *MoveObject (int, void *, void *, void *, LocationType, LocationType);
 void *MoveObjectToLayer (int, void *, void *, void *, LayerTypePtr, bool);
 void *MoveObjectAndRubberband (int, void *, void *, void *,
 			       LocationType, LocationType);
-void *MoveLineToLayerLowLevel (LayerTypePtr, LineTypePtr, LayerTypePtr);
-void *MoveTextToLayerLowLevel (LayerTypePtr, TextTypePtr, LayerTypePtr);
-void *MovePolygonToLayerLowLevel (LayerTypePtr, PolygonTypePtr, LayerTypePtr);
 bool MoveSelectedObjectsToLayer (LayerTypePtr);
 
 /* index is 0..MAX_LAYER-1.  If old_index is -1, a new layer is
