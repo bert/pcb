@@ -139,7 +139,7 @@ DestroyVia (PinTypePtr Via)
 		    (BoxType *) Via);
     }
   memset (&DestroyTarget->Via[DestroyTarget->ViaN], 0, sizeof (PinType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -158,7 +158,7 @@ DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 		    (BoxType *) Line);
     }
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
 		    (BoxType *) Arc);
     }
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -194,7 +194,7 @@ DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 		    (BoxType *) Polygon);
     }
   memset (&Layer->Polygon[Layer->PolygonN], 0, sizeof (PolygonType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 		    (BoxType *) Text);
     }
   memset (&Layer->Text[Layer->TextN], 0, sizeof (TextType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -316,7 +316,7 @@ DestroyElement (ElementTypePtr Element)
   END_LOOP;
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,
 	  sizeof (ElementType));
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -335,7 +335,7 @@ DestroyRat (RatTypePtr Rat)
 		    &Rat->BoundingBox);
     }
   memset (&DestroyTarget->Rat[DestroyTarget->RatN], 0, sizeof (RatType));
-  return (NULL);
+  return NULL;
 }
 
 
@@ -353,7 +353,7 @@ RemoveVia (PinTypePtr Via)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (VIA_TYPE, Via, Via, Via);
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -370,7 +370,7 @@ RemoveRat (RatTypePtr Rat)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
-  return (NULL);
+  return NULL;
 }
 
 struct rlp_info
@@ -443,7 +443,7 @@ RemoveLine (LayerTypePtr Layer, LineTypePtr Line)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (LINE_TYPE, Layer, Line, Line);
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -460,7 +460,7 @@ RemoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (ARC_TYPE, Layer, Arc, Arc);
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -477,7 +477,7 @@ RemoveText (LayerTypePtr Layer, TextTypePtr Text)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (TEXT_TYPE, Layer, Text, Text);
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -494,7 +494,7 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -599,7 +599,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
       if (!Bulk)
 	Draw ();
     }
-  return (NULL);
+  return NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -617,7 +617,7 @@ RemoveElement (ElementTypePtr Element)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (ELEMENT_TYPE, Element, Element, Element);
-  return (NULL);
+  return NULL;
 }
 
 /* ----------------------------------------------------------------------
