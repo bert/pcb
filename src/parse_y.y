@@ -171,7 +171,6 @@ parsepcb
 		  pcbdata
 		  pcbnetlist
 			{
-			  int i, j;
 			  PCBTypePtr pcb_save = PCB;
 
 			  if (layer_group_string == NULL)
@@ -186,9 +185,11 @@ parsepcb
 			 * we didn't know the layer grouping before.
 			 */
 			PCB = yyPCB;
-			for (i = 0; i < yyData->LayerN+2; i++)
-			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
-			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
+			ALLPOLYGON_LOOP (yyData);
+			{
+			  InitClip (yyData, layer, polygon);
+			}
+			ENDALL_LOOP;
 			PCB = pcb_save;
 			}
 			   
