@@ -75,8 +75,6 @@ pinout_zoom_fit (GhidPinoutPreview * pinout, gint zoom)
 static void
 pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 {
-  gint tx, ty, x_min = 0, y_min = 0;
-
   if (element == NULL)
     {
       FreeElementMemory (&pinout->element);
@@ -94,24 +92,12 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
   CopyElementLowLevel (NULL, &pinout->element, element, FALSE, 0, 0);
   PIN_LOOP (&pinout->element);
   {
-    tx = abs (pinout->element.Pin[0].X - pin->X);
-    ty = abs (pinout->element.Pin[0].Y - pin->Y);
-    if (x_min == 0 || (tx != 0 && tx < x_min))
-      x_min = tx;
-    if (y_min == 0 || (ty != 0 && ty < y_min))
-      y_min = ty;
     SET_FLAG (DISPLAYNAMEFLAG, pin);
   }
   END_LOOP;
 
   PAD_LOOP (&pinout->element);
   {
-    tx = abs (pinout->element.Pad[0].Point1.X - pad->Point1.X);
-    ty = abs (pinout->element.Pad[0].Point1.Y - pad->Point1.Y);
-    if (x_min == 0 || (tx != 0 && tx < x_min))
-      x_min = tx;
-    if (y_min == 0 || (ty != 0 && ty < y_min))
-      y_min = ty;
     SET_FLAG (DISPLAYNAMEFLAG, pad);
   }
   END_LOOP;
