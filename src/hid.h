@@ -341,12 +341,6 @@ typedef enum
 #define HID_MASK_CLEAR 2
     /* Polygons being drawn after clears.  */
 #define HID_MASK_AFTER 3
-    /* Set to do live drawing on the screen   */
-#define HID_LIVE_DRAWING 4
-    /* stop live drawing on the screen   */
-#define HID_LIVE_DRAWING_OFF 5
-    /* flush any queued drawing   */
-#define HID_FLUSH_DRAW_Q 6
 
     /* Set a color.  Names can be like "red" or "#rrggbb" or special
        names like "erase".  *Always* use the "erase" color for removing

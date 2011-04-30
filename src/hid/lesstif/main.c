@@ -3041,22 +3041,6 @@ lesstif_use_mask (int use_it)
 {
   static Window old;
 
-  if (use_it == HID_FLUSH_DRAW_Q)
-    {
-      XFlush (display);
-      return;
-    }
-  else if (use_it == HID_LIVE_DRAWING)
-    {
-      old = pixmap;
-      pixmap = window;
-      return;
-    }
-  else if (use_it == HID_LIVE_DRAWING_OFF)
-    {
-      pixmap = old;
-      return;
-    }
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
       !use_xrender)
     use_it = 0;
