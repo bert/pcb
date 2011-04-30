@@ -140,6 +140,7 @@ return dir;
 }
 
 #ifdef ROUTE_DEBUG
+HID *ddraw = NULL;
 static hidGC ar_gc = 0;
 #endif
 
@@ -1470,16 +1471,17 @@ showbox (BoxType b, Dimension thickness, int group)
   if (showboxen != -1 && showboxen != group)
     return;
 
+  if (ddraw != NULL)
+    {
+      ddraw->set_line_width (ar_gc, thickness);
+      ddraw->set_line_cap (ar_gc, Trace_Cap);
+      ddraw->set_color (ar_gc, SLayer->Color);
 
-  gui->set_line_width (ar_gc, thickness);
-  gui->set_line_cap (ar_gc, Trace_Cap);
-  gui->set_color (ar_gc, SLayer->Color);
-
-  gui->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
-  gui->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
-  gui->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
-  gui->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
-  gui->use_mask (HID_FLUSH_DRAW_Q);
+      ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
+      ddraw->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
+      ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
+      ddraw->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
+    }
 
 #if 1
   if (b.Y1 == b.Y2 || b.X1 == b.X2)
@@ -1524,23 +1526,26 @@ showedge (edge_t * e)
 {
   BoxType *b = (BoxType *) e->rb;
 
-  gui->set_line_cap (ar_gc, Trace_Cap);
-  gui->set_line_width (ar_gc, 1);
-  gui->set_color (ar_gc, Settings.MaskColor);
+  if (ddraw == NULL)
+    return;
+
+  ddraw->set_line_cap (ar_gc, Trace_Cap);
+  ddraw->set_line_width (ar_gc, 1);
+  ddraw->set_color (ar_gc, Settings.MaskColor);
 
   switch (e->expand_dir)
     {
     case NORTH:
-      gui->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
       break;
     case SOUTH:
-      gui->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
       break;
     case WEST:
-      gui->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
       break;
     case EAST:
-      gui->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
       break;
     default:
       break;
@@ -3667,6 +3672,11 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     Draw ();
+
+#ifdef ROUTE_DEBUG
+  if (ddraw != NULL)
+    ddraw->flush_debug_draw ();
+#endif
 }
 
 /* create a fake "edge" used to defer via site searching. */
@@ -5111,6 +5121,15 @@ AutoRoute (bool selected)
   total_wire_length = 0;
   total_via_count = 0;
 
+#ifdef ROUTE_DEBUG
+  ddraw = gui->request_debug_draw ();
+  if (ddraw != NULL)
+    {
+      ar_gc = ddraw->make_gc ();
+      ddraw->set_line_cap (ar_gc, Round_Cap);
+    }
+#endif
+
   for (i = 0; i < NUM_STYLES; i++)
     {
       if (PCB->RouteStyle[i].Thick == 0 ||
@@ -5273,6 +5292,11 @@ donerouting:
 	  r_search (rd->layergrouptree[i], &big, NULL, ripout_livedraw_obj_cb, NULL);
 	}
     }
+#ifdef ROUTE_DEBUG
+  if (ddraw != NULL)
+    ddraw->finish_debug_draw ();
+#endif
+
   if (changed)
     changed = IronDownAllUnfixedPaths (rd);
   Message ("Total added wire length = %f inches, %d vias added\n",
