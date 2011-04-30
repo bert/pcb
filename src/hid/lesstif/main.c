@@ -3039,8 +3039,6 @@ lesstif_destroy_gc (hidGC gc)
 static void
 lesstif_use_mask (int use_it)
 {
-  static Window old;
-
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
       !use_xrender)
     use_it = 0;
