@@ -2832,7 +2832,6 @@ padcleaner ()
   line_s *l, *nextl;
   int close;
   rect_s r;
-  int ei, pi;
 
   dprintf ("\ndj: padcleaner\n");
   for (l = lines; l; l = nextl)
@@ -2851,38 +2850,32 @@ padcleaner ()
       if (l->s->pad && l->s->pad == l->e->pad)
 	continue;
 
-      for (ei = 0; ei < PCB->Data->ElementN; ei++)
+      ALLPAD_LOOP (PCB->Data);
 	{
-	  ElementType *e = &(PCB->Data->Element[ei]);
-	  for (pi = 0; pi < e->PadN; pi++)
+	  int layerflag =
+	    TEST_FLAG (ONSOLDERFLAG, element) ? LT_SOLDER : LT_COMPONENT;
+
+	  if (layer_type[l->layer] != layerflag)
+	    continue;
+
+	  empty_rect (&r);
+	  close = pad->Thickness / 2 + 1;
+	  add_point_to_rect (&r, pad->Point1.X, pad->Point1.Y, close - SB / 2);
+	  add_point_to_rect (&r, pad->Point2.X, pad->Point2.Y, close - SB / 2);
+	  if (pin_in_rect (&r, l->s->x, l->s->y, 0)
+	      && pin_in_rect (&r, l->e->x, l->e->y, 0)
+	      && ORIENT (line_orient (l, 0)) == pad_orient (pad))
 	    {
-	      PadType *p = e->Pad + pi;
-	      int layerflag =
-		TEST_FLAG (ONSOLDERFLAG, e) ? LT_SOLDER : LT_COMPONENT;
-
-	      if (layer_type[l->layer] != layerflag)
-		continue;
-
-	      empty_rect (&r);
-	      close = p->Thickness / 2 + 1;
-	      add_point_to_rect (&r, p->Point1.X, p->Point1.Y,
-				 close - SB / 2);
-	      add_point_to_rect (&r, p->Point2.X, p->Point2.Y,
-				 close - SB / 2);
-	      if (pin_in_rect (&r, l->s->x, l->s->y, 0)
-		  && pin_in_rect (&r, l->e->x, l->e->y, 0)
-		  && ORIENT (line_orient (l, 0)) == pad_orient (p))
-		{
-		  dprintf
-		    ("padcleaner %d,%d-%d,%d %d vs line %d,%d-%d,%d %d\n",
-		     p->Point1.X, p->Point1.Y, p->Point2.X, p->Point2.Y,
-		     p->Thickness, l->s->x, l->s->y, l->e->x, l->e->y,
-		     l->line->Thickness);
-		  remove_line (l);
-		  goto next_line;
-		}
+	      dprintf
+		("padcleaner %d,%d-%d,%d %d vs line %d,%d-%d,%d %d\n",
+		 pad->Point1.X, pad->Point1.Y, pad->Point2.X, pad->Point2.Y,
+		 pad->Thickness, l->s->x, l->s->y, l->e->x, l->e->y,
+		 l->line->Thickness);
+	      remove_line (l);
+	      goto next_line;
 	    }
 	}
+      ENDALL_LOOP;
     next_line:;
     }
 }
