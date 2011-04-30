@@ -774,10 +774,17 @@ DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
 
-  if (e->PinN && mark_size > e->Pin[0].Thickness / 2)
-    mark_size = e->Pin[0].Thickness / 2;
-  if (e->PadN && mark_size > e->Pad[0].Thickness / 2)
-    mark_size = e->Pad[0].Thickness / 2;
+  if (e->PinN)
+    {
+      PinType *pin0 = &e->Pin[0];
+      mark_size = MIN (mark_size, pin0->Thickness / 2);
+    }
+
+  if (e->PadN)
+    {
+      PadType *pad0 = &e->Pad[0];
+      mark_size = MIN (mark_size, pad0->Thickness / 2);
+    }
 
   gui->set_color (Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
