@@ -160,19 +160,22 @@ REGISTER_FLAGS (djopt_flag_list)
 static char *
 element_name_for (corner_s * c)
 {
-  int i, p;
-  ElementType *e;
-
-  for (i = 0; i < PCB->Data->ElementN; i++)
+  ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
     {
-      e = PCB->Data->Element + i;
-      for (p = 0; p < e->PinN; p++)
-	if (e->Pin + p == c->pin)
-	  return e->Name[1].TextString;
-      for (p = 0; p < e->PadN; p++)
-	if (e->Pad + p == c->pad)
-	  return e->Name[1].TextString;
+      if (pin == c->pin)
+        return element->Name[1].TextString;
     }
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      if (pad == c->pad)
+        return element->Name[1].TextString;
+    }
+    END_LOOP;
+  }
+  END_LOOP;
   return "unknown";
 }
 
