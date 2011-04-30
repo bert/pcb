@@ -56,6 +56,17 @@ RCSID ("$Id$");
  */
 static void DSRealloc (DynamicStringTypePtr, size_t);
 
+
+/* This API is quite new, provide a version here */
+#if !GLIB_CHECK_VERSION (2, 28, 0)
+static void
+g_list_free_full (GList *list, GDestroyNotify free_func)
+{
+  g_list_foreach (list, (GFunc) free_func, NULL);
+  g_list_free (list);
+}
+#endif
+
 /* ---------------------------------------------------------------------------
  * get next slot for a rubberband connection, allocates memory if necessary
  */
