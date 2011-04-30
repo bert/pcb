@@ -123,14 +123,14 @@ static bool
 FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
 {
   ElementTypePtr element;
-  Cardinal i;
+  GList *i;
 
   if ((element = SearchElementByName (PCB->Data, ElementName)) == NULL)
     return false;
 
-  for (i = 0; i < element->PadN; i++)
+  for (i = element->Pad; i != NULL; i = g_list_next (i))
     {
-      PadType *pad = &element->Pad[i];
+      PadType *pad = i->data;
 
       if (NSTRCMP (PinNum, pad->Number) == 0 &&
           (!Same || !TEST_FLAG (DRCFLAG, pad)))
@@ -154,9 +154,9 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
         }
     }
 
-  for (i = 0; i < element->PinN; i++)
+  for (i = element->Pin; i != NULL; i = g_list_next (i))
     {
-      PinType *pin = &element->Pin[i];
+      PinType *pin = i->data;
 
       if (!TEST_FLAG (HOLEFLAG, pin) &&
           pin->Number && NSTRCMP (PinNum, pin->Number) == 0 &&

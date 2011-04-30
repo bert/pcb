@@ -173,6 +173,7 @@ FontSave (int argc, char **argv, int Ux, int Uy)
   FontTypePtr font;
   SymbolTypePtr symbol;
   int i;
+  GList *ii;
   LayerTypePtr lfont, lwidth;
 
   font = &PCB->Font;
@@ -186,9 +187,9 @@ FontSave (int argc, char **argv, int Ux, int Uy)
       font->Symbol[i].Width = 0;
     }
 
-  for (i = 0; i < lfont->LineN; i++)
+  for (ii = lfont->Line; ii != NULL; ii = g_list_next (ii))
     {
-      LineTypePtr l = &lfont->Line[i];
+      LineType *l = ii->data;
       int x1 = l->Point1.X;
       int y1 = l->Point1.Y;
       int x2 = l->Point2.X;
@@ -214,9 +215,9 @@ FontSave (int argc, char **argv, int Ux, int Uy)
       CreateNewLineInSymbol (symbol, x1, y1, x2, y2, l->Thickness);
     }
 
-  for (i = 0; i < lwidth->LineN; i++)
+  for (ii = lwidth->Line; ii != NULL; ii = g_list_next (ii))
     {
-      LineTypePtr l = &lwidth->Line[i];
+      LineType *l = ii->data;
       int x1 = l->Point1.X;
       int y1 = l->Point1.Y;
       int ox, oy, s;

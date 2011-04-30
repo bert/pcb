@@ -760,28 +760,14 @@ static void
 remove_line (line_s * l)
 {
   int i, j;
-  line_s *l2;
-  LineType *from = 0, *to = 0;
   LayerType *layer = &(PCB->Data->Layer[l->layer]);
 
   check (0, 0);
 
   if (l->line)
-    {
-      /* compensate for having line pointers rearranged */
-      from = &(layer->Line[layer->LineN - 1]);
-      to = l->line;
-      RemoveLine (layer, l->line);
-    }
+    RemoveLine (layer, l->line);
 
   DELETE (l);
-  for (l2 = lines; l2; l2 = l2->next)
-    {
-      if (DELETED (l2))
-	continue;
-      if (l2->line == from)
-	l2->line = to;
-    }
 
   for (i = 0, j = 0; i < l->s->n_lines; i++)
     if (l->s->lines[i] != l)
@@ -798,52 +784,20 @@ remove_line (line_s * l)
 static void
 move_line_to_layer (line_s * l, int layer)
 {
-  line_s *l2;
   LayerType *ls, *ld;
-  LineType *from = 0, *to = 0;
-  LineType *oldbase = 0, *newbase = 0, *oldend;
-  LineType *newline;
 
   ls = LAYER_PTR (l->layer);
-  from = &(ls->Line[ls->LineN - 1]);
-  to = l->line;
-
   ld = LAYER_PTR (layer);
-  oldbase = ld->Line;
-  oldend = oldbase + ld->LineN;
 
-  newline = (LineType *) MoveObjectToLayer (LINE_TYPE, ls, l->line, 0, ld, 0);
-  newbase = ld->Line;
-
-  for (l2 = lines; l2; l2 = l2->next)
-    {
-      if (DELETED (l2))
-	continue;
-      if (l2->line == from)
-	l2->line = to;
-      if (l2->line >= oldbase && l2->line < oldend)
-	l2->line += newbase - oldbase;
-    }
-
-  l->line = newline;
+  MoveObjectToLayer (LINE_TYPE, ls, l->line, 0, ld, 0);
   l->layer = layer;
 }
 
 static void
 remove_via_at (corner_s * c)
 {
-  corner_s *cc;
-  PinType *from = PCB->Data->Via + PCB->Data->ViaN - 1;
-  PinType *to = c->via;
   RemoveObject (VIA_TYPE, c->via, 0, 0);
   c->via = 0;
-  for (cc = corners; cc; cc = cc->next)
-    {
-      if (DELETED (cc))
-	continue;
-      if (cc->via == from)
-	cc->via = to;
-    }
 }
 
 static void
@@ -3043,20 +2997,19 @@ ActionDJopt (int argc, char **argv, int x, int y)
   for (layn = 0; layn < max_copper_layer; layn++)
     {
       LayerType *layer = LAYER_PTR (layn);
-      int ln;
-      for (ln = 0; ln < layer->LineN; ln++)
+
+      LINE_LOOP (layer);
 	{
-	  LineType *l = &(layer->Line[ln]);
 	  line_s *ls;
 
 	  /* don't mess with thermals */
-	  if (TEST_FLAG (USETHERMALFLAG, l))
+	  if (TEST_FLAG (USETHERMALFLAG, line))
 	    continue;
 
-	  if (l->Point1.X == l->Point2.X && l->Point1.Y == l->Point2.Y)
+	  if (line->Point1.X == line->Point2.X &&
+              line->Point1.Y == line->Point2.Y)
 	    {
-	      RemoveLine (layer, l);
-	      ln--;
+	      RemoveLine (layer, line);
 	      continue;
 	    }
 
@@ -3064,15 +3017,15 @@ ActionDJopt (int argc, char **argv, int x, int y)
 	  ls->next = lines;
 	  lines = ls;
 	  ls->is_pad = 0;
-	  ls->s = find_corner (l->Point1.X, l->Point1.Y, layn);
-	  ls->e = find_corner (l->Point2.X, l->Point2.Y, layn);
-	  ls->line = l;
+	  ls->s = find_corner (line->Point1.X, line->Point1.Y, layn);
+	  ls->e = find_corner (line->Point2.X, line->Point2.Y, layn);
+	  ls->line = line;
 	  add_line_to_corner (ls, ls->s);
 	  add_line_to_corner (ls, ls->e);
 	  ls->layer = layn;
 	}
+      END_LOOP;
     }
-
 
   check (0, 0);
   pinsnap ();

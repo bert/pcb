@@ -713,16 +713,11 @@ CreateNewArcInElement (ElementTypePtr Element,
 		       BDimension Width, BDimension Height,
 		       int Angle, int Delta, BDimension Thickness)
 {
-  ArcTypePtr arc = Element->Arc;
+  ArcType *arc;
 
-  /* realloc new memory if necessary and clear it */
-  if (Element->ArcN >= Element->ArcMax)
-    {
-      Element->ArcMax += STEP_ELEMENTARC;
-      arc = (ArcTypePtr)realloc (arc, Element->ArcMax * sizeof (ArcType));
-      Element->Arc = arc;
-      memset (arc + Element->ArcN, 0, STEP_ELEMENTARC * sizeof (ArcType));
-    }
+  arc = g_slice_new0 (ArcType);
+  Element->Arc = g_list_append (Element->Arc, arc);
+  Element->ArcN ++;
 
   /* set Delta (0,360], StartAngle in [0,360) */
   if ((Delta = Delta % 360) == 0)
@@ -736,7 +731,6 @@ CreateNewArcInElement (ElementTypePtr Element,
     Angle += 360;
 
   /* copy values */
-  arc = arc + Element->ArcN++;
   arc->X = X;
   arc->Y = Y;
   arc->Width = Width;
@@ -745,7 +739,7 @@ CreateNewArcInElement (ElementTypePtr Element,
   arc->Delta = Delta;
   arc->Thickness = Thickness;
   arc->ID = ID++;
-  return (arc);
+  return arc;
 }
 
 /* ---------------------------------------------------------------------------
@@ -757,21 +751,16 @@ CreateNewLineInElement (ElementTypePtr Element,
 			LocationType X2, LocationType Y2,
 			BDimension Thickness)
 {
-  LineTypePtr line = Element->Line;
+  LineType *line;
 
   if (Thickness == 0)
-    return (NULL);
-  /* realloc new memory if necessary and clear it */
-  if (Element->LineN >= Element->LineMax)
-    {
-      Element->LineMax += STEP_ELEMENTLINE;
-      line = (LineTypePtr)realloc (line, Element->LineMax * sizeof (LineType));
-      Element->Line = line;
-      memset (line + Element->LineN, 0, STEP_ELEMENTLINE * sizeof (LineType));
-    }
+    return NULL;
+
+  line = g_slice_new0 (LineType);
+  Element->Line = g_list_append (Element->Line, line);
+  Element->LineN ++;
 
   /* copy values */
-  line = line + Element->LineN++;
   line->Point1.X = X1;
   line->Point1.Y = Y1;
   line->Point2.X = X2;
@@ -779,7 +768,7 @@ CreateNewLineInElement (ElementTypePtr Element,
   line->Thickness = Thickness;
   line->Flags = NoFlags ();
   line->ID = ID++;
-  return (line);
+  return line;
 }
 
 /* ---------------------------------------------------------------------------

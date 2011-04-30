@@ -1264,7 +1264,7 @@ print_extra (Extra *e, Extra *prev)
   if (EXTRA_IS_LINE (e))
     {
       LineTypePtr line = EXTRA2LINE (e);
-      printf(" %4d L %d,%d-%d,%d", (int)(line-CURRENT->Line), line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
+      printf(" %p L %d,%d-%d,%d", line, line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
       printf("  %s %p %s %p\n",
 	     e->start.is_pad ? "pad" : "pin", e->start.pin,
 	     e->end.is_pad ? "pad" : "pin", e->end.pin);
@@ -1272,7 +1272,7 @@ print_extra (Extra *e, Extra *prev)
   else if (EXTRA_IS_ARC (e))
     {
       ArcTypePtr arc = EXTRA2ARC (e);
-      printf(" %4d A %d,%d-%d,%d", (int) (arc-CURRENT->Arc), e->start.x, e->start.y, e->end.x, e->end.y);
+      printf(" %p A %d,%d-%d,%d", arc, e->start.x, e->start.y, e->end.x, e->end.y);
       printf(" at %d,%d ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
     }
   else if (e == &multi_next)
@@ -2565,7 +2565,6 @@ trace_print_lines_arcs (void)
 static int
 GlobalPuller(int argc, char **argv, int x, int y)
 {
-  int i;
   int select_flags = 0;
 
   setbuf(stdout, 0);
@@ -2655,21 +2654,19 @@ GlobalPuller(int argc, char **argv, int x, int y)
   printf("\nlines\n");
 #endif
 
-  /* We do this backwards so we don't have to edit the extras.  */
-  for (i=CURRENT->LineN-1; i>=0; i--)
+  LINE_LOOP (CURRENT);
     {
-      LineTypePtr line = & CURRENT->Line[i];
       if (LINE2EXTRA (line)->deleted)
 	RemoveLine (CURRENT, line);
     }
+  END_LOOP;
 
-  /* We do this backwards so we don't have to edit the extras.  */
-  for (i=CURRENT->ArcN-1; i>=0; i--)
+  ARC_LOOP (CURRENT);
     {
-      ArcTypePtr arc = & CURRENT->Arc[i];
       if (ARC2EXTRA (arc)->deleted)
 	RemoveArc (CURRENT, arc);
     }
+  END_LOOP;
 
   g_hash_table_unref (lines);
   g_hash_table_unref (arcs);

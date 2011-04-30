@@ -452,7 +452,7 @@ PostLoadElementPCB ()
 
   CreateNewPCBPost (yyPCB, 0);
   ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, yyData->LayerN);
-  e = yyPCB->Data->Element; /* we know there's only one */
+  e = yyPCB->Data->Element->data; /* we know there's only one */
   PCB = yyPCB;
   MoveElementLowLevel (yyPCB->Data,
 		       e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
@@ -601,11 +601,11 @@ WritePCBFontData (FILE * FP)
 static void
 WriteViaData (FILE * FP, DataTypePtr Data)
 {
-  int n;
+  GList *iter;
   /* write information about vias */
-  for (n = 0; n < Data->ViaN; n++)
+  for (iter = Data->Via; iter != NULL; iter = g_list_next (iter))
     {
-      PinTypePtr via = &Data->Via[n];
+      PinType *via = iter->data;
       fprintf (FP, "Via[%i %i %i %i %i %i ",
 	       via->X, via->Y,
 	       via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
@@ -620,11 +620,11 @@ WriteViaData (FILE * FP, DataTypePtr Data)
 static void
 WritePCBRatData (FILE * FP)
 {
-  int n;
+  GList *iter;
   /* write information about rats */
-  for (n = 0; n < PCB->Data->RatN; n++)
+  for (iter = PCB->Data->Rat; iter != NULL; iter = g_list_next (iter))
     {
-      RatTypePtr line = &PCB->Data->Rat[n];
+      RatType *line = iter->data;
       fprintf (FP, "Rat[%i %i %i %i %i %i ",
 	       (int) line->Point1.X, (int) line->Point1.Y,
 	       (int) line->group1, (int) line->Point2.X,
@@ -672,10 +672,11 @@ WritePCBNetlistData (FILE * FP)
 static void
 WriteElementData (FILE * FP, DataTypePtr Data)
 {
-  int n, p;
-  for (n = 0; n < Data->ElementN; n++)
+  GList *n, *p;
+  for (n = Data->Element; n != NULL; n = g_list_next (n))
     {
-      ElementTypePtr element = &Data->Element[n];
+      ElementType *element = n->data;
+
       /* only non empty elements */
       if (!element->LineN && !element->PinN && !element->ArcN
 	  && !element->PadN)
@@ -699,9 +700,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	       (int) DESCRIPTION_TEXT (element).Scale,
 	       F2S (&(DESCRIPTION_TEXT (element)), ELEMENTNAME_TYPE));
       WriteAttributeList (FP, &element->Attributes, "\t");
-      for (p = 0; p < element->PinN; p++)
+      for (p = element->Pin; p != NULL; p = g_list_next (p))
 	{
-	  PinTypePtr pin = &element->Pin[p];
+	  PinType *pin = p->data;
 	  fprintf (FP, "\tPin[%i %i %i %i %i %i ",
 		   (int) (pin->X - element->MarkX),
 		   (int) (pin->Y - element->MarkY),
@@ -712,9 +713,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, (char *)EMPTY (pin->Number));
 	  fprintf (FP, " %s]\n", F2S (pin, PIN_TYPE));
 	}
-      for (p = 0; p < element->PadN; p++)
+      for (p = element->Pad; p != NULL; p = g_list_next (p))
 	{
-	  PadTypePtr pad = &element->Pad[p];
+	  PadType *pad = p->data;
 	  fprintf (FP, "\tPad[%i %i %i %i %i %i %i ",
 		   (int) (pad->Point1.X - element->MarkX),
 		   (int) (pad->Point1.Y - element->MarkY),
@@ -727,9 +728,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, (char *)EMPTY (pad->Number));
 	  fprintf (FP, " %s]\n", F2S (pad, PAD_TYPE));
 	}
-      for (p = 0; p < element->LineN; p++)
+      for (p = element->Line; p != NULL; p = g_list_next (p))
 	{
-	  LineTypePtr line = &element->Line[p];
+	  LineType *line = p->data;
 	  fprintf (FP,
 		   "\tElementLine [%i %i %i %i %i]\n",
 		   (int) (line->Point1.X -
@@ -741,9 +742,9 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		   (int) (line->Point2.Y -
 			  element->MarkY), (int) line->Thickness);
 	}
-      for (p = 0; p < element->ArcN; p++)
+      for (p = element->Arc; p != NULL; p = g_list_next (p))
 	{
-	  ArcTypePtr arc = &element->Arc[p];
+	  ArcType *arc = p->data;
 	  fprintf (FP,
 		   "\tElementArc [%i %i %i %i %i %i %i]\n",
 		   (int) (arc->X - element->MarkX),
@@ -762,7 +763,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 static void
 WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 {
-  int n;
+  GList *n;
   /* write information about non empty layers */
   if (layer->LineN || layer->ArcN || layer->TextN || layer->PolygonN ||
       (layer->Name && *layer->Name))
@@ -772,36 +773,36 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       fputs (")\n(\n", FP);
       WriteAttributeList (FP, &layer->Attributes, "\t");
 
-      for (n = 0; n < layer->LineN; n++)
+      for (n = layer->Line; n != NULL; n = g_list_next (n))
 	{
-	  LineTypePtr line = &layer->Line[n];
+	  LineType *line = n->data;
 	  fprintf (FP, "\tLine[%i %i %i %i %i %i %s]\n",
 		   (int) line->Point1.X, (int) line->Point1.Y,
 		   (int) line->Point2.X, (int) line->Point2.Y,
 		   (int) line->Thickness, (int) line->Clearance,
 		   F2S (line, LINE_TYPE));
 	}
-      for (n = 0; n < layer->ArcN; n++)
+      for (n = layer->Arc; n != NULL; n = g_list_next (n))
 	{
-	  ArcTypePtr arc = &layer->Arc[n];
+	  ArcType *arc = n->data;
 	  fprintf (FP, "\tArc[%i %i %i %i %i %i %i %i %s]\n",
 		   (int) arc->X, (int) arc->Y, (int) arc->Width,
 		   (int) arc->Height, (int) arc->Thickness,
 		   (int) arc->Clearance, (int) arc->StartAngle,
 		   (int) arc->Delta, F2S (arc, ARC_TYPE));
 	}
-      for (n = 0; n < layer->TextN; n++)
+      for (n = layer->Text; n != NULL; n = g_list_next (n))
 	{
-	  TextTypePtr text = &layer->Text[n];
+	  TextType *text = n->data;
 	  fprintf (FP, "\tText[%i %i %i %i ",
 		   (int) text->X, (int) text->Y,
 		   (int) text->Direction, (int) text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
 	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
-      for (n = 0; n < layer->PolygonN; n++)
+      for (n = layer->Polygon; n != NULL; n = g_list_next (n))
 	{
-	  PolygonTypePtr polygon = &layer->Polygon[n];
+	  PolygonType *polygon = n->data;
 	  int p, i = 0;
 	  Cardinal hole = 0;
 	  fprintf (FP, "\tPolygon(%s)\n\t(", F2S (polygon, POLYGON_TYPE));

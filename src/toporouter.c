@@ -7987,8 +7987,8 @@ escape (int argc, char **argv, int x, int y)
       PinTypePtr via;
       LineTypePtr line;
 
-      PadType *pad0 = &element->Pad[0];
-      PadType *pad1 = &element->Pad[1];
+      PadType *pad0 = element->Pad->data;
+      PadType *pad1 = g_list_next (element->Pad)->data;
 
       pitch = sqrt (pow (abs (pad0->Point1.X - pad1->Point1.X), 2) +
                     pow (abs (pad0->Point1.Y - pad1->Point1.Y), 2) );

@@ -286,13 +286,11 @@ typedef struct			/* holds information about one layer */
   Cardinal LineN,		/* number of lines */
     TextN,			/* labels */
     PolygonN,			/* polygons */
-    ArcN,			/* and arcs */
-    LineMax,			/* max number from malloc() */
-    TextMax, PolygonMax, ArcMax;
-  LineTypePtr Line;		/* pointer to additional structures */
-  TextTypePtr Text;
-  PolygonTypePtr Polygon;
-  ArcTypePtr Arc;
+    ArcN;			/* and arcs */
+  GList *Line;
+  GList *Text;
+  GList *Polygon;
+  GList *Arc;
   rtree_t *line_tree, *text_tree, *polygon_tree, *arc_tree;
   bool On;			/* visible flag */
   char *Color,			/* color */
@@ -337,12 +335,14 @@ typedef struct
   /* see macro.h */
   LocationType MarkX,		/* position mark */
     MarkY;
-  Cardinal PinN,		/* number of pins, lines and arcs */
-    PinMax, PadN, PadMax, LineN, LineMax, ArcN, ArcMax;
-  PinTypePtr Pin;		/* pin description */
-  PadTypePtr Pad;		/* pad description of SMD components */
-  LineTypePtr Line;
-  ArcTypePtr Arc;
+  Cardinal PinN;		/* number of pins */
+  Cardinal PadN;		/* number of pads */
+  Cardinal LineN;		/* number of lines */
+  Cardinal ArcN;		/* number of arcs */
+  GList *Pin;
+  GList *Pad;
+  GList *Line;
+  GList *Arc;
   BoxType VBox;
   AttributeListType Attributes;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
@@ -372,15 +372,12 @@ typedef struct			/* complete set of symbols */
 typedef struct			/* holds all objects */
 {
   Cardinal ViaN,		/* number of vias */
-    ViaMax,			/* max number from malloc() */
     ElementN,			/* and elements */
-    ElementMax,			/* max number from malloc() */
-    RatN,			/* and rat-lines */
-    RatMax;
+    RatN;			/* and rat-lines */
   int LayerN;			/* number of layers in this board */
-  PinTypePtr Via;		/* pointer to object data */
-  ElementTypePtr Element;
-  RatTypePtr Rat;
+  GList *Via;
+  GList *Element;
+  GList *Rat;
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
    *rat_tree;
   struct PCBType *pcb;

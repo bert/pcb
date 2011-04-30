@@ -774,15 +774,15 @@ DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
 
-  if (e->PinN)
+  if (e->Pin != NULL)
     {
-      PinType *pin0 = &e->Pin[0];
+      PinType *pin0 = e->Pin->data;
       mark_size = MIN (mark_size, pin0->Thickness / 2);
     }
 
-  if (e->PadN)
+  if (e->Pad != NULL)
     {
-      PadType *pad0 = &e->Pad[0];
+      PadType *pad0 = e->Pad->data;
       mark_size = MIN (mark_size, pad0->Thickness / 2);
     }
 

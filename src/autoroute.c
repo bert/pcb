@@ -166,6 +166,7 @@ static hidGC ar_gc = 0;
 
 #define LIST_LOOP(init, which, x) do {\
      routebox_t *__next_one__ = (init);\
+   GList *__copy = NULL; /* DUMMY */\
    x = NULL;\
    if (!__next_one__)\
      assert(__next_one__);\
