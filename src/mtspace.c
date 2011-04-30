@@ -55,7 +55,6 @@
 #include <dmalloc.h>
 #endif
 
-#define ABS(x) ((x) < 0 ? -(x) : (x))
 RCSID ("$Id$");
 
 /* mtspace data structures are built on r-trees. */

@@ -38,7 +38,6 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
 #define	IDENT_LENGTH		255
 #define	Malloc(s)		malloc(s)
 #define	Free(p)			free(p)
-#define	ABS(v)			((v) < 0 ? -(v) : (v))
 #define	Getc(s)			getc(s)
 #define	Ungetc(c)		ungetc(c,Input)
 

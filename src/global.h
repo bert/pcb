@@ -50,6 +50,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <stdbool.h>
+#include <glib.h>
 
 /* Forward declarations for structures the HIDs need.  */
 typedef struct BoxType BoxType, *BoxTypePtr;

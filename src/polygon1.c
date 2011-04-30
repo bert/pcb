@@ -54,9 +54,6 @@
 
 #define EPSILON (1E-8)
 #define IsZero(a, b) (fabs((a) - (b)) < EPSILON)
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
 
 /*********************************************************************/
 /*              L o n g   V e c t o r   S t u f f                    */

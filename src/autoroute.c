@@ -159,10 +159,6 @@ static hidGC ar_gc = 0;
 	 CONFLICT_LEVEL(rb)==LO_CONFLICT ? \
 	 AutoRouteParameters.LastConflictPenalty : 1) * (rb)->pass)
 
-#if !defined(ABS)
-#define ABS(x) (((x)<0)?-(x):(x))
-#endif
-
 #define _NORTH 1
 #define _EAST 2
 #define _SOUTH 4
