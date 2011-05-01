@@ -788,6 +788,9 @@ redraw_region (GdkRectangle *rect)
     DrawMark ();
 
   priv->clip = false;
+
+  /* Rest the clip for bg_gc, as it is used outside this function */
+  gdk_gc_set_clip_mask (priv->bg_gc, NULL);
 }
 
 void
