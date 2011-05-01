@@ -800,10 +800,10 @@ ghid_invalidate_lr (int left, int right, int top, int bottom)
   int minx, maxx, miny, maxy;
   GdkRectangle rect;
 
-  dleft = Vx ((double) left);
-  dright = Vy ((double) right);
-  dtop = Vx ((double) top);
-  dbottom = Vy ((double) bottom);
+  dleft = Vx (left);
+  dright = Vx (right);
+  dtop = Vy (top);
+  dbottom = Vy (bottom);
 
   minx = MIN (dleft, dright);
   maxx = MAX (dleft, dright);
