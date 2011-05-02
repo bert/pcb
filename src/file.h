@@ -56,6 +56,11 @@ void sort_netlist (void);
  * guidance to the user as to what the minimum version of pcb required
  * is.
  */
+
+/* This is the version needed by the file we're saving.  */
+int PCBFileVersionNeeded (void);
+
+/* This is the version we support.  */
 #define PCB_FILE_VERSION 20100606
 
 

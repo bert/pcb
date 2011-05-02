@@ -135,6 +135,47 @@ static char *pcb_basename (char *p);
 
 /* --------------------------------------------------------------------------- */
 
+/* The idea here is to avoid gratuitously breaking backwards
+   compatibility due to a new but rarely used feature.  The first such
+   case, for example, was the polygon Hole - if your design included
+   polygon holes, you needed a newer PCB to read it, but if your
+   design didn't include holes, PCB would produce a file that older
+   PCBs could read, if only it had the correct version number in it.
+
+   If, however, you have to add or change a feature that really does
+   require a new PCB version all the time, it's time to remove all the
+   tests below and just always output the new version.
+
+   Note: Best practices here is to add support for a feature *first*
+   (and bump PCB_FILE_VERSION in file.h), and note the version that
+   added that support below, and *later* update the file format to
+   need that version (which may then be older than PCB_FILE_VERSION).
+   Hopefully, that allows for one release between adding support and
+   needing it, which should minimize breakage.  Of course, that's not
+   *always* possible, practical, or desirable.
+
+*/
+
+/* Hole[] in Polygon.  */
+#define PCB_FILE_VERSION_HOLES 20100606
+/* First version ever saved.  */
+#define PCB_FILE_VERSION_BASELINE 20070407
+
+int
+PCBFileVersionNeeded (void)
+{
+  ALLPOLYGON_LOOP (PCB->Data);
+  {
+    if (polygon->HoleIndexN > 0)
+      return PCB_FILE_VERSION_HOLES;
+  }
+  ENDALL_LOOP;
+
+  return PCB_FILE_VERSION_BASELINE;
+}
+
+/* --------------------------------------------------------------------------- */
+
 static int
 string_cmp (const char *a, const char *b)
 {
@@ -516,14 +557,15 @@ WritePCBDataHeader (FILE * FP)
    * ************************** README *******************
    *
    * If the file format is modified in any way, update
-   * PCB_FILE_VERSION in file.h
+   * PCB_FILE_VERSION in file.h as well as PCBFileVersionNeeded()
+   * at the top of this file.
    *  
    * ************************** README *******************
    * ************************** README *******************
    */
 
   fprintf (FP, "\n# To read pcb files, the pcb version (or the git source date) must be >= the file version\n");
-  fprintf (FP, "FileVersion[%i]\n", PCB_FILE_VERSION);
+  fprintf (FP, "FileVersion[%i]\n", PCBFileVersionNeeded ());
 
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
