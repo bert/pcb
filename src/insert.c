@@ -138,10 +138,12 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 			   InsertX - X, InsertY - Y);
   EraseLine (Line);
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   Line->Point2.X = InsertX;
   Line->Point2.Y = InsertY;
   SetLineBoundingBox (Line);
   r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   DrawLine (Layer, Line);
   /* we must create after playing with Line since creation may
    * invalidate the line pointer
@@ -153,6 +155,7 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
     {
       AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
       DrawLine (Layer, line);
+      ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, line);
       /* creation call adds it to the rtree */
     }
   Draw ();
