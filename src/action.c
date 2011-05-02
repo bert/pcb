@@ -6040,7 +6040,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   static char *default_file = NULL;
   int free_name = 0;
 
-  notify_crosshair_change (true);
+  notify_crosshair_change (false);
   if (function)
     {
       switch (GetFunctionID (function))
@@ -6147,7 +6147,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else
 	      {
-		notify_crosshair_change (false);
+		notify_crosshair_change (true);
 		AFAIL (pastebuffer);
 	      }
 
