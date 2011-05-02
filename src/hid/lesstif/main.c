@@ -2532,6 +2532,7 @@ idle_proc (XtPointer dummy)
       hid_expose_callback (&lesstif_hid, &region, 0);
       draw_grid ();
       lesstif_use_mask (0);
+      show_crosshair (0); /* To keep the drawn / not drawn info correct */
       XSetFunction (display, my_gc, GXcopy);
       XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
 		 view_height, 0, 0);
