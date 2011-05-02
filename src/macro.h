@@ -294,7 +294,7 @@ extern int mem_any_set (unsigned char *, int);
   Cardinal n;                                                       \
   for (__iter = __copy, n = (element)->ArcN - 1; __iter != NULL;    \
        __iter = g_list_next (__iter), n--) {                        \
-    ArcType *line = __iter->data;
+    ArcType *arc = __iter->data;
 
 #define LINE_LOOP(layer) do {                                       \
   GList *__iter;                                                    \
