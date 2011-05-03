@@ -4785,82 +4785,85 @@ RouteAll (routedata_t * rd)
 	  total_net_cost = 0;
 	  /* only route that which isn't fully routed */
 #ifdef ROUTE_DEBUG
-	  if (ras.total_subnets && !aabort)
+	  if (ras.total_subnets == 0 || aabort)
 #else
-	  if (ras.total_subnets)
+	  if (ras.total_subnets == 0)
 #endif
 	    {
-	      /* the loop here ensures that we get to all subnets even if
-	       * some of them are unreachable from the first subnet. */
-	      LIST_LOOP (net, same_net, p);
-	      {
+	      heap_insert (next_pass, 0, net);
+	      continue;
+	    }
+
+	  /* the loop here ensures that we get to all subnets even if
+	   * some of them are unreachable from the first subnet. */
+	  LIST_LOOP (net, same_net, p);
+	  {
 #ifdef NET_HEAP
-		BoxType b = shrink_routebox (p);
-		/* using a heap allows us to start from smaller objects and
-		 * end at bigger ones. also prefer to start at planes, then pads */
-		heap_insert (net_heap, (float) (b.X2 - b.X1) *
+	    BoxType b = shrink_routebox (p);
+	    /* using a heap allows us to start from smaller objects and
+	     * end at bigger ones. also prefer to start at planes, then pads */
+	    heap_insert (net_heap, (float) (b.X2 - b.X1) *
 #if defined(ROUTE_RANDOMIZED)
-			     (0.3 + rand () / (RAND_MAX + 1.0)) *
+			 (0.3 + rand () / (RAND_MAX + 1.0)) *
 #endif
-			     (b.Y2 - b.Y1) * (p->type == PLANE ?
-					      -1 : (p->type ==
-						    PAD ? 1 : 10)), p);
-	      }
-	      END_LOOP;
-	      ros.net_completely_routed = 0;
-	      while (!heap_is_empty (net_heap))
+			 (b.Y2 - b.Y1) * (p->type == PLANE ?
+					  -1 : (p->type ==
+						PAD ? 1 : 10)), p);
+	  }
+	  END_LOOP;
+	  ros.net_completely_routed = 0;
+	  while (!heap_is_empty (net_heap))
+	    {
+	      p = (routebox_t *) heap_remove_smallest (net_heap);
+#endif
+	      if (!p->flags.fixed || p->flags.subnet_processed ||
+		  p->type == OTHER)
+		continue;
+
+	      while (!ros.net_completely_routed)
 		{
-		  p = (routebox_t *) heap_remove_smallest (net_heap);
-#endif
-		  if (p->flags.fixed && !p->flags.subnet_processed
-		      && p->type != OTHER)
+		  assert (no_expansion_boxes (rd));
+		  /* FIX ME: the number of edges to examine should be in autoroute parameters
+		   * i.e. the 2000 and 800 hard-coded below should be controllable by the user
+		   */
+		  ros =
+		    RouteOne (rd, p, NULL,
+			      ((AutoRouteParameters.
+				is_smoothing ? 2000 : 800) * (i +
+							      1)) *
+			      routing_layers);
+		  total_net_cost += ros.best_route_cost;
+		  if (ros.found_route)
 		    {
-		      while (!ros.net_completely_routed)
+		      if (ros.route_had_conflicts)
+			ras.conflict_subnets++;
+		      else
 			{
-			  assert (no_expansion_boxes (rd));
-			  /* FIX ME: the number of edges to examine should be in autoroute parameters
-			   * i.e. the 2000 and 800 hard-coded below should be controllable by the user
-			   */
-			  ros =
-			    RouteOne (rd, p, NULL,
-				      ((AutoRouteParameters.
-					is_smoothing ? 2000 : 800) * (i +
-								      1)) *
-				      routing_layers);
-			  total_net_cost += ros.best_route_cost;
-			  if (ros.found_route)
-			    {
-			      if (ros.route_had_conflicts)
-				ras.conflict_subnets++;
-			      else
-				{
-				  ras.routed_subnets++;
-				  ras.total_nets_routed++;
-				}
-			    }
-			  else
-			    {
-			      if (!ros.net_completely_routed)
-				ras.failed++;
-			      /* don't bother trying any other source in this subnet */
-			      LIST_LOOP (p, same_subnet, pp);
-			      pp->flags.subnet_processed = 1;
-			      END_LOOP;
-			      break;
-			    }
-			  /* note that we can infer nothing about ras.total_subnets based
-			   * on the number of calls to RouteOne, because we may be unable
-			   * to route a net from a particular starting point, but perfectly
-			   * able to route it from some other. */
+			  ras.routed_subnets++;
+			  ras.total_nets_routed++;
 			}
 		    }
+		  else
+		    {
+		      if (!ros.net_completely_routed)
+			ras.failed++;
+		      /* don't bother trying any other source in this subnet */
+		      LIST_LOOP (p, same_subnet, pp);
+		      pp->flags.subnet_processed = 1;
+		      END_LOOP;
+		      break;
+		    }
+		  /* note that we can infer nothing about ras.total_subnets based
+		   * on the number of calls to RouteOne, because we may be unable
+		   * to route a net from a particular starting point, but perfectly
+		   * able to route it from some other. */
 		}
-#ifndef NET_HEAP
-	      END_LOOP;
-#endif
-	      if (!ros.net_completely_routed)
-		net->flags.is_bad = 1;	/* don't skip this the next round */
 	    }
+#ifndef NET_HEAP
+	  END_LOOP;
+#endif
+	  if (!ros.net_completely_routed)
+	    net->flags.is_bad = 1;	/* don't skip this the next round */
 
 	  /* Route easiest nets from this pass first on next pass.
 	   * This works best because it's likely that the hardest
