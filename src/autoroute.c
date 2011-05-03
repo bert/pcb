@@ -4644,12 +4644,28 @@ struct routeall_status
   int ripped;
   int total_nets_routed;
 };
+
+static double
+calculate_progress (double this_heap_item, double this_heap_size,
+                    struct routeall_status *ras)
+{
+  double total_passes = passes + smoothes + 1;      /* + 1 is the refinement pass */
+  double this_pass = AutoRouteParameters.pass - 1; /* Number passes from zero */
+  double heap_fraction = (double)(ras->routed_subnets + ras->conflict_subnets + ras->failed) /
+                         (double)ras->total_subnets;
+  double pass_fraction = (this_heap_item + heap_fraction ) / this_heap_size;
+  double process_fraction = (this_pass + pass_fraction) / total_passes;
+
+  return process_fraction;
+}
+
 struct routeall_status
 RouteAll (routedata_t * rd)
 {
   struct routeall_status ras;
   struct routeone_status ros;
   bool rip;
+  int request_cancel;
 #ifdef NET_HEAP
   heap_t *net_heap;
 #endif
@@ -4657,6 +4673,8 @@ RouteAll (routedata_t * rd)
   routebox_t *net, *p, *pp;
   cost_t total_net_cost, last_cost = 0, this_cost = 0;
   int i;
+  int this_heap_size;
+  int this_heap_item;
 
   /* initialize heap for first pass; 
    * do smallest area first; that makes
@@ -4698,7 +4716,8 @@ RouteAll (routedata_t * rd)
 	ras.failed = ras.ripped = 0;
       assert (heap_is_empty (next_pass));
 
-      while (!heap_is_empty (this_pass))
+      this_heap_size = heap_size (this_pass);
+      for (this_heap_item = 0; !heap_is_empty (this_pass); this_heap_item++)
 	{
 #ifdef ROUTE_DEBUG
 	  if (aabort)
@@ -4822,6 +4841,8 @@ RouteAll (routedata_t * rd)
 
 	      while (!ros.net_completely_routed)
 		{
+		  double percent;
+
 		  assert (no_expansion_boxes (rd));
 		  /* FIX ME: the number of edges to examine should be in autoroute parameters
 		   * i.e. the 2000 and 800 hard-coded below should be controllable by the user
@@ -4857,6 +4878,16 @@ RouteAll (routedata_t * rd)
 		   * on the number of calls to RouteOne, because we may be unable
 		   * to route a net from a particular starting point, but perfectly
 		   * able to route it from some other. */
+		  percent = calculate_progress (this_heap_item, this_heap_size, &ras);
+		  request_cancel = gui->progress (percent * 100., 100,
+						  _("Autorouting tracks"));
+		  if (request_cancel)
+		    {
+		      ras.total_nets_routed = 0;
+		      ras.conflict_subnets = 0;
+		      Message ("Autorouting cancelled\n");
+		      goto out;
+		    }
 		}
 	    }
 #ifndef NET_HEAP
@@ -4887,7 +4918,6 @@ RouteAll (routedata_t * rd)
       tmp = this_pass;
       this_pass = next_pass;
       next_pass = tmp;
-      /* XXX: here we should update a status bar */
 #if defined(ROUTE_DEBUG) || defined (ROUTE_VERBOSE)
       printf
 	("END OF PASS %d: %d/%d subnets routed without conflicts at cost %.0f, %d conflicts, %d failed %d ripped\n",
@@ -4908,9 +4938,11 @@ RouteAll (routedata_t * rd)
       last_cost = this_cost;
       this_cost = 0;
     }
+
   Message ("%d of %d nets successfully routed.\n",
 	   ras.routed_subnets, ras.total_subnets);
 
+out:
   heap_destroy (&this_pass);
   heap_destroy (&next_pass);
 #ifdef NET_HEAP
@@ -5286,7 +5318,8 @@ AutoRoute (bool selected)
   /* auto-route all nets */
   changed = (RouteAll (rd).total_nets_routed > 0) || changed;
 donerouting:
-  if (changed && TEST_FLAG (LIVEROUTEFLAG, PCB))
+  gui->progress (0, 0, NULL);
+  if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
       int i;
       BoxType big = {0, 0, MAX_COORD, MAX_COORD};
