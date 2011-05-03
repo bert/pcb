@@ -138,13 +138,13 @@ GetValue (const char *val, const char *units, bool * absolute)
     
   if (units && *units)
     {
-      if (strncasecmp (units, "mm", 2) == 0)
+      if (strncmp (units, "mm", 2) == 0)
         value = MM_TO_COORD(value);
-      else if (strncasecmp (units, "cm", 2) == 0)
+      else if (strncmp (units, "cm", 2) == 0)
         value = 10 * MM_TO_COORD(value);
-      else if (strncasecmp (units, "mil", 3) == 0)
+      else if (strncmp (units, "mil", 3) == 0)
         value = MIL_TO_COORD(value);
-      else if (strncasecmp (units, "in", 3) == 0)
+      else if (strncmp (units, "in", 3) == 0)
         value = INCH_TO_COORD(value);
     }
   return value;

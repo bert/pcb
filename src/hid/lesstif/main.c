@@ -889,18 +889,18 @@ CursorAction(int argc, char **argv, int x, int y)
   if (!flip_y)
     dy = -dy;
 
-  if (strncasecmp (argv[3], "mm", 2) == 0)
+  if (strncmp (argv[3], "mm", 2) == 0)
     xu = yu = MM_TO_COORD(1);
-  else if (strncasecmp (argv[3], "mil", 3) == 0)
+  else if (strncmp (argv[3], "mil", 3) == 0)
     xu = yu = MIL_TO_COORD(1);
-  else if (strncasecmp (argv[3], "grid", 4) == 0)
+  else if (strncmp (argv[3], "grid", 4) == 0)
     xu = yu = PCB->Grid;
-  else if (strncasecmp (argv[3], "view", 4) == 0)
+  else if (strncmp (argv[3], "view", 4) == 0)
     {
       xu = Pz(view_width) / 100.0;
       yu = Pz(view_height) / 100.0;
     }
-  else if (strncasecmp (argv[3], "board", 4) == 0)
+  else if (strncmp (argv[3], "board", 4) == 0)
     {
       xu = PCB->MaxWidth / 100.0;
       yu = PCB->MaxHeight / 100.0;

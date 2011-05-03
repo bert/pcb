@@ -96,10 +96,10 @@ static	int		Parse(char *, char *, char *, char *);
 HEX				0x[0-9a-fA-F]+
 DECIMAL			-?[1-9][0-9]*|0
 FLOATING                [+-]?[0-9]*("."[0-9]*)?
-FLOATINGMM              {FLOATING}[mM][mM]
-FLOATINGUM              {FLOATING}[uU][mM]
-FLOATINGIN              {FLOATING}[iI][nN]
-FLOATINGMIL             {FLOATING}[mM][iI][lL]
+FLOATINGMM              {FLOATING}mm
+FLOATINGUM              {FLOATING}um
+FLOATINGIN              {FLOATING}in
+FLOATINGMIL             {FLOATING}mil
 CARDINAL		[1-9][0-9]*|0
 STRINGCHAR		([^"\n\r\\]|\\.)
 

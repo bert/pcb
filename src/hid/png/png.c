@@ -314,16 +314,16 @@ parse_bloat (char *str)
     return;
   suf[0] = 0;
   sscanf (str, "%lf %s", &val, suf);
-  if (strcasecmp (suf, "in") == 0)
+  if (strcmp (suf, "in") == 0)
     bloat = INCH_TO_COORD(val);
-  else if (strcasecmp (suf, "mil") == 0)
+  else if (strcmp (suf, "mil") == 0)
     bloat = MIL_TO_COORD(val);
-  else if (strcasecmp (suf, "mm") == 0)
+  else if (strcmp (suf, "mm") == 0)
     bloat = MM_TO_COORD(val);
-  else if (strcasecmp (suf, "um") == 0)
+  else if (strcmp (suf, "um") == 0)
     bloat = MM_TO_COORD(val) / 1000.0;
-  else if (strcasecmp (suf, "pix") == 0
-	   || strcasecmp (suf, "px") == 0)
+  else if (strcmp (suf, "pix") == 0
+	   || strcmp (suf, "px") == 0)
     bloat = val * scale;
   else
     bloat = val;

@@ -616,17 +616,17 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
   if (argc < 1)
     units_name = Settings.grid_units_mm ? "mm" : "mil";
 
-  if (strcasecmp (units_name, "mm") == 0)
+  if (strcmp (units_name, "mm") == 0)
     {
       prec = 4;
       scale = COORD_TO_MM(1);
     }
-  else if (strcasecmp (units_name, "mil") == 0)
+  else if (strcmp (units_name, "mil") == 0)
     {
       prec = 2;
       scale = COORD_TO_MIL(1);
     }
-  else if (strcasecmp (units_name, "in") == 0)
+  else if (strcmp (units_name, "in") == 0)
     {
       prec = 5;
       scale = COORD_TO_INCH(1);
