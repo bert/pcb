@@ -393,8 +393,12 @@ fi
 AC_MSG_CHECKING([for whether to use GL drawing])
 AC_ARG_ENABLE([gl],
 [  --enable-gl           Enable GL drawing (with GTK HID)],
-[],[enable_gl=no])
-
+[],[
+	case " $with_gui " in
+		*\ gtk\ *) enable_gl=yes;;
+		* ) enable_gl=no;;
+	esac
+])
 AC_MSG_RESULT([$enable_gl])
 AM_CONDITIONAL(USE_GL, test x$enable_gl = xyes)
 
