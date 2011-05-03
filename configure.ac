@@ -389,6 +389,46 @@ $DBUS_PKG_ERRORS])]
 
 fi
 
+
+AC_MSG_CHECKING([for whether to use GL drawing])
+AC_ARG_ENABLE([gl],
+[  --enable-gl           Enable GL drawing (with GTK HID)],
+[],[enable_gl=no])
+
+AC_MSG_RESULT([$enable_gl])
+AM_CONDITIONAL(USE_GL, test x$enable_gl = xyes)
+
+if test "x$enable_gl" = "xyes"; then
+	case " $with_gui " in
+		*\ gtk\ *) ;;
+		* ) AC_MSG_ERROR([GL drawing enabled but only works with the GTK HID.
+Either do not use --enable-gl or enable the gtk HID.])
+	;;
+	esac
+
+	AC_CHECK_HEADERS(GL/gl.h)
+	case $ac_cv_header_GL_gl_h in
+	  no )
+	    AC_MSG_ERROR([You don't seem to have the GL library headers installed.])
+	    ;;
+	  * ) ;;
+	esac
+
+	AC_CHECK_HEADERS(GL/glu.h)
+	case $ac_cv_header_GL_glu_h in
+	  no )
+	    AC_MSG_ERROR([You don't seem to have the GL glu library headers installed.])
+	    ;;
+	  * ) ;;
+	esac
+
+	GLU_CFLAGS=
+	GLU_LIBS=-lGLU
+
+	AC_DEFINE([ENABLE_GL], 1,
+		[Define to 1 if GL support is to be compiled in])
+fi
+
 AC_MSG_CHECKING([for which printer to use])
 AC_ARG_WITH([printer],
 [  --with-printer= 	  Specify the printer: lpr [[default=lpr]]],
@@ -723,6 +763,17 @@ $GTK_PKG_ERRORS])]
 	)
 	GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
+
+	if test "x$enable_gl" = "xyes"; then
+		# Check for GtkGLExt
+		PKG_CHECK_MODULES(GTKGLEXT, gtkglext-1.0 >= 1.0.0, , [AC_MSG_ERROR([
+*** Required version of gtkglext is not installed - please install first ***
+Please review the following errors:
+$GTKGLEXT_PKG_ERRORS])]
+		)
+	GTKGLEXT_VER=`$PKG_CONFIG gtkglext-1.0 --modversion`
+	fi
+
 	;;
 
       gcode|nelma|png )
@@ -1015,8 +1066,8 @@ AX_FUNC_MKDIR
 
 # ------------- Complete set of CFLAGS and LIBS -------------------
 
-CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS"
 
 
 # if we have gcc then add -Wall
