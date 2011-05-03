@@ -885,6 +885,24 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   return FALSE;
 }
 
+/* This realize callback is used to work around a crash bug in some mesa
+ * versions (observed on a machine running the intel i965 driver. It isn't
+ * obvious why it helps, but somehow fiddling with the GL context here solves
+ * the issue. The problem appears to have been fixed in recent mesa versions.
+ */
+void
+ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
+{
+  GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
+  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+
+  if (!gdk_gl_drawable_gl_begin (gldrawable, glcontext))
+    return;
+
+  gdk_gl_drawable_gl_end (gldrawable);
+  return;
+}
+
 gboolean
 ghid_pinout_preview_expose (GtkWidget *widget,
                             GdkEventExpose *ev)

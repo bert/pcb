@@ -496,6 +496,7 @@ void ghid_drawing_area_configure_hook (GHidPort *port);
 void ghid_screen_update (void);
 gboolean ghid_drawing_area_expose_cb (GtkWidget *, GdkEventExpose *,
                                       GHidPort *);
+void ghid_port_drawing_realize_cb (GtkWidget *, gpointer);
 gboolean ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * ev);
 GdkPixmap *ghid_render_pixmap (int cx, int cy, double zoom,
                                int width, int height, int depth);
