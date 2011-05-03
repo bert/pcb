@@ -114,7 +114,7 @@ hid_get_flag (const char *name)
 	}
       memcpy (buf, name, cp - name);
       buf[cp - name] = 0;
-      wv = strtol (cp + 1, 0, 0);
+      wv = GetValue (cp + 1, NULL, NULL);
       f = hid_find_flag (buf);
       if (!f)
 	return 0;

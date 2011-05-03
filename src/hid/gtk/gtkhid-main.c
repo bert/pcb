@@ -1626,9 +1626,20 @@ The values are percentages of the board size.  Thus, a move of
 static int
 CursorAction(int argc, char **argv, int x, int y)
 {
+  UnitList extra_units_x = {
+    { "grid",  PCB->Grid, 0 },
+    { "view",  gport->view_width, UNIT_PERCENT },
+    { "board", PCB->MaxWidth, UNIT_PERCENT },
+    { "", 0, 0 }
+  };
+  UnitList extra_units_y = {
+    { "grid",  PCB->Grid, 0 },
+    { "view",  gport->view_height, UNIT_PERCENT },
+    { "board", PCB->MaxHeight, UNIT_PERCENT },
+    { "", 0, 0 }
+  };
   int pan_warp = HID_SC_DO_NOTHING;
   double dx, dy;
-  double xu = 0.0, yu = 0.0;
 
   if (argc != 4)
     AFAIL (cursor);
@@ -1640,35 +1651,14 @@ CursorAction(int argc, char **argv, int x, int y)
   else
     AFAIL (cursor);
 
-  dx = strtod (argv[1], 0);
+  dx = GetValueEx (argv[1], argv[3], NULL, extra_units_x, "");
   if (ghid_flip_x)
     dx = -dx;
-  dy = strtod (argv[2], 0);
+  dy = GetValueEx (argv[2], argv[3], NULL, extra_units_y, "");
   if (!ghid_flip_y)
     dy = -dy;
 
-  /* 
-   * xu and yu are the scale factors that we multiply dx and dy by to
-   * come up with PCB internal units.
-   */
-  if (strncmp (argv[3], "mm", 2) == 0)
-    xu = yu = MM_TO_COORD(1);
-  else if (strncmp (argv[3], "mil", 3) == 0)
-    xu = yu = MIL_TO_COORD(1);
-  else if (strncmp (argv[3], "grid", 4) == 0)
-    xu = yu = PCB->Grid;
-  else if (strncmp (argv[3], "view", 4) == 0)
-    {
-      xu = gport->view_width / 100.0;
-      yu = gport->view_height / 100.0;
-    }
-  else if (strncmp (argv[3], "board", 4) == 0)
-    {
-      xu = PCB->MaxWidth / 100.0;
-      yu = PCB->MaxHeight / 100.0;
-    }
-
-  EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
+  EventMoveCrosshair (Crosshair.X + dx, Crosshair.Y + dy);
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
 
   return 0;

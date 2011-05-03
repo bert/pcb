@@ -110,8 +110,29 @@ static struct
 double
 GetValue (const char *val, const char *units, bool * absolute)
 {
+  return GetValueEx(val, units, absolute, NULL, "cmil");
+}
+
+double
+GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_units, const char *default_unit)
+{
+  static UnitList default_units = {
+    { "mm",   MM_TO_COORD(1), 0 },
+    { "um",   MM_TO_COORD(0.001), 0 },
+    { "nm",   MM_TO_COORD(0.000001), 0 },
+    { "mil",  MIL_TO_COORD(1), 0 },
+    { "cmil", MIL_TO_COORD(0.01), 0 },
+    { "in",   MIL_TO_COORD(1000), 0 },
+    { "", 1, 0 }
+  };
   double value;
   int n = -1;
+  bool scaled = 0;
+  bool dummy;
+
+  /* Allow NULL to be passed for absolute */
+  if(absolute == NULL)
+    absolute = &dummy;
 
   /* if the first character is a sign we have to add the
    * value to the current one
@@ -138,15 +159,52 @@ GetValue (const char *val, const char *units, bool * absolute)
     
   if (units && *units)
     {
-      if (strncmp (units, "mm", 2) == 0)
-        value = MM_TO_COORD(value);
-      else if (strncmp (units, "cm", 2) == 0)
-        value = 10 * MM_TO_COORD(value);
-      else if (strncmp (units, "mil", 3) == 0)
-        value = MIL_TO_COORD(value);
-      else if (strncmp (units, "in", 3) == 0)
-        value = INCH_TO_COORD(value);
+      int i;
+      for (i = 0; *default_units[i].suffix; ++i)
+        {
+          if (strncmp (units, default_units[i].suffix, strlen(default_units[i].suffix)) == 0)
+            {
+              value *= default_units[i].scale;
+              if (default_units[i].flags & UNIT_PERCENT)
+                value /= 100.0;
+              scaled = 1;
+            }
+        }
+      if (extra_units)
+        {
+          for (i = 0; *extra_units[i].suffix; ++i)
+            {
+              if (strncmp (units, extra_units[i].suffix, strlen(extra_units[i].suffix)) == 0)
+                {
+                  value *= extra_units[i].scale;
+                  if (extra_units[i].flags & UNIT_PERCENT)
+                    value /= 100.0;
+                  scaled = 1;
+                }
+            }
+        }
     }
+  /* Apply default unit */
+  if (!scaled && default_unit && *default_unit)
+    {
+      int i;
+      for (i = 0; *default_units[i].suffix; ++i)
+        if (strcmp (default_units[i].suffix, default_unit) == 0)
+          {
+            value *= default_units[i].scale;
+            if (default_units[i].flags & UNIT_PERCENT)
+              value /= 100.0;
+          }
+      if (extra_units)
+        for (i = 0; *extra_units[i].suffix; ++i)
+          if (strcmp (extra_units[i].suffix, default_unit) == 0)
+            {
+              value *= extra_units[i].scale;
+              if (extra_units[i].flags & UNIT_PERCENT)
+                value /= 100.0;
+            }
+    }
+
   return value;
 }
 
@@ -785,12 +843,16 @@ SetFontInfo (FontTypePtr Ptr)
   Ptr->DefaultSymbol.Y2 = Ptr->DefaultSymbol.Y1 + Ptr->MaxHeight;
 }
 
-static void
-GetNum (char **s, BDimension * num)
+static BDimension
+GetNum (char **s, const char *default_unit)
 {
-  *num = atoi (*s);
-  while (isdigit ((int) **s))
-    (*s)++;
+  BDimension ret_val;
+  /* Read value */
+  ret_val = GetValueEx(*s, NULL, NULL, NULL, default_unit);
+  /* Advance pointer */
+  while(isalnum(**s) || **s == '.')
+     (*s)++;
+  return ret_val;
 }
 
 
@@ -800,7 +862,7 @@ GetNum (char **s, BDimension * num)
  * e.g. Signal,20,40,20,10:Power,40,60,28,10:...
  */
 int
-ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
+ParseRouteString (char *s, RouteStyleTypePtr routeStyle, const char *default_unit)
 {
   int i, style;
   char Name[256];
@@ -816,8 +878,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
       routeStyle->Name = strdup (Name);
       if (!isdigit ((int) *++s))
         goto error;
-      GetNum (&s, &routeStyle->Thick);
-      routeStyle->Thick *= scale;
+      routeStyle->Thick = GetNum (&s, default_unit);
       while (*s && isspace ((int) *s))
         s++;
       if (*s++ != ',')
@@ -826,8 +887,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
         s++;
       if (!isdigit ((int) *s))
         goto error;
-      GetNum (&s, &routeStyle->Diameter);
-      routeStyle->Diameter *= scale;
+      routeStyle->Diameter = GetNum (&s, default_unit);
       while (*s && isspace ((int) *s))
         s++;
       if (*s++ != ',')
@@ -836,8 +896,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
         s++;
       if (!isdigit ((int) *s))
         goto error;
-      GetNum (&s, &routeStyle->Hole);
-      routeStyle->Hole *= scale;
+      routeStyle->Hole = GetNum (&s, default_unit);
       /* for backwards-compatibility, we use a 10-mil default
        * for styles which omit the keepaway specification. */
       if (*s != ',')
@@ -849,8 +908,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
             s++;
           if (!isdigit ((int) *s))
             goto error;
-          GetNum (&s, &routeStyle->Keepaway);
-          routeStyle->Keepaway *= scale;
+          routeStyle->Keepaway = GetNum (&s, default_unit);
           while (*s && isspace ((int) *s))
             s++;
         }

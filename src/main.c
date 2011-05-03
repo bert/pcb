@@ -622,7 +622,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   Settings.MaxWidth = MIN (MAX_COORD, MAX (Settings.MaxWidth, MIN_SIZE));
   Settings.MaxHeight = MIN (MAX_COORD, MAX (Settings.MaxHeight, MIN_SIZE));
 
-  ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], 1);
+  ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], "cmil");
 
   /*
    * Make sure we have settings for some various programs we may wish

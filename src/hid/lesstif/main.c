@@ -869,8 +869,20 @@ The values are percentages of the board size.  Thus, a move of
 static int
 CursorAction(int argc, char **argv, int x, int y)
 {
+  UnitList extra_units_x = {
+    { "grid",  PCB->Grid, 0 },
+    { "view",  Pz(view_width), UNIT_PERCENT },
+    { "board", PCB->MaxWidth, UNIT_PERCENT },
+    { "", 0, 0 }
+  };
+  UnitList extra_units_y = {
+    { "grid",  PCB->Grid, 0 },
+    { "view",  Pz(view_height), UNIT_PERCENT },
+    { "board", PCB->MaxHeight, UNIT_PERCENT },
+    { "", 0, 0 }
+  };
   int pan_warp = HID_SC_DO_NOTHING;
-  double dx, dy, xu, yu;
+  double dx, dy;
 
   if (argc != 4)
     AFAIL(cursor);
@@ -882,33 +894,14 @@ CursorAction(int argc, char **argv, int x, int y)
   else
     AFAIL(cursor);
 
-  dx = strtod (argv[1], 0);
+  dx = GetValueEx (argv[1], argv[3], NULL, extra_units_x, "mil");
   if (flip_x)
     dx = -dx;
-  dy = strtod (argv[2], 0);
+  dy = GetValueEx (argv[2], argv[3], NULL, extra_units_y, "mil");
   if (!flip_y)
     dy = -dy;
 
-  if (strncmp (argv[3], "mm", 2) == 0)
-    xu = yu = MM_TO_COORD(1);
-  else if (strncmp (argv[3], "mil", 3) == 0)
-    xu = yu = MIL_TO_COORD(1);
-  else if (strncmp (argv[3], "grid", 4) == 0)
-    xu = yu = PCB->Grid;
-  else if (strncmp (argv[3], "view", 4) == 0)
-    {
-      xu = Pz(view_width) / 100.0;
-      yu = Pz(view_height) / 100.0;
-    }
-  else if (strncmp (argv[3], "board", 4) == 0)
-    {
-      xu = PCB->MaxWidth / 100.0;
-      yu = PCB->MaxHeight / 100.0;
-    }
-  else
-    xu = yu = MIL_TO_COORD(1);
-
-  EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
+  EventMoveCrosshair (Crosshair.X + dx, Crosshair.Y + dy);
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
 
   return 0;
