@@ -405,7 +405,7 @@ out:
 
   /* update the preview with new symbol data */
   g_object_set (library_window->preview,
-		"element-data", PASTEBUFFER->Data->Element, NULL);
+		"element-data", PASTEBUFFER->Data->Element->data, NULL);
 }
 
 /*! \brief Requests re-evaluation of the filter.
