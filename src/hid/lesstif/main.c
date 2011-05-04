@@ -3840,10 +3840,98 @@ lesstif_beep (void)
   fflush (stdout);
 }
 
+
+static bool progress_cancelled = false;
+
+static void
+progress_cancel_callback (Widget w, void *v, void *cbs)
+{
+  progress_cancelled = true;
+}
+
+static Widget progress_dialog = 0;
+static Widget progress_cancel, progress_label;
+
+static void
+lesstif_progress_dialog (int sp_far, int total, const char *msg)
+{
+  XmString xs;
+
+  if (mainwind == 0)
+    return;
+
+  if (progress_dialog == 0)
+    {
+      n = 0;
+      stdarg (XmNdefaultButtonType, XmDIALOG_CANCEL_BUTTON);
+      stdarg (XmNtitle, "Progress");
+      stdarg (XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL);
+      progress_dialog = XmCreateQuestionDialog (mainwind, "progress", args, n);
+      XtAddCallback (progress_dialog, XmNcancelCallback,
+                     (XtCallbackProc) progress_cancel_callback, NULL);
+
+      progress_cancel = XmMessageBoxGetChild (progress_dialog, XmDIALOG_CANCEL_BUTTON);
+      progress_label =  XmMessageBoxGetChild (progress_dialog, XmDIALOG_MESSAGE_LABEL);
+
+      XtUnmanageChild (XmMessageBoxGetChild (progress_dialog, XmDIALOG_OK_BUTTON));
+      XtUnmanageChild (XmMessageBoxGetChild (progress_dialog, XmDIALOG_HELP_BUTTON));
+
+      stdarg (XmNdefaultPosition, False);
+      XtSetValues (progress_dialog, args, n);
+    }
+
+  n = 0;
+  xs = XmStringCreateLocalized ((char *)msg);
+  stdarg (XmNmessageString, xs);
+  XtSetValues (progress_dialog, args, n);
+
+  return;
+}
+
+#define MIN_TIME_SEPARATION (500./1000.) /* 50ms */
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
-  return 0;
+  static bool visible = false;
+  static bool started = false;
+  XEvent e;
+  struct timeval time;
+  static struct timeval last_time;
+  double time_delta;
+  int retval = 0;
+
+  if (so_far == 0 && total == 0 && message == NULL)
+    {
+      XtUnmanageChild (progress_dialog);
+      visible = false;
+      progress_cancelled = false;
+      return retval;
+    }
+
+  gettimeofday (&time, NULL);
+
+  time_delta = (time.tv_sec - last_time.tv_sec) +
+               (double)(time.tv_usec - last_time.tv_usec) / 1000000.;
+
+  if (started && time_delta < MIN_TIME_SEPARATION)
+    return retval;
+
+  /* Create or update the progress dialog */
+  lesstif_progress_dialog (so_far, total, message);
+
+  if (!started)
+    XtManageChild (progress_dialog);
+
+  /* Dispatch one event - ideally we would keep dispatching until we
+   * were about to block, but I can't see how to do this with Xt
+   */
+  XtAppNextEvent (app_context, &e);
+  XtDispatchEvent (&e);
+
+  /* Note the time we did this */
+  gettimeofday (&last_time, NULL);
+
+  return progress_cancelled;
 }
 
 static HID *
