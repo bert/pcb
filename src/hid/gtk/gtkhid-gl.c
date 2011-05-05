@@ -44,6 +44,7 @@ typedef struct render_priv {
   GdkGLConfig *glconfig;
   bool trans_lines;
   bool in_context;
+  int subcomposite_stencil_bit;
 } render_priv;
 
 
@@ -64,6 +65,7 @@ int
 ghid_set_layer (const char *name, int group, int empty)
 {
   render_priv *priv = gport->render_priv;
+  int stencil_bit;
   int idx = group;
   if (idx >= 0 && idx < max_group)
     {
@@ -77,6 +79,18 @@ ghid_set_layer (const char *name, int group, int empty)
 	}
       idx = PCB->LayerGroups.Entries[group][idx];
     }
+
+  /* Flush out any existing geoemtry to be rendered */
+  hidgl_flush_triangles (&buffer);
+
+  glEnable (GL_STENCIL_TEST);                                 /* Enable Stencil test */
+  glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE);                 /* Stencil pass => replace stencil value (with 1) */
+
+  hidgl_return_stencil_bit (priv->subcomposite_stencil_bit);  /* Relinquish any bitplane we previously used */
+  stencil_bit = hidgl_assign_clear_stencil_bit();             /* Get a new (clean) bitplane to stencil with */
+  glStencilFunc (GL_GREATER, stencil_bit, stencil_bit);       /* Pass stencil test if our assigned bit is clear */
+  glStencilMask (stencil_bit);                                /* Only write to our subcompositing stencil bitplane */
+  priv->subcomposite_stencil_bit = stencil_bit;
 
   if (idx >= 0 && idx < max_copper_layer + 2)
     {
@@ -110,6 +124,23 @@ ghid_set_layer (const char *name, int group, int empty)
 	}
     }
   return 0;
+}
+
+static void
+ghid_end_layer (void)
+{
+  render_priv *priv = gport->render_priv;
+
+  /* Flush out any existing geoemtry to be rendered */
+  hidgl_flush_triangles (&buffer);
+
+  /* Relinquish any bitplane we previously used */
+  hidgl_return_stencil_bit (priv->subcomposite_stencil_bit);
+  priv->subcomposite_stencil_bit = 0;
+
+  /* Always pass stencil test */
+  glStencilMask (0);
+  glStencilFunc (GL_ALWAYS, 0, 0);
 }
 
 void
@@ -751,6 +782,9 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
       printf ("Could not setup GL-context!\n");
       return; /* Should we abort? */
     }
+
+  /* Setup HID function pointers specific to the GL renderer*/
+  ghid_hid.end_layer = ghid_end_layer;
 }
 
 void
@@ -1168,6 +1202,9 @@ ghid_request_debug_draw (void)
 
   hidgl_init_triangle_array (&buffer);
   ghid_invalidate_current_gc ();
+
+  /* Setup stenciling */
+  glDisable (GL_STENCIL_TEST);
 
   glPushMatrix ();
   glScalef ((ghid_flip_x ? -1. : 1.) / port->zoom,
