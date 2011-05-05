@@ -747,23 +747,13 @@ struct progress_dialog
   gint response_id;
   GMainLoop *loop;
   gboolean destroyed;
-  gboolean stop_loop;
   gboolean started;
   GTimer *timer;
 
   gulong response_handler;
-  gulong unmap_handler;
   gulong destroy_handler;
   gulong delete_handler;
 };
-
-static void
-run_unmap_handler (GtkDialog *dialog, gpointer data)
-{
-  struct progress_dialog *pd = data;
-
-  pd->stop_loop = TRUE;
-}
 
 static void
 run_response_handler (GtkDialog *dialog,
@@ -773,7 +763,6 @@ run_response_handler (GtkDialog *dialog,
   struct progress_dialog *pd = data;
 
   pd->response_id = response_id;
-  pd->stop_loop = TRUE;
 }
 
 static gint
@@ -783,7 +772,7 @@ run_delete_handler (GtkDialog *dialog,
 {
   struct progress_dialog *pd = data;
 
-  pd->stop_loop = TRUE;
+  pd->response_id = GTK_RESPONSE_DELETE_EVENT;
 
   return TRUE; /* Do not destroy */
 }
@@ -792,8 +781,6 @@ static void
 run_destroy_handler (GtkDialog *dialog, gpointer data)
 {
   struct progress_dialog *pd = data;
-
-  /* stop_loop will be set by run_unmap_handler */
 
   pd->destroyed = TRUE;
 }
@@ -847,9 +834,6 @@ make_progress_dialog (void)
   pd->response_handler =
     g_signal_connect (pd->dialog, "response",
                       G_CALLBACK (run_response_handler), pd);
-  pd->unmap_handler =
-    g_signal_connect (pd->dialog, "unmap",
-                      G_CALLBACK (run_unmap_handler), pd);
   pd->delete_handler =
     g_signal_connect (pd->dialog, "delete-event",
                       G_CALLBACK (run_delete_handler), pd);
@@ -872,7 +856,6 @@ destroy_progress_dialog (struct progress_dialog *pd)
   if (!pd->destroyed)
     {
       g_signal_handler_disconnect (pd->dialog, pd->response_handler);
-      g_signal_handler_disconnect (pd->dialog, pd->unmap_handler);
       g_signal_handler_disconnect (pd->dialog, pd->delete_handler);
       g_signal_handler_disconnect (pd->dialog, pd->destroy_handler);
     }
@@ -904,20 +887,17 @@ static int
 ghid_progress (int so_far, int total, const char *message)
 {
   static struct progress_dialog *pd = NULL;
-  int retval = 0;
 
   /* If we are finished, destroy any dialog */
   if (so_far == 0 && total == 0 && message == NULL)
     {
       destroy_progress_dialog (pd);
       pd = NULL;
-      return retval;
+      return 0;
     }
 
   if (pd == NULL)
-    {
-      pd = make_progress_dialog ();
-    }
+    pd = make_progress_dialog ();
 
   /* We don't want to keep the underlying process too busy whilst we
    * process events. If we get called quickly after the last progress
@@ -939,16 +919,8 @@ ghid_progress (int so_far, int total, const char *message)
 
   pd->started = TRUE;
 
-  if (pd->stop_loop)
-    {
-      retval = (pd->response_id == GTK_RESPONSE_CANCEL ||
-                pd->response_id == GTK_RESPONSE_DELETE_EVENT ||
-                pd->response_id == GTK_RESPONSE_NONE);
-      destroy_progress_dialog (pd);
-      pd = NULL;
-    }
-
-  return retval;
+  return (pd->response_id == GTK_RESPONSE_CANCEL ||
+          pd->response_id == GTK_RESPONSE_DELETE_EVENT) ? 1 : 0;
 }
 
 /* ---------------------------------------------------------------------- */
