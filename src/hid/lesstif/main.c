@@ -3888,7 +3888,7 @@ lesstif_progress_dialog (int sp_far, int total, const char *msg)
   return;
 }
 
-#define MIN_TIME_SEPARATION (500./1000.) /* 50ms */
+#define MIN_TIME_SEPARATION (50./1000.) /* 50ms */
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
