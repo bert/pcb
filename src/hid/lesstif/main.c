@@ -3851,9 +3851,10 @@ progress_cancel_callback (Widget w, void *v, void *cbs)
 
 static Widget progress_dialog = 0;
 static Widget progress_cancel, progress_label;
+static Widget progress_scale;
 
 static void
-lesstif_progress_dialog (int sp_far, int total, const char *msg)
+lesstif_progress_dialog (int so_far, int total, const char *msg)
 {
   XmString xs;
 
@@ -3862,11 +3863,14 @@ lesstif_progress_dialog (int sp_far, int total, const char *msg)
 
   if (progress_dialog == 0)
     {
+      Atom close_atom;
+
       n = 0;
       stdarg (XmNdefaultButtonType, XmDIALOG_CANCEL_BUTTON);
       stdarg (XmNtitle, "Progress");
+      stdarg (XmNdialogStyle, XmDIALOG_APPLICATION_MODAL);
       stdarg (XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL);
-      progress_dialog = XmCreateQuestionDialog (mainwind, "progress", args, n);
+      progress_dialog = XmCreateInformationDialog (mainwind, "progress", args, n);
       XtAddCallback (progress_dialog, XmNcancelCallback,
                      (XtCallbackProc) progress_cancel_callback, NULL);
 
@@ -3878,7 +3882,26 @@ lesstif_progress_dialog (int sp_far, int total, const char *msg)
 
       stdarg (XmNdefaultPosition, False);
       XtSetValues (progress_dialog, args, n);
+
+      n = 0;
+      stdarg(XmNminimum, 0);
+      stdarg(XmNvalue, 0);
+      stdarg(XmNmaximum, total > 0 ? total : 1);
+      stdarg(XmNorientation, XmHORIZONTAL);
+      stdarg(XmNshowArrows, false);
+      progress_scale = XmCreateScrollBar (progress_dialog, "scale", args, n);
+      XtManageChild (progress_scale);
+
+      close_atom = XmInternAtom (display, "WM_DELETE_WINDOW", 0);
+      XmAddWMProtocolCallback (XtParent (progress_dialog), close_atom,
+			       (XtCallbackProc) progress_cancel_callback, 0);
     }
+
+  n = 0;
+  stdarg(XmNvalue, 0);
+  stdarg(XmNsliderSize, (so_far <= total) ? (so_far < 0) ? 0 : so_far : total);
+  stdarg(XmNmaximum, total > 0 ? total : 1);
+  XtSetValues (progress_scale, args, n);
 
   n = 0;
   xs = XmStringCreateLocalized ((char *)msg);
@@ -3888,7 +3911,8 @@ lesstif_progress_dialog (int sp_far, int total, const char *msg)
   return;
 }
 
-#define MIN_TIME_SEPARATION (50./1000.) /* 50ms */
+#define MIN_TIME_SEPARATION 0.1 /* seconds */
+
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
@@ -3896,22 +3920,23 @@ lesstif_progress (int so_far, int total, const char *message)
   static bool started = false;
   XEvent e;
   struct timeval time;
-  static struct timeval last_time;
-  double time_delta;
+  double time_delta, time_now;
+  static double time_then = 0.0;
   int retval = 0;
 
   if (so_far == 0 && total == 0 && message == NULL)
     {
       XtUnmanageChild (progress_dialog);
       visible = false;
+      started = false;
       progress_cancelled = false;
       return retval;
     }
 
   gettimeofday (&time, NULL);
+  time_now = time.tv_sec + time.tv_usec / 1000000.0;
 
-  time_delta = (time.tv_sec - last_time.tv_sec) +
-               (double)(time.tv_usec - last_time.tv_usec) / 1000000.;
+  time_delta = time_now - time_then;
 
   if (started && time_delta < MIN_TIME_SEPARATION)
     return retval;
@@ -3920,16 +3945,31 @@ lesstif_progress (int so_far, int total, const char *message)
   lesstif_progress_dialog (so_far, total, message);
 
   if (!started)
-    XtManageChild (progress_dialog);
+    {
+      XtManageChild (progress_dialog);
+      started = true;
+    }
 
-  /* Dispatch one event - ideally we would keep dispatching until we
-   * were about to block, but I can't see how to do this with Xt
-   */
-  XtAppNextEvent (app_context, &e);
-  XtDispatchEvent (&e);
+  /* Dispatch pending events */
+  while (XtAppPending (app_context))
+    {
+      XtAppNextEvent (app_context, &e);
+      XtDispatchEvent (&e);
+    }
+  idle_proc (NULL);
 
-  /* Note the time we did this */
-  gettimeofday (&last_time, NULL);
+  if (progress_cancelled)
+    {
+      started = 0;
+      visible = 0;
+      XtUnmanageChild (progress_dialog);
+      lesstif_invalidate_all ();
+    }
+
+  /* If rendering takes a while, make sure the core has enough time to
+     do work.  */
+  gettimeofday (&time, NULL);
+  time_then = time.tv_sec + time.tv_usec / 1000000.0;
 
   return progress_cancelled;
 }
