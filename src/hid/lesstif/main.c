@@ -3958,14 +3958,6 @@ lesstif_progress (int so_far, int total, const char *message)
     }
   idle_proc (NULL);
 
-  if (progress_cancelled)
-    {
-      started = 0;
-      visible = 0;
-      XtUnmanageChild (progress_dialog);
-      lesstif_invalidate_all ();
-    }
-
   /* If rendering takes a while, make sure the core has enough time to
      do work.  */
   gettimeofday (&time, NULL);
