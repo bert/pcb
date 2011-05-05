@@ -3205,6 +3205,17 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
   routebox_t *rb, *first_via = NULL;
   int i;
   int ka = AutoRouteParameters.style->Keepaway;
+  PinType *live_via = NULL;
+
+  if (TEST_FLAG (LIVEROUTEFLAG, PCB))
+    {
+       live_via = CreateNewVia (PCB->Data, X, Y, radius * 2,
+                                2 * AutoRouteParameters.style->Keepaway, 0,
+                                AutoRouteParameters.style->Hole, NULL,
+                                MakeFlags (0));
+       if (live_via != NULL)
+         DrawVia (live_via);
+    }
 
   /* a via cuts through every layer group */
   for (i = 0; i < max_group; i++)
@@ -3246,16 +3257,7 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
       rb->flags.homeless = 0;	/* not homeless anymore */
-
-      if (TEST_FLAG (LIVEROUTEFLAG, PCB))
-	{
-	   PinType *via = CreateNewVia (PCB->Data, X, Y, radius * 2,
-					2 * rb->style->Keepaway, 0,
-					rb->style->Hole, NULL, MakeFlags (0));
-	   rb->livedraw_obj.via = via;
-	   if (via != NULL)
-	     DrawVia (via);
-	}
+      rb->livedraw_obj.via = live_via;
     }
 }
 static void
@@ -4614,11 +4616,13 @@ ripout_livedraw_obj (routebox_t *rb)
       LayerType *layer = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
       EraseLine (rb->livedraw_obj.line);
       DestroyObject (PCB->Data, LINE_TYPE, layer, rb->livedraw_obj.line, NULL);
+      rb->livedraw_obj.line = NULL;
     }
   if (rb->type == VIA && rb->livedraw_obj.via)
     {
       EraseVia (rb->livedraw_obj.via);
       DestroyObject (PCB->Data, VIA_TYPE, rb->livedraw_obj.via, NULL, NULL);
+      rb->livedraw_obj.via = NULL;
     }
 }
 
