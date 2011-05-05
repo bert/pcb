@@ -73,6 +73,7 @@ void hidgl_draw_arc (double width, int vx, int vy, int vrx, int vry, int start_a
 void hidgl_draw_rect (int x1, int y1, int x2, int y2);
 void hidgl_fill_circle (int vx, int vy, int vr, double scale);
 void hidgl_fill_polygon (int n_coords, int *x, int *y);
+void hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale);
 void hidgl_fill_rect (int x1, int y1, int x2, int y2);
 
 

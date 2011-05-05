@@ -10,6 +10,7 @@
 #include "clip.h"
 #include "../hidint.h"
 #include "gui.h"
+#include "hid/common/draw_helpers.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -651,6 +652,12 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
       points[i].y = Vy (y[i]);
     }
   gdk_draw_polygon (gport->drawable, priv->u_gc, 1, points, n_coords);
+}
+
+void
+ghid_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
+{
+  common_fill_pcb_polygon (gc, poly, clip_box);
 }
 
 void
