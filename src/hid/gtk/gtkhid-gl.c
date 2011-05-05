@@ -80,7 +80,7 @@ ghid_set_layer (const char *name, int group, int empty)
 
   if (idx >= 0 && idx < max_copper_layer + 2)
     {
-      priv->trans_lines = false;
+      priv->trans_lines = true;
       return PCB->Data->Layer[idx].On;
     }
   if (idx < 0)
