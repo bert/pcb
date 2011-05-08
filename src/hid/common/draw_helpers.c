@@ -142,10 +142,6 @@ should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
 void
 common_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
-  /* FIXME: We aren't checking the gui's dicer flag..
-            we are dicing for every case. Some GUIs
-            rely on this, and need their flags fixing. */
-
   if (!poly->NoHolesValid)
     {
       /* If enough of the polygon is on-screen, compute the entire

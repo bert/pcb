@@ -1166,7 +1166,6 @@ hid_gerber_init ()
   gerber_hid.name                = "gerber";
   gerber_hid.description         = "RS-274X (Gerber) export.";
   gerber_hid.exporter            = 1;
-  gerber_hid.poly_dicer          = 1;
 
   gerber_hid.get_export_options  = gerber_get_export_options;
   gerber_hid.do_export           = gerber_do_export;
