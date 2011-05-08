@@ -108,7 +108,7 @@ ghid_set_layer (const char *name, int group, int empty)
 	    return TEST_FLAG (SHOWMASKFLAG, PCB);
 	  return 0;
 	case SL_SILK:
-	  priv->trans_lines = false;
+	  priv->trans_lines = true;
 	  if (SL_MYSIDE (idx))
 	    return PCB->ElementOn;
 	  return 0;
