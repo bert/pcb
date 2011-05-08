@@ -76,5 +76,10 @@ void hidgl_fill_polygon (int n_coords, int *x, int *y);
 void hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale);
 void hidgl_fill_rect (int x1, int y1, int x2, int y2);
 
+void hidgl_init (void);
+int hidgl_stencil_bits (void);
+int hidgl_assign_clear_stencil_bit (void);
+void hidgl_return_stencil_bit (int bit);
+void hidgl_reset_stencil_usage (void);
 
 #endif /* __HIDGL_INCLUDED__  */
