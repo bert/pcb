@@ -311,6 +311,9 @@ typedef enum
        layer is empty, if zero it may be non-empty.  */
     int (*set_layer) (const char *name_, int group_, int _empty);
 
+    /* Tell the GUI the layer last selected has been finished with */
+    void (*end_layer) (void);
+
     /* Drawing Functions.  Coordinates and distances are ALWAYS in PCB's
        default coordinates (1/100 mil at the time this comment was
        written).  Angles are always in degrees, with 0 being "right"

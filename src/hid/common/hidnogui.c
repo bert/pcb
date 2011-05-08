@@ -68,6 +68,11 @@ nogui_set_layer (const char *name, int idx, int empty)
   return 0;
 }
 
+static void
+nogui_end_layer (void)
+{
+}
+
 static hidGC
 nogui_make_gc (void)
 {
@@ -456,6 +461,7 @@ HID hid_nogui = {
   0 /* nogui_notify_crosshair_change */ ,
   0 /* nogui_notify_mark_change */ ,
   nogui_set_layer,
+  nogui_end_layer,
   nogui_make_gc,
   nogui_destroy_gc,
   nogui_use_mask,
@@ -521,6 +527,7 @@ apply_default_hid (HID * d, HID * s)
   AD (notify_crosshair_change);
   AD (notify_mark_change);
   AD (set_layer);
+  AD (end_layer);
   AD (make_gc);
   AD (destroy_gc);
   AD (use_mask);
