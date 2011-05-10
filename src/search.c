@@ -114,13 +114,14 @@ pinorvia_callback (const BoxType * box, void *cl)
 {
   struct ans_info *i = (struct ans_info *) cl;
   PinTypePtr pin = (PinTypePtr) box;
+  AnyObjectType *ptr1 = pin->Element ? pin->Element : pin;
 
-  if (TEST_FLAG (i->locked, pin))
+  if (TEST_FLAG (i->locked, ptr1))
     return 0;
 
   if (!IsPointOnPin (PosX, PosY, SearchRadius, pin))
     return 0;
-  *i->ptr1 = pin->Element ? pin->Element : pin;
+  *i->ptr1 = ptr1;
   *i->ptr2 = *i->ptr3 = pin;
   longjmp (i->env, 1);
   return 1;			/* never reached */
@@ -181,15 +182,16 @@ pad_callback (const BoxType * b, void *cl)
 {
   PadTypePtr pad = (PadTypePtr) b;
   struct ans_info *i = (struct ans_info *) cl;
+  AnyObjectType *ptr1 = pad->Element;
 
-  if (TEST_FLAG (i->locked, pad))
+  if (TEST_FLAG (i->locked, ptr1))
     return 0;
 
   if (FRONT (pad) || i->BackToo)
     {
       if (IsPointInPad (PosX, PosY, SearchRadius, pad))
 	    {
-	      *i->ptr1 = pad->Element;
+	      *i->ptr1 = ptr1;
 	      *i->ptr2 = *i->ptr3 = pad;
 	      longjmp (i->env, 1);
 	    }
