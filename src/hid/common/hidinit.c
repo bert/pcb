@@ -23,6 +23,7 @@
 
 #include "global.h"
 #include "hid.h"
+#include "hidnogui.h"
 #include "../hidint.h"
 
 /* for dlopen() and friends on windows */
@@ -45,9 +46,7 @@ RCSID ("$Id$");
 HID **hid_list = 0;
 int hid_num_hids = 0;
 
-extern HID hid_nogui;
-
-HID *gui = &hid_nogui;
+HID *gui = NULL;
 HID *exporter = NULL;
 
 int pixel_slop = 1;
@@ -122,8 +121,9 @@ hid_load_dir (char *dirname)
 void
 hid_init ()
 {
+  /* Setup a "nogui" default HID */
+  gui = hid_nogui_get_hid ();
 
-  gui = &hid_nogui;
 #define HID_DEF(x) hid_ ## x ## _init();
 #include "hid/common/hidlist.h"
 #undef HID_DEF

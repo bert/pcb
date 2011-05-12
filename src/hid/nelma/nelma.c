@@ -71,6 +71,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 
 #include <gd.h>
@@ -1046,6 +1047,7 @@ hid_nelma_init()
 {
   memset (&nelma_hid, 0, sizeof (HID));
 
+  common_nogui_init (&nelma_hid);
   common_draw_helpers_init (&nelma_hid);
 
   nelma_hid.struct_size         = sizeof (HID);
@@ -1075,7 +1077,6 @@ hid_nelma_init()
   nelma_hid.calibrate           = nelma_calibrate;
   nelma_hid.set_crosshair       = nelma_set_crosshair;
 
-  apply_default_hid (&nelma_hid, 0);
   hid_register_hid (&nelma_hid);
 
 #include "nelma_lists.h"

@@ -29,6 +29,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hidinit.h"
 
@@ -1160,6 +1161,7 @@ hid_gerber_init ()
 {
   memset (&gerber_hid, 0, sizeof (HID));
 
+  common_nogui_init (&gerber_hid);
   common_draw_helpers_init (&gerber_hid);
 
   gerber_hid.struct_size         = sizeof (HID);
@@ -1187,6 +1189,5 @@ hid_gerber_init ()
   gerber_hid.calibrate           = gerber_calibrate;
   gerber_hid.set_crosshair       = gerber_set_crosshair;
 
-  apply_default_hid (&gerber_hid, 0);
   hid_register_hid (&gerber_hid);
 }

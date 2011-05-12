@@ -28,6 +28,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hid_resource.h"
 #include "lesstif.h"
@@ -4005,6 +4006,7 @@ hid_lesstif_init ()
 {
   memset (&lesstif_hid, 0, sizeof (HID));
 
+  common_nogui_init (&lesstif_hid);
   common_draw_helpers_init (&lesstif_hid);
 
   lesstif_hid.struct_size             = sizeof (HID);
@@ -4065,7 +4067,6 @@ hid_lesstif_init ()
   lesstif_hid.flush_debug_draw        = lesstif_flush_debug_draw;
   lesstif_hid.finish_debug_draw       = lesstif_finish_debug_draw;
 
-  apply_default_hid (&lesstif_hid, 0);
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"
 }

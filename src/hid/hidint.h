@@ -39,10 +39,6 @@ HID_Action *hid_find_action (const char *name);
 
 HID_Flag *hid_find_flag (const char *name);
 
-/* Any field that is NULL in "d" is copied from the matching field in
-   "s".  If "s" is NULL, the nogui HID is used.  */
-void apply_default_hid (HID * d, HID * s);
-
 /* A HID may use this if it does not need command line arguments in
    any special format; for example, the Lesstif HID needs to use the
    Xt parser, but the Postscript HID can use this function.  */

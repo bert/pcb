@@ -16,6 +16,7 @@
 #include "misc.h"
 
 #include "hid.h"
+#include "hid/common/hidnogui.h"
 #include "../hidint.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -543,6 +544,8 @@ hid_bom_init ()
 {
   memset (&bom_hid, 0, sizeof (HID));
 
+  common_nogui_init (&bom_hid);
+
   bom_hid.struct_size         = sizeof (HID);
   bom_hid.name                = "bom";
   bom_hid.description         = "Exports a Bill of Materials";
@@ -552,6 +555,5 @@ hid_bom_init ()
   bom_hid.do_export           = bom_do_export;
   bom_hid.parse_arguments     = bom_parse_arguments;
 
-  apply_default_hid (&bom_hid, 0);
   hid_register_hid (&bom_hid);
 }

@@ -41,6 +41,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "png.h"
 
@@ -1515,6 +1516,7 @@ hid_png_init ()
 {
   memset (&png_hid, 0, sizeof (HID));
 
+  common_nogui_init (&png_hid);
   common_draw_helpers_init (&png_hid);
 
   png_hid.struct_size = sizeof (HID);
@@ -1543,7 +1545,6 @@ hid_png_init ()
   png_hid.calibrate           = png_calibrate;
   png_hid.set_crosshair       = png_set_crosshair;
 
-  apply_default_hid (&png_hid, 0);
   hid_register_hid (&png_hid);
 
 #include "png_lists.h"

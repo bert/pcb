@@ -17,6 +17,7 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "../ps/ps.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/hidinit.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -118,6 +119,7 @@ hid_lpr_init ()
 {
   memset (&lpr_hid, 0, sizeof (HID));
 
+  common_nogui_init (&lpr_hid);
   ps_ps_init (&lpr_hid);
 
   lpr_hid.struct_size         = sizeof (HID);
@@ -131,6 +133,5 @@ hid_lpr_init ()
   lpr_hid.parse_arguments     = lpr_parse_arguments;
   lpr_hid.calibrate           = lpr_calibrate;
 
-  apply_default_hid (&lpr_hid, 0);
   hid_register_hid (&lpr_hid);
 }

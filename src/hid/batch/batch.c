@@ -18,6 +18,7 @@
 #include "../hidint.h"
 
 #include "hid/common/draw_helpers.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/actions.h"
 #include "hid/common/hidinit.h"
 
@@ -335,6 +336,7 @@ hid_batch_init ()
 {
   memset (&batch_hid, 0, sizeof (HID));
 
+  common_nogui_init (&batch_hid);
   common_draw_helpers_init (&batch_hid);
 
   batch_hid.struct_size           = sizeof (HID);
@@ -376,7 +378,6 @@ hid_batch_init ()
   batch_hid.attribute_dialog      = batch_attribute_dialog;
   batch_hid.show_item             = batch_show_item;
 
-  apply_default_hid (&batch_hid, 0);
   hid_register_hid (&batch_hid);
 #include "batch_lists.h"
 }

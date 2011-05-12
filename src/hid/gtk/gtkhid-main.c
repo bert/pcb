@@ -18,6 +18,7 @@
 #include "error.h"
 #include "../hidint.h"
 #include "gui.h"
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -2268,6 +2269,7 @@ hid_gtk_init ()
 
   memset (&ghid_hid, 0, sizeof (HID));
 
+  common_nogui_init (&ghid_hid);
   common_draw_helpers_init (&ghid_hid);
 
   ghid_hid.struct_size              = sizeof (HID);
@@ -2330,7 +2332,6 @@ hid_gtk_init ()
   ghid_hid.flush_debug_draw         = ghid_flush_debug_draw;
   ghid_hid.finish_debug_draw        = ghid_finish_debug_draw;
 
-  apply_default_hid (&ghid_hid, 0);
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"
 }

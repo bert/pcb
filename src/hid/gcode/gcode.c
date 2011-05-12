@@ -53,6 +53,7 @@
 #include "hid.h"
 #include "../hidint.h"
 #include <gd.h>
+#include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "gcode.h"
 #include "bitmap.h"
@@ -1031,6 +1032,7 @@ hid_gcode_init ()
 {
   memset (&gcode_hid, 0, sizeof (HID));
 
+  common_nogui_init (&gcode_hid);
   common_draw_helpers_init (&gcode_hid);
 
   gcode_hid.struct_size         = sizeof (HID);
@@ -1060,7 +1062,6 @@ hid_gcode_init ()
   gcode_hid.calibrate           = gcode_calibrate;
   gcode_hid.set_crosshair       = gcode_set_crosshair;
 
-  apply_default_hid (&gcode_hid, 0);
   hid_register_hid (&gcode_hid);
 
 #include "gcode_lists.h"
