@@ -2330,6 +2330,7 @@ hid_gtk_init ()
   ghid_hid.flush_debug_draw         = ghid_flush_debug_draw;
   ghid_hid.finish_debug_draw        = ghid_finish_debug_draw;
 
+  apply_default_hid (&ghid_hid, 0);
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"
 }

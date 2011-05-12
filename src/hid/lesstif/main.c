@@ -4065,6 +4065,7 @@ hid_lesstif_init ()
   lesstif_hid.flush_debug_draw        = lesstif_flush_debug_draw;
   lesstif_hid.finish_debug_draw       = lesstif_finish_debug_draw;
 
+  apply_default_hid (&lesstif_hid, 0);
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"
 }
