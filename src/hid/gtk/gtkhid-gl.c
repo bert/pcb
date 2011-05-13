@@ -368,14 +368,6 @@ ghid_set_color (hidGC gc, const char *name)
     }
 
   old_name = strdup (name);
-
-  if (name == NULL)
-    {
-      fprintf (stderr, "%s():  name = NULL, setting to magenta\n",
-               __FUNCTION__);
-      name = "magenta";
-    }
-
   gc->colorname = (char *) name;
 
   if (gport->colormap == NULL)
