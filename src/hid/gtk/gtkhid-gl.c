@@ -45,6 +45,7 @@ typedef struct render_priv {
   bool trans_lines;
   bool in_context;
   int subcomposite_stencil_bit;
+  char *current_colorname;
 } render_priv;
 
 
@@ -52,7 +53,7 @@ typedef struct hid_gc_struct
 {
   HID *me_pointer;
 
-  gchar *colorname;
+  const char *colorname;
   gint width;
   gint cap, join;
   gchar xor;
@@ -345,39 +346,33 @@ typedef struct
   double blue;
 } ColorCache;
 
-void
-ghid_set_color (hidGC gc, const char *name)
+static void
+set_gl_color_for_gc (hidGC gc)
 {
   render_priv *priv = gport->render_priv;
   static void *cache = NULL;
-  static char *old_name = NULL;
   hidval cval;
   ColorCache *cc;
   double alpha_mult = 1.0;
   double r, g, b, a;
   a = 1.0;
 
-  current_gc = gc;
+  if (priv->current_colorname != NULL &&
+      strcmp (priv->current_colorname, gc->colorname) == 0)
+    return;
 
-  if (old_name != NULL)
-    {
-      if (strcmp (name, old_name) == 0)
-        return;
-      free (old_name);
-    }
-
-  old_name = strdup (name);
-  gc->colorname = (char *) name;
+  free (priv->current_colorname);
+  priv->current_colorname = strdup (gc->colorname);
 
   if (gport->colormap == NULL)
     gport->colormap = gtk_widget_get_colormap (gport->top_window);
-  if (strcmp (name, "erase") == 0)
+  if (strcmp (gc->colorname, "erase") == 0)
     {
       r = gport->bg_color.red   / 65535.;
       g = gport->bg_color.green / 65535.;
       b = gport->bg_color.blue  / 65535.;
     }
-  else if (strcmp (name, "drill") == 0)
+  else if (strcmp (gc->colorname, "drill") == 0)
     {
       alpha_mult = 0.85;
       r = gport->offlimits_color.red   / 65535.;
@@ -387,19 +382,19 @@ ghid_set_color (hidGC gc, const char *name)
   else
     {
       alpha_mult = 0.7;
-      if (hid_cache_color (0, name, &cval, &cache))
+      if (hid_cache_color (0, gc->colorname, &cval, &cache))
         cc = (ColorCache *) cval.ptr;
       else
         {
           cc = (ColorCache *) malloc (sizeof (ColorCache));
           memset (cc, 0, sizeof (*cc));
           cval.ptr = cc;
-          hid_cache_color (1, name, &cval, &cache);
+          hid_cache_color (1, gc->colorname, &cval, &cache);
         }
 
       if (!cc->color_set)
         {
-          if (gdk_color_parse (name, &cc->color))
+          if (gdk_color_parse (gc->colorname, &cc->color))
             gdk_color_alloc (gport->colormap, &cc->color);
           else
             gdk_color_white (gport->colormap, &cc->color);
@@ -446,6 +441,13 @@ ghid_set_color (hidGC gc, const char *name)
 
   hidgl_flush_triangles (&buffer);
   glColor4d (r, g, b, a);
+}
+
+void
+ghid_set_color (hidGC gc, const char *name)
+{
+  gc->colorname = name;
+  set_gl_color_for_gc (gc);
 }
 
 void
@@ -502,7 +504,7 @@ use_gc (hidGC gc)
 
   current_gc = gc;
 
-  ghid_set_color (gc, gc->colorname);
+  set_gl_color_for_gc (gc);
   return 1;
 }
 
