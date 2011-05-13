@@ -176,19 +176,6 @@ hid_register_hid (HID * hid)
   hid_list[hid_num_hids] = 0;
 }
 
-static void (*gui_start) (int *, char ***) = 0;
-static HID *default_gui = 0;
-
-void
-hid_register_gui (HID * Pgui, void (*func) (int *, char ***))
-{
-  if (gui_start)
-    return;
-
-  default_gui = Pgui;
-  gui_start = func;
-}
-
 
 HID *
 hid_find_gui ()
