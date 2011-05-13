@@ -655,12 +655,6 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 void
-ghid_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
-{
-  common_fill_pcb_polygon (gc, poly, clip_box);
-}
-
-void
 ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   gint w, h, lw, xx, yy;

@@ -485,8 +485,6 @@ void ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
 void ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_fill_circle (hidGC gc, int cx, int cy, int radius);
 void ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
-void ghid_fill_pcb_polygon (hidGC gc, PolygonType *poly,
-                            const BoxType *clip_box); /* GL ONLY */
 void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
 void ghid_invalidate_lr (int left, int right, int top, int bottom);
 void ghid_invalidate_all ();
