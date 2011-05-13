@@ -1338,40 +1338,44 @@ ps_set_crosshair (int x, int y, int action)
 
 HID ps_hid;
 
+void ps_ps_init (HID *hid)
+{
+  hid->get_export_options = ps_get_export_options;
+  hid->do_export          = ps_do_export;
+  hid->parse_arguments    = ps_parse_arguments;
+  hid->set_layer          = ps_set_layer;
+  hid->make_gc            = ps_make_gc;
+  hid->destroy_gc         = ps_destroy_gc;
+  hid->use_mask           = ps_use_mask;
+  hid->set_color          = ps_set_color;
+  hid->set_line_cap       = ps_set_line_cap;
+  hid->set_line_width     = ps_set_line_width;
+  hid->set_draw_xor       = ps_set_draw_xor;
+  hid->set_draw_faded     = ps_set_draw_faded;
+  hid->draw_line          = ps_draw_line;
+  hid->draw_arc           = ps_draw_arc;
+  hid->draw_rect          = ps_draw_rect;
+  hid->fill_circle        = ps_fill_circle;
+  hid->fill_polygon       = ps_fill_polygon;
+  hid->fill_pcb_polygon   = ps_fill_pcb_polygon;
+  hid->fill_rect          = ps_fill_rect;
+  hid->calibrate          = ps_calibrate;
+  hid->set_crosshair      = ps_set_crosshair;
+}
+
 void
 hid_ps_init ()
 {
   memset (&ps_hid, 0, sizeof (HID));
 
   common_draw_helpers_init (&ps_hid);
+  ps_ps_init (&ps_hid);
 
   ps_hid.struct_size        = sizeof (HID);
   ps_hid.name               = "ps";
   ps_hid.description        = "Postscript export.";
   ps_hid.exporter           = 1;
   ps_hid.poly_before        = 1;
-
-  ps_hid.get_export_options = ps_get_export_options;
-  ps_hid.do_export          = ps_do_export;
-  ps_hid.parse_arguments    = ps_parse_arguments;
-  ps_hid.set_layer          = ps_set_layer;
-  ps_hid.make_gc            = ps_make_gc;
-  ps_hid.destroy_gc         = ps_destroy_gc;
-  ps_hid.use_mask           = ps_use_mask;
-  ps_hid.set_color          = ps_set_color;
-  ps_hid.set_line_cap       = ps_set_line_cap;
-  ps_hid.set_line_width     = ps_set_line_width;
-  ps_hid.set_draw_xor       = ps_set_draw_xor;
-  ps_hid.set_draw_faded     = ps_set_draw_faded;
-  ps_hid.draw_line          = ps_draw_line;
-  ps_hid.draw_arc           = ps_draw_arc;
-  ps_hid.draw_rect          = ps_draw_rect;
-  ps_hid.fill_circle        = ps_fill_circle;
-  ps_hid.fill_polygon       = ps_fill_polygon;
-  ps_hid.fill_pcb_polygon   = ps_fill_pcb_polygon;
-  ps_hid.fill_rect          = ps_fill_rect;
-  ps_hid.calibrate          = ps_calibrate;
-  ps_hid.set_crosshair      = ps_set_crosshair;
 
   apply_default_hid (&ps_hid, 0);
   hid_register_hid (&ps_hid);

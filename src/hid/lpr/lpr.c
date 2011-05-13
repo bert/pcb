@@ -118,6 +118,8 @@ hid_lpr_init ()
 {
   memset (&lpr_hid, 0, sizeof (HID));
 
+  ps_ps_init (&lpr_hid);
+
   lpr_hid.struct_size         = sizeof (HID);
   lpr_hid.name                = "lpr";
   lpr_hid.description         = "Postscript print.";
@@ -129,7 +131,6 @@ hid_lpr_init ()
   lpr_hid.parse_arguments     = lpr_parse_arguments;
   lpr_hid.calibrate           = lpr_calibrate;
 
-  apply_default_hid (&lpr_hid, &ps_hid);
   apply_default_hid (&lpr_hid, 0);
   hid_register_hid (&lpr_hid);
 }
