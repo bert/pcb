@@ -17,6 +17,7 @@
 #include "hid.h"
 #include "../hidint.h"
 
+#include "hid/common/draw_helpers.h"
 #include "hid/common/actions.h"
 #include "hid/common/hidinit.h"
 
