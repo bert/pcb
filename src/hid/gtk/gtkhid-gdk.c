@@ -51,7 +51,6 @@ typedef struct hid_gc_struct
   gint width;
   gint cap, join;
   gchar xor_mask;
-  gchar erase;
   gint mask_seq;
 }
 hid_gc_struct;
@@ -381,12 +380,10 @@ ghid_set_color (hidGC gc, const char *name)
   if (strcmp (name, "erase") == 0)
     {
       gdk_gc_set_foreground (gc->gc, &gport->bg_color);
-      gc->erase = 1;
     }
   else if (strcmp (name, "drill") == 0)
     {
       gdk_gc_set_foreground (gc->gc, &gport->offlimits_color);
-      gc->erase = 0;
     }
   else
     {
@@ -425,8 +422,6 @@ ghid_set_color (hidGC gc, const char *name)
 	{
 	  gdk_gc_set_foreground (gc->gc, &cc->color);
 	}
-
-      gc->erase = 0;
     }
 }
 

@@ -56,7 +56,6 @@ typedef struct hid_gc_struct
   gint width;
   gint cap, join;
   gchar xor;
-  gchar erase;
 }
 hid_gc_struct;
 
@@ -374,14 +373,12 @@ ghid_set_color (hidGC gc, const char *name)
     gport->colormap = gtk_widget_get_colormap (gport->top_window);
   if (strcmp (name, "erase") == 0)
     {
-      gc->erase = 1;
       r = gport->bg_color.red   / 65535.;
       g = gport->bg_color.green / 65535.;
       b = gport->bg_color.blue  / 65535.;
     }
   else if (strcmp (name, "drill") == 0)
     {
-      gc->erase = 0;
       alpha_mult = 0.85;
       r = gport->offlimits_color.red   / 65535.;
       g = gport->offlimits_color.green / 65535.;
@@ -428,8 +425,6 @@ ghid_set_color (hidGC gc, const char *name)
       r = cc->red;
       g = cc->green;
       b = cc->blue;
-
-      gc->erase = 0;
     }
   if (1) {
     double maxi, mult;
