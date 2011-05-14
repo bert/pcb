@@ -353,9 +353,7 @@ set_gl_color_for_gc (hidGC gc)
   static void *cache = NULL;
   hidval cval;
   ColorCache *cc;
-  double alpha_mult = 1.0;
   double r, g, b, a;
-  a = 1.0;
 
   if (priv->current_colorname != NULL &&
       strcmp (priv->current_colorname, gc->colorname) == 0)
@@ -371,17 +369,17 @@ set_gl_color_for_gc (hidGC gc)
       r = gport->bg_color.red   / 65535.;
       g = gport->bg_color.green / 65535.;
       b = gport->bg_color.blue  / 65535.;
+      a = 1.0;
     }
   else if (strcmp (gc->colorname, "drill") == 0)
     {
-      alpha_mult = 0.85;
       r = gport->offlimits_color.red   / 65535.;
       g = gport->offlimits_color.green / 65535.;
       b = gport->offlimits_color.blue  / 65535.;
+      a = 0.85;
     }
   else
     {
-      alpha_mult = 0.7;
       if (hid_cache_color (0, gc->colorname, &cval, &cache))
         cc = (ColorCache *) cval.ptr;
       else
@@ -420,15 +418,16 @@ set_gl_color_for_gc (hidGC gc)
       r = cc->red;
       g = cc->green;
       b = cc->blue;
+      a = 0.7;
     }
   if (1) {
     double maxi, mult;
-    if (priv->trans_lines)
-      a = a * alpha_mult;
+    if (!priv->trans_lines)
+      a = 1.0;
     maxi = r;
     if (g > maxi) maxi = g;
     if (b > maxi) maxi = b;
-    mult = MIN (1 / alpha_mult, 1 / maxi);
+    mult = MIN (1 / a, 1 / maxi);
 #if 1
     r = r * mult;
     g = g * mult;
