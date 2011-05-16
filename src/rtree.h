@@ -49,8 +49,6 @@ void r_destroy_tree (rtree_t ** rtree);
 
 bool r_delete_entry (rtree_t * rtree, const BoxType * which);
 void r_insert_entry (rtree_t * rtree, const BoxType * which, int manage);
-void r_substitute (rtree_t * rtree, const BoxType * before,
-		   const BoxType * after);
 
 /* generic search routine */
 /* region_in_search should return true if "what you're looking for" is
