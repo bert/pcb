@@ -926,7 +926,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   }
   END_LOOP;
   FreeElementMemory (element);
-  free (element);
+  g_slice_free (ElementType, element);
   return (true);
 }
 
