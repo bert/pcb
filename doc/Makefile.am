@@ -36,12 +36,12 @@ info_TEXINFOS=	pcb.texi
 # via GIT are considered to be doing "development" and incur a slightly
 # higher list of required tools.
 if GIT_OR_CVS_VERSION
-pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
+pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi} ${images_output}
 else
 pcb_TEXINFOS=
 endif
 
-dist_html_DATA=	${html_docs} ${pcb_output_inst}
+dist_html_DATA=	${html_docs} ${pcb_output_inst} ${images_output_inst}
 dist_ps_DATA=	${ps_docs}
 dist_pdf_DATA=	${pdf_docs}
 
@@ -82,13 +82,15 @@ EXTRA_DIST= \
 	${pcb_files} \
 	${pcb_output_noinst} \
 	${tab_files} \
-	${tab_texi}
+	${tab_texi} \
+	${images}
 
 if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 CLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps \
+	${images_output}
 else
 BUILT_SOURCES=
 endif
@@ -111,7 +113,8 @@ tab_texi=	${tab_files:.tab=.texi}
 pcb_files=	\
 	pad.pcb \
 	puller.pcb \
-	thermal.pcb
+	thermal.pcb \
+	gcode.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.eps} \
@@ -122,6 +125,19 @@ pcb_output_inst=	\
 	${pcb_files:.pcb=.png}
 
 pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
+
+# Additional images
+images= \
+	gcode_control_img.eps \
+	gcode_tool_path.eps
+
+images_output_noinst= \
+	${images:.eps=.pdf}
+
+images_output_inst= \
+	${images:.eps=.png}
+
+images_output= ${images_output_noinst} ${images_output_inst}
 
 ${inline_texi} : extracted-docs
 
@@ -192,3 +208,9 @@ else
 	${PDFLATEX} $<
 	${PDFLATEX} $<
 endif
+
+.eps.png:
+	${PERL} eps2png --png $< > $@
+
+.eps.gif:
+	${PERL} eps2png --gif $< > $@

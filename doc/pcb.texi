@@ -723,6 +723,7 @@ if that works, then @pcb{} hasn't been installed properly.
 * Moving and Copying::
 * Loading and Saving::
 * Printing::               Creating Gerber files or postscript files
+* Exporting::              Exporting a layout.
 * Arrow Tool::             Selecting/Moving objects.
 * Rats Nest::		   Helps you place and route tracks against a netlist.
 * Design Rule Checking::   Check for manufactureability
@@ -1950,6 +1951,143 @@ duplicating the code and putting some @code{translate} commands in front.
 Note, the normal @code{PostScript} units are 1/72 inch.
 @end table
 
+@node Exporting
+@section Exporting a layout
+@cindex Exporting a layout
+@vindex Exporting a layout
+
+To export a layout choose @emph{Export layout} from the @emph{File} menu, then
+select the desired exporter.
+
+@menu
+* bom::                Bill of materials.
+* gcode::              G-code.
+* gerber::             Gerber.
+* nelma::              Nelma.
+* png::		       Image.
+* ps::		       Postscript.
+* eps::		       Eps.
+@end menu
+
+@node bom
+@subsection Bill of materials (bom)
+@cindex bom
+@cindex bill of materials
+
+Produces a bill of materials (BOM) file and a centroid (XY) file.
+
+@node gcode
+@subsection G-code (gcode)
+@cindex gcode
+@cindex g-code
+@cindex cnc
+
+The gcode exporter can generate RS274/NGC G-CODE files to be used with a CNC mill to
+produce pcb's by mechanically removing copper from the perimeter of all elements.
+
+The elements are enlarged in order to compensate for the cutting tool size so
+that the remaining copper corresponds to the original size; however all
+polygons are left unchanged and will end up being a little smaller; this is not a
+problem because the electrical connection is done with traces, which are correctly
+enlarged.
+
+A .cnc file is generated for every copper layer, with the bottom layer mirrored so
+that the milling is done right; of course it's not possible to produce directly
+multi-layer (more than 2) pcb's with this method, but the cnc files for
+intermediate layers are generated anyways.
+
+A drill file is also generated, and it contains all drills regardless of the hole
+size; the drilling sequence is optimized in order to require the least amount of
+movement.
+
+The export function generates an intermediate raster image before extracting the contour
+of copper elements, and this image is saved as well (in .png format) for inspection.
+
+When the spacing between two elements is less than the tool diameter they will merge
+and no isolation will be cut between them; the control image should be checked for
+this behaviour.
+
+Possible workarounds are: increasing spacing, decreasing the tool size, increasing
+the intermediate image resolution.
+
+To maximize the chance of producing correct pcb's it would be better to increase
+the DRC clearance to at least the tool diameter and use traces as thick as possible;
+the rule is: use the largest element that will not prevent the isolation cut.
+
+The exporter parameters are:
+
+@table @b
+@item basename
+base name for generated files
+
+@item dpi
+intermediate image resolution; affects precision when extracting contours
+
+@item mill depth
+should be the copper depth
+
+@item safe z
+Z value when moving between polygons
+
+@item tool radius
+copper elements are enlarged by this amount
+
+@item drill depth
+depth of drills
+
+@item measurement unit
+for all parameters above, can be mm,um,inch,mil; g-code is always mm or inch
+@end table
+
+All .cnc files specify Z values as parameters, so that it's easy to
+change them without the need to run the exporter again.
+
+Operation was verified with the EMC2 g-code interpreter.
+
+Following is a sample layout that is converted with default settings:
+@center @image{gcode,,,Sample Layout,png}
+
+The control image shows that the spacing is sufficient:
+@center @image{gcode_control_img,,,Control Image,png}
+
+The final tool path follows the perimeter of all elements:
+@center @image{gcode_tool_path,,,Resulting Tool Path,png}
+
+@node gerber
+@subsection Gerber (gerber)
+@cindex gerber
+
+Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files.
+
+@node nelma
+@subsection Nelma (nelma)
+@cindex nelma
+
+Numerical analysis package export.
+
+@node png
+@subsection Image (png)
+@cindex png
+@cindex image export
+
+Produces GIF/JPEG/PNG image files.
+
+@node ps
+@subsection Postscript (ps)
+@cindex ps
+@cindex postscript
+
+Export as postscript.
+Can be later converted to pdf.
+
+@node eps
+@subsection Encapsulated Postscript (eps)
+@cindex eps
+@cindex encapsulated postscript
+
+Export as eps (encapsulated postscript) for inclusion in other documents.
+Can be later converted to pdf.
+
 
 @node Connection Lists
 @section Connection Lists
@@ -2791,6 +2929,14 @@ of a layout.
 @item -v value
 Sets the volume of the X speaker. The value is passed to @code{XBell()} and
 must be in the range -100..100.
+
+@vindex export
+@cindex export hid
+@cindex export layout
+@findex -x
+@item -x hid [parameters]
+Exports the layout using the @emph{hid} exporter. Individual parameters can be
+specified with @emph{--parameter value}.
 
 @end table
 
