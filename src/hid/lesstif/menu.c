@@ -1140,6 +1140,7 @@ lesstif_key_event (XKeyEvent * e)
     case XK_Super_R:
     case XK_Hyper_L:
     case XK_Hyper_R:
+    case XK_ISO_Level3_Shift:
       return 1;
     }
 
