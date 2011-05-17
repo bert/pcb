@@ -3063,7 +3063,7 @@ create its own colormap. The default setting is @emph{XtDefaultForeground}.
 @vindex invisibleObjectsColor
 @cindex colors
 @cindex element, color
-@item elementColor (color)
+@item invisibleObjectsColor (color)
 Elements located on the opposite side of the board are drawn in this color.
 The default is @emph{XtDefaultForeground}.
 
