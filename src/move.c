@@ -442,7 +442,9 @@ MoveLineToLayerLowLevel (LayerType *Source, LineType *line,
   r_delete_entry (Source->line_tree, (BoxType *)line);
 
   Source->Line = g_list_remove (Source->Line, line);
+  Source->LineN --;
   Destination->Line = g_list_append (Destination->Line, line);
+  Destination->LineN ++;
 
   if (!Destination->line_tree)
     Destination->line_tree = r_create_tree (NULL, 0, 0);
@@ -460,7 +462,9 @@ MoveArcToLayerLowLevel (LayerType *Source, ArcType *arc,
   r_delete_entry (Source->arc_tree, (BoxType *)arc);
 
   Source->Arc = g_list_remove (Source->Arc, arc);
+  Source->ArcN --;
   Destination->Arc = g_list_append (Destination->Arc, arc);
+  Destination->ArcN ++;
 
   if (!Destination->arc_tree)
     Destination->arc_tree = r_create_tree (NULL, 0, 0);
@@ -640,7 +644,9 @@ MoveTextToLayerLowLevel (LayerType *Source, TextType *text,
   r_delete_entry (Source->text_tree, (BoxType *)text);
 
   Source->Text = g_list_remove (Source->Text, text);
+  Source->TextN --;
   Destination->Text = g_list_append (Destination->Text, text);
+  Destination->TextN ++;
 
   if (GetLayerGroupNumberByNumber (solder_silk_layer) ==
       GetLayerGroupNumberByPointer (Destination))
@@ -693,7 +699,9 @@ MovePolygonToLayerLowLevel (LayerType *Source, PolygonType *polygon,
   r_delete_entry (Source->polygon_tree, (BoxType *)polygon);
 
   Source->Polygon = g_list_remove (Source->Polygon, polygon);
+  Source->PolygonN --;
   Destination->Polygon = g_list_append (Destination->Polygon, polygon);
+  Destination->Polygon ++;
 
   if (!Destination->polygon_tree)
     Destination->polygon_tree = r_create_tree (NULL, 0, 0);
