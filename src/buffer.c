@@ -196,6 +196,15 @@ AddPolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
   polygon = CreateNewPolygon (layer, Polygon->Flags);
   CopyPolygonLowLevel (polygon, Polygon);
+
+  /* Update the polygon r-tree. Unlike similarly named functions for
+   * other objects, CreateNewPolygon does not do this as it creates a
+   * skeleton polygon object, which won't have correct bounds.
+   */
+  if (!layer->polygon_tree)
+    layer->polygon_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (layer->polygon_tree, (BoxType *)polygon, 0);
+
   CLEAR_FLAG (FOUNDFLAG | ExtraFlag, polygon);
   return (polygon);
 }
