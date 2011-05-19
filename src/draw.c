@@ -819,7 +819,10 @@ DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
   if (e->Pin != NULL)
     {
       PinType *pin0 = e->Pin->data;
-      mark_size = MIN (mark_size, pin0->Thickness / 2);
+      if (TEST_FLAG (HOLEFLAG, pin0))
+	mark_size = MIN (mark_size, pin0->DrillingHole / 2);
+      else
+	mark_size = MIN (mark_size, pin0->Thickness / 2);
     }
 
   if (e->Pad != NULL)
