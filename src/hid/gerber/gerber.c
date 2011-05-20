@@ -92,6 +92,7 @@ static int is_drill;
 static int current_mask;
 static int flash_drills;
 static int copy_outline_mode;
+static int name_style;
 static LayerTypePtr outline_layer;
 
 enum ApertureShape
@@ -315,6 +316,18 @@ static const char *copy_outline_names[] = {
   0
 };
 
+static const char *name_style_names[] = {
+#define NAME_STYLE_FIXED 0
+  "fixed",
+#define NAME_STYLE_SINGLE 1
+  "single",
+#define NAME_STYLE_FIRST 2
+  "first",
+#define NAME_STYLE_EAGLE 3
+  "eagle",
+  0
+};
+
 static HID_Attribute gerber_options[] = {
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
@@ -328,6 +341,9 @@ static HID_Attribute gerber_options[] = {
   {"copy-outline", "Copy outline onto other layers",
    HID_Enum, 0, 0, {0, 0, 0}, copy_outline_names, 0},
 #define HA_copy_outline 3
+  {"name-style", "Naming style for individual gerber files",
+   HID_Enum, 0, 0, {0, 0, 0}, name_style_names, 0},
+#define HA_name_style 4
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -381,6 +397,90 @@ maybe_close_f ()
 
 static BoxType region;
 
+/* Very similar to layer_type_to_file_name() but appends only a
+   three-character suffix compatible with Eagle's defaults.  */
+static void
+assign_eagle_file_suffix (int idx)
+{
+  int group;
+  int nlayers;
+  char *suff = "out";
+
+  switch (idx)
+    {
+    case SL (SILK,      TOP):    suff = "plc"; break;
+    case SL (SILK,      BOTTOM): suff = "pls"; break;
+    case SL (MASK,      TOP):    suff = "stc"; break;
+    case SL (MASK,      BOTTOM): suff = "sts"; break;
+    case SL (PDRILL,    0):      suff = "drd"; break;
+    case SL (UDRILL,    0):      suff = "dru"; break;
+    case SL (PASTE,     TOP):    suff = "crc"; break;
+    case SL (PASTE,     BOTTOM): suff = "crs"; break;
+    case SL (INVISIBLE, 0):      suff = "inv"; break;
+    case SL (FAB,       0):      suff = "fab"; break;
+    case SL (ASSY,      TOP):    suff = "ast"; break;
+    case SL (ASSY,      BOTTOM): suff = "asb"; break;
+
+    default:
+      group = GetLayerGroupNumberByNumber(idx);
+      nlayers = PCB->LayerGroups.Number[group];
+      if (group == GetLayerGroupNumberByNumber(component_silk_layer))
+	{
+	  suff = "cmp";
+	}
+      else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
+	{
+	  suff = "sol";
+	}
+      else if (nlayers == 1
+	       && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
+		   strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
+	{
+	  suff = "oln";
+	}
+      else
+	{
+	  static char buf[20];
+	  sprintf (buf, "ly%d", group);
+	  suff = buf;
+	}
+      break;
+    }
+
+  strcpy (filesuff, suff);
+}
+
+static void
+assign_file_suffix (int idx)
+{
+  int fns_style;
+  const char *sext = ".gbr";
+
+  switch (name_style)
+    {
+    default:
+    case NAME_STYLE_FIXED:  fns_style = FNS_fixed;  break;
+    case NAME_STYLE_SINGLE: fns_style = FNS_single; break;
+    case NAME_STYLE_FIRST:  fns_style = FNS_first;  break;
+    case NAME_STYLE_EAGLE:
+      assign_eagle_file_suffix (idx);
+      return;
+    }
+
+  switch (idx)
+    {
+    case SL (PDRILL, 0):
+      sext = ".cnc";
+      break;
+    case SL (UDRILL, 0):
+      sext = ".cnc";
+      break;
+    }
+
+  strcpy (filesuff, layer_type_to_file_name (idx, fns_style));
+  strcat (filesuff, sext);
+}
+
 static void
 gerber_do_export (HID_Attr_Val * options)
 {
@@ -410,6 +510,7 @@ gerber_do_export (HID_Attr_Val * options)
   all_layers = options[HA_all_layers].int_value;
 
   copy_outline_mode = options[HA_copy_outline].int_value;
+  name_style = options[HA_name_style].int_value;
 
   outline_layer = NULL;
 
@@ -568,7 +669,6 @@ gerber_set_layer (const char *name, int group, int empty)
 #ifdef HAVE_GETPWUID
       struct passwd *pwentry;
 #endif
-      char *sext=".gbr";
       int i;
       int some_apertures = 0;
 
@@ -591,17 +691,7 @@ gerber_set_layer (const char *name, int group, int empty)
       maybe_close_f ();
 
       pagecount++;
-      switch (idx)
-	{
-	case SL (PDRILL, 0):
-	  sext = ".cnc";
-	  break;
-	case SL (UDRILL, 0):
-	  sext = ".cnc";
-	  break;
-	}
-      strcpy (filesuff, layer_type_to_file_name (idx));
-      strcat (filesuff, sext);
+      assign_file_suffix (idx);
       f = fopen (filename, "w");
       if (f == NULL) 
 	{
@@ -670,7 +760,9 @@ gerber_set_layer (const char *name, int group, int empty)
       if (layername)
 	free (layername);
       layername = strdup (filesuff);
-      layername[strlen(layername) - strlen(sext)] = 0;
+      if (strrchr (layername, '.'))
+	* strrchr (layername, '.') = 0;
+
       for (cp=layername; *cp; cp++)
 	{
 	  if (isalnum((int) *cp))

@@ -148,9 +148,11 @@ hid_restore_layer_ons (int *save_array)
 }
 
 const char *
-layer_type_to_file_name (int idx)
+layer_type_to_file_name (int idx, int style)
 {
   int group;
+  int nlayers;
+  const char *single_name;
 
   switch (idx)
     {
@@ -180,17 +182,37 @@ layer_type_to_file_name (int idx)
       return "bottomassembly";
     default:
       group = GetLayerGroupNumberByNumber(idx);
+      nlayers = PCB->LayerGroups.Number[group];
+      single_name = PCB->Data->Layer[idx].Name;
       if (group == GetLayerGroupNumberByNumber(component_silk_layer))
-	return "top";
+	{
+	  if (style == FNS_first
+	      || (style == FNS_single
+		  && nlayers == 2))
+	    return single_name;
+	  return "top";
+	}
       else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
-	return "bottom";
-      else if (PCB->LayerGroups.Number[group] == 1
+	{
+	  if (style == FNS_first
+	      || (style == FNS_single
+		  && nlayers == 2))
+	    return single_name;
+	  return "bottom";
+	}
+      else if (nlayers == 1
 	       && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
 		   strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
-	return "outline";
+	{
+	  return "outline";
+	}
       else
 	{
 	  static char buf[20];
+	  if (style == FNS_first
+	      || (style == FNS_single
+		  && nlayers == 1))
+	    return single_name;
 	  sprintf (buf, "group%d", group);
 	  return buf;
 	}

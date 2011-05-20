@@ -462,12 +462,12 @@ gcode_do_export (HID_Attr_Val * options)
 	  /* magic */
 	  idx = (i >= 0 && i < max_group) ?
 	    PCB->LayerGroups.Entries[i][0] : i;
-	  printf ("idx=%d %s\n", idx, layer_type_to_file_name (idx));
+	  printf ("idx=%d %s\n", idx, layer_type_to_file_name (idx, FNS_fixed));
 	  is_solder =
 	    (GetLayerGroupNumberByNumber (idx) ==
 	     GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
 	  save_drill = is_solder;	/* save drills for one layer only */
-	  gcode_start_png (gcode_basename, layer_type_to_file_name (idx));
+	  gcode_start_png (gcode_basename, layer_type_to_file_name (idx, FNS_fixed));
 	  hid_save_and_show_layer_ons (save_ons);
 	  gcode_start_png_export ();
 	  hid_restore_layer_ons (save_ons);
@@ -496,7 +496,7 @@ gcode_do_export (HID_Attr_Val * options)
 	      gdImageDestroy (temp_im);
 	    }
 	  sprintf (filename, "%s.%s.cnc", gcode_basename,
-		   layer_type_to_file_name (idx));
+		   layer_type_to_file_name (idx, FNS_fixed));
 	  for (r = 0; r < gdImageSX (gcode_im); r++)
 	    {
 	      for (c = 0; c < gdImageSY (gcode_im); c++)

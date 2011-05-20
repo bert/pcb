@@ -256,7 +256,7 @@ nelma_write_space(FILE * out)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
-			ext = layer_type_to_file_name(idx);
+			ext = layer_type_to_file_name(idx, FNS_fixed);
 
 			if (z != 10) {
 				fprintf(out, ",\n");
@@ -326,7 +326,7 @@ nelma_write_nets(FILE * out)
 				if (nelma_export_group[i]) {
 					idx = (i >= 0 && i < max_group) ?
 						PCB->LayerGroups.Entries[i][0] : i;
-					ext = layer_type_to_file_name(idx);
+					ext = layer_type_to_file_name(idx, FNS_fixed);
 
 					if (m != 0 || i != 0)
 						fprintf(out, ",\n");
@@ -404,7 +404,7 @@ nelma_write_layers(FILE * out)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
-			ext = layer_type_to_file_name(idx);
+			ext = layer_type_to_file_name(idx, FNS_fixed);
 
 			if (z != 10) {
 				sprintf(buf, "substrate-%d", z);
@@ -444,7 +444,7 @@ nelma_write_object(FILE * out, LibraryEntryTypePtr pin)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
-			ext = layer_type_to_file_name(idx);
+			ext = layer_type_to_file_name(idx, FNS_fixed);
 
 			fprintf(out, "object %s-%s {\n", pin->ListEntry, ext);
 			fprintf(out, "\tposition = { 0, 0 }\n");
@@ -668,7 +668,7 @@ nelma_do_export(HID_Attr_Val * options)
 				PCB->LayerGroups.Entries[i][0] : i;
 
 			nelma_start_png(nelma_basename,
-					layer_type_to_file_name(idx));
+					layer_type_to_file_name(idx, FNS_fixed));
 
 			hid_save_and_show_layer_ons(save_ons);
 			nelma_start_png_export();

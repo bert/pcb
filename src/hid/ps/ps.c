@@ -716,7 +716,7 @@ ps_set_layer (const char *name, int group, int empty)
               ps_end_file (f);
               fclose (f);
             }
-	  f = psopen (filename, layer_type_to_file_name (idx));
+	  f = psopen (filename, layer_type_to_file_name (idx, FNS_fixed));
 	  if (!f)
 	  {
 	    perror(filename);
@@ -734,7 +734,7 @@ ps_set_layer (const char *name, int group, int empty)
        * ordinal page number must reflect the position of that page in
        * the body of the PostScript file and must start with 1, not 0.
        */
-      fprintf (f, "%%%%Page: %s %d\n", layer_type_to_file_name(idx), pagecount);
+      fprintf (f, "%%%%Page: %s %d\n", layer_type_to_file_name(idx, FNS_fixed), pagecount);
 
       if (mirror)
 	mirror_this = 1 - mirror_this;
@@ -750,10 +750,10 @@ ps_set_layer (const char *name, int group, int empty)
 	  fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
 	  if (PCB->Name)
 	    fprintf (f, "30 41 moveto (%s, %s) show\n",
-		     PCB->Name, layer_type_to_file_name (idx));
+		     PCB->Name, layer_type_to_file_name (idx, FNS_fixed));
 	  else
 	    fprintf (f, "30 41 moveto (%s) show\n",
-		     layer_type_to_file_name (idx));
+		     layer_type_to_file_name (idx, FNS_fixed));
 	  if (mirror_this)
 	    fprintf (f, "( \\(mirrored\\)) show\n");
 
