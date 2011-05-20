@@ -912,6 +912,27 @@ move_all_thermals (int old_index, int new_index)
   ENDALL_LOOP;
 }
 
+static int
+LastLayerInComponentGroup (int layer)
+{
+  int cgroup = GetLayerGroupNumberByNumber(max_group + COMPONENT_LAYER);
+  int lgroup = GetLayerGroupNumberByNumber(layer);
+  if (cgroup == lgroup
+      && PCB->LayerGroups.Number[lgroup] == 2)
+    return 1;
+  return 0;
+}
+
+static int
+LastLayerInSolderGroup (int layer)
+{
+  int sgroup = GetLayerGroupNumberByNumber(max_group + SOLDER_LAYER);
+  int lgroup = GetLayerGroupNumberByNumber(layer);
+  if (sgroup == lgroup
+      && PCB->LayerGroups.Number[lgroup] == 2)
+    return 1;
+  return 0;
+}
 
 int
 MoveLayer (int old_index, int new_index)
@@ -937,6 +958,23 @@ MoveLayer (int old_index, int new_index)
     }
   if (old_index == new_index)
     return 0;
+
+  if (new_index == -1
+      && LastLayerInComponentGroup (old_index))
+    {
+      gui->confirm_dialog ("You can't delete the last top-side layer\n", "Ok", NULL);
+      return 1;
+    }
+
+  if (new_index == -1
+      && LastLayerInSolderGroup (old_index))
+    {
+      gui->confirm_dialog ("You can't delete the last bottom-side layer\n", "Ok", NULL);
+      return 1;
+    }
+
+  for (g = 0; g < MAX_LAYER+2; g++)
+    groups[g] = -1;
 
   for (g = 0; g < MAX_LAYER; g++)
     for (l = 0; l < PCB->LayerGroups.Number[g]; l++)
@@ -1024,8 +1062,11 @@ MoveLayer (int old_index, int new_index)
     {
       int i;
       g = groups[l];
-      i = PCB->LayerGroups.Number[g]++;
-      PCB->LayerGroups.Entries[g][i] = l;
+      if (g >= 0)
+	{
+	  i = PCB->LayerGroups.Number[g]++;
+	  PCB->LayerGroups.Entries[g][i] = l;
+	}
     }
 
   for (g = 0; g < MAX_LAYER; g++)
