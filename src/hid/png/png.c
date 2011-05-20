@@ -135,17 +135,26 @@ static int doing_outline, have_outline;
 #define FMT_jpg "JPEG"
 #define FMT_png "PNG"
 
+/* If this table has no elements in it, then we have no reason to
+   register this HID and will refrain from doing so at the end of this
+   file.  */
+
+#undef HAVE_SOME_FORMAT
+
 static const char *filetypes[] = {
 #ifdef HAVE_GDIMAGEPNG
   FMT_png,
+#define HAVE_SOME_FORMAT 1
 #endif
 
 #ifdef HAVE_GDIMAGEGIF
   FMT_gif,
+#define HAVE_SOME_FORMAT 1
 #endif
 
 #ifdef HAVE_GDIMAGEJPEG
   FMT_jpg,
+#define HAVE_SOME_FORMAT 1
 #endif
 
   NULL
@@ -1545,7 +1554,9 @@ hid_png_init ()
   png_hid.calibrate           = png_calibrate;
   png_hid.set_crosshair       = png_set_crosshair;
 
+#ifdef HAVE_SOME_FORMAT
   hid_register_hid (&png_hid);
 
 #include "png_lists.h"
+#endif
 }
