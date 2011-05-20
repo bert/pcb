@@ -725,7 +725,7 @@ DrawEverything (BoxTypePtr drawn_area)
           gui->end_layer ();
         }
 
-      if (unplated && gui->set_layer ("unplated-drill", SL (PDRILL, 0), 0))
+      if (unplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0), 0))
         {
           DrawHoles (false, true, drawn_area);
           gui->end_layer ();
