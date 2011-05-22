@@ -393,23 +393,6 @@ MainMenu =
      Unselect(All)
      Atomic(Block)
     }
-    {"Remove Connected"
-     Atomic(Save)
-     Connection(Reset)
-     Atomic(Restore)
-     Unselect(All)
-     Atomic(Restore)
-     Connection(Find)
-     Atomic(Restore)
-     Select(Connection)
-     Atomic(Restore)
-     RemoveSelected()
-     Atomic(Restore)
-     Connection(Reset)
-     Atomic(Restore)
-     Unselect(All)
-     Atomic(Block)
-    }
     {"Set Same" a={"A" "<Key>a"} SetSame()}
     {"Flip Object" a={"B" "<Key>b"} Flip(Object)}
     {"Find Connections" a={"F" "<Key>f"} Connection(Reset) Connection(Find)}
