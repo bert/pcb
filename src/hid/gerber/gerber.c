@@ -128,7 +128,7 @@ static int global_aperture_count;
 static int global_aperture_sizes[GBX_MAXAPERTURECOUNT];
 static ApertureShape global_aperture_shapes[GBX_MAXAPERTURECOUNT];
 
-static Apertures *layerapps = 0;
+static Apertures *layerapps = NULL;
 static Apertures *curapp;
 static int n_layerapps = 0;
 static int c_layerapps = 0;
@@ -139,7 +139,7 @@ typedef struct
   int x;
   int y;
 } PendingDrills;
-PendingDrills *pending_drills = 0;
+PendingDrills *pending_drills = NULL;
 int n_pending_drills = 0, max_pending_drills = 0;
 
 /*----------------------------------------------------------------------------*/
@@ -202,31 +202,31 @@ printAperture(FILE *f, int i)
   switch (global_aperture_shapes[i])
     {
     case ROUND:
-      fprintf (f, "%%ADD%dC,%.4f*%%\015\012", dCode,
+      fprintf (f, "%%ADD%dC,%.4f*%%\r\n", dCode,
 	       COORD_TO_INCH(width));
       break;
     case SQUARE:
-      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\015\012",
+      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\r\n",
 	       dCode, COORD_TO_INCH(width), COORD_TO_INCH(width));
       break;
     case OCTAGON:
-      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
-	       "%%ADD%dOCT%d*%%\015\012", dCode,
+      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\r\n"
+	       "%%ADD%dOCT%d*%%\r\n", dCode,
 	       COORD_TO_INCH(width) / COS_22_5_DEGREE, dCode,
 	       dCode);
       break;
 #if 0
     case THERMAL:
-      fprintf (f, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\015\012"
-	       "%%ADD%dTHERM%d*%%\015\012", dCode, gap / 100000.0,
+      fprintf (f, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\r\n"
+	       "%%ADD%dTHERM%d*%%\r\n", dCode, gap / 100000.0,
 	       width / 100000.0, finger / 100000.0, dCode, dCode);
       break;
     case ROUNDCLEAR:
-      fprintf (f, "%%ADD%dC,%.4fX%.4f*%%\015\012",
+      fprintf (f, "%%ADD%dC,%.4fX%.4f*%%\r\n",
 	       dCode, gap / 100000.0, width / 100000.0);
       break;
     case SQUARECLEAR:
-      fprintf (f, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\015\012",
+      fprintf (f, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\r\n",
 	       dCode, gap / 100000.0, gap / 100000.0,
 	       width / 100000.0, width / 100000.0);
       break;
@@ -238,7 +238,7 @@ printAperture(FILE *f, int i)
 }
 
 static int
-countApertures (Apertures *ap)
+countApertures (const Apertures *ap)
 {
   int i, rv=0;
   for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
@@ -250,7 +250,7 @@ countApertures (Apertures *ap)
 static void
 initApertures ()
 {
-  layerapps = 0;
+  layerapps = NULL;
   n_layerapps = 0;
 }
 
@@ -261,7 +261,7 @@ SetAppLayer (int l)
     {
       int prev = n_layerapps;
       n_layerapps = l + 1;
-      layerapps = (Apertures *)realloc (layerapps, n_layerapps * sizeof (Apertures));
+      layerapps = (Apertures *)realloc (layerapps, n_layerapps * sizeof (*layerapps));
       curapp = layerapps + prev;
       while (curapp < layerapps + n_layerapps)
 	{
@@ -288,10 +288,10 @@ typedef struct hid_gc_struct
   int drill;
 } hid_gc_struct;
 
-static FILE *f = 0;
-static char *filename = 0;
-static char *filesuff;
-static char *layername = 0;
+static FILE *f = NULL;
+static char *filename = NULL;
+static char *filesuff = NULL;
+static char *layername = NULL;
 static int lncount = 0;
 
 static int finding_apertures = 0;
@@ -353,7 +353,7 @@ static HID_Attr_Val gerber_values[NUM_OPTIONS];
 static HID_Attribute *
 gerber_get_export_options (int *n)
 {
-  static char *last_made_filename = 0;
+  static char *last_made_filename = NULL;
   if (PCB) derive_default_filename(PCB->Filename, &gerber_options[HA_gerberfile], "", &last_made_filename);
 
   if (n)
@@ -387,12 +387,12 @@ maybe_close_f ()
   if (f)
     {
       if (was_drill)
-	fprintf (f, "M30\015\012");
+	fprintf (f, "M30\r\n");
       else
-	fprintf (f, "M02*\015\012");
+	fprintf (f, "M02*\r\n");
       fclose (f);
     }
-  f = 0;
+  f = NULL;
 }
 
 static BoxType region;
@@ -569,7 +569,7 @@ gerber_do_export (HID_Attr_Val * options)
   pagecount = 1;
   initApertures ();
 
-  f = 0;
+  f = NULL;
   lastgroup = -1;
   c_layerapps = 0;
   finding_apertures = 1;
@@ -589,9 +589,7 @@ gerber_do_export (HID_Attr_Val * options)
 static void
 gerber_parse_arguments (int *argc, char ***argv)
 {
-  hid_register_attributes (gerber_options,
-			   sizeof (gerber_options) /
-			   sizeof (gerber_options[0]));
+  hid_register_attributes (gerber_options, NUM_OPTIONS);
   hid_parse_command_line (argc, argv);
 }
 
@@ -636,22 +634,22 @@ gerber_set_layer (const char *name, int group, int empty)
     {
       int i;
       /* dump pending drills in sequence */
-      qsort (pending_drills, n_pending_drills, sizeof (PendingDrills),
+      qsort (pending_drills, n_pending_drills, sizeof (pending_drills[0]),
 	     drill_sort);
       for (i = 0; i < n_pending_drills; i++)
 	{
 	  if (i == 0 || pending_drills[i].diam != pending_drills[i - 1].diam)
 	    {
 	      int ap = findApertureCode (pending_drills[i].diam, ROUND);
-	      fprintf (f, "T%02d\015\012", ap);
+	      fprintf (f, "T%02d\r\n", ap);
 	    }
-	  fprintf (f, "X%06ldY%06ld\015\012",
+	  fprintf (f, "X%06ldY%06ld\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
       free (pending_drills);
       n_pending_drills = max_pending_drills = 0;
-      pending_drills = 0;
+      pending_drills = NULL;
     }
 
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
@@ -692,7 +690,7 @@ gerber_set_layer (const char *name, int group, int empty)
 
       pagecount++;
       assign_file_suffix (idx);
-      f = fopen (filename, "w");
+      f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
       if (f == NULL) 
 	{
 	  Message ( "Error:  Could not open %s for writing.\n", filename);
@@ -712,18 +710,18 @@ gerber_set_layer (const char *name, int group, int empty)
 	{
 	  /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
 	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
-	  fprintf (f, "M48\015\012" "INCH\015\012");
+	  fprintf (f, "M48\r\n" "INCH\r\n");
 	  for (i = 0; i < GBX_MAXAPERTURECOUNT; i++)
 	    if (curapp->aperture_used[i])
-	      fprintf (f, "T%02dC%.3f\015\012",
+	      fprintf (f, "T%02dC%.3f\r\n",
 		       i + DCODE_BASE,
 		       COORD_TO_INCH(global_aperture_sizes[i]));
-	  fprintf (f, "%%\015\012");
+	  fprintf (f, "%%\r\n");
 	  /* FIXME */
 	  return 1;
 	}
 
-      fprintf (f, "G04 start of page %d for group %d idx %d *\015\012",
+      fprintf (f, "G04 start of page %d for group %d idx %d *\r\n",
 	       pagecount, group, idx);
 
       /* Create a portable timestamp. */
@@ -734,27 +732,27 @@ gerber_set_layer (const char *name, int group, int empty)
 	strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
       }
       /* Print a cute file header at the beginning of each file. */
-      fprintf (f, "G04 Title: %s, %s *\015\012", UNKNOWN (PCB->Name),
+      fprintf (f, "G04 Title: %s, %s *\r\n", UNKNOWN (PCB->Name),
 	       UNKNOWN (name));
-      fprintf (f, "G04 Creator: %s " VERSION " *\015\012", Progname);
-      fprintf (f, "G04 CreationDate: %s *\015\012", utcTime);
+      fprintf (f, "G04 Creator: %s " VERSION " *\r\n", Progname);
+      fprintf (f, "G04 CreationDate: %s *\r\n", utcTime);
 
 #ifdef HAVE_GETPWUID
       /* ID the user. */
       pwentry = getpwuid (getuid ());
-      fprintf (f, "G04 For: %s *\015\012", pwentry->pw_name);
+      fprintf (f, "G04 For: %s *\r\n", pwentry->pw_name);
 #endif
 
-      fprintf (f, "G04 Format: Gerber/RS-274X *\015\012");
-      fprintf (f, "G04 PCB-Dimensions: %d %d *\015\012",
+      fprintf (f, "G04 Format: Gerber/RS-274X *\r\n");
+      fprintf (f, "G04 PCB-Dimensions: %d %d *\r\n",
 	       PCB->MaxWidth, PCB->MaxHeight);
-      fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\015\012");
+      fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\r\n");
 
       /* Signal data in inches. */
-      fprintf (f, "%%MOIN*%%\015\012");
+      fprintf (f, "%%MOIN*%%\r\n");
 
       /* Signal Leading zero suppression, Absolute Data, 2.5 format */
-      fprintf (f, "%%FSLAX25Y25*%%\015\012");
+      fprintf (f, "%%FSLAX25Y25*%%\r\n");
 
       /* build a legal identifier. */
       if (layername)
@@ -770,7 +768,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	  else
 	    *cp = '_';
 	}
-      fprintf (f, "%%LN%s*%%\015\012", layername);
+      fprintf (f, "%%LN%s*%%\r\n", layername);
       lncount = 1;
 
       for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
@@ -835,7 +833,7 @@ gerber_set_layer (const char *name, int group, int empty)
 static hidGC
 gerber_make_gc (void)
 {
-  hidGC rv = (hidGC) calloc (1, sizeof (hid_gc_struct));
+  hidGC rv = (hidGC) calloc (1, sizeof (*rv));
   rv->cap = Trace_Cap;
   return rv;
 }
@@ -953,13 +951,13 @@ use_gc (hidGC gc, int radius)
 	{
 	  if (c)
 	    {
-	      fprintf (f, "%%LN%s_C%d*%%\015\012", layername, lncount++);
-	      fprintf (f, "%%LPC*%%\015\012");
+	      fprintf (f, "%%LN%s_C%d*%%\r\n", layername, lncount++);
+	      fprintf (f, "%%LPC*%%\r\n");
 	    }
 	  else
 	    {
-	      fprintf (f, "%%LN%s_D%d*%%\015\012", layername, lncount++);
-	      fprintf (f, "%%LPD*%%\015\012");
+	      fprintf (f, "%%LN%s_D%d*%%\r\n", layername, lncount++);
+	      fprintf (f, "%%LPD*%%\r\n");
 	    }
 	}
     }
@@ -983,7 +981,7 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
     {
       int x[5], y[5];
-      float tx, ty, theta;
+      double tx, ty, theta;
 
       theta = atan2 (y2-y1, x2-x1);
 
@@ -1019,7 +1017,7 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }
   if ((x1 == x2) && (y1 == y2))
-    fprintf (f, "D03*\015\012");
+    fprintf (f, "D03*\r\n");
   else
     {
       if (m)
@@ -1035,7 +1033,7 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 	  fprintf (f, "Y%ld", gerberY (PCB, lastY));
 
 	}
-      fprintf (f, "D01*\015\012");
+      fprintf (f, "D01*\r\n");
     }
 
 }
@@ -1045,7 +1043,7 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 		 int start_angle, int delta_angle)
 {
   bool m = false;
-  float arcStartX, arcStopX, arcStartY, arcStopY;
+  double arcStartX, arcStopX, arcStartY, arcStopY;
 
   /* we never draw zero-width lines */
   if (gc->width == 0)
@@ -1112,7 +1110,7 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   if (m)
     fprintf (f, "D02*");
   fprintf (f,
-	   "G75*G0%1dX%ldY%ldI%ldJ%ldD01*G01*\015\012",
+	   "G75*G0%1dX%ldY%ldI%ldJ%ldD01*G01*\r\n",
 	   (delta_angle < 0) ? 2 : 3,
 	   gerberX (PCB, arcStopX), gerberY (PCB, arcStopY),
 	   gerberXOffset (PCB, cx - arcStartX),
@@ -1121,15 +1119,13 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   lastY = arcStopY;
 }
 
-#define ROUND(x) ((int)(((x)+50)/100)*100)
-
 static void
 gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
   if (radius <= 0)
     return;
   if (is_drill)
-    radius = ROUND(radius*2)/2;
+    radius = 50 * round (radius / 50.0);
   use_gc (gc, radius);
   if (!f)
     return;
@@ -1138,9 +1134,9 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
       if (n_pending_drills >= max_pending_drills)
 	{
 	  max_pending_drills += 100;
-	  pending_drills = (PendingDrills *) realloc (pending_drills,
-						      max_pending_drills *
-						      sizeof (PendingDrills));
+	  pending_drills = (PendingDrills *) realloc(pending_drills,
+	                                             max_pending_drills *
+	                                             sizeof (pending_drills[0]));
 	}
       pending_drills[n_pending_drills].x = cx;
       pending_drills[n_pending_drills].y = cy;
@@ -1160,7 +1156,7 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
       lastY = cy;
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }
-  fprintf (f, "D03*\015\012");
+  fprintf (f, "D03*\r\n");
 }
 
 static void
@@ -1177,7 +1173,7 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   use_gc (gc, 10 * 100);
   if (!f)
     return;
-  fprintf (f, "G36*\015\012");
+  fprintf (f, "G36*\r\n");
   for (i = 0; i < n_coords; i++)
     {
       if (x[i] != lastX)
@@ -1201,7 +1197,7 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 	    fprintf (f, "D02*");
 	}
       else if (m)
-	fprintf (f, "D01*\015\012");
+	fprintf (f, "D01*\r\n");
       m = false;
     }
   if (startX != lastX)
@@ -1217,8 +1213,8 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }
   if (m)
-    fprintf (f, "D01*\015\012");
-  fprintf (f, "G37*\015\012");
+    fprintf (f, "D01*\r\n");
+  fprintf (f, "G37*\r\n");
 }
 
 static void
@@ -1251,12 +1247,12 @@ gerber_set_crosshair (int x, int y, int action)
 void
 hid_gerber_init ()
 {
-  memset (&gerber_hid, 0, sizeof (HID));
+  memset (&gerber_hid, 0, sizeof (gerber_hid));
 
   common_nogui_init (&gerber_hid);
   common_draw_helpers_init (&gerber_hid);
 
-  gerber_hid.struct_size         = sizeof (HID);
+  gerber_hid.struct_size         = sizeof (gerber_hid);
   gerber_hid.name                = "gerber";
   gerber_hid.description         = "RS-274X (Gerber) export.";
   gerber_hid.exporter            = 1;
