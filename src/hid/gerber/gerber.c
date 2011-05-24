@@ -718,15 +718,14 @@ gerber_do_export (HID_Attr_Val * options)
   region.Y2 = PCB->MaxHeight;
 
   pagecount = 1;
-  initApertures ();
+  resetApertures ();
 
-  f = NULL;
   lastgroup = -1;
-  c_layerapps = 0;
+  layer_list_idx = 0;
   finding_apertures = 1;
   hid_expose_callback (&gerber_hid, &region, 0);
 
-  c_layerapps = 0;
+  layer_list_idx = 0;
   finding_apertures = 0;
   hid_expose_callback (&gerber_hid, &region, 0);
 
@@ -791,8 +790,8 @@ gerber_set_layer (const char *name, int group, int empty)
 	{
 	  if (i == 0 || pending_drills[i].diam != pending_drills[i - 1].diam)
 	    {
-	      int ap = findApertureCode (pending_drills[i].diam, ROUND);
-	      fprintf (f, "T%02d\r\n", ap);
+	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
+	      fprintf (f, "T%02d\r\n", ap->dCode);
 	    }
 	  fprintf (f, "X%06ldY%06ld\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
@@ -818,8 +817,8 @@ gerber_set_layer (const char *name, int group, int empty)
 #ifdef HAVE_GETPWUID
       struct passwd *pwentry;
 #endif
-      int i;
-      int some_apertures = 0;
+      ApertureList *aptr_list;
+      Aperture *search;
 
       lastgroup = group;
       lastX = -1;
@@ -828,13 +827,12 @@ gerber_set_layer (const char *name, int group, int empty)
       linewidth = -1;
       lastcap = -1;
 
-      SetAppLayer (c_layerapps);
-      c_layerapps++;
+      aptr_list = setLayerApertureList (layer_list_idx++);
 
       if (finding_apertures)
 	goto emit_outline;
 
-      if (!curapp->some_apertures && !all_layers)
+      if (aptr_list->count == 0 && !all_layers)
 	return 0;
 
       maybe_close_f (f);
@@ -852,7 +850,7 @@ gerber_set_layer (const char *name, int group, int empty)
 
       if (verbose)
 	{
-	  int c = countApertures (curapp);
+	  int c = aptr_list->count;
 	  printf ("Gerber: %d aperture%s in %s\n", c,
 		  c == 1 ? "" : "s", filename);
 	}
@@ -862,11 +860,8 @@ gerber_set_layer (const char *name, int group, int empty)
 	  /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
 	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
 	  fprintf (f, "M48\r\n" "INCH\r\n");
-	  for (i = 0; i < GBX_MAXAPERTURECOUNT; i++)
-	    if (curapp->aperture_used[i])
-	      fprintf (f, "T%02dC%.3f\r\n",
-		       i + DCODE_BASE,
-		       COORD_TO_INCH(global_aperture_sizes[i]));
+	  for (search = aptr_list->data; search; search = search->next)
+	    fprintf (f, "T%02dC%.3f\r\n", search->dCode, COORD_TO_INCH(search->width));
 	  fprintf (f, "%%\r\n");
 	  /* FIXME */
 	  return 1;
@@ -922,13 +917,9 @@ gerber_set_layer (const char *name, int group, int empty)
       fprintf (f, "%%LN%s*%%\r\n", layername);
       lncount = 1;
 
-      for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
-	if (curapp->aperture_used[i])
-	  {
-	    some_apertures ++;
-	    printAperture(f, i);
-	  }
-      if (!some_apertures)
+      for (search = aptr_list->data; search; search = search->next)
+        fprintAperture(f, search);
+      if (aptr_list->count == 0)
 	/* We need to put *something* in the file to make it be parsed
 	   as RS-274X instead of RS-274D. */
 	fprintf (f, "%%ADD11C,0.0100*%%\r\n");
@@ -1045,49 +1036,44 @@ gerber_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc, int radius)
 {
-  int c;
   if (radius)
     {
       radius *= 2;
       if (radius != linewidth || lastcap != Round_Cap)
 	{
-	  c = findApertureCode (radius, ROUND);
-	  if (c <= 0)
-	    {
-	      fprintf (stderr,
-		       "error: aperture for radius %d type ROUND is %d\n",
-		       radius, c);
-	    }
-	  if (f && !is_drill)
-	    fprintf (f, "G54D%d*", c);
+	  Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
+	  if (aptr == NULL)
+	    fprintf (stderr, "error: aperture for radius %d type ROUND is null\n", radius);
+	  else if (f && !is_drill)
+	    fprintf (f, "G54D%d*", aptr->dCode);
 	  linewidth = radius;
 	  lastcap = Round_Cap;
 	}
     }
   else if (linewidth != gc->width || lastcap != gc->cap)
     {
-      int ap;
+      Aperture *aptr;
+      ApertureShape shape;
+
       linewidth = gc->width;
       lastcap = gc->cap;
       switch (gc->cap)
 	{
 	case Round_Cap:
 	case Trace_Cap:
-	  c = ROUND;
+	  shape = ROUND;
 	  break;
 	default:
 	case Square_Cap:
-	  c = SQUARE;
+	  shape = SQUARE;
 	  break;
 	}
-      ap = findApertureCode (linewidth, (ApertureShape)c);
-      if (ap <= 0)
-	{
-	  fprintf (stderr, "error: aperture for width %d type %s is %d\n",
-		   linewidth, c == ROUND ? "ROUND" : "SQUARE", ap);
-	}
+      aptr = findAperture (curr_aptr_list, linewidth, shape);
+      if (aptr == NULL)
+        fprintf (stderr, "error: aperture for width %d type %s is null\n",
+                 linewidth, shape == ROUND ? "ROUND" : "SQUARE");
       if (f)
-	fprintf (f, "G54D%d*", ap);
+	fprintf (f, "G54D%d*", aptr->dCode);
     }
 #if 0
   if (lastcolor != gc->color)
