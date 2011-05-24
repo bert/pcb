@@ -110,11 +110,31 @@ typedef enum ApertureShape ApertureShape;
    dcode and macro numbers.  */
 #define DCODE_BASE 11
 
+typedef struct aperture
+{
+  int dCode;			/* The RS-274X D code */
+  BDimension width;		/* Size in pcb units */
+  ApertureShape shape;		/* ROUND/SQUARE etc */
+  struct aperture *next;
+}
+Aperture;
+
+typedef struct 
+{
+  Aperture *data;
+  int count;
+} ApertureList;
+
 typedef struct
 {
   int some_apertures;
   int aperture_used[GBX_MAXAPERTURECOUNT];
 } Apertures;
+
+static ApertureList *layer_aptr_list;
+static ApertureList *curr_aptr_list;
+static int layer_list_max;
+static int layer_list_idx;
 
 static int global_aperture_count;
 static int global_aperture_sizes[GBX_MAXAPERTURECOUNT];
@@ -139,6 +159,145 @@ int n_pending_drills = 0, max_pending_drills = 0;
 /*----------------------------------------------------------------------------*/
 #define AUTO_OUTLINE_WIDTH MIL_TO_COORD(8)       /* Auto-geneated outline width of 8 mils */
 
+/*----------------------------------------------------------------------------*/
+/* Aperture Routines                                                          */
+/*----------------------------------------------------------------------------*/
+
+/* Initialize aperture list */
+static void
+initApertureList (ApertureList *list)
+{
+  list->data = NULL;
+  list->count = 0;
+}
+
+static void
+deinitApertureList (ApertureList *list)
+{
+  Aperture *search = list->data;
+  Aperture *next;
+  while (search)
+    {
+      free(search);
+      search = next;
+      next = search->next;
+    }
+  initApertureList (list);
+}
+
+static void resetApertures()
+{
+  int i;
+  for (i = 0; i < layer_list_max; ++i)
+    deinitApertureList (&layer_aptr_list[i]);
+  free (layer_aptr_list);
+  layer_aptr_list = NULL;
+  layer_list_max = 0;
+  layer_list_idx = 0;
+}
+
+/* Create and add a new aperture to the list */
+static Aperture *
+addAperture (ApertureList *list, BDimension width, ApertureShape shape)
+{
+  static int aperture_count;
+
+  Aperture *app = (Aperture *) malloc (sizeof *app);
+  if (app == NULL)
+    return NULL;
+
+  app->width = width;
+  app->shape = shape;
+  app->dCode = DCODE_BASE + aperture_count++;
+  app->next  = list->data;
+
+  list->data = app;
+  ++list->count;
+
+  return app;
+}
+
+/* Fetch an aperture from the list with the specified
+ *  width/shape, creating a new one if none exists */
+static Aperture *
+findAperture (ApertureList *list, BDimension width, ApertureShape shape)
+{
+  Aperture *search;
+
+  /* we never draw zero-width lines */
+  if (width == 0)
+    return NULL;
+
+  /* Search for an appropriate aperture. */
+  for (search = list->data; search; search = search->next)
+    if (search->width == width && search->shape == shape)
+      return search;
+
+  /* Failing that, create a new one */
+  return addAperture (list, width, shape);
+}
+
+/* Output aperture data to the file */
+static void
+fprintAperture (FILE *f, Aperture *aptr)
+{
+  switch (aptr->shape)
+    {
+    case ROUND:
+      fprintf (f, "%%ADD%dC,%.4f*%%\r\n", aptr->dCode,
+	       COORD_TO_INCH(aptr->width));
+      break;
+    case SQUARE:
+      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\r\n", aptr->dCode,
+	       COORD_TO_INCH(aptr->width), COORD_TO_INCH(aptr->width));
+      break;
+    case OCTAGON:
+      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\r\n"
+	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
+	       COORD_TO_INCH(aptr->width) / COS_22_5_DEGREE, aptr->dCode,
+	       aptr->dCode);
+      break;
+#if 0
+    case THERMAL:
+      fprintf (f, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\r\n"
+	       "%%ADD%dTHERM%d*%%\r\n", dCode, gap / 100000.0,
+	       width / 100000.0, finger / 100000.0, dCode, dCode);
+      break;
+    case ROUNDCLEAR:
+      fprintf (f, "%%ADD%dC,%.4fX%.4f*%%\r\n",
+	       dCode, gap / 100000.0, width / 100000.0);
+      break;
+    case SQUARECLEAR:
+      fprintf (f, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\r\n",
+	       dCode, gap / 100000.0, gap / 100000.0,
+	       width / 100000.0, width / 100000.0);
+      break;
+#else
+    default:
+      break;
+#endif
+    }
+}
+
+/* Set the aperture list for the current layer,
+ * expanding the list buffer if needed  */
+static ApertureList *
+setLayerApertureList (int layer_idx)
+{
+  if (layer_idx >= layer_list_max)
+    {
+      int i = layer_list_max;
+      layer_list_max  = 2 * (layer_idx + 1);
+      layer_aptr_list = (ApertureList *)
+                        realloc (layer_aptr_list, layer_list_max * sizeof (*layer_aptr_list));
+      for (; i < layer_list_max; ++i)
+        initApertureList (&layer_aptr_list[i]);
+    }
+  curr_aptr_list = &layer_aptr_list[layer_idx];
+  return curr_aptr_list;
+}
+
+/* --------------------------------------------------------------------------- */
 
 /*----------------------------------------------------------------------------*/
 /* Aperture Routines                                                          */
