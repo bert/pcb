@@ -106,14 +106,6 @@ enum ApertureShape
 };
 typedef enum ApertureShape ApertureShape;
 
-typedef struct Aperture
-{
-  int dCode;			/* The RS-274X D code */
-  int apertureSize;		/* Size in mils */
-  ApertureShape apertureShape;	/* ROUND/SQUARE etc */
-}
-Aperture;
-
 /* This is added to the global aperture array indexes to get gerber
    dcode and macro numbers.  */
 #define DCODE_BASE 11
