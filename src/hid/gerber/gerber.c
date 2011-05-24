@@ -374,7 +374,7 @@ layer_sort (const void *va, const void *vb)
 }
 
 static void
-maybe_close_f ()
+maybe_close_f (FILE *f)
 {
   if (f)
     {
@@ -392,7 +392,7 @@ static BoxType region;
 /* Very similar to layer_type_to_file_name() but appends only a
    three-character suffix compatible with Eagle's defaults.  */
 static void
-assign_eagle_file_suffix (int idx)
+assign_eagle_file_suffix (char *dest, int idx)
 {
   int group;
   int nlayers;
@@ -439,11 +439,11 @@ assign_eagle_file_suffix (int idx)
       break;
     }
 
-  strcpy (filesuff, suff);
+  strcpy (dest, suff);
 }
 
 static void
-assign_file_suffix (int idx)
+assign_file_suffix (char *dest, int idx)
 {
   int fns_style;
   const char *sext = ".gbr";
@@ -455,7 +455,7 @@ assign_file_suffix (int idx)
     case NAME_STYLE_SINGLE: fns_style = FNS_single; break;
     case NAME_STYLE_FIRST:  fns_style = FNS_first;  break;
     case NAME_STYLE_EAGLE:
-      assign_eagle_file_suffix (idx);
+      assign_eagle_file_suffix (dest, idx);
       return;
     }
 
@@ -469,8 +469,8 @@ assign_file_suffix (int idx)
       break;
     }
 
-  strcpy (filesuff, layer_type_to_file_name (idx, fns_style));
-  strcat (filesuff, sext);
+  strcpy (dest, layer_type_to_file_name (idx, fns_style));
+  strcat (dest, sext);
 }
 
 static void
@@ -573,7 +573,7 @@ gerber_do_export (HID_Attr_Val * options)
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
 
-  maybe_close_f ();
+  maybe_close_f (f);
   hid_restore_layer_ons (save_ons);
   PCB->Flags = save_thindraw;
 }
@@ -678,10 +678,10 @@ gerber_set_layer (const char *name, int group, int empty)
       if (!curapp->some_apertures && !all_layers)
 	return 0;
 
-      maybe_close_f ();
+      maybe_close_f (f);
 
       pagecount++;
-      assign_file_suffix (idx);
+      assign_file_suffix (filesuff, idx);
       f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
       if (f == NULL) 
 	{
