@@ -320,7 +320,7 @@ static const char *copy_outline_names[] = {
   "silk",
 #define COPY_OUTLINE_ALL 3
   "all",
-  0
+  NULL
 };
 
 static const char *name_style_names[] = {
@@ -332,7 +332,7 @@ static const char *name_style_names[] = {
   "first",
 #define NAME_STYLE_EAGLE 3
   "eagle",
-  0
+  NULL
 };
 
 static HID_Attribute gerber_options[] = {
@@ -503,7 +503,7 @@ gerber_do_export (HID_Attr_Val * options)
 
   if (!options)
     {
-      gerber_get_export_options (0);
+      gerber_get_export_options (NULL);
       for (i = 0; i < NUM_OPTIONS; i++)
 	gerber_values[i] = gerber_options[i].default_val;
       options = gerber_values;
@@ -620,7 +620,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	     && group <
 	     max_group) ? PCB->LayerGroups.Entries[group][0] : group;
 
-  if (name == 0)
+  if (name == NULL)
     name = PCB->Data->Layer[idx].Name;
 
   if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
