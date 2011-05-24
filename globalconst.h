@@ -126,5 +126,4 @@
 						/* to enable grid drawing */
 	/* size of diamond element mark */
 #define EMARK_SIZE	1000
-#define GBX_MAXAPERTURECOUNT	2560
 #endif

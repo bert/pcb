@@ -125,25 +125,10 @@ typedef struct
   int count;
 } ApertureList;
 
-typedef struct
-{
-  int some_apertures;
-  int aperture_used[GBX_MAXAPERTURECOUNT];
-} Apertures;
-
 static ApertureList *layer_aptr_list;
 static ApertureList *curr_aptr_list;
 static int layer_list_max;
 static int layer_list_idx;
-
-static int global_aperture_count;
-static int global_aperture_sizes[GBX_MAXAPERTURECOUNT];
-static ApertureShape global_aperture_shapes[GBX_MAXAPERTURECOUNT];
-
-static Apertures *layerapps = NULL;
-static Apertures *curapp;
-static int n_layerapps = 0;
-static int c_layerapps = 0;
 
 typedef struct
 {
@@ -295,135 +280,6 @@ setLayerApertureList (int layer_idx)
     }
   curr_aptr_list = &layer_aptr_list[layer_idx];
   return curr_aptr_list;
-}
-
-/* --------------------------------------------------------------------------- */
-
-/*----------------------------------------------------------------------------*/
-/* Aperture Routines                                                          */
-/*----------------------------------------------------------------------------*/
-
-
-
-static int
-findApertureCode (int width, ApertureShape shape)
-{
-  int i;
-
-  /* we never draw zero-width lines */
-  if (width == 0)
-    return (0);
-
-  /* Search for an appropriate aperture. */
-
-  for (i = 0; i < global_aperture_count; i++)
-    {
-      if (global_aperture_sizes[i] == width
-	  && global_aperture_shapes[i] == shape)
-	{
-	  curapp->aperture_used[i] = 1;
-	  curapp->some_apertures = 1;
-	  return i + DCODE_BASE;
-	}
-    }
-
-  /* Not found, create a new aperture and add it to the list */
-  if (global_aperture_count < GBX_MAXAPERTURECOUNT)
-    {
-      i = global_aperture_count ++;
-      global_aperture_sizes[i] = width;
-      global_aperture_shapes[i] = shape;
-      curapp->aperture_used[i] = 1;
-      curapp->some_apertures = 1;
-      return i + DCODE_BASE;
-    }
-  else
-    {
-      Message (_("Error, too many apertures needed for Gerber file.\n"));
-      return (10);
-    }
-}
-
-static void
-printAperture(FILE *f, int i)
-{
-  int dCode = i + DCODE_BASE;
-  int width = global_aperture_sizes[i];
-
-  switch (global_aperture_shapes[i])
-    {
-    case ROUND:
-      fprintf (f, "%%ADD%dC,%.4f*%%\r\n", dCode,
-	       COORD_TO_INCH(width));
-      break;
-    case SQUARE:
-      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\r\n",
-	       dCode, COORD_TO_INCH(width), COORD_TO_INCH(width));
-      break;
-    case OCTAGON:
-      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\r\n"
-	       "%%ADD%dOCT%d*%%\r\n", dCode,
-	       COORD_TO_INCH(width) / COS_22_5_DEGREE, dCode,
-	       dCode);
-      break;
-#if 0
-    case THERMAL:
-      fprintf (f, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\r\n"
-	       "%%ADD%dTHERM%d*%%\r\n", dCode, gap / 100000.0,
-	       width / 100000.0, finger / 100000.0, dCode, dCode);
-      break;
-    case ROUNDCLEAR:
-      fprintf (f, "%%ADD%dC,%.4fX%.4f*%%\r\n",
-	       dCode, gap / 100000.0, width / 100000.0);
-      break;
-    case SQUARECLEAR:
-      fprintf (f, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\r\n",
-	       dCode, gap / 100000.0, gap / 100000.0,
-	       width / 100000.0, width / 100000.0);
-      break;
-#else
-    default:
-      break;
-#endif
-    }
-}
-
-static int
-countApertures (const Apertures *ap)
-{
-  int i, rv=0;
-  for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
-    if (ap->aperture_used[i])
-      rv ++;
-  return rv;
-}
-
-static void
-initApertures ()
-{
-  layerapps = NULL;
-  n_layerapps = 0;
-}
-
-static void
-SetAppLayer (int l)
-{
-  if (l >= n_layerapps)
-    {
-      int prev = n_layerapps;
-      n_layerapps = l + 1;
-      layerapps = (Apertures *)realloc (layerapps, n_layerapps * sizeof (*layerapps));
-      curapp = layerapps + prev;
-      while (curapp < layerapps + n_layerapps)
-	{
-	  int i;
-	  curapp->some_apertures = 0;
-	  for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
-	    curapp->aperture_used[i] = 0;
-	  curapp++;
-	}
-    }
-  curapp = layerapps + l;
 }
 
 /* --------------------------------------------------------------------------- */
