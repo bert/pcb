@@ -654,9 +654,7 @@ ghid_port_window_motion_cb (GtkWidget * widget,
   x_prev = y_prev = -1;
   ghid_note_event_location ((GdkEventButton *)ev);
 
-#if ENABLE_TOOLTIPS
   queue_tooltip_update (out);
-#endif
 
   return FALSE;
 }
