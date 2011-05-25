@@ -2115,7 +2115,7 @@ Popup (int argc, char **argv, int x, int y)
 }
 /* ------------------------------------------------------------ */
 static const char importgui_syntax[] =
-"Popup(MenuName, [Button])";
+"ImportGUI()";
 
 static const char importgui_help[] =
 N_("Asks user which schematics to import into PCB.\n");
