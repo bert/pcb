@@ -651,7 +651,6 @@ typedef struct			/* some resources... */
    *GnetlistProgram,		/* gnetlist program name */
    *MakeProgram,		/* make program name */
    *InitialLayerStack;		/* If set, the initial layer stack is set to this */
-  bool DumpMenuFile;		/* dump internal menu definitions */
   LocationType PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
   int PinoutTextOffsetX,	/* offset of text from pin center */

@@ -5732,13 +5732,6 @@ application itself.  The master file for all this is the file
 used to create the internal menu definition as well as being installed
 in @file{$pcblibdir}.
 
-You can view the internal menu definition (the default) by running
-@file{pcb} with the @code{-dumpmenu} option, like this:
-
-@example
-pcb -dumpmenu
-@end example
-
 @c --------------------------- Appendix C -------------------------------
 @node Regular Expressions
 @appendix Element Search/Regular Expressions
