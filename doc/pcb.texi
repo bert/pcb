@@ -199,7 +199,8 @@ Boerge Strand (borges@@ifi.uio.no)
 Andre M. Hedrick (hedrick@@Astro.Dyer.Vanderbilt.Edu)
 @end display
 
-@exdent who provided all sorts of help including porting @pcb{} to
+@noindent
+who provided all sorts of help including porting @pcb{} to
 several operating systems and platforms, bug fixes, library enhancement,
 user interface suggestions and more. In addition to these people,
 many others donated time for bug-fixing and
@@ -706,7 +707,8 @@ If you get the error message:
 @display
     can't find default font-symbol-file 'default_font'
 @end display
-@exdent then the font searchpath or filename in the application resource
+@noindent
+then the font searchpath or filename in the application resource
 file is wrong. Be sure that your @code{m4} program supports search paths.
 If not, get @code{GNU m4}.
 For other messages, see @ref{problems}.
@@ -4654,7 +4656,8 @@ Netlists read by @pcb{} must have this simple text form:
 netname [style] NAME-PINNUM NAME2-PINNUM2 NAME3-PINNUM3 ... [\]
 @end example
 
-@exdent for each net on the layout.
+@noindent
+for each net on the layout.
 where "netname" is the name of the net which must be unique for each
 net, [style] is an optional route-style name,
 NAME is the layout-name name given to an element,
