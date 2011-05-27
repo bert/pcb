@@ -4501,7 +4501,7 @@ The following sections provide the necessary information about the syntax of
 the files.
 Netlist files are not created by @pcb{}, but it does use them. For information
 on the format of a netlist file see the @emph{:rn},
-@ref{User Commands}. Rat lines are added on the current layer using the current
+@ref{User Commands}.
 The commands described allow you to add almost any additional
 functionality you may need. Examples are compressed read and write access as
 well as archives. The commands themselves are defined by the resources
