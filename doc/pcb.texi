@@ -5915,7 +5915,7 @@ Matches 0 or 1 instances of preceding character.
 Matches any single character other than the newline character.
 
 @item |
-The vertical vertical bar is the alternation operator. It combines two
+The vertical bar is the alternation operator. It combines two
 regular expressions. The result matches if either of them matches.
 
 @item \
