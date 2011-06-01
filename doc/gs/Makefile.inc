@@ -38,10 +38,9 @@ info_TEXINFOS=	${BASE}.texi
 # which can have all sorts of issues.
 
 
-dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs} ${pcb_output}
+dist_pkgdata_DATA=	${html_docs} ${pdf_docs} ${pcb_output}
 
 html_docs=	${info_TEXINFOS:.texi=.html}
-ps_docs=	${info_TEXINFOS:.texi=.ps}
 pdf_docs=	${info_TEXINFOS:.texi=.pdf}
 dvi_docs=	${info_TEXINFOS:.texi=.dvi}
 
@@ -93,7 +92,6 @@ EXTRA_DIST= \
 
 CLEANFILES = \
 	${html_docs} \
-	${ps_docs} \
 	${pdf_docs} \
 	${eps_files} \
 	${png_files} \
@@ -103,8 +101,8 @@ CLEANFILES = \
 if GIT_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 CLEANFILES+= \
-	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
+	refcard.aux refcard.dvi refcard.log refcard.pdf \
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf
 
 else
 BUILT_SOURCES=
@@ -117,7 +115,7 @@ pcb_output=	\
 	${pcb_files:.pcb=.pdf} \
 	${pcb_files:.pcb=.png}
 
-SUFFIXES = .dvi .eps .pcb .pdf .png .ps .tab .tex
+SUFFIXES = .dvi .eps .pcb .pdf .png .tab .tex
 
 %.png %.eps : %.pcb
 	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
@@ -161,28 +159,6 @@ endif
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
-
-.tex.dvi:
-if MISSING_LATEX
-	@echo "****************************************************"
-	@echo "WARNING:  LaTeX is missing on your system but"
-	@echo "$@ is out of date and needs to rebuilt."
-	@echo "Changes to $< will be ignored"
-else
-	${LATEX} $<
-	${LATEX} $<
-	${LATEX} $<
-endif
-
-.dvi.ps:
-if MISSING_DVIPS
-	@echo "****************************************************"
-	@echo "WARNING:  dvips is missing on your system but"
-	@echo "$@ is out of date and needs to rebuilt."
-	@echo "Changes to $< will be ignored"
-else
-	${DVIPS} -Ppdf -j0 -D 300 -o $@ $<
-endif
 
 .tex.pdf:
 if MISSING_PDFLATEX

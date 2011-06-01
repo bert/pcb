@@ -589,14 +589,8 @@ GNUM4=$M4
 AC_SUBST(GNUM4)
 AC_DEFINE_UNQUOTED(GNUM4,"$M4",[m4 program used by pcb])
 
-AC_PATH_PROG(LATEX, latex, notfound)
-AM_CONDITIONAL(MISSING_LATEX, test x$LATEX = xnotfound)
-
 AC_PATH_PROG(PDFLATEX, pdflatex, notfound)
 AM_CONDITIONAL(MISSING_PDFLATEX, test x$PDFLATEX = xnotfound)
-
-AC_PATH_PROG(DVIPS, dvips, notfound)
-AM_CONDITIONAL(MISSING_DVIPS, test x$DVIPS = xnotfound)
 
 AC_PATH_PROG(TEXI2DVI, texi2dvi, notfound)
 AM_CONDITIONAL(MISSING_TEXI2DVI, test x$TEXI2DVI = xnotfound)
@@ -609,13 +603,11 @@ AC_PATH_PROG(GSCHEM, gschem, notfound)
 AM_CONDITIONAL(MISSING_GSCHEM, test x$GSCHEM = xnotfound)
 
 if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
-	if test "$LATEX" = "notfound" -o "$PDFLATEX" = "notfound" -o "$DVIPS" = "notfound" -o "$TEXI2DVI" = "notfound" -o "$PS2PDF" = "notfound" ; then
+	if test "$PDFLATEX" = "notfound" -o "$TEXI2DVI" = "notfound" -o "$PS2PDF" = "notfound" ; then
 		AC_MSG_ERROR([It appears that you are building from a source tree obtained
 via git but you do not have the required tools installed to build the documentation.  Here
 is a list of tools and the detected values:
-LATEX:  $LATEX
 PDFLATEX:  $PDFLATEX
-DVIPS:     $DVIPS
 TEXI2DVI:  $TEXI2DVI
 PS2PDF:    $PS2PDF
 GSCHEM:    $GSCHEM

@@ -42,24 +42,12 @@ pcb_TEXINFOS=
 endif
 
 dist_html_DATA=	${html_docs} ${pcb_output_inst} ${images_output_inst}
-dist_ps_DATA=	${ps_docs}
 dist_pdf_DATA=	${pdf_docs}
 
 dist_man_MANS=	pcb.1
 
 html_docs=	${info_TEXINFOS:.texi=.html}
-ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
-
-# these dependencies prevent a parallel make job
-# from trying to invoke latex and pdflatex at the same
-# time on the same input file.  That causes clashes in 
-# the .aux files which are used by both latex and
-# pdflatex.
-if GIT_OR_CVS_VERSION
-refcard.pdf: refcard.ps
-pcb.pdf: pcb.ps
-endif
 
 # put the html manual into 1 file instead of multiple files?
 AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css --no-split
@@ -88,8 +76,8 @@ EXTRA_DIST= \
 if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 CLEANFILES= \
-	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps \
+	refcard.aux refcard.dvi refcard.log refcard.pdf \
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf \
 	${images_output}
 else
 BUILT_SOURCES=
@@ -117,7 +105,6 @@ pcb_files=	\
 	gcode.pcb
 
 pcb_output_noinst=	\
-	${pcb_files:.pcb=.eps} \
 	${pcb_files:.pcb=.pdf}
 
 pcb_output_inst=	\
@@ -150,7 +137,7 @@ else
 	@echo "Skipping documentation extraction since you are not building from GIT sources"
 endif
 
-SUFFIXES = .dvi .eps .pcb .pdf .png .ps .tab .tex
+SUFFIXES = .dvi .eps .pcb .pdf .png .tab .tex
 
 .pcb.eps :
 	${PCB} -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
@@ -170,28 +157,6 @@ endif
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
-
-.tex.dvi:
-if MISSING_LATEX
-	@echo "****************************************************"
-	@echo "WARNING:  LaTeX is missing on your system but"
-	@echo "$@ is out of date and needs to rebuilt."
-	@echo "Changes to $< will be ignored"
-else
-	${LATEX} $<
-	${LATEX} $<
-	${LATEX} $<
-endif
-
-.dvi.ps:
-if MISSING_DVIPS
-	@echo "****************************************************"
-	@echo "WARNING:  dvips is missing on your system but"
-	@echo "$@ is out of date and needs to rebuilt."
-	@echo "Changes to $< will be ignored"
-else
-	${DVIPS} -Ppdf -j0 -D 300 -o $@ $<
-endif
 
 .tex.pdf:
 if MISSING_PDFLATEX
