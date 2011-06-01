@@ -121,7 +121,6 @@ pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
 
 pcb_output_inst=	\
-	${pcb_files:.pcb=.gif} \
 	${pcb_files:.pcb=.png}
 
 pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
@@ -151,13 +150,10 @@ else
 	@echo "Skipping documentation extraction since you are not building from GIT sources"
 endif
 
-SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
+SUFFIXES = .dvi .eps .pcb .pdf .png .ps .tab .tex
 
 .pcb.eps :
 	${PCB} -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
-
-.pcb.gif :
-	${PCB} -x png --only-visible --format GIF --font-path $(top_srcdir)/src --outfile $@ $<
 
 .pcb.png :
 	${PCB} -x png --only-visible --font-path $(top_srcdir)/src --outfile $@ $<
@@ -211,6 +207,3 @@ endif
 
 .eps.png:
 	${PERL} eps2png --png $< > $@
-
-.eps.gif:
-	${PERL} eps2png --gif $< > $@

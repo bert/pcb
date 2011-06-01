@@ -117,7 +117,7 @@ pcb_output=	\
 	${pcb_files:.pcb=.pdf} \
 	${pcb_files:.pcb=.png}
 
-SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
+SUFFIXES = .dvi .eps .pcb .pdf .png .ps .tab .tex
 
 %.png %.eps : %.pcb
 	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
