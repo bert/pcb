@@ -79,7 +79,7 @@ DataTypePtr		yyData;
 ElementTypePtr		yyElement;
 FontTypePtr		yyFont;
 
-static int parse_number (double);
+static int parse_number (void);
 
 /* ---------------------------------------------------------------------------
  * an external prototypes
@@ -94,13 +94,8 @@ static	int		Parse(char *, char *, char *, char *);
 %}
 
 HEX				0x[0-9a-fA-F]+
-DECIMAL			-?[1-9][0-9]*|0
-FLOATING                [+-]?[0-9]*("."[0-9]*)?
-FLOATINGMM              {FLOATING}mm
-FLOATINGUM              {FLOATING}um
-FLOATINGIN              {FLOATING}in
-FLOATINGMIL             {FLOATING}mil
-CARDINAL		[1-9][0-9]*|0
+INTEGER                 [+-]?([1-9][0-9]*|0)
+FLOATING                {INTEGER}"."[0-9]*
 STRINGCHAR		([^"\n\r\\]|\\.)
 
 %option yylineno
@@ -139,23 +134,27 @@ Net		{ return(T_NET); }
 Connect		{ return(T_CONN); }
 Attribute	{ return(T_ATTRIBUTE); }
 
+nm	{ return T_NM; }
+um	{ return T_UM; }
+mm	{ return T_MM; }
+m	{ return T_M; }
+km	{ return T_KM; }
+umil	{ return T_UMIL; }
+cmil	{ return T_CMIL; }
+mil	{ return T_MIL; }
+in	{ return T_IN; }
+
 \'.\'				{
-						yylval.number = (unsigned) *(yytext+1);
+						yylval.integer = (unsigned) *(yytext+1);
 						return(CHAR_CONST);
 					}
-{FLOATINGMM}		{	return parse_number(MM_TO_COORD(1)); }
-{FLOATINGUM}		{	return parse_number(MM_TO_COORD(1) * 1000); }
-{FLOATINGIN}		{	return parse_number(INCH_TO_COORD(1)); }
-{FLOATINGMIL}		{	return parse_number(MIL_TO_COORD(1)); }
-{DECIMAL}		{	return parse_number(1.0); }
+{FLOATING}		{	return parse_number(); }
+{INTEGER}		{	yylval.integer = round (g_ascii_strtod (yytext, NULL)); return INTEGER; }
 
-{HEX}			{
-						sscanf((char *) yytext, "%x", &yylval.number);
-						return(NUMBER);
-					}
-{FLOATING}			{
-						yylval.floating = c_strtod (yytext);
-						return(FLOAT);
+{HEX}			{	unsigned n;
+				sscanf((char *) yytext, "%x", &n);
+				yylval.integer = n;
+				return INTEGER;
 					}
 \"{STRINGCHAR}*\"	{
 						char	*p1, *p2;
@@ -368,16 +367,9 @@ int ParseFont(FontTypePtr Ptr, char *Filename)
 }
 
 static int
-parse_number (double scale)
+parse_number ()
 {
-  double val;
-  sscanf ((char *) yytext, "%lf", &val);
-  val *= scale;
-  /* Round towards nearest means we have to check the sign first.  */
-  if (val < 0)
-    val -= 0.49;
-  else
-    val += 0.49;
-  yylval.number = (int)(val);
-  return NUMBER;
+  yylval.number = g_ascii_strtod ((gchar *) yytext, NULL);
+  return FLOATING;
 }
+

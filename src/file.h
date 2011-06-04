@@ -61,7 +61,7 @@ void sort_netlist (void);
 int PCBFileVersionNeeded (void);
 
 /* This is the version we support.  */
-#define PCB_FILE_VERSION 20100606
+#define PCB_FILE_VERSION 20110603
 
 
 #ifndef HAS_ATEXIT
