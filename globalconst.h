@@ -54,8 +54,8 @@
 /* ---------------------------------------------------------------------------
  * frame between the groundplane and the copper
  */
-#define	GROUNDPLANEFRAME	15	/* unit == mil */
-#define MASKFRAME               3       /* unit == mil */
+#define	GROUNDPLANEFRAME	MIL_TO_COORD(15)
+#define MASKFRAME               MIL_TO_COORD(3)
 
 /* ---------------------------------------------------------------------------
  * some limit specifications

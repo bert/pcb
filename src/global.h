@@ -86,6 +86,13 @@ typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 typedef int LocationType;
 typedef int BDimension;		/* big dimension */
 
+/* This is used by the lexer/parser */
+typedef struct {
+  int ival;
+  BDimension bval;
+  double dval;
+  char has_units;
+} PLMeasure;
 
 #ifndef XtSpecificationRelease
 typedef unsigned int Cardinal;
