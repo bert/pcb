@@ -106,6 +106,8 @@ PCB_SRCS = \
 	parse_l.l \
 	parse_y.h \
 	parse_y.y \
+	pcb-printf.c \
+	pcb-printf.h \
 	polygon.c \
 	polygon.h \
 	polygon1.c \
