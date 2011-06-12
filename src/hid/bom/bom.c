@@ -14,6 +14,7 @@
 #include "data.h"
 #include "error.h"
 #include "misc.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "hid/common/hidnogui.h"
@@ -274,7 +275,8 @@ static int
 PrintBOM (void)
 {
   char utcTime[64];
-  double x, y, theta = 0.0, user_x, user_y;
+  BDimension x, y;
+  double theta = 0.0;
   double sumx, sumy;
   double pin1x = 0.0, pin1y = 0.0, pin1angle = 0.0;
   double pin2x = 0.0, pin2y = 0.0, pin2angle;
@@ -452,22 +454,10 @@ PrintBOM (void)
 	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
- 	if (xy_dim_type) {
- 	  /* dimensions in mm */
- 	  user_x = 0.000254 * x;
- 	  user_y = 0.000254 * y;
- 	} else {
- 	  /* dimensions in mils */
- 	  user_x = 0.01 * x;
- 	  user_y = 0.01 * y;
- 	}
-	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n",
+	pcb_fprintf (fp, "%s,\"%s\",\"%s\",%.2m*,%.2m*,%g,%s\n",
 		 name, descr, value,
-#if 0
-		 (double) element->MarkX, (double) element->MarkY,
-#else
-		 user_x, user_y,
-#endif
+		 (xy_dim_type ? "mm" : "mil"), x,
+		 (xy_dim_type ? "mm" : "mil"), y,
 		 theta, FRONT (element) == 1 ? "top" : "bottom");
 	free (name);
 	free (descr);
