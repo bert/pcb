@@ -56,7 +56,6 @@
  *
  * KNOWN ISSUES:
  *   No support for %zu size_t printf spec
- *   No support for .* subspecifier for pcb specs
  */
 
 #ifndef	__PCB_PRINTF_INCLUDED__

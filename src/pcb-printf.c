@@ -229,7 +229,6 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
   while(*fmt)
     {
       enum e_suffix suffix = NO_SUFFIX;
-      int multiplier = 0;
 
       if(*fmt == '%')
         {
@@ -247,10 +246,6 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                               || *fmt == 'h' || *fmt == '-')
             g_string_append_c (spec, *fmt++);
           /* Get our sub-specifiers */
-          if(*fmt == ':')
-            {
-              multiplier = strtol(fmt + 1, (char **)&fmt, 0);
-            }
           if(*fmt == '$')
             {
               suffix = SUFFIX;
@@ -279,9 +274,12 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
             case 'e': case 'E': case 'f':
             case 'g': case 'G':
               if (strchr (spec->str, '*'))
-                unit_str = g_strdup_printf (spec->str, va_arg(args, double));
+                {
+                  int prec = va_arg(args, int);
+                  unit_str = g_strdup_printf (spec->str, va_arg(args, double), prec);
+                }
               else
-                unit_str = g_strdup_printf (spec->str, va_arg(args, double), va_arg(args, int));
+                unit_str = g_strdup_printf (spec->str, va_arg(args, double));
               break;
             case 'c':
               if(spec->str[1] == 'l' && sizeof(int) <= sizeof(wchar_t))
