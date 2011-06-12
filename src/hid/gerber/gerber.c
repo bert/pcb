@@ -26,6 +26,7 @@
 #include "misc.h"
 #include "error.h"
 #include "draw.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -70,16 +71,14 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /*----------------------------------------------------------------------------*/
 
 /* These are for films */
-#define gerberX(pcb, x) ((long) ((x)))
-#define gerberY(pcb, y) ((long) (((pcb)->MaxHeight - (y))))
-#define gerberXOffset(pcb, x) ((long) ((x)))
-#define gerberYOffset(pcb, y) ((long) (-(y)))
+#define gerberX(pcb, x) (x)
+#define gerberY(pcb, y) ((pcb)->MaxHeight - (y))
+#define gerberXOffset(pcb, x) (x)
+#define gerberYOffset(pcb, y) (-(y))
 
-/* These are for drills */
-#define gerberDrX(pcb, x) ((long) ((x)/10))
-#define gerberDrY(pcb, y) ((long) (((pcb)->MaxHeight - (y)))/10)
-#define gerberDrXOffset(pcb, x) ((long) ((x)/10))
-#define gerberDrYOffset(pcb, y) ((long) (-(y))/10)
+/* These are for drills (printed as mils but are really 1/10th mil) */
+#define gerberDrX(pcb, x) ((x) * 10)
+#define gerberDrY(pcb, y) (((pcb)->MaxHeight - (y)) * 10)
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */
@@ -229,17 +228,15 @@ fprintAperture (FILE *f, Aperture *aptr)
   switch (aptr->shape)
     {
     case ROUND:
-      fprintf (f, "%%ADD%dC,%.4f*%%\r\n", aptr->dCode,
-	       COORD_TO_INCH(aptr->width));
+      pcb_fprintf (f, "%%ADD%dC,%.4mi*%%\r\n", aptr->dCode, aptr->width);
       break;
     case SQUARE:
-      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\r\n", aptr->dCode,
-	       COORD_TO_INCH(aptr->width), COORD_TO_INCH(aptr->width));
+      pcb_fprintf (f, "%%ADD%dR,%.4miX%.4mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
       break;
     case OCTAGON:
-      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\r\n"
+      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4mi,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
-	       COORD_TO_INCH(aptr->width) / COS_22_5_DEGREE, aptr->dCode,
+	       (BDimension) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
       break;
 #if 0
@@ -649,7 +646,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
 	      fprintf (f, "T%02d\r\n", ap->dCode);
 	    }
-	  fprintf (f, "X%06ldY%06ld\r\n",
+	  pcb_fprintf (f, "X%06.0mmY%06.0mm\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
@@ -717,7 +714,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
 	  fprintf (f, "M48\r\n" "INCH\r\n");
 	  for (search = aptr_list->data; search; search = search->next)
-	    fprintf (f, "T%02dC%.3f\r\n", search->dCode, COORD_TO_INCH(search->width));
+	    pcb_fprintf (f, "T%02dC%.3mi\r\n", search->dCode, search->width);
 	  fprintf (f, "%%\r\n");
 	  /* FIXME */
 	  return 1;
@@ -746,7 +743,7 @@ gerber_set_layer (const char *name, int group, int empty)
 #endif
 
       fprintf (f, "G04 Format: Gerber/RS-274X *\r\n");
-      fprintf (f, "G04 PCB-Dimensions: %d %d *\r\n",
+      pcb_fprintf (f, "G04 PCB-Dimensions: %.0mc %.0mc *\r\n",
 	       PCB->MaxWidth, PCB->MaxHeight);
       fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\r\n");
 
@@ -899,7 +896,7 @@ use_gc (hidGC gc, int radius)
 	{
 	  Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
 	  if (aptr == NULL)
-	    fprintf (stderr, "error: aperture for radius %d type ROUND is null\n", radius);
+	    pcb_fprintf (stderr, "error: aperture for radius %$mS type ROUND is null\n", radius);
 	  else if (f && !is_drill)
 	    fprintf (f, "G54D%d*", aptr->dCode);
 	  linewidth = radius;
@@ -926,7 +923,7 @@ use_gc (hidGC gc, int radius)
 	}
       aptr = findAperture (curr_aptr_list, linewidth, shape);
       if (aptr == NULL)
-        fprintf (stderr, "error: aperture for width %d type %s is null\n",
+        pcb_fprintf (stderr, "error: aperture for width %$mS type %s is null\n",
                  linewidth, shape == ROUND ? "ROUND" : "SQUARE");
       if (f)
 	fprintf (f, "G54D%d*", aptr->dCode);
@@ -1001,13 +998,13 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
     {
       m = true;
       lastX = x1;
-      fprintf (f, "X%ld", gerberX (PCB, lastX));
+      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
     }
   if (y1 != lastY)
     {
       m = true;
       lastY = y1;
-      fprintf (f, "Y%ld", gerberY (PCB, lastY));
+      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
     }
   if ((x1 == x2) && (y1 == y2))
     fprintf (f, "D03*\r\n");
@@ -1018,12 +1015,12 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       if (x2 != lastX)
 	{
 	  lastX = x2;
-	  fprintf (f, "X%ld", gerberX (PCB, lastX));
+	  pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
 	}
       if (y2 != lastY)
 	{
 	  lastY = y2;
-	  fprintf (f, "Y%ld", gerberY (PCB, lastY));
+	  pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
 
 	}
       fprintf (f, "D01*\r\n");
@@ -1092,18 +1089,18 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
     {
       m = true;
       lastX = arcStartX;
-      fprintf (f, "X%ld", gerberX (PCB, lastX));
+      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
     }
   if (arcStartY != lastY)
     {
       m = true;
       lastY = arcStartY;
-      fprintf (f, "Y%ld", gerberY (PCB, lastY));
+      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
     }
   if (m)
     fprintf (f, "D02*");
-  fprintf (f,
-	   "G75*G0%1dX%ldY%ldI%ldJ%ldD01*G01*\r\n",
+  pcb_fprintf (f,
+	   "G75*G0%1dX%.0mcY%.0mcI%.0mcJ%.0mcD01*G01*\r\n",
 	   (delta_angle < 0) ? 2 : 3,
 	   gerberX (PCB, arcStopX), gerberY (PCB, arcStopY),
 	   gerberXOffset (PCB, cx - arcStartX),
@@ -1142,12 +1139,12 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
   if (cx != lastX)
     {
       lastX = cx;
-      fprintf (f, "X%ld", gerberX (PCB, lastX));
+      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
     }
   if (cy != lastY)
     {
       lastY = cy;
-      fprintf (f, "Y%ld", gerberY (PCB, lastY));
+      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
     }
   fprintf (f, "D03*\r\n");
 }
@@ -1173,13 +1170,13 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 	{
 	  m = true;
 	  lastX = x[i];
-	  fprintf (f, "X%ld", gerberX (PCB, lastX));
+	  pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
 	}
       if (y[i] != lastY)
 	{
 	  m = true;
 	  lastY = y[i];
-	  fprintf (f, "Y%ld", gerberY (PCB, lastY));
+	  pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
 	}
       if (firstTime)
 	{
@@ -1197,13 +1194,13 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
     {
       m = true;
       lastX = startX;
-      fprintf (f, "X%ld", gerberX (PCB, startX));
+      pcb_fprintf (f, "X%.0mc", gerberX (PCB, startX));
     }
   if (startY != lastY)
     {
       m = true;
       lastY = startY;
-      fprintf (f, "Y%ld", gerberY (PCB, lastY));
+      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
     }
   if (m)
     fprintf (f, "D01*\r\n");
