@@ -16,6 +16,7 @@
 #include "misc.h"
 #include "hid.h"
 #include "../hidint.h"
+#include "pcb-printf.h"
 
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hidnogui.h"
@@ -86,11 +87,9 @@ info (int argc, char **argv, int x, int y)
       return 0;
     }
   printf("Filename: %s\n", PCB->Filename);
-  printf("Size: %g x %g mils, %g x %g mm\n",
-	 COORD_TO_MIL(PCB->MaxWidth),
-	 COORD_TO_MIL(PCB->MaxHeight),
-	 COORD_TO_MM (PCB->MaxWidth),
-	 COORD_TO_MM (PCB->MaxHeight));
+  pcb_sprintf("Size: %ml x %ml mils, %mm x %mm mm\n",
+	 PCB->MaxWidth, PCB->MaxHeight,
+	 PCB->MaxWidth, PCB->MaxHeight);
   cg = GetLayerGroupNumberByNumber (component_silk_layer);
   sg = GetLayerGroupNumberByNumber (solder_silk_layer);
   for (i=0; i<MAX_LAYER; i++)
