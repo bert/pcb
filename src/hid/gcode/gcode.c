@@ -61,6 +61,7 @@
 #include "potracelib.h"
 #include "trace.h"
 #include "decompose.h"
+#include "pcb-printf.h"
 
 #include "hid/common/hidinit.h"
 
@@ -69,7 +70,6 @@
 #endif
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
-#define pcb_unit (INCH_TO_COORD(1)) /* pcb internal units per inch */
 struct color_struct
 {
   /* the descriptor used by the gd library */
@@ -184,27 +184,15 @@ REGISTER_ATTRIBUTES (gcode_attribute_list)
 /* *** Utility funcions **************************************************** */
 
 /* convert from default PCB units to gcode units */
-     static int pcb_to_gcode (int pcb)
+static int pcb_to_gcode (int pcb)
 {
-  int gcode;
-
-  gcode = (pcb * gcode_dpi) / pcb_unit;
-
-  return gcode;
+  return round(COORD_TO_INCH(pcb) * gcode_dpi);
 }
 
 static char *
 gcode_get_png_name (const char *basename, const char *suffix)
 {
-  char *buf;
-  int len;
-
-  len = strlen (basename) + strlen (suffix) + 6;
-  buf = (char *)malloc (sizeof (*buf) * len);
-
-  sprintf (buf, "%s.%s.png", basename, suffix);
-
-  return buf;
+  return g_strdup_printf ("%s.%s.png", basename, suffix);
 }
 
 /* Sorts drills in order of distance from the origin */
@@ -385,7 +373,7 @@ gcode_do_export (HID_Attr_Val * options)
   int save_ons[MAX_LAYER + 2];
   int i, idx;
   time_t t;
-  double scale = 0, d = 0, Bx, By;
+  double scale = 0, d = 0;
   int r, c, v, p, metric;
   char *filename;
   path_t *plist = NULL;
@@ -404,8 +392,6 @@ gcode_do_export (HID_Attr_Val * options)
      },
   };
 
-  Bx = PCB->MaxWidth / pcb_unit;
-  By = PCB->MaxHeight / pcb_unit;
   if (!options)
     {
       gcode_get_export_options (0);
@@ -447,9 +433,9 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_cutdepth = options[HA_cutdepth].real_value * scale;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
-  gcode_toolradius = options[HA_toolradius].real_value * scale * pcb_unit;	/* in PCB units */
-  if (metric)
-    gcode_toolradius *= 1 / 25.4;
+  gcode_toolradius = metric
+                   ? MM_TO_COORD(options[HA_toolradius].real_value * scale)
+                   : INCH_TO_COORD(options[HA_toolradius].real_value * scale);
   gcode_choose_groups ();
 
   for (i = 0; i < MAX_LAYER; i++)
@@ -523,10 +509,9 @@ gcode_do_export (HID_Attr_Val * options)
 	  fprintf (gcode_f2, "(%d dpi)\n", gcode_dpi);
 	  fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
 	  if (metric)
-	    fprintf (gcode_f2, "(Board size: %.2fx%.2f mm)\n", Bx * 25.4,
-		     By * 25.4);
+	    pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
 	  else
-	    fprintf (gcode_f2, "(Board size: %.2fx%.2f inches)\n", Bx, By);
+	    pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
 	  fprintf (gcode_f2, "#100=%f  (safe Z)\n", gcode_safeZ);
 	  fprintf (gcode_f2, "#101=%f  (cutting depth)\n", gcode_cutdepth);
 	  fprintf (gcode_f2, "(---------------------------------)\n");
@@ -577,11 +562,9 @@ gcode_do_export (HID_Attr_Val * options)
 	      fprintf (gcode_f2, "( %s )\n", filename);
 	      fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
 	      if (metric)
-		fprintf (gcode_f2, "(Board size: %.2fx%.2f mm)\n", Bx * 25.4,
-			 By * 25.4);
+	        pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
 	      else
-		fprintf (gcode_f2, "(Board size: %.2fx%.2f inches)\n", Bx,
-			 By);
+	        pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
 	      fprintf (gcode_f2, "#100=%f  (safe Z)\n", gcode_safeZ);
 	      fprintf (gcode_f2, "#101=%f  (drill depth)\n",
 		       gcode_drilldepth);
@@ -978,8 +961,8 @@ gcode_fill_circle (hidGC gc, int cx, int cy, int radius)
 					     sizeof (struct drill_struct));
 	  nmax_drill += 100;
 	}
-      drill[n_drill].x = (PCB->MaxWidth - cx) / pcb_unit;	/* convert to inch, flip: will drill from bottom side */
-      drill[n_drill].y = (PCB->MaxHeight - cy) / pcb_unit;	/* PCB reverses y axis */
+      drill[n_drill].x = COORD_TO_INCH(PCB->MaxWidth - cx);	/* convert to inch, flip: will drill from bottom side */
+      drill[n_drill].y = COORD_TO_INCH(PCB->MaxHeight - cy);	/* PCB reverses y axis */
       n_drill++;
 /*              printf("Circle %d %d\n",cx,cy); */
     }
