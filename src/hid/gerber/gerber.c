@@ -71,14 +71,14 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /*----------------------------------------------------------------------------*/
 
 /* These are for films */
-#define gerberX(pcb, x) (x)
-#define gerberY(pcb, y) ((pcb)->MaxHeight - (y))
-#define gerberXOffset(pcb, x) (x)
-#define gerberYOffset(pcb, y) (-(y))
+#define gerberX(pcb, x) ((BDimension) (x))
+#define gerberY(pcb, y) ((BDimension) ((pcb)->MaxHeight - (y)))
+#define gerberXOffset(pcb, x) ((BDimension) (x))
+#define gerberYOffset(pcb, y) ((BDimension) (-(y)))
 
 /* These are for drills (printed as mils but are really 1/10th mil) */
-#define gerberDrX(pcb, x) ((x) * 10)
-#define gerberDrY(pcb, y) (((pcb)->MaxHeight - (y)) * 10)
+#define gerberDrX(pcb, x) ((BDimension) (x) * 10)
+#define gerberDrY(pcb, y) ((BDimension) ((pcb)->MaxHeight - (y)) * 10)
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */
