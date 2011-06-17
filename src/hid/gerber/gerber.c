@@ -646,7 +646,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
 	      fprintf (f, "T%02d\r\n", ap->dCode);
 	    }
-	  pcb_fprintf (f, "X%06.0mmY%06.0mm\r\n",
+	  pcb_fprintf (f, "X%06.0mlY%06.0ml\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
