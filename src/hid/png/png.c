@@ -129,6 +129,7 @@ static gdImagePtr photo_copper[MAX_LAYER+2];
 static gdImagePtr photo_silk, photo_mask, photo_drill, *photo_im;
 static gdImagePtr photo_outline;
 static int photo_groups[MAX_LAYER+2], photo_ngroups;
+static int photo_has_inners;
 
 static int doing_outline, have_outline;
 
@@ -397,12 +398,28 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	{
 	  int i, n=0;
 	  SET_FLAG (SHOWMASKFLAG, PCB);
+	  photo_has_inners = 0;
 	  if (comp_layer < solder_layer)
 	    for (i = comp_layer; i <= solder_layer; i++)
-	      photo_groups[n++] = i;
+	      {
+		photo_groups[n++] = i;
+		if (i != comp_layer && i != solder_layer
+		    && ! IsLayerGroupEmpty (i))
+		  photo_has_inners = 1;
+	      }
 	  else
 	    for (i = comp_layer; i >= solder_layer; i--)
-	      photo_groups[n++] = i;
+	      {
+		photo_groups[n++] = i;
+		if (i != comp_layer && i != solder_layer
+		    && ! IsLayerGroupEmpty (i))
+		  photo_has_inners = 1;
+	      }
+	  if (!photo_has_inners)
+	    {
+	      photo_groups[1] = photo_groups[n - 1];
+	      n = 2;
+	    }
 	  photo_ngroups = n;
 
 	  if (photo_flip)
