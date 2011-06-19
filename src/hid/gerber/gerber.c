@@ -162,9 +162,9 @@ deinitApertureList (ApertureList *list)
   Aperture *next;
   while (search)
     {
+      next = search->next;
       free(search);
       search = next;
-      next = search->next;
     }
   initApertureList (list);
 }
@@ -176,6 +176,7 @@ static void resetApertures()
     deinitApertureList (&layer_aptr_list[i]);
   free (layer_aptr_list);
   layer_aptr_list = NULL;
+  curr_aptr_list  = NULL;
   layer_list_max = 0;
   layer_list_idx = 0;
 }
@@ -396,7 +397,6 @@ maybe_close_f (FILE *f)
 	fprintf (f, "M02*\r\n");
       fclose (f);
     }
-  f = NULL;
 }
 
 static BoxType region;
@@ -585,6 +585,7 @@ gerber_do_export (HID_Attr_Val * options)
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
 
   maybe_close_f (f);
+  f = NULL;
   hid_restore_layer_ons (save_ons);
   PCB->Flags = save_thindraw;
 }
@@ -689,6 +690,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	return 0;
 
       maybe_close_f (f);
+      f = NULL;
 
       pagecount++;
       assign_file_suffix (filesuff, idx);
