@@ -63,9 +63,7 @@ EXTRA_DIST= \
 	eps2png \
 	extract-docs \
 	refcard.tex \
-	pcb.dvi \
 	pcb.css \
-	refcard.dvi \
 	${inline_texi} \
 	${pcb_files} \
 	${pcb_output_noinst} \
@@ -76,8 +74,8 @@ EXTRA_DIST= \
 if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 CLEANFILES= \
-	refcard.aux refcard.dvi refcard.log refcard.pdf \
-	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf \
+	refcard.aux refcard.log refcard.pdf \
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.html pcb.pdf \
 	${images_output}
 else
 BUILT_SOURCES=
@@ -137,7 +135,7 @@ else
 	@echo "Skipping documentation extraction since you are not building from GIT sources"
 endif
 
-SUFFIXES = .dvi .eps .pcb .pdf .png .tab .tex
+SUFFIXES = .eps .pcb .pdf .png .tab .tex
 
 .pcb.eps :
 	${PCB} -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
