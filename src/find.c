@@ -822,6 +822,8 @@ LookupLOConnectionsToPVList (bool AndRats)
       /* now all lines, arcs and polygons of the several layers */
       for (layer = 0; layer < max_copper_layer; layer++)
         {
+          if (LAYER_PTR (layer)->no_drc)
+             continue;
           info.layer = layer;
           /* add touching lines */
           if (setjmp (info.env) == 0)
@@ -1169,6 +1171,8 @@ LookupPVConnectionsToLOList (bool AndRats)
   /* loop over all layers */
   for (layer = 0; layer < max_copper_layer; layer++)
     {
+      if (LAYER_PTR (layer)->no_drc)
+                       continue;
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
         {
@@ -2901,6 +2905,21 @@ ListsEmpty (bool AndRats)
   return (empty);
 }
 
+static void
+reassign_no_drc_flags (void)
+{
+  int layer;
+
+  for (layer = 0; layer < max_copper_layer; layer++)
+    {
+      LayerTypePtr l = LAYER_PTR (layer);
+      l->no_drc = AttributeGet (l, "PCB::skip-drc") != NULL;
+    }
+}
+
+
+
+
 /* ---------------------------------------------------------------------------
  * loops till no more connections are found 
  */
@@ -2908,6 +2927,7 @@ static bool
 DoIt (bool AndRats, bool AndDraw)
 {
   bool newone = false;
+  reassign_no_drc_flags ();
   do
     {
       /* lookup connections; these are the steps (2) to (4)
@@ -3350,6 +3370,7 @@ LookupConnection (LocationType X, LocationType Y, bool AndDraw,
 
   /* check if there are any pins or pads at that position */
 
+	reassign_no_drc_flags ();
 
   type
     = SearchObjectByLocation (LOOKUP_FIRST, &ptr1, &ptr2, &ptr3, X, Y, Range);
@@ -3366,8 +3387,8 @@ LookupConnection (LocationType X, LocationType Y, bool AndDraw,
           int laynum = GetLayerNumber (PCB->Data,
                                        (LayerTypePtr) ptr1);
 
-          /* don't mess with silk objects! */
-          if (laynum >= max_copper_layer)
+          /* don't mess with non-conducting objects! */
+          if (laynum >= max_copper_layer || ((LayerTypePtr)ptr1)->no_drc)
             return;
         }
     }

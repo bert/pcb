@@ -303,6 +303,7 @@ typedef struct			/* holds information about one layer */
   char *Color,			/* color */
    *SelectedColor;
   AttributeListType Attributes;
+  int no_drc; /* whether to ignore the layer when checking the design rules */
 }
 LayerType, *LayerTypePtr;
 
