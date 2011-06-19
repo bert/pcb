@@ -701,7 +701,7 @@ MovePolygonToLayerLowLevel (LayerType *Source, PolygonType *polygon,
   Source->Polygon = g_list_remove (Source->Polygon, polygon);
   Source->PolygonN --;
   Destination->Polygon = g_list_append (Destination->Polygon, polygon);
-  Destination->Polygon ++;
+  Destination->PolygonN ++;
 
   if (!Destination->polygon_tree)
     Destination->polygon_tree = r_create_tree (NULL, 0, 0);
