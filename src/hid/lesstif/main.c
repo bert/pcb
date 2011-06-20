@@ -2900,6 +2900,9 @@ lesstif_notify_crosshair_change (bool changes_complete)
   static int invalidate_depth = 0;
   Pixmap save_pixmap;
 
+  if (! my_gc)
+    return;
+
   if (changes_complete)
     invalidate_depth --;
 
