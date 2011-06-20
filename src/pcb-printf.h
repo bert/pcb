@@ -47,6 +47,9 @@
  *   %m9    output 9 measures in most natural scaled units
  *   %m*    output a measure with unit given as an additional
  *          const char* parameter
+ *   %m+    accepts an e_allow parameter that masks all subsequent
+ *          "natural" (S/D/3/.../9) specifiers to only use certain
+ *          units
  *   %mr    output a measure in a unit readable by parse_l.l
  *          (this will always append a unit suffix)
  *

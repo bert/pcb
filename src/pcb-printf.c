@@ -223,6 +223,8 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
   GString *string = g_string_new ("");
   GString *spec   = g_string_new ("");
 
+  enum e_allow mask = ALLOW_ALL;
+
   if (string == NULL || spec == NULL)
     return NULL;
 
@@ -309,14 +311,15 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
               ++fmt;
               if (*fmt == '*')
                 ext_unit = va_arg(args, const char *);
-              value[0] = va_arg(args, BDimension);
+              if (*fmt != '+')
+                value[0] = va_arg(args, BDimension);
               count = 1;
               switch(*fmt)
                 {
                 case 's': unit_str = CoordsToString(value, 1, spec->str, ALLOW_MM | ALLOW_MIL, suffix); break;
-                case 'S': unit_str = CoordsToString(value, 1, spec->str, ALLOW_ALL, suffix); break;
-                case 'M': unit_str = CoordsToString(value, 1, spec->str, ALLOW_METRIC, suffix); break;
-                case 'L': unit_str = CoordsToString(value, 1, spec->str, ALLOW_IMPERIAL, suffix); break;
+                case 'S': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix); break;
+                case 'M': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_METRIC, suffix); break;
+                case 'L': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_IMPERIAL, suffix); break;
                 case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, FILE_MODE); break;
                 /* All these fallthroughs are deliberate */
                 case '9': value[count++] = va_arg(args, BDimension);
@@ -329,7 +332,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                 case '2':
                 case 'D':
                   value[count++] = va_arg(args, BDimension);
-                  unit_str = CoordsToString(value, count, spec->str, ALLOW_ALL, suffix);
+                  unit_str = CoordsToString(value, count, spec->str, mask & ALLOW_ALL, suffix);
                   break;
                 case 'd':
                   value[1] = va_arg(args, BDimension);
@@ -340,7 +343,10 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                     if (strcmp (ext_unit, Units[i].suffix) == 0)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
-                    unit_str = CoordsToString(value, 1, spec->str, ALLOW_ALL, suffix);
+                    unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix);
+                  break;
+                case '+':
+                  mask = va_arg(args, enum e_allow);
                   break;
                 default:
                   for (i = 0; i < N_UNITS; ++i)
