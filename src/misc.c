@@ -104,6 +104,17 @@ static struct
   int cnt;
 } SavedStack;
 
+/* Distance() should be used so that there is only one
+ *  place to deal with overflow/precision errors
+ */
+double
+Distance (double x1, double y1, double x2, double y2)
+{
+  double delta_x = (x2 - x1);
+  double delta_y = (y2 - y1);
+  return sqrt(delta_x * delta_x + delta_y * delta_y);
+}
+
 /* Get Value returns a numeric value passed from the string and sets the
  * bool variable absolute to false if it leads with a +/- character
  */

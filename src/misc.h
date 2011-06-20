@@ -43,6 +43,8 @@ typedef struct {
   enum unitflags flags;
 } UnitList[];
 
+double Distance (double x1, double y1, double x2, double y2);
+
 void r_delete_element (DataTypePtr, ElementTypePtr);
 void SetLineBoundingBox (LineTypePtr);
 void SetArcBoundingBox (ArcTypePtr);
