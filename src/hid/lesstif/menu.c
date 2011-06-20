@@ -527,15 +527,18 @@ insert_layerview_buttons (Widget menu)
     {
       static char namestr[] = "Label ";
       char *name = namestr;
+      int accel_idx = i;
       Widget btn;
       name[5] = 'A' + i;
       switch (i)
 	{
 	case LB_SILK:
 	  name = "Silk";
+          accel_idx = max_copper_layer;
 	  break;
 	case LB_RATS:
 	  name = "Rat Lines";
+          accel_idx = max_copper_layer + 1;
 	  break;
 	case LB_PINS:
 	  name = "Pins/Pads";
@@ -551,12 +554,12 @@ insert_layerview_buttons (Widget menu)
 	  break;
 	}
       n = 0;
-      if (i < MAX_LAYER && i < 9)
+      if (accel_idx < 9)
 	{
 	  char buf[20], av[30];
 	  Resource *ar;
 	  XmString as;
-	  sprintf (buf, "Ctrl-%d", i + 1);
+	  sprintf (buf, "Ctrl-%d", accel_idx + 1);
 	  as = XmStringCreateLocalized (buf);
 	  stdarg (XmNacceleratorText, as);
 	  ar = resource_create (0);
@@ -564,9 +567,9 @@ insert_layerview_buttons (Widget menu)
 	  resource_add_val (ar, 0, strdup (av), 0);
 	  resource_add_val (ar, 0, strdup (av), 0);
 	  ar->flags |= FLAG_V;
-	  sprintf (av, "Ctrl<Key>%d", i + 1);
+	  sprintf (av, "Ctrl<Key>%d", accel_idx + 1);
 	  note_accelerator (av, ar);
-	  stdarg (XmNmnemonic, i + '1');
+	  stdarg (XmNmnemonic, accel_idx + '1');
 	}
       btn = XmCreateToggleButton (menu, name, args, n);
       XtManageChild (btn);
@@ -599,46 +602,42 @@ insert_layerpick_buttons (Widget menu)
     {
       static char namestr[] = "Label ";
       char *name = namestr;
+      int accel_idx = i;
+      char buf[20], av[30];
       Widget btn;
       name[5] = 'A' + i;
       switch (i)
 	{
 	case LB_SILK:
 	  name = "Silk";
+          accel_idx = max_copper_layer;
+	  strcpy (av, "SelectLayer(Silk)");
 	  break;
 	case LB_RATS:
 	  name = "Rat Lines";
-	  break;
+          accel_idx = max_copper_layer + 1;
+          strcpy (av, "SelectLayer(Rats)");
+          break;
+        default:
+          sprintf (av, "SelectLayer(%d)", i + 1);
+          break;
 	}
       n = 0;
-      if (i < MAX_LAYER && i < 9)
-	{
-	  char buf[20], av[30];
+      if (accel_idx < 9)
+        {
 	  Resource *ar;
 	  XmString as;
-	  sprintf (buf, "%d", i + 1);
-	  as = XmStringCreateLocalized (buf);
-	  stdarg (XmNacceleratorText, as);
 	  ar = resource_create (0);
-	  switch (i)
-	    {
-	    case LB_SILK:
-	      strcpy (av, "SelectLayer(Silk)");
-	      break;
-	    case LB_RATS:
-	      strcpy (av, "SelectLayer(Rats)");
-	      break;
-	    default:
-	      sprintf (av, "SelectLayer(%d)", i + 1);
-	      break;
-	    }
 	  resource_add_val (ar, 0, strdup (av), 0);
 	  resource_add_val (ar, 0, strdup (av), 0);
 	  ar->flags |= FLAG_V;
-	  sprintf (av, "<Key>%d", i + 1);
+	  sprintf (buf, "%d", i + 1);
+	  as = XmStringCreateLocalized (buf);
+	  stdarg (XmNacceleratorText, as);
+	  sprintf (av, "<Key>%d", accel_idx + 1);
 	  note_accelerator (av, ar);
-	  stdarg (XmNmnemonic, i + '1');
-	}
+	  stdarg (XmNmnemonic, accel_idx + '1');
+        }
       stdarg (XmNindicatorType, XmONE_OF_MANY);
       btn = XmCreateToggleButton (menu, name, args, n);
       XtManageChild (btn);
