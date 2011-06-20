@@ -1066,22 +1066,23 @@ ghid_make_programmed_menu_actions ()
       layerpick_toggle_entries[i].is_active = FALSE;
 
       ar = resource_create (0);
+
       switch (i)
 	{
 	case LAYER_BUTTON_SILK:
 	  sprintf (av, "SelectLayer(Silk) LayersChanged()");
+          if (max_copper_layer < 9)
+            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", max_copper_layer + 1);
 	  break; 
 	case LAYER_BUTTON_RATS:
+          if (max_copper_layer < 8)
+            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", max_copper_layer + 2);
 	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
 	  break;
 	default:
-	  if (i <= 8)
-	    layerpick_toggle_entries[i].accelerator = 
-	      g_strdup_printf ("<Key>%d", i + 1);
-
-	  sprintf (av, "SelectLayer(%d) LayersChanged()",
-		   i + 1);
-	    
+	  sprintf (av, "SelectLayer(%d) LayersChanged()", i + 1);
+          if (i < 9 && i < max_copper_layer)
+            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", i + 1);
 	  break;
 	}
       resource_add_val (ar, 0, strdup (av), 0);
