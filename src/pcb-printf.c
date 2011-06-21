@@ -405,6 +405,22 @@ int pcb_fprintf(FILE *fh, const char *fmt, ...)
   return rv;
 }
 
+int pcb_printf(const char *fmt, ...)
+{
+  int rv;
+  gchar *tmp;
+
+  va_list args;
+  va_start(args, fmt);
+
+  tmp = pcb_vprintf (fmt, args);
+  rv = printf ("%s", tmp);
+  g_free (tmp);
+  
+  va_end(args);
+  return rv;
+}
+
 char *pcb_g_strdup_printf(const char *fmt, ...)
 {
   gchar *tmp;

@@ -89,6 +89,7 @@ enum e_allow {
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
 int pcb_sprintf(char *string, const char *fmt, ...);
+int pcb_printf(const char *fmt, ...);
 char *pcb_g_strdup_printf(const char *fmt, ...);
 
 #endif
