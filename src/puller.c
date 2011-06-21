@@ -100,19 +100,10 @@ static int ex, ey;		/* fixed end of the line */
 
 /* 0 is left (-x), 90 is down (+y), 180 is right (+x), 270 is up (-y) */
 
-static double
-dist (int x1, int y1, int x2, int y2)
-{
-  double dx = x1 - x2;
-  double dy = y1 - y2;
-  double dist = sqrt (dx * dx + dy * dy);
-  return dist;
-}
-
 static int
 within (int x1, int y1, int x2, int y2, int r)
 {
-  return dist (x1, y1, x2, y2) <= r / 2;
+  return Distance (x1, y1, x2, y2) <= r / 2;
 }
 
 static int
@@ -148,7 +139,7 @@ arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
 #if TRACE1
   printf (" - arc endpoint %d,%d\n", ax, ay);
 #endif
-  arc_dist = dist (ax, ay, x, y);
+  arc_dist = Distance (ax, ay, x, y);
   if (arc_exact)
     return arc_dist < 2;
   return arc_dist < a->Thickness / 2;
@@ -282,7 +273,7 @@ intersection_of_linesegs (int x1, int y1, int x2, int y2,
 static double
 dist_lp (int x1, int y1, int x2, int y2, int px, int py)
 {
-  double den = dist (x1, y1, x2, y2);
+  double den = Distance (x1, y1, x2, y2);
   double rv = (fabs (((double)x2 - x1) * ((double)y1 - py)
 		     - ((double)x1 - px) * ((double)y2 - y1))
 	       / den);
@@ -299,12 +290,12 @@ dist_lsp (int x1, int y1, int x2, int y2, int px, int py)
 {
   double d;
   if (dot2d (x1, y1, x2, y2, px, py) < 0)
-    return dist (x1, y1, px, py);
+    return Distance (x1, y1, px, py);
   if (dot2d (x2, y2, x1, y1, px, py) < 0)
-    return dist (x2, y2, px, py);
+    return Distance (x2, y2, px, py);
   d = (fabs (((double)x2 - x1) * ((double)y1 - py)
 	     - ((double)x1 - px) * ((double)y2 - y1))
-       / dist (x1, y1, x2, y2));
+       / Distance (x1, y1, x2, y2));
   return d;
 }
 
@@ -324,8 +315,8 @@ line_callback (const BoxType * b, void *cl)
   printf ("line %d,%d .. %d,%d\n",
 	  l->Point1.X, l->Point1.Y, l->Point2.X, l->Point2.Y);
 #endif
-  d1 = dist (l->Point1.X, l->Point1.Y, x, y);
-  d2 = dist (l->Point2.X, l->Point2.Y, x, y);
+  d1 = Distance (l->Point1.X, l->Point1.Y, x, y);
+  d2 = Distance (l->Point2.X, l->Point2.Y, x, y);
   if ((d1 < 2 || d2 < 2) && !line_exact)
     {
       line_exact = 1;
@@ -496,7 +487,7 @@ Puller (int argc, char **argv, int Ux, int Uy)
   rel_angle = line_angle - arc_angle;
   base_angle = r2d (atan2 (ey - cy, cx - ex));
 
-  tangent = r2d (acos (the_arc->Width / dist (cx, cy, ex, ey)));
+  tangent = r2d (acos (the_arc->Width / Distance (cx, cy, ex, ey)));
 
 #if TRACE1
   printf ("arc %g line %g rel %g base %g\n", arc_angle, line_angle, rel_angle,
@@ -819,7 +810,7 @@ check_point_in_pin (PinTypePtr pin, int x, int y, End *e)
     inside_p = (x >= pin->X - t && x <= pin->X + t
 		&& y >= pin->Y - t && y <= pin->Y + t);
   else
-    inside_p = (dist (pin->X, pin->Y, x, y) <= t);
+    inside_p = (Distance (pin->X, pin->Y, x, y) <= t);
 
   if (inside_p)
     {
@@ -918,8 +909,8 @@ check_point_in_pad (PadTypePtr pad, int x, int y, End *e)
 	}
       if (!inside_p)
 	{
-	  if (dist (pad->Point1.X, pad->Point1.Y, x, y) <= t
-	      || dist (pad->Point2.X, pad->Point2.Y, x, y) <= t)
+	  if (Distance (pad->Point1.X, pad->Point1.Y, x, y) <= t
+	      || Distance (pad->Point2.X, pad->Point2.Y, x, y) <= t)
 	    inside_p = 1;
 	}
     }
@@ -1451,7 +1442,7 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
   r = t + thickness;
 
   /* See if the point is inside our start arc. */
-  d = dist (scx, scy, x, y);
+  d = Distance (scx, scy, x, y);
 #if TRACE1
   printf("%f = dist (%d,%d to %d,%d)\n", d, scx, scy, x, y);
   printf("sr %d r %f d %f\n", sr, r, d);
@@ -1565,9 +1556,9 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
 #endif
   if (a * se_sign == best_angle * se_sign)
     {
-      double old_d = dist (start_line->Point1.X, start_line->Point1.Y,
+      double old_d = Distance (start_line->Point1.X, start_line->Point1.Y,
 			   fx, fy);
-      double new_d = dist (start_line->Point1.X, start_line->Point1.Y,
+      double new_d = Distance (start_line->Point1.X, start_line->Point1.Y,
 			   x, y);
       if (new_d > old_d)
 	{
@@ -2177,7 +2168,7 @@ maybe_pull_1 (LineTypePtr line)
       abort();
     }
 
-  end_dist = dist (end_line->Point1.X, end_line->Point1.Y,
+  end_dist = Distance (end_line->Point1.X, end_line->Point1.Y,
 		   end_line->Point2.X, end_line->Point2.Y);
 
   start_pinpad = start_extra->start.pin;
@@ -2310,7 +2301,7 @@ maybe_pull_1 (LineTypePtr line)
 	   fx, fy, (int)r2d(oa), (int)ox, (int)oy);
 #endif
 
-    if (dist (ox, oy, end_line->Point2.X, end_line->Point2.Y)
+    if (Distance (ox, oy, end_line->Point2.X, end_line->Point2.Y)
 	< fr * SIN1D)
       {
 	/* Pretend it doesn't exist.  */
