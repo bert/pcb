@@ -248,6 +248,11 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                               || *fmt == 'h' || *fmt == '-')
             g_string_append_c (spec, *fmt++);
           /* Get our sub-specifiers */
+          if(*fmt == '#')
+            {
+              mask = ALLOW_CMIL;  /* This must be pcb's base unit */
+              fmt++;
+            }
           if(*fmt == '$')
             {
               suffix = SUFFIX;
