@@ -80,6 +80,7 @@
 #include "thermal.h"
 #include "undo.h"
 #include "vector.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -893,7 +894,7 @@ FindRouteBoxOnLayerGroup (routedata_t * rd,
 static void
 DumpRouteBox (routebox_t * rb)
 {
-  printf ("RB: (%d,%d)-(%d,%d) l%d; ",
+  pcb_printf ("RB: %#mD-%#mD l%d; ",
 	  rb->box.X1, rb->box.Y1, rb->box.X2, rb->box.Y2, (int) rb->group);
   switch (rb->type)
     {
@@ -3567,7 +3568,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
   showroutebox (path);
 #if defined(ROUTE_VERBOSE)
-  printf ("TRACEPOINT start (%d, %d)\n", nextpoint.X, nextpoint.Y);
+  pcb_printf ("TRACEPOINT start %#mD\n", nextpoint.X, nextpoint.Y);
 #endif
 #endif
 
@@ -3597,7 +3598,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 #if defined(ROUTE_DEBUG_VERBOSE)
       printf ("TRACEPATH: ");
       DumpRouteBox (path);
-      printf ("TRACEPATH: point (%d, %d) to point (%d, %d) layer %d\n",
+      pcb_printf ("TRACEPATH: point %#mD to point %#mD layer %d\n",
 	      lastpoint.X, lastpoint.Y, nextpoint.X, nextpoint.Y,
 	      path->group);
 #endif
@@ -3657,8 +3658,8 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 #if defined(ROUTE_DEBUG_VERBOSE)
 	      printf ("TRACEPATH: ");
 	      DumpRouteBox (path);
-	      printf
-		("TRACEPATH: (to source) point (%d, %d) to point (%d, %d) layer %d\n",
+	      pcb_printf
+		("TRACEPATH: (to source) point %#mD to point %#mD layer %d\n",
 		 nextpoint.X, nextpoint.Y, lastpoint.X, lastpoint.Y,
 		 path->group);
 #endif
