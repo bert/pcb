@@ -90,6 +90,7 @@ dicer output is used for HIDs which cannot render things with holes
 #include "find.h"
 #include "misc.h"
 #include "move.h"
+#include "pcb-printf.h"
 #include "polygon.h"
 #include "remove.h"
 #include "rtree.h"
@@ -1856,12 +1857,12 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 void debug_pline (PLINE *pl)
 {
   VNODE *v;
-  fprintf (stderr, "\txmin %d xmax %d ymin %d ymax %d\n",
+  pcb_fprintf (stderr, "\txmin %#mS xmax %#mS ymin %#mS ymax %#mS\n",
 	   pl->xmin, pl->xmax, pl->ymin, pl->ymax);
   v = &pl->head;
   while (v)
     {
-      fprintf(stderr, "\t\tvnode: %d,%d\n", v->point[0], v->point[1]);
+      pcb_fprintf(stderr, "\t\tvnode: %#mD\n", v->point[0], v->point[1]);
       v = v->next;
       if (v == &pl->head)
 	break;
@@ -1885,7 +1886,7 @@ debug_polygon (PolygonType *p)
   POLYAREA *pa;
   fprintf (stderr, "POLYGON %p  %d pts\n", p, p->PointN);
   for (i=0; i<p->PointN; i++)
-    fprintf(stderr, "\t%d: %d, %d\n", i, p->Points[i].X, p->Points[i].Y);
+    pcb_fprintf(stderr, "\t%d: %#mD\n", i, p->Points[i].X, p->Points[i].Y);
   if (p->HoleIndexN)
     {
       fprintf (stderr, "%d holes, starting at indices\n", p->HoleIndexN);
