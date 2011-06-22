@@ -63,6 +63,7 @@
 #include "draw.h"
 #include "misc.h"
 #include "move.h"
+#include "pcb-printf.h"
 #include "remove.h"
 #include "rtree.h"
 #include "strflags.h"
@@ -137,7 +138,7 @@ arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
       ay += a->Width * sin (rad);
     }
 #if TRACE1
-  printf (" - arc endpoint %d,%d\n", ax, ay);
+  pcb_printf (" - arc endpoint %#mD\n", ax, ay);
 #endif
   arc_dist = Distance (ax, ay, x, y);
   if (arc_exact)
@@ -278,7 +279,7 @@ dist_lp (int x1, int y1, int x2, int y2, int px, int py)
 		     - ((double)x1 - px) * ((double)y2 - y1))
 	       / den);
 #if TRACE1
-  printf("dist (%d,%d-%d,%d) to %d,%d is %f\n",
+  pcb_printf("dist %#mD-%#mD to %#mD is %f\n",
 	 x1, y1, x2, y2, px, py, rv);
 #endif
   return rv;
@@ -312,7 +313,7 @@ line_callback (const BoxType * b, void *cl)
   LineTypePtr l = (LineTypePtr) b;
   double d1, d2, t;
 #if TRACE1
-  printf ("line %d,%d .. %d,%d\n",
+  pcb_printf ("line %#mD .. %#mD\n",
 	  l->Point1.X, l->Point1.Y, l->Point2.X, l->Point2.Y);
 #endif
   d1 = Distance (l->Point1.X, l->Point1.Y, x, y);
@@ -342,7 +343,7 @@ arc_callback (const BoxType * b, void *cl)
   ArcTypePtr a = (ArcTypePtr) b;
 
 #if TRACE1
-  printf ("arc a %d,%d r %d sa %ld d %ld\n", a->X, a->Y, a->Width,
+  pcb_printf ("arc a %#mD r %#mS sa %ld d %ld\n", a->X, a->Y, a->Width,
 	  a->StartAngle, a->Delta);
 #endif
   if (!arc_endpoint_is (a, a->StartAngle, x, y)
@@ -380,7 +381,7 @@ find_pair (int Px, int Py)
   BoxType spot;
 
 #if TRACE1
-  printf ("\nPuller find_pair at %d,%d\n", Crosshair.X, Crosshair.Y);
+  pcb_printf ("\nPuller find_pair at %#mD\n", Crosshair.X, Crosshair.Y);
 #endif
 
   x = Px;
@@ -696,7 +697,7 @@ fix_arc_extra (ArcTypePtr a, Extra *e)
   e->end.x = a->X - (a->Width * cos (d2r (a->StartAngle+a->Delta)) + 0.5);
   e->end.y = a->Y + (a->Height * sin (d2r (a->StartAngle+a->Delta)) + 0.5);
 #if TRACE1
-  printf("new X,Y is %d,%d to %d,%d\n", e->start.x, e->start.y, e->end.x, e->end.y);
+  pcb_printf("new X,Y is %#mD to %#mD\n", e->start.x, e->start.y, e->end.x, e->end.y);
 #endif
 }
 
@@ -725,7 +726,7 @@ find_pair_line_callback (const BoxType * b, void *cl)
     abort1();
 #endif
 #if TRACE1
-  printf(" - %p line %d,%d or %d,%d\n", e, line->Point1.X, line->Point1.Y,
+  pcb_printf(" - %p line %#mD or %#mD\n", e, line->Point1.X, line->Point1.Y,
 	 line->Point2.X, line->Point2.Y);
 #endif
   if ((NEAR (line->Point1.X, fpcs->x) && NEAR (line->Point1.Y, fpcs->y))
@@ -759,7 +760,7 @@ find_pair_arc_callback (const BoxType * b, void *cl)
   if (arc == fpcs->me)
     return 0;
 #if TRACE1
-  printf(" - %p arc %d,%d or %d,%d\n", e, e->start.x, e->start.y, e->end.x, e->end.y);
+  pcb_printf(" - %p arc %#mD or %#mD\n", e, e->start.x, e->start.y, e->end.x, e->end.y);
 #endif
   if ((NEAR (e->start.x, fpcs->x) && NEAR (e->start.y, fpcs->y))
       || (NEAR (e->end.x, fpcs->x) && NEAR (e->end.y, fpcs->y)))
@@ -791,7 +792,7 @@ find_pairs_1 (void *me, Extra **e, int x, int y)
   fpcs.x = x;
   fpcs.y = y;
 #if TRACE1
-  printf("looking for %d,%d\n", x, y);
+  pcb_printf("looking for %#mD\n", x, y);
 #endif
   b.X1 = x - 10;
   b.X2 = x + 10;
@@ -850,7 +851,7 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
 		pin->X, pin->Y) <= pin->Thickness/2)
     {
 #if TRACE1
-      printf("splitting line %d,%d-%d,%d because it passes through pin %d,%d r%d\n",
+      pcb_printf("splitting line %#mD-%#mD because it passes through pin %#mD r%d\n",
 	     line->Point1.X, line->Point1.Y,
 	     line->Point2.X, line->Point2.Y,
 	     pin->X, pin->Y, pin->Thickness/2);
@@ -880,7 +881,7 @@ check_point_in_pad (PadTypePtr pad, int x, int y, End *e)
   int inside_p;
   int t;
 
-  printf("pad %d,%d - %d,%d t %d  vs  %d,%d\n", pad->Point1.X, pad->Point1.Y,
+  pcb_printf("pad %#mD - %#mD t %#mS  vs  %#mD\n", pad->Point1.X, pad->Point1.Y,
 	 pad->Point2.X, pad->Point2.Y, pad->Thickness, x, y);
   t = (pad->Thickness+1)/2;
   if (TEST_FLAG (SQUAREFLAG, pad))
@@ -986,7 +987,7 @@ find_pair_padline_callback (const BoxType * b, void *cl)
       /* It does.  */
       /* FIXME: we should split the line.  */
 #if TRACE1
-      printf("splitting line %d,%d-%d,%d because it passes through pad %d,%d-%d,%d r%d\n",
+      pcb_printf("splitting line %#mD-%#mD because it passes through pad %#mD-%#mD r %#mS\n",
 	     line->Point1.X, line->Point1.Y,
 	     line->Point2.X, line->Point2.Y,
 	     pad->Point1.X, pad->Point1.Y,
@@ -1255,7 +1256,7 @@ print_extra (Extra *e, Extra *prev)
   if (EXTRA_IS_LINE (e))
     {
       LineTypePtr line = EXTRA2LINE (e);
-      printf(" %p L %d,%d-%d,%d", line, line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
+      pcb_printf(" %p L %#mD-%#mD", line, line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
       printf("  %s %p %s %p\n",
 	     e->start.is_pad ? "pad" : "pin", e->start.pin,
 	     e->end.is_pad ? "pad" : "pin", e->end.pin);
@@ -1263,8 +1264,8 @@ print_extra (Extra *e, Extra *prev)
   else if (EXTRA_IS_ARC (e))
     {
       ArcTypePtr arc = EXTRA2ARC (e);
-      printf(" %p A %d,%d-%d,%d", arc, e->start.x, e->start.y, e->end.x, e->end.y);
-      printf(" at %d,%d ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
+      pcb_printf(" %p A %#mD-%#mD", arc, e->start.x, e->start.y, e->end.x, e->end.y);
+      pcb_printf(" at %#mD ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
     }
   else if (e == &multi_next)
     {
@@ -1423,7 +1424,7 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
   double base_angle, rel_angle, point_angle;
 
 #if TRACE1
-  printf("\033[34mgp_point_force %d,%d %d via %s\033[0m\n", x, y, t, name);
+  pcb_printf("\033[34mgp_point_force %#mD %#mS via %s\033[0m\n", x, y, t, name);
 #endif
 
   if (start_arc)
@@ -1444,8 +1445,8 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
   /* See if the point is inside our start arc. */
   d = Distance (scx, scy, x, y);
 #if TRACE1
-  printf("%f = dist (%d,%d to %d,%d)\n", d, scx, scy, x, y);
-  printf("sr %d r %f d %f\n", sr, r, d);
+  pcb_printf("%f = dist #mD to %#mD\n", d, scx, scy, x, y);
+  pcb_printf("sr %#mS r %f d %f\n", sr, r, d);
 #endif
   if (d  < sr - r)
     {
@@ -1468,8 +1469,8 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
   /* angle between points (NOT pcb arc angles) */
   base_angle = atan2 (y - scy, x - scx);
 #if TRACE1
-  printf("%.1f = atan2 (%d-%d = %d, %d-%d = %d)\n",
-	 r2d(base_angle), y, scy, y-scy, x, scx, x-scx);
+  pcb_printf("%.1f = atan2 (%#mS-%#mS = %#mS, %#mS-%#mS = %#mS)\n",
+	     r2d(base_angle), y, scy, y-scy, x, scx, x-scx);
 #endif
 
   if ((sa_sign * sr - r) / d > 1
@@ -1539,12 +1540,12 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
 		       start_line->Point2.X, start_line->Point2.Y,
 		       x, y);
 #if TRACE1
-      printf("point %d,%d dist %f vs thickness %d\n", x, y, new_r, thickness);
+      pcb_printf("point %#mD dist %#mS vs thickness %#mS\n", x, y, new_r, thickness);
 #endif
       new_r -= thickness;
       new_r = (int)new_r - 1;
 #if TRACE1
-      printf(" - new thickness %f old %d\n", new_r, t);
+      pcb_printf(" - new thickness %f old %#mS\n", new_r, t);
 #endif
       if (new_r < t)
 	gp_point_force (x, y, new_r, e, esa, eda, 1, __FUNCTION__);
@@ -1594,7 +1595,7 @@ gp_point_2 (int x, int y, int t, End *e, int esa, int eda, const char *func)
     return 0;
 
 #if TRACE1
-  printf("\033[34mgp_point %d,%d %d via %s\033[0m\n", x, y, t, func);
+  pcb_printf("\033[34mgp_point %#mD %#mS via %s\033[0m\n", x, y, t, func);
 #endif
 
   /* There are two regions we care about.  For points inside our
@@ -1828,7 +1829,7 @@ create_line (LineTypePtr sample, int x1, int y1, int x2, int y2)
 {
   Extra *e;
 #if TRACE1
-  printf("create_line from %d,%d to %d,%d\n", x1, y1, x2, y2);
+  pcb_printf("create_line from %#mD to %#mD\n", x1, y1, x2, y2);
 #endif
   LineTypePtr line = CreateNewLineOnLayer (CURRENT, x1, y1, x2, y2,
 					   sample->Thickness, sample->Clearance, sample->Flags);
@@ -1852,7 +1853,7 @@ create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
   if (r % 100 == 99)
     r++;
 #if TRACE1
-  printf("create_arc at %d,%d r %d sa %d delta %d\n", x, y, r, sa, da);
+  pcb_printf("create_arc at %#mD r %#mS sa %d delta %d\n", x, y, r, sa, da);
 #endif
   arc = CreateNewArcOnLayer (CURRENT, x, y, r, r, sa, da,
 					sample->Thickness, sample->Clearance, sample->Flags);
@@ -1946,7 +1947,7 @@ mark_line_for_deletion (LineTypePtr l)
   e->deleted = 1;
   unlink_extras (e);
 #if TRACE1
-  printf("Marked line %p for deletion %d,%d to %d,%d\n",
+  pcb_printf("Marked line %p for deletion %#mD to %#mD\n",
 	 e, l->Point1.X, l->Point1.Y, l->Point2.X, l->Point2.Y);
 #endif
 #if 0
@@ -2161,7 +2162,7 @@ maybe_pull_1 (LineTypePtr line)
   fy = ey;
   if (fx < 0)
     {
-      fprintf(stderr, "end line corrupt? f is %d,%d\n", fx, fy);
+      pcb_fprintf(stderr, "end line corrupt? f is %#mD\n", fx, fy);
       print_extra (end_extra, 0);
       if (earc_extra)
 	print_extra(earc_extra, 0);
@@ -2187,7 +2188,7 @@ maybe_pull_1 (LineTypePtr line)
   abs_angle = fa + start_angle;
 
 #if TRACE1
-  printf("\033[43;30mBest: at %d,%d r %d, angle %.1f fp %d\033[0m\n", fx, fy, fr, r2d(fa), fp);
+  pcb_printf("\033[43;30mBest: at %#mD r %#mS, angle %.1f fp %d\033[0m\n", fx, fy, fr, r2d(fa), fp);
 #endif
 
 #if 0
@@ -2230,7 +2231,7 @@ maybe_pull_1 (LineTypePtr line)
 	    new_delta -= 360;
 	}
 #if TRACE1
-      printf("merging arcs at %d,%d nd %d\n", start_arc->X, start_arc->Y, new_delta);
+      pcb_printf("merging arcs at %#mS nd %d\n", start_arc->X, start_arc->Y, new_delta);
       print_extra(sarc_extra, 0);
       print_extra(earc_extra, 0);
 #endif
@@ -2255,7 +2256,7 @@ maybe_pull_1 (LineTypePtr line)
       new_delta = 180 - r2d(abs_angle);
 #if TRACE1
       printf("new_delta starts at %d vs %d < %d\n",
-	     (int)new_delta, start_arc->StartAngle, start_arc->Delta);
+	     (int)new_delta, (int)start_arc->StartAngle, (int)start_arc->Delta);
 #endif
       if (start_arc->Delta < 0)
 	new_delta = (int)(new_delta) + 90;
@@ -2269,7 +2270,7 @@ maybe_pull_1 (LineTypePtr line)
 #if TRACE1
       printf("new_delta adjusts to %d\n", (int)new_delta);
       printf("fa = %f, new_delta ends at %.1f vs start %d\n",
-	     fa, new_delta, start_arc->StartAngle);
+	     fa, new_delta, (int)start_arc->StartAngle);
 #endif
 
       if (new_delta * start_arc->Delta <= 0)
@@ -2297,7 +2298,7 @@ maybe_pull_1 (LineTypePtr line)
     double ox = fx + fr * cos(oa);
     double oy = fy + fr * sin(oa);
 #if TRACE1
-    printf("obstacle at %d,%d angle %d = arc starts at %d,%d\n",
+    pcb_printf("obstacle at %#mD angle %d = arc starts at %#mD\n",
 	   fx, fy, (int)r2d(oa), (int)ox, (int)oy);
 #endif
 
@@ -2313,7 +2314,7 @@ maybe_pull_1 (LineTypePtr line)
   /* Step 2: If we have no obstacles, connect start and end.  */
 
 #if TRACE1
-  printf("fx %d ex %d fy %d ey %d\n", fx, ex, fy, ey);
+  pcb_printf("fx %#mS ex %#mS fy %#mS ey %#mS\n", fx, ex, fy, ey);
 #endif
   if (fx == ex && fy == ey)
     {
@@ -2385,8 +2386,8 @@ maybe_pull_1 (LineTypePtr line)
   ex = start_line->Point1.X + cos(start_angle + fa) * 10000.0;
   ey = start_line->Point1.Y + sin(start_angle + fa) * 10000.0;
 #if TRACE1
-  printf("temp point %d,%d\n", ex, ey);
-  printf("intersect %d,%d-%d,%d with %d,%d-%d,%d\n",
+  pcb_printf("temp point %#mS\n", ex, ey);
+  pcb_printf("intersect %#mS-%#mS with %#mS-%#mS\n",
 	 start_line->Point1.X, start_line->Point1.Y,
 	 ex, ey,
 	 end_line->Point1.X, end_line->Point1.Y,
@@ -2402,7 +2403,7 @@ maybe_pull_1 (LineTypePtr line)
       ey = end_line->Point2.Y;
     }	
 #if TRACE1
-  printf("new point %d,%d\n", ex, ey);
+  pcb_printf("new point %#mS\n", ex, ey);
 #endif
   MoveObject (LINEPOINT_TYPE, CURRENT, end_line, &(end_line->Point1),
 	      ex - end_line->Point1.X,
