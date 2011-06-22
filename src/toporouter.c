@@ -55,6 +55,7 @@
 
 
 #include "toporouter.h"
+#include "pcb-printf.h"
 
 static void 
 toporouter_edge_init (toporouter_edge_t *edge)
@@ -2822,7 +2823,7 @@ import_clusters(toporouter_t *r)
             cluster_join_bbox(cluster, box);
 
 #ifdef DEBUG_MERGING  
-            printf("\tLINE %d,%d\n", connection->X, connection->Y);
+            pcb_printf("\tLINE %#mD\n", connection->X, connection->Y);
 #endif        
           }else if(connection->type == PAD_TYPE) {
             PadType *pad = (PadType *) connection->ptr2;
@@ -2830,7 +2831,7 @@ import_clusters(toporouter_t *r)
             cluster_join_bbox(cluster, box);
 
 #ifdef DEBUG_MERGING  
-            printf("\tPAD %d,%d\n", connection->X, connection->Y);
+            pcb_printf("\tPAD %#mD\n", connection->X, connection->Y);
 #endif        
           }else if(connection->type == PIN_TYPE) {
 
@@ -2841,7 +2842,7 @@ import_clusters(toporouter_t *r)
             }
 
 #ifdef DEBUG_MERGING  
-            printf("\tPIN %d,%d\n", connection->X, connection->Y);
+            pcb_printf("\tPIN %#mD\n", connection->X, connection->Y);
 #endif        
           }else if(connection->type == VIA_TYPE) {
 
@@ -2852,7 +2853,7 @@ import_clusters(toporouter_t *r)
             }
 
 #ifdef DEBUG_MERGING  
-            printf("\tVIA %d,%d\n", connection->X, connection->Y);
+            pcb_printf("\tVIA %#mD\n", connection->X, connection->Y);
 #endif        
           }else if(connection->type == POLYGON_TYPE) {
             PolygonType *polygon = (PolygonType *) connection->ptr2;
@@ -2860,7 +2861,7 @@ import_clusters(toporouter_t *r)
             cluster_join_bbox(cluster, box);
 
 #ifdef DEBUG_MERGING  
-            printf("\tPOLYGON %d,%d\n", connection->X, connection->Y);
+            pcb_printf("\tPOLYGON %#mD\n", connection->X, connection->Y);
 #endif        
 
           }
@@ -6877,7 +6878,7 @@ import_route(toporouter_t *r, RatType *line)
   if(!routedata->dest) printf("couldn't locate dest\n");
 
   if(!routedata->src || !routedata->dest) {
-    printf("PROBLEM: couldn't locate rat src or dest for rat %d,%d,%d -> %d,%d,%d\n",
+    pcb_printf("PROBLEM: couldn't locate rat src or dest for rat %#mD, %d -> %#mD, %d\n",
         line->Point1.X, line->Point1.Y, line->group1, line->Point2.X, line->Point2.Y, line->group2);
     free(routedata);
     return NULL;
