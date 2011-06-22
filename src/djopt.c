@@ -44,6 +44,7 @@
 #include "undo.h"
 #include "strflags.h"
 #include "find.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -55,7 +56,7 @@ RCSID ("$Id$");
 #define rint(x)  (ceil((x) - 0.5))
 #endif
 
-#define dprintf if(0)printf
+#define dprintf if(0)pcb_printf
 
 #define selected(x) TEST_FLAG (SELECTEDFLAG, (x))
 #define autorouted(x) TEST_FLAG (AUTOFLAG, (x))
@@ -198,19 +199,18 @@ corner_name (corner_s * c)
   bp = buf[bn] + strlen (buf[bn]);
 
   if (c->pin)
-    sprintf (bp, "pin %s:%s at %d,%d", element_name_for (c), c->pin->Number,
-	     c->x, c->y);
+    pcb_sprintf (bp, "pin %s:%s at %#mD", element_name_for (c), c->pin->Number, c->x, c->y);
   else if (c->via)
-    sprintf (bp, "via at %d,%d", c->x, c->y);
+    pcb_sprintf (bp, "via at %#mD", c->x, c->y);
   else if (c->pad)
     {
-      sprintf (bp, "pad %s:%s at %d,%d (%d,%d-%d,%d)",
+      pcb_sprintf (bp, "pad %s:%s at %#mD %#mD-%#mD",
 	       element_name_for (c), c->pad->Number, c->x, c->y,
 	       c->pad->Point1.X, c->pad->Point1.Y,
 	       c->pad->Point2.X, c->pad->Point2.Y);
     }
   else
-    sprintf (bp, "at %d,%d", c->x, c->y);
+    pcb_sprintf (bp, "at %#mD", c->x, c->y);
   sprintf (bp + strlen (bp), " n%d l%d]\033[0m", c->n_lines, c->layer);
   return buf[bn];
 }
@@ -278,7 +278,7 @@ check2 (int srcline, corner_s * c, line_s * l)
 	      || ll->e->x != ll->line->Point2.X
 	      || ll->e->y != ll->line->Point2.Y))
 	{
-	  printf ("line: %d,%d to %d,%d  pcbline: %d,%d to %d,%d\n",
+	  pcb_printf ("line: %#mD to %#mD  pcbline: %#mD to %#mD\n",
 		  ll->s->x, ll->s->y,
 		  ll->e->x, ll->e->y,
 		  ll->line->Point1.X,
@@ -523,7 +523,7 @@ add_line_to_corner (line_s * l, corner_s * c)
   c->lines = (line_s **) realloc (c->lines, n * sizeof (line_s *));
   c->lines[c->n_lines] = l;
   c->n_lines++;
-  dprintf ("add_line_to_corner %d %d\n", c->x, c->y);
+  dprintf ("add_line_to_corner %#mD\n", c->x, c->y);
 }
 
 static LineType *
@@ -589,7 +589,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
     {
       LineType *nl;
       dprintf
-	("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%s\033[0m\n",
+	("New line \033[35m%#mD to %#mD from l%d t%#mS c%#mS f%s\033[0m\n",
 	 s->x, s->y, e->x, e->y, layer, example->Thickness,
 	 example->Clearance, flags_to_string (example->Flags, LINE_TYPE));
       nl =
@@ -692,7 +692,7 @@ line_in_rect (rect_s * r, line_s * l)
   empty_rect (&lr);
   add_point_to_rect (&lr, l->s->x, l->s->y, l->line->Thickness / 2);
   add_point_to_rect (&lr, l->e->x, l->e->y, l->line->Thickness / 2);
-  dprintf ("line_in_rect %d,%d-%d,%d vs %d,%d-%d,%d\n",
+  dprintf ("line_in_rect %#mD-%#mD vs %#mD-%#mD\n",
 	   r->x1, r->y1, r->x2, r->y2, lr.x1, lr.y1, lr.x2, lr.y2);
   /* simple intersection of rectangles */
   if (lr.x1 < r->x1)
@@ -752,7 +752,7 @@ add_corner_to_rect_if (rect_s * rect, corner_s * c, rect_s * e)
   if (c->x > e->x2 && c->y > e->y2 && dist (c->x, c->y, e->x2, e->y2) > diam)
     return;
 
-  /*printf("add point %d,%d diam %d\n", c->x, c->y, diam); */
+  /*pcb_printf("add point %#mD diam %#mS\n", c->x, c->y, diam); */
   add_point_to_rect (rect, c->x, c->y, diam);
 }
 
@@ -860,8 +860,7 @@ move_corner (corner_s * c, int x, int y)
   check (c, 0);
   if (c->pad || c->pin)
     dj_abort ("move_corner: has pin or pad\n");
-  dprintf ("move_corner %p from %d,%d to %d,%d\n", (void *) c, c->x, c->y, x,
-	   y);
+  dprintf ("move_corner %p from %#mD to %#mD\n", (void *) c, c->x, c->y, x, y);
   pad = find_corner_if (x, y, c->layer);
   c->x = x;
   c->y = y;
@@ -869,7 +868,7 @@ move_corner (corner_s * c, int x, int y)
   if (via)
     {
       MoveObject (VIA_TYPE, via, via, via, x - via->X, y - via->Y);
-      dprintf ("via move %d,%d to %d,%d\n", via->X, via->Y, x, y);
+      dprintf ("via move %#mD to %#mD\n", via->X, via->Y, x, y);
     }
   for (i = 0; i < c->n_lines; i++)
     {
@@ -888,7 +887,7 @@ move_corner (corner_s * c, int x, int y)
 			  &tl->Point2, x - (tl->Point2.X),
 			  y - (tl->Point2.Y));
 	    }
-	  dprintf ("Line %p moved to %d,%d %d,%d\n", (void *) tl,
+	  dprintf ("Line %p moved to %#mD %#mD\n", (void *) tl,
 		   tl->Point1.X, tl->Point1.Y, tl->Point2.X, tl->Point2.Y);
 	}
     }
@@ -901,7 +900,7 @@ move_corner (corner_s * c, int x, int y)
 	    && c->lines[i]->s->y == c->lines[i]->e->y)
 	  {
 	    corner_s *c2 = other_corner (c->lines[i], c);
-	    dprintf ("move_corner: removing line %d,%d %d,%d %p %p\n",
+	    dprintf ("move_corner: removing line %#mD %#mD %p %p\n",
 		     c->x, c->y, c2->x, c2->y, (void *) c, (void *) c2);
 
 	    remove_line (c->lines[i]);
@@ -976,7 +975,7 @@ split_line (line_s * l, corner_s * c)
 
   check (c, l);
 
-  dprintf ("split line from %d,%d to %d,%d at %d,%d\n",
+  dprintf ("split line from %#mD to %#mD at %#mD\n",
 	   l->s->x, l->s->y, l->e->x, l->e->y, c->x, c->y);
   ls = (line_s *) malloc (sizeof (line_s));
 
@@ -1148,7 +1147,7 @@ simple_optimize_corner (corner_s * c)
     {
       /* see if no via is needed */
       if (selected (c->via))
-	dprintf ("via check: line[0] layer %d at %d,%d nl %d\n",
+	dprintf ("via check: line[0] layer %d at %#mD nl %d\n",
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
       /* We can't delete vias that connect to power planes, or vias
 	 that aren't tented (assume they're test points).  */
@@ -1158,7 +1157,7 @@ simple_optimize_corner (corner_s * c)
 	  for (i = 1; i < c->n_lines; i++)
 	    {
 	      if (selected (c->via))
-		dprintf ("           line[%d] layer %d %d,%d to %d,%d\n",
+		dprintf ("           line[%d] layer %d %#mD to %#mD\n",
 			 i, c->lines[i]->layer,
 			 c->lines[i]->s->x, c->lines[i]->s->y,
 			 c->lines[i]->e->x, c->lines[i]->e->y);
@@ -1184,7 +1183,7 @@ simple_optimize_corner (corner_s * c)
       corner_s *c0 = other_corner (c->lines[0], c);
       if (o == line_orient (c->lines[1], c2) && o != DIAGONAL)
 	{
-	  dprintf ("straight %d,%d to %d,%d to %d,%d\n",
+	  dprintf ("straight %#mD to %#mD to %#mD\n",
 		   c0->x, c0->y, c->x, c->y, c2->x, c2->y);
 	  if (selected (c->lines[0]->line))
 	    SET_FLAG (SELECTEDFLAG, c->lines[1]->line);
@@ -1215,8 +1214,7 @@ simple_optimize_corner (corner_s * c)
            * This code is probably worth keeping even when the autorouter bug is
            * fixed, as "freckles" could conceivably arise in other ways.
            */
-	  dprintf ("freckle %d,%d to %d,%d\n",
-		   c->x, c->y, c0->x, c0->y);
+	  dprintf ("freckle %#mD to %#mD\n", c->x, c->y, c0->x, c0->y);
 	  move_corner (c, c0->x, c0->y);
 	}
     }
@@ -1376,7 +1374,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	if (max > len || max == -1)
 	  max = len;
       }
-  dprintf ("c %s %4d %4d  cn %d pull %3d  max %4d\n",
+  dprintf ("c %s %4#mD  cn %d pull %3d  max %4#mS\n",
 	   fdir == RIGHT ? "right" : "down ", c->x, c->y, cn, pull, max);
 
   switch (edir)
@@ -1460,8 +1458,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       int o, x1, x2, y1, y2;
       if (DELETED (l))
 	continue;
-      dprintf ("check line %d,%d to %d,%d\n", l->s->x, l->s->y, l->e->x,
-	       l->e->y);
+      dprintf ("check line %#mD to %#mD\n", l->s->x, l->s->y, l->e->x, l->e->y);
       if (l->s->net == c->net)
 	{
 	  dprintf ("  same net\n");
@@ -1559,8 +1556,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	      break;
 	    }
 	  len -= r;
-	  dprintf ("  len is %d vs corner at %d,%d\n", len, cs[i]->x,
-		   cs[i]->y);
+	  dprintf ("  len is %#mS vs corner at %#mD\n", len, cs[i]->x, cs[i]->y);
 	  if (len <= 0)
 	    return 0;
 	  if (max > len)
@@ -1676,7 +1672,7 @@ orthopull ()
       c = c->next;
     }
   if (rv)
-    printf ("orthopull: %f mils saved\n", COORD_TO_MIL(rv));
+    pcb_printf ("orthopull: %ml mils saved\n", rv);
   return rv;
 }
 
@@ -1716,8 +1712,7 @@ debumpify ()
       if (ORIENT (o) == ORIENT (o1) || o1 != o2 || o1 == DIAGONAL)
 	continue;
 
-      dprintf ("\nline: %d,%d to %d,%d\n", l->s->x, l->s->y, l->e->x,
-	       l->e->y);
+      dprintf ("\nline: %#mD to %#mD\n", l->s->x, l->s->y, l->e->x, l->e->y);
       w = l->line->Thickness / 2 + SB + 1;
       empty_rect (&rr);
       add_line_to_rect (&rr, l1);
@@ -1730,7 +1725,7 @@ debumpify ()
 	rr.y1 -= w;
       if (rr.y2 != l->s->y && rr.y2 != l->e->y)
 	rr.y2 += w;
-      dprintf ("range: x %d..%d y %d..%d\n", rr.x1, rr.x2, rr.y1, rr.y2);
+      dprintf ("range: x %#mS..%#mS y %#mS..%#mS\n", rr.x1, rr.x2, rr.y1, rr.y2);
 
       c1 = other_corner (l1, l->s);
       c2 = other_corner (l2, l->e);
@@ -1751,7 +1746,7 @@ debumpify ()
 	  rp.y1 = rr.y2;
 	  rp.y2 = rr.y1;
 	}
-      dprintf ("pin r: x %d..%d y %d..%d\n", rp.x1, rp.x2, rp.y1, rp.y2);
+      dprintf ("pin r: x %#mS..%#mS y %#mS..%#mS\n", rp.x1, rp.x2, rp.y1, rp.y2);
 
       switch (o1)
 	{
@@ -1764,7 +1759,7 @@ debumpify ()
 	    step = l->s->x - c2->x;
 	  if (step > 0)
 	    {
-	      dprintf ("left step %d at %d,%d\n", step, l->s->x, l->s->y);
+	      dprintf ("left step %#mS at %#mD\n", step, l->s->x, l->s->y);
 	      move_corner (l->s, l->s->x - step, l->s->y);
 	      move_corner (l->e, l->e->x - step, l->e->y);
 	      rv += step;
@@ -1779,7 +1774,7 @@ debumpify ()
 	    step = c2->x - l->s->x;
 	  if (step > 0)
 	    {
-	      dprintf ("right step %d at %d,%d\n", step, l->s->x, l->s->y);
+	      dprintf ("right step %#mS at %#mD\n", step, l->s->x, l->s->y);
 	      move_corner (l->s, l->s->x + step, l->s->y);
 	      move_corner (l->e, l->e->x + step, l->e->y);
 	      rv += step;
@@ -1792,7 +1787,7 @@ debumpify ()
 			    l->s->y - c1->y, l->s->y - c2->y);
 	  if (step > 0)
 	    {
-	      dprintf ("up step %d at %d,%d\n", step, l->s->x, l->s->y);
+	      dprintf ("up step %#mS at %#mD\n", step, l->s->x, l->s->y);
 	      move_corner (l->s, l->s->x, l->s->y - step);
 	      move_corner (l->e, l->e->x, l->e->y - step);
 	      rv += step;
@@ -1807,7 +1802,7 @@ debumpify ()
 	    step = c2->y - l->s->y;
 	  if (step > 0)
 	    {
-	      dprintf ("down step %d at %d,%d\n", step, l->s->x, l->s->y);
+	      dprintf ("down step %#mS at %#mD\n", step, l->s->x, l->s->y);
 	      move_corner (l->s, l->s->x, l->s->y + step);
 	      move_corner (l->e, l->e->x, l->e->y + step);
 	      rv += step;
@@ -1819,7 +1814,7 @@ debumpify ()
 
   rv += simple_optimizations ();
   if (rv)
-    printf ("debumpify: %d mils saved\n", rv / 50);
+    pcb_printf ("debumpify: %ml mils saved\n", rv / 50);
   return rv;
 }
 
@@ -1864,7 +1859,7 @@ unjaggy_once ()
 	  && !(autorouted (c->lines[0]->line)
 	       || autorouted (c->lines[1]->line)))
 	continue;
-      dprintf ("simple at %d,%d\n", c->x, c->y);
+      dprintf ("simple at %#mD\n", c->x, c->y);
 
       c0 = other_corner (c->lines[0], c);
       o0 = line_orient (c->lines[0], c);
@@ -1876,7 +1871,7 @@ unjaggy_once ()
 
       if (!s0 && !s1)
 	continue;
-      dprintf ("simples at %d,%d\n", c->x, c->y);
+      dprintf ("simples at %#mD\n", c->x, c->y);
 
       w = 1;
       for (l = 0; l < c0->n_lines; l++)
@@ -1920,11 +1915,11 @@ unjaggy_once ()
 	  if (cc->net != c->net && intersecting_layers (cc->layer, c->layer))
 	    add_corner_to_rect_if (&rp, cc, &rr);
 	}
-      dprintf ("rp x %d..%d  y %d..%d\n", rp.x1, rp.x2, rp.y1, rp.y2);
+      dprintf ("rp x %#mS..%#mS  y %#mS..%#mS\n", rp.x1, rp.x2, rp.y1, rp.y2);
       if (rp.x1 <= rp.x2)	/* something triggered */
 	continue;
 
-      dprintf ("unjaggy at %d,%d layer %d\n", c->x, c->y, c->layer);
+      dprintf ("unjaggy at %#mD layer %d\n", c->x, c->y, c->layer);
       if (c->x == c0->x)
 	move_corner (c, c1->x, c0->y);
       else
@@ -2056,8 +2051,8 @@ vianudge ()
 
       /* at this point, we know we can move it */
 
-      dprintf ("vianudge: nudging via at %d,%d by %f mils saving %f\n",
-	       c->x, c->y, COORD_TO_MIL(len), COORD_TO_MIL(saved));
+      dprintf ("vianudge: nudging via at %#mD by %#mS saving %#mS\n",
+	       c->x, c->y, len, saved);
       rv += len * saved;
       move_corner (c, c2->x, c2->y);
 
@@ -2068,7 +2063,7 @@ vianudge ()
     }
 
   if (rv)
-    printf ("vianudge: %f mils saved\n", COORD_TO_MIL(rv));
+    pcb_printf ("vianudge: %ml mils saved\n", rv);
   return rv;
 }
 
@@ -2100,7 +2095,7 @@ viatrim ()
 
       my_layer = l->layer;
       other_layer = -1;
-      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", (void *) l,
+      dprintf ("line %p on layer %d from %#mD to %#mD\n", (void *) l,
 	       l->layer, l->s->x, l->s->y, l->e->x, l->e->y);
       for (i = 0; i < l->s->n_lines; i++)
 	if (l->s->lines[i] != l)
@@ -2152,11 +2147,11 @@ viatrim ()
 	    continue;
 	  if (l2->s->net != l->s->net && l2->layer == other_layer)
 	    {
-	      dprintf ("checking other line %d,%d to %d,%d\n", l2->s->x,
+	      dprintf ("checking other line %#mD to %#mD\n", l2->s->x,
 		       l2->s->y, l2->e->x, l2->e->y);
 	      if (line_in_rect (&r, l2))
 		{
-		  dprintf ("line from %d,%d to %d,%d in the way\n",
+		  dprintf ("line from %#mD to %#mD in the way\n",
 			   l2->s->x, l2->s->y, l2->e->x, l2->e->y);
 		  goto viatrim_continue;
 		}
@@ -2482,7 +2477,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
   for (ci = 0; ci < 2; ci++)
     for (li = 0; li < c[ci]->n_lines; li++)
       {
-	dprintf ("  try[%d,%d] \033[36m<%d,%d-%d,%d t%d c%d f%s>\033[0m\n",
+	dprintf ("  try[%d,%d] \033[36m<%#mD-%#mD t%#mS c%#mS f%s>\033[0m\n",
 		 ci, li,
 		 c[ci]->lines[li]->s->x, c[ci]->lines[li]->s->y,
 		 c[ci]->lines[li]->e->x, c[ci]->lines[li]->e->y,
@@ -2516,7 +2511,7 @@ connect_corners (corner_s * c1, corner_s * c2)
   LineType *example = ex->line;
 
   dprintf
-    ("connect_corners \033[32m%d,%d to %d,%d, example line %d,%d to %d,%d l%d\033[0m\n",
+    ("connect_corners \033[32m%#mD to %#mD, example line %#mD to %#mD l%d\033[0m\n",
      c1->x, c1->y, c2->x, c2->y, ex->s->x, ex->s->y, ex->e->x, ex->e->y,
      ex->layer);
 
@@ -2603,7 +2598,7 @@ pinsnap ()
 	      if (c->pad->Point1.X == c->pad->Point2.X)
 		{
 		  int hy = (c->pad->Point1.Y + c->pad->Point2.Y) / 2;
-		  dprintf ("pad y %d %d hy %d c %d\n", c->pad->Point1.Y,
+		  dprintf ("pad y %#mS %#mS hy %#mS c %#mS\n", c->pad->Point1.Y,
 			   c->pad->Point2.Y, hy, c->y);
 		  if (c->y < hy)
 		    top = hy;
@@ -2613,7 +2608,7 @@ pinsnap ()
 	      else
 		{
 		  int hx = (c->pad->Point1.X + c->pad->Point2.X) / 2;
-		  dprintf ("pad x %d %d hx %d c %d\n", c->pad->Point1.X,
+		  dprintf ("pad x %#mS %#mS hx %#mS c %#mS\n", c->pad->Point1.X,
 			   c->pad->Point2.X, hx, c->x);
 		  if (c->x < hx)
 		    right = hx;
@@ -2622,8 +2617,7 @@ pinsnap ()
 		}
 	    }
 
-	  dprintf ("%s x %d-%d y %d-%d\n", corner_name (c), left, right,
-		   bottom, top);
+	  dprintf ("%s x %#mS-%#mS y %#mS-%#mS\n", corner_name (c), left, right, bottom, top);
 	  for (l = 0; l <= max_copper_layer; l++)
 	    {
 	      best_dist[l] = close * 2;
@@ -2703,7 +2697,7 @@ pinsnap ()
 
       l = c->lines[0];
       lo = line_orient (l, c);
-      dprintf ("line end %d,%d orient %d\n", c->x, c->y, lo);
+      dprintf ("line end %#mD orient %d\n", c->x, c->y, lo);
 
       for (t = lines; t; t = t->next)
 	{
@@ -2721,8 +2715,7 @@ pinsnap ()
 		  && ((t->s->y < c->y && c->y < t->e->y)
 		      || (t->e->y < c->y && c->y < t->s->y)))
 		{
-		  dprintf ("found %d,%d - %d,%d\n", t->s->x, t->s->y, t->e->x,
-			   t->e->y);
+		  dprintf ("found %#mD - %#mD\n", t->s->x, t->s->y, t->e->x, t->e->y);
 		  move_corner (c, t->s->x, c->y);
 		}
 	      break;
@@ -2734,8 +2727,7 @@ pinsnap ()
 		  && ((t->s->y < c->y && c->y < t->e->y)
 		      || (t->e->y < c->y && c->y < t->s->y)))
 		{
-		  dprintf ("found %d,%d - %d,%d\n", t->s->x, t->s->y, t->e->x,
-			   t->e->y);
+		  dprintf ("found %#mD - %#mD\n", t->s->x, t->s->y, t->e->x, t->e->y);
 		  move_corner (c, t->s->x, c->y);
 		}
 	      break;
@@ -2747,8 +2739,7 @@ pinsnap ()
 		  && ((t->s->x < c->x && c->x < t->e->x)
 		      || (t->e->x < c->x && c->x < t->s->x)))
 		{
-		  dprintf ("found %d,%d - %d,%d\n", t->s->x, t->s->y, t->e->x,
-			   t->e->y);
+		  dprintf ("found %#mD - %#mD\n", t->s->x, t->s->y, t->e->x, t->e->y);
 		  move_corner (c, c->x, t->s->y);
 		}
 	      break;
@@ -2760,8 +2751,7 @@ pinsnap ()
 		  && ((t->s->x < c->x && c->x < t->e->x)
 		      || (t->e->x < c->x && c->x < t->s->x)))
 		{
-		  dprintf ("found %d,%d - %d,%d\n", t->s->x, t->s->y, t->e->x,
-			   t->e->y);
+		  dprintf ("found %#mD - %#mD\n", t->s->x, t->s->y, t->e->x, t->e->y);
 		  move_corner (c, c->x, t->s->y);
 		}
 	      break;
@@ -2821,7 +2811,7 @@ padcleaner ()
 	      && ORIENT (line_orient (l, 0)) == pad_orient (pad))
 	    {
 	      dprintf
-		("padcleaner %d,%d-%d,%d %d vs line %d,%d-%d,%d %d\n",
+		("padcleaner %#mD-%#mD %#mS vs line %#mD-%#mD %#mS\n",
 		 pad->Point1.X, pad->Point1.Y, pad->Point2.X, pad->Point2.Y,
 		 pad->Thickness, l->s->x, l->s->y, l->e->x, l->e->y,
 		 l->line->Thickness);
