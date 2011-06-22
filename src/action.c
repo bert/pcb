@@ -70,6 +70,7 @@
 #include "undo.h"
 #include "rtree.h"
 #include "macro.h"
+#include "pcb-printf.h"
 
 #include <assert.h>
 #include <stdlib.h> /* rand() */
@@ -3401,10 +3402,9 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	 * add to the list of locked elements which we won't try to
 	 * renumber and whose reference designators are now reserved.
 	 */
-	fprintf (out,
-		 "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n",
-		 UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX,
-		 element->MarkY);
+	pcb_fprintf (out,
+		     "*WARN* Element \"%s\" at %$md is locked and will not be renumbered.\n",
+		      UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX, element->MarkY);
 	locked_element_list[lock_cnt] = element;
 	lock_cnt++;
       }
@@ -3566,7 +3566,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	}
       else
 	{
-	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n",
+	  pcb_fprintf (out, "*WARN* Element at %$md has no name.\n",
 		   element_list[i]->MarkX, element_list[i]->MarkY);
 	}
 
