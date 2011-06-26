@@ -145,7 +145,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	via = (PinTypePtr) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
 	  pcb_sprintf (&report[0], "%m+VIA ID# %ld; Flags:%s\n"
-		   "(X,Y) = %$mD %s.\n"
+		   "(X,Y) = %$mD.\n"
 		   "It is a pure hole of diameter %$mS.\n"
 		   "Name = \"%s\"."
 		   "%s", USER_UNITMASK, via->ID, flags_to_string (via->Flags, VIA_TYPE),
