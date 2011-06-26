@@ -572,7 +572,7 @@ WritePCBDataHeader (FILE * FP)
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
   pcb_fprintf (FP, " %mc %mc]\n\n", PCB->MaxWidth, PCB->MaxHeight);
   pcb_fprintf (FP, "Grid[%s %mc %mc %d]\n",
-	       c_dtostr (PCB->Grid), PCB->GridOffsetX,
+	       c_dtostr (COORD_TO_MIL(PCB->Grid) * 100), PCB->GridOffsetX,
 	       PCB->GridOffsetY, Settings.DrawGrid);
   pcb_fprintf (FP, "Cursor[%mc %mc %s]\n",
                Crosshair.X, Crosshair.Y, c_dtostr (PCB->Zoom));
@@ -717,7 +717,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       PrintQuotedString (FP, (char *)EMPTY (NAMEONPCB_NAME (element)));
       fputc (' ', FP);
       PrintQuotedString (FP, (char *)EMPTY (VALUE_NAME (element)));
-      pcb_fprintf (FP, " %mc %mc %mc %mc %mc %mc %s]\n(\n",
+      pcb_fprintf (FP, " %mc %mc %mc %mc %d %d %s]\n(\n",
                    element->MarkX, element->MarkY,
                    DESCRIPTION_TEXT (element).X - element->MarkX,
                    DESCRIPTION_TEXT (element).Y - element->MarkY,
@@ -765,7 +765,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Arc; p != NULL; p = g_list_next (p))
 	{
 	  ArcType *arc = p->data;
-          pcb_fprintf (FP, "\tElementArc [%mc %mc %mc %mc %mc %mc %mc]\n",
+          pcb_fprintf (FP, "\tElementArc [%mc %mc %mc %mc %d %d %mc]\n",
                        arc->X - element->MarkX,
                        arc->Y - element->MarkY,
                        arc->Width, arc->Height,
@@ -804,7 +804,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Arc; n != NULL; n = g_list_next (n))
 	{
 	  ArcType *arc = n->data;
-          pcb_fprintf (FP, "\tArc[%mc %mc %mc %mc %mc %mc %mc %mc %s]\n",
+          pcb_fprintf (FP, "\tArc[%mc %mc %mc %mc %mc %mc %d %d %s]\n",
                        arc->X, arc->Y, arc->Width,
                        arc->Height, arc->Thickness,
                        arc->Clearance, arc->StartAngle,
@@ -813,7 +813,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Text; n != NULL; n = g_list_next (n))
 	{
 	  TextType *text = n->data;
-          pcb_fprintf (FP, "\tText[%mc %mc %mc %mc ",
+          pcb_fprintf (FP, "\tText[%mc %mc %d %d ",
                        text->X, text->Y,
                        text->Direction, text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
