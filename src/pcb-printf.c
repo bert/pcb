@@ -402,9 +402,14 @@ int pcb_fprintf(FILE *fh, const char *fmt, ...)
   va_list args;
   va_start(args, fmt);
 
-  tmp = pcb_vprintf (fmt, args);
-  rv = fprintf (fh, "%s", tmp);
-  g_free (tmp);
+  if (fh == NULL)
+    rv = -1;
+  else
+    {
+      tmp = pcb_vprintf (fmt, args);
+      rv = fprintf (fh, "%s", tmp);
+      g_free (tmp);
+    }
   
   va_end(args);
   return rv;
