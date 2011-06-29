@@ -13,6 +13,7 @@
 #include "global.h"
 #include "data.h"
 #include "misc.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -230,10 +231,11 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
   in_mono = options[HA_mono].int_value;
 
-#define pcb2em(x) (int)(COORD_TO_INCH(x) * 72.0 * options[HA_scale].real_value + 1)
-  fprintf (f, "%%%%BoundingBox: 0 0 %d %d\n",
+#define pcb2em(x) (BDimension)((x) * 72.0 * options[HA_scale].real_value + INCH_TO_COORD(1))
+  pcb_fprintf (f, "%%%%BoundingBox: 0 0 %mi %mi\n",
 	   pcb2em (bounds->X2 - bounds->X1),
 	   pcb2em (bounds->Y2 - bounds->Y1));
+#undef pcb2em
   fprintf (f, "%%%%Pages: 1\n");
   fprintf (f,
 	   "save countdictstack mark newpath /showpage {} def /setpagedevice {pop} def\n");
@@ -242,21 +244,17 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "%%%%BeginDocument: %s\n\n", filename);
 
   fprintf (f, "72 72 scale\n");
-  fprintf (f, "0.00001 dup neg scale\n");
+  fprintf (f, "1 dup neg scale\n");
   fprintf (f, "%g dup scale\n", options[HA_scale].real_value);
-  fprintf (f, "%d %d translate\n", -bounds->X1, -bounds->Y2);
-  if (options[HA_as_shown].int_value
-      && Settings.ShowSolderSide)
-    {
-      fprintf (f, "-1 1 scale %d 0 translate\n",
-	       bounds->X1 - bounds->X2);
-    }
+  pcb_fprintf (f, "%mi %mi translate\n", -bounds->X1, -bounds->Y2);
+  if (options[HA_as_shown].int_value && Settings.ShowSolderSide)
+    pcb_fprintf (f, "-1 1 scale %mi 0 translate\n", bounds->X1 - bounds->X2);
   linewidth = -1;
   lastcap = -1;
   lastcolor = -1;
-#define Q 1000
-  fprintf (f,
-	   "/nclip { %d %d moveto %d %d lineto %d %d lineto %d %d lineto %d %d lineto eoclip newpath } def\n",
+#define Q (BDimension) MIL_TO_COORD(10)
+  pcb_fprintf (f,
+	   "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
 	   bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
 	   bounds->X2 + Q, bounds->Y2 + Q, bounds->X2 + Q, bounds->Y1 - Q,
 	   bounds->X1 - Q, bounds->Y1 - Q);
@@ -490,7 +488,7 @@ use_gc (hidGC gc)
 {
   if (linewidth != gc->width)
     {
-      fprintf (f, "%d setlinewidth\n", gc->width);
+      pcb_fprintf (f, "%mi setlinewidth\n", gc->width);
       linewidth = gc->width;
     }
   if (lastcap != gc->cap)
@@ -526,7 +524,7 @@ static void
 eps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
+  pcb_fprintf (f, "%mi %mi %mi %mi r\n", x1, y1, x2, y2);
 }
 
 static void
@@ -551,14 +549,14 @@ eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       int vx1 = x1 + dx;
       int vy1 = y1 + dy;
 
-      fprintf (f, "%d %d moveto ", vx1, vy1);
-      fprintf (f, "%d %d %d %g %g arc\n", x2, y2, w, deg - 90, deg + 90);
-      fprintf (f, "%d %d %d %g %g arc\n", x1, y1, w, deg + 90, deg + 270);
+      pcb_fprintf (f, "%mi %mi moveto ", vx1, vy1);
+      pcb_fprintf (f, "%mi %mi %mi %g %g arc\n", x2, y2, w, deg - 90, deg + 90);
+      pcb_fprintf (f, "%mi %mi %mi %g %g arc\n", x1, y1, w, deg + 90, deg + 270);
       fprintf (f, "nclip\n");
 
       return;
     }
-  fprintf (f, "%d %d %d %d %s\n", x1, y1, x2, y2, gc->erase ? "tc" : "t");
+  pcb_fprintf (f, "%mi %mi %mi %mi %s\n", x1, y1, x2, y2, gc->erase ? "tc" : "t");
 }
 
 static void
@@ -581,7 +579,7 @@ eps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
   use_gc (gc);
-  fprintf (f, "%d %d %d %d %d %d %g a\n",
+  pcb_fprintf (f, "%d %d %mi %mi %mi %mi %g a\n",
 	   sa, ea, -width, height, cx, cy, (double) linewidth / width);
 }
 
@@ -589,7 +587,7 @@ static void
 eps_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d %s\n", cx, cy, radius, gc->erase ? "cc" : "c");
+  pcb_fprintf (f, "%mi %mi %mi %s\n", cx, cy, radius, gc->erase ? "cc" : "c");
 }
 
 static void
@@ -600,7 +598,7 @@ eps_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   use_gc (gc);
   for (i = 0; i < n_coords; i++)
     {
-      fprintf (f, "%d %d %s\n", x[i], y[i], op);
+      pcb_fprintf (f, "%mi %mi %s\n", x[i], y[i], op);
       op = "lineto";
     }
   fprintf (f, "fill\n");
@@ -610,7 +608,7 @@ static void
 eps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
+  pcb_fprintf (f, "%mi %mi %mi %mi r\n", x1, y1, x2, y2);
 }
 
 static void
