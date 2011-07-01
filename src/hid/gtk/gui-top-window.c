@@ -107,6 +107,7 @@ a zoom in/out.
 #include "mymem.h"
 #include "misc.h"
 #include "move.h"
+#include "pcb-printf.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
@@ -688,7 +689,7 @@ handle_grid_units_change (gboolean active)
 
   ghid_grid_setting_update_menu_actions ();
 
-  grid = g_strdup_printf ("%f", PCB->Grid);
+  grid = pcb_g_strdup_printf ("%$ms", (BDimension) PCB->Grid);
   hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
 
@@ -700,7 +701,7 @@ handle_grid_units_change (gboolean active)
 static void
 radio_grid_mil_setting_cb (GtkAction * action, GtkRadioAction * current)
 {
-  gdouble value;
+  BDimension value;
   gchar *grid;
   gint index;
 
@@ -709,7 +710,7 @@ radio_grid_mil_setting_cb (GtkAction * action, GtkRadioAction * current)
     return;
   index = gtk_radio_action_get_current_value (current);
   value = grid_mil_values[index];
-  grid = g_strdup_printf ("%f", value);
+  grid = pcb_g_strdup_printf ("%$ms", value);
   hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
   ghid_set_status_line_label ();
@@ -718,7 +719,7 @@ radio_grid_mil_setting_cb (GtkAction * action, GtkRadioAction * current)
 static void
 radio_grid_mm_setting_cb (GtkAction * action, GtkRadioAction * current)
 {
-  gdouble value;
+  BDimension value;
   gchar *grid;
   gint index;
 
@@ -727,7 +728,7 @@ radio_grid_mm_setting_cb (GtkAction * action, GtkRadioAction * current)
     return;
   index = gtk_radio_action_get_current_value (current);
   value = grid_mm_values[index];
-  grid = g_strdup_printf ("%f", value);
+  grid = pcb_g_strdup_printf ("%$ms", value);
   hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
   ghid_set_status_line_label ();

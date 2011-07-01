@@ -196,7 +196,7 @@ zoom_to (double new_zoom, int x, int y)
    */
 
 #ifdef DEBUG
-  printf ("\nzoom_to( %g, %d, %d)\n", new_zoom, x, y);
+  pcb_printf ("\nzoom_to( %g, %#mS, %#mS)\n", new_zoom, x, y);
 #endif
 
   xfrac = (double) x / (double) gport->view_width;
@@ -236,8 +236,8 @@ zoom_to (double new_zoom, int x, int y)
   cy = gport->view_y0 + gport->view_height * yfrac * gport->zoom;
 
 #ifdef DEBUG
-  printf ("zoom_to():  x0 = %d, cx = %d\n", gport->view_x0, cx);
-  printf ("zoom_to():  y0 = %d, cy = %d\n", gport->view_y0, cy);
+  pcb_printf ("zoom_to():  x0 = %#mS, cx = %#mS\n", gport->view_x0, cx);
+  pcb_printf ("zoom_to():  y0 = %#mS, cy = %#mS\n", gport->view_y0, cy);
 #endif
 
   if (gport->zoom != new_zoom)
@@ -281,7 +281,7 @@ void
 zoom_by (double factor, int x, int y)
 {
 #ifdef DEBUG
-  printf ("\nzoom_by( %g, %d, %d).  old gport->zoom = %g\n", 
+  pcb_printf ("\nzoom_by( %g, %#mS, %#mS).  old gport->zoom = %g\n", 
 	  factor, x, y, gport->zoom);
 #endif
   zoom_to (gport->zoom * factor, x, y);

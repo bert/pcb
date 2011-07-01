@@ -34,6 +34,7 @@
 #include "misc.h"
 #include "action.h"
 #include "set.h"
+#include "pcb-printf.h"
 
 #include "gui.h"
 #include <gdk/gdkkeysyms.h>
@@ -496,114 +497,44 @@ ghid_get_pointer (int *x, int *y)
 void
 ghid_set_status_line_label (void)
 {
-  gchar text[512];
-
-  if (!Settings.grid_units_mm)
-    snprintf (text, sizeof (text),
-	      _("<b>view</b>=%s  "
-		"<b>grid</b>=%.1f:%i  "
-		"%s%s  "
-		"<b>line</b>=%.1f  "
-		"<b>via</b>=%.1f(%.1f)  %s"
-		"<b>clearance</b>=%.1f  "
-		"<b>text</b>=%i%%  "
-		"<b>buffer</b>=#%i"),
-	      Settings.ShowSolderSide ? _("solder") : _("component"),
-	      COORD_TO_MIL(PCB->Grid),
-	      (int) Settings.GridFactor,
-	      TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
-	      (PCB->Clipping == 0 ? "45" :
-	       (PCB->Clipping == 1 ? "45_/" : "45\\_")),
-	      TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-	      COORD_TO_MIL(Settings.LineThickness),
-	      COORD_TO_MIL(Settings.ViaThickness),
-	      COORD_TO_MIL(Settings.ViaDrillingHole),
-	      ghidgui->compact_horizontal ? "\n" : "",
-	      COORD_TO_MIL(Settings.Keepaway),
-	      Settings.TextScale, Settings.BufferNumber + 1);
-  else
-    snprintf (text, sizeof (text),
-	      _("<b>view</b>=%s  "
-		"<b>grid</b>=%5.3f:%i  "
-		"%s%s  "
-		"<b>line</b>=%5.3f  "
-		"<b>via</b>=%5.3f(%5.3f)  %s"
-		"<b>clearance</b>=%5.3f  "
-		"<b>text</b>=%i%%  "
-		"<b>buffer</b>=#%i"),
-	      Settings.ShowSolderSide ? _("solder") : _("component"),
-	      COORD_TO_MM(PCB->Grid), (int) Settings.GridFactor,
-	      TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
-	      (PCB->Clipping == 0 ? "45" :
-	       (PCB->Clipping == 1 ? "45_/" : "45\\_")),
-	      TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-	      COORD_TO_MM(Settings.LineThickness),
-	      COORD_TO_MM(Settings.ViaThickness),
-	      COORD_TO_MM(Settings.ViaDrillingHole),
-	      ghidgui->compact_horizontal ? "\n" : "",
-	      COORD_TO_MM(Settings.Keepaway),
-	      Settings.TextScale, Settings.BufferNumber + 1);
+  gchar *flag = TEST_FLAG (ALLDIRECTIONFLAG, PCB)
+                ? "all"
+                : (PCB->Clipping == 0
+                    ? "45"
+                    : (PCB->Clipping == 1
+                      ? "45_/"
+                      : "45\\_"));
+  gchar *text = pcb_g_strdup_printf (
+      Settings.grid_units_mm
+        ? _("<b>view</b>=%s  "
+            "<b>grid</b>=%5.3mm:%i  "
+            "%s%s  "
+            "<b>line</b>=%5.3mm  "
+            "<b>via</b>=%5.3mm(%5.3mm)  %s"
+            "<b>clearance</b>=%5.3mm  "
+            "<b>text</b>=%i%%  "
+            "<b>buffer</b>=#%i")
+        : _("<b>view</b>=%s  "
+            "<b>grid</b>=%.1ml:%i  "
+            "%s%s  "
+            "<b>line</b>=%.1ml  "
+            "<b>via</b>=%.1ml(%.1ml)  %s"
+            "<b>clearance</b>=%.1ml  "
+            "<b>text</b>=%i%%  "
+            "<b>buffer</b>=#%i"),
+      Settings.ShowSolderSide ? _("solder") : _("component"),
+      (BDimension) PCB->Grid,
+      (int) Settings.GridFactor,
+      flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
+      Settings.LineThickness,
+      Settings.ViaThickness,
+      Settings.ViaDrillingHole,
+      ghidgui->compact_horizontal ? "\n" : "",
+      Settings.Keepaway,
+      Settings.TextScale, Settings.BufferNumber + 1);
 
   ghid_status_line_set_text (text);
-}
-
-/* returns an auxiliary value needed to adjust mm grid.
-   the adjustment is needed to prevent ..99 tails in position labels.
-
-   All these are a workaround to precision lost
-   because of double->integer transform
-   while fitting Crosshair to grid in crosshair.c
-
-   There is another workaround: report mm dimensions with %.2f, like
-   in the Lesstif hid; but this reduces the information */
-static double
-ghid_get_grid_factor(void)
-{
-  /* when grid units are mm, they shall be an integer of
-     1 mm / grid_scale */
-  const int grid_scale = 10000; /* metric grid step is .1 um */
-  double factor, rounded_factor;
-
-  /* adjustment is not needed for inches
-     probably because x/100 is always 'integer' enough */
-  if (!Settings.grid_units_mm)
-    return -1;
-
-  factor = COORD_TO_MM(PCB->Grid) * grid_scale;
-  rounded_factor = floor (factor + .5);
-
-  /* check whether the grid is actually metric
-     (as of Feb 2011, Settings.grid_units_mm may indicate just that
-      the _displayed_ units are mm) */
-  if (fabs (factor - rounded_factor) > 1e-3)
-    return -1;
-
-  return rounded_factor / grid_scale;
-}
-/* transforms a pcb coordinate to selected units
-   adjusted to the nearest grid point for mm grid */
-static double
-ghid_grid_pcb_to_units (double x, double grid_factor)
-{
-  double x_scaled = (Settings.grid_units_mm ? COORD_TO_MM(1): COORD_TO_MIL(1)) * x;
-  double nearest_gridpoint;
-
-  if (grid_factor < 0)
-    return x_scaled;
-
-  x = COORD_TO_MM(x);
-
-  nearest_gridpoint = floor (x / grid_factor + .5);
-  /* honour snapping to an unaligned object */
-  if (fabs (nearest_gridpoint * grid_factor - x) > COORD_TO_MM(1))
-    return x_scaled;
-  /* without mm-adjusted grid_factor
-     (return floor (x / PCB->Grid + .5) * COORD_TO_MM(PCB->Grid)),
-     the round-off errors redintroduce the bug for 0.1 or 0.05 mm grid
-     at coordinates more than 1500 mm.
-     grid_factor makes the stuff work at least up to 254 m,
-     which is 100 times more than default maximum board size as of Feb 2011. */
-  return nearest_gridpoint * grid_factor;
+  g_free (text);
 }
 
 /* ---------------------------------------------------------------------------
@@ -612,28 +543,28 @@ ghid_grid_pcb_to_units (double x, double grid_factor)
 void
 ghid_set_cursor_position_labels (void)
 {
-  gchar text[128];
-  int prec = Settings.grid_units_mm ? 4: 2;
-  double grid_factor = ghid_get_grid_factor();
+  gchar *text;
 
   if (Marked.status)
     {
-      double dx, dy, r, a;
+      BDimension dx = Crosshair.X - Marked.X;
+      BDimension dy = Crosshair.Y - Marked.Y;
+      BDimension r  = Distance (Crosshair.X, Crosshair.Y, Marked.X, Marked.Y);
+      double a      = atan2 (dy, dx) * RAD_TO_DEG;
 
-      dx = ghid_grid_pcb_to_units (Crosshair.X - Marked.X, grid_factor);
-      dy = ghid_grid_pcb_to_units (Crosshair.Y - Marked.Y, grid_factor);
-      r = sqrt (dx * dx + dy * dy);
-      a = atan2 (dy, dx) * RAD_TO_DEG;
-      snprintf (text, sizeof (text), "r %-.*f; phi %-.1f; %-.*f %-.*f",
-		prec, r, a, prec, dx, prec, dy);
+      text = pcb_g_strdup_printf ("%m+r %-mS; phi %-.1f; %-mS %-mS",
+                                  Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL,
+                                  r, a, dx, dy);
       ghid_cursor_position_relative_label_set_text (text);
+      g_free (text);
     }
   else
     ghid_cursor_position_relative_label_set_text ("r __.__; phi __._; __.__ __.__");
 
-  snprintf (text, sizeof (text), "%-.*f %-.*f",
-              prec, ghid_grid_pcb_to_units (Crosshair.X, grid_factor),
-              prec, ghid_grid_pcb_to_units (Crosshair.Y, grid_factor));
 
+  text = pcb_g_strdup_printf ("%m+%-mS %-mS",
+                              Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL,
+                              Crosshair.X, Crosshair.Y);
   ghid_cursor_position_label_set_text (text);
+  g_free (text);
 }

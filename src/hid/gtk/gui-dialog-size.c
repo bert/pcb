@@ -43,6 +43,7 @@
 #include "error.h"
 #include "misc.h"
 #include "set.h"
+#include "pcb-printf.h"
 
 #include "gui.h"
 
@@ -78,7 +79,7 @@ make_route_string(RouteStyleType * rs)
   str = g_strdup("");
   for (i = 0; i < NUM_STYLES; ++i, ++rs)
     {
-      s = g_strdup_printf ("%s,%d,%d,%d,%d", rs->Name,
+      s = pcb_g_strdup_printf ("%s,%mc,%mc,%mc,%mc", rs->Name,
                rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
       colon = (i == NUM_STYLES - 1) ? NULL : (gchar *)":";
       t = str;
