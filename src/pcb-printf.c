@@ -245,8 +245,16 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
           g_string_append_c (spec, *fmt++);
           while(isdigit(*fmt) || *fmt == '.' || *fmt == ' ' || *fmt == '*'
                               || *fmt == '#' || *fmt == 'l' || *fmt == 'L'
-                              || *fmt == 'h' || *fmt == '-')
-            g_string_append_c (spec, *fmt++);
+                              || *fmt == 'h' || *fmt == '+' || *fmt == '-')
+          {
+            if (*fmt == '*')
+              {
+                g_string_append_printf (spec, "%d", va_arg (args, int));
+                fmt++;
+              }
+            else
+              g_string_append_c (spec, *fmt++);
+          }
           /* Get our sub-specifiers */
           if(*fmt == '#')
             {
