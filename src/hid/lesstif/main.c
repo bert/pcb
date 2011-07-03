@@ -2298,14 +2298,64 @@ draw_grid ()
     }
 }
 
+static void
+mark_delta_to_widget (BDimension x, BDimension y, Widget w)
+{
+  char *buf;
+  double dx, dy, g;
+  int prec;
+  bool int_grid;
+  XmString ms;
+
+  if (Settings.grid_units_mm)
+    {
+      dx = COORD_TO_MM (x);
+      dy = COORD_TO_MM (y);
+      g = COORD_TO_MM (PCB->Grid);
+    }
+  else
+    {
+      dx = COORD_TO_MIL (x);
+      dy = COORD_TO_MIL (y);
+      g = COORD_TO_MIL (PCB->Grid);
+    }
+
+  int_grid = (((int) (g * 10000 + 0.5) % 10000) == 0);
+
+  if (int_grid)
+    prec = 0;
+  else if (Settings.grid_units_mm && g <= 0.005)
+    prec = 3;
+  else
+    prec = 2;
+
+  if (x == 0 && y == 0)
+    buf = g_strdup_printf ("%+.*f, %+.*f", prec, dx, prec, dy);
+  else
+    {
+      int angle = atan2 (dy, -dx) * 180 / M_PI;
+      double dist = Distance (0, dx, 0, dy);
+
+      buf = g_strdup_printf ("%+.*f, %+.*f (%.*f, %d\260)",
+                             prec, dx, prec, dy, prec, dist, angle);
+    }
+
+  ms = XmStringCreateLocalized (buf);
+  n = 0;
+  stdarg (XmNlabelString, ms);
+  XtSetValues (w, args, n);
+  g_free (buf);
+}
+
 static int
-coords_to_widget (int x, int y, Widget w, int prev_state)
+cursor_pos_to_widget (int x, int y, Widget w, int prev_state)
 {
   int this_state = prev_state;
-  static char buf[60];
+  static char *buf;
   double dx, dy, g;
-  int frac = 0;
   XmString ms;
+  int prec;
+  bool int_grid;
 
   if (Settings.grid_units_mm)
     {
@@ -2321,43 +2371,37 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
       dy = COORD_TO_MIL (y);
       g = COORD_TO_MIL (PCB->Grid);
     }
-  if (x < 0 && prev_state >= 0)
-    buf[0] = 0;
-  else if (((int) (g * 10000 + 0.5) % 10000) == 0)
+
+  int_grid = (((int) (g * 10000 + 0.5) % 10000) == 0);
+
+  /* Determine necessary precision (and state) based
+   * on the user's grid setting */
+  if (int_grid)
     {
-      const char *fmt = prev_state < 0 ? "%+d, %+d" : "%d, %d";
-      sprintf (buf, fmt, (int) (dx + 0.5), (int) (dy + 0.5));
+      prec = 0;
       this_state = 2 + Settings.grid_units_mm;
-      frac = 0;
     }
-  else if (PCB->Grid <= 20 && Settings.grid_units_mm)
+  else if (Settings.grid_units_mm && g <= 0.005)
     {
-      const char *fmt = prev_state < 0 ? "%+.3f, %+.3f" : "%.3f, %.3f";
-      sprintf (buf, fmt, dx, dy);
+      prec = 3;
       this_state = 4 + Settings.grid_units_mm;
-      frac = 1;
     }
   else
     {
-      const char *fmt = prev_state < 0 ? "%+.2f, %+.2f" : "%.2f, %.2f";
-      sprintf (buf, fmt, dx, dy);
+      prec = 2;
       this_state = 4 + Settings.grid_units_mm;
-      frac = 1;
     }
-  if (prev_state < 0 && (x || y))
-    {
-      int angle = atan2 (dy, -dx) * 180 / M_PI;
-      double dist = sqrt (dx * dx + dy * dy);
-      if (frac)
-	sprintf (buf + strlen (buf), " (%.2f", dist);
-      else
-	sprintf (buf + strlen (buf), " (%d", (int) (dist + 0.5));
-      sprintf (buf + strlen (buf), ", %d\260)", angle);
-    }
+
+  if (x < 0)
+    buf = g_strdup ("");
+  else
+    buf = g_strdup_printf ("%.*f, %.*f", prec, dx, prec, dy);
+
   ms = XmStringCreateLocalized (buf);
   n = 0;
   stdarg (XmNlabelString, ms);
   XtSetValues (w, args, n);
+  g_free (buf);
   return this_state;
 }
 
@@ -2552,11 +2596,11 @@ idle_proc (XtPointer dummy)
 	c_y = crosshair_y;
 
 	this_state =
-	  coords_to_widget (crosshair_x, crosshair_y, m_crosshair,
+	  cursor_pos_to_widget (crosshair_x, crosshair_y, m_crosshair,
 			    this_state);
 	if (Marked.status)
-	  coords_to_widget (crosshair_x - Marked.X, crosshair_y - Marked.Y,
-			    m_mark, -1);
+	  mark_delta_to_widget (crosshair_x - Marked.X, crosshair_y - Marked.Y,
+			    m_mark);
 
 	if (Marked.status != saved_mark.status)
 	  {
