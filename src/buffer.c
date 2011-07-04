@@ -458,8 +458,7 @@ ClearBuffer (BufferTypePtr Buffer)
  * returns true if any objects have been removed
  */
 void
-AddSelectedToBuffer (BufferTypePtr Buffer, LocationType X, LocationType Y,
-		     bool LeaveSelected)
+AddSelectedToBuffer (BufferTypePtr Buffer, Coord X, Coord Y, bool LeaveSelected)
 {
   /* switch crosshair off because adding objects to the pastebuffer
    * may change the 'valid' area for the cursor
@@ -1071,7 +1070,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 	END_LOOP;
 	POLYGON_LOOP (layer);
 	{
-	  int x1, y1, x2, y2, w, h, t;
+	  Coord x1, y1, x2, y2, w, h, t;
 
 	  if (! polygon_is_rectangle (polygon))
 	    {
@@ -1234,11 +1233,11 @@ RotateBuffer (BufferTypePtr Buffer, BYTE Number)
 }
 
 static void
-free_rotate (int *x, int *y, int cx, int cy, double cosa, double sina)
+free_rotate (Coord *x, Coord *y, Coord cx, Coord cy, double cosa, double sina)
 {
   double nx, ny;
-  int px = *x - cx;
-  int py = *y - cy;
+  Coord px = *x - cx;
+  Coord py = *y - cy;
 
   nx = px * cosa + py * sina;
   ny = py * cosa - px * sina;
@@ -1249,8 +1248,8 @@ free_rotate (int *x, int *y, int cx, int cy, double cosa, double sina)
 
 void
 FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
-			   LocationType X, LocationType Y,
-			   double cosa, double sina, double Angle)
+			   Coord X, Coord Y,
+			   double cosa, double sina, Angle angle)
 {
   /* solder side objects need a different orientation */
 
@@ -1297,8 +1296,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   ARC_LOOP (Element);
   {
     free_rotate (&arc->X, &arc->Y, X, Y, cosa, sina);
-    arc->StartAngle += Angle;
-    arc->StartAngle %= 360;
+    arc->StartAngle = NormalizeAngle (arc->StartAngle + angle);
   }
   END_LOOP;
 
@@ -1308,12 +1306,12 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 }
 
 void
-FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
+FreeRotateBuffer (BufferTypePtr Buffer, Angle angle)
 {
   double cosa, sina;
 
-  cosa = cos(Angle * M_PI/180.0);
-  sina = sin(Angle * M_PI/180.0);
+  cosa = cos(angle * M_PI/180.0);
+  sina = sin(angle * M_PI/180.0);
 
   /* rotate vias */
   VIA_LOOP (Buffer->Data);
@@ -1329,7 +1327,7 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   ELEMENT_LOOP (Buffer->Data);
   {
     FreeRotateElementLowLevel (Buffer->Data, element, Buffer->X, Buffer->Y,
-			       cosa, sina, Angle);
+			       cosa, sina, angle);
   }
   END_LOOP;
 
@@ -1347,8 +1345,7 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   {
     r_delete_entry (layer->arc_tree, (BoxType *)arc);
     free_rotate (&arc->X, &arc->Y, Buffer->X, Buffer->Y, cosa, sina);
-    arc->StartAngle += Angle;
-    arc->StartAngle %= 360;
+    arc->StartAngle = NormalizeAngle (arc->StartAngle + angle);
     r_insert_entry (layer->arc_tree, (BoxType *)arc, 0);
   }
   ENDALL_LOOP;

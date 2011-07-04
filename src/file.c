@@ -575,26 +575,24 @@ WritePCBDataHeader (FILE * FP)
 
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
-  pcb_fprintf (FP, " %mc %mc]\n\n", PCB->MaxWidth, PCB->MaxHeight);
-  pcb_fprintf (FP, "Grid[%s %mc %mc %d]\n",
-	       c_dtostr (COORD_TO_MIL(PCB->Grid) * 100), PCB->GridOffsetX,
-	       PCB->GridOffsetY, Settings.DrawGrid);
-  pcb_fprintf (FP, "Cursor[%mc %mc %s]\n",
+  pcb_fprintf (FP, " %mr %mr]\n\n", PCB->MaxWidth, PCB->MaxHeight);
+  pcb_fprintf (FP, "Grid[%.1mr %mr %mr %d]\n", PCB->Grid, PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
+  pcb_fprintf (FP, "Cursor[%mr %mr %s]\n",
                Crosshair.X, Crosshair.Y, c_dtostr (PCB->Zoom));
   /* PolyArea should be output in square cmils, no suffix */
   fprintf (FP, "PolyArea[%s]\n", c_dtostr (COORD_TO_MIL (COORD_TO_MIL (PCB->IsleArea) * 100) * 100));
   pcb_fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
-  pcb_fprintf (FP, "DRC[%mc %mc %mc %mc %mc %mc]\n", PCB->Bloat, PCB->Shrink,
+  pcb_fprintf (FP, "DRC[%mr %mr %mr %mr %mr %mr]\n", PCB->Bloat, PCB->Shrink,
 	       PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
   fprintf (FP, "Flags(%s)\n", pcbflags_to_string(PCB->Flags));
   fprintf (FP, "Groups(\"%s\")\n", LayerGroupsToString (&PCB->LayerGroups));
   fputs ("Styles[\"", FP);
   for (group = 0; group < NUM_STYLES - 1; group++)
-    pcb_fprintf (FP, "%s,%mc,%mc,%mc,%mc:", PCB->RouteStyle[group].Name,
+    pcb_fprintf (FP, "%s,%mr,%mr,%mr,%mr:", PCB->RouteStyle[group].Name,
 	         PCB->RouteStyle[group].Thick,
 	         PCB->RouteStyle[group].Diameter,
 	         PCB->RouteStyle[group].Hole, PCB->RouteStyle[group].Keepaway);
-  pcb_fprintf (FP, "%s,%mc,%mc,%mc,%mc\"]\n\n", PCB->RouteStyle[group].Name,
+  pcb_fprintf (FP, "%s,%mr,%mr,%mr,%mr\"]\n\n", PCB->RouteStyle[group].Name,
 	       PCB->RouteStyle[group].Thick,
 	       PCB->RouteStyle[group].Diameter,
 	       PCB->RouteStyle[group].Hole, PCB->RouteStyle[group].Keepaway);
@@ -616,13 +614,13 @@ WritePCBFontData (FILE * FP)
 	continue;
 
       if (isprint (i))
-	pcb_fprintf (FP, "Symbol['%c' %mc]\n(\n", i, font->Symbol[i].Delta);
+	pcb_fprintf (FP, "Symbol['%c' %mr]\n(\n", i, font->Symbol[i].Delta);
       else
-	pcb_fprintf (FP, "Symbol[%i %mc]\n(\n", i, font->Symbol[i].Delta);
+	pcb_fprintf (FP, "Symbol[%i %mr]\n(\n", i, font->Symbol[i].Delta);
 
       line = font->Symbol[i].Line;
       for (j = font->Symbol[i].LineN; j; j--, line++)
-        pcb_fprintf (FP, "\tSymbolLine[%mc %mc %mc %mc %mc]\n",
+        pcb_fprintf (FP, "\tSymbolLine[%mr %mr %mr %mr %mr]\n",
                      line->Point1.X, line->Point1.Y,
                      line->Point2.X, line->Point2.Y, line->Thickness);
       fputs (")\n", FP);
@@ -640,7 +638,7 @@ WriteViaData (FILE * FP, DataTypePtr Data)
   for (iter = Data->Via; iter != NULL; iter = g_list_next (iter))
     {
       PinType *via = iter->data;
-      pcb_fprintf (FP, "Via[%mc %mc %mc %mc %mc %mc ", via->X, via->Y,
+      pcb_fprintf (FP, "Via[%mr %mr %mr %mr %mr %mr ", via->X, via->Y,
                    via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
       PrintQuotedString (FP, (char *)EMPTY (via->Name));
       fprintf (FP, " %s]\n", F2S (via, VIA_TYPE));
@@ -658,7 +656,7 @@ WritePCBRatData (FILE * FP)
   for (iter = PCB->Data->Rat; iter != NULL; iter = g_list_next (iter))
     {
       RatType *line = iter->data;
-      pcb_fprintf (FP, "Rat[%mc %mc %d %mc %mc %d ",
+      pcb_fprintf (FP, "Rat[%mr %mr %d %mr %mr %d ",
                    line->Point1.X, line->Point1.Y, line->group1,
                    line->Point2.X, line->Point2.Y, line->group2);
       fprintf (FP, " %s]\n", F2S (line, RATLINE_TYPE));
@@ -722,7 +720,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       PrintQuotedString (FP, (char *)EMPTY (NAMEONPCB_NAME (element)));
       fputc (' ', FP);
       PrintQuotedString (FP, (char *)EMPTY (VALUE_NAME (element)));
-      pcb_fprintf (FP, " %mc %mc %mc %mc %d %d %s]\n(\n",
+      pcb_fprintf (FP, " %mr %mr %mr %mr %d %d %s]\n(\n",
                    element->MarkX, element->MarkY,
                    DESCRIPTION_TEXT (element).X - element->MarkX,
                    DESCRIPTION_TEXT (element).Y - element->MarkY,
@@ -733,7 +731,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Pin; p != NULL; p = g_list_next (p))
 	{
 	  PinType *pin = p->data;
-          pcb_fprintf (FP, "\tPin[%mc %mc %mc %mc %mc %mc ",
+          pcb_fprintf (FP, "\tPin[%mr %mr %mr %mr %mr %mr ",
                        pin->X - element->MarkX,
                        pin->Y - element->MarkY,
                        pin->Thickness, pin->Clearance,
@@ -746,7 +744,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Pad; p != NULL; p = g_list_next (p))
 	{
 	  PadType *pad = p->data;
-          pcb_fprintf (FP, "\tPad[%mc %mc %mc %mc %mc %mc %mc ",
+          pcb_fprintf (FP, "\tPad[%mr %mr %mr %mr %mr %mr %mr ",
                        pad->Point1.X - element->MarkX,
                        pad->Point1.Y - element->MarkY,
                        pad->Point2.X - element->MarkX,
@@ -760,7 +758,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Line; p != NULL; p = g_list_next (p))
 	{
 	  LineType *line = p->data;
-          pcb_fprintf (FP, "\tElementLine [%mc %mc %mc %mc %mc]\n",
+          pcb_fprintf (FP, "\tElementLine [%mr %mr %mr %mr %mr]\n",
                        line->Point1.X - element->MarkX,
                        line->Point1.Y - element->MarkY,
                        line->Point2.X - element->MarkX,
@@ -770,7 +768,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Arc; p != NULL; p = g_list_next (p))
 	{
 	  ArcType *arc = p->data;
-          pcb_fprintf (FP, "\tElementArc [%mc %mc %mc %mc %ma %ma %mc]\n",
+          pcb_fprintf (FP, "\tElementArc [%mr %mr %mr %mr %ma %ma %mr]\n",
                        arc->X - element->MarkX,
                        arc->Y - element->MarkY,
                        arc->Width, arc->Height,
@@ -800,7 +798,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Line; n != NULL; n = g_list_next (n))
 	{
 	  LineType *line = n->data;
-          pcb_fprintf (FP, "\tLine[%mc %mc %mc %mc %mc %mc %s]\n",
+          pcb_fprintf (FP, "\tLine[%mr %mr %mr %mr %mr %mr %s]\n",
                        line->Point1.X, line->Point1.Y,
                        line->Point2.X, line->Point2.Y,
                        line->Thickness, line->Clearance,
@@ -809,7 +807,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Arc; n != NULL; n = g_list_next (n))
 	{
 	  ArcType *arc = n->data;
-          pcb_fprintf (FP, "\tArc[%mc %mc %mc %mc %mc %mc %ma %ma %s]\n",
+          pcb_fprintf (FP, "\tArc[%mr %mr %mr %mr %mr %mr %ma %ma %s]\n",
                        arc->X, arc->Y, arc->Width,
                        arc->Height, arc->Thickness,
                        arc->Clearance, arc->StartAngle,
@@ -818,7 +816,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Text; n != NULL; n = g_list_next (n))
 	{
 	  TextType *text = n->data;
-          pcb_fprintf (FP, "\tText[%mc %mc %d %d ",
+          pcb_fprintf (FP, "\tText[%mr %mr %d %d ",
                        text->X, text->Y,
                        text->Direction, text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
@@ -850,7 +848,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		  if (hole)
 		    fputs ("\t", FP);
 		}
-              pcb_fprintf (FP, "[%mc %mc] ", point->X, point->Y);
+              pcb_fprintf (FP, "[%mr %mr] ", point->X, point->Y);
 	    }
 	  if (hole > 0)
 	    fputs ("\n\t\t)", FP);

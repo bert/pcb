@@ -52,6 +52,7 @@
  *          units
  *   %mr    output a measure in a unit readable by parse_l.l
  *          (this will always append a unit suffix)
+ *   %ma    output an angle in degrees (expects degrees)
  *
  * These accept the usual printf modifiers for %f, as well as
  *     $    output a unit suffix after the measure
@@ -83,9 +84,13 @@ enum e_allow {
                    ALLOW_CM | ALLOW_M  | ALLOW_KM,
   ALLOW_IMPERIAL = ALLOW_CMIL | ALLOW_MIL | ALLOW_IN,
   /* This is all units allowed in parse_l.l */
+#if 0
   ALLOW_READABLE = ALLOW_NM | ALLOW_UM | ALLOW_MM |
                    ALLOW_M  | ALLOW_KM | ALLOW_CMIL |
                    ALLOW_MIL | ALLOW_IN,
+#else
+  ALLOW_READABLE = ALLOW_CMIL,
+#endif
 
   ALLOW_ALL = ~0
 };

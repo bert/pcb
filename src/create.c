@@ -533,7 +533,7 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
   ARC_LOOP (Layer);
   {
     if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
-	(arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
+	NormalizeAngle (arc->StartAngle) == NormalizeAngle (sa) &&
 	arc->Delta == dir)
       return (NULL);		/* prevent stacked arcs */
   }

@@ -198,8 +198,8 @@ RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y,
 {
   BDimension save;
 
-  /* add Number*90 degrees to the startangle and check for overflow */
-  Arc->StartAngle = (Arc->StartAngle + Number * 90) % 360;
+  /* add Number*90 degrees (i.e., Number quarter-turns) */
+  Arc->StartAngle = NormalizeAngle (Arc->StartAngle + Number * 90);
   ROTATE (Arc->X, Arc->Y, X, Y, Number);
 
   /* now change width and height */

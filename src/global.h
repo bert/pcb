@@ -88,7 +88,7 @@ typedef struct increments Increments;
 
 
 typedef int Coord;		/* pcb base unit */
-typedef int Angle;		/* degrees */
+typedef double Angle;		/* degrees */
 
 #if 1
 typedef int LocationType;

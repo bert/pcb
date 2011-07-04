@@ -44,6 +44,7 @@ typedef struct {
 } UnitList[];
 
 double Distance (double x1, double y1, double x2, double y2);
+Angle  NormalizeAngle (Angle a);
 
 void r_delete_element (DataTypePtr, ElementTypePtr);
 void SetLineBoundingBox (LineTypePtr);

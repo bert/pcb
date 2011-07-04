@@ -116,6 +116,17 @@ Distance (double x1, double y1, double x2, double y2)
   return sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
+/* Bring an angle into [0, 360) range */
+Angle
+NormalizeAngle (Angle a)
+{
+  while (a < 0)
+    a += 360.0;
+  while (a >= 360.0)
+    a -= 360.0;
+  return a;
+}
+
 /* Get Value returns a numeric value passed from the string and sets the
  * bool variable absolute to false if it leads with a +/- character
  */
