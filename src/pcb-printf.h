@@ -67,6 +67,7 @@
 #define	PCB_PCB_PRINTF_H
 
 enum e_allow {
+  NO_PRINT = 0,		/* suffixes we can read but not print (i.e., "inch") */
   ALLOW_NM = 1,
   ALLOW_UM = 2,
   ALLOW_MM = 4,
@@ -88,6 +89,9 @@ enum e_allow {
 
   ALLOW_ALL = ~0
 };
+
+double coord_to_unit (const char *suffix);
+double unit_to_coord (const char *suffix);
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
 int pcb_sprintf(char *string, const char *fmt, ...);

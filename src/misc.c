@@ -65,6 +65,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "move.h"
+#include "pcb-printf.h"
 #include "polygon.h"
 #include "remove.h"
 #include "rtree.h"
@@ -127,15 +128,6 @@ GetValue (const char *val, const char *units, bool * absolute)
 double
 GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_units, const char *default_unit)
 {
-  static UnitList default_units = {
-    { "mm",   MM_TO_COORD(1), 0 },
-    { "um",   MM_TO_COORD(0.001), 0 },
-    { "nm",   MM_TO_COORD(0.000001), 0 },
-    { "mil",  MIL_TO_COORD(1), 0 },
-    { "cmil", MIL_TO_COORD(0.01), 0 },
-    { "in",   MIL_TO_COORD(1000), 0 },
-    { "", 1, 0 }
-  };
   double value;
   int n = -1;
   bool scaled = 0;
@@ -171,15 +163,11 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   if (units && *units)
     {
       int i;
-      for (i = 0; *default_units[i].suffix; ++i)
+      double sf = unit_to_coord (units);
+      if (sf != -1)
         {
-          if (strncmp (units, default_units[i].suffix, strlen(default_units[i].suffix)) == 0)
-            {
-              value *= default_units[i].scale;
-              if (default_units[i].flags & UNIT_PERCENT)
-                value /= 100.0;
-              scaled = 1;
-            }
+          value *= sf;
+          scaled = 1;
         }
       if (extra_units)
         {
@@ -199,13 +187,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   if (!scaled && default_unit && *default_unit)
     {
       int i;
-      for (i = 0; *default_units[i].suffix; ++i)
-        if (strcmp (default_units[i].suffix, default_unit) == 0)
-          {
-            value *= default_units[i].scale;
-            if (default_units[i].flags & UNIT_PERCENT)
-              value /= 100.0;
-          }
+      double sf = unit_to_coord (default_unit);
       if (extra_units)
         for (i = 0; *extra_units[i].suffix; ++i)
           if (strcmp (extra_units[i].suffix, default_unit) == 0)
@@ -213,7 +195,10 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
               value *= extra_units[i].scale;
               if (extra_units[i].flags & UNIT_PERCENT)
                 value /= 100.0;
+              scaled = 1;
             }
+      if (!scaled && sf != -1)
+        value *= sf;
     }
 
   return value;

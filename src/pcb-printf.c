@@ -56,10 +56,46 @@ static struct unit Units[] = {
   { "nm", 'n', 1000000,  METRIC, ALLOW_NM, 0 },
 
   { "in",   'i', 0.001, IMPERIAL, ALLOW_IN,   5 },
+  { "inch",  0 , 0.001, IMPERIAL, NO_PRINT,   0 },
   { "mil",  'l', 1,     IMPERIAL, ALLOW_MIL,  2 },
   { "cmil", 'c', 100,   IMPERIAL, ALLOW_CMIL, 0 }
 };
 #define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
+
+/* Scale factor lookup functions for Unit[] table */
+double coord_to_unit (const char *suffix)
+{
+  int i;
+  int s_len = strlen (suffix);
+
+  /* Also understand plural suffixes: "inches", "mils" */
+  if (s_len > 2)
+    {
+      if (suffix[s_len - 2] == 'e' && suffix[s_len - 1] == 's')
+        s_len -= 2;
+      else if (suffix[s_len - 1] == 's')
+        s_len -= 1;
+    }
+
+  /* Do lookup */
+  for (i = 0; i < N_UNITS; ++i)
+    {
+      if (strncmp (suffix, Units[i].suffix, s_len) == 0)
+        {
+          double base = Units[i].family == METRIC
+                          ? COORD_TO_MM (1)
+                          : COORD_TO_MIL (1);
+          return Units[i].scale_factor * base;
+        }
+    }
+  /* Signal failure */
+  return -1;
+}
+
+double unit_to_coord (const char *suffix)
+{
+  return 1.0 / coord_to_unit (suffix);
+}
 
 static int min_sig_figs(double d)
 {
