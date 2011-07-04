@@ -16,6 +16,7 @@
 #include "data.h"
 #include "crosshair.h"
 #include "misc.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -1146,20 +1147,18 @@ sz_str2val (Widget w, int pcbu)
 }
 
 static void
-sz_val2str (Widget w, int u, int pcbu)
+sz_val2str (Widget w, BDimension u, int pcbu)
 {
-  double d;
   static char buf[40];
   if (pcbu)
     {
       if (Settings.grid_units_mm)
-	d = COORD_TO_MM (u);
+        pcb_sprintf (buf, "%.2mm", u);
       else
-	d = COORD_TO_MIL (u);
-      sprintf (buf, "%.2f", d + 0.002);
+        pcb_sprintf (buf, "%.2ml", u);
     }
   else
-    sprintf (buf, "%d %%", u);
+    pcb_sprintf (buf, "%#mS %%", u);
   XmTextSetString (w, buf);
 }
 

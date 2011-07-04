@@ -92,13 +92,13 @@ on one.
 %end-doc */
 
 static int
-Debug (int argc, char **argv, int x, int y)
+Debug (int argc, char **argv, BDimension x, BDimension y)
 {
   int i;
   printf ("Debug:");
   for (i = 0; i < argc; i++)
     printf (" [%d] `%s'", i, argv[i]);
-  printf (" x,y %d,%d\n", x, y);
+  pcb_printf (" x,y %$mD\n", x, y);
   return 0;
 }
 
@@ -836,7 +836,7 @@ callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
 	  if (p == aw)
 	    have_xy = 1;
 	}
-      //printf("have xy from %s: %d %d\n", XtName(aw), action_x, action_y);
+      //pcb_printf("have xy from %s: %$mD\n", XtName(aw), action_x, action_y);
     }
 
   lesstif_need_idle_proc ();

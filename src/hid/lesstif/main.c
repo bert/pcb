@@ -22,6 +22,7 @@
 #include "crosshair.h"
 #include "mymem.h"
 #include "misc.h"
+#include "pcb-printf.h"
 #include "resource.h"
 #include "clip.h"
 #include "error.h"
@@ -47,6 +48,7 @@ RCSID ("$Id$");
 
 /* How big the viewport can be relative to the pcb size.  */
 #define MAX_ZOOM_SCALE	10
+#define UUNIT	(Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL)
 
 typedef struct hid_gc_struct
 {
@@ -347,7 +349,7 @@ PCBChanged (int argc, char **argv, int x, int y)
 {
   if (work_area == 0)
     return 0;
-  /*printf("PCB Changed! %d x %d\n", PCB->MaxWidth, PCB->MaxHeight); */
+  /*pcb_printf("PCB Changed! %$mD\n", PCB->MaxWidth, PCB->MaxHeight); */
   n = 0;
   stdarg (XmNminimum, 0);
   stdarg (XmNvalue, 0);
@@ -1413,7 +1415,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 #else
 	alt_pressed = (keys_buttons & Mod1Mask);
 #endif
-	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
+	/*pcb_printf("m %#mS %#mS\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
 	crosshair_in_window = 1;
 	in_move_event = 1;
 	if (panning)
@@ -2299,44 +2301,29 @@ draw_grid ()
 }
 
 static void
-mark_delta_to_widget (BDimension x, BDimension y, Widget w)
+mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
 {
   char *buf;
-  double dx, dy, g;
+  double g = Settings.grid_units_mm ? COORD_TO_MM (PCB->Grid) : COORD_TO_MIL (PCB->Grid);
   int prec;
-  bool int_grid;
   XmString ms;
 
-  if (Settings.grid_units_mm)
-    {
-      dx = COORD_TO_MM (x);
-      dy = COORD_TO_MM (y);
-      g = COORD_TO_MM (PCB->Grid);
-    }
-  else
-    {
-      dx = COORD_TO_MIL (x);
-      dy = COORD_TO_MIL (y);
-      g = COORD_TO_MIL (PCB->Grid);
-    }
-
-  int_grid = (((int) (g * 10000 + 0.5) % 10000) == 0);
-
-  if (int_grid)
+  /* Integer-sized grid? */
+  if (((int) (g * 10000 + 0.5) % 10000) == 0)
     prec = 0;
   else if (Settings.grid_units_mm && g <= 0.005)
     prec = 3;
   else
     prec = 2;
 
-  if (x == 0 && y == 0)
-    buf = g_strdup_printf ("%+.*f, %+.*f", prec, dx, prec, dy);
+  if (dx == 0 && dy == 0)
+    buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS", UUNIT, prec, dx, prec, dy);
   else
     {
       int angle = atan2 (dy, -dx) * 180 / M_PI;
-      double dist = Distance (0, dx, 0, dy);
+      BDimension dist = Distance (0, dx, 0, dy);
 
-      buf = g_strdup_printf ("%+.*f, %+.*f (%.*f, %d\260)",
+      buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS (%.*mS, %d\260)", UUNIT,
                              prec, dx, prec, dy, prec, dist, angle);
     }
 
@@ -2348,35 +2335,17 @@ mark_delta_to_widget (BDimension x, BDimension y, Widget w)
 }
 
 static int
-cursor_pos_to_widget (int x, int y, Widget w, int prev_state)
+cursor_pos_to_widget (BDimension x, BDimension y, Widget w, int prev_state)
 {
   int this_state = prev_state;
   static char *buf;
-  double dx, dy, g;
+  double g = Settings.grid_units_mm ? COORD_TO_MM (PCB->Grid) : COORD_TO_MIL (PCB->Grid);
   XmString ms;
   int prec;
-  bool int_grid;
-
-  if (Settings.grid_units_mm)
-    {
-      /* MM */
-      dx = COORD_TO_MM (x);
-      dy = COORD_TO_MM (y);
-      g = COORD_TO_MM (PCB->Grid);
-    }
-  else
-    {
-      /* Mils */
-      dx = COORD_TO_MIL (x);
-      dy = COORD_TO_MIL (y);
-      g = COORD_TO_MIL (PCB->Grid);
-    }
-
-  int_grid = (((int) (g * 10000 + 0.5) % 10000) == 0);
 
   /* Determine necessary precision (and state) based
    * on the user's grid setting */
-  if (int_grid)
+  if (((int) (g * 10000 + 0.5) % 10000) == 0)
     {
       prec = 0;
       this_state = 2 + Settings.grid_units_mm;
@@ -2395,7 +2364,7 @@ cursor_pos_to_widget (int x, int y, Widget w, int prev_state)
   if (x < 0)
     buf = g_strdup ("");
   else
-    buf = g_strdup_printf ("%.*f, %.*f", prec, dx, prec, dy);
+    buf = pcb_g_strdup_printf ("%m+%.*mS, %.*mS", UUNIT, prec, x, prec, y);
 
   ms = XmStringCreateLocalized (buf);
   n = 0;
@@ -2405,59 +2374,38 @@ cursor_pos_to_widget (int x, int y, Widget w, int prev_state)
   return this_state;
 }
 
-static char *
-pcb2str (int pcbval)
-{
-  static char buf[20][20];
-  static int bufp = 0;
-  double d;
-
-  bufp = (bufp + 1) % 20;
-  if (Settings.grid_units_mm)
-    d = COORD_TO_MM (pcbval);
-  else
-    d = COORD_TO_MIL (pcbval);
-
-  if ((int) (d * 100 + 0.5) == (int) (d + 0.005) * 100)
-    sprintf (buf[bufp], "%d", (int) d);
-  else
-    sprintf (buf[bufp], "%.2f", d);
-  return buf[bufp];
-}
-
-#define u(x) pcb2str(x)
 #define S Settings
 
 void
 lesstif_update_status_line ()
 {
-  char buf[100];
+  char *buf = NULL;
   char *s45 = cur_clip ();
   XmString xs;
 
-  buf[0] = 0;
   switch (Settings.Mode)
     {
     case VIA_MODE:
-      sprintf (buf, "%s/%s \370=%s", u (S.ViaThickness),
-	       u (S.Keepaway), u (S.ViaDrillingHole));
+      buf = pcb_g_strdup_printf ("%m+%.2mS/%.2mS \370=%.2mS", UUNIT,
+                                 S.ViaThickness, S.Keepaway, S.ViaDrillingHole);
       break;
     case LINE_MODE:
     case ARC_MODE:
-      sprintf (buf, "%s/%s %s", u (S.LineThickness), u (S.Keepaway), s45);
+      buf = pcb_g_strdup_printf ("%m+%.2mS/%.2mS %s", UUNIT,
+                                 S.LineThickness, S.Keepaway, s45);
       break;
     case RECTANGLE_MODE:
     case POLYGON_MODE:
-      sprintf (buf, "%s %s", u (S.Keepaway), s45);
+      buf = pcb_g_strdup_printf ("%m+%.2mS %s", UUNIT, S.Keepaway, s45);
       break;
     case TEXT_MODE:
-      sprintf (buf, "%s", u (S.TextScale));
+      buf = g_strdup_printf ("%d %%", S.TextScale);
       break;
     case MOVE_MODE:
     case COPY_MODE:
     case INSERTPOINT_MODE:
     case RUBBERBANDMOVE_MODE:
-      sprintf (buf, "%s", s45);
+      buf = g_strdup_printf ("%s", s45);
       break;
     case NO_MODE:
     case PASTEBUFFER_MODE:
@@ -2466,6 +2414,8 @@ lesstif_update_status_line ()
     case THERMAL_MODE:
     case ARROW_MODE:
     case LOCK_MODE:
+    default:
+      buf = g_strdup("");
       break;
     }
 
@@ -2473,9 +2423,9 @@ lesstif_update_status_line ()
   n = 0;
   stdarg (XmNlabelString, xs);
   XtSetValues (m_status, args, n);
+  g_free (buf);
 }
 
-#undef u
 #undef S
 
 static int idle_proc_set = 0;
@@ -2656,15 +2606,13 @@ idle_proc (XtPointer dummy)
 
   {
     static double old_grid = -1;
-    static int old_gx, old_gy, old_mm;
-	 XmString ms;
+    static BDimension old_gx, old_gy, old_mm;
+    XmString ms;
     if (PCB->Grid != old_grid
 	|| PCB->GridOffsetX != old_gx
 	|| PCB->GridOffsetY != old_gy || Settings.grid_units_mm != old_mm)
       {
 	static char buf[100];
-	double g, x, y;
-	char *u;
 	old_grid = PCB->Grid;
 	old_gx = PCB->GridOffsetX;
 	old_gy = PCB->GridOffsetY;
@@ -2675,24 +2623,10 @@ idle_proc (XtPointer dummy)
 	  }
 	else
 	  {
-	    if (Settings.grid_units_mm)
-	      {
-		g = COORD_TO_MM (old_grid);
-		x = COORD_TO_MM (old_gx);
-		y = COORD_TO_MM (old_gy);
-		u = "mm";
-	      }
+	    if (old_gx || old_gy)
+	      pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, (BDimension) old_grid, old_gx, old_gy);
 	    else
-	      {
-		g = COORD_TO_MIL (old_grid);
-		x = COORD_TO_MIL (old_gx);
-		y = COORD_TO_MIL (old_gy);
-		u = "mil";
-	      }
-	    if (x || y)
-	      sprintf (buf, "%g %s @%g,%g", g, u, x, y);
-	    else
-	      sprintf (buf, "%g %s", g, u);
+	      pcb_sprintf (buf, "%m+%$mS", UUNIT, (BDimension) old_grid);
 	  }
 	ms = XmStringCreateLocalized (buf);
 	n = 0;
@@ -3201,7 +3135,7 @@ set_gc (hidGC gc)
       abort ();
     }
 #if 0
-  printf ("set_gc c%s %08lx w%d c%d x%d e%d\n",
+  pcb_printf ("set_gc c%s %08lx w%#mS c%d x%d e%d\n",
 	  gc->colorname, gc->color, gc->width, gc->cap, gc->xor_set, gc->erase);
 #endif
   switch (gc->cap)
@@ -3283,14 +3217,14 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
     return;
 #if 0
-  printf ("draw_line %d,%d %d,%d @%d", x1, y1, x2, y2, gc->width);
+  pcb_printf ("draw_line %#mD-%#mD @%#mS", x1, y1, x2, y2, gc->width);
 #endif
   dx1 = Vx (x1);
   dy1 = Vy (y1);
   dx2 = Vx (x2);
   dy2 = Vy (y2);
 #if 0
-  printf (" = %d,%d %d,%d %s\n", x1, y1, x2, y2, gc->colorname);
+  pcb_printf (" = %#mD-%#mD %s\n", x1, y1, x2, y2, gc->colorname);
 #endif
 
 #if 1
@@ -3328,7 +3262,7 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
     return;
 #if 0
-  printf ("draw_arc %d,%d %dx%d s %d d %d", cx, cy, width, height, start_angle, delta_angle);
+  pcb_printf ("draw_arc %#mD %#mSx%#mS s %d d %d", cx, cy, width, height, start_angle, delta_angle);
 #endif
   width = Vz (width);
   height = Vz (height);
@@ -3346,7 +3280,7 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
     }
   start_angle = (start_angle + 360 + 180) % 360 - 180;
 #if 0
-  printf (" = %d,%d %dx%d %d %s\n", cx, cy, width, height, gc->width,
+  pcb_printf (" = %#mD %#mSx%#mS %d %s\n", cx, cy, width, height, gc->width,
 	  gc->colorname);
 #endif
   set_gc (gc);
@@ -3410,7 +3344,7 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
     return;
 #if 0
-  printf ("fill_circle %d,%d %d", cx, cy, radius);
+  pcb_printf ("fill_circle %#mD %#mS", cx, cy, radius);
 #endif
   radius = Vz (radius);
   cx = Vx (cx) - radius;
@@ -3420,7 +3354,7 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
   if (cy < -2 * radius || cy > view_height)
     return;
 #if 0
-  printf (" = %d,%d %d %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
+  pcb_printf (" = %#mD %#mS %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
 #endif
   set_gc (gc);
   XFillArc (display, pixmap, my_gc, cx, cy,
