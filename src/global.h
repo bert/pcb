@@ -83,13 +83,19 @@ typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 # define bindtextdomain(D, Dir) (D)
 #endif /* ENABLE_NLS */
 
+
+typedef int Coord;		/* pcb base unit */
+typedef int Angle;		/* degrees */
+
+#if 1
 typedef int LocationType;
 typedef int BDimension;		/* big dimension */
+#endif
 
 /* This is used by the lexer/parser */
 typedef struct {
   int ival;
-  BDimension bval;
+  Coord bval;
   double dval;
   char has_units;
 } PLMeasure;
@@ -168,7 +174,7 @@ typedef struct
 /* Lines, pads, and rats all use this so they can be cross-cast.  */
 #define	ANYLINEFIELDS			\
 	ANYOBJECTFIELDS;		\
-	BDimension	Thickness,      \
+	Coord		Thickness,      \
                         Clearance;      \
 	PointType	Point1,		\
 			Point2
@@ -196,14 +202,14 @@ typedef struct
 
 struct BoxType		/* a bounding box */
 {
-  LocationType X1, Y1;		/* upper left */
-  LocationType X2, Y2;		/* and lower right corner */
+  Coord X1, Y1;		/* upper left */
+  Coord X2, Y2;		/* and lower right corner */
 };
 
 typedef struct
 {
-  LocationType x, y;
-  int width, height;
+  Coord x, y;
+  Coord width, height;
 } RectangleType, *RectangleTypePtr;
 
 typedef struct
@@ -230,7 +236,7 @@ typedef struct {
 
 typedef struct			/* a line/polygon point */
 {
-  LocationType X, Y, X2, Y2;	/* so Point type can be cast as BoxType */
+  Coord X, Y, X2, Y2;	/* so Point type can be cast as BoxType */
   long int ID;
 } PointType, *PointTypePtr;
 
@@ -248,8 +254,8 @@ typedef struct			/* holds information about one line */
 typedef struct
 {
   ANYOBJECTFIELDS;
-  BDimension Scale;		/* text scaling in percent */
-  LocationType X, Y;    	/* origin */
+  int Scale;		/* text scaling in percent */
+  Coord X, Y;    	/* origin */
   BYTE Direction;
   char *TextString;		/* string */
   void *Element;
@@ -273,12 +279,10 @@ struct polygon_st			/* holds information about a polygon */
 typedef struct			/* holds information about arcs */
 {
   ANYOBJECTFIELDS;
-  BDimension Thickness, Clearance;
-  LocationType Width,		/* length of axis */
-    Height, X,			/* center coordinates */
-    Y;
-  long int StartAngle,		/* the two limiting angles in degrees */
-    Delta;
+  Coord Thickness, Clearance;
+  Coord Width, Height,		/* length of axis */
+    X, Y;			/* center coordinates */
+  Angle StartAngle, Delta;	/* the two limiting angles in degrees */
 } ArcType, *ArcTypePtr;
 
 struct rtree
@@ -316,7 +320,7 @@ typedef struct			/* a rat-line */
 struct pad_st			/* a SMD pad */
 {
   ANYLINEFIELDS;
-  BDimension Mask;
+  Coord Mask;
   char *Name, *Number;		/* 'Line' */
   void *Element;
   void *Spare;
@@ -325,9 +329,8 @@ struct pad_st			/* a SMD pad */
 struct pin_st
 {
   ANYOBJECTFIELDS;
-  BDimension Thickness, Clearance, Mask, DrillingHole;
-  LocationType X,		/* center and diameter */
-    Y;
+  Coord Thickness, Clearance, Mask, DrillingHole;
+  Coord X, Y;		/* center and diameter */
   char *Name, *Number;
   void *Element;
   void *Spare;
@@ -341,8 +344,7 @@ typedef struct
   /* name on PCB second, */
   /* value third */
   /* see macro.h */
-  LocationType MarkX,		/* position mark */
-    MarkY;
+  Coord MarkX, MarkY;		/* position mark */
   Cardinal PinN;		/* number of pins */
   Cardinal PadN;		/* number of pads */
   Cardinal LineN;		/* number of lines */
@@ -364,13 +366,13 @@ typedef struct			/* a single symbol */
   bool Valid;
   Cardinal LineN,		/* number of lines */
     LineMax;
-  BDimension Width,		/* size of cell */
-    Height, Delta;		/* distance to next symbol in 0.00001'' */
+  Coord Width, Height,		/* size of cell */
+    Delta;			/* distance to next symbol */
 } SymbolType, *SymbolTypePtr;
 
 typedef struct			/* complete set of symbols */
 {
-  LocationType MaxHeight,	/* maximum cell width and height */
+  Coord MaxHeight,	/* maximum cell width and height */
     MaxWidth;
   BoxType DefaultSymbol;	/* the default symbol is a filled box */
   SymbolType Symbol[MAX_FONTPOSITION + 1];
@@ -394,7 +396,7 @@ typedef struct			/* holds all objects */
 
 typedef struct			/* holds drill information */
 {
-  BDimension DrillSize;		/* this drill's diameter */
+  Coord DrillSize;		/* this drill's diameter */
   Cardinal ElementN,		/* the number of elements using this drill size */
     ElementMax,			/* max number of elements from malloc() */
     PinCount,			/* number of pins drilled this size */
@@ -415,7 +417,7 @@ typedef struct			/* holds a range of Drill Infos */
 
 typedef struct
 {
-  BDimension Thick,		/* line thickness */
+  Coord Thick,			/* line thickness */
     Diameter,			/* via diameter */
     Hole,			/* via drill hole */
     Keepaway;			/* min. separation from other nets */
@@ -496,14 +498,14 @@ typedef struct PCBType
     *RatSelectedColor, *ConnectedColor, *WarnColor, *MaskColor;
   long CursorX,			/* cursor position as saved with layout */
     CursorY, Clipping;
-  int Bloat,			/* drc sizes saved with layout */
+  Coord Bloat,			/* drc sizes saved with layout */
     Shrink, minWid, minSlk, minDrill, minRing;
-  int GridOffsetX,		/* as saved with layout */
+  Coord GridOffsetX,		/* as saved with layout */
     GridOffsetY, MaxWidth,	/* allowed size */
     MaxHeight;
 
-  double Grid,			/* used grid with offsets */
-    Zoom,			/* zoom factor */
+  double Grid;			/* used grid with offsets */
+  double Zoom,			/* zoom factor */
     IsleArea,			/* minimum poly island to retain */
     ThermScale;			/* scale factor used with thermals */
   FontType Font;
@@ -519,8 +521,7 @@ PCBType, *PCBTypePtr;
 
 typedef struct			/* information about the paste buffer */
 {
-  LocationType X,		/* offset */
-    Y;
+  Coord X, Y;			/* offset */
   BoxType BoundingBox;
   DataTypePtr Data;		/* data; not all members of PCBType */
   /* are used */
@@ -555,8 +556,7 @@ typedef struct			/* currently marked block */
 
 typedef struct			/* currently attached object */
 {
-  LocationType X,		/* saved position when MOVE_MODE */
-    Y;				/* was entered */
+  Coord X, Y;			/* saved position when MOVE_MODE */
   BoxType BoundingBox;
   long int Type,		/* object type */
     State;
@@ -580,20 +580,20 @@ typedef struct			/* holds cursor information */
 {
   hidGC GC,			/* GC for cursor drawing */
     AttachGC;			/* and for displaying buffer contents */
-  LocationType X,		/* position in PCB coordinates */
-    Y, MinX,			/* lowest and highest coordinates */
-    MinY, MaxX, MaxY;
+  Coord X, Y,			/* position in PCB coordinates */
+    MinX, MinY,			/* lowest and highest coordinates */
+    MaxX, MaxY;
   AttachedLineType AttachedLine;	/* data of new lines... */
   AttachedBoxType AttachedBox;
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject;	/* data of attached objects */
-  enum crosshair_shape shape; /* shape of crosshair */
+  enum crosshair_shape shape; 	/* shape of crosshair */
 } CrosshairType, *CrosshairTypePtr;
 
 typedef struct
 {
   bool status;
-  long int X, Y;
+  Coord X, Y;
 } MarkType, *MarkTypePtr;
 
 /* ---------------------------------------------------------------------------
@@ -625,18 +625,20 @@ typedef struct			/* some resources... */
     *GridColor,
     *LayerColor[MAX_LAYER],
     *LayerSelectedColor[MAX_LAYER], *WarnColor, *MaskColor;
-  int ViaThickness,		/* some preset values */
-    ViaDrillingHole, LineThickness, RatThickness, Keepaway, MaxWidth,	/* default size of a new layout */
-    MaxHeight, TextScale,	/* text scaling in % */
+  Coord ViaThickness,		/* some preset values */
+    ViaDrillingHole, LineThickness, RatThickness, Keepaway,	/* default size of a new layout */
+    MaxWidth, MaxHeight,
     AlignmentDistance, Bloat,	/* default drc sizes */
     Shrink, minWid, minSlk, minDrill, minRing;
-  double Grid,			/* grid 0.001'' */
-    IsleArea,    		/* polygon min area */
+  int TextScale;		/* text scaling in % */
+  double Grid,			/* grid in pcb-units */
     grid_increment_mm,		/* key g and <shift>g value for mil units */
     grid_increment_mil,		/* key g and <shift>g value for mil units */
     size_increment_mm,		/* key s and <shift>s value for mil units */
     size_increment_mil,		/* key s and <shift>s value for mil units */
-    line_increment_mm, line_increment_mil, clear_increment_mm, clear_increment_mil, Zoom,	/* number of shift operations for zooming */
+    line_increment_mm, line_increment_mil, clear_increment_mm, clear_increment_mil;	/* number of shift operations for zooming */
+  double Zoom,
+    IsleArea,    		/* polygon min area */
     PinoutZoom;			/* same for pinout windows */
   int PinoutNameLength,		/* max displayed length of a pinname */
     Volume,			/* the speakers volume -100..100 */
@@ -659,9 +661,9 @@ typedef struct			/* some resources... */
    *GnetlistProgram,		/* gnetlist program name */
    *MakeProgram,		/* make program name */
    *InitialLayerStack;		/* If set, the initial layer stack is set to this */
-  LocationType PinoutOffsetX,	/* offset of origin */
+  Coord PinoutOffsetX,		/* offset of origin */
     PinoutOffsetY;
-  int PinoutTextOffsetX,	/* offset of text from pin center */
+  Coord PinoutTextOffsetX,	/* offset of text from pin center */
     PinoutTextOffsetY;
   RouteStyleType RouteStyle[NUM_STYLES];	/* default routing styles */
   LayerGroupType LayerGroups;	/* default layer groups */
@@ -716,7 +718,7 @@ typedef struct
 
 typedef struct			/* holds a connection */
 {
-  LocationType X, Y;		/* coordinate of connection */
+  Coord X, Y;			/* coordinate of connection */
   long int type;		/* type of object in ptr1 - 3 */
   void *ptr1, *ptr2;		/* the object of the connection */
   Cardinal group;		/* the layer group of the connection */
@@ -764,9 +766,8 @@ struct drc_violation_st
 {
   char *title;
   char *explanation;
-  int x;
-  int y;
-  int angle;
+  Coord x, y;
+  Angle angle;
   int have_measured;
   double measured_value;
   double required_value;

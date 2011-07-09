@@ -765,7 +765,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       for (p = element->Arc; p != NULL; p = g_list_next (p))
 	{
 	  ArcType *arc = p->data;
-          pcb_fprintf (FP, "\tElementArc [%mc %mc %mc %mc %d %d %mc]\n",
+          pcb_fprintf (FP, "\tElementArc [%mc %mc %mc %mc %ma %ma %mc]\n",
                        arc->X - element->MarkX,
                        arc->Y - element->MarkY,
                        arc->Width, arc->Height,
@@ -804,7 +804,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = layer->Arc; n != NULL; n = g_list_next (n))
 	{
 	  ArcType *arc = n->data;
-          pcb_fprintf (FP, "\tArc[%mc %mc %mc %mc %mc %mc %d %d %s]\n",
+          pcb_fprintf (FP, "\tArc[%mc %mc %mc %mc %mc %mc %ma %ma %s]\n",
                        arc->X, arc->Y, arc->Width,
                        arc->Height, arc->Thickness,
                        arc->Clearance, arc->StartAngle,

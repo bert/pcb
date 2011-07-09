@@ -81,7 +81,7 @@ static int min_sig_figs(double d)
  * string, with appropriate units. If more than one coord is
  * given, the list is enclosed in parens to make the scope of
  * the unit suffix clear.  */
-static gchar *CoordsToString(BDimension coord[], int n_coords, const char *printf_spec, enum e_allow allow, enum e_suffix suffix_type)
+static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spec, enum e_allow allow, enum e_suffix suffix_type)
 {
   GString *buff;
   gchar *printf_buff;
@@ -236,7 +236,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
         {
           gchar *unit_str = NULL;
           const char *ext_unit = "";
-          BDimension value[10];
+          Coord value[10];
           int count, i;
 
           g_string_assign (spec, "");
@@ -324,8 +324,8 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
               ++fmt;
               if (*fmt == '*')
                 ext_unit = va_arg(args, const char *);
-              if (*fmt != '+')
-                value[0] = va_arg(args, BDimension);
+              if (*fmt != '+' && *fmt != 'a')
+                value[0] = va_arg(args, Coord);
               count = 1;
               switch(*fmt)
                 {
@@ -335,20 +335,20 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                 case 'L': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_IMPERIAL, suffix); break;
                 case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, FILE_MODE); break;
                 /* All these fallthroughs are deliberate */
-                case '9': value[count++] = va_arg(args, BDimension);
-                case '8': value[count++] = va_arg(args, BDimension);
-                case '7': value[count++] = va_arg(args, BDimension);
-                case '6': value[count++] = va_arg(args, BDimension);
-                case '5': value[count++] = va_arg(args, BDimension);
-                case '4': value[count++] = va_arg(args, BDimension);
-                case '3': value[count++] = va_arg(args, BDimension);
+                case '9': value[count++] = va_arg(args, Coord);
+                case '8': value[count++] = va_arg(args, Coord);
+                case '7': value[count++] = va_arg(args, Coord);
+                case '6': value[count++] = va_arg(args, Coord);
+                case '5': value[count++] = va_arg(args, Coord);
+                case '4': value[count++] = va_arg(args, Coord);
+                case '3': value[count++] = va_arg(args, Coord);
                 case '2':
                 case 'D':
-                  value[count++] = va_arg(args, BDimension);
+                  value[count++] = va_arg(args, Coord);
                   unit_str = CoordsToString(value, count, spec->str, mask & ALLOW_ALL, suffix);
                   break;
                 case 'd':
-                  value[1] = va_arg(args, BDimension);
+                  value[1] = va_arg(args, Coord);
                   unit_str = CoordsToString(value, 2, spec->str, ALLOW_MM | ALLOW_MIL, suffix);
                   break;
                 case '*':
@@ -357,6 +357,13 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
                     unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix);
+                  break;
+                case 'a':
+                  value[0] = va_arg(args, Angle);
+                  g_string_append (spec, ".0f");
+                  if (suffix == SUFFIX)
+                    g_string_append (spec, " deg");
+                  unit_str = g_strdup_printf (spec->str, value[0]);
                   break;
                 case '+':
                   mask = va_arg(args, enum e_allow);
