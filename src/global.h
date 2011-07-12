@@ -510,7 +510,7 @@ typedef struct PCBType
     GridOffsetY, MaxWidth,	/* allowed size */
     MaxHeight;
 
-  double Grid;			/* used grid with offsets */
+  Coord Grid;			/* used grid with offsets */
   double Zoom,			/* zoom factor */
     IsleArea,			/* minimum poly island to retain */
     ThermScale;			/* scale factor used with thermals */
@@ -637,7 +637,7 @@ typedef struct			/* some resources... */
     AlignmentDistance, Bloat,	/* default drc sizes */
     Shrink, minWid, minSlk, minDrill, minRing;
   int TextScale;		/* text scaling in % */
-  double Grid,			/* grid in pcb-units */
+  Coord Grid,			/* grid in pcb-units */
     grid_increment_mm,		/* key g and <shift>g value for mil units */
     grid_increment_mil,		/* key g and <shift>g value for mil units */
     size_increment_mm,		/* key s and <shift>s value for mil units */

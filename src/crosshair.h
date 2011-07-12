@@ -34,18 +34,13 @@
 #include "global.h"
 
 /* ---------------------------------------------------------------------------
- * fits screen coordinates into grid
- */
-#define	GRIDFIT_X(x,g)	(int)(0.5 + ((int)(((x) -PCB->GridOffsetX + g/2) /(g)) *(g)) +PCB->GridOffsetX)
-#define	GRIDFIT_Y(y,g)	(int)(0.5 + ((int)(((y) -PCB->GridOffsetY + g/2) /(g)) *(g)) +PCB->GridOffsetY)
-
-/* ---------------------------------------------------------------------------
  * all possible states of an attached object
  */
 #define	STATE_FIRST		0	/* initial state */
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
 
+Coord GridFit (Coord x, Coord grid_spacing, Coord grid_offset);
 void notify_crosshair_change (bool changes_complete);
 void notify_mark_change (bool changes_complete);
 void HideCrosshair (void);

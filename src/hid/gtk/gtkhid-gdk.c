@@ -149,8 +149,8 @@ ghid_draw_grid (void)
 {
   static GdkPoint *points = 0;
   static int npoints = 0;
-  int x1, y1, x2, y2, n, i;
-  double x, y;
+  Coord x1, y1, x2, y2, x, y;
+  int n, i;
   render_priv *priv = gport->render_priv;
 
   if (!Settings.DrawGrid)
@@ -172,20 +172,21 @@ ghid_draw_grid (void)
       gdk_gc_set_clip_origin (priv->grid_gc, 0, 0);
       set_clip (priv, priv->grid_gc);
     }
-  x1 = GRIDFIT_X (SIDE_X (gport->view_x0), PCB->Grid);
-  y1 = GRIDFIT_Y (SIDE_Y (gport->view_y0), PCB->Grid);
-  x2 = GRIDFIT_X (SIDE_X (gport->view_x0 + gport->view_width - 1), PCB->Grid);
-  y2 =
-    GRIDFIT_Y (SIDE_Y (gport->view_y0 + gport->view_height - 1), PCB->Grid);
+  x1 = GridFit (SIDE_X (gport->view_x0), PCB->Grid, PCB->GridOffsetX);
+  y1 = GridFit (SIDE_Y (gport->view_y0), PCB->Grid, PCB->GridOffsetY);
+  x2 = GridFit (SIDE_X (gport->view_x0 + gport->view_width - 1),
+                PCB->Grid, PCB->GridOffsetX);
+  y2 = GridFit (SIDE_Y (gport->view_y0 + gport->view_height - 1),
+                PCB->Grid, PCB->GridOffsetY);
   if (x1 > x2)
     {
-      int tmp = x1;
+      Coord tmp = x1;
       x1 = x2;
       x2 = tmp;
     }
   if (y1 > y2)
     {
-      int tmp = y1;
+      Coord tmp = y1;
       y1 = y2;
       y2 = tmp;
     }
@@ -197,7 +198,7 @@ ghid_draw_grid (void)
     x2 -= PCB->Grid;
   if (Vy (y2) >= gport->height)
     y2 -= PCB->Grid;
-  n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
+  n = (x2 - x1) / PCB->Grid + 1;
   if (n > npoints)
     {
       npoints = n + 10;
@@ -213,9 +214,8 @@ ghid_draw_grid (void)
     return;
   for (y = y1; y <= y2; y += PCB->Grid)
     {
-      int vy = Vy (y);
       for (i = 0; i < n; i++)
-	points[i].y = vy;
+	points[i].y = Vy (y);
       gdk_draw_points (gport->drawable, priv->grid_gc, points, n);
     }
 }

@@ -82,55 +82,6 @@ ghid_cursor_position_relative_label_set_text (gchar * text)
   ghid_label_set_markup (ghidgui->cursor_position_relative_label, text);
 }
 
-void
-ghid_size_increment_get_value (const gchar * saction, gchar ** value,
-			       gchar ** units)
-{
-  gdouble increment;
-  gchar *fmt;
-  static gchar s_buf[64];
-
-  increment = Settings.grid_units_mm
-    ? Settings.size_increment_mm : Settings.size_increment_mil;
-  fmt = (*saction == '+') ? (gchar *)"+%f" : (gchar *)"-%f";
-  snprintf (s_buf, sizeof (s_buf), fmt, increment);
-  *value = s_buf;
-  *units = Settings.grid_units_mm ? (gchar *)"mm" : (gchar *)"mil";
-}
-
-void
-ghid_line_increment_get_value (const gchar * saction, gchar ** value,
-			       gchar ** units)
-{
-  gdouble increment;
-  gchar *fmt;
-  static gchar s_buf[64];
-
-  increment = Settings.grid_units_mm
-    ? Settings.line_increment_mm : Settings.line_increment_mil;
-  fmt = (*saction == '+') ? (gchar *)"+%f" : (gchar *)"-%f";
-  snprintf (s_buf, sizeof (s_buf), fmt, increment);
-  *value = s_buf;
-  *units = Settings.grid_units_mm ? (gchar *)"mm" : (gchar *)"mil";
-}
-
-void
-ghid_clear_increment_get_value (const gchar * saction, gchar ** value,
-				gchar ** units)
-{
-  gdouble increment;
-  gchar *fmt;
-  static gchar s_buf[64];
-
-  increment = Settings.grid_units_mm
-    ? Settings.clear_increment_mm : Settings.clear_increment_mil;
-  fmt = (*saction == '+') ? (gchar *)"+%f" : (gchar *)"-%f";
-  snprintf (s_buf, sizeof (s_buf), fmt, increment);
-  *value = s_buf;
-  *units = Settings.grid_units_mm ? (gchar *)"mm" : (gchar *)"mil";
-}
-
-
 static GdkCursorType
 gport_set_cursor (GdkCursorType shape)
 {
@@ -469,7 +420,7 @@ ghid_set_status_line_label (void)
             "<b>text</b>=%i%%  "
             "<b>buffer</b>=#%i"),
       Settings.ShowSolderSide ? _("solder") : _("component"),
-      (BDimension) PCB->Grid,
+      PCB->Grid,
       (int) Settings.GridFactor,
       flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
       Settings.LineThickness,

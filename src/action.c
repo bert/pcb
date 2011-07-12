@@ -2193,30 +2193,19 @@ ActionSetValue (int argc, char **argv, int x, int y)
 	  break;
 
 	case F_Grid:
-	  if (!absolute)
-	    {
-	      if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
-		  || (value != (int) value && PCB->Grid != (int) PCB->Grid)
-                  || PCB->Grid ==1)
-                {
-                  /* 
-		   * On the way down short against the minimum 
-		   * PCB drawing unit 
-		   */
-                  if ((value + PCB->Grid) < 1)
-                     SetGrid (1, false);
-                  else if (PCB->Grid == 1)
-                    SetGrid ( value, false);
-                  else
-                    SetGrid (value + PCB->Grid, false);
-                }
-
-	      else
-		Message (_
-			 ("Don't combine metric/English grids like that!\n"));
-	    }
-	  else
+	  if (absolute)
 	    SetGrid (value, false);
+	  else
+	    {
+              /* On the way down, short against the minimum 
+               * PCB drawing unit */
+              if ((value + PCB->Grid) < 1)
+                SetGrid (1, false);
+              else if (PCB->Grid == 1)
+                SetGrid (value, false);
+              else
+                SetGrid (value + PCB->Grid, false);
+	    }
 	  break;
 
 	case F_LineSize:
@@ -2374,12 +2363,11 @@ static int
 ActionDisperseElements (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
-  long minx, miny, maxy, dx, dy;
+  Coord minx = GAP,
+    miny = GAP,
+    maxy = GAP,
+    dx, dy;
   int all = 0, bad = 0;
-
-  minx = GAP;
-  miny = GAP;
-  maxy = GAP;
 
   if (!function || !*function)
     {
@@ -2424,13 +2412,13 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 	dx = minx - element->BoundingBox.X1;
 
 	/* snap to the grid */
-	dx -= (element->MarkX + dx) % (long) (PCB->Grid);
+	dx -= (element->MarkX + dx) % PCB->Grid;
 
 	/* 
 	 * and add one grid size so we make sure we always space by GAP or
 	 * more
 	 */
-	dx += (long) (PCB->Grid);
+	dx += PCB->Grid;
 
 	/* Figure out if this row has room.  If not, start a new row */
 	if (GAP + element->BoundingBox.X2 + dx > PCB->MaxWidth)
@@ -2444,10 +2432,10 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 	dy = miny - element->BoundingBox.Y1;
 
 	/* snap to the grid */
-	dx -= (element->MarkX + dx) % (long) (PCB->Grid);
-	dx += (long) (PCB->Grid);
-	dy -= (element->MarkY + dy) % (long) (PCB->Grid);
-	dy += (long) (PCB->Grid);
+	dx -= (element->MarkX + dx) % PCB->Grid;
+	dx += PCB->Grid;
+	dy -= (element->MarkY + dy) % PCB->Grid;
+	dy += PCB->Grid;
 
 	/* move the element */
 	MoveElementLowLevel (PCB->Data, element, dx, dy);
@@ -2596,8 +2584,7 @@ instead of only the biggest one.
 @item ToggleGrid
 Resets the origin of the current grid to be wherever the mouse pointer
 is (not where the crosshair currently is).  If you provide two numbers
-after this, the origin is set to that coordinate.  The numbers are in
-PCB internal units, currently 1/100 mil.
+after this, the origin is set to that coordinate.
 
 @item Grid
 Toggles whether the grid is displayed or not.
@@ -2821,10 +2808,9 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  /* shift grid alignment */
 	case F_ToggleGrid:
 	  {
-	    float oldGrid;
+	    Coord oldGrid = PCB->Grid;
 
-	    oldGrid = PCB->Grid;
-	    PCB->Grid = 1.0;
+	    PCB->Grid = 1;
 	    if (MoveCrosshairAbsolute (Crosshair.X, Crosshair.Y))
 	      notify_crosshair_change (true);	/* first notify was in MoveCrosshairAbs */
 	    SetGrid (oldGrid, true);
@@ -2939,9 +2925,8 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	case F_ToggleGrid:
 	  if (argc > 2)
 	    {
-	      /* FIXME: units */
-	      PCB->GridOffsetX = atoi (argv[1]);
-	      PCB->GridOffsetY = atoi (argv[2]);
+	      PCB->GridOffsetX = GetValue (argv[1], NULL, NULL);
+	      PCB->GridOffsetY = GetValue (argv[2], NULL, NULL);
 	      if (Settings.DrawGrid)
 		Redraw ();
 	    }
@@ -5465,8 +5450,8 @@ ActionSelect (int argc, char **argv, int x, int y)
 	    SetBufferNumber (MAX_BUFFER - 1);
 	    ClearBuffer (PASTEBUFFER);
 	    gui->get_coords (_("Select the Element's Mark Location"), &x, &y);
-	    x = GRIDFIT_X (x, PCB->Grid);
-	    y = GRIDFIT_Y (y, PCB->Grid);
+	    x = GridFit (x, PCB->Grid, PCB->GridOffsetX);
+	    y = GridFit (y, PCB->Grid, PCB->GridOffsetY);
 	    AddSelectedToBuffer (PASTEBUFFER, x, y, true);
 	    SaveUndoSerialNumber ();
 	    RemoveSelected ();

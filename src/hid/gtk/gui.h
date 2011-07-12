@@ -223,14 +223,6 @@ void ghid_set_menu_toggle_button (GtkActionGroup * ag,
 				  gchar * name, gboolean state);
 void ghid_pcb_saved_toggle_states_set (void);
 void ghid_sync_with_new_layout (void);
-void ghid_size_increment_get_value (const gchar * saction,
-				    gchar ** value, gchar ** units);
-void ghid_line_increment_get_value (const gchar * saction,
-				    gchar ** value, gchar ** units);
-void ghid_clear_increment_get_value (const gchar * saction,
-				     gchar ** value, gchar ** units);
-void ghid_grid_size_increment_get_value (const gchar * saction,
-					 gchar ** value, gchar ** units);
 
 void ghid_grid_setting_update_menu_actions (void);
 void ghid_change_selected_update_menu_actions (void);

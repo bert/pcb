@@ -766,9 +766,9 @@ GetDataBoundingBox (DataTypePtr Data)
  * centers the displayed PCB around the specified point (X,Y)
  */
 void
-CenterDisplay (LocationType X, LocationType Y)
+CenterDisplay (Coord X, Coord Y)
 {
-  double save_grid = PCB->Grid;
+  Coord save_grid = PCB->Grid;
   PCB->Grid = 1;
   if (MoveCrosshairAbsolute (X, Y))
     notify_crosshair_change (true);
@@ -1794,8 +1794,8 @@ AttachForCopy (LocationType PlaceX, LocationType PlaceY)
                               Crosshair.AttachedObject.Ptr1,
                               Crosshair.AttachedObject.Ptr2,
                               Crosshair.AttachedObject.Ptr3, &mx, &my);
-      mx = GRIDFIT_X (mx, PCB->Grid) - mx;
-      my = GRIDFIT_Y (my, PCB->Grid) - my;
+      mx = GridFit (mx, PCB->Grid, PCB->GridOffsetX) - mx;
+      my = GridFit (my, PCB->Grid, PCB->GridOffsetY) - my;
     }
   Crosshair.AttachedObject.X = PlaceX - mx;
   Crosshair.AttachedObject.Y = PlaceY - my;

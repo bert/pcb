@@ -69,16 +69,14 @@ static int mode_stack[MAX_MODESTACK_DEPTH];
  * sets cursor grid with respect to grid offset values
  */
 void
-SetGrid (double Grid, bool align)
+SetGrid (Coord Grid, bool align)
 {
   if (Grid >= 1 && Grid <= MAX_GRID)
     {
       if (align)
 	{
-	  PCB->GridOffsetX =
-	    Crosshair.X - (int) (Crosshair.X / Grid) * Grid + 0.5;
-	  PCB->GridOffsetY =
-	    Crosshair.Y - (int) (Crosshair.Y / Grid) * Grid + 0.5;
+	  PCB->GridOffsetX = Crosshair.X % Grid;
+	  PCB->GridOffsetY = Crosshair.Y % Grid;
 	}
       PCB->Grid = Grid;
       if (Settings.DrawGrid)

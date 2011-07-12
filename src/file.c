@@ -394,7 +394,6 @@ LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (false);
   PCBTypePtr oldPCB;
-  bool units_mm;
 #ifdef DEBUG
   double elapsed;
   clock_t start, end;
@@ -438,9 +437,9 @@ LoadPCB (char *Filename)
       PCB->Filename = strdup (Filename);
       /* just in case a bad file saved file is loaded */
 
-      units_mm = (PCB->Grid != (int) PCB->Grid) ? true : false;
-
-      Settings.grid_units_mm = units_mm;
+      /* Use imperial if the grid is a multiple of .5cmil, else metric */
+      Settings.grid_units_mm = (1000000 * COORD_TO_MM (PCB->Grid) / 127.0) !=
+                                 (Coord) (1000000 * COORD_TO_MM (PCB->Grid)) / 127;
 
       sort_netlist ();
 

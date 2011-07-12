@@ -59,8 +59,8 @@ RCSID ("$Id$");
    should search the grid for the gridlines and use them to figure out
    where the symbols are. */
 
-#define CELL_SIZE	10000
-#define CELL_OFFSET	1000
+#define CELL_SIZE	MIL_TO_COORD (100)
+#define CELL_OFFSET	MIL_TO_COORD (10)
 
 #define XYtoSym(x,y) ((x1 + CELL_OFFSET) / CELL_SIZE - 1 \
 		      + 16 * ((y1 + CELL_OFFSET) / CELL_SIZE - 1))
@@ -93,7 +93,7 @@ FontEdit (int argc, char **argv, int Ux, int Uy)
     }
   PCB->MaxWidth = CELL_SIZE * 18;
   PCB->MaxHeight = CELL_SIZE * ((MAX_FONTPOSITION + 15) / 16 + 2);
-  PCB->Grid = 500.0;
+  PCB->Grid = MIL_TO_COORD (5);
   PCB->Data->Layer[0].Name = strdup ("Font");
   PCB->Data->Layer[1].Name = strdup ("OrigFont");
   PCB->Data->Layer[2].Name = strdup ("Width");
@@ -109,13 +109,13 @@ FontEdit (int argc, char **argv, int Ux, int Uy)
   font = &PCB->Font;
   for (s = 0; s <= MAX_FONTPOSITION; s++)
     {
-      int ox = (s % 16 + 1) * CELL_SIZE;
-      int oy = (s / 16 + 1) * CELL_SIZE;
-      int w, miny, maxy, maxx = 0;
+      Coord ox = (s % 16 + 1) * CELL_SIZE;
+      Coord oy = (s / 16 + 1) * CELL_SIZE;
+      Coord w, miny, maxy, maxx = 0;
 
       symbol = &font->Symbol[s];
 
-      miny = 500;
+      miny = MIL_TO_COORD (5);
       maxy = font->MaxHeight;
 
       for (l = 0; l < symbol->LineN; l++)
@@ -141,20 +141,20 @@ FontEdit (int argc, char **argv, int Ux, int Uy)
       w = maxx + symbol->Delta + ox;
       CreateDrawnLineOnLayer (lwidth,
 			      w, miny + oy,
-			      w, maxy + oy, 100, 100, NoFlags ());
+			      w, maxy + oy, MIL_TO_COORD (1), MIL_TO_COORD (1), NoFlags ());
     }
 
   for (l = 0; l < 16; l++)
     {
       int x = (l + 1) * CELL_SIZE;
-      CreateDrawnLineOnLayer (lgrid, x, 0, x, PCB->MaxHeight, 100, 100,
-			      NoFlags ());
+      CreateDrawnLineOnLayer (lgrid, x, 0, x, PCB->MaxHeight, MIL_TO_COORD (1),
+                              MIL_TO_COORD (1), NoFlags ());
     }
   for (l = 0; l <= MAX_FONTPOSITION / 16 + 1; l++)
     {
       int y = (l + 1) * CELL_SIZE;
-      CreateDrawnLineOnLayer (lgrid, 0, y, PCB->MaxWidth, y, 100, 100,
-			      NoFlags ());
+      CreateDrawnLineOnLayer (lgrid, 0, y, PCB->MaxWidth, y, MIL_TO_COORD (1),
+                              MIL_TO_COORD (1), NoFlags ());
     }
   return 0;
 }
@@ -218,9 +218,9 @@ FontSave (int argc, char **argv, int Ux, int Uy)
   for (ii = lwidth->Line; ii != NULL; ii = g_list_next (ii))
     {
       LineType *l = ii->data;
-      int x1 = l->Point1.X;
-      int y1 = l->Point1.Y;
-      int ox, s;
+      Coord x1 = l->Point1.X;
+      Coord y1 = l->Point1.Y;
+      Coord ox, s;
 
       s = XYtoSym (x1, y1);
       ox = (s % 16 + 1) * CELL_SIZE;

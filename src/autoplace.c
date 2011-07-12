@@ -102,8 +102,8 @@ const struct
   float gamma;			/* annealing schedule constant */
   int good_ratio;		/* ratio of moves to good moves for halting */
   bool fast;			/* ignore SMD/pin conflicts */
-  int large_grid_size;		/*snap perturbations to this grid when T is high */
-  int small_grid_size;		/* snap to this grid when T is small. */
+  Coord large_grid_size;	/* snap perturbations to this grid when T is high */
+  Coord small_grid_size;	/* snap to this grid when T is small. */
 }
 /* wire cost is manhattan distance (in mils), thus 1 inch = 1000 */
 CostParameter =
@@ -121,8 +121,8 @@ CostParameter =
     0.75,			/* annealing schedule constant: 0.85 */
     40,				/* halt when there are 60 times as many moves as good moves */
     false,			/* don't ignore SMD/pin conflicts */
-    100,			/* coarse grid is 100 mils */
-    10,				/* fine grid is 10 mils */
+    MIL_TO_COORD (100),		/* coarse grid is 100 mils */
+    MIL_TO_COORD (10),		/* fine grid is 10 mils */
 };
 
 typedef struct
@@ -634,14 +634,14 @@ createPerturbation (PointerListTypePtr selected, double T)
     {
     case 0:
       {				/* shift! */
-	int grid;
-	double scaleX = MAX (250, MIN (sqrt (T), PCB->MaxWidth / 3));
-	double scaleY = MAX (250, MIN (sqrt (T), PCB->MaxHeight / 3));
+	Coord grid;
+	double scaleX = CLAMP (sqrt (T), MIL_TO_COORD (2.5), PCB->MaxWidth / 3);
+	double scaleY = CLAMP (sqrt (T), MIL_TO_COORD (2.5), PCB->MaxHeight / 3);
 	pt.which = SHIFT;
 	pt.DX = scaleX * 2 * ((((double) random ()) / RAND_MAX) - 0.5);
 	pt.DY = scaleY * 2 * ((((double) random ()) / RAND_MAX) - 0.5);
 	/* snap to grid. different grids for "high" and "low" T */
-	grid = (T > 1000) ? CostParameter.large_grid_size :
+	grid = (T > MIL_TO_COORD (10)) ? CostParameter.large_grid_size :
 	  CostParameter.small_grid_size;
 	/* (round away from zero) */
 	pt.DX = ((pt.DX / grid) + SGN (pt.DX)) * grid;
@@ -788,13 +788,13 @@ AutoPlaceSelected (void)
   /* simulated annealing */
   {				/* compute T0 by doing a random series of moves. */
     const int TRIALS = 10;
-    const double Tx = 3e5, P = 0.95;
+    const double Tx = MIL_TO_COORD (300), P = 0.95;
     double Cs = 0.0;
     int i;
     C0 = ComputeCost (Nets, Tx, Tx);
     for (i = 0; i < TRIALS; i++)
       {
-	pt = createPerturbation (&Selected, 1e6);
+	pt = createPerturbation (&Selected, INCH_TO_COORD (1));
 	doPerturb (&pt, false);
 	Cs += fabs (ComputeCost (Nets, Tx, Tx) - C0);
 	doPerturb (&pt, true);

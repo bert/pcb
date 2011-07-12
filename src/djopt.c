@@ -295,11 +295,11 @@ check2 (int srcline, corner_s * c, line_s * l)
 #define SWAP(a,b) { a^=b; b^=a; a^=b; }
 
 static int
-gridsnap (int n)
+gridsnap (Coord n)
 {
   if (n <= 0)
     return 0;
-  return n - n % (int) (Settings.Grid);
+  return n - n % (Settings.Grid);
 }
 
 /* Avoid commonly used names. */
@@ -1616,7 +1616,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
     {
       if (pull < 0)
 	len += Settings.Grid - 1;
-      len -= len % (int) (Settings.Grid);
+      len = gridsnap (len);
     }
   if ((fdir == RIGHT && len == cs[0]->y) || (fdir == DOWN && len == cs[0]->x))
     return 0;

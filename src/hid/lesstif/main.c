@@ -815,8 +815,8 @@ Benchmark (int argc, char **argv, int x, int y)
 static int
 Center(int argc, char **argv, int x, int y)
 {
-  x = GRIDFIT_X (x, PCB->Grid);
-  y = GRIDFIT_Y (y, PCB->Grid);
+  x = GridFit (x, PCB->Grid, PCB->GridOffsetX);
+  y = GridFit (y, PCB->Grid, PCB->GridOffsetY);
   view_left_x = x - (view_width * view_zoom) / 2;
   view_top_y = y - (view_height * view_zoom) / 2;
   lesstif_pan_fixup ();
@@ -2228,8 +2228,9 @@ draw_grid ()
 {
   static XPoint *points = 0;
   static int npoints = 0;
-  int x1, y1, x2, y2, n, prevx;
-  double x, y;
+  Coord x1, y1, x2, y2, prevx;
+  Coord x, y;
+  int n;
   static GC grid_gc = 0;
 
   if (!Settings.DrawGrid)
@@ -2244,8 +2245,8 @@ draw_grid ()
     }
   if (flip_x)
     {
-      x2 = GRIDFIT_X (Px (0), PCB->Grid);
-      x1 = GRIDFIT_X (Px (view_width), PCB->Grid);
+      x2 = GridFit (Px (0), PCB->Grid, PCB->GridOffsetX);
+      x1 = GridFit (Px (view_width), PCB->Grid, PCB->GridOffsetX);
       if (Vx (x2) < 0)
 	x2 -= PCB->Grid;
       if (Vx (x1) >= view_width)
@@ -2253,8 +2254,8 @@ draw_grid ()
     }
   else
     {
-      x1 = GRIDFIT_X (Px (0), PCB->Grid);
-      x2 = GRIDFIT_X (Px (view_width), PCB->Grid);
+      x1 = GridFit (Px (0), PCB->Grid, PCB->GridOffsetX);
+      x2 = GridFit (Px (view_width), PCB->Grid, PCB->GridOffsetX);
       if (Vx (x1) < 0)
 	x1 += PCB->Grid;
       if (Vx (x2) >= view_width)
@@ -2262,8 +2263,8 @@ draw_grid ()
     }
   if (flip_y)
     {
-      y2 = GRIDFIT_Y (Py (0), PCB->Grid);
-      y1 = GRIDFIT_Y (Py (view_height), PCB->Grid);
+      y2 = GridFit (Py (0), PCB->Grid, PCB->GridOffsetY);
+      y1 = GridFit (Py (view_height), PCB->Grid, PCB->GridOffsetY);
       if (Vy (y2) < 0)
 	y2 -= PCB->Grid;
       if (Vy (y1) >= view_height)
@@ -2271,14 +2272,14 @@ draw_grid ()
     }
   else
     {
-      y1 = GRIDFIT_Y (Py (0), PCB->Grid);
-      y2 = GRIDFIT_Y (Py (view_height), PCB->Grid);
+      y1 = GridFit (Py (0), PCB->Grid, PCB->GridOffsetY);
+      y2 = GridFit (Py (view_height), PCB->Grid, PCB->GridOffsetY);
       if (Vy (y1) < 0)
 	y1 += PCB->Grid;
       if (Vy (y2) >= view_height)
 	y2 -= PCB->Grid;
     }
-  n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
+  n = (x2 - x1) / PCB->Grid + 1;
   if (n > npoints)
     {
       npoints = n + 10;
@@ -2611,8 +2612,8 @@ idle_proc (XtPointer dummy)
   }
 
   {
-    static double old_grid = -1;
-    static BDimension old_gx, old_gy, old_mm;
+    static Coord old_grid = -1;
+    static Coord old_gx, old_gy, old_mm;
     XmString ms;
     if (PCB->Grid != old_grid
 	|| PCB->GridOffsetX != old_gx
@@ -2630,9 +2631,9 @@ idle_proc (XtPointer dummy)
 	else
 	  {
 	    if (old_gx || old_gy)
-	      pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, (BDimension) old_grid, old_gx, old_gy);
+	      pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, old_grid, old_gx, old_gy);
 	    else
-	      pcb_sprintf (buf, "%m+%$mS", UUNIT, (BDimension) old_grid);
+	      pcb_sprintf (buf, "%m+%$mS", UUNIT, old_grid);
 	  }
 	ms = XmStringCreatePCB (buf);
 	n = 0;

@@ -1157,7 +1157,7 @@ increment_spin_button_cb (GtkSpinButton * spin, void * dst)
   gdouble value;
 
   value = gtk_spin_button_get_value (spin);
-  *(gdouble *)dst = value;			/* Not using PCB units */
+  *(Coord *)dst = TO_PCB_UNITS (value);
 
 
   ghidgui->config_modified = TRUE;
@@ -1167,7 +1167,7 @@ static void
 config_increments_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *vbox, *label;
-  gdouble *target;
+  Coord *target;
   gchar *str;
 
   /* Need a vbox we can destroy if user changes grid units.

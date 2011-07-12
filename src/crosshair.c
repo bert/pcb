@@ -688,6 +688,18 @@ DrawMark (void)
                   Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
 }
 
+/* ---------------------------------------------------------------------------
+ * Returns the nearest grid-point to the given Coord
+ */
+Coord
+GridFit (Coord x, Coord grid_spacing, Coord grid_offset)
+{
+  x -= grid_offset;
+  x = grid_spacing * round ((double) x / grid_spacing);
+  x += grid_offset;
+  return x;
+}
+
 
 /* ---------------------------------------------------------------------------
  * notify the GUI that data relating to the crosshair is being changed.
@@ -793,7 +805,7 @@ struct snap_data {
   CrosshairType *crosshair;
   double nearest_sq_dist;
   bool nearest_is_grid;
-  LocationType x, y;
+  Coord x, y;
 };
 
 /* Snap to a given location if it is the closest thing we found so far.
@@ -914,30 +926,30 @@ check_snap_offgrid_line (struct snap_data *snap_data,
  * recalculates the passed coordinates to fit the current grid setting
  */
 void
-FitCrosshairIntoGrid (LocationType X, LocationType Y)
+FitCrosshairIntoGrid (Coord X, Coord Y)
 {
-  LocationType nearest_grid_x, nearest_grid_y;
+  Coord nearest_grid_x, nearest_grid_y;
   void *ptr1, *ptr2, *ptr3;
   struct snap_data snap_data;
   int ans;
 
-  Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, X));
-  Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Y));
+  Crosshair.X = CLAMP (X, Crosshair.MinX, Crosshair.MaxX);
+  Crosshair.Y = CLAMP (Y, Crosshair.MinY, Crosshair.MaxY);
 
   if (PCB->RatDraw)
     {
-      nearest_grid_x = -600;
-      nearest_grid_y = -600;
+      nearest_grid_x = -MIL_TO_COORD (6);
+      nearest_grid_y = -MIL_TO_COORD (6);
     }
   else
     {
-      nearest_grid_x = GRIDFIT_X (Crosshair.X, PCB->Grid);
-      nearest_grid_y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
+      nearest_grid_x = GridFit (Crosshair.X, PCB->Grid, PCB->GridOffsetX);
+      nearest_grid_y = GridFit (Crosshair.Y, PCB->Grid, PCB->GridOffsetY);
 
       if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
 	{
-	  int dx = Crosshair.X - Marked.X;
-	  int dy = Crosshair.Y - Marked.Y;
+	  Coord dx = Crosshair.X - Marked.X;
+	  Coord dy = Crosshair.Y - Marked.Y;
 	  if (ABS (dx) > ABS (dy))
 	    nearest_grid_y = Marked.Y;
 	  else

@@ -34,7 +34,7 @@
 #include "global.h"
 
 void SetTextScale (Dimension);
-void SetGrid (double, bool);
+void SetGrid (Coord, bool);
 void SetZoom (float);
 void SetLineSize (BDimension);
 void SetViaSize (BDimension, bool);

@@ -61,13 +61,13 @@ FlagCurrentStyle (int dummy)
 static int
 FlagGrid (int dummy)
 {
-  return PCB->Grid > 1.0;
+  return PCB->Grid > 1;
 }
 
 static int
 FlagGridSize (int dummy)
 {
-  return (int) (PCB->Grid + 0.5);
+  return PCB->Grid;
 }
 
 static int

@@ -16,6 +16,7 @@
 #include "data.h"
 #include "error.h"
 #include "misc.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "../hidint.h"
