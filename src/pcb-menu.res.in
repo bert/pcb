@@ -81,35 +81,35 @@ MainMenu =
     {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
     {"Zoom Toggle" Zoom(Toggle) a={"`" "<Key>`"}}
     -
-    {"Zoom to 0.1mil/px" Zoom(=10)}
-    {"Zoom to 0.01mm/px" Zoom(=39.37)}
-    {"Zoom to 1mil/px" Zoom(=100)}
-    {"Zoom to 0.05mm/px" Zoom(=196.8504)}
-    {"Zoom to 2.5mil/px" Zoom(=250)}
-    {"Zoom to 0.1mm/px" Zoom(=393.7)}
-    {"Zoom to 10mil/px" Zoom(=1000)}
+    {"Zoom to 0.1mil/px" Zoom(=0.1mil)}
+    {"Zoom to 0.01mm/px" Zoom(=0.01mil)}
+    {"Zoom to 1mil/px" Zoom(=1mil)}
+    {"Zoom to 0.05mm/px" Zoom(=0.05mm)}
+    {"Zoom to 2.5mil/px" Zoom(=2.5mil)}
+    {"Zoom to 0.1mm/px" Zoom(=0.1mm)}
+    {"Zoom to 10mil/px" Zoom(=10mil)}
    }
    {Grid
     {"mil" checked=grid_units_mil SetUnits(mil)}
     {"mm"  checked=grid_units_mm SetUnits(mm)}
     {"Display grid" checked=drawgrid Display(Grid)}
     {"Realign grid" GetXY(Click to set the grid origin) Display(ToggleGrid)}
-    {"No Grid" checked=gridsize,1 SetValue(Grid,1)}
+    {"No Grid" checked=grid,0 SetValue(Grid,1)}
     -
-    {  "0.1 mil" checked=gridsize,10 SetUnits(mil) SetValue(Grid,10)}
-    {  "1 mil"   checked=gridsize,100 SetUnits(mil) SetValue(Grid,100)}
-    {  "5 mil"   checked=gridsize,500 SetUnits(mil) SetValue(Grid,500)}
-    { "10 mil"   checked=gridsize,1000 SetUnits(mil) SetValue(Grid,1000)}
-    { "25 mil"   checked=gridsize,2500 SetUnits(mil) SetValue(Grid,2500)}
-    { "50 mil"   checked=gridsize,5000 SetUnits(mil) SetValue(Grid,5000)}
-    {"100 mil"   checked=gridsize,10000 SetUnits(mil) SetValue(Grid,10000)}
+    {  "0.1 mil" checked=gridsize,0.1mil SetUnits(mil) SetValue(Grid,0.1mil)}
+    {  "1 mil"   checked=gridsize,1mil SetUnits(mil) SetValue(Grid,1mil)}
+    {  "5 mil"   checked=gridsize,5mil SetUnits(mil) SetValue(Grid,5mil)}
+    { "10 mil"   checked=gridsize,10mil SetUnits(mil) SetValue(Grid,10mil)}
+    { "25 mil"   checked=gridsize,25mil SetUnits(mil) SetValue(Grid,25mil)}
+    { "50 mil"   checked=gridsize,50mil SetUnits(mil) SetValue(Grid,50mil)}
+    {"100 mil"   checked=gridsize,100mil SetUnits(mil) SetValue(Grid,100mil)}
     -
-    {"0.01 mm" checked=gridsize,39 SetUnits(mm) SetValue(Grid,0.01mm)}
-    {"0.05 mm" checked=gridsize,197 SetUnits(mm) SetValue(Grid,0.05mm)}
-    {"0.1 mm"  checked=gridsize,394 SetUnits(mm) SetValue(Grid,0.1mm)}
-    {"0.25 mm" checked=gridsize,984 SetUnits(mm) SetValue(Grid,0.25mm)}
-    {"0.5 mm"  checked=gridsize,1969 SetUnits(mm) SetValue(Grid,0.5mm)}
-    {"1 mm"    checked=gridsize,3937 SetUnits(mm) SetValue(Grid,1mm)}
+    {"0.01 mm" checked=gridsize,0.01mm SetUnits(mm) SetValue(Grid,0.01mm)}
+    {"0.05 mm" checked=gridsize,0.05mm SetUnits(mm) SetValue(Grid,0.05mm)}
+    {"0.1 mm"  checked=gridsize,0.10mm SetUnits(mm) SetValue(Grid,0.1mm)}
+    {"0.25 mm" checked=gridsize,0.25mm SetUnits(mm) SetValue(Grid,0.25mm)}
+    {"0.5 mm"  checked=gridsize,0.50mm SetUnits(mm) SetValue(Grid,0.5mm)}
+    {"1 mm"    checked=gridsize,1mm SetUnits(mm) SetValue(Grid,1mm)}
     -
     {"Grid -5mil" SetValue(Grid,-5,mil) a={"Shift-G" "Shift<Key>g"}}
     {"Grid +5mil" SetValue(Grid,+5,mil) a={"G" "<Key>g"}}
