@@ -163,10 +163,10 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   if (units && *units)
     {
       int i;
-      double sf = unit_to_coord (units);
-      if (sf != -1)
+      const Unit *unit = get_unit_struct (units);
+      if (unit != NULL)
         {
-          value *= sf;
+          value  = unit_to_coord (unit, value);
           scaled = 1;
         }
       if (extra_units)
@@ -187,7 +187,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   if (!scaled && default_unit && *default_unit)
     {
       int i;
-      double sf = unit_to_coord (default_unit);
+      const Unit *unit = get_unit_struct (default_unit);
       if (extra_units)
         for (i = 0; *extra_units[i].suffix; ++i)
           if (strcmp (extra_units[i].suffix, default_unit) == 0)
@@ -197,8 +197,8 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
                 value /= 100.0;
               scaled = 1;
             }
-      if (!scaled && sf != -1)
-        value *= sf;
+      if (!scaled && unit != NULL)
+        value = unit_to_coord (unit, value);
     }
 
   return value;

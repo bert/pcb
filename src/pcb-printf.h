@@ -90,8 +90,49 @@ enum e_allow {
   ALLOW_ALL = ~0
 };
 
-double coord_to_unit (const char *suffix);
-double unit_to_coord (const char *suffix);
+enum e_family { METRIC, IMPERIAL };
+enum e_suffix { NO_SUFFIX, SUFFIX, FILE_MODE };
+
+typedef struct unit {
+  const char *suffix;
+  const char *in_suffix;	/* internationalized suffix */
+  char printf_code;
+  double scale_factor;
+  enum e_family family;
+  enum e_allow  allow;
+  int default_prec;
+  /* used for gui spinboxes */
+  Coord step_tiny;
+  Coord step_small;
+  Coord step_medium;
+  Coord step_large;
+  Coord step_huge;
+} Unit;
+
+typedef struct increments {
+  const char *suffix;
+  /* key g and <shift>g value  */
+  Coord grid;
+  Coord grid_min;
+  Coord grid_max;
+  /* key s and <shift>s value  */
+  Coord size;
+  Coord size_min;
+  Coord size_max;
+  /* key l and <shift>l value  */
+  Coord line;
+  Coord line_min;
+  Coord line_max;
+  /* key k and <shift>k value  */
+  Coord clear;
+  Coord clear_min;
+  Coord clear_max;
+} Increments;
+
+const Unit *get_unit_struct (const char *suffix);
+double coord_to_unit (const Unit *, Coord);
+Coord  unit_to_coord (const Unit *, double);
+Increments *get_increments_struct (const char *suffix);
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
 int pcb_sprintf(char *string, const char *fmt, ...);

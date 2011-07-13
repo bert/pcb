@@ -32,41 +32,109 @@
 
 #include "pcb-printf.h"
 
-enum e_family { METRIC, IMPERIAL };
-enum e_suffix { NO_SUFFIX, SUFFIX, FILE_MODE };
-
-struct unit {
-  const char *suffix;
-  char printf_code;
-  double scale_factor;
-  enum e_family family;
-  enum e_allow  allow;
-  int default_prec;
-};
+/* Helper macros for tables */
+#define MM_TO_COORD3(a,b,c)		MM_TO_COORD (a), MM_TO_COORD (b), MM_TO_COORD (c)
+#define MIL_TO_COORD3(a,b,c)		MIL_TO_COORD (a), MIL_TO_COORD (b), MIL_TO_COORD (c)
+#define MM_TO_COORD5(a,b,c,d,e)		MM_TO_COORD (a), MM_TO_COORD (b), MM_TO_COORD (c),	\
+                              		MM_TO_COORD (d), MM_TO_COORD (e)
+#define MIL_TO_COORD5(a,b,c,d,e)	MIL_TO_COORD (a), MIL_TO_COORD (b), MIL_TO_COORD (c),	\
+                               		MIL_TO_COORD (d), MIL_TO_COORD (e)
 
 /* These should be kept in order of smallest scale_factor
  * to largest -- the code uses this ordering when finding
  * the best scale to use for a group of measures */
-static struct unit Units[] = {
-  { "km", 'k', 0.000001, METRIC, ALLOW_KM, 5 },
-  { "m",  'f', 0.001,    METRIC, ALLOW_M,  5 },
-  { "cm", 'e', 0.1,      METRIC, ALLOW_CM, 5 },
-  { "mm", 'm', 1,        METRIC, ALLOW_MM, 4 },
-  { "um", 'u', 1000,     METRIC, ALLOW_UM, 2 },
-  { "nm", 'n', 1000000,  METRIC, ALLOW_NM, 0 },
+static Unit *Units;
+static int n_units;
+/* The function is needed to avoid "non-constant initializer"
+ *  errors on the internationalized unit suffixes. */
+void initialize_units()
+{
+  int i;
+  static Unit rv[] = {
+    { "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
+    { "m",  NULL, 'f', 0.001,    METRIC, ALLOW_M,  5,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
+    { "cm", NULL, 'e', 0.1,      METRIC, ALLOW_CM, 5,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
+    { "mm", NULL, 'm', 1,        METRIC, ALLOW_MM, 4,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
+    { "um", NULL, 'u', 1000,     METRIC, ALLOW_UM, 2,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
+    { "nm", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
+            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
 
-  { "in",   'i', 0.001, IMPERIAL, ALLOW_IN,   5 },
-  { "inch",  0 , 0.001, IMPERIAL, NO_PRINT,   0 },
-  { "mil",  'l', 1,     IMPERIAL, ALLOW_MIL,  2 },
-  { "cmil", 'c', 100,   IMPERIAL, ALLOW_CMIL, 0 }
+    { "in",   NULL, 'i', 0.001, IMPERIAL, ALLOW_IN,   5,
+              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
+    { "inch", NULL,  0 , 0.001, IMPERIAL, NO_PRINT,   0,
+              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
+    { "mil",  NULL, 'l', 1,     IMPERIAL, ALLOW_MIL,  2,
+              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
+    { "cmil", NULL, 'c', 100,   IMPERIAL, ALLOW_CMIL, 0,
+              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) }
+  };
+  n_units = (sizeof rv / sizeof rv[0]);
+  for (i = 0; i < n_units; ++i)
+    rv[i].in_suffix = _(rv[i].suffix);
+  Units = rv;
+}
+/* This list -must- contain all printable units from the above list */
+/* For now I have just copy/pasted the same values for all metric
+ * units and the same values for all imperial ones */
+static Increments increments[] = {
+  /* TABLE FORMAT   |  default  |  min  |  max
+   *          grid  |           |       |
+   *          size  |           |       |
+   *          line  |           |       |
+   *         clear  |           |       |
+   */
+  { "km", MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+  { "m",  MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+  { "cm", MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+  { "mm", MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+  { "um", MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+  { "nm", MM_TO_COORD3 (0.1,  0.01,  1.0),
+          MM_TO_COORD3 (0.2,  0.01,  0.5),
+          MM_TO_COORD3 (0.1,  0.005, 0.5),
+          MM_TO_COORD3 (0.05, 0.005, 0.5) },
+
+  { "cmil", MIL_TO_COORD3 (5,  1,   25),
+            MIL_TO_COORD3 (10, 1,   10),
+            MIL_TO_COORD3 (5,  0.5, 10),
+            MIL_TO_COORD3 (2,  0.5, 10) },
+  { "mil",  MIL_TO_COORD3 (5,  1,   25),
+            MIL_TO_COORD3 (10, 1,   10),
+            MIL_TO_COORD3 (5,  0.5, 10),
+            MIL_TO_COORD3 (2,  0.5, 10) },
+  { "in",   MIL_TO_COORD3 (5,  1,   25),
+            MIL_TO_COORD3 (10, 1,   10),
+            MIL_TO_COORD3 (5,  0.5, 10),
+            MIL_TO_COORD3 (2,  0.5, 10) },
 };
-#define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
+#define N_INCREMENTS (sizeof increments / sizeof increments[0])
 
-/* Scale factor lookup functions for Unit[] table */
-double coord_to_unit (const char *suffix)
+/* Obtain a unit object from its (non-international) suffix */
+const Unit *get_unit_struct (const char *suffix)
 {
   int i;
   int s_len = strlen (suffix);
+
+  if (Units == NULL) initialize_units();
 
   /* Also understand plural suffixes: "inches", "mils" */
   if (s_len > 2)
@@ -78,23 +146,38 @@ double coord_to_unit (const char *suffix)
     }
 
   /* Do lookup */
-  for (i = 0; i < N_UNITS; ++i)
-    {
-      if (strncmp (suffix, Units[i].suffix, s_len) == 0)
-        {
-          double base = Units[i].family == METRIC
-                          ? COORD_TO_MM (1)
-                          : COORD_TO_MIL (1);
-          return Units[i].scale_factor * base;
-        }
-    }
-  /* Signal failure */
-  return -1;
+  for (i = 0; i < n_units; ++i)
+    if (strncmp (suffix, Units[i].suffix, s_len) == 0)
+      return &Units[i];
+  return NULL;
 }
 
-double unit_to_coord (const char *suffix)
+/* Obtain a increment object from its (non-international) suffix */
+Increments *get_increments_struct (const char *suffix)
 {
-  return 1.0 / coord_to_unit (suffix);
+  int i;
+  /* Do lookup */
+  for (i = 0; i < N_INCREMENTS; ++i)
+    if (strcmp (suffix, increments[i].suffix) == 0)
+      return &increments[i];
+  return NULL;
+}
+
+/* Scale factor lookup functions for Unit[] table */
+double coord_to_unit (const Unit *unit, Coord x)
+{
+  double base;
+  if (unit == NULL)
+    return -1;
+  base = unit->family == METRIC
+           ? COORD_TO_MM (1)
+           : COORD_TO_MIL (1);
+  return x * unit->scale_factor * base;
+}
+
+Coord unit_to_coord (const Unit *unit, double x)
+{
+  return x / coord_to_unit (unit, 1);
 }
 
 static int min_sig_figs(double d)
@@ -126,6 +209,8 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   double *value;
   const char *suffix;
   int i, n;
+
+  if (Units == NULL) initialize_units();
 
   value = malloc (n_coords * sizeof *value);
   buff  = g_string_new ("");
@@ -172,7 +257,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
 
   /* Determine scale factor -- find smallest unit that brings
    * the whole group above unity */
-  for (n = 0; n < N_UNITS; ++n)
+  for (n = 0; n < n_units; ++n)
     {
       if ((Units[n].allow & allow) != 0 && (Units[n].family == family))
         {
@@ -186,7 +271,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
         }
     }
   /* If nothing worked, wind back to the smallest allowable unit */
-  if (n == N_UNITS)
+  if (n == n_units)
     {
       do {
         --n;
@@ -263,6 +348,8 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
 
   if (string == NULL || spec == NULL)
     return NULL;
+
+  if (Units == NULL) initialize_units();
 
   while(*fmt)
     {
@@ -388,7 +475,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                   unit_str = CoordsToString(value, 2, spec->str, ALLOW_MM | ALLOW_MIL, suffix);
                   break;
                 case '*':
-                  for (i = 0; i < N_UNITS; ++i)
+                  for (i = 0; i < n_units; ++i)
                     if (strcmp (ext_unit, Units[i].suffix) == 0)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
@@ -404,7 +491,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                   mask = va_arg(args, enum e_allow);
                   break;
                 default:
-                  for (i = 0; i < N_UNITS; ++i)
+                  for (i = 0; i < n_units; ++i)
                     if (*fmt == Units[i].printf_code)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
