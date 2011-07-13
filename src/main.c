@@ -56,6 +56,7 @@
 #include "lrealpath.h"
 #include "free_atexit.h"
 #include "polygon.h"
+#include "pcb-printf.h"
 
 #include "hid/common/actions.h"
 
@@ -401,6 +402,7 @@ static int show_copyright = 0;
 static int show_defaults = 0;
 static int show_actions = 0;
 static int do_dump_actions = 0;
+static char *grid_units;
 
 HID_Attribute main_attribute_list[] = {
   {"help", "Show Help", HID_Boolean, 0, 0, {0, 0, 0}, 0, &show_help},
@@ -417,7 +419,7 @@ HID_Attribute main_attribute_list[] = {
    {0, 0, 0}, 0,
    &do_dump_actions},
 
-  BSET (grid_units_mm, 0, "grid-units-mm", 0),
+  {"grid-units", "Default grid units (mm|mil)", HID_String, 0, 0, {0, "mil", 0}, 0, &grid_units},
 
   COLOR (BlackColor, "#000000", "black-color", "color for black"),
   COLOR (WhiteColor, "#ffffff", "white-color", "color for white"),
@@ -490,8 +492,8 @@ HID_Attribute main_attribute_list[] = {
 	"Initial thickness of new lines."),
   ISET (RatThickness, MIL_TO_COORD(10), "rat-thickness", 0),
   ISET (Keepaway, MIL_TO_COORD(10), "keepaway", 0),
-  ISET (MaxWidth, MIL_TO_COORD(MIL_TO_COORD(60)), "default-PCB-width", 0),
-  ISET (MaxHeight, MIL_TO_COORD(MIL_TO_COORD(50)), "default-PCB-height", 0),
+  ISET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width", 0),
+  ISET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height", 0),
   ISET (TextScale, 100, "text-scale", 0),
   ISET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance", 0),
   ISET (Bloat, MIL_TO_COORD(10), "bloat", 0),
@@ -502,15 +504,7 @@ HID_Attribute main_attribute_list[] = {
   ISET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
 
   ISET (Grid, MIL_TO_COORD(10), "grid", 0),
-  ISET (grid_increment_mm, MM_TO_COORD (0.1), "grid-increment-mm", 0),
-  ISET (grid_increment_mil, MIL_TO_COORD (5.0), "grid-increment-mil", 0),
-  ISET (size_increment_mm, MM_TO_COORD (0.2), "size-increment-mm", 0),
-  ISET (size_increment_mil, MIL_TO_COORD (10.0), "size-increment-mil", 0),
-  ISET (line_increment_mm, MM_TO_COORD (0.1), "line-increment-mm", 0),
-  ISET (line_increment_mil, MIL_TO_COORD (5.0), "line-increment-mil", 0),
-  ISET (clear_increment_mm, MM_TO_COORD (0.05), "clear-increment-mm", 0),
-  ISET (clear_increment_mil, MIL_TO_COORD (2.0), "clear-increment-mil", 0),
-  RSET (IsleArea, MIL_TO_COORD(1400) * MIL_TO_COORD(1400), "minimum polygon area", 0),
+  RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
 
   ISET (BackupInterval, 60, "backup-interval", 0),
 
@@ -645,7 +639,12 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     Settings.GnetlistProgram = strdup ("gnetlist");
   }
 
+  if (grid_units)
+    Settings.grid_unit = get_unit_struct (grid_units);
+  if (!grid_units || Settings.grid_unit == NULL)
+    Settings.grid_unit = get_unit_struct ("mil");
 
+  Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
 }
 
 /* ---------------------------------------------------------------------- 
