@@ -48,7 +48,7 @@ RCSID ("$Id$");
 
 /* How big the viewport can be relative to the pcb size.  */
 #define MAX_ZOOM_SCALE	10
-#define UUNIT	(Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL)
+#define UUNIT	Settings.grid_unit->allow
 
 typedef struct hid_gc_struct
 {
@@ -139,9 +139,9 @@ static int view_left_x = 0, view_top_y = 0;
 /* Denotes PCB units per screen pixel.  Larger numbers mean zooming
    out - the largest value means you are looking at the whole
    board.  */
-static double view_zoom = 1000, prev_view_zoom = 1000;
-static int flip_x = 0, flip_y = 0;
-static int autofade = 0;
+static double view_zoom = MIL_TO_COORD (10), prev_view_zoom = MIL_TO_COORD (10);
+static bool flip_x = 0, flip_y = 0;
+static bool autofade = 0;
 static bool crosshair_on = true;
 
 static void
@@ -226,7 +226,7 @@ static void Pan (int mode, int x, int y);
 /* Px converts view->pcb, Vx converts pcb->view */
 
 static inline int
-Vx (int x)
+Vx (Coord x)
 {
   int rv = (x - view_left_x) / view_zoom + 0.5;
   if (flip_x)
@@ -235,7 +235,7 @@ Vx (int x)
 }
 
 static inline int
-Vy (int y)
+Vy (Coord y)
 {
   int rv = (y - view_top_y) / view_zoom + 0.5;
   if (flip_y)
@@ -244,12 +244,12 @@ Vy (int y)
 }
 
 static inline int
-Vz (int z)
+Vz (Coord z)
 {
   return z / view_zoom + 0.5;
 }
 
-static inline int
+static inline Coord
 Px (int x)
 {
   if (flip_x)
@@ -257,7 +257,7 @@ Px (int x)
   return x * view_zoom + view_left_x;
 }
 
-static inline int
+static inline Coord
 Py (int y)
 {
   if (flip_y)
@@ -265,14 +265,14 @@ Py (int y)
   return y * view_zoom + view_top_y;
 }
 
-static inline int
+static inline Coord
 Pz (int z)
 {
   return z * view_zoom;
 }
 
 void
-lesstif_coords_to_pcb (int vx, int vy, int *px, int *py)
+lesstif_coords_to_pcb (int vx, int vy, Coord *px, Coord *py)
 {
   *px = Px (vx);
   *py = Py (vy);
@@ -405,12 +405,15 @@ Sets the display units to millimeters.
 static int
 SetUnits (int argc, char **argv, int x, int y)
 {
+  const Unit *new_unit;
   if (argc == 0)
     return 0;
-  if (strcmp (argv[0], "mil") == 0)
-    Settings.grid_units_mm = 0;
-  if (strcmp (argv[0], "mm") == 0)
-    Settings.grid_units_mm = 1;
+  new_unit = get_unit_struct (argv[0]);
+  if (new_unit != NULL && new_unit->allow != NO_PRINT)
+    {
+      Settings.grid_unit = new_unit;
+      Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
+    }
   lesstif_sizes_reset ();
   lesstif_styles_update_values ();
   return 0;
@@ -2311,17 +2314,15 @@ static void
 mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
 {
   char *buf;
-  double g = Settings.grid_units_mm ? COORD_TO_MM (PCB->Grid) : COORD_TO_MIL (PCB->Grid);
+  double g = coord_to_unit (Settings.grid_unit, PCB->Grid);
   int prec;
   XmString ms;
 
   /* Integer-sized grid? */
   if (((int) (g * 10000 + 0.5) % 10000) == 0)
     prec = 0;
-  else if (Settings.grid_units_mm && g <= 0.005)
-    prec = 3;
   else
-    prec = 2;
+    prec = Settings.grid_unit->default_prec;
 
   if (dx == 0 && dy == 0)
     buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS", UUNIT, prec, dx, prec, dy);
@@ -2346,7 +2347,7 @@ cursor_pos_to_widget (BDimension x, BDimension y, Widget w, int prev_state)
 {
   int this_state = prev_state;
   static char *buf;
-  double g = Settings.grid_units_mm ? COORD_TO_MM (PCB->Grid) : COORD_TO_MIL (PCB->Grid);
+  double g = coord_to_unit (Settings.grid_unit, PCB->Grid);
   XmString ms;
   int prec;
 
@@ -2355,17 +2356,12 @@ cursor_pos_to_widget (BDimension x, BDimension y, Widget w, int prev_state)
   if (((int) (g * 10000 + 0.5) % 10000) == 0)
     {
       prec = 0;
-      this_state = 2 + Settings.grid_units_mm;
-    }
-  else if (Settings.grid_units_mm && g <= 0.005)
-    {
-      prec = 3;
-      this_state = 4 + Settings.grid_units_mm;
+      this_state = Settings.grid_unit->allow;
     }
   else
     {
-      prec = 2;
-      this_state = 4 + Settings.grid_units_mm;
+      prec = Settings.grid_unit->default_prec;
+      this_state = -Settings.grid_unit->allow;
     }
 
   if (x < 0)
@@ -2613,17 +2609,18 @@ idle_proc (XtPointer dummy)
 
   {
     static Coord old_grid = -1;
-    static Coord old_gx, old_gy, old_mm;
+    static Coord old_gx, old_gy;
+    static const Unit *old_unit;
     XmString ms;
     if (PCB->Grid != old_grid
 	|| PCB->GridOffsetX != old_gx
-	|| PCB->GridOffsetY != old_gy || Settings.grid_units_mm != old_mm)
+	|| PCB->GridOffsetY != old_gy || Settings.grid_unit != old_unit)
       {
 	static char buf[100];
 	old_grid = PCB->Grid;
+	old_unit = Settings.grid_unit;
 	old_gx = PCB->GridOffsetX;
 	old_gy = PCB->GridOffsetY;
-	old_mm = Settings.grid_units_mm;
 	if (old_grid == 1)
 	  {
 	    strcpy (buf, "No Grid");
@@ -2644,35 +2641,21 @@ idle_proc (XtPointer dummy)
 
   {
     static double old_zoom = -1;
-    static int old_zoom_units = -1;
-    if (view_zoom != old_zoom || Settings.grid_units_mm != old_zoom_units)
+    static const Unit *old_grid_unit = NULL;
+    if (view_zoom != old_zoom || Settings.grid_unit != old_grid_unit)
       {
-	static char buf[100];
-	double g;
-	const char *units;
+	gchar *buf = pcb_g_strdup_printf ("%m+%$mS/pix",
+                                          Settings.grid_unit->allow, (Coord) view_zoom);
 	XmString ms;
 
 	old_zoom = view_zoom;
-	old_zoom_units = Settings.grid_units_mm;
+	old_grid_unit = Settings.grid_unit;
 
-	if (Settings.grid_units_mm)
-	  {
-	    g = COORD_TO_MM (view_zoom);
-	    units = "mm";
-	  }
-	else
-	  {
-	    g = COORD_TO_MIL (view_zoom);
-	    units = "mil";
-	  }
-	if ((int) (g * 100 + 0.5) == (int) (g + 0.005) * 100)
-	  sprintf (buf, "%d %s/pix", (int) (g + 0.005), units);
-	else
-	  sprintf (buf, "%.2f %s/pix", g, units);
 	ms = XmStringCreatePCB (buf);
 	n = 0;
 	stdarg (XmNlabelString, ms);
 	XtSetValues (m_zoom, args, n);
+        g_free (buf);
       }
   }
 

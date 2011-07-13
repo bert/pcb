@@ -20,6 +20,7 @@
 #include "gui.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -1809,12 +1810,16 @@ Sets the display units to millimeters.
 static int
 SetUnits (int argc, char **argv, int x, int y)
 {
+  const Unit *new_unit;
   if (argc == 0)
     return 0;
-  if (strcmp (argv[0], "mil") == 0)
-    Settings.grid_units_mm = 0;
-  if (strcmp (argv[0], "mm") == 0)
-    Settings.grid_units_mm = 1;
+
+  new_unit = get_unit_struct (argv[0]);
+  if (new_unit != NULL && new_unit->allow != NO_PRINT)
+    {
+      Settings.grid_unit = new_unit;
+      Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
+    }
 
   ghid_config_handle_units_changed ();
 

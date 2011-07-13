@@ -438,8 +438,11 @@ LoadPCB (char *Filename)
       /* just in case a bad file saved file is loaded */
 
       /* Use imperial if the grid is a multiple of .5cmil, else metric */
-      Settings.grid_units_mm = (1000000 * COORD_TO_MM (PCB->Grid) / 127.0) !=
-                                 (Coord) (1000000 * COORD_TO_MM (PCB->Grid)) / 127;
+      if ((1000000 * COORD_TO_MM (PCB->Grid) / 127.0) !=
+            (Coord) (1000000 * COORD_TO_MM (PCB->Grid)) / 127)
+        Settings.grid_unit = get_unit_struct ("mm");
+      else
+        Settings.grid_unit = get_unit_struct ("mil");
 
       sort_netlist ();
 

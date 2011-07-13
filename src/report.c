@@ -53,8 +53,7 @@
 #include <dmalloc.h>
 #endif
 
-/* These should perhaps be ALLOW_METRIC and ALLOW_IMPERIAL to allow scaling */
-#define USER_UNITMASK (Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL)
+#define USER_UNITMASK (Settings.grid_unit->allow)
 
 static int
 ReportDrills (int argc, char **argv, int x, int y)
@@ -82,7 +81,7 @@ ReportDrills (int argc, char **argv, int x, int y)
   sprintf (stringlist,
 	   "There are %d different drill sizes used in this layout, %d holes total\n\n"
 	   "Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n",
-	   AllDrills->DrillN, total_drills, Settings.grid_units_mm ? "mm" : "mil");
+	   AllDrills->DrillN, total_drills, Settings.grid_unit->suffix);
   thestring = stringlist;
   while (*thestring != '\0')
     thestring++;
@@ -90,7 +89,7 @@ ReportDrills (int argc, char **argv, int x, int y)
     {
       pcb_sprintf (thestring,
 	       "\t%$m*\t\t%d\t\t%d\t\t%d\t\t%d\n",
-	       (Settings.grid_units_mm ? "mm" : "mil"),
+	       Settings.grid_unit->suffix,
 	       AllDrills->Drill[n].DrillSize,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
 	       AllDrills->Drill[n].ElementN,
@@ -634,7 +633,7 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
           BDimension length;
 
           if (argc < 1)
-            units_name = (Settings.grid_units_mm ? "mm" : "mil");
+            units_name = Settings.grid_unit->suffix;
 
           if (ResetConnections (true))
             Draw ();
@@ -730,7 +729,7 @@ ReportNetLength (int argc, char **argv, int x, int y)
 
   {
     char buf[50];
-    pcb_sprintf(buf, "%$m*", (Settings.grid_units_mm ? "mm" : "mil"), length);
+    pcb_sprintf(buf, "%$m*", Settings.grid_unit->suffix, length);
     if (netname)
       gui->log ("Net \"%s\" length: %s\n", netname, buf);
     else

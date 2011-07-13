@@ -36,6 +36,7 @@
 
 #include "global.h"
 #include "data.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -68,6 +69,18 @@ static int
 FlagGridSize (int dummy)
 {
   return PCB->Grid;
+}
+
+static int
+FlagUnitsMm (int dummy)
+{
+  return (Settings.grid_unit == get_unit_struct ("mm"));
+}
+
+static int
+FlagUnitsMil (int dummy)
+{
+  return (Settings.grid_unit == get_unit_struct ("mil"));
 }
 
 static int
@@ -230,7 +243,8 @@ HID_Flag flags_flag_list[] = {
   {"hidenames", FlagTESTFLAG, HIDENAMESFLAG},
 
   {"fullpoly", FlagSETTINGS, OffsetOf (SettingType, FullPoly)},
-  {"grid_units_mm", FlagSETTINGS, OffsetOf (SettingType, grid_units_mm)},
+  {"grid_units_mm", FlagUnitsMm, -1},
+  {"grid_units_mil", FlagUnitsMil, -1},
   {"clearline", FlagSETTINGS, OffsetOf (SettingType, ClearLine)},
   {"uniquenames", FlagSETTINGS, OffsetOf (SettingType, UniqueNames)},
   {"showsolderside", FlagSETTINGS, OffsetOf (SettingType, ShowSolderSide)},

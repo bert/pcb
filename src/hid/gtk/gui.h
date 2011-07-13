@@ -58,8 +58,8 @@
      |  PCB keeps values internally higher precision, but gui
      |  widgets (spin buttons, labels, etc) need mils or millimeters.
    */
-#define	FROM_PCB_UNITS(v)	(Settings.grid_units_mm ? COORD_TO_MM(v) : COORD_TO_MIL(v))
-#define	TO_PCB_UNITS(v)		(Settings.grid_units_mm ? MM_TO_COORD(v) : MIL_TO_COORD(v))
+#define	FROM_PCB_UNITS(v)	coord_to_unit (Settings.grid_unit, v)
+#define	TO_PCB_UNITS(v)		unit_to_coord (Settings.grid_unit, v)
 
 extern int ghid_flip_x, ghid_flip_y;
 #define SIDE_X(x)   ((ghid_flip_x ? PCB->MaxWidth - (x) : (x)))
@@ -90,16 +90,11 @@ extern int ghid_flip_x, ghid_flip_y;
 #define GHID_KEY_LEFT     0x04
 #define GHID_KEY_RIGHT    0x05
 
-  /* Pick one of two values depending on current grid units setting.
-   */
-#define GRID_UNITS_VALUE(mm, mil)   (Settings.grid_units_mm ? (mm) : (mil))
-
-
 typedef struct
 {
   GtkUIManager *ui_manager;
   GtkActionGroup *main_actions,
-    *grid_actions, *change_selected_actions, *displayed_name_actions;
+    *change_selected_actions, *displayed_name_actions;
 
   GtkWidget *name_label,
     *status_line_label,
@@ -224,7 +219,6 @@ void ghid_set_menu_toggle_button (GtkActionGroup * ag,
 void ghid_pcb_saved_toggle_states_set (void);
 void ghid_sync_with_new_layout (void);
 
-void ghid_grid_setting_update_menu_actions (void);
 void ghid_change_selected_update_menu_actions (void);
 
 void ghid_config_window_show ();

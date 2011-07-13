@@ -53,9 +53,9 @@
 
 RCSID ("$Id$");
 
-#define STEP0_SIZE          (Settings.grid_units_mm ? 0.05 : 1.0)
-#define STEP1_SIZE          (Settings.grid_units_mm ? 0.25 : 5.0)
-#define SPIN_DIGITS			(Settings.grid_units_mm ? 3 : 1)
+#define STEP0_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_small)
+#define STEP1_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_medium)
+#define SPIN_DIGITS	(Settings.grid_unit->default_prec)
 
 typedef struct
 {
@@ -64,7 +64,6 @@ typedef struct
     *via_hole_spin_button,
     *via_size_spin_button,
     *clearance_spin_button, *set_temp1_button, *set_temp2_button;
-  gboolean units_mm;		/* at time of dialog creation */
 }
 SizesDialog;
 
@@ -219,8 +218,8 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), vbox);
 
-  s = g_strdup_printf (_("<b>%s</b> grid units are selected"),
-		       Settings.grid_units_mm ? _("mm") : _("mil"));
+  s = g_strdup_printf (_("<b>%s</b> grid units are selected"), 
+                       Settings.grid_unit->in_suffix);
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label), s);
@@ -234,14 +233,11 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
   sd->name_entry = gtk_entry_new ();
   gtk_box_pack_start (GTK_BOX (hbox), sd->name_entry, FALSE, FALSE, 0);
 
-  sd->units_mm = Settings.grid_units_mm;	/* XXX not used yet */
-
   vbox1 = ghid_category_vbox (vbox, _("Sizes"), 4, 2, TRUE, TRUE);
   table = gtk_table_new (4, 2, FALSE);
   gtk_table_set_col_spacings (GTK_TABLE (table), 6);
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
 
-  /* XXX Scale these based on units_mm?? */
   ghid_table_spin_button (table, 0, 0,
 			  &sd->line_width_spin_button,
 			  FROM_PCB_UNITS (rst->Thick),

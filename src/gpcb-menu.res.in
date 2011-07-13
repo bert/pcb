@@ -117,8 +117,8 @@ MainMenu =
   {"View"
    {"Enable visible grid" checked=drawgrid Display(Grid)}
    {"Grid units"
-    {"mil" checked=grid_units_mm,0 SetUnits(mil)}
-    {"mm"  checked=grid_units_mm,1 SetUnits(mm)}
+    {"mil" checked=grid_units_mil SetUnits(mil)}
+    {"mm"  checked=grid_units_mm SetUnits(mm)}
    }
    {"Grid size"
     {"No Grid" checked=gridsize,1 SetValue(Grid,1)}

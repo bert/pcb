@@ -1132,18 +1132,15 @@ static Widget sz_text;
 static Widget sz_set, sz_reset, sz_units;
 
 static int
-sz_str2val (Widget w, int pcbu)
+sz_str2val (Widget w, bool pcbu)
 {
   double d;
   char *buf;
   buf = XmTextGetString (w);
   if (!pcbu)
-    return atoi (buf);
+    return strtol (buf, NULL, 0);
   sscanf (buf, "%lf", &d);
-  if (Settings.grid_units_mm)
-    return MM_TO_COORD (d);
-  else
-    return MIL_TO_COORD (d);
+  return unit_to_coord (Settings.grid_unit, d);
 }
 
 static void
@@ -1151,12 +1148,7 @@ sz_val2str (Widget w, BDimension u, int pcbu)
 {
   static char buf[40];
   if (pcbu)
-    {
-      if (Settings.grid_units_mm)
-        pcb_sprintf (buf, "%.2mm", u);
-      else
-        pcb_sprintf (buf, "%.2ml", u);
-    }
+    pcb_sprintf (buf, "%m+%.2mm", Settings.grid_unit->allow, u);
   else
     pcb_sprintf (buf, "%#mS %%", u);
   XmTextSetString (w, buf);
@@ -1202,13 +1194,11 @@ lesstif_sizes_reset ()
   sz_val2str (sz_drc_ring, PCB->minRing, 1);
   sz_val2str (sz_text, Settings.TextScale, 0);
 
-  if (Settings.grid_units_mm)
-    ls = "Units are MMs";
-  else
-    ls = "Units are Mils";
+  ls = g_strdup_printf (_("Units are %s."), Settings.grid_unit->in_suffix);
   n = 0;
   stdarg (XmNlabelString, XmStringCreatePCB (ls));
   XtSetValues (sz_units, args, n);
+  g_free (ls);
 }
 
 static Widget

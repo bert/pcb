@@ -16,6 +16,7 @@
 #include "data.h"
 #include "set.h"
 #include "mymem.h"
+#include "pcb-printf.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -64,9 +65,8 @@ static Widget value_form, value_labels, value_texts, units_form;
 static int local_update = 0;
 XmString xms_mm, xms_mil;
 
-static int use_mm = 0;
-
-#define USTR (use_mm ? xms_mm : xms_mil)
+static const Unit *unit = 0;
+static XmString ustr;
 
 static int
 hash (char *cp)
@@ -96,19 +96,14 @@ static char *value_names[] = {
 static int RouteStylesChanged (int argc, char **argv, int x, int y);
 
 static void
-update_one_value (int i, int v)
+update_one_value (int i, Coord v)
 {
   char buf[100];
-  double d;
-  if (use_mm)
-    d = COORD_TO_MM (v);
-  else
-    d = COORD_TO_MIL (v);
 
-  sprintf (buf, "%.2f", d);
+  pcb_sprintf (buf, "%m+%.2mS", unit->allow, v);
   XmTextSetString (style_values[i], buf);
   n = 0;
-  stdarg (XmNlabelString, USTR);
+  stdarg (XmNlabelString, ustr);
   XtSetValues (units_pb[i], args, n);
 }
 
@@ -132,7 +127,8 @@ lesstif_styles_update_values ()
       lesstif_update_status_line ();
       return;
     }
-  use_mm = Settings.grid_units_mm;
+  unit = Settings.grid_unit;
+  ustr = XmStringCreateLocalized ((char *)Settings.grid_unit->suffix);
   update_values ();
 }
 
@@ -164,17 +160,14 @@ static void
 style_value_cb (Widget w, int i, void *cbs)
 {
   double d;
-  int n;
+  Coord n;
   char *s;
 
   if (local_update)
     return;
   s = XmTextGetString (w);
   sscanf (s, "%lf", &d);
-  if (use_mm)
-    n = MM_TO_COORD (d);
-  else
-    n = MIL_TO_COORD (d);
+  n = unit_to_coord (unit, d);
   switch (i)
     {
     case SSthick:
@@ -196,7 +189,10 @@ style_value_cb (Widget w, int i, void *cbs)
 static void
 units_cb ()
 {
-  use_mm = !use_mm;
+  if (unit == get_unit_struct ("mm"))
+    unit = get_unit_struct ("mil");
+  else
+    unit = get_unit_struct ("mm");
   update_values ();
 }
 
@@ -235,7 +231,7 @@ style_value (int i)
   stdarg (XmNbottomPosition, i + 1);
   stdarg (XmNleftAttachment, XmATTACH_FORM);
   stdarg (XmNrightAttachment, XmATTACH_FORM);
-  stdarg (XmNlabelString, USTR);
+  stdarg (XmNlabelString, ustr);
   units_pb[i] = XmCreatePushButton (units_form, value_names[i], args, n);
   XtAddCallback (units_pb[i], XmNactivateCallback,
 		 (XtCallbackProc) units_cb, (XtPointer) (size_t) i);
@@ -359,9 +355,6 @@ AdjustStyle (int argc, char **argv, int x, int y)
   if (style_dialog == 0)
     {
       int i;
-
-      xms_mm = XmStringCreatePCB ("mm");
-      xms_mil = XmStringCreatePCB ("mil");
 
       n = 0;
       stdarg (XmNautoUnmanage, False);

@@ -402,26 +402,17 @@ ghid_set_status_line_label (void)
                       ? "45_/"
                       : "45\\_"));
   gchar *text = pcb_g_strdup_printf (
-      Settings.grid_units_mm
-        ? _("<b>view</b>=%s  "
-            "<b>grid</b>=%5.3mm:%i  "
-            "%s%s  "
-            "<b>line</b>=%5.3mm  "
-            "<b>via</b>=%5.3mm(%5.3mm)  %s"
-            "<b>clearance</b>=%5.3mm  "
-            "<b>text</b>=%i%%  "
-            "<b>buffer</b>=#%i")
-        : _("<b>view</b>=%s  "
-            "<b>grid</b>=%.1ml:%i  "
-            "%s%s  "
-            "<b>line</b>=%.1ml  "
-            "<b>via</b>=%.1ml(%.1ml)  %s"
-            "<b>clearance</b>=%.1ml  "
-            "<b>text</b>=%i%%  "
-            "<b>buffer</b>=#%i"),
+        _("%m+<b>view</b>=%s  "
+          "<b>grid</b>=%$mS  "
+          "%s%s  "
+          "<b>line</b>=%mS  "
+          "<b>via</b>=%mS (%mS)  %s"
+          "<b>clearance</b>=%mS  "
+          "<b>text</b>=%i%%  "
+          "<b>buffer</b>=#%i"),
+      Settings.grid_unit->allow,
       Settings.ShowSolderSide ? _("solder") : _("component"),
       PCB->Grid,
-      (int) Settings.GridFactor,
       flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
       Settings.LineThickness,
       Settings.ViaThickness,
@@ -450,7 +441,7 @@ ghid_set_cursor_position_labels (void)
       double a      = atan2 (dy, dx) * RAD_TO_DEG;
 
       text = pcb_g_strdup_printf ("%m+r %-mS; phi %-.1f; %-mS %-mS",
-                                  Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL,
+                                  Settings.grid_unit->allow,
                                   r, a, dx, dy);
       ghid_cursor_position_relative_label_set_text (text);
       g_free (text);
@@ -460,7 +451,7 @@ ghid_set_cursor_position_labels (void)
 
 
   text = pcb_g_strdup_printf ("%m+%-mS %-mS",
-                              Settings.grid_units_mm ? ALLOW_MM : ALLOW_MIL,
+                              Settings.grid_unit->allow,
                               Crosshair.X, Crosshair.Y);
   ghid_cursor_position_label_set_text (text);
   g_free (text);

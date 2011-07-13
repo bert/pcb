@@ -61,6 +61,9 @@ typedef struct drc_violation_st DrcViolationType, *DrcViolationTypePtr;
 typedef struct rtree rtree_t;
 typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 
+typedef struct unit Unit;
+typedef struct increments Increments;
+
 #include "hid.h"
 #include "polyarea.h"
 
@@ -608,7 +611,8 @@ typedef struct
  */
 typedef struct			/* some resources... */
 {
-  bool grid_units_mm;
+  const Unit *grid_unit;
+  Increments *increments;
 
   int verbose;
 
@@ -637,12 +641,7 @@ typedef struct			/* some resources... */
     AlignmentDistance, Bloat,	/* default drc sizes */
     Shrink, minWid, minSlk, minDrill, minRing;
   int TextScale;		/* text scaling in % */
-  Coord Grid,			/* grid in pcb-units */
-    grid_increment_mm,		/* key g and <shift>g value for mil units */
-    grid_increment_mil,		/* key g and <shift>g value for mil units */
-    size_increment_mm,		/* key s and <shift>s value for mil units */
-    size_increment_mil,		/* key s and <shift>s value for mil units */
-    line_increment_mm, line_increment_mil, clear_increment_mm, clear_increment_mil;	/* number of shift operations for zooming */
+  Coord Grid;			/* grid in pcb-units */
   double Zoom,
     IsleArea,    		/* polygon min area */
     PinoutZoom;			/* same for pinout windows */
@@ -650,8 +649,7 @@ typedef struct			/* some resources... */
     Volume,			/* the speakers volume -100..100 */
     CharPerLine,		/* width of an output line in characters */
     Mode,			/* currently active mode */
-    BufferNumber,		/* number of the current buffer */
-    GridFactor;			/* factor used for grid-drawing */
+    BufferNumber;		/* number of the current buffer */
   int BackupInterval;		/* time between two backups in seconds */
   char *DefaultLayerName[MAX_LAYER], *FontCommand,	/* commands for file loading... */
    *FileCommand, *ElementCommand, *PrintFile, *LibraryCommandDir, *LibraryCommand, *LibraryContentsCommand, *LibraryTree,	/* path to library tree */

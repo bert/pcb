@@ -948,7 +948,8 @@ ghid_window_set_name_label (gchar * name)
 static void
 grid_units_button_cb (GtkWidget * widget, gpointer data)
 {
-  if (Settings.grid_units_mm)
+  /* Button only toggles between mm and mil */
+  if (Settings.grid_unit == get_unit_struct ("mm"))
     hid_actionl ("SetUnits", "mil", NULL);
   else
     hid_actionl ("SetUnits", "mm", NULL);
@@ -993,8 +994,7 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
   button = gtk_button_new ();
   label = gtk_label_new ("");
   gtk_label_set_markup (GTK_LABEL (label),
-			Settings.grid_units_mm ?
-			"<b>mm</b> " : "<b>mil</b> ");
+			Settings.grid_unit->in_suffix);
   ghidgui->grid_units_label = label;
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_container_add (GTK_CONTAINER (button), label);

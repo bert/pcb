@@ -93,7 +93,7 @@ enum e_allow {
 enum e_family { METRIC, IMPERIAL };
 enum e_suffix { NO_SUFFIX, SUFFIX, FILE_MODE };
 
-typedef struct unit {
+struct unit {
   const char *suffix;
   const char *in_suffix;	/* internationalized suffix */
   char printf_code;
@@ -107,9 +107,9 @@ typedef struct unit {
   Coord step_medium;
   Coord step_large;
   Coord step_huge;
-} Unit;
+};
 
-typedef struct increments {
+struct increments {
   const char *suffix;
   /* key g and <shift>g value  */
   Coord grid;
@@ -127,7 +127,7 @@ typedef struct increments {
   Coord clear;
   Coord clear_min;
   Coord clear_max;
-} Increments;
+};
 
 const Unit *get_unit_struct (const char *suffix);
 double coord_to_unit (const Unit *, Coord);
