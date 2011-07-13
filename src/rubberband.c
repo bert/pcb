@@ -78,8 +78,8 @@ static int rubber_callback (const BoxType * b, void *cl);
 
 struct rubber_info
 {
-  int radius;
-  LocationType X, Y;
+  Coord radius;
+  Coord X, Y;
   LineTypePtr line;
   BoxType box;
   LayerTypePtr layer;
@@ -90,8 +90,8 @@ rubber_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
   struct rubber_info *i = (struct rubber_info *) cl;
-  float x, y, rad, dist1, dist2;
-  BDimension t;
+  double x, y, rad, dist1, dist2;
+  Coord t;
   int touches = 0;
 
   t = line->Thickness / 2;
@@ -226,7 +226,7 @@ rubber_callback (const BoxType * b, void *cl)
 static void
 CheckPadForRubberbandConnection (PadTypePtr Pad)
 {
-  BDimension half = Pad->Thickness / 2;
+  Coord half = Pad->Thickness / 2;
   Cardinal i, group;
   struct rubber_info info;
 
@@ -369,7 +369,7 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
 {
   struct rubber_info info;
   Cardinal n;
-  BDimension t = Pin->Thickness / 2;
+  Coord t = Pin->Thickness / 2;
 
   info.box.X1 = Pin->X - t;
   info.box.X2 = Pin->X + t;
@@ -406,7 +406,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 {
   Cardinal group;
   struct rubber_info info;
-  BDimension t = Line->Thickness / 2;
+  Coord t = Line->Thickness / 2;
 
   /* lookup layergroup and check all visible lines in this group */
   info.radius = Exact ? -1 : MAX(Line->Thickness / 2, 1);
@@ -447,7 +447,7 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
   {
     if (layer->On)
       {
-	BDimension thick;
+	Coord thick;
 
 	/* the following code just stupidly compares the endpoints
 	 * of the lines

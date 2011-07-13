@@ -50,12 +50,12 @@ void AddObjectToInsertPointUndoList (int, void *, void *, void *);
 void AddObjectToRemoveContourUndoList (int, LayerType *, PolygonType *);
 void AddObjectToInsertContourUndoList (int, LayerType *, PolygonType *);
 void AddObjectToMoveUndoList (int, void *, void *, void *,
-			      LocationType, LocationType);
+			      Coord, Coord);
 void AddObjectToChangeNameUndoList (int, void *, void *, void *, char *);
 void AddObjectToRotateUndoList (int, void *, void *, void *,
-				LocationType, LocationType, BYTE);
+				Coord, Coord, BYTE);
 void AddObjectToCreateUndoList (int, void *, void *, void *);
-void AddObjectToMirrorUndoList (int, void *, void *, void *, LocationType);
+void AddObjectToMirrorUndoList (int, void *, void *, void *, Coord);
 void AddObjectToMoveToLayerUndoList (int, void *, void *, void *);
 void AddObjectToFlagUndoList (int, void *, void *, void *);
 void AddObjectToSizeUndoList (int, void *, void *, void *);

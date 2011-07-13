@@ -87,14 +87,13 @@ ChangeNameType, *ChangeNameTypePtr;
 
 typedef struct			/* information about a move command */
 {
-  LocationType DX,		/* movement vector */
-    DY;
+  Coord DX, DY;		/* movement vector */
 }
 MoveType, *MoveTypePtr;
 
 typedef struct			/* information about removed polygon points */
 {
-  LocationType X, Y;		/* data */
+  Coord X, Y;			/* data */
   int ID;
   Cardinal Index;		/* index in a polygons array of points */
   bool last_in_contour;		/* Whether the point was the last in its contour */
@@ -103,9 +102,8 @@ RemovedPointType, *RemovedPointTypePtr;
 
 typedef struct			/* information about rotation */
 {
-  LocationType CenterX,		/* center of rotation */
-    CenterY;
-  BYTE Steps;			/* number of steps */
+  Coord CenterX, CenterY;	/* center of rotation */
+  Cardinal Steps;		/* number of steps */
 }
 RotateType, *RotateTypePtr;
 
@@ -150,7 +148,7 @@ typedef struct			/* holds information about an operation */
     RotateType Rotate;
     MoveToLayerType MoveToLayer;
     FlagType Flags;
-    BDimension Size;
+    Coord Size;
     LayerChangeType LayerChange;
     ClearPolyType ClearPoly;
     NetlistChangeType NetlistChange;
@@ -365,7 +363,7 @@ UndoChange2ndSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  BDimension swap;
+  Coord swap;
 
   /* lookup entry by ID */
   type =
@@ -429,7 +427,7 @@ UndoChangeClearSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  BDimension swap;
+  Coord swap;
 
   /* lookup entry by ID */
   type =
@@ -460,7 +458,7 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  BDimension swap;
+  Coord swap;
 
   /* lookup entry by ID */
   type =
@@ -495,7 +493,7 @@ UndoChangeSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  BDimension swap;
+  Coord swap;
 
   /* lookup entry by ID */
   type =
@@ -1251,7 +1249,7 @@ AddObjectToClearPolyUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void
 AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   LocationType yoff)
+			   Coord yoff)
 {
   UndoListTypePtr undo;
 
@@ -1267,7 +1265,7 @@ AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void
 AddObjectToRotateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   LocationType CenterX, LocationType CenterY,
+			   Coord CenterX, Coord CenterY,
 			   BYTE Steps)
 {
   UndoListTypePtr undo;
@@ -1397,7 +1395,7 @@ AddObjectToInsertContourUndoList (int Type,
  */
 void
 AddObjectToMoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			 LocationType DX, LocationType DY)
+			 Coord DX, Coord DY)
 {
   UndoListTypePtr undo;
 

@@ -81,19 +81,18 @@ static PCBTypePtr pcb;
 
 struct cent
 {
-  LocationType x, y;
-  BDimension s, c;
+  Coord x, y;
+  Coord s, c;
   char style;
   POLYAREA *p;
 };
 
 static POLYAREA *
-diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
-           bool rt)
+diag_line (Coord X, Coord Y, Coord l, Coord w, bool rt)
 {
   PLINE *c;
   Vector v;
-  BDimension x1, x2, y1, y2;
+  Coord x1, x2, y1, y2;
 
   if (rt)
     {
@@ -132,7 +131,7 @@ square_therm (PinTypePtr pin, Cardinal style)
   POLYAREA *p, *p2;
   PLINE *c;
   Vector v;
-  BDimension d, in, out;
+  Coord d, in, out;
 
   switch (style)
     {
@@ -364,8 +363,8 @@ static POLYAREA *
 oct_therm (PinTypePtr pin, Cardinal style)
 {
   POLYAREA *p, *p2, *m;
-  BDimension t = 0.5 * pcb->ThermScale * pin->Clearance;
-  BDimension w = pin->Thickness + pin->Clearance;
+  Coord t = 0.5 * pcb->ThermScale * pin->Clearance;
+  Coord w = pin->Thickness + pin->Clearance;
 
   p = OctagonPoly (pin->X, pin->Y, w);
   p2 = OctagonPoly (pin->X, pin->Y, pin->Thickness);
@@ -389,7 +388,7 @@ oct_therm (PinTypePtr pin, Cardinal style)
       /* fix me add thermal style 4 */
     case 5:
       {
-        BDimension t = pin->Thickness / 2;
+        Coord t = pin->Thickness / 2;
         POLYAREA *q;
         /* cheat by using the square therm's rounded parts */
         p = square_therm (pin, style);
@@ -427,8 +426,8 @@ ThermPoly (PCBTypePtr p, PinTypePtr pin, Cardinal laynum)
     case 2:
       {
         POLYAREA *m;
-        BDimension t = (pin->Thickness + pin->Clearance) / 2;
-        BDimension w = 0.5 * pcb->ThermScale * pin->Clearance;
+        Coord t = (pin->Thickness + pin->Clearance) / 2;
+        Coord w = 0.5 * pcb->ThermScale * pin->Clearance;
         pa = CirclePoly (pin->X, pin->Y, t);
         arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2);
         /* create a thin ring */

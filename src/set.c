@@ -88,7 +88,7 @@ SetGrid (Coord Grid, bool align)
  * sets a new line thickness
  */
 void
-SetLineSize (BDimension Size)
+SetLineSize (Coord Size)
 {
   if (Size >= MIN_LINESIZE && Size <= MAX_LINESIZE)
     {
@@ -102,7 +102,7 @@ SetLineSize (BDimension Size)
  * sets a new via thickness
  */
 void
-SetViaSize (BDimension Size, bool Force)
+SetViaSize (Coord Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIASIZE &&
@@ -116,7 +116,7 @@ SetViaSize (BDimension Size, bool Force)
  * sets a new via drilling hole
  */
 void
-SetViaDrillingHole (BDimension Size, bool Force)
+SetViaDrillingHole (Coord Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIAHOLE &&
@@ -139,7 +139,7 @@ pcb_use_route_style (RouteStyleType * rst)
  * sets a keepaway width
  */
 void
-SetKeepawayWidth (BDimension Width)
+SetKeepawayWidth (Coord Width)
 {
   if (Width <= MAX_LINESIZE)
     {
@@ -151,7 +151,7 @@ SetKeepawayWidth (BDimension Width)
  * sets a text scaling
  */
 void
-SetTextScale (Dimension Scale)
+SetTextScale (int Scale)
 {
   if (Scale <= MAX_TEXTSCALE && Scale >= MIN_TEXTSCALE)
     {
@@ -333,7 +333,7 @@ SetRouteStyle (char *name)
 }
 
 void
-SetLocalRef (LocationType X, LocationType Y, bool Showing)
+SetLocalRef (Coord X, Coord Y, bool Showing)
 {
   static MarkType old;
   static int count = 0;
