@@ -124,7 +124,7 @@ static ConfigAttribute config_attributes[] = {
   {"gui-title-window", CONFIG_Boolean, &_ghidgui.ghid_title_window},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
-  {"grid-units-mm", CONFIG_Unused, NULL},
+  {"grid-units", CONFIG_Unused, NULL},
 
   {"history-size", CONFIG_Integer, &_ghidgui.history_size},
   {"auto-pan-speed", CONFIG_Integer, &_ghidgui.auto_pan_speed},
@@ -153,15 +153,6 @@ static ConfigAttribute config_attributes[] = {
   {"min-ring", CONFIG_Unused, NULL},
   {"default-PCB-width", CONFIG_Unused, NULL},
   {"default-PCB-height", CONFIG_Unused, NULL},
-
-  {"grid-increment-mil", CONFIG_Unused, NULL},
-  {"grid-increment-mm", CONFIG_Unused, NULL},
-  {"size-increment-mil", CONFIG_Unused, NULL},
-  {"size-increment-mm", CONFIG_Unused, NULL},
-  {"line-increment-mil", CONFIG_Unused, NULL},
-  {"line-increment-mm", CONFIG_Unused, NULL},
-  {"clear-increment-mil", CONFIG_Unused, NULL},
-  {"clear-increment-mm", CONFIG_Unused, NULL},
 
   {"groups", CONFIG_Unused, NULL},
   {"route-styles", CONFIG_Unused, NULL},
