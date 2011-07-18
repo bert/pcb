@@ -3683,6 +3683,15 @@ ActionRipUp (int argc, char **argv, int x, int y)
 	      }
 	  }
 	  ENDALL_LOOP;
+	  ALLARC_LOOP (PCB->Data);
+	  {
+	    if (TEST_FLAG (AUTOFLAG, arc) && !TEST_FLAG (LOCKFLAG, arc))
+	      {
+		RemoveObject (ARC_TYPE, layer, arc, arc);
+		changed = true;
+	      }
+	  }
+	  ENDALL_LOOP;
 	  VIA_LOOP (PCB->Data);
 	  {
 	    if (TEST_FLAG (AUTOFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
