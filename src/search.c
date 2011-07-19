@@ -60,9 +60,8 @@ RCSID ("$Id$");
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static float PosX,		/* search position for subroutines */
-  PosY;
-static BDimension SearchRadius;
+static double PosX, PosY;		/* search position for subroutines */
+static Coord SearchRadius;
 static BoxType SearchBox;
 static LayerTypePtr SearchLayer;
 
@@ -104,7 +103,7 @@ struct ans_info
 {
   void **ptr1, **ptr2, **ptr3;
   bool BackToo;
-  float area;
+  double area;
   jmp_buf env;
   int locked;			/* This will be zero or LOCKFLAG */
 };
@@ -232,7 +231,7 @@ struct line_info
 {
   LineTypePtr *Line;
   PointTypePtr *Point;
-  float least;
+  double least;
   jmp_buf env;
   int locked;
 };
@@ -285,8 +284,8 @@ rat_callback (const BoxType * box, void *cl)
     return 0;
 
   if (TEST_FLAG (VIAFLAG, line) ?
-      (SQUARE (line->Point1.X - PosX) + SQUARE (line->Point1.Y - PosY) <=
-	   SQUARE (line->Thickness * 2 + SearchRadius)) :
+      (Distance (line->Point1.X, line->Point1.Y, PosX, PosY) <=
+	   line->Thickness * 2 + SearchRadius) :
       IsPointOnLine (PosX, PosY, SearchRadius, line))
     {
       *i->ptr1 = *i->ptr2 = *i->ptr3 = line;
@@ -451,13 +450,13 @@ linepoint_callback (const BoxType * b, void *cl)
   LineTypePtr line = (LineTypePtr) b;
   struct line_info *i = (struct line_info *) cl;
   int ret_val = 0;
-  float d;
+  double d;
 
   if (TEST_FLAG (i->locked, line))
     return 0;
 
   /* some stupid code to check both points */
-  d = SQUARE (PosX - line->Point1.X) + SQUARE (PosY - line->Point1.Y);
+  d = Distance (PosX, PosY, line->Point1.X, line->Point1.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -466,7 +465,7 @@ linepoint_callback (const BoxType * b, void *cl)
       ret_val = 1;
     }
 
-  d = SQUARE (PosX - line->Point2.X) + SQUARE (PosY - line->Point2.Y);
+  d = Distance (PosX, PosY, line->Point2.X, line->Point2.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -489,9 +488,7 @@ SearchLinePointByLocation (int locked, LayerTypePtr * Layer,
   info.Line = Line;
   info.Point = Point;
   *Point = NULL;
-  info.least =
-    (MAX_LINE_POINT_DISTANCE + SearchRadius) * (MAX_LINE_POINT_DISTANCE +
-						SearchRadius);
+  info.least = MAX_LINE_POINT_DISTANCE + SearchRadius;
   info.locked = (locked & LOCKED_TYPE) ? 0 : LOCKFLAG;
   if (r_search
       (SearchLayer->line_tree, &SearchBox, NULL, linepoint_callback, &info))
@@ -507,16 +504,16 @@ static bool
 SearchPointByLocation (int locked, LayerTypePtr * Layer,
 		       PolygonTypePtr * Polygon, PointTypePtr * Point)
 {
-  float d, least;
+  double d, least;
   bool found = false;
 
-  least = SQUARE (SearchRadius + MAX_POLYGON_POINT_DISTANCE);
+  least = SearchRadius + MAX_POLYGON_POINT_DISTANCE;
   *Layer = SearchLayer;
   POLYGON_LOOP (*Layer);
   {
     POLYGONPOINT_LOOP (polygon);
     {
-      d = SQUARE (point->X - PosX) + SQUARE (point->Y - PosY);
+      d = Distance (point->X, point->Y, PosX, PosY);
       if (d < least)
 	{
 	  least = d;
@@ -539,7 +536,7 @@ name_callback (const BoxType * box, void *cl)
   TextTypePtr text = (TextTypePtr) box;
   struct ans_info *i = (struct ans_info *) cl;
   ElementTypePtr element = (ElementTypePtr) text->Element;
-  float newarea;
+  double newarea;
 
   if (TEST_FLAG (i->locked, text))
     return 0;
@@ -549,7 +546,7 @@ name_callback (const BoxType * box, void *cl)
     {
       /* use the text with the smallest bounding box */
       newarea = (text->BoundingBox.X2 - text->BoundingBox.X1) *
-	(float) (text->BoundingBox.Y2 - text->BoundingBox.Y1);
+	(double) (text->BoundingBox.Y2 - text->BoundingBox.Y1);
       if (newarea < i->area)
 	{
 	  i->area = newarea;
@@ -593,7 +590,7 @@ element_callback (const BoxType * box, void *cl)
 {
   ElementTypePtr element = (ElementTypePtr) box;
   struct ans_info *i = (struct ans_info *) cl;
-  float newarea;
+  double newarea;
 
   if (TEST_FLAG (i->locked, element))
     return 0;
@@ -603,7 +600,7 @@ element_callback (const BoxType * box, void *cl)
     {
       /* use the element with the smallest bounding box */
       newarea = (element->VBox.X2 - element->VBox.X1) *
-	(float) (element->VBox.Y2 - element->VBox.Y1);
+	(double) (element->VBox.Y2 - element->VBox.Y1);
       if (newarea < i->area)
 	{
 	  i->area = newarea;
@@ -648,31 +645,30 @@ SearchElementByLocation (int locked,
  * checks if a point is on a pin
  */
 bool
-IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
+IsPointOnPin (Coord X, Coord Y, Coord Radius, PinTypePtr pin)
 {
+  Coord t = PIN_SIZE (pin) / 2;
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
       BoxType b;
-      BDimension t = PIN_SIZE (pin) / 2;
 
       b.X1 = pin->X - t;
       b.X2 = pin->X + t;
       b.Y1 = pin->Y - t;
       b.Y2 = pin->Y + t;
       if (IsPointInBox (X, Y, &b, Radius))
-	return (true);
+	return true;
     }
-  else if (SQUARE (pin->X - X) + SQUARE (pin->Y - Y) <=
-	   SQUARE (PIN_SIZE (pin) / 2 + Radius))
-    return (true);
-  return (false);
+  else if (Distance (pin->X, pin->Y, X, Y) <= Radius + t)
+    return true;
+  return false;
 }
 
 /* ---------------------------------------------------------------------------
  * checks if a rat-line end is on a PV
  */
 bool
-IsPointOnLineEnd (LocationType X, LocationType Y, RatTypePtr Line)
+IsPointOnLineEnd (Coord X, Coord Y, RatTypePtr Line)
 {
   if (((X == Line->Point1.X) && (Y == Line->Point1.Y)) ||
       ((X == Line->Point2.X) && (Y == Line->Point2.Y)))
@@ -682,77 +678,65 @@ IsPointOnLineEnd (LocationType X, LocationType Y, RatTypePtr Line)
 
 /* ---------------------------------------------------------------------------
  * checks if a line intersects with a PV
- * constant recognition by the optimizer is assumed
  *
  * let the point be (X,Y) and the line (X1,Y1)(X2,Y2)
  * the length of the line is
  *
- *   l = ((X2-X1)^2 + (Y2-Y1)^2)^0.5
+ *   L = ((X2-X1)^2 + (Y2-Y1)^2)^0.5
  * 
  * let Q be the point of perpendicular projection of (X,Y) onto the line
  *
- *   QX = X1 +r*(X2-X1)
- *   QY = Y1 +r*(Y2-Y1)
+ *   QX = X1 + D1*(X2-X1) / L
+ *   QY = Y1 + D1*(Y2-Y1) / L
  * 
  * with (from vector geometry)
  *
- *       (Y1-Y)(Y1-Y2)+(X1-X)(X1-X2)
- *   r = ---------------------------
- *                   l*l
+ *        (Y1-Y)(Y1-Y2)+(X1-X)(X1-X2)
+ *   D1 = ---------------------------
+ *                     L
  *
- *   r < 0     Q is on backward extension of the line
- *   r > 1     Q is on forward extension of the line
- *   else      Q is on the line
+ *   D1 < 0   Q is on backward extension of the line
+ *   D1 > L   Q is on forward extension of the line
+ *   else     Q is on the line
  *
  * the signed distance from (X,Y) to Q is
  *
- *       (Y2-Y1)(X-X1)-(X2-X1)(Y-Y1)
- *   d = ----------------------------
- *                    l
+ *        (Y2-Y1)(X-X1)-(X2-X1)(Y-Y1)
+ *   D2 = ----------------------------
+ *                     L
+ *
+ * Finally, D1 and D2 are orthogonal, so we can sum them easily
+ * by pythagorean theorem.
  */
 bool
-IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
+IsPointOnLine (Coord X, Coord Y, Coord Radius, LineTypePtr Line)
 {
-  register float dx, dy, dx1, dy1, l, d, r;
-  Radius += ((float) Line->Thickness + 1.) / 2.0;
-  if (Y + Radius < MIN (Line->Point1.Y, Line->Point2.Y) ||
-      Y - Radius > MAX (Line->Point1.Y, Line->Point2.Y))
-    return false;
-  dx = (float) (Line->Point2.X - Line->Point1.X);
-  dy = (float) (Line->Point2.Y - Line->Point1.Y);
-  dx1 = (float) (Line->Point1.X - X);
-  dy1 = (float) (Line->Point1.Y - Y);
-  d = dx * dy1 - dy * dx1;
+  double D1, D2, L;
 
-  /* check distance from PV to line */
-  Radius *= Radius;
-  if ((l = dx * dx + dy * dy) == 0.0)
-    {
-      l = SQUARE (Line->Point1.X - X) + SQUARE (Line->Point1.Y - Y);
-      return ((l <= Radius) ? true : false);
-    }
-  if (d * d > Radius * l)
-    return (false);
+  /* Get length of segment */
+  L = Distance (Line->Point1.X, Line->Point1.Y, Line->Point2.X, Line->Point2.Y);
+  if (L < 0.1)
+    return Distance (X, Y, Line->Point1.X, Line->Point1.Y) < Radius + Line->Thickness / 2;
 
-  /* they intersect if Q is on line */
-  r = -(dx * dx1 + dy * dy1);
-  if (r >= 0 && r <= l)
-    return (true);
-
-  /* we have to check P1 or P2 depending on the sign of r */
-  if (r < 0.0)
-    return ((dx1 * dx1 + dy1 * dy1) <= Radius);
-  dx1 = Line->Point2.X - X;
-  dy1 = Line->Point2.Y - Y;
-  return ((dx1 * dx1 + dy1 * dy1) <= Radius);
+  /* Get distance from (X1, Y1) to Q (on the line) */
+  D1 = ((double) (Y - Line->Point1.Y) * (Line->Point2.Y - Line->Point1.Y)
+        + (double) (X - Line->Point1.X) * (Line->Point2.X - Line->Point1.X)) / L;
+  /* Translate this into distance to Q from segment */
+  if (D1 < 0)       D1 = -D1;
+  else if (D1 > L)  D1 -= L;
+  else              D1 = 0;
+  /* Get distance from (X, Y) to Q */
+  D2 = ((double) (X - Line->Point1.X) * (Line->Point2.Y - Line->Point1.Y)
+        + (double) (Y - Line->Point1.Y) * (Line->Point2.X - Line->Point1.X)) / L;
+  /* Total distance is then the pythagorean sum of these */
+  return sqrt (D1*D1 + D2*D2) <= Radius + Line->Thickness / 2;
 }
 
 /* ---------------------------------------------------------------------------
  * checks if a line crosses a rectangle
  */
 bool
-IsLineInRectangle (LocationType X1, LocationType Y1,
-		   LocationType X2, LocationType Y2, LineTypePtr Line)
+IsLineInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, LineTypePtr Line)
 {
   LineType line;
 
@@ -795,31 +779,30 @@ IsLineInRectangle (LocationType X1, LocationType Y1,
 
   return (false);
 }
-static int 
-sign(float x){return x<0?-1:x>0?1:0;}
+
 static int /*checks if a point (of null radius) is in a slanted rectangle*/
-IsPointInQuadrangle(PointType p[4],PointTypePtr l)
+IsPointInQuadrangle(PointType p[4], PointTypePtr l)
 {
-  int dx,dy,x,y;
-  float prod0,prod1;
+  Coord dx, dy, x, y;
+  double prod0, prod1;
 
   dx = p[1].X - p[0].X;
   dy = p[1].Y - p[0].Y;
-  x=l->X - p[0].X;
-  y=l->Y - p[0].Y;
-  prod0 = (float)x * dx + (float)y * dy;
+  x = l->X - p[0].X;
+  y = l->Y - p[0].Y;
+  prod0 = (double) x * dx + (double) y * dy;
   x = l->X - p[1].X;
   y = l->Y - p[1].Y;
-  prod1 = (float)x * dx + (float)y * dy;
-  if (sign (prod0) * sign (prod1) <= 0)
+  prod1 = (double) x * dx + (double) y * dy;
+  if (prod0 * prod1 <= 0)
     {
       dx = p[1].X - p[2].X;
       dy = p[1].Y - p[2].Y;
-      prod0 = (float)x * dx + (float)y * dy;
+      prod0 = (double) x * dx + (double) y * dy;
       x = l->X - p[2].X;
       y = l->Y - p[2].Y;
-      prod1 = (float)x * dx + (float)y * dy;
-      if (sign (prod0) * sign (prod1) <= 0)
+      prod1 = (double) x * dx + (double) y * dy;
+      if (prod0 * prod1 <= 0)
 	return true;
     }
   return false;
@@ -870,8 +853,7 @@ IsLineInQuadrangle (PointType p[4], LineTypePtr Line)
  * checks if an arc crosses a square
  */
 bool
-IsArcInRectangle (LocationType X1, LocationType Y1,
-		  LocationType X2, LocationType Y2, ArcTypePtr Arc)
+IsArcInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, ArcTypePtr Arc)
 {
   LineType line;
 
@@ -915,12 +897,11 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
  * Written to enable arbitrary pad directions; for rounded pads, too.
  */
 bool
-IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
-	      PadTypePtr Pad)
+IsPointInPad (Coord X, Coord Y, Coord Radius, PadTypePtr Pad)
 {
   double r, Sin, Cos;
-  LocationType x; 
-  BDimension t2 = (Pad->Thickness + 1) / 2, range;
+  Coord x; 
+  Coord t2 = (Pad->Thickness + 1) / 2, range;
   PadType pad = *Pad;
 
   /* series of transforms saving range */
@@ -933,8 +914,7 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
   /* so, pad.Point1.X = pad.Point1.Y = 0; */
 
   /* rotate round (0, 0) so that Point2 coordinates be (r, 0) */
-  r= sqrt ((double)pad.Point2.X * pad.Point2.X +
-	   (double)pad.Point2.Y * pad.Point2.Y);
+  r = Distance (0, 0, pad.Point2.X, pad.Point2.Y);
   if (r < .1)
     {
       Cos = 1;
@@ -963,15 +943,17 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
     {
       if (X <= 0)
 	{
-	  if ( Y <= t2 ) range = -X; else
-	    return (Radius >= 0) && (Radius * (double)Radius > 
-		    (double)(t2 - Y) * (t2 - Y) + (double)X * X);
+	  if (Y <= t2)
+            range = -X;
+          else
+	    return Radius > Distance (0, t2, X, Y);
 	}
       else if (X >= r)
 	{
-	  if ( Y <= t2 ) range = X - r; else 
-	    return (Radius >= 0) && (Radius * (double)Radius > 
-		    (double)(t2 - Y) * (t2 - Y) + (double)(X - r) * (X - r));
+	  if (Y <= t2)
+            range = X - r;
+          else 
+	    return Radius > Distance (r, t2, X, Y);
 	}
       else
 	range = Y - t2;
@@ -979,11 +961,9 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
   else/*Rounded pad: even more simple*/
     {
       if (X <= 0)
-	return (Radius + t2 >= 0) && ((Radius + t2) * (double)(Radius + t2) > 
-		(double)X * X + (double)Y * Y);
+	return (Radius + t2) > Distance (0, 0, X, Y);
       else if (X >= r) 
-	return (Radius + t2 >= 0) && ((Radius + t2) * (double)(Radius + t2) > 
-		(double)(X - r) * (X - r) + (double)Y * Y);
+	return (Radius + t2) > Distance (r, 0, X, Y);
       else
 	range = Y - t2;
     }
@@ -991,9 +971,9 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
 }
 
 bool
-IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
+IsPointInBox (Coord X, Coord Y, BoxTypePtr box, Coord Radius)
 {
-  BDimension width, height, range;
+  Coord width, height, range;
 
   /* NB: Assumes box has point1 with numerically lower X and Y coordinates */
 
@@ -1007,22 +987,18 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
   if (X <= 0)
     {
       if (Y < 0)
-        return (Radius >= 0) && (Radius * (double)Radius >
-                (double)Y * Y + (double)X * X);
+        return Radius > Distance (0, 0, X, Y);
       else if (Y > height)
-        return (Radius >= 0) && (Radius * (double)Radius >
-                (double)(Y - height) * (Y - height) + (double)X * X);
+        return Radius > Distance (0, height, X, Y);
       else
         range = -X;
     }
   else if (X >= width)
     {
       if (Y < 0)
-        return (Radius >= 0) && (Radius * (double)Radius >
-                (double)Y * Y + (double)(X - width) * (X - width));
+        return Radius > Distance (width, 0, X, Y);
       else if (Y > height)
-        return (Radius >= 0) && (Radius * (double)Radius >
-                (double)(Y - height) * (Y - height) + (double)(X - width) * (X - width));
+        return Radius > Distance (width, height, X, Y);
       else
         range = X - width;
     }
@@ -1039,91 +1015,62 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
   return range < Radius;
 }
 
+/* TODO: this code is BROKEN in the case of non-circular arcs,
+ *       and in the case that the arc thickness is greater than
+ *       the radius.
+ */
 bool
-IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
+IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcTypePtr Arc)
 {
-  double x, y, dx, dy, r1, r2, a, d, l;
-  double pdx, pdy;
-  double ang1, ang2, ang0, delta;
-  int startAngle, arcDelta;
+  /* Calculate angle of point from arc center */
+  double p_dist = Distance (X, Y, Arc->X, Arc->Y);
+  double p_cos = (X - Arc->X) / p_dist;
+  Angle p_ang = acos (p_cos) * RAD_TO_DEG;
+  Angle ang1, ang2;
 
-  pdx = X - Arc->X;
-  pdy = Y - Arc->Y;
-  l = pdx * pdx + pdy * pdy;
-  Radius += 0.5 * Arc->Thickness;
-  if (Radius < 0) /* thin arc: trivial condition */
-    return (false);
-  /* concentric arcs, simpler intersection conditions */
-  if (l < 0.5)
+  /* Convert StartAngle, Delta into bounding angles in [0, 720) */
+  if (Arc->Delta > 0)
     {
-      if (Arc->Width <= Radius)
-	return (true);
-      else
-	return (false);
+      ang1 = NormalizeAngle (Arc->StartAngle);
+      ang2 = NormalizeAngle (Arc->StartAngle + Arc->Delta);
     }
-  r1 = Arc->Width;
-  r2 = Radius;
-  if (sqrt (l) < r2 - r1) /* the arc merged in the circle */
-    return (true);
-  r1 *= r1;
-  r2 *= r2;
-  a = 0.5 * (r1 - r2 + l) / l;
-  r1 = r1 / l;
-  d = r1 - a * a;
-  /* the circles are too far apart to touch or probably just touch */
-  if (d < 0)
-    return (false);
-  /* project the points of intersection */
-  d = sqrt (d);
-  x = a * pdx;
-  y = a * pdy;
-  dy = -d * pdx;
-  dx = d * pdy;
-  /* arrgh! calculate the angles, and put them in a standard range */
-  startAngle = Arc->StartAngle;
-  arcDelta = Arc->Delta;
-  if (arcDelta < 0)
+  else
     {
-      startAngle += arcDelta;
-      arcDelta = -arcDelta;
+      ang1 = NormalizeAngle (Arc->StartAngle + Arc->Delta);
+      ang2 = NormalizeAngle (Arc->StartAngle);
     }
-  if (arcDelta > 360)
-    arcDelta = 360;
-  while (startAngle < 0)
-    startAngle += 360;
-  while (startAngle > 360)
-    startAngle -= 360;
-  ang1 = RAD_TO_DEG * atan2 ((y + dy), -(x + dx));
-  if (ang1 < 0)
-    ang1 += 360;
-  ang2 = RAD_TO_DEG * atan2 ((y - dy), -(x - dx));
-  if (ang2 < 0)
-    ang2 += 360;
   if (ang1 > ang2)
+    ang2 += 360;
+  /* Make sure full circles aren't treated as zero-length arcs */
+  if (Arc->Delta == 360 || Arc->Delta == -360)
+    ang2 = ang1 + 360;
+
+  if (Y > Arc->Y)
+    p_ang = -p_ang;
+  p_ang += 180;
+
+  /* Check point is outside arc range, check distance from endpoints */
+  if (ang1 >= p_ang || ang2 <= p_ang)
     {
-      ang0 = ang1;
-      ang1 = ang2;
-      ang2 = ang0;
+      Coord ArcX, ArcY;
+
+      ArcX = Arc->X + Arc->Width *
+              cos ((Arc->StartAngle + 180) / RAD_TO_DEG);
+      ArcY = Arc->Y - Arc->Width *
+              sin ((Arc->StartAngle + 180) / RAD_TO_DEG);
+      if (Distance (X, Y, ArcX, ArcY) < Radius + Arc->Thickness / 2)
+        return true;
+
+      ArcX = Arc->X + Arc->Width *
+              cos ((Arc->StartAngle + Arc->Delta + 180) / RAD_TO_DEG);
+      ArcY = Arc->Y - Arc->Width *
+              sin ((Arc->StartAngle + Arc->Delta + 180) / RAD_TO_DEG);
+      if (Distance (X, Y, ArcX, ArcY) < Radius + Arc->Thickness / 2)
+        return true;
+      return false;
     }
-  delta = ang2 - ang1;
-  /* ang0 does not belong to intersection range */
-  ang0 = RAD_TO_DEG * atan2 (-pdy, pdx);
-  if (ang0 < 0)
-    ang0 += 360;
-  if (ang0 > ang1 && ang0 < ang2) /* we need the other part of circle */
-    {
-      ang1 = ang2;
-      delta = 360 - delta;
-    }
-  if (ang1 >= startAngle && ang1 <= startAngle + arcDelta)
-    return (true);
-  if (startAngle >= ang1 && startAngle <= ang1 + delta)
-    return (true);
-  if (startAngle + arcDelta >= 360 && ang1 <= startAngle + arcDelta - 360)
-    return (true);
-  if (ang1 + delta >= 360 && startAngle <= ang1 + delta - 360)
-    return (true);
-  return (false);
+  /* If point is inside the arc range, just compare it to the arc */
+  return fabs (Distance (X, Y, Arc->X, Arc->Y) - Arc->Width) < Radius + Arc->Thickness / 2;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1141,14 +1088,14 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
  * locked items.  Otherwise, locked items are ignored.
  */
 int
-SearchObjectByLocation (int Type,
+SearchObjectByLocation (unsigned Type,
 			void **Result1, void **Result2, void **Result3,
-			LocationType X, LocationType Y, BDimension Radius)
+			Coord X, Coord Y, Coord Radius)
 {
   void *r1, *r2, *r3;
   void **pr1 = &r1, **pr2 = &r2, **pr3 = &r3;
   int i;
-  float HigherBound = 0;
+  double HigherBound = 0;
   int HigherAvail = NO_TYPE;
   int locked = Type & LOCKED_TYPE;
   /* setup variables used by local functions */
@@ -1216,7 +1163,7 @@ SearchObjectByLocation (int Type,
 				   false))
     {
       BoxTypePtr box = &((TextTypePtr) r2)->BoundingBox;
-      HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
+      HigherBound = (double) (box->X2 - box->X1) * (double) (box->Y2 - box->Y1);
       HigherAvail = ELEMENTNAME_TYPE;
     }
 
@@ -1227,7 +1174,7 @@ SearchObjectByLocation (int Type,
 			       (ElementTypePtr *) pr3, false))
     {
       BoxTypePtr box = &((ElementTypePtr) r1)->BoundingBox;
-      HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
+      HigherBound = (double) (box->X2 - box->X1) * (double) (box->Y2 - box->Y1);
       HigherAvail = ELEMENT_TYPE;
     }
 
@@ -1292,8 +1239,8 @@ SearchObjectByLocation (int Type,
 		{
 		  BoxTypePtr box =
 		    &(*(PolygonTypePtr *) Result2)->BoundingBox;
-		  float area =
-		    (float) (box->X2 - box->X1) * (float) (box->X2 - box->X1);
+		  double area =
+		    (double) (box->X2 - box->X1) * (double) (box->X2 - box->X1);
 		  if (HigherBound < area)
 		    break;
 		  else
@@ -1597,7 +1544,7 @@ SearchElementByName (DataTypePtr Base, char *Name)
  * searches the cursor position for the type 
  */
 int
-SearchScreen (LocationType X, LocationType Y, int Type, void **Result1,
+SearchScreen (Coord X, Coord Y, int Type, void **Result1,
 	      void **Result2, void **Result3)
 {
   int ans;
@@ -1611,7 +1558,7 @@ SearchScreen (LocationType X, LocationType Y, int Type, void **Result1,
  * searches the cursor position for the type
  */
 int
-SearchScreenGridSlop (LocationType X, LocationType Y, int Type, void **Result1,
+SearchScreenGridSlop (Coord X, Coord Y, int Type, void **Result1,
 	      void **Result2, void **Result3)
 {
   int ans;
