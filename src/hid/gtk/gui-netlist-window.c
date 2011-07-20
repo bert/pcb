@@ -578,14 +578,44 @@ netlist_rip_up_cb (GtkWidget * widget, gpointer data)
 
 }
 
+/**/
+typedef struct {
+  LibraryEntryType *ret_val;
+  LibraryMenuType *node_net;
+  const gchar *node_name;
+  bool found;
+} node_get_node_from_name_state;
+
+static gboolean
+node_get_node_from_name_helper (GtkTreeModel *model, GtkTreePath *path,
+                                GtkTreeIter *iter, gpointer data)
+{
+  LibraryMenuType *net;
+  LibraryEntryType *node;
+  node_get_node_from_name_state *state = data;
+
+  gtk_tree_model_get (net_model, iter, NET_LIBRARY_COLUMN, &net, -1);
+  /* Ignore non-nets (category headers) */
+  if (net == NULL)
+    return FALSE;
+
+  /* Look for the node name in this net. */
+  for (node = net->Entry; node - net->Entry < net->EntryN; node++)
+    if (node->ListEntry && !strcmp (state->node_name, node->ListEntry))
+      {
+        state->node_net = net;
+        state->ret_val = node;
+        /* stop iterating */
+        state->found = TRUE;
+	return TRUE;
+      }
+  return FALSE;
+}
 
 LibraryEntryType *
 node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
 {
-  GtkTreeIter iter;
-  LibraryMenuType *net;
-  LibraryEntryType *node;
-  gint j;
+  node_get_node_from_name_state state;
 
   if (!node_name)
     return NULL;
@@ -602,25 +632,18 @@ node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
   /* Now walk through node entries of each net in the net model looking for
      |  the node_name.
    */
-  if (gtk_tree_model_get_iter_first (net_model, &iter))
-    do
-      {
-	gtk_tree_model_get (net_model, &iter, NET_LIBRARY_COLUMN, &net, -1);
-
-	/* Look for the node name in this net.
-	 */
-	for (j = net->EntryN, node = net->Entry; j; j--, node++)
-	  if (node->ListEntry && !strcmp (node_name, node->ListEntry))
-	    {
-	      if (node_net)
-		*node_net = net;
-	      return node;
-	    }
-      }
-    while (gtk_tree_model_iter_next (net_model, &iter));
-
+  state.found = 0;
+  state.node_name = node_name;
+  gtk_tree_model_foreach (net_model, node_get_node_from_name_helper, &state);
+  if (state.found)
+    {
+      if (node_net)
+        *node_net = state.node_net;
+      return state.ret_val;
+    }
   return NULL;
 }
+/**/
 
 /* ---------- Manage the GUI treeview of the data models -----------
  */
