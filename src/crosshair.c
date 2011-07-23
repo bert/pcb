@@ -783,28 +783,60 @@ square (double x)
   return x * x;
 }
 
+static double
+crosshair_sq_dist (CrosshairType *crosshair, LocationType x, LocationType y)
+{
+  return square (x - crosshair->X) + square (y - crosshair->Y);
+}
+
+struct snap_data {
+  CrosshairType *crosshair;
+  double nearest_sq_dist;
+  bool nearest_is_grid;
+  LocationType x, y;
+};
+
+/* Snap to a given location if it is the closest thing we found so far.
+ * If "prefer_to_grid" is set, the passed location will take preference
+ * over a closer grid points we already snapped to UNLESS the user is
+ * pressing the SHIFT key. If the SHIFT key is pressed, the closest object
+ * (including grid points), is always preferred.
+ */
+static void
+check_snap_object (struct snap_data *snap_data, LocationType x, LocationType y,
+                   bool prefer_to_grid)
+{
+  double sq_dist;
+
+  sq_dist = crosshair_sq_dist (snap_data->crosshair, x, y);
+  if (sq_dist < snap_data->nearest_sq_dist ||
+      (prefer_to_grid && snap_data->nearest_is_grid && !gui->shift_is_pressed()))
+    {
+      snap_data->x = x;
+      snap_data->y = y;
+      snap_data->nearest_sq_dist = sq_dist;
+      snap_data->nearest_is_grid = false;
+    }
+}
+
 /* ---------------------------------------------------------------------------
  * recalculates the passed coordinates to fit the current grid setting
  */
 void
 FitCrosshairIntoGrid (LocationType X, LocationType Y)
 {
-  LocationType x2, y2, x0, y0;
+  LocationType x, y;
   void *ptr1, *ptr2, *ptr3;
-  double nearest, sq_dist;
+  struct snap_data snap_data;
   int ans;
 
-  x0 = 0;
-  y0 = 0;
-  x2 = PCB->MaxWidth;
-  y2 = PCB->MaxHeight;
   Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, X));
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Y));
 
   if (PCB->RatDraw)
     {
-      x0 = -600;
-      y0 = -600;
+      x = -600;
+      y = -600;
     }
   else
     {
@@ -813,61 +845,66 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
        * In this case we just set it to the center of the window or
        * with respect to the grid (if possible)
        */
-      if (Crosshair.X < x0 || Crosshair.X > x2)
+      if (Crosshair.X < 0 || Crosshair.X > PCB->MaxWidth)
 	{
-	  if (x2 + 1 >= PCB->Grid)
+	  if (PCB->MaxWidth + 1 >= PCB->Grid)
 	    /* there must be a point that matches the grid 
 	     * so we just have to look for it with some integer
 	     * calculations
 	     */
-	    x0 = GRIDFIT_X (PCB->Grid, PCB->Grid);
+	    x = GRIDFIT_X (PCB->Grid, PCB->Grid);
 	  else
-	    x0 = (x2) / 2;
+	    x = PCB->MaxWidth / 2;
 	}
       else
 	/* check if the new position matches the grid */
-	x0 = GRIDFIT_X (Crosshair.X, PCB->Grid);
+	x = GRIDFIT_X (Crosshair.X, PCB->Grid);
 
       /* do the same for the second coordinate */
-      if (Crosshair.Y < y0 || Crosshair.Y > y2)
+      if (Crosshair.Y < 0 || Crosshair.Y > PCB->MaxHeight)
 	{
-	  if (y2 + 1 >= PCB->Grid)
-	    y0 = GRIDFIT_Y (PCB->Grid, PCB->Grid);
+	  if (PCB->MaxHeight + 1 >= PCB->Grid)
+	    y = GRIDFIT_Y (PCB->Grid, PCB->Grid);
 	  else
-	    y0 = (y2) / 2;
+	    y = PCB->MaxHeight / 2;
 	}
       else
-	y0 = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
+	y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
 
       if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
 	{
 	  int dx = Crosshair.X - Marked.X;
 	  int dy = Crosshair.Y - Marked.Y;
 	  if (ABS (dx) > ABS (dy))
-	    y0 = Marked.Y;
+	    y = Marked.Y;
 	  else
-	    x0 = Marked.X;
+	    x = Marked.X;
 	}
 
     }
 
-  nearest = -1;
+  snap_data.crosshair = &Crosshair;
+  snap_data.nearest_sq_dist = crosshair_sq_dist (&Crosshair, x, y);
+  snap_data.nearest_is_grid = true;
+  snap_data.x = x;
+  snap_data.y = y;
 
+  ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 PAD_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
   /* Avoid self-snapping when moving */
-  if (ans && Settings.Mode == MOVE_MODE &&
+  if (ans != NO_TYPE &&
+      Settings.Mode == MOVE_MODE &&
       Crosshair.AttachedObject.Type == ELEMENT_TYPE &&
       ptr1 == Crosshair.AttachedObject.Ptr1)
     ans = NO_TYPE;
 
-  if (ans && (Settings.Mode == LINE_MODE ||
-              (Settings.Mode == MOVE_MODE &&
-               Crosshair.AttachedObject.Type == LINEPOINT_TYPE)))
+  if (ans != NO_TYPE &&
+      ( Settings.Mode == LINE_MODE ||
+       (Settings.Mode == MOVE_MODE &&
+        Crosshair.AttachedObject.Type == LINEPOINT_TYPE)))
     {
       PadTypePtr pad = (PadTypePtr) ptr2;
       LayerType *desired_layer;
@@ -901,143 +938,87 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
         ans = NO_TYPE;
     }
 
-  if (ans)
+  if (ans != NO_TYPE)
     {
-      PadTypePtr pad = (PadTypePtr) ptr2;
-      LocationType px, py;
-
-      px = (pad->Point1.X + pad->Point2.X) / 2;
-      py = (pad->Point1.Y + pad->Point2.Y) / 2;
-
-      sq_dist = square (px - Crosshair.X) + square (py - Crosshair.Y);
-
-      if (!gui->shift_is_pressed() ||
-          square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist)
-        {
-          x0 = px;
-          y0 = py;
-          nearest = sq_dist;
-        }
+      PadType *pad = (PadType *)ptr2;
+      check_snap_object (&snap_data, (pad->Point1.X + pad->Point2.X) / 2,
+                                     (pad->Point1.Y + pad->Point2.Y) / 2,
+                         true);
     }
 
+  ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 PIN_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
   /* Avoid self-snapping when moving */
-  if (ans && Settings.Mode == MOVE_MODE &&
+  if (ans != NO_TYPE &&
+      Settings.Mode == MOVE_MODE &&
       Crosshair.AttachedObject.Type == ELEMENT_TYPE &&
       ptr1 == Crosshair.AttachedObject.Ptr1)
     ans = NO_TYPE;
 
-  if (ans)
+  if (ans != NO_TYPE)
     {
-      PinTypePtr pin = (PinTypePtr) ptr2;
-      sq_dist = square (pin->X - Crosshair.X) + square (pin->Y - Crosshair.Y);
-      if ((nearest == -1 || sq_dist < nearest) &&
-          (!gui->shift_is_pressed() ||
-           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
-        {
-          x0 = pin->X;
-          y0 = pin->Y;
-          nearest = sq_dist;
-        }
+      PinType *pin = (PinType *)ptr2;
+      check_snap_object (&snap_data, pin->X, pin->Y, true);
     }
 
+  ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 VIA_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
   /* Avoid snapping vias to any other vias */
   if (Settings.Mode == MOVE_MODE &&
-      Crosshair.AttachedObject.Type == VIA_TYPE)
+      Crosshair.AttachedObject.Type == VIA_TYPE &&
+      (ans & PIN_TYPES))
+    ans = NO_TYPE;
+
+  if (ans != NO_TYPE)
     {
-        if (ans & PIN_TYPES)
-          ans = NO_TYPE;
+      PinType *pin = (PinType *)ptr2;
+      check_snap_object (&snap_data, pin->X, pin->Y, true);
     }
 
-  if (ans)
-    {
-      PinTypePtr pin = (PinTypePtr) ptr2;
-      sq_dist = square (pin->X - Crosshair.X) + square (pin->Y - Crosshair.Y);
-      if ((nearest == -1 || sq_dist < nearest) &&
-          (!gui->shift_is_pressed() ||
-           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
-        {
-          x0 = pin->X;
-          y0 = pin->Y;
-          nearest = sq_dist;
-        }
-    }
-
+  ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 LINEPOINT_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
-  if (ans)
+  if (ans != NO_TYPE)
     {
-      PointTypePtr pnt = (PointTypePtr) ptr3;
-      sq_dist = square (pnt->X - Crosshair.X) + square (pnt->Y - Crosshair.Y);
-      if ((nearest == -1 || sq_dist < nearest) &&
-          (!gui->shift_is_pressed() ||
-           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
-        {
-          x0 = pnt->X;
-          y0 = pnt->Y;
-          nearest = sq_dist;
-        }
+      PointType *pnt = (PointType *)ptr3;
+      check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
+  ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 POLYGONPOINT_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
-  if (ans)
+  if (ans != NO_TYPE)
     {
-      PointTypePtr pnt = (PointTypePtr) ptr3;
-      sq_dist = square (pnt->X - Crosshair.X) + square (pnt->Y - Crosshair.Y);
-      if ((nearest == -1 || sq_dist < nearest) &&
-          (!gui->shift_is_pressed() ||
-           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist))
-        {
-          x0 = pnt->X;
-          y0 = pnt->Y;
-          nearest = sq_dist;
-        }
+      PointType *pnt = (PointType *)ptr3;
+      check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
 
+  ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
-  else
-    ans = NO_TYPE;
 
   if (ans & ELEMENT_TYPE)
     {
-      ElementTypePtr el = (ElementTypePtr) ptr1;
-      sq_dist = square (el->MarkX - Crosshair.X) + square (el->MarkY - Crosshair.Y);
-      if ((nearest == -1 || sq_dist < nearest) &&
-           square (x0 - Crosshair.X) + square (y0 - Crosshair.Y) > sq_dist)
-        {
-          x0 = el->MarkX;
-          y0 = el->MarkY;
-          nearest = sq_dist;
-        }
+      ElementType *el = (ElementType *) ptr1;
+      check_snap_object (&snap_data, el->MarkX, el->MarkY, false);
     }
 
-  if (x0 >= 0 && y0 >= 0)
+  if (snap_data.x >= 0 && snap_data.y >= 0)
     {
-      Crosshair.X = x0;
-      Crosshair.Y = y0;
+      Crosshair.X = snap_data.x;
+      Crosshair.Y = snap_data.y;
     }
 
   if (Settings.Mode == ARROW_MODE)
