@@ -892,6 +892,17 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+
+  if (ans & ELEMENT_TYPE)
+    {
+      ElementType *el = (ElementType *) ptr1;
+      check_snap_object (&snap_data, el->MarkX, el->MarkY, false);
+    }
+
+  ans = NO_TYPE;
+  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 PAD_TYPE, &ptr1, &ptr2, &ptr3);
 
   /* Avoid self-snapping when moving */
@@ -1001,18 +1012,6 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
     {
       PointType *pnt = (PointType *)ptr3;
       check_snap_object (&snap_data, pnt->X, pnt->Y, true);
-    }
-
-
-  ans = NO_TYPE;
-  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
-
-  if (ans & ELEMENT_TYPE)
-    {
-      ElementType *el = (ElementType *) ptr1;
-      check_snap_object (&snap_data, el->MarkX, el->MarkY, false);
     }
 
   if (snap_data.x >= 0 && snap_data.y >= 0)
