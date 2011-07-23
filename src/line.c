@@ -487,9 +487,13 @@ EnforceLineDRC (void)
   bool shift;
   float r1, r2;
 
+  /* Silence a bogus compiler warning by storing this in a variable */
+  int layer_idx = INDEXOFCURRENT;
+
   if ( gui->mod1_is_pressed() || gui->control_is_pressed () || PCB->RatDraw
-      || INDEXOFCURRENT >= max_copper_layer)
+      || layer_idx >= max_copper_layer)
     return;
+
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;
   /* first try starting straight */
