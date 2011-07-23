@@ -427,7 +427,10 @@ arc-line intersection was moved to.
 static int
 Puller (int argc, char **argv, int Ux, int Uy)
 {
-  double arc_angle, line_angle, rel_angle, base_angle;
+  double arc_angle, base_angle;
+#if TRACE1
+  double line_angle, rel_angle;
+#endif
   double tangent;
   int new_delta_angle;
 
@@ -484,13 +487,13 @@ Puller (int argc, char **argv, int Ux, int Uy)
     arc_angle = the_arc->StartAngle + the_arc->Delta + 90;
   else
     arc_angle = the_arc->StartAngle + the_arc->Delta - 90;
-  line_angle = r2d (atan2 (ey - y, x - ex));
-  rel_angle = line_angle - arc_angle;
   base_angle = r2d (atan2 (ey - cy, cx - ex));
 
   tangent = r2d (acos (the_arc->Width / Distance (cx, cy, ex, ey)));
 
 #if TRACE1
+  line_angle = r2d (atan2 (ey - y, x - ex));
+  rel_angle = line_angle - arc_angle;
   printf ("arc %g line %g rel %g base %g\n", arc_angle, line_angle, rel_angle,
 	  base_angle);
   printf ("tangent %g\n", tangent);
@@ -1827,15 +1830,18 @@ gp_pad_cb (const BoxType *b, void *cb)
 static LineTypePtr
 create_line (LineTypePtr sample, int x1, int y1, int x2, int y2)
 {
-  Extra *e;
 #if TRACE1
+  Extra *e;
   pcb_printf("create_line from %#mD to %#mD\n", x1, y1, x2, y2);
 #endif
   LineTypePtr line = CreateNewLineOnLayer (CURRENT, x1, y1, x2, y2,
 					   sample->Thickness, sample->Clearance, sample->Flags);
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
 
-  e = new_line_extra (line);
+#if TRACE1
+  e =
+#endif
+    new_line_extra (line);
 #if TRACE1
   printf(" - line extra is %p\n", e);
 #endif
