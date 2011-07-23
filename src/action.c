@@ -2404,12 +2404,11 @@ static int
 ActionDisperseElements (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
-  long minx, miny, maxx, maxy, dx, dy;
+  long minx, miny, maxy, dx, dy;
   int all = 0, bad = 0;
 
   minx = GAP;
   miny = GAP;
-  maxx = GAP;
   maxy = GAP;
 
   if (!function || !*function)
@@ -7402,8 +7401,6 @@ tempfile_name_new (char * name)
 static int
 tempfile_unlink (char * name)
 {
-  int rc;
-
 #ifdef DEBUG
     /* SDB says:  Want to keep old temp files for examiniation when debugging */
   return 0;
@@ -7413,7 +7410,7 @@ tempfile_unlink (char * name)
   int e, rc2 = 0;
   char *dname;
 
-  rc = unlink (name);
+  unlink (name);
   /* it is possible that the file was never created so it is OK if the
      unlink fails */
 
@@ -7455,7 +7452,7 @@ tempfile_unlink (char * name)
   }
 
 #else
-  rc =  unlink (name);
+  int rc = unlink (name);
 
   if (rc != 0) {
     fprintf (stderr, _("Failed to unlink \"%s\"\n"), name);
