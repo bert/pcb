@@ -840,36 +840,8 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
     }
   else
     {
-      /* check if new position is inside the output window
-       * This might not be true after the window has been resized.
-       * In this case we just set it to the center of the window or
-       * with respect to the grid (if possible)
-       */
-      if (Crosshair.X < 0 || Crosshair.X > PCB->MaxWidth)
-	{
-	  if (PCB->MaxWidth + 1 >= PCB->Grid)
-	    /* there must be a point that matches the grid 
-	     * so we just have to look for it with some integer
-	     * calculations
-	     */
-	    x = GRIDFIT_X (PCB->Grid, PCB->Grid);
-	  else
-	    x = PCB->MaxWidth / 2;
-	}
-      else
-	/* check if the new position matches the grid */
-	x = GRIDFIT_X (Crosshair.X, PCB->Grid);
-
-      /* do the same for the second coordinate */
-      if (Crosshair.Y < 0 || Crosshair.Y > PCB->MaxHeight)
-	{
-	  if (PCB->MaxHeight + 1 >= PCB->Grid)
-	    y = GRIDFIT_Y (PCB->Grid, PCB->Grid);
-	  else
-	    y = PCB->MaxHeight / 2;
-	}
-      else
-	y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
+      x = GRIDFIT_X (Crosshair.X, PCB->Grid);
+      y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
 
       if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
 	{
