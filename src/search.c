@@ -1167,10 +1167,13 @@ SearchObjectByLocation (int Type,
       SearchBox = point_box (X, Y);
     }
 
-  if (TEST_FLAG (LOCKNAMESFLAG, PCB)
-      || TEST_FLAG (HIDENAMESFLAG, PCB))
+  if (TEST_FLAG (LOCKNAMESFLAG, PCB))
     {
       Type &= ~ (ELEMENTNAME_TYPE | TEXT_TYPE);
+    }
+  if (TEST_FLAG (HIDENAMESFLAG, PCB))
+    {
+      Type &= ~ELEMENTNAME_TYPE;
     }
   if (TEST_FLAG (ONLYNAMESFLAG, PCB))
     {
