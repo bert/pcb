@@ -596,12 +596,19 @@ int
 r_region_is_empty (rtree_t * rtree, const BoxType * region)
 {
   jmp_buf env;
+#ifndef NDEBUG
   int r;
+#endif
 
   if (setjmp (env))
     return 0;
-  r = r_search (rtree, region, NULL, __r_region_is_empty_rect_in_reg, &env);
+#ifndef NDEBUG
+  r =
+#endif
+    r_search (rtree, region, NULL, __r_region_is_empty_rect_in_reg, &env);
+#ifndef NDEBUG
   assert (r == 0);              /* otherwise longjmp would have been called */
+#endif
   return 1;                     /* no rectangles found */
 }
 
