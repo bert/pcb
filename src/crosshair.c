@@ -862,7 +862,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   snap_data.y = y;
 
   ans = NO_TYPE;
-  if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
+  if (!PCB->RatDraw && TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
                                 ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
 
