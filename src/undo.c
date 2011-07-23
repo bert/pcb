@@ -1288,16 +1288,14 @@ AddObjectToRotateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 void
 MoveObjectToRemoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  UndoListTypePtr undo;
+  if (Locked)
+    return;
 
-  if (!Locked)
-    {
-      if (!RemoveList)
-	RemoveList = CreateNewBuffer ();
+  if (!RemoveList)
+    RemoveList = CreateNewBuffer ();
 
-      undo = GetUndoSlot (UNDO_REMOVE, OBJECT_ID (Ptr3), Type);
-      MoveObjectToBuffer (RemoveList, PCB->Data, Type, Ptr1, Ptr2, Ptr3);
-    }
+  GetUndoSlot (UNDO_REMOVE, OBJECT_ID (Ptr3), Type);
+  MoveObjectToBuffer (RemoveList, PCB->Data, Type, Ptr1, Ptr2, Ptr3);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1351,10 +1349,8 @@ AddObjectToRemovePointUndoList (int Type,
 void
 AddObjectToInsertPointUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  UndoListTypePtr undo;
-
   if (!Locked)
-    undo = GetUndoSlot (UNDO_INSERT_POINT, OBJECT_ID (Ptr3), Type);
+    GetUndoSlot (UNDO_INSERT_POINT, OBJECT_ID (Ptr3), Type);
 }
 
 static void
@@ -1451,10 +1447,8 @@ AddObjectToMoveToLayerUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 void
 AddObjectToCreateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  UndoListTypePtr undo;
-
   if (!Locked)
-    undo = GetUndoSlot (UNDO_CREATE, OBJECT_ID (Ptr3), Type);
+    GetUndoSlot (UNDO_CREATE, OBJECT_ID (Ptr3), Type);
   ClearFromPolygon (PCB->Data, Type, Ptr1, Ptr2);
 }
 
