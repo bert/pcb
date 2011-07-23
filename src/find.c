@@ -1927,12 +1927,7 @@ static bool
 LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
-  LocationType xlow, xhigh;
   struct lo_info info;
-
-  /* the maximum possible distance */
-  xlow = Arc->BoundingBox.X1 - MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
-  xhigh = Arc->BoundingBox.X2 + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
 
   info.arc = *Arc;
   EXPAND_BOUNDS (&info.arc);
