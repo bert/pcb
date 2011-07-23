@@ -529,10 +529,10 @@ hidgl_fill_polygon (int n_coords, int *x, int *y)
   vertices = malloc (sizeof(GLdouble) * n_coords * 3);
 
   tobj = gluNewTess ();
-  gluTessCallback(tobj, GLU_TESS_BEGIN, myBegin);
-  gluTessCallback(tobj, GLU_TESS_VERTEX, myVertex);
-  gluTessCallback(tobj, GLU_TESS_COMBINE, myCombine);
-  gluTessCallback(tobj, GLU_TESS_ERROR, myError);
+  gluTessCallback(tobj, GLU_TESS_BEGIN,   (_GLUfuncptr)myBegin);
+  gluTessCallback(tobj, GLU_TESS_VERTEX,  (_GLUfuncptr)myVertex);
+  gluTessCallback(tobj, GLU_TESS_COMBINE, (_GLUfuncptr)myCombine);
+  gluTessCallback(tobj, GLU_TESS_ERROR,   (_GLUfuncptr)myError);
 
   gluTessBeginPolygon (tobj, NULL);
   gluTessBeginContour (tobj);
@@ -646,10 +646,10 @@ hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale
 
   info.vertices = malloc (sizeof(GLdouble) * vertex_count * 3);
   info.tobj = gluNewTess ();
-  gluTessCallback(info.tobj, GLU_TESS_BEGIN, myBegin);
-  gluTessCallback(info.tobj, GLU_TESS_VERTEX, myVertex);
-  gluTessCallback(info.tobj, GLU_TESS_COMBINE, myCombine);
-  gluTessCallback(info.tobj, GLU_TESS_ERROR, myError);
+  gluTessCallback(info.tobj, GLU_TESS_BEGIN,   (_GLUfuncptr)myBegin);
+  gluTessCallback(info.tobj, GLU_TESS_VERTEX,  (_GLUfuncptr)myVertex);
+  gluTessCallback(info.tobj, GLU_TESS_COMBINE, (_GLUfuncptr)myCombine);
+  gluTessCallback(info.tobj, GLU_TESS_ERROR,   (_GLUfuncptr)myError);
 
   glPushAttrib (GL_STENCIL_BUFFER_BIT);                 /* Save the write mask etc.. for final restore */
   glEnable (GL_STENCIL_TEST);
