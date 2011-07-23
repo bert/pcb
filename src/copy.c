@@ -294,7 +294,6 @@ CopyElement (ElementTypePtr Element)
 	 Element->Name[1].TextString);
 #endif
 
-  bool didDraw = false;
   ElementTypePtr element = CopyElementLowLevel (PCB->Data,
 						NULL, Element,
 						TEST_FLAG (UNIQUENAMEFLAG,
@@ -307,12 +306,10 @@ CopyElement (ElementTypePtr Element)
     {
       DrawElementName (element);
       DrawElementPackage (element);
-      didDraw = true;
     }
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (element);
-      didDraw = true;
     }
 #ifdef DEBUG
   printf(" ... Leaving CopyElement.\n");
