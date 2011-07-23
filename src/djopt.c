@@ -948,7 +948,6 @@ static int
 split_line (line_s * l, corner_s * c)
 {
   int i;
-  LayerType *layer;
   LineType *pcbline;
   line_s *ls;
 
@@ -965,7 +964,6 @@ split_line (line_s * l, corner_s * c)
     }
 
   check (c, l);
-  layer = PCB->Data->Layer + l->layer;
   pcbline = create_pcb_line (l->layer,
 			     c->x, c->y, l->e->x, l->e->y,
 			     l->line->Thickness, l->line->Clearance,
@@ -2558,7 +2556,6 @@ pinsnap ()
   PinType *pin;
   int again = 1;
 
-  corner_s *prev_c;
   int close = 0;
   corner_s *c2;
 
@@ -2575,7 +2572,6 @@ pinsnap ()
 	  if (!(c->pin || c->via || c->pad))
 	    continue;
 
-	  prev_c = c;
 	  pin = 0;
 
 	  dprintf ("\ncorner %s\n", corner_name (c));
