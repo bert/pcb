@@ -364,7 +364,6 @@ static void
 library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
 						gpointer user_data)
 {
-  GtkTreeView *view;
   GtkTreeModel *model;
   GtkTreeIter iter;
   GhidLibraryWindow *library_window = (GhidLibraryWindow *) user_data;
@@ -374,7 +373,6 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     return;
 
-  view = gtk_tree_selection_get_tree_view (selection);
   gtk_tree_model_get (model, &iter, MENU_ENTRY_COLUMN, &entry, -1);
 
   if (entry == NULL)

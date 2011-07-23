@@ -127,7 +127,6 @@ Note that zoom factors of zero are silently ignored.
 static int
 Zoom (int argc, char **argv, int x, int y)
 {
-  double factor;
   const char *vp;
   double v;
 
@@ -161,17 +160,14 @@ Zoom (int argc, char **argv, int x, int y)
   switch (argv[0][0])
     {
     case '-':
-      factor = 1 / v;
       zoom_by (1 / v, x, y);
       break;
     default:
     case '+':
-      factor = v;
       zoom_by (v, x, y);
       break;
     case '=':
       /* this needs to set the scale factor absolutely*/
-      factor = 1.0;
       zoom_to (v, x, y);
       break;
     }
@@ -184,7 +180,9 @@ static void
 zoom_to (double new_zoom, int x, int y)
 {
   double max_zoom, xfrac, yfrac;
+#ifdef DEBUG
   int cx, cy;
+#endif
 
   /* gport->zoom:
    * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
@@ -229,13 +227,11 @@ zoom_to (double new_zoom, int x, int y)
 #ifdef DEBUG
   printf ("max_zoom = %g, xfrac = %g, yfrac = %g, new_zoom = %g\n", 
 	  max_zoom, xfrac, yfrac, new_zoom);
-#endif
 
   /* find center x and y */
   cx = gport->view_x0 + gport->view_width * xfrac * gport->zoom;
   cy = gport->view_y0 + gport->view_height * yfrac * gport->zoom;
 
-#ifdef DEBUG
   pcb_printf ("zoom_to():  x0 = %#mS, cx = %#mS\n", gport->view_x0, cx);
   pcb_printf ("zoom_to():  y0 = %#mS, cy = %#mS\n", gport->view_y0, cy);
 #endif
@@ -376,11 +372,9 @@ ghid_set_crosshair (int x, int y, int action)
   if (action == HID_SC_PAN_VIEWPORT)
     {
       GdkDisplay *display;
-      GdkScreen *screen;
       gint pos_x, pos_y, xofs, yofs;
       
       display = gdk_display_get_default ();
-      screen = gdk_display_get_default_screen (display); 
       
       /* figure out where the pointer is relative to the display */ 
       gdk_display_get_pointer (display, NULL, &pos_x, &pos_y, NULL); 
@@ -1648,15 +1642,9 @@ Benchmark (int argc, char **argv, int x, int y)
 {
   int i = 0;
   time_t start, end;
-  BoxType region;
   GdkDisplay *display;
 
   display = gdk_drawable_get_display (gport->drawable);
-
-  region.X1 = 0;
-  region.Y1 = 0;
-  region.X2 = PCB->MaxWidth;
-  region.Y2 = PCB->MaxHeight;
 
   gdk_display_sync (display);
   time (&start);

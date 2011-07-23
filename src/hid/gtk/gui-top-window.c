@@ -1073,7 +1073,6 @@ layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
 static void
 layer_enable_button_cb (GtkWidget * widget, gpointer data)
 {
-  LayerButtonSet *lb;
   gint i, group, layer = GPOINTER_TO_INT (data);
   gboolean active, redraw = FALSE;
 
@@ -1082,7 +1081,6 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
   if (layer_enable_button_cb_hold_off)
     return;
 
-  lb = &layer_buttons[layer];
   switch (layer)
     {
     case LAYER_BUTTON_SILK:
@@ -2292,12 +2290,11 @@ ghid_listener_cb (GIOChannel *source,
 static void
 ghid_create_listener (void)
 {
-  guint tag;
   GIOChannel *channel;
   int fd = fileno (stdin);
 
   channel = g_io_channel_unix_new (fd);
-  tag = g_io_add_watch (channel, G_IO_IN, ghid_listener_cb, NULL);
+  g_io_add_watch (channel, G_IO_IN, ghid_listener_cb, NULL);
 }
 
 
