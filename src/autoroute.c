@@ -4751,7 +4751,9 @@ RouteAll (routedata_t * rd)
 	      p->flags.is_bad = 0;
 	      if (!p->flags.fixed)
 		{
+#ifndef NDEBUG
 		  bool del;
+#endif
 		  assert (!p->flags.homeless);
 		  if (rip)
 		    {
@@ -4773,10 +4775,14 @@ RouteAll (routedata_t * rd)
 		    {
 		      if (TEST_FLAG (LIVEROUTEFLAG, PCB))
 			ripout_livedraw_obj (p);
+#ifndef NDEBUG
 		      del =
+#endif
 			r_delete_entry (rd->layergrouptree[p->group],
 					&p->box);
+#ifndef NDEBUG
 		      assert (del);
+#endif
 		    }
 		  else
 		    {
