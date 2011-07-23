@@ -1406,10 +1406,7 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
   int i;
   int m = pp->m;
   int *po = pp->po;
-  int n = pp->len;
   point_t *pt = pp->pt;
-  int x0 = pp->x0;
-  int y0 = pp->y0;
   /* double scale=1.0/dpi; */
   double dm = 0;
 
@@ -1417,10 +1414,7 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
     return 0;
 
   po = pp->po;
-  n = pp->len;
   pt = pp->pt;
-  x0 = pp->x0;
-  y0 = pp->y0;
 
   fprintf (f, "G0 X%f Y%f    (start point)\n", pt[po[0]].x * scale,
 	   pt[po[0]].y * scale);
