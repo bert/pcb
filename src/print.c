@@ -222,12 +222,10 @@ PrintFab_overhang (void)
 void
 PrintFab (hidGC gc)
 {
-  PinType tmp_pin;
   DrillInfoTypePtr AllDrills;
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
   char utcTime[64];
-  tmp_pin.Flags = NoFlags ();
   AllDrills = GetDrillInfo (PCB->Data);
   RoundDrillInfo (AllDrills, MIL_TO_COORD(1));
   yoff = -TEXT_LINE;
