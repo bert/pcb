@@ -220,11 +220,10 @@ FontSave (int argc, char **argv, int Ux, int Uy)
       LineType *l = ii->data;
       int x1 = l->Point1.X;
       int y1 = l->Point1.Y;
-      int ox, oy, s;
+      int ox, s;
 
       s = XYtoSym (x1, y1);
       ox = (s % 16 + 1) * CELL_SIZE;
-      oy = (s / 16 + 1) * CELL_SIZE;
       symbol = &PCB->Font.Symbol[s];
 
       x1 -= ox;
