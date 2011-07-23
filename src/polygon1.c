@@ -1980,7 +1980,7 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
   POLYAREA *anext;
   PLINE *curc, *next, *prev;
   BoxType box;
-  int inv_inside = 0;
+  /* int inv_inside = 0; */
   int del_inside = 0;
   int del_outside = 0;
   int finished;
@@ -1998,7 +1998,7 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
       del_inside = 1;
       break;
     case PBO_XOR:		/* NOT IMPLEMENTED OR USED */
-      inv_inside = 1;
+      /* inv_inside = 1; */
       assert (0);
       break;
     }
@@ -2649,7 +2649,9 @@ void
 poly_InvContour (PLINE * c)
 {
   VNODE *cur, *next;
+#ifndef NDEBUG
   int r;
+#endif
 
   assert (c != NULL);
   cur = &c->head;
@@ -2664,8 +2666,13 @@ poly_InvContour (PLINE * c)
   c->Flags.orient ^= 1;
   if (c->tree)
     {
-      r = r_search (c->tree, NULL, NULL, flip_cb, NULL);
+#ifndef NDEBUG
+      r =
+#endif
+        r_search (c->tree, NULL, NULL, flip_cb, NULL);
+#ifndef NDEBUG
       assert (r == c->Count);
+#endif
     }
 }
 
