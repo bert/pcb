@@ -42,7 +42,6 @@
 #include "config.h"
 #endif
 
-#define GRIDFIT(x,g) (int)(0.5 + (int)(((x)+(g)/2.)/(g))*(g))
 #include "global.h"
 #include "create.h"
 #include "data.h"
