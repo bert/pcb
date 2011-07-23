@@ -825,7 +825,7 @@ check_snap_object (struct snap_data *snap_data, LocationType x, LocationType y,
 void
 FitCrosshairIntoGrid (LocationType X, LocationType Y)
 {
-  LocationType x, y;
+  LocationType nearest_grid_x, nearest_grid_y;
   void *ptr1, *ptr2, *ptr3;
   struct snap_data snap_data;
   int ans;
@@ -835,31 +835,32 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 
   if (PCB->RatDraw)
     {
-      x = -600;
-      y = -600;
+      nearest_grid_x = -600;
+      nearest_grid_y = -600;
     }
   else
     {
-      x = GRIDFIT_X (Crosshair.X, PCB->Grid);
-      y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
+      nearest_grid_x = GRIDFIT_X (Crosshair.X, PCB->Grid);
+      nearest_grid_y = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
 
       if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
 	{
 	  int dx = Crosshair.X - Marked.X;
 	  int dy = Crosshair.Y - Marked.Y;
 	  if (ABS (dx) > ABS (dy))
-	    y = Marked.Y;
+	    nearest_grid_y = Marked.Y;
 	  else
-	    x = Marked.X;
+	    nearest_grid_x = Marked.X;
 	}
 
     }
 
   snap_data.crosshair = &Crosshair;
-  snap_data.nearest_sq_dist = crosshair_sq_dist (&Crosshair, x, y);
+  snap_data.nearest_sq_dist =
+    crosshair_sq_dist (&Crosshair, nearest_grid_x, nearest_grid_y);
   snap_data.nearest_is_grid = true;
-  snap_data.x = x;
-  snap_data.y = y;
+  snap_data.x = nearest_grid_x;
+  snap_data.y = nearest_grid_y;
 
   ans = NO_TYPE;
   if (!PCB->RatDraw)
