@@ -279,7 +279,7 @@ PrintBOM (void)
   double theta = 0.0;
   double sumx, sumy;
   double pin1x = 0.0, pin1y = 0.0, pin1angle = 0.0;
-  double pin2x = 0.0, pin2y = 0.0, pin2angle;
+  double pin2x = 0.0, pin2y = 0.0;
   int found_pin1;
   int found_pin2;
   int pin_cnt;
@@ -364,7 +364,6 @@ PrintBOM (void)
 	{
 	  pin2x = (double) pin->X;
 	  pin2y = (double) pin->Y;
-	  pin2angle = 0.0;	/* pins have no notion of angle */
 	  found_pin2 = 1;
 	}
     }
@@ -393,8 +392,6 @@ PrintBOM (void)
 	{
 	  pin2x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
 	  pin2y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
-	  pin2angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
-					      pad->Point2.X - pad->Point1.X);
 	  found_pin2 = 1;
 	}
 
