@@ -1487,13 +1487,10 @@ vertices_plane_distance(toporouter_spoint_t *a, toporouter_spoint_t *b) {
 static inline void
 vertex_outside_segment(toporouter_spoint_t *a, toporouter_spoint_t *b, gdouble r, toporouter_spoint_t *p) 
 {
-  gdouble m;
   toporouter_spoint_t temp[2];
 
-  m = vertex_gradient(a,b);
-  
   vertices_on_line(a, vertex_gradient(a,b), r, &temp[0], &temp[1]);
-  
+
   if(vertices_plane_distance(&temp[0], b) > vertices_plane_distance(&temp[1], b)) {
     p->x = temp[0].x;
     p->y = temp[0].y;
@@ -1905,7 +1902,6 @@ read_pads(toporouter_t *r, toporouter_layer_t *l, guint layer)
 {
   toporouter_spoint_t p[2], rv[5];
   gdouble x[2], y[2], t, m;
-  GList *objectconstraints;
 
   GList *vlist = NULL;
   toporouter_bbox_t *bbox = NULL;
@@ -1926,8 +1922,6 @@ read_pads(toporouter_t *r, toporouter_layer_t *l, guint layer)
       if( (l - r->layers == back && TEST_FLAG(ONSOLDERFLAG, pad)) || 
           (l - r->layers == front && !TEST_FLAG(ONSOLDERFLAG, pad)) ) {
 
-
-        objectconstraints = NULL;
         t = (gdouble)pad->Thickness / 2.0f;
         x[0] = pad->Point1.X;
         x[1] = pad->Point2.X;
@@ -3407,8 +3401,11 @@ gdouble
 triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v)
 {
   toporouter_edge_t *e = TOPOROUTER_EDGE(gts_triangle_edge_opposite(t, GTS_VERTEX(v)));
-  gdouble x, y, m1, m2, c2, c1, len;
-  
+  gdouble x, y, m1, m2, c2, c1;
+#ifdef DEBUG_ROUTE
+  gdouble len;
+#endif
+
   g_assert(e);
 
   m1 = toporouter_edge_gradient(e);
@@ -3425,9 +3422,8 @@ triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v)
 
   y = (isinf(m2)) ? vy(edge_v1(e)) : (m2 * x) + c2;
 
-  len = gts_point_distance2(GTS_POINT(edge_v1(e)), GTS_POINT(edge_v2(e)));
-
 #ifdef DEBUG_ROUTE
+  len = gts_point_distance2(GTS_POINT(edge_v1(e)), GTS_POINT(edge_v2(e)));
   printf("%f,%f len = %f v = %f,%f\n", x, y, len, vx(v), vy(v));
 #endif
 
@@ -4843,7 +4839,7 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
   gint count = 0;
 
   toporouter_vertex_t *srcv = NULL, *destv = NULL, *curpoint = NULL;
-  toporouter_layer_t *cur_layer, *dest_layer;
+  toporouter_layer_t *cur_layer; //, *dest_layer;
 
   g_assert(data->src->c != data->dest->c);
   
@@ -4858,7 +4854,8 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
   if(!curpoint || !destv) goto routing_return;
 
   srcv = curpoint;
-  cur_layer = vlayer(curpoint); dest_layer = vlayer(destv);
+  cur_layer = vlayer(curpoint);
+  //dest_layer = vlayer(destv);
 
   data->path = NULL; 
   
@@ -4897,7 +4894,7 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
         tempv = closest_dest_vertex(r, curpoint, data);
         if(tempv) {
           destv = tempv;
-          dest_layer = vlayer(destv);//&r->layers[(int)vz(destv)];
+          //dest_layer = vlayer(destv);//&r->layers[(int)vz(destv)];
 
         }
       }
@@ -5521,18 +5518,13 @@ gdouble
 export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keepaway) 
 {
   gdouble sa, da, theta;
-  gdouble x0, y0, x1, y1, d=0.;
+  gdouble d = 0.;
   ArcTypePtr arc;
   gint wind;
 
   wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
 
   sa = coord_xangle(a->x0, a->y0, vx(a->centre), vy(a->centre)) * 180. / M_PI;
-  
-  x0 = a->x0 - vx(a->centre);
-  x1 = a->x1 - vx(a->centre);
-  y0 = a->y0 - vy(a->centre);
-  y1 = a->y1 - vy(a->centre);
 
   theta = arc_angle(a);
 
@@ -6201,17 +6193,18 @@ check_adj_pushing_vertex(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, 
     if(vertex_line_normal_intersection(x0, y0, x1, y1, vx(n), vy(n), &segintx, &seginty)) {
       toporouter_edge_t *e = tedge(n, v);
       gdouble ms = 0., d = coord_distance(segintx, seginty, vx(n), vy(n));
-      toporouter_vertex_t *a, *b;
+      //toporouter_vertex_t *a;
+      toporouter_vertex_t *b;
       GList *closestnet = NULL;
 
       g_assert(e);
 
       if(v == tedge_v1(e)) {
-        a = tedge_v1(e);
+        //a = tedge_v1(e);
         b = tedge_v2(e);
         closestnet = edge_routing(e);
       }else{
-        a = tedge_v2(e);
+        //a = tedge_v2(e);
         b = tedge_v1(e);
         closestnet = g_list_last(edge_routing(e));
       }
