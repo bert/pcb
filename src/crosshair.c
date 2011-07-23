@@ -976,6 +976,75 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
+  /* Code to snap at some sensible point along a line */
+  /* Pick the nearest grid-point in the x or y direction
+   * to align with, then adjust until we hit the line
+   */
+  ans = NO_TYPE;
+  if (TEST_FLAG (SNAPPINFLAG, PCB))
+    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
+                                LINE_TYPE, &ptr1, &ptr2, &ptr3);
+
+  if (ans != NO_TYPE)
+    {
+      LineType *line = (LineType *)ptr2;
+      LocationType try_x, try_y;
+      double dx, dy;
+      double dist;
+
+      dx = line->Point2.X - line->Point1.X;
+      dy = line->Point2.Y - line->Point1.Y;
+
+      /* Try snapping along the X axis */
+      if (dy != 0.)
+        {
+          /* Move in the X direction until we hit the line */
+          try_x = (nearest_grid_y - line->Point1.Y) / dy * dx + line->Point1.X;
+          try_y = nearest_grid_y;
+          check_snap_object (&snap_data, try_x, try_y, true);
+        }
+
+      /* Try snapping along the Y axis */
+      if (dx != 0.)
+        {
+          try_x = nearest_grid_x;
+          try_y = (nearest_grid_x - line->Point1.X) / dx * dy + line->Point1.Y;
+          check_snap_object (&snap_data, try_x, try_y, true);
+        }
+
+      if (dx != dy) /* If line not parallel with dX = dY direction.. */
+        {
+          /* Try snapping diagonally towards the line in the dX = dY direction */
+
+          if (dy == 0)
+            dist = line->Point1.Y - nearest_grid_y;
+          else
+            dist = ((line->Point1.X - nearest_grid_x) -
+                    (line->Point1.Y - nearest_grid_y) * dx / dy) / (1 - dx / dy);
+
+          try_x = nearest_grid_x + dist;
+          try_y = nearest_grid_y + dist;
+
+          check_snap_object (&snap_data, try_x, try_y, true);
+        }
+
+      if (dx != -dy) /* If line not parallel with dX = -dY direction.. */
+        {
+          /* Try snapping diagonally towards the line in the dX = -dY direction */
+
+          if (dy == 0)
+            dist = nearest_grid_y - line->Point1.Y;
+          else
+            dist = ((line->Point1.X - nearest_grid_x) -
+                    (line->Point1.Y - nearest_grid_y) * dx / dy) / (1 + dx / dy);
+
+          try_x = nearest_grid_x + dist;
+          try_y = nearest_grid_y - dist;
+
+          check_snap_object (&snap_data, try_x, try_y, true);
+        }
+    }
+
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
