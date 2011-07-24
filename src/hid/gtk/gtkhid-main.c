@@ -134,18 +134,6 @@ Zoom (int argc, char **argv, int x, int y)
   if (argc > 1)
     AFAIL (zoom);
 
-  if (x == 0 && y == 0)
-    {
-      x = gport->view_width / 2;
-      y = gport->view_height / 2;
-    }
-  else
-    {
-      /* Px converts view->pcb, Vx converts pcb->view */
-      x = Vx (x);
-      y = Vy (y);
-    }
-
   if (argc < 1)
     {
       zoom_fit ();
@@ -204,15 +192,15 @@ zoom_to (double new_zoom, int x, int y)
   if (gport->zoom == new_zoom)
     return;
 
-  xtmp = (SIDE_X (gport->pcb_x) - gport->view_x0) / (double)gport->view_width;
-  ytmp = (SIDE_Y (gport->pcb_y) - gport->view_y0) / (double)gport->view_height;
+  xtmp = (SIDE_X (x) - gport->view_x0) / (double)gport->view_width;
+  ytmp = (SIDE_Y (y) - gport->view_y0) / (double)gport->view_height;
 
   gport->zoom = new_zoom;
   pixel_slop = new_zoom;
   ghid_port_ranges_scale (FALSE);
 
-  gport->view_x0 = MAX (0, SIDE_X (gport->pcb_x) - xtmp * gport->view_width);
-  gport->view_y0 = MAX (0, SIDE_Y (gport->pcb_y) - ytmp * gport->view_height);
+  gport->view_x0 = MAX (0, SIDE_X (x) - xtmp * gport->view_width);
+  gport->view_y0 = MAX (0, SIDE_Y (y) - ytmp * gport->view_height);
 
   ghidgui->adjustment_changed_holdoff = TRUE;
   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
