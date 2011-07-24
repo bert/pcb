@@ -222,7 +222,7 @@ zoom_to (double new_zoom, int x, int y)
   ghid_set_status_line_label ();
 }
 
-void
+static void
 zoom_by (double factor, int x, int y)
 {
   zoom_to (gport->zoom * factor, x, y);
