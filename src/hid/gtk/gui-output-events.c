@@ -147,52 +147,6 @@ ghid_port_ranges_scale (gboolean emit_changed)
     gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
 }
 
-void
-ghid_port_ranges_zoom (gdouble zoom)
-{
-  gdouble xtmp, ytmp;
-  gint		x0, y0;
-
-  /* figure out zoom values in that would just make the width fit and
-   * that would just make the height fit
-   */
-  xtmp = (gdouble) PCB->MaxWidth / gport->width;
-  ytmp = (gdouble) PCB->MaxHeight / gport->height;
-
-  /* if we've tried to zoom further out than what would make the
-   * entire board fit or we passed 0, then pick a zoom that just makes
-   * the board fit.
-   */
-  if ((zoom > xtmp && zoom > ytmp) || zoom == 0.0)
-    zoom = (xtmp > ytmp) ? xtmp : ytmp;
-
-  xtmp = (SIDE_X (gport->pcb_x) - gport->view_x0) /
-            (gdouble) gport->view_width;
-  ytmp = (SIDE_Y (gport->pcb_y) - gport->view_y0) /
-            (gdouble) gport->view_height;
-
-  gport->zoom = zoom;
-  pixel_slop = zoom;
-  ghid_port_ranges_scale(FALSE);
-
-  x0 = SIDE_X (gport->pcb_x) - xtmp * gport->view_width;
-  if (x0 < 0)
-    x0 = 0;
-  gport->view_x0 = x0;
-
-  y0 = SIDE_Y (gport->pcb_y) - ytmp * gport->view_height;
-  if (y0 < 0)
-    y0 = 0;
-  gport->view_y0 = y0;
-
-  ghidgui->adjustment_changed_holdoff = TRUE;
-  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
-  ghidgui->adjustment_changed_holdoff = FALSE;
-
-  ghid_port_ranges_changed();
-}
-
 
 /* ---------------------------------------------------------------------- 
  * handles all events from PCB drawing area

@@ -31,6 +31,7 @@ RCSID ("$Id$");
 
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
+static void zoom_fit (void);
 
 int ghid_flip_x = 0, ghid_flip_y = 0;
 
@@ -64,7 +65,7 @@ ghid_pan_fixup ()
   if (gport->view_width > PCB->MaxWidth &&
       gport->view_height > PCB->MaxHeight)
     {
-      zoom_by (1, 0, 0);
+      zoom_fit ();
       return;
     }
 
@@ -147,7 +148,7 @@ Zoom (int argc, char **argv, int x, int y)
 
   if (argc < 1)
     {
-      zoom_to (1000000, 0, 0);
+      zoom_fit ();
       return 0;
     }
 
@@ -226,6 +227,13 @@ static void
 zoom_by (double factor, int x, int y)
 {
   zoom_to (gport->zoom * factor, x, y);
+}
+
+static void
+zoom_fit (void)
+{
+  zoom_to (MAX (PCB->MaxWidth  / gport->width,
+                PCB->MaxHeight / gport->height), 0, 0);
 }
 
 /* ------------------------------------------------------------ */
@@ -1181,7 +1189,7 @@ PCBChanged (int argc, char **argv, int x, int y)
   RouteStylesChanged (0, NULL, 0, 0);
   ghid_port_ranges_scale (TRUE);
   ghid_port_ranges_pan (0, 0, FALSE);
-  ghid_port_ranges_zoom (0);
+  zoom_fit ();
   ghid_port_ranges_changed ();
   ghid_sync_with_new_layout ();
   return 0;
