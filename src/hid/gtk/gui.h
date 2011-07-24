@@ -504,6 +504,7 @@ GdkPixmap *ghid_render_pixmap (int cx, int cy, double zoom,
 HID *ghid_request_debug_draw (void);
 void ghid_flush_debug_draw (void);
 void ghid_finish_debug_draw (void);
+bool ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y);
 
 /* gtkhid-main.c */
 void ghid_pan_fixup (void);

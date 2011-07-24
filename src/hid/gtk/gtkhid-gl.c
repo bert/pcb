@@ -1272,3 +1272,12 @@ ghid_finish_debug_draw (void)
 
   ghid_end_drawing (gport);
 }
+
+bool
+ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
+{
+  *pcb_x = EVENT_TO_PCB_X (event_x);
+  *pcb_y = EVENT_TO_PCB_Y (event_y);
+
+  return true;
+}

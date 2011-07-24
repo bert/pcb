@@ -226,8 +226,8 @@ ghid_note_event_location (GdkEventButton * ev)
       event_x = ev->x;
       event_y = ev->y;
     }
-  gport->pcb_x = EVENT_TO_PCB_X (event_x);
-  gport->pcb_y = EVENT_TO_PCB_Y (event_y);
+
+  ghid_event_to_pcb_coords (event_x, event_y, &gport->pcb_x, &gport->pcb_y);
 
   moved = MoveCrosshairAbsolute (gport->pcb_x, gport->pcb_y);
   if (moved)
