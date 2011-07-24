@@ -592,7 +592,7 @@ static gboolean check_object_tooltips (GHidPort *out)
   char *description;
 
   /* check if there are any pins or pads at that position */
-  description = describe_location (out->x_crosshair, out->y_crosshair);
+  description = describe_location (out->crosshair_x, out->crosshair_y);
 
   if (description == NULL)
     return FALSE;

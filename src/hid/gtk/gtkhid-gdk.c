@@ -1005,7 +1005,7 @@ show_crosshair (gboolean paint_new_location)
   static GdkGC *xor_gc;
   static GdkColor cross_color;
 
-  if (gport->x_crosshair < 0 || ghidgui->creating || !gport->has_entered)
+  if (gport->crosshair_x < 0 || ghidgui->creating || !gport->has_entered)
     return;
 
   if (!xor_gc)
@@ -1018,8 +1018,8 @@ show_crosshair (gboolean paint_new_location)
       /* FIXME: when CrossColor changed from config */
       ghid_map_color_string (Settings.CrossColor, &cross_color);
     }
-  x = DRAW_X (gport->x_crosshair);
-  y = DRAW_Y (gport->y_crosshair);
+  x = DRAW_X (gport->crosshair_x);
+  y = DRAW_Y (gport->crosshair_y);
 
   gdk_gc_set_foreground (xor_gc, &cross_color);
 

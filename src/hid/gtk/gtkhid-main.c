@@ -345,11 +345,11 @@ ghid_mod1_is_pressed ()
 void
 ghid_set_crosshair (int x, int y, int action)
 {
-  if (gport->x_crosshair != x || gport->y_crosshair != y)
+  if (gport->crosshair_x != x || gport->crosshair_y != y)
     {
       ghid_set_cursor_position_labels ();
-      gport->x_crosshair = x;
-      gport->y_crosshair = y;
+      gport->crosshair_x = x;
+      gport->crosshair_y = y;
 
       /*
        * FIXME - does this trigger the idle_proc stuff?  It is in the
