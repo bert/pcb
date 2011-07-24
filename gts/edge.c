@@ -377,12 +377,9 @@ static void triangle_vertices_edges (GtsTriangle * t,
 gboolean gts_edge_belongs_to_tetrahedron (GtsEdge * e)
 {
   GSList * i;
-  GtsVertex * v1, * v2;
 
   g_return_val_if_fail (e != NULL, FALSE);
 
-  v1 = GTS_SEGMENT (e)->v1;
-  v2 = GTS_SEGMENT (e)->v2;
   i = e->triangles;
   while (i) {
     GtsEdge * e1, * e2;

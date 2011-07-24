@@ -923,8 +923,8 @@ GtsSplit * gts_split_new (GtsSplitClass * klass,
 			  GtsObject * o2)
 {
   GtsSplit * vs;
-  GtsVertex * v1, * v2;
 #ifndef DYNAMIC_SPLIT
+  GtsVertex * v1, * v2;
   GtsEdge * e;
   GSList * i;
   GtsSplitCFace * cf;
@@ -939,12 +939,12 @@ GtsSplit * gts_split_new (GtsSplitClass * klass,
   vs->v = v;
   vs->v1 = o1;
   vs->v2 = o2;
-  v1 = GTS_SPLIT_V1 (vs);
-  v2 = GTS_SPLIT_V2 (vs);
 #ifdef DYNAMIC_SPLIT
   vs->ncf = 0;
   vs->cfaces = NULL;
 #else
+  v1 = GTS_SPLIT_V1 (vs);
+  v2 = GTS_SPLIT_V2 (vs);
   g_assert ((e = GTS_EDGE (gts_vertices_are_connected (v1, v2))));
   i = e->triangles;
   vs->ncf = g_slist_length (i);

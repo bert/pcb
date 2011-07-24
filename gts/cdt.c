@@ -974,7 +974,7 @@ GSList * gts_delaunay_add_constraint (GtsSurface * surface,
 				      GtsConstraint * c)
 {
   GSList * constraints;
-  GtsVertex * v1, * v2;
+  GtsVertex * v1; //, * v2;
   GSList * left = NULL, * right = NULL;
   GtsFace * ref = NULL;
 
@@ -983,7 +983,7 @@ GSList * gts_delaunay_add_constraint (GtsSurface * surface,
   g_return_val_if_fail (GTS_IS_CONSTRAINT (c), NULL);
   
   v1 = GTS_SEGMENT (c)->v1;
-  v2 = GTS_SEGMENT (c)->v2;
+  //v2 = GTS_SEGMENT (c)->v2;
   
   gts_allow_floating_edges = TRUE;
   constraints = remove_intersected_vertex (GTS_SEGMENT (c), v1, surface,

@@ -379,10 +379,10 @@ static gint intersection_orientation (GtsTriangle * t1,
 				       GTS_POINT (v2));
 }
 
-#define UPDATE_ORIENTATION if (o > 0) { vi2 = v; e2 = e; } else { vi2 = vi1;\
-                                                                  e2 = e1;\
-                                                                  vi1 = v;\
-                                                                  e1 = e; }
+#define UPDATE_ORIENTATION if (o > 0) { vi2 = v; /* e2 = e; */ } else { vi2 = vi1;\
+                                                                        /* e2 = e1; */\
+                                                                        vi1 = v;\
+                                                                        /* e1 = e; */ }
 
 static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
 			     GtsSurfaceInter * si)
@@ -391,15 +391,15 @@ static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
   GtsTriangle * t1 = GTS_TRIANGLE (bb1->bounded);
   GtsTriangle * t2 = GTS_TRIANGLE (bb2->bounded);
   GtsVertex * v, * vi1 = NULL, * vi2 = NULL;
-  GtsEdge * e1 = NULL, * e2 = NULL, * e;
+  //GtsEdge * e1 = NULL, * e2 = NULL, * e;
 
   vi1 = intersects (t2->e1, t1, s1);
-  e1 = t2->e1;
+  //e1 = t2->e1;
   v = intersects (t2->e2, t1, s1);
-  e = t2->e2;
+  //e = t2->e2;
   if (!vi1) {
     vi1 = v;
-    e1 = e;
+    //e1 = e;
   }
   else if (v) {
     gint o = intersection_orientation (t2, t2->e2, t1);
@@ -407,10 +407,10 @@ static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
   }
   if (!vi2) {
     v = intersects (t2->e3, t1, s1);
-    e = t2->e3;
+    //e = t2->e3;
     if (!vi1) {
       vi1 = v;
-      e1 = e;
+      //e1 = e;
     }
     else if (v) {
       gint o = intersection_orientation (t2, t2->e3, t1);
@@ -419,10 +419,10 @@ static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
   }
   if (!vi2) {
     v = intersects (t1->e1, t2, s1);
-    e = t1->e1;
+    //e = t1->e1;
     if (!vi1) {
       vi1 = v;
-      e1 = e;
+      //e1 = e;
     }
     else if (v) {
       gint o = - intersection_orientation (t1, t1->e1, t2);
@@ -431,10 +431,10 @@ static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
   }
   if (!vi2) {
     v = intersects (t1->e2, t2, s1);
-    e = t1->e2;
+    //e = t1->e2;
     if (!vi1) {
       vi1 = v;
-      e1 = e;
+      //e1 = e;
     }
     else if (v) {
       gint o = - intersection_orientation (t1, t1->e2, t2);
@@ -443,10 +443,10 @@ static void intersect_edges (GtsBBox * bb1, GtsBBox * bb2,
   }
   if (!vi2) {
     v = intersects (t1->e3, t2, s1);
-    e = t1->e3;
+    //e = t1->e3;
     if (!vi1) {
       vi1 = v;
-      e1 = e;
+      //e1 = e;
     }
     else if (v) {
       gint o = - intersection_orientation (t1, t1->e3, t2);

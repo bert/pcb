@@ -833,19 +833,19 @@ static void update_neighbors (GtsGNode * n, GtsGraphBisection * bg,
     if (gts_containee_is_contained (GTS_CONTAINEE (n1), 
 				    GTS_CONTAINER (bg->g))) {
       GtsEHeap * h;
-      GtsGraph * g1, * g2;
+      GtsGraph /* * g1,*/ * g2;
       GHashTable * bg1;
 
       if (gts_containee_is_contained (GTS_CONTAINEE (n1),
 				      GTS_CONTAINER (bg->g1))) {
 	h = h1;
-	g1 = bg->g1;
+	//g1 = bg->g1;
 	g2 = bg->g2;
 	bg1 = bg->bg1;
       }
       else {
 	h = h2;
-	g1 = bg->g2;
+	//g1 = bg->g2;
 	g2 = bg->g1;
 	bg1 = bg->bg2;
       }
