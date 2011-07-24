@@ -179,10 +179,7 @@ Zoom (int argc, char **argv, int x, int y)
 static void
 zoom_to (double new_zoom, int x, int y)
 {
-  double max_zoom, xfrac, yfrac;
-#ifdef DEBUG
-  int cx, cy;
-#endif
+  double max_zoom;
 
   /* gport->zoom:
    * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
@@ -193,26 +190,10 @@ zoom_to (double new_zoom, int x, int y)
    * gport->view_width and gport->view_height are in PCB coordinates
    */
 
-#ifdef DEBUG
-  pcb_printf ("\nzoom_to( %g, %#mS, %#mS)\n", new_zoom, x, y);
-#endif
-
-  xfrac = (double) x / (double) gport->view_width;
-  yfrac = (double) y / (double) gport->view_height;
-
-  if (ghid_flip_x)
-    xfrac = 1-xfrac;
-  if (ghid_flip_y)
-    yfrac = 1-yfrac;
-
   /* Find the zoom that would just make the entire board fit */
   max_zoom = PCB->MaxWidth / gport->width;
   if (max_zoom < PCB->MaxHeight / gport->height)
     max_zoom = PCB->MaxHeight / gport->height;
-
-#ifdef DEBUG
-  printf ("zoom_to():  max_zoom = %g\n", max_zoom);
-#endif
 
   /* 
    * clip the zooming so we can never have more than 1 pixel per PCB
@@ -223,18 +204,6 @@ zoom_to (double new_zoom, int x, int y)
     new_zoom = 1;
   if (new_zoom > max_zoom)
     new_zoom = max_zoom;
-
-#ifdef DEBUG
-  printf ("max_zoom = %g, xfrac = %g, yfrac = %g, new_zoom = %g\n", 
-	  max_zoom, xfrac, yfrac, new_zoom);
-
-  /* find center x and y */
-  cx = gport->view_x0 + gport->view_width * xfrac * gport->zoom;
-  cy = gport->view_y0 + gport->view_height * yfrac * gport->zoom;
-
-  pcb_printf ("zoom_to():  x0 = %#mS, cx = %#mS\n", gport->view_x0, cx);
-  pcb_printf ("zoom_to():  y0 = %#mS, cy = %#mS\n", gport->view_y0, cy);
-#endif
 
   if (gport->zoom != new_zoom)
     {
@@ -268,20 +237,12 @@ zoom_to (double new_zoom, int x, int y)
       ghid_port_ranges_changed();
     }
 
-#ifdef DEBUG
-  printf ("zoom_to():  new x0 = %d\n", gport->view_x0);
-  printf ("zoom_to():  new y0 = %d\n", gport->view_y0);
-#endif
   ghid_set_status_line_label ();
 }
 
 void
 zoom_by (double factor, int x, int y)
 {
-#ifdef DEBUG
-  pcb_printf ("\nzoom_by( %g, %#mS, %#mS).  old gport->zoom = %g\n", 
-	  factor, x, y, gport->zoom);
-#endif
   zoom_to (gport->zoom * factor, x, y);
 }
 
