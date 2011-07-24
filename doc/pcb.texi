@@ -2194,7 +2194,7 @@ If the layout is already completely wired, nothing will be added, and you will
 get a message that the wiring is complete.
 
 Rat-lines are lines having the special property that they only connect to pins and
-pads at their end points.  Rat-lines are drawn on the screen with a stippled pattern
+pads at their end points.  Rat-lines may be drawn differently to other lines
 to make them easier to identify since they have special behavior and cannot
 remain in a completed layout.
 Rat-lines are added in the minimum length straight-line tree pattern
@@ -3602,7 +3602,7 @@ Adds rat-lines to the layout using the loaded netlist file (see the @emph{:rn},
 line thickness shown in the status line.
 Only missing connectivity is added by the
 AddRats command so if, for example, the layout is complete nothing will be added.
-Rat lines are drawn on the screen with a stippled pattern
+Rat lines may be drawn different to other lines on the screen
 to make them easier to identify since they cannot appear in a completed layout.
 The rat-lines are added in the minimum length straight-line tree pattern
 (always ending on pins or pads) that satisfies the missing connectivity in the circuit.
