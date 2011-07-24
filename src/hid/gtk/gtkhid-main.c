@@ -179,64 +179,46 @@ Zoom (int argc, char **argv, int x, int y)
 static void
 zoom_to (double new_zoom, int x, int y)
 {
-  double max_zoom;
+  double min_zoom, max_zoom;
+  double xtmp, ytmp;
 
   /* gport->zoom:
    * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
    * out - the largest value means you are looking at the whole board.
    *
-   * PCB units per screen pixel
-   *
    * gport->view_width and gport->view_height are in PCB coordinates
    */
 
-  /* Find the zoom that would just make the entire board fit */
-  max_zoom = PCB->MaxWidth / gport->width;
-  if (max_zoom < PCB->MaxHeight / gport->height)
-    max_zoom = PCB->MaxHeight / gport->height;
+  /* Set the "minimum" zoom constant (maximum zoom),
+   * at 1 pixel per PCB unit */
+  min_zoom = 1;
 
-  /* 
-   * clip the zooming so we can never have more than 1 pixel per PCB
-   * unit and never zoom out more than viewing the entire board
-   */
-     
-  if (new_zoom < 1)
-    new_zoom = 1;
-  if (new_zoom > max_zoom)
-    new_zoom = max_zoom;
+  /* Set the "maximum" zoom constant (minimum zoom),
+   * to make the entire board just fit inside the viewport */
+  max_zoom = MAX (PCB->MaxWidth  / gport->width,
+                  PCB->MaxHeight / gport->height);
 
-  if (gport->zoom != new_zoom)
-    {
-      gdouble xtmp, ytmp;
-      gint x0, y0;
+  new_zoom = MIN (MAX (min_zoom, new_zoom), max_zoom);
 
-      xtmp = (SIDE_X (gport->pcb_x) - gport->view_x0) /
-                (gdouble) gport->view_width;
-      ytmp = (SIDE_Y (gport->pcb_y) - gport->view_y0) /
-                (gdouble) gport->view_height;
+  if (gport->zoom == new_zoom)
+    return;
 
-      gport->zoom = new_zoom;
-      pixel_slop = new_zoom;
-      ghid_port_ranges_scale(FALSE);
+  xtmp = (SIDE_X (gport->pcb_x) - gport->view_x0) / (double)gport->view_width;
+  ytmp = (SIDE_Y (gport->pcb_y) - gport->view_y0) / (double)gport->view_height;
 
-      x0 = SIDE_X (gport->pcb_x) - xtmp * gport->view_width;
-      if (x0 < 0)
-        x0 = 0;
-      gport->view_x0 = x0;
+  gport->zoom = new_zoom;
+  pixel_slop = new_zoom;
+  ghid_port_ranges_scale (FALSE);
 
-      y0 = SIDE_Y (gport->pcb_y) - ytmp * gport->view_height;
-      if (y0 < 0)
-        y0 = 0;
-      gport->view_y0 = y0;
+  gport->view_x0 = MAX (0, SIDE_X (gport->pcb_x) - xtmp * gport->view_width);
+  gport->view_y0 = MAX (0, SIDE_Y (gport->pcb_y) - ytmp * gport->view_height);
 
-      ghidgui->adjustment_changed_holdoff = TRUE;
-      gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
-      gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
-      ghidgui->adjustment_changed_holdoff = FALSE;
+  ghidgui->adjustment_changed_holdoff = TRUE;
+  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
+  ghidgui->adjustment_changed_holdoff = FALSE;
 
-      ghid_port_ranges_changed();
-    }
-
+  ghid_port_ranges_changed ();
   ghid_set_status_line_label ();
 }
 
