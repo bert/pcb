@@ -111,9 +111,6 @@ static LibraryMenuType *node_selected_net;
    |		PCB calls this to tell the gui netlist code the layout net has
    |		changed and the gui data structures (net and optionally node data
    |		models) should be rebuilt.
-   |
-   |   ghid_netlist_nodes_update(LibraryMenuType *net)
-   |		Called when the node model should be updated to a netlist.
 */
 
 
@@ -963,12 +960,6 @@ ghid_netlist_highlight_node (gchar * node_name)
 	g_free (name);
       }
     while (gtk_tree_model_iter_next (node_model, &iter));
-}
-
-void
-ghid_netlist_nodes_update (LibraryMenuType * net)
-{
-  node_model_update (net);
 }
 
 /* If code in PCB should change the netlist, call this to update

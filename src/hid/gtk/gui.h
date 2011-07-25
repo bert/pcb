@@ -441,7 +441,6 @@ void ghid_set_status_line_label (void);
 void ghid_netlist_window_create (GHidPort * out);
 void ghid_netlist_window_show (GHidPort * out, gboolean raise);
 void ghid_netlist_window_update (gboolean init_nodes);
-void ghid_netlist_nodes_update (LibraryMenuType * net);
 
 LibraryMenuType *ghid_get_net_from_node_name (gchar * name, gboolean);
 void ghid_netlist_highlight_node (gchar * name);
