@@ -39,6 +39,15 @@ typedef struct render_priv {
   GdkRectangle clip_rect;
   int attached_invalidate_depth;
   int mark_invalidate_depth;
+
+  /* Feature for leading the user to a particular location */
+  guint lead_user_timeout;
+  GTimer *lead_user_timer;
+  bool lead_user;
+  Coord lead_user_radius;
+  Coord lead_user_x;
+  Coord lead_user_y;
+
 } render_priv;
 
 
@@ -54,6 +63,9 @@ typedef struct hid_gc_struct
   gint mask_seq;
 }
 hid_gc_struct;
+
+
+static void draw_lead_user (render_priv *priv);
 
 
 int
@@ -783,6 +795,8 @@ redraw_region (GdkRectangle *rect)
   if (priv->mark_invalidate_depth == 0)
     DrawMark ();
 
+  draw_lead_user (priv);
+
   priv->clip = false;
 
   /* Rest the clip for bg_gc, as it is used outside this function */
@@ -1075,6 +1089,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 void
 ghid_shutdown_renderer (GHidPort *port)
 {
+  ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
 }
@@ -1323,4 +1338,118 @@ ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
   *pcb_y = EVENT_TO_PCB_Y (event_y);
 
   return true;
+}
+
+#define LEAD_USER_WIDTH           0.2          /* millimeters */
+#define LEAD_USER_PERIOD          (1000 / 5)   /* 5fps (in ms) */
+#define LEAD_USER_VELOCITY        3.           /* millimeters per second */
+#define LEAD_USER_ARC_COUNT       3
+#define LEAD_USER_ARC_SEPARATION  3.           /* millimeters */
+#define LEAD_USER_INITIAL_RADIUS  10.          /* millimetres */
+#define LEAD_USER_COLOR_R         1.
+#define LEAD_USER_COLOR_G         1.
+#define LEAD_USER_COLOR_B         0.
+
+static void
+draw_lead_user (render_priv *priv)
+{
+  int i;
+  Coord radius = priv->lead_user_radius;
+  Coord width = MM_TO_COORD (LEAD_USER_WIDTH);
+  Coord separation = MM_TO_COORD (LEAD_USER_ARC_SEPARATION);
+  static GdkGC *lead_gc = NULL;
+  GdkColor lead_color;
+
+  if (!priv->lead_user)
+    return;
+
+  if (lead_gc == NULL)
+    {
+      lead_gc = gdk_gc_new (ghid_port.drawing_area->window);
+      gdk_gc_copy (lead_gc, ghid_port.drawing_area->style->white_gc);
+      gdk_gc_set_function (lead_gc, GDK_XOR);
+      gdk_gc_set_clip_origin (lead_gc, 0, 0);
+      lead_color.pixel = 0;
+      lead_color.red   = (int)(65535. * LEAD_USER_COLOR_R);
+      lead_color.green = (int)(65535. * LEAD_USER_COLOR_G);
+      lead_color.blue  = (int)(65535. * LEAD_USER_COLOR_B);
+      gdk_color_alloc (gport->colormap, &lead_color);
+      gdk_gc_set_foreground (lead_gc, &lead_color);
+    }
+
+  set_clip (priv, lead_gc);
+  gdk_gc_set_line_attributes (lead_gc, Vz (width),
+                              GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
+
+  /* arcs at the approrpriate radii */
+
+  for (i = 0; i < LEAD_USER_ARC_COUNT; i++, radius -= separation)
+    {
+      if (radius < width)
+        radius += MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+
+      /* Draw an arc at radius */
+      gdk_draw_arc (gport->drawable, lead_gc, FALSE,
+                    Vx (priv->lead_user_x - radius),
+                    Vy (priv->lead_user_y - radius),
+                    Vz (2. * radius), Vz (2. * radius),
+                    0, 360 * 64);
+    }
+}
+
+gboolean
+lead_user_cb (gpointer data)
+{
+  render_priv *priv = data;
+  Coord step;
+  double elapsed_time;
+
+  /* Queue a redraw */
+  ghid_invalidate_all ();
+
+  /* Update radius */
+  elapsed_time = g_timer_elapsed (priv->lead_user_timer, NULL);
+  g_timer_start (priv->lead_user_timer);
+
+  step = MM_TO_COORD (LEAD_USER_VELOCITY * elapsed_time);
+  if (priv->lead_user_radius > step)
+    priv->lead_user_radius -= step;
+  else
+    priv->lead_user_radius = MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+
+  return TRUE;
+}
+
+void
+ghid_lead_user_to_location (Coord x, Coord y)
+{
+  render_priv *priv = gport->render_priv;
+
+  ghid_cancel_lead_user ();
+
+  priv->lead_user = true;
+  priv->lead_user_x = x;
+  priv->lead_user_y = y;
+  priv->lead_user_radius = MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+  priv->lead_user_timeout = g_timeout_add (LEAD_USER_PERIOD, lead_user_cb, priv);
+  priv->lead_user_timer = g_timer_new ();
+}
+
+void
+ghid_cancel_lead_user (void)
+{
+  render_priv *priv = gport->render_priv;
+
+  if (priv->lead_user_timeout)
+    g_source_remove (priv->lead_user_timeout);
+
+  if (priv->lead_user_timer)
+    g_timer_destroy (priv->lead_user_timer);
+
+  if (priv->lead_user)
+    ghid_invalidate_all ();
+
+  priv->lead_user_timeout = 0;
+  priv->lead_user_timer = NULL;
+  priv->lead_user = false;
 }

@@ -505,6 +505,9 @@ void ghid_flush_debug_draw (void);
 void ghid_finish_debug_draw (void);
 bool ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y);
 
+void ghid_lead_user_to_location (Coord x, Coord y);
+void ghid_cancel_lead_user (void);
+
 /* gtkhid-main.c */
 void ghid_pan_fixup (void);
 void ghid_get_coords (const char *msg, int *x, int *y);

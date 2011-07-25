@@ -47,6 +47,15 @@ typedef struct render_priv {
   int subcomposite_stencil_bit;
   char *current_colorname;
   double current_alpha_mult;
+
+  /* Feature for leading the user to a particular location */
+  guint lead_user_timeout;
+  GTimer *lead_user_timer;
+  bool lead_user;
+  Coord lead_user_radius;
+  Coord lead_user_x;
+  Coord lead_user_y;
+
 } render_priv;
 
 
@@ -61,6 +70,10 @@ typedef struct hid_gc_struct
   gchar xor;
 }
 hid_gc_struct;
+
+
+static void draw_lead_user (render_priv *priv);
+
 
 static void
 start_subcomposite (void)
@@ -824,6 +837,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 void
 ghid_shutdown_renderer (GHidPort *port)
 {
+  ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
 }
@@ -889,6 +903,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
                              GdkEventExpose *ev,
                              GHidPort *port)
 {
+  render_priv *priv = port->render_priv;
   BoxType region;
 
   ghid_start_drawing (port);
@@ -975,6 +990,8 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   ghid_show_crosshair (TRUE);
 
   hidgl_flush_triangles (&buffer);
+
+  draw_lead_user (priv);
 
   ghid_end_drawing (port);
 
@@ -1287,4 +1304,104 @@ ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
   *pcb_y = EVENT_TO_PCB_Y (event_y);
 
   return true;
+}
+
+#define LEAD_USER_WIDTH           0.2          /* millimeters */
+#define LEAD_USER_PERIOD          (1000 / 20)  /* 20fps (in ms) */
+#define LEAD_USER_VELOCITY        3.           /* millimeters per second */
+#define LEAD_USER_ARC_COUNT       3
+#define LEAD_USER_ARC_SEPARATION  3.           /* millimeters */
+#define LEAD_USER_INITIAL_RADIUS  10.          /* millimetres */
+#define LEAD_USER_COLOR_R         1.
+#define LEAD_USER_COLOR_G         1.
+#define LEAD_USER_COLOR_B         0.
+
+static void
+draw_lead_user (render_priv *priv)
+{
+  int i;
+  double radius = priv->lead_user_radius;
+  double width = MM_TO_COORD (LEAD_USER_WIDTH);
+  double separation = MM_TO_COORD (LEAD_USER_ARC_SEPARATION);
+
+  if (!priv->lead_user)
+    return;
+
+  glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+  glEnable (GL_COLOR_LOGIC_OP);
+  glLogicOp (GL_XOR);
+  glColor3f (LEAD_USER_COLOR_R, LEAD_USER_COLOR_G,LEAD_USER_COLOR_B);
+
+
+  /* arcs at the approrpriate radii */
+
+  for (i = 0; i < LEAD_USER_ARC_COUNT; i++, radius -= separation)
+    {
+      if (radius < width)
+        radius += MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+
+      /* Draw an arc at radius */
+      hidgl_draw_arc (width, priv->lead_user_x, priv->lead_user_y,
+                      radius, radius, 0, 360, gport->zoom);
+    }
+
+  hidgl_flush_triangles (&buffer);
+  glPopAttrib ();
+}
+
+gboolean
+lead_user_cb (gpointer data)
+{
+  render_priv *priv = data;
+  Coord step;
+  double elapsed_time;
+
+  /* Queue a redraw */
+  ghid_invalidate_all ();
+
+  /* Update radius */
+  elapsed_time = g_timer_elapsed (priv->lead_user_timer, NULL);
+  g_timer_start (priv->lead_user_timer);
+
+  step = MM_TO_COORD (LEAD_USER_VELOCITY * elapsed_time);
+  if (priv->lead_user_radius > step)
+    priv->lead_user_radius -= step;
+  else
+    priv->lead_user_radius = MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+
+  return TRUE;
+}
+
+void
+ghid_lead_user_to_location (Coord x, Coord y)
+{
+  render_priv *priv = gport->render_priv;
+
+  ghid_cancel_lead_user ();
+
+  priv->lead_user = true;
+  priv->lead_user_x = x;
+  priv->lead_user_y = y;
+  priv->lead_user_radius = MM_TO_COORD (LEAD_USER_INITIAL_RADIUS);
+  priv->lead_user_timeout = g_timeout_add (LEAD_USER_PERIOD, lead_user_cb, priv);
+  priv->lead_user_timer = g_timer_new ();
+}
+
+void
+ghid_cancel_lead_user (void)
+{
+  render_priv *priv = gport->render_priv;
+
+  if (priv->lead_user_timeout)
+    g_source_remove (priv->lead_user_timeout);
+
+  if (priv->lead_user_timer)
+    g_timer_destroy (priv->lead_user_timer);
+
+  if (priv->lead_user)
+    ghid_invalidate_all ();
+
+  priv->lead_user_timeout = 0;
+  priv->lead_user_timer = NULL;
+  priv->lead_user = false;
 }

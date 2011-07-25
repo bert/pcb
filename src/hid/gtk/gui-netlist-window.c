@@ -218,17 +218,6 @@ toggle_pin_selected (LibraryEntryType *entry)
   AddObjectToFlagUndoList (conn.type, conn.ptr1, conn.ptr2, conn.ptr2);
   TOGGLE_FLAG (SELECTEDFLAG, (AnyObjectType *)conn.ptr2);
   DrawObject (conn.type, conn.ptr1, conn.ptr2);
-
-  if (conn.type == PIN_TYPE)
-    {
-      PinTypePtr pin = (PinTypePtr) conn.ptr2;
-      CenterDisplay (pin->X, pin->Y);
-    }
-  else if (conn.type == PAD_TYPE)
-    {
-      PadTypePtr pad = (PadTypePtr) conn.ptr2;
-      CenterDisplay (pad->Point1.X, pad->Point1.Y);
-    }
 }
 
 
@@ -241,8 +230,9 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   GtkTreeModel *model;
   LibraryMenuType *node_net;
   LibraryEntryType *node;
+  ConnectionType conn;
+  Coord x, y;
   static gchar *node_name;
-	gint		x0, y0, margin;
 
   if (selection_holdoff)	/* PCB is highlighting, user is not selecting */
     return;
@@ -258,7 +248,10 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
       |  if off here will get our on/off toggling out of sync.
       */
       if (node_net == node_selected_net)
-        toggle_pin_selected (node);
+        {
+          toggle_pin_selected (node);
+          ghid_cancel_lead_user ();
+        }
       g_free (node_name);
       node_name = NULL;
     }
@@ -281,26 +274,33 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   dup_string (&node_name, node->ListEntry);
   node_selected_net = selected_net;
 
-  /* Now just toggle a select of the node on the layout and pan.
+  /* Now just toggle a select of the node on the layout
    */
   toggle_pin_selected (node);
   IncrementUndoSerialNumber ();
-	margin = gport->view_width / 20;
-	if (   Crosshair.X < gport->view_x0 + margin
-	    || Crosshair.X > gport->view_x0 + gport->view_width - margin
-	    || Crosshair.Y < gport->view_y0 + margin
-	    || Crosshair.Y > gport->view_y0 + gport->view_height - margin
-	   )
-	  {
 
-	    x0 = SIDE_X (Crosshair.X) - gport->view_width / 2;
-	    y0 = SIDE_Y (Crosshair.Y) - gport->view_height / 2;
-	    gport->view_x0 = x0;
-	    gport->view_y0 = y0;
-	    ghid_pan_fixup ();
-	    gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
-	  }
-	ghid_screen_update();
+  /* And lead the user to the location */
+  if (SeekPad (node, &conn, false))
+    switch (conn.type) {
+      case PIN_TYPE:
+        {
+          PinTypePtr pin = (PinTypePtr) conn.ptr2;
+          x = pin->X;
+          y = pin->Y;
+          gui->set_crosshair (x, y, 0);
+          ghid_lead_user_to_location (x, y);
+          break;
+        }
+      case PAD_TYPE:
+        {
+          PadTypePtr pad = (PadTypePtr) conn.ptr2;
+          x = pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2;
+          y = pad->Point1.Y + (pad->Point2.Y - pad->Point2.Y) / 2;
+          gui->set_crosshair (x, y, 0);
+          ghid_lead_user_to_location (x, y);
+          break;
+        }
+    }
 }
 
 
@@ -679,6 +679,9 @@ netlist_close_cb (GtkWidget * widget, gpointer data)
   gtk_widget_destroy (netlist_window);
   selected_net = NULL;
   netlist_window = NULL;
+
+  /* For now, we are the only consumer of this API, so we can just do this */
+  ghid_cancel_lead_user ();
 }
 
 
