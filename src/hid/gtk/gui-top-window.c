@@ -1851,6 +1851,7 @@ delete_chart_cb (GtkWidget * widget, GdkEvent * event, GHidPort * port)
 static void
 destroy_chart_cb (GtkWidget * widget, GHidPort * port)
 {
+  ghid_shutdown_renderer (port);
   gtk_main_quit ();
 }
 

@@ -490,6 +490,7 @@ void ghid_invalidate_all ();
 void ghid_notify_crosshair_change (bool changes_complete);
 void ghid_notify_mark_change (bool changes_complete);
 void ghid_init_renderer (int *, char ***, GHidPort *);
+void ghid_shutdown_renderer (GHidPort *);
 void ghid_init_drawing_widget (GtkWidget *widget, GHidPort *);
 void ghid_drawing_area_configure_hook (GHidPort *port);
 void ghid_screen_update (void);

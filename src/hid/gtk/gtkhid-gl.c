@@ -822,6 +822,13 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 }
 
 void
+ghid_shutdown_renderer (GHidPort *port)
+{
+  g_free (port->render_priv);
+  port->render_priv = NULL;
+}
+
+void
 ghid_init_drawing_widget (GtkWidget *widget, GHidPort *port)
 {
   render_priv *priv = port->render_priv;
