@@ -1458,12 +1458,12 @@ SwapSides (int argc, char **argv, int x, int y)
   if (do_flip_x)
     {
 	flipd = PCB->MaxWidth / 2 - SIDE_X (gport->pcb_x);
-	ghid_port_ranges_pan (2 * flipd, 0, TRUE);
+	ghid_port_ranges_pan (-2 * flipd, 0, TRUE);
     }
   if (do_flip_y)
     {
 	flipd = PCB->MaxHeight / 2 - SIDE_Y (gport->pcb_y);
-	ghid_port_ranges_pan (0, 2 * flipd, TRUE);
+	ghid_port_ranges_pan (0, -2 * flipd, TRUE);
     }
 
   ghid_invalidate_all ();
