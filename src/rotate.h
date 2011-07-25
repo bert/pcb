@@ -38,7 +38,7 @@
  */
 #define	ROTATE(x,y,x0,y0,n)							\
 	{												\
-		LocationType	dx = (x)-(x0),					\
+		Coord	dx = (x)-(x0),					\
 					dy = (y)-(y0);					\
 													\
 		switch(n & 0x03)									\
@@ -60,15 +60,14 @@
 #define	ROTATE_TYPES	(ELEMENT_TYPE | TEXT_TYPE | ELEMENTNAME_TYPE | ARC_TYPE)
 
 
-void RotateLineLowLevel (LineTypePtr, LocationType, LocationType, BYTE);
-void RotateArcLowLevel (ArcTypePtr, LocationType, LocationType, BYTE);
-void RotateBoxLowLevel (BoxTypePtr, LocationType, LocationType, BYTE);
-void RotateTextLowLevel (TextTypePtr, LocationType, LocationType, BYTE);
-void RotatePolygonLowLevel (PolygonTypePtr, LocationType, LocationType, BYTE);
-void RotateElementLowLevel (DataTypePtr, ElementTypePtr, LocationType,
-			    LocationType, BYTE);
-void *RotateObject (int, void *, void *, void *, LocationType, LocationType,
-		    BYTE);
-void RotateScreenObject (LocationType, LocationType, BYTE);
+void RotateLineLowLevel (LineTypePtr, Coord, Coord, unsigned);
+void RotateArcLowLevel (ArcTypePtr, Coord, Coord, unsigned);
+void RotateBoxLowLevel (BoxTypePtr, Coord, Coord, unsigned);
+void RotateTextLowLevel (TextTypePtr, Coord, Coord, unsigned);
+void RotatePolygonLowLevel (PolygonTypePtr, Coord, Coord, unsigned);
+void RotateElementLowLevel (DataTypePtr, ElementTypePtr, Coord, Coord, unsigned);
+void *RotateObject (int, void *, void *, void *, Coord, Coord,
+		    unsigned);
+void RotateScreenObject (Coord, Coord, unsigned);
 
 #endif

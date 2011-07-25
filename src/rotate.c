@@ -73,9 +73,8 @@ static void *RotateLinePoint (LayerTypePtr, LineTypePtr, PointTypePtr);
 /* ----------------------------------------------------------------------
  * some local identifiers
  */
-static LocationType CenterX,	/* center of rotation */
-  CenterY;
-static BYTE Number;		/* number of rotations */
+static Coord CenterX, CenterY;	/* center of rotation */
+static unsigned Number;		/* number of rotations */
 static ObjectFunctionType RotateFunctions = {
   NULL,
   RotateText,
@@ -95,8 +94,7 @@ static ObjectFunctionType RotateFunctions = {
  * rotates a point in 90 degree steps
  */
 void
-RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y,
-		     BYTE Number)
+RotatePointLowLevel (PointTypePtr Point, Coord X, Coord Y, unsigned Number)
 {
   ROTATE (Point->X, Point->Y, X, Y, Number);
 }
@@ -105,8 +103,7 @@ RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y,
  * rotates a line in 90 degree steps
  */
 void
-RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y,
-		    BYTE Number)
+RotateLineLowLevel (LineTypePtr Line, Coord X, Coord Y, unsigned Number)
 {
   ROTATE (Line->Point1.X, Line->Point1.Y, X, Y, Number);
   ROTATE (Line->Point2.X, Line->Point2.Y, X, Y, Number);
@@ -115,7 +112,7 @@ RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y,
     {
       if (Line->Point1.Y > Line->Point2.Y)
 	{
-	  LocationType t;
+	  Coord t;
 	  t = Line->Point1.Y;
 	  Line->Point1.Y = Line->Point2.Y;
 	  Line->Point2.Y = t;
@@ -125,7 +122,7 @@ RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y,
     {
       if (Line->Point1.X > Line->Point2.X)
 	{
-	  LocationType t;
+	  Coord t;
 	  t = Line->Point1.X;
 	  Line->Point1.X = Line->Point2.X;
 	  Line->Point2.X = t;
@@ -141,8 +138,7 @@ RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y,
  * is done by the drawing routines
  */
 void
-RotateTextLowLevel (TextTypePtr Text, LocationType X, LocationType Y,
-		    BYTE Number)
+RotateTextLowLevel (TextTypePtr Text, Coord X, Coord Y, unsigned Number)
 {
   BYTE number;
 
@@ -161,8 +157,7 @@ RotateTextLowLevel (TextTypePtr Text, LocationType X, LocationType Y,
  * rotates a polygon in 90 degree steps
  */
 void
-RotatePolygonLowLevel (PolygonTypePtr Polygon,
-		       LocationType X, LocationType Y, BYTE Number)
+RotatePolygonLowLevel (PolygonTypePtr Polygon, Coord X, Coord Y, unsigned Number)
 {
   POLYGONPOINT_LOOP (Polygon);
   {
@@ -193,10 +188,9 @@ RotateText (LayerTypePtr Layer, TextTypePtr Text)
  * rotates an arc
  */
 void
-RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y,
-		   BYTE Number)
+RotateArcLowLevel (ArcTypePtr Arc, Coord X, Coord Y, unsigned Number)
 {
-  BDimension save;
+  Coord save;
 
   /* add Number*90 degrees (i.e., Number quarter-turns) */
   Arc->StartAngle = NormalizeAngle (Arc->StartAngle + Number * 90);
@@ -217,7 +211,7 @@ RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y,
  */
 void
 RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
-		       LocationType X, LocationType Y, BYTE Number)
+		       Coord X, Coord Y, unsigned Number)
 {
   /* solder side objects need a different orientation */
 
@@ -347,10 +341,9 @@ RotateElementName (ElementTypePtr Element)
  * rotates a box in 90 degree steps 
  */
 void
-RotateBoxLowLevel (BoxTypePtr Box, LocationType X, LocationType Y,
-		   BYTE Number)
+RotateBoxLowLevel (BoxTypePtr Box, Coord X, Coord Y, unsigned Number)
 {
-  LocationType x1 = Box->X1, y1 = Box->Y1, x2 = Box->X2, y2 = Box->Y2;
+  Coord x1 = Box->X1, y1 = Box->Y1, x2 = Box->X2, y2 = Box->Y2;
 
   ROTATE (x1, y1, X, Y, Number);
   ROTATE (x2, y2, X, Y, Number);
@@ -366,7 +359,7 @@ RotateBoxLowLevel (BoxTypePtr Box, LocationType X, LocationType Y,
  */
 void *
 RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	      LocationType X, LocationType Y, BYTE Steps)
+	      Coord X, Coord Y, unsigned Steps)
 {
   RubberbandTypePtr ptr;
   void *ptr2;
@@ -422,7 +415,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 }
 
 void
-RotateScreenObject (LocationType X, LocationType Y, BYTE Steps)
+RotateScreenObject (Coord X, Coord Y, unsigned Steps)
 {
   int type;
   void *ptr1, *ptr2, *ptr3;
