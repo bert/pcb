@@ -620,8 +620,7 @@ node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
   /* Have to force the netlist window created because we need the treeview
      |  models constructed to do the search.
    */
-  if (!netlist_window)
-    ghid_netlist_window_create (gport);
+  ghid_netlist_window_create (gport);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
@@ -882,8 +881,7 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
      |  models constructed so we can find the LibraryMenuType pointer the
      |  caller wants.
    */
-  if (!netlist_window)
-    ghid_netlist_window_create (gport);
+  ghid_netlist_window_create (gport);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
