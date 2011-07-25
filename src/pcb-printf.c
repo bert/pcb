@@ -359,11 +359,10 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                     unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix);
                   break;
                 case 'a':
-                  value[0] = va_arg(args, Angle);
                   g_string_append (spec, ".0f");
                   if (suffix == SUFFIX)
                     g_string_append (spec, " deg");
-                  unit_str = g_strdup_printf (spec->str, value[0]);
+                  unit_str = g_strdup_printf (spec->str, (double) va_arg(args, Angle));
                   break;
                 case '+':
                   mask = va_arg(args, enum e_allow);
