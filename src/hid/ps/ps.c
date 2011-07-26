@@ -1055,9 +1055,9 @@ ps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
   use_gc (gc);
-  pcb_fprintf (global.f, "%d %d %mi %mi %mi %mi %mi a\n",
+  pcb_fprintf (global.f, "%d %d %mi %mi %mi %mi %g a\n",
                sa, ea, -width, height, cx, cy,
-               (global.linewidth + 2 * global.bloat) / width);
+               (double) (global.linewidth + 2 * global.bloat) / (double) width);
 }
 
 static void
