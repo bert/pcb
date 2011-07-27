@@ -38,8 +38,8 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void *InsertPointIntoObject (int, void *, void *, Cardinal *, LocationType,
-			     LocationType, bool, bool);
+void *InsertPointIntoObject (int, void *, void *, Cardinal *, Coord,
+			     Coord, bool, bool);
 PointTypePtr AdjustInsertPoint (void);
 
 #endif

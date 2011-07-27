@@ -71,8 +71,7 @@ static void *InsertPointIntoRat (RatTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static LocationType InsertX,	/* used by local routines as offset */
-  InsertY;
+static Coord InsertX, InsertY;	/* used by local routines as offset */
 static Cardinal InsertAt;
 static bool InsertLast;
 static bool Forcible;
@@ -127,7 +126,7 @@ static void *
 InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 {
   LineTypePtr line;
-  LocationType X, Y;
+  Coord X, Y;
 
   if (((Line->Point1.X == InsertX) && (Line->Point1.Y == InsertY)) ||
       ((Line->Point2.X == InsertX) && (Line->Point2.Y == InsertY)))
@@ -219,7 +218,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       LocationType DX, LocationType DY, bool Force,
+		       Coord DX, Coord DY, bool Force,
 		       bool insert_last)
 {
   void *ptr;
@@ -245,8 +244,8 @@ PointTypePtr
 AdjustInsertPoint (void)
 {
   static PointType InsertedPoint;
-  float m;
-  LocationType x, y, dx, dy, m1, m2;
+  double m;
+  Coord x, y, m1, m2;
   LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
 
   if (Crosshair.AttachedObject.State == STATE_FIRST)
@@ -255,13 +254,9 @@ AdjustInsertPoint (void)
   if (gui->shift_is_pressed ())
     {
       AttachedLineType myline;
-      dx = Crosshair.X - line->Point1.X;
-      dy = Crosshair.Y - line->Point1.Y;
-      m = dx * dx + dy * dy;
-      dx = Crosshair.X - line->Point2.X;
-      dy = Crosshair.Y - line->Point2.Y;
       /* only force 45 degree for nearest point */
-      if (m < (dx * dx + dy * dy))
+      if (Distance (Crosshair.X, Crosshair.Y, line->Point1.X, line->Point1.Y) <
+          Distance (Crosshair.X, Crosshair.Y, line->Point2.X, line->Point2.Y))
 	myline.Point1 = myline.Point2 = line->Point1;
       else
 	myline.Point1 = myline.Point2 = line->Point2;
@@ -276,26 +271,22 @@ AdjustInsertPoint (void)
       InsertedPoint.Y = Crosshair.Y;
       return &InsertedPoint;
     }
-  dx = Crosshair.X - line->Point1.X;
-  dy = Crosshair.Y - line->Point1.Y;
-  if (!dx)
+  if (Crosshair.X == line->Point1.X)
     m1 = 2;			/* 2 signals infinite slope */
   else
     {
-      m = (float) dy / (float) dx;
+      m = (double) (Crosshair.X - line->Point1.X) / (Crosshair.Y - line->Point1.Y);
       m1 = 0;
       if (m > TAN_30_DEGREE)
 	m1 = (m > TAN_60_DEGREE) ? 2 : 1;
       else if (m < -TAN_30_DEGREE)
 	m1 = (m < -TAN_60_DEGREE) ? 2 : -1;
     }
-  dx = Crosshair.X - line->Point2.X;
-  dy = Crosshair.Y - line->Point2.Y;
-  if (!dx)
+  if (Crosshair.X == line->Point2.X)
     m2 = 2;			/* 2 signals infinite slope */
   else
     {
-      m = (float) dy / (float) dx;
+      m = (double) (Crosshair.X - line->Point1.X) / (Crosshair.Y - line->Point1.Y);
       m2 = 0;
       if (m > TAN_30_DEGREE)
 	m2 = (m > TAN_60_DEGREE) ? 2 : 1;

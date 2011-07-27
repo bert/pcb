@@ -43,8 +43,8 @@
 
 PolygonTypePtr CopyPolygonLowLevel (PolygonTypePtr, PolygonTypePtr);
 ElementTypePtr CopyElementLowLevel (DataTypePtr, ElementTypePtr,
-				    ElementTypePtr, bool, LocationType, LocationType);
-bool CopyPastebufferToLayout (LocationType, LocationType);
-void *CopyObject (int, void *, void *, void *, LocationType, LocationType);
+				    ElementTypePtr, bool, Coord, Coord);
+bool CopyPastebufferToLayout (Coord, Coord);
+void *CopyObject (int, void *, void *, void *, Coord, Coord);
 
 #endif

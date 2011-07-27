@@ -72,7 +72,7 @@ static void *CopyElement (ElementTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static LocationType DeltaX, DeltaY;	/* movement vector */
+static Coord DeltaX, DeltaY;	/* movement vector */
 static ObjectFunctionType CopyFunctions = {
   CopyLine,
   CopyText,
@@ -119,8 +119,8 @@ CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
  */
 ElementTypePtr
 CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
-		     ElementTypePtr Src, bool uniqueName, LocationType dx,
-		     LocationType dy)
+		     ElementTypePtr Src, bool uniqueName, Coord dx,
+		     Coord dy)
 {
   int i;
   /* release old memory if necessary */
@@ -322,7 +322,7 @@ CopyElement (ElementTypePtr Element)
  * are handled by the routine.
  */
 bool
-CopyPastebufferToLayout (LocationType X, LocationType Y)
+CopyPastebufferToLayout (Coord X, Coord Y)
 {
   Cardinal i;
   bool changed = false;
@@ -418,7 +418,7 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
  */
 void *
 CopyObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	    LocationType DX, LocationType DY)
+	    Coord DX, Coord DY)
 {
   void *ptr;
 

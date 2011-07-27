@@ -65,7 +65,7 @@ RCSID ("$Id$");
  */
 void
 MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
-			  LocationType yoff)
+			  Coord yoff)
 {
   r_delete_element (Data, Element);
   ELEMENTLINE_LOOP (Element);
