@@ -169,7 +169,7 @@ HID_Attribute png_attribute_list[] = {
 #define HA_pngfile 0
 
   {"dpi", "Scale factor (pixels/inch). 0 to scale to fix specified size",
-   HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
+   HID_Integer, 0, 10000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
   {"x-max", "Maximum width (pixels).  0 to not constrain.",
