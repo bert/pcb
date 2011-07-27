@@ -86,7 +86,7 @@ static void DrawPPV (int group, const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
-static void DrawEMark (ElementTypePtr, LocationType, LocationType, bool);
+static void DrawEMark (ElementTypePtr, Coord, Coord, bool);
 static void DrawMask (int side, BoxType *);
 static void DrawPaste (int side, BoxType *);
 static void DrawRats (BoxType *);
@@ -809,10 +809,9 @@ DrawEverything (BoxTypePtr drawn_area)
 }
 
 static void
-DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
-	   bool invisible)
+DrawEMark (ElementTypePtr e, Coord X, Coord Y, bool invisible)
 {
-  int mark_size = EMARK_SIZE;
+  Coord mark_size = EMARK_SIZE;
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
 
@@ -1243,9 +1242,9 @@ GatherPadName (PadTypePtr Pad)
  * lowlevel drawing routine for text objects
  */
 void
-DrawTextLowLevel (TextTypePtr Text, int min_line_width)
+DrawTextLowLevel (TextTypePtr Text, Coord min_line_width)
 {
-  LocationType x = 0;
+  Coord x = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
   FontTypePtr font = &PCB->Font;
@@ -1297,7 +1296,7 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 	{
 	  /* the default symbol is a filled box */
 	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  LocationType size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+	  Coord size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
 	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
 	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
@@ -1403,7 +1402,7 @@ DrawRat (RatTypePtr Rat)
   /* rats.c set VIAFLAG if this rat goes to a containing poly: draw a donut */
   if (TEST_FLAG(VIAFLAG, Rat))
     {
-      int w = Rat->Thickness;
+      Coord w = Rat->Thickness;
 
       BoxType b;
 
@@ -1523,7 +1522,7 @@ EraseRat (RatTypePtr Rat)
 {
   if (TEST_FLAG(VIAFLAG, Rat))
     {
-      int w = Rat->Thickness;
+      Coord w = Rat->Thickness;
 
       BoxType b;
 
