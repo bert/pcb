@@ -67,10 +67,10 @@
 
 bool ChangeLayoutName (char *);
 bool ChangeLayerName (LayerTypePtr, char *);
-bool ChangeSelectedSize (int, LocationType, bool);
-bool ChangeSelectedClearSize (int, LocationType, bool);
-bool ChangeSelected2ndSize (int, LocationType, bool);
-bool ChangeSelectedMaskSize (int, LocationType, bool);
+bool ChangeSelectedSize (int, Coord, bool);
+bool ChangeSelectedClearSize (int, Coord, bool);
+bool ChangeSelected2ndSize (int, Coord, bool);
+bool ChangeSelectedMaskSize (int, Coord, bool);
 bool ChangeSelectedJoin (int);
 bool SetSelectedJoin (int);
 bool ClrSelectedJoin (int);
@@ -84,16 +84,16 @@ bool ChangeSelectedOctagon (int);
 bool SetSelectedOctagon (int);
 bool ClrSelectedOctagon (int);
 bool ChangeSelectedElementSide (void);
-bool ChangeElementSide (ElementTypePtr, LocationType);
+bool ChangeElementSide (ElementTypePtr, Coord);
 bool ChangeHole (PinTypePtr);
 bool ChangePaste (PadTypePtr);
-bool ChangeObjectSize (int, void *, void *, void *, LocationType, bool);
+bool ChangeObjectSize (int, void *, void *, void *, Coord, bool);
 bool ChangeObjectThermal (int, void *, void *, void *, int);
-bool ChangeObjectClearSize (int, void *, void *, void *, LocationType,
+bool ChangeObjectClearSize (int, void *, void *, void *, Coord,
 			       bool);
-bool ChangeObject2ndSize (int, void *, void *, void *, LocationType,
+bool ChangeObject2ndSize (int, void *, void *, void *, Coord,
 			     bool, bool);
-bool ChangeObjectMaskSize (int, void *, void *, void *, LocationType,
+bool ChangeObjectMaskSize (int, void *, void *, void *, Coord,
 			      bool);
 bool ChangeObjectJoin (int, void *, void *, void *);
 bool SetObjectJoin (int, void *, void *, void *);
@@ -106,7 +106,7 @@ bool SetObjectOctagon (int, void *, void *, void *);
 bool ClrObjectOctagon (int, void *, void *, void *);
 void *ChangeObjectName (int, void *, void *, void *, char *);
 void *QueryInputAndChangeObjectName (int, void *, void *, void *);
-void ChangePCBSize (BDimension, BDimension);
+void ChangePCBSize (Coord, Coord);
 
 /* Change the specified text on an element, either on the board (give
    PCB, PCB->Data) or in a buffer (give NULL, Buffer->Data).  The old
