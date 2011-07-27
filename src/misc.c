@@ -85,9 +85,8 @@ RCSID ("$Id$");
 
 /*	forward declarations	*/
 static char *BumpName (char *);
-static void RightAngles (int, float *, float *);
 static void GetGridLockCoordinates (int, void *, void *, void *,
-                                    LocationType *, LocationType *);
+                                    Coord *, Coord *);
 
 
 /* Local variables */
@@ -231,16 +230,15 @@ SetPointBoundingBox (PointTypePtr Pnt)
 void
 SetPinBoundingBox (PinTypePtr Pin)
 {
-  BDimension width;
+  Coord width;
 
   /* the bounding box covers the extent of influence
    * so it must include the clearance values too
    */
-  width = (Pin->Clearance + PIN_SIZE (Pin) + 1) / 2;
-  width = MAX (width, (Pin->Mask + 1) / 2);
+  width = MAX (Pin->Clearance + PIN_SIZE (Pin), Pin->Mask) / 2;
 
   /* Adjust for our discrete polygon approximation */
-  width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
+  width = (double)width * POLY_CIRC_RADIUS_ADJ + 0.5;
 
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
@@ -255,9 +253,9 @@ SetPinBoundingBox (PinTypePtr Pin)
 void
 SetPadBoundingBox (PadTypePtr Pad)
 {
-  BDimension width;
-  BDimension deltax;
-  BDimension deltay;
+  Coord width;
+  Coord deltax;
+  Coord deltay;
 
   /* the bounding box covers the extent of influence
    * so it must include the clearance values too
@@ -270,19 +268,15 @@ SetPadBoundingBox (PadTypePtr Pad)
   if (TEST_FLAG (SQUAREFLAG, Pad) && deltax != 0 && deltay != 0)
     {
       /* slanted square pad */
-      float tx, ty, theta;
-      BDimension btx, bty;
-
-      theta = atan2 (deltay, deltax);
+      double theta;
+      Coord btx, bty;
 
       /* T is a vector half a thickness long, in the direction of
           one of the corners.  */
-      tx = width * cos (theta + M_PI/4) * sqrt(2.0);
-      ty = width * sin (theta + M_PI/4) * sqrt(2.0);
+      theta = atan2 (deltay, deltax);
+      btx = width * cos (theta + M_PI/4) * sqrt(2.0);
+      bty = width * sin (theta + M_PI/4) * sqrt(2.0);
 
-      /* cast back to this integer type */
-      btx = tx;
-      bty = ty;
 
       Pad->BoundingBox.X1 = MIN (MIN (Pad->Point1.X - btx, Pad->Point1.X - bty),
                                  MIN (Pad->Point2.X + btx, Pad->Point2.X + bty));
@@ -296,7 +290,7 @@ SetPadBoundingBox (PadTypePtr Pad)
   else
     {
       /* Adjust for our discrete polygon approximation */
-      width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
+      width = (double)width * POLY_CIRC_RADIUS_ADJ + 0.5;
 
       Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
       Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
@@ -312,12 +306,10 @@ SetPadBoundingBox (PadTypePtr Pad)
 void
 SetLineBoundingBox (LineTypePtr Line)
 {
-  BDimension width;
-
-  width = (Line->Thickness + Line->Clearance + 1) / 2;
+  Coord width = (Line->Thickness + Line->Clearance + 1) / 2;
 
   /* Adjust for our discrete polygon approximation */
-  width = (int)((float)width * POLY_CIRC_RADIUS_ADJ + 0.5);
+  width = (double)width * POLY_CIRC_RADIUS_ADJ + 0.5;
 
   Line->BoundingBox.X1 = MIN (Line->Point1.X, Line->Point2.X) - width;
   Line->BoundingBox.X2 = MAX (Line->Point1.X, Line->Point2.X) + width;
@@ -505,13 +497,14 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 {
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  BDimension minThick = 0;
+  Coord minThick = 0;
   int i;
   int space = 0;
 
-  LocationType minx=0, miny=0, maxx=0, maxy=0;
-  LocationType tx;
+  Coord minx, miny, maxx, maxy, tx;
   int first_time = 1;
+
+  minx = miny = maxx = maxy = tx = 0;
 
   if (PCB->minSlk < PCB->minWid)
     minThick = PCB->minWid;
@@ -519,8 +512,6 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
     minThick = PCB->minSlk;
 
   minThick /= Text->Scale / 50.0;
-
-  tx = 0;
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
@@ -530,7 +521,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 	  LineTypePtr line = symbol[*s].Line;
 	  for (i = 0; i < symbol[*s].LineN; line++, i++)
 	    {
-	      int t = line->Thickness / 4;
+	      Coord t = line->Thickness / 4;
 	      if (t < minThick)
 		t = minThick;
 
@@ -555,7 +546,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
       else
 	{
 	  BoxType *ds = &FontPtr->DefaultSymbol;
-	  int w = ds->X2 - ds->X1;
+	  Coord w = ds->X2 - ds->X1;
 
 	  minx = MIN (minx, ds->X1 + tx);
 	  miny = MIN (miny, ds->Y1);
@@ -783,7 +774,7 @@ SetFontInfo (FontTypePtr Ptr)
   Cardinal i, j;
   SymbolTypePtr symbol;
   LineTypePtr line;
-  LocationType totalminy = MAX_COORD;
+  Coord totalminy = MAX_COORD;
 
   /* calculate cell with and height (is at least DEFAULT_CELLSIZE)
    * maximum cell width and height
@@ -793,7 +784,7 @@ SetFontInfo (FontTypePtr Ptr)
   Ptr->MaxHeight = DEFAULT_CELLSIZE;
   for (i = 0, symbol = Ptr->Symbol; i <= MAX_FONTPOSITION; i++, symbol++)
     {
-      LocationType minx, miny, maxx, maxy;
+      Coord minx, miny, maxx, maxy;
 
       /* next one if the index isn't used or symbol is empty (SPACE) */
       if (!symbol->Valid || !symbol->LineN)
@@ -842,12 +833,11 @@ SetFontInfo (FontTypePtr Ptr)
   Ptr->DefaultSymbol.Y2 = Ptr->DefaultSymbol.Y1 + Ptr->MaxHeight;
 }
 
-static BDimension
+static Coord
 GetNum (char **s, const char *default_unit)
 {
-  BDimension ret_val;
   /* Read value */
-  ret_val = GetValueEx(*s, NULL, NULL, NULL, default_unit);
+  Coord ret_val = GetValueEx (*s, NULL, NULL, NULL, default_unit);
   /* Advance pointer */
   while(isalnum(**s) || **s == '.')
      (*s)++;
@@ -1414,78 +1404,56 @@ SetArcBoundingBox (ArcTypePtr Arc)
 {
   double ca1, ca2, sa1, sa2;
   double minx, maxx, miny, maxy;
-  LocationType ang1, ang2, delta, a;
-  LocationType width;
+  Angle ang1, ang2;
+  Coord width;
 
-  /* first put angles into standard form */
-  if (Arc->Delta > 360)
-    Arc->Delta = 360;
-  if (Arc->Delta < -360)
-    Arc->Delta = -360;
+  /* first put angles into standard form:
+   *  ang1 < ang2, both angles between 0 and 720 */
+  Arc->Delta = CLAMP (Arc->Delta, -360, 360);
 
   if (Arc->Delta > 0)
     {
-      ang1 = Arc->StartAngle;
-      delta = Arc->Delta;
+      ang1 = NormalizeAngle (Arc->StartAngle);
+      ang2 = NormalizeAngle (Arc->StartAngle + Arc->Delta);
     }
   else
     {
-      ang1 = Arc->StartAngle + Arc->Delta;
-      delta = -Arc->Delta;
+      ang1 = NormalizeAngle (Arc->StartAngle + Arc->Delta);
+      ang2 = NormalizeAngle (Arc->StartAngle);
     }
-  if (ang1 < 0)
-    ang1 = 360 - ((-ang1) % 360);
-  else
-    ang1 = ang1 % 360;
-
-  ang2 = ang1 + delta;
+  if (ang1 > ang2)
+    ang2 += 360;
+  /* Make sure full circles aren't treated as zero-length arcs */
+  if (Arc->Delta == 360 || Arc->Delta == -360)
+    ang2 = ang1 + 360;
 
   /* calculate sines, cosines */
-  ca1 = M180 * (double) ang1;
-  sa1 = sin (ca1);
-  ca1 = cos (ca1);
+  sa1 = sin (M180 * ang1);
+  ca1 = cos (M180 * ang1);
+  sa2 = sin (M180 * ang2);
+  ca2 = cos (M180 * ang2);
 
-  minx = maxx = ca1;
-  miny = maxy = sa1;
+  minx = MIN (ca1, ca2);
+  maxx = MAX (ca1, ca2);
+  miny = MIN (sa1, sa2);
+  maxy = MAX (sa1, sa2);
 
-  ca2 = M180 * (double) ang2;
-  sa2 = sin (ca2);
-  ca2 = cos (ca2);
+  /* Check for extreme angles */
+  if ((ang1 <= 0   && ang2 >= 0)   || (ang1 <= 360 && ang2 >= 360)) maxx = 1;
+  if ((ang1 <= 90  && ang2 >= 90)  || (ang1 <= 450 && ang2 >= 450)) maxy = 1;
+  if ((ang1 <= 180 && ang2 >= 180) || (ang1 <= 540 && ang2 >= 540)) minx = -1;
+  if ((ang1 <= 270 && ang2 >= 270) || (ang1 <= 630 && ang2 >= 630)) miny = -1;
 
-  minx = MIN (minx, ca2);
-  maxx = MAX (maxx, ca2);
-  miny = MIN (miny, sa2);
-  maxy = MAX (maxy, sa2);
-
-  for (a = ang1 - ang1 % 90 + 90; a < ang2; a += 90)
-    {
-      switch (a % 360)
-	{
-	case 0:
-	  maxx = 1;
-	  break;
-	case 90:
-	  maxy = 1;
-	  break;
-	case 180:
-	  minx = -1;
-	  break;
-	case 270:
-	  miny = -1;
-	  break;
-	}
-    }
-
-  Arc->BoundingBox.X2 = Arc->X - Arc->Width * minx;
+  /* Finally, calcate bounds, converting sane geometry into pcb geometry */
   Arc->BoundingBox.X1 = Arc->X - Arc->Width * maxx;
-  Arc->BoundingBox.Y2 = Arc->Y + Arc->Height * maxy;
+  Arc->BoundingBox.X2 = Arc->X - Arc->Width * minx;
   Arc->BoundingBox.Y1 = Arc->Y + Arc->Height * miny;
+  Arc->BoundingBox.Y2 = Arc->Y + Arc->Height * maxy;
 
   width = (Arc->Thickness + Arc->Clearance) / 2;
 
   /* Adjust for our discrete polygon approximation */
-  width = (int)((float)width * MAX (POLY_CIRC_RADIUS_ADJ,
-                                     (1.0 + POLY_ARC_MAX_DEVIATION)) + 0.5);
+  width = (double)width * MAX (POLY_CIRC_RADIUS_ADJ, (1.0 + POLY_ARC_MAX_DEVIATION)) + 0.5;
 
   Arc->BoundingBox.X1 -= width;
   Arc->BoundingBox.X2 += width;
@@ -1626,34 +1594,22 @@ CreateQuotedString (DynamicStringTypePtr DS, char *S)
   DSAddCharacter (DS, '"');
 }
 
-
-static void
-RightAngles (int Angle, float *cosa, float *sina)
-{
-  *cosa = (float) cos ((double) Angle * M180);
-  *sina = (float) sin ((double) Angle * M180);
-}
-
 BoxTypePtr
 GetArcEnds (ArcTypePtr Arc)
 {
   static BoxType box;
-  float ca, sa;
-
-  RightAngles (Arc->StartAngle, &ca, &sa);
-  box.X1 = Arc->X - Arc->Width * ca;
-  box.Y1 = Arc->Y + Arc->Height * sa;
-  RightAngles (Arc->StartAngle + Arc->Delta, &ca, &sa);
-  box.X2 = Arc->X - Arc->Width * ca;
-  box.Y2 = Arc->Y + Arc->Height * sa;
-  return (&box);
+  box.X1 = Arc->X - Arc->Width * cos (Arc->StartAngle * M180);
+  box.Y1 = Arc->Y + Arc->Height * sin (Arc->StartAngle * M180);
+  box.X2 = Arc->X - Arc->Width * cos ((Arc->StartAngle + Arc->Delta) * M180);
+  box.Y2 = Arc->Y + Arc->Height * sin ((Arc->StartAngle + Arc->Delta) * M180);
+  return &box;
 }
 
 
 /* doesn't this belong in change.c ?? */
 void
 ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
-                 long int new_sa, long int new_da)
+                 Angle new_sa, Angle new_da)
 {
   if (new_da >= 360)
     {
@@ -1730,8 +1686,8 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
 static void
 GetGridLockCoordinates (int type, void *ptr1,
-                        void *ptr2, void *ptr3, LocationType * x,
-                        LocationType * y)
+                        void *ptr2, void *ptr3, Coord * x,
+                        Coord * y)
 {
   switch (type)
     {
@@ -1775,10 +1731,10 @@ GetGridLockCoordinates (int type, void *ptr1,
 }
 
 void
-AttachForCopy (LocationType PlaceX, LocationType PlaceY)
+AttachForCopy (Coord PlaceX, Coord PlaceY)
 {
   BoxTypePtr box;
-  LocationType mx = 0, my = 0;
+  Coord mx = 0, my = 0;
 
   Crosshair.AttachedObject.RubberbandN = 0;
   if (! TEST_FLAG (SNAPPINFLAG, PCB))
@@ -2094,8 +2050,8 @@ AttributeRemoveFromList(AttributeListType *list, char *name)
       }
 }
 
-
-
+/* In future all use of this should be supplanted by
+ * pcb-printf and %mr/%m# spec */
 const char *
 c_dtostr (double d)
 {
@@ -2118,71 +2074,6 @@ c_dtostr (double d)
   f = floor (d * 1000000.0);
   sprintf (bufp, "%06d", f);
   return buf;
-}
-
-double
-c_strtod (const char *s)
-{
-  double rv = 0;
-  double sign = 1.0;
-  double scale;
-
-  /* leading whitespace */
-  while (*s && (*s == ' ' || *s == '\t'))
-    s++;
-
-  /* optional sign */
-  if (*s == '-')
-    {
-      sign = -1.0;
-      s++;
-    }
-  else if (*s == '+')
-    s++;
-
-  /* integer portion */
-  while (*s >= '0' && *s <= '9')
-    {
-      rv *= 10.0;
-      rv += *s - '0';
-      s++;
-    }
-
-  /* fractional portion */
-  if (*s == '.')
-    {
-      s++;
-      scale = 0.1;
-      while (*s >= '0' && *s <= '9')
-        {
-          rv += (*s - '0') * scale;
-          scale *= 0.1;
-          s++;
-        }
-    }
-
-  /* exponent */
-  if (*s == 'E' || *s == 'e')
-    {
-      int e;
-      if (sscanf (s + 1, "%d", &e) == 1)
-        {
-          scale = 1.0;
-          while (e > 0)
-            {
-              scale *= 10.0;
-              e--;
-            }
-          while (e < 0)
-            {
-              scale *= 0.1;
-              e++;
-            }
-          rv *= scale;
-        }
-    }
-
-  return rv * sign;
 }
 
 void
@@ -2320,9 +2211,9 @@ pcb_mkdir (const char *path, int mode)
 int 
 ElementOrientation (ElementType *e)
 {
-  int pin1x, pin1y, pin2x, pin2y, dx, dy;
-  int found_pin1 = 0;
-  int found_pin2 = 0;
+  Coord pin1x, pin1y, pin2x, pin2y, dx, dy;
+  bool found_pin1 = 0;
+  bool found_pin2 = 0;
 
   /* in case we don't find pin 1 or 2, make sure we have initialized these variables */
   pin1x = 0;

@@ -85,9 +85,9 @@ void RestoreStackAndVisibility (void);
 char *GetWorkingDirectory (char *);
 void CreateQuotedString (DynamicStringTypePtr, char *);
 BoxTypePtr GetArcEnds (ArcTypePtr);
-void ChangeArcAngles (LayerTypePtr, ArcTypePtr, long int, long int);
+void ChangeArcAngles (LayerTypePtr, ArcTypePtr, Angle, Angle);
 char *UniqueElementName (DataTypePtr, char *);
-void AttachForCopy (LocationType, LocationType);
+void AttachForCopy (Coord, Coord);
 double GetValue (const char *, const char *, bool *);
 double GetValueEx (const char *, const char *, bool *, UnitList, const char *);
 int FileExists (const char *);
@@ -128,7 +128,6 @@ char *LayerGroupsToString (LayerGroupTypePtr);
 void MakeLayerGroupsDefault ();
 
 /* These act like you'd expect, except always in the C locale.  */
-extern double c_strtod(const char *s);
 extern const char *c_dtostr(double d);
 
 /* Returns a string with info about this copy of pcb. */
