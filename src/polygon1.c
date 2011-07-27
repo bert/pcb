@@ -2490,7 +2490,7 @@ VNODE *
 poly_CreateNode (Vector v)
 {
   VNODE *res;
-  register int *c;
+  Coord *c;
 
   assert (v);
   res = (VNODE *) calloc (1, sizeof (VNODE));

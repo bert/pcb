@@ -330,7 +330,7 @@ PolygonToPoly (PolygonType *p)
 }
 
 POLYAREA *
-RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
+RectPoly (Coord x1, Coord x2, Coord y1, Coord y2)
 {
   PLINE *contour = NULL;
   Vector v;
@@ -354,7 +354,7 @@ RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
 }
 
 POLYAREA *
-OctagonPoly (LocationType x, LocationType y, BDimension radius)
+OctagonPoly (Coord x, Coord y, Coord radius)
 {
   PLINE *contour = NULL;
   Vector v;
@@ -392,7 +392,7 @@ OctagonPoly (LocationType x, LocationType y, BDimension radius)
  * or 4 for a quarter circle
  */
 void
-frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
+frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int range)
 {
   double e1, e2, t1;
   int i;
@@ -418,7 +418,7 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
 
 /* create a circle approximation from lines */
 POLYAREA *
-CirclePoly (LocationType x, LocationType y, BDimension radius)
+CirclePoly (Coord x, Coord y, Coord radius)
 {
   PLINE *contour;
   Vector v;
@@ -439,8 +439,7 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
 
 /* make a rounded-corner rectangle with radius t beyond x1,x2,y1,y2 rectangle */
 POLYAREA *
-RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2,
-           BDimension t)
+RoundRect (Coord x1, Coord x2, Coord y1, Coord y2, Coord t)
 {
   PLINE *contour = NULL;
   Vector v;
@@ -469,7 +468,7 @@ RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2,
 
 #define ARC_ANGLE 5
 static POLYAREA *
-ArcPolyNoIntersect (ArcType * a, BDimension thick)
+ArcPolyNoIntersect (ArcType * a, Coord thick)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -543,7 +542,7 @@ ArcPolyNoIntersect (ArcType * a, BDimension thick)
 
 #define MIN_CLEARANCE_BEFORE_BISECT 10.
 POLYAREA *
-ArcPoly (ArcType * a, BDimension thick)
+ArcPoly (ArcType * a, Coord thick)
 {
   double delta;
   ArcType seg1, seg2;
@@ -573,7 +572,7 @@ ArcPoly (ArcType * a, BDimension thick)
 }
 
 POLYAREA *
-LinePoly (LineType * L, BDimension thick)
+LinePoly (LineType * L, Coord thick)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -635,7 +634,7 @@ LinePoly (LineType * L, BDimension thick)
 
 /* make a rounded-corner rectangle */
 POLYAREA *
-SquarePadPoly (PadType * pad, BDimension clear)
+SquarePadPoly (PadType * pad, Coord clear)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -753,7 +752,7 @@ Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
 
 /* create a polygon of the pin clearance */
 POLYAREA *
-PinPoly (PinType * pin, BDimension thick, BDimension clear)
+PinPoly (PinType * pin, Coord thick, Coord clear)
 {
   int size;
 
@@ -775,7 +774,7 @@ PinPoly (PinType * pin, BDimension thick, BDimension clear)
 }
 
 POLYAREA *
-BoxPolyBloated (BoxType *box, BDimension bloat)
+BoxPolyBloated (BoxType *box, Coord bloat)
 {
   return RectPoly (box->X1 - bloat, box->X2 + bloat,
                    box->Y1 - bloat, box->Y2 + bloat);
@@ -1030,7 +1029,7 @@ Group (DataTypePtr Data, Cardinal layer)
 
 static int
 clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
-           const BoxType * here, BDimension expand)
+           const BoxType * here, Coord expand)
 {
   int r = 0;
   BoxType region;
@@ -1251,7 +1250,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
       line.Point1 = Polygon->Points[prev];
       line.Point2 = Polygon->Points[next];
       line.Thickness = 0;
-      if (IsPointOnLine ((float) p->X, (float) p->Y, 0.0, &line))
+      if (IsPointOnLine (p->X, p->Y, 0.0, &line))
         {
           RemoveObject (POLYGONPOINT_TYPE, Layer, Polygon, p);
           changed = true;
@@ -1266,8 +1265,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * coordinates
  */
 Cardinal
-GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
-                               LocationType Y)
+GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Coord X, Coord Y)
 {
   double mindistance = (double) MAX_COORD * MAX_COORD;
   PointTypePtr ptr1, ptr2;
@@ -1282,7 +1280,7 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
 
   for (n = 0; n < Polygon->PointN; n++)
     {
-      register double u, dx, dy;
+      double u, dx, dy;
       ptr1 = &Polygon->Points[prev_contour_point (Polygon, n)];
       ptr2 = &Polygon->Points[n];
 
@@ -1365,7 +1363,7 @@ ClosePolygon (void)
        */
       if (!TEST_FLAG (ALLDIRECTIONFLAG, PCB))
         {
-          BDimension dx, dy;
+          Coord dx, dy;
 
           dx = abs (Crosshair.AttachedPolygon.Points[n - 1].X -
                     Crosshair.AttachedPolygon.Points[0].X);
@@ -1656,8 +1654,7 @@ isects (POLYAREA * a, PolygonTypePtr p, bool fr)
 
 
 bool
-IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
-                  PolygonTypePtr p)
+IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonTypePtr p)
 {
   POLYAREA *c;
   Vector v;
@@ -1674,7 +1671,7 @@ IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
 
 
 bool
-IsPointInPolygonIgnoreHoles (LocationType X, LocationType Y, PolygonTypePtr p)
+IsPointInPolygonIgnoreHoles (Coord X, Coord Y, PolygonTypePtr p)
 {
   Vector v;
   v[0] = X;
@@ -1683,8 +1680,7 @@ IsPointInPolygonIgnoreHoles (LocationType X, LocationType Y, PolygonTypePtr p)
 }
 
 bool
-IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
-                      LocationType Y2, PolygonTypePtr p)
+IsRectangleInPolygon (Coord X1, Coord Y1, Coord X2, Coord Y2, PolygonTypePtr p)
 {
   POLYAREA *s;
   if (!
