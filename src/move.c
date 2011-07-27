@@ -84,8 +84,7 @@ static void *MovePolygonToLayer (LayerTypePtr, PolygonTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static LocationType DeltaX,	/* used by local routines as offset */
-  DeltaY;
+static Coord DeltaX, DeltaY;	/* used by local routines as offset */
 static LayerTypePtr Dest;
 static bool MoreToCome;
 static ObjectFunctionType MoveFunctions = {
@@ -114,7 +113,7 @@ MoveLineToLayer,
  */
 void
 MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
-		     LocationType DX, LocationType DY)
+		     Coord DX, Coord DY)
 {
   if (Data)
     r_delete_entry (Data->element_tree, (BoxType *)Element);
@@ -334,8 +333,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
  * low level routine to move a polygon
  */
 void
-MovePolygonLowLevel (PolygonTypePtr Polygon, LocationType DeltaX,
-		     LocationType DeltaY)
+MovePolygonLowLevel (PolygonTypePtr Polygon, Coord DeltaX, Coord DeltaY)
 {
   POLYGONPOINT_LOOP (Polygon);
   {
@@ -512,8 +510,8 @@ static void *
 MoveRatToLayer (RatType *Rat)
 {
   LineTypePtr newone;
-  //LocationType X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
-  //LocationType X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
+  //Coord X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
+  //Coord X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
   // if VIAFLAG
   //   if we're on a pin, add a thermal
   //   else make a via and a wire, but 0-length wire not good
@@ -542,7 +540,7 @@ MoveRatToLayer (RatType *Rat)
 
 struct via_info
 {
-  LocationType X, Y;
+  Coord X, Y;
   jmp_buf env;
 };
 
@@ -777,8 +775,7 @@ MovePolygonToLayer (LayerType *Layer, PolygonType *Polygon)
  * not we don't bump the undo serial number
  */
 void *
-MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	    LocationType DX, LocationType DY)
+MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3, Coord DX, Coord DY)
 {
   void *result;
   /* setup offset */
@@ -795,7 +792,7 @@ MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void *
 MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			 LocationType DX, LocationType DY)
+			 Coord DX, Coord DY)
 {
   RubberbandTypePtr ptr;
   void *ptr2;
