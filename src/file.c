@@ -392,6 +392,7 @@ set_some_route_style ()
 int
 LoadPCB (char *Filename)
 {
+  const char *unit_suffix;
   PCBTypePtr newPCB = CreateNewPCB (false);
   PCBTypePtr oldPCB;
 #ifdef DEBUG
@@ -437,13 +438,16 @@ LoadPCB (char *Filename)
       PCB->Filename = strdup (Filename);
       /* just in case a bad file saved file is loaded */
 
-      /* Use imperial if the grid is a multiple of .5cmil, else metric */
-      if ((1000000 * COORD_TO_MM (PCB->Grid) / 127.0) !=
-            (Coord) (1000000 * COORD_TO_MM (PCB->Grid)) / 127)
-        Settings.grid_unit = get_unit_struct ("mm");
-      else
-        Settings.grid_unit = get_unit_struct ("mil");
-
+      /* Use attribute PCB::grid::unit as unit, if we can */
+      unit_suffix = AttributeGet (PCB, "PCB::grid::unit");
+      if (unit_suffix && *unit_suffix)
+        {
+          const Unit *new_unit = get_unit_struct (unit_suffix);
+          if (new_unit)
+            Settings.grid_unit = new_unit;
+        }
+      AttributePut (PCB, "PCB::grid::unit", Settings.grid_unit->suffix);
+ 
       sort_netlist ();
 
       set_some_route_style ();

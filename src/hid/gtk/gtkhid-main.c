@@ -1819,6 +1819,7 @@ SetUnits (int argc, char **argv, int x, int y)
     {
       Settings.grid_unit = new_unit;
       Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
+      AttributePut (PCB, "PCB::grid::unit", argv[0]);
     }
 
   ghid_config_handle_units_changed ();
