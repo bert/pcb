@@ -2321,7 +2321,7 @@ mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
   else
     {
       int angle = atan2 (dy, -dx) * 180 / M_PI;
-      BDimension dist = Distance (0, dx, 0, dy);
+      BDimension dist = Distance (0, 0, dx, dy);
 
       buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS (%.*mS, %d\260)", UUNIT,
                              prec, dx, prec, dy, prec, dist, angle);
