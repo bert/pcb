@@ -850,8 +850,7 @@ check_snap_offgrid_line (struct snap_data *snap_data,
    * the same layer), and when moving a line end-point
    * (but don't snap to the same line)
    */
-  if ((Settings.Mode != LINE_MODE ||
-       Crosshair.AttachedObject.Ptr1 != ptr1) &&
+  if ((Settings.Mode != LINE_MODE || CURRENT != ptr1) &&
       (Settings.Mode != MOVE_MODE ||
        Crosshair.AttachedObject.Ptr1 != ptr1 ||
        Crosshair.AttachedObject.Type != LINEPOINT_TYPE ||
