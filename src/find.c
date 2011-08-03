@@ -153,7 +153,7 @@ RCSID ("$Id$");
 			(PV)->X -MAX(((PV)->Thickness+1)/2 +Bloat,0), (PV)->Y -MAX(((PV)->Thickness+1)/2 +Bloat,0), \
 			(PV)->X +MAX(((PV)->Thickness+1)/2 +Bloat,0), (PV)->Y +MAX(((PV)->Thickness+1)/2 +Bloat,0), \
 			(Arc)) : \
-		IsPointOnArc((PV)->X,(PV)->Y,MAX((PV)->Thickness/2.0 + fBloat,0.0), (Arc)))
+		IsPointOnArc((PV)->X,(PV)->Y,MAX((PV)->Thickness/2.0 + Bloat,0.0), (Arc)))
 
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
@@ -291,8 +291,7 @@ ListType, *ListTypePtr;
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static float fBloat = 0.0;
-static LocationType Bloat = 0;
+static Coord Bloat = 0;
 static int TheFlag = FOUNDFLAG;
 static int OldFlag = FOUNDFLAG;
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
@@ -481,7 +480,7 @@ PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
 								   MAX (PIN_SIZE (PV)
                                                                          /
                                                                          2.0 +
-                                                                         fBloat,
+                                                                         Bloat,
                                                                          0.0),
                                                                     (PadTypePtr)Line);
 }
@@ -521,11 +520,11 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 static inline bool
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 {
-  float t1, t2;
+  double t1, t2;
   BoxType b1, b2;
 
-  t1 = MAX (PV1->Thickness / 2.0 + fBloat, 0);
-  t2 = MAX (PV2->Thickness / 2.0 + fBloat, 0);
+  t1 = MAX (PV1->Thickness / 2.0 + Bloat, 0);
+  t2 = MAX (PV2->Thickness / 2.0 + Bloat, 0);
   if (IsPointOnPin (PV1->X, PV1->Y, t1, PV2)
       || IsPointOnPin (PV2->X, PV2->Y, t2, PV1))
     return true;
@@ -754,14 +753,13 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
                                                        polygon)
                                         || !i->pv.Clearance))
     {
-      float wide = 0.5 * i->pv.Thickness + fBloat;
-      wide = MAX (wide, 0);
+      double wide = MAX (0.5 * i->pv.Thickness + Bloat, 0);
       if (TEST_FLAG (SQUAREFLAG, &i->pv))
         {
-          LocationType x1 = i->pv.X - (i->pv.Thickness + 1 + Bloat) / 2;
-          LocationType x2 = i->pv.X + (i->pv.Thickness + 1 + Bloat) / 2;
-          LocationType y1 = i->pv.Y - (i->pv.Thickness + 1 + Bloat) / 2;
-          LocationType y2 = i->pv.Y + (i->pv.Thickness + 1 + Bloat) / 2;
+          Coord x1 = i->pv.X - (i->pv.Thickness + 1 + Bloat) / 2;
+          Coord x2 = i->pv.X + (i->pv.Thickness + 1 + Bloat) / 2;
+          Coord y1 = i->pv.Y - (i->pv.Thickness + 1 + Bloat) / 2;
+          Coord y2 = i->pv.Y + (i->pv.Thickness + 1 + Bloat) / 2;
           if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
               && ADD_POLYGON_TO_LIST (i->layer, polygon))
             longjmp (i->env, 1);
@@ -1106,7 +1104,7 @@ pv_poly_callback (const BoxType * b, void *cl)
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
         {
-          LocationType x1, x2, y1, y2;
+          Coord x1, x2, y1, y2;
           x1 = pv->X - (PIN_SIZE (pv) + 1 + Bloat) / 2;
           x2 = pv->X + (PIN_SIZE (pv) + 1 + Bloat) / 2;
           y1 = pv->Y - (PIN_SIZE (pv) + 1 + Bloat) / 2;
@@ -1124,7 +1122,7 @@ pv_poly_callback (const BoxType * b, void *cl)
       else
         {
           if (IsPointInPolygon
-              (pv->X, pv->Y, PIN_SIZE (pv) * 0.5 + fBloat, &i->polygon)
+              (pv->X, pv->Y, PIN_SIZE (pv) * 0.5 + Bloat, &i->polygon)
               && ADD_PV_TO_LIST (pv))
             longjmp (i->env, 1);
         }
@@ -1395,11 +1393,11 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
   LocationType pdx, pdy;
   double box[4];
 
-  t = 0.5 * Arc1->Thickness + fBloat;
+  t = 0.5 * Arc1->Thickness + Bloat;
   if (t < 0) /* too thin arc */
     return (false);
   t2 = 0.5 * Arc2->Thickness;
-  t1 = t2 + fBloat;
+  t1 = t2 + Bloat;
   if (t1 < 0) /* too thin arc */
     return (false);
   /* try the end points first */
@@ -1669,7 +1667,7 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 
       distance =
         MAX ((float) 0.5 *
-             (Line1->Thickness + Line2->Thickness) + fBloat, 0.0);
+             (Line1->Thickness + Line2->Thickness) + Bloat, 0.0);
       distance *= distance;
       if (s > distance)
         return (false);
@@ -1731,12 +1729,12 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
                    Line2->Point1.Y,
                    MAX (0.5 *
                         Line2->Thickness +
-                        fBloat, 0.0),
+                        Bloat, 0.0),
                    (PadTypePtr)Line1) :
                   IsPointInPad
                   (Line2->Point2.X,
                    Line2->Point2.Y,
-                   MAX (0.5 * Line2->Thickness + fBloat, 0.0), (PadTypePtr)Line1));
+                   MAX (0.5 * Line2->Thickness + Bloat, 0.0), (PadTypePtr)Line1));
         }
 
       /* intersection is at least on CD */
@@ -1748,28 +1746,28 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
                   (Line1->Point1.X,
                    Line1->Point1.Y,
                    MAX (Line1->Thickness /
-                        2.0 + fBloat, 0.0),
+                        2.0 + Bloat, 0.0),
                    (PadTypePtr)Line2) :
                   IsPointInPad
                   (Line1->Point2.X,
                    Line1->Point2.Y,
-                   MAX (Line1->Thickness / 2.0 + fBloat, 0.0), (PadTypePtr)Line2));
+                   MAX (Line1->Thickness / 2.0 + Bloat, 0.0), (PadTypePtr)Line2));
         }
 
       /* no intersection of zero-width lines but maybe of thick lines;
        * Must check each end point to exclude intersection
        */
       if (IsPointInPad (Line1->Point1.X, Line1->Point1.Y,
-                         Line1->Thickness / 2.0 + fBloat, (PadTypePtr)Line2))
+                         Line1->Thickness / 2.0 + Bloat, (PadTypePtr)Line2))
         return true;
       if (IsPointInPad (Line1->Point2.X, Line1->Point2.Y,
-                         Line1->Thickness / 2.0 + fBloat, (PadTypePtr)Line2))
+                         Line1->Thickness / 2.0 + Bloat, (PadTypePtr)Line2))
         return true;
       if (IsPointInPad (Line2->Point1.X, Line2->Point1.Y,
-                         Line2->Thickness / 2.0 + fBloat, (PadTypePtr)Line1))
+                         Line2->Thickness / 2.0 + Bloat, (PadTypePtr)Line1))
         return true;
       return IsPointInPad (Line2->Point2.X, Line2->Point2.Y,
-                            Line2->Thickness / 2.0 + fBloat, (PadTypePtr)Line1);
+                            Line2->Thickness / 2.0 + Bloat, (PadTypePtr)Line1);
     }
 }
 
@@ -1805,20 +1803,20 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 bool
 LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
 {
-  register float dx, dy, dx1, dy1, l, d, r, r2, Radius;
+  double dx, dy, dx1, dy1, l, d, r, r2, Radius;
   BoxTypePtr box;
 
-  dx = (float) (Line->Point2.X - Line->Point1.X);
-  dy = (float) (Line->Point2.Y - Line->Point1.Y);
-  dx1 = (float) (Line->Point1.X - Arc->X);
-  dy1 = (float) (Line->Point1.Y - Arc->Y);
+  dx = Line->Point2.X - Line->Point1.X;
+  dy = Line->Point2.Y - Line->Point1.Y;
+  dx1 = Line->Point1.X - Arc->X;
+  dy1 = Line->Point1.Y - Arc->Y;
   l = dx * dx + dy * dy;
   d = dx * dy1 - dy * dx1;
   d *= d;
 
   /* use the larger diameter circle first */
   Radius =
-    Arc->Width + MAX (0.5 * (Arc->Thickness + Line->Thickness) + fBloat, 0.0);
+    Arc->Width + MAX (0.5 * (Arc->Thickness + Line->Thickness) + Bloat, 0.0);
   Radius *= Radius;
   r2 = Radius * l - d;
   /* projection doesn't even intersect circle when r2 < 0 */
@@ -1828,11 +1826,11 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   /* of intersection is beyond the line end */
   if (IsPointOnArc
       (Line->Point1.X, Line->Point1.Y,
-       MAX (0.5 * Line->Thickness + fBloat, 0.0), Arc))
+       MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
   if (IsPointOnArc
       (Line->Point2.X, Line->Point2.Y,
-       MAX (0.5 * Line->Thickness + fBloat, 0.0), Arc))
+       MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
   if (l == 0.0)
     return (false);
@@ -1842,19 +1840,19 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   if (r >= 0 && r <= 1
       && IsPointOnArc (Line->Point1.X + r * dx,
                        Line->Point1.Y + r * dy,
-                       MAX (0.5 * Line->Thickness + fBloat, 0.0), Arc))
+                       MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
   r = (Radius - r2) / l;
   if (r >= 0 && r <= 1
       && IsPointOnArc (Line->Point1.X + r * dx,
                        Line->Point1.Y + r * dy,
-                       MAX (0.5 * Line->Thickness + fBloat, 0.0), Arc))
+                       MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
   /* check arc end points */
   box = GetArcEnds (Arc);
-  if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + fBloat, (PadTypePtr)Line))
+  if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + Bloat, (PadTypePtr)Line))
     return true;
-  if (IsPointInPad (box->X2, box->Y2, Arc->Thickness * 0.5 + fBloat, (PadTypePtr)Line))
+  if (IsPointInPad (box->X2, box->Y2, Arc->Thickness * 0.5 + Bloat, (PadTypePtr)Line))
     return true;
   return false;
 }
@@ -2660,8 +2658,8 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
     return false;
   if (TEST_FLAG(SQUAREFLAG,Line)&&(Line->Point1.X==Line->Point2.X||Line->Point1.Y==Line->Point2.Y))
      {
-       BDimension wid = (Line->Thickness + Bloat + 1) / 2;
-       LocationType x1, x2, y1, y2;
+       Coord wid = (Line->Thickness + Bloat + 1) / 2;
+       Coord x1, x2, y1, y2;
 
        x1 = MIN (Line->Point1.X, Line->Point2.X) - wid;
        y1 = MIN (Line->Point1.Y, Line->Point2.Y) - wid;
@@ -3630,7 +3628,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   if (PCB->Shrink != 0)
     {
       Bloat = -PCB->Shrink;
-      fBloat = (float) -PCB->Shrink;
       TheFlag = DRCFLAG | SELECTEDFLAG;
       ListStart (What, ptr1, ptr2, ptr3);
       DoIt (true, false);
@@ -3639,7 +3636,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       TheFlag = FOUNDFLAG;
       ListStart (What, ptr1, ptr2, ptr3);
       Bloat = 0;
-      fBloat = 0.0;
       drc = true;               /* abort the search if we find anything not already found */
       if (DoIt (true, false))
         {
@@ -3650,7 +3646,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           User = true;
           drc = false;
           Bloat = -PCB->Shrink;
-          fBloat = (float) -PCB->Shrink;
           TheFlag = SELECTEDFLAG;
           RestoreUndoSerialNumber ();
           ListStart (What, ptr1, ptr2, ptr3);
@@ -3659,7 +3654,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           ListStart (What, ptr1, ptr2, ptr3);
           TheFlag = FOUNDFLAG;
           Bloat = 0;
-          fBloat = 0.0;
           drc = true;
           DoIt (true, true);
           DumpList ();
@@ -3697,7 +3691,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   TheFlag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3);
   Bloat = PCB->Bloat;
-  fBloat = (float) PCB->Bloat;
   drc = true;
   while (DoIt (true, false))
     {
@@ -3708,7 +3701,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       User = true;
       drc = false;
       Bloat = 0;
-      fBloat = 0.0;
       RestoreUndoSerialNumber ();
       TheFlag = SELECTEDFLAG;
       ListStart (What, ptr1, ptr2, ptr3);
@@ -3717,7 +3709,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       TheFlag = FOUNDFLAG;
       ListStart (What, ptr1, ptr2, ptr3);
       Bloat = PCB->Bloat;
-      fBloat = (float) PCB->Bloat;
       drc = true;
       DoIt (true, true);
       DumpList ();
@@ -3748,13 +3739,11 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       /* highlight the rest of the encroaching net so it's not reported again */
       TheFlag |= SELECTEDFLAG;
       Bloat = 0;
-      fBloat = 0.0;
       ListStart (thing_type, thing_ptr1, thing_ptr2, thing_ptr3);
       DoIt (true, true);
       DumpList ();
       drc = true;
       Bloat = PCB->Bloat;
-      fBloat = (float) PCB->Bloat;
       ListStart (What, ptr1, ptr2, ptr3);
     }
   drc = false;
@@ -4253,7 +4242,6 @@ DRCAll (void)
   FreeConnectionLookupMemory ();
   TheFlag = FOUNDFLAG;
   Bloat = 0;
-  fBloat = 0.0;
 
   /* check silkscreen minimum widths outside of elements */
   /* XXX - need to check text and polygons too! */
