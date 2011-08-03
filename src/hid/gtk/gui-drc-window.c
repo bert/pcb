@@ -33,6 +33,7 @@
 #include "error.h"
 #include "search.h"
 #include "draw.h"
+#include "pcb-printf.h"
 #include "undo.h"
 #include "set.h"
 #include "gui.h"
@@ -274,8 +275,6 @@ enum
   PROP_HAVE_MEASURED,
   PROP_MEASURED_VALUE,
   PROP_REQUIRED_VALUE,
-  PROP_VALUE_DIGITS,
-  PROP_VALUE_UNITS,
   PROP_OBJECT_LIST,
   PROP_PIXMAP
 };
@@ -299,7 +298,6 @@ ghid_drc_violation_finalize (GObject * object)
 
   g_free (violation->title);
   g_free (violation->explanation);
-  g_free (violation->value_units);
   g_free (violation->object_id_list);
   g_free (violation->object_type_list);
   if (violation->pixmap != NULL)
@@ -351,23 +349,16 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
       violation->y_coord = g_value_get_int (value);
       break;
     case PROP_ANGLE:
-      violation->angle = g_value_get_int (value);
+      violation->angle = g_value_get_double (value);
       break;
     case PROP_HAVE_MEASURED:
-      violation->have_measured = g_value_get_int (value);
+      violation->have_measured = g_value_get_boolean (value);
       break;
     case PROP_MEASURED_VALUE:
-      violation->measured_value = g_value_get_double (value);
+      violation->measured_value = g_value_get_int (value);
       break;
     case PROP_REQUIRED_VALUE:
-      violation->required_value = g_value_get_double (value);
-      break;
-    case PROP_VALUE_DIGITS:
-      violation->value_digits = g_value_get_int (value);
-      break;
-    case PROP_VALUE_UNITS:
-      g_free (violation->value_units);
-      violation->value_units = g_value_dup_string (value);
+      violation->required_value = g_value_get_int (value);
       break;
     case PROP_OBJECT_LIST:
       /* Copy the passed data to make new lists */
@@ -467,7 +458,7 @@ ghid_drc_violation_class_init (GhidViolationRendererClass * klass)
 						     0,
 						     G_PARAM_WRITABLE));
   g_object_class_install_property (gobject_class, PROP_ANGLE,
-				   g_param_spec_int ("angle",
+				   g_param_spec_double ("angle",
 						     "",
 						     "",
 						     G_MININT,
@@ -475,43 +466,27 @@ ghid_drc_violation_class_init (GhidViolationRendererClass * klass)
 						     0,
 						     G_PARAM_WRITABLE));
   g_object_class_install_property (gobject_class, PROP_HAVE_MEASURED,
-				   g_param_spec_int ("have-measured",
+				   g_param_spec_boolean ("have-measured",
+						     "",
+						     "",
+						     0,
+						     G_PARAM_WRITABLE));
+  g_object_class_install_property (gobject_class, PROP_MEASURED_VALUE,
+				   g_param_spec_int ("measured-value",
 						     "",
 						     "",
 						     G_MININT,
 						     G_MAXINT,
-						     0,
-						     G_PARAM_WRITABLE));
-  g_object_class_install_property (gobject_class, PROP_MEASURED_VALUE,
-				   g_param_spec_double ("measured-value",
-						     "",
-						     "",
-						     -G_MAXDOUBLE,
-						     G_MAXDOUBLE,
 						     0.,
 						     G_PARAM_WRITABLE));
   g_object_class_install_property (gobject_class, PROP_REQUIRED_VALUE,
-				   g_param_spec_double ("required-value",
+				   g_param_spec_int ("required-value",
 						     "",
 						     "",
-						     -G_MINDOUBLE,
-						     G_MAXDOUBLE,
+						     G_MININT,
+						     G_MAXINT,
 						     0.,
 						     G_PARAM_WRITABLE));
-  g_object_class_install_property (gobject_class, PROP_VALUE_DIGITS,
-				   g_param_spec_int ("value-digits",
-						     "",
-						     "",
-						     0,
-						     G_MAXINT,
-						     0,
-						     G_PARAM_WRITABLE));
-  g_object_class_install_property (gobject_class, PROP_VALUE_UNITS,
-				   g_param_spec_string ("value-units",
-							"",
-							"",
-							"",
-							G_PARAM_WRITABLE));
   g_object_class_install_property (gobject_class, PROP_OBJECT_LIST,
 				   g_param_spec_pointer ("object-list",
 							 "",
@@ -582,8 +557,6 @@ GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
 		       "have-measured",    violation->have_measured,
 		       "measured-value",   violation->measured_value,
 		       "required-value",   violation->required_value,
-		       "value-digits",     violation->value_digits,
-		       "value-units",      violation->value_units,
 		       "object-list",      &obj_list,
 		       "pixmap",           pixmap,
 		       NULL);
@@ -654,36 +627,32 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
 
   if (renderer->violation->have_measured)
     {
-      markup = g_strdup_printf ("<b>%s (%.*f %s)</b>\n"
+      markup = pcb_g_strdup_printf ("%m+<b>%s (%$mS)</b>\n"
 				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
 				  "<span size='5120'> </span>\n"
-				  "Required: %.*f %s"
+				  "Required: %$mS"
 				"</small>",
+                                Settings.grid_unit->allow,
 				renderer->violation->title,
-				renderer->violation->value_digits,
 				renderer->violation->measured_value,
-				renderer->violation->value_units,
 				renderer->violation->explanation,
-				renderer->violation->value_digits,
-				renderer->violation->required_value,
-				renderer->violation->value_units);
+				renderer->violation->required_value);
     }
   else
     {
-      markup = g_strdup_printf ("<b>%s</b>\n"
+      markup = pcb_g_strdup_printf ("%m+<b>%s</b>\n"
 				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
 				  "<span size='5120'> </span>\n"
-				  "Required: %.*f %s"
+				  "Required: %$mS"
 				"</small>",
+                                Settings.grid_unit->allow,
 				renderer->violation->title,
 				renderer->violation->explanation,
-				renderer->violation->value_digits,
-				renderer->violation->required_value,
-				renderer->violation->value_units);
+				renderer->violation->required_value);
     }
 
   g_object_set (object, "markup", markup, NULL);

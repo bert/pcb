@@ -771,10 +771,8 @@ struct drc_violation_st
   Coord x, y;
   Angle angle;
   int have_measured;
-  double measured_value;
-  double required_value;
-  int value_digits;
-  const char *value_units;
+  Coord measured_value;
+  Coord required_value;
   int object_count;
   long int *object_id_list;
   int *object_type_list;

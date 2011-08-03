@@ -51,14 +51,12 @@ struct _GhidDrcViolation
 
   char *title;
   char *explanation;
-  int x_coord;
-  int y_coord;
-  int angle;
-  int have_measured;
-  double measured_value;
-  double required_value;
-  int value_digits;
-  char *value_units;
+  Coord x_coord;
+  Coord y_coord;
+  Angle angle;
+  bool have_measured;
+  Coord measured_value;
+  Coord required_value;
   int object_count;
   long int *object_id_list;
   int *object_type_list;
