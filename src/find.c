@@ -158,21 +158,14 @@ RCSID ("$Id$");
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
-#define LENGTH_TO_HUMAN(value) coord_to_unit (Settings.grid_unit, value)
-#define LENGTH_DIGITS (Settings.grid_unit->default_prec)
-#define LENGTH_UNITS_STRING (Settings.grid_unit->suffix)
-
-
 static DrcViolationType
-*pcb_drc_violation_new (char *title,
-                        char *explanation,
-                        int x, int y,
-                        int angle,
-                        int have_measured,
-                        double measured_value,
-                        double required_value,
-                        int value_digits,
-                        const char *value_units,
+*pcb_drc_violation_new (const char *title,
+                        const char *explanation,
+                        Coord x, Coord y,
+                        Angle angle,
+                        bool have_measured,
+                        Coord measured_value,
+                        Coord required_value,
                         int object_count,
                         long int *object_id_list,
                         int *object_type_list)
@@ -187,8 +180,6 @@ static DrcViolationType
   violation->have_measured = have_measured;
   violation->measured_value = measured_value;
   violation->required_value = required_value;
-  violation->value_digits = value_digits;
-  violation->value_units = value_units;
   violation->object_count = object_count;
   violation->object_id_list = object_id_list;
   violation->object_type_list = object_type_list;
@@ -204,33 +195,27 @@ pcb_drc_violation_free (DrcViolationType *violation)
   free (violation);
 }
 
-static char drc_dialog_message[289] = {0};
+static GString *drc_dialog_message;
 static void
 reset_drc_dialog_message(void)
 {
-  drc_dialog_message[0] = 0;
+  g_string_free (drc_dialog_message, FALSE);
+  drc_dialog_message = g_string_new ("");
   if (gui->drc_gui != NULL)
     {
       gui->drc_gui->reset_drc_dialog_message ();
     }
 }
-#ifdef __GNUC__
-static void append_drc_dialog_message(const char *fmt, ...)
- __attribute__ ((format (printf, 1, 2)));
-#endif
 static void
 append_drc_dialog_message(const char *fmt, ...)
 {
-  size_t len = strlen (drc_dialog_message),
-         remained = sizeof (drc_dialog_message) - len - 1;
+  gchar *new_str;
   va_list ap;
   va_start (ap, fmt);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf (drc_dialog_message + len, remained, fmt, ap);
-#else
-  vsprintf (drc_dialog_message + len, fmt, ap);
-#endif
+  new_str = pcb_vprintf (fmt, ap);
+  g_string_append (drc_dialog_message, new_str);
   va_end (ap);
+  g_free (new_str);
 }
 
 static void GotoError (void);
@@ -246,18 +231,18 @@ append_drc_violation (DrcViolationType *violation)
     {
       /* Fallback to formatting the violation message as text */
       append_drc_dialog_message ("%s\n", violation->title);
-      append_drc_dialog_message (_("near (%.*f, %.*f)\n"),
-                                 LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->x),
-                                 LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->y));
+      append_drc_dialog_message (_("%m+near %$mD\n"),
+                                 Settings.grid_unit->allow,
+                                 violation->x, violation->y);
       GotoError ();
     }
 
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_violations )
     {
       Message (_("WARNING!  Design Rule error - %s\n"), violation->title);
-      Message (_("near location (%.*f, %.*f)\n"),
-               LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->x),
-               LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->y));
+      Message (_("%m+near location %$mD\n"),
+               Settings.grid_unit->allow,
+               violation->x, violation->y);
     }
 }
 /*
@@ -281,7 +266,7 @@ throw_drc_dialog(void)
     {
       /* Fallback to formatting the violation message as text */
       append_drc_dialog_message (DRC_CONTINUE);
-      r = gui->confirm_dialog (drc_dialog_message, DRC_CANCEL, DRC_NEXT);
+      r = gui->confirm_dialog (drc_dialog_message->str, DRC_CANCEL, DRC_NEXT);
       reset_drc_dialog_message();
     }
   return r;
@@ -3689,9 +3674,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
                                              0,     /* ANGLE OF ERROR UNKNOWN */
                                              FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
                                              0,     /* MAGNITUDE OF ERROR UNKNOWN */
-                                             LENGTH_TO_HUMAN(PCB->Shrink),
-                                             LENGTH_DIGITS,
-                                             LENGTH_UNITS_STRING,
+                                             PCB->Shrink,
                                              object_count,
                                              object_id_list,
                                              object_type_list);
@@ -3747,9 +3730,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
                                          0,     /* ANGLE OF ERROR UNKNOWN */
                                          FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
                                          0,     /* MAGNITUDE OF ERROR UNKNOWN */
-                                         LENGTH_TO_HUMAN(PCB->Bloat),
-                                         LENGTH_DIGITS,
-                                         LENGTH_UNITS_STRING,
+                                         PCB->Bloat,
                                          object_count,
                                          object_id_list,
                                          object_type_list);
@@ -3891,9 +3872,7 @@ doIsBad:
                                      0,     /* ANGLE OF ERROR UNKNOWN */
                                      FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
                                      0,     /* MAGNITUDE OF ERROR UNKNOWN */
-                                     LENGTH_TO_HUMAN(PCB->Bloat),
-                                     LENGTH_DIGITS,
-                                     LENGTH_UNITS_STRING,
+                                     PCB->Bloat,
                                      object_count,
                                      object_id_list,
                                      object_type_list);
@@ -4017,10 +3996,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(line->Thickness),
-                                               LENGTH_TO_HUMAN(PCB->minWid),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               line->Thickness,
+                                               PCB->minWid,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4061,10 +4038,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(arc->Thickness),
-                                               LENGTH_TO_HUMAN(PCB->minWid),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               arc->Thickness,
+                                               PCB->minWid,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4106,10 +4081,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN((pin->Thickness - pin->DrillingHole) / 2),
-                                               LENGTH_TO_HUMAN(PCB->minRing),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               (pin->Thickness - pin->DrillingHole) / 2,
+                                               PCB->minRing,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4139,10 +4112,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(pin->DrillingHole),
-                                               LENGTH_TO_HUMAN(PCB->minDrill),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               pin->DrillingHole,
+                                               PCB->minDrill,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4183,10 +4154,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(pad->Thickness),
-                                               LENGTH_TO_HUMAN(PCB->minWid),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               pad->Thickness,
+                                               PCB->minWid,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4228,10 +4197,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN((via->Thickness - via->DrillingHole) / 2),
-                                               LENGTH_TO_HUMAN(PCB->minRing),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               (via->Thickness - via->DrillingHole) / 2,
+                                               PCB->minRing,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4261,10 +4228,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(via->DrillingHole),
-                                               LENGTH_TO_HUMAN(PCB->minDrill),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               via->DrillingHole,
+                                               PCB->minDrill,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4310,10 +4275,8 @@ DRCAll (void)
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(line->Thickness),
-                                               LENGTH_TO_HUMAN(PCB->minSlk),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               line->Thickness,
+                                               PCB->minSlk,
                                                object_count,
                                                object_id_list,
                                                object_type_list);
@@ -4374,11 +4337,9 @@ DRCAll (void)
                                                "feature-width that can reliably be reproduced"),
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
-                                               0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               LENGTH_TO_HUMAN(PCB->minSlk),
-                                               LENGTH_DIGITS,
-                                               LENGTH_UNITS_STRING,
+                                               0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
+                                               PCB->minSlk,
                                                object_count,
                                                object_id_list,
                                                object_type_list);

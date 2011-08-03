@@ -368,7 +368,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   return g_string_free (buff, FALSE);
 }
 
-static gchar *pcb_vprintf(const char *fmt, va_list args)
+gchar *pcb_vprintf(const char *fmt, va_list args)
 {
   GString *string = g_string_new ("");
   GString *spec   = g_string_new ("");
