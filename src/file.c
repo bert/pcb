@@ -417,9 +417,8 @@ LoadPCB (char *Filename)
       ResetStackAndVisibility ();
 
       /* update cursor location */
-      Crosshair.X = MAX (0, MIN (PCB->CursorX, (LocationType) PCB->MaxWidth));
-      Crosshair.Y =
-	MAX (0, MIN (PCB->CursorY, (LocationType) PCB->MaxHeight));
+      Crosshair.X = CLAMP (PCB->CursorX, 0, PCB->MaxWidth);
+      Crosshair.Y = CLAMP (PCB->CursorY, 0, PCB->MaxHeight);
 
       /* update cursor confinement and output area (scrollbars) */
       ChangePCBSize (PCB->MaxWidth, PCB->MaxHeight);
