@@ -332,7 +332,7 @@ static bool PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr,
                                                          FILE *);
 static void DrawNewConnections (void);
 static void DumpList (void);
-static void LocateError (LocationType *, LocationType *);
+static void LocateError (Coord *, Coord *);
 static void BuildObjectList (int *, long int **, int **);
 static void GotoError (void);
 static bool DRCFind (int, void *, void *, void *);
@@ -1313,7 +1313,7 @@ PVTouchesLine (LineTypePtr line)
 
 /* reduce arc start angle and delta to 0..360 */
 static void
-normalize_angles (int *sa, int *d)
+normalize_angles (Angle *sa, Angle *d)
 {
   if (*d < 0)
     {
@@ -1322,44 +1322,30 @@ normalize_angles (int *sa, int *d)
     }
   if (*d > 360) /* full circle */
     *d = 360;
-  if (*sa < 0)
-    *sa = 360 - ((-*sa) % 360);
-  if (*sa >= 360)
-    *sa %= 360;
+  *sa = NormalizeAngle (*sa);
 }
 
 static int
 radius_crosses_arc (double x, double y, ArcTypePtr arc)
 {
   double alpha = atan2 (y - arc->Y, -x + arc->X) * RAD_TO_DEG;
-  int sa = arc->StartAngle, d = arc->Delta;
+  Angle sa = arc->StartAngle, d = arc->Delta;
 
   normalize_angles (&sa, &d);
   if (alpha < 0)
     alpha += 360;
-  if ((double)sa <= alpha)
-    return (double)(sa + d) >= alpha;
-  return (double)(sa + d - 360) >= alpha;
+  if (sa <= alpha)
+    return (sa + d) >= alpha;
+  return (sa + d - 360) >= alpha;
 }
 
 static void
-get_arc_ends (double *box, ArcTypePtr arc)
+get_arc_ends (Coord *box, ArcTypePtr arc)
 {
-  double ca, sa, angle;
-
-  angle  = arc->StartAngle;
-  angle *= M180;
-  ca = cos (angle);
-  sa = sin (angle);
-  box[0] = arc->X - arc->Width * ca;
-  box[1] = arc->Y + arc->Height * sa;
-
-  angle  = arc->StartAngle + arc->Delta;
-  angle *= M180;
-  ca = cos (angle);
-  sa = sin (angle);
-  box[2] = arc->X - arc->Width * ca;
-  box[3] = arc->Y + arc->Height * sa;
+  box[0] = arc->X - arc->Width  * cos (M180 * arc->StartAngle);
+  box[1] = arc->Y + arc->Height * sin (M180 * arc->StartAngle);
+  box[2] = arc->X - arc->Width  * cos (M180 * (arc->StartAngle + arc->Delta));
+  box[3] = arc->Y + arc->Height * sin (M180 * (arc->StartAngle + arc->Delta));
 }
 /* ---------------------------------------------------------------------------
  * check if two arcs intersect
@@ -1390,70 +1376,60 @@ static bool
 ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 {
   double x, y, dx, dy, r1, r2, a, d, l, t, t1, t2, dl;
-  LocationType pdx, pdy;
-  double box[4];
+  Coord pdx, pdy;
+  Coord box[8];
 
-  t = 0.5 * Arc1->Thickness + Bloat;
-  if (t < 0) /* too thin arc */
-    return (false);
+  t  = 0.5 * Arc1->Thickness + Bloat;
   t2 = 0.5 * Arc2->Thickness;
   t1 = t2 + Bloat;
-  if (t1 < 0) /* too thin arc */
-    return (false);
-  /* try the end points first */
-  get_arc_ends (box, Arc1);
-  if (IsPointOnArc ((float) box[0], (float) box[1], (float)t, Arc2)
-      || IsPointOnArc ((float) box[2], (float) box[3], (float)t, Arc2))
-    return (true);
 
-  get_arc_ends (box, Arc2);
-  if (IsPointOnArc ((float) box[0], (float) box[1], (float)t1, Arc1)
-      || IsPointOnArc ((float) box[2], (float) box[3], (float)t1, Arc1))
-    return (true);
+  /* too thin arc */
+  if (t < 0 || t1 < 0)
+    return false;
+
+  /* try the end points first */
+  get_arc_ends (&box[0], Arc1);
+  get_arc_ends (&box[4], Arc2);
+  if (IsPointOnArc (box[0], box[1], t, Arc2)
+      || IsPointOnArc (box[2], box[3], t, Arc2)
+      || IsPointOnArc (box[4], box[5], t, Arc1)
+      || IsPointOnArc (box[6], box[7], t, Arc1))
+    return true;
+
   pdx = Arc2->X - Arc1->X;
   pdy = Arc2->Y - Arc1->Y;
-  l = pdx * pdx + pdy * pdy;
+  dl = Distance (Arc1->X, Arc1->Y, Arc2->X, Arc2->Y);
   /* concentric arcs, simpler intersection conditions */
-  if (l < 0.5)
+  if (dl < 0.5)
     {
       if ((Arc1->Width - t >= Arc2->Width - t2
-           && Arc1->Width - t <=
-           Arc2->Width + t2)
-          || (Arc1->Width + t >=
-              Arc2->Width - t2 && Arc1->Width + t <= Arc2->Width + t2))
+           && Arc1->Width - t <= Arc2->Width + t2)
+          || (Arc1->Width + t >= Arc2->Width - t2
+              && Arc1->Width + t <= Arc2->Width + t2))
         {
-	  int sa1 = Arc1->StartAngle, d1 = Arc1->Delta;
-	  int sa2 = Arc2->StartAngle, d2 = Arc2->Delta;
+	  Angle sa1 = Arc1->StartAngle, d1 = Arc1->Delta;
+	  Angle sa2 = Arc2->StartAngle, d2 = Arc2->Delta;
 	  /* NB the endpoints have already been checked,
 	     so we just compare the angles */
 
 	  normalize_angles (&sa1, &d1);
 	  normalize_angles (&sa2, &d2);
-	  /* cases like sa1 == sa2 are catched when checking the endpoints */
+	  /* sa1 == sa2 was caught when checking endpoints */
 	  if (sa1 > sa2)
-	    {
-	      if (sa1 < sa2 + d2)
-		return (true);
-	      if (sa1 + d1 > 360 && sa1 + d1 - 360 > sa2)
-		return (true);
-	    }
+            if (sa1 < sa2 + d2 || sa1 + d1 - 360 > sa2)
+              return true;
 	  if (sa2 > sa1)
-	    {
-	      if (sa2 < sa1 + d1)
-		return (true);
-	      if (sa2 + d2 > 360 && sa2 + d2 - 360 > sa1)
-		return (true);
-	    }
+	    if (sa2 < sa1 + d1 || sa2 + d2 - 360 > sa1)
+              return true;
         }
-      return (false);
+      return false;
     }
   r1 = Arc1->Width;
   r2 = Arc2->Width;
-  dl = sqrt (l);
-  if (dl > r1 + r2 || dl + r1 < r2
-      || dl + r2 < r1) /* arcs centerlines are too far or too near */
+  /* arcs centerlines are too far or too near */
+  if (dl > r1 + r2 || dl + r1 < r2 || dl + r2 < r1)
     {
-      /* check the nearst to the other arc center point */
+      /* check the nearest to the other arc's center point */
       dx = pdx * r1 / dl;
       dy = pdy * r1 / dl;
       if (dl + r1 < r2) /* Arc1 inside Arc2 */
@@ -1463,9 +1439,8 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 	}
 
       if (radius_crosses_arc (Arc1->X + dx, Arc1->Y + dy, Arc1)
-	  && IsPointOnArc ((float)(Arc1->X + dx), (float)(Arc1->Y + dy),
-			   (float)t, Arc2))
-	return (true);
+	  && IsPointOnArc (Arc1->X + dx, Arc1->Y + dy, t, Arc2))
+	return true;
 
       dx = - pdx * r2 / dl;
       dy = - pdy * r2 / dl;
@@ -1476,12 +1451,12 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 	}
 
       if (radius_crosses_arc (Arc2->X + dx, Arc2->Y + dy, Arc2)
-	  && IsPointOnArc ((float)(Arc2->X + dx), (float)(Arc2->Y + dy),
-			   (float)t1, Arc1))
-	return (true);
-      return (false);
+	  && IsPointOnArc (Arc2->X + dx, Arc2->Y + dy, t1, Arc1))
+	return true;
+      return false;
     }
 
+  l = dl * dl;
   r1 *= r1;
   r2 *= r2;
   a = 0.5 * (r1 - r2 + l) / l;
@@ -1498,19 +1473,19 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
   dx = d * pdx;
   dy = d * pdy;
   if (radius_crosses_arc (x + dy, y - dx, Arc1)
-      && IsPointOnArc ((float)(x + dy), (float)(y - dx), (float)t, Arc2))
-    return (true);
+      && IsPointOnArc (x + dy, y - dx, t, Arc2))
+    return true;
   if (radius_crosses_arc (x + dy, y - dx, Arc2)
-      && IsPointOnArc ((float)(x + dy), (float)(y - dx), (float)t1, Arc1))
-    return (true);
+      && IsPointOnArc (x + dy, y - dx, t1, Arc1))
+    return true;
 
   if (radius_crosses_arc (x - dy, y + dx, Arc1)
-      && IsPointOnArc ((float)(x - dy), (float)(y + dx), (float)t, Arc2))
-    return (true);
+      && IsPointOnArc (x - dy, y + dx, t, Arc2))
+    return true;
   if (radius_crosses_arc (x - dy, y + dx, Arc2)
-      && IsPointOnArc ((float)(x - dy), (float)(y + dx), (float)t1, Arc1))
-    return (true);
-  return (false);
+      && IsPointOnArc (x - dy, y + dx, t1, Arc1))
+    return true;
+  return false;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1527,23 +1502,21 @@ IsRatPointOnLineEnd (PointTypePtr Point, LineTypePtr Line)
 }
 
 static void 
-form_slanted_rectangle(PointType p[4],LineTypePtr l)
+form_slanted_rectangle (PointType p[4], LineTypePtr l)
 /* writes vertices of a squared line */
 {
-   int dX= l->Point2.X - l->Point1.X, dY = l->Point2.Y - l->Point1.Y, 
-     w = l->Thickness;
-   double dwx, dwy;
-   if (dY == 0)
+   double dwx = 0, dwy = 0;
+   if (l->Point1.Y == l->Point2.Y)
+     dwx = l->Thickness / 2.0;
+   else if (l->Point1.X == l->Point2.X)
+     dwy = l->Thickness / 2.0;
+   else 
      {
-       dwx = w / 2; dwy = 0;
-     }
-    else if (dX == 0)
-     {
-       dwx = 0; dwy = w / 2;
-     }
-    else 
-     {double r = sqrt (dX * (double) dX + dY * (double) dY) * 2;
-       dwx = w / r * dX; dwy =  w / r * dY;
+       Coord dX = l->Point2.X - l->Point1.X;
+       Coord dY = l->Point2.Y - l->Point1.Y;
+       double r = Distance (l->Point1.X, l->Point1.Y, l->Point2.X, l->Point2.Y);
+       dwx = l->Thickness / 2.0 / r * dX;
+       dwy = l->Thickness / 2.0 / r * dY;
      }
     p[0].X = l->Point1.X - dwx + dwy; p[0].Y = l->Point1.Y - dwy - dwx;
     p[1].X = l->Point1.X - dwx - dwy; p[1].Y = l->Point1.Y - dwy + dwx;
@@ -1608,167 +1581,83 @@ form_slanted_rectangle(PointType p[4],LineTypePtr l)
 bool
 LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 {
-  register float dx, dy, dx1, dy1, s, r;
+  double s, r;
+  double line1_dx, line1_dy, line2_dx, line2_dy,
+         point1_dx, point1_dy, point2_dx, point2_dy;
   if (TEST_FLAG (SQUAREFLAG, Line1))/* pretty reckless recursion */
     {
-      PointType p[4];form_slanted_rectangle(p,Line1);
-      return IsLineInQuadrangle(p,Line2);
+      PointType p[4];
+      form_slanted_rectangle (p, Line1);
+      return IsLineInQuadrangle (p, Line2);
     }
   /* here come only round Line1 because IsLineInQuadrangle()
      calls LineLineIntersect() with first argument rounded*/
   if (TEST_FLAG (SQUAREFLAG, Line2))
     {
-      PointType p[4];form_slanted_rectangle(p,Line2);
-      return IsLineInQuadrangle(p,Line1);
+      PointType p[4];
+      form_slanted_rectangle (p, Line2);
+      return IsLineInQuadrangle (p, Line1);
     }
   /* now all lines are round */
 
-#if 0
-  if (Line1->BoundingBox.X1 - Bloat > Line2->BoundBoxing.X2
-      || Line1->BoundingBox.X2 + Bloat < Line2->BoundingBox.X1
-      || Line1->BoundingBox.Y1 - Bloat < Line2->BoundingBox.Y2
-      || Line1->BoundingBox.Y2 + Bloat < Line2->BoundingBox.Y1)
-    return false;
-#endif
+  /* Check endpoints: this provides a quick exit, catches
+   *  cases where the "real" lines don't intersect but the
+   *  thick lines touch, and ensures that the dx/dy business
+   *  below does not cause a divide-by-zero. */
+  if (IsPointInPad (Line2->Point1.X, Line2->Point1.Y,
+                    MAX (Line2->Thickness / 2 + Bloat, 0),
+                    (PadTypePtr) Line1)
+       || IsPointInPad (Line2->Point2.X, Line2->Point2.Y,
+                        MAX (Line2->Thickness / 2 + Bloat, 0),
+                        (PadTypePtr) Line1)
+       || IsPointInPad (Line1->Point1.X, Line1->Point1.Y,
+                        MAX (Line1->Thickness / 2 + Bloat, 0),
+                        (PadTypePtr) Line2)
+       || IsPointInPad (Line1->Point2.X, Line1->Point2.Y,
+                        MAX (Line1->Thickness / 2 + Bloat, 0),
+                        (PadTypePtr) Line2))
+    return true;
 
   /* setup some constants */
-  dx = (float) (Line1->Point2.X - Line1->Point1.X);
-  dy = (float) (Line1->Point2.Y - Line1->Point1.Y);
-  dx1 = (float) (Line1->Point1.X - Line2->Point1.X);
-  dy1 = (float) (Line1->Point1.Y - Line2->Point1.Y);
-  s = dy1 * dx - dx1 * dy;
+  line1_dx = Line1->Point2.X - Line1->Point1.X;
+  line1_dy = Line1->Point2.Y - Line1->Point1.Y;
+  line2_dx = Line2->Point2.X - Line2->Point1.X;
+  line2_dy = Line2->Point2.Y - Line2->Point1.Y;
+  point1_dx = Line1->Point1.X - Line2->Point1.X;
+  point1_dy = Line1->Point1.Y - Line2->Point1.Y;
+  point2_dx = Line1->Point2.X - Line2->Point2.X;
+  point2_dy = Line1->Point2.Y - Line2->Point2.Y;
 
-  r =
-    dx * (float) (Line2->Point2.Y -
-                  Line2->Point1.Y) -
-    dy * (float) (Line2->Point2.X - Line2->Point1.X);
+  /* If either line is a point, we have failed already, since the
+   *   endpoint check above will have caught an "intersection". */
+  if ((line1_dx == 0 && line1_dy == 0)
+      || (line2_dx == 0 && line2_dy == 0))
+    return false;
 
-  /* handle parallel lines */
+  /* set s to cross product of Line1 and the line
+   *   Line1.Point1--Line2.Point1 (as vectors) */
+  s = point1_dy * line1_dx - point1_dx * line1_dy;
+
+  /* set r to cross product of both lines (as vectors) */
+  r = line1_dx * line2_dy - line1_dy * line2_dx;
+
+  /* No cross product means parallel lines, or maybe Line2 is
+   *  zero-length. In either case, since we did a bounding-box
+   *  check before getting here, the above IsPointInPad() checks
+   *  will have caught any intersections. */
   if (r == 0.0)
-    {
-      /* at least one of the two end points of one segment
-       * has to have a minimum distance to the other segment
-       *
-       * a first quick check is to see if the distance between
-       * the two lines is less then their half total thickness
-       */
-      register float distance;
+    return false;
 
-      /* perhaps line 1 is really just a point */
-      if ((dx == 0) && (dy == 0))
-        return IsPointInPad
-                (Line1->Point1.X,
-                 Line1->Point1.Y,
-                 MAX (Line1->Thickness / 2 +
-                      Bloat, 0),
-                 (PadTypePtr) Line2);
-      s = s * s / (dx * dx + dy * dy);
+  s /= r;
+  r = (point1_dy * line2_dx - point1_dx * line2_dy) / r;
 
+  /* intersection is at least on AB */
+  if (r >= 0.0 && r <= 1.0)
+    return (s >= 0.0 && s <= 1.0);
 
-      distance =
-        MAX ((float) 0.5 *
-             (Line1->Thickness + Line2->Thickness) + Bloat, 0.0);
-      distance *= distance;
-      if (s > distance)
-        return (false);
-      if (IsPointInPad (Line2->Point1.
-                               X,
-                               Line2->Point1.
-                               Y,
-                               MAX (Line2->
-                                    Thickness
-                                    / 2 +
-                                    Bloat, 0),
-                               (PadTypePtr)
-                               Line1)
-           || IsPointInPad (Line2->
-                                  Point2.X,
-                                  Line2->
-                                  Point2.Y,
-                                  MAX (Line2->
-                                       Thickness
-                                       / 2 + Bloat, 0), (PadTypePtr) Line1))
-        return (true);
-      return ((IsPointInPad (Line1->Point1.
-                               X,
-                               Line1->Point1.
-                               Y,
-                               MAX (Line1->
-                                    Thickness
-                                    / 2 +
-                                    Bloat, 0),
-                               (PadTypePtr)
-                               Line2)
-           || IsPointInPad (Line1->
-                                  Point2.X,
-                                  Line1->
-                                  Point2.Y,
-                                  MAX (Line1->
-                                       Thickness
-                                       / 2 + Bloat, 0), (PadTypePtr) Line2)));
-    }
-  else
-    {
-      s /= r;
-      r =
-        (dy1 *
-         (float) (Line2->Point2.X -
-                  Line2->Point1.X) -
-         dx1 * (float) (Line2->Point2.Y - Line2->Point1.Y)) / r;
-
-      /* intersection is at least on AB */
-      if (r >= 0.0 && r <= 1.0)
-        {
-          if (s >= 0.0 && s <= 1.0)
-            return (true);
-
-          /* intersection on AB and extension of CD */
-          return (s < 0.0 ?
-                  IsPointInPad
-                  (Line2->Point1.X,
-                   Line2->Point1.Y,
-                   MAX (0.5 *
-                        Line2->Thickness +
-                        Bloat, 0.0),
-                   (PadTypePtr)Line1) :
-                  IsPointInPad
-                  (Line2->Point2.X,
-                   Line2->Point2.Y,
-                   MAX (0.5 * Line2->Thickness + Bloat, 0.0), (PadTypePtr)Line1));
-        }
-
-      /* intersection is at least on CD */
-      if (s >= 0.0 && s <= 1.0)
-        {
-          /* intersection on CD and extension of AB */
-          return (r < 0.0 ?
-                  IsPointInPad
-                  (Line1->Point1.X,
-                   Line1->Point1.Y,
-                   MAX (Line1->Thickness /
-                        2.0 + Bloat, 0.0),
-                   (PadTypePtr)Line2) :
-                  IsPointInPad
-                  (Line1->Point2.X,
-                   Line1->Point2.Y,
-                   MAX (Line1->Thickness / 2.0 + Bloat, 0.0), (PadTypePtr)Line2));
-        }
-
-      /* no intersection of zero-width lines but maybe of thick lines;
-       * Must check each end point to exclude intersection
-       */
-      if (IsPointInPad (Line1->Point1.X, Line1->Point1.Y,
-                         Line1->Thickness / 2.0 + Bloat, (PadTypePtr)Line2))
-        return true;
-      if (IsPointInPad (Line1->Point2.X, Line1->Point2.Y,
-                         Line1->Thickness / 2.0 + Bloat, (PadTypePtr)Line2))
-        return true;
-      if (IsPointInPad (Line2->Point1.X, Line2->Point1.Y,
-                         Line2->Thickness / 2.0 + Bloat, (PadTypePtr)Line1))
-        return true;
-      return IsPointInPad (Line2->Point2.X, Line2->Point2.Y,
-                            Line2->Thickness / 2.0 + Bloat, (PadTypePtr)Line1);
-    }
+  /* intersection is at least on CD */
+  /* [removed this case since it always returns false --asp] */
+  return false;
 }
 
 /*---------------------------------------------------
@@ -2912,13 +2801,10 @@ DoIt (bool AndRats, bool AndDraw)
       /* lookup connections; these are the steps (2) to (4)
        * from the description
        */
-      newone = LookupPVConnectionsToPVList ();
-      if (!newone)
-        newone = LookupLOConnectionsToPVList (AndRats);
-      if (!newone)
-        newone = LookupLOConnectionsToLOList (AndRats);
-      if (!newone)
-        newone = LookupPVConnectionsToLOList (AndRats);
+      newone = LookupPVConnectionsToPVList () ||
+               LookupLOConnectionsToPVList (AndRats) ||
+               LookupLOConnectionsToLOList (AndRats) ||
+               LookupPVConnectionsToLOList (AndRats);
       if (AndDraw)
         DrawNewConnections ();
     }
@@ -3172,8 +3058,7 @@ DrawNewConnections (void)
           /* draw all new polygons */
           position = PolygonList[layer].DrawLocation;
           for (; position < PolygonList[layer].Number; position++)
-            DrawPolygon
-              (LAYER_PTR (layer), POLYGONLIST_ENTRY (layer, position));
+            DrawPolygon (LAYER_PTR (layer), POLYGONLIST_ENTRY (layer, position));
           PolygonList[layer].DrawLocation = PolygonList[layer].Number;
         }
     }
@@ -3340,8 +3225,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (LocationType X, LocationType Y, bool AndDraw,
-                  BDimension Range, int which_flag)
+LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
 {
   void *ptr1, *ptr2, *ptr3;
   char *name;
@@ -3619,7 +3503,7 @@ DumpList (void)
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
-  LocationType x, y;
+  Coord x, y;
   int object_count;
   long int *object_id_list;
   int *object_type_list;
@@ -3779,7 +3663,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
               int type, void *ptr1, void *ptr2)
 {
   char *message;
-  LocationType x, y;
+  Coord x, y;
   int object_count;
   long int *object_id_list;
   int *object_type_list;
@@ -3887,7 +3771,7 @@ doIsBad:
 int
 DRCAll (void)
 {
-  LocationType x, y;
+  Coord x, y;
   int object_count;
   long int *object_id_list;
   int *object_type_list;
@@ -4371,7 +4255,7 @@ DRCAll (void)
  * Locate the coordinatates of offending item (thing)
  */
 static void
-LocateError (LocationType *x, LocationType *y)
+LocateError (Coord *x, Coord *y)
 {
   switch (thing_type)
     {
@@ -4469,7 +4353,7 @@ BuildObjectList (int *object_count, long int **object_id_list, int **object_type
 static void
 GotoError (void)
 {
-  LocationType X, Y;
+  Coord X, Y;
 
   LocateError (&X, &Y);
 
