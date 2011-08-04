@@ -85,21 +85,21 @@ static double ComputeCost (NetListTypePtr Nets, double T0, double T);
  */
 const struct
 {
-  float via_cost;
-  float congestion_penalty;	/* penalty length / unit area */
-  float overlap_penalty_min;	/* penalty length / unit area at start */
-  float overlap_penalty_max;	/* penalty length / unit area at end */
-  float out_of_bounds_penalty;	/* assessed for each component oob */
-  float overall_area_penalty;	/* penalty length / unit area */
-  float matching_neighbor_bonus;	/* length bonus per same-type neigh. */
-  float aligned_neighbor_bonus;	/* length bonus per aligned neigh. */
-  float oriented_neighbor_bonus;	/* length bonus per same-rot neigh. */
+  double via_cost;
+  double congestion_penalty;	/* penalty length / unit area */
+  double overlap_penalty_min;	/* penalty length / unit area at start */
+  double overlap_penalty_max;	/* penalty length / unit area at end */
+  double out_of_bounds_penalty;	/* assessed for each component oob */
+  double overall_area_penalty;	/* penalty length / unit area */
+  double matching_neighbor_bonus;	/* length bonus per same-type neigh. */
+  double aligned_neighbor_bonus;	/* length bonus per aligned neigh. */
+  double oriented_neighbor_bonus;	/* length bonus per same-rot neigh. */
 #if 0
-  float pin_alignment_bonus;	/* length bonus per exact alignment */
-  float bound_alignment_bonus;	/* length bonus per exact alignment */
+  double pin_alignment_bonus;	/* length bonus per exact alignment */
+  double bound_alignment_bonus;	/* length bonus per exact alignment */
 #endif
-  float m;			/* annealing stage cutoff constant */
-  float gamma;			/* annealing schedule constant */
+  double m;			/* annealing stage cutoff constant */
+  double gamma;			/* annealing schedule constant */
   int good_ratio;		/* ratio of moves to good moves for halting */
   bool fast;			/* ignore SMD/pin conflicts */
   Coord large_grid_size;	/* snap perturbations to this grid when T is high */
@@ -139,8 +139,8 @@ typedef struct
 {
   ElementTypePtr element;
   enum ewhich which;
-  LocationType DX, DY;		/* for shift */
-  BYTE rotate;			/* for rotate/flip */
+  Coord DX, DY;			/* for shift */
+  unsigned rotate;		/* for rotate/flip */
   ElementTypePtr other;		/* for exchange */
 }
 PerturbationType;
@@ -242,7 +242,7 @@ struct r_neighbor_info
   BoxType trap;
   direction_t search_dir;
 };
-#define ROTATEBOX(box) { LocationType t;\
+#define ROTATEBOX(box) { Coord t;\
     t = (box).X1; (box).X1 = - (box).Y1; (box).Y1 = t;\
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
@@ -336,7 +336,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   double delta4 = 0;		/* alignment bonus */
   double delta5 = 0;		/* total area penalty */
   Cardinal i, j;
-  LocationType minx, maxx, miny, maxy;
+  Coord minx, maxx, miny, maxy;
   bool allpads, allsameside;
   Cardinal thegroup;
   BoxListType bounds = { 0, 0, NULL };	/* save bounding rectangles here */
@@ -401,8 +401,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     BoxListTypePtr otherside;
     BoxTypePtr box;
     BoxTypePtr lastbox = NULL;
-    BDimension thickness;
-    BDimension clearance;
+    Coord thickness;
+    Coord clearance;
     if (TEST_FLAG (ONSOLDERFLAG, element))
       {
 	thisside = &solderside;
@@ -566,20 +566,13 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	}
       if (element->Name[0].Direction == boxp->element->Name[0].Direction)
 	delta4 += factor * CostParameter.oriented_neighbor_bonus;
-      if (element->VBox.X1 ==
-	  boxp->element->VBox.X1 ||
-	  element->VBox.X1 ==
-	  boxp->element->VBox.X2 ||
-	  element->VBox.X2 ==
-	  boxp->element->VBox.X1 ||
-	  element->VBox.X2 ==
-	  boxp->element->VBox.X2 ||
-	  element->VBox.Y1 ==
-	  boxp->element->VBox.Y1 ||
-	  element->VBox.Y1 ==
-	  boxp->element->VBox.Y2 ||
-	  element->VBox.Y2 ==
-	  boxp->element->VBox.Y1 ||
+      if (element->VBox.X1 == boxp->element->VBox.X1 ||
+	  element->VBox.X1 == boxp->element->VBox.X2 ||
+	  element->VBox.X2 == boxp->element->VBox.X1 ||
+	  element->VBox.X2 == boxp->element->VBox.X2 ||
+	  element->VBox.Y1 == boxp->element->VBox.Y1 ||
+	  element->VBox.Y1 == boxp->element->VBox.Y2 ||
+	  element->VBox.Y2 == boxp->element->VBox.Y1 ||
 	  element->VBox.Y2 == boxp->element->VBox.Y2)
 	delta4 += factor * CostParameter.aligned_neighbor_bonus;
     }
@@ -590,8 +583,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   }
   /* penalize total area used by this layout */
   {
-    LocationType minX = MAX_COORD, minY = MAX_COORD;
-    LocationType maxX = -MAX_COORD, maxY = -MAX_COORD;
+    Coord minX = MAX_COORD, minY = MAX_COORD;
+    Coord maxX = -MAX_COORD, maxY = -MAX_COORD;
     ELEMENT_LOOP (PCB->Data);
     {
       MAKEMIN (minX, element->VBox.X1);
@@ -602,7 +595,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     END_LOOP;
     if (minX < maxX && minY < maxY)
       delta5 = CostParameter.overall_area_penalty *
-	sqrt ((double) (maxX - minX) * (maxY - minY) * 0.0001);
+	sqrt (COORD_TO_MIL (maxX - minX) * COORD_TO_MIL (maxY - minY));
   }
   if (T == 5)
     {
@@ -688,7 +681,7 @@ createPerturbation (PointerListTypePtr selected, double T)
 void
 doPerturb (PerturbationType * pt, bool undo)
 {
-  LocationType bbcx, bbcy;
+  Coord bbcx, bbcy;
   /* compute center of element bounding box */
   bbcx = (pt->element->VBox.X1 + pt->element->VBox.X2) / 2;
   bbcy = (pt->element->VBox.Y1 + pt->element->VBox.Y2) / 2;
@@ -697,7 +690,7 @@ doPerturb (PerturbationType * pt, bool undo)
     {
     case SHIFT:
       {
-	LocationType DX = pt->DX, DY = pt->DY;
+	Coord DX = pt->DX, DY = pt->DY;
 	if (undo)
 	  {
 	    DX = -DX;
@@ -708,7 +701,7 @@ doPerturb (PerturbationType * pt, bool undo)
       }
     case ROTATE:
       {
-	BYTE b = pt->rotate;
+	unsigned b = pt->rotate;
 	if (undo)
 	  b = (4 - b) & 3;
 	/* 0 - flip; 1-3, rotate. */
@@ -716,7 +709,7 @@ doPerturb (PerturbationType * pt, bool undo)
 	  RotateElementLowLevel (PCB->Data, pt->element, bbcx, bbcy, b);
 	else
 	  {
-	    LocationType y = pt->element->VBox.Y1;
+	    Coord y = pt->element->VBox.Y1;
 	    MirrorElementCoordinates (PCB->Data, pt->element, 0);
 	    /* mirroring moves the element.  move it back. */
 	    MoveElementLowLevel (PCB->Data, pt->element, 0,
@@ -727,10 +720,10 @@ doPerturb (PerturbationType * pt, bool undo)
     case EXCHANGE:
       {
 	/* first exchange positions */
-	LocationType x1 = pt->element->VBox.X1;
-	LocationType y1 = pt->element->VBox.Y1;
-	LocationType x2 = pt->other->BoundingBox.X1;
-	LocationType y2 = pt->other->BoundingBox.Y1;
+	Coord x1 = pt->element->VBox.X1;
+	Coord y1 = pt->element->VBox.Y1;
+	Coord x2 = pt->other->BoundingBox.X1;
+	Coord y2 = pt->other->BoundingBox.Y1;
 	MoveElementLowLevel (PCB->Data, pt->element, x2 - x1, y2 - y1);
 	MoveElementLowLevel (PCB->Data, pt->other, x1 - x2, y1 - y2);
 	/* then flip both elements if they are on opposite sides */
