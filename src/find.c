@@ -199,7 +199,8 @@ static GString *drc_dialog_message;
 static void
 reset_drc_dialog_message(void)
 {
-  g_string_free (drc_dialog_message, FALSE);
+  if (drc_dialog_message)
+    g_string_free (drc_dialog_message, FALSE);
   drc_dialog_message = g_string_new ("");
   if (gui->drc_gui != NULL)
     {
