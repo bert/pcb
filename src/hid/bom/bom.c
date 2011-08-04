@@ -33,9 +33,12 @@ static HID_Attribute bom_options[] = {
   {"xyfile", "XY output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_xyfile 1
-  {"xy-in-mm", "XY dimensions in mm instead of mils",
+  {"xy-unit", "XY units",
+   HID_Unit, 0, 0, {-1, 0, 0}, NULL, 0},
+#define HA_unit 2
+  {"xy-in-mm", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_xymm 2
+#define HA_xymm 3
 };
 
 #define NUM_OPTIONS (sizeof(bom_options)/sizeof(bom_options[0]))
@@ -44,7 +47,7 @@ static HID_Attr_Val bom_values[NUM_OPTIONS];
 
 static const char *bom_filename;
 static const char *xy_filename;
-static int xy_dim_type;
+static const Unit *xy_unit;
 
 typedef struct _StringList
 {
@@ -64,11 +67,21 @@ typedef struct _BomList
 static HID_Attribute *
 bom_get_export_options (int *n)
 {
-   static char *last_bom_filename = 0;
-   static char *last_xy_filename = 0;
+  static char *last_bom_filename = 0;
+  static char *last_xy_filename = 0;
+  static int last_unit_value = -1;
+
+  if (bom_options[HA_unit].default_val.int_value == last_unit_value)
+    {
+      if (Settings.grid_unit)
+        bom_options[HA_unit].default_val.int_value = Settings.grid_unit->index;
+      else
+        bom_options[HA_unit].default_val.int_value = get_unit_struct ("mil")->index;
+      last_unit_value = bom_options[HA_unit].default_val.int_value;
+    }
   if (PCB) {
-	derive_default_filename(PCB->Filename, &bom_options[HA_bomfile], ".bom", &last_bom_filename);
-	derive_default_filename(PCB->Filename, &bom_options[HA_xyfile ], ".xy" , &last_xy_filename );
+    derive_default_filename(PCB->Filename, &bom_options[HA_bomfile], ".bom", &last_bom_filename);
+    derive_default_filename(PCB->Filename, &bom_options[HA_xyfile ], ".xy" , &last_xy_filename );
   }
 
   if (n)
@@ -275,7 +288,7 @@ static int
 PrintBOM (void)
 {
   char utcTime[64];
-  BDimension x, y;
+  Coord x, y;
   double theta = 0.0;
   double sumx, sumy;
   double pin1x = 0.0, pin1y = 0.0, pin1angle = 0.0;
@@ -309,11 +322,7 @@ PrintBOM (void)
   fprintf (fp, "# Author: %s\n", pcb_author ());
   fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
-  if (xy_dim_type) {
-    fprintf (fp, "# X,Y in mm.  rotation in degrees.\n");
-  } else {
-    fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
-  }
+  fprintf (fp, "# X,Y in %s.  rotation in degrees.\n", xy_unit->in_suffix);
   fprintf (fp, "# --------------------------------------------\n");
 
   /*
@@ -451,11 +460,9 @@ PrintBOM (void)
 	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
-	pcb_fprintf (fp, "%s,\"%s\",\"%s\",%.2m*,%.2m*,%g,%s\n",
-		 name, descr, value,
-		 (xy_dim_type ? "mm" : "mil"), x,
-		 (xy_dim_type ? "mm" : "mil"), y,
-		 theta, FRONT (element) == 1 ? "top" : "bottom");
+	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%mS,%.2mS,%g,%s\n",
+		     xy_unit->allow, name, descr, value, x, y,
+		     theta, FRONT (element) == 1 ? "top" : "bottom");
 	free (name);
 	free (descr);
 	free (value);
@@ -512,7 +519,11 @@ bom_do_export (HID_Attr_Val * options)
   if (!xy_filename)
     xy_filename = "pcb-out.xy";
 
-  xy_dim_type = options[HA_xymm].int_value;
+  if (options[HA_unit].int_value == -1)
+    xy_unit = options[HA_xymm].int_value ? get_unit_struct ("mm")
+                                         : get_unit_struct ("mil");
+  else
+    xy_unit = &get_unit_list ()[options[HA_unit].int_value];
   PrintBOM ();
 }
 
