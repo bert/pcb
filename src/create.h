@@ -44,48 +44,41 @@ PCBTypePtr CreateNewPCB (bool);
 /* Called after PCB->Data->LayerN is set.  Returns zero if no errors,
    else nonzero.  */
 int CreateNewPCBPost (PCBTypePtr, int /* set defaults */);
-PinTypePtr CreateNewVia (DataTypePtr, LocationType, LocationType, BDimension,
-			 BDimension, BDimension, BDimension, char *,
-			 FlagType);
-LineTypePtr CreateDrawnLineOnLayer (LayerTypePtr, LocationType, LocationType,
-				    LocationType, LocationType, BDimension,
-				    BDimension, FlagType);
-LineTypePtr CreateNewLineOnLayer (LayerTypePtr, LocationType, LocationType,
-				  LocationType, LocationType, BDimension,
-				  BDimension, FlagType);
-RatTypePtr CreateNewRat (DataTypePtr, LocationType, LocationType,
-			 LocationType, LocationType, Cardinal, Cardinal,
-			 BDimension, FlagType);
-ArcTypePtr CreateNewArcOnLayer (LayerTypePtr, LocationType, LocationType,
-				BDimension, BDimension, int, int, BDimension, BDimension,
-				FlagType);
-PolygonTypePtr CreateNewPolygonFromRectangle (LayerTypePtr, LocationType,
-					      LocationType, LocationType,
-					      LocationType, FlagType);
-TextTypePtr CreateNewText (LayerTypePtr, FontTypePtr, LocationType,
-			   LocationType, BYTE, int, char *, FlagType);
+PinTypePtr CreateNewVia (DataTypePtr, Coord, Coord, Coord, Coord,
+			 Coord, Coord, char *, FlagType);
+LineTypePtr CreateDrawnLineOnLayer (LayerTypePtr, Coord, Coord, Coord,
+				    Coord, Coord, Coord, FlagType);
+LineTypePtr CreateNewLineOnLayer (LayerTypePtr, Coord, Coord, Coord,
+				  Coord, Coord, Coord, FlagType);
+RatTypePtr CreateNewRat (DataTypePtr, Coord, Coord, Coord,
+			 Coord, Cardinal, Cardinal, Coord, FlagType);
+ArcTypePtr CreateNewArcOnLayer (LayerTypePtr, Coord, Coord, Coord, Coord,
+				Angle, Angle, Coord, Coord, FlagType);
+PolygonTypePtr CreateNewPolygonFromRectangle (LayerTypePtr, Coord,
+					      Coord, Coord,
+					      Coord, FlagType);
+TextTypePtr CreateNewText (LayerTypePtr, FontTypePtr, Coord,
+			   Coord, unsigned, int, char *, FlagType);
 PolygonTypePtr CreateNewPolygon (LayerTypePtr, FlagType);
 PointTypePtr CreateNewPointInPolygon (PolygonTypePtr,
-				      LocationType, LocationType);
+				      Coord, Coord);
 PolygonType *CreateNewHoleInPolygon (PolygonType *polygon);
 ElementTypePtr CreateNewElement (DataTypePtr, ElementTypePtr,
 				 FontTypePtr, FlagType, char *, char *,
-				 char *, LocationType, LocationType, BYTE,
+				 char *, Coord, Coord, BYTE,
 				 int, FlagType, bool);
-LineTypePtr CreateNewLineInElement (ElementTypePtr, LocationType,
-				    LocationType, LocationType, LocationType,
-				    BDimension);
-ArcTypePtr CreateNewArcInElement (ElementTypePtr, LocationType, LocationType,
-				  BDimension, BDimension, int, int,
-				  BDimension);
-PinTypePtr CreateNewPin (ElementTypePtr, LocationType, LocationType,
-			 BDimension, BDimension, BDimension, BDimension,
+LineTypePtr CreateNewLineInElement (ElementTypePtr, Coord, Coord,
+				    Coord, Coord, Coord);
+ArcTypePtr CreateNewArcInElement (ElementTypePtr, Coord, Coord,
+				  Coord, Coord, Angle, Angle, Coord);
+PinTypePtr CreateNewPin (ElementTypePtr, Coord, Coord,
+			 Coord, Coord, Coord, Coord,
 			 char *, char *, FlagType);
-PadTypePtr CreateNewPad (ElementTypePtr, LocationType, LocationType,
-			 LocationType, LocationType, BDimension, BDimension,
-			 BDimension, char *, char *, FlagType);
-LineTypePtr CreateNewLineInSymbol (SymbolTypePtr, LocationType, LocationType,
-				   LocationType, LocationType, BDimension);
+PadTypePtr CreateNewPad (ElementTypePtr, Coord, Coord,
+			 Coord, Coord, Coord, Coord,
+			 Coord, char *, char *, FlagType);
+LineTypePtr CreateNewLineInSymbol (SymbolTypePtr, Coord, Coord,
+				   Coord, Coord, Coord);
 void CreateDefaultFont (PCBTypePtr);
 RubberbandTypePtr CreateNewRubberbandEntry (LayerTypePtr,
 					    LineTypePtr, PointTypePtr);

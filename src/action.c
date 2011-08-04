@@ -306,8 +306,7 @@ fake;
 
 static struct
 {
-  int X;
-  int Y;
+  Coord X, Y;
   Cardinal Buffer;
   bool Click;
   bool Moving;		/* selected type clicked on */
@@ -544,9 +543,9 @@ FinishStroke (void)
 	case 12589:
 	case 14589:
 	  {
-	    LocationType x = (StrokeBox.X1 + StrokeBox.X2) / 2;
-	    LocationType y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
-	    int z;
+	    Coord x = (StrokeBox.X1 + StrokeBox.X2) / 2;
+	    Coord y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
+	    double z;
 	    /* XXX: PCB->MaxWidth and PCB->MaxHeight may be the wrong
 	     *      divisors below. The old code WAS broken, but this
              *      replacement has not been tested for correctness.
@@ -906,11 +905,8 @@ NotifyLine (void)
       else if (type == PAD_TYPE)
 	{
 	  PadTypePtr pad = (PadTypePtr) ptr2;
-	  float d1, d2;
-	  d1 = SQUARE (Crosshair.X - pad->Point1.X) +
-	    SQUARE (Crosshair.Y - pad->Point1.Y);
-	  d2 = SQUARE (Crosshair.X - pad->Point2.X) +
-	    SQUARE (Crosshair.Y - pad->Point2.Y);
+	  double d1 = Distance (Crosshair.X, Crosshair.Y, pad->Point1.X, pad->Point1.Y);
+	  double d2 = Distance (Crosshair.X, Crosshair.Y, pad->Point2.X, pad->Point2.Y);
 	  if (d2 < d1)
 	    {
 	      Crosshair.AttachedLine.Point1 =
@@ -1058,8 +1054,8 @@ NotifyMode (void)
 	  case STATE_THIRD:
 	    {
 	      ArcTypePtr arc;
-	      LocationType wx, wy;
-	      int sa, dir;
+	      Coord wx, wy;
+	      Angle sa, dir;
 
 	      wx = Note.X - Crosshair.AttachedBox.Point1.X;
 	      wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
@@ -1864,15 +1860,13 @@ ActionDRCheck (int argc, char **argv, Coord x, Coord y)
 
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
     {
-      Message (_("Rules are minspace %.2f, minoverlap %.2f "
-		 "minwidth %.2f, minsilk %.2f\n"
-		 "min drill %.2f, min annular ring %.2f\n"),
-	       COORD_TO_MIL(PCB->Bloat + 1),
-	       COORD_TO_MIL(PCB->Shrink),
-	       COORD_TO_MIL(PCB->minWid),
-	       COORD_TO_MIL(PCB->minSlk),
-	       COORD_TO_MIL(PCB->minDrill),
-	       COORD_TO_MIL(PCB->minRing));
+      Message (_("%m+Rules are minspace %$mS, minoverlap %$mS "
+		 "minwidth %$mS, minsilk %$mS\n"
+		 "min drill %$mS, min annular ring %$mS\n"),
+               Settings.grid_unit->allow,
+	       PCB->Bloat, PCB->Shrink,
+	       PCB->minWid, PCB->minSlk,
+	       PCB->minDrill, PCB->minRing);
     }
   count = DRCAll ();
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
@@ -4046,7 +4040,7 @@ ActionChangeSize (int argc, char **argv, Coord x, Coord y)
   char *delta = ARG (1);
   char *units = ARG (2);
   bool absolute;			/* indicates if absolute size is given */
-  float value;
+  Coord value;
 
   if (function && delta)
     {
@@ -4138,7 +4132,7 @@ ActionChange2ndSize (int argc, char **argv, Coord x, Coord y)
   char *delta = ARG (1);
   char *units = ARG (2);
   bool absolute;
-  float value;
+  Coord value;
 
   if (function && delta)
     {
@@ -4205,7 +4199,7 @@ ActionChangeClearSize (int argc, char **argv, Coord x, Coord y)
   char *delta = ARG (1);
   char *units = ARG (2);
   bool absolute;
-  float value;
+  Coord value;
 
   if (function && delta)
     {
@@ -4280,7 +4274,7 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
   char *delta = ARG (1);
   char *units = ARG (2);
   bool absolute;
-  int value;
+  Coord value;
   int flags;
 
   if (!function)
@@ -4364,7 +4358,7 @@ ActionMinClearGap (int argc, char **argv, Coord x, Coord y)
   char *delta = ARG (1);
   char *units = ARG (2);
   bool absolute;
-  int value;
+  Coord value;
   int flags;
 
   if (!function)
@@ -6089,7 +6083,7 @@ ActionPasteBuffer (int argc, char **argv, Coord x, Coord y)
 
 	case F_ToLayout:
 	  {
-	    static int oldx = 0, oldy = 0;
+	    static Coord oldx = 0, oldy = 0;
 	    Coord x, y;
 	    bool absolute;
 
@@ -6466,7 +6460,7 @@ ActionMoveObject (int argc, char **argv, Coord x, Coord y)
   char *x_str = ARG (0);
   char *y_str = ARG (1);
   char *units = ARG (2);
-  LocationType nx, ny;
+  Coord nx, ny;
   bool absolute1, absolute2;
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -6962,20 +6956,10 @@ them.
 static int
 parse_layout_attribute_units (char *name, int def)
 {
-  const char *as, *units = NULL;
-  int n = 0, v;
-  bool absolute;
-
-  as = AttributeGet (PCB, name);
+  const char *as = AttributeGet (PCB, name);
   if (!as)
     return def;
-
-  sscanf (as, "%d%n", &v, &n);
-  units = as + n;
-  if (! *units)
-    units = NULL;
-  v = GetValue (as, units, &absolute);
-  return v;
+  return GetValue (as, NULL, NULL);
 }
 
 static int
@@ -7046,7 +7030,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
   if (!e)
     {
-      int nx, ny, d;
+      Coord nx, ny, d;
 
 #ifdef DEBUG
       printf("  ... Footprint not on board, need to add it.\n");
@@ -7089,7 +7073,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
       printf("  ... Footprint on board, but different from footprint loaded.\n");
 #endif
       int er, pr, i;
-      LocationType mx, my;
+      Coord mx, my;
       ElementType *pe;
 
       /* Different footprint, we need to swap them out.  */
@@ -7587,7 +7571,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
     {
       const char *xs, *ys, *units;
       Coord x, y;
-      gchar *buf;
+      char buf[50];
 
       xs = ARG (1);
       ys = ARG (2);
@@ -7613,9 +7597,8 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	}
       else if (ys)
 	{
-	  bool absolute;
-	  x = GetValue (xs, units, &absolute);
-	  y = GetValue (ys, units, &absolute);
+	  x = GetValue (xs, units, NULL);
+	  y = GetValue (ys, units, NULL);
 	}
       else
 	{
@@ -7623,12 +7606,10 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	  return 1;
 	}
 
-      buf = pcb_g_strdup_printf ("%$ms", x);
+      pcb_sprintf (buf, "%$ms", x);
       AttributePut (PCB, "import::newX", buf);
-      g_free (buf);
-      buf = pcb_g_strdup_printf ("%$ms", y);
+      pcb_sprintf (buf, "%$ms", y);
       AttributePut (PCB, "import::newY", buf);
-      g_free (buf);
       return 0;
     }
 

@@ -47,6 +47,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "pcb-printf.h"
 #include "polygon.h"
 #include "rtree.h"
 #include "search.h"
@@ -72,7 +73,7 @@ static bool be_lenient = false;
  * some local prototypes
  */
 static void AddTextToElement (TextTypePtr, FontTypePtr,
-			      LocationType, LocationType, BYTE, char *, int,
+			      Coord, Coord, unsigned, char *, int,
 			      FlagType);
 
 /* ---------------------------------------------------------------------------
@@ -237,9 +238,9 @@ CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
  */
 PinTypePtr
 CreateNewVia (DataTypePtr Data,
-	      LocationType X, LocationType Y,
-	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      BDimension DrillingHole, char *Name, FlagType Flags)
+	      Coord X, Coord Y,
+	      Coord Thickness, Coord Clearance, Coord Mask,
+	      Coord DrillingHole, char *Name, FlagType Flags)
 {
   PinTypePtr Via;
 
@@ -247,11 +248,11 @@ CreateNewVia (DataTypePtr Data,
     {
       VIA_LOOP (Data);
       {
-	if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
-	    SQUARE (via->DrillingHole / 2 + DrillingHole / 2)) 
+	if (Distance (X, Y, via->X, via->Y) <=
+	    via->DrillingHole / 2 + DrillingHole / 2)
 	  {
-	    Message (_("Dropping via at (%f, %f) because it's hole would overlap with the via "
-		       "at (%f, %f)\n"), COORD_TO_MIL(X), COORD_TO_MIL(Y), COORD_TO_MIL(via->X), COORD_TO_MIL(via->Y));
+	    Message (_("%m+Dropping via at %$mD because it's hole would overlap with the via "
+		       "at %$mD\n"), Settings.grid_unit->allow, X, Y, via->X, via->Y);
 	    return (NULL);		/* don't allow via stacking */
 	  }
       }
@@ -271,9 +272,8 @@ CreateNewVia (DataTypePtr Data,
   Via->DrillingHole = vendorDrillMap (DrillingHole);
   if (Via->DrillingHole != DrillingHole)
     {
-      Message (_
-	       ("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"),
-	       0.01 * Via->DrillingHole, 0.01 * DrillingHole);
+      Message (_("%m+Mapped via drill hole to %$mS from %$mS per vendor table\n"),
+	       Settings.grid_unit->allow, Via->DrillingHole, DrillingHole);
     }
 
   Via->Name = STRDUP (Name);
@@ -290,9 +290,9 @@ CreateNewVia (DataTypePtr Data,
       (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER))
     {
       Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
-      Message (_("Increased via thickness to %.2f mils to allow enough copper"
-		 " at (%.2f,%.2f).\n"),
-	       0.01 * Via->Thickness, 0.01 * Via->X, 0.01 * Via->Y);
+      Message (_("%m+Increased via thickness to %$mS to allow enough copper"
+		 " at %$mD.\n"),
+	       Settings.grid_unit->allow, Via->Thickness, Via->X, Via->Y);
     }
 
   SetPinBoundingBox (Via);
@@ -304,8 +304,8 @@ CreateNewVia (DataTypePtr Data,
 
 struct line_info
 {
-  LocationType X1, X2, Y1, Y2;
-  BDimension Thickness;
+  Coord X1, X2, Y1, Y2;
+  Coord Thickness;
   FlagType Flags;
   LineType test, *ans;
   jmp_buf env;
@@ -350,7 +350,7 @@ line_callback (const BoxType * b, void *cl)
 	  i->test.Point1.Y = line->Point2.Y;
 	  i->test.Point2.X = i->X2;
 	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
+	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
 	    {
 	      i->ans = line;
 	      longjmp (i->env, 1);
@@ -362,7 +362,7 @@ line_callback (const BoxType * b, void *cl)
 	  i->test.Point1.Y = line->Point1.Y;
 	  i->test.Point2.X = i->X2;
 	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
+	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
 	    {
 	      i->ans = line;
 	      longjmp (i->env, 1);
@@ -374,7 +374,7 @@ line_callback (const BoxType * b, void *cl)
 	  i->test.Point1.Y = line->Point2.Y;
 	  i->test.Point2.X = i->X1;
 	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine ((float) i->X2, (float) i->Y2, 0.0, &i->test))
+	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
 	    {
 	      i->ans = line;
 	      longjmp (i->env, 1);
@@ -386,7 +386,7 @@ line_callback (const BoxType * b, void *cl)
 	  i->test.Point1.Y = line->Point1.Y;
 	  i->test.Point2.X = i->X1;
 	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine ((float) i->X2, (float) i->Y2, 0.0, &i->test))
+	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
 	    {
 	      i->ans = line;
 	      longjmp (i->env, 1);
@@ -402,9 +402,9 @@ line_callback (const BoxType * b, void *cl)
  */
 LineTypePtr
 CreateDrawnLineOnLayer (LayerTypePtr Layer,
-			LocationType X1, LocationType Y1,
-			LocationType X2, LocationType Y2,
-			BDimension Thickness, BDimension Clearance,
+			Coord X1, Coord Y1,
+			Coord X2, Coord Y2,
+			Coord Thickness, Coord Clearance,
 			FlagType Flags)
 {
   struct line_info info;
@@ -456,9 +456,9 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
 
 LineTypePtr
 CreateNewLineOnLayer (LayerTypePtr Layer,
-		      LocationType X1, LocationType Y1,
-		      LocationType X2, LocationType Y2,
-		      BDimension Thickness, BDimension Clearance,
+		      Coord X1, Coord Y1,
+		      Coord X2, Coord Y2,
+		      Coord Thickness, Coord Clearance,
 		      FlagType Flags)
 {
   LineTypePtr Line;
@@ -488,9 +488,9 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
  * creates a new rat-line
  */
 RatTypePtr
-CreateNewRat (DataTypePtr Data, LocationType X1, LocationType Y1,
-	      LocationType X2, LocationType Y2, Cardinal group1,
-	      Cardinal group2, BDimension Thickness, FlagType Flags)
+CreateNewRat (DataTypePtr Data, Coord X1, Coord Y1,
+	      Coord X2, Coord Y2, Cardinal group1,
+	      Cardinal group2, Coord Thickness, FlagType Flags)
 {
   RatTypePtr Line = GetRatMemory (Data);
 
@@ -521,12 +521,12 @@ CreateNewRat (DataTypePtr Data, LocationType X1, LocationType Y1,
  */
 ArcTypePtr
 CreateNewArcOnLayer (LayerTypePtr Layer,
-		     LocationType X1, LocationType Y1,
-		     BDimension width,
-		     BDimension height,
-		     int sa,
-		     int dir, BDimension Thickness,
-		     BDimension Clearance, FlagType Flags)
+		     Coord X1, Coord Y1,
+		     Coord width,
+		     Coord height,
+		     Angle sa,
+		     Angle dir, Coord Thickness,
+		     Coord Clearance, FlagType Flags)
 {
   ArcTypePtr Arc;
 
@@ -565,8 +565,8 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
  */
 PolygonTypePtr
 CreateNewPolygonFromRectangle (LayerTypePtr Layer,
-			       LocationType X1, LocationType Y1,
-			       LocationType X2, LocationType Y2,
+			       Coord X1, Coord Y1,
+			       Coord X2, Coord Y2,
 			       FlagType Flags)
 {
   PolygonTypePtr polygon = CreateNewPolygon (Layer, Flags);
@@ -589,8 +589,8 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
  */
 TextTypePtr
 CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
-	       LocationType X, LocationType Y,
-	       BYTE Direction, int Scale, char *TextString, FlagType Flags)
+	       Coord X, Coord Y,
+	       unsigned Direction, int Scale, char *TextString, FlagType Flags)
 {
   TextType *text;
 
@@ -641,8 +641,7 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
  * creates a new point in a polygon
  */
 PointTypePtr
-CreateNewPointInPolygon (PolygonTypePtr Polygon, LocationType X,
-			 LocationType Y)
+CreateNewPointInPolygon (PolygonTypePtr Polygon, Coord X, Coord Y)
 {
   PointTypePtr point = GetPointMemoryInPolygon (Polygon);
 
@@ -673,7 +672,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  FontTypePtr PCBFont,
 		  FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
-		  LocationType TextX, LocationType TextY, BYTE Direction,
+		  Coord TextX, Coord TextY, BYTE Direction,
 		  int TextScale, FlagType TextFlags, bool uniqueName)
 {
 #ifdef DEBUG
@@ -711,9 +710,9 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
  */
 ArcTypePtr
 CreateNewArcInElement (ElementTypePtr Element,
-		       LocationType X, LocationType Y,
-		       BDimension Width, BDimension Height,
-		       int Angle, int Delta, BDimension Thickness)
+		       Coord X, Coord Y,
+		       Coord Width, Coord Height,
+		       Angle angle, Angle delta, Coord Thickness)
 {
   ArcType *arc;
 
@@ -722,23 +721,18 @@ CreateNewArcInElement (ElementTypePtr Element,
   Element->ArcN ++;
 
   /* set Delta (0,360], StartAngle in [0,360) */
-  if ((Delta = Delta % 360) == 0)
-    Delta = 360;
-  if (Delta < 0)
-    {
-      Angle += Delta;
-      Delta = -Delta;
-    }
-  if ((Angle = Angle % 360) < 0)
-    Angle += 360;
+  angle = NormalizeAngle (angle);
+  delta = NormalizeAngle (delta);
+  if (delta == 0)
+    delta = 360;
 
   /* copy values */
   arc->X = X;
   arc->Y = Y;
   arc->Width = Width;
   arc->Height = Height;
-  arc->StartAngle = Angle;
-  arc->Delta = Delta;
+  arc->StartAngle = angle;
+  arc->Delta = delta;
   arc->Thickness = Thickness;
   arc->ID = ID++;
   return arc;
@@ -749,9 +743,9 @@ CreateNewArcInElement (ElementTypePtr Element,
  */
 LineTypePtr
 CreateNewLineInElement (ElementTypePtr Element,
-			LocationType X1, LocationType Y1,
-			LocationType X2, LocationType Y2,
-			BDimension Thickness)
+			Coord X1, Coord Y1,
+			Coord X2, Coord Y2,
+			Coord Thickness)
 {
   LineType *line;
 
@@ -778,9 +772,9 @@ CreateNewLineInElement (ElementTypePtr Element,
  */
 PinTypePtr
 CreateNewPin (ElementTypePtr Element,
-	      LocationType X, LocationType Y,
-	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      BDimension DrillingHole, char *Name, char *Number,
+	      Coord X, Coord Y,
+	      Coord Thickness, Coord Clearance, Coord Mask,
+	      Coord DrillingHole, char *Name, char *Number,
 	      FlagType Flags)
 {
   PinTypePtr pin = GetPinMemory (Element);
@@ -810,27 +804,21 @@ CreateNewPin (ElementTypePtr Element,
     {
       if (pin->DrillingHole < MIN_PINORVIASIZE)
 	{
-	  Message (_
-		   ("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n"),
-		   UNKNOWN (Number), UNKNOWN (Name),
-		   0.01 * pin->DrillingHole);
+	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS is below the minimum allowed size\n"),
+		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (pin->DrillingHole > MAX_PINORVIASIZE)
 	{
-	  Message (_
-		   ("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n"),
-		   UNKNOWN (Number), UNKNOWN (Name),
-		   0.01 * pin->DrillingHole);
+	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS is above the maximum allowed size\n"),
+		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (!TEST_FLAG (HOLEFLAG, pin)
 	       && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER))
 	{
-	  Message (_
-		   ("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n"),
-		   UNKNOWN (Number), UNKNOWN (Name),
-		   0.01 * pin->DrillingHole);
+	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS does not leave enough copper\n"),
+		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
     }
@@ -841,9 +829,8 @@ CreateNewPin (ElementTypePtr Element,
 
   if (pin->DrillingHole != DrillingHole)
     {
-      Message (_
-	       ("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"),
-	       0.01 * pin->DrillingHole, 0.01 * DrillingHole);
+      Message (_("%m+Mapped pin drill hole to %$mS from %$mS per vendor table\n"),
+	       Settings.grid_unit->allow, pin->DrillingHole, DrillingHole);
     }
 
   return (pin);
@@ -854,9 +841,9 @@ CreateNewPin (ElementTypePtr Element,
  */
 PadTypePtr
 CreateNewPad (ElementTypePtr Element,
-	      LocationType X1, LocationType Y1, LocationType X2,
-	      LocationType Y2, BDimension Thickness, BDimension Clearance,
-	      BDimension Mask, char *Name, char *Number, FlagType Flags)
+	      Coord X1, Coord Y1, Coord X2,
+	      Coord Y2, Coord Thickness, Coord Clearance,
+	      Coord Mask, char *Name, char *Number, FlagType Flags)
 {
   PadTypePtr pad = GetPadMemory (Element);
 
@@ -893,8 +880,8 @@ CreateNewPad (ElementTypePtr Element,
  */
 static void
 AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
-		  LocationType X, LocationType Y,
-		  BYTE Direction, char *TextString, int Scale, FlagType Flags)
+		  Coord X, Coord Y,
+		  unsigned Direction, char *TextString, int Scale, FlagType Flags)
 {
   free (Text->TextString);
   Text->TextString = (TextString && *TextString) ? strdup (TextString) : NULL;
@@ -914,8 +901,8 @@ AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
  */
 LineTypePtr
 CreateNewLineInSymbol (SymbolTypePtr Symbol,
-		       LocationType X1, LocationType Y1,
-		       LocationType X2, LocationType Y2, BDimension Thickness)
+		       Coord X1, Coord Y1,
+		       Coord X2, Coord Y2, Coord Thickness)
 {
   LineTypePtr line = Symbol->Line;
 
