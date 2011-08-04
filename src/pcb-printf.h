@@ -25,8 +25,8 @@
  */
 
 /* This file defines a wrapper around sprintf, that
- *  defines new specifiers that take pcb BDimension
- *  objects as input.
+ *  defines new specifiers that take pcb Coord objects
+ *  as input.
  *
  * There is a fair bit of nasty (repetitious) code in
  *  here, but I feel the gain in clarity for output

@@ -88,7 +88,7 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
   for (n = 0; n < AllDrills->DrillN; n++)
     {
       pcb_sprintf (thestring,
-	       "\t%$m*\t\t%d\t\t%d\t\t%d\t\t%d\n",
+	       "%10m*\t\t%d\t\t%d\t\t%d\t\t%d\n",
 	       Settings.grid_unit->suffix,
 	       AllDrills->Drill[n].DrillSize,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
@@ -291,7 +291,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 "CenterPoint(X,Y) = %$mD.\n"
 		 "Radius = %$mS, Thickness = %$mS.\n"
 		 "Clearance width in polygons = %$mS.\n"
-		 "StartAngle = %ld degrees, DeltaAngle = %ld degrees.\n"
+		 "StartAngle = %ma degrees, DeltaAngle = %ma degrees.\n"
 		 "Bounding Box is %$mD, %$mD.\n"
 		 "That makes the end points at %$mD and %$mD.\n"
 		 "It is on layer %d.\n"
@@ -337,7 +337,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
       }
     case PAD_TYPE:
       {
-	BDimension len;
+	Coord len;
 	PadTypePtr Pad;
 	ElementTypePtr element;
 #ifndef NDEBUG
@@ -411,7 +411,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 EMPTY (element->Name[0].TextString),
 		 EMPTY (element->Name[1].TextString),
 		 EMPTY (element->Name[2].TextString),
-		 (BDimension) (0.45 * element->Name[1].Scale * 100),
+		 (Coord) (0.45 * element->Name[1].Scale * 100),
 		 element->Name[1].X, element->Name[1].Y,
 		 TEST_FLAG (HIDENAMEFLAG, element) ? ",\n  but it's hidden" : "",
 		 element->MarkX, element->MarkY,
@@ -452,7 +452,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 "The bounding box is %$mD %$mD.\n"
 		 "%s\n"
 		 "%s", USER_UNITMASK, text->ID, flags_to_string (text->Flags, TEXT_TYPE),
-		 text->X, text->Y, (BDimension) (0.45 * text->Scale * 100),
+		 text->X, text->Y, (Coord) (0.45 * text->Scale * 100),
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,
@@ -630,7 +630,7 @@ ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
         {
           char buf[50];
           const char *units_name = argv[0];
-          BDimension length;
+          Coord length;
 
           if (argc < 1)
             units_name = Settings.grid_unit->suffix;
@@ -652,7 +652,7 @@ ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
 static int
 ReportNetLength (int argc, char **argv, Coord x, Coord y)
 {
-  BDimension length = 0;
+  Coord length = 0;
   char *netname = 0;
   int found = 0;
 
