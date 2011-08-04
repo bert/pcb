@@ -66,7 +66,7 @@ RCSID ("$Id$");
 typedef struct mtspacebox
 {
   const BoxType box;
-  BDimension keepaway;		/* the smallest keepaway around this box */
+  Coord keepaway;		/* the smallest keepaway around this box */
 }
 mtspacebox_t;
 
@@ -91,15 +91,15 @@ struct vetting
   heap_or_vector no_fix;
   heap_or_vector no_hi;
   heap_or_vector hi_candidate;
-  BDimension radius;
-  BDimension keepaway;
+  Coord radius;
+  Coord keepaway;
   CheapPointType desired;
 };
 
 #define SPECIAL 823157
 
 mtspacebox_t *
-mtspace_create_box (const BoxType * box, BDimension keepaway)
+mtspace_create_box (const BoxType * box, Coord keepaway)
 {
   mtspacebox_t *mtsb;
   assert (box_is_good (box));
@@ -140,7 +140,7 @@ mtspace_destroy (mtspace_t ** mtspacep)
 
 struct mts_info
 {
-  BDimension keepaway;
+  Coord keepaway;
   BoxType box;
   rtree_t *tree;
   jmp_buf env;
@@ -181,7 +181,7 @@ which_tree (mtspace_t * mtspace, mtspace_type_t which)
 /* add a space-filler to the empty space representation.  */
 void
 mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
-	     BDimension keepaway)
+	     Coord keepaway)
 {
   mtspacebox_t *filler = mtspace_create_box (box, keepaway);
   r_insert_entry (which_tree (mtspace, which), (const BoxType *) filler, 1);
@@ -191,7 +191,7 @@ mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
 void
 mtspace_remove (mtspace_t * mtspace,
 		const BoxType * box, mtspace_type_t which,
-		BDimension keepaway)
+		Coord keepaway)
 {
   struct mts_info cl;
   BoxType small_search;
@@ -213,7 +213,7 @@ struct query_closure
   heap_or_vector checking;
   heap_or_vector touching;
   CheapPointType *desired;
-  BDimension radius, keepaway;
+  Coord radius, keepaway;
   jmp_buf env;
   bool touch_is_vec;
 };
@@ -245,7 +245,7 @@ query_one (const BoxType * box, void *cl)
 {
   struct query_closure *qc = (struct query_closure *) cl;
   mtspacebox_t *mtsb = (mtspacebox_t *) box;
-  BDimension shrink;
+  Coord shrink;
   assert (box_intersect (qc->cbox, &mtsb->box));
   /* we need to satisfy the larger of the two keepaways */
   if (qc->keepaway > mtsb->keepaway)
@@ -262,8 +262,8 @@ query_one (const BoxType * box, void *cl)
   /* ok, we do touch this box, now create up to 4 boxes that don't */
   if (mtsb->box.Y1 > qc->cbox->Y1 + shrink)	/* top region exists */
     {
-      int Y1 = qc->cbox->Y1;
-      int Y2 = mtsb->box.Y1 + shrink;
+      Coord Y1 = qc->cbox->Y1;
+      Coord Y2 = mtsb->box.Y1 + shrink;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
 	{
 	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
@@ -277,8 +277,8 @@ query_one (const BoxType * box, void *cl)
     }
   if (mtsb->box.Y2 < qc->cbox->Y2 - shrink)	/* bottom region exists */
     {
-      int Y1 = mtsb->box.Y2 - shrink;
-      int Y2 = qc->cbox->Y2;
+      Coord Y1 = mtsb->box.Y2 - shrink;
+      Coord Y2 = qc->cbox->Y2;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
 	{
 	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
@@ -292,8 +292,8 @@ query_one (const BoxType * box, void *cl)
     }
   if (mtsb->box.X1 > qc->cbox->X1 + shrink)	/* left region exists */
     {
-      int X1 = qc->cbox->X1;
-      int X2 = mtsb->box.X1 + shrink;
+      Coord X1 = qc->cbox->X1;
+      Coord X2 = mtsb->box.X1 + shrink;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
 	{
 	  BoxType *newone;
@@ -308,8 +308,8 @@ query_one (const BoxType * box, void *cl)
     }
   if (mtsb->box.X2 < qc->cbox->X2 - shrink)	/* right region exists */
     {
-      int X1 = mtsb->box.X2 - shrink;
-      int X2 = qc->cbox->X2;
+      Coord X1 = mtsb->box.X2 - shrink;
+      Coord X2 = qc->cbox->X2;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
 	{
 	  BoxType *newone = (BoxType *) malloc (sizeof (BoxType));
@@ -429,7 +429,7 @@ mtsFreeWork (vetting_t ** w)
  */
 vetting_t *
 mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
-		    BDimension radius, BDimension keepaway,
+		    Coord radius, Coord keepaway,
 		    vetting_t * work,
 		    vector_t * free_space_vec,
 		    vector_t * lo_conflict_space_vec,

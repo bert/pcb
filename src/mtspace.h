@@ -60,7 +60,7 @@ void mtspace_destroy (mtspace_t ** mtspacep);
  * *at least* a radius of keepaway around it;
  */
 void mtspace_add (mtspace_t * mtspace,
-                  const BoxType * box, mtspace_type_t which, BDimension
+                  const BoxType * box, mtspace_type_t which, Coord
                   keepaway);
 /* remove a space-filler from the empty space representation.  The given box
  * should *not* be bloated; it should be "true".  The feature will fill
@@ -68,11 +68,11 @@ void mtspace_add (mtspace_t * mtspace,
  */
 void mtspace_remove (mtspace_t * mtspace,
                      const BoxType * box, mtspace_type_t which,
-                     BDimension keepaway);
+                     Coord keepaway);
 
 
 vetting_t *mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
-                               BDimension radius, BDimension keepaway,
+                               Coord radius, Coord keepaway,
                                vetting_t * work,
                                vector_t * free_space_vec,
                                vector_t * lo_conflict_space_vec,
