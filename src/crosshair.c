@@ -64,17 +64,16 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void XORPolygon (PolygonTypePtr, LocationType, LocationType);
-static void XORDrawElement (ElementTypePtr, LocationType, LocationType);
+static void XORPolygon (PolygonTypePtr, Coord, Coord);
+static void XORDrawElement (ElementTypePtr, Coord, Coord);
 static void XORDrawBuffer (BufferTypePtr);
 static void XORDrawInsertPointObject (void);
 static void XORDrawMoveOrCopyObject (void);
-static void XORDrawAttachedLine (LocationType, LocationType, LocationType,
-				 LocationType, BDimension);
-static void XORDrawAttachedArc (BDimension);
+static void XORDrawAttachedLine (Coord, Coord, Coord, Coord, Coord);
+static void XORDrawAttachedArc (Coord);
 
 static void
-thindraw_moved_pv (PinType *pv, int x, int y)
+thindraw_moved_pv (PinType *pv, Coord x, Coord y)
 {
   /* Make a copy of the pin structure, moved to the correct position */
   PinType moved_pv = *pv;
@@ -88,7 +87,7 @@ thindraw_moved_pv (PinType *pv, int x, int y)
  * creates a tmp polygon with coordinates converted to screen system
  */
 static void
-XORPolygon (PolygonTypePtr polygon, LocationType dx, LocationType dy)
+XORPolygon (PolygonTypePtr polygon, Coord dx, Coord dy)
 {
   Cardinal i;
   for (i = 0; i < polygon->PointN; i++)
@@ -106,13 +105,13 @@ XORPolygon (PolygonTypePtr polygon, LocationType dx, LocationType dy)
  * Draws the outline of an arc
  */
 static void
-XORDrawAttachedArc (BDimension thick)
+XORDrawAttachedArc (Coord thick)
 {
   ArcType arc;
   BoxTypePtr bx;
-  LocationType wx, wy;
-  int sa, dir;
-  BDimension wid = thick / 2;
+  Coord wx, wy;
+  Angle sa, dir;
+  Coord wid = thick / 2;
 
   wx = Crosshair.X - Crosshair.AttachedBox.Point1.X;
   wy = Crosshair.Y - Crosshair.AttachedBox.Point1.Y;
@@ -164,11 +163,10 @@ XORDrawAttachedArc (BDimension thick)
  * Draws the outline of a line
  */
 static void
-XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
-		     LocationType y2, BDimension thick)
+XORDrawAttachedLine (Coord x1, Coord y1, Coord x2, Coord y2, Coord thick)
 {
-  LocationType dx, dy, ox, oy;
-  float h;
+  Coord dx, dy, ox, oy;
+  double h;
 
   dx = x2 - x1;
   dy = y2 - y1;
@@ -181,7 +179,7 @@ XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
   gui->draw_line (Crosshair.GC, x1 + ox, y1 + oy, x2 + ox, y2 + oy);
   if (abs (ox) >= pixel_slop || abs (oy) >= pixel_slop)
     {
-      LocationType angle = atan2 ((float) dx, (float) dy) * 57.295779;
+      Angle angle = atan2 (dx, dy) * 57.295779;
       gui->draw_line (Crosshair.GC, x1 - ox, y1 - oy, x2 - ox, y2 - oy);
       gui->draw_arc (Crosshair.GC,
 		     x1, y1, thick / 2, thick / 2, angle - 180, 180);
@@ -193,7 +191,7 @@ XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
  * draws the elements of a loaded circuit which is to be merged in
  */
 static void
-XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
+XORDrawElement (ElementTypePtr Element, Coord DX, Coord DY)
 {
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
@@ -288,7 +286,7 @@ static void
 XORDrawBuffer (BufferTypePtr Buffer)
 {
   Cardinal i;
-  LocationType x, y;
+  Coord x, y;
 
   /* set offset */
   x = Crosshair.X - Buffer->X;
@@ -382,7 +380,7 @@ XORDrawMoveOrCopyObject (void)
 {
   RubberbandTypePtr ptr;
   Cardinal i;
-  LocationType dx = Crosshair.X - Crosshair.AttachedObject.X,
+  Coord dx = Crosshair.X - Crosshair.AttachedObject.X,
     dy = Crosshair.Y - Crosshair.AttachedObject.Y;
 
   switch (Crosshair.AttachedObject.Type)
@@ -657,7 +655,7 @@ DrawAttached (void)
   if (Crosshair.AttachedBox.State == STATE_SECOND ||
       Crosshair.AttachedBox.State == STATE_THIRD)
     {
-      LocationType x1, y1, x2, y2;
+      Coord x1, y1, x2, y2;
 
       x1 = Crosshair.AttachedBox.Point1.X;
       y1 = Crosshair.AttachedBox.Point1.Y;
@@ -796,7 +794,7 @@ square (double x)
 }
 
 static double
-crosshair_sq_dist (CrosshairType *crosshair, LocationType x, LocationType y)
+crosshair_sq_dist (CrosshairType *crosshair, Coord x, Coord y)
 {
   return square (x - crosshair->X) + square (y - crosshair->Y);
 }
@@ -815,7 +813,7 @@ struct snap_data {
  * (including grid points), is always preferred.
  */
 static void
-check_snap_object (struct snap_data *snap_data, LocationType x, LocationType y,
+check_snap_object (struct snap_data *snap_data, Coord x, Coord y,
                    bool prefer_to_grid)
 {
   double sq_dist;
@@ -833,13 +831,13 @@ check_snap_object (struct snap_data *snap_data, LocationType x, LocationType y,
 
 static void
 check_snap_offgrid_line (struct snap_data *snap_data,
-                         LocationType nearest_grid_x,
-                         LocationType nearest_grid_y)
+                         Coord nearest_grid_x,
+                         Coord nearest_grid_y)
 {
   void *ptr1, *ptr2, *ptr3;
   int ans;
   LineType *line;
-  LocationType try_x, try_y;
+  Coord try_x, try_y;
   double dx, dy;
   double dist;
 
@@ -1120,7 +1118,7 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
  * move crosshair relative (has to be switched off)
  */
 void
-MoveCrosshairRelative (LocationType DeltaX, LocationType DeltaY)
+MoveCrosshairRelative (Coord DeltaX, Coord DeltaY)
 {
   FitCrosshairIntoGrid (Crosshair.X + DeltaX, Crosshair.Y + DeltaY);
 }
@@ -1130,9 +1128,9 @@ MoveCrosshairRelative (LocationType DeltaX, LocationType DeltaY)
  * return true if the crosshair was moved from its existing position
  */
 bool
-MoveCrosshairAbsolute (LocationType X, LocationType Y)
+MoveCrosshairAbsolute (Coord X, Coord Y)
 {
-  LocationType x, y, z;
+  Coord x, y, z;
   x = Crosshair.X;
   y = Crosshair.Y;
   FitCrosshairIntoGrid (X, Y);
@@ -1158,13 +1156,12 @@ MoveCrosshairAbsolute (LocationType X, LocationType Y)
  * sets the valid range for the crosshair cursor
  */
 void
-SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
-		   LocationType MaxY)
+SetCrosshairRange (Coord MinX, Coord MinY, Coord MaxX, Coord MaxY)
 {
   Crosshair.MinX = MAX (0, MinX);
   Crosshair.MinY = MAX (0, MinY);
-  Crosshair.MaxX = MIN ((LocationType) PCB->MaxWidth, MaxX);
-  Crosshair.MaxY = MIN ((LocationType) PCB->MaxHeight, MaxY);
+  Crosshair.MaxX = MIN (PCB->MaxWidth, MaxX);
+  Crosshair.MaxY = MIN (PCB->MaxHeight, MaxY);
 
   /* force update of position */
   MoveCrosshairRelative (0, 0);

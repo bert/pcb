@@ -47,12 +47,11 @@ void HideCrosshair (void);
 void RestoreCrosshair (void);
 void DrawAttached (void);
 void DrawMark (void);
-void MoveCrosshairRelative (LocationType, LocationType);
-bool MoveCrosshairAbsolute (LocationType, LocationType);
-void SetCrosshairRange (LocationType, LocationType, LocationType,
-			LocationType);
+void MoveCrosshairRelative (Coord, Coord);
+bool MoveCrosshairAbsolute (Coord, Coord);
+void SetCrosshairRange (Coord, Coord, Coord, Coord);
 void InitCrosshair (void);
 void DestroyCrosshair (void);
-void FitCrosshairIntoGrid (LocationType, LocationType);
+void FitCrosshairIntoGrid (Coord, Coord);
 
 #endif
