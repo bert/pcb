@@ -354,7 +354,7 @@ typedef enum
        different values each time may be expensive, so grouping items by
        line style is helpful.  */
     void (*set_line_cap) (hidGC gc_, EndCapStyle style_);
-    void (*set_line_width) (hidGC gc_, int width_);
+    void (*set_line_width) (hidGC gc_, Coord width_);
     void (*set_draw_xor) (hidGC gc_, int xor_);
     /* Blends 20% or so color with 80% background.  Only used for
        assembly drawings so far. */
@@ -363,12 +363,12 @@ typedef enum
     /* The usual drawing functions.  "draw" means to use segments of the
        given width, whereas "fill" means to fill to a zero-width
        outline.  */
-    void (*draw_line) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
-    void (*draw_arc) (hidGC gc_, int cx_, int cy_, int xradius_, int yradius_,
-		      int start_angle_, int delta_angle_);
-    void (*draw_rect) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
-    void (*fill_circle) (hidGC gc_, int cx_, int cy_, int radius_);
-    void (*fill_polygon) (hidGC gc_, int n_coords_, int *x_, int *y_);
+    void (*draw_line) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
+    void (*draw_arc) (hidGC gc_, Coord cx_, Coord cy_, Coord xradius_, Coord yradius_,
+		      Angle start_angle_, Angle delta_angle_);
+    void (*draw_rect) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
+    void (*fill_circle) (hidGC gc_, Coord cx_, Coord cy_, Coord radius_);
+    void (*fill_polygon) (hidGC gc_, int n_coords_, Coord *x_, Coord *y_);
     void (*fill_pcb_polygon) (hidGC gc_, PolygonType *poly,
                               const BoxType *clip_box);
     void (*thindraw_pcb_polygon) (hidGC gc_, PolygonType *poly,
@@ -377,7 +377,7 @@ typedef enum
     void (*thindraw_pcb_pad) (hidGC gc_, PadType *pad, bool clip, bool mask);
     void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
     void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
-    void (*fill_rect) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
+    void (*fill_rect) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
 
 
     /* This is for the printer.  If you call this for the GUI, xval and
@@ -396,7 +396,7 @@ typedef enum
     /* Temporary */
     int (*shift_is_pressed) (void);
     int (*control_is_pressed) (void);
-	int (*mod1_is_pressed) (void);
+    int (*mod1_is_pressed) (void);
     void (*get_coords) (const char *msg_, Coord *x_, Coord *y_);
 
     /* Sets the crosshair, which may differ from the pointer depending
