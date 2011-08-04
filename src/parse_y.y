@@ -85,7 +85,7 @@ int yyerror(const char *s);
 int yylex();
 static int check_file_version (int);
 
-static void do_measure (PLMeasure *m, int i, double d, int u);
+static void do_measure (PLMeasure *m, Coord i, double d, int u);
 #define M(r,f,d) do_measure (&(r), f, d, 1)
 
 /* Macros for interpreting what "measure" means - integer value only,
@@ -95,8 +95,8 @@ static void do_measure (PLMeasure *m, int i, double d, int u);
 #define NU(m) new_units (m)
 
 static int integer_value (PLMeasure m);
-static BDimension old_units (PLMeasure m);
-static BDimension new_units (PLMeasure m);
+static Coord old_units (PLMeasure m);
+static Coord new_units (PLMeasure m);
 
 #define YYDEBUG 1
 #define YYERROR_VERBOSE 1
@@ -780,7 +780,7 @@ via_oldformat
 			/* old format: x, y, thickness, name, flags */
 		: T_VIA '(' measure measure measure STRING INTEGER ')'
 			{
-				BDimension	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
+				Coord	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
 
 					/* make sure that there's enough copper left */
 				if (OU($5) - hole < MIN_PINORVIACOPPER && 
@@ -1592,8 +1592,8 @@ pin_oldformat
 			 */
 		: T_PIN '(' measure measure measure STRING INTEGER ')'
 			{
-				BDimension	hole = OU ($5) * DEFAULT_DRILLINGHOLE;
-				char		p_number[8];
+				Coord	hole = OU ($5) * DEFAULT_DRILLINGHOLE;
+				char	p_number[8];
 
 					/* make sure that there's enough copper left */
 				if (OU ($5) - hole < MIN_PINORVIACOPPER && 
@@ -1979,7 +1979,7 @@ check_file_version (int ver)
 }
 
 static void
-do_measure (PLMeasure *m, BDimension i, double d, int u)
+do_measure (PLMeasure *m, Coord i, double d, int u)
 {
   m->ival = i;
   m->bval = round (d);
@@ -1995,7 +1995,7 @@ integer_value (PLMeasure m)
   return m.ival;
 }
 
-static BDimension
+static Coord
 old_units (PLMeasure m)
 {
   if (m.has_units)
@@ -2003,7 +2003,7 @@ old_units (PLMeasure m)
   return round (MIL_TO_COORD (m.ival));
 }
 
-static BDimension
+static Coord
 new_units (PLMeasure m)
 {
   if (m.has_units)
