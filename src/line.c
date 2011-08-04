@@ -50,7 +50,7 @@
 
 RCSID ("$Id$");
 
-static float drc_lines (PointTypePtr end, bool way);
+static double drc_lines (PointTypePtr end, bool way);
 
 /* ---------------------------------------------------------------------------
  * Adjust the attached line to 45 degrees if necessary
@@ -95,9 +95,9 @@ AdjustAttachedLine (void)
 void
 FortyFiveLine (AttachedLineTypePtr Line)
 {
-  LocationType dx, dy, min;
-  BYTE direction = 0;
-  float m;
+  Coord dx, dy, min;
+  unsigned direction = 0;
+  double m;
 
   /* first calculate direction of line */
   dx = Crosshair.X - Line->Point1.X;
@@ -113,7 +113,7 @@ FortyFiveLine (AttachedLineTypePtr Line)
     }
   else
     {
-      m = (float) dy / (float) dx;
+      m = (double) dy / dx;
       direction = 2;
       if (m > TAN_30_DEGREE)
 	direction = m > TAN_60_DEGREE ? 0 : 1;
@@ -168,9 +168,9 @@ FortyFiveLine (AttachedLineTypePtr Line)
  *  adjusts the insert lines to make them 45 degrees as necessary
  */
 void
-AdjustTwoLine (int way)
+AdjustTwoLine (bool way)
 {
-  LocationType dx, dy;
+  Coord dx, dy;
   AttachedLineTypePtr line = &Crosshair.AttachedLine;
 
   if (Crosshair.AttachedLine.State == STATE_FIRST)
@@ -284,12 +284,12 @@ drcArc_callback (const BoxType * b, void *cl)
  * changes the position of the input point to the best answer.
  */
 
-static float
+static double
 drc_lines (PointTypePtr end, bool way)
 {
-  float f, s, f2, s2, len, best;
-  LocationType dx, dy, temp, last, length;
-  LocationType temp2, last2, length2;
+  double f, s, f2, s2, len, best;
+  Coord dx, dy, temp, last, length;
+  Coord temp2, last2, length2;
   LineType line1, line2;
   Cardinal group, comp;
   struct drc_info info;
@@ -444,7 +444,7 @@ drc_lines (PointTypePtr end, bool way)
 	      f2 += s2;
 	      len = (line2.Point2.X - line1.Point1.X);
 	      len *= len;
-	      len += (float) (line2.Point2.Y - line1.Point1.Y) *
+	      len += (double) (line2.Point2.Y - line1.Point1.Y) *
 		(line2.Point2.Y - line1.Point1.Y);
 	      if (len > best)
 		{
@@ -485,7 +485,7 @@ EnforceLineDRC (void)
 {
   PointType r45, rs;
   bool shift;
-  float r1, r2;
+  double r1, r2;
 
   /* Silence a bogus compiler warning by storing this in a variable */
   int layer_idx = INDEXOFCURRENT;

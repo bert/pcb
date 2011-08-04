@@ -66,9 +66,9 @@ static int nextpwrof2 (int i);
  */
 typedef struct
 {
-  LocationType left, right;
+  Coord left, right;
   int covered;
-  int area;
+  Coord area;
 }
 SegmentTreeNode;
 
@@ -81,7 +81,7 @@ SegmentTree;
 
 typedef struct
 {
-  LocationType *p;
+  Coord *p;
   int size;
 }
 LocationList;
@@ -93,11 +93,11 @@ static LocationList
 createSortedYList (BoxListTypePtr boxlist)
 {
   LocationList yCoords;
-  LocationType last;
+  Coord last;
   int i, n;
   /* create sorted list of Y coordinates */
   yCoords.size = 2 * boxlist->BoxN;
-  yCoords.p = (LocationType *)calloc (yCoords.size, sizeof (*yCoords.p));
+  yCoords.p = (Coord *)calloc (yCoords.size, sizeof (*yCoords.p));
   for (i = 0; i < boxlist->BoxN; i++)
     {
       yCoords.p[2 * i] = boxlist->Box[i].Y1;
@@ -117,7 +117,7 @@ createSortedYList (BoxListTypePtr boxlist)
  * Create an empty segment tree from the given sorted list of uniq y coords.
  */
 static SegmentTree
-createSegmentTree (LocationType * yCoords, int N)
+createSegmentTree (Coord * yCoords, int N)
 {
   SegmentTree st;
   int i;
@@ -144,9 +144,9 @@ createSegmentTree (LocationType * yCoords, int N)
 }
 
 void
-insertSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
+insertSegment (SegmentTree * st, int n, Coord Y1, Coord Y2)
 {
-  LocationType discriminant;
+  Coord discriminant;
   if (st->nodes[n].left >= Y1 && st->nodes[n].right <= Y2)
     {
       st->nodes[n].covered++;
@@ -168,9 +168,9 @@ insertSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
 }
 
 void
-deleteSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
+deleteSegment (SegmentTree * st, int n, Coord Y1, Coord Y2)
 {
-  LocationType discriminant;
+  Coord discriminant;
   if (st->nodes[n].left >= Y1 && st->nodes[n].right <= Y2)
     {
       assert (st->nodes[n].covered);
@@ -223,7 +223,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   Cardinal i, j;
   LocationList yCoords;
   SegmentTree segtree;
-  LocationType lastX;
+  Coord lastX;
   double area = 0.0;
 
   if (boxlist->BoxN == 0)
@@ -300,7 +300,7 @@ compareright (const void *ptr1, const void *ptr2)
 static int
 comparepos (const void *ptr1, const void *ptr2)
 {
-  return *((LocationType *) ptr1) - *((LocationType *) ptr2);
+  return *((Coord *) ptr1) - *((Coord *) ptr2);
 }
 static int
 nextpwrof2 (int n)
