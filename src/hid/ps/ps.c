@@ -41,7 +41,7 @@ typedef struct hid_gc_struct
 {
   HID *me_pointer;
   EndCapStyle cap;
-  int width;
+  Coord width;
   unsigned char r, g, b;
   int erase;
   int faded;
@@ -63,8 +63,8 @@ static const char *medias[] = {
 typedef struct
 {
   char *name;
-  BDimension Width, Height;
-  BDimension MarginX, MarginY;
+  Coord Width, Height;
+  Coord MarginX, MarginY;
 } MediaType, *MediaTypePtr;
 
 /*
@@ -211,12 +211,12 @@ static struct {
 
   FILE *f;
   int pagecount;
-  BDimension linewidth;
+  Coord linewidth;
   bool print_group[MAX_LAYER];
   bool print_layer[MAX_LAYER];
   double fade_ratio;
   bool multi_file;
-  BDimension media_width, media_height, ps_width, ps_height;
+  Coord media_width, media_height, ps_width, ps_height;
 
   const char *filename;
   bool drill_helper;
@@ -227,7 +227,7 @@ static struct {
   bool automirror;
   bool incolor;
   bool doing_toc;
-  BDimension bloat;
+  Coord bloat;
   bool invert;
   int media_idx;
   bool drillcopper;
@@ -605,11 +605,11 @@ ps_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-corner (FILE *fh, BDimension x, BDimension y, BDimension dx, BDimension dy)
+corner (FILE *fh, Coord x, Coord y, Coord dx, Coord dy)
 {
-  BDimension len   = MIL_TO_COORD (2000);
-  BDimension len2  = MIL_TO_COORD (200);
-  BDimension thick = 0;
+  Coord len   = MIL_TO_COORD (2000);
+  Coord len2  = MIL_TO_COORD (200);
+  Coord thick = 0;
   /*
    * Originally 'thick' used thicker lines.  Currently is uses
    * Postscript's "device thin" line - i.e. zero width means one
@@ -775,8 +775,8 @@ ps_set_layer (const char *name, int group, int empty)
        * If users don't want to make smaller boards, or use fewer drill
        * sizes, they can always ignore this sheet. */
       if (SL_TYPE (idx) == SL_FAB) {
-        BDimension natural = boffset - MIL_TO_COORD(500) - PCB->MaxHeight / 2;
-	BDimension needed  = PrintFab_overhang ();
+        Coord natural = boffset - MIL_TO_COORD(500) - PCB->MaxHeight / 2;
+	Coord needed  = PrintFab_overhang ();
         pcb_fprintf (global.f, "%% PrintFab overhang natural %mi, needed %mi\n", natural, needed);
 	if (needed > natural)
 	  pcb_fprintf (global.f, "0 %mi translate\n", needed - natural);
@@ -827,7 +827,7 @@ ps_set_layer (const char *name, int group, int empty)
       if (global.drill_helper)
 	pcb_fprintf (global.f,
                     "/dh { gsave %mi setlinewidth 0 gray %mi 0 360 arc stroke grestore} bind def\n",
-                    (BDimension) MIN_PINORVIAHOLE, (BDimension) (MIN_PINORVIAHOLE * 3 / 2));
+                    (Coord) MIN_PINORVIAHOLE, (Coord) (MIN_PINORVIAHOLE * 3 / 2));
     }
 #if 0
   /* Try to outsmart ps2pdf's heuristics for page rotation, by putting
@@ -907,7 +907,7 @@ ps_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-ps_set_line_width (hidGC gc, int width)
+ps_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -927,8 +927,8 @@ ps_set_draw_faded (hidGC gc, int faded)
 static void
 use_gc (hidGC gc)
 {
-  static BDimension lastcap = -1;
-  static BDimension lastcolor = -1;
+  static int lastcap = -1;
+  static int lastcolor = -1;
 
   if (gc == NULL)
     {
@@ -993,17 +993,17 @@ use_gc (hidGC gc)
 }
 
 static void
-ps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ps_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   pcb_fprintf (global.f, "%mi %mi %mi %mi dr\n", x1, y1, x2, y2);
 }
 
-static void ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
-static void ps_fill_circle (hidGC gc, int cx, int cy, int radius);
+static void ps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void ps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
 
 static void
-ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+ps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 #if 0
   /* If you're etching your own paste mask, this will reduce the
@@ -1012,7 +1012,7 @@ ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (is_paste && gc->width > 2500 && gc->cap == Square_Cap
       && (x1 == x2 || y1 == y2))
     {
-      int t, w;
+      Coord t, w;
       if (x1 > x2)
 	{ t = x1; x1 = x2; x2 = t; }
       if (y1 > y2)
@@ -1024,7 +1024,7 @@ ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 #endif
   if (x1 == x2 && y1 == y2)
     {
-      int w = gc->width / 2;
+      Coord w = gc->width / 2;
       if (gc->cap == Square_Cap)
 	ps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       else
@@ -1036,10 +1036,10 @@ ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-ps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-	     int start_angle, int delta_angle)
+ps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+	     Angle start_angle, Angle delta_angle)
 {
-  int sa, ea;
+  Angle sa, ea;
   if (delta_angle > 0)
     {
       sa = start_angle;
@@ -1055,13 +1055,13 @@ ps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
   use_gc (gc);
-  pcb_fprintf (global.f, "%d %d %mi %mi %mi %mi %g a\n",
+  pcb_fprintf (global.f, "%ma %ma %mi %mi %mi %mi %g a\n",
                sa, ea, -width, height, cx, cy,
                (double) (global.linewidth + 2 * global.bloat) / (double) width);
 }
 
 static void
-ps_fill_circle (hidGC gc, int cx, int cy, int radius)
+ps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   use_gc (gc);
   if (!gc->erase || !global.is_copper || global.drillcopper)
@@ -1075,7 +1075,7 @@ ps_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-ps_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+ps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   int i;
   char *op = "moveto";
@@ -1118,18 +1118,18 @@ ps_fill_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
 }
 
 static void
-ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   if (x1 > x2)
     {
-      int t = x1;
+      Coord t = x1;
       x1 = x2;
       x2 = t;
     }
   if (y1 > y2)
     {
-      int t = y1;
+      Coord t = y1;
       y1 = y2;
       y2 = t;
     }
