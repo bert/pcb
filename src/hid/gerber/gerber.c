@@ -55,30 +55,30 @@ static void gerber_destroy_gc (hidGC gc);
 static void gerber_use_mask (int use_it);
 static void gerber_set_color (hidGC gc, const char *name);
 static void gerber_set_line_cap (hidGC gc, EndCapStyle style);
-static void gerber_set_line_width (hidGC gc, int width);
+static void gerber_set_line_width (hidGC gc, Coord width);
 static void gerber_set_draw_xor (hidGC gc, int _xor);
-static void gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
-static void gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
-static void gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
-static void gerber_fill_circle (hidGC gc, int cx, int cy, int radius);
-static void gerber_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
+static void gerber_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
+static void gerber_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 static void gerber_calibrate (double xval, double yval);
 static void gerber_set_crosshair (int x, int y, int action);
-static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
+static void gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
 
 /*----------------------------------------------------------------------------*/
 /* Utility routines                                                           */
 /*----------------------------------------------------------------------------*/
 
 /* These are for films */
-#define gerberX(pcb, x) ((BDimension) (x))
-#define gerberY(pcb, y) ((BDimension) ((pcb)->MaxHeight - (y)))
-#define gerberXOffset(pcb, x) ((BDimension) (x))
-#define gerberYOffset(pcb, y) ((BDimension) (-(y)))
+#define gerberX(pcb, x) ((Coord) (x))
+#define gerberY(pcb, y) ((Coord) ((pcb)->MaxHeight - (y)))
+#define gerberXOffset(pcb, x) ((Coord) (x))
+#define gerberYOffset(pcb, y) ((Coord) (-(y)))
 
 /* These are for drills (printed as mils but are really 1/10th mil) */
-#define gerberDrX(pcb, x) ((BDimension) (x) * 10)
-#define gerberDrY(pcb, y) ((BDimension) ((pcb)->MaxHeight - (y)) * 10)
+#define gerberDrX(pcb, x) ((Coord) (x) * 10)
+#define gerberDrY(pcb, y) ((Coord) ((pcb)->MaxHeight - (y)) * 10)
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */
@@ -112,7 +112,7 @@ typedef enum ApertureShape ApertureShape;
 typedef struct aperture
 {
   int dCode;			/* The RS-274X D code */
-  BDimension width;		/* Size in pcb units */
+  Coord width;		/* Size in pcb units */
   ApertureShape shape;		/* ROUND/SQUARE etc */
   struct aperture *next;
 }
@@ -131,9 +131,9 @@ static int layer_list_idx;
 
 typedef struct
 {
-  int diam;
-  int x;
-  int y;
+  Coord diam;
+  Coord x;
+  Coord y;
 } PendingDrills;
 PendingDrills *pending_drills = NULL;
 int n_pending_drills = 0, max_pending_drills = 0;
@@ -183,7 +183,7 @@ static void resetApertures()
 
 /* Create and add a new aperture to the list */
 static Aperture *
-addAperture (ApertureList *list, BDimension width, ApertureShape shape)
+addAperture (ApertureList *list, Coord width, ApertureShape shape)
 {
   static int aperture_count;
 
@@ -205,7 +205,7 @@ addAperture (ApertureList *list, BDimension width, ApertureShape shape)
 /* Fetch an aperture from the list with the specified
  *  width/shape, creating a new one if none exists */
 static Aperture *
-findAperture (ApertureList *list, BDimension width, ApertureShape shape)
+findAperture (ApertureList *list, Coord width, ApertureShape shape)
 {
   Aperture *search;
 
@@ -237,7 +237,7 @@ fprintAperture (FILE *f, Aperture *aptr)
     case OCTAGON:
       pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4mi,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
-	       (BDimension) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
+	       (Coord) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
       break;
 #if 0
@@ -877,7 +877,7 @@ gerber_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-gerber_set_line_width (hidGC gc, int width)
+gerber_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -957,7 +957,7 @@ use_gc (hidGC gc, int radius)
 }
 
 static void
-gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+gerber_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gerber_draw_line (gc, x1, y1, x1, y2);
   gerber_draw_line (gc, x1, y1, x2, y1);
@@ -966,13 +966,13 @@ gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   bool m = false;
 
   if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
     {
-      int x[5], y[5];
+      Coord x[5], y[5];
       double tx, ty, theta;
 
       theta = atan2 (y2-y1, x2-x1);
@@ -1031,8 +1031,8 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		 int start_angle, int delta_angle)
+gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+		 Angle start_angle, Angle delta_angle)
 {
   bool m = false;
   double arcStartX, arcStopX, arcStartY, arcStopY;
@@ -1056,10 +1056,10 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   if (width != height)
     {
       double step, angle;
-      int max = width > height ? width : height;
-      int minr = max - gc->width / 10;
+      Coord max = width > height ? width : height;
+      Coord minr = max - gc->width / 10;
       int nsteps;
-      int x0, y0, x1, y1;
+      Coord x0, y0, x1, y1;
 
       if (minr >= max)
 	minr = max - 1;
@@ -1112,7 +1112,7 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 }
 
 static void
-gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
+gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   if (radius <= 0)
     return;
@@ -1152,12 +1152,12 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   bool m = false;
   int i;
   int firstTime = 1;
-  LocationType startX = 0, startY = 0;
+  Coord startX = 0, startY = 0;
 
   if (is_mask && current_mask == HID_MASK_BEFORE)
     return;
@@ -1210,10 +1210,10 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
-gerber_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+gerber_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  int x[5];
-  int y[5];
+  Coord x[5];
+  Coord y[5];
   x[0] = x[4] = x1;
   y[0] = y[4] = y1;
   x[1] = x1;
