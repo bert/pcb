@@ -171,7 +171,7 @@ HID_Attribute gcode_attribute_list[] = {
 #define HA_drilldepth 5
 
   {"measurement-unit", "Measurement unit",
-   HID_Enum, 0, 0, {0, 0, 0}, units, 0},
+   HID_Unit, 0, 0, {-1, 0, 0}, units, 0},
 #define HA_unit 6
 
 };
@@ -243,6 +243,16 @@ static HID_Attribute *
 gcode_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
+  static int last_unit_value = -1;
+
+  if (gcode_attribute_list[HA_unit].default_val.int_value == last_unit_value)
+    {
+      if (Settings.grid_unit)
+        gcode_attribute_list[HA_unit].default_val.int_value = Settings.grid_unit->index;
+      else
+        gcode_attribute_list[HA_unit].default_val.int_value = get_unit_struct ("mil")->index;
+      last_unit_value = gcode_attribute_list[HA_unit].default_val.int_value;
+    }
 
   if (PCB)
     {
@@ -373,6 +383,7 @@ gcode_do_export (HID_Attr_Val * options)
   int save_ons[MAX_LAYER + 2];
   int i, idx;
   time_t t;
+  const Unit *unit;
   double scale = 0, d = 0;
   int r, c, v, p, metric;
   char *filename;
@@ -412,24 +423,11 @@ gcode_do_export (HID_Attr_Val * options)
       fprintf (stderr, "ERROR:  dpi may not be < 0\n");
       return;
     }
-  switch (options[HA_unit].int_value)
-    {
-    case 0:
-      scale = 1.0;		/* mm */
-      metric = 1;
-      break;
-    case 1:
-      scale = 0.001;		/* mil */
-      metric = 0;
-      break;
-    case 2:
-      scale = 0.001;		/* um */
-      metric = 1;
-      break;
-    default:
-      scale = 1.0;		/* inch */
-      metric = 0;
-    }
+  unit = &(get_unit_list() [options[HA_unit].int_value]);
+  metric = (unit->family == METRIC);
+  scale = metric ? 1.0 / coord_to_unit (unit, MM_TO_COORD (1.0))
+                 : 1.0 / coord_to_unit (unit, INCH_TO_COORD (1.0));
+
   gcode_cutdepth = options[HA_cutdepth].real_value * scale;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
@@ -707,7 +705,7 @@ gcode_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-gcode_set_line_width (hidGC gc, int width)
+gcode_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -843,7 +841,7 @@ use_gc (hidGC gc)
 }
 
 static void
-gcode_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+gcode_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageRectangle (gcode_im,
@@ -855,7 +853,7 @@ gcode_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-gcode_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageSetThickness (gcode_im, 0);
@@ -869,11 +867,11 @@ gcode_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-gcode_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   if (x1 == x2 && y1 == y2)
     {
-      int w = gc->width / 2;
+      Coord w = gc->width / 2;
       gcode_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       return;
     }
@@ -886,10 +884,10 @@ gcode_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-gcode_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		int start_angle, int delta_angle)
+gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+		Angle start_angle, Angle delta_angle)
 {
-  int sa, ea;
+  Angle sa, ea;
 
   /*
    * in gdImageArc, 0 degrees is to the right and +90 degrees is down
@@ -912,16 +910,8 @@ gcode_draw_arc (hidGC gc, int cx, int cy, int width, int height,
    * make sure we start between 0 and 360 otherwise gd does strange
    * things
    */
-  while (sa < 0)
-    {
-      sa += 360;
-      ea += 360;
-    }
-  while (sa >= 360)
-    {
-      sa -= 360;
-      ea -= 360;
-    }
+  sa = NormalizeAngle (sa);
+  ea = NormalizeAngle (ea);
 
 #if 0
   printf ("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
@@ -940,7 +930,7 @@ gcode_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 }
 
 static void
-gcode_fill_circle (hidGC gc, int cx, int cy, int radius)
+gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   use_gc (gc);
 
@@ -969,7 +959,7 @@ gcode_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-gcode_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   int i;
   gdPoint *points;
