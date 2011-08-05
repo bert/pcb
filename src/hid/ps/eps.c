@@ -42,14 +42,14 @@ static void eps_destroy_gc (hidGC gc);
 static void eps_use_mask (int use_it);
 static void eps_set_color (hidGC gc, const char *name);
 static void eps_set_line_cap (hidGC gc, EndCapStyle style);
-static void eps_set_line_width (hidGC gc, int width);
+static void eps_set_line_width (hidGC gc, Coord width);
 static void eps_set_draw_xor (hidGC gc, int _xor);
-static void eps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
-static void eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
-static void eps_draw_arc (hidGC gc, int cx, int cy, int width, int height, int start_angle, int delta_angle);
-static void eps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
-static void eps_fill_circle (hidGC gc, int cx, int cy, int radius);
-static void eps_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
+static void eps_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void eps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
+static void eps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void eps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
+static void eps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
 static void eps_calibrate (double xval, double yval);
 static void eps_set_crosshair (int x, int y, int action);
 /*----------------------------------------------------------------------------*/
@@ -57,7 +57,7 @@ static void eps_set_crosshair (int x, int y, int action);
 typedef struct hid_gc_struct
 {
   EndCapStyle cap;
-  int width;
+  Coord width;
   int color;
   int erase;
 } hid_gc_struct;
@@ -65,7 +65,7 @@ typedef struct hid_gc_struct
 static HID eps_hid;
 
 static FILE *f = 0;
-static int linewidth = -1;
+static Coord linewidth = -1;
 static int lastgroup = -1;
 static int lastcap = -1;
 static int lastcolor = -1;
@@ -231,8 +231,8 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
   in_mono = options[HA_mono].int_value;
 
-#define pcb2em(x) (BDimension)((x) * 72.0 * options[HA_scale].real_value + INCH_TO_COORD(1))
-  pcb_fprintf (f, "%%%%BoundingBox: 0 0 %mi %mi\n",
+#define pcb2em(x) 1 + COORD_TO_INCH (x) * 72.0 * options[HA_scale].real_value
+  fprintf (f, "%%%%BoundingBox: 0 0 %f %f\n",
 	   pcb2em (bounds->X2 - bounds->X1),
 	   pcb2em (bounds->Y2 - bounds->Y1));
 #undef pcb2em
@@ -252,7 +252,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   linewidth = -1;
   lastcap = -1;
   lastcolor = -1;
-#define Q (BDimension) MIL_TO_COORD(10)
+#define Q (Coord) MIL_TO_COORD(10)
   pcb_fprintf (f,
 	   "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
 	   bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
@@ -472,7 +472,7 @@ eps_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-eps_set_line_width (hidGC gc, int width)
+eps_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -517,20 +517,20 @@ use_gc (hidGC gc)
     }
 }
 
-static void eps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
-static void eps_fill_circle (hidGC gc, int cx, int cy, int radius);
+static void eps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void eps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
 
 static void
-eps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+eps_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   pcb_fprintf (f, "%mi %mi %mi %mi r\n", x1, y1, x2, y2);
 }
 
 static void
-eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  int w = gc->width / 2;
+  Coord w = gc->width / 2;
   if (x1 == x2 && y1 == y2)
     {
       if (gc->cap == Square_Cap)
@@ -546,8 +546,8 @@ eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       double dx = w * sin (ang);
       double dy = -w * cos (ang);
       double deg = ang * 180.0 / M_PI;
-      int vx1 = x1 + dx;
-      int vy1 = y1 + dy;
+      Coord vx1 = x1 + dx;
+      Coord vy1 = y1 + dy;
 
       pcb_fprintf (f, "%mi %mi moveto ", vx1, vy1);
       pcb_fprintf (f, "%mi %mi %mi %g %g arc\n", x2, y2, w, deg - 90, deg + 90);
@@ -560,10 +560,10 @@ eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-eps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-	      int start_angle, int delta_angle)
+eps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+	      Angle start_angle, Angle delta_angle)
 {
-  int sa, ea;
+  Angle sa, ea;
   if (delta_angle > 0)
     {
       sa = start_angle;
@@ -579,19 +579,19 @@ eps_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
   use_gc (gc);
-  pcb_fprintf (f, "%d %d %mi %mi %mi %mi %g a\n",
+  pcb_fprintf (f, "%ma %ma %mi %mi %mi %mi %g a\n",
 	   sa, ea, -width, height, cx, cy, (double) linewidth / width);
 }
 
 static void
-eps_fill_circle (hidGC gc, int cx, int cy, int radius)
+eps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   use_gc (gc);
   pcb_fprintf (f, "%mi %mi %mi %s\n", cx, cy, radius, gc->erase ? "cc" : "c");
 }
 
 static void
-eps_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+eps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   int i;
   char *op = "moveto";
@@ -605,7 +605,7 @@ eps_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
-eps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+eps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   pcb_fprintf (f, "%mi %mi %mi %mi r\n", x1, y1, x2, y2);
