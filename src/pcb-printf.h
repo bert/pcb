@@ -99,6 +99,7 @@ enum e_family { METRIC, IMPERIAL };
 enum e_suffix { NO_SUFFIX, SUFFIX, FILE_MODE };
 
 struct unit {
+  int index;			/* Index into Unit[] list */
   const char *suffix;
   const char *in_suffix;	/* internationalized suffix */
   char printf_code;
@@ -112,6 +113,8 @@ struct unit {
   Coord step_medium;
   Coord step_large;
   Coord step_huge;
+  /* aliases -- right now we only need 1 ("inch"->"in"), add as needed */
+  const char *alias[1];
 };
 
 struct increments {
@@ -134,7 +137,11 @@ struct increments {
   Coord clear_max;
 };
 
+void initialize_units();
+
 const Unit *get_unit_struct (const char *suffix);
+const Unit *get_unit_list (void);
+int get_n_units (void);
 double coord_to_unit (const Unit *, Coord);
 Coord  unit_to_coord (const Unit *, double);
 Increments *get_increments_struct (const char *suffix);

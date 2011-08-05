@@ -908,6 +908,7 @@ main (int argc, char *argv[])
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
+  initialize_units();
   polygon_init ();
   hid_init ();
 

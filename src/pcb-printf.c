@@ -43,40 +43,47 @@
 /* These should be kept in order of smallest scale_factor
  * to largest -- the code uses this ordering when finding
  * the best scale to use for a group of measures */
-static Unit *Units;
-static int n_units;
+static Unit Units[] = {
+  { 0, "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+  { 0, "m",  NULL, 'f', 0.001,    METRIC, ALLOW_M,  5,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+  { 0, "cm", NULL, 'e', 0.1,      METRIC, ALLOW_CM, 5,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+  { 0, "mm", NULL, 'm', 1,        METRIC, ALLOW_MM, 4,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+  { 0, "um", NULL, 'u', 1000,     METRIC, ALLOW_UM, 2,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+  { 0, "nm", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
+             MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0),
+             { "" } },
+
+  { 0, "in",   NULL, 'i', 0.001, IMPERIAL, ALLOW_IN,   5,
+               MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0),
+               { "inch" } },
+  { 0, "mil",  NULL, 'l', 1,     IMPERIAL, ALLOW_MIL,  2,
+               MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0),
+               { "" } },
+  { 0, "cmil", NULL, 'c', 100,   IMPERIAL, ALLOW_CMIL, 0,
+               MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0),
+               { "pcb" } }
+};
+#define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
 /* The function is needed to avoid "non-constant initializer"
  *  errors on the internationalized unit suffixes. */
 void initialize_units()
 {
   int i;
-  static Unit rv[] = {
-    { "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-    { "m",  NULL, 'f', 0.001,    METRIC, ALLOW_M,  5,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-    { "cm", NULL, 'e', 0.1,      METRIC, ALLOW_CM, 5,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-    { "mm", NULL, 'm', 1,        METRIC, ALLOW_MM, 4,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-    { "um", NULL, 'u', 1000,     METRIC, ALLOW_UM, 2,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-    { "nm", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
-            MM_TO_COORD5 (0.005, 0.05, 0.25, 5.0, 25.0) },
-
-    { "in",   NULL, 'i', 0.001, IMPERIAL, ALLOW_IN,   5,
-              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
-    { "inch", NULL,  0 , 0.001, IMPERIAL, NO_PRINT,   0,
-              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
-    { "mil",  NULL, 'l', 1,     IMPERIAL, ALLOW_MIL,  2,
-              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) },
-    { "cmil", NULL, 'c', 100,   IMPERIAL, ALLOW_CMIL, 0,
-              MIL_TO_COORD5 (0.1, 1.0, 5.0, 100.0, 1000.0) }
-  };
-  n_units = (sizeof rv / sizeof rv[0]);
-  for (i = 0; i < n_units; ++i)
-    rv[i].in_suffix = _(rv[i].suffix);
-  Units = rv;
+  for (i = 0; i < N_UNITS; ++i)
+    {
+      Units[i].index = i;
+      Units[i].in_suffix = _(Units[i].suffix);
+    }
 }
 /* This list -must- contain all printable units from the above list */
 /* For now I have just copy/pasted the same values for all metric
@@ -134,8 +141,6 @@ const Unit *get_unit_struct (const char *suffix)
   int i;
   int s_len = strlen (suffix);
 
-  if (Units == NULL) initialize_units();
-
   /* Also understand plural suffixes: "inches", "mils" */
   if (s_len > 2)
     {
@@ -146,10 +151,22 @@ const Unit *get_unit_struct (const char *suffix)
     }
 
   /* Do lookup */
-  for (i = 0; i < n_units; ++i)
-    if (strncmp (suffix, Units[i].suffix, s_len) == 0)
-      return &Units[i];
+  if (*suffix)
+    for (i = 0; i < N_UNITS; ++i)
+      if (strcmp (suffix, Units[i].suffix) == 0 ||
+          strcmp (suffix, Units[i].alias[0]) == 0)
+        return &Units[i];
   return NULL;
+}
+
+/* ACCESSORS */
+const Unit *get_unit_list (void)
+{
+	return Units;
+}
+int get_n_units (void)
+{
+	return N_UNITS;
 }
 
 /* Obtain a increment object from its (non-international) suffix */
@@ -210,8 +227,6 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   const char *suffix;
   int i, n;
 
-  if (Units == NULL) initialize_units();
-
   value = malloc (n_coords * sizeof *value);
   buff  = g_string_new ("");
 
@@ -257,7 +272,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
 
   /* Determine scale factor -- find smallest unit that brings
    * the whole group above unity */
-  for (n = 0; n < n_units; ++n)
+  for (n = 0; n < N_UNITS; ++n)
     {
       if ((Units[n].allow & allow) != 0 && (Units[n].family == family))
         {
@@ -271,7 +286,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
         }
     }
   /* If nothing worked, wind back to the smallest allowable unit */
-  if (n == n_units)
+  if (n == N_UNITS)
     {
       do {
         --n;
@@ -348,8 +363,6 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
 
   if (string == NULL || spec == NULL)
     return NULL;
-
-  if (Units == NULL) initialize_units();
 
   while(*fmt)
     {
@@ -479,7 +492,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                   unit_str = CoordsToString(value, 2, spec->str, ALLOW_MM | ALLOW_MIL, suffix);
                   break;
                 case '*':
-                  for (i = 0; i < n_units; ++i)
+                  for (i = 0; i < N_UNITS; ++i)
                     if (strcmp (ext_unit, Units[i].suffix) == 0)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
@@ -495,7 +508,7 @@ static gchar *pcb_vprintf(const char *fmt, va_list args)
                   mask = va_arg(args, enum e_allow);
                   break;
                 default:
-                  for (i = 0; i < n_units; ++i)
+                  for (i = 0; i < N_UNITS; ++i)
                     if (*fmt == Units[i].printf_code)
                       unit_str = CoordsToString(value, 1, spec->str, Units[i].allow, suffix);
                   if (unit_str == NULL)
