@@ -142,7 +142,7 @@ layer_sort (const void *va, const void *vb)
   return b - a;
 }
 
-static char *filename;
+static const char *filename;
 static BoxType *bounds;
 static int in_mono, as_shown;
 

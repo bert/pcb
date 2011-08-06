@@ -340,8 +340,8 @@ void ghid_update_toggle_flags (void);
 
 /* gui-utils.c
 */
-gboolean dup_string (gchar ** dst, gchar * src);
-gboolean utf8_dup_string (gchar ** dst_utf8, gchar * src);
+gboolean dup_string (gchar ** dst, const gchar * src);
+gboolean utf8_dup_string (gchar ** dst_utf8, const gchar * src);
 void free_glist_and_data (GList ** list_head);
 
 ModifierKeysState ghid_modifier_keys_state (GdkModifierType * state);

@@ -116,7 +116,7 @@ static int gcode_export_group[MAX_LAYER];
 static int gcode_cur_group;
 
 /* Filename prefix that will be used when saving files. */
-static char *gcode_basename = NULL;
+static const char *gcode_basename = NULL;
 
 /* Horizontal DPI (grid points per inch) */
 static int gcode_dpi = -1;

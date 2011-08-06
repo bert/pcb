@@ -32,6 +32,7 @@
 #include "error.h"
 #include "global.h"
 #include "misc.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -272,7 +273,7 @@ hid_parse_command_line (int *argc, char ***argv)
 	    break;
 	  case HID_String:
 	    if (a->value)
-	      *(char **) a->value = a->default_val.str_value;
+	      *(const char **) a->value = a->default_val.str_value;
 	    break;
 	  case HID_Enum:
 	    if (a->value)
@@ -281,6 +282,10 @@ hid_parse_command_line (int *argc, char ***argv)
 	  case HID_Mixed:
 	    if (a->value) {
               *(HID_Attr_Val *) a->value = a->default_val;
+	  case HID_Unit:
+	    if (a->value)
+	      *(int *) a->value = a->default_val.int_value;
+	    break;
            }
            break;
 	  default:
@@ -302,6 +307,7 @@ hid_parse_command_line (int *argc, char ***argv)
 	    {
 	      HID_Attribute *a = ha->attributes + i;
 	      char *ep;
+              const Unit *unit;
 	      switch (ha->attributes[i].type)
 		{
 		case HID_Label:
@@ -364,6 +370,20 @@ hid_parse_command_line (int *argc, char ***argv)
 		case HID_Path:
 		  abort ();
 		  a->default_val.str_value = (*argv)[1];
+		  (*argc)--;
+		  (*argv)++;
+		  break;
+		case HID_Unit:
+                  unit = get_unit_struct ((*argv)[1]);
+                  if (unit == NULL)
+		    {
+		      fprintf (stderr,
+			       "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+			       (*argv)[1], a->name);
+		      exit (1);
+		    }
+		  a->default_val.int_value = unit->index;
+		  a->default_val.str_value = unit->suffix;
 		  (*argc)--;
 		  (*argv)++;
 		  break;
@@ -441,7 +461,7 @@ hid_save_settings (int locally)
     {
       for (i = 0; i < ha->n; i++)
 	{
-	  char *str;
+	  const char *str;
 	  HID_Attribute *a = ha->attributes + i;
 
 	  if (a->hash == attr_hash (a))
@@ -468,9 +488,7 @@ hid_save_settings (int locally)
 	    case HID_String:
 	    case HID_Path:
 	      str = a->value ? *(char **)a->value : a->default_val.str_value;
-	      fprintf (f, "%s = %s\n",
-		       a->name,
-		       str ? str : "");
+	      fprintf (f, "%s = %s\n", a->name, str ? str : "");
 	      break;
 	    case HID_Enum:
 	      fprintf (f, "%s = %s\n",
@@ -487,6 +505,11 @@ hid_save_settings (int locally)
                         a->enumerations[value->int_value]);
              }
 	      break;
+	    case HID_Unit:
+	      fprintf (f, "%s = %s\n",
+		       a->name,
+		       get_unit_list()[a->value ? *(int *)a->value : a->default_val.int_value].suffix);
+	      break;
 	    }
 	}
       fprintf (f, "\n");
@@ -498,6 +521,7 @@ hid_save_settings (int locally)
 static void
 hid_set_attribute (char *name, char *value)
 {
+  const Unit *unit;
   HID_AttrNode *ha;
   int i, e, ok;
 
@@ -545,6 +569,18 @@ hid_set_attribute (char *name, char *value)
 	      break;
 	    case HID_Path:
 	      a->default_val.str_value = value;
+	      break;
+	    case HID_Unit:
+              unit = get_unit_struct (value);
+              if (unit == NULL)
+		{
+		  fprintf (stderr,
+		           "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+			   value, a->name);
+		  exit (1);
+		}
+	      a->default_val.int_value = unit->index;
+	      a->default_val.str_value = unit->suffix;
 	      break;
 	    }
 	}
@@ -703,7 +739,7 @@ derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, con
 			buf[bl - 4] = 0;
 		strcat(buf, suffix);
 		if (filename_attrib->default_val.str_value)
-			free(filename_attrib->default_val.str_value);
+			free ((void *) filename_attrib->default_val.str_value);
 		filename_attrib->default_val.str_value = buf;
 	}
 

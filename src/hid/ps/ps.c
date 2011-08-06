@@ -218,7 +218,7 @@ static struct {
   bool multi_file;
   BDimension media_width, media_height, ps_width, ps_height;
 
-  char *filename;
+  const char *filename;
   bool drill_helper;
   bool align_marks;
   bool outline;
@@ -1290,7 +1290,7 @@ ps_calibrate_1 (double xval, double yval, int use_command)
 
   if (use_command || strchr (vals[0].str_value, '|'))
     {
-      char *cmd = vals[0].str_value;
+      const char *cmd = vals[0].str_value;
       while (*cmd == ' ' || *cmd == '|')
 	cmd ++;
       ps_cal_file = popen (cmd, "w");

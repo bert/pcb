@@ -488,7 +488,7 @@ assign_file_suffix (char *dest, int idx)
 static void
 gerber_do_export (HID_Attr_Val * options)
 {
-  char *fnbase;
+  const char *fnbase;
   int i;
   static int saved_layer_stack[MAX_LAYER];
   int save_ons[MAX_LAYER + 2];

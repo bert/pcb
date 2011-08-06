@@ -44,7 +44,7 @@ RCSID ("$Id$");
 /* Not a gui function, but no better place to put it...
  */
 gboolean
-dup_string (gchar ** dst, gchar * src)
+dup_string (gchar ** dst, const gchar * src)
 {
   if ((dst == NULL) || ((*dst == NULL) && (src == NULL)))
     return FALSE;
@@ -758,7 +758,7 @@ ghid_scrolled_text_view (GtkWidget * box,
 /* If src is not utf8, *dst is converted to utf8.
  */
 gboolean
-utf8_dup_string (gchar ** dst_utf8, gchar * src)
+utf8_dup_string (gchar ** dst_utf8, const gchar * src)
 {
   if (!dst_utf8 || (!*dst_utf8 && !src))
     return FALSE;

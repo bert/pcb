@@ -73,7 +73,7 @@ lpr_do_export (HID_Attr_Val * options)
 {
   FILE *f;
   int i;
-  char *filename;
+  const char *filename;
 
   if (!options)
     {

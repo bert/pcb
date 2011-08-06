@@ -37,6 +37,7 @@
 #endif
 
 #include "gui.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -102,7 +103,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
   GtkWidget *combo;
   GtkWidget *widget;
   GHidPort *out = &ghid_port;
-  int i, j;
+  int i, j, n;
   GtkTooltips *tips;
   int rc = 0;
 
@@ -131,6 +132,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
    */
   for (j = 0; j < n_attrs; j++)
     {
+      const Unit *unit_list;
       if (attrs[j].help_text == ATTR_UNDOCUMENTED)
 	continue;
       switch (attrs[j].type)
@@ -279,6 +281,38 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
 	  break;
 
+	case HID_Unit:
+          unit_list = get_unit_list ();
+          n = get_n_units ();
+
+	  hbox = gtk_hbox_new (FALSE, 4);
+	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+	  /* 
+	   * We have to put the combo_box inside of an event_box in
+	   * order for tooltips to work.
+	   */
+	  widget = gtk_event_box_new ();
+	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+	  combo = gtk_combo_box_new_text ();
+	  gtk_container_add (GTK_CONTAINER (widget), combo);
+	  g_signal_connect (G_OBJECT (combo), "changed",
+			    G_CALLBACK (enum_changed_cb),
+			    &(attrs[j].default_val.int_value));
+
+	  /* 
+	   * Iterate through each value and add them to the
+	   * combo box
+	   */
+	  for (i = 0; i < n; ++i)
+	    gtk_combo_box_append_text (GTK_COMBO_BOX (combo),
+					unit_list[i].in_suffix);
+	  gtk_combo_box_set_active (GTK_COMBO_BOX (combo),
+				    attrs[j].default_val.int_value);
+	  widget = gtk_label_new (attrs[j].name);
+	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+          break;
 	default:
 	  printf ("%s: unknown type of HID attribute\n", __FUNCTION__);
 	  break;
@@ -351,7 +385,7 @@ ghid_dialog_print (HID *hid)
   for (i = 0; i < n; i++)
     {
       if (results[i].str_value)
-	free (results[i].str_value);
+	free ((void *) results[i].str_value);
     }
 
   if (results)

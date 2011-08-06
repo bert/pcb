@@ -133,7 +133,7 @@ static int      nelma_export_group[MAX_LAYER];
 static int      nelma_cur_group;
 
 /* Filename prefix that will be used when saving files. */
-static char    *nelma_basename = NULL;
+static const char *nelma_basename = NULL;
 
 /* Horizontal DPI (grid points per inch) */
 static int      nelma_dpi = -1;

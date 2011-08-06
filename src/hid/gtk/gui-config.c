@@ -311,6 +311,7 @@ ghid_config_init (void)
 	      break;
 
 	    case HID_Enum:
+	    case HID_Unit:
 	      *(int *) a->value = a->default_val.int_value;
 	      break;
 
@@ -530,6 +531,7 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 {
   HID_AttrNode *ha;
   HID_Attribute *a;
+  const Unit *unit;
   gchar *ep;
   gint e, ok, offset;
   gboolean matched = FALSE;
@@ -611,6 +613,20 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		  (*argc)--;
 		  (*argv)++;
 		  break;
+	        case HID_Unit:
+                  unit = get_unit_struct ((*argv)[1]);
+                  if (unit == NULL)
+		    {
+		      fprintf (stderr,
+		               "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+			       (*argv)[1], a->name);
+		      exit (1);
+		    }
+	          a->default_val.int_value = unit->index;
+	          a->default_val.str_value = unit->suffix;
+		  (*argc)--;
+		  (*argv)++;
+	          break;
 		}
 	      (*argc)--;
 	      (*argv)++;

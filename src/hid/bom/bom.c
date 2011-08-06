@@ -42,8 +42,8 @@ static HID_Attribute bom_options[] = {
 
 static HID_Attr_Val bom_values[NUM_OPTIONS];
 
-static char *bom_filename;
-static char *xy_filename;
+static const char *bom_filename;
+static const char *xy_filename;
 static int xy_dim_type;
 
 typedef struct _StringList

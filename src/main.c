@@ -158,7 +158,8 @@ static UsageNotes *usage_notes = NULL;
 static void
 usage_attr (HID_Attribute * a)
 {
-  int i;
+  int i, n;
+  const Unit *unit_list;
   static char buf[200];
 
   if (a->help_text == ATTR_UNDOCUMENTED)
@@ -192,6 +193,17 @@ usage_attr (HID_Attribute * a)
       break;
     case HID_Path:
       sprintf (buf, "--%s <path>", a->name);
+      break;
+    case HID_Unit:
+      unit_list = get_unit_list ();
+      n = get_n_units ();
+      sprintf (buf, "--%s ", a->name);
+      for (i = 0; i < n; i++)
+	{
+	  strcat (buf, i ? "|" : "<");
+	  strcat (buf, unit_list[i].suffix);
+	}
+      strcat (buf, ">");
       break;
     }
 
@@ -307,7 +319,7 @@ print_defaults_1 (HID_Attribute * a, void *value)
 {
   int i;
   double d;
-  char *s;
+  const char *s;
 
   /* Remember, at this point we've parsed the command line, so they
      may be in the global variable instead of the default_val.  */
@@ -343,6 +355,9 @@ print_defaults_1 (HID_Attribute * a, void *value)
       break;
     case HID_Label:
       break;
+    case HID_Unit:
+      i = value ? *(int *) value : a->default_val.int_value;
+      fprintf (stderr, "%s %s\n", a->name, get_unit_list()[i].suffix);
     }
 }
 

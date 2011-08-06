@@ -157,13 +157,14 @@ extern "C"
   typedef struct
   {
     int int_value;
-    char *str_value;
+    const char *str_value;
     double real_value;
   } HID_Attr_Val;
 
   enum hids
     { HID_Label, HID_Integer, HID_Real, HID_String,
-      HID_Boolean, HID_Enum, HID_Mixed, HID_Path
+      HID_Boolean, HID_Enum, HID_Mixed, HID_Path,
+      HID_Unit
     };
 
   typedef struct
