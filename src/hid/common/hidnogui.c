@@ -103,7 +103,7 @@ nogui_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-nogui_set_line_width (hidGC gc, int width)
+nogui_set_line_width (hidGC gc, Coord width)
 {
   CRASH;
 }
@@ -120,32 +120,32 @@ nogui_set_draw_faded (hidGC gc, int faded)
 }
 
 static void
-nogui_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+nogui_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   CRASH;
 }
 
 static void
-nogui_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		int start_angle, int end_angle)
+nogui_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+		Angle start_angle, Angle end_angle)
 {
   CRASH;
 }
 
 static void
-nogui_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+nogui_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   CRASH;
 }
 
 static void
-nogui_fill_circle (hidGC gc, int cx, int cy, int radius)
+nogui_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   CRASH;
 }
 
 static void
-nogui_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+nogui_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   CRASH;
 }
@@ -181,7 +181,7 @@ nogui_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pad, bool drawHole, bo
 }
 
 static void
-nogui_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+nogui_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   CRASH;
 }

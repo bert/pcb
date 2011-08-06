@@ -5,12 +5,12 @@
 static void
 fill_contour (hidGC gc, PLINE *pl)
 {
-  int *x, *y, n, i = 0;
+  Coord *x, *y, n, i = 0;
   VNODE *v;
 
   n = pl->Count;
-  x = (int *)malloc (n * sizeof (int));
-  y = (int *)malloc (n * sizeof (int));
+  x = (Coord *)malloc (n * sizeof (*x));
+  y = (Coord *)malloc (n * sizeof (*y));
 
   for (v = &pl->head; i < n; v = v->next)
     {
@@ -28,8 +28,8 @@ static void
 thindraw_contour (hidGC gc, PLINE *pl)
 {
   VNODE *v;
-  int last_x, last_y;
-  int this_x, this_y;
+  Coord last_x, last_y;
+  Coord this_x, this_y;
 
   gui->set_line_width (gc, 0);
   gui->set_line_cap (gc, Round_Cap);
@@ -110,9 +110,9 @@ fill_clipped_contour (hidGC gc, PLINE *pl, const BoxType *clip_box)
 static int
 should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
 {
-  int x1, x2, y1, y2;
-  float poly_bounding_area;
-  float clipped_poly_area;
+  Coord x1, x2, y1, y2;
+  double poly_bounding_area;
+  double clipped_poly_area;
 
   /* If there is no passed clip box, compute the whole thing */
   if (clip_box == NULL)
@@ -127,10 +127,10 @@ should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
   if ((x2 <= x1) || (y2 <= y1))
     return 0;
 
-  poly_bounding_area = (float)(poly->BoundingBox.X2 - poly->BoundingBox.X1) *
-                       (float)(poly->BoundingBox.Y2 - poly->BoundingBox.Y1);
+  poly_bounding_area = (double)(poly->BoundingBox.X2 - poly->BoundingBox.X1) *
+                       (double)(poly->BoundingBox.Y2 - poly->BoundingBox.Y1);
 
-  clipped_poly_area = (float)(x2 - x1) * (float)(y2 - y1);
+  clipped_poly_area = (double)(x2 - x1) * (double)(y2 - y1);
 
   if (clipped_poly_area / poly_bounding_area >= BOUNDS_INSIDE_CLIP_THRESHOLD)
     return 1;
@@ -198,19 +198,19 @@ common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
 void
 common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 {
-  int w = clear ? (mask ? pad->Mask
-                        : pad->Thickness + pad->Clearance)
-                : pad->Thickness;
-  int x1, y1, x2, y2;
-  int t = w / 2;
+  Coord w = clear ? (mask ? pad->Mask
+                          : pad->Thickness + pad->Clearance)
+                  : pad->Thickness;
+  Coord x1, y1, x2, y2;
+  Coord t = w / 2;
   x1 = pad->Point1.X;
   y1 = pad->Point1.Y;
   x2 = pad->Point2.X;
   y2 = pad->Point2.Y;
   if (x1 > x2 || y1 > y2)
     {
-      int temp_x = x1;
-      int temp_y = y1;
+      Coord temp_x = x1;
+      Coord temp_y = y1;
       x1 = x2; x2 = temp_x;
       y1 = y2; y2 = temp_y;
     }
@@ -219,7 +219,7 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
       /* slanted square pad */
-      float tx, ty, theta;
+      double tx, ty, theta;
 
       if (x1 == x2 && y1 == y2)
         theta = 0;
@@ -243,8 +243,8 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
   else
     {
       /* Slanted round-end pads.  */
-      LocationType dx, dy, ox, oy;
-      float h;
+      Coord dx, dy, ox, oy;
+      double h;
 
       dx = x2 - x1;
       dy = y2 - y1;
@@ -256,7 +256,7 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 
       if (abs (ox) >= pixel_slop || abs (oy) >= pixel_slop)
         {
-          LocationType angle = atan2 (dx, dy) * 57.295779;
+          Angle angle = atan2 (dx, dy) * 57.295779;
           gui->draw_line (gc, x1 - ox, y1 - oy, x2 - ox, y2 - oy);
           gui->draw_arc (gc, x1, y1, t, t, angle - 180, 180);
           gui->draw_arc (gc, x2, y2, t, t, angle, 180);
@@ -267,16 +267,16 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 void
 common_fill_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 {
-  int w = clear ? (mask ? pad->Mask
-                        : pad->Thickness + pad->Clearance)
-                : pad->Thickness;
+  Coord w = clear ? (mask ? pad->Mask
+                          : pad->Thickness + pad->Clearance)
+                  : pad->Thickness;
 
   if (pad->Point1.X == pad->Point2.X &&
       pad->Point1.Y == pad->Point2.Y)
     {
       if (TEST_FLAG (SQUAREFLAG, pad))
         {
-          int l, r, t, b;
+          Coord l, r, t, b;
           l = pad->Point1.X - w / 2;
           b = pad->Point1.Y - w / 2;
           r = l + w;
@@ -320,8 +320,8 @@ typedef struct
 FloatPolyType;
 
 static void
-draw_octagon_poly (hidGC gc, LocationType X, LocationType Y,
-                   int Thickness, int thin_draw)
+draw_octagon_poly (hidGC gc, Coord X, Coord Y,
+                   Coord Thickness, Coord thin_draw)
 {
   static FloatPolyType p[8] = {
     { 0.5,               -TAN_22_5_DEGREE_2},
@@ -336,8 +336,8 @@ draw_octagon_poly (hidGC gc, LocationType X, LocationType Y,
   static int special_size = 0;
   static int scaled_x[8];
   static int scaled_y[8];
-  int polygon_x[9];
-  int polygon_y[9];
+  Coord polygon_x[9];
+  Coord polygon_y[9];
   int i;
 
   if (Thickness != special_size)
@@ -374,8 +374,8 @@ draw_octagon_poly (hidGC gc, LocationType X, LocationType Y,
 void
 common_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask)
 {
-  int w = mask ? pv->Mask : pv->Thickness;
-  int r = w / 2;
+  Coord w = mask ? pv->Mask : pv->Thickness;
+  Coord r = w / 2;
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
@@ -393,10 +393,10 @@ common_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool m
 
   if (TEST_FLAG (SQUAREFLAG, pv))
     {
-      int l = pv->X - r;
-      int b = pv->Y - r;
-      int r = l + w;
-      int t = b + w;
+      Coord l = pv->X - r;
+      Coord b = pv->Y - r;
+      Coord r = l + w;
+      Coord t = b + w;
 
       gui->fill_rect (fg_gc, l, b, r, t);
     }
@@ -413,8 +413,8 @@ common_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool m
 void
 common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask)
 {
-  int w = mask ? pv->Mask : pv->Thickness;
-  int r = w / 2;
+  Coord w = mask ? pv->Mask : pv->Thickness;
+  Coord r = w / 2;
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
@@ -432,10 +432,10 @@ common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bo
 
   if (TEST_FLAG (SQUAREFLAG, pv))
     {
-      int l = pv->X - r;
-      int b = pv->Y - r;
-      int r = l + w;
-      int t = b + w;
+      Coord l = pv->X - r;
+      Coord b = pv->Y - r;
+      Coord r = l + w;
+      Coord t = b + w;
 
       gui->set_line_cap (fg_gc, Round_Cap);
       gui->set_line_width (fg_gc, 0);
