@@ -99,7 +99,7 @@ struct color_struct {
 struct hid_gc_struct {
 	HID            *me_pointer;
 	EndCapStyle     cap;
-	int             width;
+	Coord           width;
 	unsigned char   r, g, b;
 	int             erase;
 	int             faded;
@@ -110,7 +110,7 @@ struct hid_gc_struct {
 static HID nelma_hid;
 
 static struct color_struct *black = NULL, *white = NULL;
-static int      linewidth = -1;
+static Coord    linewidth = -1;
 static int      lastgroup = -1;
 static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 static int      lastcap = -1;
@@ -184,13 +184,9 @@ REGISTER_ATTRIBUTES(nelma_attribute_list)
 /* *** Utility funcions **************************************************** */
 
 /* convert from default PCB units to nelma units */
-	static int      pcb_to_nelma(int pcb)
+static int pcb_to_nelma (Coord pcb)
 {
-	int             nelma;
-
-	nelma = COORD_TO_INCH(pcb) * nelma_dpi;
-
-	return nelma;
+  return COORD_TO_INCH(pcb) * nelma_dpi;
 }
 
 static char    *
@@ -210,7 +206,7 @@ nelma_get_png_name(const char *basename, const char *suffix)
 /* Retrieves coordinates (in default PCB units) of a pin or pad. */
 /* Copied from netlist.c */
 static int 
-pin_name_to_xy(LibraryEntryType * pin, int *x, int *y)
+pin_name_to_xy (LibraryEntryType * pin, Coord *x, Coord *y)
 {
 	ConnectionType  conn;
 	if (!SeekPad(pin, &conn, false))
@@ -430,15 +426,16 @@ static void
 nelma_write_object(FILE * out, LibraryEntryTypePtr pin)
 {
 	int             i, idx;
-	int             x = 0, y = 0;
+	Coord           px = 0, py = 0;
+	int             x, y;
 
 	char           *f;
 	const char     *ext;
 
-	pin_name_to_xy(pin, &x, &y);
+	pin_name_to_xy (pin, &px, &py);
 
-	x = pcb_to_nelma(x);
-	y = pcb_to_nelma(y);
+	x = pcb_to_nelma (px);
+	y = pcb_to_nelma (py);
 
 	for (i = 0; i < MAX_LAYER; i++)
 		if (nelma_export_group[i]) {
@@ -790,7 +787,7 @@ nelma_set_line_cap(hidGC gc, EndCapStyle style)
 }
 
 static void
-nelma_set_line_width(hidGC gc, int width)
+nelma_set_line_width(hidGC gc, Coord width)
 {
 	gc->width = width;
 }
@@ -912,7 +909,7 @@ use_gc(hidGC gc)
 }
 
 static void
-nelma_draw_rect(hidGC gc, int x1, int y1, int x2, int y2)
+nelma_draw_rect(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 	use_gc(gc);
 	gdImageRectangle(nelma_im,
@@ -921,7 +918,7 @@ nelma_draw_rect(hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-nelma_fill_rect(hidGC gc, int x1, int y1, int x2, int y2)
+nelma_fill_rect(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 	use_gc(gc);
 	gdImageSetThickness(nelma_im, 0);
@@ -931,10 +928,10 @@ nelma_fill_rect(hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-nelma_draw_line(hidGC gc, int x1, int y1, int x2, int y2)
+nelma_draw_line(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 	if (x1 == x2 && y1 == y2) {
-		int             w = gc->width / 2;
+		Coord             w = gc->width / 2;
 		nelma_fill_rect(gc, x1 - w, y1 - w, x1 + w, y1 + w);
 		return;
 	}
@@ -947,10 +944,10 @@ nelma_draw_line(hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-nelma_draw_arc(hidGC gc, int cx, int cy, int width, int height,
-	       int start_angle, int delta_angle)
+nelma_draw_arc(hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+	       Angle start_angle, Angle delta_angle)
 {
-	int             sa, ea;
+	Angle sa, ea;
 
 	/*
 	 * in gdImageArc, 0 degrees is to the right and +90 degrees is down
@@ -970,14 +967,8 @@ nelma_draw_arc(hidGC gc, int cx, int cy, int width, int height,
 	 * make sure we start between 0 and 360 otherwise gd does strange
 	 * things
 	 */
-	while (sa < 0) {
-		sa += 360;
-		ea += 360;
-	}
-	while (sa >= 360) {
-		sa -= 360;
-		ea -= 360;
-	}
+        sa = NormalizeAngle (sa);
+        ea = NormalizeAngle (ea);
 
 #if 0
 	printf("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
@@ -994,7 +985,7 @@ nelma_draw_arc(hidGC gc, int cx, int cy, int width, int height,
 }
 
 static void
-nelma_fill_circle(hidGC gc, int cx, int cy, int radius)
+nelma_fill_circle(hidGC gc, Coord cx, Coord cy, Coord radius)
 {
 	use_gc(gc);
 
@@ -1006,7 +997,7 @@ nelma_fill_circle(hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-nelma_fill_polygon(hidGC gc, int n_coords, int *x, int *y)
+nelma_fill_polygon(hidGC gc, int n_coords, Coord *x, Coord *y)
 {
 	int             i;
 	gdPoint        *points;
