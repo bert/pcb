@@ -64,8 +64,8 @@ static void *brush_cache = NULL;
 
 static double bloat = 0;
 static double scale = 1;
-static int x_shift = 0;
-static int y_shift = 0;
+static Coord x_shift = 0;
+static Coord y_shift = 0;
 static int show_solder_side;
 #define SCALE(w)   ((int)((w)/scale + 0.5))
 #define SCALE_X(x) ((int)(((x) - x_shift)/scale))
@@ -77,7 +77,7 @@ static int show_solder_side;
 #define NOT_EDGE_Y(y) ((y) != 0 && (y) != PCB->MaxHeight)
 #define NOT_EDGE(x,y) (NOT_EDGE_X(x) || NOT_EDGE_Y(y))
 
-static void png_fill_circle (hidGC gc, int cx, int cy, int radius);
+static void png_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
 
 /* The result of a failed gdImageColorAllocate() call */
 #define BADC -1
@@ -319,26 +319,14 @@ static int in_mono, as_shown;
 static void
 parse_bloat (const char *str)
 {
-  double val;
-  char suf[10];
-  bloat = 0.0;
+  UnitList extra_units = {
+    { "pix", scale, 0 },
+    { "px", scale, 0 },
+    { "", 0, 0 }
+  };
   if (str == NULL)
     return;
-  suf[0] = 0;
-  sscanf (str, "%lf %s", &val, suf);
-  if (strcmp (suf, "in") == 0)
-    bloat = INCH_TO_COORD(val);
-  else if (strcmp (suf, "mil") == 0)
-    bloat = MIL_TO_COORD(val);
-  else if (strcmp (suf, "mm") == 0)
-    bloat = MM_TO_COORD(val);
-  else if (strcmp (suf, "um") == 0)
-    bloat = MM_TO_COORD(val) / 1000.0;
-  else if (strcmp (suf, "pix") == 0
-	   || strcmp (suf, "px") == 0)
-    bloat = val * scale;
-  else
-    bloat = val;
+  bloat = GetValueEx (str, NULL, NULL, extra_units, "");
 }
 
 void
@@ -1192,7 +1180,7 @@ png_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-png_set_line_width (hidGC gc, int width)
+png_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -1318,7 +1306,7 @@ use_gc (hidGC gc)
 }
 
 static void
-png_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+png_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageRectangle (im,
@@ -1327,7 +1315,7 @@ png_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+png_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageSetThickness (im, 0);
@@ -1335,13 +1323,13 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 
   if (x1 > x2)
     {
-      int t = x1;
+      Coord t = x1;
       x2 = x2;
       x2 = t;
     }
   if (y1 > y2)
     {
-      int t = y1;
+      Coord t = y1;
       y2 = y2;
       y2 = t;
     }
@@ -1355,11 +1343,11 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+png_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   if (x1 == x2 && y1 == y2)
     {
-      int w = gc->width / 2;
+      Coord w = gc->width / 2;
       if (gc->cap != Square_Cap)
 	png_fill_circle (gc, x1, y1, w);
       else
@@ -1418,19 +1406,18 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-	      int start_angle, int delta_angle)
+png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+	      Angle start_angle, Angle delta_angle)
 {
-  int sa, ea;
+  Angle sa, ea;
 
   /*
    * zero angle arcs need special handling as gd will output either
    * nothing at all or a full circle when passed delta angle of 0 or 360.
    */
   if (delta_angle == 0) {
-    double r = width;
-    int x = (int) (r * cos (start_angle * M_PI / 180));
-    int y = (int) (r * sin (start_angle * M_PI / 180));
+    Coord x = (width * cos (start_angle * M_PI / 180));
+    Coord y = (width * sin (start_angle * M_PI / 180));
     x = cx - x;
     y = cy + y;
     png_fill_circle (gc, x, y, gc->width / 2);
@@ -1459,22 +1446,14 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
       ea = start_angle;
     }
 
-  have_outline |= doing_outline;
-
   /* 
    * make sure we start between 0 and 360 otherwise gd does
    * strange things
    */
-  while (sa < 0)
-    {
-      sa += 360;
-      ea += 360;
-    }
-  while (sa >= 360)
-    {
-      sa -= 360;
-      ea -= 360;
-    }
+  sa = NormalizeAngle (sa);
+  ea = NormalizeAngle (ea);
+
+  have_outline |= doing_outline;
 
 #if 0
   printf ("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
@@ -1491,9 +1470,9 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 }
 
 static void
-png_fill_circle (hidGC gc, int cx, int cy, int radius)
+png_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
-  int my_bloat;
+  Coord my_bloat;
 
   use_gc (gc);
 
@@ -1513,7 +1492,7 @@ png_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-png_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+png_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   int i;
   gdPoint *points;
