@@ -637,8 +637,8 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     Settings.ViaDrillingHole =
       DEFAULT_DRILLINGHOLE * Settings.ViaThickness / 100;
 
-  Settings.MaxWidth = MIN (MAX_COORD, MAX (Settings.MaxWidth, MIN_SIZE));
-  Settings.MaxHeight = MIN (MAX_COORD, MAX (Settings.MaxHeight, MIN_SIZE));
+  Settings.MaxWidth  = CLAMP (Settings.MaxWidth, MIN_SIZE, MAX_COORD);
+  Settings.MaxHeight = CLAMP (Settings.MaxHeight, MIN_SIZE, MAX_COORD);
 
   ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], "cmil");
 

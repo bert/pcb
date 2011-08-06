@@ -64,7 +64,7 @@ typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 typedef struct unit Unit;
 typedef struct increments Increments;
 
-typedef int Coord;		/* pcb base unit */
+typedef long Coord;		/* pcb base unit */
 typedef double Angle;		/* degrees */
 
 #include "hid.h"

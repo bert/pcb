@@ -60,7 +60,7 @@
 /* ---------------------------------------------------------------------------
  * some limit specifications
  */
-#define LARGE_VALUE		10000000 /* maximum extent of board and elements */
+#define LARGE_VALUE		(LONG_MAX / 2 - 1) /* maximum extent of board and elements */
  
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */

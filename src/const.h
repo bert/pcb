@@ -68,10 +68,10 @@
 #define LN_2_OVER_2		0.346573590
 
 /* PCB/physical unit conversions */
-#define COORD_TO_MIL(n)	((n) / 100.0)
-#define MIL_TO_COORD(n)	((n) * 100.0)
-#define COORD_TO_MM(n)	((n) * 0.000254)
-#define MM_TO_COORD(n)	((n) / 0.000254)
+#define COORD_TO_MIL(n)	((n) / 25400.0)
+#define MIL_TO_COORD(n)	((n) * 25400.0)
+#define COORD_TO_MM(n)	((n) / 1000000.0)
+#define MM_TO_COORD(n)	((n) * 1000000.0)
 #define COORD_TO_INCH(n)	(COORD_TO_MIL(n) / 1000.0)
 #define INCH_TO_COORD(n)	(MIL_TO_COORD(n) * 1000.0)
 
