@@ -534,7 +534,7 @@ use_gc (hidGC gc)
 }
 
 void
-ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   USE_GC (gc);
 
@@ -542,8 +542,8 @@ ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 void
-ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
-                         int start_angle, int delta_angle)
+ghid_draw_arc (hidGC gc, Coord cx, Coord cy, Coord xradius, Coord yradius,
+                         Angle start_angle, Angle delta_angle)
 {
   USE_GC (gc);
 
@@ -552,7 +552,7 @@ ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
 }
 
 void
-ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   USE_GC (gc);
 
@@ -561,7 +561,7 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 
 
 void
-ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
+ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   USE_GC (gc);
 
@@ -570,7 +570,7 @@ ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
 
 
 void
-ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+ghid_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   USE_GC (gc);
 
@@ -595,7 +595,7 @@ ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 }
 
 void
-ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   USE_GC (gc);
 

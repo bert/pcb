@@ -34,6 +34,7 @@
 #endif
 
 #include "gui.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -137,64 +138,12 @@ ghid_log (const char *fmt, ...)
   va_end (ap);
 }
 
-static char *msg_buffer = 0;
-static int msg_buffer_size = 0;
-
 void
 ghid_logv (const char *fmt, va_list args)
 {
-  int i;
-
-  if (msg_buffer == NULL)
-    {
-      msg_buffer = (char *) malloc (1002);
-      if (msg_buffer == NULL)
-	{
-	  fprintf (stderr, "ghid_logv():  malloc failed\n\n");
-	  exit (1);
-	}
-      msg_buffer_size = 1000;
-    }
-
-  /* 
-   * FIXME -- fix check to see if the main window is up.  Is 
-   * that needed here?  Lesstif does it.
-   */
-#ifdef FIXME
-  if (!mainwind)
-    {
-      vprintf (fmt, args);
-      return;
-    }
-#endif
-
-#ifdef HAVE_VSNPRINTF
-
-  /* 
-   * NOTE:  some implementations of vsnprintf(), for example
-   * solaris-2.9, will not return the formatted length if you
-   * use a length of 0 in the initial call.  So, we use a small
-   * buffer.
-   */
-  i = vsnprintf (msg_buffer, msg_buffer_size, fmt, args);
-  if (i >= msg_buffer_size)
-    {
-      msg_buffer_size = i + 100;
-      msg_buffer = (char *) realloc (msg_buffer, msg_buffer_size + 2);
-      if (msg_buffer == NULL)
-	{
-	  fprintf (stderr, "ghid_logv():  malloc failed\n\n");
-	  exit (1);
-	}
-      vsnprintf (msg_buffer, msg_buffer_size, fmt, args);
-    }
-
-#else
-  vsprintf (msg_buffer, fmt, args);
-#endif /* !HAVE_VSNPRINTF */
-
-  ghid_log_append_string (msg_buffer);
-
+  gchar *msg = pcb_vprintf (fmt, args);
+  ghid_log_append_string (msg);
+  g_free (msg);
 }
 
 static const char logshowonappend_syntax[] =

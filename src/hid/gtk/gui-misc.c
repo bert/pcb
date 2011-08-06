@@ -435,10 +435,10 @@ ghid_set_cursor_position_labels (void)
 
   if (Marked.status)
     {
-      BDimension dx = Crosshair.X - Marked.X;
-      BDimension dy = Crosshair.Y - Marked.Y;
-      BDimension r  = Distance (Crosshair.X, Crosshair.Y, Marked.X, Marked.Y);
-      double a      = atan2 (dy, dx) * RAD_TO_DEG;
+      Coord dx = Crosshair.X - Marked.X;
+      Coord dy = Crosshair.Y - Marked.Y;
+      Coord r  = Distance (Crosshair.X, Crosshair.Y, Marked.X, Marked.Y);
+      double a = atan2 (dy, dx) * RAD_TO_DEG;
 
       text = pcb_g_strdup_printf ("%m+r %-mS; phi %-.1f; %-mS %-mS",
                                   Settings.grid_unit->allow,

@@ -462,7 +462,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 void
-ghid_set_line_width (hidGC gc, int width)
+ghid_set_line_width (hidGC gc, Coord width)
 {
   render_priv *priv = gport->render_priv;
 
@@ -518,7 +518,7 @@ use_gc (hidGC gc)
 }
 
 void
-ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   double dx1, dy1, dx2, dy2;
   render_priv *priv = gport->render_priv;
@@ -537,8 +537,8 @@ ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 void
-ghid_draw_arc (hidGC gc, int cx, int cy,
-	       int xradius, int yradius, int start_angle, int delta_angle)
+ghid_draw_arc (hidGC gc, Coord cx, Coord cy,
+	       Coord xradius, Coord yradius, Angle start_angle, Angle delta_angle)
 {
   gint vrx, vry;
   gint w, h, radius;
@@ -568,7 +568,8 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
       delta_angle = -delta_angle;
     }
   /* make sure we fall in the -180 to +180 range */
-  start_angle = (start_angle + 360 + 180) % 360 - 180;
+  start_angle = NormalizeAngle (start_angle);
+  if (start_angle >= 180)  start_angle -= 360;
 
   gdk_draw_arc (gport->drawable, priv->u_gc, 0,
 		Vx (cx) - vrx, Vy (cy) - vry,
@@ -576,7 +577,7 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
 }
 
 void
-ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gint w, h, lw;
   render_priv *priv = gport->render_priv;
@@ -620,7 +621,7 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 
 
 void
-ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
+ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   gint w, h, vr;
   render_priv *priv = gport->render_priv;
@@ -640,7 +641,7 @@ ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 void
-ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+ghid_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   static GdkPoint *points = 0;
   static int npoints = 0;
@@ -662,7 +663,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 void
-ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gint w, h, lw, xx, yy;
   render_priv *priv = gport->render_priv;

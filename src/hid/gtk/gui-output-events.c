@@ -474,7 +474,7 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 
 
 static char *
-describe_location (LocationType X, LocationType Y)
+describe_location (Coord X, Coord Y)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;

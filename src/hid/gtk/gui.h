@@ -170,9 +170,9 @@ typedef struct
 |  out - the largest value means you are looking at the whole board.
 */
   gdouble zoom;			/* PCB units per screen pixel.  Larger */
-  /* numbers mean zooming out. */
-  gint view_x0,			/* Viewport in PCB coordinates */
-    view_y0, view_width, view_height;
+                                /* numbers mean zooming out. */
+  /* Viewport in PCB coordinates */
+  Coord view_x0, view_y0, view_width, view_height;
   Coord pcb_x, pcb_y;
 
   gint crosshair_x, crosshair_y;
@@ -462,15 +462,15 @@ void ghid_destroy_gc (hidGC);
 void ghid_use_mask (int use_it);
 void ghid_set_color (hidGC gc, const char *name);
 void ghid_set_line_cap (hidGC gc, EndCapStyle style);
-void ghid_set_line_width (hidGC gc, int width);
+void ghid_set_line_width (hidGC gc, Coord width);
 void ghid_set_draw_xor (hidGC gc, int _xor);
-void ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
-void ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
-                    int start_angle, int delta_angle);
-void ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
-void ghid_fill_circle (hidGC gc, int cx, int cy, int radius);
-void ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
-void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
+void ghid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+void ghid_draw_arc (hidGC gc, Coord cx, Coord cy, Coord xradius, Coord yradius,
+                    Angle start_angle, Angle delta_angle);
+void ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+void ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
+void ghid_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
+void ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 void ghid_invalidate_lr (int left, int right, int top, int bottom);
 void ghid_invalidate_all ();
 void ghid_notify_crosshair_change (bool changes_complete);
@@ -511,7 +511,7 @@ extern GdkPixmap *XC_clock_source, *XC_clock_mask;
 /* Coordinate conversions */
 /* Px converts view->pcb, Vx converts pcb->view */
 static inline int
-Vx (int x)
+Vx (Coord x)
 {
   int rv;
   if (ghid_flip_x)
@@ -522,7 +522,7 @@ Vx (int x)
 }
 
 static inline int
-Vy (int y)
+Vy (Coord y)
 {
   int rv;
   if (ghid_flip_y)
@@ -533,30 +533,30 @@ Vy (int y)
 }
 
 static inline int
-Vz (int z)
+Vz (Coord z)
 {
   return z / gport->zoom + 0.5;
 }
 
-static inline int
+static inline Coord
 Px (int x)
 {
-  int rv = x * gport->zoom + gport->view_x0;
+  Coord rv = x * gport->zoom + gport->view_x0;
   if (ghid_flip_x)
     rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
   return  rv;
 }
 
-static inline int
+static inline Coord
 Py (int y)
 {
-  int rv = y * gport->zoom + gport->view_y0;
+  Coord rv = y * gport->zoom + gport->view_y0;
   if (ghid_flip_y)
     rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
   return  rv;
 }
 
-static inline int
+static inline Coord
 Pz (int z)
 {
   return (z * gport->zoom);
