@@ -89,11 +89,6 @@ typedef double Angle;		/* degrees */
 # define bindtextdomain(D, Dir) (D)
 #endif /* ENABLE_NLS */
 
-#if 1
-typedef int LocationType;
-typedef int BDimension;		/* big dimension */
-#endif
-
 /* This is used by the lexer/parser */
 typedef struct {
   int ival;

@@ -108,8 +108,8 @@ typedef struct PinoutData
   struct PinoutData *prev, *next;
   Widget form;
   Window window;
-  int left, right, top, bottom;	/* PCB extents of item */
-  int x, y;			/* PCB coordinates of upper right corner of window */
+  Coord left, right, top, bottom;	/* PCB extents of item */
+  Coord x, y;			/* PCB coordinates of upper right corner of window */
   double zoom;			/* PCB units per screen pixel */
   int v_width, v_height;	/* pixels */
   void *item;
@@ -2115,7 +2115,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    r->resource_type = XtRString;
 	    r->default_type = XtRString;
 	    r->resource_size = sizeof (char *);
-	    r->default_addr = a->default_val.str_value;
+	    r->default_addr = (char *) a->default_val.str_value;
 	    rcount++;
 	    break;
 	  case HID_Boolean:
@@ -2312,7 +2312,7 @@ draw_grid ()
 }
 
 static void
-mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
+mark_delta_to_widget (Coord dx, Coord dy, Widget w)
 {
   char *buf;
   double g = coord_to_unit (Settings.grid_unit, PCB->Grid);
@@ -2329,8 +2329,8 @@ mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
     buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS", UUNIT, prec, dx, prec, dy);
   else
     {
-      int angle = atan2 (dy, -dx) * 180 / M_PI;
-      BDimension dist = Distance (0, 0, dx, dy);
+      Angle angle = atan2 (dy, -dx) * 180 / M_PI;
+      Coord dist = Distance (0, 0, dx, dy);
 
       buf = pcb_g_strdup_printf ("%m+%+.*mS, %+.*mS (%.*mS, %d\260)", UUNIT,
                              prec, dx, prec, dy, prec, dist, angle);
@@ -2344,7 +2344,7 @@ mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
 }
 
 static int
-cursor_pos_to_widget (BDimension x, BDimension y, Widget w, int prev_state)
+cursor_pos_to_widget (Coord x, Coord y, Widget w, int prev_state)
 {
   int this_state = prev_state;
   static char *buf;
@@ -2452,13 +2452,13 @@ idle_proc (XtPointer dummy)
       region.Y2 = Py (view_height);
       if (flip_x)
 	{
-	  int tmp = region.X1;
+	  Coord tmp = region.X1;
 	  region.X1 = region.X2;
 	  region.X2 = tmp;
 	}
       if (flip_y)
 	{
-	  int tmp = region.Y1;
+	  Coord tmp = region.Y1;
 	  region.Y1 = region.Y2;
 	  region.Y2 = tmp;
 	}
@@ -3187,7 +3187,7 @@ lesstif_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-lesstif_set_line_width (hidGC gc, int width)
+lesstif_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -3201,7 +3201,7 @@ lesstif_set_draw_xor (hidGC gc, int xor_set)
 #define ISORT(a,b) if (a>b) { a^=b; b^=a; a^=b; }
 
 static void
-lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+lesstif_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   double dx1, dy1, dx2, dy2;
   int vw = Vz (gc->width);
@@ -3247,8 +3247,8 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		  int start_angle, int delta_angle)
+lesstif_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+		  Angle start_angle, Angle delta_angle)
 {
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
     return;
@@ -3269,7 +3269,9 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
       start_angle = - start_angle;
       delta_angle = - delta_angle;					
     }
-  start_angle = (start_angle + 360 + 180) % 360 - 180;
+  start_angle = NormalizeAngle (start_angle);
+  if (start_angle >= 180)
+    start_angle -= 360;
 #if 0
   pcb_printf (" = %#mD %#mSx%#mS %d %s\n", cx, cy, width, height, gc->width,
 	  gc->colorname);
@@ -3301,7 +3303,7 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 }
 
 static void
-lesstif_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+lesstif_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   int vw = Vz (gc->width);
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
@@ -3328,7 +3330,7 @@ lesstif_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void
-lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
+lesstif_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   if (pinout && use_mask && gc->erase)
     return;
@@ -3356,7 +3358,7 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
 }
 
 static void
-lesstif_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+lesstif_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   static XPoint *p = 0;
   static int maxp = 0;
@@ -3388,7 +3390,7 @@ lesstif_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
-lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+lesstif_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   int vw = Vz (gc->width);
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)

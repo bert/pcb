@@ -90,8 +90,8 @@ MainMenu =
     {"Zoom to 10mil/px" Zoom(=10mil)}
    }
    {Grid
-    {"mil" checked=grid_units_mil SetUnits(mil)}
-    {"mm"  checked=grid_units_mm SetUnits(mm)}
+    {"mil" checked=grid_units_mil,1 SetUnits(mil)}
+    {"mm"  checked=grid_units_mm,1 SetUnits(mm)}
     {"Display grid" checked=drawgrid Display(Grid)}
     {"Realign grid" GetXY(Click to set the grid origin) Display(ToggleGrid)}
     {"No Grid" checked=grid,0 SetValue(Grid,1)}

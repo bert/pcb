@@ -15,6 +15,7 @@
 #include "global.h"
 #include "data.h"
 #include "set.h"
+#include "misc.h"
 #include "mymem.h"
 #include "pcb-printf.h"
 
@@ -159,15 +160,13 @@ update_style_buttons ()
 static void
 style_value_cb (Widget w, int i, void *cbs)
 {
-  double d;
   Coord n;
   char *s;
 
   if (local_update)
     return;
   s = XmTextGetString (w);
-  sscanf (s, "%lf", &d);
-  n = unit_to_coord (unit, d);
+  n = GetValueEx (s, NULL, NULL, NULL, unit->suffix);
   switch (i)
     {
     case SSthick:

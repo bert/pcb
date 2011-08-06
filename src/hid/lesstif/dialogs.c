@@ -1134,17 +1134,14 @@ static Widget sz_set, sz_reset, sz_units;
 static int
 sz_str2val (Widget w, bool pcbu)
 {
-  double d;
-  char *buf;
-  buf = XmTextGetString (w);
+  char *buf = XmTextGetString (w);
   if (!pcbu)
     return strtol (buf, NULL, 0);
-  sscanf (buf, "%lf", &d);
-  return unit_to_coord (Settings.grid_unit, d);
+  return GetValueEx (buf, NULL, NULL, NULL, Settings.grid_unit->suffix);
 }
 
 static void
-sz_val2str (Widget w, BDimension u, int pcbu)
+sz_val2str (Widget w, Coord u, int pcbu)
 {
   static char buf[40];
   if (pcbu)
