@@ -47,9 +47,6 @@
 #define	SWAP_X(x)		(SWAP_SIGN_X(x))
 #define	SWAP_Y(y)		(PCB->MaxHeight +SWAP_SIGN_Y(y))
 
-#define	TO_SCREEN_SIGN_X(x)	(SWAP_IDENT ? SWAP_SIGN_X(x) : (x))
-#define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
-
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
  */
