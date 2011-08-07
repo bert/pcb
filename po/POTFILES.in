@@ -7,9 +7,11 @@ data/x-pcb-layout.desktop.in
 data/x-pcb-netlist.desktop.in
 src/action.c
 src/autoplace.c
+src/autoroute.c
 src/buffer.c
 src/change.c
 src/create.c
+src/crosshair.c
 src/edif.c
 src/error.c
 src/file.c
