@@ -31,7 +31,7 @@ MainMenu =
    {"About..." About()}
    {"Save layout" Save(Layout) m=S a={"Ctrl-S" "Ctrl<Key>s"}}
    {"Save layout as..." Save(LayoutAs) m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
-	{"Revert" Load(Revert,none)}
+   {"Revert" Load(Revert,none)}
    {"Import Schematics" Import() }
    {"Load layout" Load(Layout)}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
