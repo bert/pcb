@@ -65,6 +65,7 @@ enum ConfigType
 {
   CONFIG_Boolean,
   CONFIG_Integer,
+  CONFIG_Coord,
   CONFIG_Real,
   CONFIG_String,
   CONFIG_Unused
@@ -279,6 +280,10 @@ ghid_config_init (void)
 	    case HID_Integer:
 	      *(int *) a->value = a->default_val.int_value;
 	      ca->type = CONFIG_Integer;
+	      break;
+	    case HID_Coord:
+	      *(Coord *) a->value = a->default_val.coord_value;
+	      ca->type = CONFIG_Coord;
 	      break;
 	    case HID_Real:
 	      *(double *) a->value = a->default_val.real_value;
@@ -560,6 +565,14 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		  (*argc)--;
 		  (*argv)++;
 		  break;
+		case HID_Coord:
+		  if (a->value)
+		    *(Coord *) a->value = GetValue ((*argv)[1], 0, 0);
+		  else
+		    a->default_val.coord_value = GetValue ((*argv)[1], 0, 0);
+		  (*argc)--;
+		  (*argv)++;
+                  break;
 		case HID_Real:
 		  if (a->value)
 		    *(double *) a->value = strtod ((*argv)[1], 0);

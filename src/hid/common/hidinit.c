@@ -263,6 +263,10 @@ hid_parse_command_line (int *argc, char ***argv)
 	    if (a->value)
 	      *(int *) a->value = a->default_val.int_value;
 	    break;
+	  case HID_Coord:
+	    if (a->value)
+	      *(Coord *) a->value = a->default_val.coord_value;
+	    break;
 	  case HID_Boolean:
 	    if (a->value)
 	      *(char *) a->value = a->default_val.int_value;
@@ -317,6 +321,14 @@ hid_parse_command_line (int *argc, char ***argv)
 		    *(int *) a->value = strtol ((*argv)[1], 0, 0);
 		  else
 		    a->default_val.int_value = strtol ((*argv)[1], 0, 0);
+		  (*argc)--;
+		  (*argv)++;
+		  break;
+		case HID_Coord:
+		  if (a->value)
+		    *(Coord *) a->value = GetValue ((*argv)[1], NULL, NULL);
+		  else
+		    a->default_val.coord_value = GetValue ((*argv)[1], NULL, NULL);
 		  (*argc)--;
 		  (*argv)++;
 		  break;
@@ -475,6 +487,11 @@ hid_save_settings (int locally)
 		       a->name,
 		       a->value ? *(int *)a->value : a->default_val.int_value);
 	      break;
+	    case HID_Coord:
+	      pcb_fprintf (f, "%s = %$mS\n",
+		           a->name,
+		           a->value ? *(Coord *)a->value : a->default_val.coord_value);
+	      break;
 	    case HID_Boolean:
 	      fprintf (f, "%s = %d\n",
 		       a->name,
@@ -536,6 +553,9 @@ hid_set_attribute (char *name, char *value)
 	      break;
 	    case HID_Integer:
 	      a->default_val.int_value = strtol (value, 0, 0);
+	      break;
+	    case HID_Coord:
+	      a->default_val.coord_value = GetValue (value, NULL, NULL);
 	      break;
 	    case HID_Real:
 	      a->default_val.real_value = strtod (value, 0);

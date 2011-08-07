@@ -1950,12 +1950,12 @@ typedef union
   int i;
   double f;
   char *s;
+  Coord c;
 } val_union;
 
 static Boolean
-cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
-			 XrmValue * from, XrmValue * to,
-			 XtPointer * converter_data)
+pcb_cvt_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
+                          XrmValue * from, XrmValue * to, XtPointer * data)
 {
   static double rv;
   rv = strtod ((char *) from->addr, 0);
@@ -1965,6 +1965,20 @@ cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
     to->addr = (XPointer) & rv;
   to->size = sizeof (rv);
   return True;
+}
+
+static Boolean
+pcb_cvt_string_to_coord (Display * d, XrmValue * args, Cardinal * num_args,
+                         XrmValue * from, XrmValue * to, XtPointer *data)
+{
+  static Coord rv;
+  rv = GetValue ((char *) from->addr, NULL, NULL);
+  if (to->addr)
+    *(Coord *) to->addr = rv;
+  else
+    to->addr = (XPointer) &rv;
+  to->size = sizeof (rv);
+  return TRUE;
 }
 
 static void
@@ -1989,7 +2003,6 @@ lesstif_listener_cb (XtPointer client_data, int *fid, XtInputId *id)
     }
 }
 
-
 static void
 lesstif_parse_arguments (int *argc, char ***argv)
 {
@@ -2005,7 +2018,11 @@ lesstif_parse_arguments (int *argc, char ***argv)
 
   XtSetTypeConverter (XtRString,
 		      XtRDouble,
-		      cvtres_string_to_double, NULL, 0, XtCacheAll, NULL);
+		      pcb_cvt_string_to_double, NULL, 0, XtCacheAll, NULL);
+  XtSetTypeConverter (XtRString,
+		      XtRPCBCoord,
+		      pcb_cvt_string_to_coord, NULL, 0, XtCacheAll, NULL);
+
 
   for (ha = hid_attr_nodes; ha; ha = ha->next)
     for (i = 0; i < ha->n; i++)
@@ -2014,6 +2031,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	switch (a->type)
 	  {
 	  case HID_Integer:
+	  case HID_Coord:
 	  case HID_Real:
 	  case HID_String:
 	  case HID_Path:
@@ -2074,6 +2092,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	switch (a->type)
 	  {
 	  case HID_Integer:
+	  case HID_Coord:
 	  case HID_Real:
 	  case HID_String:
 	  case HID_Path:
@@ -2101,6 +2120,13 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    r->default_type = XtRInt;
 	    r->resource_size = sizeof (int);
 	    r->default_addr = &(a->default_val.int_value);
+	    rcount++;
+	    break;
+	  case HID_Coord:
+	    r->resource_type = XtRPCBCoord;
+	    r->default_type = XtRPCBCoord;
+	    r->resource_size = sizeof (Coord);
+	    r->default_addr = &(a->default_val.coord_value);
 	    rcount++;
 	    break;
 	  case HID_Real:
@@ -2183,6 +2209,13 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	      *(int *) a->value = v->i;
 	    else
 	      a->default_val.int_value = v->i;
+	    rcount++;
+	    break;
+	  case HID_Coord:
+	    if (a->value)
+	      *(Coord *) a->value = v->c;
+	    else
+	      a->default_val.coord_value = v->c;
 	    rcount++;
 	    break;
 	  case HID_Boolean:

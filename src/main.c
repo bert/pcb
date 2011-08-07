@@ -173,6 +173,9 @@ usage_attr (HID_Attribute * a)
     case HID_Real:
       sprintf (buf, "--%s <num>", a->name);
       break;
+    case HID_Coord:
+      sprintf (buf, "--%s <measure>", a->name);
+      break;
     case HID_String:
       sprintf (buf, "--%s <string>", a->name);
       break;
@@ -318,6 +321,7 @@ static void
 print_defaults_1 (HID_Attribute * a, void *value)
 {
   int i;
+  Coord c;
   double d;
   const char *s;
 
@@ -336,6 +340,10 @@ print_defaults_1 (HID_Attribute * a, void *value)
     case HID_Real:
       d = value ? *(double *) value : a->default_val.real_value;
       fprintf (stderr, "%s %g\n", a->name, d);
+      break;
+    case HID_Coord:
+      c = value ? *(Coord *) value : a->default_val.coord_value;
+      pcb_fprintf (stderr, "%s %$mS\n", a->name, c);
       break;
     case HID_String:
     case HID_Path:
@@ -401,6 +409,8 @@ print_defaults ()
 	HID_Boolean, 0, 0, { D, 0, 0 }, 0, &Settings.F }
 #define RSET(F,D,N,H) { N, H, \
 	HID_Real,    0, 0, { 0, 0, D }, 0, &Settings.F }
+#define CSET(F,D,N,H) { N, H, \
+	HID_Coord,    0, 0, { 0, 0, 0, D }, 0, &Settings.F }
 
 #define COLOR(F,D,N,H) { N, H, \
 	HID_String, 0, 0, { 0, D, 0 }, 0, &Settings.F }
@@ -501,24 +511,24 @@ HID_Attribute main_attribute_list[] = {
   COLOR (WarnColor, "#ff8000", "warn-color", "color for warnings"),
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
-  ISET (ViaThickness, MIL_TO_COORD(60), "via-thickness", 0),
-  ISET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole", 0),
-  ISET (LineThickness, MIL_TO_COORD(10), "line-thickness",
+  CSET (ViaThickness, MIL_TO_COORD(60), "via-thickness", 0),
+  CSET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole", 0),
+  CSET (LineThickness, MIL_TO_COORD(10), "line-thickness",
 	"Initial thickness of new lines."),
-  ISET (RatThickness, MIL_TO_COORD(10), "rat-thickness", 0),
-  ISET (Keepaway, MIL_TO_COORD(10), "keepaway", 0),
-  ISET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width", 0),
-  ISET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height", 0),
+  CSET (RatThickness, MIL_TO_COORD(10), "rat-thickness", 0),
+  CSET (Keepaway, MIL_TO_COORD(10), "keepaway", 0),
+  CSET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width", 0),
+  CSET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height", 0),
   ISET (TextScale, 100, "text-scale", 0),
-  ISET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance", 0),
-  ISET (Bloat, MIL_TO_COORD(10), "bloat", 0),
-  ISET (Shrink, MIL_TO_COORD(10), "shrink", 0),
-  ISET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
-  ISET (minSlk, MIL_TO_COORD(10), "min-silk", "DRC minimum silk width"),
-  ISET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
-  ISET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
+  CSET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance", 0),
+  CSET (Bloat, MIL_TO_COORD(10), "bloat", 0),
+  CSET (Shrink, MIL_TO_COORD(10), "shrink", 0),
+  CSET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
+  CSET (minSlk, MIL_TO_COORD(10), "min-silk", "DRC minimum silk width"),
+  CSET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
+  CSET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
 
-  ISET (Grid, MIL_TO_COORD(10), "grid", 0),
+  CSET (Grid, MIL_TO_COORD(10), "grid", 0),
   RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
 
   ISET (BackupInterval, 60, "backup-interval", 0),
@@ -572,10 +582,10 @@ HID_Attribute main_attribute_list[] = {
   SSET (GnetlistProgram, NULL, "gnetlist",
 	"Sets the name and optionally full path to the gnetlist(3) program"),
 
-  ISET (PinoutOffsetX, MIL_TO_COORD(1), "pinout-offset-x", 0),
-  ISET (PinoutOffsetY, MIL_TO_COORD(1), "pinout-offset-y", 0),
-  ISET (PinoutTextOffsetX, MIL_TO_COORD(8), "pinout-text-offset-x", 0),
-  ISET (PinoutTextOffsetY, MIL_TO_COORD(-1), "pinout-text-offset-y", 0),
+  CSET (PinoutOffsetX, MIL_TO_COORD(1), "pinout-offset-x", 0),
+  CSET (PinoutOffsetY, MIL_TO_COORD(1), "pinout-offset-y", 0),
+  CSET (PinoutTextOffsetX, MIL_TO_COORD(8), "pinout-text-offset-x", 0),
+  CSET (PinoutTextOffsetY, MIL_TO_COORD(-1), "pinout-text-offset-y", 0),
 
   BSET (DrawGrid, 0, "draw-grid", "default to drawing the grid at startup"),
   BSET (ClearLine, 1, "clear-line", 0),

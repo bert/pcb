@@ -749,6 +749,13 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	  stdarg (XmNvalue, buf);
 	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
 	  break;
+	case HID_Coord:
+	  stdarg (XmNcolumns, 13);
+	  stdarg (XmNresizeWidth, True);
+	  pcb_sprintf (buf, "%$mS", results[i].coord_value);
+	  stdarg (XmNvalue, buf);
+	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
+	  break;
 	case HID_Real:
 	  stdarg (XmNcolumns, 16);
 	  stdarg (XmNresizeWidth, True);
@@ -822,6 +829,10 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	case HID_Integer:
 	  cp = XmTextGetString (wl[i]);
 	  sscanf (cp, "%d", &results[i].int_value);
+	  break;
+	case HID_Coord:
+	  cp = XmTextGetString (wl[i]);
+	  results[i].coord_value = GetValue (cp, NULL, NULL);
 	  break;
 	case HID_Real:
 	  cp = XmTextGetString (wl[i]);

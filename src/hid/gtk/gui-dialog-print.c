@@ -63,6 +63,13 @@ intspinner_changed_cb (GtkSpinButton * spin_button, gpointer data)
 }
 
 static void
+coordentry_changed_cb (GtkEntry * entry, Coord * res)
+{
+  const gchar *s = gtk_entry_get_text (entry);
+  *res = GetValue (s, NULL, NULL);
+}
+
+static void
 dblspinner_changed_cb (GtkSpinButton * spin_button, gpointer data)
 {
   double *dval = (double *)data;
@@ -158,6 +165,25 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 			    &(attrs[j].default_val.int_value), FALSE, NULL);
 
 	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+
+	  widget = gtk_label_new (attrs[j].name);
+	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	  break;
+
+	case HID_Coord:
+	  hbox = gtk_hbox_new (FALSE, 4);
+	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
+	  /* FIXME: need to write a coord-entry widget for this */
+	  entry = gtk_entry_new ();
+	  gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
+	  if(attrs[j].default_val.str_value != NULL)
+	    gtk_entry_set_text (GTK_ENTRY (entry),
+				attrs[j].default_val.str_value);
+	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
+	  g_signal_connect (G_OBJECT (entry), "changed",
+			    G_CALLBACK (coordentry_changed_cb),
+			    &(attrs[j].default_val.coord_value));
 
 	  widget = gtk_label_new (attrs[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
