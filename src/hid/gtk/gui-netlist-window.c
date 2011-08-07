@@ -207,6 +207,30 @@ node_model_update (LibraryMenuType * menu)
     g_object_unref (G_OBJECT (model));
 }
 
+static void
+toggle_pin_selected (LibraryEntryType *entry)
+{
+  ConnectionType conn;
+
+  if (!SeekPad (entry, &conn, false))
+    return;
+
+  AddObjectToFlagUndoList (conn.type, conn.ptr1, conn.ptr2, conn.ptr2);
+  TOGGLE_FLAG (SELECTEDFLAG, (AnyObjectType *)conn.ptr2);
+  DrawObject (conn.type, conn.ptr1, conn.ptr2);
+
+  if (conn.type == PIN_TYPE)
+    {
+      PinTypePtr pin = (PinTypePtr) conn.ptr2;
+      CenterDisplay (pin->X, pin->Y);
+    }
+  else if (conn.type == PAD_TYPE)
+    {
+      PadTypePtr pad = (PadTypePtr) conn.ptr2;
+      CenterDisplay (pad->Point1.X, pad->Point1.Y);
+    }
+}
+
 
 /* Callback when the user clicks on a PCB node in the right node treeview.
  */
@@ -234,7 +258,7 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
       |  if off here will get our on/off toggling out of sync.
       */
       if (node_net == node_selected_net)
-	SelectPin (node, TRUE);
+        toggle_pin_selected (node);
       g_free (node_name);
       node_name = NULL;
     }
@@ -259,7 +283,7 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
 
   /* Now just toggle a select of the node on the layout and pan.
    */
-  SelectPin (node, TRUE);
+  toggle_pin_selected (node);
   IncrementUndoSerialNumber ();
 	margin = gport->view_width / 20;
 	if (   Crosshair.X < gport->view_x0 + margin

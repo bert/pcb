@@ -61,60 +61,6 @@
 
 RCSID ("$Id$");
 
-
-
-/* ---------------------------------------------------------------------------
- * toggle selection of pin
- * This SelectPin function was moved to here from the original netlist.c
- * as part of the gui code separation for the Gtk port. SelectPin() is
- * written by and is Copyright (C) 1998, 1999, 2000, 2001 harry eaton
- */
-void
-SelectPin (LibraryEntryTypePtr entry, bool toggle)
-{
-  ConnectionType conn;
-
-  if (SeekPad (entry, &conn, false))
-    {
-      switch (conn.type)
-	{
-	case PIN_TYPE:
-	  {
-	    PinTypePtr pin = (PinTypePtr) conn.ptr2;
-
-	    AddObjectToFlagUndoList (PIN_TYPE, conn.ptr1, conn.ptr2,
-				     conn.ptr2);
-	    if (toggle)
-	      {
-		TOGGLE_FLAG (SELECTEDFLAG, pin);
-		CenterDisplay (pin->X, pin->Y);
-	      }
-	    else
-	      SET_FLAG (SELECTEDFLAG, pin);
-	    DrawPin (pin);
-	    break;
-	  }
-	case PAD_TYPE:
-	  {
-	    PadTypePtr pad = (PadTypePtr) conn.ptr2;
-
-	    AddObjectToFlagUndoList (PAD_TYPE, conn.ptr1, conn.ptr2,
-				     conn.ptr2);
-	    if (toggle)
-	      {
-		TOGGLE_FLAG (SELECTEDFLAG, pad);
-		CenterDisplay (pad->Point1.X, pad->Point1.Y);
-	      }
-	    else
-	      SET_FLAG (SELECTEDFLAG, pad);
-	    DrawPad (pad);
-	    break;
-	  }
-	}
-    }
-}
-
-
 /* ---------------------------------------------------------------------------
  * toggles the selection of any kind of object
  * the different types are defined by search.h
