@@ -286,95 +286,75 @@ ghid_mod1_is_pressed ()
 void
 ghid_set_crosshair (int x, int y, int action)
 {
+  GdkDisplay *display;
+  GdkScreen *screen;
+  int offset_x, offset_y;
+  int widget_x, widget_y;
+  int pointer_x, pointer_y;
+  Coord pcb_x, pcb_y;
+
   if (gport->crosshair_x != x || gport->crosshair_y != y)
     {
       ghid_set_cursor_position_labels ();
       gport->crosshair_x = x;
       gport->crosshair_y = y;
 
-      /*
-       * FIXME - does this trigger the idle_proc stuff?  It is in the
+      /* FIXME - does this trigger the idle_proc stuff?  It is in the
        * lesstif HID.  Maybe something is needed here?
        *
        * need_idle_proc ();
        */
-
     }
 
-  /*
-   * Pan the viewport so that the crosshair (which is in a fixed
-   * location relative to the board) lands where the pointer
-   * is.  What happens is the crosshair is moved on the board
-   * (see above) and then we move the board here to line it up
-   * again.  We do this by figuring out where the pointer is
-   * in board coordinates and we know where the crosshair is
-   * in board coordinates.  Then we know how far to pan.
-   */
-  if (action == HID_SC_PAN_VIEWPORT)
-    {
-      GdkDisplay *display;
-      gint pos_x, pos_y, xofs, yofs;
-      
-      display = gdk_display_get_default ();
-      
-      /* figure out where the pointer is relative to the display */ 
-      gdk_display_get_pointer (display, NULL, &pos_x, &pos_y, NULL); 
-      
-      /*
-       * Figure out where the drawing area is on the screen so we can
-       * figure out where the pointer is relative to the viewport.
-       */ 
-      gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
-      
-      pos_x -= xofs;
-      pos_y -= yofs;
+  if (action != HID_SC_PAN_VIEWPORT &&
+      action != HID_SC_WARP_POINTER)
+    return;
 
-      /*
-       * pointer is at
-       *  px = gport->view_x0 + pos_x * gport->zoom
-       *  py = gport->view_y0 + pos_y * gport->zoom
-       *
-       * cross hair is at
-       *  x
-       *  y
-       *
-       * we need to shift x0 by (x - px) and y0 by (y - py)
-       * x0 = x0 + x - (x0 + pos_x * zoom)
-       *    = x - pos_x*zoom
+  /* Find out where the drawing area is on the screen. gdk_display_get_pointer
+   * and gdk_display_warp_pointer work relative to the whole display, whilst
+   * our coordinates are relative to the drawing area origin.
+   */
+  gdk_window_get_origin (gport->drawing_area->window, &offset_x, &offset_y);
+  display = gdk_display_get_default ();
+
+  switch (action) {
+    case HID_SC_PAN_VIEWPORT:
+      /* Pan the board in the viewport so that the crosshair (who's location
+       * relative on the board was set above) lands where the pointer is.
+       * We pass the request to pan a particular point on the board to a
+       * given widget coordinate of the viewport into the rendering code
        */
 
-      if (ghid_flip_x)
-        gport->view_x0 = x - (gport->view_width - pos_x * gport->zoom);
-      else
-        gport->view_x0 = x - pos_x * gport->zoom;
+      /* Find out where the pointer is relative to the display */
+      gdk_display_get_pointer (display, NULL, &pointer_x, &pointer_y, NULL);
 
-      if (ghid_flip_y)
-        gport->view_y0 = y - (gport->view_height - pos_y * gport->zoom);
-      else
-        gport->view_y0 = y - pos_y * gport->zoom;
+      widget_x = pointer_x - offset_x;
+      widget_y = pointer_y - offset_y;
 
-      ghid_pan_fixup();
+      ghid_event_to_pcb_coords (widget_x, widget_y, &pcb_x, &pcb_y);
 
-      action = HID_SC_WARP_POINTER;
-    }
+      gport->view_x0 = MAX (0, SIDE_X (pcb_x) - widget_x * gport->zoom);
+      gport->view_y0 = MAX (0, SIDE_Y (pcb_y) - widget_y * gport->zoom);
 
-  if (action == HID_SC_WARP_POINTER)
-    {
-      gint xofs, yofs;
-      GdkDisplay *display;
-      GdkScreen *screen;
+      ghid_pan_fixup ();
 
-      display = gdk_display_get_default ();
+      /* Just in case we couldn't pan the board the whole way,
+       * we warp the pointer to where the crosshair DID land.
+       */
+      /* Fall through */
+
+    case HID_SC_WARP_POINTER:
       screen = gdk_display_get_default_screen (display);
 
-      /*
-       * Figure out where the drawing area is on the screen because
-       * gdk_display_warp_pointer will warp relative to the whole display
-       * but the value we've been given is relative to your drawing area
-       */
-      gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
-      gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
-    }
+      ghid_pcb_to_event_coords (x, y, &widget_x, &widget_y);
+
+      pointer_x = offset_x + widget_x;
+      pointer_y = offset_y + widget_y;
+
+      gdk_display_warp_pointer (display, screen, pointer_x, pointer_y);
+
+      break;
+  }
 }
 
 typedef struct
@@ -1619,55 +1599,41 @@ currently within the window already.
 %end-doc */
 
 static int
-Center(int argc, char **argv, int x, int y)
+Center(int argc, char **argv, int pcb_x, int pcb_y)
 {
-  int x0, y0, w2, h2;
   GdkDisplay *display;
   GdkScreen *screen;
-  int xofs, yofs;
+  int offset_x, offset_y;
+  int widget_x, widget_y;
+  int pointer_x, pointer_y;
 
   if (argc != 0)
     AFAIL (center);
 
-  x = GRIDFIT_X (SIDE_X (x), PCB->Grid);
-  y = GRIDFIT_Y (SIDE_Y (y), PCB->Grid);
+  /* Aim to put the given x, y PCB coordinates in the center of the widget */
+  widget_x = gport->width / 2;
+  widget_y = gport->height / 2;
 
-  w2 = gport->view_width / 2;
-  h2 = gport->view_height / 2;
-  x0 = x - w2;
-  y0 = y - h2;
-
-  if (x0 < 0)
-    {
-      x0 = 0;
-      x = x0 + w2;
-    }
-
-  if (y0 < 0)
-    {
-      y0 = 0;
-      y = y0 + h2;
-    }
-
-  gport->view_x0 = x0;
-  gport->view_y0 = y0;
+  gport->view_x0 = MAX (0, SIDE_X (pcb_x) - widget_x * gport->zoom);
+  gport->view_y0 = MAX (0, SIDE_Y (pcb_y) - widget_y * gport->zoom);
 
   ghid_pan_fixup ();
 
-  /* Move the pointer to the center of the window, but only if it's
-     currently within the window already.  Watch out for edges,
-     though.  */
+  /* Now move the mouse pointer to the place where the board location
+   * actually ended up.
+   *
+   * XXX: Should only do this if we confirm we are inside our window?
+   */
+
+  ghid_pcb_to_event_coords (pcb_x, pcb_y, &widget_x, &widget_y);
+  gdk_window_get_origin (gport->drawing_area->window, &offset_x, &offset_y);
+
+  pointer_x = offset_x + widget_x;
+  pointer_y = offset_y + widget_y;
 
   display = gdk_display_get_default ();
   screen = gdk_display_get_default_screen (display);
-
-  /*
-   * Figure out where the drawing area is on the screen because
-   * gdk_display_warp_pointer will warp relative to the whole display
-   * but the value we've been given is relative to your drawing area
-   */
-  gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
-  gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
+  gdk_display_warp_pointer (display, screen, pointer_x, pointer_y);
 
   return 0;
 }
