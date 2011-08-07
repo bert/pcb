@@ -49,6 +49,8 @@ dist_man_MANS=	pcb.1
 html_docs=	${info_TEXINFOS:.texi=.html}
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
+DVIS=
+
 # put the html manual into 1 file instead of multiple files?
 AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css --no-split
 
