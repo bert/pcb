@@ -218,7 +218,7 @@ MainMenu =
     {"Set Dispersion" Import(setdisperse)}
    }
   }
-    
+
   {Select
    {"Select all visible objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
@@ -267,7 +267,7 @@ MainMenu =
    {"Elements" ChangeSquare(SelectedElements)}
    {"Pins" ChangeSquare(SelectedPins)}
   }
-    
+
   {Buffer
    {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
@@ -295,7 +295,7 @@ MainMenu =
    {"#4" checked=buffer,4 PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
    {"#5" checked=buffer,5 PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
   }
-    
+
   {Connects
    {"Lookup connection to object" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
@@ -331,7 +331,7 @@ MainMenu =
    -
    {"Apply vendor drill mapping" ApplyVendor()}
   }
-    
+
   {Info
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}

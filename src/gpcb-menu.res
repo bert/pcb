@@ -483,17 +483,17 @@ PopupMenus =
        {"Unselect all objects" Unselect(All)}
        {"Remove selected objects" RemoveSelected()}
        {"Copy selection to buffer"
-	GetXY(Click to set the snap point for this buffer)
-	PasteBuffer(Clear)
-	PasteBuffer(AddSelected)
-	Mode(PasteBuffer)
+        GetXY(Click to set the snap point for this buffer)
+        PasteBuffer(Clear)
+        PasteBuffer(AddSelected)
+        Mode(PasteBuffer)
        }
        {"Cut selection to buffer"
-	GetXY(Click to set the snap point for this buffer)
-	PasteBuffer(Clear)
-	PasteBuffer(AddSelected)
-	RemoveSelected()
-	Mode(PasteBuffer)
+        GetXY(Click to set the snap point for this buffer)
+        PasteBuffer(Clear)
+        PasteBuffer(AddSelected)
+        RemoveSelected()
+        Mode(PasteBuffer)
        }
        {"Convert selection to element" Select(Convert)}
        {"Auto place selected elements" AutoPlaceSelected()}
