@@ -1340,6 +1340,16 @@ ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
   return true;
 }
 
+bool
+ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
+{
+  *event_x = DRAW_X (pcb_x);
+  *event_y = DRAW_Y (pcb_y);
+
+  return true;
+}
+
+
 #define LEAD_USER_WIDTH           0.2          /* millimeters */
 #define LEAD_USER_PERIOD          (1000 / 5)   /* 5fps (in ms) */
 #define LEAD_USER_VELOCITY        3.           /* millimeters per second */
