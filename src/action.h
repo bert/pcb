@@ -35,7 +35,6 @@
 
 #define CLONE_TYPES LINE_TYPE | ARC_TYPE | VIA_TYPE | POLYGON_TYPE
 
-void ActionMovePointer (char *, char *);
 void ActionAdjustStyle (char *);
 void EventMoveCrosshair (int, int);
 

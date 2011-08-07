@@ -2108,25 +2108,6 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------------------
- * action routine to move the X pointer relative to the current position
- * syntax: MovePointer(deltax,deltay)
- */
-void
-ActionMovePointer (char *deltax, char *deltay)
-{
-  LocationType dx, dy;
-
-  dx = (LocationType) (atoi (deltax) * PCB->Grid);
-  dy = (LocationType) (atoi (deltay) * PCB->Grid);
-
-  notify_crosshair_change (false);
-  MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
-  /* update object position and cursor location */
-  AdjustAttachedObjects ();
-  notify_crosshair_change (true);
-}
-
-/* ---------------------------------------------------------------------------
  * !!! no action routine !!!
  *
  * event handler to set the cursor according to the X pointer position
