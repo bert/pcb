@@ -16,7 +16,7 @@ src/edif.c
 src/error.c
 src/file.c
 src/find.c
-src/gpcb-menu.res
+src/gpcb-menu.res.in
 src/hid/batch/batch.c
 src/hid/common/actions.c
 src/hid/common/hidnogui.c
@@ -40,7 +40,7 @@ src/misc.c
 src/move.c
 src/netlist.c
 src/parse_y.c
-src/pcb-menu.res
+src/pcb-menu.res.in
 src/polygon.c
 src/rats.c
 src/report.c
