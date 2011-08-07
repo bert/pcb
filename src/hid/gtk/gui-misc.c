@@ -293,73 +293,19 @@ ghid_restore_cursor (void)
 static gboolean got_location;
 
   /* If user hits a key instead of the mouse button, we'll abort unless
-     |  it's one of the cursor keys.  Move the layout if a cursor key.
+     |  it's the enter key (which accepts the current crosshair location).
    */
 static gboolean
 loop_key_press_cb (GtkWidget * drawing_area, GdkEventKey * kev,
 		   GMainLoop ** loop)
 {
-  ModifierKeysState mk;
-  GdkModifierType state;
   gint ksym = kev->keyval;
 
   if (ghid_is_modifier_key_sym (ksym))
     return TRUE;
-  state = (GdkModifierType) (kev->state);
-  mk = ghid_modifier_keys_state (&state);
 
-  /* Duplicate the cursor key actions in gui-output-events.c
-   */
   switch (ksym)
     {
-    case GDK_Up:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "8", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "-10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "-1", NULL);
-      break;
-
-    case GDK_Down:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "2", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "1", NULL);
-      break;
-
-    case GDK_Left:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "4", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "-10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "-1", "0", NULL);
-      break;
-
-    case GDK_Right:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "6", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "1", "0", NULL);
-      break;
-
     case GDK_Return:		/* Accept cursor location */
       if (g_main_loop_is_running (*loop))
 	g_main_loop_quit (*loop);
