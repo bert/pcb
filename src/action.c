@@ -2114,18 +2114,11 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 void
 ActionMovePointer (char *deltax, char *deltay)
 {
-  LocationType x, y, dx, dy;
+  LocationType dx, dy;
 
-  /* save old crosshair position */
-  x = Crosshair.X;
-  y = Crosshair.Y;
   dx = (LocationType) (atoi (deltax) * PCB->Grid);
   dy = (LocationType) (atoi (deltay) * PCB->Grid);
-  MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
-  FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
-  /* restore crosshair for erasure */
-  Crosshair.X = x;
-  Crosshair.Y = y;
+
   notify_crosshair_change (false);
   MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
   /* update object position and cursor location */
