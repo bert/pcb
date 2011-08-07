@@ -764,9 +764,6 @@ GetDataBoundingBox (DataTypePtr Data)
 
 /* ---------------------------------------------------------------------------
  * centers the displayed PCB around the specified point (X,Y)
- * if Delta is false, X,Y are in absolute PCB coordinates
- * if Delta is true, simply move the center by an amount X, Y in screen
- * coordinates
  */
 void
 CenterDisplay (LocationType X, LocationType Y)
