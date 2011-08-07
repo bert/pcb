@@ -565,7 +565,7 @@ FinishStroke (void)
 		   log (2.0));
 	    SetZoom (z);
 
-	    CenterDisplay (x, y, false);
+	    CenterDisplay (x, y);
 	    break;
 	  }
 
@@ -3836,8 +3836,7 @@ ActionAddRats (int argc, char **argv, int x, int y)
 	      DrawRat (shorty);
 	      Draw ();
 	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
-			     (shorty->Point2.Y + shorty->Point1.Y) / 2,
-			     false);
+			     (shorty->Point2.Y + shorty->Point1.Y) / 2);
 	    }
 	  break;
 	}
@@ -5957,7 +5956,7 @@ ActionNew (int argc, char **argv, int x, int y)
       ResetStackAndVisibility ();
       CreateDefaultFont ();
       SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
-      CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, false);
+      CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2);
       Redraw ();
 
       hid_action ("PCBChanged");

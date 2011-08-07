@@ -87,7 +87,7 @@ SelectPin (LibraryEntryTypePtr entry, bool toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pin);
-		CenterDisplay (pin->X, pin->Y, false);
+		CenterDisplay (pin->X, pin->Y);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pin);
@@ -103,7 +103,7 @@ SelectPin (LibraryEntryTypePtr entry, bool toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pad);
-		CenterDisplay (pad->Point1.X, pad->Point1.Y, false);
+		CenterDisplay (pad->Point1.X, pad->Point1.Y);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pad);

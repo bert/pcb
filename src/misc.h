@@ -59,7 +59,7 @@ bool IsLayerNumEmpty (int);
 bool IsLayerGroupEmpty (int);
 bool IsPasteEmpty (int);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
-void CenterDisplay (LocationType, LocationType, bool);
+void CenterDisplay (LocationType, LocationType);
 void SetFontInfo (FontTypePtr);
 int ParseGroupString (char *, LayerGroupTypePtr, int /* LayerN */);
 int ParseRouteString (char *, RouteStyleTypePtr, const char *);

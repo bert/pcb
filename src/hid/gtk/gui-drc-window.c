@@ -260,7 +260,7 @@ row_activated_cb (GtkTreeView *view, GtkTreePath *path,
   if (violation == NULL)
     return;
 
-  CenterDisplay (violation->x_coord, violation->y_coord, false);
+  CenterDisplay (violation->x_coord, violation->y_coord);
 }
 
 

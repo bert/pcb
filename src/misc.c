@@ -769,17 +769,12 @@ GetDataBoundingBox (DataTypePtr Data)
  * coordinates
  */
 void
-CenterDisplay (LocationType X, LocationType Y, bool Delta)
+CenterDisplay (LocationType X, LocationType Y)
 {
   double save_grid = PCB->Grid;
   PCB->Grid = 1;
-  if (Delta)
-    MoveCrosshairRelative (X, Y);
-  else
-    {
-      if (MoveCrosshairAbsolute (X, Y))
-        notify_crosshair_change (true);
-    }
+  if (MoveCrosshairAbsolute (X, Y))
+    notify_crosshair_change (true);
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
   PCB->Grid = save_grid;
 }

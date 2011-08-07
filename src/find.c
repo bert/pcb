@@ -4532,7 +4532,7 @@ GotoError (void)
                              (PCB->Data, (LayerTypePtr) thing_ptr1), true,
                              true);
     }
-  CenterDisplay (X, Y, false);
+  CenterDisplay (X, Y);
 }
 
 void
