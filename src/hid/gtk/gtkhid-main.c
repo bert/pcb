@@ -40,29 +40,16 @@ void
 ghid_pan_fixup ()
 {
 
-  /*
-   * don't pan so far to the right that we see way past the right 
-   * edge of the board.
-   */
-  if (gport->view_x0 > PCB->MaxWidth - gport->view_width)
-    gport->view_x0 = PCB->MaxWidth - gport->view_width;
+  /* Don't pan so far to the right or bottom that we see past the board edge */
+  gport->view_x0 = MIN (gport->view_x0, PCB->MaxWidth  - gport->view_width);
+  gport->view_y0 = MIN (gport->view_y0, PCB->MaxHeight - gport->view_height);
 
-  /*
-   * don't pan so far down that we see way past the bottom edge of
-   * the board.
-   */
-  if (gport->view_y0 > PCB->MaxHeight - gport->view_height)
-    gport->view_y0 = PCB->MaxHeight - gport->view_height;
+  /* Don't view above or to the left of the board... ever */
+  gport->view_x0 = MAX (0, gport->view_x0);
+  gport->view_y0 = MAX (0, gport->view_y0);
 
-  /* don't view above or to the left of the board... ever */
-  if (gport->view_x0 < 0)
-    gport->view_x0 = 0;
-
-   if (gport->view_y0 < 0)
-    gport->view_y0 = 0;
-
-  /* if we can see the entire board and some, then zoom to fit */
-  if (gport->view_width > PCB->MaxWidth &&
+  /* If we can see the entire board and some, then zoom to fit */
+  if (gport->view_width  > PCB->MaxWidth  &&
       gport->view_height > PCB->MaxHeight)
     {
       zoom_fit ();
