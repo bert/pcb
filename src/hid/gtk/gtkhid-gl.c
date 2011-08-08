@@ -482,7 +482,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 void
-ghid_set_line_width (hidGC gc, int width)
+ghid_set_line_width (hidGC gc, Coord width)
 {
   gc->width = width;
 }
@@ -504,7 +504,7 @@ ghid_set_draw_faded (hidGC gc, int faded)
 }
 
 void
-ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
+ghid_set_line_cap_angle (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   printf ("ghid_set_line_cap_angle() -- not implemented\n");
 }

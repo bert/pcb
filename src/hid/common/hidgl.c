@@ -110,7 +110,7 @@ hidgl_draw_grid (BoxType *drawn_area)
 {
   static GLfloat *points = 0;
   static int npoints = 0;
-  int x1, y1, x2, y2, n, i;
+  Coord x1, y1, x2, y2, n, i;
   double x, y;
 
   if (!Settings.DrawGrid)
@@ -123,14 +123,14 @@ hidgl_draw_grid (BoxType *drawn_area)
 
   if (x1 > x2)
     {
-      int tmp = x1;
+      Coord tmp = x1;
       x1 = x2;
       x2 = tmp;
     }
 
   if (y1 > y2)
     {
-      int tmp = y1;
+      Coord tmp = y1;
       y1 = y2;
       y2 = tmp;
     }
@@ -177,7 +177,7 @@ int calc_slices (float pix_radius, float sweep_angle)
 
 #define MIN_TRIANGLES_PER_CAP 3
 #define MAX_TRIANGLES_PER_CAP 90
-static void draw_cap (double width, int x, int y, double angle, double scale)
+static void draw_cap (Coord width, Coord x, Coord y, Angle angle, double scale)
 {
   float last_capx, last_capy;
   float capx, capy;
@@ -205,7 +205,7 @@ static void draw_cap (double width, int x, int y, double angle, double scale)
 }
 
 void
-hidgl_draw_line (int cap, double width, int x1, int y1, int x2, int y2, double scale)
+hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, double scale)
 {
   double angle;
   float deltax, deltay, length;
@@ -279,8 +279,8 @@ hidgl_draw_line (int cap, double width, int x1, int y1, int x2, int y2, double s
 #define MIN_SLICES_PER_ARC 6
 #define MAX_SLICES_PER_ARC 360
 void
-hidgl_draw_arc (double width, int x, int y, int rx, int ry,
-                int start_angle, int delta_angle, double scale)
+hidgl_draw_arc (Coord width, Coord x, Coord y, Coord rx, Coord ry,
+                Angle start_angle, Angle delta_angle, double scale)
 {
   float last_inner_x, last_inner_y;
   float last_outer_x, last_outer_y;
@@ -357,7 +357,7 @@ hidgl_draw_arc (double width, int x, int y, int rx, int ry,
 }
 
 void
-hidgl_draw_rect (int x1, int y1, int x2, int y2)
+hidgl_draw_rect (Coord x1, Coord y1, Coord x2, Coord y2)
 {
   glBegin (GL_LINE_LOOP);
   glVertex3f (x1, y1, global_depth);
@@ -369,7 +369,7 @@ hidgl_draw_rect (int x1, int y1, int x2, int y2)
 
 
 void
-hidgl_fill_circle (int vx, int vy, int vr, double scale)
+hidgl_fill_circle (Coord vx, Coord vy, Coord vr, double scale)
 {
 #define MIN_TRIANGLES_PER_CIRCLE 6
 #define MAX_TRIANGLES_PER_CIRCLE 360
@@ -518,7 +518,7 @@ myVertex (GLdouble *vertex_data)
 }
 
 void
-hidgl_fill_polygon (int n_coords, int *x, int *y)
+hidgl_fill_polygon (int n_coords, Coord *x, Coord *y)
 {
   int i;
   GLUtesselator *tobj;
@@ -693,7 +693,7 @@ hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale
 }
 
 void
-hidgl_fill_rect (int x1, int y1, int x2, int y2)
+hidgl_fill_rect (Coord x1, Coord y1, Coord x2, Coord y2)
 {
   hidgl_ensure_triangle_space (&buffer, 2);
   hidgl_add_triangle (&buffer, x1, y1, x1, y2, x2, y2);
