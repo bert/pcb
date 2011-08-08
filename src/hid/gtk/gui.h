@@ -497,8 +497,8 @@ void ghid_cancel_lead_user (void);
 
 /* gtkhid-main.c */
 void ghid_pan_fixup (void);
-void ghid_get_coords (const char *msg, int *x, int *y);
-gint PCBChanged (int argc, char **argv, int x, int y);
+void ghid_get_coords (const char *msg, Coord *x, Coord *y);
+gint PCBChanged (int argc, char **argv, Coord x, Coord y);
 
 
 

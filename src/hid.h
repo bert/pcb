@@ -79,7 +79,7 @@ extern "C"
     /* Called when the action is triggered.  If this function returns
        non-zero, no further actions will be invoked for this key/mouse
        event.  */
-    int (*trigger_cb) (int argc, char **argv, int x, int y);
+    int (*trigger_cb) (int argc, char **argv, Coord x, Coord y);
     /* Short description that sometimes accompanies the name.  */
     const char *description;
     /* Full allowed syntax; use \n to separate lines.  */
@@ -397,7 +397,7 @@ typedef enum
     int (*shift_is_pressed) (void);
     int (*control_is_pressed) (void);
 	int (*mod1_is_pressed) (void);
-    void (*get_coords) (const char *msg_, int *x_, int *y_);
+    void (*get_coords) (const char *msg_, Coord *x_, Coord *y_);
 
     /* Sets the crosshair, which may differ from the pointer depending
        on grid and pad snap.  Note that the HID is responsible for

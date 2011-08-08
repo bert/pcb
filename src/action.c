@@ -1818,7 +1818,7 @@ Does a Restore if there was nothing to undo, else does a Close.
 %end-doc */
 
 static int
-ActionAtomic (int argc, char **argv, int x, int y)
+ActionAtomic (int argc, char **argv, Coord x, Coord y)
 {
   if (argc != 1)
     AFAIL (atomic);
@@ -1858,7 +1858,7 @@ not the current style settings.
 %end-doc */
 
 static int
-ActionDRCheck (int argc, char **argv, int x, int y)
+ActionDRCheck (int argc, char **argv, Coord x, Coord y)
 {
   int count;
 
@@ -1900,7 +1900,7 @@ static const char dumplibrary_help[] =
 %end-doc */
 
 static int
-ActionDumpLibrary (int argc, char **argv, int x, int y)
+ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
 {
   int i, j;
 
@@ -1959,7 +1959,7 @@ other, not their absolute positions on the board.
 %end-doc */
 
 static int
-ActionFlip (int argc, char **argv, int x, int y)
+ActionFlip (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   ElementTypePtr element;
@@ -2011,7 +2011,7 @@ followed by a newline.
 %end-doc */
 
 static int
-ActionMessage (int argc, char **argv, int x, int y)
+ActionMessage (int argc, char **argv, Coord x, Coord y)
 {
   int i;
 
@@ -2061,7 +2061,7 @@ to connect with. However, they will have no effect without the polygon.
 %end-doc */
 
 static int
-ActionSetThermal (int argc, char **argv, int x, int y)
+ActionSetThermal (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *style = ARG (1);
@@ -2171,7 +2171,7 @@ Changes the size of new text.
 %end-doc */
 
 static int
-ActionSetValue (int argc, char **argv, int x, int y)
+ActionSetValue (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *val = ARG (1);
@@ -2251,7 +2251,7 @@ save) before quitting.
 %end-doc */
 
 static int
-ActionQuit (int argc, char **argv, int x, int y)
+ActionQuit (int argc, char **argv, Coord x, Coord y)
 {
   char *force = ARG (0);
   if (force && strcasecmp (force, "force") == 0)
@@ -2296,7 +2296,7 @@ All ``found'' objects are marked ``not found''.
 %end-doc */
 
 static int
-ActionConnection (int argc, char **argv, int x, int y)
+ActionConnection (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -2360,7 +2360,7 @@ from.
 #define GAP MIL_TO_COORD(100)
 
 static int
-ActionDisperseElements (int argc, char **argv, int x, int y)
+ActionDisperseElements (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   Coord minx = GAP,
@@ -2624,7 +2624,7 @@ CrosshairShapeIncrement (enum crosshair_shape shape)
 }
 
 static int
-ActionDisplay (int argc, char **argv, int childX, int childY)
+ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 {
   char *function, *str_dir;
   int id;
@@ -2828,7 +2828,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  {
 	    ElementTypePtr element;
 	    void *ptrtmp;
-	    int x, y;
+	    Coord x, y;
 
 	    gui->get_coords (_("Click on an element"), &x, &y);
 	    if ((SearchScreen
@@ -3007,7 +3007,7 @@ Restores the tool to the last saved tool.
 %end-doc */
 
 static int
-ActionMode (int argc, char **argv, int x, int y)
+ActionMode (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
 
@@ -3229,7 +3229,7 @@ static const char removeselected_help[] = "Removes any selected objects.";
 %end-doc */
 
 static int
-ActionRemoveSelected (int argc, char **argv, int x, int y)
+ActionRemoveSelected (int argc, char **argv, Coord x, Coord y)
 {
   if (RemoveSelected ())
     SetChangedFlag (true);
@@ -3250,7 +3250,7 @@ static const char renumber_help[] =
 %end-doc */
 
 static int
-ActionRenumber (int argc, char **argv, int x, int y)
+ActionRenumber (int argc, char **argv, Coord x, Coord y)
 {
   bool changed = false;
   ElementTypePtr *element_list;
@@ -3619,7 +3619,7 @@ that this uses the highest numbered paste buffer.
 %end-doc */
 
 static int
-ActionRipUp (int argc, char **argv, int x, int y)
+ActionRipUp (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   bool changed = false;
@@ -3747,7 +3747,7 @@ Selects the shortest unselected rat on the board.
 %end-doc */
 
 static int
-ActionAddRats (int argc, char **argv, int x, int y)
+ActionAddRats (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   RatTypePtr shorty;
@@ -3812,7 +3812,7 @@ static const char delete_help[] = "Delete stuff.";
 %end-doc */
 
 static int
-ActionDelete (int argc, char **argv, int x, int y)
+ActionDelete (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   int id = GetFunctionID (function);
@@ -3862,7 +3862,7 @@ static const char deleterats_help[] = "Delete rat lines.";
 %end-doc */
 
 static int
-ActionDeleteRats (int argc, char **argv, int x, int y)
+ActionDeleteRats (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -3899,7 +3899,7 @@ connecting them are minimized.  Note that you cannot undo this.
 %end-doc */
 
 static int
-ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
+ActionAutoPlaceSelected (int argc, char **argv, Coord x, Coord y)
 {
   hid_action("Busy");
   if (gui->confirm_dialog (_("Auto-placement can NOT be undone.\n"
@@ -3941,7 +3941,7 @@ responsive.
 %end-doc */
 
 static int
-ActionAutoRoute (int argc, char **argv, int x, int y)
+ActionAutoRoute (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   hid_action("Busy");
@@ -3986,7 +3986,7 @@ cursor location.
 %end-doc */
 
 static int
-ActionMarkCrosshair (int argc, char **argv, int x, int y)
+ActionMarkCrosshair (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (!function || !*function)
@@ -4040,7 +4040,7 @@ of the silk layer lines and arcs for this element.
 %end-doc */
 
 static int
-ActionChangeSize (int argc, char **argv, int x, int y)
+ActionChangeSize (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *delta = ARG (1);
@@ -4132,7 +4132,7 @@ static const char changedrillsize_help[] =
 %end-doc */
 
 static int
-ActionChange2ndSize (int argc, char **argv, int x, int y)
+ActionChange2ndSize (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *delta = ARG (1);
@@ -4199,7 +4199,7 @@ changes the polygon clearance.
 %end-doc */
 
 static int
-ActionChangeClearSize (int argc, char **argv, int x, int y)
+ActionChangeClearSize (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *delta = ARG (1);
@@ -4274,7 +4274,7 @@ the mask edge.
 %end-doc */
 
 static int
-ActionMinMaskGap (int argc, char **argv, int x, int y)
+ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *delta = ARG (1);
@@ -4358,7 +4358,7 @@ polygon edges.
 %end-doc */
 
 static int
-ActionMinClearGap (int argc, char **argv, int x, int y)
+ActionMinClearGap (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *delta = ARG (1);
@@ -4467,7 +4467,7 @@ ChangePinName(U3, 7, VCC)
 %end-doc */
 
 static int
-ActionChangePinName (int argc, char **argv, int x, int y)
+ActionChangePinName (int argc, char **argv, Coord x, Coord y)
 {
   int changed = 0;
   char *refdes, *pinnum, *pinname;
@@ -4565,7 +4565,7 @@ Changes the name of the currently active layer.
 %end-doc */
 
 int
-ActionChangeName (int argc, char **argv, int x, int y)
+ActionChangeName (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *name;
@@ -4656,7 +4656,7 @@ off are automatically deleted.
 %end-doc */
 
 static int
-ActionMorphPolygon (int argc, char **argv, int x, int y)
+ActionMorphPolygon (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -4710,7 +4710,7 @@ appear on the silk layer when you print the layout.
 %end-doc */
 
 static int
-ActionToggleHideName (int argc, char **argv, int x, int y)
+ActionToggleHideName (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function && PCB->ElementOn)
@@ -4785,7 +4785,7 @@ polygon, insulating them from each other.
 %end-doc */
 
 static int
-ActionChangeJoin (int argc, char **argv, int x, int y)
+ActionChangeJoin (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -4846,7 +4846,7 @@ Note that @code{Pins} means both pins and pads.
 %end-doc */
 
 static int
-ActionChangeSquare (int argc, char **argv, int x, int y)
+ActionChangeSquare (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -4904,7 +4904,7 @@ Note that @code{Pins} means pins and pads.
 %end-doc */
 
 static int
-ActionSetSquare (int argc, char **argv, int x, int y)
+ActionSetSquare (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function && *function)
@@ -4963,7 +4963,7 @@ Note that @code{Pins} means pins and pads.
 %end-doc */
 
 static int
-ActionClearSquare (int argc, char **argv, int x, int y)
+ActionClearSquare (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function && *function)
@@ -5021,7 +5021,7 @@ static const char changeoctagon_help[] =
 %end-doc */
 
 static int
-ActionChangeOctagon (int argc, char **argv, int x, int y)
+ActionChangeOctagon (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5082,7 +5082,7 @@ static const char setoctagon_help[] = "Sets the octagon-flag of objects.";
 %end-doc */
 
 static int
-ActionSetOctagon (int argc, char **argv, int x, int y)
+ActionSetOctagon (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5145,7 +5145,7 @@ static const char clearoctagon_help[] =
 %end-doc */
 
 static int
-ActionClearOctagon (int argc, char **argv, int x, int y)
+ActionClearOctagon (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5207,7 +5207,7 @@ plated-through hole (not set), or an unplated hole (set).
 %end-doc */
 
 static int
-ActionChangeHole (int argc, char **argv, int x, int y)
+ActionChangeHole (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5255,7 +5255,7 @@ The "no paste flag" of a pad determines whether the solderpaste
 %end-doc */
 
 static int
-ActionChangePaste (int argc, char **argv, int x, int y)
+ActionChangePaste (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5338,7 +5338,7 @@ numbered paste buffer.
 %end-doc */
 
 static int
-ActionSelect (int argc, char **argv, int x, int y)
+ActionSelect (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5445,7 +5445,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 
 	case F_Convert:
 	  {
-	    int x, y;
+	    Coord x, y;
 	    Note.Buffer = Settings.BufferNumber;
 	    SetBufferNumber (MAX_BUFFER - 1);
 	    ClearBuffer (PASTEBUFFER);
@@ -5524,7 +5524,7 @@ type specified are unselected.
 %end-doc */
 
 static int
-ActionUnselect (int argc, char **argv, int x, int y)
+ActionUnselect (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -5667,7 +5667,7 @@ Save the content of the active Buffer to a file. This is the graphical way to cr
 %end-doc */
 
 static int
-ActionSaveTo (int argc, char **argv, int x, int y)
+ActionSaveTo (int argc, char **argv, Coord x, Coord y)
 {
   char *function;
   char *name;
@@ -5765,7 +5765,7 @@ saved in @code{./pcb.settings}.
 %end-doc */
 
 static int
-ActionSaveSettings (int argc, char **argv, int x, int y)
+ActionSaveSettings (int argc, char **argv, Coord x, Coord y)
 {
   int locally = argc > 0 ? (strncasecmp (argv[0], "local", 5) == 0) : 0;
   hid_save_settings (locally);
@@ -5811,7 +5811,7 @@ you may have made.
 %end-doc */
 
 static int
-ActionLoadFrom (int argc, char **argv, int x, int y)
+ActionLoadFrom (int argc, char **argv, Coord x, Coord y)
 {
   char *function;
   char *name;
@@ -5879,7 +5879,7 @@ If a name is not given, one is prompted for.
 %end-doc */
 
 static int
-ActionNew (int argc, char **argv, int x, int y)
+ActionNew (int argc, char **argv, Coord x, Coord y)
 {
   char *name = ARG (0);
 
@@ -5993,7 +5993,7 @@ Selects the given buffer to be the current paste buffer.
 %end-doc */
 
 static int
-ActionPasteBuffer (int argc, char **argv, int x, int y)
+ActionPasteBuffer (int argc, char **argv, Coord x, Coord y)
 {
   char *function = argc ? argv[0] : (char *)"";
   char *sbufnum = argc > 1 ? argv[1] : (char *)"";
@@ -6090,7 +6090,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	case F_ToLayout:
 	  {
 	    static int oldx = 0, oldy = 0;
-	    int x, y;
+	    Coord x, y;
 	    bool absolute;
 
 	    if (argc == 1)
@@ -6158,7 +6158,7 @@ same serial number will be undone (or redone) as a group.  See
 %end-doc */
 
 static int
-ActionUndo (int argc, char **argv, int x, int y)
+ActionUndo (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (!function || !*function)
@@ -6335,7 +6335,7 @@ three "undone" lines.
 %end-doc */
 
 static int
-ActionRedo (int argc, char **argv, int x, int y)
+ActionRedo (int argc, char **argv, Coord x, Coord y)
 {
   if (((Settings.Mode == POLYGON_MODE ||
         Settings.Mode == POLYGONHOLE_MODE) &&
@@ -6386,7 +6386,7 @@ will call Polygon(PreviousPoint) when appropriate to do so.
 %end-doc */
 
 static int
-ActionPolygon (int argc, char **argv, int x, int y)
+ActionPolygon (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function && Settings.Mode == POLYGON_MODE)
@@ -6421,7 +6421,7 @@ static const char routestyle_help[] =
 %end-doc */
 
 static int
-ActionRouteStyle (int argc, char **argv, int x, int y)
+ActionRouteStyle (int argc, char **argv, Coord x, Coord y)
 {
   char *str = ARG (0);
   RouteStyleType *rts;
@@ -6461,7 +6461,7 @@ units, currently 1/100 mil.
 %end-doc */
 
 static int
-ActionMoveObject (int argc, char **argv, int x, int y)
+ActionMoveObject (int argc, char **argv, Coord x, Coord y)
 {
   char *x_str = ARG (0);
   char *y_str = ARG (1);
@@ -6511,7 +6511,7 @@ or from solder to component, won't automatically flip it.  Use the
 %end-doc */
 
 static int
-ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
+ActionMoveToCurrentLayer (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   if (function)
@@ -6557,7 +6557,7 @@ sizes (thickness, keepaway, drill, etc) according to that item.
 %end-doc */
 
 static int
-ActionSetSame (int argc, char **argv, int x, int y)
+ActionSetSame (int argc, char **argv, Coord x, Coord y)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -6639,7 +6639,7 @@ SetFlag(SelectedPins,thermal)
 %end-doc */
 
 static int
-ActionSetFlag (int argc, char **argv, int x, int y)
+ActionSetFlag (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *flag = ARG (1);
@@ -6670,7 +6670,7 @@ ClrFlag(SelectedLines,join)
 %end-doc */
 
 static int
-ActionClrFlag (int argc, char **argv, int x, int y)
+ActionClrFlag (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *flag = ARG (1);
@@ -6700,7 +6700,7 @@ cleared.  If the value is 1, the flag is set.
 %end-doc */
 
 static int
-ActionChangeFlag (int argc, char **argv, int x, int y)
+ActionChangeFlag (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *flag = ARG (1);
@@ -6815,7 +6815,7 @@ Lines starting with @code{#} are ignored.
 %end-doc */
 
 static int
-ActionExecuteFile (int argc, char **argv, int x, int y)
+ActionExecuteFile (int argc, char **argv, Coord x, Coord y)
 {
   FILE *fp;
   char *fname;
@@ -6876,7 +6876,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static int
-ActionPSCalib (int argc, char **argv, int x, int y)
+ActionPSCalib (int argc, char **argv, Coord x, Coord y)
 {
   HID *ps = hid_find_exporter ("ps");
   ps->calibrate (0.0,0.0);
@@ -6979,7 +6979,7 @@ parse_layout_attribute_units (char *name, int def)
 }
 
 static int
-ActionElementList (int argc, char **argv, int x, int y)
+ActionElementList (int argc, char **argv, Coord x, Coord y)
 {
   ElementType *e = NULL;
   char *refdes, *value, *footprint, *old;
@@ -7153,7 +7153,7 @@ not specified, the given attribute is removed if present.
 %end-doc */
 
 static int
-ActionElementSetAttr (int argc, char **argv, int x, int y)
+ActionElementSetAttr (int argc, char **argv, Coord x, Coord y)
 {
   ElementType *e = NULL;
   char *refdes, *name, *value;
@@ -7215,7 +7215,7 @@ Runs the given command, which is a system executable.
 %end-doc */
 
 static int
-ActionExecCommand (int argc, char **argv, int x, int y)
+ActionExecCommand (int argc, char **argv, Coord x, Coord y)
 {
   char *command;
 
@@ -7547,7 +7547,7 @@ smallest board dimension.  Dispersion is saved in the
 %end-doc */
 
 static int
-ActionImport (int argc, char **argv, int x, int y)
+ActionImport (int argc, char **argv, Coord x, Coord y)
 {
   char *mode;
   char **sources = NULL;
@@ -7586,8 +7586,8 @@ ActionImport (int argc, char **argv, int x, int y)
   if (mode && strcasecmp (mode, "setnewpoint") == 0)
     {
       const char *xs, *ys, *units;
-      int x, y;
-      char buf[50];
+      Coord x, y;
+      gchar *buf;
 
       xs = ARG (1);
       ys = ARG (2);
@@ -7623,10 +7623,12 @@ ActionImport (int argc, char **argv, int x, int y)
 	  return 1;
 	}
 
-      sprintf (buf, "%d", x);
+      buf = pcb_g_strdup_printf ("%$ms", x);
       AttributePut (PCB, "import::newX", buf);
-      sprintf (buf, "%d", y);
+      g_free (buf);
+      buf = pcb_g_strdup_printf ("%$ms", y);
       AttributePut (PCB, "import::newY", buf);
+      g_free (buf);
       return 0;
     }
 
@@ -7855,7 +7857,7 @@ pcb, an element, or a layer.
 
 
 static int
-ActionAttributes (int argc, char **argv, int x, int y)
+ActionAttributes (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
   char *layername = ARG (1);

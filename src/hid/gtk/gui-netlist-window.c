@@ -1011,7 +1011,7 @@ ghid_netlist_window_update (gboolean init_nodes)
 }
 
 static gint
-GhidNetlistChanged (int argc, char **argv, int x, int y)
+GhidNetlistChanged (int argc, char **argv, Coord x, Coord y)
 {
   loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
@@ -1029,7 +1029,7 @@ static const char netlistshow_help[] =
 show the window if it isn't already shown.";
 
 static gint
-GhidNetlistShow (int argc, char **argv, int x, int y)
+GhidNetlistShow (int argc, char **argv, Coord x, Coord y)
 {
   ghid_netlist_window_create (gport);
   if (argc > 0)
@@ -1044,7 +1044,7 @@ static const char netlistpresent_help[] =
 "Presents the netlist window.";
 
 static gint
-GhidNetlistPresent (int argc, char **argv, int x, int y)
+GhidNetlistPresent (int argc, char **argv, Coord x, Coord y)
 {
   ghid_netlist_window_show (gport, TRUE);
   return 0;

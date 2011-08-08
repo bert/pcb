@@ -2388,7 +2388,7 @@ ElementOrientation (ElementType *e)
 }
 
 int
-ActionListRotations(int argc, char **argv, int x, int y)
+ActionListRotations(int argc, char **argv, Coord x, Coord y)
 {
   ELEMENT_LOOP (PCB->Data);
   {

@@ -213,7 +213,8 @@ hid_actionl (const char *name, ...)
 int
 hid_actionv (const char *name, int argc, char **argv)
 {
-  int x = 0, y = 0, i, ret;
+  Coord x = 0, y = 0;
+  int i, ret;
   HID_Action *a, *old_action;
 
   if (!name)

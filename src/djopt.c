@@ -140,7 +140,7 @@ optimize hand-routed traces also.
 %end-doc */
 
 int
-djopt_set_auto_only (int argc, char **argv, int x, int y)
+djopt_set_auto_only (int argc, char **argv, Coord x, Coord y)
 {
   autorouted_only = autorouted_only ? 0 : 1;
   return 0;
@@ -2916,7 +2916,7 @@ RF losses and trace length.
 %end-doc */
 
 static int
-ActionDJopt (int argc, char **argv, int x, int y)
+ActionDJopt (int argc, char **argv, Coord x, Coord y)
 {
   char *arg = argc > 0 ? argv[0] : 0;
   int layn, saved = 0;

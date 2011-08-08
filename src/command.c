@@ -87,7 +87,7 @@ static const char h_help[] = "Print a help message for commands.";
 %end-doc */
 
 static int
-CommandHelp (int argc, char **argv, int x, int y)
+CommandHelp (int argc, char **argv, Coord x, Coord y)
 {
   Message ("following commands are supported:\n"
 	   "  Command()   execute an action command (too numerous to list)\n"
@@ -124,7 +124,7 @@ will popup.
 %end-doc */
 
 static int
-CommandLoadLayout (int argc, char **argv, int x, int y)
+CommandLoadLayout (int argc, char **argv, Coord x, Coord y)
 {
   char *filename, *name = NULL;
 
@@ -162,7 +162,7 @@ a file select box will popup.
 %end-doc */
 
 static int
-CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
+CommandLoadElementToBuffer (int argc, char **argv, Coord x, Coord y)
 {
   char *filename;
 
@@ -198,7 +198,7 @@ If no filename is specified a file select box will popup.
 %end-doc */
 
 static int
-CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
+CommandLoadLayoutToBuffer (int argc, char **argv, Coord x, Coord y)
 {
   char *filename;
 
@@ -233,7 +233,7 @@ save) before quitting.
 %end-doc */
 
 static int
-CommandQuit (int argc, char **argv, int x, int y)
+CommandQuit (int argc, char **argv, Coord x, Coord y)
 {
   if (!PCB->Changed || gui->close_confirm_dialog () == HID_CLOSE_CONFIRM_OK)
     QuitApplication ();
@@ -255,7 +255,7 @@ confirmation.
 %end-doc */
 
 static int
-CommandReallyQuit (int argc, char **argv, int x, int y)
+CommandReallyQuit (int argc, char **argv, Coord x, Coord y)
 {
   QuitApplication ();
   return 0;
@@ -282,7 +282,7 @@ for verifying the board layout (which is also accomplished by the
 %end-doc */
 
 static int
-CommandLoadNetlist (int argc, char **argv, int x, int y)
+CommandLoadNetlist (int argc, char **argv, Coord x, Coord y)
 {
   char *filename, *name = NULL;
 
@@ -334,7 +334,7 @@ and has the same functionality as @code{s}.
 %end-doc */
 
 static int
-CommandSaveLayout (int argc, char **argv, int x, int y)
+CommandSaveLayout (int argc, char **argv, Coord x, Coord y)
 {
   switch (argc)
     {
@@ -372,7 +372,7 @@ has the same functionality as @code{s} combined with @code{q}.
 %end-doc */
 
 static int
-CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
+CommandSaveLayoutAndQuit (int argc, char **argv, Coord x, Coord y)
 {
   if (!CommandSaveLayout (argc, argv, x, y))
     return CommandQuit (0, 0, 0, 0);

@@ -263,7 +263,7 @@ batch_mod1_is_pressed (void)
 }
 
 static void
-batch_get_coords (const char *msg, int *x, int *y)
+batch_get_coords (const char *msg, Coord *x, Coord *y)
 {
 }
 

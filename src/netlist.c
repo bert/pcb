@@ -344,7 +344,7 @@ updates the GUI.
 #define ARG(n) (argc > (n) ? argv[n] : 0)
 
 static int
-Netlist (int argc, char **argv, int x, int y)
+Netlist (int argc, char **argv, Coord x, Coord y)
 {
   NFunc func;
   int i, j;

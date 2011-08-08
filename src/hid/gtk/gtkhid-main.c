@@ -30,8 +30,8 @@
 RCSID ("$Id$");
 
 
-static void zoom_to (double factor, int x, int y);
-static void zoom_by (double factor, int x, int y);
+static void zoom_to (double factor, Coord x, Coord y);
+static void zoom_by (double factor, Coord x, Coord y);
 static void zoom_fit (void);
 
 int ghid_flip_x = 0, ghid_flip_y = 0;
@@ -114,7 +114,7 @@ Note that zoom factors of zero are silently ignored.
 %end-doc */
 
 static int
-Zoom (int argc, char **argv, int x, int y)
+Zoom (int argc, char **argv, Coord x, Coord y)
 {
   const char *vp;
   double v;
@@ -154,7 +154,7 @@ Zoom (int argc, char **argv, int x, int y)
 
 
 static void
-zoom_to (double new_zoom, int x, int y)
+zoom_to (double new_zoom, Coord x, Coord y)
 {
   double min_zoom, max_zoom;
   double xtmp, ytmp;
@@ -200,7 +200,7 @@ zoom_to (double new_zoom, int x, int y)
 }
 
 static void
-zoom_by (double factor, int x, int y)
+zoom_by (double factor, Coord x, Coord y)
 {
   zoom_to (gport->zoom * factor, x, y);
 }
@@ -1078,7 +1078,7 @@ This just pops up a dialog telling the user which version of
 
 
 static int
-About (int argc, char **argv, int x, int y)
+About (int argc, char **argv, Coord x, Coord y)
 {
   ghid_dialog_about ();
   return 0;
@@ -1098,14 +1098,14 @@ Prompts the user for a coordinate, if one is not already selected.
 %end-doc */
 
 static int
-GetXY (int argc, char **argv, int x, int y)
+GetXY (int argc, char **argv, Coord x, Coord y)
 {
   return 0;
 }
 
 /* ---------------------------------------------------------------------- */
 
-static int PointCursor (int argc, char **argv, int x, int y)
+static int PointCursor (int argc, char **argv, Coord x, Coord y)
 {
   if (!ghidgui)
     return 0;
@@ -1120,7 +1120,7 @@ static int PointCursor (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 static int
-RouteStylesChanged (int argc, char **argv, int x, int y)
+RouteStylesChanged (int argc, char **argv, Coord x, Coord y)
 {
   gint n;
 
@@ -1133,7 +1133,7 @@ RouteStylesChanged (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 int
-PCBChanged (int argc, char **argv, int x, int y)
+PCBChanged (int argc, char **argv, Coord x, Coord y)
 {
   if (!ghidgui)
     return 0;
@@ -1154,7 +1154,7 @@ PCBChanged (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 static int
-LayerGroupsChanged (int argc, char **argv, int x, int y)
+LayerGroupsChanged (int argc, char **argv, Coord x, Coord y)
 {
   printf (_("LayerGroupsChanged -- not implemented\n"));
   return 0;
@@ -1163,7 +1163,7 @@ LayerGroupsChanged (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 static int
-LibraryChanged (int argc, char **argv, int x, int y)
+LibraryChanged (int argc, char **argv, Coord x, Coord y)
 {
   /* No need to show the library window every time it changes...
    *  ghid_library_window_show (&ghid_port, FALSE);
@@ -1174,7 +1174,7 @@ LibraryChanged (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 static int
-Command (int argc, char **argv, int x, int y)
+Command (int argc, char **argv, Coord x, Coord y)
 {
   ghid_handle_user_command (TRUE);
   return 0;
@@ -1183,7 +1183,7 @@ Command (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------- */
 
 static int
-Load (int argc, char **argv, int x, int y)
+Load (int argc, char **argv, Coord x, Coord y)
 {
   char *function;
   char *name = NULL;
@@ -1257,7 +1257,7 @@ called with that filename.
 %end-doc */
 
 static int
-Save (int argc, char **argv, int x, int y)
+Save (int argc, char **argv, Coord x, Coord y)
 {
   char *function;
   char *name;
@@ -1356,7 +1356,7 @@ side'' of the board.
 
 
 static int
-SwapSides (int argc, char **argv, int x, int y)
+SwapSides (int argc, char **argv, Coord x, Coord y)
 {
   gint flipd;
   int do_flip_x = 0;
@@ -1454,7 +1454,7 @@ options, and print the layout.
 %end-doc */
 
 static int
-Print (int argc, char **argv, int x, int y)
+Print (int argc, char **argv, Coord x, Coord y)
 {
   HID **hids;
   int i;
@@ -1512,7 +1512,7 @@ the measurements in, so that future printouts will be more precise.
 %end-doc */
 
 static int
-PrintCalibrate (int argc, char **argv, int x, int y)
+PrintCalibrate (int argc, char **argv, Coord x, Coord y)
 {
   HID *printer = hid_find_printer ();
   printer->calibrate (0.0, 0.0);
@@ -1530,7 +1530,7 @@ PrintCalibrate (int argc, char **argv, int x, int y)
 /* ------------------------------------------------------------ */
 
 static int
-Export (int argc, char **argv, int x, int y)
+Export (int argc, char **argv, Coord x, Coord y)
 {
 
   /* check if layout is empty */
@@ -1547,7 +1547,7 @@ Export (int argc, char **argv, int x, int y)
 /* ------------------------------------------------------------ */
 
 static int
-Benchmark (int argc, char **argv, int x, int y)
+Benchmark (int argc, char **argv, Coord x, Coord y)
 {
   int i = 0;
   time_t start, end;
@@ -1587,7 +1587,7 @@ currently within the window already.
 %end-doc */
 
 static int
-Center(int argc, char **argv, int pcb_x, int pcb_y)
+Center(int argc, char **argv, Coord pcb_x, Coord pcb_y)
 {
   GdkDisplay *display;
   GdkScreen *screen;
@@ -1669,7 +1669,7 @@ The values are percentages of the board size.  Thus, a move of
 %end-doc */
 
 static int
-CursorAction(int argc, char **argv, int x, int y)
+CursorAction(int argc, char **argv, Coord x, Coord y)
 {
   UnitList extra_units_x = {
     { "grid",  PCB->Grid, 0 },
@@ -1751,7 +1751,7 @@ Open the DRC violations window.
 %end-doc */
 
 static int
-DoWindows (int argc, char **argv, int x, int y)
+DoWindows (int argc, char **argv, Coord x, Coord y)
 {
   char *a = argc == 1 ? argv[0] : (char *)"";
 
@@ -1808,7 +1808,7 @@ Sets the display units to millimeters.
 %end-doc */
 
 static int
-SetUnits (int argc, char **argv, int x, int y)
+SetUnits (int argc, char **argv, Coord x, Coord y)
 {
   const Unit *new_unit;
   if (argc == 0)
@@ -1853,7 +1853,7 @@ default is given, div=40.
 %end-doc */
 
 static int
-ScrollAction (int argc, char **argv, int x, int y)
+ScrollAction (int argc, char **argv, Coord x, Coord y)
 {
   gdouble dx = 0.0, dy = 0.0;
   int div = 40;
@@ -1904,7 +1904,7 @@ the same coordinates, the auto pan mode is toggled.
 %end-doc */
 
 static int
-PanAction (int argc, char **argv, int x, int y)
+PanAction (int argc, char **argv, Coord x, Coord y)
 {
   static int on_x, on_y;
   int mode;
@@ -1961,7 +1961,7 @@ button number must be specified as the second argument.
 
 
 static int
-Popup (int argc, char **argv, int x, int y)
+Popup (int argc, char **argv, Coord x, Coord y)
 {
   GtkWidget *menu;
   char *element;
@@ -2016,7 +2016,7 @@ Asks user which schematics to import into PCB.
 
 
 static int
-ImportGUI (int argc, char **argv, int x, int y)
+ImportGUI (int argc, char **argv, Coord x, Coord y)
 {
     char *name = NULL;
     static gchar *current_layout_dir = NULL;
@@ -2047,7 +2047,7 @@ ImportGUI (int argc, char **argv, int x, int y)
 
 /* ------------------------------------------------------------ */
 static int
-Busy (int argc, char **argv, int x, int y)
+Busy (int argc, char **argv, Coord x, Coord y)
 {
   ghid_watch_cursor ();
   return 0;

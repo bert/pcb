@@ -425,7 +425,7 @@ arc-line intersection was moved to.
 %end-doc */
 
 static int
-Puller (int argc, char **argv, int Ux, int Uy)
+Puller (int argc, char **argv, Coord Ux, Coord Uy)
 {
   double arc_angle, base_angle;
 #if TRACE1
@@ -2561,7 +2561,7 @@ trace_print_lines_arcs (void)
 #endif
 
 static int
-GlobalPuller(int argc, char **argv, int x, int y)
+GlobalPuller(int argc, char **argv, Coord x, Coord y)
 {
   int select_flags = 0;
 

@@ -123,7 +123,7 @@ build_library_dialog ()
 }
 
 static int
-LibraryChanged (int argc, char **argv, int x, int y)
+LibraryChanged (int argc, char **argv, Coord x, Coord y)
 {
   int i;
   if (!Library.MenuN)
@@ -155,7 +155,7 @@ static const char libraryshow_help[] =
 %end-doc */
 
 static int
-LibraryShow (int argc, char **argv, int x, int y)
+LibraryShow (int argc, char **argv, Coord x, Coord y)
 {
   if (build_library_dialog ())
     return 0;

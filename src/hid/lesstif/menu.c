@@ -60,7 +60,7 @@ Prompts the user for a coordinate, if one is not already selected.
 %end-doc */
 
 static int
-GetXY (int argc, char **argv, int x, int y)
+GetXY (int argc, char **argv, Coord x, Coord y)
 {
   return 0;
 }
@@ -93,7 +93,7 @@ on one.
 %end-doc */
 
 static int
-Debug (int argc, char **argv, BDimension x, BDimension y)
+Debug (int argc, char **argv, Coord x, Coord y)
 {
   int i;
   printf ("Debug:");
@@ -117,7 +117,7 @@ passed a 1, does nothing but pretends to fail.
 %end-doc */
 
 static int
-Return (int argc, char **argv, int x, int y)
+Return (int argc, char **argv, Coord x, Coord y)
 {
   return atoi (argv[0]);
 }
@@ -142,7 +142,7 @@ pcb --action-string DumpKeys
 
 static int do_dump_keys = 0;
 static int
-DumpKeys (int argc, char **argv, int x, int y)
+DumpKeys (int argc, char **argv, Coord x, Coord y)
 {
   do_dump_keys = 1;
   return 0;
@@ -174,7 +174,7 @@ static int bg_color;
 extern Widget lesstif_m_layer;
 
 static int
-LayersChanged (int argc, char **argv, int x, int y)
+LayersChanged (int argc, char **argv, Coord x, Coord y)
 {
   int l, i, set;
   char *name;
@@ -434,7 +434,7 @@ visible if it is not already visible
 %end-doc */
 
 static int
-SelectLayer (int argc, char **argv, int x, int y)
+SelectLayer (int argc, char **argv, Coord x, Coord y)
 {
   int newl;
   if (argc == 0)
@@ -471,7 +471,7 @@ the same as a special layer, the layer is chosen over the special layer.
 %end-doc */
 
 static int
-ToggleView (int argc, char **argv, int x, int y)
+ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
 
@@ -801,7 +801,7 @@ lesstif_get_xy (const char *message)
 }
 
 void
-lesstif_get_coords (const char *msg, int *px, int *py)
+lesstif_get_coords (const char *msg, Coord *px, Coord *py)
 {
   if (!have_xy && msg)
     lesstif_get_xy (msg);

@@ -64,6 +64,9 @@ typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 typedef struct unit Unit;
 typedef struct increments Increments;
 
+typedef int Coord;		/* pcb base unit */
+typedef double Angle;		/* degrees */
+
 #include "hid.h"
 #include "polyarea.h"
 
@@ -85,10 +88,6 @@ typedef struct increments Increments;
 # define dcgettext(D, S, T) (S)
 # define bindtextdomain(D, Dir) (D)
 #endif /* ENABLE_NLS */
-
-
-typedef int Coord;		/* pcb base unit */
-typedef double Angle;		/* degrees */
 
 #if 1
 typedef int LocationType;

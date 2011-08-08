@@ -120,7 +120,7 @@ sizes for your vendor.
 %end-doc */
 
 int
-ActionApplyVendor (int argc, char **argv, int x, int y)
+ActionApplyVendor (int argc, char **argv, Coord x, Coord y)
 {
   hid_action ("Busy");
   apply_vendor_map ();
@@ -149,7 +149,7 @@ loaded first.
 %end-doc */
 
 int
-ActionToggleVendor (int argc, char **argv, int x, int y)
+ActionToggleVendor (int argc, char **argv, Coord x, Coord y)
 {
   if (vendorMapEnable)
     vendorMapEnable = false;
@@ -180,7 +180,7 @@ loaded first.
 %end-doc */
 
 int
-ActionEnableVendor (int argc, char **argv, int x, int y)
+ActionEnableVendor (int argc, char **argv, Coord x, Coord y)
 {
   vendorMapEnable = true;
   return 0;
@@ -206,7 +206,7 @@ specified in the currently loaded vendor drill table.
 %end-doc */
 
 int
-ActionDisableVendor (int argc, char **argv, int x, int y)
+ActionDisableVendor (int argc, char **argv, Coord x, Coord y)
 {
   vendorMapEnable = false;
   return 0;
@@ -228,7 +228,7 @@ static const char unload_vendor_help[] =
 %end-doc */
 
 int
-ActionUnloadVendor (int argc, char **argv, int x, int y)
+ActionUnloadVendor (int argc, char **argv, Coord x, Coord y)
 {
   cached_drill = -1;
 
@@ -266,7 +266,7 @@ be prompted to enter one.
 %end-doc */
 
 int
-ActionLoadVendorFrom (int argc, char **argv, int x, int y)
+ActionLoadVendorFrom (int argc, char **argv, Coord x, Coord y)
 {
   int i;
   char *fname = NULL;

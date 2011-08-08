@@ -7925,7 +7925,7 @@ toporouter_set_pair(toporouter_t *r, toporouter_netlist_t *n1, toporouter_netlis
 }
 
 static int 
-toporouter (int argc, char **argv, int x, int y)
+toporouter (int argc, char **argv, Coord x, Coord y)
 {
   toporouter_t *r = toporouter_new();
   parse_arguments(r, argc, argv);
@@ -7965,7 +7965,7 @@ toporouter (int argc, char **argv, int x, int y)
 }
 
 static int 
-escape (int argc, char **argv, int x, int y)
+escape (int argc, char **argv, Coord x, Coord y)
 {
   guint dir, viax, viay;
   gdouble pitch, length, dx, dy;

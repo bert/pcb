@@ -56,7 +56,7 @@
 #define USER_UNITMASK (Settings.grid_unit->allow)
 
 static int
-ReportDrills (int argc, char **argv, int x, int y)
+ReportDrills (int argc, char **argv, Coord x, Coord y)
 {
   DrillInfoTypePtr AllDrills;
   Cardinal n;
@@ -118,7 +118,7 @@ This is a shortcut for @code{Report(Object)}.
 %end-doc */
 
 static int
-ReportDialog (int argc, char **argv, int x, int y)
+ReportDialog (int argc, char **argv, Coord x, Coord y)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -493,7 +493,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 }
 
 static int
-ReportFoundPins (int argc, char **argv, int x, int y)
+ReportFoundPins (int argc, char **argv, Coord x, Coord y)
 {
   static DynamicStringType list;
   char temp[64];
@@ -534,7 +534,7 @@ ReportFoundPins (int argc, char **argv, int x, int y)
 }
 
 static double
-XYtoNetLength (int x, int y, int *found)
+XYtoNetLength (Coord x, Coord y, int *found)
 {
   double length;
 
@@ -574,7 +574,7 @@ XYtoNetLength (int x, int y, int *found)
 }
 
 static int
-ReportAllNetLengths (int argc, char **argv, int x, int y)
+ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
 {
   int ni;
   int found;
@@ -650,7 +650,7 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
 }
 
 static int
-ReportNetLength (int argc, char **argv, int x, int y)
+ReportNetLength (int argc, char **argv, Coord x, Coord y)
 {
   BDimension length = 0;
   char *netname = 0;
@@ -776,7 +776,7 @@ units
 %end-doc */
 
 static int
-Report (int argc, char **argv, int x, int y)
+Report (int argc, char **argv, Coord x, Coord y)
 {
   if (argc < 1)
     AUSAGE (report);

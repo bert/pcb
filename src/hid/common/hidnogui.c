@@ -214,7 +214,7 @@ nogui_mod1_is_pressed (void)
 }
 
 static void
-nogui_get_coords (const char *msg, int *x, int *y)
+nogui_get_coords (const char *msg, Coord *x, Coord *y)
 {
   CRASH;
 }

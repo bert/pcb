@@ -75,7 +75,7 @@ static const char fontedit_help[] =
 %end-doc */
 
 static int
-FontEdit (int argc, char **argv, int Ux, int Uy)
+FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
 {
   FontType *font;
   SymbolType *symbol;
@@ -168,7 +168,7 @@ static const char fontsave_help[] = "Convert the current PCB back to a font.";
 %end-doc */
 
 static int
-FontSave (int argc, char **argv, int Ux, int Uy)
+FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 {
   FontTypePtr font;
   SymbolTypePtr symbol;

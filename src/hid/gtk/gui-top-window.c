@@ -2442,7 +2442,7 @@ ghid_do_export (HID_Attr_Val * options)
 }
 
 gint
-LayersChanged (int argc, char **argv, int px, int py)
+LayersChanged (int argc, char **argv, Coord x, Coord y)
 {
   if (!ghidgui || !ghidgui->ui_manager)
     return 0;
@@ -2482,7 +2482,7 @@ the same as a special layer, the layer is chosen over the special layer.
 %end-doc */
 
 static int
-ToggleView (int argc, char **argv, int x, int y)
+ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
   static gboolean in_toggle_view = 0;
@@ -2565,7 +2565,7 @@ visible if it is not already visible
 %end-doc */
 
 static int
-SelectLayer (int argc, char **argv, int x, int y)
+SelectLayer (int argc, char **argv, Coord x, Coord y)
 {
   int newl;
   if (argc == 0)
@@ -3557,7 +3557,7 @@ Opens the window which allows editing of the route styles.
 %end-doc */
 
 static int
-AdjustStyle(int argc, char **argv, int x, int y)
+AdjustStyle(int argc, char **argv, Coord x, Coord y)
 {
   RouteStyleType *rst = NULL;
   
@@ -3588,7 +3588,7 @@ resource compatibility with the lesstif HID.
 %end-doc */
 
 static int
-EditLayerGroups(int argc, char **argv, int x, int y)
+EditLayerGroups(int argc, char **argv, Coord x, Coord y)
 {
   
   if (argc != 0)

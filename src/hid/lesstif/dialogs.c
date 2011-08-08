@@ -110,7 +110,7 @@ called with that filename.
 %end-doc */
 
 static int
-Load (int argc, char **argv, int x, int y)
+Load (int argc, char **argv, Coord x, Coord y)
 {
   const char *function;
   char *name;
@@ -171,7 +171,7 @@ load that vendor file.
 %end-doc */
 
 static int
-LoadVendor (int argc, char **argv, int x, int y)
+LoadVendor (int argc, char **argv, Coord x, Coord y)
 {
   char *name;
   XmString xmname, pattern;
@@ -229,7 +229,7 @@ called with that filename.
 %end-doc */
 
 static int
-Save (int argc, char **argv, int x, int y)
+Save (int argc, char **argv, Coord x, Coord y)
 {
   const char *function;
   char *name;
@@ -482,7 +482,7 @@ lesstif_confirm_dialog (char *msg, ...)
 }
 
 static int
-ConfirmAction (int argc, char **argv, int x, int y)
+ConfirmAction (int argc, char **argv, Coord x, Coord y)
 {
   int rv = lesstif_confirm_dialog (argc > 0 ? argv[0] : 0,
 				   argc > 1 ? argv[1] : 0,
@@ -616,7 +616,7 @@ user's stdout.
 %end-doc */
 
 static int
-PromptFor (int argc, char **argv, int x, int y)
+PromptFor (int argc, char **argv, Coord x, Coord y)
 {
   char *rv = lesstif_prompt_for (argc > 0 ? argv[0] : 0,
 				 argc > 1 ? argv[1] : 0);
@@ -902,7 +902,7 @@ Open the netlist window.
 %end-doc */
 
 static int
-DoWindows (int argc, char **argv, int x, int y)
+DoWindows (int argc, char **argv, Coord x, Coord y)
 {
   const char *a = argc == 1 ? argv[0] : "";
   if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
@@ -946,7 +946,7 @@ This just pops up a dialog telling the user which version of
 
 
 static int
-About (int argc, char **argv, int x, int y)
+About (int argc, char **argv, Coord x, Coord y)
 {
   static Widget about = 0;
   if (!about)
@@ -979,7 +979,7 @@ options, and print the layout.
 %end-doc */
 
 static int
-Print (int argc, char **argv, int x, int y)
+Print (int argc, char **argv, Coord x, Coord y)
 {
   HID_Attribute *opts;
   HID *printer;
@@ -1029,7 +1029,7 @@ the measurements in, so that future printouts will be more precise.
 %end-doc */
 
 static int
-PrintCalibrate (int argc, char **argv, int x, int y)
+PrintCalibrate (int argc, char **argv, Coord x, Coord y)
 {
   HID *printer = hid_find_printer ();
   printer->calibrate (0.0, 0.0);
@@ -1056,7 +1056,7 @@ that exporter's options, and exports the layout.
 %end-doc */
 
 static int
-Export (int argc, char **argv, int x, int y)
+Export (int argc, char **argv, Coord x, Coord y)
 {
   static Widget selector = 0;
   HID_Attribute *opts;
@@ -1247,7 +1247,7 @@ The units are determined by the default display units.
 %end-doc */
 
 static int
-AdjustSizes (int argc, char **argv, int x, int y)
+AdjustSizes (int argc, char **argv, Coord x, Coord y)
 {
   if (!sizes_dialog)
     {
@@ -1571,7 +1571,7 @@ See @ref{ChangeName Action}.
 %end-doc */
 
 static int
-EditLayerGroups (int argc, char **argv, int x, int y)
+EditLayerGroups (int argc, char **argv, Coord x, Coord y)
 {
   if (!layer_groups_form)
     {
@@ -2013,7 +2013,7 @@ future imports.
 %end-doc */
 
 static int
-ImportGUI (int argc, char **argv, int x, int y)
+ImportGUI (int argc, char **argv, Coord x, Coord y)
 {
   static int I_am_recursing = 0;
   static XmString xms_sch = 0, xms_import = 0;

@@ -153,7 +153,7 @@ ghid_port_ranges_scale (gboolean emit_changed)
  */
 
 void
-ghid_get_coords (const char *msg, int *x, int *y)
+ghid_get_coords (const char *msg, Coord *x, Coord *y)
 {
   if (!ghid_port.has_entered && msg)
     ghid_get_user_xy (msg);
@@ -663,7 +663,7 @@ gint
 ghid_port_window_leave_cb (GtkWidget * widget, 
                            GdkEventCrossing * ev, GHidPort * out)
 {
-  gint x0, y0, x, y, dx, dy, w, h;
+  Coord x0, y0, x, y, dx, dy, w, h;
   
   /* printf("leave mode: %d detail: %d\n", ev->mode, ev->detail); */
 

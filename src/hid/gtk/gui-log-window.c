@@ -206,7 +206,7 @@ to it.  If false, the log will still be updated, but the window won't \
 be shown.";
 
 static gint
-GhidLogShowOnAppend (int argc, char **argv, int x, int y)
+GhidLogShowOnAppend (int argc, char **argv, Coord x, Coord y)
 {
   char *a = argc == 1 ? argv[0] : (char *)"";
 

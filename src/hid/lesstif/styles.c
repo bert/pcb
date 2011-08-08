@@ -93,7 +93,7 @@ static char *value_names[] = {
   "Thickness", "Diameter", "Hole", "Keepaway"
 };
 
-static int RouteStylesChanged (int argc, char **argv, int x, int y);
+static int RouteStylesChanged (int argc, char **argv, Coord x, Coord y);
 
 static void
 update_one_value (int i, Coord v)
@@ -348,7 +348,7 @@ static const char adjuststyle_help[] =
 %end-doc */
 
 static int
-AdjustStyle (int argc, char **argv, int x, int y)
+AdjustStyle (int argc, char **argv, Coord x, Coord y)
 {
   if (!mainwind)
     return 1;
@@ -411,7 +411,7 @@ AdjustStyle (int argc, char **argv, int x, int y)
 }
 
 static int
-RouteStylesChanged (int argc, char **argv, int x, int y)
+RouteStylesChanged (int argc, char **argv, Coord x, Coord y)
 {
   int i, j, h;
   if (!PCB || !PCB->RouteStyle[0].Name)

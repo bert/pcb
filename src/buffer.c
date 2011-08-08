@@ -815,7 +815,7 @@ into the footprint as well.  The footprint remains in the paste buffer.
 %end-doc */
 
 int
-LoadFootprint (int argc, char **argv, int x, int y)
+LoadFootprint (int argc, char **argv, Coord x, Coord y)
 {
   char *name = ARG(0);
   char *refdes = ARG(1);
@@ -1385,7 +1385,7 @@ angle is given, the user is prompted for one.
 %end-doc */
 
 int
-ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
+ActionFreeRotateBuffer(int argc, char **argv, Coord x, Coord y)
 {
   char *angle_s;
 
