@@ -2158,6 +2158,12 @@ lesstif_parse_arguments (int *argc, char ***argv)
 #ifdef HAVE_XRENDER
   use_xrender = XRenderQueryExtension (display, &render_event, &render_error) &&
 	XRenderFindVisualFormat (display, DefaultVisual(display, screen));
+#ifdef HAVE_XINERAMA
+  /* Xinerama and XRender don't get along well */
+  if (XineramaQueryExtension (display, &render_event, &render_error)
+      && XineramaIsActive (display))
+    use_xrender = 0;
+#endif /* HAVE_XINERAMA */
 #endif /* HAVE_XRENDER */
 
   rcount = 0;

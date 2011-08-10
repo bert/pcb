@@ -41,5 +41,9 @@
 #include <X11/extensions/Xrender.h>
 #endif /* HAVE_XRENDER */
 
+#ifdef HAVE_XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif /* HAVE_XINERAMA */
+
 #undef Mask
 

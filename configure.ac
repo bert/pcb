@@ -1000,6 +1000,22 @@ case "$have_xrender:$enable_xrender" in
      ;;
 esac
 
+# ------------- Xinerama -------------------
+have_xinerama=no
+AC_CHECK_LIB(Xinerama,XineramaQueryExtension,have_xinerama=yes,have_xinerama=no,$X_LIBS)
+
+AC_ARG_ENABLE([xinerama],
+[  --disable-xinerama       Compile and link with Xinerama [default=yes]])
+case "$have_xinerama:$enable_xinerama" in
+   no:* ) ;;
+   *:no ) ;;
+   * )
+     X_LIBS="-lXinerama $X_LIBS"
+     AC_DEFINE([HAVE_XINERAMA], 1,
+		[Define to 1 if Xinerama is available])
+     ;;
+esac
+
 # ------------- dmalloc -------------------
 dnl dmalloc checks
 with_dmalloc=no
