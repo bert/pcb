@@ -169,8 +169,8 @@ HID_Attribute ps_attribute_list[] = {
   {"ps-color", "Prints in color",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_color 7
-  {"ps-bloat", "Amount to add to trace/pad/pin edges (1 = 1/100 mil)",
-   HID_Integer, -10000, 10000, {0, 0, 0}, 0, 0},
+  {"ps-bloat", "Amount to add to trace/pad/pin edges",
+   HID_Coord, -MIL_TO_COORD (100), MIL_TO_COORD (100), {0, 0, 0}, 0, 0},
 #define HA_psbloat 8
   {"ps-invert", "Draw images as white-on-black",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
