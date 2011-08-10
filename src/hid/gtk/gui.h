@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
+#include "gtk-pcb-coord-entry.h"
 #include "gui-pinout-preview.h"
 
 
@@ -366,11 +367,20 @@ void ghid_button_connected (GtkWidget * box, GtkWidget ** button,
 			    gboolean pack_start, gboolean expand,
 			    gboolean fill, gint pad, void (*cb_func) (gpointer),
 			    gpointer data, gchar * string);
+void ghid_coord_entry (GtkWidget * box, GtkWidget ** coord_entry, Coord value,
+		       Coord low, Coord high,  enum ce_step_size step_size,
+		       gint width, void (*cb_func) (GtkPcbCoordEntry *, gpointer),
+		       gpointer data, gboolean right_align, gchar * string);
 void ghid_spin_button (GtkWidget * box, GtkWidget ** spin_button,
 		       gfloat value, gfloat low, gfloat high, gfloat step0,
 		       gfloat step1, gint digits, gint width,
 		       void (*cb_func) (GtkSpinButton *, gpointer), gpointer data,
 		       gboolean right_align, gchar * string);
+void ghid_table_coord_entry (GtkWidget * table, gint row, gint column,
+		 	    GtkWidget ** coord_entry, Coord value,
+			    Coord low, Coord high, enum ce_step_size, gint width,
+			    void (*cb_func) (GtkPcbCoordEntry *, gpointer), gpointer data,
+			    gboolean right_align, gchar * string);
 void ghid_table_spin_button (GtkWidget * box, gint row, gint column,
 			     GtkWidget ** spin_button, gfloat value,
 			     gfloat low, gfloat high, gfloat step0,

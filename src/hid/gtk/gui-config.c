@@ -968,7 +968,7 @@ static GtkWidget *config_sizes_vbox,
 static GtkWidget *use_board_size_default_button,
   *use_drc_sizes_default_button;
 
-static gint new_board_width, new_board_height;
+static Coord new_board_width, new_board_height;
 
 static void
 config_sizes_apply (void)
@@ -1012,22 +1012,17 @@ text_spin_button_cb (GtkSpinButton * spin, void * dst)
   ghid_set_status_line_label ();
 }
 
-
 static void
-size_spin_button_cb (GtkSpinButton * spin, void * dst)
+coord_entry_cb (GtkPcbCoordEntry * ce, void * dst)
 {
-  gdouble value;
-
-  value = gtk_spin_button_get_value (spin);
-  *(gint *)dst = TO_PCB_UNITS (value);
+  *(Coord *) dst = gtk_pcb_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 
 static void
 config_sizes_tab_create (GtkWidget * tab_vbox)
 {
-  GtkWidget *table, *vbox, *hbox, *label;
-  gchar *str;
+  GtkWidget *table, *vbox, *hbox;
 
   /* Need a vbox we can destroy if user changes grid units.
    */
@@ -1039,16 +1034,6 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
       config_sizes_vbox = vbox;
       config_sizes_tab_vbox = tab_vbox;
     }
-
-  str = g_strdup_printf (_("<b>%s</b> grid units are selected"),
-                         Settings.grid_unit->in_suffix);
-  label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  g_free (str);
-
-  gtk_box_pack_start (GTK_BOX (config_sizes_vbox), label, FALSE, FALSE, 4);
-
 
   /* ---- Board Size ---- */
   vbox = ghid_category_vbox (config_sizes_vbox, _("Board Size"),
@@ -1062,18 +1047,14 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 
   new_board_width = PCB->MaxWidth;
   new_board_height = PCB->MaxHeight;
-  ghid_table_spin_button (table, 0, 0, NULL,
-			  FROM_PCB_UNITS (PCB->MaxWidth),
-			  FROM_PCB_UNITS (MIN_SIZE),
-			  FROM_PCB_UNITS (MAX_COORD), STEP0_SIZE, STEP1_SIZE,
-			  SPIN_DIGITS, 0, size_spin_button_cb,
+  ghid_table_coord_entry (table, 0, 0, NULL,
+			  PCB->MaxWidth, MIN_SIZE, MAX_COORD,
+			  CE_LARGE, 0, coord_entry_cb,
 			  &new_board_width, FALSE, _("Width"));
 
-  ghid_table_spin_button (table, 1, 0, NULL,
-			  FROM_PCB_UNITS (PCB->MaxHeight),
-			  FROM_PCB_UNITS (MIN_SIZE),
-			  FROM_PCB_UNITS (MAX_COORD), STEP0_SIZE, STEP1_SIZE,
-			  SPIN_DIGITS, 0, size_spin_button_cb,
+  ghid_table_coord_entry (table, 1, 0, NULL,
+			  PCB->MaxHeight, MIN_SIZE, MAX_COORD,
+			  CE_LARGE, 0, coord_entry_cb,
 			  &new_board_height, FALSE, _("Height"));
   ghid_check_button_connected (vbox, &use_board_size_default_button, FALSE,
 			       TRUE, FALSE, FALSE, 0, NULL, NULL,
@@ -1107,52 +1088,40 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
   gtk_table_set_col_spacings (GTK_TABLE (table), 6);
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
 
-  ghid_table_spin_button (table, 0, 0, NULL,
-			  FROM_PCB_UNITS (PCB->Bloat),
-			  FROM_PCB_UNITS (MIN_DRC_VALUE),
-			  FROM_PCB_UNITS (MAX_DRC_VALUE), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->Bloat, FALSE,
+  ghid_table_coord_entry (table, 0, 0, NULL,
+			  PCB->Bloat, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->Bloat, FALSE,
 			  _("Minimum copper spacing"));
 
-  ghid_table_spin_button (table, 1, 0, NULL,
-			  FROM_PCB_UNITS (PCB->minWid),
-			  FROM_PCB_UNITS (MIN_DRC_VALUE),
-			  FROM_PCB_UNITS (MAX_DRC_VALUE), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->minWid, FALSE,
+  ghid_table_coord_entry (table, 1, 0, NULL,
+			  PCB->minWid, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->minWid, FALSE,
 			  _("Minimum copper width"));
 
-  ghid_table_spin_button (table, 2, 0, NULL,
-			  FROM_PCB_UNITS (PCB->Shrink),
-			  FROM_PCB_UNITS (MIN_DRC_VALUE),
-			  FROM_PCB_UNITS (MAX_DRC_VALUE), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->Shrink, FALSE,
+  ghid_table_coord_entry (table, 2, 0, NULL,
+			  PCB->Shrink, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->Shrink, FALSE,
 			  _("Minimum touching copper overlap"));
 
-  ghid_table_spin_button (table, 3, 0, NULL,
-			  FROM_PCB_UNITS (PCB->minSlk),
-			  FROM_PCB_UNITS (MIN_DRC_SILK),
-			  FROM_PCB_UNITS (MAX_DRC_SILK), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->minSlk, FALSE,
+  ghid_table_coord_entry (table, 3, 0, NULL,
+			  PCB->minSlk, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->minSlk, FALSE,
 			  _("Minimum silk width"));
 
-  ghid_table_spin_button (table, 4, 0, NULL,
-			  FROM_PCB_UNITS (PCB->minDrill),
-			  FROM_PCB_UNITS (MIN_DRC_DRILL),
-			  FROM_PCB_UNITS (MAX_DRC_DRILL), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->minDrill, FALSE,
+  ghid_table_coord_entry (table, 4, 0, NULL,
+			  PCB->minDrill, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->minDrill, FALSE,
 			  _("Minimum drill diameter"));
 
-  ghid_table_spin_button (table, 5, 0, NULL,
-			  FROM_PCB_UNITS (PCB->minRing),
-			  FROM_PCB_UNITS (MIN_DRC_RING),
-			  FROM_PCB_UNITS (MAX_DRC_RING), STEP0_SMALL_SIZE,
-			  STEP1_SMALL_SIZE, SPIN_DIGITS, 0,
-			  size_spin_button_cb, &PCB->minRing, FALSE,
+  ghid_table_coord_entry (table, 5, 0, NULL,
+			  PCB->minRing, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  CE_SMALL, 0, coord_entry_cb,
+			  &PCB->minRing, FALSE,
 			  _("Minimum annular ring"));
 
   ghid_check_button_connected (vbox, &use_drc_sizes_default_button, FALSE,
@@ -1172,23 +1141,17 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 static GtkWidget *config_increments_vbox, *config_increments_tab_vbox;
 
 static void
-increment_spin_button_cb (GtkSpinButton * spin, void * dst)
+increment_spin_button_cb (GtkPcbCoordEntry * ce, void * dst)
 {
-  gdouble value;
-
-  value = gtk_spin_button_get_value (spin);
-  *(Coord *)dst = TO_PCB_UNITS (value);
-
-
+  *(Coord *)dst = gtk_pcb_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 
 static void
 config_increments_tab_create (GtkWidget * tab_vbox)
 {
-  GtkWidget *vbox, *label;
+  GtkWidget *vbox;
   Coord *target;
-  gchar *str;
 
   /* Need a vbox we can destroy if user changes grid units.
    */
@@ -1201,28 +1164,16 @@ config_increments_tab_create (GtkWidget * tab_vbox)
       config_increments_tab_vbox = tab_vbox;
     }
 
-  str = g_strdup_printf (_("Increment/Decrement values to use for <b>%s</b>"),
-                         Settings.grid_unit->in_suffix);
-  label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  gtk_box_pack_start (GTK_BOX (config_increments_vbox), label,
-		      FALSE, FALSE, 4);
-  g_free (str);
-
-
   /* ---- Grid Increment/Decrement ---- */
   vbox = ghid_category_vbox (config_increments_vbox,
 			     _("Grid Increment/Decrement"), 4, 2, TRUE, TRUE);
 
   target = &Settings.increments->grid;
-  ghid_spin_button (vbox, NULL,
-                    FROM_PCB_UNITS (Settings.increments->grid),
-                    FROM_PCB_UNITS (Settings.increments->grid_min),
-                    FROM_PCB_UNITS (Settings.increments->grid_max),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_small),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_medium),
-		    Settings.grid_unit->default_prec, 0, increment_spin_button_cb,
+  ghid_coord_entry (vbox, NULL,
+                    Settings.increments->grid,
+                    Settings.increments->grid_min,
+                    Settings.increments->grid_max,
+                    CE_SMALL, 0, increment_spin_button_cb,
 		    target, FALSE,
 		    _("For 'g' and '<shift>g' grid change actions"));
 
@@ -1231,18 +1182,12 @@ config_increments_tab_create (GtkWidget * tab_vbox)
   vbox = ghid_category_vbox (config_increments_vbox,
 			     _("Size Increment/Decrement"), 4, 2, TRUE, TRUE);
 
-  /* Size increment spin button ('s' and '<shift>s').  For mil
-     |  units, range from 1.0 to 10.0.  For mm, range from 0.01 to 0.5
-     |  Step sizes of 1 mil or .01 mm, and .01 mm precision or 1 mil precision.
-   */
   target = &Settings.increments->size;
-  ghid_spin_button (vbox, NULL,
-                    FROM_PCB_UNITS (Settings.increments->size),
-                    FROM_PCB_UNITS (Settings.increments->size_min),
-                    FROM_PCB_UNITS (Settings.increments->size_max),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_tiny),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_small),
-		    Settings.grid_unit->default_prec, 0, increment_spin_button_cb,
+  ghid_coord_entry (vbox, NULL,
+                    Settings.increments->size,
+                    Settings.increments->size_min,
+                    Settings.increments->size_max,
+                    CE_SMALL, 0, increment_spin_button_cb,
 		    target, FALSE,
 		    _("For 's' and '<shift>s' size change actions on lines,\n"
 		      "pads, pins and text.\n"
@@ -1252,44 +1197,28 @@ config_increments_tab_create (GtkWidget * tab_vbox)
   vbox = ghid_category_vbox (config_increments_vbox,
 			     _("Line Increment/Decrement"), 4, 2, TRUE, TRUE);
 
-  /* Line increment spin button ('l' and '<shift>l').  For mil
-     |  units, range from 0.5 to 10.0.  For mm, range from 0.005 to 0.5
-     |  Step sizes of 0.5 mil or .005 mm, and .001 mm precision or 0.1 mil
-     |  precision.
-   */
   target = &Settings.increments->line;
-  ghid_spin_button (vbox, NULL,
-                    FROM_PCB_UNITS (Settings.increments->line),
-                    FROM_PCB_UNITS (Settings.increments->line_min),
-                    FROM_PCB_UNITS (Settings.increments->line_max),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_tiny),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_small),
-		    Settings.grid_unit->default_prec, 0, increment_spin_button_cb,
+  ghid_coord_entry (vbox, NULL,
+                    Settings.increments->line,
+                    Settings.increments->line_min,
+                    Settings.increments->line_max,
+                    CE_SMALL, 0, increment_spin_button_cb,
 		    target, FALSE,
 		    _("For 'l' and '<shift>l' routing line width change actions"));
 
   /* ---- Clear Increment/Decrement ---- */
   vbox = ghid_category_vbox (config_increments_vbox,
-			     _("Clear Increment/Decrement"), 4, 2, TRUE,
-			     TRUE);
+			     _("Clear Increment/Decrement"), 4, 2, TRUE, TRUE);
 
-  /* Clear increment spin button ('l' and '<shift>l').  For mil
-     |  units, range from 0.5 to 10.0.  For mm, range from 0.005 to 0.5
-     |  Step sizes of 0.5 mil or .005 mm, and .001 mm precision or 0.1 mil
-     |  precision.
-   */
   target = &Settings.increments->clear;
-  ghid_spin_button (vbox, NULL,
-                    FROM_PCB_UNITS (Settings.increments->clear),
-                    FROM_PCB_UNITS (Settings.increments->clear_min),
-                    FROM_PCB_UNITS (Settings.increments->clear_max),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_tiny),
-                    FROM_PCB_UNITS (Settings.grid_unit->step_small),
-		    Settings.grid_unit->default_prec, 0, increment_spin_button_cb,
+  ghid_coord_entry (vbox, NULL,
+                    Settings.increments->clear,
+                    Settings.increments->clear_min,
+                    Settings.increments->clear_max,
+                    CE_SMALL, 0, increment_spin_button_cb,
 		    target, FALSE,
 		    _("For 'k' and '<shift>k' line clearance inside polygon size\n"
 		     "change actions"));
-
 
   gtk_widget_show_all (config_increments_vbox);
 }

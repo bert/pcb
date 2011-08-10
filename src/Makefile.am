@@ -270,6 +270,8 @@ libgtk_a_CPPFLAGS = -I./hid/gtk
 LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
+	hid/gtk/gtk-pcb-coord-entry.c \
+	hid/gtk/gtk-pcb-coord-entry.h \
 	hid/gtk/gtkhid-main.c \
 	hid/gtk/gtkhid.h \
 	hid/gtk/gui.h \
