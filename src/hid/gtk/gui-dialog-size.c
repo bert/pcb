@@ -53,17 +53,13 @@
 
 RCSID ("$Id$");
 
-#define STEP0_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_small)
-#define STEP1_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_medium)
-#define SPIN_DIGITS	(Settings.grid_unit->default_prec)
-
 typedef struct
 {
   GtkWidget *name_entry,
-    *line_width_spin_button,
-    *via_hole_spin_button,
-    *via_size_spin_button,
-    *clearance_spin_button, *set_temp1_button, *set_temp2_button;
+    *line_width_coord_entry,
+    *via_hole_coord_entry,
+    *via_size_coord_entry,
+    *clearance_coord_entry, *set_temp1_button, *set_temp2_button;
 }
 SizesDialog;
 
@@ -88,83 +84,35 @@ make_route_string(RouteStyleType * rs)
   return str;
 }
 
-/* static void */
-/* via_hole_cb (GtkWidget * widget, SizesDialog * sd) */
-/* { */
-/*   gdouble via_hole_size, via_size; */
-
-/*   via_hole_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget)); */
-/*   via_size = */
-/*     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_size_spin_button)); */
-
-/*   if (via_size < via_hole_size + FROM_PCB_UNITS (MIN_PINORVIACOPPER)) */
-/*     gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_size_spin_button), */
-/* 			       via_hole_size + */
-/* 			       FROM_PCB_UNITS (MIN_PINORVIACOPPER)); */
-/* } */
-
-/* static void */
-/* via_size_cb (GtkWidget * widget, SizesDialog * sd) */
-/* { */
-/*   gdouble via_hole_size, via_size; */
-
-/*   via_size = gtk_spin_button_get_value (GTK_SPIN_BUTTON (widget)); */
-/*   via_hole_size = */
-/*     gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button)); */
-
-/*   if (via_hole_size > via_size - FROM_PCB_UNITS (MIN_PINORVIACOPPER)) */
-/*     gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button), */
-/* 			       via_size - */
-/* 			       FROM_PCB_UNITS (MIN_PINORVIACOPPER)); */
-/* } */
-
 static void
-via_hole_cb (GtkSpinButton * spinbutton, gpointer data)//SizesDialog * sd)
+via_hole_cb (GtkPcbCoordEntry * entry, gpointer data)
 {
   SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_hole_size = gtk_spin_button_get_value (spinbutton);
-  via_size =
-    gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_size_spin_button));
+  via_hole_size = gtk_pcb_coord_entry_get_value (entry);
+  via_size = gtk_pcb_coord_entry_get_value
+               (GTK_PCB_COORD_ENTRY (sd->via_size_coord_entry));
 
-  if (via_size < via_hole_size + FROM_PCB_UNITS (MIN_PINORVIACOPPER))
-    gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_size_spin_button),
-			       via_hole_size +
-			       FROM_PCB_UNITS (MIN_PINORVIACOPPER));
+  if (via_size < via_hole_size + MIN_PINORVIACOPPER)
+    gtk_pcb_coord_entry_set_value (GTK_PCB_COORD_ENTRY (sd->via_size_coord_entry),
+			           via_hole_size + MIN_PINORVIACOPPER);
 }
 
 static void
-via_size_cb (GtkSpinButton * spinbutton, gpointer data)//SizesDialog * sd)
+via_size_cb (GtkPcbCoordEntry * entry, gpointer data)
 {
   SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_size = gtk_spin_button_get_value (spinbutton);
-  via_hole_size =
-    gtk_spin_button_get_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button));
+  via_size = gtk_pcb_coord_entry_get_value (entry);
+  via_hole_size = gtk_pcb_coord_entry_get_value
+                    (GTK_PCB_COORD_ENTRY (sd->via_hole_coord_entry));
 
-  if (via_hole_size > via_size - FROM_PCB_UNITS (MIN_PINORVIACOPPER))
-    gtk_spin_button_set_value (GTK_SPIN_BUTTON (sd->via_hole_spin_button),
-			       via_size -
-			       FROM_PCB_UNITS (MIN_PINORVIACOPPER));
+  if (via_hole_size > via_size - MIN_PINORVIACOPPER)
+    gtk_pcb_coord_entry_set_value (GTK_PCB_COORD_ENTRY (sd->via_hole_coord_entry),
+			           via_size - MIN_PINORVIACOPPER);
 }
-
-
-/* static void */
-/* use_temp_cb (GtkWidget * button, gpointer data) */
-/* { */
-/*   gint which = GPOINTER_TO_INT (data); */
-/*   gboolean active; */
-
-/*   active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)); */
-/*   if (which == 1 && active) */
-/*     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON */
-/* 				  (route_sizes.set_temp2_button), FALSE); */
-/*   else if (which == 2 && active) */
-/*     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON */
-/* 				  (route_sizes.set_temp1_button), FALSE); */
-/* } */
 
 static void
 use_temp_cb (GtkToggleButton * button, gpointer data)
@@ -218,14 +166,6 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), vbox);
 
-  s = g_strdup_printf (_("<b>%s</b> grid units are selected"), 
-                       Settings.grid_unit->in_suffix);
-  label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_label_set_markup (GTK_LABEL (label), s);
-  g_free (s);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 4);
-
   hbox = gtk_hbox_new (FALSE, 4);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 4);
   label = gtk_label_new (_("Route style name"));
@@ -238,32 +178,23 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
   gtk_table_set_col_spacings (GTK_TABLE (table), 6);
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
 
-  ghid_table_spin_button (table, 0, 0,
-			  &sd->line_width_spin_button,
-			  FROM_PCB_UNITS (rst->Thick),
-			  FROM_PCB_UNITS (MIN_LINESIZE),
-			  FROM_PCB_UNITS (MAX_LINESIZE), STEP0_SIZE,
-			  STEP1_SIZE, SPIN_DIGITS, 0, NULL, sd, TRUE,
+  ghid_table_coord_entry (table, 0, 0, &sd->line_width_coord_entry,
+			  rst->Thick, MIN_LINESIZE, MAX_LINESIZE,
+			  CE_SMALL, 0, NULL, sd, TRUE,
 			  _("Line width"));
-  ghid_table_spin_button (table, 1, 0, &sd->via_hole_spin_button,
-			  FROM_PCB_UNITS (rst->Hole),
-			  FROM_PCB_UNITS (MIN_PINORVIAHOLE),
-			  FROM_PCB_UNITS (MAX_PINORVIASIZE -
-					  MIN_PINORVIACOPPER), STEP0_SIZE,
-			  STEP1_SIZE, SPIN_DIGITS, 0, via_hole_cb, sd, TRUE,
+  ghid_table_coord_entry (table, 1, 0, &sd->via_hole_coord_entry,
+			  rst->Hole, MIN_PINORVIAHOLE,
+			  MAX_PINORVIASIZE - MIN_PINORVIACOPPER,
+			  CE_SMALL, 0, via_hole_cb, sd, TRUE,
 			  _("Via hole"));
-  ghid_table_spin_button (table, 2, 0, &sd->via_size_spin_button,
-			  FROM_PCB_UNITS (rst->Diameter),
-			  FROM_PCB_UNITS (MIN_PINORVIAHOLE +
-					  MIN_PINORVIACOPPER),
-			  FROM_PCB_UNITS (MAX_PINORVIASIZE), STEP0_SIZE,
-			  STEP1_SIZE, SPIN_DIGITS, 0, via_size_cb, sd, TRUE,
+  ghid_table_coord_entry (table, 2, 0, &sd->via_size_coord_entry,
+			  rst->Diameter, MIN_PINORVIAHOLE + MIN_PINORVIACOPPER,
+			  MAX_PINORVIASIZE,
+			  CE_SMALL, 0, via_size_cb, sd, TRUE,
 			  _("Via size"));
-  ghid_table_spin_button (table, 3, 0, &sd->clearance_spin_button,
-			  FROM_PCB_UNITS (rst->Keepaway),
-			  FROM_PCB_UNITS (MIN_LINESIZE),
-			  FROM_PCB_UNITS (MAX_LINESIZE), STEP0_SIZE,
-			  STEP1_SIZE, SPIN_DIGITS, 0, NULL, sd, true,
+  ghid_table_coord_entry (table, 3, 0, &sd->clearance_coord_entry,
+			  rst->Keepaway, MIN_LINESIZE, MAX_LINESIZE,
+			  CE_SMALL, 0, NULL, sd, true,
 			  _("Clearance"));
   gtk_box_pack_start (GTK_BOX (vbox1), table, FALSE, FALSE, 0);
 
@@ -311,7 +242,6 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
 
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-      gdouble value;
       gchar *string;
       RouteStyleType rst_buf;
 
@@ -330,25 +260,18 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
       if (set_temp1 || set_temp2)
 	rst = &rst_buf;
 
-      value =
-	gtk_spin_button_get_value (GTK_SPIN_BUTTON
-				   (sd->line_width_spin_button));
-      rst->Thick = TO_PCB_UNITS (value);
-
-      value =
-	gtk_spin_button_get_value (GTK_SPIN_BUTTON
-				   (sd->via_hole_spin_button));
-      rst->Hole = TO_PCB_UNITS (value);
-
-      value =
-	gtk_spin_button_get_value (GTK_SPIN_BUTTON
-				   (sd->via_size_spin_button));
-      rst->Diameter = TO_PCB_UNITS (value);
-
-      value =
-	gtk_spin_button_get_value (GTK_SPIN_BUTTON
-				   (sd->clearance_spin_button));
-      rst->Keepaway = TO_PCB_UNITS (value);
+      rst->Thick =
+	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+				        (sd->line_width_coord_entry));
+      rst->Hole =
+	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+				        (sd->via_hole_coord_entry));
+      rst->Diameter =
+	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+				        (sd->via_size_coord_entry));
+      rst->Keepaway =
+	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+				        (sd->clearance_coord_entry));
 
       if (index < NUM_STYLES && !set_temp1 && !set_temp2)
 	{

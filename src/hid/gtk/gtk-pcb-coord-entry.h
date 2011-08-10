@@ -29,6 +29,7 @@ void gtk_pcb_coord_entry_add_entry (GtkPcbCoordEntry *ce, const gchar *name, con
 gchar *gtk_pcb_coord_entry_get_last_command (GtkPcbCoordEntry *ce);
 
 Coord gtk_pcb_coord_entry_get_value (GtkPcbCoordEntry *ce);
+void gtk_pcb_coord_entry_set_value (GtkPcbCoordEntry *ce, Coord val);
 
 G_END_DECLS  /* keep c++ happy */
 #endif

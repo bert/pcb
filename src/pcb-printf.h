@@ -108,11 +108,11 @@ struct unit {
   enum e_allow  allow;
   int default_prec;
   /* used for gui spinboxes */
-  Coord step_tiny;
-  Coord step_small;
-  Coord step_medium;
-  Coord step_large;
-  Coord step_huge;
+  double step_tiny;
+  double step_small;
+  double step_medium;
+  double step_large;
+  double step_huge;
   /* aliases -- right now we only need 1 ("inch"->"in"), add as needed */
   const char *alias[1];
 };

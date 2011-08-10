@@ -113,8 +113,7 @@ gtk_pcb_coord_entry_change_unit (GtkPcbCoordEntry *ce, const Unit *new_unit)
     case CE_MEDIUM: climb_rate = new_unit->step_medium; break;
     case CE_LARGE: climb_rate = new_unit->step_large; break;
     }
-  gtk_spin_button_configure (GTK_SPIN_BUTTON (ce), adj,
-                             coord_to_unit (new_unit, climb_rate),
+  gtk_spin_button_configure (GTK_SPIN_BUTTON (ce), adj, climb_rate,
                              new_unit->default_prec + strlen (new_unit->suffix));
 }
 
@@ -199,20 +198,20 @@ gtk_pcb_coord_entry_new (Coord min_val, Coord max_val, Coord value,
   switch (step_size)
     {
     case CE_TINY:
-      small_step = coord_to_unit (unit, unit->step_tiny);
-      big_step   = coord_to_unit (unit, unit->step_small);
+      small_step = unit->step_tiny;
+      big_step   = unit->step_small;
       break;
     case CE_SMALL:
-      small_step = coord_to_unit (unit, unit->step_small);
-      big_step   = coord_to_unit (unit, unit->step_medium);
+      small_step = unit->step_small;
+      big_step   = unit->step_medium;
       break;
     case CE_MEDIUM:
-      small_step = coord_to_unit (unit, unit->step_medium);
-      big_step   = coord_to_unit (unit, unit->step_large);
+      small_step = unit->step_medium;
+      big_step   = unit->step_large;
       break;
     case CE_LARGE:
-      small_step = coord_to_unit (unit, unit->step_large);
-      big_step   = coord_to_unit (unit, unit->step_huge);
+      small_step = unit->step_large;
+      big_step   = unit->step_huge;
       break;
     default:
       small_step = big_step = 0;
@@ -234,5 +233,12 @@ Coord
 gtk_pcb_coord_entry_get_value (GtkPcbCoordEntry *ce)
 {
   return ce->value;
+}
+
+void
+gtk_pcb_coord_entry_set_value (GtkPcbCoordEntry *ce, Coord val)
+{
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ce),
+                             coord_to_unit (ce->unit, val));
 }
 

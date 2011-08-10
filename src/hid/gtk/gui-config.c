@@ -956,11 +956,6 @@ config_general_apply (void)
 
   /* -------------- The Sizes config page ----------------
    */
-#define	STEP0_SMALL_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_tiny)
-#define	STEP1_SMALL_SIZE	FROM_PCB_UNITS (Settings.grid_unit->step_small)
-#define	STEP0_SIZE		FROM_PCB_UNITS (Settings.grid_unit->step_large)
-#define	STEP1_SIZE		FROM_PCB_UNITS (Settings.grid_unit->step_huge)
-#define	SPIN_DIGITS		(Settings.grid_unit->default_prec)
 
 static GtkWidget *config_sizes_vbox,
   *config_sizes_tab_vbox, *config_text_spin_button;
