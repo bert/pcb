@@ -37,9 +37,44 @@ struct _GtkPcbCoordEntryClass
 
 /* SIGNAL HANDLERS */
 static void
-gtk_pcb_coord_entry_popup_cb (GtkPcbCoordEntry *ce, gpointer data)
+menu_item_activate_cb (GtkMenuItem *item, GtkPcbCoordEntry *ce)
 {
-  /* TODO: Add unit chooser to menu */
+  const char *text = gtk_menu_item_get_label (item);
+  const Unit *unit = get_unit_struct (text);
+  
+  g_signal_emit (ce, gtk_pcb_coord_entry_signals[UNIT_CHANGE_SIGNAL], 0, unit);
+}
+
+static void
+gtk_pcb_coord_entry_popup_cb (GtkPcbCoordEntry *ce, GtkMenu *menu, gpointer data)
+{
+  int i, n;
+  const Unit *unit_list;
+  GtkWidget *menu_item, *submenu;
+
+  /* Build submenu */
+  n = get_n_units ();
+  unit_list = get_unit_list ();
+
+  submenu = gtk_menu_new ();
+  for (i = 0; i < n; ++i)
+    {
+      menu_item = gtk_menu_item_new_with_label (unit_list[i].suffix);
+      g_signal_connect (G_OBJECT (menu_item), "activate",
+                        G_CALLBACK (menu_item_activate_cb), ce);
+      gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
+      gtk_widget_show (menu_item);
+    }
+
+  /* Add submenu to menu */
+  menu_item = gtk_separator_menu_item_new ();
+  gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menu_item);
+  gtk_widget_show (menu_item);
+
+  menu_item = gtk_menu_item_new_with_label (_("Change Units"));
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), submenu);
+  gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menu_item);
+  gtk_widget_show (menu_item);
 }
 
 static gboolean
