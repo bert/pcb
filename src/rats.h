@@ -30,8 +30,8 @@
 /* prototypes for rats routines
  */
 
-#ifndef	__RATS_INCLUDED__
-#define	__RATS_INCLUDED__
+#ifndef	PCB_RATS_H
+#define	PCB_RATS_H
 
 #include "global.h"
 
@@ -47,4 +47,5 @@ bool SeekPad (LibraryEntryTypePtr, ConnectionTypePtr, bool);
 
 NetListTypePtr ProcNetlist (LibraryTypePtr);
 NetListListType CollectSubnets (bool);
+
 #endif

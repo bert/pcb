@@ -28,8 +28,8 @@
 /* prototypes for crosshair routines
  */
 
-#ifndef	__CROSSHAIR_INCLUDED__
-#define	__CROSSHAIR_INCLUDED__
+#ifndef	PCB_CROSSHAIR_H
+#define	PCB_CROSSHAIR_H
 
 #include "global.h"
 

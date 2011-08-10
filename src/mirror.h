@@ -28,8 +28,8 @@
 /* prototypes to change objects mirror flag
  */
 
-#ifndef	__MIRROR_INCLUDED__
-#define	__MIRROR_INCLUDED__
+#ifndef	PCB_MIRROR_H
+#define	PCB_MIRROR_H
 
 #include "global.h"
 

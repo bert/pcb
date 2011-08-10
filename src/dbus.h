@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _DBUS_H_
-#define _DBUS_H_
+#ifndef PCB_DBUS_H
+#define PCB_DBUS_H
 
 /* Carry out all actions to setup the D-Bus and register appropriate callbacks */
 void pcb_dbus_setup ();
@@ -27,4 +27,4 @@ void pcb_dbus_setup ();
 void pcb_dbus_finish ();
 
 
-#endif /* !_DBUS_H */
+#endif /* !PCB_DBUS_H */

@@ -28,8 +28,8 @@
 /* prototypes for polygon editing routines
  */
 
-#ifndef	__POLYGON_INCLUDED__
-#define	__POLYGON_INCLUDED__
+#ifndef	PCB_POLYGON_H
+#define	PCH_POLYGON_H
 
 #include "global.h"
 
@@ -89,4 +89,5 @@ bool MorphPolygon (LayerTypePtr, PolygonTypePtr);
 void NoHolesPolygonDicer (PolygonType *p, const BoxType *clip,
                           void (*emit) (PLINE *, void *), void *user_data);
 void PolyToPolygonsOnLayer (DataType *, LayerType *, POLYAREA *, FlagType);
+
 #endif

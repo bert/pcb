@@ -28,8 +28,8 @@
 /* prototypes for copy routines
  */
 
-#ifndef	__COPY_INCLUDED__
-#define	__COPY_INCLUDED__
+#ifndef	PCB_COPY_H
+#define	PCB_COPY_H
 
 #include "global.h"
 

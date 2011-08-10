@@ -28,8 +28,8 @@
 /* prototypes for update routines
  */
 
-#ifndef	__UPDATE_INCLUDED__
-#define	__UPDATE_INCLUDED__
+#ifndef	PCB_SET_H
+#define	PCB_SET_H
 
 #include "global.h"
 

@@ -28,8 +28,8 @@
 /* prototypes for drawing routines
  */
 
-#ifndef	__DRAW_INCLUDED__
-#define	__DRAW_INCLUDED__
+#ifndef	PCB_DRAW_H
+#define	PCB_DRAW_H
 
 #include "global.h"
 

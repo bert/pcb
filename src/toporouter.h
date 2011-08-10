@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef __TOPOROUTER_INCLUDED__
-#define __TOPOROUTER_INCLUDED__
+#ifndef PCB_TOPOROUTER_H
+#define PCH_TOPOROUTER_H
 
 #include <assert.h>
 #include "data.h"
@@ -483,4 +483,4 @@ typedef struct {
 
 #define FOREACH_END }} while(0)
 
-#endif /* __TOPOROUTER_INCLUDED__ */
+#endif /* PCB_TOPOROUTER_H */

@@ -28,8 +28,8 @@
 /* prototypes for search routines
  */
 
-#ifndef	__SEARCH_INCLUDED__
-#define	__SEARCH_INCLUDED__
+#ifndef	PCB_SEARCH_H
+#define	PCB_SEARCH_H
 
 #include "global.h"
 

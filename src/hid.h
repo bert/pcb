@@ -1,5 +1,5 @@
-#ifndef _HID_H_
-#define _HID_H_
+#ifndef PCB_HID_H
+#define PCB_HID_H
 
 #include <stdarg.h>
 

@@ -28,8 +28,8 @@
 /* common identifiers
  */
 
-#ifndef	__DATA_INCLUDED__
-#define	__DATA_INCLUDED__
+#ifndef	PCB_DATA_H
+#define	PCB_DATA_H
 
 #include "global.h"
 

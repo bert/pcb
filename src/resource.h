@@ -1,7 +1,7 @@
 /* $Id$ */
 
-#ifndef __RESOURCE_INCLUDED__
-#define __RESOURCE_INCLUDED__ 1
+#ifndef PCB_RESOURCE_H
+#define PCB_RESOURCE_H
 
 #include <stdio.h>
 

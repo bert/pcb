@@ -35,8 +35,9 @@
  * in the auto-router.
  */
 
-#ifndef __MTSPACE_INCLUDED__
-#define __MTSPACE_INCLUDED__
+#ifndef PCB_MTSPACE_H
+#define PCB_MTSPACE_H
+
 /* mtspace data structures are built on r-trees. */
 
 #include "global.h"
@@ -81,4 +82,5 @@ vetting_t *mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
 
 void mtsFreeWork (vetting_t **);
 int mtsBoxCount (vetting_t *);
-#endif /* ! __MTSPACE_INCLUDED__ */
+
+#endif /* ! PCB_MTSPACE_H */

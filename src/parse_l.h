@@ -28,8 +28,8 @@
 /* just defines common parser identifiers
  */
 
-#ifndef	__LEX_INCLUDED__
-#define	__LEX_INCLUDED__
+#ifndef	PCB_LEX_H
+#define	PCB_LEX_H
 
 #include "global.h"
 

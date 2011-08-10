@@ -29,8 +29,8 @@
 /* prototypes for inserting points into objects
  */
 
-#ifndef	__LINE_INCLUDED__
-#define	__LINE_INCLUDED__
+#ifndef	PCB_LINE_H
+#define	PCB_LINE_H
 
 #include "global.h"
 

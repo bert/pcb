@@ -28,8 +28,8 @@
 /* prototypes for printing routines
  */
 
-#ifndef	__PRINT_INCLUDED__
-#define	__PRINT_INCLUDED__
+#ifndef	PCB_PRINT_H
+#define	PCB_PRINT_H
 
 #include <stdio.h>
 

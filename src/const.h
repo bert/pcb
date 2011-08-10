@@ -28,8 +28,8 @@
 /* global source constants
  */
 
-#ifndef	__CONST_INCLUDED__
-#define	__CONST_INCLUDED__
+#ifndef	PCB_CONST_H
+#define	PCB_CONST_H
 
 #include <limits.h>
 #include <math.h>

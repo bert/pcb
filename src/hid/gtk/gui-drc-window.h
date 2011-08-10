@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef __GUI_DRC_WINDOW_H__
-#define __GUI_DRC_WINDOW_H__
+#ifndef PCB_HID_GTK_GUI_DRC_WINDOW_H
+#define PCB_HID_GTK_GUI_DRC_WINDOW_H
 
 
 #define GHID_TYPE_DRC_VIOLATION           (ghid_drc_violation_get_type())
@@ -99,4 +99,4 @@ GType ghid_violation_renderer_get_type (void);
 
 GtkCellRenderer *ghid_violation_renderer_new (void);
 
-#endif /* __GUI_DRC_WINDOW_H__ */
+#endif /* PCB_HID_GTK_GUI_DRC_WINDOW_H */

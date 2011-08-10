@@ -28,8 +28,8 @@
 /* prototypes for transform routines
  */
 
-#ifndef	__ROTATE_INCLUDED__
-#define	__ROTATE_INCLUDED__
+#ifndef	PCB_ROTATE_H
+#define	PCB_ROTATE_H
 
 #include "global.h"
 

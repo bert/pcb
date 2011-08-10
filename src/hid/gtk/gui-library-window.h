@@ -18,8 +18,8 @@
  */
 
 
-#ifndef __GUI_LIBRARY_WINDOW_H__
-#define __GUI_LIBRARY_WINDOW_H__
+#ifndef PCB_HID_GTK_GUI_LIBRARY_WINDOW_H
+#define PCB_HID_GTK_GUI_LIBRARY_WINDOW_H
 
 
 /*
@@ -57,4 +57,4 @@ struct _GhidLibraryWindow
 
 GType ghid_library_window_get_type (void);
 
-#endif /* __GUI_LIBRARY_WINDOW_H__ */
+#endif /* PCB_HID_GTK_GUI_LIBRARY_WINDOW_H */

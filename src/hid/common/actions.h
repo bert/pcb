@@ -1,6 +1,6 @@
 
-#ifndef __HID_ACTIONS_INCLUDED__
-#define __HID_ACTIONS_INCLUDED__
+#ifndef PCB_HID_COMMON_ACTIONS_H
+#define PCB_HID_COMMON_ACTIONS_H
 
 void print_actions (void);
 

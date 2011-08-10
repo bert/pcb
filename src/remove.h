@@ -28,8 +28,8 @@
 /* prototypes for remove routines
  */
 
-#ifndef	__REMOVE_INCLUDED__
-#define	__REMOVE_INCLUDED__
+#ifndef	PCB_REMOVE_H
+#define	PCB_REMOVE_H
 
 #include "global.h"
 

@@ -34,8 +34,8 @@
 /* prototypes for vector routines.
  */
 
-#ifndef __VECTOR_INCLUDED__
-#define __VECTOR_INCLUDED__
+#ifndef PCB_VECTOR_H
+#define PCB_VECTOR_H
 
 /* what a vector looks like */
 typedef struct vector_struct vector_t;
@@ -78,4 +78,4 @@ vector_element_t vector_remove (vector_t * vector, int N);
 vector_element_t vector_replace (vector_t * vector,
 				 vector_element_t data, int N);
 
-#endif /* __VECTOR_INCLUDED__ */
+#endif /* PCB_VECTOR_H */

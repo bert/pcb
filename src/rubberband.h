@@ -28,8 +28,8 @@
 /* prototypes for rubberband routines
  */
 
-#ifndef	__RUBBERBAND_INCLUDED__
-#define	__RUBBERBAND_INCLUDED__
+#ifndef	PCB_RUBBERBAND_H
+#define	PCB_RUBBERBAND_H
 
 #include "global.h"
 

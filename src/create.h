@@ -28,8 +28,8 @@
 /* prototypes for create routines
  */
 
-#ifndef	__CREATE_INCLUDED__
-#define	__CREATE_INCLUDED__
+#ifndef	PCB_CREATE_H
+#define	PCB_CREATE_H
 
 #include "global.h"
 

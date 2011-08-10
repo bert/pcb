@@ -63,8 +63,8 @@
  *   No support for %zu size_t printf spec
  */
 
-#ifndef	__PCB_PRINTF_INCLUDED__
-#define	__PCB_PRINTF_INCLUDED__
+#ifndef	PCB_PCB_PRINTF_H
+#define	PCB_PCB_PRINTF_H
 
 enum e_allow {
   ALLOW_NM = 1,

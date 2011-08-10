@@ -22,8 +22,8 @@
       (C) 1997 Klamer Schutte (minor patches)
 */
 
-#ifndef	_POLYBOOL_H
-#define	_POLYBOOL_H
+#ifndef	PCB_POLYAREA_H
+#define	PCB_POLYAREA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -188,4 +188,4 @@ int SavePOLYAREA( POLYAREA *PA, char * fname);
 }
 #endif
 
-#endif /* POLY_H */
+#endif /* PCB_POLYAREA_H */

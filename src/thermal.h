@@ -34,8 +34,8 @@
  * operations, and the functions in thermal.h help implement that.
  */
 
-#ifndef	__THERMAL_INCLUDED__
-#define	__THERMAL_INCLUDED__
+#ifndef	PCB_THERMAL_H
+#define	PCH_THERMAL_H
 
 #include <stdlib.h>
 #include "global.h"

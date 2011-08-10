@@ -4,8 +4,8 @@
 
 /* $Id: lists.h 147 2007-04-09 00:44:09Z selinger $ */
 
-#ifndef _PS_LISTS_H
-#define _PS_LISTS_H
+#ifndef PCB_HID_GCODE_LISTS_H
+#define PCB_HID_GCODE_LISTS_H
 
 /* here we define some general list macros. Because they are macros,
    they should work on any datatype with a "->next" component. Some of
@@ -282,4 +282,4 @@
   }							 \
   MACRO_END
 
-#endif /* _PS_LISTS_H */
+#endif /* PCB_HID_GCODE_LISTS_H */

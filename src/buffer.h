@@ -28,8 +28,8 @@
 /* prototypes for buffer handling routines
  */
 
-#ifndef	__BUFFER_INCLUDED__
-#define	__BUFFER_INCLUDED__
+#ifndef	PCB_BUFFER_H
+#define	PCB_BUFFER_H
 
 #include "global.h"
 

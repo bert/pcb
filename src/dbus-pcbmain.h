@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _DBUS_PCBMAIN_H_
-#define _DBUS_PCBMAIN_H_
+#ifndef PCB_DBUS_PCBMAIN_H
+#define PCB_DBUS_PCBMAIN_H
 
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
@@ -26,4 +26,4 @@
 void pcb_dbus_connection_setup_with_mainloop (DBusConnection * connection);
 void pcb_dbus_connection_finish_with_mainloop (DBusConnection * connection);
 
-#endif /* !_DBUS_PCBMAIN_H */
+#endif /* !PCB_DBUS_PCBMAIN_H */

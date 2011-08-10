@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef __HIDGL_INCLUDED__
-#define __HIDGL_INCLUDED__
+#ifndef PCB_HID_COMMON_HIDGL_H
+#define PCB_HID_COMMON_HIDGL_H
 
 #define TRIANGLE_ARRAY_SIZE 5461
 typedef struct {
@@ -82,4 +82,4 @@ int hidgl_assign_clear_stencil_bit (void);
 void hidgl_return_stencil_bit (int bit);
 void hidgl_reset_stencil_usage (void);
 
-#endif /* __HIDGL_INCLUDED__  */
+#endif /* PCB_HID_COMMON_HIDGL_H  */

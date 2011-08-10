@@ -28,8 +28,8 @@
 /* prototypes connection search routines
  */
 
-#ifndef	__FIND_INCLUDED__
-#define	__FIND_INCLUDED__
+#ifndef	PCB_FIND_H
+#define	PCB_FIND_H
 
 #include <stdio.h>		/* needed to define 'FILE *' */
 #include "global.h"

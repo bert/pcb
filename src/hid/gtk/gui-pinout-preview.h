@@ -28,8 +28,8 @@
 
 /* This file written by Peter Clifton */
 
-#ifndef __GHID_PINOUT_PREVIEW_H__
-#define __GHID_PINOUT_PREVIEW_H__
+#ifndef PCB_HID_GTK_GUI_PINOUT_PREVIEW_H
+#define PCB_HID_GTK_GUI_PINOUT_PREVIEW_H
 
 
 #define GHID_TYPE_PINOUT_PREVIEW           (ghid_pinout_preview_get_type())
@@ -65,4 +65,4 @@ GtkWidget *ghid_pinout_preview_new (ElementType * element);
 void ghid_pinout_preview_get_natural_size (GhidPinoutPreview * pinout,
 					   int *width, int *height);
 
-#endif /* __GHID_PINOUT_PREVIEW_H__ */
+#endif /* PCB_HID_GTK_GUI_PINOUT_PREVIEW_H */

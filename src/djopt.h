@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef	__DJOPT_INCLUDED__
-#define	__DJOPT_INCLUDED__
+#ifndef	PCB_DJOPT_H
+#define	PCB_DJOPT_H
 
 #include "global.h"
 

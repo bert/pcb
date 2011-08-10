@@ -28,8 +28,8 @@
 /* prototypes for memory routines
  */
 
-#ifndef	__MYMEM_INCLUDED__
-#define	__MYMEM_INCLUDED__
+#ifndef	PCB_MYMEM_H
+#define	PCB_MYMEM_H
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

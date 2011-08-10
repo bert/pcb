@@ -25,8 +25,8 @@
  *  RCS: $Id$
  */
 
-#ifndef __REPORT_INCLUDED__
-#define __REPORT_INCLUDED__
+#ifndef PCB_REPORT_H
+#define PCB_REPORT_H
 
 #include "global.h"
 

@@ -28,8 +28,8 @@
 /* prototypes for select routines
  */
 
-#ifndef	__SELECT_INCLUDED__
-#define	__SELECT_INCLUDED__
+#ifndef	PCB_SELECT_H
+#define	PCB_SELECT_H
 
 #include "global.h"
 

@@ -28,8 +28,8 @@
 /* prototypes for misc routines
  */
 
-#ifndef	__MISC_INCLUDED__
-#define	__MISC_INCLUDED__
+#ifndef	PCB_MISC_H
+#define	PCB_MISC_H
 
 #include <stdlib.h>
 #include "global.h"
@@ -167,5 +167,5 @@ void NetlistChanged (int force_unfreeze);
 #endif
 
 
-#endif /* __MISC_INCLUDED__ */
+#endif /* PCB_MISC_H */
 

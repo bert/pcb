@@ -28,8 +28,8 @@
 /* prototypes to change object properties
  */
 
-#ifndef	__CHANGE_INCLUDED__
-#define	__CHANGE_INCLUDED__
+#ifndef	PCB_CHANGE_H
+#define	PCB_CHANGE_H
 
 #include "global.h"
 

@@ -28,8 +28,8 @@
 /* prototypes for undo routines
  */
 
-#ifndef	__UNDO_INCLUDED__
-#define	__UNDO_INCLUDED__
+#ifndef	PCB_UNDO_H
+#define	PCB_UNDO_H
 
 #include "global.h"
 

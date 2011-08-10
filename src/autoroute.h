@@ -34,8 +34,8 @@
 /* prototypes for autoroute routines
  */
 
-#ifndef __AUTOROUTE_INCLUDED__
-#define __AUTOROUTE_INCLUDED__
+#ifndef PCB_AUTOROUTE_H
+#define PCB_AUTOROUTE_H
 
 #include "global.h"
 

@@ -28,8 +28,8 @@
 /* prototypes for command execution
  */
 
-#ifndef	__COMMAND_INCLUDED__
-#define	__COMMAND_INCLUDED__
+#ifndef	PCB_COMMAND_H
+#define	PCB_COMMAND_H
 
 #include "global.h"
 

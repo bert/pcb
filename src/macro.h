@@ -29,8 +29,8 @@
  * the file is included by global.h after const.h
  */
 
-#ifndef	__MACRO_INCLUDED__
-#define	__MACRO_INCLUDED__
+#ifndef	PCB_MACRO_H
+#define	PCB_MACRO_H
 
 /* ---------------------------------------------------------------------------
  * macros to transform coord systems

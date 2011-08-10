@@ -28,8 +28,8 @@
 /* prototypes for inserting points into objects
  */
 
-#ifndef	__INSERT_INCLUDED__
-#define	__INSERT_INCLUDED__
+#ifndef	PCB_INSERT_H
+#define	PCB_INSERT_H
 
 #include "global.h"
 

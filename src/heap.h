@@ -34,8 +34,8 @@
 /* prototypes for heap routines.
  */
 
-#ifndef __HEAP_INCLUDED__
-#define __HEAP_INCLUDED__
+#ifndef PCB_HEAP_H
+#define PCB_HEAP_H
 
 #include "global.h"
 
@@ -62,4 +62,4 @@ void *heap_replace (heap_t * heap, cost_t cost, void *data);
 int heap_is_empty (heap_t * heap);
 int heap_size (heap_t * heap);
 
-#endif /* __HEAP_INCLUDED__ */
+#endif /* PCB_HEAP_H */

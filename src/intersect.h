@@ -34,8 +34,8 @@
 /* prototypes for rectangle intersection/union routines.
  */
 
-#ifndef __INTERSECT_INCLUDED__
-#define __INTERSECT_INCLUDED__
+#ifndef PCB_INTERSECT_H
+#define PCB_INTERSECT_H
 
 #include "global.h"
 

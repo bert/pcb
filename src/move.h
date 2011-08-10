@@ -28,8 +28,8 @@
 /* prototypes for move routines
  */
 
-#ifndef	__MOVE_INCLUDED__
-#define	__MOVE_INCLUDED__
+#ifndef	PCB_MOVE_H
+#define	PCB_MOVE_H
 
 #include "global.h"
 

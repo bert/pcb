@@ -28,8 +28,8 @@
 /* prototypes for action routines
  */
 
-#ifndef	__ACTION_INCLUDED__
-#define	__ACTION_INCLUDED__
+#ifndef	PCB_ACTION_H
+#define	PCH_ACTION_H
 
 #include "global.h"
 
@@ -45,4 +45,5 @@ void warpNoWhere (void);
 /* In gui-misc.c */
 bool ActionGetLocation (char *);
 void ActionGetXY (char *);
+
 #endif

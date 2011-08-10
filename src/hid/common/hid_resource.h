@@ -1,6 +1,6 @@
 
-#ifndef __HID_RESOURCE_INCLUDED__
-#define __HID_RESOURCE_INCLUDED__
+#ifndef PCB_HID_COMMON_HID_RESOURCE_H
+#define PCH_HID_COMMON_HID_RESOURCE_H
 
 #include "resource.h"
 

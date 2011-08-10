@@ -20,11 +20,11 @@
  */
 
 
-#ifndef	__EDIF_PARSE_H__
-#define	__EDIF_PARSE_H__
+#ifndef	PCB_EDIF_PARSE_H
+#define	PCB_EDIF_PARSE_H
 
 void ParseEDIF(char* filename,FILE* err);
 
 
-#endif /* __EDIF_PARSE_H__ */
+#endif /* PCB_EDIF_PARSE_H */
 

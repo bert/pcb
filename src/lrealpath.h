@@ -1,9 +1,9 @@
-#ifndef __LREALPATH_H__
-#define __LREALPATH_H__
+#ifndef PCB_LREALPATH_H
+#define PCH_LREALPATH_H
 
 /* A well-defined realpath () that is always compiled in.  */
 char *lrealpath (const char *);
 
-#endif /* __LREALPATH_H__ */
+#endif /* PCB_LREALPATH_H */
 
 

@@ -29,8 +29,8 @@
 /* prototypes for inserting points into objects
  */
 
-#ifndef	__CLIP_INCLUDED__
-#define	__CLIP_INCLUDED__
+#ifndef	PCB_CLIP_H
+#define	PCB_CLIP_H
 
 #include "global.h"
 

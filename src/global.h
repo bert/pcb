@@ -35,8 +35,8 @@
  * silkscreen layer. Perhaps the design is not the best.
  */
 
-#ifndef	__GLOBAL_INCLUDED__
-#define	__GLOBAL_INCLUDED__
+#ifndef	PCB_GLOBAL_H
+#define	PCB_GLOBAL_H
 
 #include "const.h"
 #include "macro.h"
@@ -135,11 +135,11 @@ typedef struct
  * the compiler about the expected result of an expression. Some compilers
  * can use this information for optimizations.
  *
- * The _BOOLEAN_EXPR macro is intended to trigger a gcc warning when
+ * The PCB_BOOLEAN_EXPR macro is intended to trigger a gcc warning when
  * putting assignments inside the test.
  */
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
-#define _BOOLEAN_EXPR(expr)                   \
+#define PCB_BOOLEAN_EXPR(expr)                   \
  __extension__ ({                             \
    int _boolean_var_;                         \
    if (expr)                                  \
@@ -148,8 +148,8 @@ typedef struct
       _boolean_var_ = 0;                      \
    _boolean_var_;                             \
 })
-#define LIKELY(expr) (__builtin_expect (_BOOLEAN_EXPR(expr), 1))
-#define UNLIKELY(expr) (__builtin_expect (_BOOLEAN_EXPR(expr), 0))
+#define LIKELY(expr) (__builtin_expect (PCB_BOOLEAN_EXPR(expr), 1))
+#define UNLIKELY(expr) (__builtin_expect (PCB_BOOLEAN_EXPR(expr), 0))
 #else
 #define LIKELY(expr) (expr)
 #define UNLIKELY(expr) (expr)
@@ -840,4 +840,4 @@ extern char *pcbtreepath;  /* The search path for newlib fps */
 extern char *exec_prefix;
 extern char *homedir;
 
-#endif /* __GLOBAL_INCLUDED__  */
+#endif /* PCB_GLOBAL_H  */

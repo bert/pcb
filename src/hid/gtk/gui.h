@@ -24,8 +24,8 @@
 
 /* FIXME - rename this file to ghid.h */
 
-#ifndef __GHID_INCLUDED__
-#define __GHID_INCLUDED__
+#ifndef PCB_HID_GTK_GHID_H
+#define PCB_HID_GTK_GHID_H
 
 #include "global.h"
 #include "hid.h"
@@ -576,4 +576,4 @@ Pz (int z)
   return (z * gport->zoom);
 }
 
-#endif /* __GHID_INCLUDED__  */
+#endif /* PCB_HID_GTK_GHID_H */

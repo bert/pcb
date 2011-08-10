@@ -34,8 +34,8 @@
 /* random box-related utilities.
  */
 
-#ifndef __BOX_H_INCLUDED__
-#define __BOX_H_INCLUDED__
+#ifndef PCB_BOX_H
+#define PCB_BOX_H
 
 #include <assert.h>
 #include "global.h"
