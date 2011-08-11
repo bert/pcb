@@ -46,7 +46,7 @@
 /* ---------------------------------------------------------------------------
  * misc constants
  */
-#define	MARK_SIZE		5000	/* relative marker size */
+#define	MARK_SIZE		MIL_TO_COORD(50)	/* relative marker size */
 #define	UNDO_WARNING_SIZE	(1024*1024)	/* warning limit of undo */
 #define	USERMEDIANAME		"user defined"	/* label of default media */
 
