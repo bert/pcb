@@ -292,8 +292,6 @@ Save (int argc, char **argv, Coord x, Coord y)
 /* ------------------------------------------------------------ */
 
 static Widget log_form, log_text;
-static char *msg_buffer = 0;
-static int msg_buffer_size = 0;
 static int log_size = 0;
 static int pending_newline = 0;
 
@@ -314,8 +312,7 @@ log_dismiss (Widget w, void *up, void *cbp)
 void
 lesstif_logv (const char *fmt, va_list ap)
 {
-  int i;
-  char *bp;
+  gchar *buf, *scan;
   if (!mainwind)
     {
       vprintf (fmt, ap);
@@ -361,42 +358,30 @@ lesstif_logv (const char *fmt, va_list ap)
       log_text = XmCreateScrolledText (log_form, "text", args, n);
       XtManageChild (log_text);
 
-      msg_buffer = (char *) malloc (1002);
-      msg_buffer_size = 1002;
       XtManageChild (log_form);
     }
-  bp = msg_buffer;
   if (pending_newline)
     {
-      *bp++ = '\n';
+      XmTextInsert (log_text, log_size++, "\n");
       pending_newline = 0;
     }
-#ifdef HAVE_VSNPRINTF
-  i = vsnprintf (bp, msg_buffer_size, fmt, ap);
-  if (i >= msg_buffer_size)
-    {
-      msg_buffer_size = i + 100;
-      msg_buffer = (char *) realloc (msg_buffer, msg_buffer_size + 2);
-      vsnprintf (bp, msg_buffer_size, fmt, ap);
-    }
-#else
-  vsprintf (bp, fmt, ap);
-#endif
-  bp = msg_buffer + strlen (msg_buffer) - 1;
-  while (bp >= msg_buffer && bp[0] == '\n')
+  buf = pcb_vprintf (fmt, ap);
+  scan = &buf[strlen (buf) - 1];
+  while (scan >= buf && *scan == '\n')
     {
       pending_newline++;
-      *bp-- = 0;
+      *scan-- = 0;
     }
-  XmTextInsert (log_text, log_size, msg_buffer);
-  log_size += strlen (msg_buffer);
+  XmTextInsert (log_text, log_size, buf);
+  log_size += strlen (buf);
 
-  bp = strrchr(msg_buffer, '\n');
-  if (bp)
-    bp++;
+  scan = strrchr(buf, '\n');
+  if (scan)
+    scan++;
   else
-    bp = msg_buffer;
-  XmTextSetCursorPosition (log_text, log_size - strlen(bp));
+    scan = buf;
+  XmTextSetCursorPosition (log_text, log_size - strlen(scan));
+  g_free (buf);
 }
 
 void
