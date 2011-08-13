@@ -1,0 +1,61 @@
+diff --git a/configure b/configure
+index b81ed63..864bba2 100755
+--- a/configure
++++ b/configure
+@@ -41,10 +41,10 @@ old_cflags="$CFLAGS"
+ while test $# -ge 1
+ do
+ case "$1" in
+-    -h* | --h*)
++    -h | -help | --help)
+       echo 'usage:'
+       echo '  configure [--shared] [--prefix=PREFIX]  [--exec_prefix=EXPREFIX]'
+-      echo '     [--libdir=LIBDIR] [--includedir=INCLUDEDIR]'
++      echo '     [--libdir=LIBDIR] [--includedir=INCLUDEDIR] [--host=HOST]'
+         exit 0;;
+     -p*=* | --p*=*) prefix=`echo $1 | sed 's/[-a-z_]*=//'`; shift;;
+     -e*=* | --e*=*) exec_prefix=`echo $1 | sed 's/[-a-z_]*=//'`; shift;;
+@@ -55,6 +55,8 @@ case "$1" in
+     -l* | --l*) libdir="$2"; shift; shift;;
+     -i* | --i*) includedir="$2"; shift; shift;;
+     -s* | --s*) shared=1; shift;;
++    -host=* | --host=*) host=`echo $1 | sed 's/[-a-z_]*=//'`;shift;;
++    -host | --host) host="$2"; shift; shift;;
+     *) echo "unknown option: $1"; echo "$0 --help for help"; exit 1;;
+     esac
+ done
+@@ -66,7 +68,8 @@ int hello() {return getchar();}
+ EOF
+ 
+ test -z "$CC" && echo Checking for gcc...
+-cc=${CC-gcc}
++test -n "$host" && cross_gcc=$host-gcc
++cc=${CC-${cross_gcc-gcc}}
+ cflags=${CFLAGS-"-O3"}
+ # to force the asm version use: CFLAGS="-O3 -DASMV" ./configure
+ case "$cc" in
+@@ -74,13 +77,13 @@ case "$cc" in
+ esac
+ 
+ BUILDPLATFORM=`(uname -s || echo unknown) 2>/dev/null`;
+-TARGETPLATFORM=${target-${BUILDPLATFORM}}
++HOSTPLATFORM=${host-${BUILDPLATFORM}}
+ 
+ if test "$gcc" -eq 1 && ($cc -c $cflags $test.c) 2>/dev/null; then
+   CC="$cc"
+   SFLAGS=${CFLAGS-"-fPIC -O3"}
+   CFLAGS="$cflags"
+-  case ${TARGETPLATFORM} in
++  case ${HOSTPLATFORM} in
+   Linux | linux | GNU | GNU/*) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1"};;
+   OS/2* )
+              EXE='.exe';;
+@@ -184,7 +187,7 @@ else
+              LDSHARED=${LDSHARED-"cc -shared"};;
+   esac
+ fi
+-case ${TARGETPLATFORM} in
++case ${HOSTPLATFORM} in
+   *CYGWIN* | *Cygwin* | *cygwin* )
+     # On cygwin, we always build both shared and static libs
+     LIBS="${SHAREDLIB} ${STATICLIB}"

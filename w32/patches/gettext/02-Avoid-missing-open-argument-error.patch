@@ -1,0 +1,15 @@
+diff --git a/gettext-tools/src/write-catalog.c b/gettext-tools/src/write-catalog.c
+index 0447744..ea4f9cf 100644
+--- a/gettext-tools/src/write-catalog.c
++++ b/gettext-tools/src/write-catalog.c
+@@ -220,7 +220,9 @@ message catalog has plural form translations, but the output format does not sup
+       /* Open the output file.  */
+       if (!to_stdout)
+ 	{
+-	  fd = open (filename, O_WRONLY | O_CREAT);
++	  fd = open (filename, O_WRONLY | O_CREAT | O_TRUNC,
++		     /* 0666 in portable POSIX notation: */
++		     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+ 	  if (fd < 0)
+ 	    {
+ 	      const char *errno_description = strerror (errno);

@@ -1,0 +1,50 @@
+========
+Minipack
+========
+
+Homepage: http://code.google.com/p/minipack
+This minipack distribution was customized for the PCB project.
+
+Minipack is an automated build tool. Given a set of recipes and patches, it
+downloads the sources, unpacks them, applies local patches, builds them and
+installs them. Its primary use is for cross-compiling free software to
+Windows, but minipack is more general-purpose than that.
+
+To install, unpack it in any directory, and optionally set the PATH to it.
+
+The tool can be run from anywhere, but it looks for a minipack.conf file
+in the current directory or in a parent directory.
+
+Some recipes for cross-compiling to Windows are included in the distribution:
+* libraries: gtk+, guile, gd, freetype, libpng, jpeg, zlib, gettext.
+* applications: gEDA/gaf, PCB.
+See the 'recipes' directory for a full list.
+
+When cross-compiling, you need a suitable cross-compiler for the host you are
+targeting. On Debian and derivatives, you can type 'sudo apt-get install mingw32'
+to get a MinGW cross-compiler. You can also build your own by using the build
+script provided by the MinGW project.
+
+Modify the host setting in the minipack.conf file to reflect the cross-compiler
+being used. It can be found as the prefix of the compiler, eg. i586-mingw32msvc.
+
+The build-all.sh script can be used to build all packages in one run. Edit the
+BUILD list to select only a subset. Beware, some recipes require a native
+version of pkg-config, others need the autotools and/or intltool as well.
+
+=======
+  mpk
+=======
+
+The main (and only) tool of minipack is called mpk:
+* mpk build <package>  - download, unpack, and build a package.
+* mpk unpack <package> - download and unpack a package
+* mpk source <package> - download a source package
+* mpk shell [package]  - enter a shell with a pre-defined build environment
+
+A cache of downloaded sources is kept in the 'sources' directory.
+
+To add more recipes to minipack, place the recipe in the 'recipes' directory
+and place the patches in a subdirectory of the 'patches' directory.
+
+Have fun!

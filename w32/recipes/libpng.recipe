@@ -1,0 +1,13 @@
+name=libpng
+version=1.2.40
+release=1
+origin=sf
+make_opts="SYMBOL_PREFIX="
+
+src_install()
+{
+  do_install
+  mkdir -p $local_tooldir
+  cp $tooldir/tool.template $local_tooldir/libpng-config
+  cp $tooldir/tool.template $local_tooldir/libpng12-config
+}

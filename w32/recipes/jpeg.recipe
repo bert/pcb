@@ -1,0 +1,5 @@
+name=jpeg
+version=7
+release=1
+download=http://www.ijg.org/files
+source=jpegsrc.v7.tar.gz

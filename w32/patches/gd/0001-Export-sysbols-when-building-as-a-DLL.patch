@@ -1,0 +1,35 @@
+From 1173eecef02205a48e4d70535fca91bfdcee3dd9 Mon Sep 17 00:00:00 2001
+From: Cesar Strauss <cestrauss@gmail.com>
+Date: Fri, 24 Oct 2008 20:07:43 -0200
+Subject: [PATCH] Export symbols when building as a DLL.
+
+libtool defines DLL_EXPORT when building a DLL,
+so we use dllexport in that case.
+---
+ gd.h |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/gd.h b/gd.h
+index f136ea6..4916373 100644
+--- a/gd.h
++++ b/gd.h
+@@ -26,8 +26,16 @@ extern "C" {
+ 	wish to build gd as a static library or by directly including
+ 	the gd sources in a project. */
+ 
++/* libtool defines DLL_EXPORT when building a DLL, so we use dllexport
++   in that case.
++*/
++
+ #ifndef WIN32
+ #define NONDLL 1
++#else
++#ifdef DLL_EXPORT
++#define BGDWIN32 1
++#endif
+ #endif /* WIN32 */
+ 
+ #ifdef NONDLL
+-- 
+1.5.4.3
+

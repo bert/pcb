@@ -1,0 +1,22 @@
+Building PCB for Windows with a MinGW cross-compiler
+
+1) Install a MinGW cross-compiler.
+On Debian and derivatives, you can type 'sudo apt-get install mingw32.'.
+You can also build your own by using the build script provided by the
+MinGW project.
+
+2) Install native (non-cross) dependencies.
+
+* autoconf, automake, libtool, gettext, intltool.
+* glib and gtk+.
+
+3) Edit the w32/minipack.conf file to suit your compiler setup.
+
+4) Enter the w32 directory and run ./build_all.
+
+5) Wait while the script fetches and compiles the PCB dependencies and PCB itself.
+
+6) Run the result with wine: wine result/bin/pcb.exe
+
+7) Copy the result directory to a Windows installation (packaging script is not supplied).
+

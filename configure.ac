@@ -1288,6 +1288,9 @@ AC_CONFIG_FILES(tests/Makefile)
 dnl GTS 0.7.6 - http://gts.sourceforge.net/
 AC_CONFIG_FILES(gts/Makefile)
 
+dnl win32 build scripts
+AC_CONFIG_FILES(w32/Makefile)
+
 AC_OUTPUT
 
 with_gui=`echo $with_gui`

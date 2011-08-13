@@ -1,0 +1,29 @@
+name=gd
+version=2.0.35
+release=1
+download=http://www.libgd.org/releases
+
+configure_opt="
+  --disable-static
+  --enable-shared
+  --without-x
+"
+
+src_prep()
+{
+  autoreconf -ivf
+}
+
+# Compatibility with existing binary package
+src_install()
+{
+  do_install
+  
+  case "$host" in
+    *mingw*) ln -f $resultdir/lib/libgd.dll.a $resultdir/lib/bgd.lib ;;
+  esac
+  
+  mkdir -p $local_tooldir
+  cp $tooldir/tool.template $local_tooldir/gdlib-config
+}
+

@@ -1,0 +1,26 @@
+From 59069ae7191d091fae75bb57d12651281d6bdee6 Mon Sep 17 00:00:00 2001
+From: Cesar Strauss <cestrauss@gmail.com>
+Date: Fri, 24 Oct 2008 20:09:39 -0200
+Subject: [PATCH] Libtool requires -no-undefined to build a DLL.
+
+---
+ configure.ac |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index bc7b83c..ed9b052 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -33,6 +33,9 @@ case "$target" in
+   *-*-cygwin*) XTRA_LDFLAGS="-no-undefined"
+                os_cygwin=yes
+                ;;
++  *-*-mingw*)  XTRA_LDFLAGS="-no-undefined"
++               os_cygwin=no
++               ;;
+            *)  XTRA_LDFLAGS=
+                os_cygwin=no
+                ;;
+-- 
+1.5.4.3
+

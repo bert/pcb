@@ -1,0 +1,100 @@
+# mpk-unpack - unpacks source code.
+# Copyright (C) 2008 Cesar Strauss
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+unpack_source()
+{
+  : ${source_package_type:=tar.gz}
+  : ${source:=$name-$version.$source_package_type}
+  : ${top_srcdir:=$name-$version}
+
+  buildroot=$builddir/$name-$version-$release
+  
+  if [ -d $buildroot/$top_srcdir ]; then
+    exit 0
+  fi
+  
+  sourcename=$sourcedir/$source
+  if [ ! -e $sourcename ]; then
+    $mpk source $pkg
+    if [ ! -e $sourcename ]; then
+      echo >&2 "$(basename $0) unpack: Could not find source for $pkg"
+      exit 1
+    fi
+  fi
+
+  mkdir -p $buildroot
+  cd $buildroot
+  
+  echo "Unpacking $pkg..."
+
+  case $source_package_type in
+    tar.*)
+      tar -xf $sourcename ;;
+    zip)
+      unzip $sourcename ;;
+  esac
+
+  if [ $? != 0 ]; then
+    echo >&2 "$(basename $0) unpack: Failed to unpack $sourcename"
+    exit 1
+  fi
+  
+  cd ${top_srcdir}
+  
+  pkg_patchdir=$patchdir/$name
+  
+  if [ -d $pkg_patchdir ]; then
+    patches=`find $pkg_patchdir -name '*.patch' | sort`
+    for p in $patches; do
+      patch -p1 -i "$p"
+      if [ $? != 0 ]; then
+        echo >&2 "$(basename $0) unpack: Failed apply patches for $sourcename"
+        exit 1
+      fi
+    done
+  fi
+
+  src_prep
+
+  if [ $? != 0 ]; then
+    echo >&2 "$(basename $0) unpack: Failed to prepare build directory for $sourcename"
+    exit 1
+  fi
+  
+}
+
+src_prep()
+{
+  do_prep
+}
+
+do_prep()
+{
+  :
+}
+
+pkg=$1
+
+if [ -z "$pkg" ]; then
+  echo "Usage: $(basename $0) unpack package-name ..."
+  exit 1
+fi
+
+recipe=$(get_recipe_name $pkg) || exit 1
+
+. $recipe
+
+unpack_source

@@ -1,0 +1,123 @@
+# mpk-build - Build packages.
+# Copyright (C) 2008,2010 Cesar Strauss
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+build_source()
+{
+  : ${top_srcdir:=$name-$version}
+
+  : ${pkg_builddir:=$builddir/$name-$version-$release/$top_srcdir}
+
+  if [ ! -d $pkg_builddir ]; then
+    $mpk unpack $pkg
+    if [ $? != 0 -o ! -d $pkg_builddir ]; then
+      echo >&2 "$(basename $0) build: Could not unpack $pkg"
+      exit 1
+    fi
+  fi
+  
+  cd $pkg_builddir
+  
+  src_build && success
+}
+
+src_build()
+{
+  do_build
+}
+
+src_configure()
+{
+  do_configure
+}
+
+src_compile()
+{
+  do_compile
+}
+
+src_install()
+{
+  do_install
+}
+
+do_build()
+{
+  src_configure || fail
+  src_compile || fail
+  src_install || fail
+}
+
+do_configure()
+{
+  setup_configure_options
+
+  echo "Configuring $pkg..."
+  mkdir -p ../logs
+  echo "$pkg_configure_opt" | xargs ./configure > ../logs/configure.log
+}
+
+do_compile()
+{
+  echo "Compiling $pkg..."
+  mkdir -p ../logs
+  make $default_make_opts $make_opts > ../logs/make.log
+}
+
+do_install()
+{
+  echo "Installing $pkg..."
+  mkdir -p ../logs
+  make install > ../logs/install.log
+}
+
+fail()
+{
+  echo
+  echo "================="
+  echo "$pkg:"
+  echo "  Build failed."
+  echo "================="
+  echo
+  exit 1
+}
+
+success()
+{
+  echo
+  echo "===================="
+  echo "$pkg:"
+  echo "  Build succeeded."
+  echo "===================="
+  echo
+}
+
+if [ -z "$1" ]; then
+  echo "Usage: $(basename $0) build package-name"
+  exit 1
+fi
+pkg=$1
+
+if [ -z "$pkg" ]; then
+  echo "Usage: $(basename $0) build package-name ..."
+  exit 1
+fi
+
+recipe=$(get_recipe_name $pkg) || exit 1
+
+. $recipe
+
+build_source
+

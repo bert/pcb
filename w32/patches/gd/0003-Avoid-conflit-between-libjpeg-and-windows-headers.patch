@@ -1,0 +1,33 @@
+From 600059ab3efa924b0a8f3753dce3da2ed0ab89b1 Mon Sep 17 00:00:00 2001
+From: Cesar Strauss <cestrauss@gmail.com>
+Date: Fri, 24 Oct 2008 20:12:22 -0200
+Subject: [PATCH] Avoid conflit between libjpeg and windows headers.
+
+---
+ gdhelpers.h |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/gdhelpers.h b/gdhelpers.h
+index 0c45ad3..6c4b52f 100644
+--- a/gdhelpers.h
++++ b/gdhelpers.h
+@@ -31,12 +31,16 @@ int overflow2(int a, int b);
+ 
+ #ifdef WIN32
+ /* 2.0.18: must include windows.h to get CRITICAL_SECTION. */
++#define INT32 INT32_W32
++#define boolean boolean_W32
+ #include <windows.h>
+ #define gdMutexDeclare(x) CRITICAL_SECTION x
+ #define gdMutexSetup(x) InitializeCriticalSection(&x)
+ #define gdMutexShutdown(x) DeleteCriticalSection(&x)
+ #define gdMutexLock(x) EnterCriticalSection(&x)
+ #define gdMutexUnlock(x) LeaveCriticalSection(&x)
++#undef INT32
++#undef boolean
+ #else
+ #ifdef HAVE_PTHREAD
+ #include <pthread.h>
+-- 
+1.5.4.3
+

@@ -1,0 +1,69 @@
+# mpk-shell - enters a shell with a pre-defined environment.
+# Copyright (C) 2008,2010 Cesar Strauss
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+create_shell()
+{
+  setup_configure_options
+  
+  export mpk_opt="$pkg_configure_opt"
+  export topdir builddir resultdir
+
+  : ${SHELL:=/bin/sh}
+
+  echo "
+==============
+Minipack shell
+==============
+
+The following variables are set:
+
+mpk_opt=\""
+
+for opt in $mpk_opt; do
+  echo "   $opt"
+done
+
+echo "\"
+topdir=$topdir
+builddir=$builddir
+resultdir=$resultdir
+
+Most software can be built like this:
+
+   echo \"\$mpk_opt\" | xargs ./configure
+   make
+   make install
+
+[To exit the Minipack shell, type 'exit'].
+"
+
+$SHELL --login -i
+
+echo "
+========================
+Minipack shell finished.
+========================
+"
+}
+
+pkg=$1
+
+if [ -n "$pkg" ]; then
+  recipe=$(get_recipe_name $pkg) || exit 1
+  . $recipe
+fi
+
+create_shell

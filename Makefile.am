@@ -3,13 +3,13 @@
 ##
 ## Top level automake file for PCB
 
-DIRS=		intl gts src data lib newlib example tools tutorial README_FILES po tests
+DIRS=		w32 intl gts src data lib newlib example tools tutorial README_FILES po tests
 SUBDIRS=	${DIRS} @DOC@
 DIST_SUBDIRS=	${DIRS} doc
 
 INTLTOOL_FILES = intltool-extract.in intltool-merge.in  intltool-update.in
 
-EXTRA_DIST=	config.rpath globalconst.h README.git icon-theme-installer $(INTLTOOL_FILES)
+EXTRA_DIST=	config.rpath globalconst.h README.git README.w32 icon-theme-installer $(INTLTOOL_FILES)
 
 DISTCLEANFILES= configure.lineno intltool-extract intltool-merge intltool-update po/.intltool-merge-cache
 

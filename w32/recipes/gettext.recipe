@@ -1,0 +1,8 @@
+name=gettext
+version=0.17
+release=1
+origin=gnu
+configure_opt=--enable-relocatable
+
+# Solve an incompatibility with newer MinGW runtimes
+export ac_cv_func_getopt_long_only=no

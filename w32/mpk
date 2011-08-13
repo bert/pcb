@@ -1,0 +1,130 @@
+#! /bin/sh
+
+# mpk - top level, user visible script.
+# Copyright (C) 2008,2010 Cesar Strauss
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Minipack. If not, see <http://www.gnu.org/licenses/>.
+
+bindir=$(dirname $0)
+prog=$(basename $0)
+case $bindir in
+/*) ;;
+*) bindir=$PWD/$bindir;;
+esac
+mpk=$bindir/$prog
+prefix=$(cd $bindir && pwd)
+tooldir=$prefix/tools
+recipedir=$prefix/recipes
+patchdir=$prefix/patches
+
+MPK_VERSION=1.1.0
+
+export PATH=$tooldir:$PATH
+
+test -f ~/minipack.conf && . ~/minipack.conf
+
+cwd=$PWD
+topdir=$cwd
+until [ "$topdir" = "/" ]; do
+  if [ -f $topdir/minipack.conf ]; then
+    break;
+  fi
+  cd ..
+  topdir=$PWD
+done
+cd $cwd
+
+if [ "$topdir" = "/" ]; then
+  echo Warning: no minipack.conf found.
+  topdir=$cwd
+fi
+
+builddir=$topdir/build
+resultdir=$topdir/result
+sourcedir=$topdir/sources
+local_tooldir=$resultdir/lib/mpk/tools
+
+# Export resultdir in case we need to call our newly built tools.
+export resultdir
+
+test -f $topdir/minipack.conf && . $topdir/minipack.conf
+
+# Setup environment variables
+export PATH=$local_tooldir:$PATH
+export ACLOCAL="aclocal -I $resultdir/share/aclocal"  
+export ACLOCAL_FLAGS="-I $resultdir/share/aclocal"
+export PKG_CONFIG_LIBDIR=$resultdir/lib/pkgconfig
+
+get_recipe_name()
+{
+  name=$recipedir/$1.recipe
+  if [ ! -f $name ]; then
+    echo >&2 "Recipe for \"$1\" not found."
+    exit 1
+  fi
+  echo $name
+}
+
+setup_configure_options()
+{
+  pkg_configure_opt="$def_configure_opt $configure_opt"
+  pkg_configure_opt="$pkg_configure_opt --prefix=$resultdir"
+
+  if [ -n "$host" ]; then
+    pkg_configure_opt="$pkg_configure_opt --host=$host"
+  fi
+  if [ -n "$build" ]; then
+    pkg_configure_opt="$pkg_configure_opt --build=$build"
+  fi
+
+  # Local compiler/linker search path
+  CPPFLAGS="$CPPFLAGS -I$resultdir/include"
+  LDFLAGS="$LDFLAGS -L$resultdir/lib"
+  
+  test -n "$configure_no_more_flags" && return
+  
+  # Add search paths to the configure line.
+  pkg_configure_opt="$pkg_configure_opt CPPFLAGS=\"$CPPFLAGS\""
+  pkg_configure_opt="$pkg_configure_opt LDFLAGS=\"$LDFLAGS\""
+    
+  # Add extra flags to the configure line, if present.
+  if [ -n "$CFLAGS" ]; then
+    pkg_configure_opt="$pkg_configure_opt CFLAGS=\"$CFLAGS\""
+  fi
+  if [ -n "$CXXFLAGS" ]; then
+    pkg_configure_opt="$pkg_configure_opt CXXFLAGS=\"$CXXFLAGS\""
+  fi
+}
+
+if [ -n "$1" ]; then
+  cmd=$1
+  shift
+else
+  echo "$prog: missing argument."
+  cmd=help
+fi
+
+case $cmd in
+  --version)
+    cmd=version ;;
+  --help)
+    cmd=help ;;
+esac
+tool=$tooldir/mpk-$cmd
+if [ -f $tool ]; then
+  . $tool "$@"
+else
+  echo $prog: Invalid command: $cmd
+fi
+

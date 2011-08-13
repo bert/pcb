@@ -1,0 +1,18 @@
+name=pcb
+
+pkg_builddir=$(cd $bindir/.. && pwd)
+
+configure_opt="--disable-update-desktop-database --disable-update-mime-database --disable-dbus"
+
+# configure-time test fails because of stdcall signature
+export ac_cv_func_gdImageGif=yes
+export ac_cv_func_gdImageJpeg=yes
+export ac_cv_func_gdImagePng=yes
+
+src_configure()
+{
+  if [ ! -f configure ]; then
+    ./autogen.sh || return 1
+  fi
+  do_configure
+}

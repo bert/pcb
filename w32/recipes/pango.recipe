@@ -1,0 +1,9 @@
+name=pango
+version=1.26.0
+release=1
+download=http://ftp.gnome.org/pub/gnome/sources/pango/1.26
+
+configure_opt="
+  --with-included-modules
+  CXX=${host:+$host-g++}  
+"

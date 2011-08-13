@@ -1,0 +1,4 @@
+name=pixman
+version=0.16.2
+release=1
+download=http://www.cairographics.org/releases

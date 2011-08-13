@@ -1,0 +1,4 @@
+#! /bin/sh
+
+prog=`basename $0`
+${resultdir}/bin/$prog "$@"
