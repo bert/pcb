@@ -5924,7 +5924,6 @@ ActionNew (int argc, char **argv, int x, int y)
       PCB->Name = name;
 
       ResetStackAndVisibility ();
-      CreateDefaultFont ();
       SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
       CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2);
       Redraw ();

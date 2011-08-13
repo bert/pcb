@@ -263,7 +263,8 @@ parsefont
 				}
 				yyFont->Valid = false;
 				for (i = 0; i <= MAX_FONTPOSITION; i++)
-					yyFont->Symbol[i].Valid = false;
+					free (yyFont->Symbol[i].Line);
+				bzero(yyFont->Symbol, sizeof(yyFont->Symbol));
 			}
 		  symbols
 			{

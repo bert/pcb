@@ -405,6 +405,9 @@ LoadPCB (char *Filename)
   oldPCB = PCB;
   PCB = newPCB;
 
+  /* mark the default font invalid to know if the file has one */
+  newPCB->Font.Valid = false;
+
   /* new data isn't added to the undo list */
   if (!ParsePCB (PCB, Filename))
     {
@@ -421,13 +424,13 @@ LoadPCB (char *Filename)
       /* update cursor confinement and output area (scrollbars) */
       ChangePCBSize (PCB->MaxWidth, PCB->MaxHeight);
 
-      /* create default font if necessary */
+      /* enable default font if necessary */
       if (!PCB->Font.Valid)
 	{
 	  Message (_
 		   ("File '%s' has no font information, using default font\n"),
 		   Filename);
-	  CreateDefaultFont ();
+	  PCB->Font.Valid = true;
 	}
 
       /* clear 'changed flag' */

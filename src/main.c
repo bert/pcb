@@ -1004,7 +1004,6 @@ main (int argc, char *argv[])
 
   ResetStackAndVisibility ();
 
-  CreateDefaultFont ();
   if (gui->gui)
     InitCrosshair ();
   InitHandler ();

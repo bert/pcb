@@ -86,7 +86,7 @@ PadTypePtr CreateNewPad (ElementTypePtr, LocationType, LocationType,
 			 BDimension, char *, char *, FlagType);
 LineTypePtr CreateNewLineInSymbol (SymbolTypePtr, LocationType, LocationType,
 				   LocationType, LocationType, BDimension);
-void CreateDefaultFont (void);
+void CreateDefaultFont (PCBTypePtr);
 RubberbandTypePtr CreateNewRubberbandEntry (LayerTypePtr,
 					    LineTypePtr, PointTypePtr);
 LibraryMenuTypePtr CreateNewNet (LibraryTypePtr, char *, char *);
