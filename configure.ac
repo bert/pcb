@@ -1285,9 +1285,6 @@ AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
-dnl win32 build scripts
-AC_CONFIG_FILES(win32/Makefile)
-
 dnl GTS 0.7.6 - http://gts.sourceforge.net/
 AC_CONFIG_FILES(gts/Makefile)
 
