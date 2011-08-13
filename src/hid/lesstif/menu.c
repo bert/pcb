@@ -249,7 +249,7 @@ LayersChanged (int argc, char **argv, int x, int y)
 	  n = 0;
 	  if (i < MAX_LAYER && PCB->Data->Layer[i].Name)
 	    {
-	      XmString s = XmStringCreateLocalized (PCB->Data->Layer[i].Name);
+	      XmString s = XmStringCreatePCB (PCB->Data->Layer[i].Name);
 	      stdarg (XmNlabelString, s);
 	    }
 	  if (!lb->is_pick)
@@ -297,7 +297,7 @@ LayersChanged (int argc, char **argv, int x, int y)
       n = 0;
       stdarg (XmNbackground, fg_colors[current_layer]);
       stdarg (XmNforeground, bg_color);
-      stdarg (XmNlabelString, XmStringCreateLocalized (name));
+      stdarg (XmNlabelString, XmStringCreatePCB (name));
       XtSetValues (lesstif_m_layer, args, n);
     }
 
@@ -414,7 +414,7 @@ layerpick_button_callback (Widget w, int layer,
   n = 0;
   stdarg (XmNbackground, fg_colors[layer]);
   stdarg (XmNforeground, bg_color);
-  stdarg (XmNlabelString, XmStringCreateLocalized (name));
+  stdarg (XmNlabelString, XmStringCreatePCB (name));
   XtSetValues (lesstif_m_layer, args, n);
   lesstif_invalidate_all ();
 }
@@ -560,7 +560,7 @@ insert_layerview_buttons (Widget menu)
 	  Resource *ar;
 	  XmString as;
 	  sprintf (buf, "Ctrl-%d", accel_idx + 1);
-	  as = XmStringCreateLocalized (buf);
+	  as = XmStringCreatePCB (buf);
 	  stdarg (XmNacceleratorText, as);
 	  ar = resource_create (0);
 	  sprintf (av, "ToggleView(%d)", i + 1);
@@ -632,7 +632,7 @@ insert_layerpick_buttons (Widget menu)
 	  resource_add_val (ar, 0, strdup (av), 0);
 	  ar->flags |= FLAG_V;
 	  sprintf (buf, "%d", i + 1);
-	  as = XmStringCreateLocalized (buf);
+	  as = XmStringCreatePCB (buf);
 	  stdarg (XmNacceleratorText, as);
 	  sprintf (av, "<Key>%d", accel_idx + 1);
 	  note_accelerator (av, ar);
@@ -779,7 +779,7 @@ lesstif_button_event (Widget w, XEvent * e)
 void
 lesstif_get_xy (const char *message)
 {
-  XmString ls = XmStringCreateLocalized ((char *)message);
+  XmString ls = XmStringCreatePCB ((char *)message);
 
   XtManageChild (m_click);
   n = 0;
@@ -1265,7 +1265,7 @@ add_resource_to_menu (Widget menu, Resource * node, XtCallbackProc callback)
 	  }
 	if ((r = resource_subres (node->v[i].subres, "a")))
 	  {
-	    XmString as = XmStringCreateLocalized (r->v[0].value);
+	    XmString as = XmStringCreatePCB (r->v[0].value);
 	    stdarg (XmNacceleratorText, as);
 	    //stdarg(XmNaccelerator, r->v[1].value);
 	    note_accelerator (r->v[1].value, node->v[i].subres);
@@ -1277,7 +1277,7 @@ add_resource_to_menu (Widget menu, Resource * node, XtCallbackProc callback)
 	      v = node->v[i].subres->v[j].value;
 	      break;
 	    }
-	stdarg (XmNlabelString, XmStringCreateLocalized (v));
+	stdarg (XmNlabelString, XmStringCreatePCB (v));
 	if (node->v[i].subres->flags & FLAG_S)
 	  {
 	    int nn = n;

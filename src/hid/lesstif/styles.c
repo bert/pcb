@@ -308,7 +308,7 @@ style_button (int i)
   stdarg (XmNtopAttachment, XmATTACH_WIDGET);
   stdarg (XmNtopWidget, i ? style_pb[i - 1] : value_form);
   stdarg (XmNleftAttachment, XmATTACH_FORM);
-  stdarg (XmNlabelString, XmStringCreateLocalized ("Name"));
+  stdarg (XmNlabelString, XmStringCreatePCB ("Name"));
   set = XmCreatePushButton (style_dialog, "style", args, n);
   XtManageChild (set);
   XtAddCallback (set, XmNactivateCallback,
@@ -319,7 +319,7 @@ style_button (int i)
   stdarg (XmNtopWidget, i ? style_pb[i - 1] : value_form);
   stdarg (XmNleftAttachment, XmATTACH_WIDGET);
   stdarg (XmNleftWidget, set);
-  stdarg (XmNlabelString, XmStringCreateLocalized ("Set"));
+  stdarg (XmNlabelString, XmStringCreatePCB ("Set"));
   set = XmCreatePushButton (style_dialog, "style", args, n);
   XtManageChild (set);
   XtAddCallback (set, XmNactivateCallback,
@@ -331,7 +331,7 @@ style_button (int i)
   stdarg (XmNrightAttachment, XmATTACH_FORM);
   stdarg (XmNleftAttachment, XmATTACH_WIDGET);
   stdarg (XmNleftWidget, set);
-  stdarg (XmNlabelString, XmStringCreateLocalized (PCB->RouteStyle[i].Name));
+  stdarg (XmNlabelString, XmStringCreatePCB (PCB->RouteStyle[i].Name));
   stdarg (XmNindicatorType, XmONE_OF_MANY);
   stdarg (XmNalignment, XmALIGNMENT_BEGINNING);
   pb = XmCreateToggleButton (style_dialog, "style", args, n);
@@ -360,8 +360,8 @@ AdjustStyle (int argc, char **argv, int x, int y)
     {
       int i;
 
-      xms_mm = XmStringCreateLocalized ("mm");
-      xms_mil = XmStringCreateLocalized ("mil");
+      xms_mm = XmStringCreatePCB ("mm");
+      xms_mil = XmStringCreatePCB ("mil");
 
       n = 0;
       stdarg (XmNautoUnmanage, False);
@@ -434,7 +434,7 @@ RouteStylesChanged (int argc, char **argv, int x, int y)
       name_hashes[j] = h;
       n = 0;
       stdarg (XmNlabelString,
-	      XmStringCreateLocalized (PCB->RouteStyle[j].Name));
+	      XmStringCreatePCB (PCB->RouteStyle[j].Name));
       if (style_dialog)
 	XtSetValues (style_pb[j], args, n);
       for (i = 0; i < num_style_buttons; i++)
@@ -461,7 +461,7 @@ lesstif_insert_style_buttons (Widget menu)
       n = 0;
       stdarg (XmNindicatorType, XmONE_OF_MANY);
       stdarg (XmNlabelString,
-	      XmStringCreateLocalized (PCB->RouteStyle[i].Name));
+	      XmStringCreatePCB (PCB->RouteStyle[i].Name));
       btn = XmCreateToggleButton (menu, "style", args, n);
       XtManageChild (btn);
       XtAddCallback (btn, XmNvalueChangedCallback,

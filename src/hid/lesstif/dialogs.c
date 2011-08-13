@@ -74,14 +74,14 @@ setup_fsb_dialog ()
   if (fsb)
     return;
 
-  xms_pcb = XmStringCreateLocalized ("*.pcb");
-  xms_fp = XmStringCreateLocalized ("*.fp");
-  xms_net = XmStringCreateLocalized ("*.net");
-  xms_vend = XmStringCreateLocalized ("*.vend");
-  xms_all = XmStringCreateLocalized ("*");
-  xms_load = XmStringCreateLocalized ("Load From");
-  xms_loadv = XmStringCreateLocalized ("Load Vendor");
-  xms_save = XmStringCreateLocalized ("Save As");
+  xms_pcb = XmStringCreatePCB ("*.pcb");
+  xms_fp = XmStringCreatePCB ("*.fp");
+  xms_net = XmStringCreatePCB ("*.net");
+  xms_vend = XmStringCreatePCB ("*.vend");
+  xms_all = XmStringCreatePCB ("*");
+  xms_load = XmStringCreatePCB ("Load From");
+  xms_loadv = XmStringCreatePCB ("Load Vendor");
+  xms_save = XmStringCreatePCB ("Save As");
 
   n = 0;
   fsb = XmCreateFileSelectionDialog (mainwind, "file", args, n);
@@ -455,12 +455,12 @@ lesstif_confirm_dialog (char *msg, ...)
     }
 
   n = 0;
-  xs = XmStringCreateLocalized (cancelmsg);
+  xs = XmStringCreatePCB (cancelmsg);
 
   if (okmsg)
     {
       stdarg (XmNcancelLabelString, xs);
-      xs = XmStringCreateLocalized (okmsg);
+      xs = XmStringCreatePCB (okmsg);
       XtManageChild (confirm_cancel);
     }
   else
@@ -468,7 +468,7 @@ lesstif_confirm_dialog (char *msg, ...)
 
   stdarg (XmNokLabelString, xs);
 
-  xs = XmStringCreateLocalized (msg);
+  xs = XmStringCreatePCB (msg);
   stdarg (XmNmessageString, xs);
   XtSetValues (confirm_dialog, args, n);
 
@@ -590,7 +590,7 @@ lesstif_prompt_for (const char *msg, const char *default_string)
   if (!msg)
     msg = "Enter text:";
   n = 0;
-  xs = XmStringCreateLocalized ((char *)msg);
+  xs = XmStringCreatePCB ((char *)msg);
   stdarg (XmNlabelString, xs);
   XtSetValues (prompt_label, args, n);
   XmTextSetString (prompt_text, (char *)default_string);
@@ -663,7 +663,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   int attrcount = 0;
 
   if (!empty)
-    empty = XmStringCreateLocalized (" ");
+    empty = XmStringCreatePCB (" ");
 
   for (i = 0; i < n_attrs; i++)
     {
@@ -778,7 +778,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	    int sn = n;
 
 	    if (empty == 0)
-	      empty = XmStringCreateLocalized ("");
+	      empty = XmStringCreatePCB ("");
 
 	    submenu = XmCreatePulldownMenu (form, attrs[i].name, args+sn, n-sn);
 
@@ -792,7 +792,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 		Widget btn;
 		XmString label;
 		n = 0;
-		label = XmStringCreateLocalized ((char *)attrs[i].enumerations[sn]);
+		label = XmStringCreatePCB ((char *)attrs[i].enumerations[sn]);
 		stdarg (XmNuserData, & attrs[i].enumerations[sn]);
 		stdarg (XmNlabelString, label);
 		btn = XmCreatePushButton (submenu, "menubutton", args, n);
@@ -952,7 +952,7 @@ About (int argc, char **argv, int x, int y)
   if (!about)
     {
       Cardinal n = 0;
-      XmString xs = XmStringCreateLocalized (GetInfoString ());
+      XmString xs = XmStringCreatePCB (GetInfoString ());
       stdarg (XmNmessageString, xs);
       stdarg (XmNtitle, "About PCB");
       about = XmCreateInformationDialog (mainwind, "about", args, n);
@@ -1207,7 +1207,7 @@ lesstif_sizes_reset ()
   else
     ls = "Units are Mils";
   n = 0;
-  stdarg (XmNlabelString, XmStringCreateLocalized (ls));
+  stdarg (XmNlabelString, XmStringCreatePCB (ls));
   XtSetValues (sz_units, args, n);
 }
 
@@ -1233,7 +1233,7 @@ size_field (Widget parent, char *label, int posn)
   stdarg (XmNtopPosition, posn);
   stdarg (XmNbottomAttachment, XmATTACH_POSITION);
   stdarg (XmNbottomPosition, posn + 1);
-  stdarg (XmNlabelString, XmStringCreateLocalized (label));
+  stdarg (XmNlabelString, XmStringCreatePCB (label));
   stdarg (XmNalignment, XmALIGNMENT_END);
   l = XmCreateLabel (parent, "label", args, n);
   XtManageChild (l);
@@ -1525,7 +1525,7 @@ lesstif_update_layer_groups ()
 	name = SOLDER_SIDE_NAME;
       else if (i == component_silk_layer)
 	name = COMPONENT_SIDE_NAME;
-      stdarg (XmNlabelString, XmStringCreateLocalized (name));
+      stdarg (XmNlabelString, XmStringCreatePCB (name));
       XtSetValues (lglabels[i], args, n);
       for (j = 0; j < max_group; j++)
 	{
@@ -1637,7 +1637,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 	      stdarg (XmNtopPosition, i * MAX_LAYER);
 	      stdarg (XmNbottomAttachment, XmATTACH_POSITION);
 	      stdarg (XmNbottomPosition, (i + 1) * MAX_LAYER);
-	      stdarg (XmNlabelString, XmStringCreateLocalized (" "));
+	      stdarg (XmNlabelString, XmStringCreatePCB (" "));
 	      stdarg (XmNspacing, 0);
 	      stdarg (XmNvisibleWhenOff, True);
 	      stdarg (XmNfillOnSelect, True);
@@ -2036,9 +2036,9 @@ ImportGUI (int argc, char **argv, int x, int y)
     return 1;
 
   if (xms_sch == 0)
-    xms_sch = XmStringCreateLocalized ("*.sch");
+    xms_sch = XmStringCreatePCB ("*.sch");
   if (xms_import == 0)
-    xms_import = XmStringCreateLocalized ("Import from");
+    xms_import = XmStringCreatePCB ("Import from");
 
   setup_fsb_dialog ();
 

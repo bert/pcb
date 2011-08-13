@@ -1871,7 +1871,7 @@ lesstif_do_export (HID_Attr_Val * options)
   stdarg (XmNtopAttachment, XmATTACH_FORM);
   stdarg (XmNbottomAttachment, XmATTACH_FORM);
   stdarg (XmNleftAttachment, XmATTACH_FORM);
-  stdarg (XmNlabelString, XmStringCreateLocalized ("Command: "));
+  stdarg (XmNlabelString, XmStringCreatePCB ("Command: "));
   m_cmd_label = XmCreateLabel (messages, "command", args, n);
 
   n = 0;
@@ -2333,7 +2333,7 @@ mark_delta_to_widget (BDimension dx, BDimension dy, Widget w)
                              prec, dx, prec, dy, prec, dist, angle);
     }
 
-  ms = XmStringCreateLocalized (buf);
+  ms = XmStringCreatePCB (buf);
   n = 0;
   stdarg (XmNlabelString, ms);
   XtSetValues (w, args, n);
@@ -2372,7 +2372,7 @@ cursor_pos_to_widget (BDimension x, BDimension y, Widget w, int prev_state)
   else
     buf = pcb_g_strdup_printf ("%m+%.*mS, %.*mS", UUNIT, prec, x, prec, y);
 
-  ms = XmStringCreateLocalized (buf);
+  ms = XmStringCreatePCB (buf);
   n = 0;
   stdarg (XmNlabelString, ms);
   XtSetValues (w, args, n);
@@ -2425,7 +2425,7 @@ lesstif_update_status_line ()
       break;
     }
 
-  xs = XmStringCreateLocalized (buf);
+  xs = XmStringCreatePCB (buf);
   n = 0;
   stdarg (XmNlabelString, xs);
   XtSetValues (m_status, args, n);
@@ -2634,7 +2634,7 @@ idle_proc (XtPointer dummy)
 	    else
 	      pcb_sprintf (buf, "%m+%$mS", UUNIT, (BDimension) old_grid);
 	  }
-	ms = XmStringCreateLocalized (buf);
+	ms = XmStringCreatePCB (buf);
 	n = 0;
 	stdarg (XmNlabelString, ms);
 	XtSetValues (m_grid, args, n);
@@ -2668,7 +2668,7 @@ idle_proc (XtPointer dummy)
 	  sprintf (buf, "%d %s/pix", (int) (g + 0.005), units);
 	else
 	  sprintf (buf, "%.2f %s/pix", g, units);
-	ms = XmStringCreateLocalized (buf);
+	ms = XmStringCreatePCB (buf);
 	n = 0;
 	stdarg (XmNlabelString, ms);
 	XtSetValues (m_zoom, args, n);
@@ -2762,7 +2762,7 @@ idle_proc (XtPointer dummy)
 	    cursor = XC_hand2;
 	    break;
 	  }
-	ms = XmStringCreateLocalized (s);
+	ms = XmStringCreatePCB (s);
 	n = 0;
 	stdarg (XmNlabelString, ms);
 	XtSetValues (m_mode, args, n);
@@ -2833,7 +2833,7 @@ idle_proc (XtPointer dummy)
 	  }
 
 	n = 0;
-	stdarg (XmNlabelString, XmStringCreateLocalized (buf));
+	stdarg (XmNlabelString, XmStringCreatePCB (buf));
 	XtSetValues (m_rats, args, n);
 
 	if (!PCB->Data->RatN)
@@ -3892,7 +3892,7 @@ lesstif_progress_dialog (int so_far, int total, const char *msg)
   XtSetValues (progress_scale, args, n);
 
   n = 0;
-  xs = XmStringCreateLocalized ((char *)msg);
+  xs = XmStringCreatePCB ((char *)msg);
   stdarg (XmNmessageString, xs);
   XtSetValues (progress_dialog, args, n);
 
