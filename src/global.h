@@ -659,7 +659,7 @@ typedef struct			/* some resources... */
    *Groups,			/* string with layergroups */
    *Routes,			/* string with route styles */
    *FilePath, *RatPath, *RatCommand, *FontPath, *PinoutFont, *ElementPath, *LibraryPath, *Size,	/* geometry string for size */
-   *Media, *MenuFile,		/* file containing menu definitions */
+   *Media,
    *BackgroundImage,		/* PPM file for board background */
    *ScriptFilename,		/* PCB Actions script to execute on startup */
    *ActionString,		/* PCB Actions string to execute on startup */

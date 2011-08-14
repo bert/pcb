@@ -550,7 +550,6 @@ HID_Attribute main_attribute_list[] = {
   SSET (FontPath, PCBLIBPATH, "font-path", 0),
   SSET (ElementPath, PCBLIBPATH, "element-path", 0),
   SSET (LibraryPath, PCBLIBPATH, "lib-path", 0),
-  SSET (MenuFile, "pcb-menu.res", "menu-file", 0),
   SSET (ScriptFilename, 0, "action-script",
 	"If set, this file is executed at startup."),
   SSET (ActionString, 0, "action-string",
