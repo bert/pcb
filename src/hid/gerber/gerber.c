@@ -334,13 +334,37 @@ static const char *name_style_names[] = {
 };
 
 static HID_Attribute gerber_options[] = {
+
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --gerberfile
+Gerber output file prefix. Can include a path.
+@end ftable
+%end-doc
+*/
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_gerberfile 0
-  {"all-layers", "Print all layers, even empty ones",
+
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --all-layers
+Output contains all layers, even empty ones.
+@end ftable
+%end-doc
+*/
+  {"all-layers", "Output all layers, even empty ones",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_all_layers 1
-  {"verbose", "print file names and aperture counts",
+
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --verbose
+Print file names and aperture counts on stdout.
+@end ftable
+%end-doc
+*/
+  {"verbose", "Print file names and aperture counts on stdout",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_verbose 2
   {"copy-outline", "Copy outline onto other layers",
