@@ -164,58 +164,161 @@ static const char *filetypes[] = {
 
 HID_Attribute png_attribute_list[] = {
   /* other HIDs expect this to be first.  */
+
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --outfile <string>
+Name of the file to be exported to. Can contain a path.
+@end ftable
+%end-doc
+*/
   {"outfile", "Graphics output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_pngfile 0
 
-  {"dpi", "Scale factor (pixels/inch). 0 to scale to fix specified size",
-   HID_Integer, 0, 10000, {100, 0, 0}, 0, 0},
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --dpi
+Scale factor in pixels/inch. Set to 0 to scale to size specified in the layout.
+@end ftable
+%end-doc
+*/
+  {"dpi", "Scale factor (pixels/inch). 0 to scale to specified size",
+   HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
-  {"x-max", "Maximum width (pixels).  0 to not constrain.",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --x-max
+Width of the png image in pixels. No constraint, when set to 0.
+@end ftable
+%end-doc
+*/
+  {"x-max", "Maximum width (pixels).  0 to not constrain",
    HID_Integer, 0, 10000, {0, 0, 0}, 0, 0},
 #define HA_xmax 2
 
-  {"y-max", "Maximum height (pixels).  0 to not constrain.",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --y-max
+Height of the png output in pixels. No constraint, when set to 0.
+@end ftable
+%end-doc
+*/
+  {"y-max", "Maximum height (pixels).  0 to not constrain",
    HID_Integer, 0, 10000, {0, 0, 0}, 0, 0},
 #define HA_ymax 3
 
-  {"xy-max", "Maximum width and height (pixels).  0 to not constrain.",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --xy-max
+Maximum width and height of the PNG output in pixels. No constraint, when set to 0.
+@end ftable
+%end-doc
+*/
+  {"xy-max", "Maximum width and height (pixels).  0 to not constrain",
    HID_Integer, 0, 10000, {0, 0, 0}, 0, 0},
 #define HA_xymax 4
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --as-shown
+Export layers as shown on screen.
+@end ftable
+%end-doc
+*/
   {"as-shown", "Export layers as shown on screen",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_as_shown 5
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --monochrome
+Convert output to monochrome.
+@end ftable
+%end-doc
+*/
   {"monochrome", "Convert to monochrome",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_mono 6
 
-  {"only-visible", "Limit the bounds of the PNG file to the visible items",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --only-vivible
+Limit the bounds of the exported PNG image to the visible items.
+@end ftable
+%end-doc
+*/
+  {"only-visible", "Limit the bounds of the PNG image to the visible items",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_only_visible 7
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --use-alpha
+Make the background and any holes transparent.
+@end ftable
+%end-doc
+*/
   {"use-alpha", "Make the background and any holes transparent",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_use_alpha 8
 
-  {"format", "Graphics file format",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --format <string>
+File format to be exported. Parameter @code{<string>} can be @samp{PNG},
+@samp{GIF}, or @samp{JPEG}.
+@end ftable
+%end-doc
+*/
+  {"format", "Export file format",
    HID_Enum, 0, 0, {0, 0, 0}, filetypes, 0},
 #define HA_filetype 9
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --png-bloat <num><dim>
+Amount of extra thickness to add to traces, pads, or pin edges. The parameter
+@samp{<num><dim>} is a number, appended by a dimension @samp{mm}, @samp{mil}, or
+@samp{pix}. If no dimension is given, the default dimension is 1/100 mil.
+@end ftable
+%end-doc
+*/
   {"png-bloat", "Amount (in/mm/mil/pix) to add to trace/pad/pin edges (1 = 1/100 mil)",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_bloat 10
 
-  {"photo-mode", "Photo-realistic mode",
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@cindex photo-mode
+@item --photo-mode
+Export a photo realistic image of the layout.
+@end ftable
+%end-doc
+*/
+  {"photo-mode", "Photo-realistic export mode",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_photo_mode 11
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --photo-flip-x
+In photo-realistic mode, export the reverse side of the layout. Left-right flip.
+@end ftable
+%end-doc
+*/
   {"photo-flip-x", "Show reverse side of the board, left-right flip",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_photo_flip_x 12
 
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@item --photo-flip-y
+In photo-realistic mode, export the reverse side of the layout. Up-down flip.
+@end ftable
+%end-doc
+*/
   {"photo-flip-y", "Show reverse side of the board, up-down flip",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_photo_flip_y 13
