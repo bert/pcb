@@ -29,7 +29,18 @@ RCSID ("$Id$");
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PS function %s.\n", __FUNCTION__); abort()
 
 static HID_Attribute base_lpr_options[] = {
-  {"lprcommand", "Command to print",
+
+/* %start-doc options "98 lpr Printing Options"
+@ftable @code
+@item --lprcommand <string>
+Command to use for printing. Defaults to @code{lpr}. This can be used to produce
+PDF output with a virtual PDF printer. Example: @*
+@code{--lprcommand "lp -d CUPS-PDF-Printer"}.
+@end ftable
+@noindent In addition, all @ref{Postscript Export} options are valid.
+%end-doc
+*/
+  {"lprcommand", "Command to use for printing",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_lprcommand 0
 };
