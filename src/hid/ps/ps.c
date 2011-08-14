@@ -145,57 +145,212 @@ static MediaType media_data[] = {
 
 HID_Attribute ps_attribute_list[] = {
   /* other HIDs expect this to be first.  */
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --psfile <string>
+Name of the postscript output file. Can contain a path.
+@end ftable
+%end-doc
+*/
   {"psfile", "Postscript output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_psfile 0
-  {"drill-helper", "Prints a centering target in large drill holes",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex drill-helper
+@item --drill-helper
+Print a centering target in large drill holes.
+@end ftable
+%end-doc
+*/
+  {"drill-helper", "Print a centering target in large drill holes",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_drillhelper 1
-  {"align-marks", "Prints alignment marks on each layer",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex align-marks
+@item --align-marks
+Print alignment marks on each sheet. This is meant to ease alignment during exposure.
+@end ftable
+%end-doc
+*/
+  {"align-marks", "Print alignment marks on each sheet",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_alignmarks 2
-  {"outline", "Prints outline on each layer",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --outline
+Print the contents of the outline layer on each sheet.
+@end ftable
+%end-doc
+*/
+  {"outline", "Print outline on each sheet",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_outline 3
-  {"mirror", "Prints mirror image of each layer",
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --mirror
+Print mirror image.
+@end ftable
+%end-doc
+*/
+  {"mirror", "Print mirror image of every page",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_mirror 4
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --fill-page
+Scale output to make the board fit the page.
+@end ftable
+%end-doc
+*/
   {"fill-page", "Scale board to fill page",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_fillpage 5
-  {"auto-mirror", "Prints mirror image of appropriate layers",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --auto-mirror
+Print mirror image of appropriate layers.
+@end ftable
+%end-doc
+*/
+  {"auto-mirror", "Print mirror image of appropriate layers",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_automirror 6
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --ps-color
+Postscript output in color.
+@end ftable
+%end-doc
+*/
   {"ps-color", "Prints in color",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_color 7
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex ps-bloat
+@item --ps-bloat <num>
+Amount to add to trace/pad/pin edges.
+@end ftable
+%end-doc
+*/
   {"ps-bloat", "Amount to add to trace/pad/pin edges",
    HID_Coord, -MIL_TO_COORD (100), MIL_TO_COORD (100), {0, 0, 0}, 0, 0},
 #define HA_psbloat 8
-  {"ps-invert", "Draw images as white-on-black",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex ps-invert
+@item --ps-invert
+Draw objects as white-on-black.
+@end ftable
+%end-doc
+*/
+ {"ps-invert", "Draw objects as white-on-black",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_psinvert 9
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --media <media-name>
+Size of the media, the postscript is fitted to. The parameter
+@code{<media-name>} can be any of the standard names for paper size: @samp{A0}
+to @samp{A10}, @samp{B0} to @samp{B10}, @samp{Letter}, @samp{11x17},
+@samp{Ledger}, @samp{Legal}, @samp{Executive}, @samp{A-Size}, @samp{B-size},
+@samp{C-Size}, @samp{D-size}, @samp{E-size}, @samp{US-Business_Card},
+@samp{Intl-Business_Card}.
+@end ftable
+%end-doc
+*/
   {"media", "media type",
    HID_Enum, 0, 0, {22, 0, 0}, medias, 0},
 #define HA_media 10
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex psfade
+@item --psfade <num>
+Fade amount for assembly drawings (0.0=missing, 1.0=solid).
+@end ftable
+%end-doc
+*/
   {"psfade", "Fade amount for assembly drawings (0.0=missing, 1.0=solid)",
    HID_Real, 0, 1, {0, 0, 0.40}, 0, 0},
 #define HA_psfade 11
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --scale <num>
+Scale value to compensate for printer sizing errors (1.0 = full scale).
+@end ftable
+%end-doc
+*/
   {"scale", "Scale value to compensate for printer sizing errors (1.0 = full scale)",
    HID_Real, 0.01, 4, {0, 0, 1.00}, 0, 0},
 #define HA_scale 12
-  {"multi-file", "Produce multiple files, one per page, instead of a single file.",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex multi-file
+@item --multi-file
+Produce multiple files, one per page, instead of a single multi page file.
+@end ftable
+%end-doc
+*/
+  {"multi-file", "Produce multiple files, one per page, instead of a single file",
    HID_Boolean, 0, 0, {0, 0, 0.40}, 0, 0},
 #define HA_multifile 13
-  {"xcalib", "X-Axis calibration (paper width).",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --xcalib <num>
+Paper width. Used for x-Axis calibration.
+@end ftable
+%end-doc
+*/
+  {"xcalib", "Paper width. Used for x-Axis calibration",
    HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
 #define HA_xcalib 14
-  {"ycalib", "Y-Axis calibration (paper height).",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --ycalib <num>
+Paper height. Used for y-Axis calibration.
+@end ftable
+%end-doc
+*/
+  {"ycalib", "Paper height. Used for y-Axis calibration",
    HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
 #define HA_ycalib 15
-  {"drill-copper", "Draw drill holes in pins / vias, instead of leaving solid copper.",
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@item --drill-copper
+Draw drill holes in pins / vias, instead of leaving solid copper.
+@end ftable
+%end-doc
+*/
+  {"drill-copper", "Draw drill holes in pins / vias, instead of leaving solid copper",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_drillcopper 16
+
+/* %start-doc options "91 Postscript Export"
+@ftable @code
+@cindex show-legend
+@item --show-legend
+Print file name and scale on printout.
+@end ftable
+%end-doc
+*/
   {"show-legend", "Print file name and scale on printout",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_legend 17
