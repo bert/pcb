@@ -336,6 +336,12 @@ struct pin_st
   void *Spare;
 };
 
+/* This is the extents of a Pin or Via, depending on whether it's a
+   hole or not.  */
+#define PIN_SIZE(pinptr) (TEST_FLAG(HOLEFLAG, (pinptr)) \
+			  ? (pinptr)->DrillingHole \
+			  : (pinptr)->Thickness)
+
 typedef struct
 {
   ANYOBJECTFIELDS;

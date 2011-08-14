@@ -1575,19 +1575,34 @@ ChangeHole (PinTypePtr Via)
     return (false);
   EraseVia (Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+  AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
+  r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   TOGGLE_FLAG (HOLEFLAG, Via);
+
   if (TEST_FLAG (HOLEFLAG, Via))
     {
-      RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
-      AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
-      Via->Thickness = Via->Mask = Via->DrillingHole;
-      ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
+      /* A tented via becomes an minimally untented hole.  An untented
+	 via retains its mask clearance.  */
+      if (Via->Mask > Via->Thickness)
+	{
+	  Via->Mask = (Via->DrillingHole
+		       + (Via->Mask - Via->Thickness));
+	}
+      else if (Via->Mask < Via->DrillingHole)
+	{
+	  Via->Mask = Via->DrillingHole + 2 * MASKFRAME;
+	}
     }
   else
     {
-      AddObjectTo2ndSizeUndoList (VIA_TYPE, Via, Via, Via);
-      Via->DrillingHole = Via->Thickness - MIN_PINORVIACOPPER;
+      Via->Mask = (Via->Thickness
+		   + (Via->Mask - Via->DrillingHole));
     }
+
+  SetPinBoundingBox (Via);
+  r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
+  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   DrawVia (Via);
   Draw ();
   return (true);

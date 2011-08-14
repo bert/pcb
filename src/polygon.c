@@ -799,7 +799,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     }
   else
     {
-      np = PinPoly (pin, pin->Thickness, pin->Clearance);
+      np = PinPoly (pin, PIN_SIZE (pin), pin->Clearance);
       if (!np)
         return -1;
     }
@@ -914,7 +914,7 @@ pin_sub_callback (const BoxType * b, void *cl)
     }
   else
     {
-      np = PinPoly (pin, pin->Thickness, pin->Clearance);
+      np = PinPoly (pin, PIN_SIZE (pin), pin->Clearance);
       if (!np)
         longjmp (info->env, 1);
     }

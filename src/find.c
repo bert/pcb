@@ -485,14 +485,13 @@ PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
 {
   /* IsLineInRectangle already has Bloat factor */
   return TEST_FLAG (SQUAREFLAG,
-                    PV) ? IsLineInRectangle (PV->X - (PV->Thickness + 1) / 2,
-                                             PV->Y - (PV->Thickness + 1) / 2,
-                                             PV->X + (PV->Thickness + 1) / 2,
-                                             PV->Y + (PV->Thickness + 1) / 2,
+                    PV) ? IsLineInRectangle (PV->X - (PIN_SIZE (PV) + 1) / 2,
+                                             PV->Y - (PIN_SIZE (PV) + 1) / 2,
+                                             PV->X + (PIN_SIZE (PV) + 1) / 2,
+                                             PV->Y + (PIN_SIZE (PV) + 1) / 2,
                                              Line) : IsPointInPad (PV->X,
                                                                     PV->Y,
-                                                                    MAX (PV->
-                                                                         Thickness
+								   MAX (PIN_SIZE (PV)
                                                                          /
                                                                          2.0 +
                                                                          fBloat,
@@ -1121,24 +1120,24 @@ pv_poly_callback (const BoxType * b, void *cl)
       if (TEST_FLAG (SQUAREFLAG, pv))
         {
           LocationType x1, x2, y1, y2;
-          x1 = pv->X - (pv->Thickness + 1 + Bloat) / 2;
-          x2 = pv->X + (pv->Thickness + 1 + Bloat) / 2;
-          y1 = pv->Y - (pv->Thickness + 1 + Bloat) / 2;
-          y2 = pv->Y + (pv->Thickness + 1 + Bloat) / 2;
+          x1 = pv->X - (PIN_SIZE (pv) + 1 + Bloat) / 2;
+          x2 = pv->X + (PIN_SIZE (pv) + 1 + Bloat) / 2;
+          y1 = pv->Y - (PIN_SIZE (pv) + 1 + Bloat) / 2;
+          y2 = pv->Y + (PIN_SIZE (pv) + 1 + Bloat) / 2;
           if (IsRectangleInPolygon (x1, y1, x2, y2, &i->polygon)
               && ADD_PV_TO_LIST (pv))
             longjmp (i->env, 1);
         }
       else if (TEST_FLAG (OCTAGONFLAG, pv))
         {
-          POLYAREA *oct = OctagonPoly (pv->X, pv->Y, pv->Thickness / 2);
+          POLYAREA *oct = OctagonPoly (pv->X, pv->Y, PIN_SIZE (pv) / 2);
           if (isects (oct, &i->polygon, true) && ADD_PV_TO_LIST (pv))
             longjmp (i->env, 1);
         }
       else
         {
           if (IsPointInPolygon
-              (pv->X, pv->Y, pv->Thickness * 0.5 + fBloat, &i->polygon)
+              (pv->X, pv->Y, PIN_SIZE (pv) * 0.5 + fBloat, &i->polygon)
               && ADD_PV_TO_LIST (pv))
             longjmp (i->env, 1);
         }

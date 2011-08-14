@@ -240,7 +240,7 @@ SetPinBoundingBox (PinTypePtr Pin)
   /* the bounding box covers the extent of influence
    * so it must include the clearance values too
    */
-  width = (Pin->Clearance + Pin->Thickness + 1) / 2;
+  width = (Pin->Clearance + PIN_SIZE (Pin) + 1) / 2;
   width = MAX (width, (Pin->Mask + 1) / 2);
 
   /* Adjust for our discrete polygon approximation */

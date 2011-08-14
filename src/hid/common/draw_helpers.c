@@ -379,6 +379,8 @@ common_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool m
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
+      if (mask)
+	gui->fill_circle (bg_gc, pv->X, pv->Y, r);
       if (drawHole)
         {
           gui->fill_circle (bg_gc, pv->X, pv->Y, r);
@@ -416,8 +418,11 @@ common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bo
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
+      if (mask)
+	gui->draw_arc (fg_gc, pv->X, pv->Y, r, r, 0, 360);
       if (drawHole)
         {
+	  r = pv->DrillingHole / 2;
           gui->set_line_cap (bg_gc, Round_Cap);
           gui->set_line_width (bg_gc, 0);
           gui->draw_arc (bg_gc, pv->X, pv->Y, r, r, 0, 360);

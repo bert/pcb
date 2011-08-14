@@ -653,7 +653,7 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
       BoxType b;
-      BDimension t = pin->Thickness / 2;
+      BDimension t = PIN_SIZE (pin) / 2;
 
       b.X1 = pin->X - t;
       b.X2 = pin->X + t;
@@ -663,7 +663,7 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
 	return (true);
     }
   else if (SQUARE (pin->X - X) + SQUARE (pin->Y - Y) <=
-	   SQUARE (pin->Thickness / 2 + Radius))
+	   SQUARE (PIN_SIZE (pin) / 2 + Radius))
     return (true);
   return (false);
 }
