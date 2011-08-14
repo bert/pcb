@@ -1908,14 +1908,38 @@ static int stdin_listen = 0;
 static char *pcbmenu_path = "gpcb-menu.res";
 
 HID_Attribute ghid_attribute_list[] = {
+
+/* %start-doc options "21 GTK+ GUI Options"
+@ftable @code
+@item --listen
+Listen for actions on stdin.
+@end ftable
+%end-doc
+*/
   {"listen", "Listen for actions on stdin",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 0
 
+/* %start-doc options "21 GTK+ GUI Options"
+@ftable @code
+@item --bg-image <string>
+File name of an image to put into the background of the GUI canvas. The image must
+be a color PPM image, in binary (not ASCII) format. It can be any size, and will be
+automatically scaled to fit the canvas.
+@end ftable
+%end-doc
+*/
   {"bg-image", "Background Image",
    HID_String, 0, 0, {0, 0, 0}, 0, &bg_image_file},
 #define HA_bg_image 1
 
+/* %start-doc options "21 GTK+ GUI Options"
+@ftable @code
+@item --pcb-menu <string>
+Location of the @file{gpcb-menu.res} file which defines the menu for the GTK+ GUI.
+@end ftable
+%end-doc
+*/
 {"pcb-menu", "Location of gpcb-menu.res file",
    HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
 #define HA_pcbmenu 2

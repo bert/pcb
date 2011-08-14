@@ -198,14 +198,37 @@ HID_Attribute lesstif_attribute_list[] = {
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &use_private_colormap},
 #define HA_colormap 0
 
+/* %start-doc options "22 lesstif GUI Options"
+@ftable @code
+@item --listen
+Listen for actions on stdin.
+@end ftable
+%end-doc
+*/
   {"listen", "Listen on standard input for actions",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 1
 
+/* %start-doc options "22 lesstif GUI Options"
+@ftable @code
+@item --bg-image <string>
+File name of an image to put into the background of the GUI canvas. The image must
+be a color PPM image, in binary (not ASCII) format. It can be any size, and will be
+automatically scaled to fit the canvas.
+@end ftable
+%end-doc
+*/
   {"bg-image", "Background Image",
    HID_String, 0, 0, {0, 0, 0}, 0, &background_image_file},
 #define HA_bg_image 2
 
+/* %start-doc options "22 lesstif GUI Options"
+@ftable @code
+@item --pcb-menu <string>
+Location of the @file{pcb-menu.res} file which defines the menu for the lesstif GUI.
+@end ftable
+%end-doc
+*/
   {"pcb-menu", "Location of pcb-menu.res file",
    HID_String, 0, 0, {0, PCBLIBDIR "/pcb-menu.res", 0}, 0, &lesstif_pcbmenu_path}
 #define HA_pcbmenu 3
