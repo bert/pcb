@@ -27,12 +27,34 @@
 RCSID ("$Id$");
 
 static HID_Attribute bom_options[] = {
-  {"bomfile", "BOM output file",
+/* %start-doc options "8 BOM Creation"
+@ftable @code
+@item --bomfile <string>
+Name of the BOM output file.
+@end ftable
+%end-doc
+*/
+  {"bomfile", "Name of the BOM output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_bomfile 0
-  {"xyfile", "XY output file",
+/* %start-doc options "8 BOM Creation"
+@ftable @code
+@item --xyfile <string>
+Name of the XY output file.
+@end ftable
+%end-doc
+*/
+  {"xyfile", "Name of the XY output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_xyfile 1
+
+/* %start-doc options "8 BOM Creation"
+@ftable @code
+@item --xy-unit
+Unit of XY dimensions. Defaults to mil.
+@end ftable
+%end-doc
+*/
   {"xy-unit", "XY units",
    HID_Unit, 0, 0, {-1, 0, 0}, NULL, 0},
 #define HA_unit 2
