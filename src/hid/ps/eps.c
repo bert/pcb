@@ -75,18 +75,60 @@ static int fast_erase = -1;
 
 static HID_Attribute eps_attribute_list[] = {
   /* other HIDs expect this to be first.  */
+
+/* %start-doc options "92 Encapsulated Postscript Export"
+@ftable @code
+@item --eps-file <string>
+Name of the encapsulated postscript output file. Can contain a path.
+@end ftable
+%end-doc
+*/
   {"eps-file", "Encapsulated Postscript output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_psfile 0
+
+/* %start-doc options "92 Encapsulated Postscript Export"
+@ftable @code
+@item --eps-scale <num>
+Scale EPS output by the parameter @samp{num}.
+@end ftable
+%end-doc
+*/
   {"eps-scale", "EPS scale",
    HID_Real, 0, 100, {0, 0, 1.0}, 0, 0},
 #define HA_scale 1
+
+/* %start-doc options "92 Encapsulated Postscript Export"
+@ftable @code
+@cindex as-shown (EPS)
+@item --as-shown
+Export layers as shown on screen.
+@end ftable
+%end-doc
+*/
   {"as-shown", "Export layers as shown on screen",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_as_shown 2
-  {"monochrome", "Convert to monochrome (like the ps export)",
+
+/* %start-doc options "92 Encapsulated Postscript Export"
+@ftable @code
+@item --monochrome
+Convert output to monochrome.
+@end ftable
+%end-doc
+*/
+  {"monochrome", "Convert to monochrome",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_mono 3
+
+/* %start-doc options "92 Encapsulated Postscript Export"
+@ftable @code
+@cindex only-visible
+@item --only-visible
+Limit the bounds of the EPS file to the visible items.
+@end ftable
+%end-doc
+*/
   {"only-visible", "Limit the bounds of the EPS file to the visible items",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_only_visible 4
