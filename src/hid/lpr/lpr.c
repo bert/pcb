@@ -135,7 +135,7 @@ hid_lpr_init ()
 
   lpr_hid.struct_size         = sizeof (HID);
   lpr_hid.name                = "lpr";
-  lpr_hid.description         = "Postscript print.";
+  lpr_hid.description         = "Postscript print";
   lpr_hid.printer             = 1;
   lpr_hid.poly_before         = 1;
 

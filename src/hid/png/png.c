@@ -1644,7 +1644,7 @@ hid_png_init ()
 
   png_hid.struct_size = sizeof (HID);
   png_hid.name        = "png";
-  png_hid.description = "GIF/JPEG/PNG export.";
+  png_hid.description = "GIF/JPEG/PNG export";
   png_hid.exporter    = 1;
   png_hid.poly_before = 1;
 

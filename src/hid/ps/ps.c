@@ -1527,7 +1527,7 @@ hid_ps_init ()
 
   ps_hid.struct_size        = sizeof (HID);
   ps_hid.name               = "ps";
-  ps_hid.description        = "Postscript export.";
+  ps_hid.description        = "Postscript export";
   ps_hid.exporter           = 1;
   ps_hid.poly_before        = 1;
 

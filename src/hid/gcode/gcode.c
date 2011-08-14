@@ -1005,7 +1005,7 @@ hid_gcode_init ()
 
   gcode_hid.struct_size         = sizeof (HID);
   gcode_hid.name                = "gcode";
-  gcode_hid.description         = "G-CODE export.";
+  gcode_hid.description         = "G-CODE export";
   gcode_hid.exporter            = 1;
   gcode_hid.poly_before         = 1;
 

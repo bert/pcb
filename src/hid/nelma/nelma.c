@@ -1074,7 +1074,7 @@ hid_nelma_init()
 
   nelma_hid.struct_size         = sizeof (HID);
   nelma_hid.name                = "nelma";
-  nelma_hid.description         = "Numerical analysis package export.";
+  nelma_hid.description         = "Numerical analysis package export";
   nelma_hid.exporter            = 1;
   nelma_hid.poly_before         = 1;
 
