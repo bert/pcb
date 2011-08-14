@@ -153,23 +153,59 @@ static const double nelma_air_epsilon = 8.85e-12;
 
 HID_Attribute   nelma_attribute_list[] = {
 	/* other HIDs expect this to be first.  */
+
+/* %start-doc options "nelma Options"
+@ftable @code
+@item -- basename <string>
+File name prefix.
+@end ftable
+%end-doc
+*/
 	{"basename", "File name prefix",
 	HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
-	{"dpi", "Horizontal scale factor (grid points/inch).",
+/* %start-doc options "nelma Options"
+@ftable @code
+@item --dpi <num>
+Horizontal scale factor (grid points/inch).
+@end ftable
+%end-doc
+*/
+	{"dpi", "Horizontal scale factor (grid points/inch)",
 	HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
-	{"copper-height", "Copper layer height (um).",
+/* %start-doc options "nelma Options"
+@ftable @code
+@item --copper-height <num>
+Copper layer height (um).
+@end ftable
+%end-doc
+*/
+	{"copper-height", "Copper layer height (um)",
 	HID_Integer, 0, 200, {100, 0, 0}, 0, 0},
 #define HA_copperh 2
 
-	{"substrate-height", "Substrate layer height (um).",
+/* %start-doc options "nelma Options"
+@ftable @code
+@item --substrate-height <num>
+Substrate layer height (um).
+@end ftable
+%end-doc
+*/
+	{"substrate-height", "Substrate layer height (um)",
 	HID_Integer, 0, 10000, {2000, 0, 0}, 0, 0},
 #define HA_substrateh 3
 
-	{"substrate-epsilon", "Substrate relative epsilon.",
+/* %start-doc options "nelma Options"
+@ftable @code
+@item --substrate-epsilon <num>
+Substrate relative epsilon.
+@end ftable
+%end-doc
+*/
+	{"substrate-epsilon", "Substrate relative epsilon",
 	HID_Real, 0, 100, {0, 0, 4.0}, 0, 0},
 #define HA_substratee 4
 };
