@@ -48,13 +48,13 @@ batch_get_export_options (int *n_ret)
 static char *prompt = "pcb";
 
 static int
-nop (int argc, char **argv, int x, int y)
+nop (int argc, char **argv, Coord x, Coord y)
 {
   return 0;
 }
 
 static int
-PCBChanged (int argc, char **argv, int x, int y)
+PCBChanged (int argc, char **argv, Coord x, Coord y)
 {
   if (PCB && PCB->Filename)
     {
@@ -70,14 +70,14 @@ PCBChanged (int argc, char **argv, int x, int y)
 }
 
 static int
-help (int argc, char **argv, int x, int y)
+help (int argc, char **argv, Coord x, Coord y)
 {
   print_actions ();
   return 0;
 }
 
 static int
-info (int argc, char **argv, int x, int y)
+info (int argc, char **argv, Coord x, Coord y)
 {
   int i, j;
   int cg, sg;
@@ -87,7 +87,7 @@ info (int argc, char **argv, int x, int y)
       return 0;
     }
   printf("Filename: %s\n", PCB->Filename);
-  pcb_sprintf("Size: %ml x %ml mils, %mm x %mm mm\n",
+  pcb_printf("Size: %ml x %ml mils, %mm x %mm mm\n",
 	 PCB->MaxWidth, PCB->MaxHeight,
 	 PCB->MaxWidth, PCB->MaxHeight);
   cg = GetLayerGroupNumberByNumber (component_silk_layer);
@@ -199,7 +199,7 @@ batch_set_line_cap (hidGC gc, EndCapStyle style)
 }
 
 static void
-batch_set_line_width (hidGC gc, int width)
+batch_set_line_width (hidGC gc, Coord width)
 {
 }
 
@@ -209,33 +209,33 @@ batch_set_draw_xor (hidGC gc, int xor_set)
 }
 
 static void
-batch_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
+batch_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 }
 
 static void
-batch_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		int start_angle, int end_angle)
+batch_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
+		Angle start_angle, Angle end_angle)
 {
 }
 
 static void
-batch_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
+batch_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 }
 
 static void
-batch_fill_circle (hidGC gc, int cx, int cy, int radius)
+batch_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
 }
 
 static void
-batch_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
+batch_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
 }
 
 static void
-batch_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+batch_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 }
 
