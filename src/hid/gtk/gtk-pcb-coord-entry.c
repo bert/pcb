@@ -137,8 +137,8 @@ gtk_pcb_coord_entry_change_unit (GtkPcbCoordEntry *ce, const Unit *new_unit)
   gtk_adjustment_configure (adj, coord_to_unit (new_unit, ce->value),
                                  coord_to_unit (new_unit, ce->min_value),
                                  coord_to_unit (new_unit, ce->max_value),
-                                 coord_to_unit (new_unit, ce->unit->step_small),
-                                 coord_to_unit (new_unit, ce->unit->step_medium),
+                                 ce->unit->step_small,
+                                 ce->unit->step_medium,
                                  0.0);
 
   switch (ce->step_size)
