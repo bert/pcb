@@ -955,7 +955,10 @@ main (int argc, char *argv[])
   Progname = program_basename;
 
   /* Print usage or version if requested.  Then exit.  */  
-  if (argc > 1 && strcmp (argv[1], "-h") == 0)
+  if (argc > 1 &&
+      (strcmp (argv[1], "-h") == 0 ||
+       strcmp (argv[1], "-?") == 0 ||
+       strcmp (argv[1], "--help") == 0))
     usage ();
   if (argc > 1 && strcmp (argv[1], "-V") == 0)
     print_version ();
