@@ -126,6 +126,7 @@ static ConfigAttribute config_attributes[] = {
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
   {"grid-units", CONFIG_Unused, NULL},
+  {"grid", CONFIG_Unused, NULL},
 
   {"history-size", CONFIG_Integer, &_ghidgui.history_size},
   {"auto-pan-speed", CONFIG_Integer, &_ghidgui.auto_pan_speed},
@@ -417,6 +418,9 @@ set_config_attribute (gchar * option, gchar * arg)
 
     case CONFIG_String:
       dup_string ((gchar **) ca->value, arg ? arg : (gchar *)"");
+      break;
+    case CONFIG_Coord:
+      *(Coord *) ca->value = GetValue (arg, NULL, NULL);
       break;
     default:
       break;
