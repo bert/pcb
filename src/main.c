@@ -510,36 +510,195 @@ Set default grid units. Can be mm or mil. Defaults to mil.
   {"grid-units", "Default grid units (mm|mil)", HID_String, 0, 0, {0, "mil", 0},
   0, &grid_units},
 
-  COLOR (BlackColor, "#000000", "black-color", "color for black"),
-  COLOR (WhiteColor, "#ffffff", "white-color", "color for white"),
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --black-color <string>
+Color value for black. Default: @samp{#000000}
+@end ftable
+%end-doc
+*/
+  COLOR (BlackColor, "#000000", "black-color", "color value of 'black'"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --black-color <string>
+Color value for white. Default: @samp{#ffffff}
+@end ftable
+%end-doc
+*/
+  COLOR (WhiteColor, "#ffffff", "white-color", "color value of 'white'"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --background-color <string>
+Background color of the canvas. Default: @samp{#e5e5e5}
+@end ftable
+%end-doc
+*/
   COLOR (BackgroundColor, "#e5e5e5", "background-color",
 	 "color for background"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --crosshair-color <string>
+Color of the crosshair. Default: @samp{#ff0000}
+@end ftable
+%end-doc
+*/
   COLOR (CrosshairColor, "#ff0000", "crosshair-color",
 	 "color for the crosshair"),
-  COLOR (CrossColor, "#cdcd00", "cross-color", "color for cross"),
-  COLOR (ViaColor, "#7f7f7f", "via-color", "color for vias"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --cross-color <string>
+Color of the cross. Default: @samp{#cdcd00}
+@end ftable
+%end-doc
+*/
+  COLOR (CrossColor, "#cdcd00", "cross-color", "color of the cross"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --via-color <string>
+Color of vias. Default: @samp{#7f7f7f}
+@end ftable
+%end-doc
+*/
+  COLOR (ViaColor, "#7f7f7f", "via-color", "color of vias"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --via-selected-color <string>
+Color of selected vias. Default: @samp{#00ffff}
+@end ftable
+%end-doc
+*/
   COLOR (ViaSelectedColor, "#00ffff", "via-selected-color",
 	 "color for selected vias"),
-  COLOR (PinColor, "#4d4d4d", "pin-color", "color for pins"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --pin-color <string>
+Color of pins. Default: @samp{#4d4d4d}
+@end ftable
+%end-doc
+*/
+  COLOR (PinColor, "#4d4d4d", "pin-color", "color of pins"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --pin-selected-color <string>
+Color of selected pins. Default: @samp{#00ffff}
+@end ftable
+%end-doc
+*/
   COLOR (PinSelectedColor, "#00ffff", "pin-selected-color",
-	 "color for selected pins"),
+	 "color of selected pins"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --pin-name-color <string>
+Color of pin names and pin numbers. Default: @samp{#ff0000}
+@end ftable
+%end-doc
+*/
   COLOR (PinNameColor, "#ff0000", "pin-name-color",
-	 "color for pin names and numbers"),
-  COLOR (ElementColor, "#000000", "element-color", "color for elements"),
-  COLOR (RatColor, "#b8860b", "rat-color", "color for ratlines"),
+	 "color for pin names and pin numbers"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --element-color <string>
+Color of components. Default: @samp{#000000}
+@end ftable
+%end-doc
+*/
+  COLOR (ElementColor, "#000000", "element-color", "color of components"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --rat-color <string>
+Color of ratlines. Default: @samp{#b8860b}
+@end ftable
+%end-doc
+*/
+  COLOR (RatColor, "#b8860b", "rat-color", "color of ratlines"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --invisible-objects-color <string>
+Color of invisible objects. Default: @samp{#cccccc}
+@end ftable
+%end-doc
+*/
   COLOR (InvisibleObjectsColor, "#cccccc", "invisible-objects-color",
-	 "color for invisible objects"),
+	 "color of invisible objects"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --invisible-mark-color <string>
+Color of invisible marks. Default: @samp{#cccccc}
+@end ftable
+%end-doc
+*/
   COLOR (InvisibleMarkColor, "#cccccc", "invisible-mark-color",
-	 "color for invisible marks"),
+	 "color of invisible marks"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --element-selected-color <string>
+Color of selected components. Default: @samp{#00ffff}
+@end ftable
+%end-doc
+*/
   COLOR (ElementSelectedColor, "#00ffff", "element-selected-color",
-	 "color for selected elements"),
+	 "color of selected components"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --rat-selected-color <string>
+Color of selected rats. Default: @samp{#00ffff}
+@end ftable
+%end-doc
+*/
   COLOR (RatSelectedColor, "#00ffff", "rat-selected-color",
-	 "color for selected rats"),
+	 "color of selected rats"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --connected-color <string>
+Color to indicate connections. Default: @samp{#00ff00}
+@end ftable
+%end-doc
+*/
   COLOR (ConnectedColor, "#00ff00", "connected-color",
-	 "color for connections"),
+	 "color to indicate connections"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --off-limit-color <string>
+Color of off-canvas area. Default: @samp{#cccccc}
+@end ftable
+%end-doc
+*/
   COLOR (OffLimitColor, "#cccccc", "off-limit-color",
-	 "color for off-limits areas"),
-  COLOR (GridColor, "#ff0000", "grid-color", "color for the grid"),
+	 "color of off-canvas area"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --grid-color <string>
+Color of the grid. Default: @samp{#ff0000}
+@end ftable
+%end-doc
+*/
+  COLOR (GridColor, "#ff0000", "grid-color", "color of the grid"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --layer-color-<n> <string>
+Color of layer @code{<n>}, where @code{<n>} is an integer from 1 to 16.
+@end ftable
+%end-doc
+*/
   LAYERCOLOR (1, "#8b2323"),
   LAYERCOLOR (2, "#3a5fcd"),
   LAYERCOLOR (3, "#104e8b"),
@@ -556,6 +715,13 @@ Set default grid units. Can be mm or mil. Defaults to mil.
   LAYERCOLOR (14, "#8b7355"),
   LAYERCOLOR (15, "#00868b"),
   LAYERCOLOR (16, "#228b22"),
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --layer-selected-color-<n> <string>
+Color of layer @code{<n>}, when selected. @code{<n>} is an integer from 1 to 16.
+@end ftable
+%end-doc
+*/
   LAYERSELCOLOR (1),
   LAYERSELCOLOR (2),
   LAYERSELCOLOR (3),
@@ -572,7 +738,23 @@ Set default grid units. Can be mm or mil. Defaults to mil.
   LAYERSELCOLOR (14),
   LAYERSELCOLOR (15),
   LAYERSELCOLOR (16),
-  COLOR (WarnColor, "#ff8000", "warn-color", "color for warnings"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --warn-color <string>
+Color of offending objects during DRC. Default value is @code{"#ff8000"}
+@end ftable
+%end-doc
+*/
+  COLOR (WarnColor, "#ff8000", "warn-color", "color of offending objects during DRC"),
+
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --mask-color <string>
+Color of the mask layer. Default value is @code{"#ff0000"}
+@end ftable
+%end-doc
+*/
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
   CSET (ViaThickness, MIL_TO_COORD(60), "via-thickness", 0),
