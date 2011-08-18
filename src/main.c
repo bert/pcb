@@ -1073,6 +1073,13 @@ Defaults to @code{"ListLibraryContents.sh %p %f"}
   SSET (LibraryContentsCommand, "ListLibraryContents.sh '%p' '%f'",
 	"lib-contents-command", "Command to query the contents of the library"),
 
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --lib-newlib <string>
+Top level directory for the newlib style library.
+@end ftable
+%end-doc
+*/
   SSET (LibraryTree, PCBTREEPATH, "lib-newlib",
 	"Top level directory for the newlib style library"),
 
@@ -1085,9 +1092,25 @@ Command to save to a file.
 */
   SSET (SaveCommand, "", "save-command", "Command to save to a file"),
 
-  SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --lib-name <string>
+The default filename for the library.
+@end ftable
+%end-doc
+*/
+  SSET (LibraryFilename, LIBRARYFILENAME, "lib-name",
+				"The default filename for the library"),
+
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --default-font <string>
+The name of the default font.
+@end ftable
+%end-doc
+*/
   SSET (FontFile, "default_font", "default-font",
-	"File name of default font."),
+	"File name of default font"),
 
 /* %start-doc options "1 General Options"
 @ftable @code
@@ -1102,6 +1125,15 @@ A string that defines the route styles. Defaults to @*
 	":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600", "route-styles",
 	"A string that defines the route styles"),
 
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --file-path <string>
+A colon separated list of directories or commands (starts with '|'). The path
+is passed to the program specified in @option{--file-command} together with the selected
+filename.
+@end ftable
+%end-doc
+*/
   SSET (FilePath, "", "file-path", 0),
 
 /* %start-doc options "6 Commands"
@@ -1113,7 +1145,16 @@ Command for reading a netlist. Sequence @code{%f} is replaced by the netlist fil
 */
   SSET (RatCommand, "", "rat-command", "Command for reading a netlist"),
 
-  SSET (FontPath, PCBLIBPATH, "font-path", 0),
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --font-path <string>
+A colon separated list of directories to search the default font. Defaults to
+the default library path.
+@end ftable
+%end-doc
+*/
+  SSET (FontPath, PCBLIBPATH, "font-path",
+       "Colon separated list of directories to search the default font"),
 
 /* %start-doc options "1 General Options"
 @ftable @code
@@ -1126,7 +1167,16 @@ The path is passed to the program specified in @option{--element-command}.
   SSET(ElementPath, PCBLIBPATH, "element-path",
       "A colon separated list of directories or commands (starts with '|')"),
 
-  SSET (LibraryPath, PCBLIBPATH, "lib-path", 0),
+/* %start-doc options "5 Paths"
+@ftable @code
+@item --lib-path <string>
+A colon separated list of directories that will be passed to the commands specified
+by @option{--element-command} and @option{--element-contents-command}.
+@end ftable
+%end-doc
+*/
+  SSET (LibraryPath, PCBLIBPATH, "lib-path",
+       "A colon separated list of directories"),
 
 /* %start-doc options "1 General Options"
 @ftable @code
