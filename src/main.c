@@ -757,16 +757,123 @@ Color of the mask layer. Default value is @code{"#ff0000"}
 */
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
-  CSET (ViaThickness, MIL_TO_COORD(60), "via-thickness", 0),
-  CSET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole", 0),
+
+/* %start-doc options "5 Sizes"
+All parameters should be given with an unit. If no unit is given, 1/100 mil
+(cmil) will be used. Write units without space to the
+number like @code{3mm}, not @code{3 mm}.
+Valid Units are:
+ @table @samp
+   @item km
+    Kilometer
+   @item m
+    Meter
+   @item cm
+    Centimeter
+   @item mm
+    Millimeter
+   @item um
+    Micrometer
+   @item nm
+    Nanometer
+   @item in
+    Inch (1in = 0.0254m)
+   @item mil
+    Mil (1000mil = 1in)
+   @item cmil
+    Centimil (1/100 mil)
+@end table
+
+@ftable @code
+@item --via-thickness <num>
+Default diameter of vias. Default value is @code{60mil}.
+@end ftable
+%end-doc
+*/
+  CSET (ViaThickness, MIL_TO_COORD(60), "via-thickness",
+  "default diameter of vias in 1/100 mil"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --via-drilling-hole <num>
+Default diameter of holes. Default value is @code{28mil}.
+@end ftable
+%end-doc
+*/
+  CSET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole",
+  "default diameter of holes"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --line-thickness <num>
+Default thickness of new lines. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
   CSET (LineThickness, MIL_TO_COORD(10), "line-thickness",
-	"Initial thickness of new lines."),
-  CSET (RatThickness, MIL_TO_COORD(10), "rat-thickness", 0),
-  CSET (Keepaway, MIL_TO_COORD(10), "keepaway", 0),
-  CSET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width", 0),
-  CSET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height", 0),
-  ISET (TextScale, 100, "text-scale", 0),
-  CSET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance", 0),
+	"initial thickness of new lines"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --rat-thickness <num>
+Thickness of rats. Values from 1 to 19 are fixed width in screen pixels.
+Anything larger means PCB units (i.e. 100 means "1 mil"). Default value
+is @code{10mil}.
+@end ftable
+%end-doc
+*/
+  CSET (RatThickness, MIL_TO_COORD(10), "rat-thickness", "thickness of rat lines"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --keepaway <num>
+Default minimum distance between a track and adjacent copper.
+Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
+  CSET (Keepaway, MIL_TO_COORD(10), "keepaway", "minimum distance between adjacent copper"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --default-PCB-width <num>
+Default width of the canvas. Default value is @code{6000mil}.
+@end ftable
+%end-doc
+*/
+  CSET (MaxWidth, MIL_TO_COORD(6000), "default-PCB-width",
+  "default width of the canvas"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --default-PCB-height <num>
+Default height of the canvas. Default value is @code{5000mil}.
+@end ftable
+%end-doc
+*/
+  CSET (MaxHeight, MIL_TO_COORD(5000), "default-PCB-height",
+  "default height of the canvas"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --text-scale <num>
+Default text scale. This value is in percent. Default value is @code{100}.
+@end ftable
+%end-doc
+*/
+  ISET (TextScale, 100, "text-scale", "default text scale in percent"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --alignment-distance <num>
+Specifies the distance between the board outline and alignment targets.
+Default value is @code{2mil}.
+@end ftable
+%end-doc
+*/
+  CSET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance",
+  "distance between the boards outline and alignment targets"),
+
   CSET (Bloat, MIL_TO_COORD(10), "bloat", 0),
   CSET (Shrink, MIL_TO_COORD(10), "shrink", 0),
   CSET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
@@ -774,8 +881,24 @@ Color of the mask layer. Default value is @code{"#ff0000"}
   CSET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
   CSET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
 
-  CSET (Grid, MIL_TO_COORD(10), "grid", 0),
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --grid <num>
+Initial grid size. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
+  CSET (Grid, MIL_TO_COORD(10), "grid", "Initial grid size in 1/100 mil"),
+
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --minimum polygon area <num>
+Minimum polygon area.
+@end ftable
+%end-doc
+*/
   RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
+
 
 /* %start-doc options "1 General Options"
 @ftable @code
