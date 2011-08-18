@@ -1224,16 +1224,93 @@ names, layer numbers and layer groups.
   SSET (GnetlistProgram, NULL, "gnetlist",
 	"Sets the name and optionally full path to the gnetlist(3) program"),
 
-  CSET (PinoutOffsetX, MIL_TO_COORD(1), "pinout-offset-x", 0),
-  CSET (PinoutOffsetY, MIL_TO_COORD(1), "pinout-offset-y", 0),
-  CSET (PinoutTextOffsetX, MIL_TO_COORD(8), "pinout-text-offset-x", 0),
-  CSET (PinoutTextOffsetY, MIL_TO_COORD(-1), "pinout-text-offset-y", 0),
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --pinout-offset-x <num>
+Horizontal offset of the pin number display. Defaults to @code{100mil}.
+@end ftable
+%end-doc
+*/
+  CSET (PinoutOffsetX, MIL_TO_COORD(1), "pinout-offset-x",
+       "Horizontal offset of the pin number display in mil"),
 
-  BSET (DrawGrid, 0, "draw-grid", "default to drawing the grid at startup"),
-  BSET (ClearLine, 1, "clear-line", 0),
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --pinout-offset-y <num>
+Vertical offset of the pin number display. Defaults to @code{100mil}.
+@end ftable
+%end-doc
+*/
+  CSET (PinoutOffsetY, MIL_TO_COORD(1), "pinout-offset-y",
+       "Vertical offset of the pin number display in mil"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --pinout-text-offset-x <num>
+Horizontal offset of the pin name display. Defaults to @code{800mil}.
+@end ftable
+%end-doc
+*/
+  CSET (PinoutTextOffsetX, MIL_TO_COORD(8), "pinout-text-offset-x",
+       "Horizontal offset of the pin name display in mil"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --pinout-text-offset-y <num>
+Vertical offset of the pin name display. Defaults to @code{-100mil}.
+@end ftable
+%end-doc
+*/
+  CSET (PinoutTextOffsetY, MIL_TO_COORD(-1), "pinout-text-offset-y",
+       "Vertical offset of the pin name display in mil"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --draw-grid
+If set, draw the grid at start-up.
+@end ftable
+%end-doc
+*/
+  BSET (DrawGrid, 0, "draw-grid", "If set, draw the grid at start-up"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --clear-line
+If set, new lines clear polygons.
+@end ftable
+%end-doc
+*/
+  BSET (ClearLine, 1, "clear-line", "If set, new lines clear polygons"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --full-poly
+If set, new polygons are full ones.
+@end ftable
+%end-doc
+*/
   BSET (FullPoly, 0, "full-poly", 0),
-  BSET (UniqueNames, 1, "unique-names", 0),
-  BSET (SnapPin, 1, "snap-pin", 0),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --unique-names
+If set, you will not be permitted to change the name of an component to match that
+of another component.
+@end ftable
+%end-doc
+*/
+  BSET (UniqueNames, 1, "unique-names", "Prevents identical component names"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --snap-pin
+If set, pin centers and pad end points are treated as additional grid points
+that the cursor can snap to.
+@end ftable
+%end-doc
+*/
+  BSET (SnapPin, 1, "snap-pin",
+       "If set, the cursor snaps to pads and pin centers"),
 
 /* %start-doc options "1 General Options"
 @ftable @code
@@ -1255,9 +1332,25 @@ If set, all data which would otherwise be lost are saved in a temporary file
   BSET (SaveInTMP, 0, "save-in-tmp",
        "When set, all data which would otherwise be lost are saved in /tmp"),
 
-  BSET (AllDirectionLines, 0, "all-direction-lines", 0),
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --all-direction-lines
+Allow all directions, when drawing new lines.
+@end ftable
+%end-doc
+*/
+  BSET (AllDirectionLines, 0, "all-direction-lines",
+       "Allow all directions, when drawing new lines"),
 
-  BSET (ShowNumber, 0, "show-number", 0),
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --show-number
+Pinout shows number.
+@end ftable
+%end-doc
+*/
+  BSET (ShowNumber, 0, "show-number", "Pinout shows number"),
+
 /* %start-doc options "1 General Options"
 @ftable @code
 @item --reset-after-element
