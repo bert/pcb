@@ -874,12 +874,68 @@ Default value is @code{2mil}.
   CSET (AlignmentDistance, MIL_TO_COORD(2), "alignment-distance",
   "distance between the boards outline and alignment targets"),
 
-  CSET (Bloat, MIL_TO_COORD(10), "bloat", 0),
-  CSET (Shrink, MIL_TO_COORD(10), "shrink", 0),
+/* %start-doc options "7 DRC Options"
+All parameters should be given with an unit. If no unit is given, 1/100 mil
+(cmil) will be used for backward compability. Valid units are given in section
+@ref{Sizes}.
+%end-doc
+*/
+
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --bloat <num>
+Minimum spacing. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
+  CSET (Bloat, MIL_TO_COORD(10), "bloat", "DRC minimum spacing in 1/100 mil"),
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --shrink <num>
+Minimum touching overlap. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
+  CSET (Shrink, MIL_TO_COORD(10), "shrink", "DRC minimum overlap in 1/100 mils"),
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --min-width <num>
+Minimum width of copper. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
   CSET (minWid, MIL_TO_COORD(10), "min-width", "DRC minimum copper spacing"),
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --min-silk <num>
+Minimum width of lines in silk. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
   CSET (minSlk, MIL_TO_COORD(10), "min-silk", "DRC minimum silk width"),
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --min-drill <num>
+Minimum diameter of holes. Default value is @code{15mil}.
+@end ftable
+%end-doc
+*/
   CSET (minDrill, MIL_TO_COORD(15), "min-drill", "DRC minimum drill diameter"),
+
+/* %start-doc options "7 DRC Options"
+@ftable @code
+@item --min-ring <num>
+Minimum width of annular ring. Default value is @code{10mil}.
+@end ftable
+%end-doc
+*/
   CSET (minRing, MIL_TO_COORD(10), "min-ring", "DRC minimum annular ring"),
+
 
 /* %start-doc options "5 Sizes"
 @ftable @code
