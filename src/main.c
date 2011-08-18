@@ -911,13 +911,76 @@ The default value is @code{60}.
   ISET (BackupInterval, 60, "backup-interval",
   "Time between automatic backups in seconds. Set to 0 to disable"),
 
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-1 <string>
+Name of the 1st Layer. Default is @code{"top"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (1, "top"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-2 <string>
+Name of the 2nd Layer. Default is @code{"ground"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (2, "ground"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-3 <string>
+Name of the 3nd Layer. Default is @code{"signal2"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (3, "signal2"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-4 <string>
+Name of the 4rd Layer. Default is @code{"signal3"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (4, "signal3"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-5 <string>
+Name of the 5rd Layer. Default is @code{"power"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (5, "power"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-6 <string>
+Name of the 6rd Layer. Default is @code{"bottom"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (6, "bottom"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-7 <string>
+Name of the 7rd Layer. Default is @code{"outline"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (7, "outline"),
+
+/* %start-doc options "4 Layer Names"
+@ftable @code
+@item --layer-name-8 <string>
+Name of the 8rd Layer. Default is @code{"spare"}.
+@end ftable
+%end-doc
+*/
   LAYERNAME (8, "spare"),
 
 /* %start-doc options "1 General Options"
