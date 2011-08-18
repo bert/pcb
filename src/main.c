@@ -992,21 +992,99 @@ Layer group string. Defaults to @code{"1,c:2:3:4:5:6,s:7:8"}.
 */
   SSET (Groups, "1,c:2:3:4:5:6,s:7:8", "groups", "Layer group string"),
 
-  SSET (FontCommand, "",
-	"font-command", 0),
-  SSET (FileCommand, "", "file-command", "Command to read a file."),
+
+/* %start-doc options "6 Commands"
+pcb uses external commands for input output operations. These commands can be
+configured at start-up to meet local requirements. The command string may include
+special sequences @code{%f}, @code{%p} or @code{%a}. These are replaced when the
+command is called. The sequence @code{%f} is replaced by the file name,
+@code{%p} gets the path and @code{%a} indicates a package name.
+%end-doc
+*/
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --font-command <string>
+Command to load a font.
+@end ftable
+%end-doc
+*/
+  SSET (FontCommand, "", "font-command", "Command to load a font"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --file-command <string>
+Command to read a file.
+@end ftable
+%end-doc
+*/
+  SSET (FileCommand, "", "file-command", "Command to read a file"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --element-command <string>
+Command to read a footprint. @*
+Defaults to @code{"M4PATH='%p';export M4PATH;echo 'include(%f)' | m4"}
+@end ftable
+%end-doc
+*/
   SSET (ElementCommand,
 	"M4PATH='%p';export M4PATH;echo 'include(%f)' | " GNUM4,
-	"element-command", 0),
-  SSET (PrintFile, "%f.output", "print-file", 0),
-  SSET (LibraryCommandDir, PCBLIBDIR, "lib-command-dir", 0),
+	"element-command", "Command to read a footprint"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --print-file <string>
+Command to print to a file.
+@end ftable
+%end-doc
+*/
+  SSET (PrintFile, "%f.output", "print-file", "Command to print to a file"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --lib-command-dir <string>
+Path to the command that queries the library.
+@end ftable
+%end-doc
+*/
+  SSET (LibraryCommandDir, PCBLIBDIR, "lib-command-dir",
+       "Path to the command that queries the library"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --lib-command <string>
+Command to query the library. @*
+Defaults to @code{"QueryLibrary.sh '%p' '%f' %a"}
+@end ftable
+%end-doc
+*/
   SSET (LibraryCommand, "QueryLibrary.sh '%p' '%f' %a",
-	"lib-command", 0),
+       "lib-command", "Command to query the library"),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --lib-contents-command <string>
+Command to query the contents of the library. @*
+Defaults to @code{"ListLibraryContents.sh %p %f"}
+@end ftable
+%end-doc
+*/
   SSET (LibraryContentsCommand, "ListLibraryContents.sh '%p' '%f'",
-	"lib-contents-command", 0),
+	"lib-contents-command", "Command to query the contents of the library"),
+
   SSET (LibraryTree, PCBTREEPATH, "lib-newlib",
 	"Top level directory for the newlib style library"),
-  SSET (SaveCommand, "", "save-command", 0),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --save-command <string>
+Command to save to a file.
+@end ftable
+%end-doc
+*/
+  SSET (SaveCommand, "", "save-command", "Command to save to a file"),
+
   SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
   SSET (FontFile, "default_font", "default-font",
 	"File name of default font."),
@@ -1025,7 +1103,16 @@ A string that defines the route styles. Defaults to @*
 	"A string that defines the route styles"),
 
   SSET (FilePath, "", "file-path", 0),
-  SSET (RatCommand, "", "rat-command", 0),
+
+/* %start-doc options "6 Commands"
+@ftable @code
+@item --rat-command <string>
+Command for reading a netlist. Sequence @code{%f} is replaced by the netlist filename.
+@end ftable
+%end-doc
+*/
+  SSET (RatCommand, "", "rat-command", "Command for reading a netlist"),
+
   SSET (FontPath, PCBLIBPATH, "font-path", 0),
 
 /* %start-doc options "1 General Options"
