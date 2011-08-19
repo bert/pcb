@@ -65,7 +65,7 @@ typedef struct hid_gc_struct
 
   const char *colorname;
   double alpha_mult;
-  gint width;
+  Coord width;
   gint cap, join;
   gchar xor;
 }

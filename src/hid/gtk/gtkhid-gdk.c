@@ -57,7 +57,7 @@ typedef struct hid_gc_struct
   GdkGC *gc;
 
   gchar *colorname;
-  gint width;
+  Coord width;
   gint cap, join;
   gchar xor_mask;
   gint mask_seq;
