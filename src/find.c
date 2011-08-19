@@ -1583,7 +1583,7 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 {
   double s, r;
   double line1_dx, line1_dy, line2_dx, line2_dy,
-         point1_dx, point1_dy, point2_dx, point2_dy;
+         point1_dx, point1_dy;
   if (TEST_FLAG (SQUAREFLAG, Line1))/* pretty reckless recursion */
     {
       PointType p[4];
@@ -1625,8 +1625,6 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
   line2_dy = Line2->Point2.Y - Line2->Point1.Y;
   point1_dx = Line1->Point1.X - Line2->Point1.X;
   point1_dy = Line1->Point1.Y - Line2->Point1.Y;
-  point2_dx = Line1->Point2.X - Line2->Point2.X;
-  point2_dy = Line1->Point2.Y - Line2->Point2.Y;
 
   /* If either line is a point, we have failed already, since the
    *   endpoint check above will have caught an "intersection". */
