@@ -1361,62 +1361,50 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
   gint flipd;
   int do_flip_x = 0;
   int do_flip_y = 0;
+  int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
   int comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
   int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
-  int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
-  int comp_showing =
-    PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;
-  int solder_showing =
-    PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
-
+  bool comp_on = LAYER_PTR (PCB->LayerGroups.Entries[comp_group][0])->On;
+  bool solder_on = LAYER_PTR (PCB->LayerGroups.Entries[solder_group][0])->On;
 
   if (argc > 0)
     {
       switch (argv[0][0]) {
-      case 'h':
-      case 'H':
-	ghid_flip_x = ! ghid_flip_x;
-	do_flip_x = 1;
-	break;
-      case 'v':
-      case 'V':
-	ghid_flip_y = ! ghid_flip_y;
-	do_flip_y = 1;
-	break;
-      case 'r':
-      case 'R':
-	ghid_flip_x = ! ghid_flip_x;
-	ghid_flip_y = ! ghid_flip_y;
-	do_flip_x = 1;
-	do_flip_y = 1;
-	break;
-      default:
-	return 1;
+        case 'h':
+        case 'H':
+          ghid_flip_x = ! ghid_flip_x;
+          do_flip_x = 1;
+          break;
+        case 'v':
+        case 'V':
+          ghid_flip_y = ! ghid_flip_y;
+          do_flip_y = 1;
+          break;
+        case 'r':
+        case 'R':
+          ghid_flip_x = ! ghid_flip_x;
+          ghid_flip_y = ! ghid_flip_y;
+          do_flip_x = 1;
+          do_flip_y = 1;
+          break;
+        default:
+          return 1;
       }
       /* SwapSides will swap this */
       Settings.ShowSolderSide = (ghid_flip_x == ghid_flip_y);
     }
 
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
-  if (Settings.ShowSolderSide)
+
+  if ((active_group == comp_group   && comp_on   && !solder_on) ||
+      (active_group == solder_group && solder_on && !comp_on))
     {
-      if (active_group == comp_group && comp_showing && !solder_showing)
-	{
-	  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 0,
-				 0);
-	  ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 1,
-				 1);
-	}
-    }
-  else
-    {
-      if (active_group == solder_group && solder_showing && !comp_showing)
-	{
-	  ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 0,
-				 0);
-	  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1,
-				 1);
-	}
+      bool new_comp_vis = Settings.ShowSolderSide && active_group == comp_group;
+
+      ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0],
+                             new_comp_vis, new_comp_vis);
+      ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0],
+                             !new_comp_vis, !new_comp_vis);
     }
 
   /* Update coordinates so that the current location stays where it was on the
