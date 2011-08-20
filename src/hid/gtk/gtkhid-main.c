@@ -122,6 +122,23 @@ ghid_zoom_view_fit (void)
                                  PCB->MaxHeight / gport->height));
 }
 
+static void
+ghid_flip_view (Coord center_x, Coord center_y, bool flip_x, bool flip_y)
+{
+  int widget_x, widget_y;
+
+  /* Work out where on the screen the flip point is */
+  ghid_pcb_to_event_coords (center_x, center_y, &widget_x, &widget_y);
+
+  ghid_flip_x = ghid_flip_x != flip_x;
+  ghid_flip_y = ghid_flip_y != flip_y;
+
+  /* Pan the board so the center location remains in the same place */
+  ghid_pan_view_abs (center_x, center_y, widget_x, widget_y);
+
+  ghid_invalidate_all ();
+}
+
 /* ------------------------------------------------------------ */
 
 static const char zoom_syntax[] =
@@ -1350,9 +1367,6 @@ side'' of the board.
 static int
 SwapSides (int argc, char **argv, Coord x, Coord y)
 {
-  gint flipd;
-  int do_flip_x = 0;
-  int do_flip_y = 0;
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
   int comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
   int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
@@ -1364,26 +1378,20 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
       switch (argv[0][0]) {
         case 'h':
         case 'H':
-          ghid_flip_x = ! ghid_flip_x;
-          do_flip_x = 1;
+          ghid_flip_view (gport->pcb_x, gport->pcb_y, true, false);
           break;
         case 'v':
         case 'V':
-          ghid_flip_y = ! ghid_flip_y;
-          do_flip_y = 1;
+          ghid_flip_view (gport->pcb_x, gport->pcb_y, false, true);
           break;
         case 'r':
         case 'R':
-          ghid_flip_x = ! ghid_flip_x;
-          ghid_flip_y = ! ghid_flip_y;
-          do_flip_x = 1;
-          do_flip_y = 1;
+          ghid_flip_view (gport->pcb_x, gport->pcb_y, true, true);
+          Settings.ShowSolderSide = !Settings.ShowSolderSide; /* Swapped back below */
           break;
         default:
           return 1;
       }
-      /* SwapSides will swap this */
-      Settings.ShowSolderSide = (ghid_flip_x == ghid_flip_y);
     }
 
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
@@ -1399,22 +1407,6 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
                              !new_comp_vis, !new_comp_vis);
     }
 
-  /* Update coordinates so that the current location stays where it was on the
-     other side; we need to do this since the actual flip center is the
-     center of the board while the user expect the center would be the current
-     location */
-  if (do_flip_x)
-    {
-	flipd = PCB->MaxWidth / 2 - SIDE_X (gport->pcb_x);
-	ghid_port_ranges_pan (-2 * flipd, 0, TRUE);
-    }
-  if (do_flip_y)
-    {
-	flipd = PCB->MaxHeight / 2 - SIDE_Y (gport->pcb_y);
-	ghid_port_ranges_pan (0, -2 * flipd, TRUE);
-    }
-
-  ghid_invalidate_all ();
   return 0;
 }
 
