@@ -114,7 +114,7 @@ ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
      |  overall PCB board size.
    */
 void
-ghid_port_ranges_scale (gboolean emit_changed)
+ghid_port_ranges_scale (void)
 {
   GtkAdjustment *adj;
 
@@ -135,16 +135,12 @@ ghid_port_ranges_scale (gboolean emit_changed)
   adj->page_increment = adj->page_size/10.0;
   adj->step_increment = adj->page_size/100.0;
   adj->upper = PCB->MaxWidth;
-  if (emit_changed)
-    gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
   adj->page_size = gport->view_height;
   adj->page_increment = adj->page_size/10.0;
   adj->step_increment = adj->page_size/100.0;
   adj->upper = PCB->MaxHeight;
-  if (emit_changed)
-    gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
 }
 
 
@@ -467,7 +463,7 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
       ghid_drawing_area_configure_hook (out);
     }
 
-  ghid_port_ranges_scale (FALSE);
+  ghid_port_ranges_scale ();
   ghid_invalidate_all ();
   return 0;
 }

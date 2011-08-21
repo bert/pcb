@@ -95,7 +95,7 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
 
   gport->zoom = new_zoom;
   pixel_slop = new_zoom;
-  ghid_port_ranges_scale (FALSE);
+  ghid_port_ranges_scale ();
 
   gport->view_x0 = MAX (0, SIDE_X (center_x) - xtmp * gport->view_width);
   gport->view_y0 = MAX (0, SIDE_Y (center_y) - ytmp * gport->view_height);
@@ -1152,7 +1152,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
   if (!gport->pixmap)
     return 0;
   RouteStylesChanged (0, NULL, 0, 0);
-  ghid_port_ranges_scale (TRUE);
+  ghid_port_ranges_scale ();
   ghid_port_ranges_pan (0, 0, FALSE);
   ghid_zoom_view_fit ();
   ghid_port_ranges_changed ();
