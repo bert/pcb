@@ -721,6 +721,11 @@ CreateNewArcInElement (ElementTypePtr Element,
   Element->ArcN ++;
 
   /* set Delta (0,360], StartAngle in [0,360) */
+  if (delta < 0)
+    {
+      delta = -delta;
+      angle -= delta;
+    }
   angle = NormalizeAngle (angle);
   delta = NormalizeAngle (delta);
   if (delta == 0)
