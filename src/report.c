@@ -446,13 +446,13 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		   GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
 	pcb_sprintf (&report[0], "%m+TEXT ID# %ld;  Flags:%s\n"
 		 "Located at (X,Y) = %$mD.\n"
-		 "Characters are %$mD tall.\n"
+		 "Characters are %$mS tall.\n"
 		 "Value is \"%s\".\n"
 		 "Direction is %d.\n"
 		 "The bounding box is %$mD %$mD.\n"
 		 "%s\n"
 		 "%s", USER_UNITMASK, text->ID, flags_to_string (text->Flags, TEXT_TYPE),
-		 text->X, text->Y, (Coord) (0.45 * text->Scale * 100),
+		 text->X, text->Y, (Coord) (0.45 * MIL_TO_COORD (text->Scale)),
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,
