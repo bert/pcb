@@ -35,26 +35,13 @@ bool ghid_flip_x = false, ghid_flip_y = false;
 static void ghid_zoom_view_fit (void);
 
 static void
-ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
+pan_common (GHidPort *port)
 {
-  gport->view_x0 = MAX (0, SIDE_X (pcb_x) - widget_x * gport->zoom);
-  gport->view_y0 = MAX (0, SIDE_Y (pcb_y) - widget_y * gport->zoom);
-
-  /* Don't pan so far to the right or bottom that we see past the board edge */
-  gport->view_x0 = MIN (gport->view_x0, PCB->MaxWidth  - gport->view_width);
-  gport->view_y0 = MIN (gport->view_y0, PCB->MaxHeight - gport->view_height);
-
-  /* Don't view above or to the left of the board... ever */
+  /* Don't pan so far that we see past the board edges */
   gport->view_x0 = MAX (0, gport->view_x0);
   gport->view_y0 = MAX (0, gport->view_y0);
-
-  /* If we can see the entire board and some, then zoom to fit */
-  if (gport->view_width  > PCB->MaxWidth  &&
-      gport->view_height > PCB->MaxHeight)
-    {
-      ghid_zoom_view_fit ();
-      return;
-    }
+  gport->view_x0 = MIN (gport->view_x0, PCB->MaxWidth  - gport->view_width);
+  gport->view_y0 = MIN (gport->view_y0, PCB->MaxHeight - gport->view_height);
 
   ghidgui->adjustment_changed_holdoff = TRUE;
   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
@@ -62,6 +49,15 @@ ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
   ghidgui->adjustment_changed_holdoff = FALSE;
 
   ghid_port_ranges_changed();
+}
+
+static void
+ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
+{
+  gport->view_x0 = SIDE_X (pcb_x) - widget_x * gport->zoom;
+  gport->view_y0 = SIDE_Y (pcb_y) - widget_y * gport->zoom;
+
+  pan_common (gport);
 }
 
 
@@ -97,15 +93,11 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
   pixel_slop = new_zoom;
   ghid_port_ranges_scale ();
 
-  gport->view_x0 = MAX (0, SIDE_X (center_x) - xtmp * gport->view_width);
-  gport->view_y0 = MAX (0, SIDE_Y (center_y) - ytmp * gport->view_height);
+  gport->view_x0 = SIDE_X (center_x) - xtmp * gport->view_width;
+  gport->view_y0 = SIDE_Y (center_y) - ytmp * gport->view_height;
 
-  ghidgui->adjustment_changed_holdoff = TRUE;
-  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
-  ghidgui->adjustment_changed_holdoff = FALSE;
+  pan_common (gport);
 
-  ghid_port_ranges_changed ();
   ghid_set_status_line_label ();
 }
 
