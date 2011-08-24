@@ -77,16 +77,8 @@ ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
   x0 = h_adj->value;
   y0 = v_adj->value;
 
-  if (relative)
-    {
-      x1 = x0 + x;
-      y1 = y0 + y;
-    }
-  else
-    {
-      x1 = x;
-      y1 = y;
-    }
+  x1 = relative ? x + x0 : x;
+  y1 = relative ? y + y0 : y;
 
   if (x1 < h_adj->lower)
     x1 = h_adj->lower;
@@ -110,9 +102,9 @@ ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
   return ((x0 != x1) || (y0 != y1));
 }
 
-  /* Do scrollbar scaling based on current port drawing area size and
-     |  overall PCB board size.
-   */
+/* Do scrollbar scaling based on current port drawing area size and
+   |  overall PCB board size.
+ */
 void
 ghid_port_ranges_scale (void)
 {
