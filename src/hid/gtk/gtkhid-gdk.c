@@ -741,6 +741,11 @@ redraw_region (GdkRectangle *rect)
   region.Y2 = MAX(Py(priv->clip_rect.y),
                   Py(priv->clip_rect.y + priv->clip_rect.height + 1));
 
+  region.X1 = MAX (0, MIN (PCB->MaxWidth,  region.X1));
+  region.X2 = MAX (0, MIN (PCB->MaxWidth,  region.X2));
+  region.Y1 = MAX (0, MIN (PCB->MaxHeight, region.Y1));
+  region.Y2 = MAX (0, MIN (PCB->MaxHeight, region.Y2));
+
   eleft = Vx (0);
   eright = Vx (PCB->MaxWidth);
   etop = Vy (0);
@@ -1295,6 +1300,12 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   region.Y1 = MIN(Py(0), Py(gport->height + 1));
   region.X2 = MAX(Px(0), Px(gport->width + 1));
   region.Y2 = MAX(Py(0), Py(gport->height + 1));
+
+  region.X1 = MAX (0, MIN (PCB->MaxWidth,  region.X1));
+  region.X2 = MAX (0, MIN (PCB->MaxWidth,  region.X2));
+  region.Y1 = MAX (0, MIN (PCB->MaxHeight, region.Y1));
+  region.Y2 = MAX (0, MIN (PCB->MaxHeight, region.Y2));
+
   hid_expose_callback (&ghid_hid, &region, NULL);
 
   gport->drawable = save_drawable;
