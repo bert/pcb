@@ -1145,9 +1145,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
     return 0;
   RouteStylesChanged (0, NULL, 0, 0);
   ghid_port_ranges_scale ();
-  ghid_port_ranges_pan (0, 0, FALSE);
   ghid_zoom_view_fit ();
-  ghid_port_ranges_changed ();
   ghid_sync_with_new_layout ();
   return 0;
 }
