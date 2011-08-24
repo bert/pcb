@@ -1837,11 +1837,7 @@ ScrollAction (int argc, char **argv, Coord x, Coord y)
   else
     AFAIL (scroll);
 
-  notify_crosshair_change (false);
   ghid_port_ranges_pan (dx, dy, TRUE);
-  MoveCrosshairRelative (dx, dy);
-  AdjustAttachedObjects ();
-  notify_crosshair_change (true);
 
   return 0;
 }
