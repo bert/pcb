@@ -7082,6 +7082,8 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
       er = ElementOrientation (e);
       pe = PASTEBUFFER->Data->Element->data;
+      if (!FRONT (e))
+	MirrorElementCoordinates (PASTEBUFFER->Data, pe, pe->MarkY*2 - PCB->MaxHeight);
       pr = ElementOrientation (pe);
 
       mx = e->MarkX;
@@ -7105,6 +7107,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
     }
 
   /* Now reload footprint */
+  element_cache = NULL;
   e = find_element_by_refdes (refdes);
 
   old = ChangeElementText (PCB, PCB->Data, e, NAMEONPCB_INDEX, strdup (refdes));
