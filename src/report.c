@@ -41,6 +41,7 @@
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"
+#include "rats.h"
 #include "rtree.h"
 #include "strflags.h"
 #include "macro.h"
@@ -48,6 +49,17 @@
 #include "find.h"
 #include "draw.h"
 #include "pcb-printf.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
+
+#ifdef HAVE_REGCOMP
+#undef HAVE_RE_COMP
+#endif
+
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
+#define USE_RE
+#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -737,12 +749,157 @@ ReportNetLength (int argc, char **argv, Coord x, Coord y)
   }
   return 0;
 }
+
+static int
+ReportNetLengthByName (char *tofind, int x, int y)
+{
+  int result;
+  char *netname = 0;
+  Coord length = 0;
+  int found = 0;
+  int i;
+  LibraryMenuType *net;
+  ConnectionType conn;
+  int net_found = 0;
+#if defined(USE_RE)
+  int use_re = 0;
+#endif
+#if defined(HAVE_REGCOMP)
+  regex_t elt_pattern;
+  regmatch_t match;
+#endif
+#if defined(HAVE_RE_COMP)
+  char *elt_pattern;
+#endif
+
+  if (!PCB)
+    return 1;
+
+  if (!tofind)
+    return 1;
+
+  SaveUndoSerialNumber ();
+  ResetFoundPinsViasAndPads (true);
+  RestoreUndoSerialNumber ();
+  ResetFoundLinesAndPolygons (true);
+  RestoreUndoSerialNumber ();
+
+#if defined(USE_RE)
+      use_re = 1;
+      for (i = 0; i < PCB->NetlistLib.MenuN; i++)
+	{
+	  net = PCB->NetlistLib.Menu + i;
+	  if (strcasecmp (tofind, net->Name + 2) == 0)
+	    use_re = 0;
+	}
+      if (use_re)
+	{
+#if defined(HAVE_REGCOMP)
+	  result =
+	    regcomp (&elt_pattern, tofind,
+		     REG_EXTENDED | REG_ICASE | REG_NOSUB);
+	  if (result)
+	    {
+	      char errorstring[128];
+
+	      regerror (result, &elt_pattern, errorstring, 128);
+	      Message (_("regexp error: %s\n"), errorstring);
+	      regfree (&elt_pattern);
+	      return (1);
+	    }
+#endif
+#if defined(HAVE_RE_COMP)
+	  if ((elt_pattern = re_comp (tofind)) != NULL)
+	    {
+	      Message (_("re_comp error: %s\n"), elt_pattern);
+	      return (false);
+	    }
+#endif
+	}
+#endif
+
+  for (i = 0; i < PCB->NetlistLib.MenuN; i++)
+    {
+      net = PCB->NetlistLib.Menu + i;
+
+#if defined(USE_RE)
+	  if (use_re)
+	    {
+#if defined(HAVE_REGCOMP)
+	      if (regexec (&elt_pattern, net->Name + 2, 1, &match, 0) != 0)
+		continue;
+#endif
+#if defined(HAVE_RE_COMP)
+	      if (re_exec (net->Name + 2) != 1)
+		continue;
+#endif
+	    }
+	  else
+#endif
+	  if (strcasecmp (net->Name + 2, tofind))
+	    continue;
+
+        if (SeekPad (net->Entry, &conn, false))
+        {
+          switch (conn.type)
+          {
+            case PIN_TYPE:
+              x = ((PinType *) (conn.ptr2))->X;
+              y = ((PinType *) (conn.ptr2))->Y;
+              net_found=1;
+	      break;
+            case PAD_TYPE:
+              x = ((PadType *) (conn.ptr2))->Point1.X;
+              y = ((PadType *) (conn.ptr2))->Point1.Y;
+              net_found=1;
+	      break;
+          }
+	  if (net_found)
+	    break;
+        }
+    }
+
+  if (!net_found)
+    {
+      gui->log ("No net named %s\n", tofind);
+      return 1;
+    }
+#ifdef HAVE_REGCOMP
+  if (use_re)
+    regfree (&elt_pattern);
+#endif
+
+  length = XYtoNetLength (x, y, &found);
+  netname = net->Name + 2;
+
+  if (!found && net_found)
+  {
+      gui->log ("Net found, but no lines or arcs were flagged.\n");
+      return 1;
+  }
+  else if (!found)
+  {
+      gui->log ("Net not found.\n");
+      return 1;
+  }
+
+  {
+    char buf[50];
+    pcb_sprintf(buf, "%$m*", Settings.grid_unit->suffix, length);
+    if (netname)
+      gui->log ("Net \"%s\" length: %s\n", netname, buf);
+    else
+      gui->log ("Net length: %s\n", buf);
+  }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * reports on an object 
  * syntax: 
  */
 
-static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths)";
+static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|{,name})";
 
 static const char report_help[] = "Produce various report.";
 
@@ -778,7 +935,7 @@ units
 static int
 Report (int argc, char **argv, Coord x, Coord y)
 {
-  if (argc < 1)
+  if ((argc < 1) || (argc > 2))
     AUSAGE (report);
   else if (strcasecmp (argv[0], "Object") == 0)
     {
@@ -789,10 +946,14 @@ Report (int argc, char **argv, Coord x, Coord y)
     return ReportDrills (argc - 1, argv + 1, x, y);
   else if (strcasecmp (argv[0], "FoundPins") == 0)
     return ReportFoundPins (argc - 1, argv + 1, x, y);
-  else if (strcasecmp (argv[0], "NetLength") == 0)
+  else if ((strcasecmp (argv[0], "NetLength") == 0) && (argc == 1))
     return ReportNetLength (argc - 1, argv + 1, x, y);
   else if (strcasecmp (argv[0], "AllNetLengths") == 0)
     return ReportAllNetLengths (argc - 1, argv + 1, x, y);
+  else if ((strcasecmp (argv[0], "NetLength") == 0) && (argc == 2))
+    return ReportNetLengthByName (argv[1], x, y);
+  else if (argc == 2)
+    AUSAGE (report);
   else
     AFAIL (report);
   return 1;
