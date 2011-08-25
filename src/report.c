@@ -899,7 +899,7 @@ ReportNetLengthByName (char *tofind, int x, int y)
  * syntax: 
  */
 
-static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|{,name})";
+static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])";
 
 static const char report_help[] = "Produce various report.";
 
