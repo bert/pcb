@@ -2573,7 +2573,9 @@ idle_proc (XtPointer dummy)
   {
     static int c_x = -2, c_y = -2;
     static MarkType saved_mark;
+    static Unit *old_grid_unit = NULL;
     if (crosshair_x != c_x || crosshair_y != c_y
+	|| Settings.grid_unit != old_grid_unit
 	|| memcmp (&saved_mark, &Marked, sizeof (MarkType)))
       {
 	static int last_state = 0;
@@ -2610,6 +2612,13 @@ idle_proc (XtPointer dummy)
 	    last_state = this_state + 100;
 	  }
 	memcpy (&saved_mark, &Marked, sizeof (MarkType));
+
+	if (old_grid_unit != Settings.grid_unit)
+	  {
+	    old_grid_unit = Settings.grid_unit;
+	    /* Force a resize on units change.  */
+	    last_state ++;
+	  }
 
 	/* This is obtuse.  We want to enable XmRESIZE_ANY long enough
 	   to shrink to fit the new format (if any), then switch it
