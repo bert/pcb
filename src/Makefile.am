@@ -272,6 +272,10 @@ LIBGTK_SRCS = \
 	hid/hidint.h \
 	hid/gtk/gtk-pcb-coord-entry.c \
 	hid/gtk/gtk-pcb-coord-entry.h \
+	hid/gtk/gtk-pcb-layer-selector.c \
+	hid/gtk/gtk-pcb-layer-selector.h \
+	hid/gtk/gtk-pcb-cell-renderer-visibility.c \
+	hid/gtk/gtk-pcb-cell-renderer-visibility.h \
 	hid/gtk/gtkhid-main.c \
 	hid/gtk/gtkhid.h \
 	hid/gtk/gui.h \
