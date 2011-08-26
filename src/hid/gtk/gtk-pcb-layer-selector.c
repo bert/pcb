@@ -1,7 +1,10 @@
 /*! \file <gtk-pcb-layer-selector.c>
  *  \brief Implementation of GtkPcbLayerSelector widget
  *  \par Description
- *  This widget is used for
+ *  This widget is the layer selector on the left side of the Gtk
+ *  GUI. It also describes (in XML) the relevant sections of the
+ *  menu for layer selection and visibility toggling, and makes
+ *  sure these stay in sync.
  */
 
 #include <glib.h>

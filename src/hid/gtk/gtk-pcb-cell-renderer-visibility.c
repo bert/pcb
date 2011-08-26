@@ -1,3 +1,10 @@
+/*! \file <gtk-pcb-cell-render-visibility.c>
+ *  \brief Implementation of GtkCellRenderer for layer visibility toggler
+ *  \par More Information
+ *  For details on the functions implemented here, see the Gtk
+ *  documentation for the GtkCellRenderer object, which defines
+ *  the interface we are implementing.
+ */
 
 #include <glib.h>
 #include <glib-object.h>
@@ -35,6 +42,7 @@ struct _GtkPcbCellRendererVisibilityClass
 };
 
 /* RENDERER FUNCTIONS */
+/*! \brief Calculates the window area the renderer will use */
 static void
 gtk_pcb_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
                                            GtkWidget       *widget,
@@ -69,6 +77,7 @@ gtk_pcb_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
     }
 }
 
+/*! \brief Actually renders the swatch */
 static void
 gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
                                          GdkWindow            *window,
@@ -144,6 +153,7 @@ gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
     }
 }
 
+/*! \brief Toggless the swatch */
 static gint
 gtk_pcb_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
                                            GdkEvent             *event,
