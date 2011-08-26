@@ -1750,29 +1750,23 @@ void
 NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
                      void (*emit) (PLINE *, void *), void *user_data)
 {
-  POLYAREA *save, *ans, *cur, *next;
+  POLYAREA *main_contour, *cur, *next;
 
-  ans = save = poly_Create ();
+  main_contour = poly_Create ();
   /* copy the main poly only */
-  poly_Copy1 (save, p->Clipped);
+  poly_Copy1 (main_contour, p->Clipped);
   /* clip to the bounding box */
   if (clip)
     {
       POLYAREA *cbox = RectPoly (clip->X1, clip->X2, clip->Y1, clip->Y2);
-      if (cbox)
-        {
-          int r = poly_Boolean_free (save, cbox, &ans, PBO_ISECT);
-          save = ans;
-          if (r != err_ok)
-            save = NULL;
-        }
+      poly_Boolean_free (main_contour, cbox, &main_contour, PBO_ISECT);
     }
-  if (!save)
+  if (main_contour == NULL)
     return;
   /* Now dice it up.
    * NB: Could be more than one piece (because of the clip above)
    */
-  cur = save;
+  cur = main_contour;
   do
     {
       next = cur->f;
@@ -1780,7 +1774,7 @@ NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
       r_NoHolesPolygonDicer (cur, emit, user_data);
       /* NB: The POLYAREA was freed by its use in the recursive dicer */
     }
-  while ((cur = next) != save);
+  while ((cur = next) != main_contour);
 }
 
 /* make a polygon split into multiple parts into multiple polygons */
