@@ -66,42 +66,6 @@ ghid_port_ranges_changed (void)
   ghid_invalidate_all ();
 }
 
-gboolean
-ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
-{
-  GtkAdjustment *h_adj, *v_adj;
-  gdouble x0, y0, x1, y1;
-
-  h_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
-  v_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
-  x0 = h_adj->value;
-  y0 = v_adj->value;
-
-  x1 = relative ? x + x0 : x;
-  y1 = relative ? y + y0 : y;
-
-  if (x1 < h_adj->lower)
-    x1 = h_adj->lower;
-  if (x1 > h_adj->upper - h_adj->page_size)
-    x1 = h_adj->upper - h_adj->page_size;
-
-  if (y1 < v_adj->lower)
-    y1 = v_adj->lower;
-  if (y1 > v_adj->upper - v_adj->page_size)
-    y1 = v_adj->upper - v_adj->page_size;
-
-  ghidgui->adjustment_changed_holdoff = TRUE;
-  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), x1);
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), y1);
-  ghidgui->adjustment_changed_holdoff = FALSE;
-
-  if ((x0 != x1) || (y0 != y1))
-    ghid_port_ranges_changed();
-
-  ghid_note_event_location (NULL);
-  return ((x0 != x1) || (y0 != y1));
-}
-
 /* Do scrollbar scaling based on current port drawing area size and
    |  overall PCB board size.
  */
@@ -589,7 +553,7 @@ ghid_port_window_motion_cb (GtkWidget * widget,
       dx = gport->zoom * (x_prev - ev->x);
       dy = gport->zoom * (y_prev - ev->y);
       if (x_prev > 0)
-	ghid_port_ranges_pan (dx, dy, TRUE);
+        ghid_pan_view_rel (dx, dy);
       x_prev = ev->x;
       y_prev = ev->y;
       return FALSE;
@@ -642,9 +606,11 @@ ghid_pan_idle_cb (gpointer data)
 
   if (gport->has_entered)
     return FALSE;
+
   dy = gport->zoom * y_pan_speed;
   dx = gport->zoom * x_pan_speed;
-  return (ghid_port_ranges_pan (dx, dy, TRUE));
+  ghid_pan_view_rel (dx, dy);
+  return TRUE;
 }
 
 gint

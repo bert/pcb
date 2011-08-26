@@ -72,6 +72,15 @@ ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
   pan_common (gport);
 }
 
+void
+ghid_pan_view_rel (Coord dx, Coord dy)
+{
+  gport->view_x0 += dx;
+  gport->view_y0 += dy;
+
+  pan_common (gport);
+}
+
 
 /* gport->zoom:
  * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
@@ -1849,7 +1858,7 @@ ScrollAction (int argc, char **argv, Coord x, Coord y)
   else
     AFAIL (scroll);
 
-  ghid_port_ranges_pan (dx, dy, TRUE);
+  ghid_pan_view_rel (dx, dy);
 
   return 0;
 }
