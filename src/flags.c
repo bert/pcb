@@ -74,7 +74,7 @@ FlagGridSize (int dummy)
 static int
 FlagUnitsMm (int dummy)
 {
-  static Unit *u = NULL;
+  static const Unit *u = NULL;
   if (u == NULL)
     u = get_unit_struct ("mm");
   return (Settings.grid_unit == u);
@@ -83,7 +83,7 @@ FlagUnitsMm (int dummy)
 static int
 FlagUnitsMil (int dummy)
 {
-  static Unit *u = NULL;
+  static const Unit *u = NULL;
   if (u == NULL)
     u = get_unit_struct ("mil");
   return (Settings.grid_unit == u);
