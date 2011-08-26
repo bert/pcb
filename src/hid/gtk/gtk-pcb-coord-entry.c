@@ -1,3 +1,14 @@
+/*! \file <gtk-pcb-coord-entry.c>
+ *  \brief Implementation of GtkPcbCoordEntry widget
+ *  \par Description
+ *  This widget is a modified spinbox for the user to enter
+ *  pcb coords. It is assigned a default unit (for display),
+ *  but this can be changed by the user by typing a new one
+ *  or right-clicking on the box.
+ *
+ *  Internally, it keeps track of its value in pcb coords.
+ *  From the user's perspective, it uses natural human units.
+ */
 
 #include <glib.h>
 #include <glib-object.h>
@@ -36,6 +47,7 @@ struct _GtkPcbCoordEntryClass
 };
 
 /* SIGNAL HANDLERS */
+/*! \brief Callback for "Change Unit" menu click */
 static void
 menu_item_activate_cb (GtkMenuItem *item, GtkPcbCoordEntry *ce)
 {
@@ -45,6 +57,7 @@ menu_item_activate_cb (GtkMenuItem *item, GtkPcbCoordEntry *ce)
   g_signal_emit (ce, gtk_pcb_coord_entry_signals[UNIT_CHANGE_SIGNAL], 0, unit);
 }
 
+/*! \brief Callback for context menu creation */
 static void
 gtk_pcb_coord_entry_popup_cb (GtkPcbCoordEntry *ce, GtkMenu *menu, gpointer data)
 {
@@ -77,6 +90,7 @@ gtk_pcb_coord_entry_popup_cb (GtkPcbCoordEntry *ce, GtkMenu *menu, gpointer data
   gtk_widget_show (menu_item);
 }
 
+/*! \brief Callback for user output */
 static gboolean
 gtk_pcb_coord_entry_output_cb (GtkPcbCoordEntry *ce, gpointer data)
 {
@@ -91,6 +105,7 @@ gtk_pcb_coord_entry_output_cb (GtkPcbCoordEntry *ce, gpointer data)
   return TRUE;
 }
 
+/*! \brief Callback for user input */
 static gboolean
 gtk_pcb_coord_text_changed_cb (GtkPcbCoordEntry *entry, gpointer data)
 {
@@ -112,6 +127,7 @@ gtk_pcb_coord_text_changed_cb (GtkPcbCoordEntry *entry, gpointer data)
   return FALSE;
 }
 
+/*! \brief Callback for change in value (input or ^v clicks) */
 static gboolean
 gtk_pcb_coord_value_changed_cb (GtkPcbCoordEntry *ce, gpointer data)
 {
@@ -126,6 +142,11 @@ gtk_pcb_coord_value_changed_cb (GtkPcbCoordEntry *ce, gpointer data)
   return FALSE;
 }
 
+/*! \brief Change the unit used by a coord entry
+ *
+ *  \param [in] ce         The entry to be acted on
+ *  \parin [in] new_unit   The new unit to be used
+ */
 static void
 gtk_pcb_coord_entry_change_unit (GtkPcbCoordEntry *ce, const Unit *new_unit)
 {
@@ -215,6 +236,16 @@ gtk_pcb_coord_entry_get_type (void)
   return ce_type;
 }
 
+/*! \brief Create a new GtkPcbCoordEntry
+ *
+ *  \param [in] min_val    The minimum allowed value, in pcb coords
+ *  \param [in] max_val    The maximum allowed value, in pcb coords
+ *  \param [in] value      The default value, in pcb coords
+ *  \param [in] unit       The default unit
+ *  \param [in] step_size  How large the default increments should be
+ *
+ *  \return a freshly-allocated GtkPcbCoordEntry
+ */
 GtkWidget *
 gtk_pcb_coord_entry_new (Coord min_val, Coord max_val, Coord value,
                          const Unit *unit, enum ce_step_size step_size)
@@ -264,12 +295,14 @@ gtk_pcb_coord_entry_new (Coord min_val, Coord max_val, Coord value,
   return GTK_WIDGET (ce);
 }
 
+/*! \brief Gets a GtkPcbCoordEntry's value, in pcb coords */
 Coord
 gtk_pcb_coord_entry_get_value (GtkPcbCoordEntry *ce)
 {
   return ce->value;
 }
 
+/*! \brief Sets a GtkPcbCoordEntry's value, in pcb coords */
 void
 gtk_pcb_coord_entry_set_value (GtkPcbCoordEntry *ce, Coord val)
 {
