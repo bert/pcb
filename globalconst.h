@@ -126,4 +126,7 @@
 						/* to enable grid drawing */
 	/* size of diamond element mark */
 #define EMARK_SIZE	MIL_TO_COORD (10)
+
+/* (Approximate) capheight size of the default PCB font */
+#define FONT_CAPHEIGHT  MIL_TO_COORD (45)
 #endif
