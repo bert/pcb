@@ -264,7 +264,6 @@ void ghid_get_pointer (gint *, gint *);
 void ghid_port_ranges_changed (void);
 gboolean ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative);
 void ghid_port_ranges_scale (void);
-void ghid_port_ranges_update_ranges (void);
 
 gboolean ghid_note_event_location (GdkEventButton * ev);
 gboolean have_crosshair_attachments (void);
