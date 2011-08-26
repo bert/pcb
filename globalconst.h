@@ -125,5 +125,5 @@
 #define	MIN_GRID_DISTANCE		4	/* minimum distance between point */
 						/* to enable grid drawing */
 	/* size of diamond element mark */
-#define EMARK_SIZE	1000
+#define EMARK_SIZE	MIL_TO_COORD (10)
 #endif
