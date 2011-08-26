@@ -1839,13 +1839,13 @@ ScrollAction (int argc, char **argv, Coord x, Coord y)
     div = atoi(argv[1]);
 
   if (strcasecmp (argv[0], "up") == 0)
-    dy = -(ghid_port.height * gport->zoom / div);
+    dy = -gport->view_height / div;
   else if (strcasecmp (argv[0], "down") == 0)
-    dy = ghid_port.height * gport->zoom / div;
+    dy = gport->view_height / div;
   else if (strcasecmp (argv[0], "right") == 0)
-    dx = ghid_port.width * gport->zoom / div;
+    dx = gport->view_width / div;
   else if (strcasecmp (argv[0], "left") == 0)
-    dx = -(ghid_port.width * gport->zoom / div);
+    dx = -gport->view_width / div;
   else
     AFAIL (scroll);
 
