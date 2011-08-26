@@ -108,6 +108,7 @@ typedef struct
     *menu_hbox, *compact_vbox, *compact_hbox, *position_hbox, *label_hbox,
     *mode_buttons0_vbox, *mode_buttons1_hbox, *mode_buttons1_vbox,
     *mode_buttons0_frame, *mode_buttons1_frame, *mode_buttons0_frame_vbox;
+  GtkWidget *layer_selector;
 
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
@@ -235,9 +236,7 @@ void ghid_config_files_read (gint * argc, gchar *** argv);
 
 void ghid_mode_buttons_update (void);
 void ghid_pack_mode_buttons(void);
-void ghid_layer_enable_buttons_update (void);
 void ghid_layer_buttons_update (void);
-void ghid_layer_button_select (gint layer);
 void ghid_layer_buttons_color_update (void);
 
 

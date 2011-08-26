@@ -82,6 +82,7 @@ a zoom in/out.
 #include <locale.h>
 #endif
 
+#include "gtk-pcb-layer-selector.h"
 #include "gtkhid.h"
 #include "gui.h"
 #include "hid.h"
@@ -157,17 +158,6 @@ typedef struct
 }
 RouteStyleButton;
 
-/* Used by the layer buttons */
-typedef struct
-{
-  GtkWidget *radio_select_button,
-    *layer_enable_button, *layer_enable_ebox, *label;
-  gchar *text;
-  gint index;
-}
-LayerButtonSet;
-
-
 /* ---------------------------------------------------------------------------
  * local macros
  */
@@ -197,22 +187,12 @@ static gint tmenuitem_cnt = 0;
 static Resource **action_resources = NULL;
 static Resource **toggle_action_resources = NULL;
 
-/* actions for the @layerview menuitems */
-static GtkToggleActionEntry layerview_toggle_entries[N_LAYER_BUTTONS];
-static Resource *layerview_resources[N_LAYER_BUTTONS];
-
-/* actions for the @layerpick menuitems */
-static GtkToggleActionEntry layerpick_toggle_entries[N_LAYER_BUTTONS];
-static Resource *layerpick_resources[N_LAYER_BUTTONS];
-
 /* actions for the @routestyles menuitems */
 static GtkToggleActionEntry routestyle_toggle_entries[N_ROUTE_STYLES];
 static Resource *routestyle_resources[N_ROUTE_STYLES];
 
 #define MENUITEM "MenuItem"
 #define TMENUITEM "TMenuItem"
-#define LAYERPICK "LayerPick"
-#define LAYERVIEW "LayerView"
 #define ROUTESTYLE "RouteStyle"
 
 
@@ -367,21 +347,6 @@ ghid_update_toggle_flags ()
 	}
     }
 
-
-  /* FIXME -- this probably needs to go somewhere else */
-#ifdef notdef
-  for (i = 0; i < N_LAYER_BUTTONS; i++)
-    {
-      sprintf (tmpnm, "%s%d", LAYERVIEW, i);
-      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
-      if (a != NULL)
-	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
-	}
-
-    }
-#endif
-
   for (i = 0; i < N_ROUTE_STYLES; i++)
     {
       sprintf (tmpnm, "%s%d", ROUTESTYLE, i);
@@ -522,24 +487,6 @@ ghid_menu_cb (GtkAction * action, gpointer data)
 	node = NULL;
       else
 	node = toggle_action_resources[id];
-    }
-  else if ( strncmp (name, LAYERPICK, strlen (LAYERPICK)) == 0)
-    {
-      id = atoi (name + strlen (LAYERPICK));
-
-      if (ghidgui->toggle_holdoff == TRUE) 
-	node = NULL;
-      else
-	node = layerpick_resources[id];
-    }
-  else if ( strncmp (name, LAYERVIEW, strlen (LAYERVIEW)) == 0)
-    {
-      id = atoi (name + strlen (LAYERVIEW));
-
-      if (ghidgui->toggle_holdoff == TRUE) 
-	node = NULL;
-      else
-	node = layerview_resources[id];
     }
   else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
     {
@@ -730,6 +677,84 @@ layer_process (gchar **color_string, char **text, int *set, int i)
     }
 }
 
+/*! \brief Callback for GtkPcbLayerSelector layer selection */
+static void
+layer_selector_select_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
+{
+  gboolean active;
+  layer_process (NULL, NULL, &active, layer);
+
+  /* Select Layer */
+  PCB->SilkActive = (layer == LAYER_BUTTON_SILK);
+  PCB->RatDraw  = (layer == LAYER_BUTTON_RATS);
+  if (layer < max_copper_layer)
+    ChangeGroupVisibility (layer, true, true);
+
+  /* Ensure layer is turned on */
+  gtk_pcb_layer_selector_make_selected_visible (ls);
+
+  ghid_invalidate_all ();
+}
+
+/*! \brief Callback for GtkPcbLayerSelector layer toggling */
+static void
+layer_selector_toggle_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
+{
+  gboolean redraw = FALSE;
+  gboolean active;
+  layer_process (NULL, NULL, &active, layer);
+
+  active = !active;
+  switch (layer)
+    {
+    case LAYER_BUTTON_SILK:
+      PCB->ElementOn = active;
+      PCB->Data->SILKLAYER.On = PCB->ElementOn;
+      PCB->Data->BACKSILKLAYER.On = PCB->ElementOn;
+      redraw = 1;
+      break;
+    case LAYER_BUTTON_RATS:
+      PCB->RatOn = active;
+      redraw = 1;
+      break;
+    case LAYER_BUTTON_PINS:
+      PCB->PinOn = active;
+      redraw |= (PCB->Data->ElementN != 0);
+      break;
+    case LAYER_BUTTON_VIAS:
+      PCB->ViaOn = active;
+      redraw |= (PCB->Data->ViaN != 0);
+      break;
+    case LAYER_BUTTON_FARSIDE:
+      PCB->InvisibleObjectsOn = active;
+      PCB->Data->BACKSILKLAYER.On = (active && PCB->ElementOn);
+      redraw = TRUE;
+      break;
+    case LAYER_BUTTON_MASK:
+      if (active)
+        SET_FLAG (SHOWMASKFLAG, PCB);
+      else
+        CLEAR_FLAG (SHOWMASKFLAG, PCB);
+      redraw = TRUE;
+      break;
+    default:
+      /* Flip the visibility */
+      ChangeGroupVisibility (layer, active, false);
+      redraw = TRUE;
+      break;
+    }
+
+  /* Jump through hoops in case we just disabled the active layer
+   *  (or its group). In this case, select a different one if we
+   *  can. If we can't, turn the original layer back on.
+   */
+  if (!gtk_pcb_layer_selector_select_next_visible (ls))
+    gtk_pcb_layer_selector_toggle_layer (ls, layer);
+
+  if (redraw)
+    ghid_invalidate_all();
+}
+
 /*
  * The intial loading of all actions at startup.
  */
@@ -737,69 +762,10 @@ static void
 ghid_make_programmed_menu_actions ()
 {
   int i;
-  gchar * text;
-  
   Resource *ar;
   char av[64];
 
-  for (i = 0; i < N_LAYER_BUTTONS; i++)
-    {
-      layer_process (NULL, &text, NULL, i);
-#ifdef DEBUG_MENUS
-      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_copper_layer = %d, MAX_LAYER = %d\n", i, text, max_copper_layer, MAX_LAYER);
-#endif
-      /* name, stock_id, label, accelerator, tooltip, callback */
-      layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
-      layerview_toggle_entries[i].stock_id = NULL;
-      layerview_toggle_entries[i].label = g_strdup (text);
-      layerview_toggle_entries[i].accelerator = NULL;
-      layerview_toggle_entries[i].tooltip = NULL;
-      layerview_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      layerview_toggle_entries[i].is_active = FALSE;
-      
-      ar = resource_create (0);
-      sprintf (av, "ToggleView(%d)", i + 1);
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      layerview_resources[i] = ar;
-
-      /* name, stock_id, label, accelerator, tooltip, callback */
-      layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
-      layerpick_toggle_entries[i].stock_id = NULL;
-      layerpick_toggle_entries[i].label = g_strdup (text);
-      layerpick_toggle_entries[i].accelerator = NULL;
-      layerpick_toggle_entries[i].tooltip = NULL;
-      layerpick_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      layerpick_toggle_entries[i].is_active = FALSE;
-
-      ar = resource_create (0);
-
-      switch (i)
-	{
-	case LAYER_BUTTON_SILK:
-	  sprintf (av, "SelectLayer(Silk) LayersChanged()");
-          if (max_copper_layer < 9)
-            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", max_copper_layer + 1);
-	  break; 
-	case LAYER_BUTTON_RATS:
-          if (max_copper_layer < 8)
-            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", max_copper_layer + 2);
-	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
-	  break;
-	default:
-	  sprintf (av, "SelectLayer(%d) LayersChanged()", i + 1);
-          if (i < 9 && i < max_copper_layer)
-            layerpick_toggle_entries[i].accelerator = g_strdup_printf ("<Key>%d", i + 1);
-	  break;
-	}
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      layerpick_resources[i] = ar;
-    }
-
-    for (i = 0; i < N_ROUTE_STYLES; i++)
+  for (i = 0; i < N_ROUTE_STYLES; i++)
     {
       routestyle_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
       routestyle_toggle_entries[i].stock_id = NULL;
@@ -840,14 +806,6 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 
   ghid_make_programmed_menu_actions ();
 
-  gtk_action_group_add_toggle_actions (actions, 
-				       layerpick_toggle_entries, 
-				       N_LAYER_BUTTONS, port);
-
-  gtk_action_group_add_toggle_actions (actions,
-				       layerview_toggle_entries,
-				       N_LAYER_BUTTONS, port);
-
   gtk_action_group_add_toggle_actions (actions,
 				       routestyle_toggle_entries,
 				       N_ROUTE_STYLES, port);
@@ -865,6 +823,7 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   GtkUIManager *ui;
   GtkWidget *frame;
   GtkActionGroup *actions;
+  GtkActionGroup *layer_actions;
   GError *error = NULL;
 
   frame = gtk_frame_new (NULL);
@@ -879,8 +838,11 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   ghidgui->main_actions = actions;
 
   make_menu_actions (actions, port);
-
+  layer_actions = gtk_pcb_layer_selector_get_action_group
+          (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+ 
   gtk_ui_manager_insert_action_group (ui, actions, 0);
+  gtk_ui_manager_insert_action_group (ui, layer_actions, 0);
 
   gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
 			      gtk_ui_manager_get_accel_group (ui));
@@ -1030,474 +992,80 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
 
 }
 
-
-  /* ------------------------------------------------------------------
-     |  Handle the layer buttons.
-   */
-static LayerButtonSet layer_buttons[N_LAYER_BUTTONS];
-
-static gint layer_select_button_index;
-
-static gboolean layer_enable_button_cb_hold_off,
-  layer_select_button_cb_hold_off;
-
+/* \brief Add "virtual layers" to a layer selector */
 static void
-layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
+make_virtual_layer_buttons (GtkPcbLayerSelector *layersel)
 {
-  gboolean active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-  static gboolean in_cb = FALSE;
-
-  if (!active || layer_select_button_cb_hold_off || in_cb)
-    return;
-
-  in_cb = TRUE;
-
-  PCB->SilkActive = (lb->index == LAYER_BUTTON_SILK);
-  PCB->RatDraw = (lb->index == LAYER_BUTTON_RATS);
-
-  if (lb->index < max_copper_layer)
-    ChangeGroupVisibility (lb->index, true, true);
-
-  layer_select_button_index = lb->index;
-
-  layer_select_button_cb_hold_off = TRUE;
-  layer_enable_button_cb_hold_off = TRUE;
-  ghid_layer_buttons_update ();
-  layer_select_button_cb_hold_off = FALSE;
-  layer_enable_button_cb_hold_off = FALSE;
-
-  ghid_invalidate_all ();
-  in_cb = FALSE;
-}
-
-static void
-layer_enable_button_cb (GtkWidget * widget, gpointer data)
-{
-  gint i, group, layer = GPOINTER_TO_INT (data);
-  gboolean active, redraw = FALSE;
-
-  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-
-  if (layer_enable_button_cb_hold_off)
-    return;
-
-  switch (layer)
-    {
-    case LAYER_BUTTON_SILK:
-      PCB->ElementOn = active;
-      PCB->Data->SILKLAYER.On = PCB->ElementOn;
-      PCB->Data->BACKSILKLAYER.On = PCB->ElementOn;
-      redraw = 1;
-      break;
-
-    case LAYER_BUTTON_RATS:
-      PCB->RatOn = active;
-      redraw = 1;
-      break;
-
-    case LAYER_BUTTON_PINS:
-      PCB->PinOn = active;
-      redraw |= (PCB->Data->ElementN != 0);
-      break;
-
-    case LAYER_BUTTON_VIAS:
-      PCB->ViaOn = active;
-      redraw |= (PCB->Data->ViaN != 0);
-      break;
-
-    case LAYER_BUTTON_FARSIDE:
-      PCB->InvisibleObjectsOn = active;
-      PCB->Data->BACKSILKLAYER.On = (active && PCB->ElementOn);
-      redraw = TRUE;
-      break;
-
-    case LAYER_BUTTON_MASK:
-      if (active)
-	SET_FLAG (SHOWMASKFLAG, PCB);
-      else
-	CLEAR_FLAG (SHOWMASKFLAG, PCB);
-      redraw = TRUE;
-      break;
-
-    default:
-      /* check if active layer is in the group;
-         |  if YES, make a different one active if possible.  Logic from
-         |  Xt PCB code.
-       */
-      if ((group = GetGroupOfLayer (layer)) ==
-	  GetGroupOfLayer (MIN (max_copper_layer, INDEXOFCURRENT)))
-	{
-	  for (i = (layer + 1) % (max_copper_layer + 1); i != layer;
-	       i = (i + 1) % (max_copper_layer + 1))
-	    if (PCB->Data->Layer[i].On == true &&
-		GetGroupOfLayer (i) != group)
-	      break;
-	  if (i != layer)
-	    {
-	      ChangeGroupVisibility ((int) i, true, true);
-	    }
-	  else
-	    {
-	      /* everything else off, we can't turn this off too */
-	      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
-	      return;
-	    }
-	}
-      /* switch layer group on/off */
-      ChangeGroupVisibility (layer, active, false);
-      redraw = TRUE;
-      break;
-    }
-
-  layer_select_button_cb_hold_off = TRUE;
-  layer_enable_button_cb_hold_off = TRUE;
-  ghid_layer_buttons_update ();
-  layer_select_button_cb_hold_off = FALSE;
-  layer_enable_button_cb_hold_off = FALSE;
-
-  if (redraw)
-    ghid_invalidate_all();
-}
-
-static void
-layer_button_set_color (LayerButtonSet * lb, gchar * color_string,
-                        bool set_prelight)
-{
-  GdkColor color;
-
-  if (!lb->layer_enable_ebox)
-    return;
-
-  color.red = color.green = color.blue = 0;
-  ghid_map_color_string (color_string, &color);
-  gtk_widget_modify_bg (lb->layer_enable_ebox, GTK_STATE_ACTIVE, &color);
-  gtk_widget_modify_bg (lb->layer_enable_ebox, GTK_STATE_PRELIGHT,
-                        set_prelight ? &color : NULL);
-
-  gtk_widget_modify_fg (lb->label, GTK_STATE_ACTIVE, &WhitePixel);
-}
-
-void
-layer_enable_button_set_label (GtkWidget * label, gchar * text)
-{
-  gchar *s;
-
-  if (ghidgui->small_label_markup)
-    s = g_strdup_printf ("<small>%s</small>", text);
-  else
-    s = g_strdup (text);
-  gtk_label_set_markup (GTK_LABEL (label), s);
-  g_free (s);
-}
-
-static void
-ghid_show_layer_buttons(void)
-{
-	LayerButtonSet *lb;
-	gint	i;
-
-	for (i = 0; i < MAX_LAYER; ++i)
-	{
-		lb = &layer_buttons[i];
-		if (i < max_copper_layer)
-		  {
-			gtk_widget_show(lb->layer_enable_button);
-			gtk_widget_show(lb->radio_select_button);
-		  }
-		else
-		  {
-			gtk_widget_hide(lb->layer_enable_button);
-			gtk_widget_hide(lb->radio_select_button);
-		  }
-	}
-}
-
-  /* After layers comes some special cases.  Since silk and netlist (rats)
-     |  are selectable as separate drawing areas, they are more consistently
-     |  placed after the layers in the gui so the select radio buttons will
-     |  be grouped.  This is different from Xt PCB which had a different looking
-     |  select interface.
-   */
-static void
-make_layer_buttons (GtkWidget * vbox, GHidPort * port)
-{
-  LayerButtonSet *lb;
-  GtkWidget *table, *ebox, *label, *button, *hbox;
-  GSList *group = NULL;
   gchar *text;
-  gint i;
   gchar *color_string;
-  gboolean active = TRUE;
-
-  hbox = gtk_hbox_new (FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 4);
-  table = gtk_table_new (N_LAYER_BUTTONS, 2, FALSE);
-  gtk_box_pack_start(GTK_BOX(hbox), table, FALSE, FALSE, 3);
-
-  for (i = 0; i < N_LAYER_BUTTONS; ++i)
-    {
-      lb = &layer_buttons[i];
-      lb->index = i;
-
-      if (i < N_SELECTABLE_LAYER_BUTTONS)
-	{
-	  button = gtk_radio_button_new (group);
-	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
-	  gtk_table_attach_defaults (GTK_TABLE (table), button,
-				     0, 1, i, i + 1);
-
-	  lb->radio_select_button = button;
-	  g_signal_connect (G_OBJECT (button), "toggled",
-			    G_CALLBACK (layer_select_button_cb), lb);
-	}
-
-      layer_process (&color_string, &text, &active, i);
-      
-      button = gtk_check_button_new ();
-      label = gtk_label_new ("");
-      gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-      layer_enable_button_set_label (label, text);
-
-      ebox = gtk_event_box_new ();
-      gtk_container_add (GTK_CONTAINER (ebox), label);
-      gtk_container_add (GTK_CONTAINER (button), ebox);
-      gtk_table_attach_defaults (GTK_TABLE (table), button, 1, 2, i, i + 1);
-/*		gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0); */
-      gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
-
-      lb->layer_enable_button = button;
-      lb->layer_enable_ebox = ebox;
-      lb->text = g_strdup (text);
-      lb->label = label;
-
-      layer_button_set_color (lb, color_string, active);
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), active);
-
-      g_signal_connect (G_OBJECT (button), "toggled",
-			G_CALLBACK (layer_enable_button_cb),
-			GINT_TO_POINTER (i));
-
-
-    }
+  gboolean active;
+ 
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_SILK);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_SILK,
+                                    text, color_string, active, TRUE);
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_RATS);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_RATS,
+                                    text, color_string, active, TRUE);
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_PINS);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_PINS,
+                                    text, color_string, active, FALSE);
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_VIAS);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_VIAS,
+                                    text, color_string, active, FALSE);
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_FARSIDE);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_FARSIDE,
+                                    text, color_string, active, FALSE);
+  layer_process (&color_string, &text, &active, LAYER_BUTTON_MASK);
+  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_MASK,
+                                    text, color_string, active, FALSE);
 }
 
+/*! \brief callback for gtk_pcb_layer_selector_update_colors */
+const gchar *
+get_layer_color (gint layer)
+{
+  gchar *rv;
+  layer_process (&rv, NULL, NULL, layer);
+  return rv;
+}
 
-  /* If new color scheme is loaded from the config or user changes a color
-     |  in the preferences, make sure our layer button colors get updated.
-   */
+/*! \brief Update a layer selector's color scheme */
 void
 ghid_layer_buttons_color_update (void)
 {
-  gchar *color_string;
-  LayerButtonSet *lb;
-  gint i;
-
-  if (!gport->drawing_area)
-    return;
-
-  /* Fixme: should the color set be maintained in both the PCB and the
-     |  Settings struct?
-   */
+  printf ("UPDATE COLORS\n");
+  gtk_pcb_layer_selector_update_colors
+    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_color);
   pcb_colors_from_settings (PCB);
-
-  for (i = 0; i < N_LAYER_BUTTONS; ++i)
-    {
-      bool active;
-
-      lb = &layer_buttons[i];
-
-      layer_process (&color_string, NULL, NULL, i);
-      active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (lb));
-      layer_button_set_color (lb, color_string, active);
-    }
 }
-
-
-  /* Update layer button labels and enabled state to match current PCB.
-   */
-void
-ghid_layer_enable_buttons_update (void)
+ 
+/*! \brief Populate a layer selector with all layers Gtk is aware of */
+static void
+make_layer_buttons (GtkWidget *layersel)
 {
-  LayerButtonSet *lb;
-  gchar *s;
-  gchar *color_string;
   gint i;
+  gchar *text;
+  gchar *color_string;
+  gboolean active = TRUE;
+  ghidgui->layer_selector = layersel;
 
-#ifdef DEBUG_MENUS
-  printf ("ghid_layer_enable_buttons_update()\n");
-#endif
-
-  /* Update layer button labels and active state to state inside of PCB
-   */
-  layer_enable_button_cb_hold_off = TRUE;
   for (i = 0; i < max_copper_layer; ++i)
     {
-      lb = &layer_buttons[i];
-      s = (gchar *)UNKNOWN (PCB->Data->Layer[i].Name);
-      if (dup_string (&lb->text, s))
-	{
-	  layer_enable_button_set_label (lb->label, _(s));
-	  ghid_config_layer_name_update (_(s), i);
-	}
-      if (Settings.verbose)
-	{
-	  gboolean active, newone;
-
-	  active =
-	    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-					  (lb->layer_enable_button));
-	  newone = PCB->Data->Layer[i].On;
-	  if (active != newone)
-	    printf ("ghid_layer_enable_buttons_update: active=%d new=%d\n",
-		    active, newone);
-	}
-      layer_process (&color_string, NULL, NULL, i);
-      layer_button_set_color (lb, color_string, PCB->Data->Layer[i].On);
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-				    (lb->layer_enable_button),
-				    PCB->Data->Layer[i].On);
+      layer_process (&color_string, &text, &active, i);
+      gtk_pcb_layer_selector_add_layer (GTK_PCB_LAYER_SELECTOR (layersel), i,
+                                        text, color_string, active, TRUE);
     }
-  /* Buttons for elements (silk), rats, pins, vias, and far side don't
-     |  change labels.
-   */
-  lb = &layer_buttons[LAYER_BUTTON_SILK];
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
-				PCB->ElementOn);
-
-  lb = &layer_buttons[LAYER_BUTTON_RATS];
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
-				PCB->RatOn);
-
-  lb = &layer_buttons[LAYER_BUTTON_PINS];
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
-				PCB->PinOn);
-
-  lb = &layer_buttons[LAYER_BUTTON_VIAS];
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
-				PCB->ViaOn);
-
-  lb = &layer_buttons[LAYER_BUTTON_FARSIDE];
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
-				PCB->InvisibleObjectsOn);
-  layer_enable_button_cb_hold_off = FALSE;
+  make_virtual_layer_buttons (GTK_PCB_LAYER_SELECTOR (layersel));
 }
 
-void
-ghid_layer_button_select (gint layer)
-{
-  if (layer != layer_select_button_index)
-    {
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-				    (layer_buttons[layer].
-				     radio_select_button), TRUE);
-      layer_select_button_index = layer;
-    }
-}
-
-  /* Main layer button synchronization with current PCB state.  Called when
-     |  user toggles layer visibility or changes drawing layer or when internal
-     |  PCB code changes layer visibility.
-   */
-
+/*! \brief Synchronize layer selector widget with current PCB state
+ *  \par Function Description
+ *  Called when user toggles layer visibility or changes drawing layer,
+ *  or when layer visibility is changed programatically.
+ */
 void
 ghid_layer_buttons_update (void)
 {
-  gint layer;
-  gboolean active = FALSE;
-  gboolean old_holdoff;
-  char tmpnm[40];
-  int i;
-  int set;
-  gchar *text;
-  GtkAction *a;
-  GValue setfalse = { 0 };
-  GValue settrue = { 0 };
-  GValue setlabel = { 0 };
-
-  g_value_init (&setfalse, G_TYPE_BOOLEAN);
-  g_value_init (&settrue, G_TYPE_BOOLEAN);
-  g_value_set_boolean (&setfalse, FALSE);
-  g_value_set_boolean (&settrue, TRUE);
-  g_value_init (&setlabel, G_TYPE_STRING);
-
-#ifdef DEBUG_MENUS
-  printf ("ghid_layer_buttons_update()\n");
-#endif
-
-  if (!ghidgui || ghidgui->creating)
-    return;
-
-  ghid_layer_enable_buttons_update ();
-
-  /* Turning off a layer that was selected will cause PCB to switch to
-     |  another layer.
-   */
-  if (PCB->RatDraw)
-    layer = LAYER_BUTTON_RATS;
-  else
-    layer = PCB->SilkActive ? LAYER_BUTTON_SILK : LayerStack[0];
-
-  if (layer < max_copper_layer)
-    active = PCB->Data->Layer[layer].On;
-  else if (layer == LAYER_BUTTON_SILK)
-    active = PCB->ElementOn;
-  else if (layer == LAYER_BUTTON_RATS)
-    active = PCB->RatOn;
-
-  if (Settings.verbose)
-    {
-      printf ("ghid_layer_buttons_update cur_index=%d update_index=%d\n",
-	      layer_select_button_index, layer);
-      if (active && layer != layer_select_button_index)
-	printf ("\tActivating button %d\n", layer);
-    }
-
-  /* mask the callbacks */
-  old_holdoff = ghidgui->toggle_holdoff;
-  ghidgui->toggle_holdoff = TRUE;
-  
-  /* update the check marks in the layer pick menu */
-  for (i = 0; i < N_LAYER_BUTTONS ; i++)
-    {
-      sprintf (tmpnm, "%s%d", LAYERPICK, i);
-      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
-
-      layer_process (NULL, &text, &set, i);
-      g_value_set_string (&setlabel, text);
-
-      if (a != NULL)
-	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
-	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), (set && (i == layer) ) ? TRUE : FALSE);
-	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
-	}
-
-      sprintf (tmpnm, "%s%d", LAYERVIEW, i);
-      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
-      if (a != NULL)
-	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
-	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), set ? TRUE : FALSE);
-	  g_value_set_string (&setlabel, text);
-	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
-	}
-
-
-    }
-  g_value_unset (&setfalse);
-  g_value_unset (&settrue);
-  g_value_unset (&setlabel);
-  ghidgui->toggle_holdoff = old_holdoff;
-
-  if (active && layer != layer_select_button_index)
-    {
-      layer_select_button_cb_hold_off = TRUE;
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-				    (layer_buttons[layer].
-				     radio_select_button), TRUE);
-      layer_select_button_index = layer;
-      layer_select_button_cb_hold_off = FALSE;
-    }
 }
 
 
@@ -1892,6 +1460,16 @@ ghid_build_pcb_top_window (void)
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+  /* Build layer menus */
+  ghidgui->layer_selector = gtk_pcb_layer_selector_new ();
+  make_layer_buttons (ghidgui->layer_selector);
+  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "select_layer",
+                    G_CALLBACK (layer_selector_select_callback),
+                    NULL);
+  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "toggle_layer",
+                    G_CALLBACK (layer_selector_toggle_callback),
+                    NULL);
+  /* Build main menu */
   ghid_load_menus ();
   make_top_menubar(hbox, port);
 
@@ -1972,7 +1550,8 @@ ghid_build_pcb_top_window (void)
 
   vbox = ghid_scrolled_vbox(vbox_left, &scrolled,
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  make_layer_buttons(vbox, port);
+  gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
+                      FALSE, FALSE, 0);
 
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox_left), vbox, FALSE, FALSE, 0);
@@ -2105,7 +1684,6 @@ ghid_build_pcb_top_window (void)
   gdk_window_set_back_pixmap (gport->drawing_area->window, NULL, FALSE);
 
   ghid_route_style_temp_buttons_hide ();
-  ghid_show_layer_buttons();
 }
 
 
@@ -2429,7 +2007,6 @@ ghid_do_export (HID_Attr_Val * options)
    * are properly initialized and synchronized with the current PCB.
    */
   ghid_layer_buttons_update ();
-  ghid_show_layer_buttons();
 
   if (stdin_listen)
     ghid_create_listener ();
@@ -2449,7 +2026,6 @@ LayersChanged (int argc, char **argv, Coord x, Coord y)
 
   ghid_config_groups_changed();
   ghid_layer_buttons_update ();
-  ghid_show_layer_buttons();
 
   /* FIXME - if a layer is moved it should retain its color.  But layers
   |  currently can't do that because color info is not saved in the
@@ -2486,7 +2062,6 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
   static gboolean in_toggle_view = 0;
-  gboolean active;
 
 #ifdef DEBUG_MENUS
   printf ("Starting ToggleView().  in_toggle_view = %d\n", in_toggle_view);
@@ -2543,10 +2118,8 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
   /* Now that we've figured out which toggle button ought to control
    * this layer, simply hit the button and let the pre-existing code deal
    */
-  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (layer_buttons[l].layer_enable_button));
-  
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (layer_buttons[l].layer_enable_button),
-				active == TRUE ? FALSE : TRUE);
+  gtk_pcb_layer_selector_toggle_layer
+    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), l);
   in_toggle_view = 0;
   return 0;
 }
@@ -2585,8 +2158,8 @@ SelectLayer (int argc, char **argv, Coord x, Coord y)
   /* Now that we've figured out which radio button ought to select
    * this layer, simply hit the button and let the pre-existing code deal
    */
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (layer_buttons[newl].radio_select_button),
-				TRUE);
+  gtk_pcb_layer_selector_select_layer
+    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), newl);
 
   return 0;
 }
@@ -3285,27 +2858,17 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	  {
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
 	      {
-		int i;
-		char tmpid[40];
-		for (i = 0 ; i <  N_LAYER_BUTTONS; i++)
-		  {
-		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
-			     LAYERVIEW, i);
-		    ghid_ui_info_indent (indent);
-		    ghid_ui_info_append (tmpid);
-		  }
+                gchar *tmp = gtk_pcb_layer_selector_get_view_xml
+                  (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+                ghid_ui_info_append (tmp);
+                g_free (tmp);
 	      }
 	    else if (strcmp (node->v[i].value, "@layerpick") == 0)
 	      {
-		int i;
-		char tmpid[40];
-		for (i = 0 ; i <  N_SELECTABLE_LAYER_BUTTONS; i++)
-		  {
-		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
-			     LAYERPICK, i);
-		    ghid_ui_info_indent (indent);
-		    ghid_ui_info_append (tmpid);
-		  }
+                gchar *tmp = gtk_pcb_layer_selector_get_pick_xml
+                  (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+                ghid_ui_info_append (tmp);
+                g_free (tmp);
 	      }
 	    else if (strcmp (node->v[i].value, "@routestyles") == 0)
 	      {
