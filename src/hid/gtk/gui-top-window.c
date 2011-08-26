@@ -693,37 +693,37 @@ layer_process (gchar **color_string, char **text, int *set, int i)
   switch (i)
     {
     case LAYER_BUTTON_SILK:
-      *color_string = PCB->ElementColor;
+      *color_string = Settings.ElementColor;
       *text = _( "silk");
       *set = PCB->ElementOn;
       break;
     case LAYER_BUTTON_RATS:
-      *color_string = PCB->RatColor;
+      *color_string = Settings.RatColor;
       *text = _( "rat lines");
       *set = PCB->RatOn;
       break;
     case LAYER_BUTTON_PINS:
-      *color_string = PCB->PinColor;
+      *color_string = Settings.PinColor;
       *text = _( "pins/pads");
       *set = PCB->PinOn;
       break;
     case LAYER_BUTTON_VIAS:
-      *color_string = PCB->ViaColor;
+      *color_string = Settings.ViaColor;
       *text = _( "vias");
       *set = PCB->ViaOn;
       break;
     case LAYER_BUTTON_FARSIDE:
-      *color_string = PCB->InvisibleObjectsColor;
+      *color_string = Settings.InvisibleObjectsColor;
       *text = _( "far side");
       *set = PCB->InvisibleObjectsOn;
       break;
     case LAYER_BUTTON_MASK:
-      *color_string = PCB->MaskColor;
+      *color_string = Settings.MaskColor;
       *text = _( "solder mask");
       *set = TEST_FLAG (SHOWMASKFLAG, PCB);
       break;
     default:		/* layers */
-      *color_string = PCB->Data->Layer[i].Color;
+      *color_string = Settings.LayerColor[i];
       *text = (char *)UNKNOWN (PCB->Data->Layer[i].Name);
       *set = PCB->Data->Layer[i].On;
       break;
