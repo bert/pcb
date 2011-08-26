@@ -1033,7 +1033,6 @@ get_layer_color (gint layer)
 void
 ghid_layer_buttons_color_update (void)
 {
-  printf ("UPDATE COLORS\n");
   gtk_pcb_layer_selector_update_colors
     (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_color);
   pcb_colors_from_settings (PCB);

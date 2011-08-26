@@ -506,7 +506,6 @@ config_colors_read (gchar * path)
     }
   fclose (f);
 
-  ghid_layer_buttons_color_update ();
   return TRUE;
 }
 
