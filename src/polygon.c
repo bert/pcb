@@ -335,8 +335,10 @@ RectPoly (Coord x1, Coord x2, Coord y1, Coord y2)
   PLINE *contour = NULL;
   Vector v;
 
-  assert (x2 > x1);
-  assert (y2 > y1);
+  /* Return NULL for zero or negatively sized rectangles */
+  if (x2 <= x1 || y2 <= y1)
+    return NULL;
+
   v[0] = x1;
   v[1] = y1;
   if ((contour = poly_NewContour (v)) == NULL)
