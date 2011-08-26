@@ -43,11 +43,11 @@ pan_common (GHidPort *port)
   * event so convert it back to event coordinates temporarily. */
   ghid_pcb_to_event_coords (gport->pcb_x, gport->pcb_y, &event_x, &event_y);
 
-  /* Don't pan so far that we see past the board edges */
-  gport->view_x0 = MAX (0, gport->view_x0);
-  gport->view_y0 = MAX (0, gport->view_y0);
-  gport->view_x0 = MIN (gport->view_x0, PCB->MaxWidth  - gport->view_width);
-  gport->view_y0 = MIN (gport->view_y0, PCB->MaxHeight - gport->view_height);
+  /* Don't pan so far the board is completely off the screen */
+  port->view_x0 = MAX (-port->view_width,  port->view_x0);
+  port->view_y0 = MAX (-port->view_height, port->view_y0);
+  port->view_x0 = MIN ( port->view_x0, PCB->MaxWidth);
+  port->view_y0 = MIN ( port->view_y0, PCB->MaxHeight);
 
   /* Fix up noted event coordinates to match where we clamped. Alternatively
    * we could call ghid_note_event_location (NULL); to get a new pointer
@@ -89,6 +89,7 @@ ghid_pan_view_rel (Coord dx, Coord dy)
  * gport->view_width and gport->view_height are in PCB coordinates
  */
 
+#define ALLOW_ZOOM_OUT_BY 10 /* Arbitrary, and same as the lesstif HID */
 static void
 ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
 {
@@ -101,7 +102,7 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
    */
   min_zoom = 1;
   max_zoom = MAX (PCB->MaxWidth  / gport->width,
-                  PCB->MaxHeight / gport->height);
+                  PCB->MaxHeight / gport->height) * ALLOW_ZOOM_OUT_BY;
   new_zoom = MIN (MAX (min_zoom, new_zoom), max_zoom);
 
   if (gport->zoom == new_zoom)
@@ -131,6 +132,7 @@ ghid_zoom_view_rel (Coord center_x, Coord center_y, double factor)
 static void
 ghid_zoom_view_fit (void)
 {
+  ghid_pan_view_abs (0, 0, 0, 0);
   ghid_zoom_view_abs (0, 0, MAX (PCB->MaxWidth  / gport->width,
                                  PCB->MaxHeight / gport->height));
 }
