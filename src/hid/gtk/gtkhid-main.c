@@ -37,11 +37,23 @@ static void ghid_zoom_view_fit (void);
 static void
 pan_common (GHidPort *port)
 {
+  int event_x, event_y;
+
+  /* We need to fix up the PCB coordinates corresponding to the last
+  * event so convert it back to event coordinates temporarily. */
+  ghid_pcb_to_event_coords (gport->pcb_x, gport->pcb_y, &event_x, &event_y);
+
   /* Don't pan so far that we see past the board edges */
   gport->view_x0 = MAX (0, gport->view_x0);
   gport->view_y0 = MAX (0, gport->view_y0);
   gport->view_x0 = MIN (gport->view_x0, PCB->MaxWidth  - gport->view_width);
   gport->view_y0 = MIN (gport->view_y0, PCB->MaxHeight - gport->view_height);
+
+  /* Fix up noted event coordinates to match where we clamped. Alternatively
+   * we could call ghid_note_event_location (NULL); to get a new pointer
+   * location, but this costs us an xserver round-trip (on X11 platforms)
+   */
+  ghid_event_to_pcb_coords (event_x, event_y, &gport->pcb_x, &gport->pcb_y);
 
   ghidgui->adjustment_changed_holdoff = TRUE;
   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
