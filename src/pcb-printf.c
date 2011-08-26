@@ -24,6 +24,13 @@
  *
  */
 
+/*! \file <pcb-printf.c>
+ *  \brief Implementation of printf wrapper to output pcb coords and angles
+ *  \par Description
+ *  For details of all supported specifiers, see the comment at the
+ *  top of pcb-printf.h
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -74,8 +81,12 @@ static Unit Units[] = {
                { "pcb" } }
 };
 #define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
-/* The function is needed to avoid "non-constant initializer"
- *  errors on the internationalized unit suffixes. */
+/* \brief Initialize non-static data for pcb-printf
+ * \par Function Description
+ * Assigns each unit its index for quick access through the
+ * main units array, and internationalize the units for GUI
+ * display.
+ */
 void initialize_units()
 {
   int i;
@@ -85,6 +96,7 @@ void initialize_units()
       Units[i].in_suffix = _(Units[i].suffix);
     }
 }
+
 /* This list -must- contain all printable units from the above list */
 /* For now I have just copy/pasted the same values for all metric
  * units and the same values for all imperial ones */
@@ -135,7 +147,16 @@ static Increments increments[] = {
 };
 #define N_INCREMENTS (sizeof increments / sizeof increments[0])
 
-/* Obtain a unit object from its (non-international) suffix */
+/* \brief Obtain a unit object from its suffix
+ * \par Function Description
+ * Looks up a given suffix in the main units array. Internationalized
+ * unit suffixes are not supported, though pluralized units are, for
+ * backward-compatibility.
+ *
+ * \param [in] const_suffix   The suffix to look up
+ *
+ * \return A const pointer to the Unit struct, or NULL if none was found
+ */
 const Unit *get_unit_struct (const char *const_suffix)
 {
   int i;
@@ -174,16 +195,26 @@ const Unit *get_unit_struct (const char *const_suffix)
 }
 
 /* ACCESSORS */
+/* \brief Returns the master unit list. This may not be modified. */
 const Unit *get_unit_list (void)
 {
 	return Units;
 }
+/* \brief Returns the length of the master unit list. */
 int get_n_units (void)
 {
 	return N_UNITS;
 }
 
-/* Obtain a increment object from its (non-international) suffix */
+/* \brief Obtain an increment object from its suffix
+ * \par Function Description
+ * Looks up a given suffix in the main increments array. Internationalized
+ * unit suffixes are not supported, nor are pluralized units.
+ *
+ * \param [in] suffix   The suffix to look up
+ *
+ * \return A const pointer to the Increments struct, or NULL if none was found
+ */
 Increments *get_increments_struct (const char *suffix)
 {
   int i;
@@ -194,7 +225,13 @@ Increments *get_increments_struct (const char *suffix)
   return NULL;
 }
 
-/* Scale factor lookup functions for Unit[] table */
+/* \brief Convert a pcb coord to the given unit
+ *
+ * \param [in] unit  The unit to convert to
+ * \param [in] x     The quantity to convert
+ *
+ * \return The converted measure
+ */
 double coord_to_unit (const Unit *unit, Coord x)
 {
   double base;
@@ -206,6 +243,13 @@ double coord_to_unit (const Unit *unit, Coord x)
   return x * unit->scale_factor * base;
 }
 
+/* \brief Convert a given unit to pcb coords
+ *
+ * \param [in] unit  The unit to convert from
+ * \param [in] x     The quantity to convert
+ *
+ * \return The converted measure
+ */
 Coord unit_to_coord (const Unit *unit, double x)
 {
   return x / coord_to_unit (unit, 1);
@@ -227,10 +271,21 @@ static int min_sig_figs(double d)
   return rv;
 }
 
-/* Converts a (group of) measurement(s) to a comma-deliminated
+/* \brief Internal coord-to-string converter for pcb-printf
+ * \par Function Description
+ * Converts a (group of) measurement(s) to a comma-deliminated
  * string, with appropriate units. If more than one coord is
  * given, the list is enclosed in parens to make the scope of
- * the unit suffix clear.  */
+ * the unit suffix clear.
+ *
+ * \param [in] coord        Array of coords to convert
+ * \param [in] n_coords     Number of coords in array
+ * \param [in] printf_spec  printf sub-specifier to use with %f
+ * \param [in] e_allow      Bitmap of units the function may use
+ * \param [in] suffix_type  Whether to add a suffix
+ *
+ * \return A string containing the formatted coords. Must be freed with g_free.
+ */
 static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spec, enum e_allow allow, enum e_suffix suffix_type)
 {
   GString *buff;
@@ -368,6 +423,17 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   return g_string_free (buff, FALSE);
 }
 
+/* \brief Main pcb-printf function
+ * \par Function Description
+ * This is a printf wrapper that accepts new format specifiers to
+ * output pcb coords as various units. See the comment at the top
+ * of pcb-printf.h for full details.
+ *
+ * \param [in] fmt    Format specifier
+ * \param [in] args   Arguments to specifier
+ *
+ * \return A formatted string. Must be freed with g_free.
+ */
 gchar *pcb_vprintf(const char *fmt, va_list args)
 {
   GString *string = g_string_new ("");
@@ -547,6 +613,13 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
 }
 
 
+/* \brief Wrapper for pcb_vprintf that outputs to a string
+ *
+ * \param [in] string  Pointer to string to output into
+ * \param [in] fmt     Format specifier
+ *
+ * \return The length of the written string
+ */
 int pcb_sprintf(char *string, const char *fmt, ...)
 {
   gchar *tmp;
@@ -562,6 +635,13 @@ int pcb_sprintf(char *string, const char *fmt, ...)
   return strlen (string);
 }
 
+/* \brief Wrapper for pcb_vprintf that outputs to a file
+ *
+ * \param [in] fh   File to output to
+ * \param [in] fmt  Format specifier
+ *
+ * \return The length of the written string
+ */
 int pcb_fprintf(FILE *fh, const char *fmt, ...)
 {
   int rv;
@@ -583,6 +663,12 @@ int pcb_fprintf(FILE *fh, const char *fmt, ...)
   return rv;
 }
 
+/* \brief Wrapper for pcb_vprintf that outputs to stdout
+ *
+ * \param [in] fmt  Format specifier
+ *
+ * \return The length of the written string
+ */
 int pcb_printf(const char *fmt, ...)
 {
   int rv;
@@ -599,6 +685,12 @@ int pcb_printf(const char *fmt, ...)
   return rv;
 }
 
+/* \brief Wrapper for pcb_vprintf that outputs to a newly allocated string
+ *
+ * \param [in] fmt  Format specifier
+ *
+ * \return The newly allocated string. Must be freed with g_free.
+ */
 char *pcb_g_strdup_printf(const char *fmt, ...)
 {
   gchar *tmp;
