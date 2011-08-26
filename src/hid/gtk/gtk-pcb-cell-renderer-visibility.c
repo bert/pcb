@@ -90,7 +90,6 @@ gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
   GtkPcbCellRendererVisibility *pcb_cell;
   GdkRectangle toggle_rect;
   GdkRectangle draw_rect;
-  GtkStateType state;
 
   pcb_cell = GTK_PCB_CELL_RENDERER_VISIBILITY (cell);
   gtk_pcb_cell_renderer_visibility_get_size (cell, widget, cell_area,
@@ -106,16 +105,6 @@ gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
 
   if (toggle_rect.width <= 0 || toggle_rect.height <= 0)
     return;
-
-  if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
-    {
-      if (GTK_WIDGET_HAS_FOCUS (widget))
-        state = GTK_STATE_SELECTED;
-      else
-        state = GTK_STATE_ACTIVE;
-    }
-  else
-    state = GTK_STATE_NORMAL;
 
   if (gdk_rectangle_intersect (expose_area, cell_area, &draw_rect))
     {
