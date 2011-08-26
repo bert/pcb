@@ -423,7 +423,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 EMPTY (element->Name[0].TextString),
 		 EMPTY (element->Name[1].TextString),
 		 EMPTY (element->Name[2].TextString),
-		 (Coord) (0.45 * element->Name[1].Scale * 100),
+		 (Coord) (MIL_TO_COORD (45) * element->Name[1].Scale / 100.),
 		 element->Name[1].X, element->Name[1].Y,
 		 TEST_FLAG (HIDENAMEFLAG, element) ? ",\n  but it's hidden" : "",
 		 element->MarkX, element->MarkY,
@@ -464,7 +464,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 "The bounding box is %$mD %$mD.\n"
 		 "%s\n"
 		 "%s", USER_UNITMASK, text->ID, flags_to_string (text->Flags, TEXT_TYPE),
-		 text->X, text->Y, (Coord) (0.45 * MIL_TO_COORD (text->Scale)),
+		 text->X, text->Y, (Coord) (MIL_TO_COORD (45) * (float)text->Scale / 100.),
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,

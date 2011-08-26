@@ -199,7 +199,7 @@ _draw_pv_name (PinType *pv)
   gui->set_color (Output.fgGC, PCB->PinNameColor);
 
   text.Flags = NoFlags ();
-  text.Scale = pv->Thickness / 80;
+  text.Scale = 100 * pv->Thickness / MIL_TO_COORD (80);
   text.X = box.X1;
   text.Y = box.Y1;
   text.Direction = vert ? 1 : 0;
@@ -284,7 +284,7 @@ draw_pad_name (PadType *pad)
   gui->set_color (Output.fgGC, PCB->PinNameColor);
 
   text.Flags = NoFlags ();
-  text.Scale = pad->Thickness / 50;
+  text.Scale = 100 * pad->Thickness / MIL_TO_COORD (50);
   text.X = box.X1;
   text.Y = box.Y1;
   text.Direction = vert ? 1 : 0;
