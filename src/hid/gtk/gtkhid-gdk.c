@@ -1213,42 +1213,6 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   gport->height = save_height;
   gport->view_x0 = save_left;
   gport->view_y0 = save_top;
-  save_top = gport->view_y0;
-  save_view_width = gport->view_width;
-  save_view_height = gport->view_height;
-
-  /* Setup drawable and zoom factor for drawing routines
-   */
-  save_drawable = gport->drawable;
-
-  gdk_window_get_geometry (widget->window, 0, 0, &da_w, &da_h, 0);
-  xz = (double) pinout->x_max / da_w;
-  yz = (double) pinout->y_max / da_h;
-  if (xz > yz)
-    gport->zoom = xz;
-  else
-    gport->zoom = yz;
-
-  gport->drawable = widget->window;
-  gport->width = da_w;
-  gport->height = da_h;
-  gport->view_width = da_w * gport->zoom;
-  gport->view_height = da_h * gport->zoom;
-  gport->view_x0 = (pinout->x_max - gport->view_width) / 2;
-  gport->view_y0 = (pinout->y_max - gport->view_height) / 2;
-
-  /* clear background */
-  gdk_draw_rectangle (widget->window, priv->bg_gc, TRUE, 0, 0, da_w, da_h);
-
-  /* call the drawing routine */
-  hid_expose_callback (&ghid_hid, NULL, &pinout->element);
-
-  gport->drawable = save_drawable;
-  gport->zoom = save_zoom;
-  gport->width = save_width;
-  gport->height = save_height;
-  gport->view_x0 = save_left;
-  gport->view_y0 = save_top;
   gport->view_width = save_view_width;
   gport->view_height = save_view_height;
 
