@@ -840,14 +840,15 @@ ps_set_layer (const char *name, int group, int empty)
     fprintf (global.f, "gsave tx ty translate 1 -1 scale 0 0 moveto ( ) show grestore newpath /ty ty ts sub def\n");
 #endif
 
-  /* If we're printing a copper layer other than the outline layer,
-     and we want to "print outlines", and we have an outline layer,
+  /* If we're printing a layer other than the outline layer, and
+     we want to "print outlines", and we have an outline layer,
      print the outline layer on this layer also.  */
-  if (global.outline
-      && global.outline_layer != NULL
-      && global.outline_layer != PCB->Data->Layer+idx
-      && strcmp (name, "outline")
-      && strcmp (name, "route"))
+  if (global.outline &&
+      global.outline_layer != NULL &&
+      global.outline_layer != PCB->Data->Layer+idx &&
+      strcmp (name, "outline") != 0 &&
+      strcmp (name, "route") != 0
+      )
     {
       DrawLayer (global.outline_layer, &global.region);
     }
