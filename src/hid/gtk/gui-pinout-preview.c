@@ -51,24 +51,19 @@
 
 RCSID ("$Id$");
 
-
+/* Just define a sensible scale, lets say (for example), 100 pixel per 150 mil */
+#define SENSIBLE_VIEW_SCALE  (100. / MIL_TO_COORD (150.))
 static void
-pinout_zoom_fit (GhidPinoutPreview * pinout, gint zoom)
+pinout_set_view (GhidPinoutPreview * pinout)
 {
-  pinout->zoom = zoom;
-
-  /* Should be a function I can call for this:
-   */
-  pinout->scale = 1.0 / (100.0 * exp (pinout->zoom * LN_2_OVER_2));
+  float scale = SENSIBLE_VIEW_SCALE;
 
   pinout->x_max = pinout->element.BoundingBox.X2 + Settings.PinoutOffsetX;
   pinout->y_max = pinout->element.BoundingBox.Y2 + Settings.PinoutOffsetY;
-  pinout->w_pixels = (gint) (pinout->scale *
-			     (pinout->element.BoundingBox.X2 -
-			      pinout->element.BoundingBox.X1));
-  pinout->h_pixels = (gint) (pinout->scale *
-			     (pinout->element.BoundingBox.Y2 -
-			      pinout->element.BoundingBox.Y1));
+  pinout->w_pixels = scale * (pinout->element.BoundingBox.X2 -
+                              pinout->element.BoundingBox.X1);
+  pinout->h_pixels = scale * (pinout->element.BoundingBox.Y2 -
+                              pinout->element.BoundingBox.Y1);
 }
 
 
@@ -109,7 +104,7 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 		       Settings.PinoutOffsetY -
 		       pinout->element.BoundingBox.Y1);
 
-  pinout_zoom_fit (pinout, 3);
+  pinout_set_view (pinout);
 
   ELEMENTLINE_LOOP (&pinout->element);
   {

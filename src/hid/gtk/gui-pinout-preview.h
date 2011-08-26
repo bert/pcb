@@ -52,8 +52,6 @@ struct _GhidPinoutPreview
   GtkDrawingArea parent_instance;
 
   ElementType element;		/* element data to display */
-  gfloat zoom;			/* zoom factor of window */
-  gfloat scale;			/* scale factor of zoom */
   gint x_max, y_max;
   gint w_pixels, h_pixels;	/* natural size of element preview */
 };
