@@ -497,76 +497,85 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 {
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  Coord minThick = 0;
   int i;
-  int space = 0;
+  int space;
 
   Coord minx, miny, maxx, maxy, tx;
-  int first_time = 1;
+  Coord min_final_radius;
+  Coord min_unscaled_radius;
+  bool first_time = true;
 
   minx = miny = maxx = maxy = tx = 0;
 
-  if (PCB->minSlk < PCB->minWid)
-    minThick = PCB->minWid;
-  else
-    minThick = PCB->minSlk;
+  /* Calculate the bounding box based on the larger of the thicknesses
+   * the text might clamped at on silk or copper layers.
+   */
+  min_final_radius = MAX (PCB->minWid, PCB->minSlk) / 2;
 
-  minThick /= Text->Scale / 50.0;
+  /* Pre-adjust the line radius for the fact we are initially computing the
+   * bounds of the un-scaled text, and the thickness clamping applies to
+   * scaled text.
+   */
+  min_unscaled_radius = min_final_radius * 100 / Text->Scale;
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
     {
       if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
-	{
-	  LineTypePtr line = symbol[*s].Line;
-	  for (i = 0; i < symbol[*s].LineN; line++, i++)
-	    {
-	      Coord t = line->Thickness / 4;
-	      if (t < minThick)
-		t = minThick;
+        {
+          LineTypePtr line = symbol[*s].Line;
+          for (i = 0; i < symbol[*s].LineN; line++, i++)
+            {
+              /* Clamp the width of text lines at the minimum thickness.
+               * NB: Divide 4 in thickness calculation is comprised of a factor
+               *     of 1/2 to get a radius from the center-line, and a factor
+               *     of 1/2 because some stupid reason we render our glyphs
+               *     at half their defined stroke-width.
+               */
+               Coord unscaled_radius = MAX (min_unscaled_radius, line->Thickness / 4);
 
-	      if (first_time)
-		{
-		  minx = maxx = line->Point1.X;
-		  miny = maxy = line->Point1.Y;
-		  first_time = 0;
-		}
+              if (first_time)
+                {
+                  minx = maxx = line->Point1.X;
+                  miny = maxy = line->Point1.Y;
+                  first_time = false;
+                }
 
-	      minx = MIN (minx, line->Point1.X - t + tx);
-	      miny = MIN (miny, line->Point1.Y - t);
-	      minx = MIN (minx, line->Point2.X - t + tx);
-	      miny = MIN (miny, line->Point2.Y - t);
-	      maxx = MAX (maxx, line->Point1.X + t + tx);
-	      maxy = MAX (maxy, line->Point1.Y + t);
-	      maxx = MAX (maxx, line->Point2.X + t + tx);
-	      maxy = MAX (maxy, line->Point2.Y + t);
-	    }
-	  space = symbol[*s].Delta;
-	}
+              minx = MIN (minx, line->Point1.X - unscaled_radius + tx);
+              miny = MIN (miny, line->Point1.Y - unscaled_radius);
+              minx = MIN (minx, line->Point2.X - unscaled_radius + tx);
+              miny = MIN (miny, line->Point2.Y - unscaled_radius);
+              maxx = MAX (maxx, line->Point1.X + unscaled_radius + tx);
+              maxy = MAX (maxy, line->Point1.Y + unscaled_radius);
+              maxx = MAX (maxx, line->Point2.X + unscaled_radius + tx);
+              maxy = MAX (maxy, line->Point2.Y + unscaled_radius);
+            }
+          space = symbol[*s].Delta;
+        }
       else
-	{
-	  BoxType *ds = &FontPtr->DefaultSymbol;
-	  Coord w = ds->X2 - ds->X1;
+        {
+          BoxType *ds = &FontPtr->DefaultSymbol;
+          Coord w = ds->X2 - ds->X1;
 
-	  minx = MIN (minx, ds->X1 + tx);
-	  miny = MIN (miny, ds->Y1);
-	  minx = MIN (minx, ds->X2 + tx);
-	  miny = MIN (miny, ds->Y2);
-	  maxx = MAX (maxx, ds->X1 + tx);
-	  maxy = MAX (maxy, ds->Y1);
-	  maxx = MAX (maxx, ds->X2 + tx);
-	  maxy = MAX (maxy, ds->Y2);
+          minx = MIN (minx, ds->X1 + tx);
+          miny = MIN (miny, ds->Y1);
+          minx = MIN (minx, ds->X2 + tx);
+          miny = MIN (miny, ds->Y2);
+          maxx = MAX (maxx, ds->X1 + tx);
+          maxy = MAX (maxy, ds->Y1);
+          maxx = MAX (maxx, ds->X2 + tx);
+          maxy = MAX (maxy, ds->Y2);
 
-	  space = w / 5;
-	}
+          space = w / 5;
+        }
       tx += symbol[*s].Width + space;
     }
 
   /* scale values */
-  minx *= Text->Scale / 100.;
-  miny *= Text->Scale / 100.;
-  maxx *= Text->Scale / 100.;
-  maxy *= Text->Scale / 100.;
+  minx = minx * Text->Scale / 100;
+  miny = miny * Text->Scale / 100;
+  maxx = maxx * Text->Scale / 100;
+  maxy = maxy * Text->Scale / 100;
 
   /* set upper-left and lower-right corner;
    * swap coordinates if necessary (origin is already in 'swapped')
