@@ -278,7 +278,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	CreateBeLenient (true);
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
-	if (PCB)
+	if (PCB && PCB->Data)
 	  SaveTMPData();
 	returncode = yyparse();
 	RemoveTMPData();
