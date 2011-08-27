@@ -85,6 +85,15 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
   if (hid_actionl ("New", "Font", 0))
     return 1;
 
+  Settings.grid_unit = get_unit_struct("mil");
+  Settings.Bloat = PCB->Bloat = 1;
+  Settings.Shrink = PCB->Shrink = 1;
+  Settings.minWid = PCB->minWid = 1;
+  Settings.minSlk = PCB->minSlk = 1;
+
+  MoveLayerToGroup (max_copper_layer + COMPONENT_LAYER, 0);
+  MoveLayerToGroup (max_copper_layer + SOLDER_LAYER, 1);
+
   while (PCB->Data->LayerN > 4)
     MoveLayer (4, -1);
   for (l = 0; l < 4; l++)
