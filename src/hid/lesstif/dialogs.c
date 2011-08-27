@@ -1141,7 +1141,7 @@ sz_val2str (Widget w, Coord u, int pcbu)
 {
   static char buf[40];
   if (pcbu)
-    pcb_sprintf (buf, "%m+%.2mm", Settings.grid_unit->allow, u);
+    pcb_sprintf (buf, "%m+%.2mS", Settings.grid_unit->allow, u);
   else
     pcb_sprintf (buf, "%#mS %%", u);
   XmTextSetString (w, buf);
