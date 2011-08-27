@@ -1072,11 +1072,24 @@ get_layer_delete (gint layer)
 void
 ghid_layer_buttons_update (void)
 {
+  gint layer;
+
   gtk_pcb_layer_selector_delete_layers
     (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector),
      get_layer_delete);
   make_layer_buttons (ghidgui->layer_selector);
   make_virtual_layer_buttons (ghidgui->layer_selector);
+
+  /* Sync selected layer with PCB's state */
+  if (PCB->RatDraw)
+    layer = LAYER_BUTTON_RATS;
+  else if (PCB->SilkActive)
+    layer = LAYER_BUTTON_SILK;
+  else
+    layer = LayerStack[0];
+
+  gtk_pcb_layer_selector_select_layer
+    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), layer);
 }
 
 
