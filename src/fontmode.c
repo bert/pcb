@@ -46,6 +46,7 @@
 #include "rtree.h"
 #include "strflags.h"
 #include "undo.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
