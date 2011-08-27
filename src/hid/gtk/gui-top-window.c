@@ -994,8 +994,9 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
 
 /* \brief Add "virtual layers" to a layer selector */
 static void
-make_virtual_layer_buttons (GtkPcbLayerSelector *layersel)
+make_virtual_layer_buttons (GtkWidget *layer_selector)
 {
+  GtkPcbLayerSelector *layersel = GTK_PCB_LAYER_SELECTOR (layer_selector);
   gchar *text;
   gchar *color_string;
   gboolean active;
@@ -1046,7 +1047,6 @@ make_layer_buttons (GtkWidget *layersel)
   gchar *text;
   gchar *color_string;
   gboolean active = TRUE;
-  ghidgui->layer_selector = layersel;
 
   for (i = 0; i < max_copper_layer; ++i)
     {
@@ -1054,7 +1054,14 @@ make_layer_buttons (GtkWidget *layersel)
       gtk_pcb_layer_selector_add_layer (GTK_PCB_LAYER_SELECTOR (layersel), i,
                                         text, color_string, active, TRUE);
     }
-  make_virtual_layer_buttons (GTK_PCB_LAYER_SELECTOR (layersel));
+}
+
+
+/*! \brief callback for gtk_pcb_layer_selector_delete_layers */
+gboolean
+get_layer_delete (gint layer)
+{
+  return layer >= max_copper_layer;
 }
 
 /*! \brief Synchronize layer selector widget with current PCB state
@@ -1065,6 +1072,11 @@ make_layer_buttons (GtkWidget *layersel)
 void
 ghid_layer_buttons_update (void)
 {
+  gtk_pcb_layer_selector_delete_layers
+    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector),
+     get_layer_delete);
+  make_layer_buttons (ghidgui->layer_selector);
+  make_virtual_layer_buttons (ghidgui->layer_selector);
 }
 
 
@@ -1462,6 +1474,7 @@ ghid_build_pcb_top_window (void)
   /* Build layer menus */
   ghidgui->layer_selector = gtk_pcb_layer_selector_new ();
   make_layer_buttons (ghidgui->layer_selector);
+  make_virtual_layer_buttons (ghidgui->layer_selector);
   g_signal_connect (G_OBJECT (ghidgui->layer_selector), "select_layer",
                     G_CALLBACK (layer_selector_select_callback),
                     NULL);

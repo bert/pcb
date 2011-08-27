@@ -38,6 +38,8 @@ gboolean gtk_pcb_layer_selector_select_next_visible (GtkPcbLayerSelector *ls);
 void gtk_pcb_layer_selector_make_selected_visible (GtkPcbLayerSelector *ls);
 void gtk_pcb_layer_selector_update_colors (GtkPcbLayerSelector *ls,
                                            const gchar *(*callback)(int user_id));
+void gtk_pcb_layer_selector_delete_layers (GtkPcbLayerSelector *ls,
+                                           gboolean (*callback)(int user_id));
 
 G_END_DECLS  /* keep c++ happy */
 #endif

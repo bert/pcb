@@ -348,6 +348,9 @@ gtk_pcb_layer_selector_new (void)
  *  menus (assuming this is a selectable layer). For the first 20 layers,
  *  keyboard accelerators will be added for selection/visibility toggling.
  *
+ *  If the user_id passed already exists in the layer selector, that layer
+ *  will have its data overwritten with the new stuff.
+ *
  *  \param [in] ls            The selector to be acted on
  *  \param [in] user_id       An ID used to identify the layer; will be passed to selection/visibility callbacks
  *  \param [in] name          The name of the layer; will be used on selector and menus
@@ -364,27 +367,68 @@ gtk_pcb_layer_selector_add_layer (GtkPcbLayerSelector *ls,
                                   gboolean activatable)
 {
   gchar *pname, *vname, *paccel, *vaccel;
+  gboolean new_iter = TRUE;
+  gboolean last_activatable = TRUE;
   GtkTreePath *path;
   GtkTreeIter iter;
 
-  if (activatable != ls->last_activatable)
-    {
-      /* Add separator between activatable/non-activatable boundaries */
-      gtk_list_store_append (ls->list_store, &iter);
-      gtk_list_store_set (ls->list_store, &iter, SEPARATOR_COL, TRUE, -1);
-    }
+  /* Look for existing layer with this ID */
+  if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter))
+    do
+      {
+        gboolean is_sep, active;
+        gint read_id;
+        gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                            &iter, USER_ID_COL, &read_id,
+                            SEPARATOR_COL, &is_sep,
+                            ACTIVATABLE_COL, &active, -1);
+        if (!is_sep)
+          {
+            last_activatable = active;
+            if(read_id == user_id)
+              {
+                new_iter = FALSE;
+                break;
+              }
+          }
+      }
+    while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 
-  gtk_list_store_append (ls->list_store, &iter);
-  gtk_list_store_set (ls->list_store, &iter,
-                      INDEX_COL, ls->n_actions,
-                      USER_ID_COL, user_id,
-                      VISIBLE_COL, visible,
-                      COLOR_COL, color_string,
-                      TEXT_COL, name,
-                      FONT_COL, activatable ? NULL : "Italic",
-                      ACTIVATABLE_COL, activatable,
-                      SEPARATOR_COL, FALSE,
-                      -1);
+  /* Handle separator addition */
+  if (new_iter)
+    {
+      if (activatable != last_activatable)
+        {
+          /* Add separator between activatable/non-activatable boundaries */
+          gtk_list_store_append (ls->list_store, &iter);
+          gtk_list_store_set (ls->list_store, &iter,
+                              SEPARATOR_COL, TRUE, -1);
+        }
+      /* Create new layer */
+      gtk_list_store_append (ls->list_store, &iter);
+      gtk_list_store_set (ls->list_store, &iter,
+                          INDEX_COL, ls->n_actions,
+                          USER_ID_COL, user_id,
+                          VISIBLE_COL, visible,
+                          COLOR_COL, color_string,
+                          TEXT_COL, name,
+                          FONT_COL, activatable ? NULL : "Italic",
+                          ACTIVATABLE_COL, activatable,
+                          SEPARATOR_COL, FALSE,
+                          -1);
+    }
+  else
+    gtk_list_store_set (ls->list_store, &iter,
+                        VISIBLE_COL, visible,
+                        COLOR_COL, color_string,
+                        TEXT_COL, name,
+                        FONT_COL, activatable ? NULL : "Italic",
+                        ACTIVATABLE_COL, activatable,
+                        -1);
+
+  /* Unless we're adding new actions, we're done now */
+  if (!new_iter)
+    return;
 
   if (activatable && ls->n_actions == 0)
     gtk_tree_selection_select_iter (ls->selection, &iter);
@@ -477,7 +521,6 @@ gtk_pcb_layer_selector_add_layer (GtkPcbLayerSelector *ls,
   g_free (vname);
   g_free (pname);
 
-  ls->last_activatable = activatable;
   ls->n_actions++;
 }
 
@@ -707,5 +750,52 @@ gtk_pcb_layer_selector_update_colors (GtkPcbLayerSelector *ls,
     }
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 }
+
+/*! \brief Deletes layers from a layer selector
+ *  \par Function Description
+ *  Deletes layers according to a callback function: a return value of TRUE
+ *  means delete, FALSE means leave it alone. Do not try to delete all layers
+ *  using this function; with nothing left to select, pcb will likely go into
+ *  an infinite recursion between hid_action() and g_signal().
+ *
+ *  Separators will be deleted if the layer AFTER them is deleted.
+ *
+ *  \param [in] ls       The selector to be acted on
+ *  \param [in] callback Takes the user_id of the layer and returns a boolean
+ */
+void
+gtk_pcb_layer_selector_delete_layers (GtkPcbLayerSelector *ls,
+                                      gboolean (*callback)(int user_id))
+{
+  GtkTreeIter iter, last_iter;
+  gboolean needs_inc;
+  gboolean was_separator = FALSE;
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  do
+    {
+      gboolean sep;
+      gint user_id;
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                          &iter, USER_ID_COL, &user_id,
+                          SEPARATOR_COL, &sep, -1);
+      /* gtk_list_store_remove will increment the iter for us, so we
+       *  don't want to do it again in the loop condition */
+      needs_inc = TRUE;
+      if (!sep && callback (user_id))
+        {
+          if (gtk_list_store_remove (ls->list_store, &iter))
+            needs_inc = FALSE;
+          else
+            return;
+          if (was_separator)
+            gtk_list_store_remove (ls->list_store, &last_iter);
+        }
+      last_iter = iter;
+      was_separator = sep;
+    }
+  while (!needs_inc ||
+         gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
+}
+
 
 
