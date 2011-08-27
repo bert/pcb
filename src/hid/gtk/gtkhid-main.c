@@ -30,8 +30,6 @@
 RCSID ("$Id$");
 
 
-bool ghid_flip_x = false, ghid_flip_y = false;
-
 static void
 pan_common (GHidPort *port)
 {
@@ -42,10 +40,10 @@ pan_common (GHidPort *port)
   ghid_pcb_to_event_coords (gport->pcb_x, gport->pcb_y, &event_x, &event_y);
 
   /* Don't pan so far the board is completely off the screen */
-  port->view_x0 = MAX (-port->view_width,  port->view_x0);
-  port->view_y0 = MAX (-port->view_height, port->view_y0);
-  port->view_x0 = MIN ( port->view_x0, PCB->MaxWidth);
-  port->view_y0 = MIN ( port->view_y0, PCB->MaxHeight);
+  port->view.x0 = MAX (-port->view.width,  port->view.x0);
+  port->view.y0 = MAX (-port->view.height, port->view.y0);
+  port->view.x0 = MIN ( port->view.x0, PCB->MaxWidth);
+  port->view.y0 = MIN ( port->view.y0, PCB->MaxHeight);
 
   /* Fix up noted event coordinates to match where we clamped. Alternatively
    * we could call ghid_note_event_location (NULL); to get a new pointer
@@ -54,8 +52,8 @@ pan_common (GHidPort *port)
   ghid_event_to_pcb_coords (event_x, event_y, &gport->pcb_x, &gport->pcb_y);
 
   ghidgui->adjustment_changed_holdoff = TRUE;
-  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view.x0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view.y0);
   ghidgui->adjustment_changed_holdoff = FALSE;
 
   ghid_port_ranges_changed();
@@ -64,8 +62,8 @@ pan_common (GHidPort *port)
 static void
 ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
 {
-  gport->view_x0 = SIDE_X (pcb_x) - widget_x * gport->zoom;
-  gport->view_y0 = SIDE_Y (pcb_y) - widget_y * gport->zoom;
+  gport->view.x0 = SIDE_X (pcb_x) - widget_x * gport->view.coord_per_px;
+  gport->view.y0 = SIDE_Y (pcb_y) - widget_y * gport->view.coord_per_px;
 
   pan_common (gport);
 }
@@ -73,14 +71,14 @@ ghid_pan_view_abs (Coord pcb_x, Coord pcb_y, int widget_x, int widget_y)
 void
 ghid_pan_view_rel (Coord dx, Coord dy)
 {
-  gport->view_x0 += dx;
-  gport->view_y0 += dy;
+  gport->view.x0 += dx;
+  gport->view.y0 += dy;
 
   pan_common (gport);
 }
 
 
-/* gport->zoom:
+/* gport->view.coord_per_px:
  * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
  * out - the largest value means you are looking at the whole board.
  *
@@ -103,18 +101,18 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
                   PCB->MaxHeight / gport->height) * ALLOW_ZOOM_OUT_BY;
   new_zoom = MIN (MAX (min_zoom, new_zoom), max_zoom);
 
-  if (gport->zoom == new_zoom)
+  if (gport->view.coord_per_px == new_zoom)
     return;
 
-  xtmp = (SIDE_X (center_x) - gport->view_x0) / (double)gport->view_width;
-  ytmp = (SIDE_Y (center_y) - gport->view_y0) / (double)gport->view_height;
+  xtmp = (SIDE_X (center_x) - gport->view.x0) / (double)gport->view.width;
+  ytmp = (SIDE_Y (center_y) - gport->view.y0) / (double)gport->view.height;
 
-  gport->zoom = new_zoom;
+  gport->view.coord_per_px = new_zoom;
   pixel_slop = new_zoom;
   ghid_port_ranges_scale ();
 
-  gport->view_x0 = SIDE_X (center_x) - xtmp * gport->view_width;
-  gport->view_y0 = SIDE_Y (center_y) - ytmp * gport->view_height;
+  gport->view.x0 = SIDE_X (center_x) - xtmp * gport->view.width;
+  gport->view.y0 = SIDE_Y (center_y) - ytmp * gport->view.height;
 
   pan_common (gport);
 
@@ -124,7 +122,7 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
 static void
 ghid_zoom_view_rel (Coord center_x, Coord center_y, double factor)
 {
-  ghid_zoom_view_abs (center_x, center_y, gport->zoom * factor);
+  ghid_zoom_view_abs (center_x, center_y, gport->view.coord_per_px * factor);
 }
 
 static void
@@ -143,8 +141,8 @@ ghid_flip_view (Coord center_x, Coord center_y, bool flip_x, bool flip_y)
   /* Work out where on the screen the flip point is */
   ghid_pcb_to_event_coords (center_x, center_y, &widget_x, &widget_y);
 
-  ghid_flip_x = ghid_flip_x != flip_x;
-  ghid_flip_y = ghid_flip_y != flip_y;
+  gport->view.flip_x = gport->view.flip_x != flip_x;
+  gport->view.flip_y = gport->view.flip_y != flip_y;
 
   /* Pan the board so the center location remains in the same place */
   ghid_pan_view_abs (center_x, center_y, widget_x, widget_y);
@@ -1653,13 +1651,13 @@ CursorAction(int argc, char **argv, Coord x, Coord y)
 {
   UnitList extra_units_x = {
     { "grid",  PCB->Grid, 0 },
-    { "view",  gport->view_width, UNIT_PERCENT },
+    { "view",  gport->view.width, UNIT_PERCENT },
     { "board", PCB->MaxWidth, UNIT_PERCENT },
     { "", 0, 0 }
   };
   UnitList extra_units_y = {
     { "grid",  PCB->Grid, 0 },
-    { "view",  gport->view_height, UNIT_PERCENT },
+    { "view",  gport->view.height, UNIT_PERCENT },
     { "board", PCB->MaxHeight, UNIT_PERCENT },
     { "", 0, 0 }
   };
@@ -1677,10 +1675,10 @@ CursorAction(int argc, char **argv, Coord x, Coord y)
     AFAIL (cursor);
 
   dx = GetValueEx (argv[1], argv[3], NULL, extra_units_x, "");
-  if (ghid_flip_x)
+  if (gport->view.flip_x)
     dx = -dx;
   dy = GetValueEx (argv[2], argv[3], NULL, extra_units_y, "");
-  if (!ghid_flip_y)
+  if (!gport->view.flip_y)
     dy = -dy;
 
   EventMoveCrosshair (Crosshair.X + dx, Crosshair.Y + dy);
@@ -1848,13 +1846,13 @@ ScrollAction (int argc, char **argv, Coord x, Coord y)
     div = atoi(argv[1]);
 
   if (strcasecmp (argv[0], "up") == 0)
-    dy = -gport->view_height / div;
+    dy = -gport->view.height / div;
   else if (strcasecmp (argv[0], "down") == 0)
-    dy = gport->view_height / div;
+    dy = gport->view.height / div;
   else if (strcasecmp (argv[0], "right") == 0)
-    dx = gport->view_width / div;
+    dx = gport->view.width / div;
   else if (strcasecmp (argv[0], "left") == 0)
-    dx = -gport->view_width / div;
+    dx = -gport->view.width / div;
   else
     AFAIL (scroll);
 
@@ -2064,19 +2062,20 @@ REGISTER_ACTIONS (ghid_main_action_list)
 
 static int
 flag_flipx (int x)
-{ 
-  return ghid_flip_x;
-} 
-static int  
+{
+  return gport->view.flip_x;
+}
+
+static int
 flag_flipy (int x)
-{ 
-  return ghid_flip_y;
-} 
+{
+  return gport->view.flip_y;
+}
 
 HID_Flag ghid_main_flag_list[] = {
   {"flip_x", flag_flipx, 0},
   {"flip_y", flag_flipy, 0}
-};  
+};
 
 REGISTER_FLAGS (ghid_main_flag_list)
 

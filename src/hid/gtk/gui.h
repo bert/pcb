@@ -62,15 +62,14 @@
 #define	FROM_PCB_UNITS(v)	coord_to_unit (Settings.grid_unit, v)
 #define	TO_PCB_UNITS(v)		unit_to_coord (Settings.grid_unit, v)
 
-extern bool ghid_flip_x, ghid_flip_y;
-#define SIDE_X(x)   ((ghid_flip_x ? PCB->MaxWidth - (x) : (x)))
-#define SIDE_Y(y)   ((ghid_flip_y ? PCB->MaxHeight - (y) : (y)))
+#define SIDE_X(x)         ((gport->view.flip_x ? PCB->MaxWidth - (x) : (x)))
+#define SIDE_Y(y)         ((gport->view.flip_y ? PCB->MaxHeight - (y) : (y)))
 
-#define	DRAW_X(x)	(gint)((SIDE_X(x) - gport->view_x0) / gport->zoom)
-#define	DRAW_Y(y)	(gint)((SIDE_Y(y) - gport->view_y0) / gport->zoom)
+#define	DRAW_X(x)         (gint)((SIDE_X(x) - gport->view.x0) / gport->view.coord_per_px)
+#define	DRAW_Y(y)         (gint)((SIDE_Y(y) - gport->view.y0) / gport->view.coord_per_px)
 
-#define	EVENT_TO_PCB_X(x)	SIDE_X((gint)((x) * gport->zoom + gport->view_x0))
-#define	EVENT_TO_PCB_Y(y)	SIDE_Y((gint)((y) * gport->zoom + gport->view_y0))
+#define	EVENT_TO_PCB_X(x) SIDE_X((gint)((x) * gport->view.coord_per_px + gport->view.x0))
+#define	EVENT_TO_PCB_Y(y) SIDE_Y((gint)((y) * gport->view.coord_per_px + gport->view.y0))
 
 /*
  * Used to intercept "special" hotkeys that gtk doesn't usually pass
@@ -145,6 +144,19 @@ GhidGui;
 
 extern GhidGui _ghidgui, *ghidgui;
 
+typedef struct
+{
+  double coord_per_px; /* Zoom level described as PCB units per screen pixel */
+
+  Coord x0;
+  Coord y0;
+  Coord width;
+  Coord height;
+
+  bool flip_x;
+  bool flip_y;
+
+} view_data;
 
   /* The output viewport
    */
@@ -168,15 +180,9 @@ typedef struct
   gboolean has_entered;
   gboolean panning;
 
-/* zoom value is PCB units per screen pixel.  Larger numbers mean zooming
-|  out - the largest value means you are looking at the whole board.
-*/
-  gdouble zoom;			/* PCB units per screen pixel.  Larger */
-                                /* numbers mean zooming out. */
-  /* Viewport in PCB coordinates */
-  Coord view_x0, view_y0, view_width, view_height;
-  Coord pcb_x, pcb_y;
-  Coord crosshair_x, crosshair_y;
+  view_data view;
+  Coord pcb_x, pcb_y;             /* PCB coordinates of the mouse pointer */
+  Coord crosshair_x, crosshair_y; /* PCB coordinates of the crosshair     */
 }
 GHidPort;
 
@@ -520,10 +526,10 @@ static inline int
 Vx (Coord x)
 {
   int rv;
-  if (ghid_flip_x)
-    rv = (PCB->MaxWidth - x - gport->view_x0) / gport->zoom + 0.5;
+  if (gport->view.flip_x)
+    rv = (PCB->MaxWidth - x - gport->view.x0) / gport->view.coord_per_px + 0.5;
   else
-    rv = (x - gport->view_x0) / gport->zoom + 0.5;
+    rv = (x - gport->view.x0) / gport->view.coord_per_px + 0.5;
   return rv;
 }
 
@@ -531,41 +537,41 @@ static inline int
 Vy (Coord y)
 {
   int rv;
-  if (ghid_flip_y)
-    rv = (PCB->MaxHeight - y - gport->view_y0) / gport->zoom + 0.5;
+  if (gport->view.flip_y)
+    rv = (PCB->MaxHeight - y - gport->view.y0) / gport->view.coord_per_px + 0.5;
   else
-    rv = (y - gport->view_y0) / gport->zoom + 0.5;
+    rv = (y - gport->view.y0) / gport->view.coord_per_px + 0.5;
   return rv;
 }
 
 static inline int
 Vz (Coord z)
 {
-  return z / gport->zoom + 0.5;
+  return z / gport->view.coord_per_px + 0.5;
 }
 
 static inline Coord
 Px (int x)
 {
-  Coord rv = x * gport->zoom + gport->view_x0;
-  if (ghid_flip_x)
-    rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
+  Coord rv = x * gport->view.coord_per_px + gport->view.x0;
+  if (gport->view.flip_x)
+    rv = PCB->MaxWidth - (x * gport->view.coord_per_px + gport->view.x0);
   return  rv;
 }
 
 static inline Coord
 Py (int y)
 {
-  Coord rv = y * gport->zoom + gport->view_y0;
-  if (ghid_flip_y)
-    rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
+  Coord rv = y * gport->view.coord_per_px + gport->view.y0;
+  if (gport->view.flip_y)
+    rv = PCB->MaxHeight - (y * gport->view.coord_per_px + gport->view.y0);
   return  rv;
 }
 
 static inline Coord
 Pz (int z)
 {
-  return (z * gport->zoom);
+  return (z * gport->view.coord_per_px);
 }
 
 #endif /* PCB_HID_GTK_GHID_H */

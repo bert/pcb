@@ -60,8 +60,8 @@ ghid_port_ranges_changed (void)
 
   h_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
   v_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
-  gport->view_x0 = h_adj->value;
-  gport->view_y0 = v_adj->value;
+  gport->view.x0 = h_adj->value;
+  gport->view.y0 = v_adj->value;
 
   ghid_invalidate_all ();
 }
@@ -78,21 +78,21 @@ ghid_port_ranges_scale (void)
      |  drawing area size in pixels to PCB units and that will be
      |  the page size for the Gtk adjustment.
    */
-  gport->view_width = gport->width * gport->zoom;
-  gport->view_height = gport->height * gport->zoom;
+  gport->view.width = gport->width * gport->view.coord_per_px;
+  gport->view.height = gport->height * gport->view.coord_per_px;
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
-  adj->page_size = MIN (gport->view_width, PCB->MaxWidth);
+  adj->page_size = MIN (gport->view.width, PCB->MaxWidth);
   adj->page_increment = adj->page_size / 10.0;
   adj->step_increment = adj->page_size / 100.0;
-  adj->lower = -gport->view_width;
+  adj->lower = -gport->view.width;
   adj->upper = PCB->MaxWidth + adj->page_size;
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
-  adj->page_size = MIN (gport->view_height, PCB->MaxHeight);
+  adj->page_size = MIN (gport->view.height, PCB->MaxHeight);
   adj->page_increment = adj->page_size / 10.0;
   adj->step_increment = adj->page_size / 100.0;
-  adj->lower = -gport->view_height;
+  adj->lower = -gport->view.height;
   adj->upper = PCB->MaxHeight + adj->page_size;
 }
 
@@ -547,8 +547,8 @@ ghid_port_window_motion_cb (GtkWidget * widget,
 
   if (out->panning)
     {
-      dx = gport->zoom * (x_prev - ev->x);
-      dy = gport->zoom * (y_prev - ev->y);
+      dx = gport->view.coord_per_px * (x_prev - ev->x);
+      dy = gport->view.coord_per_px * (y_prev - ev->y);
       if (x_prev > 0)
         ghid_pan_view_rel (dx, dy);
       x_prev = ev->x;
@@ -604,8 +604,8 @@ ghid_pan_idle_cb (gpointer data)
   if (gport->has_entered)
     return FALSE;
 
-  dy = gport->zoom * y_pan_speed;
-  dx = gport->zoom * x_pan_speed;
+  dy = gport->view.coord_per_px * y_pan_speed;
+  dx = gport->view.coord_per_px * x_pan_speed;
   ghid_pan_view_rel (dx, dy);
   return TRUE;
 }
@@ -639,8 +639,8 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	  /* GdkEvent coords are set to 0,0 at leave events, so must figure
 	     |  out edge the cursor left.
 	   */
-	  w = ghid_port.width * gport->zoom;
-	  h = ghid_port.height * gport->zoom;
+	  w = ghid_port.width * out->view.coord_per_px;
+	  h = ghid_port.height * out->view.coord_per_px;
 
 	  x0 = EVENT_TO_PCB_X (0);
 	  y0 = EVENT_TO_PCB_Y (0);
@@ -648,9 +648,9 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	  x -= x0;
 	  y -= y0;
 
-	  if (ghid_flip_x )
+	  if (gport->view.flip_x)
 	      x = -x;
-	  if (ghid_flip_y )
+	  if (gport->view.flip_y)
 	      y = -y;
 
 	  dx = w - x;

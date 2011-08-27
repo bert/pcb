@@ -172,11 +172,11 @@ ghid_draw_grid (void)
       gdk_gc_set_clip_origin (priv->grid_gc, 0, 0);
       set_clip (priv, priv->grid_gc);
     }
-  x1 = GridFit (SIDE_X (gport->view_x0), PCB->Grid, PCB->GridOffsetX);
-  y1 = GridFit (SIDE_Y (gport->view_y0), PCB->Grid, PCB->GridOffsetY);
-  x2 = GridFit (SIDE_X (gport->view_x0 + gport->view_width - 1),
+  x1 = GridFit (SIDE_X (gport->view.x0), PCB->Grid, PCB->GridOffsetX);
+  y1 = GridFit (SIDE_Y (gport->view.y0), PCB->Grid, PCB->GridOffsetY);
+  x2 = GridFit (SIDE_X (gport->view.x0 + gport->view.width - 1),
                 PCB->Grid, PCB->GridOffsetX);
-  y2 = GridFit (SIDE_Y (gport->view_y0 + gport->view_height - 1),
+  y2 = GridFit (SIDE_Y (gport->view.y0 + gport->view.height - 1),
                 PCB->Grid, PCB->GridOffsetY);
   if (x1 > x2)
     {
@@ -233,10 +233,10 @@ ghid_draw_bg_image (void)
   if (!ghidgui->bg_pixbuf)
     return;
 
-  w = PCB->MaxWidth / gport->zoom;
-  h = PCB->MaxHeight / gport->zoom;
-  x = gport->view_x0 / gport->zoom;
-  y = gport->view_y0 / gport->zoom;
+  w = PCB->MaxWidth / gport->view.coord_per_px;
+  h = PCB->MaxHeight / gport->view.coord_per_px;
+  x = gport->view.x0 / gport->view.coord_per_px;
+  y = gport->view.y0 / gport->view.coord_per_px;
 
   if (w_scaled != w || h_scaled != h)
     {
@@ -529,7 +529,7 @@ ghid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   dy2 = Vy ((double) y2);
 
   if (!ClipLine (0, 0, gport->width, gport->height,
-		 &dx1, &dy1, &dx2, &dy2, gc->width / gport->zoom))
+		 &dx1, &dy1, &dx2, &dy2, gc->width / gport->view.coord_per_px))
     return;
 
   USE_GC (gc);
@@ -544,25 +544,25 @@ ghid_draw_arc (hidGC gc, Coord cx, Coord cy,
   gint w, h, radius;
   render_priv *priv = gport->render_priv;
 
-  w = gport->width * gport->zoom;
-  h = gport->height * gport->zoom;
+  w = gport->width * gport->view.coord_per_px;
+  h = gport->height * gport->view.coord_per_px;
   radius = (xradius > yradius) ? xradius : yradius;
-  if (SIDE_X (cx) < gport->view_x0 - radius
-      || SIDE_X (cx) > gport->view_x0 + w + radius
-      || SIDE_Y (cy) < gport->view_y0 - radius
-      || SIDE_Y (cy) > gport->view_y0 + h + radius)
+  if (SIDE_X (cx) < gport->view.x0 - radius
+      || SIDE_X (cx) > gport->view.x0 + w + radius
+      || SIDE_Y (cy) < gport->view.y0 - radius
+      || SIDE_Y (cy) > gport->view.y0 + h + radius)
     return;
 
   USE_GC (gc);
   vrx = Vz (xradius);
   vry = Vz (yradius);
 
-  if (ghid_flip_x)
+  if (gport->view.flip_x)
     {
       start_angle = 180 - start_angle;
       delta_angle = -delta_angle;
     }
-  if (ghid_flip_y)
+  if (gport->view.flip_y)
     {
       start_angle = -start_angle;
       delta_angle = -delta_angle;
@@ -583,17 +583,17 @@ ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   render_priv *priv = gport->render_priv;
 
   lw = gc->width;
-  w = gport->width * gport->zoom;
-  h = gport->height * gport->zoom;
+  w = gport->width * gport->view.coord_per_px;
+  h = gport->height * gport->view.coord_per_px;
 
-  if ((SIDE_X (x1) < gport->view_x0 - lw
-       && SIDE_X (x2) < gport->view_x0 - lw)
-      || (SIDE_X (x1) > gport->view_x0 + w + lw
-	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (SIDE_Y (y1) < gport->view_y0 - lw
-	  && SIDE_Y (y2) < gport->view_y0 - lw)
-      || (SIDE_Y (y1) > gport->view_y0 + h + lw
-	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
+  if ((SIDE_X (x1) < gport->view.x0 - lw
+       && SIDE_X (x2) < gport->view.x0 - lw)
+      || (SIDE_X (x1) > gport->view.x0 + w + lw
+	  && SIDE_X (x2) > gport->view.x0 + w + lw)
+      || (SIDE_Y (y1) < gport->view.y0 - lw
+	  && SIDE_Y (y2) < gport->view.y0 - lw)
+      || (SIDE_Y (y1) > gport->view.y0 + h + lw
+	  && SIDE_Y (y2) > gport->view.y0 + h + lw))
     return;
 
   x1 = Vx (x1);
@@ -626,12 +626,12 @@ ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   gint w, h, vr;
   render_priv *priv = gport->render_priv;
 
-  w = gport->width * gport->zoom;
-  h = gport->height * gport->zoom;
-  if (SIDE_X (cx) < gport->view_x0 - radius
-      || SIDE_X (cx) > gport->view_x0 + w + radius
-      || SIDE_Y (cy) < gport->view_y0 - radius
-      || SIDE_Y (cy) > gport->view_y0 + h + radius)
+  w = gport->width * gport->view.coord_per_px;
+  h = gport->height * gport->view.coord_per_px;
+  if (SIDE_X (cx) < gport->view.x0 - radius
+      || SIDE_X (cx) > gport->view.x0 + w + radius
+      || SIDE_Y (cy) < gport->view.y0 - radius
+      || SIDE_Y (cy) > gport->view.y0 + h + radius)
     return;
 
   USE_GC (gc);
@@ -669,17 +669,17 @@ ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   render_priv *priv = gport->render_priv;
 
   lw = gc->width;
-  w = gport->width * gport->zoom;
-  h = gport->height * gport->zoom;
+  w = gport->width * gport->view.coord_per_px;
+  h = gport->height * gport->view.coord_per_px;
 
-  if ((SIDE_X (x1) < gport->view_x0 - lw
-       && SIDE_X (x2) < gport->view_x0 - lw)
-      || (SIDE_X (x1) > gport->view_x0 + w + lw
-	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (SIDE_Y (y1) < gport->view_y0 - lw
-	  && SIDE_Y (y2) < gport->view_y0 - lw)
-      || (SIDE_Y (y1) > gport->view_y0 + h + lw
-	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
+  if ((SIDE_X (x1) < gport->view.x0 - lw
+       && SIDE_X (x2) < gport->view.x0 - lw)
+      || (SIDE_X (x1) > gport->view.x0 + w + lw
+	  && SIDE_X (x2) > gport->view.x0 + w + lw)
+      || (SIDE_Y (y1) < gport->view.y0 - lw
+	  && SIDE_Y (y2) < gport->view.y0 - lw)
+      || (SIDE_Y (y1) > gport->view.y0 + h + lw
+	  && SIDE_Y (y2) > gport->view.y0 + h + lw))
     return;
 
   x1 = Vx (x1);
@@ -1173,13 +1173,13 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   double xz, yz;
   render_priv *priv = gport->render_priv;
 
-  save_zoom = gport->zoom;
+  save_zoom = gport->view.coord_per_px;
   save_width = gport->width;
   save_height = gport->height;
-  save_left = gport->view_x0;
-  save_top = gport->view_y0;
-  save_view_width = gport->view_width;
-  save_view_height = gport->view_height;
+  save_left = gport->view.x0;
+  save_top = gport->view.y0;
+  save_view_width = gport->view.width;
+  save_view_height = gport->view.height;
 
   /* Setup drawable and zoom factor for drawing routines
    */
@@ -1189,17 +1189,17 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   xz = (double) pinout->x_max / da_w;
   yz = (double) pinout->y_max / da_h;
   if (xz > yz)
-    gport->zoom = xz;
+    gport->view.coord_per_px = xz;
   else
-    gport->zoom = yz;
+    gport->view.coord_per_px = yz;
 
   gport->drawable = widget->window;
   gport->width = da_w;
   gport->height = da_h;
-  gport->view_width = da_w * gport->zoom;
-  gport->view_height = da_h * gport->zoom;
-  gport->view_x0 = (pinout->x_max - gport->view_width) / 2;
-  gport->view_y0 = (pinout->y_max - gport->view_height) / 2;
+  gport->view.width = da_w * gport->view.coord_per_px;
+  gport->view.height = da_h * gport->view.coord_per_px;
+  gport->view.x0 = (pinout->x_max - gport->view.width) / 2;
+  gport->view.y0 = (pinout->y_max - gport->view.height) / 2;
 
   /* clear background */
   gdk_draw_rectangle (widget->window, priv->bg_gc, TRUE, 0, 0, da_w, da_h);
@@ -1208,13 +1208,13 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   hid_expose_callback (&ghid_hid, NULL, &pinout->element);
 
   gport->drawable = save_drawable;
-  gport->zoom = save_zoom;
+  gport->view.coord_per_px = save_zoom;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view_x0 = save_left;
-  gport->view_y0 = save_top;
-  gport->view_width = save_view_width;
-  gport->view_height = save_view_height;
+  gport->view.x0 = save_left;
+  gport->view.y0 = save_top;
+  gport->view.width = save_view_width;
+  gport->view.height = save_view_height;
 
   return FALSE;
 }
@@ -1232,13 +1232,13 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   render_priv *priv = gport->render_priv;
 
   save_drawable = gport->drawable;
-  save_zoom = gport->zoom;
+  save_zoom = gport->view.coord_per_px;
   save_width = gport->width;
   save_height = gport->height;
-  save_left = gport->view_x0;
-  save_top = gport->view_y0;
-  save_view_width = gport->view_width;
-  save_view_height = gport->view_height;
+  save_left = gport->view.x0;
+  save_top = gport->view.y0;
+  save_view_width = gport->view.width;
+  save_view_height = gport->view.height;
 
   pixmap = gdk_pixmap_new (NULL, width, height, depth);
 
@@ -1246,15 +1246,15 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
    */
 
   gport->drawable = pixmap;
-  gport->zoom = zoom;
+  gport->view.coord_per_px = zoom;
   gport->width = width;
   gport->height = height;
-  gport->view_width = width * gport->zoom;
-  gport->view_height = height * gport->zoom;
-  gport->view_x0 = ghid_flip_x ? PCB->MaxWidth - cx : cx;
-  gport->view_x0 -= gport->view_height / 2;
-  gport->view_y0 = ghid_flip_y ? PCB->MaxHeight - cy : cy;
-  gport->view_y0 -= gport->view_width  / 2;
+  gport->view.width = width * gport->view.coord_per_px;
+  gport->view.height = height * gport->view.coord_per_px;
+  gport->view.x0 = gport->view.flip_x ? PCB->MaxWidth - cx : cx;
+  gport->view.x0 -= gport->view.height / 2;
+  gport->view.y0 = gport->view.flip_y ? PCB->MaxHeight - cy : cy;
+  gport->view.y0 -= gport->view.width  / 2;
 
   /* clear background */
   gdk_draw_rectangle (pixmap, priv->bg_gc, TRUE, 0, 0, width, height);
@@ -1273,13 +1273,13 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   hid_expose_callback (&ghid_hid, &region, NULL);
 
   gport->drawable = save_drawable;
-  gport->zoom = save_zoom;
+  gport->view.coord_per_px = save_zoom;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view_x0 = save_left;
-  gport->view_y0 = save_top;
-  gport->view_width = save_view_width;
-  gport->view_height = save_view_height;
+  gport->view.x0 = save_left;
+  gport->view.y0 = save_top;
+  gport->view.width = save_view_width;
+  gport->view.height = save_view_height;
 
   return pixmap;
 }
