@@ -176,8 +176,7 @@ typedef struct
   /* Viewport in PCB coordinates */
   Coord view_x0, view_y0, view_width, view_height;
   Coord pcb_x, pcb_y;
-
-  gint crosshair_x, crosshair_y;
+  Coord crosshair_x, crosshair_y;
 }
 GHidPort;
 
