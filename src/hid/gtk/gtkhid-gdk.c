@@ -1165,25 +1165,18 @@ ghid_pinout_preview_expose (GtkWidget *widget,
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GdkDrawable *save_drawable;
-  double save_zoom;
   int da_w, da_h;
-  int save_left, save_top;
+  view_data save_view;
   int save_width, save_height;
-  int save_view_width, save_view_height;
   double xz, yz;
   render_priv *priv = gport->render_priv;
-
-  save_zoom = gport->view.coord_per_px;
-  save_width = gport->width;
-  save_height = gport->height;
-  save_left = gport->view.x0;
-  save_top = gport->view.y0;
-  save_view_width = gport->view.width;
-  save_view_height = gport->view.height;
 
   /* Setup drawable and zoom factor for drawing routines
    */
   save_drawable = gport->drawable;
+  save_view = gport->view;
+  save_width = gport->width;
+  save_height = gport->height;
 
   gdk_window_get_geometry (widget->window, 0, 0, &da_w, &da_h, 0);
   xz = (double) pinout->x_max / da_w;
@@ -1208,13 +1201,9 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   hid_expose_callback (&ghid_hid, NULL, &pinout->element);
 
   gport->drawable = save_drawable;
-  gport->view.coord_per_px = save_zoom;
+  gport->view = save_view;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view.x0 = save_left;
-  gport->view.y0 = save_top;
-  gport->view.width = save_view_width;
-  gport->view.height = save_view_height;
 
   return FALSE;
 }
@@ -1224,21 +1213,15 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
 {
   GdkPixmap *pixmap;
   GdkDrawable *save_drawable;
-  double save_zoom;
-  int save_left, save_top;
+  view_data save_view;
   int save_width, save_height;
-  int save_view_width, save_view_height;
   BoxType region;
   render_priv *priv = gport->render_priv;
 
   save_drawable = gport->drawable;
-  save_zoom = gport->view.coord_per_px;
+  save_view = gport->view;
   save_width = gport->width;
   save_height = gport->height;
-  save_left = gport->view.x0;
-  save_top = gport->view.y0;
-  save_view_width = gport->view.width;
-  save_view_height = gport->view.height;
 
   pixmap = gdk_pixmap_new (NULL, width, height, depth);
 
@@ -1273,13 +1256,9 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   hid_expose_callback (&ghid_hid, &region, NULL);
 
   gport->drawable = save_drawable;
-  gport->view.coord_per_px = save_zoom;
+  gport->view = save_view;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view.x0 = save_left;
-  gport->view.y0 = save_top;
-  gport->view.width = save_view_width;
-  gport->view.height = save_view_height;
 
   return pixmap;
 }

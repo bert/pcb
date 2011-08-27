@@ -1028,20 +1028,14 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   GdkGLContext* pGlContext = gtk_widget_get_gl_context (widget);
   GdkGLDrawable* pGlDrawable = gtk_widget_get_gl_drawable (widget);
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
-  double save_zoom;
   int da_w, da_h;
-  int save_left, save_top;
+  view_data save_view;
   int save_width, save_height;
-  int save_view_width, save_view_height;
   double xz, yz;
 
-  save_zoom = gport->view.coord_per_px;
+  save_view = gport->view;
   save_width = gport->width;
   save_height = gport->height;
-  save_left = gport->view.x0;
-  save_top = gport->view.y0;
-  save_view_width = gport->view.width;
-  save_view_height = gport->view.height;
 
   /* Setup zoom factor for drawing routines */
 
@@ -1116,13 +1110,9 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   gport->render_priv->in_context = false;
   gdk_gl_drawable_gl_end (pGlDrawable);
 
-  gport->view.coord_per_px = save_zoom;
+  gport->view = save_view;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view.x0 = save_left;
-  gport->view.y0 = save_top;
-  gport->view.width = save_view_width;
-  gport->view.height = save_view_height;
 
   return FALSE;
 }
@@ -1136,19 +1126,13 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   GdkGLPixmap *glpixmap;
   GdkGLContext* glcontext;
   GdkGLDrawable* gldrawable;
-  double save_zoom;
-  int save_left, save_top;
+  view_data save_view;
   int save_width, save_height;
-  int save_view_width, save_view_height;
   BoxType region;
 
-  save_zoom = gport->view.coord_per_px;
+  save_view = gport->view;
   save_width = gport->width;
   save_height = gport->height;
-  save_left = gport->view.x0;
-  save_top = gport->view.y0;
-  save_view_width = gport->view.width;
-  save_view_height = gport->view.height;
 
   /* Setup rendering context for drawing routines
    */
@@ -1240,13 +1224,9 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   g_object_unref (glconfig);
   g_object_unref (glcontext);
 
-  gport->view.coord_per_px = save_zoom;
+  gport->view = save_view;
   gport->width = save_width;
   gport->height = save_height;
-  gport->view.x0 = save_left;
-  gport->view.y0 = save_top;
-  gport->view.width = save_view_width;
-  gport->view.height = save_view_height;
 
   return pixmap;
 }
