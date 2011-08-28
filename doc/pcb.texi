@@ -2672,6 +2672,47 @@ see what actions are available.
 @cindex starting @pcb{}
 @cindex command-line options
 
+The synopsis of the pcb command is:
+
+@code{pcb [OPTION ...] [LAYOUT-FILE.pcb]} to start the application in GUI mode,
+
+@noindent or
+
+@code{pcb [-h | -V | --copyright]} for a list of options, version, and copyright,
+
+@noindent or
+
+@code{pcb -p [OPTION ...] [LAYOUT-FILE.pcb]} to print a layout,
+
+@noindent or
+
+@code{pcb -x HID [OPTION ...] [LAYOUT-FILE.pcb]} to export.
+
+@noindent Possible values for the parameter @samp{HID} are:
+ @table @samp
+   @item bom
+    Export a bill of materials
+   @item gcode
+    Export to G-Code
+   @item gerber
+    Export RS-274X (Gerber)
+   @item nelma
+    Numerical analysis package export
+   @item png
+    export GIF/JPEG/PNG
+   @item ps
+    export postscript
+   @item eps
+    export encapsulated postscript
+@end table
+
+@noindent There are several resources which may be set or reset in addition to the
+standard toolkit command-line options. For a complete list refer to
+@ref{Resources}.
+
+
+@include options.texi
+
 
 
 @c --------------------------- chapter 5 -------------------------------

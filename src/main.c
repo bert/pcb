@@ -430,21 +430,85 @@ static int do_dump_actions = 0;
 static char *grid_units;
 
 HID_Attribute main_attribute_list[] = {
-  {"help", "Show Help", HID_Boolean, 0, 0, {0, 0, 0}, 0, &show_help},
-  {"version", "Show Version", HID_Boolean, 0, 0, {0, 0, 0}, 0, &show_version},
-  {"verbose", "Be verbose", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --help
+Show help on command line options.
+@end ftable
+%end-doc
+*/
+  {"help", "Show help on command line options", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+  &show_help},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --version
+Show version.
+@end ftable
+%end-doc
+*/
+  {"version", "Show version", HID_Boolean, 0, 0, {0, 0, 0}, 0, &show_version},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --verbose
+Be verbose on stdout.
+@end ftable
+%end-doc
+*/
+  {"verbose", "Be verbose on stdout", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &Settings.verbose},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --copyright
+Show copyright.
+@end ftable
+%end-doc
+*/
   {"copyright", "Show Copyright", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &show_copyright},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --show-defaults
+Show option defaults.
+@end ftable
+%end-doc
+*/
   {"show-defaults", "Show option defaults", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &show_defaults},
-  {"show-actions", "Show actions", HID_Boolean, 0, 0, {0, 0, 0}, 0,
-   &show_actions},
-  {"dump-actions", "Dump actions (for documentation)", HID_Boolean, 0, 0,
-   {0, 0, 0}, 0,
-   &do_dump_actions},
 
-  {"grid-units", "Default grid units (mm|mil)", HID_String, 0, 0, {0, "mil", 0}, 0, &grid_units},
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --show-actions
+Show available actions and exit.
+@end ftable
+%end-doc
+*/
+  {"show-actions", "Show available actions", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+   &show_actions},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --dump-actions
+Dump actions (for documentation).
+@end ftable
+%end-doc
+*/
+  {"dump-actions", "Dump actions (for documentation)", HID_Boolean, 0, 0,
+   {0, 0, 0}, 0, &do_dump_actions},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --grid-units-mm
+Set default grid units. Can be mm or mil. Defaults to mil.
+@end ftable
+%end-doc
+*/
+  {"grid-units", "Default grid units (mm|mil)", HID_String, 0, 0, {0, "mil", 0},
+  0, &grid_units},
 
   COLOR (BlackColor, "#000000", "black-color", "color for black"),
   COLOR (WhiteColor, "#ffffff", "white-color", "color for white"),
@@ -531,7 +595,16 @@ HID_Attribute main_attribute_list[] = {
   CSET (Grid, MIL_TO_COORD(10), "grid", 0),
   RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
 
-  ISET (BackupInterval, 60, "backup-interval", 0),
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --backup-interval
+Time between automatic backups in seconds. Set to @code{0} to disable.
+The default value is @code{60}.
+@end ftable
+%end-doc
+*/
+  ISET (BackupInterval, 60, "backup-interval",
+  "Time between automatic backups in seconds. Set to 0 to disable"),
 
   LAYERNAME (1, "top"),
   LAYERNAME (2, "ground"),
@@ -541,7 +614,15 @@ HID_Attribute main_attribute_list[] = {
   LAYERNAME (6, "bottom"),
   LAYERNAME (7, "outline"),
   LAYERNAME (8, "spare"),
-  SSET (Groups, "1,c:2:3:4:5:6,s:7:8", "groups", 0),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --groups <string>
+Layer group string. Defaults to @code{"1,c:2:3:4:5:6,s:7:8"}.
+@end ftable
+%end-doc
+*/
+  SSET (Groups, "1,c:2:3:4:5:6,s:7:8", "groups", "Layer group string"),
 
   SSET (FontCommand, "",
 	"font-command", 0),
@@ -561,19 +642,75 @@ HID_Attribute main_attribute_list[] = {
   SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
   SSET (FontFile, "default_font", "default-font",
 	"File name of default font."),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --route-styles <string>
+A string that defines the route styles. Defaults to @*
+@code{"Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000
+	:Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600"}
+@end ftable
+%end-doc
+*/
   SSET (Routes, "Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000"
 	":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600", "route-styles",
-	0),
+	"A string that defines the route styles"),
+
   SSET (FilePath, "", "file-path", 0),
   SSET (RatCommand, "", "rat-command", 0),
   SSET (FontPath, PCBLIBPATH, "font-path", 0),
-  SSET (ElementPath, PCBLIBPATH, "element-path", 0),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --element-path <string>
+A colon separated list of directories or commands (starts with '|').
+The path is passed to the program specified in @option{--element-command}.
+@end ftable
+%end-doc
+*/
+  SSET(ElementPath, PCBLIBPATH, "element-path",
+      "A colon separated list of directories or commands (starts with '|')"),
+
   SSET (LibraryPath, PCBLIBPATH, "lib-path", 0),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --action-script <string>
+If set, this file is executed at startup.
+@end ftable
+%end-doc
+*/
   SSET (ScriptFilename, 0, "action-script",
-	"If set, this file is executed at startup."),
+	     "If set, this file is executed at startup"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --action-string <string>
+If set, this string of actions is executed at startup.
+@end ftable
+%end-doc
+*/
   SSET (ActionString, 0, "action-string",
-	"If set, this is executed at startup."),
-  SSET (FabAuthor, "", "fab-author", 0),
+       "If set, this is executed at startup"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --fab-author <string>
+Name of author to be put in the Gerber files.
+@end ftable
+%end-doc
+*/
+  SSET (FabAuthor, "", "fab-author",
+       "Name of author to be put in the Gerber files"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --layer-stack <string>
+Initial layer stackup, for setting up an export. A comma separated list of layer
+names, layer numbers and layer groups.
+@end ftable
+%end-doc
+*/
   SSET (InitialLayerStack, "", "layer-stack",
 	"Initial layer stackup, for setting up an export."),
 
@@ -592,12 +729,49 @@ HID_Attribute main_attribute_list[] = {
   BSET (FullPoly, 0, "full-poly", 0),
   BSET (UniqueNames, 1, "unique-names", 0),
   BSET (SnapPin, 1, "snap-pin", 0),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --save-last-command
+If set, the last user command is saved.
+@end ftable
+%end-doc
+*/
   BSET (SaveLastCommand, 0, "save-last-command", 0),
-  BSET (SaveInTMP, 0, "save-in-tmp", 0),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --save-in-tmp
+If set, all data which would otherwise be lost are saved in a temporary file
+@file{/tmp/PCB.%i.save} . Sequence @samp{%i} is replaced by the process ID.
+@end ftable
+%end-doc
+*/
+  BSET (SaveInTMP, 0, "save-in-tmp",
+       "When set, all data which would otherwise be lost are saved in /tmp"),
+
   BSET (AllDirectionLines, 0, "all-direction-lines", 0),
+
   BSET (ShowNumber, 0, "show-number", 0),
-  BSET (ResetAfterElement, 1, "reset-after-element", 0),
-  BSET (RingBellWhenFinished, 0, "ring-bell-finished", 0),
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --reset-after-element
+If set, all found connections are reset before a new component is scanned.
+@end ftable
+%end-doc
+*/
+  BSET (ResetAfterElement, 1, "reset-after-element",
+       "If set, all found connections are reset before a new component is scanned"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --ring-bell-finished
+Execute the bell command when all rats are routed.
+@end ftable
+%end-doc
+*/
+  BSET (RingBellWhenFinished, 0, "ring-bell-finished",
+       "Execute the bell command when all rats are routed"),
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)
