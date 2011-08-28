@@ -639,6 +639,7 @@ PrintAssembly (int side, const BoxType * drawn_area)
 {
   int side_group = GetLayerGroupNumberByNumber (max_copper_layer + side);
 
+  doing_assy = true;
   gui->set_draw_faded (Output.fgGC, 1);
   DrawLayerGroup (side_group, drawn_area);
   DrawPPV (side_group, drawn_area);
@@ -646,6 +647,7 @@ PrintAssembly (int side, const BoxType * drawn_area)
 
   /* draw package */
   DrawSilk (side, drawn_area);
+  doing_assy = false;
 }
 
 /* ---------------------------------------------------------------------------
@@ -787,8 +789,6 @@ DrawEverything (BoxTypePtr drawn_area)
       gui->end_layer ();
     }
 
-  doing_assy = true;
-
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
     {
       PrintAssembly (COMPONENT_LAYER, drawn_area);
@@ -800,8 +800,6 @@ DrawEverything (BoxTypePtr drawn_area)
       PrintAssembly (SOLDER_LAYER, drawn_area);
       gui->end_layer ();
     }
-
-  doing_assy = false;
 
   if (gui->set_layer ("fab", SL (FAB, 0), 0))
     {
