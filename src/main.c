@@ -502,7 +502,7 @@ Dump actions (for documentation).
 
 /* %start-doc options "1 General Options"
 @ftable @code
-@item --grid-units-mm
+@item --grid-units-mm <string>
 Set default grid units. Can be mm or mil. Defaults to mil.
 @end ftable
 %end-doc

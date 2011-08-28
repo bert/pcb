@@ -337,7 +337,7 @@ static HID_Attribute gerber_options[] = {
 
 /* %start-doc options "90 Gerber Export"
 @ftable @code
-@item --gerberfile
+@item --gerberfile <string>
 Gerber output file prefix. Can include a path.
 @end ftable
 %end-doc

@@ -50,7 +50,7 @@ Name of the XY output file.
 
 /* %start-doc options "8 BOM Creation"
 @ftable @code
-@item --xy-unit
+@item --xy-unit <unit>
 Unit of XY dimensions. Defaults to mil.
 @end ftable
 %end-doc
