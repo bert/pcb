@@ -185,10 +185,9 @@ menu_view_cb (GtkToggleAction *action, GtkTreeRowReference *rref)
 
 /*! \brief Callback for menu actions: sync layer selection list, emit signal */
 static void
-menu_pick_cb (GtkRadioAction *action, GtkPcbLayerSelector *ls)
+menu_pick_cb (GtkRadioAction *action, GtkTreeRowReference *rref)
 {
-  int idx = gtk_radio_action_get_current_value (action);
-  GtkTreeRowReference *rref = ls->rows[idx];
+  GtkPcbLayerSelector *ls;
   GtkTreeModel *model = gtk_tree_row_reference_get_model (rref);
   GtkTreePath *path = gtk_tree_row_reference_get_path (rref);
   GtkTreeIter iter;
@@ -196,8 +195,9 @@ menu_pick_cb (GtkRadioAction *action, GtkPcbLayerSelector *ls)
 
   gtk_tree_model_get_iter (model, &iter, path);
   gtk_tree_model_get (model, &iter, USER_ID_COL, &user_id, -1);
-  gtk_tree_selection_select_path (ls->selection, path);
 
+  ls = g_object_get_data (G_OBJECT (model), "layer-selector");
+  gtk_tree_selection_select_path (ls->selection, path);
   g_signal_emit (ls, gtk_pcb_layer_selector_signals[SELECT_LAYER_SIGNAL],
                  0, user_id);
 }
@@ -246,7 +246,8 @@ gtk_pcb_layer_selector_finalize (GObject *object)
   g_free (ls->view_actions);
   g_free (ls->pick_actions);
   for (i = 0; i < ls->n_actions; ++i)
-    gtk_tree_row_reference_free (ls->rows[i]);
+    if (ls->rows[i])
+      gtk_tree_row_reference_free (ls->rows[i]);
   g_free (ls->rows);
 
   G_OBJECT_CLASS (gtk_pcb_layer_selector_parent_class)->finalize (object);
@@ -476,6 +477,12 @@ gtk_pcb_layer_selector_add_layer (GtkPcbLayerSelector *ls,
       paccel = g_strdup_printf ("<Alt>%d", i);
     }
 
+  /* Create row reference for actions */
+  path = gtk_tree_model_get_path (GTK_TREE_MODEL (ls->list_store), &iter);
+  ls->rows[ls->n_actions] = gtk_tree_row_reference_new
+                              (GTK_TREE_MODEL (ls->list_store), path);
+  gtk_tree_path_free (path);
+
   /* Create selection action */
   if (activatable)
     {
@@ -490,7 +497,7 @@ gtk_pcb_layer_selector_add_layer (GtkPcbLayerSelector *ls,
          GTK_ACTION (ls->pick_actions[ls->n_actions]),
          paccel);
       g_signal_connect (ls->pick_actions[ls->n_actions], "toggled",
-                        G_CALLBACK (menu_pick_cb), ls);
+                        G_CALLBACK (menu_pick_cb), ls->rows[ls->n_actions]);
     }
   else
     ls->pick_actions[ls->n_actions] = NULL;
@@ -499,11 +506,6 @@ gtk_pcb_layer_selector_add_layer (GtkPcbLayerSelector *ls,
   ls->view_actions[ls->n_actions] = gtk_toggle_action_new (vname, name,
                                                            NULL, NULL);
   gtk_toggle_action_set_active (ls->view_actions[ls->n_actions], visible);
-
-  path = gtk_tree_model_get_path (GTK_TREE_MODEL (ls->list_store), &iter);
-  ls->rows[ls->n_actions] = gtk_tree_row_reference_new
-                              (GTK_TREE_MODEL (ls->list_store), path);
-  gtk_tree_path_free (path);
 
   gtk_action_group_add_action_with_accel
     (ls->action_group,
@@ -774,17 +776,29 @@ gtk_pcb_layer_selector_delete_layers (GtkPcbLayerSelector *ls,
   do
     {
       gboolean sep;
-      gint user_id;
+      gint user_id, idx;
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                           &iter, USER_ID_COL, &user_id,
-                          SEPARATOR_COL, &sep, -1);
+                          INDEX_COL, &idx, SEPARATOR_COL, &sep, -1);
       /* gtk_list_store_remove will increment the iter for us, so we
        *  don't want to do it again in the loop condition */
       needs_inc = TRUE;
       if (!sep && callback (user_id))
         {
           if (gtk_list_store_remove (ls->list_store, &iter))
-            needs_inc = FALSE;
+            {
+              if (ls->view_actions[idx])
+                gtk_action_group_remove_action (ls->action_group,
+                                                GTK_ACTION (ls->view_actions[idx]));
+              if (ls->pick_actions[idx])
+                gtk_action_group_remove_action (ls->action_group,
+                                                GTK_ACTION (ls->pick_actions[idx]));
+              gtk_tree_row_reference_free (ls->rows[idx]);
+              ls->view_actions[idx] = NULL;
+              ls->pick_actions[idx] = NULL;
+              ls->rows[idx] = NULL;
+              needs_inc = FALSE;
+            }
           else
             return;
           if (was_separator)
