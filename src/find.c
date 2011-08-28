@@ -516,7 +516,7 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 {
   return LinePadIntersect ((LineTypePtr) p1, p2);
 }
-      
+
 static inline bool
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 {
@@ -690,7 +690,8 @@ LOCtoPVline_callback (const BoxType * b, void *cl)
   LineTypePtr line = (LineTypePtr) b;
   struct pv_info *i = (struct pv_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, line) && PinLineIntersect (&i->pv, line))
+  if (!TEST_FLAG (TheFlag, line) && PinLineIntersect (&i->pv, line) &&
+      !TEST_FLAG (HOLEFLAG, &i->pv))
     {
       if (ADD_LINE_TO_LIST (i->layer, line))
         longjmp (i->env, 1);
@@ -704,7 +705,8 @@ LOCtoPVarc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct pv_info *i = (struct pv_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, arc) && IS_PV_ON_ARC (&i->pv, arc))
+  if (!TEST_FLAG (TheFlag, arc) && IS_PV_ON_ARC (&i->pv, arc) &&
+      !TEST_FLAG (HOLEFLAG, &i->pv))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
         longjmp (i->env, 1);
@@ -719,6 +721,7 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && IS_PV_ON_PAD (&i->pv, pad) &&
+      !TEST_FLAG (HOLEFLAG, &i->pv) &&
       ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER :
                        COMPONENT_LAYER, pad))
     longjmp (i->env, 1);
@@ -748,9 +751,10 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
    * because it might not be inside the polygon, or it could
    * be on an edge such that it doesn't actually touch.
    */
-  if (!TEST_FLAG (TheFlag, polygon) && (TEST_THERM (i->layer, &i->pv)
-                                        || !TEST_FLAG (CLEARPOLYFLAG,
-                                                       polygon)
+  if (!TEST_FLAG (TheFlag, polygon) && !TEST_FLAG (HOLEFLAG, &i->pv) &&
+                                       (TEST_THERM (i->layer, &i->pv) ||
+                                        !TEST_FLAG (CLEARPOLYFLAG,
+                                                    polygon)
                                         || !i->pv.Clearance))
     {
       double wide = MAX (0.5 * i->pv.Thickness + Bloat, 0);
@@ -972,7 +976,7 @@ pv_pv_callback (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (TheFlag, pin) && PV_TOUCH_PV (&i->pv, pin))
     {
-      if (TEST_FLAG (HOLEFLAG, pin))
+      if (TEST_FLAG (HOLEFLAG, pin) || TEST_FLAG (HOLEFLAG, &i->pv))
         {
           SET_FLAG (WARNFLAG, pin);
           Settings.RatWarn = true;
@@ -981,7 +985,7 @@ pv_pv_callback (const BoxType * b, void *cl)
           else
             Message (_("WARNING: Hole too close to via.\n"));
         }
-      if (ADD_PV_TO_LIST (pin))
+      else if (ADD_PV_TO_LIST (pin))
         longjmp (i->env, 1);
     }
   return 0;
@@ -1045,7 +1049,7 @@ pv_line_callback (const BoxType * b, void *cl)
           Settings.RatWarn = true;
           Message (_("WARNING: Hole too close to line.\n"));
         }
-      if (ADD_PV_TO_LIST (pv))
+      else if (ADD_PV_TO_LIST (pv))
         longjmp (i->env, 1);
     }
   return 0;
@@ -1065,7 +1069,7 @@ pv_pad_callback (const BoxType * b, void *cl)
           Settings.RatWarn = true;
           Message (_("WARNING: Hole too close to pad.\n"));
         }
-      if (ADD_PV_TO_LIST (pv))
+      else if (ADD_PV_TO_LIST (pv))
         longjmp (i->env, 1);
     }
   return 0;
@@ -1085,7 +1089,7 @@ pv_arc_callback (const BoxType * b, void *cl)
           Settings.RatWarn = true;
           Message (_("WARNING: Hole touches arc.\n"));
         }
-      if (ADD_PV_TO_LIST (pv))
+      else if (ADD_PV_TO_LIST (pv))
         longjmp (i->env, 1);
     }
   return 0;
@@ -1097,8 +1101,9 @@ pv_poly_callback (const BoxType * b, void *cl)
   PinTypePtr pv = (PinTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  /* note that holes in polygons are ok */
-  if (!TEST_FLAG (TheFlag, pv) && (TEST_THERM (i->layer, pv) ||
+  /* note that holes in polygons are ok, so they don't generate warnings. */
+  if (!TEST_FLAG (TheFlag, pv) && !TEST_FLAG (HOLEFLAG, pv) &&
+                                  (TEST_THERM (i->layer, pv) ||
                                    !TEST_FLAG (CLEARPOLYFLAG, &i->polygon) ||
                                    !pv->Clearance))
     {
