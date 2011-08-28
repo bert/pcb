@@ -2790,22 +2790,13 @@ default (this may have been changed at compilation time via the
 @code{BACKUP_NAME}
 variable in @file{globalconfig.h}).
 @emph{%i} is replaced by the process ID.
-See also, the command-line option @emph{-backup}.
+See also, the command-line option @emph{--backup-interval}.
 
 @vindex bloat
 @cindex bloat
 @cindex drc
 @item Bloat (dimension)
 Specifies the minimum spacing design rule in mils.
-
-@vindex charactersPerLine
-@cindex characters per line
-@cindex linelength
-@cindex list of connections
-@item charactersPerLine (int)
-@pcb{} uses this value to determine the page width when creating lists.
-N, the number of characters per line, defaults to @emph{80}.
-See also, the command-line option @emph{-c}.
 
 @vindex connectedColor
 @cindex colors
@@ -2851,7 +2842,7 @@ to its standard output. The default value is
     M4PATH="%p";export M4PATH;echo 'include(%f)' | m4
 @end example
 Using the GNU version of @code{m4} is highly recommended.
-See also, the command-line option @emph{-lelement}.
+See also, the command-line option @emph{--element-command}.
 
 @vindex elementPath
 @cindex searchpath for element files
@@ -2881,7 +2872,7 @@ and the current search path (%p). The default value is:
 @example
     cat %f
 @end example
-See also, the command-line option @emph{-lfile}.
+See also, the command-line option @emph{--file-command}.
 
 @vindex filePath
 @cindex searchpath for layout files
@@ -2912,7 +2903,7 @@ output. This command defaults to
 @example
     cat %f
 @end example
-See also, the command-line option @emph{-lfont}.
+See also, the command-line option @emph{--font-command}.
 
 @vindex fontFile
 @cindex default font
@@ -2923,7 +2914,6 @@ in the directories as defined by the resource @emph{fontPath}.
 Searching is only performed if the filename does not contain a directory
 component.
 The default filename is @file{default_font}.
-See also, the command-line option @emph{-fontfile}.
 
 @vindex fontPath
 @cindex searchpath for font files
@@ -2977,7 +2967,6 @@ layer numbers (1..MAX_LAYER). All layers within one group are switched on/off
 together. The default setting is @emph{1:2:3:...:MAX_LAYER} which means
 all layers are handled separately. Grouping layers one to three looks like
 @emph{1,2,3:4:...:MAX_LAYER}
-See also, the command-line option @emph{-lg}.
 
 @vindex layerName
 @cindex layer, name of
@@ -3081,7 +3070,6 @@ value. The values are preset to @emph{XtdefaultFont}.
 This resource limits the number of characters which are displayed for
 pin names in the pinout window. By default the string length is limited
 to @emph{eight} characters per name.
-See also, the command-line option @emph{-pnl}.
 
 @vindex pinoutOffsetX
 @vindex pinoutOffsetY
@@ -3108,7 +3096,6 @@ They default to @emph{X:50} and @emph{Y:0}.
 Sets the zoom factor for the pinout window according to the formula:
 scale = 1:(2 power value). Its default value is @emph{two} which results in
 a @emph{1:4} scale.
-See also, the command-line option @emph{-pz}.
 
 @vindex printCommand
 @cindex printing
@@ -3145,14 +3132,13 @@ If set to @emph{true}, all found connections will be reset before a new
 element is scanned. This will produce long lists when scanning the whole
 layout for connections. The resource is set to @emph{false} by default.
 The feature is only used while looking up connections of all elements.
-See also, the command-line option @emph{-reset, +reset}.
 
 @vindex ringBellWhenFinished
 @cindex keyboard bell
 @item ringBellWhenFinished (boolean)
 Whether to ring the bell (the default) when a possibly lengthy operation
 has finished or not.
-See also, the command-line option @emph{-ring, +ring}.
+See also, the command-line option @emph{--ring-bell-finished}.
 
 @vindex routeStyle
 @cindex routing style
@@ -3161,7 +3147,7 @@ Default values for the menu of routing styles (seen in the sizes menu).
 The string is a comma separated list of name, line thickness,
 via diameter, and via drill size.
 e.g. "Fat,50,100,40:Skinny,8,35,20:75Ohm,110,110,20"
-See also, the command-line option @emph{-rs} and @emph{Sizes Menu}
+See also, the command-line option @emph{--route-styles} and @emph{Sizes Menu}
 
 @vindex rubberBandMode
 @cindex move
@@ -3185,7 +3171,7 @@ its standard input.  The default command is:
 @example
     cat - > %f
 @end example
-See also, the command-line option @emph{-sfile}.
+See also, the command-line option @emph{--save-command}.
 
 @vindex saveInTMP
 @cindex backup
@@ -3203,7 +3189,7 @@ with the @code{EMERGENCY_NAME} variable in @file{globalconfig.h}.
 @emph{%i} is replaced by the process ID.
 As an example, loading a new layout when the old one hasn't been saved would
 use this resource.
-See also, the command-line option @emph{-save, +save}.
+See also, the command-line option @emph{--save-in-tmp}.
 
 @vindex saveLastCommand
 @cindex saving last entered user command
@@ -3211,7 +3197,7 @@ See also, the command-line option @emph{-save, +save}.
 @item saveLastCommand (boolean)
 Enables the saving of the last entered user command. The option is
 @emph{disabled} by default.
-See also, the command-line option @emph{-s, +s}.
+See also, the command-line option @emph{--save-last-command}.
 
 @vindex shrink
 @cindex shrink
