@@ -66,7 +66,6 @@ static HID eps_hid;
 
 static FILE *f = 0;
 static Coord linewidth = -1;
-static int lastgroup = -1;
 static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_LAYER];
@@ -268,7 +267,6 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "%%!PS-Adobe-3.0 EPSF-3.0\n");
   linewidth = -1;
   lastcap = -1;
-  lastgroup = -1;
   lastcolor = -1;
 
   in_mono = options[HA_mono].int_value;
@@ -311,7 +309,6 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f,
 	   "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
 
-  lastgroup = -1;
   hid_expose_callback (&eps_hid, bounds, 0);
 
   fprintf (f, "showpage\n");
