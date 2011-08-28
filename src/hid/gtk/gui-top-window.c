@@ -146,7 +146,7 @@ typedef struct
   const char *flagname;
   MenuFlagType flagtype;
   int oldval;
-  char *xres;
+  const char *xres;
 } ToggleFlagType;
 
 /* Used by the route style buttons and menu */
@@ -275,7 +275,7 @@ ghid_check_unique_accel (const char *accelerator)
  */
 
 static void
-note_toggle_flag (const char *actionname, MenuFlagType type, char *name)
+note_toggle_flag (const char *actionname, MenuFlagType type, const char *name)
 {
 
   #ifdef DEBUG_MENUS
@@ -428,7 +428,7 @@ ghid_menu_cb (GtkAction * action, gpointer data)
   const gchar * name;
   int id = 0;
   int vi;
-  Resource *node = NULL;
+  const Resource *node = NULL;
   static int in_cb = 0;
   gboolean old_holdoff;
 
@@ -454,7 +454,7 @@ ghid_menu_cb (GtkAction * action, gpointer data)
     }
   else
     {
-      name = (char *) data;
+      name = (const char *) data;
 #ifdef DEBUG_MENUS
       printf ("ghid_menu_cb():  name = \"%s\"\n", UNKNOWN (name));
 #endif
@@ -2419,11 +2419,11 @@ static KeyTable key_table[] =
 static int n_key_table = sizeof (key_table) / sizeof (key_table[0]);
 
 static void
-add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
+add_resource_to_menu (const char * menu, const Resource * node, int indent)
 {
   int i, j;
-  char *v;
-  Resource *r;
+  const char *v;
+  const Resource *r;
   char tmps[32];
   char accel[64];
   int accel_n;
@@ -2439,7 +2439,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
       {
       case 101:		/* named subnode */
 	add_resource_to_menu (node->v[i].name, node->v[i].subres, 
-			      callback, indent + INDENT_INC);
+			      indent + INDENT_INC);
 	break;
 
       case 1:			/* unnamed subres */
@@ -2491,7 +2491,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * "Enter" -> "Return"
 	     *
 	     */
-	    char *p;
+	    const char *p;
 	    int j;
 	    enum {KEY, MOD} state;
 
@@ -2636,8 +2636,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 #ifdef DEBUG_MENUS
 	    printf ("allocate %ld bytes\n", l);
 #endif
-	    if ( (menulabel = (char *) malloc ( l * sizeof (char)))
-		 == NULL)
+	    if ( (menulabel = (char *) malloc (l)) == NULL)
 	      {
 		fprintf (stderr, "add_resource_to_menu():  malloc failed\n");
 		exit (1);
@@ -2696,7 +2695,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * menu/submenu
 	     */
 	    add_resource_to_menu ("sub menu", node->v[i].subres, 
-				  callback, indent + INDENT_INC);
+				  indent + INDENT_INC);
 	    ghid_ui_info_indent (indent);
 
 	    /* and close this menu */
@@ -2824,7 +2823,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		{
 		case 110:	/* named value = X resource */
 		  {
-		    char *n = node->v[i].subres->v[j].name;
+		    const char *n = node->v[i].subres->v[j].name;
 		    /* allow fg and bg to be abbreviations for
 		     * foreground and background
 		     */
@@ -3040,10 +3039,10 @@ ghid_ui_info_append (const gchar * newone)
 static void
 ghid_load_menus (void)
 {
-  char *filename;
-  Resource *r = 0, *bir;
+  const char *filename;
+  const Resource *r = 0, *bir;
   char *home_pcbmenu;
-  Resource *mr;
+  const Resource *mr;
   int i;
 
   for (i = 0; i < sizeof (ghid_hotkey_actions) / sizeof (char *) ; i++)
@@ -3106,7 +3105,7 @@ ghid_load_menus (void)
       ghid_ui_info_append ("<ui>\n");
       ghid_ui_info_indent (INDENT_INC);
       ghid_ui_info_append ("<menubar name='MenuBar'>\n");
-      add_resource_to_menu ("Initial Call", mr, 0, 2*INDENT_INC);
+      add_resource_to_menu ("Initial Call", mr, 2*INDENT_INC);
       ghid_ui_info_indent (INDENT_INC);
       ghid_ui_info_append ("</menubar>\n");
     }
@@ -3129,7 +3128,7 @@ ghid_load_menus (void)
 	      ghid_ui_info_append (mr->v[i].name);
 	      ghid_ui_info_append ("'>\n");
 	      add_resource_to_menu ("Initial Call", mr->v[i].subres, 
-				    0, 2*INDENT_INC);
+				    2*INDENT_INC);
 	      ghid_ui_info_indent (INDENT_INC);
 	      ghid_ui_info_append ("</popup>\n");
 	    }

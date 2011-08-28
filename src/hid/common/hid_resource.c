@@ -76,7 +76,7 @@ button_name_to_num (const char *name)
 }
 
 void
-load_mouse_resource (Resource *res)
+load_mouse_resource (const Resource *res)
 {
   int bi, mi, a;
   int action_count;
