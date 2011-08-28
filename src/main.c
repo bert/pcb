@@ -1052,9 +1052,6 @@ main (int argc, char *argv[])
       LayerStringToLayerStack (Settings.InitialLayerStack);
     }
 
-  /*    FIX_ME
-     LoadBackgroundImage (Settings.BackgroundImage); */
-
   /* This must be called before any other atexit functions
    * are registered, as it configures an atexit function to
    * clean up and free various items of allocated memory,
