@@ -454,36 +454,6 @@ DrawHoles (bool draw_plated, bool draw_unplated, BoxType *drawn_area)
   r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
 }
 
-typedef struct
-{
-  int nplated;
-  int nunplated;
-} HoleCountStruct;
-
-static int
-hole_counting_callback (const BoxType * b, void *cl)
-{
-  PinTypePtr pin = (PinTypePtr) b;
-  HoleCountStruct *hcs = (HoleCountStruct *) cl;
-  if (TEST_FLAG (HOLEFLAG, pin))
-    hcs->nunplated++;
-  else
-    hcs->nplated++;
-  return 1;
-}
-
-static void
-CountHoles (int *plated, int *unplated, BoxType *drawn_area)
-{
-  HoleCountStruct hcs = {0, 0};
-
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback, &hcs);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback, &hcs);
-
-  if (plated != NULL) *plated = hcs.nplated;
-  if (unplated != NULL) *unplated = hcs.nunplated;
-}
-
 static void
 _draw_line (LineType *line)
 {

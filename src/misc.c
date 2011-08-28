@@ -681,6 +681,43 @@ IsPasteEmpty (int side)
   return paste_empty;
 }
 
+
+typedef struct
+{
+  int nplated;
+  int nunplated;
+} HoleCountStruct;
+
+static int
+hole_counting_callback (const BoxType * b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr) b;
+  HoleCountStruct *hcs = (HoleCountStruct *) cl;
+  if (TEST_FLAG (HOLEFLAG, pin))
+    hcs->nunplated++;
+  else
+    hcs->nplated++;
+  return 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * counts the number of plated and unplated holes in the design within
+ * a given area of the board. To count for the whole board, pass NULL
+ * within_area.
+ */
+void
+CountHoles (int *plated, int *unplated, BoxType *within_area)
+{
+  HoleCountStruct hcs = {0, 0};
+
+  r_search (PCB->Data->pin_tree, within_area, NULL, hole_counting_callback, &hcs);
+  r_search (PCB->Data->via_tree, within_area, NULL, hole_counting_callback, &hcs);
+
+  if (plated != NULL)   *plated   = hcs.nplated;
+  if (unplated != NULL) *unplated = hcs.nunplated;
+}
+
+
 /* ---------------------------------------------------------------------------
  * gets minimum and maximum coordinates
  * returns NULL if layout is empty
