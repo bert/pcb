@@ -173,6 +173,7 @@ static void ghid_load_menus (void);
 static void ghid_ui_info_append (const gchar *);
 static void ghid_ui_info_indent (int);
 
+static bool ignore_layer_update;
 static gchar * new_ui_info;
 static size_t new_ui_info_sz = 0;
 
@@ -684,6 +685,7 @@ layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
   gboolean active;
   layer_process (NULL, NULL, &active, layer);
 
+  ignore_layer_update = true;
   /* Select Layer */
   PCB->SilkActive = (layer == LAYER_BUTTON_SILK);
   PCB->RatDraw  = (layer == LAYER_BUTTON_RATS);
@@ -692,6 +694,7 @@ layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
 
   /* Ensure layer is turned on */
   ghid_layer_selector_make_selected_visible (ls);
+  ignore_layer_update = false;
 
   ghid_invalidate_all ();
 }
@@ -705,6 +708,7 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
   layer_process (NULL, NULL, &active, layer);
 
   active = !active;
+  ignore_layer_update = true;
   switch (layer)
     {
     case LAYER_BUTTON_SILK:
@@ -750,6 +754,7 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
    */
   if (!ghid_layer_selector_select_next_visible (ls))
     ghid_layer_selector_toggle_layer (ls, layer);
+  ignore_layer_update = false;
 
   if (redraw)
     ghid_invalidate_all();
@@ -1074,6 +1079,9 @@ ghid_layer_buttons_update (void)
 {
   gint layer;
 
+  if (ignore_layer_update)
+    return;
+ 
   ghid_layer_selector_delete_layers
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector),
      get_layer_delete);

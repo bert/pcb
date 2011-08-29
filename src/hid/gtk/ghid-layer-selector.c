@@ -65,6 +65,7 @@ struct _GHidLayerSelector
   int n_actions;
 
   gboolean last_activatable;
+  gboolean prevent_recursion;
 };
 
 struct _GHidLayerSelectorClass
@@ -153,6 +154,7 @@ static void
 selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
 {
   GtkTreeIter iter;
+  ls->prevent_recursion = TRUE;
   if (gtk_tree_selection_get_selected (selection, NULL, &iter))
     {
       gint idx;
@@ -161,6 +163,7 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
       if (ls->pick_actions[0])
         gtk_radio_action_set_current_value (ls->pick_actions[0], idx);
     }
+  ls->prevent_recursion = FALSE;
 }
 
 /*! \brief Callback for menu actions: sync layer selection list, emit signal */
@@ -197,7 +200,8 @@ menu_pick_cb (GtkRadioAction *action, GtkTreeRowReference *rref)
   gtk_tree_model_get (model, &iter, USER_ID_COL, &user_id, -1);
 
   ls = g_object_get_data (G_OBJECT (model), "layer-selector");
-  gtk_tree_selection_select_path (ls->selection, path);
+  if (!ls->prevent_recursion)
+    gtk_tree_selection_select_path (ls->selection, path);
   g_signal_emit (ls, ghid_layer_selector_signals[SELECT_LAYER_SIGNAL],
                  0, user_id);
 }
@@ -318,6 +322,7 @@ ghid_layer_selector_new (void)
   ls->visibility_column = opacity_col;
   ls->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ls));
   ls->action_group = gtk_action_group_new ("LayerSelector");
+  ls->prevent_recursion = FALSE;
   ls->n_actions = 0;
   ls->max_actions = INITIAL_ACTION_MAX;
   ls->view_actions = g_malloc0 (ls->max_actions * sizeof (*ls->view_actions));
