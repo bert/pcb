@@ -83,7 +83,7 @@ static bool doing_assy = false;
  */
 static void DrawEverything (BoxTypePtr);
 static void DrawPPV (int group, const BoxType *);
-static int DrawLayerGroup (int, const BoxType *);
+static void DrawLayerGroup (int, const BoxType *);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawEMark (ElementTypePtr, Coord, Coord, bool);
@@ -612,7 +612,6 @@ PrintAssembly (int side, const BoxType * drawn_area)
   doing_assy = true;
   gui->set_draw_faded (Output.fgGC, 1);
   DrawLayerGroup (side_group, drawn_area);
-  DrawPPV (side_group, drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
   /* draw package */
@@ -677,8 +676,7 @@ DrawEverything (BoxTypePtr drawn_area)
 
       if (gui->set_layer (0, group, 0))
         {
-          if (DrawLayerGroup (group, drawn_area) && !gui->gui)
-            DrawPPV (group, drawn_area);
+          DrawLayerGroup (group, drawn_area);
           gui->end_layer ();
         }
     }
@@ -1119,10 +1117,10 @@ DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 }
 
 /* ---------------------------------------------------------------------------
- * draws one layer group.  Returns non-zero if pins and pads should be
- * drawn with this group.
+ * draws one layer group.  If the exporter is not a GUI,
+ * also draws the pins / pads / vias in this layer group.
  */
-static int
+static void
 DrawLayerGroup (int group, const BoxType *drawn_area)
 {
   int i, rv = 1;
@@ -1143,7 +1141,9 @@ DrawLayerGroup (int group, const BoxType *drawn_area)
     }
   if (n_entries > 1)
     rv = 1;
-  return rv;
+
+  if (rv && !gui->gui)
+    DrawPPV (group, drawn_area);
 }
 
 static void
