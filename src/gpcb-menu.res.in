@@ -45,7 +45,7 @@ MainMenu =
 #
 # File Menu
 #
-  {"File"
+  {"File" m=F
    {"Save Layout" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
    {"Save Layout As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    -
@@ -78,7 +78,7 @@ MainMenu =
 #
 # Edit Menu
 #
-  {"Edit"
+  {"Edit" m=E
    {"Undo last operation" Undo() a={"U" "<Key>u"}}
    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
    {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
@@ -114,7 +114,7 @@ MainMenu =
 #
 # View Menu
 #
-  {"View"
+  {"View" m=V
    {"Enable visible grid" checked=drawgrid Display(Grid)}
    {"Grid units"
     {"mil" checked=grid_units_mil,1 SetUnits(mil)}
@@ -193,7 +193,7 @@ MainMenu =
 #
 # Settings menu
 #
-  {"Settings"
+  {"Settings" m=S
    {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
    {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
@@ -227,7 +227,7 @@ MainMenu =
 #
 # Select menu
 #
-  {"Select"
+  {"Select" m=l
    {"Select all visible objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
    -
@@ -285,7 +285,7 @@ MainMenu =
 #
 # Buffer menu
 #
-  {"Buffer"
+  {"Buffer" m=B
    {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
    {"Paste buffer to layout" Mode(PasteBuffer)}
@@ -313,7 +313,7 @@ MainMenu =
 #
 # Connects menu
 #
-  {"Connects"
+  {"Connects" m=C
    {"Lookup connection to object" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
@@ -355,7 +355,7 @@ MainMenu =
 #
 # Info Menu
 #
-  {"Info"
+  {"Info" m=I
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
@@ -463,7 +463,7 @@ MainMenu =
 #
 # Window Menu
 #
-  {"Window"
+  {"Window" m=W
    {"Library" DoWindows(Library) a={"i" "<Key>i"}}
    {"Message Log" DoWindows(Log)}
    {"DRC Check" DoWindows(DRC)}
