@@ -26,9 +26,13 @@ void ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                     gboolean visible,
                                     gboolean activatable);
 GtkAccelGroup *ghid_layer_selector_get_accel_group (GHidLayerSelector *ls);
-gchar *ghid_layer_selector_get_pick_xml (GHidLayerSelector *ls);
-gchar *ghid_layer_selector_get_view_xml (GHidLayerSelector *ls);
-GtkActionGroup *ghid_layer_selector_get_action_group (GHidLayerSelector *ls);
+
+gint ghid_layer_selector_install_pick_items (GHidLayerSelector *ls,
+                                             GtkMenuShell *shell, gint pos);
+gint ghid_layer_selector_install_view_items (GHidLayerSelector *ls,
+                                             GtkMenuShell *shell, gint pos);
+
+GtkAccelGroup *ghid_layer_selector_get_accel_group (GHidLayerSelector *ls);
 
 void ghid_layer_selector_toggle_layer (GHidLayerSelector *ls, 
                                        gint user_id);

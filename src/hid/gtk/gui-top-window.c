@@ -598,7 +598,6 @@ make_top_menubar (GtkWidget *menu_bar, GtkWidget * hbox, GHidPort * port)
 {
   GtkWidget *frame;
   GtkActionGroup *actions;
-  GtkActionGroup *layer_actions;
 
   frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
@@ -609,12 +608,13 @@ make_top_menubar (GtkWidget *menu_bar, GtkWidget * hbox, GHidPort * port)
   ghidgui->main_actions = actions;
 
   make_menu_actions (actions, port);
-  layer_actions = ghid_layer_selector_get_action_group
-          (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
  
   gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
 			      ghid_main_menu_get_accel_group
                                 (GHID_MAIN_MENU (ghidgui->menu_bar)));
+  gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
+			      ghid_layer_selector_get_accel_group
+                                (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
 
   gtk_container_add (GTK_CONTAINER (frame), menu_bar);
 
@@ -842,6 +842,9 @@ ghid_layer_buttons_update (void)
      get_layer_delete);
   make_layer_buttons (ghidgui->layer_selector);
   make_virtual_layer_buttons (ghidgui->layer_selector);
+  ghid_main_menu_install_layer_selector
+      (GHID_MAIN_MENU (ghidgui->menu_bar),
+       GHID_LAYER_SELECTOR (ghidgui->layer_selector));
 
   /* Sync selected layer with PCB's state */
   if (PCB->RatDraw)

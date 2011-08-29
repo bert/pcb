@@ -56,9 +56,12 @@ struct _GHidLayerSelector
   GtkTreeViewColumn *visibility_column;
 
   GtkActionGroup *action_group;
+  GtkAccelGroup *accel_group;
 
   GSList *radio_group;
   int n_actions;
+
+  gboolean accel_available[20];
 
   gboolean last_activatable;
   gboolean prevent_recursion;
@@ -74,6 +77,9 @@ struct _GHidLayerSelectorClass
 
 struct _layer
 {
+  gint accel_index;   /* Index into ls->accel_available */
+  GtkWidget *pick_item;
+  GtkWidget *view_item;
   GtkToggleAction *view_action;
   GtkRadioAction  *pick_action;
   GtkTreeRowReference *rref;
@@ -102,6 +108,8 @@ free_ldata (GHidLayerSelector *ls, struct _layer *ldata)
       g_object_unref (G_OBJECT (ldata->view_action));
     }
   gtk_tree_row_reference_free (ldata->rref);
+  if (ldata->accel_index >= 0)
+    ls->accel_available[ldata->accel_index] = TRUE;
   g_free (ldata);
 
 }
@@ -278,6 +286,7 @@ ghid_layer_selector_finalize (GObject *object)
   GtkTreeIter iter;
   GHidLayerSelector *ls = (GHidLayerSelector *) object;
 
+  g_object_unref (ls->accel_group);
   g_object_unref (ls->action_group);
 
   gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
@@ -334,6 +343,7 @@ ghid_layer_selector_get_type (void)
 GtkWidget *
 ghid_layer_selector_new (void)
 {
+  int i;
   GtkCellRenderer *renderer1 = ghid_cell_renderer_visibility_new ();
   GtkCellRenderer *renderer2 = gtk_cell_renderer_text_new ();
   GtkTreeViewColumn *opacity_col =
@@ -361,9 +371,12 @@ ghid_layer_selector_new (void)
   ls->last_activatable = TRUE;
   ls->visibility_column = opacity_col;
   ls->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ls));
+  ls->accel_group = gtk_accel_group_new ();
   ls->action_group = gtk_action_group_new ("LayerSelector");
   ls->prevent_recursion = FALSE;
   ls->n_actions = 0;
+  for (i = 0; i < 20; ++i)
+    ls->accel_available[i] = TRUE;
 
   gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (ls),
                                         tree_view_separator_func,
@@ -378,7 +391,7 @@ ghid_layer_selector_new (void)
   g_signal_connect (ls->selection, "changed",
                     G_CALLBACK (selection_changed_cb), ls);
 
-  g_object_ref (ls->action_group);
+  g_object_ref (ls->accel_group);
 
   return GTK_WIDGET (ls);
 }
@@ -409,11 +422,12 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                gboolean activatable)
 {
   struct _layer *new_layer = NULL;
-  gchar *pname, *vname, *paccel, *vaccel;
+  gchar *pname, *vname;
   gboolean new_iter = TRUE;
   gboolean last_activatable = TRUE;
   GtkTreePath *path;
   GtkTreeIter iter;
+  int i;
 
   /* Look for existing layer with this ID */
   if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter))
@@ -484,24 +498,6 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   /* -- Setup new actions -- */
   vname = g_strdup_printf ("LayerView%d", ls->n_actions);
   pname = g_strdup_printf ("LayerPick%d", ls->n_actions);
-  vaccel = NULL;
-  paccel = NULL;
-
-  /* Determine keyboard accelerators */
-  if (ls->n_actions < 10)
-    {
-      /* Map 1-0 to actions 1-10 (with '0' meaning 10) */
-      int i = (ls->n_actions + 1) % 10;
-      vaccel = g_strdup_printf ("<Ctrl>%d", i);
-      paccel = g_strdup_printf ("%d", i);
-    }
-  else
-    {
-      /* Map 1-0 to actions 11-20 (with '0' meaning 10) */
-      int i = (ls->n_actions + 1) % 10;
-      vaccel = g_strdup_printf ("<Alt><Ctrl>%d", i);
-      paccel = g_strdup_printf ("<Alt>%d", i);
-    }
 
   /* Create row reference for actions */
   path = gtk_tree_model_get_path (GTK_TREE_MODEL (ls->list_store), &iter);
@@ -516,12 +512,6 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
         = gtk_radio_action_new (pname, name, NULL, NULL, user_id);
       gtk_radio_action_set_group (new_layer->pick_action, ls->radio_group);
       ls->radio_group = gtk_radio_action_get_group (new_layer->pick_action);
-      gtk_action_group_add_action_with_accel
-        (ls->action_group,
-         GTK_ACTION (new_layer->pick_action),
-         paccel);
-      g_signal_connect (new_layer->pick_action, "toggled",
-                        G_CALLBACK (menu_pick_cb), new_layer);
     }
   else
     new_layer->pick_action = NULL;
@@ -530,112 +520,148 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   new_layer->view_action = gtk_toggle_action_new (vname, name, NULL, NULL);
   gtk_toggle_action_set_active (new_layer->view_action, visible);
 
-  gtk_action_group_add_action_with_accel
-    (ls->action_group,
-     GTK_ACTION (new_layer->view_action),
-     vaccel);
-  g_signal_connect (new_layer->view_action, "toggled",
-                    G_CALLBACK (menu_view_cb), new_layer->rref);
-
-
   /* Select new layer, if we need */
   if (activatable
       && !gtk_tree_selection_get_selected (ls->selection, NULL, NULL))
     gtk_tree_selection_select_iter (ls->selection, &iter);
 
-  /* cleanup */
-  if (vaccel)
+  /* Determine keyboard accelerators */
+  for (i = 0; i < 20; ++i)
+    if (ls->accel_available[i])
+      break;
+  if (i < 20)
     {
-      g_free (vaccel);
-      g_free (paccel); 
+      /* Map 1-0 to actions 1-10 (with '0' meaning 10) */
+      gchar *accel1 = g_strdup_printf ("%s%d",
+                                       i < 10 ? "" : "<Alt>",
+                                       (i + 1) % 10);
+      gchar *accel2 = g_strdup_printf ("<Ctrl>%s%d",
+                                       i < 10 ? "" : "<Alt>",
+                                       (i + 1) % 10);
+
+      if (activatable)
+        {
+          GtkAction *action = GTK_ACTION (new_layer->pick_action);
+          gtk_action_set_accel_group (action, ls->accel_group);
+          gtk_action_group_add_action_with_accel (ls->action_group,
+                                                  action,
+                                                  accel1);
+          gtk_action_connect_accelerator (action);
+          g_signal_connect (G_OBJECT (action), "activate",
+                            G_CALLBACK (menu_pick_cb), new_layer);
+        }
+      gtk_action_set_accel_group (GTK_ACTION (new_layer->view_action),
+                                  ls->accel_group);
+      gtk_action_group_add_action_with_accel
+          (ls->action_group, GTK_ACTION (new_layer->view_action), accel2);
+      gtk_action_connect_accelerator (GTK_ACTION (new_layer->view_action));
+      g_signal_connect (G_OBJECT (new_layer->view_action), "activate",
+                        G_CALLBACK (menu_view_cb), new_layer);
+
+      ls->accel_available[i] = FALSE;
+      new_layer->accel_index = i;
+      g_free (accel2);
+      g_free (accel1);
     }
+  else
+    {
+      new_layer->accel_index = -1;
+    }
+  /* finalize new layer struct */
+  new_layer->pick_item = new_layer->view_item = NULL;
+
+  /* cleanup */
   g_free (vname);
   g_free (pname);
 
   ls->n_actions++;
 }
 
-/*! \brief used internally */
-static gboolean
-pick_xml_foreach_func (GtkTreeModel *model, GtkTreePath *path,
-                       GtkTreeIter *iter, gpointer data)
-{
-  struct _layer *ldata;
-  GString *str = data;
-  
-  gtk_tree_model_get (model, iter, STRUCT_COL, &ldata, -1);
-  if (ldata && ldata->pick_action)
-    g_string_append_printf (str, "<menuitem action=\"%s\" />\n",
-                     gtk_action_get_name (GTK_ACTION (ldata->pick_action)));
-  return FALSE;
-}
-/*! \brief used internally */
-static gboolean
-view_xml_foreach_func (GtkTreeModel *model, GtkTreePath *path,
-                       GtkTreeIter *iter, gpointer data)
-{
-  struct _layer *ldata;
-  GString *str = data;
-  
-  gtk_tree_model_get (model, iter, STRUCT_COL, &ldata, -1);
-  if (ldata && ldata->view_action)
-    g_string_append_printf (str, "<menuitem action=\"%s\" />\n",
-                     gtk_action_get_name (GTK_ACTION (ldata->view_action)));
-  return FALSE;
-}
- 
-/*! \brief Get the "Current Layer" menu description of a layer selector
+/*! \brief Install the "Current Layer" menu items for a layer selector
  *  \par Function Description
- *  Returns the XML content used by Gtk in building the layer-selection
- *  part of the menu. This is a radio-button list describing which layer
- *  is active.
+ *  Takes a menu shell and installs menu items for layer selection in
+ *  the shell, at the given position.
  *
- *  \param [in] ls            The selector to be acted on
+ *  \param [in] ls      The selector to be acted on
+ *  \param [in] shell   The menu to install the items in
+ *  \param [in] pos     The position in the menu to install items
  *
- *  \return the requested XML
+ *  \return the number of items installed
  */
-gchar *
-ghid_layer_selector_get_pick_xml (GHidLayerSelector *ls)
+gint
+ghid_layer_selector_install_pick_items (GHidLayerSelector *ls,
+                                        GtkMenuShell *shell, gint pos)
 {
-  GString *str = g_string_new ("");
-  gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
-                          pick_xml_foreach_func, str);
-  return g_string_free (str, FALSE);
+  GtkTreeIter iter;
+  int n = 0;
+
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  do
+    {
+      struct _layer *ldata;
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                          &iter, STRUCT_COL, &ldata, -1);
+      if (ldata && ldata->pick_action)
+        {
+          GtkAction *action = GTK_ACTION (ldata->pick_action);
+          ldata->pick_item = gtk_action_create_menu_item (action);
+          gtk_menu_shell_insert (shell, ldata->pick_item, pos + n);
+          ++n;
+        }
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
+
+  return n;
 }
 
-/*! \brief Get the "Shown Layers" menu description of a layer selector
+/*! \brief Install the "Shown Layers" menu items for a layer selector
  *  \par Function Description
- *  Returns the XML content used by Gtk in building the layer-selection
- *  part of the menu. This is a toggle-button list describing which layer(s)
- *  are visible.
+ *  Takes a menu shell and installs menu items for layer selection in
+ *  the shell, at the given position.
  *
- *  \param [in] ls            The selector to be acted on
+ *  \param [in] ls      The selector to be acted on
+ *  \param [in] shell   The menu to install the items in
+ *  \param [in] pos     The position in the menu to install items
  *
- *  \return the requested XML
+ *  \return the number of items installed
  */
-gchar *
-ghid_layer_selector_get_view_xml (GHidLayerSelector *ls)
+gint
+ghid_layer_selector_install_view_items (GHidLayerSelector *ls,
+                                        GtkMenuShell *shell, gint pos)
 {
-  GString *str = g_string_new ("");
-  gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
-                          view_xml_foreach_func, str);
-  return g_string_free (str, FALSE);
+  GtkTreeIter iter;
+  int n = 0;
+
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  do
+    {
+      struct _layer *ldata;
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                          &iter, STRUCT_COL, &ldata, -1);
+      if (ldata && ldata->view_action)
+        {
+          GtkAction *action = GTK_ACTION (ldata->view_action);
+          ldata->view_item = gtk_action_create_menu_item (action);
+          gtk_menu_shell_insert (shell, ldata->view_item, pos + n);
+          ++n;
+        }
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
+
+  return n;
 }
 
-/*! \brief Get the GtkActionGroup containing accelerators, etc, of a layer selector
+/*! \brief Returns the GtkAccelGroup of a layer selector
  *  \par Function Description
- *  Returns the GtkActionGroup containing the toggle and radio buttons used
- *  in the menu. Also contains the accelerators. This action group should be
- *  added to the main UI. See Gtk docs for details.
  *
  *  \param [in] ls            The selector to be acted on
  *
- *  \return the action group of the selector
+ *  \return the accel group of the selector
  */
-GtkActionGroup *
-ghid_layer_selector_get_action_group (GHidLayerSelector *ls)
+GtkAccelGroup *
+ghid_layer_selector_get_accel_group (GHidLayerSelector *ls)
 {
-  return ls->action_group;
+  return ls->accel_group;
 }
 
 /*! \brief used internally */

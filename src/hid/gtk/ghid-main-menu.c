@@ -13,6 +13,7 @@
 #include "pcb-printf.h"
 
 #include "ghid-main-menu.h"
+#include "ghid-layer-selector.h"
 
 void Message (const char *, ...);
 
@@ -36,10 +37,13 @@ struct _GHidMainMenu
   GList *actions;
   GHashTable *popup_table;
 
+  gint n_layer_views;
+  gint n_layer_picks;
+  gint n_route_styles;
+
   GCallback action_cb;
   void (*special_key_cb) (const char *accel, GtkAction *action,
                           const Resource *node);
-
 };
 
 struct _GHidMainMenuClass
@@ -433,6 +437,9 @@ ghid_main_menu_new (GCallback action_cb,
   mm->layer_view_pos = 0;
   mm->layer_pick_pos = 0;
   mm->route_style_pos = 0;
+  mm->n_layer_views = 0;
+  mm->n_layer_picks = 0;
+  mm->n_route_styles = 0;
   mm->layer_view_shell = NULL;
   mm->layer_pick_shell = NULL;
   mm->route_style_shell = NULL;
@@ -496,6 +503,50 @@ ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
       const char *af = g_object_get_data (G_OBJECT (list->data),
                                           "active-flag");
       cb (GTK_ACTION (list->data), tf, af);
+    }
+}
+
+/*! \brief Installs or updates layer selector items */
+void
+ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
+                                       GHidLayerSelector *ls)
+{
+  GList *children;
+
+  /* @layerview */
+  if (mm->layer_view_shell)
+    {
+      /* Remove old children */
+      children = gtk_container_get_children
+                   (GTK_CONTAINER (mm->layer_view_shell));
+      children = g_list_nth (children, mm->layer_view_pos);
+      while (children && mm->n_layer_views--)
+        {
+          gtk_container_remove (GTK_CONTAINER (mm->layer_view_shell),
+                                children->data);
+          children = g_list_next (children);
+        }
+      /* Install new ones */
+      mm->n_layer_views = ghid_layer_selector_install_view_items
+                            (ls, mm->layer_view_shell, mm->layer_view_pos);
+    }
+
+  /* @layerpick */
+  if (mm->layer_pick_shell)
+    {
+      /* Remove old children */
+      children = gtk_container_get_children
+                   (GTK_CONTAINER (mm->layer_pick_shell));
+      children = g_list_nth (children, mm->layer_pick_pos);
+      while (children && mm->n_layer_picks--)
+        {
+          gtk_container_remove (GTK_CONTAINER (mm->layer_pick_shell),
+                                children->data);
+          children = g_list_next (children);
+        }
+      /* Install new ones */
+      mm->n_layer_picks = ghid_layer_selector_install_pick_items
+                            (ls, mm->layer_pick_shell, mm->layer_pick_pos);
     }
 }
 

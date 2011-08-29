@@ -1,11 +1,12 @@
 #ifndef GHID_MAIN_MENU_H__
 #define GHID_MAIN_MENU_H__
 
-#include "resource.h"
-
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
+
+#include "ghid-layer-selector.h"
+#include "resource.h"
 
 G_BEGIN_DECLS  /* keep c++ happy */
 
@@ -33,6 +34,9 @@ void ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
 void ghid_main_menu_add_popup_resource (GHidMainMenu *menu, const char *name,
                                         const Resource *res);
 GtkMenu *ghid_main_menu_get_popup (GHidMainMenu *menu, const char *name);
+
+void ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
+                                            GHidLayerSelector *ls);
 
 G_END_DECLS  /* keep c++ happy */
 #endif
