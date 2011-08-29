@@ -13,7 +13,7 @@
 #include "gtkhid.h"
 #include "gui.h"
 
-#include "gtk-pcb-cell-renderer-visibility.h"
+#include "ghid-cell-renderer-visibility.h"
 
 enum {
   TOGGLED,
@@ -26,7 +26,7 @@ enum {
   PROP_COLOR
 };
 
-struct _GtkPcbCellRendererVisibility
+struct _GHidCellRendererVisibility
 {
   GtkCellRenderer parent;
 
@@ -34,23 +34,23 @@ struct _GtkPcbCellRendererVisibility
   gchar *color;
 };
 
-struct _GtkPcbCellRendererVisibilityClass
+struct _GHidCellRendererVisibilityClass
 {
   GtkCellRendererClass parent_class;
 
-  void (* toggled) (GtkPcbCellRendererVisibility *cell, const gchar *path);
+  void (* toggled) (GHidCellRendererVisibility *cell, const gchar *path);
 };
 
 /* RENDERER FUNCTIONS */
 /*! \brief Calculates the window area the renderer will use */
 static void
-gtk_pcb_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
-                                           GtkWidget       *widget,
-                                           GdkRectangle    *cell_area,
-                                           gint            *x_offset,
-                                           gint            *y_offset,
-                                           gint            *width,
-                                           gint            *height)
+ghid_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
+                                        GtkWidget       *widget,
+                                        GdkRectangle    *cell_area,
+                                        gint            *x_offset,
+                                        gint            *y_offset,
+                                        gint            *width,
+                                        gint            *height)
 {
   GtkStyle *style = gtk_widget_get_style (widget);
   gint w, h;
@@ -79,24 +79,24 @@ gtk_pcb_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
 
 /*! \brief Actually renders the swatch */
 static void
-gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
-                                         GdkWindow            *window,
-                                         GtkWidget            *widget,
-                                         GdkRectangle         *background_area,
-                                         GdkRectangle         *cell_area,
-                                         GdkRectangle         *expose_area,
-                                         GtkCellRendererState  flags)
+ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
+                                      GdkWindow            *window,
+                                      GtkWidget            *widget,
+                                      GdkRectangle         *background_area,
+                                      GdkRectangle         *cell_area,
+                                      GdkRectangle         *expose_area,
+                                      GtkCellRendererState  flags)
 {
-  GtkPcbCellRendererVisibility *pcb_cell;
+  GHidCellRendererVisibility *pcb_cell;
   GdkRectangle toggle_rect;
   GdkRectangle draw_rect;
 
-  pcb_cell = GTK_PCB_CELL_RENDERER_VISIBILITY (cell);
-  gtk_pcb_cell_renderer_visibility_get_size (cell, widget, cell_area,
-                                             &toggle_rect.x,
-                                             &toggle_rect.y,
-                                             &toggle_rect.width,
-                                             &toggle_rect.height);
+  pcb_cell = GHID_CELL_RENDERER_VISIBILITY (cell);
+  ghid_cell_renderer_visibility_get_size (cell, widget, cell_area,
+                                          &toggle_rect.x,
+                                          &toggle_rect.y,
+                                          &toggle_rect.width,
+                                          &toggle_rect.height);
 
   toggle_rect.x      += cell_area->x + cell->xpad;
   toggle_rect.y      += cell_area->y + cell->ypad;
@@ -144,13 +144,13 @@ gtk_pcb_cell_renderer_visibility_render (GtkCellRenderer      *cell,
 
 /*! \brief Toggless the swatch */
 static gint
-gtk_pcb_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
-                                           GdkEvent             *event,
-                                           GtkWidget            *widget,
-                                           const gchar          *path,
-                                           GdkRectangle         *background_area,
-                                           GdkRectangle         *cell_area,
-                                           GtkCellRendererState  flags)
+ghid_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
+                                        GdkEvent             *event,
+                                        GtkWidget            *widget,
+                                        const gchar          *path,
+                                        GdkRectangle         *background_area,
+                                        GdkRectangle         *cell_area,
+                                        GtkCellRendererState  flags)
 {
   g_signal_emit (cell, toggle_cell_signals[TOGGLED], 0, path);
   return TRUE;
@@ -158,13 +158,13 @@ gtk_pcb_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
 
 /* Setter/Getter */
 static void
-gtk_pcb_cell_renderer_visibility_get_property (GObject     *object,
-                                               guint        param_id,
-                                               GValue      *value,
-                                               GParamSpec  *pspec)
+ghid_cell_renderer_visibility_get_property (GObject     *object,
+                                            guint        param_id,
+                                            GValue      *value,
+                                            GParamSpec  *pspec)
 {
-  GtkPcbCellRendererVisibility *pcb_cell =
-    GTK_PCB_CELL_RENDERER_VISIBILITY (object);
+  GHidCellRendererVisibility *pcb_cell =
+    GHID_CELL_RENDERER_VISIBILITY (object);
 
   switch (param_id)
     {
@@ -178,13 +178,13 @@ gtk_pcb_cell_renderer_visibility_get_property (GObject     *object,
 }
 
 static void
-gtk_pcb_cell_renderer_visibility_set_property (GObject      *object,
+ghid_cell_renderer_visibility_set_property (GObject      *object,
                                                guint         param_id,
                                                const GValue *value,
                                                GParamSpec   *pspec)
 {
-  GtkPcbCellRendererVisibility *pcb_cell =
-    GTK_PCB_CELL_RENDERER_VISIBILITY (object);
+  GHidCellRendererVisibility *pcb_cell =
+    GHID_CELL_RENDERER_VISIBILITY (object);
 
   switch (param_id)
     {
@@ -201,23 +201,23 @@ gtk_pcb_cell_renderer_visibility_set_property (GObject      *object,
 
 /* CONSTRUCTOR */
 static void
-gtk_pcb_cell_renderer_visibility_init (GtkPcbCellRendererVisibility *ls)
+ghid_cell_renderer_visibility_init (GHidCellRendererVisibility *ls)
 {
   g_object_set (ls, "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);
 }
 
 static void
-gtk_pcb_cell_renderer_visibility_class_init (GtkPcbCellRendererVisibilityClass *klass)
+ghid_cell_renderer_visibility_class_init (GHidCellRendererVisibilityClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GtkCellRendererClass *cell_class = GTK_CELL_RENDERER_CLASS (klass);
 
-  object_class->get_property = gtk_pcb_cell_renderer_visibility_get_property;
-  object_class->set_property = gtk_pcb_cell_renderer_visibility_set_property;
+  object_class->get_property = ghid_cell_renderer_visibility_get_property;
+  object_class->set_property = ghid_cell_renderer_visibility_set_property;
 
-  cell_class->get_size = gtk_pcb_cell_renderer_visibility_get_size;
-  cell_class->render   = gtk_pcb_cell_renderer_visibility_render;
-  cell_class->activate = gtk_pcb_cell_renderer_visibility_activate;
+  cell_class->get_size = ghid_cell_renderer_visibility_get_size;
+  cell_class->render   = ghid_cell_renderer_visibility_render;
+  cell_class->activate = ghid_cell_renderer_visibility_activate;
 
   g_object_class_install_property (object_class, PROP_ACTIVE,
                                    g_param_spec_boolean ("active",
@@ -234,7 +234,7 @@ gtk_pcb_cell_renderer_visibility_class_init (GtkPcbCellRendererVisibilityClass *
 
 
  /**
-  * GtkPcbCellRendererVisibility::toggled:
+  * GHidCellRendererVisibility::toggled:
   * @cell_renderer: the object which received the signal
   * @path: string representation of #GtkTreePath describing the 
   *        event location
@@ -245,7 +245,7 @@ gtk_pcb_cell_renderer_visibility_class_init (GtkPcbCellRendererVisibilityClass *
     g_signal_new (_("toggled"),
                   G_OBJECT_CLASS_TYPE (object_class),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GtkPcbCellRendererVisibilityClass, toggled),
+                  G_STRUCT_OFFSET (GHidCellRendererVisibilityClass, toggled),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__STRING,
                   G_TYPE_NONE, 1,
@@ -254,7 +254,7 @@ gtk_pcb_cell_renderer_visibility_class_init (GtkPcbCellRendererVisibilityClass *
 
 /* PUBLIC FUNCTIONS */
 GType
-gtk_pcb_cell_renderer_visibility_get_type (void)
+ghid_cell_renderer_visibility_get_type (void)
 {
   static GType ls_type = 0;
 
@@ -262,19 +262,19 @@ gtk_pcb_cell_renderer_visibility_get_type (void)
     {
       const GTypeInfo ls_info =
       {
-	sizeof (GtkPcbCellRendererVisibilityClass),
+	sizeof (GHidCellRendererVisibilityClass),
 	NULL, /* base_init */
 	NULL, /* base_finalize */
-	(GClassInitFunc) gtk_pcb_cell_renderer_visibility_class_init,
+	(GClassInitFunc) ghid_cell_renderer_visibility_class_init,
 	NULL, /* class_finalize */
 	NULL, /* class_data */
-	sizeof (GtkPcbCellRendererVisibility),
+	sizeof (GHidCellRendererVisibility),
 	0,    /* n_preallocs */
-	(GInstanceInitFunc) gtk_pcb_cell_renderer_visibility_init,
+	(GInstanceInitFunc) ghid_cell_renderer_visibility_init,
       };
 
       ls_type = g_type_register_static (GTK_TYPE_CELL_RENDERER,
-                                        "GtkPcbCellRendererVisibility",
+                                        "GHidCellRendererVisibility",
                                         &ls_info,
                                         0);
     }
@@ -283,10 +283,10 @@ gtk_pcb_cell_renderer_visibility_get_type (void)
 }
 
 GtkCellRenderer *
-gtk_pcb_cell_renderer_visibility_new (void)
+ghid_cell_renderer_visibility_new (void)
 {
-  GtkPcbCellRendererVisibility *rv =
-    g_object_new (GTK_PCB_CELL_RENDERER_VISIBILITY_TYPE, NULL);
+  GHidCellRendererVisibility *rv =
+    g_object_new (GHID_CELL_RENDERER_VISIBILITY_TYPE, NULL);
 
   rv->active = FALSE;
 

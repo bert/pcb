@@ -17,7 +17,7 @@
 #include "pcb-printf.h"
 
 #include "gtk-pcb-layer-selector.h"
-#include "gtk-pcb-cell-renderer-visibility.h"
+#include "ghid-cell-renderer-visibility.h"
 
 #define INITIAL_ACTION_MAX	40
 
@@ -290,7 +290,7 @@ gtk_pcb_layer_selector_get_type (void)
 GtkWidget *
 gtk_pcb_layer_selector_new (void)
 {
-  GtkCellRenderer *renderer1 = gtk_pcb_cell_renderer_visibility_new ();
+  GtkCellRenderer *renderer1 = ghid_cell_renderer_visibility_new ();
   GtkCellRenderer *renderer2 = gtk_cell_renderer_text_new ();
   GtkTreeViewColumn *opacity_col =
       gtk_tree_view_column_new_with_attributes ("", renderer1,
