@@ -82,7 +82,7 @@ a zoom in/out.
 #include <locale.h>
 #endif
 
-#include "gtk-pcb-layer-selector.h"
+#include "ghid-layer-selector.h"
 #include "gtkhid.h"
 #include "gui.h"
 #include "hid.h"
@@ -677,9 +677,9 @@ layer_process (gchar **color_string, char **text, int *set, int i)
     }
 }
 
-/*! \brief Callback for GtkPcbLayerSelector layer selection */
+/*! \brief Callback for GHidLayerSelector layer selection */
 static void
-layer_selector_select_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
+layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
 {
   gboolean active;
   layer_process (NULL, NULL, &active, layer);
@@ -691,14 +691,14 @@ layer_selector_select_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
     ChangeGroupVisibility (layer, true, true);
 
   /* Ensure layer is turned on */
-  gtk_pcb_layer_selector_make_selected_visible (ls);
+  ghid_layer_selector_make_selected_visible (ls);
 
   ghid_invalidate_all ();
 }
 
-/*! \brief Callback for GtkPcbLayerSelector layer toggling */
+/*! \brief Callback for GHidLayerSelector layer toggling */
 static void
-layer_selector_toggle_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
+layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
 {
   gboolean redraw = FALSE;
   gboolean active;
@@ -748,8 +748,8 @@ layer_selector_toggle_callback (GtkPcbLayerSelector *ls, int layer, gpointer d)
    *  (or its group). In this case, select a different one if we
    *  can. If we can't, turn the original layer back on.
    */
-  if (!gtk_pcb_layer_selector_select_next_visible (ls))
-    gtk_pcb_layer_selector_toggle_layer (ls, layer);
+  if (!ghid_layer_selector_select_next_visible (ls))
+    ghid_layer_selector_toggle_layer (ls, layer);
 
   if (redraw)
     ghid_invalidate_all();
@@ -838,8 +838,8 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   ghidgui->main_actions = actions;
 
   make_menu_actions (actions, port);
-  layer_actions = gtk_pcb_layer_selector_get_action_group
-          (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+  layer_actions = ghid_layer_selector_get_action_group
+          (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
  
   gtk_ui_manager_insert_action_group (ui, actions, 0);
   gtk_ui_manager_insert_action_group (ui, layer_actions, 0);
@@ -996,32 +996,32 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
 static void
 make_virtual_layer_buttons (GtkWidget *layer_selector)
 {
-  GtkPcbLayerSelector *layersel = GTK_PCB_LAYER_SELECTOR (layer_selector);
+  GHidLayerSelector *layersel = GHID_LAYER_SELECTOR (layer_selector);
   gchar *text;
   gchar *color_string;
   gboolean active;
  
   layer_process (&color_string, &text, &active, LAYER_BUTTON_SILK);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_SILK,
-                                    text, color_string, active, TRUE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_SILK,
+                                 text, color_string, active, TRUE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_RATS);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_RATS,
-                                    text, color_string, active, TRUE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_RATS,
+                                 text, color_string, active, TRUE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_PINS);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_PINS,
-                                    text, color_string, active, FALSE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_PINS,
+                                 text, color_string, active, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_VIAS);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_VIAS,
-                                    text, color_string, active, FALSE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_VIAS,
+                                 text, color_string, active, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_FARSIDE);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_FARSIDE,
-                                    text, color_string, active, FALSE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_FARSIDE,
+                                 text, color_string, active, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_MASK);
-  gtk_pcb_layer_selector_add_layer (layersel, LAYER_BUTTON_MASK,
-                                    text, color_string, active, FALSE);
+  ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_MASK,
+                                 text, color_string, active, FALSE);
 }
 
-/*! \brief callback for gtk_pcb_layer_selector_update_colors */
+/*! \brief callback for ghid_layer_selector_update_colors */
 const gchar *
 get_layer_color (gint layer)
 {
@@ -1034,8 +1034,8 @@ get_layer_color (gint layer)
 void
 ghid_layer_buttons_color_update (void)
 {
-  gtk_pcb_layer_selector_update_colors
-    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_color);
+  ghid_layer_selector_update_colors
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_color);
   pcb_colors_from_settings (PCB);
 }
  
@@ -1051,13 +1051,13 @@ make_layer_buttons (GtkWidget *layersel)
   for (i = 0; i < max_copper_layer; ++i)
     {
       layer_process (&color_string, &text, &active, i);
-      gtk_pcb_layer_selector_add_layer (GTK_PCB_LAYER_SELECTOR (layersel), i,
-                                        text, color_string, active, TRUE);
+      ghid_layer_selector_add_layer (GHID_LAYER_SELECTOR (layersel), i,
+                                     text, color_string, active, TRUE);
     }
 }
 
 
-/*! \brief callback for gtk_pcb_layer_selector_delete_layers */
+/*! \brief callback for ghid_layer_selector_delete_layers */
 gboolean
 get_layer_delete (gint layer)
 {
@@ -1074,8 +1074,8 @@ ghid_layer_buttons_update (void)
 {
   gint layer;
 
-  gtk_pcb_layer_selector_delete_layers
-    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector),
+  ghid_layer_selector_delete_layers
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector),
      get_layer_delete);
   make_layer_buttons (ghidgui->layer_selector);
   make_virtual_layer_buttons (ghidgui->layer_selector);
@@ -1088,8 +1088,8 @@ ghid_layer_buttons_update (void)
   else
     layer = LayerStack[0];
 
-  gtk_pcb_layer_selector_select_layer
-    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), layer);
+  ghid_layer_selector_select_layer
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector), layer);
 }
 
 
@@ -1485,7 +1485,7 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
   /* Build layer menus */
-  ghidgui->layer_selector = gtk_pcb_layer_selector_new ();
+  ghidgui->layer_selector = ghid_layer_selector_new ();
   make_layer_buttons (ghidgui->layer_selector);
   make_virtual_layer_buttons (ghidgui->layer_selector);
   g_signal_connect (G_OBJECT (ghidgui->layer_selector), "select_layer",
@@ -2167,8 +2167,8 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
   /* Now that we've figured out which toggle button ought to control
    * this layer, simply hit the button and let the pre-existing code deal
    */
-  gtk_pcb_layer_selector_toggle_layer
-    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), l);
+  ghid_layer_selector_toggle_layer
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector), l);
   in_toggle_view = 0;
   return 0;
 }
@@ -2207,8 +2207,8 @@ SelectLayer (int argc, char **argv, Coord x, Coord y)
   /* Now that we've figured out which radio button ought to select
    * this layer, simply hit the button and let the pre-existing code deal
    */
-  gtk_pcb_layer_selector_select_layer
-    (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector), newl);
+  ghid_layer_selector_select_layer
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector), newl);
 
   return 0;
 }
@@ -2906,15 +2906,15 @@ add_resource_to_menu (const char * menu, const Resource * node, int indent)
 	  {
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
 	      {
-                gchar *tmp = gtk_pcb_layer_selector_get_view_xml
-                  (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+                gchar *tmp = ghid_layer_selector_get_view_xml
+                  (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
                 ghid_ui_info_append (tmp);
                 g_free (tmp);
 	      }
 	    else if (strcmp (node->v[i].value, "@layerpick") == 0)
 	      {
-                gchar *tmp = gtk_pcb_layer_selector_get_pick_xml
-                  (GTK_PCB_LAYER_SELECTOR (ghidgui->layer_selector));
+                gchar *tmp = ghid_layer_selector_get_pick_xml
+                  (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
                 ghid_ui_info_append (tmp);
                 g_free (tmp);
 	      }
