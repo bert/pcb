@@ -1928,8 +1928,7 @@ N_("Bring up the popup menu specified by @code{MenuName}.\n"
 
 This just pops up the specified menu.  The menu must have been defined
 as a named subresource of the Popups resource in the menu resource
-file.  If called as a response to a mouse button click, the mouse 
-button number must be specified as the second argument.  
+file.
 
 %end-doc */
 
@@ -1938,15 +1937,9 @@ static int
 Popup (int argc, char **argv, Coord x, Coord y)
 {
   GtkMenu *menu;
-  guint button;
 
   if (argc != 1 && argc != 2)
     AFAIL (popup);
-
-  if (argc == 1)
-    button = 0;
-  else
-    button = atoi (argv[1]);
 
   menu = ghid_main_menu_get_popup (GHID_MAIN_MENU (ghidgui->menu_bar), argv[0]);
   if (! GTK_IS_MENU (menu))
