@@ -174,9 +174,9 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-	  entry = gtk_pcb_coord_entry_new (attrs[j].min_val, attrs[j].max_val,
-	                                   attrs[j].default_val.coord_value,
-	                                   Settings.grid_unit, CE_SMALL);
+	  entry = ghid_coord_entry_new (attrs[j].min_val, attrs[j].max_val,
+	                                attrs[j].default_val.coord_value,
+	                                Settings.grid_unit, CE_SMALL);
 	  gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
 	  if(attrs[j].default_val.str_value != NULL)
 	    gtk_entry_set_text (GTK_ENTRY (entry),

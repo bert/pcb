@@ -1011,9 +1011,9 @@ text_spin_button_cb (GtkSpinButton * spin, void * dst)
 }
 
 static void
-coord_entry_cb (GtkPcbCoordEntry * ce, void * dst)
+coord_entry_cb (GHidCoordEntry * ce, void * dst)
 {
-  *(Coord *) dst = gtk_pcb_coord_entry_get_value (ce);
+  *(Coord *) dst = ghid_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 
@@ -1139,9 +1139,9 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 static GtkWidget *config_increments_vbox, *config_increments_tab_vbox;
 
 static void
-increment_spin_button_cb (GtkPcbCoordEntry * ce, void * dst)
+increment_spin_button_cb (GHidCoordEntry * ce, void * dst)
 {
-  *(Coord *)dst = gtk_pcb_coord_entry_get_value (ce);
+  *(Coord *)dst = ghid_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 

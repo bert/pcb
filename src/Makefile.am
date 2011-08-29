@@ -270,8 +270,8 @@ libgtk_a_CPPFLAGS = -I./hid/gtk
 LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
-	hid/gtk/gtk-pcb-coord-entry.c \
-	hid/gtk/gtk-pcb-coord-entry.h \
+	hid/gtk/ghid-coord-entry.c \
+	hid/gtk/ghid-coord-entry.h \
 	hid/gtk/ghid-layer-selector.c \
 	hid/gtk/ghid-layer-selector.h \
 	hid/gtk/ghid-cell-renderer-visibility.c \

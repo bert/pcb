@@ -85,32 +85,32 @@ make_route_string(RouteStyleType * rs)
 }
 
 static void
-via_hole_cb (GtkPcbCoordEntry * entry, gpointer data)
+via_hole_cb (GHidCoordEntry * entry, gpointer data)
 {
   SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_hole_size = gtk_pcb_coord_entry_get_value (entry);
-  via_size = gtk_pcb_coord_entry_get_value
-               (GTK_PCB_COORD_ENTRY (sd->via_size_coord_entry));
+  via_hole_size = ghid_coord_entry_get_value (entry);
+  via_size = ghid_coord_entry_get_value
+               (GHID_COORD_ENTRY (sd->via_size_coord_entry));
 
   if (via_size < via_hole_size + MIN_PINORVIACOPPER)
-    gtk_pcb_coord_entry_set_value (GTK_PCB_COORD_ENTRY (sd->via_size_coord_entry),
+    ghid_coord_entry_set_value (GHID_COORD_ENTRY (sd->via_size_coord_entry),
 			           via_hole_size + MIN_PINORVIACOPPER);
 }
 
 static void
-via_size_cb (GtkPcbCoordEntry * entry, gpointer data)
+via_size_cb (GHidCoordEntry * entry, gpointer data)
 {
   SizesDialog * sd = (SizesDialog *)data;
   gdouble via_hole_size, via_size;
 
-  via_size = gtk_pcb_coord_entry_get_value (entry);
-  via_hole_size = gtk_pcb_coord_entry_get_value
-                    (GTK_PCB_COORD_ENTRY (sd->via_hole_coord_entry));
+  via_size = ghid_coord_entry_get_value (entry);
+  via_hole_size = ghid_coord_entry_get_value
+                    (GHID_COORD_ENTRY (sd->via_hole_coord_entry));
 
   if (via_hole_size > via_size - MIN_PINORVIACOPPER)
-    gtk_pcb_coord_entry_set_value (GTK_PCB_COORD_ENTRY (sd->via_hole_coord_entry),
+    ghid_coord_entry_set_value (GHID_COORD_ENTRY (sd->via_hole_coord_entry),
 			           via_size - MIN_PINORVIACOPPER);
 }
 
@@ -261,16 +261,16 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
 	rst = &rst_buf;
 
       rst->Thick =
-	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+	ghid_coord_entry_get_value (GHID_COORD_ENTRY
 				        (sd->line_width_coord_entry));
       rst->Hole =
-	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+	ghid_coord_entry_get_value (GHID_COORD_ENTRY
 				        (sd->via_hole_coord_entry));
       rst->Diameter =
-	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+	ghid_coord_entry_get_value (GHID_COORD_ENTRY
 				        (sd->via_size_coord_entry));
       rst->Keepaway =
-	gtk_pcb_coord_entry_get_value (GTK_PCB_COORD_ENTRY
+	ghid_coord_entry_get_value (GHID_COORD_ENTRY
 				        (sd->clearance_coord_entry));
 
       if (index < NUM_STYLES && !set_temp1 && !set_temp2)

@@ -33,7 +33,6 @@
 #endif
 
 #include "gui.h"
-#include "gtk-pcb-coord-entry.h"
 #include <gdk/gdkkeysyms.h>
 
 #ifdef HAVE_LIBDMALLOC
@@ -273,11 +272,11 @@ ghid_button_connected (GtkWidget * box, GtkWidget ** button,
 void
 ghid_coord_entry (GtkWidget * box, GtkWidget ** coord_entry, Coord value,
 		  Coord low, Coord high,  enum ce_step_size step_size,
-		  gint width, void (*cb_func) (GtkPcbCoordEntry *, gpointer),
+		  gint width, void (*cb_func) (GHidCoordEntry *, gpointer),
 		  gpointer data, gboolean right_align, gchar * string)
 {
   GtkWidget *hbox = NULL, *label, *entry_widget;
-  GtkPcbCoordEntry *entry;
+  GHidCoordEntry *entry;
 
   if (string && box)
     {
@@ -286,12 +285,12 @@ ghid_coord_entry (GtkWidget * box, GtkWidget ** coord_entry, Coord value,
       box = hbox;
     }
 
-  entry_widget = gtk_pcb_coord_entry_new (low, high, value, Settings.grid_unit, step_size);
+  entry_widget = ghid_coord_entry_new (low, high, value, Settings.grid_unit, step_size);
   if (coord_entry)
     *coord_entry = entry_widget;
   if (width > 0)
     gtk_widget_set_size_request (entry_widget, width, -1);
-  entry = GTK_PCB_COORD_ENTRY (entry_widget);
+  entry = GHID_COORD_ENTRY (entry_widget);
   if (data == NULL)
     data = (gpointer) entry;
   if (cb_func)
@@ -368,21 +367,21 @@ void
 ghid_table_coord_entry (GtkWidget * table, gint row, gint column,
 			GtkWidget ** coord_entry, Coord value,
 			Coord low, Coord high, enum ce_step_size step_size,
-			gint width, void (*cb_func) (GtkPcbCoordEntry *, gpointer),
+			gint width, void (*cb_func) (GHidCoordEntry *, gpointer),
 			gpointer data, gboolean right_align, gchar * string)
 {
   GtkWidget *label, *entry_widget;
-  GtkPcbCoordEntry *entry;
+  GHidCoordEntry *entry;
 
   if (!table)
     return;
 
-  entry_widget = gtk_pcb_coord_entry_new (low, high, value, Settings.grid_unit, step_size);
+  entry_widget = ghid_coord_entry_new (low, high, value, Settings.grid_unit, step_size);
   if (coord_entry)
     *coord_entry = entry_widget;
   if (width > 0)
     gtk_widget_set_size_request (entry_widget, width, -1);
-  entry = GTK_PCB_COORD_ENTRY (entry_widget);
+  entry = GHID_COORD_ENTRY (entry_widget);
   if (data == NULL)
     data = (gpointer) entry;
   if (cb_func)
