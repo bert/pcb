@@ -136,19 +136,6 @@ RCSID ("$Id$");
  * local types
  */
 
-
-typedef enum {GHID_FLAG_ACTIVE, GHID_FLAG_CHECKED, GHID_FLAG_VISIBLE} MenuFlagType;
-
-/* Used by the menuitems that are toggle actions */
-typedef struct
-{
-  const char *actionname;
-  const char *flagname;
-  MenuFlagType flagtype;
-  int oldval;
-  const char *xres;
-} ToggleFlagType;
-
 /* Used by the route style buttons and menu */
 typedef struct
 {
@@ -169,47 +156,25 @@ RouteStyleButton;
 
 #define N_ROUTE_STYLES (NUM_STYLES + 3)
 
-static void ghid_load_menus (void);
-static void ghid_ui_info_append (const gchar *);
-static void ghid_ui_info_indent (int);
-
 static bool ignore_layer_update;
-static gchar * new_ui_info;
-static size_t new_ui_info_sz = 0;
 
-/* the array of actions for "normal" menuitems */
-static GtkActionEntry *new_entries = NULL;
-static gint menuitem_cnt = 0;
-
-/* the array of actions for "toggle" menuitems */
-static GtkToggleActionEntry *new_toggle_entries = NULL;
-static gint tmenuitem_cnt = 0;
-
-static Resource **action_resources = NULL;
-static Resource **toggle_action_resources = NULL;
+static GtkWidget *ghid_load_menus (void);
 
 /* actions for the @routestyles menuitems */
 static GtkToggleActionEntry routestyle_toggle_entries[N_ROUTE_STYLES];
 static Resource *routestyle_resources[N_ROUTE_STYLES];
-
-#define MENUITEM "MenuItem"
-#define TMENUITEM "TMenuItem"
 #define ROUTESTYLE "RouteStyle"
-
-
-static ToggleFlagType *tflags = 0;
-static int n_tflags = 0;
-static int max_tflags = 0;
 
 GhidGui _ghidgui, *ghidgui = NULL;
 
 GHidPort ghid_port, *gport;
 
-static GdkColor WhitePixel;
+static gchar *bg_image_file;
 
-static gchar		*bg_image_file;
-
-static char *ghid_hotkey_actions[256];
+static struct { GtkAction *action; const Resource *node; }
+  ghid_hotkey_actions[256];
+#define N_HOTKEY_ACTIONS \
+        (sizeof (ghid_hotkey_actions) / sizeof (ghid_hotkey_actions[0]))
 
 
 /* ------------------------------------------------------------------
@@ -228,125 +193,39 @@ static gint route_style_index;
 
 static GtkWidget *route_style_edit_button;
 
-static const char *
-ghid_check_unique_accel (const char *accelerator)
+/*! \brief callback for ghid_main_menu_update_toggle_state () */
+void
+menu_toggle_update_cb (GtkAction *act, const char *tflag, const char *aflag)
 {
-  static int n_list = 0;
-  static char **accel_list;
-  static int amax = 0;
-  int i;
-  const char * a = accelerator;
-
-  if (accelerator == NULL)
-    return NULL;
-
-  if (strlen (accelerator) == 0)
-    return accelerator;
-
-  if (amax >= n_list) 
+  if (tflag != NULL)
     {
-      n_list += 128;
-      if ( (accel_list = (char **)realloc (accel_list, n_list * sizeof (char *))) == NULL)
-	{
-	  fprintf (stderr, "%s():  realloc failed\n", __FUNCTION__);
-	  exit (1);
-	}
+      int v = hid_get_flag (tflag);
+      gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (act), !!v);
     }
-
-  for (i = 0; i < amax ; i++) 
+  if (aflag != NULL)
     {
-      if (strcmp (accel_list[i], accelerator) == 0)
-	{
-	  Message (_("Duplicate accelerator found: \"%s\"\n"
-		   "The second occurance will be dropped\n"),
-		   accelerator);
-	  a = NULL;
-	  break;
-	}
+      int v = hid_get_flag (aflag);
+      gtk_action_set_sensitive (act, !!v);
     }
-  accel_list[amax] = strdup (accelerator);
-  amax++;
-
-  return a;
 }
 
-
-/* ------------------------------------------------------------------
- *  note_toggle_flag()
- */
-
-static void
-note_toggle_flag (const char *actionname, MenuFlagType type, const char *name)
-{
-
-  #ifdef DEBUG_MENUS
-  printf ("note_toggle_flag(\"%s\", %d, \"%s\")\n", actionname, type, name);
-  #endif
-
-  if (n_tflags >= max_tflags)
-    {
-      max_tflags += 20;
-      tflags = (ToggleFlagType *)realloc (tflags, max_tflags * sizeof (ToggleFlagType));
-    }
-  tflags[n_tflags].actionname = strdup (actionname);
-  tflags[n_tflags].flagname = name;
-  tflags[n_tflags].flagtype = type;
-  tflags[n_tflags].oldval = -1;
-  tflags[n_tflags].xres = "none";
-  n_tflags++;
-}
-
-
+/*! \brief sync the menu checkboxes with actual pcb state */
 void
 ghid_update_toggle_flags ()
 {
   int i;
 
   GtkAction *a;
-  gboolean old_holdoff;
   gboolean active;
+  gboolean old_holdoff;
   char tmpnm[40];
-  GValue setfalse = { 0 };
-  GValue settrue = { 0 };
-  GValue setlabel = { 0 };
-
-  g_value_init (&setfalse, G_TYPE_BOOLEAN);
-  g_value_init (&settrue, G_TYPE_BOOLEAN);
-  g_value_set_boolean (&setfalse, FALSE);
-  g_value_set_boolean (&settrue, TRUE);
-  g_value_init (&setlabel, G_TYPE_STRING);
 
   /* mask the callbacks */
   old_holdoff = ghidgui->toggle_holdoff;
   ghidgui->toggle_holdoff = TRUE;
 
-  for (i = 0; i < n_tflags; i++)
-    {
-      switch (tflags[i].flagtype)
-	{
-	case GHID_FLAG_ACTIVE:
-	  {
-	    int v = hid_get_flag (tflags[i].flagname);
-	    a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
-	    g_object_set_property (G_OBJECT (a), "sensitive", v? &settrue : &setfalse);
-	    tflags[i].oldval = v;
-	  }
-	  break;
-
-	case GHID_FLAG_CHECKED:
-	  {
-	    int v = hid_get_flag (tflags[i].flagname);
-	    a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
-	    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), v? TRUE : FALSE);
-	    tflags[i].oldval = v;
-	  }
-	  break;
-
-	default:
-	  printf ("Skipping flagtype %d\n", tflags[i].flagtype);
-	  break;
-	}
-    }
+  ghid_main_menu_update_toggle_state (GHID_MAIN_MENU (ghidgui->menu_bar),
+                                      menu_toggle_update_cb);
 
   for (i = 0; i < N_ROUTE_STYLES; i++)
     {
@@ -354,7 +233,7 @@ ghid_update_toggle_flags ()
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (i >= NUM_STYLES)
 	{
-	  g_object_set_property (G_OBJECT (a), "visible", &setfalse);
+	  gtk_action_set_visible (a, FALSE);
 	}
 
       /* Update the toggle states */
@@ -366,11 +245,7 @@ ghid_update_toggle_flags ()
 	
     }
 
-  g_value_unset (&setfalse);
-  g_value_unset (&settrue);
-  g_value_unset (&setlabel);
   ghidgui->toggle_holdoff = old_holdoff;
-
 }
 
 static void
@@ -412,103 +287,47 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 }
 
 
-/*
- * This is the main menu callback function.  The callback looks at
- * the gtk action name to figure out which menuitem was chosen.  Then
- * it looks up in a table to find the pcb actions which should be
- * executed.  All menus go through this callback.  The tables of
- * actions are loaded from the menu resource file at startup.
+/*! \brief Menu action callback function
+ *  \par Function Description
+ *  This is the main menu callback function.  The callback receives
+ *  the original Resource pointer containing the HID actions to be
+ *  executed.
  *
- * In addition, all hotkeys go through the menus which means they go
- * through here.
+ *  All hotkeys go through the menus which means they go through here.
+ *  Some, such as tab, are caught by Gtk instead of passed here, so
+ *  pcb calls this function directly through ghid_hotkey_cb() for them.
+ *
+ *  \param [in]   The action that was activated
+ *  \param [in]   The menu resource associated with the action
  */
 
 static void
-ghid_menu_cb (GtkAction * action, gpointer data)
+ghid_menu_cb (GtkAction *action, const Resource *node)
 {
-  const gchar * name;
-  int id = 0;
-  int vi;
-  const Resource *node = NULL;
-  static int in_cb = 0;
-  gboolean old_holdoff;
+  const gchar *name = gtk_action_get_name (action);
 
-  /* If we don't do this then we can end up in loops where changing
-   * the state of the toggle actions triggers the callbacks and
-   * the call back updates the state of the actions.
-   */
-  if (in_cb)
+  if (action == NULL || node == NULL) 
     return;
-  else
-    in_cb = 1;
 
-  /* 
-   * Normally this callback is triggered by the menus in which case
-   * action will be the gtk action which was triggered.  In the case
-   * of the "special" hotkeys we will call this callback directly and
-   * pass in the name of the menu that it corresponds to in via the
-   * data argument
-   */
-  if (action != NULL) 
-    {
-      name = gtk_action_get_name (action);
-    }
-  else
-    {
-      name = (const char *) data;
+  /* Prevent recursion */
+  if (ghidgui->toggle_holdoff == TRUE) 
+    return;
+
 #ifdef DEBUG_MENUS
-      printf ("ghid_menu_cb():  name = \"%s\"\n", UNKNOWN (name));
+  printf ("ghid_menu_cb():  name = \"%s\"\n", name);
 #endif
-    }
 
-  if (name == NULL)
+  /* Special-case route styles */
+  if (strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
     {
-      fprintf (stderr, "%s(%p, %p):  name == NULL\n", 
-	       __FUNCTION__, action, data);
-      in_cb = 0;
-      return;
-    }
-
-  if ( strncmp (name, MENUITEM, strlen (MENUITEM)) == 0)
-    {
-      /* This is a "normal" menuitem as opposed to a toggle menuitem
-       */
-      id = atoi (name + strlen (MENUITEM));
-      node = action_resources[id];
-    }
-  else if ( strncmp (name, TMENUITEM, strlen (TMENUITEM)) == 0)
-    {
-      /* This is a "toggle" menuitem */
-      id = atoi (name + strlen (TMENUITEM));
-
-      /* toggle_holdoff lets us update the state of the menus without
-       * actually triggering all the callbacks
-       */
-      if (ghidgui->toggle_holdoff == TRUE) 
-	node = NULL;
-      else
-	node = toggle_action_resources[id];
-    }
-  else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
-    {
-      id = atoi (name + strlen (ROUTESTYLE));
+      int id = atoi (name + strlen (ROUTESTYLE));
       if (ghidgui->toggle_holdoff != TRUE) 
 	ghid_route_style_button_set_active (id);
       node = NULL;
     }
   else
     {
-      fprintf (stderr, "ERROR:  ghid_menu_cb():  name = \"%s\" is unknown\n", name);
-    }
-    
-
-#ifdef DEBUG_MENUS
-  printf ("ghid_menu_cb():  name = \"%s\", id = %d\n", name, id);
-#endif
-
-  /* Now we should have a pointer to the actions to execute */
-  if (node != NULL)
-    {
+      int vi;
       for (vi = 1; vi < node->c; vi++)
 	if (resource_type (node->v[vi]) == 10)
 	  {
@@ -518,67 +337,24 @@ ghid_menu_cb (GtkAction * action, gpointer data)
 	    hid_parse_actions (node->v[vi].value);
 	  }
     }
-  else {
-#ifdef DEBUG_MENUS
-    printf ("    NOOP\n");
-#endif
-  }
 
-
-  /*
-   * Now mask off any callbacks and update the state of any toggle
-   * menuitems.  This is where we do things like sync the layer or
-   * tool checks marks in the menus with the layer or tool buttons
-   */
-  old_holdoff = ghidgui->toggle_holdoff;
-  ghidgui->toggle_holdoff = TRUE;
+  /* Sync gui widgets with pcb state */
   ghid_update_toggle_flags ();
-  ghidgui->toggle_holdoff = old_holdoff;
-  
-  in_cb = 0;
+  ghid_mode_buttons_update ();
 
-  /*
-   * and finally, make any changes show up in the status line and the
-   * screen 
-   */
-  if (ghidgui->toggle_holdoff == FALSE) 
-    {
-      AdjustAttachedObjects ();
-      ghid_invalidate_all ();
-      ghid_window_set_name_label (PCB->Name);
-      ghid_set_status_line_label ();
-#ifdef FIXME
-      g_idle_add (ghid_idle_cb, NULL);
-#endif
-    }
-
+  /* Sync gui status display with pcb state */
+  AdjustAttachedObjects ();
+  ghid_invalidate_all ();
+  ghid_window_set_name_label (PCB->Name);
+  ghid_set_status_line_label ();
 }
 
+/* \brief Accelerator callback for accelerators gtk tries to hide from us */
 void ghid_hotkey_cb (int which)
 {
-#ifdef DEBUG_MENUS
-  printf ("%s(%d) -> \"%s\"\n", __FUNCTION__, 
-	  which, UNKNOWN (ghid_hotkey_actions[which]));
-#endif
-  if (ghid_hotkey_actions[which] != NULL)
-    ghid_menu_cb (NULL, ghid_hotkey_actions[which]);
-}
-
-
-/* ============== ViewMenu callbacks =============== */
-void
-ghid_set_menu_toggle_button (GtkActionGroup * ag, gchar * name,
-			     gboolean state)
-{
-  GtkAction *action;
-  gboolean old_holdoff;
-
-  old_holdoff = ghidgui->toggle_holdoff;
-  ghidgui->toggle_holdoff = TRUE;
-  action = gtk_action_group_get_action (ag, name);
-  if (action)
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), state);
-  ghidgui->toggle_holdoff = old_holdoff;
+  if (ghid_hotkey_actions[which].action != NULL)
+    ghid_menu_cb (ghid_hotkey_actions[which].action,
+                  (gpointer) ghid_hotkey_actions[which].node);
 }
 
   /* Sync toggle states that were saved with the layout and notify the
@@ -804,11 +580,6 @@ ghid_make_programmed_menu_actions ()
 static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
-  gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
-
-  gtk_action_group_add_toggle_actions (actions, new_toggle_entries,
-				       tmenuitem_cnt, port);
-
   ghid_make_programmed_menu_actions ();
 
   gtk_action_group_add_toggle_actions (actions,
@@ -823,20 +594,15 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
  * load the ui_manager string.
  */
 static void
-make_top_menubar (GtkWidget * hbox, GHidPort * port)
+make_top_menubar (GtkWidget *menu_bar, GtkWidget * hbox, GHidPort * port)
 {
-  GtkUIManager *ui;
   GtkWidget *frame;
   GtkActionGroup *actions;
   GtkActionGroup *layer_actions;
-  GError *error = NULL;
 
   frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
-
-  ui = gtk_ui_manager_new ();
-  ghidgui->ui_manager = ui;
 
   actions = gtk_action_group_new ("Actions");
   gtk_action_group_set_translation_domain (actions, NULL);
@@ -846,22 +612,11 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   layer_actions = ghid_layer_selector_get_action_group
           (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
  
-  gtk_ui_manager_insert_action_group (ui, actions, 0);
-  gtk_ui_manager_insert_action_group (ui, layer_actions, 0);
-
   gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
-			      gtk_ui_manager_get_accel_group (ui));
+			      ghid_main_menu_get_accel_group
+                                (GHID_MAIN_MENU (ghidgui->menu_bar)));
 
-  if (!gtk_ui_manager_add_ui_from_string (ui, new_ui_info, -1, &error))
-    {
-      g_message ("building menus failed: %s", error->message);
-      g_error_free (error);
-    }
-
-  gtk_ui_manager_set_add_tearoffs (ui, TRUE);
-
-  gtk_container_add (GTK_CONTAINER (frame),
-		     gtk_ui_manager_get_widget (ui, "/MenuBar"));
+  gtk_container_add (GTK_CONTAINER (frame), menu_bar);
 
 }
 
@@ -1503,8 +1258,8 @@ ghid_build_pcb_top_window (void)
                     G_CALLBACK (layer_selector_toggle_callback),
                     NULL);
   /* Build main menu */
-  ghid_load_menus ();
-  make_top_menubar(hbox, port);
+  ghidgui->menu_bar = ghid_load_menus ();
+  make_top_menubar (ghidgui->menu_bar, hbox, port);
 
   frame = gtk_frame_new(NULL);
   gtk_widget_show(frame);
@@ -1736,23 +1491,19 @@ ghid_interface_input_signals_connect (void)
 {
   button_press_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "button_press_event",
-		      G_CALLBACK (ghid_port_button_press_cb),
-		      ghidgui->ui_manager);
+		      G_CALLBACK (ghid_port_button_press_cb), NULL);
 
   button_release_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "button_release_event",
-		      G_CALLBACK (ghid_port_button_release_cb),
-		      ghidgui->ui_manager);
+		      G_CALLBACK (ghid_port_button_release_cb), NULL);
 
   key_press_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "key_press_event",
-		      G_CALLBACK (ghid_port_key_press_cb),
-		      ghidgui->ui_manager);
+		      G_CALLBACK (ghid_port_key_press_cb), NULL);
 
   key_release_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "key_release_event",
-		      G_CALLBACK (ghid_port_key_release_cb),
-		      ghidgui->ui_manager);
+		      G_CALLBACK (ghid_port_key_release_cb), NULL);
 }
 
 void
@@ -1824,8 +1575,6 @@ ghid_create_pcb_widgets (void)
 {
   GHidPort *port = &ghid_port;
   GError	*err = NULL;
-
-  gdk_color_parse ("white", &WhitePixel);
 
   if (bg_image_file)
     ghidgui->bg_pixbuf = gdk_pixbuf_new_from_file(bg_image_file, &err);
@@ -2078,7 +1827,7 @@ ghid_do_export (HID_Attr_Val * options)
 gint
 LayersChanged (int argc, char **argv, Coord x, Coord y)
 {
-  if (!ghidgui || !ghidgui->ui_manager)
+  if (!ghidgui || !ghidgui->menu_bar)
     return 0;
 
   ghid_config_groups_changed();
@@ -2241,16 +1990,16 @@ REGISTER_ACTIONS (gtk_topwindow_action_list)
  * into the menu callbacks.  This function is called as new
  * accelerators are added when the menus are being built
  */
-static void ghid_check_special_key (const char *accel, const char *name)
+static void
+ghid_check_special_key (const char *accel, GtkAction *action,
+                        const Resource *node)
 {
   size_t len;
   unsigned int mods;
   unsigned int ind;
 
-  if ( accel == NULL || *accel == '\0' )
-    {
-      return ;
-    }
+  if (action == NULL || accel == NULL || *accel == '\0')
+    return ;
 
 #ifdef DEBUG_MENUS
   printf ("%s(\"%s\", \"%s\")\n", __FUNCTION__, accel, name);
@@ -2261,7 +2010,7 @@ static void ghid_check_special_key (const char *accel, const char *name)
     {
       mods |= GHID_KEY_ALT;
     }
-  if (strstr (accel, "<control>") )
+  if (strstr (accel, "<ctrl>") )
     {
       mods |= GHID_KEY_CONTROL;
     }
@@ -2299,14 +2048,15 @@ static void ghid_check_special_key (const char *accel, const char *name)
 
   if (ind > 0) 
     {
-      if (ind >= (sizeof (ghid_hotkey_actions) / sizeof (char *)) )
+      if (ind >= N_HOTKEY_ACTIONS)
 	{
 	  fprintf (stderr, "ERROR:  overflow of the ghid_hotkey_actions array.  Index = %d\n"
 		   "Please report this.\n", ind);
 	  exit (1);
 	}
 
-      ghid_hotkey_actions[ind] = g_strdup (name);
+      ghid_hotkey_actions[ind].action = action;
+      ghid_hotkey_actions[ind].node = node;
 #ifdef DEBUG_MENUS
       printf ("Adding \"special\" hotkey to ghid_hotkey_actions[%u] :"
 	      " %s (%s)\n", ind, accel, name);
@@ -2314,772 +2064,49 @@ static void ghid_check_special_key (const char *accel, const char *name)
     }
 }
 
-
-#define INDENT_INC 5
-
-static void
-ghid_append_action (const char * name, const char *stock_id, 
-		    const char *label, const char *accelerator,
-		    const char *tooltip)
+/*! \brief Finds the gpcb-menu.res file */
+const char *
+get_menu_filename (void)
 {
+  const char *rv = NULL;
+  char *home_pcbmenu = NULL;
 
-#ifdef DEBUG_MENUS
-  printf ("ghid_append_action(\"%s\", \"%s\", \"%s\",  \"%s\", \"%s\")\n",
-	  UNKNOWN (name), 
-	  UNKNOWN (stock_id), 
-	  UNKNOWN (label), 
-	  UNKNOWN (accelerator), 
-	  UNKNOWN (tooltip));
-#endif
-
-  accelerator = ghid_check_unique_accel (accelerator);
-
-  if ( (new_entries = (GtkActionEntry *)realloc (new_entries, 
-			       (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
+  /* homedir is set by the core */
+  if (homedir)
     {
-      fprintf (stderr, "ghid_append_action():  realloc of new_entries failed\n");
-      exit (1);
+      Message (_("Note:  home directory is \"%s\"\n"), homedir);
+      home_pcbmenu = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
+                             PCB_DIR_SEPARATOR_S, "gpcb-menu.res", NULL);
     }
-  
+  else
+    Message (_("Warning:  could not determine home directory\n"));
 
-  if ( (action_resources = (Resource **)realloc (action_resources,
-				    (menuitem_cnt + 1) * sizeof (Resource *))) == NULL)
-    {
-      fprintf (stderr, "ghid_append_action():  realloc of action_resources failed\n");
-      exit (1);
-    }
-  action_resources[menuitem_cnt] = NULL;
+  if (access ("gpcb-menu.res", R_OK) == 0)
+    rv = "gpcb-menu.res";
+  else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0) )
+    rv = home_pcbmenu;
+  else if (access (pcbmenu_path, R_OK) == 0)
+    rv = pcbmenu_path;
 
-  /* name, stock_id, label, accelerator, tooltip, callback */
-  new_entries[menuitem_cnt].name = strdup (name);
-  new_entries[menuitem_cnt].stock_id = (stock_id == NULL ? NULL : strdup (stock_id));
-  new_entries[menuitem_cnt].label = strdup (label);
-  new_entries[menuitem_cnt].accelerator = ( (accelerator == NULL || *accelerator == '\0')
-					    ? NULL : strdup (accelerator));
-  new_entries[menuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
-  new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
-
-  ghid_check_special_key (accelerator, name);
-  menuitem_cnt++;
+  free (home_pcbmenu);
+  return rv;
 }
 
-static void
-ghid_append_toggle_action (const char * name, const char *stock_id, 
-			   const char *label, const char *accelerator,
-			   const char *tooltip, int active)
-{
-
-  accelerator = ghid_check_unique_accel (accelerator);
-
-  if ( (new_toggle_entries = (GtkToggleActionEntry *)realloc (new_toggle_entries, 
-				      (tmenuitem_cnt + 1) * sizeof (GtkToggleActionEntry))) == NULL)
-    {
-      fprintf (stderr, "ghid_append_toggle_action():  realloc of new_toggle_entries failed\n");
-      exit (1);
-    }
-  
-
-  if ( (toggle_action_resources = (Resource **)realloc (toggle_action_resources,
-				    (tmenuitem_cnt + 1) * sizeof (Resource *))) == NULL)
-    {
-      fprintf (stderr, "ghid_append_toggle_action():  realloc of toggle_action_resources failed\n");
-      exit (1);
-    }
-  toggle_action_resources[tmenuitem_cnt] = NULL;
-
-  /* name, stock_id, label, accelerator, tooltip, callback */
-  new_toggle_entries[tmenuitem_cnt].name = strdup (name);
-  new_toggle_entries[tmenuitem_cnt].stock_id = (stock_id == NULL ? NULL : strdup (stock_id));
-  new_toggle_entries[tmenuitem_cnt].label = strdup (label);
-  new_toggle_entries[tmenuitem_cnt].accelerator = (accelerator == NULL ? NULL : strdup (accelerator));
-  new_toggle_entries[tmenuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
-  new_toggle_entries[tmenuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
-  new_toggle_entries[tmenuitem_cnt].is_active = active ? TRUE : FALSE;
-
-  ghid_check_special_key (accelerator, name);
-  tmenuitem_cnt++;
-}
-
-/*
- * Some keys need to be replaced by a name for the gtk accelerators to
- * work.  This table contains the translations.  The "in" character is
- * what would appear in gpcb-menu.res and the "out" string is what we
- * have to feed to gtk.  I was able to find these by using xev to find
- * the keycode and then looked at gtk+-2.10.9/gdk/keynames.txt (from the
- * gtk source distribution) to figure out the names that go with the 
- * codes.
- */
-typedef struct
-{
-  const char in;
-  const char *out;
-} KeyTable;
-static KeyTable key_table[] = 
-  {
-    {':', "colon"},
-    {'=', "equal"},
-    {'/', "slash"},
-    {'[', "bracketleft"},
-    {']', "bracketright"},
-    {'.', "period"},
-    {'|', "bar"}
-  };
-static int n_key_table = sizeof (key_table) / sizeof (key_table[0]);
-
-static void
-add_resource_to_menu (const char * menu, const Resource * node, int indent)
-{
-  int i, j;
-  const char *v;
-  const Resource *r;
-  char tmps[32];
-  char accel[64];
-  int accel_n;
-  char *menulabel = NULL;
-  char ch[2];
-  char m = '\0';
-  char *cname = NULL;
-
-  ch[1] = '\0';
-
-  for (i = 0; i < node->c; i++)
-    switch (resource_type (node->v[i]))
-      {
-      case 101:		/* named subnode */
-	add_resource_to_menu (node->v[i].name, node->v[i].subres, 
-			      indent + INDENT_INC);
-	break;
-
-      case 1:			/* unnamed subres */
-	accel[0] = '\0';
-	/* remaining number of chars available in accel (- 1 for '\0')*/
-	accel_n = sizeof (accel) - 1;
-	/* This is a menu choice.  The first value in the unnamed
-	 * subres is what the menu choice gets called.
-	 *
-	 * This may be a top level menu on the menubar,
-	 * a menu choice under, say the File menu, or
-	 * a menu choice under a submenu of a menu choice.
-	 *
-	 * We need to pick off an "m" named resource which is
-	 * the menu accelerator key and an "a" named subresource
-	 * which contains the information for the hotkey.
-	 */
-	if ((v = resource_value (node->v[i].subres, "m")))
-	  {
-#ifdef DEBUG_MENUS
-	    printf ("    found resource value m=\"%s\"\n", v);
-#endif
-	    m = *v;
-	  }
-	if ((r = resource_subres (node->v[i].subres, "a")))
-	  {
-	    /* for the accelerator, it has 2 values  like
-	     *
-	     * a={"Ctrl-Q" "Ctrl<Key>q"}
-	     * The first one is what's displayed in the menu and the
-	     * second actually defines the hotkey.  Actually, the
-	     * first value is only used by the lesstif HID and is
-	     * ignored by the gtk HID.  The second value is used by both.
-	     *
-	     * We have to translate some strings.  See
-	     * gtk+-2.10.9/gdk/keynames.txt from the gtk distribution
-	     * as well as the output from xev(1).
-	     *
-	     * Modifiers:
-	     *
-	     * "Ctrl" -> "<control>"
-	     * "Shift" -> "<shift>"
-	     * "Alt" -> "<alt>"
-	     * "<Key>" -> ""
-	     *
-	     * keys:
-	     *
-	     * " " -> ""
-	     * "Enter" -> "Return"
-	     *
-	     */
-	    const char *p;
-	    int j;
-	    enum {KEY, MOD} state;
-
-	    state = MOD;
-#ifdef DEBUG_MENUS
-	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\" ", 
-		    r, r->v[0].value, r->v[1].value);
-#endif
-	    p = r->v[1].value;
-	    while (*p != '\0')
-	      {
-		switch (state)
-		  {
-		  case MOD:
-		    if (*p == ' ')
-		      {
-			p++;
-		      }
-		    else if (strncmp (p, "<Key>", 5) == 0)
-		      {
-			state = KEY;
-			p += 5;
-		      }
-		    else if (strncmp (p, "Ctrl", 4) == 0)
-		      {
-			strncat (accel, "<control>", accel_n);
-			accel_n -= strlen ("<control>");
-			p += 4;
-		      }
-		    else if (strncmp (p, "Shift", 5) == 0)
-		      {
-			strncat (accel, "<shift>", accel_n);
-			accel_n -= strlen ("<shift>");
-			p += 5;
-		      }
-		    else if (strncmp (p, "Alt", 3) == 0)
-		      {
-			strncat (accel, "<alt>", accel_n);
-			accel_n -= strlen ("<alt>");
-			p += 3;
-		      }
-		    else
-		      {
-			static int gave_msg = 0;
-			Message (_("Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n"),
-				 p);
-			
-			if (! gave_msg) 
-			  {
-			    gave_msg = 1;
-			    Message (_("Format is:\n"
-				     "modifiers<Key>k\n"
-				     "where \"modifiers\" is a space separated list of key modifiers\n"
-				     "and \"k\" is the name of the key.\n"
-				     "Allowed modifiers are:\n"
-				     "   Ctrl\n"
-				     "   Shift\n"
-				     "   Alt\n"
-				     "Please note that case is important.\n"));
-			  }
-			/* skip processing the rest */
-			accel[0] = '\0';
-			accel_n = sizeof (accel) - 1;
-			p += strlen (p);
-		      }
-		    break;
-
-		  case KEY:
-		    if (strncmp (p, "Enter", 5) == 0)
-		      {
-			strncat (accel, "Return", accel_n);
-			accel_n -= strlen ("Return");
-			p += 5;
-		      }
-		    else
-		      {
-			ch[0] = *p;
-			for (j = 0; j < n_key_table; j++)
-			  {
-			    if ( *p == key_table[j].in)
-			      {
-				strncat (accel, key_table[j].out, accel_n);
-				accel_n -= strlen (key_table[j].out);
-				j = n_key_table;
-			      }
-			  }
-			
-			if (j == n_key_table)
-			  {
-			    strncat (accel, ch, accel_n);
-			    accel_n -= strlen (ch);
-			  }
-		    
-			p++;
-		      }
-		    break;
-
-		  }
-
-		if (G_UNLIKELY (accel_n < 0))
-		  {
-		    accel_n = 0;
-		    Message ("Accelerator \"%s\" is too long to be parsed.\n", r->v[1].value);
-		    accel[0] = '\0';
-		    accel_n = 0;
-		    /* skip processing the rest */
-		    p += strlen (p);
-		  }
-	      }
-#ifdef DEBUG_MENUS
-	    printf ("\n    translated = \"%s\"\n", accel);
-#endif
-	  }
-	v = "button";
-
-	/* Now look for the first unnamed value (not a subresource) to
-	 * figure out the name of the menu or the menuitem.
-	 *
-	 * After this loop, v will be the name of the menu or menuitem.
-	 *
-	 */
-	for (j = 0; j < node->v[i].subres->c; j++)
-	  if (resource_type (node->v[i].subres->v[j]) == 10)
-	    {
-	      v = node->v[i].subres->v[j].value;
-	      break;
-	    }
-	
-	if (m == '\0')
-	  menulabel = strdup (v);
-	else
-	  {
-	    /* we've been given a mneumonic so we need to insert an
-	     * "_" into the label.  For example if the string is
-	     * "Quit Program" and we have m=Q, we'd need to produce
-	     * "_Quit Program".
-	     */
-	    char *s1, *s2;
-	    size_t l;
-
-	    l = strlen (_(v)) + 2;
-#ifdef DEBUG_MENUS
-	    printf ("allocate %ld bytes\n", l);
-#endif
-	    if ( (menulabel = (char *) malloc (l)) == NULL)
-	      {
-		fprintf (stderr, "add_resource_to_menu():  malloc failed\n");
-		exit (1);
-	      }
-	    
-	    s1 = menulabel;
-	    s2 = _(v);
-	    while (*s2 != '\0')
-	      {
-		if (*s2 == m)
-		  {
-		    /* add the underscore and quit looking for more 
-		     * matches since we only want to add 1 underscore
-		     */
-		    *s1 = '_';
-		    s1++;
-		    m = '\0';
-		  }
-		*s1 = *s2;
-		s1++;
-		s2++;
-	      }
-	    *s1 = '\0';
-	  }
-#ifdef DEBUG_MENUS
-	printf ("v = \"%s\", label = \"%s\"\n", v, menulabel);
-#endif
-	/* if the subresource we're processing also has unnamed
-	 * subresources then this is either a menu (that goes on the
-	 * menu bar) or it is a submenu.  It isn't a menuitem.
-	 */
-	if (node->v[i].subres->flags & FLAG_S)
-	  {
-	    /* This is a menu */
-
-	    /* add menus to the same entries list as the "normal"
-	     * menuitems.  We'll just use NULL for what happens so the
-	     * callback doesn't have anything to do.
-	     */
-
-	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
-	    cname = strdup (tmps);
-
-	    /* add to the action entries */
-	    /* name, stock_id, label, accelerator, tooltip */
-	    ghid_append_action (tmps, NULL, menulabel, accel, NULL);
-
-	    /* and add to the user interfact XML description */
-	    ghid_ui_info_indent (indent);
-	    ghid_ui_info_append ("<menu action='");
-	    ghid_ui_info_append (tmps);
-	    ghid_ui_info_append ("'>\n");
-
-
-	    /* recursively add more submenus or menuitems to this
-	     * menu/submenu
-	     */
-	    add_resource_to_menu ("sub menu", node->v[i].subres, 
-				  indent + INDENT_INC);
-	    ghid_ui_info_indent (indent);
-
-	    /* and close this menu */
-	    ghid_ui_info_append ("</menu>\n");
-	  }
-	else
-	  {
-	    /* We are in a specific menu choice and need to figure out
-	     * if it is a "normal" one 
-	     * or if there is some condtion under which it is checked
-	     * or if it has sensitive=false which is simply a label 
-	     */
-	    
-	    char *checked = resource_value (node->v[i].subres, "checked");
-	    char *label = resource_value (node->v[i].subres, "sensitive");
-	    char *tip = resource_value (node->v[i].subres, "tip");
-	    if (checked)
-	      {
-		/* We have the "checked=" named value for this
-		 * menuitem.  Now see if it is
-		 *   checked=foo
-		 * or
-		 *   checked=foo,bar
-		 *
-		 * where the former is just a binary flag and the
-		 * latter is checking a flag against a value
-		 */
-#ifdef DEBUG_MENUS
-		printf ("Found a \"checked\" menu choice \"%s\", \"%s\"\n", v, checked);
-#endif
-		if (strchr (checked, ','))
-		  {
-		    /* we're comparing a flag against a value */
-#ifdef DEBUG_MENUS
-		    printf ("Found checked comparing a flag to a value\n");
-#endif
-		  }
-		else
-		  {
-		    /* we're looking at a binary flag */
-		    /* name, stock_id, label, accelerator, tooltip, callback, is_active
-		    printf ("Found checked using a flag as a binary\n");
-
-		     */
-		  }
-
-		sprintf (tmps, "%s%d", TMENUITEM, tmenuitem_cnt);
-		cname = strdup (tmps);
-
-		/* add to the action entries */
-		/* name, stock_id, label, accelerator, tooltip, is_active */
-		ghid_append_toggle_action (tmps, NULL, menulabel, accel, tip, 1);
-
-		ghid_ui_info_indent (indent);
-		ghid_ui_info_append ("<menuitem action='");
-		ghid_ui_info_append (tmps);
-		ghid_ui_info_append ("'/>\n");
-
-		toggle_action_resources[tmenuitem_cnt-1] = node->v[i].subres;
-		
-	      }
-	    else if (label && strcmp (label, "false") == 0)
-	      {
-		/* we have sensitive=false so just put a label in the
-		 * GUI  -- FIXME -- actually do something here....
-		 */
-	      }
-	    else
-	      {
-		/*
-		 * Here we are finally at the rest of an actual
-		 * menuitem.  So, we need to get the subresource
-		 * that has all the actions in it (actually, it will
-		 * be the entire subresource that defines the
-		 * menuitem, the callbacks later will pick out the
-		 * actions part.
-		 *
-		 * We add this resource to an array of action
-		 * resources that is used by the main menu callback to
-		 * figure out what really needs to be done.
-		 */
-
-		sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
-		cname = strdup (tmps);
-
-		/* add to the action entries */
-		/* name, stock_id, label, accelerator, tooltip */
-		ghid_append_action (tmps, NULL, menulabel, accel, tip);
-
-		ghid_ui_info_indent (indent);
-		ghid_ui_info_append ("<menuitem action='");
-		ghid_ui_info_append (tmps);
-		ghid_ui_info_append ("'/>\n");
-
-
-		action_resources[menuitem_cnt-1] = node->v[i].subres;
-
-#ifdef DEBUG_MENUS
-		/* Print out the actions to help with debugging */
-		{
-		  int vi;
-		  Resource *mynode  = node->v[i].subres;
-		 
-		  /* Start at the 2nd sub resource because the first
-		   * is the text that shows up in the menu.
-		   * 
-		   * We're looking for the unnamed values since those
-		   * are the ones which are actions.
-		   */
-		  for (vi = 1; vi < mynode->c; vi++)
-		    if (resource_type (mynode->v[vi]) == 10)
-		      printf("   action value=\"%s\"\n", mynode->v[vi].value);
-		}
-#endif
-
-		
-	      }
-	    
-
-	    /* now keep looking over our menuitem to see if there is
-	     * any more work.
-	     */
-	    for (j = 0; j < node->v[i].subres->c; j++)
-	      switch (resource_type (node->v[i].subres->v[j]))
-		{
-		case 110:	/* named value = X resource */
-		  {
-		    const char *n = node->v[i].subres->v[j].name;
-		    /* allow fg and bg to be abbreviations for
-		     * foreground and background
-		     */
-		    if (strcmp (n, "fg") == 0)
-		      n = "foreground";
-		    if (strcmp (n, "bg") == 0)
-		      n = "background";
-
-		    /* ignore special named values (m, a, sensitive) */
-		    if (strcmp (n, "m") == 0
-			|| strcmp (n, "a") == 0
-			|| strcmp (n, "sensitive") == 0
-			|| strcmp (n, "tip") == 0
-			)
-		      break;
-
-		    /* log checked and active special values */
-		    if (strcmp (n, "checked") == 0)
-		      {
-#ifdef DEBUG_MENUS
-			printf ("%s is checked\n", node->v[i].subres->v[j].value);
-#endif
-			note_toggle_flag (new_toggle_entries[tmenuitem_cnt-1].name,
-					  GHID_FLAG_CHECKED,
-					  node->v[i].subres->v[j].value);
-			break;
-		      }
-		    if (strcmp (n, "active") == 0)
-		      {
-			if (cname != NULL) 
-			  {
-			    note_toggle_flag (cname,
-					      GHID_FLAG_ACTIVE,
-					      node->v[i].subres->v[j].value);
-			  }
-			else
-			  {
-			    printf ("WARNING: %s cname == NULL\n", __FUNCTION__);
-			  }
-			break;
-		      }
-
-		    /* if we got this far it is supposed to be an X
-		     * resource.  For now ignore it and warn the user
-		     */
-		    Message (_("The gtk gui currently ignores \"%s\""
-				"as part of a menuitem resource.\n"
-				"Feel free to provide patches\n"),
-			     node->v[i].subres->v[j].value);
-		  }
-		  break;
-		}
-
-	  }
-	break;
-
-      case 10:			/* unnamed value */
-	/* in the resource file we may have something like:
-	 *
-	 * {File
-	 *   {Open OpenAction()}
-	 *   {Close CloseAction()}
-	 *   -
-	 *   {"Some Choice" MyAction()}
-	 *   {"Some Other Choice" MyOtherAction()}
-	 *   @foo
-	 *   {Quit QuitAction()}
-	 *  }
-	 *
-	 * If we get here in the code it is becuase we found the "-"
-	 * or the "@foo".  
-	 * 
-	 */
-#ifdef DEBUG_MENUS
-	printf ("resource_type for node #%d is 10 (unnamed value).  value=\"%s\"\n", 
-		i, node->v[i].value);
-#endif
-
-	if (node->v[i].value[0] == '@')
-	  {
-	    if (strcmp (node->v[i].value, "@layerview") == 0)
-	      {
-                gchar *tmp = ghid_layer_selector_get_view_xml
-                  (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
-                ghid_ui_info_append (tmp);
-                g_free (tmp);
-	      }
-	    else if (strcmp (node->v[i].value, "@layerpick") == 0)
-	      {
-                gchar *tmp = ghid_layer_selector_get_pick_xml
-                  (GHID_LAYER_SELECTOR (ghidgui->layer_selector));
-                ghid_ui_info_append (tmp);
-                g_free (tmp);
-	      }
-	    else if (strcmp (node->v[i].value, "@routestyles") == 0)
-	      {
-		int i;
-		char tmpid[40];
-		for (i = 0 ; i <  N_ROUTE_STYLES; i++)
-		  {
-		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
-			     ROUTESTYLE, i);
-		    ghid_ui_info_indent (indent);
-		    ghid_ui_info_append (tmpid);
-		  }
-	      }
-	    else
-	      {
-		Message (_("GTK GUI currently ignores \"%s\" in the menu\n"
-			"resource file.\n"), node->v[i].value);
-	      }
-	    
-	  }
-	
-	else if (strcmp (node->v[i].value, "-") == 0)
-	  {
-	    ghid_ui_info_indent (indent);
-	    ghid_ui_info_append ("<separator/>\n");
-	  }
-	else if (i > 0)
-	  {
-	    /* This is where you get with an action-less menuitem.
-	     * It is really just useful when you're starting to build
-	     * a new menu and you're looking to get the layout
-	     * right.
-	     */
-	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
-	    cname = strdup (tmps);
-	    
-	    /* add to the action entries 
-	     * name, stock_id, label, accelerator, tooltip 
-	     * Note that we didn't get the mneumonic added in here,
-	     * but since this is really for a dummy menu (no
-	     * associated actions), I'm not concerned.
-	     */
-	    
-	    ghid_append_action (tmps, NULL, node->v[i].value, accel, NULL);
-
-	    ghid_ui_info_indent (indent);
-	    ghid_ui_info_append ("<menuitem action='");
-	    ghid_ui_info_append (tmps);
-	    ghid_ui_info_append ("'/>\n");
-	    
-	    action_resources[menuitem_cnt-1] = NULL;
-
-	  }
-	break;
-      }
-  
-  if (cname != NULL)
-    free (cname);
-
-  if (menulabel != NULL)
-    free (menulabel);
-}
-
-
-static void
-ghid_ui_info_indent (int indent)
-{
-  int i;
-
-  for (i = 0; i < indent ; i++)
-    {
-      ghid_ui_info_append (" ");
-    }
-}
-
-/* 
- *appends a string to the ui_info string 
- * This function is used 
- */
-
-static void
-ghid_ui_info_append (const gchar * newone)
-{
-  gchar *p;
-
-  if (new_ui_info_sz == 0) 
-    {
-      new_ui_info_sz = 1024;
-      new_ui_info = (gchar *)leaky_calloc (new_ui_info_sz, sizeof (gchar));
-    }
-
-  while (strlen (new_ui_info) + strlen (newone) + 1 > new_ui_info_sz)
-    {
-      size_t n;
-      gchar * np;
-
-      n = new_ui_info_sz + 1024;
-      if ((np = (gchar *)leaky_realloc (new_ui_info, n)) == NULL)
-	{
-	  fprintf (stderr, "ghid_ui_info_append():  realloc of size %ld failed\n",
-		   (long int) n);
-	  exit (1);
-	}
-      new_ui_info = np;
-      new_ui_info_sz = n;
-    }
-
-  p = new_ui_info + strlen (new_ui_info) ;
-  while (*newone != '\0')
-    {
-      *p = *newone;
-      p++;
-      newone++;
-    }
-  
-  *p = '\0';
-}
-
-
-static void
+static GtkWidget *
 ghid_load_menus (void)
 {
   const char *filename;
   const Resource *r = 0, *bir;
-  char *home_pcbmenu;
   const Resource *mr;
+  GtkWidget *menu_bar = NULL;
   int i;
 
-  for (i = 0; i < sizeof (ghid_hotkey_actions) / sizeof (char *) ; i++)
+  for (i = 0; i < N_HOTKEY_ACTIONS; i++)
     {
-      ghid_hotkey_actions[i] = NULL;
+      ghid_hotkey_actions[i].action = NULL;
+      ghid_hotkey_actions[i].node = NULL;
     }
  
-  /* homedir is set by the core */
-  home_pcbmenu = NULL;
-  if (homedir == NULL)
-    {
-      Message (_("Warning:  could not determine home directory\n"));
-    }
-  else
-    {
-      Message (_("Note:  home directory is \"%s\"\n"), homedir);
-      home_pcbmenu = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
-                  PCB_DIR_SEPARATOR_S, "gpcb-menu.res", NULL);
-    }
-
-  if (access ("gpcb-menu.res", R_OK) == 0)
-    filename = "gpcb-menu.res";
-  else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0) )
-    filename = home_pcbmenu;
-  else if (access (pcbmenu_path, R_OK) == 0)
-    filename = pcbmenu_path;
-  else
-    filename = 0;
-
   bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
     {
@@ -3087,15 +2114,11 @@ ghid_load_menus (void)
       exit(1);
     }
 
+  filename = get_menu_filename ();
   if (filename)
     {
       Message ("Loading menus from %s\n", filename);
       r = resource_parse (filename, 0);
-    }
-
-  if (home_pcbmenu != NULL) 
-    {
-       free (home_pcbmenu);
     }
 
   if (!r)
@@ -3110,55 +2133,36 @@ ghid_load_menus (void)
     
   if (mr)
     {
-      ghid_ui_info_append ("<ui>\n");
-      ghid_ui_info_indent (INDENT_INC);
-      ghid_ui_info_append ("<menubar name='MenuBar'>\n");
-      add_resource_to_menu ("Initial Call", mr, 2*INDENT_INC);
-      ghid_ui_info_indent (INDENT_INC);
-      ghid_ui_info_append ("</menubar>\n");
+      menu_bar = ghid_main_menu_new (G_CALLBACK (ghid_menu_cb),
+                                     ghid_check_special_key);
+      ghid_main_menu_add_resource (GHID_MAIN_MENU (menu_bar), mr);
     }
 
   mr = resource_subres (r, "PopupMenus");
   if (!mr)
     mr = resource_subres (bir, "PopupMenus");
-   
+
   if (mr)
     {
       int i;
-
       for (i = 0; i < mr->c; i++)
-	{
-	  if (resource_type (mr->v[i]) == 101)
-	    {
-	      /* This is a named resource which defines a popup menu */
-	      ghid_ui_info_indent (INDENT_INC);
-	      ghid_ui_info_append ("<popup name='");
-	      ghid_ui_info_append (mr->v[i].name);
-	      ghid_ui_info_append ("'>\n");
-	      add_resource_to_menu ("Initial Call", mr->v[i].subres, 
-				    2*INDENT_INC);
-	      ghid_ui_info_indent (INDENT_INC);
-	      ghid_ui_info_append ("</popup>\n");
-	    }
-	  else
-	    {
-	    }
-	}
+        if (resource_type (mr->v[i]) == 101)
+          /* This is a named resource which defines a popup menu */
+          ghid_main_menu_add_popup_resource (GHID_MAIN_MENU (menu_bar),
+                                             mr->v[i].name, mr->v[i].subres);
     }
 
-    ghid_ui_info_append ("</ui>\n");
-
 #ifdef DEBUG_MENUS
-      printf ("Finished loading menus.  ui_info = \n");
-      printf ("%s\n", new_ui_info);
+   puts ("Finished loading menus.");
 #endif
 
-  mr = resource_subres (r, "Mouse");
-  if (!mr)
-    mr = resource_subres (bir, "Mouse");
-  if (mr)
-    load_mouse_resource (mr);
+    mr = resource_subres (r, "Mouse");
+    if (!mr)
+      mr = resource_subres (bir, "Mouse");
+    if (mr)
+      load_mouse_resource (mr);
 
+  return menu_bar;
 }
 
 /* ------------------------------------------------------------ */

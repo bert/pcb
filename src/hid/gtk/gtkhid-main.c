@@ -1937,8 +1937,7 @@ button number must be specified as the second argument.
 static int
 Popup (int argc, char **argv, Coord x, Coord y)
 {
-  GtkWidget *menu;
-  char *element;
+  GtkMenu *menu;
   guint button;
 
   if (argc != 1 && argc != 2)
@@ -1949,18 +1948,7 @@ Popup (int argc, char **argv, Coord x, Coord y)
   else
     button = atoi (argv[1]);
 
-  if ( (element = (char *) malloc ( (strlen (argv[0]) + 2) * sizeof (char))) == NULL )
-    {
-      fprintf (stderr, _("Popup():  malloc failed\n"));
-      exit (1);
-    }
-
-  sprintf (element, "/%s", argv[0]);
-  printf (_("Loading popup \"%s\". Button = %u\n"), element, button);
-
-  menu = gtk_ui_manager_get_widget (ghidgui->ui_manager, element);
-  free (element);
-
+  menu = ghid_main_menu_get_popup (GHID_MAIN_MENU (ghidgui->menu_bar), argv[0]);
   if (! GTK_IS_MENU (menu))
     {
       Message (_("The specified popup menu \"%s\" has not been defined.\n"), argv[0]);
@@ -1970,7 +1958,7 @@ Popup (int argc, char **argv, Coord x, Coord y)
     {
       ghidgui->in_popup = TRUE;
       gtk_widget_grab_focus (ghid_port.drawing_area);
-      gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 
+      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 0, 
 		      gtk_get_current_event_time());
     }
   return 0;

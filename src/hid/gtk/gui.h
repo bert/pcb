@@ -37,6 +37,7 @@
 
 #include <gtk/gtk.h>
 #include "ghid-coord-entry.h"
+#include "ghid-main-menu.h"
 #include "gui-pinout-preview.h"
 
 
@@ -92,7 +93,6 @@
 
 typedef struct
 {
-  GtkUIManager *ui_manager;
   GtkActionGroup *main_actions,
     *change_selected_actions, *displayed_name_actions;
 
@@ -107,7 +107,7 @@ typedef struct
     *menu_hbox, *compact_vbox, *compact_hbox, *position_hbox, *label_hbox,
     *mode_buttons0_vbox, *mode_buttons1_hbox, *mode_buttons1_vbox,
     *mode_buttons0_frame, *mode_buttons1_frame, *mode_buttons0_frame_vbox;
-  GtkWidget *layer_selector;
+  GtkWidget *menu_bar, *layer_selector;
 
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
@@ -221,8 +221,6 @@ void ghid_interface_set_sensitive (gboolean sensitive);
 void ghid_interface_input_signals_connect (void);
 void ghid_interface_input_signals_disconnect (void);
 
-void ghid_set_menu_toggle_button (GtkActionGroup * ag,
-				  gchar * name, gboolean state);
 void ghid_pcb_saved_toggle_states_set (void);
 void ghid_sync_with_new_layout (void);
 
@@ -272,13 +270,13 @@ void ghid_port_ranges_scale (void);
 gboolean ghid_note_event_location (GdkEventButton * ev);
 gboolean have_crosshair_attachments (void);
 gboolean ghid_port_key_press_cb (GtkWidget * drawing_area,
-				 GdkEventKey * kev, GtkUIManager * ui);
+				 GdkEventKey * kev, gpointer data);
 gboolean ghid_port_key_release_cb (GtkWidget * drawing_area,
-				   GdkEventKey * kev, GtkUIManager * ui);
+				   GdkEventKey * kev, gpointer data);
 gboolean ghid_port_button_press_cb (GtkWidget * drawing_area,
-				    GdkEventButton * ev, GtkUIManager * ui);
+				    GdkEventButton * ev, gpointer data);
 gboolean ghid_port_button_release_cb (GtkWidget * drawing_area,
-				      GdkEventButton * ev, GtkUIManager * ui);
+				      GdkEventButton * ev, gpointer data);
 
 
 gint ghid_port_window_enter_cb (GtkWidget * widget,

@@ -199,7 +199,7 @@ ghid_idle_cb (gpointer data)
 
 gboolean
 ghid_port_key_release_cb (GtkWidget * drawing_area, GdkEventKey * kev,
-			  GtkUIManager * ui)
+			  gpointer data)
 {
   gint ksym = kev->keyval;
 
@@ -225,7 +225,7 @@ ghid_port_key_release_cb (GtkWidget * drawing_area, GdkEventKey * kev,
 
 gboolean
 ghid_port_key_press_cb (GtkWidget * drawing_area,
-			GdkEventKey * kev, GtkUIManager * ui)
+			GdkEventKey * kev, gpointer data)
 {
   ModifierKeysState mk;
   gint  ksym = kev->keyval;
@@ -332,7 +332,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 
 gboolean
 ghid_port_button_press_cb (GtkWidget * drawing_area,
-			   GdkEventButton * ev, GtkUIManager * ui)
+			   GdkEventButton * ev, gpointer data)
 {
   ModifierKeysState mk;
   GdkModifierType state;
@@ -357,7 +357,7 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
 
 gboolean
 ghid_port_button_release_cb (GtkWidget * drawing_area,
-			     GdkEventButton * ev, GtkUIManager * ui)
+			     GdkEventButton * ev, gpointer data)
 {
   ModifierKeysState mk;
   GdkModifierType state;
