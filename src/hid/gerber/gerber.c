@@ -521,6 +521,7 @@ gerber_do_export (HID_Attr_Val * options)
   save_thindraw = PCB->Flags;
   CLEAR_FLAG(THINDRAWFLAG, PCB);
   CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
+  CLEAR_FLAG(CHECKPLANESFLAG, PCB);
 
   if (!options)
     {

@@ -198,6 +198,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   save_thindraw = PCB->Flags;
   CLEAR_FLAG(THINDRAWFLAG, PCB);
   CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
+  CLEAR_FLAG(CHECKPLANESFLAG, PCB);
 
   f = the_file;
 
