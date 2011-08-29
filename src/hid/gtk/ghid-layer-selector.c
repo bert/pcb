@@ -531,11 +531,6 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   new_layer->view_action = gtk_toggle_action_new (vname, name, NULL, NULL);
   gtk_toggle_action_set_active (new_layer->view_action, visible);
 
-  /* Select new layer, if we need */
-  if (activatable
-      && !gtk_tree_selection_get_selected (ls->selection, NULL, NULL))
-    gtk_tree_selection_select_iter (ls->selection, &iter);
-
   /* Determine keyboard accelerators */
   for (i = 0; i < 20; ++i)
     if (ls->accel_available[i])
