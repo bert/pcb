@@ -33,7 +33,7 @@ enum {
 
 /*! \brief Columns used for internal data store */
 enum {
-  INDEX_COL,
+  STRUCT_COL,
   USER_ID_COL,
   VISIBLE_COL,
   COLOR_COL,
@@ -57,11 +57,7 @@ struct _GHidLayerSelector
 
   GtkActionGroup *action_group;
 
-  GtkToggleAction **view_actions;
-  GtkRadioAction  **pick_actions;
-  GtkTreeRowReference **rows;
   GSList *radio_group;
-  int max_actions;
   int n_actions;
 
   gboolean last_activatable;
@@ -74,6 +70,13 @@ struct _GHidLayerSelectorClass
 
   void (* select_layer) (GHidLayerSelector *, gint);
   void (* toggle_layer) (GHidLayerSelector *, gint);
+};
+
+struct _layer
+{
+  GtkToggleAction *view_action;
+  GtkRadioAction  *pick_action;
+  GtkTreeRowReference *rref;
 };
 
 /*! \brief Flip the visibility state of a given layer 
@@ -90,12 +93,13 @@ struct _GHidLayerSelectorClass
 static void
 toggle_visibility (GHidLayerSelector *ls, GtkTreeIter *iter)
 {
-  gint idx;
+  struct _layer *ldata;
   gboolean toggle;
   gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), iter,
-                     VISIBLE_COL, &toggle, INDEX_COL, &idx, -1);
+                     VISIBLE_COL, &toggle, STRUCT_COL, &ldata, -1);
   gtk_list_store_set (ls->list_store, iter, VISIBLE_COL, !toggle, -1);
-  gtk_toggle_action_set_active (ls->view_actions[idx], !toggle);
+  if (ldata)
+    gtk_toggle_action_set_active (ldata->view_action, !toggle);
 }
 
 /*! \brief Decide if a GtkListStore entry is a layer or separator */
@@ -157,11 +161,12 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
   ls->prevent_recursion = TRUE;
   if (gtk_tree_selection_get_selected (selection, NULL, &iter))
     {
-      gint idx;
+      gint user_id;
+      struct _layer *ldata;
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), &iter,
-                          INDEX_COL, &idx, -1);
-      if (ls->pick_actions[0])
-        gtk_radio_action_set_current_value (ls->pick_actions[0], idx);
+                          STRUCT_COL, &ldata, USER_ID_COL, &user_id, -1);
+      if (ldata && ldata->pick_action)
+        gtk_radio_action_set_current_value (ldata->pick_action, user_id);
     }
   ls->prevent_recursion = FALSE;
 }
@@ -243,16 +248,24 @@ ghid_layer_selector_class_init (GHidLayerSelectorClass *klass)
 static void
 ghid_layer_selector_finalize (GObject *object)
 {
-  int i;
+  GtkTreeIter iter;
   GHidLayerSelector *ls = (GHidLayerSelector *) object;
 
   g_object_unref (ls->action_group);
-  g_free (ls->view_actions);
-  g_free (ls->pick_actions);
-  for (i = 0; i < ls->n_actions; ++i)
-    if (ls->rows[i])
-      gtk_tree_row_reference_free (ls->rows[i]);
-  g_free (ls->rows);
+
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  do
+    {
+      struct _layer *ldata;
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                          &iter, STRUCT_COL, &ldata, -1);
+
+      g_object_unref (G_OBJECT (ldata->pick_action));
+      g_object_unref (G_OBJECT (ldata->view_action));
+      gtk_tree_row_reference_free (ldata->rref);
+      g_free (ldata);
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 
   G_OBJECT_CLASS (ghid_layer_selector_parent_class)->finalize (object);
 }
@@ -309,7 +322,7 @@ ghid_layer_selector_new (void)
   GHidLayerSelector *ls = g_object_new (GHID_LAYER_SELECTOR_TYPE, NULL);
 
   /* action index, active, color, text, font, is_separator */
-  ls->list_store = gtk_list_store_new (N_COLS, G_TYPE_INT, G_TYPE_INT,
+  ls->list_store = gtk_list_store_new (N_COLS, G_TYPE_POINTER, G_TYPE_INT,
                                        G_TYPE_BOOLEAN, G_TYPE_STRING,
                                        G_TYPE_STRING, G_TYPE_STRING,
                                        G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
@@ -324,10 +337,6 @@ ghid_layer_selector_new (void)
   ls->action_group = gtk_action_group_new ("LayerSelector");
   ls->prevent_recursion = FALSE;
   ls->n_actions = 0;
-  ls->max_actions = INITIAL_ACTION_MAX;
-  ls->view_actions = g_malloc0 (ls->max_actions * sizeof (*ls->view_actions));
-  ls->pick_actions = g_malloc0 (ls->max_actions * sizeof (*ls->pick_actions));
-  ls->rows = g_malloc0 (ls->max_actions * sizeof (*ls->rows));
 
   gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (ls),
                                         tree_view_separator_func,
@@ -372,6 +381,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                gboolean visible,
                                gboolean activatable)
 {
+  struct _layer *new_layer = NULL;
   gchar *pname, *vname, *paccel, *vaccel;
   gboolean new_iter = TRUE;
   gboolean last_activatable = TRUE;
@@ -408,12 +418,14 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
           /* Add separator between activatable/non-activatable boundaries */
           gtk_list_store_append (ls->list_store, &iter);
           gtk_list_store_set (ls->list_store, &iter,
+                              STRUCT_COL, NULL,
                               SEPARATOR_COL, TRUE, -1);
         }
       /* Create new layer */
+      new_layer = malloc (sizeof (*new_layer));
       gtk_list_store_append (ls->list_store, &iter);
       gtk_list_store_set (ls->list_store, &iter,
-                          INDEX_COL, ls->n_actions,
+                          STRUCT_COL, new_layer,
                           USER_ID_COL, user_id,
                           VISIBLE_COL, visible,
                           COLOR_COL, color_string,
@@ -424,40 +436,15 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                           -1);
     }
   else
-    gtk_list_store_set (ls->list_store, &iter,
-                        VISIBLE_COL, visible,
-                        COLOR_COL, color_string,
-                        TEXT_COL, name,
-                        FONT_COL, activatable ? NULL : "Italic",
-                        ACTIVATABLE_COL, activatable,
-                        -1);
-
-  /* Unless we're adding new actions, we're done now */
-  if (!new_iter)
-    return;
-
-  if (activatable && ls->n_actions == 0)
-    gtk_tree_selection_select_iter (ls->selection, &iter);
-
-  /* Allocate new actions if necessary */
-  if (ls->n_actions == ls->max_actions)
     {
-      void *tmp[2];
-      ls->max_actions *= 2;
-      tmp[0] = g_realloc (ls->view_actions,
-                          ls->max_actions * sizeof (*ls->view_actions));
-      tmp[1] = g_realloc (ls->pick_actions,
-                          ls->max_actions * sizeof (*ls->pick_actions));
-      tmp[2] = g_realloc (ls->rows,
-                          ls->max_actions * sizeof (*ls->rows));
-      if (tmp[0] == NULL || tmp[1] == NULL || tmp[2] == NULL)
-        g_critical ("realloc failed allocating new actions");
-      else
-        {
-          ls->view_actions = tmp[0];
-          ls->pick_actions = tmp[1];
-          ls->rows = tmp[2];
-        }
+      gtk_list_store_set (ls->list_store, &iter,
+                          VISIBLE_COL, visible,
+                          COLOR_COL, color_string,
+                          TEXT_COL, name,
+                          FONT_COL, activatable ? NULL : "Italic",
+                          ACTIVATABLE_COL, activatable,
+                          -1);
+      return;
     }
 
   /* -- Setup new actions -- */
@@ -484,40 +471,43 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
 
   /* Create row reference for actions */
   path = gtk_tree_model_get_path (GTK_TREE_MODEL (ls->list_store), &iter);
-  ls->rows[ls->n_actions] = gtk_tree_row_reference_new
-                              (GTK_TREE_MODEL (ls->list_store), path);
+  new_layer->rref = gtk_tree_row_reference_new
+                      (GTK_TREE_MODEL (ls->list_store), path);
   gtk_tree_path_free (path);
 
   /* Create selection action */
   if (activatable)
     {
-      ls->pick_actions[ls->n_actions]
-        = gtk_radio_action_new (pname, name, NULL, NULL, ls->n_actions);
-      gtk_radio_action_set_group (ls->pick_actions[ls->n_actions],
-                                  ls->radio_group);
-      ls->radio_group
-         = gtk_radio_action_get_group (ls->pick_actions[ls->n_actions]);
+      new_layer->pick_action
+        = gtk_radio_action_new (pname, name, NULL, NULL, user_id);
+      gtk_radio_action_set_group (new_layer->pick_action, ls->radio_group);
+      ls->radio_group = gtk_radio_action_get_group (new_layer->pick_action);
       gtk_action_group_add_action_with_accel
         (ls->action_group,
-         GTK_ACTION (ls->pick_actions[ls->n_actions]),
+         GTK_ACTION (new_layer->pick_action),
          paccel);
-      g_signal_connect (ls->pick_actions[ls->n_actions], "toggled",
-                        G_CALLBACK (menu_pick_cb), ls->rows[ls->n_actions]);
+      g_signal_connect (new_layer->pick_action, "toggled",
+                        G_CALLBACK (menu_pick_cb), new_layer->rref);
     }
   else
-    ls->pick_actions[ls->n_actions] = NULL;
+    new_layer->pick_action = NULL;
 
   /* Create visibility action */
-  ls->view_actions[ls->n_actions] = gtk_toggle_action_new (vname, name,
-                                                           NULL, NULL);
-  gtk_toggle_action_set_active (ls->view_actions[ls->n_actions], visible);
+  new_layer->view_action = gtk_toggle_action_new (vname, name, NULL, NULL);
+  gtk_toggle_action_set_active (new_layer->view_action, visible);
 
   gtk_action_group_add_action_with_accel
     (ls->action_group,
-     GTK_ACTION (ls->view_actions[ls->n_actions]),
+     GTK_ACTION (new_layer->view_action),
      vaccel);
-  g_signal_connect (ls->view_actions[ls->n_actions], "toggled",
-                    G_CALLBACK (menu_view_cb), ls->rows[ls->n_actions]);
+  g_signal_connect (new_layer->view_action, "toggled",
+                    G_CALLBACK (menu_view_cb), new_layer->rref);
+
+
+  /* Select new layer, if we need */
+  if (activatable
+      && !gtk_tree_selection_get_selected (ls->selection, NULL, NULL))
+    gtk_tree_selection_select_iter (ls->selection, &iter);
 
   /* cleanup */
   if (vaccel)
@@ -531,6 +521,35 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   ls->n_actions++;
 }
 
+/*! \brief used internally */
+static gboolean
+pick_xml_foreach_func (GtkTreeModel *model, GtkTreePath *path,
+                       GtkTreeIter *iter, gpointer data)
+{
+  struct _layer *ldata;
+  GString *str = data;
+  
+  gtk_tree_model_get (model, iter, STRUCT_COL, &ldata, -1);
+  if (ldata && ldata->pick_action)
+    g_string_append_printf (str, "<menuitem action=\"%s\" />\n",
+                     gtk_action_get_name (GTK_ACTION (ldata->pick_action)));
+  return FALSE;
+}
+/*! \brief used internally */
+static gboolean
+view_xml_foreach_func (GtkTreeModel *model, GtkTreePath *path,
+                       GtkTreeIter *iter, gpointer data)
+{
+  struct _layer *ldata;
+  GString *str = data;
+  
+  gtk_tree_model_get (model, iter, STRUCT_COL, &ldata, -1);
+  if (ldata && ldata->view_action)
+    g_string_append_printf (str, "<menuitem action=\"%s\" />\n",
+                     gtk_action_get_name (GTK_ACTION (ldata->view_action)));
+  return FALSE;
+}
+ 
 /*! \brief Get the "Current Layer" menu description of a layer selector
  *  \par Function Description
  *  Returns the XML content used by Gtk in building the layer-selection
@@ -544,13 +563,9 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
 gchar *
 ghid_layer_selector_get_pick_xml (GHidLayerSelector *ls)
 {
-  int i;
   GString *str = g_string_new ("");
-
-  for (i = 0; i < ls->n_actions; ++i)
-    if (ls->pick_actions[i])
-      g_string_append_printf (str, "<menuitem action=\"LayerPick%d\" />\n", i);
-
+  gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
+                          pick_xml_foreach_func, str);
   return g_string_free (str, FALSE);
 }
 
@@ -567,13 +582,9 @@ ghid_layer_selector_get_pick_xml (GHidLayerSelector *ls)
 gchar *
 ghid_layer_selector_get_view_xml (GHidLayerSelector *ls)
 {
-  int i;
   GString *str = g_string_new ("");
-
-  for (i = 0; i < ls->n_actions; ++i)
-    if (ls->view_actions[i])
-      g_string_append_printf (str, "<menuitem action=\"LayerView%d\" />\n", i);
-
+  gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
+                          view_xml_foreach_func, str);
   return g_string_free (str, FALSE);
 }
 
@@ -780,11 +791,12 @@ ghid_layer_selector_delete_layers (GHidLayerSelector *ls,
   gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
   do
     {
+      struct _layer *ldata;
       gboolean sep;
-      gint user_id, idx;
+      gint user_id;
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                           &iter, USER_ID_COL, &user_id,
-                          INDEX_COL, &idx, SEPARATOR_COL, &sep, -1);
+                          STRUCT_COL, &ldata, SEPARATOR_COL, &sep, -1);
       /* gtk_list_store_remove will increment the iter for us, so we
        *  don't want to do it again in the loop condition */
       needs_inc = TRUE;
@@ -792,16 +804,14 @@ ghid_layer_selector_delete_layers (GHidLayerSelector *ls,
         {
           if (gtk_list_store_remove (ls->list_store, &iter))
             {
-              if (ls->view_actions[idx])
+              if (ldata->view_action)
                 gtk_action_group_remove_action (ls->action_group,
-                                                GTK_ACTION (ls->view_actions[idx]));
-              if (ls->pick_actions[idx])
+                                                GTK_ACTION (ldata->view_action));
+              if (ldata->pick_action)
                 gtk_action_group_remove_action (ls->action_group,
-                                                GTK_ACTION (ls->pick_actions[idx]));
-              gtk_tree_row_reference_free (ls->rows[idx]);
-              ls->view_actions[idx] = NULL;
-              ls->pick_actions[idx] = NULL;
-              ls->rows[idx] = NULL;
+                                                GTK_ACTION (ldata->pick_action));
+              gtk_tree_row_reference_free (ldata->rref);
+              g_free (ldata);
               needs_inc = FALSE;
             }
           else
