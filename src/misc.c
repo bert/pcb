@@ -706,7 +706,7 @@ hole_counting_callback (const BoxType * b, void *cl)
  * within_area.
  */
 void
-CountHoles (int *plated, int *unplated, BoxType *within_area)
+CountHoles (int *plated, int *unplated, const BoxType *within_area)
 {
   HoleCountStruct hcs = {0, 0};
 

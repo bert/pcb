@@ -59,7 +59,7 @@ bool IsLayerEmpty (LayerTypePtr);
 bool IsLayerNumEmpty (int);
 bool IsLayerGroupEmpty (int);
 bool IsPasteEmpty (int);
-void CountHoles (int *, int *, BoxType *);
+void CountHoles (int *, int *, const BoxType *);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
 void CenterDisplay (Coord, Coord);
 void SetFontInfo (FontTypePtr);
