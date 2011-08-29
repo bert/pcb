@@ -1113,7 +1113,7 @@ DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
 void
 DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 {
-  DrawLayerCommon (Layer, screen, false);
+  DrawLayerCommon (Layer, screen, true);
 }
 
 /* ---------------------------------------------------------------------------
