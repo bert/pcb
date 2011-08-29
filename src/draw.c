@@ -1072,18 +1072,15 @@ text_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * draws one non-copper layer
- */
 void
-DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
+DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 {
   struct poly_info info = {screen, Layer};
 
   /* print the non-clearing polys */
   r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
-  if (clear_pins && TEST_FLAG (CHECKPLANESFLAG, PCB))
+  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
 
   /* draw all visible lines this layer */
@@ -1110,12 +1107,6 @@ DrawLayerCommon (LayerTypePtr Layer, const BoxType * screen, bool clear_pins)
     }
 }
 
-void
-DrawLayer (LayerTypePtr Layer, const BoxType * screen)
-{
-  DrawLayerCommon (Layer, screen, true);
-}
-
 /* ---------------------------------------------------------------------------
  * draws one layer group.  If the exporter is not a GUI,
  * also draws the pins / pads / vias in this layer group.
@@ -1137,7 +1128,7 @@ DrawLayerGroup (int group, const BoxType *drawn_area)
           strcmp (Layer->Name, "route") == 0)
         rv = 0;
       if (layernum < max_copper_layer && Layer->On)
-        DrawLayerCommon (Layer, drawn_area, true);
+        DrawLayer (Layer, drawn_area);
     }
   if (n_entries > 1)
     rv = 1;
