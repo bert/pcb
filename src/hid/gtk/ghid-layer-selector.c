@@ -79,6 +79,33 @@ struct _layer
   GtkTreeRowReference *rref;
 };
 
+/*! \brief Deletes the action and accelerator from a layer */
+static void
+free_ldata (GHidLayerSelector *ls, struct _layer *ldata)
+{
+  if (ldata->pick_action)
+    {
+      gtk_action_disconnect_accelerator
+        (GTK_ACTION (ldata->pick_action));
+      gtk_action_group_remove_action (ls->action_group,
+                                    GTK_ACTION (ldata->pick_action));
+/* TODO: make this work without wrecking the radio action group
+ *           g_object_unref (G_OBJECT (ldata->pick_action)); 
+ *                   */
+    }
+  if (ldata->view_action)
+    {
+      gtk_action_disconnect_accelerator
+        (GTK_ACTION (ldata->view_action));
+      gtk_action_group_remove_action (ls->action_group,
+                            GTK_ACTION (ldata->view_action));
+      g_object_unref (G_OBJECT (ldata->view_action));
+    }
+  gtk_tree_row_reference_free (ldata->rref);
+  g_free (ldata);
+
+}
+
 /*! \brief Flip the visibility state of a given layer 
  *  \par Function Description
  *  Changes the internal toggle state and menu checkbox state
@@ -173,11 +200,11 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
 
 /*! \brief Callback for menu actions: sync layer selection list, emit signal */
 static void
-menu_view_cb (GtkToggleAction *action, GtkTreeRowReference *rref)
+menu_view_cb (GtkToggleAction *action, struct _layer *ldata)
 {
   GHidLayerSelector *ls;
-  GtkTreeModel *model = gtk_tree_row_reference_get_model (rref);
-  GtkTreePath *path = gtk_tree_row_reference_get_path (rref);
+  GtkTreeModel *model = gtk_tree_row_reference_get_model (ldata->rref);
+  GtkTreePath *path = gtk_tree_row_reference_get_path (ldata->rref);
   gboolean state = gtk_toggle_action_get_active (action);
   GtkTreeIter iter;
   gint user_id;
@@ -193,11 +220,11 @@ menu_view_cb (GtkToggleAction *action, GtkTreeRowReference *rref)
 
 /*! \brief Callback for menu actions: sync layer selection list, emit signal */
 static void
-menu_pick_cb (GtkRadioAction *action, GtkTreeRowReference *rref)
+menu_pick_cb (GtkRadioAction *action, struct _layer *ldata)
 {
   GHidLayerSelector *ls;
-  GtkTreeModel *model = gtk_tree_row_reference_get_model (rref);
-  GtkTreePath *path = gtk_tree_row_reference_get_path (rref);
+  GtkTreeModel *model = gtk_tree_row_reference_get_model (ldata->rref);
+  GtkTreePath *path = gtk_tree_row_reference_get_path (ldata->rref);
   GtkTreeIter iter;
   gint user_id;
 
@@ -437,14 +464,21 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
     }
   else
     {
+      /* If the row exists, we clear out its ldata to create
+       * a new action, accelerator and menu item. */
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), &iter,
+                          STRUCT_COL, &new_layer, -1);
+      free_ldata (ls, new_layer);
+      new_layer = malloc (sizeof (*new_layer));
+
       gtk_list_store_set (ls->list_store, &iter,
+                          STRUCT_COL, new_layer,
                           VISIBLE_COL, visible,
                           COLOR_COL, color_string,
                           TEXT_COL, name,
                           FONT_COL, activatable ? NULL : "Italic",
                           ACTIVATABLE_COL, activatable,
                           -1);
-      return;
     }
 
   /* -- Setup new actions -- */
@@ -487,7 +521,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
          GTK_ACTION (new_layer->pick_action),
          paccel);
       g_signal_connect (new_layer->pick_action, "toggled",
-                        G_CALLBACK (menu_pick_cb), new_layer->rref);
+                        G_CALLBACK (menu_pick_cb), new_layer);
     }
   else
     new_layer->pick_action = NULL;
@@ -786,44 +820,44 @@ ghid_layer_selector_delete_layers (GHidLayerSelector *ls,
                                    gboolean (*callback)(int user_id))
 {
   GtkTreeIter iter, last_iter;
-  gboolean needs_inc;
-  gboolean was_separator = FALSE;
-  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
-  do
+ 
+  gboolean iter_valid =
+    gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  while (iter_valid)
     {
       struct _layer *ldata;
-      gboolean sep;
+      gboolean sep, was_sep = FALSE;
       gint user_id;
-      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
-                          &iter, USER_ID_COL, &user_id,
-                          STRUCT_COL, &ldata, SEPARATOR_COL, &sep, -1);
-      /* gtk_list_store_remove will increment the iter for us, so we
-       *  don't want to do it again in the loop condition */
-      needs_inc = TRUE;
-      if (!sep && callback (user_id))
+
+      /* Find next iter to delete */
+      while (iter_valid)
         {
-          if (gtk_list_store_remove (ls->list_store, &iter))
-            {
-              if (ldata->view_action)
-                gtk_action_group_remove_action (ls->action_group,
-                                                GTK_ACTION (ldata->view_action));
-              if (ldata->pick_action)
-                gtk_action_group_remove_action (ls->action_group,
-                                                GTK_ACTION (ldata->pick_action));
-              gtk_tree_row_reference_free (ldata->rref);
-              g_free (ldata);
-              needs_inc = FALSE;
-            }
-          else
-            return;
-          if (was_separator)
+          gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                              &iter, USER_ID_COL, &user_id,
+                              STRUCT_COL, &ldata, SEPARATOR_COL, &sep, -1);
+          if (!sep && callback (user_id))
+            break;
+
+          /* save iter in case it's a bad separator */
+          was_sep = sep;
+          last_iter = iter;
+          /* iterate */
+          iter_valid =
+            gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter);
+        }
+
+      if (iter_valid)
+        {
+          /* remove preceeding separator */
+          if (was_sep)
             gtk_list_store_remove (ls->list_store, &last_iter);
+
+          /*** remove row ***/
+          iter_valid = gtk_list_store_remove (ls->list_store, &iter);
+          free_ldata (ls, ldata);
         }
       last_iter = iter;
-      was_separator = sep;
     }
-  while (!needs_inc ||
-         gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 }
 
 
