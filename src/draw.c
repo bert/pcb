@@ -81,15 +81,15 @@ static bool doing_assy = false;
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void DrawEverything (BoxTypePtr);
+static void DrawEverything (const BoxType *);
 static void DrawPPV (int group, const BoxType *);
 static void DrawLayerGroup (int, const BoxType *);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawEMark (ElementTypePtr, Coord, Coord, bool);
-static void DrawMask (int side, BoxType *);
-static void DrawPaste (int side, BoxType *);
-static void DrawRats (BoxType *);
+static void DrawMask (int side, const BoxType *);
+static void DrawPaste (int side, const BoxType *);
+static void DrawRats (const BoxType *);
 static void DrawSilk (int side, const BoxType *);
 
 /*--------------------------------------------------------------------------------------
@@ -443,7 +443,7 @@ hole_callback (const BoxType * b, void *cl)
 }
 
 static void
-DrawHoles (bool draw_plated, bool draw_unplated, BoxType *drawn_area)
+DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area)
 {
   int plated = -1;
 
@@ -623,7 +623,7 @@ PrintAssembly (int side, const BoxType * drawn_area)
  * initializes some identifiers for a new zoom factor and redraws whole screen
  */
 static void
-DrawEverything (BoxTypePtr drawn_area)
+DrawEverything (const BoxType *drawn_area)
 {
   int i, ngroups, side;
   int component, solder;
@@ -970,7 +970,7 @@ DrawSilk (int side, const BoxType * drawn_area)
 
 
 static void
-DrawMaskBoardArea (int mask_type, BoxType *screen)
+DrawMaskBoardArea (int mask_type, const BoxType *drawn_area)
 {
   /* Skip the mask drawing if the GUI doesn't want this type */
   if ((mask_type == HID_MASK_BEFORE && !gui->poly_before) ||
@@ -979,18 +979,18 @@ DrawMaskBoardArea (int mask_type, BoxType *screen)
 
   gui->use_mask (mask_type);
   gui->set_color (Output.fgGC, PCB->MaskColor);
-  if (screen == NULL)
+  if (drawn_area == NULL)
     gui->fill_rect (Output.fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
   else
-    gui->fill_rect (Output.fgGC, screen->X1, screen->Y1,
-                                 screen->X2, screen->Y2);
+    gui->fill_rect (Output.fgGC, drawn_area->X1, drawn_area->Y1,
+                                 drawn_area->X2, drawn_area->Y2);
 }
 
 /* ---------------------------------------------------------------------------
  * draws solder mask layer - this will cover nearly everything
  */
 static void
-DrawMask (int side, BoxType * screen)
+DrawMask (int side, const BoxType *screen)
 {
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
 
@@ -1019,7 +1019,7 @@ DrawMask (int side, BoxType * screen)
  * draws solder paste layer for a given side of the board
  */
 static void
-DrawPaste (int side, BoxType *drawn_area)
+DrawPaste (int side, const BoxType *drawn_area)
 {
   gui->set_color (Output.fgGC, PCB->ElementColor);
   ALLPAD_LOOP (PCB->Data);
@@ -1036,7 +1036,7 @@ DrawPaste (int side, BoxType *drawn_area)
 }
 
 static void
-DrawRats (BoxTypePtr drawn_area)
+DrawRats (const BoxType *drawn_area)
 {
   /*
    * XXX lesstif allows positive AND negative drawing in HID_MASK_CLEAR.
