@@ -2068,10 +2068,10 @@ ghid_check_special_key (const char *accel, GtkAction *action,
 }
 
 /*! \brief Finds the gpcb-menu.res file */
-const char *
+char *
 get_menu_filename (void)
 {
-  const char *rv = NULL;
+  char *rv = NULL;
   char *home_pcbmenu = NULL;
 
   /* homedir is set by the core */
@@ -2085,20 +2085,19 @@ get_menu_filename (void)
     Message (_("Warning:  could not determine home directory\n"));
 
   if (access ("gpcb-menu.res", R_OK) == 0)
-    rv = "gpcb-menu.res";
+    rv = strdup ("gpcb-menu.res");
   else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0) )
     rv = home_pcbmenu;
   else if (access (pcbmenu_path, R_OK) == 0)
-    rv = pcbmenu_path;
+    rv = strdup (pcbmenu_path);
 
-  free (home_pcbmenu);
   return rv;
 }
 
 static GtkWidget *
 ghid_load_menus (void)
 {
-  const char *filename;
+  char *filename;
   const Resource *r = 0, *bir;
   const Resource *mr;
   GtkWidget *menu_bar = NULL;
@@ -2129,6 +2128,7 @@ ghid_load_menus (void)
       Message ("Using default menus\n");
       r = bir;
     }
+  free (filename);
 
   mr = resource_subres (r, "MainMenu");
   if (!mr)
