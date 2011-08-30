@@ -176,6 +176,11 @@ button_press_cb (GHidLayerSelector *ls, GdkEventButton *event)
    *  layer, which will happen if we let this event propagate.  */
   GtkTreeViewColumn *column;
   GtkTreePath *path;
+
+  /* Ignore all but left-clicks */
+  if (event->button != 1)
+    return TRUE;
+
   if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (ls),
                                      event->x, event->y,
                                      &path, &column, NULL, NULL))
