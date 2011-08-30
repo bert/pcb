@@ -417,6 +417,9 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
   gtk_window_remove_accel_group (GTK_WINDOW (out->top_window),
                                  ghid_main_menu_get_accel_group
                                    (GHID_MAIN_MENU (ghidgui->menu_bar)));
+  gtk_window_remove_accel_group (GTK_WINDOW (out->top_window),
+                                 ghid_layer_selector_get_accel_group
+                                   (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
   ghid_interface_input_signals_disconnect ();
   ghid_interface_set_sensitive (FALSE);
   gtk_widget_grab_focus (GTK_WIDGET (ghidgui->command_entry));
@@ -440,6 +443,9 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
   gtk_window_add_accel_group (GTK_WINDOW (out->top_window),
                               ghid_main_menu_get_accel_group
                                 (GHID_MAIN_MENU (ghidgui->menu_bar)));
+  gtk_window_add_accel_group (GTK_WINDOW (out->top_window),
+                              ghid_layer_selector_get_accel_group
+                                (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
 
   /* Restore the status line label and give focus back to the drawing area
    */
