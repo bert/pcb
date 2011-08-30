@@ -295,11 +295,7 @@ ghid_layer_selector_finalize (GObject *object)
       struct _layer *ldata;
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                           &iter, STRUCT_COL, &ldata, -1);
-
-      g_object_unref (G_OBJECT (ldata->pick_action));
-      g_object_unref (G_OBJECT (ldata->view_action));
-      gtk_tree_row_reference_free (ldata->rref);
-      g_free (ldata);
+      free_ldata (ls, ldata);
     }
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 
