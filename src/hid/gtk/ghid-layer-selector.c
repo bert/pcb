@@ -2,9 +2,8 @@
  *  \brief Implementation of GHidLayerSelector widget
  *  \par Description
  *  This widget is the layer selector on the left side of the Gtk
- *  GUI. It also describes (in XML) the relevant sections of the
- *  menu for layer selection and visibility toggling, and makes
- *  sure these stay in sync.
+ *  GUI. It also builds the relevant sections of the menu for layer
+ *  selection and visibility toggling, and keeps these in sync.
  */
 
 #include <glib.h>

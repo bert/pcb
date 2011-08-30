@@ -25,7 +25,6 @@ void ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                     const gchar *color_string,
                                     gboolean visible,
                                     gboolean activatable);
-GtkAccelGroup *ghid_layer_selector_get_accel_group (GHidLayerSelector *ls);
 
 gint ghid_layer_selector_install_pick_items (GHidLayerSelector *ls,
                                              GtkMenuShell *shell, gint pos);
