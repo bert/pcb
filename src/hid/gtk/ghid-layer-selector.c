@@ -81,6 +81,7 @@ struct _layer
 {
   gint accel_index;   /* Index into ls->accel_available */
   gulong pick_sig_id;
+  gulong view_sig_id;
   GtkWidget *pick_item;
   GtkWidget *view_item;
   GtkToggleAction *view_action;
@@ -117,27 +118,43 @@ free_ldata (GHidLayerSelector *ls, struct _layer *ldata)
 
 }
 
+/*! \brief internal set-visibility function -- emits no signals */
+static void
+set_visibility (GHidLayerSelector *ls, GtkTreeIter *iter,
+                struct _layer *ldata, gboolean state)
+{
+  gtk_list_store_set (ls->list_store, iter, VISIBLE_COL, state, -1);
+  
+  if (ldata)
+    {
+      g_signal_handler_block (ldata->view_action, ldata->view_sig_id);
+      gtk_toggle_action_set_active (ldata->view_action, state);
+      g_signal_handler_block (ldata->view_action, ldata->view_sig_id);
+    }
+}
+
 /*! \brief Flip the visibility state of a given layer 
  *  \par Function Description
  *  Changes the internal toggle state and menu checkbox state
  *  of the layer pointed to by iter. Emits a toggle-layer signal.
- *  ALL internal visibility-flipping needs to go through this
- *  function. Otherwise a signal will not be emitted and it is
- *  likely that pcb will become inconsistent with the selector.
  *
  *  \param [in] ls    The selector to be acted on
  *  \param [in] iter  A GtkTreeIter pointed at the relevant layer
+ *  \param [in] emit  Whether or not to emit a signal
  */
 static void
-toggle_visibility (GHidLayerSelector *ls, GtkTreeIter *iter)
+toggle_visibility (GHidLayerSelector *ls, GtkTreeIter *iter, gboolean emit)
 {
+  gint user_id;
   struct _layer *ldata;
   gboolean toggle;
   gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), iter,
-                     VISIBLE_COL, &toggle, STRUCT_COL, &ldata, -1);
-  gtk_list_store_set (ls->list_store, iter, VISIBLE_COL, !toggle, -1);
-  if (ldata)
-    gtk_toggle_action_set_active (ldata->view_action, !toggle);
+                      USER_ID_COL, &user_id, VISIBLE_COL, &toggle,
+                      STRUCT_COL, &ldata, -1);
+  set_visibility (ls, iter, ldata, !toggle);
+  if (emit)
+    g_signal_emit (ls, ghid_layer_selector_signals[TOGGLE_LAYER_SIGNAL],
+                   0, user_id);
 }
 
 /*! \brief Decide if a GtkListStore entry is a layer or separator */
@@ -189,7 +206,7 @@ button_press_cb (GHidLayerSelector *ls, GdkEventButton *event)
       gtk_tree_model_get_iter (GTK_TREE_MODEL (ls->list_store), &iter, path);
       if (column == ls->visibility_column)
         {
-          toggle_visibility (ls, &iter);
+          toggle_visibility (ls, &iter, TRUE);
           return TRUE; 
         }
     }
@@ -566,8 +583,9 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
       gtk_action_group_add_action_with_accel
           (ls->action_group, GTK_ACTION (new_layer->view_action), accel2);
       gtk_action_connect_accelerator (GTK_ACTION (new_layer->view_action));
-      g_signal_connect (G_OBJECT (new_layer->view_action), "activate",
-                        G_CALLBACK (menu_view_cb), new_layer);
+      new_layer->view_sig_id =
+        g_signal_connect (G_OBJECT (new_layer->view_action), "activate",
+                          G_CALLBACK (menu_view_cb), new_layer);
 
       ls->accel_available[i] = FALSE;
       new_layer->accel_index = i;
@@ -687,7 +705,7 @@ toggle_foreach_func (GtkTreeModel *model, GtkTreePath *path,
   gtk_tree_model_get (model, iter, USER_ID_COL, &id, -1);
   if (id == *(gint *) data)
     {
-      toggle_visibility (ls, iter);
+      toggle_visibility (ls, iter, TRUE);
       return TRUE;
     }
   return FALSE;
@@ -807,7 +825,7 @@ ghid_layer_selector_make_selected_visible (GHidLayerSelector *ls)
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                           &iter, VISIBLE_COL, &visible, -1);
       if (!visible)
-        toggle_visibility (ls, &iter);
+        toggle_visibility (ls, &iter, FALSE);
     }
 }
 
@@ -896,6 +914,37 @@ ghid_layer_selector_delete_layers (GHidLayerSelector *ls,
       last_iter = iter;
     }
 }
+
+/*! \brief Sets the visibility toggle-state of all layers
+ *  \par Function Description
+ *  Shows layers according to a callback function: a return value of TRUE
+ *  means show, FALSE means hide.
+ *
+ *  \param [in] ls       The selector to be acted on
+ *  \param [in] callback Takes the user_id of the layer and returns a boolean
+ */
+void
+ghid_layer_selector_show_layers (GHidLayerSelector *ls,
+                                 gboolean (*callback)(int user_id))
+{
+  GtkTreeIter iter;
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
+  do
+    {
+      struct _layer *ldata;
+      gboolean sep;
+      gint user_id;
+
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                          &iter, USER_ID_COL, &user_id,
+                          STRUCT_COL, &ldata,
+                          SEPARATOR_COL, &sep, -1);
+      if (!sep)
+        set_visibility (ls, &iter, ldata, callback (user_id));
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
+}
+
 
 
 

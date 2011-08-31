@@ -43,6 +43,8 @@ void ghid_layer_selector_update_colors (GHidLayerSelector *ls,
                                         const gchar *(*callback)(int user_id));
 void ghid_layer_selector_delete_layers (GHidLayerSelector *ls,
                                         gboolean (*callback)(int user_id));
+void ghid_layer_selector_show_layers (GHidLayerSelector *ls,
+                                      gboolean (*callback)(int user_id));
 
 G_END_DECLS  /* keep c++ happy */
 #endif
