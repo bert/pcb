@@ -294,6 +294,8 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               gtk_action_connect_accelerator (action);
               g_signal_connect (G_OBJECT (action), "activate", menu->action_cb,
                                 (gpointer) sub_res);
+              g_object_set_data (G_OBJECT (action), "resource",
+                                 (gpointer) sub_res);
               item = gtk_action_create_menu_item (action);
               gtk_menu_shell_append (shell, item);
               menu->actions = g_list_append (menu->actions, action);
@@ -498,11 +500,16 @@ ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
   GList *list;
   for (list = menu->actions; list; list = list->next)
     {
+      Resource *res = g_object_get_data (G_OBJECT (list->data), "resource");
       const char *tf = g_object_get_data (G_OBJECT (list->data),
                                           "checked-flag");
       const char *af = g_object_get_data (G_OBJECT (list->data),
                                           "active-flag");
+      g_signal_handlers_block_by_func (G_OBJECT (list->data),
+                                       menu->action_cb, res);
       cb (GTK_ACTION (list->data), tf, af);
+      g_signal_handlers_unblock_by_func (G_OBJECT (list->data),
+                                         menu->action_cb, res);
     }
 }
 
