@@ -458,18 +458,13 @@ layer_process (gchar **color_string, char **text, int *set, int i)
 static void
 layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
 {
-  gboolean active;
-  layer_process (NULL, NULL, &active, layer);
-
   ignore_layer_update = true;
   /* Select Layer */
   PCB->SilkActive = (layer == LAYER_BUTTON_SILK);
   PCB->RatDraw  = (layer == LAYER_BUTTON_RATS);
   if (layer < max_copper_layer)
-    ChangeGroupVisibility (layer, active, true);
+    ChangeGroupVisibility (layer, TRUE, true);
 
-  /* Ensure layer is turned on */
-  ghid_layer_selector_make_selected_visible (ls);
   ignore_layer_update = false;
 
   ghid_invalidate_all ();
@@ -529,7 +524,8 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
    *  can. If we can't, turn the original layer back on.
    */
   if (!ghid_layer_selector_select_next_visible (ls))
-    ghid_layer_selector_toggle_layer (ls, layer);
+    ChangeGroupVisibility (layer, true, false);
+
   ignore_layer_update = false;
 
   if (redraw)
@@ -1827,6 +1823,15 @@ ghid_do_export (HID_Attr_Val * options)
 
 }
 
+/*! \brief callback for */
+static gboolean
+get_layer_visible_cb (int id)
+{
+  int visible;
+  layer_process (NULL, NULL, &visible, id);
+  return visible;
+}
+
 gint
 LayersChanged (int argc, char **argv, Coord x, Coord y)
 {
@@ -1835,6 +1840,8 @@ LayersChanged (int argc, char **argv, Coord x, Coord y)
 
   ghid_config_groups_changed();
   ghid_layer_buttons_update ();
+  ghid_layer_selector_show_layers
+    (GHID_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_visible_cb);
 
   /* FIXME - if a layer is moved it should retain its color.  But layers
   |  currently can't do that because color info is not saved in the
