@@ -1877,23 +1877,13 @@ static int
 ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
-  static gboolean in_toggle_view = 0;
 
 #ifdef DEBUG_MENUS
-  printf ("Starting ToggleView().  in_toggle_view = %d\n", in_toggle_view);
+  puts ("Starting ToggleView().");
 #endif
-  if (in_toggle_view)
-    {
-      fprintf (stderr, "ToggleView() called on top of another ToggleView()\n"
-	       "Please report this and how it happened\n");
-      return 0;
-    }
-
-  in_toggle_view = 1;
 
   if (argc == 0)
     {
-      in_toggle_view = 0;
       AFAIL (toggleview);
     }
   if (isdigit ((int) argv[0][0]))
@@ -1923,20 +1913,16 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
 	  }
       if (l == -1)
 	{
-	  in_toggle_view = 0;
 	  AFAIL (toggleview);
 	}
 
     }
-
-  printf ("ToggleView():  l = %d\n", l);
 
   /* Now that we've figured out which toggle button ought to control
    * this layer, simply hit the button and let the pre-existing code deal
    */
   ghid_layer_selector_toggle_layer
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector), l);
-  in_toggle_view = 0;
   return 0;
 }
 
