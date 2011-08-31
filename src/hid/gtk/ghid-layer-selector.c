@@ -129,7 +129,7 @@ set_visibility (GHidLayerSelector *ls, GtkTreeIter *iter,
     {
       g_signal_handler_block (ldata->view_action, ldata->view_sig_id);
       gtk_toggle_action_set_active (ldata->view_action, state);
-      g_signal_handler_block (ldata->view_action, ldata->view_sig_id);
+      g_signal_handler_unblock (ldata->view_action, ldata->view_sig_id);
     }
 }
 
