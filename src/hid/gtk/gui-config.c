@@ -1805,6 +1805,7 @@ config_color_load_cb (gpointer data)
   gtk_widget_destroy (config_colors_vbox);
   config_colors_tab_create (config_colors_tab_vbox);
 
+  ghid_layer_buttons_color_update ();
   ghid_invalidate_all();
 }
 
