@@ -128,8 +128,8 @@ static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static int Delta;		/* change of size */
-static int Absolute;		/* Absolute size */
+static Coord Delta;		/* change of size */
+static Coord Absolute;		/* Absolute size */
 static char *NewName;		/* new name */
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
@@ -838,8 +838,8 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 {
-  int value = (Absolute != 0 ? Text->Scale : 0) +
-              (Absolute != 0 ? Absolute : Delta) * 100 / FONT_CAPHEIGHT;
+  int value = Absolute ? COORD_TO_MIL (Absolute)
+                       : Text->Scale + COORD_TO_MIL (Delta);
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
@@ -914,8 +914,8 @@ ChangeElementSize (ElementTypePtr Element)
 static void *
 ChangeElementNameSize (ElementTypePtr Element)
 {
-  int value = (Absolute != 0 ? DESCRIPTION_TEXT (Element).Scale : 0) +
-              (Absolute != 0 ? Absolute : Delta) * 100 / FONT_CAPHEIGHT;
+  int value = Absolute ? COORD_TO_MIL (Absolute)
+                  : DESCRIPTION_TEXT (Element).Scale + COORD_TO_MIL (Delta);
 
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
