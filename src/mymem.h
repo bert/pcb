@@ -100,7 +100,7 @@ void FreePointerListMemory (PointerListTypePtr);
 void DSAddCharacter (DynamicStringTypePtr, char);
 void DSAddString (DynamicStringTypePtr, const char *);
 void DSClearString (DynamicStringTypePtr);
-char *StripWhiteSpaceAndDup (char *);
+char *StripWhiteSpaceAndDup (const char *);
 
 #ifdef NEED_STRDUP
 char *strdup (const char *);

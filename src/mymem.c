@@ -848,9 +848,10 @@ DSClearString (DynamicStringTypePtr Ptr)
  * holds only white space characters
  */
 char *
-StripWhiteSpaceAndDup (char *S)
+StripWhiteSpaceAndDup (const char *S)
 {
-  char *p1, *p2;
+  const char *p1, *p2;
+  char *copy;
   size_t length;
 
   if (!S || !*S)
@@ -866,10 +867,10 @@ StripWhiteSpaceAndDup (char *S)
   /* string is not empty -> allocate memory */
   if (length)
     {
-      p2 = (char *)realloc (NULL, length + 1);
-      strncpy (p2, p1, length);
-      *(p2 + length) = '\0';
-      return (p2);
+      copy = (char *)realloc (NULL, length + 1);
+      strncpy (copy, p1, length);
+      copy[length] = '\0';
+      return (copy);
     }
   else
     return (NULL);
