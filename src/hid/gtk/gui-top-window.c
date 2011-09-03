@@ -1209,7 +1209,7 @@ ghid_build_pcb_top_window (void)
 {
   GtkWidget *window;
   GtkWidget *vbox_main, *vbox_left, *hbox_middle, *hbox;
-  GtkWidget *viewport, *ebox, *vbox, *frame;
+  GtkWidget *ebox, *vbox, *frame;
   GtkWidget *label;
   GHidPort *port = &ghid_port;
   gchar *s;
@@ -1352,9 +1352,6 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
 
   /* -- The PCB layout output drawing area */
-  viewport = gtk_viewport_new (NULL, NULL);
-  gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport), GTK_SHADOW_IN);
-  gtk_box_pack_start (GTK_BOX (hbox), viewport, TRUE, TRUE, 0);
 
   gport->drawing_area = gtk_drawing_area_new ();
   ghid_init_drawing_widget (gport->drawing_area, gport);
@@ -1373,7 +1370,7 @@ ghid_build_pcb_top_window (void)
    */
   GTK_WIDGET_SET_FLAGS (gport->drawing_area, GTK_CAN_FOCUS);
 
-  gtk_container_add (GTK_CONTAINER (viewport), gport->drawing_area);
+  gtk_box_pack_start (GTK_BOX (hbox), gport->drawing_area, TRUE, TRUE, 0);
 
   ghidgui->v_adjustment = gtk_adjustment_new (0.0, 0.0, 100.0,
 					      10.0, 10.0, 10.0);

@@ -62,7 +62,7 @@ pinout_close_cb (GtkWidget * widget, GtkWidget *top_window)
 void
 ghid_pinout_window_show (GHidPort * out, ElementType * element)
 {
-  GtkWidget *button, *viewport, *vbox, *hbox, *preview, *top_window;
+  GtkWidget *button, *vbox, *hbox, *preview, *top_window;
   gchar *title;
   int width, height;
 
@@ -82,12 +82,9 @@ ghid_pinout_window_show (GHidPort * out, ElementType * element)
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (top_window), vbox);
 
-  viewport = gtk_viewport_new (NULL, NULL);
-  gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport), GTK_SHADOW_IN);
-  gtk_box_pack_start (GTK_BOX (vbox), viewport, TRUE, TRUE, 0);
 
   preview = ghid_pinout_preview_new (element);
-  gtk_container_add (GTK_CONTAINER (viewport), preview);
+  gtk_box_pack_start (GTK_BOX (vbox), preview, TRUE, TRUE, 0);
 
   ghid_pinout_preview_get_natural_size (GHID_PINOUT_PREVIEW (preview),
                                         &width, &height);
