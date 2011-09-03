@@ -1259,16 +1259,13 @@ ghid_build_pcb_top_window (void)
   gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons1_frame),
                      ghidgui->mode_buttons1_hbox);
 
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(ghidgui->top_hbox), vbox,
-		      FALSE, FALSE, 0);
+  ghidgui->compact_hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_end (GTK_BOX(ghidgui->top_hbox),
+                    ghidgui->compact_hbox, FALSE, FALSE, 0);
 
   ghidgui->compact_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_end (GTK_BOX (ghidgui->top_hbox), ghidgui->compact_vbox,
-		      FALSE, FALSE, 0);
-
-  ghidgui->compact_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), ghidgui->compact_hbox, TRUE, FALSE, 0);
+                    FALSE, FALSE, 0);
 
   /*
    * The board name is optionally in compact_vbox and the position
