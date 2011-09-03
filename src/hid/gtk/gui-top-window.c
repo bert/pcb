@@ -1208,7 +1208,7 @@ static void
 ghid_build_pcb_top_window (void)
 {
   GtkWidget *window;
-  GtkWidget *vbox_main, *vbox_left, *hbox_middle, *hbox = NULL;
+  GtkWidget *vbox_main, *vbox_left, *hbox_middle, *hbox;
   GtkWidget *viewport, *ebox, *vbox, *frame;
   GtkWidget *label;
   GHidPort *port = &ghid_port;
@@ -1221,9 +1221,8 @@ ghid_build_pcb_top_window (void)
   gtk_container_add (GTK_CONTAINER (window), vbox_main);
 
   /* -- Top control bar */
-  hbox = gtk_hbox_new (FALSE, 4);
-  gtk_box_pack_start (GTK_BOX (vbox_main), hbox, FALSE, FALSE, 0);
-  ghidgui->top_hbox = hbox;
+  ghidgui->top_hbox = gtk_hbox_new (FALSE, 4);
+  gtk_box_pack_start (GTK_BOX (vbox_main), ghidgui->top_hbox, FALSE, FALSE, 0);
 
   /*
    * menu_hbox will be made insensitive when the gui needs
@@ -1272,9 +1271,8 @@ ghid_build_pcb_top_window (void)
    * The board name is optionally in compact_vbox and the position
    * labels will be packed below or to the side.
    */
-  hbox = gtk_hbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (ghidgui->compact_vbox), hbox, TRUE, FALSE, 2);
-  ghidgui->label_hbox = hbox;
+  ghidgui->label_hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (ghidgui->compact_vbox), ghidgui->label_hbox, TRUE, FALSE, 2);
 
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
@@ -1285,7 +1283,7 @@ ghid_build_pcb_top_window (void)
     s = g_strdup ("<b><big>%s</big></b>");
   gtk_label_set_markup (GTK_LABEL (label), s);
   g_free (s);
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 4);
+  gtk_box_pack_start (GTK_BOX (ghidgui->label_hbox), label, FALSE, TRUE, 4);
   ghidgui->name_label = label;
 
   /*
