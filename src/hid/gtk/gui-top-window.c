@@ -1178,8 +1178,6 @@ make_mode_buttons (GHidPort * port)
  * ---------------------------------------------------------------
  */
 
-static GtkWidget *ghid_left_sensitive_box;
-
 static gint
 delete_chart_cb (GtkWidget * widget, GdkEvent * event, GHidPort * port)
 {
@@ -1208,8 +1206,8 @@ static void
 ghid_build_pcb_top_window (void)
 {
   GtkWidget *window;
-  GtkWidget *vbox_main, *vbox_left, *hbox_middle, *hbox;
-  GtkWidget *ebox, *vbox, *frame;
+  GtkWidget *vbox_main, *hbox_middle, *hbox;
+  GtkWidget *vbox, *frame;
   GtkWidget *label;
   GHidPort *port = &ghid_port;
   gchar *s;
@@ -1305,26 +1303,21 @@ ghid_build_pcb_top_window (void)
 
 
   /* -- Left control bar */
-  ebox = gtk_event_box_new ();
-  gtk_widget_set_events (ebox, GDK_EXPOSURE_MASK);
-  gtk_box_pack_start (GTK_BOX (hbox_middle), ebox, FALSE, FALSE, 3);
-
-  /* 
-   * This box will also be made insensitive when the gui needs
+  /*
+   * This box will be made insensitive when the gui needs
    * a modal button GetLocation button press.
    */
-  ghid_left_sensitive_box = ebox;
+  ghidgui->left_toolbar = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox_middle),
+                      ghidgui->left_toolbar, FALSE, FALSE, 3);
 
-  vbox_left = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (ebox), vbox_left);
-
-  vbox = ghid_scrolled_vbox(vbox_left, &scrolled,
-      GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  vbox = ghid_scrolled_vbox (ghidgui->left_toolbar, &scrolled,
+                             GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
                       FALSE, FALSE, 0);
 
   ghidgui->mode_buttons0_frame_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX(vbox_left),
+  gtk_box_pack_start (GTK_BOX(ghidgui->left_toolbar),
                       ghidgui->mode_buttons0_frame_vbox, FALSE, FALSE, 0);
 
   ghidgui->mode_buttons0_frame = gtk_frame_new (NULL);
@@ -1336,7 +1329,7 @@ ghid_build_pcb_top_window (void)
   make_mode_buttons (port);
 
   frame = gtk_frame_new(NULL);
-  gtk_box_pack_end(GTK_BOX(vbox_left), frame, FALSE, FALSE, 0);
+  gtk_box_pack_end (GTK_BOX (ghidgui->left_toolbar), frame, FALSE, FALSE, 0);
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(frame), vbox);
   hbox = gtk_hbox_new(FALSE, 0);
@@ -1514,7 +1507,7 @@ ghid_interface_input_signals_disconnect (void)
 void
 ghid_interface_set_sensitive (gboolean sensitive)
 {
-  gtk_widget_set_sensitive (ghid_left_sensitive_box, sensitive);
+  gtk_widget_set_sensitive (ghidgui->left_toolbar, sensitive);
   gtk_widget_set_sensitive (ghidgui->menu_hbox, sensitive);
 }
 
