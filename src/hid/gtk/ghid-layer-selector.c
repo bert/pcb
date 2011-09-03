@@ -391,7 +391,7 @@ ghid_layer_selector_new (void)
       gtk_tree_view_column_new_with_attributes ("", renderer2,
                                                 "text", TEXT_COL,
                                                 "font", FONT_COL,
-                                                "sensitive", VISIBLE_COL, NULL);
+                                                NULL);
 
   GHidLayerSelector *ls = g_object_new (GHID_LAYER_SELECTOR_TYPE, NULL);
 
