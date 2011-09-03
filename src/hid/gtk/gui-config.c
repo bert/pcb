@@ -122,7 +122,6 @@ static gchar *config_dir, *color_dir;
 static ConfigAttribute config_attributes[] = {
   {"gui-compact-horizontal", CONFIG_Boolean, &_ghidgui.compact_horizontal},
   {"gui-compact-vertical", CONFIG_Boolean, &_ghidgui.compact_vertical},
-  {"gui-title-window", CONFIG_Boolean, &_ghidgui.ghid_title_window},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
   {"grid-units", CONFIG_Unused, NULL},
@@ -859,16 +858,6 @@ config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
 }
 
 static void
-config_title_window_cb (GtkToggleButton * button, gpointer data)
-{
-  gboolean active = gtk_toggle_button_get_active (button);
-
-  ghidgui->ghid_title_window = active;
-  ghid_window_set_name_label (ghidgui->name_label_string);
-  ghidgui->config_modified = TRUE;
-}
-
-static void
 config_general_toggle_cb (GtkToggleButton * button, void * setting)
 {
   *(gint *)setting = gtk_toggle_button_get_active (button);
@@ -921,11 +910,6 @@ config_general_tab_create (GtkWidget * tab_vbox)
 			       TRUE, FALSE, FALSE, 2,
 			       config_compact_vertical_toggle_cb, NULL,
 			       _("Alternate window layout to allow smaller vertical size"));
-
-  ghid_check_button_connected (vbox, NULL, ghidgui->ghid_title_window,
-			       TRUE, FALSE, FALSE, 2,
-			       config_title_window_cb, NULL,
-			       _("Put layout name on the window title bar"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Backups"), 4, 2, TRUE, TRUE);
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,

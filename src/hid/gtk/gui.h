@@ -96,7 +96,7 @@ typedef struct
   GtkActionGroup *main_actions,
     *change_selected_actions, *displayed_name_actions;
 
-  GtkWidget *name_label,
+  GtkWidget
     *status_line_label,
     *cursor_position_relative_label,
     *cursor_position_absolute_label,
@@ -126,7 +126,8 @@ typedef struct
     small_label_markup,
     compact_horizontal,
     compact_vertical,
-    ghid_title_window, use_command_window, creating;
+    use_command_window,
+    creating;
 
   gint n_mode_button_columns,
     top_window_width,

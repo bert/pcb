@@ -626,29 +626,13 @@ ghid_window_set_name_label (gchar * name)
   if (!ghidgui->name_label_string || !*ghidgui->name_label_string)
     ghidgui->name_label_string = g_strdup (_("Unnamed"));
 
-  if (!ghidgui->name_label)
-    return;
-
   if (!PCB->Filename  || !*PCB->Filename)
     filename = g_strdup(_("Unsaved.pcb"));
   else
     filename = g_strdup(PCB->Filename);
 
-  if (ghidgui->ghid_title_window)
-    {
-      gtk_widget_hide (ghidgui->name_label);
-      str = g_strdup_printf ("%s%s (%s) - PCB", PCB->Changed ? "*": "",
-                             ghidgui->name_label_string, filename);
-    }
-  else
-    {
-      gtk_widget_show (ghidgui->name_label);
-      str = g_strdup_printf (" <b><big>%s</big></b> ",
-                             ghidgui->name_label_string);
-      gtk_label_set_markup (GTK_LABEL (ghidgui->name_label), str);
-      str = g_strdup_printf ("%s%s - PCB", PCB->Changed ? "*": "",
-                             filename);
-    }
+  str = g_strdup_printf ("%s%s (%s) - PCB", PCB->Changed ? "*": "",
+                         ghidgui->name_label_string, filename);
   gtk_window_set_title (GTK_WINDOW (gport->top_window), str);
   g_free (str);
   g_free (filename);
@@ -1210,7 +1194,6 @@ ghid_build_pcb_top_window (void)
   GtkWidget *vbox, *frame;
   GtkWidget *label;
   GHidPort *port = &ghid_port;
-  gchar *s;
   GtkWidget *scrolled;
 
   window = gport->top_window;
@@ -1264,20 +1247,6 @@ ghid_build_pcb_top_window (void)
   ghidgui->compact_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_end (GTK_BOX (ghidgui->top_hbox), ghidgui->compact_vbox,
                     FALSE, FALSE, 0);
-
-  /*
-   * The board name is optionally in compact_vbox and the position
-   * labels will be packed below or to the side.
-   */
-  ghidgui->name_label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (ghidgui->name_label), TRUE);
-  if (ghidgui->name_label_string)
-    s = g_strdup_printf (" <b><big>%s</big></b> ", ghidgui->name_label_string);
-  else
-    s = g_strdup ("<b><big>%s</big></b>");
-  gtk_label_set_markup (GTK_LABEL (ghidgui->name_label), s);
-  g_free (s);
-  gtk_box_pack_start (GTK_BOX (ghidgui->compact_vbox), ghidgui->name_label, TRUE, FALSE, 6);
 
   /*
    * The position_box pack location depends on user setting of
