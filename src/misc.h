@@ -63,6 +63,7 @@ void CountHoles (int *, int *, const BoxType *);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
 void CenterDisplay (Coord, Coord);
 void SetFontInfo (FontTypePtr);
+char *make_route_string (RouteStyleType rs[], int n_styles);
 int ParseGroupString (char *, LayerGroupTypePtr, int /* LayerN */);
 int ParseRouteString (char *, RouteStyleTypePtr, const char *);
 void QuitApplication (void);

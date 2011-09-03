@@ -65,25 +65,6 @@ SizesDialog;
 
 static SizesDialog route_sizes;
 
-static gchar *
-make_route_string(RouteStyleType * rs)
-{
-  gchar *str, *s, *t, *colon;
-  gint i;
-
-  str = g_strdup("");
-  for (i = 0; i < NUM_STYLES; ++i, ++rs)
-    {
-      s = pcb_g_strdup_printf ("%s,%mc,%mc,%mc,%mc", rs->Name,
-               rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
-      colon = (i == NUM_STYLES - 1) ? NULL : (gchar *)":";
-      t = str;
-      str = g_strconcat (str, s, colon, NULL);
-      g_free (t);
-	}
-  return str;
-}
-
 static void
 via_hole_cb (GHidCoordEntry * entry, gpointer data)
 {
@@ -295,7 +276,7 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
 
 	  Settings.RouteStyle[index] = *rst;
 	  ghidgui->config_modified = TRUE;
-	  s = make_route_string (&Settings.RouteStyle[0]);
+	  s = make_route_string (Settings.RouteStyle, NUM_STYLES);
 	  g_free (Settings.Routes);
 	  Settings.Routes = s;
 	}
