@@ -125,6 +125,12 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
       cairo_stroke (cr);
 
       gdk_color_parse (pcb_cell->color, &color);
+      if (flags & GTK_CELL_RENDERER_PRELIT)
+        {
+          color.red = (4*color.red + 65535) / 5;
+          color.green = (4*color.green + 65535) / 5;
+          color.blue = (4*color.blue + 65535) / 5;
+        }
       gdk_cairo_set_source_color (cr, &color);
       if (pcb_cell->active)
         cairo_rectangle (cr, toggle_rect.x + 0.5, toggle_rect.y + 0.5,
