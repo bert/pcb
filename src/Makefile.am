@@ -278,6 +278,8 @@ LIBGTK_SRCS = \
 	hid/gtk/ghid-layer-selector.h \
 	hid/gtk/ghid-main-menu.c \
 	hid/gtk/ghid-main-menu.h \
+	hid/gtk/ghid-route-style-selector.c \
+	hid/gtk/ghid-route-style-selector.h \
 	hid/gtk/gtkhid-main.c \
 	hid/gtk/gtkhid.h \
 	hid/gtk/gui.h \
