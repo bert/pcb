@@ -636,13 +636,13 @@ ghid_window_set_name_label (gchar * name)
 
   if (ghidgui->ghid_title_window)
     {
-      gtk_widget_hide (ghidgui->label_hbox);
+      gtk_widget_hide (ghidgui->name_label);
       str = g_strdup_printf ("%s%s (%s) - PCB", PCB->Changed ? "*": "",
                              ghidgui->name_label_string, filename);
     }
   else
     {
-      gtk_widget_show (ghidgui->label_hbox);
+      gtk_widget_show (ghidgui->name_label);
       str = g_strdup_printf (" <b><big>%s</big></b> ",
                              ghidgui->name_label_string);
       gtk_label_set_markup (GTK_LABEL (ghidgui->name_label), str);
@@ -1271,20 +1271,15 @@ ghid_build_pcb_top_window (void)
    * The board name is optionally in compact_vbox and the position
    * labels will be packed below or to the side.
    */
-  ghidgui->label_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (ghidgui->compact_vbox), ghidgui->label_hbox, TRUE, FALSE, 2);
-
-  label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
+  ghidgui->name_label = gtk_label_new ("");
+  gtk_label_set_use_markup (GTK_LABEL (ghidgui->name_label), TRUE);
   if (ghidgui->name_label_string)
-    s =
-      g_strdup_printf (" <b><big>%s</big></b> ", ghidgui->name_label_string);
+    s = g_strdup_printf (" <b><big>%s</big></b> ", ghidgui->name_label_string);
   else
     s = g_strdup ("<b><big>%s</big></b>");
-  gtk_label_set_markup (GTK_LABEL (label), s);
+  gtk_label_set_markup (GTK_LABEL (ghidgui->name_label), s);
   g_free (s);
-  gtk_box_pack_start (GTK_BOX (ghidgui->label_hbox), label, FALSE, TRUE, 4);
-  ghidgui->name_label = label;
+  gtk_box_pack_start (GTK_BOX (ghidgui->compact_vbox), ghidgui->name_label, TRUE, FALSE, 6);
 
   /*
    * The position_box pack location depends on user setting of
