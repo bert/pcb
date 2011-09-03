@@ -1240,30 +1240,9 @@ ghid_build_pcb_top_window (void)
   gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons1_frame),
                      ghidgui->mode_buttons1_hbox);
 
-  ghidgui->compact_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_box_pack_end (GTK_BOX(ghidgui->top_hbox),
-                    ghidgui->compact_hbox, FALSE, FALSE, 0);
-
-  ghidgui->compact_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_end (GTK_BOX (ghidgui->top_hbox), ghidgui->compact_vbox,
-                    FALSE, FALSE, 0);
-
-  /*
-   * The position_box pack location depends on user setting of
-   * compact horizontal mode.
-   */
   ghidgui->position_hbox = gtk_hbox_new (FALSE, 0);
-  g_object_ref(G_OBJECT(ghidgui->position_hbox));	/* so can remove it */
-  if (ghidgui->compact_horizontal)
-    {
-      gtk_box_pack_end (GTK_BOX (ghidgui->compact_vbox),
-		     ghidgui->position_hbox, TRUE, FALSE, 0);
-    }
-  else
-    {
-      gtk_box_pack_end(GTK_BOX(ghidgui->compact_hbox), ghidgui->position_hbox,
-		      FALSE, FALSE, 4);
-    }
+  gtk_box_pack_end (GTK_BOX(ghidgui->top_hbox),
+                    ghidgui->position_hbox, FALSE, FALSE, 4);
 
   make_cursor_position_labels (ghidgui->position_hbox, port);
 

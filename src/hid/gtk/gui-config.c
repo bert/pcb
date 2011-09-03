@@ -829,20 +829,6 @@ config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
   gboolean active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_horizontal = active;
-  if (active)
-    {
-      gtk_container_remove (GTK_CONTAINER (ghidgui->compact_hbox),
-			    ghidgui->position_hbox);
-      gtk_box_pack_end (GTK_BOX (ghidgui->compact_vbox),
-			ghidgui->position_hbox, TRUE, FALSE, 0);
-    }
-  else
-    {
-      gtk_container_remove (GTK_CONTAINER (ghidgui->compact_vbox),
-			    ghidgui->position_hbox);
-      gtk_box_pack_end(GTK_BOX(ghidgui->compact_hbox), ghidgui->position_hbox,
-			FALSE, FALSE, 4);
-    }
   ghid_set_status_line_label ();
   ghidgui->config_modified = TRUE;
 }

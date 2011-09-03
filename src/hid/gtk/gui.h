@@ -104,7 +104,7 @@ typedef struct
   GtkEntry *command_entry;
 
   GtkWidget *top_hbox,
-    *menu_hbox, *compact_vbox, *compact_hbox, *position_hbox,
+    *menu_hbox, *position_hbox,
     *mode_buttons0_vbox, *mode_buttons1_hbox, *mode_buttons1_vbox,
     *mode_buttons0_frame, *mode_buttons1_frame, *mode_buttons0_frame_vbox;
   GtkWidget *left_toolbar;
