@@ -1142,11 +1142,7 @@ static int PointCursor (int argc, char **argv, Coord x, Coord y)
 static int
 RouteStylesChanged (int argc, char **argv, Coord x, Coord y)
 {
-  gint n;
-
-  if (PCB && PCB->RouteStyle[0].Name)
-    for (n = 0; n < NUM_STYLES; ++n)
-      ghid_route_style_set_button_label ((&PCB->RouteStyle[n])->Name, n);
+  /* TODO: handle this, somehow (asp) */
   return 0;
 }
 

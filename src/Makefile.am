@@ -286,7 +286,6 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-command-window.c \
 	hid/gtk/gui-config.c \
 	hid/gtk/gui-dialog-print.c \
-	hid/gtk/gui-dialog-size.c \
 	hid/gtk/gui-dialog.c \
 	hid/gtk/gui-drc-window.c \
 	hid/gtk/gui-drc-window.h \

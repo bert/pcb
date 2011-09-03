@@ -83,6 +83,7 @@ a zoom in/out.
 #endif
 
 #include "ghid-layer-selector.h"
+#include "ghid-route-style-selector.h"
 #include "gtkhid.h"
 #include "gui.h"
 #include "hid.h"
@@ -132,38 +133,9 @@ a zoom in/out.
 
 RCSID ("$Id$");
 
-/* ---------------------------------------------------------------------------
- * local types
- */
-
-/* Used by the route style buttons and menu */
-typedef struct
-{
-  GtkWidget *button;
-  RouteStyleType route_style;
-  gboolean shown;		/* For temp buttons */
-}
-RouteStyleButton;
-
-/* ---------------------------------------------------------------------------
- * local macros
- */
-
-/* ---------------------------------------------------------------------------
- * local prototypes
- */
-
-
-#define N_ROUTE_STYLES (NUM_STYLES + 3)
-
 static bool ignore_layer_update;
 
 static GtkWidget *ghid_load_menus (void);
-
-/* actions for the @routestyles menuitems */
-static GtkToggleActionEntry routestyle_toggle_entries[N_ROUTE_STYLES];
-static Resource *routestyle_resources[N_ROUTE_STYLES];
-#define ROUTESTYLE "RouteStyle"
 
 GhidGui _ghidgui, *ghidgui = NULL;
 
@@ -176,22 +148,6 @@ static struct { GtkAction *action; const Resource *node; }
 #define N_HOTKEY_ACTIONS \
         (sizeof (ghid_hotkey_actions) / sizeof (ghid_hotkey_actions[0]))
 
-
-/* ------------------------------------------------------------------
- *  Route style buttons
- */
-
-/* Make 3 extra route style radio buttons.  2 for the extra Temp route
- * styles, and the 3rd is an always invisible button selected when the
- * route style settings in use don't match any defined route style (the
- * user can hit 'l', 'v', etc keys to change the settings without selecting
- * a new defined style.
- */
-
-static RouteStyleButton route_style_button[N_ROUTE_STYLES];
-static gint route_style_index;
-
-static GtkWidget *route_style_edit_button;
 
 /*! \brief callback for ghid_main_menu_update_toggle_state () */
 void
@@ -213,37 +169,12 @@ menu_toggle_update_cb (GtkAction *act, const char *tflag, const char *aflag)
 void
 ghid_update_toggle_flags ()
 {
-  int i;
-
-  GtkAction *a;
-  gboolean active;
-  gboolean old_holdoff;
-  char tmpnm[40];
-
   /* mask the callbacks */
   old_holdoff = ghidgui->toggle_holdoff;
   ghidgui->toggle_holdoff = TRUE;
 
   ghid_main_menu_update_toggle_state (GHID_MAIN_MENU (ghidgui->menu_bar),
                                       menu_toggle_update_cb);
-
-  for (i = 0; i < N_ROUTE_STYLES; i++)
-    {
-      sprintf (tmpnm, "%s%d", ROUTESTYLE, i);
-      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
-      if (i >= NUM_STYLES)
-	{
-	  gtk_action_set_visible (a, FALSE);
-	}
-
-      /* Update the toggle states */
-      active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (route_style_button[i].button));
-#ifdef DEBUG_MENUS
-      printf ("ghid_update_toggle_flags():  route style %d, value is %d\n", i, active);
-#endif
-      gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), active);
-	
-    }
 
   ghidgui->toggle_holdoff = old_holdoff;
 }
@@ -304,7 +235,7 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 static void
 ghid_menu_cb (GtkAction *action, const Resource *node)
 {
-  const gchar *name = gtk_action_get_name (action);
+  int i;
 
   if (action == NULL || node == NULL) 
     return;
@@ -313,30 +244,14 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
   if (ghidgui->toggle_holdoff == TRUE) 
     return;
 
+  for (i = 1; i < node->c; i++)
+    if (resource_type (node->v[i]) == 10)
+      {
 #ifdef DEBUG_MENUS
-  printf ("ghid_menu_cb():  name = \"%s\"\n", name);
+        printf ("    %s\n", node->v[i].value);
 #endif
-
-  /* Special-case route styles */
-  if (strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
-    {
-      int id = atoi (name + strlen (ROUTESTYLE));
-      if (ghidgui->toggle_holdoff != TRUE) 
-	ghid_route_style_button_set_active (id);
-      node = NULL;
-    }
-  else
-    {
-      int vi;
-      for (vi = 1; vi < node->c; vi++)
-	if (resource_type (node->v[vi]) == 10)
-	  {
-#ifdef DEBUG_MENUS
-	    printf ("    %s\n", node->v[vi].value);
-#endif
-	    hid_parse_actions (node->v[vi].value);
-	  }
-    }
+        hid_parse_actions (node->v[i].value);
+      }
 
   /* Sync gui widgets with pcb state */
   ghid_update_toggle_flags ();
@@ -377,8 +292,10 @@ ghid_sync_with_new_layout (void)
   ghidgui->toggle_holdoff = old_holdoff;
 
   pcb_use_route_style (&PCB->RouteStyle[0]);
+  ghid_route_style_selector_select_style
+    (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector),
+     &PCB->RouteStyle[0]);
 
-  ghid_route_style_button_set_active (0);
   ghid_config_handle_units_changed ();
 
   ghid_window_set_name_label (PCB->Name);
@@ -532,74 +449,11 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
     ghid_invalidate_all();
 }
 
-/*
- * The intial loading of all actions at startup.
- */
-static void
-ghid_make_programmed_menu_actions ()
-{
-  int i;
-  Resource *ar;
-  char av[64];
-
-  for (i = 0; i < N_ROUTE_STYLES; i++)
-    {
-      routestyle_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
-      routestyle_toggle_entries[i].stock_id = NULL;
-      if (i < NUM_STYLES && PCB)
-	{
-	  routestyle_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
-	}
-      else
-	{
-	  routestyle_toggle_entries[i].label = g_strdup (routestyle_toggle_entries[i].name);
-	}
-      routestyle_toggle_entries[i].accelerator = NULL;
-      routestyle_toggle_entries[i].tooltip = NULL;
-      routestyle_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      routestyle_toggle_entries[i].is_active = FALSE;
-
-      ar = resource_create (0);
-      sprintf (av, "RouteStyle(%d)", i + 1);
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      routestyle_resources[i] = ar;
-
-      // FIXME
-      //sprintf (av, "current_style,%d", i + 1);
-      //note_toggle_flag (routestyle_toggle_entries[i].name, strdup (av));
-
-    }
-}
-
-static void
-make_menu_actions (GtkActionGroup * actions, GHidPort * port)
-{
-  ghid_make_programmed_menu_actions ();
-
-  gtk_action_group_add_toggle_actions (actions,
-				       routestyle_toggle_entries,
-				       N_ROUTE_STYLES, port);
-
-}
-
-
-/*
- * Load in actions for the menus and layer selector
- */
+/*! \brief Install menu bar and accelerator groups */
 static void
 make_actions (GHidPort * port)
 {
-  GtkActionGroup *actions;
-
-  actions = gtk_action_group_new ("Actions");
-  gtk_action_group_set_translation_domain (actions, NULL);
-  ghidgui->main_actions = actions;
-
-  make_menu_actions (actions, port);
- 
-  gtk_window_add_accel_group (GTK_WINDOW (port->top_window),
+  gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
 			      ghid_main_menu_get_accel_group
                                 (GHID_MAIN_MENU (ghidgui->menu_bar)));
   gtk_window_add_accel_group (GTK_WINDOW (port->top_window),
@@ -946,178 +800,44 @@ ghid_layer_buttons_update (void)
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector), layer);
 }
 
-
+/*! \brief Called when user clicks OK on route style dialog */
 static void
-route_style_edit_cb (GtkWidget * widget, GHidPort * port)
+route_styles_edited_cb (GHidRouteStyleSelector *rss, gboolean save,
+                        gpointer data)
 {
-  hid_action("AdjustStyle");
+  if (save)
+    {
+      g_free (Settings.Routes);
+      Settings.Routes = make_route_string (PCB->RouteStyle, NUM_STYLES);
+      ghidgui->config_modified = TRUE;
+      ghid_config_files_write ();
+    }
+  ghid_main_menu_install_route_style_selector
+      (GHID_MAIN_MENU (ghidgui->menu_bar),
+       GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 }
 
+/*! \brief Called when a route style is selected */
 static void
-route_style_select_button_cb (GtkToggleButton * button, gpointer data)
+route_style_changed_cb (GHidRouteStyleSelector *rss, RouteStyleType *rst,
+                        gpointer data)
 {
-  RouteStyleType *rst;
-  gchar buf[16];
-  gint index = GPOINTER_TO_INT (data);
-
-  if (ghidgui->toggle_holdoff || index == NUM_STYLES + 2)
-    return;
-
-  if (route_style_index == index)
-    return;
-  route_style_index = index;
-
-  if (index < NUM_STYLES)
-    {
-      snprintf (buf, sizeof (buf), "%d", index + 1);
-      if (gtk_toggle_button_get_active (button))
-	hid_actionl ("RouteStyle", buf, NULL);
-    }
-  else if (index < NUM_STYLES + 2)
-    {
-      rst = &route_style_button[index].route_style;
-      SetLineSize (rst->Thick);
-      SetViaSize (rst->Diameter, TRUE);
-      SetViaDrillingHole (rst->Hole, TRUE);
-      SetKeepawayWidth (rst->Keepaway);
-    }
-  gtk_widget_set_sensitive (route_style_edit_button, TRUE);
+  pcb_use_route_style (rst);
   ghid_set_status_line_label();
 }
 
+/*! \brief Configure the route style selector */
 static void
-ghid_route_style_temp_buttons_hide (void)
+make_route_style_buttons (GHidRouteStyleSelector *rss)
 {
-  gtk_widget_hide (route_style_button[NUM_STYLES].button);
-  gtk_widget_hide (route_style_button[NUM_STYLES + 1].button);
-
-  /* This one never becomes visibile.
-   */
-  gtk_widget_hide (route_style_button[NUM_STYLES + 2].button);
+  int i;
+  for (i = 0; i < NUM_STYLES; ++i)
+    ghid_route_style_selector_add_route_style (rss, &PCB->RouteStyle[i]);
+  g_signal_connect (G_OBJECT (rss), "select_style",
+                    G_CALLBACK (route_style_changed_cb), NULL);
+  g_signal_connect (G_OBJECT (rss), "style_edited",
+                    G_CALLBACK (route_styles_edited_cb), NULL);
 }
-
-
-static void
-make_route_style_buttons (GtkWidget * vbox, GHidPort * port)
-{
-  GtkWidget *button;
-  GSList *group = NULL;
-  RouteStyleButton *rbut;
-  gint i;
-
-  button = gtk_button_new_with_label (_("Route Style"));
-  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 2);
-  g_signal_connect (button, "clicked",
-		    G_CALLBACK (route_style_edit_cb), port);
-  route_style_edit_button = button;
-
-  for (i = 0; i < N_ROUTE_STYLES; ++i)
-    {
-      RouteStyleType *rst;
-      gchar buf[32];
-
-      rbut = &route_style_button[i];
-      if (i < NUM_STYLES)
-	{
-	  rst = &PCB->RouteStyle[i];
-	  button = gtk_radio_button_new_with_label (group, _(rst->Name));
-	}
-      else
-	{
-	  snprintf (buf, sizeof (buf), _("Temp%d"), i - NUM_STYLES + 1);
-	  button = gtk_radio_button_new_with_label (group, buf);
-	  if (!route_style_button[i].route_style.Name)
-	    route_style_button[i].route_style.Name = g_strdup (buf);
-	}
-      group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
-      gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-      rbut->button = button;
-      if (i < NUM_STYLES + 2)
-	g_signal_connect (G_OBJECT (button), "toggled",
-			  G_CALLBACK (route_style_select_button_cb),
-			  GINT_TO_POINTER (i));
-    }
-}
-
-void
-ghid_route_style_button_set_active (gint n)
-{
-  if (n < 0 || n >= N_ROUTE_STYLES)
-    return;
-
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-				(route_style_button[n].button), TRUE);
-}
-
-  /* Upate the route style button selected to match current route settings.
-     |  If user has changed an in use route setting so they don't match any
-     |  defined route style, select the invisible dummy route style button.
-   */
-void
-ghid_route_style_buttons_update (void)
-{
-  RouteStyleType *rst;
-  gint i;
-
-  for (i = 0; i < NUM_STYLES + 2; ++i)
-    {
-      if (i < NUM_STYLES)
-	rst = &PCB->RouteStyle[i];
-      else
-	{
-	  if (!route_style_button[i].shown)	/* Temp button shown? */
-	    continue;
-	  rst = &route_style_button[i].route_style;
-	}
-      if (Settings.LineThickness == rst->Thick
-	  && Settings.ViaThickness == rst->Diameter
-	  && Settings.ViaDrillingHole == rst->Hole
-	  && Settings.Keepaway == rst->Keepaway)
-	break;
-    }
-  /* If i == NUM_STYLES + 2 at this point, we activate the invisible button.
-   */
-  ghidgui->toggle_holdoff = TRUE;
-  ghid_route_style_button_set_active (i);
-  route_style_index = i;
-  ghidgui->toggle_holdoff = FALSE;
-
-  gtk_widget_set_sensitive (route_style_edit_button,
-			    (i == NUM_STYLES + 2) ? FALSE : TRUE);
-}
-
-void
-ghid_route_style_set_button_label (gchar * name, gint index)
-{
-  if (index < 0 || index >= NUM_STYLES || !route_style_button[index].button)
-    return;
-  gtk_button_set_label (GTK_BUTTON (route_style_button[index].button),
-			_(name));
-}
-
-void
-ghid_route_style_set_temp_style (RouteStyleType * rst, gint which)
-{
-  RouteStyleButton *rsb;
-  gchar *tmp;
-  gint index = which + NUM_STYLES;
-
-  if (which < 0 || which > 1)
-    return;
-  rsb = &route_style_button[index];
-  gtk_widget_show (rsb->button);
-  rsb->shown = TRUE;
-  tmp = rsb->route_style.Name;
-  rsb->route_style = *rst;
-  rsb->route_style.Name = tmp;
-  if (route_style_index != index)
-    {
-      route_style_index = index;	/* Sets already done */
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rsb->button), TRUE);
-    }
-}
-
-
 
 /*
  *  ---------------------------------------------------------------
@@ -1516,9 +1236,11 @@ ghid_build_pcb_top_window (void)
   gtk_container_add(GTK_CONTAINER(frame), vbox);
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX (vbox), hbox, FALSE, FALSE, 1);
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 4);
-  make_route_style_buttons(vbox, port);
+  ghidgui->route_style_selector = ghid_route_style_selector_new ();
+  make_route_style_buttons
+    (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
+  gtk_box_pack_start(GTK_BOX(hbox), ghidgui->route_style_selector,
+                     FALSE, FALSE, 4);
 
   ghidgui->vbox_middle = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (hbox_middle),
@@ -1628,8 +1350,6 @@ ghid_build_pcb_top_window (void)
   gtk_widget_show_all (gport->top_window);
   ghid_pack_mode_buttons ();
   gdk_window_set_back_pixmap (gport->drawing_area->window, NULL, FALSE);
-
-  ghid_route_style_temp_buttons_hide ();
 }
 
 
@@ -1971,6 +1691,9 @@ ghid_do_export (HID_Attr_Val * options)
    * are properly initialized and synchronized with the current PCB.
    */
   ghid_layer_buttons_update ();
+  ghid_main_menu_install_route_style_selector
+      (GHID_MAIN_MENU (ghidgui->menu_bar),
+       GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 
   if (stdin_listen)
     ghid_create_listener ();
@@ -2337,15 +2060,11 @@ Opens the window which allows editing of the route styles.
 static int
 AdjustStyle(int argc, char **argv, Coord x, Coord y)
 {
-  RouteStyleType *rst = NULL;
-  
   if (argc > 1)
     AFAIL (adjuststyle);
 
-  if (route_style_index >= NUM_STYLES)
-    rst = &route_style_button[route_style_index].route_style;
-  ghid_route_style_dialog (route_style_index, rst);
-
+  ghid_route_style_selector_edit_dialog
+    (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
   return 0;
 }
 

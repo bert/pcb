@@ -110,7 +110,7 @@ typedef struct
     *mode_buttons_frame;
   GtkWidget *left_toolbar;
   GtkWidget *grid_units_button;
-  GtkWidget *menu_bar, *layer_selector;
+  GtkWidget *menu_bar, *layer_selector, *route_style_selector;
   GtkWidget *mode_toolbar;
   GtkWidget *vbox_middle;
 
@@ -337,15 +337,7 @@ void ghid_drc_window_append_violation (DrcViolationType *violation);
 void ghid_drc_window_append_messagev (const char *fmt, va_list va);
 int ghid_drc_window_throw_dialog (void);
 
-/* gui-route-style function prototypes.
-*/
-  /* In gui-dialog-size.c */
-void ghid_route_style_dialog (gint index, RouteStyleType * rst);
-  /* In gui-top-window.c  */
-void ghid_route_style_set_button_label (gchar * name, gint index);
-void ghid_route_style_set_temp_style (RouteStyleType * rst, gint which);
-void ghid_route_style_button_set_active (gint number);
-void ghid_route_style_buttons_update (void);
+/* In gui-top-window.c  */
 void ghid_update_toggle_flags (void);
 
 /* gui-utils.c
