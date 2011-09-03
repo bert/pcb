@@ -203,8 +203,13 @@ button_press_cb (GHidLayerSelector *ls, GdkEventButton *event)
                                      &path, &column, NULL, NULL))
     {
       GtkTreeIter iter;
+      gboolean activatable;
       gtk_tree_model_get_iter (GTK_TREE_MODEL (ls->list_store), &iter, path);
-      if (column == ls->visibility_column)
+      gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), &iter,
+                          ACTIVATABLE_COL, &activatable, -1);
+      /* Toggle visibility for non-activatable layers no matter
+       *  where you click. */
+      if (column == ls->visibility_column || !activatable)
         {
           toggle_visibility (ls, &iter, TRUE);
           return TRUE; 
