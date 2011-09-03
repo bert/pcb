@@ -49,9 +49,6 @@ I NEED TO DO THE STATUS LINE THING.  for example shift-alt-v to change the
 via size.  NOte the status line label does not get updated properly until
 a zoom in/out.
 
-- do not forget I can use
-  if (!ghidgui->toggle_holdoff)
-  
 #endif
 
 /* This file was originally written by Bill Wilson for the PCB Gtk
@@ -169,14 +166,8 @@ menu_toggle_update_cb (GtkAction *act, const char *tflag, const char *aflag)
 void
 ghid_update_toggle_flags ()
 {
-  /* mask the callbacks */
-  old_holdoff = ghidgui->toggle_holdoff;
-  ghidgui->toggle_holdoff = TRUE;
-
   ghid_main_menu_update_toggle_state (GHID_MAIN_MENU (ghidgui->menu_bar),
                                       menu_toggle_update_cb);
-
-  ghidgui->toggle_holdoff = old_holdoff;
 }
 
 static void
@@ -240,10 +231,6 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
   if (action == NULL || node == NULL) 
     return;
 
-  /* Prevent recursion */
-  if (ghidgui->toggle_holdoff == TRUE) 
-    return;
-
   for (i = 1; i < node->c; i++)
     if (resource_type (node->v[i]) == 10)
       {
@@ -278,19 +265,6 @@ void ghid_hotkey_cb (int which)
 void
 ghid_sync_with_new_layout (void)
 {
-  gboolean old_holdoff;
-
-  /* Just want to update the state of the menus without calling the
-     |  action functions at this time because causing a toggle action can
-     |  undo the initial condition set we want here.
-   */
-  old_holdoff = ghidgui->toggle_holdoff;
-  ghidgui->toggle_holdoff = TRUE;
-
-  /* FIXME - need toggle_holdoff?  Need other calls to sync here? */
-
-  ghidgui->toggle_holdoff = old_holdoff;
-
   pcb_use_route_style (&PCB->RouteStyle[0]);
   ghid_route_style_selector_select_style
     (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector),
