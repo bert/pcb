@@ -1231,8 +1231,10 @@ ghid_build_pcb_top_window (void)
   ghidgui->menu_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (ghidgui->top_hbox), ghidgui->menu_hbox,
 		      FALSE, FALSE, 0);
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(ghidgui->menu_hbox), vbox, FALSE, FALSE, 0);
+
+  ghidgui->mode_buttons1_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (ghidgui->menu_hbox),
+                      ghidgui->mode_buttons1_vbox, FALSE, FALSE, 0);
 
   /* Build layer menus */
   ghidgui->layer_selector = ghid_layer_selector_new ();
@@ -1247,19 +1249,20 @@ ghid_build_pcb_top_window (void)
   /* Build main menu */
   ghidgui->menu_bar = ghid_load_menus ();
   make_actions (port);
-  gtk_box_pack_start(GTK_BOX(vbox), ghidgui->menu_bar, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (ghidgui->mode_buttons1_vbox),
+                      ghidgui->menu_bar, FALSE, FALSE, 0);
 
-  frame = gtk_frame_new(NULL);
-  gtk_widget_show(frame);
-  g_object_ref(G_OBJECT(frame));
-  ghidgui->mode_buttons1_vbox = vbox;
-  ghidgui->mode_buttons1_frame = frame;
+  ghidgui->mode_buttons1_frame = gtk_frame_new (NULL);
+  gtk_widget_show (ghidgui->mode_buttons1_frame);
+  g_object_ref (ghidgui->mode_buttons1_frame);
   ghidgui->mode_buttons1_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(frame), ghidgui->mode_buttons1_hbox);
+  gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons1_frame),
+                     ghidgui->mode_buttons1_hbox);
 
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_end(GTK_BOX(ghidgui->top_hbox), vbox,
 		      FALSE, FALSE, 0);
+
   ghidgui->compact_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_end (GTK_BOX (ghidgui->top_hbox), ghidgui->compact_vbox,
 		      FALSE, FALSE, 0);
@@ -1323,15 +1326,16 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
                       FALSE, FALSE, 0);
 
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox_left), vbox, FALSE, FALSE, 0);
-  ghidgui->mode_buttons0_frame_vbox = vbox;
-  frame = gtk_frame_new(NULL);
-  ghidgui->mode_buttons0_frame = frame;
-  gtk_widget_show(frame);
-  g_object_ref(G_OBJECT(frame));
-  ghidgui->mode_buttons0_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(frame), ghidgui->mode_buttons0_vbox);
+  ghidgui->mode_buttons0_frame_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX(vbox_left),
+                      ghidgui->mode_buttons0_frame_vbox, FALSE, FALSE, 0);
+
+  ghidgui->mode_buttons0_frame = gtk_frame_new (NULL);
+  gtk_widget_show (ghidgui->mode_buttons0_frame);
+  g_object_ref (ghidgui->mode_buttons0_frame);
+  ghidgui->mode_buttons0_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons0_frame),
+                     ghidgui->mode_buttons0_vbox);
   make_mode_buttons (port);
 
   frame = gtk_frame_new(NULL);
