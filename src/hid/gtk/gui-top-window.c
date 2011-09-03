@@ -586,18 +586,12 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 
 
 /*
- * Make a frame for the top menubar, load in actions for the menus and
- * load the ui_manager string.
+ * Load in actions for the menus and layer selector
  */
 static void
-make_top_menubar (GtkWidget *menu_bar, GtkWidget * hbox, GHidPort * port)
+make_actions (GHidPort * port)
 {
-  GtkWidget *frame;
   GtkActionGroup *actions;
-
-  frame = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
 
   actions = gtk_action_group_new ("Actions");
   gtk_action_group_set_translation_domain (actions, NULL);
@@ -605,15 +599,12 @@ make_top_menubar (GtkWidget *menu_bar, GtkWidget * hbox, GHidPort * port)
 
   make_menu_actions (actions, port);
  
-  gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
+  gtk_window_add_accel_group (GTK_WINDOW (port->top_window),
 			      ghid_main_menu_get_accel_group
                                 (GHID_MAIN_MENU (ghidgui->menu_bar)));
-  gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
+  gtk_window_add_accel_group (GTK_WINDOW (port->top_window),
 			      ghid_layer_selector_get_accel_group
                                 (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
-
-  gtk_container_add (GTK_CONTAINER (frame), menu_bar);
-
 }
 
 
@@ -1243,8 +1234,6 @@ ghid_build_pcb_top_window (void)
 		      FALSE, FALSE, 0);
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(ghidgui->menu_hbox), vbox, FALSE, FALSE, 0);
-  hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
   /* Build layer menus */
   ghidgui->layer_selector = ghid_layer_selector_new ();
@@ -1258,7 +1247,8 @@ ghid_build_pcb_top_window (void)
                     NULL);
   /* Build main menu */
   ghidgui->menu_bar = ghid_load_menus ();
-  make_top_menubar (ghidgui->menu_bar, hbox, port);
+  make_actions (port);
+  gtk_box_pack_start(GTK_BOX(vbox), ghidgui->menu_bar, FALSE, FALSE, 0);
 
   frame = gtk_frame_new(NULL);
   gtk_widget_show(frame);
