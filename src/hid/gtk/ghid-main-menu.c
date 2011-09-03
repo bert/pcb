@@ -14,6 +14,7 @@
 
 #include "ghid-main-menu.h"
 #include "ghid-layer-selector.h"
+#include "ghid-route-style-selector.h"
 
 void Message (const char *, ...);
 
@@ -554,6 +555,31 @@ ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
       /* Install new ones */
       mm->n_layer_picks = ghid_layer_selector_install_pick_items
                             (ls, mm->layer_pick_shell, mm->layer_pick_pos);
+    }
+}
+
+/*! \brief Installs or updates route style selector items */
+void
+ghid_main_menu_install_route_style_selector (GHidMainMenu *mm,
+                                             GHidRouteStyleSelector *rss)
+{
+  GList *children;
+  /* @routestyles */
+  if (mm->route_style_shell)
+    {
+      /* Remove old children */
+      children = gtk_container_get_children
+                   (GTK_CONTAINER (mm->route_style_shell));
+      children = g_list_nth (children, mm->route_style_pos);
+      while (children && mm->n_route_styles--)
+        {
+          gtk_container_remove (GTK_CONTAINER (mm->route_style_shell),
+                                children->data);
+          children = g_list_next (children);
+        }
+      /* Install new ones */
+      mm->n_route_styles = ghid_route_style_selector_install_items
+                             (rss, mm->route_style_shell, mm->route_style_pos);
     }
 }
 

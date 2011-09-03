@@ -6,6 +6,7 @@
 #include <gtk/gtk.h>
 
 #include "ghid-layer-selector.h"
+#include "ghid-route-style-selector.h"
 #include "resource.h"
 
 G_BEGIN_DECLS  /* keep c++ happy */
@@ -37,6 +38,8 @@ GtkMenu *ghid_main_menu_get_popup (GHidMainMenu *menu, const char *name);
 
 void ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
                                             GHidLayerSelector *ls);
+void ghid_main_menu_install_route_style_selector (GHidMainMenu *mm,
+                                                  GHidRouteStyleSelector *rss);
 
 G_END_DECLS  /* keep c++ happy */
 #endif
