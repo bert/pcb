@@ -105,10 +105,11 @@ typedef struct
 
   GtkWidget *top_hbox,
     *menu_hbox, *position_hbox,
-    *mode_buttons0_vbox, *mode_buttons1_hbox, *mode_buttons1_vbox,
-    *mode_buttons0_frame, *mode_buttons1_frame, *mode_buttons0_frame_vbox;
+    *menubar_toolbar_vbox,
+    *mode_buttons_frame;
   GtkWidget *left_toolbar;
   GtkWidget *menu_bar, *layer_selector;
+  GtkWidget *mode_toolbar;
 
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;

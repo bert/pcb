@@ -1008,7 +1008,10 @@ ghid_route_style_set_temp_style (RouteStyleType * rst, gint which)
  */
 typedef struct
 {
-  GtkWidget *button, *box0, *box1;
+  GtkWidget *button;
+  GtkWidget *toolbar_button;
+  guint button_cb_id;
+  guint toolbar_button_cb_id;
   gchar *name;
   gint mode;
   gchar **xpm;
@@ -1017,36 +1020,62 @@ ModeButton;
 
 
 static ModeButton mode_buttons[] = {
-  {NULL, NULL, NULL, "via", VIA_MODE, via},
-  {NULL, NULL, NULL, "line", LINE_MODE, line},
-  {NULL, NULL, NULL, "arc", ARC_MODE, arc},
-  {NULL, NULL, NULL, "text", TEXT_MODE, text},
-  {NULL, NULL, NULL, "rectangle", RECTANGLE_MODE, rect},
-  {NULL, NULL, NULL, "polygon", POLYGON_MODE, poly},
-  {NULL, NULL, NULL, "polygonhole", POLYGONHOLE_MODE, polyhole},
-  {NULL, NULL, NULL, "buffer", PASTEBUFFER_MODE, buf},
-  {NULL, NULL, NULL, "remove", REMOVE_MODE, del},
-  {NULL, NULL, NULL, "rotate", ROTATE_MODE, rot},
-  {NULL, NULL, NULL, "insertPoint", INSERTPOINT_MODE, ins},
-  {NULL, NULL, NULL, "thermal", THERMAL_MODE, thrm},
-  {NULL, NULL, NULL, "select", ARROW_MODE, sel},
-  {NULL, NULL, NULL, "lock", LOCK_MODE, lock}
+  {NULL, NULL, 0, 0, "via", VIA_MODE, via},
+  {NULL, NULL, 0, 0, "line", LINE_MODE, line},
+  {NULL, NULL, 0, 0, "arc", ARC_MODE, arc},
+  {NULL, NULL, 0, 0, "text", TEXT_MODE, text},
+  {NULL, NULL, 0, 0, "rectangle", RECTANGLE_MODE, rect},
+  {NULL, NULL, 0, 0, "polygon", POLYGON_MODE, poly},
+  {NULL, NULL, 0, 0, "polygonhole", POLYGONHOLE_MODE, polyhole},
+  {NULL, NULL, 0, 0, "buffer", PASTEBUFFER_MODE, buf},
+  {NULL, NULL, 0, 0, "remove", REMOVE_MODE, del},
+  {NULL, NULL, 0, 0, "rotate", ROTATE_MODE, rot},
+  {NULL, NULL, 0, 0, "insertPoint", INSERTPOINT_MODE, ins},
+  {NULL, NULL, 0, 0, "thermal", THERMAL_MODE, thrm},
+  {NULL, NULL, 0, 0, "select", ARROW_MODE, sel},
+  {NULL, NULL, 0, 0, "lock", LOCK_MODE, lock}
 };
 
 static gint n_mode_buttons = G_N_ELEMENTS (mode_buttons);
 
+static void
+do_set_mode (int mode)
+{
+  SetMode (mode);
+  ghid_mode_cursor (mode);
+  ghidgui->settings_mode = mode;
+}
+
+static void
+mode_toolbar_button_toggled_cb (GtkToggleButton *button, ModeButton * mb)
+{
+  gboolean active = gtk_toggle_button_get_active (button);
+
+  if (mb->button != NULL)
+    {
+      g_signal_handler_block (mb->button, mb->button_cb_id);
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->button), active);
+      g_signal_handler_unblock (mb->button, mb->button_cb_id);
+    }
+
+  if (active)
+    do_set_mode (mb->mode);
+}
 
 static void
 mode_button_toggled_cb (GtkWidget * widget, ModeButton * mb)
 {
   gboolean active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
-  if (active)
+  if (mb->toolbar_button != NULL)
     {
-    SetMode (mb->mode);
-    ghid_mode_cursor (mb->mode);
-    ghidgui->settings_mode = mb->mode;
-	}
+      g_signal_handler_block (mb->toolbar_button, mb->toolbar_button_cb_id);
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->toolbar_button), active);
+      g_signal_handler_unblock (mb->toolbar_button, mb->toolbar_button_cb_id);
+    }
+
+  if (active)
+    do_set_mode (mb->mode);
 }
 
 void
@@ -1059,102 +1088,105 @@ ghid_mode_buttons_update (void)
     {
       mb = &mode_buttons[i];
       if (Settings.Mode == mb->mode)
-	{
-	  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->button), TRUE);
-	  break;
-	}
+        {
+          g_signal_handler_block (mb->button, mb->button_cb_id);
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->button), TRUE);
+          g_signal_handler_unblock (mb->button, mb->button_cb_id);
+
+          g_signal_handler_block (mb->toolbar_button, mb->toolbar_button_cb_id);
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->toolbar_button), TRUE);
+          g_signal_handler_unblock (mb->toolbar_button, mb->toolbar_button_cb_id);
+          break;
+        }
     }
 }
 
 void
-ghid_pack_mode_buttons(void)
+ghid_pack_mode_buttons (void)
 {
-	ModeButton *mb;
-	gint	i;
-  static gint	last_pack_compact = -1;
-
-  if (last_pack_compact >= 0)
-		{
-		if (last_pack_compact)
-			gtk_container_remove(GTK_CONTAINER(ghidgui->mode_buttons1_vbox),
-						ghidgui->mode_buttons1_frame);
-		else
-			gtk_container_remove(GTK_CONTAINER(ghidgui->mode_buttons0_frame_vbox),
-						ghidgui->mode_buttons0_frame);
-
-		for (i = 0; i < n_mode_buttons; ++i)
-			{
-			mb = &mode_buttons[i];
-			if (last_pack_compact)
-				gtk_container_remove (GTK_CONTAINER (mb->box1), mb->button);
-			else
-				gtk_container_remove (GTK_CONTAINER (mb->box0), mb->button);
-			}
-		}
-	for (i = 0; i < n_mode_buttons; ++i)
-		{
-		mb = &mode_buttons[i];
-		if (ghidgui->compact_vertical)
-			gtk_box_pack_start (GTK_BOX (mb->box1), mb->button, FALSE, FALSE, 0);
-		else
-			gtk_box_pack_start (GTK_BOX (mb->box0), mb->button, FALSE, FALSE, 0);
-		}
-	if (ghidgui->compact_vertical)
-		{
-		gtk_box_pack_start(GTK_BOX(ghidgui->mode_buttons1_vbox),
-				ghidgui->mode_buttons1_frame, FALSE, FALSE, 0);
-		gtk_widget_show_all(ghidgui->mode_buttons1_frame);
-		}
-	else
-		{
-		gtk_box_pack_start(GTK_BOX(ghidgui->mode_buttons0_frame_vbox),
-				ghidgui->mode_buttons0_frame, FALSE, FALSE, 0);
-		gtk_widget_show_all(ghidgui->mode_buttons0_frame);
-		}
-	last_pack_compact = ghidgui->compact_vertical;
+  if (ghidgui->compact_vertical)
+    {
+      gtk_widget_hide (ghidgui->mode_buttons_frame);
+      gtk_widget_show_all (ghidgui->mode_toolbar);
+    }
+  else
+    {
+      gtk_widget_hide (ghidgui->mode_toolbar);
+      gtk_widget_show_all (ghidgui->mode_buttons_frame);
+    }
 }
 
 static void
-make_mode_buttons (GHidPort * port)
+make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
+                               GtkWidget **mode_toolbar)
 {
-  ModeButton *mb;
-  GtkWidget *hbox0 = NULL, *button;
+  GtkToolItem *tool_item;
+  GtkWidget *vbox, *hbox = NULL;
   GtkWidget *image;
   GdkPixbuf *pixbuf;
   GSList *group = NULL;
-  gint i;
+  GSList *toolbar_group = NULL;
+  ModeButton *mb;
+  int i;
+
+  *mode_toolbar = gtk_toolbar_new ();
+
+  *mode_frame = gtk_frame_new (NULL);
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (*mode_frame), vbox);
 
   for (i = 0; i < n_mode_buttons; ++i)
     {
       mb = &mode_buttons[i];
-      button = gtk_radio_button_new (group);
-      mb->button = button;
-      g_object_ref(G_OBJECT(mb->button));
-      group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
-      gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
 
+      /* Create tool button for mode frame */
+      mb->button = gtk_radio_button_new (group);
+      group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->button));
+      gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->button), FALSE);
+
+      /* Create tool button for toolbar */
+      mb->toolbar_button = gtk_radio_button_new (toolbar_group);
+      toolbar_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->toolbar_button));
+      gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->toolbar_button), FALSE);
+
+      /* Pack mode-frame button into the frame */
       if ((i % ghidgui->n_mode_button_columns) == 0)
         {
-        hbox0 = gtk_hbox_new (FALSE, 0);
-        gtk_box_pack_start (GTK_BOX (ghidgui->mode_buttons0_vbox),
-            hbox0, FALSE, FALSE, 0);
+          hbox = gtk_hbox_new (FALSE, 0);
+          gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
         }
-      mb->box0 = hbox0;
+      gtk_box_pack_start (GTK_BOX (hbox), mb->button, FALSE, FALSE, 0);
 
-      mb->box1 = ghidgui->mode_buttons1_hbox;
+      /* Create a container for the toolbar button and add that */
+      tool_item = gtk_tool_item_new ();
+      gtk_container_add (GTK_CONTAINER (tool_item), mb->toolbar_button);
+      gtk_toolbar_insert (GTK_TOOLBAR (*mode_toolbar), tool_item, -1);
 
+      /* Load the image for the button, create GtkImage widgets for both
+       * the grid button and the toolbar button, then pack into the buttons
+       */
       pixbuf = gdk_pixbuf_new_from_xpm_data ((const char **) mb->xpm);
       image = gtk_image_new_from_pixbuf (pixbuf);
-      g_object_unref (G_OBJECT (pixbuf));
+      gtk_container_add (GTK_CONTAINER (mb->button), image);
+      image = gtk_image_new_from_pixbuf (pixbuf);
+      gtk_container_add (GTK_CONTAINER (mb->toolbar_button), image);
+      g_object_unref (pixbuf);
 
-      gtk_container_add (GTK_CONTAINER (button), image);
-      if (!strcmp (mb->name, "select"))
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-      g_signal_connect (button, "toggled",
-			G_CALLBACK (mode_button_toggled_cb), mb);
+      if (strcmp (mb->name, "select") == 0)
+        {
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->button), TRUE);
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mb->toolbar_button), TRUE);
+        }
+
+      mb->button_cb_id =
+        g_signal_connect (mb->button, "toggled",
+                          G_CALLBACK (mode_button_toggled_cb), mb);
+      mb->toolbar_button_cb_id =
+        g_signal_connect (mb->toolbar_button, "toggled",
+                          G_CALLBACK (mode_toolbar_button_toggled_cb), mb);
     }
-  ghid_pack_mode_buttons();
 }
+
 
 /*
  * ---------------------------------------------------------------
@@ -1213,9 +1245,9 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start (GTK_BOX (ghidgui->top_hbox), ghidgui->menu_hbox,
 		      FALSE, FALSE, 0);
 
-  ghidgui->mode_buttons1_vbox = gtk_vbox_new (FALSE, 0);
+  ghidgui->menubar_toolbar_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (ghidgui->menu_hbox),
-                      ghidgui->mode_buttons1_vbox, FALSE, FALSE, 0);
+                      ghidgui->menubar_toolbar_vbox, FALSE, FALSE, 0);
 
   /* Build layer menus */
   ghidgui->layer_selector = ghid_layer_selector_new ();
@@ -1230,15 +1262,14 @@ ghid_build_pcb_top_window (void)
   /* Build main menu */
   ghidgui->menu_bar = ghid_load_menus ();
   make_actions (port);
-  gtk_box_pack_start (GTK_BOX (ghidgui->mode_buttons1_vbox),
+  gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
                       ghidgui->menu_bar, FALSE, FALSE, 0);
 
-  ghidgui->mode_buttons1_frame = gtk_frame_new (NULL);
-  gtk_widget_show (ghidgui->mode_buttons1_frame);
-  g_object_ref (ghidgui->mode_buttons1_frame);
-  ghidgui->mode_buttons1_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons1_frame),
-                     ghidgui->mode_buttons1_hbox);
+  make_mode_buttons_and_toolbar (&ghidgui->mode_buttons_frame,
+                                 &ghidgui->mode_toolbar);
+  gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
+                      ghidgui->mode_toolbar, FALSE, FALSE, 0);
+
 
   ghidgui->position_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_end (GTK_BOX(ghidgui->top_hbox),
@@ -1264,17 +1295,11 @@ ghid_build_pcb_top_window (void)
   gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
                       FALSE, FALSE, 0);
 
-  ghidgui->mode_buttons0_frame_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX(ghidgui->left_toolbar),
-                      ghidgui->mode_buttons0_frame_vbox, FALSE, FALSE, 0);
-
-  ghidgui->mode_buttons0_frame = gtk_frame_new (NULL);
-  gtk_widget_show (ghidgui->mode_buttons0_frame);
-  g_object_ref (ghidgui->mode_buttons0_frame);
-  ghidgui->mode_buttons0_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (ghidgui->mode_buttons0_frame),
-                     ghidgui->mode_buttons0_vbox);
-  make_mode_buttons (port);
+  /* ghidgui->mode_buttons_frame was created above in the call to
+   * make_mode_buttons_and_toolbar (...);
+   */
+  gtk_box_pack_start (GTK_BOX (ghidgui->left_toolbar),
+                      ghidgui->mode_buttons_frame, FALSE, FALSE, 0);
 
   frame = gtk_frame_new(NULL);
   gtk_box_pack_end (GTK_BOX (ghidgui->left_toolbar), frame, FALSE, FALSE, 0);
@@ -1390,6 +1415,7 @@ ghid_build_pcb_top_window (void)
   ghidgui->creating = FALSE;
 
   gtk_widget_show_all (gport->top_window);
+  ghid_pack_mode_buttons ();
   gdk_window_set_back_pixmap (gport->drawing_area->window, NULL, FALSE);
 
   ghid_route_style_temp_buttons_hide ();
