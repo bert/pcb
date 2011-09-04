@@ -112,6 +112,10 @@ typedef struct
   GtkWidget *grid_units_button;
   GtkWidget *menu_bar, *layer_selector;
   GtkWidget *mode_toolbar;
+  GtkWidget *vbox_middle;
+
+  GtkWidget *info_bar;
+  GFileMonitor *file_monitor;
 
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
