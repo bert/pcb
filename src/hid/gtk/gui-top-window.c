@@ -680,20 +680,20 @@ relative_label_size_req_cb (GtkWidget * widget,
 static void
 make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
 {
-  GtkWidget *frame, *label, *button;
+  GtkWidget *frame, *label;
 
   /* The grid units button next to the cursor position labels.
    */
-  button = gtk_button_new ();
+  ghidgui->grid_units_button = gtk_button_new ();
   label = gtk_label_new ("");
   gtk_label_set_markup (GTK_LABEL (label),
 			Settings.grid_unit->in_suffix);
   ghidgui->grid_units_label = label;
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_container_add (GTK_CONTAINER (button), label);
-  gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, TRUE, 0);
-  g_signal_connect (G_OBJECT (button), "clicked",
-		    G_CALLBACK (grid_units_button_cb), NULL);
+  gtk_container_add (GTK_CONTAINER (ghidgui->grid_units_button), label);
+  gtk_box_pack_end (GTK_BOX (hbox), ghidgui->grid_units_button, FALSE, TRUE, 0);
+  g_signal_connect (ghidgui->grid_units_button, "clicked",
+                    G_CALLBACK (grid_units_button_cb), NULL);
 
   /* The absolute cursor position label
    */
@@ -1214,6 +1214,92 @@ destroy_chart_cb (GtkWidget * widget, GHidPort * port)
   gtk_main_quit ();
 }
 
+static void
+get_widget_styles (GtkStyle **menu_bar_style,
+                   GtkStyle **tool_button_style,
+                   GtkStyle **tool_button_label_style)
+{
+  GtkWidget *tool_button;
+  GtkWidget *tool_button_label;
+  GtkToolItem *tool_item;
+
+  /* Build a tool item to extract the theme's styling for a toolbar button with text */
+  tool_item = gtk_tool_item_new ();
+  gtk_toolbar_insert (GTK_TOOLBAR (ghidgui->mode_toolbar), tool_item, 0);
+  tool_button = gtk_button_new ();
+  gtk_container_add (GTK_CONTAINER (tool_item), tool_button);
+  tool_button_label = gtk_label_new ("");
+  gtk_container_add (GTK_CONTAINER (tool_button), tool_button_label);
+
+  /* Grab the various styles we need */
+  gtk_widget_ensure_style (ghidgui->menu_bar);
+  *menu_bar_style = gtk_widget_get_style (ghidgui->menu_bar);
+
+  gtk_widget_ensure_style (tool_button);
+  *tool_button_style = gtk_widget_get_style (tool_button);
+
+  gtk_widget_ensure_style (tool_button_label);
+  *tool_button_label_style = gtk_widget_get_style (tool_button_label);
+
+  gtk_widget_destroy (GTK_WIDGET (tool_item));
+}
+
+static void
+do_fix_topbar_theming (void)
+{
+  GtkWidget *rel_pos_frame;
+  GtkWidget *abs_pos_frame;
+  GtkStyle *menu_bar_style;
+  GtkStyle *tool_button_style;
+  GtkStyle *tool_button_label_style;
+
+  get_widget_styles (&menu_bar_style,
+                     &tool_button_style,
+                     &tool_button_label_style);
+
+  /* Style the top bar background as if it were all a menu bar */
+  gtk_widget_set_style (ghidgui->top_bar_background, menu_bar_style);
+
+  /* Style the cursor position labels using the menu bar style as well.
+   * If this turns out to cause problems with certain gtk themes, we may
+   * need to grab the GtkStyle associated with an actual menu item to
+   * get a text color to render with.
+   */
+  gtk_widget_set_style (ghidgui->cursor_position_relative_label, menu_bar_style);
+  gtk_widget_set_style (ghidgui->cursor_position_absolute_label, menu_bar_style);
+
+  /* Style the units button as if it were a toolbar button - hopefully
+   * this isn't too ugly sitting on a background themed as a menu bar.
+   * It is unlikely any theme defines colours for a GtkButton sitting on
+   * a menu bar.
+   */
+  rel_pos_frame = gtk_widget_get_parent (ghidgui->cursor_position_relative_label);
+  abs_pos_frame = gtk_widget_get_parent (ghidgui->cursor_position_absolute_label);
+  gtk_widget_set_style (rel_pos_frame, menu_bar_style);
+  gtk_widget_set_style (abs_pos_frame, menu_bar_style);
+  gtk_widget_set_style (ghidgui->grid_units_button, tool_button_style);
+  gtk_widget_set_style (ghidgui->grid_units_label, tool_button_label_style);
+}
+
+/* Attempt to produce a conststent style for our extra menu-bar items by
+ * copying aspects from the menu bar style set by the user's GTK theme.
+ * Setup signal handlers to update our efforts if the user changes their
+ * theme whilst we are running.
+ */
+static void
+fix_topbar_theming (void)
+{
+  GtkSettings *settings;
+
+  do_fix_topbar_theming ();
+
+  settings = gtk_widget_get_settings (ghidgui->top_bar_background);
+  g_signal_connect (settings, "notify::gtk-theme-name",
+                    G_CALLBACK (do_fix_topbar_theming), NULL);
+  g_signal_connect (settings, "notify::gtk-font-name",
+                    G_CALLBACK (do_fix_topbar_theming), NULL);
+}
+
 /* 
  * Create the top_window contents.  The config settings should be loaded
  * before this is called.
@@ -1234,8 +1320,13 @@ ghid_build_pcb_top_window (void)
   gtk_container_add (GTK_CONTAINER (window), vbox_main);
 
   /* -- Top control bar */
+  ghidgui->top_bar_background = gtk_event_box_new ();
+  gtk_box_pack_start (GTK_BOX (vbox_main),
+                      ghidgui->top_bar_background, FALSE, FALSE, 0);
+
   ghidgui->top_hbox = gtk_hbox_new (FALSE, 4);
-  gtk_box_pack_start (GTK_BOX (vbox_main), ghidgui->top_hbox, FALSE, FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (ghidgui->top_bar_background),
+                     ghidgui->top_hbox);
 
   /*
    * menu_hbox will be made insensitive when the gui needs
@@ -1280,6 +1371,7 @@ ghid_build_pcb_top_window (void)
   hbox_middle = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox_main), hbox_middle, TRUE, TRUE, 3);
 
+  fix_topbar_theming (); /* Must be called after toolbar is created */
 
   /* -- Left control bar */
   /*

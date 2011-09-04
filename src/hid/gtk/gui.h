@@ -104,10 +104,12 @@ typedef struct
   GtkEntry *command_entry;
 
   GtkWidget *top_hbox,
+    *top_bar_background,
     *menu_hbox, *position_hbox,
     *menubar_toolbar_vbox,
     *mode_buttons_frame;
   GtkWidget *left_toolbar;
+  GtkWidget *grid_units_button;
   GtkWidget *menu_bar, *layer_selector;
   GtkWidget *mode_toolbar;
 
