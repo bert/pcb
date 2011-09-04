@@ -414,12 +414,7 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
      |  insensitive so all the user can do is enter a command, grab focus
      |  and connect a handler to look for the escape key.
    */
-  gtk_window_remove_accel_group (GTK_WINDOW (out->top_window),
-                                 ghid_main_menu_get_accel_group
-                                   (GHID_MAIN_MENU (ghidgui->menu_bar)));
-  gtk_window_remove_accel_group (GTK_WINDOW (out->top_window),
-                                 ghid_layer_selector_get_accel_group
-                                   (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
+  ghid_remove_accel_groups (GTK_WINDOW (gport->top_window), ghidgui);
   ghid_interface_input_signals_disconnect ();
   ghid_interface_set_sensitive (FALSE);
   gtk_widget_grab_focus (GTK_WIDGET (ghidgui->command_entry));
@@ -440,12 +435,7 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
   g_signal_handler_disconnect (ghidgui->command_entry, escape_sig_id);
   ghid_interface_input_signals_connect ();
   ghid_interface_set_sensitive (TRUE);
-  gtk_window_add_accel_group (GTK_WINDOW (out->top_window),
-                              ghid_main_menu_get_accel_group
-                                (GHID_MAIN_MENU (ghidgui->menu_bar)));
-  gtk_window_add_accel_group (GTK_WINDOW (out->top_window),
-                              ghid_layer_selector_get_accel_group
-                                (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
+  ghid_install_accel_groups (GTK_WINDOW (gport->top_window), ghidgui);
 
   /* Restore the status line label and give focus back to the drawing area
    */

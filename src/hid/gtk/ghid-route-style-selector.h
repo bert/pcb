@@ -30,5 +30,8 @@ gboolean ghid_route_style_selector_select_style (GHidRouteStyleSelector *rss,
                                                   RouteStyleType *rst);
 void ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss);
 
+GtkAccelGroup *ghid_route_style_selector_get_accel_group
+                 (GHidRouteStyleSelector *rss);
+
 G_END_DECLS  /* keep c++ happy */
 #endif

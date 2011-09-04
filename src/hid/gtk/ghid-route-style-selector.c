@@ -50,6 +50,9 @@ struct _GHidRouteStyleSelector
   GSList *action_radio_group;
   GtkWidget *edit_button;
 
+  GtkActionGroup *action_group;
+  GtkAccelGroup *accel_group;
+
   GtkListStore *model;
   struct _route_style *active_style;
 };
@@ -363,6 +366,9 @@ ghid_route_style_selector_new ()
   rss->button_radio_group = NULL;
   rss->model = gtk_list_store_new (N_COLS, G_TYPE_STRING, G_TYPE_POINTER);
 
+  rss->accel_group = gtk_accel_group_new ();
+  rss->action_group = gtk_action_group_new ("RouteStyleSelector");
+
   /* Create edit button */
   rss->edit_button = gtk_button_new_with_label (_("Route Styles"));
   g_signal_connect (G_OBJECT (rss->edit_button), "clicked",
@@ -408,6 +414,18 @@ ghid_route_style_selector_real_add_route_style (GHidRouteStyleSelector *rss,
   new_style->rref = gtk_tree_row_reference_new (GTK_TREE_MODEL (rss->model),
                                                 path);
   gtk_tree_path_free (path);
+
+  /* Setup accelerator */
+  if (action_count < 12)
+    {
+      gchar *accel = g_strdup_printf ("<Ctrl>F%d", action_count + 1);
+      gtk_action_set_accel_group (GTK_ACTION (new_style->action),
+                                  rss->accel_group);
+      gtk_action_group_add_action_with_accel (rss->action_group,
+                                              GTK_ACTION (new_style->action),
+                                              accel);
+      g_free (accel);
+    }
 
   /* Hookup and install radio button */
   g_object_set_data (G_OBJECT (new_style->action), "route-style", new_style);
@@ -510,5 +528,18 @@ ghid_route_style_selector_select_style (GHidRouteStyleSelector *rss,
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
 
   return FALSE;
+}
+
+/*! \brief Returns the GtkAccelGroup of a route style selector
+ *  \par Function Description
+ *
+ *  \param [in] rss            The selector to be acted on
+ *
+ *  \return the accel group of the selector
+ */
+GtkAccelGroup *
+ghid_route_style_selector_get_accel_group (GHidRouteStyleSelector *rss)
+{
+  return rss->accel_group;
 }
 

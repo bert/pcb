@@ -424,15 +424,33 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
 }
 
 /*! \brief Install menu bar and accelerator groups */
-static void
-make_actions (GHidPort * port)
+void
+ghid_install_accel_groups (GtkWindow *window, GhidGui *gui)
 {
-  gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
-			      ghid_main_menu_get_accel_group
-                                (GHID_MAIN_MENU (ghidgui->menu_bar)));
-  gtk_window_add_accel_group (GTK_WINDOW (port->top_window),
-			      ghid_layer_selector_get_accel_group
-                                (GHID_LAYER_SELECTOR (ghidgui->layer_selector)));
+  gtk_window_add_accel_group
+    (window, ghid_main_menu_get_accel_group
+               (GHID_MAIN_MENU (gui->menu_bar)));
+  gtk_window_add_accel_group
+    (window, ghid_layer_selector_get_accel_group
+               (GHID_LAYER_SELECTOR (gui->layer_selector)));
+  gtk_window_add_accel_group
+    (window, ghid_route_style_selector_get_accel_group
+               (GHID_ROUTE_STYLE_SELECTOR (gui->route_style_selector)));
+}
+
+/*! \brief Remove menu bar and accelerator groups */
+void
+ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui)
+{
+  gtk_window_remove_accel_group
+    (window, ghid_main_menu_get_accel_group
+               (GHID_MAIN_MENU (gui->menu_bar)));
+  gtk_window_remove_accel_group
+    (window, ghid_layer_selector_get_accel_group
+               (GHID_LAYER_SELECTOR (gui->layer_selector)));
+  gtk_window_remove_accel_group
+    (window, ghid_route_style_selector_get_accel_group
+               (GHID_ROUTE_STYLE_SELECTOR (gui->route_style_selector)));
 }
 
 static void
@@ -1163,7 +1181,6 @@ ghid_build_pcb_top_window (void)
                     NULL);
   /* Build main menu */
   ghidgui->menu_bar = ghid_load_menus ();
-  make_actions (port);
   gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
                       ghidgui->menu_bar, FALSE, FALSE, 0);
 
@@ -1436,6 +1453,7 @@ ghid_create_pcb_widgets (void)
     g_error_free(err);
     }
   ghid_build_pcb_top_window ();
+  ghid_install_accel_groups (GTK_WINDOW (port->top_window), ghidgui);
   ghid_update_toggle_flags ();
 
   ghid_init_icons (port);
