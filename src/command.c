@@ -354,6 +354,8 @@ CommandSaveLayout (int argc, char **argv, Coord x, Coord y)
           SetChangedFlag (false);
           free (PCB->Filename);
           PCB->Filename = strdup (argv[0]);
+           if (gui->notify_filename_changed != NULL)
+            gui->notify_filename_changed ();
         }
       break;
 
