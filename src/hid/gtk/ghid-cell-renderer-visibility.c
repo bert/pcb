@@ -54,9 +54,14 @@ ghid_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
 {
   GtkStyle *style = gtk_widget_get_style (widget);
   gint w, h;
+  gint xpad, ypad;
+  gfloat xalign, yalign;
 
-  w = VISIBILITY_TOGGLE_SIZE + 2 * (cell->xpad + style->xthickness);
-  h = VISIBILITY_TOGGLE_SIZE + 2 * (cell->ypad + style->ythickness);
+  gtk_cell_renderer_get_padding (cell, &xpad, &ypad);
+  gtk_cell_renderer_get_alignment (cell, &xalign, &yalign);
+
+  w = VISIBILITY_TOGGLE_SIZE + 2 * (xpad + style->xthickness);
+  h = VISIBILITY_TOGGLE_SIZE + 2 * (ypad + style->ythickness);
 
   if (width)
     *width = w;
@@ -67,13 +72,12 @@ ghid_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
     {
       if (x_offset)
         {
-          gint xalign = (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
-                          ? 1.0 - cell->xalign
-                          : cell->xalign;
+          if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
+            xalign = 1. - xalign;
           *x_offset = MAX (0, xalign * (cell_area->width - w));
         }
       if (y_offset)
-        *y_offset = MAX(0, cell->yalign * (cell_area->height - h));
+        *y_offset = MAX(0, yalign * (cell_area->height - h));
     }
 }
 
@@ -90,6 +94,7 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
   GHidCellRendererVisibility *pcb_cell;
   GdkRectangle toggle_rect;
   GdkRectangle draw_rect;
+  gint xpad, ypad;
 
   pcb_cell = GHID_CELL_RENDERER_VISIBILITY (cell);
   ghid_cell_renderer_visibility_get_size (cell, widget, cell_area,
@@ -97,11 +102,12 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
                                           &toggle_rect.y,
                                           &toggle_rect.width,
                                           &toggle_rect.height);
+  gtk_cell_renderer_get_padding (cell, &xpad, &ypad);
 
-  toggle_rect.x      += cell_area->x + cell->xpad;
-  toggle_rect.y      += cell_area->y + cell->ypad;
-  toggle_rect.width  -= cell->xpad * 2;
-  toggle_rect.height -= cell->ypad * 2;
+  toggle_rect.x      += cell_area->x + xpad;
+  toggle_rect.y      += cell_area->y + ypad;
+  toggle_rect.width  -= xpad * 2;
+  toggle_rect.height -= ypad * 2;
 
   if (toggle_rect.width <= 0 || toggle_rect.height <= 0)
     return;
