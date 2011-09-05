@@ -471,11 +471,11 @@ info_bar_response_cb (GtkInfoBar *info_bar,
 {
   GhidGui *_gui = (GhidGui *)user_data;
 
-  if (response_id == GTK_RESPONSE_ACCEPT)
-    hid_actionl ("LoadFrom", "revert", "none", NULL);
-
   gtk_widget_destroy (_gui->info_bar);
   _gui->info_bar = NULL;
+
+  if (response_id == GTK_RESPONSE_ACCEPT)
+    hid_actionl ("LoadFrom", "revert", "none", NULL);
 }
 
 static void
