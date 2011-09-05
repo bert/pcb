@@ -1168,7 +1168,7 @@ ghid_pinout_preview_expose (GtkWidget *widget,
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GdkDrawable *save_drawable;
-  int da_w, da_h;
+  GtkAllocation allocation;
   view_data save_view;
   int save_width, save_height;
   double xz, yz;
@@ -1181,24 +1181,25 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   save_width = gport->width;
   save_height = gport->height;
 
-  gdk_window_get_geometry (widget->window, 0, 0, &da_w, &da_h, 0);
-  xz = (double) pinout->x_max / da_w;
-  yz = (double) pinout->y_max / da_h;
+  gtk_widget_get_allocation (widget, &allocation);
+  xz = (double) pinout->x_max / allocation.width;
+  yz = (double) pinout->y_max / allocation.height;
   if (xz > yz)
     gport->view.coord_per_px = xz;
   else
     gport->view.coord_per_px = yz;
 
   gport->drawable = widget->window;
-  gport->width = da_w;
-  gport->height = da_h;
-  gport->view.width = da_w * gport->view.coord_per_px;
-  gport->view.height = da_h * gport->view.coord_per_px;
+  gport->width = allocation.width;
+  gport->height = allocation.height;
+  gport->view.width = allocation.width * gport->view.coord_per_px;
+  gport->view.height = allocation.height * gport->view.coord_per_px;
   gport->view.x0 = (pinout->x_max - gport->view.width) / 2;
   gport->view.y0 = (pinout->y_max - gport->view.height) / 2;
 
   /* clear background */
-  gdk_draw_rectangle (widget->window, priv->bg_gc, TRUE, 0, 0, da_w, da_h);
+  gdk_draw_rectangle (widget->window, priv->bg_gc, TRUE,
+                      0, 0, allocation.width, allocation.height);
 
   /* call the drawing routine */
   hid_expose_callback (&ghid_hid, NULL, &pinout->element);
