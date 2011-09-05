@@ -60,8 +60,8 @@ ghid_port_ranges_changed (void)
 
   h_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
   v_adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
-  gport->view.x0 = h_adj->value;
-  gport->view.y0 = v_adj->value;
+  gport->view.x0 = gtk_adjustment_get_value (h_adj);
+  gport->view.y0 = gtk_adjustment_get_value (v_adj);
 
   ghid_invalidate_all ();
 }
@@ -73,6 +73,7 @@ void
 ghid_port_ranges_scale (void)
 {
   GtkAdjustment *adj;
+  gdouble page_size;
 
   /* Update the scrollbars with PCB units.  So Scale the current
      |  drawing area size in pixels to PCB units and that will be
@@ -82,18 +83,24 @@ ghid_port_ranges_scale (void)
   gport->view.height = gport->height * gport->view.coord_per_px;
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
-  adj->page_size = MIN (gport->view.width, PCB->MaxWidth);
-  adj->page_increment = adj->page_size / 10.0;
-  adj->step_increment = adj->page_size / 100.0;
-  adj->lower = -gport->view.width;
-  adj->upper = PCB->MaxWidth + adj->page_size;
+  page_size = MIN (gport->view.width, PCB->MaxWidth);
+  gtk_adjustment_configure (adj,
+                            gtk_adjustment_get_value (adj), /* value          */
+                            -gport->view.width,             /* lower          */
+                             PCB->MaxWidth + page_size,     /* upper          */
+                             page_size / 100.0,             /* step_increment */
+                             page_size / 10.0,              /* page_increment */
+                             page_size);                    /* page_size      */
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
-  adj->page_size = MIN (gport->view.height, PCB->MaxHeight);
-  adj->page_increment = adj->page_size / 10.0;
-  adj->step_increment = adj->page_size / 100.0;
-  adj->lower = -gport->view.height;
-  adj->upper = PCB->MaxHeight + adj->page_size;
+  page_size = MIN (gport->view.height, PCB->MaxHeight);
+  gtk_adjustment_configure (adj,
+                            gtk_adjustment_get_value (adj), /* value          */
+                            -gport->view.height,            /* lower          */
+                            PCB->MaxHeight + page_size,     /* upper          */
+                            page_size / 100.0,              /* step_increment */
+                            page_size / 10.0,               /* page_increment */
+                            page_size);                     /* page_size      */
 }
 
 
