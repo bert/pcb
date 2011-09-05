@@ -236,7 +236,7 @@ command_combo_box_entry_create (void)
 {
   ghidgui->command_combo_box = gtk_combo_box_entry_new_text ();
   ghidgui->command_entry =
-    GTK_ENTRY (GTK_BIN (ghidgui->command_combo_box)->child);
+    GTK_ENTRY (gtk_bin_get_child (GTK_BIN (ghidgui->command_combo_box)));
 
   gtk_entry_set_width_chars (ghidgui->command_entry, 40);
   gtk_entry_set_activates_default (ghidgui->command_entry, TRUE);
