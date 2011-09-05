@@ -516,7 +516,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
    * bounds of the un-scaled text, and the thickness clamping applies to
    * scaled text.
    */
-  min_unscaled_radius = min_final_radius * 100 / Text->Scale;
+  min_unscaled_radius = UNSCALE_TEXT (min_final_radius, Text->Scale);
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
@@ -572,10 +572,10 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
     }
 
   /* scale values */
-  minx = minx * Text->Scale / 100;
-  miny = miny * Text->Scale / 100;
-  maxx = maxx * Text->Scale / 100;
-  maxy = maxy * Text->Scale / 100;
+  minx = SCALE_TEXT (minx, Text->Scale);
+  miny = SCALE_TEXT (miny, Text->Scale);
+  maxx = SCALE_TEXT (maxx, Text->Scale);
+  maxy = SCALE_TEXT (maxy, Text->Scale);
 
   /* set upper-left and lower-right corner;
    * swap coordinates if necessary (origin is already in 'swapped')

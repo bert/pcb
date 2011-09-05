@@ -111,16 +111,16 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
   for (i = 0; tmp[i]; i++)
     w +=
       (font->Symbol[(int) tmp[i]].Width + font->Symbol[(int) tmp[i]].Delta);
-  w = w * t.Scale / 100;
+  w = SCALE_TEXT (w, t.Scale);
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
     t.X = 0;
   DrawTextLowLevel (&t, 0);
   if (align & 8)
     fab_line (gc, t.X,
-              t.Y + font->MaxHeight * t.Scale / 100 + MIL_TO_COORD(10),
+              t.Y + SCALE_TEXT (font->MaxHeight, t.Scale) + MIL_TO_COORD(10),
               t.X + w,
-              t.Y + font->MaxHeight * t.Scale / 100 + MIL_TO_COORD(10));
+              t.Y + SCALE_TEXT (font->MaxHeight, t.Scale) + MIL_TO_COORD(10));
 }
 
 /* Y, +, X, circle, square */
