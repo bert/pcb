@@ -479,7 +479,6 @@ ghid_range_control (GtkWidget * box, GtkWidget ** scale_res,
   gtk_scale_set_value_pos (GTK_SCALE (scale), pos);
   gtk_scale_set_draw_value (GTK_SCALE (scale), set_draw_value);
   gtk_scale_set_digits (GTK_SCALE (scale), digits);
-  gtk_range_set_update_policy (GTK_RANGE (scale), GTK_UPDATE_CONTINUOUS);
 
   /* Increments don't make sense, use -1,1 because that does closest to
      |  what I want: scroll down decrements slider value.

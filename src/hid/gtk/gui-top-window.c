@@ -1280,8 +1280,6 @@ ghid_build_pcb_top_window (void)
   ghidgui->v_range =
     gtk_vscrollbar_new (GTK_ADJUSTMENT (ghidgui->v_adjustment));
 
-  gtk_range_set_update_policy (GTK_RANGE (ghidgui->v_range),
-			       GTK_UPDATE_CONTINUOUS);
   gtk_box_pack_start (GTK_BOX (hbox), ghidgui->v_range, FALSE, FALSE, 0);
 
   g_signal_connect (G_OBJECT (ghidgui->v_adjustment), "value_changed",
@@ -1291,8 +1289,6 @@ ghid_build_pcb_top_window (void)
 					      10.0, 10.0, 10.0);
   ghidgui->h_range =
     gtk_hscrollbar_new (GTK_ADJUSTMENT (ghidgui->h_adjustment));
-  gtk_range_set_update_policy (GTK_RANGE (ghidgui->h_range),
-			       GTK_UPDATE_CONTINUOUS);
   gtk_box_pack_start (GTK_BOX (ghidgui->vbox_middle),
                       ghidgui->h_range, FALSE, FALSE, 0);
 
