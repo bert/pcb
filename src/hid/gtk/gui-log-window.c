@@ -50,8 +50,11 @@ static gint
 log_window_configure_event_cb (GtkWidget * widget,
 			       GdkEventConfigure * ev, gpointer data)
 {
-  ghidgui->log_window_width = widget->allocation.width;
-  ghidgui->log_window_height = widget->allocation.height;
+  GtkAllocation allocation;
+
+  gtk_widget_get_allocation (widget, &allocation);
+  ghidgui->log_window_width = allocation.width;
+  ghidgui->log_window_height = allocation.height;
   ghidgui->config_modified = TRUE;
 
   return FALSE;

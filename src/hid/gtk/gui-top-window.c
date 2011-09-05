@@ -194,13 +194,16 @@ static gint
 top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 			       GHidPort * port)
 {
+  GtkAllocation allocation;
   gboolean new_w, new_h;
 
-  new_w = (ghidgui->top_window_width != widget->allocation.width);
-  new_h = (ghidgui->top_window_height != widget->allocation.height);
+  gtk_widget_get_allocation (widget, &allocation);
 
-  ghidgui->top_window_width = widget->allocation.width;
-  ghidgui->top_window_height = widget->allocation.height;
+  new_w = (ghidgui->top_window_width != allocation.width);
+  new_h = (ghidgui->top_window_height != allocation.height);
+
+  ghidgui->top_window_width = allocation.width;
+  ghidgui->top_window_height = allocation.height;
 
   if (new_w || new_h)
     ghidgui->config_modified = TRUE;

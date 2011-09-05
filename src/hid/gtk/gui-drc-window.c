@@ -58,8 +58,11 @@ static gint
 drc_window_configure_event_cb (GtkWidget * widget,
 			       GdkEventConfigure * ev, gpointer data)
 {
-  ghidgui->drc_window_width = widget->allocation.width;
-  ghidgui->drc_window_height = widget->allocation.height;
+  GtkAllocation allocation;
+
+  gtk_widget_get_allocation (widget, &allocation);
+  ghidgui->drc_window_width = allocation.width;
+  ghidgui->drc_window_height = allocation.height;
   ghidgui->config_modified = TRUE;
 
   return FALSE;

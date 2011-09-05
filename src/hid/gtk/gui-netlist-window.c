@@ -668,7 +668,10 @@ static gint
 netlist_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 				   gpointer data)
 {
-  ghidgui->netlist_window_height = widget->allocation.height;
+  GtkAllocation allocation;
+
+  gtk_widget_get_allocation (widget, &allocation);
+  ghidgui->netlist_window_height = allocation.height;
   ghidgui->config_modified = TRUE;
   return FALSE;
 }

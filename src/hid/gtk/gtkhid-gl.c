@@ -904,7 +904,10 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
                              GHidPort *port)
 {
   render_priv *priv = port->render_priv;
+  GtkAllocation allocation;
   BoxType region;
+
+  gtk_widget_get_allocation (widget, &allocation);
 
   ghid_start_drawing (port);
 
@@ -919,16 +922,16 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glViewport (0, 0, widget->allocation.width, widget->allocation.height);
+  glViewport (0, 0, allocation.width, allocation.height);
 
   glEnable (GL_SCISSOR_TEST);
   glScissor (ev->area.x,
-             widget->allocation.height - ev->area.height - ev->area.y,
+             allocation.height - ev->area.height - ev->area.y,
              ev->area.width, ev->area.height);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  glOrtho (0, widget->allocation.width, widget->allocation.height, 0, 0, 100);
+  glOrtho (0, allocation.width, allocation.height, 0, 0, 100);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   glTranslatef (0.0f, 0.0f, -Z_NEAR);
@@ -1063,16 +1066,16 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glViewport (0, 0, widget->allocation.width, widget->allocation.height);
+  glViewport (0, 0, allocation.width, allocation.height);
 
   glEnable (GL_SCISSOR_TEST);
   glScissor (ev->area.x,
-             widget->allocation.height - ev->area.height - ev->area.y,
+             allocation.height - ev->area.height - ev->area.y,
              ev->area.width, ev->area.height);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  glOrtho (0, widget->allocation.width, widget->allocation.height, 0, 0, 100);
+  glOrtho (0, allocation.width, allocation.height, 0, 0, 100);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   glTranslatef (0.0f, 0.0f, -Z_NEAR);
@@ -1236,14 +1239,17 @@ ghid_request_debug_draw (void)
 {
   GHidPort *port = gport;
   GtkWidget *widget = port->drawing_area;
+  GtkAllocation allocation;
+
+  gtk_widget_get_allocation (widget, &allocation);
 
   ghid_start_drawing (port);
 
-  glViewport (0, 0, widget->allocation.width, widget->allocation.height);
+  glViewport (0, 0, allocation.width, allocation.height);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  glOrtho (0, widget->allocation.width, widget->allocation.height, 0, 0, 100);
+  glOrtho (0, allocation.width, allocation.height, 0, 0, 100);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   glTranslatef (0.0f, 0.0f, -Z_NEAR);
