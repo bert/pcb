@@ -113,10 +113,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
   GtkWidget *widget;
   GHidPort *out = &ghid_port;
   int i, j, n;
-  GtkTooltips *tips;
   int rc = 0;
-
-  tips = gtk_tooltips_new ();
 
   dialog = gtk_dialog_new_with_buttons (_(title),
 					GTK_WINDOW (out->top_window),
@@ -151,7 +148,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	case HID_Label:
 	  widget = gtk_label_new (attrs[j].name);
 	  gtk_box_pack_start (GTK_BOX (vbox), widget, FALSE, FALSE, 0);
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (widget, attrs[j].help_text);
 	  break;
 
 	case HID_Integer:
@@ -167,8 +164,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 			    attrs[j].min_val, attrs[j].max_val, 1.0, 1.0, 0, 0,
 			    intspinner_changed_cb,
 			    &(attrs[j].default_val.int_value), FALSE, NULL);
-
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (widget, attrs[j].help_text);
 
 	  widget = gtk_label_new (attrs[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
@@ -185,7 +181,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  if(attrs[j].default_val.str_value != NULL)
 	    gtk_entry_set_text (GTK_ENTRY (entry),
 				attrs[j].default_val.str_value);
-	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (entry, attrs[j].help_text);
 	  g_signal_connect (G_OBJECT (entry), "changed",
 			    G_CALLBACK (coordentry_changed_cb),
 			    &(attrs[j].default_val.coord_value));
@@ -209,7 +205,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 			    dblspinner_changed_cb,
 			    &(attrs[j].default_val.real_value), FALSE, NULL);
 
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (widget, attrs[j].help_text);
 
 	  widget = gtk_label_new (attrs[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
@@ -224,7 +220,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  if(attrs[j].default_val.str_value != NULL)
 	    gtk_entry_set_text (GTK_ENTRY (entry),
 				attrs[j].default_val.str_value);
-	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (entry, attrs[j].help_text);
 	  g_signal_connect (G_OBJECT (entry), "changed",
 			    G_CALLBACK (entry_changed_cb),
 			    &(attrs[j].default_val.str_value));
@@ -240,7 +236,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 				       TRUE, FALSE, FALSE, 0, set_flag_cb,
 				       &(attrs[j].default_val.int_value),
 				       attrs[j].name);
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (widget, attrs[j].help_text);
 	  break;
 
 	case HID_Enum:
@@ -248,16 +244,9 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
         do_enum:
-	  /* 
-	   * We have to put the combo_box inside of an event_box in
-	   * order for tooltips to work.
-	   */
-	  widget = gtk_event_box_new ();
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
-	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-
 	  combo = gtk_combo_box_new_text ();
-	  gtk_container_add (GTK_CONTAINER (widget), combo);
+	  gtk_widget_set_tooltip_text (combo, attrs[j].help_text);
+	  gtk_box_pack_start (GTK_BOX (hbox), combo, FALSE, FALSE, 0);
 	  g_signal_connect (G_OBJECT (combo), "changed",
 			    G_CALLBACK (enum_changed_cb),
 			    &(attrs[j].default_val.int_value));
@@ -294,7 +283,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 			    0,
 			    dblspinner_changed_cb,
 			    &(attrs[j].default_val.real_value), FALSE, NULL);
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (widget, attrs[j].help_text);
 
           goto do_enum;
 	  break;
@@ -309,7 +298,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 			    G_CALLBACK (entry_changed_cb),
 			    &(attrs[j].default_val.str_value));
 
-	  gtk_tooltips_set_tip (tips, entry, attrs[j].help_text, NULL);
+	  gtk_widget_set_tooltip_text (entry, attrs[j].help_text);
 	  break;
 
 	case HID_Unit:
@@ -318,16 +307,10 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-	  /* 
-	   * We have to put the combo_box inside of an event_box in
-	   * order for tooltips to work.
-	   */
-	  widget = gtk_event_box_new ();
-	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
-	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	  combo = gtk_combo_box_new_text ();
-	  gtk_container_add (GTK_CONTAINER (widget), combo);
+	  gtk_widget_set_tooltip_text (combo, attrs[j].help_text);
+	  gtk_box_pack_start (GTK_BOX (hbox), combo, FALSE, FALSE, 0);
 	  g_signal_connect (G_OBJECT (combo), "changed",
 			    G_CALLBACK (enum_changed_cb),
 			    &(attrs[j].default_val.int_value));
@@ -433,10 +416,7 @@ ghid_dialog_export (void)
   GHidPort *out = &ghid_port;
   int i;
   HID **hids;
-  GtkTooltips *tips;
   gboolean no_exporter = TRUE;
-
-  tips = gtk_tooltips_new ();
 
   export_dialog = gtk_dialog_new_with_buttons (_("PCB Export Layout"),
 					       GTK_WINDOW (out->top_window),
@@ -467,7 +447,7 @@ ghid_dialog_export (void)
 	{
 	  no_exporter = FALSE;
 	  button = gtk_button_new_with_label (hids[i]->name);
-	  gtk_tooltips_set_tip (tips, button, hids[i]->description, NULL);
+	  gtk_widget_set_tooltip_text (button, hids[i]->description);
 	  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 	  g_signal_connect (G_OBJECT (button), "clicked",
 			    G_CALLBACK (exporter_clicked_cb), hids[i]);
