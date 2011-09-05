@@ -228,8 +228,7 @@ ghid_check_button_connected (GtkWidget * box,
     gtk_box_pack_end (GTK_BOX (box), b, expand, fill, pad);
 
   if (cb_func)
-    gtk_signal_connect (GTK_OBJECT (b), "clicked",
-			GTK_SIGNAL_FUNC (cb_func), data);
+    g_signal_connect (b, "clicked", G_CALLBACK (cb_func), data);
   if (button)
     *button = b;
 }
@@ -251,8 +250,7 @@ ghid_button_connected (GtkWidget * box, GtkWidget ** button,
     gtk_box_pack_end (GTK_BOX (box), b, expand, fill, pad);
 
   if (cb_func)
-    gtk_signal_connect (GTK_OBJECT (b), "clicked",
-			GTK_SIGNAL_FUNC (cb_func), data);
+    g_signal_connect (b, "clicked", G_CALLBACK (cb_func), data);
   if (button)
     *button = b;
 }
