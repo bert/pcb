@@ -191,14 +191,14 @@ ghid_pinout_preview_set_property (GObject * object, guint property_id,
 				  const GValue * value, GParamSpec * pspec)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (object);
+  GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (pinout));
 
   switch (property_id)
     {
     case PROP_ELEMENT_DATA:
       pinout_set_data (pinout, (ElementType *)g_value_get_pointer (value));
-      if (GTK_WIDGET_REALIZED (GTK_WIDGET (pinout)))
-        gdk_window_invalidate_rect (
-            gtk_widget_get_window (GTK_WIDGET (pinout)), NULL, FALSE);
+      if (window != NULL)
+        gdk_window_invalidate_rect (window, NULL, FALSE);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
