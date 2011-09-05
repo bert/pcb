@@ -200,12 +200,6 @@ ghid_button_set_text (GtkWidget * button, gchar * text)
 }
 
 
-gboolean
-ghid_button_active (GtkWidget * widget)
-{
-  return GTK_TOGGLE_BUTTON (widget)->active;
-}
-
 gchar *
 ghid_entry_get_text (GtkWidget * entry)
 {

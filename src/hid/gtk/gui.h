@@ -358,7 +358,6 @@ void ghid_draw_area_update (GHidPort * out, GdkRectangle * rect);
 gchar *ghid_get_color_name (GdkColor * color);
 void ghid_map_color_string (gchar * color_string, GdkColor * color);
 void ghid_button_set_text (GtkWidget * button, gchar * text);
-gboolean ghid_button_active (GtkWidget * widget);
 gchar *ghid_entry_get_text (GtkWidget * entry);
 void ghid_check_button_connected (GtkWidget * box, GtkWidget ** button,
 				  gboolean active, gboolean pack_start,
