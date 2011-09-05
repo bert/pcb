@@ -382,7 +382,8 @@ ghid_get_pointer (int *x, int *y)
 {
   gint xp, yp;
 
-  gdk_window_get_pointer (gport->drawing_area->window, &xp, &yp, NULL);
+  gdk_window_get_pointer (gtk_widget_get_window (gport->drawing_area),
+                          &xp, &yp, NULL);
   if (x)
     *x = xp;
   if (y)

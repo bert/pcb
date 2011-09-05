@@ -1354,7 +1354,8 @@ ghid_build_pcb_top_window (void)
 
   gtk_widget_show_all (gport->top_window);
   ghid_pack_mode_buttons ();
-  gdk_window_set_back_pixmap (gport->drawing_area->window, NULL, FALSE);
+  gdk_window_set_back_pixmap (gtk_widget_get_window (gport->drawing_area),
+                              NULL, FALSE);
 }
 
 
@@ -1428,28 +1429,30 @@ ghid_interface_set_sensitive (gboolean sensitive)
 static void
 ghid_init_icons (GHidPort * port)
 {
-  XC_clock_source = gdk_bitmap_create_from_data (gport->top_window->window,
+  GdkWindow *window = gtk_widget_get_window (gport->top_window);
+
+  XC_clock_source = gdk_bitmap_create_from_data (window,
 						 (char *) rotateIcon_bits,
 						 rotateIcon_width,
 						 rotateIcon_height);
   XC_clock_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, (char *) rotateMask_bits,
+    gdk_bitmap_create_from_data (window, (char *) rotateMask_bits,
 				 rotateMask_width, rotateMask_height);
 
-  XC_hand_source = gdk_bitmap_create_from_data (gport->top_window->window,
+  XC_hand_source = gdk_bitmap_create_from_data (window,
 						(char *) handIcon_bits,
 						handIcon_width,
 						handIcon_height);
   XC_hand_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, (char *) handMask_bits,
+    gdk_bitmap_create_from_data (window, (char *) handMask_bits,
 				 handMask_width, handMask_height);
 
-  XC_lock_source = gdk_bitmap_create_from_data (gport->top_window->window,
+  XC_lock_source = gdk_bitmap_create_from_data (window,
 						(char *) lockIcon_bits,
 						lockIcon_width,
 						lockIcon_height);
   XC_lock_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, (char *) lockMask_bits,
+    gdk_bitmap_create_from_data (window, (char *) lockMask_bits,
 				 lockMask_width, lockMask_height);
 }
 

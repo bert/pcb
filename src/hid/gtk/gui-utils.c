@@ -92,7 +92,8 @@ ghid_modifier_keys_state (GdkModifierType * state)
   GHidPort *out = &ghid_port;
 
   if (!state)
-    gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+    gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
+                            NULL, NULL, &mask);
   else
     mask = *state;
 
@@ -129,7 +130,8 @@ ghid_button_state (GdkModifierType * state)
   GHidPort *out = &ghid_port;
 
   if (!state)
-    gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+    gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
+                            NULL, NULL, &mask);
   else
     mask = *state;
 
@@ -152,7 +154,8 @@ ghid_button_state (GdkModifierType * state)
 void
 ghid_draw_area_update (GHidPort * port, GdkRectangle * rect)
 {
-  gdk_window_invalidate_rect (port->drawing_area->window, rect, FALSE);
+  gdk_window_invalidate_rect (gtk_widget_get_window (port->drawing_area),
+                              rect, FALSE);
 }
 
 

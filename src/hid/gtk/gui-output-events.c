@@ -121,7 +121,7 @@ ghid_note_event_location (GdkEventButton * ev)
 
   if (!ev)
     {
-      gdk_window_get_pointer (ghid_port.drawing_area->window,
+      gdk_window_get_pointer (gtk_widget_get_window (ghid_port.drawing_area),
                               &event_x, &event_y, NULL);
     }
   else
@@ -391,7 +391,7 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
   if (gport->pixmap)
     gdk_pixmap_unref (gport->pixmap);
 
-  gport->pixmap = gdk_pixmap_new (widget->window,
+  gport->pixmap = gdk_pixmap_new (gtk_widget_get_window (widget),
 				  gport->width, gport->height, -1);
   gport->drawable = gport->pixmap;
 

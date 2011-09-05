@@ -261,7 +261,8 @@ ghid_shift_is_pressed ()
   if( ! ghid_gui_is_up ) 
     return 0;
 
-  gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+  gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
+                          NULL, NULL, &mask);
   return (mask & GDK_SHIFT_MASK) ? TRUE : FALSE;
 }
 
@@ -274,7 +275,8 @@ ghid_control_is_pressed ()
   if( ! ghid_gui_is_up )
     return 0;
 
-  gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+  gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
+                          NULL, NULL, &mask);
   return (mask & GDK_CONTROL_MASK) ? TRUE : FALSE;
 }
 
@@ -287,7 +289,8 @@ ghid_mod1_is_pressed ()
   if( ! ghid_gui_is_up )
     return 0;
 
-  gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+  gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
+                          NULL, NULL, &mask);
 #ifdef __APPLE__
   return (mask & ( 1 << 13 ) ) ? TRUE : FALSE;  // The option key is not MOD1, although it should be...
 #else
@@ -326,7 +329,8 @@ ghid_set_crosshair (int x, int y, int action)
    * and gdk_display_warp_pointer work relative to the whole display, whilst
    * our coordinates are relative to the drawing area origin.
    */
-  gdk_window_get_origin (gport->drawing_area->window, &offset_x, &offset_y);
+  gdk_window_get_origin (gtk_widget_get_window (gport->drawing_area),
+                         &offset_x, &offset_y);
   display = gdk_display_get_default ();
 
   switch (action) {
@@ -1544,7 +1548,8 @@ Benchmark (int argc, char **argv, Coord x, Coord y)
   do
     {
       ghid_invalidate_all ();
-      gdk_window_process_updates (gport->drawing_area->window, FALSE);
+      gdk_window_process_updates (gtk_widget_get_window (gport->drawing_area),
+                                  FALSE);
       time (&end);
       i++;
     }
@@ -1595,7 +1600,8 @@ Center(int argc, char **argv, Coord pcb_x, Coord pcb_y)
    */
 
   ghid_pcb_to_event_coords (pcb_x, pcb_y, &widget_x, &widget_y);
-  gdk_window_get_origin (gport->drawing_area->window, &offset_x, &offset_y);
+  gdk_window_get_origin (gtk_widget_get_window (gport->drawing_area),
+                         &offset_x, &offset_y);
 
   pointer_x = offset_x + widget_x;
   pointer_y = offset_y + widget_y;
