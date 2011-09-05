@@ -160,7 +160,9 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
   struct _dialog dialog_data;
   GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
   GtkWidget *window = gtk_widget_get_toplevel (GTK_WIDGET (rss));
-  GtkWidget *dialog, *vbox, *hbox, *sub_vbox, *table;
+  GtkWidget *dialog;
+  GtkWidget *content_area;
+  GtkWidget *vbox, *hbox, *sub_vbox, *table;
   GtkWidget *label, *select_box, *check_box;
 
   /* Build dialog */
@@ -178,10 +180,10 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(select_box), renderer,
                                   "text", TEXT_COL, NULL);
 
-  vbox = GTK_DIALOG (dialog)->vbox;
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
 
   hbox = gtk_hbox_new (FALSE, 4);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 4);
+  gtk_box_pack_start (GTK_BOX (content_area), hbox, TRUE, TRUE, 4);
   vbox = gtk_vbox_new (FALSE, 4);
   gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 4);
 

@@ -48,7 +48,9 @@ RCSID ("$Id$");
 gchar *
 ghid_dialog_input (const char * prompt, const char * initial)
 {
-  GtkWidget *dialog, *vbox, *label, *entry;
+  GtkWidget *dialog;
+  GtkWidget *content_area;
+  GtkWidget *vbox, *label, *entry;
   gchar *string;
   gboolean response;
   GHidPort *out = &ghid_port;
@@ -75,7 +77,9 @@ ghid_dialog_input (const char * prompt, const char * initial)
 
   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
   gtk_box_pack_start_defaults (GTK_BOX (vbox), entry);
-  gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), vbox);
+
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+  gtk_container_add (GTK_CONTAINER (content_area), vbox);
   gtk_widget_show_all (dialog);
 
   response = gtk_dialog_run (GTK_DIALOG (dialog));
@@ -109,7 +113,9 @@ ghid_dialog_about (void)
 gint
 ghid_dialog_confirm_all (gchar * all_message)
 {
-  GtkWidget *dialog, *label, *vbox;
+  GtkWidget *dialog;
+  GtkWidget *content_area;
+  GtkWidget *label, *vbox;
   gint response;
   GHidPort *out = &ghid_port;
 
@@ -122,7 +128,8 @@ ghid_dialog_confirm_all (gchar * all_message)
 					"Sequence OK",
 					GUI_DIALOG_RESPONSE_ALL, NULL);
 
-  vbox = ghid_framed_vbox (GTK_DIALOG (dialog)->vbox, NULL, 6, FALSE, 4, 6);
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+  vbox = ghid_framed_vbox (content_area, NULL, 6, FALSE, 4, 6);
 
   label = gtk_label_new (all_message);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 3);

@@ -717,6 +717,7 @@ static struct progress_dialog *
 make_progress_dialog (void)
 {
   struct progress_dialog *pd;
+  GtkWidget *content_area;
   GtkWidget *alignment;
   GtkWidget *vbox;
 
@@ -751,8 +752,8 @@ make_progress_dialog (void)
   gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 8, 8, 8, 8);
   gtk_container_add (GTK_CONTAINER (alignment), vbox);
 
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (pd->dialog)->vbox),
-                      alignment, true, true, 0);
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (pd->dialog));
+  gtk_box_pack_start (GTK_BOX (content_area), alignment, true, true, 0);
 
   gtk_widget_show_all (alignment);
 
@@ -984,6 +985,7 @@ attributes_delete_callback (GtkWidget *w, void *v)
 static void
 ghid_attributes (char *owner, AttributeListType *attrs)
 {
+  GtkWidget *content_area;
   int response;
 
   attributes_list = attrs;
@@ -1001,8 +1003,9 @@ ghid_attributes (char *owner, AttributeListType *attrs)
 
   attr_table = gtk_table_new (attrs->Number, 3, 0);
 
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (attributes_dialog)->vbox), attr_table, FALSE, FALSE, 0);
-    
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (attributes_dialog));
+  gtk_box_pack_start (GTK_BOX (content_area), attr_table, FALSE, FALSE, 0);
+
   gtk_widget_show (attr_table);
 
   ghid_attributes_revert ();

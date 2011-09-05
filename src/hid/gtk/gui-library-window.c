@@ -782,7 +782,7 @@ library_window_constructor (GType type,
 {
   GObject *object;
   GhidLibraryWindow *library_window;
-
+  GtkWidget *content_area;
   GtkWidget *hpaned, *notebook;
   GtkWidget *libview;
   GtkWidget *preview;
@@ -803,7 +803,7 @@ library_window_constructor (GType type,
 		"modal", FALSE, "window-position", GTK_WIN_POS_NONE,
 		/* GtkDialog */
 		"has-separator", TRUE, NULL);
-  g_object_set (GTK_DIALOG (library_window)->vbox,
+  g_object_set (gtk_dialog_get_content_area (GTK_DIALOG (library_window)),
 		"homogeneous", FALSE, NULL);
 
   /* horizontal pane containing selection and preview */
@@ -850,9 +850,9 @@ library_window_constructor (GType type,
 
   gtk_paned_pack2 (GTK_PANED (hpaned), frame, FALSE, FALSE);
 
-  /* add the hpaned to the dialog vbox */
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (library_window)->vbox), hpaned,
-		      TRUE, TRUE, 0);
+  /* add the hpaned to the dialog content area */
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (library_window));
+  gtk_box_pack_start (GTK_BOX (content_area), hpaned, TRUE, TRUE, 0);
   gtk_widget_show_all (hpaned);
 
 

@@ -106,7 +106,9 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 		       const char * title,
 		       const char * descr)
 {
-  GtkWidget *dialog, *main_vbox, *vbox, *vbox1, *hbox, *entry;
+  GtkWidget *dialog;
+  GtkWidget *content_area;
+  GtkWidget *main_vbox, *vbox, *vbox1, *hbox, *entry;
   GtkWidget *combo;
   GtkWidget *widget;
   GHidPort *out = &ghid_port;
@@ -124,9 +126,11 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 					GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
   gtk_window_set_wmclass (GTK_WINDOW (dialog), "PCB_attribute_editor", "PCB");
 
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+
   main_vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (main_vbox), 6);
-  gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), main_vbox);
+  gtk_container_add (GTK_CONTAINER (content_area), main_vbox);
 
   vbox = ghid_category_vbox (main_vbox, descr != NULL ? descr : "",
 			     4, 2, TRUE, TRUE);
@@ -424,6 +428,7 @@ ghid_dialog_print (HID *hid)
 void
 ghid_dialog_export (void)
 {
+  GtkWidget *content_area;
   GtkWidget *vbox, *button;
   GHidPort *out = &ghid_port;
   int i;
@@ -442,9 +447,11 @@ ghid_dialog_export (void)
 					       GTK_RESPONSE_CANCEL, NULL);
   gtk_window_set_wmclass (GTK_WINDOW (export_dialog), "PCB_Export", "PCB");
 
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (export_dialog));
+
   vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
-  gtk_container_add (GTK_CONTAINER (GTK_DIALOG (export_dialog)->vbox), vbox);
+  gtk_container_add (GTK_CONTAINER (content_area), vbox);
 
   /* 
    * Iterate over all the export HID's and build up a dialog box that

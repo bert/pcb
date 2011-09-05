@@ -655,6 +655,7 @@ ghid_dialog_report (gchar * title, gchar * message)
 {
   GtkWidget *top_win;
   GtkWidget *dialog;
+  GtkWidget *content_area;
   GtkWidget *scrolled;
   GtkWidget *vbox, *vbox1;
   GtkWidget *label;
@@ -675,10 +676,11 @@ ghid_dialog_report (gchar * title, gchar * message)
 			    GTK_OBJECT (dialog));
   gtk_window_set_wmclass (GTK_WINDOW (dialog), "PCB_Dialog", "PCB");
 
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), vbox,
-		      FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (content_area), vbox, FALSE, FALSE, 0);
 
   label = gtk_label_new (message);
   gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
