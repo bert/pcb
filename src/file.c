@@ -383,11 +383,15 @@ set_some_route_style ()
  * load PCB
  * parse the file with enabled 'PCB mode' (see parser)
  * if successful, update some other stuff
+ *
+ * If revert is true, we pass "revert" as a parameter
+ * to the HID's PCBChanged action.
  */
-int
-LoadPCB (char *Filename)
+static int
+real_load_pcb (char *Filename, bool revert)
 {
   const char *unit_suffix;
+  char *new_filename;
   PCBTypePtr newPCB = CreateNewPCB (false);
   PCBTypePtr oldPCB;
 #ifdef DEBUG
@@ -397,6 +401,8 @@ LoadPCB (char *Filename)
   start = clock ();
 #endif
 
+  new_filename = strdup (Filename);
+
   oldPCB = PCB;
   PCB = newPCB;
 
@@ -404,7 +410,7 @@ LoadPCB (char *Filename)
   newPCB->Font.Valid = false;
 
   /* new data isn't added to the undo list */
-  if (!ParsePCB (PCB, Filename))
+  if (!ParsePCB (PCB, new_filename))
     {
       RemovePCB (oldPCB);
 
@@ -423,13 +429,13 @@ LoadPCB (char *Filename)
 	{
 	  Message (_
 		   ("File '%s' has no font information, using default font\n"),
-		   Filename);
+		   new_filename);
 	  PCB->Font.Valid = true;
 	}
 
       /* clear 'changed flag' */
       SetChangedFlag (false);
-      PCB->Filename = strdup (Filename);
+      PCB->Filename = new_filename;
       /* just in case a bad file saved file is loaded */
 
       /* Use attribute PCB::grid::unit as unit, if we can */
@@ -446,13 +452,16 @@ LoadPCB (char *Filename)
 
       set_some_route_style ();
 
-      hid_action ("PCBChanged");
+      if (revert)
+        hid_actionl ("PCBChanged", "revert", NULL);
+      else
+        hid_action ("PCBChanged");
 
 #ifdef DEBUG
       end = clock ();
       elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
       gui->log ("Loading file %s took %f seconds of CPU time\n",
-		Filename, elapsed);
+		new_filename, elapsed);
 #endif
 
       return (0);
@@ -463,6 +472,24 @@ LoadPCB (char *Filename)
   /* release unused memory */
   RemovePCB (newPCB);
   return (1);
+}
+
+/* ---------------------------------------------------------------------------
+ * Load PCB
+ */
+int
+LoadPCB (char *file)
+{
+  return real_load_pcb (file, false);
+}
+
+/* ---------------------------------------------------------------------------
+ * Revert PCB
+ */
+int
+RevertPCB (void)
+{
+  return real_load_pcb (PCB->Filename, true);
 }
 
 /* ---------------------------------------------------------------------------

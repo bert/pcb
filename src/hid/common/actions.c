@@ -438,9 +438,11 @@ these directly.
 
 
 static const char pcbchanged_syntax[] =
-  "PCBChanged()";
+  "PCBChanged([revert])";
 static const char pcbchanged_help[] =
-  "Tells the GUI that the whole PCB has changed.";
+  "Tells the GUI that the whole PCB has changed. The optional \"revert\""
+  "parameter can be used as a hint to the GUI that the same design is being"
+  "reloaded, and that it might keep some viewport settings";
 
 /* %start-doc actions PCBChanged
 
