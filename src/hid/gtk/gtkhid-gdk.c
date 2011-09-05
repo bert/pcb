@@ -1135,8 +1135,11 @@ ghid_screen_update (void)
 {
   render_priv *priv = gport->render_priv;
 
+  if (gport->pixmap == NULL)
+    return;
+
   gdk_draw_drawable (gport->drawing_area->window, priv->bg_gc, gport->pixmap,
-		     0, 0, 0, 0, gport->width, gport->height);
+                     0, 0, 0, 0, gport->width, gport->height);
   show_crosshair (TRUE);
 }
 
