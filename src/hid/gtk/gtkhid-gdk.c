@@ -1025,6 +1025,7 @@ show_crosshair (gboolean paint_new_location)
 {
   render_priv *priv = gport->render_priv;
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
+  GtkStyle *style = gtk_widget_get_style (gport->drawing_area);
   gint x, y;
   static gint x_prev = -1, y_prev = -1;
   static gboolean draw_markers, draw_markers_prev = FALSE;
@@ -1037,7 +1038,7 @@ show_crosshair (gboolean paint_new_location)
   if (!xor_gc)
     {
       xor_gc = gdk_gc_new (window);
-      gdk_gc_copy (xor_gc, ghid_port.drawing_area->style->white_gc);
+      gdk_gc_copy (xor_gc, style->white_gc);
       gdk_gc_set_function (xor_gc, GDK_XOR);
       gdk_gc_set_clip_origin (xor_gc, 0, 0);
       set_clip (priv, xor_gc);
@@ -1332,6 +1333,7 @@ static void
 draw_lead_user (render_priv *priv)
 {
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
+  GtkStyle *style = gtk_widget_get_style (gport->drawing_area);
   int i;
   Coord radius = priv->lead_user_radius;
   Coord width = MM_TO_COORD (LEAD_USER_WIDTH);
@@ -1345,7 +1347,7 @@ draw_lead_user (render_priv *priv)
   if (lead_gc == NULL)
     {
       lead_gc = gdk_gc_new (window);
-      gdk_gc_copy (lead_gc, ghid_port.drawing_area->style->white_gc);
+      gdk_gc_copy (lead_gc, style->white_gc);
       gdk_gc_set_function (lead_gc, GDK_XOR);
       gdk_gc_set_clip_origin (lead_gc, 0, 0);
       lead_color.pixel = 0;

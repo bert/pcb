@@ -719,6 +719,7 @@ ghid_violation_renderer_render (GtkCellRenderer      *cell,
 				GtkCellRendererState  flags)
 {
   GdkDrawable *mydrawable;
+  GtkStyle *style = gtk_widget_get_style (widget);
   GhidViolationRenderer *renderer = GHID_VIOLATION_RENDERER (cell);
   GhidDrcViolation *violation = renderer->violation;
   int pixmap_size = VIOLATION_PIXMAP_PIXEL_SIZE - 2 * VIOLATION_PIXMAP_PIXEL_BORDER;
@@ -751,7 +752,7 @@ ghid_violation_renderer_render (GtkCellRenderer      *cell,
 
   mydrawable = GDK_DRAWABLE (violation->pixmap);
 
-  gdk_draw_drawable (window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+  gdk_draw_drawable (window, style->fg_gc[gtk_widget_get_state (widget)],
 		     mydrawable, 0, 0,
 		     cell_area->x + cell_area->width + VIOLATION_PIXMAP_PIXEL_BORDER,
 		     cell_area->y + VIOLATION_PIXMAP_PIXEL_BORDER, -1, -1);
