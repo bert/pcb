@@ -45,8 +45,6 @@
 
 RCSID ("$Id$");
 
-#define DEFAULT_CURSORSHAPE	GDK_CROSSHAIR
-
 #define CUSTOM_CURSOR_CLOCKWISE		(GDK_LAST_CURSOR + 10)
 #define CUSTOM_CURSOR_DRAG			(GDK_LAST_CURSOR + 11)
 #define CUSTOM_CURSOR_LOCK			(GDK_LAST_CURSOR + 12)
@@ -85,43 +83,46 @@ ghid_cursor_position_relative_label_set_text (gchar * text)
 static GdkCursorType
 gport_set_cursor (GdkCursorType shape)
 {
+  GdkWindow *window;
   GdkCursorType old_shape = gport->X_cursor_shape;
   GdkColor fg = { 0, 65535, 65535, 65535 };	/* white */
   GdkColor bg = { 0, 0, 0, 0 };	/* black */
 
-  if (!gport->drawing_area || !gport->drawing_area->window)
-    return (GdkCursorType)0;
+  if (gport->drawing_area == NULL)
+    return GDK_X_CURSOR;
+
+  window = gtk_widget_get_window (gport->drawing_area);
+
   if (gport->X_cursor_shape == shape)
     return shape;
 
   /* check if window exists to prevent from fatal errors */
-  if (gport->drawing_area->window)
+  if (window == NULL)
+    return GDK_X_CURSOR;
+
+  gport->X_cursor_shape = shape;
+  if (shape > GDK_LAST_CURSOR)
     {
-      gport->X_cursor_shape = shape;
-      if (shape > GDK_LAST_CURSOR)
-	{
-	  if (shape == CUSTOM_CURSOR_CLOCKWISE)
-	    gport->X_cursor =
-	      gdk_cursor_new_from_pixmap (XC_clock_source, XC_clock_mask, &fg,
-					  &bg, ICON_X_HOT, ICON_Y_HOT);
-	  else if (shape == CUSTOM_CURSOR_DRAG)
-	    gport->X_cursor =
-	      gdk_cursor_new_from_pixmap (XC_hand_source, XC_hand_mask, &fg,
-					  &bg, ICON_X_HOT, ICON_Y_HOT);
-	  else if (shape == CUSTOM_CURSOR_LOCK)
-	    gport->X_cursor =
-	      gdk_cursor_new_from_pixmap (XC_lock_source, XC_lock_mask, &fg,
-					  &bg, ICON_X_HOT, ICON_Y_HOT);
-	}
-      else
-	gport->X_cursor = gdk_cursor_new (shape);
-
-      gdk_window_set_cursor (gport->drawing_area->window, gport->X_cursor);
-      gdk_cursor_unref (gport->X_cursor);
-
-      return (old_shape);
+      if (shape == CUSTOM_CURSOR_CLOCKWISE)
+        gport->X_cursor =
+          gdk_cursor_new_from_pixmap (XC_clock_source, XC_clock_mask, &fg,
+                                      &bg, ICON_X_HOT, ICON_Y_HOT);
+      else if (shape == CUSTOM_CURSOR_DRAG)
+        gport->X_cursor =
+          gdk_cursor_new_from_pixmap (XC_hand_source, XC_hand_mask, &fg,
+                                      &bg, ICON_X_HOT, ICON_Y_HOT);
+      else if (shape == CUSTOM_CURSOR_LOCK)
+        gport->X_cursor =
+          gdk_cursor_new_from_pixmap (XC_lock_source, XC_lock_mask, &fg,
+                                      &bg, ICON_X_HOT, ICON_Y_HOT);
     }
-  return (DEFAULT_CURSORSHAPE);
+  else
+    gport->X_cursor = gdk_cursor_new (shape);
+
+  gdk_window_set_cursor (window, gport->X_cursor);
+  gdk_cursor_unref (gport->X_cursor);
+
+  return old_shape;
 }
 
 void
