@@ -351,21 +351,7 @@ SaveBufferElements (char *Filename)
 int
 SavePCB (char *Filename)
 {
-  int retcode;
-  char *copy;
-
-  if (!(retcode = WritePipe (Filename, true)))
-    {
-      /* thanks to Nick Bailey for the bug-fix;
-       * first of all make a copy of the passed filename because
-       * it might be identical to 'PCB->Filename'
-       */
-      copy = strdup (Filename);
-      free (PCB->Filename);
-      PCB->Filename = copy;
-      SetChangedFlag (false);
-    }
-  return (retcode);
+  return WritePipe (Filename, true);
 }
 
 /* ---------------------------------------------------------------------------

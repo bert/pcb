@@ -340,13 +340,21 @@ CommandSaveLayout (int argc, char **argv, Coord x, Coord y)
     {
     case 0:
       if (PCB->Filename)
-	SavePCB (PCB->Filename);
+        {
+          if (SavePCB (PCB->Filename) == 0)
+            SetChangedFlag (false);
+        }
       else
 	Message ("No filename to save to yet\n");
       break;
 
     case 1:
-      SavePCB (argv[0]);
+      if (SavePCB (argv[0]) == 0)
+        {
+          SetChangedFlag (false);
+          free (PCB->Filename);
+          PCB->Filename = strdup (argv[0]);
+        }
       break;
 
     default:

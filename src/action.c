@@ -5672,7 +5672,8 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
 
   if (strcasecmp (function, "Layout") == 0)
     {
-      SavePCB (PCB->Filename);
+      if (SavePCB (PCB->Filename) == 0)
+        SetChangedFlag (false);
       return 0;
     }
 
@@ -5681,9 +5682,12 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
-      free (PCB->Filename);
-      PCB->Filename = strdup (name);
-      SavePCB (PCB->Filename);
+      if (SavePCB (name) == 0)
+        {
+          SetChangedFlag (false);
+          free (PCB->Filename);
+          PCB->Filename = strdup (name);
+        }
       return 0;
     }
 
