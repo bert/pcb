@@ -474,10 +474,7 @@ library_window_callback_filter_entry_changed (GtkEditable * editable,
   sensitive =
     (g_ascii_strcasecmp (gtk_entry_get_text (library_window->entry_filter),
 			 "") != 0);
-  if (GTK_WIDGET_IS_SENSITIVE (button) != sensitive)
-    {
-      gtk_widget_set_sensitive (button, sensitive);
-    }
+  gtk_widget_set_sensitive (button, sensitive);
 
   /* Cancel any pending update of the footprint list filter */
   if (library_window->filter_timeout != 0)
