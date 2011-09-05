@@ -838,7 +838,7 @@ ghid_netlist_window_create (GHidPort * out)
 
   gtk_widget_realize (netlist_window);
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (netlist_window), 10, 10);
+    gtk_window_move (GTK_WINDOW (netlist_window), 10, 10);
 
 }
 

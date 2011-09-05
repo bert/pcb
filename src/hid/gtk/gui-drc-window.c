@@ -931,7 +931,7 @@ ghid_drc_window_show (gboolean raise)
 
   gtk_widget_realize (drc_window);
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (drc_window), 10, 10);
+    gtk_window_move (GTK_WINDOW (drc_window), 10, 10);
   gtk_widget_show_all (drc_window);
 }
 

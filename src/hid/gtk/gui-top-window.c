@@ -1685,7 +1685,7 @@ ghid_parse_arguments (int *argc, char ***argv)
 			       ghidgui->top_window_width, ghidgui->top_window_height);
 
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (window), 10, 10);
+    gtk_window_move (GTK_WINDOW (window), 10, 10);
 
   gtk_widget_show_all (gport->top_window);
   ghidgui->creating = TRUE;

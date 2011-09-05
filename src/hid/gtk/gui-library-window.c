@@ -176,7 +176,7 @@ ghid_library_window_create (GHidPort * out)
 
   gtk_widget_realize (library_window);
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (library_window), 10, 10);
+    gtk_window_move (GTK_WINDOW (library_window), 10, 10);
 
   gtk_editable_select_region (GTK_EDITABLE
 			      (GHID_LIBRARY_WINDOW (library_window)->

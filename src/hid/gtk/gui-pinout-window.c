@@ -102,6 +102,6 @@ ghid_pinout_window_show (GHidPort * out, ElementType * element)
 
   gtk_widget_realize (top_window);
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (top_window, 10, 10);
+    gtk_window_move (GTK_WINDOW (top_window), 10, 10);
   gtk_widget_show_all (top_window);
 }
