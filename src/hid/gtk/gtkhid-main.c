@@ -372,7 +372,7 @@ ghid_set_crosshair (int x, int y, int action)
 typedef struct
 {
   void (*func) (hidval);
-  gint id;
+  guint id;
   hidval user_data;
 }
 GuiTimer;
@@ -397,7 +397,7 @@ ghid_add_timer (void (*func) (hidval user_data),
 
   timer->func = func;
   timer->user_data = user_data;
-  timer->id = gtk_timeout_add (milliseconds, (GtkFunction) ghid_timer, timer);
+  timer->id = g_timeout_add (milliseconds, (GSourceFunc) ghid_timer, timer);
   ret.ptr = (void *) timer;
   return ret;
 }
@@ -407,7 +407,7 @@ ghid_stop_timer (hidval timer)
 {
   void *ptr = timer.ptr;
 
-  gtk_timeout_remove (((GuiTimer *) ptr)->id);
+  g_source_remove (((GuiTimer *) ptr)->id);
   g_free( ptr );
 }
 
