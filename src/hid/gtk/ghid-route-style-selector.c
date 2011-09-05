@@ -543,3 +543,43 @@ ghid_route_style_selector_get_accel_group (GHidRouteStyleSelector *rss)
   return rss->accel_group;
 }
 
+/*! \brief Sets a GHidRouteStyleSelector selection to given values
+ *  \par Function Description
+ *  Given the line thickness, via size and clearance values of a route
+ *  style, this function selects a route style with the given values.
+ *  If there is no such style registered with the selector, nothing
+ *  will happen. This function does not emit any signals.
+ *
+ *  \param [in] rss       The selector to be acted on
+ *  \param [in] Thick     Coord to match selection to
+ *  \param [in] Diameter  Coord to match selection to
+ *  \param [in] Hole      Coord to match selection to
+ *  \param [in] Keepaway  Coord to match selection to
+ */
+void
+ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
+                                Coord Thick, Coord Diameter,
+                                Coord Hole, Coord Keepaway)
+{
+  GtkTreeIter iter;
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
+  do
+    {
+      struct _route_style *style;
+      gtk_tree_model_get (GTK_TREE_MODEL (rss->model),
+                          &iter, DATA_COL, &style, -1);
+      if (style->rst->Thick == Thick &&
+          style->rst->Diameter == Diameter &&
+          style->rst->Hole == Hole &&
+          style->rst->Keepaway == Keepaway)
+        {
+          g_signal_handler_block (G_OBJECT (style->action), style->sig_id);
+          gtk_toggle_action_set_active
+            (GTK_TOGGLE_ACTION (style->action), TRUE);
+          g_signal_handler_unblock (G_OBJECT (style->action), style->sig_id);
+          rss->active_style = style;
+        }
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
+}
+

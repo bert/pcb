@@ -1142,7 +1142,14 @@ static int PointCursor (int argc, char **argv, Coord x, Coord y)
 static int
 RouteStylesChanged (int argc, char **argv, Coord x, Coord y)
 {
-  /* TODO: handle this, somehow (asp) */
+  if (!ghidgui || !ghidgui->route_style_selector)
+    return 0;
+
+  ghid_route_style_selector_sync
+    (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector),
+     Settings.LineThickness, Settings.ViaThickness,
+     Settings.ViaDrillingHole, Settings.Keepaway);
+
   return 0;
 }
 
