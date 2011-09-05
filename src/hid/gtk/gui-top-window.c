@@ -353,7 +353,17 @@ layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
   /* Select Layer */
   PCB->SilkActive = (layer == LAYER_BUTTON_SILK);
   PCB->RatDraw  = (layer == LAYER_BUTTON_RATS);
-  if (layer < max_copper_layer)
+  if (layer == LAYER_BUTTON_SILK)
+    {
+      PCB->ElementOn = true;
+      hid_action ("LayersChanged");
+    }
+  else if (layer == LAYER_BUTTON_RATS)
+    {
+      PCB->RatOn = true;
+      hid_action ("LayersChanged");
+    }
+  else if (layer < max_copper_layer)
     ChangeGroupVisibility (layer, TRUE, true);
 
   ignore_layer_update = false;
