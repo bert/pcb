@@ -80,8 +80,6 @@ struct _GHidLayerSelectorClass
 struct _layer
 {
   gint accel_index;   /* Index into ls->accel_available */
-  gulong pick_sig_id;
-  gulong view_sig_id;
   GtkWidget *pick_item;
   GtkWidget *view_item;
   GtkToggleAction *view_action;
@@ -127,9 +125,10 @@ set_visibility (GHidLayerSelector *ls, GtkTreeIter *iter,
   
   if (ldata)
     {
-      g_signal_handler_block (ldata->view_action, ldata->view_sig_id);
-      gtk_toggle_action_set_active (ldata->view_action, state);
-      g_signal_handler_unblock (ldata->view_action, ldata->view_sig_id);
+      gtk_action_block_activate (GTK_ACTION (ldata->view_action));
+      gtk_check_menu_item_set_active
+        (GTK_CHECK_MENU_ITEM (ldata->view_item), state);
+      gtk_action_unblock_activate (GTK_ACTION (ldata->view_action));
     }
 }
 
@@ -233,9 +232,9 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
 
       if (ldata && ldata->pick_action)
         {
-          g_signal_handler_block (ldata->pick_action, ldata->pick_sig_id);
+          gtk_action_block_activate (GTK_ACTION (ldata->pick_action));
           gtk_radio_action_set_current_value (ldata->pick_action, user_id);
-          g_signal_handler_unblock (ldata->pick_action, ldata->pick_sig_id);
+          gtk_action_unblock_activate (GTK_ACTION (ldata->pick_action));
         }
       g_signal_emit (ls, ghid_layer_selector_signals[SELECT_LAYER_SIGNAL],
                      0, user_id);
@@ -580,18 +579,16 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                                   action,
                                                   accel1);
           gtk_action_connect_accelerator (action);
-          new_layer->pick_sig_id =
-            g_signal_connect (G_OBJECT (action), "activate",
-                              G_CALLBACK (menu_pick_cb), new_layer);
+          g_signal_connect (G_OBJECT (action), "activate",
+                            G_CALLBACK (menu_pick_cb), new_layer);
         }
       gtk_action_set_accel_group (GTK_ACTION (new_layer->view_action),
                                   ls->accel_group);
       gtk_action_group_add_action_with_accel
           (ls->action_group, GTK_ACTION (new_layer->view_action), accel2);
       gtk_action_connect_accelerator (GTK_ACTION (new_layer->view_action));
-      new_layer->view_sig_id =
-        g_signal_connect (G_OBJECT (new_layer->view_action), "activate",
-                          G_CALLBACK (menu_view_cb), new_layer);
+      g_signal_connect (G_OBJECT (new_layer->view_action), "activate",
+                        G_CALLBACK (menu_view_cb), new_layer);
 
       ls->accel_available[i] = FALSE;
       new_layer->accel_index = i;
