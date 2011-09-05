@@ -347,7 +347,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               int pos;
 
               children = gtk_container_get_children (GTK_CONTAINER (shell));
-              pos = g_list_length (shell->children);
+              pos = g_list_length (children);
               g_list_free (children);
 
               if (strcmp (res->v[i].value, "@layerview") == 0)
