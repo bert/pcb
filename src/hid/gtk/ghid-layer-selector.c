@@ -808,8 +808,10 @@ ghid_layer_selector_select_next_visible (GHidLayerSelector *ls)
             }
         }
       while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
-      /* If we get here, nothing is selectable, so fail. */
+      /* Failing this, just emit a selected signal on the original layer. */
+      selection_changed_cb (ls->selection, ls);
     }
+  /* If we get here, nothing is selectable, so fail. */
   return FALSE;
 }
 

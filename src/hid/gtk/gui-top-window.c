@@ -420,12 +420,13 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
       break;
     }
 
-  /* Jump through hoops in case we just disabled the active layer
-   *  (or its group). In this case, select a different one if we
-   *  can. If we can't, turn the original layer back on.
+  /* Select the next visible layer. (If there is none, this will
+   * select the currently-selected layer, triggering the selection
+   * callback, which will turn the visibility on.) This way we
+   * will never have an invisible layer selected.
    */
-  if (!ghid_layer_selector_select_next_visible (ls))
-    ChangeGroupVisibility (layer, true, false);
+  if (!active)
+    ghid_layer_selector_select_next_visible (ls);
 
   ignore_layer_update = false;
 
