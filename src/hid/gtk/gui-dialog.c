@@ -76,7 +76,7 @@ ghid_dialog_input (const char * prompt, const char * initial)
     gtk_entry_set_text (GTK_ENTRY (entry), initial);
 
   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-  gtk_box_pack_start_defaults (GTK_BOX (vbox), entry);
+  gtk_box_pack_start (GTK_BOX (vbox), entry, TRUE, TRUE, 0);
 
   content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
   gtk_container_add (GTK_CONTAINER (content_area), vbox);
