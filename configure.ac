@@ -1076,6 +1076,49 @@ AM_CONDITIONAL(DEBUG_BUILD, test x$enable_debug = xyes)
 m4_include([m4/m4_ax_func_mkdir.m4])
 AX_FUNC_MKDIR
 
+# ------------- Type used for "Coord" type -------------------
+
+AC_CHECK_HEADERS(stdint.h)
+AC_ARG_ENABLE([coord64],
+[  --enable-coord64        Force 64-bit coordinate types],
+[],[enable_coord64=no])
+AC_ARG_ENABLE([coord32],
+[  --enable-coord32        Force 32-bit coordinate types],
+[],[enable_coord32=no])
+
+COORDTYPE="long"
+
+echo "$enable_coord32:$enable_coord64:$ac_cv_header_stdint_h"
+case "$enable_coord32:$enable_coord64:$ac_cv_header_stdint_h" in
+  yes:no:yes )
+    COORD_TYPE="int32_t"
+    COORD_MAX="INT32_MAX"
+    ;;
+  no:yes:yes )
+    COORD_TYPE="int64_t"
+    COORD_MAX="INT64_MAX"
+    ;;
+  yes:no:no  )
+    COORD_TYPE="int"
+    COORD_MAX="INT_MAX"
+    ;;
+  no:yes:no  )
+    COORD_TYPE="long long"
+    COORD_MAX="LLONG_MAX"
+    ;;
+  yes:yes:*  )
+    AC_MSG_ERROR("*** cannot require both 32 and 64 bit coordinates")
+    ;;
+  *:*:*    )
+    COORD_TYPE="long"
+    COORD_MAX="LONG_MAX"
+    ;;
+esac
+AC_DEFINE_UNQUOTED([COORD_TYPE],[$COORD_TYPE],
+  [C type for Coordinates])
+AC_DEFINE_UNQUOTED([COORD_MAX],[$COORD_MAX],
+  [Maximum value of coordinate type])
+
 # ------------- Complete set of CFLAGS and LIBS -------------------
 
 CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS"
@@ -1306,6 +1349,7 @@ AC_MSG_RESULT([
    GUI:                      $with_gui
    Printer:                  $with_printer
    Exporters:                $with_exporters
+   Coordinate type:          $COORD_TYPE
    Source tree distribution: $pcb_sources
    Build documentation:      $docs_yesno
    Build toporouter:         $enable_toporouter

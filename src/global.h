@@ -38,9 +38,16 @@
 #ifndef	PCB_GLOBAL_H
 #define	PCB_GLOBAL_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "const.h"
 #include "macro.h"
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,7 +71,7 @@ typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 typedef struct unit Unit;
 typedef struct increments Increments;
 
-typedef long Coord;		/* pcb base unit */
+typedef COORD_TYPE Coord;	/* pcb base unit */
 typedef double Angle;		/* degrees */
 
 #include "hid.h"

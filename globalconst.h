@@ -33,7 +33,15 @@
 #ifndef	__GLOBALCONST_INCLUDED__
 #define	__GLOBALCONST_INCLUDED__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <limits.h>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 /* ---------------------------------------------------------------------------
  * some file-, directory- and environment names
@@ -60,7 +68,7 @@
 /* ---------------------------------------------------------------------------
  * some limit specifications
  */
-#define LARGE_VALUE		(LONG_MAX / 2 - 1) /* maximum extent of board and elements */
+#define LARGE_VALUE		(COORD_MAX / 2 - 1) /* maximum extent of board and elements */
  
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
