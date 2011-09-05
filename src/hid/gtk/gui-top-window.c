@@ -1271,7 +1271,7 @@ ghid_build_pcb_top_window (void)
    * enter and button press callbacks grab focus to be sure we have it
    * when in the drawing_area.
    */
-  GTK_WIDGET_SET_FLAGS (gport->drawing_area, GTK_CAN_FOCUS);
+  gtk_widget_set_can_focus (gport->drawing_area, TRUE);
 
   gtk_box_pack_start (GTK_BOX (hbox), gport->drawing_area, TRUE, TRUE, 0);
 
