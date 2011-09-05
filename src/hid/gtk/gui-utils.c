@@ -191,15 +191,6 @@ ghid_map_color_string (char *color_string, GdkColor * color)
 }
 
 
-void
-ghid_button_set_text (GtkWidget * button, gchar * text)
-{
-  GtkWidget *label = gtk_bin_get_child (GTK_BIN (button));
-
-  gtk_label_set_text (GTK_LABEL (label), text);
-}
-
-
 gchar *
 ghid_entry_get_text (GtkWidget * entry)
 {
