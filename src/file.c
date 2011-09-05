@@ -349,9 +349,18 @@ SaveBufferElements (char *Filename)
  * save PCB
  */
 int
-SavePCB (char *Filename)
+SavePCB (char *file)
 {
-  return WritePipe (Filename, true);
+  int retcode;
+
+  if (gui->notify_save_pcb == NULL)
+    return WritePipe (file, true);
+
+  gui->notify_save_pcb (file, false);
+  retcode = WritePipe (file, true);
+  gui->notify_save_pcb (file, true);
+
+  return retcode;
 }
 
 /* ---------------------------------------------------------------------------
