@@ -343,20 +343,27 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
           /* If we get here, the resource is "-" or "@foo" for some foo */
           if (res->v[i].value[0] == '@')
             {
+              GList *children;
+              int pos;
+
+              children = gtk_container_get_children (GTK_CONTAINER (shell));
+              pos = g_list_length (shell->children);
+              g_list_free (children);
+
               if (strcmp (res->v[i].value, "@layerview") == 0)
                 {
                   menu->layer_view_shell = shell;
-                  menu->layer_view_pos = g_list_length (shell->children);
+                  menu->layer_view_pos = pos;
                 }
               else if (strcmp (res->v[i].value, "@layerpick") == 0)
                 {
                   menu->layer_pick_shell = shell;
-                  menu->layer_pick_pos = g_list_length (shell->children);
+                  menu->layer_pick_pos = pos;
                 }
               else if (strcmp (res->v[i].value, "@routestyles") == 0)
                 {
                   menu->route_style_shell = shell;
-                  menu->route_style_pos = g_list_length (shell->children);
+                  menu->route_style_pos = pos;
                 }
               else
                 Message (_("GTK GUI currently ignores \"%s\" in the menu\n"
