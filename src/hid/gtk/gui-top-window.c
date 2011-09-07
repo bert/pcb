@@ -220,7 +220,7 @@ info_bar_response_cb (GtkInfoBar *info_bar,
   _gui->info_bar = NULL;
 
   if (response_id == GTK_RESPONSE_ACCEPT)
-    hid_actionl ("LoadFrom", "revert", "none", NULL);
+    RevertPCB ();
 }
 
 static void
@@ -234,39 +234,49 @@ close_file_modified_externally_prompt (void)
 static void
 show_file_modified_externally_prompt (void)
 {
+  GtkWidget *button;
+  GtkWidget *button_image;
   GtkWidget *icon;
   GtkWidget *label;
   GtkWidget *content_area;
   char *file_path_utf8;
+  char *secondary_text;
   char *markup;
 
   close_file_modified_externally_prompt ();
 
-  ghidgui->info_bar = gtk_info_bar_new_with_buttons (_("Reload"),
-                                                  GTK_RESPONSE_ACCEPT,
-                                                  GTK_STOCK_CANCEL,
-                                                  GTK_RESPONSE_CANCEL,
-                                                  NULL);
+  ghidgui->info_bar = gtk_info_bar_new ();
+
+  button = gtk_info_bar_add_button (GTK_INFO_BAR (ghidgui->info_bar),
+                                    _("Reload"),
+                                    GTK_RESPONSE_ACCEPT);
+  button_image = gtk_image_new_from_stock (GTK_STOCK_REFRESH,
+                                           GTK_ICON_SIZE_BUTTON);
+  gtk_button_set_image (GTK_BUTTON (button), button_image);
+
+  gtk_info_bar_add_button (GTK_INFO_BAR (ghidgui->info_bar),
+                           GTK_STOCK_CANCEL,
+                           GTK_RESPONSE_CANCEL);
+  gtk_info_bar_set_message_type (GTK_INFO_BAR (ghidgui->info_bar),
+                                 GTK_MESSAGE_WARNING);
   gtk_box_pack_start (GTK_BOX (ghidgui->vbox_middle),
                       ghidgui->info_bar, FALSE, FALSE, 0);
   gtk_box_reorder_child (GTK_BOX (ghidgui->vbox_middle), ghidgui->info_bar, 0);
 
-  gtk_info_bar_set_message_type (GTK_INFO_BAR (ghidgui->info_bar),
-                                 GTK_MESSAGE_WARNING);
 
   g_signal_connect (ghidgui->info_bar, "response",
                     G_CALLBACK (info_bar_response_cb), ghidgui);
 
   file_path_utf8 = g_filename_to_utf8 (PCB->Filename, -1, NULL, NULL, NULL);
-  markup =
-    g_markup_printf_escaped (_("<b>The file %s has changed on disk</b>\n"
-                               "\n"
-                               "Do you want to reload the file?"),
-                             file_path_utf8);
+
+  secondary_text = PCB->Changed ? "Do you want to drop your changes and reload the file?" :
+                                  "Do you want to reload the file?";
+
+  markup =  g_markup_printf_escaped (_("<b>The file %s has changed on disk</b>\n\n%s"),
+                                     file_path_utf8, secondary_text);
   g_free (file_path_utf8);
 
-  content_area =
-    gtk_info_bar_get_content_area (GTK_INFO_BAR (ghidgui->info_bar));
+  content_area = gtk_info_bar_get_content_area (GTK_INFO_BAR (ghidgui->info_bar));
 
   icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING,
                                    GTK_ICON_SIZE_DIALOG);
