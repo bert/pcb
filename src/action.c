@@ -6958,6 +6958,8 @@ them.
 
 %end-doc */
 
+static int number_of_footprints_not_found;
+
 static int
 parse_layout_attribute_units (char *name, int def)
 {
@@ -6987,6 +6989,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
       }
       END_LOOP;
       element_cache = NULL;
+      number_of_footprints_not_found = 0;
       return 0;
     }
 
@@ -7005,6 +7008,10 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 	  }
       }
       END_LOOP;
+      if (number_of_footprints_not_found > 0)
+	gui->confirm_dialog ("Not all requested footprints were found.\n"
+			     "See the message log for details",
+			     "Ok", NULL);
       return 0;
     }
 
@@ -7042,7 +7049,10 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 #endif
       /* Not on board, need to add it. */
       if (LoadFootprint(argc, args, x, y))
-	return 1;
+	{
+	  number_of_footprints_not_found ++;
+	  return 1;
+	}
 
       nx = PCB->MaxWidth / 2;
       ny = PCB->MaxHeight / 2;
@@ -7083,7 +7093,10 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
       /* Different footprint, we need to swap them out.  */
       if (LoadFootprint(argc, args, x, y))
-	return 1;
+	{
+	  number_of_footprints_not_found ++;
+	  return 1;
+	}
 
       er = ElementOrientation (e);
       pe = PASTEBUFFER->Data->Element->data;
