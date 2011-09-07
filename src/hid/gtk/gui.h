@@ -115,7 +115,8 @@ typedef struct
   GtkWidget *vbox_middle;
 
   GtkWidget *info_bar;
-  GFileMonitor *file_monitor;
+  GTimeVal our_mtime;
+  GTimeVal last_seen_mtime;
 
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
@@ -338,6 +339,8 @@ int ghid_drc_window_throw_dialog (void);
 
 /* In gui-top-window.c  */
 void ghid_update_toggle_flags (void);
+void ghid_notify_save_pcb (const char *file, bool done);
+void ghid_notify_filename_changed (void);
 void ghid_install_accel_groups (GtkWindow *window, GhidGui *gui);
 void ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui);
 
