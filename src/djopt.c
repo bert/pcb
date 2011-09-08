@@ -2988,6 +2988,9 @@ ActionDJopt (int argc, char **argv, Coord x, Coord y)
 	{
 	  line_s *ls;
 
+          if(autorouted_only && !autorouted (line))
+            continue;
+
 	  /* don't mess with thermals */
 	  if (TEST_FLAG (USETHERMALFLAG, line))
 	    continue;
