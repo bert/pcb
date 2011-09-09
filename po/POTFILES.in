@@ -25,7 +25,6 @@ src/hid/gtk/gtkhid-main.c
 src/hid/gtk/gui-command-window.c
 src/hid/gtk/gui-config.c
 src/hid/gtk/gui-dialog-print.c
-src/hid/gtk/gui-dialog-size.c
 src/hid/gtk/gui-dialog.c
 src/hid/gtk/gui-drc-window.c
 src/hid/gtk/gui-keyref-window.c
