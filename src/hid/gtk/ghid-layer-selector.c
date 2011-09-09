@@ -193,8 +193,11 @@ button_press_cb (GHidLayerSelector *ls, GdkEventButton *event)
   GtkTreeViewColumn *column;
   GtkTreePath *path;
 
-  /* Ignore all but left-clicks */
-  if (event->button != 1)
+  /* Ignore the synthetic presses caused by double and tripple clicks, and
+   * also ignore all but left-clicks
+   */
+  if (event->type != GDK_BUTTON_PRESS ||
+      event->button != 1)
     return TRUE;
 
   if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (ls),
