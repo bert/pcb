@@ -822,19 +822,23 @@ ghid_layer_selector_get_accel_group (GHidLayerSelector *ls)
   return ls->accel_group;
 }
 
+struct layer_data {
+  GHidLayerSelector *ls;
+  gint user_id;
+}
+
 /*! \brief used internally */
 static gboolean
 toggle_foreach_func (GtkTreeModel *model, GtkTreePath *path,
-                     GtkTreeIter *iter, gpointer data)
+                     GtkTreeIter *iter, gpointer user_data)
 {
+  struct layer_data *data = (struct layer_data *) user_data;
   gint id;
-  GHidLayerSelector *ls = g_object_get_data (G_OBJECT (model),
-                                               "layer-selector");
-  
+
   gtk_tree_model_get (model, iter, USER_ID_COL, &id, -1);
-  if (id == *(gint *) data)
+  if (id == data->user_id)
     {
-      toggle_visibility (ls, iter, TRUE);
+      toggle_visibility (data->ls, iter, TRUE);
       return TRUE;
     }
   return FALSE;
@@ -850,23 +854,27 @@ toggle_foreach_func (GtkTreeModel *model, GtkTreePath *path,
 void
 ghid_layer_selector_toggle_layer (GHidLayerSelector *ls, gint user_id)
 {
+  struct layer_data data;
+
+  data.ls = ls;
+  data.user_id = user_id;
+
   gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
-                          toggle_foreach_func, &user_id);
+                          toggle_foreach_func, &data);
 }
 
 /*! \brief used internally */
 static gboolean
 select_foreach_func (GtkTreeModel *model, GtkTreePath *path,
-                     GtkTreeIter *iter, gpointer data)
+                     GtkTreeIter *iter, gpointer user_data)
 {
+  struct layer_data *data = (struct layer_data *) user_data;
   gint id;
-  GHidLayerSelector *ls = g_object_get_data (G_OBJECT (model),
-                                               "layer-selector");
-  
+
   gtk_tree_model_get (model, iter, USER_ID_COL, &id, -1);
-  if (id == *(gint *) data)
+  if (id == data->user_id)
     {
-      gtk_tree_selection_select_path (ls->selection, path);
+      gtk_tree_selection_select_path (data->ls->selection, path);
       return TRUE;
     }
   return FALSE;
@@ -882,8 +890,13 @@ select_foreach_func (GtkTreeModel *model, GtkTreePath *path,
 void
 ghid_layer_selector_select_layer (GHidLayerSelector *ls, gint user_id)
 {
+  struct layer_data data;
+
+  data.ls = ls;
+  data.user_id = user_id;
+
   gtk_tree_model_foreach (GTK_TREE_MODEL (ls->list_store),
-                          select_foreach_func, &user_id);
+                          select_foreach_func, &data);
 }
 
 /*! \brief Selects the next visible layer
@@ -1079,7 +1092,4 @@ ghid_layer_selector_show_layers (GHidLayerSelector *ls,
     }
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
 }
-
-
-
 
