@@ -235,9 +235,8 @@ sort_drill (struct drill_struct *drill, int n_drill)
       for (i = 0; i < n_drill - j; i++)
         {
           d =
-            (drill[i].x - p.x) * (drill[i].x - p.x) + (drill[i].y -
-                                                       p.y) * (drill[i].y -
-                                                               p.y);
+            (drill[i].x - p.x) * (drill[i].x - p.x) +
+            (drill[i].y - p.y) * (drill[i].y - p.y);
           if (d < dmin)
             {
               imin = i;
