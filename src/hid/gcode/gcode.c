@@ -221,7 +221,7 @@ gcode_get_filename (char *filename, const char *layername)
 }
 
 /* Sorts drills in order of distance from the origin */
-struct drill_struct *
+static struct drill_struct *
 sort_drill (struct drill_struct *drill, int n_drill)
 {
   int i, j, imin;
@@ -293,7 +293,7 @@ gcode_get_export_options (int *n)
 }
 
 /* Populates gcode_export_group array */
-void
+static void
 gcode_choose_groups ()
 {
   int n, m;
@@ -385,7 +385,7 @@ gcode_finish_png ()
   gcode_f = NULL;
 }
 
-void
+static void
 gcode_start_png_export ()
 {
   BoxType region;
