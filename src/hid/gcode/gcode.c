@@ -220,36 +220,48 @@ gcode_get_filename (char *filename, const char *layername)
   // result is in char *filename
 }
 
-/* Sorts drills in order of distance from the origin */
-static struct drill_struct *
+/* Sorts drills to produce a short tool path. I start with the hole nearest
+ * (0,0) and for each subsequent one, find the hole nearest to the previous.
+ * This isn't guaranteed to find the shortest path, but should be good enough.
+ * Note that this is O(N^2). We can't use the O(N logN) sort, since our
+ * shortest-distance origin changes with every point */
+static void
 sort_drill (struct drill_struct *drill, int n_drill)
 {
-  int i, j, imin;
-  double dmin, d;
-  struct drill_struct p = { 0, 0 };
-  struct drill_struct *temp = (struct drill_struct *)malloc (n_drill * sizeof (struct drill_struct));
-  for (j = 0; j < n_drill; j++)
+  /* I start out by looking for points closest to (0,0) */
+  struct drill_struct nearest_target = { 0, 0 };
+
+  /* I sort my list by finding the correct point to fill each slot. I don't need
+     to look at the last one, since it'll be in the right place automatically */
+  for (int j = 0; j < n_drill-1; j++)
     {
-      dmin = 1e20;
-      imin = 0;
-      for (i = 0; i < n_drill - j; i++)
+      double dmin = 1e20;
+      int    imin = 0;
+      /* look through remaining elements to find the next drill point. This is
+         the one nearest to nearest_target */
+      for (int i = j; i < n_drill; i++)
         {
-          d =
-            (drill[i].x - p.x) * (drill[i].x - p.x) +
-            (drill[i].y - p.y) * (drill[i].y - p.y);
+          double d =
+            (drill[i].x - nearest_target.x) * (drill[i].x - nearest_target.x) +
+            (drill[i].y - nearest_target.y) * (drill[i].y - nearest_target.y);
           if (d < dmin)
             {
               imin = i;
               dmin = d;
             }
         }
-      /* printf("j=%d imin=%d dmin=%f p=(%f,%f)\n",j,imin,dmin,p.x,p.y); */
-      temp[j] = drill[imin];
-      drill[imin] = drill[n_drill - j - 1];
-      p = temp[j];
+      /* printf("j=%d imin=%d dmin=%f nearest_target=(%f,%f)\n",j,imin,dmin,
+                nearest_target.x,nearest_target.y); */
+      if (j != imin)
+        {
+          struct drill_struct tmp;
+          tmp         = drill[j];
+          drill[j]    = drill[imin];
+          drill[imin] = tmp;
+        }
+
+      nearest_target = drill[j];
     }
-  free (drill);
-  return temp;
 }
 
 /* *** Main export callback ************************************************ */
@@ -598,7 +610,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (save_drill)
             {
               d = 0;
-              drill = sort_drill (drill, n_drill);
+              sort_drill (drill, n_drill);
               gcode_get_filename (filename, "drill");
               gcode_f2 = fopen (filename, "wb");
               if (!gcode_f2)
