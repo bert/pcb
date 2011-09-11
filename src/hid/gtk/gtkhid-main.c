@@ -1172,7 +1172,16 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
 
   if (!gport->pixmap)
     return 0;
+
+  if (ghidgui->route_style_selector)
+    {
+      ghid_route_style_selector_empty
+        (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
+      make_route_style_buttons
+        (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
+    }
   RouteStylesChanged (0, NULL, 0, 0);
+
   ghid_port_ranges_scale ();
   ghid_zoom_view_fit ();
   ghid_sync_with_new_layout ();

@@ -894,7 +894,7 @@ route_style_changed_cb (GHidRouteStyleSelector *rss, RouteStyleType *rst,
 }
 
 /*! \brief Configure the route style selector */
-static void
+void
 make_route_style_buttons (GHidRouteStyleSelector *rss)
 {
   int i;
