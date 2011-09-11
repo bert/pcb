@@ -334,26 +334,9 @@ ghid_route_style_selector_class_init (GHidRouteStyleSelectorClass *klass)
 static void
 ghid_route_style_selector_finalize (GObject *object)
 {
-  GtkTreeIter iter;
   GHidRouteStyleSelector *rss = (GHidRouteStyleSelector *) object;
 
-  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
-  do
-    {
-      struct _route_style *rsdata;
-      gtk_tree_model_get (GTK_TREE_MODEL (rss->model),
-                          &iter, DATA_COL, &rsdata, -1);
-      if (rsdata->action)
-        {
-          gtk_action_disconnect_accelerator (GTK_ACTION (rsdata->action));
-          gtk_action_group_remove_action (rss->action_group,
-                                GTK_ACTION (rsdata->action));
-          g_object_unref (G_OBJECT (rsdata->action));
-        }
-      gtk_tree_row_reference_free (rsdata->rref);
-      free (rsdata);
-    }
-  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
+  ghid_route_style_selector_empty (rss);
 
   g_object_unref (rss->accel_group);
   g_object_unref (rss->action_group);
@@ -621,5 +604,33 @@ ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
         }
     }
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
+}
+
+/*! \brief Removes all styles from a route style selector */
+void
+ghid_route_style_selector_empty (GHidRouteStyleSelector *rss)
+{
+  GtkTreeIter iter;
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
+  do
+    {
+      struct _route_style *rsdata;
+      gtk_tree_model_get (GTK_TREE_MODEL (rss->model),
+                          &iter, DATA_COL, &rsdata, -1);
+      if (rsdata->action)
+        {
+          gtk_action_disconnect_accelerator (GTK_ACTION (rsdata->action));
+          gtk_action_group_remove_action (rss->action_group,
+                                GTK_ACTION (rsdata->action));
+          g_object_unref (G_OBJECT (rsdata->action));
+        }
+      if (rsdata->button)
+        gtk_widget_destroy (GTK_WIDGET (rsdata->button));;
+      gtk_tree_row_reference_free (rsdata->rref);
+      free (rsdata);
+    }
+  while (gtk_list_store_remove (rss->model, &iter));
+  rss->action_radio_group = NULL;
+  rss->button_radio_group = NULL;
 }
 

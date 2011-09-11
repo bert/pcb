@@ -36,6 +36,7 @@ GtkAccelGroup *ghid_route_style_selector_get_accel_group
 void ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
                                      Coord Thick, Coord Diameter,
                                      Coord Hole, Coord Keepaway);
+void ghid_route_style_selector_empty (GHidRouteStyleSelector *rss);
 
 G_END_DECLS  /* keep c++ happy */
 #endif
