@@ -256,10 +256,10 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
                     (gtk_entry_get_text (GTK_ENTRY (dialog_data.name_entry)));
       rst->Thick = ghid_coord_entry_get_value
                      (GHID_COORD_ENTRY (dialog_data.line_entry));
-      rst->Diameter = ghid_coord_entry_get_value
-                        (GHID_COORD_ENTRY (dialog_data.via_hole_entry));
       rst->Hole = ghid_coord_entry_get_value
-                    (GHID_COORD_ENTRY (dialog_data.via_size_entry));
+                    (GHID_COORD_ENTRY (dialog_data.via_hole_entry));
+      rst->Diameter = ghid_coord_entry_get_value
+                        (GHID_COORD_ENTRY (dialog_data.via_size_entry));
       rst->Keepaway = ghid_coord_entry_get_value
                         (GHID_COORD_ENTRY (dialog_data.clearance_entry));
       save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_box));
