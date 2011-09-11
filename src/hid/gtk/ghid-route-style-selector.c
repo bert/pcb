@@ -127,10 +127,10 @@ dialog_style_changed_cb (GtkComboBox *combo, struct _dialog *dialog)
   gtk_entry_set_text (GTK_ENTRY (dialog->name_entry), style->rst->Name);
   ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->line_entry),
                               style->rst->Thick);
-  ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->via_size_entry),
-                              style->rst->Diameter);
   ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->via_hole_entry),
                               style->rst->Hole);
+  ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->via_size_entry),
+                              style->rst->Diameter);
   ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->clearance_entry),
                               style->rst->Keepaway);
 
@@ -575,14 +575,14 @@ ghid_route_style_selector_get_accel_group (GHidRouteStyleSelector *rss)
  *
  *  \param [in] rss       The selector to be acted on
  *  \param [in] Thick     Coord to match selection to
- *  \param [in] Diameter  Coord to match selection to
  *  \param [in] Hole      Coord to match selection to
+ *  \param [in] Diameter  Coord to match selection to
  *  \param [in] Keepaway  Coord to match selection to
  */
 void
 ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
-                                Coord Thick, Coord Diameter,
-                                Coord Hole, Coord Keepaway)
+                                Coord Thick, Coord Hole,
+                                Coord Diameter, Coord Keepaway)
 {
   GtkTreeIter iter;
   gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
@@ -592,8 +592,8 @@ ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
       gtk_tree_model_get (GTK_TREE_MODEL (rss->model),
                           &iter, DATA_COL, &style, -1);
       if (style->rst->Thick == Thick &&
-          style->rst->Diameter == Diameter &&
           style->rst->Hole == Hole &&
+          style->rst->Diameter == Diameter &&
           style->rst->Keepaway == Keepaway)
         {
           g_signal_handler_block (G_OBJECT (style->action), style->sig_id);
