@@ -270,4 +270,52 @@ Molex_025_style(240)
 
 define(`Description_NANOENGINE', `Bright Star nanoEngine SBC')
 
+define(`Description_minifitjrhd2', `molex mini-fit JR header 2 pins')
+define(`Param1_minifitjrhd2', 1)
+define(`Param2_minifitjrhd2', 2)
+
+define(`Description_minifitjrhd4', `molex mini-fit JR header 4 pins')
+define(`Param1_minifitjrhd4', 2)
+define(`Param2_minifitjrhd4', 2)
+
+define(`Description_minifitjrhd6', `molex mini-fit JR header 6 pins')
+define(`Param1_minifitjrhd6', 3)
+define(`Param2_minifitjrhd6', 2)
+
+define(`Description_minifitjrhd8', `molex mini-fit JR header 8 pins')
+define(`Param1_minifitjrhd8', 4)
+define(`Param2_minifitjrhd8', 2)
+
+define(`Description_minifitjrhd10', `molex mini-fit JR header 10 pins')
+define(`Param1_minifitjrhd10', 5)
+define(`Param2_minifitjrhd10', 2)
+
+define(`Description_minifitjrhd12', `molex mini-fit JR header 12 pins')
+define(`Param1_minifitjrhd12', 6)
+define(`Param2_minifitjrhd12', 2)
+
+define(`Description_minifitjrhd14', `molex mini-fit JR header 14 pins')
+define(`Param1_minifitjrhd14', 7)
+define(`Param2_minifitjrhd14', 2)
+
+define(`Description_minifitjrhd16', `molex mini-fit JR header 16 pins')
+define(`Param1_minifitjrhd16', 8)
+define(`Param2_minifitjrhd16', 2)
+
+define(`Description_minifitjrhd18', `molex mini-fit JR header 18 pins')
+define(`Param1_minifitjrhd18', 9)
+define(`Param2_minifitjrhd18', 2)
+
+define(`Description_minifitjrhd20', `molex mini-fit JR header 20 pins')
+define(`Param1_minifitjrhd20', 10)
+define(`Param2_minifitjrhd20', 2)
+
+define(`Description_minifitjrhd22', `molex mini-fit JR header 22 pins')
+define(`Param1_minifitjrhd22', 11)
+define(`Param2_minifitjrhd22', 2)
+
+define(`Description_minifitjrhd24', `molex mini-fit JR header 24 pins')
+define(`Param1_minifitjrhd24', 12)
+define(`Param2_minifitjrhd24', 2)
+
 divert(0)dnl

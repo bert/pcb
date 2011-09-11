@@ -741,6 +741,43 @@ define(`PKG_NANOENGINE',
 	`PKG_MOLEX_025($1, $2, $3, 160)'
 )
 
+
+# the definition of a molex MINI FIT header connector
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: number of rows
+# $5: number of columns
+#
+define(`PKG_MINIFITJR',
+       `define(`MAXY', `eval(`$4' * 165 + 20)')
+       define(`MAXX', `eval(`$5' * 217 + 446 )')
+Element(0x00 "$1" "$2" "$3" eval(MAXX + 20) 0 3 100 0x00)
+(
+       
+       forloop(`row', 1, $4, `forloop(`col', 1, $5,
+               `PIN(eval(100 + 217 + 217 - (col * 217)), eval(row * 165 - 75), 135, 72, eval((row-1)*$5+col))
+       ') ')
+
+#holes for pegs
+
+       ifelse($4, 1,
+              `Pin(eval(100 + 217 + 287) eval(165 - 75) 180 110 "C1" 0x01)',
+              `ifelse($4, 2,
+                      `Pin(eval(100 + 217 + 287) 165 180 110 "C1" 0x01)',
+                      `Pin(eval(100 + 217 + 287) eval(165 - 75) 180 110 "C1" 0x01)
+                      Pin(eval(100 + 217 + 287) eval($4 * 165 - 75) 180 110 "C2" 0x01)'
+                      )')
+               
+
+       ElementLine(0 0 0 MAXY 20)
+       ElementLine(0 MAXY MAXX MAXY 20)
+       ElementLine(MAXX MAXY MAXX 0 20)
+       ElementLine(MAXX 0 0 0 20)
+       Mark(eval(100 + 217) eval(165 - 75))
+)')
+
+
 # -------------------------------------------------------------------
 # the definition of a through hole test point
 # $1: canonical name
