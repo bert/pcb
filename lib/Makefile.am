@@ -134,7 +134,6 @@ OBSOLETE_LIST_DIST_FILES=	\
 	memory.list \
 	resistor_0.25W.list \
 	resistor_adjust.list \
-	resistor_array.list \
 	texas_inst_amplifier.list \
 	texas_inst_voltage_reg.list \
 	transistor.list
@@ -146,7 +145,8 @@ LIST_DIST_FILES= \
 	generic.list \
 	gtag.list \
 	optical.list \
-	pci.list
+	pci.list \
+	resistor_array.list
 
 INC_FILES= \
 	bga.inc \

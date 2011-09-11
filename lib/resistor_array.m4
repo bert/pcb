@@ -39,12 +39,24 @@ define(`Description_r_025_sil_8', ``4xR-array 0.25W'')
 define(`Param1_r_025_sil_8', 8)
 define(`PinList_r_025_sil_8', ``1a', `1b', `2a', `2b', `3a', `3b', `4a', `4b'')
 
+define(`Description_r_025_sil_10', ``5xR-array 0.25W'')
+define(`Param1_r_025_sil_10', 10)
+define(`PinList_r_025_sil_10', ``1a', `1b', `2a', `2b', `3a', `3b', `4a', `4b', `5a', `5c'')
+
+define(`Description_r_025_sil_12', ``6xR-array 0.25W'')
+define(`Param1_r_025_sil_12', 12)
+define(`PinList_r_025_sil_12', ``1a', `1b', `2a', `2b', `3a', `3b', `4a', `4b', `5a', `5c', `6a', `6c'')
+
 # ----------------------------------------------------------------------
 # resistor array with common pin 1
 #
 define(`Description_r_025_csil_4', ``4xR-array 0.25W, common pin'')
 define(`Param1_r_025_csil_4', 5)
 define(`PinList_r_025_csil_4', ``common', `1', `2', `3', `4'')
+
+define(`Description_r_025_csil_5', ``5xR-array 0.25W, common pin'')
+define(`Param1_r_025_csil_5', 6)
+define(`PinList_r_025_csil_5', ``common', `1', `2', `3', `4', `5'')
 
 define(`Description_r_025_csil_6', ``6xR-array 0.25W, common pin'')
 define(`Param1_r_025_csil_6', 7)
@@ -57,5 +69,13 @@ define(`PinList_r_025_csil_7', ``common', `1', `2', `3', `4', `5', `6', `7'')
 define(`Description_r_025_csil_8', ``8xR-array 0.25W, common pin'')
 define(`Param1_r_025_csil_8', 9)
 define(`PinList_r_025_csil_8', ``common', `1', `2', `3', `4', `5', `6', `7', `8'')
+
+define(`Description_r_025_csil_9', ``9xR-array 0.25W, common pin'')
+define(`Param1_r_025_csil_9', 10)
+define(`PinList_r_025_csil_9', ``common', `1', `2', `3', `4', `5', `6', `7', `8', `9'')
+
+define(`Description_r_025_csil_10', ``10xR-array 0.25W, common pin'')
+define(`Param1_r_025_csil_10', 11)
+define(`PinList_r_025_csil_10', ``common', `1', `2', `3', `4', `5', `6', `7', `8', `9', `10'')
 
 divert(0)
