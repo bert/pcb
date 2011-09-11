@@ -4,8 +4,6 @@
  *  Please write description here.
  */
 
-/* TODO: write finalize function */
-
 #include <glib.h>
 #include <glib-object.h>
 #include <gdk/gdkkeysyms.h>
@@ -22,6 +20,7 @@
 struct _route_style;
 struct _route_style *ghid_route_style_selector_real_add_route_style
   (GHidRouteStyleSelector *, RouteStyleType *, gboolean temp);
+static void ghid_route_style_selector_finalize (GObject *object);
 
 /*! \brief Global action creation counter */
 static gint action_count;
@@ -40,6 +39,7 @@ enum {
   N_COLS
 };
 
+static GtkVBox *ghid_route_style_selector_parent_class;
 static guint ghid_route_style_selector_signals[LAST_SIGNAL] = { 0 };
 
 struct _GHidRouteStyleSelector
@@ -305,6 +305,10 @@ ghid_route_style_selector_init (GHidRouteStyleSelector *rss)
 static void
 ghid_route_style_selector_class_init (GHidRouteStyleSelectorClass *klass)
 {
+  GObjectClass *object_class = (GObjectClass *) klass;
+
+  ghid_route_style_selector_parent_class = g_type_class_peek_parent (klass);
+
   ghid_route_style_selector_signals[SELECT_STYLE_SIGNAL] =
     g_signal_new ("select-style",
                   G_TYPE_FROM_CLASS (klass),
@@ -321,6 +325,40 @@ ghid_route_style_selector_class_init (GHidRouteStyleSelectorClass *klass)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN, G_TYPE_NONE,
                   1, G_TYPE_BOOLEAN);
+
+  object_class->finalize = ghid_route_style_selector_finalize;
+}
+
+/*! \brief Clean up object before garbage collection
+ */
+static void
+ghid_route_style_selector_finalize (GObject *object)
+{
+  GtkTreeIter iter;
+  GHidRouteStyleSelector *rss = (GHidRouteStyleSelector *) object;
+
+  gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
+  do
+    {
+      struct _route_style *rsdata;
+      gtk_tree_model_get (GTK_TREE_MODEL (rss->model),
+                          &iter, DATA_COL, &rsdata, -1);
+      if (rsdata->action)
+        {
+          gtk_action_disconnect_accelerator (GTK_ACTION (rsdata->action));
+          gtk_action_group_remove_action (rss->action_group,
+                                GTK_ACTION (rsdata->action));
+          g_object_unref (G_OBJECT (rsdata->action));
+        }
+      gtk_tree_row_reference_free (rsdata->rref);
+      free (rsdata);
+    }
+  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
+
+  g_object_unref (rss->accel_group);
+  g_object_unref (rss->action_group);
+
+  G_OBJECT_CLASS (ghid_route_style_selector_parent_class)->finalize (object);
 }
 
 /* PUBLIC FUNCTIONS */
