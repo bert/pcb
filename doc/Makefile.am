@@ -171,4 +171,4 @@ else
 endif
 
 .eps.png:
-	${PERL} eps2png --png $< > $@
+	${PERL} $(srcdir)/eps2png --png $< > $@
