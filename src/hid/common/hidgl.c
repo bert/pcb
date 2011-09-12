@@ -44,11 +44,9 @@
 #include "action.h"
 #include "crosshair.h"
 #include "data.h"
-#include "draw.h"
 #include "error.h"
 #include "global.h"
 #include "mymem.h"
-#include "draw.h"
 #include "clip.h"
 
 #include "hid.h"
