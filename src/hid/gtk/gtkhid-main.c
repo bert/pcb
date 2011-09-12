@@ -1936,7 +1936,8 @@ N_("Bring up the popup menu specified by @code{MenuName}.\n"
 
 This just pops up the specified menu.  The menu must have been defined
 as a named subresource of the Popups resource in the menu resource
-file.
+file. The second, optional (and ignored) argument represents the mouse
+button number which is triggering the popup.
 
 %end-doc */
 

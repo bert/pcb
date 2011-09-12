@@ -71,4 +71,11 @@ void EraseElementPinsAndPads (ElementTypePtr);
 void EraseElementName (ElementTypePtr);
 void EraseObject (int, void *, void *);
 
+void DrawLayerGroup (int side, const BoxType *drawn_area);
+void DrawPaste (int side, const BoxType *drawn_area);
+void DrawSilk (int side, const BoxType *drawn_area);
+void DrawMask (int side, const BoxType *drawn_area);
+void DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area);
+void PrintAssembly (int side, const BoxType *drawn_area);
+
 #endif

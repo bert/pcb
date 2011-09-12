@@ -83,14 +83,10 @@ static bool doing_assy = false;
  */
 static void DrawEverything (const BoxType *);
 static void DrawPPV (int group, const BoxType *);
-static void DrawLayerGroup (int, const BoxType *);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawEMark (ElementTypePtr, Coord, Coord, bool);
-static void DrawMask (int side, const BoxType *);
-static void DrawPaste (int side, const BoxType *);
 static void DrawRats (const BoxType *);
-static void DrawSilk (int side, const BoxType *);
 
 /*--------------------------------------------------------------------------------------
  * setup color for pin or via
@@ -442,7 +438,7 @@ hole_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-static void
+void
 DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area)
 {
   int plated = -1;
@@ -604,7 +600,7 @@ element_callback (const BoxType * b, void *cl)
  * prints assembly drawing.
  */
 
-static void
+void
 PrintAssembly (int side, const BoxType * drawn_area)
 {
   int side_group = GetLayerGroupNumberByNumber (max_copper_layer + side);
@@ -930,7 +926,7 @@ clearPad_callback (const BoxType * b, void *cl)
  * Draws silk layer.
  */
 
-static void
+void
 DrawSilk (int side, const BoxType * drawn_area)
 {
 #if 0
@@ -989,7 +985,7 @@ DrawMaskBoardArea (int mask_type, const BoxType *drawn_area)
 /* ---------------------------------------------------------------------------
  * draws solder mask layer - this will cover nearly everything
  */
-static void
+void
 DrawMask (int side, const BoxType *screen)
 {
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
@@ -1018,7 +1014,7 @@ DrawMask (int side, const BoxType *screen)
 /* ---------------------------------------------------------------------------
  * draws solder paste layer for a given side of the board
  */
-static void
+void
 DrawPaste (int side, const BoxType *drawn_area)
 {
   gui->set_color (Output.fgGC, PCB->ElementColor);
@@ -1111,7 +1107,7 @@ DrawLayer (LayerTypePtr Layer, const BoxType * screen)
  * draws one layer group.  If the exporter is not a GUI,
  * also draws the pins / pads / vias in this layer group.
  */
-static void
+void
 DrawLayerGroup (int group, const BoxType *drawn_area)
 {
   int i, rv = 1;
