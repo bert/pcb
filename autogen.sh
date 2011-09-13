@@ -84,7 +84,7 @@ rm -f po/Makefile.in.in.orig
 #
 
 echo "Running aclocal..."
-aclocal $ACLOCAL_FLAGS || exit 1
+aclocal -I m4 $ACLOCAL_FLAGS || exit 1
 echo "Done with aclocal"
 
 echo "Running autoheader..."

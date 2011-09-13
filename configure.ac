@@ -410,24 +410,13 @@ Either do not use --enable-gl or enable the gtk HID.])
 	;;
 	esac
 
-	AC_CHECK_HEADERS(GL/gl.h)
-	case $ac_cv_header_GL_gl_h in
-	  no )
-	    AC_MSG_ERROR([You don't seem to have the GL library headers installed.])
-	    ;;
-	  * ) ;;
-	esac
+	AX_CHECK_GL
+	AS_IF([test X$no_gl = Xyes],
+	      [AC_MSG_FAILURE([OpenGL is required.])])
 
-	AC_CHECK_HEADERS(GL/glu.h)
-	case $ac_cv_header_GL_glu_h in
-	  no )
-	    AC_MSG_ERROR([You don't seem to have the GL glu library headers installed.])
-	    ;;
-	  * ) ;;
-	esac
-
-	GLU_CFLAGS=
-	GLU_LIBS=-lGLU
+	AX_CHECK_GLU
+	AS_IF([test X$no_glu = Xyes],
+	      [AC_MSG_FAILURE([The OpenGL GLU library is required.])])
 
 	AC_DEFINE([ENABLE_GL], 1,
 		[Define to 1 if GL support is to be compiled in])
@@ -1121,8 +1110,8 @@ AC_DEFINE_UNQUOTED([COORD_MAX],[$COORD_MAX],
 
 # ------------- Complete set of CFLAGS and LIBS -------------------
 
-CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS $GL_CFLAGS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS $GL_LIBS"
 
 
 # if we have gcc then add -Wall
