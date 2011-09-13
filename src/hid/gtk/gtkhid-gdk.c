@@ -1017,9 +1017,6 @@ draw_crosshair (GdkGC *xor_gc, gint x, gint y)
   prev = Crosshair.shape;
 }
 
-#define VCW 16
-#define VCD 8
-
 static void
 show_crosshair (gboolean paint_new_location)
 {
@@ -1028,7 +1025,6 @@ show_crosshair (gboolean paint_new_location)
   GtkStyle *style = gtk_widget_get_style (gport->drawing_area);
   gint x, y;
   static gint x_prev = -1, y_prev = -1;
-  static gboolean draw_markers, draw_markers_prev = FALSE;
   static GdkGC *xor_gc;
   static GdkColor cross_color;
 
@@ -1051,45 +1047,16 @@ show_crosshair (gboolean paint_new_location)
   gdk_gc_set_foreground (xor_gc, &cross_color);
 
   if (x_prev >= 0 && !paint_new_location)
-    {
-      draw_crosshair (xor_gc, x_prev, y_prev);
-      if (draw_markers_prev)
-        {
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              0, y_prev - VCD, VCD, VCW);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              gport->width - VCD, y_prev - VCD, VCD, VCW);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              x_prev - VCD, 0, VCW, VCD);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              x_prev - VCD, gport->height - VCD, VCW, VCD);
-        }
-    }
+    draw_crosshair (xor_gc, x_prev, y_prev);
 
   if (x >= 0 && paint_new_location)
     {
       draw_crosshair (xor_gc, x, y);
-      draw_markers = ghidgui->auto_pan_on && have_crosshair_attachments ();
-      if (draw_markers)
-        {
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              0, y - VCD, VCD, VCW);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              gport->width - VCD, y - VCD, VCD, VCW);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              x - VCD, 0, VCW, VCD);
-          gdk_draw_rectangle (window, xor_gc, TRUE,
-                              x - VCD, gport->height - VCD, VCW, VCD);
-        }
       x_prev = x;
       y_prev = y;
-      draw_markers_prev = draw_markers;
     }
   else
-    {
-      x_prev = y_prev = -1;
-      draw_markers_prev = FALSE;
-    }
+    x_prev = y_prev = -1;
 }
 
 void

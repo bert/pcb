@@ -127,7 +127,7 @@ typedef struct
 
   gboolean adjustment_changed_holdoff,
     command_entry_status_line_active,
-    auto_pan_on, in_popup;
+    in_popup;
 
   gboolean config_modified,
     small_label_markup,
@@ -147,7 +147,7 @@ typedef struct
     keyref_window_height,
     library_window_width,
     library_window_height,
-    netlist_window_height, history_size, settings_mode, auto_pan_speed;
+    netlist_window_height, history_size, settings_mode;
 }
 GhidGui;
 
@@ -277,7 +277,6 @@ void ghid_port_ranges_changed (void);
 void ghid_port_ranges_scale (void);
 
 gboolean ghid_note_event_location (GdkEventButton * ev);
-gboolean have_crosshair_attachments (void);
 gboolean ghid_port_key_press_cb (GtkWidget * drawing_area,
 				 GdkEventKey * kev, gpointer data);
 gboolean ghid_port_key_release_cb (GtkWidget * drawing_area,

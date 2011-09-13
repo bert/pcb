@@ -128,7 +128,6 @@ static ConfigAttribute config_attributes[] = {
   {"grid", CONFIG_Unused, NULL},
 
   {"history-size", CONFIG_Integer, &_ghidgui.history_size},
-  {"auto-pan-speed", CONFIG_Integer, &_ghidgui.auto_pan_speed},
   {"top-window-width", CONFIG_Integer, &_ghidgui.top_window_width},
   {"top-window-height", CONFIG_Integer, &_ghidgui.top_window_height},
   {"log-window-width", CONFIG_Integer, &_ghidgui.log_window_width},
@@ -256,8 +255,6 @@ ghid_config_init (void)
 
   ghidgui->n_mode_button_columns = 3;
   ghidgui->small_label_markup = TRUE;
-  ghidgui->auto_pan_on = TRUE;
-  ghidgui->auto_pan_speed = 3;
   ghidgui->history_size = 5;
   dup_string (&color_file, "");
 
@@ -866,14 +863,6 @@ config_history_spin_button_cb (GtkSpinButton * spin_button, gpointer data)
 }
 
 static void
-config_auto_pan_speed_spin_button_cb (GtkSpinButton * spin_button,
-				      gpointer data)
-{
-  ghidgui->auto_pan_speed = gtk_spin_button_get_value_as_int (spin_button);
-  ghidgui->config_modified = TRUE;
-}
-
-static void
 config_general_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *vbox;
@@ -912,10 +901,6 @@ config_general_tab_create (GtkWidget * tab_vbox)
 		    5.0, 25.0, 1.0, 1.0, 0, 0,
 		    config_history_spin_button_cb, NULL, FALSE,
 		    _("Number of commands to remember in the history list"));
-  ghid_spin_button (vbox, NULL, ghidgui->auto_pan_speed,
-		    1.0, 10.0, 1.0, 1.0, 0, 0,
-		    config_auto_pan_speed_spin_button_cb, NULL, FALSE,
-		    _("Auto pan speed"));
 }
 
 

@@ -1893,15 +1893,13 @@ N_("Start or stop panning (Mode = 1 to start, 0 to stop)\n"
 /* %start-doc actions Pan
 
 Start or stop panning.  To start call with Mode = 1, to stop call with
-Mode = 0.  If the Mode is turned on and off with the cross hairs at
-the same coordinates, the auto pan mode is toggled.
+Mode = 0.
 
 %end-doc */
 
 static int
 PanAction (int argc, char **argv, Coord x, Coord y)
 {
-  static int on_x, on_y;
   int mode;
 
   if (!ghidgui)
@@ -1920,18 +1918,6 @@ PanAction (int argc, char **argv, Coord x, Coord y)
     }
 
   gport->panning = mode;
-
-  if (mode == 1)
-    {
-      on_x = x;
-      on_y = y;
-    }
-  else if (x == on_x && y == on_y)
-    {
-      notify_crosshair_change (false);
-      ghidgui->auto_pan_on = !ghidgui->auto_pan_on;
-      notify_crosshair_change (true);
-    }
 
   return 0;
 }

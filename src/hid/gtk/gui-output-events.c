@@ -52,7 +52,6 @@
 
 #define TOOLTIP_UPDATE_DELAY 200
 
-static gint x_pan_speed, y_pan_speed;
 void
 ghid_port_ranges_changed (void)
 {
@@ -147,45 +146,6 @@ ghid_note_event_location (GdkEventButton * ev)
     }
   ghid_set_cursor_position_labels ();
   return moved;
-}
-
-gboolean
-have_crosshair_attachments (void)
-{
-  gboolean result = FALSE;
-
-  switch (Settings.Mode)
-    {
-    case COPY_MODE:
-    case MOVE_MODE:
-    case INSERTPOINT_MODE:
-      if (Crosshair.AttachedObject.Type != NO_TYPE)
-	result = TRUE;
-      break;
-    case PASTEBUFFER_MODE:
-    case VIA_MODE:
-      result = TRUE;
-      break;
-    case POLYGON_MODE:
-    case POLYGONHOLE_MODE:
-      if (Crosshair.AttachedLine.State != STATE_FIRST)
-	result = TRUE;
-      break;
-    case ARC_MODE:
-      if (Crosshair.AttachedBox.State != STATE_FIRST)
-	result = TRUE;
-      break;
-    case LINE_MODE:
-      if (Crosshair.AttachedLine.State != STATE_FIRST)
-	result = TRUE;
-      break;
-    default:
-      if (Crosshair.AttachedBox.State == STATE_SECOND
-	  || Crosshair.AttachedBox.State == STATE_THIRD)
-	result = TRUE;
-      break;
-    }
-  return result;
 }
 
 static gboolean
@@ -603,26 +563,10 @@ ghid_port_window_enter_cb (GtkWidget * widget,
   return FALSE;
 }
 
-static gboolean
-ghid_pan_idle_cb (gpointer data)
-{
-  gdouble dx = 0, dy = 0;
-
-  if (gport->has_entered)
-    return FALSE;
-
-  dy = gport->view.coord_per_px * y_pan_speed;
-  dx = gport->view.coord_per_px * x_pan_speed;
-  ghid_pan_view_rel (dx, dy);
-  return TRUE;
-}
-
 gint
 ghid_port_window_leave_cb (GtkWidget * widget, 
                            GdkEventCrossing * ev, GHidPort * out)
 {
-  Coord x0, y0, x, y, dx, dy, w, h;
-  
   /* printf("leave mode: %d detail: %d\n", ev->mode, ev->detail); */
 
   /* Window leave events can also be triggered because of focus grabs. Some
@@ -635,62 +579,6 @@ ghid_port_window_leave_cb (GtkWidget * widget,
   if(ev->mode != GDK_CROSSING_NORMAL)
     {
       return FALSE;
-    }
-
-  if(out->has_entered && !ghidgui->in_popup)
-    {
-      /* if actively drawing, start scrolling */
-
-      if (have_crosshair_attachments () && ghidgui->auto_pan_on)
-	{
-	  /* GdkEvent coords are set to 0,0 at leave events, so must figure
-	     |  out edge the cursor left.
-	   */
-	  w = ghid_port.width * out->view.coord_per_px;
-	  h = ghid_port.height * out->view.coord_per_px;
-
-	  x0 = EVENT_TO_PCB_X (0);
-	  y0 = EVENT_TO_PCB_Y (0);
-	  ghid_get_coords (NULL, &x, &y);
-	  x -= x0;
-	  y -= y0;
-
-	  if (gport->view.flip_x)
-	      x = -x;
-	  if (gport->view.flip_y)
-	      y = -y;
-
-	  dx = w - x;
-	  dy = h - y;
-
-	  x_pan_speed = y_pan_speed = 2 * ghidgui->auto_pan_speed;
-
-	  if (x < dx)
-	    {
-	      x_pan_speed = -x_pan_speed;
-	      dx = x;
-	    }
-	  if (y < dy)
-	    {
-	      y_pan_speed = -y_pan_speed;
-	      dy = y;
-	    }
-	  if (dx < dy)
-	    {
-	      if (dy < h / 3)
-		y_pan_speed = y_pan_speed - (3 * dy * y_pan_speed) / h;
-	      else
-		y_pan_speed = 0;
-	    }
-	  else
-	    {
-	      if (dx < w / 3)
-		x_pan_speed = x_pan_speed - (3 * dx * x_pan_speed) / w;
-	      else
-		x_pan_speed = 0;
-	    }
-	  g_idle_add (ghid_pan_idle_cb, NULL);
-	}
     }
 
   out->has_entered = FALSE;
