@@ -3,7 +3,6 @@ Makefile.in
 *.cache
 /config.*
 /configure
-/m4
 /aclocal.m4
 ABOUT-NLS
 /intl
