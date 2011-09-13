@@ -192,6 +192,7 @@ units_cb ()
     unit = get_unit_struct ("mil");
   else
     unit = get_unit_struct ("mm");
+  ustr = XmStringCreateLocalized ((char *)unit->suffix);
   update_values ();
 }
 
@@ -354,6 +355,9 @@ AdjustStyle (int argc, char **argv, Coord x, Coord y)
   if (style_dialog == 0)
     {
       int i;
+
+      unit = Settings.grid_unit;
+      ustr = XmStringCreateLocalized ((char *)unit->suffix);
 
       n = 0;
       stdarg (XmNautoUnmanage, False);
