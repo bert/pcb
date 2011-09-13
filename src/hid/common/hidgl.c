@@ -38,8 +38,17 @@
  *   http://www.opengl.org/registry/ABI/
  */
 #define GL_GLEXT_PROTOTYPES 1
-#include <GL/gl.h>
-#include <GL/glu.h>
+#ifdef HAVE_OPENGL_GL_H
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
+#ifdef HAVE_OPENGL_GLU_H
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/glu.h>
+#endif
 
 #include "action.h"
 #include "crosshair.h"

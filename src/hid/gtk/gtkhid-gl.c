@@ -17,8 +17,14 @@
  * in order to get prototypes:
  *   http://www.opengl.org/registry/ABI/
  */
+
 #define GL_GLEXT_PROTOTYPES 1
-#include <GL/gl.h>
+#ifdef HAVE_OPENGL_GL_H
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
 #include <gtk/gtkgl.h>
 #include "hid/common/hidgl.h"
 #include "hid/common/draw_helpers.h"
