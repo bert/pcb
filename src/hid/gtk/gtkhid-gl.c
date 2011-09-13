@@ -760,8 +760,6 @@ ghid_show_crosshair (gboolean paint_new_location)
   glEnable (GL_COLOR_LOGIC_OP);
   glLogicOp (GL_XOR);
 
-  hidgl_flush_triangles (&buffer);
-
   glColor3f (cross_color.red / 65535.,
              cross_color.green / 65535.,
              cross_color.blue / 65535.);
