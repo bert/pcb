@@ -932,50 +932,71 @@ Undo (bool draw)
   UndoListTypePtr ptr;
   int Types = 0;
   int unique;
+  bool error_undoing = false;
 
   unique = TEST_FLAG (UNIQUENAMEFLAG, PCB);
   CLEAR_FLAG (UNIQUENAMEFLAG, PCB);
 
   andDraw = draw;
 
-  do
+  if (Serial == 0)
     {
-      if (!UndoN)
-	{
-	  if (!Serial)
-	    Message (_("Nothing to undo - buffer is empty\n"));
-	  else
-	    Serial--;
-	  return (false);
-	}
-
-      /* lock undo module to prevent from loops
-       * and loop over all entries with the same serial number
-       */
-      ptr = &UndoList[UndoN - 1];
-      if (ptr->Serial != Serial - 1)
-	{
-	  Message (_("Undo bad serial number %d expecting %d\n"),
-		   ptr->Serial, Serial - 1);
-	  Serial = ptr->Serial + 1;
-	  return (false);
-	}
-      LockUndo ();
-      Serial = ptr->Serial;
-      for (; UndoN && ptr->Serial == Serial; ptr--, UndoN--, RedoN++)
-	Types |= PerformUndo (ptr);
-      /* release lock */
-      UnlockUndo ();
+      Message (_("ERROR: Attempt to Undo() with Serial == 0\n"
+                 "       Please save your work and report this bug.\n"));
+      return 0;
     }
-  while (Types == 0);
+
+  if (UndoN == 0)
+    {
+      Message (_("Nothing to undo - buffer is empty\n"));
+      return 0;
+    }
+
+  Serial --;
+
+  ptr = &UndoList[UndoN - 1];
+
+  if (ptr->Serial > Serial)
+    {
+      Message (_("ERROR: Bad undo serial number %d in undo stack - expecting %d or lower\n"
+                 "       Please save your work and report this bug.\n"),
+               ptr->Serial, Serial);
+
+      /* It is likely that the serial number got corrupted through some bad
+       * use of the SaveUndoSerialNumber() / RestoreUndoSerialNumber() APIs.
+       *
+       * Reset the serial number to be consistent with that of the last
+       * operation on the undo stack in the hope that this might clear
+       * the problem and  allow the user to hit Undo again.
+       */
+      Serial = ptr->Serial + 1;
+      return 0;
+    }
+
+  LockUndo (); /* lock undo module to prevent from loops */
+
+  /* Loop over all entries with the correct serial number */
+  for (; UndoN && ptr->Serial == Serial; ptr--, UndoN--, RedoN++)
+    {
+      int undid = PerformUndo (ptr);
+      if (undid == 0)
+        error_undoing = true;
+      Types |= undid;
+    }
+
+  UnlockUndo ();
+
+  if (error_undoing)
+    Message (_("ERROR: Failed to undo some operations\n"));
+
   if (Types && andDraw)
     Draw ();
 
   /* restore the unique flag setting */
   if (unique)
     SET_FLAG (UNIQUENAMEFLAG, PCB);
-  
-  return (Types);
+
+  return Types;
 }
 
 static int
@@ -1096,34 +1117,58 @@ Redo (bool draw)
 {
   UndoListTypePtr ptr;
   int Types = 0;
+  bool error_undoing = false;
 
   andDraw = draw;
-  do
-    {
-      if (!RedoN)
-	{
-	  Message
-	    (_
-	     ("Nothing to redo. Perhaps changes have been made since last undo\n"));
-	  return (false);
-	}
 
-      /* lock undo module to prevent from loops
-       * and loop over all entries with the same serial number
-       */
-      LockUndo ();
-      ptr = &UndoList[UndoN];
-      Serial = ptr->Serial;
-      for (; RedoN && ptr->Serial == Serial; ptr++, UndoN++, RedoN--)
-	Types |= PerformUndo (ptr);
-      /* Make next serial number current in case we take a new branch */
-      Serial++;
-      UnlockUndo ();
+  if (RedoN == 0)
+    {
+      Message (_("Nothing to redo. Perhaps changes have been made since last undo\n"));
+      return 0;
     }
-  while (Types == 0);
+
+  ptr = &UndoList[UndoN];
+
+  if (ptr->Serial < Serial)
+    {
+      Message (_("ERROR: Bad undo serial number %d in redo stack - expecting %d or higher\n"
+                 "       Please save your work and report this bug.\n"),
+               ptr->Serial, Serial);
+
+      /* It is likely that the serial number got corrupted through some bad
+       * use of the SaveUndoSerialNumber() / RestoreUndoSerialNumber() APIs.
+       *
+       * Reset the serial number to be consistent with that of the first
+       * operation on the redo stack in the hope that this might clear
+       * the problem and  allow the user to hit Redo again.
+       */
+      Serial = ptr->Serial;
+      return 0;
+    }
+
+  LockUndo (); /* lock undo module to prevent from loops */
+
+  /* and loop over all entries with the correct serial number */
+  for (; RedoN && ptr->Serial == Serial; ptr++, UndoN++, RedoN--)
+    {
+      int undid = PerformUndo (ptr);
+      if (undid == 0)
+        error_undoing = true;
+      Types |= undid;
+    }
+
+  /* Make next serial number current */
+  Serial++;
+
+  UnlockUndo ();
+
+  if (error_undoing)
+    Message (_("ERROR: Failed to redo some operations\n"));
+
   if (Types && andDraw)
     Draw ();
-  return (Types);
+
+  return Types;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1155,12 +1200,11 @@ IncrementUndoSerialNumber (void)
 {
   if (!Locked)
     {
-      /* don't increment if nothing was added */
-      if (UndoN == 0 || UndoList[UndoN - 1].Serial != Serial)
-	return;
+      /* Set the changed flag if anything was added prior to this bump */
+      if (UndoN > 0 && UndoList[UndoN - 1].Serial == Serial)
+        SetChangedFlag (true);
       Serial++;
       Bumped = true;
-      SetChangedFlag (true);
     }
 }
 
