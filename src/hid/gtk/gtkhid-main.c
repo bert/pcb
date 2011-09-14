@@ -128,9 +128,10 @@ ghid_zoom_view_rel (Coord center_x, Coord center_y, double factor)
 static void
 ghid_zoom_view_fit (void)
 {
-  ghid_pan_view_abs (0, 0, 0, 0);
-  ghid_zoom_view_abs (0, 0, MAX (PCB->MaxWidth  / gport->width,
-                                 PCB->MaxHeight / gport->height));
+  ghid_pan_view_abs (SIDE_X (0), SIDE_Y (0), 0, 0);
+  ghid_zoom_view_abs (SIDE_X (0), SIDE_Y (0),
+                      MAX (PCB->MaxWidth  / gport->width,
+                           PCB->MaxHeight / gport->height));
 }
 
 static void
