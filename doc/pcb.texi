@@ -522,10 +522,7 @@ of another by pressing @emph{Ctrl-Btn1}, or
 @emph{Btn3}, but don't use @emph{Btn2}.
 The undo function (@emph{U} key or @samp{undo last operation}
 from the @b{Edit} menu) will take you back
-point by point if you use it while in the line mode. If you drag
-the pointer out of the Layout area while drawing a line, the
-display will auto-scroll (assuming sufficient zoom for scrolling).
-To stop auto-scroll, simply pass the pointer over the panner control.
+point by point if you use it while in the line mode.
 
 @cindex two line mode
 New lines can be restricted to 45 degree angles if desired. You can toggle this
@@ -740,16 +737,14 @@ if that works, then @pcb{} hasn't been installed properly.
 @node Application Window
 @section The Application Window
 
-The main window consists of six areas:
-the menu at the top, the panner control in the upper left corner, the layer
-controls located below the panner, the tool buttons
+The main window consists of five areas:
+the menu at the top, the layer control in the upper left, the tool buttons
 located below the layer controls, the Layout area to the right of these, and the
 status line at the bottom of the window.
 
 @menu
 * Menu::
 * Status-line and Input-field::  What is the program configuration.
-* Panner Control::               Used to pan the layout view when zoomed in.
 * Layer Controls::               Switch layers on/off; change current one.
 * Tool Selectors::               Select a layout tool.
 * Layout Area::		         Where the layout is drawn.
@@ -1020,53 +1015,6 @@ are the distance and angle from the mark to the cross hair. The values displayed
 are always in units of 0.001 inch (1 mil).
 Pressing @emph{Ctrl-M} again turns the marker off.
 
-@node Panner Control
-@subsection The Panner Control
-@cindex Panner control
-@cindex View, adjusting
-
-The panner control, located at the upper left side of the window, is used to
-adjust what portion of the layout is seen in the Layout area. The outer
-rectangle of the panner represents the whole layout (extended to have the
-panner aspect ratio), while the inner control rectangle represents the
-portion seen through the Layout area. Slowly drag this part around with
-the mouse (@emph{Btn1}) to see how it pans the layout. Release the panner
-control, but leave the pointer within the outer most rectangle of the
-control. Now hit a few keyboard arrow keys. Each arrow key moves the region
-seen one-half window size in the arrow direction. If you want to see a
-portion of the layout that is off the top of the screen, you need to
-drag the panner up, or hit the up arrow key.
-
-Move the pointer back into the Layout area.
-Increase the zoom by hitting the @emph{Z} key. See how the inner part of
-the panner becomes smaller to reflect that you are viewing a smaller
-part of the layout. Now zoom out by hitting @emph{Shift-Z}. If you
-hit the arrow key with the pointer in the Layout area, it moves
-the pointer rather than scrolling the window. In general the keyboard
-shortcuts depend on which region of @code{Pcb's} window the pointer
-is over. For the most part, the key strokes in this manual refer to
-the case when the pointer is in the Layout area. You can do fine
-scrolling in the Layout area by dragging it directly with the
-Panner tool. Press the @emph{Escape} key to select the panner tool.
-Now drag in the layout area with @emph{Btn1} down. You can scroll the drawing
-window while the pointer is inside it with @emph{Mod-Arrow}
-keys.
-
-If you are moving or drawing an object and go beyond the drawing
-window borders, the window will auto-scroll. If you want to stop
-the auto-scrolling while the pointer is outside the Layout area,
-simply pass the pointer briefly over the panner control area, or
-a menu button.
-
-Another way to navigate around a layout is with @emph{Shift-Btn3}.
-When pressed down, the layout will zoom so the whole extent of
-objects is visible, and will return to the previous zoom when
-you release the button, but will be centered at the cross hair
-position where the button is released. You can do this while in
-the middle of drawing an object. Try it now to center near
-U7.
-
-
 @node Layer Controls
 @subsection The Layer Controls
 @cindex layer controls
@@ -1074,7 +1022,7 @@ U7.
 @cindex layers, changing which is active
 @cindex change active layer
 
-The layer control panel, located below the panner control, is used to turn on
+The layer control panel, located in the upper left, is used to turn on
 and off the display of layer groups and to select the active drawing layer.
 If a layer hasn't been named, the label "@emph{(unknown)}" is used as the default.
 If this happens, it probably means the application resources are not installed
@@ -1149,7 +1097,6 @@ Every tool gives the cursor a unique shape that identifies it.
 The tool selector buttons themselves are icons that illustrate their function.
 Each layout tool can also be selected from the keyboard:
 @example
-    @emph{Escape} key   Panner tool
     @emph{F1} key       Via tool
     @emph{F2} key       Line tool
     @emph{F3} key       Arc tool
