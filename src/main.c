@@ -1757,7 +1757,9 @@ main (int argc, char *argv[])
   InitPaths (argv[0]);
 
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  textdomain(GETTEXT_PACKAGE);
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+  setlocale(LC_ALL,"");
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
