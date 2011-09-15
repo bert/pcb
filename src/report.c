@@ -812,7 +812,7 @@ ReportNetLengthByName (char *tofind, int x, int y)
 	  if ((elt_pattern = re_comp (tofind)) != NULL)
 	    {
 	      Message (_("re_comp error: %s\n"), elt_pattern);
-	      return (false);
+	      return (1);
 	    }
 #endif
 	}
