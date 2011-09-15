@@ -19,6 +19,7 @@ src/find.c
 src/gpcb-menu.res.in
 src/hid/batch/batch.c
 src/hid/common/actions.c
+src/hid/common/hidgl_package_vrml_y.c
 src/hid/common/hidnogui.c
 src/hid/gerber/gerber.c
 src/hid/gtk/ghid-cell-renderer-visibility.c
