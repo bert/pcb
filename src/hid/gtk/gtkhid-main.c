@@ -217,7 +217,7 @@ Zoom (int argc, char **argv, Coord x, Coord y)
   vp = argv[0];
   if (*vp == '+' || *vp == '-' || *vp == '=')
     vp++;
-  v = strtod (vp, 0);
+  v = g_ascii_strtod (vp, 0);
   if (v <= 0)
     return 1;
   switch (argv[0][0])

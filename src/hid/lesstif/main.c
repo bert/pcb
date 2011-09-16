@@ -515,7 +515,7 @@ ZoomAction (int argc, char **argv, Coord x, Coord y)
     }
   if (*vp == '+' || *vp == '-' || *vp == '=')
     vp++;
-  v = strtod (vp, 0);
+  v = g_ascii_strtod (vp, 0);
   if (v <= 0)
     return 1;
   switch (argv[0][0])
