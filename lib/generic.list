@@ -26,26 +26,38 @@
 #
 # mask package values...
 #
+generic8_dil:DIL:DIL 8
 generic8_dil:N:DIL 8
 generic8smd_dil:D:SMD 8
+generic14_dil:DIL:DIL 14
 generic14_dil:N:DIL 14
 generic14smd_dil:D:SMD 14
+generic16_dil:DIL:DIL 16
 generic16_dil:N:DIL 16
 generic16smd_dil:D:SMD 16
+generic18_dil:DIL:DIL 18
 generic18_dil:N:DIL 18
 generic18smd_dil:D:SMD 18
+generic20_dil:DIL:DIL 20
 generic20_dil:N:DIL 20
 generic20smd_dil:D:SMD 20
+generic24_dil:DIL:DIL 24
 generic24_dil:N:DIL 24
 generic24smd_dil:D:SMD 24
+generic24w_dil:DIL:W-DIL 24
 generic24w_dil:N:W-DIL 24
 generic24smdw_dil:DW:SMD-W 24
+generic28_dil:DIL:DIL 28
 generic28_dil:N:DIL 28
 generic28smd_dil:D:SMD 28
+generic28w_dil:DIL:W-DIL 28
 generic28w_dil:N:W-DIL 28
 generic28smdw_dil:DW:SMD-W 28
+generic32_dil:DIL:DIL 32
 generic32_dil:N:DIL 32
+generic40_dil:DIL:DIL 40
 generic40_dil:N:DIL 40
+generic64_dil:DIL:DIL 64
 generic64_dil:N:DIL 64
 generic44_plcc:PLCC:PLCC 44
 generic44_plcc:PLCC_SOCKET:PLCC 44 socket
@@ -90,6 +102,7 @@ oscillator_32:OSC:32 MHz OSC
 
 ovenized_oscillator_5:OVEN_OSC:5 MHz OSC
 
+r_025:R025:0.25W Resistor (300 mil)
 generic_resistor_axial_300:AXIAL_LAY:300
 generic_resistor_axial_400:AXIAL_LAY:400
 generic_resistor_axial_500:AXIAL_LAY:500
