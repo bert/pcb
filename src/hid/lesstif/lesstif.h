@@ -64,4 +64,10 @@ extern void lesstif_attributes_dialog (char *, AttributeListType *);
 #define need_idle_proc lesstif_need_idle_proc
 #define show_crosshair lesstif_show_crosshair
 
-#define XmStringCreatePCB(x) XmStringCreateLtoR((x), XmFONTLIST_DEFAULT_TAG)
+static XmString
+XmStringCreatePCB (char *x)
+{
+  if (x && x[0])
+    x = gettext (x);
+  return XmStringCreateLtoR (x, XmFONTLIST_DEFAULT_TAG);
+}
