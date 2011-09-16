@@ -12,7 +12,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
+	liblpr.a libgerber.a libbom.a libdsn.a libpng.a libps.a libnelma.a \
 	libgcode.a
 
 pcblib_DATA= \
@@ -193,6 +193,7 @@ BUILT_SOURCES = \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	hid/dsn/dsn_lists.h \
 	parse_y.h \
 	pcb-menu.h \
 	res_parse.h \
@@ -232,6 +233,7 @@ EXTRA_DIST= \
 	default_font \
 	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
+	$(srcdir)/hid/dsn/hid.conf \
 	$(srcdir)/hid/gcode/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
@@ -395,6 +397,20 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	$(MKDIR_P) hid/batch
 	true > $@
 	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
+libdsn_a_CPPFLAGS = -I./hid/dsn
+
+LIBDSN_SRCS = \
+	hid/hidint.h \
+	hid/dsn/dsn.c \
+	hid/dsn/dsn.h
+libdsn_a_SOURCES = ${LIBDSN_SRCS} hid/dsn/dsn_lists.h
+
+hid/dsn/dsn_lists.h : ${LIBDSN_SRCS} Makefile
+	$(MKDIR_P) hid/dsn
+	true > $@
+	(for f in ${LIBDSN_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libgerber_a_CPPFLAGS = -I$(top_srcdir)

@@ -1907,6 +1907,7 @@ select the desired exporter.
 
 @menu
 * bom::                Bill of materials.
+* dsn::                SPECCTRA router file.
 * gcode::              G-code.
 * gerber::             Gerber.
 * nelma::              Nelma.
@@ -1921,6 +1922,49 @@ select the desired exporter.
 @cindex bill of materials
 
 Produces a bill of materials (BOM) file and a centroid (XY) file.
+
+@node dsn
+@subsection Specctra router (dsn)
+@cindex dsn
+@cindex Specctra router
+
+Produces a Specctra router file (.dsn) usable for routing with an
+external router such as http://www.freerouting.net.  A Specctra
+session file (.ses) can be loaded into pcb.
+
+Usage of the pcb dsn exporter/importer together with http://www.freerouting.net/:
+
+@table @b
+@item 1)
+Create a .dsn-file with the Specctra "dsn" exporter of pcb.
+
+@item 2)
+Launch the router on http://www.freerouting.net
+
+@item 3)
+Push "Open Your own Design" and select your created .dsn-file in the file chooser.
+
+@item 4)
+Do some interactive routing or start the autorouter in the toolbar of the board editor.
+
+@item 5)
+After you have finished choose "Export Specctra Session File" in the file menu.
+
+@item 6)
+Import the generated session file (.ses) with "Load external router session file" into pcb.
+@end table
+
+Some entities still not handled correctly are:
+
+@table @b
+@item polygons:
+Existing polygons on the pcb don't make it into the dsn.
+
+@item rotated pads:
+Parts rotated at non-orthogonal angles probably won't work since rectangular 
+(square) pads won't be rotated correctly.
+@end table
+
 
 @node gcode
 @subsection G-code (gcode)

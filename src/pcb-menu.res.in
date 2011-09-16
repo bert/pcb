@@ -38,6 +38,7 @@ MainMenu =
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist file" Load(Netlist)}
    {"Load vendor resource file" LoadVendor()}
+   {"Load external router session file" LoadDsnFrom()}
    {"Print layout..." Print()}
    {"Export layout..." Export()}
    {"Calibrate Printer..." PrintCalibrate()}

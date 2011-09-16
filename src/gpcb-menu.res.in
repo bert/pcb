@@ -65,6 +65,7 @@ MainMenu =
    {"Load layout to buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist" Load(Netlist)}
    {"Load vendor resource file" LoadVendorFrom()}
+   {"Load external router session file" LoadDsnFrom()}
    -
    {"Save connection data of"
      {" a single element" GetXY(Click to set the element mark <>) Save(ElementConnections)}
