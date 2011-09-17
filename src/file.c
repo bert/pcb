@@ -1413,12 +1413,11 @@ ReadLibraryContents (void)
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
 
-
-  /* On Windows, the magic string '*NONE*' is set in main.c as we
-     normally cannot run shell scripts or expect to have m4.  This
-     allows the user to still override it if they have a
-     windows-compatible library generator.  */
-  if (strcmp (Settings.LibraryContentsCommand, "*NONE*"))
+  /* If we don't have a command to execute to find the library contents,
+   * skip this. This is used by default on Windows builds (set in main.c),
+   * as we can't normally run shell scripts or expect to have m4 present.
+   */
+  if (*Settings.LibraryContentsCommand != '\0')
     {
       /*  First load the M4 stuff.  The variable Settings.LibraryPath
        *  points to it.

@@ -1122,13 +1122,14 @@ Defaults to @code{"QueryLibrary.sh '%p' '%f' %a"}
 @ftable @code
 @item --lib-contents-command <string>
 Command to query the contents of the library. @*
-Defaults to @code{"ListLibraryContents.sh %p %f"} or, on Windows, *NONE*
+Defaults to @code{"ListLibraryContents.sh %p %f"} or,
+on Windows builds, an empty string (to disable this feature).
 @end ftable
 %end-doc
 */
   SSET (LibraryContentsCommand,
 #ifdef __WIN32__
-	"*NONE*",
+	"",
 #else
 	"ListLibraryContents.sh '%p' '%f'",
 #endif
