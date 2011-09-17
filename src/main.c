@@ -1122,11 +1122,16 @@ Defaults to @code{"QueryLibrary.sh '%p' '%f' %a"}
 @ftable @code
 @item --lib-contents-command <string>
 Command to query the contents of the library. @*
-Defaults to @code{"ListLibraryContents.sh %p %f"}
+Defaults to @code{"ListLibraryContents.sh %p %f"} or, on Windows, *NONE*
 @end ftable
 %end-doc
 */
-  SSET (LibraryContentsCommand, "ListLibraryContents.sh '%p' '%f'",
+  SSET (LibraryContentsCommand,
+#ifdef __WIN32__
+	"*NONE*",
+#else
+	"ListLibraryContents.sh '%p' '%f'",
+#endif
 	"lib-contents-command", "Command to query the contents of the library"),
 
 /* %start-doc options "5 Paths"
