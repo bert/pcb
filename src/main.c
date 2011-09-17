@@ -1442,7 +1442,10 @@ REGISTER_ATTRIBUTES (main_attribute_list)
 {
   char *tmps;
 
-  if (Settings.LibraryCommand[0] != PCB_DIR_SEPARATOR_C && Settings.LibraryCommand[0] != '.')
+  if (Settings.LibraryCommand != NULL &&
+      Settings.LibraryCommand[0] != '\0' &&
+      Settings.LibraryCommand[0] != PCB_DIR_SEPARATOR_C &&
+      Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
 	=
@@ -1450,8 +1453,10 @@ REGISTER_ATTRIBUTES (main_attribute_list)
 		Settings.LibraryCommand,
 		NULL);
     }
-  if (Settings.LibraryContentsCommand[0] != PCB_DIR_SEPARATOR_C
-      && Settings.LibraryContentsCommand[0] != '.')
+  if (Settings.LibraryContentsCommand != NULL &&
+      Settings.LibraryContentsCommand[0] != '\0' &&
+      Settings.LibraryContentsCommand[0] != PCB_DIR_SEPARATOR_C &&
+      Settings.LibraryContentsCommand[0] != '.')
     {
       Settings.LibraryContentsCommand
 	=

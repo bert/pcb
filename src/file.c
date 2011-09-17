@@ -1417,7 +1417,8 @@ ReadLibraryContents (void)
    * skip this. This is used by default on Windows builds (set in main.c),
    * as we can't normally run shell scripts or expect to have m4 present.
    */
-  if (*Settings.LibraryContentsCommand != '\0')
+  if (Settings.LibraryContentsCommand != NULL &&
+      Settings.LibraryContentsCommand[0] != '\0')
     {
       /*  First load the M4 stuff.  The variable Settings.LibraryPath
        *  points to it.
