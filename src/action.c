@@ -7354,6 +7354,15 @@ tempfile_name_new (char * name)
    * in case someone decides to create multiple temp names.
    */
   tmpfile = strdup (tmpnam (NULL));
+#ifdef __WIN32__
+    {
+      /* Guile doesn't like \ separators */
+      char *c;
+      for (c = tmpfile; *c; c++)
+	if (*c == '\\')
+	  *c = '/';
+    }
+#endif
 #endif
 
   return tmpfile;
