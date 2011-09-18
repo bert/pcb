@@ -84,6 +84,7 @@ BUILT_SOURCES=
 endif
 
 inline_texi=	\
+	options.texi \
 	actions.texi \
 	pcbfile.texi
 
