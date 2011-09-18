@@ -146,6 +146,17 @@ LIST_DIST_FILES= \
 	gtag.list \
 	optical.list \
 	pci.list \
+	TTL_74xx_DIL.list \
+	jerry.list \
+	linear.list \
+	logic.list \
+	lsi.list \
+	memory.list \
+	resistor_0.25W.list \
+	resistor_adjust.list \
+	texas_inst_amplifier.list \
+	texas_inst_voltage_reg.list \
+	transistor.list \
 	resistor_array.list
 
 INC_FILES= \

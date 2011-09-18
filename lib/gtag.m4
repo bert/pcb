@@ -72,7 +72,6 @@ define(`PKG_PQFP52_10X10',
 
 define(`Description_cy7c64603_qfp', ``USB Microcontroller'')
 define(`Param1_cy7c64603_qfp', 52)
-define(`PinList_cy7c64603_qfp', ``1',`2',`3',`4',`5',`6',`7',`8',`9',`10',`11',`12',`13',`14',`15',`16',`17',`18',`19',`20',`21',`22',`23',`24',`25',`26',`27',`28',`29',`30',`31',`32',`33',`34',`35',`36',`37',`38',`39',`40',`41',`42',`43',`44',`45',`46',`47',`48',`49',`50',`51',`52'')
 
 define(`PKG_CONN_USB',
 `Element(0x00 "$1" "`$2'" "$3" 4140 2050 0 100 0x00)
@@ -92,7 +91,6 @@ define(`PKG_CONN_USB',
 )')
 
 define(`Description_conn_usb',``USB Male Connector'')
-define(`PinList_conn_usb', ``1', `2', `3', `4'')
 
 define(`PKG_SM0805',
 `Element(0x00 "$1" "`$2'" "$3" 0 100 0 100 0x00)
@@ -113,10 +111,8 @@ define(`PKG_SM1206',
 )')
 
 define(`Description_sm0805',``SMT 0805'')
-define(`PinList_sm0805', ``1', `2'')
 
 define(`Description_sm1206',``SMT 1206'')
-define(`PinList_sm1206', ``1', `2'')
 
 
 define(`PKG_CONN_JTAG',
@@ -141,7 +137,6 @@ define(`PKG_CONN_JTAG',
 )')
 
 define(`Description_conn_jtag',``JTAG Connector'')
-define(`PinList_conn_jtag', ``1', `2', `3', `4', `5', `6', `7', `8'')
 
 
 divert(0)

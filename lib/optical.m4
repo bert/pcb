@@ -29,20 +29,16 @@ divert(-1)
 #
 define(`Description_LED_3MM', `LED 3mm')
 define(`Param1_LED_3MM', 60)
-define(`PinList_LED_3MM', ``-', `+'')
 
 define(`Description_LED_5MM', `LED 5mm')
 define(`Param1_LED_5MM', 100)
-define(`PinList_LED_5MM', ``-', `+'')
 
 define(`Description_OPTO_6N136', `optical coupling device')
 define(`Param1_OPTO_6N136', 8)
 define(`Param2_OPTO_6N136', 300)
-define(`PinList_OPTO_6N136', ``NC', `A+', `K-', `NC', `Gnd', `Out-Col', `Basis', `Vcc'')
 
 define(`Description_OPTO_6N137', `optical coupling device')
 define(`Param1_OPTO_6N137', 8)
 define(`Param2_OPTO_6N137', 300)
-define(`PinList_OPTO_6N137', ``NC', `A+', `K-', `NC', `Gnd', `Out', `En', `Vcc'')
 
 divert(0)dnl

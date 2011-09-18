@@ -32,10 +32,8 @@ divert(-1)
 # ma librairie --- C. PETER 3 12 99 --- resistance ajustables
 
 define(`Description_R_adjust_H', `trimmer H')
-define(`PinList_R_adjust_H', ``1', `c', `2'')
 
 define(`Description_R_adjust_V', `trimmer V')
-define(`PinList_R_adjust_V', ``1', `c', `2'')
 
 
 divert(0)dnl
