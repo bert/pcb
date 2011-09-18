@@ -1,4 +1,99 @@
 ========================================================================
+Release Notes for PCB snapshot 20110917
+========================================================================
+This release represents over 797 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+Features
+--------
+
+- Internal coordinate space is now metric.  This should fix the "trace
+  nubs on metric grids" issue.  Also, units are allowed on pretty much
+  every "coordinate" that PCB accepts.  Example: 5.4in, 10cm, 0.55mm.
+  New configure option --enable-coord64 to force (slower?) 64-bit type
+  for coordinates on 32-bit systems (if you need a board bigger than 1
+  meter across).  The internal precision is 1 nanometer, the internal
+  type is "Coord".
+- MinGW support.
+- New GL mode for the gtk hid with translucent traces.
+
+- New GTK layer view/choose widget and other GUI enhancements.
+- GTK HID warns if the *.pcb file has changed on disk.
+- Enhanced grid snapping logic.
+- Select/report nets by name.
+- Auto-pan has been removed.
+- Zoom can zoom out beyond the edge of the board's workspace.
+- GTK: title string matches GNOME conventions.
+- Personally identifiable information is no longer stored in the PCB.
+- Toggling vias from hole to plated is reversible.
+- Gerber exporter has options for including outlines on other layers.
+- Edited footprint files are saved as footprints, not pcbs.
+- Improved gtk library search/filter.
+- Default layer stack is now a six-layer template with outline.
+- If the board has an outline layer, an outline will be shown if no
+  other outline is specified.
+- Group[] string allows t/b synonyms for c/s.  "top" and "bottom" are
+  the standard names now.
+- PCB will save files with an older version tag if newer features aren't needed.
+- Autorouter has a progress dialog.
+- PCB will no longer let you delete the last top/bottom layer.
+- Refcard has been updated.
+- Documentation updates.
+- Layes with the PCB::skip-drc attribute set are ignored during DRC.
+- Allow numeric keys to also choose the silk layer.
+- Minor readability tweaks to the default font.
+- Via copper may overlap.
+- User is notified if an Import() cannot find all the footprints.
+
+Bug Fixes
+---------
+
+- Optimizer won't try to optimize overlapping pads
+- Undo should fail less, in corner cases.
+- Nested key-bound actions won't crash lesstif.
+- Do not select invisible pads on the far side.
+- Protect Import() from command injection.
+- Fix conversion of far-side polygons to element pads.
+- Fix initial clearance values of text when loading PCBs.
+- Fix solder mask drawing on vias.
+- Add missing action documentation.
+- Fab drawing notes actual outline trace width.
+- Zero clearance pins and pads won't cause DRC failures.
+- PS export: fix draw-rectangle (used to do fill, not outline)
+- Gerber export no longer fills unfilled rectanges.
+- If there are no image formats available, the PNG hid is not enabled.
+- You can no longer select pins/pads of locked elements.
+- The m4-to-newlib converter now creates file names that match the
+  library view.
+- Never set the FOUND flag on new silk lines.
+- Lesstif HID won't crash if both Xinerama and XRender are detected.
+- Lesstif menu is now internationalizable.
+- Refdes labels in a font-less layout can be moved.
+- Import can correctly update elements on the bottom side.
+- DRC no longer treats unplated holes as conducting.
+
+Other
+-----
+
+- Updated and new translations, including Dutch.
+- Many polygon speedups.
+- Numerous build-related cleanups.
+- Numerous minor speed-related cleanups.
+- GTK 2.18 is the minimum required version.
+- GTS moved out of the src/ tree so it can be built with different flags.
+- More C++ compatible.
+- Expanded regex documentation.
+- Much code which is no longer needed has been removed.
+- HID init method changed to allow for hid struct expansion without
+  breaking everything.
+- New HID calls for whole-pad and whole-pin drawing.
+- ClearAndRedrawOutput() replaced with Redraw().
+- Board objects use hashes instead of lists to store parts, so
+  pointers don't change.
+- DVI documentation output is no longer generated.
+
+========================================================================
 Release Notes for PCB snapshot 20100929
 ========================================================================
 This release represents over 240 commits and as such this summary 
