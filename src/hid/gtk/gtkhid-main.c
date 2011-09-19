@@ -2030,7 +2030,7 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
-  {"Pan", N_("Click on a place to pan"), PanAction, pan_help, pan_syntax},
+  {"Pan", 0, PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
