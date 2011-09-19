@@ -1257,7 +1257,7 @@ static gboolean groups_modified, groups_holdoff, layers_applying;
 static gchar *layer_info_text[] = {
   N_("<h>Layer Names\n"),
   N_("You may enter layer names for the layers drawn on the screen.\n"
-     "The special 'component side' and 'solder side' are layers which\n"
+     "The special 'top side' and 'bottom side' are layers which\n"
      "will be printed out, so they must have in their group at least one\n"
      "of the other layers that are drawn on the screen.\n"),
   "\n",
@@ -1271,7 +1271,7 @@ static gchar *layer_info_text[] = {
   "\n",
   N_("For example, for a 4 layer board a useful layer group arrangement\n"
      "can be to have 3 screen displayed layers grouped into the same group\n"
-     "as the 'component side' and 'solder side' printout layers.  Then\n"
+     "as the 'top side' and 'bottom side' printout layers.  Then\n"
      "groups such as signals, ground, and supply traces can be color\n"
      "coded on the screen while printing as a single layer.  For this\n"
      "you would select buttons and enter names on the Setup page to\n"
@@ -1279,23 +1279,23 @@ static gchar *layer_info_text[] = {
   "\n",
   N_("<b>Group 1:"),
   "\n\t",
-  N_("solder"),
+  N_("top"),
   "\n\t",
-  N_("GND-solder"),
+  N_("GND-top"),
   "\n\t",
-  N_("Vcc-solder"),
+  N_("Vcc-top"),
   "\n\t",
-  N_("solder side"),
+  N_("top side"),
   "\n",
   N_("<b>Group 2:"),
   "\n\t",
-  N_("component"),
+  N_("bottom"),
   "\n\t",
-  N_("GND-component"),
+  N_("GND-bottom"),
   "\n\t",
-  N_("Vcc-component"),
+  N_("Vcc-bottom"),
   "\n\t",
-  N_("component side"),
+  N_("bottom side"),
   "\n",
   N_("<b>Group 3:"),
   "\n\t",
@@ -1410,21 +1410,21 @@ config_layers_apply (void)
 	}
 
       /* do some cross-checking
-         |  solder-side and component-side must be in different groups
-         |  solder-side and component-side must not be the only one in the group
+         |  top-side and bottom-side must be in different groups
+         |  top-side and bottom-side must not be the only one in the group
        */
       if (layer_groups.Number[soldergroup] <= 1
 	  || layer_groups.Number[componentgroup] <= 1)
 	{
 	  Message (_
-		   ("Both 'solder side' or 'component side' layers must have at least\n"
+		   ("Both, 'top side' and 'bottom side' layer must have at least\n"
 		    "\tone other layer in their group.\n"));
 	  return;
 	}
       else if (soldergroup == componentgroup)
 	{
 	  Message (_
-		   ("The 'solder side' and 'component side' layers are not allowed\n"
+		   ("The 'top side' and 'bottom side' layers are not allowed\n"
 		    "\tto be in the same layer group #\n"));
 	  return;
 	}
@@ -1535,9 +1535,9 @@ ghid_config_groups_changed(void)
   for (layer = 0; layer < max_copper_layer + 2; ++layer)
     {
       if (layer == component_silk_layer)
-	name = _("component side");
+	name = _("top side");
       else if (layer == solder_silk_layer)
-	name = _("solder side");
+	name = _("bottom side");
       else
 	name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
 
