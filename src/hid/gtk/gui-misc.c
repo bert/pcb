@@ -413,7 +413,7 @@ ghid_set_status_line_label (void)
           "<b>text</b>=%i%%  "
           "<b>buffer</b>=#%i"),
       Settings.grid_unit->allow,
-      Settings.ShowSolderSide ? _("solder") : _("component"),
+      Settings.ShowSolderSide ? _("bottom") : _("top"),
       PCB->Grid,
       flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
       Settings.LineThickness,
