@@ -191,7 +191,6 @@ CreateNewPCB (bool SetDefaultNames)
     style->index = n;
   }
   END_LOOP;
-  hid_action ("RouteStylesChanged");
   ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
