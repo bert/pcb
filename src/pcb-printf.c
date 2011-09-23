@@ -412,7 +412,9 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
           g_string_append_printf (buff, " %s", suffix);
           break;
         case FILE_MODE:
+#if 0
           g_string_append_printf (buff, "%s", suffix);
+#endif
           break;
         }
     }
@@ -549,11 +551,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
                 case 'S': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix); break;
                 case 'M': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_METRIC, suffix); break;
                 case 'L': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_IMPERIAL, suffix); break;
-#if 0
                 case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, FILE_MODE); break;
-#else
-                case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, NO_SUFFIX); break;
-#endif
                 /* All these fallthroughs are deliberate */
                 case '9': value[count++] = va_arg(args, Coord);
                 case '8': value[count++] = va_arg(args, Coord);
