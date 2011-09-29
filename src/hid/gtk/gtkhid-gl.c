@@ -731,27 +731,11 @@ draw_dozen_cross (gint x, gint y, gint z)
 }
 
 static void
-draw_crosshair (gint x, gint y, gint z)
-{
-  static enum crosshair_shape prev = Basic_Crosshair_Shape;
-
-  draw_right_cross (x, y, z);
-  if (prev == Union_Jack_Crosshair_Shape)
-    draw_slanted_cross (x, y, z);
-  if (prev == Dozen_Crosshair_Shape)
-    draw_dozen_cross (x, y, z);
-  prev = Crosshair.shape;
-}
-
-void
-ghid_show_crosshair (gboolean paint_new_location)
+draw_crosshair (render_priv *priv)
 {
   gint x, y, z;
   static int done_once = 0;
   static GdkColor cross_color;
-
-  if (!paint_new_location)
-    return;
 
   if (!done_once)
     {
@@ -759,6 +743,7 @@ ghid_show_crosshair (gboolean paint_new_location)
       /* FIXME: when CrossColor changed from config */
       ghid_map_color_string (Settings.CrossColor, &cross_color);
     }
+
   x = gport->crosshair_x;
   y = gport->crosshair_y;
   z = 0;
@@ -770,12 +755,15 @@ ghid_show_crosshair (gboolean paint_new_location)
              cross_color.green / 65535.,
              cross_color.blue / 65535.);
 
-  if (x >= 0 && paint_new_location)
-    {
-      glBegin (GL_LINES);
-      draw_crosshair (x, y, z);
-      glEnd ();
-    }
+  glBegin (GL_LINES);
+
+  draw_right_cross (x, y, z);
+  if (Crosshair.shape == Union_Jack_Crosshair_Shape)
+    draw_slanted_cross (x, y, z);
+  if (Crosshair.shape == Dozen_Crosshair_Shape)
+    draw_dozen_cross (x, y, z);
+
+  glEnd ();
 
   glDisable (GL_COLOR_LOGIC_OP);
 }
@@ -966,8 +954,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   DrawMark ();
   hidgl_flush_triangles (&buffer);
 
-  ghid_show_crosshair (TRUE);
-
+  draw_crosshair (priv);
   hidgl_flush_triangles (&buffer);
 
   draw_lead_user (priv);
