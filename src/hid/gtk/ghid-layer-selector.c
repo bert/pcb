@@ -477,14 +477,15 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                             &iter, USER_ID_COL, &read_id,
                             SEPARATOR_COL, &is_sep,
                             ACTIVATABLE_COL, &active, -1);
-        if (!is_sep)
+
+        if (is_sep)
+          continue;
+
+        last_activatable = active;
+        if (read_id == user_id)
           {
-            last_activatable = active;
-            if(read_id == user_id)
-              {
-                new_iter = FALSE;
-                break;
-              }
+            new_iter = FALSE;
+            break;
           }
       }
     while (gtk_tree_model_iter_next (GTK_TREE_MODEL (ls->list_store), &iter));
@@ -501,18 +502,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                               SEPARATOR_COL, TRUE, -1);
         }
       /* Create new layer */
-      new_layer = malloc (sizeof (*new_layer));
       gtk_list_store_append (ls->list_store, &iter);
-      gtk_list_store_set (ls->list_store, &iter,
-                          STRUCT_COL, new_layer,
-                          USER_ID_COL, user_id,
-                          VISIBLE_COL, visible,
-                          COLOR_COL, color_string,
-                          TEXT_COL, name,
-                          FONT_COL, activatable ? NULL : "Italic",
-                          ACTIVATABLE_COL, activatable,
-                          SEPARATOR_COL, FALSE,
-                          -1);
     }
   else
     {
@@ -521,17 +511,21 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), &iter,
                           STRUCT_COL, &new_layer, -1);
       free_ldata (ls, new_layer);
-      new_layer = malloc (sizeof (*new_layer));
-
-      gtk_list_store_set (ls->list_store, &iter,
-                          STRUCT_COL, new_layer,
-                          VISIBLE_COL, visible,
-                          COLOR_COL, color_string,
-                          TEXT_COL, name,
-                          FONT_COL, activatable ? NULL : "Italic",
-                          ACTIVATABLE_COL, activatable,
-                          -1);
     }
+
+  new_layer = malloc (sizeof (*new_layer));
+
+  gtk_list_store_set (ls->list_store,
+                      &iter,
+                      STRUCT_COL,      new_layer,
+                      USER_ID_COL,     user_id,
+                      VISIBLE_COL,     visible,
+                      COLOR_COL,       color_string,
+                      TEXT_COL,        name,
+                      FONT_COL,        activatable ? NULL : "Italic",
+                      ACTIVATABLE_COL, activatable,
+                      SEPARATOR_COL,   FALSE,
+                      -1);
 
   /* -- Setup new actions -- */
   vname = g_strdup_printf ("LayerView%d", ls->n_actions);
