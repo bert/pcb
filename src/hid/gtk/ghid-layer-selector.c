@@ -431,8 +431,6 @@ ghid_layer_selector_new (void)
     g_signal_connect (ls->selection, "changed",
                       G_CALLBACK (selection_changed_cb), ls);
 
-  g_object_ref (ls->accel_group);
-
   return GTK_WIDGET (ls);
 }
 
