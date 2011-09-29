@@ -290,11 +290,59 @@ menu_pick_cb (GtkRadioAction *action, struct _layer *ldata)
     }
 }
 
-/* CONSTRUCTOR */
 static void
 ghid_layer_selector_init (GHidLayerSelector *ls)
 {
-  /* Hookup signal handlers */
+  int i;
+  GtkCellRenderer *renderer1;
+  GtkCellRenderer *renderer2;
+  GtkTreeViewColumn *opacity_col;
+  GtkTreeViewColumn *name_col;
+
+  renderer1 = ghid_cell_renderer_visibility_new ();
+  renderer2 = gtk_cell_renderer_text_new ();
+
+  opacity_col = gtk_tree_view_column_new_with_attributes ("", renderer1,
+                                                          "active", VISIBLE_COL,
+                                                          "color", COLOR_COL, NULL);
+  name_col = gtk_tree_view_column_new_with_attributes ("", renderer2,
+                                                       "text", TEXT_COL,
+                                                       "font", FONT_COL,
+                                                       NULL);
+
+  /* action index, active, color, text, font, is_separator */
+  ls->list_store = gtk_list_store_new (N_COLS, G_TYPE_POINTER, G_TYPE_INT,
+                                       G_TYPE_BOOLEAN, G_TYPE_STRING,
+                                       G_TYPE_STRING, G_TYPE_STRING,
+                                       G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
+  gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), opacity_col, -1);
+  gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), name_col, -1);
+  gtk_tree_view_set_model (GTK_TREE_VIEW (ls), GTK_TREE_MODEL (ls->list_store));
+  gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (ls), FALSE);
+
+  ls->last_activatable = TRUE;
+  ls->visibility_column = opacity_col;
+  ls->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ls));
+  ls->accel_group = gtk_accel_group_new ();
+  ls->action_group = gtk_action_group_new ("LayerSelector");
+  ls->n_actions = 0;
+
+  for (i = 0; i < 20; ++i)
+    ls->accel_available[i] = TRUE;
+
+  gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (ls),
+                                        tree_view_separator_func,
+                                        NULL, NULL);
+  gtk_tree_selection_set_select_function (ls->selection, tree_selection_func,
+                                          NULL, NULL);
+  gtk_tree_selection_set_mode (ls->selection, GTK_SELECTION_BROWSE);
+
+  g_object_set_data (G_OBJECT (ls->list_store), "layer-selector", ls);
+  g_signal_connect (ls, "button_press_event",
+                    G_CALLBACK (button_press_cb), NULL);
+  ls->selection_changed_sig_id =
+    g_signal_connect (ls->selection, "changed",
+                      G_CALLBACK (selection_changed_cb), ls);
 }
 
 static void
@@ -383,55 +431,7 @@ ghid_layer_selector_get_type (void)
 GtkWidget *
 ghid_layer_selector_new (void)
 {
-  int i;
-  GtkCellRenderer *renderer1 = ghid_cell_renderer_visibility_new ();
-  GtkCellRenderer *renderer2 = gtk_cell_renderer_text_new ();
-  GtkTreeViewColumn *opacity_col =
-      gtk_tree_view_column_new_with_attributes ("", renderer1,
-                                                "active", VISIBLE_COL,
-                                                "color", COLOR_COL, NULL);
-  GtkTreeViewColumn *name_col =
-      gtk_tree_view_column_new_with_attributes ("", renderer2,
-                                                "text", TEXT_COL,
-                                                "font", FONT_COL,
-                                                NULL);
-
-  GHidLayerSelector *ls = g_object_new (GHID_LAYER_SELECTOR_TYPE, NULL);
-
-  /* action index, active, color, text, font, is_separator */
-  ls->list_store = gtk_list_store_new (N_COLS, G_TYPE_POINTER, G_TYPE_INT,
-                                       G_TYPE_BOOLEAN, G_TYPE_STRING,
-                                       G_TYPE_STRING, G_TYPE_STRING,
-                                       G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
-  gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), opacity_col, -1);
-  gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), name_col, -1);
-  gtk_tree_view_set_model (GTK_TREE_VIEW (ls), GTK_TREE_MODEL (ls->list_store));
-  gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (ls), FALSE);
-
-  ls->last_activatable = TRUE;
-  ls->visibility_column = opacity_col;
-  ls->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ls));
-  ls->accel_group = gtk_accel_group_new ();
-  ls->action_group = gtk_action_group_new ("LayerSelector");
-  ls->n_actions = 0;
-  for (i = 0; i < 20; ++i)
-    ls->accel_available[i] = TRUE;
-
-  gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (ls),
-                                        tree_view_separator_func,
-                                        NULL, NULL);
-  gtk_tree_selection_set_select_function (ls->selection, tree_selection_func,
-                                          NULL, NULL);
-  gtk_tree_selection_set_mode (ls->selection, GTK_SELECTION_BROWSE);
-
-  g_object_set_data (G_OBJECT (ls->list_store), "layer-selector", ls);
-  g_signal_connect (ls, "button_press_event",
-                    G_CALLBACK (button_press_cb), NULL);
-  ls->selection_changed_sig_id =
-    g_signal_connect (ls->selection, "changed",
-                      G_CALLBACK (selection_changed_cb), ls);
-
-  return GTK_WIDGET (ls);
+  return GTK_WIDGET (g_object_new (GHID_LAYER_SELECTOR_TYPE, NULL));
 }
 
 /*! \brief Add a layer to a GHidLayerSelector.
