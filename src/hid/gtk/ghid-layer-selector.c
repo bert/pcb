@@ -29,6 +29,7 @@ static void menu_pick_cb (GtkRadioAction *action, struct _layer *ldata);
 enum {
   SELECT_LAYER_SIGNAL,
   TOGGLE_LAYER_SIGNAL,
+  RENAME_LAYER_SIGNAL,
   LAST_SIGNAL
 };
 
@@ -40,6 +41,7 @@ enum {
   COLOR_COL,
   TEXT_COL,
   FONT_COL,
+  EDITABLE_COL,
   SELECTABLE_COL,
   SEPARATOR_COL,
   N_COLS
@@ -73,6 +75,7 @@ struct _GHidLayerSelectorClass
 
   void (* select_layer) (GHidLayerSelector *, gint);
   void (* toggle_layer) (GHidLayerSelector *, gint);
+  void (* rename_layer) (GHidLayerSelector *, gint, gchar *);
 };
 
 struct _layer
@@ -84,6 +87,42 @@ struct _layer
   GtkRadioAction  *pick_action;
   GtkTreeRowReference *rref;
 };
+
+static void
+g_cclosure_user_marshal_VOID__INT_STRING (GClosure     *closure,
+                                          GValue       *return_value G_GNUC_UNUSED,
+                                          guint         n_param_values,
+                                          const GValue *param_values,
+                                          gpointer      invocation_hint G_GNUC_UNUSED,
+                                          gpointer      marshal_data)
+{
+  typedef void (*GMarshalFunc_VOID__INT_STRING) (gpointer     data1,
+                                                 gint         arg_1,
+                                                 gpointer     arg_2,
+                                                 gpointer     data2);
+  register GMarshalFunc_VOID__INT_STRING callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+
+  g_return_if_fail (n_param_values == 3);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_VOID__INT_STRING) (marshal_data ? marshal_data : cc->callback);
+
+  callback (data1,
+            g_value_get_int (param_values + 1),
+            (char *)g_value_get_string (param_values + 2),
+            data2);
+}
 
 /*! \brief Deletes the action and accelerator from a layer */
 static void
@@ -243,6 +282,70 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
     }
 }
 
+/*! \brief Callback for when a layer name has been edited  */
+static void
+layer_name_editing_started_cb (GtkCellRenderer *renderer,
+                               GtkCellEditable *editable,
+                               gchar           *path,
+                               gpointer         user_data)
+{
+  /* When editing begins, we need to detach PCB's accelerators
+   * so they don't steal all the user's keystrokes.
+   *
+   * XXX: We should not have to do this within a simple widget,
+   *
+   *      and this quick hack workaround breaks the widget's
+   *      abstraction from the rest of the application :(
+   */
+  ghid_remove_accel_groups (GTK_WINDOW (gport->top_window), ghidgui);
+}
+
+/*! \brief Callback for when layer name editing has been canceled */
+static void
+layer_name_editing_canceled_cb (GtkCellRenderer *renderer,
+                                 gpointer         user_data)
+{
+  /* Put PCB's accelerators back.
+   *
+   * XXX: We should not have to do this within a simple widget,
+   *      and this quick hack workaround breaks the widget's
+   *      abstraction from the rest of the application :(
+   */
+  ghid_install_accel_groups (GTK_WINDOW (gport->top_window), ghidgui);
+}
+
+/*! \brief Callback for when a layer name has been edited  */
+static void
+layer_name_edited_cb (GtkCellRendererText *renderer,
+                      gchar               *path,
+                      gchar               *new_text,
+                      gpointer             user_data)
+{
+  GHidLayerSelector *ls = user_data;
+  GtkTreeIter iter;
+  int user_id;
+
+  /* Put PCB's accelerators back.
+   *
+   * XXX: We should not have to do this within a simple widget,
+   *      and this quick hack workaround breaks the widget's
+   *      abstraction from the rest of the application :(
+   */
+  ghid_install_accel_groups (GTK_WINDOW (gport->top_window), ghidgui);
+
+  if (!gtk_tree_model_get_iter_from_string (GTK_TREE_MODEL (ls->list_store), &iter, path))
+    return;
+
+  gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
+                      &iter,
+                      USER_ID_COL, &user_id,
+                      -1);
+
+  g_signal_emit (ls, ghid_layer_selector_signals[RENAME_LAYER_SIGNAL],
+                 0, user_id, new_text);
+}
+
+
 /*! \brief Callback for menu actions: sync layer selection list, emit signal */
 static void
 menu_view_cb (GtkToggleAction *action, struct _layer *ldata)
@@ -300,20 +403,37 @@ ghid_layer_selector_init (GHidLayerSelector *ls)
 
   renderer1 = ghid_cell_renderer_visibility_new ();
   renderer2 = gtk_cell_renderer_text_new ();
+  g_object_set (renderer2, "editable-set", TRUE, NULL);
+  g_signal_connect (renderer2, "editing-started",
+                    G_CALLBACK (layer_name_editing_started_cb), ls);
+  g_signal_connect (renderer2, "editing-canceled",
+                    G_CALLBACK (layer_name_editing_canceled_cb), ls);
+  g_signal_connect (renderer2, "edited",
+                    G_CALLBACK (layer_name_edited_cb), ls);
 
-  opacity_col = gtk_tree_view_column_new_with_attributes ("", renderer1,
+  opacity_col = gtk_tree_view_column_new_with_attributes ("",
+                                                          renderer1,
                                                           "active", VISIBLE_COL,
-                                                          "color", COLOR_COL, NULL);
-  name_col = gtk_tree_view_column_new_with_attributes ("", renderer2,
+                                                          "color",  COLOR_COL,
+                                                          NULL);
+  name_col = gtk_tree_view_column_new_with_attributes ("",
+                                                       renderer2,
                                                        "text", TEXT_COL,
                                                        "font", FONT_COL,
+                                                       "editable", EDITABLE_COL,
                                                        NULL);
 
-  /* action index, active, color, text, font, is_separator */
-  ls->list_store = gtk_list_store_new (N_COLS, G_TYPE_POINTER, G_TYPE_INT,
-                                       G_TYPE_BOOLEAN, G_TYPE_STRING,
-                                       G_TYPE_STRING, G_TYPE_STRING,
-                                       G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
+  ls->list_store = gtk_list_store_new (N_COLS,
+                 /* STRUCT_COL      */ G_TYPE_POINTER,
+                 /* USER_ID_COL     */ G_TYPE_INT,
+                 /* VISIBLE_COL     */ G_TYPE_BOOLEAN,
+                 /* COLOR_COL       */ G_TYPE_STRING,
+                 /* TEXT_COL        */ G_TYPE_STRING,
+                 /* FONT_COL        */ G_TYPE_STRING,
+                 /* EDITABLE_COL    */ G_TYPE_BOOLEAN,
+                 /* ACTIVATABLE_COL */ G_TYPE_BOOLEAN,
+                 /* SEPARATOR_COL   */ G_TYPE_BOOLEAN);
+
   gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), opacity_col, -1);
   gtk_tree_view_insert_column (GTK_TREE_VIEW (ls), name_col, -1);
   gtk_tree_view_set_model (GTK_TREE_VIEW (ls), GTK_TREE_MODEL (ls->list_store));
@@ -364,6 +484,14 @@ ghid_layer_selector_class_init (GHidLayerSelectorClass *klass)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__INT, G_TYPE_NONE,
                   1, G_TYPE_INT);
+  ghid_layer_selector_signals[RENAME_LAYER_SIGNAL] =
+    g_signal_new ("rename-layer",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                  G_STRUCT_OFFSET (GHidLayerSelectorClass, rename_layer),
+                  NULL, NULL,
+                  g_cclosure_user_marshal_VOID__INT_STRING, G_TYPE_NONE,
+                  2, G_TYPE_INT, G_TYPE_STRING);
 
   object_class->finalize = ghid_layer_selector_finalize;
 }
@@ -448,6 +576,7 @@ ghid_layer_selector_new (void)
  *  \param [in] color_string  The color of the layer on selector
  *  \param [in] visibile      Whether the layer is visible
  *  \param [in] selectable    Whether the layer appears in menus and can be selected
+ *  \param [in] renameable    Whether the layer is renameable
  */
 void
 ghid_layer_selector_add_layer (GHidLayerSelector *ls,
@@ -455,7 +584,8 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                const gchar *name,
                                const gchar *color_string,
                                gboolean visible,
-                               gboolean selectable)
+                               gboolean selectable,
+                               gboolean renameable)
 {
   struct _layer *new_layer = NULL;
   gchar *pname, *vname;
@@ -523,6 +653,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                       COLOR_COL,       color_string,
                       TEXT_COL,        name,
                       FONT_COL,        selectable ? NULL : "Italic",
+                      EDITABLE_COL,    renameable,
                       SELECTABLE_COL,  selectable,
                       SEPARATOR_COL,   FALSE,
                       -1);

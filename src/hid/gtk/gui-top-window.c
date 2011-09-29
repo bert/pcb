@@ -553,6 +553,33 @@ layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
   ghid_invalidate_all ();
 }
 
+/*! \brief Callback for GHidLayerSelector layer renaming */
+static void
+layer_selector_rename_callback (GHidLayerSelector *ls,
+                                int layer_id,
+                                char *new_name,
+                                void *userdata)
+{
+  LayerType *layer = LAYER_PTR (layer_id);
+
+  /* Check for a legal layer name - for now, allow anything non-empty */
+  if (new_name[0] == '\0')
+    return;
+
+  /* Don't bother if the name is identical to the current one */
+  if (strcmp (layer->Name, new_name) == 0)
+    return;
+
+  free (layer->Name);
+  layer->Name = strdup (new_name);
+  ghid_layer_buttons_update ();
+  if (!PCB->Changed)
+    {
+      SetChangedFlag (true);
+      ghid_window_set_name_label (PCB->Name);
+    }
+}
+
 /*! \brief Callback for GHidLayerSelector layer toggling */
 static void
 layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
@@ -772,22 +799,22 @@ make_virtual_layer_buttons (GtkWidget *layer_selector)
  
   layer_process (&color_string, &text, &active, LAYER_BUTTON_SILK);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_SILK,
-                                 text, color_string, active, TRUE);
+                                 text, color_string, active, TRUE, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_RATS);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_RATS,
-                                 text, color_string, active, TRUE);
+                                 text, color_string, active, TRUE, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_PINS);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_PINS,
-                                 text, color_string, active, FALSE);
+                                 text, color_string, active, FALSE, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_VIAS);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_VIAS,
-                                 text, color_string, active, FALSE);
+                                 text, color_string, active, FALSE, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_FARSIDE);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_FARSIDE,
-                                 text, color_string, active, FALSE);
+                                 text, color_string, active, FALSE, FALSE);
   layer_process (&color_string, &text, &active, LAYER_BUTTON_MASK);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_MASK,
-                                 text, color_string, active, FALSE);
+                                 text, color_string, active, FALSE, FALSE);
 }
 
 /*! \brief callback for ghid_layer_selector_update_colors */
@@ -821,7 +848,7 @@ make_layer_buttons (GtkWidget *layersel)
     {
       layer_process (&color_string, &text, &active, i);
       ghid_layer_selector_add_layer (GHID_LAYER_SELECTOR (layersel), i,
-                                     text, color_string, active, TRUE);
+                                     text, color_string, active, TRUE, TRUE);
     }
 }
 
@@ -1248,11 +1275,14 @@ ghid_build_pcb_top_window (void)
   ghidgui->layer_selector = ghid_layer_selector_new ();
   make_layer_buttons (ghidgui->layer_selector);
   make_virtual_layer_buttons (ghidgui->layer_selector);
-  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "select_layer",
+  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "select-layer",
                     G_CALLBACK (layer_selector_select_callback),
                     NULL);
-  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "toggle_layer",
+  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "toggle-layer",
                     G_CALLBACK (layer_selector_toggle_callback),
+                    NULL);
+  g_signal_connect (G_OBJECT (ghidgui->layer_selector), "rename-layer",
+                    G_CALLBACK (layer_selector_rename_callback),
                     NULL);
   /* Build main menu */
   ghidgui->menu_bar = ghid_load_menus ();
