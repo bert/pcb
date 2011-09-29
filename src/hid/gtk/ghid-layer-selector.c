@@ -40,7 +40,7 @@ enum {
   COLOR_COL,
   TEXT_COL,
   FONT_COL,
-  ACTIVATABLE_COL,
+  SELECTABLE_COL,
   SEPARATOR_COL,
   N_COLS
 };
@@ -173,9 +173,9 @@ tree_selection_func (GtkTreeSelection *selection, GtkTreeModel *model,
 
   if (gtk_tree_model_get_iter (model, &iter, path))
     {
-      gboolean activatable;
-      gtk_tree_model_get (model, &iter, ACTIVATABLE_COL, &activatable, -1);
-      return activatable;
+      gboolean selectable;
+      gtk_tree_model_get (model, &iter, SELECTABLE_COL, &selectable, -1);
+      return selectable;
     }
 
   return FALSE;
@@ -203,14 +203,15 @@ button_press_cb (GHidLayerSelector *ls, GdkEventButton *event)
                                      &path, &column, NULL, NULL))
     {
       GtkTreeIter iter;
-      gboolean activatable, separator;
+      gboolean selectable;
+      gboolean separator;
       gtk_tree_model_get_iter (GTK_TREE_MODEL (ls->list_store), &iter, path);
       gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store), &iter,
-                          ACTIVATABLE_COL, &activatable,
+                          SELECTABLE_COL, &selectable,
                           SEPARATOR_COL, &separator, -1);
-      /* Toggle visibility for non-activatable layers no matter
+      /* Toggle visibility for non-selectable layers no matter
        *  where you click. */
-      if (!separator && (column == ls->visibility_column || !activatable))
+      if (!separator && (column == ls->visibility_column || !selectable))
         {
           toggle_visibility (ls, &iter, TRUE);
           return TRUE; 
@@ -446,7 +447,7 @@ ghid_layer_selector_new (void)
  *  \param [in] name          The name of the layer; will be used on selector and menus
  *  \param [in] color_string  The color of the layer on selector
  *  \param [in] visibile      Whether the layer is visible
- *  \param [in] activatable   Whether the layer appears in menus and can be selected
+ *  \param [in] selectable    Whether the layer appears in menus and can be selected
  */
 void
 ghid_layer_selector_add_layer (GHidLayerSelector *ls,
@@ -454,12 +455,12 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                const gchar *name,
                                const gchar *color_string,
                                gboolean visible,
-                               gboolean activatable)
+                               gboolean selectable)
 {
   struct _layer *new_layer = NULL;
   gchar *pname, *vname;
   gboolean new_iter = TRUE;
-  gboolean last_activatable = TRUE;
+  gboolean last_selectable = TRUE;
   GtkTreePath *path;
   GtkTreeIter iter;
   int i;
@@ -468,17 +469,19 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter))
     do
       {
-        gboolean is_sep, active;
+        gboolean is_sep;
+        gboolean this_selectable;
         gint read_id;
+
         gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                             &iter, USER_ID_COL, &read_id,
                             SEPARATOR_COL, &is_sep,
-                            ACTIVATABLE_COL, &active, -1);
+                            SELECTABLE_COL, &this_selectable, -1);
 
         if (is_sep)
           continue;
 
-        last_activatable = active;
+        last_selectable = this_selectable;
         if (read_id == user_id)
           {
             new_iter = FALSE;
@@ -490,9 +493,9 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   /* Handle separator addition */
   if (new_iter)
     {
-      if (activatable != last_activatable)
+      if (selectable != last_selectable)
         {
-          /* Add separator between activatable/non-activatable boundaries */
+          /* Add separator between selectable / non-selectable boundaries */
           gtk_list_store_append (ls->list_store, &iter);
           gtk_list_store_set (ls->list_store, &iter,
                               STRUCT_COL, NULL,
@@ -519,8 +522,8 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                       VISIBLE_COL,     visible,
                       COLOR_COL,       color_string,
                       TEXT_COL,        name,
-                      FONT_COL,        activatable ? NULL : "Italic",
-                      ACTIVATABLE_COL, activatable,
+                      FONT_COL,        selectable ? NULL : "Italic",
+                      SELECTABLE_COL,  selectable,
                       SEPARATOR_COL,   FALSE,
                       -1);
 
@@ -535,7 +538,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
   gtk_tree_path_free (path);
 
   /* Create selection action */
-  if (activatable)
+  if (selectable)
     {
       new_layer->pick_action
         = gtk_radio_action_new (pname, name, NULL, NULL, user_id);
@@ -563,7 +566,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                        i < 10 ? "" : "<Alt>",
                                        (i + 1) % 10);
 
-      if (activatable)
+      if (selectable)
         {
           GtkAction *action = GTK_ACTION (new_layer->pick_action);
           gtk_action_set_accel_group (action, ls->accel_group);
@@ -772,11 +775,13 @@ ghid_layer_selector_select_next_visible (GHidLayerSelector *ls)
       /* Scan forward, looking for selectable iter */
       do
         {
-          gboolean visible, activatable;
+          gboolean visible;
+          gboolean selectable;
+
           gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                               &iter, VISIBLE_COL, &visible,
-                              ACTIVATABLE_COL, &activatable, -1);
-          if (visible && activatable)
+                              SELECTABLE_COL, &selectable, -1);
+          if (visible && selectable)
             {
               gtk_tree_selection_select_iter (ls->selection, &iter);
               return TRUE;
@@ -787,11 +792,13 @@ ghid_layer_selector_select_next_visible (GHidLayerSelector *ls)
       gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls->list_store), &iter);
       do
         {
-          gboolean visible, activatable;
+          gboolean visible;
+          gboolean selectable;
+
           gtk_tree_model_get (GTK_TREE_MODEL (ls->list_store),
                               &iter, VISIBLE_COL, &visible,
-                              ACTIVATABLE_COL, &activatable, -1);
-          if (visible && activatable)
+                              SELECTABLE_COL, &selectable, -1);
+          if (visible && selectable)
             {
               gtk_tree_selection_select_iter (ls->selection, &iter);
               return TRUE;

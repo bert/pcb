@@ -24,7 +24,7 @@ void ghid_layer_selector_add_layer (GHidLayerSelector *ls,
                                     const gchar *name,
                                     const gchar *color_string,
                                     gboolean visible,
-                                    gboolean activatable);
+                                    gboolean selectable);
 
 gint ghid_layer_selector_install_pick_items (GHidLayerSelector *ls,
                                              GtkMenuShell *shell, gint pos);
