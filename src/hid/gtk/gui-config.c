@@ -169,6 +169,20 @@ static ConfigAttribute config_attributes[] = {
   {"layer-name-8", CONFIG_Unused, NULL},
 };
 
+static gboolean
+dup_core_string (gchar ** dst, const gchar * src)
+{
+  if (dst == NULL || (*dst == NULL && src == NULL))
+    return FALSE;
+
+  if (*dst != NULL && src != NULL && strcmp (*dst, src) == 0)
+    return FALSE;
+
+  free (*dst);
+  *dst = (src == NULL) ? NULL : strdup (src);
+
+  return TRUE;
+}
 
 static FILE *
 config_file_open (gchar * mode)
@@ -1362,10 +1376,10 @@ config_layers_apply (void)
     {
       layer = &PCB->Data->Layer[i];
       s = ghid_entry_get_text (layer_entry[i]);
-      if (dup_string (&layer->Name, s))
+      if (dup_core_string (&layer->Name, s))
 	layers_modified = TRUE;
 /* FIXME */
-      if (use_as_default && dup_string (&Settings.DefaultLayerName[i], s))
+      if (use_as_default && dup_core_string (&Settings.DefaultLayerName[i], s))
 	ghidgui->config_modified = TRUE;
 
     }
@@ -1421,7 +1435,7 @@ config_layers_apply (void)
   if (use_as_default)
     {
       s = make_layer_group_string (&PCB->LayerGroups);
-      if (dup_string (&Settings.Groups, s))
+      if (dup_core_string (&Settings.Groups, s))
 	{
 	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, max_copper_layer);
 	  ghidgui->config_modified = TRUE;
@@ -1460,7 +1474,7 @@ layer_name_entry_cb(GtkWidget *entry, gpointer data)
 
 	layer = &PCB->Data->Layer[i];
 	name = ghid_entry_get_text(entry);
-	if (dup_string (&layer->Name, name))
+	if (dup_core_string (&layer->Name, name))
 		ghid_layer_buttons_update();
 }
 
@@ -1712,7 +1726,7 @@ config_color_defaults_cb (gpointer data)
     {
       cc = (ConfigColor *) list->data;
       ha = cc->attributes;
-      dup_string ((char **) ha->value, ha->default_val.str_value);
+      dup_core_string ((char **) ha->value, ha->default_val.str_value);
       cc->color_is_mapped = FALSE;
       ghid_set_special_colors (ha);
     }
