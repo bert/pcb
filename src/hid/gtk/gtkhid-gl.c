@@ -1066,11 +1066,13 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   ghid_invalidate_current_gc ();
   glPushMatrix ();
   glScalef ((gport->view.flip_x ? -1. : 1.) / gport->view.coord_per_px,
-            (gport->view.flip_y ? -1. : 1.) / gport->view.coord_per_px, 1);
+            (gport->view.flip_y ? -1. : 1.) / gport->view.coord_per_px,
+            ((gport->view.flip_x == gport->view.flip_y) ? 1. : -1.) / gport->view.coord_per_px);
   glTranslatef (gport->view.flip_x ? gport->view.x0 - PCB->MaxWidth  :
                                     -gport->view.x0,
                 gport->view.flip_y ? gport->view.y0 - PCB->MaxHeight :
                                     -gport->view.y0, 0);
+
   hid_expose_callback (&ghid_hid, NULL, &pinout->element);
   hidgl_flush_triangles (&buffer);
   glPopMatrix ();
@@ -1167,7 +1169,8 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   ghid_invalidate_current_gc ();
   glPushMatrix ();
   glScalef ((gport->view.flip_x ? -1. : 1.) / gport->view.coord_per_px,
-            (gport->view.flip_y ? -1. : 1.) / gport->view.coord_per_px, 1);
+            (gport->view.flip_y ? -1. : 1.) / gport->view.coord_per_px,
+            ((gport->view.flip_x == gport->view.flip_y) ? 1. : -1.) / gport->view.coord_per_px);
   glTranslatef (gport->view.flip_x ? gport->view.x0 - PCB->MaxWidth  :
                                     -gport->view.x0,
                 gport->view.flip_y ? gport->view.y0 - PCB->MaxHeight :
@@ -1234,7 +1237,7 @@ ghid_request_debug_draw (void)
   glPushMatrix ();
   glScalef ((port->view.flip_x ? -1. : 1.) / port->view.coord_per_px,
             (port->view.flip_y ? -1. : 1.) / port->view.coord_per_px,
-            (port->view.flip_x == port->view.flip_y) ? 1. : -1.);
+            ((gport->view.flip_x == port->view.flip_y) ? 1. : -1.) / gport->view.coord_per_px);
   glTranslatef (port->view.flip_x ? port->view.x0 - PCB->MaxWidth  :
                              -port->view.x0,
                 port->view.flip_y ? port->view.y0 - PCB->MaxHeight :
