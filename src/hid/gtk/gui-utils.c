@@ -838,34 +838,3 @@ ghid_scrolled_text_view (GtkWidget * box,
     *scr = scrolled;
   return view;
 }
-
-
-/* If src is not utf8, *dst is converted to utf8.
- */
-gboolean
-utf8_dup_string (gchar ** dst_utf8, const gchar * src)
-{
-  if (!dst_utf8 || (!*dst_utf8 && !src))
-    return FALSE;
-  if (*dst_utf8)
-    {
-      if (src && !strcmp (*dst_utf8, src))
-	return FALSE;
-      g_free (*dst_utf8);
-    }
-  if (src)
-    {
-      if (g_utf8_validate (src, -1, NULL))
-	*dst_utf8 = g_strdup (src);
-      else
-	{
-	  *dst_utf8 = g_locale_to_utf8 (src, -1, NULL, NULL, NULL);
-	  if (!*dst_utf8)
-	    *dst_utf8 = g_strdup (src);
-	}
-    }
-  else
-    *dst_utf8 = NULL;
-
-  return TRUE;
-}
