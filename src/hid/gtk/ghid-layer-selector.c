@@ -64,8 +64,6 @@ struct _GHidLayerSelector
 
   gboolean accel_available[20];
 
-  gboolean last_activatable;
-
   gulong selection_changed_sig_id;
 };
 
@@ -320,7 +318,6 @@ ghid_layer_selector_init (GHidLayerSelector *ls)
   gtk_tree_view_set_model (GTK_TREE_VIEW (ls), GTK_TREE_MODEL (ls->list_store));
   gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (ls), FALSE);
 
-  ls->last_activatable = TRUE;
   ls->visibility_column = opacity_col;
   ls->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ls));
   ls->accel_group = gtk_accel_group_new ();
