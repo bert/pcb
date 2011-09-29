@@ -1005,26 +1005,11 @@ draw_dozen_cross (GdkGC *xor_gc, gint x, gint y)
 }
 
 static void
-draw_crosshair (GdkGC *xor_gc, gint x, gint y)
+draw_crosshair (render_priv *priv)
 {
-  static enum crosshair_shape prev = Basic_Crosshair_Shape;
-
-  draw_right_cross (xor_gc, x, y);
-  if (prev == Union_Jack_Crosshair_Shape)
-    draw_slanted_cross (xor_gc, x, y);
-  if (prev == Dozen_Crosshair_Shape)
-    draw_dozen_cross (xor_gc, x, y);
-  prev = Crosshair.shape;
-}
-
-static void
-show_crosshair (gboolean paint_new_location)
-{
-  render_priv *priv = gport->render_priv;
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
   GtkStyle *style = gtk_widget_get_style (gport->drawing_area);
   gint x, y;
-  static gint x_prev = -1, y_prev = -1;
   static GdkGC *xor_gc;
   static GdkColor cross_color;
 
@@ -1041,22 +1026,17 @@ show_crosshair (gboolean paint_new_location)
       /* FIXME: when CrossColor changed from config */
       ghid_map_color_string (Settings.CrossColor, &cross_color);
     }
-  x = DRAW_X (gport->crosshair_x);
-  y = DRAW_Y (gport->crosshair_y);
 
   gdk_gc_set_foreground (xor_gc, &cross_color);
 
-  if (x_prev >= 0 && !paint_new_location)
-    draw_crosshair (xor_gc, x_prev, y_prev);
+  x = DRAW_X (gport->crosshair_x);
+  y = DRAW_Y (gport->crosshair_y);
 
-  if (x >= 0 && paint_new_location)
-    {
-      draw_crosshair (xor_gc, x, y);
-      x_prev = x;
-      y_prev = y;
-    }
-  else
-    x_prev = y_prev = -1;
+  draw_right_cross (xor_gc, x, y);
+  if (Crosshair.shape == Union_Jack_Crosshair_Shape)
+    draw_slanted_cross (xor_gc, x, y);
+  if (Crosshair.shape == Dozen_Crosshair_Shape)
+    draw_dozen_cross (xor_gc, x, y);
 }
 
 void
@@ -1115,7 +1095,7 @@ ghid_screen_update (void)
 
   gdk_draw_drawable (window, priv->bg_gc, gport->pixmap,
                      0, 0, 0, 0, gport->width, gport->height);
-  show_crosshair (TRUE);
+  draw_crosshair (priv);
 }
 
 gboolean
@@ -1129,7 +1109,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   gdk_draw_drawable (window, priv->bg_gc, port->pixmap,
                      ev->area.x, ev->area.y, ev->area.x, ev->area.y,
                      ev->area.width, ev->area.height);
-  show_crosshair (TRUE);
+  draw_crosshair (priv);
   return FALSE;
 }
 
