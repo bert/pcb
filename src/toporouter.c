@@ -864,40 +864,6 @@ coord_move_towards_coord_values(gdouble ax, gdouble ay, gdouble px, gdouble py, 
 
 /* moves vertex v d units in the direction of vertex p */
 void
-vertex_move_towards_point_values(GtsVertex *v, gdouble px, gdouble py, gdouble d, gdouble *x, gdouble *y) 
-{
-  gdouble dx = px - GTS_POINT(v)->x;
-  gdouble dy = py - GTS_POINT(v)->y;
-  gdouble theta = atan(fabs(dy/dx));
-
-  g_assert(finite(theta));
-
-  if( dx >= 0. ) {
-
-    if( dy >= 0. ) {
-      *x = GTS_POINT(v)->x + (d * cos(theta));
-      *y = GTS_POINT(v)->y + (d * sin(theta));
-    }else{
-      *x = GTS_POINT(v)->x + (d * cos(theta));
-      *y = GTS_POINT(v)->y - (d * sin(theta));
-    }
-
-  }else{
-    
-    if( dy >= 0. ) {
-      *x = GTS_POINT(v)->x - (d * cos(theta));
-      *y = GTS_POINT(v)->y + (d * sin(theta));
-    }else{
-      *x = GTS_POINT(v)->x - (d * cos(theta));
-      *y = GTS_POINT(v)->y - (d * sin(theta));
-    }
-
-  }
-
-}
-
-/* moves vertex v d units in the direction of vertex p */
-void
 vertex_move_towards_vertex_values(GtsVertex *v, GtsVertex *p, gdouble d, gdouble *x, gdouble *y) 
 {
   gdouble dx = GTS_POINT(p)->x - GTS_POINT(v)->x;
@@ -5191,40 +5157,6 @@ routing_return:
   data->alltemppoints = NULL;
 
   return rval;
-}
-
-/* moves vertex v d units in the direction of vertex p */
-void
-vertex_move_towards_point(GtsVertex *v, gdouble px, gdouble py, gdouble d) 
-{
-  gdouble dx = px - GTS_POINT(v)->x;
-  gdouble dy = py - GTS_POINT(v)->y;
-  gdouble theta = atan(fabs(dy/dx));
-
-  g_assert(finite(theta));
-
-  if( dx >= 0. ) {
-
-    if( dy >= 0. ) {
-      GTS_POINT(v)->x += d * cos(theta);
-      GTS_POINT(v)->y += d * sin(theta);
-    }else{
-      GTS_POINT(v)->x += d * cos(theta);
-      GTS_POINT(v)->y -= d * sin(theta);
-    }
-
-  }else{
-    
-    if( dy >= 0. ) {
-      GTS_POINT(v)->x -= d * cos(theta);
-      GTS_POINT(v)->y += d * sin(theta);
-    }else{
-      GTS_POINT(v)->x -= d * cos(theta);
-      GTS_POINT(v)->y -= d * sin(theta);
-    }
-
-  }
-
 }
 
 /* moves vertex v d units in the direction of vertex p */
