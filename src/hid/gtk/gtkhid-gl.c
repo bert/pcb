@@ -1107,7 +1107,7 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   pixmap = gdk_pixmap_new (NULL, width, height, depth);
   glpixmap = gdk_pixmap_set_gl_capability (pixmap, glconfig, NULL);
   gldrawable = GDK_GL_DRAWABLE (glpixmap);
-  glcontext = gdk_gl_context_new (gldrawable, NULL, FALSE, GDK_GL_RGBA_TYPE);
+  glcontext = gdk_gl_context_new (gldrawable, NULL, TRUE, GDK_GL_RGBA_TYPE);
 
   /* Setup zoom factor for drawing routines */
 
