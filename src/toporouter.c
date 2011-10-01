@@ -58,6 +58,8 @@
 #include "toporouter.h"
 #include "pcb-printf.h"
 
+#define BOARD_EDGE_RESOLUTION MIL_TO_COORD (100.)
+
 static void 
 toporouter_edge_init (toporouter_edge_t *edge)
 {
@@ -2207,52 +2209,44 @@ read_lines(toporouter_t *r, toporouter_layer_t *l, LayerType *layer, int ln)
   return 0;
 }
 
-void
-create_board_edge(gdouble x0, gdouble y0, gdouble x1, gdouble y1, gdouble max, gint layer, GList **vlist)
+static void
+create_board_edge (double x0, double y0,
+                   double x1, double y1,
+                   int layer,
+                   GList **vlist)
 {
   GtsVertexClass *vertex_class = GTS_VERTEX_CLASS (toporouter_vertex_class ());
-  gdouble d = sqrt(pow(x0-x1,2) + pow(y0-y1,2));
-  guint n = d / max, count = 1;
-  gdouble inc = n ? d / n : d;
-  gdouble x = x0, y = y0;
+  double edge_length = sqrt (pow (x0 - x1, 2) + pow (y0 - y1, 2));
+  unsigned int vertices_per_edge = MIN (1, edge_length / BOARD_EDGE_RESOLUTION);
+  unsigned int count;
+  double inc = edge_length / vertices_per_edge;
+  double x = x0, y = y0;
 
-  *vlist = g_list_prepend(*vlist, gts_vertex_new (vertex_class, x0, y0, layer));
- 
-  while(count < n) {
-    coord_move_towards_coord_values(x0, y0, x1, y1, inc, &x, &y);
-    *vlist = g_list_prepend(*vlist, gts_vertex_new (vertex_class, x, y, layer));
+  *vlist = g_list_prepend (*vlist, gts_vertex_new (vertex_class, x, y, layer));
 
-    x0 = x; y0 = y;
-    count++;
+  for (count = 1; count < vertices_per_edge; count ++) {
+    coord_move_towards_coord_values (x, y, x1, y1, inc, &x, &y);
+    *vlist = g_list_prepend (*vlist, gts_vertex_new (vertex_class, x, y, layer));
   }
-
 }
 
 
-int
-read_board_constraints(toporouter_t *r, toporouter_layer_t *l, int layer) 
+static void
+read_board_constraints (toporouter_t *r, toporouter_layer_t *l, int layer)
 {
-//  GtsVertexClass *vertex_class = GTS_VERTEX_CLASS (toporouter_vertex_class ());
   GList *vlist = NULL;
-  toporouter_bbox_t *bbox = NULL;
-  
-  /* Add points for corners of board, and constrain those edges */
-//  vlist = g_list_prepend(NULL, gts_vertex_new (vertex_class, 0., 0., layer));
-//  vlist = g_list_prepend(vlist, gts_vertex_new (vertex_class, PCB->MaxWidth, 0., layer));
-//  vlist = g_list_prepend(vlist, gts_vertex_new (vertex_class, PCB->MaxWidth, PCB->MaxHeight, layer));
-//  vlist = g_list_prepend(vlist, gts_vertex_new (vertex_class, 0., PCB->MaxHeight, layer));
+  toporouter_bbox_t *bbox;
 
-  create_board_edge(0., 0., PCB->MaxWidth, 0., 10000., layer, &vlist);
-  create_board_edge(PCB->MaxWidth, 0., PCB->MaxWidth, PCB->MaxHeight, 10000., layer, &vlist);
-  create_board_edge(PCB->MaxWidth, PCB->MaxHeight, 0., PCB->MaxHeight, 10000., layer, &vlist);
-  create_board_edge(0., PCB->MaxHeight, 0., 0., 10000., layer, &vlist);
-  
-  bbox = toporouter_bbox_create(layer, vlist, BOARD, NULL);
-  r->bboxes = g_slist_prepend(r->bboxes, bbox);
-  insert_constraints_from_list(r, l, vlist, bbox);
-  g_list_free(vlist);
+  /* Create points for the board edges and constrain those edges */
+  create_board_edge (0.,            0.,             PCB->MaxWidth, 0.,             layer, &vlist);
+  create_board_edge (PCB->MaxWidth, 0.,             PCB->MaxWidth, PCB->MaxHeight, layer, &vlist);
+  create_board_edge (PCB->MaxWidth, PCB->MaxHeight, 0.,            PCB->MaxHeight, layer, &vlist);
+  create_board_edge (0.,            PCB->MaxHeight, 0.,            0.,             layer, &vlist);
 
-  return 0;
+  bbox = toporouter_bbox_create (layer, vlist, BOARD, NULL);
+  r->bboxes = g_slist_prepend (r->bboxes, bbox);
+  insert_constraints_from_list (r, l, vlist, bbox);
+  g_list_free (vlist);
 }
 
 gdouble 
