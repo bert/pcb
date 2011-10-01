@@ -1,9 +1,10 @@
 /*
  *                            COPYRIGHT
  *
- *  Topological Autorouter for 
+ *  Topological Autorouter for
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 2009 Anthony Blake
+ *  Copyright (C) 2009-2011 PCB Contributors (see ChangeLog for details)
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,9 +28,9 @@
  *                 This is *EXPERIMENTAL* code.
  *
  *  As the code is experimental, the algorithms and code
- *  are likely to change. Which means it isn't documented  
+ *  are likely to change. Which means it isn't documented
  *  or optimized. If you would like to learn about Topological
- *  Autorouters, the following papers are good starting points: 
+ *  Autorouters, the following papers are good starting points:
  *
  * This file implements a topological autorouter, and uses techniques from the
  * following publications:
