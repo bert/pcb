@@ -1374,11 +1374,6 @@ vertex_intersect_prop(GtsVertex *a, GtsVertex *b, GtsVertex *c, GtsVertex *d)
   return point_intersect_prop(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c), GTS_POINT(d));
 }
 
-static inline int
-tvertex_intersect_prop(toporouter_vertex_t *a, toporouter_vertex_t *b, toporouter_vertex_t *c, toporouter_vertex_t *d) 
-{
-  return point_intersect_prop(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c), GTS_POINT(d));
-}
 /*
 static inline int
 tvertex_intersect(toporouter_vertex_t *a, toporouter_vertex_t *b, toporouter_vertex_t *c, toporouter_vertex_t *d) 
