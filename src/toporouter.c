@@ -2624,29 +2624,6 @@ coord_xangle(gdouble ax, gdouble ay, gdouble bx, gdouble by)
   return theta;  
 }
 
-gdouble 
-point_xangle(GtsPoint *a, GtsPoint *b) 
-{
-  gdouble dx, dy, theta;
-
-  dx = fabs(a->x - b->x);
-  dy = fabs(a->y - b->y);
-  
-  if(dx < EPSILON) {
-    theta = M_PI / 2.;
-  } else theta = atan(dy/dx);
-
-  if(b->y >= a->y) {
-    if(b->x < a->x) theta = M_PI - theta;
-  }else{
-    if(b->x < a->x) theta += M_PI;
-    else theta = (2 * M_PI) - theta;
-  }
-
-  return theta;  
-}
-
-
 GList *
 cluster_vertices(toporouter_t *r, toporouter_cluster_t *c)
 {
