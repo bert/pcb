@@ -59,6 +59,9 @@
 #include "pcb-printf.h"
 
 #define BOARD_EDGE_RESOLUTION MIL_TO_COORD (100.)
+#define VIA_COST_AS_DISTANCE  MIL_TO_COORD (100.)
+#define ROAR_DETOUR_THRESHOLD MIL_TO_COORD (10.)
+
 
 static void 
 toporouter_edge_init (toporouter_edge_t *edge)
@@ -339,7 +342,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
       cairo_arc(dc->cr, 
           tv->v.p.x * dc->s + MARGIN, 
           tv->v.p.y * dc->s + MARGIN, 
-          500. * dc->s, 0, 2 * M_PI);
+          MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
       cairo_fill(dc->cr);
 
     }else if(tv->flags & VERTEX_FLAG_GREEN) {
@@ -347,7 +350,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
       cairo_arc(dc->cr, 
           tv->v.p.x * dc->s + MARGIN, 
           tv->v.p.y * dc->s + MARGIN, 
-          500. * dc->s, 0, 2 * M_PI);
+          MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
       cairo_fill(dc->cr);
     
     }else if(tv->flags & VERTEX_FLAG_BLUE) {
@@ -355,7 +358,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
       cairo_arc(dc->cr, 
           tv->v.p.x * dc->s + MARGIN, 
           tv->v.p.y * dc->s + MARGIN, 
-          500. * dc->s, 0, 2 * M_PI);
+          MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
       cairo_fill(dc->cr);
 
 
@@ -407,7 +410,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
             cairo_arc(dc->cr, 
                 tv->v.p.x * dc->s + MARGIN, 
                 tv->v.p.y * dc->s + MARGIN, 
-                400. * dc->s, 0, 2 * M_PI);
+                MIL_TO_COORD (4.) * dc->s, 0, 2 * M_PI);
             cairo_fill(dc->cr);
 
             break;
@@ -421,14 +424,14 @@ toporouter_draw_vertex(gpointer item, gpointer data)
         cairo_arc(dc->cr, 
             tv->v.p.x * dc->s + MARGIN, 
             tv->v.p.y * dc->s + MARGIN, 
-            500. * dc->s, 0, 2 * M_PI);
+            MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
         cairo_fill(dc->cr);
       }else if(tv->flags & VERTEX_FLAG_RED) {
         cairo_set_source_rgba(dc->cr, 1., 0., 0., 0.8f);
         cairo_arc(dc->cr, 
             tv->v.p.x * dc->s + MARGIN, 
             tv->v.p.y * dc->s + MARGIN, 
-            500. * dc->s, 0, 2 * M_PI);
+            MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
         cairo_fill(dc->cr);
 
       }else if(tv->flags & VERTEX_FLAG_GREEN) {
@@ -436,7 +439,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
         cairo_arc(dc->cr, 
             tv->v.p.x * dc->s + MARGIN, 
             tv->v.p.y * dc->s + MARGIN, 
-            500. * dc->s, 0, 2 * M_PI);
+            MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
         cairo_fill(dc->cr);
       }
 
@@ -1032,7 +1035,7 @@ toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_clust
 
 //  if(box->point && vz(box->point) == layer) {
 //    cairo_set_source_rgba(dc->cr, red, green, blue, 0.8f);
-//    cairo_arc(dc->cr, vx(box->point) * dc->s + MARGIN, vy(box->point) * dc->s + MARGIN, 500. * dc->s, 0, 2 * M_PI);
+//    cairo_arc(dc->cr, vx(box->point) * dc->s + MARGIN, vy(box->point) * dc->s + MARGIN, MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
 //    cairo_fill(dc->cr);
 //  }
 
@@ -1079,7 +1082,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
 
         }else if(tv->flags & VERTEX_FLAG_GREEN) {
@@ -1087,7 +1090,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
 
         }else if(tv->flags & VERTEX_FLAG_BLUE) {
@@ -1095,7 +1098,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
 
         } 
@@ -1105,7 +1108,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
 
 
@@ -1194,14 +1197,14 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
         }else if(tv->flags & VERTEX_FLAG_RED) {
           cairo_set_source_rgba(dc->cr, 1., 0., 0., 0.8f);
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
 
         }else if(tv->flags & VERTEX_FLAG_GREEN) {
@@ -1209,14 +1212,14 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
         }else{
           cairo_set_source_rgba(dc->cr, 1., 1., 1., 0.8f);
           cairo_arc(dc->cr, 
               tv->v.p.x * dc->s + MARGIN, 
               tv->v.p.y * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
+              MIL_TO_COORD (5.) * dc->s, 0, 2 * M_PI);
           cairo_fill(dc->cr);
         }
         i = i->next;
@@ -1289,7 +1292,7 @@ wind(toporouter_spoint_t *p1, toporouter_spoint_t *p2, toporouter_spoint_t *p3)
   dx1 = p2->x - p1->x; dy1 = p2->y - p1->y;
   dx2 = p3->x - p2->x; dy2 = p3->y - p2->y;
   rval = (dx1*dy2)-(dy1*dx2);
-  return (rval > 0.0001) ? 1 : ((rval < -0.0001) ? -1 : 0);
+  return (rval > 0.0001) ? 1 : ((rval < -0.0001) ? -1 : 0); /* XXX: Depends on PCB coordinate scaling */
 }
 
 /* wind_double:
@@ -5491,7 +5494,7 @@ export_pcb_drawline(guint layer, guint x0, guint y0, guint x1, guint y1, guint t
 
   if(line) {
     AddObjectToCreateUndoList (LINE_TYPE, LAYER_PTR(layer), line, line);
-    d = coord_distance((double)x0, (double)y0, (double)x1, (double)y1) / 100.;
+    d = coord_distance((double)x0, (double)y0, (double)x1, (double)y1);
   }
   return d;
 }
@@ -5538,7 +5541,7 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
 
   if(arc) {
     AddObjectToCreateUndoList( ARC_TYPE, LAYER_PTR(layer), arc, arc);
-    d = a->r * theta / 100.;
+    d = a->r * theta;
   }
   
   return d;
@@ -6020,8 +6023,8 @@ check_non_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, topor
   }else{
     m = cartesian_gradient(x0, y0, x1, y1);
   }
-  
-  coords_on_line(vx(arcv), vy(arcv), m, 100., &tx0, &ty0, &tx1, &ty1);
+
+  coords_on_line(vx(arcv), vy(arcv), m, MIL_TO_COORD (1.), &tx0, &ty0, &tx1, &ty1);
 
   wind1 = coord_wind(tx0, ty0, tx1, ty1, line_int_x, line_int_y);
   wind2 = coord_wind(tx0, ty0, tx1, ty1, vx(opv), vy(opv)); 
@@ -6810,9 +6813,13 @@ toporouter_export(toporouter_t *r)
     i = i->next;
   }
 
-  Message(_("Reticulating splines... successful\n\n"));
-  Message(_("Wiring cost: %f inches\n"), r->wiring_score / 1000.);
-  printf("Wiring cost: %f inches\n", r->wiring_score / 1000.);
+  Message (_("Reticulating splines... successful\n\n"));
+  /* NB: We could use the %$mS specifier to print these distances, but we would
+   *     have to cast to Coord, which might overflow for complex routing when
+   *     PCB is built with Coord as a 32-bit integer.
+   */
+  Message (_("Wiring cost: %f inches\n"), COORD_TO_INCH (r->wiring_score));
+  printf ("Wiring cost: %f inches\n", COORD_TO_INCH (r->wiring_score));
 
   g_list_free(oproutes);
 
@@ -7746,7 +7753,7 @@ detour_router(toporouter_t *r)
 //        vx(curroute->mergebox1->point), vy(curroute->mergebox1->point),
 //        vx(curroute->mergebox2->point), vy(curroute->mergebox2->point));
 
-      if(curroute->score - curroute->detourscore > 1000.) {
+      if(curroute->score - curroute->detourscore > ROAR_DETOUR_THRESHOLD) {
         roar_detour_route(r, curroute);
       }else break;
 
@@ -7821,6 +7828,7 @@ parse_arguments(toporouter_t *r, int argc, char **argv)
   int i, tempint;
   for(i=0;i<argc;i++) {
     if(sscanf(argv[i], "viacost=%d", &tempint)) {
+      /* XXX: We should be using PCB's generic value with unit parsing here */
       r->viacost = (double)tempint;
     }else if(sscanf(argv[i], "l%d", &tempint)) {
       gdouble *layer = (gdouble *)malloc(sizeof(gdouble));
@@ -7857,7 +7865,7 @@ toporouter_new(void)
   r->layers = NULL;
   r->flags = 0;
   r->viamax     = 3;
-  r->viacost    = 10000.;
+  r->viacost = VIA_COST_AS_DISTANCE;
   r->stublength = 300.;
   r->serpintine_half_amplitude = 1500.;
 
