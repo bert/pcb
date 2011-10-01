@@ -703,26 +703,6 @@ vertex_net_keepaway(toporouter_vertex_t *v)
   if(!box || !box->cluster) return Settings.Keepaway;
   return cluster_keepaway(box->cluster);
 }
-/*
-void
-print_trace (void)
-{
-  void *array[10];
-  size_t size;
-  char **strings;
-  size_t i;
-
-  size = backtrace (array, 10);
-  strings = backtrace_symbols (array, size);
-
-  printf ("Obtained %zd stack frames.\n", size);
-
-  for (i = 0; i < size; i++)
-    printf ("%s\n", strings[i]);
-
-  free (strings);
-}
-*/
 
 /* fills in x and y with coordinates of point from a towards b of distance d */
 static void
