@@ -772,22 +772,6 @@ tvertex_wind(toporouter_vertex_t  *a, toporouter_vertex_t  *b, toporouter_vertex
   return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
 }
 
-int 
-sloppy_point_wind(GtsPoint *a, GtsPoint *b, GtsPoint *c) 
-{
-  gdouble rval, dx1, dx2, dy1, dy2;
-  dx1 = b->x - a->x; dy1 = b->y - a->y;
-  dx2 = c->x - b->x; dy2 = c->y - b->y;
-  rval = (dx1*dy2)-(dy1*dx2);
-  return (rval > 10.) ? 1 : ((rval < -10.) ? -1 : 0);
-}
-
-static inline int
-sloppy_vertex_wind(GtsVertex *a, GtsVertex *b, GtsVertex *c) 
-{
-  return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
-}
-
 /* moves vertex v d units in the direction of vertex p */
 static void
 coord_move_towards_coord_values (double ax, double ay,
