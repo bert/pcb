@@ -1249,40 +1249,6 @@ coords_on_line(gdouble ax, gdouble ay, gdouble m, gdouble r, gdouble *b0x, gdoub
 
 }
 
-/**
- * vertices_on_line:
- * Given vertex a, gradient m, and radius r: 
- *
- * Return vertices on line of a & m at r from a
- */ 
-void
-points_on_line(GtsPoint *a, gdouble m, gdouble r, GtsPoint *b0, GtsPoint *b1)
-{
-
-  gdouble c, temp;
-  
-  if(m == INFINITY || m == -INFINITY) {
-    b0->y = a->y + r;
-    b1->y = a->y - r;
-
-    b0->x = a->x;
-    b1->x = a->x;
-  
-    return;
-  }
-
-  c = a->y - (m * a->x);
-
-  temp = sqrt( pow(r, 2) / ( 1 + pow(m, 2) ) );
-
-  b0->x = a->x + temp;
-  b1->x = a->x - temp;
-  
-  b0->y = b0->x * m + c;
-  b1->y = b1->x * m + c;
-
-}
-
 /*
  * Returns gradient of segment given by a & b
  */
