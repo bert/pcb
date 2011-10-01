@@ -7887,7 +7887,6 @@ toporouter_new(void)
   Message(_("Topological Autorouter\n"));
   Message(_("Started %s"),asctime(localtime(&ltime)));  
   Message(_("-------------------------------------\n"));
-  Message(_("Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n\n"));
   return r;
 }
 
