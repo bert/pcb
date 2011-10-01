@@ -420,7 +420,6 @@ struct _toporouter_t {
 
   /* settings: */
   gdouble viacost;
-  gdouble stublength;
 
   gdouble wiring_score;
 

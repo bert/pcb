@@ -7577,7 +7577,6 @@ toporouter_new(void)
   r->layers = NULL;
   r->flags = 0;
   r->viacost = VIA_COST_AS_DISTANCE;
-  r->stublength = 300.;
 
   r->wiring_score = 0.;
 
