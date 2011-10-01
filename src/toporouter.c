@@ -2602,26 +2602,10 @@ visited_cmp(gconstpointer a, gconstpointer b)
   return 0;
 }
 
-gdouble 
-coord_xangle(gdouble ax, gdouble ay, gdouble bx, gdouble by) 
+static double
+coord_angle (double ax, double ay, double bx, double by)
 {
-  gdouble dx, dy, theta;
-
-  dx = fabs(ax - bx);
-  dy = fabs(ay - by);
-  
-  if(dx < EPSILON) {
-    theta = M_PI / 2.;
-  } else theta = atan(dy/dx);
-
-  if(by <= ay) {
-    if(bx < ax) theta = M_PI - theta;
-  }else{
-    if(bx < ax) theta += M_PI;
-    else theta = (2 * M_PI) - theta;
-  }
-  
-  return theta;  
+  return atan2 (by - ay, bx - ax);
 }
 
 GList *
@@ -5416,7 +5400,11 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
 
   wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
 
-  sa = coord_xangle(a->x0, a->y0, vx(a->centre), vy(a->centre)) * 180. / M_PI;
+  /* NB: PCB's arcs have a funny coorindate system, with 0 degrees as the -ve X axis (left),
+   *     continuing clockwise, with +90 degrees being along the +ve Y axis (bottom). Because
+   *     Y+ points down, our internal angles increase clockwise from the +ve X axis.
+   */
+  sa = (M_PI - coord_angle (vx (a->centre), vy (a->centre), a->x0, a->y0)) * 180. / M_PI;
 
   theta = arc_angle(a);
 
