@@ -6462,8 +6462,11 @@ oproute_rubberband(toporouter_t *r, GList *path)
   oproute_path_speccut(oproute);
 
 #ifdef DEBUG_RUBBERBAND
-  if(!strcmp(oproute->netlist, "  VCC3V3") && vx(oproute->term1) == 95700. && vy(oproute->term1) == 70800. &&
-    vx(oproute->term2) == 196700. && vy(oproute->term2) == 67300.)
+  if(strcmp(oproute->netlist, "  VCC3V3" == 0) &&
+     vx(oproute->term1) == MIL_TO_COORD (957.) &&
+     vy(oproute->term1) == MIL_TO_COORD (708.) &&
+     vx(oproute->term2) == MIL_TO_COORD (1967.) &&
+     vy(oproute->term2) == MIL_TO_COORD (673.))
   {
 //    printf("OPROUTE %s - %f,%f %f,%f\n", oproute->netlist, vx(oproute->term1), vy(oproute->term1), vx(oproute->term2), vy(oproute->term2));
 //    print_path(path);
