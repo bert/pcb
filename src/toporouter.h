@@ -419,7 +419,6 @@ struct _toporouter_t {
   GList *destboxes, *consumeddestboxes;
 
   /* settings: */
-  guint viamax;
   gdouble viacost;
   gdouble stublength;
 
