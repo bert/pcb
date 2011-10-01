@@ -3054,21 +3054,6 @@ angle_span(gdouble a1, gdouble a2)
 }
 
 gdouble
-region_span(toporouter_vertex_region_t *region) 
-{
-  gdouble a1,a2; 
-
-  g_assert(region->v1 != NULL);
-  g_assert(region->v2 != NULL);
-  g_assert(region->origin != NULL);
-
-  a1 = point_xangle(GTS_POINT(region->origin), GTS_POINT(region->v1));
-  a2 = point_xangle(GTS_POINT(region->origin), GTS_POINT(region->v2));
-
-  return angle_span(a1, a2);
-}
-
-gdouble
 edge_capacity(toporouter_edge_t *e)
 {
   return gts_point_distance(GTS_POINT(edge_v1(e)), GTS_POINT(edge_v2(e)));
