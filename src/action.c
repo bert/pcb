@@ -2173,6 +2173,7 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
   char *units = ARG (2);
   bool absolute;			/* flag for 'absolute' value */
   double value;
+  int text_scale;
   int err = 0;
 
   if (function && val)
@@ -2217,8 +2218,10 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
 
 	case F_Text:
 	case F_TextScale:
-	  value /= 45;
-	  SetTextScale (absolute ? value : value + Settings.TextScale);
+	  text_scale = value / (double)FONT_CAPHEIGHT * 100.;
+	  if (!absolute)
+	    text_scale += Settings.TextScale;
+	  SetTextScale (text_scale);
 	  break;
 	default:
 	  err = 1;
