@@ -1106,26 +1106,19 @@ groupcount(void)
 void
 toporouter_free(toporouter_t *r)
 {
-  struct timeval endtime;  
-  int secs, usecs;
+  struct timeval endtime;
+  double time_delta;
 
   int i;
   for(i=0;i<groupcount();i++) {
     toporouter_layer_free(&r->layers[i]);
   }
 
+  gettimeofday (&endtime, NULL);
+  time_delta = endtime.tv_sec - r->starttime.tv_sec +
+               (endtime.tv_usec - r->starttime.tv_usec) / 1000000.;
 
-  gettimeofday(&endtime, NULL);  
-
-  secs = (int)(endtime.tv_sec - r->starttime.tv_sec);
-  usecs = (int)((endtime.tv_usec - r->starttime.tv_usec) / 1000);
-
-  if(usecs < 0) {
-    secs -= 1;
-    usecs += 1000;
-  }
-
-  Message(_("Elapsed time: %d.%02d seconds\n"), secs, usecs);
+  Message(_("Elapsed time: %.2f seconds\n"), time_delta);
   free(r->layers);  
   free(r);
 
