@@ -7579,7 +7579,6 @@ toporouter_new(void)
   r->viamax     = 3;
   r->viacost = VIA_COST_AS_DISTANCE;
   r->stublength = 300.;
-  r->serpintine_half_amplitude = 1500.;
 
   r->wiring_score = 0.;
 

@@ -422,7 +422,6 @@ struct _toporouter_t {
   guint viamax;
   gdouble viacost;
   gdouble stublength;
-  gdouble serpintine_half_amplitude;
 
   gdouble wiring_score;
 
