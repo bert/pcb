@@ -1183,70 +1183,75 @@ print_toporouter_vertex(toporouter_vertex_t *tv)
 
 /**
  * vertices_on_line:
- * Given vertex a, gradient m, and radius r: 
+ * Given vertex a, gradient m, and radius r:
  *
  * Return vertices on line of a & m at r from a
  */ 
-void
-vertices_on_line(toporouter_spoint_t *a, gdouble m, gdouble r, toporouter_spoint_t *b0, toporouter_spoint_t *b1)
+static void
+vertices_on_line (toporouter_spoint_t *a,
+                  double m,
+                  double r,
+                  toporouter_spoint_t *b0,
+                  toporouter_spoint_t *b1)
 {
 
-  gdouble c, temp;
-  
-  if(m == INFINITY || m == -INFINITY) {
-    b0->y = a->y + r;
-    b1->y = a->y - r;
+  double c, dx;
+
+  if (m == INFINITY || m == -INFINITY) {
 
     b0->x = a->x;
+    b0->y = a->y + r;
+
     b1->x = a->x;
-  
+    b1->y = a->y - r;
+
     return;
   }
 
-  c = a->y - (m * a->x);
+  c = a->y - m * a->x;
+  dx = r / sqrt (1 + pow (m, 2));
 
-  temp = sqrt( pow(r, 2) / ( 1 + pow(m, 2) ) );
+  b0->x = a->x + dx;
+  b0->y = m * b0->x + c;
 
-  b0->x = a->x + temp;
-  b1->x = a->x - temp;
-  
-  b0->y = b0->x * m + c;
-  b1->y = b1->x * m + c;
-
+  b1->x = a->x - dx;
+  b1->y = m * b1->x + c;
 }
 
 /**
- * vertices_on_line:
- * Given vertex a, gradient m, and radius r: 
+ * coords_on_line:
+ * Given coordinates ax, ay, gradient m, and radius r:
  *
- * Return vertices on line of a & m at r from a
- */ 
-void
-coords_on_line(gdouble ax, gdouble ay, gdouble m, gdouble r, gdouble *b0x, gdouble *b0y, gdouble *b1x, gdouble *b1y)
+ * Return coordinates on line of a & m at r from a
+ */
+static void
+coords_on_line (double ax, gdouble ay,
+                double m,
+                double r,
+                double *b0x, double *b0y,
+                double *b1x, double *b1y)
 {
+  double c, dx;
 
-  gdouble c, temp;
-  
-  if(m == INFINITY || m == -INFINITY) {
-    *b0y = ay + r;
-    *b1y = ay - r;
+  if (m == INFINITY || m == -INFINITY) {
 
     *b0x = ax;
+    *b0y = ay + r;
+
     *b1x = ax;
-  
+    *b1y = ay - r;
+
     return;
   }
 
-  c = ay - (m * ax);
+  c = ay - m * ax;
+  dx = r / sqrt (1 + pow (m, 2));
 
-  temp = sqrt( pow(r, 2) / ( 1 + pow(m, 2) ) );
+  *b0x = ax + dx;
+  *b0y = m * *b0x + c;
 
-  *b0x = ax + temp;
-  *b1x = ax - temp;
-  
-  *b0y = *b0x * m + c;
-  *b1y = *b1x * m + c;
-
+  *b1x = ax - dx;
+  *b1y = m * *b1x + c;
 }
 
 /*
