@@ -21,7 +21,8 @@ TOOLS= \
 	tgo2pcb.tcl \
 	MergePCBPS \
 	Merge_dimPCBPS \
-	PCB2HPGL 
+	PCB2HPGL \
+	pcbdiff
 
 DIST_SCM= \
 	gnet-pcbfwd.scm
