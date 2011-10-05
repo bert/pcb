@@ -284,6 +284,8 @@ typedef struct			/* holds information about arcs */
 {
   ANYOBJECTFIELDS;
   Coord Thickness, Clearance;
+  PointType Point1;
+  PointType Point2;
   Coord Width, Height,		/* length of axis */
     X, Y;			/* center coordinates */
   Angle StartAngle, Delta;	/* the two limiting angles in degrees */

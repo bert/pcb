@@ -1069,7 +1069,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                LINEPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+                                LINEPOINT_TYPE | ARCPOINT_TYPE,
+                                &ptr1, &ptr2, &ptr3);
 
   if (ans != NO_TYPE)
     {
@@ -1099,7 +1100,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   if (Settings.Mode == ARROW_MODE)
     {
       ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                  LINEPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+                                  LINEPOINT_TYPE | ARCPOINT_TYPE,
+                                  &ptr1, &ptr2, &ptr3);
       if (ans == NO_TYPE)
         hid_action("PointCursor");
       else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))

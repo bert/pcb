@@ -123,6 +123,8 @@
 						/* line points */
 #define	MAX_POLYGON_POINT_DISTANCE	0	/* maximum distance when searching */
 						/* polygon points */
+#define	MAX_ARC_POINT_DISTANCE		0	/* maximum distance when searching */
+						/* arc points */
 #define	MAX_ELEMENTNAMES		3	/* number of supported names of */
 						/* an element */
 #define	MAX_LIBRARY_LINE_LENGTH		255	/* maximum line length in the */

@@ -204,6 +204,8 @@ RotateArcLowLevel (ArcTypePtr Arc, Coord X, Coord Y, unsigned Number)
       Arc->Height = save;
     }
   RotateBoxLowLevel (&Arc->BoundingBox, X, Y, Number);
+  ROTATE (Arc->Point1.X, Arc->Point1.Y, X, Y, Number);
+  ROTATE (Arc->Point2.X, Arc->Point2.Y, X, Y, Number);
 }
 
 /* ---------------------------------------------------------------------------

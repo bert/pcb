@@ -322,6 +322,8 @@ SearchRatLineByLocation (int locked, RatTypePtr * Line, RatTypePtr * Dummy1,
 struct arc_info
 {
   ArcTypePtr *Arc, *Dummy;
+  PointTypePtr *Point;
+  double least;
   jmp_buf env;
   int locked;
 };
@@ -496,6 +498,56 @@ SearchLinePointByLocation (int locked, LayerTypePtr * Layer,
   return false;
 }
 
+static int
+arcpoint_callback (const BoxType * b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr) b;
+  struct arc_info *i = (struct arc_info *) cl;
+  int ret_val = 0;
+  double d;
+
+  if (TEST_FLAG (i->locked, arc))
+    return 0;
+
+  d = Distance (PosX, PosY, arc->Point1.X, arc->Point1.Y);
+  if (d < i->least)
+    {
+      i->least = d;
+      *i->Arc = arc;
+      *i->Point = &arc->Point1;
+      ret_val = 1;
+    }
+
+  d = Distance (PosX, PosY, arc->Point2.X, arc->Point2.Y);
+  if (d < i->least)
+    {
+      i->least = d;
+      *i->Arc = arc;
+      *i->Point = &arc->Point2;
+      ret_val = 1;
+    }
+  return ret_val;
+}
+
+/* ---------------------------------------------------------------------------
+ * searches an arc-point on all the search layer
+ */
+static bool
+SearchArcPointByLocation (int locked, LayerType **Layer,
+                          ArcType **arc, PointType **Point)
+{
+  struct arc_info info;
+  *Layer = SearchLayer;
+  info.Arc = arc;
+  info.Point = Point;
+  *Point = NULL;
+  info.least = MAX_ARC_POINT_DISTANCE + SearchRadius;
+  info.locked = (locked & LOCKED_TYPE) ? 0 : LOCKFLAG;
+  if (r_search
+      (SearchLayer->arc_tree, &SearchBox, NULL, arcpoint_callback, &info))
+    return true;
+  return false;
+}
 /* ---------------------------------------------------------------------------
  * searches a polygon-point on all layers that are switched on
  * in layerstack order
@@ -1214,6 +1266,14 @@ SearchObjectByLocation (unsigned Type,
 				       (LineTypePtr *) Result2,
 				       (LineTypePtr *) Result3))
 	    return (LINE_TYPE);
+
+	    if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+	      Type & ARCPOINT_TYPE &&
+	      SearchArcPointByLocation (locked,
+					(LayerTypePtr *) Result1,
+					(ArcTypePtr *) Result2,
+					(PointTypePtr *) Result3))
+	    return (ARCPOINT_TYPE);
 
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & ARC_TYPE &&
 	      SearchArcByLocation (locked,

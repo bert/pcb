@@ -1529,6 +1529,12 @@ SetArcBoundingBox (ArcTypePtr Arc)
   Arc->BoundingBox.Y1 -= width;
   Arc->BoundingBox.Y2 += width;
   close_box(&Arc->BoundingBox);
+
+  /* Update the arc end-points */
+  Arc->Point1.X = Arc->X - (double)Arc->Width  * ca1;
+  Arc->Point1.Y = Arc->Y + (double)Arc->Height * sa1;
+  Arc->Point2.X = Arc->X - (double)Arc->Width  * ca2;
+  Arc->Point2.Y = Arc->Y + (double)Arc->Height * sa2;
 }
 
 /* ---------------------------------------------------------------------------
