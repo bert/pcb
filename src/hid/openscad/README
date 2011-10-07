@@ -1,0 +1,61 @@
+PCB
+
+pcb is a computer aided design (CAD) program for the physical
+design of printed circuit boards (PCB).
+
+For installing the release refer to the file 'INSTALL' in the toplevel
+directory.
+
+For additional information read the manual (doc/pcb.pdf) 
+
+If you are updating you may wish to read the ChangeLog
+
+There is also a bug tracking system available which can
+be found from http://pcb.gpleda.org.  
+
+
+OpenSCAD export HID
+
+This is the directory where the OpenSCAD HID for pcb lives.
+
+Please note that there are no OpenSCAD 3D models included in this
+directory, nor in any other directory of pcb.
+
+This because of the choice that "content" is a responsibility of
+the users, and not a responsibility of the pcb developers.
+
+However there are some OpenSCAD 3D models available at:
+
+https://github.com/bert/openscad-models
+
+In this git repository you will find some 3D models (*.scad files) of
+frequently used electronics parts, just to get you started.
+
+Feel free to use, copy, modify these 3D models to your needs, or share by
+git clone and if you choose to, you can put your own 3D models on Github
+for free (as in beer and free speech) too.
+
+The OpenSCAD 3D models are invoked into a toplevel 3D model by means of
+the content of the description field of elements available in the pcb
+file.
+
+In pcb jargon these are known as footprints (in *.fp files) or elements
+(in the *.pcb file).
+
+If the text in the description field contains a ".fp" suffix this will be
+stripped and replaced with a ".scad" suffix in the toplevel 3D model.
+
+Noticed that whitespace < > and tabs <TAB> are removed (stripped) as well.
+
+
+COPYRIGHT
+
+PCB is covered by the GNU General Public License.
+See the individual files for the exact copyright notices.
+
+Contact addresses for paper mail and Email:
+  Harry Eaton
+  6697 Buttonhole Court
+  Columbia, MD 21044
+  haceaton@aplcomm.jhuapl.edu
+
