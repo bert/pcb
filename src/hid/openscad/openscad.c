@@ -85,22 +85,48 @@ RCSID ("$Id$");
 
 static HID_Attribute openscad_options[] =
 {
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --include-dir <string>
+Name of the OpenSCAD 3D models include directory.
+@end ftable
+%end-doc
+*/
     {
-        "OpenSCAD include directory",
+        "include-dir",
         "OpenSCAD include directory where package models reside",
         HID_String,
         0, 0, {0, 0, 0}, 0, 0
     },
 #define HA_openscad_include_dir 0
+
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --output-file <string>
+Name of the OpenSCAD top model file.
+@end ftable
+%end-doc
+*/
     {
-        "OpenSCAD output filename",
+        "output-file",
         "OpenSCAD output top model filename",
         HID_String,
         0, 0, {0, 0, 0}, 0, 0
     },
 #define HA_openscad_file 1
+
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --units <unit>
+Unit of OpenSCAD dimensions. Defaults to mil.
+@end ftable
+%end-doc
+*/
     {
-        "OpenSCAD in mm",
+        "units",
         "tick for OpenSCAD dimensions in mm instead of mils",
         HID_Boolean,
         0, 0, {0, 0, 0}, 0, 0
