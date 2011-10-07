@@ -30,7 +30,7 @@
 
 /*!
  * \file openscad.c
- * \author Copyright 2010 Bert Timmerman <bert.timmerman@xs4all.nl>
+ * \author Copyright 2010, 2011 Bert Timmerman <bert.timmerman@xs4all.nl>
  * \brief Exporter for use with OpenSCAD 3D-modelling.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -523,16 +523,16 @@ openscad_print (void)
     if (openscad_dim_type)
     {
         /* Dimensions in mm. */
-        board_width = COOR_TO_MM * PCB->MaxWidth;
-        board_height = COOR_TO_MM * PCB->MaxHeight;
+        board_width = COORD_TO_MM (PCB->MaxWidth);
+        board_height = COORD_TO_MM (PCB->MaxHeight);
         board_thickness = 1.6;
     }
     else
     {
         /* Dimensions in mil. */
-        board_width = PCB->MaxWidth / 100;
-        board_height = PCB->MaxHeight / 100;
-        board_thickness = 1.6 * MM_TO_MIL;
+        board_width = COORD_TO_MIL (PCB->MaxWidth);
+        board_height = COORD_TO_MIL (PCB->MaxHeight);
+        board_thickness = 1.6 * (1000 / 25.4);
     }
     fprintf (fp, "    /* Modelling a printed circuit board based on maximum dimensions. */\n");
     fprintf (fp, "    difference ()\n");
@@ -546,16 +546,16 @@ openscad_print (void)
         if (openscad_dim_type)
         {
             /* Dimensions in mm. */
-            drill_x = COOR_TO_MM * via->X;
-            drill_y = COOR_TO_MM * via->Y;
-            drill_d = COOR_TO_MM * via->DrillingHole;
+            drill_x = COORD_TO_MM (via->X);
+            drill_y = COORD_TO_MM (via->Y);
+            drill_d = COORD_TO_MM (via->DrillingHole);
         }
         else
         {
             /* Dimensions in mil. */
-            drill_x = via->X / 100;
-            drill_y = via->Y / 100;
-            drill_d = via->DrillingHole / 100;
+            drill_x = COORD_TO_MIL (via->X);
+            drill_y = COORD_TO_MIL (via->Y);
+            drill_d = COORD_TO_MIL (via->DrillingHole);
         }
         fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
     }
@@ -567,16 +567,16 @@ openscad_print (void)
         if (openscad_dim_type)
         {
             /* Dimensions in mm. */
-            drill_x = COOR_TO_MM * pin->X;
-            drill_y = COOR_TO_MM * pin->Y;
-            drill_d = COOR_TO_MM * pin->DrillingHole;
+            drill_x = COORD_TO_MM (pin->X);
+            drill_y = COORD_TO_MM (pin->Y);
+            drill_d = COORD_TO_MM (pin->DrillingHole);
         }
         else
         {
             /* Dimensions in mil. */
-            drill_x = pin->X / 100;
-            drill_y = pin->Y / 100;
-            drill_d = pin->DrillingHole / 100;
+            drill_x = COORD_TO_MIL (pin->X);
+            drill_y = COORD_TO_MIL (pin->Y);
+            drill_d = COORD_TO_MIL (pin->DrillingHole);
         }
         fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
     }
@@ -723,14 +723,14 @@ openscad_print (void)
             if (openscad_dim_type)
             {
                 /* Dimensions in mm. */
-                user_x = 0.000254 * x;
-                user_y = 0.000254 * y;
+                user_x = COORD_TO_MM (x);
+                user_y = COORD_TO_MM (y);
             }
             else
             {
                 /* Dimensions in mils. */
-                user_x = 0.01 * x;
-                user_y = 0.01 * y;
+                user_x = COORD_TO_MIL (x);
+                user_y = COORD_TO_MIL (y);
             }
             /* Test for the occurrence of a ".fp" suffix in the model
              * name string and strip it from the model name string. */
@@ -825,6 +825,7 @@ openscad_do_export (HID_Attr_Val * options)
     openscad_print ();
 }
 
+
 static void
 openscad_parse_arguments (int *argc, char ***argv)
 {
@@ -833,65 +834,22 @@ openscad_parse_arguments (int *argc, char ***argv)
     hid_parse_command_line (argc, argv);
 }
 
-HID openscad_hid = {
-  sizeof (HID),
-  "openscad",
-  "Exports code for a OpenSCAD PCA 3D-model",
-  0, 0, 1, 0, 0, 0,
-  openscad_get_export_options,
-  openscad_do_export,
-  openscad_parse_arguments,
-  0,	/* openscad_invalidate_lr */
-  0,	/* openscad_invalidate_all */
-  0,	/* openscad_set_layer */
-  0,	/* openscad_make_gc */
-  0,	/* openscad_destroy_gc */
-  0,	/* openscad_use_mask */
-  0,	/* openscad_set_color */
-  0,	/* openscad_set_line_cap */
-  0,	/* openscad_set_line_width */
-  0,	/* openscad_set_draw_xor */
-  0,	/* openscad_set_draw_faded */
-  0,	/* openscad_set_line_cap_angle */
-  0,	/* openscad_draw_line */
-  0,	/* openscad_draw_arc */
-  0,	/* openscad_draw_rect */
-  0,	/* openscad_fill_circle */
-  0,	/* openscad_fill_polygon */
-  0,	/* openscad_fill_pcb_polygon */
-  0,	/* openscad_thindraw_pcb_polygon */
-  0,	/* openscad_fill_rect */
-  0,	/* openscad_calibrate */
-  0,	/* openscad_shift_is_pressed */
-  0,	/* openscad_control_is_pressed */
-  0,	/* openscad_mod1_is_pressed */
-  0,	/* openscad_get_coords */
-  0,	/* openscad_set_crosshair */
-  0,	/* openscad_add_timer */
-  0,	/* openscad_stop_timer */
-  0,	/* openscad_watch_file */
-  0,	/* openscad_unwatch_file */
-  0,	/* openscad_add_block_hook */
-  0,	/* openscad_stop_block_hook */
-  0,	/* openscad_log */
-  0,	/* openscad_logv */
-  0,	/* openscad_confirm_dialog */
-  0,	/* openscad_close_confirm_dialog */
-  0,	/* openscad_report_dialog */
-  0,	/* openscad_prompt_for */
-  0,	/* openscad_fileselect */
-  0,	/* openscad_attribute_dialog */
-  0,	/* openscad_show_item */
-  0,	/* openscad_beep */
-  0,	/* openscad_progress */
-  0,	/* openscad_drc_gui */
-  0,	/* openscad_edit_attributes */
-};
+
+HID openscad_hid;
+
 
 void
 hid_openscad_init ()
 {
-  apply_default_hid (&openscad_hid, 0);
+  memset (&openscad_hid, 0, sizeof (HID));
+  common_nogui_init (&openscad_hid);
+  openscad_hid.struct_size = sizeof (HID);
+  openscad_hid.name = "openscad";
+  openscad_hid.description = "OpenSCAD export";
+  openscad_hid.exporter = 1;
+  openscad_hid.get_export_options  = openscad_get_export_options;
+  openscad_hid.do_export           = openscad_do_export;
+  openscad_hid.parse_arguments     = openscad_parse_arguments;
   hid_register_hid (&openscad_hid);
 }
 
