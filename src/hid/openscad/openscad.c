@@ -760,7 +760,7 @@ openscad_print (void)
             }
             /* Test for the occurrence of a ".fp" suffix in the model
              * name string and strip it from the model name string. */
-            openscad_remove_suffix (modelname, "fp");
+            openscad_remove_suffix (modelname, ".fp");
             /* Determine the package type based on the modelname. */
             package_type = openscad_get_package_type_string (modelname);
             /* Write part model data to file test for dimension type. */
