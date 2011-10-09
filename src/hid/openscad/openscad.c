@@ -132,6 +132,22 @@ Unit of OpenSCAD dimensions. Defaults to mil.
         0, 0, {0, 0, 0}, 0, 0
     },
 #define HA_openscad_mm 2
+
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --pcb-thickness <real>
+Printed circuit board thickness.
+@end ftable
+%end-doc
+*/
+    {
+        "pcb-thickness",
+        "Printed circuit board thickness",
+        HID_Real,
+        0, 100, {0, 0, 62.00}, 0, 0
+    },
+#define HA_openscad_thickness 3
 };
 
 
@@ -142,6 +158,7 @@ static HID_Attr_Val openscad_values[NUM_OPTIONS];
 static char *openscad_include_dir;
 static char *openscad_filename;
 static int openscad_dim_type;
+static double openscad_pcb_thickness;
 
 
 typedef struct _StringList
@@ -539,26 +556,25 @@ openscad_print (void)
     fprintf (fp, "\n");
     fprintf (fp, "\n");
     fprintf (fp, "/* Uncomment the following line for an example. */\n");
-    fprintf (fp, "%s ();\n", EMPTY (PCB->Name));
+    fprintf (fp, "//%s ();\n", EMPTY (PCB->Name));
     fprintf (fp, "\n");
     fprintf (fp, "\n");
     fprintf (fp, "module %s ()\n", EMPTY (PCB->Name));
     fprintf (fp, "{\n");
     /* Lookup the board dimensions and create an entry in the OpenSCAD
      * file. */
+    board_thickness = openscad_pcb_thickness;
     if (openscad_dim_type)
     {
         /* Dimensions in mm. */
         board_width = COORD_TO_MM (PCB->MaxWidth);
         board_height = COORD_TO_MM (PCB->MaxHeight);
-        board_thickness = 1.6;
     }
     else
     {
         /* Dimensions in mil. */
         board_width = COORD_TO_MIL (PCB->MaxWidth);
         board_height = COORD_TO_MIL (PCB->MaxHeight);
-        board_thickness = 1.6 * (1000 / 25.4);
     }
     fprintf (fp, "    /* Modelling a printed circuit board based on maximum dimensions. */\n");
     fprintf (fp, "    difference ()\n");
@@ -847,6 +863,8 @@ openscad_do_export (HID_Attr_Val * options)
     }
     /* Get the dimension type. */
     openscad_dim_type = options[HA_openscad_mm].int_value;
+    /* Get the pcb thickness. */
+    openscad_pcb_thickness = options[HA_openscad_thickness].real_value;
     /* Call the worker function which is creating the output files. */
     openscad_print ();
 }
