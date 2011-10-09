@@ -1910,6 +1910,7 @@ select the desired exporter.
 * gcode::              G-code.
 * gerber::             Gerber.
 * nelma::              Nelma.
+* openscad::           OpenSCAD.
 * png::		       Image.
 * ps::		       Postscript.
 * eps::		       Eps.
@@ -2010,6 +2011,239 @@ Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files.
 @cindex nelma
 
 Numerical analysis package export.
+
+@c ------------------- OpenSCAD exporter paragraph ---------------------
+
+@node openscad
+@subsection OpenSCAD (openscad)
+@cindex openscad
+
+The OpenSCAD exporter creates a toplevel 3D model file.
+
+About OpenSCAD:
+OpenSCAD is a software for creating solid 3D CAD objects.
+It is free software and available for Linux/UNIX, MS Windows and
+Mac OS X.
+Unlike most free software for creating 3D models (such as the famous
+application Blender) it does not focus on the artistic aspects of 3D
+modelling but instead on the CAD aspects.
+Thus it might be the application you are looking for when you are
+planning to create 3D models of parts but pretty sure is not what you
+are looking for when you are more interested in creating
+computer-animated movies.
+
+In this OpenSCAD file definitions for a 3D model of the current pcb
+design and 3D models of electronics parts on this pcb are included
+indirectly.
+
+@b{OpenSCAD will only succeed in renderering a complete 3D model
+of the pcb design if, and only if, all invoked 3D models of the
+electronics parts are present and within scope of the toplevel
+OpenSCAD file. This is similar to compiling and building a computer
+program.}
+
+The inclusion of 3D models of the pcb and parts is done in two steps,
+and resembles the generation of a programming code file, in fact the
+OpenSCAD syntax is like a subset of the programming language C.
+
+In step 1 the exporter generates a copyright notice and "include"
+references to external definition files for the printed circuit board
+itself, and all needed parts populating the printed circuit board.
+@sp 1
+An example of the file header:
+@sp 1
+@smallexample
+/*!
+ * \file MyBoard.scad
+ *
+ * \author Copyright <user>.
+ *
+ * \brief PCB - OpenSCAD 3D-model exporter Version 1.0
+ *
+ * \date Sat 08 Oct 2011 04:08:49 PM GMT UTC
+ *
+ * This OpenSCAD 3D-model is free software; you may redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * As a special exception, if you create a design which uses this
+ * OpenSCAD 3D-model, and embed this 3D-model file or unaltered portions
+ * of this OpenSCAD 3D-model into the design, this OpenSCAD 3D-model does
+ * not by itself cause the resulting design to be covered by the GNU
+ * General Public License.
+ * This exception does not however invalidate any other reasons why
+ * the design itself might be covered by the GNU General Public
+ * License.
+ * If you modify this OpenSCAD 3D-model, you may extend this exception
+ * to your version of the OpenSCAD 3D-model, but you are not obligated
+ * to do so.
+ * If you do not wish to do so, delete this exception statement from
+ * your version.
+ * 
+ * All dimensions in mm. Angles in degrees.
+ */
+
+
+include <COLORS.scad>
+include <CONST.scad>
+include <BOARD.scad>
+include <PIN_HOLE.scad>
+include <VIA_HOLE.scad>
+include <PACKAGES.scad>
+use <INSERT_PART_MODEL.scad>
+@end smallexample
+@sp 1
+@table @b
+@item include <COLORS.scad>
+This OpenSCAD file contains color definition.
+
+@item include <CONST.scad>
+This OpenSCAD file contains constants.
+
+@item include <BOARD.scad>
+This OpenSCAD file creates a rectangular printed circuit board.
+
+@item include <PIN_HOLE.scad>
+This OpenSCAD file creates a hole for a pin.
+
+@item include <VIA_HOLE.scad>
+This OpenSCAD file creates a hole for a via.
+
+@item include <PACKAGES.scad>
+This OpenSCAD file is a container file for user specified OpenSCAD 3D
+model definition files.
+This is done in this way to allow the user to add 3D-models without
+recompiling the pcb sources (further explanation is given in step 2).
+
+@item use <INSERT_PART_MODEL.scad>
+This OpenSCAD file is the dispatcher for all package types.
+@end table
+
+@sp 1
+In step 2 the exporter generates calls to a rectangular printed circuit
+board by means of the maximimum width and height of the pcb, and then
+"subtracts" all holes of pins and vias.
+After generating the printed circuit board itself, calls to place all
+the needed parts on either the top or bottom side are generated.
+@sp 1
+An example of the second step:
+@sp 1
+@smallexample
+/* Uncomment the following line for an example. */
+//MyBoard ();
+
+
+module MyBoard ()
+@{
+    /* Modelling a printed circuit board based on maximum dimensions. */
+    difference ()
+    @{
+        BOARD (66.04, 29.21, 1.60);
+        /* Now subtract some via holes. */
+        VIA_HOLE (6.35, 14.61, 0.51, 1.60);
+        VIA_HOLE (15.88, 14.61, 0.51, 1.60);
+        .
+        .
+        .
+        VIA_HOLE (57.15, 3.17, 0.51, 1.60);
+        /* Now subtract some pin holes. */
+        PIN_HOLE (59.05, 1.91, 1.17, 1.60);
+        .
+        .
+        .
+        PIN_HOLE (26.04, 1.91, 1.17, 1.60);
+    @}
+
+    /* Now insert some element models.
+    INSERT_PART_MODEL ("Package type", "Model name", Tx, Ty, Rz, "Side", "Value"); // RefDes */
+    INSERT_PART_MODEL ("CAPC", "CAPC3216N", 26.04, 23.50, 90.00, "bottom", "100nF"); // refdes: C209
+    INSERT_PART_MODEL ("SOIC", "SOIC127P600X155-8N", 26.67, 15.24, 0.00, "top", "CA3140M"); // refdes: U203
+    .
+    .
+    .
+    INSERT_PART_MODEL ("RESC", "RESC3216N", 54.61, 15.24, 270.00, "top", "15k"); // refdes: R258
+    INSERT_PART_MODEL ("CAPAE", "CAPAE400X530N", 20.95, 24.13, 270.00, "top", "1uF/50V"); // refdes: C203
+    INSERT_PART_MODEL ("DIOMELF", "DIOMELF3216X16N", 64.14, 13.97, 270.00, "top", "LL4148"); // refdes: D253
+@}
+
+/* EOF */
+@end smallexample
+@sp 1
+The include files generated in step 1 contain the indirect inclusions of
+a package type.
+Based on the contents of the description field of elements available in
+the pcb file, the exporter assumes that the first sequence of alpabetic
+characters, before the first non-alphabetic character, is the package
+type name, similar as in the IPC-7351 Landpattern Naming Convention.
+Examples of such a string might be "CAPC3216N" for the above chip
+capacitor (CAPC) or "SOIC127P600X155-8N.fp" for an eight lead Small
+Outline IC (SOIC).
+In this way the OpenSCAD exporter can indirectly include the CAPC and
+SOIC definitions through the "PACKAGES.scad" file, and all other
+definition files needed, and instantiate a member of the package type
+family on it's location without knowing exactly how to model the part.
+@sp 1
+The part models are inserted in step 2 with calls like in this example:
+@sp 1
+Or in generic parameters:
+@sp 1
+@smallexample
+INSERT_PART_MODEL ("Package type", "Model name", Tx, Ty, Rz, "Side", "Value"); // RefDes */
+@end smallexample
+@sp 1
+This call has the following parameters:
+@table @b
+@item "Package type"
+refers to a package family. The user can create
+(or download if available) the OpenSCAD 3D model file for the package
+type.
+For example: the CAPC chip capacitors in the above example are defined
+in an OpenSCAD file called "CAPC.scad" containing a definition to a
+"CAPC3216N" package ("Model name").
+
+@item "Model name"
+refers to the instance of the package within it's
+family of packages ("Package type").
+If the text in the description field contains a ".fp" suffix, then this
+suffix will be stripped from the toplevel 3D model field "Model name".
+
+@item Tx Ty
+are the coordinates of the insertion point of
+the part in a right hand Cartesian coordinate system, which differs from
+the pcb native coordinate system, either in mm or mils (default).
+
+@item Rz
+is the rotation angle in degrees, Counter Clock-Wise (CCW) is
+represented with a positive value.
+
+@item "Side"
+refers to the side on which the part is mounted.
+Valid values for now are "top" and "bottom", the value "buried" is not implemented yet,
+as the pcb program itself is not aware of this possibility.
+
+@item "Value"
+refers to the value field in the element header.
+
+@item Refdes
+refers to the reference designator field in the element header.
+@end table
+@sp 1
+The OpenSCAD exporter command line parameters are:
+@table @b
+@item --include-dir <string>
+Name of the OpenSCAD 3D models include directory.
+
+@item --output-file <string>
+Name of the OpenSCAD top model file.
+
+@item --units <boolean>
+Unit of OpenSCAD dimensions. Defaults to mil.
+
+@item --pcb-thickness <real>
+Printed circuit board thickness.
+@end table
+
+@c ---------------- End of OpenSCAD exporter paragraph -----------------
 
 @node png
 @subsection Image (png)
