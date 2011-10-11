@@ -37,6 +37,13 @@ Mouse =
 # If you want zoom to center, do this instead.
   #Up = { {Zoom(0.8) Center()} }
   #Down = { {Zoom(1.25) Center()} }
+
+  scroll-left = {
+    Scroll(left)
+  }
+  scroll-right = {
+    Scroll(right)
+  }
 }
 
 MainMenu =
