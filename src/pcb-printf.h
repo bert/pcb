@@ -89,7 +89,7 @@ enum e_allow {
                    ALLOW_M  | ALLOW_KM | ALLOW_CMIL |
                    ALLOW_MIL | ALLOW_IN,
 #else
-  ALLOW_READABLE = ALLOW_CMIL,
+  ALLOW_READABLE = ALLOW_MIL | ALLOW_MM,
 #endif
 
   ALLOW_ALL = ~0

@@ -412,9 +412,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
           g_string_append_printf (buff, " %s", suffix);
           break;
         case FILE_MODE:
-#if 0
           g_string_append_printf (buff, "%s", suffix);
-#endif
           break;
         }
     }
