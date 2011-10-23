@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a libipcd356.a
+	libgcode.a libdxf.a libipcd356.a
 
 pcblib_DATA= \
 	default_font \
@@ -236,6 +236,7 @@ EXTRA_DIST= \
 	default_font \
 	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
+	$(srcdir)/hid/dxf/hid.conf \
 	$(srcdir)/hid/gcode/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
@@ -416,6 +417,11 @@ libbom_a_CPPFLAGS = -I$(top_srcdir)
 libbom_a_SOURCES = \
 	hid/hidint.h \
 	hid/bom/bom.c
+
+libdxf_a_CPPFLAGS = -I$(top_srcdir)
+libdxf_a_SOURCES = \
+	hid/hidint.h \
+	hid/dxf/dxf.c
 
 libipcd356_a_CPPFLAGS = -I$(top_srcdir)
 libipcd356_a_SOURCES = \
