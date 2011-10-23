@@ -160,7 +160,7 @@ static char *pcb_basename (char *p);
 /* Hole[] in Polygon.  */
 #define PCB_FILE_VERSION_HOLES 20100606
 /* First version ever saved.  */
-#define PCB_FILE_VERSION_BASELINE 20070407
+#define PCB_FILE_VERSION_BASELINE 20091103
 
 int
 PCBFileVersionNeeded (void)
