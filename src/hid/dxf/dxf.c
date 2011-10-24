@@ -1101,9 +1101,6 @@ dxf_write_block
   {
     fprintf (fp, "  1\n%s%s%s.dwg\n", xref_name, DXF_DIR_SEPARATOR, block_name);
   }
-//  if (strcmp (linetype, DXF_DEFAULT_LINETYPE) != 0) fprintf (fp, "  6\n%s\n", linetype);
-//  if (thickness != 0.0) fprintf (fp, " 39\n%f\n", thickness);
-//  if (color != DXF_COLOR_BYLAYER) fprintf (fp, " 62\n%d\n", color);
   if (paperspace == DXF_PAPERSPACE)
   {
     fprintf (fp, " 67\n%d\n", DXF_PAPERSPACE);
