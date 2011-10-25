@@ -4974,7 +4974,7 @@ dxf_draw_arc
   dxf_arcstop_y = DXF_Y(PCB, arcStopY);
   /*
    * This is just a dirty hack for AutoCAD doesn't have endcap styles.
-   * Donuts can not be implementend in the trace polyline since donuts
+   * Donuts can not be implemented in the trace polyline since donuts
    * are a closed polyline themselves.
    */
   if (gc->cap == ROUND)
