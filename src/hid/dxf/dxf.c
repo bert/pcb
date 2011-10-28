@@ -1993,7 +1993,7 @@ dxf_write_header_metric_new ()
   fprintf (fp, "  9\n$PEXTMIN\n 10\n1.000000E+20\n 20\n1.000000E+20\n 30\n1.000000E+20\n");
   fprintf (fp, "  9\n$PEXTMAX\n 10\n-1.000000E+20\n 20\n-1.000000E+20\n 30\n-1.000000E+20\n");
   fprintf (fp, "  9\n$PLIMMIN\n 10\n0.0\n 20\n0.0\n");
-  fprintf (fp, "  9\n$PLIMMAX\n 10\n420.0\n 20\n297.0");
+  fprintf (fp, "  9\n$PLIMMAX\n 10\n420.0\n 20\n297.0\n");
   fprintf (fp, "  9\n$UNITMODE\n 70\n     0\n");
   fprintf (fp, "  9\n$VISRETAIN\n 70\n     1\n");
   fprintf (fp, "  9\n$PLINEGEN\n 70\n     0\n");
