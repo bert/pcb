@@ -1796,7 +1796,7 @@ dxf_write_header_imperial_new ()
 #endif
   /* write an imperial HEADER section */
   fprintf (fp, "  0\nSECTION\n");
-  fprintf (fp, "  2\nHEADER\n");
+  fprintf (fp, "  2\nHEADER\n"); /* Section name. */
   fprintf (fp, "  9\n$ACADVER\n  1\nAC1014\n"); /* AutoCAD drawing database version number. */
   fprintf (fp, "  9\n$ACADMAINTVER\n 70\n     0\n"); /* Maintenance version number. */
   fprintf (fp, "  9\n$DWGCODEPAGE\n  3\nANSI_1252\n"); /* Drawing code page. */
@@ -1964,222 +1964,222 @@ dxf_write_header_imperial_new ()
   fprintf (fp, "  0\nENDSEC\n");
   /* write a CLASSES section */
   fprintf (fp, "  0\nSECTION\n");
-  fprintf (fp, "  2\nCLASSES\n");
+  fprintf (fp, "  2\nCLASSES\n"); /* Section name. */
   fprintf (fp, "  0\nENDSEC\n");
   /* write a TABLES section */
   fprintf (fp, "  0\nSECTION\n");
-  fprintf (fp, "  2\nTABLES\n");
+  fprintf (fp, "  2\nTABLES\n"); /* Section name. */
   /* write a VPORT (viewport) table entry */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nVPORT\n");
-  fprintf (fp, "  5\n23A\n");
+  fprintf (fp, "  2\nVPORT\n"); /* Table name. */
+  fprintf (fp, "  5\n23A\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     2\n");
+  fprintf (fp, " 70\n     2\n"); /* Standard flag values. */
   fprintf (fp, "  0\nVPORT\n");
-  fprintf (fp, "  5\n261\n");
+  fprintf (fp, "  5\n261\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
   fprintf (fp, "100\nAcDbViewportTableRecord\n");
-  fprintf (fp, "  2\n*ACTIVE\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, " 10\n0.0\n 20\n0.0\n");
-  fprintf (fp, " 11\n1.0\n 21\n1.0\n");
-  fprintf (fp, " 12\n43.998872\n 22\n17.506577\n");
-  fprintf (fp, " 13\n0.0\n 23\n0.0\n");
-  fprintf (fp, " 14\n1.0\n 24\n1.0\n");
-  fprintf (fp, " 15\n10.0\n 25\n10.0\n");
-  fprintf (fp, " 16\n0.0\n 26\n0.0\n 36\n1.0\n");
-  fprintf (fp, " 17\n0.0\n 27\n0.0\n 37\n0.0\n");
-  fprintf (fp, " 40\n47.164502\n");
-  fprintf (fp, " 41\n1.882514\n");
-  fprintf (fp, " 42\n50.0\n");
-  fprintf (fp, " 43\n0.0\n");
-  fprintf (fp, " 44\n0.0\n");
-  fprintf (fp, " 50\n0.0\n");
-  fprintf (fp, " 51\n0.0\n");
-  fprintf (fp, " 71\n     0\n");
-  fprintf (fp, " 72\n   100\n");
-  fprintf (fp, " 73\n     1\n");
-  fprintf (fp, " 74\n     3\n");
-  fprintf (fp, " 75\n     0\n");
-  fprintf (fp, " 76\n     0\n");
-  fprintf (fp, " 77\n     0\n");
-  fprintf (fp, " 78\n     0\n");
+  fprintf (fp, "  2\n*ACTIVE\n"); /* Viewport name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, " 10\n0.0\n 20\n0.0\n"); /* Lower-left corner of viewport. */
+  fprintf (fp, " 11\n1.0\n 21\n1.0\n"); /* Upper-right corner of viewport. */
+  fprintf (fp, " 12\n43.998872\n 22\n17.506577\n"); /* View center point (in DCS). */
+  fprintf (fp, " 13\n0.0\n 23\n0.0\n"); /* Snap base point. */
+  fprintf (fp, " 14\n1.0\n 24\n1.0\n"); /* Snap spacing X and Y. */
+  fprintf (fp, " 15\n10.0\n 25\n10.0\n"); /* Grid spacing X and Y. */
+  fprintf (fp, " 16\n0.0\n 26\n0.0\n 36\n1.0\n"); /* View direction from target point (in WCS). */
+  fprintf (fp, " 17\n0.0\n 27\n0.0\n 37\n0.0\n"); /* View target point (in WCS). */
+  fprintf (fp, " 40\n47.164502\n"); /* View height. */
+  fprintf (fp, " 41\n1.882514\n"); /* Viewport aspect ratio. */
+  fprintf (fp, " 42\n50.0\n"); /* Lens length. */
+  fprintf (fp, " 43\n0.0\n"); /* Front clipping plane (offset from target point). */
+  fprintf (fp, " 44\n0.0\n"); /* Back clipping plane (offset from target point). */
+  fprintf (fp, " 50\n0.0\n"); /* Snap rotation angle. */
+  fprintf (fp, " 51\n0.0\n"); /* View twist angle. */
+  fprintf (fp, " 71\n     0\n"); /* View mode (see VIEWMODE system variable). */
+  fprintf (fp, " 72\n   100\n"); /* Circle zoom percent. */
+  fprintf (fp, " 73\n     1\n"); /* Fast zoom setting. */
+  fprintf (fp, " 74\n     3\n"); /* UCSICON setting. */
+  fprintf (fp, " 75\n     0\n"); /* Snap on/off.*/
+  fprintf (fp, " 76\n     0\n"); /* Grid on/off. */
+  fprintf (fp, " 77\n     0\n"); /* Snap style. */
+  fprintf (fp, " 78\n     0\n"); /* Snap isopair. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write LTYPE (linetype) table entries */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nLTYPE\n");
-  fprintf (fp, "  5\n237\n");
+  fprintf (fp, "  2\nLTYPE\n"); /* Table name. */
+  fprintf (fp, "  5\n237\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     1\n");
-  fprintf (fp, "  0\nLTYPE\n");
-  fprintf (fp, "  5\n244\n");
-  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, " 70\n     1\n"); /* Standard flag values. */
   /* write a record entry for a BYBLOCK linetype */
-  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
-  fprintf (fp, "  2\nBYBLOCK\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, "  3\n\n");
-  fprintf (fp, " 72\n    65\n");
-  fprintf (fp, " 73\n     0\n");
-  fprintf (fp, " 40\n0.0\n");
   fprintf (fp, "  0\nLTYPE\n");
-  fprintf (fp, "  5\n245\n");
+  fprintf (fp, "  5\n244\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
+  fprintf (fp, "  2\nBYBLOCK\n"); /* Linetype name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, "  3\n\n"); /* Descriptive text for linetype. */
+  fprintf (fp, " 72\n    65\n"); /* Alignment code; value is always 65, the ASCII code for A. */
+  fprintf (fp, " 73\n     0\n"); /* The number of linetype elements. */
+  fprintf (fp, " 40\n0.0\n"); /* Total pattern length. */
   /* write a record entry for a BYLAYER linetype */
-  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
-  fprintf (fp, "  2\nBYLAYER\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, "  3\n\n");
-  fprintf (fp, " 72\n    65\n");
-  fprintf (fp, " 73\n     0\n");
-  fprintf (fp, " 40\n0.0\n");
   fprintf (fp, "  0\nLTYPE\n");
-  fprintf (fp, "  5\n246\n");
+  fprintf (fp, "  5\n245\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
-  /* write a record entry for a CONTINUOUS linetype */
   fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
-  fprintf (fp, "  2\nCONTINUOUS\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, "  3\nSolid line\n");
-  fprintf (fp, " 72\n    65\n");
-  fprintf (fp, " 73\n     0\n");
-  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, "  2\nBYLAYER\n"); /* Linetype name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, "  3\n\n"); /* Descriptive text for linetype. */
+  fprintf (fp, " 72\n    65\n"); /* Alignment code; value is always 65, the ASCII code for A. */
+  fprintf (fp, " 73\n     0\n"); /* The number of linetype elements. */
+  fprintf (fp, " 40\n0.0\n"); /* Total pattern length. */
+  /* write a record entry for a CONTINUOUS linetype */
+  fprintf (fp, "  0\nLTYPE\n");
+  fprintf (fp, "  5\n246\n"); /* Handle. */
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
+  fprintf (fp, "  2\nCONTINUOUS\n"); /* Linetype name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, "  3\nSolid line\n"); /* Descriptive text for linetype. */
+  fprintf (fp, " 72\n    65\n"); /* Alignment code; value is always 65, the ASCII code for A. */
+  fprintf (fp, " 73\n     0\n"); /* The number of linetype elements. */
+  fprintf (fp, " 40\n0.0\n"); /* Total pattern length. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write LAYER table entries */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nLAYER\n");
-  fprintf (fp, "  5\n234\n");
+  fprintf (fp, "  2\nLAYER\n"); /* Table name. */
+  fprintf (fp, "  5\n234\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     2\n");
-  fprintf (fp, "  0\nLAYER\n");
-  fprintf (fp, "  5\n240\n");
-  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, " 70\n     2\n"); /* Standard flag values. */
   /* write a record entry for layer "0" */
-  fprintf (fp, "100\nAcDbLayerTableRecord\n");
-  fprintf (fp, "  2\n0\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, " 62\n     7\n");
-  fprintf (fp, "  6\nCONTINUOUS\n");
   fprintf (fp, "  0\nLAYER\n");
-  fprintf (fp, "  5\n251\n");
+  fprintf (fp, "  5\n240\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
-  /* * write a record entry for a layer "ASHADE" */
   fprintf (fp, "100\nAcDbLayerTableRecord\n");
-  fprintf (fp, "  2\nASHADE\n");
-  fprintf (fp, " 70\n     4\n");
-  fprintf (fp, " 62\n     7\n");
-  fprintf (fp, "  6\nCONTINUOUS\n");
+  fprintf (fp, "  2\n0\n"); /* Layer name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, " 62\n     7\n"); /* Color number (if negative, layer is Off). */
+  fprintf (fp, "  6\nCONTINUOUS\n"); /* Linetype name. */
+  /* * write a record entry for a layer "ASHADE" */
+  fprintf (fp, "  0\nLAYER\n");
+  fprintf (fp, "  5\n251\n"); /* Handle. */
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbLayerTableRecord\n");
+  fprintf (fp, "  2\nASHADE\n"); /* Layer name. */
+  fprintf (fp, " 70\n     4\n"); /* Standard flag values. */
+  fprintf (fp, " 62\n     7\n"); /* Color number (if negative, layer is Off). */
+  fprintf (fp, "  6\nCONTINUOUS\n"); /* Linetype name. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write STYLE table entries */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nSTYLE\n");
-  fprintf (fp, "  5\n235\n");
+  fprintf (fp, "  2\nSTYLE\n"); /* Table name. */
+  fprintf (fp, "  5\n235\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     2\n");
-  fprintf (fp, "  0\nSTYLE\n");
-  fprintf (fp, "  5\n241\n");
-  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, " 70\n     2\n"); /* Standard flag values. */
   /* write a record entry for a style "STANDARD" */
-  fprintf (fp, "100\nAcDbTextStyleTableRecord\n");
-  fprintf (fp, "  2\nSTANDARD\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, " 40\n0.0\n");
-  fprintf (fp, " 41\n1.0\n");
-  fprintf (fp, " 50\n0.0\n");
-  fprintf (fp, " 71\n     0\n");
-  fprintf (fp, " 42\n2.5\n");
-  fprintf (fp, "  3\ntxt\n");
-  fprintf (fp, "  4\n\n");
   fprintf (fp, "  0\nSTYLE\n");
-  fprintf (fp, "  5\n252\n");
+  fprintf (fp, "  5\n241\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
-  /* write a record entry for a style "ASHADE" */
   fprintf (fp, "100\nAcDbTextStyleTableRecord\n");
-  fprintf (fp, "  2\nASHADE\n");
-  fprintf (fp, " 70\n     0\n");
-  fprintf (fp, " 40\n0.2\n");
-  fprintf (fp, " 41\n1.0\n");
-  fprintf (fp, " 50\n0.0\n");
-  fprintf (fp, " 71\n     0\n");
-  fprintf (fp, " 42\n2.5\n");
-  fprintf (fp, "  3\nsimplex.shx\n");
-  fprintf (fp, "  4\n\n");
+  fprintf (fp, "  2\nSTANDARD\n"); /* Style name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, " 40\n0.0\n"); /* Fixed text height; 0 if not fixed/ */
+  fprintf (fp, " 41\n1.0\n"); /* Width factor. */
+  fprintf (fp, " 50\n0.0\n"); /* Oblique angle. */
+  fprintf (fp, " 71\n     0\n"); /* Text generation flags; 2 = Text is backward (mirrored in X); 4 = Text is upside down (mirrored in Y). */
+  fprintf (fp, " 42\n2.5\n"); /* Last height used. */
+  fprintf (fp, "  3\ntxt\n"); /* Primary font file name. */
+  fprintf (fp, "  4\n\n"); /* Bigfont file name; blank if none. */
+  /* write a record entry for a style "ASHADE" */
+  fprintf (fp, "  0\nSTYLE\n");
+  fprintf (fp, "  5\n252\n"); /* Handle. */
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbTextStyleTableRecord\n");
+  fprintf (fp, "  2\nASHADE\n"); /* Style name. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, " 40\n0.2\n"); /* Fixed text height; 0 if not fixed/ */
+  fprintf (fp, " 41\n1.0\n"); /* Width factor. */
+  fprintf (fp, " 50\n0.0\n"); /* Oblique angle. */
+  fprintf (fp, " 71\n     0\n"); /* Text generation flags; 2 = Text is backward (mirrored in X); 4 = Text is upside down (mirrored in Y). */
+  fprintf (fp, " 42\n2.5\n"); /* Last height used. */
+  fprintf (fp, "  3\nsimplex.shx\n"); /* Primary font file name. */
+  fprintf (fp, "  4\n\n"); /* Bigfont file name; blank if none. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write a VIEW table entry */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nVIEW\n");
-  fprintf (fp, "  5\n238\n");
+  fprintf (fp, "  2\nVIEW\n"); /* Table name. */
+  fprintf (fp, "  5\n238\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write a UCS (User Coordinate System) table entry */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nUCS\n");
-  fprintf (fp, "  5\n239\n");
+  fprintf (fp, "  2\nUCS\n"); /* Table name. */
+  fprintf (fp, "  5\n239\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write a APPID (APPlication ID) table entry */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nAPPID\n");
-  fprintf (fp, "  5\n23B\n");
+  fprintf (fp, "  2\nAPPID\n"); /* Table name. */
+  fprintf (fp, "  5\n23B\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     6\n");
-  fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n242\n");
-  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, " 70\n     6\n"); /* Standard flag values. */
   /* write a record entry for a appid "ACAD" */
-  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nACAD\n");
-  fprintf (fp, " 70\n     0\n");
   fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n253\n");
+  fprintf (fp, "  5\n242\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nACAD\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   /* write a record entry for a appid "AVE_RENDER" */
-  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nAVE_RENDER\n");
-  fprintf (fp, " 70\n     0\n");
   fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n254\n");
+  fprintf (fp, "  5\n253\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_RENDER\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   /* write a record entry for a appid "AVE_ENTITY_MATERIAL" */
-  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nAVE_ENTITY_MATERIAL\n");
-  fprintf (fp, " 70\n     0\n");
   fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n255\n");
+  fprintf (fp, "  5\n254\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_ENTITY_MATERIAL\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   /* write a record entry for a appid "AVE_FINISH" */
-  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nAVE_FINISH\n");
-  fprintf (fp, " 70\n     0\n");
   fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n256\n");
+  fprintf (fp, "  5\n255\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_FINISH\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   /* write a record entry for a appid "AVE_MATERIAL" */
-  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nAVE_MATERIAL\n");
-  fprintf (fp, " 70\n     0\n");
   fprintf (fp, "  0\nAPPID\n");
-  fprintf (fp, "  5\n257\n");
+  fprintf (fp, "  5\n256\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTableRecord\n");
-  /* write a record entry for a appid "AVE_GLOBAL" */
   fprintf (fp, "100\nAcDbRegAppTableRecord\n");
-  fprintf (fp, "  2\nAVE_GLOBAL\n");
-  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  2\nAVE_MATERIAL\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  /* write a record entry for a appid "AVE_GLOBAL" */
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n257\n"); /* Handle. */
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_GLOBAL\n"); /* User-supplied (or application-supplied) application name (for extended data). These table entries maintain a set of names for all registered applications. */
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   fprintf (fp, "  0\nENDTAB\n");
   /* write a DIMSTYLE (DIMensioning STYLE) table entry */
   fprintf (fp, "  0\nTABLE\n");
-  fprintf (fp, "  2\nDIMSTYLE\n");
-  fprintf (fp, "  5\n23C\n");
+  fprintf (fp, "  2\nDIMSTYLE\n"); /* Table name. */
+  fprintf (fp, "  5\n23C\n"); /* Handle. */
   fprintf (fp, "100\nAcDbSymbolTable\n");
-  fprintf (fp, " 70\n     1\n");
-  fprintf (fp, "  0\nDIMSTYLE\n");
-  fprintf (fp, "105\n258\n");
-  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, " 70\n     1\n"); /* Standard flag values. */
   /* write a record entry for a dimstyle "STANDARD" */
+  fprintf (fp, "  0\nDIMSTYLE\n");
+  fprintf (fp, "105\n258\n"); /* Handle. */
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
   fprintf (fp, "100\nAcDbDimStyleTableRecord\n");
-  fprintf (fp, "  2\nSTANDARD\n");
+  fprintf (fp, "  2\nSTANDARD\n"); /* Dimension style name. */
   fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
   fprintf (fp, "  3\n\n"); /* DIMPOST */
   fprintf (fp, "  4\n\n"); /* DIMAPOST */
