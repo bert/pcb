@@ -1797,12 +1797,446 @@ dxf_write_header_imperial_new ()
   /* write an imperial HEADER section */
   fprintf (fp, "  0\nSECTION\n");
   fprintf (fp, "  2\nHEADER\n");
-  fprintf (fp, "  9\n$ACADVER\n  1\nAC1014\n");
-  fprintf (fp, "  9\n$ACADMAINTVER\n 70\n     0\n");
-  fprintf (fp, "  9\n$DWGCODEPAGE\n  3\nANSI_1252\n");
-  fprintf (fp, "  9\n$INSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n");
-  /*! \todo more lines to be added */
-
+  fprintf (fp, "  9\n$ACADVER\n  1\nAC1014\n"); /* AutoCAD drawing database version number. */
+  fprintf (fp, "  9\n$ACADMAINTVER\n 70\n     0\n"); /* Maintenance version number. */
+  fprintf (fp, "  9\n$DWGCODEPAGE\n  3\nANSI_1252\n"); /* Drawing code page. */
+  fprintf (fp, "  9\n$INSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n"); /* Insertion base set by BASE command (in WCS). */
+  fprintf (fp, "  9\n$EXTMIN\n0 10\n-0.012816\n 20\n-0.009063\n 30\n-0.001526\n"); /* X, Y, and Z drawing extents lower-left corner (in WCS). */
+  fprintf (fp, "  9\n$EXTMAX\n 10\n88.01056\n 20\n35.022217\n 30\n0.0\n"); /* X, Y, and Z drawing extents upper-right corner (in WCS). */
+  fprintf (fp, "  9\n$LIMMIN\n 10\n0.0\n 20\n0.0\n"); /* XY drawing limits lower-left corner (in WCS). */
+  fprintf (fp, "  9\n$LIMMAX\n 10\n420.0\n 20\n297.0\n"); /* XY drawing limits upper-right corner (in WCS). */
+  fprintf (fp, "  9\n$ORTHOMODE\n 70\n     0\n"); /* Ortho mode on if nonzero. */
+  fprintf (fp, "  9\n$REGENMODE\n 70\n     1\n"); /* REGENAUTO mode on if nonzero. */
+  fprintf (fp, "  9\n$FILLMODE\n 70\n     1\n"); /* Fill mode on if nonzero. */
+  fprintf (fp, "  9\n$QTEXTMODE\n 70\n     0\n"); /* Quick text mode on if nonzero. */
+  fprintf (fp, "  9\n$MIRRTEXT\n 70\n     1\n"); /* Mirror text if nonzero. */
+  fprintf (fp, "  9\n$DRAGMODE\n 70\n     2\n"); /* 0 = off, 1 = on, 2 = auto. */
+  fprintf (fp, "  9\n$LTSCALE\n 40\n1.0\n"); /* Global linetype scale. */
+  fprintf (fp, "  9\n$OSMODE\n 70\n   125\n"); /* Running object snap modes. */
+  fprintf (fp, "  9\n$ATTMODE\n 70\n     1\n"); /* Attribute visibility: 0 = none, 1 = normal, 2 = all. */
+  fprintf (fp, "  9\n$TEXTSIZE\n 40\n0.1\n"); /* Default text height = 100 mil. */
+  fprintf (fp, "  9\n$TRACEWID\n 40\n1.0\n"); /* Default trace width. */
+  fprintf (fp, "  9\n$TEXTSTYLE\n  7\nSTANDARD\n"); /* Current text style name. */
+  fprintf (fp, "  9\n$CLAYER\n  8\n0\n"); /* Current layer name. */
+  fprintf (fp, "  9\n$CELTYPE\n  6\nBYLAYER\n"); /* Entity linetype name, or BYBLOCK or BYLAYER. */
+  fprintf (fp, "  9\n$CECOLOR\n 62\n   256\n"); /* Current entity color number: 0 = BYBLOCK, 256 = BYLAYER. */
+  fprintf (fp, "  9\n$CELTSCALE\n 40\n1.0\n"); /* Current entity linetype scale. */
+  fprintf (fp, "  9\n$DELOBJ\n 70\n     1\n"); /* Controls object deletion: 0=deleted, 1=retained. */
+  fprintf (fp, "  9\n$DISPSILH\n 70\n     0\n"); /* Controls the display of silhouette curves of body objects in wire-frame mode: 0=Off, 1=On. */
+  fprintf (fp, "  9\n$DIMSCALE\n 40\n1.0\n"); /* Overall dimensioning scale factor. */
+  fprintf (fp, "  9\n$DIMASZ\n 40\n0.1\n"); /* Dimensioning arrow size = 100 mil. */
+  fprintf (fp, "  9\n$DIMEXO\n 40\n0.01\n"); /* Extension line offset = 10 mil. */
+  fprintf (fp, "  9\n$DIMDLI\n 40\n0.1\n"); /* Dimension line increment = 100 mil. */
+  fprintf (fp, "  9\n$DIMRND\n 40\n0.0\n"); /* Rounding value for dimension distances. */
+  fprintf (fp, "  9\n$DIMDLE\n 40\n0.0\n"); /* Dimension line extension */
+  fprintf (fp, "  9\n$DIMEXE\n 40\n0.05\n"); /* Extension line extension = 50 mil. */
+  fprintf (fp, "  9\n$DIMTP\n 40\n0.0\n"); /* Plus tolerance. */
+  fprintf (fp, "  9\n$DIMTM\n 40\n0.0\n"); /* Minus tolerance. */
+  fprintf (fp, "  9\n$DIMTXT\n 40\n0.1\n"); /* Dimensioning text height = 100 mil. */
+  fprintf (fp, "  9\n$DIMCEN\n 40\n0.01\n"); /* Size of center mark/lines = 10 mil. */
+  fprintf (fp, "  9\n$DIMTSZ\n 40\n0.01\n"); /* Dimensioning tick size = 10 mil; 0 = no ticks. */
+  fprintf (fp, "  9\n$DIMTOL\n 70\n     0\n"); /* Dimension tolerances generated if nonzero. */
+  fprintf (fp, "  9\n$DIMLIM\n 70\n     0\n"); /* Dimension limits generated if nonzero. */
+  fprintf (fp, "  9\n$DIMTIH\n 70\n     0\n"); /* Text inside horizontal if nonzero. */
+  fprintf (fp, "  9\n$DIMTOH\n 70\n     0\n"); /* Text outside horizontal if nonzero. */
+  fprintf (fp, "  9\n$DIMSE1\n 70\n     0\n"); /* First extension line suppressed if nonzero. */
+  fprintf (fp, "  9\n$DIMSE2\n 70\n     0\n"); /* Second extension line suppressed if nonzero. */
+  fprintf (fp, "  9\n$DIMTAD\n 70\n     1\n"); /* Text above dimension line if nonzero. */
+  fprintf (fp, "  9\n$DIMZIN\n 70\n     8\n"); /* Controls suppression of zeros for primary unit values. */
+  fprintf (fp, "  9\n$DIMBLK\n  1\n\n"); /* Arrow block name. */
+  fprintf (fp, "  9\n$DIMASO\n 70\n     1\n"); /* 1 = create associative dimensioning, 0 = draw individual entities. */
+  fprintf (fp, "  9\n$DIMSHO\n 70\n     1\n"); /* 1 = Recompute dimensions while dragging, 0 = drag original image. */
+  fprintf (fp, "  9\n$DIMPOST\n  1\n\n"); /* General dimensioning suffix. */
+  fprintf (fp, "  9\n$DIMAPOST\n  1\n\n"); /* Alternate dimensioning suffix. */
+  fprintf (fp, "  9\n$DIMALT\n 70\n     0\n"); /* Alternate unit dimensioning performed if nonzero. */
+  fprintf (fp, "  9\n$DIMALTD\n 70\n     4\n"); /* Alternate unit decimal places. */
+  fprintf (fp, "  9\n$DIMALTF\n 40\n0.0254\n"); /* Alternate unit scale factor = inch --> mm. */
+  fprintf (fp, "  9\n$DIMLFAC\n 40\n1.0\n"); /* Linear measurements scale factor. */
+  fprintf (fp, "  9\n$DIMTOFL\n 70\n     1\n"); /* If text outside extensions, force line extensions between extensions if nonzero. */
+  fprintf (fp, "  9\n$DIMTVP\n 40\n0.0\n"); /* Text vertical position. */
+  fprintf (fp, "  9\n$DIMTIX\n 70\n     0\n"); /* Force text inside extensions if nonzero. */
+  fprintf (fp, "  9\n$DIMSOXD\n 70\n     0\n"); /* Suppress outside-extensions dimension lines if nonzero. */
+  fprintf (fp, "  9\n$DIMSAH\n 70\n     0\n"); /* Use separate arrow blocks if nonzero. */
+  fprintf (fp, "  9\n$DIMBLK1\n  1\n\n"); /* First arrow block name. */
+  fprintf (fp, "  9\n$DIMBLK2\n  1\n\n"); /* Second arrow block name. */
+  fprintf (fp, "  9\n$DIMSTYLE\n  2\nSTANDARD\n"); /* Dimension style name. */
+  fprintf (fp, "  9\n$DIMCLRD\n 70\n     0\n"); /*Dimension line color: range is 0 = BYBLOCK, 256 = BYLAYER. */
+  fprintf (fp, "  9\n$DIMCLRE\n 70\n     0\n"); /* Dimension extension line color:  range is 0 = BYBLOCK, 256 = BYLAYER. */
+  fprintf (fp, "  9\n$DIMCLRT\n 70\n     0\n"); /* Dimension text color:  range is 0 = BYBLOCK, 256 = BYLAYER. */
+  fprintf (fp, "  9\n$DIMTFAC\n 40\n1.0\n"); /* Dimension tolerance display scale factor. */
+  fprintf (fp, "  9\n$DIMGAP\n 40\n25.0\n"); /* Dimension line gap = 25 mil. */
+  fprintf (fp, "  9\n$DIMJUST\n 70\n     0\n"); /* Horizontal dimension text position: 0=above dimension line and center-justified between extension lines, 1=above dimension line and next to first extension line, 2=above dimension line and next to second extension line, 3=above and center-justified to first extension line, 4=above and center-justified to second extension line. */
+  fprintf (fp, "  9\n$DIMSD1\n 70\n     0\n"); /* Suppression of first extension line: 0=not suppressed, 1=suppressed. */
+  fprintf (fp, "  9\n$DIMSD2\n 70\n     0\n"); /* Suppression of second extension line: 0=not suppressed, 1=suppressed. */
+  fprintf (fp, "  9\n$DIMTOLJ\n 70\n     1\n"); /* Vertical justification for tolerance values: 0=Top, 1=Middle, 2=Bottom.*/
+  fprintf (fp, "  9\n$DIMTZIN\n 70\n     0\n"); /* Controls suppression of zeros for tolerance values: 0 = Suppresses zero feet and precisely zero inches; 1 = Includes zero feet and precisely zero inches; 2 = Includes zero feet and suppresses zero inches; 3 = Includes zero inches and suppresses zero feet. */
+  fprintf (fp, "  9\n$DIMALTZ\n 70\n     0\n"); /* Controls suppression of zeros for alternate unit dimension values: 0 = Suppresses zero feet and precisely zero inches; 1 = Includes zero feet and precisely zero inches; 2 = Includes zero feet and suppresses zero inches; 3 = Includes zero inches and suppresses zero feet. */
+  fprintf (fp, "  9\n$DIMALTTZ\n 70\n     0\n"); /* Controls suppression of zeros for alternate tolerance values: 0 = Suppresses zero feet and precisely zero inches; 1 = Includes zero feet and precisely zero inches; 2 = Includes zero feet and suppresses zero inches; 3 = Includes zero inches and suppresses zero feet. */
+  fprintf (fp, "  9\n$DIMFIT\n 70\n     3\n"); /* Placement of text and arrowheads; Possible values: 0 through 3. */
+  fprintf (fp, "  9\n$DIMUPT\n 70\n     0\n"); /* Cursor functionality for user positioned text:  0=controls only the dimension line location, 1=controls the text position as well as the dimension line location. */
+  fprintf (fp, "  9\n$DIMUNIT\n 70\n     2\n"); /* Units format for all dimension style family members except angular: 1 = Scientific; 2 = Decimal; 3 = Engineering; 4 = Architectural (stacked); 5 = Fractional (stacked); 6 = Architectural; 7 = Fractional. */
+  fprintf (fp, "  9\n$DIMDEC\n 70\n     4\n"); /* Number of decimal places for the tolerance values of a primary units dimension. */
+  fprintf (fp, "  9\n$DIMTDEC\n 70\n     4\n"); /* Number of decimal places to display the tolerance values. */
+  fprintf (fp, "  9\n$DIMALTU\n 70\n     2\n"); /*Units format for alternate units of all dimension style family members except angular: 1 = Scientific; 2 = Decimal; 3 = Engineering; 4 = Architectural (stacked); 5 = Fractional (stacked); 6 = Architectural; 7 = Fractional. */
+  fprintf (fp, "  9\n$DIMALTTD\n 70\n     2\n"); /*Number of decimal places for tolerance values of an alternate units dimension. */
+  fprintf (fp, "  9\n$DIMTXSTY\n  7\nSTANDARD\n"); /* Dimension text style. */
+  fprintf (fp, "  9\n$DIMAUNIT\n 70\n     0\n"); /* Angle format for angular dimensions: 0=Decimal degrees, 1=Degrees/minutes/seconds, 2=Gradians, 3=Radians, 4=Surveyor's units. */
+  fprintf (fp, "  9\n$LUNITS\n 70\n     2\n"); /* Units format for coordinates and distances. */
+  fprintf (fp, "  9\n$LUPREC\n 70\n     4\n"); /* Units precision for coordinates and distances */
+  fprintf (fp, "  9\n$SKETCHINC\n 40\n1.0\n"); /* Sketch record increment. */
+  fprintf (fp, "  9\n$FILLETRAD\n 40\n1.0\n"); /* Fillet radius. */
+  fprintf (fp, "  9\n$AUNITS\n 70\n     0\n"); /* Units format for angles. */
+  fprintf (fp, "  9\n$AUPREC\n 70\n     0\n"); /* Units precision for angles. */
+  fprintf (fp, "  9\n$MENU\n  1\n.\n"); /* Name of menu file. */
+  fprintf (fp, "  9\n$ELEVATION\n 40\n0.0\n"); /* Current elevation set by ELEV command. */
+  fprintf (fp, "  9\n$PELEVATION\n 40\n0.0\n"); /* Current paper space elevation. */
+  fprintf (fp, "  9\n$THICKNESS\n 40\n0.0\n"); /* Current thickness set by ELEV command. */
+  fprintf (fp, "  9\n$LIMCHECK\n 70\n     0\n"); /* Nonzero if limits checking is on. */
+  fprintf (fp, "  9\n$BLIPMODE\n 70\n     0\n"); /* Blip mode on if nonzero. */
+  fprintf (fp, "  9\n$CHAMFERA\n 40\n10.0\n"); /* First chamfer distance. */
+  fprintf (fp, "  9\n$CHAMFERB\n 40\n10.0\n"); /* Second chamfer distance. */
+  fprintf (fp, "  9\n$CHAMFERC\n 40\n0.0\n"); /* Chamfer length. */
+  fprintf (fp, "  9\n$CHAMFERD\n 40\n0.0\n"); /* Chamfer angle. */
+  fprintf (fp, "  9\n$SKPOLY\n 70\n     0\n"); /* 0 = sketch lines, 1 = sketch polylines. */
+  fprintf (fp, "  9\n$TDCREATE\n 40\n0.0\n"); /* Date/time of drawing creation. */
+  fprintf (fp, "  9\n$TDUPDATE\n 40\n0.0\n"); /* Date/time of last drawing update. */
+  fprintf (fp, "  9\n$TDINDWG\n 40\n0.0\n"); /* Cumulative editing time for this drawing. */
+  fprintf (fp, "  9\n$TDUSRTIMER\n 40\n0.0\n"); /* User elapsed timer. */
+  fprintf (fp, "  9\n$USRTIMER\n 70\n     1\n"); /* 0 = timer off, 1 = timer on. */
+  fprintf (fp, "  9\n$ANGBASE\n 50\n0.0\n"); /* Angle 0 direction . */
+  fprintf (fp, "  9\n$ANGDIR\n 70\n     0\n"); /* 1 = clockwise angles, 0 = counterclockwise. */
+  fprintf (fp, "  9\n$PDMODE\n 70\n    98\n"); /* Point display mode. */
+  fprintf (fp, "  9\n$PDSIZE\n 40\n0.0\n"); /* Point display size. */
+  fprintf (fp, "  9\n$PLINEWID\n 40\n0.0\n"); /* Default polyline width. */
+  fprintf (fp, "  9\n$COORDS\n 70\n     2\n"); /* Coordinate display: 0 = static, 1 = continuous update, 2 = "d<a" format. */
+  fprintf (fp, "  9\n$SPLFRAME\n 70\n     0\n"); /* Spline control polygon display: 1 = on, 0 = off. */
+  fprintf (fp, "  9\n$SPLINETYPE\n 70\n     6\n"); /* Spline curve type for PEDIT Spline. */
+  fprintf (fp, "  9\n$SPLINESEGS\n 70\n     8\n"); /* Number of line segments per spline patch. */
+  fprintf (fp, "  9\n$ATTDIA\n 70\n     0\n"); /* Attribute entry dialogs: 1 = on, 0 = off. */
+  fprintf (fp, "  9\n$ATTREQ\n 70\n     1\n"); /* Attribute prompting during INSERT: 1 = on, 0 = off. */
+  fprintf (fp, "  9\n$HANDLING\n 70\n     1\n"); /* Next available handle. */
+  fprintf (fp, "  9\n$HANDSEED\n  5\n262\n"); /* Next available handle. */
+  fprintf (fp, "  9\n$SURFTAB1\n 70\n     6\n"); /* Number of mesh tabulations in first direction. */
+  fprintf (fp, "  9\n$SURFTAB2\n 70\n     6\n"); /* Number of mesh tabulations in second direction. */
+  fprintf (fp, "  9\n$SURFTYPE\n 70\n     6\n"); /* Surface type for PEDIT Smooth. */
+  fprintf (fp, "  9\n$SURFU\n 70\n     6\n"); /* Surface density (for PEDIT Smooth) in M direction. */
+  fprintf (fp, "  9\n$SURFV\n 70\n     6\n"); /* Surface density (for PEDIT Smooth) in N direction. */
+  fprintf (fp, "  9\n$UCSNAME\n  2\n\n"); /* Name of current UCS. */
+  fprintf (fp, "  9\n$UCSORG\n 10\n0.0\n 20\n0.0\n 30\n0.0\n"); /* Origin of current UCS (in WCS). */
+  fprintf (fp, "  9\n$UCSXDIR\n 10\n1.0\n 20\n0.0\n 30\n0.0\n"); /* Direction of current UCS's X axis (in WCS). */
+  fprintf (fp, "  9\n$UCSYDIR\n 10\n0.0\n 20\n1.0\n 30\n0.0\n"); /* Direction of current UCS's Y axis (in WCS). */
+  fprintf (fp, "  9\n$PUCSNAME\n  2\n\n"); /* Current paper space UCS name. */
+  fprintf (fp, "  9\n$PUCSORG\n 10\n0.0\n 20\n0.0\n 30\n0.0\n"); /* Current paper space UCS origin. */
+  fprintf (fp, "  9\n$PUCSXDIR\n 10\n1.0\n 20\n0.0\n 30\n0.0\n"); /* Current paper space UCS X axis. */
+  fprintf (fp, "  9\n$PUCSYDIR\n 10\n0.0\n 20\n1.0\n 30\n0.0\n"); /* Current paper space UCS Y axis. */
+  fprintf (fp, "  9\n$USERI1\n 70\n     0\n"); /* Five integer variables intended for use by third-party developers. */
+  fprintf (fp, "  9\n$USERI2\n 70\n     0\n");
+  fprintf (fp, "  9\n$USERI3\n 70\n     0\n");
+  fprintf (fp, "  9\n$USERI4\n 70\n     0\n");
+  fprintf (fp, "  9\n$USERI5\n 70\n     0\n");
+  fprintf (fp, "  9\n$USERR1\n 40\n0.0\n"); /* Five real variables intended for use by third-party developers. */
+  fprintf (fp, "  9\n$USERR2\n 40\n0.0\n");
+  fprintf (fp, "  9\n$USERR3\n 40\n0.0\n");
+  fprintf (fp, "  9\n$USERR4\n 40\n0.0\n");
+  fprintf (fp, "  9\n$USERR5\n 40\n0.0\n");
+  fprintf (fp, "  9\n$WORLDVIEW\n 70\n     1\n"); /*1 = set UCS to WCS during DVIEW/VPOINT, 0 = don't change UCS. */
+  fprintf (fp, "  9\n$SHADEDGE\n 70\n     3\n"); /* 0 = faces shaded, edges not highlighted; 1 = faces shaded, edges highlighted in black; 2 = faces not filled, edges in entity color; 3 = faces in entity color, edges in black. */
+  fprintf (fp, "  9\n$SHADEDIF\n 70\n    70\n"); /* Percent ambient/diffuse light, range 1-100, default 70. */
+  fprintf (fp, "  9\n$TILEMODE\n 70\n     1\n"); /* 1 for previous release compatibility mode, 0 otherwise. */
+  fprintf (fp, "  9\n$MAXACTVP\n 70\n    48\n"); /* Sets maximum number of viewports to be regenerated. */
+  fprintf (fp, "  9\n$PINSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n"); /* Paper space insertion base point. */
+  fprintf (fp, "  9\n$PLIMCHECK\n 70\n     0\n"); /* Limits checking in paper space when nonzero. */
+  fprintf (fp, "  9\n$PEXTMIN\n 10\n1.000000E+20\n 20\n1.000000E+20\n 30\n1.000000E+20\n");  /* Minimum X, Y, and Z extents for paper space. */
+  fprintf (fp, "  9\n$PEXTMAX\n 10\n-1.000000E+20\n 20\n-1.000000E+20\n 30\n-1.000000E+20\n"); /* Maximum X, Y, and Z extents for paper space. */
+  fprintf (fp, "  9\n$PLIMMIN\n 10\n0.0\n 20\n0.0\n"); /* Minimum X and Y limits in paper space. */
+  fprintf (fp, "  9\n$PLIMMAX\n 10\n420.0\n 20\n297.0\n"); /* Maximum X and Y limits in paper space. */
+  fprintf (fp, "  9\n$UNITMODE\n 70\n     0\n"); /* Low bit set = display fractions, feet-and-inches, and surveyor's angles in input format. */
+  fprintf (fp, "  9\n$VISRETAIN\n 70\n     1\n"); /* 0 = don't retain xref-dependent visibility settings, 1 = retain; xref-dependent visibility settings. */
+  fprintf (fp, "  9\n$PLINEGEN\n 70\n     0\n"); /* Governs the generation of linetype patterns around the vertices of a 2D polyline: 1 = linetype is generated in a continuous pattern around vertices of the polyline; 0 = each segment of the polyline starts and ends with a dash. */
+  fprintf (fp, "  9\n$PSLTSCALE\n 70\n     1\n"); /* Controls paper space linetype scaling: 1 = no special linetype scaling; 0 = viewport scaling governs linetype scaling. */
+  fprintf (fp, "  9\n$TREEDEPTH\n 70\n  3020\n"); /* Specifies the maximum depth of the spatial index. */
+  fprintf (fp, "  9\n$PICKSTYLE\n 70\n     1\n"); /* Controls group selection and associative hatch selection: 0= No group selection or associative hatch selection; 1= Group selection; 2 = Associative hatch selection; 3 = Group selection and associative hatch selection. */
+  fprintf (fp, "  9\n$CMLSTYLE\n  2\nSTANDARD\n"); /* Current multiline style name. */
+  fprintf (fp, "  9\n$CMLJUST\n 70\n     0\n"); /* Current multiline justification: 0 = Top; 1 = Middle; 2 = Bottom. */
+  fprintf (fp, "  9\n$CMLSCALE\n 40\n1.0\n"); /* Current multiline scale. */
+  fprintf (fp, "  9\n$PROXYGRAPHICS\n 70\n     1\n"); /* Controls the saving of proxy object images. */
+  fprintf (fp, "  9\n$MEASUREMENT\n 70\n     0\n"); /* Sets drawing units. 0 = English; 1 = Metric. */
+  fprintf (fp, "  0\nENDSEC\n");
+  /* write a CLASSES section */
+  fprintf (fp, "  0\nSECTION\n");
+  fprintf (fp, "  2\nCLASSES\n");
+  fprintf (fp, "  0\nENDSEC\n");
+  /* write a TABLES section */
+  fprintf (fp, "  0\nSECTION\n");
+  fprintf (fp, "  2\nTABLES\n");
+  /* write a VPORT (viewport) table entry */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nVPORT\n");
+  fprintf (fp, "  5\n23A\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     2\n");
+  fprintf (fp, "  0\nVPORT\n");
+  fprintf (fp, "  5\n261\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  fprintf (fp, "100\nAcDbViewportTableRecord\n");
+  fprintf (fp, "  2\n*ACTIVE\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 10\n0.0\n 20\n0.0\n");
+  fprintf (fp, " 11\n1.0\n 21\n1.0\n");
+  fprintf (fp, " 12\n43.998872\n 22\n17.506577\n");
+  fprintf (fp, " 13\n0.0\n 23\n0.0\n");
+  fprintf (fp, " 14\n1.0\n 24\n1.0\n");
+  fprintf (fp, " 15\n10.0\n 25\n10.0\n");
+  fprintf (fp, " 16\n0.0\n 26\n0.0\n 36\n1.0\n");
+  fprintf (fp, " 17\n0.0\n 27\n0.0\n 37\n0.0\n");
+  fprintf (fp, " 40\n47.164502\n");
+  fprintf (fp, " 41\n1.882514\n");
+  fprintf (fp, " 42\n50.0\n");
+  fprintf (fp, " 43\n0.0\n");
+  fprintf (fp, " 44\n0.0\n");
+  fprintf (fp, " 50\n0.0\n");
+  fprintf (fp, " 51\n0.0\n");
+  fprintf (fp, " 71\n     0\n");
+  fprintf (fp, " 72\n   100\n");
+  fprintf (fp, " 73\n     1\n");
+  fprintf (fp, " 74\n     3\n");
+  fprintf (fp, " 75\n     0\n");
+  fprintf (fp, " 76\n     0\n");
+  fprintf (fp, " 77\n     0\n");
+  fprintf (fp, " 78\n     0\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write LTYPE (linetype) table entries */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nLTYPE\n");
+  fprintf (fp, "  5\n237\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     1\n");
+  fprintf (fp, "  0\nLTYPE\n");
+  fprintf (fp, "  5\n244\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a BYBLOCK linetype */
+  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
+  fprintf (fp, "  2\nBYBLOCK\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  3\n\n");
+  fprintf (fp, " 72\n    65\n");
+  fprintf (fp, " 73\n     0\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, "  0\nLTYPE\n");
+  fprintf (fp, "  5\n245\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a BYLAYER linetype */
+  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
+  fprintf (fp, "  2\nBYLAYER\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  3\n\n");
+  fprintf (fp, " 72\n    65\n");
+  fprintf (fp, " 73\n     0\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, "  0\nLTYPE\n");
+  fprintf (fp, "  5\n246\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a CONTINUOUS linetype */
+  fprintf (fp, "100\nAcDbLinetypeTableRecord\n");
+  fprintf (fp, "  2\nCONTINUOUS\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  3\nSolid line\n");
+  fprintf (fp, " 72\n    65\n");
+  fprintf (fp, " 73\n     0\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write LAYER table entries */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nLAYER\n");
+  fprintf (fp, "  5\n234\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     2\n");
+  fprintf (fp, "  0\nLAYER\n");
+  fprintf (fp, "  5\n240\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for layer "0" */
+  fprintf (fp, "100\nAcDbLayerTableRecord\n");
+  fprintf (fp, "  2\n0\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 62\n     7\n");
+  fprintf (fp, "  6\nCONTINUOUS\n");
+  fprintf (fp, "  0\nLAYER\n");
+  fprintf (fp, "  5\n251\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* * write a record entry for a layer "ASHADE" */
+  fprintf (fp, "100\nAcDbLayerTableRecord\n");
+  fprintf (fp, "  2\nASHADE\n");
+  fprintf (fp, " 70\n     4\n");
+  fprintf (fp, " 62\n     7\n");
+  fprintf (fp, "  6\nCONTINUOUS\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write STYLE table entries */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nSTYLE\n");
+  fprintf (fp, "  5\n235\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     2\n");
+  fprintf (fp, "  0\nSTYLE\n");
+  fprintf (fp, "  5\n241\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a style "STANDARD" */
+  fprintf (fp, "100\nAcDbTextStyleTableRecord\n");
+  fprintf (fp, "  2\nSTANDARD\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, " 41\n1.0\n");
+  fprintf (fp, " 50\n0.0\n");
+  fprintf (fp, " 71\n     0\n");
+  fprintf (fp, " 42\n2.5\n");
+  fprintf (fp, "  3\ntxt\n");
+  fprintf (fp, "  4\n\n");
+  fprintf (fp, "  0\nSTYLE\n");
+  fprintf (fp, "  5\n252\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a style "ASHADE" */
+  fprintf (fp, "100\nAcDbTextStyleTableRecord\n");
+  fprintf (fp, "  2\nASHADE\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, " 40\n0.2\n");
+  fprintf (fp, " 41\n1.0\n");
+  fprintf (fp, " 50\n0.0\n");
+  fprintf (fp, " 71\n     0\n");
+  fprintf (fp, " 42\n2.5\n");
+  fprintf (fp, "  3\nsimplex.shx\n");
+  fprintf (fp, "  4\n\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write a VIEW table entry */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nVIEW\n");
+  fprintf (fp, "  5\n238\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write a UCS (User Coordinate System) table entry */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nUCS\n");
+  fprintf (fp, "  5\n239\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write a APPID (APPlication ID) table entry */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nAPPID\n");
+  fprintf (fp, "  5\n23B\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     6\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n242\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "ACAD" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nACAD\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n253\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "AVE_RENDER" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_RENDER\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n254\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "AVE_ENTITY_MATERIAL" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_ENTITY_MATERIAL\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n255\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "AVE_FINISH" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_FINISH\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n256\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "AVE_MATERIAL" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_MATERIAL\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nAPPID\n");
+  fprintf (fp, "  5\n257\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a appid "AVE_GLOBAL" */
+  fprintf (fp, "100\nAcDbRegAppTableRecord\n");
+  fprintf (fp, "  2\nAVE_GLOBAL\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  0\nENDTAB\n");
+  /* write a DIMSTYLE (DIMensioning STYLE) table entry */
+  fprintf (fp, "  0\nTABLE\n");
+  fprintf (fp, "  2\nDIMSTYLE\n");
+  fprintf (fp, "  5\n23C\n");
+  fprintf (fp, "100\nAcDbSymbolTable\n");
+  fprintf (fp, " 70\n     1\n");
+  fprintf (fp, "  0\nDIMSTYLE\n");
+  fprintf (fp, "105\n258\n");
+  fprintf (fp, "100\nAcDbSymbolTableRecord\n");
+  /* write a record entry for a dimstyle "STANDARD" */
+  fprintf (fp, "100\nAcDbDimStyleTableRecord\n");
+  fprintf (fp, "  2\nSTANDARD\n");
+  fprintf (fp, " 70\n     0\n"); /* Standard flag values. */
+  fprintf (fp, "  3\n\n"); /* DIMPOST */
+  fprintf (fp, "  4\n\n"); /* DIMAPOST */
+  fprintf (fp, "  5\n\n"); /* DIMBLK */
+  fprintf (fp, "  6\n\n"); /* DIMBLK1 */
+  fprintf (fp, "  7\n\n"); /* DIMBLK2 */
+  fprintf (fp, " 40\n1.0\n"); /* DIMSCALE */
+  fprintf (fp, " 41\n0.18\n"); /* DIMASZ */
+  fprintf (fp, " 42\n0.0625\n"); /* DIMEXO */
+  fprintf (fp, " 43\n0.38\n"); /* DIMDLI */
+  fprintf (fp, " 44\n0.18\n"); /* DIMEXE */
+  fprintf (fp, " 45\n0.0\n"); /* DIMRND */
+  fprintf (fp, " 46\n0.0\n"); /* DIMDLE */
+  fprintf (fp, " 47\n0.0\n"); /* DIMTP */
+  fprintf (fp, " 48\n0.0\n"); /* DIMTM */
+  fprintf (fp, "140\n0.18\n"); /* DIMTXT */
+  fprintf (fp, "141\n0.09\n"); /* DIMCEN */
+  fprintf (fp, "142\n0.0\n"); /* DIMTSZ */
+  fprintf (fp, "143\n25.4\n"); /* DIMALTF */
+  fprintf (fp, "144\n1.0\n"); /* DIMLFAC */
+  fprintf (fp, "145\n0.0\n"); /* DIMTVP */
+  fprintf (fp, "146\n1.0\n"); /* DIMTFAC */
+  fprintf (fp, "147\n0.09\n"); /* DIMGAP */
+  fprintf (fp, " 71\n     0\n"); /* DIMTOL */
+  fprintf (fp, " 72\n     0\n"); /* DIMLIM */
+  fprintf (fp, " 73\n     1\n"); /* DIMTIH */
+  fprintf (fp, " 74\n     1\n"); /* DIMTOH */
+  fprintf (fp, " 75\n     0\n"); /* DIMSE1 */
+  fprintf (fp, " 76\n     0\n"); /* DIMSE2 */
+  fprintf (fp, " 77\n     0\n"); /* DIMTAD */
+  fprintf (fp, " 78\n     0\n"); /* DIMZIN */
+  fprintf (fp, "170\n     0\n"); /* DIMALT */
+  fprintf (fp, "171\n     2\n"); /* DIMALTD */
+  fprintf (fp, "172\n     0\n"); /* DIMTOFL */
+  fprintf (fp, "173\n     0\n"); /* DIMSAH */
+  fprintf (fp, "174\n     0\n"); /* DIMTIX */
+  fprintf (fp, "175\n     0\n"); /* DIMSOXD */
+  fprintf (fp, "176\n     0\n"); /* DIMDLRD */
+  fprintf (fp, "177\n     0\n"); /* DIMCLRE */
+  fprintf (fp, "178\n     0\n"); /* DIMCLRT */
+  fprintf (fp, "270\n     2\n"); /* DIMUNIT */
+  fprintf (fp, "271\n     4\n"); /* DIMDEC */
+  fprintf (fp, "272\n     4\n"); /* DIMTDEC */
+  fprintf (fp, "273\n     2\n"); /* DIMALTU */
+  fprintf (fp, "274\n     2\n"); /* DIMALTTD */
+  fprintf (fp, "340\n241\n"); /* Handle of referenced STYLE object (used instead of storing DIMTXSTY value). */
+  fprintf (fp, "275\n     0\n"); /* DIMAUNIT */
+  fprintf (fp, "280\n     0\n"); /* DIMJUST */
+  fprintf (fp, "281\n     0\n"); /* DIMSD1 */
+  fprintf (fp, "282\n     0\n"); /* DIMSD2 */
+  fprintf (fp, "283\n     1\n"); /* DIMTOLJ */
+  fprintf (fp, "284\n     0\n"); /* DIMTZIN */
+  fprintf (fp, "285\n     0\n"); /* DIMALTZ */
+  fprintf (fp, "286\n     0\n"); /* DIMALTTZ */
+  fprintf (fp, "287\n     3\n"); /* DIMFIT */
+  fprintf (fp, "288\n     0\n"); /* DIMUPT */
+  fprintf (fp, "  0\nENDTAB\n");
 #if DEBUG
   fprintf (stderr, "[File: %s: line: %d] Leaving dxf_write_header_imperial_new () function.\n", __FILE__, __LINE__);
 #endif
