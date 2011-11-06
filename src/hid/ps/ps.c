@@ -761,7 +761,7 @@ ps_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-corner (FILE *fh, Coord x, Coord y, Coord dx, Coord dy)
+corner (FILE *fh, Coord x, Coord y, int dx, int dy)
 {
   Coord len   = MIL_TO_COORD (2000);
   Coord len2  = MIL_TO_COORD (200);
@@ -775,7 +775,7 @@ corner (FILE *fh, Coord x, Coord y, Coord dx, Coord dy)
    * of the thick line.
    */
 
-  pcb_fprintf (fh, "gsave %mi setlinewidth %mi %mi translate %mi %mi scale\n",
+  pcb_fprintf (fh, "gsave %mi setlinewidth %mi %mi translate %d %d scale\n",
                thick * 2, x, y, dx, dy);
   pcb_fprintf (fh, "%mi %mi moveto %mi %mi %mi 0 90 arc %mi %mi lineto\n",
                len, thick, thick, thick, len2 + thick, thick, len);
