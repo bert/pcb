@@ -13,6 +13,7 @@
 ##  Dual in-line package, narrow (300 mil)
 #   DIP6 .. DIP64, DIP24N, DIP28N
 #
+define(`PKG_DIP4',   `PKG_N(`$1', `$2', `$3',   4,  300)');
 define(`PKG_DIP6',   `PKG_N(`$1', `$2', `$3',   6,  300)');
 define(`PKG_DIP8',   `PKG_N(`$1', `$2', `$3',   8,  300)');
 define(`PKG_DIP14',  `PKG_N(`$1', `$2', `$3',  14,  300)');
