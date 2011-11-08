@@ -1,0 +1,47 @@
+The pcb DXF HID is a DXF exporter for pcb.
+
+The pcb DXF HID exports the loaded pcb layout to a series of DXF files,
+typically one file for every layer, a DXF file for inserting elements by
+means of "XREFS" (in AutoCAD jargon also known as eXternal REFerenced
+drawings), and DXF files for plated and non-plated holes.
+
+These external referenced drawings can be 3D models of elements (ACIS),
+including DDE/OLE attributes of any other application that is supported
+by both AutoCAD (or any alternative software that supports these 
+features) and the (Microsoft) Operating System of your choice.
+
+The parameters for the DXF exporter are:
+
+--dxffile
+
+This is the basename of the generated files.
+Layer-, top and bottom mask-, top and bottom paste, and drill-filenames
+are based upon this string.
+
+--metric
+Tick for mm, default is mil.
+
+--layer-color-BYBLOCK
+Tick for layer color is BYBLOCK, default layer color is BYLAYER.
+
+--xrefs
+Tick for generating an eXternal REFerence file, default is none.
+
+--xreffile
+This string should contain the pathname of the location where your XREF
+drawing files exist.
+
+--verbose
+Tick if you want to see a full report on stderr of what entities are
+written to the files, default is silent.
+
+--export-all-layers
+Tick if you want to export all layers, default is to not export empty
+layers.
+
+-------------------------------------------------------------------------
+                            COPYRIGHT
+
+The pcb DXF HID is covered by the GNU General Public License.
+See the individual files for the exact copyright notices.
+
