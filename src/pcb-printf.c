@@ -182,10 +182,10 @@ const Unit *get_unit_struct (const char *const_suffix)
     }
 
   /* Do lookup */
-  if (*suffix)
+  if (*suffix && s_len > 0)
     for (i = 0; i < N_UNITS; ++i)
-      if (strcmp (suffix, Units[i].suffix) == 0 ||
-          strcmp (suffix, Units[i].alias[0]) == 0)
+      if (strncmp (suffix, Units[i].suffix, s_len) == 0 ||
+          strncmp (suffix, Units[i].alias[0], s_len) == 0)
         {
           g_free (m_suffix);
           return &Units[i];
