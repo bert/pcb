@@ -27,7 +27,7 @@
 /*
  * This HID exports a PCB layout into:
  * one layer mask file (PNG format) per copper layer,
- * one G-CODE CNC drill file.
+ * one G-CODE CNC drill file per drill size
  * one G-CODE CNC file per copper layer.
  * The latter is used by a CNC milling machine to mill the pcb.
  */
@@ -125,15 +125,28 @@ static double gcode_safeZ = 100;        /* safe Z (inch) */
 static double gcode_toolradius = 0;     /* tool radius (1/100 mil) */
 static char gcode_advanced = 0;
 static int save_drill = 0;
-static int n_drill = 0;
-static int nmax_drill = 0;
-struct drill_struct
+
+/* structure to represent a single hole */
+struct drill_hole
 {
   double x;
   double y;
 };
 
-static struct drill_struct *drill = 0;
+/* structure to represent all holes of a given size */
+struct single_size_drills
+{
+  double diameter_inches;
+
+  int n_holes;
+  int n_holes_allocated;
+  struct drill_hole* holes;
+};
+
+/* at the start we have no drills at all */
+static struct single_size_drills* drills             = NULL;
+static int                        n_drills           = 0;
+static int                        n_drills_allocated = 0;
 
 static const char *units[] = {
   "mm",
@@ -226,10 +239,10 @@ gcode_get_filename (char *filename, const char *layername)
  * Note that this is O(N^2). We can't use the O(N logN) sort, since our
  * shortest-distance origin changes with every point */
 static void
-sort_drill (struct drill_struct *drill, int n_drill)
+sort_drill (struct drill_hole *drill, int n_drill)
 {
   /* I start out by looking for points closest to (0,0) */
-  struct drill_struct nearest_target = { 0, 0 };
+  struct drill_hole nearest_target = { 0, 0 };
 
   /* I sort my list by finding the correct point to fill each slot. I don't need
      to look at the last one, since it'll be in the right place automatically */
@@ -254,7 +267,7 @@ sort_drill (struct drill_struct *drill, int n_drill)
                 nearest_target.x,nearest_target.y); */
       if (j != imin)
         {
-          struct drill_struct tmp;
+          struct drill_hole tmp;
           tmp         = drill[j];
           drill[j]    = drill[imin];
           drill[imin] = tmp;
@@ -609,82 +622,98 @@ gcode_do_export (HID_Attr_Val * options)
           fclose (gcode_f2);
           if (save_drill)
             {
-              d = 0;
-              sort_drill (drill, n_drill);
-              gcode_get_filename (filename, "drill");
-              gcode_f2 = fopen (filename, "wb");
-              if (!gcode_f2)
+              for (int i_drill_file=0; i_drill_file < n_drills; i_drill_file++)
                 {
-                  perror (filename);
-                  return;
-                }
-              fprintf (gcode_f2, "(Created by G-code exporter)\n");
-              fprintf (gcode_f2, "(drill file: %d drills)\n", n_drill);
-              sprintf (filename, "%s", ctime (&t));
-              filename[strlen (filename) - 1] = 0;
-              fprintf (gcode_f2, "( %s )\n", filename);
-              fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
-              if (metric)
-                pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
-              else
-                pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
-              if (gcode_advanced)
-                {
-                  fprintf (gcode_f2, "%s=%f  (safe Z)\n",
-                           variable_safeZ, gcode_safeZ);
-                  fprintf (gcode_f2, "%s=%f  (drill depth)\n",
-                           variable_drilldepth, gcode_drilldepth);
-                  fprintf (gcode_f2, "(---------------------------------)\n");
-                  fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                           metric ? 21 : 20, metric ? 25 : 1);
-                }
-              else
-                {
-                  fprintf (gcode_f2, "(---------------------------------)\n");
-                  fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
-                           metric ? 21 : 20, metric ? 25 : 1);
-                }
-              fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
-              for (r = 0; r < n_drill; r++)
-                {
-                  double drillX, drillY;
+                  struct single_size_drills* drill = &drills[i_drill_file];
 
-                  if (metric)
+                  d = 0;
+                  sort_drill (drill->holes, drill->n_holes);
+
+                  {
+                    // get the filename with the drill size encoded in it
+                    char layername[32];
+                    snprintf(layername, sizeof(layername),
+                             "%.4f.drill",
+                             metric ?
+                             drill->diameter_inches * 25.4 :
+                             drill->diameter_inches);
+                    gcode_get_filename (filename, layername);
+                  }
+
+                  gcode_f2 = fopen (filename, "wb");
+                  if (!gcode_f2)
                     {
-                      drillX = drill[r].x * 25.4;
-                      drillY = drill[r].y * 25.4;
+                      perror (filename);
+                      return;
+                    }
+                  fprintf (gcode_f2, "(Created by G-code exporter)\n");
+                  fprintf (gcode_f2, "(drill file: %d drills)\n", drill->n_holes);
+                  sprintf (filename, "%s", ctime (&t));
+                  filename[strlen (filename) - 1] = 0;
+                  fprintf (gcode_f2, "( %s )\n", filename);
+                  fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
+                  if (metric)
+                    pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
+                  else
+                    pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
+                  if (gcode_advanced)
+                    {
+                      fprintf (gcode_f2, "%s=%f  (safe Z)\n",
+                               variable_safeZ, gcode_safeZ);
+                      fprintf (gcode_f2, "%s=%f  (drill depth)\n",
+                               variable_drilldepth, gcode_drilldepth);
+                      fprintf (gcode_f2, "(---------------------------------)\n");
+                      fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
+                               metric ? 21 : 20, metric ? 25 : 1);
                     }
                   else
                     {
-                      drillX = drill[r].x;
-                      drillY = drill[r].y;
+                      fprintf (gcode_f2, "(---------------------------------)\n");
+                      fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
+                               metric ? 21 : 20, metric ? 25 : 1);
+                    }
+                  fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
+                  for (r = 0; r < drill->n_holes; r++)
+                    {
+                      double drillX, drillY;
+
+                      if (metric)
+                        {
+                          drillX = drill->holes[r].x * 25.4;
+                          drillY = drill->holes[r].y * 25.4;
+                        }
+                      else
+                        {
+                          drillX = drill->holes[r].x;
+                          drillY = drill->holes[r].y;
+                        }
+                      if (gcode_advanced)
+                        fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
+                                 variable_drilldepth, variable_safeZ);
+                      else
+                        {
+                          fprintf (gcode_f2, "G0 X%f Y%f\n", drillX, drillY);
+                          fprintf (gcode_f2, "G1 Z%s\n", variable_drilldepth);
+                          fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
+                        }
+                      if (r > 0)
+                        d += hypot( drill->holes[r].x - drill->holes[r - 1].x,
+                                    drill->holes[r].y - drill->holes[r - 1].y );
                     }
                   if (gcode_advanced)
-                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
-                             variable_drilldepth, variable_safeZ);
+                    fprintf (gcode_f2, "M5 M9 M2\n");
                   else
-                    {
-                      fprintf (gcode_f2, "G0 X%f Y%f\n", drillX, drillY);
-                      fprintf (gcode_f2, "G1 Z%s\n", variable_drilldepth);
-                      fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
-                    }
-                  if (r > 0)
-                    d +=
-                      sqrt ((drill[r].x - drill[r - 1].x) * (drill[r].x -
-                                                             drill[r - 1].x) +
-                            (drill[r].y - drill[r - 1].y) * (drill[r].y -
-                                                             drill[r - 1].y));
+                    fprintf (gcode_f2, "M5\nM9\nM2\n");
+                  fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n",
+                           25.4 * d, d);
+                  fclose (gcode_f2);
+
+                  free(drills[i_drill_file].holes);
                 }
-              if (gcode_advanced)
-                fprintf (gcode_f2, "M5 M9 M2\n");
-              else
-                fprintf (gcode_f2, "M5\nM9\nM2\n");
-              fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n",
-                       25.4 * d, d);
-              fclose (gcode_f2);
-              free (drill);
-              drill = NULL;
-              n_drill = nmax_drill = 0;
+
+              free (drills);
+              drills = NULL;
+              n_drills = n_drills_allocated = 0;
             }
           free (filename);
 
@@ -1018,6 +1047,83 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
               gdBrushed);
 }
 
+/* given a hole size, return the structure that currently holds the data for
+   that hole size. If there isn't one, make it */
+static int _drill_size_comparator(const void* _size0, const void* _size1)
+{
+  double size0 = ((const struct single_size_drills*)_size0)->diameter_inches;
+  double size1 = ((const struct single_size_drills*)_size1)->diameter_inches;
+  if (size0 == size1)
+    return 0;
+
+  if (size0 < size1)
+    return -1;
+
+  return 1;
+}
+static struct single_size_drills*
+get_drill(double diameter_inches)
+{
+  /* see if we already have this size. If so, return that structure */
+  struct single_size_drills* drill =
+    bsearch (&diameter_inches,
+             drills, n_drills, sizeof (drills[0]),
+             _drill_size_comparator);
+  if (drill != NULL)
+    return drill;
+
+  /* haven't seen this hole size before, so make a new structure for it */
+  if (n_drills == n_drills_allocated)
+    {
+      n_drills_allocated += 100;
+      drills =
+        (struct single_size_drills *) realloc (drills,
+                                               n_drills_allocated *
+                                               sizeof (struct single_size_drills));
+    }
+
+  /* I now add the structure to the list, making sure to keep the list
+   * sorted. Ideally the bsearch() call above would have given me the location
+   * to insert this element while keeping things sorted, but it doesn't. For
+   * simplicity I manually lsearch() to find this location myself */
+  {
+    int i = 0;
+    for (; i<n_drills; i++)
+      if (drills[i].diameter_inches >= diameter_inches)
+        break;
+
+    if (n_drills != i)
+      memmove (&drills[i+1], &drills[i],
+               (n_drills-i) * sizeof (struct single_size_drills));
+
+    drills[i].diameter_inches   = diameter_inches;
+    drills[i].n_holes           = 0;
+    drills[i].n_holes_allocated = 0;
+    drills[i].holes             = NULL;
+    n_drills++;
+
+    return &drills[i];
+  }
+}
+
+static void
+add_hole (struct single_size_drills* drill,
+          double cx_inches, double cy_inches)
+{
+  if (drill->n_holes == drill->n_holes_allocated)
+    {
+      drill->n_holes_allocated += 100;
+      drill->holes =
+        (struct drill_hole *) realloc (drill->holes,
+                                       drill->n_holes_allocated *
+                                       sizeof (struct drill_hole));
+    }
+
+  drill->holes[ drill->n_holes ].x = cx_inches;
+  drill->holes[ drill->n_holes ].y = cy_inches;
+  drill->n_holes++;
+}
+
 static void
 gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
@@ -1031,19 +1137,12 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
                         gc->color->c);
   if (save_drill && is_drill)
     {
-      if (n_drill == nmax_drill)
-        {
-          drill =
-            (struct drill_struct *) realloc (drill,
-                                             (nmax_drill +
-                                              100) *
-                                             sizeof (struct drill_struct));
-          nmax_drill += 100;
-        }
-      drill[n_drill].x = COORD_TO_INCH(PCB->MaxWidth - cx);  /* convert to inch, flip: will drill from bottom side */
-      drill[n_drill].y = COORD_TO_INCH(PCB->MaxHeight - cy); /* PCB reverses y axis */
-      n_drill++;
-/*              printf("Circle %d %d\n",cx,cy); */
+      double diameter_inches = COORD_TO_INCH(radius*2);
+
+      struct single_size_drills* drill = get_drill (diameter_inches);
+      add_hole (drill,
+                COORD_TO_INCH(PCB->MaxWidth  - cx),  /* convert to inch, flip: will drill from bottom side */
+                COORD_TO_INCH(PCB->MaxHeight - cy)); /* PCB reverses y axis */
     }
 }
 
