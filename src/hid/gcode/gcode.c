@@ -25,11 +25,11 @@
  */
 
 /*
- * This HID exports a PCB layout into: 
+ * This HID exports a PCB layout into:
  * one layer mask file (PNG format) per copper layer,
  * one G-CODE CNC drill file.
  * one G-CODE CNC file per copper layer.
- * The latter is used by a CNC milling machine to mill the pcb.  
+ * The latter is used by a CNC milling machine to mill the pcb.
  */
 
 #ifdef HAVE_CONFIG_H
