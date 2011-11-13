@@ -280,7 +280,7 @@ compare_check() {
     f1="$2"
     f2="$3"
 
-    if test ! -f "$f2" ; then 
+    if test ! -f "$f1" ; then 
 	echo "$0:  ${fn}(): $f1 does not exist"
 	test_skipped=yes
 	return 1
