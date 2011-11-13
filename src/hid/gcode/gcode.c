@@ -499,7 +499,7 @@ gcode_do_export (HID_Attr_Val * options)
           is_solder =
             (GetLayerGroupNumberByNumber (idx) ==
              GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
-          save_drill = is_solder;	/* save drills for one layer only */
+          save_drill = is_solder; /* save drills for one layer only */
           gcode_start_png (layer_type_to_file_name (idx, FNS_fixed));
           hid_save_and_show_layer_ons (save_ons);
           gcode_start_png_export ();
@@ -1040,8 +1040,8 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
                                              sizeof (struct drill_struct));
           nmax_drill += 100;
         }
-      drill[n_drill].x = COORD_TO_INCH(PCB->MaxWidth - cx);	/* convert to inch, flip: will drill from bottom side */
-      drill[n_drill].y = COORD_TO_INCH(PCB->MaxHeight - cy);	/* PCB reverses y axis */
+      drill[n_drill].x = COORD_TO_INCH(PCB->MaxWidth - cx);  /* convert to inch, flip: will drill from bottom side */
+      drill[n_drill].y = COORD_TO_INCH(PCB->MaxHeight - cy); /* PCB reverses y axis */
       n_drill++;
 /*              printf("Circle %d %d\n",cx,cy); */
     }
