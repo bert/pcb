@@ -100,11 +100,11 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 # options:
 # --basename <string>            File name prefix
 # --dpi <num>                    Resolution of intermediate image (pixels/inch).
-# --mill depth <num>             Milling depth.
-# --safe Z <num>                 Safe Z for traverse move.
-# --tool radius <num>            Milling tool radius compensation.
+# --mill-depth <num>             Milling depth.
+# --safe-Z <num>                 Safe Z for traverse move.
+# --tool-radius <num>            Milling tool radius compensation.
 # --drill depth <num>            Drilling depth.
-# --measurement unit <mm|mil|um|inch>    Measurement unit
+# --measurement-unit <mm|mil|um|inch>    Measurement unit
 #
 hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
 hid_gcode2 | gcode_oneline.pcb | gcode | --basename out.gcode | | gcode:out-top.gcode gcode:out-bottom.gcode gcode:out-drill.gcode
