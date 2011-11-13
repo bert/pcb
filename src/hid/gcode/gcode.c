@@ -571,9 +571,9 @@ gcode_do_export (HID_Attr_Val * options)
                    options[HA_tooldiameter].real_value * scale,
                    metric ? "mm" : "inch");
           if (metric)
-            pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
+            pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n", PCB->MaxWidth, PCB->MaxHeight);
           else
-            pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
+            pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n", PCB->MaxWidth, PCB->MaxHeight);
           if (gcode_advanced)
             {
               fprintf (gcode_f2, "%s=%f  (safe Z)\n",
@@ -653,9 +653,9 @@ gcode_do_export (HID_Attr_Val * options)
                   fprintf (gcode_f2, "( %s )\n", filename);
                   fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
                   if (metric)
-                    pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
+                    pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n", PCB->MaxWidth, PCB->MaxHeight);
                   else
-                    pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
+                    pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n", PCB->MaxWidth, PCB->MaxHeight);
                   if (gcode_advanced)
                     {
                       fprintf (gcode_f2, "%s=%f  (safe Z)\n",
