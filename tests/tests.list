@@ -106,17 +106,17 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 # --drill depth <num>            Drilling depth.
 # --measurement-unit <mm|mil|um|inch>    Measurement unit
 #
-hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode2 | gcode_oneline.pcb | gcode | --basename out.gcode | | gcode:out-top.gcode gcode:out-bottom.gcode gcode:out-drill.gcode
-hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode4 | gcode_oneline.pcb | gcode | --mill-depth 5 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode5 | gcode_oneline.pcb | gcode | --safe-Z 10 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode6 | gcode_oneline.pcb | gcode | --tool-diameter 30 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode7 | gcode_oneline.pcb | gcode | --drill-depth 70 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode8 | gcode_oneline.pcb | gcode | --measurement-unit mm | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode9 | gcode_oneline.pcb | gcode | --measurement-unit mil | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode10 | gcode_oneline.pcb | gcode | --measurement-unit um | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
-hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-drill.gcode
+hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode2 | gcode_oneline.pcb | gcode | --basename out.gcode | | gcode:out-top.gcode gcode:out-bottom.gcode gcode:out-0.0350.drill.gcode
+hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode4 | gcode_oneline.pcb | gcode | --mill-depth 5 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode5 | gcode_oneline.pcb | gcode | --safe-Z 10 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode6 | gcode_oneline.pcb | gcode | --tool-diameter 30 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode7 | gcode_oneline.pcb | gcode | --drill-depth 70 | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode8 | gcode_oneline.pcb | gcode | --measurement-unit mm | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.8890.drill.gcode
+hid_gcode9 | gcode_oneline.pcb | gcode | --measurement-unit mil | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
+hid_gcode10 | gcode_oneline.pcb | gcode | --measurement-unit um | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.8890.drill.gcode
+hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcode_oneline-top.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-0.0350.drill.gcode
 #
 ######################################################################
 # ---------------------------------------------
