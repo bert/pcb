@@ -346,8 +346,8 @@ compare_bom() {
     #  8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT 
 
     #  For comparison, we need to ignore changes in the Date and Author lines.
-    local cf1=${tmpd}/`basename $f1` 
-    local cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
 
     normalize_bom $f1 $cf1
     normalize_bom $f2 $cf2
@@ -375,8 +375,8 @@ compare_xy() {
     local f2="$2"
     compare_check "compare_xy" "$f1" "$f2" || return 1
 
-    local cf1=${tmpd}/`basename $f1` 
-    local cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
     normalize_xy "$f1" "$cf1"
     normalize_xy "$f2" "$cf2"
     run_diff "$cf1" "$cf2" || test_failed=yes
@@ -404,11 +404,12 @@ compare_gcode() {
     compare_check "compare_gcode" "$f1" "$f2" || return 1
 
     #  For comparison, we need to ignore changes in the Date and Author lines.
-    local cf1=${tmpd}/`basename $f1` 
-    local cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
 
     normalize_gcode $f1 $cf1
     normalize_gcode $f2 $cf2
+
     run_diff "$cf1" "$cf2" || test_failed=yes
 }
 
