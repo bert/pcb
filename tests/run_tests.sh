@@ -391,10 +391,8 @@ compare_xy() {
 normalize_gcode() {
     local f1="$1"
     local f2="$2"
-    $AWK '
-	d == 1 {gsub(/ .* /, "Creation Date and Time"); d = 0;}
-	/^\(Created by G-code exporter\)/ {d=1}
-	{print}' \
+    # matches string such as '( Tue Mar  9 17:45:43 2010 )'
+    $AWK --posix '!/^\( *[A-Z][a-z]{2} [A-Z][a-z]{2} [01 ][0-9] [0-9]{2}:[0-9]{2}:[0-9]{2} [0-9]{4} *\)$/' \
 	$f1 > $f2
 }
 
