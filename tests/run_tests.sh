@@ -276,9 +276,9 @@ fi
 # test as skipped and give an error message
 #
 compare_check() {
-    fn="$1"
-    f1="$2"
-    f2="$3"
+    local fn="$1"
+    local f1="$2"
+    local f2="$3"
 
     if test ! -f "$f1" ; then 
 	echo "$0:  ${fn}(): $f1 does not exist"
@@ -303,8 +303,8 @@ compare_check() {
 #   run_diff "file1" "file2"
 #
 run_diff() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     diff -U 2 $f1 $f2
     if test $? -ne 0 ; then return 1 ; fi
     return 0
@@ -317,8 +317,8 @@ run_diff() {
 
 # used to remove things like creation date from BOM files
 normalize_bom() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     $AWK '
 	/^# Date:/ {print "# Date: today"; next}
 	/^# Author:/ {print "# Author: PCB"; next}
@@ -328,8 +328,8 @@ normalize_bom() {
 
 # top level function to compare BOM output
 compare_bom() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     compare_check "compare_bom" "$f1" "$f2" || return 1
 
     # an example BOM file is:
@@ -346,8 +346,8 @@ compare_bom() {
     #  8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT 
 
     #  For comparison, we need to ignore changes in the Date and Author lines.
-    cf1=${tmpd}/`basename $f1` 
-    cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1` 
+    local cf2=${tmpd}/`basename $f2` 
 
     normalize_bom $f1 $cf1
     normalize_bom $f2 $cf2
@@ -361,8 +361,8 @@ compare_bom() {
 
 # used to remove things like creation date from BOM files
 normalize_xy() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     $AWK '
 	/^# Date:/ {print "# Date: today"; next}
 	/^# Author:/ {print "# Author: PCB"; next}
@@ -371,12 +371,12 @@ normalize_xy() {
 }
 
 compare_xy() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     compare_check "compare_xy" "$f1" "$f2" || return 1
 
-    cf1=${tmpd}/`basename $f1` 
-    cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1` 
+    local cf2=${tmpd}/`basename $f2` 
     normalize_xy "$f1" "$cf1"
     normalize_xy "$f2" "$cf2"
     run_diff "$cf1" "$cf2" || test_failed=yes
@@ -389,8 +389,8 @@ compare_xy() {
 
 # used to remove things like creation date from gcode files
 normalize_gcode() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     $AWK '
 	d == 1 {gsub(/ .* /, "Creation Date and Time"); d = 0;}
 	/^\(Created by G-code exporter\)/ {d=1}
@@ -399,13 +399,13 @@ normalize_gcode() {
 }
 
 compare_gcode() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     compare_check "compare_gcode" "$f1" "$f2" || return 1
 
     #  For comparison, we need to ignore changes in the Date and Author lines.
-    cf1=${tmpd}/`basename $f1` 
-    cf2=${tmpd}/`basename $f2` 
+    local cf1=${tmpd}/`basename $f1` 
+    local cf2=${tmpd}/`basename $f2` 
 
     normalize_gcode $f1 $cf1
     normalize_gcode $f2 $cf2
@@ -418,8 +418,8 @@ compare_gcode() {
 #
 
 compare_rs274x() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     compare_check "compare_rs274x" "$f1" "$f2" || return 1
 
     # use gerbv to export our reference RS274-X file and our generated
@@ -451,8 +451,8 @@ compare_cnc() {
 #
 
 compare_image() {
-    f1="$1"
-    f2="$2"
+    local f1="$1"
+    local f2="$2"
     compare_check "compare_image" "$f1" "$f2" || return 1
 
     # now see if the image files are the same
