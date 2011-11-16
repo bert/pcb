@@ -70,7 +70,7 @@ static int show_solder_side;
 #define SCALE(w)   ((int)((w)/scale + 0.5))
 #define SCALE_X(x) ((int)(((x) - x_shift)/scale))
 #define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
-#define SWAP_IF_SOLDER(a,b) do { int c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
+#define SWAP_IF_SOLDER(a,b) do { Coord c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
 /* Used to detect non-trivial outlines */
 #define NOT_EDGE_X(x) ((x) != 0 && (x) != PCB->MaxWidth)
@@ -634,8 +634,9 @@ png_do_export (HID_Attr_Val * options)
   int save_ons[MAX_LAYER + 2];
   int i;
   BoxType *bbox;
-  int w, h;
-  int xmax, ymax, dpi;
+  Coord w, h;
+  Coord xmax, ymax;
+  int dpi;
   const char *fmt;
   bool format_error = false;
 
@@ -1493,13 +1494,15 @@ png_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
        * it as a filled polygon.
        */
       int fg = gdImageColorResolve (im, gc->color->r, gc->color->g,
-				    gc->color->b),
-	w = gc->width, dx = x2 - x1, dy = y2 - y1, dwx, dwy;
+				    gc->color->b);
+      Coord w = gc->width;
+      Coord dwx, dwy;
+
       gdPoint p[4];
-      double l = sqrt (dx * dx + dy * dy) * 2;
+      double l = Distance(x1, y1, x2, y2) * 2;
 
       w += 2 * bloat;
-      dwx = -w / l * dy; dwy =  w / l * dx;
+      dwx = -w / l * (y2 - y1); dwy =  w / l * (x2 - x1);
       p[0].x = SCALE_X (x1 + dwx - dwy); p[0].y = SCALE_Y(y1 + dwy + dwx);
       p[1].x = SCALE_X (x1 - dwx - dwy); p[1].y = SCALE_Y(y1 - dwy + dwx);
       p[2].x = SCALE_X (x2 - dwx + dwy); p[2].y = SCALE_Y(y2 - dwy - dwx);
