@@ -390,7 +390,7 @@ set_some_route_style ()
 static int
 real_load_pcb (char *Filename, bool revert)
 {
-  const char *unit_suffix;
+  const char *unit_suffix, *grid_size;
   char *new_filename;
   PCBTypePtr newPCB = CreateNewPCB (false);
   PCBTypePtr oldPCB;
@@ -447,6 +447,12 @@ real_load_pcb (char *Filename, bool revert)
             Settings.grid_unit = new_unit;
         }
       AttributePut (PCB, "PCB::grid::unit", Settings.grid_unit->suffix);
+      /* Use attribute PCB::grid::size as size, if we can */
+      grid_size = AttributeGet (PCB, "PCB::grid::size");
+      if (grid_size)
+        {
+          PCB->Grid = GetValue (grid_size, NULL, NULL);
+        }
  
       sort_netlist ();
 
@@ -601,7 +607,7 @@ WritePCBDataHeader (FILE * FP)
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
   pcb_fprintf (FP, " %mr %mr]\n\n", PCB->MaxWidth, PCB->MaxHeight);
-  pcb_fprintf (FP, "Grid[%.1mr %mr %mr %d]\n", PCB->Grid, PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
+  pcb_fprintf (FP, "Grid[%s %mr %mr %d]\n", c_dtostr (COORD_TO_MIL (PCB->Grid) * 100), PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
   pcb_fprintf (FP, "Cursor[%mr %mr %s]\n",
                Crosshair.X, Crosshair.Y, c_dtostr (PCB->Zoom));
   /* PolyArea should be output in square cmils, no suffix */

@@ -71,6 +71,7 @@ static int mode_stack[MAX_MODESTACK_DEPTH];
 void
 SetGrid (Coord Grid, bool align)
 {
+  char *grid_string;
   if (Grid >= 1 && Grid <= MAX_GRID)
     {
       if (align)
@@ -79,6 +80,10 @@ SetGrid (Coord Grid, bool align)
 	  PCB->GridOffsetY = Crosshair.Y % Grid;
 	}
       PCB->Grid = Grid;
+      grid_string = pcb_g_strdup_printf ("%mr", Grid);
+      if (grid_string)
+        AttributePut (PCB, "PCB::grid::size", grid_string);
+      g_free (grid_string);
       if (Settings.DrawGrid)
 	Redraw ();
     }
