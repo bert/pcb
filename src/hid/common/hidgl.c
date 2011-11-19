@@ -521,7 +521,7 @@ myVertex (GLdouble *vertex_data)
         }
     }
   else
-    printf ("Vertex recieved with unknown type\n");
+    printf ("Vertex received with unknown type\n");
 }
 
 void
