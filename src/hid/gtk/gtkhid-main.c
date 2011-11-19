@@ -9,6 +9,7 @@
 #endif
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 
 
 #include "action.h"
@@ -1222,6 +1223,13 @@ Load (int argc, char **argv, Coord x, Coord y)
   static gchar *current_layout_dir = NULL;
   static gchar *current_netlist_dir = NULL;
 
+  if(current_element_dir == NULL)
+    current_element_dir = get_current_dir_name ();
+  if(current_layout_dir == NULL)
+    current_layout_dir = get_current_dir_name ();
+  if(current_netlist_dir == NULL)
+    current_netlist_dir = get_current_dir_name ();
+
   /* we've been given the file name */
   if (argc > 1)
     return hid_actionv ("LoadFrom", argc, argv);
@@ -1294,6 +1302,9 @@ Save (int argc, char **argv, Coord x, Coord y)
   char *prompt;
 
   static gchar *current_dir = NULL;
+
+  if(current_dir == NULL)
+    current_dir = get_current_dir_name ();
 
   if (argc > 1)
     return hid_actionv ("SaveTo", argc, argv);
@@ -1980,6 +1991,9 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
     static gchar *current_layout_dir = NULL;
     static int I_am_recursing = 0; 
     int rv, nsources;
+
+    if(current_layout_dir == NULL)
+      current_layout_dir = get_current_dir_name ();
 
     if (I_am_recursing)
 	return 1;
