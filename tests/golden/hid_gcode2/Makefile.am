@@ -1,6 +1,6 @@
 ## -*- makefile -*-
 
 EXTRA_DIST= \
-	out.bottom.cnc \
-	out.drill.cnc \
-	out.top.cnc
+	out-0.0350.drill.gcode \
+	out-bottom.gcode \
+	out-top.gcode
