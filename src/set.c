@@ -55,6 +55,7 @@
 #include "misc.h"
 #include "set.h"
 #include "undo.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
