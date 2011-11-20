@@ -697,8 +697,8 @@ gcode_do_export (HID_Attr_Val * options)
                           fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
                         }
                       if (r > 0)
-                        d += hypot( drill->holes[r].x - drill->holes[r - 1].x,
-                                    drill->holes[r].y - drill->holes[r - 1].y );
+                        d += Distance(drill->holes[r - 1].x, drill->holes[r - 1].y,
+                                      drill->holes[r    ].x, drill->holes[r    ].y);
                     }
                   if (gcode_advanced)
                     fprintf (gcode_f2, "M5 M9 M2\n");
