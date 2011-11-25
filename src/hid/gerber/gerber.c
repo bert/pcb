@@ -229,13 +229,13 @@ fprintAperture (FILE *f, Aperture *aptr)
   switch (aptr->shape)
     {
     case ROUND:
-      pcb_fprintf (f, "%%ADD%dC,%.4mi*%%\r\n", aptr->dCode, aptr->width);
+      pcb_fprintf (f, "%%ADD%dC,%.4`mi*%%\r\n", aptr->dCode, aptr->width);
       break;
     case SQUARE:
-      pcb_fprintf (f, "%%ADD%dR,%.4miX%.4mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
+      pcb_fprintf (f, "%%ADD%dR,%.4`miX%.4`mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
       break;
     case OCTAGON:
-      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4mi,22.5*%%\r\n"
+      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4`mi,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
 	       (Coord) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
@@ -741,7 +741,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
 	  fprintf (f, "M48\r\n" "INCH\r\n");
 	  for (search = aptr_list->data; search; search = search->next)
-	    pcb_fprintf (f, "T%02dC%.3mi\r\n", search->dCode, search->width);
+	    pcb_fprintf (f, "T%02dC%.3`mi\r\n", search->dCode, search->width);
 	  fprintf (f, "%%\r\n");
 	  /* FIXME */
 	  return 1;
