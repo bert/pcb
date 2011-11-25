@@ -226,23 +226,18 @@ findAperture (ApertureList *list, Coord width, ApertureShape shape)
 static void
 fprintAperture (FILE *f, Aperture *aptr)
 {
-  char buf[50];
-
   switch (aptr->shape)
     {
     case ROUND:
-      g_ascii_formatd (buf, 50, "%.4f", COORD_TO_INCH (aptr->width));
-      pcb_fprintf (f, "%%ADD%dC,%s*%%\r\n", aptr->dCode, buf);
+      pcb_fprintf (f, "%%ADD%dC,%.4mi*%%\r\n", aptr->dCode, aptr->width);
       break;
     case SQUARE:
-      g_ascii_formatd (buf,  50, "%.4f", COORD_TO_INCH (aptr->width));
-      pcb_fprintf (f, "%%ADD%dR,%sX%s*%%\r\n", aptr->dCode, buf, buf);
+      pcb_fprintf (f, "%%ADD%dR,%.4miX%.4mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
       break;
     case OCTAGON:
-      g_ascii_formatd (buf,  50, "%.4f", COORD_TO_INCH (aptr->width / COS_22_5_DEGREE));
-      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%s,22.5*%%\r\n"
+      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4mi,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
-	       buf, aptr->dCode,
+	       (Coord) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
       break;
 #if 0
