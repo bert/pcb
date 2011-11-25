@@ -382,7 +382,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
    *  (+ 2 skips the ", " for first value) */
   if (n_coords > 1)
     g_string_append_c (buff, '(');
-  if (suffix_type == FILE_MODE)
+  if (suffix_type == FILE_MODE || suffix_type == FILE_MODE_NO_SUFFIX)
     {
       g_ascii_formatd (filemode_buff, sizeof filemode_buff, printf_buff + 2, value[0]);
       g_string_append_printf (buff, "%s", filemode_buff);
@@ -391,7 +391,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
     g_string_append_printf (buff, printf_buff + 2, value[0]);
   for (i = 1; i < n_coords; ++i)
     {
-      if (suffix_type == FILE_MODE)
+      if (suffix_type == FILE_MODE || suffix_type == FILE_MODE_NO_SUFFIX)
         {
           g_ascii_formatd (filemode_buff, sizeof filemode_buff, printf_buff, value[i]);
           g_string_append_printf (buff, "%s", filemode_buff);
@@ -407,6 +407,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
       switch (suffix_type)
         {
         case NO_SUFFIX:
+        case FILE_MODE_NO_SUFFIX:
           break;
         case SUFFIX:
           g_string_append_printf (buff, " %s", suffix);
@@ -479,7 +480,12 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
             }
           if(*fmt == '$')
             {
-              suffix = SUFFIX;
+              suffix = (suffix == NO_SUFFIX) ? SUFFIX : FILE_MODE;
+              fmt++;
+            }
+          if(*fmt == '`')
+            {
+              suffix = (suffix == SUFFIX) ? FILE_MODE : FILE_MODE_NO_SUFFIX;
               fmt++;
             }
           /* Tack full specifier onto specifier */

@@ -59,6 +59,8 @@
  *     #    prevents all scaling for %mS/D/1/.../9 (this should
  *          ONLY be used for debug code since its output exposes
  *          pcb's base units).
+ *     `    always use '.' as decimal separator (note that %mr uses
+ *          this by default).
  *
  * KNOWN ISSUES:
  *   No support for %zu size_t printf spec
@@ -96,7 +98,12 @@ enum e_allow {
 };
 
 enum e_family { METRIC, IMPERIAL };
-enum e_suffix { NO_SUFFIX, SUFFIX, FILE_MODE };
+enum e_suffix {
+  NO_SUFFIX,			/* no suffix  */
+  SUFFIX,			/* suffix, prefixed with ' ' */
+  FILE_MODE_NO_SUFFIX,		/* no suffix, force '.' as decimal */
+  FILE_MODE			/* suffix, force '.' as decimal */
+};
 
 struct unit {
   int index;			/* Index into Unit[] list */
