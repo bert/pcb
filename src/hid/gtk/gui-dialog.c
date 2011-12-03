@@ -475,21 +475,23 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
   if (path && *path && **path)
-    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+    {
+      gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+    }
   else
-  {
-	gchar *default_path;
-	default_path = g_get_current_dir();
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
-	g_free(default_path);
-  }
+    {
+      gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog),
+                                           g_path_get_dirname (file));
+    }
 
   if (file && *file)
     {
+      gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), file);
+    }
+    else
+    {
       gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog),
-                                         g_path_get_basename(file));
-      gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog),
-                                           g_path_get_dirname (file));
+                                         "Untitled document");
     }
 
   if (shortcuts && *shortcuts)
