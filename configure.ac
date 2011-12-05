@@ -1290,6 +1290,9 @@ if test -d $srcdir/newlib; then
 fi
 AC_CONFIG_FILES(src/Makefile)
 AC_CONFIG_FILES(src/icons/Makefile)
+if test -d $srcdir/src/updater; then
+   AC_CONFIG_FILES(src/updater/Makefile)
+fi
 if test -d $srcdir/tools; then
    AC_CONFIG_FILES(tools/Makefile)
 fi

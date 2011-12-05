@@ -2,7 +2,7 @@
 ##
 ## Top level automake file for PCB
 
-DIRS=		w32 intl gts src data lib newlib example tools tutorial README_FILES po tests
+DIRS=		w32 intl gts src data lib newlib example tools tutorial README_FILES po tests src/updater
 SUBDIRS=	${DIRS} @DOC@
 DIST_SUBDIRS=	${DIRS} doc
 
