@@ -1,0 +1,34 @@
+This document is reflecting thoughts and ideas for the updater utility.
+
+What is it?
+-----------
+This is an updater utility for pcb.
+
+Why?
+----
+The User may want to be informed about the latest bleeding edge version
+of pcb, and to be able to use a version with the latest features.
+
+What does it do?
+----------------
+The basic idea is that this utility checks wether there is a newer version
+available on either the official pcb git repository at gpleda.org, or if
+there is a newer version of the tarball available at pcb.sourceforge.net
+or Launchpad (in the near future ?).
+
+Therefor the updater has to know which current (installed) version (either
+tarball or git based) is run (installed) by the user, and the latest
+version available pcb.sourceforge.net or Launchpad (in the near future ?).
+
+How does it work?
+-----------------
+A possible solution for obtaining the latest version information is
+doing a request with libsoup (yes, this is a new dependency).
+
+The information of the current pcb version can be  derived from the
+local pcb git repository with the command "git describe".
+
+<More to be added here>
+
+# EOF #
+
