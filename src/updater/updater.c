@@ -25,13 +25,33 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <curl/curl.h>
+#include <curl/easy.h>
 
-
-int
-main (int argc, char** argv)
+int main(void)
 {
+  CURL *curl;
+  CURLcode res;
+
+  curl = curl_easy_init ();
+  if (curl)
+  {
+    curl_easy_setopt (curl, CURLOPT_URL, "http://ljh4timm.home.xs4all.nl/testing-pcb-updater/latest-version");
+    res = curl_easy_perform (curl);
+    if (CURLE_OK == res)
+    {
+      char *ct; /* content type */
+      res = curl_easy_getinfo (curl, CURLINFO_CONTENT_TYPE, &ct);
+      if ((CURLE_OK == res) && ct)
+      {
+        fprintf (stderr, "We received Content-Type: %s\n", ct);
+      }
+    }
+    curl_easy_cleanup (curl);
+  }
   return 0;
 }
+
 
 /* EOF */
 
