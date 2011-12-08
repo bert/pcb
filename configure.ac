@@ -1059,6 +1059,12 @@ fi
 AC_MSG_RESULT([no])
 ])
 
+# ------------- curl -------------------
+AC_CHECK_LIB([curl], [main], [LIBS=${LIBS}" -lcurl"],
+ 	AC_MSG_ERROR([libcurl is required for build updater.
+ 	You can download the latest version from http://curl.haxx.se]))
+ 	AC_SUBST(CURL_LIBS) 
+
 # ------------- Enable Debug code -------------------
 AC_MSG_CHECKING([for whether to enable debugging code])
 AC_ARG_ENABLE([debug],

@@ -23,7 +23,7 @@ version available pcb.sourceforge.net or Launchpad (in the near future ?).
 How does it work?
 -----------------
 A possible solution for obtaining the latest version information is
-doing a request with libsoup (yes, this is a new dependency).
+doing a request with libcurl (yes, this is probably a new dependency).
 
 The information of the current pcb version can be  derived from the
 local pcb git repository with the command "git describe".
