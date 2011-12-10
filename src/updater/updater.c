@@ -28,7 +28,9 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-int main(void)
+
+int
+updater_get_latest_version_info (void)
 {
   CURL *curl;
   CURLcode res;
@@ -44,11 +46,22 @@ int main(void)
       res = curl_easy_getinfo (curl, CURLINFO_CONTENT_TYPE, &ct);
       if ((CURLE_OK == res) && ct)
       {
-        fprintf (stderr, "We received Content-Type: %s\n", ct);
+        fprintf (stderr, "Received Content-Type: %s\n", ct);
       }
     }
     curl_easy_cleanup (curl);
   }
+  return 0;
+}
+
+
+int
+main (void)
+{
+
+  curl_global_init (CURL_GLOBAL_DEFAULT);
+  updater_get_latest_version_info ();
+  curl_global_cleanup ();
   return 0;
 }
 
