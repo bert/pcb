@@ -120,7 +120,7 @@ updater_get_latest_version_info (void)
 
 
 int
-main (void)
+main (int argc, char **argv)
 {
 
   curl_global_init (CURL_GLOBAL_DEFAULT);
