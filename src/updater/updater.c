@@ -29,6 +29,8 @@
 #include <curl/easy.h>
 
 
+#define PCB_LATEST_VERSION_URI "http://ljh4timm.home.xs4all.nl/testing-pcb-updater/latest-version"
+
 struct FtpFile
 {
   const char *filename;
@@ -100,7 +102,7 @@ updater_get_latest_version_info (void)
   curl = curl_easy_init ();
   if (curl)
   {
-    curl_easy_setopt (curl, CURLOPT_URL, "http://ljh4timm.home.xs4all.nl/testing-pcb-updater/latest-version");
+    curl_easy_setopt (curl, CURLOPT_URL, PCB_LATEST_VERSION_URI);
     res = curl_easy_perform (curl);
     if (CURLE_OK == res)
     {
