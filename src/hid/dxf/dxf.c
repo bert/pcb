@@ -893,6 +893,9 @@ dxf_clean_string
       case '"':
         out[i] = '\'';
         break;
+      case ' ':
+        out[i] = '_';
+        break;
       default:
         out[i] = in[i];
         break;
