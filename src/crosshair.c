@@ -819,7 +819,7 @@ check_snap_object (struct snap_data *snap_data, Coord x, Coord y,
   double sq_dist;
 
   sq_dist = crosshair_sq_dist (snap_data->crosshair, x, y);
-  if (sq_dist < snap_data->nearest_sq_dist ||
+  if (sq_dist <= snap_data->nearest_sq_dist ||
       (prefer_to_grid && snap_data->nearest_is_grid && !gui->shift_is_pressed()))
     {
       snap_data->x = x;
