@@ -1026,8 +1026,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   if (ans != NO_TYPE)
     {
       PadType *pad = (PadType *)ptr2;
-      check_snap_object (&snap_data, (pad->Point1.X + pad->Point2.X) / 2,
-                                     (pad->Point1.Y + pad->Point2.Y) / 2,
+      check_snap_object (&snap_data, pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2,
+                                     pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2,
                          true);
     }
 
