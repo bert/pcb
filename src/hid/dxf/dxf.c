@@ -3521,9 +3521,14 @@ dxf_insert
  * to a ".dwg" file, or any other file format native to the mechanical CAD
  * software used.\n
  * The filename of the 3D model inserted in the dxf file is:\n
- * "Description or footprint name" + ".dwg" (file extension).\n
+ * "parts\" + "Description or footprint name" + ".dwg" (file extension).\n
+ * It is assumed that the 3D models (.dwg) of the parts reside in a
+ * "parts" directory.\n
+ * All spaces in the "Description or footprint name" are palced with an
+ * underscore "_" resulting in the following string:
+ * "Description_or_footprint_name".\n
  * Any element without a valid description or footprint name is inserted in the
- * dxf file with a 3D model with a text "undefined part" and this has to be
+ * dxf file with a 3D model with a text "(unknown)" and this has to be
  * manually inserted in the toplevel model after the initial loading of the dxf
  * file.\n
  * This is to prevent unnoticed ommissions of parts in the toplevel 3D model.
