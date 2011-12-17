@@ -1234,7 +1234,7 @@ on Windows builds, an empty string (to disable this feature).
 %end-doc
 */
   SSET (LibraryContentsCommand,
-#ifdef __WIN32__
+#ifdef _WIN32
 	"",
 #else
 	"ListLibraryContents.sh '%p' '%f'",

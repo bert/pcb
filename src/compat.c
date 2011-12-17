@@ -56,7 +56,7 @@ random (void)
 }
 #endif
 
-#if !defined(HAVE_DLFCN_H) && defined(WIN32)
+#if !defined(HAVE_DLFCN_H) && defined(_WIN32)
 #include <windows.h>
 
 void *

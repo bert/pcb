@@ -2081,7 +2081,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
  * directory.  Without that we can't find our fonts and
  * footprint libraries.
  */
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <winreg.h>
 #endif
@@ -2092,14 +2092,14 @@ HID_DRAW ghid_graphics;
 void
 hid_gtk_init ()
 {
-#ifdef WIN32
+#ifdef _WIN32
   char * tmps;
   char * share_dir;
   char *loader_cache;
   FILE *loader_file;
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
   tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"

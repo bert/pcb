@@ -1725,7 +1725,7 @@ ghid_parse_arguments (int *argc, char ***argv)
   GdkPixbuf *icon;
 
   /* on windows we need to figure out the installation directory */
-#ifdef WIN32
+#ifdef _WIN32
   char * tmps;
   char * libdir;
   tmps = g_win32_get_package_installation_directory(PACKAGE "-" VERSION, NULL);
