@@ -1929,6 +1929,8 @@ main (int argc, char *argv[])
 
   if (gui->printer || gui->exporter)
     {
+      // Workaround to fix batch output for non-C locales
+      setlocale(LC_NUMERIC,"C");
       gui->do_export (0);
       exit (0);
     }
