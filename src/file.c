@@ -1402,6 +1402,7 @@ ParseLibraryTree (void)
   printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
 #endif
 
+  free (libpaths);
   return n_footprints;
 }
 
