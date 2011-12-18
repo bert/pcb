@@ -381,7 +381,7 @@ nogui_prompt_for (const char *msg, const char *default_string)
   if (answer == NULL)
     return strdup ((default_string != NULL) ? default_string : "");
   else
-    return strdup (answer);
+    return answer;
 }
 
 /* FIXME - this could use some enhancement to actually use the other
@@ -402,7 +402,7 @@ nogui_fileselect (const char *title, const char *descr,
   if (answer == NULL)
     return (default_file != NULL) ? strdup (default_file) : NULL;
   else
-    return strdup (answer);
+    return answer;
 }
 
 static int
