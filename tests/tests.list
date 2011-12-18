@@ -161,6 +161,6 @@ hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.g
 #
 hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
-hid_png3 | gerber_oneline.pcb | png | --dpi 300 | | png:gerber_oneline.png
+hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
 
