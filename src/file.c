@@ -1536,10 +1536,11 @@ ReadNetlist (char *filename)
   LibraryEntryTypePtr entry;
   int i, j, lines, kind;
   bool continued;
-  int used_popen = 0;
+  bool used_popen = false;
+  int retval = 0;
 
   if (!filename)
-    return (1);			/* nothing to do */
+    return 1;			/* nothing to do */
 
   Message (_("Importing PCB netlist %s\n"), filename);
 
@@ -1554,7 +1555,7 @@ ReadNetlist (char *filename)
     }
   else
     {
-      used_popen = 1;
+      used_popen = true;
       free (command);
       command = EvaluateFilename (Settings.RatCommand,
 				  Settings.RatPath, filename, NULL);
@@ -1563,7 +1564,7 @@ ReadNetlist (char *filename)
       if (*command == '\0' || (fp = popen (command, "r")) == NULL)
 	{
 	  PopenErrorMessage (command);
-	  return (1);
+	  return 1;
 	}
     }
   lines = 0;
@@ -1634,15 +1635,14 @@ ReadNetlist (char *filename)
   if (!lines)
     {
       Message (_("Empty netlist file!\n"));
-      pclose (fp);
-      return (1);
+      retval = 1;
     }
   if (used_popen)
     pclose (fp);
   else
     fclose (fp);
   sort_netlist ();
-  return (0);
+  return retval;
 }
 
 static int ReadEdifNetlist (char *filename);
