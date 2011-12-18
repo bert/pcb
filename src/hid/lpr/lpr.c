@@ -106,7 +106,7 @@ lpr_do_export (HID_Attr_Val * options)
 
   ps_hid_export_to_file (f, options);
 
-  fclose (f);
+  pclose (f);
 }
 
 static void
