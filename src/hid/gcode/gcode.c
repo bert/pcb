@@ -388,7 +388,7 @@ gcode_start_png (const char *layername)
 
   gcode_alloc_colors ();
 
-  free (buf);
+  g_free (buf);
 }
 
 static void
