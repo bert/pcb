@@ -7706,7 +7706,10 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
       strcat (schname, ".sch");
 
       if (access (schname, F_OK))
-	return hid_action("ImportGUI");
+        {
+          free (schname);
+          return hid_action("ImportGUI");
+        }
 
       sources = (char **) malloc (2 * sizeof (char *));
       sources[0] = schname;
