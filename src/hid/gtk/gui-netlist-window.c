@@ -295,7 +295,7 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
         {
           PadTypePtr pad = (PadTypePtr) conn.ptr2;
           x = pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2;
-          y = pad->Point1.Y + (pad->Point2.Y - pad->Point2.Y) / 2;
+          y = pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2;
           gui->set_crosshair (x, y, 0);
           ghid_lead_user_to_location (x, y);
           break;
