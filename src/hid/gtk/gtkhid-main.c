@@ -2117,6 +2117,7 @@ hid_gtk_init ()
   free (tmps);
 #undef REST_OF_PATH
   printf ("\"Share\" installation path is \"%s\"\n", share_dir);
+  free (share_dir);
 #endif
 
   memset (&ghid_hid, 0, sizeof (HID));

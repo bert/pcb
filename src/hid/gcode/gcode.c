@@ -86,7 +86,6 @@ struct hid_gc_struct
   int width;
   unsigned char r, g, b;
   int erase;
-  int faded;
   struct color_struct *color;
   gdImagePtr brush;
 };
@@ -94,7 +93,6 @@ struct hid_gc_struct
 static struct color_struct *black = NULL, *white = NULL;
 static int linewidth = -1;
 static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
-static int lastcolor = -1;
 
 /* gd image and file for PNG export */
 static gdImagePtr gcode_im = NULL;
@@ -388,7 +386,7 @@ gcode_start_png (const char *layername)
 
   gcode_alloc_colors ();
 
-  free (buf);
+  g_free (buf);
 }
 
 static void
@@ -421,7 +419,6 @@ gcode_start_png_export ()
 
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
-  lastcolor = -1;
 
   hid_expose_callback (&gcode_hid, &region, 0);
 }
@@ -558,6 +555,8 @@ gcode_do_export (HID_Attr_Val * options)
           if (!gcode_f2)
             {
               perror (filename);
+              free (filename);
+              bm_free (bm);
               return;
             }
           fprintf (gcode_f2, "(Created by G-code exporter)\n");
@@ -837,7 +836,6 @@ gcode_set_draw_xor (hidGC gc, int xor_)
 static void
 gcode_set_draw_faded (hidGC gc, int faded)
 {
-  gc->faded = faded;
 }
 
 static void
@@ -924,37 +922,6 @@ use_gc (hidGC gc)
       gdImageSetBrush (gcode_im, gc->brush);
       lastbrush = gc->brush;
 
-    }
-#define CBLEND(gc) (((gc->r)<<24)|((gc->g)<<16)|((gc->b)<<8)|(gc->faded))
-  if (lastcolor != CBLEND (gc))
-    {
-      if (is_drill || is_mask)
-        {
-#ifdef FIXME
-          fprintf (f, "%d gray\n", gc->erase ? 0 : 1);
-#endif
-          lastcolor = 0;
-        }
-      else
-        {
-          double r, g, b;
-          r = gc->r;
-          g = gc->g;
-          b = gc->b;
-          if (gc->faded)
-            {
-              r = 0.8 * 255 + 0.2 * r;
-              g = 0.8 * 255 + 0.2 * g;
-              b = 0.8 * 255 + 0.2 * b;
-            }
-#ifdef FIXME
-          if (gc->r == gc->g && gc->g == gc->b)
-            fprintf (f, "%g gray\n", r / 255.0);
-          else
-            fprintf (f, "%g %g %g rgb\n", r / 255.0, g / 255.0, b / 255.0);
-#endif
-          lastcolor = CBLEND (gc);
-        }
     }
 }
 

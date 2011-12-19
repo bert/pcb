@@ -106,6 +106,8 @@ struct ans_info
   double area;
   jmp_buf env;
   int locked;			/* This will be zero or LOCKFLAG */
+  bool found_anything;
+  double nearest_sq_dist;
 };
 
 static int
@@ -182,19 +184,28 @@ pad_callback (const BoxType * b, void *cl)
   PadTypePtr pad = (PadTypePtr) b;
   struct ans_info *i = (struct ans_info *) cl;
   AnyObjectType *ptr1 = pad->Element;
+  double sq_dist;
 
-  if (TEST_FLAG (i->locked, ptr1))
+  /* Reject locked pads, backside pads (if !BackToo), and non-hit pads */
+  if (TEST_FLAG (i->locked, ptr1) ||
+      (!FRONT (pad) && !i->BackToo) ||
+      !IsPointInPad (PosX, PosY, SearchRadius, pad))
     return 0;
 
-  if (FRONT (pad) || i->BackToo)
+  /* Determine how close our test-position was to the center of the pad  */
+  sq_dist = (PosX - (pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2)) *
+            (PosX - (pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2)) +
+            (PosY - (pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2)) *
+            (PosY - (pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2));
+
+  /* If this was the closest hit so far, record it */
+  if (!i->found_anything || sq_dist < i->nearest_sq_dist)
     {
-      if (IsPointInPad (PosX, PosY, SearchRadius, pad))
-	    {
-	      *i->ptr1 = ptr1;
-	      *i->ptr2 = *i->ptr3 = pad;
-	      longjmp (i->env, 1);
-	    }
-	}
+      *i->ptr1 = ptr1;
+      *i->ptr2 = *i->ptr3 = pad;
+      i->found_anything = true;
+      i->nearest_sq_dist = sq_dist;
+    }
   return 0;
 }
 
@@ -216,11 +227,9 @@ SearchPadByLocation (int locked, ElementTypePtr * Element, PadTypePtr * Pad,
   info.ptr3 = (void **) Dummy;
   info.locked = (locked & LOCKED_TYPE) ? 0 : LOCKFLAG;
   info.BackToo = (BackToo && PCB->InvisibleObjectsOn);
-  if (setjmp (info.env) == 0)
-    r_search (PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
-  else
-    return true;
-  return false;
+  info.found_anything = false;
+  r_search (PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
+  return info.found_anything;
 }
 
 /* ---------------------------------------------------------------------------

@@ -159,7 +159,6 @@ __upheap (heap_t * heap, int k)
   assert (heap && heap->size < heap->max);
   assert (k <= heap->size);
 
-  v = heap->element[k];
   heap->element[0].cost = MIN_COST;
   for (v = heap->element[k]; heap->element[k / 2].cost > v.cost; k = k / 2)
     heap->element[k] = heap->element[k / 2];

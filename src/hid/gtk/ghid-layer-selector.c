@@ -643,7 +643,7 @@ ghid_layer_selector_add_layer (GHidLayerSelector *ls,
       free_ldata (ls, new_layer);
     }
 
-  new_layer = malloc (sizeof (*new_layer));
+  new_layer = g_malloc (sizeof (*new_layer));
 
   gtk_list_store_set (ls->list_store,
                       &iter,

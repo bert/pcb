@@ -2679,8 +2679,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 
 	case F_CycleClip:
 	  notify_crosshair_change (false);
-	  if TEST_FLAG
-	    (ALLDIRECTIONFLAG, PCB)
+	  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
 	    {
 	      TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
 	      PCB->Clipping = 0;
@@ -7623,11 +7622,11 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	}
       else if (strcasecmp (xs, "mark") == 0)
 	{
-	  if (Marked.status)
-	    {
-	      x = Marked.X;
-	      y = Marked.Y;
-	    }
+	  if (!Marked.status)
+	    return 0;
+
+	  x = Marked.X;
+	  y = Marked.Y;
 	}
       else if (ys)
 	{
@@ -7707,7 +7706,10 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
       strcat (schname, ".sch");
 
       if (access (schname, F_OK))
-	return hid_action("ImportGUI");
+        {
+          free (schname);
+          return hid_action("ImportGUI");
+        }
 
       sources = (char **) malloc (2 * sizeof (char *));
       sources[0] = schname;

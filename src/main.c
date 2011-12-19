@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_LOCALE_H
+#include <locale.h>  /* setlocale() and LC_ALL */
+#endif
 #include <stdlib.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
