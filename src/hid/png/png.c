@@ -1425,18 +1425,6 @@ png_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (im, 0);
   linewidth = 0;
 
-  if (x1 > x2)
-    {
-      Coord t = x1;
-      x2 = x2;
-      x2 = t;
-    }
-  if (y1 > y2)
-    {
-      Coord t = y1;
-      y2 = y2;
-      y2 = t;
-    }
   y1 -= bloat;
   y2 += bloat;
   SWAP_IF_SOLDER (y1, y2);
