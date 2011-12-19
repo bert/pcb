@@ -85,6 +85,7 @@ board layout system.
 * Regular Expressions::    Searching for elements with regular expressions
 * Standard Drill Sizes::   Tables of standard drill sizes
 * Centroid File Format::   Details of the centroid (x-y) output file
+* Annotation File Format:: Details of the back annotation output file
 * Action Reference::       Documentation for all available actions
 * Glossary::               Glossary
 * Index::                  The Index.
@@ -5768,6 +5769,73 @@ examined to see which quadrant it is located in.  The same rules apply
 for the definitions of rotation.  In other words, when pin #1 is at
 the centroid of the part and pin #2 is in the upper left quadrant, the
 rotation is declared to be zero degrees.
+
+@c --------------------------- Appendix -- Annotation File Format ----------------------
+@node Annotation File Format
+@appendix Annotation File Format
+@cindex annotation file format
+@cindex backannotation file format
+
+@section Overview
+
+@section File Format
+The annotation output file an ASCII file that can be used to communicate 
+layout changes that affect the netlist back to a schematic tool.  Currently
+the only place this file is used is if when the Renumber() action is called
+within Pcb.  Renumber() will renumber all the reference designators (instance
+names) in the layout.  The result of the renumbering will be written out to 
+an annotation file which can be used to propagate the changes to the schematic
+sources.  See @ref{Renumber Action} for details on the Renumber() action.  If you
+are using gschem (part of gEDA/gaf) as your schematic entry tool then refer
+to pcb_backannotate(1) for details on how to use the annotation file to make
+the changes to the schematics.
+
+The annotation file format is fairly simple.  Each line consists of a command followed
+by arguments.  Blank lines and lines consisting of only whitespace are ignored.
+There are no line continuations.
+
+An example annotation file is shown below.
+@example
+
+*COMMENT* PCB Annotation File
+*FILEVERSION* 20061031
+*RENAME* "C17" "C1"
+*RENAME* "U5" "U1"
+*RENAME* "U6" "U2"
+*RENAME* "C21" "C2"
+*RENAME* "R14" "R1"
+*RENAME* "C7" "C3"
+*RENAME* "C8" "C4"
+*RENAME* "C6" "C5"
+
+@end example
+
+@subsection *COMMENT*
+Command for a comment.  The text of a comment is ignored by tools which process
+the annotation file.
+@cartouche
+@format
+*COMMENT* text
+@end format
+@end cartouche
+
+@subsection *FILEVERSION*
+Indicates what version of the annotation file is in use.  The date code corresponds to the 
+date when the current version was added to the Pcb sources.  
+@cartouche
+@format
+*FILEVERSION* datecode
+@end format
+@end cartouche
+
+@subsection *RENAME*
+Renames an element.  The arguments are enclosed in double quotes and are the original name
+and the new name.
+@cartouche
+@format
+*RENAME* ``old'' ``new''
+@end format
+@end cartouche
 
 @c --------------------------- Appendix -- Actions ----------------------
 @node Action Reference
