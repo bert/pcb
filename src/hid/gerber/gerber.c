@@ -672,7 +672,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	    }
           /* Notice the last zeroes are literal zeroes here, a  *
            *  x10 scale factor.  v        v                     */
-          pcb_fprintf (f, "X%06.00mlY%06.00ml\r\n",
+          pcb_fprintf (f, "X%06.0ml0Y%06.0ml0\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
