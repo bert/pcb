@@ -2679,8 +2679,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 
 	case F_CycleClip:
 	  notify_crosshair_change (false);
-	  if TEST_FLAG
-	    (ALLDIRECTIONFLAG, PCB)
+	  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
 	    {
 	      TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
 	      PCB->Clipping = 0;
