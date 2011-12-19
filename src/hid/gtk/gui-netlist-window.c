@@ -71,7 +71,6 @@ static GtkWidget	*disable_all_button;
 
 static GtkTreeModel *node_model;
 static GtkTreeView *node_treeview;
-static GtkTreeSelection *node_selection;
 
 static gboolean selection_holdoff;
 
@@ -701,7 +700,6 @@ ghid_netlist_window_create (GHidPort * out)
   GtkWidget *vbox, *hbox, *button, *label, *sep;
   GtkTreeView *treeview;
   GtkTreeModel *model;
-  GtkTreeSelection *selection;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
 
@@ -760,10 +758,10 @@ ghid_netlist_window_create (GHidPort * out)
    */
   gtk_tree_view_expand_all (treeview);
 
-  selection = ghid_scrolled_selection (treeview, hbox,
-				       GTK_SELECTION_SINGLE,
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
-				       net_selection_changed_cb, NULL);
+  ghid_scrolled_selection (treeview, hbox,
+                           GTK_SELECTION_SINGLE,
+                           GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
+                           net_selection_changed_cb, NULL);
 
   /* Connect to the double click event.
    */
@@ -785,11 +783,10 @@ ghid_netlist_window_create (GHidPort * out)
 					       "text", NODE_NAME_COLUMN,
 					       NULL);
 
-  selection = ghid_scrolled_selection (treeview, hbox,
-				       GTK_SELECTION_SINGLE,
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
-				       node_selection_changed_cb, NULL);
-  node_selection = selection;
+  ghid_scrolled_selection (treeview, hbox,
+                           GTK_SELECTION_SINGLE,
+                           GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
+                           node_selection_changed_cb, NULL);
 
   hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
