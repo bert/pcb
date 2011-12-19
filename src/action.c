@@ -7622,11 +7622,11 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	}
       else if (strcasecmp (xs, "mark") == 0)
 	{
-	  if (Marked.status)
-	    {
-	      x = Marked.X;
-	      y = Marked.Y;
-	    }
+	  if (!Marked.status)
+	    return 0;
+
+	  x = Marked.X;
+	  y = Marked.Y;
 	}
       else if (ys)
 	{
