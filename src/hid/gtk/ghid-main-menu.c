@@ -141,6 +141,12 @@ translate_accelerator (const char *text)
   return g_string_free (ret_val, FALSE);
 }
 
+static gboolean
+g_str_case_equal (gconstpointer v1, gconstpointer v2)
+{
+  return strcasecmp (v1, v2);
+}
+
 /*! \brief Check that translated accelerators are unique; warn otherwise. */
 static const char *
 check_unique_accel (const char *accelerator)
@@ -151,7 +157,7 @@ check_unique_accel (const char *accelerator)
     return accelerator;
 
   if (!accel_table)
-    accel_table = g_hash_table_new (g_str_hash, g_str_equal);
+    accel_table = g_hash_table_new (g_str_hash, g_str_case_equal);
 
   if (g_hash_table_lookup (accel_table, accelerator))
     {
