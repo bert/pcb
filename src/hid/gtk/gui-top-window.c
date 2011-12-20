@@ -931,6 +931,9 @@ make_route_style_buttons (GHidRouteStyleSelector *rss)
                     G_CALLBACK (route_style_changed_cb), NULL);
   g_signal_connect (G_OBJECT (rss), "style_edited",
                     G_CALLBACK (route_styles_edited_cb), NULL);
+  ghid_main_menu_install_route_style_selector
+      (GHID_MAIN_MENU (ghidgui->menu_bar),
+       GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 }
 
 /*

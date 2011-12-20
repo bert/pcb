@@ -52,6 +52,7 @@ struct _GHidRouteStyleSelector
 
   GtkActionGroup *action_group;
   GtkAccelGroup *accel_group;
+  gint shortcut_key_idx;
 
   GtkListStore *model;
   struct _route_style *active_style;
@@ -391,6 +392,7 @@ ghid_route_style_selector_new ()
 
   rss->accel_group = gtk_accel_group_new ();
   rss->action_group = gtk_action_group_new ("RouteStyleSelector");
+  rss->shortcut_key_idx = 1;
 
   /* Create edit button */
   rss->edit_button = gtk_button_new_with_label (_("Route Styles"));
@@ -439,15 +441,16 @@ ghid_route_style_selector_real_add_route_style (GHidRouteStyleSelector *rss,
   gtk_tree_path_free (path);
 
   /* Setup accelerator */
-  if (action_count < 12)
+  if (rss->shortcut_key_idx < 12)
     {
-      gchar *accel = g_strdup_printf ("<Ctrl>F%d", action_count + 1);
+      gchar *accel = g_strdup_printf ("<Ctrl>F%d", rss->shortcut_key_idx);
       gtk_action_set_accel_group (GTK_ACTION (new_style->action),
                                   rss->accel_group);
       gtk_action_group_add_action_with_accel (rss->action_group,
                                               GTK_ACTION (new_style->action),
                                               accel);
       g_free (accel);
+      ++rss->shortcut_key_idx;
     }
 
   /* Hookup and install radio button */
@@ -619,18 +622,23 @@ ghid_route_style_selector_empty (GHidRouteStyleSelector *rss)
                           &iter, DATA_COL, &rsdata, -1);
       if (rsdata->action)
         {
+#if 0
           gtk_action_disconnect_accelerator (GTK_ACTION (rsdata->action));
+#endif
           gtk_action_group_remove_action (rss->action_group,
                                 GTK_ACTION (rsdata->action));
           g_object_unref (G_OBJECT (rsdata->action));
         }
       if (rsdata->button)
-        gtk_widget_destroy (GTK_WIDGET (rsdata->button));;
+        gtk_widget_destroy (GTK_WIDGET (rsdata->button));
+      if (rsdata->menu_item)
+        gtk_widget_destroy (GTK_WIDGET (rsdata->menu_item));
       gtk_tree_row_reference_free (rsdata->rref);
       free (rsdata);
     }
   while (gtk_list_store_remove (rss->model, &iter));
   rss->action_radio_group = NULL;
   rss->button_radio_group = NULL;
+  rss->shortcut_key_idx = 1;
 }
 
