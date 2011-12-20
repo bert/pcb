@@ -68,7 +68,7 @@ struct _GHidRouteStyleSelectorClass
 
 struct _route_style
 {
-  gboolean temporary;   /* TODO: actually use this for something */
+  gboolean temporary;
   GtkRadioAction *action;
   GtkWidget *button;
   GtkWidget *menu_item;
@@ -622,9 +622,6 @@ ghid_route_style_selector_empty (GHidRouteStyleSelector *rss)
                           &iter, DATA_COL, &rsdata, -1);
       if (rsdata->action)
         {
-#if 0
-          gtk_action_disconnect_accelerator (GTK_ACTION (rsdata->action));
-#endif
           gtk_action_group_remove_action (rss->action_group,
                                 GTK_ACTION (rsdata->action));
           g_object_unref (G_OBJECT (rsdata->action));
@@ -633,6 +630,11 @@ ghid_route_style_selector_empty (GHidRouteStyleSelector *rss)
         gtk_widget_destroy (GTK_WIDGET (rsdata->button));
       if (rsdata->menu_item)
         gtk_widget_destroy (GTK_WIDGET (rsdata->menu_item));
+      if (rsdata->temporary)
+        {
+          free (rsdata->rst->Name);
+          g_free (rsdata->rst);
+        }
       gtk_tree_row_reference_free (rsdata->rref);
       free (rsdata);
     }
