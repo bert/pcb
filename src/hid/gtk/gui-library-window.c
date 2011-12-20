@@ -387,8 +387,11 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
   if (entry->Template == (char *) -1)
     {
       if (LoadElementToBuffer (PASTEBUFFER, entry->AllocatedMemory, true))
-	SetMode (PASTEBUFFER_MODE);
-      goto out;
+        {
+          SetMode (PASTEBUFFER_MODE);
+          goto out;
+        }
+      return;
     }
 
   /* Otherwise, it's a m4 element and we need to create a string of
@@ -399,8 +402,14 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
 			     EMPTY (entry->Value), EMPTY (entry->Package));
 
   if (LoadElementToBuffer (PASTEBUFFER, m4_args, false))
-    SetMode (PASTEBUFFER_MODE);
+    {
+      SetMode (PASTEBUFFER_MODE);
+      g_free (m4_args);
+      goto out;
+    }
+
   g_free (m4_args);
+  return;
 
 out:
 
