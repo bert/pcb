@@ -85,6 +85,8 @@ translate_accelerator (const char *text)
     {"]", "bracketright"},
     {".", "period"},
     {"|", "bar"},
+    {"+", "plus"},
+    {"-", "minus"},
     {NULL, NULL}
   };
 
