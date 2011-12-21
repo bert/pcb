@@ -52,6 +52,8 @@ struct _GHidRouteStyleSelector
 
   GtkActionGroup *action_group;
   GtkAccelGroup *accel_group;
+  GtkRadioAction *null_action;
+  GtkWidget *null_button;
   gint shortcut_key_idx;
 
   GtkListStore *model;
@@ -76,6 +78,17 @@ struct _route_style
   RouteStyleType *rst;
   gulong sig_id;
 };
+
+static void
+init_radio_groups (GHidRouteStyleSelector *rss)
+{
+  gtk_radio_action_set_group (rss->null_action, rss->action_radio_group);
+  rss->action_radio_group = gtk_radio_action_get_group (rss->null_action);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rss->null_button),
+                              rss->button_radio_group);
+  rss->button_radio_group = gtk_radio_button_get_group
+                              (GTK_RADIO_BUTTON (rss->null_button));
+}
 
 /* SIGNAL HANDLERS */
 /*! \brief Callback for user selection of a route style */
@@ -392,6 +405,12 @@ ghid_route_style_selector_new ()
 
   rss->accel_group = gtk_accel_group_new ();
   rss->action_group = gtk_action_group_new ("RouteStyleSelector");
+  rss->null_action = gtk_radio_action_new ("RouteStyleXX", "",
+                                           NULL, NULL, -1);
+  rss->null_button = gtk_radio_button_new (rss->button_radio_group);
+  init_radio_groups (rss);
+  gtk_activatable_set_related_action (GTK_ACTIVATABLE (rss->null_button),
+                                      GTK_ACTION (rss->null_action));
   rss->shortcut_key_idx = 1;
 
   /* Create edit button */
@@ -587,6 +606,7 @@ ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
                                 Coord Thick, Coord Hole,
                                 Coord Diameter, Coord Keepaway)
 {
+  gboolean found_match = FALSE;
   GtkTreeIter iter;
   gtk_tree_model_get_iter_first (GTK_TREE_MODEL (rss->model), &iter);
   do
@@ -604,9 +624,13 @@ ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
             (GTK_TOGGLE_ACTION (style->action), TRUE);
           g_signal_handler_unblock (G_OBJECT (style->action), style->sig_id);
           rss->active_style = style;
+          found_match = TRUE;
         }
     }
   while (gtk_tree_model_iter_next (GTK_TREE_MODEL (rss->model), &iter));
+
+  if (!found_match)
+    gtk_radio_action_set_current_value (rss->null_action, -1);
 }
 
 /*! \brief Removes all styles from a route style selector */
@@ -642,5 +666,6 @@ ghid_route_style_selector_empty (GHidRouteStyleSelector *rss)
   rss->action_radio_group = NULL;
   rss->button_radio_group = NULL;
   rss->shortcut_key_idx = 1;
+  init_radio_groups (rss);
 }
 
