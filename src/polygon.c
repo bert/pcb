@@ -1626,6 +1626,9 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
 void
 RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
+  if (!Data->polyClip)
+    return;
+
   if (type == POLYGON_TYPE)
     InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
   else
@@ -1635,6 +1638,9 @@ RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 void
 ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
+  if (!Data->polyClip)
+    return;
+
   if (type == POLYGON_TYPE)
     InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
   else

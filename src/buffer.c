@@ -378,7 +378,6 @@ MovePolygonToBuffer (LayerType *layer, PolygonType *polygon)
   if (!lay->polygon_tree)
     lay->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->polygon_tree, (BoxType *)polygon, 0);
-  InitClip (Dest, lay, polygon);
   return (polygon);
 }
 
