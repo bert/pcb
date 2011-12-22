@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(srcdir) -DG_LOG_DOMAIN=\"Gts\"
 
-lib_LIBRARIES = libgts.a
+noinst_LIBRARIES = libgts.a
 
 libgts_a_SOURCES = \
 	object.c \
@@ -44,5 +44,5 @@ libgts_a_SOURCES = \
 	curvature.c \
 	tribox3.c
 
-include_HEADERS = \
+noinst_HEADERS = \
 	gts.h
