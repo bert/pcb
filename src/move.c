@@ -800,8 +800,6 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   /* setup offset */
   DeltaX = DX;
   DeltaY = DY;
-  if (DX == 0 && DY == 0)
-    return (NULL);
 
   /* move all the lines... and reset the counter */
   ptr = Crosshair.AttachedObject.Rubberband;
@@ -809,13 +807,20 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
     {
       /* first clear any marks that we made in the line flags */
       CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
-      AddObjectToMoveUndoList (LINEPOINT_TYPE,
-			       ptr->Layer, ptr->Line, ptr->MovedPoint, DX,
-			       DY);
-      MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
+      /* only update undo list if an actual movement happened */
+      if (DX != 0 || DY != 0)
+        {
+          AddObjectToMoveUndoList (LINEPOINT_TYPE,
+                                   ptr->Layer, ptr->Line,
+                                   ptr->MovedPoint, DX, DY);
+          MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
+        }
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
     }
+
+  if (DX == 0 && DY == 0)
+    return (NULL);
 
   AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DX, DY);
   ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
