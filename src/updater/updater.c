@@ -46,6 +46,13 @@ typedef struct
 pcb_version_struct;
 
 
+struct MemoryStruct
+{
+  char *memory;
+  size_t size;
+};
+
+
 struct FtpFile
 {
   const char *filename;
@@ -108,16 +115,44 @@ updater_get_file (char *filename)
 }
 
 
-int
+static size_t
+updater_write_memory_callback (void *contents, size_t size,
+  size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+  mem->memory = realloc (mem->memory, mem->size + realsize + 1);
+  if (mem->memory == NULL)
+  {
+    /* out of memory! */ 
+    fprintf (stderr, "not enough memory (realloc returned NULL)\n");
+    exit (EXIT_FAILURE);
+  }
+  memcpy (&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+  return realsize;
+}
+
+
+gint
 updater_get_latest_version_info (void)
 {
-  CURL *curl;
+  CURL *curl; /* CURL handle */
   CURLcode res;
+  struct MemoryStruct chunk;
+  gchar *used_curl_version = curl_version ();
 
+  chunk.memory = malloc (1);  /* will be grown as needed by the realloc above */ 
+  chunk.size = 0;    /* no data at this point */ 
   curl = curl_easy_init ();
   if (curl)
   {
     curl_easy_setopt (curl, CURLOPT_URL, PCB_LATEST_VERSION_URI);
+    curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, updater_write_memory_callback);
+    curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *)&chunk);
+    curl_easy_setopt (curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     res = curl_easy_perform (curl);
     if (CURLE_OK == res)
     {
@@ -125,12 +160,24 @@ updater_get_latest_version_info (void)
       res = curl_easy_getinfo (curl, CURLINFO_CONTENT_TYPE, &ct);
       if ((CURLE_OK == res) && ct)
       {
+        fprintf (stderr, "Using: %s to check the latest pcb version.\n", used_curl_version);
         fprintf (stderr, "Received Content-Type: %s\n", ct);
+        fprintf (stderr, "%lu bytes retrieved\n", (long) chunk.size);
+        fprintf (stderr, "Latest version is: %s\n", chunk.memory);
+        pcb_latest_version = g_strdup (chunk.memory);
       }
     }
     curl_easy_cleanup (curl);
   }
-  return 0;
+  else
+  {
+    fprintf (stderr, "Could not obtain a valid CURL handle.\n");
+  }
+  if (chunk.memory)
+  {
+    free (chunk.memory);
+  }
+  return;
 }
 
 
@@ -181,24 +228,26 @@ updater_parse_version_string (const gchar *ver, gint *major, gint *minor,
 
 
 /*!
+ * It is assumed that \c version contains a string with a format similar
+ * to "pcb-4.9.9.20151231".
  * Returns TRUE if the version installed is < as the version found
  * on the server. All other cases a causes a FALSE.
  */
 static gboolean
-updater_version_compare (const gchar *pcb_latest_version)
+updater_version_compare (const gchar *version)
 {
-  pcb_version_struct pcb_running;
-  pcb_version_struct pcb_current;
+  pcb_version_struct running;
+  pcb_version_struct latest;
 
-  updater_parse_version_string (PACKAGE_VERSION, &pcb_running.major,
-    &pcb_running.minor, &pcb_running.mini, &pcb_running.extra);
+  updater_parse_version_string (PACKAGE_VERSION, &running.major,
+    &running.minor, &running.mini, &running.extra);
 
-  updater_parse_version_string (pcb_latest_version, &pcb_current.major,
-    &pcb_current.minor, &pcb_current.mini, &pcb_current.extra);
+  updater_parse_version_string (version, &latest.major,
+    &latest.minor, &latest.mini, &latest.extra);
 
-  if ((pcb_running.major < pcb_current.major) ||
-    (pcb_running.minor < pcb_current.minor) ||
-    (pcb_running.minor < pcb_current.minor))
+  if ((running.major < latest.major) ||
+    (running.minor < latest.minor) ||
+    (running.minor < latest.minor))
   {
     return TRUE;
   }
@@ -212,9 +261,20 @@ updater_version_compare (const gchar *pcb_latest_version)
 int
 main (int argc, char **argv)
 {
+  gchar *pcb_latest_version;
 
   curl_global_init (CURL_GLOBAL_DEFAULT);
   updater_get_latest_version_info ();
+  /* strip package name from received string. */
+  if (updater_version_compare (pcb_latest_version))
+  {
+    /* installed version < latest version. */
+    /* get the latest version tarball ? */
+  }
+  else
+  {
+    /* installed version = latest version. */
+  }
   curl_global_cleanup ();
   return 0;
 }
