@@ -1,5 +1,3 @@
-/* 15 Oct 2008 Ineiev: add CycleCrosshair action */
-
 /*
  *                            COPYRIGHT
  *

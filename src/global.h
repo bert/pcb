@@ -24,7 +24,6 @@
  *
  *  RCS: $Id$
  */
-/* 15 Oct 2008 Ineiev: add different crosshair shapes */
 
 /* definition of types
  */
