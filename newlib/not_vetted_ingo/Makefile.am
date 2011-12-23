@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/not_vetted_ingo
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

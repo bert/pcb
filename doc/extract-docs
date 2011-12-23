@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 # -*- perl -*-
 #
-# $Id$
-#
 #################################################################
 # This script extracts special comments from the source. It assembles
 # them in texinfo files that are included in the manual.  

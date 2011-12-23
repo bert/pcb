@@ -23,7 +23,6 @@ divert(-1)
 #   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 #   Thomas.Nau@rz.uni-ulm.de
 # 
-#   RCS: $Id$
 #
 define(`Description_generic8_dil', ``generic'')
 define(`Param1_generic8_dil', 8)

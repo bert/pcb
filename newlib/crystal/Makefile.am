@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/crystal
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

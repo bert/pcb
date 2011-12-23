@@ -1,5 +1,3 @@
-//* $Id$ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -30,8 +28,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #ifndef R_OK
 /* Common value for systems that don't define it.  */

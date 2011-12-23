@@ -23,7 +23,6 @@ divert(-1)
 #   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 #   Thomas.Nau@rz.uni-ulm.de
 # 
-#   RCS: $Id$
 #
 define(`Description_MAX222_dil', `high-speed dual RS232 driver w. shutdown')
 define(`Param1_MAX222_dil', 18)

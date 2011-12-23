@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #undef REGISTER_ACTIONS
 #undef REGISTER_ATTRIBUTES
 #undef REGISTER_FLAGS

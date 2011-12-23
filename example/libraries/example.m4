@@ -1,6 +1,5 @@
 divert(-1)
 # -*- m4 -*-
-# $Id$
 #
 define(`Description_my_RC0402', 
   ``Standard SMT resistor/capacitor (0402)'')

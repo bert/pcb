@@ -23,7 +23,6 @@ divert(-1)
 #   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 #   Thomas.Nau@rz.uni-ulm.de
 # 
-#   RCS: $Id$
 #
 # ----------------------------------------------------------------------
 # several different microcontrollers from the PIC family

@@ -1,5 +1,4 @@
 divert(-1)
-# $Id$
 #                            COPYRIGHT
 #
 #   PCB, interactive printed circuit board design

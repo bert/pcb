@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/tests
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -48,8 +46,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * local prototypes

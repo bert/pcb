@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -72,8 +70,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #define abort1() fprintf(stderr, "abort at line %d\n", __LINE__), abort()
 

@@ -1,5 +1,4 @@
 \input texinfo    @c -*-texinfo-*-
-@comment RCS: $Id$
 @comment %**start of header
 @setfilename gs.info
 @settitle Getting Started With PCB

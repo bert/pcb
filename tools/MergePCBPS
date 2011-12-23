@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 # merges PostScript files created by pcb (version >= 1.4.2) into
 # a single file for backward compatibility
 #

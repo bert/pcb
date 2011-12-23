@@ -1,5 +1,3 @@
-# $Id$
-#
 # Definitions for PCI boards
 # by D.J. Barrow dj_barrow@ariasoft.ie
 #

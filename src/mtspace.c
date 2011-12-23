@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -54,8 +52,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 /* mtspace data structures are built on r-trees. */
 

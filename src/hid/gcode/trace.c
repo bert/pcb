@@ -4,7 +4,7 @@
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
-/* $Id: trace.c 147 2007-04-09 00:44:09Z selinger $ */
+/* trace.c 147 2007-04-09 00:44:09Z selinger */
 /* transform jaggy paths into smooth curves */
 
 #include <stdio.h>

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -42,8 +40,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 static GtkWidget *export_dialog = NULL;
 

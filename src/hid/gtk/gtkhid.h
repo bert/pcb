@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #ifndef PCB_HID_GTK_GTKHID_H
 #define PCB_HID_GTK_GTKHID_H
 

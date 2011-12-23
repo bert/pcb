@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/keystone
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

@@ -2,7 +2,7 @@
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
-/* $Id: decompose.c 146 2007-04-09 00:43:46Z selinger $ */
+/* decompose.c 146 2007-04-09 00:43:46Z selinger */
 
 #include <stdio.h>
 #include <stdlib.h>

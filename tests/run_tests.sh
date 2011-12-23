@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id: run_tests.sh,v 1.8 2009/02/17 00:42:31 danmc Exp $
-#
 # Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009, 2010 Dan McMahill
 
 #  This program is free software; you can redistribute it and/or modify
@@ -334,7 +332,6 @@ compare_bom() {
 
     # an example BOM file is:
 
-    #  # $Id$
     #  # PcbBOM Version 1.0
     #  # Date: Wed Jun 17 14:41:43 2009 UTC
     #  # Author: Dan McMahill

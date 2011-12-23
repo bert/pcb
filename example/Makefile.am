@@ -1,5 +1,3 @@
-## $Id$
-
 examplesdir=	@docdir@/examples
 examples_DATA=	${EXAMPLES}
 

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -38,8 +36,6 @@
 #endif
 
 #include <sys/poll.h>
-
-RCSID ("$Id$");
 
 #ifndef XtRDouble
 #define XtRDouble "Double"

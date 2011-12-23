@@ -1,7 +1,5 @@
 #!/usr/bin/awk -f
 #
-# $Id$
-#
 # Script to regenerate geda.m4 from geda.inc
 #
 # Usage:

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -60,8 +58,6 @@
 #ifndef MAXINT
 #define MAXINT (((unsigned int)(~0))>>1)
 #endif
-
-RCSID ("$Id$");
 
 #define	SMALL_SMALL_TEXT_SIZE	0
 #define	SMALL_TEXT_SIZE			1

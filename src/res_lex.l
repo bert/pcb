@@ -1,5 +1,3 @@
-/* $Id$ */
-
 %{
 
 #ifdef HAVE_CONFIG_H
@@ -17,8 +15,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID("$Id$");
 
 #define YY_NO_INPUT
 #define YY_INPUT(buf,result,max_size) { result = res_parse_getchars(buf, max_size); }

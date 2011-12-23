@@ -1,6 +1,3 @@
-## $Id$
-##
-
 EXTRA_DIST= \
 	CHANGES \
 	Tools \

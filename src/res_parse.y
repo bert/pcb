@@ -1,5 +1,3 @@
-/* $Id$ */
-
 %{
 
 #ifdef HAVE_CONFIG_H
@@ -25,9 +23,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-
-RCSID("$Id$");
 
 static Resource *parsed_res;
 static Resource *current_res;

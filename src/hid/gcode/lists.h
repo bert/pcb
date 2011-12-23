@@ -2,7 +2,7 @@
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
-/* $Id: lists.h 147 2007-04-09 00:44:09Z selinger $ */
+/* lists.h 147 2007-04-09 00:44:09Z selinger */
 
 #ifndef PCB_HID_GCODE_LISTS_H
 #define PCB_HID_GCODE_LISTS_H

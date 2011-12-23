@@ -1,6 +1,3 @@
-#  $Id$
-#
-
 This file is the start of a wish list of features/improvements in no particular
 order.
 

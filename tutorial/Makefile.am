@@ -1,5 +1,3 @@
-## $Id$
-
 tutdir=	@docdir@/tutorial
 tut_DATA=	${TUTORIALS}
 

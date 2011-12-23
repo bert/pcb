@@ -1,5 +1,4 @@
 ## -*- makefile -*-
-## $Id$
 ##
 ## Top level automake file for PCB
 

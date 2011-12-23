@@ -1,6 +1,3 @@
-## $Id$
-##
-
 ## XXX the tools should probably be cleaned up a bit and installed
 ## in ${exec_prefix}/bin  (by bin_SCRIPTS and bin_PROGRAMS)
 

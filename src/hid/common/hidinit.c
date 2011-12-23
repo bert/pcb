@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -37,8 +35,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #define HID_DEF(x) extern void hid_ ## x ## _init(void);
 #include "hid/common/hidlist.h"

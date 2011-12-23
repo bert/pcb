@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -66,8 +64,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #define EXPANDRECTXY(r1, x1, y1, x2, y2) { \
   r1->X1=MIN(r1->X1, x1); r1->Y1=MIN(r1->Y1, y1); \

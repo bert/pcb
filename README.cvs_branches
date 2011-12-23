@@ -1,6 +1,3 @@
-# $Id$
-#
-
 usermenu - cvs branch where Dan is working on allowing the gtk HID
            to load its menus from a menu resource file like the lesstif
 	   HID.  No guarantees that this branch will even build, much less

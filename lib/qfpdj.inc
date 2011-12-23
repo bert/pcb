@@ -24,7 +24,6 @@
 #   Improvments by D.J. Barrow dj_barrow@ariasoft.ie
 #   Further improved by W. Kazubski <wk@ire.pw.edu.pl>
 # 
-#   RCS: $Id$
 #
 #  QFP packages
 #

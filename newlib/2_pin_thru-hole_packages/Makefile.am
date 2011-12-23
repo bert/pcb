@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/2_pin_thru-hole_packages
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

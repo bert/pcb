@@ -1,5 +1,4 @@
 # -*- m4 -*-
-#   $Id$
 #
 #   gEDA compatible footprint names
 #

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -48,8 +46,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 /* Just define a sensible scale, lets say (for example), 100 pixel per 150 mil */
 #define SENSIBLE_VIEW_SCALE  (100. / MIL_TO_COORD (150.))

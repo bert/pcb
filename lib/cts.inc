@@ -1,6 +1,5 @@
 # -*- m4 -*-
 #
-# $Id$
 #                            COPYRIGHT
 #
 #   PCB, interactive printed circuit board design

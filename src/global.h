@@ -22,7 +22,6 @@
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
  *  Thomas.Nau@rz.uni-ulm.de
  *
- *  RCS: $Id$
  */
 
 /* definition of types
@@ -822,8 +821,6 @@ struct drc_violation_st
 #else
 #define ATTRIBUTE_UNUSED
 #endif
-
-#define RCSID(x) static char *rcsid  ATTRIBUTE_UNUSED = x
 
 /* ---------------------------------------------------------------------------
  * Macros called by various action routines to show usage or to report

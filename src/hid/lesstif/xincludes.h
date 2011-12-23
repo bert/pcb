@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  * Some of the X headers are not very friendly in terms of namespace.
  * For example, X.h typedef's Mask but we use Mask in the core of pcb

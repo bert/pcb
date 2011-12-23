@@ -1,7 +1,5 @@
 #! /bin/sh
 #
-# $Id$
-#
 # Run the various GNU autotools to bootstrap the build
 # system.  Should only need to be done once.
 

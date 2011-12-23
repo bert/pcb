@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -42,8 +40,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #define CUSTOM_CURSOR_CLOCKWISE		(GDK_LAST_CURSOR + 10)
 #define CUSTOM_CURSOR_DRAG			(GDK_LAST_CURSOR + 11)

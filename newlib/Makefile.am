@@ -1,5 +1,3 @@
-## $Id$
-##
 ## Top level 'newlib' automake file
 
 SUBDIRS=\

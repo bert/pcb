@@ -23,7 +23,6 @@ divert(-1)
 #   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 #   Thomas.Nau@rz.uni-ulm.de
 # 
-#   RCS: $Id$
 #
 define(`Description_TL070_dil', `Single low noise JFET input operational amplifier')
 define(`Param1_TL070_dil', 8)

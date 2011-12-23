@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-my $RCS_Id = '$Id$ ';
-
 # Author          : Johan Vromans
 # Created On      : Tue Sep 15 15:59:04 1992
 # Last Modified By: Johan Vromans

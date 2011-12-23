@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #ifndef PCB_RESOURCE_H
 #define PCB_RESOURCE_H
 

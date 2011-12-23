@@ -1,6 +1,5 @@
 #!@WISH@ -f
 
-# $Id$
 #
 # User Interface that generates custom QFP and SOIC packages for pcb-1.6.3
 # Invoked from a line like

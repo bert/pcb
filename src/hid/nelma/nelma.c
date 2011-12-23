@@ -82,8 +82,6 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
-
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
 /* Needed for PNG export */

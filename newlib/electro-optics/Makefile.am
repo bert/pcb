@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/electro-optics
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

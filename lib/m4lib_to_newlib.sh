@@ -1,7 +1,4 @@
 #!/bin/sh
-#
-# $Id$
-#
 
 # This script is used to extract all elements from an "oldlib" (M4)
 # style library and place them in individual "newlib" style files.

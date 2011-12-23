@@ -1,5 +1,3 @@
-/* $Id$ */
-
 %{
 /*
  *                            COPYRIGHT
@@ -47,9 +45,6 @@
 #ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
 #endif
-
-RCSID("$Id$");
-
 
 #include "global.h"
 #include "crosshair.h"

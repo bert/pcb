@@ -1,6 +1,3 @@
-## $Id$
-##
-
 pcblibsubdir= @PCBTREEDIR@/msp430
 pcblibsub_DATA= ${COMPONENTS}
 COMPONENTS= \

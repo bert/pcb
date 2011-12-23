@@ -2,7 +2,7 @@
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
-/* $Id: trace.h 147 2007-04-09 00:44:09Z selinger $ */
+/* trace.h 147 2007-04-09 00:44:09Z selinger */
 
 #ifndef TRACE_H
 #define TRACE_H

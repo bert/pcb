@@ -1,7 +1,3 @@
-# $Id$
-#
-#
-
 Please note that this document is a work in progress and
 currently represents a proposal for a future enhancement.
 The goal of this document is to define what changes need

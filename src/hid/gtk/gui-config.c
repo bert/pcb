@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -57,9 +55,6 @@
 #endif
 
 extern int	MoveLayerAction(int argc, char **argv, int x, int y);
-
-
-RCSID ("$Id$");
 
 enum ConfigType
 {

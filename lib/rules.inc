@@ -1,5 +1,4 @@
 #
-#   $Id$
 #
 #   design rule definitions --
 #   tune design rules here

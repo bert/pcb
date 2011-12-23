@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /* HID internal interfaces.  These may ONLY be called from the HID
    modules, not from the common PCB code.  */
 

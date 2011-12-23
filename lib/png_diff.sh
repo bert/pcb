@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 # Copyright (c) 2003, 2004, 2005, 2006, 2007 Dan McMahill
 
 #  This program is free software; you can redistribute it and/or modify

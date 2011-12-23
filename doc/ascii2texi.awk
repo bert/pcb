@@ -1,7 +1,4 @@
 #!/usr/bin/awk -f
-#
-# $Id$
-#
 
 BEGIN {
 	first = 1;
@@ -23,7 +20,6 @@ BEGIN {
 first == 1 {
 	first = 0;
 	printf("@c Generated file.  Do not edit directly\n");
-	printf("@c $" "Id" "$\n");
 	printf("@multitable @columnfractions ");
 	for(i = 1 ; i <= 2*ncol ; i = i + 1) {
 		printf("%.3g ", 0.5 / ncol);

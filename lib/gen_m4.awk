@@ -1,7 +1,5 @@
 #!/usr/bin/awk -f
 #
-# $Id$
-#
 #                            COPYRIGHT
 #
 #   PCB, interactive printed circuit board design

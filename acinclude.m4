@@ -1,5 +1,3 @@
-dnl $Id$
-dnl
 dnl the FC_* macros were copied from the freeciv program.  The use here
 dnl is to figure out if we need -DNARROWPROTO and the correct setting
 dnl for FUNCPROTO.  Without these set right, it has been observed that
