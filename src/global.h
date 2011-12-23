@@ -404,6 +404,7 @@ typedef struct			/* holds all objects */
    *rat_tree;
   struct PCBType *pcb;
   LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
+  int polyClip;
 } DataType, *DataTypePtr;
 
 typedef struct			/* holds drill information */

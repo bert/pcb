@@ -53,6 +53,7 @@
 #include "error.h"
 #include "find.h"
 #include "misc.h"
+#include "move.h"
 #include "set.h"
 #include "undo.h"
 #include "pcb-printf.h"
@@ -288,6 +289,13 @@ SetMode (int Mode)
       Settings.Mode = Mode;
       AdjustAttachedObjects ();
     }
+  /* Cancel rubberband move */
+  else if (Settings.Mode == MOVE_MODE)
+    MoveObjectAndRubberband (Crosshair.AttachedObject.Type,
+                             Crosshair.AttachedObject.Ptr1,
+                             Crosshair.AttachedObject.Ptr2,
+                             Crosshair.AttachedObject.Ptr3,
+                             0, 0);
   else
     {
       if (Settings.Mode == ARC_MODE || Settings.Mode == LINE_MODE)

@@ -152,6 +152,7 @@ CreateNewPCB (bool SetDefaultNames)
   ptr = (PCBTypePtr)calloc (1, sizeof (PCBType));
   ptr->Data = CreateNewBuffer ();
   ptr->Data->pcb = (PCBTypePtr) ptr;
+  ptr->Data->polyClip = 1;
 
   ptr->ThermStyle = 4;
   ptr->IsleArea = 2.e8;
