@@ -215,7 +215,7 @@ void
 hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, double scale)
 {
   double angle;
-  float deltax, deltay, length;
+  double deltax, deltay, length;
   float wdx, wdy;
   int circular_caps = 0;
   int hairline = 0;
@@ -233,7 +233,6 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
 
   if (length == 0) {
     /* Assume the orientation of the line is horizontal */
-    angle = 0;
     wdx = -width / 2.;
     wdy = 0;
     length = 1.;
@@ -242,15 +241,9 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
   } else {
     wdy = deltax * width / 2. / length;
     wdx = -deltay * width / 2. / length;
-
-    if (deltay == 0.)
-      angle = (deltax < 0) ? 270. : 90.;
-    else
-      angle = 180. / M_PI * atanl (deltax / deltay);
-
-    if (deltay < 0)
-      angle += 180.;
   }
+
+  angle = -180. / M_PI * atan2 (deltay, deltax);
 
   switch (cap) {
     case Trace_Cap:
@@ -278,8 +271,8 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
   /* Don't bother capping hairlines */
   if (circular_caps && !hairline)
     {
-      draw_cap (width, x1, y1, angle, scale);
-      draw_cap (width, x2, y2, angle + 180., scale);
+      draw_cap (width, x1, y1, angle + 90., scale);
+      draw_cap (width, x2, y2, angle - 90., scale);
     }
 }
 
