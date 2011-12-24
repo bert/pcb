@@ -62,7 +62,7 @@ typedef struct
 {
   size_t MaxLength;
   char *Data;
-} DynamicStringType, *DynamicStringTypePtr;
+} DynamicStringType;
 
 RubberbandType * GetRubberbandMemory (void);
 PinType * GetPinMemory (ElementType *);
