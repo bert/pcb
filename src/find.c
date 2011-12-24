@@ -120,22 +120,22 @@
 	}
 
 #define	PADLIST_ENTRY(L,I)	\
-	(((PadTypePtr *)PadList[(L)].Data)[(I)])
+	(((PadType **)PadList[(L)].Data)[(I)])
 
 #define	LINELIST_ENTRY(L,I)	\
-	(((LineTypePtr *)LineList[(L)].Data)[(I)])
+	(((LineType **)LineList[(L)].Data)[(I)])
 
 #define	ARCLIST_ENTRY(L,I)	\
-	(((ArcTypePtr *)ArcList[(L)].Data)[(I)])
+	(((ArcType **)ArcList[(L)].Data)[(I)])
 
 #define RATLIST_ENTRY(I)	\
-	(((RatTypePtr *)RatList.Data)[(I)])
+	(((RatType **)RatList.Data)[(I)])
 
 #define	POLYGONLIST_ENTRY(L,I)	\
-	(((PolygonTypePtr *)PolygonList[(L)].Data)[(I)])
+	(((PolygonType **)PolygonList[(L)].Data)[(I)])
 
 #define	PVLIST_ENTRY(I)	\
-	(((PinTypePtr *)PVList.Data)[(I)])
+	(((PinType **)PVList.Data)[(I)])
 
 #define IS_PV_ON_RAT(PV, Rat) \
 	(IsPointOnLineEnd((PV)->X,(PV)->Y, (Rat)))
@@ -278,8 +278,7 @@ typedef struct
   Cardinal Location,            /* currently used position */
     DrawLocation, Number,       /* number of objects in list */
     Size;
-}
-ListType, *ListTypePtr;
+} ListType;
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -304,24 +303,24 @@ static bool LookupLOConnectionsToPVList (bool);
 static bool LookupLOConnectionsToLOList (bool);
 static bool LookupPVConnectionsToLOList (bool);
 static bool LookupPVConnectionsToPVList (void);
-static bool LookupLOConnectionsToLine (LineTypePtr, Cardinal, bool);
-static bool LookupLOConnectionsToPad (PadTypePtr, Cardinal);
-static bool LookupLOConnectionsToPolygon (PolygonTypePtr, Cardinal);
-static bool LookupLOConnectionsToArc (ArcTypePtr, Cardinal);
-static bool LookupLOConnectionsToRatEnd (PointTypePtr, Cardinal);
-static bool IsRatPointOnLineEnd (PointTypePtr, LineTypePtr);
-static bool ArcArcIntersect (ArcTypePtr, ArcTypePtr);
+static bool LookupLOConnectionsToLine (LineType *, Cardinal, bool);
+static bool LookupLOConnectionsToPad (PadType *, Cardinal);
+static bool LookupLOConnectionsToPolygon (PolygonType *, Cardinal);
+static bool LookupLOConnectionsToArc (ArcType *, Cardinal);
+static bool LookupLOConnectionsToRatEnd (PointType *, Cardinal);
+static bool IsRatPointOnLineEnd (PointType *, LineType *);
+static bool ArcArcIntersect (ArcType *, ArcType *);
 static bool PrepareNextLoop (FILE *);
-static bool PrintElementConnections (ElementTypePtr, FILE *, bool);
+static bool PrintElementConnections (ElementType *, FILE *, bool);
 static bool ListsEmpty (bool);
 static bool DoIt (bool, bool);
-static void PrintElementNameList (ElementTypePtr, FILE *);
-static void PrintConnectionElementName (ElementTypePtr, FILE *);
-static void PrintConnectionListEntry (char *, ElementTypePtr,
+static void PrintElementNameList (ElementType *, FILE *);
+static void PrintConnectionElementName (ElementType *, FILE *);
+static void PrintConnectionListEntry (char *, ElementType *,
                                       bool, FILE *);
 static void PrintPadConnections (Cardinal, FILE *, bool);
 static void PrintPinConnections (FILE *, bool);
-static bool PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr,
+static bool PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *,
                                                          FILE *);
 static void DrawNewConnections (void);
 static void DumpList (void);
@@ -330,8 +329,8 @@ static void BuildObjectList (int *, long int **, int **);
 static void GotoError (void);
 static bool DRCFind (int, void *, void *, void *);
 static bool ListStart (int, void *, void *, void *);
-static bool LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup);
-static bool PVTouchesLine (LineTypePtr line);
+static bool LOTouchesLine (LineType *Line, Cardinal LayerGroup);
+static bool PVTouchesLine (LineType *line);
 static bool SetThing (int, void *, void *, void *);
 
 /* ---------------------------------------------------------------------------
@@ -339,19 +338,19 @@ static bool SetThing (int, void *, void *, void *);
  * struct starts with a line struct. See global.h for details
  */
 bool
-LinePadIntersect (LineTypePtr Line, PadTypePtr Pad)
+LinePadIntersect (LineType *Line, PadType *Pad)
 {
-  return LineLineIntersect ((Line), (LineTypePtr)Pad);
+  return LineLineIntersect ((Line), (LineType *)Pad);
 }
 
 bool
-ArcPadIntersect (ArcTypePtr Arc, PadTypePtr Pad)
+ArcPadIntersect (ArcType *Arc, PadType *Pad)
 {
-  return LineArcIntersect ((LineTypePtr) (Pad), (Arc));
+  return LineArcIntersect ((LineType *) (Pad), (Arc));
 }
 
 static bool
-ADD_PV_TO_LIST (PinTypePtr Pin)
+ADD_PV_TO_LIST (PinType *Pin)
 {
   if (User)
     AddObjectToFlagUndoList (Pin->Element ? PIN_TYPE : VIA_TYPE,
@@ -370,7 +369,7 @@ ADD_PV_TO_LIST (PinTypePtr Pin)
 }
 
 static bool
-ADD_PAD_TO_LIST (Cardinal L, PadTypePtr Pad)
+ADD_PAD_TO_LIST (Cardinal L, PadType *Pad)
 {
   if (User)
     AddObjectToFlagUndoList (PAD_TYPE, Pad->Element, Pad, Pad);
@@ -388,7 +387,7 @@ ADD_PAD_TO_LIST (Cardinal L, PadTypePtr Pad)
 }
 
 static bool
-ADD_LINE_TO_LIST (Cardinal L, LineTypePtr Ptr)
+ADD_LINE_TO_LIST (Cardinal L, LineType *Ptr)
 {
   if (User)
     AddObjectToFlagUndoList (LINE_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
@@ -406,7 +405,7 @@ ADD_LINE_TO_LIST (Cardinal L, LineTypePtr Ptr)
 }
 
 static bool
-ADD_ARC_TO_LIST (Cardinal L, ArcTypePtr Ptr)
+ADD_ARC_TO_LIST (Cardinal L, ArcType *Ptr)
 {
   if (User)
     AddObjectToFlagUndoList (ARC_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
@@ -424,7 +423,7 @@ ADD_ARC_TO_LIST (Cardinal L, ArcTypePtr Ptr)
 }
 
 static bool
-ADD_RAT_TO_LIST (RatTypePtr Ptr)
+ADD_RAT_TO_LIST (RatType *Ptr)
 {
   if (User)
     AddObjectToFlagUndoList (RATLINE_TYPE, (Ptr), (Ptr), (Ptr));
@@ -442,7 +441,7 @@ ADD_RAT_TO_LIST (RatTypePtr Ptr)
 }
 
 static bool
-ADD_POLYGON_TO_LIST (Cardinal L, PolygonTypePtr Ptr)
+ADD_POLYGON_TO_LIST (Cardinal L, PolygonType *Ptr)
 {
   if (User)
     AddObjectToFlagUndoList (POLYGON_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
@@ -460,7 +459,7 @@ ADD_POLYGON_TO_LIST (Cardinal L, PolygonTypePtr Ptr)
 }
 
 bool
-PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
+PinLineIntersect (PinType *PV, LineType *Line)
 {
   /* IsLineInRectangle already has Bloat factor */
   return TEST_FLAG (SQUAREFLAG,
@@ -475,7 +474,7 @@ PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
                                                                          2.0 +
                                                                          Bloat,
                                                                          0.0),
-                                                                    (PadTypePtr)Line);
+                                                                    (PadType *)Line);
 }
 
 
@@ -495,7 +494,7 @@ SetThing (int type, void *ptr1, void *ptr2, void *ptr3)
 }
 
 bool
-BoxBoxIntersection (BoxTypePtr b1, BoxTypePtr b2)
+BoxBoxIntersection (BoxType *b1, BoxType *b2)
 {
   if (b2->X2 < b1->X1 || b2->X1 > b1->X2)
     return false;
@@ -505,13 +504,13 @@ BoxBoxIntersection (BoxTypePtr b1, BoxTypePtr b2)
 }
 
 static bool
-PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
+PadPadIntersect (PadType *p1, PadType *p2)
 {
-  return LinePadIntersect ((LineTypePtr) p1, p2);
+  return LinePadIntersect ((LineType *) p1, p2);
 }
 
 static inline bool
-PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
+PV_TOUCH_PV (PinType *PV1, PinType *PV2)
 {
   double t1, t2;
   BoxType b1, b2;
@@ -592,7 +591,7 @@ InitComponentLookup (void)
   for (i = 0; i < 2; i++)
     {
       /* allocate memory for working list */
-      PadList[i].Data = (void **)calloc (NumberOfPads[i], sizeof (PadTypePtr));
+      PadList[i].Data = (void **)calloc (NumberOfPads[i], sizeof (PadType *));
 
       /* clear some struct members */
       PadList[i].Location = 0;
@@ -614,17 +613,17 @@ InitLayoutLookup (void)
   /* initialize line arc and polygon data */
   for (i = 0; i < max_copper_layer; i++)
     {
-      LayerTypePtr layer = LAYER_PTR (i);
+      LayerType *layer = LAYER_PTR (i);
 
       if (layer->LineN)
         {
           /* allocate memory for line pointer lists */
-          LineList[i].Data = (void **)calloc (layer->LineN, sizeof (LineTypePtr));
+          LineList[i].Data = (void **)calloc (layer->LineN, sizeof (LineType *));
           LineList[i].Size = layer->LineN;
         }
       if (layer->ArcN)
         {
-          ArcList[i].Data = (void **)calloc (layer->ArcN, sizeof (ArcTypePtr));
+          ArcList[i].Data = (void **)calloc (layer->ArcN, sizeof (ArcType *));
           ArcList[i].Size = layer->ArcN;
         }
 
@@ -632,7 +631,7 @@ InitLayoutLookup (void)
       /* allocate memory for polygon list */
       if (layer->PolygonN)
         {
-          PolygonList[i].Data = (void **)calloc (layer->PolygonN, sizeof (PolygonTypePtr));
+          PolygonList[i].Data = (void **)calloc (layer->PolygonN, sizeof (PolygonType *));
           PolygonList[i].Size = layer->PolygonN;
         }
 
@@ -657,13 +656,13 @@ InitLayoutLookup (void)
   else
     TotalV = 0;
   /* allocate memory for 'new PV to check' list and clear struct */
-  PVList.Data = (void **)calloc (TotalP + TotalV, sizeof (PinTypePtr));
+  PVList.Data = (void **)calloc (TotalP + TotalV, sizeof (PinType *));
   PVList.Size = TotalP + TotalV;
   PVList.Location = 0;
   PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
-  RatList.Data = (void **)calloc (PCB->Data->RatN, sizeof (RatTypePtr));
+  RatList.Data = (void **)calloc (PCB->Data->RatN, sizeof (RatType *));
   RatList.Size = PCB->Data->RatN;
   RatList.Location = 0;
   RatList.DrawLocation = 0;
@@ -680,7 +679,7 @@ struct pv_info
 static int
 LOCtoPVline_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && PinLineIntersect (&i->pv, line) &&
@@ -695,7 +694,7 @@ LOCtoPVline_callback (const BoxType * b, void *cl)
 static int
 LOCtoPVarc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, arc) && IS_PV_ON_ARC (&i->pv, arc) &&
@@ -710,7 +709,7 @@ LOCtoPVarc_callback (const BoxType * b, void *cl)
 static int
 LOCtoPVpad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && IS_PV_ON_PAD (&i->pv, pad) &&
@@ -724,7 +723,7 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
 static int
 LOCtoPVrat_callback (const BoxType * b, void *cl)
 {
-  RatTypePtr rat = (RatTypePtr) b;
+  RatType *rat = (RatType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, rat) && IS_PV_ON_RAT (&i->pv, rat) &&
@@ -735,7 +734,7 @@ LOCtoPVrat_callback (const BoxType * b, void *cl)
 static int
 LOCtoPVpoly_callback (const BoxType * b, void *cl)
 {
-  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  PolygonType *polygon = (PolygonType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   /* if the pin doesn't have a therm and polygon is clearing
@@ -959,7 +958,7 @@ LookupLOConnectionsToLOList (bool AndRats)
 static int
 pv_pv_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pin) && PV_TOUCH_PV (&i->pv, pin))
@@ -1026,7 +1025,7 @@ struct lo_info
 static int
 pv_line_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pv = (PinTypePtr) b;
+  PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pv) && PinLineIntersect (pv, &i->line))
@@ -1046,7 +1045,7 @@ pv_line_callback (const BoxType * b, void *cl)
 static int
 pv_pad_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pv = (PinTypePtr) b;
+  PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_PAD (pv, &i->pad))
@@ -1066,7 +1065,7 @@ pv_pad_callback (const BoxType * b, void *cl)
 static int
 pv_arc_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pv = (PinTypePtr) b;
+  PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_ARC (pv, &i->arc))
@@ -1086,7 +1085,7 @@ pv_arc_callback (const BoxType * b, void *cl)
 static int
 pv_poly_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pv = (PinTypePtr) b;
+  PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok, so they don't generate warnings. */
@@ -1126,7 +1125,7 @@ pv_poly_callback (const BoxType * b, void *cl)
 static int
 pv_rat_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pv = (PinTypePtr) b;
+  PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   /* rats can't cause DRC so there is no early exit */
@@ -1275,7 +1274,7 @@ LookupPVConnectionsToLOList (bool AndRats)
 int
 pv_touch_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pin) && PinLineIntersect (pin, &i->line))
@@ -1284,7 +1283,7 @@ pv_touch_callback (const BoxType * b, void *cl)
 }
 
 static bool
-PVTouchesLine (LineTypePtr line)
+PVTouchesLine (LineType *line)
 {
   struct lo_info info;
 
@@ -1319,7 +1318,7 @@ normalize_angles (Angle *sa, Angle *d)
 }
 
 static int
-radius_crosses_arc (double x, double y, ArcTypePtr arc)
+radius_crosses_arc (double x, double y, ArcType *arc)
 {
   double alpha = atan2 (y - arc->Y, -x + arc->X) * RAD_TO_DEG;
   Angle sa = arc->StartAngle, d = arc->Delta;
@@ -1333,7 +1332,7 @@ radius_crosses_arc (double x, double y, ArcTypePtr arc)
 }
 
 static void
-get_arc_ends (Coord *box, ArcTypePtr arc)
+get_arc_ends (Coord *box, ArcType *arc)
 {
   box[0] = arc->X - arc->Width  * cos (M180 * arc->StartAngle);
   box[1] = arc->Y + arc->Height * sin (M180 * arc->StartAngle);
@@ -1366,7 +1365,7 @@ get_arc_ends (Coord *box, ArcTypePtr arc)
  *
  */
 static bool
-ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
+ArcArcIntersect (ArcType *Arc1, ArcType *Arc2)
 {
   double x, y, dx, dy, r1, r2, a, d, l, t, t1, t2, dl;
   Coord pdx, pdy;
@@ -1485,7 +1484,7 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
  * Tests if point is same as line end point
  */
 static bool
-IsRatPointOnLineEnd (PointTypePtr Point, LineTypePtr Line)
+IsRatPointOnLineEnd (PointType *Point, LineType *Line)
 {
   if ((Point->X == Line->Point1.X
        && Point->Y == Line->Point1.Y)
@@ -1495,7 +1494,7 @@ IsRatPointOnLineEnd (PointTypePtr Point, LineTypePtr Line)
 }
 
 static void 
-form_slanted_rectangle (PointType p[4], LineTypePtr l)
+form_slanted_rectangle (PointType p[4], LineType *l)
 /* writes vertices of a squared line */
 {
    double dwx = 0, dwy = 0;
@@ -1572,7 +1571,7 @@ form_slanted_rectangle (PointType p[4], LineTypePtr l)
  *
  */
 bool
-LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
+LineLineIntersect (LineType *Line1, LineType *Line2)
 {
   double s, r;
   double line1_dx, line1_dy, line2_dx, line2_dy,
@@ -1599,16 +1598,16 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
    *  below does not cause a divide-by-zero. */
   if (IsPointInPad (Line2->Point1.X, Line2->Point1.Y,
                     MAX (Line2->Thickness / 2 + Bloat, 0),
-                    (PadTypePtr) Line1)
+                    (PadType *) Line1)
        || IsPointInPad (Line2->Point2.X, Line2->Point2.Y,
                         MAX (Line2->Thickness / 2 + Bloat, 0),
-                        (PadTypePtr) Line1)
+                        (PadType *) Line1)
        || IsPointInPad (Line1->Point1.X, Line1->Point1.Y,
                         MAX (Line1->Thickness / 2 + Bloat, 0),
-                        (PadTypePtr) Line2)
+                        (PadType *) Line2)
        || IsPointInPad (Line1->Point2.X, Line1->Point2.Y,
                         MAX (Line1->Thickness / 2 + Bloat, 0),
-                        (PadTypePtr) Line2))
+                        (PadType *) Line2))
     return true;
 
   /* setup some constants */
@@ -1681,10 +1680,10 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
  * The end points are hell so they are checked individually
  */
 bool
-LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
+LineArcIntersect (LineType *Line, ArcType *Arc)
 {
   double dx, dy, dx1, dy1, l, d, r, r2, Radius;
-  BoxTypePtr box;
+  BoxType *box;
 
   dx = Line->Point2.X - Line->Point1.X;
   dy = Line->Point2.Y - Line->Point1.Y;
@@ -1730,9 +1729,9 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
     return (true);
   /* check arc end points */
   box = GetArcEnds (Arc);
-  if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + Bloat, (PadTypePtr)Line))
+  if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + Bloat, (PadType *)Line))
     return true;
-  if (IsPointInPad (box->X2, box->Y2, Arc->Thickness * 0.5 + Bloat, (PadTypePtr)Line))
+  if (IsPointInPad (box->X2, box->Y2, Arc->Thickness * 0.5 + Bloat, (PadType *)Line))
     return true;
   return false;
 }
@@ -1740,7 +1739,7 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
 static int
 LOCtoArcLine_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && LineArcIntersect (line, &i->arc))
@@ -1754,7 +1753,7 @@ LOCtoArcLine_callback (const BoxType * b, void *cl)
 static int
 LOCtoArcArc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!arc->Thickness)
@@ -1770,7 +1769,7 @@ LOCtoArcArc_callback (const BoxType * b, void *cl)
 static int
 LOCtoArcPad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -1788,7 +1787,7 @@ LOCtoArcPad_callback (const BoxType * b, void *cl)
  * Xij means Xj at arc i
  */
 static bool
-LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
+LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
   struct lo_info info;
@@ -1846,7 +1845,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 static int
 LOCtoLineLine_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (&i->line, line))
@@ -1860,7 +1859,7 @@ LOCtoLineLine_callback (const BoxType * b, void *cl)
 static int
 LOCtoLineArc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!arc->Thickness)
@@ -1876,7 +1875,7 @@ LOCtoLineArc_callback (const BoxType * b, void *cl)
 static int
 LOCtoLineRat_callback (const BoxType * b, void *cl)
 {
-  RatTypePtr rat = (RatTypePtr) b;
+  RatType *rat = (RatType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, rat))
@@ -1900,7 +1899,7 @@ LOCtoLineRat_callback (const BoxType * b, void *cl)
 static int
 LOCtoLinePad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -1918,7 +1917,7 @@ LOCtoLinePad_callback (const BoxType * b, void *cl)
  * Xij means Xj at line i
  */
 static bool
-LookupLOConnectionsToLine (LineTypePtr Line, Cardinal LayerGroup,
+LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
                            bool PolysTo)
 {
   Cardinal entry;
@@ -1989,7 +1988,7 @@ LookupLOConnectionsToLine (LineTypePtr Line, Cardinal LayerGroup,
 static int
 LOT_Linecallback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (&i->line, line))
@@ -2000,7 +1999,7 @@ LOT_Linecallback (const BoxType * b, void *cl)
 static int
 LOT_Arccallback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!arc->Thickness)
@@ -2013,7 +2012,7 @@ LOT_Arccallback (const BoxType * b, void *cl)
 static int
 LOT_Padcallback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -2024,7 +2023,7 @@ LOT_Padcallback (const BoxType * b, void *cl)
 }
 
 static bool
-LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
+LOTouchesLine (LineType *Line, Cardinal LayerGroup)
 {
   Cardinal entry;
   struct lo_info info;
@@ -2085,14 +2084,14 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
 struct rat_info
 {
   Cardinal layer;
-  PointTypePtr Point;
+  PointType *Point;
   jmp_buf env;
 };
 
 static int
 LOCtoRat_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) &&
@@ -2108,7 +2107,7 @@ LOCtoRat_callback (const BoxType * b, void *cl)
 static int
 PolygonToRat_callback (const BoxType * b, void *cl)
 {
-  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  PolygonType *polygon = (PolygonType *) b;
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (TheFlag, polygon) && polygon->Clipped &&
@@ -2124,7 +2123,7 @@ PolygonToRat_callback (const BoxType * b, void *cl)
 static int
 LOCtoPad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -2146,7 +2145,7 @@ LOCtoPad_callback (const BoxType * b, void *cl)
  * Xij means Xj at line i
  */
 static bool
-LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
+LookupLOConnectionsToRatEnd (PointType *Point, Cardinal LayerGroup)
 {
   Cardinal entry;
   struct rat_info info;
@@ -2192,7 +2191,7 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 static int
 LOCtoPadLine_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && LinePadIntersect (line, &i->pad))
@@ -2206,7 +2205,7 @@ LOCtoPadLine_callback (const BoxType * b, void *cl)
 static int
 LOCtoPadArc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!arc->Thickness)
@@ -2222,7 +2221,7 @@ LOCtoPadArc_callback (const BoxType * b, void *cl)
 static int
 LOCtoPadPoly_callback (const BoxType * b, void *cl)
 {
-  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  PolygonType *polygon = (PolygonType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
 
@@ -2239,7 +2238,7 @@ LOCtoPadPoly_callback (const BoxType * b, void *cl)
 static int
 LOCtoPadRat_callback (const BoxType * b, void *cl)
 {
-  RatTypePtr rat = (RatTypePtr) b;
+  RatType *rat = (RatType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, rat))
@@ -2269,7 +2268,7 @@ LOCtoPadRat_callback (const BoxType * b, void *cl)
 static int
 LOCtoPadPad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -2284,13 +2283,13 @@ LOCtoPadPad_callback (const BoxType * b, void *cl)
  * layergroup. All found connections are added to the list
  */
 static bool
-LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
+LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup)
 {
   Cardinal entry;
   struct lo_info info;
 
   if (!TEST_FLAG (SQUAREFLAG, Pad))
-    return (LookupLOConnectionsToLine ((LineTypePtr) Pad, LayerGroup, false));
+    return (LookupLOConnectionsToLine ((LineType *) Pad, LayerGroup, false));
 
   info.pad = *Pad;
   EXPAND_BOUNDS (&info.pad);
@@ -2349,7 +2348,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 static int
 LOCtoPolyLine_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && IsLineInPolygon (line, &i->polygon))
@@ -2363,7 +2362,7 @@ LOCtoPolyLine_callback (const BoxType * b, void *cl)
 static int
 LOCtoPolyArc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!arc->Thickness)
@@ -2379,7 +2378,7 @@ LOCtoPolyArc_callback (const BoxType * b, void *cl)
 static int
 LOCtoPolyPad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
@@ -2395,7 +2394,7 @@ LOCtoPolyPad_callback (const BoxType * b, void *cl)
 static int
 LOCtoPolyRat_callback (const BoxType * b, void *cl)
 {
-  RatTypePtr rat = (RatTypePtr) b;
+  RatType *rat = (RatType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, rat))
@@ -2418,7 +2417,7 @@ LOCtoPolyRat_callback (const BoxType * b, void *cl)
  * on the given layergroup. All found connections are added to the list
  */
 static bool
-LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
+LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup)
 {
   Cardinal entry;
   struct lo_info info;
@@ -2494,9 +2493,9 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
  * - check all segments of the polygon against the arc.
  */
 bool
-IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
+IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
 {
-  BoxTypePtr Box = (BoxType *) Arc;
+  BoxType *Box = (BoxType *) Arc;
 
   /* arcs with clearance never touch polys */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
@@ -2526,9 +2525,9 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
  * - check all segments of the polygon against the line.
  */
 bool
-IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
+IsLineInPolygon (LineType *Line, PolygonType *Polygon)
 {
-  BoxTypePtr Box = (BoxType *) Line;
+  BoxType *Box = (BoxType *) Line;
   POLYAREA *lp;
 
   /* lines with clearance never touch polygons */
@@ -2565,9 +2564,9 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
  * The polygon is assumed to already have been proven non-clearing
  */
 bool
-IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
+IsPadInPolygon (PadType *pad, PolygonType *polygon)
 {
-    return IsLineInPolygon ((LineTypePtr) pad, polygon);
+    return IsLineInPolygon ((LineType *) pad, polygon);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2577,7 +2576,7 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
  * If both fail check all lines of P1 against the ones of P2
  */
 bool
-IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
+IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
 {
   if (!P1->Clipped || !P2->Clipped)
     return false;
@@ -2635,7 +2634,7 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
  * writes the several names of an element to a file
  */
 static void
-PrintElementNameList (ElementTypePtr Element, FILE * FP)
+PrintElementNameList (ElementType *Element, FILE * FP)
 {
   static DynamicStringType cname, pname, vname;
 
@@ -2649,7 +2648,7 @@ PrintElementNameList (ElementTypePtr Element, FILE * FP)
  * writes the several names of an element to a file
  */
 static void
-PrintConnectionElementName (ElementTypePtr Element, FILE * FP)
+PrintConnectionElementName (ElementType *Element, FILE * FP)
 {
   fputs ("Element", FP);
   PrintElementNameList (Element, FP);
@@ -2660,7 +2659,7 @@ PrintConnectionElementName (ElementTypePtr Element, FILE * FP)
  * prints one {pin,pad,via}/element entry of connection lists
  */
 static void
-PrintConnectionListEntry (char *ObjName, ElementTypePtr Element,
+PrintConnectionListEntry (char *ObjName, ElementType *Element,
                           bool FirstOne, FILE * FP)
 {
   static DynamicStringType oname;
@@ -2686,7 +2685,7 @@ static void
 PrintPadConnections (Cardinal Layer, FILE * FP, bool IsFirst)
 {
   Cardinal i;
-  PadTypePtr ptr;
+  PadType *ptr;
 
   if (!PadList[Layer].Number)
     return;
@@ -2708,7 +2707,7 @@ PrintPadConnections (Cardinal Layer, FILE * FP, bool IsFirst)
     {
       ptr = PADLIST_ENTRY (Layer, i);
       if (ptr != NULL)
-        PrintConnectionListEntry ((char *)EMPTY (ptr->Name), (ElementTypePtr)ptr->Element, false, FP);
+        PrintConnectionListEntry ((char *)EMPTY (ptr->Name), (ElementType *)ptr->Element, false, FP);
       else
         printf ("Skipping NULL ptr in 2nd part of PrintPadConnections\n");
     }
@@ -2722,7 +2721,7 @@ static void
 PrintPinConnections (FILE * FP, bool IsFirst)
 {
   Cardinal i;
-  PinTypePtr pv;
+  PinType *pv;
 
   if (!PVList.Number)
     return;
@@ -2741,7 +2740,7 @@ PrintPinConnections (FILE * FP, bool IsFirst)
     {
       /* get the elements name or assume that its a via */
       pv = PVLIST_ENTRY (i);
-      PrintConnectionListEntry ((char *)EMPTY (pv->Name), (ElementTypePtr)pv->Element, false, FP);
+      PrintConnectionListEntry ((char *)EMPTY (pv->Name), (ElementType *)pv->Element, false, FP);
     }
 }
 
@@ -2771,7 +2770,7 @@ reassign_no_drc_flags (void)
 
   for (layer = 0; layer < max_copper_layer; layer++)
     {
-      LayerTypePtr l = LAYER_PTR (layer);
+      LayerType *l = LAYER_PTR (layer);
       l->no_drc = AttributeGet (l, "PCB::skip-drc") != NULL;
     }
 }
@@ -2811,7 +2810,7 @@ DoIt (bool AndRats, bool AndDraw)
  */
 
 bool
-lineClear (LineTypePtr line, Cardinal group)
+lineClear (LineType *line, Cardinal group)
 {
   if (LOTouchesLine (line, group))
     return (false);
@@ -2824,7 +2823,7 @@ lineClear (LineTypePtr line, Cardinal group)
  * prints all unused pins of an element to file FP
  */
 static bool
-PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
+PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP)
 {
   bool first = true;
   Cardinal number;
@@ -2960,7 +2959,7 @@ PrepareNextLoop (FILE * FP)
  * Returns true if operation was aborted
  */
 static bool
-PrintElementConnections (ElementTypePtr Element, FILE * FP, bool AndDraw)
+PrintElementConnections (ElementType *Element, FILE * FP, bool AndDraw)
 {
   PrintConnectionElementName (Element, FP);
 
@@ -3070,7 +3069,7 @@ DrawNewConnections (void)
    */
   while (PVList.DrawLocation < PVList.Number)
     {
-      PinTypePtr pv = PVLIST_ENTRY (PVList.DrawLocation);
+      PinType *pv = PVLIST_ENTRY (PVList.DrawLocation);
 
       if (TEST_FLAG (PINFLAG, pv))
         {
@@ -3095,7 +3094,7 @@ DrawNewConnections (void)
  * find all connections to pins within one element
  */
 void
-LookupElementConnections (ElementTypePtr Element, FILE * FP)
+LookupElementConnections (ElementType *Element, FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
@@ -3153,14 +3152,14 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
     case PIN_TYPE:
     case VIA_TYPE:
       {
-        if (ADD_PV_TO_LIST ((PinTypePtr) ptr2))
+        if (ADD_PV_TO_LIST ((PinType *) ptr2))
           return true;
         break;
       }
 
     case RATLINE_TYPE:
       {
-        if (ADD_RAT_TO_LIST ((RatTypePtr) ptr1))
+        if (ADD_RAT_TO_LIST ((RatType *) ptr1))
           return true;
         break;
       }
@@ -3168,9 +3167,9 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
     case LINE_TYPE:
       {
         int layer = GetLayerNumber (PCB->Data,
-                                    (LayerTypePtr) ptr1);
+                                    (LayerType *) ptr1);
 
-        if (ADD_LINE_TO_LIST (layer, (LineTypePtr) ptr2))
+        if (ADD_LINE_TO_LIST (layer, (LineType *) ptr2))
           return true;
         break;
       }
@@ -3178,9 +3177,9 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
     case ARC_TYPE:
       {
         int layer = GetLayerNumber (PCB->Data,
-                                    (LayerTypePtr) ptr1);
+                                    (LayerType *) ptr1);
 
-        if (ADD_ARC_TO_LIST (layer, (ArcTypePtr) ptr2))
+        if (ADD_ARC_TO_LIST (layer, (ArcType *) ptr2))
           return true;
         break;
       }
@@ -3188,16 +3187,16 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
     case POLYGON_TYPE:
       {
         int layer = GetLayerNumber (PCB->Data,
-                                    (LayerTypePtr) ptr1);
+                                    (LayerType *) ptr1);
 
-        if (ADD_POLYGON_TO_LIST (layer, (PolygonTypePtr) ptr2))
+        if (ADD_POLYGON_TO_LIST (layer, (PolygonType *) ptr2))
           return true;
         break;
       }
 
     case PAD_TYPE:
       {
-        PadTypePtr pad = (PadTypePtr) ptr2;
+        PadType *pad = (PadType *) ptr2;
         if (ADD_PAD_TO_LIST
             (TEST_FLAG
              (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER, pad))
@@ -3239,10 +3238,10 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
       if (type & SILK_TYPE)
         {
           int laynum = GetLayerNumber (PCB->Data,
-                                       (LayerTypePtr) ptr1);
+                                       (LayerType *) ptr1);
 
           /* don't mess with non-conducting objects! */
-          if (laynum >= max_copper_layer || ((LayerTypePtr)ptr1)->no_drc)
+          if (laynum >= max_copper_layer || ((LayerType *)ptr1)->no_drc)
             return;
         }
     }
@@ -3648,7 +3647,7 @@ RestoreFindFlag (void)
 /* DRC clearance callback */
 
 static int
-drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
+drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
               int type, void *ptr1, void *ptr2)
 {
   char *message;
@@ -3658,10 +3657,10 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
   int *object_type_list;
   DrcViolationType *violation;
 
-  LineTypePtr line = (LineTypePtr) ptr2;
-  ArcTypePtr arc = (ArcTypePtr) ptr2;
-  PinTypePtr pin = (PinTypePtr) ptr2;
-  PadTypePtr pad = (PadTypePtr) ptr2;
+  LineType *line = (LineType *) ptr2;
+  ArcType *arc = (ArcType *) ptr2;
+  PinType *pin = (PinType *) ptr2;
+  PadType *pad = (PadType *) ptr2;
 
   thing_type = type;
   thing_ptr1 = ptr1;
@@ -4250,21 +4249,21 @@ LocateError (Coord *x, Coord *y)
     {
     case LINE_TYPE:
       {
-        LineTypePtr line = (LineTypePtr) thing_ptr3;
+        LineType *line = (LineType *) thing_ptr3;
         *x = (line->Point1.X + line->Point2.X) / 2;
         *y = (line->Point1.Y + line->Point2.Y) / 2;
         break;
       }
     case ARC_TYPE:
       {
-        ArcTypePtr arc = (ArcTypePtr) thing_ptr3;
+        ArcType *arc = (ArcType *) thing_ptr3;
         *x = arc->X;
         *y = arc->Y;
         break;
       }
     case POLYGON_TYPE:
       {
-        PolygonTypePtr polygon = (PolygonTypePtr) thing_ptr3;
+        PolygonType *polygon = (PolygonType *) thing_ptr3;
         *x =
           (polygon->Clipped->contours->xmin +
            polygon->Clipped->contours->xmax) / 2;
@@ -4276,21 +4275,21 @@ LocateError (Coord *x, Coord *y)
     case PIN_TYPE:
     case VIA_TYPE:
       {
-        PinTypePtr pin = (PinTypePtr) thing_ptr3;
+        PinType *pin = (PinType *) thing_ptr3;
         *x = pin->X;
         *y = pin->Y;
         break;
       }
     case PAD_TYPE:
       {
-        PadTypePtr pad = (PadTypePtr) thing_ptr3;
+        PadType *pad = (PadType *) thing_ptr3;
         *x = (pad->Point1.X + pad->Point2.X) / 2;
         *y = (pad->Point1.Y + pad->Point2.Y) / 2;
         break;
       }
     case ELEMENT_TYPE:
       {
-        ElementTypePtr element = (ElementTypePtr) thing_ptr3;
+        ElementType *element = (ElementType *) thing_ptr3;
         *x = element->MarkX;
         *y = element->MarkY;
         break;
@@ -4351,9 +4350,9 @@ GotoError (void)
     case LINE_TYPE:
     case ARC_TYPE:
     case POLYGON_TYPE:
-      ChangeGroupVisibility (GetLayerNumber
-                             (PCB->Data, (LayerTypePtr) thing_ptr1), true,
-                             true);
+      ChangeGroupVisibility (
+          GetLayerNumber (PCB->Data, (LayerType *) thing_ptr1),
+          true, true);
     }
   CenterDisplay (X, Y);
 }

@@ -46,7 +46,7 @@
 #include <dmalloc.h>
 #endif
 
-static double drc_lines (PointTypePtr end, bool way);
+static double drc_lines (PointType *end, bool way);
 
 /* ---------------------------------------------------------------------------
  * Adjust the attached line to 45 degrees if necessary
@@ -54,7 +54,7 @@ static double drc_lines (PointTypePtr end, bool way);
 void
 AdjustAttachedLine (void)
 {
-  AttachedLineTypePtr line = &Crosshair.AttachedLine;
+  AttachedLineType *line = &Crosshair.AttachedLine;
 
   /* I need at least one point */
   if (line->State == STATE_FIRST)
@@ -89,7 +89,7 @@ AdjustAttachedLine (void)
  *           4
  */
 void
-FortyFiveLine (AttachedLineTypePtr Line)
+FortyFiveLine (AttachedLineType *Line)
 {
   Coord dx, dy, min;
   unsigned direction = 0;
@@ -167,7 +167,7 @@ void
 AdjustTwoLine (bool way)
 {
   Coord dx, dy;
-  AttachedLineTypePtr line = &Crosshair.AttachedLine;
+  AttachedLineType *line = &Crosshair.AttachedLine;
 
   if (Crosshair.AttachedLine.State == STATE_FIRST)
     return;
@@ -220,7 +220,7 @@ AdjustTwoLine (bool way)
 
 struct drc_info
 {
-  LineTypePtr line;
+  LineType *line;
   bool solder;
   jmp_buf env;
 };
@@ -228,7 +228,7 @@ struct drc_info
 static int
 drcVia_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr via = (PinTypePtr) b;
+  PinType *via = (PinType *) b;
   struct drc_info *i = (struct drc_info *) cl;
 
   if (!TEST_FLAG (FOUNDFLAG, via) && PinLineIntersect (via, i->line))
@@ -239,7 +239,7 @@ drcVia_callback (const BoxType * b, void *cl)
 static int
 drcPad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct drc_info *i = (struct drc_info *) cl;
 
   if (TEST_FLAG (ONSOLDERFLAG, pad) == i->solder &&
@@ -251,7 +251,7 @@ drcPad_callback (const BoxType * b, void *cl)
 static int
 drcLine_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct drc_info *i = (struct drc_info *) cl;
 
   if (!TEST_FLAG (FOUNDFLAG, line) && LineLineIntersect (line, i->line))
@@ -262,7 +262,7 @@ drcLine_callback (const BoxType * b, void *cl)
 static int
 drcArc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct drc_info *i = (struct drc_info *) cl;
 
   if (!TEST_FLAG (FOUNDFLAG, arc) && LineArcIntersect (i->line, arc))
@@ -281,7 +281,7 @@ drcArc_callback (const BoxType * b, void *cl)
  */
 
 static double
-drc_lines (PointTypePtr end, bool way)
+drc_lines (PointType *end, bool way)
 {
   double f, s, f2, s2, len, best;
   Coord dx, dy, temp, last, length;

@@ -57,9 +57,9 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *InsertPointIntoLine (LayerTypePtr, LineTypePtr);
-static void *InsertPointIntoPolygon (LayerTypePtr, PolygonTypePtr);
-static void *InsertPointIntoRat (RatTypePtr);
+static void *InsertPointIntoLine (LayerType *, LineType *);
+static void *InsertPointIntoPolygon (LayerType *, PolygonType *);
+static void *InsertPointIntoRat (RatType *);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -87,9 +87,9 @@ static ObjectFunctionType InsertFunctions = {
  * inserts a point into a rat-line
  */
 static void *
-InsertPointIntoRat (RatTypePtr Rat)
+InsertPointIntoRat (RatType *Rat)
 {
-  LineTypePtr newone;
+  LineType *newone;
 
   newone = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
 				InsertX, InsertY, Settings.LineThickness,
@@ -116,9 +116,9 @@ InsertPointIntoRat (RatTypePtr Rat)
  * inserts a point into a line
  */
 static void *
-InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
+InsertPointIntoLine (LayerType *Layer, LineType *Line)
 {
-  LineTypePtr line;
+  LineType *line;
   Coord X, Y;
 
   if (((Line->Point1.X == InsertX) && (Line->Point1.Y == InsertY)) ||
@@ -129,12 +129,12 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
   AddObjectToMoveUndoList (LINEPOINT_TYPE, Layer, Line, &Line->Point2,
 			   InsertX - X, InsertY - Y);
   EraseLine (Line);
-  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  r_delete_entry (Layer->line_tree, (BoxType *) Line);
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   Line->Point2.X = InsertX;
   Line->Point2.Y = InsertY;
   SetLineBoundingBox (Line);
-  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   DrawLine (Layer, Line);
   /* we must create after playing with Line since creation may
@@ -158,7 +158,7 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
  * inserts a point into a polygon
  */
 static void *
-InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
+InsertPointIntoPolygon (LayerType *Layer, PolygonType *Polygon)
 {
   PointType save;
   Cardinal n;
@@ -179,7 +179,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
    * second, shift the points up to make room for the new point
    */
   ErasePolygon (Polygon);
-  r_delete_entry (Layer->polygon_tree, (BoxTypePtr) Polygon);
+  r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
   save = *CreateNewPointInPolygon (Polygon, InsertX, InsertY);
   for (n = Polygon->PointN - 1; n > InsertAt; n--)
     Polygon->Points[n] = Polygon->Points[n - 1];
@@ -233,13 +233,13 @@ InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
 /* ---------------------------------------------------------------------------
  *  adjusts the insert point to make 45 degree lines as necessary
  */
-PointTypePtr
+PointType *
 AdjustInsertPoint (void)
 {
   static PointType InsertedPoint;
   double m;
   Coord x, y, m1, m2;
-  LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
+  LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
 
   if (Crosshair.AttachedObject.State == STATE_FIRST)
     return NULL;

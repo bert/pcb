@@ -42,16 +42,16 @@
 /*
  * some local prototypes
  */
-static void FillDrill (DrillTypePtr, ElementTypePtr, PinTypePtr);
-static void InitializeDrill (DrillTypePtr, PinTypePtr, ElementTypePtr);
+static void FillDrill (DrillType *, ElementType *, PinType *);
+static void InitializeDrill (DrillType *, PinType *, ElementType *);
 
 
 static void
-FillDrill (DrillTypePtr Drill, ElementTypePtr Element, PinTypePtr Pin)
+FillDrill (DrillType *Drill, ElementType *Element, PinType *Pin)
 {
   Cardinal n;
-  ElementTypeHandle ptr;
-  PinTypeHandle pin;
+  ElementType **ptr;
+  PinType **pin;
 
   pin = GetDrillPinMemory (Drill);
   *pin = Pin;
@@ -74,7 +74,7 @@ FillDrill (DrillTypePtr Drill, ElementTypePtr Element, PinTypePtr Pin)
 }
 
 static void
-InitializeDrill (DrillTypePtr drill, PinTypePtr pin, ElementTypePtr element)
+InitializeDrill (DrillType *drill, PinType *pin, ElementType *element)
 {
   void *ptr;
 
@@ -89,11 +89,11 @@ InitializeDrill (DrillTypePtr drill, PinTypePtr pin, ElementTypePtr element)
   drill->Pin = NULL;
   drill->PinMax = 0;
   ptr = (void *) GetDrillPinMemory (drill);
-  *((PinTypeHandle) ptr) = pin;
+  *((PinType **) ptr) = pin;
   if (element)
     {
       ptr = (void *) GetDrillElementMemory (drill);
-      *((ElementTypeHandle) ptr) = element;
+      *((ElementType **) ptr) = element;
       drill->PinCount = 1;
     }
   else
@@ -110,16 +110,16 @@ DrillQSort (const void *va, const void *vb)
   return a->DrillSize - b->DrillSize;
 }
 
-DrillInfoTypePtr
-GetDrillInfo (DataTypePtr top)
+DrillInfoType *
+GetDrillInfo (DataType *top)
 {
-  DrillInfoTypePtr AllDrills;
-  DrillTypePtr Drill = NULL;
+  DrillInfoType *AllDrills;
+  DrillType *Drill = NULL;
   DrillType savedrill, swapdrill;
   bool DrillFound = false;
   bool NewDrill;
 
-  AllDrills = (DrillInfoTypePtr)calloc (1, sizeof (DrillInfoType));
+  AllDrills = (DrillInfoType *)calloc (1, sizeof (DrillInfoType));
   ALLPIN_LOOP (top);
   {
     if (!DrillFound)
@@ -211,7 +211,7 @@ GetDrillInfo (DataTypePtr top)
 #define ROUND(x,n) ((int)(((x)+(n)/2)/(n))*(n))
 
 void
-RoundDrillInfo (DrillInfoTypePtr d, int roundto)
+RoundDrillInfo (DrillInfoType *d, int roundto)
 {
   unsigned int i = 0;
 
@@ -228,9 +228,9 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 	    = d->Drill[i].ElementN + d->Drill[i+1].ElementN;
 	  if (d->Drill[i].ElementMax)
 	    {
-	      d->Drill[i].Element = (ElementTypePtr *)realloc (d->Drill[i].Element,
+	      d->Drill[i].Element = (ElementType **)realloc (d->Drill[i].Element,
 					     d->Drill[i].ElementMax *
-					     sizeof (ElementTypePtr));
+					     sizeof (ElementType *));
 
 	      for (ei = 0; ei < d->Drill[i+1].ElementN; ei++)
 		{
@@ -246,11 +246,11 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 	  d->Drill[i + 1].Element = NULL;
 
 	  d->Drill[i].PinMax = d->Drill[i].PinN + d->Drill[i + 1].PinN;
-	  d->Drill[i].Pin = (PinTypePtr *)realloc (d->Drill[i].Pin,
+	  d->Drill[i].Pin = (PinType **)realloc (d->Drill[i].Pin,
 				     d->Drill[i].PinMax *
-				     sizeof (PinTypePtr));
+				     sizeof (PinType *));
 	  memcpy (d->Drill[i].Pin + d->Drill[i].PinN, d->Drill[i + 1].Pin,
-		  d->Drill[i + 1].PinN * sizeof (PinTypePtr));
+		  d->Drill[i + 1].PinN * sizeof (PinType *));
 	  d->Drill[i].PinN += d->Drill[i + 1].PinN;
 	  free (d->Drill[i + 1].Pin);
 	  d->Drill[i + 1].Pin = NULL;
@@ -275,7 +275,7 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 }
 
 void
-FreeDrillInfo (DrillInfoTypePtr Drills)
+FreeDrillInfo (DrillInfoType *Drills)
 {
   DRILL_LOOP (Drills);
   {

@@ -24,6 +24,6 @@
 #define PCB_VENDOR_H
 
 int vendorDrillMap (int);
-bool vendorIsElementMappable (ElementTypePtr);
+bool vendorIsElementMappable (ElementType *);
 
 #endif /* __VENDOR_H__ */

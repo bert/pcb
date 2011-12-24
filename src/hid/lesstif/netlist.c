@@ -70,7 +70,7 @@ netlist_select (Widget w, void *v, XmListCallbackStruct * cbs)
 {
   XmString str;
   int pos = cbs->item_position;
-  LibraryMenuTypePtr net = & (PCB->NetlistLib.Menu[pos - 1]);
+  LibraryMenuType *net = & (PCB->NetlistLib.Menu[pos - 1]);
   char *name = net->Name;
   if (name[0] == ' ')
     {
@@ -96,10 +96,10 @@ netlist_extend (Widget w, void *v, XmListCallbackStruct * cbs)
     pick_net (cbs->item_position - 1);
 }
 
-typedef void (*Std_Nbcb_Func)(LibraryMenuTypePtr, int);
+typedef void (*Std_Nbcb_Func)(LibraryMenuType *, int);
 
 static void
-nbcb_rat_on (LibraryMenuTypePtr net, int pos)
+nbcb_rat_on (LibraryMenuType *net, int pos)
 {
   XmString str;
   char *name = net->Name;
@@ -111,7 +111,7 @@ nbcb_rat_on (LibraryMenuTypePtr net, int pos)
 }
 
 static void
-nbcb_rat_off (LibraryMenuTypePtr net, int pos)
+nbcb_rat_off (LibraryMenuType *net, int pos)
 {
   XmString str;
   char *name = net->Name;
@@ -126,7 +126,7 @@ nbcb_rat_off (LibraryMenuTypePtr net, int pos)
 /* Select on the layout the current net treeview selection
  */
 static void
-nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
+nbcb_select_common (LibraryMenuType *net, int pos, int select_flag)
 {
   LibraryEntryType *entry;
   ConnectionType conn;
@@ -147,19 +147,19 @@ nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
 }
 
 static void
-nbcb_select (LibraryMenuTypePtr net, int pos)
+nbcb_select (LibraryMenuType *net, int pos)
 {
   nbcb_select_common (net, pos, 1);
 }
 
 static void
-nbcb_deselect (LibraryMenuTypePtr net, int pos)
+nbcb_deselect (LibraryMenuType *net, int pos)
 {
   nbcb_select_common (net, pos, 0);
 }
 
 static void
-nbcb_find (LibraryMenuTypePtr net, int pos)
+nbcb_find (LibraryMenuType *net, int pos)
 {
   char *name = net->Name + 2;
   hid_actionl ("netlist", "find", name, NULL);
@@ -176,7 +176,7 @@ nbcb_std_callback (Widget w, Std_Nbcb_Func v, XmPushButtonCallbackStruct * cbs)
     hid_actionl ("connection", "reset", NULL);
   for (i=0; i<posc; i++)
     {
-      LibraryMenuTypePtr net = & (PCB->NetlistLib.Menu[posl[i] - 1]);
+      LibraryMenuType *net = & (PCB->NetlistLib.Menu[posl[i] - 1]);
       v(net, posl[i]);
     }
   n = 0;
@@ -422,7 +422,7 @@ LesstifNetlistShow (int argc, char **argv, Coord x, Coord y)
 
   if (argc == 1)
     {
-      LibraryMenuTypePtr net;
+      LibraryMenuType *net;
 
       net = netnode_to_netname(argv[0]);
       if (net)

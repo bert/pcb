@@ -69,10 +69,10 @@
 #endif
 
 char			*yyfilename;	/* in this file */
-PCBTypePtr		yyPCB;			/* used by parser */
-DataTypePtr		yyData;
-ElementTypePtr		yyElement;
-FontTypePtr		yyFont;
+PCBType			*yyPCB;		/* used by parser */
+DataType		*yyData;
+ElementType		*yyElement;
+FontType		*yyFont;
 
 static int parse_number (void);
 
@@ -293,7 +293,8 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 /* ---------------------------------------------------------------------------
  * initializes LEX and calls parser for a single element file
  */
-int ParseElementFile(DataTypePtr Ptr, char *Filename)
+int
+ParseElementFile (DataType *Ptr, char *Filename)
 {
 	yyPCB = NULL;
 	yyData = Ptr;
@@ -305,7 +306,8 @@ int ParseElementFile(DataTypePtr Ptr, char *Filename)
 /* ---------------------------------------------------------------------------
  * initializes LEX and calls parser for a single library entry
  */
-int ParseLibraryEntry(DataTypePtr Ptr, char *Template)
+int
+ParseLibraryEntry (DataType *Ptr, char *Template)
 {
 	yyPCB = NULL;
 	yyData = Ptr;
@@ -318,7 +320,8 @@ int ParseLibraryEntry(DataTypePtr Ptr, char *Template)
 /* ---------------------------------------------------------------------------
  * initializes LEX and calls parser for a complete board
  */
-int ParsePCB(PCBTypePtr Ptr, char *Filename)
+int
+ParsePCB (PCBType *Ptr, char *Filename)
 {
 	yyPCB = Ptr;
 	yyData = NULL;
@@ -330,7 +333,8 @@ int ParsePCB(PCBTypePtr Ptr, char *Filename)
 /* ---------------------------------------------------------------------------
  * initializes LEX and calls parser for a font
  */
-int ParseFont(FontTypePtr Ptr, char *Filename)
+int
+ParseFont (FontType *Ptr, char *Filename)
 {
 	int r = 0;
 	char *path, *p;

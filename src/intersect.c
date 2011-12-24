@@ -85,7 +85,7 @@ LocationList;
  * Create a sorted list of unique y coords from a BoxList.
  */
 static LocationList
-createSortedYList (BoxListTypePtr boxlist)
+createSortedYList (BoxListType *boxlist)
 {
   LocationList yCoords;
   Coord last;
@@ -195,7 +195,7 @@ deleteSegment (SegmentTree * st, int n, Coord Y1, Coord Y2)
  * Runs in O(N ln N) time.
  */
 double
-ComputeIntersectionArea (BoxListTypePtr boxlist)
+ComputeIntersectionArea (BoxListType *boxlist)
 {
   Cardinal i;
   double area = 0.0;
@@ -212,9 +212,9 @@ ComputeIntersectionArea (BoxListTypePtr boxlist)
  * O(N ln N) time.
  */
 double
-ComputeUnionArea (BoxListTypePtr boxlist)
+ComputeUnionArea (BoxListType *boxlist)
 {
-  BoxTypePtr *rectLeft, *rectRight;
+  BoxType **rectLeft, **rectRight;
   Cardinal i, j;
   LocationList yCoords;
   SegmentTree segtree;
@@ -229,8 +229,8 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   segtree = createSegmentTree (yCoords.p, yCoords.size);
   free (yCoords.p);
   /* create sorted list of left and right X coordinates of rectangles */
-  rectLeft = (BoxTypePtr *)calloc (boxlist->BoxN, sizeof (*rectLeft));
-  rectRight = (BoxTypePtr *)calloc (boxlist->BoxN, sizeof (*rectRight));
+  rectLeft = (BoxType **)calloc (boxlist->BoxN, sizeof (*rectLeft));
+  rectRight = (BoxType **)calloc (boxlist->BoxN, sizeof (*rectRight));
   for (i = 0; i < boxlist->BoxN; i++)
     {
       assert (boxlist->Box[i].X1 <= boxlist->Box[i].X2);
@@ -249,7 +249,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
       if (i == boxlist->BoxN || rectRight[j]->X2 < rectLeft[i]->X1)
         {
           /* right edge of rectangle */
-          BoxTypePtr b = rectRight[j++];
+          BoxType *b = rectRight[j++];
           /* check lastX */
           if (b->X2 != lastX)
             {
@@ -263,7 +263,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
       else
         {
           /* left edge of rectangle */
-          BoxTypePtr b = rectLeft[i++];
+          BoxType *b = rectLeft[i++];
           /* check lastX */
           if (b->X1 != lastX)
             {
@@ -283,13 +283,15 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 static int
 compareleft (const void *ptr1, const void *ptr2)
 {
-  BoxTypePtr *b1 = (BoxTypePtr *) ptr1, *b2 = (BoxTypePtr *) ptr2;
+  BoxType **b1 = (BoxType **) ptr1;
+  BoxType **b2 = (BoxType **) ptr2;
   return (*b1)->X1 - (*b2)->X1;
 }
 static int
 compareright (const void *ptr1, const void *ptr2)
 {
-  BoxTypePtr *b1 = (BoxTypePtr *) ptr1, *b2 = (BoxTypePtr *) ptr2;
+  BoxType **b1 = (BoxType **) ptr1;
+  BoxType **b2 = (BoxType **) ptr2;
   return (*b1)->X2 - (*b2)->X2;
 }
 static int

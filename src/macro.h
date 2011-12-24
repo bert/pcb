@@ -91,7 +91,7 @@
 /* ---------------------------------------------------------------------------
  * returns the object ID
  */
-#define	OBJECT_ID(p)		(((AnyObjectTypePtr) p)->ID)
+#define	OBJECT_ID(p)		(((AnyObjectType *) p)->ID)
 
 /* ---------------------------------------------------------------------------
  * access macro for current buffer
@@ -170,7 +170,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define STYLE_LOOP(top)  do {                                       \
         Cardinal n;                                                 \
-        RouteStyleTypePtr style;                                    \
+        RouteStyleType *style;                                      \
         for (n = 0; n < NUM_STYLES; n++)                            \
         {                                                           \
                 style = &(top)->RouteStyle[n]
@@ -185,28 +185,28 @@ extern int mem_any_set (unsigned char *, int);
 
 #define DRILL_LOOP(top) do             {               \
         Cardinal        n;                                      \
-        DrillTypePtr    drill;                                  \
+        DrillType *drill;                                       \
         for (n = 0; (top)->DrillN > 0 && n < (top)->DrillN; n++)                        \
         {                                                       \
                 drill = &(top)->Drill[n]
 
 #define NETLIST_LOOP(top) do   {                         \
         Cardinal        n;                                      \
-        NetListTypePtr   netlist;                               \
+        NetListType *netlist;                                   \
         for (n = (top)->NetListN-1; n != -1; n--)               \
         {                                                       \
                 netlist = &(top)->NetList[n]
 
 #define NET_LOOP(top) do   {                             \
         Cardinal        n;                                      \
-        NetTypePtr   net;                                       \
+        NetType *net;                                           \
         for (n = (top)->NetN-1; n != -1; n--)                   \
         {                                                       \
                 net = &(top)->Net[n]
 
 #define CONNECTION_LOOP(net) do {                         \
         Cardinal        n;                                      \
-        ConnectionTypePtr       connection;                     \
+        ConnectionType *connection;                             \
         for (n = (net)->ConnectionN-1; n != -1; n--)            \
         {                                                       \
                 connection = & (net)->Connection[n]
@@ -229,7 +229,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	ELEMENTTEXT_LOOP(element) do { 	\
 	Cardinal	n;				\
-	TextTypePtr	text;				\
+	TextType *text;					\
 	for (n = MAX_ELEMENTNAMES-1; n != -1; n--)	\
 	{						\
 		text = &(element)->Name[n]
@@ -308,7 +308,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	POLYGONPOINT_LOOP(polygon) do	{	\
 	Cardinal			n;		\
-	PointTypePtr	point;				\
+	PointType *point;				\
 	for (n = (polygon)->PointN-1; n != -1; n--)	\
 	{						\
 		point = &(polygon)->Points[n]
@@ -325,49 +325,49 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	ALLLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		LINE_LOOP(layer)
 
 #define ALLARC_LOOP(top) do {		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l =0; l < max_copper_layer + 2; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
 
 #define	ALLPOLYGON_LOOP(top)	do {		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		POLYGON_LOOP(layer)
 
 #define	COPPERLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer; l++, layer++)	\
 	{ \
 		LINE_LOOP(layer)
 
 #define COPPERARC_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l =0; l < max_copper_layer; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
 
 #define	COPPERPOLYGON_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer; l++, layer++)	\
 	{ \
 		POLYGON_LOOP(layer)
 
 #define	SILKLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	layer += max_copper_layer;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
@@ -375,7 +375,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define SILKARC_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	layer += max_copper_layer;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
@@ -383,7 +383,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	SILKPOLYGON_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	layer += max_copper_layer;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
@@ -391,14 +391,14 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	ALLTEXT_LOOP(top)	do {		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		TEXT_LOOP(layer)
 
 #define	VISIBLELINE_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
@@ -406,7 +406,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	VISIBLEARC_LOOP(top) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
@@ -414,7 +414,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	VISIBLETEXT_LOOP(board) do	{		\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (board)->Data->Layer;		\
+	LayerType *layer = (board)->Data->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
                 TEXT_LOOP(layer);                                      \
@@ -422,7 +422,7 @@ extern int mem_any_set (unsigned char *, int);
 
 #define	VISIBLEPOLYGON_LOOP(top) do	{	\
 	Cardinal		l;			\
-	LayerTypePtr	layer = (top)->Layer;		\
+	LayerType *layer = (top)->Layer;		\
 	for (l = 0; l < max_copper_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
@@ -437,25 +437,25 @@ extern int mem_any_set (unsigned char *, int);
 
 #define MENU_LOOP(top)	do {	\
 	Cardinal	l;			\
-	LibraryMenuTypePtr menu;		\
+	LibraryMenuType *menu;			\
 	for (l = (top)->MenuN-1; l != -1; l--)	\
 	{					\
 		menu = &(top)->Menu[l]
 
 #define ENTRY_LOOP(top) do	{	\
 	Cardinal	n;			\
-	LibraryEntryTypePtr entry;		\
+	LibraryEntryType *entry;		\
 	for (n = (top)->EntryN-1; n != -1; n--)	\
 	{					\
 		entry = &(top)->Entry[n]
 
 #define GROUP_LOOP(data, group) do { 	\
 	Cardinal entry; \
-        for (entry = 0; entry < ((PCBTypePtr)(data->pcb))->LayerGroups.Number[(group)]; entry++) \
+        for (entry = 0; entry < ((PCBType *)(data->pcb))->LayerGroups.Number[(group)]; entry++) \
         { \
-		LayerTypePtr layer;		\
+		LayerType *layer;		\
 		Cardinal number; 		\
-		number = ((PCBTypePtr)(data->pcb))->LayerGroups.Entries[(group)][entry]; \
+		number = ((PCBType *)(data->pcb))->LayerGroups.Entries[(group)][entry]; \
 		if (number >= max_copper_layer)	\
 		  continue;			\
 		layer = &data->Layer[number];
@@ -464,7 +464,7 @@ extern int mem_any_set (unsigned char *, int);
         Cardinal n; \
 	for (n = 0; n < ml; n++) \
 	{ \
-	   LayerTypePtr layer = (&data->Layer[(n)]);
+	   LayerType *layer = (&data->Layer[(n)]);
 
 
 #endif

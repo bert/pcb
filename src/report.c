@@ -70,7 +70,7 @@
 static int
 ReportDrills (int argc, char **argv, Coord x, Coord y)
 {
-  DrillInfoTypePtr AllDrills;
+  DrillInfoType *AllDrills;
   Cardinal n;
   char *stringlist, *thestring;
   int total_drills = 0;
@@ -145,7 +145,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
     {
     case VIA_TYPE:
       {
-	PinTypePtr via;
+	PinType *via;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -153,7 +153,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	via = (PinTypePtr) ptr2;
+	via = (PinType *) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
 	  pcb_sprintf (&report[0], "%m+VIA ID# %ld; Flags:%s\n"
 		   "(X,Y) = %$mD.\n"
@@ -184,8 +184,8 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
       }
     case PIN_TYPE:
       {
-	PinTypePtr Pin;
-	ElementTypePtr element;
+	PinType *Pin;
+	ElementType *element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -193,8 +193,8 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	Pin = (PinTypePtr) ptr2;
-	element = (ElementTypePtr) ptr1;
+	Pin = (PinType *) ptr2;
+	element = (ElementType *) ptr1;
 
 	PIN_LOOP (element);
 	{
@@ -235,16 +235,16 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
       }
     case LINE_TYPE:
       {
-	LineTypePtr line;
+	LineType *line;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
-	    LayerTypePtr layer = (LayerTypePtr) ptr1;
+	    LayerType *layer = (LayerType *) ptr1;
 	    __r_dump_tree (layer->line_tree->root, 0);
 	    return 0;
 	  }
 #endif
-	line = (LineTypePtr) ptr2;
+	line = (LineType *) ptr2;
 	pcb_sprintf (&report[0], "%m+LINE ID# %ld;  Flags:%s\n"
 		 "FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
 		 "SecondPoint(X,Y) = %$mD, ID = %ld.\n"
@@ -256,14 +256,14 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 line->Point1.X, line->Point1.Y, line->Point1.ID,
 		 line->Point2.X, line->Point2.Y, line->Point2.ID,
 		 line->Thickness, line->Clearance / 2,
-		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
+		 GetLayerNumber (PCB->Data, (LayerType *) ptr1),
 		 UNKNOWN (line->Number),
 		 TEST_FLAG (LOCKFLAG, line) ? "It is LOCKED.\n" : "");
 	break;
       }
     case RATLINE_TYPE:
       {
-	RatTypePtr line;
+	RatType *line;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -271,7 +271,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	line = (RatTypePtr) ptr2;
+	line = (RatType *) ptr2;
 	pcb_sprintf (&report[0], "%m+RAT-LINE ID# %ld;  Flags:%s\n"
 		 "FirstPoint(X,Y)  = %$mD; ID = %ld; "
 		 "connects to layer group %d.\n"
@@ -286,17 +286,17 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
       }
     case ARC_TYPE:
       {
-	ArcTypePtr Arc;
-	BoxTypePtr box;
+	ArcType *Arc;
+	BoxType *box;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
-	    LayerTypePtr layer = (LayerTypePtr) ptr1;
+	    LayerType *layer = (LayerType *) ptr1;
 	    __r_dump_tree (layer->arc_tree->root, 0);
 	    return 0;
 	  }
 #endif
-	Arc = (ArcTypePtr) ptr2;
+	Arc = (ArcType *) ptr2;
 	box = GetArcEnds (Arc);
 
 	pcb_sprintf (&report[0], "%m+ARC ID# %ld;  Flags:%s\n"
@@ -315,22 +315,22 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 Arc->BoundingBox.X2, Arc->BoundingBox.Y2,
 		 box->X1, box->Y1,
 		 box->X2, box->Y2,
-		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
+		 GetLayerNumber (PCB->Data, (LayerType *) ptr1),
 		 TEST_FLAG (LOCKFLAG, Arc) ? "It is LOCKED.\n" : "");
 	break;
       }
     case POLYGON_TYPE:
       {
-	PolygonTypePtr Polygon;
+	PolygonType *Polygon;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
-	    LayerTypePtr layer = (LayerTypePtr) ptr1;
+	    LayerType *layer = (LayerType *) ptr1;
 	    __r_dump_tree (layer->polygon_tree->root, 0);
 	    return 0;
 	  }
 #endif
-	Polygon = (PolygonTypePtr) ptr2;
+	Polygon = (PolygonType *) ptr2;
 
 	pcb_sprintf (&report[0], "%m+POLYGON ID# %ld;  Flags:%s\n"
 		 "Its bounding box is %$mD %$mD.\n"
@@ -343,15 +343,15 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 Polygon->BoundingBox.X2, Polygon->BoundingBox.Y2,
 		 Polygon->PointN, Polygon->PointMax - Polygon->PointN,
 		 Polygon->HoleIndexN,
-		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
+		 GetLayerNumber (PCB->Data, (LayerType *) ptr1),
 		 TEST_FLAG (LOCKFLAG, Polygon) ? "It is LOCKED.\n" : "");
 	break;
       }
     case PAD_TYPE:
       {
 	Coord len;
-	PadTypePtr Pad;
-	ElementTypePtr element;
+	PadType *Pad;
+	ElementType *element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -359,8 +359,8 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	Pad = (PadTypePtr) ptr2;
-	element = (ElementTypePtr) ptr1;
+	Pad = (PadType *) ptr2;
+	element = (ElementType *) ptr1;
 
 	PAD_LOOP (element);
 	{
@@ -399,7 +399,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
       }
     case ELEMENT_TYPE:
       {
-	ElementTypePtr element;
+	ElementType *element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -407,7 +407,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	element = (ElementTypePtr) ptr2;
+	element = (ElementType *) ptr2;
 	pcb_sprintf (&report[0], "%m+ELEMENT ID# %ld;  Flags:%s\n"
 		 "BoundingBox %$mD %$mD.\n"
 		 "Descriptive Name \"%s\".\n"
@@ -435,7 +435,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 #ifndef NDEBUG
       if (gui->shift_is_pressed ())
 	{
-	  LayerTypePtr layer = (LayerTypePtr) ptr1;
+	  LayerType *layer = (LayerType *) ptr1;
 	  __r_dump_tree (layer->text_tree->root, 0);
 	  return 0;
 	}
@@ -443,7 +443,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
     case ELEMENTNAME_TYPE:
       {
 	char laynum[32];
-	TextTypePtr text;
+	TextType *text;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -451,11 +451,11 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	    return 0;
 	  }
 #endif
-	text = (TextTypePtr) ptr2;
+	text = (TextType *) ptr2;
 
 	if (type == TEXT_TYPE)
 	  sprintf (laynum, "It is on layer %d.",
-		   GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
+		   GetLayerNumber (PCB->Data, (LayerType *) ptr1));
 	pcb_sprintf (&report[0], "%m+TEXT ID# %ld;  Flags:%s\n"
 		 "Located at (X,Y) = %$mD.\n"
 		 "Characters are %$mS tall.\n"
@@ -475,13 +475,13 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
     case LINEPOINT_TYPE:
     case POLYGONPOINT_TYPE:
       {
-	PointTypePtr point = (PointTypePtr) ptr2;
+	PointType *point = (PointType *) ptr2;
 	pcb_sprintf (&report[0], "%m+POINT ID# %ld.\n"
 		 "Located at (X,Y) = %$mD.\n"
 		 "It belongs to a %s on layer %d.\n", USER_UNITMASK, point->ID,
 		 point->X, point->Y,
 		 (type == LINEPOINT_TYPE) ? "line" : "polygon",
-		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
+		 GetLayerNumber (PCB->Data, (LayerType *) ptr1));
 	break;
       }
     case NO_TYPE:

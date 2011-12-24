@@ -60,30 +60,30 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CheckPadForRubberbandConnection (PadTypePtr);
-static void CheckPinForRubberbandConnection (PinTypePtr);
-static void CheckLinePointForRubberbandConnection (LayerTypePtr,
-						   LineTypePtr,
-						   PointTypePtr,
+static void CheckPadForRubberbandConnection (PadType *);
+static void CheckPinForRubberbandConnection (PinType *);
+static void CheckLinePointForRubberbandConnection (LayerType *,
+						   LineType *,
+						   PointType *,
 						   bool);
-static void CheckPolygonForRubberbandConnection (LayerTypePtr,
-						 PolygonTypePtr);
-static void CheckLinePointForRat (LayerTypePtr, PointTypePtr);
+static void CheckPolygonForRubberbandConnection (LayerType *,
+						 PolygonType *);
+static void CheckLinePointForRat (LayerType *, PointType *);
 static int rubber_callback (const BoxType * b, void *cl);
 
 struct rubber_info
 {
   Coord radius;
   Coord X, Y;
-  LineTypePtr line;
+  LineType *line;
   BoxType box;
-  LayerTypePtr layer;
+  LayerType *layer;
 };
 
 static int
 rubber_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct rubber_info *i = (struct rubber_info *) cl;
   double x, y, rad, dist1, dist2;
   Coord t;
@@ -219,7 +219,7 @@ rubber_callback (const BoxType * b, void *cl)
  * the line is added to the 'rubberband' list
  */
 static void
-CheckPadForRubberbandConnection (PadTypePtr Pad)
+CheckPadForRubberbandConnection (PadType *Pad)
 {
   Coord half = Pad->Thickness / 2;
   Cardinal i, group;
@@ -252,60 +252,60 @@ struct rinfo
 {
   int type;
   Cardinal group;
-  PinTypePtr pin;
-  PadTypePtr pad;
-  PointTypePtr point;
+  PinType *pin;
+  PadType *pad;
+  PointType *point;
 };
 
 static int
 rat_callback (const BoxType * box, void *cl)
 {
-  RatTypePtr rat = (RatTypePtr) box;
+  RatType *rat = (RatType *) box;
   struct rinfo *i = (struct rinfo *) cl;
 
   switch (i->type)
     {
     case PIN_TYPE:
       if (rat->Point1.X == i->pin->X && rat->Point1.Y == i->pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
       else if (rat->Point2.X == i->pin->X && rat->Point2.Y == i->pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
       break;
     case PAD_TYPE:
       if (rat->Point1.X == i->pad->Point1.X &&
 	  rat->Point1.Y == i->pad->Point1.Y && rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
       else
 	if (rat->Point2.X == i->pad->Point1.X &&
 	    rat->Point2.Y == i->pad->Point1.Y && rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
       else
 	if (rat->Point1.X == i->pad->Point2.X &&
 	    rat->Point1.Y == i->pad->Point2.Y && rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
       else
 	if (rat->Point2.X == i->pad->Point2.X &&
 	    rat->Point2.Y == i->pad->Point2.Y && rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
       else
 	if (rat->Point1.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
 	    rat->Point1.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
 	    rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
       else
 	if (rat->Point2.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
 	    rat->Point2.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
 	    rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
       break;
     case LINEPOINT_TYPE:
       if (rat->group1 == i->group &&
 	  rat->Point1.X == i->point->X && rat->Point1.Y == i->point->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
       else
 	if (rat->group2 == i->group &&
 	    rat->Point2.X == i->point->X && rat->Point2.Y == i->point->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
       break;
     default:
       Message ("hace: bad rubber-rat lookup callback\n");
@@ -314,7 +314,7 @@ rat_callback (const BoxType * box, void *cl)
 }
 
 static void
-CheckPadForRat (PadTypePtr Pad)
+CheckPadForRat (PadType *Pad)
 {
   struct rinfo info;
   Cardinal i;
@@ -329,7 +329,7 @@ CheckPadForRat (PadTypePtr Pad)
 }
 
 static void
-CheckPinForRat (PinTypePtr Pin)
+CheckPinForRat (PinType *Pin)
 {
   struct rinfo info;
 
@@ -340,7 +340,7 @@ CheckPinForRat (PinTypePtr Pin)
 }
 
 static void
-CheckLinePointForRat (LayerTypePtr Layer, PointTypePtr Point)
+CheckLinePointForRat (LayerType *Layer, PointType *Point)
 {
   struct rinfo info;
   info.group = GetLayerGroupNumberByPointer (Layer);
@@ -360,7 +360,7 @@ CheckLinePointForRat (LayerTypePtr Layer, PointTypePtr Point)
  * of failures that are immediately recognized
  */
 static void
-CheckPinForRubberbandConnection (PinTypePtr Pin)
+CheckPinForRubberbandConnection (PinType *Pin)
 {
   struct rubber_info info;
   Cardinal n;
@@ -394,9 +394,9 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
  * the scanned line is added to the 'rubberband' list
  */
 static void
-CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
-				       LineTypePtr Line,
-				       PointTypePtr LinePoint,
+CheckLinePointForRubberbandConnection (LayerType *Layer,
+				       LineType *Line,
+				       PointType *LinePoint,
 				       bool Exact)
 {
   Cardinal group;
@@ -431,8 +431,8 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
  * the scanned line is added to the 'rubberband' list
  */
 static void
-CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
-				     PolygonTypePtr Polygon)
+CheckPolygonForRubberbandConnection (LayerType *Layer,
+				     PolygonType *Polygon)
 {
   Cardinal group;
 
@@ -485,7 +485,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
     case ELEMENT_TYPE:
       {
-	ElementTypePtr element = (ElementTypePtr) Ptr1;
+	ElementType *element = (ElementType *) Ptr1;
 
 	/* square pins are handled as if they are round. Speed
 	 * and readability is more important then the few %
@@ -506,8 +506,8 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 
     case LINE_TYPE:
       {
-	LayerTypePtr layer = (LayerTypePtr) Ptr1;
-	LineTypePtr line = (LineTypePtr) Ptr2;
+	LayerType *layer = (LayerType *) Ptr1;
+	LineType *line = (LineType *) Ptr2;
 	if (GetLayerNumber (PCB->Data, layer) < max_copper_layer)
 	  {
 	    CheckLinePointForRubberbandConnection (layer, line,
@@ -519,20 +519,20 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       }
 
     case LINEPOINT_TYPE:
-      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_copper_layer)
-	CheckLinePointForRubberbandConnection ((LayerTypePtr) Ptr1,
-					       (LineTypePtr) Ptr2,
-					       (PointTypePtr) Ptr3, true);
+      if (GetLayerNumber (PCB->Data, (LayerType *) Ptr1) < max_copper_layer)
+	CheckLinePointForRubberbandConnection ((LayerType *) Ptr1,
+					       (LineType *) Ptr2,
+					       (PointType *) Ptr3, true);
       break;
 
     case VIA_TYPE:
-      CheckPinForRubberbandConnection ((PinTypePtr) Ptr1);
+      CheckPinForRubberbandConnection ((PinType *) Ptr1);
       break;
 
     case POLYGON_TYPE:
-      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_copper_layer)
-	CheckPolygonForRubberbandConnection ((LayerTypePtr) Ptr1,
-					     (PolygonTypePtr) Ptr2);
+      if (GetLayerNumber (PCB->Data, (LayerType *) Ptr1) < max_copper_layer)
+	CheckPolygonForRubberbandConnection ((LayerType *) Ptr1,
+					     (PolygonType *) Ptr2);
       break;
     }
 }
@@ -544,7 +544,7 @@ LookupRatLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
     case ELEMENT_TYPE:
       {
-	ElementTypePtr element = (ElementTypePtr) Ptr1;
+	ElementType *element = (ElementType *) Ptr1;
 
 	PIN_LOOP (element);
 	{
@@ -561,8 +561,8 @@ LookupRatLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 
     case LINE_TYPE:
       {
-	LayerTypePtr layer = (LayerTypePtr) Ptr1;
-	LineTypePtr line = (LineTypePtr) Ptr2;
+	LayerType *layer = (LayerType *) Ptr1;
+	LineType *line = (LineType *) Ptr2;
 
 	CheckLinePointForRat (layer, &line->Point1);
 	CheckLinePointForRat (layer, &line->Point2);
@@ -570,11 +570,11 @@ LookupRatLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       }
 
     case LINEPOINT_TYPE:
-      CheckLinePointForRat ((LayerTypePtr) Ptr1, (PointTypePtr) Ptr3);
+      CheckLinePointForRat ((LayerType *) Ptr1, (PointType *) Ptr3);
       break;
 
     case VIA_TYPE:
-      CheckPinForRat ((PinTypePtr) Ptr1);
+      CheckPinForRat ((PinType *) Ptr1);
       break;
     }
 }

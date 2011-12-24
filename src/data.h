@@ -43,7 +43,7 @@ extern MarkType Marked;
 
 extern OutputType Output;
 
-extern PCBTypePtr PCB;
+extern PCBType *PCB;
 
 #define max_group (PCB->Data->LayerN)
 #define max_copper_layer (PCB->Data->LayerN)

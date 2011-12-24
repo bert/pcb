@@ -653,7 +653,7 @@ ghid_fileselect (const char *title, const char *descr,
 void
 ghid_show_item (void *item)
 {
-  ghid_pinout_window_show (&ghid_port, (ElementTypePtr) item);
+  ghid_pinout_window_show (&ghid_port, (ElementType *) item);
 }
 
 void

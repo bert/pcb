@@ -57,7 +57,7 @@
  * an additional offset is passed
  */
 void
-MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
+MirrorElementCoordinates (DataType *Data, ElementType *Element,
 			  Coord yoff)
 {
   r_delete_element (Data, Element);

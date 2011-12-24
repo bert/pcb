@@ -88,7 +88,7 @@ static int current_mask;
 static int flash_drills;
 static int copy_outline_mode;
 static int name_style;
-static LayerTypePtr outline_layer;
+static LayerType *outline_layer;
 
 enum ApertureShape
 {

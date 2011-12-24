@@ -1182,7 +1182,7 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
     }
   newp->contours = c;
   newp->contour_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (newp->contour_tree, (BoxTypePtr) c, 0);
+  r_insert_entry (newp->contour_tree, (BoxType *) c, 0);
   c->next = NULL;
 }				/* InsCntr */
 
@@ -1434,7 +1434,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 	  /* link at front of hole list */
 	  curh->next = container->next;
 	  container->next = curh;
-	  r_insert_entry (pa_info->pa->contour_tree, (BoxTypePtr) curh, 0);
+	  r_insert_entry (pa_info->pa->contour_tree, (BoxType *) curh, 0);
 
 	}
     }
@@ -2771,7 +2771,7 @@ poly_Copy1 (POLYAREA * dst, const POLYAREA * src)
     {
       if (!poly_CopyContour (last, cur))
 	return FALSE;
-      r_insert_entry (dst->contour_tree, (BoxTypePtr) * last, 0);
+      r_insert_entry (dst->contour_tree, (BoxType *) * last, 0);
       last = &(*last)->next;
     }
   return TRUE;
@@ -2831,7 +2831,7 @@ poly_InclContour (POLYAREA * p, PLINE * c)
       p->contours->next = c;
       c->next = tmp;
     }
-  r_insert_entry (p->contour_tree, (BoxTypePtr) c, 0);
+  r_insert_entry (p->contour_tree, (BoxType *) c, 0);
   return TRUE;
 }
 

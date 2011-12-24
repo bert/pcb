@@ -324,8 +324,8 @@ static void
 nelma_write_nets(FILE * out)
 {
 	LibraryType     netlist;
-	LibraryMenuTypePtr net;
-	LibraryEntryTypePtr pin;
+	LibraryMenuType *net;
+	LibraryEntryType *pin;
 
 	int             n, m, i, idx;
 
@@ -373,8 +373,8 @@ nelma_write_layer(FILE * out, int z, int h,
 		  char *mat)
 {
 	LibraryType     netlist;
-	LibraryMenuTypePtr net;
-	LibraryEntryTypePtr pin;
+	LibraryMenuType *net;
+	LibraryEntryType *pin;
 
 	int             n, m;
 
@@ -453,7 +453,7 @@ nelma_write_layers(FILE * out)
 }
 
 static void 
-nelma_write_object(FILE * out, LibraryEntryTypePtr pin)
+nelma_write_object(FILE * out, LibraryEntryType *pin)
 {
 	int             i, idx;
 	Coord           px = 0, py = 0;
@@ -494,8 +494,8 @@ static void
 nelma_write_objects(FILE * out)
 {
 	LibraryType     netlist;
-	LibraryMenuTypePtr net;
-	LibraryEntryTypePtr pin;
+	LibraryMenuType *net;
+	LibraryEntryType *pin;
 
 	int             n, m;
 

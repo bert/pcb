@@ -216,7 +216,7 @@ typedef struct			/* used to identify subfunctions */
   char *Identifier;
   FunctionID ID;
 }
-FunctionType, *FunctionTypePtr;
+FunctionType;
 
 /* --------------------------------------------------------------------------- */
 
@@ -295,10 +295,10 @@ either round or, if the octagon flag is set, octagonal.
  * some local identifiers
  */
 static PointType InsertedPoint;
-static LayerTypePtr lastLayer;
+static LayerType *lastLayer;
 static struct
 {
-  PolygonTypePtr poly;
+  PolygonType *poly;
   LineType line;
 }
 fake;
@@ -823,7 +823,7 @@ AdjustAttachedBox (void)
 void
 AdjustAttachedObjects (void)
 {
-  PointTypePtr pnt;
+  PointType *pnt;
   switch (Settings.Mode)
     {
       /* update at least an attached block (selection) */
@@ -897,13 +897,13 @@ NotifyLine (void)
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{
 	  Crosshair.AttachedLine.Point1.X =
-	    Crosshair.AttachedLine.Point2.X = ((PinTypePtr) ptr2)->X;
+	    Crosshair.AttachedLine.Point2.X = ((PinType *) ptr2)->X;
 	  Crosshair.AttachedLine.Point1.Y =
-	    Crosshair.AttachedLine.Point2.Y = ((PinTypePtr) ptr2)->Y;
+	    Crosshair.AttachedLine.Point2.Y = ((PinType *) ptr2)->Y;
 	}
       else if (type == PAD_TYPE)
 	{
-	  PadTypePtr pad = (PadTypePtr) ptr2;
+	  PadType *pad = (PadType *) ptr2;
 	  double d1 = Distance (Crosshair.X, Crosshair.Y, pad->Point1.X, pad->Point1.Y);
 	  double d2 = Distance (Crosshair.X, Crosshair.Y, pad->Point2.X, pad->Point2.Y);
 	  if (d2 < d1)
@@ -996,7 +996,7 @@ NotifyMode (void)
 	  {
 	    type = SearchScreen (Note.X, Note.Y, test, &ptr1, &ptr2, &ptr3);
 	    if (!Note.Hit && (type & MOVE_TYPES) &&
-		!TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+		!TEST_FLAG (LOCKFLAG, (PinType *) ptr2))
 	      {
 		Note.Hit = type;
 		Note.ptr1 = ptr1;
@@ -1004,7 +1004,7 @@ NotifyMode (void)
 		Note.ptr3 = ptr3;
 	      }
 	    if (!Note.Moving && (type & SELECT_TYPES) &&
-		TEST_FLAG (SELECTEDFLAG, (PinTypePtr) ptr2))
+		TEST_FLAG (SELECTEDFLAG, (PinType *) ptr2))
 	      Note.Moving = true;
 	    if ((Note.Hit && Note.Moving) || type == NO_TYPE)
 	      break;
@@ -1014,7 +1014,7 @@ NotifyMode (void)
 
     case VIA_MODE:
       {
-	PinTypePtr via;
+	PinType *via;
 
 	if (!PCB->ViaOn)
 	  {
@@ -1052,7 +1052,7 @@ NotifyMode (void)
 	  case STATE_SECOND:
 	  case STATE_THIRD:
 	    {
-	      ArcTypePtr arc;
+	      ArcType *arc;
 	      Coord wx, wy;
 	      Angle sa, dir;
 
@@ -1105,7 +1105,7 @@ NotifyMode (void)
 							       CLEARLINEFLAG :
 							       0))))
 		{
-		  BoxTypePtr bx;
+		  BoxType *bx;
 
 		  bx = GetArcEnds (arc);
 		  Crosshair.AttachedBox.Point1.X =
@@ -1129,7 +1129,7 @@ NotifyMode (void)
 	type = SearchScreen (Note.X, Note.Y, LOCK_TYPES, &ptr1, &ptr2, &ptr3);
 	if (type == ELEMENT_TYPE)
 	  {
-	    ElementTypePtr element = (ElementTypePtr) ptr2;
+	    ElementType *element = (ElementType *) ptr2;
 
 	    TOGGLE_FLAG (LOCKFLAG, element);
 	    PIN_LOOP (element);
@@ -1154,7 +1154,7 @@ NotifyMode (void)
 	  }
 	else if (type != NO_TYPE)
 	  {
-	    TextTypePtr thing = (TextTypePtr) ptr3;
+	    TextType *thing = (TextType *) ptr3;
 	    TOGGLE_FLAG (LOCKFLAG, thing);
 	    if (TEST_FLAG (LOCKFLAG, thing)
 		&& TEST_FLAG (SELECTEDFLAG, thing))
@@ -1174,17 +1174,17 @@ NotifyMode (void)
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
-	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
+	    && !TEST_FLAG (HOLEFLAG, (PinType *) ptr3))
 	  {
 	    if (gui->shift_is_pressed ())
 	      {
-		int tstyle = GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
+		int tstyle = GET_THERM (INDEXOFCURRENT, (PinType *) ptr3);
 		tstyle++;
 		if (tstyle > 5)
 		  tstyle = 1;
 		ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
 	      }
-	    else if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
+	    else if (GET_THERM (INDEXOFCURRENT, (PinType *) ptr3))
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
 	    else
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
@@ -1213,7 +1213,7 @@ NotifyMode (void)
 
       if (PCB->RatDraw)
 	{
-	  RatTypePtr line;
+	  RatType *line;
 	  if ((line = AddNet ()))
 	    {
 	      addedLines++;
@@ -1231,7 +1231,7 @@ NotifyMode (void)
       else
 	/* create line if both ends are determined && length != 0 */
 	{
-	  LineTypePtr line;
+	  LineType *line;
 	  int maybe_found_flag;
 
 	  if (PCB->Clipping
@@ -1273,7 +1273,7 @@ NotifyMode (void)
 						       PCB) ? CLEARLINEFLAG :
 						      0)))) != NULL)
 	    {
-	      PinTypePtr via;
+	      PinType *via;
 
 	      addedLines++;
 	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
@@ -1355,7 +1355,7 @@ NotifyMode (void)
 	  Crosshair.AttachedBox.Point1.X != Crosshair.AttachedBox.Point2.X &&
 	  Crosshair.AttachedBox.Point1.Y != Crosshair.AttachedBox.Point2.Y)
 	{
-	  PolygonTypePtr polygon;
+	  PolygonType *polygon;
 
 	  int flags = CLEARPOLYFLAG;
 	  if (TEST_FLAG (NEWFULLPOLYFLAG, PCB))
@@ -1393,7 +1393,7 @@ NotifyMode (void)
 	  {
 	    if (strlen(string) > 0)
 	      {
-		TextTypePtr text;
+		TextType *text;
 		int flag = CLEARLINEFLAG;
 
 		if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
@@ -1416,7 +1416,7 @@ NotifyMode (void)
 
     case POLYGON_MODE:
       {
-	PointTypePtr points = Crosshair.AttachedPolygon.Points;
+	PointType *points = Crosshair.AttachedPolygon.Points;
 	Cardinal n = Crosshair.AttachedPolygon.PointN;
 
 	/* do update of position; use the 'LINE_MODE' mechanism */
@@ -1464,7 +1464,7 @@ NotifyMode (void)
 
 	    if (Crosshair.AttachedObject.Type != NO_TYPE)
 	      {
-		if (TEST_FLAG (LOCKFLAG, (PolygonTypePtr)
+		if (TEST_FLAG (LOCKFLAG, (PolygonType *)
 			       Crosshair.AttachedObject.Ptr2))
 		  {
 		    Message (_("Sorry, the object is locked\n"));
@@ -1479,7 +1479,7 @@ NotifyMode (void)
             /* second notify, insert new point into object */
           case STATE_SECOND:
             {
-	      PointTypePtr points = Crosshair.AttachedPolygon.Points;
+	      PointType *points = Crosshair.AttachedPolygon.Points;
 	      Cardinal n = Crosshair.AttachedPolygon.PointN;
 	      POLYAREA *original, *new_hole, *result;
 	      FlagType Flags;
@@ -1548,7 +1548,7 @@ NotifyMode (void)
     case PASTEBUFFER_MODE:
       {
 	TextType estr[MAX_ELEMENTNAMES];
-	ElementTypePtr e = 0;
+	ElementType *e = 0;
 
 	if (gui->shift_is_pressed ())
 	  {
@@ -1557,7 +1557,7 @@ NotifyMode (void)
 			    &ptr3);
 	    if (type == ELEMENT_TYPE)
 	      {
-		e = (ElementTypePtr) ptr1;
+		e = (ElementType *) ptr1;
 		if (e)
 		  {
 		    int i;
@@ -1580,7 +1580,7 @@ NotifyMode (void)
 	    if (type == ELEMENT_TYPE && ptr1)
 	      {
 		int i, save_n;
-		e = (ElementTypePtr) ptr1;
+		e = (ElementType *) ptr1;
 
 		save_n = NAME_INDEX (PCB);
 
@@ -1608,14 +1608,14 @@ NotifyMode (void)
 	   SearchScreen (Note.X, Note.Y, REMOVE_TYPES, &ptr1, &ptr2,
 			 &ptr3)) != NO_TYPE)
 	{
-	  if (TEST_FLAG (LOCKFLAG, (LineTypePtr) ptr2))
+	  if (TEST_FLAG (LOCKFLAG, (LineType *) ptr2))
 	    {
 	      Message (_("Sorry, the object is locked\n"));
 	      break;
 	    }
 	  if (type == ELEMENT_TYPE)
 	    {
-	      RubberbandTypePtr ptr;
+	      RubberbandType *ptr;
 	      int i;
 
 	      Crosshair.AttachedObject.RubberbandN = 0;
@@ -1624,7 +1624,7 @@ NotifyMode (void)
 	      for (i = 0; i < Crosshair.AttachedObject.RubberbandN; i++)
 		{
 		  if (PCB->RatOn)
-		    EraseRat ((RatTypePtr) ptr->Line);
+		    EraseRat ((RatType *) ptr->Line);
                   if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
 		    MoveObjectToRemoveUndoList (RATLINE_TYPE,
 					        ptr->Line, ptr->Line,
@@ -1666,7 +1666,7 @@ NotifyMode (void)
 	    if (Crosshair.AttachedObject.Type != NO_TYPE)
 	      {
 		if (Settings.Mode == MOVE_MODE &&
-		    TEST_FLAG (LOCKFLAG, (PinTypePtr)
+		    TEST_FLAG (LOCKFLAG, (PinType *)
 			       Crosshair.AttachedObject.Ptr2))
 		  {
 		    Message (_("Sorry, the object is locked\n"));
@@ -1720,7 +1720,7 @@ NotifyMode (void)
 
 	  if (Crosshair.AttachedObject.Type != NO_TYPE)
 	    {
-	      if (TEST_FLAG (LOCKFLAG, (PolygonTypePtr)
+	      if (TEST_FLAG (LOCKFLAG, (PolygonType *)
 			     Crosshair.AttachedObject.Ptr2))
 		{
 		  Message (_("Sorry, the object is locked\n"));
@@ -1733,7 +1733,7 @@ NotifyMode (void)
 		  if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
 		    {
 		      fake.poly =
-			(PolygonTypePtr) Crosshair.AttachedObject.Ptr2;
+			(PolygonType *) Crosshair.AttachedObject.Ptr2;
 		      polyIndex =
 			GetLowestDistancePolygonPoint (fake.poly, Note.X,
 						       Note.Y);
@@ -1955,7 +1955,7 @@ static int
 ActionFlip (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
-  ElementTypePtr element;
+  ElementType *element;
   void *ptrtmp;
   int err = 0;
 
@@ -1967,7 +1967,7 @@ ActionFlip (int argc, char **argv, Coord x, Coord y)
 	  if ((SearchScreen (x, y, ELEMENT_TYPE,
 			     &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
 	    {
-	      element = (ElementTypePtr) ptrtmp;
+	      element = (ElementType *) ptrtmp;
 	      ChangeElementSide (element, 2 * Crosshair.Y - PCB->MaxHeight);
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2821,7 +2821,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  /* display the pinout of an element */
 	case F_Pinout:
 	  {
-	    ElementTypePtr element;
+	    ElementType *element;
 	    void *ptrtmp;
 	    Coord x, y;
 
@@ -2830,7 +2830,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 		 (x, y, ELEMENT_TYPE, &ptrtmp,
 		  &ptrtmp, &ptrtmp)) != NO_TYPE)
 	      {
-		element = (ElementTypePtr) ptrtmp;
+		element = (ElementType *) ptrtmp;
 		gui->show_item (element);
 	      }
 	    break;
@@ -2847,7 +2847,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 				  (void **) &ptr3))
 	      {
 	      case ELEMENT_TYPE:
-		PIN_LOOP ((ElementTypePtr) ptr1);
+		PIN_LOOP ((ElementType *) ptr1);
 		{
 		  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
 		    ErasePinName (pin);
@@ -2857,7 +2857,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
 		}
 		END_LOOP;
-		PAD_LOOP ((ElementTypePtr) ptr1);
+		PAD_LOOP ((ElementType *) ptr1);
 		{
 		  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
 		    ErasePadName (pad);
@@ -2873,35 +2873,35 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 		break;
 
 	      case PIN_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
-		  ErasePinName ((PinTypePtr) ptr2);
+		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2))
+		  ErasePinName ((PinType *) ptr2);
 		else
-		  DrawPinName ((PinTypePtr) ptr2);
+		  DrawPinName ((PinType *) ptr2);
 		AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
+		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2);
 		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
 
 	      case PAD_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2))
-		  ErasePadName ((PadTypePtr) ptr2);
+		if (TEST_FLAG (DISPLAYNAMEFLAG, (PadType *) ptr2))
+		  ErasePadName ((PadType *) ptr2);
 		else
-		  DrawPadName ((PadTypePtr) ptr2);
+		  DrawPadName ((PadType *) ptr2);
 		AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2);
+		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadType *) ptr2);
 		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
 	      case VIA_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
-		  EraseViaName ((PinTypePtr) ptr2);
+		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2))
+		  EraseViaName ((PinType *) ptr2);
 		else
-		  DrawViaName ((PinTypePtr) ptr2);
+		  DrawViaName ((PinType *) ptr2);
 		AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
+		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2);
 		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
@@ -3248,8 +3248,8 @@ static int
 ActionRenumber (int argc, char **argv, Coord x, Coord y)
 {
   bool changed = false;
-  ElementTypePtr *element_list;
-  ElementTypePtr *locked_element_list;
+  ElementType **element_list;
+  ElementType **locked_element_list;
   unsigned int i, j, k, cnt, lock_cnt;
   unsigned int tmpi;
   size_t sz;
@@ -3329,8 +3329,8 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
    *
    * We'll actually renumber things in the 2nd pass.
    */
-  element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
-  locked_element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
+  element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementType *));
+  locked_element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementType *));
   was = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
   is = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
   if (element_list == NULL || locked_element_list == NULL || was == NULL
@@ -3745,7 +3745,7 @@ static int
 ActionAddRats (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
-  RatTypePtr shorty;
+  RatType *shorty;
   float len, small;
 
   if (function)
@@ -4056,7 +4056,7 @@ ActionChangeSize (int argc, char **argv, Coord x, Coord y)
 	    if ((type =
 		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+	      if (TEST_FLAG (LOCKFLAG, (PinType *) ptr2))
 		Message (_("Sorry, the object is locked\n"));
 	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, absolute))
 	      SetChangedFlag (true);
@@ -4586,7 +4586,7 @@ ActionChangeName (int argc, char **argv, Coord x, Coord y)
 		    SetChangedFlag (true);
 		    if (type == ELEMENT_TYPE)
 		      {
-			RubberbandTypePtr ptr;
+			RubberbandType *ptr;
 			int i;
 
 			RestoreUndoSerialNumber ();
@@ -4597,7 +4597,7 @@ ActionChangeName (int argc, char **argv, Coord x, Coord y)
 			     i++, ptr++)
 			  {
 			    if (PCB->RatOn)
-			      EraseRat ((RatTypePtr) ptr->Line);
+			      EraseRat ((RatType *) ptr->Line);
 			    MoveObjectToRemoveUndoList (RATLINE_TYPE,
 							ptr->Line, ptr->Line,
 							ptr->Line);
@@ -4722,9 +4722,9 @@ ActionToggleHideName (int argc, char **argv, Coord x, Coord y)
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      {
 		AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-		EraseElementName ((ElementTypePtr) ptr2);
-		TOGGLE_FLAG (HIDENAMEFLAG, (ElementTypePtr) ptr2);
-		DrawElementName ((ElementTypePtr) ptr2);
+		EraseElementName ((ElementType *) ptr2);
+		TOGGLE_FLAG (HIDENAMEFLAG, (ElementType *) ptr2);
+		DrawElementName ((ElementType *) ptr2);
 		Draw ();
 		IncrementUndoSerialNumber ();
 	      }
@@ -5218,7 +5218,7 @@ ActionChangeHole (int argc, char **argv, Coord x, Coord y)
 	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, VIA_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
-		&& ChangeHole ((PinTypePtr) ptr3))
+		&& ChangeHole ((PinType *) ptr3))
 	      IncrementUndoSerialNumber ();
 	    break;
 	  }
@@ -5266,7 +5266,7 @@ ActionChangePaste (int argc, char **argv, Coord x, Coord y)
 	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, PAD_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
-		&& ChangePaste ((PadTypePtr) ptr3))
+		&& ChangePaste ((PadType *) ptr3))
 	      IncrementUndoSerialNumber ();
 	    break;
 	  }
@@ -5721,7 +5721,7 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
 
   if (strcasecmp (function, "ElementConnections") == 0)
     {
-      ElementTypePtr element;
+      ElementType *element;
       void *ptrtmp;
       FILE *fp;
       bool result;
@@ -5729,7 +5729,7 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
       if ((SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
 			 &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
 	{
-	  element = (ElementTypePtr) ptrtmp;
+	  element = (ElementType *) ptrtmp;
 	  if ((fp =
 	       CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
 	    {
@@ -6197,13 +6197,13 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 	    {
 	      int type;
 	      void *ptr1, *ptr3, *ptrtmp;
-	      LineTypePtr ptr2;
+	      LineType *ptr2;
 	      /* this search is guaranteed to succeed */
 	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
 				      &ptrtmp, &ptr3,
 				      Crosshair.AttachedLine.Point1.X,
 				      Crosshair.AttachedLine.Point1.Y, 0);
-	      ptr2 = (LineTypePtr) ptrtmp;
+	      ptr2 = (LineType *) ptrtmp;
 
 	      /* save both ends of line */
 	      Crosshair.AttachedLine.Point2.X = ptr2->Point1.X;
@@ -6235,7 +6235,7 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 					  &ptr3,
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y, 0);
-		  ptr2 = (LineTypePtr) ptrtmp;
+		  ptr2 = (LineType *) ptrtmp;
 	          if (TEST_FLAG (AUTODRCFLAG, PCB))
 		    {
 		      /* undo loses FOUNDFLAG */
@@ -6262,8 +6262,8 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 					  &ptr3,
 					  Crosshair.AttachedLine.Point1.X,
 					  Crosshair.AttachedLine.Point1.Y, 0);
-		  ptr2 = (LineTypePtr) ptrtmp;
-		  lastLayer = (LayerTypePtr) ptr1;
+		  ptr2 = (LineType *) ptrtmp;
+		  lastLayer = (LayerType *) ptr1;
 		}
 	      notify_crosshair_change (true);
 	      return 0;
@@ -6280,12 +6280,12 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 	  if (Crosshair.AttachedBox.State == STATE_THIRD)
 	    {
 	      void *ptr1, *ptr2, *ptr3;
-	      BoxTypePtr bx;
+	      BoxType *bx;
 	      /* guaranteed to succeed */
 	      SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
 				      Crosshair.AttachedBox.Point1.X,
 				      Crosshair.AttachedBox.Point1.Y, 0);
-	      bx = GetArcEnds ((ArcTypePtr) ptr2);
+	      bx = GetArcEnds ((ArcType *) ptr2);
 	      Crosshair.AttachedBox.Point1.X =
 		Crosshair.AttachedBox.Point2.X = bx->X1;
 	      Crosshair.AttachedBox.Point1.Y =
@@ -6561,7 +6561,7 @@ ActionSetSame (int argc, char **argv, Coord x, Coord y)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  LayerTypePtr layer = CURRENT;
+  LayerType *layer = CURRENT;
 
   type = SearchScreen (x, y, CLONE_TYPES, &ptr1, &ptr2, &ptr3);
 /* set layer current and size from line or arc */
@@ -6569,9 +6569,9 @@ ActionSetSame (int argc, char **argv, Coord x, Coord y)
     {
     case LINE_TYPE:
       notify_crosshair_change (false);
-      Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
-      layer = (LayerTypePtr) ptr1;
+      Settings.LineThickness = ((LineType *) ptr2)->Thickness;
+      Settings.Keepaway = ((LineType *) ptr2)->Clearance / 2;
+      layer = (LayerType *) ptr1;
       if (Settings.Mode != LINE_MODE)
 	SetMode (LINE_MODE);
       notify_crosshair_change (true);
@@ -6580,9 +6580,9 @@ ActionSetSame (int argc, char **argv, Coord x, Coord y)
 
     case ARC_TYPE:
       notify_crosshair_change (false);
-      Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
-      layer = (LayerTypePtr) ptr1;
+      Settings.LineThickness = ((ArcType *) ptr2)->Thickness;
+      Settings.Keepaway = ((ArcType *) ptr2)->Clearance / 2;
+      layer = (LayerType *) ptr1;
       if (Settings.Mode != ARC_MODE)
 	SetMode (ARC_MODE);
       notify_crosshair_change (true);
@@ -6590,14 +6590,14 @@ ActionSetSame (int argc, char **argv, Coord x, Coord y)
       break;
 
     case POLYGON_TYPE:
-      layer = (LayerTypePtr) ptr1;
+      layer = (LayerType *) ptr1;
       break;
 
     case VIA_TYPE:
       notify_crosshair_change (false);
-      Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
-      Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
-      Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
+      Settings.ViaThickness = ((PinType *) ptr2)->Thickness;
+      Settings.ViaDrillingHole = ((PinType *) ptr2)->DrillingHole;
+      Settings.Keepaway = ((PinType *) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
 	SetMode (VIA_MODE);
       notify_crosshair_change (true);
@@ -6752,7 +6752,7 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 	if ((type =
 	     SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
 			   &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	  if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+	  if (TEST_FLAG (LOCKFLAG, (PinType *) ptr2))
 	    Message (_("Sorry, the object is locked\n"));
 	if (set_object (type, ptr1, ptr2, ptr3))
 	  SetChangedFlag (true);
@@ -6909,7 +6909,7 @@ find_element_by_refdes (char *refdes)
 }
 
 static AttributeType *
-lookup_attr (AttributeListTypePtr list, const char *name)
+lookup_attr (AttributeListType *list, const char *name)
 {
   int i;
   for (i=0; i<list->Number; i++)
@@ -6919,7 +6919,7 @@ lookup_attr (AttributeListTypePtr list, const char *name)
 }
 
 static void
-delete_attr (AttributeListTypePtr list, AttributeType *attr)
+delete_attr (AttributeListType *list, AttributeType *attr)
 {
   int idx = attr - list->List;
   if (idx < 0 || idx >= list->Number)
@@ -7946,7 +7946,7 @@ ActionAttributes (int argc, char **argv, Coord x, Coord y)
 	    if ((SearchScreen
 		 (x, y, ELEMENT_TYPE, &ptrtmp,
 		  &ptrtmp, &ptrtmp)) != NO_TYPE)
-	      e = (ElementTypePtr) ptrtmp;
+	      e = (ElementType *) ptrtmp;
 	    else
 	      {
 		Message (_("No element found there\n"));

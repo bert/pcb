@@ -49,7 +49,7 @@
 	(POINT_IN_BOX((l)->Point1.X,(l)->Point1.Y,(b)) &&	\
 	POINT_IN_BOX((l)->Point2.X,(l)->Point2.Y,(b)))
 
-#define	PAD_IN_BOX(p,b)	LINE_IN_BOX((LineTypePtr)(p),(b))
+#define	PAD_IN_BOX(p,b)	LINE_IN_BOX((LineType *)(p),(b))
 
 #define	BOX_IN_BOX(b1,b)	\
 	((b1)->X1 >= (b)->X1 && (b1)->X2 <= (b)->X2 &&	\
@@ -70,19 +70,19 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-bool IsPointOnLine (Coord, Coord, Coord, LineTypePtr);
-bool IsPointOnPin (Coord, Coord, Coord, PinTypePtr);
-bool IsPointOnArc (Coord, Coord, Coord, ArcTypePtr);
-bool IsPointOnLineEnd (Coord, Coord, RatTypePtr);
-bool IsLineInRectangle (Coord, Coord, Coord, Coord, LineTypePtr);
-bool IsLineInQuadrangle (PointType p[4], LineTypePtr Line);
-bool IsArcInRectangle (Coord, Coord, Coord, Coord, ArcTypePtr);
-bool IsPointInPad (Coord, Coord, Coord, PadTypePtr);
-bool IsPointInBox (Coord, Coord, BoxTypePtr, Coord);
+bool IsPointOnLine (Coord, Coord, Coord, LineType *);
+bool IsPointOnPin (Coord, Coord, Coord, PinType *);
+bool IsPointOnArc (Coord, Coord, Coord, ArcType *);
+bool IsPointOnLineEnd (Coord, Coord, RatType *);
+bool IsLineInRectangle (Coord, Coord, Coord, Coord, LineType *);
+bool IsLineInQuadrangle (PointType p[4], LineType * Line);
+bool IsArcInRectangle (Coord, Coord, Coord, Coord, ArcType *);
+bool IsPointInPad (Coord, Coord, Coord, PadType *);
+bool IsPointInBox (Coord, Coord, BoxType *, Coord);
 int SearchObjectByLocation (unsigned, void **, void **, void **, Coord, Coord, Coord);
 int SearchScreen (Coord, Coord, int, void **, void **, void **);
 int SearchScreenGridSlop (Coord, Coord, int, void **, void **, void **);
-int SearchObjectByID (DataTypePtr, void **, void **, void **, int, int);
-ElementTypePtr SearchElementByName (DataTypePtr, char *);
+int SearchObjectByID (DataType *, void **, void **, void **, int, int);
+ElementType * SearchElementByName (DataType *, char *);
 
 #endif

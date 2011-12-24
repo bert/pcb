@@ -122,7 +122,7 @@ polygon_init (void)
 }
 
 Cardinal
-polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point)
+polygon_point_idx (PolygonType *polygon, PointType *point)
 {
   assert (point >= polygon->Points);
   assert (point <= polygon->Points + polygon->PointN);
@@ -131,7 +131,7 @@ polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point)
 
 /* Find contour number: 0 for outer, 1 for first hole etc.. */
 Cardinal
-polygon_point_contour (PolygonTypePtr polygon, Cardinal point)
+polygon_point_contour (PolygonType *polygon, Cardinal point)
 {
   Cardinal i;
   Cardinal contour = 0;
@@ -143,7 +143,7 @@ polygon_point_contour (PolygonTypePtr polygon, Cardinal point)
 }
 
 Cardinal
-next_contour_point (PolygonTypePtr polygon, Cardinal point)
+next_contour_point (PolygonType *polygon, Cardinal point)
 {
   Cardinal contour;
   Cardinal this_contour_start;
@@ -165,7 +165,7 @@ next_contour_point (PolygonTypePtr polygon, Cardinal point)
 }
 
 Cardinal
-prev_contour_point (PolygonTypePtr polygon, Cardinal point)
+prev_contour_point (PolygonType *polygon, Cardinal point)
 {
   Cardinal contour;
   Cardinal prev_contour_end;
@@ -794,7 +794,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
   i = GetLayerNumber (d, l);
   if (TEST_THERM (i, pin))
     {
-      np = ThermPoly ((PCBTypePtr) (d->pcb), pin, i);
+      np = ThermPoly ((PCBType *) (d->pcb), pin, i);
       if (!np)
         return 0;
     }
@@ -880,7 +880,7 @@ struct cpInfo
 };
 
 static void
-subtract_accumulated (struct cpInfo *info, PolygonTypePtr polygon)
+subtract_accumulated (struct cpInfo *info, PolygonType *polygon)
 {
   if (info->accumulate == NULL)
     return;
@@ -892,9 +892,9 @@ subtract_accumulated (struct cpInfo *info, PolygonTypePtr polygon)
 static int
 pin_sub_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   struct cpInfo *info = (struct cpInfo *) cl;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
   POLYAREA *np;
   POLYAREA *merged;
   Cardinal i;
@@ -909,7 +909,7 @@ pin_sub_callback (const BoxType * b, void *cl)
   i = GetLayerNumber (info->data, info->layer);
   if (TEST_THERM (i, pin))
     {
-      np = ThermPoly ((PCBTypePtr) (info->data->pcb), pin, i);
+      np = ThermPoly ((PCBType *) (info->data->pcb), pin, i);
       if (!np)
         return 1;
     }
@@ -934,9 +934,9 @@ pin_sub_callback (const BoxType * b, void *cl)
 static int
 arc_sub_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   struct cpInfo *info = (struct cpInfo *) cl;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
@@ -952,9 +952,9 @@ arc_sub_callback (const BoxType * b, void *cl)
 static int
 pad_sub_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr) b;
+  PadType *pad = (PadType *) b;
   struct cpInfo *info = (struct cpInfo *) cl;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
@@ -974,9 +974,9 @@ pad_sub_callback (const BoxType * b, void *cl)
 static int
 line_sub_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct cpInfo *info = (struct cpInfo *) cl;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
   POLYAREA *np;
   POLYAREA *merged;
 
@@ -1003,9 +1003,9 @@ line_sub_callback (const BoxType * b, void *cl)
 static int
 text_sub_callback (const BoxType * b, void *cl)
 {
-  TextTypePtr text = (TextTypePtr) b;
+  TextType *text = (TextType *) b;
   struct cpInfo *info = (struct cpInfo *) cl;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
@@ -1019,7 +1019,7 @@ text_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
-Group (DataTypePtr Data, Cardinal layer)
+Group (DataType *Data, Cardinal layer)
 {
   Cardinal i, j;
   for (i = 0; i < max_group; i++)
@@ -1030,7 +1030,7 @@ Group (DataTypePtr Data, Cardinal layer)
 }
 
 static int
-clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
+clearPoly (DataType *Data, LayerType *Layer, PolygonType * polygon,
            const BoxType * here, Coord expand)
 {
   int r = 0;
@@ -1209,7 +1209,7 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 static bool inhibit = false;
 
 int
-InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
+InitClip (DataType *Data, LayerType *layer, PolygonType * p)
 {
   if (inhibit)
     return 0;
@@ -1233,9 +1233,9 @@ InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
  * returns true if any points are removed
  */
 bool
-RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
+RemoveExcessPolygonPoints (LayerType *Layer, PolygonType *Polygon)
 {
-  PointTypePtr p;
+  PointType *p;
   Cardinal n, prev, next;
   LineType line;
   bool changed = false;
@@ -1267,10 +1267,10 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * coordinates
  */
 Cardinal
-GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Coord X, Coord Y)
+GetLowestDistancePolygonPoint (PolygonType *Polygon, Coord X, Coord Y)
 {
   double mindistance = (double) MAX_COORD * MAX_COORD;
-  PointTypePtr ptr1, ptr2;
+  PointType *ptr1, *ptr2;
   Cardinal n, result = 0;
 
   /* we calculate the distance to each segment and choose the
@@ -1338,7 +1338,7 @@ GoToPreviousPoint (void)
       /* back-up one point */
     default:
       {
-        PointTypePtr points = Crosshair.AttachedPolygon.Points;
+        PointType *points = Crosshair.AttachedPolygon.Points;
         Cardinal n = Crosshair.AttachedPolygon.PointN - 2;
 
         Crosshair.AttachedPolygon.PointN--;
@@ -1392,7 +1392,7 @@ ClosePolygon (void)
 void
 CopyAttachedPolygonToLayer (void)
 {
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
   int saveID;
 
   /* move data to layer and clear attached struct */
@@ -1455,14 +1455,14 @@ struct plow_info
 {
   int type;
   void *ptr1, *ptr2;
-  LayerTypePtr layer;
-  DataTypePtr data;
-  int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *,
+  LayerType *layer;
+  DataType *data;
+  int (*callback) (DataType *, LayerType *, PolygonType *, int, void *,
                    void *);
 };
 
 static int
-subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
+subtract_plow (DataType *Data, LayerType *Layer, PolygonType *Polygon,
                int type, void *ptr1, void *ptr2)
 {
   if (!Polygon->Clipped)
@@ -1471,23 +1471,23 @@ subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      SubtractPin (Data, (PinTypePtr) ptr2, Layer, Polygon);
+      SubtractPin (Data, (PinType *) ptr2, Layer, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     case LINE_TYPE:
-      SubtractLine ((LineTypePtr) ptr2, Polygon);
+      SubtractLine ((LineType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     case ARC_TYPE:
-      SubtractArc ((ArcTypePtr) ptr2, Polygon);
+      SubtractArc ((ArcType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     case PAD_TYPE:
-      SubtractPad ((PadTypePtr) ptr2, Polygon);
+      SubtractPad ((PadType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     case TEXT_TYPE:
-      SubtractText ((TextTypePtr) ptr2, Polygon);
+      SubtractText ((TextType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
     }
@@ -1495,26 +1495,26 @@ subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
 }
 
 static int
-add_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
+add_plow (DataType *Data, LayerType *Layer, PolygonType *Polygon,
           int type, void *ptr1, void *ptr2)
 {
   switch (type)
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      UnsubtractPin ((PinTypePtr) ptr2, Layer, Polygon);
+      UnsubtractPin ((PinType *) ptr2, Layer, Polygon);
       return 1;
     case LINE_TYPE:
-      UnsubtractLine ((LineTypePtr) ptr2, Layer, Polygon);
+      UnsubtractLine ((LineType *) ptr2, Layer, Polygon);
       return 1;
     case ARC_TYPE:
-      UnsubtractArc ((ArcTypePtr) ptr2, Layer, Polygon);
+      UnsubtractArc ((ArcType *) ptr2, Layer, Polygon);
       return 1;
     case PAD_TYPE:
-      UnsubtractPad ((PadTypePtr) ptr2, Layer, Polygon);
+      UnsubtractPad ((PadType *) ptr2, Layer, Polygon);
       return 1;
     case TEXT_TYPE:
-      UnsubtractText ((TextTypePtr) ptr2, Layer, Polygon);
+      UnsubtractText ((TextType *) ptr2, Layer, Polygon);
       return 1;
     }
   return 0;
@@ -1524,7 +1524,7 @@ static int
 plow_callback (const BoxType * b, void *cl)
 {
   struct plow_info *plow = (struct plow_info *) cl;
-  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  PolygonType *polygon = (PolygonType *) b;
 
   if (TEST_FLAG (CLEARPOLYFLAG, polygon))
     return plow->callback (plow->data, plow->layer, polygon, plow->type,
@@ -1534,11 +1534,11 @@ plow_callback (const BoxType * b, void *cl)
 
 int
 PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
-              int (*call_back) (DataTypePtr data, LayerTypePtr lay,
-                                PolygonTypePtr poly, int type, void *ptr1,
+              int (*call_back) (DataType *data, LayerType *lay,
+                                PolygonType *poly, int type, void *ptr1,
                                 void *ptr2))
 {
-  BoxType sb = ((PinTypePtr) ptr2)->BoundingBox;
+  BoxType sb = ((PinType *) ptr2)->BoundingBox;
   int r = 0;
   struct plow_info info;
 
@@ -1564,7 +1564,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
       else
         {
           GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
-                                                                         ((LayerTypePtr) ptr1))));
+                                                                         ((LayerType *) ptr1))));
           {
             info.layer = layer;
             r +=
@@ -1577,13 +1577,13 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
     case ARC_TYPE:
     case TEXT_TYPE:
       /* the cast works equally well for lines and arcs */
-      if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
+      if (!TEST_FLAG (CLEARLINEFLAG, (LineType *) ptr2))
         return 0;
       /* silk doesn't plow */
-      if (GetLayerNumber (Data, (LayerTypePtr)ptr1) >= max_copper_layer)
+      if (GetLayerNumber (Data, (LayerType *)ptr1) >= max_copper_layer)
         return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
-                                                                     ((LayerTypePtr) ptr1))));
+                                                                     ((LayerType *) ptr1))));
       {
         info.layer = layer;
         r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
@@ -1630,7 +1630,7 @@ RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
     return;
 
   if (type == POLYGON_TYPE)
-    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
+    InitClip (PCB->Data, (LayerType *) ptr1, (PolygonType *) ptr2);
   else
     PlowsPolygon (Data, type, ptr1, ptr2, add_plow);
 }
@@ -1642,13 +1642,13 @@ ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
     return;
 
   if (type == POLYGON_TYPE)
-    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
+    InitClip (PCB->Data, (LayerType *) ptr1, (PolygonType *) ptr2);
   else
     PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow);
 }
 
 bool
-isects (POLYAREA * a, PolygonTypePtr p, bool fr)
+isects (POLYAREA * a, PolygonType *p, bool fr)
 {
   POLYAREA *x;
   bool ans;
@@ -1662,7 +1662,7 @@ isects (POLYAREA * a, PolygonTypePtr p, bool fr)
 
 
 bool
-IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonTypePtr p)
+IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonType *p)
 {
   POLYAREA *c;
   Vector v;
@@ -1679,7 +1679,7 @@ IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonTypePtr p)
 
 
 bool
-IsPointInPolygonIgnoreHoles (Coord X, Coord Y, PolygonTypePtr p)
+IsPointInPolygonIgnoreHoles (Coord X, Coord Y, PolygonType *p)
 {
   Vector v;
   v[0] = X;
@@ -1688,7 +1688,7 @@ IsPointInPolygonIgnoreHoles (Coord X, Coord Y, PolygonTypePtr p)
 }
 
 bool
-IsRectangleInPolygon (Coord X1, Coord Y1, Coord X2, Coord Y2, PolygonTypePtr p)
+IsRectangleInPolygon (Coord X1, Coord Y1, Coord X2, Coord Y2, PolygonType *p)
 {
   POLYAREA *s;
   if (!
@@ -1753,7 +1753,7 @@ r_NoHolesPolygonDicer (POLYAREA * pa,
 }
 
 void
-NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
+NoHolesPolygonDicer (PolygonType *p, const BoxType * clip,
                      void (*emit) (PLINE *, void *), void *user_data)
 {
   POLYAREA *main_contour, *cur, *next;
@@ -1785,7 +1785,7 @@ NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
 
 /* make a polygon split into multiple parts into multiple polygons */
 bool
-MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
+MorphPolygon (LayerType *layer, PolygonType *poly)
 {
   POLYAREA *p, *start;
   bool many = false;
@@ -1814,7 +1814,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
   do
     {
       VNODE *v;
-      PolygonTypePtr newone;
+      PolygonType *newone;
 
       if (p->contours->area > PCB->IsleArea)
         {

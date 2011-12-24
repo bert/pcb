@@ -45,49 +45,49 @@ typedef struct {
 double Distance (double x1, double y1, double x2, double y2);
 Angle  NormalizeAngle (Angle a);
 
-void r_delete_element (DataTypePtr, ElementTypePtr);
-void SetLineBoundingBox (LineTypePtr);
-void SetArcBoundingBox (ArcTypePtr);
-void SetPointBoundingBox (PointTypePtr);
-void SetPinBoundingBox (PinTypePtr);
-void SetPadBoundingBox (PadTypePtr);
-void SetPolygonBoundingBox (PolygonTypePtr);
-void SetElementBoundingBox (DataTypePtr, ElementTypePtr, FontTypePtr);
-bool IsDataEmpty (DataTypePtr);
-bool IsLayerEmpty (LayerTypePtr);
+void r_delete_element (DataType *, ElementType *);
+void SetLineBoundingBox (LineType *);
+void SetArcBoundingBox (ArcType *);
+void SetPointBoundingBox (PointType *);
+void SetPinBoundingBox (PinType *);
+void SetPadBoundingBox (PadType *);
+void SetPolygonBoundingBox (PolygonType *);
+void SetElementBoundingBox (DataType *, ElementType *, FontType *);
+bool IsDataEmpty (DataType *);
+bool IsLayerEmpty (LayerType *);
 bool IsLayerNumEmpty (int);
 bool IsLayerGroupEmpty (int);
 bool IsPasteEmpty (int);
 void CountHoles (int *, int *, const BoxType *);
-BoxTypePtr GetDataBoundingBox (DataTypePtr);
+BoxType * GetDataBoundingBox (DataType *);
 void CenterDisplay (Coord, Coord);
-void SetFontInfo (FontTypePtr);
+void SetFontInfo (FontType *);
 char *make_route_string (RouteStyleType rs[], int n_styles);
-int ParseGroupString (char *, LayerGroupTypePtr, int /* LayerN */);
-int ParseRouteString (char *, RouteStyleTypePtr, const char *);
+int ParseGroupString (char *, LayerGroupType *, int /* LayerN */);
+int ParseRouteString (char *, RouteStyleType *, const char *);
 void QuitApplication (void);
 char *EvaluateFilename (char *, char *, char *, char *);
 char *ExpandFilename (char *, char *);
-void SetTextBoundingBox (FontTypePtr, TextTypePtr);
+void SetTextBoundingBox (FontType *, TextType *);
 
 void SaveOutputWindow (void);
-int GetLayerNumber (DataTypePtr, LayerTypePtr);
-int GetLayerGroupNumberByPointer (LayerTypePtr);
+int GetLayerNumber (DataType *, LayerType *);
+int GetLayerGroupNumberByPointer (LayerType *);
 int GetLayerGroupNumberByNumber (Cardinal);
 int GetGroupOfLayer (int);
 int ChangeGroupVisibility (int, bool, bool);
 void LayerStringToLayerStack (char *);
 
 
-BoxTypePtr GetObjectBoundingBox (int, void *, void *, void *);
+BoxType * GetObjectBoundingBox (int, void *, void *, void *);
 void ResetStackAndVisibility (void);
 void SaveStackAndVisibility (void);
 void RestoreStackAndVisibility (void);
 char *GetWorkingDirectory (char *);
-void CreateQuotedString (DynamicStringTypePtr, char *);
-BoxTypePtr GetArcEnds (ArcTypePtr);
-void ChangeArcAngles (LayerTypePtr, ArcTypePtr, Angle, Angle);
-char *UniqueElementName (DataTypePtr, char *);
+void CreateQuotedString (DynamicStringType *, char *);
+BoxType * GetArcEnds (ArcType *);
+void ChangeArcAngles (LayerType *, ArcType *, Angle, Angle);
+char *UniqueElementName (DataType *, char *);
 void AttachForCopy (Coord, Coord);
 double GetValue (const char *, const char *, bool *);
 double GetValueEx (const char *, const char *, bool *, UnitList, const char *);
@@ -124,7 +124,7 @@ FlagType MaskFlags (FlagType, unsigned int);
 /* Returns group actually moved to (i.e. either group or previous) */
 int MoveLayerToGroup (int layer, int group);
 /* returns pointer to private buffer */
-char *LayerGroupsToString (LayerGroupTypePtr);
+char *LayerGroupsToString (LayerGroupType *);
 /* Make the current layer groups the default.  */
 void MakeLayerGroupsDefault ();
 

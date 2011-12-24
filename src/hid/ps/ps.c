@@ -61,7 +61,7 @@ typedef struct
   char *name;
   Coord Width, Height;
   Coord MarginX, MarginY;
-} MediaType, *MediaTypePtr;
+} MediaType;
 
 /*
  * Metric ISO sizes in mm.  See http://en.wikipedia.org/wiki/ISO_paper_sizes
@@ -384,7 +384,7 @@ static struct {
   bool drillcopper;
   bool legend;
 
-  LayerTypePtr outline_layer;
+  LayerType *outline_layer;
 
   double scale_factor;
 

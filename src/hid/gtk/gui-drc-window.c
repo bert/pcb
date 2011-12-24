@@ -236,7 +236,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 	case LINE_TYPE:
 	case ARC_TYPE:
 	case POLYGON_TYPE:
-	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1), true, true);
+	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerType *) ptr1), true, true);
 	}
       DrawObject (object_type, ptr1, ptr2);
     }

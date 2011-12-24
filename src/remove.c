@@ -59,19 +59,19 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *DestroyVia (PinTypePtr);
-static void *DestroyRat (RatTypePtr);
-static void *DestroyLine (LayerTypePtr, LineTypePtr);
-static void *DestroyArc (LayerTypePtr, ArcTypePtr);
-static void *DestroyText (LayerTypePtr, TextTypePtr);
-static void *DestroyPolygon (LayerTypePtr, PolygonTypePtr);
-static void *DestroyElement (ElementTypePtr);
-static void *RemoveVia (PinTypePtr);
-static void *RemoveRat (RatTypePtr);
-static void *DestroyPolygonPoint (LayerTypePtr, PolygonTypePtr, PointTypePtr);
-static void *RemovePolygonContour (LayerTypePtr, PolygonTypePtr, Cardinal);
-static void *RemovePolygonPoint (LayerTypePtr, PolygonTypePtr, PointTypePtr);
-static void *RemoveLinePoint (LayerTypePtr, LineTypePtr, PointTypePtr);
+static void *DestroyVia (PinType *);
+static void *DestroyRat (RatType *);
+static void *DestroyLine (LayerType *, LineType *);
+static void *DestroyArc (LayerType *, ArcType *);
+static void *DestroyText (LayerType *, TextType *);
+static void *DestroyPolygon (LayerType *, PolygonType *);
+static void *DestroyElement (ElementType *);
+static void *RemoveVia (PinType *);
+static void *RemoveRat (RatType *);
+static void *DestroyPolygonPoint (LayerType *, PolygonType *, PointType *);
+static void *RemovePolygonContour (LayerType *, PolygonType *, Cardinal);
+static void *RemovePolygonPoint (LayerType *, PolygonType *, PointType *);
+static void *RemoveLinePoint (LayerType *, LineType *, PointType *);
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -104,14 +104,14 @@ static ObjectFunctionType DestroyFunctions = {
   DestroyArc,
   DestroyRat
 };
-static DataTypePtr DestroyTarget;
+static DataType *DestroyTarget;
 static bool Bulk = false;
 
 /* ---------------------------------------------------------------------------
  * remove PCB
  */
 void
-RemovePCB (PCBTypePtr Ptr)
+RemovePCB (PCBType *Ptr)
 {
   ClearUndoList (true);
   FreePCBMemory (Ptr);
@@ -122,9 +122,9 @@ RemovePCB (PCBTypePtr Ptr)
  * destroys a via
  */
 static void *
-DestroyVia (PinTypePtr Via)
+DestroyVia (PinType *Via)
 {
-  r_delete_entry (DestroyTarget->via_tree, (BoxTypePtr) Via);
+  r_delete_entry (DestroyTarget->via_tree, (BoxType *) Via);
   free (Via->Name);
 
   DestroyTarget->Via = g_list_remove (DestroyTarget->Via, Via);
@@ -139,9 +139,9 @@ DestroyVia (PinTypePtr Via)
  * destroys a line from a layer 
  */
 static void *
-DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
+DestroyLine (LayerType *Layer, LineType *Line)
 {
-  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  r_delete_entry (Layer->line_tree, (BoxType *) Line);
   free (Line->Number);
 
   Layer->Line = g_list_remove (Layer->Line, Line);
@@ -156,9 +156,9 @@ DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
  * destroys an arc from a layer 
  */
 static void *
-DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
+DestroyArc (LayerType *Layer, ArcType *Arc)
 {
-  r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
+  r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
 
   Layer->Arc = g_list_remove (Layer->Arc, Arc);
   Layer->ArcN --;
@@ -172,9 +172,9 @@ DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
  * destroys a polygon from a layer
  */
 static void *
-DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
+DestroyPolygon (LayerType *Layer, PolygonType *Polygon)
 {
-  r_delete_entry (Layer->polygon_tree, (BoxTypePtr) Polygon);
+  r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
   FreePolygonMemory (Polygon);
 
   Layer->Polygon = g_list_remove (Layer->Polygon, Polygon);
@@ -189,8 +189,8 @@ DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * removes a polygon-point from a polygon and destroys the data
  */
 static void *
-DestroyPolygonPoint (LayerTypePtr Layer,
-		     PolygonTypePtr Polygon, PointTypePtr Point)
+DestroyPolygonPoint (LayerType *Layer,
+		     PolygonType *Polygon, PointType *Point)
 {
   Cardinal point_idx;
   Cardinal i;
@@ -229,10 +229,10 @@ DestroyPolygonPoint (LayerTypePtr Layer,
  * destroys a text from a layer
  */
 static void *
-DestroyText (LayerTypePtr Layer, TextTypePtr Text)
+DestroyText (LayerType *Layer, TextType *Text)
 {
   free (Text->TextString);
-  r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
+  r_delete_entry (Layer->text_tree, (BoxType *) Text);
 
   Layer->Text = g_list_remove (Layer->Text, Text);
   Layer->TextN --;
@@ -246,7 +246,7 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
  * destroys a element
  */
 static void *
-DestroyElement (ElementTypePtr Element)
+DestroyElement (ElementType *Element)
 {
   if (DestroyTarget->element_tree)
     r_delete_entry (DestroyTarget->element_tree, (BoxType *) Element);
@@ -286,7 +286,7 @@ DestroyElement (ElementTypePtr Element)
  * destroys a rat
  */
 static void *
-DestroyRat (RatTypePtr Rat)
+DestroyRat (RatType *Rat)
 {
   if (DestroyTarget->rat_tree)
     r_delete_entry (DestroyTarget->rat_tree, &Rat->BoundingBox);
@@ -304,7 +304,7 @@ DestroyRat (RatTypePtr Rat)
  * removes a via
  */
 static void *
-RemoveVia (PinTypePtr Via)
+RemoveVia (PinType *Via)
 {
   /* erase from screen and memory */
   if (PCB->ViaOn)
@@ -321,7 +321,7 @@ RemoveVia (PinTypePtr Via)
  * removes a rat
  */
 static void *
-RemoveRat (RatTypePtr Rat)
+RemoveRat (RatType *Rat)
 {
   /* erase from screen and memory */
   if (PCB->RatOn)
@@ -337,8 +337,8 @@ RemoveRat (RatTypePtr Rat)
 struct rlp_info
 {
   jmp_buf env;
-  LineTypePtr line;
-  PointTypePtr point;
+  LineType *line;
+  PointType *point;
 };
 static int
 remove_point (const BoxType * b, void *cl)
@@ -369,7 +369,7 @@ remove_point (const BoxType * b, void *cl)
  * removes a line point, or a line if the selected point is the end
  */
 static void *
-RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
+RemoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
 {
   PointType other;
   struct rlp_info info;
@@ -394,7 +394,7 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
  * removes a line from a layer 
  */
 void *
-RemoveLine (LayerTypePtr Layer, LineTypePtr Line)
+RemoveLine (LayerType *Layer, LineType *Line)
 {
   /* erase from screen */
   if (Layer->On)
@@ -411,7 +411,7 @@ RemoveLine (LayerTypePtr Layer, LineTypePtr Line)
  * removes an arc from a layer 
  */
 void *
-RemoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
+RemoveArc (LayerType *Layer, ArcType *Arc)
 {
   /* erase from screen */
   if (Layer->On)
@@ -428,7 +428,7 @@ RemoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
  * removes a text from a layer
  */
 void *
-RemoveText (LayerTypePtr Layer, TextTypePtr Text)
+RemoveText (LayerType *Layer, TextType *Text)
 {
   /* erase from screen */
   if (Layer->On)
@@ -445,7 +445,7 @@ RemoveText (LayerTypePtr Layer, TextTypePtr Text)
  * removes a polygon from a layer
  */
 void *
-RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
+RemovePolygon (LayerType *Layer, PolygonType *Polygon)
 {
   /* erase from screen */
   if (Layer->On)
@@ -463,8 +463,8 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * If removing the outer contour, it removes the whole polygon.
  */
 static void *
-RemovePolygonContour (LayerTypePtr Layer,
-                      PolygonTypePtr Polygon,
+RemovePolygonContour (LayerType *Layer,
+                      PolygonType *Polygon,
                       Cardinal contour)
 {
   Cardinal contour_start, contour_end, contour_points;
@@ -513,8 +513,8 @@ RemovePolygonContour (LayerTypePtr Layer,
  * removes a polygon-point from a polygon
  */
 static void *
-RemovePolygonPoint (LayerTypePtr Layer,
-		    PolygonTypePtr Polygon, PointTypePtr Point)
+RemovePolygonPoint (LayerType *Layer,
+		    PolygonType *Polygon, PointType *Point)
 {
   Cardinal point_idx;
   Cardinal i;
@@ -567,7 +567,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
  * removes an element
  */
 void *
-RemoveElement (ElementTypePtr Element)
+RemoveElement (ElementType *Element)
 {
   /* erase from screen */
   if ((PCB->ElementOn || PCB->PinOn) &&
@@ -644,7 +644,7 @@ DeleteRats (bool selected)
  * allocated memory is destroyed assumed to already be erased
  */
 void *
-DestroyObject (DataTypePtr Target, int Type, void *Ptr1,
+DestroyObject (DataType *Target, int Type, void *Ptr1,
 	       void *Ptr2, void *Ptr3)
 {
   DestroyTarget = Target;

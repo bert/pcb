@@ -63,28 +63,28 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *AddViaToBuffer (PinTypePtr);
-static void *AddLineToBuffer (LayerTypePtr, LineTypePtr);
-static void *AddArcToBuffer (LayerTypePtr, ArcTypePtr);
-static void *AddRatToBuffer (RatTypePtr);
-static void *AddTextToBuffer (LayerTypePtr, TextTypePtr);
-static void *AddPolygonToBuffer (LayerTypePtr, PolygonTypePtr);
-static void *AddElementToBuffer (ElementTypePtr);
-static void *MoveViaToBuffer (PinTypePtr);
-static void *MoveLineToBuffer (LayerTypePtr, LineTypePtr);
-static void *MoveArcToBuffer (LayerTypePtr, ArcTypePtr);
-static void *MoveRatToBuffer (RatTypePtr);
-static void *MoveTextToBuffer (LayerTypePtr, TextTypePtr);
-static void *MovePolygonToBuffer (LayerTypePtr, PolygonTypePtr);
-static void *MoveElementToBuffer (ElementTypePtr);
-static void SwapBuffer (BufferTypePtr);
+static void *AddViaToBuffer (PinType *);
+static void *AddLineToBuffer (LayerType *, LineType *);
+static void *AddArcToBuffer (LayerType *, ArcType *);
+static void *AddRatToBuffer (RatType *);
+static void *AddTextToBuffer (LayerType *, TextType *);
+static void *AddPolygonToBuffer (LayerType *, PolygonType *);
+static void *AddElementToBuffer (ElementType *);
+static void *MoveViaToBuffer (PinType *);
+static void *MoveLineToBuffer (LayerType *, LineType *);
+static void *MoveArcToBuffer (LayerType *, ArcType *);
+static void *MoveRatToBuffer (RatType *);
+static void *MoveTextToBuffer (LayerType *, TextType *);
+static void *MovePolygonToBuffer (LayerType *, PolygonType *);
+static void *MoveElementToBuffer (ElementType *);
+static void SwapBuffer (BufferType *);
 
 #define ARG(n) (argc > (n) ? argv[n] : 0)
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static DataTypePtr Dest, Source;
+static DataType *Dest, *Source;
 
 static ObjectFunctionType AddBufferFunctions = {
   AddLineToBuffer,
@@ -115,7 +115,7 @@ static int ExtraFlag = 0;
  * copies a via to paste buffer
  */
 static void *
-AddViaToBuffer (PinTypePtr Via)
+AddViaToBuffer (PinType *Via)
 {
   return (CreateNewVia (Dest, Via->X, Via->Y, Via->Thickness, Via->Clearance,
 			Via->Mask, Via->DrillingHole, Via->Name,
@@ -126,7 +126,7 @@ AddViaToBuffer (PinTypePtr Via)
  * copies a rat-line to paste buffer
  */
 static void *
-AddRatToBuffer (RatTypePtr Rat)
+AddRatToBuffer (RatType *Rat)
 {
   return (CreateNewRat (Dest, Rat->Point1.X, Rat->Point1.Y,
 			Rat->Point2.X, Rat->Point2.Y, Rat->group1,
@@ -138,10 +138,10 @@ AddRatToBuffer (RatTypePtr Rat)
  * copies a line to buffer  
  */
 static void *
-AddLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
+AddLineToBuffer (LayerType *Layer, LineType *Line)
 {
-  LineTypePtr line;
-  LayerTypePtr layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
+  LineType *line;
+  LayerType *layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
 
   line = CreateNewLineOnLayer (layer, Line->Point1.X, Line->Point1.Y,
 			       Line->Point2.X, Line->Point2.Y,
@@ -157,9 +157,9 @@ AddLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
  * copies an arc to buffer  
  */
 static void *
-AddArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
+AddArcToBuffer (LayerType *Layer, ArcType *Arc)
 {
-  LayerTypePtr layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
+  LayerType *layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
 
   return (CreateNewArcOnLayer (layer, Arc->X, Arc->Y,
 			       Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta,
@@ -172,9 +172,9 @@ AddArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
  * copies a text to buffer
  */
 static void *
-AddTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
+AddTextToBuffer (LayerType *Layer, TextType *Text)
 {
-  LayerTypePtr layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
+  LayerType *layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
 
   return (CreateNewText (layer, &PCB->Font, Text->X, Text->Y,
 			 Text->Direction, Text->Scale, Text->TextString,
@@ -185,10 +185,10 @@ AddTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
  * copies a polygon to buffer
  */
 static void *
-AddPolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
+AddPolygonToBuffer (LayerType *Layer, PolygonType *Polygon)
 {
-  LayerTypePtr layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
-  PolygonTypePtr polygon;
+  LayerType *layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
+  PolygonType *polygon;
 
   polygon = CreateNewPolygon (layer, Polygon->Flags);
   CopyPolygonLowLevel (polygon, Polygon);
@@ -209,9 +209,9 @@ AddPolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * copies a element to buffer
  */
 static void *
-AddElementToBuffer (ElementTypePtr Element)
+AddElementToBuffer (ElementType *Element)
 {
-  ElementTypePtr element;
+  ElementType *element;
 
   element = GetElementMemory (Dest);
   CopyElementLowLevel (Dest, element, Element, false, 0, 0);
@@ -287,7 +287,7 @@ MoveRatToBuffer (RatType *rat)
 static void *
 MoveLineToBuffer (LayerType *layer, LineType *line)
 {
-  LayerTypePtr lay = &Dest->Layer[GetLayerNumber (Source, layer)];
+  LayerType *lay = &Dest->Layer[GetLayerNumber (Source, layer)];
 
   RestoreToPolygon (Source, LINE_TYPE, layer, line);
   r_delete_entry (layer->line_tree, (BoxType *)line);
@@ -428,9 +428,9 @@ MoveElementToBuffer (ElementType *element)
  * calculates the bounding box of the buffer
  */
 void
-SetBufferBoundingBox (BufferTypePtr Buffer)
+SetBufferBoundingBox (BufferType *Buffer)
 {
-  BoxTypePtr box = GetDataBoundingBox (Buffer->Data);
+  BoxType *box = GetDataBoundingBox (Buffer->Data);
 
   if (box)
     Buffer->BoundingBox = *box;
@@ -440,7 +440,7 @@ SetBufferBoundingBox (BufferTypePtr Buffer)
  * clears the contents of the paste buffer
  */
 void
-ClearBuffer (BufferTypePtr Buffer)
+ClearBuffer (BufferType *Buffer)
 {
   if (Buffer && Buffer->Data)
     {
@@ -454,7 +454,7 @@ ClearBuffer (BufferTypePtr Buffer)
  * returns true if any objects have been removed
  */
 void
-AddSelectedToBuffer (BufferTypePtr Buffer, Coord X, Coord Y, bool LeaveSelected)
+AddSelectedToBuffer (BufferType *Buffer, Coord X, Coord Y, bool LeaveSelected)
 {
   /* switch crosshair off because adding objects to the pastebuffer
    * may change the 'valid' area for the cursor
@@ -488,9 +488,9 @@ AddSelectedToBuffer (BufferTypePtr Buffer, Coord X, Coord Y, bool LeaveSelected)
  * if successful, update some other stuff and reposition the pastebuffer
  */
 bool
-LoadElementToBuffer (BufferTypePtr Buffer, char *Name, bool FromFile)
+LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 {
-  ElementTypePtr element;
+  ElementType *element;
 
   ClearBuffer (Buffer);
   if (FromFile)
@@ -716,7 +716,7 @@ search_footprint_hash (const char *footprint)
 
 /* Returns zero on success, non-zero on error.  */
 int
-LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
+LoadFootprintByName (BufferType *Buffer, char *Footprint)
 {
   int i;
   FootprintHashEntry *fpe;
@@ -816,7 +816,7 @@ LoadFootprint (int argc, char **argv, Coord x, Coord y)
   char *name = ARG(0);
   char *refdes = ARG(1);
   char *value = ARG(2);
-  ElementTypePtr e;
+  ElementType *e;
 
   if (!name)
     AFAIL (loadfootprint);
@@ -857,11 +857,11 @@ LoadFootprint (int argc, char **argv, Coord x, Coord y)
  * break buffer element into pieces
  */
 bool
-SmashBufferElement (BufferTypePtr Buffer)
+SmashBufferElement (BufferType *Buffer)
 {
-  ElementTypePtr element;
+  ElementType *element;
   Cardinal group;
-  LayerTypePtr clayer, slayer;
+  LayerType *clayer, *slayer;
 
   if (Buffer->Data->ElementN != 1)
     {
@@ -920,7 +920,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   slayer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
   PAD_LOOP (element);
   {
-    LineTypePtr line;
+    LineType *line;
     line = CreateNewLineOnLayer (TEST_FLAG (ONSOLDERFLAG, pad) ? slayer : clayer,
 				 pad->Point1.X, pad->Point1.Y,
 				 pad->Point2.X, pad->Point2.Y,
@@ -940,7 +940,7 @@ SmashBufferElement (BufferTypePtr Buffer)
  */
 
 static int
-polygon_is_rectangle (PolygonTypePtr poly)
+polygon_is_rectangle (PolygonType *poly)
 {
   int i, best;
   PointType temp[4];
@@ -976,9 +976,9 @@ polygon_is_rectangle (PolygonTypePtr poly)
  * convert buffer contents into an element
  */
 bool
-ConvertBufferToElement (BufferTypePtr Buffer)
+ConvertBufferToElement (BufferType *Buffer)
 {
-  ElementTypePtr Element;
+  ElementType *Element;
   Cardinal group;
   Cardinal pin_n = 1;
   bool hasParts = false, crooked = false;
@@ -1144,9 +1144,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
  * if successful, update some other stuff
  */
 bool
-LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
+LoadLayoutToBuffer (BufferType *Buffer, char *Filename)
 {
-  PCBTypePtr newPCB = CreateNewPCB (false);
+  PCBType *newPCB = CreateNewPCB (false);
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -1173,7 +1173,7 @@ LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
  * rotates the contents of the pastebuffer
  */
 void
-RotateBuffer (BufferTypePtr Buffer, BYTE Number)
+RotateBuffer (BufferType *Buffer, BYTE Number)
 {
   /* rotate vias */
   VIA_LOOP (Buffer->Data);
@@ -1243,7 +1243,7 @@ free_rotate (Coord *x, Coord *y, Coord cx, Coord cy, double cosa, double sina)
 }
 
 void
-FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
+FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
 			   Coord X, Coord Y,
 			   double cosa, double sina, Angle angle)
 {
@@ -1302,7 +1302,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 }
 
 void
-FreeRotateBuffer (BufferTypePtr Buffer, Angle angle)
+FreeRotateBuffer (BufferType *Buffer, Angle angle)
 {
   double cosa, sina;
 
@@ -1419,7 +1419,7 @@ SwapBuffers (void)
 }
 
 void
-MirrorBuffer (BufferTypePtr Buffer)
+MirrorBuffer (BufferType *Buffer)
 {
   int i;
 
@@ -1430,7 +1430,7 @@ MirrorBuffer (BufferTypePtr Buffer)
     }
   for (i = 0; i < max_copper_layer + 2; i++)
     {
-      LayerTypePtr layer = Buffer->Data->Layer + i;
+      LayerType *layer = Buffer->Data->Layer + i;
       if (layer->TextN)
 	{
 	  Message (_("You can't mirror a buffer that has text!\n"));
@@ -1482,7 +1482,7 @@ MirrorBuffer (BufferTypePtr Buffer)
  * flip components/tracks from one side to the other
  */
 static void
-SwapBuffer (BufferTypePtr Buffer)
+SwapBuffer (BufferType *Buffer)
 {
   int j, k;
   Cardinal sgroup, cgroup;
@@ -1608,7 +1608,7 @@ SwapBuffer (BufferTypePtr Buffer)
  * from its original place
  */
 void *
-MoveObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
+MoveObjectToBuffer (DataType *Destination, DataType *Src,
 		    int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   /* setup local identifiers used by move operations */
@@ -1621,7 +1621,7 @@ MoveObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
  * Adds the passed object to the passed buffer
  */
 void *
-CopyObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
+CopyObjectToBuffer (DataType *Destination, DataType *Src,
 		    int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   /* setup local identifiers used by Add operations */

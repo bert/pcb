@@ -43,13 +43,13 @@
 #define SILK_TYPE	\
 	(LINE_TYPE | ARC_TYPE | POLYGON_TYPE)
 
-bool LineLineIntersect (LineTypePtr, LineTypePtr);
-bool LineArcIntersect (LineTypePtr, ArcTypePtr);
-bool PinLineIntersect (PinTypePtr, LineTypePtr);
-bool LinePadIntersect (LineTypePtr, PadTypePtr);
-bool ArcPadIntersect (ArcTypePtr, PadTypePtr);
-bool IsPolygonInPolygon (PolygonTypePtr, PolygonTypePtr);
-void LookupElementConnections (ElementTypePtr, FILE *);
+bool LineLineIntersect (LineType *, LineType *);
+bool LineArcIntersect (LineType *, ArcType *);
+bool PinLineIntersect (PinType *, LineType *);
+bool LinePadIntersect (LineType *, PadType *);
+bool ArcPadIntersect (ArcType *, PadType *);
+bool IsPolygonInPolygon (PolygonType *, PolygonType *);
+void LookupElementConnections (ElementType *, FILE *);
 void LookupConnectionsToAllElements (FILE *);
 void LookupConnection (Coord, Coord, bool, Coord, int);
 void LookupUnusedPins (FILE *);
@@ -66,9 +66,9 @@ void RatFindHook (int, void *, void *, void *, bool, bool);
 void SaveFindFlag (int);
 void RestoreFindFlag (void);
 int DRCAll (void);
-bool lineClear (LineTypePtr, Cardinal);
-bool IsLineInPolygon (LineTypePtr, PolygonTypePtr);
-bool IsArcInPolygon (ArcTypePtr, PolygonTypePtr);
-bool IsPadInPolygon (PadTypePtr, PolygonTypePtr);
+bool lineClear (LineType *, Cardinal);
+bool IsLineInPolygon (LineType *, PolygonType *);
+bool IsArcInPolygon (ArcType *, PolygonType *);
+bool IsPadInPolygon (PadType *, PolygonType *);
 
 #endif

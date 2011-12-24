@@ -99,7 +99,7 @@ NetlistChanged (int force_unfreeze)
     }
 }
 
-LibraryMenuTypePtr
+LibraryMenuType *
 netnode_to_netname (char *nodename)
 {
   int i, j;
@@ -118,7 +118,7 @@ netnode_to_netname (char *nodename)
   return 0;
 }
 
-LibraryMenuTypePtr
+LibraryMenuType *
 netname_to_netname (char *netname)
 {
   int i;

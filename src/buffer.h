@@ -35,20 +35,20 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void SetBufferBoundingBox (BufferTypePtr);
-void ClearBuffer (BufferTypePtr);
-void AddSelectedToBuffer (BufferTypePtr, Coord, Coord, bool);
-bool LoadElementToBuffer (BufferTypePtr, char *, bool);
-bool ConvertBufferToElement (BufferTypePtr);
-bool SmashBufferElement (BufferTypePtr);
-bool LoadLayoutToBuffer (BufferTypePtr, char *);
-void RotateBuffer (BufferTypePtr, BYTE);
+void SetBufferBoundingBox (BufferType *);
+void ClearBuffer (BufferType *);
+void AddSelectedToBuffer (BufferType *, Coord, Coord, bool);
+bool LoadElementToBuffer (BufferType *, char *, bool);
+bool ConvertBufferToElement (BufferType *);
+bool SmashBufferElement (BufferType *);
+bool LoadLayoutToBuffer (BufferType *, char *);
+void RotateBuffer (BufferType *, BYTE);
 void SelectPasteBuffer (int);
 void SwapBuffers (void);
-void MirrorBuffer (BufferTypePtr);
+void MirrorBuffer (BufferType *);
 void InitBuffers (void);
-void *MoveObjectToBuffer (DataTypePtr, DataTypePtr, int, void *, void *, void *); 
-void *CopyObjectToBuffer (DataTypePtr, DataTypePtr, int,
+void *MoveObjectToBuffer (DataType *, DataType *, int, void *, void *, void *); 
+void *CopyObjectToBuffer (DataType *, DataType *, int,
 			  void *, void *, void *);
 
 /* This action is called from ActionElementAddIf() */

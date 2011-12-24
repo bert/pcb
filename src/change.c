@@ -64,62 +64,62 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *ChangePinSize (ElementTypePtr, PinTypePtr);
-static void *ChangePinClearSize (ElementTypePtr, PinTypePtr);
-static void *ChangePinMaskSize (ElementTypePtr, PinTypePtr);
-static void *ChangePadSize (ElementTypePtr, PadTypePtr);
-static void *ChangePadClearSize (ElementTypePtr, PadTypePtr);
-static void *ChangePadMaskSize (ElementTypePtr, PadTypePtr);
-static void *ChangePin2ndSize (ElementTypePtr, PinTypePtr);
-static void *ChangeElement2ndSize (ElementTypePtr);
-static void *ChangeViaSize (PinTypePtr);
-static void *ChangeVia2ndSize (PinTypePtr);
-static void *ChangeViaClearSize (PinTypePtr);
-static void *ChangeViaMaskSize (PinTypePtr);
-static void *ChangeLineSize (LayerTypePtr, LineTypePtr);
-static void *ChangeLineClearSize (LayerTypePtr, LineTypePtr);
-static void *ChangePolygonClearSize (LayerTypePtr, PolygonTypePtr);
-static void *ChangeArcSize (LayerTypePtr, ArcTypePtr);
-static void *ChangeArcClearSize (LayerTypePtr, ArcTypePtr);
-static void *ChangeTextSize (LayerTypePtr, TextTypePtr);
-static void *ChangeElementSize (ElementTypePtr);
-static void *ChangeElementNameSize (ElementTypePtr);
-static void *ChangePinName (ElementTypePtr, PinTypePtr);
-static void *ChangePadName (ElementTypePtr, PadTypePtr);
-static void *ChangeViaName (PinTypePtr);
-static void *ChangeLineName (LayerTypePtr, LineTypePtr);
-static void *ChangeElementName (ElementTypePtr);
-static void *ChangeTextName (LayerTypePtr, TextTypePtr);
-static void *ChangeElementSquare (ElementTypePtr);
-static void *SetElementSquare (ElementTypePtr);
-static void *ClrElementSquare (ElementTypePtr);
-static void *ChangeElementOctagon (ElementTypePtr);
-static void *SetElementOctagon (ElementTypePtr);
-static void *ClrElementOctagon (ElementTypePtr);
-static void *ChangePinSquare (ElementTypePtr, PinTypePtr);
-static void *SetPinSquare (ElementTypePtr, PinTypePtr);
-static void *ClrPinSquare (ElementTypePtr, PinTypePtr);
-static void *ChangePinOctagon (ElementTypePtr, PinTypePtr);
-static void *SetPinOctagon (ElementTypePtr, PinTypePtr);
-static void *ClrPinOctagon (ElementTypePtr, PinTypePtr);
-static void *ChangeViaOctagon (PinTypePtr);
-static void *SetViaOctagon (PinTypePtr);
-static void *ClrViaOctagon (PinTypePtr);
-static void *ChangePadSquare (ElementTypePtr, PadTypePtr);
-static void *SetPadSquare (ElementTypePtr, PadTypePtr);
-static void *ClrPadSquare (ElementTypePtr, PadTypePtr);
-static void *ChangeViaThermal (PinTypePtr);
-static void *ChangePinThermal (ElementTypePtr, PinTypePtr);
-static void *ChangeLineJoin (LayerTypePtr, LineTypePtr);
-static void *SetLineJoin (LayerTypePtr, LineTypePtr);
-static void *ClrLineJoin (LayerTypePtr, LineTypePtr);
-static void *ChangeArcJoin (LayerTypePtr, ArcTypePtr);
-static void *SetArcJoin (LayerTypePtr, ArcTypePtr);
-static void *ClrArcJoin (LayerTypePtr, ArcTypePtr);
-static void *ChangeTextJoin (LayerTypePtr, TextTypePtr);
-static void *SetTextJoin (LayerTypePtr, TextTypePtr);
-static void *ClrTextJoin (LayerTypePtr, TextTypePtr);
-static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
+static void *ChangePinSize (ElementType *, PinType *);
+static void *ChangePinClearSize (ElementType *, PinType *);
+static void *ChangePinMaskSize (ElementType *, PinType *);
+static void *ChangePadSize (ElementType *, PadType *);
+static void *ChangePadClearSize (ElementType *, PadType *);
+static void *ChangePadMaskSize (ElementType *, PadType *);
+static void *ChangePin2ndSize (ElementType *, PinType *);
+static void *ChangeElement2ndSize (ElementType *);
+static void *ChangeViaSize (PinType *);
+static void *ChangeVia2ndSize (PinType *);
+static void *ChangeViaClearSize (PinType *);
+static void *ChangeViaMaskSize (PinType *);
+static void *ChangeLineSize (LayerType *, LineType *);
+static void *ChangeLineClearSize (LayerType *, LineType *);
+static void *ChangePolygonClearSize (LayerType *, PolygonType *);
+static void *ChangeArcSize (LayerType *, ArcType *);
+static void *ChangeArcClearSize (LayerType *, ArcType *);
+static void *ChangeTextSize (LayerType *, TextType *);
+static void *ChangeElementSize (ElementType *);
+static void *ChangeElementNameSize (ElementType *);
+static void *ChangePinName (ElementType *, PinType *);
+static void *ChangePadName (ElementType *, PadType *);
+static void *ChangeViaName (PinType *);
+static void *ChangeLineName (LayerType *, LineType *);
+static void *ChangeElementName (ElementType *);
+static void *ChangeTextName (LayerType *, TextType *);
+static void *ChangeElementSquare (ElementType *);
+static void *SetElementSquare (ElementType *);
+static void *ClrElementSquare (ElementType *);
+static void *ChangeElementOctagon (ElementType *);
+static void *SetElementOctagon (ElementType *);
+static void *ClrElementOctagon (ElementType *);
+static void *ChangePinSquare (ElementType *, PinType *);
+static void *SetPinSquare (ElementType *, PinType *);
+static void *ClrPinSquare (ElementType *, PinType *);
+static void *ChangePinOctagon (ElementType *, PinType *);
+static void *SetPinOctagon (ElementType *, PinType *);
+static void *ClrPinOctagon (ElementType *, PinType *);
+static void *ChangeViaOctagon (PinType *);
+static void *SetViaOctagon (PinType *);
+static void *ClrViaOctagon (PinType *);
+static void *ChangePadSquare (ElementType *, PadType *);
+static void *SetPadSquare (ElementType *, PadType *);
+static void *ClrPadSquare (ElementType *, PadType *);
+static void *ChangeViaThermal (PinType *);
+static void *ChangePinThermal (ElementType *, PinType *);
+static void *ChangeLineJoin (LayerType *, LineType *);
+static void *SetLineJoin (LayerType *, LineType *);
+static void *ClrLineJoin (LayerType *, LineType *);
+static void *ChangeArcJoin (LayerType *, ArcType *);
+static void *SetArcJoin (LayerType *, ArcType *);
+static void *ClrArcJoin (LayerType *, ArcType *);
+static void *ChangeTextJoin (LayerType *, TextType *);
+static void *SetTextJoin (LayerType *, TextType *);
+static void *ClrTextJoin (LayerType *, TextType *);
+static void *ChangePolyClear (LayerType *, PolygonType *);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -347,7 +347,7 @@ static ObjectFunctionType ClrOctagonFunctions = {
  * returns TRUE if changed
  */
 static void *
-ChangeViaThermal (PinTypePtr Via)
+ChangeViaThermal (PinType *Via)
 {
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
@@ -367,7 +367,7 @@ ChangeViaThermal (PinTypePtr Via)
  * returns TRUE if changed
  */
 static void *
-ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
+ChangePinThermal (ElementType *element, PinType *Pin)
 {
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
@@ -387,7 +387,7 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
  * returns TRUE if changed
  */
 static void *
-ChangeViaSize (PinTypePtr Via)
+ChangeViaSize (PinType *Via)
 {
   Coord value = Absolute ? Absolute : Via->Thickness + Delta;
 
@@ -422,7 +422,7 @@ ChangeViaSize (PinTypePtr Via)
  * returns TRUE if changed
  */
 static void *
-ChangeVia2ndSize (PinTypePtr Via)
+ChangeVia2ndSize (PinType *Via)
 {
   Coord value = (Absolute) ? Absolute : Via->DrillingHole + Delta;
 
@@ -455,7 +455,7 @@ ChangeVia2ndSize (PinTypePtr Via)
  * returns TRUE if changed
  */
 static void *
-ChangeViaClearSize (PinTypePtr Via)
+ChangeViaClearSize (PinType *Via)
 {
   Coord value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
@@ -489,7 +489,7 @@ ChangeViaClearSize (PinTypePtr Via)
  * returns TRUE if changed
  */
 static void *
-ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinSize (ElementType *Element, PinType *Pin)
 {
   Coord value = (Absolute) ? Absolute : Pin->Thickness + Delta;
 
@@ -521,7 +521,7 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
  * returns TRUE if changed
  */
 static void *
-ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinClearSize (ElementType *Element, PinType *Pin)
 {
   Coord value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
@@ -553,7 +553,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
  * returns TRUE if changed
  */
 static void *
-ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
+ChangePadSize (ElementType *Element, PadType *Pad)
 {
   Coord value = (Absolute) ? Absolute : Pad->Thickness + Delta;
 
@@ -582,7 +582,7 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
  * returns TRUE if changed
  */
 static void *
-ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
+ChangePadClearSize (ElementType *Element, PadType *Pad)
 {
   Coord value = (Absolute) ? Absolute : Pad->Clearance + Delta;
 
@@ -614,7 +614,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
  * returns TRUE if changed
  */
 static void *
-ChangeElement2ndSize (ElementTypePtr Element)
+ChangeElement2ndSize (ElementType *Element)
 {
   bool changed = false;
   Coord value;
@@ -657,7 +657,7 @@ ChangeElement2ndSize (ElementTypePtr Element)
  * returns TRUE if changed
  */
 static void *
-ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
+ChangePin2ndSize (ElementType *Element, PinType *Pin)
 {
   Coord value = (Absolute) ? Absolute : Pin->DrillingHole + Delta;
 
@@ -690,7 +690,7 @@ ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
  * returns TRUE if changed
  */
 static void *
-ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
+ChangeLineSize (LayerType *Layer, LineType *Line)
 {
   Coord value = (Absolute) ? Absolute : Line->Thickness + Delta;
 
@@ -701,11 +701,11 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
     {
       AddObjectToSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
-      r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+      r_delete_entry (Layer->line_tree, (BoxType *) Line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       Line->Thickness = value;
       SetLineBoundingBox (Line);
-      r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+      r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       DrawLine (Layer, Line);
       return (Line);
@@ -718,7 +718,7 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
  * returns TRUE if changed
  */
 static void *
-ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
+ChangeLineClearSize (LayerType *Layer, LineType *Line)
 {
   Coord value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
@@ -730,7 +730,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       EraseLine (Line);
-      r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+      r_delete_entry (Layer->line_tree, (BoxType *) Line);
       Line->Clearance = value;
       if (Line->Clearance == 0)
 	{
@@ -738,7 +738,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 	  Line->Clearance = MIL_TO_COORD(10);
 	}
       SetLineBoundingBox (Line);
-      r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+      r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       DrawLine (Layer, Line);
       return (Line);
@@ -750,7 +750,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
  * Handle attepts to change the clearance of a polygon.
  */
 static void *
-ChangePolygonClearSize (LayerTypePtr Layer, PolygonTypePtr poly)
+ChangePolygonClearSize (LayerType *Layer, PolygonType *poly)
 {
   static int shown_this_message = 0;
   if (!shown_this_message)
@@ -771,7 +771,7 @@ ChangePolygonClearSize (LayerTypePtr Layer, PolygonTypePtr poly)
  * returns TRUE if changed
  */
 static void *
-ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
+ChangeArcSize (LayerType *Layer, ArcType *Arc)
 {
   Coord value = (Absolute) ? Absolute : Arc->Thickness + Delta;
 
@@ -782,11 +782,11 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       AddObjectToSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
-      r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
+      r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       Arc->Thickness = value;
       SetArcBoundingBox (Arc);
-      r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+      r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       DrawArc (Layer, Arc);
       return (Arc);
@@ -799,7 +799,7 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
  * returns TRUE if changed
  */
 static void *
-ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
+ChangeArcClearSize (LayerType *Layer, ArcType *Arc)
 {
   Coord value = (Absolute) ? Absolute : Arc->Clearance + Delta;
 
@@ -810,7 +810,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
-      r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
+      r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       Arc->Clearance = value;
       if (Arc->Clearance == 0)
@@ -819,7 +819,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 	  Arc->Clearance = MIL_TO_COORD(10);
 	}
       SetArcBoundingBox (Arc);
-      r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+      r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       DrawArc (Layer, Arc);
       return (Arc);
@@ -832,7 +832,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
  * returns TRUE if changed
  */
 static void *
-ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
+ChangeTextSize (LayerType *Layer, TextType *Text)
 {
   int value = (Absolute != 0 ? 0 : Text->Scale) +
               (double)(Absolute != 0 ? Absolute : Delta)
@@ -845,11 +845,11 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
     {
       AddObjectToSizeUndoList (TEXT_TYPE, Layer, Text, Text);
       EraseText (Layer, Text);
-      r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
+      r_delete_entry (Layer->text_tree, (BoxType *) Text);
       RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       Text->Scale = value;
       SetTextBoundingBox (&PCB->Font, Text);
-      r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
+      r_insert_entry (Layer->text_tree, (BoxType *) Text, 0);
       ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       DrawText (Layer, Text);
       return (Text);
@@ -862,7 +862,7 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
  * returns TRUE if changed
  */
 static void *
-ChangeElementSize (ElementTypePtr Element)
+ChangeElementSize (ElementType *Element)
 {
   Coord value;
   bool changed = false;
@@ -909,7 +909,7 @@ ChangeElementSize (ElementTypePtr Element)
  * returns TRUE if changed
  */
 static void *
-ChangeElementNameSize (ElementTypePtr Element)
+ChangeElementNameSize (ElementType *Element)
 {
   int value = (Absolute != 0 ? 0 : DESCRIPTION_TEXT (Element).Scale) +
               (double)(Absolute != 0 ? Absolute : Delta)
@@ -939,7 +939,7 @@ ChangeElementNameSize (ElementTypePtr Element)
  * changes the name of a via
  */
 static void *
-ChangeViaName (PinTypePtr Via)
+ChangeViaName (PinType *Via)
 {
   char *old = Via->Name;
 
@@ -958,7 +958,7 @@ ChangeViaName (PinTypePtr Via)
  * changes the name of a pin
  */
 static void *
-ChangePinName (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinName (ElementType *Element, PinType *Pin)
 {
   char *old = Pin->Name;
 
@@ -978,7 +978,7 @@ ChangePinName (ElementTypePtr Element, PinTypePtr Pin)
  * changes the name of a pad
  */
 static void *
-ChangePadName (ElementTypePtr Element, PadTypePtr Pad)
+ChangePadName (ElementType *Element, PadType *Pad)
 {
   char *old = Pad->Name;
 
@@ -998,7 +998,7 @@ ChangePadName (ElementTypePtr Element, PadTypePtr Pad)
  * changes the name of a line
  */
 static void *
-ChangeLineName (LayerTypePtr Layer, LineTypePtr Line)
+ChangeLineName (LayerType *Layer, LineType *Line)
 {
   char *old = Line->Number;
 
@@ -1012,7 +1012,7 @@ ChangeLineName (LayerTypePtr Layer, LineTypePtr Line)
  */
 
 char *
-ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int which, char *new_name)
+ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element, int which, char *new_name)
 {
   char *old = Element->Name[which].TextString;
 
@@ -1039,7 +1039,7 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 }
 
 static void *
-ChangeElementName (ElementTypePtr Element)
+ChangeElementName (ElementType *Element)
 {
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
@@ -1063,7 +1063,7 @@ ChangeElementName (ElementTypePtr Element)
  * returns true if the string has been changed
  */
 static void *
-ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
+ChangeTextName (LayerType *Layer, TextType *Text)
 {
   char *old = Text->TextString;
 
@@ -1097,7 +1097,7 @@ ChangeLayoutName (char *Name)
  * returns TRUE if done
  */
 bool
-ChangeElementSide (ElementTypePtr Element, Coord yoff)
+ChangeElementSide (ElementType *Element, Coord yoff)
 {
   if (TEST_FLAG (LOCKFLAG, Element))
     return (false);
@@ -1112,7 +1112,7 @@ ChangeElementSide (ElementTypePtr Element, Coord yoff)
  * changes the name of a layer; memory has to be already allocated
  */
 bool
-ChangeLayerName (LayerTypePtr Layer, char *Name)
+ChangeLayerName (LayerType *Layer, char *Name)
 {
   free (CURRENT->Name);
   CURRENT->Name = Name;
@@ -1124,7 +1124,7 @@ ChangeLayerName (LayerTypePtr Layer, char *Name)
  * changes the clearance flag of a line
  */
 static void *
-ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
+ChangeLineJoin (LayerType *Layer, LineType *Line)
 {
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
@@ -1149,7 +1149,7 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
  * sets the clearance flag of a line
  */
 static void *
-SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
+SetLineJoin (LayerType *Layer, LineType *Line)
 {
   if (TEST_FLAG (LOCKFLAG, Line) || TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
@@ -1160,7 +1160,7 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
  * clears the clearance flag of a line
  */
 static void *
-ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
+ClrLineJoin (LayerType *Layer, LineType *Line)
 {
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
@@ -1171,7 +1171,7 @@ ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
  * changes the clearance flag of an arc
  */
 static void *
-ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
+ChangeArcJoin (LayerType *Layer, ArcType *Arc)
 {
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
@@ -1196,7 +1196,7 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
  * sets the clearance flag of an arc
  */
 static void *
-SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
+SetArcJoin (LayerType *Layer, ArcType *Arc)
 {
   if (TEST_FLAG (LOCKFLAG, Arc) || TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
@@ -1207,7 +1207,7 @@ SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
  * clears the clearance flag of an arc
  */
 static void *
-ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
+ClrArcJoin (LayerType *Layer, ArcType *Arc)
 {
   if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
@@ -1218,7 +1218,7 @@ ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
  * changes the clearance flag of a text
  */
 static void *
-ChangeTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+ChangeTextJoin (LayerType *Layer, TextType *Text)
 {
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
@@ -1243,7 +1243,7 @@ ChangeTextJoin (LayerTypePtr Layer, TextTypePtr Text)
  * sets the clearance flag of a text
  */
 static void *
-SetTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+SetTextJoin (LayerType *Layer, TextType *Text)
 {
   if (TEST_FLAG (LOCKFLAG, Text) || TEST_FLAG (CLEARLINEFLAG, Text))
     return (NULL);
@@ -1254,7 +1254,7 @@ SetTextJoin (LayerTypePtr Layer, TextTypePtr Text)
  * clears the clearance flag of a text
  */
 static void *
-ClrTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+ClrTextJoin (LayerType *Layer, TextType *Text)
 {
   if (TEST_FLAG (LOCKFLAG, Text) || !TEST_FLAG (CLEARLINEFLAG, Text))
     return (NULL);
@@ -1265,7 +1265,7 @@ ClrTextJoin (LayerTypePtr Layer, TextTypePtr Text)
  * changes the square flag of all pins on an element
  */
 static void *
-ChangeElementSquare (ElementTypePtr Element)
+ChangeElementSquare (ElementType *Element)
 {
   void *ans = NULL;
 
@@ -1288,7 +1288,7 @@ ChangeElementSquare (ElementTypePtr Element)
  * sets the square flag of all pins on an element
  */
 static void *
-SetElementSquare (ElementTypePtr Element)
+SetElementSquare (ElementType *Element)
 {
   void *ans = NULL;
 
@@ -1311,7 +1311,7 @@ SetElementSquare (ElementTypePtr Element)
  * clears the square flag of all pins on an element
  */
 static void *
-ClrElementSquare (ElementTypePtr Element)
+ClrElementSquare (ElementType *Element)
 {
   void *ans = NULL;
 
@@ -1334,7 +1334,7 @@ ClrElementSquare (ElementTypePtr Element)
  * changes the octagon flags of all pins of an element
  */
 static void *
-ChangeElementOctagon (ElementTypePtr Element)
+ChangeElementOctagon (ElementType *Element)
 {
   void *result = NULL;
 
@@ -1353,7 +1353,7 @@ ChangeElementOctagon (ElementTypePtr Element)
  * sets the octagon flags of all pins of an element
  */
 static void *
-SetElementOctagon (ElementTypePtr Element)
+SetElementOctagon (ElementType *Element)
 {
   void *result = NULL;
 
@@ -1372,7 +1372,7 @@ SetElementOctagon (ElementTypePtr Element)
  * clears the octagon flags of all pins of an element
  */
 static void *
-ClrElementOctagon (ElementTypePtr Element)
+ClrElementOctagon (ElementType *Element)
 {
   void *result = NULL;
 
@@ -1391,7 +1391,7 @@ ClrElementOctagon (ElementTypePtr Element)
  * changes the square flag of a pad
  */
 static void *
-ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
+ChangePadSquare (ElementType *Element, PadType *Pad)
 {
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
@@ -1410,7 +1410,7 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
  * sets the square flag of a pad
  */
 static void *
-SetPadSquare (ElementTypePtr Element, PadTypePtr Pad)
+SetPadSquare (ElementType *Element, PadType *Pad)
 {
 
   if (TEST_FLAG (LOCKFLAG, Pad) || TEST_FLAG (SQUAREFLAG, Pad))
@@ -1424,7 +1424,7 @@ SetPadSquare (ElementTypePtr Element, PadTypePtr Pad)
  * clears the square flag of a pad
  */
 static void *
-ClrPadSquare (ElementTypePtr Element, PadTypePtr Pad)
+ClrPadSquare (ElementType *Element, PadType *Pad)
 {
 
   if (TEST_FLAG (LOCKFLAG, Pad) || !TEST_FLAG (SQUAREFLAG, Pad))
@@ -1438,7 +1438,7 @@ ClrPadSquare (ElementTypePtr Element, PadTypePtr Pad)
  * changes the square flag of a pin
  */
 static void *
-ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinSquare (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
@@ -1457,7 +1457,7 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
  * sets the square flag of a pin
  */
 static void *
-SetPinSquare (ElementTypePtr Element, PinTypePtr Pin)
+SetPinSquare (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || TEST_FLAG (SQUAREFLAG, Pin))
     return (NULL);
@@ -1469,7 +1469,7 @@ SetPinSquare (ElementTypePtr Element, PinTypePtr Pin)
  * clears the square flag of a pin
  */
 static void *
-ClrPinSquare (ElementTypePtr Element, PinTypePtr Pin)
+ClrPinSquare (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || !TEST_FLAG (SQUAREFLAG, Pin))
     return (NULL);
@@ -1481,7 +1481,7 @@ ClrPinSquare (ElementTypePtr Element, PinTypePtr Pin)
  * changes the octagon flag of a via 
  */
 static void *
-ChangeViaOctagon (PinTypePtr Via)
+ChangeViaOctagon (PinType *Via)
 {
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
@@ -1500,7 +1500,7 @@ ChangeViaOctagon (PinTypePtr Via)
  * sets the octagon flag of a via 
  */
 static void *
-SetViaOctagon (PinTypePtr Via)
+SetViaOctagon (PinType *Via)
 {
   if (TEST_FLAG (LOCKFLAG, Via) || TEST_FLAG (OCTAGONFLAG, Via))
     return (NULL);
@@ -1512,7 +1512,7 @@ SetViaOctagon (PinTypePtr Via)
  * clears the octagon flag of a via 
  */
 static void *
-ClrViaOctagon (PinTypePtr Via)
+ClrViaOctagon (PinType *Via)
 {
   if (TEST_FLAG (LOCKFLAG, Via) || !TEST_FLAG (OCTAGONFLAG, Via))
     return (NULL);
@@ -1524,7 +1524,7 @@ ClrViaOctagon (PinTypePtr Via)
  * changes the octagon flag of a pin
  */
 static void *
-ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinOctagon (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
@@ -1543,7 +1543,7 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
  * sets the octagon flag of a pin
  */
 static void *
-SetPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
+SetPinOctagon (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || TEST_FLAG (OCTAGONFLAG, Pin))
     return (NULL);
@@ -1555,7 +1555,7 @@ SetPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
  * clears the octagon flag of a pin
  */
 static void *
-ClrPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
+ClrPinOctagon (ElementType *Element, PinType *Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || !TEST_FLAG (OCTAGONFLAG, Pin))
     return (NULL);
@@ -1567,7 +1567,7 @@ ClrPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
  * changes the hole flag of a via
  */
 bool
-ChangeHole (PinTypePtr Via)
+ChangeHole (PinType *Via)
 {
   if (TEST_FLAG (LOCKFLAG, Via))
     return (false);
@@ -1610,7 +1610,7 @@ ChangeHole (PinTypePtr Via)
  * changes the nopaste flag of a pad
  */
 bool
-ChangePaste (PadTypePtr Pad)
+ChangePaste (PadType *Pad)
 {
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (false);
@@ -1626,7 +1626,7 @@ ChangePaste (PadTypePtr Pad)
  * changes the CLEARPOLY flag of a polygon
  */
 static void *
-ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
+ChangePolyClear (LayerType *Layer, PolygonType *Polygon)
 {
   if (TEST_FLAG (LOCKFLAG, Polygon))
     return (NULL);
@@ -2273,33 +2273,33 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
     case LINE_TYPE:
       name = gui->prompt_for (_("Linename:"),
-			      EMPTY (((LineTypePtr) Ptr2)->Number));
+			      EMPTY (((LineType *) Ptr2)->Number));
       break;
 
     case VIA_TYPE:
       name = gui->prompt_for (_("Vianame:"),
-			      EMPTY (((PinTypePtr) Ptr2)->Name));
+			      EMPTY (((PinType *) Ptr2)->Name));
       break;
 
     case PIN_TYPE:
-      sprintf (msg, _("%s Pin Name:"), EMPTY (((PinTypePtr) Ptr2)->Number));
-      name = gui->prompt_for (msg, EMPTY (((PinTypePtr) Ptr2)->Name));
+      sprintf (msg, _("%s Pin Name:"), EMPTY (((PinType *) Ptr2)->Number));
+      name = gui->prompt_for (msg, EMPTY (((PinType *) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
-      sprintf (msg, _("%s Pad Name:"), EMPTY (((PadTypePtr) Ptr2)->Number));
-      name = gui->prompt_for (msg, EMPTY (((PadTypePtr) Ptr2)->Name));
+      sprintf (msg, _("%s Pad Name:"), EMPTY (((PadType *) Ptr2)->Number));
+      name = gui->prompt_for (msg, EMPTY (((PadType *) Ptr2)->Name));
       break;
 
     case TEXT_TYPE:
       name = gui->prompt_for (_("Enter text:"),
-			      EMPTY (((TextTypePtr) Ptr2)->TextString));
+			      EMPTY (((TextType *) Ptr2)->TextString));
       break;
 
     case ELEMENT_TYPE:
       name = gui->prompt_for (_("Elementname:"),
 			      EMPTY (ELEMENT_NAME
-				     (PCB, (ElementTypePtr) Ptr2)));
+				     (PCB, (ElementType *) Ptr2)));
       break;
     }
   if (name)
@@ -2353,7 +2353,7 @@ ChangePCBSize (Coord Width, Coord Height)
  * returns TRUE if changed
  */
 static void *
-ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
+ChangePadMaskSize (ElementType *Element, PadType *Pad)
 {
   Coord value = (Absolute) ? Absolute : Pad->Mask + Delta;
 
@@ -2378,7 +2378,7 @@ ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
  * returns TRUE if changed
  */
 static void *
-ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
+ChangePinMaskSize (ElementType *Element, PinType *Pin)
 {
   Coord value = (Absolute) ? Absolute : Pin->Mask + Delta;
 
@@ -2403,7 +2403,7 @@ ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
  * returns TRUE if changed
  */
 static void *
-ChangeViaMaskSize (PinTypePtr Via)
+ChangeViaMaskSize (PinType *Via)
 {
   Coord value;
 

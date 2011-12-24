@@ -29,8 +29,8 @@
 #include "global.h"
 #include "data.h"
 /* from mymem.h, not include because of the malloc junk */
-LibraryMenuTypePtr GetLibraryMenuMemory (LibraryTypePtr);
-LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
+LibraryMenuType * GetLibraryMenuMemory (LibraryType *);
+LibraryEntryType * GetLibraryEntryMemory (LibraryMenuType *);
 
 /*
  *	Local definitions.
@@ -98,8 +98,8 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
      str_pair* node;
      char* buf;
      char* p;
-     LibraryEntryTypePtr entry;
-     LibraryMenuTypePtr menu = GetLibraryMenuMemory (&PCB->NetlistLib);
+     LibraryEntryType *entry;
+     LibraryMenuType *menu = GetLibraryMenuMemory (&PCB->NetlistLib);
 
      if ( !name->str1 )
      {

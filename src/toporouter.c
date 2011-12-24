@@ -5168,7 +5168,7 @@ gdouble
 export_pcb_drawline(guint layer, guint x0, guint y0, guint x1, guint y1, guint thickness, guint keepaway) 
 {
   gdouble d = 0.;
-  LineTypePtr line;
+  LineType *line;
   line = CreateDrawnLineOnLayer( LAYER_PTR(layer), x0, y0, x1, y1, 
       thickness, keepaway, 
       MakeFlags (AUTOFLAG | (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG : 0)));
@@ -5198,7 +5198,7 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
 {
   gdouble sa, da, theta;
   gdouble d = 0.;
-  ArcTypePtr arc;
+  ArcType *arc;
   gint wind;
 
   wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
@@ -7665,8 +7665,8 @@ escape (int argc, char **argv, Coord x, Coord y)
   ALLPAD_LOOP(PCB->Data);
   {
     if( TEST_FLAG(SELECTEDFLAG, pad) ) {
-      PinTypePtr via;
-      LineTypePtr line;
+      PinType *via;
+      LineType *line;
 
       PadType *pad0 = element->Pad->data;
       PadType *pad1 = g_list_next (element->Pad)->data;

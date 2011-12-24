@@ -94,7 +94,7 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
   int w = 0, i;
   TextType t;
   va_list a;
-  FontTypePtr font = &PCB->Font;
+  FontType *font = &PCB->Font;
   va_start (a, fmt);
   vsprintf (tmp, fmt, a);
   va_end (a);
@@ -190,12 +190,12 @@ drill_sym (hidGC gc, int idx, int x, int y)
 }
 
 static int
-count_drill_lines (DrillInfoTypePtr AllDrills)
+count_drill_lines (DrillInfoType *AllDrills)
 {
   int n, ds = 0;
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {
-      DrillTypePtr drill = &(AllDrills->Drill[n]);
+      DrillType *drill = &(AllDrills->Drill[n]);
       if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
 	ds++;
       if (drill->UnplatedCount)
@@ -208,7 +208,7 @@ count_drill_lines (DrillInfoTypePtr AllDrills)
 int
 PrintFab_overhang (void)
 {
-  DrillInfoTypePtr AllDrills = GetDrillInfo (PCB->Data);
+  DrillInfoType *AllDrills = GetDrillInfo (PCB->Data);
   int ds = count_drill_lines (AllDrills);
   if (ds < 4)
     ds = 4;
@@ -218,7 +218,7 @@ PrintFab_overhang (void)
 void
 PrintFab (hidGC gc)
 {
-  DrillInfoTypePtr AllDrills;
+  DrillInfoType *AllDrills;
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
   char utcTime[64];
@@ -244,7 +244,7 @@ PrintFab (hidGC gc)
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {
       int plated_sym = -1, unplated_sym = -1;
-      DrillTypePtr drill = &(AllDrills->Drill[n]);
+      DrillType *drill = &(AllDrills->Drill[n]);
       if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
 	plated_sym = --ds;
       if (drill->UnplatedCount)
@@ -330,7 +330,7 @@ PrintFab (hidGC gc)
     }
   else
     {
-      LayerTypePtr layer = LAYER_PTR (i);
+      LayerType *layer = LAYER_PTR (i);
       gui->set_line_width (gc, MIL_TO_COORD(10));
       LINE_LOOP (layer);
       {

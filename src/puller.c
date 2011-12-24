@@ -84,8 +84,8 @@ static jmp_buf abort_buf;
 #define sqr(x) (1.0*(x)*(x))
 
 static int multi, line_exact, arc_exact;
-static LineTypePtr the_line;
-static ArcTypePtr the_arc;
+static LineType *the_line;
+static ArcType *the_arc;
 static double arc_dist;
 
 /* We canonicalize the arc and line such that the point to be moved is
@@ -104,7 +104,7 @@ within (int x1, int y1, int x2, int y2, int r)
 }
 
 static int
-arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
+arc_endpoint_is (ArcType *a, int angle, int x, int y)
 {
   int ax = a->X, ay = a->Y;
 
@@ -305,8 +305,8 @@ dist_lsp (int x1, int y1, int x2, int y2, int px, int py)
 static int
 line_callback (const BoxType * b, void *cl)
 {
-  /* LayerTypePtr layer = (LayerTypePtr)cl; */
-  LineTypePtr l = (LineTypePtr) b;
+  /* LayerType *layer = (LayerType *)cl; */
+  LineType *l = (LineType *) b;
   double d1, d2, t;
 #if TRACE1
   pcb_printf ("line %#mD .. %#mD\n",
@@ -335,8 +335,8 @@ line_callback (const BoxType * b, void *cl)
 static int
 arc_callback (const BoxType * b, void *cl)
 {
-  /* LayerTypePtr layer = (LayerTypePtr) cl; */
-  ArcTypePtr a = (ArcTypePtr) b;
+  /* LayerType *layer = (LayerType *) cl; */
+  ArcType *a = (ArcType *) b;
 
 #if TRACE1
   pcb_printf ("arc a %#mD r %#mS sa %ld d %ld\n", a->X, a->Y, a->Width,
@@ -634,7 +634,7 @@ static int current_is_component, current_is_solder;
 #if TRACE1
 static void trace_paths ();
 #endif
-static void mark_line_for_deletion (LineTypePtr);
+static void mark_line_for_deletion (LineType *);
 
 #define LINE2EXTRA(l)    ((Extra *)g_hash_table_lookup (lines, l))
 #define ARC2EXTRA(a)     ((Extra *)g_hash_table_lookup (arcs, a))
@@ -686,7 +686,7 @@ clear_found ()
 #endif
 
 static void
-fix_arc_extra (ArcTypePtr a, Extra *e)
+fix_arc_extra (ArcType *a, Extra *e)
 {
 #if TRACE1
   printf("new arc angles %ld %ld\n", a->StartAngle, a->Delta);
@@ -712,7 +712,7 @@ typedef struct {
 static int
 find_pair_line_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
 #if TRACE1
   Extra *e = LINE2EXTRA (line);
 #endif
@@ -752,7 +752,7 @@ find_pair_line_callback (const BoxType * b, void *cl)
 static int
 find_pair_arc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
+  ArcType *arc = (ArcType *) b;
   Extra *e = ARC2EXTRA (arc);
   FindPairCallbackStruct *fpcs = (FindPairCallbackStruct *) cl;
 
@@ -802,7 +802,7 @@ find_pairs_1 (void *me, Extra **e, int x, int y)
 }
 
 static int
-check_point_in_pin (PinTypePtr pin, int x, int y, End *e)
+check_point_in_pin (PinType *pin, int x, int y, End *e)
 {
   int inside_p;
   int t = (pin->Thickness+1)/2;
@@ -826,8 +826,8 @@ check_point_in_pin (PinTypePtr pin, int x, int y, End *e)
 static int
 find_pair_pinline_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
-  PinTypePtr pin = (PinTypePtr) cl;
+  LineType *line = (LineType *) b;
+  PinType *pin = (PinType *) cl;
   Extra *e = LINE2EXTRA (line);
   int hits;
 
@@ -864,8 +864,8 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
 static int
 find_pair_pinarc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
-  PinTypePtr pin = (PinTypePtr) cl;
+  ArcType *arc = (ArcType *) b;
+  PinType *pin = (PinType *) cl;
   Extra *e = ARC2EXTRA (arc);
   int hits;
 
@@ -875,7 +875,7 @@ find_pair_pinarc_callback (const BoxType * b, void *cl)
 }
 
 static int
-check_point_in_pad (PadTypePtr pad, int x, int y, End *e)
+check_point_in_pad (PadType *pad, int x, int y, End *e)
 {
   int inside_p;
   int t;
@@ -932,8 +932,8 @@ check_point_in_pad (PadTypePtr pad, int x, int y, End *e)
 static int
 find_pair_padline_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
-  PadTypePtr pad = (PadTypePtr) cl;
+  LineType *line = (LineType *) b;
+  PadType *pad = (PadType *) cl;
   Extra *e = LINE2EXTRA (line);
   int hits;
   double t;
@@ -1003,8 +1003,8 @@ find_pair_padline_callback (const BoxType * b, void *cl)
 static int
 find_pair_padarc_callback (const BoxType * b, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr) b;
-  PadTypePtr pad = (PadTypePtr) cl;
+  ArcType *arc = (ArcType *) b;
+  PadType *pad = (PadType *) cl;
   Extra *e = ARC2EXTRA (arc);
   int hits;
 
@@ -1254,7 +1254,7 @@ print_extra (Extra *e, Extra *prev)
 	 
   if (EXTRA_IS_LINE (e))
     {
-      LineTypePtr line = EXTRA2LINE (e);
+      LineType *line = EXTRA2LINE (e);
       pcb_printf(" %p L %#mD-%#mD", line, line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
       printf("  %s %p %s %p\n",
 	     e->start.is_pad ? "pad" : "pin", e->start.pin,
@@ -1262,7 +1262,7 @@ print_extra (Extra *e, Extra *prev)
     }
   else if (EXTRA_IS_ARC (e))
     {
-      ArcTypePtr arc = EXTRA2ARC (e);
+      ArcType *arc = EXTRA2ARC (e);
       pcb_printf(" %p A %#mD-%#mD", arc, e->start.x, e->start.y, e->end.x, e->end.y);
       pcb_printf(" at %#mD ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
     }
@@ -1323,7 +1323,7 @@ trace_paths ()
 #endif
 
 static void
-reverse_line (LineTypePtr line)
+reverse_line (LineType *line)
 {
   Extra *e = LINE2EXTRA (line);
   int x, y;
@@ -1351,7 +1351,7 @@ reverse_line (LineTypePtr line)
 }
 
 static void
-reverse_arc (ArcTypePtr arc)
+reverse_arc (ArcType *arc)
 {
   Extra *e = ARC2EXTRA (arc);
   End etmp;
@@ -1370,7 +1370,7 @@ reverse_arc (ArcTypePtr arc)
 }
 
 static void
-expand_box (BoxTypePtr b, int x, int y, int t)
+expand_box (BoxType *b, int x, int y, int t)
 {
   b->X1 = MIN (b->X1, x-t);
   b->X2 = MAX (b->X2, x+t);
@@ -1383,10 +1383,10 @@ expand_box (BoxTypePtr b, int x, int y, int t)
    working on. */
 
 /* what we're working with */
-static ArcTypePtr start_arc;
-static LineTypePtr start_line;
-static LineTypePtr end_line;
-static ArcTypePtr end_arc;
+static ArcType *start_arc;
+static LineType *start_line;
+static LineType *end_line;
+static ArcType *end_arc;
 static Extra *start_extra, *end_extra;
 static Extra *sarc_extra, *earc_extra;
 static void *start_pinpad, *end_pinpad;
@@ -1677,7 +1677,7 @@ gp_point_2 (int x, int y, int t, End *e, int esa, int eda, const char *func)
 static int
 gp_line_cb (const BoxType *b, void *cb)
 {
-  const LineTypePtr l = (LineTypePtr) b;
+  const LineType *l = (LineType *) b;
   Extra *e = LINE2EXTRA(l);
   if (l == start_line || l == end_line)
     return 0;
@@ -1699,7 +1699,7 @@ gp_line_cb (const BoxType *b, void *cb)
 static int
 gp_arc_cb (const BoxType *b, void *cb)
 {
-  const ArcTypePtr a = (ArcTypePtr) b;
+  const ArcType *a = (ArcType *) b;
   Extra *e = ARC2EXTRA(a);
   if (a == start_arc || a == end_arc)
     return 0;
@@ -1726,7 +1726,7 @@ gp_arc_cb (const BoxType *b, void *cb)
 static int
 gp_text_cb (const BoxType *b, void *cb)
 {
-  const TextTypePtr t = (TextTypePtr) b;
+  const TextType *t = (TextType *) b;
   /* FIXME: drop in the actual text-line endpoints later. */
   gp_point (t->BoundingBox.X1, t->BoundingBox.Y1, 0, 0);
   gp_point (t->BoundingBox.X1, t->BoundingBox.Y2, 0, 0);
@@ -1739,7 +1739,7 @@ static int
 gp_poly_cb (const BoxType *b, void *cb)
 {
   int i;
-  const PolygonTypePtr p = (PolygonTypePtr) b;
+  const PolygonType *p = (PolygonType *) b;
   for (i=0; i<p->PointN; i++)
     gp_point (p->Points[i].X, p->Points[i].Y, 0, 0);
   return 0;
@@ -1748,7 +1748,7 @@ gp_poly_cb (const BoxType *b, void *cb)
 static int
 gp_pin_cb (const BoxType *b, void *cb)
 {
-  const PinTypePtr p = (PinTypePtr) b;
+  const PinType *p = (PinType *) b;
   int t2 = (p->Thickness+1)/2;
 
   if (p == start_pinpad || p == end_pinpad)
@@ -1773,7 +1773,7 @@ gp_pin_cb (const BoxType *b, void *cb)
 static int
 gp_pad_cb (const BoxType *b, void *cb)
 {
-  const PadTypePtr p = (PadTypePtr) b;
+  const PadType *p = (PadType *) b;
   int t2 = (p->Thickness+1)/2;
 
   if (p == start_pinpad || p == end_pinpad)
@@ -1823,14 +1823,14 @@ gp_pad_cb (const BoxType *b, void *cb)
   return 0;
 }
 
-static LineTypePtr
-create_line (LineTypePtr sample, int x1, int y1, int x2, int y2)
+static LineType *
+create_line (LineType *sample, int x1, int y1, int x2, int y2)
 {
 #if TRACE1
   Extra *e;
   pcb_printf("create_line from %#mD to %#mD\n", x1, y1, x2, y2);
 #endif
-  LineTypePtr line = CreateNewLineOnLayer (CURRENT, x1, y1, x2, y2,
+  LineType *line = CreateNewLineOnLayer (CURRENT, x1, y1, x2, y2,
 					   sample->Thickness, sample->Clearance, sample->Flags);
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
 
@@ -1844,11 +1844,11 @@ create_line (LineTypePtr sample, int x1, int y1, int x2, int y2)
   return line;
 }
 
-static ArcTypePtr
-create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
+static ArcType *
+create_arc (LineType *sample, int x, int y, int r, int sa, int da)
 {
   Extra *e;
-  ArcTypePtr arc;
+  ArcType *arc;
 
   if (r % 100 == 1)
     r--;
@@ -1938,7 +1938,7 @@ unlink_extras (Extra *e)
 }
 
 static void
-mark_line_for_deletion (LineTypePtr l)
+mark_line_for_deletion (LineType *l)
 {
   Extra *e = LINE2EXTRA(l);
   if (e->deleted)
@@ -1968,7 +1968,7 @@ mark_line_for_deletion (LineTypePtr l)
 }
 
 static void
-mark_arc_for_deletion (ArcTypePtr a)
+mark_arc_for_deletion (ArcType *a)
 {
   Extra *e = ARC2EXTRA(a);
   e->deleted = 1;
@@ -1993,14 +1993,14 @@ mark_arc_for_deletion (ArcTypePtr a)
 */
 
 static void
-maybe_pull_1 (LineTypePtr line)
+maybe_pull_1 (LineType *line)
 {
   BoxType box;
   /* Line half-thicknesses, including line space */
   int ex, ey;
-  LineTypePtr new_line;
+  LineType *new_line;
   Extra *new_lextra;
-  ArcTypePtr new_arc;
+  ArcType *new_arc;
   Extra *new_aextra;
   double abs_angle;
 
@@ -2463,7 +2463,7 @@ maybe_pull_1 (LineTypePtr line)
 
 /* Given a line with a end_next, attempt to pull both ends.  */
 static void
-maybe_pull (LineTypePtr line, Extra *e)
+maybe_pull (LineType *line, Extra *e)
 {
 #if TRACE0
   printf("maybe_pull: ");

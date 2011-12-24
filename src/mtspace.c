@@ -101,7 +101,7 @@ mtspace_create_box (const BoxType * box, Coord keepaway)
   assert (box_is_good (box));
   mtsb = (mtspacebox_t *)malloc (sizeof (*mtsb));
   /* the box was sent to us pre-bloated by the keepaway amount */
-  *((BoxTypePtr) & mtsb->box) = *box;
+  *((BoxType *) & mtsb->box) = *box;
   mtsb->keepaway = keepaway;
   assert (box_is_good (&mtsb->box));
   return mtsb;
@@ -347,7 +347,7 @@ qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, bool is_vec
 #endif
   while (!(qc->desired ? heap_is_empty (qc->checking.h) : vector_is_empty (qc->checking.v)))
     {
-      cbox = qc->desired ? (BoxTypePtr)heap_remove_smallest (qc->checking.h) : (BoxTypePtr)vector_remove_last (qc->checking.v);
+      cbox = qc->desired ? (BoxType *)heap_remove_smallest (qc->checking.h) : (BoxType *)vector_remove_last (qc->checking.v);
       if (setjmp (qc->env) == 0)
 	{
 	  assert (box_is_good (cbox));

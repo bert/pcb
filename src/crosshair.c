@@ -59,9 +59,9 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void XORPolygon (PolygonTypePtr, Coord, Coord);
-static void XORDrawElement (ElementTypePtr, Coord, Coord);
-static void XORDrawBuffer (BufferTypePtr);
+static void XORPolygon (PolygonType *, Coord, Coord);
+static void XORDrawElement (ElementType *, Coord, Coord);
+static void XORDrawBuffer (BufferType *);
 static void XORDrawInsertPointObject (void);
 static void XORDrawMoveOrCopyObject (void);
 static void XORDrawAttachedLine (Coord, Coord, Coord, Coord, Coord);
@@ -82,7 +82,7 @@ thindraw_moved_pv (PinType *pv, Coord x, Coord y)
  * creates a tmp polygon with coordinates converted to screen system
  */
 static void
-XORPolygon (PolygonTypePtr polygon, Coord dx, Coord dy)
+XORPolygon (PolygonType *polygon, Coord dx, Coord dy)
 {
   Cardinal i;
   for (i = 0; i < polygon->PointN; i++)
@@ -103,7 +103,7 @@ static void
 XORDrawAttachedArc (Coord thick)
 {
   ArcType arc;
-  BoxTypePtr bx;
+  BoxType *bx;
   Coord wx, wy;
   Angle sa, dir;
   Coord wid = thick / 2;
@@ -186,7 +186,7 @@ XORDrawAttachedLine (Coord x1, Coord y1, Coord x2, Coord y2, Coord thick)
  * draws the elements of a loaded circuit which is to be merged in
  */
 static void
-XORDrawElement (ElementTypePtr Element, Coord DX, Coord DY)
+XORDrawElement (ElementType *Element, Coord DX, Coord DY)
 {
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
@@ -278,7 +278,7 @@ XORDrawElement (ElementTypePtr Element, Coord DX, Coord DY)
  * draws all visible and attached objects of the pastebuffer
  */
 static void
-XORDrawBuffer (BufferTypePtr Buffer)
+XORDrawBuffer (BufferType *Buffer)
 {
   Cardinal i;
   Coord x, y;
@@ -291,7 +291,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
   for (i = 0; i < max_copper_layer + 2; i++)
     if (PCB->Data->Layer[i].On)
       {
-	LayerTypePtr layer = &Buffer->Data->Layer[i];
+	LayerType *layer = &Buffer->Data->Layer[i];
 
 	LINE_LOOP (layer);
 	{
@@ -316,7 +316,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	END_LOOP;
 	TEXT_LOOP (layer);
 	{
-	  BoxTypePtr box = &text->BoundingBox;
+	  BoxType *box = &text->BoundingBox;
 	  gui->draw_rect (Crosshair.GC,
 			  x + box->X1, y + box->Y1, x + box->X2, y + box->Y2);
 	}
@@ -355,8 +355,8 @@ XORDrawBuffer (BufferTypePtr Buffer)
 static void
 XORDrawInsertPointObject (void)
 {
-  LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
-  PointTypePtr point = (PointTypePtr) Crosshair.AttachedObject.Ptr3;
+  LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
+  PointType *point = (PointType *) Crosshair.AttachedObject.Ptr3;
 
   if (Crosshair.AttachedObject.Type != NO_TYPE)
     {
@@ -373,7 +373,7 @@ XORDrawInsertPointObject (void)
 static void
 XORDrawMoveOrCopyObject (void)
 {
-  RubberbandTypePtr ptr;
+  RubberbandType *ptr;
   Cardinal i;
   Coord dx = Crosshair.X - Crosshair.AttachedObject.X,
     dy = Crosshair.Y - Crosshair.AttachedObject.Y;
@@ -382,14 +382,14 @@ XORDrawMoveOrCopyObject (void)
     {
     case VIA_TYPE:
       {
-        PinTypePtr via = (PinTypePtr) Crosshair.AttachedObject.Ptr1;
+        PinType *via = (PinType *) Crosshair.AttachedObject.Ptr1;
         thindraw_moved_pv (via, dx, dy);
         break;
       }
 
     case LINE_TYPE:
       {
-	LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
+	LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
 
 	XORDrawAttachedLine (line->Point1.X + dx, line->Point1.Y + dy,
 			     line->Point2.X + dx, line->Point2.Y + dy,
@@ -399,7 +399,7 @@ XORDrawMoveOrCopyObject (void)
 
     case ARC_TYPE:
       {
-	ArcTypePtr Arc = (ArcTypePtr) Crosshair.AttachedObject.Ptr2;
+	ArcType *Arc = (ArcType *) Crosshair.AttachedObject.Ptr2;
 
 	gui->draw_arc (Crosshair.GC,
 		       Arc->X + dx,
@@ -410,8 +410,8 @@ XORDrawMoveOrCopyObject (void)
 
     case POLYGON_TYPE:
       {
-	PolygonTypePtr polygon =
-	  (PolygonTypePtr) Crosshair.AttachedObject.Ptr2;
+	PolygonType *polygon =
+	  (PolygonType *) Crosshair.AttachedObject.Ptr2;
 
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
@@ -422,11 +422,11 @@ XORDrawMoveOrCopyObject (void)
 
     case LINEPOINT_TYPE:
       {
-	LineTypePtr line;
-	PointTypePtr point;
+	LineType *line;
+	PointType *point;
 
-	line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
-	point = (PointTypePtr) Crosshair.AttachedObject.Ptr3;
+	line = (LineType *) Crosshair.AttachedObject.Ptr2;
+	point = (PointType *) Crosshair.AttachedObject.Ptr3;
 	if (point == &line->Point1)
 	  XORDrawAttachedLine (point->X + dx,
 			       point->Y + dy, line->Point2.X,
@@ -440,12 +440,12 @@ XORDrawMoveOrCopyObject (void)
 
     case POLYGONPOINT_TYPE:
       {
-	PolygonTypePtr polygon;
-	PointTypePtr point;
+	PolygonType *polygon;
+	PointType *point;
 	Cardinal point_idx, prev, next;
 
-	polygon = (PolygonTypePtr) Crosshair.AttachedObject.Ptr2;
-	point = (PointTypePtr) Crosshair.AttachedObject.Ptr3;
+	polygon = (PolygonType *) Crosshair.AttachedObject.Ptr2;
+	point = (PointType *) Crosshair.AttachedObject.Ptr3;
 	point_idx = polygon_point_idx (polygon, point);
 
 	/* get previous and following point */
@@ -465,8 +465,8 @@ XORDrawMoveOrCopyObject (void)
     case ELEMENTNAME_TYPE:
       {
 	/* locate the element "mark" and draw an association line from crosshair to it */
-	ElementTypePtr element =
-	  (ElementTypePtr) Crosshair.AttachedObject.Ptr1;
+	ElementType *element =
+	  (ElementType *) Crosshair.AttachedObject.Ptr1;
 
 	gui->draw_line (Crosshair.GC,
 			element->MarkX,
@@ -475,8 +475,8 @@ XORDrawMoveOrCopyObject (void)
       }
     case TEXT_TYPE:
       {
-	TextTypePtr text = (TextTypePtr) Crosshair.AttachedObject.Ptr2;
-	BoxTypePtr box = &text->BoundingBox;
+	TextType *text = (TextType *) Crosshair.AttachedObject.Ptr2;
+	BoxType *box = &text->BoundingBox;
 	gui->draw_rect (Crosshair.GC,
 			box->X1 + dx,
 			box->Y1 + dy, box->X2 + dx, box->Y2 + dy);
@@ -487,7 +487,7 @@ XORDrawMoveOrCopyObject (void)
     case PAD_TYPE:
     case PIN_TYPE:
     case ELEMENT_TYPE:
-      XORDrawElement ((ElementTypePtr) Crosshair.AttachedObject.Ptr2, dx, dy);
+      XORDrawElement ((ElementType *) Crosshair.AttachedObject.Ptr2, dx, dy);
       break;
     }
 
@@ -496,7 +496,7 @@ XORDrawMoveOrCopyObject (void)
   ptr = Crosshair.AttachedObject.Rubberband;
   while (i)
     {
-      PointTypePtr point1, point2;
+      PointType *point1, *point2;
 
       if (TEST_FLAG (VIAFLAG, ptr->Line))
 	{
@@ -986,7 +986,7 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
        (Settings.Mode == MOVE_MODE &&
         Crosshair.AttachedObject.Type == LINEPOINT_TYPE)))
     {
-      PadTypePtr pad = (PadTypePtr) ptr2;
+      PadType *pad = (PadType *) ptr2;
       LayerType *desired_layer;
       Cardinal desired_group;
       Cardinal SLayer, CLayer;

@@ -73,7 +73,7 @@
 #include <dmalloc.h>
 #endif
 
-static PCBTypePtr pcb;
+static PCBType *pcb;
 
 struct cent
 {
@@ -122,7 +122,7 @@ diag_line (Coord X, Coord Y, Coord l, Coord w, bool rt)
 }
 
 static POLYAREA *
-square_therm (PinTypePtr pin, Cardinal style)
+square_therm (PinType *pin, Cardinal style)
 {
   POLYAREA *p, *p2;
   PLINE *c;
@@ -356,7 +356,7 @@ square_therm (PinTypePtr pin, Cardinal style)
 }
 
 static POLYAREA *
-oct_therm (PinTypePtr pin, Cardinal style)
+oct_therm (PinType *pin, Cardinal style)
 {
   POLYAREA *p, *p2, *m;
   Coord t = 0.5 * pcb->ThermScale * pin->Clearance;
@@ -402,7 +402,7 @@ oct_therm (PinTypePtr pin, Cardinal style)
  *
  */
 POLYAREA *
-ThermPoly (PCBTypePtr p, PinTypePtr pin, Cardinal laynum)
+ThermPoly (PCBType *p, PinType *pin, Cardinal laynum)
 {
   ArcType a;
   POLYAREA *pa, *arc;

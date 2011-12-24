@@ -347,8 +347,8 @@ void make_route_style_buttons (GHidRouteStyleSelector *rss);
 gboolean dup_string (gchar ** dst, const gchar * src);
 void free_glist_and_data (GList ** list_head);
 
-ModifierKeysState ghid_modifier_keys_state (GdkModifierType * state);
-ButtonState ghid_button_state (GdkModifierType * state);
+ModifierKeysState ghid_modifier_keys_state (GdkModifierType *state);
+ButtonState ghid_button_state (GdkModifierType *state);
 gboolean ghid_is_modifier_key_sym (gint ksym);
 gboolean ghid_control_is_pressed (void);
 gboolean ghid_mod1_is_pressed (void);
@@ -463,7 +463,7 @@ void ghid_log (const char *fmt, ...);
 void ghid_logv (const char *fmt, va_list args);
 
 /* gui-pinout-window.c */
-void ghid_pinout_window_show (GHidPort * out, ElementTypePtr Element);
+void ghid_pinout_window_show (GHidPort *out, ElementType *Element);
 
 /* gtkhid-gdk.c AND gtkhid-gl.c */
 int ghid_set_layer (const char *name, int group, int empty);

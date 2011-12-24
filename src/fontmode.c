@@ -76,7 +76,7 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
 {
   FontType *font;
   SymbolType *symbol;
-  LayerTypePtr lfont, lorig, lwidth, lgrid;
+  LayerType *lfont, *lorig, *lwidth, *lgrid;
   int s, l;
 
   if (hid_actionl ("New", "Font", 0))
@@ -176,11 +176,11 @@ static const char fontsave_help[] = "Convert the current PCB back to a font.";
 static int
 FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 {
-  FontTypePtr font;
-  SymbolTypePtr symbol;
+  FontType *font;
+  SymbolType *symbol;
   int i;
   GList *ii;
-  LayerTypePtr lfont, lwidth;
+  LayerType *lfont, *lwidth;
 
   font = &PCB->Font;
   lfont = PCB->Data->Layer + 0;

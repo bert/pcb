@@ -113,10 +113,10 @@ static void PrintQuotedString (FILE *, char *);
 static void WritePCBInfoHeader (FILE *);
 static void WritePCBDataHeader (FILE *);
 static void WritePCBFontData (FILE *);
-static void WriteViaData (FILE *, DataTypePtr);
+static void WriteViaData (FILE *, DataType *);
 static void WritePCBRatData (FILE *);
-static void WriteElementData (FILE *, DataTypePtr);
-static void WriteLayerData (FILE *, Cardinal, LayerTypePtr);
+static void WriteElementData (FILE *, DataType *);
+static void WriteLayerData (FILE *, Cardinal, LayerType *);
 static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, bool);
@@ -228,7 +228,7 @@ netnode_sort (const void *va, const void *vb)
 }
 
 static void
-sort_library (LibraryTypePtr lib)
+sort_library (LibraryType *lib)
 {
   int i;
   qsort (lib->Menu, lib->MenuN, sizeof (lib->Menu[0]), netlist_sort);
@@ -388,8 +388,8 @@ real_load_pcb (char *Filename, bool revert)
 {
   const char *unit_suffix, *grid_size;
   char *new_filename;
-  PCBTypePtr newPCB = CreateNewPCB (false);
-  PCBTypePtr oldPCB;
+  PCBType *newPCB = CreateNewPCB (false);
+  PCBType *oldPCB;
 #ifdef DEBUG
   double elapsed;
   clock_t start, end;
@@ -498,9 +498,9 @@ RevertPCB (void)
  * functions for loading elements-as-pcb
  */
 
-extern	PCBTypePtr		yyPCB;
-extern	DataTypePtr		yyData;
-extern	FontTypePtr		yyFont;
+extern	PCBType *		yyPCB;
+extern	DataType *		yyData;
+extern	FontType *		yyFont;
 
 void
 PreLoadElementPCB ()
@@ -518,8 +518,8 @@ PreLoadElementPCB ()
 void
 PostLoadElementPCB ()
 {
-  PCBTypePtr pcb_save = PCB;
-  ElementTypePtr e;
+  PCBType *pcb_save = PCB;
+  ElementType *e;
 
   if (!yyPCB)
     return;
@@ -552,7 +552,7 @@ PrintQuotedString (FILE * FP, char *S)
  * writes out an attribute list
  */
 static void
-WriteAttributeList (FILE * FP, AttributeListTypePtr list, char *prefix)
+WriteAttributeList (FILE * FP, AttributeListType *list, char *prefix)
 {
   int i;
 
@@ -632,8 +632,8 @@ static void
 WritePCBFontData (FILE * FP)
 {
   Cardinal i, j;
-  LineTypePtr line;
-  FontTypePtr font;
+  LineType *line;
+  FontType *font;
 
   for (font = &PCB->Font, i = 0; i <= MAX_FONTPOSITION; i++)
     {
@@ -658,7 +658,7 @@ WritePCBFontData (FILE * FP)
  * writes via data
  */
 static void
-WriteViaData (FILE * FP, DataTypePtr Data)
+WriteViaData (FILE * FP, DataType *Data)
 {
   GList *iter;
   /* write information about vias */
@@ -704,7 +704,7 @@ WritePCBNetlistData (FILE * FP)
 
       for (n = 0; n < PCB->NetlistLib.MenuN; n++)
 	{
-	  LibraryMenuTypePtr menu = &PCB->NetlistLib.Menu[n];
+	  LibraryMenuType *menu = &PCB->NetlistLib.Menu[n];
 	  fprintf (FP, "\tNet(");
 	  PrintQuotedString(FP, &menu->Name[2]);
 	  fprintf (FP, " ");
@@ -712,7 +712,7 @@ WritePCBNetlistData (FILE * FP)
 	  fprintf (FP, ")\n\t(\n");
 	  for (p = 0; p < menu->EntryN; p++)
 	    {
-	      LibraryEntryTypePtr entry = &menu->Entry[p];
+	      LibraryEntryType *entry = &menu->Entry[p];
 	      fprintf (FP, "\t\tConnect(");
 	      PrintQuotedString (FP, entry->ListEntry);
 	      fprintf (FP, ")\n");
@@ -727,7 +727,7 @@ WritePCBNetlistData (FILE * FP)
  * writes element data
  */
 static void
-WriteElementData (FILE * FP, DataTypePtr Data)
+WriteElementData (FILE * FP, DataType *Data)
 {
   GList *n, *p;
   for (n = Data->Element; n != NULL; n = g_list_next (n))
@@ -810,7 +810,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
  * writes layer data
  */
 static void
-WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
+WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
 {
   GList *n;
   /* write information about non empty layers */
@@ -857,7 +857,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 	  fprintf (FP, "\tPolygon(%s)\n\t(", F2S (polygon, POLYGON_TYPE));
 	  for (p = 0; p < polygon->PointN; p++)
 	    {
-	      PointTypePtr point = &polygon->Points[p];
+	      PointType *point = &polygon->Points[p];
 
 	      if (hole < polygon->HoleIndexN &&
 		  p == polygon->HoleIndex[hole])
@@ -1174,8 +1174,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   DIR *subdirobj;                 /* Interable object holding all subdir entries */
   struct dirent *subdirentry;     /* Individual subdir entry */
   struct stat buffer;             /* Buffer used in stat */
-  LibraryMenuTypePtr menu = NULL; /* Pointer to PCB's library menu structure */
-  LibraryEntryTypePtr entry;      /* Pointer to individual menu entry */
+  LibraryMenuType *menu = NULL; /* Pointer to PCB's library menu structure */
+  LibraryEntryType *entry;      /* Pointer to individual menu entry */
   size_t l;
   size_t len;
   int n_footprints = 0;           /* Running count of footprints found in this subdir */
@@ -1413,8 +1413,8 @@ ReadLibraryContents (void)
   static char *command = NULL;
   char inputline[MAX_LIBRARY_LINE_LENGTH + 1];
   FILE *resultFP = NULL;
-  LibraryMenuTypePtr menu = NULL;
-  LibraryEntryTypePtr entry;
+  LibraryMenuType *menu = NULL;
+  LibraryEntryType *entry;
 
   /* If we don't have a command to execute to find the library contents,
    * skip this. This is used by default on Windows builds (set in main.c),
@@ -1528,8 +1528,8 @@ ReadNetlist (char *filename)
   char inputline[MAX_NETLIST_LINE_LENGTH + 1];
   char temp[MAX_NETLIST_LINE_LENGTH + 1];
   FILE *fp;
-  LibraryMenuTypePtr menu = NULL;
-  LibraryEntryTypePtr entry;
+  LibraryMenuType *menu = NULL;
+  LibraryEntryType *entry;
   int i, j, lines, kind;
   bool continued;
   bool used_popen = false;

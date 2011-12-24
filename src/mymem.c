@@ -50,7 +50,7 @@
 /* ---------------------------------------------------------------------------
  * local prototypes
  */
-static void DSRealloc (DynamicStringTypePtr, size_t);
+static void DSRealloc (DynamicStringType *, size_t);
 
 
 /* This API is quite new, provide a version here */
@@ -66,17 +66,17 @@ g_list_free_full (GList *list, GDestroyNotify free_func)
 /* ---------------------------------------------------------------------------
  * get next slot for a rubberband connection, allocates memory if necessary
  */
-RubberbandTypePtr
+RubberbandType *
 GetRubberbandMemory (void)
 {
-  RubberbandTypePtr ptr = Crosshair.AttachedObject.Rubberband;
+  RubberbandType *ptr = Crosshair.AttachedObject.Rubberband;
 
   /* realloc new memory if necessary and clear it */
   if (Crosshair.AttachedObject.RubberbandN >=
       Crosshair.AttachedObject.RubberbandMax)
     {
       Crosshair.AttachedObject.RubberbandMax += STEP_RUBBERBAND;
-      ptr = (RubberbandTypePtr)realloc (ptr, Crosshair.AttachedObject.RubberbandMax *
+      ptr = (RubberbandType *)realloc (ptr, Crosshair.AttachedObject.RubberbandMax *
                           sizeof (RubberbandType));
       Crosshair.AttachedObject.Rubberband = ptr;
       memset (ptr + Crosshair.AttachedObject.RubberbandN, 0,
@@ -86,7 +86,7 @@ GetRubberbandMemory (void)
 }
 
 void **
-GetPointerMemory (PointerListTypePtr list)
+GetPointerMemory (PointerListType *list)
 {
   void **ptr = list->Ptr;
 
@@ -103,7 +103,7 @@ GetPointerMemory (PointerListTypePtr list)
 }
 
 void
-FreePointerListMemory (PointerListTypePtr list)
+FreePointerListMemory (PointerListType *list)
 {
   free (list->Ptr);
   memset (list, 0, sizeof (PointerListType));
@@ -112,16 +112,16 @@ FreePointerListMemory (PointerListTypePtr list)
 /* ---------------------------------------------------------------------------
  * get next slot for a box, allocates memory if necessary
  */
-BoxTypePtr
-GetBoxMemory (BoxListTypePtr Boxes)
+BoxType *
+GetBoxMemory (BoxListType *Boxes)
 {
-  BoxTypePtr box = Boxes->Box;
+  BoxType *box = Boxes->Box;
 
   /* realloc new memory if necessary and clear it */
   if (Boxes->BoxN >= Boxes->BoxMax)
     {
       Boxes->BoxMax = STEP_POINT + (2 * Boxes->BoxMax);
-      box = (BoxTypePtr)realloc (box, Boxes->BoxMax * sizeof (BoxType));
+      box = (BoxType *)realloc (box, Boxes->BoxMax * sizeof (BoxType));
       Boxes->Box = box;
       memset (box + Boxes->BoxN, 0,
 	      (Boxes->BoxMax - Boxes->BoxN) * sizeof (BoxType));
@@ -133,16 +133,16 @@ GetBoxMemory (BoxListTypePtr Boxes)
 /* ---------------------------------------------------------------------------
  * get next slot for a connection, allocates memory if necessary
  */
-ConnectionTypePtr
-GetConnectionMemory (NetTypePtr Net)
+ConnectionType *
+GetConnectionMemory (NetType *Net)
 {
-  ConnectionTypePtr con = Net->Connection;
+  ConnectionType *con = Net->Connection;
 
   /* realloc new memory if necessary and clear it */
   if (Net->ConnectionN >= Net->ConnectionMax)
     {
       Net->ConnectionMax += STEP_POINT;
-      con = (ConnectionTypePtr)realloc (con, Net->ConnectionMax * sizeof (ConnectionType));
+      con = (ConnectionType *)realloc (con, Net->ConnectionMax * sizeof (ConnectionType));
       Net->Connection = con;
       memset (con + Net->ConnectionN, 0,
 	      STEP_POINT * sizeof (ConnectionType));
@@ -153,16 +153,16 @@ GetConnectionMemory (NetTypePtr Net)
 /* ---------------------------------------------------------------------------
  * get next slot for a subnet, allocates memory if necessary
  */
-NetTypePtr
-GetNetMemory (NetListTypePtr Netlist)
+NetType *
+GetNetMemory (NetListType *Netlist)
 {
-  NetTypePtr net = Netlist->Net;
+  NetType *net = Netlist->Net;
 
   /* realloc new memory if necessary and clear it */
   if (Netlist->NetN >= Netlist->NetMax)
     {
       Netlist->NetMax += STEP_POINT;
-      net = (NetTypePtr)realloc (net, Netlist->NetMax * sizeof (NetType));
+      net = (NetType *)realloc (net, Netlist->NetMax * sizeof (NetType));
       Netlist->Net = net;
       memset (net + Netlist->NetN, 0, STEP_POINT * sizeof (NetType));
     }
@@ -172,16 +172,16 @@ GetNetMemory (NetListTypePtr Netlist)
 /* ---------------------------------------------------------------------------
  * get next slot for a net list, allocates memory if necessary
  */
-NetListTypePtr
-GetNetListMemory (NetListListTypePtr Netlistlist)
+NetListType *
+GetNetListMemory (NetListListType *Netlistlist)
 {
-  NetListTypePtr netlist = Netlistlist->NetList;
+  NetListType *netlist = Netlistlist->NetList;
 
   /* realloc new memory if necessary and clear it */
   if (Netlistlist->NetListN >= Netlistlist->NetListMax)
     {
       Netlistlist->NetListMax += STEP_POINT;
-      netlist = (NetListTypePtr)realloc (netlist,
+      netlist = (NetListType *)realloc (netlist,
                          Netlistlist->NetListMax * sizeof (NetListType));
       Netlistlist->NetList = netlist;
       memset (netlist + Netlistlist->NetListN, 0,
@@ -297,7 +297,7 @@ FreeLine (LineType *data)
 /* ---------------------------------------------------------------------------
  * get next slot for an arc, allocates memory if necessary
  */
-ArcTypePtr
+ArcType *
 GetArcMemory (LayerType *layer)
 {
   ArcType *new_obj;
@@ -318,7 +318,7 @@ FreeArc (ArcType *data)
 /* ---------------------------------------------------------------------------
  * get next slot for a text object, allocates memory if necessary
  */
-TextTypePtr
+TextType *
 GetTextMemory (LayerType *layer)
 {
   TextType *new_obj;
@@ -361,16 +361,16 @@ FreePolygon (PolygonType *data)
  * gets the next slot for a point in a polygon struct, allocates memory
  * if necessary
  */
-PointTypePtr
-GetPointMemoryInPolygon (PolygonTypePtr Polygon)
+PointType *
+GetPointMemoryInPolygon (PolygonType *Polygon)
 {
-  PointTypePtr points = Polygon->Points;
+  PointType *points = Polygon->Points;
 
   /* realloc new memory if necessary and clear it */
   if (Polygon->PointN >= Polygon->PointMax)
     {
       Polygon->PointMax += STEP_POLYGONPOINT;
-      points = (PointTypePtr)realloc (points, Polygon->PointMax * sizeof (PointType));
+      points = (PointType *)realloc (points, Polygon->PointMax * sizeof (PointType));
       Polygon->Points = points;
       memset (points + Polygon->PointN, 0,
 	      STEP_POLYGONPOINT * sizeof (PointType));
@@ -383,7 +383,7 @@ GetPointMemoryInPolygon (PolygonTypePtr Polygon)
  * if necessary
  */
 Cardinal *
-GetHoleIndexMemoryInPolygon (PolygonTypePtr Polygon)
+GetHoleIndexMemoryInPolygon (PolygonType *Polygon)
 {
   Cardinal *holeindex = Polygon->HoleIndex;
 
@@ -423,16 +423,16 @@ FreeElement (ElementType *data)
 /* ---------------------------------------------------------------------------
  * get next slot for a library menu, allocates memory if necessary
  */
-LibraryMenuTypePtr
-GetLibraryMenuMemory (LibraryTypePtr lib)
+LibraryMenuType *
+GetLibraryMenuMemory (LibraryType *lib)
 {
-  LibraryMenuTypePtr menu = lib->Menu;
+  LibraryMenuType *menu = lib->Menu;
 
   /* realloc new memory if necessary and clear it */
   if (lib->MenuN >= lib->MenuMax)
     {
       lib->MenuMax += STEP_LIBRARYMENU;
-      menu = (LibraryMenuTypePtr)realloc (menu, lib->MenuMax * sizeof (LibraryMenuType));
+      menu = (LibraryMenuType *)realloc (menu, lib->MenuMax * sizeof (LibraryMenuType));
       lib->Menu = menu;
       memset (menu + lib->MenuN, 0,
 	      STEP_LIBRARYMENU * sizeof (LibraryMenuType));
@@ -443,16 +443,16 @@ GetLibraryMenuMemory (LibraryTypePtr lib)
 /* ---------------------------------------------------------------------------
  * get next slot for a library entry, allocates memory if necessary
  */
-LibraryEntryTypePtr
-GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
+LibraryEntryType *
+GetLibraryEntryMemory (LibraryMenuType *Menu)
 {
-  LibraryEntryTypePtr entry = Menu->Entry;
+  LibraryEntryType *entry = Menu->Entry;
 
   /* realloc new memory if necessary and clear it */
   if (Menu->EntryN >= Menu->EntryMax)
     {
       Menu->EntryMax += STEP_LIBRARYENTRY;
-      entry = (LibraryEntryTypePtr)realloc (entry, Menu->EntryMax * sizeof (LibraryEntryType));
+      entry = (LibraryEntryType *)realloc (entry, Menu->EntryMax * sizeof (LibraryEntryType));
       Menu->Entry = entry;
       memset (entry + Menu->EntryN, 0,
 	      STEP_LIBRARYENTRY * sizeof (LibraryEntryType));
@@ -463,10 +463,10 @@ GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
 /* ---------------------------------------------------------------------------
  * get next slot for a DrillElement, allocates memory if necessary
  */
-ElementTypeHandle
-GetDrillElementMemory (DrillTypePtr Drill)
+ElementType **
+GetDrillElementMemory (DrillType *Drill)
 {
-  ElementTypePtr *element;
+  ElementType **element;
 
   element = Drill->Element;
 
@@ -474,11 +474,11 @@ GetDrillElementMemory (DrillTypePtr Drill)
   if (Drill->ElementN >= Drill->ElementMax)
     {
       Drill->ElementMax += STEP_ELEMENT;
-      element = (ElementTypePtr *)realloc (element,
-                         Drill->ElementMax * sizeof (ElementTypePtr));
+      element = (ElementType **)realloc (element,
+                         Drill->ElementMax * sizeof (ElementType *));
       Drill->Element = element;
       memset (element + Drill->ElementN, 0,
-	      STEP_ELEMENT * sizeof (ElementTypePtr));
+	      STEP_ELEMENT * sizeof (ElementType *));
     }
   return (element + Drill->ElementN++);
 }
@@ -486,10 +486,10 @@ GetDrillElementMemory (DrillTypePtr Drill)
 /* ---------------------------------------------------------------------------
  * get next slot for a DrillPoint, allocates memory if necessary
  */
-PinTypeHandle
-GetDrillPinMemory (DrillTypePtr Drill)
+PinType **
+GetDrillPinMemory (DrillType *Drill)
 {
-  PinTypePtr *pin;
+  PinType **pin;
 
   pin = Drill->Pin;
 
@@ -497,9 +497,9 @@ GetDrillPinMemory (DrillTypePtr Drill)
   if (Drill->PinN >= Drill->PinMax)
     {
       Drill->PinMax += STEP_POINT;
-      pin = (PinTypePtr *)realloc (pin, Drill->PinMax * sizeof (PinTypePtr));
+      pin = (PinType **)realloc (pin, Drill->PinMax * sizeof (PinType *));
       Drill->Pin = pin;
-      memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinTypePtr));
+      memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinType *));
     }
   return (pin + Drill->PinN++);
 }
@@ -507,16 +507,16 @@ GetDrillPinMemory (DrillTypePtr Drill)
 /* ---------------------------------------------------------------------------
  * get next slot for a Drill, allocates memory if necessary
  */
-DrillTypePtr
-GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
+DrillType *
+GetDrillInfoDrillMemory (DrillInfoType *DrillInfo)
 {
-  DrillTypePtr drill = DrillInfo->Drill;
+  DrillType *drill = DrillInfo->Drill;
 
   /* realloc new memory if necessary and clear it */
   if (DrillInfo->DrillN >= DrillInfo->DrillMax)
     {
       DrillInfo->DrillMax += STEP_DRILL;
-      drill = (DrillTypePtr)realloc (drill, DrillInfo->DrillMax * sizeof (DrillType));
+      drill = (DrillType *)realloc (drill, DrillInfo->DrillMax * sizeof (DrillType));
       DrillInfo->Drill = drill;
       memset (drill + DrillInfo->DrillN, 0, STEP_DRILL * sizeof (DrillType));
     }
@@ -546,7 +546,7 @@ FreePolygonMemory (PolygonType *polygon)
  * frees memory used by a box list
  */
 void
-FreeBoxListMemory (BoxListTypePtr Boxlist)
+FreeBoxListMemory (BoxListType *Boxlist)
 {
   if (Boxlist)
     {
@@ -559,7 +559,7 @@ FreeBoxListMemory (BoxListTypePtr Boxlist)
  * frees memory used by a net 
  */
 void
-FreeNetListMemory (NetListTypePtr Netlist)
+FreeNetListMemory (NetListType *Netlist)
 {
   if (Netlist)
     {
@@ -577,7 +577,7 @@ FreeNetListMemory (NetListTypePtr Netlist)
  * frees memory used by a net list
  */
 void
-FreeNetListListMemory (NetListListTypePtr Netlistlist)
+FreeNetListListMemory (NetListListType *Netlistlist)
 {
   if (Netlistlist)
     {
@@ -595,7 +595,7 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
  * frees memory used by a subnet 
  */
 void
-FreeNetMemory (NetTypePtr Net)
+FreeNetMemory (NetType *Net)
 {
   if (Net)
     {
@@ -607,7 +607,7 @@ FreeNetMemory (NetTypePtr Net)
  * frees memory used by an attribute list
  */
 static void
-FreeAttributeListMemory (AttributeListTypePtr list)
+FreeAttributeListMemory (AttributeListType *list)
 {
   int i;
 
@@ -689,7 +689,7 @@ FreePCBMemory (PCBType *pcb)
 void
 FreeDataMemory (DataType *data)
 {
-  LayerTypePtr layer;
+  LayerType *layer;
   int i;
 
   if (data == NULL)
@@ -765,7 +765,7 @@ FreeDataMemory (DataType *data)
  * releases the memory that's allocated by the library
  */
 void
-FreeLibraryMemory (LibraryTypePtr lib)
+FreeLibraryMemory (LibraryType *lib)
 {
   MENU_LOOP (lib);
   {
@@ -789,7 +789,7 @@ FreeLibraryMemory (LibraryTypePtr lib)
  * reallocates memory for a dynamic length string if necessary
  */
 static void
-DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
+DSRealloc (DynamicStringType *Ptr, size_t Length)
 {
   int input_null = (Ptr->Data == NULL);
   if (input_null || Length >= Ptr->MaxLength)
@@ -805,7 +805,7 @@ DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
  * adds one character to a dynamic string
  */
 void
-DSAddCharacter (DynamicStringTypePtr Ptr, char Char)
+DSAddCharacter (DynamicStringType *Ptr, char Char)
 {
   size_t position = Ptr->Data ? strlen (Ptr->Data) : 0;
 
@@ -818,7 +818,7 @@ DSAddCharacter (DynamicStringTypePtr Ptr, char Char)
  * add a string to a dynamic string
  */
 void
-DSAddString (DynamicStringTypePtr Ptr, const char *S)
+DSAddString (DynamicStringType *Ptr, const char *S)
 {
   size_t position = Ptr->Data ? strlen (Ptr->Data) : 0;
 
@@ -833,7 +833,7 @@ DSAddString (DynamicStringTypePtr Ptr, const char *S)
  * clears a dynamic string
  */
 void
-DSClearString (DynamicStringTypePtr Ptr)
+DSClearString (DynamicStringType *Ptr)
 {
   if (Ptr->Data)
     Ptr->Data[0] = '\0';

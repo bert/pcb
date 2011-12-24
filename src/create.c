@@ -68,7 +68,7 @@ static bool be_lenient = false;
 /* ----------------------------------------------------------------------
  * some local prototypes
  */
-static void AddTextToElement (TextTypePtr, FontTypePtr,
+static void AddTextToElement (TextType *, FontType *,
 			      Coord, Coord, unsigned, char *, int,
 			      FlagType);
 
@@ -85,12 +85,12 @@ CreateBeLenient (bool v)
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
  */
-DataTypePtr
+DataType *
 CreateNewBuffer (void)
 {
-  DataTypePtr data;
-  data = (DataTypePtr) calloc (1, sizeof (DataType));
-  data->pcb = (PCBTypePtr) PCB;
+  DataType *data;
+  data = (DataType *) calloc (1, sizeof (DataType));
+  data->pcb = (PCBType *) PCB;
   return data;
 }
 
@@ -99,7 +99,7 @@ CreateNewBuffer (void)
  * use this to set PCB colors so the config can reassign PCB colors.
  */
 void
-pcb_colors_from_settings (PCBTypePtr ptr)
+pcb_colors_from_settings (PCBType *ptr)
 {
   int i;
 
@@ -138,16 +138,16 @@ pcb_colors_from_settings (PCBTypePtr ptr)
 /* ---------------------------------------------------------------------------
  * creates a new PCB
  */
-PCBTypePtr
+PCBType *
 CreateNewPCB (bool SetDefaultNames)
 {
-  PCBTypePtr ptr;
+  PCBType *ptr;
   int i;
 
   /* allocate memory, switch all layers on and copy resources */
-  ptr = (PCBTypePtr)calloc (1, sizeof (PCBType));
+  ptr = (PCBType *)calloc (1, sizeof (PCBType));
   ptr->Data = CreateNewBuffer ();
-  ptr->Data->pcb = (PCBTypePtr) ptr;
+  ptr->Data->pcb = (PCBType *) ptr;
   ptr->Data->polyClip = 1;
 
   ptr->ThermStyle = 4;
@@ -213,7 +213,7 @@ CreateNewPCB (bool SetDefaultNames)
  * pre-existing PCB.
  */
 int
-CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
+CreateNewPCBPost (PCBType *pcb, int use_defaults)
 {
   /* copy default settings */
   pcb_colors_from_settings (pcb);
@@ -232,13 +232,13 @@ CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
 /* ---------------------------------------------------------------------------
  * creates a new via
  */
-PinTypePtr
-CreateNewVia (DataTypePtr Data,
+PinType *
+CreateNewVia (DataType *Data,
 	      Coord X, Coord Y,
 	      Coord Thickness, Coord Clearance, Coord Mask,
 	      Coord DrillingHole, char *Name, FlagType Flags)
 {
-  PinTypePtr Via;
+  PinType *Via;
 
   if (!be_lenient)
     {
@@ -294,7 +294,7 @@ CreateNewVia (DataTypePtr Data,
   SetPinBoundingBox (Via);
   if (!Data->via_tree)
     Data->via_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Data->via_tree, (BoxTypePtr) Via, 0);
+  r_insert_entry (Data->via_tree, (BoxType *) Via, 0);
   return (Via);
 }
 
@@ -310,14 +310,14 @@ struct line_info
 static int
 line_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr) b;
+  LineType *line = (LineType *) b;
   struct line_info *i = (struct line_info *) cl;
 
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
       line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
     {
-      i->ans = (LineTypePtr) (-1);
+      i->ans = (LineType *) (-1);
       longjmp (i->env, 1);
     }
   /* check the other point order */
@@ -325,14 +325,14 @@ line_callback (const BoxType * b, void *cl)
       line->Point2.X == i->X2 &&
       line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
     {
-      i->ans = (LineTypePtr) (-1);
+      i->ans = (LineType *) (-1);
       longjmp (i->env, 1);
     }
   if (line->Point2.X == i->X1 &&
       line->Point1.X == i->X2 &&
       line->Point2.Y == i->Y1 && line->Point1.Y == i->Y2)
     {
-      i->ans = (LineTypePtr) - 1;
+      i->ans = (LineType *) - 1;
       longjmp (i->env, 1);
     }
   /* remove unnecessary line points */
@@ -396,8 +396,8 @@ line_callback (const BoxType * b, void *cl)
 /* ---------------------------------------------------------------------------
  * creates a new line on a layer and checks for overlap and extension
  */
-LineTypePtr
-CreateDrawnLineOnLayer (LayerTypePtr Layer,
+LineType *
+CreateDrawnLineOnLayer (LayerType *Layer,
 			Coord X1, Coord Y1,
 			Coord X2, Coord Y2,
 			Coord Thickness, Coord Clearance,
@@ -450,14 +450,14 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
 			       Thickness, Clearance, Flags);
 }
 
-LineTypePtr
-CreateNewLineOnLayer (LayerTypePtr Layer,
+LineType *
+CreateNewLineOnLayer (LayerType *Layer,
 		      Coord X1, Coord Y1,
 		      Coord X2, Coord Y2,
 		      Coord Thickness, Coord Clearance,
 		      FlagType Flags)
 {
-  LineTypePtr Line;
+  LineType *Line;
 
   Line = GetLineMemory (Layer);
   if (!Line)
@@ -476,19 +476,19 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
   SetLineBoundingBox (Line);
   if (!Layer->line_tree)
     Layer->line_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
   return (Line);
 }
 
 /* ---------------------------------------------------------------------------
  * creates a new rat-line
  */
-RatTypePtr
-CreateNewRat (DataTypePtr Data, Coord X1, Coord Y1,
+RatType *
+CreateNewRat (DataType *Data, Coord X1, Coord Y1,
 	      Coord X2, Coord Y2, Cardinal group1,
 	      Cardinal group2, Coord Thickness, FlagType Flags)
 {
-  RatTypePtr Line = GetRatMemory (Data);
+  RatType *Line = GetRatMemory (Data);
 
   if (!Line)
     return (Line);
@@ -505,7 +505,7 @@ CreateNewRat (DataTypePtr Data, Coord X1, Coord Y1,
   Line->Point2.ID = ID++;
   Line->group1 = group1;
   Line->group2 = group2;
-  SetLineBoundingBox ((LineTypePtr) Line);
+  SetLineBoundingBox ((LineType *) Line);
   if (!Data->rat_tree)
     Data->rat_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Data->rat_tree, &Line->BoundingBox, 0);
@@ -515,8 +515,8 @@ CreateNewRat (DataTypePtr Data, Coord X1, Coord Y1,
 /* ---------------------------------------------------------------------------
  * creates a new arc on a layer
  */
-ArcTypePtr
-CreateNewArcOnLayer (LayerTypePtr Layer,
+ArcType *
+CreateNewArcOnLayer (LayerType *Layer,
 		     Coord X1, Coord Y1,
 		     Coord width,
 		     Coord height,
@@ -524,7 +524,7 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 		     Angle dir, Coord Thickness,
 		     Coord Clearance, FlagType Flags)
 {
-  ArcTypePtr Arc;
+  ArcType *Arc;
 
   ARC_LOOP (Layer);
   {
@@ -551,7 +551,7 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
   SetArcBoundingBox (Arc);
   if (!Layer->arc_tree)
     Layer->arc_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+  r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
   return (Arc);
 }
 
@@ -559,13 +559,13 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 /* ---------------------------------------------------------------------------
  * creates a new polygon from the old formats rectangle data
  */
-PolygonTypePtr
-CreateNewPolygonFromRectangle (LayerTypePtr Layer,
+PolygonType *
+CreateNewPolygonFromRectangle (LayerType *Layer,
 			       Coord X1, Coord Y1,
 			       Coord X2, Coord Y2,
 			       FlagType Flags)
 {
-  PolygonTypePtr polygon = CreateNewPolygon (Layer, Flags);
+  PolygonType *polygon = CreateNewPolygon (Layer, Flags);
   if (!polygon)
     return (polygon);
 
@@ -576,15 +576,15 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
   SetPolygonBoundingBox (polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
+  r_insert_entry (Layer->polygon_tree, (BoxType *) polygon, 0);
   return (polygon);
 }
 
 /* ---------------------------------------------------------------------------
  * creates a new text on a layer
  */
-TextTypePtr
-CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
+TextType *
+CreateNewText (LayerType *Layer, FontType *PCBFont,
 	       Coord X, Coord Y,
 	       unsigned Direction, int Scale, char *TextString, FlagType Flags)
 {
@@ -612,17 +612,17 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
   text->ID = ID++;
   if (!Layer->text_tree)
     Layer->text_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Layer->text_tree, (BoxTypePtr) text, 0);
+  r_insert_entry (Layer->text_tree, (BoxType *) text, 0);
   return (text);
 }
 
 /* ---------------------------------------------------------------------------
  * creates a new polygon on a layer
  */
-PolygonTypePtr
-CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
+PolygonType *
+CreateNewPolygon (LayerType *Layer, FlagType Flags)
 {
-  PolygonTypePtr polygon = GetPolygonMemory (Layer);
+  PolygonType *polygon = GetPolygonMemory (Layer);
 
   /* copy values */
   polygon->Flags = Flags;
@@ -636,10 +636,10 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
 /* ---------------------------------------------------------------------------
  * creates a new point in a polygon
  */
-PointTypePtr
-CreateNewPointInPolygon (PolygonTypePtr Polygon, Coord X, Coord Y)
+PointType *
+CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
 {
-  PointTypePtr point = GetPointMemoryInPolygon (Polygon);
+  PointType *point = GetPointMemoryInPolygon (Polygon);
 
   /* copy values */
   point->X = X;
@@ -663,9 +663,9 @@ CreateNewHoleInPolygon (PolygonType *Polygon)
  * creates an new element
  * memory is allocated if needed
  */
-ElementTypePtr
-CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
-		  FontTypePtr PCBFont,
+ElementType *
+CreateNewElement (DataType *Data, ElementType *Element,
+		  FontType *PCBFont,
 		  FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
 		  Coord TextX, Coord TextY, BYTE Direction,
@@ -704,8 +704,8 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 /* ---------------------------------------------------------------------------
  * creates a new arc in an element
  */
-ArcTypePtr
-CreateNewArcInElement (ElementTypePtr Element,
+ArcType *
+CreateNewArcInElement (ElementType *Element,
 		       Coord X, Coord Y,
 		       Coord Width, Coord Height,
 		       Angle angle, Angle delta, Coord Thickness)
@@ -742,8 +742,8 @@ CreateNewArcInElement (ElementTypePtr Element,
 /* ---------------------------------------------------------------------------
  * creates a new line for an element
  */
-LineTypePtr
-CreateNewLineInElement (ElementTypePtr Element,
+LineType *
+CreateNewLineInElement (ElementType *Element,
 			Coord X1, Coord Y1,
 			Coord X2, Coord Y2,
 			Coord Thickness)
@@ -771,14 +771,14 @@ CreateNewLineInElement (ElementTypePtr Element,
 /* ---------------------------------------------------------------------------
  * creates a new pin in an element
  */
-PinTypePtr
-CreateNewPin (ElementTypePtr Element,
+PinType *
+CreateNewPin (ElementType *Element,
 	      Coord X, Coord Y,
 	      Coord Thickness, Coord Clearance, Coord Mask,
 	      Coord DrillingHole, char *Name, char *Number,
 	      FlagType Flags)
 {
-  PinTypePtr pin = GetPinMemory (Element);
+  PinType *pin = GetPinMemory (Element);
 
   /* copy values */
   pin->X = X;
@@ -840,13 +840,13 @@ CreateNewPin (ElementTypePtr Element,
 /* ---------------------------------------------------------------------------
  * creates a new pad in an element
  */
-PadTypePtr
-CreateNewPad (ElementTypePtr Element,
+PadType *
+CreateNewPad (ElementType *Element,
 	      Coord X1, Coord Y1, Coord X2,
 	      Coord Y2, Coord Thickness, Coord Clearance,
 	      Coord Mask, char *Name, char *Number, FlagType Flags)
 {
-  PadTypePtr pad = GetPadMemory (Element);
+  PadType *pad = GetPadMemory (Element);
 
   /* copy values */
   if (X1 > X2 || (X1 == X2 && Y1 > Y2))
@@ -880,7 +880,7 @@ CreateNewPad (ElementTypePtr Element,
  * copies the values to the appropriate text object
  */
 static void
-AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
+AddTextToElement (TextType *Text, FontType *PCBFont,
 		  Coord X, Coord Y,
 		  unsigned Direction, char *TextString, int Scale, FlagType Flags)
 {
@@ -900,18 +900,18 @@ AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
 /* ---------------------------------------------------------------------------
  * creates a new line in a symbol
  */
-LineTypePtr
-CreateNewLineInSymbol (SymbolTypePtr Symbol,
+LineType *
+CreateNewLineInSymbol (SymbolType *Symbol,
 		       Coord X1, Coord Y1,
 		       Coord X2, Coord Y2, Coord Thickness)
 {
-  LineTypePtr line = Symbol->Line;
+  LineType *line = Symbol->Line;
 
   /* realloc new memory if necessary and clear it */
   if (Symbol->LineN >= Symbol->LineMax)
     {
       Symbol->LineMax += STEP_SYMBOLLINE;
-      line = (LineTypePtr)realloc (line, Symbol->LineMax * sizeof (LineType));
+      line = (LineType *)realloc (line, Symbol->LineMax * sizeof (LineType));
       Symbol->Line = line;
       memset (line + Symbol->LineN, 0, STEP_SYMBOLLINE * sizeof (LineType));
     }
@@ -932,7 +932,7 @@ CreateNewLineInSymbol (SymbolTypePtr Symbol,
  * if the fonts filename doesn't contain a directory component
  */
 void
-CreateDefaultFont (PCBTypePtr pcb)
+CreateDefaultFont (PCBType *pcb)
 {
   if (ParseFont (&pcb->Font, Settings.FontFile))
     Message (_("Can't find font-symbol-file '%s'\n"), Settings.FontFile);
@@ -942,11 +942,11 @@ CreateDefaultFont (PCBTypePtr pcb)
  * adds a new line to the rubberband list of 'Crosshair.AttachedObject'
  * if Layer == 0  it is a rat line
  */
-RubberbandTypePtr
-CreateNewRubberbandEntry (LayerTypePtr Layer,
-			  LineTypePtr Line, PointTypePtr MovedPoint)
+RubberbandType *
+CreateNewRubberbandEntry (LayerType *Layer,
+			  LineType *Line, PointType *MovedPoint)
 {
-  RubberbandTypePtr ptr = GetRubberbandMemory ();
+  RubberbandType *ptr = GetRubberbandMemory ();
 
   /* we toggle the RUBBERENDFLAG of the line to determine if */
   /* both points are being moved. */
@@ -960,10 +960,10 @@ CreateNewRubberbandEntry (LayerTypePtr Layer,
 /* ---------------------------------------------------------------------------
  * Add a new net to the netlist menu
  */
-LibraryMenuTypePtr
-CreateNewNet (LibraryTypePtr lib, char *name, char *style)
+LibraryMenuType *
+CreateNewNet (LibraryType *lib, char *name, char *style)
 {
-  LibraryMenuTypePtr menu;
+  LibraryMenuType *menu;
   char temp[64];
 
   sprintf (temp, "  %s", name);
@@ -980,10 +980,10 @@ CreateNewNet (LibraryTypePtr lib, char *name, char *style)
 /* ---------------------------------------------------------------------------
  * Add a connection to the net
  */
-LibraryEntryTypePtr
-CreateNewConnection (LibraryMenuTypePtr net, char *conn)
+LibraryEntryType *
+CreateNewConnection (LibraryMenuType *net, char *conn)
 {
-  LibraryEntryTypePtr entry = GetLibraryEntryMemory (net);
+  LibraryEntryType *entry = GetLibraryEntryMemory (net);
 
   entry->ListEntry = STRDUP (conn);
   return (entry);
@@ -992,8 +992,8 @@ CreateNewConnection (LibraryMenuTypePtr net, char *conn)
 /* ---------------------------------------------------------------------------
  * Add an attribute to a list.
  */
-AttributeTypePtr
-CreateNewAttribute (AttributeListTypePtr list, char *name, char *value)
+AttributeType *
+CreateNewAttribute (AttributeListType *list, char *name, char *value)
 {
   if (list->Number >= list->Max)
     {

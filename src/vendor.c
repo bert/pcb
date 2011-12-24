@@ -811,7 +811,7 @@ process_skips (Resource * res)
 }
 
 bool
-vendorIsElementMappable (ElementTypePtr element)
+vendorIsElementMappable (ElementType *element)
 {
   int i;
   int noskip;

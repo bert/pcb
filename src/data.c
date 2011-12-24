@@ -43,7 +43,7 @@
 CrosshairType Crosshair;	/* information about cursor settings */
 MarkType Marked;		/* a cross-hair mark */
 OutputType Output;		/* some widgets ... used for drawing */
-PCBTypePtr PCB;			/* pointer to layout struct */
+PCBType *PCB;			/* pointer to layout struct */
 
 char *Progname;
 SettingType Settings;

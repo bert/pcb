@@ -74,7 +74,7 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static double ComputeCost (NetListTypePtr Nets, double T0, double T);
+static double ComputeCost (NetListType *Nets, double T0, double T);
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -123,7 +123,7 @@ CostParameter =
 
 typedef struct
 {
-  ElementTypePtr *element;
+  ElementType **element;
   Cardinal elementN;
 }
 ElementPtrListType;
@@ -133,11 +133,11 @@ enum ewhich
 
 typedef struct
 {
-  ElementTypePtr element;
+  ElementType *element;
   enum ewhich which;
   Coord DX, DY;			/* for shift */
   unsigned rotate;		/* for rotate/flip */
-  ElementTypePtr other;		/* for exchange */
+  ElementType *other;		/* for exchange */
 }
 PerturbationType;
 
@@ -150,7 +150,7 @@ PerturbationType;
  * elements have possibly been moved, rotated, flipped, etc.
  */
 static void
-UpdateXY (NetListTypePtr Nets)
+UpdateXY (NetListType *Nets)
 {
   Cardinal SLayer, CLayer;
   Cardinal i, j;
@@ -162,20 +162,20 @@ UpdateXY (NetListTypePtr Nets)
     {
       for (j = 0; j < Nets->Net[i].ConnectionN; j++)
 	{
-	  ConnectionTypePtr c = &(Nets->Net[i].Connection[j]);
+	  ConnectionType *c = &(Nets->Net[i].Connection[j]);
 	  switch (c->type)
 	    {
 	    case PAD_TYPE:
 	      c->group = TEST_FLAG (ONSOLDERFLAG,
-				    (ElementTypePtr) c->ptr1)
+				    (ElementType *) c->ptr1)
 		? SLayer : CLayer;
-	      c->X = ((PadTypePtr) c->ptr2)->Point1.X;
-	      c->Y = ((PadTypePtr) c->ptr2)->Point1.Y;
+	      c->X = ((PadType *) c->ptr2)->Point1.X;
+	      c->Y = ((PadType *) c->ptr2)->Point1.Y;
 	      break;
 	    case PIN_TYPE:
 	      c->group = SLayer;	/* any layer will do */
-	      c->X = ((PinTypePtr) c->ptr2)->X;
-	      c->Y = ((PinTypePtr) c->ptr2)->Y;
+	      c->X = ((PinType *) c->ptr2)->X;
+	      c->Y = ((PinType *) c->ptr2)->Y;
 	      break;
 	    default:
 	      Message ("Odd connection type encountered in " "UpdateXY");
@@ -196,7 +196,7 @@ collectSelectedElements ()
   {
     if (TEST_FLAG (SELECTEDFLAG, element))
       {
-	ElementTypePtr *epp = (ElementTypePtr *) GetPointerMemory (&list);
+	ElementType **epp = (ElementType **) GetPointerMemory (&list);
 	*epp = element;
       }
   }
@@ -208,10 +208,10 @@ collectSelectedElements ()
 #include "create.h"
 /* makes a line on the solder layer surrounding all boxes in blist */
 static void
-showboxes (BoxListTypePtr blist)
+showboxes (BoxListType *blist)
 {
   Cardinal i;
-  LayerTypePtr SLayer = &(PCB->Data->Layer[solder_silk_layer]);
+  LayerType *SLayer = &(PCB->Data->Layer[solder_silk_layer]);
   for (i = 0; i < blist->BoxN; i++)
     {
       CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
@@ -323,7 +323,7 @@ r_find_neighbor (rtree_t * rtree, const BoxType * box,
  *  Marcel Dekker, Inc. 1993.  ISBN: 0-8247-8916-4 TK7868.P7.P57 1993
  */
 static double
-ComputeCost (NetListTypePtr Nets, double T0, double T)
+ComputeCost (NetListType *Nets, double T0, double T)
 {
   double W = 0;			/* wire cost */
   double delta1 = 0;		/* wire congestion penalty function */
@@ -346,7 +346,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
    * the "layer height" of the net. */
   for (i = 0; i < Nets->NetN; i++)
     {
-      NetTypePtr n = &Nets->Net[i];
+      NetType *n = &Nets->Net[i];
       if (n->ConnectionN < 2)
 	continue;		/* no cost to go nowhere */
       minx = maxx = n->Connection[0].X;
@@ -356,7 +356,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       allsameside = true;
       for (j = 1; j < n->ConnectionN; j++)
 	{
-	  ConnectionTypePtr c = &(n->Connection[j]);
+	  ConnectionType *c = &(n->Connection[j]);
 	  MAKEMIN (minx, c->X);
 	  MAKEMAX (maxx, c->X);
 	  MAKEMIN (miny, c->Y);
@@ -368,7 +368,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	}
       /* save bounding rectangle */
       {
-	BoxTypePtr box = GetBoxMemory (&bounds);
+	BoxType *box = GetBoxMemory (&bounds);
 	box->X1 = minx;
 	box->Y1 = miny;
 	box->X2 = maxx;
@@ -393,10 +393,10 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 
   ELEMENT_LOOP (PCB->Data);
   {
-    BoxListTypePtr thisside;
-    BoxListTypePtr otherside;
-    BoxTypePtr box;
-    BoxTypePtr lastbox = NULL;
+    BoxListType *thisside;
+    BoxListType *otherside;
+    BoxType *box;
+    BoxType *lastbox = NULL;
     Coord thickness;
     Coord clearance;
     if (TEST_FLAG (ONSOLDERFLAG, element))
@@ -514,7 +514,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     struct ebox
     {
       BoxType box;
-      ElementTypePtr element;
+      ElementType *element;
     };
     direction_t dir[4] = { NORTH, EAST, SOUTH, WEST };
     struct ebox **boxpp, *boxp;
@@ -613,11 +613,11 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
  *  -- Only perturb selected elements (need count/list of selected?) --
  */
 PerturbationType
-createPerturbation (PointerListTypePtr selected, double T)
+createPerturbation (PointerListType *selected, double T)
 {
   PerturbationType pt = { 0 };
   /* pick element to perturb */
-  pt.element = (ElementTypePtr) selected->Ptr[random () % selected->PtrN];
+  pt.element = (ElementType *) selected->Ptr[random () % selected->PtrN];
   /* exchange, flip/rotate or shift? */
   switch (random () % ((selected->PtrN > 1) ? 3 : 2))
     {
@@ -655,10 +655,10 @@ createPerturbation (PointerListTypePtr selected, double T)
     case 2:
       {				/* exchange! */
 	pt.which = EXCHANGE;
-	pt.other = (ElementTypePtr)
+	pt.other = (ElementType *)
 	  selected->Ptr[random () % (selected->PtrN - 1)];
 	if (pt.other == pt.element)
-	  pt.other = (ElementTypePtr) selected->Ptr[selected->PtrN - 1];
+	  pt.other = (ElementType *) selected->Ptr[selected->PtrN - 1];
 	/* don't allow exchanging a solderside-side SMD component
 	 * with a non-SMD component. */
 	if ((pt.element->PinN != 0 /* non-SMD */  &&
@@ -748,7 +748,7 @@ doPerturb (PerturbationType * pt, bool undo)
 bool
 AutoPlaceSelected (void)
 {
-  NetListTypePtr Nets;
+  NetListType *Nets;
   PointerListType Selected = { 0, 0, NULL };
   PerturbationType pt;
   double C0, T0;

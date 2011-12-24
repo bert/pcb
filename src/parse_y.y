@@ -59,24 +59,24 @@
 # include <dmalloc.h> /* see http://dmalloc.com */
 #endif
 
-static	LayerTypePtr	Layer;
-static	PolygonTypePtr	Polygon;
-static	SymbolTypePtr	Symbol;
+static	LayerType	*Layer;
+static	PolygonType	*Polygon;
+static	SymbolType	*Symbol;
 static	int		pin_num;
-static	LibraryMenuTypePtr	Menu;
+static	LibraryMenuType	*Menu;
 static	bool			LayerFlag[MAX_LAYER + 2];
 
-extern	char			*yytext;		/* defined by LEX */
-extern	PCBTypePtr		yyPCB;
-extern	DataTypePtr		yyData;
-extern	ElementTypePtr	yyElement;
-extern	FontTypePtr		yyFont;
-extern	int				yylineno;		/* linenumber */
-extern	char			*yyfilename;	/* in this file */
+extern	char		*yytext;		/* defined by LEX */
+extern	PCBType		*yyPCB;
+extern	DataType	*yyData;
+extern	ElementType	*yyElement;
+extern	FontType	*yyFont;
+extern	int		yylineno;		/* linenumber */
+extern	char		*yyfilename;	/* in this file */
 
 static char *layer_group_string; 
 
-static AttributeListTypePtr attr_list; 
+static AttributeListType *attr_list; 
 
 int yyerror(const char *s);
 int yylex();
@@ -191,7 +191,7 @@ parsepcb
 		  pcbdata
 		  pcbnetlist
 			{
-			  PCBTypePtr pcb_save = PCB;
+			  PCBType *pcb_save = PCB;
 
 			  if (layer_group_string == NULL)
 			    layer_group_string = Settings.Groups;
@@ -1062,7 +1062,7 @@ text_newformat
 			{
 				if ($8 & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[yyData->LayerN +
+					LayerType *lay = &yyData->Layer[yyData->LayerN +
 						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
@@ -1087,7 +1087,7 @@ text_hi_format
 				 */
 				if ($8.f & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[yyData->LayerN +
+					LayerType *lay = &yyData->Layer[yyData->LayerN +
 						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);

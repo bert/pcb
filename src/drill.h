@@ -26,6 +26,6 @@
  *
  */
 
-DrillInfoTypePtr GetDrillInfo (DataTypePtr);
-void FreeDrillInfo (DrillInfoTypePtr);
-void RoundDrillInfo (DrillInfoTypePtr, int);
+DrillInfoType * GetDrillInfo (DataType *);
+void FreeDrillInfo (DrillInfoType *);
+void RoundDrillInfo (DrillInfoType *, int);

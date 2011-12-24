@@ -39,6 +39,6 @@
  */
 void *InsertPointIntoObject (int, void *, void *, Cardinal *, Coord,
 			     Coord, bool, bool);
-PointTypePtr AdjustInsertPoint (void);
+PointType * AdjustInsertPoint (void);
 
 #endif

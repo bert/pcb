@@ -58,12 +58,12 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *CopyVia (PinTypePtr);
-static void *CopyLine (LayerTypePtr, LineTypePtr);
-static void *CopyArc (LayerTypePtr, ArcTypePtr);
-static void *CopyText (LayerTypePtr, TextTypePtr);
-static void *CopyPolygon (LayerTypePtr, PolygonTypePtr);
-static void *CopyElement (ElementTypePtr);
+static void *CopyVia (PinType *);
+static void *CopyLine (LayerType *, LineType *);
+static void *CopyArc (LayerType *, ArcType *);
+static void *CopyText (LayerType *, TextType *);
+static void *CopyPolygon (LayerType *, PolygonType *);
+static void *CopyElement (ElementType *);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -88,8 +88,8 @@ static ObjectFunctionType CopyFunctions = {
  * copies data from one polygon to another
  * 'Dest' has to exist
  */
-PolygonTypePtr
-CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
+PolygonType *
+CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
 {
   Cardinal hole = 0;
   Cardinal n;
@@ -113,9 +113,9 @@ CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
  * copies data from one element to another and creates the destination 
  * if necessary
  */
-ElementTypePtr
-CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
-		     ElementTypePtr Src, bool uniqueName, Coord dx,
+ElementType *
+CopyElementLowLevel (DataType *Data, ElementType *Dest,
+		     ElementType *Src, bool uniqueName, Coord dx,
 		     Coord dy)
 {
   int i;
@@ -184,9 +184,9 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
  * copies a via 
  */
 static void *
-CopyVia (PinTypePtr Via)
+CopyVia (PinType *Via)
 {
-  PinTypePtr via;
+  PinType *via;
 
   via = CreateNewVia (PCB->Data, Via->X + DeltaX, Via->Y + DeltaY,
 		      Via->Thickness, Via->Clearance, Via->Mask,
@@ -203,9 +203,9 @@ CopyVia (PinTypePtr Via)
  * copies a line 
  */
 static void *
-CopyLine (LayerTypePtr Layer, LineTypePtr Line)
+CopyLine (LayerType *Layer, LineType *Line)
 {
-  LineTypePtr line;
+  LineType *line;
 
   line = CreateDrawnLineOnLayer (Layer, Line->Point1.X + DeltaX,
 				 Line->Point1.Y + DeltaY,
@@ -226,9 +226,9 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
  * copies an arc
  */
 static void *
-CopyArc (LayerTypePtr Layer, ArcTypePtr Arc)
+CopyArc (LayerType *Layer, ArcType *Arc)
 {
-  ArcTypePtr arc;
+  ArcType *arc;
 
   arc = CreateNewArcOnLayer (Layer, Arc->X + DeltaX,
 			     Arc->Y + DeltaY, Arc->Width, Arc->Height, Arc->StartAngle,
@@ -245,9 +245,9 @@ CopyArc (LayerTypePtr Layer, ArcTypePtr Arc)
  * copies a text 
  */
 static void *
-CopyText (LayerTypePtr Layer, TextTypePtr Text)
+CopyText (LayerType *Layer, TextType *Text)
 {
-  TextTypePtr text;
+  TextType *text;
 
   text = CreateNewText (Layer, &PCB->Font, Text->X + DeltaX,
 			Text->Y + DeltaY, Text->Direction,
@@ -262,16 +262,16 @@ CopyText (LayerTypePtr Layer, TextTypePtr Text)
  * copies a polygon 
  */
 static void *
-CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
+CopyPolygon (LayerType *Layer, PolygonType *Polygon)
 {
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
 
   polygon = CreateNewPolygon (Layer, NoFlags ());
   CopyPolygonLowLevel (polygon, Polygon);
   MovePolygonLowLevel (polygon, DeltaX, DeltaY);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
+  r_insert_entry (Layer->polygon_tree, (BoxType *) polygon, 0);
   InitClip (PCB->Data, Layer, polygon);
   DrawPolygon (Layer, polygon);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
@@ -282,7 +282,7 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * copies an element onto the PCB.  Then does a draw. 
  */
 static void *
-CopyElement (ElementTypePtr Element)
+CopyElement (ElementType *Element)
 {
 
 #ifdef DEBUG
@@ -290,7 +290,7 @@ CopyElement (ElementTypePtr Element)
 	 Element->Name[1].TextString);
 #endif
 
-  ElementTypePtr element = CopyElementLowLevel (PCB->Data,
+  ElementType *element = CopyElementLowLevel (PCB->Data,
 						NULL, Element,
 						TEST_FLAG (UNIQUENAMEFLAG,
 							   PCB), DeltaX,
@@ -333,8 +333,8 @@ CopyPastebufferToLayout (Coord X, Coord Y)
   /* paste all layers */
   for (i = 0; i < max_copper_layer + 2; i++)
     {
-      LayerTypePtr sourcelayer = &PASTEBUFFER->Data->Layer[i],
-	destlayer = LAYER_PTR (i);
+      LayerType *sourcelayer = &PASTEBUFFER->Data->Layer[i];
+      LayerType *destlayer = LAYER_PTR (i);
 
       if (destlayer->On)
 	{

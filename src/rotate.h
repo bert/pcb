@@ -54,17 +54,17 @@
 #define	ROTATE_VIA_LOWLEVEL(v,x0,y0,n)	ROTATE((v)->X,(v)->Y,(x0),(y0),(n))
 #define	ROTATE_PIN_LOWLEVEL(p,x0,y0,n)	ROTATE((p)->X,(p)->Y,(x0),(y0),(n))
 #define	ROTATE_PAD_LOWLEVEL(p,x0,y0,n)	\
-	RotateLineLowLevel(((LineTypePtr) (p)),(x0),(y0),(n))
+	RotateLineLowLevel(((LineType *) (p)),(x0),(y0),(n))
 
 #define	ROTATE_TYPES	(ELEMENT_TYPE | TEXT_TYPE | ELEMENTNAME_TYPE | ARC_TYPE)
 
 
-void RotateLineLowLevel (LineTypePtr, Coord, Coord, unsigned);
-void RotateArcLowLevel (ArcTypePtr, Coord, Coord, unsigned);
-void RotateBoxLowLevel (BoxTypePtr, Coord, Coord, unsigned);
-void RotateTextLowLevel (TextTypePtr, Coord, Coord, unsigned);
-void RotatePolygonLowLevel (PolygonTypePtr, Coord, Coord, unsigned);
-void RotateElementLowLevel (DataTypePtr, ElementTypePtr, Coord, Coord, unsigned);
+void RotateLineLowLevel (LineType *, Coord, Coord, unsigned);
+void RotateArcLowLevel (ArcType *, Coord, Coord, unsigned);
+void RotateBoxLowLevel (BoxType *, Coord, Coord, unsigned);
+void RotateTextLowLevel (TextType *, Coord, Coord, unsigned);
+void RotatePolygonLowLevel (PolygonType *, Coord, Coord, unsigned);
+void RotateElementLowLevel (DataType *, ElementType *, Coord, Coord, unsigned);
 void *RotateObject (int, void *, void *, void *, Coord, Coord,
 		    unsigned);
 void RotateScreenObject (Coord, Coord, unsigned);

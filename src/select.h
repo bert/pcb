@@ -37,9 +37,9 @@
 	 PIN_TYPE | PAD_TYPE | ELEMENTNAME_TYPE | RATLINE_TYPE | ARC_TYPE)
 
 bool SelectObject (void);
-bool SelectBlock (BoxTypePtr, bool);
-bool SelectedOperation (ObjectFunctionTypePtr, bool, int);
-void *ObjectOperation (ObjectFunctionTypePtr, int, void *, void *, void *);
+bool SelectBlock (BoxType *, bool);
+bool SelectedOperation (ObjectFunctionType *, bool, int);
+void *ObjectOperation (ObjectFunctionType *, int, void *, void *, void *);
 bool SelectConnection (bool);
 
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)

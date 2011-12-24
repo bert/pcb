@@ -213,7 +213,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
  * sets the bounding box of a point (which is silly)
  */
 void
-SetPointBoundingBox (PointTypePtr Pnt)
+SetPointBoundingBox (PointType *Pnt)
 {
   Pnt->X2 = Pnt->X + 1;
   Pnt->Y2 = Pnt->Y + 1;
@@ -223,7 +223,7 @@ SetPointBoundingBox (PointTypePtr Pnt)
  * sets the bounding box of a pin or via
  */
 void
-SetPinBoundingBox (PinTypePtr Pin)
+SetPinBoundingBox (PinType *Pin)
 {
   Coord width;
 
@@ -246,7 +246,7 @@ SetPinBoundingBox (PinTypePtr Pin)
  * sets the bounding box of a pad
  */
 void
-SetPadBoundingBox (PadTypePtr Pad)
+SetPadBoundingBox (PadType *Pad)
 {
   Coord width;
   Coord deltax;
@@ -299,7 +299,7 @@ SetPadBoundingBox (PadTypePtr Pad)
  * sets the bounding box of a line
  */
 void
-SetLineBoundingBox (LineTypePtr Line)
+SetLineBoundingBox (LineType *Line)
 {
   Coord width = (Line->Thickness + Line->Clearance + 1) / 2;
 
@@ -319,7 +319,7 @@ SetLineBoundingBox (LineTypePtr Line)
  * sets the bounding box of a polygons
  */
 void
-SetPolygonBoundingBox (PolygonTypePtr Polygon)
+SetPolygonBoundingBox (PolygonType *Polygon)
 {
   Polygon->BoundingBox.X1 = Polygon->BoundingBox.Y1 = MAX_COORD;
   Polygon->BoundingBox.X2 = Polygon->BoundingBox.Y2 = 0;
@@ -339,10 +339,10 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
  * sets the bounding box of an elements
  */
 void
-SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
-                       FontTypePtr Font)
+SetElementBoundingBox (DataType *Data, ElementType *Element,
+                       FontType *Font)
 {
-  BoxTypePtr box, vbox;
+  BoxType *box, *vbox;
 
   if (Data && Data->element_tree)
     r_delete_entry (Data->element_tree, (BoxType *) Element);
@@ -488,9 +488,9 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
  * creates the bounding box of a text object
  */
 void
-SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
+SetTextBoundingBox (FontType *FontPtr, TextType *Text)
 {
-  SymbolTypePtr symbol = FontPtr->Symbol;
+  SymbolType *symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
   int i;
   int space;
@@ -518,7 +518,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
     {
       if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
         {
-          LineTypePtr line = symbol[*s].Line;
+          LineType *line = symbol[*s].Line;
           for (i = 0; i < symbol[*s].LineN; line++, i++)
             {
               /* Clamp the width of text lines at the minimum thickness.
@@ -610,7 +610,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
  * returns true if data area is empty
  */
 bool
-IsDataEmpty (DataTypePtr Data)
+IsDataEmpty (DataType *Data)
 {
   bool hasNoObjects;
   Cardinal i;
@@ -636,7 +636,7 @@ FlagIsDataEmpty (int parm)
 /* FLAG(DataNonEmpty,FlagIsDataEmpty,1) */
 
 bool
-IsLayerEmpty (LayerTypePtr layer)
+IsLayerEmpty (LayerType *layer)
 {
   return (layer->LineN == 0
 	  && layer->TextN == 0
@@ -686,7 +686,7 @@ typedef struct
 static int
 hole_counting_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
   if (TEST_FLAG (HOLEFLAG, pin))
     hcs->nunplated++;
@@ -717,8 +717,8 @@ CountHoles (int *plated, int *unplated, const BoxType *within_area)
  * gets minimum and maximum coordinates
  * returns NULL if layout is empty
  */
-BoxTypePtr
-GetDataBoundingBox (DataTypePtr Data)
+BoxType *
+GetDataBoundingBox (DataType *Data)
 {
   static BoxType box;
   /* FIX ME: use r_search to do this much faster */
@@ -743,7 +743,7 @@ GetDataBoundingBox (DataTypePtr Data)
     box.X2 = MAX (box.X2, element->BoundingBox.X2);
     box.Y2 = MAX (box.Y2, element->BoundingBox.Y2);
     {
-      TextTypePtr text = &NAMEONPCB_TEXT (element);
+      TextType *text = &NAMEONPCB_TEXT (element);
       box.X1 = MIN (box.X1, text->BoundingBox.X1);
       box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
       box.X2 = MAX (box.X2, text->BoundingBox.X2);
@@ -810,11 +810,11 @@ CenterDisplay (Coord X, Coord Y)
  * 
  */
 void
-SetFontInfo (FontTypePtr Ptr)
+SetFontInfo (FontType *Ptr)
 {
   Cardinal i, j;
-  SymbolTypePtr symbol;
-  LineTypePtr line;
+  SymbolType *symbol;
+  LineType *line;
   Coord totalminy = MAX_COORD;
 
   /* calculate cell with and height (is at least DEFAULT_CELLSIZE)
@@ -915,7 +915,7 @@ make_route_string (RouteStyleType rs[], int n_styles)
  * e.g. Signal,20,40,20,10:Power,40,60,28,10:...
  */
 int
-ParseRouteString (char *s, RouteStyleTypePtr routeStyle, const char *default_unit)
+ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
 {
   int i, style;
   char Name[256];
@@ -985,7 +985,7 @@ error:
  * comma separated layer numbers (1,2,b:4,6,8,t)
  */
 int
-ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
+ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
 {
   int group, member, layer;
   bool c_set = false,        /* flags for the two special layers to */
@@ -1204,7 +1204,7 @@ ExpandFilename (char *Dirname, char *Filename)
  * returns the layer number for the passed pointer
  */
 int
-GetLayerNumber (DataTypePtr Data, LayerTypePtr Layer)
+GetLayerNumber (DataType *Data, LayerType *Layer)
 {
   int i;
 
@@ -1407,7 +1407,7 @@ GetGroupOfLayer (int Layer)
  * returns the layergroup number for the passed pointer
  */
 int
-GetLayerGroupNumberByPointer (LayerTypePtr Layer)
+GetLayerGroupNumberByPointer (LayerType *Layer)
 {
   return (GetLayerGroupNumberByNumber (GetLayerNumber (PCB->Data, Layer)));
 }
@@ -1435,7 +1435,7 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
  * returns a pointer to an objects bounding box;
  * data is valid until the routine is called again
  */
-BoxTypePtr
+BoxType *
 GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   switch (Type)
@@ -1464,7 +1464,7 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * computes the bounding box of an arc
  */
 void
-SetArcBoundingBox (ArcTypePtr Arc)
+SetArcBoundingBox (ArcType *Arc)
 {
   double ca1, ca2, sa1, sa2;
   double minx, maxx, miny, maxy;
@@ -1651,7 +1651,7 @@ GetWorkingDirectory (char *path)
  * some special characters are quoted
  */
 void
-CreateQuotedString (DynamicStringTypePtr DS, char *S)
+CreateQuotedString (DynamicStringType *DS, char *S)
 {
   DSClearString (DS);
   DSAddCharacter (DS, '"');
@@ -1664,8 +1664,8 @@ CreateQuotedString (DynamicStringTypePtr DS, char *S)
   DSAddCharacter (DS, '"');
 }
 
-BoxTypePtr
-GetArcEnds (ArcTypePtr Arc)
+BoxType *
+GetArcEnds (ArcType *Arc)
 {
   static BoxType box;
   box.X1 = Arc->X - Arc->Width * cos (Arc->StartAngle * M180);
@@ -1678,7 +1678,7 @@ GetArcEnds (ArcTypePtr Arc)
 
 /* doesn't this belong in change.c ?? */
 void
-ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
+ChangeArcAngles (LayerType *Layer, ArcType *a,
                  Angle new_sa, Angle new_da)
 {
   if (new_da >= 360)
@@ -1687,12 +1687,12 @@ ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
       new_sa = 0;
     }
   RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, a);
-  r_delete_entry (Layer->arc_tree, (BoxTypePtr) a);
+  r_delete_entry (Layer->arc_tree, (BoxType *) a);
   AddObjectToChangeAnglesUndoList (ARC_TYPE, a, a, a);
   a->StartAngle = new_sa;
   a->Delta = new_da;
   SetArcBoundingBox (a);
-  r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
+  r_insert_entry (Layer->arc_tree, (BoxType *) a, 0);
   ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, a);
 }
 
@@ -1728,7 +1728,7 @@ BumpName (char *Name)
  * this can alter the contents of the input string
  */
 char *
-UniqueElementName (DataTypePtr Data, char *Name)
+UniqueElementName (DataType *Data, char *Name)
 {
   bool unique = true;
   /* null strings are ok */
@@ -1762,37 +1762,37 @@ GetGridLockCoordinates (int type, void *ptr1,
   switch (type)
     {
     case VIA_TYPE:
-      *x = ((PinTypePtr) ptr2)->X;
-      *y = ((PinTypePtr) ptr2)->Y;
+      *x = ((PinType *) ptr2)->X;
+      *y = ((PinType *) ptr2)->Y;
       break;
     case LINE_TYPE:
-      *x = ((LineTypePtr) ptr2)->Point1.X;
-      *y = ((LineTypePtr) ptr2)->Point1.Y;
+      *x = ((LineType *) ptr2)->Point1.X;
+      *y = ((LineType *) ptr2)->Point1.Y;
       break;
     case TEXT_TYPE:
     case ELEMENTNAME_TYPE:
-      *x = ((TextTypePtr) ptr2)->X;
-      *y = ((TextTypePtr) ptr2)->Y;
+      *x = ((TextType *) ptr2)->X;
+      *y = ((TextType *) ptr2)->Y;
       break;
     case ELEMENT_TYPE:
-      *x = ((ElementTypePtr) ptr2)->MarkX;
-      *y = ((ElementTypePtr) ptr2)->MarkY;
+      *x = ((ElementType *) ptr2)->MarkX;
+      *y = ((ElementType *) ptr2)->MarkY;
       break;
     case POLYGON_TYPE:
-      *x = ((PolygonTypePtr) ptr2)->Points[0].X;
-      *y = ((PolygonTypePtr) ptr2)->Points[0].Y;
+      *x = ((PolygonType *) ptr2)->Points[0].X;
+      *y = ((PolygonType *) ptr2)->Points[0].Y;
       break;
 
     case LINEPOINT_TYPE:
     case POLYGONPOINT_TYPE:
-      *x = ((PointTypePtr) ptr3)->X;
-      *y = ((PointTypePtr) ptr3)->Y;
+      *x = ((PointType *) ptr3)->X;
+      *y = ((PointType *) ptr3)->Y;
       break;
     case ARC_TYPE:
       {
-        BoxTypePtr box;
+        BoxType *box;
 
-        box = GetArcEnds ((ArcTypePtr) ptr2);
+        box = GetArcEnds ((ArcType *) ptr2);
         *x = box->X1;
         *y = box->Y1;
         break;
@@ -1803,7 +1803,7 @@ GetGridLockCoordinates (int type, void *ptr1,
 void
 AttachForCopy (Coord PlaceX, Coord PlaceY)
 {
-  BoxTypePtr box;
+  BoxType *box;
   Coord mx = 0, my = 0;
 
   Crosshair.AttachedObject.RubberbandN = 0;
@@ -1979,7 +1979,7 @@ MoveLayerToGroup (int layer, int group)
 }
 
 char *
-LayerGroupsToString (LayerGroupTypePtr lg)
+LayerGroupsToString (LayerGroupType *lg)
 {
 #if MAX_LAYER < 9998
   /* Allows for layer numbers 0..9999 */

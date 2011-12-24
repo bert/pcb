@@ -65,7 +65,7 @@
         (PIN_TYPE | VIA_TYPE | PAD_TYPE)
 
 bool ChangeLayoutName (char *);
-bool ChangeLayerName (LayerTypePtr, char *);
+bool ChangeLayerName (LayerType *, char *);
 bool ChangeSelectedSize (int, Coord, bool);
 bool ChangeSelectedClearSize (int, Coord, bool);
 bool ChangeSelected2ndSize (int, Coord, bool);
@@ -83,9 +83,9 @@ bool ChangeSelectedOctagon (int);
 bool SetSelectedOctagon (int);
 bool ClrSelectedOctagon (int);
 bool ChangeSelectedElementSide (void);
-bool ChangeElementSide (ElementTypePtr, Coord);
-bool ChangeHole (PinTypePtr);
-bool ChangePaste (PadTypePtr);
+bool ChangeElementSide (ElementType *, Coord);
+bool ChangeHole (PinType *);
+bool ChangePaste (PadType *);
 bool ChangeObjectSize (int, void *, void *, void *, Coord, bool);
 bool ChangeObjectThermal (int, void *, void *, void *, int);
 bool ChangeObjectClearSize (int, void *, void *, void *, Coord,
@@ -110,7 +110,7 @@ void ChangePCBSize (Coord, Coord);
 /* Change the specified text on an element, either on the board (give
    PCB, PCB->Data) or in a buffer (give NULL, Buffer->Data).  The old
    string is returned, and must be properly freed by the caller.  */
-char *ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element,
+char *ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element,
 			 int which, char *new_name);
 
 #endif

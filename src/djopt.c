@@ -868,7 +868,7 @@ move_corner (corner_s * c, int x, int y)
     }
   for (i = 0; i < c->n_lines; i++)
     {
-      LineTypePtr tl = c->lines[i]->line;
+      LineType *tl = c->lines[i]->line;
       if (tl)
 	{
 	  if (c->lines[i]->s == c)
@@ -2479,7 +2479,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
 		 c[ci]->lines[li]->line->Clearance,
 		 flags_to_string (c[ci]->lines[li]->line->Flags, LINE_TYPE));
 	/* Pads are disqualified, as we want to mimic a trace line. */
-	if (c[ci]->lines[li]->line == (LineTypePtr) c[ci]->pad)
+	if (c[ci]->lines[li]->line == (LineType *) c[ci]->pad)
 	  {
 	    dprintf ("  bad, pad\n");
 	    continue;
@@ -2950,7 +2950,7 @@ ActionDJopt (int argc, char **argv, Coord x, Coord y)
     ls->e = find_corner (pad->Point2.X, pad->Point2.Y, layern);
     ls->e->pad = pad;
     ls->layer = layern;
-    ls->line = (LineTypePtr) pad;
+    ls->line = (LineType *) pad;
     add_line_to_corner (ls, ls->s);
     add_line_to_corner (ls, ls->e);
 

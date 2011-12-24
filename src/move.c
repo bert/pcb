@@ -59,26 +59,26 @@
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void *MoveElementName (ElementTypePtr);
-static void *MoveElement (ElementTypePtr);
-static void *MoveVia (PinTypePtr);
-static void *MoveLine (LayerTypePtr, LineTypePtr);
-static void *MoveArc (LayerTypePtr, ArcTypePtr);
-static void *MoveText (LayerTypePtr, TextTypePtr);
-static void *MovePolygon (LayerTypePtr, PolygonTypePtr);
-static void *MoveLinePoint (LayerTypePtr, LineTypePtr, PointTypePtr);
-static void *MovePolygonPoint (LayerTypePtr, PolygonTypePtr, PointTypePtr);
-static void *MoveLineToLayer (LayerTypePtr, LineTypePtr);
-static void *MoveArcToLayer (LayerTypePtr, ArcTypePtr);
-static void *MoveRatToLayer (RatTypePtr);
-static void *MoveTextToLayer (LayerTypePtr, TextTypePtr);
-static void *MovePolygonToLayer (LayerTypePtr, PolygonTypePtr);
+static void *MoveElementName (ElementType *);
+static void *MoveElement (ElementType *);
+static void *MoveVia (PinType *);
+static void *MoveLine (LayerType *, LineType *);
+static void *MoveArc (LayerType *, ArcType *);
+static void *MoveText (LayerType *, TextType *);
+static void *MovePolygon (LayerType *, PolygonType *);
+static void *MoveLinePoint (LayerType *, LineType *, PointType *);
+static void *MovePolygonPoint (LayerType *, PolygonType *, PointType *);
+static void *MoveLineToLayer (LayerType *, LineType *);
+static void *MoveArcToLayer (LayerType *, ArcType *);
+static void *MoveRatToLayer (RatType *);
+static void *MoveTextToLayer (LayerType *, TextType *);
+static void *MovePolygonToLayer (LayerType *, PolygonType *);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
 static Coord DeltaX, DeltaY;	/* used by local routines as offset */
-static LayerTypePtr Dest;
+static LayerType *Dest;
 static bool MoreToCome;
 static ObjectFunctionType MoveFunctions = {
   MoveLine,
@@ -105,7 +105,7 @@ MoveLineToLayer,
  * moves a element by +-X and +-Y
  */
 void
-MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
+MoveElementLowLevel (DataType *Data, ElementType *Element,
 		     Coord DX, Coord DY)
 {
   if (Data)
@@ -170,7 +170,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
  * moves all names of an element to a new position
  */
 static void *
-MoveElementName (ElementTypePtr Element)
+MoveElementName (ElementType *Element)
 {
   if (PCB->ElementOn && (FRONT (Element) || PCB->InvisibleObjectsOn))
     {
@@ -206,7 +206,7 @@ MoveElementName (ElementTypePtr Element)
  * moves an element
  */
 static void *
-MoveElement (ElementTypePtr Element)
+MoveElement (ElementType *Element)
 {
   bool didDraw = false;
 
@@ -238,7 +238,7 @@ MoveElement (ElementTypePtr Element)
  * moves a via
  */
 static void *
-MoveVia (PinTypePtr Via)
+MoveVia (PinType *Via)
 {
   r_delete_entry (PCB->Data->via_tree, (BoxType *)Via);
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
@@ -259,7 +259,7 @@ MoveVia (PinTypePtr Via)
  * moves a line
  */
 static void *
-MoveLine (LayerTypePtr Layer, LineTypePtr Line)
+MoveLine (LayerType *Layer, LineType *Line)
 {
   if (Layer->On)
     EraseLine (Line);
@@ -280,7 +280,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
  * moves an arc
  */
 static void *
-MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
+MoveArc (LayerType *Layer, ArcType *Arc)
 {
   RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   r_delete_entry (Layer->arc_tree, (BoxType *)Arc);
@@ -304,7 +304,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
  * moves a text object
  */
 static void *
-MoveText (LayerTypePtr Layer, TextTypePtr Text)
+MoveText (LayerType *Layer, TextType *Text)
 {
   RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   r_delete_entry (Layer->text_tree, (BoxType *)Text);
@@ -326,7 +326,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
  * low level routine to move a polygon
  */
 void
-MovePolygonLowLevel (PolygonTypePtr Polygon, Coord DeltaX, Coord DeltaY)
+MovePolygonLowLevel (PolygonType *Polygon, Coord DeltaX, Coord DeltaY)
 {
   POLYGONPOINT_LOOP (Polygon);
   {
@@ -340,7 +340,7 @@ MovePolygonLowLevel (PolygonTypePtr Polygon, Coord DeltaX, Coord DeltaY)
  * moves a polygon
  */
 static void *
-MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
+MovePolygon (LayerType *Layer, PolygonType *Polygon)
 {
   if (Layer->On)
     {
@@ -362,7 +362,7 @@ MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * moves one end of a line
  */
 static void *
-MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
+MoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
 {
   if (Layer)
     {
@@ -384,14 +384,14 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   else				/* must be a rat */
     {
       if (PCB->RatOn)
-	EraseRat ((RatTypePtr) Line);
+	EraseRat ((RatType *) Line);
       r_delete_entry (PCB->Data->rat_tree, &Line->BoundingBox);
       MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (PCB->Data->rat_tree, &Line->BoundingBox, 0);
       if (PCB->RatOn)
 	{
-	  DrawRat ((RatTypePtr) Line);
+	  DrawRat ((RatType *) Line);
 	  Draw ();
 	}
       return (Line);
@@ -402,8 +402,8 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
  * moves a polygon-point
  */
 static void *
-MovePolygonPoint (LayerTypePtr Layer, PolygonTypePtr Polygon,
-		  PointTypePtr Point)
+MovePolygonPoint (LayerType *Layer, PolygonType *Polygon,
+		  PointType *Point)
 {
   if (Layer->On)
     {
@@ -470,7 +470,7 @@ MoveArcToLayerLowLevel (LayerType *Source, ArcType *arc,
 static void *
 MoveArcToLayer (LayerType *Layer, ArcType *Arc)
 {
-  ArcTypePtr newone;
+  ArcType *newone;
 
   if (TEST_FLAG (LOCKFLAG, Arc))
     {
@@ -488,7 +488,7 @@ MoveArcToLayer (LayerType *Layer, ArcType *Arc)
   RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   if (Layer->On)
     EraseArc (Arc);
-  newone = (ArcTypePtr)MoveArcToLayerLowLevel (Layer, Arc, Dest);
+  newone = (ArcType *)MoveArcToLayerLowLevel (Layer, Arc, Dest);
   ClearFromPolygon (PCB->Data, ARC_TYPE, Dest, Arc);
   if (Dest->On)
     DrawArc (Dest, newone);
@@ -502,7 +502,7 @@ MoveArcToLayer (LayerType *Layer, ArcType *Arc)
 static void *
 MoveRatToLayer (RatType *Rat)
 {
-  LineTypePtr newone;
+  LineType *newone;
   //Coord X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
   //Coord X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
   // if VIAFLAG
@@ -541,7 +541,7 @@ static int
 moveline_callback (const BoxType * b, void *cl)
 {
   struct via_info *i = (struct via_info *) cl;
-  PinTypePtr via;
+  PinType *via;
 
   if ((via =
        CreateNewVia (PCB->Data, i->X, i->Y,
@@ -560,7 +560,7 @@ MoveLineToLayer (LayerType *Layer, LineType *Line)
 {
   struct via_info info;
   BoxType sb;
-  LineTypePtr newone;
+  LineType *newone;
   void *ptr1, *ptr2, *ptr3;
 
   if (TEST_FLAG (LOCKFLAG, Line))
@@ -580,7 +580,7 @@ MoveLineToLayer (LayerType *Layer, LineType *Line)
   if (Layer->On)
     EraseLine (Line);
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-  newone = (LineTypePtr)MoveLineToLayerLowLevel (Layer, Line, Dest);
+  newone = (LineType *)MoveLineToLayerLowLevel (Layer, Line, Dest);
   Line = NULL;
   ClearFromPolygon (PCB->Data, LINE_TYPE, Dest, newone);
   if (Dest->On)
@@ -705,14 +705,14 @@ struct mptlc
 {
   Cardinal snum, dnum;
   int type;
-  PolygonTypePtr polygon;
+  PolygonType *polygon;
 } mptlc;
 
 int
 mptl_pin_callback (const BoxType *b, void *cl)
 {
   struct mptlc *d = (struct mptlc *) cl;
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   if (!TEST_THERM (d->snum, pin) || !
 	IsPointInPolygon (pin->X, pin->Y, pin->Thickness + pin->Clearance + 2,
 			  d->polygon))
@@ -732,7 +732,7 @@ mptl_pin_callback (const BoxType *b, void *cl)
 static void *
 MovePolygonToLayer (LayerType *Layer, PolygonType *Polygon)
 {
-  PolygonTypePtr newone;
+  PolygonType *newone;
   struct mptlc d;
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
@@ -787,7 +787,7 @@ void *
 MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 			 Coord DX, Coord DY)
 {
-  RubberbandTypePtr ptr;
+  RubberbandType *ptr;
   void *ptr2;
 
   /* setup offset */
@@ -827,7 +827,7 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void *
 MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		   LayerTypePtr Target, bool enmasse)
+		   LayerType *Target, bool enmasse)
 {
   void *result;
 
@@ -844,7 +844,7 @@ MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  * positions
  */
 bool
-MoveSelectedObjectsToLayer (LayerTypePtr Target)
+MoveSelectedObjectsToLayer (LayerType *Target)
 {
   bool changed;
 
@@ -977,7 +977,7 @@ MoveLayer (int old_index, int new_index)
 
   if (old_index == -1)
     {
-      LayerTypePtr lp;
+      LayerType *lp;
       if (max_copper_layer == MAX_LAYER)
 	{
 	  Message ("No room for new layers\n");

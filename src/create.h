@@ -37,53 +37,32 @@
    things.  */
 void CreateBeLenient (bool);
 
-DataTypePtr CreateNewBuffer (void);
-void pcb_colors_from_settings (PCBTypePtr);
-PCBTypePtr CreateNewPCB (bool);
+DataType * CreateNewBuffer (void);
+void pcb_colors_from_settings (PCBType *);
+PCBType * CreateNewPCB (bool);
 /* Called after PCB->Data->LayerN is set.  Returns zero if no errors,
    else nonzero.  */
-int CreateNewPCBPost (PCBTypePtr, int /* set defaults */);
-PinTypePtr CreateNewVia (DataTypePtr, Coord, Coord, Coord, Coord,
-			 Coord, Coord, char *, FlagType);
-LineTypePtr CreateDrawnLineOnLayer (LayerTypePtr, Coord, Coord, Coord,
-				    Coord, Coord, Coord, FlagType);
-LineTypePtr CreateNewLineOnLayer (LayerTypePtr, Coord, Coord, Coord,
-				  Coord, Coord, Coord, FlagType);
-RatTypePtr CreateNewRat (DataTypePtr, Coord, Coord, Coord,
-			 Coord, Cardinal, Cardinal, Coord, FlagType);
-ArcTypePtr CreateNewArcOnLayer (LayerTypePtr, Coord, Coord, Coord, Coord,
-				Angle, Angle, Coord, Coord, FlagType);
-PolygonTypePtr CreateNewPolygonFromRectangle (LayerTypePtr, Coord,
-					      Coord, Coord,
-					      Coord, FlagType);
-TextTypePtr CreateNewText (LayerTypePtr, FontTypePtr, Coord,
-			   Coord, unsigned, int, char *, FlagType);
-PolygonTypePtr CreateNewPolygon (LayerTypePtr, FlagType);
-PointTypePtr CreateNewPointInPolygon (PolygonTypePtr,
-				      Coord, Coord);
-PolygonType *CreateNewHoleInPolygon (PolygonType *polygon);
-ElementTypePtr CreateNewElement (DataTypePtr, ElementTypePtr,
-				 FontTypePtr, FlagType, char *, char *,
-				 char *, Coord, Coord, BYTE,
-				 int, FlagType, bool);
-LineTypePtr CreateNewLineInElement (ElementTypePtr, Coord, Coord,
-				    Coord, Coord, Coord);
-ArcTypePtr CreateNewArcInElement (ElementTypePtr, Coord, Coord,
-				  Coord, Coord, Angle, Angle, Coord);
-PinTypePtr CreateNewPin (ElementTypePtr, Coord, Coord,
-			 Coord, Coord, Coord, Coord,
-			 char *, char *, FlagType);
-PadTypePtr CreateNewPad (ElementTypePtr, Coord, Coord,
-			 Coord, Coord, Coord, Coord,
-			 Coord, char *, char *, FlagType);
-LineTypePtr CreateNewLineInSymbol (SymbolTypePtr, Coord, Coord,
-				   Coord, Coord, Coord);
-void CreateDefaultFont (PCBTypePtr);
-RubberbandTypePtr CreateNewRubberbandEntry (LayerTypePtr,
-					    LineTypePtr, PointTypePtr);
-LibraryMenuTypePtr CreateNewNet (LibraryTypePtr, char *, char *);
-LibraryEntryTypePtr CreateNewConnection (LibraryMenuTypePtr, char *);
-
-AttributeTypePtr CreateNewAttribute (AttributeListTypePtr list, char *name, char *value);
+int CreateNewPCBPost (PCBType *, int /* set defaults */);
+PinType * CreateNewVia (DataType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, FlagType);
+LineType * CreateDrawnLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
+LineType * CreateNewLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
+RatType * CreateNewRat (DataType *, Coord, Coord, Coord, Coord, Cardinal, Cardinal, Coord, FlagType);
+ArcType * CreateNewArcOnLayer (LayerType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord, Coord, FlagType);
+PolygonType * CreateNewPolygonFromRectangle (LayerType *, Coord, Coord, Coord, Coord, FlagType);
+TextType * CreateNewText (LayerType *, FontType *, Coord, Coord, unsigned, int, char *, FlagType);
+PolygonType * CreateNewPolygon (LayerType *, FlagType);
+PointType * CreateNewPointInPolygon (PolygonType *, Coord, Coord);
+PolygonType * CreateNewHoleInPolygon (PolygonType *polygon);
+ElementType * CreateNewElement (DataType *, ElementType *, FontType *, FlagType, char *, char *, char *, Coord, Coord, BYTE, int, FlagType, bool);
+LineType * CreateNewLineInElement (ElementType *, Coord, Coord, Coord, Coord, Coord);
+ArcType * CreateNewArcInElement (ElementType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord);
+PinType * CreateNewPin (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
+PadType * CreateNewPad (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
+LineType * CreateNewLineInSymbol (SymbolType *, Coord, Coord, Coord, Coord, Coord);
+void CreateDefaultFont (PCBType *);
+RubberbandType * CreateNewRubberbandEntry (LayerType *, LineType *, PointType *);
+LibraryMenuType * CreateNewNet (LibraryType *, char *, char *);
+LibraryEntryType * CreateNewConnection (LibraryMenuType *, char *);
+AttributeType * CreateNewAttribute (AttributeListType *list, char *name, char *value);
 
 #endif

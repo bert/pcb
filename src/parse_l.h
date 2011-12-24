@@ -32,9 +32,9 @@
 
 #include "global.h"
 
-int ParsePCB (PCBTypePtr, char *);
-int ParseElementFile (DataTypePtr, char *);
-int ParseLibraryEntry (DataTypePtr, char *);
-int ParseFont (FontTypePtr, char *);
+int ParsePCB (PCBType *, char *);
+int ParseElementFile (DataType *, char *);
+int ParseLibraryEntry (DataType *, char *);
+int ParseFont (FontType *, char *);
 
 #endif

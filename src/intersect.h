@@ -37,7 +37,7 @@
 
 #include "global.h"
 
-double ComputeIntersectionArea (BoxListTypePtr boxlist);	/* will sort boxlist */
-double ComputeUnionArea (BoxListTypePtr boxlist);
+double ComputeIntersectionArea (BoxListType *boxlist);	/* will sort boxlist */
+double ComputeUnionArea (BoxListType *boxlist);
 
 #endif

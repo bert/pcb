@@ -231,12 +231,12 @@ typedef struct routebox
   BoxType box, sbox;
   union
   {
-    PadTypePtr pad;
-    PinTypePtr pin;
-    PinTypePtr via;
+    PadType *pad;
+    PinType *pin;
+    PinType *via;
     struct routebox *via_shadow;	/* points to the via in r-tree which
 					 * points to the PinType in the PCB. */
-    LineTypePtr line;
+    LineType *line;
     void *generic;		/* 'other' is polygon, arc, text */
     struct routebox *expansion_area;	/* previous expansion area in search */
   }
@@ -639,7 +639,7 @@ point_in_shrunk_box (const routebox_t * box, Coord X, Coord Y)
  */
 
 static routebox_t *
-AddPin (PointerListType layergroupboxes[], PinTypePtr pin, bool is_via,
+AddPin (PointerListType layergroupboxes[], PinType *pin, bool is_via,
 	RouteStyleType * style)
 {
   routebox_t **rbpp, *lastrb = NULL;
@@ -687,7 +687,7 @@ AddPin (PointerListType layergroupboxes[], PinTypePtr pin, bool is_via,
 }
 static routebox_t *
 AddPad (PointerListType layergroupboxes[],
-	ElementTypePtr element, PadTypePtr pad, RouteStyleType * style)
+	ElementType *element, PadType *pad, RouteStyleType * style)
 {
   Coord halfthick;
   routebox_t **rbpp;
@@ -721,8 +721,8 @@ AddPad (PointerListType layergroupboxes[],
   return *rbpp;
 }
 static routebox_t *
-AddLine (PointerListType layergroupboxes[], int layergroup, LineTypePtr line,
-	 LineTypePtr ptr, RouteStyleType * style)
+AddLine (PointerListType layergroupboxes[], int layergroup, LineType *line,
+	 LineType *ptr, RouteStyleType * style)
 {
   routebox_t **rbpp;
   assert (layergroupboxes && line);
@@ -794,7 +794,7 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
 
 static routebox_t *
 AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
-	    PolygonTypePtr polygon, RouteStyleType * style)
+	    PolygonType *polygon, RouteStyleType * style)
 {
   int is_not_rectangle = 1;
   int layergroup = GetLayerGroupNumberByNumber (layer);
@@ -830,7 +830,7 @@ AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
 }
 static void
 AddText (PointerListType layergroupboxes[], Cardinal layergroup,
-	 TextTypePtr text, RouteStyleType * style)
+	 TextType *text, RouteStyleType * style)
 {
   AddIrregularObstacle (layergroupboxes,
 			text->BoundingBox.X1, text->BoundingBox.Y1,
@@ -839,7 +839,7 @@ AddText (PointerListType layergroupboxes[], Cardinal layergroup,
 }
 static routebox_t *
 AddArc (PointerListType layergroupboxes[], Cardinal layergroup,
-	ArcTypePtr arc, RouteStyleType * style)
+	ArcType *arc, RouteStyleType * style)
 {
   return AddIrregularObstacle (layergroupboxes,
 			       arc->BoundingBox.X1, arc->BoundingBox.Y1,
@@ -1042,7 +1042,7 @@ CreateRouteData ()
 	CONNECTION_LOOP (net);
 	{
 	  routebox_t *rb = NULL;
-	  SET_FLAG (DRCFLAG, (PinTypePtr) connection->ptr2);
+	  SET_FLAG (DRCFLAG, (PinType *) connection->ptr2);
 	  if (connection->type == LINE_TYPE)
 	    {
 	      LineType *line = (LineType *) connection->ptr2;
@@ -1460,8 +1460,8 @@ bloat_routebox (routebox_t * rb)
 void
 showbox (BoxType b, Dimension thickness, int group)
 {
-  LineTypePtr line;
-  LayerTypePtr SLayer = LAYER_PTR (group);
+  LineType *line;
+  LayerType *SLayer = LAYER_PTR (group);
   if (showboxen < -1)
     return;
   if (showboxen != -1 && showboxen != group)
@@ -4963,7 +4963,7 @@ out:
 
 struct fpin_info
 {
-  PinTypePtr pin;
+  PinType *pin;
   Coord X, Y;
   jmp_buf env;
 };
@@ -4971,18 +4971,18 @@ struct fpin_info
 static int
 fpin_rect (const BoxType * b, void *cl)
 {
-  PinTypePtr pin = (PinTypePtr) b;
+  PinType *pin = (PinType *) b;
   struct fpin_info *info = (struct fpin_info *) cl;
   if (pin->X == info->X && pin->Y == info->Y)
     {
-      info->pin = (PinTypePtr) b;
+      info->pin = (PinType *) b;
       longjmp (info->env, 1);
     }
   return 0;
 }
 
 static int
-FindPin (const BoxType * box, PinTypePtr * pin)
+FindPin (const BoxType * box, PinType ** pin)
 {
   struct fpin_info info;
 
@@ -5014,7 +5014,7 @@ bool
 IronDownAllUnfixedPaths (routedata_t * rd)
 {
   bool changed = false;
-  LayerTypePtr layer;
+  LayerType *layer;
   routebox_t *net, *p;
   int i;
   LIST_LOOP (rd->first_net, different_net, net);
@@ -5123,7 +5123,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
     {
       if (p->type == THERMAL)
 	{
-	  PinTypePtr pin = NULL;
+	  PinType *pin = NULL;
 	  /* thermals are alread a single point search, no need to shrink */
 	  int type = FindPin (&p->box, &pin);
 	  if (pin)
