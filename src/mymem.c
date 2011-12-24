@@ -677,6 +677,7 @@ FreePCBMemory (PCBType *pcb)
   for (i = 0; i <= MAX_FONTPOSITION; i++)
     free (pcb->Font.Symbol[i].Line);
   FreeLibraryMemory (&pcb->NetlistLib);
+  NetlistChanged (0);
   FreeAttributeListMemory (&pcb->Attributes);
   /* clear struct */
   memset (pcb, 0, sizeof (PCBType));
