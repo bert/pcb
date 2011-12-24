@@ -5713,16 +5713,14 @@ R34, but not D34
 @section File Format
 The centroid output file is in a standard comma seperated values (CSV)
 format.  Comment lines begin with a ``#''.  The output file contains a
-header with an RCS Id tag (useful for those who will check the file
-into a version control system), a version number for the file format,
-some comments containing the author and title of the board, and a
-comment describing the remainder of the file format.
+header with a version number for the file format, some comments
+containing the author and title of the board, and a comment describing
+the remainder of the file format.
 
 An example centroid file is shown below.
 
 @example
 
-# @verb{ $ }Id@verb{ $ }
 # PcbXY Version 1.0
 # Date: Fri Jul 22 03:40:08 2005 UTC
 # Author: PCB User
