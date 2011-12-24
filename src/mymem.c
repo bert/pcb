@@ -475,10 +475,10 @@ GetDrillElementMemory (DrillTypePtr Drill)
     {
       Drill->ElementMax += STEP_ELEMENT;
       element = (ElementTypePtr *)realloc (element,
-                         Drill->ElementMax * sizeof (ElementTypeHandle));
+                         Drill->ElementMax * sizeof (ElementTypePtr));
       Drill->Element = element;
       memset (element + Drill->ElementN, 0,
-	      STEP_ELEMENT * sizeof (ElementTypeHandle));
+	      STEP_ELEMENT * sizeof (ElementTypePtr));
     }
   return (element + Drill->ElementN++);
 }
@@ -497,9 +497,9 @@ GetDrillPinMemory (DrillTypePtr Drill)
   if (Drill->PinN >= Drill->PinMax)
     {
       Drill->PinMax += STEP_POINT;
-      pin = (PinTypePtr *)realloc (pin, Drill->PinMax * sizeof (PinTypeHandle));
+      pin = (PinTypePtr *)realloc (pin, Drill->PinMax * sizeof (PinTypePtr));
       Drill->Pin = pin;
-      memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinTypeHandle));
+      memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinTypePtr));
     }
   return (pin + Drill->PinN++);
 }
