@@ -1646,7 +1646,7 @@ AddNetlistLibToUndoList (LibraryTypePtr lib)
       undo->Data.NetlistChange.lib = lib;
 
       /* and what the old data is that we'll need to restore */
-      undo->Data.NetlistChange.old = (LibraryTypePtr)malloc (sizeof (LibraryTypePtr));
+      undo->Data.NetlistChange.old = (LibraryTypePtr)malloc (sizeof (LibraryType));
       old = undo->Data.NetlistChange.old;
       old->MenuN = lib->MenuN;
       old->MenuMax = lib->MenuMax;
