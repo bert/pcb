@@ -1009,6 +1009,11 @@ ghid_netlist_window_update (gboolean init_nodes)
 static gint
 GhidNetlistChanged (int argc, char **argv, Coord x, Coord y)
 {
+  /* XXX: We get called before the GUI is up when
+   *         exporting from the command-line. */
+  if (ghidgui == NULL || !ghidgui->is_up)
+    return 0;
+
   loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (disable_all_button),
