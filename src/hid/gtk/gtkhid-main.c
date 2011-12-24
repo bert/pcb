@@ -239,12 +239,10 @@ ghid_calibrate (double xval, double yval)
   printf (_("ghid_calibrate() -- not implemented\n"));
 }
 
-static int ghid_gui_is_up = 0;
-
 void
 ghid_notify_gui_is_up ()
 {
-  ghid_gui_is_up = 1;
+  ghidgui->is_up = 1;
 }
 
 int
@@ -253,7 +251,7 @@ ghid_shift_is_pressed ()
   GdkModifierType mask;
   GHidPort *out = &ghid_port;
 
-  if( ! ghid_gui_is_up ) 
+  if (!ghidgui->is_up)
     return 0;
 
   gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
@@ -267,7 +265,7 @@ ghid_control_is_pressed ()
   GdkModifierType mask;
   GHidPort *out = &ghid_port;
 
-  if( ! ghid_gui_is_up )
+  if (!ghidgui->is_up)
     return 0;
 
   gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
@@ -281,7 +279,7 @@ ghid_mod1_is_pressed ()
   GdkModifierType mask;
   GHidPort *out = &ghid_port;
 
-  if( ! ghid_gui_is_up )
+  if (!ghidgui->is_up)
     return 0;
 
   gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
