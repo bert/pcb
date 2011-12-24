@@ -14,13 +14,6 @@ my $RCS_Id = '$Id$ ';
 use strict;
 use Getopt::Long 2.1;
 
-my $my_package = "Sciurix";
-my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
-$my_version .= '*' if length('$Locker$ ') > 12;
-
-use vars qw($VERSION);
-( $VERSION ) = '$Revision$ ' =~ /\$Revision:\s+([^\s]+)/;
-
 ################ Program parameters ################
 
 ### CONFIG
@@ -250,13 +243,11 @@ sub set_out_type {
 
 sub handle_options {
     my  ($help) = 0;		# handled locally
-    my ($ident) = 0;		# handled locally
 
     # Process options.
     if ( @ARGV > 0 && $ARGV[0] =~ /^[-+]/ ) {
 	usage () 
-	  unless GetOptions ('ident'	   => \$ident,
-			     'verbose'	   => \$verbose,
+	  unless GetOptions ('verbose'	   => \$verbose,
 			     'antialias|aa=i'   => \$antialias,
 			     'noantialias|noaa' => sub { $antialias = 0 },
 			     'scale=f'     => \$scale,
@@ -283,8 +274,6 @@ sub handle_options {
 			     'debug'	   => \$debug)
 	    && !$help;
     }
-    print STDERR ("This is $my_package [$my_name $my_version]\n")
-	if $ident;
     die ("Only one file argument is allowed when -output is used\n")
       if @ARGV > 1 && defined $output;
     die ("At least one input file name must be specified\n")
@@ -295,7 +284,6 @@ sub handle_options {
 
 sub usage {
     print STDERR <<EndOfUsage;
-This is $my_package [$my_name $my_version]
 Usage: $0 [options] file [...]
 
     -png -pngmono -pnggray -png16 -png256 -png16m
@@ -313,7 +301,6 @@ Usage: $0 [options] file [...]
     -[no]pbm		GIF only: [do not] convert via pbm format
     -output XXX		output to this file (only one input file)
     -help		this message
-    -ident		show identification
     -verbose		verbose information
 EndOfUsage
     exit 1;
@@ -449,10 +436,6 @@ this option is specified.
 =item B<-help>
 
 Prints a help message and exits.
-
-=item B<-ident>
-
-Prints the program version before doing anything else.
 
 =item B<-verbose>
 
