@@ -116,6 +116,8 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
     {
       GdkColor color;
       cairo_t *cr = gdk_cairo_create (window);
+      cairo_pattern_t *pattern;
+
       if (expose_area)
         {
           gdk_cairo_rectangle (cr, expose_area);
@@ -137,7 +139,25 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
           color.green = (4*color.green + 65535) / 5;
           color.blue = (4*color.blue + 65535) / 5;
         }
-      gdk_cairo_set_source_color (cr, &color);
+
+      pattern = cairo_pattern_create_radial ((toggle_rect.width  - 1.) * 0.75 + toggle_rect.x + 0.5,
+                                             (toggle_rect.height - 1.) * 0.75 + toggle_rect.y + 0.5,
+                                             0.,
+                                             (toggle_rect.width  - 1.) * 0.50 + toggle_rect.x + 0.5,
+                                             (toggle_rect.height - 1.) * 0.50 + toggle_rect.y + 0.5,
+                                             (toggle_rect.width  - 1.) * 0.71);
+
+      cairo_pattern_add_color_stop_rgb (pattern, 0.0,
+                                        (color.red   / 65535. * 4. + 1.) / 5.,
+                                        (color.green / 65535. * 4. + 1.) / 5.,
+                                        (color.blue  / 65535. * 4. + 1.) / 5.);
+      cairo_pattern_add_color_stop_rgb (pattern, 1.0,
+                                        (color.red   / 65535. * 5. + 0.) / 5.,
+                                        (color.green / 65535. * 5. + 0.) / 5.,
+                                        (color.blue  / 65535. * 5. + 0.) / 5.);
+      cairo_set_source (cr, pattern);
+      cairo_pattern_destroy (pattern);
+
       if (pcb_cell->active)
         cairo_rectangle (cr, toggle_rect.x + 0.5, toggle_rect.y + 0.5,
                              toggle_rect.width - 1, toggle_rect.height - 1);
