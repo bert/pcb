@@ -1331,7 +1331,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (ln >= lm)
 	{
 	  lm = ln + 10;
-	  ls = (line_s **) realloc (ls, lm * sizeof (line_s));
+	  ls = (line_s **) realloc (ls, lm * sizeof (line_s *));
 	}
       ls[ln++] = l;
       c2 = other_corner (l, c2);
