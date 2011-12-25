@@ -699,11 +699,6 @@ ghid_netlist_window_create (GHidPort * out)
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
 
-  /* No point in putting up the window if no netlist is loaded.
-   */
-  if (!PCB->NetlistLib.MenuN)
-    return;
-
   if (netlist_window)
     return;
 
@@ -1012,6 +1007,10 @@ GhidNetlistChanged (int argc, char **argv, Coord x, Coord y)
   /* XXX: We get called before the GUI is up when
    *         exporting from the command-line. */
   if (ghidgui == NULL || !ghidgui->is_up)
+    return 0;
+
+  /* There is no need to update if the netlist window isn't open */
+  if (netlist_window == NULL)
     return 0;
 
   loading_new_netlist = TRUE;
