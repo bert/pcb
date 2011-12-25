@@ -191,6 +191,7 @@ static gint split_encroached (GtsSurface * surface,
   GtsSegment * s;
 
   while (steiner_max-- != 0 && (s = gts_fifo_pop (encroached))) {
+    GtsVertex *add_vertex_returned;
     GtsVertex * v = split_edge (GTS_EDGE (s), surface);
     GtsFace * boundary = gts_edge_is_boundary (GTS_EDGE (s), surface);
     GtsFace * f = boundary;
@@ -217,8 +218,10 @@ static gint split_encroached (GtsSurface * surface,
     GTS_OBJECT (s)->klass = GTS_OBJECT_CLASS (surface->edge_class);
 
     if (f == NULL)
-      g_assert ((f = gts_edge_has_parent_surface (GTS_EDGE (s), surface)));
-    g_assert (gts_delaunay_add_vertex_to_face (surface, v, f) == NULL);
+      f = gts_edge_has_parent_surface (GTS_EDGE (s), surface);
+    g_assert (f != NULL);
+    add_vertex_returned = gts_delaunay_add_vertex_to_face (surface, v, f);
+    g_assert (add_vertex_returned == NULL);
 
     if (boundary)
       gts_object_destroy (GTS_OBJECT (s));
@@ -385,12 +388,14 @@ guint gts_delaunay_refine (GtsSurface * surface,
   GTS_OBJECT (surface)->reserved = heap;
 
   while (steiner_max-- != 0 && (f = gts_eheap_remove_top (heap, NULL))) {
+    GtsVertex *add_vertex_returned;
     GtsVertex * c = 
       GTS_VERTEX (gts_triangle_circumcircle_center (GTS_TRIANGLE (f),
 		  GTS_POINT_CLASS (surface->vertex_class)));
     EHEAP_PAIR (f) = NULL;
     g_assert (c != NULL);
-    g_assert (gts_delaunay_add_vertex (surface, c, f) == NULL);
+    add_vertex_returned = gts_delaunay_add_vertex (surface, c, f);
+    g_assert (add_vertex_returned == NULL);
 
     vertex_encroaches (c, surface, encroached, encroaches, encroach_data);
     if (!gts_fifo_is_empty (encroached)) {

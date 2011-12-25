@@ -475,7 +475,8 @@ GtsVertex * gts_volume_optimized_vertex (GtsEdge * edge,
 #endif /* Weighted average of volume, boundary and shape optimization */
 
   g_assert (n == 3);
-  g_assert ((Ai = gts_matrix3_inverse (A)));
+  Ai = gts_matrix3_inverse (A);
+  g_assert (Ai != NULL);
 
   v = gts_vertex_new (klass,
 		      Ai[0][0]*b[0] + Ai[0][1]*b[1] + Ai[0][2]*b[2],

@@ -126,11 +126,14 @@ GtsMatrix * gts_matrix_projection (GtsTriangle * t)
   x3 = y1*z2 - z1*y2; y3 = z1*x2 - x1*z2; z3 = x1*y2 - y1*x2;
   x2 = y3*z1 - z3*y1; y2 = z3*x1 - x3*z1; z2 = x3*y1 - y3*x1;
 
-  g_assert ((l = sqrt (x1*x1 + y1*y1 + z1*z1)) > 0.0);
+  l = sqrt (x1*x1 + y1*y1 + z1*z1);
+  g_assert (l > 0.0);
   m[0][0] = x1/l; m[1][0] = y1/l; m[2][0] = z1/l; m[3][0] = 0.;
-  g_assert ((l = sqrt (x2*x2 + y2*y2 + z2*z2)) > 0.0);
+  l = sqrt (x2*x2 + y2*y2 + z2*z2);
+  g_assert (l > 0.0);
   m[0][1] = x2/l; m[1][1] = y2/l; m[2][1] = z2/l; m[3][1] = 0.;
-  g_assert ((l = sqrt (x3*x3 + y3*y3 + z3*z3)) > 0.0);
+  l = sqrt (x3*x3 + y3*y3 + z3*z3);
+  g_assert (l > 0.0);
   m[0][2] = x3/l; m[1][2] = y3/l; m[2][2] = z3/l; m[3][2] = 0.;
   m[0][3] = 0; m[1][3] = 0.; m[2][3] = 0.; m[3][3] = 1.;
 
