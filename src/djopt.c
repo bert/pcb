@@ -1297,7 +1297,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (cn >= cm)
 	{
 	  cm = cn + 10;
-	  cs = (corner_s **) realloc (cs, cm * sizeof (corner_s));
+	  cs = (corner_s **) realloc (cs, cm * sizeof (corner_s *));
 	}
       cs[cn++] = c2;
       r2 = corner_radius (c2);
