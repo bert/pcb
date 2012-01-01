@@ -121,6 +121,7 @@ typedef enum
   F_ElementConnections,
   F_ElementToBuffer,
   F_Escape,
+  F_Filter,
   F_Find,
   F_FlipElement,
   F_FoundPins,
@@ -327,6 +328,7 @@ static bool mid_stroke = false;
 static BoxType StrokeBox;
 #endif
 static FunctionType Functions[] = {
+  {"!", F_Filter},
   {"AddSelected", F_AddSelected},
   {"All", F_All},
   {"AllConnections", F_AllConnections},
@@ -356,6 +358,7 @@ static FunctionType Functions[] = {
   {"ElementConnections", F_ElementConnections},
   {"ElementToBuffer", F_ElementToBuffer},
   {"Escape", F_Escape},
+  {"Filter", F_Filter},
   {"Find", F_Find},
   {"FlipElement", F_FlipElement},
   {"FoundPins", F_FoundPins},
@@ -8020,9 +8023,142 @@ ActionAttributes (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+
+static const char filter_syntax[] =
+"Filter(command)\n"
+"! command";
+
+static const char filter_help[] =
+"Filters the contents of the paste buffer through the command.";
+
+/* %start-doc actions Filter
+
+Runs the command passing the contents of the paste buffer via stdin and replaces
+it with the command output if successful.
+
+%end-doc */
+
+static int
+ActionFilter (int argc, char **argv, Coord x, Coord y)
+{
+  int idx;
+  int ret = 0;
+  pid_t child;
+  char *myargv[] = {"sh", "-c", NULL, NULL};
+  static DynamicStringType command;
+  FILE *fp = NULL;
+  char *input, *output;
+
+#ifdef DEBUG
+  printf("ActionFilter argc: %i . args: \n", argc);
+  for (idx=0; idx<argc ; idx++)
+    {
+      printf(" %s ", argv[idx]);
+    }
+  printf("\n");
+#endif
+
+  input = tempfile_name_new("filter_in");
+  output = tempfile_name_new("filter_out");
+
+  if ( (!input) || (!output) )
+    {
+      fprintf(stderr, _("ActionFilter: failed to create temporary file names\n"));
+      ret = 1;
+      goto cleanup;
+    }
+
+#ifdef DEBUG
+  printf("ActionFilter temporary input file: %s\n", input);
+  printf("ActionFilter temporary output file: %s\n", output);
+#endif
+
+  fp = fopen(input, "w");
+
+  if (!fp)
+    {
+      fprintf(stderr, _("ActionFilter: cannot create temporary file\n"));
+      ret = 1;
+      goto cleanup;
+    }
+
+  WritePCBInfoHeader (fp);
+  WritePCBDataHeader (fp);
+  WritePCBFontData (fp);
+  WriteBuffer(fp);
+  fflush(fp);
+  fclose(fp);
+
+  child = fork();
+  if (child < 0)
+    {
+      fprintf(stderr, _("ActionFilter: cannot fork\n"));
+      ret = 1;
+      goto cleanup;
+    }
+  else if (child == 0)
+    {
+      FILE *tmp;
+
+      tmp = freopen(input, "r", stdin);
+      if (!tmp)
+        {
+          fprintf(stderr, _("ActionFilter: cannot redirect child stdin\n"));
+          return 1;
+        }
+
+      tmp = freopen(output, "w", stdout);
+      if (!tmp)
+        {
+          fprintf(stderr, _("ActionFilter: cannot redirect child stdout\n"));
+          return 1;
+        }
+
+      for(idx=0; idx<argc; idx++)
+        {
+          DSAddString(&command, argv[idx]);
+          DSAddCharacter(&command, ' ');
+        }
+      myargv[2] = command.Data;
+      execvp(myargv[0], myargv);
+      return 1;
+    }
+  else
+    {
+      int ret;
+      waitpid(child, &ret, 0);
+#ifdef DEBUG
+      fprintf(stderr, "ActionFilter return code %i\n", WEXITSTATUS(ret));
+#endif
+      if ( WEXITSTATUS(ret) )
+        {
+          Message(_("ActionFilter: child process returned with non-zero exit status\n"));
+          fprintf(stderr, _("ActionFilter: child process returned with non-zero exit status\n"));
+          ret = 1;
+          goto cleanup;
+        }
+    }
+
+  if ( ! LoadLayoutToBuffer (PASTEBUFFER, output))
+    ret = 1;
+
+cleanup:
+  if (input)
+    tempfile_unlink(input);
+
+  if (output)
+    tempfile_unlink(output);
+
+  return ret;
+}
+
 /* --------------------------------------------------------------------------- */
 
 HID_Action action_action_list[] = {
+  {"!", 0, ActionFilter,
+   filter_help, filter_syntax}
+  ,
   {"AddRats", 0, ActionAddRats,
    addrats_help, addrats_syntax}
   ,
@@ -8097,6 +8233,9 @@ HID_Action action_action_list[] = {
   ,
   {"ExecuteFile", 0, ActionExecuteFile,
    executefile_help, executefile_syntax}
+  ,
+  {"Filter", 0, ActionFilter,
+   filter_help, filter_syntax}
   ,
   {"Flip", N_("Click on Object or Flip Point"), ActionFlip,
    flip_help, flip_syntax}
