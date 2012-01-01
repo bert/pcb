@@ -109,9 +109,6 @@ static char TMPFilename[80];
  * some local prototypes
  */
 static void PrintQuotedString (FILE *, char *);
-static void WritePCBInfoHeader (FILE *);
-static void WritePCBDataHeader (FILE *);
-static void WritePCBFontData (FILE *);
 static void WriteViaData (FILE *, DataType *);
 static void WritePCBRatData (FILE *);
 static void WriteElementData (FILE *, DataType *);
@@ -520,7 +517,7 @@ WriteAttributeList (FILE * FP, AttributeListType *list, char *prefix)
 /* ---------------------------------------------------------------------------
  * writes layout header information
  */
-static void
+void
 WritePCBInfoHeader (FILE * FP)
 {
   /* write some useful comments */
@@ -536,7 +533,7 @@ WritePCBInfoHeader (FILE * FP)
  * the name of the PCB, cursor location, zoom and grid
  * layergroups and some flags
  */
-static void
+void
 WritePCBDataHeader (FILE * FP)
 {
   Cardinal group;
@@ -582,7 +579,7 @@ WritePCBDataHeader (FILE * FP)
 /* ---------------------------------------------------------------------------
  * writes font data of non empty symbols
  */
-static void
+void
 WritePCBFontData (FILE * FP)
 {
   Cardinal i, j;
@@ -842,7 +839,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
 /* ---------------------------------------------------------------------------
  * writes just the elements in the buffer to file
  */
-static int
+int
 WriteBuffer (FILE * FP)
 {
   Cardinal i;

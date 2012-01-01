@@ -47,6 +47,10 @@ int ReadLibraryContents (void);
 int ImportNetlist (char *);
 int SaveBufferElements (char *);
 void sort_netlist (void);
+void WritePCBInfoHeader (FILE *);
+void WritePCBDataHeader (FILE *);
+void WritePCBFontData (FILE *);
+int WriteBuffer (FILE * FP);
 
 /* 
  * Whenever the pcb file format is modified, this version number
