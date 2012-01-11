@@ -28,6 +28,23 @@ apt-get install pcb
 @node Fedora
 @subsection Fedora
 
+To automatically download and install the latest version (and
+dependencies) from one of the (pre-configured) Fedora repositories:
+
+@example
+yum install pcb
+@end example
+
+To install a manually downloaded rpm:
+
+@example
+rpm -ivh <filename>
+@end example
+
+Where <filename> is the downloaded rpm of your choice.
+Required dependencies need to be downlodad and installed simultaneously,
+or beforehand. 
+
 @node Gentoo
 @subsection Gentoo
 
