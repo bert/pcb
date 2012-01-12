@@ -1150,6 +1150,7 @@ NotifyMode (void)
 	     */
 	    DrawElement (element);
 	    Draw ();
+	    SetChangedFlag (true);
 	    hid_actionl ("Report", "Object", NULL);
 	  }
 	else if (type != NO_TYPE)
@@ -1164,6 +1165,7 @@ NotifyMode (void)
 		DrawObject (type, ptr1, ptr2);
 		Draw ();
 	      }
+	    SetChangedFlag (true);
 	    hid_actionl ("Report", "Object", NULL);
 	  }
 	break;
