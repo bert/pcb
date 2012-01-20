@@ -82,16 +82,16 @@ AdjustAttachedLine (void)
  *
  * directions:
  *
- *           0
- *          7 1
- *         6   2
- *          5 3
  *           4
+ *          5 3
+ *         6   2
+ *          7 1
+ *           0
  */
 void
 FortyFiveLine (AttachedLineType *Line)
 {
-  Coord dx, dy, min;
+  Coord dx, dy, min, max;
   unsigned direction = 0;
   double m;
 
@@ -99,22 +99,20 @@ FortyFiveLine (AttachedLineType *Line)
   dx = Crosshair.X - Line->Point1.X;
   dy = Crosshair.Y - Line->Point1.Y;
 
-  if (!dx)
-    {
-      if (!dy)
-	/* zero length line, don't draw anything */
-	return;
-      else
-	direction = dy > 0 ? 0 : 4;
-    }
+  /* zero length line, don't draw anything */
+  if (dx == 0 && dy == 0)
+    return;
+
+  if (dx == 0)
+    direction = dy > 0 ? 0 : 4;
   else
     {
-      m = (double) dy / dx;
+      m = (double)dy / (double)dx;
       direction = 2;
       if (m > TAN_30_DEGREE)
-	direction = m > TAN_60_DEGREE ? 0 : 1;
+        direction = m > TAN_60_DEGREE ? 0 : 1;
       else if (m < -TAN_30_DEGREE)
-	direction = m < -TAN_60_DEGREE ? 0 : 3;
+        direction = m < -TAN_60_DEGREE ? 4 : 3;
     }
   if (dx < 0)
     direction += 4;
@@ -122,19 +120,28 @@ FortyFiveLine (AttachedLineType *Line)
   dx = abs (dx);
   dy = abs (dy);
   min = MIN (dx, dy);
+  max = MAX (dx, dy);
 
   /* now set up the second pair of coordinates */
   switch (direction)
     {
     case 0:
+      Line->Point2.X = Line->Point1.X;
+      Line->Point2.Y = Line->Point1.Y + max;
+      break;
+
     case 4:
       Line->Point2.X = Line->Point1.X;
-      Line->Point2.Y = Crosshair.Y;
+      Line->Point2.Y = Line->Point1.Y - max;
       break;
 
     case 2:
+      Line->Point2.X = Line->Point1.X + max;
+      Line->Point2.Y = Line->Point1.Y;
+      break;
+
     case 6:
-      Line->Point2.X = Crosshair.X;
+      Line->Point2.X = Line->Point1.X - max;
       Line->Point2.Y = Line->Point1.Y;
       break;
 
@@ -500,24 +507,14 @@ EnforceLineDRC (void)
   if (XOR (r1 > r2, shift))
     {
       if (PCB->Clipping)
-	{
-	  if (shift)
-	    PCB->Clipping = 2;
-	  else
-	    PCB->Clipping = 1;
-	}
+	PCB->Clipping = shift ? 2 : 1;
       Crosshair.X = rs.X;
       Crosshair.Y = rs.Y;
     }
   else
     {
       if (PCB->Clipping)
-	{
-	  if (shift)
-	    PCB->Clipping = 1;
-	  else
-	    PCB->Clipping = 2;
-	}
+	PCB->Clipping = shift ? 1 : 2;
       Crosshair.X = r45.X;
       Crosshair.Y = r45.Y;
     }
