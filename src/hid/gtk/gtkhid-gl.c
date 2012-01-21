@@ -68,7 +68,6 @@ typedef struct hid_gc_struct
   double alpha_mult;
   Coord width;
   gint cap, join;
-  gchar xor;
 }
 hid_gc_struct;
 
@@ -356,8 +355,6 @@ typedef struct
 {
   int color_set;
   GdkColor color;
-  int xor_set;
-  GdkColor xor_color;
   double red;
   double green;
   double blue;
@@ -419,20 +416,6 @@ set_gl_color_for_gc (hidGC gc)
           cc->green = cc->color.green / 65535.;
           cc->blue  = cc->color.blue  / 65535.;
           cc->color_set = 1;
-        }
-      if (gc->xor)
-        {
-          if (!cc->xor_set)
-            {
-              cc->xor_color.red = cc->color.red ^ gport->bg_color.red;
-              cc->xor_color.green = cc->color.green ^ gport->bg_color.green;
-              cc->xor_color.blue = cc->color.blue ^ gport->bg_color.blue;
-              gdk_color_alloc (gport->colormap, &cc->xor_color);
-              cc->red   = cc->color.red   / 65535.;
-              cc->green = cc->color.green / 65535.;
-              cc->blue  = cc->color.blue  / 65535.;
-              cc->xor_set = 1;
-            }
         }
       r = cc->red;
       g = cc->green;
