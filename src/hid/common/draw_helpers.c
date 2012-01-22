@@ -321,7 +321,7 @@ FloatPolyType;
 
 static void
 draw_octagon_poly (hidGC gc, Coord X, Coord Y,
-                   Coord Thickness, Coord thin_draw)
+                   Coord Thickness, bool thin_draw)
 {
   static FloatPolyType p[8] = {
     { 0.5,               -TAN_22_5_DEGREE_2},
