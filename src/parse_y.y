@@ -121,7 +121,7 @@ static Coord new_units (PLMeasure m);
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_POLYGON_HOLE T_NETLIST T_NET T_CONN
 %token	T_AREA T_THERMAL T_DRC T_ATTRIBUTE
-%token	T_UMIL T_CMIL T_MIL T_IN T_NM T_UM T_MM T_M T_KM
+%token	T_UMIL T_CMIL T_MIL T_IN T_NM T_UM T_MM T_M T_KM T_PX
 %type	<integer>	symbolid
 %type	<string>	opt_string
 %type	<flagtype>	flags
@@ -1936,6 +1936,7 @@ measure
 		| number T_MIL	{ M ($$, $1, MIL_TO_COORD ($1)); }
 		| number T_IN	{ M ($$, $1, INCH_TO_COORD ($1)); }
 		| number T_NM	{ M ($$, $1, MM_TO_COORD ($1) / 1000000.0); }
+		| number T_PX	{ M ($$, $1, MM_TO_COORD ($1) / 1000000.0); }
 		| number T_UM	{ M ($$, $1, MM_TO_COORD ($1) / 1000.0); }
 		| number T_MM	{ M ($$, $1, MM_TO_COORD ($1)); }
 		| number T_M	{ M ($$, $1, MM_TO_COORD ($1) * 1000.0); }

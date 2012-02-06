@@ -813,10 +813,12 @@ Default thickness of new lines. Default value is @code{10mil}.
 
 /* %start-doc options "5 Sizes"
 @ftable @code
-@item --rat-thickness <num>
-Thickness of rats. Values from 1 to 19 are fixed width in screen pixels.
-Anything larger means PCB units (i.e. 100 means "1 mil"). Default value
-is @code{10mil}.
+@item --rat-thickness <num><unit>
+Thickness of rats. If no unit is given, PCB units are assumed (i.e. 100 
+means "1 nm"). This option allows for a special unit @code{px} which 
+sets the rat thickness to a fixed value in terms of screen pixels.
+Maximum fixed thickness is 100px. Minimum saling rat thickness is 101nm.  
+Default value is @code{10mil}.
 @end ftable
 %end-doc
 */

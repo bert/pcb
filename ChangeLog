@@ -1,3 +1,7 @@
+2012-02-06   Kai-Martin Knaak * kmk AT lilalaser dot de * 
+    * allow "px" as a unit of measure to set RatThickness to a fixed 
+    number of screen pixels.
+
 2011-09-18   DJ Delorie * dj AT delorie dot com *
 
 	* po/POTFILES.in: Remove src/hid/common/hidgl_package_vrml_y.c from

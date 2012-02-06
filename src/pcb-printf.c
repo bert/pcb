@@ -49,7 +49,8 @@
 
 /* These should be kept in order of smallest scale_factor
  * to largest -- the code uses this ordering when finding
- * the best scale to use for a group of measures */
+ * the best scale to use for a group of measures. */
+ 
 static Unit Units[] = {
   { 0, "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
              0.00005, 0.0005, 0.0025, 0.05, 0.25,
@@ -69,6 +70,13 @@ static Unit Units[] = {
   { 0, "nm", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
              5, 50, 2500, 5000, 25000,
              { "" } },
+/* Hack: Pixels get parsed like nanometers. If the value of the 
+ * resulting integer is sufficiently small, the code interprets 
+ * it a screen pixels. This affects rat thickness. */            
+  { 0, "px", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
+             5, 50, 2500, 5000, 25000,
+             { "" } },
+
 
   { 0, "in",   NULL, 'i', 0.001, IMPERIAL, ALLOW_IN,   5,
                0.1, 1.0, 5.0, 25, 100,
