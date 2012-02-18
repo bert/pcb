@@ -1974,25 +1974,38 @@ Asks user which schematics to import into PCB.
 static int
 ImportGUI (int argc, char **argv, Coord x, Coord y)
 {
-    char *name = NULL;
+    GSList *names = NULL;
+    gchar *name = NULL;
+    gchar sname[128];
     static gchar *current_layout_dir = NULL;
     static int I_am_recursing = 0; 
-    int rv;
+    int rv, nsources;
 
     if (I_am_recursing)
 	return 1;
 
 
-    name = ghid_dialog_file_select_open (_("Load schematics"),
-					 &current_layout_dir,
-					 Settings.FilePath);
+    names = ghid_dialog_file_select_multiple (_("Load schematics"),
+					      &current_layout_dir,
+					      Settings.FilePath);
+
+    nsources = 0;
+    while (names != NULL)
+      {
+        name = names->data;
 
 #ifdef DEBUG
-    printf("File selected = %s\n", name);
+        printf("File selected = %s\n", name);
 #endif
 
-    AttributePut (PCB, "import::src0", name);
-    free (name);
+        sprintf (sname, "import::src%d", nsources);
+        AttributePut (PCB, sname, name);
+
+        g_free (name);
+        nsources++;
+        names = g_slist_next (names);
+      }
+    g_slist_free (names);
 
     I_am_recursing = 1;
     rv = hid_action ("Import");

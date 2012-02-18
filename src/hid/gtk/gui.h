@@ -308,6 +308,8 @@ gint ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 
 gchar *ghid_dialog_file_select_open (gchar * title, gchar ** path,
 				     gchar * shortcuts);
+GSList *ghid_dialog_file_select_multiple (gchar * title, gchar ** path,
+				          gchar * shortcuts);
 gchar *ghid_dialog_file_select_save (gchar * title, gchar ** path,
 				     gchar * file, gchar * shortcuts);
 void ghid_dialog_message (gchar * message);

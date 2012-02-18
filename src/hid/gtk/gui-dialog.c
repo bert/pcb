@@ -361,6 +361,70 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
   return result;
 }
 
+
+/* ---------------------------------------------- */
+/* Caller must g_slist_free() the returned list .*/
+GSList *
+ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts)
+{
+  GtkWidget *dialog;
+  GSList *result = NULL;
+  gchar *folder, *seed;
+  GHidPort *out = &ghid_port;
+  GtkFileFilter *no_filter;
+
+  dialog = gtk_file_chooser_dialog_new (title,
+					GTK_WINDOW (out->top_window),
+					GTK_FILE_CHOOSER_ACTION_OPEN,
+					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					GTK_STOCK_OK, GTK_RESPONSE_OK,
+					NULL);
+
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+
+  gtk_file_chooser_set_select_multiple(dialog, TRUE);
+
+  /* add a default filter for not filtering files */
+  no_filter = gtk_file_filter_new ();
+  gtk_file_filter_set_name (no_filter, "all");
+  gtk_file_filter_add_pattern (no_filter, "*.*");
+  gtk_file_filter_add_pattern (no_filter, "*");
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), no_filter);
+
+  if (path && *path)
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+
+  if (shortcuts && *shortcuts)
+    {
+      folder = g_strdup (shortcuts);
+      seed = folder;
+      while ((folder = strtok (seed, ":")) != NULL)
+	{
+	  gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER (dialog),
+						folder, NULL);
+	  seed = NULL;
+	}
+      g_free (folder);
+    }
+
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+    {
+      result = gtk_file_chooser_get_filenames (GTK_FILE_CHOOSER (dialog));
+      folder =
+	gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+      if (folder && path)
+	{
+	  dup_string (path, folder);
+	  g_free (folder);
+	}
+    }
+  gtk_widget_destroy (dialog);
+
+
+  return result;
+}
+
+
 /* ---------------------------------------------- */
 /* Caller must g_free() the returned filename. */
 gchar *
