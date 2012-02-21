@@ -391,6 +391,19 @@ ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts
   gtk_file_filter_add_pattern (no_filter, "*");
   gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), no_filter);
 
+  /* in case we have a dialog for loading schematic files */
+  if (strcmp (title, _("Load schematics")) == 0)
+  {
+    /* add a filter for schematic files */
+    GtkFileFilter *sch_filter;
+    sch_filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (sch_filter, "sch");
+    gtk_file_filter_add_mime_type (sch_filter, "application/x-geda-schematic");
+    gtk_file_filter_add_pattern (sch_filter, "*.sch");
+    gtk_file_filter_add_pattern (sch_filter, "*.SCH");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), sch_filter);
+  }
+
   if (path && *path)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
 
