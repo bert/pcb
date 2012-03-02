@@ -806,14 +806,24 @@ can also be accomplished with the @emph{U} key and @emph{Shift-R}
 key.  Finally, the @b{Edit} menu allows you to change the names
 of: the layout, the active layer, or text objects on the layout.
 
-@cindex Screen, popup menu
+@cindex Route Styles, popup menu
+@item Routes Style
+The @b{Edit} menu allows you to select a group of line thickness, via diameter, via drill
+size, and clearance (keepaway) (collectively called a "routing style") to be copied to the "active" sizes.
+You can also change the names given to the routing styles and adjust their values from
+this menu.  The "active" sizes are also adjustable from this menu.
+The "active" sizes are shown in the status-line and control the initial size of new vias,
+drilling holes, lines, clearances, text-objects and also the maximum dimensions of the
+board layout.
+
+@cindex View, popup menu
 @cindex displaying element names
 @cindex element, display names of
 @cindex grid, display
 @cindex grid, alignment
 @cindex zoom, setting
-@item Screen
-The @b{Screen} menu supports most functions related to
+@item View
+The @b{View} menu supports most functions related to
 the whole Layout area. There are various entries to change the grid to some popular
 values, the zoom factor, and which kind of element name is displayed.
 You can also re-align the grid origin and turn on and off the display
@@ -823,25 +833,15 @@ possible so that you're sure the grid
 points appear exactly where you want them.
 
 @cindex solder mask, viewing and editing
-The @b{Screen} menu also allows you to turn on and off the
+The @b{View} menu also allows you to turn on and off the
 visibility of the solder-mask layer. When the solder-mask layer
 is made visible it obscures most of the layout, so only turn
 this on when you really want to know what the solder-mask will
 look like. The solder-mask that you see belongs to the
 side of the board you are viewing, which can be changed with
-the @samp{view solder side} option, also found in the @b{Screen} menu.
+the @samp{Flip up/down} option, also found in the @b{View} menu.
 When the solder-mask is displayed, the pin and pad clearance adjustments
 (@pxref{Line Objects}) alter the size of mask cut-outs.
-
-@cindex Sizes, popup menu
-@item Sizes
-The @b{Sizes} menu allows you to select a group of line thickness, via diameter, via drill
-size, and clearance (keepaway) (collectively called a "routing style") to be copied to the "active" sizes.
-You can also change the names given to the routing styles and adjust their values from
-this menu.  The "active" sizes are also adjustable from this menu.
-The "active" sizes are shown in the status-line and control the initial size of new vias,
-drilling holes, lines, clearances, text-objects and also the maximum dimensions of the
-board layout.
 
 @cindex Settings, popup menu
 @cindex unique names
@@ -850,10 +850,7 @@ board layout.
 @cindex clearance, for new lines
 @item Settings
 The @b{Settings} menu controls several operating configuration
-parameters. The @samp{edit layer groups} entry brings up a dialog
-that allows you to change the way layers are grouped. Layer grouping
-is described in @ref{Layer Objects}. The @samp{all-direction lines}
-entry controls
+parameters. The @samp{all-direction lines} entry controls
 the clipping of lines to 45-degree angles. You can also control
 whether moving individual objects causes the attached lines to
 "rubber band" with the move or not from the @b{Settings} menu. Another
@@ -891,7 +888,7 @@ by name using unix @ref{Regular Expressions}.
 @item Buffer
 From the @b{Buffer} menu you may select one out of five
 buffers to use, rotate or clear its contents or save the buffer contents
-to a file. You can also use the @samp{break buffer element to pieces} entry
+to a file. You can also use the @samp{break buffer elements to pieces} entry
 to de-compose an element into pieces for editing.
 Note: only objects with visibility turned on are pasted to the layout. If
 you have something in a buffer, then change which side of the board you
