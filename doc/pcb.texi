@@ -520,7 +520,7 @@ and a new line started where the first one ended.
 You can abandon the new starting point in favor
 of another by pressing @emph{Ctrl-Btn1}, or
 @emph{Btn3}, but don't use @emph{Btn2}.
-The undo function (@emph{U} key or @samp{undo last operation}
+The undo function (@emph{U} key or @samp{Undo}
 from the @b{Edit} menu) will take you back
 point by point if you use it while in the line mode.
 
@@ -784,10 +784,11 @@ This menu offers a choice of loading, saving and printing data, saving
 connection information to a file or quitting the application. Most
 of the entries in the @b{File} menu are self explanatory.
 Selecting
-@samp{print layout} pops up a printer control dialog.
-A selection of several device drivers is available from the printer control
-dialog. Presently @emph{PostScript}, @emph{encapsulated PostScript},
-and @emph{GerberX} are supported. The @emph{GerberX} driver produces
+@samp{Print...} pops up a printer control dialog.
+Several output formats are available from the @samp{Export...} menu item.
+Presently @emph{PostScript}, @emph{encapsulated PostScript},
+and @emph{GerberX} are some of the supported filetypes.
+The @emph{GerberX} driver produces
 all of the files necessary to have the board professionally manufactured.
 The connection saving features in the @b{File} menu produce outputs in an
 arcane format that is not too useful. They do @emph{not} produce netlist
@@ -950,7 +951,7 @@ the list of connections desired.
 
 Now that you're familiar with the various menus, it's time
 to try some things out. From the @b{File} menu choose
-@samp{load layout}, navigate to the tutorial folder, then
+@samp{Open...}, navigate to the tutorial folder, then
 load the file @samp{tut1.pcb}.
 
 
@@ -1290,8 +1291,7 @@ can be used to select (on the layout) everything that is connected
 (or is supposed to be connected) to the net. If you click on a
 connection in the connection list, it will select/deselect
 the corresponding pin or pad in the layout and also center the layout
-window where it is located. If you "Find" (@samp{lookup connection
-to object} in the @b{Connects} menu [also @emph{F} key]), a pin
+window where it is located. If you "Find" (@samp{lookup connection} in the @b{Connects} menu [also @emph{F} key]), a pin
 or pad it will also choose the net and connection in the netlist window
 if it exists in the netlist.
 
@@ -1623,7 +1623,7 @@ the location of the other pins.  Next make a solder-side layer the active
 layer from the @emph{active-layer} popup menu.  Now draw the outline of
 the element using lines and arcs.  When you're done, select everything that
 makes up the element with a box selection (@emph{<Btn3Down> drag,
-<Btn3Up>}). Now select "cut selection to buffer" from the @emph{Buffer}
+<Btn3Up>}). Now select "cut to buffer" from the @emph{Buffer}
 menu. Position the cursor over the center of pin 1 and press the left
 button to load the data into the buffer.
 Finally select "convert buffer to element" from the @emph{Buffer} menu.
@@ -1739,7 +1739,7 @@ Saving also is available from the @emph{File} menu, either with or
 without supplying a filename. @pcb{} reuses the last
 filename if you do not pass a new one to the save routine.
 
-To load an existing layout either select @emph{load layout data} from the
+To load an existing layout either select @emph{Open...} from the
 @emph{File} menu or use @kbd{:l filename}. A file select box pops up if you
 don't specify a filename. Merging existing layouts into the new one is
 supported either by the @emph{File} menu or by @kbd{:m filename}.
@@ -4889,7 +4889,7 @@ save the new footprint to a file.
 @item In the @pcb{} program, instantiate the footprint you wish to modify.
 @item Using the selection tool, select the footprint.
 @item Now left-click on the selected element, this brings up a popup menu, choose
-"Cut Selection to Buffer" from the popup menu.
+"Cut to Buffer" from the popup menu.
 @item Under the buffer menu, choose "break buffer element to pieces",
 and then left-click to place the broken apart footprint to an open area of
 the layout.  Note that you must use the items under the buffer menu, the
@@ -5522,9 +5522,9 @@ Given all this, a small sample @file{pcb-menu.res} would be:
 @example
 MainMenu = @{
   @{File
-    @{"Load layout" Load(Layout)@}
+    @{"Open..." Load(Layout)@}
     -
-    @{"Quit Program" Quit() fg=red font=10x20@}
+    @{"Quit" Quit() fg=red font=10x20@}
   @}
 @}
 @end example
