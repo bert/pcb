@@ -5515,9 +5515,10 @@ resources can be used to set the font, color, and spacing of buttons.
 As a convenience, ``fg'' can be used as an abbreviation for ``foreground''.
 
 Within the menu's resource file, Pcb will look for a few key named
-subresources.  At the moment, the only one it looks for is one called
-@code{MainMenu}.  This will be used for the main menu bar.  In the
-future, other named subresources will be used for popup resources.
+subresources.  At the moment, there are just two key named subresources.
+@code{MainMenu} will be used for the main menu bar and @code{Mouse} will be
+used to define mouse actions.  In the future, other named subresources will
+be used for popup resources.
 
 Given all this, a small sample @file{pcb-menu.res} would be:
 
