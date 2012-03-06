@@ -53,16 +53,17 @@ MainMenu =
 # File Menu
 #
   {"File" m=F
-   {"Save Layout" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
-   {"Save Layout As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
+   {"New" New() a={"Ctrl-N" "Ctrl<Key>n"}}
+   {"Open..." Load(Layout) tip="Load a layout from a file"}
    -
+   {"Save" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
+   {"Save As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
    {"Import Schematics" Import() }
-   {"Load layout" Load(Layout) tip="Load a layout from a file"}
-   {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
-   {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
-   {"Load netlist file" Load(Netlist)}
+   {"Load element to buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
+   {"Load layout to buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
+   {"Load netlist" Load(Netlist)}
    {"Load vendor resource file" LoadVendorFrom()}
    -
    {"Save connection data of"
@@ -70,33 +71,31 @@ MainMenu =
      {" all elements" Save(AllConnections)}
      {" unused pins" Save(AllUnusedPins)}
    }
+   {"Export..." Export()}
    -
-   {"Print layout..." Print()}
-   {"Export layout..." Export()}
    {"Calibrate Printer..." PrintCalibrate()}
-   -
-   {"Start New Layout" New() a={"Ctrl-N" "Ctrl<Key>n"}}
+   {"Print..." Print()}
    -
    {"Preferences..." DoWindows(Preferences)}
    -
-   {"Quit Program" Quit()  a={"Ctrl-Q" "Ctrl<Key>q"}}
+   {"Quit" Quit()  a={"Ctrl-Q" "Ctrl<Key>q"}}
   }
 
 #
 # Edit Menu
 #
   {"Edit" m=E
-   {"Undo last operation" Undo() a={"U" "<Key>u"}}
-   {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
-   {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
+   {"Undo" Undo() a={"U" "<Key>u"}}
+   {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
+   #{"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
    -
-   {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
+   {"Cut to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
     a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
+   {"Copy to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
     a={"Ctrl-C" "Ctrl<Key>c"}}
-   {"Paste buffer to layout" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
+   {"Paste buffer" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
@@ -235,11 +234,11 @@ MainMenu =
 # Select menu
 #
   {"Select" m=l
-   {"Select all visible objects" Select(All)}
-   {"Select all connected objects" Select(Connection)}
+   {"Select all visible" Select(All)}
+   {"Select all connected" Select(Connection)}
    -
-   {"Unselect all objects" Unselect(All)}
-   {"unselect all connected objects" Unselect(Connection)}
+   {"Unselect all" Unselect(All)}
+   {"Unselect all connected" Unselect(Connection)}
    -
    {"Select by name"
     {"All objects" Select(ObjectByName) active=have_regex}
@@ -293,9 +292,9 @@ MainMenu =
 # Buffer menu
 #
   {"Buffer" m=B
-   {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
+   {"Cut to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
-   {"Paste buffer to layout" Mode(PasteBuffer)}
+   {"Paste buffer" Mode(PasteBuffer)}
    -
    {"Rotate buffer 90 deg CCW" Mode(PasteBuffer) PasteBuffer(Rotate,1)
     a={"Shift-F7" "Shift<Key>F7"}}
@@ -321,7 +320,7 @@ MainMenu =
 # Connects menu
 #
   {"Connects" m=C
-   {"Lookup connection to object" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
+   {"Lookup connection" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
    {"Reset all connections" Connection(Reset) Display(Redraw) a={"Shift-F" "Shift<Key>f"}}
