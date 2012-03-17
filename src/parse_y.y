@@ -863,6 +863,8 @@ layer
 
 					/* memory for name is already allocated */
 				Layer->Name = $4;
+                         	if (Layer->Name == NULL)
+                                   Layer->Name = strdup("");
 				LayerFlag[$3-1] = true;
 				if (yyData->LayerN + 2 < $3)
 				  yyData->LayerN = $3 - 2;
