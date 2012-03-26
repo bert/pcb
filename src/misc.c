@@ -148,7 +148,8 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   if (*val == '=')
     {
       *absolute = true;
-      sscanf (val+1, "%lf%n", &value, &n);
+      if (sscanf (val+1, "%lf%n", &value, &n) < 1)
+        return 0;
       n++;
     }
   else
@@ -157,7 +158,8 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
         *absolute = true;
       else
         *absolute = false;
-      sscanf (val, "%lf%n", &value, &n);
+      if (sscanf (val, "%lf%n", &value, &n) < 1)
+        return 0;
     }
   if (!units && n > 0)
     units = val + n;
