@@ -2840,7 +2840,7 @@ grok_layer_groups ()
 	}
       for (j = 0; j < l->Number[i]; j++)
 	{
-	  if (l->Entries[i][j] >= 0 && l->Entries[i][j] < max_copper_layer)
+	  if (l->Entries[i][j] < max_copper_layer)
 	    {
 	      layer_type[l->Entries[i][j]] |= f;
 	      layer_groupings[l->Entries[i][j]] = i;
