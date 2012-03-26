@@ -962,7 +962,7 @@ ChangePinName (ElementType *Element, PinType *Pin)
 {
   char *old = Pin->Name;
 
-  Element = Element;		/* get rid of 'unused...' warnings */
+  (void) Element;		/* get rid of 'unused...' warnings */
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     {
       ErasePinName (Pin);
@@ -982,7 +982,7 @@ ChangePadName (ElementType *Element, PadType *Pad)
 {
   char *old = Pad->Name;
 
-  Element = Element;		/* get rid of 'unused...' warnings */
+  (void) Element;		/* get rid of 'unused...' warnings */
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     {
       ErasePadName (Pad);
@@ -1002,7 +1002,7 @@ ChangeLineName (LayerType *Layer, LineType *Line)
 {
   char *old = Line->Number;
 
-  Layer = Layer;
+  (void) Layer;
   Line->Number = NewName;
   return (old);
 }
