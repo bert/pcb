@@ -382,7 +382,7 @@ ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
-  gtk_file_chooser_set_select_multiple(dialog, TRUE);
+  gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER (dialog), TRUE);
 
   /* add a default filter for not filtering files */
   no_filter = gtk_file_filter_new ();
