@@ -27,7 +27,7 @@
 static Resource *parsed_res;
 static Resource *current_res;
 
-int reserror(char *);
+int reserror(const char *);
 int reslex();
 
 #define f(x) current_res->flags |= x
@@ -186,7 +186,7 @@ resource_subres(const Resource *res, const char *name)
 }
 
 int
-reserror(char *str)
+reserror(const char *str)
 {
   fprintf(stderr, "Error: %s around line %d: %s\n",
 	  res_file ? res_filename : "internal strings",
