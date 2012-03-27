@@ -2193,6 +2193,9 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
 	    SetGrid (value, false);
 	  else
 	    {
+              if (value == 0)
+                value = val[0] == '-' ? -Settings.increments->grid
+                                      :  Settings.increments->grid;
               /* On the way down, short against the minimum 
                * PCB drawing unit */
               if ((value + PCB->Grid) < 1)
@@ -2206,6 +2209,9 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
 
 	case F_LineSize:
 	case F_Line:
+          if (!absolute && value == 0)
+            value = val[0] == '-' ? -Settings.increments->line
+                                  :  Settings.increments->line;
 	  SetLineSize (absolute ? value : value + Settings.LineThickness);
 	  hid_action ("RouteStylesChanged");
 	  break;
@@ -4048,6 +4054,9 @@ ActionChangeSize (int argc, char **argv, Coord x, Coord y)
   if (function && delta)
     {
       value = GetValue (delta, units, &absolute);
+      if (value == 0)
+        value = delta[0] == '-' ? -Settings.increments->size
+                                :  Settings.increments->size;
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -4207,6 +4216,9 @@ ActionChangeClearSize (int argc, char **argv, Coord x, Coord y)
   if (function && delta)
     {
       value = 2 * GetValue (delta, units, &absolute);
+      if (value == 0)
+        value = delta[0] == '-' ? -Settings.increments->clear
+                                :  Settings.increments->clear;
       switch (GetFunctionID (function))
 	{
 	case F_Object:
