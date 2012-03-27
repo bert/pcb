@@ -144,10 +144,8 @@ MainMenu =
     {"0.5 mm"  checked=gridsize,0.50mm SetUnits(mm) SetValue(Grid,0.5mm)}
     {"1 mm"    checked=gridsize,1mm SetUnits(mm) SetValue(Grid,1mm)}
     -
-    {"Grid -5mil" SetValue(Grid,-5,mil) a={"Shift-G" "Shift<Key>g"}}
-    {"Grid +5mil" SetValue(Grid,+5,mil) a={"G" "<Key>g"}}
-    {"Grid -0.05mm" SetValue(Grid,-0.05,mm) a={"Shift-Ctrl-G" "Shift Ctrl<Key>g"}}
-    {"Grid +0.05mm" SetValue(Grid,+0.05,mm) a={"Ctrl-G" "Ctrl<Key>g"}}
+    {"Grid -" SetValue(Grid,-) a={"Shift-G" "Shift<Key>g"}}
+    {"Grid +" SetValue(Grid,+) a={"G" "<Key>g"}}
    }
    {"Realign grid" GetXY(Click to set the grid origin) Display(ToggleGrid)}
    -
@@ -400,12 +398,12 @@ MainMenu =
     {"ChangeHole Object" a={"Ctrl-H" "Ctrl<Key>h"} ChangeHole(Object)}
     {"ChangeJoin Object" a={"J" "<Key>j"} ChangeJoin(Object)}
     {"ChangeJoin SelectedObject" a={"Shift-J" "Shift<Key>j"} ChangeJoin(SelectedObjects)}
-    {"Clear Object +2 mil" a={"K" "<Key>k"} ChangeClearSize(Object,+2,mil)}
-    {"Clear Object -2 mil" a={"Shift-K" "Shift<Key>k"} ChangeClearSize(Object,-2,mil)}
-    {"Clear Selected +2 mil" a={"Ctrl-K" "Ctrl<Key>k"} ChangeClearSize(SelectedObjects,+2,mil)}
-    {"Clear Selected -2 mil" a={"Shift-Ctrl-K" "Shift Ctrl<Key>k"} ChangeClearSize(SelectedObjects,-2,mil)}
-    {"Line Tool size +5 mil" a={"L" "<Key>l"} SetValue(LineSize,+5,mil)}
-    {"Line Tool size -5 mil" a={"Shift-L" "Shift<Key>l"} SetValue(LineSize,-5,mil)}
+    {"Clear Object +" a={"K" "<Key>k"} ChangeClearSize(Object,+)}
+    {"Clear Object -" a={"Shift-K" "Shift<Key>k"} ChangeClearSize(Object,-)}
+    {"Clear Selected +" a={"Ctrl-K" "Ctrl<Key>k"} ChangeClearSize(SelectedObjects,+)}
+    {"Clear Selected -" a={"Shift-Ctrl-K" "Shift Ctrl<Key>k"} ChangeClearSize(SelectedObjects,-)}
+    {"Line Tool size +" a={"L" "<Key>l"} SetValue(LineSize,+)}
+    {"Line Tool size -" a={"Shift-L" "Shift<Key>l"} SetValue(LineSize,-)}
     {"Move Object to current layer" a={"M" "<Key>m"} MoveToCurrentLayer(Object)}
     {"MarkCrosshair" a={"Ctrl-M" "Ctrl<Key>m"} MarkCrosshair()}
     {"Select shortest rat" a={"Shift-N" "Shift<Key>n"} AddRats(Close)}
@@ -419,8 +417,8 @@ MainMenu =
     {"Polygon PreviousPoint" a={"P" "<Key>p"} Polygon(PreviousPoint)}
     {"Polygon Close" a={"Shift-P" "Shift<Key>p"} Polygon(Close)}
     {"ChangeSquare Object" a={"Q" "<Key>q"} ChangeSquare(ToggleObject)}
-    {"ChangeSize +5 mil" a={"S" "<Key>s"} ChangeSize(Object,+5,mil)}
-    {"ChangeSize -5 mil" a={"Shift-S" "Shift<Key>s"} ChangeSize(Object,-5,mil)}
+    {"ChangeSize +" a={"S" "<Key>s"} ChangeSize(Object,+)}
+    {"ChangeSize -" a={"Shift-S" "Shift<Key>s"} ChangeSize(Object,-)}
     {"ChangeDrill +5 mil" a={"Alt-S" "Alt<Key>s"} ChangeDrillSize(Object,+5,mil)}
     {"ChangeDrill -5 mil" a={"Alt-Shift-S" "Alt Shift<Key>s"} ChangeDrillSize(Object,-5,mil)}
     {"Text Tool scale +10 mil" a={"T" "<Key>t"} SetValue(TextScale,+10,mil)}
