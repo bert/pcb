@@ -1112,8 +1112,9 @@ increment_spin_button_cb (GHidCoordEntry * ce, void * dst)
 static void
 config_increments_tab_create (GtkWidget * tab_vbox)
 {
-  GtkWidget *vbox;
-  Coord *target;
+  Increments *incr_mm  = get_increments_struct (METRIC);
+  Increments *incr_mil = get_increments_struct (IMPERIAL);
+  GtkWidget *vbox, *hbox, *table;
 
   /* Need a vbox we can destroy if user changes grid units.
    */
@@ -1126,61 +1127,61 @@ config_increments_tab_create (GtkWidget * tab_vbox)
       config_increments_tab_vbox = tab_vbox;
     }
 
-  /* ---- Grid Increment/Decrement ---- */
+#define INCR_ENTRY(row, name, family, type, msg)	\
+  gtk_table_attach_defaults (GTK_TABLE (table),	\
+                             gtk_label_new (name),	\
+                             0, 1, row, row + 1);	\
+  ghid_table_coord_entry (table, row, 1, NULL,	\
+                          incr_##family->type,	\
+                          incr_##family->type##_min,	\
+                          incr_##family->type##_max,	\
+			  CE_SMALL, 0, increment_spin_button_cb,	\
+			  &incr_##family->type, FALSE,	\
+                          msg)
+  
+  /* ---- Metric Settings ---- */
   vbox = ghid_category_vbox (config_increments_vbox,
-			     _("Grid Increment/Decrement"), 4, 2, TRUE, TRUE);
+			     _("Metric Increment Settings"), 4, 2, TRUE, TRUE);
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  table = gtk_table_new (4, 3, FALSE);
+  gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
+  gtk_table_set_col_spacings (GTK_TABLE (table), 6);
+  gtk_table_set_row_spacings (GTK_TABLE (table), 18);
 
-  target = &Settings.increments->grid;
-  ghid_coord_entry (vbox, NULL,
-                    Settings.increments->grid,
-                    Settings.increments->grid_min,
-                    Settings.increments->grid_max,
-                    CE_SMALL, 0, increment_spin_button_cb,
-		    target, FALSE,
-		    _("For 'g' and '<shift>g' grid change actions"));
+  INCR_ENTRY (0, _("Grid:"), mm, grid,
+              _("For 'g' and '<shift>g' grid change actions"));
+  INCR_ENTRY (1, _("Size:"), mm, size,
+              _("For 's' and '<shift>s' size change actions on lines,\n"
+                "pads, pins and text.\n"
+                "Use '<ctrl>s' and '<shift><ctrl>s' for drill holes."));
+  INCR_ENTRY (2, _("Line:"), mm, line,
+              _("For 'l' and '<shift>l' routing line width change actions"));
+  INCR_ENTRY (3, _("Clear:"), mm, clear,
+              _("For 'k' and '<shift>k' line clearance inside polygon size\n"
+                "change actions"));
 
-
-  /* ---- Size Increment/Decrement ---- */
   vbox = ghid_category_vbox (config_increments_vbox,
-			     _("Size Increment/Decrement"), 4, 2, TRUE, TRUE);
+			     _("Imperial Increment Settings"), 4, 2, TRUE, TRUE);
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  table = gtk_table_new (4, 3, FALSE);
+  gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
+  gtk_table_set_col_spacings (GTK_TABLE (table), 6);
+  gtk_table_set_row_spacings (GTK_TABLE (table), 18);
 
-  target = &Settings.increments->size;
-  ghid_coord_entry (vbox, NULL,
-                    Settings.increments->size,
-                    Settings.increments->size_min,
-                    Settings.increments->size_max,
-                    CE_SMALL, 0, increment_spin_button_cb,
-		    target, FALSE,
-		    _("For 's' and '<shift>s' size change actions on lines,\n"
-		      "pads, pins and text.\n"
-		      "Use '<ctrl>s' and '<shift><ctrl>s' for drill holes."));
-
-  /* ---- Line Increment/Decrement ---- */
-  vbox = ghid_category_vbox (config_increments_vbox,
-			     _("Line Increment/Decrement"), 4, 2, TRUE, TRUE);
-
-  target = &Settings.increments->line;
-  ghid_coord_entry (vbox, NULL,
-                    Settings.increments->line,
-                    Settings.increments->line_min,
-                    Settings.increments->line_max,
-                    CE_SMALL, 0, increment_spin_button_cb,
-		    target, FALSE,
-		    _("For 'l' and '<shift>l' routing line width change actions"));
-
-  /* ---- Clear Increment/Decrement ---- */
-  vbox = ghid_category_vbox (config_increments_vbox,
-			     _("Clear Increment/Decrement"), 4, 2, TRUE, TRUE);
-
-  target = &Settings.increments->clear;
-  ghid_coord_entry (vbox, NULL,
-                    Settings.increments->clear,
-                    Settings.increments->clear_min,
-                    Settings.increments->clear_max,
-                    CE_SMALL, 0, increment_spin_button_cb,
-		    target, FALSE,
-		    _("For 'k' and '<shift>k' line clearance inside polygon size\n"
-		     "change actions"));
+  INCR_ENTRY (0, _("Grid:"), mil, grid,
+              _("For 'g' and '<shift>g' grid change actions"));
+  INCR_ENTRY (1, _("Size:"), mil, size,
+              _("For 's' and '<shift>s' size change actions on lines,\n"
+                "pads, pins and text.\n"
+                "Use '<ctrl>s' and '<shift><ctrl>s' for drill holes."));
+  INCR_ENTRY (2, _("Line:"), mil, line,
+              _("For 'l' and '<shift>l' routing line width change actions"));
+  INCR_ENTRY (3, _("Clear:"), mil, clear,
+              _("For 'k' and '<shift>k' line clearance inside polygon size\n"
+                "change actions"));
+#undef INCR_ENTRY
 
   gtk_widget_show_all (config_increments_vbox);
 }
