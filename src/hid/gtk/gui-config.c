@@ -122,6 +122,15 @@ static ConfigAttribute config_attributes[] = {
   {"grid-units", CONFIG_Unused, NULL},
   {"grid", CONFIG_Unused, NULL},
 
+  {"grid-increment-mm", CONFIG_Unused, NULL},
+  {"line-increment-mm", CONFIG_Unused, NULL},
+  {"size-increment-mm", CONFIG_Unused, NULL},
+  {"clear-increment-mm", CONFIG_Unused, NULL},
+  {"grid-increment-mil", CONFIG_Unused, NULL},
+  {"line-increment-mil", CONFIG_Unused, NULL},
+  {"size-increment-mil", CONFIG_Unused, NULL},
+  {"clear-increment-mil", CONFIG_Unused, NULL},
+
   {"history-size", CONFIG_Integer, &_ghidgui.history_size},
   {"top-window-width", CONFIG_Integer, &_ghidgui.top_window_width},
   {"top-window-height", CONFIG_Integer, &_ghidgui.top_window_height},

@@ -426,6 +426,8 @@ static int show_defaults = 0;
 static int show_actions = 0;
 static int do_dump_actions = 0;
 static char *grid_units;
+static Increments increment_mm  = { 0 };
+static Increments increment_mil = { 0 };
 
 HID_Attribute main_attribute_list[] = {
 
@@ -507,6 +509,94 @@ Set default grid units. Can be mm or mil. Defaults to mil.
 */
   {"grid-units", "Default grid units (mm|mil)", HID_String, 0, 0, {0, "mil", 0},
   0, &grid_units},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --clear-increment-mm <string>
+Set default clear increment (amount to change when user presses k or K)
+when user is using a metric grid unit.
+@end ftable
+%end-doc
+*/
+  {"clear-increment-mm", "Default clear increment amount (metric)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mm.clear},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --grid-increment-mm <string>
+Set default grid increment (amount to change when user presses g or G)
+when user is using a metric grid unit.
+@end ftable
+%end-doc
+*/
+  {"grid-increment-mm", "Default grid increment amount (metric)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mm.grid},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --line-increment-mm <string>
+Set default line increment (amount to change when user presses l or L)
+when user is using a metric grid unit.
+@end ftable
+%end-doc
+*/
+  {"line-increment-mm", "Default line increment amount (metric)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mm.line},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --size-increment-mm <string>
+Set default size increment (amount to change when user presses s or S)
+when user is using a metric grid unit.
+@end ftable
+%end-doc
+*/
+  {"size-increment-mm", "Default size increment amount (metric)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mm.size},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --clear-increment-mil <string>
+Set default clear increment (amount to change when user presses k or K)
+when user is using an imperial grid unit.
+@end ftable
+%end-doc
+*/
+  {"clear-increment-mil", "Default clear increment amount (imperial)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mil.clear},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --grid-increment-mil <string>
+Set default grid increment (amount to change when user presses g or G)
+when user is using a imperial grid unit.
+@end ftable
+%end-doc
+*/
+  {"grid-increment-mil", "Default grid increment amount (imperial)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mil.grid},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --line-increment-mil <string>
+Set default line increment (amount to change when user presses l or L)
+when user is using a imperial grid unit.
+@end ftable
+%end-doc
+*/
+  {"line-increment-mil", "Default line increment amount (imperial)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mil.line},
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --size-increment-mil <string>
+Set default size increment (amount to change when user presses s or S)
+when user is using a imperial grid unit.
+@end ftable
+%end-doc
+*/
+  {"size-increment-mil", "Default size increment amount (imperial)", HID_Coord, 0, 0, {0, 0, 0},
+  0, &increment_mil.size},
 
 /* %start-doc options "3 Colors"
 @ftable @code
@@ -1507,6 +1597,9 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     Settings.grid_unit = get_unit_struct (grid_units);
   if (!grid_units || Settings.grid_unit == NULL)
     Settings.grid_unit = get_unit_struct ("mil");
+
+  copy_nonzero_increments (get_increments_struct (METRIC), &increment_mm);
+  copy_nonzero_increments (get_increments_struct (IMPERIAL), &increment_mil);
 
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
 }

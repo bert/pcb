@@ -173,6 +173,18 @@ const Unit *get_unit_struct (const char *const_suffix)
   return NULL;
 }
 
+void copy_nonzero_increments (Increments *dst, const Increments *src)
+{
+  if (src->grid >= dst->grid_min && src->grid <= dst->grid_max)
+    dst->grid = src->grid;
+  if (src->line >= dst->line_min && src->line <= dst->line_max)
+    dst->line = src->line;
+  if (src->size >= dst->size_min && src->size <= dst->size_max)
+    dst->size = src->size;
+  if (src->clear >= dst->clear_min && src->clear <= dst->clear_max)
+    dst->clear = src->clear;
+}
+
 /* ACCESSORS */
 /* \brief Returns the master unit list. This may not be modified. */
 const Unit *get_unit_list (void)
