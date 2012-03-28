@@ -151,7 +151,7 @@ const Unit *get_unit_list (void);
 int get_n_units (void);
 double coord_to_unit (const Unit *, Coord);
 Coord  unit_to_coord (const Unit *, double);
-Increments *get_increments_struct (const char *suffix);
+Increments *get_increments_struct (enum e_family family);
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
 int pcb_sprintf(char *string, const char *fmt, ...);

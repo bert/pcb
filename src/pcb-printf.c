@@ -105,55 +105,26 @@ void initialize_units()
     }
 }
 
-/* This list -must- contain all printable units from the above list */
-/* For now I have just copy/pasted the same values for all metric
- * units and the same values for all imperial ones */
-static Increments increments[] = {
-  /* TABLE FORMAT   |  default  |  min  |  max
-   *          grid  |           |       |
-   *          size  |           |       |
-   *          line  |           |       |
-   *         clear  |           |       |
-   */
-  { "km", MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-  { "m",  MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-  { "cm", MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-  { "mm", MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-  { "um", MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-  { "nm", MM_TO_COORD3 (0.1,  0.01,  1.0),
-          MM_TO_COORD3 (0.2,  0.01,  0.5),
-          MM_TO_COORD3 (0.1,  0.005, 0.5),
-          MM_TO_COORD3 (0.05, 0.005, 0.5) },
-
-  { "cmil", MIL_TO_COORD3 (5,  1,   25),
-            MIL_TO_COORD3 (10, 1,   10),
-            MIL_TO_COORD3 (5,  0.5, 10),
-            MIL_TO_COORD3 (2,  0.5, 10) },
-  { "mil",  MIL_TO_COORD3 (5,  1,   25),
-            MIL_TO_COORD3 (10, 1,   10),
-            MIL_TO_COORD3 (5,  0.5, 10),
-            MIL_TO_COORD3 (2,  0.5, 10) },
-  { "in",   MIL_TO_COORD3 (5,  1,   25),
-            MIL_TO_COORD3 (10, 1,   10),
-            MIL_TO_COORD3 (5,  0.5, 10),
-            MIL_TO_COORD3 (2,  0.5, 10) },
+/* TABLE FORMAT   |  default  |  min  |  max
+ *          grid  |           |       |
+ *          size  |           |       |
+ *          line  |           |       |
+ *         clear  |           |       |
+ */
+static Increments increments_metric = {
+  "mm",
+  MM_TO_COORD3 (0.1,  0.01,  1.0),
+  MM_TO_COORD3 (0.2,  0.01,  0.5),
+  MM_TO_COORD3 (0.1,  0.005, 0.5),
+  MM_TO_COORD3 (0.05, 0.005, 0.5)
 };
-#define N_INCREMENTS (sizeof increments / sizeof increments[0])
+static Increments increments_imperial = {
+  "mil",
+  MIL_TO_COORD3 (5,  1,   25),
+  MIL_TO_COORD3 (10, 1,   10),
+  MIL_TO_COORD3 (5,  0.5, 10),
+  MIL_TO_COORD3 (2,  0.5, 10)
+};
 
 /* \brief Obtain a unit object from its suffix
  * \par Function Description
@@ -214,22 +185,22 @@ int get_n_units (void)
 	return N_UNITS;
 }
 
-/* \brief Obtain an increment object from its suffix
+/* \brief Obtain the increment values for a given family of units
  * \par Function Description
- * Looks up a given suffix in the main increments array. Internationalized
- * unit suffixes are not supported, nor are pluralized units.
  *
- * \param [in] suffix   The suffix to look up
+ * \param [in] family   One of METRIC or IMPERIAL.
  *
- * \return A const pointer to the Increments struct, or NULL if none was found
+ * \return A pointer to the appropriate increments structure.
  */
-Increments *get_increments_struct (const char *suffix)
+Increments *get_increments_struct (enum e_family family)
 {
-  int i;
-  /* Do lookup */
-  for (i = 0; i < N_INCREMENTS; ++i)
-    if (strcmp (suffix, increments[i].suffix) == 0)
-      return &increments[i];
+  switch (family)
+    {
+    case METRIC:
+      return &increments_metric;
+    case IMPERIAL:
+      return &increments_imperial;
+    }
   return NULL;
 }
 

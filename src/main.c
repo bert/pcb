@@ -1508,7 +1508,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   if (!grid_units || Settings.grid_unit == NULL)
     Settings.grid_unit = get_unit_struct ("mil");
 
-  Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
+  Settings.increments = get_increments_struct (Settings.grid_unit->family);
 }
 
 /* ---------------------------------------------------------------------- 

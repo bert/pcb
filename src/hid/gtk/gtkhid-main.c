@@ -1810,7 +1810,7 @@ SetUnits (int argc, char **argv, Coord x, Coord y)
   if (new_unit != NULL && new_unit->allow != NO_PRINT)
     {
       Settings.grid_unit = new_unit;
-      Settings.increments = get_increments_struct (Settings.grid_unit->suffix);
+      Settings.increments = get_increments_struct (Settings.grid_unit->family);
       AttributePut (PCB, "PCB::grid::unit", argv[0]);
     }
 
