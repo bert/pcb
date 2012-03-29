@@ -2757,9 +2757,10 @@ ListsEmpty (bool AndRats)
   if (AndRats)
     empty = empty && (RatList.Location >= RatList.Number);
   for (i = 0; i < max_copper_layer && empty; i++)
-    empty = empty && LineList[i].Location >= LineList[i].Number
-      && ArcList[i].Location >= ArcList[i].Number
-      && PolygonList[i].Location >= PolygonList[i].Number;
+    if (!LAYER_PTR (i)->no_drc)
+      empty = empty && LineList[i].Location >= LineList[i].Number
+        && ArcList[i].Location >= ArcList[i].Number
+        && PolygonList[i].Location >= PolygonList[i].Number;
   return (empty);
 }
 
