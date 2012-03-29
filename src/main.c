@@ -429,6 +429,12 @@ static char *grid_units;
 static Increments increment_mm  = { 0 };
 static Increments increment_mil = { 0 };
 
+void save_increments (const Increments *mm, const Increments *mil)
+{
+  memcpy (&increment_mm,  mm,  sizeof (*mm));
+  memcpy (&increment_mil, mil, sizeof (*mil));
+}
+
 HID_Attribute main_attribute_list[] = {
 
 /* %start-doc options "1 General Options"

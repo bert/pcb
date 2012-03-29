@@ -55,6 +55,8 @@
 #endif
 
 extern int	MoveLayerAction(int argc, char **argv, int x, int y);
+/* This is defined in main.c */
+void save_increments (const Increments *mm, const Increments *mil);
 
 enum ConfigType
 {
@@ -941,7 +943,8 @@ static GtkWidget *config_sizes_vbox,
   *config_sizes_tab_vbox, *config_text_spin_button;
 
 static GtkWidget *use_board_size_default_button,
-  *use_drc_sizes_default_button;
+  *use_drc_sizes_default_button,
+  *use_increments_default_button;
 
 static Coord new_board_width, new_board_height;
 
@@ -972,6 +975,16 @@ config_sizes_apply (void)
       Settings.IsleArea = PCB->IsleArea;
       Settings.minDrill = PCB->minDrill;
       Settings.minRing = PCB->minRing;
+      ghidgui->config_modified = TRUE;
+    }
+
+  active =
+    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+				  (use_increments_default_button));
+  if (active)
+    {
+      save_increments (get_increments_struct (METRIC),
+                       get_increments_struct (IMPERIAL));
       ghidgui->config_modified = TRUE;
     }
 
@@ -1195,6 +1208,12 @@ config_increments_tab_create (GtkWidget * tab_vbox)
               _("For 'k' and '<shift>k' line clearance inside polygon size\n"
                 "change actions"));
 #undef INCR_ENTRY
+
+  vbox = ghid_category_vbox (config_increments_vbox,
+			     _("Save as Default"), 4, 2, TRUE, TRUE);
+  ghid_check_button_connected (vbox, &use_increments_default_button, FALSE,
+			       TRUE, FALSE, FALSE, 0, NULL, NULL,
+			       _("Use values as the default for new layouts"));
 
   gtk_widget_show_all (config_increments_vbox);
 }
