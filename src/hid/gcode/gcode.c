@@ -450,6 +450,7 @@ gcode_do_export (HID_Attr_Val * options)
   };
   char variable_safeZ[20], variable_cutdepth[20];
   char variable_drilldepth[20];
+  char *old_locale = setlocale (LC_NUMERIC, NULL);
 
   if (!options)
     {
@@ -484,6 +485,7 @@ gcode_do_export (HID_Attr_Val * options)
                    : INCH_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale);
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
+  setlocale (LC_NUMERIC, "C");   /* use . as separator */
   if (gcode_advanced)
     {
       strcpy (variable_safeZ, "#100");
@@ -557,7 +559,7 @@ gcode_do_export (HID_Attr_Val * options)
               perror (filename);
               free (filename);
               bm_free (bm);
-              return;
+              goto error;
             }
           fprintf (gcode_f2, "(Created by G-code exporter)\n");
           t = time (NULL);
@@ -595,7 +597,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (r)
             {
               fprintf (stderr, "ERROR: pathlist function failed\n");
-              return;
+              goto error;
             }
           /* generate best polygon and write vertices in g-code format */
           d = process_path (plist, &param_default, bm, gcode_f2,
@@ -604,7 +606,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (d < 0)
             {
               fprintf (stderr, "ERROR: path process function failed\n");
-              return;
+              goto error;
             }
           if (metric)
             fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n", d,
@@ -643,7 +645,7 @@ gcode_do_export (HID_Attr_Val * options)
                   if (!gcode_f2)
                     {
                       perror (filename);
-                      return;
+                      goto error;
                     }
                   fprintf (gcode_f2, "(Created by G-code exporter)\n");
                   fprintf (gcode_f2, "(drill file: %d drills)\n", drill->n_holes);
@@ -720,6 +722,8 @@ gcode_do_export (HID_Attr_Val * options)
           gcode_finish_png ();
         }
     }
+error:
+  setlocale (LC_NUMERIC, old_locale);   /* restore locale */
 }
 
 /* *** PNG export (slightly modified code from PNG export HID) ************* */
