@@ -90,7 +90,7 @@ static	int		Parse(char *, char *, char *, char *);
 
 HEX				0x[0-9a-fA-F]+
 INTEGER                 [+-]?([1-9][0-9]*|0)
-FLOATING                {INTEGER}"."[0-9]*
+FLOATING                {INTEGER}?"."[0-9]*
 STRINGCHAR		([^"\n\r\\]|\\.)
 
 %option yylineno
