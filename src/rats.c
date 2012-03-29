@@ -482,9 +482,7 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
       /* don't add non-manhattan lines, the auto-router can't route to them */
       ALLLINE_LOOP (PCB->Data);
       {
-	if (TEST_FLAG (DRCFLAG, line)
-	    && ((line->Point1.X == line->Point2.X)
-		|| (line->Point1.Y == line->Point2.Y)))
+	if (TEST_FLAG (DRCFLAG, line))
 	  {
 	    conn = GetConnectionMemory (a);
 	    conn->X = line->Point1.X;
