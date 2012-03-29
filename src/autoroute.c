@@ -5210,29 +5210,26 @@ AutoRoute (bool selected)
 	  if (!selected || TEST_FLAG (SELECTEDFLAG, line))
 	    {
 	      /* look up the end points of this rat line */
-	      routebox_t *a;
-	      routebox_t *b;
-	      a =
+	      routebox_t *a =
 		FindRouteBoxOnLayerGroup (rd, line->Point1.X,
 					  line->Point1.Y, line->group1);
-	      b =
+	      routebox_t *b =
 		FindRouteBoxOnLayerGroup (rd, line->Point2.X,
 					  line->Point2.Y, line->group2);
-	      assert (a != NULL && b != NULL);
-	      assert (a->style == b->style);
-/*
-	      if (a->type != PAD && b->type == PAD)
-	        {
-	          routebox_t *t = a;
-		  a = b;
-		  b = t;
-	        }
-*/
-	      /* route exactly one net, without allowing conflicts */
-	      InitAutoRouteParameters (0, a->style, false, true, true);
-	      /* hace planes work better as sources than targets */
-	      changed = RouteOne (rd, a, b, 150000).found_route || changed;
-	      goto donerouting;
+
+              /* If the rat starts or ends at a non-straight pad (i.e., at a
+               * rotated SMD), a or b will be NULL since the autorouter can't
+               * handle these.
+               */
+              if (a != NULL && b != NULL)
+                {
+                  assert (a->style == b->style);
+                  /* route exactly one net, without allowing conflicts */
+                  InitAutoRouteParameters (0, a->style, false, true, true);
+                  /* hace planes work better as sources than targets */
+                  changed = RouteOne (rd, a, b, 150000).found_route || changed;
+                  goto donerouting;
+                }
 	    }
 	  END_LOOP;
 	}
