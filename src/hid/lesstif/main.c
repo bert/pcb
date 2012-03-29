@@ -2591,7 +2591,7 @@ idle_proc (XtPointer dummy)
   {
     static int c_x = -2, c_y = -2;
     static MarkType saved_mark;
-    static Unit *old_grid_unit = NULL;
+    static const Unit *old_grid_unit = NULL;
     if (crosshair_x != c_x || crosshair_y != c_y
 	|| Settings.grid_unit != old_grid_unit
 	|| memcmp (&saved_mark, &Marked, sizeof (MarkType)))
