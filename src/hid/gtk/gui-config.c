@@ -792,6 +792,10 @@ ghid_config_files_write (void)
 	  fprintf (f, "%s = %f\n", ca->name, *(double *) ca->value);
 	  break;
 
+	case CONFIG_Coord:
+	  pcb_fprintf (f, "%s = %$mS\n", ca->name, *(Coord *) ca->value);
+	  break;
+
 	case CONFIG_String:
 	  if (*(char **) ca->value == NULL)
 	    fprintf (f, "# %s = NULL\n", ca->name);
