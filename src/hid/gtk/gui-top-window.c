@@ -1921,15 +1921,20 @@ visible if it is not already visible
 static int
 SelectLayer (int argc, char **argv, Coord x, Coord y)
 {
-  int newl;
+  int i;
+  int newl = -1;
   if (argc == 0)
     AFAIL (selectlayer);
+
+  for (i = 0; i < max_copper_layer; ++i)
+    if (strcasecmp (argv[0], PCB->Data->Layer[i].Name) == 0)
+      newl = i;
 
   if (strcasecmp (argv[0], "silk") == 0)
     newl = LAYER_BUTTON_SILK;
   else if (strcasecmp (argv[0], "rats") == 0)
     newl = LAYER_BUTTON_RATS;
-  else
+  else if (newl == -1)
     newl = atoi (argv[0]) - 1;
 
 #ifdef DEBUG_MENUS
