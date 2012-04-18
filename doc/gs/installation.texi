@@ -35,6 +35,8 @@ dependencies) from one of the (pre-configured) Fedora repositories:
 yum install pcb
 @end example
 
+For the installation with yum you need administrator-privileges.
+
 To install a manually downloaded rpm:
 
 @example
