@@ -1646,13 +1646,32 @@ ChangeSelectedElementSide (void)
 {
   bool change = false;
 
-  /* setup identifiers */
+  Coord miny = PCB->MaxHeight;
+  Coord maxy = 0;
+  Coord yoff = 0;
+
+  /* Locate min and max markY insertion points */
   if (PCB->PinOn && PCB->ElementOn)
     ELEMENT_LOOP (PCB->Data);
   {
     if (TEST_FLAG (SELECTEDFLAG, element))
       {
-	change |= ChangeElementSide (element, 0);
+      miny = MIN(miny, element->MarkY);
+      maxy = MAX(maxy, element->MarkY);
+      }
+  }
+  END_LOOP;
+
+  /* Add an offset to keep the new min and max markY
+     insertion points within the same range as before */
+  yoff = (miny+maxy) - PCB->MaxHeight;
+
+  if (PCB->PinOn && PCB->ElementOn)
+    ELEMENT_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (SELECTEDFLAG, element))
+      {
+	change |= ChangeElementSide (element, yoff);
       }
   }
   END_LOOP;
