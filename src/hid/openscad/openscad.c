@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -52,7 +50,7 @@
  * place 3D-models of parts in a 3D-model of a Printed Circuit Board
  * (PCB) thus creating a 3D representation of a Printed Circuit Assembly
  * (PCA).\n
- * 
+ *
  * This exporter re-used the BOM HID code (partially) as a template.\n
  */
 
@@ -62,10 +60,13 @@
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "global.h"
 #include "data.h"
@@ -79,28 +80,15 @@
 #include <dmalloc.h>
 #endif
 
-
-RCSID ("$Id$");
-
+typedef struct {
+    double x, y;
+    double theta;
+    char *str;
+    int top;
+} ElementInfo;
 
 static HID_Attribute openscad_options[] =
 {
-/*
-%start-doc options "OpenSCAD Export"
-@ftable @code
-@item --include-dir <string>
-Name of the OpenSCAD 3D models include directory.
-@end ftable
-%end-doc
-*/
-    {
-        "include-dir",
-        "OpenSCAD include directory where package models reside",
-        HID_String,
-        0, 0, {0, 0, 0}, 0, 0
-    },
-#define HA_openscad_include_dir 0
-
 /*
 %start-doc options "OpenSCAD Export"
 @ftable @code
@@ -115,7 +103,7 @@ Name of the OpenSCAD top model file.
         HID_String,
         0, 0, {0, 0, 0}, 0, 0
     },
-#define HA_openscad_file 1
+#define HA_openscad_file 0
 
 /*
 %start-doc options "OpenSCAD Export"
@@ -131,7 +119,7 @@ Unit of OpenSCAD dimensions. Defaults to mil.
         HID_Boolean,
         0, 0, {0, 0, 0}, 0, 0
     },
-#define HA_openscad_mm 2
+#define HA_openscad_mm 1
 
 /*
 %start-doc options "OpenSCAD Export"
@@ -147,7 +135,23 @@ Printed circuit board thickness.
         HID_Real,
         0, 100, {0, 0, 62.00}, 0, 0
     },
-#define HA_openscad_thickness 3
+#define HA_openscad_thickness 2
+
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --scad-script <string>
+Script to generate 'use\ncommand\n'.
+@end ftable
+%end-doc
+*/
+    {
+        "scad-script",
+        "Script",
+        HID_String,
+        0, 0, {0, 0, 0}, 0, 0
+    },
+#define HA_openscad_command 3
 };
 
 
@@ -155,43 +159,16 @@ Printed circuit board thickness.
 
 
 static HID_Attr_Val openscad_values[NUM_OPTIONS];
-static char *openscad_include_dir;
 static char *openscad_filename;
 static int openscad_dim_type;
 static double openscad_pcb_thickness;
+static char *openscad_command;
 
-
-typedef struct _StringList
+static double
+openscad_to_unit(double v)
 {
-    char *str;
-    struct _StringList *next;
-} StringList;
-
-
-/*!
- * \brief List of OpenSCAD models.
- */
-typedef struct _OpenscadList
-{
-    char *package_type;
-        /*!< component package type, refers to a generic type of
-         * packages (taxonomy).\n
-         * derived from the modelname
-         * (see the \c openscad_get_package_type_string function). */
-    char *modelname;
-        /*!< openscad component model name, derived from the footprint
-         * name. */
-    char *value;
-        /*!< component value. */
-    int num;
-        /*!< number of identical components on the pcb
-         * (the refdes makes them unique). */
-    StringList *refdes;
-        /*!< list of component reference designator(s). */
-    struct _OpenscadList *next;
-        /*!< pointer to the next entry in the list. */
-} OpenscadList;
-
+    return openscad_dim_type ? COORD_TO_MM (v) : COORD_TO_MIL (v);
+}
 
 static HID_Attribute *
 openscad_get_export_options (int *n)
@@ -212,140 +189,165 @@ openscad_get_export_options (int *n)
     return openscad_options;
 }
 
-
-/*! 
- * \brief Copy over in to out with some character conversions.
- *
- * Go all the way to the end to get the terminating \0.
- *
- * \return pointer to a cleaned string.
- */
-static char *
-openscad_clean_string (char *in)
+static GList *
+openscad_simple_outline(void)
 {
-    char *out;
+    GList *points;
+    static PointType A, B, C, D;
+
+    D.X = B.X = openscad_to_unit (PCB->MaxWidth);
+    D.Y = C.Y = openscad_to_unit (PCB->MaxHeight);
+
+    points = g_list_append (NULL, &A);
+    points = g_list_append (points, &B);
+    points = g_list_append (points, &C);
+    points = g_list_append (points, &D);
+
+    return points;
+}
+
+static int
+pointcmp(PointType *a, PointType *b)
+{
+    return a->X != b->X || a->Y != b->Y;
+}
+
+static GList *
+openscad_trace_outline(void)
+{
+    LayerType *outline_layer;
+    GList *unused;
+    GList *sorted;
+    PointType *start;
+    PointType *next;
+    LineType *line;
+    GList *iter;
     int i;
-    if ((out = malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
+    int progress;
+
+    outline_layer = NULL;
+    for (i = 0; i < max_copper_layer; i++)
     {
-        fprintf (stderr, "Error: malloc() failed in openscad_clean_string()\n");
-        exit (1);
-    }
-    for (i = 0; i <= strlen (in); i++)
-    {
-        switch (in[i])
+        LayerType *layer = PCB->Data->Layer + i;
+        if (strcmp (layer->Name, "outline") == 0 ||
+            strcmp (layer->Name, "route") == 0)
         {
-            case '"':
-                out[i] = '\'';
-                break;
-            default:
-                out[i] = in[i];
+            outline_layer = layer;
+            break;
         }
     }
-    return out;
+
+    if (!outline_layer || !outline_layer->Line)
+        return openscad_simple_outline ();
+
+    unused = g_list_copy(outline_layer->Line);
+    line = unused->data;
+    unused = g_list_delete_link(unused, unused);
+
+    start = &line->Point1;
+    next = &line->Point2;
+    sorted = g_list_append(NULL, start);
+
+    progress = 1;
+    while (progress && unused && pointcmp(next, start))
+    {
+         progress = 0;
+         for (iter = unused; iter; iter = g_list_next(iter))
+         {
+             line = iter->data;
+             if (!pointcmp(&line->Point1, next) || !pointcmp(&line->Point2, next))
+             {
+                 sorted = g_list_append(sorted, next);
+                 next = !pointcmp(&line->Point1, next) ? &line->Point2 : &line->Point1;
+                 unused = g_list_delete_link(unused, iter);
+                 progress = 1;
+                 break;
+             }
+         }
+    }
+
+    if (!progress || unused)
+    {
+        g_list_free(unused);
+        g_list_free(sorted);
+        return openscad_simple_outline ();
+    }
+
+    return sorted;
 }
 
-
-/*!
- * \brief Copy over in to out until a digit [0..9]  or underscore is found.
- *
- * \return pointer to a string containing the package type.
- */
-static char *
-openscad_get_package_type_string (char *in)
-{
-    char *out;
-    int i;
-    if ((out = malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
-    {
-        fprintf (stderr, "Error: malloc() failed in openscad_get_package_type_string()\n");
-        exit (1);
-    }
-    for (i = 0; i <= strlen (in); i++)
-    {
-        if (isdigit (in[i]))
-        {
-            return (out);
-        }
-        else if (in[i] == '_')
-        {
-            return (out);
-        }
-        else
-        {
-            out[i] = in[i];
-        }
-    }
-    return out;
-}
-
-
-/*!
- * \brief Get the basename including suffix from the absolute filename.
- *
- * \return pointer to a string containing the basename including suffix.
- */
-char *
-openscad_get_basename (char *pathname)
-{
-    char *fname = NULL;
-
-    if (pathname)
-    {
-        fname = strrchr (pathname, '/') + 1;
-    }
-    return fname;
-}
-
-
-/*!
- * \brief Get the dirname from the absolute filename.
- *
- * \return pointer to a string containing the dirname.
- */
-char *
-openscad_get_dirname (char *path)
-{
-    char *p;
-
-    if (path == NULL || *path == '\0')
-        return ".";
-    p = path + strlen(path) - 1;
-    while (*p == '/')
-    {
-        if (p == path)
-            return path;
-        *p-- = '\0';
-    }
-    while (p >= path && *p != '/')
-        p--;
-    return
-        p < path ? ".":
-        p == path ? "/":
-        (*p = '\0', path);
-}
-
-
-/*!
- * \brief Strip the string \c suffix from the string \c name.
- *
- * \return pointer to a string containing the \c name without \c suffix.
- */
 static void
-openscad_remove_suffix (char *name, const char *suffix)
+openscad_get_statement (ElementType *element, double x, double y, double theta, GList **use, GList **elements)
 {
-  char *np;
-  const char *sp;
+    int pipefd[2];
+    pid_t cpid;
+    FILE *fp;
+    int status;
+    char line[4096];
+    char *strx;
+    char *stry;
+    char *strtheta;
 
-  np = name + strlen (name);
-  sp = suffix + strlen (suffix);
+    if (pipe (pipefd) < 0)
+    {
+        perror ("pipe");
+        return;
+    }
 
-  while (np > name && sp > suffix)
-    if (*--np != *--sp)
-      return;
-  if (np > name)
-    *np = '\0';
+    cpid = fork ();
+    switch (cpid) {
+    case -1:
+        close (pipefd[0]);
+        close (pipefd[1]);
+        return;
+    case 0:
+        close (pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], STDERR_FILENO);
+        asprintf(&strx, "%f", x);
+        asprintf(&stry, "%f", y);
+        asprintf(&strtheta, "%f", theta);
+        execl(openscad_command, openscad_command,
+            EMPTY (DESCRIPTION_NAME (element)),
+            EMPTY (NAMEONPCB_NAME (element)),
+            EMPTY (VALUE_NAME (element)), NULL);
+        _exit(EXIT_FAILURE);
+    }
+    close (pipefd[1]);
+    fp = fdopen(pipefd[0], "r");
+
+    line[0] = '\0';
+    fgets (line, sizeof(line), fp);
+    if (strlen (line) > 1)
+    {
+        GList *iter;
+        line[strlen (line) - 1] = '\0';
+        for (iter = *use; iter; iter = g_list_next(iter))
+        {
+            if (!strcmp (iter->data, line))
+                break;
+        }
+        if (!iter)
+            *use = g_list_append (*use, strdup (line));
+    }
+
+    line[0] = '\0';
+    fgets (line, sizeof(line), fp);
+    if (strlen (line) > 1)
+    {
+        ElementInfo *info = malloc(sizeof(ElementInfo));
+        line[strlen (line) - 1] = '\0';
+        info->x = x;
+        info->y = y;
+        info->theta = theta;
+	info->top = FRONT (element) == 1;
+        info->str = strdup (line);
+        *elements = g_list_append (*elements, info);
+    }
+
+    fclose(fp);
+    waitpid(cpid, &status, 0);
 }
-
 
 /*!
  * \brief Figure out the rotation angle of the part (element).
@@ -375,123 +377,172 @@ openscad_xy_to_angle (double x, double y)
     return (theta);
 }
 
-
-static StringList *
-openscad_string_insert (char *str, StringList * list)
-{
-    StringList *new;
-    StringList *cur;
-    if ((new = (StringList *) malloc (sizeof (StringList))) == NULL)
-    {
-        fprintf (stderr, "malloc() failed in openscad_string_insert()\n");
-        exit (1);
-    }
-    new->next = NULL;
-    new->str = strdup (str);
-    if (list == NULL)
-    return (new);
-    cur = list;
-    while (cur->next != NULL)
-        cur = cur->next;
-    cur->next = new;
-    return (list);
-}
-
-
-static OpenscadList *
-openscad_insert (char *refdes, char *modelname, char *value, OpenscadList * openscad)
-{
-    OpenscadList *new;
-    OpenscadList *cur;
-    OpenscadList *prev = NULL;
-    if (openscad == NULL)
-    {
-        /* This is the first element so automatically create an entry. */
-        if ((new = (OpenscadList *) malloc (sizeof (OpenscadList))) == NULL)
-        {
-            fprintf (stderr, "ERROR: malloc() failed in openscad_insert()\n");
-            exit (1);
-        }
-        new->next = NULL;
-        new->modelname = strdup (modelname);
-        new->value = strdup (value);
-        new->num = 1;
-        new->refdes = openscad_string_insert (refdes, NULL);
-        return (new);
-    }
-    /* Search and see if we already have used one of these components. */
-    cur = openscad;
-    while (cur != NULL)
-    {
-        if ((NSTRCMP (modelname, cur->modelname) == 0) &&
-            (NSTRCMP (value, cur->value) == 0))
-        {
-            cur->num++;
-            cur->refdes = openscad_string_insert (refdes, cur->refdes);
-            break;
-        }
-        prev = cur;
-        cur = cur->next;
-    }
-    if (cur == NULL)
-    {
-        if ((new = (OpenscadList *) malloc (sizeof (OpenscadList))) == NULL)
-        {
-            fprintf (stderr, "ERROR: malloc() failed in openscad_insert()\n");
-            exit (1);
-        }
-        prev->next = new;
-        new->next = NULL;
-        new->modelname = strdup (modelname);
-        new->value = strdup (value);
-        new->num = 1;
-        new->refdes = openscad_string_insert (refdes, NULL);
-    }
-    return (openscad);
-}
-
-
 /*!
  * \brief
  *
  * If \c fp is not NULL then print out the element list contained in
  * \c openscad .\n
  * Either way, free all memory which has been allocated for \c openscad.
- * 
+ *
  * \return 0 if successful.
  */
 static int
 openscad_print (void)
 {
     char utcTime[64];
-    double x;
-    double y;
-    double theta = 0.0;
-    double user_x;
-    double user_y;
-    double sumx, sumy;
-    double pin1x = 0.0;
-    double pin1y = 0.0;
-    double pin1angle = 0.0;
-    double pin2x = 0.0;
-    double pin2y = 0.0;
-    double pin2angle;
-    int found_pin1;
-    int found_pin2;
-    int pin_cnt;
     time_t currenttime;
     FILE *fp;
-    OpenscadList *openscad = NULL;
-    char *name;
-    char *package_type;
-    char *modelname;
-    char *value;
-    double board_width;
-    double board_height;
     double board_thickness;
-    double drill_x;
-    double drill_y;
-    double drill_d;
+    GList *iter;
+    GList *use = NULL;
+    GList *elements = NULL;
+    GList *sorted;
+
+    /*
+     * For each element we calculate the centroid of the footprint.
+     * In addition, we need to extract some notion of rotation.
+     * While here generate the OpenSCAD list.
+     */
+    ELEMENT_LOOP (PCB->Data);
+    {
+        /* Initialize our pin count and our totals for finding the
+         * centriod. */
+        double sumx, sumy;
+        double pin1x = 0.0;
+        double pin1y = 0.0;
+        double pin1angle = 0.0;
+        double pin2x = 0.0;
+        double pin2y = 0.0;
+        int found_pin1;
+        int found_pin2;
+        int pin_cnt;
+
+        pin_cnt = 0;
+        sumx = 0.0;
+        sumy = 0.0;
+        found_pin1 = 0;
+        found_pin2 = 0;
+        /*
+         * Iterate over the pins and pads keeping a running count of how
+         * many pins/pads total and the sum of x and y coordinates.
+         *
+         * While we're at it, store the location of pin/pad #1 and #2 if
+         * we can find them.
+         */
+        PIN_LOOP (element);
+        {
+            sumx += (double) pin->X;
+            sumy += (double) pin->Y;
+            pin_cnt++;
+            if (NSTRCMP (pin->Number, "1") == 0)
+            {
+                pin1x = (double) pin->X;
+                pin1y = (double) pin->Y;
+                pin1angle = 0.0; /* Pins have no notion of angle. */
+                found_pin1 = 1;
+            }
+            else if (NSTRCMP (pin->Number, "2") == 0)
+            {
+                pin2x = (double) pin->X;
+                pin2y = (double) pin->Y;
+                found_pin2 = 1;
+            }
+        }
+        END_LOOP; /* End of PIN_LOOP. */
+        PAD_LOOP (element);
+        {
+            sumx += (pad->Point1.X + pad->Point2.X) / 2.0;
+            sumy += (pad->Point1.Y + pad->Point2.Y) / 2.0;
+            pin_cnt++;
+            if (NSTRCMP (pad->Number, "1") == 0)
+            {
+                pin1x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
+                pin1y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
+                /*
+                 * NOTE: We swap the Y points because in PCB, the Y-axis
+                 * is inverted, in PCB increasing Y moves down.
+                 * We want to have the usual orthogonal Right Hand
+                 * system where increasing Y moves coordinates up.
+                 */
+                pin1angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
+                    pad->Point2.X - pad->Point1.X);
+                found_pin1 = 1;
+            }
+            else if (NSTRCMP (pad->Number, "2") == 0)
+            {
+                pin2x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
+                pin2y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
+                found_pin2 = 1;
+            }
+        }
+        END_LOOP; /* End of PAD_LOOP. */
+        if (pin_cnt > 0)
+        {
+            double x;
+            double y;
+            double user_x;
+            double user_y;
+            double theta;
+
+            x = sumx / (double) pin_cnt;
+            y = sumy / (double) pin_cnt;
+            if (found_pin1)
+            {
+                /* Recenter pin #1 onto the axis which cross at the part
+                 * centroid. */
+                pin1x -= x;
+                pin1y -= y;
+                pin1y = -1.0 * pin1y;
+                /* If only 1 pin, use pin 1's angle. */
+                if (pin_cnt == 1)
+                {
+                    theta = pin1angle;
+                }
+                else
+                {
+                    /* If pin #1 is at (0,0) use pin #2 for rotation. */
+                    if ((pin1x == 0.0) && (pin1y == 0.0))
+                    {
+                        if (found_pin2)
+                        {
+                            theta = openscad_xy_to_angle (pin2x, pin2y);
+                        }
+                        else
+                        {
+                            Message
+                            ("openscad_print(): unable to figure out angle of element\n"
+                                "     %s because pin #1 is at the centroid of the part.\n"
+                                "     and I could not find pin #2's location\n"
+                                "     Setting to %g degrees\n",
+                                UNKNOWN (NAMEONPCB_NAME (element)), theta);
+                        }
+                    }
+                    else
+                    {
+                        theta = openscad_xy_to_angle (pin1x, pin1y);
+                    }
+                }
+            }
+            /* We did not find pin #1. */
+            else
+            {
+                theta = 0.0;
+                Message
+                ("openscad_print(): unable to figure out angle because I could\n"
+                    "     not find pin #1 of element %s\n"
+                    "     Setting to %g degrees\n",
+                    UNKNOWN (NAMEONPCB_NAME (element)),
+                    theta);
+            }
+            //y = PCB->MaxHeight - y;
+            user_x = openscad_to_unit (x);
+            user_y = openscad_to_unit (PCB->MaxWidth - y);
+
+            openscad_get_statement (element, user_x, user_y, theta, &use, &elements);
+        }
+    }
+    END_LOOP; /* End of ELEMENT_LOOP. */
+
     fp = fopen (openscad_filename, "w");
     if (!fp)
     {
@@ -546,17 +597,38 @@ openscad_print (void)
     fprintf (fp, " */\n");
     fprintf (fp, "\n");
     fprintf (fp, "\n");
-    fprintf (fp, "include <COLORS.scad>\n");
-    fprintf (fp, "include <CONST.scad>\n");
-    fprintf (fp, "include <BOARD.scad>\n");
-    fprintf (fp, "include <PIN_HOLE.scad>\n");
-    fprintf (fp, "include <VIA_HOLE.scad>\n");
-    fprintf (fp, "include <PACKAGES.scad>\n");
-    fprintf (fp, "use <INSERT_PART_MODEL.scad>\n");
+    for (iter = use; iter; iter = g_list_next(iter))
+    {
+        fprintf (fp, "use <%s>\n", (char *) iter->data);
+        free(iter->data);
+    }
+    g_list_free(use);
+    fprintf (fp, "\n");
+    fprintf (fp, "$fn = 16;\n");
     fprintf (fp, "\n");
     fprintf (fp, "\n");
-    fprintf (fp, "/* Uncomment the following line for an example. */\n");
-    fprintf (fp, "//%s ();\n", EMPTY (PCB->Name));
+    fprintf (fp, "COPPER = [0.88, 0.78, 0.5];\n");
+    fprintf (fp, "FR4 = [0.7, 0.67, 0.6, 0.95];\n");
+    fprintf (fp, "DRILL_HOLE = [1.0, 1.0, 1.0];\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "module VIA_HOLE(x, y, diameter, depth) {\n");
+    fprintf (fp, "    translate([x, y, -depth*.05]) {\n");
+    fprintf (fp, "        color (COPPER)\n");
+    fprintf (fp, "        cylinder(r = (diameter / 2), h = depth*1.1, center = false);\n");
+    fprintf (fp, "    }\n");
+    fprintf (fp, "}\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "module PIN_HOLE(x, y, diameter, depth) {\n");
+    fprintf (fp, "    translate([x, y, -depth*.05]) {\n");
+    fprintf (fp, "        color (DRILL_HOLE)\n");
+    fprintf (fp, "        cylinder(r = (diameter / 2), h = depth*1.1, center = false);\n");
+    fprintf (fp, "    }\n");
+    fprintf (fp, "}\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "\n");
+    fprintf (fp, "%s ();\n", EMPTY (PCB->Name));
     fprintf (fp, "\n");
     fprintf (fp, "\n");
     fprintf (fp, "module %s ()\n", EMPTY (PCB->Name));
@@ -564,276 +636,70 @@ openscad_print (void)
     /* Lookup the board dimensions and create an entry in the OpenSCAD
      * file. */
     board_thickness = openscad_pcb_thickness;
-    if (openscad_dim_type)
-    {
-        /* Dimensions in mm. */
-        board_width = COORD_TO_MM (PCB->MaxWidth);
-        board_height = COORD_TO_MM (PCB->MaxHeight);
-    }
-    else
-    {
-        /* Dimensions in mil. */
-        board_width = COORD_TO_MIL (PCB->MaxWidth);
-        board_height = COORD_TO_MIL (PCB->MaxHeight);
-    }
     fprintf (fp, "    /* Modelling a printed circuit board based on maximum dimensions. */\n");
     fprintf (fp, "    difference ()\n");
     fprintf (fp, "    {\n");
 
-    fprintf (fp, "        BOARD (%.2f, %.2f, %.2f);\n", board_width, board_height, board_thickness);
+    fprintf (fp, "        color (FR4)\n");
+    fprintf (fp, "        {\n");
+    fprintf (fp, "            linear_extrude (height=%f)\n", board_thickness);
+    fprintf (fp, "            polygon ([ ");
+    sorted = openscad_trace_outline ();
+    for (iter = sorted; iter; iter = g_list_next(iter))
+    {
+        PointType *p = iter->data;
+        fprintf(fp, "[%f, %f]", openscad_to_unit (p->X), openscad_to_unit (PCB->MaxWidth - p->Y));
+        if (g_list_next(iter))
+            fprintf(fp, ", ");
+    }
+    g_list_free (sorted);
+    fprintf (fp, " ]);\n");
+    fprintf (fp, "        }\n");
     fprintf (fp, "        /* Now subtract some via holes. */\n");
     /* Now subtract some via holes. */
     VIA_LOOP (PCB->Data);
     {
-        if (openscad_dim_type)
-        {
-            /* Dimensions in mm. */
-            drill_x = COORD_TO_MM (via->X);
-            drill_y = COORD_TO_MM (via->Y);
-            drill_d = COORD_TO_MM (via->DrillingHole);
-        }
-        else
-        {
-            /* Dimensions in mil. */
-            drill_x = COORD_TO_MIL (via->X);
-            drill_y = COORD_TO_MIL (via->Y);
-            drill_d = COORD_TO_MIL (via->DrillingHole);
-        }
-        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
+                 openscad_to_unit (via->X),
+                 openscad_to_unit (PCB->MaxWidth - via->Y),
+                 openscad_to_unit (via->DrillingHole),
+                 board_thickness);
     }
     END_LOOP; /* End of VIA_LOOP */
     /* Now subtract some pin holes. */
     fprintf (fp, "        /* Now subtract some pin holes. */\n");
     ALLPIN_LOOP (PCB->Data);
     {
-        if (openscad_dim_type)
-        {
-            /* Dimensions in mm. */
-            drill_x = COORD_TO_MM (pin->X);
-            drill_y = COORD_TO_MM (pin->Y);
-            drill_d = COORD_TO_MM (pin->DrillingHole);
-        }
-        else
-        {
-            /* Dimensions in mil. */
-            drill_x = COORD_TO_MIL (pin->X);
-            drill_y = COORD_TO_MIL (pin->Y);
-            drill_d = COORD_TO_MIL (pin->DrillingHole);
-        }
-        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
+                 openscad_to_unit (pin->X),
+                 openscad_to_unit (PCB->MaxWidth - pin->Y),
+                 openscad_to_unit (pin->DrillingHole),
+                 board_thickness);
     }
     ENDALL_LOOP; /* End of ALLPIN_LOOP */
     fprintf (fp, "    }\n");
     fprintf (fp, "\n");
-    fprintf (fp, "    /* Now insert some element models.\n");
-    fprintf (fp, "    INSERT_PART_MODEL (\"Package type\", \"Model name\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
-    /*
-     * For each element we calculate the centroid of the footprint.
-     * In addition, we need to extract some notion of rotation.  
-     * While here generate the OpenSCAD list.
-     */
-    ELEMENT_LOOP (PCB->Data);
+    fprintf (fp, "    /* Now insert some element models.*/\n");
+    for (iter = elements; iter; iter = g_list_next(iter))
     {
-        /* Initialize our pin count and our totals for finding the
-         * centriod. */
-        pin_cnt = 0;
-        sumx = 0.0;
-        sumy = 0.0;
-        found_pin1 = 0;
-        found_pin2 = 0;
-        /* Insert this component into the list of OpenSCAD models. */
-        openscad = openscad_insert
-        (
-            EMPTY (NAMEONPCB_NAME (element)),
-            EMPTY (DESCRIPTION_NAME (element)),
-            EMPTY (VALUE_NAME (element)),
-            openscad
-        );
-        /*
-         * Iterate over the pins and pads keeping a running count of how
-         * many pins/pads total and the sum of x and y coordinates.
-         * 
-         * While we're at it, store the location of pin/pad #1 and #2 if
-         * we can find them.
-         */
-        PIN_LOOP (element);
-        {
-            sumx += (double) pin->X;
-            sumy += (double) pin->Y;
-            pin_cnt++;
-            if (NSTRCMP (pin->Number, "1") == 0)
-            {
-                pin1x = (double) pin->X;
-                pin1y = (double) pin->Y;
-                pin1angle = 0.0; /* Pins have no notion of angle. */
-                found_pin1 = 1;
-            }
-            else if (NSTRCMP (pin->Number, "2") == 0)
-            {
-                pin2x = (double) pin->X;
-                pin2y = (double) pin->Y;
-                pin2angle = 0.0; /* Pins have no notion of angle. */
-                found_pin2 = 1;
-            }
-        }
-        END_LOOP; /* End of PIN_LOOP. */
-        PAD_LOOP (element);
-        {
-            sumx += (pad->Point1.X + pad->Point2.X) / 2.0;
-            sumy += (pad->Point1.Y + pad->Point2.Y) / 2.0;
-            pin_cnt++;
-            if (NSTRCMP (pad->Number, "1") == 0)
-            {
-                pin1x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
-                pin1y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
-                /*
-                 * NOTE: We swap the Y points because in PCB, the Y-axis
-                 * is inverted, in PCB increasing Y moves down.
-                 * We want to have the usual orthogonal Right Hand
-                 * system where increasing Y moves coordinates up.
-                 */
-                pin1angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
-                    pad->Point2.X - pad->Point1.X);
-                found_pin1 = 1;
-            }
-            else if (NSTRCMP (pad->Number, "2") == 0)
-            {
-                pin2x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
-                pin2y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
-                pin2angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
-                    pad->Point2.X - pad->Point1.X);
-                found_pin2 = 1;
-            }
-        }
-        END_LOOP; /* End of PAD_LOOP. */
-        if (pin_cnt > 0)
-        {
-            x = sumx / (double) pin_cnt;
-            y = sumy / (double) pin_cnt;
-            if (found_pin1)
-            {
-                /* Recenter pin #1 onto the axis which cross at the part
-                 * centroid. */
-                pin1x -= x;
-                pin1y -= y;
-                pin1y = -1.0 * pin1y;
-                /* If only 1 pin, use pin 1's angle. */
-                if (pin_cnt == 1)
-                {
-                    theta = pin1angle;
-                }
-                else
-                {
-                    /* If pin #1 is at (0,0) use pin #2 for rotation. */
-                    if ((pin1x == 0.0) && (pin1y == 0.0))
-                    {
-                        if (found_pin2)
-                        {
-                            theta = openscad_xy_to_angle (pin2x, pin2y);
-                        }
-                        else
-                        {
-                            Message
-                            ("openscad_print(): unable to figure out angle of element\n"
-                                "     %s because pin #1 is at the centroid of the part.\n"
-                                "     and I could not find pin #2's location\n"
-                                "     Setting to %g degrees\n",
-                                UNKNOWN (NAMEONPCB_NAME (element)), theta);
-                        }
-                    }
-                    else
-                    {
-                        theta = openscad_xy_to_angle (pin1x, pin1y);
-                    }
-                }
-            }
-            /* We did not find pin #1. */
-            else
-            {
-                theta = 0.0;
-                Message
-                ("openscad_print(): unable to figure out angle because I could\n"
-                    "     not find pin #1 of element %s\n"
-                    "     Setting to %g degrees\n",
-                    UNKNOWN (NAMEONPCB_NAME (element)),
-                    theta);
-            }
-            name = openscad_clean_string (EMPTY (NAMEONPCB_NAME (element)));
-            modelname = openscad_clean_string (EMPTY (DESCRIPTION_NAME (element)));
-            value = openscad_clean_string (EMPTY (VALUE_NAME (element)));
-            y = PCB->MaxHeight - y;
-            if (openscad_dim_type)
-            {
-                /* Dimensions in mm. */
-                user_x = COORD_TO_MM (x);
-                user_y = COORD_TO_MM (y);
-            }
-            else
-            {
-                /* Dimensions in mils. */
-                user_x = COORD_TO_MIL (x);
-                user_y = COORD_TO_MIL (y);
-            }
-            /* Test for the occurrence of a ".fp" suffix in the model
-             * name string and strip it from the model name string. */
-            openscad_remove_suffix (modelname, ".fp");
-            /* Determine the package type based on the modelname. */
-            package_type = openscad_get_package_type_string (modelname);
-            /* Write part model data to file test for dimension type. */
-            if (openscad_dim_type)
-            {
-                fprintf
-                (
-                    fp,
-                    "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
-                    package_type,
-                    modelname,
-#if 0
-                    (double) element->MarkX,
-                    (double) element->MarkY,
-#else
-                    user_x,
-                    user_y,
-#endif
-                    theta,
-                    FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
-                    value,
-                    name
-                );
-            }
-            else
-            {
-                fprintf
-                (
-                    fp,
-                    "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
-                    package_type,
-                    modelname,
-#if 0
-                    (double) (element->MarkX / 100),
-                    (double) (element->MarkY / 100),
-#else
-                    user_x,
-                    user_y,
-#endif
-                    theta,
-                    FRONT (element) == 1 ? "\"top\"" : "\"bottom\"",
-                    value,
-                    name
-                );
-            }
-            free (name);
-            free (modelname);
-            free (value);
-        }
+        ElementInfo *info = iter->data;
+        fprintf (fp, "    translate ([%f, %f, %f]) {\n",
+            info->x, info->y, info->top ? board_thickness : 0);
+        fprintf (fp, "        rotate ([0, %f, %f]) {\n",
+            info->top ? 0.0 : 180.0, info->theta);
+        fprintf (fp, "            %s\n", info->str);
+        fprintf (fp, "        }\n");
+        fprintf (fp, "    }\n");
+        free(info->str);
+        free(info);
     }
-    END_LOOP; /* End of ELEMENT_LOOP. */
+    g_list_free(elements);
+
     fprintf (fp, "}\n");
     fprintf (fp, "\n");
     fprintf (fp, "/* EOF */ \n");
     fprintf (fp, "\n");
     fclose (fp);
-    free (openscad);
     return (0);
 }
 
@@ -849,12 +715,6 @@ openscad_do_export (HID_Attr_Val * options)
             openscad_values[i] = openscad_options[i].default_val;
         options = openscad_values;
     }
-    /* Get the directory name. */
-    openscad_include_dir = options[HA_openscad_include_dir].str_value;
-    if (!openscad_include_dir)
-    {
-        openscad_include_dir = strdup ("openscad");
-    }
     /* Get the filename. */
     openscad_filename = options[HA_openscad_file].str_value;
     if (!openscad_filename)
@@ -865,6 +725,11 @@ openscad_do_export (HID_Attr_Val * options)
     openscad_dim_type = options[HA_openscad_mm].int_value;
     /* Get the pcb thickness. */
     openscad_pcb_thickness = options[HA_openscad_thickness].real_value;
+
+    openscad_command = options[HA_openscad_command].str_value;
+    if (!openscad_command)
+        return;
+
     /* Call the worker function which is creating the output files. */
     openscad_print ();
 }
