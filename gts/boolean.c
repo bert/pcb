@@ -132,7 +132,7 @@ static EdgeInter * edge_inter_new (GtsVertex * v1, GtsVertex * v2,
   return object;
 }
 
-#ifdef DEBUG
+#ifdef DEBUG_UNUSED
 static void write_surface_graph (GtsSurface * s, FILE * fp)
 {
   GSList * l = NULL;
@@ -557,7 +557,7 @@ typedef enum {
 #define UNSET(s, f) (GTS_OBJECT_FLAGS (s) &= ~(f))
 #define NEXT(s)  (GTS_OBJECT (s)->reserved)
 
-#ifdef DEBUG
+#ifdef DEBUG_UNUSED
 static void print_segment (GtsSegment * s)
 {
   fprintf (stderr, "%p: %s->%s ", s,
