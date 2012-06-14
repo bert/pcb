@@ -162,6 +162,72 @@ static const char *filetypes[] = {
   NULL
 };
 
+
+static const char *mask_colour_names[] = {
+  "green",
+  "red",
+  "blue",
+  "purple",
+  "black",
+  "white",
+  NULL
+};
+
+// These values were arrived at through trial and error.
+// One potential improvement (especially for white) is
+// to use separate color_structs for the multiplication
+// and addition parts of the mask math.
+static const color_struct mask_colours[] = {
+#define MASK_COLOUR_GREEN 0
+  {.r = 60, .g = 160, .b = 60},
+#define MASK_COLOUR_RED 1
+  {.r = 140, .g = 25, .b = 25},
+#define MASK_COLOUR_BLUE 2
+  {.r = 50, .g = 50, .b = 160},
+#define MASK_COLOUR_PURPLE 3
+  {.r = 60, .g = 20, .b = 70},
+#define MASK_COLOUR_BLACK 4
+  {.r = 20, .g = 20, .b = 20},
+#define MASK_COLOUR_WHITE 5
+  {.r = 167, .g = 230, .b = 162}, // <-- needs improvement over FR4
+  {}
+};
+
+
+static const char *plating_type_names[] = {
+#define PLATING_TIN 0
+  "tinned",
+#define PLATING_GOLD 1
+  "gold",
+#define PLATING_SILVER 2
+  "silver",
+#define PLATING_COPPER 3
+  "copper",
+  NULL
+};
+
+
+
+static const char *silk_colour_names[] = {
+  "white",
+  "black",
+  "yellow",
+  NULL
+};
+
+static const color_struct silk_colours[] = {
+#define SILK_COLOUR_WHITE 0
+  {.r = 224, .g = 224, .b = 224},
+#define SILK_COLOUR_BLACK 1
+  {.r = 14, .g = 14, .b = 14},
+#define SILK_COLOUR_YELLOW 2
+  {.r = 185, .g = 185, .b = 10},
+  {}
+};
+
+static const color_struct silk_top_shadow = {.r = 21, .g = 21, .b = 21};
+static const color_struct silk_bottom_shadow = {.r = 14, .g = 14, .b = 14};
+
 HID_Attribute png_attribute_list[] = {
   /* other HIDs expect this to be first.  */
 
@@ -322,6 +388,46 @@ In photo-realistic mode, export the reverse side of the layout. Up-down flip.
   {"photo-flip-y", "Show reverse side of the board, up-down flip",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_photo_flip_y 13
+
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@cindex photo-mask-colour
+@item --photo-mask-colour <colour>
+In photo-realistic mode, export the solder mask as this colour. Parameter
+@code{<colour>} can be @samp{green}, @samp{red}, @samp{blue}, or @samp{purple}.
+@end ftable
+%end-doc
+*/
+  {"photo-mask-colour", "Colour for the exported colour mask",
+   HID_Enum, 0, 0, {0, 0, 0}, mask_colour_names, 0},
+#define HA_photo_mask_colour 14
+
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@cindex photo-plating
+@item --photo-plating
+In photo-realistic mode, export the exposed copper as though it has this type
+of plating. Parameter @code{<colour>} can be @samp{tinned}, @samp{gold},
+@samp{silver}, or @samp{copper}.
+@end ftable
+%end-doc
+*/
+  {"photo-plating", "Type of plating applied to exposed copper in photo-mode",
+   HID_Enum, 0, 0, {0, 0, 0}, plating_type_names, 0},
+#define HA_photo_plating 15
+
+/* %start-doc options "93 PNG Options"
+@ftable @code
+@cindex photo-silk-colour
+@item --photo-silk-colour
+In photo-realistic mode, export the silk screen as this colour. Parameter
+@code{<colour>} can be @samp{white}, @samp{black}, or @samp{yellow}.
+@end ftable
+%end-doc
+*/
+  {"photo-silk-colour", "Colour for the exported colour mask",
+   HID_Enum, 0, 0, {0, 0, 0}, silk_colour_names, 0},
+#define HA_photo_silk_colour 16
 
   {"ben-mode", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
@@ -551,11 +657,53 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 }
 
 static void
-blend (color_struct *dest, float a_amount, color_struct *a, color_struct *b)
+clip (color_struct *dest, color_struct *source)
+{
+#define CLIP(var) \
+  dest->var = source->var;	\
+  if (dest->var > 255) dest->var = 255;	\
+  if (dest->var < 0)   dest->var = 0;
+
+  CLIP (r);
+  CLIP (g);
+  CLIP (b);
+#undef CLIP
+}
+
+static void
+blend (color_struct *dest, double a_amount, color_struct *a, color_struct *b)
 {
   dest->r = a->r * a_amount + b->r * (1 - a_amount);
   dest->g = a->g * a_amount + b->g * (1 - a_amount);
   dest->b = a->b * a_amount + b->b * (1 - a_amount);
+}
+
+static void
+multiply (color_struct *dest, color_struct *a, color_struct *b)
+{
+  dest->r = (a->r * b->r) / 255;
+  dest->g = (a->g * b->g) / 255;
+  dest->b = (a->b * b->b) / 255;
+}
+
+static void
+add (color_struct *dest, double a_amount, const color_struct *a, double b_amount, const color_struct *b)
+{
+  dest->r = a->r * a_amount + b->r * b_amount;
+  dest->g = a->g * a_amount + b->g * b_amount;
+  dest->b = a->b * a_amount + b->b * b_amount;
+
+  clip (dest, dest);
+}
+
+static void
+subtract (color_struct *dest, double a_amount, const color_struct *a, double b_amount, const color_struct *b)
+{
+  dest->r = a->r * a_amount - b->r * b_amount;
+  dest->g = a->g * a_amount - b->g * b_amount;
+  dest->b = a->b * a_amount - b->b * b_amount;
+
+  clip (dest, dest);
 }
 
 static void
@@ -869,6 +1017,7 @@ png_do_export (HID_Attr_Val * options)
 	  for (y=0; y<gdImageSY (im); y++)
 	    {
 	      color_struct p, cop;
+	      color_struct mask_colour, silk_colour;
 	      int cc, mask, silk;
 	      int transparent;
 	     
@@ -899,27 +1048,50 @@ png_do_export (HID_Attr_Val * options)
 		    rgb (&cop, 220, 145, 230);
 		  else
 		    {
-		      rgb (&cop, 140, 150, 160);
+		      if (options[HA_photo_plating].int_value == PLATING_GOLD)
+			{
+			  // ENIG
+			  rgb (&cop, 185, 146, 52);
 
-		      r = (rand() % 5 - 2) * 2;
-		      cop.r += r;
-		      cop.g += r;
-		      cop.b += r;
+			  // increase top shadow to increase shininess
+			  if (cc == TOP_SHADOW)
+			    blend (&cop, 0.7, &cop, &white);
+			}
+		      else if (options[HA_photo_plating].int_value == PLATING_TIN)
+			{
+			  // tinned
+			  rgb (&cop, 140, 150, 160);
 
+			  // add some variation to make it look more matte
+			  r = (rand() % 5 - 2) * 2;
+			  cop.r += r;
+			  cop.g += r;
+			  cop.b += r;
+			}
+		      else if (options[HA_photo_plating].int_value == PLATING_SILVER)
+			{
+			  // silver
+			  rgb (&cop, 192, 192, 185);
+
+			  // increase top shadow to increase shininess
+			  if (cc == TOP_SHADOW)
+			    blend (&cop, 0.7, &cop, &white);
+			}
+		      else if (options[HA_photo_plating].int_value == PLATING_COPPER)
+			{
+			  // copper
+			  rgb (&cop, 184, 115, 51);
+
+			  // increase top shadow to increase shininess
+			  if (cc == TOP_SHADOW)
+			    blend (&cop, 0.7, &cop, &white);
+			}
 		    }
 		  
 		  if (cc == TOP_SHADOW)
-		    {
-		      cop.r = 255 - (255 - cop.r) * 0.7;
-		      cop.g = 255 - (255 - cop.g) * 0.7;
-		      cop.b = 255 - (255 - cop.b) * 0.7;
-		    }
+		    blend (&cop, 0.7, &cop, &white);
 		  if (cc == BOTTOM_SHADOW)
-		    {
-		      cop.r *= 0.7;
-		      cop.g *= 0.7;
-		      cop.b *= 0.7;
-		    }
+		    blend (&cop, 0.7, &cop, &black);
 		}
 
 	      if (photo_drill && !gdImageGetPixel (photo_drill, x, y)) 
@@ -929,18 +1101,19 @@ png_do_export (HID_Attr_Val * options)
 		}
 	      else if (silk)
 		{
+		  silk_colour = silk_colours[options[HA_photo_silk_colour].int_value];
+		  blend (&p, 1.0, &silk_colour, &silk_colour);
 		  if (silk == TOP_SHADOW)
-		    rgb (&p, 255, 255, 255);
+		    add (&p, 1.0, &p, 1.0, &silk_top_shadow);
 		  else if (silk == BOTTOM_SHADOW)
-		    rgb (&p, 192, 192, 192);
-		  else
-		    rgb (&p, 224, 224, 224);
+		    subtract (&p, 1.0, &p, 1.0, &silk_bottom_shadow);
 		}
 	      else if (mask)
 		{
 		  p = cop;
-		  p.r /= 2;
-		  p.b /= 2;
+		  mask_colour = mask_colours[options[HA_photo_mask_colour].int_value];
+		  multiply (&p, &p, &mask_colour);
+		  add (&p, 1, &p, 0.2, &mask_colour);
 		  if (mask == TOP_SHADOW)
 		    blend (&p, 0.7, &p, &white);
 		  if (mask == BOTTOM_SHADOW)
