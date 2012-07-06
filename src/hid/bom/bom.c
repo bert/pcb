@@ -476,7 +476,7 @@ PrintBOM (void)
 	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
-	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%mS,%.2mS,%g,%s\n",
+	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2mS,%.2mS,%g,%s\n",
 		     xy_unit->allow, name, descr, value, x, y,
 		     theta, FRONT (element) == 1 ? "top" : "bottom");
 	free (name);
@@ -533,9 +533,8 @@ bom_do_export (HID_Attr_Val * options)
   if (!xy_filename)
     xy_filename = "pcb-out.xy";
 
-  if (options[HA_unit].int_value == -1)
-    xy_unit = options[HA_xymm].int_value ? get_unit_struct ("mm")
-                                         : get_unit_struct ("mil");
+  if (options[HA_xymm].int_value)
+    xy_unit = get_unit_struct ("mm");
   else
     xy_unit = &get_unit_list ()[options[HA_unit].int_value];
   PrintBOM ();
