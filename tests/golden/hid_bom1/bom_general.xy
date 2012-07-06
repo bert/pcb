@@ -3,7 +3,7 @@
 # Author: 
 # Title: Basic BOM/XY Test - PCB X-Y
 # RefDes, Description, Value, X, Y, rotation, top/bottom
-# X,Y in mils.  rotation in degrees.
+# X,Y in mil.  rotation in degrees.
 # --------------------------------------------
 R0_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",600.00,3900.00,0,bottom
 R90_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",1000.00,3900.00,90,bottom
