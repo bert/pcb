@@ -330,6 +330,13 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 
   if (path && *path)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+  else
+  {
+	gchar *default_path;
+	default_path = g_get_current_dir();
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
+	g_free(default_path);
+  }
 
   if (shortcuts && *shortcuts)
     {
@@ -406,6 +413,13 @@ ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts
 
   if (path && *path)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+  else
+  {
+	gchar *default_path;
+	default_path = g_get_current_dir();
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
+	g_free(default_path);
+  }
 
   if (shortcuts && *shortcuts)
     {
@@ -461,6 +475,13 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
 
   if (path && *path && **path)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
+  else
+  {
+	gchar *default_path;
+	default_path = g_get_current_dir();
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
+	g_free(default_path);
+  }
 
   if (file && *file)
     {
@@ -533,7 +554,7 @@ ghid_fileselect (const char *title, const char *descr,
   gchar *path = NULL, *base = NULL;
   int history_pool = -1;
   int i;
- 
+
   if (history_tag && *history_tag)
     {
       /* 
@@ -600,6 +621,13 @@ ghid_fileselect (const char *title, const char *descr,
       gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), path);
       g_free (path);
     }
+  else
+	{
+	  gchar *default_path;
+	  default_path = g_get_current_dir();
+	  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
+	  g_free(default_path);
+	}
 
   if (base && *base)
     {
