@@ -82,6 +82,8 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
 
 static int verbose;
 static int all_layers;
+static int metric;
+static char *x_convspec, *y_convspec;
 static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
@@ -89,6 +91,12 @@ static int flash_drills;
 static int copy_outline_mode;
 static int name_style;
 static LayerType *outline_layer;
+
+#define print_xcoord(file, pcb, val)\
+	pcb_fprintf(file, x_convspec, gerberX(pcb, val))
+
+#define print_ycoord(file, pcb, val)\
+	pcb_fprintf(file, y_convspec, gerberY(pcb, val))
 
 enum ApertureShape
 {
@@ -225,13 +233,14 @@ fprintAperture (FILE *f, Aperture *aptr)
   switch (aptr->shape)
     {
     case ROUND:
-      pcb_fprintf (f, "%%ADD%dC,%.4`mi*%%\r\n", aptr->dCode, aptr->width);
+      pcb_fprintf (f, metric ? "%%ADD%dC,%.3`mm*%%\r\n" : "%%ADD%dC,%.4`mi*%%\r\n", aptr->dCode, aptr->width);
       break;
     case SQUARE:
-      pcb_fprintf (f, "%%ADD%dR,%.4`miX%.4`mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
+      pcb_fprintf (f, metric ? "%%ADD%dR,%.3`mmX%.3`mm*%%\r\n" : "%%ADD%dR,%.4`miX%.4`mi*%%\r\n", aptr->dCode, aptr->width, aptr->width);
       break;
     case OCTAGON:
-      pcb_fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4`mi,22.5*%%\r\n"
+      pcb_fprintf (f, metric ? "%%AMOCT%d*5,0,8,0,0,%.3`mm,22.5*%%\r\n"
+	       "%%ADD%dOCT%d*%%\r\n" : "%%AMOCT%d*5,0,8,0,0,%.3`mm,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
 	       (Coord) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
@@ -362,12 +371,22 @@ Print file names and aperture counts on stdout.
   {"verbose", "Print file names and aperture counts on stdout",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_verbose 2
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --metric
+generate metric Gerber and drill files
+@end ftable
+%end-doc
+*/
+  {"metric", "Generate metric Gerber and drill files",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_metric 3
   {"copy-outline", "Copy outline onto other layers",
    HID_Enum, 0, 0, {0, 0, 0}, copy_outline_names, 0},
-#define HA_copy_outline 3
+#define HA_copy_outline 4
   {"name-style", "Naming style for individual gerber files",
    HID_Enum, 0, 0, {0, 0, 0}, name_style_names, 0},
-#define HA_name_style 4
+#define HA_name_style 5
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -531,6 +550,14 @@ gerber_do_export (HID_Attr_Val * options)
     fnbase = "pcb-out";
 
   verbose = options[HA_verbose].int_value;
+  metric = options[HA_metric].int_value;
+  if (metric) {
+	  x_convspec = "X%.0mu";
+	  y_convspec = "Y%.0mu";
+  } else {
+	  x_convspec = "X%.0mc";
+	  y_convspec = "Y%.0mc";
+  }
   all_layers = options[HA_all_layers].int_value;
 
   copy_outline_mode = options[HA_copy_outline].int_value;
@@ -666,9 +693,9 @@ gerber_set_layer (const char *name, int group, int empty)
 	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
 	      fprintf (f, "T%02d\r\n", ap->dCode);
 	    }
-          /* Notice the last zeroes are literal zeroes here, a  *
-           *  x10 scale factor.  v        v                     */
-          pcb_fprintf (f, "X%06.0ml0Y%06.0ml0\r\n",
+          /* Notice the last zeroes are literal zeroes here, a x10 scale factor.  *
+           *                                                      v        v      */
+	  pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0ml0Y%06.0ml0\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
@@ -733,10 +760,11 @@ gerber_set_layer (const char *name, int group, int empty)
       if (is_drill)
 	{
 	  /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
-	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
-	  fprintf (f, "M48\r\n" "INCH\r\n");
+	     always six-digit 0.1 mil or µm resolution (i.e. 001100 = 0.11" or 1.1mm)*/
+	  fprintf (f, "M48\r\n");
+	  fprintf (f, metric ? "METRIC,000.000\r\n" : "INCH\r\n");
 	  for (search = aptr_list->data; search; search = search->next)
-	    pcb_fprintf (f, "T%02dC%.3`mi\r\n", search->dCode, search->width);
+		  pcb_fprintf (f, metric ? "T%02dC%.3`mm\r\n" : "T%02dC%.3`mi\r\n", search->dCode, search->width);
 	  fprintf (f, "%%\r\n");
 	  /* FIXME */
 	  return 1;
@@ -765,15 +793,16 @@ gerber_set_layer (const char *name, int group, int empty)
 #endif
 
       fprintf (f, "G04 Format: Gerber/RS-274X *\r\n");
-      pcb_fprintf (f, "G04 PCB-Dimensions: %.0mc %.0mc *\r\n",
+      pcb_fprintf (f, metric ? "G04 PCB-Dimensions (mm): %.2mm %.2mm *\r\n" :
+	       "G04 PCB-Dimensions (mil): %.2ml %.2ml *\r\n",
 	       PCB->MaxWidth, PCB->MaxHeight);
       fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\r\n");
 
       /* Signal data in inches. */
-      fprintf (f, "%%MOIN*%%\r\n");
+      fprintf (f, metric ? "%%MOMM*%%\r\n" : "%%MOIN*%%\r\n");
 
-      /* Signal Leading zero suppression, Absolute Data, 2.5 format */
-      fprintf (f, "%%FSLAX25Y25*%%\r\n");
+      /* Signal Leading zero suppression, Absolute Data, 2.5 format in inch, 4.3 in mm */
+      fprintf (f, metric ? "%%FSLAX43Y43*%%\r\n" : "%%FSLAX25Y25*%%\r\n");
 
       /* build a legal identifier. */
       if (layername)
@@ -996,13 +1025,13 @@ gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
     {
       m = true;
       lastX = x1;
-      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
+      print_xcoord (f, PCB, lastX);
     }
   if (y1 != lastY)
     {
       m = true;
       lastY = y1;
-      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
+      print_ycoord (f, PCB, lastY);
     }
   if ((x1 == x2) && (y1 == y2))
     fprintf (f, "D03*\r\n");
@@ -1013,13 +1042,12 @@ gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
       if (x2 != lastX)
 	{
 	  lastX = x2;
-	  pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
+	  print_xcoord (f, PCB, lastX);
 	}
       if (y2 != lastY)
 	{
 	  lastY = y2;
-	  pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
-
+	  print_ycoord (f, PCB, lastY);
 	}
       fprintf (f, "D01*\r\n");
     }
@@ -1087,17 +1115,18 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
     {
       m = true;
       lastX = arcStartX;
-      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
+      print_xcoord (f, PCB, lastX);
     }
   if (arcStartY != lastY)
     {
       m = true;
       lastY = arcStartY;
-      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
+      print_ycoord (f, PCB, lastY);
     }
   if (m)
     fprintf (f, "D02*");
   pcb_fprintf (f,
+	   metric ? "G75*G0%1dX%.0muY%.0muI%.0muJ%.0muD01*G01*\r\n" :
 	   "G75*G0%1dX%.0mcY%.0mcI%.0mcJ%.0mcD01*G01*\r\n",
 	   (delta_angle < 0) ? 2 : 3,
 	   gerberX (PCB, arcStopX), gerberY (PCB, arcStopY),
@@ -1137,12 +1166,12 @@ gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   if (cx != lastX)
     {
       lastX = cx;
-      pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
+      print_xcoord (f, PCB, lastX);
     }
   if (cy != lastY)
     {
       lastY = cy;
-      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
+      print_ycoord (f, PCB, lastY);
     }
   fprintf (f, "D03*\r\n");
 }
@@ -1168,13 +1197,13 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 	{
 	  m = true;
 	  lastX = x[i];
-	  pcb_fprintf (f, "X%.0mc", gerberX (PCB, lastX));
+	  print_xcoord (f, PCB, lastX);
 	}
       if (y[i] != lastY)
 	{
 	  m = true;
 	  lastY = y[i];
-	  pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
+	  print_ycoord (f, PCB, lastY);
 	}
       if (firstTime)
 	{
@@ -1192,13 +1221,13 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
     {
       m = true;
       lastX = startX;
-      pcb_fprintf (f, "X%.0mc", gerberX (PCB, startX));
+      print_xcoord (f, PCB, startX);
     }
   if (startY != lastY)
     {
       m = true;
       lastY = startY;
-      pcb_fprintf (f, "Y%.0mc", gerberY (PCB, lastY));
+      print_ycoord (f, PCB, lastY);
     }
   if (m)
     fprintf (f, "D01*\r\n");
