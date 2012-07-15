@@ -118,6 +118,7 @@ static const char *gcode_basename = NULL;
 static int gcode_dpi = -1;
 
 static double gcode_cutdepth = 0;       /* milling depth (inch) */
+static char gcode_predrill;
 static double gcode_drilldepth = 0;     /* drilling depth (inch) */
 static double gcode_safeZ = 100;        /* safe Z (inch) */
 static double gcode_toolradius = 0;     /* tool radius (1/100 mil) */
@@ -178,20 +179,26 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
 #define HA_tooldiameter 4
 
+  {"predrill", "Wether to pre-drill all drilling spots with the milling\n"
+               "tool. Drill depth is mill-depth here. This feature eases\n"
+               "and enhances accuracy of manual drilling.",
+   HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_predrill 5
+
   {"drill-depth", "Drilling depth",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
-#define HA_drilldepth 5
+#define HA_drilldepth 6
 
   {"measurement-unit", "Measurement unit",
    HID_Unit, 0, 0, {-1, 0, 0}, units, 0},
-#define HA_unit 6
+#define HA_unit 7
 
   {"advanced-gcode", "wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
-#define HA_advanced 7
+#define HA_advanced 8
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -478,6 +485,7 @@ gcode_do_export (HID_Attr_Val * options)
                  : 1.0 / coord_to_unit (unit, INCH_TO_COORD (1.0));
 
   gcode_cutdepth = options[HA_cutdepth].real_value * scale;
+  gcode_predrill = options[HA_predrill].int_value;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
   gcode_toolradius = metric
@@ -581,16 +589,18 @@ gcode_do_export (HID_Attr_Val * options)
                        variable_safeZ, gcode_safeZ);
               fprintf (gcode_f2, "%s=%f  (cutting depth)\n",
                        variable_cutdepth, gcode_cutdepth);
-              fprintf (gcode_f2, "(---------------------------------)\n");
+            }
+          if (gcode_predrill && save_drill)
+            fprintf (gcode_f2, "(with predrilling)\n");
+          else
+            fprintf (gcode_f2, "(no predrilling)\n");
+          fprintf (gcode_f2, "(---------------------------------)\n");
+          if (gcode_advanced)
               fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
                        metric ? 21 : 20, metric ? 25 : 1);
-            }
           else
-            {
-              fprintf (gcode_f2, "(---------------------------------)\n");
               fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
                        metric ? 21 : 20, metric ? 25 : 1);
-            }
           fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
           /* extract contour points from image */
           r = bm_to_pathlist (bm, &plist, &param_default);
@@ -608,11 +618,65 @@ gcode_do_export (HID_Attr_Val * options)
               fprintf (stderr, "ERROR: path process function failed\n");
               goto error;
             }
+          if (gcode_predrill && save_drill)
+            {
+              int n_all_drills = 0;
+              struct drill_hole* all_drills = NULL;
+              /* count all available drills */
+              for (int i_drill_sets = 0; i_drill_sets < n_drills; i_drill_sets++)
+                {
+                  struct single_size_drills* drill_set = &drills[i_drill_sets];
+
+                  n_all_drills += drill_set->n_holes;
+                }
+              /* for sorting regardless of size, copy all available drills
+                 into one new structure */
+              all_drills = (struct drill_hole *)
+                           malloc (n_all_drills * sizeof (struct drill_hole));
+              r = 0;
+              for (int i_drill_sets = 0; i_drill_sets < n_drills; i_drill_sets++)
+                {
+                  struct single_size_drills* drill_set = &drills[i_drill_sets];
+
+                  memcpy(&all_drills[r], drill_set->holes,
+                         drill_set->n_holes * sizeof(struct drill_hole));
+                  r += drill_set->n_holes;
+                }
+              sort_drill(all_drills, n_all_drills);
+              /* write that (almost the same code as writing the drill file) */
+              fprintf (gcode_f2, "(predrilling)\n");
+              for (r = 0; r < n_all_drills; r++)
+                {
+                  double drillX, drillY;
+
+                  if (metric)
+                    {
+                      drillX = all_drills[r].x * 25.4;
+                      drillY = all_drills[r].y * 25.4;
+                    }
+                  else
+                    {
+                      drillX = all_drills[r].x;
+                      drillY = all_drills[r].y;
+                    }
+                  if (gcode_advanced)
+                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
+                             variable_cutdepth, variable_safeZ);
+                  else
+                    {
+                      fprintf (gcode_f2, "G0 X%f Y%f\n", drillX, drillY);
+                      fprintf (gcode_f2, "G1 Z%s\n", variable_cutdepth);
+                      fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
+                    }
+                }
+              fprintf (gcode_f2, "(%d predrills)\n", n_all_drills);
+              free(all_drills);
+            }
           if (metric)
-            fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n", d,
+            fprintf (gcode_f2, "(milling distance %.2fmm = %.2fin)\n", d,
                      d * 1 / 25.4);
           else
-            fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n",
+            fprintf (gcode_f2, "(milling distance %.2fmm = %.2fin)\n",
                      25.4 * d, d);
           if (gcode_advanced)
             fprintf (gcode_f2, "M5 M9 M2\n");
