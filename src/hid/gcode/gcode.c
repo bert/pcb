@@ -712,15 +712,25 @@ gcode_do_export (HID_Attr_Val * options)
                       goto error;
                     }
                   fprintf (gcode_f2, "(Created by G-code exporter)\n");
-                  fprintf (gcode_f2, "(drill file: %d drills)\n", drill->n_holes);
+                  fprintf (gcode_f2, "(Drill file: %d drills)\n", drill->n_holes);
                   sprintf (filename, "%s", ctime (&t));
                   filename[strlen (filename) - 1] = 0;
                   fprintf (gcode_f2, "( %s )\n", filename);
                   fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
                   if (metric)
-                    pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n", PCB->MaxWidth, PCB->MaxHeight);
+                    {
+                      fprintf (gcode_f2, "(Drill diameter: %f mm)\n",
+                               drill->diameter_inches * 25.4);
+                      pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n",
+                                   PCB->MaxWidth, PCB->MaxHeight);
+                    }
                   else
-                    pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n", PCB->MaxWidth, PCB->MaxHeight);
+                    {
+                      fprintf (gcode_f2, "(Drill diameter: %f inch)\n",
+                               drill->diameter_inches);
+                      pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n",
+                                   PCB->MaxWidth, PCB->MaxHeight);
+                    }
                   if (gcode_advanced)
                     {
                       fprintf (gcode_f2, "%s=%f  (safe Z)\n",
