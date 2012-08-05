@@ -1,4 +1,7 @@
 name=pcb
+version=1.99z
+release=1
+pkg_download=file://../
 
 pkg_builddir=$(cd $bindir/.. && pwd)
 
