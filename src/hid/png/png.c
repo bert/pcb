@@ -918,14 +918,14 @@ png_do_export (HID_Attr_Val * options)
 	  || ( (xmax > 0) 
 	       && ((w / xmax) > (h / ymax)) ) )
 	{
-	  h = (h * xmax) / w;
 	  scale = w / xmax;
+	  h = h / scale;
 	  w = xmax;
 	}
       else
 	{
-	  w = (w * ymax) / h;
 	  scale = h / ymax;
+	  w = w / scale;
 	  h = ymax;
 	}
     }

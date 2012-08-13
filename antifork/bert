@@ -52,5 +52,8 @@ ignorebranch e000cb9ff608822733890172a753d081c8a8437b
 LP699373, committed to master.
 ignorebranch ad4bffb8961feff0b702c3960d0e2a27d8d20ad4
 
-LP1280748, superseded by LP1280748rev2
+LP1280748, superseded by LP1280748rev2.
 ignorebranch b09e26f495a7f221075e38984d73422139be434f
+
+LP1036915, picked to mainline master.
+ignorebranch ee6b779fdb51bc534b8e82f4776af7e0df895f13
