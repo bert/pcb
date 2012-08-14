@@ -347,6 +347,7 @@ void ghid_notify_filename_changed (void);
 void ghid_install_accel_groups (GtkWindow *window, GhidGui *gui);
 void ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui);
 void make_route_style_buttons (GHidRouteStyleSelector *rss);
+void layer_process (gchar **color_string, char **text, int *set, int i);
 
 /* gui-utils.c
 */

@@ -464,7 +464,7 @@ ghid_notify_filename_changed (void)
  * used by a couple of functions.
  *
  */
-static void
+void
 layer_process (gchar **color_string, char **text, int *set, int i)
 {
   int tmp;
@@ -488,7 +488,10 @@ layer_process (gchar **color_string, char **text, int *set, int i)
     {
     case LAYER_BUTTON_SILK:
       *color_string = Settings.ElementColor;
-      *text = _( "silk");
+      if (Settings.ShowBottomSide)
+         *text = (char *)UNKNOWN (PCB->Data->Layer[bottom_silk_layer].Name);
+      else
+         *text = (char *)UNKNOWN (PCB->Data->Layer[top_silk_layer].Name);
       *set = PCB->ElementOn;
       break;
     case LAYER_BUTTON_RATS:
