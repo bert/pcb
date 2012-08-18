@@ -203,12 +203,6 @@
 
 
 /*!
- * \brief RCS identification string.
- */
-RCSID ("$Id$");
-
-
-/*!
  * \brief List with string data.
  */
 typedef struct _StringList
