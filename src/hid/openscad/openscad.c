@@ -80,9 +80,6 @@
 #endif
 
 
-RCSID ("$Id$");
-
-
 static HID_Attribute openscad_options[] =
 {
 /*
