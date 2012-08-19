@@ -2344,7 +2344,69 @@ ChangePCBSize (Coord Width, Coord Height)
 							     Y)));
   else
     SetCrosshairRange (0, 0, Width, Height);
+
+  UpdateExtents();
   hid_action ("PCBChanged");
+}
+
+/* ---------------------------------------------------------------------------
+ * finds the maximum size of a layout
+ * according to the outline layer,
+ * if present.
+ */
+void
+UpdateExtents (void)
+{
+  Coord minX, minY, maxX, maxY;
+
+  minX = minY = COORD_MAX;
+  maxX = maxY = -COORD_MAX - 1;
+
+  LAYER_LOOP (PCB->Data, MAX_LAYER);
+    {
+      if (strcmp (layer->Name, "outline") == 0)
+        {
+          LINE_LOOP (layer);
+            {
+              if (line->Point1.X < minX)
+                minX = line->Point1.X;
+              if (line->Point1.Y < minY)
+                minY = line->Point1.Y;
+              if (line->Point2.X < minX)
+                minX = line->Point2.X;
+              if (line->Point2.Y < minY)
+                minY = line->Point2.Y;
+              if (line->Point1.X > maxX)
+                maxX = line->Point1.X;
+              if (line->Point1.Y > maxY)
+                maxY = line->Point1.Y;
+              if (line->Point2.X > maxX)
+                maxX = line->Point2.X;
+              if (line->Point2.Y > maxY)
+                maxY = line->Point2.Y;
+            }
+          END_LOOP;
+        }
+    }
+  END_LOOP;
+
+  if (minX == COORD_MAX || minY == COORD_MAX ||
+      maxX == -COORD_MAX - 1 || maxY == -COORD_MAX - 1 ||
+      maxX - minX == 0 || maxY - minY == 0)
+    {
+      // no or insufficient outline layer
+      PCB->ExtentMinX = 0;
+      PCB->ExtentMinY = 0;
+      PCB->ExtentMaxX = PCB->MaxWidth;
+      PCB->ExtentMaxY = PCB->MaxHeight;
+    }
+  else
+    {
+      PCB->ExtentMinX = minX;
+      PCB->ExtentMinY = minY;
+      PCB->ExtentMaxX = maxX;
+      PCB->ExtentMaxY = maxY;
+    }
 }
 
 /* ---------------------------------------------------------------------------

@@ -511,8 +511,13 @@ typedef struct PCBType
   Coord Bloat,			/* drc sizes saved with layout */
     Shrink, minWid, minSlk, minDrill, minRing;
   Coord GridOffsetX,		/* as saved with layout */
-    GridOffsetY, MaxWidth,	/* allowed size */
-    MaxHeight;
+    GridOffsetY;
+  /* TODO: Set this always to MAX_COORD, no saving needed.
+           Kept for compatibility and until the GUI code can deal
+           with the dynamic extent. */
+  Coord MaxWidth, MaxHeight;	/* allowed size */
+  Coord ExtentMinX, ExtentMinY,	/* extent, defined by the outline layer */
+    ExtentMaxX, ExtentMaxY;
 
   Coord Grid;			/* used grid with offsets */
   double Zoom,			/* zoom factor */
