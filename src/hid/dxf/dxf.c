@@ -3077,7 +3077,7 @@ dxf_write_footer_metric_new ()
 }
 
 
-        /*!
+/*!
  * \brief Write DXF output to a file for an insert entity.
  */
 static void
