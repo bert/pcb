@@ -2759,9 +2759,7 @@ dxf_write_header ()
   }
   else
   {
-#if 0
     dxf_header_filename = strdup ("hid/dxf/template/imperial_header.dxf");
-#endif
   }
   /* check if template metric header file exists and open file
    * read-only  */
