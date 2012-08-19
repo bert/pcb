@@ -505,6 +505,11 @@ static char *dxf_filename;
 static char *dxf_header_filename;
 
 /*!
+ * \brief File name of DXF header template file.
+ */
+static char *dxf_footer_filename;
+
+/*!
  * \brief File name suffix for layer files.
  */
 static char *dxf_filesuffix;
@@ -3072,6 +3077,71 @@ dxf_write_footer_metric_new ()
   fprintf (fp, "330\n72\n");
 #if DEBUG
   fprintf (stderr, "[File: %s: line: %d] Leaving dxf_write_footer_metric_new () function.\n",
+    __FILE__, __LINE__);
+#endif
+}
+
+
+/*!
+ * \brief Write DXF output to a file for a DXF footer.
+ *
+ * Depending on the metric/imperial units setting a footer will be
+ * appended to a DXF file.\n
+ * If a custom metric/imperial DXF footer file is available this will be
+ * used, if not aavailable a fall back functions will be called for
+ * appending a default metric/imperial footer.
+ */
+static void
+dxf_write_footer ()
+{
+  FILE *f_temp;
+  char *temp = NULL;
+
+#if DEBUG
+  fprintf (stderr, "[File: %s: line: %d] Entering dxf_write_footer () function.\n",
+    __FILE__, __LINE__);
+#endif
+  if (dxf_metric)
+  {
+    dxf_footer_filename = strdup ("hid/dxf/template/metric_footer.dxf");
+  }
+  else
+  {
+    dxf_footer_filename = strdup ("hid/dxf/template/imperial_footer.dxf");
+  }
+  /* check if template metric footer file exists and open file
+   * read-only  */
+  f_temp = fopen (dxf_footer_filename, "r");
+  if (f_temp)
+  {
+    /* do until EOF of the template file:
+     * copy line by line from template file (f_temp) to
+     * destination file (fp) */
+    while (f_temp != EOF)
+    {
+      fscanf (f_temp, "%s", temp);
+      fprintf (fp, "%s", temp);
+    }
+    /* when we're done close the template file */
+    fclose (f_temp);
+  }
+  else
+  {
+    gui->log ("Error in dxf_write_footer (): cannot open file %s for reading.\n",
+      dxf_footer_filename);
+    if (dxf_metric)
+    {
+      dxf_write_footer_metric_new ();
+    }
+#if 0
+    else
+    {
+      dxf_write_footer_imperial_new ();
+    }
+#endif
+  }
+#if DEBUG
+  fprintf (stderr, "[File: %s: line: %d] Leaving dxf_write_footer () function.\n",
     __FILE__, __LINE__);
 #endif
 }
