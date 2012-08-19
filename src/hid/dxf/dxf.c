@@ -498,16 +498,6 @@ static FILE *fp;
 static char *dxf_filename;
 
 /*!
- * \brief File name of DXF header template file.
- */
-static char *dxf_header_filename;
-
-/*!
- * \brief File name of DXF header template file.
- */
-static char *dxf_footer_filename;
-
-/*!
  * \brief File name suffix for layer files.
  */
 static char *dxf_filesuffix;
@@ -2752,6 +2742,8 @@ dxf_write_header ()
 {
   FILE *f_temp;
   char *temp = NULL;
+  static char *dxf_header_filename;
+
 
 #if DEBUG
   fprintf (stderr, "[File: %s: line: %d] Entering dxf_write_header () function.\n", __FILE__, __LINE__);
@@ -3094,6 +3086,8 @@ dxf_write_footer ()
 {
   FILE *f_temp;
   char *temp = NULL;
+  static char *dxf_footer_filename;
+
 
 #if DEBUG
   fprintf (stderr, "[File: %s: line: %d] Entering dxf_write_footer () function.\n",
