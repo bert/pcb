@@ -47,6 +47,7 @@
 #include "global.h"
 #include "error.h" /* Message() */
 #include "data.h"
+#include "change.h" /* UpdateExtents() */
 #include "misc.h"
 #include "rats.h"
 
