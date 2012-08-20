@@ -506,6 +506,7 @@ gcode_do_export (HID_Attr_Val * options)
       snprintf (variable_cutdepth, 20, "%f", gcode_cutdepth);
       snprintf (variable_drilldepth, 20, "%f", gcode_drilldepth);
     }
+  UpdateExtents();
 
   for (i = 0; i < MAX_LAYER; i++)
     {
@@ -580,9 +581,13 @@ gcode_do_export (HID_Attr_Val * options)
                    options[HA_tooldiameter].real_value * scale,
                    metric ? "mm" : "inch");
           if (metric)
-            pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n", PCB->MaxWidth, PCB->MaxHeight);
+            pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n",
+                         PCB->ExtentMaxX - PCB->ExtentMinX,
+                         PCB->ExtentMaxY - PCB->ExtentMinY);
           else
-            pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n", PCB->MaxWidth, PCB->MaxHeight);
+            pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n",
+                         PCB->ExtentMaxX - PCB->ExtentMinX,
+                         PCB->ExtentMaxY - PCB->ExtentMinY);
           if (gcode_advanced)
             {
               fprintf (gcode_f2, "%s=%f  (safe Z)\n",
@@ -722,14 +727,16 @@ gcode_do_export (HID_Attr_Val * options)
                       fprintf (gcode_f2, "(Drill diameter: %f mm)\n",
                                drill->diameter_inches * 25.4);
                       pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)\n",
-                                   PCB->MaxWidth, PCB->MaxHeight);
+                                   PCB->ExtentMaxX - PCB->ExtentMinX,
+                                   PCB->ExtentMaxY - PCB->ExtentMinY);
                     }
                   else
                     {
                       fprintf (gcode_f2, "(Drill diameter: %f inch)\n",
                                drill->diameter_inches);
                       pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)\n",
-                                   PCB->MaxWidth, PCB->MaxHeight);
+                                   PCB->ExtentMaxX - PCB->ExtentMinX,
+                                   PCB->ExtentMaxY - PCB->ExtentMinY);
                     }
                   if (gcode_advanced)
                     {
