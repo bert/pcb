@@ -237,6 +237,9 @@ EXTRA_DIST= \
 	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
 	$(srcdir)/hid/dxf/hid.conf \
+	$(srcdir)/hid/dxf/template/imperial_header.dxf \
+	$(srcdir)/hid/dxf/template/metric_footer.dxf \
+	$(srcdir)/hid/dxf/template/metric_header.dxf \
 	$(srcdir)/hid/gcode/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
