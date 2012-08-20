@@ -377,7 +377,6 @@ gcode_alloc_colors ()
 static void
 gcode_start_png (const char *layername)
 {
-  int h, w;
   char *png_filename, *buf;
 
   png_filename = (char *)malloc (MAXPATHLEN);
@@ -385,11 +384,9 @@ gcode_start_png (const char *layername)
   buf = g_strdup_printf ("%s.png", png_filename);
   free(png_filename);
 
-  h = pcb_to_gcode (PCB->MaxHeight);
-  w = pcb_to_gcode (PCB->MaxWidth);
-
   /* Nelma only works with true color images */
-  gcode_im = gdImageCreate (w, h);
+  gcode_im = gdImageCreate (pcb_to_gcode (PCB->ExtentMaxX - PCB->ExtentMinX),
+                            pcb_to_gcode (PCB->ExtentMaxY - PCB->ExtentMinY));
   gcode_f = fopen (buf, "wb");
 
   gcode_alloc_colors ();
@@ -420,10 +417,10 @@ gcode_start_png_export ()
 {
   BoxType region;
 
-  region.X1 = 0;
-  region.Y1 = 0;
-  region.X2 = PCB->MaxWidth;
-  region.Y2 = PCB->MaxHeight;
+  region.X1 = PCB->ExtentMinX;
+  region.Y1 = PCB->ExtentMinY;
+  region.X2 = PCB->ExtentMaxX;
+  region.Y2 = PCB->ExtentMaxY;
 
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
@@ -1016,10 +1013,11 @@ gcode_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageRectangle (gcode_im,
-                    pcb_to_gcode (x1 - gcode_toolradius),
-                    pcb_to_gcode (y1 - gcode_toolradius),
-                    pcb_to_gcode (x2 + gcode_toolradius),
-                    pcb_to_gcode (y2 + gcode_toolradius), gc->color->c);
+                    pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
+                    pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
+                    pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
+                    pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                    gc->color->c);
 /*      printf("Rect %d %d %d %d\n",x1,y1,x2,y2); */
 }
 
@@ -1030,10 +1028,11 @@ gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageFilledRectangle (gcode_im,
-                          pcb_to_gcode (x1 - gcode_toolradius),
-                          pcb_to_gcode (y1 - gcode_toolradius),
-                          pcb_to_gcode (x2 + gcode_toolradius),
-                          pcb_to_gcode (y2 + gcode_toolradius), gc->color->c);
+                      pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
+                      pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
+                      pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
+                      pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                      gc->color->c);
 /*      printf("FillRect %d %d %d %d\n",x1,y1,x2,y2); */
 }
 
@@ -1043,15 +1042,20 @@ gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   if (x1 == x2 && y1 == y2)
     {
       Coord w = gc->width / 2;
-      gcode_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
+      gcode_fill_rect (gc,
+                       x1 - PCB->ExtentMinX - w, y1 - PCB->ExtentMinX - w,
+                       x1 - PCB->ExtentMinX + w, y1 - PCB->ExtentMinY + w);
       return;
     }
   use_gc (gc);
 
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
-  gdImageLine (gcode_im, pcb_to_gcode (x1), pcb_to_gcode (y1),
-               pcb_to_gcode (x2), pcb_to_gcode (y2), gdBrushed);
+  gdImageLine (gcode_im,
+               pcb_to_gcode (x1 - PCB->ExtentMinX),
+               pcb_to_gcode (y1 - PCB->ExtentMinY),
+               pcb_to_gcode (x2 - PCB->ExtentMinX),
+               pcb_to_gcode (y2 - PCB->ExtentMinY), gdBrushed);
 }
 
 static void
@@ -1094,7 +1098,9 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
   use_gc (gc);
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
-  gdImageArc (gcode_im, pcb_to_gcode (cx), pcb_to_gcode (cy),
+  gdImageArc (gcode_im,
+              pcb_to_gcode (cx - PCB->ExtentMinX),
+              pcb_to_gcode (cy - PCB->ExtentMinY),
               pcb_to_gcode (2 * width + gcode_toolradius * 2),
               pcb_to_gcode (2 * height + gcode_toolradius * 2), sa, ea,
               gdBrushed);
@@ -1184,7 +1190,9 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
-  gdImageFilledEllipse (gcode_im, pcb_to_gcode (cx), pcb_to_gcode (cy),
+  gdImageFilledEllipse (gcode_im,
+                        pcb_to_gcode (cx - PCB->ExtentMinX),
+                        pcb_to_gcode (cy - PCB->ExtentMinY),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         gc->color->c);
@@ -1194,8 +1202,10 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 
       struct single_size_drills* drill = get_drill (diameter_inches);
       add_hole (drill,
-                COORD_TO_INCH(PCB->MaxWidth  - cx),  /* convert to inch, flip: will drill from bottom side */
-                COORD_TO_INCH(PCB->MaxHeight - cy)); /* PCB reverses y axis */
+                /* convert to inch, flip: will drill from bottom side */
+                COORD_TO_INCH(PCB->ExtentMaxX  - cx),  
+                /* PCB reverses y axis */
+                COORD_TO_INCH(PCB->ExtentMaxY - cy)); 
     }
 }
 
@@ -1214,8 +1224,8 @@ gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   use_gc (gc);
   for (i = 0; i < n_coords; i++)
     {
-      points[i].x = pcb_to_gcode (x[i]);
-      points[i].y = pcb_to_gcode (y[i]);
+      points[i].x = pcb_to_gcode (x[i] - PCB->ExtentMinX);
+      points[i].y = pcb_to_gcode (y[i] - PCB->ExtentMinY);
     }
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
