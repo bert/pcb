@@ -121,7 +121,7 @@ static double gcode_cutdepth = 0;       /* milling depth (inch) */
 static char gcode_predrill;
 static double gcode_drilldepth = 0;     /* drilling depth (inch) */
 static double gcode_safeZ = 100;        /* safe Z (inch) */
-static double gcode_toolradius = 0;     /* tool radius (1/100 mil) */
+static int gcode_toolradius = 0;        /* tool radius (1/100 mil) */
 static char gcode_advanced = 0;
 static int save_drill = 0;
 
