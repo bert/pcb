@@ -2795,6 +2795,284 @@ dxf_write_header ()
 
 
 /*!
+ * \brief Write DXF output to a file for an imperial DXF footer.
+ *
+ * Included sections are:\n
+ * <ul>
+ * <li>OBJECTS section
+ * <li>THUMBNAILIMAGE section
+ * </ul>
+ */
+static void
+dxf_write_footer_imperial_new ()
+{
+#if DEBUG
+  fprintf (stderr, "[File: %s: line: %d] Entering dxf_write_footer_imperial_new () function.\n",
+    __FILE__, __LINE__);
+#endif
+  fprintf (fp, "0\nSECTION\n");
+  fprintf (fp, "  2\nOBJECTS\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\nC\n");
+  fprintf (fp, "330\n0\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  3\nACAD_COLOR\n");
+  fprintf (fp, "350\n75\n");
+  fprintf (fp, "  3\nACAD_GROUP\n");
+  fprintf (fp, "350\nD\n");
+  fprintf (fp, "  3\nACAD_LAYOUT\n");
+  fprintf (fp, "350\n76\n");
+  fprintf (fp, "  3\nACAD_MATERIAL\n");
+  fprintf (fp, "350\n74\n");
+  fprintf (fp, "  3\nACAD_MLINESTYLE\n");
+  fprintf (fp, "350\n1B\n");
+  fprintf (fp, "3\nACAD_PLOTSETTINGS\n");
+  fprintf (fp, "350\n77\n");
+  fprintf (fp, "  3\nACAD_PLOTSTYLENAME\n");
+  fprintf (fp, "350\n72\n");
+  fprintf (fp, "  3\nAVE_ACITABLE\n");
+  fprintf (fp, "350\n51\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n75\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\nD\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n76\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  3\nLayout1\n");
+  fprintf (fp, "350\n79\n");
+  fprintf (fp, "  3\nModel\n");
+  fprintf (fp, "350\n78\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n74\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n1B\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  3\nSTANDARD\n");
+  fprintf (fp, "350\n1C\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n77\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  0\nACDBDICTIONARYWDFLT\n");
+  fprintf (fp, "  5\n72\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  3\nNormal\n");
+  fprintf (fp, "350\n73\n");
+  fprintf (fp, "100\nAcDbDictionaryWithDefault\n");
+  fprintf (fp, "340\n73\n");
+  fprintf (fp, "  0\nDICTIONARY\n");
+  fprintf (fp, "  5\n51\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\nC\n");
+  fprintf (fp, "100\nAcDbDictionary\n");
+  fprintf (fp, "281\n     1\n");
+  fprintf (fp, "  0\nLAYOUT\n");
+  fprintf (fp, "  5\n79\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\n76\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\n76\n");
+  fprintf (fp, "100\nAcDbPlotSettings\n");
+  fprintf (fp, "  1\n\n");
+  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  4\n\n");
+  fprintf (fp, "  6\n\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, " 41\n0.0\n");
+  fprintf (fp, " 42\n0.0\n");
+  fprintf (fp, " 43\n0.0\n");
+  fprintf (fp, " 44\n0.0\n");
+  fprintf (fp, " 45\n0.0\n");
+  fprintf (fp, " 46\n0.0\n");
+  fprintf (fp, " 47\n0.0\n");
+  fprintf (fp, " 48\n0.0\n");
+  fprintf (fp, " 49\n0.0\n");
+  fprintf (fp, "140\n0.0\n");
+  fprintf (fp, "141\n0.0\n");
+  fprintf (fp, "142\n1.0\n");
+  fprintf (fp, "143\n1.0\n");
+  fprintf (fp, " 70\n   688\n");
+  fprintf (fp, " 72\n     0\n");
+  fprintf (fp, " 73\n     0\n");
+  fprintf (fp, " 74\n     5\n");
+  fprintf (fp, "  7\n\n");
+  fprintf (fp, " 75\n    16\n");
+  fprintf (fp, "147\n1.0\n");
+  fprintf (fp, " 76\n     0\n");
+  fprintf (fp, " 77\n     2\n");
+  fprintf (fp, " 78\n   300\n");
+  fprintf (fp, "148\n0.0\n");
+  fprintf (fp, "149\n0.0\n");
+  fprintf (fp, "100\nAcDbLayout\n");
+  fprintf (fp, "  1\nLayout1\n");
+  fprintf (fp, " 70\n     1\n");
+  fprintf (fp, " 71\n     1\n");
+  fprintf (fp, " 10\n0.0\n");
+  fprintf (fp, " 20\n0.0\n");
+  fprintf (fp, " 11\n17.0\n");
+  fprintf (fp, " 21\n11.0\n");
+  fprintf (fp, " 12\n0.0\n");
+  fprintf (fp, " 22\n0.0\n");
+  fprintf (fp, " 32\n0.0\n");
+  fprintf (fp, " 14\n1.000000000000000E+20\n");
+  fprintf (fp, " 24\n1.000000000000000E+20\n");
+  fprintf (fp, " 34\n1.000000000000000E+20\n");
+  fprintf (fp, " 15\n-1.000000000000000E+20\n");
+  fprintf (fp, " 25\n-1.000000000000000E+20\n");
+  fprintf (fp, " 35\n-1.000000000000000E+20\n");
+  fprintf (fp, "146\n0.0\n");
+  fprintf (fp, " 13\n0.0\n");
+  fprintf (fp, " 23\n0.0\n");
+  fprintf (fp, " 33\n0.0\n");
+  fprintf (fp, " 16\n1.0\n");
+  fprintf (fp, " 26\n0.0\n");
+  fprintf (fp, " 36\n0.0\n");
+  fprintf (fp, " 17\n0.0\n");
+  fprintf (fp, " 27\n1.0\n");
+  fprintf (fp, " 37\n0.0\n");
+  fprintf (fp, " 76\n     0\n");
+  fprintf (fp, "330\n15\n");
+  fprintf (fp, "  0\nLAYOUT\n");
+  fprintf (fp, "  5\n78\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\n76\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\n76\n");
+  fprintf (fp, "100\nAcDbPlotSettings\n");
+  fprintf (fp, "  1\n\n");
+  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  4\n\n");
+  fprintf (fp, "  6\n\n");
+  fprintf (fp, " 40\n0.0\n");
+  fprintf (fp, " 41\n0.0\n");
+  fprintf (fp, " 42\n0.0\n");
+  fprintf (fp, " 43\n0.0\n");
+  fprintf (fp, " 44\n0.0\n");
+  fprintf (fp, " 45\n0.0\n");
+  fprintf (fp, " 46\n0.0\n");
+  fprintf (fp, " 47\n0.0\n");
+  fprintf (fp, " 48\n0.0\n");
+  fprintf (fp, " 49\n0.0\n");
+  fprintf (fp, "140\n0.0\n");
+  fprintf (fp, "141\n0.0\n");
+  fprintf (fp, "142\n1.0\n");
+  fprintf (fp, "143\n1.0\n");
+  fprintf (fp, " 70\n  1712\n");
+  fprintf (fp, " 72\n     0\n");
+  fprintf (fp, " 73\n     0\n");
+  fprintf (fp, " 74\n     0\n");
+  fprintf (fp, "  7\n\n");
+  fprintf (fp, " 75\n     0\n");
+  fprintf (fp, "147\n1.0\n");
+  fprintf (fp, " 76\n     0\n");
+  fprintf (fp, " 77\n     2\n");
+  fprintf (fp, " 78\n   300\n");
+  fprintf (fp, "148\n0.0\n");
+  fprintf (fp, "149\n0.0\n");
+  fprintf (fp, "100\nAcDbLayout\n");
+  fprintf (fp, "  1\nModel\n");
+  fprintf (fp, " 70\n     1\n");
+  fprintf (fp, " 71\n     0\n");
+  fprintf (fp, " 10\n0.0\n");
+  fprintf (fp, " 20\n0.0\n");
+  fprintf (fp, " 11\n17.0\n");
+  fprintf (fp, " 21\n11.0\n");
+  fprintf (fp, " 12\n0.0\n");
+  fprintf (fp, " 22\n0.0\n");
+  fprintf (fp, " 32\n0.0\n");
+  fprintf (fp, " 14\n0.0\n");
+  fprintf (fp, " 24\n0.0\n");
+  fprintf (fp, " 34\n0.0\n");
+  fprintf (fp, " 15\n0.0\n");
+  fprintf (fp, " 25\n0.0\n");
+  fprintf (fp, " 35\n0.0\n");
+  fprintf (fp, "146\n0.0\n");
+  fprintf (fp, " 13\n0.0\n");
+  fprintf (fp, " 23\n0.0\n");
+  fprintf (fp, " 33\n0.0\n");
+  fprintf (fp, " 16\n1.0\n");
+  fprintf (fp, " 26\n0.0\n");
+  fprintf (fp, " 36\n0.0\n");
+  fprintf (fp, " 17\n0.0\n");
+  fprintf (fp, " 27\n1.0\n");
+  fprintf (fp, " 37\n0.0\n");
+  fprintf (fp, " 76\n     0\n");
+  fprintf (fp, "330\n18\n");
+  fprintf (fp, "  0\nMLINESTYLE\n");
+  fprintf (fp, "  5\n1C\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\n1B\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\n1B\n");
+  fprintf (fp, "100\nAcDbMlineStyle\n");
+  fprintf (fp, "  2\nSTANDARD\n");
+  fprintf (fp, " 70\n     0\n");
+  fprintf (fp, "  3\n\n");
+  fprintf (fp, " 62\n   256\n");
+  fprintf (fp, " 51\n90.0\n");
+  fprintf (fp, " 52\n90.0\n");
+  fprintf (fp, " 71\n     2\n");
+  fprintf (fp, " 49\n0.5\n");
+  fprintf (fp, " 62\n   256\n");
+  fprintf (fp, "  6\nBYLAYER\n");
+  fprintf (fp, " 49\n-0.5\n");
+  fprintf (fp, " 62\n   256\n");
+  fprintf (fp, "  6\nBYLAYER\n");
+  fprintf (fp, "  0\nACDBPLACEHOLDER\n");
+  fprintf (fp, "  5\n73\n");
+  fprintf (fp, "102\n{ACAD_REACTORS\n");
+  fprintf (fp, "330\n72\n");
+  fprintf (fp, "102\n}\n");
+  fprintf (fp, "330\n72\n");
+#if DEBUG
+  fprintf (stderr, "[File: %s: line: %d] Leaving dxf_write_footer_imperial_new () function.\n",
+    __FILE__, __LINE__);
+#endif
+}
+
+
+/*!
  * \brief Write DXF output to a file for a metric DXF footer.
  *
  * Included sections are:\n
