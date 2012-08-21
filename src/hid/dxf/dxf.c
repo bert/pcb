@@ -3403,12 +3403,10 @@ dxf_write_footer ()
     {
       dxf_write_footer_metric_new ();
     }
-#if 0
     else
     {
       dxf_write_footer_imperial_new ();
     }
-#endif
   }
 #if DEBUG
   fprintf (stderr, "[File: %s: line: %d] Leaving dxf_write_footer () function.\n",
