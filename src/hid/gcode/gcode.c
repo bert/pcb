@@ -97,7 +97,7 @@ static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 
 /* gd image and file for PNG export */
 static gdImagePtr gcode_im = NULL;
-static FILE *gcode_f = NULL, *gcode_f2 = NULL;
+static FILE *gcode_f2 = NULL;
 
 static int is_mask;
 static int is_drill;
@@ -375,40 +375,38 @@ gcode_alloc_colors ()
 }
 
 static void
-gcode_start_png (const char *layername)
+gcode_start_png ()
 {
-  char *png_filename, *buf;
-
-  png_filename = (char *)malloc (MAXPATHLEN);
-  gcode_get_filename (png_filename, layername);
-  buf = g_strdup_printf ("%s.png", png_filename);
-  free(png_filename);
-
   gcode_im = gdImageCreate (pcb_to_gcode (PCB->ExtentMaxX - PCB->ExtentMinX),
                             pcb_to_gcode (PCB->ExtentMaxY - PCB->ExtentMinY));
-  gcode_f = fopen (buf, "wb");
-
   gcode_alloc_colors ();
-
-  g_free (buf);
 }
 
 static void
-gcode_finish_png ()
+gcode_finish_png (const char *layername)
 {
 #ifdef HAVE_GDIMAGEPNG
-  gdImagePng (gcode_im, gcode_f);
+  char *pngname, *filename;
+  FILE *file = NULL;
+
+  pngname = (char *)malloc (MAXPATHLEN);
+  gcode_get_filename (pngname, layername);
+  filename = g_strdup_printf ("%s.png", pngname);
+  free(pngname);
+
+  file = fopen (filename, "wb");
+  g_free (filename);
+
+  gdImagePng (gcode_im, file);
+  fclose (file);
 #else
   Message ("GCODE: PNG not supported by gd. Can't write layer mask.\n");
 #endif
   gdImageDestroy (gcode_im);
-  fclose (gcode_f);
 
   free (white);
   free (black);
-
   gcode_im = NULL;
-  gcode_f = NULL;
 }
 
 static void
@@ -518,7 +516,7 @@ gcode_do_export (HID_Attr_Val * options)
             (GetLayerGroupNumberByNumber (idx) ==
              GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
           save_drill = is_solder; /* save drills for one layer only */
-          gcode_start_png (layer_type_to_file_name (idx, FNS_fixed));
+          gcode_start_png ();
           hid_save_and_show_layer_ons (save_ons);
           gcode_start_png_export ();
           hid_restore_layer_ons (save_ons);
@@ -804,7 +802,7 @@ gcode_do_export (HID_Attr_Val * options)
           free (filename);
 
 /* ******************* end gcode conversion **************************** */
-          gcode_finish_png ();
+          gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
         }
     }
 error:
