@@ -384,7 +384,6 @@ gcode_start_png (const char *layername)
   buf = g_strdup_printf ("%s.png", png_filename);
   free(png_filename);
 
-  /* Nelma only works with true color images */
   gcode_im = gdImageCreate (pcb_to_gcode (PCB->ExtentMaxX - PCB->ExtentMinX),
                             pcb_to_gcode (PCB->ExtentMaxY - PCB->ExtentMinY));
   gcode_f = fopen (buf, "wb");
