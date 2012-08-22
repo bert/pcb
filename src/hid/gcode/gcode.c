@@ -533,6 +533,8 @@ gcode_do_export (HID_Attr_Val * options)
             { /* only for back layer */
               gdImagePtr temp_im =
                 gdImageCreate (gdImageSX (gcode_im), gdImageSY (gcode_im));
+              gdImageColorAllocate (temp_im, white->r, white->g, white->b);
+              gdImageColorAllocate (temp_im, black->r, black->g, black->b);
               gdImageCopy (temp_im, gcode_im, 0, 0, 0, 0,
                            gdImageSX (gcode_im), gdImageSY (gcode_im));
               for (r = 0; r < gdImageSX (gcode_im); r++)
