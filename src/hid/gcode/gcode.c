@@ -522,11 +522,9 @@ gcode_do_export (HID_Attr_Val * options)
           hid_restore_layer_ons (save_ons);
 
 /* ***************** gcode conversion *************************** */
-/* potrace uses a different kind of bitmap; for simplicity gcode_im is copied to this format */
+/* potrace uses a different kind of bitmap; for simplicity gcode_im is
+   copied to this format and flipped as needed along the way */
           bm = bm_new (gdImageSX (gcode_im), gdImageSY (gcode_im));
-          filename = (char *)malloc (MAXPATHLEN);
-          plist = NULL;
-          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
           for (r = 0; r < gdImageSX (gcode_im); r++)
             {
               for (c = 0; c < gdImageSY (gcode_im); c++)
@@ -565,6 +563,9 @@ gcode_do_export (HID_Attr_Val * options)
               gdImageDestroy (temp_im);
             }
           gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
+          plist = NULL;
+          filename = (char *)malloc (MAXPATHLEN);
+          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
           gcode_f = fopen (filename, "wb");
           if (!gcode_f)
             {
@@ -693,6 +694,7 @@ gcode_do_export (HID_Attr_Val * options)
           pathlist_free (plist);
           bm_free (bm);
           fclose (gcode_f);
+          gcode_f = NULL;
           if (save_drill)
             {
               for (int i_drill_file=0; i_drill_file < n_drills; i_drill_file++)
