@@ -564,6 +564,7 @@ gcode_do_export (HID_Attr_Val * options)
                 }
               gdImageDestroy (temp_im);
             }
+          gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
           gcode_f = fopen (filename, "wb");
           if (!gcode_f)
             {
@@ -800,9 +801,7 @@ gcode_do_export (HID_Attr_Val * options)
               n_drills = n_drills_allocated = 0;
             }
           free (filename);
-
 /* ******************* end gcode conversion **************************** */
-          gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
         }
     }
 error:
