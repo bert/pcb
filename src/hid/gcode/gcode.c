@@ -528,8 +528,26 @@ gcode_do_export (HID_Attr_Val * options)
           bm = bm_new (gdImageSX (gcode_im), gdImageSY (gcode_im));
           filename = (char *)malloc (MAXPATHLEN);
           plist = NULL;
+          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
+          for (r = 0; r < gdImageSX (gcode_im); r++)
+            {
+              for (c = 0; c < gdImageSY (gcode_im); c++)
+                {
+                  if (is_solder)
+                    v =  /* flip vertically and horizontally */
+                      gdImageGetPixel (gcode_im, gdImageSX (gcode_im) - 1 - r,
+                                       gdImageSY (gcode_im) - 1 - c);
+                  else
+                    v =  /* flip only vertically */
+                      gdImageGetPixel (gcode_im, r,
+                                       gdImageSY (gcode_im) - 1 - c);
+                  p = (gcode_im->red[v] || gcode_im->green[v]
+                       || gcode_im->blue[v]) ? 0 : 0xFFFFFF;
+                  BM_PUT (bm, r, c, p);
+                }
+            }
           if (is_solder)
-            { /* only for back layer */
+            { /* flip back layer, used only for PNG output */
               gdImagePtr temp_im =
                 gdImageCreate (gdImageSX (gcode_im), gdImageSY (gcode_im));
               gdImageColorAllocate (temp_im, white->r, white->g, white->b);
@@ -547,19 +565,6 @@ gcode_do_export (HID_Attr_Val * options)
                     }
                 }
               gdImageDestroy (temp_im);
-            }
-          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
-          for (r = 0; r < gdImageSX (gcode_im); r++)
-            {
-              for (c = 0; c < gdImageSY (gcode_im); c++)
-                {
-                  v =
-                    gdImageGetPixel (gcode_im, r,
-                                     gdImageSY (gcode_im) - 1 - c);
-                  p = (gcode_im->red[v] || gcode_im->green[v]
-                       || gcode_im->blue[v]) ? 0 : 0xFFFFFF;
-                  BM_PUT (bm, r, c, p);
-                }
             }
           gcode_f2 = fopen (filename, "wb");
           if (!gcode_f2)
