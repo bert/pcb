@@ -428,16 +428,47 @@ gcode_start_png_export ()
   hid_expose_callback (&gcode_hid, &region, 0);
 }
 
+static FILE *
+gcode_start_gcode (const char *layername, bool metric)
+{
+  FILE *file = NULL;
+  char buffer[MAXPATHLEN];
+  time_t t;
+
+  gcode_get_filename (buffer, layername);
+  file = fopen (buffer, "wb");
+  if ( ! file)
+    {
+      perror (buffer);
+      return NULL;
+    }
+  fprintf (file, "(Created by G-code exporter)\n");
+  t = time (NULL);
+  snprintf (buffer, sizeof(buffer), "%s", ctime (&t));
+  buffer[strlen (buffer) - 1] = '\0'; // drop the newline
+  fprintf (file, "(%s)\n", buffer);
+  /* TODO: what about other units, like um or mil? */
+  fprintf (file, "(Units: %s)\n", metric ? "mm" : "inch");
+  if (metric)
+    pcb_fprintf (file, "(Board size: %.2mm x %.2mm mm)\n",
+                 PCB->ExtentMaxX - PCB->ExtentMinX,
+                 PCB->ExtentMaxY - PCB->ExtentMinY);
+  else
+    pcb_fprintf (file, "(Board size: %.2mi x %.2mi inches)\n",
+                 PCB->ExtentMaxX - PCB->ExtentMinX,
+                 PCB->ExtentMaxY - PCB->ExtentMinY);
+
+  return file;
+}
+
 static void
 gcode_do_export (HID_Attr_Val * options)
 {
   int save_ons[MAX_LAYER + 2];
   int i, idx;
-  time_t t;
   const Unit *unit;
   double scale = 0, d = 0;
   int r, c, v, p, metric;
-  char *filename;
   path_t *plist = NULL;
   potrace_bitmap_t *bm = NULL;
   potrace_param_t param_default = {
@@ -573,34 +604,17 @@ gcode_do_export (HID_Attr_Val * options)
             }
           gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
           plist = NULL;
-          filename = (char *)malloc (MAXPATHLEN);
-          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
-          gcode_f = fopen (filename, "wb");
+          gcode_f = gcode_start_gcode (layer_type_to_file_name (idx, FNS_fixed),
+                                       metric);
           if (!gcode_f)
             {
-              perror (filename);
-              free (filename);
               bm_free (bm);
               goto error;
             }
-          fprintf (gcode_f, "(Created by G-code exporter)\n");
-          t = time (NULL);
-          sprintf (filename, "%s", ctime (&t));
-          filename[strlen (filename) - 1] = 0;
-          fprintf (gcode_f, "( %s )\n", filename);
-          fprintf (gcode_f, "(%d dpi)\n", gcode_dpi);
-          fprintf (gcode_f, "(Unit: %s)\n", metric ? "mm" : "inch");
+          fprintf (gcode_f, "(Accuracy %d dpi)\n", gcode_dpi);
           fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                    options[HA_tooldiameter].real_value * scale,
                    metric ? "mm" : "inch");
-          if (metric)
-            pcb_fprintf (gcode_f, "(Board size: %.2mmx%.2mm mm)\n",
-                         PCB->ExtentMaxX - PCB->ExtentMinX,
-                         PCB->ExtentMaxY - PCB->ExtentMinY);
-          else
-            pcb_fprintf (gcode_f, "(Board size: %.2mix%.2mi inches)\n",
-                         PCB->ExtentMaxX - PCB->ExtentMinX,
-                         PCB->ExtentMaxY - PCB->ExtentMinY);
           if (gcode_advanced)
             {
               fprintf (gcode_f, "%s=%f  (safe Z)\n",
@@ -721,38 +735,17 @@ gcode_do_export (HID_Attr_Val * options)
                              metric ?
                              drill->diameter_inches * 25.4 :
                              drill->diameter_inches);
-                    gcode_get_filename (filename, layername);
+                    gcode_f = gcode_start_gcode(layername, metric);
                   }
-
-                  gcode_f = fopen (filename, "wb");
                   if (!gcode_f)
-                    {
-                      perror (filename);
-                      free(filename);
-                      goto error;
-                    }
-                  fprintf (gcode_f, "(Created by G-code exporter)\n");
+                    goto error;
                   fprintf (gcode_f, "(Drill file: %d drills)\n", drill->n_holes);
-                  sprintf (filename, "%s", ctime (&t));
-                  filename[strlen (filename) - 1] = 0;
-                  fprintf (gcode_f, "( %s )\n", filename);
-                  fprintf (gcode_f, "(Unit: %s)\n", metric ? "mm" : "inch");
                   if (metric)
-                    {
-                      fprintf (gcode_f, "(Drill diameter: %f mm)\n",
-                               drill->diameter_inches * 25.4);
-                      pcb_fprintf (gcode_f, "(Board size: %.2mmx%.2mm mm)\n",
-                                   PCB->ExtentMaxX - PCB->ExtentMinX,
-                                   PCB->ExtentMaxY - PCB->ExtentMinY);
-                    }
+                    fprintf (gcode_f, "(Drill diameter: %f mm)\n",
+                             drill->diameter_inches * 25.4);
                   else
-                    {
-                      fprintf (gcode_f, "(Drill diameter: %f inch)\n",
-                               drill->diameter_inches);
-                      pcb_fprintf (gcode_f, "(Board size: %.2mix%.2mi inches)\n",
-                                   PCB->ExtentMaxX - PCB->ExtentMinX,
-                                   PCB->ExtentMaxY - PCB->ExtentMinY);
-                    }
+                    fprintf (gcode_f, "(Drill diameter: %f inch)\n",
+                             drill->diameter_inches);
                   if (gcode_advanced)
                     {
                       fprintf (gcode_f, "%s=%f  (safe Z)\n",
@@ -812,7 +805,6 @@ gcode_do_export (HID_Attr_Val * options)
               drills = NULL;
               n_drills = n_drills_allocated = 0;
             }
-          free (filename);
 /* ******************* end gcode conversion **************************** */
         }
     }
@@ -850,33 +842,12 @@ gcode_do_export (HID_Attr_Val * options)
       double lowerX = 0., lowerY = 0., upperX = 0., upperY = 0.;
       double mill_distance = 0.;
 
-      filename = malloc (MAXPATHLEN);
-      gcode_get_filename (filename, "outline");
-      gcode_f = fopen (filename, "wb");
+      gcode_f = gcode_start_gcode("outline", metric);
       if (!gcode_f)
-        {
-          perror (filename);
-          free(filename);
-          goto error;
-        }
-      fprintf (gcode_f, "(Created by G-code exporter)\n");
-      fprintf (gcode_f, "(outline mill file)\n");
-      sprintf (filename, "%s", ctime (&t));
-      filename[strlen (filename) - 1] = 0;
-      fprintf (gcode_f, "( %s )\n", filename);
-      free (filename);
-      /* TODO: what about other units, like um or mil? */
-      fprintf (gcode_f, "(Unit: %s)\n", metric ? "mm" : "inch");
+        goto error;
+      fprintf (gcode_f, "(Outline mill file)\n");
       fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                gcode_milltoolradius * 2, metric ? "mm" : "inch");
-      if (metric)
-        pcb_fprintf (gcode_f, "(Board size: %.2mmx%.2mm mm)\n",
-                     PCB->ExtentMaxX - PCB->ExtentMinX,
-                     PCB->ExtentMaxY - PCB->ExtentMinY);
-      else
-        pcb_fprintf (gcode_f, "(Board size: %.2mix%.2mi inches)\n",
-                     PCB->ExtentMaxX - PCB->ExtentMinX,
-                     PCB->ExtentMaxY - PCB->ExtentMinY);
       if (gcode_advanced)
         {
           fprintf (gcode_f, "%s=%f  (safe Z)\n", variable_safeZ, gcode_safeZ);
