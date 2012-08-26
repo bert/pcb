@@ -736,6 +736,7 @@ gcode_do_export (HID_Attr_Val * options)
                   if (!gcode_f)
                     {
                       perror (filename);
+                      free(filename);
                       goto error;
                     }
                   fprintf (gcode_f, "(Created by G-code exporter)\n");
