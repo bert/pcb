@@ -120,9 +120,9 @@ static int gcode_dpi = -1;
 
 static double gcode_cutdepth = 0;       /* milling depth (inch) */
 static char gcode_predrill;
-static double gcode_drilldepth = 0;     /* drilling depth (inch) */
-static double gcode_safeZ = 100;        /* safe Z (inch) */
-static int gcode_toolradius = 0;        /* tool radius (1/100 mil) */
+static double gcode_drilldepth = 0;     /* drilling depth (mm or in) */
+static double gcode_safeZ = 100;        /* safe Z (mm or in) */
+static int gcode_toolradius = 0;        /* iso-mill tool radius (1/100 mil) */
 static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
 static double gcode_milltoolradius = 0; /* outline-mill tool radius (mm or in)*/
 static char gcode_advanced = 0;
