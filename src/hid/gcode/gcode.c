@@ -150,14 +150,6 @@ static struct single_size_drills* drills             = NULL;
 static int                        n_drills           = 0;
 static int                        n_drills_allocated = 0;
 
-static const char *units[] = {
-  "mm",
-  "mil",
-  "um",
-  "inch",
-  NULL
-};
-
 HID_Attribute gcode_attribute_list[] = {
   /* other HIDs expect this to be first.  */
   {"basename", "File name prefix and suffix,\n"
@@ -166,7 +158,7 @@ HID_Attribute gcode_attribute_list[] = {
 #define HA_basename 0
 
   {"measurement-unit", "Measurement unit used in the G-code output.",
-   HID_Unit, 0, 0, {3, 0, 0}, units, 0},
+   HID_Unit, 0, 0, {3, 0, 0}, NULL, 0},
 #define HA_unit 1
 
   {"dpi", "Accuracy of the mill path generation in pixels/inch.",
