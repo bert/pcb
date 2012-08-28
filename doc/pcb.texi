@@ -85,6 +85,7 @@ board layout system.
 * Standard Drill Sizes::   Tables of standard drill sizes
 * Centroid File Format::   Details of the centroid (x-y) output file
 * Annotation File Format:: Details of the back annotation output file
+* pcbignore Files::        Use of pcbignore files
 * Action Reference::       Documentation for all available actions
 * Glossary::               Glossary
 * Index::                  The Index.
@@ -5831,6 +5832,178 @@ and the new name.
 *RENAME* ``old'' ``new''
 @end format
 @end cartouche
+
+@c --------------------------- Appendix -- pcbignore Files ----------------------
+@node pcbignore Files
+@appendix pcbignore Files for Newlib libraries
+@cindex pcbignore files
+
+@section Overview
+
+The pcbignore files may be used to specify certain subdirectory and file names
+that are to be ignored when constructing the menus of newlib style footprints in
+the PCB Library window.  The list of patterns to match against filesystem names
+is called the Ignore List, and the pcbignore files are used to manage this list.
+
+@section File Format
+@cindex pcbignore files, file format
+
+A pcbignore file contains one directive per line.  A directive may be a comment,
+a file pattern, a subdirectory pattern, or a remove pattern.  A pattern is used
+to match against filesystem names, and may include shell wildcards.  Leading and
+trailing whitespace is removed from a pattern; embedded whitespace is retained.
+Blank lines are ignored.
+
+An example pcbignore file is shown below.
+
+@example
+
+# Patterns to be ignored.
+/uselessdir
+nonsense.file
+*.rubbish
+# Remove these patterns.
+!keep.this
+!*.also_keep
+
+@end example
+
+@subsection Comment line
+
+A line with a ``#'' in the first column is a comment.  The entire comment line is
+ignored.
+
+@cartouche
+@format
+@code{# comment}
+@end format
+@end cartouche
+
+Note that if the leading ``#'' is not in the first column, then the line is not a
+comment, and the ``#'' is part of a pattern.
+
+@subsection Remove Pattern line
+
+A line with a ``!'' in the first column is a remove pattern.  If there is no
+other text on the line, then all patterns are removed (i.e. it clears the Ignore
+List).
+
+@cartouche
+@format
+@code{!}
+@end format
+@end cartouche
+
+If there is following text on the line, then any identical pattern in the Ignore
+List is removed from the list.
+
+@cartouche
+@format
+@code{!remove}
+@end format
+@end cartouche
+
+Note that if the leading ``!'' is not in the first column, then the line is not a
+remove pattern.
+
+Further note that this does not distinguish between subdirectory and file
+patterns.  All identical patterns in both lists are removed.
+
+@subsection Subdirectory Pattern line
+
+A line with a ``/'' in the first column is a subdirectory pattern.  The specified
+pattern is appended to the Ignore List of directories to ignore.
+
+@cartouche
+@format
+@code{/dirpattern}
+@end format
+@end cartouche
+
+Note that if the leading ``/'' is not in the first column, then the line is not a
+subdirectory pattern.
+
+@subsection File Pattern line
+
+A line that is not a comment, subdirectory pattern or remove pattern is a file
+pattern.  The specified pattern is appended to the Ignore List of files to
+ignore.
+
+@cartouche
+@format
+@code{filpattern}
+@end format
+@end cartouche
+
+@section The Ignore List
+@cindex pcbignore files, ignore list
+
+The list of all subdirectories and files to be ignored, known as the Ignore
+List, is constructed as follows:
+
+The Ignore List is first initialized with a default list:
+
+@example
+
+/CVS
+Makefile
+Makefile.*
+*.png
+*.html
+*.pcb
+
+@end example
+
+Then the user's @file{~/.pcb/pcbignore} file is read and processed.  Next the
+@file{.pcbignore} file in the newlib's top-level directory is read and processed.
+Finally, for subdirectories of the top-level directory, the @file{.pcbignore}
+file in the specific subdirectory being loaded is read and processed.  Note that
+each distinct newlib style directory (both top-level and subdirectory) has its
+own Ignore List (whether or not it contains a @file{.pcbignore} file).
+
+This procedure means that the user's @file{~/.pcb/pcbignore} file affects all
+newlib style libraries, but can be overridden by any @file{.pcbignore} file in
+those libraries.  Likewise a newlib's top-level @file{.pcbignore} file affects,
+in addition to the top-level directory itself, all the subdirectories in that
+directory, but it can also be overridden by any of their @file{.pcbignore} files.
+Any pcbignore file can override the default list.
+
+@section Matching Names to Ignore
+@cindex pcbignore files, matching names
+
+While enumerating filesystem names to determine the subdirectories and files to
+be included in the newlib style PCB Library window, each name is matched to every
+pattern in the appropriate Ignore List (the directories list or the files list)
+using @code{fnmatch(3)} with the @code{FNM_NOESCAPE} and @code{FNM_PERIOD} flags
+set.  If the name matches any pattern in the Ignore List, then it is not included
+in any further processing for the newlib style PCB Library window.
+
+Note that since the structure of a newlib style directory tree is strictly
+two-level (a top-level directory and a collection of immediate subdirectories),
+a subdirectory pattern has no effect when placed in a @file{.pcbignore} file in
+any of those subdirectories--since there are no sub-subdirectories for it to
+match.
+
+@subsection Fallback Behavior
+
+In the case where the @code{fnmatch(3)} function was not available when PCB was
+built, it falls back to older behavior in which subdirectories and files are
+ignored as if the Ignore List is:
+
+@example
+
+/CVS
+Makefile
+Makefile.am
+Makefile.in
+*.png
+*.html
+*.pcb
+
+@end example
+
+And this list is fixed--it is unaffected by any pcbignore files (i.e. pcbignore
+files have no effect in this case).
 
 @c --------------------------- Appendix -- Actions ----------------------
 @node Action Reference
