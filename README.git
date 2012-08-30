@@ -67,7 +67,7 @@ the updating section.
 
 To clone the PCB repository to your computer, run:
 
-  git clone git://git.gpleda.org/pcb.git
+  git clone git://git.geda-project.org/pcb.git
 
 This will download the entire version control history for PCB to
 your computer, and will take some time.
@@ -114,7 +114,7 @@ contribute patches back to the community, or gain 'push' permissions
 for the PCB git repository, please see the gEDA wiki for more
 information:
 
-  http://geda.seul.org/wiki/geda:scm
+  http://wiki.geda-project.org/geda:scm
 
 ------------------------
 Using CVS instead of git
@@ -123,7 +123,7 @@ Using CVS instead of git
 It is still possible to use CVS to access the PCB sources.  You can
 checkout the latest version using the command:
 
-  cvs -z3 -d:pserver:anonymous@git.gpleda.org/home/git/pcb.git co master
+  cvs -z3 -d:pserver:anonymous@git.geda-project.org/home/git/pcb.git co master
 
 And update them using:
 

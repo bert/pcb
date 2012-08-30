@@ -271,7 +271,7 @@ usage (void)
 	n_exporter++;
     }
 
-  u ("PCB Printed Circuit Board editing program, http://pcb.gpleda.org");
+  u ("PCB Printed Circuit Board editing program, http://pcb.geda-project.org");
   u ("%s [-h|-V|--copyright]\t\t\tHelp, version, copyright", Progname);
   u ("%s [gui options] <pcb file>\t\tto edit", Progname);
   u ("Available GUI hid%s:", n_gui == 1 ? "" : "s");

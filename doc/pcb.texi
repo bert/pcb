@@ -5124,7 +5124,7 @@ Centroid (X-Y) data for driving automated assembly equipment.
 
 If anyone cares to contribute this section, it will get added.  Please
 submit changes to the bug tracking system for PCB which can be found from
-the PCB homepage at @url{http://pcb.gpleda.org}.
+the PCB homepage at @url{http://pcb.geda-project.org}.
 
 @c --------------------------- Appendix A -------------------------------
 

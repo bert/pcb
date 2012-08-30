@@ -131,7 +131,7 @@ batch_do_export (HID_Attr_Val * options)
   if (interactive)
     {
       printf("Entering %s version %s batch mode.\n", PACKAGE, VERSION);
-      printf("See http://pcb.gpleda.org for project information\n");
+      printf("See http://pcb.geda-project.org for project information\n");
     }
   while (1)
     {
