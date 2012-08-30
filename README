@@ -4,7 +4,9 @@ design of printed circuit boards.
 For installing the release refer to the file 'INSTALL'.
 For additional information read the manual (doc/pcb.pdf) 
 
-If you are updating you may wish to read the ChangeLog
+If you are updating to a new snapshot, you may wish to read
+the ChangeLog file.  People using git are expected to look
+at the git commit messages, instead.
 
 There is also a bug tracking system available which can
 be found from http://pcb.geda-project.org.  

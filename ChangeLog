@@ -1,9 +1,5 @@
-2012-08-30   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
-	* replace gpleda.org with geda-project.org
-
-2012-02-06   Kai-Martin Knaak * kmk AT lilalaser dot de * 
-	* allow "px" as a unit of measure to set RatThickness to a fixed 
-	number of screen pixels.
+This ChangeLog is automatically generated from git commit messages
+during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-18   DJ Delorie * dj AT delorie dot com *
 

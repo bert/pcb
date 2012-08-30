@@ -390,6 +390,11 @@ else
 	or die("Cannot execute git log...$!\n");
 }
 
+print "This ChangeLog is automatically generated from the git commit messages
+during the snapshot process.  See README.snapshots and utils/git2cl.
+
+";
+
 while (my $_l = <$fh>) {
     #print STDERR "debug ($state, " . (@date ? (strftime "%Y-%m-%d", @date) : "") . "): `$_'\n";
     if ($state == 0) {
