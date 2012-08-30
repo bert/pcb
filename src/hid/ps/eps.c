@@ -269,7 +269,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   in_mono = options[HA_mono].int_value;
 
 #define pcb2em(x) 1 + COORD_TO_INCH (x) * 72.0 * options[HA_scale].real_value
-  fprintf (f, "%%%%BoundingBox: 0 0 %i %i\n",
+  fprintf (f, "%%%%BoundingBox: 0 0 %lli %lli\n",
 	   llrint (pcb2em (bounds->X2 - bounds->X1)),
 	   llrint (pcb2em (bounds->Y2 - bounds->Y1)) );
   fprintf (f, "%%%%HiResBoundingBox: 0.000000 0.000000 %.6f %.6f\n",
