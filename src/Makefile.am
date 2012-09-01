@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a
+	libgcode.a libhtml5.a
 
 pcblib_DATA= \
 	default_font \
@@ -229,6 +229,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
 	$(srcdir)/hid/gtk/hid.conf \
 	$(srcdir)/hid/gtk/pcb.rc \
+	$(srcdir)/hid/html5/hid.conf \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
@@ -391,6 +392,10 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
+
+libhtml5_a_SOURCES = \
+	hid/hidint.h \
+	hid/html5/html5.c
 
 libbom_a_SOURCES = \
 	hid/hidint.h \
