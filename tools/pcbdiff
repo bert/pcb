@@ -67,8 +67,8 @@ LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 DIFFPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 
-"${PCB}" -x png --dpi 200 --photo-mode --outfile ${LEFTPNG} "${LEFTFILE}"
-"${PCB}" -x png --dpi 200 --photo-mode --outfile ${RIGHTPNG} "${RIGHTFILE}"
+"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${LEFTPNG} "${LEFTFILE}"
+"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${RIGHTPNG} "${RIGHTFILE}"
 "${CONVERT}" -colorspace gray $LEFTPNG $LEFTBNW
 "${CONVERT}" -colorspace gray $RIGHTPNG $RIGHTBNW
 "${COMPOSITE}" -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
