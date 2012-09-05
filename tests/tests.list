@@ -66,6 +66,10 @@
 #    cnc -- Excellon drill file
 #    gbx -- RS274-X (Gerber) file
 #
+# OPENSCAD
+#
+#    scad -- OpenSCAD file
+#
 # PNG
 #
 #    gif -- GIF file
@@ -149,8 +153,22 @@ hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.bottom.gbr  g
 hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.bottom.gbr  gbx:out.top.gbr cnc:out.plated-drill.cnc
 hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.gbr gbx:arcs.top.gbr gbx:arcs.group1.gbr gbx:arcs.group4.gbr cnc:arcs.plated-drill.cnc
 #
-
-
+######################################################################
+# ---------------------------------------------
+# OpenSCAD export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#   --include-dir <string>         Name of the OpenSCAD 3D models include directory
+#   --output-file <string>         Basename for OpenSCAD output file
+#   --units <unit>                 Unit of OpenSCAD dimensions. Defaults to mil
+#   --pcb-thickness <real>         Printed circuit board thickness
+#
+# Produces OpenSCAD files
+#
+hid_openscad1 | openscad_general.pcb | openscad | | | openscad:openscad_general.scad
+#
 ######################################################################
 # ---------------------------------------------
 # PNG export HID
