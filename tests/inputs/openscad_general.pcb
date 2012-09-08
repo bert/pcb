@@ -6,7 +6,7 @@
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20100606]
 
-PCB["Basic OpenSCAD Test" 600000 500000]
+PCB["Basic_OpenSCAD_Test" 600000 500000]
 
 Grid[10000.000000 0 0 1]
 Cursor[0 500000 0.000000]
