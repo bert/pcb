@@ -115,13 +115,13 @@ Name of the OpenSCAD top model file.
 /*
 %start-doc options "OpenSCAD Export"
 @ftable @code
-@item --units <unit>
+@item --metric <unit>
 Unit of OpenSCAD dimensions. Defaults to mil.
 @end ftable
 %end-doc
 */
     {
-        "units",
+        "metric",
         "tick for OpenSCAD dimensions in mm instead of mils",
         HID_Boolean,
         0, 0, {0, 0, 0}, 0, 0
@@ -152,7 +152,7 @@ Printed circuit board thickness.
 static HID_Attr_Val openscad_values[NUM_OPTIONS];
 static char *openscad_include_dir;
 static char *openscad_filename;
-static int openscad_dim_type;
+static int openscad_metric;
 static double openscad_pcb_thickness;
 
 
@@ -507,8 +507,6 @@ openscad_print (void)
     fprintf (fp, " *\n");
     fprintf (fp, " * \\brief PCB - OpenSCAD 3D-model exporter Version 1.0\n");
     fprintf (fp, " *\n");
-    fprintf (fp, " * \\date %s\n", utcTime);
-    fprintf (fp, " *\n");
     /* Write the license statement for footprints for the GPL version to file */
     fprintf (fp, " * This OpenSCAD 3D-model is free software; you may redistribute it\n");
     fprintf (fp, " * and/or modify it under the terms of the GNU General Public License\n");
@@ -528,7 +526,7 @@ openscad_print (void)
     fprintf (fp, " * If you do not wish to do so, delete this exception statement from\n");
     fprintf (fp, " * your version.\n");
     fprintf (fp, " * \n");
-    if (openscad_dim_type)
+    if (openscad_metric)
     {
         /* Dimensions in mm. */
         fprintf (fp, " * All dimensions in mm. Angles in degrees.\n");
@@ -559,7 +557,7 @@ openscad_print (void)
     /* Lookup the board dimensions and create an entry in the OpenSCAD
      * file. */
     board_thickness = openscad_pcb_thickness;
-    if (openscad_dim_type)
+    if (openscad_metric)
     {
         /* Dimensions in mm. */
         board_width = COORD_TO_MM (PCB->MaxWidth);
@@ -580,7 +578,7 @@ openscad_print (void)
     /* Now subtract some via holes. */
     VIA_LOOP (PCB->Data);
     {
-        if (openscad_dim_type)
+        if (openscad_metric)
         {
             /* Dimensions in mm. */
             drill_x = COORD_TO_MM (via->X);
@@ -601,7 +599,7 @@ openscad_print (void)
     fprintf (fp, "        /* Now subtract some pin holes. */\n");
     ALLPIN_LOOP (PCB->Data);
     {
-        if (openscad_dim_type)
+        if (openscad_metric)
         {
             /* Dimensions in mm. */
             drill_x = COORD_TO_MM (pin->X);
@@ -757,7 +755,7 @@ openscad_print (void)
             modelname = openscad_clean_string (EMPTY (DESCRIPTION_NAME (element)));
             value = openscad_clean_string (EMPTY (VALUE_NAME (element)));
             y = PCB->MaxHeight - y;
-            if (openscad_dim_type)
+            if (openscad_metric)
             {
                 /* Dimensions in mm. */
                 user_x = COORD_TO_MM (x);
@@ -775,7 +773,7 @@ openscad_print (void)
             /* Determine the package type based on the modelname. */
             package_type = openscad_get_package_type_string (modelname);
             /* Write part model data to file test for dimension type. */
-            if (openscad_dim_type)
+            if (openscad_metric)
             {
                 fprintf
                 (
@@ -857,7 +855,7 @@ openscad_do_export (HID_Attr_Val * options)
         openscad_filename = strdup ("pcb-out.scad");
     }
     /* Get the dimension type. */
-    openscad_dim_type = options[HA_openscad_mm].int_value;
+    openscad_metric = options[HA_openscad_mm].int_value;
     /* Get the pcb thickness. */
     openscad_pcb_thickness = options[HA_openscad_thickness].real_value;
     /* Call the worker function which is creating the output files. */
