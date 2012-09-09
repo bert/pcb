@@ -23,17 +23,33 @@ usage ()
   echo \\tRequirements: Imagemagick and gschem be installed
 }
 
+PCB=`which pcb`
+if test -z "${PCB}"; then
+  MISSING=pcb
+fi
 
-for PROG in pcb convert composite
-do
-  if which $PROG > /dev/null
-  then 
-    true
-  else 
-    echo "$PROG is not found.  Either it is not installed, or not in your PATH"
-    exit 1
-  fi
-done
+CONVERT=`which convert`
+if test -z "${CONVERT}"; then
+  MISSING=convert
+fi
+
+COMPOSITE=`which composite`
+if test -z "${COMPOSITE}"; then
+  MISSING=composite
+fi
+
+VIEWER=`which display`
+if test -z "${VIEWER}"; then
+  MISSING=display
+fi
+
+if test -z "${MISSING}"; then
+  true
+else
+  echo "Binary for \"${MISSING}\" not found." >&2
+  echo "Either it is not installed, or not in your PATH" >&2
+  exit 1
+fi
 
 #In case the script was invoked with extra option arguments, throw them away
 shift `expr $# - 2`
@@ -51,12 +67,12 @@ LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 DIFFPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 
-pcb -x png --dpi 200 --only-visible --photo-mode --outfile $LEFTPNG $LEFTFILE
-pcb -x png --dpi 200 --only-visible --photo-mode --outfile $RIGHTPNG $RIGHTFILE
-convert -colorspace gray $LEFTPNG $LEFTBNW
-convert -colorspace gray $RIGHTPNG $RIGHTBNW
-composite -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
-display $DIFFPNG
+"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile $LEFTPNG $LEFTFILE
+"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile $RIGHTPNG $RIGHTFILE
+"${CONVERT}" -colorspace gray $LEFTPNG $LEFTBNW
+"${CONVERT}" -colorspace gray $RIGHTPNG $RIGHTBNW
+"${COMPOSITE}" -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
+"${VIEWER}" $DIFFPNG
 rm $LEFTPNG
 rm $RIGHTPNG
 rm $LEFTBNW
