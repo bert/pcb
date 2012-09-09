@@ -1,11 +1,9 @@
 /*!
- * \file Basic OpenSCAD Test.scad
+ * \file Basic_OpenSCAD_Test.scad
  *
  * \author Copyright Bert Timmerman.
  *
  * \brief PCB - OpenSCAD 3D-model exporter Version 1.0
- *
- * \date Wed 05 Sep 2012 05:27:12 AM GMT UTC
  *
  * This OpenSCAD 3D-model is free software; you may redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -39,10 +37,10 @@ use <INSERT_PART_MODEL.scad>
 
 
 /* Uncomment the following line for an example. */
-//Basic OpenSCAD Test ();
+//Basic_OpenSCAD_Test ();
 
 
-module Basic OpenSCAD Test ()
+module Basic_OpenSCAD_Test ()
 {
     /* Modelling a printed circuit board based on maximum dimensions. */
     difference ()
