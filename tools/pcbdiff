@@ -54,21 +54,21 @@ fi
 #In case the script was invoked with extra option arguments, throw them away
 shift `expr $# - 2`
 
-if test -d $1 -o -d $2
+LEFTFILE="${1}"
+RIGHTFILE="${2}"
+if test -d "${LEFTFILE}" -o -d "${RIGHTFILE}"
   then echo "ERROR: pcbdiff cannot diff entire directories"
   exit 1
 fi
 
-LEFTFILE=$1
-RIGHTFILE=$2
 LEFTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 DIFFPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 
-"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile $LEFTPNG $LEFTFILE
-"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile $RIGHTPNG $RIGHTFILE
+"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile ${LEFTPNG} "${LEFTFILE}"
+"${PCB}" -x png --dpi 200 --only-visible --photo-mode --outfile ${RIGHTPNG} "${RIGHTFILE}"
 "${CONVERT}" -colorspace gray $LEFTPNG $LEFTBNW
 "${CONVERT}" -colorspace gray $RIGHTPNG $RIGHTBNW
 "${COMPOSITE}" -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
