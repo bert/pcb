@@ -1,0 +1,74 @@
+#! /bin/sh
+
+usage ()
+{
+  echo Usage: 
+  echo \\tpcb_blink firstfile secondfile delay
+  echo \\tDelay is in centi-seconds, default is 50
+  echo \\tView a blinking graphical diff of PCB files
+
+  echo \\tRequirements: Imagemagick and gschem must be installed
+}
+
+PCB=`which pcb`
+if test -z "${PCB}"; then
+  MISSING=pcb
+fi
+
+CONVERT=`which convert`
+if test -z "${CONVERT}"; then
+  MISSING=convert
+fi
+
+COMPOSITE=`which composite`
+if test -z "${COMPOSITE}"; then
+  MISSING=composite
+fi
+
+VIEWER=`which display`
+if test -z "${VIEWER}"; then
+  MISSING=display
+fi
+
+if test -z "${MISSING}"; then
+  true
+else
+  echo "Binary for \"${MISSING}\" not found." >&2
+  echo "Either it is not installed, or not in your PATH" >&2
+  exit 1
+fi
+
+#In case the script was invoked with extra option arguments, throw them away
+shift `expr $# - 3`
+
+LEFTFILE="${1}"
+RIGHTFILE="${2}"
+
+if test -z "${3}"; then
+  DELAY=50
+else
+  DELAY="${3}"
+fi
+
+if test -d "${LEFTFILE}" -o -d "${RIGHTFILE}"
+  then echo "ERROR: pcb_blink cannot diff entire directories"
+  exit 1
+fi
+
+LEFTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+RIGHTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+DIFFGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+
+"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${LEFTGIF} "${LEFTFILE}"
+"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${RIGHTGIF} "${RIGHTFILE}"
+"${CONVERT}" -colorspace gray $LEFTGIF $LEFTBNW
+"${CONVERT}" -colorspace gray $RIGHTGIF $RIGHTBNW
+"${CONVERT}" -delay $DELAY $LEFTBNW $RIGHTBNW -loop 0 $DIFFGIF
+"${VIEWER}" $DIFFGIF
+rm $LEFTGIF
+rm $RIGHTGIF
+rm $LEFTBNW
+rm $RIGHTBNW
+rm $DIFFGIF

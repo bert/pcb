@@ -19,7 +19,8 @@ TOOLS= \
 	MergePCBPS \
 	Merge_dimPCBPS \
 	PCB2HPGL \
-	pcbdiff
+	pcbdiff \
+	pcb_blink
 
 DIST_SCM= \
 	gnet-pcbfwd.scm
