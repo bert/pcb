@@ -59,14 +59,16 @@ LEFTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+
 DIFFGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
 
 "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${LEFTGIF} "${LEFTFILE}"
 "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${RIGHTGIF} "${RIGHTFILE}"
-"${CONVERT}" -colorspace gray $LEFTGIF $LEFTBNW
-"${CONVERT}" -colorspace gray $RIGHTGIF $RIGHTBNW
-"${CONVERT}" -delay $DELAY $LEFTBNW $RIGHTBNW -loop 0 $DIFFGIF
+
+"${CONVERT}" -delay $DELAY $LEFTGIF $RIGHTGIF -loop 0 $DIFFGIF
+
 "${VIEWER}" $DIFFGIF
+
 rm $LEFTGIF
 rm $RIGHTGIF
 rm $LEFTBNW
