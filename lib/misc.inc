@@ -130,7 +130,7 @@ Element(0x00 "$1" "`$2'" "$3" 160 10 3 100 0x00)
 	ElementLine(100 50 100 MAXY 20)
 	ElementArc(50  50 50 50 180 180 20)
 	ElementArc(50 MAXY 50 50   0 180 20)
-	forloop(`i', 1, eval($4 /2 -1),
+	forloop(`i', 1, eval($4 - 1),
 		`ElementLine(0 eval(i * 200) 100 eval(i * 200) 10)
 	')
 	Mark(50 50)
