@@ -765,6 +765,7 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
 
   label = gtk_label_new ("");
+  gtk_misc_set_padding (GTK_MISC (label), 5, 0);
   gtk_container_add (GTK_CONTAINER (frame), label);
   ghidgui->cursor_position_absolute_label = label;
   g_signal_connect (G_OBJECT (label), "size-request",
@@ -778,6 +779,7 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
   gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
   label = gtk_label_new (" __.__  __.__ ");
+  gtk_misc_set_padding (GTK_MISC (label), 5, 0);
   gtk_container_add (GTK_CONTAINER (frame), label);
   ghidgui->cursor_position_relative_label = label;
   g_signal_connect (G_OBJECT (label), "size-request",
