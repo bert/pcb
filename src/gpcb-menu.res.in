@@ -52,7 +52,7 @@ MainMenu =
 #
 # File Menu
 #
-  {"File" m=F
+  {"File"
    {"New" New() a={"Ctrl-N" "Ctrl<Key>n"}}
    {"Open..." Load(Layout) tip="Load a layout from a file"}
    -
@@ -84,7 +84,7 @@ MainMenu =
 #
 # Edit Menu
 #
-  {"Edit" m=E
+  {"Edit"
    {"Undo" Undo() a={"U" "<Key>u"}}
    {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
    #{"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
@@ -120,7 +120,7 @@ MainMenu =
 #
 # View Menu
 #
-  {"View" m=V
+  {"View"
    {"Enable visible grid" checked=drawgrid Display(Grid)}
    {"Grid units"
     {"mil" checked=grid_units_mil,1 SetUnits(mil)}
@@ -157,10 +157,10 @@ MainMenu =
    {"Enable Pinout shows number" checked=shownumber Display(ToggleName)}
    {"Pins/Via show Name/Number" Display(PinOrPadName) a={"D" "<Key>d"}}
    -
-   {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
-   {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
+   {"Zoom In 20%" Zoom(-1.2) a={"Z" "<Key>z"}}
+   {"Zoom Out 20%" Zoom(+1.2) a={"Shift-Z" "Shift<Key>z"}}
    {"More zooms and view changes"
-    {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
+    {"Zoom Max" Zoom() a={"V" "<Key>v"}}
     {"Zoom In 2X" Zoom(-2)}
     {"Zoom Out 2X" Zoom(+2)}
     {"Zoom to 0.1mil/px" Zoom(=0.1mil)}
@@ -170,8 +170,8 @@ MainMenu =
     {"Zoom to 2.5mil/px" Zoom(=2.5mil)}
     {"Zoom to 0.1mm/px" Zoom(=0.1mm)}
     {"Zoom to 10mil/px" Zoom(=10mil)}
-    {"Zoom In 20% and center" Zoom(-1.2) Center() m=Z }
-    {"Zoom Out 20% and center" Zoom(+1.2) Center() m=O }
+    {"Zoom In 20% and center" Zoom(-1.2) Center() }
+    {"Zoom Out 20% and center" Zoom(+1.2) Center() }
     {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
     {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
     {"Spin 180 degrees" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
@@ -197,7 +197,7 @@ MainMenu =
 #
 # Settings menu
 #
-  {"Settings" m=S
+  {"Settings"
    {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
    {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
@@ -219,19 +219,19 @@ MainMenu =
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
-   {"Import New Elements at" m=I
-    {" Center" Import(setnewpoint,center) m=C}
-    {" Mark" Import(setnewpoint,mark) m=M}
-    {" Crosshair" Import(setnewpoint) m=h}
+   {"Import New Elements at"
+    {" Center" Import(setnewpoint,center)}
+    {" Mark" Import(setnewpoint,mark)}
+    {" Crosshair" Import(setnewpoint)}
     -
-    {"Set Dispersion" Import(setdisperse) m=D}
+    {"Set Dispersion" Import(setdisperse)}
    }
   }
 
 #
 # Select menu
 #
-  {"Select" m=l
+  {"Select"
    {"Select all visible" Select(All)}
    {"Select all found" Select(Found)}
    {"Select all connected" Select(Connection)}
@@ -291,7 +291,7 @@ MainMenu =
 #
 # Buffer menu
 #
-  {"Buffer" m=B
+  {"Buffer"
    {"Cut to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
    {"Paste buffer" Mode(PasteBuffer)}
@@ -309,17 +309,17 @@ MainMenu =
    {"Break buffer elements to pieces" PasteBuffer(Restore)}
    {"Save buffer elements to file" Save(PasteBuffer)}
    -
-   {"Select Buffer #1" checked=buffer,1 PasteBuffer(1) m=1 a={"Shift-1" "Shift<Key>1"}}
-   {"Select Buffer #2" checked=buffer,2 PasteBuffer(2) m=2 a={"Shift-2" "Shift<Key>2"}}
-   {"Select Buffer #3" checked=buffer,3 PasteBuffer(3) m=3 a={"Shift-3" "Shift<Key>3"}}
-   {"Select Buffer #4" checked=buffer,4 PasteBuffer(4) m=4 a={"Shift-4" "Shift<Key>4"}}
-   {"Select Buffer #5" checked=buffer,5 PasteBuffer(5) m=5 a={"Shift-5" "Shift<Key>5"}}
+   {"Select Buffer #1" checked=buffer,1 PasteBuffer(1) a={"Shift-1" "Shift<Key>1"}}
+   {"Select Buffer #2" checked=buffer,2 PasteBuffer(2) a={"Shift-2" "Shift<Key>2"}}
+   {"Select Buffer #3" checked=buffer,3 PasteBuffer(3) a={"Shift-3" "Shift<Key>3"}}
+   {"Select Buffer #4" checked=buffer,4 PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
+   {"Select Buffer #5" checked=buffer,5 PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
   }
 
 #
 # Connects menu
 #
-  {"Connects" m=C
+  {"Connects"
    {"Lookup connection" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
@@ -361,7 +361,7 @@ MainMenu =
 #
 # Info Menu
 #
-  {"Info" m=I
+  {"Info"
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
@@ -452,7 +452,7 @@ MainMenu =
 #
 # Window Menu
 #
-  {"Window" m=W
+  {"Window"
    {"Library" DoWindows(Library) a={"i" "<Key>i"}}
    {"Message Log" DoWindows(Log)}
    {"DRC Check" DoWindows(DRC)}
