@@ -449,6 +449,34 @@ compare_cnc() {
 
 ##########################################################################
 #
+# OpenSCAD comparison
+#
+
+# used to remove things like creation date from OpenSCAD files
+normalize_scad() {
+    local f1="$1"
+    local f2="$2"
+    $AWK '
+	/^# Date:/ {print "# Date: today"; next}
+	/^# Author:/ {print "# Author: PCB"; next}
+	{print}' \
+	$f1 > $f2
+}
+
+compare_scad() {
+    local f1="$1"
+    local f2="$2"
+    compare_check "compare_scad" "$f1" "$f2" || return 1
+
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
+    normalize_scad "$f1" "$cf1"
+    normalize_scad "$f2" "$cf2"
+    run_diff "$cf1" "$cf2" || test_failed=yes
+}
+
+##########################################################################
+#
 # GIF/JPEG/PNG comparison routines
 #
 
@@ -632,6 +660,11 @@ for t in $all_tests ; do
 
 		gbx)
 		    compare_rs274x ${refdir}/${fn} ${rundir}/${fn}
+		    ;;
+
+		# OpenSCAD HID
+		scad)
+		    compare_scad ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
 
 		# PNG HID
