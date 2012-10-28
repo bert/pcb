@@ -24,7 +24,7 @@
  * place 3D-models of parts in a 3D-model of a Printed Circuit Board
  * (PCB) thus creating a 3D representation of a Printed Circuit Assembly
  * (PCA).\n
- * 
+ *
  * This exporter re-used the BOM HID code (partially) as a template.\n
  * \n
  * <c>COPYRIGHT</c>\n
@@ -635,7 +635,7 @@ openscad_print (void)
     fprintf (fp, "    INSERT_PART_MODEL (\"Package type\", \"Model name\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
     /*
      * For each element we calculate the centroid of the footprint.
-     * In addition, we need to extract some notion of rotation.  
+     * In addition, we need to extract some notion of rotation.
      * While here generate the OpenSCAD list.
      */
     ELEMENT_LOOP (PCB->Data);
