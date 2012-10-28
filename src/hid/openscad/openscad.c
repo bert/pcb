@@ -60,10 +60,13 @@
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "global.h"
 #include "data.h"
