@@ -1770,8 +1770,8 @@ symboldata
 /* %start-doc pcbfile SymbolLine
 
 @syntax
-SymbolLine [X1 Y1 X2 Y1 Thickness]
-SymbolLine (X1 Y1 X2 Y1 Thickness)
+SymbolLine [X1 Y1 X2 Y2 Thickness]
+SymbolLine (X1 Y1 X2 Y2 Thickness)
 @end syntax
 
 @table @var
