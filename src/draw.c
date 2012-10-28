@@ -962,9 +962,6 @@ DrawLayer (LayerType *Layer, const BoxType *screen)
 {
   struct poly_info info = {screen, Layer};
 
-  /* print the non-clearing polys */
-  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
-
   if (TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
 
@@ -976,6 +973,9 @@ DrawLayer (LayerType *Layer, const BoxType *screen)
 
   /* draw the layer text on screen */
   r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+
+  /* print the non-clearing polys */
+  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
   /* We should check for gui->gui here, but it's kinda cool seeing the
      auto-outline magically disappear when you first add something to
