@@ -188,6 +188,16 @@ typedef struct _OpenscadList
 } OpenscadList;
 
 
+/*!
+ * \brief Return a mm (metric) or mil (imperial) value based on the metric setting.
+ */
+static double
+openscad_to_unit (double v)
+{
+    return openscad_metric ? COORD_TO_MM (v) : COORD_TO_MIL (v);
+}
+
+
 static HID_Attribute *
 openscad_get_export_options (int *n)
 {
