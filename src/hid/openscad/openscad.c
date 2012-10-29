@@ -192,7 +192,8 @@ typedef struct _OpenscadList
 
 
 /*!
- * \brief Return a mm (metric) or mil (imperial) value based on the metric setting.
+ * \brief Return a mm (metric) or mil (imperial) value based on the
+ * metric setting.
  */
 static double
 openscad_to_unit (double v)
@@ -201,6 +202,11 @@ openscad_to_unit (double v)
 }
 
 
+/*!
+ * \brief Get the export options.
+ *
+ * \return An array of selected openscad options.
+ */
 static HID_Attribute *
 openscad_get_export_options (int *n)
 {
