@@ -341,6 +341,7 @@ common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
   PolygonHoles (poly, clip_box, thindraw_hole_cb, gc);
 
   /* Draw other parts of the polygon if fullpoly flag is set */
+  /* NB: No "NoHoles" cache for these */
   if (TEST_FLAG (FULLPOLYFLAG, poly))
     {
       PolygonType p = *poly;
@@ -348,10 +349,7 @@ common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
       for (p.Clipped = poly->Clipped->f;
            p.Clipped != poly->Clipped;
            p.Clipped = p.Clipped->f)
-        {
-          thindraw_contour (gc, p.Clipped->contours);
-          PolygonHoles (&p, clip_box, thindraw_hole_cb, gc);
-        }
+        NoHolesPolygonDicer (&p, clip_box, thindraw_hole_cb, gc);
     }
 }
 

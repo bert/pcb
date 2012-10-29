@@ -609,12 +609,22 @@ do_hole (const BoxType *b, void *cl)
   return 1;
 }
 
+static int
+do_hole_fullpoly (const BoxType *b, void *cl)
+{
+  struct do_hole_info *info = cl;
+  PLINE *curc = (PLINE *) b;
+
+  tesselate_contour (info->tobj, curc, info->vertices, info->scale);
+  return 1;
+}
+
 static GLint stencil_bits;
 static int dirty_bits = 0;
 static int assigned_bits = 0;
 
-static void
-fill_polyarea (POLYAREA *pa, const BoxType *clip_box, double scale)
+void
+hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale)
 {
   int vertex_count = 0;
   PLINE *contour;
@@ -677,6 +687,18 @@ fill_polyarea (POLYAREA *pa, const BoxType *clip_box, double scale)
   tesselate_contour (info.tobj, pa->contours, info.vertices, scale);
 
   hidgl_flush_triangles (&buffer);
+
+  /* Draw other parts of the polygon if fullpoly flag is set */
+  /* NB: No "NoHoles" cache for these */
+  if (TEST_FLAG (FULLPOLYFLAG, poly))
+    {
+      PolygonType p = *poly;
+
+      for (p.Clipped = poly->Clipped->f;
+           p.Clipped != poly->Clipped;
+           p.Clipped = p.Clipped->f)
+        NoHolesPolygonDicer (&p, clip_box, do_hole_fullpoly, &info);
+    }
 
   /* Unassign our stencil buffer bit */
   hidgl_return_stencil_bit (stencil_bit);

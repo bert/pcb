@@ -1247,18 +1247,12 @@ ps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   fprintf (global.f, "fill\n");
 }
 
-static void
-fill_polyarea (hidGC gc, POLYAREA * pa, const BoxType * clip_box)
+static int
+do_poly (const BoxType *b, void *cl)
 {
-  /* Ignore clip_box, just draw everything */
-
+  PLINE *pl = (PLINE *) b;
   VNODE *v;
-  PLINE *pl;
   char *op;
-
-  use_gc (gc);
-
-  pl = pa->contours;
 
   do
     {
@@ -1277,15 +1271,26 @@ fill_polyarea (hidGC gc, POLYAREA * pa, const BoxType * clip_box)
 }
 
 static void
-ps_draw_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
+ps_fill_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
 {
-  fill_polyarea (gc, poly->Clipped, clip_box);
+  /* Ignore clip_box, just draw everything */
+  PLINE *pl;
+
+  use_gc (gc);
+
+  pl = poly->Clipped->contours;
+  do_poly ((const BoxType *)pl, NULL);
+
+  /* Draw other parts of the polygon if fullpoly flag is set */
+  /* NB: No "NoHoles" cache for these */
   if (TEST_FLAG (FULLPOLYFLAG, poly))
     {
-      POLYAREA *pa;
+      PolygonType p = *poly;
 
-      for (pa = poly->Clipped->f; pa != poly->Clipped; pa = pa->f)
-        fill_polyarea (gc, pa, clip_box);
+      for (p.Clipped = poly->Clipped->f;
+           p.Clipped != poly->Clipped;
+           p.Clipped = p.Clipped->f)
+        NoHolesPolygonDicer (&p, clip_box, do_poly, NULL);
     }
 }
 
