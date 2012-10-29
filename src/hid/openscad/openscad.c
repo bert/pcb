@@ -570,18 +570,8 @@ openscad_print (void)
     /* Lookup the board dimensions and create an entry in the OpenSCAD
      * file. */
     board_thickness = openscad_pcb_thickness;
-    if (openscad_metric)
-    {
-        /* Dimensions in mm. */
-        board_width = COORD_TO_MM (PCB->MaxWidth);
-        board_height = COORD_TO_MM (PCB->MaxHeight);
-    }
-    else
-    {
-        /* Dimensions in mil. */
-        board_width = COORD_TO_MIL (PCB->MaxWidth);
-        board_height = COORD_TO_MIL (PCB->MaxHeight);
-    }
+    board_width = openscad_to_unit (PCB->MaxWidth);
+    board_height = openscad_to_unit (PCB->MaxHeight);
     fprintf (fp, "    /* Modelling a printed circuit board based on maximum dimensions. */\n");
     fprintf (fp, "    difference ()\n");
     fprintf (fp, "    {\n");
@@ -591,20 +581,9 @@ openscad_print (void)
     /* Now subtract some via holes. */
     VIA_LOOP (PCB->Data);
     {
-        if (openscad_metric)
-        {
-            /* Dimensions in mm. */
-            drill_x = COORD_TO_MM (via->X);
-            drill_y = COORD_TO_MM (via->Y);
-            drill_d = COORD_TO_MM (via->DrillingHole);
-        }
-        else
-        {
-            /* Dimensions in mil. */
-            drill_x = COORD_TO_MIL (via->X);
-            drill_y = COORD_TO_MIL (via->Y);
-            drill_d = COORD_TO_MIL (via->DrillingHole);
-        }
+        drill_x = openscad_to_unit (via->X);
+        drill_y = openscad_to_unit (via->Y);
+        drill_d = openscad_to_unit (via->DrillingHole);
         fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
     }
     END_LOOP; /* End of VIA_LOOP */
@@ -612,20 +591,9 @@ openscad_print (void)
     fprintf (fp, "        /* Now subtract some pin holes. */\n");
     ALLPIN_LOOP (PCB->Data);
     {
-        if (openscad_metric)
-        {
-            /* Dimensions in mm. */
-            drill_x = COORD_TO_MM (pin->X);
-            drill_y = COORD_TO_MM (pin->Y);
-            drill_d = COORD_TO_MM (pin->DrillingHole);
-        }
-        else
-        {
-            /* Dimensions in mil. */
-            drill_x = COORD_TO_MIL (pin->X);
-            drill_y = COORD_TO_MIL (pin->Y);
-            drill_d = COORD_TO_MIL (pin->DrillingHole);
-        }
+        drill_x = openscad_to_unit (pin->X);
+        drill_y = openscad_to_unit (pin->Y);
+        drill_d = openscad_to_unit (pin->DrillingHole);
         fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
     }
     ENDALL_LOOP; /* End of ALLPIN_LOOP */
@@ -768,18 +736,8 @@ openscad_print (void)
             modelname = openscad_clean_string (EMPTY (DESCRIPTION_NAME (element)));
             value = openscad_clean_string (EMPTY (VALUE_NAME (element)));
             y = PCB->MaxHeight - y;
-            if (openscad_metric)
-            {
-                /* Dimensions in mm. */
-                user_x = COORD_TO_MM (x);
-                user_y = COORD_TO_MM (y);
-            }
-            else
-            {
-                /* Dimensions in mils. */
-                user_x = COORD_TO_MIL (x);
-                user_y = COORD_TO_MIL (y);
-            }
+            user_x = openscad_to_unit (x);
+            user_y = openscad_to_unit (y);
             /* Test for the occurrence of a ".fp" suffix in the model
              * name string and strip it from the model name string. */
             openscad_remove_suffix (modelname, ".fp");
