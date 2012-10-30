@@ -146,6 +146,23 @@ Printed circuit board thickness.
         0, 100, {0, 0, 62.00}, 0, 0
     },
 #define HA_openscad_thickness 3
+
+/*
+%start-doc options "OpenSCAD Export"
+@ftable @code
+@item --modules <boolean>
+Include modules into OpenSCAD file. Defaults to none.
+@end ftable
+%end-doc
+*/
+    {
+        "modules",
+        "tick for modules in OpenSCAD file",
+        HID_Boolean,
+        0, 0, {0, 0, 0}, 0, 0
+    },
+#define HA_openscad_modules 4
+
 };
 
 
@@ -157,6 +174,7 @@ static char *openscad_include_dir;
 static char *openscad_filename;
 static int openscad_metric;
 static double openscad_pcb_thickness;
+static int openscad_modules;
 
 
 typedef struct _StringList
@@ -558,11 +576,44 @@ openscad_print (void)
     fprintf (fp, " */\n");
     fprintf (fp, "\n");
     fprintf (fp, "\n");
-    fprintf (fp, "include <COLORS.scad>\n");
+    if (openscad_modules)
+    {
+        fprintf (fp, "COPPER = [0.88, 0.78, 0.5];\n");
+        fprintf (fp, "FR4 = [0.7, 0.67, 0.6, 0.95];\n");
+        fprintf (fp, "DRILL_HOLE = [1.0, 1.0, 1.0];\n");
+    }
+    else
+    {
+        fprintf (fp, "include <COLORS.scad>\n");
+    }
     fprintf (fp, "include <CONST.scad>\n");
     fprintf (fp, "include <BOARD.scad>\n");
-    fprintf (fp, "include <PIN_HOLE.scad>\n");
-    fprintf (fp, "include <VIA_HOLE.scad>\n");
+    if (openscad_modules)
+    {
+        fprintf (fp, "module PIN_HOLE (x, y, diameter, depth)\n");
+        fprintf (fp, "{\n");
+        fprintf (fp, "    translate ([x, y, -depth*.05])\n");
+        fprintf (fp, "    {\n");
+        fprintf (fp, "        color (DRILL_HOLE)\n");
+        fprintf (fp, "        cylinder (r = (diameter / 2), h = depth*1.1, center = false);\n");
+        fprintf (fp, "    }\n");
+        fprintf (fp, "}\n");
+        fprintf (fp, "\n");
+        fprintf (fp, "module VIA_HOLE (x, y, diameter, depth)\n");
+        fprintf (fp, "{\n");
+        fprintf (fp, "    translate ([x, y, -depth*.05])\n");
+        fprintf (fp, "    {\n");
+        fprintf (fp, "        color (COPPER)\n");
+        fprintf (fp, "        cylinder (r = (diameter / 2), h = depth*1.1, center = false);\n");
+        fprintf (fp, "    }\n");
+        fprintf (fp, "}\n");
+        fprintf (fp, "\n");
+    }
+    else
+    {
+        fprintf (fp, "include <PIN_HOLE.scad>\n");
+        fprintf (fp, "include <VIA_HOLE.scad>\n");
+    }
     fprintf (fp, "include <PACKAGES.scad>\n");
     fprintf (fp, "use <INSERT_PART_MODEL.scad>\n");
     fprintf (fp, "\n");
@@ -835,6 +886,8 @@ openscad_do_export (HID_Attr_Val * options)
     openscad_metric = options[HA_openscad_mm].int_value;
     /* Get the pcb thickness. */
     openscad_pcb_thickness = options[HA_openscad_thickness].real_value;
+    /* Get the flag for including modules in the OpenSCAD file. */
+    openscad_modules = options[HA_openscad_modules].int_value;
     /* Call the worker function which is creating the output files. */
     openscad_print ();
 }
