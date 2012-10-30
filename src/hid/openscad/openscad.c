@@ -633,7 +633,8 @@ openscad_print (void)
     fprintf (fp, "    difference ()\n");
     fprintf (fp, "    {\n");
 
-    fprintf (fp, "        BOARD (%.2f, %.2f, %.2f);\n", board_width, board_height, board_thickness);
+    fprintf (fp, "        BOARD (%.2f, %.2f, %.2f);\n",
+        board_width, board_height, board_thickness);
     fprintf (fp, "        /* Now subtract some via holes. */\n");
     /* Now subtract some via holes. */
     VIA_LOOP (PCB->Data);
@@ -641,7 +642,8 @@ openscad_print (void)
         drill_x = openscad_to_unit (via->X);
         drill_y = openscad_to_unit (via->Y);
         drill_d = openscad_to_unit (via->DrillingHole);
-        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
+            drill_x, drill_y, drill_d, board_thickness);
     }
     END_LOOP; /* End of VIA_LOOP */
     /* Now subtract some pin holes. */
@@ -651,7 +653,8 @@ openscad_print (void)
         drill_x = openscad_to_unit (pin->X);
         drill_y = openscad_to_unit (pin->Y);
         drill_d = openscad_to_unit (pin->DrillingHole);
-        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n", drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
+            drill_x, drill_y, drill_d, board_thickness);
     }
     ENDALL_LOOP; /* End of ALLPIN_LOOP */
     fprintf (fp, "    }\n");
