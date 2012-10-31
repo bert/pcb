@@ -168,6 +168,7 @@ hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.g
 # Produces OpenSCAD files
 #
 hid_openscad1 | openscad_general.pcb | openscad | --output-file openscad_general.scad |  | scad:openscad_general.scad
+hid_openscad2 | openscad_general.pcb | openscad | --modules --output-file openscad_general.scad |  | scad:openscad_general.scad
 #
 ######################################################################
 # ---------------------------------------------
