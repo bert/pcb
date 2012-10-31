@@ -524,6 +524,7 @@ openscad_print (void)
     double drill_x;
     double drill_y;
     double drill_d;
+
     fp = fopen (openscad_filename, "w");
     if (!fp)
     {
@@ -642,8 +643,9 @@ openscad_print (void)
         drill_x = openscad_to_unit (via->X);
         drill_y = openscad_to_unit (via->Y);
         drill_d = openscad_to_unit (via->DrillingHole);
-        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
-            drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        VIA_HOLE (%.2f, %.2f, %.2f, %.2f);%s%s\n",
+            drill_x, drill_y, drill_d, board_thickness,
+            via->Name ? " // " : "", via->Name ? via->Name : "");
     }
     END_LOOP; /* End of VIA_LOOP */
     /* Now subtract some pin holes. */
@@ -653,8 +655,8 @@ openscad_print (void)
         drill_x = openscad_to_unit (pin->X);
         drill_y = openscad_to_unit (pin->Y);
         drill_d = openscad_to_unit (pin->DrillingHole);
-        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f);\n",
-            drill_x, drill_y, drill_d, board_thickness);
+        fprintf (fp, "        PIN_HOLE (%.2f, %.2f, %.2f, %.2f); // pin# %s\n",
+            drill_x, drill_y, drill_d, board_thickness, pin->Number);
     }
     ENDALL_LOOP; /* End of ALLPIN_LOOP */
     fprintf (fp, "    }\n");
