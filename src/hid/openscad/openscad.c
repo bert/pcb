@@ -583,6 +583,7 @@ openscad_print (void)
         fprintf (fp, "COPPER = [0.88, 0.78, 0.5];\n");
         fprintf (fp, "FR4 = [0.7, 0.67, 0.6, 0.95];\n");
         fprintf (fp, "DRILL_HOLE = [1.0, 1.0, 1.0];\n");
+        fprintf (fp, "\n");
     }
     else
     {
@@ -592,6 +593,7 @@ openscad_print (void)
     fprintf (fp, "include <BOARD.scad>\n");
     if (openscad_modules)
     {
+        fprintf (fp, "\n");
         fprintf (fp, "module PIN_HOLE (x, y, diameter, depth)\n");
         fprintf (fp, "{\n");
         fprintf (fp, "    translate ([x, y, -depth*.05])\n");
