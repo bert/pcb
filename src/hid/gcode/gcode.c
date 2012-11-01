@@ -778,12 +778,21 @@ gcode_do_export (HID_Attr_Val * options)
           bm_free (bm);
           fclose (gcode_f);
           gcode_f = NULL;
-          /* TODO: don't drill drillmill holes */
           if (save_drill)
             {
               for (int i_drill_file=0; i_drill_file < n_drills; i_drill_file++)
                 {
                   struct single_size_drills* drill = &drills[i_drill_file];
+
+                  /* don't drill drillmill holes */
+                  if (gcode_drillmill) {
+                    double radius = metric ?
+                                    drill->diameter_inches * 25.4 / 2:
+                                    drill->diameter_inches / 2;
+
+                    if (gcode_milltoolradius < radius)
+                      continue;
+                  }
 
                   d = 0;
                   sort_drill (drill->holes, drill->n_holes);
