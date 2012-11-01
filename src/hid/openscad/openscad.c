@@ -584,15 +584,23 @@ openscad_print (void)
         fprintf (fp, "FR4 = [0.7, 0.67, 0.6, 0.95];\n");
         fprintf (fp, "DRILL_HOLE = [1.0, 1.0, 1.0];\n");
         fprintf (fp, "\n");
-    }
-    else
-    {
-        fprintf (fp, "include <COLORS.scad>\n");
-    }
-    fprintf (fp, "include <CONST.scad>\n");
-    fprintf (fp, "include <BOARD.scad>\n");
-    if (openscad_modules)
-    {
+        fprintf (fp, "$fa = 1;\n");
+        fprintf (fp, "$fs = 0.1;\n");
+        fprintf (fp, "$fn = 36;\n");
+        fprintf (fp, "$t = 0.01;\n");
+        fprintf (fp, "\n");
+        fprintf (fp, "module BOARD\n");
+        fprintf (fp, "(\n");
+        fprintf (fp, "  length,\n");
+        fprintf (fp, "  width,\n");
+        fprintf (fp, "  thickness,\n");
+        fprintf (fp, ")\n");
+        fprintf (fp, "{\n");
+        fprintf (fp, "  color (FR4)\n");
+        fprintf (fp, "  {\n");
+        fprintf (fp, "    cube([length, width, thickness], center = false);\n");
+        fprintf (fp, "  }\n");
+        fprintf (fp, "}\n");
         fprintf (fp, "\n");
         fprintf (fp, "module PIN_HOLE (x, y, diameter, depth)\n");
         fprintf (fp, "{\n");
@@ -615,6 +623,9 @@ openscad_print (void)
     }
     else
     {
+        fprintf (fp, "include <COLORS.scad>\n");
+        fprintf (fp, "include <CONST.scad>\n");
+        fprintf (fp, "include <BOARD.scad>\n");
         fprintf (fp, "include <PIN_HOLE.scad>\n");
         fprintf (fp, "include <VIA_HOLE.scad>\n");
     }
