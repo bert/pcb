@@ -146,6 +146,12 @@ while test -n "$1"
   esac
 done
 
+if test "X$regen" = "Xyes" && test $# -ne 1; then
+    echo "Please regenerate only one test at a time."
+    echo "This limitation is a safety measure."
+    exit 1
+fi
+
 ##########################################################################
 #
 # set up various tools
