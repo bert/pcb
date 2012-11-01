@@ -40,12 +40,25 @@ For the installation with yum you need administrator-privileges.
 To install a manually downloaded rpm:
 
 @example
-rpm -ivh <filename>
+yum localinstall <rpmfilename>
 @end example
 
-Where <filename> is the downloaded rpm of your choice.
-Required dependencies need to be downlodad and installed simultaneously,
-or beforehand. 
+Where <rpmfilename> is the downloaded rpm of your choice.
+Required dependencies need to be downloaded and installed simultaneously,
+or beforehand.
+
+"localinstall" is used to install a set of local rpm files.
+If required the enabled repositories will be used to resolve dependencies.
+Note that the install command will do a local install, if given a filename.
+This option is maintained for legacy reasons only.
+
+"localupdate" is used to update the system by specifying local rpm files.
+Only the specified rpm files of which an older version is already installed will
+be installed, the remaining specified packages will be ignored.
+If required the enabled repositories will be used to resolve dependencies.
+Note that the update command will do a local update, if given a filename.
+This option is maintained for legacy reasons only.
+
 
 @node Gentoo
 @subsection Gentoo
