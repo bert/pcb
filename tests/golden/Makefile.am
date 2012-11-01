@@ -20,6 +20,9 @@ SUBDIRS=	\
 	hid_gerber2 \
 	hid_gerber3 \
 	hid_openscad1 \
+	hid_openscad2 \
+	hid_openscad3 \
+	hid_openscad4 \
 	hid_png1 \
 	hid_png2 \
 	hid_png3
