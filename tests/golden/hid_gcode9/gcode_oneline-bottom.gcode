@@ -1,17 +1,21 @@
 (Created by G-code exporter)
-( Sun Nov 13 16:33:41 2011 )
-(600 dpi)
-(Unit: inch)
+(Fri Nov  2 00:03:17 2012)
+(Units: inch)
+(Board size: 2.00 x 1.00 inches)
+(Accuracy 600 dpi)
 (Tool diameter: 0.000200 inch)
-(Board size: 2.00x1.00 inches)
 #100=0.002000  (safe Z)
 #101=-0.000050  (cutting depth)
+#102=0.025000  (plunge feedrate)
+#103=0.050000  (feedrate)
+(with predrilling)
 (---------------------------------)
-G17 G20 G90 G64 P0.003 M3 S3000 M7 F1
+G17 G20 G90 G64 P0.003 M3 S3000 M7
 G0 Z#100
 (polygon 1)
 G0 X1.093333 Y0.530000    (start point)
-G1 Z#101
+G1 Z#101 F#102
+F#103
 G1 X1.083333 Y0.525000
 G1 X1.076667 Y0.520000
 G1 X0.291667 Y0.518333
@@ -31,5 +35,8 @@ G1 X1.103333 Y0.530000
 G1 X1.093333 Y0.530000
 G0 Z#100
 (polygon end, distance 1.77)
-(end, total distance 44.84mm = 1.77in)
+(predrilling)
+F#102
+(0 predrills)
+(milling distance 44.84mm = 1.77in)
 M5 M9 M2
