@@ -706,36 +706,53 @@ gcode_do_export (HID_Attr_Val * options)
               fprintf (stderr, "ERROR: path process function failed\n");
               goto error;
             }
-          /* TODO: group drills here for drills, predrills and drillmills. */
           if (gcode_predrill && save_drill)
             {
               int n_all_drills = 0;
               struct drill_hole* all_drills = NULL;
-              /* count all available drills */
+              /* count all drills to be predrilled */
               for (int i_drill_sets = 0; i_drill_sets < n_drills; i_drill_sets++)
                 {
                   struct single_size_drills* drill_set = &drills[i_drill_sets];
+
+                  /* don't predrill drillmill holes */
+                  if (gcode_drillmill) {
+                    double radius = metric ?
+                                    drill_set->diameter_inches * 25.4 / 2:
+                                    drill_set->diameter_inches / 2;
+
+                    if (gcode_milltoolradius < radius)
+                      continue;
+                  }
 
                   n_all_drills += drill_set->n_holes;
                 }
-              /* for sorting regardless of size, copy all available drills
-                 into one new structure */
+              /* for sorting regardless of size, copy all drills to be
+                 predrilled into one new structure */
               all_drills = (struct drill_hole *)
                            malloc (n_all_drills * sizeof (struct drill_hole));
-              r = 0;
               for (int i_drill_sets = 0; i_drill_sets < n_drills; i_drill_sets++)
                 {
                   struct single_size_drills* drill_set = &drills[i_drill_sets];
 
+                  /* don't predrill drillmill holes */
+                  if (gcode_drillmill) {
+                    double radius = metric ?
+                                    drill_set->diameter_inches * 25.4 / 2:
+                                    drill_set->diameter_inches / 2;
+
+                    if (gcode_milltoolradius < radius)
+                      continue;
+                  }
+
                   memcpy(&all_drills[r], drill_set->holes,
                          drill_set->n_holes * sizeof(struct drill_hole));
-                  r += drill_set->n_holes;
                 }
               sort_drill(all_drills, n_all_drills);
               /* write that (almost the same code as writing the drill file) */
               fprintf (gcode_f, "(predrilling)\n");
               fprintf (gcode_f, "F%s\n", variable_isoplunge);
-              /* TODO: don't predrill drill-milled holes. */
+
               for (r = 0; r < n_all_drills; r++)
                 {
                   double drillX, drillY;
