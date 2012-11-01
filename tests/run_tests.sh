@@ -589,6 +589,16 @@ for t in $all_tests ; do
     #
 
     if test "X$regen" = "Xyes" ; then
+	echo    "## -*- makefile -*-"   > ${rundir}/Makefile.am
+	echo                           >> ${rundir}/Makefile.am
+	echo -n "EXTRA_DIST="          >> ${rundir}/Makefile.am
+	for f in $out_files ; do
+	    fn=`echo $f | sed 's;.*:;;g'`
+	    echo    " \\"              >> ${rundir}/Makefile.am
+	    echo -n "\t$fn"            >> ${rundir}/Makefile.am
+	done
+	echo                           >> ${rundir}/Makefile.am
+
 	echo "Regenerated ${t}"
     else
 	# compare the result to our reference file
