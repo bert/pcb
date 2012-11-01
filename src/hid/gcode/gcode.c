@@ -483,7 +483,6 @@ gcode_start_gcode (const char *layername, bool metric)
   snprintf (buffer, sizeof(buffer), "%s", ctime (&t));
   buffer[strlen (buffer) - 1] = '\0'; // drop the newline
   fprintf (file, "(%s)\n", buffer);
-  /* TODO: what about other units, like um or mil? */
   fprintf (file, "(Units: %s)\n", metric ? "mm" : "inch");
   if (metric)
     pcb_fprintf (file, "(Board size: %.2mm x %.2mm mm)\n",
