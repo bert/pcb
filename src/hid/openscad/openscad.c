@@ -408,6 +408,11 @@ openscad_xy_to_angle (double x, double y)
 }
 
 
+/*!
+ * \brief Insert a string into the \c StringList.
+ *
+ * \return a pointer to the list.
+ */
 static StringList *
 openscad_string_insert (char *str, StringList * list)
 {
@@ -430,6 +435,11 @@ openscad_string_insert (char *str, StringList * list)
 }
 
 
+/*!
+ * \brief Insert a element data into the \c OpenscadList.
+ *
+ * \return a pointer to the list.
+ */
 static OpenscadList *
 openscad_insert (char *refdes, char *modelname, char *value, OpenscadList * openscad)
 {
@@ -484,7 +494,7 @@ openscad_insert (char *refdes, char *modelname, char *value, OpenscadList * open
 
 
 /*!
- * \brief
+ * \brief Print output for an OpenSCAD model to file.
  *
  * If \c fp is not NULL then print out the element list contained in
  * \c openscad .\n
@@ -879,6 +889,16 @@ openscad_print (void)
 }
 
 
+/*!
+ * \brief Get the export options from the array of export options and
+ * store them in variables.
+ *
+ * Apply default values where needed:\n
+ * - if \c NULL : \c openscad_incude_dir defaults to "openscad".\n
+ * - if \c NULL : \c openscad_filename defaults to "pcb-out.scad".\n
+ *
+ * \return .
+ */
 static void
 openscad_do_export (HID_Attr_Val * options)
 {
@@ -913,6 +933,11 @@ openscad_do_export (HID_Attr_Val * options)
 }
 
 
+/*!
+ * \brief Parse arguments.
+ *
+ * \return .
+ */
 static void
 openscad_parse_arguments (int *argc, char ***argv)
 {
