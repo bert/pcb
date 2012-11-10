@@ -121,6 +121,7 @@ a zoom in/out.
 
 #include "gui-icons-mode-buttons.data"
 #include "gui-icons-misc.data"
+#include "gui-trackball.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -1241,6 +1242,10 @@ ghid_build_pcb_top_window (void)
   GtkWidget *vbox_main, *hbox_middle, *hbox;
   GtkWidget *vbox, *frame;
   GtkWidget *label;
+  /* FIXME: IFDEF HACK */
+#ifdef ENABLE_GL
+  GtkWidget *trackball;
+#endif
   GHidPort *port = &ghid_port;
   GtkWidget *scrolled;
 
@@ -1318,6 +1323,17 @@ ghid_build_pcb_top_window (void)
                              GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
                       FALSE, FALSE, 0);
+
+  /* FIXME: IFDEF HACK */
+#ifdef ENABLE_GL
+  trackball = ghid_trackball_new ();
+  g_signal_connect (trackball, "rotation-changed",
+                    G_CALLBACK (ghid_port_rotate), NULL);
+  g_signal_connect (trackball, "view-2d-changed",
+                    G_CALLBACK (ghid_view_2d), NULL);
+  gtk_box_pack_start (GTK_BOX(ghidgui->left_toolbar),
+                      trackball, FALSE, FALSE, 0);
+#endif
 
   /* ghidgui->mode_buttons_frame was created above in the call to
    * make_mode_buttons_and_toolbar (...);

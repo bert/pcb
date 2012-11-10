@@ -296,7 +296,6 @@ gint ghid_port_window_motion_cb (GtkWidget * widget,
 gint ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
 				       GdkEventScroll * ev, GHidPort * out);
 
-
 gint ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 						GdkEventConfigure * ev,
 						GHidPort * out);
@@ -505,6 +504,8 @@ void ghid_flush_debug_draw (void);
 void ghid_finish_debug_draw (void);
 bool ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y);
 bool ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y);
+void ghid_port_rotate (void *ball, float *quarternion, gpointer userdata);
+void ghid_view_2d (void *ball, gboolean view_2d, gpointer userdata);
 
 void ghid_lead_user_to_location (Coord x, Coord y);
 void ghid_cancel_lead_user (void);
