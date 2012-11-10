@@ -62,19 +62,31 @@ button_press_cb (GtkWidget *widget, GdkEventButton *ev, gpointer userdata)
   GhidTrackball *ball = GHID_TRACKBALL (userdata);
   float axis[3];
 
-  ball->x1 = 2. * ev->x / widget->allocation.width - 1.;
-  ball->y1 = 2. * ev->y / widget->allocation.height - 1.;
+  /* Only respond to left mouse button for now */
+  if (ev->button != 1)
+    return TRUE;
 
-  ball->dragging = TRUE;
+  switch (ev->type) {
 
-  /* If we were in 2D view before, reset the rotation of the trackball */
-  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (ball->view_2d)))
-    {
+    case GDK_BUTTON_PRESS:
+      ball->x1 = 2. * ev->x / widget->allocation.width - 1.;
+      ball->y1 = 2. * ev->y / widget->allocation.height - 1.;
+      ball->dragging = TRUE;
+      break;
+
+    case GDK_2BUTTON_PRESS:
+      /* Reset the rotation of the trackball */
+      /* TODO: Would be nice to animate this! */
       axis[0] = 1.; axis[1] = 0.; axis[2] = 0.;
       axis_to_quat (axis, 0, ball->quart1);
       axis_to_quat (axis, 0, ball->quart2);
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ball->view_2d), FALSE);
-    }
+      g_signal_emit (ball, ghid_trackball_signals[ROTATION_CHANGED], 0,
+                     ball->quart2);
+      break;
+
+    default:
+      break;
+  }
 
   return TRUE;
 }
@@ -84,6 +96,10 @@ static gboolean
 button_release_cb (GtkWidget *widget, GdkEventButton *ev, gpointer userdata)
 {
   GhidTrackball *ball = GHID_TRACKBALL (userdata);
+
+  /* Only respond to left mouse button for now */
+  if (ev->button != 1)
+    return TRUE;
 
   ball->quart1[0] = ball->quart2[0];
   ball->quart1[1] = ball->quart2[1];
@@ -129,12 +145,62 @@ motion_notify_cb (GtkWidget *widget, GdkEventMotion *ev, gpointer userdata)
 static gboolean
 ghid_trackball_expose (GtkWidget * widget, GdkEventExpose * ev)
 {
-  gdk_draw_arc (widget->window,
-                widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-                TRUE,
-                0, 0, widget->allocation.width, widget->allocation.height,
-                0, 64 * 360);
-  return TRUE;
+  cairo_t *cr;
+  cairo_pattern_t *pattern;
+  GtkAllocation allocation;
+  GdkColor color;
+  double radius;
+
+  cr = gdk_cairo_create (gtk_widget_get_window (widget));
+
+          /* set a clip region for the expose event */
+  cairo_rectangle (cr,
+                   ev->area.x, ev->area.y,
+                   ev->area.width, ev->area.height);
+  cairo_clip (cr);
+
+  gtk_widget_get_allocation (widget, &allocation);
+
+  radius = (MIN (allocation.width, allocation.height) - 5) / 2.;
+  pattern = cairo_pattern_create_radial (2 * radius * 0.8,
+                                         2 * radius * 0.3,
+                                         0.,
+                                         2 * radius * 0.50,
+                                         2 * radius * 0.50,
+                                         2 * radius * 0.71);
+
+  color = widget->style->fg[GTK_WIDGET_STATE (widget)];
+
+  cairo_pattern_add_color_stop_rgb (pattern, 0.0,
+                                    (color.red   / 65535. * 0.5 + 4.5) / 5.,
+                                    (color.green / 65535. * 0.5 + 4.5) / 5.,
+                                    (color.blue  / 65535. * 0.5 + 4.5) / 5.);
+  cairo_pattern_add_color_stop_rgb (pattern, 0.2,
+                                    (color.red   / 65535. * 1.5 + 3.7) / 5.,
+                                    (color.green / 65535. * 1.5 + 3.7) / 5.,
+                                    (color.blue  / 65535. * 1.5 + 3.7) / 5.);
+  cairo_pattern_add_color_stop_rgb (pattern, 1.0,
+                                    (color.red   / 65535. * 5. + 0.) / 5.,
+                                    (color.green / 65535. * 5. + 0.) / 5.,
+                                    (color.blue  / 65535. * 5. + 0.) / 5.);
+  cairo_set_source (cr, pattern);
+  cairo_pattern_destroy (pattern);
+
+  cairo_save (cr);
+  cairo_translate (cr, allocation.width / 2., allocation.height / 2.);
+  cairo_scale (cr, radius, radius);
+  cairo_arc (cr, 0., 0., 1., 0., 2 * M_PI);
+  cairo_restore (cr);
+
+  cairo_fill_preserve (cr);
+
+  gdk_cairo_set_source_color (cr, &widget->style->bg[GTK_WIDGET_STATE (widget)]);
+  cairo_set_line_width (cr, 0.4);
+  cairo_stroke (cr);
+
+  cairo_destroy (cr);
+
+  return FALSE;
 }
 
 static gboolean
@@ -152,9 +218,13 @@ view_2d_toggled_cb (GtkToggleButton *toggle, gpointer userdata)
       axis_to_quat (axis, 0, quart);
 
       g_signal_emit (ball, ghid_trackball_signals[ROTATION_CHANGED], 0, quart);
+      gtk_widget_set_sensitive (ball->drawing_area, FALSE);
     }
   else
-    g_signal_emit (ball, ghid_trackball_signals[ROTATION_CHANGED], 0, ball->quart1);
+    {
+      g_signal_emit (ball, ghid_trackball_signals[ROTATION_CHANGED], 0, ball->quart1);
+      gtk_widget_set_sensitive (ball->drawing_area, TRUE);
+    }
 
   g_signal_emit (ball, ghid_trackball_signals[VIEW_2D_CHANGED], 0, view_2d);
 
@@ -184,7 +254,7 @@ ghid_trackball_constructor (GType type,
   ball = GHID_TRACKBALL (G_OBJECT_CLASS (ghid_trackball_parent_class)->
     constructor (type, n_construct_properties, construct_properties));
 
-  gtk_widget_set_size_request (GTK_WIDGET (ball), 120, 120);
+  gtk_widget_set_size_request (GTK_WIDGET (ball), 140, 140);
 
   ball->view_2d = gtk_toggle_button_new_with_label (_("2D View"));
   gtk_box_pack_start (GTK_BOX (ball), ball->view_2d, FALSE, FALSE, 0);
@@ -193,6 +263,7 @@ ghid_trackball_constructor (GType type,
 
   ball->drawing_area = gtk_drawing_area_new ();
   gtk_box_pack_start (GTK_BOX (ball), ball->drawing_area, TRUE, TRUE, 0);
+  gtk_widget_set_sensitive (ball->drawing_area, FALSE);
   gtk_widget_show (ball->drawing_area);
 
   axis[0] = 1.; axis[1] = 0.; axis[2] = 0.;
