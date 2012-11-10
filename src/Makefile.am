@@ -169,11 +169,16 @@ LIBGTK_GDK_SRCS= \
 	hid/gtk/gtkhid-gdk.c
 
 LIBGTK_GL_SRCS= \
-	hid/gtk/gtkhid-gl.c
+	hid/gtk/gtkhid-gl.c \
+	hid/gtk/gui-trackball.c \
+	hid/gtk/gui-trackball.h
 
 GL_SRCS= \
 	hid/common/hidgl.c \
-	hid/common/hidgl.h
+	hid/common/hidgl.h \
+	hid/common/trackball.c \
+	hid/common/trackball.h
+
 
 BUILT_SOURCES = \
 	core_lists.h \
