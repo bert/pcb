@@ -825,7 +825,7 @@ ghid_layer_selector_get_accel_group (GHidLayerSelector *ls)
 struct layer_data {
   GHidLayerSelector *ls;
   gint user_id;
-}
+};
 
 /*! \brief used internally */
 static gboolean
