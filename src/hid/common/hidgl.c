@@ -70,7 +70,7 @@
 triangle_buffer buffer;
 float global_depth = 0;
 
-void
+static void
 hidgl_init_triangle_array (triangle_buffer *buffer)
 {
   buffer->triangle_count = 0;
@@ -717,6 +717,18 @@ hidgl_init (void)
               "Cannot use stencil buffer to sub-composite layers.\n");
       /* Do we need to disable that somewhere? */
     }
+}
+
+void
+hidgl_start_render (void)
+{
+  hidgl_init ();
+  hidgl_init_triangle_array (&buffer);
+}
+
+void
+hidgl_finish_render (void)
+{
 }
 
 int
