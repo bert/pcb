@@ -410,6 +410,8 @@ Cursor (X Y Zoom)
 @table @var
 @item X Y
 Location of the cursor when the board was saved.
+As of November 2012 the cursor position is not written to file anymore.
+Older versions of pcb ignore the absence of this line in the pcb file.
 @item Zoom
 The current zoom factor.  Note that a zoom factor of "0" means 1 mil
 per screen pixel, N means @math{2^N} mils per screen pixel, etc.  The
