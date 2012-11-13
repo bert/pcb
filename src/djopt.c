@@ -2918,11 +2918,6 @@ ActionDJopt (int argc, char **argv, Coord x, Coord y)
   int layn, saved = 0;
   corner_s *c;
 
-#ifdef ENDIF
-  SwitchDrawingWindow (PCB->Zoom, Output.drawing_area->window,
-		       Settings.ShowSolderSide, false);
-#endif
-
   hid_action("Busy");
 
   lines = 0;

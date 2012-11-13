@@ -32,8 +32,6 @@
 
 #include "global.h"
 
-/*bool	SwitchDrawingWindow(double, GdkDrawable *, gboolean, gboolean);*/
-
 void Draw (void);
 void Redraw (void);
 void DrawVia (PinType *);
