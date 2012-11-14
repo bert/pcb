@@ -157,19 +157,19 @@ ShowCrosshair (bool show)
 }
 
 static int
-flag_flipx (int x)
+flag_flipx (void *data)
 {
   return flip_x;
 }
 static int
-flag_flipy (int x)
+flag_flipy (void *data)
 {
   return flip_y;
 }
 
 HID_Flag lesstif_main_flag_list[] = {
-  {"flip_x", flag_flipx, 0},
-  {"flip_y", flag_flipy, 0}
+  {"flip_x", flag_flipx, NULL},
+  {"flip_y", flag_flipy, NULL}
 };
 
 REGISTER_FLAGS (lesstif_main_flag_list)

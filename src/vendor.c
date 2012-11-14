@@ -962,13 +962,14 @@ HID_Action vendor_action_list[] = {
 };
 
 REGISTER_ACTIONS (vendor_action_list)
-     static int vendor_get_enabled (int unused)
+
+static int vendor_get_enabled (void *data)
 {
   return vendorMapEnable;
 }
 
 HID_Flag vendor_flag_list[] = {
-  {"VendorMapOn", vendor_get_enabled, 0}
+  {"VendorMapOn", vendor_get_enabled, NULL}
 };
 
 REGISTER_FLAGS (vendor_flag_list)

@@ -136,9 +136,9 @@ extern "C"
     /* Name of the flag */
     char *name;
     /* Function to call to get the value of the flag.  */
-    int (*function) (int);
+    int (*function) (void *);
     /* Additional parameter to pass to that function.  */
-    int parm;
+    void *parm;
   } HID_Flag;
 
   extern void hid_register_flags (HID_Flag *, int);
