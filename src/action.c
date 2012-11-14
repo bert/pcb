@@ -530,7 +530,7 @@ FinishStroke (void)
 	case 96521:
 	case 96541:
 	case 98541:
-	  SetZoom (1000);	/* special zoom extents */
+	  /* XXX: FIXME: Call a zoom-extents action */
 	  break;
 	case 159:
 	case 1269:
@@ -541,28 +541,8 @@ FinishStroke (void)
 	case 12569:
 	case 12589:
 	case 14589:
-	  {
-	    Coord x = (StrokeBox.X1 + StrokeBox.X2) / 2;
-	    Coord y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
-	    double z;
-	    /* XXX: PCB->MaxWidth and PCB->MaxHeight may be the wrong
-	     *      divisors below. The old code WAS broken, but this
-             *      replacement has not been tested for correctness.
-	     */
-	    z =
-	      1 +
-	      log (fabs (StrokeBox.X2 - StrokeBox.X1) / PCB->MaxWidth) /
-	      log (2.0);
-	    z =
-	      MAX (z,
-		   1 +
-		   log (fabs (StrokeBox.Y2 - StrokeBox.Y1) / PCB->MaxHeight) /
-		   log (2.0));
-	    SetZoom (z);
-
-	    CenterDisplay (x, y);
-	    break;
-	  }
+	  /* XXX: FIXME: Zoom to fit the box StrokeBox.[X1,Y1] - StrokeBox.[X2,Y2] */
+	  break;
 
 	default:
 	  Message (_("Unknown stroke %s\n"), msg);
