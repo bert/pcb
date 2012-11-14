@@ -188,7 +188,6 @@ CreateNewPCB (bool SetDefaultNames)
     style->index = n;
   }
   END_LOOP;
-  ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
   ptr->ID = ID++;

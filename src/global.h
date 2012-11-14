@@ -520,8 +520,7 @@ typedef struct PCBType
     ExtentMaxX, ExtentMaxY;
 
   Coord Grid;			/* used grid with offsets */
-  double Zoom,			/* zoom factor */
-    IsleArea,			/* minimum poly island to retain */
+  double IsleArea,		/* minimum poly island to retain */
     ThermScale;			/* scale factor used with thermals */
   FontType Font;
   LayerGroupType LayerGroups;
@@ -648,9 +647,7 @@ typedef struct			/* some resources... */
     Shrink, minWid, minSlk, minDrill, minRing;
   int TextScale;		/* text scaling in % */
   Coord Grid;			/* grid in pcb-units */
-  double Zoom,
-    IsleArea,    		/* polygon min area */
-    PinoutZoom;			/* same for pinout windows */
+  double IsleArea;		/* polygon min area */
   int PinoutNameLength,		/* max displayed length of a pinname */
     Volume,			/* the speakers volume -100..100 */
     CharPerLine,		/* width of an output line in characters */

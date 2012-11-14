@@ -417,6 +417,8 @@ The current zoom factor.  Note that a zoom factor of "0" means 1 mil
 per screen pixel, N means @math{2^N} mils per screen pixel, etc.  The
 first variant accepts floating point numbers.  The special value
 "1000" means "zoom to fit"
+
+This field is ignored by PCB.
 @end table
 
 %end-doc */
@@ -426,13 +428,11 @@ pcbcursor
 			{
 				yyPCB->CursorX = OU ($3);
 				yyPCB->CursorY = OU ($4);
-				yyPCB->Zoom = $5*2;
 			}
 		| T_CURSOR '[' measure measure number ']'
 			{
 				yyPCB->CursorX = NU ($3);
 				yyPCB->CursorY = NU ($4);
-				yyPCB->Zoom = $5;
 			}
 		|
 		;
