@@ -472,7 +472,7 @@ void ghid_pinout_window_show (GHidPort *out, ElementType *Element);
 int ghid_set_layer (const char *name, int group, int empty);
 hidGC ghid_make_gc (void);
 void ghid_destroy_gc (hidGC);
-void ghid_use_mask (int use_it);
+void ghid_use_mask (enum mask_mode mode);
 void ghid_set_color (hidGC gc, const char *name);
 void ghid_set_line_cap (hidGC gc, EndCapStyle style);
 void ghid_set_line_width (hidGC gc, Coord width);

@@ -20,7 +20,7 @@ extern HID ghid_hid;
 */
 #define USE_GC(gc) if (!use_gc(gc)) return
 
-static int cur_mask = -1;
+static enum mask_mode cur_mask = HID_MASK_OFF;
 static int mask_seq = 0;
 
 typedef struct render_priv {
@@ -258,7 +258,7 @@ ghid_draw_bg_image (void)
 #define WHICH_GC(gc) (cur_mask == HID_MASK_CLEAR ? priv->mask_gc : (gc)->gc)
 
 void
-ghid_use_mask (int use_it)
+ghid_use_mask (enum mask_mode mode)
 {
   static int mask_seq_id = 0;
   GdkColor color;
@@ -266,9 +266,9 @@ ghid_use_mask (int use_it)
 
   if (!gport->pixmap)
     return;
-  if (use_it == cur_mask)
+  if (mode == cur_mask)
     return;
-  switch (use_it)
+  switch (mode)
     {
     case HID_MASK_OFF:
       gport->drawable = gport->pixmap;
@@ -308,7 +308,7 @@ ghid_use_mask (int use_it)
       break;
 
     }
-  cur_mask = use_it;
+  cur_mask = mode;
 }
 
 

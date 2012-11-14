@@ -1183,7 +1183,7 @@ gcode_destroy_gc (hidGC gc)
 }
 
 static void
-gcode_use_mask (int use_it)
+gcode_use_mask (enum mask_mode mode)
 {
   /* does nothing */
 }

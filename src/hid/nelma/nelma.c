@@ -776,7 +776,7 @@ nelma_destroy_gc(hidGC gc)
 }
 
 static void 
-nelma_use_mask(int use_it)
+nelma_use_mask(enum mask_mode mode)
 {
 	/* does nothing */
 }

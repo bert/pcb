@@ -81,7 +81,7 @@ nogui_destroy_gc (hidGC gc)
 }
 
 static void
-nogui_use_mask (int use_it)
+nogui_use_mask (enum mask_mode mode)
 {
   CRASH;
 }

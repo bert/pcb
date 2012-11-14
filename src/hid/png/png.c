@@ -1357,16 +1357,16 @@ png_destroy_gc (hidGC gc)
 }
 
 static void
-png_use_mask (int use_it)
+png_use_mask (enum mask_mode mode)
 {
   if (photo_mode)
     return;
 
-  if (use_it == HID_MASK_CLEAR)
+  if (mode == HID_MASK_CLEAR)
     {
       return;
     }
-  if (use_it)
+  if (mode != HID_MASK_OFF)
     {
       if (mask_im == NULL)
 	{

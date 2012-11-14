@@ -71,7 +71,7 @@ extents_destroy_gc (hidGC gc)
 }
 
 static void
-extents_use_mask (int use_it)
+extents_use_mask (enum mask_mode mode)
 {
 }
 

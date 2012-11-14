@@ -48,7 +48,7 @@ static void gerber_parse_arguments (int *argc, char ***argv);
 static int gerber_set_layer (const char *name, int group, int empty);
 static hidGC gerber_make_gc (void);
 static void gerber_destroy_gc (hidGC gc);
-static void gerber_use_mask (int use_it);
+static void gerber_use_mask (enum mask_mode mode);
 static void gerber_set_color (hidGC gc, const char *name);
 static void gerber_set_line_cap (hidGC gc, EndCapStyle style);
 static void gerber_set_line_width (hidGC gc, Coord width);
@@ -86,7 +86,7 @@ static int metric;
 static char *x_convspec, *y_convspec;
 static int is_mask, was_drill;
 static int is_drill;
-static int current_mask;
+static enum mask_mode current_mask;
 static int flash_drills;
 static int copy_outline_mode;
 static int name_style;
@@ -706,7 +706,7 @@ gerber_set_layer (const char *name, int group, int empty)
 
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
-  current_mask = 0;
+  current_mask = HID_MASK_OFF;
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
 	  is_mask);
@@ -891,9 +891,9 @@ gerber_destroy_gc (hidGC gc)
 }
 
 static void
-gerber_use_mask (int use_it)
+gerber_use_mask (enum mask_mode mode)
 {
-  current_mask = use_it;
+  current_mask = mode;
 }
 
 static void

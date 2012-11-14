@@ -41,7 +41,7 @@ static hidGC current_gc = NULL;
 */
 #define USE_GC(gc) if (!use_gc(gc)) return
 
-static int cur_mask = -1;
+static enum mask_mode cur_mask = HID_MASK_OFF;
 static GLfloat view_matrix[4][4] = {{1.0, 0.0, 0.0, 0.0},
                                     {0.0, 1.0, 0.0, 0.0},
                                     {0.0, 0.0, 1.0, 0.0},
@@ -287,17 +287,17 @@ ghid_draw_bg_image (void)
 }
 
 void
-ghid_use_mask (int use_it)
+ghid_use_mask (enum mask_mode mode)
 {
   static int stencil_bit = 0;
 
-  if (use_it == cur_mask)
+  if (mode == cur_mask)
     return;
 
   /* Flush out any existing geoemtry to be rendered */
   hidgl_flush_triangles (&buffer);
 
-  switch (use_it)
+  switch (mode)
     {
     case HID_MASK_BEFORE:
       /* The HID asks not to receive this mask type, so warn if we get it */
@@ -326,7 +326,7 @@ ghid_use_mask (int use_it)
       glDisable (GL_STENCIL_TEST);                /* Disable Stencil test */
       break;
     }
-  cur_mask = use_it;
+  cur_mask = mode;
 }
 
 
