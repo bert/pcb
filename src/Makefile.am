@@ -423,7 +423,6 @@ LIBGCODE_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/gcode/gcode.c \
-	hid/gcode/gcode.h \
 	hid/gcode/decompose.c \
 	hid/gcode/decompose.h \
 	hid/gcode/trace.c \

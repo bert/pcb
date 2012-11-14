@@ -57,7 +57,6 @@
 #include <gd.h>
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
-#include "gcode.h"
 #include "bitmap.h"
 #include "curve.h"
 #include "potracelib.h"
@@ -72,6 +71,9 @@
 #endif
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
+
+static HID gcode_hid;
+
 struct color_struct
 {
   /* the descriptor used by the gd library */
@@ -1567,8 +1569,6 @@ gcode_set_crosshair (int x, int y, int a)
 /* *** Miscellaneous ******************************************************* */
 
 #include "dolists.h"
-
-HID gcode_hid;
 
 void
 hid_gcode_init ()
