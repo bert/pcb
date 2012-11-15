@@ -58,6 +58,7 @@
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
 static HID png_hid;
+static HID_DRAW_API png_graphics;
 
 static void *color_cache = NULL;
 static void *brush_cache = NULL;
@@ -1802,6 +1803,7 @@ void
 hid_png_init ()
 {
   memset (&png_hid, 0, sizeof (HID));
+  memset (&png_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&png_hid);
   common_draw_helpers_init (&png_hid);
@@ -1816,21 +1818,24 @@ hid_png_init ()
   png_hid.do_export           = png_do_export;
   png_hid.parse_arguments     = png_parse_arguments;
   png_hid.set_layer           = png_set_layer;
-  png_hid.make_gc             = png_make_gc;
-  png_hid.destroy_gc          = png_destroy_gc;
-  png_hid.use_mask            = png_use_mask;
-  png_hid.set_color           = png_set_color;
-  png_hid.set_line_cap        = png_set_line_cap;
-  png_hid.set_line_width      = png_set_line_width;
-  png_hid.set_draw_xor        = png_set_draw_xor;
-  png_hid.draw_line           = png_draw_line;
-  png_hid.draw_arc            = png_draw_arc;
-  png_hid.draw_rect           = png_draw_rect;
-  png_hid.fill_circle         = png_fill_circle;
-  png_hid.fill_polygon        = png_fill_polygon;
-  png_hid.fill_rect           = png_fill_rect;
   png_hid.calibrate           = png_calibrate;
   png_hid.set_crosshair       = png_set_crosshair;
+
+  png_hid.graphics            = &png_graphics;
+
+  png_graphics.make_gc        = png_make_gc;
+  png_graphics.destroy_gc     = png_destroy_gc;
+  png_graphics.use_mask       = png_use_mask;
+  png_graphics.set_color      = png_set_color;
+  png_graphics.set_line_cap   = png_set_line_cap;
+  png_graphics.set_line_width = png_set_line_width;
+  png_graphics.set_draw_xor   = png_set_draw_xor;
+  png_graphics.draw_line      = png_draw_line;
+  png_graphics.draw_arc       = png_draw_arc;
+  png_graphics.draw_rect      = png_draw_rect;
+  png_graphics.fill_circle    = png_fill_circle;
+  png_graphics.fill_polygon   = png_fill_polygon;
+  png_graphics.fill_rect      = png_fill_rect;
 
 #ifdef HAVE_SOME_FORMAT
   hid_register_hid (&png_hid);

@@ -239,6 +239,52 @@ typedef enum
     HID_MASK_AFTER  = 3, /* Polygons being drawn after clears.                 */
   };
 
+/* Low level drawing API */
+  typedef struct
+  {
+    /* Drawing Functions.  Coordinates and distances are ALWAYS in PCB's
+       default coordinates (1 nm at the time this comment was written).
+       Angles are always in degrees, with 0 being "right" (positive X)
+       and 90 being "up" (positive Y).  */
+
+    /* Make an empty graphics context.  */
+    hidGC (*make_gc) (void);
+    void (*destroy_gc) (hidGC gc_);
+    void (*use_mask) (enum mask_mode mode);
+
+    /* Set a color.  Names can be like "red" or "#rrggbb" or special
+       names like "erase".  *Always* use the "erase" color for removing
+       ink (like polygon reliefs or thermals), as you cannot rely on
+       knowing the background color or special needs of the HID.  Always
+       use the "drill" color to draw holes.  You may assume this is
+       cheap enough to call inside the redraw callback, but not cheap
+       enough to call for each item drawn. */
+    void (*set_color) (hidGC gc, const char *name);
+
+    /* Set the line style.  While calling this is cheap, calling it with
+       different values each time may be expensive, so grouping items by
+       line style is helpful.  */
+    void (*set_line_cap) (hidGC gc, EndCapStyle style);
+    void (*set_line_width) (hidGC gc, Coord width);
+    void (*set_draw_xor) (hidGC gc, int xor_);
+
+    /* Blends 20% or so color with 80% background.  Only used for
+       assembly drawings so far. */
+    void (*set_draw_faded) (hidGC gc, int faded);
+
+    /* The usual drawing functions.  "draw" means to use segments of the
+       given width, whereas "fill" means to fill to a zero-width
+       outline.  */
+    void (*draw_line)    (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+    void (*draw_arc)     (hidGC gc, Coord cx, Coord cy, Coord xradius, Coord yradius, Angle start_angle, Angle delta_angle);
+    void (*draw_rect)    (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+    void (*fill_circle)  (hidGC gc, Coord cx, Coord cy, Coord radius);
+    void (*fill_polygon) (hidGC gc, int n_coords_, Coord *x, Coord *y);
+    void (*fill_rect)    (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+
+  } HID_DRAW_API;
+
+
   typedef struct hid_st HID;
 
 /* This is the main HID structure.  */
@@ -323,53 +369,9 @@ typedef enum
     /* Tell the GUI the layer last selected has been finished with */
     void (*end_layer) (void);
 
-    /* Drawing Functions.  Coordinates and distances are ALWAYS in PCB's
-       default coordinates (1/100 mil at the time this comment was
-       written).  Angles are always in degrees, with 0 being "right"
-       (positive X) and 90 being "up" (positive Y).  */
 
-    /* Make an empty graphics context.  */
-      hidGC (*make_gc) (void);
-    void (*destroy_gc) (hidGC gc_);
+    HID_DRAW_API *graphics;
 
-    /* Special note about the "erase" color: To use this color, you must
-       use this function to tell the HID when you're using it.  At the
-       beginning of a layer redraw cycle (i.e. after set_layer), call
-       use_mask() to redirect output to a buffer.  Draw to the buffer
-       (using regular HID calls) using regular and "erase" colors.  Then
-       call use_mask(HID_MASK_OFF) to flush the buffer to the HID.  If
-       you use the "erase" color when use_mask is disabled, it simply
-       draws in the background color.  */
-    void (*use_mask) (enum mask_mode mode);
-
-    /* Set a color.  Names can be like "red" or "#rrggbb" or special
-       names like "erase".  *Always* use the "erase" color for removing
-       ink (like polygon reliefs or thermals), as you cannot rely on
-       knowing the background color or special needs of the HID.  Always
-       use the "drill" color to draw holes.  You may assume this is
-       cheap enough to call inside the redraw callback, but not cheap
-       enough to call for each item drawn. */
-    void (*set_color) (hidGC gc_, const char *name_);
-
-    /* Set the line style.  While calling this is cheap, calling it with
-       different values each time may be expensive, so grouping items by
-       line style is helpful.  */
-    void (*set_line_cap) (hidGC gc_, EndCapStyle style_);
-    void (*set_line_width) (hidGC gc_, Coord width_);
-    void (*set_draw_xor) (hidGC gc_, int xor_);
-    /* Blends 20% or so color with 80% background.  Only used for
-       assembly drawings so far. */
-    void (*set_draw_faded) (hidGC gc_, int faded_);
-
-    /* The usual drawing functions.  "draw" means to use segments of the
-       given width, whereas "fill" means to fill to a zero-width
-       outline.  */
-    void (*draw_line) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
-    void (*draw_arc) (hidGC gc_, Coord cx_, Coord cy_, Coord xradius_, Coord yradius_,
-		      Angle start_angle_, Angle delta_angle_);
-    void (*draw_rect) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
-    void (*fill_circle) (hidGC gc_, Coord cx_, Coord cy_, Coord radius_);
-    void (*fill_polygon) (hidGC gc_, int n_coords_, Coord *x_, Coord *y_);
     void (*fill_pcb_polygon) (hidGC gc_, PolygonType *poly,
                               const BoxType *clip_box);
     void (*thindraw_pcb_polygon) (hidGC gc_, PolygonType *poly,
@@ -378,7 +380,6 @@ typedef enum
     void (*thindraw_pcb_pad) (hidGC gc_, PadType *pad, bool clip, bool mask);
     void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
     void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
-    void (*fill_rect) (hidGC gc_, Coord x1_, Coord y1_, Coord x2_, Coord y2_);
 
 
     /* This is for the printer.  If you call this for the GUI, xval and

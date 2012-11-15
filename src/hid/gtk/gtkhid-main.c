@@ -2087,6 +2087,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
 #endif
 
 HID ghid_hid;
+static HID_DRAW_API ghid_graphics;
 
 void
 hid_gtk_init ()
@@ -2126,6 +2127,7 @@ hid_gtk_init ()
 #endif
 
   memset (&ghid_hid, 0, sizeof (HID));
+  memset (&ghid_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&ghid_hid);
   common_draw_helpers_init (&ghid_hid);
@@ -2144,19 +2146,6 @@ hid_gtk_init ()
   ghid_hid.notify_crosshair_change  = ghid_notify_crosshair_change;
   ghid_hid.notify_mark_change       = ghid_notify_mark_change;
   ghid_hid.set_layer                = ghid_set_layer;
-  ghid_hid.make_gc                  = ghid_make_gc;
-  ghid_hid.destroy_gc               = ghid_destroy_gc;
-  ghid_hid.use_mask                 = ghid_use_mask;
-  ghid_hid.set_color                = ghid_set_color;
-  ghid_hid.set_line_cap             = ghid_set_line_cap;
-  ghid_hid.set_line_width           = ghid_set_line_width;
-  ghid_hid.set_draw_xor             = ghid_set_draw_xor;
-  ghid_hid.draw_line                = ghid_draw_line;
-  ghid_hid.draw_arc                 = ghid_draw_arc;
-  ghid_hid.draw_rect                = ghid_draw_rect;
-  ghid_hid.fill_circle              = ghid_fill_circle;
-  ghid_hid.fill_polygon             = ghid_fill_polygon;
-  ghid_hid.fill_rect                = ghid_fill_rect;
 
   ghid_hid.calibrate                = ghid_calibrate;
   ghid_hid.shift_is_pressed         = ghid_shift_is_pressed;
@@ -2191,6 +2180,22 @@ hid_gtk_init ()
 
   ghid_hid.notify_save_pcb          = ghid_notify_save_pcb;
   ghid_hid.notify_filename_changed  = ghid_notify_filename_changed;
+
+  ghid_hid.graphics                 = &ghid_graphics;
+
+  ghid_graphics.make_gc             = ghid_make_gc;
+  ghid_graphics.destroy_gc          = ghid_destroy_gc;
+  ghid_graphics.use_mask            = ghid_use_mask;
+  ghid_graphics.set_color           = ghid_set_color;
+  ghid_graphics.set_line_cap        = ghid_set_line_cap;
+  ghid_graphics.set_line_width      = ghid_set_line_width;
+  ghid_graphics.set_draw_xor        = ghid_set_draw_xor;
+  ghid_graphics.draw_line           = ghid_draw_line;
+  ghid_graphics.draw_arc            = ghid_draw_arc;
+  ghid_graphics.draw_rect           = ghid_draw_rect;
+  ghid_graphics.fill_circle         = ghid_fill_circle;
+  ghid_graphics.fill_polygon        = ghid_fill_polygon;
+  ghid_graphics.fill_rect           = ghid_fill_rect;
 
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"

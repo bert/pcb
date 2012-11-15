@@ -73,6 +73,7 @@
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
 
 static HID gcode_hid;
+static HID_DRAW_API gcode_graphics;
 
 struct color_struct
 {
@@ -1574,6 +1575,7 @@ void
 hid_gcode_init ()
 {
   memset (&gcode_hid, 0, sizeof (HID));
+  memset (&gcode_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&gcode_hid);
   common_draw_helpers_init (&gcode_hid);
@@ -1588,22 +1590,25 @@ hid_gcode_init ()
   gcode_hid.do_export           = gcode_do_export;
   gcode_hid.parse_arguments     = gcode_parse_arguments;
   gcode_hid.set_layer           = gcode_set_layer;
-  gcode_hid.make_gc             = gcode_make_gc;
-  gcode_hid.destroy_gc          = gcode_destroy_gc;
-  gcode_hid.use_mask            = gcode_use_mask;
-  gcode_hid.set_color           = gcode_set_color;
-  gcode_hid.set_line_cap        = gcode_set_line_cap;
-  gcode_hid.set_line_width      = gcode_set_line_width;
-  gcode_hid.set_draw_xor        = gcode_set_draw_xor;
-  gcode_hid.set_draw_faded      = gcode_set_draw_faded;
-  gcode_hid.draw_line           = gcode_draw_line;
-  gcode_hid.draw_arc            = gcode_draw_arc;
-  gcode_hid.draw_rect           = gcode_draw_rect;
-  gcode_hid.fill_circle         = gcode_fill_circle;
-  gcode_hid.fill_polygon        = gcode_fill_polygon;
-  gcode_hid.fill_rect           = gcode_fill_rect;
   gcode_hid.calibrate           = gcode_calibrate;
   gcode_hid.set_crosshair       = gcode_set_crosshair;
+
+  gcode_hid.graphics            = &gcode_graphics;
+
+  gcode_graphics.make_gc        = gcode_make_gc;
+  gcode_graphics.destroy_gc     = gcode_destroy_gc;
+  gcode_graphics.use_mask       = gcode_use_mask;
+  gcode_graphics.set_color      = gcode_set_color;
+  gcode_graphics.set_line_cap   = gcode_set_line_cap;
+  gcode_graphics.set_line_width = gcode_set_line_width;
+  gcode_graphics.set_draw_xor   = gcode_set_draw_xor;
+  gcode_graphics.set_draw_faded = gcode_set_draw_faded;
+  gcode_graphics.draw_line      = gcode_draw_line;
+  gcode_graphics.draw_arc       = gcode_draw_arc;
+  gcode_graphics.draw_rect      = gcode_draw_rect;
+  gcode_graphics.fill_circle    = gcode_fill_circle;
+  gcode_graphics.fill_polygon   = gcode_fill_polygon;
+  gcode_graphics.fill_rect      = gcode_fill_rect;
 
   hid_register_hid (&gcode_hid);
 

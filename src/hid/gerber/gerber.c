@@ -288,6 +288,7 @@ setLayerApertureList (int layer_idx)
 /* --------------------------------------------------------------------------- */
 
 static HID gerber_hid;
+static HID_DRAW_API gerber_graphics;
 
 typedef struct hid_gc_struct
 {
@@ -857,19 +858,19 @@ gerber_set_layer (const char *name, int group, int empty)
 	DrawLayer (outline_layer, &region);
       else if (!outline_layer)
 	{
-	  hidGC gc = gui->make_gc ();
+	  hidGC gc = gui->graphics->make_gc ();
 	  printf("name %s idx %d\n", name, idx);
 	  if (SL_TYPE (idx) == SL_SILK)
-	    gui->set_line_width (gc, PCB->minSlk);
+	    gui->graphics->set_line_width (gc, PCB->minSlk);
 	  else if (group >= 0)
-	    gui->set_line_width (gc, PCB->minWid);
+	    gui->graphics->set_line_width (gc, PCB->minWid);
 	  else
-	    gui->set_line_width (gc, AUTO_OUTLINE_WIDTH);
-	  gui->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
-	  gui->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
-	  gui->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->destroy_gc (gc);
+	    gui->graphics->set_line_width (gc, AUTO_OUTLINE_WIDTH);
+	  gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
+	  gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
+	  gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
+	  gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
+	  gui->graphics->destroy_gc (gc);
 	}
     }
 
@@ -1265,6 +1266,7 @@ void
 hid_gerber_init ()
 {
   memset (&gerber_hid, 0, sizeof (gerber_hid));
+  memset (&gerber_graphics, 0, sizeof (gerber_graphics));
 
   common_nogui_init (&gerber_hid);
   common_draw_helpers_init (&gerber_hid);
@@ -1278,21 +1280,24 @@ hid_gerber_init ()
   gerber_hid.do_export           = gerber_do_export;
   gerber_hid.parse_arguments     = gerber_parse_arguments;
   gerber_hid.set_layer           = gerber_set_layer;
-  gerber_hid.make_gc             = gerber_make_gc;
-  gerber_hid.destroy_gc          = gerber_destroy_gc;
-  gerber_hid.use_mask            = gerber_use_mask;
-  gerber_hid.set_color           = gerber_set_color;
-  gerber_hid.set_line_cap        = gerber_set_line_cap;
-  gerber_hid.set_line_width      = gerber_set_line_width;
-  gerber_hid.set_draw_xor        = gerber_set_draw_xor;
-  gerber_hid.draw_line           = gerber_draw_line;
-  gerber_hid.draw_arc            = gerber_draw_arc;
-  gerber_hid.draw_rect           = gerber_draw_rect;
-  gerber_hid.fill_circle         = gerber_fill_circle;
-  gerber_hid.fill_polygon        = gerber_fill_polygon;
-  gerber_hid.fill_rect           = gerber_fill_rect;
   gerber_hid.calibrate           = gerber_calibrate;
   gerber_hid.set_crosshair       = gerber_set_crosshair;
+
+  gerber_hid.graphics            = &gerber_graphics;
+
+  gerber_graphics.make_gc        = gerber_make_gc;
+  gerber_graphics.destroy_gc     = gerber_destroy_gc;
+  gerber_graphics.use_mask       = gerber_use_mask;
+  gerber_graphics.set_color      = gerber_set_color;
+  gerber_graphics.set_line_cap   = gerber_set_line_cap;
+  gerber_graphics.set_line_width = gerber_set_line_width;
+  gerber_graphics.set_draw_xor   = gerber_set_draw_xor;
+  gerber_graphics.draw_line      = gerber_draw_line;
+  gerber_graphics.draw_arc       = gerber_draw_arc;
+  gerber_graphics.draw_rect      = gerber_draw_rect;
+  gerber_graphics.fill_circle    = gerber_fill_circle;
+  gerber_graphics.fill_polygon   = gerber_fill_polygon;
+  gerber_graphics.fill_rect      = gerber_fill_rect;
 
   hid_register_hid (&gerber_hid);
 }

@@ -454,25 +454,11 @@ common_nogui_init (HID *hid)
   hid->invalidate_all =       nogui_invalidate_all;
   hid->set_layer =            nogui_set_layer;
   hid->end_layer =            nogui_end_layer;
-  hid->make_gc =              nogui_make_gc;
-  hid->destroy_gc =           nogui_destroy_gc;
-  hid->use_mask =             nogui_use_mask;
-  hid->set_color =            nogui_set_color;
-  hid->set_line_cap =         nogui_set_line_cap;
-  hid->set_line_width =       nogui_set_line_width;
-  hid->set_draw_xor =         nogui_set_draw_xor;
-  hid->set_draw_faded =       nogui_set_draw_faded;
-  hid->draw_line =            nogui_draw_line;
-  hid->draw_arc =             nogui_draw_arc;
-  hid->draw_rect =            nogui_draw_rect;
-  hid->fill_circle =          nogui_fill_circle;
-  hid->fill_polygon =         nogui_fill_polygon;
   hid->fill_pcb_polygon =     nogui_fill_pcb_polygon;
   hid->fill_pcb_pad =         nogui_fill_pcb_pad;
   hid->thindraw_pcb_pad =     nogui_thindraw_pcb_pad;
   hid->fill_pcb_pv =          nogui_fill_pcb_pv;
   hid->thindraw_pcb_pv =      nogui_thindraw_pcb_pv;
-  hid->fill_rect =            nogui_fill_rect;
   hid->calibrate =            nogui_calibrate;
   hid->shift_is_pressed =     nogui_shift_is_pressed;
   hid->control_is_pressed =   nogui_control_is_pressed;
@@ -501,19 +487,42 @@ common_nogui_init (HID *hid)
   hid->finish_debug_draw =    nogui_finish_debug_draw;
 }
 
+void
+common_nogui_graphics_init (HID_DRAW_API *graphics)
+{
+  graphics->make_gc =         nogui_make_gc;
+  graphics->destroy_gc =      nogui_destroy_gc;
+  graphics->use_mask =        nogui_use_mask;
+  graphics->set_color =       nogui_set_color;
+  graphics->set_line_cap =    nogui_set_line_cap;
+  graphics->set_line_width =  nogui_set_line_width;
+  graphics->set_draw_xor =    nogui_set_draw_xor;
+  graphics->set_draw_faded =  nogui_set_draw_faded;
+  graphics->draw_line =       nogui_draw_line;
+  graphics->draw_arc =        nogui_draw_arc;
+  graphics->draw_rect =       nogui_draw_rect;
+  graphics->fill_circle =     nogui_fill_circle;
+  graphics->fill_polygon =    nogui_fill_polygon;
+  graphics->fill_rect =       nogui_fill_rect;
+}
+
 static HID nogui_hid;
+static HID_DRAW_API nogui_graphics;
 
 HID *
 hid_nogui_get_hid (void)
 {
   memset (&nogui_hid, 0, sizeof (HID));
+  memset (&nogui_graphics, 0, sizeof (HID_DRAW_API));
 
   nogui_hid.struct_size = sizeof (HID);
   nogui_hid.name        = "nogui";
   nogui_hid.description = "Default GUI when no other GUI is present.  "
                           "Does nothing.";
+  nogui_hid.graphics    = &nogui_graphics;
 
   common_nogui_init (&nogui_hid);
+  common_nogui_graphics_init (&nogui_graphics);
 
   return &nogui_hid;
 }

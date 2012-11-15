@@ -59,6 +59,7 @@ typedef struct hid_gc_struct
 } hid_gc_struct;
 
 static HID eps_hid;
+static HID_DRAW_API eps_graphics;
 
 static FILE *f = 0;
 static Coord linewidth = -1;
@@ -666,6 +667,7 @@ void
 hid_eps_init ()
 {
   memset (&eps_hid, 0, sizeof (HID));
+  memset (&eps_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&eps_hid);
   common_draw_helpers_init (&eps_hid);
@@ -680,21 +682,24 @@ hid_eps_init ()
   eps_hid.do_export           = eps_do_export;
   eps_hid.parse_arguments     = eps_parse_arguments;
   eps_hid.set_layer           = eps_set_layer;
-  eps_hid.make_gc             = eps_make_gc;
-  eps_hid.destroy_gc          = eps_destroy_gc;
-  eps_hid.use_mask            = eps_use_mask;
-  eps_hid.set_color           = eps_set_color;
-  eps_hid.set_line_cap        = eps_set_line_cap;
-  eps_hid.set_line_width      = eps_set_line_width;
-  eps_hid.set_draw_xor        = eps_set_draw_xor;
-  eps_hid.draw_line           = eps_draw_line;
-  eps_hid.draw_arc            = eps_draw_arc;
-  eps_hid.draw_rect           = eps_draw_rect;
-  eps_hid.fill_circle         = eps_fill_circle;
-  eps_hid.fill_polygon        = eps_fill_polygon;
-  eps_hid.fill_rect           = eps_fill_rect;
   eps_hid.calibrate           = eps_calibrate;
   eps_hid.set_crosshair       = eps_set_crosshair;
+
+  eps_hid.graphics            = &eps_graphics;
+
+  eps_graphics.make_gc        = eps_make_gc;
+  eps_graphics.destroy_gc     = eps_destroy_gc;
+  eps_graphics.use_mask       = eps_use_mask;
+  eps_graphics.set_color      = eps_set_color;
+  eps_graphics.set_line_cap   = eps_set_line_cap;
+  eps_graphics.set_line_width = eps_set_line_width;
+  eps_graphics.set_draw_xor   = eps_set_draw_xor;
+  eps_graphics.draw_line      = eps_draw_line;
+  eps_graphics.draw_arc       = eps_draw_arc;
+  eps_graphics.draw_rect      = eps_draw_rect;
+  eps_graphics.fill_circle    = eps_fill_circle;
+  eps_graphics.fill_polygon   = eps_fill_polygon;
+  eps_graphics.fill_rect      = eps_fill_rect;
 
   hid_register_hid (&eps_hid);
 }

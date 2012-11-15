@@ -120,14 +120,17 @@ lpr_calibrate (double xval, double yval)
 }
 
 static HID lpr_hid;
+static HID_DRAW_API lpr_graphics;
 
 void
 hid_lpr_init ()
 {
   memset (&lpr_hid, 0, sizeof (HID));
+  memset (&lpr_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&lpr_hid);
   ps_ps_init (&lpr_hid);
+  ps_ps_graphics_init (&lpr_graphics);
 
   lpr_hid.struct_size         = sizeof (HID);
   lpr_hid.name                = "lpr";
@@ -139,6 +142,8 @@ hid_lpr_init ()
   lpr_hid.do_export           = lpr_do_export;
   lpr_hid.parse_arguments     = lpr_parse_arguments;
   lpr_hid.calibrate           = lpr_calibrate;
+
+  lpr_hid.graphics            = &lpr_graphics;
 
   hid_register_hid (&lpr_hid);
 }
