@@ -464,7 +464,7 @@ fi
 for hid in $HIDLIST; do
     F=$srcdir/src/hid/$hid/hid.conf
     if test -f $F ; then
-        echo checking $hid depedencies
+        echo checking $hid dependencies
         deps=
         . $F
         for dep in $deps; do
