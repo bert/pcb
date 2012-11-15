@@ -3216,7 +3216,8 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
+LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag,
+                  bool AndRats)
 {
   void *ptr1, *ptr2, *ptr3;
   char *name;
@@ -3230,10 +3231,9 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
     = SearchObjectByLocation (LOOKUP_FIRST, &ptr1, &ptr2, &ptr3, X, Y, Range);
   if (type == NO_TYPE)
     {
-      type
-        =
-        SearchObjectByLocation
-        (LOOKUP_MORE, &ptr1, &ptr2, &ptr3, X, Y, Range);
+      type = SearchObjectByLocation (
+        LOOKUP_MORE & ~(AndRats ? RATLINE_TYPE : 0),
+        &ptr1, &ptr2, &ptr3, X, Y, Range);
       if (type == NO_TYPE)
         return;
       if (type & SILK_TYPE)
@@ -3246,11 +3246,9 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
             return;
         }
     }
-  else
-    {
-      name = ConnectionName (type, ptr1, ptr2);
-      hid_actionl ("NetlistShow", name, NULL);
-    }
+
+  name = ConnectionName (type, ptr1, ptr2);
+  hid_actionl ("NetlistShow", name, NULL);
 
   TheFlag = which_flag;
   User = AndDraw;
@@ -3260,7 +3258,7 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag)
    * This is step (1) from the description
    */
   ListStart (type, ptr1, ptr2, ptr3);
-  DoIt (true, AndDraw);
+  DoIt (AndRats, AndDraw);
   if (User)
     IncrementUndoSerialNumber ();
   User = false;

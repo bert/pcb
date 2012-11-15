@@ -560,7 +560,7 @@ XYtoNetLength (Coord x, Coord y, int *found)
   /* NB: The third argument here, 'false' ensures LookupConnection
    *     does not add its changes to the undo system.
    */
-  LookupConnection (x, y, false, PCB->Grid, FOUNDFLAG);
+  LookupConnection (x, y, false, PCB->Grid, FOUNDFLAG, true);
 
   ALLLINE_LOOP (PCB->Data);
   {

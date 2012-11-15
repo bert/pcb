@@ -872,7 +872,7 @@ NotifyLine (void)
 			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
 			       &ptr3);
 	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1,
-			    FOUNDFLAG);
+			    FOUNDFLAG, true);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{
@@ -2290,7 +2290,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	case F_Find:
 	  {
 	    gui->get_coords (_("Click on a connection"), &x, &y);
-	    LookupConnection (x, y, true, 1, FOUNDFLAG);
+	    LookupConnection (x, y, true, 1, FOUNDFLAG, false);
 	    break;
 	  }
 
@@ -2756,7 +2756,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	      if (Crosshair.AttachedLine.State != STATE_FIRST)
 		LookupConnection (Crosshair.AttachedLine.Point1.X,
 				  Crosshair.AttachedLine.Point1.Y, true, 1,
-				  FOUNDFLAG);
+				  FOUNDFLAG, true);
 	    }
 	  notify_crosshair_change (true);
 	  break;
