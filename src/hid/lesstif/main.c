@@ -56,7 +56,7 @@ typedef struct hid_gc_struct
   char erase;
 } hid_gc_struct;
 
-HID lesstif_hid;
+static HID lesstif_hid;
 static HID_DRAW_API lesstif_graphics;
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GUI function %s\n", __FUNCTION__), abort()
