@@ -208,9 +208,9 @@ static void
 _draw_pv (PinType *pv, bool draw_hole)
 {
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    gui->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
+    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
   else
-    gui->fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
+    gui->graphics->fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
 
   if (!TEST_FLAG (HOLEFLAG, pv) && TEST_FLAG (DISPLAYNAMEFLAG, pv))
     _draw_pv_name (pv);
@@ -294,9 +294,9 @@ _draw_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 
   if (TEST_FLAG (THINDRAWFLAG, PCB) ||
       (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->thindraw_pcb_pad (gc, pad, clear, mask);
+    gui->graphics->thindraw_pcb_pad (gc, pad, clear, mask);
   else
-    gui->fill_pcb_pad (gc, pad, clear, mask);
+    gui->graphics->fill_pcb_pad (gc, pad, clear, mask);
 }
 
 static void
@@ -855,9 +855,9 @@ clearPin_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
   if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-    gui->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+    gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
   else
-    gui->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+    gui->graphics->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
   return 1;
 }
 
@@ -884,15 +884,15 @@ poly_callback (const BoxType * b, void *cl)
     color = i->layer->Color;
   gui->graphics->set_color (Output.fgGC, color);
 
-  if (gui->thindraw_pcb_polygon != NULL &&
+  if (gui->graphics->thindraw_pcb_polygon != NULL &&
       (TEST_FLAG (THINDRAWFLAG, PCB) ||
        TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
-    gui->thindraw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+    gui->graphics->thindraw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
   else
-    gui->fill_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+    gui->graphics->fill_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
 
   /* If checking planes, thin-draw any pieces which have been clipped away */
-  if (gui->thindraw_pcb_polygon != NULL &&
+  if (gui->graphics->thindraw_pcb_polygon != NULL &&
       TEST_FLAG (CHECKPLANESFLAG, PCB) &&
       !TEST_FLAG (FULLPOLYFLAG, polygon))
     {
@@ -901,7 +901,7 @@ poly_callback (const BoxType * b, void *cl)
       for (poly.Clipped = polygon->Clipped->f;
            poly.Clipped != polygon->Clipped;
            poly.Clipped = poly.Clipped->f)
-        gui->thindraw_pcb_polygon (Output.fgGC, &poly, i->drawn_area);
+        gui->graphics->thindraw_pcb_polygon (Output.fgGC, &poly, i->drawn_area);
     }
 
   return 1;

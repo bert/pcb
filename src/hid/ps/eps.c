@@ -670,7 +670,7 @@ hid_eps_init ()
   memset (&eps_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&eps_hid);
-  common_draw_helpers_init (&eps_hid);
+  common_draw_helpers_init (&eps_graphics);
 
   eps_hid.struct_size         = sizeof (HID);
   eps_hid.name                = "eps";

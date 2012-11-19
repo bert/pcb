@@ -75,7 +75,7 @@ thindraw_moved_pv (PinType *pv, Coord x, Coord y)
   moved_pv.X += x;
   moved_pv.Y += y;
 
-  gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &moved_pv, true, false);
+  gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &moved_pv, true, false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -249,7 +249,7 @@ XORDrawElement (ElementType *Element, Coord DX, Coord DY)
         moved_pad.Point1.X += DX; moved_pad.Point1.Y += DY;
         moved_pad.Point2.X += DX; moved_pad.Point2.Y += DY;
 
-        gui->thindraw_pcb_pad (Crosshair.GC, &moved_pad, false, false);
+        gui->graphics->thindraw_pcb_pad (Crosshair.GC, &moved_pad, false, false);
       }
   }
   END_LOOP;
@@ -550,14 +550,14 @@ DrawAttached (void)
         via.Mask = 0;
         via.Flags = NoFlags ();
 
-        gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, true, false);
+        gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, true, false);
 
         if (TEST_FLAG (SHOWDRCFLAG, PCB))
           {
             /* XXX: Naughty cheat - use the mask to draw DRC clearance! */
             via.Mask = Settings.ViaThickness + PCB->Bloat * 2;
             gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
-            gui->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, true);
+            gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, true);
             gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
           }
         break;

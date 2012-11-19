@@ -467,12 +467,12 @@ common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bo
 }
 
 void
-common_draw_helpers_init (HID *hid)
+common_draw_helpers_init (HID_DRAW_API *dapi)
 {
-  hid->fill_pcb_polygon     = common_fill_pcb_polygon;
-  hid->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
-  hid->fill_pcb_pad         = common_fill_pcb_pad;
-  hid->thindraw_pcb_pad     = common_thindraw_pcb_pad;
-  hid->fill_pcb_pv          = common_fill_pcb_pv;
-  hid->thindraw_pcb_pv      = common_thindraw_pcb_pv;
+  dapi->fill_pcb_polygon     = common_fill_pcb_polygon;
+  dapi->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
+  dapi->fill_pcb_pad         = common_fill_pcb_pad;
+  dapi->thindraw_pcb_pad     = common_thindraw_pcb_pad;
+  dapi->fill_pcb_pv          = common_fill_pcb_pv;
+  dapi->thindraw_pcb_pv      = common_thindraw_pcb_pv;
 }

@@ -1578,7 +1578,7 @@ hid_gcode_init ()
   memset (&gcode_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&gcode_hid);
-  common_draw_helpers_init (&gcode_hid);
+  common_draw_helpers_init (&gcode_graphics);
 
   gcode_hid.struct_size         = sizeof (HID);
   gcode_hid.name                = "gcode";

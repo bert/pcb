@@ -169,7 +169,7 @@ hid_extents_init (void)
   memset (&extents_hid, 0, sizeof (HID));
   memset (&extents_graphics, 0, sizeof (HID_DRAW_API));
 
-  common_draw_helpers_init (&extents_hid);
+  common_draw_helpers_init (&extents_graphics);
 
   extents_hid.struct_size         = sizeof (HID);
   extents_hid.name                = "extents-extents";

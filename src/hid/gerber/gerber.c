@@ -1269,7 +1269,7 @@ hid_gerber_init ()
   memset (&gerber_graphics, 0, sizeof (gerber_graphics));
 
   common_nogui_init (&gerber_hid);
-  common_draw_helpers_init (&gerber_hid);
+  common_draw_helpers_init (&gerber_graphics);
 
   gerber_hid.struct_size         = sizeof (gerber_hid);
   gerber_hid.name                = "gerber";

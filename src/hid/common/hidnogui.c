@@ -454,11 +454,6 @@ common_nogui_init (HID *hid)
   hid->invalidate_all =       nogui_invalidate_all;
   hid->set_layer =            nogui_set_layer;
   hid->end_layer =            nogui_end_layer;
-  hid->fill_pcb_polygon =     nogui_fill_pcb_polygon;
-  hid->fill_pcb_pad =         nogui_fill_pcb_pad;
-  hid->thindraw_pcb_pad =     nogui_thindraw_pcb_pad;
-  hid->fill_pcb_pv =          nogui_fill_pcb_pv;
-  hid->thindraw_pcb_pv =      nogui_thindraw_pcb_pv;
   hid->calibrate =            nogui_calibrate;
   hid->shift_is_pressed =     nogui_shift_is_pressed;
   hid->control_is_pressed =   nogui_control_is_pressed;
@@ -504,6 +499,12 @@ common_nogui_graphics_init (HID_DRAW_API *graphics)
   graphics->fill_circle =     nogui_fill_circle;
   graphics->fill_polygon =    nogui_fill_polygon;
   graphics->fill_rect =       nogui_fill_rect;
+
+  graphics->fill_pcb_polygon = nogui_fill_pcb_polygon;
+  graphics->fill_pcb_pad =     nogui_fill_pcb_pad;
+  graphics->thindraw_pcb_pad = nogui_thindraw_pcb_pad;
+  graphics->fill_pcb_pv =      nogui_fill_pcb_pv;
+  graphics->thindraw_pcb_pv =  nogui_thindraw_pcb_pv;
 }
 
 static HID nogui_hid;

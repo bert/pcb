@@ -282,6 +282,15 @@ typedef enum
     void (*fill_polygon) (hidGC gc, int n_coords_, Coord *x, Coord *y);
     void (*fill_rect)    (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 
+    /* The following APIs render using PCB data-structures, not immediate parameters */
+
+    void (*fill_pcb_polygon) (hidGC gc, PolygonType *poly, const BoxType *clip_box);
+    void (*thindraw_pcb_polygon) (hidGC gc, PolygonType *poly, const BoxType *clip_box);
+    void (*fill_pcb_pad) (hidGC gc, PadType *pad, bool clip, bool mask);
+    void (*thindraw_pcb_pad) (hidGC gc, PadType *pad, bool clip, bool mask);
+    void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
+    void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
+
   } HID_DRAW_API;
 
 
@@ -371,16 +380,6 @@ typedef enum
 
 
     HID_DRAW_API *graphics;
-
-    void (*fill_pcb_polygon) (hidGC gc_, PolygonType *poly,
-                              const BoxType *clip_box);
-    void (*thindraw_pcb_polygon) (hidGC gc_, PolygonType *poly,
-                                  const BoxType *clip_box);
-    void (*fill_pcb_pad) (hidGC gc_, PadType *pad, bool clip, bool mask);
-    void (*thindraw_pcb_pad) (hidGC gc_, PadType *pad, bool clip, bool mask);
-    void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
-    void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
-
 
     /* This is for the printer.  If you call this for the GUI, xval and
        yval are ignored, and a dialog pops up to lead you through the

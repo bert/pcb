@@ -1806,7 +1806,7 @@ hid_png_init ()
   memset (&png_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&png_hid);
-  common_draw_helpers_init (&png_hid);
+  common_draw_helpers_init (&png_graphics);
 
   png_hid.struct_size = sizeof (HID);
   png_hid.name        = "png";

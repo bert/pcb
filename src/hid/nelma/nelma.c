@@ -1040,7 +1040,7 @@ hid_nelma_init()
   memset (&nelma_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&nelma_hid);
-  common_draw_helpers_init (&nelma_hid);
+  common_draw_helpers_init (&nelma_graphics);
 
   nelma_hid.struct_size         = sizeof (HID);
   nelma_hid.name                = "nelma";
