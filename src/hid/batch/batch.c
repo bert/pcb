@@ -180,7 +180,7 @@ batch_destroy_gc (hidGC gc)
 }
 
 static void
-batch_use_mask (int use_it)
+batch_use_mask (enum mask_mode mode)
 {
 }
 
@@ -325,11 +325,13 @@ batch_show_item (void *item)
 #include "dolists.h"
 
 static HID batch_hid;
+static HID_DRAW_API batch_graphics;
 
 void
 hid_batch_init ()
 {
   memset (&batch_hid, 0, sizeof (HID));
+  memset (&batch_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&batch_hid);
   common_draw_helpers_init (&batch_hid);
@@ -345,19 +347,6 @@ hid_batch_init ()
   batch_hid.invalidate_lr         = batch_invalidate_lr;
   batch_hid.invalidate_all        = batch_invalidate_all;
   batch_hid.set_layer             = batch_set_layer;
-  batch_hid.make_gc               = batch_make_gc;
-  batch_hid.destroy_gc            = batch_destroy_gc;
-  batch_hid.use_mask              = batch_use_mask;
-  batch_hid.set_color             = batch_set_color;
-  batch_hid.set_line_cap          = batch_set_line_cap;
-  batch_hid.set_line_width        = batch_set_line_width;
-  batch_hid.set_draw_xor          = batch_set_draw_xor;
-  batch_hid.draw_line             = batch_draw_line;
-  batch_hid.draw_arc              = batch_draw_arc;
-  batch_hid.draw_rect             = batch_draw_rect;
-  batch_hid.fill_circle           = batch_fill_circle;
-  batch_hid.fill_polygon          = batch_fill_polygon;
-  batch_hid.fill_rect             = batch_fill_rect;
   batch_hid.calibrate             = batch_calibrate;
   batch_hid.shift_is_pressed      = batch_shift_is_pressed;
   batch_hid.control_is_pressed    = batch_control_is_pressed;
@@ -372,6 +361,22 @@ hid_batch_init ()
   batch_hid.stop_block_hook       = batch_stop_block_hook;
   batch_hid.attribute_dialog      = batch_attribute_dialog;
   batch_hid.show_item             = batch_show_item;
+
+  batch_hid.graphics              = &batch_graphics;
+
+  batch_graphics.make_gc          = batch_make_gc;
+  batch_graphics.destroy_gc       = batch_destroy_gc;
+  batch_graphics.use_mask         = batch_use_mask;
+  batch_graphics.set_color        = batch_set_color;
+  batch_graphics.set_line_cap     = batch_set_line_cap;
+  batch_graphics.set_line_width   = batch_set_line_width;
+  batch_graphics.set_draw_xor     = batch_set_draw_xor;
+  batch_graphics.draw_line        = batch_draw_line;
+  batch_graphics.draw_arc         = batch_draw_arc;
+  batch_graphics.draw_rect        = batch_draw_rect;
+  batch_graphics.fill_circle      = batch_fill_circle;
+  batch_graphics.fill_polygon     = batch_fill_polygon;
+  batch_graphics.fill_rect        = batch_fill_rect;
 
   hid_register_hid (&batch_hid);
 #include "batch_lists.h"
