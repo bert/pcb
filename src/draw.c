@@ -447,17 +447,16 @@ DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area)
 }
 
 static void
-_draw_line (LineType *line)
+_draw_line (hidGC gc, LineType *line)
 {
-  gui->graphics->set_line_cap (Output.fgGC, Trace_Cap);
+  gui->graphics->set_line_cap (gc, Trace_Cap);
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    gui->graphics->set_line_width (Output.fgGC, 0);
+    gui->graphics->set_line_width (gc, 0);
   else
-    gui->graphics->set_line_width (Output.fgGC, line->Thickness);
+    gui->graphics->set_line_width (gc, line->Thickness);
 
-  gui->graphics->draw_line (Output.fgGC,
-                            line->Point1.X, line->Point1.Y,
-                            line->Point2.X, line->Point2.Y);
+  gui->graphics->draw_line (gc, line->Point1.X, line->Point1.Y,
+                                line->Point2.X, line->Point2.Y);
 }
 
 static void
@@ -472,7 +471,7 @@ draw_line (LayerType *layer, LineType *line)
     }
   else
     gui->graphics->set_color (Output.fgGC, layer->Color);
-  _draw_line (line);
+  _draw_line (Output.fgGC, line);
 }
 
 static int
@@ -512,7 +511,7 @@ rat_callback (const BoxType * b, void *cl)
                                w * 2, w * 2, 0, 360);
     }
   else
-    _draw_line ((LineType *) rat);
+    _draw_line (Output.fgGC, (LineType *) rat);
   return 1;
 }
 
@@ -571,7 +570,7 @@ draw_element_package (ElementType *element)
   /* draw lines, arcs, text and pins */
   ELEMENTLINE_LOOP (element);
   {
-    _draw_line (line);
+    _draw_line (Output.fgGC, line);
   }
   END_LOOP;
   ARC_LOOP (element);
@@ -1239,7 +1238,7 @@ DrawTextLowLevel (TextType *Text, Coord min_line_width)
 	      newline.Point1.Y += Text->Y;
 	      newline.Point2.X += Text->X;
 	      newline.Point2.Y += Text->Y;
-	      _draw_line (&newline);
+	      _draw_line (Output.fgGC, &newline);
 	    }
 
 	  /* move on to next cursor position */
