@@ -558,6 +558,11 @@ static int dxf_id_code = 0;
 static HID dxf_hid;
 
 /*!
+ * \brief Record with all graphics values of the DXF HID.
+ */
+static HID_DRAW_API dxf_graphics;
+
+/*!
  * \brief Drill (hole) properties.
  */
 typedef struct
@@ -2764,7 +2769,7 @@ dxf_write_header ()
     /* do until EOF of the template file:
      * copy line by line from template file (f_temp) to
      * destination file (fp) */
-    while (f_temp != EOF)
+    while (!feof (f_temp))
     {
       fscanf (f_temp, "%s", temp);
       fprintf (fp, "%s", temp);
@@ -2915,7 +2920,7 @@ dxf_write_footer_imperial_new ()
   fprintf (fp, "330\n76\n");
   fprintf (fp, "100\nAcDbPlotSettings\n");
   fprintf (fp, "  1\n\n");
-  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  2\n\\\\NO_SERVER\\NO_PRINTER\n");
   fprintf (fp, "  4\n\n");
   fprintf (fp, "  6\n\n");
   fprintf (fp, " 40\n0.0\n");
@@ -2981,7 +2986,7 @@ dxf_write_footer_imperial_new ()
   fprintf (fp, "330\n76\n");
   fprintf (fp, "100\nAcDbPlotSettings\n");
   fprintf (fp, "  1\n\n");
-  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  2\n\\\\NO_SERVER\\NO_PRINTER\n");
   fprintf (fp, "  4\n\n");
   fprintf (fp, "  6\n\n");
   fprintf (fp, " 40\n0.0\n");
@@ -3193,7 +3198,7 @@ dxf_write_footer_metric_new ()
   fprintf (fp, "330\n76\n");
   fprintf (fp, "100\nAcDbPlotSettings\n");
   fprintf (fp, "  1\n\n");
-  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  2\n\\\\NO_SERVER\\NO_PRINTER\n");
   fprintf (fp, "  4\n\n");
   fprintf (fp, "  6\n\n");
   fprintf (fp, " 40\n0.0\n");
@@ -3259,7 +3264,7 @@ dxf_write_footer_metric_new ()
   fprintf (fp, "330\n76\n");
   fprintf (fp, "100\nAcDbPlotSettings\n");
   fprintf (fp, "  1\n\n");
-  fprintf (fp, "  2\n\\NO_SERVER\NO_PRINTER\n");
+  fprintf (fp, "  2\n\\\\NO_SERVER\\NO_PRINTER\n");
   fprintf (fp, "  4\n\n");
   fprintf (fp, "  6\n\n");
   fprintf (fp, " 40\n0.0\n");
@@ -3387,7 +3392,7 @@ dxf_write_footer ()
     /* do until EOF of the template file:
      * copy line by line from template file (f_temp) to
      * destination file (fp) */
-    while (f_temp != EOF)
+    while (!feof (f_temp))
     {
       fscanf (f_temp, "%s", temp);
       fprintf (fp, "%s", temp);
@@ -5129,6 +5134,13 @@ dxf_set_line_width
 }
 
 
+static void
+dxf_set_draw_xor (hidGC gc, int xor_)
+{
+  ;
+}
+
+
 /*!
  * \brief Use the graphic context.
  */
@@ -6638,6 +6650,7 @@ void
 hid_dxf_init ()
 {
   memset (&dxf_hid, 0, sizeof (HID));
+  memset (&dxf_graphics, 0, sizeof (dxf_graphics));
 
   common_nogui_init (&dxf_hid);
   common_draw_helpers_init (&dxf_hid);
@@ -6651,23 +6664,28 @@ hid_dxf_init ()
   dxf_hid.do_export = dxf_do_export;
   dxf_hid.parse_arguments = dxf_parse_arguments;
   dxf_hid.set_layer = dxf_set_layer;
-  dxf_hid.make_gc = dxf_make_gc;
-  dxf_hid.destroy_gc = dxf_destroy_gc;
-  dxf_hid.use_mask = dxf_use_mask;
-  dxf_hid.set_color = dxf_set_color;
-  dxf_hid.set_line_cap = dxf_set_line_cap;
-  dxf_hid.set_line_width = dxf_set_line_width;
-  dxf_hid.draw_line = dxf_draw_line;
-  dxf_hid.draw_arc = dxf_draw_arc;
-  dxf_hid.draw_rect = dxf_draw_rect;
-  dxf_hid.fill_circle = dxf_fill_circle;
-  dxf_hid.fill_polygon = dxf_fill_polygon;
-  dxf_hid.fill_rect = dxf_fill_rect;
   dxf_hid.calibrate = dxf_calibrate;
   dxf_hid.set_crosshair = dxf_set_crosshair;
   dxf_hid.show_item = dxf_show_item;
   dxf_hid.beep = dxf_beep;
   dxf_hid.progress = dxf_progress;
+
+  dxf_hid.graphics            = &dxf_graphics;
+
+  dxf_graphics.make_gc        = dxf_make_gc;
+  dxf_graphics.destroy_gc     = dxf_destroy_gc;
+  dxf_graphics.use_mask       = dxf_use_mask;
+  dxf_graphics.set_color      = dxf_set_color;
+  dxf_graphics.set_line_cap   = dxf_set_line_cap;
+  dxf_graphics.set_line_width = dxf_set_line_width;
+  dxf_graphics.set_draw_xor   = dxf_set_draw_xor;
+  dxf_graphics.draw_line      = dxf_draw_line;
+  dxf_graphics.draw_arc       = dxf_draw_arc;
+  dxf_graphics.draw_rect      = dxf_draw_rect;
+  dxf_graphics.fill_circle    = dxf_fill_circle;
+  dxf_graphics.fill_polygon   = dxf_fill_polygon;
+  dxf_graphics.fill_rect      = dxf_fill_rect;
+
   hid_register_hid (&dxf_hid);
 }
 
