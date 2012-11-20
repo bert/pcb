@@ -4043,6 +4043,7 @@ hid_lesstif_init ()
   memset (&lesstif_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&lesstif_hid);
+  common_draw_helpers_init (&lesstif_graphics);
 
   lesstif_hid.struct_size             = sizeof (HID);
   lesstif_hid.name                    = "lesstif";
@@ -4090,8 +4091,6 @@ hid_lesstif_init ()
   lesstif_hid.finish_debug_draw       = lesstif_finish_debug_draw;
 
   lesstif_hid.graphics                = &lesstif_graphics;
-
-  common_draw_helpers_init (&lesstif_graphics);
 
   lesstif_graphics.make_gc             = lesstif_make_gc;
   lesstif_graphics.destroy_gc          = lesstif_destroy_gc;

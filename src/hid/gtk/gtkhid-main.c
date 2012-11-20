@@ -2130,6 +2130,7 @@ hid_gtk_init ()
   memset (&ghid_graphics, 0, sizeof (HID_DRAW_API));
 
   common_nogui_init (&ghid_hid);
+  common_draw_helpers_init (&ghid_graphics);
 
   ghid_hid.struct_size              = sizeof (HID);
   ghid_hid.name                     = "gtk";
@@ -2181,8 +2182,6 @@ hid_gtk_init ()
   ghid_hid.notify_filename_changed  = ghid_notify_filename_changed;
 
   ghid_hid.graphics                 = &ghid_graphics;
-
-  common_draw_helpers_init (&ghid_graphics);
 
   ghid_graphics.make_gc             = ghid_make_gc;
   ghid_graphics.destroy_gc          = ghid_destroy_gc;
