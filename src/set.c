@@ -238,6 +238,7 @@ void
 SetMode (int Mode)
 {
   static bool recursing = false;
+  static int skip_line_to_line;
   /* protect the cursor while changing the mode
    * perform some additional stuff depending on the new mode
    * reset 'state' of attached objects
@@ -246,6 +247,13 @@ SetMode (int Mode)
     return;
   recursing = true;
   notify_crosshair_change (false);
+  if (Settings.Mode == LINE_MODE && Mode == LINE_MODE
+      && skip_line_to_line)
+    {
+      skip_line_to_line = 0;
+      Crosshair.AttachedBox.State = STATE_FIRST;
+      goto finish;
+    }
   addedLines = 0;
   Crosshair.AttachedObject.Type = NO_TYPE;
   Crosshair.AttachedObject.State = STATE_FIRST;
@@ -265,25 +273,72 @@ SetMode (int Mode)
   if (Settings.Mode == LINE_MODE && Mode == ARC_MODE &&
       Crosshair.AttachedLine.State != STATE_FIRST)
     {
+      Coord x, y;
+
+      Crosshair.AttachedBox.State = STATE_THIRD;
       Crosshair.AttachedLine.State = STATE_FIRST;
-      Crosshair.AttachedBox.State = STATE_SECOND;
-      Crosshair.AttachedBox.Point1.X = Crosshair.AttachedBox.Point2.X =
-	Crosshair.AttachedLine.Point1.X;
-      Crosshair.AttachedBox.Point1.Y = Crosshair.AttachedBox.Point2.Y =
-	Crosshair.AttachedLine.Point1.Y;
+
+      x = Crosshair.AttachedLine.Point1.X;
+      y = Crosshair.AttachedLine.Point1.Y;
+      Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
+      Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y;
+      Crosshair.AttachedLine.Point2.X = x;
+      Crosshair.AttachedLine.Point2.Y = y;
+
       AdjustAttachedObjects ();
     }
   else if (Settings.Mode == ARC_MODE && Mode == LINE_MODE &&
-	   Crosshair.AttachedBox.State != STATE_FIRST)
+	   Crosshair.AttachedLine.State == STATE_FIRST)
     {
+      Coord x, y;
+
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_SECOND;
-      Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X =
-	Crosshair.AttachedBox.Point1.X;
-      Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y =
-	Crosshair.AttachedBox.Point1.Y;
-      Settings.Mode = Mode;
+
+      x = Crosshair.AttachedLine.Point1.X;
+      y = Crosshair.AttachedLine.Point1.Y;
+      Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
+      Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y;
+      Crosshair.AttachedLine.Point2.X = x;
+      Crosshair.AttachedLine.Point2.Y = y;
+      skip_line_to_line = !0;
+
       AdjustAttachedObjects ();
+    }
+  else if (Settings.Mode == ARC_MODE && (Mode == ARC_MODE || Mode == LINE_MODE))
+     {
+       if(Crosshair.AttachedLine.State == STATE_SECOND)
+         {/* begin the next segment at the end of the previous */
+	      double angle;
+	      Coord sa, r, center_x, center_y, end_x, end_y;
+
+	      sa  = Crosshair.AttachedObject.Y;
+	      r = Crosshair.AttachedObject.BoundingBox.X2;
+	      angle = sa / RAD_TO_DEG;
+
+	      center_x = Crosshair.AttachedLine.Point1.X;
+	      center_y = Crosshair.AttachedLine.Point1.Y;
+
+	      end_x = center_x - r * cos (angle);
+	      end_y = center_y + r * sin (angle);
+
+	      if (Mode == ARC_MODE)
+		{
+		  Crosshair.AttachedLine.Point2.X = end_x;
+		  Crosshair.AttachedLine.Point2.Y = end_y;
+		  Crosshair.AttachedLine.State = STATE_FIRST;
+		  Crosshair.AttachedBox.State = STATE_THIRD;
+		}
+
+	      if (Mode == LINE_MODE)
+		{
+		  Crosshair.AttachedLine.Point1.X = end_x;
+		  Crosshair.AttachedLine.Point1.Y = end_y;
+		  Crosshair.AttachedBox.State = STATE_FIRST;
+		  Crosshair.AttachedLine.State = STATE_THIRD;
+		  skip_line_to_line = !0;
+		}
+        }
     }
   /* Cancel rubberband move */
   else if (Settings.Mode == MOVE_MODE)
@@ -308,6 +363,7 @@ SetMode (int Mode)
 	}
     }
 
+finish:
   Settings.Mode = Mode;
 
   if (Mode == PASTEBUFFER_MODE)

@@ -35,6 +35,8 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
+Copyright (C) 2008 Ineiev (modified arctool documentation)
+
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -570,20 +572,17 @@ that the connection may break if the line width shrinks slightly.
 @section Arcs
 @cindex arc
 
-@pcb{} can handle arcs of any angular extent, but when you
-create an arc with the Arc tool, it will
-be a quarter circle (this means they always bend a right angle).  Arcs are very similar
-to lines otherwise.  They are created on the active layer and have the same thickness
+@pcb{} can handle arcs of any angular extent with one-degree precision.
+Arcs are very similar to lines.
+They are created on the active layer and have the same thickness
 that new lines will have.  The various clicks for creating lines work pretty much the
 same way for creating arcs.
-In order to make the arc curve in the desired direction, drag the mouse along
-the tangent line from the starting position towards the end position. If the grid is
-too coarse, it may not be possible to distinguish whether you've moved over then up,
-or up then over, so if you can't seem to make the arc go in the direction you want, try pressing
-the @emph{Shift} key while drawing the arc. Decreasing the grid spacing may also help.
-Alternatively you can draw the wrong arc, then
-rotate and move it where you want. Like the Line tool, after an arc is drawn a new
-starting point is established at the end point.
+
+In order to make the arc curve, click on center of the arc and
+then on it's starting point. After that point at the arc end. To draw an arc longer
+than 270 degrees, click on an intermediate point first to determine the line
+direction; then click on the end of the arc.  @emph{Shift}-click moves the center
+of the arc. @emph{F3} begins a new arc starting at the end of the previous one.
 
 Whenever a starting point is established
 by either the Line or Arc tools it will be retained if you switch directly between the
@@ -1430,21 +1429,17 @@ displayed in the status line.
 @cindex arc, an example
 
 An Arc is drawn  with the @emph{arc-tool}. Get there either by selecting it
-from the @emph{Tool palette} or by pressing @emph{<Key>F8}. Press @emph{Btn1} to
-define the starting point for the arc.  Drag the mouse towards the desired
+from the @emph{Tool palette} or by pressing @emph{<Key>F3}. Press @emph{Btn1} to
+define the center for the arc.  Press @emph{Btn1} again to define the starting
+point of the arc.  Drag the mouse towards the desired
 end point along the path you want the arc to follow.  The outline of the arc that
-will be created is shown on the screen as you move the mouse.  Arcs are always
-forced to be 90 degrees and have symmetrical length and width ( i.e. they are
-a quarter circle).  The next @emph{Btn1} click creates the arc.  It will have
+will be created is shown on the screen as you move the mouse.
+The next @emph{Btn1} click creates the arc.  It will have
 the same width as new lines (displayed in the status line) and appear on the
-active layer. The arc leaves the starting point towards the cross hair along
-the axis whose distance from the cross hair is largest.  Normally this means that
-if you drag along the path you want the arc to follow, you'll get what you
-want.  If the grid is set to the arc radius, then the two distances will be
-equal and you won't be able to get all of the possible directions.  If this
-is thwarting your desires, reduce the grid spacing (@emph{!Shift<Key>G}) and
-try again.
-
+active layer. The arc leaves the starting point at the same place in order
+to enable you draw arcs longer than 270 degrees. You can click @emph{Btn1}
+again to increase the arc length and press @emph{<Key>U} to draw a shorter arc.
+@emph{<Key>F3} starts a new segment at the end of the previous one.
 
 @node Polygons
 @subsection Polygons and Rectangles

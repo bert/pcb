@@ -1037,70 +1037,82 @@ NotifyMode (void)
 	switch (Crosshair.AttachedBox.State)
 	  {
 	  case STATE_FIRST:
-	    Crosshair.AttachedBox.Point1.X =
-	      Crosshair.AttachedBox.Point2.X = Note.X;
-	    Crosshair.AttachedBox.Point1.Y =
-	      Crosshair.AttachedBox.Point2.Y = Note.Y;
+	    Crosshair.AttachedLine.Point1.X =
+	      Crosshair.AttachedLine.Point2.X = Note.X;
+	    Crosshair.AttachedLine.Point1.Y =
+	      Crosshair.AttachedLine.Point2.Y = Note.Y;
 	    Crosshair.AttachedBox.State = STATE_SECOND;
+	    Crosshair.AttachedLine.State = STATE_FIRST;
 	    break;
 
 	  case STATE_SECOND:
+	    Crosshair.AttachedLine.Point2.X = Note.X;
+	    Crosshair.AttachedLine.Point2.Y = Note.Y;
+	    Crosshair.AttachedBox.State = STATE_THIRD;
+	    break;
+
 	  case STATE_THIRD:
 	    {
 	      ArcType *arc;
-	      Coord wx, wy;
-	      Angle sa, dir;
+	      Coord arcx, arcy, sa, dir;
+	      Coord preserved_dir;
+	      Coord r;
 
-	      wx = Note.X - Crosshair.AttachedBox.Point1.X;
-	      wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
-	      if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx)))
+              arc = 0;
+	      if (gui->shift_is_pressed ())
 		{
-		  Crosshair.AttachedBox.Point2.X =
-		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
-		  sa = (wx >= 0) ? 0 : 180;
-#ifdef ARC45
-		  if (abs (wy) / 2 >= abs (wx))
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
+		  void rebase_attached_arc (Coord *preserved_dir);
+		  Coord cx,cy,x,y;
+
+		  cx = Crosshair.AttachedLine.Point2.X;
+		  cy = Crosshair.AttachedLine.Point2.Y;
+		  x  = Crosshair.X;
+		  y  = Crosshair.Y;
+
+		  if (x != cx || y != cy)
+		    {
+		      Crosshair.AttachedLine.Point1.X = Crosshair.X;
+		      Crosshair.AttachedLine.Point1.Y = Crosshair.Y;
+		      if (Crosshair.AttachedLine.State == STATE_SECOND)
+			rebase_attached_arc (&preserved_dir);
+		    }
 		  else
-#endif
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
+		    break;
 		}
-	      else
-		{
-		  Crosshair.AttachedBox.Point2.Y =
-		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
-		  sa = (wy >= 0) ? -90 : 90;
-#ifdef ARC45
-		  if (abs (wx) / 2 >= abs (wy))
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
-		  else
-#endif
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
-		  wy = wx;
-		}
-	      if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
-							      Crosshair.
-							      AttachedBox.
-							      Point2.X,
-							      Crosshair.
-							      AttachedBox.
-							      Point2.Y,
-							      abs (wy),
-							      abs (wy),
-							      sa,
-							      dir,
-							      Settings.
-							      LineThickness,
-							      2 * Settings.
-							      Keepaway,
-							      MakeFlags
-							      (TEST_FLAG
-							       (CLEARNEWFLAG,
-								PCB) ?
-							       CLEARLINEFLAG :
-							       0))))
+
+	      r = Crosshair.AttachedObject.BoundingBox.X2;
+
+	      if (r == 0)
+		break;
+
+	      arcx = Crosshair.AttachedLine.Point1.X;
+	      arcy = Crosshair.AttachedLine.Point1.Y;
+
+	      sa  = Crosshair.AttachedObject.BoundingBox.X1;
+	      dir = Crosshair.AttachedObject.BoundingBox.Y1;
+
+	      if (Crosshair.AttachedLine.State == STATE_SECOND)
+		Undo (true); /* remove previous arc */
+
+	      if (!gui->shift_is_pressed ()
+		  || Crosshair.AttachedLine.State == STATE_SECOND)
+	        arc = CreateNewArcOnLayer
+		      (CURRENT, arcx, arcy, r, r, sa, dir,
+		       Settings.LineThickness, 2 * Settings.Keepaway,
+		       MakeFlags (TEST_FLAG (CLEARNEWFLAG, PCB)
+				  ? CLEARLINEFLAG : 0)
+		      );
+	      if (arc)
 		{
 		  BoxType *bx;
+		  if (Crosshair.AttachedObject.BoundingBox.Y1 >= 360)
+		    Crosshair.AttachedBox.State = STATE_FIRST;
+		  sa = (Crosshair.AttachedObject.BoundingBox.X1
+			+ Crosshair.AttachedObject.BoundingBox.Y1);
+		  preserved_dir = dir;
+		  while (sa >  180) sa -= 360;
+		  while (sa < -180) sa += 360;
+		  Crosshair.AttachedObject.Y = sa;
 
 		  bx = GetArcEnds (arc);
 		  Crosshair.AttachedBox.Point1.X =
@@ -1109,10 +1121,9 @@ NotifyMode (void)
 		    Crosshair.AttachedBox.Point2.Y = bx->Y2;
 		  AddObjectToCreateUndoList (ARC_TYPE, CURRENT, arc, arc);
 		  IncrementUndoSerialNumber ();
-		  addedLines++;
 		  DrawArc (CURRENT, arc);
 		  Draw ();
-		  Crosshair.AttachedBox.State = STATE_THIRD;
+		  Crosshair.AttachedLine.State = STATE_SECOND;
 		}
 	      break;
 	    }
@@ -6313,21 +6324,29 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 	    }
 	  if (Crosshair.AttachedBox.State == STATE_THIRD)
 	    {
-	      void *ptr1, *ptr2, *ptr3;
-	      BoxType *bx;
-	      /* guaranteed to succeed */
-	      SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
-				      Crosshair.AttachedBox.Point1.X,
-				      Crosshair.AttachedBox.Point1.Y, 0);
-	      bx = GetArcEnds ((ArcType *) ptr2);
-	      Crosshair.AttachedBox.Point1.X =
-		Crosshair.AttachedBox.Point2.X = bx->X1;
-	      Crosshair.AttachedBox.Point1.Y =
-		Crosshair.AttachedBox.Point2.Y = bx->Y1;
-	      AdjustAttachedObjects ();
-	      if (--addedLines == 0)
-		Crosshair.AttachedBox.State = STATE_SECOND;
-	    }
+	      if (Crosshair.AttachedLine.State == STATE_SECOND)
+		{
+		  void *ptr1, *ptr2, *ptr3;
+		  BoxType *bx;
+		  /* guaranteed to succeed */
+		  SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
+					  Crosshair.AttachedBox.Point1.X,
+					  Crosshair.AttachedBox.Point1.Y, 0);
+		  bx = GetArcEnds ((ArcType *) ptr2);
+		  Crosshair.AttachedBox.Point1.X =
+		    Crosshair.AttachedBox.Point2.X = bx->X1;
+		  Crosshair.AttachedBox.Point1.Y =
+		  Crosshair.AttachedBox.Point2.Y = bx->Y1;
+		  AdjustAttachedObjects ();
+		  Crosshair.AttachedLine.State = STATE_FIRST;
+		}
+	      else /* Crosshair.AttachedLine.State != STATE_SECOND */
+		{
+		  Crosshair.AttachedBox.State = STATE_SECOND;
+		  RestoreCrosshair ();
+		  return 0;
+		}
+	    } /* Crosshair.AttachedBox.State == STATE_THIRD */
 	}
       /* undo the last destructive operation */
       if (Undo (true))

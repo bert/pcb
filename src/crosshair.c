@@ -97,6 +97,82 @@ XORPolygon (PolygonType *polygon, Coord dx, Coord dy)
     }
 }
 
+/* Recomputes start angle and span of the attached arc */
+void
+rebase_attached_arc (Coord *preserved_dir)
+{
+  Coord arcx, arcy, dx, dy, cx, cy;
+  double sa, dir;
+  Coord r;
+
+  Crosshair.AttachedObject.BoundingBox.X2 = 0;
+
+  arcx = Crosshair.AttachedLine.Point1.X;
+  arcy = Crosshair.AttachedLine.Point1.Y;
+  dx = Crosshair.AttachedLine.Point2.X - arcx;
+  dy = Crosshair.AttachedLine.Point2.Y - arcy;
+
+  if (dx == 0 && dy == 0)
+    return;
+
+  r = sqrt (dx * (double) dx + dy * (double) dy) + .5;
+  cx = Crosshair.X - arcx;
+  cy = Crosshair.Y - arcy;
+  sa  = atan2 (dy, -dx);
+
+  Crosshair.AttachedObject.BoundingBox.X1 =
+    floor (sa  * RAD_TO_DEG + .5);
+  Crosshair.AttachedObject.BoundingBox.X2 = r;
+
+  if (preserved_dir)
+    {
+      Crosshair.AttachedObject.BoundingBox.Y1 = *preserved_dir;
+      return;
+    }
+
+  dir = atan2 (cy, -cx) - sa;
+
+  if (Crosshair.AttachedLine.State != STATE_SECOND
+      && dx * (double) cx + dy * (double) cy > 0)
+    {
+      /*arc direction is determined*/
+      while (dir < -M_PI) dir += 2 * M_PI;
+      while (dir >  M_PI) dir -= 2 * M_PI;
+      Crosshair.AttachedObject.X = dir > 0 ? 1: -1;
+    }
+  else
+    {
+      /*follow the chosen direction*/
+      double offset = Crosshair.AttachedObject.X < 0 ? M_PI: -M_PI;
+      while (dir + offset < -M_PI) dir += 2 * M_PI;
+      while (dir + offset >  M_PI) dir -= 2 * M_PI;
+    }
+
+  if (Crosshair.AttachedLine.State == STATE_SECOND)
+    {
+      /*check whether we should draw a full circle*/
+      double sa_ = sa, dir_ = dir;
+      double sa1 = Crosshair.AttachedObject.Y / RAD_TO_DEG;
+
+      while (sa1 < 0) sa1 += 2 * M_PI;
+      if (dir_ < 0)
+        {
+          sa_  =  sa_ + dir;
+          dir_ = -dir_;
+        }
+      while (sa_ < 0) sa_ += 2 * M_PI;
+      if (sa1 < sa_)
+        {
+          dir_ -=  2 * M_PI - sa_;
+         sa_ = 0;
+        }
+      if (dir_ < sa1 - sa_)
+        dir = 2 * M_PI;
+    } /* Crosshair.AttachedLine.State == STATE_SECOND */
+  dir = floor (dir * RAD_TO_DEG + .5);
+  Crosshair.AttachedObject.BoundingBox.Y1 = dir;
+}
+
 /*-----------------------------------------------------------
  * Draws the outline of an arc
  */
@@ -105,49 +181,29 @@ XORDrawAttachedArc (Coord thick)
 {
   ArcType arc;
   BoxType *bx;
-  Coord wx, wy;
   Angle sa, dir;
   Coord wid = thick / 2;
+  Coord r;
 
-  wx = Crosshair.X - Crosshair.AttachedBox.Point1.X;
-  wy = Crosshair.Y - Crosshair.AttachedBox.Point1.Y;
-  if (wx == 0 && wy == 0)
+  rebase_attached_arc (NULL);
+
+  arc.X = Crosshair.AttachedLine.Point1.X;
+  arc.Y = Crosshair.AttachedLine.Point1.Y;
+  r = Crosshair.AttachedObject.BoundingBox.X2;
+
+  if (r == 0)
     return;
-  arc.X = Crosshair.AttachedBox.Point1.X;
-  arc.Y = Crosshair.AttachedBox.Point1.Y;
-  if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx)))
-    {
-      arc.X = Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
-      sa = (wx >= 0) ? 0 : 180;
-#ifdef ARC45
-      if (abs (wy) >= 2 * abs (wx))
-	dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
-      else
-#endif
-	dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
-    }
-  else
-    {
-      arc.Y = Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
-      sa = (wy >= 0) ? -90 : 90;
-#ifdef ARC45
-      if (abs (wx) >= 2 * abs (wy))
-	dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
-      else
-#endif
-	dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
-      wy = wx;
-    }
-  wy = abs (wy);
+
+  sa = Crosshair.AttachedObject.BoundingBox.X1;
+  dir = Crosshair.AttachedObject.BoundingBox.Y1;
   arc.StartAngle = sa;
   arc.Delta = dir;
-  arc.Width = arc.Height = wy;
+  arc.Width = arc.Height = r;
   bx = GetArcEnds (&arc);
-  /*  sa = sa - 180; */
-  gui->graphics->draw_arc (Crosshair.GC, arc.X, arc.Y, wy + wid, wy + wid, sa, dir);
+  gui->graphics->draw_arc (Crosshair.GC, arc.X, arc.Y, r + wid, r + wid, sa, dir);
   if (wid > pixel_slop)
     {
-      gui->graphics->draw_arc (Crosshair.GC, arc.X, arc.Y, wy - wid, wy - wid, sa, dir);
+      gui->graphics->draw_arc (Crosshair.GC, arc.X, arc.Y, r - wid, r - wid, sa, dir);
       gui->graphics->draw_arc (Crosshair.GC, bx->X1, bx->Y1, wid, wid, sa,      -180 * SGN (dir));
       gui->graphics->draw_arc (Crosshair.GC, bx->X2, bx->Y2, wid, wid, sa + dir, 180 * SGN (dir));
     }
@@ -583,9 +639,18 @@ DrawAttached (void)
       break;
 
     case ARC_MODE:
-      if (Crosshair.AttachedBox.State != STATE_FIRST)
+      if (Crosshair.AttachedBox.State == STATE_SECOND)
+	XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
+	                     Crosshair.AttachedLine.Point1.Y,
+	                     Crosshair.X, Crosshair.Y,
+	                     Settings.LineThickness);
+      if (Crosshair.AttachedBox.State == STATE_THIRD)
 	{
 	  XORDrawAttachedArc (Settings.LineThickness);
+	  XORDrawAttachedLine
+	  (Crosshair.AttachedLine.Point1.X,
+	   Crosshair.AttachedLine.Point1.Y,
+	   Crosshair.X, Crosshair.Y, 1);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
 	      gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);

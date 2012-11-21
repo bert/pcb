@@ -51,5 +51,6 @@ void SetCrosshairRange (Coord, Coord, Coord, Coord);
 void InitCrosshair (void);
 void DestroyCrosshair (void);
 void FitCrosshairIntoGrid (Coord, Coord);
+void rebase_attached_arc (Coord *preserved_dir);
 
 #endif
