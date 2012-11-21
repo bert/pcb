@@ -1488,7 +1488,7 @@ ps_set_crosshair (int x, int y, int action)
 #include "dolists.h"
 
 HID ps_hid;
-static HID_DRAW_API ps_graphics;
+static HID_DRAW ps_graphics;
 
 void ps_ps_init (HID *hid)
 {
@@ -1500,7 +1500,7 @@ void ps_ps_init (HID *hid)
   hid->set_crosshair      = ps_set_crosshair;
 }
 
-void ps_ps_graphics_init (HID_DRAW_API *graphics)
+void ps_ps_graphics_init (HID_DRAW *graphics)
 {
   graphics->make_gc            = ps_make_gc;
   graphics->destroy_gc         = ps_destroy_gc;
@@ -1524,7 +1524,7 @@ void
 hid_ps_init ()
 {
   memset (&ps_hid, 0, sizeof (HID));
-  memset (&ps_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&ps_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&ps_hid);
   common_draw_helpers_init (&ps_graphics);

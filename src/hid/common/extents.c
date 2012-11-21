@@ -156,7 +156,7 @@ extents_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 }
 
 static HID extents_hid;
-static HID_DRAW_API extents_graphics;
+static HID_DRAW extents_graphics;
 
 void
 hid_extents_init (void)
@@ -167,7 +167,7 @@ hid_extents_init (void)
     return;
 
   memset (&extents_hid, 0, sizeof (HID));
-  memset (&extents_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&extents_graphics, 0, sizeof (HID_DRAW));
 
   common_draw_helpers_init (&extents_graphics);
 

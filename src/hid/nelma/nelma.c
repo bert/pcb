@@ -105,7 +105,7 @@ struct hid_gc_struct {
 };
 
 static HID nelma_hid;
-static HID_DRAW_API nelma_graphics;
+static HID_DRAW nelma_graphics;
 
 static struct color_struct *black = NULL, *white = NULL;
 static Coord    linewidth = -1;
@@ -1037,7 +1037,7 @@ void
 hid_nelma_init()
 {
   memset (&nelma_hid, 0, sizeof (HID));
-  memset (&nelma_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&nelma_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&nelma_hid);
   common_draw_helpers_init (&nelma_graphics);

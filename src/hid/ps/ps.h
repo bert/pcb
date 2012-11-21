@@ -4,4 +4,4 @@ extern void ps_start_file (FILE *);
 extern void ps_calibrate_1 (double , double , int);
 extern void hid_eps_init ();
 void ps_ps_init (HID *hid);
-void ps_ps_graphics_init (HID_DRAW_API *graphics);
+void ps_ps_graphics_init (HID_DRAW *graphics);

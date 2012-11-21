@@ -288,7 +288,7 @@ setLayerApertureList (int layer_idx)
 /* --------------------------------------------------------------------------- */
 
 static HID gerber_hid;
-static HID_DRAW_API gerber_graphics;
+static HID_DRAW gerber_graphics;
 
 typedef struct hid_gc_struct
 {

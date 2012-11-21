@@ -59,7 +59,7 @@ typedef struct hid_gc_struct
 } hid_gc_struct;
 
 static HID eps_hid;
-static HID_DRAW_API eps_graphics;
+static HID_DRAW eps_graphics;
 
 static FILE *f = 0;
 static Coord linewidth = -1;
@@ -667,7 +667,7 @@ void
 hid_eps_init ()
 {
   memset (&eps_hid, 0, sizeof (HID));
-  memset (&eps_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&eps_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&eps_hid);
   common_draw_helpers_init (&eps_graphics);

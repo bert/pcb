@@ -291,7 +291,7 @@ typedef enum
     void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
     void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
 
-  } HID_DRAW_API;
+  } HID_DRAW;
 
 
   typedef struct hid_st HID;
@@ -379,7 +379,7 @@ typedef enum
     void (*end_layer) (void);
 
 
-    HID_DRAW_API *graphics;
+    HID_DRAW *graphics;
 
     /* This is for the printer.  If you call this for the GUI, xval and
        yval are ignored, and a dialog pops up to lead you through the

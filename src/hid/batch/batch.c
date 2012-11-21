@@ -325,13 +325,13 @@ batch_show_item (void *item)
 #include "dolists.h"
 
 static HID batch_hid;
-static HID_DRAW_API batch_graphics;
+static HID_DRAW batch_graphics;
 
 void
 hid_batch_init ()
 {
   memset (&batch_hid, 0, sizeof (HID));
-  memset (&batch_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&batch_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&batch_hid);
   common_draw_helpers_init (&batch_graphics);

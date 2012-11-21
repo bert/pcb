@@ -483,7 +483,7 @@ common_nogui_init (HID *hid)
 }
 
 void
-common_nogui_graphics_init (HID_DRAW_API *graphics)
+common_nogui_graphics_init (HID_DRAW *graphics)
 {
   graphics->make_gc =         nogui_make_gc;
   graphics->destroy_gc =      nogui_destroy_gc;
@@ -508,13 +508,13 @@ common_nogui_graphics_init (HID_DRAW_API *graphics)
 }
 
 static HID nogui_hid;
-static HID_DRAW_API nogui_graphics;
+static HID_DRAW nogui_graphics;
 
 HID *
 hid_nogui_get_hid (void)
 {
   memset (&nogui_hid, 0, sizeof (HID));
-  memset (&nogui_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&nogui_graphics, 0, sizeof (HID_DRAW));
 
   nogui_hid.struct_size = sizeof (HID);
   nogui_hid.name        = "nogui";

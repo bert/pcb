@@ -58,7 +58,7 @@
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
 static HID png_hid;
-static HID_DRAW_API png_graphics;
+static HID_DRAW png_graphics;
 
 static void *color_cache = NULL;
 static void *brush_cache = NULL;
@@ -1803,7 +1803,7 @@ void
 hid_png_init ()
 {
   memset (&png_hid, 0, sizeof (HID));
-  memset (&png_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&png_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&png_hid);
   common_draw_helpers_init (&png_graphics);

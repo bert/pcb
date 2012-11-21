@@ -2087,7 +2087,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
 #endif
 
 HID ghid_hid;
-HID_DRAW_API ghid_graphics;
+HID_DRAW ghid_graphics;
 
 void
 hid_gtk_init ()
@@ -2127,7 +2127,7 @@ hid_gtk_init ()
 #endif
 
   memset (&ghid_hid, 0, sizeof (HID));
-  memset (&ghid_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&ghid_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&ghid_hid);
   common_draw_helpers_init (&ghid_graphics);

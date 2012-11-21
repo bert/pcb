@@ -73,7 +73,7 @@
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
 
 static HID gcode_hid;
-static HID_DRAW_API gcode_graphics;
+static HID_DRAW gcode_graphics;
 
 struct color_struct
 {
@@ -1575,7 +1575,7 @@ void
 hid_gcode_init ()
 {
   memset (&gcode_hid, 0, sizeof (HID));
-  memset (&gcode_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&gcode_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&gcode_hid);
   common_draw_helpers_init (&gcode_graphics);

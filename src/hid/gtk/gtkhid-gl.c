@@ -34,7 +34,7 @@
 #endif
 
 extern HID ghid_hid;
-extern HID_DRAW_API ghid_graphics;
+extern HID_DRAW ghid_graphics;
 
 static hidGC current_gc = NULL;
 

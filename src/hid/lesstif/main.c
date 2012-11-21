@@ -57,7 +57,7 @@ typedef struct hid_gc_struct
 } hid_gc_struct;
 
 static HID lesstif_hid;
-static HID_DRAW_API lesstif_graphics;
+static HID_DRAW lesstif_graphics;
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GUI function %s\n", __FUNCTION__), abort()
 
@@ -4040,7 +4040,7 @@ void
 hid_lesstif_init ()
 {
   memset (&lesstif_hid, 0, sizeof (HID));
-  memset (&lesstif_graphics, 0, sizeof (HID_DRAW_API));
+  memset (&lesstif_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&lesstif_hid);
   common_draw_helpers_init (&lesstif_graphics);
