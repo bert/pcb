@@ -27,6 +27,7 @@
 
 #include "global.h"
 #include "hid.h"
+#include "hid_draw.h"
 #include "hid/common/hid_resource.h"
 
 #include "data.h"

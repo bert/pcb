@@ -9,6 +9,7 @@
 
 #include "global.h"
 #include "hid.h"
+#include "hid_draw.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>

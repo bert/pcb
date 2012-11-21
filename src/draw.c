@@ -33,6 +33,7 @@
 #endif
 
 #include "global.h"
+#include "hid_draw.h"
 
 /*#include "clip.h"*/
 #include "compat.h"

@@ -1,5 +1,6 @@
 #include "global.h"
 #include "hid.h"
+#include "hid_draw.h"
 #include "polygon.h"
 
 static void

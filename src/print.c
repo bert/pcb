@@ -38,6 +38,7 @@
 #endif
 
 #include "global.h"
+#include "hid_draw.h"
 
 #include <time.h>
 #ifdef HAVE_UNISTD_H

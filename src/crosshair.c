@@ -36,6 +36,7 @@
 #include <math.h>
 
 #include "global.h"
+#include "hid_draw.h"
 
 #include "crosshair.h"
 #include "data.h"

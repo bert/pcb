@@ -53,6 +53,7 @@
 #include "rats.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include <gd.h>
 #include "hid/common/hidnogui.h"
