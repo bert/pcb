@@ -927,7 +927,8 @@ gcode_do_export (HID_Attr_Val * options)
                           {
                             memcpy(&drillmill_drills[r], drill_set->holes,
                                    drill_set->n_holes * sizeof(struct drill_hole));
-                            drillmill_radiuss[r] = radius;
+                            for (int r2 = r; r2 < r + drill_set->n_holes; r2++)
+                              drillmill_radiuss[r2] = radius;
                             r += drill_set->n_holes;
                           }
                       }
