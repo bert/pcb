@@ -81,50 +81,28 @@ static bool doing_assy = false;
 static void DrawEverything (const BoxType *);
 static void DrawPPV (int group, const BoxType *);
 static void AddPart (void *);
-static void SetPVColor (PinType *, int);
 static void DrawEMark (ElementType *, Coord, Coord, bool);
 static void DrawRats (const BoxType *);
 
-/*--------------------------------------------------------------------------------------
- * setup color for pin or via
- */
 static void
-SetPVColor (PinType *Pin, int Type)
+set_object_color (AnyObjectType *obj,
+                  char *warn_color, char *selected_color,
+                  char *found_color, char *normal_color)
 {
   char *color;
 
-  if (Type == VIA_TYPE)
-    {
-      if (!doing_pinout
-	  && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pin))
-	    color = PCB->WarnColor;
-	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    color = PCB->ViaSelectedColor;
-	  else
-	    color = PCB->ConnectedColor;
-	}
-      else
-	color = PCB->ViaColor;
-    }
-  else
-    {
-      if (!doing_pinout
-	  && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pin))
-	    color = PCB->WarnColor;
-	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    color = PCB->PinSelectedColor;
-	  else
-	    color = PCB->ConnectedColor;
-	}
-      else
-	color = PCB->PinColor;
-    }
+  if      (warn_color     != NULL && TEST_FLAG (WARNFLAG,     obj)) color = warn_color;
+  else if (selected_color != NULL && TEST_FLAG (SELECTEDFLAG, obj)) color = selected_color;
+  else if (found_color    != NULL && TEST_FLAG (FOUNDFLAG,    obj)) color = found_color;
+  else                                                              color = normal_color;
 
   gui->graphics->set_color (Output.fgGC, color);
+}
+
+static void
+set_layer_object_color (LayerType *layer, AnyObjectType *obj)
+{
+  set_object_color (obj, NULL, layer->SelectedColor, PCB->ConnectedColor, layer->Color);
 }
 
 /*---------------------------------------------------------------------------
@@ -220,7 +198,13 @@ _draw_pv (PinType *pv, bool draw_hole)
 static void
 draw_pin (PinType *pin, bool draw_hole)
 {
-  SetPVColor (pin, PIN_TYPE);
+  if (doing_pinout)
+    gui->graphics->set_color (Output.fgGC, PCB->PinColor);
+  else
+    set_object_color ((AnyObjectType *)pin,
+                      PCB->WarnColor, PCB->PinSelectedColor,
+                      PCB->ConnectedColor, PCB->PinColor);
+
   _draw_pv (pin, draw_hole);
 }
 
@@ -234,7 +218,13 @@ pin_callback (const BoxType * b, void *cl)
 static void
 draw_via (PinType *via, bool draw_hole)
 {
-  SetPVColor (via, VIA_TYPE);
+  if (doing_pinout)
+    gui->graphics->set_color (Output.fgGC, PCB->ViaColor);
+  else
+    set_object_color ((AnyObjectType *)via,
+                      PCB->WarnColor, PCB->ViaSelectedColor,
+                      PCB->ConnectedColor, PCB->ViaColor);
+
   _draw_pv (via, draw_hole);
 }
 
@@ -304,20 +294,11 @@ static void
 draw_pad (PadType *pad)
 {
   if (doing_pinout)
-   gui->graphics->set_color (Output.fgGC, PCB->PinColor);
-  else if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, pad))
-   {
-     if (TEST_FLAG (WARNFLAG, pad))
-       gui->graphics->set_color (Output.fgGC, PCB->WarnColor);
-     else if (TEST_FLAG (SELECTEDFLAG, pad))
-       gui->graphics->set_color (Output.fgGC, PCB->PinSelectedColor);
-     else
-       gui->graphics->set_color (Output.fgGC, PCB->ConnectedColor);
-   }
-  else if (FRONT (pad))
-   gui->graphics->set_color (Output.fgGC, PCB->PinColor);
+    gui->graphics->set_color (Output.fgGC, PCB->PinColor);
   else
-   gui->graphics->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
+    set_object_color ((AnyObjectType *)pad, PCB->WarnColor,
+                      PCB->PinSelectedColor, PCB->ConnectedColor,
+                      FRONT (pad) ? PCB->PinColor : PCB->InvisibleObjectsColor);
 
   _draw_pad (Output.fgGC, pad, false, false);
 
@@ -419,12 +400,9 @@ hole_callback (const BoxType * b, void *cl)
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
-      if (TEST_FLAG (WARNFLAG, pv))
-        gui->graphics->set_color (Output.fgGC, PCB->WarnColor);
-      else if (TEST_FLAG (SELECTEDFLAG, pv))
-        gui->graphics->set_color (Output.fgGC, PCB->ViaSelectedColor);
-      else
-        gui->graphics->set_color (Output.fgGC, Settings.BlackColor);
+      set_object_color ((AnyObjectType *) pv,
+                        PCB->WarnColor, PCB->ViaSelectedColor,
+                        NULL, Settings.BlackColor);
 
       gui->graphics->set_line_cap (Output.fgGC, Round_Cap);
       gui->graphics->set_line_width (Output.fgGC, 0);
@@ -463,15 +441,7 @@ _draw_line (hidGC gc, LineType *line)
 static void
 draw_line (LayerType *layer, LineType *line)
 {
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, line))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, line))
-        gui->graphics->set_color (Output.fgGC, layer->SelectedColor);
-      else
-        gui->graphics->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->graphics->set_color (Output.fgGC, layer->Color);
+  set_layer_object_color (layer, (AnyObjectType *) line);
   _draw_line (Output.fgGC, line);
 }
 
@@ -487,15 +457,8 @@ rat_callback (const BoxType * b, void *cl)
 {
   RatType *rat = (RatType *)b;
 
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, rat))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, rat))
-        gui->graphics->set_color (Output.fgGC, PCB->RatSelectedColor);
-      else
-        gui->graphics->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->graphics->set_color (Output.fgGC, PCB->RatColor);
+  set_object_color ((AnyObjectType *) rat, NULL, PCB->RatSelectedColor,
+                    PCB->ConnectedColor, PCB->RatColor);
 
   if (Settings.RatThickness < 100)
     rat->Thickness = pixel_slop * Settings.RatThickness;
@@ -535,16 +498,7 @@ _draw_arc (ArcType *arc)
 static void
 draw_arc (LayerType *layer, ArcType *arc)
 {
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, arc))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, arc))
-        gui->graphics->set_color (Output.fgGC, layer->SelectedColor);
-      else
-        gui->graphics->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->graphics->set_color (Output.fgGC, layer->Color);
-
+  set_layer_object_color (layer, (AnyObjectType *) arc);
   _draw_arc (arc);
 }
 
@@ -872,18 +826,11 @@ poly_callback (const BoxType * b, void *cl)
 {
   struct poly_info *i = cl;
   PolygonType *polygon = (PolygonType *)b;
-  static char *color;
 
   if (!polygon->Clipped)
     return 0;
 
-  if (TEST_FLAG (SELECTEDFLAG, polygon))
-    color = i->layer->SelectedColor;
-  else if (TEST_FLAG (FOUNDFLAG, polygon))
-    color = PCB->ConnectedColor;
-  else
-    color = i->layer->Color;
-  gui->graphics->set_color (Output.fgGC, color);
+  set_layer_object_color (i->layer, (AnyObjectType *) polygon);
 
   if (gui->graphics->thindraw_pcb_polygon != NULL &&
       (TEST_FLAG (THINDRAWFLAG, PCB) ||
