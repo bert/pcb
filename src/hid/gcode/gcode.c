@@ -905,7 +905,7 @@ gcode_do_export (HID_Attr_Val * options)
                                       drill_set->diameter_inches * 25.4 / 2:
                                       drill_set->diameter_inches / 2;
 
-                      if (gcode_milltoolradius >= radius)
+                      if (gcode_milltoolradius <= radius)
                         n_drillmill_drills += drill_set->n_holes;
                     }
                   /* for sorting regardless of size, copy all available drills
@@ -922,7 +922,7 @@ gcode_do_export (HID_Attr_Val * options)
                                       drill_set->diameter_inches * 25.4 / 2:
                                       drill_set->diameter_inches / 2;
 
-                      if (gcode_milltoolradius >= radius)
+                      if (gcode_milltoolradius <= radius)
                         {
                           memcpy(&drillmill_drills[r], drill_set->holes,
                                  drill_set->n_holes * sizeof(struct drill_hole));
