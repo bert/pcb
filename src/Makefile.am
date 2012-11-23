@@ -79,6 +79,7 @@ PCB_SRCS = \
 	heap.c \
 	heap.h \
 	hid.h \
+	hid_draw.h \
 	insert.c \
 	insert.h \
 	intersect.c \
