@@ -425,17 +425,15 @@ DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area)
   r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
 }
 
-static void
-draw_line (LayerType *layer, LineType *line)
-{
-  set_layer_object_color (layer, (AnyObjectType *) line);
-  gui->graphics->draw_pcb_line (Output.fgGC, line);
-}
-
 static int
 line_callback (const BoxType * b, void *cl)
 {
-  draw_line ((LayerType *) cl, (LineType *) b);
+  LayerType *layer = (LayerType *) cl;
+  LineType *line = (LineType *) b;
+
+  set_layer_object_color (layer, (AnyObjectType *) line);
+  gui->graphics->draw_pcb_line (Output.fgGC, line);
+
   return 1;
 }
 
@@ -466,17 +464,15 @@ rat_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-static void
-draw_arc (LayerType *layer, ArcType *arc)
-{
-  set_layer_object_color (layer, (AnyObjectType *) arc);
-  gui->graphics->draw_pcb_arc (Output.fgGC, arc);
-}
-
 static int
 arc_callback (const BoxType * b, void *cl)
 {
-  draw_arc ((LayerType *) cl, (ArcType *) b);
+  LayerType *layer = (LayerType *) cl;
+  ArcType *arc =  (ArcType *) b;
+
+  set_layer_object_color (layer, (AnyObjectType *) arc);
+  gui->graphics->draw_pcb_arc (Output.fgGC, arc);
+
   return 1;
 }
 
