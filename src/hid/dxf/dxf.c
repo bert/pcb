@@ -190,6 +190,7 @@
 #include "pcb-printf.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
@@ -560,7 +561,7 @@ static HID dxf_hid;
 /*!
  * \brief Record with all graphics values of the DXF HID.
  */
-static HID_DRAW_API dxf_graphics;
+static HID_DRAW dxf_graphics;
 
 /*!
  * \brief Drill (hole) properties.
