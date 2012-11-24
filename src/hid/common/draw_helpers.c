@@ -1,7 +1,23 @@
 #include "global.h"
 #include "hid.h"
 #include "hid_draw.h"
+#include "data.h" /* For global "PCB" variable */
 #include "polygon.h"
+
+
+static void
+common_draw_pcb_line (hidGC gc, LineType *line)
+{
+  gui->graphics->set_line_cap (gc, Trace_Cap);
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    gui->graphics->set_line_width (gc, 0);
+  else
+    gui->graphics->set_line_width (gc, line->Thickness);
+
+  gui->graphics->draw_line (gc,
+                            line->Point1.X, line->Point1.Y,
+                            line->Point2.X, line->Point2.Y);
+}
 
 static void
 fill_contour (hidGC gc, PLINE *pl)
@@ -470,6 +486,8 @@ common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bo
 void
 common_draw_helpers_init (HID_DRAW *graphics)
 {
+  graphics->draw_pcb_line        = common_draw_pcb_line;
+
   graphics->fill_pcb_polygon     = common_fill_pcb_polygon;
   graphics->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
   graphics->fill_pcb_pad         = common_fill_pcb_pad;
