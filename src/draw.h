@@ -44,7 +44,6 @@ void DrawPadName (PadType *);
 void DrawLine (LayerType *, LineType *);
 void DrawArc (LayerType *, ArcType *);
 void DrawText (LayerType *, TextType *);
-void DrawTextLowLevel (hidGC gc, TextType *, Coord);
 void DrawPolygon (LayerType *, PolygonType *);
 void DrawElement (ElementType *);
 void DrawElementName (ElementType *);

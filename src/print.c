@@ -112,7 +112,7 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
     t.X = 0;
-  DrawTextLowLevel (gc, &t, 0);
+  gui->graphics->draw_pcb_text (gc, &t, 0);
   if (align & 8)
     fab_line (gc, t.X,
               t.Y + SCALE_TEXT (font->MaxHeight, t.Scale) + MIL_TO_COORD(10),
@@ -347,7 +347,7 @@ PrintFab (hidGC gc)
       END_LOOP;
       TEXT_LOOP (layer);
       {
-	DrawTextLowLevel (gc, text, 0);
+	gui->graphics->draw_pcb_text (gc, text, 0);
       }
       END_LOOP;
       gui->graphics->set_line_width (gc, FAB_LINE_W);

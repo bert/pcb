@@ -2,6 +2,7 @@
 #include "hid.h"
 #include "hid_draw.h"
 #include "data.h" /* For global "PCB" variable */
+#include "rotate.h" /* For RotateLineLowLevel() */
 #include "polygon.h"
 
 
@@ -32,6 +33,89 @@ common_draw_pcb_arc (hidGC gc, ArcType *arc)
   gui->graphics->set_line_cap (gc, Trace_Cap);
 
   gui->graphics->draw_arc (gc, arc->X, arc->Y, arc->Width, arc->Height, arc->StartAngle, arc->Delta);
+}
+
+/* ---------------------------------------------------------------------------
+ * drawing routine for text objects
+ */
+static void
+common_draw_pcb_text (hidGC gc, TextType *Text, Coord min_line_width)
+{
+  Coord x = 0;
+  unsigned char *string = (unsigned char *) Text->TextString;
+  Cardinal n;
+  FontType *font = &PCB->Font;
+
+  while (string && *string)
+    {
+      /* draw lines if symbol is valid and data is present */
+      if (*string <= MAX_FONTPOSITION && font->Symbol[*string].Valid)
+        {
+          LineType *line = font->Symbol[*string].Line;
+          LineType newline;
+
+          for (n = font->Symbol[*string].LineN; n; n--, line++)
+            {
+              /* create one line, scale, move, rotate and swap it */
+              newline = *line;
+              newline.Point1.X = SCALE_TEXT (newline.Point1.X + x, Text->Scale);
+              newline.Point1.Y = SCALE_TEXT (newline.Point1.Y, Text->Scale);
+              newline.Point2.X = SCALE_TEXT (newline.Point2.X + x, Text->Scale);
+              newline.Point2.Y = SCALE_TEXT (newline.Point2.Y, Text->Scale);
+              newline.Thickness = SCALE_TEXT (newline.Thickness, Text->Scale / 2);
+              if (newline.Thickness < min_line_width)
+                newline.Thickness = min_line_width;
+
+              RotateLineLowLevel (&newline, 0, 0, Text->Direction);
+
+              /* the labels of SMD objects on the bottom
+               * side haven't been swapped yet, only their offset
+               */
+              if (TEST_FLAG (ONSOLDERFLAG, Text))
+                {
+                  newline.Point1.X = SWAP_SIGN_X (newline.Point1.X);
+                  newline.Point1.Y = SWAP_SIGN_Y (newline.Point1.Y);
+                  newline.Point2.X = SWAP_SIGN_X (newline.Point2.X);
+                  newline.Point2.Y = SWAP_SIGN_Y (newline.Point2.Y);
+                }
+              /* add offset and draw line */
+              newline.Point1.X += Text->X;
+              newline.Point1.Y += Text->Y;
+              newline.Point2.X += Text->X;
+              newline.Point2.Y += Text->Y;
+              gui->graphics->draw_pcb_line (gc, &newline);
+            }
+
+          /* move on to next cursor position */
+          x += (font->Symbol[*string].Width + font->Symbol[*string].Delta);
+        }
+      else
+        {
+          /* the default symbol is a filled box */
+          BoxType defaultsymbol = PCB->Font.DefaultSymbol;
+          Coord size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+
+          defaultsymbol.X1 = SCALE_TEXT (defaultsymbol.X1 + x, Text->Scale);
+          defaultsymbol.Y1 = SCALE_TEXT (defaultsymbol.Y1, Text->Scale);
+          defaultsymbol.X2 = SCALE_TEXT (defaultsymbol.X2 + x, Text->Scale);
+          defaultsymbol.Y2 = SCALE_TEXT (defaultsymbol.Y2, Text->Scale);
+
+          RotateBoxLowLevel (&defaultsymbol, 0, 0, Text->Direction);
+
+          /* add offset and draw box */
+          defaultsymbol.X1 += Text->X;
+          defaultsymbol.Y1 += Text->Y;
+          defaultsymbol.X2 += Text->X;
+          defaultsymbol.Y2 += Text->Y;
+          gui->graphics->fill_rect (gc,
+                                    defaultsymbol.X1, defaultsymbol.Y1,
+                                    defaultsymbol.X2, defaultsymbol.Y2);
+
+          /* move on to next cursor position */
+          x += size;
+        }
+      string++;
+    }
 }
 
 static void
@@ -503,6 +587,7 @@ common_draw_helpers_init (HID_DRAW *graphics)
 {
   graphics->draw_pcb_line        = common_draw_pcb_line;
   graphics->draw_pcb_arc         = common_draw_pcb_arc;
+  graphics->draw_pcb_text        = common_draw_pcb_text;
 
   graphics->fill_pcb_polygon     = common_fill_pcb_polygon;
   graphics->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
