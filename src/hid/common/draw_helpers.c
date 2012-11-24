@@ -20,6 +20,21 @@ common_draw_pcb_line (hidGC gc, LineType *line)
 }
 
 static void
+common_draw_pcb_arc (hidGC gc, ArcType *arc)
+{
+  if (!arc->Thickness)
+    return;
+
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    gui->graphics->set_line_width (gc, 0);
+  else
+    gui->graphics->set_line_width (gc, arc->Thickness);
+  gui->graphics->set_line_cap (gc, Trace_Cap);
+
+  gui->graphics->draw_arc (gc, arc->X, arc->Y, arc->Width, arc->Height, arc->StartAngle, arc->Delta);
+}
+
+static void
 fill_contour (hidGC gc, PLINE *pl)
 {
   Coord *x, *y, n, i = 0;
@@ -487,6 +502,7 @@ void
 common_draw_helpers_init (HID_DRAW *graphics)
 {
   graphics->draw_pcb_line        = common_draw_pcb_line;
+  graphics->draw_pcb_arc         = common_draw_pcb_arc;
 
   graphics->fill_pcb_polygon     = common_fill_pcb_polygon;
   graphics->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
