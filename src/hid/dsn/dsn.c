@@ -56,14 +56,13 @@ By Josh Jordan and Dan McMahill, modified from bom.c
 #include "polygon.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/actions.h"
 #include "hid/common/hidinit.h"
-
-#include "dsn.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -73,6 +72,8 @@ Coord trackwidth = 8;                //user options defined in export dialog
 Coord clearance = 8;
 Coord viawidth = 45;
 Coord viadrill = 25;
+
+static HID dsn_hid;
 
 static HID_Attribute dsn_options[] = {
   {"dsnfile", "SPECCTRA output file",
@@ -178,7 +179,7 @@ print_structure (FILE * fp)
 
   for (group = 0; group < max_group; group++)
     {
-      LayerTypePtr first_layer;
+      LayerType *first_layer;
       if (group == top_group || group == bot_group)
         continue;
 
@@ -231,7 +232,7 @@ print_structure (FILE * fp)
 
   for (GList *iter = layerlist; iter; iter = g_list_next (iter))
     {
-      LayerTypePtr layer = iter->data;
+      LayerType *layer = iter->data;
       char *layeropts = g_strdup_printf ("(type signal)");
       /* see if layer has same name as a net and make it a power layer */
       //loop thru all nets
@@ -332,7 +333,7 @@ print_library (FILE * fp)
         {                        //if pin is null just make it a keepout
           for (GList * iter = layerlist; iter; iter = g_list_next (iter))
             {
-              LayerTypePtr lay = iter->data;
+              LayerType *lay = iter->data;
               pcb_fprintf (fp,
                            "      (keepout \"\" (circle \"%s\" %.6mm %.6mm %.6mm))\n",
                            lay->Name, pinthickness, lx, ly);
@@ -378,7 +379,7 @@ print_library (FILE * fp)
 
       if (!pad->Number)
         {                        //if pad is null just make it a keepout
-          LayerTypePtr lay;
+          LayerType *lay;
           lay = g_list_nth_data (layerlist, partside);
           pcb_fprintf (fp, "      (keepout \"\" (rect \"%s\" %.6mm %.6mm %.6mm %.6mm))\n",
                        lay->Name, lx - xlen / 2, ly - ylen / 2, lx + xlen / 2,
@@ -426,7 +427,7 @@ print_library (FILE * fp)
         {                        //then pad is smd
           pcb_fprintf (fp,
                        "      (shape (rect \"%s\" %.6mm %.6mm %.6mm %.6mm))\n",
-                       ((LayerTypePtr)(g_list_first(layerlist)->data))->Name,
+                       ((LayerType *)(g_list_first(layerlist)->data))->Name,
                        dim1 / -2, dim2 / -2, dim1 / 2, dim2 / 2);
         }
       else if (sscanf (padstack, "Th_square_%ld", &dim1) == 1)
@@ -504,7 +505,7 @@ static void
 print_wires (FILE * fp)
 {
   GList *iter;
-  LayerTypePtr lay;
+  LayerType *lay;
   fprintf (fp, "    (wiring\n");
 
   for (iter = layerlist; iter; iter = g_list_next (iter))
@@ -657,7 +658,7 @@ ActionLoadDsnFrom (int argc, char **argv, Coord x, Coord y)
   Coord linethick = 0, lineclear, viadiam, viadrill;
   char lname[200];
   LayerType *rlayer = NULL;
-  LineTypePtr line = NULL;
+  LineType *line = NULL;
 
   fname = argc ? argv[0] : 0;
 
@@ -738,7 +739,6 @@ HID_Action dsn_action_list[] = {
 
 REGISTER_ACTIONS (dsn_action_list)
 #include "dolists.h"
-HID dsn_hid;
 
 void hid_dsn_init ()
 {
