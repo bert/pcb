@@ -88,6 +88,7 @@
 #include "pcb-printf.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
@@ -158,6 +159,7 @@ static int layer_list_idx;
 #define AUTO_OUTLINE_WIDTH MIL_TO_COORD(1)
 
 static HID html5_hid;
+static HID_DRAW html5_graphics;
 
 /* The result of a failed ColorAllocate() call */
 #define BADCOLOR -1
@@ -1213,6 +1215,7 @@ void
 hid_html5_init ()
 {
   memset (&html5_hid, 0, sizeof (html5_hid));
+  memset (&html5_graphics, 0, sizeof (html5_graphics));
 
   common_nogui_init (&html5_hid);
   common_draw_helpers_init (&html5_hid);
@@ -1226,21 +1229,24 @@ hid_html5_init ()
   html5_hid.do_export           = html5_do_export;
   html5_hid.parse_arguments     = html5_parse_arguments;
   html5_hid.set_layer           = html5_set_layer;
-  html5_hid.make_gc             = html5_make_gc;
-  html5_hid.destroy_gc          = html5_destroy_gc;
-  html5_hid.use_mask            = html5_use_mask;
-  html5_hid.set_color           = html5_set_color;
-  html5_hid.set_line_cap        = html5_set_line_cap;
-  html5_hid.set_line_width      = html5_set_line_width;
-  html5_hid.set_draw_xor        = html5_set_draw_xor;
-  html5_hid.draw_line           = html5_draw_line;
-  html5_hid.draw_arc            = html5_draw_arc;
-  html5_hid.draw_rect           = html5_draw_rect;
-  html5_hid.fill_circle         = html5_fill_circle;
-  html5_hid.fill_polygon        = html5_fill_polygon;
-  html5_hid.fill_rect           = html5_fill_rect;
   html5_hid.calibrate           = html5_calibrate;
   html5_hid.set_crosshair       = html5_set_crosshair;
+
+  html5_hid.graphics            = &html5_graphics;
+
+  html5_graphics.make_gc        = html5_make_gc;
+  html5_graphics.destroy_gc     = html5_destroy_gc;
+  html5_graphics.use_mask       = html5_use_mask;
+  html5_graphics.set_color      = html5_set_color;
+  html5_graphics.set_line_cap   = html5_set_line_cap;
+  html5_graphics.set_line_width = html5_set_line_width;
+  html5_graphics.set_draw_xor   = html5_set_draw_xor;
+  html5_graphics.draw_line      = html5_draw_line;
+  html5_graphics.draw_arc       = html5_draw_arc;
+  html5_graphics.draw_rect      = html5_draw_rect;
+  html5_graphics.fill_circle    = html5_fill_circle;
+  html5_graphics.fill_polygon   = html5_fill_polygon;
+  html5_graphics.fill_rect      = html5_fill_rect;
 
   hid_register_hid (&html5_hid);
 }
