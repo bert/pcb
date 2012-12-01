@@ -221,7 +221,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
           for (j = 0; j < sub_res->c; ++j)
             if (resource_type (sub_res->v[j]) == 10)
               {
-                res_val = sub_res->v[j].value;
+                res_val = _(sub_res->v[j].value);
                 break;
               }
           /* Hack '_' in based on mnemonic value */
@@ -388,7 +388,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
                * when you're starting to build a new menu and you're looking
                * to get the layout right. */
               GtkWidget *item
-                = gtk_menu_item_new_with_label (res->v[i].value);
+                = gtk_menu_item_new_with_label (_(res->v[i].value));
               gtk_menu_shell_append (shell, item);
             }
           break;
