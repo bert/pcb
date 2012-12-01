@@ -274,7 +274,7 @@ ghid_cell_renderer_visibility_class_init (GHidCellRendererVisibilityClass *klass
   * The ::toggled signal is emitted when the cell is toggled. 
   **/
   toggle_cell_signals[TOGGLED] =
-    g_signal_new (_("toggled"),
+    g_signal_new ("toggled",
                   G_OBJECT_CLASS_TYPE (object_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (GHidCellRendererVisibilityClass, toggled),
