@@ -76,22 +76,18 @@ typedef double Angle;		/* degrees */
 #include "polyarea.h"
 
 /* Internationalization support. */
-#ifdef ENABLE_NLS
-# include <libintl.h>
-# define _(S) gettext(S)
-# if defined(gettext_noop)
-#  define N_(S) gettext_noop(S)
-# else
-#  define N_(S) (S)
-# endif
+#include "gettext.h"
+
+#if defined (ENABLE_NLS)
+/* When an empty string is used for msgid, the functions may return a nonempty
+   string. */
+# define _(S) (S[0] != '\0') ? gettext(S) : S
+# define N_(S) gettext_noop(S)
+# define C_(C, S) pgettext(C, S)
 #else
-# define _(S) (S)
-# define N_(S) (S)
-# define textdomain(S) (S)
-# define gettext(S) (S)
-# define dgettext(D, S) (S)
-# define dcgettext(D, S, T) (S)
-# define bindtextdomain(D, Dir) (D)
+# define _(S) S
+# define N_(S) S
+# define C_(C, S) S
 #endif /* ENABLE_NLS */
 
 /* This is used by the lexer/parser */
