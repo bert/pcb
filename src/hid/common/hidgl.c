@@ -626,10 +626,7 @@ hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale
   global_scale = scale;
 
   if (poly->Clipped == NULL)
-    {
-      fprintf (stderr, "hidgl_fill_pcb_polygon: poly->Clipped == NULL\n");
-      return;
-    }
+    return;
 
   stencil_bit = hidgl_assign_clear_stencil_bit ();
   if (!stencil_bit)
