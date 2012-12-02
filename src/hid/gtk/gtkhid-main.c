@@ -2197,6 +2197,8 @@ hid_gtk_init ()
   ghid_graphics.fill_polygon        = ghid_fill_polygon;
   ghid_graphics.fill_rect           = ghid_fill_rect;
 
+  ghid_graphics.draw_pcb_polygon    = common_gui_draw_pcb_polygon;
+
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"
 }

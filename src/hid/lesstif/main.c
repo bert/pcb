@@ -4091,6 +4091,8 @@ hid_lesstif_init ()
   lesstif_hid.flush_debug_draw        = lesstif_flush_debug_draw;
   lesstif_hid.finish_debug_draw       = lesstif_finish_debug_draw;
 
+  lesstif_hid.draw_pcb_polygon        = common_gui_draw_pcb_polygon;
+
   lesstif_hid.graphics                = &lesstif_graphics;
 
   lesstif_graphics.make_gc             = lesstif_make_gc;

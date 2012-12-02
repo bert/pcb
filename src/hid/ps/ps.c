@@ -1244,7 +1244,7 @@ ps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 }
 
 static void
-ps_fill_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
+ps_draw_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
 {
   /* Ignore clip_box, just draw everything */
 
@@ -1518,7 +1518,7 @@ void ps_ps_graphics_init (HID_DRAW *graphics)
   graphics->fill_polygon       = ps_fill_polygon;
   graphics->fill_rect          = ps_fill_rect;
 
-  graphics->fill_pcb_polygon   = ps_fill_pcb_polygon;
+  graphics->draw_pcb_polygon   = ps_draw_pcb_polygon;
 }
 
 void
