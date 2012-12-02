@@ -62,6 +62,7 @@
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
+#define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
 #define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
 #define	EMPTY_STRING_P(a)	((a) ? (a)[0]==0 : 1)
