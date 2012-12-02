@@ -259,6 +259,9 @@ should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
 void
 common_gui_draw_pcb_polygon (hidGC gc, PolygonType *polygon, const BoxType *clip_box)
 {
+  if (polygon->Clipped == NULL)
+    return;
+
   if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
     gui->graphics->thindraw_pcb_polygon (gc, polygon, clip_box);
   else
@@ -279,6 +282,9 @@ common_gui_draw_pcb_polygon (hidGC gc, PolygonType *polygon, const BoxType *clip
 void
 common_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
+  if (poly->Clipped == NULL)
+    return;
+
   if (!poly->NoHolesValid)
     {
       /* If enough of the polygon is on-screen, compute the entire
@@ -328,6 +334,9 @@ void
 common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
                              const BoxType *clip_box)
 {
+  if (poly->Clipped == NULL)
+    return;
+
   thindraw_contour (gc, poly->Clipped->contours);
   PolygonHoles (poly, clip_box, thindraw_hole_cb, gc);
 }

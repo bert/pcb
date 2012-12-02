@@ -794,9 +794,6 @@ poly_callback (const BoxType * b, void *cl)
   struct poly_info *i = cl;
   PolygonType *polygon = (PolygonType *)b;
 
-  if (!polygon->Clipped)
-    return 0;
-
   set_layer_object_color (i->layer, (AnyObjectType *) polygon);
 
   gui->graphics->draw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
