@@ -4,6 +4,7 @@
 #include "data.h" /* For global "PCB" variable */
 #include "rotate.h" /* For RotateLineLowLevel() */
 #include "polygon.h"
+#include "draw_helpers.h"
 
 
 static void
