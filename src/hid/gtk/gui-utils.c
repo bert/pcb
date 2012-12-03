@@ -216,7 +216,7 @@ ghid_check_button_connected (GtkWidget * box,
 
   if (!string)
     return;
-  b = gtk_check_button_new_with_label (string);
+  b = gtk_check_button_new_with_mnemonic (string);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (b), active);
   if (box && pack_start)
     gtk_box_pack_start (GTK_BOX (box), b, expand, fill, pad);
@@ -239,7 +239,7 @@ ghid_button_connected (GtkWidget * box, GtkWidget ** button,
 
   if (!string)
     return;
-  b = gtk_button_new_with_label (string);
+  b = gtk_button_new_with_mnemonic (string);
   if (box && pack_start)
     gtk_box_pack_start (GTK_BOX (box), b, expand, fill, pad);
   else if (box && !pack_start)
