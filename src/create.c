@@ -301,6 +301,7 @@ struct line_info
 {
   Coord X1, X2, Y1, Y2;
   Coord Thickness;
+  Coord Clearance;
   FlagType Flags;
   LineType test, *ans;
   jmp_buf env;
@@ -335,9 +336,11 @@ line_callback (const BoxType * b, void *cl)
       longjmp (i->env, 1);
     }
   /* remove unnecessary line points */
-  if (line->Thickness == i->Thickness
+  if (line->Thickness == i->Thickness &&
+      /* don't merge lines if the clearances differ  */
+      line->Clearance == i->Clearance &&
       /* don't merge lines if the clear flags differ  */
-      && TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARLINEFLAG, i))
+      TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARLINEFLAG, i))
     {
       if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
 	{
@@ -418,6 +421,7 @@ CreateDrawnLineOnLayer (LayerType *Layer,
   info.Y1 = Y1;
   info.Y2 = Y2;
   info.Thickness = Thickness;
+  info.Clearance = Clearance;
   info.Flags = Flags;
   info.test.Thickness = 0;
   info.test.Flags = NoFlags ();
