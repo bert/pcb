@@ -339,6 +339,20 @@ common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly,
 
   thindraw_contour (gc, poly->Clipped->contours);
   PolygonHoles (poly, clip_box, thindraw_hole_cb, gc);
+
+  /* Draw other parts of the polygon if fullpoly flag is set */
+  if (TEST_FLAG (FULLPOLYFLAG, poly))
+    {
+      PolygonType p = *poly;
+
+      for (p.Clipped = poly->Clipped->f;
+           p.Clipped != poly->Clipped;
+           p.Clipped = p.Clipped->f)
+        {
+          thindraw_contour (gc, p.Clipped->contours);
+          PolygonHoles (&p, clip_box, thindraw_hole_cb, gc);
+        }
+    }
 }
 
 void
