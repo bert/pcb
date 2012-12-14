@@ -132,6 +132,7 @@ nbcb_select_common (LibraryMenuType *net, int pos, int select_flag)
   ConnectionType conn;
   int i;
 
+  SaveFindFlag (FOUNDFLAG);
   InitConnectionLookup ();
   ResetConnections (true);
 
@@ -142,6 +143,7 @@ nbcb_select_common (LibraryMenuType *net, int pos, int select_flag)
   SelectConnection (select_flag);
   ResetConnections (false);
   FreeConnectionLookupMemory ();
+  RestoreFindFlag ();
   IncrementUndoSerialNumber ();
   Draw ();
 }

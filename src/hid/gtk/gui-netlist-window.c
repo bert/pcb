@@ -535,6 +535,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
   if (selected_net == node_selected_net)
     node_selected_net = NULL;
 
+  SaveFindFlag (FOUNDFLAG);
   InitConnectionLookup ();
   ResetConnections (true);
 
@@ -545,6 +546,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
   SelectConnection (select_flag);
   ResetConnections (false);
   FreeConnectionLookupMemory ();
+  RestoreFindFlag ();
   IncrementUndoSerialNumber ();
   Draw ();
 }
