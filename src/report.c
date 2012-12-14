@@ -607,7 +607,7 @@ ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
    * by resetting the connections with ResetConnections() before
    * calling Undo() at the end of the procedure.
    */
-  ResetConnections (true);
+  ResetConnections (true, FOUNDFLAG);
   IncrementUndoSerialNumber ();
 
   for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
@@ -669,14 +669,14 @@ ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
           length = XYtoNetLength (x, y, &found);
 
           /* Reset connectors for the next lookup */
-          ResetConnections (false);
+          ResetConnections (false, FOUNDFLAG);
 
           pcb_sprintf(buf, "%$m*", units_name, length);
           gui->log("Net %s length %s\n", netname, buf);
         }
     }
 
-  ResetConnections (false);
+  ResetConnections (false, FOUNDFLAG);
   Undo (true);
   return 0;
 }
@@ -698,14 +698,14 @@ ReportNetLength (int argc, char **argv, Coord x, Coord y)
    * by resetting the connections with ResetConnections() before
    * calling Undo() at the end of the procedure.
    */
-  ResetConnections (true);
+  ResetConnections (true, FOUNDFLAG);
   IncrementUndoSerialNumber ();
 
   length = XYtoNetLength (x, y, &found);
 
   if (!found)
     {
-      ResetConnections (false);
+      ResetConnections (false, FOUNDFLAG);
       Undo (true);
       gui->log ("No net under cursor.\n");
       return 1;
@@ -767,7 +767,7 @@ ReportNetLength (int argc, char **argv, Coord x, Coord y)
   END_LOOP;
 
 got_net_name:
-  ResetConnections (false);
+  ResetConnections (false, FOUNDFLAG);
   Undo (true);
 
   {
@@ -904,13 +904,13 @@ ReportNetLengthByName (char *tofind, int x, int y)
    * by resetting the connections with ResetConnections() before
    * calling Undo() when we are finished.
    */
-  ResetConnections (true);
+  ResetConnections (true, FOUNDFLAG);
   IncrementUndoSerialNumber ();
 
   length = XYtoNetLength (x, y, &found);
   netname = net->Name + 2;
 
-  ResetConnections (false);
+  ResetConnections (false, FOUNDFLAG);
   Undo (true);
 
   if (!found)

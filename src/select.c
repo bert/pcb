@@ -961,7 +961,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
     {
       SaveFindFlag (FOUNDFLAG);
       InitConnectionLookup ();
-      changed = ResetConnections (true) || changed;
+      changed = ResetConnections (true, FOUNDFLAG) || changed;
 
       MENU_LOOP (&PCB->NetlistLib);
       {
@@ -982,7 +982,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       END_LOOP;
 
       changed = SelectConnection (Flag) || changed;
-      changed = ResetConnections (false) || changed;
+      changed = ResetConnections (false, FOUNDFLAG) || changed;
       FreeConnectionLookupMemory ();
       RestoreFindFlag ();
     }

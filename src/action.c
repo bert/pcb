@@ -2295,7 +2295,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  }
 
 	case F_ResetLinesAndPolygons:
-	  if (ResetFoundLinesAndPolygons (true))
+	  if (ResetFoundLinesAndPolygons (true, FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2303,7 +2303,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_ResetPinsViasAndPads:
-	  if (ResetFoundPinsViasAndPads (true))
+	  if (ResetFoundPinsViasAndPads (true, FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2311,7 +2311,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_Reset:
-	  if (ResetConnections (true))
+	  if (ResetConnections (true, FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2748,7 +2748,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
-	      if (ResetConnections (true))
+	      if (ResetConnections (true, FOUNDFLAG))
 		{
 		  IncrementUndoSerialNumber ();
 		  Draw ();
