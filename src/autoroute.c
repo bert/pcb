@@ -1024,7 +1024,6 @@ CreateRouteData ()
    * this saves on searching the trees to find the nets
    */
   /* use the DRCFLAG to mark objects as they are entered */
-  ResetConnections (false);
   Nets = CollectSubnets (false);
   {
     routebox_t *last_net = NULL;
