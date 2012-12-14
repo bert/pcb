@@ -5183,7 +5183,6 @@ AutoRoute (bool selected)
     }
   if (PCB->Data->RatN == 0)
     return (false);
-  SaveFindFlag (DRCFLAG);
   rd = CreateRouteData ();
 
   if (1)
@@ -5357,7 +5356,6 @@ donerouting:
 
       Redraw ();
     }
-  RestoreFindFlag ();
 #if defined (ROUTE_DEBUG)
   aabort = 0;
 #endif
