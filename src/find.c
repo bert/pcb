@@ -3294,6 +3294,7 @@ LookupUnusedPins (FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
+  TheFlag = FOUNDFLAG;
   ResetConnections (true);
   InitConnectionLookup ();
 
