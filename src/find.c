@@ -329,8 +329,6 @@ static void BuildObjectList (int *, long int **, int **);
 static void GotoError (void);
 static bool DRCFind (int, void *, void *, void *);
 static bool ListStart (int, void *, void *, void *);
-static bool LOTouchesLine (LineType *Line, Cardinal LayerGroup);
-static bool PVTouchesLine (LineType *line);
 static bool SetThing (int, void *, void *, void *);
 
 /* ---------------------------------------------------------------------------
@@ -1282,27 +1280,6 @@ pv_touch_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-static bool
-PVTouchesLine (LineType *line)
-{
-  struct lo_info info;
-
-  info.line = *line;
-  EXPAND_BOUNDS (&info.line);
-  if (setjmp (info.env) == 0)
-    r_search (PCB->Data->via_tree, (BoxType *) & info.line, NULL,
-              pv_touch_callback, &info);
-  else
-    return true;
-  if (setjmp (info.env) == 0)
-    r_search (PCB->Data->pin_tree, (BoxType *) & info.line, NULL,
-              pv_touch_callback, &info);
-  else
-    return true;
-
-  return (false);
-}
-
 /* reduce arc start angle and delta to 0..360 */
 static void
 normalize_angles (Angle *sa, Angle *d)
@@ -1978,102 +1955,6 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->pad_tree, &info.line.BoundingBox, NULL,
                       LOCtoLinePad_callback, &info);
-          else
-            return true;
-        }
-    }
-  return (false);
-}
-
-static int
-LOT_Linecallback (const BoxType * b, void *cl)
-{
-  LineType *line = (LineType *) b;
-  struct lo_info *i = (struct lo_info *) cl;
-
-  if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (&i->line, line))
-    longjmp (i->env, 1);
-  return 0;
-}
-
-static int
-LOT_Arccallback (const BoxType * b, void *cl)
-{
-  ArcType *arc = (ArcType *) b;
-  struct lo_info *i = (struct lo_info *) cl;
-
-  if (!arc->Thickness)
-    return 0;
-  if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (&i->line, arc))
-    longjmp (i->env, 1);
-  return 0;
-}
-
-static int
-LOT_Padcallback (const BoxType * b, void *cl)
-{
-  PadType *pad = (PadType *) b;
-  struct lo_info *i = (struct lo_info *) cl;
-
-  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
-      && LinePadIntersect (&i->line, pad))
-    longjmp (i->env, 1);
-  return 0;
-}
-
-static bool
-LOTouchesLine (LineType *Line, Cardinal LayerGroup)
-{
-  Cardinal entry;
-  struct lo_info info;
-
-
-  /* the maximum possible distance */
-
-  info.line = *Line;
-  EXPAND_BOUNDS (&info.line);
-
-  /* loop over all layers of the group */
-  for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
-    {
-      Cardinal layer = PCB->LayerGroups.Entries[LayerGroup][entry];
-
-      /* handle normal layers */
-      if (layer < max_copper_layer)
-        {
-          GList *i;
-
-          /* find the first line that touches coordinates */
-
-          if (setjmp (info.env) == 0)
-            r_search (LAYER_PTR (layer)->line_tree, (BoxType *) & info.line,
-                      NULL, LOT_Linecallback, &info);
-          else
-            return (true);
-          if (setjmp (info.env) == 0)
-            r_search (LAYER_PTR (layer)->arc_tree, (BoxType *) & info.line,
-                      NULL, LOT_Arccallback, &info);
-          else
-            return (true);
-
-          /* now check all polygons */
-          for (i = PCB->Data->Layer[layer].Polygon;
-               i != NULL; i = g_list_next (i))
-            {
-              PolygonType *polygon = i->data;
-              if (!TEST_FLAG (TheFlag, polygon)
-                  && IsLineInPolygon (Line, polygon))
-                return (true);
-            }
-        }
-      else
-        {
-          /* handle special 'pad' layers */
-          info.layer = layer - max_copper_layer;
-          if (setjmp (info.env) == 0)
-            r_search (PCB->Data->pad_tree, &info.line.BoundingBox, NULL,
-                      LOT_Padcallback, &info);
           else
             return true;
         }
