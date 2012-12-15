@@ -330,6 +330,10 @@ static void GotoError (void);
 static bool DRCFind (int, void *, void *, void *);
 static bool ListStart (int, void *, void *, void *);
 static bool SetThing (int, void *, void *, void *);
+static bool IsArcInPolygon (ArcType *, PolygonType *);
+static bool IsLineInPolygon (LineType *, PolygonType *);
+static bool IsPadInPolygon (PadType *, PolygonType *);
+static bool IsPolygonInPolygon (PolygonType *, PolygonType *);
 
 /* ---------------------------------------------------------------------------
  * some of the 'pad' routines are the same as for lines because the 'pad'
@@ -2373,7 +2377,7 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup)
  * - check the two end points of the arc. If none of them matches
  * - check all segments of the polygon against the arc.
  */
-bool
+static bool
 IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
 {
   BoxType *Box = (BoxType *) Arc;
@@ -2405,7 +2409,7 @@ IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
  * - check the two end points of the line. If none of them matches
  * - check all segments of the polygon against the line.
  */
-bool
+static bool
 IsLineInPolygon (LineType *Line, PolygonType *Polygon)
 {
   BoxType *Box = (BoxType *) Line;
@@ -2444,7 +2448,7 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
  *
  * The polygon is assumed to already have been proven non-clearing
  */
-bool
+static bool
 IsPadInPolygon (PadType *pad, PolygonType *polygon)
 {
     return IsLineInPolygon ((LineType *) pad, polygon);
@@ -2456,7 +2460,7 @@ IsPadInPolygon (PadType *pad, PolygonType *polygon)
  * First check all points out of P1 against P2 and vice versa.
  * If both fail check all lines of P1 against the ones of P2
  */
-bool
+static bool
 IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
 {
   if (!P1->Clipped || !P2->Clipped)

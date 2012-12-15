@@ -48,7 +48,6 @@ bool LineArcIntersect (LineType *, ArcType *);
 bool PinLineIntersect (PinType *, LineType *);
 bool LinePadIntersect (LineType *, PadType *);
 bool ArcPadIntersect (ArcType *, PadType *);
-bool IsPolygonInPolygon (PolygonType *, PolygonType *);
 void LookupElementConnections (ElementType *, FILE *);
 void LookupConnectionsToAllElements (FILE *);
 void LookupConnection (Coord, Coord, bool, Coord, int, bool AndRats);
@@ -66,8 +65,5 @@ void RatFindHook (int, void *, void *, void *, bool, bool);
 void SaveFindFlag (int);
 void RestoreFindFlag (void);
 int DRCAll (void);
-bool IsLineInPolygon (LineType *, PolygonType *);
-bool IsArcInPolygon (ArcType *, PolygonType *);
-bool IsPadInPolygon (PadType *, PolygonType *);
 
 #endif
