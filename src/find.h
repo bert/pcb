@@ -66,7 +66,6 @@ void RatFindHook (int, void *, void *, void *, bool, bool);
 void SaveFindFlag (int);
 void RestoreFindFlag (void);
 int DRCAll (void);
-bool lineClear (LineType *, Cardinal);
 bool IsLineInPolygon (LineType *, PolygonType *);
 bool IsArcInPolygon (ArcType *, PolygonType *);
 bool IsPadInPolygon (PadType *, PolygonType *);

@@ -2805,21 +2805,6 @@ DoIt (bool AndRats, bool AndDraw)
   return (newone);
 }
 
-/* returns true if nothing un-found touches the passed line
- * returns false if it would touch something not yet found
- * doesn't include rat-lines in the search
- */
-
-bool
-lineClear (LineType *line, Cardinal group)
-{
-  if (LOTouchesLine (line, group))
-    return (false);
-  if (PVTouchesLine (line))
-    return (false);
-  return (true);
-}
-
 /* ---------------------------------------------------------------------------
  * prints all unused pins of an element to file FP
  */
