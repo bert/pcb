@@ -13,6 +13,7 @@
 #include "data.h"
 #include "misc.h"
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include "pcb-printf.h"
 
