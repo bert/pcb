@@ -3147,9 +3147,10 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int which_flag,
  */
 void
 RatFindHook (int type, void *ptr1, void *ptr2, void *ptr3,
-             bool undo, bool AndRats)
+             bool undo, int flag, bool AndRats)
 {
   User = undo;
+  TheFlag = flag;
   DumpList ();
   ListStart (type, ptr1, ptr2, ptr3);
   DoIt (AndRats, false);

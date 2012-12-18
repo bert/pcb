@@ -976,7 +976,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
             for (i = menu->EntryN, entry = menu->Entry; i; i--, entry++)
               if (SeekPad (entry, &conn, false))
                 RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2,
-                             true, true);
+                             true, FOUNDFLAG, true);
           }
       }
       END_LOOP;

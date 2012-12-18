@@ -138,7 +138,7 @@ nbcb_select_common (LibraryMenuType *net, int pos, int select_flag)
 
   for (i = net->EntryN, entry = net->Entry; i; i--, entry++)
     if (SeekPad (entry, &conn, false))
-      RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, true);
+      RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, FOUNDFLAG, true);
 
   SelectConnection (select_flag);
   ResetConnections (false, FOUNDFLAG);
