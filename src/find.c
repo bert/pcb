@@ -285,7 +285,6 @@ typedef struct
  */
 static Coord Bloat = 0;
 static int TheFlag = FOUNDFLAG;
-static int OldFlag = FOUNDFLAG;
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
 static int thing_type;
 static bool User = false;    /* user action causing this */
@@ -3494,25 +3493,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   TheFlag = FOUNDFLAG | SELECTEDFLAG;
   ResetConnections (false, TheFlag);
   return (false);
-}
-
-/*----------------------------------------------------------------------------
- * set up a temporary flag to use
- */
-void
-SaveFindFlag (int NewFlag)
-{
-  OldFlag = TheFlag;
-  TheFlag = NewFlag;
-}
-
-/*----------------------------------------------------------------------------
- * restore flag
- */
-void
-RestoreFindFlag (void)
-{
-  TheFlag = OldFlag;
 }
 
 /* DRC clearance callback */
