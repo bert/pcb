@@ -742,7 +742,6 @@ AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionType *, registe
   changed = false;
   /* initialize finding engine */
   InitConnectionLookup ();
-  SaveFindFlag (DRCFLAG);
   Nets = (NetListType *)calloc (1, sizeof (NetListType));
   /* now we build another netlist (Nets) for each
    * net in Wantlist that shows how it actually looks now,
@@ -778,7 +777,6 @@ AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionType *, registe
   FreeNetListMemory (Nets);
   free (Nets);
   FreeConnectionLookupMemory ();
-  RestoreFindFlag ();
   if (funcp)
     return (true);
 
@@ -835,7 +833,6 @@ CollectSubnets (bool SelectedOnly)
     }
   /* initialize finding engine */
   InitConnectionLookup ();
-  SaveFindFlag (DRCFLAG);
   /* now we build another netlist (Nets) for each
    * net in Wantlist that shows how it actually looks now,
    * then fill in any missing connections with rat lines.
@@ -868,7 +865,6 @@ CollectSubnets (bool SelectedOnly)
   }
   END_LOOP;
   FreeConnectionLookupMemory ();
-  RestoreFindFlag ();
   return result;
 }
 

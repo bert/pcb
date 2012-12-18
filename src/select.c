@@ -959,7 +959,6 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
   END_LOOP;
   if (Type & NET_TYPE)
     {
-      SaveFindFlag (FOUNDFLAG);
       InitConnectionLookup ();
       changed = ResetConnections (true, FOUNDFLAG) || changed;
 
@@ -984,7 +983,6 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       changed = SelectConnection (Flag) || changed;
       changed = ResetConnections (false, FOUNDFLAG) || changed;
       FreeConnectionLookupMemory ();
-      RestoreFindFlag ();
     }
 
 #if defined(HAVE_REGCOMP)
