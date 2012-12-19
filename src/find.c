@@ -119,6 +119,9 @@
 		fputc('\n', (FP));						\
 	}
 
+#define	LIST_ENTRY(list,I)	\
+	(((AnyObjectType **)list->Data)[(I)])
+
 #define	PADLIST_ENTRY(L,I)	\
 	(((PadType **)PadList[(L)].Data)[(I)])
 
@@ -351,112 +354,62 @@ ArcPadIntersect (ArcType *Arc, PadType *Pad)
 }
 
 static bool
+add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3)
+{
+  AnyObjectType *object = (AnyObjectType *)ptr2;
+
+  if (User)
+    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+
+  SET_FLAG (TheFlag, object);
+  LIST_ENTRY (list, list->Number) = object;
+  list->Number++;
+
+#ifdef DEBUG
+  if (list.Number > list.Size)
+    printf ("add_object_to_list overflow! type=%i num=%d size=%d\n", type, list.Number, list.Size);
+#endif
+
+  if (drc && !TEST_FLAG (SELECTEDFLAG, object))
+    return (SetThing (type, ptr1, ptr2, ptr3));
+  return false;
+}
+
+static bool
 ADD_PV_TO_LIST (PinType *Pin)
 {
-  if (User)
-    AddObjectToFlagUndoList (Pin->Element ? PIN_TYPE : VIA_TYPE,
+  return add_object_to_list (&PVList, Pin->Element ? PIN_TYPE : VIA_TYPE,
                              Pin->Element ? Pin->Element : Pin, Pin, Pin);
-  SET_FLAG (TheFlag, Pin);
-  PVLIST_ENTRY (PVList.Number) = Pin;
-  PVList.Number++;
-#ifdef DEBUG
-  if (PVList.Number > PVList.Size)
-    printf ("ADD_PV_TO_LIST overflow! num=%d size=%d\n", PVList.Number,
-            PVList.Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, Pin))
-    return (SetThing (PIN_TYPE, Pin->Element, Pin, Pin));
-  return false;
 }
 
 static bool
 ADD_PAD_TO_LIST (Cardinal L, PadType *Pad)
 {
-  if (User)
-    AddObjectToFlagUndoList (PAD_TYPE, Pad->Element, Pad, Pad);
-  SET_FLAG (TheFlag, Pad);
-  PADLIST_ENTRY ((L), PadList[(L)].Number) = Pad;
-  PadList[(L)].Number++;
-#ifdef DEBUG
-  if (PadList[(L)].Number > PadList[(L)].Size)
-    printf ("ADD_PAD_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
-            PadList[(L)].Number, PadList[(L)].Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, Pad))
-    return (SetThing (PAD_TYPE, Pad->Element, Pad, Pad));
-  return false;
+  return add_object_to_list (&PadList[L], PAD_TYPE, Pad->Element, Pad, Pad);
 }
 
 static bool
 ADD_LINE_TO_LIST (Cardinal L, LineType *Ptr)
 {
-  if (User)
-    AddObjectToFlagUndoList (LINE_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
-  SET_FLAG (TheFlag, (Ptr));
-  LINELIST_ENTRY ((L), LineList[(L)].Number) = (Ptr);
-  LineList[(L)].Number++;
-#ifdef DEBUG
-  if (LineList[(L)].Number > LineList[(L)].Size)
-    printf ("ADD_LINE_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
-            LineList[(L)].Number, LineList[(L)].Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
-    return (SetThing (LINE_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
-  return false;
+  return add_object_to_list (&LineList[L], LINE_TYPE, LAYER_PTR (L), Ptr, Ptr);
 }
 
 static bool
 ADD_ARC_TO_LIST (Cardinal L, ArcType *Ptr)
 {
-  if (User)
-    AddObjectToFlagUndoList (ARC_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
-  SET_FLAG (TheFlag, (Ptr));
-  ARCLIST_ENTRY ((L), ArcList[(L)].Number) = (Ptr);
-  ArcList[(L)].Number++;
-#ifdef DEBUG
-  if (ArcList[(L)].Number > ArcList[(L)].Size)
-    printf ("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
-            ArcList[(L)].Number, ArcList[(L)].Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
-    return (SetThing (ARC_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
-  return false;
+  return add_object_to_list (&ArcList[L], ARC_TYPE, LAYER_PTR (L), Ptr, Ptr);
 }
 
 static bool
 ADD_RAT_TO_LIST (RatType *Ptr)
 {
-  if (User)
-    AddObjectToFlagUndoList (RATLINE_TYPE, (Ptr), (Ptr), (Ptr));
-  SET_FLAG (TheFlag, (Ptr));
-  RATLIST_ENTRY (RatList.Number) = (Ptr);
-  RatList.Number++;
-#ifdef DEBUG
-  if (RatList.Number > RatList.Size)
-    printf ("ADD_RAT_TO_LIST overflow! num=%d size=%d\n",
-            RatList.Number, RatList.Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
-    return (SetThing (RATLINE_TYPE, (Ptr), (Ptr), (Ptr)));
-  return false;
+  return add_object_to_list (&RatList, RATLINE_TYPE, Ptr, Ptr, Ptr);
 }
 
 static bool
 ADD_POLYGON_TO_LIST (Cardinal L, PolygonType *Ptr)
 {
-  if (User)
-    AddObjectToFlagUndoList (POLYGON_TYPE, LAYER_PTR (L), (Ptr), (Ptr));
-  SET_FLAG (TheFlag, (Ptr));
-  POLYGONLIST_ENTRY ((L), PolygonList[(L)].Number) = (Ptr);
-  PolygonList[(L)].Number++;
-#ifdef DEBUG
-  if (PolygonList[(L)].Number > PolygonList[(L)].Size)
-    printf ("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
-            PolygonList[(L)].Number, PolygonList[(L)].Size);
-#endif
-  if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
-    return (SetThing (POLYGON_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
-  return false;
+  return add_object_to_list (&PolygonList[L], POLYGON_TYPE, LAYER_PTR (L), Ptr, Ptr);
 }
 
 bool
