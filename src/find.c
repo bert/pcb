@@ -539,7 +539,7 @@ PV_TOUCH_PV (PinType *PV1, PinType *PV2)
 /* ---------------------------------------------------------------------------
  * releases all allocated memory
  */
-void
+static void
 FreeLayoutLookupMemory (void)
 {
   Cardinal i;
@@ -559,7 +559,7 @@ FreeLayoutLookupMemory (void)
   RatList.Data = NULL;
 }
 
-void
+static void
 FreeComponentLookupMemory (void)
 {
   free (PadList[0].Data);
@@ -572,7 +572,7 @@ FreeComponentLookupMemory (void)
  * allocates memory for component related stacks ...
  * initializes index and sorts it by X1 and X2
  */
-void
+static void
 InitComponentLookup (void)
 {
   Cardinal i;
@@ -606,7 +606,7 @@ InitComponentLookup (void)
  * allocates memory for component related stacks ...
  * initializes index and sorts it by X1 and X2
  */
-void
+static void
 InitLayoutLookup (void)
 {
   Cardinal i;
