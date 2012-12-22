@@ -1095,10 +1095,34 @@ ghid_pinout_preview_expose (GtkWidget *widget,
 
   glViewport (0, 0, allocation.width, allocation.height);
 
+#if 0  /* We disable the scissor test here, as it is interacting badly with
+        * being handed expose events which don't cover the whole window.
+        * As we have a double-buffered GL window, we end up with unintialised
+        * contents remaining in the unpainted areas (outside the scissor
+        * region), and these are being flipped onto the screen.
+        *
+        * The debugging code below shows multiple expose events when the
+        * window is shown the first time, some of which are very small.
+        *
+        * XXX: There is clearly a perforamnce issue here, in that we may
+        *      be rendering the preview more times, and over a larger area
+        *      than is really required.
+        */
+
   glEnable (GL_SCISSOR_TEST);
   glScissor (ev->area.x,
              allocation.height - ev->area.height - ev->area.y,
              ev->area.width, ev->area.height);
+#endif
+
+#ifdef DEBUG
+  printf ("EVT: %i, %i, w=%i, h=%i, Scissor setup: glScissor (%f, %f, %f, %f);\n",
+          ev->area.x, ev->area.y, ev->area.width, ev->area.height,
+             (double)ev->area.x,
+             (double)(allocation.height - ev->area.height - ev->area.y),
+             (double)ev->area.width,
+             (double)ev->area.height);
+#endif
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
