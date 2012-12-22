@@ -116,7 +116,7 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
 ElementType *
 CopyElementLowLevel (DataType *Data, ElementType *Dest,
 		     ElementType *Src, bool uniqueName, Coord dx,
-		     Coord dy)
+		     Coord dy, int mask_flags)
 {
   int i;
   /* release old memory if necessary */
@@ -125,14 +125,14 @@ CopyElementLowLevel (DataType *Data, ElementType *Dest,
 
   /* both coordinates and flags are the same */
   Dest = CreateNewElement (Data, Dest, &PCB->Font,
-			   MaskFlags (Src->Flags, FOUNDFLAG),
+			   MaskFlags (Src->Flags, mask_flags),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
 			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X + dx,
 			   DESCRIPTION_TEXT (Src).Y + dy,
 			   DESCRIPTION_TEXT (Src).Direction,
 			   DESCRIPTION_TEXT (Src).Scale,
 			   MaskFlags (DESCRIPTION_TEXT (Src).Flags,
-				      FOUNDFLAG), uniqueName);
+				      mask_flags), uniqueName);
 
   /* abort on error */
   if (!Dest)
@@ -149,7 +149,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Dest,
   {
     CreateNewPin (Dest, pin->X + dx, pin->Y + dy, pin->Thickness,
 		  pin->Clearance, pin->Mask, pin->DrillingHole,
-		  pin->Name, pin->Number, MaskFlags (pin->Flags, FOUNDFLAG));
+		  pin->Name, pin->Number, MaskFlags (pin->Flags, mask_flags));
   }
   END_LOOP;
   PAD_LOOP (Src);
@@ -157,7 +157,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Dest,
     CreateNewPad (Dest, pad->Point1.X + dx, pad->Point1.Y + dy,
 		  pad->Point2.X + dx, pad->Point2.Y + dy, pad->Thickness,
 		  pad->Clearance, pad->Mask, pad->Name, pad->Number,
-		  MaskFlags (pad->Flags, FOUNDFLAG));
+		  MaskFlags (pad->Flags, mask_flags));
   }
   END_LOOP;
   ARC_LOOP (Src);
@@ -294,7 +294,7 @@ CopyElement (ElementType *Element)
 						NULL, Element,
 						TEST_FLAG (UNIQUENAMEFLAG,
 							   PCB), DeltaX,
-						DeltaY);
+						DeltaY, FOUNDFLAG);
 
   /* this call clears the polygons */
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);

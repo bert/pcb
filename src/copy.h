@@ -41,8 +41,7 @@
 
 
 PolygonType * CopyPolygonLowLevel (PolygonType *, PolygonType *);
-ElementType * CopyElementLowLevel (DataType *, ElementType *,
-				    ElementType *, bool, Coord, Coord);
+ElementType * CopyElementLowLevel (DataType *, ElementType *, ElementType *, bool, Coord, Coord, int mask_flags);
 bool CopyPastebufferToLayout (Coord, Coord);
 void *CopyObject (int, void *, void *, void *, Coord, Coord);
 

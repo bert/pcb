@@ -214,26 +214,7 @@ AddElementToBuffer (ElementType *Element)
   ElementType *element;
 
   element = GetElementMemory (Dest);
-  CopyElementLowLevel (Dest, element, Element, false, 0, 0);
-  CLEAR_FLAG (ExtraFlag, element);
-  if (ExtraFlag)
-    {
-      ELEMENTTEXT_LOOP (element);
-      {
-	CLEAR_FLAG (ExtraFlag, text);
-      }
-      END_LOOP;
-      PIN_LOOP (element);
-      {
-	CLEAR_FLAG (FOUNDFLAG | ExtraFlag, pin);
-      }
-      END_LOOP;
-      PAD_LOOP (element);
-      {
-	CLEAR_FLAG (FOUNDFLAG | ExtraFlag, pad);
-      }
-      END_LOOP;
-    }
+  CopyElementLowLevel (Dest, element, Element, false, 0, 0, FOUNDFLAG | ExtraFlag);
   return (element);
 }
 
