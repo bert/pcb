@@ -209,22 +209,22 @@ SelectObject (void)
 
 /* ----------------------------------------------------------------------
  * selects/unselects all visible objects within the passed box
- * Flag determines if the block is to be selected or unselected
+ * "select" determines if the block is to be selected or unselected
  * returns true if the state of any object has changed
  */
 bool
-SelectBlock (BoxType *Box, bool Flag)
+SelectBlock (BoxType *Box, bool select)
 {
   bool changed = false;
 
-  if (PCB->RatOn || !Flag)
+  if (PCB->RatOn || !select)
     RAT_LOOP (PCB->Data);
   {
     if (LINE_IN_BOX ((LineType *) line, Box) &&
-	!TEST_FLAG (LOCKFLAG, line) && TEST_FLAG (SELECTEDFLAG, line) != Flag)
+	!TEST_FLAG (LOCKFLAG, line) && TEST_FLAG (SELECTEDFLAG, line) != select)
       {
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
+	ASSIGN_FLAG (SELECTEDFLAG, select, line);
 	if (PCB->RatOn)
 	  DrawRat (line);
 	changed = true;
@@ -237,26 +237,26 @@ SelectBlock (BoxType *Box, bool Flag)
   {
     if (layer == & PCB->Data->SILKLAYER)
       {
-	if (! (PCB->ElementOn || !Flag))
+	if (! (PCB->ElementOn || !select))
 	  continue;
       }
     else if (layer == & PCB->Data->BACKSILKLAYER)
       {
-	if (! (PCB->InvisibleObjectsOn || !Flag))
+	if (! (PCB->InvisibleObjectsOn || !select))
 	  continue;
       }
     else
-      if (! (layer->On || !Flag))
+      if (! (layer->On || !select))
 	continue;
 
     LINE_LOOP (layer);
     {
       if (LINE_IN_BOX (line, Box)
 	  && !TEST_FLAG (LOCKFLAG, line)
-	  && TEST_FLAG (SELECTEDFLAG, line) != Flag)
+	  && TEST_FLAG (SELECTEDFLAG, line) != select)
 	{
 	  AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-	  ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
+	  ASSIGN_FLAG (SELECTEDFLAG, select, line);
 	  if (layer->On)
 	    DrawLine (layer, line);
 	  changed = true;
@@ -267,10 +267,10 @@ SelectBlock (BoxType *Box, bool Flag)
     {
       if (ARC_IN_BOX (arc, Box)
 	  && !TEST_FLAG (LOCKFLAG, arc)
-	  && TEST_FLAG (SELECTEDFLAG, arc) != Flag)
+	  && TEST_FLAG (SELECTEDFLAG, arc) != select)
 	{
 	  AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-	  ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
+	  ASSIGN_FLAG (SELECTEDFLAG, select, arc);
 	  if (layer->On)
 	    DrawArc (layer, arc);
 	  changed = true;
@@ -279,14 +279,14 @@ SelectBlock (BoxType *Box, bool Flag)
     END_LOOP;
     TEXT_LOOP (layer);
     {
-      if (!Flag || TEXT_IS_VISIBLE(PCB, layer, text))
+      if (!select || TEXT_IS_VISIBLE(PCB, layer, text))
 	{
 	  if (TEXT_IN_BOX (text, Box)
 	      && !TEST_FLAG (LOCKFLAG, text)
-	      && TEST_FLAG (SELECTEDFLAG, text) != Flag)
+	      && TEST_FLAG (SELECTEDFLAG, text) != select)
 	    {
 	      AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
-	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
+	      ASSIGN_FLAG (SELECTEDFLAG, select, text);
 	      if (TEXT_IS_VISIBLE(PCB, layer, text))
 		DrawText (layer, text);
 	      changed = true;
@@ -298,10 +298,10 @@ SelectBlock (BoxType *Box, bool Flag)
     {
       if (POLYGON_IN_BOX (polygon, Box)
 	  && !TEST_FLAG (LOCKFLAG, polygon)
-	  && TEST_FLAG (SELECTEDFLAG, polygon) != Flag)
+	  && TEST_FLAG (SELECTEDFLAG, polygon) != select)
 	{
 	  AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-	  ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
+	  ASSIGN_FLAG (SELECTEDFLAG, select, polygon);
 	  if (layer->On)
 	    DrawPolygon (layer, polygon);
 	  changed = true;
@@ -316,7 +316,7 @@ SelectBlock (BoxType *Box, bool Flag)
   {
     {
       bool gotElement = false;
-      if ((PCB->ElementOn || !Flag)
+      if ((PCB->ElementOn || !select)
 	  && !TEST_FLAG (LOCKFLAG, element)
 	  && ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
 	      || PCB->InvisibleObjectsOn))
@@ -325,32 +325,32 @@ SelectBlock (BoxType *Box, bool Flag)
 	      (&ELEMENT_TEXT (PCB, element).BoundingBox, Box)
 	      && !TEST_FLAG (LOCKFLAG, &ELEMENT_TEXT (PCB, element))
 	      && TEST_FLAG (SELECTEDFLAG,
-			    &ELEMENT_TEXT (PCB, element)) != Flag)
+			    &ELEMENT_TEXT (PCB, element)) != select)
 	    {
 	      /* select all names of element */
 	      ELEMENTTEXT_LOOP (element);
 	      {
 		AddObjectToFlagUndoList (ELEMENTNAME_TYPE,
 					 element, text, text);
-		ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
+		ASSIGN_FLAG (SELECTEDFLAG, select, text);
 	      }
 	      END_LOOP;
 	      if (PCB->ElementOn)
 		DrawElementName (element);
 	      changed = true;
 	    }
-	  if ((PCB->PinOn || !Flag) && ELEMENT_IN_BOX (element, Box))
-	    if (TEST_FLAG (SELECTEDFLAG, element) != Flag)
+	  if ((PCB->PinOn || !select) && ELEMENT_IN_BOX (element, Box))
+	    if (TEST_FLAG (SELECTEDFLAG, element) != select)
 	      {
 		AddObjectToFlagUndoList (ELEMENT_TYPE,
 					 element, element, element);
-		ASSIGN_FLAG (SELECTEDFLAG, Flag, element);
+		ASSIGN_FLAG (SELECTEDFLAG, select, element);
 		PIN_LOOP (element);
 		{
-		  if (TEST_FLAG (SELECTEDFLAG, pin) != Flag)
+		  if (TEST_FLAG (SELECTEDFLAG, pin) != select)
 		    {
 		      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
+		      ASSIGN_FLAG (SELECTEDFLAG, select, pin);
 		      if (PCB->PinOn)
 			DrawPin (pin);
 		      changed = true;
@@ -359,10 +359,10 @@ SelectBlock (BoxType *Box, bool Flag)
 		END_LOOP;
 		PAD_LOOP (element);
 		{
-		  if (TEST_FLAG (SELECTEDFLAG, pad) != Flag)
+		  if (TEST_FLAG (SELECTEDFLAG, pad) != select)
 		    {
 		      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
+		      ASSIGN_FLAG (SELECTEDFLAG, select, pad);
 		      if (PCB->PinOn)
 			DrawPad (pad);
 		      changed = true;
@@ -375,15 +375,15 @@ SelectBlock (BoxType *Box, bool Flag)
 		gotElement = true;
 	      }
 	}
-      if ((PCB->PinOn || !Flag) && !TEST_FLAG (LOCKFLAG, element) && !gotElement)
+      if ((PCB->PinOn || !select) && !TEST_FLAG (LOCKFLAG, element) && !gotElement)
 	{
 	  PIN_LOOP (element);
 	  {
 	    if ((VIA_OR_PIN_IN_BOX (pin, Box)
-		 && TEST_FLAG (SELECTEDFLAG, pin) != Flag))
+		 && TEST_FLAG (SELECTEDFLAG, pin) != select))
 	      {
 		AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-		ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
+		ASSIGN_FLAG (SELECTEDFLAG, select, pin);
 		if (PCB->PinOn)
 		  DrawPin (pin);
 		changed = true;
@@ -393,13 +393,13 @@ SelectBlock (BoxType *Box, bool Flag)
 	  PAD_LOOP (element);
 	  {
 	    if (PAD_IN_BOX (pad, Box)
-		&& TEST_FLAG (SELECTEDFLAG, pad) != Flag
+		&& TEST_FLAG (SELECTEDFLAG, pad) != select
 		&& (TEST_FLAG (ONSOLDERFLAG, pad) == SWAP_IDENT
 		    || PCB->InvisibleObjectsOn
-		    || !Flag))
+		    || !select))
 	      {
 		AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-		ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
+		ASSIGN_FLAG (SELECTEDFLAG, select, pad);
 		if (PCB->PinOn)
 		  DrawPad (pad);
 		changed = true;
@@ -411,15 +411,15 @@ SelectBlock (BoxType *Box, bool Flag)
   }
   END_LOOP;
   /* end with vias */
-  if (PCB->ViaOn || !Flag)
+  if (PCB->ViaOn || !select)
     VIA_LOOP (PCB->Data);
   {
     if (VIA_OR_PIN_IN_BOX (via, Box)
 	&& !TEST_FLAG (LOCKFLAG, via)
-	&& TEST_FLAG (SELECTEDFLAG, via) != Flag)
+	&& TEST_FLAG (SELECTEDFLAG, via) != select)
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
+	ASSIGN_FLAG (SELECTEDFLAG, select, via);
 	if (PCB->ViaOn)
 	  DrawVia (via);
 	changed = true;
@@ -701,13 +701,13 @@ SelectedOperation (ObjectFunctionType *F, bool Reset, int type)
 
 /* ----------------------------------------------------------------------
  * selects/unselects all objects which were found during a connection scan
- * Flag determines if they are to be selected or unselected
+ * "select" determines if they are to be selected or unselected
  * returns true if the state of any object has changed
  *
  * text objects and elements cannot be selected by this routine
  */
 bool
-SelectConnection (bool Flag)
+SelectConnection (bool select)
 {
   bool changed = false;
 
@@ -717,7 +717,7 @@ SelectConnection (bool Flag)
     if (TEST_FLAG (FOUNDFLAG, line))
       {
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
+	ASSIGN_FLAG (SELECTEDFLAG, select, line);
 	DrawRat (line);
 	changed = true;
       }
@@ -729,7 +729,7 @@ SelectConnection (bool Flag)
     if (TEST_FLAG (FOUNDFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
       {
 	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
+	ASSIGN_FLAG (SELECTEDFLAG, select, line);
 	DrawLine (layer, line);
 	changed = true;
       }
@@ -740,7 +740,7 @@ SelectConnection (bool Flag)
     if (TEST_FLAG (FOUNDFLAG, arc) && !TEST_FLAG (LOCKFLAG, arc))
       {
 	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
+	ASSIGN_FLAG (SELECTEDFLAG, select, arc);
 	DrawArc (layer, arc);
 	changed = true;
       }
@@ -751,7 +751,7 @@ SelectConnection (bool Flag)
     if (TEST_FLAG (FOUNDFLAG, polygon) && !TEST_FLAG (LOCKFLAG, polygon))
       {
 	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
+	ASSIGN_FLAG (SELECTEDFLAG, select, polygon);
 	DrawPolygon (layer, polygon);
 	changed = true;
       }
@@ -765,7 +765,7 @@ SelectConnection (bool Flag)
 	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (FOUNDFLAG, pin))
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
+	    ASSIGN_FLAG (SELECTEDFLAG, select, pin);
 	    DrawPin (pin);
 	    changed = true;
 	  }
@@ -776,7 +776,7 @@ SelectConnection (bool Flag)
 	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (FOUNDFLAG, pad))
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
+	    ASSIGN_FLAG (SELECTEDFLAG, select, pad);
 	    DrawPad (pad);
 	    changed = true;
 	  }
@@ -790,7 +790,7 @@ SelectConnection (bool Flag)
     if (TEST_FLAG (FOUNDFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
+	ASSIGN_FLAG (SELECTEDFLAG, select, via);
 	DrawVia (via);
 	changed = true;
       }
@@ -823,7 +823,7 @@ regexec_match_all (const  regex_t  *preg,  const  char  *string)
 #endif
 
 bool
-SelectObjectByName (int Type, char *Pattern, bool Flag)
+SelectObjectByName (int Type, char *Pattern, bool select)
 {
   bool changed = false;
 
@@ -865,10 +865,10 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
 	&& TEXT_IS_VISIBLE (PCB, layer, text)
 	&& text->TextString
 	&& REGEXEC (text->TextString)
-	&& TEST_FLAG (SELECTEDFLAG, text) != Flag)
+	&& TEST_FLAG (SELECTEDFLAG, text) != select)
       {
 	AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
+	ASSIGN_FLAG (SELECTEDFLAG, select, text);
 	DrawText (layer, text);
 	changed = true;
       }
@@ -881,29 +881,29 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
     if (!TEST_FLAG (LOCKFLAG, element)
 	&& ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
 	    || PCB->InvisibleObjectsOn)
-	&& TEST_FLAG (SELECTEDFLAG, element) != Flag)
+	&& TEST_FLAG (SELECTEDFLAG, element) != select)
       {
 	String name = ELEMENT_NAME (PCB, element);
 	if (name && REGEXEC (name))
 	  {
 	    AddObjectToFlagUndoList (ELEMENT_TYPE, element, element, element);
-	    ASSIGN_FLAG (SELECTEDFLAG, Flag, element);
+	    ASSIGN_FLAG (SELECTEDFLAG, select, element);
 	    PIN_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	      ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
+	      ASSIGN_FLAG (SELECTEDFLAG, select, pin);
 	    }
 	    END_LOOP;
 	    PAD_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	      ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
+	      ASSIGN_FLAG (SELECTEDFLAG, select, pad);
 	    }
 	    END_LOOP;
 	    ELEMENTTEXT_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (ELEMENTNAME_TYPE, element, text, text);
-	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
+	      ASSIGN_FLAG (SELECTEDFLAG, select, text);
 	    }
 	    END_LOOP;
 	    DrawElementName (element);
@@ -918,10 +918,10 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
   {
     if (!TEST_FLAG (LOCKFLAG, element)
 	&& pin->Name && REGEXEC (pin->Name)
-	&& TEST_FLAG (SELECTEDFLAG, pin) != Flag)
+	&& TEST_FLAG (SELECTEDFLAG, pin) != select)
       {
 	AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
+	ASSIGN_FLAG (SELECTEDFLAG, select, pin);
 	DrawPin (pin);
 	changed = true;
       }
@@ -933,11 +933,11 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
     if (!TEST_FLAG (LOCKFLAG, element)
 	&& ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) == SWAP_IDENT
 	    || PCB->InvisibleObjectsOn)
-	&& TEST_FLAG (SELECTEDFLAG, pad) != Flag)
+	&& TEST_FLAG (SELECTEDFLAG, pad) != select)
       if (pad->Name && REGEXEC (pad->Name))
 	{
 	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	  ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
+	  ASSIGN_FLAG (SELECTEDFLAG, select, pad);
 	  DrawPad (pad);
 	  changed = true;
 	}
@@ -948,10 +948,10 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
   {
     if (!TEST_FLAG (LOCKFLAG, via)
 	&& via->Name
-	&& REGEXEC (via->Name) && TEST_FLAG (SELECTEDFLAG, via) != Flag)
+	&& REGEXEC (via->Name) && TEST_FLAG (SELECTEDFLAG, via) != select)
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
+	ASSIGN_FLAG (SELECTEDFLAG, select, via);
 	DrawVia (via);
 	changed = true;
       }
@@ -980,7 +980,7 @@ SelectObjectByName (int Type, char *Pattern, bool Flag)
       }
       END_LOOP;
 
-      changed = SelectConnection (Flag) || changed;
+      changed = SelectConnection (select) || changed;
       changed = ResetConnections (false, FOUNDFLAG) || changed;
       FreeConnectionLookupMemory ();
     }
