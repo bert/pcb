@@ -684,14 +684,7 @@ pcbdefinition
 		| { attr_list = & yyPCB->Attributes; } attribute
 		| rats
 		| layer
-		|
-			{
-					/* clear pointer to force memory allocation by 
-					 * the appropriate subroutine
-					 */
-				yyElement = NULL;
-			}
-		  element
+		| element
 		| error { YYABORT; }
 		;
 
@@ -1265,7 +1258,7 @@ element_oldformat
 			 */
 		: T_ELEMENT '(' STRING STRING measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, NoFlags(),
+				yyElement = CreateNewElement(yyData, NULL, yyFont, NoFlags(),
 					$3, $4, NULL, OU ($5), OU ($6), $7, 100, NoFlags(), false);
 				free ($3);
 				free ($4);
@@ -1283,7 +1276,7 @@ element_1.3.4_format
 			 */
 		: T_ELEMENT '(' INTEGER STRING STRING measure measure measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+				yyElement = CreateNewElement(yyData, NULL, yyFont, OldFlags($3),
 					$4, $5, NULL, OU ($6), OU ($7), IV ($8), IV ($9), OldFlags($10), false);
 				free ($4);
 				free ($5);
@@ -1301,7 +1294,7 @@ element_newformat
 			 */
 		: T_ELEMENT '(' INTEGER STRING STRING STRING measure measure measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+				yyElement = CreateNewElement(yyData, NULL, yyFont, OldFlags($3),
 					$4, $5, $6, OU ($7), OU ($8), IV ($9), IV ($10), OldFlags($11), false);
 				free ($4);
 				free ($5);
@@ -1321,7 +1314,7 @@ element_1.7_format
 		: T_ELEMENT '(' INTEGER STRING STRING STRING measure measure
 			measure measure number number INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+				yyElement = CreateNewElement(yyData, NULL, yyFont, OldFlags($3),
 					$4, $5, $6, OU ($7) + OU ($9), OU ($8) + OU ($10),
 					$11, $12, OldFlags($13), false);
 				yyElement->MarkX = OU ($7);
@@ -1343,7 +1336,7 @@ element_hi_format
 		: T_ELEMENT '[' flags STRING STRING STRING measure measure
 			measure measure number number flags ']' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
+				yyElement = CreateNewElement(yyData, NULL, yyFont, $3,
 					$4, $5, $6, NU ($7) + NU ($9), NU ($8) + NU ($10),
 					$11, $12, $13, false);
 				yyElement->MarkX = NU ($7);
