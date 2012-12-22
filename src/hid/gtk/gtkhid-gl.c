@@ -1128,7 +1128,7 @@ ghid_pinout_preview_expose (GtkWidget *widget,
                 gport->view.flip_y ? gport->view.y0 - PCB->MaxHeight :
                                     -gport->view.y0, 0);
 
-  hid_expose_callback (&ghid_hid, NULL, &pinout->element);
+  hid_expose_callback (&ghid_hid, NULL, pinout->element);
   hidgl_flush_triangles (&buffer);
   glPopMatrix ();
 

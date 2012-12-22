@@ -49,7 +49,7 @@ struct _GhidPinoutPreview
 {
   GtkDrawingArea parent_instance;
 
-  ElementType element;		/* element data to display */
+  ElementType *element;		/* element data to display */
   gint x_max, y_max;
   gint w_pixels, h_pixels;	/* natural size of element preview */
 };

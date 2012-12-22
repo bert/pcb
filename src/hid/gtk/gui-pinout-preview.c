@@ -54,21 +54,27 @@ pinout_set_view (GhidPinoutPreview * pinout)
 {
   float scale = SENSIBLE_VIEW_SCALE;
 
-  pinout->x_max = pinout->element.BoundingBox.X2 + Settings.PinoutOffsetX;
-  pinout->y_max = pinout->element.BoundingBox.Y2 + Settings.PinoutOffsetY;
-  pinout->w_pixels = scale * (pinout->element.BoundingBox.X2 -
-                              pinout->element.BoundingBox.X1);
-  pinout->h_pixels = scale * (pinout->element.BoundingBox.Y2 -
-                              pinout->element.BoundingBox.Y1);
+  pinout->x_max = pinout->element->BoundingBox.X2 + Settings.PinoutOffsetX;
+  pinout->y_max = pinout->element->BoundingBox.Y2 + Settings.PinoutOffsetY;
+  pinout->w_pixels = scale * (pinout->element->BoundingBox.X2 -
+                              pinout->element->BoundingBox.X1);
+  pinout->h_pixels = scale * (pinout->element->BoundingBox.Y2 -
+                              pinout->element->BoundingBox.Y1);
 }
 
 
 static void
 pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 {
+  if (pinout->element != NULL)
+    {
+      FreeElementMemory (pinout->element);
+      g_slice_free (ElementType, pinout->element);
+      pinout->element = NULL;
+    }
+
   if (element == NULL)
     {
-      FreeElementMemory (&pinout->element);
       pinout->w_pixels = 0;
       pinout->h_pixels = 0;
       return;
@@ -80,35 +86,35 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
    * move element to a 5% offset from zero position
    * set all package lines/arcs to zero width
    */
-  CopyElementLowLevel (NULL, &pinout->element, element, FALSE, 0, 0, FOUNDFLAG);
-  PIN_LOOP (&pinout->element);
+  pinout->element = CopyElementLowLevel (NULL, NULL, element, FALSE, 0, 0, FOUNDFLAG);
+  PIN_LOOP (pinout->element);
   {
     SET_FLAG (DISPLAYNAMEFLAG, pin);
   }
   END_LOOP;
 
-  PAD_LOOP (&pinout->element);
+  PAD_LOOP (pinout->element);
   {
     SET_FLAG (DISPLAYNAMEFLAG, pad);
   }
   END_LOOP;
 
 
-  MoveElementLowLevel (NULL, &pinout->element,
+  MoveElementLowLevel (NULL, pinout->element,
 		       Settings.PinoutOffsetX -
-		       pinout->element.BoundingBox.X1,
+		       pinout->element->BoundingBox.X1,
 		       Settings.PinoutOffsetY -
-		       pinout->element.BoundingBox.Y1);
+		       pinout->element->BoundingBox.Y1);
 
   pinout_set_view (pinout);
 
-  ELEMENTLINE_LOOP (&pinout->element);
+  ELEMENTLINE_LOOP (pinout->element);
   {
     line->Thickness = 0;
   }
   END_LOOP;
 
-  ARC_LOOP (&pinout->element);
+  ARC_LOOP (pinout->element);
   {
     /* 
      * for whatever reason setting a thickness of 0 causes the arcs to

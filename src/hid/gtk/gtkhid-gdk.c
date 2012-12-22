@@ -1159,7 +1159,7 @@ ghid_pinout_preview_expose (GtkWidget *widget,
                       0, 0, allocation.width, allocation.height);
 
   /* call the drawing routine */
-  hid_expose_callback (&ghid_hid, NULL, &pinout->element);
+  hid_expose_callback (&ghid_hid, NULL, pinout->element);
 
   gport->drawable = save_drawable;
   gport->view = save_view;
