@@ -1083,8 +1083,15 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   ghid_start_drawing (gport, widget);
   hidgl_start_render ();
 
+#if 0  /* We disable alpha blending here, as hid_expose_callback() does not
+        * call set_layer() as appropriate for us to sub-composite rendering
+        * from each layer when drawing a single element. If we leave alpha-
+        * blending on, it means text and overlapping pads are rendered ugly.
+        */
+
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 
   glViewport (0, 0, allocation.width, allocation.height);
 
