@@ -211,7 +211,7 @@ AddPolygonToBuffer (LayerType *Layer, PolygonType *Polygon)
 static void *
 AddElementToBuffer (ElementType *Element)
 {
-  return CopyElementLowLevel (Dest, NULL, Element, false, 0, 0, FOUNDFLAG | ExtraFlag);
+  return CopyElementLowLevel (Dest, Element, false, 0, 0, FOUNDFLAG | ExtraFlag);
 }
 
 /* ---------------------------------------------------------------------------

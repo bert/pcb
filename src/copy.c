@@ -114,17 +114,14 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
  * if necessary
  */
 ElementType *
-CopyElementLowLevel (DataType *Data, ElementType *Dest,
-		     ElementType *Src, bool uniqueName, Coord dx,
-		     Coord dy, int mask_flags)
+CopyElementLowLevel (DataType *Data, ElementType *Src,
+                     bool uniqueName, Coord dx, Coord dy, int mask_flags)
 {
   int i;
-  /* release old memory if necessary */
-  if (Dest)
-    FreeElementMemory (Dest);
+  ElementType *Dest;
 
   /* both coordinates and flags are the same */
-  Dest = CreateNewElement (Data, Dest, &PCB->Font,
+  Dest = CreateNewElement (Data, NULL, &PCB->Font,
 			   MaskFlags (Src->Flags, mask_flags),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
 			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X + dx,
@@ -290,11 +287,9 @@ CopyElement (ElementType *Element)
 	 Element->Name[1].TextString);
 #endif
 
-  ElementType *element = CopyElementLowLevel (PCB->Data,
-						NULL, Element,
-						TEST_FLAG (UNIQUENAMEFLAG,
-							   PCB), DeltaX,
-						DeltaY, FOUNDFLAG);
+  ElementType *element = CopyElementLowLevel (PCB->Data, Element,
+                                              TEST_FLAG (UNIQUENAMEFLAG, PCB),
+                                              DeltaX, DeltaY, FOUNDFLAG);
 
   /* this call clears the polygons */
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
