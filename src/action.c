@@ -5424,7 +5424,7 @@ ActionSelect (int argc, char **argv, Coord x, Coord y)
 
 	  /* all found connections */
 	case F_Connection:
-	  if (SelectConnection (true))
+	  if (SelectByFlag (FOUNDFLAG, true))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();
@@ -5603,7 +5603,7 @@ ActionUnselect (int argc, char **argv, Coord x, Coord y)
 
 	  /* all found connections */
 	case F_Connection:
-	  if (SelectConnection (false))
+	  if (SelectByFlag (FOUNDFLAG, false))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();

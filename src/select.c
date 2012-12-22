@@ -700,21 +700,23 @@ SelectedOperation (ObjectFunctionType *F, bool Reset, int type)
 }
 
 /* ----------------------------------------------------------------------
- * selects/unselects all objects which were found during a connection scan
+ * selects/unselects all objects which have (any of) the specified flag(s)
+ * set. (Typically the FOUNDFLAG, assigned during a connection scan).
  * "select" determines if they are to be selected or unselected
+ *
  * returns true if the state of any object has changed
  *
  * text objects and elements cannot be selected by this routine
  */
 bool
-SelectConnection (bool select)
+SelectByFlag (int flag, bool select)
 {
   bool changed = false;
 
   if (PCB->RatOn)
     RAT_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (FOUNDFLAG, line))
+    if (TEST_FLAG (flag, line))
       {
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, select, line);
@@ -726,7 +728,7 @@ SelectConnection (bool select)
 
   VISIBLELINE_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (FOUNDFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
+    if (TEST_FLAG (flag, line) && !TEST_FLAG (LOCKFLAG, line))
       {
 	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, select, line);
@@ -737,7 +739,7 @@ SelectConnection (bool select)
   ENDALL_LOOP;
   VISIBLEARC_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (FOUNDFLAG, arc) && !TEST_FLAG (LOCKFLAG, arc))
+    if (TEST_FLAG (flag, arc) && !TEST_FLAG (LOCKFLAG, arc))
       {
 	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	ASSIGN_FLAG (SELECTEDFLAG, select, arc);
@@ -748,7 +750,7 @@ SelectConnection (bool select)
   ENDALL_LOOP;
   VISIBLEPOLYGON_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (FOUNDFLAG, polygon) && !TEST_FLAG (LOCKFLAG, polygon))
+    if (TEST_FLAG (flag, polygon) && !TEST_FLAG (LOCKFLAG, polygon))
       {
 	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
 	ASSIGN_FLAG (SELECTEDFLAG, select, polygon);
@@ -762,7 +764,7 @@ SelectConnection (bool select)
     {
       ALLPIN_LOOP (PCB->Data);
       {
-	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (FOUNDFLAG, pin))
+	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (flag, pin))
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    ASSIGN_FLAG (SELECTEDFLAG, select, pin);
@@ -773,7 +775,7 @@ SelectConnection (bool select)
       ENDALL_LOOP;
       ALLPAD_LOOP (PCB->Data);
       {
-	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (FOUNDFLAG, pad))
+	if (!TEST_FLAG (LOCKFLAG, element) && TEST_FLAG (flag, pad))
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	    ASSIGN_FLAG (SELECTEDFLAG, select, pad);
@@ -787,7 +789,7 @@ SelectConnection (bool select)
   if (PCB->ViaOn)
     VIA_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (FOUNDFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
+    if (TEST_FLAG (flag, via) && !TEST_FLAG (LOCKFLAG, via))
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, select, via);
@@ -980,7 +982,7 @@ SelectObjectByName (int Type, char *Pattern, bool select)
       }
       END_LOOP;
 
-      changed = SelectConnection (select) || changed;
+      changed = SelectByFlag (FOUNDFLAG, select) || changed;
       changed = ResetConnections (false, FOUNDFLAG) || changed;
       FreeConnectionLookupMemory ();
     }
