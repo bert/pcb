@@ -408,8 +408,12 @@ GetElementMemory (DataType *data)
   ElementType *new_obj;
 
   new_obj = g_slice_new0 (ElementType);
-  data->Element = g_list_append (data->Element, new_obj);
-  data->ElementN ++;
+
+  if (data != NULL)
+    {
+      data->Element = g_list_append (data->Element, new_obj);
+      data->ElementN ++;
+    }
 
   return new_obj;
 }
