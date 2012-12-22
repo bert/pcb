@@ -19,10 +19,6 @@
 #include <dmalloc.h>
 #endif
 
-#ifndef MAXINT
-#define MAXINT (((unsigned int)(~0))>>1)
-#endif
-
 static BoxType box;
 
 typedef struct hid_gc_struct
@@ -198,6 +194,7 @@ hid_extents_init (void)
   initialised = true;
 }
 
+
 BoxType *
 hid_get_extents (void *item)
 {
@@ -206,15 +203,15 @@ hid_get_extents (void *item)
   /* As this isn't a real "HID", we need to ensure we are initialised. */
   hid_extents_init ();
 
-  box.X1 = MAXINT;
-  box.Y1 = MAXINT;
-  box.X2 = -MAXINT;
-  box.Y2 = -MAXINT;
+  box.X1 = COORD_MAX;
+  box.Y1 = COORD_MAX;
+  box.X2 = -COORD_MAX - 1;
+  box.Y2 = -COORD_MAX - 1;
 
-  region.X1 = -MAXINT;
-  region.Y1 = -MAXINT;
-  region.X2 = MAXINT;
-  region.Y2 = MAXINT;
+  region.X1 = -COORD_MAX - 1;
+  region.Y1 = -COORD_MAX - 1;
+  region.X2 = COORD_MAX;
+  region.Y2 = COORD_MAX;
   hid_expose_callback (&extents_hid, &region, item);
 
   return &box;
