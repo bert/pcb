@@ -63,7 +63,7 @@ common_draw_pcb_text (hidGC gc, TextType *Text, Coord min_line_width)
               newline.Point1.Y = SCALE_TEXT (newline.Point1.Y, Text->Scale);
               newline.Point2.X = SCALE_TEXT (newline.Point2.X + x, Text->Scale);
               newline.Point2.Y = SCALE_TEXT (newline.Point2.Y, Text->Scale);
-              newline.Thickness = SCALE_TEXT (newline.Thickness, Text->Scale / 2);
+              newline.Thickness = SCALE_TEXT (newline.Thickness, Text->Scale);
               if (newline.Thickness < min_line_width)
                 newline.Thickness = min_line_width;
 
