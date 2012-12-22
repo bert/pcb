@@ -820,9 +820,8 @@ ghid_drawing_area_configure_hook (GHidPort *port)
 }
 
 gboolean
-ghid_start_drawing (GHidPort *port)
+ghid_start_drawing (GHidPort *port, GtkWidget *widget)
 {
-  GtkWidget *widget = port->drawing_area;
   GdkGLContext *pGlContext = gtk_widget_get_gl_context (widget);
   GdkGLDrawable *pGlDrawable = gtk_widget_get_gl_drawable (widget);
 
@@ -836,9 +835,8 @@ ghid_start_drawing (GHidPort *port)
 }
 
 void
-ghid_end_drawing (GHidPort *port)
+ghid_end_drawing (GHidPort *port, GtkWidget *widget)
 {
-  GtkWidget *widget = port->drawing_area;
   GdkGLDrawable *pGlDrawable = gtk_widget_get_gl_drawable (widget);
 
   if (gdk_gl_drawable_is_double_buffered (pGlDrawable))
@@ -874,7 +872,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
 
   gtk_widget_get_allocation (widget, &allocation);
 
-  ghid_start_drawing (port);
+  ghid_start_drawing (port, widget);
   hidgl_start_render ();
 
   /* If we don't have any stencil bits available,
@@ -1020,7 +1018,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   draw_lead_user (priv);
 
   hidgl_finish_render ();
-  ghid_end_drawing (port);
+  ghid_end_drawing (port, widget);
 
   g_timer_start (priv->time_since_expose);
 
@@ -1049,8 +1047,6 @@ gboolean
 ghid_pinout_preview_expose (GtkWidget *widget,
                             GdkEventExpose *ev)
 {
-  GdkGLContext* pGlContext = gtk_widget_get_gl_context (widget);
-  GdkGLDrawable* pGlDrawable = gtk_widget_get_gl_drawable (widget);
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GtkAllocation allocation;
   view_data save_view;
@@ -1084,12 +1080,8 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   PCB->MaxWidth = pinout->x_max;
   PCB->MaxHeight = pinout->y_max;
 
-  /* make GL-context "current" */
-  if (!gdk_gl_drawable_gl_begin (pGlDrawable, pGlContext)) {
-    return FALSE;
-  }
+  ghid_start_drawing (gport, widget);
   hidgl_start_render ();
-  gport->render_priv->in_context = true;
 
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1132,16 +1124,8 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   hidgl_flush_triangles (&buffer);
   glPopMatrix ();
 
-  if (gdk_gl_drawable_is_double_buffered (pGlDrawable))
-    gdk_gl_drawable_swap_buffers (pGlDrawable);
-  else
-    glFlush ();
-
   hidgl_finish_render ();
-
-  /* end drawing to current GL-context */
-  gport->render_priv->in_context = false;
-  gdk_gl_drawable_gl_end (pGlDrawable);
+  ghid_end_drawing (gport, widget);
 
   gport->view = save_view;
   gport->width = save_width;
@@ -1278,7 +1262,7 @@ ghid_request_debug_draw (void)
 
   gtk_widget_get_allocation (widget, &allocation);
 
-  ghid_start_drawing (port);
+  ghid_start_drawing (port, widget);
   hidgl_start_render ();
 
   glViewport (0, 0, allocation.width, allocation.height);
@@ -1328,7 +1312,7 @@ ghid_finish_debug_draw (void)
   glPopMatrix ();
 
   hidgl_finish_render ();
-  ghid_end_drawing (gport);
+  ghid_end_drawing (gport, gport->drawing_area);
 }
 
 static float
