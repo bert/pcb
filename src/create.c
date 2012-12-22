@@ -667,19 +667,18 @@ CreateNewHoleInPolygon (PolygonType *Polygon)
  * memory is allocated if needed
  */
 ElementType *
-CreateNewElement (DataType *Data, ElementType *Element,
-		  FontType *PCBFont,
-		  FlagType Flags,
+CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
 		  Coord TextX, Coord TextY, BYTE Direction,
 		  int TextScale, FlagType TextFlags, bool uniqueName)
 {
+  ElementType *Element;
+
 #ifdef DEBUG
   printf("Entered CreateNewElement.....\n");
 #endif
 
-  if (!Element)
-    Element = GetElementMemory (Data);
+  Element = GetElementMemory (Data);
 
   /* copy values and set additional information */
   TextScale = MAX (MIN_TEXTSCALE, TextScale);

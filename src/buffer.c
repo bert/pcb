@@ -965,7 +965,7 @@ ConvertBufferToElement (BufferType *Buffer)
   if (Buffer->Data->pcb == 0)
     Buffer->Data->pcb = PCB;
 
-  Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NoFlags (),
+  Element = CreateNewElement (PCB->Data, &PCB->Font, NoFlags (),
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
 			      MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG),

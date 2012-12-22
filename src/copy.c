@@ -121,7 +121,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Src,
   ElementType *Dest;
 
   /* both coordinates and flags are the same */
-  Dest = CreateNewElement (Data, NULL, &PCB->Font,
+  Dest = CreateNewElement (Data, &PCB->Font,
 			   MaskFlags (Src->Flags, mask_flags),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
 			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X + dx,
