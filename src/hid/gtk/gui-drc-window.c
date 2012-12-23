@@ -31,6 +31,7 @@
 #include "error.h"
 #include "search.h"
 #include "draw.h"
+#include "find.h"
 #include "pcb-printf.h"
 #include "undo.h"
 #include "set.h"
@@ -91,104 +92,6 @@ enum {
 
 
 static void
-unset_found_flags (int AndDraw)
-{
-  int flag = FOUNDFLAG;
-  int change = 0;
-
-  VIA_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, via))
-      {
-	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	CLEAR_FLAG (flag, via);
-	DrawVia (via);
-	change = true;
-      }
-  }
-  END_LOOP;
-  ELEMENT_LOOP (PCB->Data);
-  {
-    PIN_LOOP (element);
-    {
-      if (TEST_FLAG (flag, pin))
-	{
-	  AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	  CLEAR_FLAG (flag, pin);
-	  DrawPin (pin);
-	  change = true;
-	}
-    }
-    END_LOOP;
-    PAD_LOOP (element);
-    {
-      if (TEST_FLAG (flag, pad))
-	{
-	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	  CLEAR_FLAG (flag, pad);
-	  DrawPad (pad);
-	  change = true;
-	}
-    }
-    END_LOOP;
-  }
-  END_LOOP;
-  RAT_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, line))
-      {
-	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-	CLEAR_FLAG (flag, line);
-	DrawRat (line);
-	change = true;
-      }
-  }
-  END_LOOP;
-  COPPERLINE_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, line))
-      {
-	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-	CLEAR_FLAG (flag, line);
-	DrawLine (layer, line);
-	change = true;
-      }
-  }
-  ENDALL_LOOP;
-  COPPERARC_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, arc))
-      {
-	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-	CLEAR_FLAG (flag, arc);
-	DrawArc (layer, arc);
-	change = true;
-      }
-  }
-  ENDALL_LOOP;
-  COPPERPOLYGON_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, polygon))
-      {
-	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-	CLEAR_FLAG (flag, polygon);
-	DrawPolygon (layer, polygon);
-	change = true;
-      }
-  }
-  ENDALL_LOOP;
-  if (change)
-    {
-      SetChangedFlag (true);
-      if (AndDraw)
-	{
-	  IncrementUndoSerialNumber ();
-	  Draw ();
-	}
-    }
-}
-
-static void
 selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 {
   GtkTreeModel *model;
@@ -198,7 +101,11 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     {
-      unset_found_flags (true);
+      if (ResetConnections (true, FOUNDFLAG))
+        {
+          IncrementUndoSerialNumber ();
+          Draw ();
+        }
       return;
     }
 
@@ -208,7 +115,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &violation, -1);
 
-  unset_found_flags (false);
+  ResetConnections (true, FOUNDFLAG);
 
   if (violation == NULL)
     return;
