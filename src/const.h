@@ -214,6 +214,10 @@ Marker used internally to avoid revisiting an object.
 #define EDGE2FLAG               0x4000  /* Padr.Point2 is closer to outside edge */
                                         /* also pinout text for pins is vertical */
 #define VISITFLAG               0x8000  /* marker to avoid re-visiting an object */
+
+
+#define NOCOPY_FLAGS (FOUNDFLAG)
+
 /* ---------------------------------------------------------------------------
  * PCB flags
  */

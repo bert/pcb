@@ -105,7 +105,7 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
     }
   SetPolygonBoundingBox (Dest);
   Dest->Flags = Src->Flags;
-  CLEAR_FLAG (FOUNDFLAG, Dest);
+  CLEAR_FLAG (NOCOPY_FLAGS, Dest);
   return (Dest);
 }
 
@@ -188,7 +188,7 @@ CopyVia (PinType *Via)
   via = CreateNewVia (PCB->Data, Via->X + DeltaX, Via->Y + DeltaY,
 		      Via->Thickness, Via->Clearance, Via->Mask,
 		      Via->DrillingHole, Via->Name,
-		      MaskFlags (Via->Flags, FOUNDFLAG));
+		      MaskFlags (Via->Flags, NOCOPY_FLAGS));
   if (!via)
     return (via);
   DrawVia (via);
@@ -209,7 +209,7 @@ CopyLine (LayerType *Layer, LineType *Line)
 				 Line->Point2.X + DeltaX,
 				 Line->Point2.Y + DeltaY, Line->Thickness,
 				 Line->Clearance,
-				 MaskFlags (Line->Flags, FOUNDFLAG));
+				 MaskFlags (Line->Flags, NOCOPY_FLAGS));
   if (!line)
     return (line);
   if (Line->Number)
@@ -230,7 +230,7 @@ CopyArc (LayerType *Layer, ArcType *Arc)
   arc = CreateNewArcOnLayer (Layer, Arc->X + DeltaX,
 			     Arc->Y + DeltaY, Arc->Width, Arc->Height, Arc->StartAngle,
 			     Arc->Delta, Arc->Thickness, Arc->Clearance,
-			     MaskFlags (Arc->Flags, FOUNDFLAG));
+			     MaskFlags (Arc->Flags, NOCOPY_FLAGS));
   if (!arc)
     return (arc);
   DrawArc (Layer, arc);
@@ -249,7 +249,7 @@ CopyText (LayerType *Layer, TextType *Text)
   text = CreateNewText (Layer, &PCB->Font, Text->X + DeltaX,
 			Text->Y + DeltaY, Text->Direction,
 			Text->Scale, Text->TextString,
-			MaskFlags (Text->Flags, FOUNDFLAG));
+			MaskFlags (Text->Flags, NOCOPY_FLAGS));
   DrawText (Layer, text);
   AddObjectToCreateUndoList (TEXT_TYPE, Layer, text, text);
   return (text);
@@ -289,7 +289,7 @@ CopyElement (ElementType *Element)
 
   ElementType *element = CopyElementLowLevel (PCB->Data, Element,
                                               TEST_FLAG (UNIQUENAMEFLAG, PCB),
-                                              DeltaX, DeltaY, FOUNDFLAG);
+                                              DeltaX, DeltaY, NOCOPY_FLAGS);
 
   /* this call clears the polygons */
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
