@@ -1109,6 +1109,11 @@ ghid_pinout_preview_expose (GtkWidget *widget,
   glClear (GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   hidgl_reset_stencil_usage ();
 
+  /* Disable the stencil test until we need it - otherwise it gets dirty */
+  glDisable (GL_STENCIL_TEST);
+  glStencilMask (0);
+  glStencilFunc (GL_ALWAYS, 0, 0);
+
   /* call the drawing routine */
   ghid_invalidate_current_gc ();
   glPushMatrix ();
@@ -1207,6 +1212,11 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   glClearStencil (0);
   glClear (GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   hidgl_reset_stencil_usage ();
+
+  /* Disable the stencil test until we need it - otherwise it gets dirty */
+  glDisable (GL_STENCIL_TEST);
+  glStencilMask (0);
+  glStencilFunc (GL_ALWAYS, 0, 0);
 
   /* call the drawing routine */
   ghid_invalidate_current_gc ();
