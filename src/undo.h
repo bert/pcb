@@ -32,8 +32,9 @@
 
 #include "global.h"
 
-#define DRAW_FLAGS	(RATFLAG | SELECTEDFLAG | SQUAREFLAG \
-			| HIDENAMEFLAG | HOLEFLAG | OCTAGONFLAG | FOUNDFLAG | CLEARLINEFLAG)
+#define DRAW_FLAGS  (RATFLAG | SELECTEDFLAG | SQUAREFLAG |    \
+                     HIDENAMEFLAG | HOLEFLAG | OCTAGONFLAG |  \
+                     CONNECTEDFLAG | FOUNDFLAG | CLEARLINEFLAG)
 
 											/* different layers */
 
