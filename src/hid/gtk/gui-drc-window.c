@@ -101,7 +101,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     {
-      if (ResetConnections (true, FOUNDFLAG))
+      if (ClearFlagOnAllObjects (true, FOUNDFLAG))
         {
           IncrementUndoSerialNumber ();
           Draw ();
@@ -115,7 +115,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &violation, -1);
 
-  ResetConnections (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (true, FOUNDFLAG);
 
   if (violation == NULL)
     return;

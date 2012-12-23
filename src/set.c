@@ -300,7 +300,7 @@ SetMode (int Mode)
       Crosshair.AttachedLine.State = STATE_FIRST;
       if (Mode == LINE_MODE && TEST_FLAG (AUTODRCFLAG, PCB))
 	{
-	  if (ResetConnections (true, FOUNDFLAG))
+	  if (ClearFlagOnAllObjects (true, FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
