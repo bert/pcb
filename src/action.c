@@ -107,6 +107,7 @@ typedef enum
   F_ClearAndRedraw,
   F_ClearList,
   F_Close,
+  F_Found,
   F_Connection,
   F_Convert,
   F_Copy,
@@ -341,6 +342,7 @@ static FunctionType Functions[] = {
   {"ClearAndRedraw", F_ClearAndRedraw},
   {"ClearList", F_ClearList},
   {"Close", F_Close},
+  {"Found", F_Found},
   {"Connection", F_Connection},
   {"Convert", F_Convert},
   {"Copy", F_Copy},
@@ -5305,8 +5307,11 @@ Selects all objects in a rectangle indicated by the cursor.
 @item All
 Selects all objects on the board.
 
-@item Connection
+@item Found
 Selects all connections with the ``found'' flag set.
+
+@item Connection
+Selects all connections with the ``connected'' flag set.
 
 @item Convert
 Converts the selected objects to an element.  This uses the highest
@@ -5412,9 +5417,19 @@ ActionSelect (int argc, char **argv, Coord x, Coord y)
 	    break;
 	  }
 
-	  /* all found connections */
-	case F_Connection:
+	  /* all logical connections */
+	case F_Found:
 	  if (SelectByFlag (FOUNDFLAG, true))
+	    {
+              Draw ();
+	      IncrementUndoSerialNumber ();
+	      SetChangedFlag (true);
+	    }
+	  break;
+
+	  /* all physical connections */
+	case F_Connection:
+	  if (SelectByFlag (CONNECTEDFLAG, true))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();
@@ -5591,9 +5606,19 @@ ActionUnselect (int argc, char **argv, Coord x, Coord y)
 	    break;
 	  }
 
-	  /* all found connections */
-	case F_Connection:
+	  /* all logical connections */
+	case F_Found:
 	  if (SelectByFlag (FOUNDFLAG, false))
+	    {
+              Draw ();
+	      IncrementUndoSerialNumber ();
+	      SetChangedFlag (true);
+	    }
+	  break;
+
+	  /* all physical connections */
+	case F_Connection:
+	  if (SelectByFlag (CONNECTEDFLAG, false))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();
