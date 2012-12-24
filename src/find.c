@@ -119,26 +119,13 @@
 		fputc('\n', (FP));						\
 	}
 
-#define	LIST_ENTRY(list,I)	\
-	(((AnyObjectType **)list->Data)[(I)])
-
-#define	PADLIST_ENTRY(L,I)	\
-	(((PadType **)PadList[(L)].Data)[(I)])
-
-#define	LINELIST_ENTRY(L,I)	\
-	(((LineType **)LineList[(L)].Data)[(I)])
-
-#define	ARCLIST_ENTRY(L,I)	\
-	(((ArcType **)ArcList[(L)].Data)[(I)])
-
-#define RATLIST_ENTRY(I)	\
-	(((RatType **)RatList.Data)[(I)])
-
-#define	POLYGONLIST_ENTRY(L,I)	\
-	(((PolygonType **)PolygonList[(L)].Data)[(I)])
-
-#define	PVLIST_ENTRY(I)	\
-	(((PinType **)PVList.Data)[(I)])
+#define LIST_ENTRY(list,I)      (((AnyObjectType **)list->Data)[(I)])
+#define PADLIST_ENTRY(L,I)      (((PadType **)PadList[(L)].Data)[(I)])
+#define LINELIST_ENTRY(L,I)     (((LineType **)LineList[(L)].Data)[(I)])
+#define ARCLIST_ENTRY(L,I)      (((ArcType **)ArcList[(L)].Data)[(I)])
+#define RATLIST_ENTRY(I)        (((RatType **)RatList.Data)[(I)])
+#define POLYGONLIST_ENTRY(L,I)  (((PolygonType **)PolygonList[(L)].Data)[(I)])
+#define PVLIST_ENTRY(I)         (((PinType **)PVList.Data)[(I)])
 
 #define IS_PV_ON_RAT(PV, Rat) \
 	(IsPointOnLineEnd((PV)->X,(PV)->Y, (Rat)))
