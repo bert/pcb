@@ -6,6 +6,10 @@ usage ()
   echo \\tpcbdiff firstfile secondfile
   echo \\tView a graphical diff of PCB files
   echo
+  echo \\tpcbdiff firstfile secondfile delay
+  echo \\tDelay is in centi-seconds, default is 50
+  echo \\tView a blinking graphical diff of PCB files
+  echo
   echo \\tTo use with git, just place this script in your PATH and do
   echo \\tgit difftool -x pcbdiff ...
   echo
@@ -52,29 +56,49 @@ else
 fi
 
 #In case the script was invoked with extra option arguments, throw them away
-shift `expr $# - 2`
+shift `expr $# - 3`
 
 LEFTFILE="${1}"
 RIGHTFILE="${2}"
+
 if test -d "${LEFTFILE}" -o -d "${RIGHTFILE}"
   then echo "ERROR: pcbdiff cannot diff entire directories"
   exit 1
 fi
 
-LEFTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
-RIGHTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
-LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
-RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
-DIFFPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+if test -z "${3}"; then
+  DELAY=50
+else
+  DELAY="${3}"
+fi
 
-"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${LEFTPNG} "${LEFTFILE}"
-"${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${RIGHTPNG} "${RIGHTFILE}"
-"${CONVERT}" -colorspace gray $LEFTPNG $LEFTBNW
-"${CONVERT}" -colorspace gray $RIGHTPNG $RIGHTBNW
-"${COMPOSITE}" -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
-"${VIEWER}" $DIFFPNG
-rm $LEFTPNG
-rm $RIGHTPNG
-rm $LEFTBNW
-rm $RIGHTBNW
-rm $DIFFPNG
+if test -z "${3}"; then
+  LEFTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  RIGHTPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  LEFTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  RIGHTBNW=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  DIFFPNG=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${LEFTPNG} "${LEFTFILE}"
+  "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --outfile ${RIGHTPNG} "${RIGHTFILE}"
+  "${CONVERT}" -colorspace gray $LEFTPNG $LEFTBNW
+  "${CONVERT}" -colorspace gray $RIGHTPNG $RIGHTBNW
+  "${COMPOSITE}" -stereo 0 $LEFTBNW $RIGHTBNW $DIFFPNG
+  "${VIEWER}" $DIFFPNG
+  rm $LEFTPNG
+  rm $RIGHTPNG
+  rm $LEFTBNW
+  rm $RIGHTBNW
+  rm $DIFFPNG
+else
+  LEFTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  RIGHTGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  DIFFGIF=`mktemp --tmpdir pcbdiff.XXXXXXXXXX`
+  "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${LEFTGIF} "${LEFTFILE}"
+  "${PCB}" -x png --dpi ${PCBDIFF_DPI:-200} --photo-mode --format GIF --outfile ${RIGHTGIF} "${RIGHTFILE}"
+  "${CONVERT}" -delay $DELAY $LEFTGIF $RIGHTGIF -loop 0 $DIFFGIF
+  "${VIEWER}" $DIFFGIF
+  rm $LEFTGIF
+  rm $RIGHTGIF
+  rm $DIFFGIF
+fi
+
