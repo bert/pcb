@@ -1214,7 +1214,13 @@ NotifyMode (void)
 	/* create line if both ends are determined && length != 0 */
 	{
 	  LineType *line;
-	  int maybe_found_flag;
+	  int line_flags = 0;
+
+	  if (TEST_FLAG (AUTODRCFLAG, PCB) && !TEST_SILK_LAYER (CURRENT))
+	    line_flags |= FOUNDFLAG;
+
+	  if (TEST_FLAG (CLEARNEWFLAG, PCB))
+	    line_flags |= CLEARLINEFLAG;
 
 	  if (PCB->Clipping
 	      && Crosshair.AttachedLine.Point1.X ==
@@ -1231,12 +1237,6 @@ NotifyMode (void)
 	      Crosshair.AttachedLine.Point2.Y = Note.Y;
 	    }
 
-	  if (TEST_FLAG (AUTODRCFLAG, PCB)
-	      && ! TEST_SILK_LAYER (CURRENT))
-	    maybe_found_flag = FOUNDFLAG;
-	  else
-	    maybe_found_flag = 0;
-
 	  if ((Crosshair.AttachedLine.Point1.X !=
 	       Crosshair.AttachedLine.Point2.X
 	       || Crosshair.AttachedLine.Point1.Y !=
@@ -1249,11 +1249,7 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.Y,
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
-					  MakeFlags (maybe_found_flag |
-						     (TEST_FLAG
-						      (CLEARNEWFLAG,
-						       PCB) ? CLEARLINEFLAG :
-						      0)))) != NULL)
+					  MakeFlags (line_flags))) != NULL)
 	    {
 	      PinType *via;
 
@@ -1300,13 +1296,7 @@ NotifyMode (void)
 					  Note.X, Note.Y,
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
-					  MakeFlags ((TEST_FLAG
-						      (AUTODRCFLAG,
-						       PCB) ? FOUNDFLAG : 0) |
-						     (TEST_FLAG
-						      (CLEARNEWFLAG,
-						       PCB) ? CLEARLINEFLAG :
-						      0)))) != NULL)
+					  MakeFlags (line_flags))) != NULL)
 	    {
 	      addedLines++;
 	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
