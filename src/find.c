@@ -1225,17 +1225,6 @@ LookupPVConnectionsToLOList (bool AndRats)
   return (false);
 }
 
-int
-pv_touch_callback (const BoxType * b, void *cl)
-{
-  PinType *pin = (PinType *) b;
-  struct lo_info *i = (struct lo_info *) cl;
-
-  if (!TEST_FLAG (TheFlag, pin) && PinLineIntersect (pin, &i->line))
-    longjmp (i->env, 1);
-  return 0;
-}
-
 /* reduce arc start angle and delta to 0..360 */
 static void
 normalize_angles (Angle *sa, Angle *d)
