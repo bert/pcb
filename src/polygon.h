@@ -63,7 +63,8 @@ int PolygonHoles (PolygonType *ptr, const BoxType *range,
 		  int (*callback) (PLINE *, void *user_data),
                   void *user_data);
 int PlowsPolygon (DataType *, int, void *, void *,
-		  int (*callback) (DataType *, LayerType *, PolygonType *, int, void *, void *));
+                  int (*callback) (DataType *, LayerType *, PolygonType *, int, void *, void *, void *),
+                  void *userdata);
 void ComputeNoHoles (PolygonType *poly);
 POLYAREA * ContourToPoly (PLINE *);
 POLYAREA * PolygonToPoly (PolygonType *);
