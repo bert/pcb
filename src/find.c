@@ -281,10 +281,6 @@ static ListType LineList[MAX_LAYER],    /* list of objects to */
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static bool LookupLOConnectionsToPVList (bool);
-static bool LookupLOConnectionsToLOList (bool);
-static bool LookupPVConnectionsToLOList (bool);
-static bool LookupPVConnectionsToPVList (void);
 static bool LookupLOConnectionsToLine (LineType *, Cardinal, bool, bool);
 static bool LookupLOConnectionsToPad (PadType *, Cardinal, bool);
 static bool LookupLOConnectionsToPolygon (PolygonType *, Cardinal, bool);
@@ -293,24 +289,10 @@ static bool LookupLOConnectionsToRatEnd (PointType *, Cardinal);
 static bool IsRatPointOnLineEnd (PointType *, LineType *);
 static bool ArcArcIntersect (ArcType *, ArcType *);
 static bool PrepareNextLoop (FILE *);
-static bool PrintElementConnections (ElementType *, FILE *, bool);
-static bool ListsEmpty (bool);
-static bool DoIt (bool, bool);
-static void PrintElementNameList (ElementType *, FILE *);
-static void PrintConnectionElementName (ElementType *, FILE *);
-static void PrintConnectionListEntry (char *, ElementType *,
-                                      bool, FILE *);
-static void PrintPadConnections (Cardinal, FILE *, bool);
-static void PrintPinConnections (FILE *, bool);
-static bool PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *,
-                                                         FILE *);
 static void DrawNewConnections (void);
 static void DumpList (void);
 static void LocateError (Coord *, Coord *);
 static void BuildObjectList (int *, long int **, int **);
-static void GotoError (void);
-static bool DRCFind (int, void *, void *, void *);
-static bool ListStart (int, void *, void *, void *);
 static bool SetThing (int, void *, void *, void *);
 static bool IsArcInPolygon (ArcType *, PolygonType *);
 static bool IsLineInPolygon (LineType *, PolygonType *);
