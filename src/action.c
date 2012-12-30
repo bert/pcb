@@ -107,6 +107,7 @@ typedef enum
   F_ClearAndRedraw,
   F_ClearList,
   F_Close,
+  F_Found,
   F_Connection,
   F_Convert,
   F_Copy,
@@ -341,6 +342,7 @@ static FunctionType Functions[] = {
   {"ClearAndRedraw", F_ClearAndRedraw},
   {"ClearList", F_ClearList},
   {"Close", F_Close},
+  {"Found", F_Found},
   {"Connection", F_Connection},
   {"Convert", F_Convert},
   {"Copy", F_Copy},
@@ -871,8 +873,8 @@ NotifyLine (void)
 	  type = SearchScreen (Crosshair.X, Crosshair.Y,
 			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
 			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1,
-			    FOUNDFLAG, true);
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false);
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{
@@ -1217,7 +1219,7 @@ NotifyMode (void)
 	  int line_flags = 0;
 
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && !TEST_SILK_LAYER (CURRENT))
-	    line_flags |= FOUNDFLAG;
+	    line_flags |= CONNECTEDFLAG | FOUNDFLAG;
 
 	  if (TEST_FLAG (CLEARNEWFLAG, PCB))
 	    line_flags |= CLEARLINEFLAG;
@@ -1312,6 +1314,8 @@ NotifyMode (void)
 		  PCB->Clipping ^= 3;
 		}
 	    }
+	  if (TEST_FLAG (AUTODRCFLAG, PCB) && !TEST_SILK_LAYER (CURRENT))
+	    LookupConnection (Note.X, Note.Y, true, 1, CONNECTEDFLAG, false);
 	  Draw ();
 	}
       break;
@@ -2280,12 +2284,13 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	case F_Find:
 	  {
 	    gui->get_coords (_("Click on a connection"), &x, &y);
-	    LookupConnection (x, y, true, 1, FOUNDFLAG, false);
+	    LookupConnection (x, y, true, 1, CONNECTEDFLAG, false);
+	    LookupConnection (x, y, true, 1, FOUNDFLAG, true);
 	    break;
 	  }
 
 	case F_ResetLinesAndPolygons:
-	  if (ClearFlagOnLinesAndPolygons (true, FOUNDFLAG))
+	  if (ClearFlagOnLinesAndPolygons (true, CONNECTEDFLAG | FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2293,7 +2298,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_ResetPinsViasAndPads:
-	  if (ClearFlagOnPinsViasAndPads (true, FOUNDFLAG))
+	  if (ClearFlagOnPinsViasAndPads (true, CONNECTEDFLAG | FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2301,7 +2306,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_Reset:
-	  if (ClearFlagOnAllObjects (true, FOUNDFLAG))
+	  if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2738,15 +2743,20 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
-	      if (ClearFlagOnAllObjects (true, FOUNDFLAG))
+	      if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
 		{
 		  IncrementUndoSerialNumber ();
 		  Draw ();
 		}
 	      if (Crosshair.AttachedLine.State != STATE_FIRST)
-		LookupConnection (Crosshair.AttachedLine.Point1.X,
-				  Crosshair.AttachedLine.Point1.Y, true, 1,
-				  FOUNDFLAG, true);
+		{
+		  LookupConnection (Crosshair.AttachedLine.Point1.X,
+		                    Crosshair.AttachedLine.Point1.Y,
+		                    true, 1, CONNECTEDFLAG, false);
+		  LookupConnection (Crosshair.AttachedLine.Point1.X,
+		                    Crosshair.AttachedLine.Point1.Y,
+		                    true, 1, FOUNDFLAG, true);
+		}
 	    }
 	  notify_crosshair_change (true);
 	  break;
@@ -5305,8 +5315,11 @@ Selects all objects in a rectangle indicated by the cursor.
 @item All
 Selects all objects on the board.
 
-@item Connection
+@item Found
 Selects all connections with the ``found'' flag set.
+
+@item Connection
+Selects all connections with the ``connected'' flag set.
 
 @item Convert
 Converts the selected objects to an element.  This uses the highest
@@ -5412,9 +5425,19 @@ ActionSelect (int argc, char **argv, Coord x, Coord y)
 	    break;
 	  }
 
-	  /* all found connections */
-	case F_Connection:
+	  /* all logical connections */
+	case F_Found:
 	  if (SelectByFlag (FOUNDFLAG, true))
+	    {
+              Draw ();
+	      IncrementUndoSerialNumber ();
+	      SetChangedFlag (true);
+	    }
+	  break;
+
+	  /* all physical connections */
+	case F_Connection:
+	  if (SelectByFlag (CONNECTEDFLAG, true))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();
@@ -5591,9 +5614,19 @@ ActionUnselect (int argc, char **argv, Coord x, Coord y)
 	    break;
 	  }
 
-	  /* all found connections */
-	case F_Connection:
+	  /* all logical connections */
+	case F_Found:
 	  if (SelectByFlag (FOUNDFLAG, false))
+	    {
+              Draw ();
+	      IncrementUndoSerialNumber ();
+	      SetChangedFlag (true);
+	    }
+	  break;
+
+	  /* all physical connections */
+	case F_Connection:
+	  if (SelectByFlag (CONNECTEDFLAG, false))
 	    {
               Draw ();
 	      IncrementUndoSerialNumber ();
@@ -6222,7 +6255,8 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 		  ptr2 = (LineType *) ptrtmp;
 	          if (TEST_FLAG (AUTODRCFLAG, PCB))
 		    {
-		      /* undo loses FOUNDFLAG */
+		      /* undo loses CONNECTEDFLAG and FOUNDFLAG */
+		      SET_FLAG(CONNECTEDFLAG, ptr2);
 		      SET_FLAG(FOUNDFLAG, ptr2);
 		      DrawLine (CURRENT, ptr2);
 		    }

@@ -233,9 +233,11 @@ MainMenu =
 #
   {"Select" m=l
    {"Select all visible" Select(All)}
+   {"Select all found" Select(Found)}
    {"Select all connected" Select(Connection)}
    -
    {"Unselect all" Unselect(All)}
+   {"Unselect all found" Unselect(Found)}
    {"Unselect all connected" Unselect(Connection)}
    -
    {"Select by name"

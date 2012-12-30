@@ -219,9 +219,11 @@ MainMenu =
 
   {Select
    {"Select all visible objects" Select(All)}
+   {"Select all found objects" Select(Found)}
    {"Select all connected objects" Select(Connection)}
    -
    {"Unselect all objects" Unselect(All)}
+   {"unselect all found objects" Unselect(Found)}
    {"unselect all connected objects" Unselect(Connection)}
    -
    {"Select by name" foreground=grey50 sensitive=false}

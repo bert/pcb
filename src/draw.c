@@ -85,16 +85,16 @@ static void DrawEMark (ElementType *, Coord, Coord, bool);
 static void DrawRats (const BoxType *);
 
 static void
-set_object_color (AnyObjectType *obj,
-                  char *warn_color, char *selected_color,
-                  char *found_color, char *normal_color)
+set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
+                  char *connected_color, char *found_color, char *normal_color)
 {
   char *color;
 
-  if      (warn_color     != NULL && TEST_FLAG (WARNFLAG,     obj)) color = warn_color;
-  else if (selected_color != NULL && TEST_FLAG (SELECTEDFLAG, obj)) color = selected_color;
-  else if (found_color    != NULL && TEST_FLAG (FOUNDFLAG,    obj)) color = found_color;
-  else                                                              color = normal_color;
+  if      (warn_color      != NULL && TEST_FLAG (WARNFLAG,      obj)) color = warn_color;
+  else if (selected_color  != NULL && TEST_FLAG (SELECTEDFLAG,  obj)) color = selected_color;
+  else if (connected_color != NULL && TEST_FLAG (CONNECTEDFLAG, obj)) color = connected_color;
+  else if (found_color     != NULL && TEST_FLAG (FOUNDFLAG,     obj)) color = found_color;
+  else                                                                color = normal_color;
 
   gui->graphics->set_color (Output.fgGC, color);
 }
@@ -102,7 +102,7 @@ set_object_color (AnyObjectType *obj,
 static void
 set_layer_object_color (LayerType *layer, AnyObjectType *obj)
 {
-  set_object_color (obj, NULL, layer->SelectedColor, PCB->ConnectedColor, layer->Color);
+  set_object_color (obj, NULL, layer->SelectedColor, PCB->ConnectedColor, PCB->FoundColor, layer->Color);
 }
 
 /*---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ draw_pin (PinType *pin, bool draw_hole)
   else
     set_object_color ((AnyObjectType *)pin,
                       PCB->WarnColor, PCB->PinSelectedColor,
-                      PCB->ConnectedColor, PCB->PinColor);
+                      PCB->ConnectedColor, PCB->FoundColor, PCB->PinColor);
 
   _draw_pv (pin, draw_hole);
 }
@@ -223,7 +223,7 @@ draw_via (PinType *via, bool draw_hole)
   else
     set_object_color ((AnyObjectType *)via,
                       PCB->WarnColor, PCB->ViaSelectedColor,
-                      PCB->ConnectedColor, PCB->ViaColor);
+                      PCB->ConnectedColor, PCB->FoundColor, PCB->ViaColor);
 
   _draw_pv (via, draw_hole);
 }
@@ -297,7 +297,7 @@ draw_pad (PadType *pad)
     gui->graphics->set_color (Output.fgGC, PCB->PinColor);
   else
     set_object_color ((AnyObjectType *)pad, PCB->WarnColor,
-                      PCB->PinSelectedColor, PCB->ConnectedColor,
+                      PCB->PinSelectedColor, PCB->ConnectedColor, PCB->FoundColor,
                       FRONT (pad) ? PCB->PinColor : PCB->InvisibleObjectsColor);
 
   _draw_pad (Output.fgGC, pad, false, false);
@@ -402,7 +402,7 @@ hole_callback (const BoxType * b, void *cl)
     {
       set_object_color ((AnyObjectType *) pv,
                         PCB->WarnColor, PCB->ViaSelectedColor,
-                        NULL, Settings.BlackColor);
+                        NULL, NULL, Settings.BlackColor);
 
       gui->graphics->set_line_cap (Output.fgGC, Round_Cap);
       gui->graphics->set_line_width (Output.fgGC, 0);
@@ -443,7 +443,7 @@ rat_callback (const BoxType * b, void *cl)
   RatType *rat = (RatType *)b;
 
   set_object_color ((AnyObjectType *) rat, NULL, PCB->RatSelectedColor,
-                    PCB->ConnectedColor, PCB->RatColor);
+                    PCB->ConnectedColor, PCB->FoundColor, PCB->RatColor);
 
   if (Settings.RatThickness < 100)
     rat->Thickness = pixel_slop * Settings.RatThickness;
