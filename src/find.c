@@ -65,26 +65,15 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-#include <math.h>
 #include <setjmp.h>
 #include <assert.h>
 
-#ifdef HAVE_SYS_TIMES_H
-#include <sys/times.h>
-#endif
-
 #include "global.h"
 
-#include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
 #include "find.h"
-#include "mymem.h"
 #include "misc.h"
 #include "rtree.h"
 #include "polygon.h"
