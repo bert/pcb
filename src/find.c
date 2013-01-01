@@ -273,7 +273,7 @@ static int thing_type;
 static bool User = false;    /* user action causing this */
 static bool drc = false;     /* whether to stop if finding something not found */
 static Cardinal drcerr_count;   /* count of drc errors */
-static Cardinal TotalP, TotalV, NumberOfPads[2];
+static Cardinal TotalP, TotalV;
 static ListType LineList[MAX_LAYER],    /* list of objects to */
   PolygonList[MAX_LAYER], ArcList[MAX_LAYER], PadList[2], RatList, PVList;
 
@@ -505,6 +505,7 @@ FreeComponentLookupMemory (void)
 static void
 InitComponentLookup (void)
 {
+  Cardinal NumberOfPads[2];
   Cardinal i;
 
   /* initialize pad data; start by counting the total number
