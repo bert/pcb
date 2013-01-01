@@ -45,6 +45,10 @@
 
 #include <time.h>
 
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif
+
 #include "global.h"
 #include "error.h" /* Message() */
 #include "data.h"
