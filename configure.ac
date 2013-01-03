@@ -1169,15 +1169,12 @@ ENABLE_BUILD_WITH_CXX=no)
 case "$ENABLE_BUILD_WITH_CXX" in
   yes)
     CC_OR_CXX="$CXX"
-    CC_OR_CXX_FLAGS="$CXXFLAGS"
     ;;
   no)
     CC_OR_CXX="$CC"
-    CC_OR_CXX_FLAGS="$CFLAGS"
     ;;
 esac
 AC_SUBST(CC_OR_CXX)
-AC_SUBST(CC_OR_CXX_FLAGS)
 
 # font filename
 FONTFILENAME=${FONTFILENAME:-"default_font"}
