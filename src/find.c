@@ -3588,7 +3588,6 @@ DRCAll (void)
   int tmpcnt;
   int nopastecnt = 0;
   bool IsBad;
-  int flag;
   struct drc_info info;
 
   reset_drc_dialog_message();
@@ -3600,9 +3599,7 @@ DRCAll (void)
   hid_action ("LayersChanged");
   InitConnectionLookup ();
 
-  flag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
-
-  if (ClearFlagOnAllObjects (true, flag))
+  if (ClearFlagOnAllObjects (true, FOUNDFLAG | DRCFLAG | SELECTEDFLAG))
     {
       IncrementUndoSerialNumber ();
       Draw ();
@@ -3655,10 +3652,8 @@ DRCAll (void)
   }
   END_LOOP;
 
-  flag = (IsBad) ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG);
-  ClearFlagOnAllObjects (false, flag);
-  flag = SELECTEDFLAG;
-  info.flag = flag;
+  ClearFlagOnAllObjects (false, IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG));
+  info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
   if (!IsBad)
     {
@@ -3673,7 +3668,7 @@ DRCAll (void)
         if (line->Thickness < PCB->minWid)
           {
             AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-            SET_FLAG (flag, line);
+            SET_FLAG (SELECTEDFLAG, line);
             DrawLine (layer, line);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
@@ -3717,7 +3712,7 @@ DRCAll (void)
         if (arc->Thickness < PCB->minWid)
           {
             AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-            SET_FLAG (flag, arc);
+            SET_FLAG (SELECTEDFLAG, arc);
             DrawArc (layer, arc);
             drcerr_count++;
             SetThing (ARC_TYPE, layer, arc, arc);
@@ -3762,7 +3757,7 @@ DRCAll (void)
             pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
           {
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-            SET_FLAG (flag, pin);
+            SET_FLAG (SELECTEDFLAG, pin);
             DrawPin (pin);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
@@ -3794,7 +3789,7 @@ DRCAll (void)
         if (pin->DrillingHole < PCB->minDrill)
           {
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-            SET_FLAG (flag, pin);
+            SET_FLAG (SELECTEDFLAG, pin);
             DrawPin (pin);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
@@ -3837,7 +3832,7 @@ DRCAll (void)
         if (pad->Thickness < PCB->minWid)
           {
             AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-            SET_FLAG (flag, pad);
+            SET_FLAG (SELECTEDFLAG, pad);
             DrawPad (pad);
             drcerr_count++;
             SetThing (PAD_TYPE, element, pad, pad);
@@ -3882,7 +3877,7 @@ DRCAll (void)
             via->Thickness - via->DrillingHole < 2 * PCB->minRing)
           {
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-            SET_FLAG (flag, via);
+            SET_FLAG (SELECTEDFLAG, via);
             DrawVia (via);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
@@ -3914,7 +3909,7 @@ DRCAll (void)
         if (via->DrillingHole < PCB->minDrill)
           {
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-            SET_FLAG (flag, via);
+            SET_FLAG (SELECTEDFLAG, via);
             DrawVia (via);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
@@ -3947,19 +3942,17 @@ DRCAll (void)
     }
 
   FreeConnectionLookupMemory ();
-  flag = FOUNDFLAG;
   Bloat = 0;
 
   /* check silkscreen minimum widths outside of elements */
   /* XXX - need to check text and polygons too! */
-  flag = SELECTEDFLAG;
   if (!IsBad)
     {
       SILKLINE_LOOP (PCB->Data);
       {
         if (line->Thickness < PCB->minSlk)
           {
-            SET_FLAG (flag, line);
+            SET_FLAG (SELECTEDFLAG, line);
             DrawLine (layer, line);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
@@ -3992,7 +3985,6 @@ DRCAll (void)
 
   /* check silkscreen minimum widths inside of elements */
   /* XXX - need to check text and polygons too! */
-  flag = SELECTEDFLAG;
   if (!IsBad)
     {
       ELEMENT_LOOP (PCB->Data);
@@ -4011,7 +4003,7 @@ DRCAll (void)
             char *buffer;
             int buflen;
 
-            SET_FLAG (flag, element);
+            SET_FLAG (SELECTEDFLAG, element);
             DrawElement (element);
             drcerr_count++;
             SetThing (ELEMENT_TYPE, element, element, element);
