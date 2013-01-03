@@ -3480,10 +3480,8 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   PinType *pin = (PinType *) ptr2;
   PadType *pad = (PadType *) ptr2;
 
-  thing_type = type;
-  thing_ptr1 = ptr1;
-  thing_ptr2 = ptr2;
-  thing_ptr3 = ptr2;
+  SetThing (type, ptr1, ptr2, ptr2);
+
   switch (type)
     {
     case LINE_TYPE:
