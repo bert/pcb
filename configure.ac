@@ -792,7 +792,6 @@ you will get lucky.
 	# since some linux systems evidently install gdlib-config but fail to
 	# install the headers (nice), check for the header too and fail if it
 	# is not there.
-	CFLAGS="$CFLAGS $GD_CFLAGS"
 	CPPFLAGS="$CPPFLAGS $GD_CFLAGS"
 	AC_CHECK_HEADERS(gd.h)
 	case $ac_cv_header_gd_h in
