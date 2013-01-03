@@ -3396,7 +3396,13 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     }
   /* now check the bloated condition */
   drc = false;
+  flag = FOUNDFLAG | SELECTEDFLAG;
   ClearFlagOnAllObjects (false, flag);
+  Bloat = 0;
+  flag = SELECTEDFLAG;
+  ListStart (What, ptr1, ptr2, ptr3, flag);
+  DoIt (flag, true, false);
+  DumpList ();
   flag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3, flag);
   Bloat = PCB->Bloat;
