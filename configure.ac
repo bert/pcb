@@ -701,6 +701,11 @@ You may want to review the following errors:
 $GLIB_PKG_ERRORS])]
 )
 
+need_gdlib=no
+with_gif=no
+with_png=no
+with_jpeg=no
+
 for e in $HIDLIST; do
     case $e in
       lesstif )
@@ -758,7 +763,66 @@ $GTKGLEXT_PKG_ERRORS])]
 
 	;;
 
-      gcode|nelma|png )
+      png)
+	need_gdlib=yes
+	AC_MSG_CHECKING([if GIF output from the png HID is desired])
+	AC_ARG_ENABLE([gif],
+		[  --disable-gif           Disable support for gif output when the png HID is used [[default=include gif support]]],
+		[
+		if test "X$enable_gif" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_gif=yes
+		else
+			AC_MSG_RESULT([no])
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_gif=yes
+		])
+
+	AC_MSG_CHECKING([if JPEG output from the png HID is desired])
+	AC_ARG_ENABLE([jpeg],
+		[  --disable-jpeg          Disable support for JPEG output when the png HID is used [[default=include JPEG support]]],
+		[
+		if test "X$enable_jpeg" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_jpeg=yes
+		else
+			AC_MSG_RESULT([no])
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_jpeg=yes
+		])
+
+	AC_MSG_CHECKING([if PNG output from the png HID is desired])
+	AC_ARG_ENABLE([png],
+		[  --disable-png           Disable support for PNG output when the png HID is used [[default=include PNG support]]],
+		[
+		if test "X$enable_png" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_png=yes
+		else
+			AC_MSG_RESULT([no])
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_png=yes
+		])
+	;;
+
+      gcode|nelma)
+	need_gdlib=yes
+	with_png=yes
+	;;
+
+    esac
+done
+
+if test "$need_gdlib" = "yes"; then
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
 	if test "$GDLIB_CONFIG" = "no"; then
@@ -812,22 +876,6 @@ This is needed for the nelma and/or png HID.
 	save_LIBS="$LIBS"
 	LIBS="$save_LIBS $GD_LIBS $X_LIBS"
 
-	AC_MSG_CHECKING([if GIF output from the png HID is desired])
-	AC_ARG_ENABLE([gif],
-		[  --disable-gif           Disable support for gif output when the png HID is used [[default=include gif support]]],
-		[
-		if test "X$enable_gif" != "Xno" ; then
-			AC_MSG_RESULT([yes])
-			with_gif=yes
-		else
-			AC_MSG_RESULT([no])
-			with_gif=no
-		fi
-		],
-		[
-		AC_MSG_RESULT([yes])
-		with_gif=yes
-		])
 	if test "X$with_gif" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImageGif)
 		if test "$ac_cv_func_gdImageGif" != "yes"; then
@@ -837,22 +885,6 @@ gif export with --disable-gif])
 		fi
 	fi
 
-	AC_MSG_CHECKING([if JPEG output from the png HID is desired])
-	AC_ARG_ENABLE([jpeg],
-		[  --disable-jpeg          Disable support for JPEG output when the png HID is used [[default=include JPEG support]]],
-		[
-		if test "X$enable_jpeg" != "Xno" ; then
-			AC_MSG_RESULT([yes])
-			with_jpeg=yes
-		else
-			AC_MSG_RESULT([no])
-			with_jpeg=no
-		fi
-		],
-		[
-		AC_MSG_RESULT([yes])
-		with_jpeg=yes
-		])
 	if test "X$with_jpeg" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImageJpeg)
 		if test "$ac_cv_func_gdImageJpeg" != "yes"; then
@@ -862,23 +894,6 @@ JPEG export with --disable-jpeg])
 		fi
 	fi
 
-
-	AC_MSG_CHECKING([if PNG output from the png HID is desired])
-	AC_ARG_ENABLE([png],
-		[  --disable-png           Disable support for PNG output when the png HID is used [[default=include PNG support]]],
-		[
-		if test "X$enable_png" != "Xno" ; then
-			AC_MSG_RESULT([yes])
-			with_png=yes
-		else
-			AC_MSG_RESULT([no])
-			with_png=no
-		fi
-		],
-		[
-		AC_MSG_RESULT([yes])
-		with_png=yes
-		])
 	if test "X$with_png" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImagePng)
 		if test "$ac_cv_func_gdImagePng" != "yes"; then
@@ -888,11 +903,7 @@ PNG export with --disable-png])
 		fi
 	fi
 	LIBS="$save_LIBS"
-	;;
-
-    esac
-done
-
+fi
 
 AM_CONDITIONAL(PNG, test x$with_png = xyes)
 AM_CONDITIONAL(GIF, test x$with_gif = xyes)
