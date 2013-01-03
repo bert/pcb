@@ -88,11 +88,6 @@ PCB_PATH_DELIMETER=":"
 PCB_DIR_SEPARATOR_S="/"
 PCB_DIR_SEPARATOR_C='/'
 case $host in
-	*-*-cygwin* )
-		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS}"
-		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS}"
-		;;
-
 	*-*-mingw* )
 		WIN32=yes
 		CFLAGS="$CFLAGS ${MINGW_CFLAGS:--mms-bitfields -mwindows}"
