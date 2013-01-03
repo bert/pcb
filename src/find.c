@@ -3360,8 +3360,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           ListStart (What, ptr1, ptr2, ptr3, flag);
           DoIt (flag, true, true);
           DumpList ();
-          ListStart (What, ptr1, ptr2, ptr3, flag);
           flag = FOUNDFLAG;
+          ListStart (What, ptr1, ptr2, ptr3, flag);
           Bloat = 0;
           drc = true;
           DoIt (flag, true, true);
