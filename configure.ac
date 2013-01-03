@@ -705,6 +705,7 @@ for e in $HIDLIST; do
     case $e in
       lesstif )
 	AC_PATH_XTRA
+	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$X_CFLAGS"
 	AC_CHECK_LIB(X11, XOpenDisplay, , , $X_LIBS)
 	AC_CHECK_LIB(ICE, main, , , $X_LIBS)
@@ -713,7 +714,8 @@ for e in $HIDLIST; do
 	AC_CHECK_LIB(Xt, XtOpenDisplay, , , $X_LIBS)
 	AC_CHECK_LIB(Xmu, main, , , $X_LIBS)
 	AC_CHECK_LIB(Xpm, main, , , $X_LIBS)
-        AC_CHECK_LIB(Xm, XmCreateMainWindow, , , $X_LIBS)
+	AC_CHECK_LIB(Xm, XmCreateMainWindow, , , $X_LIBS)
+	CPPFLAGS="$save_CPPFLAGS"
 	case $ac_cv_lib_Xm_XmCreateMainWindow in
 	  no )
 	    AC_MSG_ERROR([You don't seem to have the Lesstif development environment installed.])
