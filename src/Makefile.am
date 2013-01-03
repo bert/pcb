@@ -3,7 +3,6 @@
 SUBDIRS=	icons
 
 CC = @CC_OR_CXX@
-AM_CFLAGS = @CC_OR_CXX_FLAGS@
 
 pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
@@ -26,7 +25,7 @@ bin_PROGRAMS=	pcb
 if DEBUG_BUILD
 # don't disable assert()
 else
-AM_CFLAGS += -DNDEBUG
+AM_CFLAGS= -DNDEBUG
 endif
 
 PCB_SRCS = \
