@@ -110,6 +110,7 @@ dicer output is used for HIDs which cannot render things with holes
 #define SUBTRACT_LINE_BATCH_SIZE 20
 
 static double rotate_circle_seg[4];
+static double rotate_circle_half_seg[4];
 
 void
 polygon_init (void)
@@ -117,8 +118,14 @@ polygon_init (void)
   double cos_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F);
   double sin_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F);
 
+  double cos_half_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F / 2);
+  double sin_half_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F / 2);
+    
   rotate_circle_seg[0] = cos_ang;  rotate_circle_seg[1] = -sin_ang;
   rotate_circle_seg[2] = sin_ang;  rotate_circle_seg[3] =  cos_ang;
+
+  rotate_circle_half_seg[0] = cos_half_ang;  rotate_circle_half_seg[1] = -sin_half_ang;
+  rotate_circle_half_seg[2] = sin_half_ang;  rotate_circle_half_seg[3] =  cos_half_ang;
 }
 
 Cardinal
@@ -399,10 +406,17 @@ frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
   double e1, e2, t1;
   int i, range;
 
-  poly_InclVertex (c->head.prev, poly_CreateNode (v));
   /* move vector to origin */
   e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
   e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
+  
+  /* if making a full circle, ensure this first point is also in a corrected position */
+  if (range==1) 
+   {
+    v[0] = X + ROUND (e1);
+    v[1] = Y + ROUND (e2);
+   }
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
 
   /* NB: the caller adds the last vertex, hence the -1 */
   range = POLY_CIRC_SEGS / fraction - 1;
@@ -424,12 +438,23 @@ CirclePoly (Coord x, Coord y, Coord radius)
 {
   PLINE *contour;
   Vector v;
+  Vector adjusted_v;
 
   if (radius <= 0)
     return NULL;
-  v[0] = x + radius;
-  v[1] = y;
-  if ((contour = poly_NewContour (v)) == NULL)
+  
+  /* Start at a point half a segment around the circle.
+      This has the effect of making the polygon sides orthogonal.
+       This reduces the posibility that the division process will make thinned 
+      polygon webs between lines of pins/vias */     
+  v[0] = x + radius * rotate_circle_half_seg[0];
+  v[1] = y + radius * rotate_circle_half_seg[2];
+  
+  /* Adjust this point outward to ensure final segment has adequate clearance */ 
+  adjusted_v[0] = x + (v[0]-x) * POLY_CIRC_RADIUS_ADJ;
+  adjusted_v[1] = y + (v[1]-y) * POLY_CIRC_RADIUS_ADJ;
+  
+  if ((contour = poly_NewContour (adjusted_v)) == NULL)
     return NULL;
   frac_circle (contour, x, y, v, 1);
   contour->is_round = TRUE;
