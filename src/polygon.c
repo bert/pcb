@@ -110,6 +110,7 @@ dicer output is used for HIDs which cannot render things with holes
 #define SUBTRACT_LINE_BATCH_SIZE 20
 
 static double rotate_circle_seg[4];
+static double rotate_circle_half_seg[4];
 
 void
 polygon_init (void)
@@ -117,8 +118,14 @@ polygon_init (void)
   double cos_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F);
   double sin_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F);
 
+  double cos_half_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F / 2);
+  double sin_half_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F / 2);
+
   rotate_circle_seg[0] = cos_ang;  rotate_circle_seg[1] = -sin_ang;
   rotate_circle_seg[2] = sin_ang;  rotate_circle_seg[3] =  cos_ang;
+
+  rotate_circle_half_seg[0] = cos_half_ang;  rotate_circle_half_seg[1] = -sin_half_ang;
+  rotate_circle_half_seg[2] = sin_half_ang;  rotate_circle_half_seg[3] =  cos_half_ang;
 }
 
 Cardinal
@@ -400,9 +407,18 @@ frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
   int i, range;
 
   poly_InclVertex (c->head.prev, poly_CreateNode (v));
+
   /* move vector to origin */
   e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
   e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
+
+  /* do a half step, and make a point there */
+  t1 = rotate_circle_half_seg[0] * e1 + rotate_circle_half_seg[1] * e2;
+  e2 = rotate_circle_half_seg[2] * e1 + rotate_circle_half_seg[3] * e2;
+  e1 = t1;
+  v[0] = X + ROUND (e1);
+  v[1] = Y + ROUND (e2);
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
 
   /* NB: the caller adds the last vertex, hence the -1 */
   range = POLY_CIRC_SEGS / fraction - 1;
@@ -429,6 +445,7 @@ CirclePoly (Coord x, Coord y, Coord radius)
     return NULL;
   v[0] = x + radius;
   v[1] = y;
+
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
   frac_circle (contour, x, y, v, 1);
