@@ -51,7 +51,7 @@ ghid_dialog_input (const char * prompt, const char * initial)
   gboolean response;
   GHidPort *out = &ghid_port;
 
-  dialog = gtk_dialog_new_with_buttons ("PCB User Input",
+  dialog = gtk_dialog_new_with_buttons (_("PCB User Input"),
 					GTK_WINDOW (out->top_window),
 					GTK_DIALOG_MODAL,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -65,7 +65,7 @@ ghid_dialog_input (const char * prompt, const char * initial)
 
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label),
-			prompt ? prompt : "Enter something");
+			prompt ? prompt : _("Enter something"));
 
   entry = gtk_entry_new ();
   if (initial)
@@ -115,13 +115,13 @@ ghid_dialog_confirm_all (gchar * all_message)
   gint response;
   GHidPort *out = &ghid_port;
 
-  dialog = gtk_dialog_new_with_buttons ("Confirm",
+  dialog = gtk_dialog_new_with_buttons (_("Confirm"),
 					GTK_WINDOW (out->top_window),
 					(GtkDialogFlags)(GTK_DIALOG_MODAL |
 							 GTK_DIALOG_DESTROY_WITH_PARENT),
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_OK, GTK_RESPONSE_OK,
-					"Sequence OK",
+					_("Sequence OK"),
 					GUI_DIALOG_RESPONSE_ALL, NULL);
 
   content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));

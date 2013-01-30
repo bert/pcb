@@ -884,7 +884,7 @@ ghid_attributes_need_rows (int new_max)
   while (attr_max_rows < new_max)
     {
       /* add [attr_max_rows] */
-      attr_row[attr_max_rows].del = gtk_button_new_with_label ("del");
+      attr_row[attr_max_rows].del = gtk_button_new_with_label (_("del"));
       gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].del,
 			0, 1,
 			attr_max_rows, attr_max_rows+1,
@@ -990,8 +990,8 @@ ghid_attributes (char *owner, AttributeListType *attrs)
 						   GTK_WINDOW (ghid_port.top_window),
 						   GTK_DIALOG_MODAL,
 						   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-						   "Revert", GA_RESPONSE_REVERT,
-						   "New", GA_RESPONSE_NEW,
+						   _("Revert"), GA_RESPONSE_REVERT,
+						   _("New"), GA_RESPONSE_NEW,
 						   GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
 
   attr_table = gtk_table_new (attrs->Number, 3, 0);

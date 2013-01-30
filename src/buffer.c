@@ -714,7 +714,7 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
     }
   if (!fpe)
     {
-      Message("Unable to load footprint %s\n", Footprint);
+      Message(_("Unable to load footprint %s\n"), Footprint);
       return 1;
     }
 
@@ -775,9 +775,11 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
 }
 
 
-static const char loadfootprint_syntax[] = "LoadFootprint(filename[,refdes,value])";
+static const char loadfootprint_syntax[] =
+  N_("LoadFootprint(filename[,refdes,value])");
 
-static const char loadfootprint_help[] = "Loads a single footprint by name.";
+static const char loadfootprint_help[] =
+  N_("Loads a single footprint by name.");
 
 /* %start-doc actions LoadFootprint
 
@@ -803,12 +805,12 @@ LoadFootprint (int argc, char **argv, Coord x, Coord y)
 
   if (PASTEBUFFER->Data->ElementN == 0)
     {
-      Message("Footprint %s contains no elements", name);
+      Message(_("Footprint %s contains no elements"), name);
       return 1;
     }
   if (PASTEBUFFER->Data->ElementN > 1)
     {
-      Message("Footprint %s contains multiple elements", name);
+      Message(_("Footprint %s contains multiple elements"), name);
       return 1;
     }
 
@@ -1345,12 +1347,12 @@ FreeRotateBuffer (BufferType *Buffer, Angle angle)
 /* -------------------------------------------------------------------------- */
 
 static const char freerotatebuffer_syntax[] =
-  "FreeRotateBuffer([Angle])";
+  N_("FreeRotateBuffer([Angle])");
 
 static const char freerotatebuffer_help[] =
-  "Rotates the current paste buffer contents by the specified angle.  The\n"
+  N_("Rotates the current paste buffer contents by the specified angle.  The\n"
   "angle is given in degrees.  If no angle is given, the user is prompted\n"
-  "for one.\n";
+  "for one.\n");
 
 /* %start-doc actions FreeRotateBuffer
    
@@ -1365,7 +1367,7 @@ ActionFreeRotateBuffer(int argc, char **argv, Coord x, Coord y)
   char *angle_s;
 
   if (argc < 1)
-    angle_s = gui->prompt_for ("Enter Rotation (degrees, CCW):", "0");
+    angle_s = gui->prompt_for (_("Enter Rotation (degrees, CCW):"), "0");
   else
     angle_s = argv[0];
 

@@ -446,12 +446,12 @@ describe_location (Coord X, Coord Y)
   }
   END_LOOP;
 
-  description = g_strdup_printf ("Element name: %s\n"
+  description = g_strdup_printf (_("Element name: %s\n"
                                  "Pinname : %s\n"
-                                 "Netname : %s",
+                                 "Netname : %s"),
                                  elename,
-                                 (pinname != NULL) ? pinname : "--",
-                                 (netname != NULL) ? netname : "--");
+                                 (pinname != NULL) ? pinname : _("--"),
+                                 (netname != NULL) ? netname : _("--"));
 
   g_free (netname);
 

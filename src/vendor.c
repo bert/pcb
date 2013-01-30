@@ -101,10 +101,10 @@ static int rounding_method = ROUND_UP;
 
 /* ************************************************************ */
 
-static const char apply_vendor_syntax[] = "ApplyVendor()";
+static const char apply_vendor_syntax[] = N_("ApplyVendor()");
 
 static const char apply_vendor_help[] =
-  "Applies the currently loaded vendor drill table to the current design.";
+  N_("Applies the currently loaded vendor drill table to the current design.");
 
 /* %start-doc actions ApplyVendor
 @cindex vendor map 
@@ -125,10 +125,10 @@ ActionApplyVendor (int argc, char **argv, Coord x, Coord y)
 
 /* ************************************************************ */
 
-static const char toggle_vendor_syntax[] = "ToggleVendor()";
+static const char toggle_vendor_syntax[] = N_("ToggleVendor()");
 
 static const char toggle_vendor_help[] =
-  "Toggles the state of automatic drill size mapping.";
+  N_("Toggles the state of automatic drill size mapping.");
 
 /* %start-doc actions ToggleVendor
 
@@ -156,10 +156,10 @@ ActionToggleVendor (int argc, char **argv, Coord x, Coord y)
 
 /* ************************************************************ */
 
-static const char enable_vendor_syntax[] = "EnableVendor()";
+static const char enable_vendor_syntax[] = N_("EnableVendor()");
 
 static const char enable_vendor_help[] =
-  "Enables automatic drill size mapping.";
+  N_("Enables automatic drill size mapping.");
 
 /* %start-doc actions EnableVendor
 
@@ -184,10 +184,10 @@ ActionEnableVendor (int argc, char **argv, Coord x, Coord y)
 
 /* ************************************************************ */
 
-static const char disable_vendor_syntax[] = "DisableVendor()";
+static const char disable_vendor_syntax[] = N_("DisableVendor()");
 
 static const char disable_vendor_help[] =
-  "Disables automatic drill size mapping.";
+  N_("Disables automatic drill size mapping.");
 
 /* %start-doc actions DisableVendor
 
@@ -210,10 +210,10 @@ ActionDisableVendor (int argc, char **argv, Coord x, Coord y)
 
 /* ************************************************************ */
 
-static const char unload_vendor_syntax[] = "UnloadVendor()";
+static const char unload_vendor_syntax[] = N_("UnloadVendor()");
 
 static const char unload_vendor_help[] =
-  "Unloads the current vendor drill mapping table.";
+  N_("Unloads the current vendor drill mapping table.");
 
 /* %start-doc actions UnloadVendor
 
@@ -242,10 +242,10 @@ ActionUnloadVendor (int argc, char **argv, Coord x, Coord y)
 
 /* ************************************************************ */
 
-static const char load_vendor_syntax[] = "LoadVendorFrom(filename)";
+static const char load_vendor_syntax[] = N_("LoadVendorFrom(filename)");
 
 static const char load_vendor_help[] =
-  "Loads the specified vendor resource file.";
+  N_("Loads the specified vendor resource file.");
 
 /* %start-doc actions LoadVendorFrom
 
@@ -339,7 +339,7 @@ ActionLoadVendorFrom (int argc, char **argv, Coord x, Coord y)
     }
   else
     {
-      Message ("\"%s\" is not a supported units.  Defaulting to inch\n",
+      Message (_("\"%s\" is not a supported units.  Defaulting to inch\n"),
 	       sval);
       sf = INCH_TO_COORD(1);
     }
@@ -369,8 +369,8 @@ ActionLoadVendorFrom (int argc, char **argv, Coord x, Coord y)
 	    }
 	  else
 	    {
-	      Message (_
-		       ("\"%s\" is not a valid rounding type.  Defaulting to up\n"),
+	      Message (_("\"%s\" is not a valid rounding type. "
+		    "Defaulting to up\n"),
 		       sval);
 	      rounding_method = ROUND_UP;
 	    }
@@ -491,11 +491,11 @@ apply_vendor_map (void)
 		  changed++;
 		else
 		  {
-		    Message (_
-			     ("Via at %.2f, %.2f not changed.  Possible reasons:\n"
-			      "\t- pad size too small\n"
-			      "\t- new size would be too large or too small\n"),
-			     0.01 * via->X, 0.01 * via->Y);
+		    Message (_("Via at %.2f, %.2f not changed. "
+			  "Possible reasons:\n"
+			  "\t- pad size too small\n"
+			  "\t- new size would be too large or too small\n"),
+			0.01 * via->X, 0.01 * via->Y);
 		  }
 	      }
 	    else
@@ -531,11 +531,11 @@ apply_vendor_map (void)
 			changed++;
 		      else
 			{
-			  Message (_
-				   ("Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
-				    "\tPossible reasons:\n"
-				    "\t- pad size too small\n"
-				    "\t- new size would be too large or too small\n"),
+			  Message (_("Pin %s (%s) at %.2f, %.2f "
+				"(element %s, %s, %s) not changed.\n"
+				"\tPossible reasons:\n"
+				"\t- pad size too small\n"
+				"\t- new size would be too large or too small\n"),
 				   UNKNOWN (pin->Number), UNKNOWN (pin->Name),
 				   0.01 * pin->X, 0.01 * pin->Y,
 				   UNKNOWN (NAMEONPCB_NAME (element)),
@@ -545,8 +545,7 @@ apply_vendor_map (void)
 		    }
 		  else
 		    {
-		      Message (_
-			       ("Locked pin at %-6.2f, %-6.2f not changed.\n"),
+		      Message (_("Locked pin at %-6.2f, %-6.2f not changed.\n"),
 			       0.01 * pin->X, 0.01 * pin->Y);
 		    }
 		}
@@ -578,8 +577,8 @@ apply_vendor_map (void)
 	      changed++;
 	      PCB->RouteStyle[i].Hole =
 		vendorDrillMap (PCB->RouteStyle[i].Hole);
-	      Message (_
-		       ("Adjusted %s routing style via hole size to be %6.2f mils\n"),
+	      Message (_("Adjusted %s routing style via hole size to be "
+		    "%6.2f mils\n"),
 		       PCB->RouteStyle[i].Name,
 		       0.01 * PCB->RouteStyle[i].Hole);
 	      if (PCB->RouteStyle[i].Diameter <
@@ -587,8 +586,8 @@ apply_vendor_map (void)
 		{
 		  PCB->RouteStyle[i].Diameter =
 		    PCB->RouteStyle[i].Hole + MIN_PINORVIACOPPER;
-		  Message (_
-			   ("Increased %s routing style via diameter to %6.2f mils\n"),
+		  Message (_("Increased %s routing style via diameter to "
+			"%6.2f mils\n"),
 			   PCB->RouteStyle[i].Name,
 			   0.01 * PCB->RouteStyle[i].Diameter);
 		}
@@ -696,7 +695,7 @@ add_to_drills (char *sval)
   if ((vendor_drills = (int *)realloc (vendor_drills,
 				n_vendor_drills * sizeof (int))) == NULL)
     {
-      fprintf (stderr, "realloc() failed to allocate %ld bytes\n",
+      fprintf (stderr, _("realloc() failed to allocate %ld bytes\n"),
 	       (unsigned long) n_vendor_drills * sizeof (int));
       return;
     }
@@ -758,7 +757,7 @@ process_skips (Resource * res)
 	  sval = res->v[i].subres->v[0].value;
 	  if (sval == NULL)
 	    {
-	      Message ("Error:  null skip value\n");
+	      Message (_("Error:  null skip value\n"));
 	    }
 	  else
 	    {
@@ -794,7 +793,7 @@ process_skips (Resource * res)
 					      (*cnt) * sizeof (char *))) ==
 			  NULL)
 			{
-			  fprintf (stderr, "realloc() failed\n");
+			  fprintf (stderr, _("realloc() failed\n"));
 			  exit (-1);
 			}
 		      (*lst)[*cnt - 1] = strdup (sval);
@@ -826,8 +825,8 @@ vendorIsElementMappable (ElementType *element)
 	   0)
 	  || rematch (ignore_refdes[i], UNKNOWN (NAMEONPCB_NAME (element))))
 	{
-	  Message (_
-		   ("Vendor mapping skipped because refdes = %s matches %s\n"),
+	  Message (_("Vendor mapping skipped because "
+		"refdes = %s matches %s\n"),
 		   UNKNOWN (NAMEONPCB_NAME (element)), ignore_refdes[i]);
 	  noskip = 0;
 	}
@@ -838,8 +837,8 @@ vendorIsElementMappable (ElementType *element)
 	if ((NSTRCMP (UNKNOWN (VALUE_NAME (element)), ignore_value[i]) == 0)
 	    || rematch (ignore_value[i], UNKNOWN (VALUE_NAME (element))))
 	  {
-	    Message (_
-		     ("Vendor mapping skipped because value = %s matches %s\n"),
+	    Message (_("Vendor mapping skipped because "
+		  "value = %s matches %s\n"),
 		     UNKNOWN (VALUE_NAME (element)), ignore_value[i]);
 	    noskip = 0;
 	  }
@@ -853,8 +852,8 @@ vendorIsElementMappable (ElementType *element)
 	    || rematch (ignore_descr[i],
 			UNKNOWN (DESCRIPTION_NAME (element))))
 	  {
-	    Message (_
-		     ("Vendor mapping skipped because descr = %s matches %s\n"),
+	    Message (_("Vendor mapping skipped because "
+		  "descr = %s matches %s\n"),
 		     UNKNOWN (DESCRIPTION_NAME (element)), ignore_descr[i]);
 	    noskip = 0;
 	  }
@@ -894,7 +893,7 @@ rematch (const char *re, const char *s)
       char errorstring[128];
 
       regerror (result, &compiled, errorstring, sizeof (errorstring));
-      Message ("regexp error: %s\n", errorstring);
+      Message (_("regexp error: %s\n"), errorstring);
       regfree (&compiled);
       return (false);
     }
@@ -914,7 +913,7 @@ rematch (const char *re, const char *s)
   /* compile the regular expression */
   if ((rslt = re_comp (re)) != NULL)
     {
-      Message ("re_comp error: %s\n", rslt);
+      Message (_("re_comp error: %s\n"), rslt);
       return (false);
     }
 
@@ -931,7 +930,7 @@ rematch (const char *re, const char *s)
       break;
 
     default:
-      Message ("re_exec error\n");
+      Message (_("re_exec error\n"));
       break;
     }
 

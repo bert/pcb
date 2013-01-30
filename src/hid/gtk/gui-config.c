@@ -1234,27 +1234,24 @@ static void
 config_library_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *vbox, *label, *entry;
+  GString *string;
 
   gtk_container_set_border_width (GTK_CONTAINER (tab_vbox), 6);
   vbox = ghid_category_vbox (tab_vbox, _("Element Directories"),
 			     4, 2, TRUE, TRUE);
-  label = gtk_label_new ("");
-  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_label_set_markup (GTK_LABEL (label),
-			_
-			("<small>Enter a \""
-			 PCB_PATH_DELIMETER 
-			 "\" separated list of custom top level\n"
-			 "element directories.  For example:\n"
-			 "\t<b>~/gaf/pcb-elements"
-			 PCB_PATH_DELIMETER
-			 "packages"
-			 PCB_PATH_DELIMETER
-			 "/usr/local/pcb-elements</b>\n"
+  string = g_string_new ("");
+  g_string_printf (string, _("<small>Enter a \"%s\" "
+			 "separated list of custom top level\n"
+			 "element directories.  For example:\n%s\n"
 			 "Elements should be organized into subdirectories below each\n"
 			 "top level directory.  Restart program for changes to take effect."
-			 "</small>"));
-
+			 "</small>") PCB_PATH_DELIMETER
+			 "\t<b>~/gaf/pcb-elements" PCB_PATH_DELIMETER
+			 "packages" PCB_PATH_DELIMETER "/usr/local/pcb-elements</b>\n");
+  label = gtk_label_new ("");
+  gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
+  gtk_label_set_markup (GTK_LABEL (label), string->str);
+  g_string_free (string, TRUE);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
   entry = gtk_entry_new ();
   library_newlib_entry = entry;

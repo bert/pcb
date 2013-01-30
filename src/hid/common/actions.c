@@ -220,7 +220,7 @@ hid_actionv (const char *name, int argc, char **argv)
   if (!a)
     {
       int i;
-      Message ("no action %s(", name);
+      Message (_("no action %s("), name);
       for (i = 0; i < argc; i++)
         Message ("%s%s", i ? ", " : "", argv[i]);
       Message (")\n");

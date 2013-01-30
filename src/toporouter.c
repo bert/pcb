@@ -6506,7 +6506,7 @@ toporouter_export(toporouter_t *r)
    *     PCB is built with Coord as a 32-bit integer.
    */
   Message (_("Wiring cost: %f inches\n"), COORD_TO_INCH (r->wiring_score));
-  printf ("Wiring cost: %f inches\n", COORD_TO_INCH (r->wiring_score));
+  printf (_("Wiring cost: %f inches\n"), COORD_TO_INCH (r->wiring_score));
 
   g_list_free(oproutes);
 
@@ -7487,7 +7487,7 @@ hybrid_router(toporouter_t *r)
   failcount = rubix_router(r, failcount);
 
   Message(_("RUBIX router: %d nets remaining\n"), failcount);
-  printf("RUBIX router: %d nets remaining\n", failcount);
+  printf(_("RUBIX router: %d nets remaining\n"), failcount);
 
   r->flags |= TOPOROUTER_FLAG_GOFAR;
   
@@ -7747,8 +7747,10 @@ escape (int argc, char **argv, Coord x, Coord y)
 }
 
 static HID_Action toporouter_action_list[] = {
-  {"Escape", "Select a set of pads", escape, "Pad escape", "Escape()"},
-  {"Toporouter", "Select net(s)", toporouter, "Topological autorouter", "Toporouter()"}
+  {"Escape", N_("Select a set of pads"), escape,
+    N_("Pad escape"), N_("Escape()")},
+  {"Toporouter", N_("Select net(s)"), toporouter,
+    N_("Topological autorouter"), N_("Toporouter()")}
 };
 
 REGISTER_ACTIONS (toporouter_action_list)

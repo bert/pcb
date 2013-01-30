@@ -1676,7 +1676,7 @@ Listen for actions on stdin.
 @end ftable
 %end-doc
 */
-  {"listen", "Listen for actions on stdin",
+  {"listen", N_("Listen for actions on stdin"),
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 0
 
@@ -1689,7 +1689,7 @@ automatically scaled to fit the canvas.
 @end ftable
 %end-doc
 */
-  {"bg-image", "Background Image",
+  {"bg-image", N_("Background Image"),
    HID_String, 0, 0, {0, 0, 0}, 0, &bg_image_file},
 #define HA_bg_image 1
 
@@ -1700,7 +1700,7 @@ Location of the @file{gpcb-menu.res} file which defines the menu for the GTK+ GU
 @end ftable
 %end-doc
 */
-{"pcb-menu", "Location of gpcb-menu.res file",
+{"pcb-menu", N_("Location of gpcb-menu.res file"),
    HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
 #define HA_pcbmenu 2
 };
@@ -1860,12 +1860,12 @@ LayersChanged (int argc, char **argv, Coord x, Coord y)
 }
 
 static const char toggleview_syntax[] =
-"ToggleView(1..MAXLAYER)\n"
-"ToggleView(layername)\n"
-"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)";
+    N_("ToggleView(1..MAXLAYER)\n"
+       "ToggleView(layername)\n"
+       "ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)");
 
 static const char toggleview_help[] =
-"Toggle the visibility of the specified layer or layer group.";
+    N_("Toggle the visibility of the specified layer or layer group.");
 
 /* %start-doc actions ToggleView
 
@@ -1934,10 +1934,10 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
 }
 
 static const char selectlayer_syntax[] =
-"SelectLayer(1..MAXLAYER|Silk|Rats)";
+    N_("SelectLayer(1..MAXLAYER|Silk|Rats)");
 
 static const char selectlayer_help[] =
-"Select which layer is the current layer.";
+    N_("Select which layer is the current layer.");
 
 /* %start-doc actions SelectLayer
 
@@ -2176,10 +2176,10 @@ ghid_load_menus (void)
 /* ------------------------------------------------------------ */
 
 static const char adjuststyle_syntax[] =
-"AdjustStyle()\n";
+    N_("AdjustStyle()\n");
 
 static const char adjuststyle_help[] =
-"Open the window which allows editing of the route styles.";
+    N_("Open the window which allows editing of the route styles.");
 
 /* %start-doc actions AdjustStyle
 
@@ -2201,10 +2201,10 @@ AdjustStyle(int argc, char **argv, Coord x, Coord y)
 /* ------------------------------------------------------------ */
 
 static const char editlayergroups_syntax[] =
-"EditLayerGroups()\n";
+    N_("EditLayerGroups()\n");
 
 static const char editlayergroups_help[] =
-"Open the preferences window which allows editing of the layer groups.";
+    N_("Open the preferences window which allows editing of the layer groups.");
 
 /* %start-doc actions EditLayerGroups
 

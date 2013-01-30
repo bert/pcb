@@ -533,13 +533,13 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
 
   if (renderer->violation->have_measured)
     {
-      markup = pcb_g_strdup_printf ("%m+<b>%s (%$mS)</b>\n"
+      markup = pcb_g_strdup_printf (_("%m+<b>%s (%$mS)</b>\n"
 				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
 				  "<span size='5120'> </span>\n"
 				  "Required: %$mS"
-				"</small>",
+				"</small>"),
                                 Settings.grid_unit->allow,
 				renderer->violation->title,
 				renderer->violation->measured_value,
@@ -548,13 +548,13 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
     }
   else
     {
-      markup = pcb_g_strdup_printf ("%m+<b>%s</b>\n"
+      markup = pcb_g_strdup_printf (_("%m+<b>%s</b>\n"
 				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
 				  "<span size='5120'> </span>\n"
 				  "Required: %$mS"
-				"</small>",
+				"</small>"),
                                 Settings.grid_unit->allow,
 				renderer->violation->title,
 				renderer->violation->explanation,

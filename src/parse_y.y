@@ -166,7 +166,7 @@ parsepcb
 
 				if (!yyPCB)
 				{
-					Message("illegal fileformat\n");
+					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
 				for (i = 0; i < MAX_LAYER + 2; i++)
@@ -198,7 +198,7 @@ parsepcb
 			  CreateNewPCBPost (yyPCB, 0);
 			  if (ParseGroupString(layer_group_string, &yyPCB->LayerGroups, yyData->LayerN))
 			    {
-			      Message("illegal layer-group string\n");
+			      Message(_("illegal layer-group string\n"));
 			      YYABORT;
 			    }
 			/* initialize the polygon clipping now since
@@ -232,7 +232,7 @@ parsedata
 
 				if (!yyData || !yyFont)
 				{
-					Message("illegal fileformat\n");
+					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
 				for (i = 0; i < MAX_LAYER + 2; i++)
@@ -255,7 +255,7 @@ parsefont
 
 				if (!yyFont)
 				{
-					Message("illegal fileformat\n");
+					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
 				yyFont->Valid = false;
@@ -654,7 +654,7 @@ pcbstyles
 			{
 				if (ParseRouteString($3, &yyPCB->RouteStyle[0], "mil"))
 				{
-					Message("illegal route-style string\n");
+					Message(_("illegal route-style string\n"));
 					YYABORT;
 				}
 			}
@@ -662,7 +662,7 @@ pcbstyles
 			{
 				if (ParseRouteString($3, &yyPCB->RouteStyle[0], "cmil"))
 				{
-					Message("illegal route-style string\n");
+					Message(_("illegal route-style string\n"));
 					YYABORT;
 				}
 			}
@@ -1145,9 +1145,10 @@ polygon_format
 
 				if (bad_contour_found)
 				  {
-				    Message("WARNING parsing file '%s'\n"
+				    Message(_("WARNING parsing file '%s'\n"
 					    "    line:        %i\n"
-					    "    description: 'ignored polygon (< 3 points in a contour)'\n",
+					    "    description: 'ignored polygon "
+					    "(< 3 points in a contour)'\n"),
 					    yyfilename, yylineno);
 				    DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
 				  }
@@ -1945,9 +1946,9 @@ measure
  */
 int yyerror(const char * s)
 {
-	Message("ERROR parsing file '%s'\n"
+	Message(_("ERROR parsing file '%s'\n"
 		"    line:        %i\n"
-		"    description: '%s'\n",
+		"    description: '%s'\n"),
 		yyfilename, yylineno, s);
 	return(0);
 }
@@ -1961,12 +1962,12 @@ static int
 check_file_version (int ver)
 {
   if ( ver > PCB_FILE_VERSION ) {
-    Message ("ERROR:  The file you are attempting to load is in a format\n"
+    Message (_("ERROR:  The file you are attempting to load is in a format\n"
 	     "which is too new for this version of pcb.  To load this file\n"
 	     "you need a version of pcb which is >= %d.  If you are\n"
 	     "using a version built from git source, the source date\n"
 	     "must be >= %d.  This copy of pcb can only read files\n"
-	     "up to file version %d.\n", ver, ver, PCB_FILE_VERSION);
+	     "up to file version %d.\n"), ver, ver, PCB_FILE_VERSION);
     return 1;
   }
   

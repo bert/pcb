@@ -1371,14 +1371,15 @@ LayerStringToLayerStack (char *s)
 	      }
 	  if (!found)
 	    {
-	      fprintf(stderr, "Warning: layer \"%s\" not known\n", args[i]);
+	      fprintf(stderr, _("Warning: layer \"%s\" not known\n"), args[i]);
 	      if (!listed_layers)
 		{
-		  fprintf (stderr, "Named layers in this board are:\n");
+		  fprintf (stderr, _("Named layers in this board are:\n"));
 		  listed_layers = 1;
 		  for (lno=0; lno < max_copper_layer; lno ++)
 		    fprintf(stderr, "\t%s\n", PCB->Data->Layer[lno].Name);
-		  fprintf(stderr, "Also: component, solder, rats, invisible, pins, vias, elements or silk, mask, solderside.\n");
+		  fprintf(stderr, _("Also: component, solder, rats, invisible, "
+			"pins, vias, elements or silk, mask, solderside.\n"));
 		}
 	    }
 	}
@@ -1457,7 +1458,7 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     case LINEPOINT_TYPE:
       return (BoxType *)Ptr3;
     default:
-      Message ("Request for bounding box of unsupported type %d\n", Type);
+      Message (_("Request for bounding box of unsupported type %d\n"), Type);
       return (BoxType *)Ptr2;
     }
 }
@@ -2188,32 +2189,34 @@ GetInfoString (void)
   if (first_time)
     {
       first_time = 0;
-      DSAddString (&info, "This is PCB, an interactive\n");
-      DSAddString (&info, "printed circuit board editor\n");
-      DSAddString (&info, "version ");
-      DSAddString (&info, VERSION);
-      DSAddString (&info, "\n\n");
-      DSAddString (&info, "Compiled on " __DATE__ " at " __TIME__);
-      DSAddString (&info, "\n\n" "by harry eaton\n\n");
       DSAddString (&info,
-                   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n");
-      DSAddString (&info, "Copyright (C) harry eaton 1998-2007\n");
-      DSAddString (&info, "Copyright (C) C. Scott Ananian 2001\n");
+	  _("This is PCB, an interactive\n"
+	    "printed circuit board editor\n"
+	    "version "));
       DSAddString (&info,
-                   "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n");
+	    VERSION "\n\n"
+	    "Compiled on " __DATE__ " at " __TIME__ "\n\n"
+	    "by harry eaton\n\n"
+	    "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
+	    "Copyright (C) harry eaton 1998-2007\n"
+	    "Copyright (C) C. Scott Ananian 2001\n"
+	    "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n"
+	    "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n\n");
       DSAddString (&info,
-                   "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n\n");
-      DSAddString (&info, "It is licensed under the terms of the GNU\n");
-      DSAddString (&info, "General Public License version 2\n");
-      DSAddString (&info, "See the LICENSE file for more information\n\n");
-      DSAddString (&info, "For more information see:\n\n");
-      DSAddString (&info, "PCB homepage: http://pcb.geda-project.org\n");
-      DSAddString (&info, "gEDA homepage: http://www.geda-project.org\n");
-      DSAddString (&info, "gEDA Wiki: http://wiki.geda-project.org\n");
+	  _("It is licensed under the terms of the GNU\n"
+	    "General Public License version 2\n"
+	    "See the LICENSE file for more information\n\n"
+	    "For more information see:\n"));
+      DSAddString (&info, _("PCB homepage: "));
+      DSAddString (&info, "http://pcb.geda-project.org\n");
+      DSAddString (&info, _("gEDA homepage: "));
+      DSAddString (&info, "http://www.geda-project.org\n");
+      DSAddString (&info, _("gEDA Wiki: "));
+      DSAddString (&info, "http://wiki.geda-project.org\n");
 
-      DSAddString (&info, "----- Compile Time Options -----\n");
+      DSAddString (&info, _("\n----- Compile Time Options -----\n"));
       hids = hid_enumerate ();
-      DSAddString (&info, "GUI:\n");
+      DSAddString (&info, _("GUI:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->gui)
@@ -2226,7 +2229,7 @@ GetInfoString (void)
             }
         }
 
-      DSAddString (&info, "Exporters:\n");
+      DSAddString (&info, _("Exporters:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->exporter)
@@ -2239,7 +2242,7 @@ GetInfoString (void)
             }
         }
 
-      DSAddString (&info, "Printers:\n");
+      DSAddString (&info, _("Printers:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->printer)
