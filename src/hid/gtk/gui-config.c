@@ -1688,7 +1688,7 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 
 
 /* -- Info tab */
-  vbox = ghid_notebook_page (tabs, _("Info"), 0, 6);
+  vbox = ghid_notebook_page (tabs, C_("tab", "Info"), 0, 6);
 
   text = ghid_scrolled_text_view (vbox, NULL,
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);

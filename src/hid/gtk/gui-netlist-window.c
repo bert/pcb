@@ -788,7 +788,7 @@ ghid_netlist_window_create (GHidPort * out)
   hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 4);
 
-  button = gtk_button_new_with_label (_("Select"));
+  button = gtk_button_new_with_label (C_("netlits", "Select"));
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (netlist_select_cb), GINT_TO_POINTER (1));

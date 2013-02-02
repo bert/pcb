@@ -480,7 +480,8 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 "Located at (X,Y) = %$mD.\n"
 		 "It belongs to a %s on layer %d.\n", USER_UNITMASK, point->ID,
 		 point->X, point->Y,
-		 (type == LINEPOINT_TYPE) ? "line" : "polygon",
+		 (type == LINEPOINT_TYPE) ?
+		     C_("report", "line") : C_("report", "polygon"),
 		 GetLayerNumber (PCB->Data, (LayerType *) ptr1));
 	break;
       }
