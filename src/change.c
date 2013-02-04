@@ -2407,6 +2407,12 @@ ChangeViaMaskSize (PinType *Via)
 
   value = (Absolute) ? Absolute : Via->Mask + Delta;
   value = MAX (value, 0);
+  if (value == Via->Mask && Absolute == 0) {
+    if (TEST_FLAG(HOLEFLAG, Via))
+      value = Via->DrillingHole;
+    else
+      value = Via->Thickness;
+  }
   if (value != Via->Mask)
     {
       AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
