@@ -1388,13 +1388,13 @@ static const char * const calib_lines[] = {
   "    /y y 0.25 sub def\n",
   "} bind def\n",
   "\n",
-  "(Please measure ONE of the horizontal lines, in the units indicated for)t\n",
-  "(that line, and enter that value as X.  Similarly, measure ONE of the)t\n",
-  "(vertical lines and enter that value as Y.  Measurements should be)t\n",
-  "(between the flat faces of the semicircles.)t\n",
+  "(Please measure between the flat faces of ONE pair of semi-circles on)t\n",
+  "(both X and Y in the indicated units. Enter these values as X and Y)t\n",
+  "(respectively. One member of each pair must be one of the semicircles)t\n",
+  "(in the lower left corner. Nominal lengths on X are 4 in, 15 cm and 7.5 in.)t\n",
+  "(Nominal lengths on Y are 4 in, 20 cm and 10 in.)t\n",
   "()t\n",
-  "(The large box is 10.25 by 7.75 inches)t\n",
-  "\n",
+  "(The large box is 10.25 by 7.75 inches and is not used for calibration.)t\n",  "\n",
   "/in { } bind def\n",
   "/cm { 2.54 div } bind def\n",
   "/mm { 25.4 div } bind def\n",
@@ -1470,14 +1470,13 @@ ps_calibrate_1 (double xval, double yval, int use_command)
   for (c=0; calib_lines[c]; c++)
     fputs(calib_lines[c], ps_cal_file);
 
-  fprintf (ps_cal_file, "4 in 0.5 (Y in) cbar\n");
-  fprintf (ps_cal_file, "20 cm 1.5 (Y cm) cbar\n");
-  fprintf (ps_cal_file, "10 in 2.5 (Y in) cbar\n");
+  fprintf (ps_cal_file, "4 in 0.5 (Y in nom=4) cbar\n");
+  fprintf (ps_cal_file, "20 cm 1.5 (Y cm nom=20) cbar\n");
+  fprintf (ps_cal_file, "10 in 2.5 (Y in nom=10) cbar\n");
   fprintf (ps_cal_file, "-90 rotate\n");
-  fprintf (ps_cal_file, "4 in -0.5 (X in) cbar\n");
-  fprintf (ps_cal_file, "15 cm -1.5 (X cm) cbar\n");
-  fprintf (ps_cal_file, "7.5 in -2.5 (X in) cbar\n");
-
+  fprintf (ps_cal_file, "4 in -0.5 (X in nom=4) cbar\n");
+  fprintf (ps_cal_file, "15 cm -1.5 (X cm nom=15) cbar\n");
+  fprintf (ps_cal_file, "7.5 in -2.5 (X in nom=7.5) cbar\n");
   fprintf (ps_cal_file, "showpage\n");
 
   fprintf (ps_cal_file, "%%%%EOF\n");
