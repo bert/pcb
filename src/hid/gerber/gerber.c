@@ -73,7 +73,7 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
 #define gerberXOffset(pcb, x) ((Coord) (x))
 #define gerberYOffset(pcb, y) ((Coord) (-(y)))
 
-/* These are for drills (printed as mils but are really 1/10th mil) */
+/* These are for drills */
 #define gerberDrX(pcb, x) ((Coord) (x))
 #define gerberDrY(pcb, y) ((Coord) ((pcb)->MaxHeight - (y)))
 
@@ -697,9 +697,7 @@ gerber_set_layer (const char *name, int group, int empty)
 	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
 	      fprintf (f, "T%02d\r\n", ap->dCode);
 	    }
-          /* Notice the last zeroes are literal zeroes here, a x10 scale factor.  *
-           *                                                      v        v      */
-	  pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0ml0Y%06.0ml0\r\n",
+	  pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0mtY%06.0mt\r\n",
 		   gerberDrX (PCB, pending_drills[i].x),
 		   gerberDrY (PCB, pending_drills[i].y));
 	}
