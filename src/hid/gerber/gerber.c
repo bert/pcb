@@ -174,6 +174,8 @@ deinitApertureList (ApertureList *list)
   initApertureList (list);
 }
 
+static int aperture_count;
+
 static void resetApertures()
 {
   int i;
@@ -184,13 +186,13 @@ static void resetApertures()
   curr_aptr_list  = NULL;
   layer_list_max = 0;
   layer_list_idx = 0;
+  aperture_count = 0;
 }
 
 /* Create and add a new aperture to the list */
 static Aperture *
 addAperture (ApertureList *list, Coord width, ApertureShape shape)
 {
-  static int aperture_count;
 
   Aperture *app = (Aperture *) malloc (sizeof *app);
   if (app == NULL)
