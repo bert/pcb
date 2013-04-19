@@ -84,6 +84,9 @@ static Unit Units[] = {
   { 0, "mil",  NULL, 'l', 1,     IMPERIAL, ALLOW_MIL,  2,
                0.1, 1.0, 10, 100, 1000,
                { "" } },
+  { 0, "dmil", NULL, 't', 10,   IMPERIAL, ALLOW_DMIL, 0,
+               1, 10, 100, 1000, 10000,
+               { "" } },
   { 0, "cmil", NULL, 'c', 100,   IMPERIAL, ALLOW_CMIL, 0,
                1, 10, 100, 1000, 10000,
                { "pcb" } }
@@ -358,11 +361,11 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   for (i = 0; i < n_coords; ++i)
     value[i] = value[i] * Units[n].scale_factor;
 
-  /* Create sprintf specifier, using default_prec no preciscion is given */
+  /* Create sprintf specifier, using default_prec no precision is given */
   i = 0;
   while (printf_spec[i] == '%' || isdigit(printf_spec[i]) ||
          printf_spec[i] == '-' || printf_spec[i] == '+' ||
-         printf_spec[i] == '#' || printf_spec[i] == '0')
+         printf_spec[i] == '#')
     ++i;
   if (printf_spec[i] == '.')
     printf_buff = g_strdup_printf (", %sf", printf_spec);

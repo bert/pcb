@@ -34,9 +34,16 @@
  *  it.
  *
  * The new specifiers are:
+ *   %mk    output a measure in km
+ *   %mf    output a measure in meters
+ *   %me    output a measure in cm
  *   %mm    output a measure in mm
+ *   %mu    output a measure in um
+ *   %mn    output a measure in nm
  *   %mM    output a measure in scaled (mm/um) metric
  *   %ml    output a measure in mil
+ *   %mc    output a measure in cmil
+ *   %mt    output a measure in 1/10 of mils (for Excellon drill files)
  *   %mL    output a measure in scaled (mil/in) imperial
  *   %ms    output a measure in most natural mm/mil units
  *   %mS    output a measure in most natural scaled units
@@ -79,12 +86,13 @@ enum e_allow {
   ALLOW_KM = 32,
 
   ALLOW_CMIL = 1024,
-  ALLOW_MIL  = 2048,
-  ALLOW_IN   = 4096,
+  ALLOW_DMIL = 2048,
+  ALLOW_MIL  = 4096,
+  ALLOW_IN   = 8192,
 
   ALLOW_METRIC   = ALLOW_NM | ALLOW_UM | ALLOW_MM |
                    ALLOW_CM | ALLOW_M  | ALLOW_KM,
-  ALLOW_IMPERIAL = ALLOW_CMIL | ALLOW_MIL | ALLOW_IN,
+  ALLOW_IMPERIAL = ALLOW_CMIL | ALLOW_DMIL | ALLOW_MIL | ALLOW_IN,
   /* This is all units allowed in parse_l.l */
 #if 0
   ALLOW_READABLE = ALLOW_NM | ALLOW_UM | ALLOW_MM |
@@ -94,7 +102,7 @@ enum e_allow {
   ALLOW_READABLE = ALLOW_MIL | ALLOW_MM,
 #endif
 
-  ALLOW_ALL = ~0
+  ALLOW_ALL = ~ALLOW_DMIL
 };
 
 enum e_family { METRIC, IMPERIAL };
