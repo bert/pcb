@@ -275,7 +275,7 @@ hid_always=""
 
 for hid in `cd $srcdir/src/hid; echo *`; do
     F=$srcdir/src/hid/$hid/hid.conf
-    if test -f $F 
+    if test -f $F
     then
     echo checking $F
         . $F
@@ -367,7 +367,7 @@ if test "x$enable_dbus" = "xyes"; then
 		* ) AC_MSG_ERROR([DBUS enabled but only works with a mainloop capable GUI HID.
 Either do not use --enable-dbus or enable the gtk or lesstif GUI HID.])
 	esac
-	
+
 	PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.61,
 		[saved_LIBS="$LIBS"
 		 LIBS="$LIBS $DBUS_LIBS"
@@ -378,7 +378,7 @@ Please review the following errors:
 $DBUS_PKG_ERRORS])]
 	)
 	DBUS_VERSION=`$PKG_CONFIG dbus-1 --modversion`
-	
+
 	AC_DEFINE([HAVE_DBUS], 1,
 		[Define to 1 if DBUS IPC is to be compiled in])
 
@@ -488,7 +488,7 @@ AC_PATH_PROG(SETENV, env, [])
 AC_PATH_PROG(GTK_UPDATE_ICON_CACHE_BIN, gtk-update-icon-path, [true])
 
 # Change default location for XDG files (MIME and Icons)
-AC_ARG_WITH(xdgdatadir, [  --with-xdgdatadir=path  Change where the theme icons 
+AC_ARG_WITH(xdgdatadir, [  --with-xdgdatadir=path  Change where the theme icons
 and mime registrations are installed [[DATADIR]]], [opt_xdgdatadir=$withval])
 
 # Change default location for KDE data files (KDE MIME registrations)
@@ -835,7 +835,7 @@ you will get lucky.
 		if test "$WIN32" != "yes" ; then
 			AC_CHECK_LIB(gd,main,,
 			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lgd could not be found]]))
-		else 
+		else
 			AC_CHECK_LIB(bgd,main,,
 			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lbgd could not be found]]))
 		fi
@@ -852,7 +852,7 @@ you will get lucky.
 		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -l${GD}"
 		AC_MSG_RESULT([$GD_LIBS])
 	fi
-   
+
 	# since some linux systems evidently install gdlib-config but fail to
 	# install the headers (nice), check for the header too and fail if it
 	# is not there.
@@ -869,7 +869,7 @@ This is needed for the nelma and/or png HID.
 		;;
 	     * ) ;;
 	esac
-	
+
 	# Some versions of gd (prior to the expiration of the
 	# patent related to gif compression) do not support
 	# gif output.  Check for that here.
@@ -907,55 +907,6 @@ fi
 
 AM_CONDITIONAL(PNG, test x$with_png = xyes)
 AM_CONDITIONAL(GIF, test x$with_gif = xyes)
-
-# ------------- check if png previews should be built for pcblib-newlib
-AC_MSG_CHECKING([if the m4lib to newlib export should create png previews])
-AC_ARG_ENABLE(
-	[m4lib-png],
-	[  --enable-m4lib-png      Enable creating png previews for the m4 library],
-	[],[enable_m4lib_png=no])
-AC_MSG_RESULT([$enable_m4lib_png])
-AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
-
-
-# Run away.... more ugly stuff here.  By default we don't actually build
-# pcblib-newlib from pcblib unless we are building from cvs or git sources.
-# The reason is it takes a while and requires the png HID.  The problem is,
-# what if someone wants to use --enable-m4lib-png but the tarball was built
-# without the previews.  Or, what if someone does not want the PNG previews
-# but the person building the tarball included them.  Ugh!  So what the following
-# code attempts to do is detect that mismatch situation.  Note that we only
-# want to kick this code in when *not* building from git or cvs sources.
-build_pcblib_newlib=no
-if test "$pcb_sources" = "tarball" ; then
-	AC_MSG_CHECKING([If pcblib-newlib was built with png previews])
-	stamp=$srcdir/lib/pcblib-newlib.stamp
-	if test ! -f ${stamp} ; then
-		AC_MSG_RESULT([unknown, missing ${stamp}])
-		build_pcblib_newlib=yes
-	else
-		if test "`cat ${stamp}`" = "png-preview=yes" ; then
-			AC_MSG_RESULT([yes])
-			# lib exists and built with preview.
-			# if we don't want the preview, than rebuild
-			if test x$enable_m4lib_png != xyes ; then
-				build_pcblib_newlib=yes
-			fi
-		else
-			AC_MSG_RESULT([no])
-			# lib exists and built without preview.
-			# if we want the preview, than rebuild
-			if test x$enable_m4lib_png = xyes ; then
-				build_pcblib_newlib=yes
-			fi
-		fi
-	fi
-else
-	build_pcblib_newlib=yes
-fi
-AC_MSG_CHECKING([If pcblib-newlib needs to be rebuilt])
-AC_MSG_RESULT([$build_pcblib_newlib])
-AM_CONDITIONAL(BUILD_PCBLIB_NEWLIB, test x$build_pcblib_newlib = xyes)
 
 if test "X$cross_compiling" = "Xyes" ; then
 	# we are cross compiling so we will need a build host binary for pcb
@@ -1197,41 +1148,47 @@ CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
 CPPFLAGS="$CPPFLAGS -DBINDIR=\\\"\${bindir}\\\""
 CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
 
-# directory for old-style library and for fonts
+# directory for library and for fonts
 PCBLIBDIR=${datadir}/pcb
 AC_SUBST(PCBLIBDIR)
 #AC_DEFINE_UNQUOTED(PCBLIBDIR,"$PCBLIBDIR",[Library directory])
 CPPFLAGS="$CPPFLAGS -DPCBLIBDIR=\\\"$PCBLIBDIR\\\""
 
-# name for old-style library
-LIBRARYFILENAME=pcblib
-AC_SUBST(LIBRARYFILENAME)
-AC_DEFINE_UNQUOTED(LIBRARYFILENAME,"$LIBRARYFILENAME",[library file name])
+# directory for the standard footprint library
+PCB_STDLIB_DIR=${datadir}/pcb/stdlib
+AC_SUBST(PCB_STDLIB_DIR)
 
+# name for vendor library
+PCB_VENLIB_DIR=${datadir}/pcb/vendor
+AC_SUBST(PCB_VENLIB_DIR)
 
-# directory for new library
-PCBTREEDIR=${datadir}/pcb/newlib
-PCBTREEPATH=${PCBTREEDIR}:${PCBLIBDIR}/pcblib-newlib
-PCBTREEDIR=${PCBTREEDIR:-"$PCBTREEDIR"}
-AC_SUBST(PCBTREEDIR)
-AC_SUBST(PCBTREEPATH)
-#AC_DEFINE_UNQUOTED(PCBTREEDIR,"$PCBLIB",[top directory for new style pcb library])
-CPPFLAGS="$CPPFLAGS -DPCBTREEDIR=\\\"$PCBTREEDIR\\\""
-CPPFLAGS="$CPPFLAGS -DPCBTREEPATH=\\\"$PCBTREEPATH\\\""
+PCBLIBPATH=${PCB_STDLIB_DIR}:${PCB_VENLIB_DIR}
 
-# Figure out relative paths
+AC_SUBST(PCBLIBPATH)
+#AC_DEFINE_UNQUOTED(PCB_STDLIB_DIR,"$PCBLIB",[top directory for the standard pcb library])
+#AC_DEFINE_UNQUOTED(PCB_VENLIB_DIR,"$PCB_VENLIB_DIR",[vendor library folder name])
+CPPFLAGS="$CPPFLAGS -DPCB_STDLIB_DIR=\\\"$PCB_STDLIB_DIR\\\""
+CPPFLAGS="$CPPFLAGS -DPCB_VENLIB_DIR=\\\"$PCB_VENLIB_DIR\\\""
+CPPFLAGS="$CPPFLAGS -DPCBTREEPATH=\\\"$PCBLIBPATH\\\""
+
 AC_MSG_CHECKING([for the bindir to pcblibdir relative path])
 adl_COMPUTE_RELATIVE_PATHS([bindir:PCBLIBDIR:bindir_to_pcblibdir])
 adl_NORMALIZE_PATH([bindir_to_pcblibdir], [$PCB_DIR_SEPARATOR_S])
 AC_MSG_RESULT([$bindir_to_pcblibdir])
 AC_DEFINE_UNQUOTED(BINDIR_TO_PCBLIBDIR, "$bindir_to_pcblibdir", [Relative path from bindir to pcblibdir])
 
-AC_MSG_CHECKING([for the bindir to pcbtreedir relative path])
-adl_COMPUTE_RELATIVE_PATHS([bindir:PCBTREEDIR:bindir_to_pcbtreedir])
-adl_NORMALIZE_PATH([bindir_to_pcbtreedir], [$PCB_DIR_SEPARATOR_S])
-AC_MSG_RESULT([$bindir_to_pcbtreedir])
-AC_DEFINE_UNQUOTED(BINDIR_TO_PCBTREEDIR, "$bindir_to_pcbtreedir", [Relative path from bindir to pcbtreedir])
+# Figure out relative paths
+AC_MSG_CHECKING([for the bindir to pcbstdlibdir relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:PCB_STDLIB_DIR:bindir_to_pcbstdlibdir])
+adl_NORMALIZE_PATH([bindir_to_pcbstdlibdir], [$PCB_DIR_SEPARATOR_S])
+AC_MSG_RESULT([$bindir_to_pcbstdlibdir])
+AC_DEFINE_UNQUOTED(BINDIR_TO_PCB_STDLIB_DIR, "$bindir_to_pcbstdlibdir", [Relative path from bindir to pcbstdlibdir])
 
+AC_MSG_CHECKING([for the bindir to pcbvenlibdir relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:PCB_VENLIB_DIR:bindir_to_pcbvenlibdir])
+adl_NORMALIZE_PATH([bindir_to_pcbvenlibdir], [$PCB_DIR_SEPARATOR_S])
+AC_MSG_RESULT([$bindir_to_pcbvenlibdir])
+AC_DEFINE_UNQUOTED(BINDIR_TO_PCB_VENLIB_DIR, "$bindir_to_pcbvenlibdir", [Relative path from bindir to pcbvenlibdir])
 
 AC_MSG_CHECKING([for the bindir to exec_prefix relative path])
 adl_COMPUTE_RELATIVE_PATHS([bindir:exec_prefix:bindir_to_execprefix])
@@ -1239,12 +1196,11 @@ adl_NORMALIZE_PATH([bindir_to_execprefix], [$PCB_DIR_SEPARATOR_S])
 AC_MSG_RESULT([$bindir_to_execprefix])
 AC_DEFINE_UNQUOTED(BINDIR_TO_EXECPREFIX, "$bindir_to_execprefix", [Relative path from bindir to exec_prefix])
 
-
 BTNMOD=${BTNMOD:-"Mod1"}
 AC_SUBST(BTNMOD)
 
 TOPDIRS=
-for dir in src lib newlib doc example tools tutorial README_FILES
+for dir in src lib stdlib venlib doc example tools tutorial README_FILES
 do
    test -d $dir/. && TOPDIRS="$TOPDIRS $dir"
 done
@@ -1267,27 +1223,47 @@ if test -d $srcdir/example; then
    AC_CONFIG_FILES(example/Makefile)
    AC_CONFIG_FILES(example/libraries/Makefile)
 fi
-if test -d $srcdir/lib; then
-   AC_CONFIG_FILES(lib/CreateLibraryContents.sh)
-   AC_CONFIG_FILES(lib/CreateLibrary.sh)
-   AC_CONFIG_FILES(lib/ListLibraryContents.sh)
-   AC_CONFIG_FILES(lib/Makefile)
-   AC_CONFIG_FILES(lib/QueryLibrary.sh)
-   AC_CONFIG_FILES(lib/qfp-ui)
+if test -d $srcdir/scripts; then
+   AC_CONFIG_FILES(scripts/Makefile)
 fi
-if test -d $srcdir/newlib; then
-   AC_CONFIG_FILES(newlib/2_pin_thru-hole_packages/Makefile)
-   AC_CONFIG_FILES(newlib/Makefile)
-   AC_CONFIG_FILES(newlib/connectors/Makefile)
-   AC_CONFIG_FILES(newlib/crystal/Makefile)
-   AC_CONFIG_FILES(newlib/electro-optics/Makefile)
-   AC_CONFIG_FILES(newlib/headers/Makefile)
-   AC_CONFIG_FILES(newlib/keystone/Makefile)
-   AC_CONFIG_FILES(newlib/msp430/Makefile)
-   AC_CONFIG_FILES(newlib/not_vetted_ingo/Makefile)
-   AC_CONFIG_FILES(newlib/sockets/Makefile)
-   AC_CONFIG_FILES(newlib/tests/Makefile)
+if test -d $srcdir/stdlib; then
+   AC_CONFIG_FILES(stdlib/Makefile)
+   AC_CONFIG_FILES(stdlib/capacitor/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/BNC/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/DB/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/DIN/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/MTA/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/RF/Makefile)
+   AC_CONFIG_FILES(stdlib/connectors/SUBD/Makefile)
+   AC_CONFIG_FILES(stdlib/crystal/Makefile)
+   AC_CONFIG_FILES(stdlib/DIP/Makefile)
+   AC_CONFIG_FILES(stdlib/DO/Makefile)
+   AC_CONFIG_FILES(stdlib/electro-optics/Makefile)
+   AC_CONFIG_FILES(stdlib/filter/Makefile)
+   AC_CONFIG_FILES(stdlib/generic/Makefile)
+   AC_CONFIG_FILES(stdlib/header/Makefile)
+   AC_CONFIG_FILES(stdlib/inductor/Makefile)
+   AC_CONFIG_FILES(stdlib/jtag/Makefile)
+   AC_CONFIG_FILES(stdlib/jumper/Makefile)
+   AC_CONFIG_FILES(stdlib/led/Makefile)
+   AC_CONFIG_FILES(stdlib/misc/Makefile)
+   AC_CONFIG_FILES(stdlib/PLCC/Makefile)
+   AC_CONFIG_FILES(stdlib/QFN/Makefile)
+   AC_CONFIG_FILES(stdlib/QFP/Makefile)
+   AC_CONFIG_FILES(stdlib/resistor/Makefile)
+   AC_CONFIG_FILES(stdlib/SIP/Makefile)
+   AC_CONFIG_FILES(stdlib/SO/Makefile)
+   AC_CONFIG_FILES(stdlib/sockets/Makefile)
+   AC_CONFIG_FILES(stdlib/TO/Makefile)
 fi
+
+if test -d $srcdir/venlib; then
+   AC_CONFIG_FILES(venlib/Makefile)
+   VENDORDIRS=`find venlib/* -maxdepth 0 -type d -printf "%f "`
+   AC_SUBST(VENDORDIRS)
+fi
+
 AC_CONFIG_FILES(src/Makefile)
 AC_CONFIG_FILES(src/icons/Makefile)
 if test -d $srcdir/tools; then

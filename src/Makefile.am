@@ -4,7 +4,7 @@ SUBDIRS=	icons
 
 CC = @CC_OR_CXX@
 
-pcbtreedir=	@PCBTREEDIR@
+pcbtreedir=	@PCBLIBDIR@
 pcblibdir=	@PCBLIBDIR@
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -467,10 +467,11 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
-	core_lists.h \
 	dbus-introspect.h \
 	gpcb-menu.res \
 	pcb-menu.res
+
+#	core_lists.h
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile

@@ -959,7 +959,7 @@ HID_Action lesstif_main_action_list[] = {
 REGISTER_ACTIONS (lesstif_main_action_list)
 
 
-/* ---------------------------------------------------------------------- 
+/* ----------------------------------------------------------------------
  * redraws the background image
  */
 
@@ -3329,7 +3329,7 @@ lesstif_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
   if (flip_y)
     {
       start_angle = - start_angle;
-      delta_angle = - delta_angle;					
+      delta_angle = - delta_angle;
     }
   start_angle = NormalizeAngle (start_angle);
   if (start_angle >= 180)
@@ -3671,7 +3671,7 @@ typedef struct
 {
   XtBlockHookId id;
   void (*func) (hidval user_data);
-  hidval user_data; 
+  hidval user_data;
 } BlockHookStruct;
 
 static void lesstif_block_hook_cb(XtPointer user_data);

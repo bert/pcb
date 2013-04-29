@@ -120,7 +120,7 @@ static void WriteLayerData (FILE *, Cardinal, LayerType *);
 static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, bool);
-static int ParseLibraryTree (void);
+static int ParseLibraryTree (char *libpath);
 static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
 static char *pcb_basename (char *p);
 
@@ -449,7 +449,7 @@ real_load_pcb (char *Filename, bool revert)
         {
           PCB->Grid = GetValue (grid_size, NULL, NULL);
         }
- 
+
       sort_netlist ();
 
       set_some_route_style ();
@@ -592,7 +592,7 @@ WritePCBDataHeader (FILE * FP)
    * If the file format is modified in any way, update
    * PCB_FILE_VERSION in file.h as well as PCBFileVersionNeeded()
    * at the top of this file.
-   *  
+   *
    * ************************** README *******************
    * ************************** README *******************
    */
@@ -1040,7 +1040,7 @@ EmergencySave (void)
     }
 }
 
- void 
+ void
 DisableEmergencySave (void)
 {
   dont_save_any_more = true;
@@ -1052,7 +1052,7 @@ DisableEmergencySave (void)
 
 static hidval backup_timer;
 
-/*  
+/*
  * If the backup interval is > 0 then set another timer.  Otherwise
  * we do nothing and it is up to the GUI to call EnableAutosave()
  * after setting Settings.BackupInterval > 0 again.
@@ -1063,7 +1063,7 @@ backup_cb (hidval data)
   backup_timer.ptr = NULL;
   Backup ();
   if (Settings.BackupInterval > 0 && gui->add_timer)
-    backup_timer = gui->add_timer (backup_cb, 
+    backup_timer = gui->add_timer (backup_cb,
 				   1000 * Settings.BackupInterval, data);
 }
 
@@ -1081,8 +1081,8 @@ EnableAutosave (void)
   backup_timer.ptr = NULL;
   /* Start up a new timer */
   if (Settings.BackupInterval > 0 && gui->add_timer)
-    backup_timer = gui->add_timer (backup_cb, 
-				   1000 * Settings.BackupInterval, 
+    backup_timer = gui->add_timer (backup_cb,
+				   1000 * Settings.BackupInterval,
 				   x);
 }
 
@@ -1243,7 +1243,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
       && NSTRCMP (subdirentry->d_name, "Makefile") != 0
       && NSTRCMP (subdirentry->d_name, "Makefile.am") != 0
       && NSTRCMP (subdirentry->d_name, "Makefile.in") != 0
-      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0) 
+      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0)
       && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0)
       && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
       {
@@ -1253,7 +1253,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 	n_footprints++;
 	entry = GetLibraryEntryMemory (menu);
 
-	/* 
+	/*
 	 * entry->AllocatedMemory points to abs path to the footprint.
 	 * entry->ListEntry points to fp name itself.
 	 */
@@ -1280,126 +1280,87 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   return n_footprints;
 }
 
-
-/* This function loads the newlib footprints into the Library.
- * It examines all directories pointed to by Settings.LibraryTree.
- * In each directory specified there, it looks both in that directory,
- * as well as *one* level down.  It calls the subfunction 
- * LoadNewlibFootprintsFromDir to put the footprints into PCB's internal
- * datastructures.
+/*! \brief Parse a Library Tree.
+ * \par Function Description
+ * This function loads the \a footprints into the \a Library. All
+ * sub-directories in the passed path are examined. In each found
+ * directory, it looks both in that directory, as well as one
+ * level down.  It calls the subfunction LoadNewlibFootprintsFromDir
+ * to put the footprints into PCB's internal datastructures.
+ *
+ * \param libpath  Char pointer to a top-level library directory
+ *
+ * \return int, the number of footprints added to the library.
  */
+
+
 static int
-ParseLibraryTree (void)
+ParseLibraryTree (char *libpath)
 {
-  char toppath[MAXPATHLEN + 1];    /* String holding abs path to top level library dir */
-  char working[MAXPATHLEN + 1];    /* String holding abs path to working dir */
-  char *libpaths;                  /* String holding list of library paths to search */
-  char *p;                         /* Helper string used in iteration */
+
   DIR *dirobj;                     /* Iterable directory object */
   struct dirent *direntry = NULL;  /* Object holding individual directory entries */
   struct stat buffer;              /* buffer used in stat */
   int n_footprints = 0;            /* Running count of footprints found */
 
-  /* Initialize path, working by writing 0 into every byte. */
-  memset (toppath, 0, sizeof toppath);
-  memset (working, 0, sizeof working);
-
-  /* Save the current working directory as an absolute path.
-   * This fcn writes the abs path into the memory pointed to by the input arg.
-   */
-  if (GetWorkingDirectory (working) == NULL)
-    {
-      Message (_("ParseLibraryTree: Could not determine initial working directory\n"));
+  /* change to library directory and extract its abs path */
+  if (chdir (libpath)) {
+      ChdirErrorMessage (libpath);
       return 0;
-    }
+  }
 
-  /* Additional loop to allow for multiple 'newlib' style library directories 
-   * called out in Settings.LibraryTree
-   */
-  libpaths = strdup (Settings.LibraryTree);
-  for (p = strtok (libpaths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
-    {
-      /* remove trailing path delimeter */
-      strncpy (toppath, p, sizeof (toppath) - 1);
-
-      /* start out in the working directory in case the path is a
-       * relative path 
-       */
-      if (chdir (working))
-        {
-          ChdirErrorMessage (working);
-          free (libpaths);
-          return 0;
-        }
-
-      /*
-       * Next change to the directory which is the top of the library tree
-       * and extract its abs path.
-       */
-      if (chdir (toppath))
-        {
-          ChdirErrorMessage (toppath);
-          continue;
-        }
-
-      if (GetWorkingDirectory (toppath) == NULL)
-        {
-          Message (_("ParseLibraryTree: Could not determine new working directory\n"));
-          continue;
-        }
+  if (GetWorkingDirectory (libpath) == NULL) {
+      Message (_("ParseLibraryTree: Could not determine new working directory\n"));
+      return 0;
+  }
 
 #ifdef DEBUG
-      printf("In ParseLibraryTree, looking for newlib footprints inside top level directory %s ... \n", 
-	     toppath);
+  printf("In ParseLibraryTree, looking for footprints inside top level directory %s ... \n",
+	  libpath);
 #endif
 
-      /* Next read in any footprints in the top level dir */
-      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath);
+  /* Next read in any footprints in the top level dir */
+  n_footprints += LoadNewlibFootprintsFromDir("(local)", libpath);
 
-      /* Then open this dir so we can loop over its contents. */
-      if ((dirobj = opendir (toppath)) == NULL)
-	{
-	  OpendirErrorMessage (toppath);
-	  continue;
-	}
+  /* Then open this dir so we can loop over its contents. */
+  if ((dirobj = opendir (libpath)) == NULL) {
+    OpendirErrorMessage (libpath);
+    return 0;
+  }
 
-      /* Now loop over files in this directory looking for subdirs.
-       * For each direntry which is a valid subdirectory,
-       * try to load newlib footprints inside it.
-       */
-      while ((direntry = readdir (dirobj)) != NULL)
-	{
+  /* Now loop over files in this directory looking for subdirs. For each entry
+   * which is a valid subdirectory, try to load the footprints inside it. */
+  while ((direntry = readdir (dirobj)) != NULL)	{
 #ifdef DEBUG
-	  printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
+    printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
 #endif
-	  /* Find subdirectories.  Ignore entries beginning with "." and CVS
-	   * directories.
-	   */
-	  if (!stat (direntry->d_name, &buffer)
-	      && S_ISDIR (buffer.st_mode) 
-	      && direntry->d_name[0] != '.'
-	      && NSTRCMP (direntry->d_name, "CVS") != 0)
-	    {
-	      /* Found a valid subdirectory.  Try to load footprints from it.
-	       */
-	      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, toppath);
-	    }
-	}
-      closedir (dirobj);
-    }
+    /* Find subdirectories, ignore entries beginning with "." and CVS directories. */
+    if (!stat (direntry->d_name, &buffer) && S_ISDIR (buffer.st_mode)
+      && direntry->d_name[0] != '.' && NSTRCMP (direntry->d_name, "CVS") != 0) {
 
-  /* restore the original working directory */
-  if (chdir (working))
-    ChdirErrorMessage (working);
+      /* Found a valid subdirectory.  Try to load footprints from it.*/
+      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, libpath);
+    }
+  }
+  closedir (dirobj);
 
 #ifdef DEBUG
   printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
 #endif
 
-  free (libpaths);
   return n_footprints;
 }
 
+/*! \brief Read Libraries.
+ * \par Function Description
+ * This functions calls ParseLibraryTree for each member of
+ * Settings.LibraryPath AND Settings.UserLibrary. The function
+ * preserves the current directory and returns a non-negative
+ * number if a least one footprint was loaded.
+ *
+ * \return -1 if there was an error or no footprints were found.
+ *            otherwise >-1.
+ */
 /* ---------------------------------------------------------------------------
  * Read contents of the library description file (for M4)
  * and then read in M4 libs.  Then call a fcn to read the newlib
@@ -1408,115 +1369,100 @@ ParseLibraryTree (void)
 int
 ReadLibraryContents (void)
 {
-  static char *command = NULL;
-  char inputline[MAX_LIBRARY_LINE_LENGTH + 1];
-  FILE *resultFP = NULL;
-  LibraryMenuType *menu = NULL;
-  LibraryEntryType *entry;
+  char toppath[MAXPATHLEN + 1];    /* String holding abs path to a top level library dir */
+  char working[MAXPATHLEN + 1];    /* String holding abs path to working dir */
+  char *libpaths;                  /* Pointer to string holding list of library paths */
+  char *libpath;                   /* Pointer to string member library paths */
 
-  /* If we don't have a command to execute to find the library contents,
-   * skip this. This is used by default on Windows builds (set in main.c),
-   * as we can't normally run shell scripts or expect to have m4 present.
+  int result;
+
+  result = -1;
+
+  /* Initialize memory to 0 */
+  memset (working, 0, sizeof working);
+  memset (toppath, 0, sizeof toppath);
+
+  /* Save the current working directory as an absolute path.
+   * This fcn writes the abs path into the memory pointed to by the input arg.
    */
-  if (Settings.LibraryContentsCommand != NULL &&
-      Settings.LibraryContentsCommand[0] != '\0')
-    {
-      /*  First load the M4 stuff.  The variable Settings.LibraryPath
-       *  points to it.
-       */
-      free (command);
-      command = EvaluateFilename (Settings.LibraryContentsCommand,
-				  Settings.LibraryPath, Settings.LibraryFilename,
-				  NULL);
+
+  if (GetWorkingDirectory (working) == NULL) {
+      Message (_("ReadLibraryContents: Could not determine initial working directory\n"));
+      return result;
+  }
+
+  /* Get the list of directories to evaluate */
+  libpaths = strdup (Settings.LibraryPath);
+
+  /* Loop for every member of Settings.LibraryPath */
+  for (libpath = strtok (libpaths, PCB_PATH_DELIMETER);
+       libpath && *libpath; libpath = strtok (NULL, PCB_PATH_DELIMETER))
+  {
+    /* remove trailing path delimeter */
+    strncpy (toppath, libpath, sizeof (toppath) - 1);
 
 #ifdef DEBUG
-      printf("In ReadLibraryContents, about to execute command %s\n", command);
+    fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n", toppath);
+#endif
+    /* start out in the working directory in case the path is a relative path */
+    if (chdir (working)) {
+        ChdirErrorMessage (working);
+        break;
+    }
+
+    if (ParseLibraryTree (toppath) > 0) {
+        ++result;
+    }
+    else {
+      fprintf(stderr, _("ReadLibraryContents: Error reading library contents:%s\n"), toppath);
+    }
+  }
+  free (libpaths);
+
+  /* Get the list of user directories to evaluate */
+  libpaths = strdup (Settings.UserLibrary);
+
+  /* Loop for every member of Settings.UserLibrary */
+  for (libpath = strtok (libpaths, PCB_PATH_DELIMETER);
+       libpath && *libpath; libpath = strtok (NULL, PCB_PATH_DELIMETER))
+  {
+    /* remove trailing path delimeter */
+    strncpy (toppath, libpath, sizeof (toppath) - 1);
+
+#ifdef DEBUG
+    fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n", toppath);
 #endif
 
-      /* This uses a pipe to execute a shell script which provides the names of
-       * all M4 libs and footprints.  The results are placed in resultFP.
-       */
-      if (command && *command && (resultFP = popen (command, "r")) == NULL)
-	{
-	  PopenErrorMessage (command);
-	}
-
-      /* the M4 library contents are separated by colons;
-       * template : package : name : description
-       */
-      while (resultFP != NULL && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
-	{
-	  size_t len = strlen (inputline);
-
-	  /* check for maximum linelength */
-	  if (len)
-	    {
-	      len--;
-	      if (inputline[len] != '\n')
-		Message
-		  ("linelength (%i) exceeded; following characters will be ignored\n",
-		   MAX_LIBRARY_LINE_LENGTH);
-	      else
-		inputline[len] = '\0';
-	    }
-
-	  /* if the line defines a menu */
-	  if (!strncmp (inputline, "TYPE=", 5))
-	    {
-	      menu = GetLibraryMenuMemory (&Library);
-	      menu->Name = strdup (UNKNOWN (&inputline[5]));
-	      menu->directory = strdup (Settings.LibraryFilename);
-	    }
-	  else
-	    {
-	      /* allocate a new menu entry if not already done */
-	      if (!menu)
-		{
-		  menu = GetLibraryMenuMemory (&Library);
-		  menu->Name = strdup (UNKNOWN ((char *) NULL));
-		  menu->directory = strdup (Settings.LibraryFilename);
-		}
-	      entry = GetLibraryEntryMemory (menu);
-	      entry->AllocatedMemory = strdup (inputline);
-
-	      /* now break the line into pieces separated by colons */
-	      if ((entry->Template = strtok (entry->AllocatedMemory, ":")) !=
-		  NULL)
-		if ((entry->Package = strtok (NULL, ":")) != NULL)
-		  if ((entry->Value = strtok (NULL, ":")) != NULL)
-		    entry->Description = strtok (NULL, ":");
-
-	      /* create the list entry */
-	      len = strlen (EMPTY (entry->Value)) +
-		strlen (EMPTY (entry->Description)) + 4;
-	      entry->ListEntry = (char *)calloc (len, sizeof (char));
-	      sprintf (entry->ListEntry,
-		       "%s, %s", EMPTY (entry->Value),
-		       EMPTY (entry->Description));
-	    }
-	}
-      if (resultFP != NULL)
-	pclose (resultFP);
+    /* start out in the working directory in case the path is a relative path */
+    if (chdir (working)) {
+        ChdirErrorMessage (working);
+        break;
     }
 
-  /* Now after reading in the M4 libs, call a function to
-   * read the newlib footprint libraries.  Then sort the whole
-   * library.
-   */
-  if (ParseLibraryTree () > 0 || resultFP != NULL)
-    {
-      sort_library (&Library);
-      return 0;
+    if (ParseLibraryTree (toppath) > 0) {
+        ++result;
     }
-  
-  return (1);
+    else {
+      fprintf(stderr, _("ReadLibraryContents: Error reading library contents:%s\n"), toppath);
+    }
+  }
+  free (libpaths);
+
+  if (result >= 0){
+     sort_library (&Library);
+  }
+  /* restore the original working directory */
+  if (chdir (working))
+    ChdirErrorMessage (working);
+
+  return result;
 }
 
 #define BLANK(x) ((x) == ' ' || (x) == '\t' || (x) == '\n' \
 		|| (x) == '\0')
 
 /* ---------------------------------------------------------------------------
- * Read in a netlist and store it in the netlist menu 
+ * Read in a netlist and store it in the netlist menu
  */
 
 int
@@ -1647,7 +1593,7 @@ int ImportNetlist (char *filename)
   char buf[16];
   int i;
   char* p;
-  
+
 
   if (!filename) return (1);			/* nothing to do */
   fp = fopen (filename, "r");
@@ -1670,7 +1616,7 @@ static int ReadEdifNetlist (char *filename)
 {
     Message (_("Importing edif netlist %s\n"), filename);
     ParseEDIF(filename, NULL);
-    
+
     return 0;
 }
 

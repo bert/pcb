@@ -53,7 +53,7 @@ To make a pcb release do the following:
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
 
 =)	commit and push any changes which were needed to fix 'distcheck' problems.
-	Of course if the changes aren't related then they should be committed in 
+	Of course if the changes are not related then they should be committed in 
 	multiple commits.
 
 	git commit <files>

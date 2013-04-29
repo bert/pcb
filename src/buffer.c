@@ -135,7 +135,7 @@ AddRatToBuffer (RatType *Rat)
 }
 
 /* ---------------------------------------------------------------------------
- * copies a line to buffer  
+ * copies a line to buffer
  */
 static void *
 AddLineToBuffer (LayerType *Layer, LineType *Line)
@@ -154,7 +154,7 @@ AddLineToBuffer (LayerType *Layer, LineType *Line)
 }
 
 /* ---------------------------------------------------------------------------
- * copies an arc to buffer  
+ * copies an arc to buffer
  */
 static void *
 AddArcToBuffer (LayerType *Layer, ArcType *Arc)
@@ -259,7 +259,7 @@ MoveRatToBuffer (RatType *rat)
 }
 
 /* ---------------------------------------------------------------------------
- * moves a line to buffer  
+ * moves a line to buffer
  */
 static void *
 MoveLineToBuffer (LayerType *layer, LineType *line)
@@ -284,7 +284,7 @@ MoveLineToBuffer (LayerType *layer, LineType *line)
 }
 
 /* ---------------------------------------------------------------------------
- * moves an arc to buffer  
+ * moves an arc to buffer
  */
 static void *
 MoveArcToBuffer (LayerType *layer, ArcType *arc)
@@ -596,7 +596,7 @@ make_footprint_hash ()
   for (i=0; i<Library.MenuN; i++)
     {
 #ifdef DEBUG
-  printf("In make_footprint_hash, looking for footprints in %s\n", 
+  printf("In make_footprint_hash, looking for footprints in %s\n",
 	 Library.Menu[i].directory);
 #endif
 
@@ -604,7 +604,7 @@ make_footprint_hash ()
 	{
 	  footprint_hash[num_entries].menu_idx = i;
 	  footprint_hash[num_entries].entry_idx = j;
-	  if (Library.Menu[i].Entry[j].Template == (char *) -1) 
+	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
           /* file */
 	    {
 #ifdef DEBUG
@@ -617,17 +617,17 @@ make_footprint_hash ()
 
 	      if (fp)
 		fp ++;
-	      else 
+	      else
 		fp = Library.Menu[i].Entry[j].AllocatedMemory;
 
 #ifdef DEBUG
 /* 	      printf(" ... found file footprint %s\n",  fp); */
 #endif
-	        
+
 	      footprint_hash[num_entries].footprint = fp;
 	      footprint_hash[num_entries].footprint_allocated = 0;
 	    }
-	  else 
+	  else
           /* m4 */
 	    {
 	      fp = strrchr (Library.Menu[i].Entry[j].Description, '[');
@@ -746,7 +746,7 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
   {
     int j;
     printf("Library path: %s\n", Settings.LibraryPath);
-    printf("Library tree: %s\n", Settings.LibraryTree);
+    printf("Library tree: %s\n", Settings.UserLibrary);
 
     printf("Library:\n");
     for (i=0; i<Library.MenuN; i++)
@@ -1353,7 +1353,7 @@ static const char freerotatebuffer_help[] =
   "for one.\n";
 
 /* %start-doc actions FreeRotateBuffer
-   
+
 Rotates the contents of the pastebuffer by an arbitrary angle.  If no
 angle is given, the user is prompted for one.
 

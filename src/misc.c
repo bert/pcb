@@ -86,8 +86,8 @@ static void GetGridLockCoordinates (int, void *, void *, void *,
 
 /* Local variables */
 
-/* 
- * Used by SaveStackAndVisibility() and 
+/*
+ * Used by SaveStackAndVisibility() and
  * RestoreStackAndVisibility()
  */
 
@@ -166,7 +166,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
 
   while (units && *units == ' ')
     units ++;
-    
+
   if (units && *units)
     {
       int i;
@@ -809,7 +809,7 @@ CenterDisplay (Coord X, Coord Y)
 /* ---------------------------------------------------------------------------
  * transforms symbol coordinates so that the left edge of each symbol
  * is at the zero position. The y coordinates are moved so that min(y) = 0
- * 
+ *
  */
 void
 SetFontInfo (FontType *Ptr)
@@ -887,7 +887,7 @@ GetNum (char **s, const char *default_unit)
   return ret_val;
 }
 
-/*! \brief Serializes the route style list 
+/*! \brief Serializes the route style list
  *  \par Function Description
  *  Right now n_styles should always be set to NUM_STYLES,
  *  since that is the number of route styles ParseRouteString()
@@ -925,23 +925,34 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   for (style = 0; style < NUM_STYLES; style++, routeStyle++)
     {
+      if (!s)
+        goto error;
+
       while (*s && isspace ((int) *s))
         s++;
+
       for (i = 0; *s && *s != ','; i++)
         Name[i] = *s++;
+
       Name[i] = '\0';
+
       routeStyle->Name = strdup (Name);
+
       if (!isdigit ((int) *++s))
         goto error;
       routeStyle->Thick = GetNum (&s, default_unit);
+
       while (*s && isspace ((int) *s))
         s++;
       if (*s++ != ',')
         goto error;
+
       while (*s && isspace ((int) *s))
         s++;
+
       if (!isdigit ((int) *s))
         goto error;
+
       routeStyle->Diameter = GetNum (&s, default_unit);
       while (*s && isspace ((int) *s))
         s++;
@@ -975,6 +986,7 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
             goto error;
         }
     }
+
   return (0);
 
 error:
@@ -1106,7 +1118,7 @@ QuitApplication (void)
 
 /* ---------------------------------------------------------------------------
  * creates a filename from a template
- * %f is replaced by the filename 
+ * %f is replaced by the filename
  * %p by the searchpath
  */
 char *
@@ -1726,7 +1738,7 @@ BumpName (char *Name)
 }
 
 /*
- * make a unique name for the name on board 
+ * make a unique name for the name on board
  * this can alter the contents of the input string
  */
 char *
@@ -2194,10 +2206,10 @@ GetInfoString (void)
       DSAddString (&info, VERSION);
       DSAddString (&info, "\n\n");
       DSAddString (&info, "Compiled on " __DATE__ " at " __TIME__);
-      DSAddString (&info, "\n\n" "by harry eaton\n\n");
+      DSAddString (&info, "\n\n" "by Wiley E. Hill\n\n");
       DSAddString (&info,
                    "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n");
-      DSAddString (&info, "Copyright (C) harry eaton 1998-2007\n");
+      DSAddString (&info, "Copyright (C) Harry Eaton 1998-2007\n");
       DSAddString (&info, "Copyright (C) C. Scott Ananian 2001\n");
       DSAddString (&info,
                    "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n");
@@ -2279,7 +2291,7 @@ pcb_mkdir (const char *path, int mode)
  * meaningful.
  */
 
-int 
+int
 ElementOrientation (ElementType *e)
 {
   Coord pin1x, pin1y, pin2x, pin2y, dx, dy;

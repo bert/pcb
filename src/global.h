@@ -656,11 +656,17 @@ typedef struct			/* some resources... */
     BufferNumber;		/* number of the current buffer */
   int BackupInterval;		/* time between two backups in seconds */
   char *DefaultLayerName[MAX_LAYER], *FontCommand,	/* commands for file loading... */
-   *FileCommand, *ElementCommand, *PrintFile, *LibraryCommandDir, *LibraryCommand, *LibraryContentsCommand, *LibraryTree,	/* path to library tree */
+   *FileCommand, *ElementCommand, *PrintFile,
+   *LibraryDir,
+   *LibraryCommand,
+   *LibraryContentsCommand,
+   *UserLibrary,                /* path to library tree */
    *SaveCommand, *LibraryFilename, *FontFile,	/* name of default font file */
    *Groups,			/* string with layergroups */
    *Routes,			/* string with route styles */
-   *FilePath, *RatPath, *RatCommand, *FontPath, *PinoutFont, *ElementPath, *LibraryPath, *Size,	/* geometry string for size */
+   *FilePath, *RatPath, *RatCommand, *FontPath, *PinoutFont, *ElementPath,
+   *LibraryPath,
+   *Size,	                /* geometry string for size */
    *BackgroundImage,		/* PPM file for board background */
    *ScriptFilename,		/* PCB Actions script to execute on startup */
    *ActionString,		/* PCB Actions string to execute on startup */

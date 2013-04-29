@@ -454,7 +454,7 @@ hid_save_settings (int locally)
 	  }
       free (fname);
 
-      fname = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb", 
+      fname = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
                PCB_DIR_SEPARATOR_S, "settings", NULL);
     }
 
@@ -651,7 +651,7 @@ hid_load_settings ()
     for (i = 0; i < ha->n; i++)
       ha->attributes[i].hash = attr_hash (ha->attributes+i);
 
-  hid_load_settings_1 (Concat (pcblibdir, PCB_DIR_SEPARATOR_S, "settings", NULL));
+  hid_load_settings_1 (Concat ( pcblibpath, PCB_DIR_SEPARATOR_S, "settings", NULL));
   if (homedir != NULL)
     hid_load_settings_1 (Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
                PCB_DIR_SEPARATOR_S, "settings", NULL));

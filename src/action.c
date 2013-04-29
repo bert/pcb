@@ -751,7 +751,7 @@ GetFunctionID (String Ident)
 	  fprintf(stderr, _("Error: function hash type too small (%d vs %lu at %s:%d)\n"),
 		  256, (unsigned long) ENTRIES (Functions), __FILE__,  __LINE__);
 	  exit(1);
-	  
+
 	}
       for (i=ENTRIES (Functions)-1; i>=0; i--)
 	{
@@ -1324,7 +1324,7 @@ NotifyMode (void)
       /* do update of position */
       NotifyBlock ();
 
-      /* create rectangle if both corners are determined 
+      /* create rectangle if both corners are determined
        * and width, height are != 0
        */
       if (Crosshair.AttachedBox.State == STATE_THIRD &&
@@ -1882,8 +1882,7 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
       printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
       printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
-      printf ("    directory = \"%s\"\n",
-	      UNKNOWN (Library.Menu[i].directory));
+      printf ("    directory = \"%s\"\n", UNKNOWN (Library.Menu[i].directory));
       printf ("    Style     = \"%s\"\n", UNKNOWN (Library.Menu[i].Style));
       printf ("    flag      = %d\n", Library.Menu[i].flag);
 
@@ -2025,7 +2024,7 @@ There are 5 possibilities:
 4 - 45 degree fingers with rounded corners,
 5 - horizontal & vertical fingers with rounded corners.
 
-Pins and Vias may have thermals whether or not there is a polygon available 
+Pins and Vias may have thermals whether or not there is a polygon available
 to connect with. However, they will have no effect without the polygon.
 %end-doc */
 
@@ -2170,7 +2169,7 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
               if (value == 0)
                 value = val[0] == '-' ? -Settings.increments->grid
                                       :  Settings.increments->grid;
-              /* On the way down, short against the minimum 
+              /* On the way down, short against the minimum
                * PCB drawing unit */
               if ((value + PCB->Grid) < 1)
                 SetGrid (1, false);
@@ -2377,7 +2376,7 @@ ActionDisperseElements (int argc, char **argv, Coord x, Coord y)
 
   ELEMENT_LOOP (PCB->Data);
   {
-    /* 
+    /*
      * If we want to disperse selected elements, maybe we need smarter
      * code here to avoid putting components on top of others which
      * are not selected.  For now, I'm assuming that this is typically
@@ -2393,7 +2392,7 @@ ActionDisperseElements (int argc, char **argv, Coord x, Coord y)
 	/* snap to the grid */
 	dx -= (element->MarkX + dx) % PCB->Grid;
 
-	/* 
+	/*
 	 * and add one grid size so we make sure we always space by GAP or
 	 * more
 	 */
@@ -3070,7 +3069,7 @@ ActionMode (int argc, char **argv, Coord x, Coord y)
 		    SetMode (RECTANGLE_MODE);
 		  }
 		break;
-	  
+
 	      case POLYGON_MODE:
 		if (Crosshair.AttachedLine.State == STATE_FIRST)
 		  SetMode (ARROW_MODE);
@@ -3100,16 +3099,16 @@ ActionMode (int argc, char **argv, Coord x, Coord y)
 		    SetMode (ARC_MODE);
 		  }
 		break;
-		
+
 	      case ARROW_MODE:
 		break;
-		
+
 	      default:
 		break;
 	      }
 	  }
 	  break;
-	  
+
 	case F_Notify:
 	  NotifyMode ();
 	  break;
@@ -3260,7 +3259,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
     {
       /*
        * We deal with the case where name already exists in this
-       * function so the GUI doesn't need to deal with it 
+       * function so the GUI doesn't need to deal with it
        */
       name = gui->fileselect (_("Save Renumber Annotation File As ..."),
 			      _("Choose a file to record the renumbering to.\n"
@@ -3303,7 +3302,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 	free (name);
       return 1;
     }
-  
+
   if (free_name && name)
     free (name);
 
@@ -3335,7 +3334,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   {
     if (TEST_FLAG (LOCKFLAG, element->Name) || TEST_FLAG (LOCKFLAG, element))
       {
-	/* 
+	/*
 	 * add to the list of locked elements which we won't try to
 	 * renumber and whose reference designators are now reserved.
 	 */
@@ -3356,7 +3355,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 	while (element_list[i] && element->MarkY > element_list[i]->MarkY)
 	  i++;
 
-	/* 
+	/*
 	 * We have found the position where we have the first element that
 	 * has the same Y value or a lower Y value.  Now move forward if
 	 * needed through the X values
@@ -3376,12 +3375,12 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   END_LOOP;
 
 
-  /* 
+  /*
    * Now that the elements are sorted by board position, we go through
    * and renumber them.
    */
 
-  /* 
+  /*
    * turn off the flag which requires unique names so it doesn't get
    * in our way.  When we're done with the renumber we will have unique
    * names.
@@ -3426,9 +3425,9 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 		}
 	    }
 
-	  /* 
+	  /*
 	   * start a new counter if we don't have a counter for this
-	   * prefix 
+	   * prefix
 	   */
 	  if (!cnt_list[j].name)
 	    {
@@ -3459,9 +3458,9 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 	      tmps = (char *)malloc (sz * sizeof (char));
 	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
 
-	      /* 
+	      /*
 	       * now compare to the list of reserved (by locked
-	       * elements) names 
+	       * elements) names
 	       */
 	      for (k = 0; k < lock_cnt; k++)
 		{
@@ -3540,7 +3539,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 		{
 		  /*
 		   * if the pin needs to change, change it and quit
-		   * searching in the list. 
+		   * searching in the list.
 		   */
 		  if (strcmp (tmps, was[k]) == 0)
 		    {
@@ -4481,7 +4480,7 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
 	      AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL,
 					     pin, pin->Name);
 	      /*
-	       * Note:  we can't free() pin->Name first because 
+	       * Note:  we can't free() pin->Name first because
 	       * it is used in the undo list
 	       */
 	      pin->Name = strdup (pinname);
@@ -4497,8 +4496,8 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
 	    {
 	      AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL,
 					     pad, pad->Name);
-	      /* 
-	       * Note:  we can't free() pad->Name first because 
+	      /*
+	       * Note:  we can't free() pad->Name first because
 	       * it is used in the undo list
 	       */
 	      pad->Name = strdup (pinname);
@@ -4510,7 +4509,7 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
       }
   }
   END_LOOP;
-  /* 
+  /*
    * done with our action so increment the undo # if we actually
    * changed anything
    */
@@ -4634,7 +4633,7 @@ static const char morphpolygon_syntax[] = "MorphPolygon(Object|Selected)";
 static const char morphpolygon_help[] =
   "Converts dead polygon islands into separate polygons.";
 
-/* %start-doc actions MorphPolygon 
+/* %start-doc actions MorphPolygon
 
 If a polygon is divided into unconnected "islands", you can use
 this command to convert the otherwise disappeared islands into
@@ -6082,7 +6081,7 @@ ActionPasteBuffer (int argc, char **argv, Coord x, Coord y)
 		}
 	      free_name = 1;
 	    }
-	      
+
 	  else
 	    name = argv[1];
 
@@ -6869,7 +6868,7 @@ ActionExecuteFile (int argc, char **argv, Coord x, Coord y)
       while (*sp && (*sp == ' ' || *sp == '\t'))
 	sp++;
 
-      /* 
+      /*
        * if we have anything left and its not a comment line
        * then execute it
        */
@@ -7292,7 +7291,7 @@ pcb_spawnvp (char **argv)
 }
 
 /* ---------------------------------------------------------------- */
-/* 
+/*
  * Creates a new temporary file name.  Hopefully the operating system
  * provides a mkdtemp() function to securily create a temporary
  * directory with mode 0700.  If so then that directory is created and
@@ -7304,7 +7303,7 @@ pcb_spawnvp (char **argv)
  *
  * If mkdtemp() is not available then 'name' is ignored and the
  * insecure tmpnam() function is used.
- *  
+ *
  * Files/names created with tempfile_name_new() should be unlinked
  * with tempfile_unlink to make sure the temporary directory is also
  * removed when mkdtemp() is used.
@@ -7322,25 +7321,25 @@ tempfile_name_new (char * name)
 
 #ifdef HAVE_MKDTEMP
 #define TEMPLATE "pcb.XXXXXXXX"
-    
-  
+
+
   tmpdir = getenv ("TMPDIR");
 
   /* FIXME -- what about win32? */
   if (tmpdir == NULL) {
     tmpdir = "/tmp";
   }
-  
-  mytmpdir = (char *) malloc (sizeof(char) * 
-			      (strlen (tmpdir) + 
+
+  mytmpdir = (char *) malloc (sizeof(char) *
+			      (strlen (tmpdir) +
 			       1 +
-			       strlen (TEMPLATE) + 
+			       strlen (TEMPLATE) +
 			       1));
   if (mytmpdir == NULL) {
     fprintf (stderr, "%s(): malloc failed()\n", __FUNCTION__);
     exit (1);
   }
-  
+
   *mytmpdir = '\0';
   (void)strcat (mytmpdir, tmpdir);
   (void)strcat (mytmpdir, PCB_DIR_SEPARATOR_S);
@@ -7364,7 +7363,7 @@ tempfile_name_new (char * name)
   (void)strcat (tmpfile, mytmpdir);
   (void)strcat (tmpfile, PCB_DIR_SEPARATOR_S);
   (void)strcat (tmpfile, name);
-  
+
   free (mytmpdir);
 #undef TEMPLATE
 #else
@@ -7412,12 +7411,12 @@ tempfile_unlink (char * name)
   /* now figure out the directory name to remove */
   e = strlen (name) - 1;
   while (e > 0 && name[e] != PCB_DIR_SEPARATOR_C) {e--;}
-  
+
   dname = strdup (name);
   dname[e] = '\0';
 
-  /* 
-   * at this point, e *should* point to the end of the directory part 
+  /*
+   * at this point, e *should* point to the end of the directory part
    * but lets make sure.
    */
   if (e > 0) {
@@ -7429,7 +7428,7 @@ tempfile_unlink (char * name)
   } else {
     fprintf (stderr, _("%s():  Unable to determine temp directory name from the temp file\n"),
 	     __FUNCTION__);
-    fprintf (stderr, "%s():  \"%s\"\n", 
+    fprintf (stderr, "%s():  \"%s\"\n",
 	     __FUNCTION__, name);
     rc2 = -1;
   }
@@ -7440,7 +7439,7 @@ tempfile_unlink (char * name)
 
   /*
    * FIXME - should also return -1 if the temp file exists and was not
-   * removed.  
+   * removed.
    */
   if (rc2 != 0) {
     return -1;
@@ -7757,7 +7756,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 
 #ifdef DEBUG
       printf("ActionImport:  ===========  About to run gnetlist  ============\n");
-      printf("%s %s %s %s %s %s %s ...\n", 
+      printf("%s %s %s %s %s %s %s ...\n",
 	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
 #endif
 
@@ -7820,7 +7819,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	    strcat (srclist, " ");
 	  strcat (srclist, sources[i]);
 	}
-      
+
       cmd[0] = Settings.MakeProgram;
       cmd[1] = "-s";
       cmd[2] = Concat ("PCB=", PCB->Filename, NULL);

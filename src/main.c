@@ -247,7 +247,7 @@ usage_hid (HID * h)
   note->next = usage_notes;
   note->seen = attributes;
   usage_notes = note;
-  
+
   for (i = 0; i < n_attributes; i++)
     usage_attr (attributes + i);
 }
@@ -310,7 +310,7 @@ usage (void)
 	{
 	  usage_attr (ha->attributes + i);
 	}
-    }  
+    }
 
   exit (1);
 }
@@ -398,7 +398,7 @@ print_defaults ()
     }
   exit (1);
 }
-
+/* F=Function, D=default, N=(key) Name, H=help (string) */
 #define SSET(F,D,N,H) { N, H, \
 	HID_String,  0, 0, { 0, D, 0 }, 0, &Settings.F }
 #define ISET(F,D,N,H) { N, H, \
@@ -920,10 +920,10 @@ Default thickness of new lines. Default value is @code{10mil}.
 /* %start-doc options "5 Sizes"
 @ftable @code
 @item --rat-thickness <num><unit>
-Thickness of rats. If no unit is given, PCB units are assumed (i.e. 100 
-means "1 nm"). This option allows for a special unit @code{px} which 
+Thickness of rats. If no unit is given, PCB units are assumed (i.e. 100
+means "1 nm"). This option allows for a special unit @code{px} which
 sets the rat thickness to a fixed value in terms of screen pixels.
-Maximum fixed thickness is 100px. Minimum saling rat thickness is 101nm.  
+Maximum fixed thickness is 100px. Minimum saling rat thickness is 101nm.
 Default value is @code{10mil}.
 @end ftable
 %end-doc
@@ -1205,30 +1205,29 @@ Command to print to a file.
 
 /* %start-doc options "6 Commands"
 @ftable @code
-@item --lib-command-dir <string>
-Path to the command that queries the library.
+@item --lib-dir <string>
+Sets the Path to the top level of the library directory, depreciated.
 @end ftable
 %end-doc
 */
-  SSET (LibraryCommandDir, PCBLIBDIR, "lib-command-dir",
-       "Path to the command that queries the library"),
+  SSET (LibraryDir, PCBLIBDIR, "lib-dir", "Top level path to the library directory, depreciated"),
 
 /* %start-doc options "6 Commands"
 @ftable @code
 @item --lib-command <string>
 Command to query the library. @*
-Defaults to @code{"QueryLibrary.sh '%p' '%f' %a"}
+Defaults to @code{"QueryLibrary '%p' '%f' %a"}
 @end ftable
 %end-doc
 */
-  SSET (LibraryCommand, "QueryLibrary.sh '%p' '%f' %a",
-       "lib-command", "Command to query the library"),
+  SSET (LibraryCommand, "QueryLibrary '%p' '%f' %a",
+       "lib-command", "Command to query the library, depreciated"),
 
 /* %start-doc options "6 Commands"
 @ftable @code
 @item --lib-contents-command <string>
 Command to query the contents of the library. @*
-Defaults to @code{"ListLibraryContents.sh %p %f"} or,
+Defaults to @code{"ListLibraryContents %p %f"} or,
 on Windows builds, an empty string (to disable this feature).
 @end ftable
 %end-doc
@@ -1237,19 +1236,20 @@ on Windows builds, an empty string (to disable this feature).
 #ifdef __WIN32__
 	"",
 #else
-	"ListLibraryContents.sh '%p' '%f'",
+	"ListLibraryContents '%p' '%f'",
 #endif
-	"lib-contents-command", "Command to query the contents of the library"),
+	"lib-contents-command",
+        "Command to query the contents of the library, depreciated"),
 
 /* %start-doc options "5 Paths"
 @ftable @code
-@item --lib-newlib <string>
-Top level directory for the newlib style library.
+@item --library <string>
+A colon separated list of library directories
 @end ftable
 %end-doc
 */
-  SSET (LibraryTree, PCBTREEPATH, "lib-newlib",
-	"Top level directory for the newlib style library"),
+
+  SSET (UserLibrary, "", "library", "A colon separated list of paths to user libraries"),
 
 /* %start-doc options "6 Commands"
 @ftable @code
@@ -1267,8 +1267,7 @@ The default filename for the library.
 @end ftable
 %end-doc
 */
-  SSET (LibraryFilename, LIBRARYFILENAME, "lib-name",
-				"The default filename for the library"),
+  SSET (LibraryFilename, "", "lib-name", "The default filename for the library"),
 
 /* %start-doc options "5 Paths"
 @ftable @code
@@ -1321,7 +1320,7 @@ the default library path.
 @end ftable
 %end-doc
 */
-  SSET (FontPath, PCBLIBPATH, "font-path",
+  SSET (FontPath, PCBLIBDIR, "font-path",
        "Colon separated list of directories to search the default font"),
 
 /* %start-doc options "1 General Options"
@@ -1338,13 +1337,11 @@ The path is passed to the program specified in @option{--element-command}.
 /* %start-doc options "5 Paths"
 @ftable @code
 @item --lib-path <string>
-A colon separated list of directories that will be passed to the commands specified
-by @option{--element-command} and @option{--element-contents-command}.
+A colon separated list of directories that over-ride the standard supplied libraries.
 @end ftable
 %end-doc
 */
-  SSET (LibraryPath, PCBLIBPATH, "lib-path",
-       "A colon separated list of directories"),
+  SSET (LibraryPath, PCBLIBPATH, "lib-path", "A colon separated list of User defined of libraries"),
 
 /* %start-doc options "1 General Options"
 @ftable @code
@@ -1540,11 +1537,11 @@ Execute the bell command when all rats are routed.
        "Execute the bell command when all rats are routed"),
 };
 
-REGISTER_ATTRIBUTES (main_attribute_list)
-/* ---------------------------------------------------------------------- 
+REGISTER_ATTRIBUTES (main_attribute_list);
+/* ----------------------------------------------------------------------
  * post-process settings.
  */
-     static void settings_post_process ()
+static void settings_post_process ()
 {
   char *tmps;
 
@@ -1555,7 +1552,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     {
       Settings.LibraryCommand
 	=
-	Concat (Settings.LibraryCommandDir, PCB_DIR_SEPARATOR_S, 
+	Concat (Settings.LibraryDir, PCB_DIR_SEPARATOR_S,
 		Settings.LibraryCommand,
 		NULL);
     }
@@ -1566,7 +1563,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     {
       Settings.LibraryContentsCommand
 	=
-	Concat (Settings.LibraryCommandDir, PCB_DIR_SEPARATOR_S,
+	Concat (Settings.LibraryDir, PCB_DIR_SEPARATOR_S,
 		Settings.LibraryContentsCommand, NULL);
     }
 
@@ -1620,7 +1617,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
 }
 
-/* ---------------------------------------------------------------------- 
+/* ----------------------------------------------------------------------
  * Print help or version messages.
  */
 
@@ -1635,13 +1632,13 @@ print_version ()
  * Figure out the canonical name of the executed program
  * and fix up the defaults for various paths
  */
-char *bindir = NULL;
+char *bindir      = NULL;
 char *exec_prefix = NULL;
-char *pcblibdir = NULL;
-char *pcblibpath = NULL;
-char *pcbtreedir = NULL;
-char *pcbtreepath = NULL;
-char *homedir = NULL;
+char *pcblibdir   = NULL;
+char *stdlibdir   = NULL;
+char *venlibdir   = NULL;
+char *pcblibpath  = NULL;
+char *homedir     = NULL;
 
 static void
 InitPaths (char *argv0)
@@ -1662,7 +1659,7 @@ InitPaths (char *argv0)
   haspath = 0;
   for (i = 0; i < strlen (argv0) ; i++)
     {
-      if (argv0[i] == PCB_DIR_SEPARATOR_C) 
+      if (argv0[i] == PCB_DIR_SEPARATOR_C)
 	haspath = 1;
     }
 
@@ -1683,7 +1680,7 @@ InitPaths (char *argv0)
 
       tmps = getenv ("PATH");
 
-      if (tmps != NULL) 
+      if (tmps != NULL)
 	{
 	  path = strdup (tmps);
 
@@ -1710,7 +1707,7 @@ InitPaths (char *argv0)
 		  found_bindir = 1;
 		  free (tmps);
 		  break;
-		}  
+		}
 	      free (tmps);
 	    }
 	  free (path);
@@ -1754,78 +1751,70 @@ InitPaths (char *argv0)
       fprintf (stderr, "InitPaths():  malloc failed\n");
       exit (1);
     }
-  sprintf (exec_prefix, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
+  sprintf (exec_prefix, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S,
 	   BINDIR_TO_EXECPREFIX);
 
-  /* now find the path to PCBLIBDIR */
+  /* get path to libraries */
+  /* now find the base path to the standard libraries */
   l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCBLIBDIR) + 1;
-  if ( (pcblibdir = (char *) malloc (l * sizeof (char) )) == NULL )
+  if ( (pcblibdir = (char *) malloc (l * sizeof (char) )) == NULL ) {
+      fprintf (stderr, "InitPaths(): malloc failed\n");
+      exit (1);
+  }
+  sprintf (pcblibdir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, BINDIR_TO_PCBLIBDIR);
+
+  /* now find the path to the standard library */
+  l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCB_STDLIB_DIR) + 1;
+  if ( (stdlibdir = (char *) malloc (l * sizeof (char) )) == NULL )
     {
-      fprintf (stderr, "InitPaths():  malloc failed\n");
+      fprintf (stderr, "InitPaths(): malloc failed\n");
       exit (1);
     }
-  sprintf (pcblibdir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
-	   BINDIR_TO_PCBLIBDIR);
+  sprintf (stdlibdir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, BINDIR_TO_PCB_STDLIB_DIR);
 
-  /* and the path to PCBTREEDIR */
-  l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCBTREEDIR) + 1;
-  if ( (pcbtreedir = (char *) malloc (l * sizeof (char) )) == NULL )
+  /* now find the path to the vendor library */
+  l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCB_VENLIB_DIR) + 1;
+  if ( (venlibdir = (char *) malloc (l * sizeof (char) )) == NULL )
     {
-      fprintf (stderr, "InitPaths():  malloc failed\n");
+      fprintf (stderr, "InitPaths(): malloc failed\n");
       exit (1);
     }
-  sprintf (pcbtreedir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
-	   BINDIR_TO_PCBTREEDIR);
+  sprintf (venlibdir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, BINDIR_TO_PCB_VENLIB_DIR);
 
-  /* and the search path including PCBLIBDIR */
-  l = strlen (pcblibdir) + 3;
+  /* and the usr lib search path */
+  l = strlen (stdlibdir) + strlen (venlibdir) + 2;
   if ( (pcblibpath = (char *) malloc (l * sizeof (char) )) == NULL )
     {
-      fprintf (stderr, "InitPaths():  malloc failed\n");
+      fprintf (stderr, "InitPaths(): malloc failed\n");
       exit (1);
     }
-  sprintf (pcblibpath, ".%s%s", PCB_PATH_DELIMETER, pcblibdir);
+  sprintf (pcblibpath, "%s%s%s", stdlibdir, PCB_PATH_DELIMETER,  venlibdir);
 
-  /* and the newlib search path */
-  l = strlen (pcblibdir) + 1 + strlen (pcbtreedir) 
-    + strlen ("pcblib-newlib") + 2;
-  if ( (pcbtreepath = (char *) malloc (l * sizeof (char) )) == NULL )
-    {
-      fprintf (stderr, "InitPaths():  malloc failed\n");
-      exit (1);
-    }
-  sprintf (pcbtreepath, "%s%s%s%spcblib-newlib", pcbtreedir, 
-	PCB_PATH_DELIMETER, pcblibdir,
-	PCB_DIR_SEPARATOR_S);
-  
 #ifdef DEBUG
   printf ("bindir      = %s\n", bindir);
   printf ("pcblibdir   = %s\n", pcblibdir);
-  printf ("pcblibpath  = %s\n", pcblibpath);
-  printf ("pcbtreedir  = %s\n", pcbtreedir);
-  printf ("pcbtreepath = %s\n", pcbtreepath);
+  printf ("stdlibdir   = %s\n", stdlibdir);
+  printf ("venlibdir   = %s\n", venlibdir);
+  printf ("pcblibpath = %s\n",  pcblibpath);
 #endif
 
   l = sizeof (main_attribute_list) / sizeof (main_attribute_list[0]);
-  for (i = 0; i < l ; i++) 
+  for (i = 0; i < l ; i++)
     {
-      if (NSTRCMP (main_attribute_list[i].name, "lib-command-dir") == 0)
+      if (NSTRCMP (main_attribute_list[i].name, "lib-dir") == 0)
 	{
 	  main_attribute_list[i].default_val.str_value = pcblibdir;
 	}
 
-      if ( (NSTRCMP (main_attribute_list[i].name, "font-path") == 0) 
-	   || (NSTRCMP (main_attribute_list[i].name, "element-path") == 0)
-	   || (NSTRCMP (main_attribute_list[i].name, "lib-path") == 0) )
+      if ( (NSTRCMP (main_attribute_list[i].name, "font-path") == 0)
+        || (NSTRCMP (main_attribute_list[i].name, "element-path") == 0) ) {
+        main_attribute_list[i].default_val.str_value = pcblibdir;
+      }
+
+      if (NSTRCMP (main_attribute_list[i].name, "lib-path") == 0)
 	{
 	  main_attribute_list[i].default_val.str_value = pcblibpath;
 	}
-
-      if (NSTRCMP (main_attribute_list[i].name, "lib-newlib") == 0)
-	{
-	  main_attribute_list[i].default_val.str_value = pcbtreepath;
-	}
-
     }
 
     {
@@ -1846,9 +1835,7 @@ InitPaths (char *argv0)
     }
 }
 
-/* ---------------------------------------------------------------------- 
- * main program
- */
+/* ----------------------------- main program ---------------------------- */
 
 char *program_name = 0;
 char *program_basename = 0;
@@ -1872,7 +1859,7 @@ main (int argc, char *argv[])
    * - register 'call on exit()' function
    */
 
-#include "core_lists.h"
+  #include "core_lists.h"
   setbuf (stdout, 0);
   InitPaths (argv[0]);
 
@@ -1904,7 +1891,7 @@ main (int argc, char *argv[])
     }
   Progname = program_basename;
 
-  /* Print usage or version if requested.  Then exit.  */  
+  /* Print usage or version if requested.  Then exit.  */
   if (argc > 1 &&
       (strcmp (argv[1], "-h") == 0 ||
        strcmp (argv[1], "-?") == 0 ||
@@ -1955,7 +1942,6 @@ main (int argc, char *argv[])
     copyright ();
 
   settings_post_process ();
-
 
   if (show_actions)
     {
@@ -2053,16 +2039,11 @@ main (int argc, char *argv[])
   EnableAutosave ();
 
 #ifdef DEBUG
-  printf ("Settings.LibraryCommandDir = \"%s\"\n",
-          Settings.LibraryCommandDir);
-  printf ("Settings.FontPath          = \"%s\"\n", 
-          Settings.FontPath);
-  printf ("Settings.ElementPath       = \"%s\"\n", 
-          Settings.ElementPath);
-  printf ("Settings.LibraryPath       = \"%s\"\n", 
-          Settings.LibraryPath);
-  printf ("Settings.LibraryTree       = \"%s\"\n", 
-          Settings.LibraryTree);
+  printf ("Settings.LibraryDir        = \"%s\"\n", Settings.LibraryDir);
+  printf ("Settings.FontPath          = \"%s\"\n", Settings.FontPath);
+  printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
+  printf ("Settings.LibraryPath       = \"%s\"\n", Settings.LibraryPath);
+  printf ("Settings.UserLibrary       = \"%s\"\n", Settings.UserLibrary);
   printf ("Settings.MakeProgram = \"%s\"\n",
           UNKNOWN (Settings.MakeProgram));
   printf ("Settings.GnetlistProgram = \"%s\"\n",

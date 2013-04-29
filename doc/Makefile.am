@@ -58,7 +58,7 @@ AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css --no-split
 # which unfortunately deletes files which are part of the distfile
 mostlyclean-aminfo:
 	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
-	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs 
+	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs
 
 EXTRA_DIST= \
 	ascii2texi.awk \
@@ -173,3 +173,4 @@ endif
 
 .eps.png:
 	${PERL} $(srcdir)/eps2png --png $< > $@
+
