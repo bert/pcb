@@ -1,0 +1,12 @@
+	Element(0x00 "R 0.25W" "" "R025" 120 30 0 100 0x00)
+(
+	Pin(0 50 68 38 "1" 0x101)
+	Pin(400 50 68 38 "2" 0x01)
+	ElementLine(100 0 300 0 20)
+	ElementLine(300 0 300 100 20)
+	ElementLine(300 100 100 100 20)
+	ElementLine(100 100 100 0 20)
+	ElementLine(0 50 100 50 20)
+	ElementLine(300 50 400 50 20)
+	Mark(0 50)
+)

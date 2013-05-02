@@ -1,6 +1,43 @@
 This ChangeLog is automatically generated from git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2013-04-29  Wiley E. Hill <wileyhill@gmail.com>
+
+        Git did not automatically generate this so adding entry manually:
+
+	* :removed references to lib and newlib folders. Added stdlib and
+        venlib, effectively replacing both libraries. stdlib is essentially
+        the old "newlib" but with new, more extensive content. The old
+        "lib" folder containing the m4 symbols was removed. The new venlib
+        folder contains only static symbols and these install to a folder
+        named "vendor". The 2 new libraries use different source configura-
+        tions. In stdlib, the top-level Makefile list each sub-folder but
+        the Makefiles in the sub-folders uses wild-cards so symbols can be
+        freely added (or removed) without modify the build files. For venlib,
+        the top-level Makefile uses a variable defined during configuration
+        so that ./configure must be ran to add or remove vendors, but the sub
+        folders do not contain make files so vendor symbols can be added or
+        removed without any modification to the build system. Note that this
+        is platform independent. lib-command-dir->lib-dir
+
+	* configure.ac: Modified AC replacement variables for the new library
+         configuration.
+
+        * main.c: Changed variables to reference the new library folder with
+        pcblib-newlib (which was a very confusing name since it contained
+        symbols built from the old m4 definitions and may or may not have been
+        re-built "new", and never rebuilt on windows boxes,) being eliminated.
+        The 2 new libraries are referenced using the same Settings.LibraryPath
+        variable. Paths added via the command-line or the preference settings
+        are accessed with Settings.UserLibrary.
+
+        * file.c: Revamped functions ParseLibraryTree & ReadLibraryContents
+        with ReadLibraryContents looping through each member of LibraryPath
+        and each member of UserLibrary, calling ParseLibraryTree to operate
+        on the contents of sub-folders.
+
+        * scripts: Added new directory to source tree for scripts.
+
 2011-09-18   DJ Delorie * dj AT delorie dot com *
 
 	* po/POTFILES.in: Remove src/hid/common/hidgl_package_vrml_y.c from

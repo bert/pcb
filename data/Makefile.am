@@ -2,6 +2,8 @@ theme=hicolor
 xdgdatadir=@XDGDATADIR@
 themedir=$(xdgdatadir)/icons/$(theme)
 
+SUBDIRS  = html
+
 app_icon = pcb
 
 mime_icons = \

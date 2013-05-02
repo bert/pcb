@@ -1,0 +1,11 @@
+Element(0x00 "MTA Connector, (0.100 inch pitch)" "" "MTA100_2" 0  140 0 150 0x00)
+(
+        Pin(0 0 60 38 "1" 0x101)
+        Pin(100 0 60 38 "2" 0x01)
+        ElementLine(-75  -115 175 -115 10) 
+        ElementLine(175  -115 175 135 10) 
+        ElementLine(175  115 -75 115 10) 
+        ElementLine(-75  135 -75 -115 10) 
+        ElementLine(175  135 -75 135 10) 
+        Mark(0 0)
+)

@@ -127,21 +127,21 @@ static const char *gcode_basename = NULL;
 /* Horizontal DPI (grid points per inch) */
 static int gcode_dpi = -1;
 
-static double gcode_cutdepth = 0;       /* milling depth (inch) */
-static double gcode_isoplunge = 0;      /* isolation milling plunge feedrate */
-static double gcode_isofeedrate = 0;    /* isolation milling feedrate */
-static char gcode_predrill;
-static double gcode_drilldepth = 0;     /* drilling depth (mm or in) */
-static double gcode_drillfeedrate = 0;  /* drilling feedrate */
-static double gcode_safeZ = 100;        /* safe Z (mm or in) */
-static int gcode_toolradius = 0;        /* iso-mill tool radius (1/100 mil) */
-static char gcode_drillmill = 0;        /* wether to drill with the mill tool */
-static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
-static double gcode_milltoolradius = 0; /* outline-mill tool radius (mm or in)*/
-static double gcode_millplunge = 0;     /* outline-milling plunge feedrate */
-static double gcode_millfeedrate = 0;   /* outline-milling feedrate */
-static char gcode_advanced = 0;
-static int save_drill = 0;
+static double gcode_cutdepth       = 0;     /* milling depth (inch) */
+static double gcode_isoplunge      = 0;     /* isolation milling plunge feedrate */
+static double gcode_isofeedrate    = 0;     /* isolation milling feedrate */
+static char   gcode_predrill;
+static double gcode_drilldepth     = 0;     /* drilling depth (mm or in) */
+static double gcode_drillfeedrate  = 0;     /* drilling feedrate */
+static double gcode_safeZ          = 100;   /* safe Z (mm or in) */
+static int    gcode_toolradius     = 0;     /* iso-mill tool radius (1/100 mil) */
+static char   gcode_drillmill      = 0;     /* wether to drill with the mill tool */
+static double gcode_milldepth      = 0;     /* outline milling depth (mm or in) */
+static double gcode_milltoolradius = 0;     /* outline-mill tool radius (mm or in)*/
+static double gcode_millplunge     = 0;     /* outline-milling plunge feedrate */
+static double gcode_millfeedrate   = 0;     /* outline-milling feedrate */
+static char   gcode_advanced       = 0;
+static int    save_drill           = 0;
 
 /* structure to represent a single hole */
 struct drill_hole

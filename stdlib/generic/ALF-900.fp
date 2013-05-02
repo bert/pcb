@@ -1,0 +1,12 @@
+Element(0x00 "Axial diode (pin 1 is cathode)" "" "ALF900" 620 300 0 100 0x00)
+(
+	Pin(0 450 80 20 "1" 0x101)
+	Pin(900 450 80 20 "2" 0x01)
+	ElementLine(0 450 300 450 10)
+	ElementLine(600 450 900 450 10)
+	ElementLine(300 450 600 300 10)
+	ElementLine(600 300 600 600 10)
+	ElementLine(600 600 300 450 10)
+	ElementLine(300 300 300 600 10)
+	Mark(0 450)
+)

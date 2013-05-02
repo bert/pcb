@@ -34,8 +34,7 @@
 # Use  --g-fatal-warnings with the gtk HID to cause gtk-WARNING's to
 # abort.
 
-TEST_PATHS="--lib-path @TOP_BUILDDIR@/lib --lib-stdlib @TOPSRCDIR@/newlib:@TOP_BUILDDIR@/lib/pcblib-stdlib --element-path @TOP_BUILDDIR@/lib --font-path @TOPSRCDIR@/src"
-TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
+TEST_PATHS="--lib-path /home/wiley/Projects/pcb/stdlib --lib-path /home/wiley/Projects/pcb/stdlib:/home/wiley/Projects/pcb/venlib --element-path /home/wiley/Projects/pcb/scripts --font-path /home/wiley/Projects/pcb/src"
 
 # note:  To do command line exporting, pcb requires the "-x <export_hid>" command to appear first.  For example
 #
@@ -87,6 +86,6 @@ EOF
 	exec gdb -x $tmpf ./pcb
 	rm -fr $tmpd
 else
-	exec @TOP_BUILDDIR@/src/pcb $arg_list
+	exec /home/wiley/Projects/pcb/src/pcb $arg_list
 fi
 

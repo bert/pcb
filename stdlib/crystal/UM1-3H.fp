@@ -1,0 +1,11 @@
+Element(0x00 "Crystals" "" "UM1_3H" 0 -60 0 100 0x00)
+(
+	Pin(81 422 60 32 "1" 0x101)
+	Pin(155 422 60 32 "2" 0x01)
+	Pin(229 422 60 32 "3" 0x01)
+	ElementLine(0 0 311 0 20)
+	ElementLine(311 0 311 322 20)
+	ElementLine(311 322 0 322 20)
+	ElementLine(0 322 0 0 20)
+	Mark(81 422)
+)

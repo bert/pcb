@@ -1,0 +1,128 @@
+#!/bin/sh
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#
+# create all objects as defined in passed list_files
+#
+# usage: CreateLibraryContents.sh common_macro_file file...
+
+M4=/usr/bin/m4
+
+##
+# Check for input flags
+##
+
+while test -n "$1" ; do
+case "$1"
+in
+    -I|--include)
+	m4_flags="$m4_flags -I $2"
+	srcdir=$2
+	shift 2
+	;;
+
+    -*)
+	echo "error:  unknown flag $1 to $0"
+	exit 1
+	;;
+	
+    *)
+	break
+	;;
+esac
+done
+
+# a TAB plus one blank for some stupid old sed implementations
+#
+SPACE="[	 ]"
+
+##
+# Make sure we've been given a common file plus at least 1 list file
+# as arguments
+##
+
+if [ $# -lt 2 ]; then
+	echo "usage: $0 common_macro_file file..." >&2; exit 1
+fi
+CommonFile=$1
+shift
+
+##
+# Make sure the common file exists
+##
+
+if [ ! -r $CommonFile ]; then
+	echo "$0: file '$CommonFile' isn't readable or doesn't exit" >&2; exit 1
+fi
+
+##
+# Process the list files
+##
+
+while [ $# -ne 0 ]; do
+# strip the extension '.list'
+#
+
+    ##
+    # Turn something like foo.list in to
+    # /path/to/foo.m4
+    ##
+	if [ -f $srcdir/$1 ]; then
+		ListFile="$srcdir/$1"
+	else
+		ListFile="$1"
+	fi
+	PlainFile=`dirname $ListFile`/`basename $ListFile .list`
+	M4File=$PlainFile.m4
+
+	if [ ! -r $ListFile ]; then
+		echo "$0: file '$ListFile' isn't readable or doesn't exit" >&2; exit 1
+	fi
+	if [ ! -r $M4File ]; then
+		echo "$0: file '$M4File' isn't readable or doesn't exit" >&2; exit 1
+	fi
+
+	## 
+	# for foo.list spit out "TYPE=~foo".  This defines the library
+	# in the PCB library window
+	##
+	echo "TYPE=~`basename $PlainFile | sed -e 's/_/ /g'`"
+
+	sed -e 's/'"$SPACE"'*#.*$//' \
+		-e 's/'"$SPACE"'*:'"$SPACE"'*/:/g' \
+		-e '/^'"$SPACE"'*$/d' $ListFile |
+	{
+		IFS=:
+		export IFS
+		while read mask package values; do
+			set -- $values
+			while [ $# -ne 0 ]; do
+				echo "\`$mask:$package:$1:'Description_$mask\` [$package'ifdef(\`Param1_$mask', \` Param1_$mask')\`'ifdef(\`Param2_$mask', \` Param2_$mask')]"
+				shift
+			done
+		done
+	} | $M4 $m4_flags $CommonFile $M4File - | sed -e '/^'"$SPACE"'*$/d'
+	shift
+done

@@ -4848,7 +4848,7 @@ Element(0x00 "SO8" "U1" "MAX4107" 146 50 3 100 0x00)
 Footprints for the new style library are created graphically using the
 PCB program.  A single footprint is saved in each file.
 
-@subsection Creating Newlib Footprints
+@subsection Creating Footprints
 To create
 @enumerate
 @item Start PCB with an empty layout.
@@ -4884,7 +4884,7 @@ save the new footprint to a file.
 @item Press ESC to exit from buffer mode.
 @end enumerate
 
-@subsection Modifying Newlib Footprints
+@subsection Modifying Footprints
 @enumerate
 @item In the @pcb{} program, instantiate the footprint you wish to modify.
 @item Using the selection tool, select the footprint.
@@ -4958,7 +4958,7 @@ mkdir ~/myproj
 cd ~/myproj
 mkdir sym
 mkdir pkg
-mkdir pkg/newlib
+mkdir pkg/mylib
 mkdir pkg/m4
 @end example
 
@@ -5022,21 +5022,18 @@ schematics are created.
 @end itemize
 
 @subsection Create Any Unique PCB Footprints
-Create the new footprints you design needs using either the m4 style or
-newlib style of PCB libraries.  Refer to @ref{Library Creation} for details on this
-process.  For m4 style footprints, store them in the @file{pkg/m4}
-subdirectory and for newlib footprints, store them in the
-@file{pkg/newlib} subdirectory.
+Create the new footprints you design needs using the nnew lib style or
+of PCB libraries. .
 
 @subsection Generate Initial PCB Design Using @code{gsch2pcb}
 The @code{gsch2pcb} program connects the schematic and layout.  It basic
 operation is to call @code{gnetlist} to generate the connectivity
 netlist that PCB used to verify connectivity and to instantiate all
 elements found in the schematic to a new layout.
-The default, as of @code{gsch2pcb} version 0.9,  is to use any found  m4
-style parts first and then search for newlib style if no old style part
+The default, as of @code{gsch2pcb} version 0.9,  is to use any found
+style parts first and then search for stdlib style if no old style part
 was found.  By using the @code{--use-files} or @code{-f} flag to @code{gsch2pcb}
-priority is given to newlib style parts even if m4 style are found.  You
+priority is given to stdlib style parts even if m4 style are found.  You
 may wish to verify this in the @code{gsch2pcb} documentation in case
 this changes in the future.
 To start your layout,

@@ -14,9 +14,10 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -1292,8 +1293,6 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
  *
  * \return int, the number of footprints added to the library.
  */
-
-
 static int
 ParseLibraryTree (char *libpath)
 {
@@ -1360,11 +1359,6 @@ ParseLibraryTree (char *libpath)
  *
  * \return -1 if there was an error or no footprints were found.
  *            otherwise >-1.
- */
-/* ---------------------------------------------------------------------------
- * Read contents of the library description file (for M4)
- * and then read in M4 libs.  Then call a fcn to read the newlib
- * footprints.
  */
 int
 ReadLibraryContents (void)

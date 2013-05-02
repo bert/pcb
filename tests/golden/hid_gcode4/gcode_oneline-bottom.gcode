@@ -5,7 +5,7 @@
 (Accuracy 600 dpi)
 (Tool diameter: 0.200000 mm)
 #100=2.000000  (safe Z)
-#101=0.000000  (cutting depth)
+#101=0.500000  (cutting depth)
 #102=25.000000  (plunge feedrate)
 #103=50.000000  (feedrate)
 (with predrilling)

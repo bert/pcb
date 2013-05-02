@@ -1206,7 +1206,7 @@ do
 done
 AC_SUBST(TOPDIRS)
 
-AC_CONFIG_FILES(Makefile data/Makefile intl/Makefile po/Makefile.in)
+AC_CONFIG_FILES(Makefile data/Makefile data/html/Makefile intl/Makefile po/Makefile.in)
 
 if test -d $srcdir/README_FILES; then
    AC_CONFIG_FILES(README_FILES/Makefile)
@@ -1229,17 +1229,16 @@ fi
 if test -d $srcdir/stdlib; then
    AC_CONFIG_FILES(stdlib/Makefile)
    AC_CONFIG_FILES(stdlib/capacitor/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/BNC/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/DB/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/DIN/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/MTA/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/RF/Makefile)
-   AC_CONFIG_FILES(stdlib/connectors/SUBD/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/BNC/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/DB/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/DIN/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/MTA/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/RF/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/SUBD/Makefile)
    AC_CONFIG_FILES(stdlib/crystal/Makefile)
    AC_CONFIG_FILES(stdlib/DIP/Makefile)
    AC_CONFIG_FILES(stdlib/DO/Makefile)
-   AC_CONFIG_FILES(stdlib/electro-optics/Makefile)
    AC_CONFIG_FILES(stdlib/filter/Makefile)
    AC_CONFIG_FILES(stdlib/generic/Makefile)
    AC_CONFIG_FILES(stdlib/header/Makefile)
@@ -1248,13 +1247,14 @@ if test -d $srcdir/stdlib; then
    AC_CONFIG_FILES(stdlib/jumper/Makefile)
    AC_CONFIG_FILES(stdlib/led/Makefile)
    AC_CONFIG_FILES(stdlib/misc/Makefile)
+   AC_CONFIG_FILES(stdlib/optical/Makefile)
    AC_CONFIG_FILES(stdlib/PLCC/Makefile)
    AC_CONFIG_FILES(stdlib/QFN/Makefile)
    AC_CONFIG_FILES(stdlib/QFP/Makefile)
    AC_CONFIG_FILES(stdlib/resistor/Makefile)
    AC_CONFIG_FILES(stdlib/SIP/Makefile)
    AC_CONFIG_FILES(stdlib/SO/Makefile)
-   AC_CONFIG_FILES(stdlib/sockets/Makefile)
+   AC_CONFIG_FILES(stdlib/socket/Makefile)
    AC_CONFIG_FILES(stdlib/TO/Makefile)
 fi
 

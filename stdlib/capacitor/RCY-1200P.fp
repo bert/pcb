@@ -1,0 +1,10 @@
+Element(0x00 "Bottom lead polar circular component (typically capacitor)" "" "RCY1200P" 2400 0 0 100 0x00)
+(
+	Pin(600 1200 60 50 "1" 0x101)
+	Pin(1800 1200 60 50 "2" 0x01)
+	ElementArc(1200 1200 1200 1200 0 360 10)
+	ElementLine(-60 1200            -20 1200 10)
+	ElementLine(-40 1180 -40 1220 10)
+	ElementLine(2420 1200 2460  1200 10)
+	Mark (600 1200)
+)

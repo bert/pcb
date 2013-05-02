@@ -1,0 +1,12 @@
+Element(0x00 "diode" "" "DIODE_LAY 600" 420 200 0 100 0x00)
+(
+	Pin(0 300 80 20 "1" 0x101)
+	Pin(600 300 80 20 "2" 0x01)
+	ElementLine(0 300 200 300 10)
+	ElementLine(400 300 600 300 10)
+	ElementLine(200 300 400 200 10)
+	ElementLine(400 200 400 400 10)
+	ElementLine(400 400 200 300 10)
+	ElementLine(200 200 200 400 10)
+	Mark(0 300)
+)

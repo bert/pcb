@@ -174,3 +174,6 @@ endif
 .eps.png:
 	${PERL} $(srcdir)/eps2png --png $< > $@
 
+uninstall-hook:
+	rm -f ./share/info/dir
+
