@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([pcb], [1.99z])
+dnl This also set the version
+AC_INIT([pcb], [2.00])
 AC_CONFIG_SRCDIR([src/draw.c])
 AC_PREREQ([2.60])
 AM_INIT_AUTOMAKE([1.9])
