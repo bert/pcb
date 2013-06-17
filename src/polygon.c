@@ -1725,8 +1725,14 @@ IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonType *p)
   Vector v;
   v[0] = X;
   v[1] = Y;
-  if (poly_CheckInside (p->Clipped, v))
-    return true;
+
+  c = p->Clipped;
+  do {
+      if (poly_CheckInside (c, v))
+        return true;
+      if (!TEST_FLAG(FULLPOLYFLAG, p))
+        break;
+    } while ((c = c->f) != p->Clipped);
   if (r < 1)
     return false;
   if (!(c = CirclePoly (X, Y, r)))
