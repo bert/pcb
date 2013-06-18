@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(srcdir) -DG_LOG_DOMAIN=\"Gts\"
+AM_CPPFLAGS = -I$(srcdir) -DG_LOG_DOMAIN=\"Gts\"
 
 noinst_LIBRARIES = libgts.a
 

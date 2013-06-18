@@ -747,7 +747,7 @@ static const char command_help[] =
 The command window allows the user to manually enter actions to be
 executed.  Action syntax can be done one of two ways:
 
-@table @code
+@itemize @bullet
 
 @item
 Follow the action name by an open parenthesis, arguments separated by
@@ -757,7 +757,7 @@ commas, end with a close parenthesis.  Example: @code{Abc(1,2,3)}
 Separate the action name and arguments by spaces.  Example: @code{Abc
 1 2 3}.
 
-@end table
+@end itemize
 
 The first option allows you to have arguments with spaces in them,
 but the second is more ``natural'' to type for most people.

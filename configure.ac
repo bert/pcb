@@ -5,7 +5,7 @@ AC_CONFIG_SRCDIR([src/draw.c])
 AC_PREREQ([2.60])
 AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 ##########################################################################
 #

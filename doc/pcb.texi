@@ -3366,7 +3366,7 @@ Default:
 @cindex octagonal flag, changing
 @cindex square flag, changing
 @cindex thermal flag, changing
-@itemx ChangeFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square,0|1)
+@item ChangeFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square,0|1)
 Sets/clears the indicated flag.  This adds/removes thermals, adds/removes the flag
 which indicates a pin/pad should be square, or adds/removes the flag which
 indicates a pin/pad should be octagonal.
@@ -3407,7 +3407,7 @@ None<Key>n: ChangeName(Object)
 @cindex pins, changing shape of
 @cindex vias, changing shape of
 @cindex octagonal pins and vias
-@itemx ChangeOctagon(Object|SelectElements|SelectedPins|SelectedVias|Selected)
+@item ChangeOctagon(Object|SelectElements|SelectedPins|SelectedVias|Selected)
 Toggles what shape the affected pin(s) or via(s) will be drawn when they
 are not square. The shape will either be round or octagonal.
 Default:
@@ -3471,7 +3471,7 @@ None<Key>q:   ChangeSquare(Object)
 @cindex octagonal flag, clearing
 @cindex square flag, clearing
 @cindex thermal flag, clearing
-@itemx ClrFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
+@item ClrFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
 Clears the indicated flag.  This removes thermals, removes the flag
 which indicates a pin/pad should be square, or removes the flag which
 indicates a pin/pad should be octagonal.
@@ -3614,7 +3614,7 @@ until no errors are found.
 @findex ExecuteFile()
 @cindex actions file, executing
 @cindex script file, executing
-@itemx ExecuteFile(filename)
+@item ExecuteFile(filename)
 Executes the PCB actions contained in the specified file.
 This can be used to automate a complex sequence of operations.
 @example
@@ -3954,7 +3954,7 @@ None<Btn3Down>,None<Btn3Motion>: See resource file - this is complex
 @cindex octagonal flag, setting
 @cindex square flag, setting
 @cindex thermal flag, setting
-@itemx SetFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
+@item SetFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
 Sets the indicated flag.  This adds thermals, sets the flag
 which indicates a pin/pad should be square, or sets the flag which
 indicates a pin/pad should be octagonal.

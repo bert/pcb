@@ -128,7 +128,7 @@ for $cat (sort keys %text) {
 		if ($synt{$key}) {
 		    $new .= "\@cartouche\n\@format\n";
 		    $new .= $synt{$key};
-		    $new .= "\@end format\n\@end cartouche\n\n";
+		    $new .= "\n\@end format\n\@end cartouche\n\n";
 		}
 		if ($desc{$key}) {
 		    $new .= $desc{$key} . "\n";
