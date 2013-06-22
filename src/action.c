@@ -81,6 +81,10 @@
 #include <dmalloc.h>
 #endif
 
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#endif
+
 /* for fork() and friends */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -3260,6 +3264,100 @@ ActionRemoveSelected (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
+
+#ifdef HAVE_REGEX_H
+/* --------------------------------------------------------------------------- */
+static const char resub_syntax[] = "Resub(pattern, replacement)\n";
+static const char resub_help[] = "Rename selected using regex substitution.";
+
+static int
+ActionResub (int argc, char **argv, Coord x, Coord y)
+{
+	enum { NOERR = 0, ERROR = -1, BAD_REGEX = -2} ;
+	int  status = NOERR;
+	if (argc == 2)
+	{
+		char *rawpat = ARG(0);
+		char *replace = ARG(1);
+	 	size_t select_count = 0;
+		size_t renamed_count = 0;
+		regex_t pattern;
+ 		ElementType **renamed_elements;
+		
+		if (regcomp(&pattern, rawpat, REG_EXTENDED)  == REG_NOERROR) 
+		{
+			// size the elments to be renamed
+			ELEMENT_LOOP (PCB->Data);
+			{
+				if (TEST_FLAG (SELECTEDFLAG, element))
+				select_count++;
+			}
+			END_LOOP;
+
+			// collect selected elements for renaming
+			renamed_elements = (ElementType **)calloc (select_count, sizeof (ElementType *));
+			ELEMENT_LOOP (PCB->Data);
+			{ 
+				if (TEST_FLAG (SELECTEDFLAG, element))
+				{
+					char *origname = NAMEONPCB_NAME (element);
+					const size_t nmatch = 1;
+					regmatch_t matches[nmatch];
+					
+					if (origname && regexec(&pattern, origname,  nmatch, (regmatch_t * restrict) matches, 0) == 0)
+					{	
+						regmatch_t *match = &matches[0];
+						if (match->rm_so != -1)
+						{
+							size_t pos = 0;
+							size_t start = match->rm_so;
+							size_t end = match->rm_eo;
+							size_t patlen = end - start;
+							size_t replen = strlen(replace);
+							size_t origlen = strlen(origname);
+							size_t newlen = origlen - patlen + replen;
+							char  *rename = (char*) calloc (newlen + 1, sizeof(char));
+
+							if (start > 0)
+							{
+								strncpy(rename, origname, start);
+								pos += start;
+							}
+
+							strncpy(rename + pos, replace, replen);
+							pos += replen;
+
+							if (start + patlen < origlen)
+							{
+								ssize_t remaining = origlen-patlen;
+								strncpy(rename + pos, origname + start + patlen, remaining);
+							}
+							rename[newlen] = 0;
+
+							renamed_elements[renamed_count] = element;
+							AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL, renamed_elements[renamed_count], origname);
+							ChangeObjectName (ELEMENT_TYPE, renamed_elements[renamed_count], NULL, NULL, rename);
+							renamed_count++;
+						}
+					}
+					else
+					{
+						status = BAD_REGEX;
+					}
+				}
+			}
+			END_LOOP;
+		}
+		else
+		{
+			status = BAD_REGEX;
+		}
+		regfree(&pattern);
+	}
+
+ 	return status;
+}
+#endif
 /* --------------------------------------------------------------------------- */
 
 static const char renumber_syntax[] = N_("Renumber()\n"
@@ -8179,6 +8277,11 @@ HID_Action action_action_list[] = {
   {"RemoveSelected", 0, ActionRemoveSelected,
    removeselected_help, removeselected_syntax}
   ,
+#ifdef HAVE_REGEX_H
+  {"Resub", 0, ActionResub,
+   resub_help, resub_syntax}
+  ,
+#endif
   {"Renumber", 0, ActionRenumber,
    renumber_help, renumber_syntax}
   ,
