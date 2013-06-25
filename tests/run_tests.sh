@@ -457,8 +457,7 @@ normalize_scad() {
     local f1="$1"
     local f2="$2"
     $AWK '
-	/^# Date:/ {print "# Date: today"; next}
-	/^# Author:/ {print "# Author: PCB"; next}
+	/^ * \author:/ {print " * \author: PCB"; next}
 	{print}' \
 	$f1 > $f2
 }
