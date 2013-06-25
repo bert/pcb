@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a libopenscad.a
+	libgcode.a libopenscad.a libscad.a
 
 pcblib_DATA= \
 	default_font \
@@ -235,6 +235,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
+	$(srcdir)/hid/scad/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
@@ -395,6 +396,12 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
+
+libscad_a_SOURCES = \
+	hid/hidint.h \
+	hid/scad/scad.c \
+	hid/scad/scadproto.c \
+	hid/scad/scadcomp.c
 
 libbom_a_SOURCES = \
 	hid/hidint.h \
