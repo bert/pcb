@@ -31,8 +31,23 @@ COPPER = [0.88, 0.78, 0.5];
 FR4 = [0.7, 0.67, 0.6, 0.95];
 DRILL_HOLE = [1.0, 1.0, 1.0];
 
-include <CONST.scad>
-include <BOARD.scad>
+$fa = 1;
+$fs = 0.1;
+$fn = 36;
+$t = 0.01;
+
+module BOARD
+(
+  length,
+  width,
+  thickness,
+)
+{
+  color (FR4)
+  {
+    cube([length, width, thickness], center = false);
+  }
+}
 
 module PIN_HOLE (x, y, diameter, depth)
 {
