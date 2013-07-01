@@ -1,9 +1,9 @@
 /*!
  * \file updater.c
  *
- * \author Copyright 2011 by Bert Timmerman <bert.timmerman@xs4all.nl>
+ * \author Copyright 2011, 2013 by Bert Timmerman <bert.timmerman@xs4all.nl>
  *
- * \brief .
+ * \brief Check for any updates available.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <stdarg.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <curl/curl.h>
@@ -45,6 +48,7 @@ typedef struct
 }
 pcb_version_struct;
 
+char* pcb_latest_version = NULL;
 
 struct MemoryStruct
 {
@@ -104,7 +108,7 @@ updater_get_file (char *filename)
     }
     else
       {
-        fprintf (stderr, "received Content-Type: %s\n", res);
+        fprintf (stderr, "received Content-Type: %d\n", res);
       }
   }
   if (ftpfile.stream)
@@ -177,7 +181,7 @@ updater_get_latest_version_info (void)
   {
     free (chunk.memory);
   }
-  return;
+  return (EXIT_SUCCESS);
 }
 
 
@@ -261,8 +265,6 @@ updater_version_compare (const gchar *version)
 int
 main (int argc, char **argv)
 {
-  gchar *pcb_latest_version;
-
   curl_global_init (CURL_GLOBAL_DEFAULT);
   updater_get_latest_version_info ();
   /* strip package name from received string. */
