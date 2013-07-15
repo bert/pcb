@@ -7101,7 +7101,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 	SetChangedFlag (true);
     }
 
-  else if (e && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
+  else if (e && DESCRIPTION_NAME(e) && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
     {
 #ifdef DEBUG
       printf("  ... Footprint on board, but different from footprint loaded.\n");
