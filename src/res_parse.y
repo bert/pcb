@@ -71,9 +71,9 @@ res_item
 
 %%
 
-static const char *res_filename = 0;
-static FILE *res_file = 0;
-static const char **res_strings = 0;
+static const char *res_filename = NULL;
+static FILE *res_file = NULL;
+static const char **res_strings = NULL;
 static int res_string_idx = 0;
 int res_lineno;
 
@@ -110,17 +110,16 @@ resource_parse(const char *filename, const char **strings)
   res_lineno = 1;
   if (filename)
     {
-      res_filename = filename;
       res_file = fopen (filename, "r");
       if (res_file == NULL)
 	{
 	  perror(filename);
-	  return 0;
+	  return NULL;
 	}
+      res_filename = filename;
     }
   else if (strings)
     {
-      res_filename = NULL;
       res_strings = strings;
       res_string_idx = 0;
     }
@@ -130,11 +129,15 @@ resource_parse(const char *filename, const char **strings)
   yydebug = 1;
 #endif
   if (resparse())
-    return 0;
+    parsed_res = NULL;
   if (filename)
-    fclose (res_file);
+    {
+      fclose (res_file);
+      res_filename = NULL;
+      res_file = NULL;
+    }
   else
-    res_strings = 0;
+    res_strings = NULL;
   return parsed_res;
 }
 
