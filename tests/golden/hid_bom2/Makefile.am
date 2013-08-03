@@ -1,5 +1,5 @@
 ## -*- makefile -*-
 
 EXTRA_DIST= \
-	bom_general.xy \
-	test.bom
+	test.bom \
+	bom_general.xy
