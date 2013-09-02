@@ -4048,9 +4048,9 @@ DRCAll (void)
 
   if (nopastecnt > 0) 
     {
-      Message (_("Warning:  %d pad%s the nopaste flag set.\n"),
-	       nopastecnt,
-	       nopastecnt > 1 ? "s have" : " has");
+      Message (ngettext ("Warning: %d pad has the nopaste flag set.\n",
+                         "Warning: %d pads have the nopaste flag set.\n",
+			 nopastecnt), nopastecnt);
     }
   return IsBad ? -drcerr_count : drcerr_count;
 }
