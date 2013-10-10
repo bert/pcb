@@ -4183,7 +4183,7 @@ ActionChange2ndSize (int argc, char **argv, Coord x, Coord y)
 static const char changeclearsize_syntax[] =
   "ChangeClearSize(Object, delta)\n"
   "ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
-  "ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+  "ChangeClearSize(SelectedLines|SelectedArcs, delta)\n"
   "ChangeClearSize(Selected|SelectedObjects, delta)";
 
 static const char changeclearsize_help[] =
