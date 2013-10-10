@@ -2854,7 +2854,7 @@ grok_layer_groups ()
 }
 
 static const char djopt_syntax[] =
-  "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
+  "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull|splitlines)\n"
   "djopt(auto) - all of the above\n"
   "djopt(miter)";
 
