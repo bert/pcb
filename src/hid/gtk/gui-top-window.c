@@ -1438,8 +1438,6 @@ ghid_build_pcb_top_window (void)
 
   ghid_interface_input_signals_connect ();
 
-  g_signal_connect (G_OBJECT (gport->drawing_area), "scroll_event",
-		    G_CALLBACK (ghid_port_window_mouse_scroll_cb), port);
   g_signal_connect (G_OBJECT (gport->drawing_area), "enter_notify_event",
 		    G_CALLBACK (ghid_port_window_enter_cb), port);
   g_signal_connect (G_OBJECT (gport->drawing_area), "leave_notify_event",
@@ -1471,8 +1469,11 @@ ghid_build_pcb_top_window (void)
      |  During these times normal button/key presses are intercepted, either
      |  by new signal handlers or the command_combo_box entry.
    */
-static gulong button_press_handler, button_release_handler,
-  key_press_handler, key_release_handler;
+static gulong button_press_handler;
+static gulong button_release_handler;
+static gulong scroll_event_handler;
+static gulong key_press_handler;
+static gulong key_release_handler;
 
 void
 ghid_interface_input_signals_connect (void)
@@ -1484,6 +1485,10 @@ ghid_interface_input_signals_connect (void)
   button_release_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "button_release_event",
 		      G_CALLBACK (ghid_port_button_release_cb), NULL);
+
+  scroll_event_handler =
+    g_signal_connect (G_OBJECT (gport->drawing_area), "scroll_event",
+		    G_CALLBACK (ghid_port_window_mouse_scroll_cb), NULL);
 
   key_press_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "key_press_event",
@@ -1503,15 +1508,20 @@ ghid_interface_input_signals_disconnect (void)
   if (button_release_handler)
     g_signal_handler_disconnect (gport->drawing_area, button_release_handler);
 
+  if (scroll_event_handler)
+    g_signal_handler_disconnect (gport->drawing_area, scroll_event_handler);
+
   if (key_press_handler)
     g_signal_handler_disconnect (gport->drawing_area, key_press_handler);
 
   if (key_release_handler)
     g_signal_handler_disconnect (gport->drawing_area, key_release_handler);
 
-  button_press_handler = button_release_handler = 0;
-  key_press_handler = key_release_handler = 0;
-
+  button_press_handler = 0;
+  button_release_handler = 0;
+  scroll_event_handler = 0;
+  key_press_handler = 0;
+  key_release_handler = 0;
 }
 
 

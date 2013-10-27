@@ -324,7 +324,10 @@ run_get_location_loop (const gchar * message)
 		      G_CALLBACK (loop_key_press_cb), &loop);
 
   loop = g_main_loop_new (NULL, FALSE);
+
+  GDK_THREADS_LEAVE ();
   g_main_loop_run (loop);
+  GDK_THREADS_ENTER ();
 
   g_main_loop_unref (loop);
 
