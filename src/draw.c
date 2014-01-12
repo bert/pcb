@@ -911,10 +911,15 @@ DrawPaste (int side, const BoxType *drawn_area)
   {
     if (ON_SIDE (pad, side) && !TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
       {
+        Coord save_thickness = pad->Thickness;
+
+        if (Settings.PasteScale != 1)
+          pad->Thickness = floor (pad->Thickness * Settings.PasteScale + 0.5);
         if (pad->Mask < pad->Thickness)
           _draw_pad (Output.fgGC, pad, true, true);
         else
           _draw_pad (Output.fgGC, pad, false, false);
+        pad->Thickness = save_thickness;
       }
   }
   ENDALL_LOOP;

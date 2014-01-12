@@ -645,6 +645,7 @@ typedef struct			/* some resources... */
   int TextScale;		/* text scaling in % */
   Coord Grid;			/* grid in pcb-units */
   double IsleArea;		/* polygon min area */
+  double PasteScale;		/* pad paste scale factor */
   int PinoutNameLength,		/* max displayed length of a pinname */
     Volume,			/* the speakers volume -100..100 */
     CharPerLine,		/* width of an output line in characters */

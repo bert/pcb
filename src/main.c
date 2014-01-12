@@ -1062,6 +1062,16 @@ Minimum polygon area.
   RSET (IsleArea, MIL_TO_COORD(100) * MIL_TO_COORD(100), "minimum polygon area", 0),
 
 
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --paste scale factor <num>
+Scale pad thickness in paste layer. Default value is @code{1}.
+@end ftable
+%end-doc
+*/
+  RSET (PasteScale, 1, "paste-scale", "Scale pad thickness in paste layer"),
+
+
 /* %start-doc options "1 General Options"
 @ftable @code
 @item --backup-interval
