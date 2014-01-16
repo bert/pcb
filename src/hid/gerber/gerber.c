@@ -338,6 +338,8 @@ static const char *name_style_names[] = {
   "first",
 #define NAME_STYLE_EAGLE 3
   "eagle",
+#define NAME_STYLE_HACKVANA 4
+  "hackvana",
   NULL
 };
 
@@ -496,6 +498,61 @@ assign_eagle_file_suffix (char *dest, int idx)
   strcpy (dest, suff);
 }
 
+/* Very similar to layer_type_to_file_name() but appends only a
+   three-character suffix compatible with Hackvana's naming requirements  */
+static void
+assign_hackvana_file_suffix (char *dest, int idx)
+{
+  int group;
+  int nlayers;
+  char *suff = "defau.out";
+
+  switch (idx)
+    {
+    case SL (SILK,      TOP):    suff = "gto"; break;
+    case SL (SILK,      BOTTOM): suff = "gbo"; break;
+    case SL (MASK,      TOP):    suff = "gts"; break;
+    case SL (MASK,      BOTTOM): suff = "gbs"; break;
+    case SL (PDRILL,    0):      suff = "drl"; break;
+    case SL (UDRILL,    0):
+      suff = "_NPTH.drl";
+      break;
+    case SL (PASTE,     TOP):    suff = "gtp"; break;
+    case SL (PASTE,     BOTTOM): suff = "gbp"; break;
+    case SL (INVISIBLE, 0):      suff = "inv"; break;
+    case SL (FAB,       0):      suff = "fab"; break;
+    case SL (ASSY,      TOP):    suff = "ast"; break;
+    case SL (ASSY,      BOTTOM): suff = "asb"; break;
+
+    default:
+      group = GetLayerGroupNumberByNumber(idx);
+      nlayers = PCB->LayerGroups.Number[group];
+      if (group == GetLayerGroupNumberByNumber(component_silk_layer))
+      {
+        suff = "gtl";
+      }
+      else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
+      {
+        suff = "gbl";
+      }
+      else if (nlayers == 1
+        && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
+            strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
+      {
+        suff = "gm1";
+      }
+      else
+      {
+        static char buf[20];
+        sprintf (buf, "g%d", group);
+        suff = buf;
+      }
+      break;
+    }
+
+  strcpy (dest, suff);
+}
+
 static void
 assign_file_suffix (char *dest, int idx)
 {
@@ -510,6 +567,9 @@ assign_file_suffix (char *dest, int idx)
     case NAME_STYLE_FIRST:  fns_style = FNS_first;  break;
     case NAME_STYLE_EAGLE:
       assign_eagle_file_suffix (dest, idx);
+      break;
+    case NAME_STYLE_HACKVANA:
+      assign_hackvana_file_suffix (dest, idx);
       return;
     }
 
