@@ -1,6 +1,6 @@
 ## -*- makefile -*-
 
-SUBDIRS=	icons
+SUBDIRS=	icons plugins
 
 CC = @CC_OR_CXX@
 
