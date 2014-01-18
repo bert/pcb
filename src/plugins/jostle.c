@@ -39,7 +39,7 @@ double vect_dist2 (Vector v1, Vector v2);
 #define Vcpy2(r,a)              {(r)[0] = (a)[0]; (r)[1] = (a)[1];}
 #define Vswp2(a,b) { long t; \
         t = (a)[0], (a)[0] = (b)[0], (b)[0] = t; \
-	t = (a)[1], (a)[1] = (b)[1], (b)[1] = t; \
+        t = (a)[1], (a)[1] = (b)[1], (b)[1] = t; \
 }
 
 //{if (!Marked.status && side==NORTHWEST) { DrawMark(True); Marked.status = True; Marked.X = p[0]; Marked.Y = p[1]; DrawMark(False);} }
