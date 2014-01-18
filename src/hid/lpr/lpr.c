@@ -36,7 +36,7 @@ PDF output with a virtual PDF printer. Example: @*
 @noindent In addition, all @ref{Postscript Export} options are valid.
 %end-doc
 */
-  {"lprcommand", "Command to use for printing",
+  {N_("lprcommand"), N_("Command to use for printing"),
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_lprcommand 0
 };
@@ -131,7 +131,7 @@ hid_lpr_init ()
 
   lpr_hid.struct_size         = sizeof (HID);
   lpr_hid.name                = "lpr";
-  lpr_hid.description         = "Postscript print";
+  lpr_hid.description         = N_("Postscript print");
   lpr_hid.printer             = 1;
   lpr_hid.poly_before         = 1;
 

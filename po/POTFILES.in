@@ -39,6 +39,7 @@ src/hid/gtk/gui-misc.c
 src/hid/gtk/gui-netlist-window.c
 src/hid/gtk/gui-top-window.c
 src/hid/lesstif/dialogs.c
+src/hid/lpr/lpr.c
 src/hid/ps/ps.c
 src/hid/gtk/gui-trackball.c
 src/main.c
