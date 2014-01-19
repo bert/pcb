@@ -27,6 +27,7 @@
 #include "create.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
@@ -58,6 +59,7 @@ static const char *colors[] = {
 FILE *vrml_output;
 
 static HID vrml_hid;
+static HID_DRAW vrml_graphics;
 
 static int color_silk_emited, color_hole_emited, color_copper_emited,
   color_mask_emited;
@@ -323,55 +325,22 @@ vrml_emit_layer_color (FILE * f, hidGC gc)
 #define HA_copper_color		7
 //#define HA_compact            8
 
-static HID_Attribute vrml_options[] = {
-
-  {
-   "vrml_file", "VRML output file name", HID_String, 0, 0,
-   {
-    0, 0, 0}, 0, 0},
-  {
-   "silk_layers", "Export silk layers", HID_Boolean, 0, 0,
-   {
-    1, 0, 0}, 0, 0},
-  {
-   "components", "Export components", HID_Boolean, 0, 0,
-   {
-    1, 0, 0}, 0, 0},
-  {
-   "innner_layers", "Export inner layers", HID_Boolean, 0, 0,
-   {
-    0, 0, 0}, 0, 0},
-  {
-   "layer_colors", "Use layer colors for copper tracks",
-   HID_Boolean,
-   0, 0,
-   {
-    0, 0, 0}, 0, 0},
-  {
-   "board_outline", "Board outline",
-   HID_Enum,
-   0, 0,
-   {
-    3, 0, 0}, outlines, 0},
-  {
-   "solder_mask", "Export solder mask", HID_Boolean, 0, 0,
-   {
-    1, 0, 0}, 0, 0},
-  {
-   "copper_finish", "Surface finish of copper",
-   HID_Enum,
-   0, 0,
-   {
-    0, 0, 0}, colors, 0},
-//  {
-//   "compact_output", "All leading spaces and tabs are omitted",
-//   HID_Boolean,
-//   0, 0,
-//   {
-//    1, 0, 0}, 0, 0},
+static HID_Attribute vrml_attribute_list[] =
+{
+  {"vrml_file", "VRML output file name", HID_String, 0, 0, {0, 0, 0}, 0, 0},
+  {"silk_layers", "Export silk layers", HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+  {"components", "Export components", HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+  {"innner_layers", "Export inner layers", HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+  {"layer_colors", "Use layer colors for copper tracks", HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+  {"board_outline", "Board outline", HID_Enum, 0, 0, {3, 0, 0}, outlines, 0},
+  {"solder_mask", "Export solder mask", HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+  {"copper_finish", "Surface finish of copper", HID_Enum, 0, 0, {0, 0, 0}, colors, 0},
+//  {"compact_output", "All leading spaces and tabs are omitted", HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 };
 
-#define NUM_OPTIONS (sizeof(vrml_options)/sizeof(vrml_options[0]))
+#define NUM_OPTIONS (sizeof(vrml_attribute_list)/sizeof(vrml_attribute_list[0]))
+
+REGISTER_ATTRIBUTES (vrml_attribute_list)
 
 static HID_Attr_Val vrml_values[NUM_OPTIONS];
 
@@ -380,12 +349,12 @@ vrml_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
   if (PCB)
-    derive_default_filename (PCB->Filename, &vrml_options[HA_vrmlfile],
-			     ".wrl", &last_made_filename);
+    derive_default_filename (PCB->Filename, &vrml_attribute_list[HA_vrmlfile],
+      ".wrl", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
-  return vrml_options;
+  return vrml_attribute_list;
 }
 
 static void
@@ -407,7 +376,7 @@ vrml_do_export (HID_Attr_Val * options)
     {
       vrml_get_export_options (0);
       for (i = 0; i < NUM_OPTIONS; i++)
-	vrml_values[i] = vrml_options[i].default_val;
+        vrml_values[i] = vrml_attribute_list[i].default_val;
       options = vrml_values;
     }
   opt_exp_mask = options[HA_exp_mask].int_value;
@@ -728,8 +697,8 @@ vrml_do_export (HID_Attr_Val * options)
 static void
 vrml_parse_arguments (int *argc, char ***argv)
 {
-  hid_register_attributes (vrml_options,
-			   sizeof (vrml_options) / sizeof (vrml_options[0]));
+  hid_register_attributes (vrml_attribute_list,
+			   sizeof (vrml_attribute_list) / sizeof (vrml_attribute_list[0]));
   hid_parse_command_line (argc, argv);
 }
 
@@ -930,10 +899,10 @@ vrml_set_draw_xor (hidGC gc, int xor)
 {
 }
 
-//static void
-//vrml_set_draw_faded (hidGC gc, int faded)
-//{
-//}
+static void
+vrml_set_draw_faded (hidGC gc, int faded)
+{
+}
 
 //static void
 //vrml_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
@@ -1331,42 +1300,52 @@ vrml_set_crosshair (int x, int y, int action)
 {
 }
 
-static HID vrml_hid;
+#include "dolists.h"
+
+void vrml_vrml_init (HID *hid)
+{
+  hid->get_export_options = vrml_get_export_options;
+  hid->do_export = vrml_do_export;
+  hid->parse_arguments = vrml_parse_arguments;
+  hid->set_layer = vrml_set_layer;
+  hid->calibrate = vrml_calibrate;
+  hid->set_crosshair = vrml_set_crosshair;
+}
+
+void
+vrml_vrml_graphics_init (HID_DRAW *graphics)
+{
+  graphics->make_gc = vrml_make_gc;
+  graphics->destroy_gc = vrml_destroy_gc;
+  graphics->use_mask = vrml_use_mask;
+  graphics->set_color = vrml_set_color;
+  graphics->set_line_cap = vrml_set_line_cap;
+  graphics->set_line_width = vrml_set_line_width;
+  graphics->set_draw_xor = vrml_set_draw_xor;
+  graphics->set_draw_faded     = vrml_set_draw_faded;
+  graphics->draw_line = vrml_draw_line;
+  graphics->draw_arc = vrml_draw_arc;
+  graphics->draw_rect = vrml_draw_rect;
+  graphics->fill_circle = vrml_fill_circle;
+  graphics->fill_polygon = vrml_fill_polygon;
+  graphics->fill_rect = vrml_fill_rect;
+}
 
 void
 hid_vrml_init ()
 {
+  memset (&vrml_hid, 0, sizeof (HID));
+  memset (&vrml_graphics, 0, sizeof (HID_DRAW));
   common_nogui_init (&vrml_hid);
-  common_draw_helpers_init (&vrml_hid);
-
-
-  vrml_hid.struct_size = sizeof (vrml_hid);
+  common_draw_helpers_init (&vrml_graphics);
+  vrml_vrml_init (&vrml_hid);
+  vrml_vrml_graphics_init (&vrml_graphics);
+  vrml_hid.struct_size = sizeof (HID);
   vrml_hid.name = "vrml";
   vrml_hid.description = "VRML 3D export";
   vrml_hid.exporter = 1;
-
-  vrml_hid.get_export_options = vrml_get_export_options;
-  vrml_hid.do_export = vrml_do_export;
-  vrml_hid.parse_arguments = vrml_parse_arguments;
-  vrml_hid.set_layer = vrml_set_layer;
-  vrml_hid.make_gc = vrml_make_gc;
-  vrml_hid.destroy_gc = vrml_destroy_gc;
-  vrml_hid.use_mask = vrml_use_mask;
-  vrml_hid.set_color = vrml_set_color;
-  vrml_hid.set_line_cap = vrml_set_line_cap;
-  vrml_hid.set_line_width = vrml_set_line_width;
-  vrml_hid.set_draw_xor = vrml_set_draw_xor;
-
-  vrml_hid.draw_line = vrml_draw_line;
-  vrml_hid.draw_arc = vrml_draw_arc;
-  vrml_hid.draw_rect = vrml_draw_rect;
-  vrml_hid.fill_circle = vrml_fill_circle;
-  vrml_hid.fill_polygon = vrml_fill_polygon;
-
-  vrml_hid.fill_rect = vrml_fill_rect;
-  vrml_hid.calibrate = vrml_calibrate;
-  vrml_hid.set_crosshair = vrml_set_crosshair;
-
-
+  vrml_hid.poly_before = 1;
+  vrml_hid.graphics = &vrml_graphics;
   hid_register_hid (&vrml_hid);
+#include "vrml_lists.h"
 }

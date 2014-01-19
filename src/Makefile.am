@@ -193,6 +193,7 @@ BUILT_SOURCES = \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	hid/vrml/vrml_lists.h \
 	parse_y.h \
 	pcb-menu.h \
 	res_parse.h \
@@ -395,11 +396,23 @@ libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
 
-libvrml_a_SOURCES = \
+libvrml_a_CPPFLAGS = -I./hid/vrml
+
+LIBVRML_SRCS = \
+	dolists.h \
 	hid/hidint.h \
-	hid/vrml/vrml.h \
 	hid/vrml/vrml.c \
+	hid/vrml/vrml.h \
 	hid/vrml/vrmlcomp.c
+
+libvrml_a_SOURCES = ${LIBVRML_SRCS} hid/vrml/vrml_lists.h
+
+hid/vrml/vrml_lists.h : ${LIBVRML_SRCS} Makefile
+	$(MKDIR_P) hid/vrml
+	true > $@
+	(for f in ${LIBVRML_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 
 libbom_a_SOURCES = \
 	hid/hidint.h \
@@ -483,6 +496,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	hid/vrml/vrml_lists.h \
 	core_lists.h \
 	dbus-introspect.h \
 	gpcb-menu.res \

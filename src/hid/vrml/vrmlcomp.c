@@ -1076,7 +1076,10 @@ vrml_process_components (void)
   int cx, cy;
   int counter = 0;
   BufferType bf;
-  char *with_fp, *fpe, *mpf, *mpe;
+  char *with_fp = NULL;
+  char *fpe = NULL;
+  char *mpf = NULL;
+  char *mpe = NULL;
   float angle;
   map3d_struct map = { 0, 0, 0 };
 
