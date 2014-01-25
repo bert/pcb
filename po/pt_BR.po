@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-01 09:13-0200\n"
+"POT-Creation-Date: 2014-01-24 15:15-0200\n"
 "PO-Revision-Date: 2014-01-01 09:37-0200\n"
 "Last-Translator: Jorge Barros de Abreu <ficmatin10@gmail.com>\n"
 "Language-Team: pt_BR <ldpbr-translation@lists.sourceforge.net>\n"
@@ -190,11 +190,11 @@ msgstr "Pode apagar os dados do traçado ?"
 
 #: ../src/action.c:6075
 msgid "Buffer has no elements!\n"
-msgstr "Memória temporária vazia!\n"
+msgstr "Memória vazia!\n"
 
 #: ../src/action.c:6081
 msgid "Save Paste Buffer As ..."
-msgstr "Gravar Colagem de Memória Temporária Como ..."
+msgstr "Gravar Colagem de Memória Como ..."
 
 #: ../src/action.c:6082
 msgid ""
@@ -202,7 +202,7 @@ msgid ""
 "paste buffer to.\n"
 msgstr ""
 "Escolha um arquivo para gravar o conteúdo da\n"
-"colagem da memória temporária.\n"
+"colagem da memória.\n"
 
 #: ../src/action.c:6511
 msgid "Nothing found under crosshair\n"
@@ -268,7 +268,7 @@ msgstr "Essa Interface Gráfica de Usuário não suporta Edição de Atributo\n"
 #: ../src/action.c:7944
 #, c-format
 msgid "No layer named %s\n"
-msgstr "Nenhuma camada com o nome de %s\n"
+msgstr "Nenhuma camada chamada de %s\n"
 
 #: ../src/action.c:7970
 msgid "Too many elements selected\n"
@@ -301,7 +301,7 @@ msgstr "Roteando automaticamente trilhas"
 
 #: ../src/buffer.c:845
 msgid "Error!  Buffer doesn't contain a single element\n"
-msgstr "Erro! Memória temporária não contém um único componente\n"
+msgstr "Erro! Memória não contém um único componente\n"
 
 #: ../src/buffer.c:1020
 msgid ""
@@ -331,11 +331,11 @@ msgstr ""
 
 #: ../src/buffer.c:1407
 msgid "You can't mirror a buffer that has elements!\n"
-msgstr "Você não pode refletir uma memória temporária que tem componentes!\n"
+msgstr "Você não pode refletir uma memória que tem componentes!\n"
 
 #: ../src/buffer.c:1415
 msgid "You can't mirror a buffer that has text!\n"
-msgstr "Você não pode refletir uma memória temporária que tem texto!\n"
+msgstr "Você não pode refletir uma memória que tem texto!\n"
 
 #: ../src/change.c:758
 msgid ""
@@ -346,8 +346,8 @@ msgid ""
 msgstr ""
 "Para mudar a folga de objetos em um polígono, mude os objetos, não o "
 "polígono.\n"
-"Dica: Para ajustar uma folga mínima para um grupo de objetos, selecione todos "
-"eles então :MinClearGap(Selected,=10,mil)"
+"Dica: Para ajustar uma folga mínima para um grupo de objetos, selecione "
+"todos eles então :MinClearGap(Selected,=10,mil)"
 
 #: ../src/change.c:1051
 #, c-format
@@ -381,7 +381,8 @@ msgid ""
 "%m+Dropping via at %$mD because it's hole would overlap with the via at %"
 "$mD\n"
 msgstr ""
-"%m+Soltando via em %$mD porque seu orifíco pode sobrescrever com a via em %$mD\n"
+"%m+Soltando via em %$mD porque seu orifíco pode sobrescrever com a via em %"
+"$mD\n"
 
 #: ../src/create.c:271
 msgid "%m+Mapped via drill hole to %$mS from %$mS per vendor table\n"
@@ -591,7 +592,7 @@ msgstr "Pressione Seguinte para continuar verificação de DRC"
 msgid "Next"
 msgstr "Seguinte"
 
-#: ../src/find.c:221
+#: ../src/find.c:221 ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
 msgid "Cancel"
 msgstr "Cancela"
 
@@ -642,7 +643,7 @@ msgid ""
 "Circuits that are too close may bridge during imaging, etching,\n"
 "plating, or soldering processes resulting in a direct short."
 msgstr ""
-"Circuito que estão muito próximos podem se juntar durante desenho da matriz, "
+"Circuitos que estão muito próximos podem se juntar durante desenho da matriz, "
 "corrosão,\n"
 "galvanoplastia, ou processos de soldagem resultando em um curto circuito."
 
@@ -759,14 +760,2178 @@ msgstr ""
 "mínima que pode confiávelmente ser reproduzida"
 
 #: ../src/find.c:4051
-#, c-format
-msgid "Warning:  %d pad%s the nopaste flag set.\n"
-msgstr "Atenção:  %d pastilha%s estão com o sinalizador nopaste habilitado.\n"
+#, fuzzy, c-format
+msgid "Warning: %d pad has the nopaste flag set.\n"
+msgid_plural "Warning: %d pads have the nopaste flag set.\n"
+msgstr[0] ""
+"Atenção:  %d pastilha está com o sinalizador nopaste habilitado.\n"
+msgstr[1] ""
+"Atenção:  %d pastilhas estão com o sinalizador nopaste habilitado.\n"
 
 #: ../src/find.c:4148
 #, c-format
 msgid "Internal error in BuildObjectList: unknown object type %i\n"
 msgstr "Erro Interno em BuildObjectList: tipo de objeto desconhecido %i\n"
+
+#: ../src/gpcb-menu.res:56
+msgid "File"
+msgstr "Arquivo"
+
+#: ../src/gpcb-menu.res:57
+msgid "New"
+msgstr "Novo"
+
+#: ../src/gpcb-menu.res:57 ../src/pcb-menu.res:51
+msgid "Ctrl-N"
+msgstr "Ctrl-N"
+
+#: ../src/gpcb-menu.res:57 ../src/pcb-menu.res:51
+msgid "Ctrl<Key>n"
+msgstr "Ctrl<Tecla>n"
+
+#: ../src/gpcb-menu.res:58
+msgid "Open..."
+msgstr "Abrir..."
+
+#: ../src/gpcb-menu.res:58
+#, fuzzy
+msgid "Load a layout from a file"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1979
+msgid "Save"
+msgstr "Gravar"
+
+#: ../src/gpcb-menu.res:60
+#, fuzzy
+msgid "Saves current layout"
+msgstr "Grava traçado atual"
+
+#: ../src/gpcb-menu.res:60 ../src/pcb-menu.res:33
+msgid "Ctrl-S"
+msgstr "Ctrl-S"
+
+#: ../src/gpcb-menu.res:60 ../src/pcb-menu.res:33
+msgid "Ctrl<Key>s"
+msgstr "Ctrl<Tecla>s"
+
+#: ../src/gpcb-menu.res:61
+msgid "Save As..."
+msgstr "Gravar Como..."
+
+#: ../src/gpcb-menu.res:61
+msgid "Saves current layout into a new file"
+msgstr "Grava o traçado atual em um novo arquivo"
+
+#: ../src/gpcb-menu.res:61 ../src/pcb-menu.res:34
+msgid "Shift Ctrl-S"
+msgstr "Shift Ctrl-S"
+
+#: ../src/gpcb-menu.res:61 ../src/pcb-menu.res:34
+msgid "Shift Ctrl<Key>s"
+msgstr "Shift Ctrl<Tecla>s"
+
+#: ../src/gpcb-menu.res:62 ../src/pcb-menu.res:35
+msgid "Revert"
+msgstr "Reverter"
+
+#: ../src/gpcb-menu.res:62
+msgid "Revert to the layout stored on disk"
+msgstr "Reverter para o traçado gravado no disco"
+
+#: ../src/gpcb-menu.res:64 ../src/pcb-menu.res:36
+#, fuzzy
+msgid "Import Schematics"
+msgstr "Coloca diagramas esquemáticos na memória"
+
+#. in case we have a dialog for loading a footprint file
+#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1239
+#: ../src/hid/gtk/gui-dialog.c:292
+msgid "Load element to buffer"
+msgstr "Coloca componente na memória"
+
+#: ../src/gpcb-menu.res:66
+#, fuzzy
+msgid "Load layout to buffer"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/gpcb-menu.res:67
+#, fuzzy
+msgid "Load netlist"
+msgstr "Coloca na memória o arquivo de netlist"
+
+#: ../src/gpcb-menu.res:68 ../src/pcb-menu.res:41
+#, fuzzy
+msgid "Load vendor resource file"
+msgstr "Colocar na memória arquivo de recursos de fornecedor..."
+
+#: ../src/gpcb-menu.res:70
+#, fuzzy
+msgid "Save connection data of"
+msgstr "Grava Dados de Conecção de ..."
+
+#: ../src/gpcb-menu.res:71 ../src/pcb-menu.res:47
+#, fuzzy
+msgid " a single element"
+msgstr " um único componente"
+
+#: ../src/gpcb-menu.res:72 ../src/pcb-menu.res:48
+#, fuzzy
+msgid " all elements"
+msgstr " todos os componentes"
+
+#: ../src/gpcb-menu.res:73 ../src/pcb-menu.res:49
+msgid " unused pins"
+msgstr "conectores livres"
+
+#: ../src/gpcb-menu.res:75
+msgid "Export..."
+msgstr "Exportar..."
+
+#: ../src/gpcb-menu.res:77 ../src/pcb-menu.res:44
+#, fuzzy
+msgid "Calibrate Printer..."
+msgstr "Faça a calibração da impressora..."
+
+#: ../src/gpcb-menu.res:78
+msgid "Print..."
+msgstr "Imprimir..."
+
+#: ../src/gpcb-menu.res:80
+#, fuzzy
+msgid "Preferences..."
+msgstr "Preferências do PCB"
+
+#: ../src/gpcb-menu.res:82
+msgid "Quit"
+msgstr "Sair"
+
+#: ../src/gpcb-menu.res:82 ../src/pcb-menu.res:53
+msgid "Ctrl-Q"
+msgstr "Ctrl-Q"
+
+#: ../src/gpcb-menu.res:82 ../src/pcb-menu.res:53
+msgid "Ctrl<Key>q"
+msgstr "Ctrl<Tecla>q"
+
+#: ../src/gpcb-menu.res:88
+msgid "Edit"
+msgstr "Editar"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:418
+msgid "Undo"
+msgstr "Desfazer"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:134
+msgid "U"
+msgstr "U"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:134
+msgid "<Key>u"
+msgstr "<Tecla>u"
+
+#: ../src/gpcb-menu.res:90
+msgid "Redo"
+msgstr "Refazer"
+
+#: ../src/gpcb-menu.res:90 ../src/pcb-menu.res:135
+msgid "Shift-R"
+msgstr "Shift-R"
+
+#: ../src/gpcb-menu.res:90 ../src/pcb-menu.res:135
+msgid "Shift<Key>r"
+msgstr "Shift<Tecla>r"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Clear undo-buffer"
+msgstr "Apagar histórico de desfazer"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Shift-Ctrl-U"
+msgstr "Shift-Ctrl-U"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Shift Ctrl<Key>u"
+msgstr "Shift Ctrl<Tecla>u"
+
+#: ../src/gpcb-menu.res:296
+#, fuzzy
+msgid "Cut to buffer"
+msgstr "Cortar para a memória"
+
+#: ../src/gpcb-menu.res:95 ../src/pcb-menu.res:140
+msgid "Ctrl-X"
+msgstr "Ctrl-X"
+
+#: ../src/gpcb-menu.res:95 ../src/pcb-menu.res:140
+msgid "Ctrl<Key>x"
+msgstr "Ctrl<Tecla>x"
+
+#: ../src/gpcb-menu.res:96
+#, fuzzy
+msgid "Copy to buffer"
+msgstr "Copiar para a memória"
+
+#: ../src/gpcb-menu.res:98 ../src/pcb-menu.res:143
+msgid "Ctrl-C"
+msgstr "Ctrl-C"
+
+#: ../src/gpcb-menu.res:98 ../src/pcb-menu.res:143
+msgid "Ctrl<Key>c"
+msgstr "Ctrl<Tecla>c"
+
+#: ../src/gpcb-menu.res:298
+#, fuzzy
+msgid "Paste buffer"
+msgstr "Cola na memória"
+
+#: ../src/gpcb-menu.res:99 ../src/pcb-menu.res:144
+msgid "Ctrl-V"
+msgstr "Ctrl-V"
+
+#: ../src/gpcb-menu.res:99 ../src/pcb-menu.res:144
+msgid "Ctrl<Key>v"
+msgstr "Ctrl<Tecla>v"
+
+#: ../src/gpcb-menu.res:240 ../src/pcb-menu.res:146
+#, fuzzy
+msgid "Unselect all"
+msgstr "Remove seleção de tudo"
+
+#: ../src/gpcb-menu.res:101 ../src/pcb-menu.res:146
+msgid "Shift-Alt-A"
+msgstr "Shift-Alt-A"
+
+#: ../src/gpcb-menu.res:101 ../src/pcb-menu.res:146
+msgid "Shift Alt<Key>a"
+msgstr "Shift Alt<Tecla>a"
+
+#: ../src/gpcb-menu.res:236 ../src/pcb-menu.res:147
+#, fuzzy
+msgid "Select all visible"
+msgstr "Selecione tudo que estiver visível"
+
+#: ../src/gpcb-menu.res:102 ../src/pcb-menu.res:147
+msgid "Alt-A"
+msgstr "Alt-A"
+
+#: ../src/gpcb-menu.res:102 ../src/pcb-menu.res:147
+msgid "Alt<Key>a"
+msgstr "Alt<Tecla>a"
+
+#: ../src/gpcb-menu.res:104
+msgid "Edit name of"
+msgstr "Edit name of"
+
+#: ../src/gpcb-menu.res:105
+#, fuzzy
+msgid "text on layout"
+msgstr "texto sobre traçado"
+
+#: ../src/gpcb-menu.res:105 ../src/pcb-menu.res:150
+msgid "N"
+msgstr "N"
+
+#: ../src/gpcb-menu.res:105 ../src/pcb-menu.res:150
+msgid "<Key>n"
+msgstr "<Tecla>n"
+
+#: ../src/gpcb-menu.res:106
+#, fuzzy
+msgid "layout"
+msgstr "traçado"
+
+#: ../src/gpcb-menu.res:107
+msgid "active layer"
+msgstr "camada ativa"
+
+#: ../src/gpcb-menu.res:109
+msgid "Edit attributes of"
+msgstr "Editar atributos de"
+
+#: ../src/gpcb-menu.res:110
+#, fuzzy
+msgid "Layout"
+msgstr "Traçado"
+
+#: ../src/gpcb-menu.res:111
+msgid "CurrentLayer"
+msgstr "Camada Atual"
+
+#: ../src/gpcb-menu.res:112
+#, fuzzy
+msgid "Element"
+msgstr "Componente:"
+
+#. Create edit button
+#: ../src/gpcb-menu.res:115 ../src/hid/gtk/ghid-route-style-selector.c:417
+#: ../src/pcb-menu.res:159
+msgid "Route Styles"
+msgstr "Estilos de Rota"
+
+#: ../src/gpcb-menu.res:117 ../src/pcb-menu.res:162
+msgid "Edit..."
+msgstr "Editar..."
+
+#: ../src/gpcb-menu.res:124
+#, fuzzy
+msgid "View"
+msgstr "Visão"
+
+#: ../src/gpcb-menu.res:125
+msgid "Enable visible grid"
+msgstr "Habilitar grade visível"
+
+#: ../src/gpcb-menu.res:126
+msgid "Grid units"
+msgstr "Unidades de grade"
+
+#: ../src/gpcb-menu.res:127 ../src/pcb-menu.res:94
+msgid "mil"
+msgstr "mil"
+
+#: ../src/gpcb-menu.res:128 ../src/pcb-menu.res:95
+msgid "mm"
+msgstr "mm"
+
+#: ../src/gpcb-menu.res:130
+#, fuzzy
+msgid "Grid size"
+msgstr "Tamanho da grade"
+
+#: ../src/gpcb-menu.res:131 ../src/pcb-menu.res:98
+#, fuzzy
+msgid "No Grid"
+msgstr "Sem Grade"
+
+#: ../src/gpcb-menu.res:133 ../src/pcb-menu.res:100
+msgid "0.1 mil"
+msgstr "0.1 mil"
+
+#: ../src/gpcb-menu.res:134 ../src/pcb-menu.res:101
+msgid "1 mil"
+msgstr "1 mil"
+
+#: ../src/gpcb-menu.res:135 ../src/pcb-menu.res:102
+msgid "5 mil"
+msgstr "5 mil"
+
+#: ../src/gpcb-menu.res:136 ../src/pcb-menu.res:103
+msgid "10 mil"
+msgstr "10 mil"
+
+#: ../src/gpcb-menu.res:137 ../src/pcb-menu.res:104
+msgid "25 mil"
+msgstr "25 mil"
+
+#: ../src/gpcb-menu.res:138 ../src/pcb-menu.res:105
+msgid "50 mil"
+msgstr "50 mil"
+
+#: ../src/gpcb-menu.res:139 ../src/pcb-menu.res:106
+msgid "100 mil"
+msgstr "100 mil"
+
+#: ../src/gpcb-menu.res:141 ../src/pcb-menu.res:108
+msgid "0.01 mm"
+msgstr "0.01 mm"
+
+#: ../src/gpcb-menu.res:142 ../src/pcb-menu.res:109
+msgid "0.05 mm"
+msgstr "0.05 mm"
+
+#: ../src/gpcb-menu.res:143 ../src/pcb-menu.res:110
+msgid "0.1 mm"
+msgstr "0.1 mm"
+
+#: ../src/gpcb-menu.res:144 ../src/pcb-menu.res:111
+msgid "0.25 mm"
+msgstr "0.25 mm"
+
+#: ../src/gpcb-menu.res:145 ../src/pcb-menu.res:112
+msgid "0.5 mm"
+msgstr "0.5 mm"
+
+#: ../src/gpcb-menu.res:146 ../src/pcb-menu.res:113
+msgid "1 mm"
+msgstr "1 mm"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+#, fuzzy
+msgid "Grid -"
+msgstr "Grade -"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+msgid "Shift-G"
+msgstr "Shift-G"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+msgid "Shift<Key>g"
+msgstr "Shift<Tecla>g"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+#, fuzzy
+msgid "Grid +"
+msgstr "Grade +"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+msgid "G"
+msgstr "G"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+msgid "<Key>g"
+msgstr "<Tecla>g"
+
+#: ../src/gpcb-menu.res:151 ../src/pcb-menu.res:97
+msgid "Realign grid"
+msgstr "Realinhar grade"
+
+#: ../src/gpcb-menu.res:153
+#, fuzzy
+msgid "Displayed element name"
+msgstr "Mostra nome de componente"
+
+#: ../src/gpcb-menu.res:154 ../src/pcb-menu.res:64
+msgid "Description"
+msgstr "Descrição"
+
+#: ../src/gpcb-menu.res:155 ../src/pcb-menu.res:65
+msgid "Reference Designator"
+msgstr "Dsignador de Referência"
+
+#: ../src/gpcb-menu.res:156 ../src/pcb-menu.res:66
+msgid "Value"
+msgstr "Valor"
+
+#: ../src/gpcb-menu.res:158
+msgid "Enable Pinout shows number"
+msgstr "Habilitar saída de conector mostra número"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "Pins/Via show Name/Number"
+msgstr "Conector/Via mostra Nome/Número"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "D"
+msgstr "D"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "<Key>d"
+msgstr "<Tecla>d"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+#, fuzzy, no-c-format
+msgid "Zoom In 20%"
+msgstr "Aproximação\n"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+msgid "Z"
+msgstr "Z"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+msgid "<Key>z"
+msgstr "<Tecla>z"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+#, fuzzy, no-c-format
+msgid "Zoom Out 20%"
+msgstr "Afastamento\n"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+msgid "Shift-Z"
+msgstr "Shift-Z"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+msgid "Shift<Key>z"
+msgstr "Shift<Tecla>z"
+
+#: ../src/gpcb-menu.res:163
+msgid "More zooms and view changes"
+msgstr "Mais aproximações e modos de visão"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+#, fuzzy
+msgid "Zoom Max"
+msgstr "Aproximação Maxima"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+msgid "V"
+msgstr "V"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+msgid "<Key>v"
+msgstr "<Tecla>v"
+
+#: ../src/gpcb-menu.res:165 ../src/pcb-menu.res:75
+#, fuzzy
+msgid "Zoom In 2X"
+msgstr "Aproximação Em 2X"
+
+#: ../src/gpcb-menu.res:166 ../src/pcb-menu.res:81
+#, fuzzy
+msgid "Zoom Out 2X"
+msgstr "Afastamento 2X"
+
+#: ../src/gpcb-menu.res:167 ../src/pcb-menu.res:85
+msgid "Zoom to 0.1mil/px"
+msgstr "Aproximação de 0.1mil/px"
+
+#: ../src/gpcb-menu.res:168 ../src/pcb-menu.res:86
+msgid "Zoom to 0.01mm/px"
+msgstr "Aproximação de 0.01mm/px"
+
+#: ../src/gpcb-menu.res:169 ../src/pcb-menu.res:87
+msgid "Zoom to 1mil/px"
+msgstr "Aproximação de 1mm/px"
+
+#: ../src/gpcb-menu.res:170 ../src/pcb-menu.res:88
+msgid "Zoom to 0.05mm/px"
+msgstr "Aproximação de 0.05mm/px"
+
+#: ../src/gpcb-menu.res:171 ../src/pcb-menu.res:89
+msgid "Zoom to 2.5mil/px"
+msgstr "Aproximação de 2.5mil/px"
+
+#: ../src/gpcb-menu.res:172 ../src/pcb-menu.res:90
+msgid "Zoom to 0.1mm/px"
+msgstr "Aproximação de 0.1mm/px"
+
+#: ../src/gpcb-menu.res:173 ../src/pcb-menu.res:91
+msgid "Zoom to 10mil/px"
+msgstr "Aproximação de 10mil/px"
+
+#: ../src/gpcb-menu.res:174
+#, no-c-format
+msgid "Zoom In 20% and center"
+msgstr "Aproximação 20% e centro"
+
+#: ../src/gpcb-menu.res:175
+#, no-c-format
+msgid "Zoom Out 20% and center"
+msgstr "Afastamento 20% e centro"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "Flip up/down"
+msgstr "Vira acima/abaixo"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "Tab"
+msgstr "Tab"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "<Key>Tab"
+msgstr "<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Flip left/right"
+msgstr "Vira esquerda/direita"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Shift-Tab"
+msgstr "Shift-Tab"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Shift<Key>Tab"
+msgstr "Shift<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:178
+msgid "Spin 180 degrees"
+msgstr "Girar 180 graus"
+
+#: ../src/gpcb-menu.res:178 ../src/pcb-menu.res:58
+msgid "Ctrl-Tab"
+msgstr "Ctrl-Tab"
+
+#: ../src/gpcb-menu.res:178 ../src/pcb-menu.res:58
+msgid "Ctrl<Key>Tab"
+msgstr "Ctrl<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Swap Sides"
+msgstr "Trocar lados"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Ctrl-Shift-Tab"
+msgstr "Ctrl-Shift-Tab"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Ctrl Shift<Key>Tab"
+msgstr "Ctrl Shift<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+#, fuzzy
+msgid "Center cursor"
+msgstr "Cursor entralizado"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+msgid "C"
+msgstr "C"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+msgid "<Key>c"
+msgstr "<Tecla>c"
+
+#: ../src/gpcb-menu.res:183 ../src/pcb-menu.res:119
+#, fuzzy
+msgid "Shown Layers"
+msgstr "Mostra Camadas"
+
+#: ../src/gpcb-menu.res:186 ../src/pcb-menu.res:122
+#, fuzzy
+msgid "Edit Layer Groups"
+msgstr "Editar Grupos de Camada"
+
+#: ../src/gpcb-menu.res:188 ../src/pcb-menu.res:124
+msgid "Current Layer"
+msgstr "Camada Atual"
+
+#: ../src/gpcb-menu.res:191 ../src/pcb-menu.res:127
+#, fuzzy
+msgid "Delete current layer"
+msgstr "Apaga camada atual"
+
+#: ../src/gpcb-menu.res:192 ../src/pcb-menu.res:128
+msgid "Add new layer"
+msgstr "Adicionar nova camada"
+
+#: ../src/gpcb-menu.res:193 ../src/pcb-menu.res:129
+#, fuzzy
+msgid "Move current layer up"
+msgstr "Mova camada atual acima"
+
+#: ../src/gpcb-menu.res:194 ../src/pcb-menu.res:130
+#, fuzzy
+msgid "Move current layer down"
+msgstr "Mova camada atual abaixo"
+
+#: ../src/gpcb-menu.res:201
+msgid "Settings"
+msgstr "Configurações"
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+#, fuzzy
+msgid "'All-direction' lines"
+msgstr "Linhas em 'Todas as direções'"
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+msgid "."
+msgstr "."
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+msgid "<Key>."
+msgstr "<Tecla>."
+
+#: ../src/gpcb-menu.res:203 ../src/pcb-menu.res:192
+msgid "Auto swap line start angle"
+msgstr "Trocar automaticamente ângulo de início de linha"
+
+#: ../src/gpcb-menu.res:204 ../src/pcb-menu.res:193
+msgid "Orthogonal moves"
+msgstr "Movimentos ortogonais"
+
+#: ../src/gpcb-menu.res:205 ../src/pcb-menu.res:194
+msgid "Crosshair snaps to pins and pads"
+msgstr "Mira adere a conectores e pastilhas"
+
+#: ../src/gpcb-menu.res:206 ../src/pcb-menu.res:195
+msgid "Crosshair shows DRC clearance"
+msgstr "Mira mostra folga DRC"
+
+#: ../src/gpcb-menu.res:207 ../src/pcb-menu.res:196
+msgid "Auto enforce DRC clearance"
+msgstr "Exigir automaticamente folga DRC"
+
+#: ../src/gpcb-menu.res:208 ../src/pcb-menu.res:67
+msgid "Lock Names"
+msgstr "Travar Nomes"
+
+#: ../src/gpcb-menu.res:209 ../src/pcb-menu.res:68
+msgid "Only Names"
+msgstr "Nomes Únicos"
+
+#: ../src/gpcb-menu.res:210 ../src/pcb-menu.res:69
+#, fuzzy
+msgid "Hide Names"
+msgstr "Esconder Nomes"
+
+#: ../src/gpcb-menu.res:212 ../src/pcb-menu.res:198
+msgid "Rubber band mode"
+msgstr "Modo elástico"
+
+#: ../src/gpcb-menu.res:213 ../src/pcb-menu.res:199
+msgid "Require unique element names"
+msgstr "Exige nomes únicos de componente"
+
+#: ../src/gpcb-menu.res:214 ../src/pcb-menu.res:200
+#, fuzzy
+msgid "Auto-zero delta measurements"
+msgstr "Zera automaticamente medições delta"
+
+#: ../src/gpcb-menu.res:215 ../src/pcb-menu.res:201
+msgid "New lines, arcs clear polygons"
+msgstr "Novas linhas/arcos apagam polígonos"
+
+#: ../src/gpcb-menu.res:216 ../src/pcb-menu.res:202
+msgid "New polygons are full ones"
+msgstr "Novos polígonos são cheios"
+
+#: ../src/gpcb-menu.res:217 ../src/pcb-menu.res:203
+#, fuzzy
+msgid "Show autorouter trials"
+msgstr "Roteando automaticamente trilhas"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "Thin draw"
+msgstr "desenho fino"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "|"
+msgstr "|"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "<Key>|"
+msgstr "<Tecla>|"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+#, fuzzy
+msgid "Thin draw poly"
+msgstr "Desenho fino para polígono"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+msgid "Ctrl-Shift-P"
+msgstr "Ctrl-Shift-P"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+msgid "Ctrl Shift<Key>p"
+msgstr "Ctrl Shift<Tecla>p"
+
+#: ../src/gpcb-menu.res:220 ../src/pcb-menu.res:206
+#, fuzzy
+msgid "Check polygons"
+msgstr "Verifica polígonos"
+
+#: ../src/gpcb-menu.res:222
+msgid "Vendor drill mapping"
+msgstr "Mapeamento perfuração de fornecedor"
+
+#: ../src/gpcb-menu.res:223
+msgid "Import New Elements at"
+msgstr "Importar Novos Componentes em"
+
+#: ../src/gpcb-menu.res:224 ../src/pcb-menu.res:213
+msgid " Center"
+msgstr " Centro"
+
+#: ../src/gpcb-menu.res:225 ../src/pcb-menu.res:214
+msgid " Mark"
+msgstr " Marcar"
+
+#: ../src/gpcb-menu.res:226 ../src/pcb-menu.res:215
+msgid " Crosshair"
+msgstr " Mira"
+
+#: ../src/gpcb-menu.res:228 ../src/pcb-menu.res:217
+#, fuzzy
+msgid "Set Dispersion"
+msgstr "Ajusta Dispersão"
+
+#: ../src/gpcb-menu.res:235 ../src/hid/gtk/gui-netlist-window.c:791
+msgid "Select"
+msgstr "Selecione"
+
+#: ../src/gpcb-menu.res:237
+msgid "Select all found"
+msgstr "Seleciona todos que encontrar"
+
+#: ../src/gpcb-menu.res:238
+#, fuzzy
+msgid "Select all connected"
+msgstr "Seleciona todos conectados"
+
+#: ../src/gpcb-menu.res:241
+#, fuzzy
+msgid "Unselect all found"
+msgstr "Remove a seleção de todos os objetos encontrados"
+
+#: ../src/gpcb-menu.res:242
+#, fuzzy
+msgid "Unselect all connected"
+msgstr "Remove a seleção de todos os objetos conectados"
+
+#: ../src/gpcb-menu.res:244 ../src/pcb-menu.res:230
+#, fuzzy
+msgid "Select by name"
+msgstr "Seleciona por nome"
+
+#: ../src/gpcb-menu.res:245 ../src/pcb-menu.res:231
+#, fuzzy
+msgid "All objects"
+msgstr "Todos os objetos"
+
+#: ../src/gpcb-menu.res:287 ../src/pcb-menu.res:268
+#, fuzzy
+msgid "Elements"
+msgstr "Componente"
+
+#: ../src/gpcb-menu.res:247 ../src/pcb-menu.res:233
+msgid "Pads"
+msgstr "Pastilhas"
+
+#: ../src/gpcb-menu.res:288 ../src/pcb-menu.res:269
+msgid "Pins"
+msgstr "Conectores"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "Text"
+msgstr "Texto"
+
+#: ../src/gpcb-menu.res:250 ../src/pcb-menu.res:236
+msgid "Vias"
+msgstr "Vias"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Auto-place selected elements"
+msgstr "Coloca automaticamente componentes selecionados"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Ctrl-P"
+msgstr "Ctrl-P"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Ctrl<Key>p"
+msgstr "Ctrl<Tecla>p"
+
+#: ../src/gpcb-menu.res:254 ../src/pcb-menu.res:239
+msgid "Disperse all elements"
+msgstr "Apaga todos os componentes"
+
+#: ../src/gpcb-menu.res:255
+#, fuzzy
+msgid "Disperse selected elements"
+msgstr "Dispersar componentes selecionados"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+#, fuzzy
+msgid "Move selected elements to other side"
+msgstr "Mova os objetos selecionados para outro lado"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+msgid "Shift-B"
+msgstr "Shift-B"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+msgid "Shift<Key>b"
+msgstr "Shift<Tecla>b"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+#, fuzzy
+msgid "Move selected to current layer"
+msgstr "Mova os objetos selecionados para a camada atual"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+msgid "Shift-M"
+msgstr "Shift-M"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+msgid "Shift<Key>m"
+msgstr "Shift<Tecla>m"
+
+#: ../src/gpcb-menu.res:474
+#, fuzzy
+msgid "Remove selected objects"
+msgstr "Apague objetos selecionados"
+
+#: ../src/gpcb-menu.res:259 ../src/pcb-menu.res:362
+msgid "Shift-Delete"
+msgstr "Shift-Delete"
+
+#: ../src/gpcb-menu.res:259 ../src/pcb-menu.res:362
+msgid "Shift<Key>Delete"
+msgstr "Shift<Tecla>Delete"
+
+#: ../src/gpcb-menu.res:488 ../src/pcb-menu.res:243
+msgid "Convert selection to element"
+msgstr "Converte seleção em elemento"
+
+#: ../src/gpcb-menu.res:262 ../src/pcb-menu.res:245
+#, fuzzy
+msgid "Optimize selected rats"
+msgstr "Otimize ratos selecionados"
+
+#: ../src/gpcb-menu.res:334 ../src/pcb-menu.res:311
+#, fuzzy
+msgid "Auto-route selected rats"
+msgstr "Roteamento automático de ratos selecionados"
+
+#: ../src/gpcb-menu.res:263 ../src/pcb-menu.res:246
+msgid "Alt-R"
+msgstr "Alt-R"
+
+#: ../src/gpcb-menu.res:263 ../src/pcb-menu.res:246
+msgid "Alt<Key>r"
+msgstr "Alt<Tecla>r"
+
+#: ../src/gpcb-menu.res:491 ../src/pcb-menu.res:247
+msgid "Rip up selected auto-routed tracks"
+msgstr "Anule trilhas auto roteadas selecionadas"
+
+#: ../src/gpcb-menu.res:266 ../src/pcb-menu.res:249
+#, fuzzy
+msgid "Change size of selected objects"
+msgstr "Modifica tamanho de objetos selecionados"
+
+#: ../src/gpcb-menu.res:267 ../src/pcb-menu.res:250
+msgid "Lines -10 mil"
+msgstr "Linhas -10 mil"
+
+#: ../src/gpcb-menu.res:268 ../src/pcb-menu.res:251
+msgid "Lines +10 mil"
+msgstr "Linhas +10 mil"
+
+#: ../src/gpcb-menu.res:269 ../src/pcb-menu.res:252
+msgid "Pads -10 mil"
+msgstr "Pastilhas -10 mil"
+
+#: ../src/gpcb-menu.res:270 ../src/pcb-menu.res:253
+msgid "Pads +10 mil"
+msgstr "Pastilhas +10 mil"
+
+#: ../src/gpcb-menu.res:282 ../src/pcb-menu.res:264
+msgid "Pins -10 mil"
+msgstr "Conectores -10 mil"
+
+#: ../src/gpcb-menu.res:283 ../src/pcb-menu.res:265
+msgid "Pins +10 mil"
+msgstr "Conectores +10 mil"
+
+#: ../src/gpcb-menu.res:273 ../src/pcb-menu.res:256
+msgid "Texts -10 mil"
+msgstr "Textos -10 mil"
+
+#: ../src/gpcb-menu.res:274 ../src/pcb-menu.res:257
+msgid "Texts +10 mil"
+msgstr "Textos +10 mil"
+
+#: ../src/gpcb-menu.res:280 ../src/pcb-menu.res:262
+msgid "Vias -10 mil"
+msgstr "Vias -10 mil"
+
+#: ../src/gpcb-menu.res:281 ../src/pcb-menu.res:263
+msgid "Vias +10 mil"
+msgstr "Vias +10 mil"
+
+#: ../src/gpcb-menu.res:279 ../src/pcb-menu.res:261
+#, fuzzy
+msgid "Change drilling hole of selected objects"
+msgstr "Modifica orifício de perfuração dos objetos selecionados"
+
+#: ../src/gpcb-menu.res:286 ../src/pcb-menu.res:267
+#, fuzzy
+msgid "Change square-flag of selected objects"
+msgstr "Altere o sinalizador de quadrado dos objetos selecionados"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "Buffer"
+msgstr "Memória"
+
+#: ../src/gpcb-menu.res:300 ../src/pcb-menu.res:279
+msgid "Rotate buffer 90 deg CCW"
+msgstr "Rotaciona memória 90 graus anti-horário"
+
+#: ../src/gpcb-menu.res:301 ../src/pcb-menu.res:280
+msgid "Shift-F7"
+msgstr "Shift-F7"
+
+#: ../src/gpcb-menu.res:301 ../src/pcb-menu.res:280
+msgid "Shift<Key>F7"
+msgstr "Shift<Tecla>F7"
+
+#: ../src/gpcb-menu.res:302 ../src/pcb-menu.res:281
+msgid "Rotate buffer 90 deg CW"
+msgstr "Rotaciona memória 90 graus horário"
+
+#: ../src/gpcb-menu.res:303 ../src/pcb-menu.res:282
+msgid "Arbitrarily Rotate Buffer"
+msgstr "Rotacão personalizada da memória"
+
+#: ../src/gpcb-menu.res:304 ../src/pcb-menu.res:283
+msgid "Mirror buffer (up/down)"
+msgstr "Espelhar memória (acima/abaixo)"
+
+#: ../src/gpcb-menu.res:305 ../src/pcb-menu.res:284
+msgid "Mirror buffer (left/right)"
+msgstr "Espelhar memória (esquerda/direita)"
+
+#: ../src/gpcb-menu.res:308 ../src/pcb-menu.res:287
+msgid "Clear buffer"
+msgstr "Apaga memória"
+
+#: ../src/gpcb-menu.res:309 ../src/pcb-menu.res:288
+#, fuzzy
+msgid "Convert buffer to element"
+msgstr "Converte o conteúdo da memória em componente"
+
+#: ../src/gpcb-menu.res:310 ../src/pcb-menu.res:289
+msgid "Break buffer elements to pieces"
+msgstr "Quebra componentes na memória em peças"
+
+#: ../src/gpcb-menu.res:311 ../src/pcb-menu.res:290
+#, fuzzy
+msgid "Save buffer elements to file"
+msgstr "Grava componentes na memória em arquivo"
+
+#: ../src/gpcb-menu.res:313
+#, fuzzy
+msgid "Select Buffer #1"
+msgstr "Seleciona Memória #1"
+
+#: ../src/gpcb-menu.res:313 ../src/pcb-menu.res:293
+msgid "Shift-1"
+msgstr "Shift-1"
+
+#: ../src/gpcb-menu.res:313 ../src/pcb-menu.res:293
+msgid "Shift<Key>1"
+msgstr "Shift<Tecla>1"
+
+#: ../src/gpcb-menu.res:314
+#, fuzzy
+msgid "Select Buffer #2"
+msgstr "Selecione Memória #2"
+
+#: ../src/gpcb-menu.res:314 ../src/pcb-menu.res:294
+msgid "Shift-2"
+msgstr "Shift-2"
+
+#: ../src/gpcb-menu.res:314 ../src/pcb-menu.res:294
+msgid "Shift<Key>2"
+msgstr "Shift<Tecla>1"
+
+#: ../src/gpcb-menu.res:315
+#, fuzzy
+msgid "Select Buffer #3"
+msgstr "Selecione Memória #3\n"
+
+#: ../src/gpcb-menu.res:315 ../src/pcb-menu.res:295
+msgid "Shift-3"
+msgstr "Shift-3"
+
+#: ../src/gpcb-menu.res:315 ../src/pcb-menu.res:295
+msgid "Shift<Key>3"
+msgstr "Shift<Tecla>3"
+
+#: ../src/gpcb-menu.res:316
+#, fuzzy
+msgid "Select Buffer #4"
+msgstr "Selecione Memória #4"
+
+#: ../src/gpcb-menu.res:316 ../src/pcb-menu.res:296
+msgid "Shift-4"
+msgstr "Shift-4"
+
+#: ../src/gpcb-menu.res:316 ../src/pcb-menu.res:296
+msgid "Shift<Key>4"
+msgstr "Shift<Tecla>4"
+
+#: ../src/gpcb-menu.res:317
+#, fuzzy
+msgid "Select Buffer #5"
+msgstr "Selecione Memória #5"
+
+#: ../src/gpcb-menu.res:317 ../src/pcb-menu.res:297
+msgid "Shift-5"
+msgstr "Shift-5"
+
+#: ../src/gpcb-menu.res:317 ../src/pcb-menu.res:297
+msgid "Shift<Key>5"
+msgstr "Shift<Tecla>5"
+
+#: ../src/gpcb-menu.res:323
+msgid "Connects"
+msgstr "Conecções"
+
+#: ../src/gpcb-menu.res:324
+#, fuzzy
+msgid "Lookup connection"
+msgstr "Procura conecção"
+
+#: ../src/gpcb-menu.res:324 ../src/pcb-menu.res:301
+msgid "Ctrl-F"
+msgstr "Ctrl-F"
+
+#: ../src/gpcb-menu.res:324 ../src/pcb-menu.res:301
+msgid "Ctrl<Key>f"
+msgstr "Ctrl<Tecla>F"
+
+#: ../src/gpcb-menu.res:325 ../src/pcb-menu.res:302
+msgid "Reset scanned pads/pins/vias"
+msgstr "Zere pastilhas/conectores/vias examinados"
+
+#: ../src/gpcb-menu.res:326 ../src/pcb-menu.res:303
+msgid "Reset scanned lines/polygons"
+msgstr "Zere polígonos/linhas examinados"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+#, fuzzy
+msgid "Reset all connections"
+msgstr "Zere todas as conecções"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+msgid "Shift-F"
+msgstr "Shift-F"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+msgid "Shift<Key>f"
+msgstr "Shift<Tecla>f"
+
+#: ../src/gpcb-menu.res:329
+msgid "Optimize rats nest"
+msgstr "Otimizar ninhos de rato"
+
+#: ../src/gpcb-menu.res:330 ../src/pcb-menu.res:307
+msgid "O"
+msgstr "O"
+
+#: ../src/gpcb-menu.res:330 ../src/pcb-menu.res:307
+msgid "<Key>o"
+msgstr "<Tecla>o"
+
+#: ../src/gpcb-menu.res:331
+msgid "Erase rats nest"
+msgstr "Apaga ninho de ratos"
+
+#: ../src/gpcb-menu.res:331 ../src/pcb-menu.res:308
+msgid "E"
+msgstr "E"
+
+#: ../src/gpcb-menu.res:331 ../src/pcb-menu.res:308
+msgid "<Key>e"
+msgstr "<Tecla>e"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+#, fuzzy
+msgid "Erase selected rats"
+msgstr "Apaga os ratos selecionados"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+msgid "Shift-E"
+msgstr "Shift-E"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+msgid "Shift<Key>e"
+msgstr "Shift<Tecla>e"
+
+#: ../src/gpcb-menu.res:335 ../src/pcb-menu.res:312
+#, fuzzy
+msgid "Auto-route all rats"
+msgstr "Roteando automaticamente todos os ratos"
+
+#: ../src/gpcb-menu.res:336 ../src/pcb-menu.res:313
+msgid "Rip up all auto-routed tracks"
+msgstr "Cancele todas as trilhas auto roteadas"
+
+#: ../src/gpcb-menu.res:338
+#, fuzzy
+msgid "Optimize routed tracks"
+msgstr "Otimize trilhas roteadas"
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Auto-Optimize"
+msgstr "Auto-Otimizar"
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Shift-="
+msgstr "Shift-="
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Shift<Key>="
+msgstr "Shift<Tecla>="
+
+#: ../src/gpcb-menu.res:340 ../src/pcb-menu.res:316
+msgid "Debumpify"
+msgstr "Desmanchar U"
+
+#: ../src/gpcb-menu.res:341 ../src/pcb-menu.res:317
+msgid "Unjaggy"
+msgstr "Aplainar"
+
+#: ../src/gpcb-menu.res:342 ../src/pcb-menu.res:318
+#, fuzzy
+msgid "Vianudge"
+msgstr "Reposicionar via"
+
+#: ../src/gpcb-menu.res:343 ../src/pcb-menu.res:319
+msgid "Viatrim"
+msgstr "Remover via"
+
+#: ../src/gpcb-menu.res:344
+msgid "Ortho pull"
+msgstr "Mover cantos"
+
+#: ../src/gpcb-menu.res:345
+msgid "Simple optimization"
+msgstr "Otimização simples"
+
+#: ../src/gpcb-menu.res:345 ../src/pcb-menu.res:321
+msgid "="
+msgstr "="
+
+#: ../src/gpcb-menu.res:345 ../src/pcb-menu.res:321
+msgid "<Key>="
+msgstr "<Tecla>="
+
+#: ../src/gpcb-menu.res:346 ../src/pcb-menu.res:322
+msgid "Miter"
+msgstr "Suavisar arestas"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "Puller"
+msgstr "Desviar"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "Y"
+msgstr "Y"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "<Key>y"
+msgstr "<Tecla>y"
+
+#: ../src/gpcb-menu.res:348 ../src/pcb-menu.res:324
+msgid "Global Puller"
+msgstr "Desvio Global"
+
+#: ../src/gpcb-menu.res:349 ../src/pcb-menu.res:325
+#, fuzzy
+msgid "Selected"
+msgstr "Selecione"
+
+#: ../src/gpcb-menu.res:350 ../src/pcb-menu.res:326
+msgid "Found"
+msgstr "Encontrado"
+
+#: ../src/gpcb-menu.res:351 ../src/pcb-menu.res:327
+msgid "All"
+msgstr "Todos"
+
+#: ../src/gpcb-menu.res:354 ../src/pcb-menu.res:329
+msgid "Only autorouted nets"
+msgstr "Somente redes autoroteadas"
+
+#: ../src/gpcb-menu.res:357 ../src/pcb-menu.res:331
+#, fuzzy
+msgid "Design Rule Checker"
+msgstr "Verificação das Regras de Desenho"
+
+#: ../src/gpcb-menu.res:359 ../src/pcb-menu.res:333
+msgid "Apply vendor drill mapping"
+msgstr "Aplicar mapeamento de perfuração de fornecedor"
+
+#. -- Info tab
+#: ../src/gpcb-menu.res:365 ../src/hid/gtk/gui-config.c:1691
+msgid "Info"
+msgstr "Informação"
+
+#: ../src/gpcb-menu.res:494 ../src/pcb-menu.res:337
+#, fuzzy
+msgid "Generate object report"
+msgstr "Gerar relatório de objetos"
+
+#: ../src/gpcb-menu.res:366 ../src/pcb-menu.res:337
+msgid "Ctrl-R"
+msgstr "Ctrl-R"
+
+#: ../src/gpcb-menu.res:366 ../src/pcb-menu.res:337
+msgid "Ctrl<Key>r"
+msgstr "Ctrl<Tecla>r"
+
+#: ../src/gpcb-menu.res:367 ../src/pcb-menu.res:338
+msgid "Generate drill summary"
+msgstr "Gerar sumário de perfuração"
+
+#: ../src/gpcb-menu.res:368 ../src/pcb-menu.res:339
+msgid "Report found pins/pads"
+msgstr "Informe conectores/pastilhas encontradas"
+
+#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:341
+msgid "Key Bindings"
+msgstr "Associação de Teclas"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:342
+msgid "Remove"
+msgstr "Remover"
+
+#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+#, fuzzy
+msgid "Delete"
+msgstr "Apagar"
+
+#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+msgid "<Key>Delete"
+msgstr "<Tecla>Delete"
+
+#: ../src/gpcb-menu.res:376
+msgid "Remove Selected"
+msgstr "Remover Selecionados"
+
+#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+#, fuzzy
+msgid "Backspace"
+msgstr "Backspace"
+
+#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+msgid "<Key>BackSpace"
+msgstr "<Tecla>Backspace"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:362
+msgid "Remove Connected"
+msgstr "Remover Conectados"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+msgid "Shift-Backspace"
+msgstr "Shift-Backspace"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+msgid "Shift<Key>BackSpace"
+msgstr "Shift<Tecla>Backspace"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "Set Same"
+msgstr "Ajusta o Mesmo"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "A"
+msgstr "A"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "<Key>a"
+msgstr "<Tecla>a"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "Flip Object"
+msgstr "Vira Objeto"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "B"
+msgstr "B"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "<Key>b"
+msgstr "<Tecla>b"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+#, fuzzy
+msgid "Find Connections"
+msgstr "Encontra Conecções"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+msgid "F"
+msgstr "F"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+msgid "<Key>f"
+msgstr "<Tecla>f"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "ToggleHideName Object"
+msgstr "Objeto ToggleHideName"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "H"
+msgstr "H"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "<Key>h"
+msgstr "<Tecla>h"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "ToggleHideName SelectedElement"
+msgstr "ToggleHideName SelectedElement"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "Shift-H"
+msgstr "Shift-H"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "Shift<Key>h"
+msgstr "Shift<Tecla>h"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+#, fuzzy
+msgid "ChangeHole Object"
+msgstr "Objeto ChangeHole"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+msgid "Ctrl-H"
+msgstr "Ctrl-H"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+msgid "Ctrl<Key>h"
+msgstr "Ctrl<Tecla>h"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "ChangeJoin Object"
+msgstr "ChangeJoin Object"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "J"
+msgstr "J"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "<Key>j"
+msgstr "<Tecla>j"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "ChangeJoin SelectedObject"
+msgstr "ChangeJoin SelectedObject"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "Shift-J"
+msgstr "Shift-J"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "Shift<Key>j"
+msgstr "Shift<Tecla>j"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+#, fuzzy
+msgid "Clear Object +"
+msgstr "Apaga Objeto +"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+msgid "K"
+msgstr "K"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+msgid "<Key>k"
+msgstr "<Tecla>k"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+#, fuzzy
+msgid "Clear Object -"
+msgstr "Apaga Objeto -"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+msgid "Shift-K"
+msgstr "Shift-K"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+msgid "Shift<Key>k"
+msgstr "Shift<Tecla>k"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Clear Selected +"
+msgstr "Apaga Selecionado +"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Ctrl-K"
+msgstr "Ctrl-K"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Ctrl<Key>k"
+msgstr "Ctrl<Tecla>k"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Clear Selected -"
+msgstr "Apaga Selecionado -"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Shift-Ctrl-K"
+msgstr "Shift-Ctrl-K"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Shift Ctrl<Key>k"
+msgstr "Shift Ctrl<Tecla>k"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+#, fuzzy
+msgid "Line Tool size +"
+msgstr "Ferramenta Linha tamanho +"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+msgid "L"
+msgstr "L"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+msgid "<Key>l"
+msgstr "<Tecla>l"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+#, fuzzy
+msgid "Line Tool size -"
+msgstr "Ferramenta Linha tamnho -"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+msgid "Shift-L"
+msgstr "Shift-L"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+msgid "Shift<Key>l"
+msgstr "Shift<Tecla>l"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+#, fuzzy
+msgid "Move Object to current layer"
+msgstr "Mova o objeto para a camada atual"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+msgid "M"
+msgstr "M"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+msgid "<Key>m"
+msgstr "<Tecla>m"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "MarkCrosshair"
+msgstr "Marca Mira"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "Ctrl-M"
+msgstr "Ctrl-M"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "Ctrl<Key>m"
+msgstr "Ctrl<Tecla>m"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+#, fuzzy
+msgid "Select shortest rat"
+msgstr "Seleciona o rato mais curto"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+msgid "Shift-N"
+msgstr "Shift-N"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+msgid "Shift<Key>n"
+msgstr "Shift<Tecla>n"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "AddRats to selected pins"
+msgstr "Adiciona ratos a conectores selecionados"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "Shift-O"
+msgstr "Shift-O"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "Shift<Key>o"
+msgstr "Shift<Tecla>o"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+#, fuzzy
+msgid "ChangeOctagon Object"
+msgstr "Objeto ChangeOctogon"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+msgid "Ctrl-O"
+msgstr "Ctrl-O"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+msgid "Ctrl<Key>o"
+msgstr "Ctrl<Tecla>o"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "Polygon PreviousPoint"
+msgstr "PreviousPoint do Polígono"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "P"
+msgstr "P"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "<Key>p"
+msgstr "<Tecla>p"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Polygon Close"
+msgstr "Fecha Polígono"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Shift-P"
+msgstr "Shift-P"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Shift<Key>p"
+msgstr "Shift<Tecla>p"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "ChangeSquare Object"
+msgstr "Objeto ChangeSquare"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "Q"
+msgstr "Q"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "<Key>q"
+msgstr "<Tecla>q"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+#, fuzzy
+msgid "ChangeSize +"
+msgstr "Muda Tamanho +"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+msgid "S"
+msgstr "S"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+msgid "<Key>s"
+msgstr "<Tecla>s"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+#, fuzzy
+msgid "ChangeSize -"
+msgstr "Muda Tamanho -"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+msgid "Shift-S"
+msgstr "Shift-S"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+msgid "Shift<Key>s"
+msgstr "Shift<Tecla>s"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "ChangeDrill +5 mil"
+msgstr "Muda Perfuração +5 mil"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "Alt-S"
+msgstr "Alt-S"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "Alt<Key>s"
+msgstr "Alt<Tecla>s"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "ChangeDrill -5 mil"
+msgstr "Muda Perfuração -5 mil"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "Alt-Shift-S"
+msgstr "Alt-Shift-S"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "Alt Shift<Key>s"
+msgstr "Alt Shift<Tecla>s"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "Text Tool scale +10 mil"
+msgstr "Ferramenta Texto escala +10 mil"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "T"
+msgstr "T"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "<Key>t"
+msgstr "<Tecla>t"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Text Tool scale -10 mil"
+msgstr "Ferramenta Texo escala -10 mil"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Shift-T"
+msgstr "Shift-T"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Shift<Key>t"
+msgstr "Shift<Tecla>t"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+#, fuzzy
+msgid "Via Tool size +5 mil"
+msgstr "Ferramenta ia tamanho +5 mil"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+msgid "Shift-V"
+msgstr "Shift-V"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+msgid "Shift<Key>v"
+msgstr "Shift<Tecla>v"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+#, fuzzy
+msgid "Via Tool size -5 mil"
+msgstr "Ferramenta Via tamanho -5 mil"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+msgid "Shift-Ctrl-V"
+msgstr "Shift-Ctrl-V"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+msgid "Shift Ctrl<Key>v"
+msgstr "Shift Ctrl<Tecla>v"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Via Tool drill +5 mil"
+msgstr "Ferramenta Via perfuração +5 mil"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Alt-V"
+msgstr "Alt-V"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Alt<Key>v"
+msgstr "Alt<Tecla>v"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Via Tool drill -5 mil"
+msgstr "Ferramenta Via perfuração -5 mil"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Alt-Shift-V"
+msgstr "Alt-Shift-V"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Alt Shift<Key>v"
+msgstr "Alt Shift<Tecla>v"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "AddRats Selected"
+msgstr "Adicionar Ratos Selecionados"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "Shift-W"
+msgstr "Shift-W"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "Shift<Key>w"
+msgstr "Shift<Tecla>w"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "Add All Rats"
+msgstr "Adicionar Todos os Ratos"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "W"
+msgstr "W"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "<Key>w"
+msgstr "<Tecla>w"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "Cycle Clip"
+msgstr "Interromper Ciclo"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "/"
+msgstr "/"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "<Key>/"
+msgstr "<Tecla>/"
+
+#: ../src/gpcb-menu.res:436
+msgid "Arrow Mode"
+msgstr "Modo Seta"
+
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+msgid "Space"
+msgstr "Espaço"
+
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+msgid "<Key>space"
+msgstr "<Tecla>espaço"
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "Temp Arrow ON"
+msgstr "Seta Temporária Ligado"
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "["
+msgstr "["
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "<Key>["
+msgstr "<Tecla>["
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "Temp Arrow OFF"
+msgstr "Seta Temporária Desligado"
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "]"
+msgstr "]"
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "<Key>]"
+msgstr "<Tecla>]"
+
+#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+#, fuzzy
+msgid "Step Up"
+msgstr "Passo Adiante"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Up"
+msgstr "PgUp"
+
+#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+msgid "<Key>Up"
+msgstr "<Tecla>PgUp"
+
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+msgid "Step Down"
+msgstr "Passo Abaixo"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Down"
+msgstr "PgDown"
+
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+msgid "<Key>Down"
+msgstr "<Tecla>PgDown"
+
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+msgid "Step Left"
+msgstr "Passo Esquerda"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Left"
+msgstr "Esquerda"
+
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+msgid "<Key>Left"
+msgstr "<Tecla>Esquerda"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+#, fuzzy
+msgid "Step Right"
+msgstr "Passo Direita"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+#, fuzzy
+msgid "Right"
+msgstr "Direita"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+#, fuzzy
+msgid "<Key>Right"
+msgstr "<Tecla>Direita"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Step +Up"
+msgstr "Passo +PgUp"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Shift<Key>Up"
+msgstr "Shift<Tecla>PgUp"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Step +Down"
+msgstr "Passo +Abaixo"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Shift<Key>Down"
+msgstr "Shift<Tecla>PgDown"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Step +Left"
+msgstr "Passo +Esquerda"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Shift<Key>Left"
+msgstr "Shift<Tecla>Esquerda"
+
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+msgid "Step +Right"
+msgstr "Passo +Direita"
+
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+msgid "Shift<Key>Right"
+msgstr "Shift<Tecla>Direita"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+msgid "Click"
+msgstr "Clicar"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+#, fuzzy
+msgid "Enter"
+msgstr "Enter"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+msgid "<Key>Enter"
+msgstr "<Tecla>Enter"
+
+#: ../src/gpcb-menu.res:456
+msgid "Window"
+msgstr "Janela"
+
+#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2159
+#: ../src/pcb-menu.res:437
+msgid "Library"
+msgstr "Biblioteca"
+
+#: ../src/gpcb-menu.res:457
+msgid "i"
+msgstr "i"
+
+#: ../src/gpcb-menu.res:457
+msgid "<Key>i"
+msgstr "<Tecla>i"
+
+#: ../src/gpcb-menu.res:458 ../src/pcb-menu.res:438
+msgid "Message Log"
+msgstr "Registro de Mensagens"
+
+#: ../src/gpcb-menu.res:459
+msgid "DRC Check"
+msgstr "Verificação de DRC"
+
+#: ../src/gpcb-menu.res:460 ../src/pcb-menu.res:439
+#, fuzzy
+msgid "Netlist"
+msgstr "Netlist"
+
+#: ../src/gpcb-menu.res:461
+#, fuzzy
+msgid "Command Entry"
+msgstr "Entrada de Comando"
+
+#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+msgid ":"
+msgstr ":"
+
+#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+msgid "<Key>:"
+msgstr "<Tecla>:"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Pinout"
+msgstr "Saída de conector"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Shift-D"
+msgstr "Shift-D"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Shift<Key>d"
+msgstr "Shift<Tecla>d"
+
+#: ../src/gpcb-menu.res:464 ../src/pcb-menu.res:32
+msgid "About..."
+msgstr "Sobre..."
+
+#: ../src/gpcb-menu.res:472
+#, fuzzy
+msgid "Operations on selections"
+msgstr "Operações sobre seleções"
+
+#: ../src/gpcb-menu.res:473 ../src/pcb-menu.res:226
+#, fuzzy
+msgid "Unselect all objects"
+msgstr "Remove a seleção de todos os objetos"
+
+#: ../src/gpcb-menu.res:475 ../src/pcb-menu.res:273
+#, fuzzy
+msgid "Copy selection to buffer"
+msgstr "Copia seleção para a memória"
+
+#: ../src/gpcb-menu.res:481 ../src/pcb-menu.res:275
+#, fuzzy
+msgid "Cut selection to buffer"
+msgstr "Corta seleção para a memória"
+
+#: ../src/gpcb-menu.res:489
+msgid "Auto place selected elements"
+msgstr "Coloca automaticamente os componenetes selecionados"
+
+#: ../src/gpcb-menu.res:490
+msgid "Autoroute selected elements"
+msgstr "Rotear automaticamente os componenetes selecionados"
+
+#: ../src/gpcb-menu.res:493
+#, fuzzy
+msgid "Operations on this location"
+msgstr "Operações sobre essa localização"
+
+#: ../src/gpcb-menu.res:497 ../src/pcb-menu.res:134
+#, fuzzy
+msgid "Undo last operation"
+msgstr "Desfazer a última operação"
+
+#: ../src/gpcb-menu.res:498 ../src/pcb-menu.res:135
+#, fuzzy
+msgid "Redo last undone operation"
+msgstr "Refaça a última operação de desfazer"
+
+#: ../src/gpcb-menu.res:501 ../src/pcb-menu.res:166
+msgid "None"
+msgstr "Nenhum"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "Via"
+msgstr "Via"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "F1"
+msgstr "F1"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "<Key>F1"
+msgstr "<Tecla>F1"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+#, fuzzy
+msgid "Line"
+msgstr "Linha"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+msgid "F2"
+msgstr "F2"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+msgid "<Key>F2"
+msgstr "<Tecla>F2"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "Arc"
+msgstr "Arco"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "F3"
+msgstr "F3"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "<Key>F3"
+msgstr "<Tecla>F3"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "F4"
+msgstr "F5"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "<Key>F4"
+msgstr "<Tecla>F4"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "Rectangle"
+msgstr "Retângulo"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "F5"
+msgstr "F5"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "<Key>F5"
+msgstr "<Tecla>F5"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "Polygon"
+msgstr "Polígono"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "F6"
+msgstr "F6"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "<Key>F6"
+msgstr "<Tecla>F6"
+
+#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:173
+msgid "Polygon Hole"
+msgstr "Orifício de Polígono"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "F7"
+msgstr "F7"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "<Key>F7"
+msgstr "<Tecla>F7"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+msgid "F8"
+msgstr "F8"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+msgid "<Key>F8"
+msgstr "<Tecla>F8"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "Rotate"
+msgstr "Rotacionar"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "F9"
+msgstr "F9"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "<Key>F9"
+msgstr "<Tecla>F9"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "Thermal"
+msgstr "Térmico"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "F10"
+msgstr "F10"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "<Key>F10"
+msgstr "<Tecla>F10"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:420
+msgid "Arrow"
+msgstr "Seta"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+msgid "F11"
+msgstr "F11"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+msgid "<Key>F11"
+msgstr "<Tecla>F11"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "Insert Point"
+msgstr "Ponto de inserção"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "Insert"
+msgstr "Ins"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "<Key>Insert"
+msgstr "<Tecla>Ins"
+
+#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:180
+msgid "Move"
+msgstr "Mover"
+
+#: ../src/gpcb-menu.res:516 ../src/pcb-menu.res:181
+msgid "Copy"
+msgstr "Copiar"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "Lock"
+msgstr "Travar"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "F12"
+msgstr "F12"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "<Key>F12"
+msgstr "<Tecla>F12"
+
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+msgid "Esc"
+msgstr "Esc"
+
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+msgid "<Key>Escape"
+msgstr "<Tecla>Esc"
 
 #: ../src/hid/common/actions.c:47
 #, c-format
@@ -824,7 +2989,7 @@ msgid ""
 "Please note that case is important.\n"
 msgstr ""
 "Formato é:\n"
-"modificadores<tecla>t\n"
+"modificadores<Tecla>k\n"
 "onde \"modificadores\" é uma lista separada por espaços de modificadores de "
 "tecla\n"
 "e \"k\" é o nome da tecla.\n"
@@ -871,7 +3036,7 @@ msgstr "Novo estilo"
 #. Build dialog
 #: ../src/hid/gtk/ghid-route-style-selector.c:183
 msgid "Edit Route Styles"
-msgstr "Editar Rstilos de Rota"
+msgstr "Editar Estilos de Rota"
 
 #: ../src/hid/gtk/ghid-route-style-selector.c:189
 msgid "Edit Style:"
@@ -913,11 +3078,6 @@ msgstr "Grava configurações do estilo de rota como padrão"
 msgid "New (this session only)"
 msgstr "Nova (somente nessa seção)"
 
-#. Create edit button
-#: ../src/hid/gtk/ghid-route-style-selector.c:417
-msgid "Route Styles"
-msgstr "Estilos de Rota"
-
 #: ../src/hid/gtk/gtkhid-main.c:156
 msgid "Various zoom factor changes."
 msgstr "Várias mudançs no fator de aproximação."
@@ -929,7 +3089,7 @@ msgstr "ghid_calibrate() -- não implementada\n"
 
 #: ../src/hid/gtk/gtkhid-main.c:565 ../src/hid/gtk/gui-dialog.c:168
 msgid "_Cancel"
-msgstr "Cancelar"
+msgstr "_Cancelar"
 
 #: ../src/hid/gtk/gtkhid-main.c:566 ../src/hid/gtk/gui-dialog.c:172
 msgid "_OK"
@@ -954,17 +3114,13 @@ msgstr "LayerGroupsChanged -- não implementada\n"
 
 #. in case we have a dialog for loading a netlist file
 #: ../src/hid/gtk/gtkhid-main.c:1233 ../src/hid/gtk/gui-dialog.c:319
+#: ../src/pcb-menu.res:40
 msgid "Load netlist file"
 msgstr "Coloca na memória o arquivo de netlist"
 
-#. in case we have a dialog for loading a footprint file
-#: ../src/hid/gtk/gtkhid-main.c:1239 ../src/hid/gtk/gui-dialog.c:292
-msgid "Load element to buffer"
-msgstr "Coloca componente na memória temporária"
-
 #: ../src/hid/gtk/gtkhid-main.c:1245 ../src/hid/gtk/gui-dialog.c:306
 msgid "Load layout file to buffer"
-msgstr "Coloca na memória temporária arquivo de traçado"
+msgstr "Coloca na memória arquivo de traçado"
 
 #. in case we have a dialog for loading a layout file
 #: ../src/hid/gtk/gtkhid-main.c:1251 ../src/hid/gtk/gui-dialog.c:305
@@ -1038,7 +3194,7 @@ msgstr "Não posso exportar traçado vazio"
 #: ../src/hid/gtk/gtkhid-main.c:1563
 #, c-format
 msgid "%g redraws per second\n"
-msgstr "%g redesenhos por segundo\n"
+msgstr "%g atualizações por segundo\n"
 
 #: ../src/hid/gtk/gtkhid-main.c:1574
 msgid "Moves the pointer to the center of the window."
@@ -1085,14 +3241,14 @@ msgid ""
 "If called by a mouse event then the mouse button number\n"
 "must be specified as the optional second argument."
 msgstr ""
-"Evoca o exibir menu especificado por @code{MenuName}.\n"
-"Se chamado por um evento de mounse então o numero do botão do mouse\n"
+"Exibe menu especificado por @code{MenuName}.\n"
+"Se chamado por um evento de mouse então o numero do botão do mouse\n"
 "deve ser especificado como o segundo argumento opcional."
 
 #: ../src/hid/gtk/gtkhid-main.c:1948
 #, c-format
 msgid "The specified popup menu \"%s\" has not been defined.\n"
-msgstr "O exibir menu especificado \"%s\" não foi definido.\n"
+msgstr "O menu especificado \"%s\" não foi definido.\n"
 
 #: ../src/hid/gtk/gtkhid-main.c:1965
 msgid "Asks user which schematics to import into PCB.\n"
@@ -1193,7 +3349,7 @@ msgstr "Informe comando:"
 
 #: ../src/hid/gtk/gui-config.c:896
 msgid "Enables"
-msgstr "Ativa"
+msgstr "Habilita"
 
 #: ../src/hid/gtk/gui-config.c:901
 msgid "Use separate window for command entry"
@@ -1290,7 +3446,7 @@ msgstr "Use valores DRC como padrão para novos traçados"
 
 #: ../src/hid/gtk/gui-config.c:1170
 msgid "Metric Increment Settings"
-msgstr "Ajustes de Incremento de Métrica"
+msgstr "Configurações de Incremento de Métrica"
 
 #: ../src/hid/gtk/gui-config.c:1178 ../src/hid/gtk/gui-config.c:1199
 msgid "Grid:"
@@ -1327,7 +3483,7 @@ msgstr "Para 'l' e '<shift>l' ações de mudar largura de linha de rota"
 #: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
 #, fuzzy
 msgid "Clear:"
-msgstr "Folga:"
+msgstr "Apaga:"
 
 #: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
 msgid ""
@@ -1344,7 +3500,7 @@ msgstr "Ajustes de Incremento Ingleses"
 #: ../src/hid/gtk/gui-config.c:1213
 #, fuzzy
 msgid "Save as Default"
-msgstr "Ajuste como padrão"
+msgstr "Grava como padrão"
 
 #: ../src/hid/gtk/gui-config.c:1216
 #, fuzzy
@@ -1357,7 +3513,7 @@ msgstr "Diretórios de componente"
 
 #: ../src/hid/gtk/gui-config.c:1245
 msgid "<small>Enter a \""
-msgstr "<small>Informe um \""
+msgstr "<pequeno>Enter um \""
 
 #: ../src/hid/gtk/gui-config.c:1286
 msgid "<h>Layer Names\n"
@@ -1372,8 +3528,7 @@ msgid ""
 "of the other layers that are drawn on the screen.\n"
 msgstr ""
 "Você pode inserir nomes para os desenhos de camada na tela.\n"
-"As camadas especiais 'lado do topo' e 'lado de inferior' são camadas "
-"que\n"
+"As camadas especiais 'lado do topo' e 'lado de inferior' são camadas que\n"
 "serão impressas, de forma que elas devem ter no seu grupo ao menos uma\n"
 "das outras camadas que foram desenhadas na tela.\n"
 
@@ -1487,8 +3642,7 @@ msgid ""
 "Both, 'top side' and 'bottom side' layer must have at least\n"
 "\tone other layer in their group.\n"
 msgstr ""
-"Ambas as camadas 'lado do topo' ou a 'lado inferior' devem ter ao "
-"menos\n"
+"Ambas as camadas 'lado do topo' ou a 'lado inferior' devem ter ao menos\n"
 "\tuma outra camada em seu grupo.\n"
 
 #: ../src/hid/gtk/gui-config.c:1455
@@ -1523,11 +3677,6 @@ msgstr "Adicione nova camada acima da camada selecionada atualmente:"
 #: ../src/hid/gtk/gui-config.c:1675
 msgid "Groups"
 msgstr "Grupos"
-
-#. -- Info tab
-#: ../src/hid/gtk/gui-config.c:1691
-msgid "Info"
-msgstr "Informação"
 
 #: ../src/hid/gtk/gui-config.c:1740
 #, c-format
@@ -1576,10 +3725,6 @@ msgstr ""
 msgid "Load"
 msgstr "Colocar na Memória"
 
-#: ../src/hid/gtk/gui-config.c:1979
-msgid "Save"
-msgstr "Gravar"
-
 #: ../src/hid/gtk/gui-config.c:1981
 msgid "Defaults"
 msgstr "Padrões"
@@ -1599,10 +3744,6 @@ msgstr "Tamanhos"
 #: ../src/hid/gtk/gui-config.c:2153
 msgid "Increments"
 msgstr "Incrementos"
-
-#: ../src/hid/gtk/gui-config.c:2159
-msgid "Library"
-msgstr "Biblioteca"
 
 #: ../src/hid/gtk/gui-config.c:2165
 msgid "Layers"
@@ -1700,7 +3841,7 @@ msgstr "Transfere objetos selecionados para o lado oposto da placa\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:65
 msgid "Copy selected to buffer and unselect\n"
-msgstr "Copia a seleção para a memória temporária e remove a seleção\n"
+msgstr "Copia a seleção para a memória e remove a seleção\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:69
 msgid "Display pin/pad names (numbers with View->Enable pinout shows number)\n"
@@ -1963,7 +4104,7 @@ msgstr "Selecione camadas de desenho\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:253
 msgid "Select current buffer\n"
-msgstr "Selecione a memória temporária atual\n"
+msgstr "Selecione a memória atual\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:257
 msgid "Mouse\n"
@@ -2086,8 +4227,8 @@ msgid ""
 msgstr ""
 "\tAções de mouse podem tipicamente serem combinadas.  Por exemplo: enquanto "
 "movendo\n"
-"\tum objeto (pressionado e soltando tanto o botão médio quanto o esquerdo), o "
-"direito pode\n"
+"\tum objeto (pressionado e soltando tanto o botão médio quanto o esquerdo), "
+"o direito pode\n"
 "\tser simultâneamente clicado para mudar visão automática ou presionado e "
 "solto\n"
 "\tpara visão manual.  Movendo ou desenhando com mouse pode também ser "
@@ -2135,7 +4276,7 @@ msgid ""
 "(%mS)  %s<b>clearance</b>=%mS  <b>text</b>=%i%%  <b>buffer</b>=#%i"
 msgstr ""
 "%m+<b>visão</b>=%s  <b>grade</b>=%$mS  %s%s  <b>linha</b>=%mS  <b>via</b>="
-"%mS (%mS)  %s<b>folga</b>=%mS  <b>texto</b>=%i%%  <b>memória temporária</b>=#"
+"%mS (%mS)  %s<b>folga</b>=%mS  <b>texto</b>=%i%%  <b>memória</b>=#"
 "%i"
 
 #: ../src/hid/gtk/gui-netlist-window.c:708
@@ -2157,10 +4298,6 @@ msgstr "Nodos"
 #: ../src/hid/gtk/gui-netlist-window.c:784
 msgid "Operations on selected 'Net Name':"
 msgstr "Operações sobre 'Nome de Fiação' selecionada:"
-
-#: ../src/hid/gtk/gui-netlist-window.c:791
-msgid "Select"
-msgstr "Selecione"
 
 #: ../src/hid/gtk/gui-netlist-window.c:796
 msgid "Unselect"
@@ -2184,7 +4321,8 @@ msgstr "Coloque novamente na memória"
 
 #: ../src/hid/gtk/gui-top-window.c:269
 msgid "Do you want to drop your changes and reload the file?"
-msgstr "Deseja descartar suas modificações e colocar o arquivo novamente na memória?"
+msgstr ""
+"Deseja descartar suas modificações e colocar o arquivo novamente na memória?"
 
 #: ../src/hid/gtk/gui-top-window.c:270
 msgid "Do you want to reload the file?"
@@ -2332,6 +4470,269 @@ msgstr "erro de expressão regular: %s\n"
 msgid "re_comp error: %s\n"
 msgstr "erro de re_comp: %s\n"
 
+#: ../src/pcb-menu.res:33
+#, fuzzy
+msgid "Save layout"
+msgstr "Grava traçado como"
+
+#: ../src/pcb-menu.res:34
+#, fuzzy
+msgid "Save layout as..."
+msgstr "Grava traçado como..."
+
+#: ../src/pcb-menu.res:37
+#, fuzzy
+msgid "Load layout"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/pcb-menu.res:38
+#, fuzzy
+msgid "Load element data to paste-buffer"
+msgstr "Coloca dados de componente para colar na memória"
+
+#: ../src/pcb-menu.res:39
+#, fuzzy
+msgid "Load layout data to paste-buffer"
+msgstr "Coloca dados de traçado para colar na memória"
+
+#: ../src/pcb-menu.res:42
+#, fuzzy
+msgid "Print layout..."
+msgstr "Imprime o traçado..."
+
+#: ../src/pcb-menu.res:43
+#, fuzzy
+msgid "Export layout..."
+msgstr "Exporta Traçado..."
+
+#: ../src/pcb-menu.res:46
+#, fuzzy
+msgid "Save connection data of..."
+msgstr "Grava Dados de Conecção Como ..."
+
+#: ../src/pcb-menu.res:51
+#, fuzzy
+msgid "Start new layout"
+msgstr "Inicia novo traçado"
+
+#: ../src/pcb-menu.res:53
+msgid "Quit Program"
+msgstr "Sair do Programa"
+
+#: ../src/pcb-menu.res:58
+msgid "Spin 180"
+msgstr "Gira 180"
+
+#: ../src/pcb-menu.res:61
+#, fuzzy
+msgid "Show soldermask"
+msgstr "máscara de soldagem"
+
+#: ../src/pcb-menu.res:63
+msgid "Displayed element-name..."
+msgstr "Mostrado nome de componente..."
+
+#: ../src/pcb-menu.res:208
+msgid "Pinout shows number"
+msgstr "Mostra número saída de componente"
+
+#: ../src/pcb-menu.res:72
+msgid "Open pinout menu"
+msgstr "Abre menu de saída de componente"
+
+#: ../src/pcb-menu.res:83
+#, fuzzy
+msgid "Zoom Toggle"
+msgstr "Muda Aproximação"
+
+#: ../src/pcb-menu.res:83
+msgid "`"
+msgstr "`"
+
+#: ../src/pcb-menu.res:83
+msgid "<Key>`"
+msgstr "<Tecla>`"
+
+#: ../src/pcb-menu.res:96
+msgid "Display grid"
+msgstr "Exibe grade"
+
+#: ../src/pcb-menu.res:277
+msgid "Paste buffer to layout"
+msgstr "Cola memória no traçado"
+
+#: ../src/pcb-menu.res:149
+msgid "Edit Names..."
+msgstr "Editar Nomes..."
+
+#: ../src/pcb-menu.res:150
+#, fuzzy
+msgid " Change text on layout"
+msgstr "Muda texto sobre traçado"
+
+#: ../src/pcb-menu.res:151
+msgid " Edit name of layout"
+msgstr "Editar nome do traçado"
+
+#: ../src/pcb-menu.res:152
+msgid " Edit name of active layer"
+msgstr "Editar nome da camada ativa"
+
+#: ../src/pcb-menu.res:153
+msgid "Edit Attributes..."
+msgstr "Editar atributos..."
+
+#: ../src/pcb-menu.res:154
+#, fuzzy
+msgid " Layout"
+msgstr "Traçado"
+
+#: ../src/pcb-menu.res:155
+msgid " CurrentLayer"
+msgstr "Camada Atual"
+
+#: ../src/pcb-menu.res:156
+#, fuzzy
+msgid " Element"
+msgstr "Componente"
+
+#: ../src/pcb-menu.res:158
+#, fuzzy
+msgid "Board Sizes"
+msgstr "Tamanhos da Placa"
+
+#: ../src/pcb-menu.res:185
+msgid "Command"
+msgstr "Comando"
+
+#: ../src/pcb-menu.res:188
+#, fuzzy
+msgid "Layer groups"
+msgstr "Grupos de Camada"
+
+#: ../src/pcb-menu.res:189
+msgid "Edit layer groupings"
+msgstr "Editar agrupamentos de camadadas"
+
+#: ../src/pcb-menu.res:210
+msgid "Enable vendor drill mapping"
+msgstr "Habilita mapeamento de perfuração de forncedor"
+
+#: ../src/pcb-menu.res:211
+#, fuzzy
+msgid "Import Settings"
+msgstr "Importar Configurações"
+
+#: ../src/pcb-menu.res:212
+msgid "New elements added at..."
+msgstr "Novos componentes adicionados em..."
+
+#: ../src/pcb-menu.res:222
+#, fuzzy
+msgid "Select all visible objects"
+msgstr "Seleciona todos os objetos visíveis"
+
+#: ../src/pcb-menu.res:223
+#, fuzzy
+msgid "Select all found objects"
+msgstr "Seleciona todos os objetos encontrados"
+
+#: ../src/pcb-menu.res:224
+#, fuzzy
+msgid "Select all connected objects"
+msgstr "Seleciona todos os objetos conectados"
+
+#: ../src/pcb-menu.res:227
+#, fuzzy
+msgid "unselect all found objects"
+msgstr "Remove a seleção de todos os objetos encontrados"
+
+#: ../src/pcb-menu.res:228
+#, fuzzy
+msgid "unselect all connected objects"
+msgstr "Remove a seleção de todos os objetos conectados"
+
+#: ../src/pcb-menu.res:235
+#, fuzzy
+msgid "Text Objects"
+msgstr "Objetos de Texto"
+
+#: ../src/pcb-menu.res:242
+#, fuzzy
+msgid "Delete selected objects"
+msgstr "Apaga objetos selecionados"
+
+#: ../src/pcb-menu.res:292
+#, fuzzy
+msgid "Select current buffer"
+msgstr "Selecione a memória atual"
+
+#: ../src/pcb-menu.res:293
+msgid "#1"
+msgstr "#1"
+
+#: ../src/pcb-menu.res:294
+msgid "#2"
+msgstr "#2"
+
+#: ../src/pcb-menu.res:295
+msgid "#3"
+msgstr "#3"
+
+#: ../src/pcb-menu.res:296
+msgid "#4"
+msgstr "#4"
+
+#: ../src/pcb-menu.res:297
+msgid "#5"
+msgstr "#5"
+
+#: ../src/pcb-menu.res:301
+#, fuzzy
+msgid "Lookup connection to object"
+msgstr "Procura conecção a objeto"
+
+#: ../src/pcb-menu.res:306
+msgid "Optimize rats-nest"
+msgstr "Otimiza ninhos de ratos"
+
+#: ../src/pcb-menu.res:308
+msgid "Erase rats-nest"
+msgstr "Apaga ninhos de ratos"
+
+#: ../src/pcb-menu.res:320
+msgid "Orthopull"
+msgstr "Mover cantos"
+
+#: ../src/pcb-menu.res:321
+msgid "SimpleOpts"
+msgstr "Otimização simples"
+
+#: ../src/pcb-menu.res:340
+msgid "Report net length"
+msgstr "Informar comprimento da rede"
+
+#: ../src/pcb-menu.res:340
+msgid "R"
+msgstr "R"
+
+#: ../src/pcb-menu.res:340
+msgid "<Key>r"
+msgstr "<Tecla>r"
+
+#: ../src/pcb-menu.res:418
+msgid "Alt-Z"
+msgstr "Alt-Z"
+
+#: ../src/pcb-menu.res:418
+msgid "Alt<Key>z"
+msgstr "Alt<Tecla>z"
+
+#: ../src/pcb-menu.res:436
+#, fuzzy
+msgid "Board Layout"
+msgstr "Traçado da Placa"
+
 #: ../src/polygon.c:1378
 msgid "Cannot close polygon because 45 degree lines are requested.\n"
 msgstr "Não posso fechar o polígono porque linhas de 45 graus são exigidas.\n"
@@ -2343,7 +4744,7 @@ msgstr "Um polígono tem ao menos 3 pontos não alinhados\n"
 #: ../src/rats.c:108
 #, c-format
 msgid "Bad net-list format encountered near: \"%s\"\n"
-msgstr "Formato de net-list encontrado próximo de: \"%s\"\n"
+msgstr "Formato de net-list inadequado encontrado próximo de: \"%s\"\n"
 
 #: ../src/rats.c:189
 #, c-format
@@ -2443,7 +4844,7 @@ msgstr ""
 #: ../src/toporouter.c:6508
 #, c-format
 msgid "Wiring cost: %f inches\n"
-msgstr "Custo de fios: %f inches\n"
+msgstr "Custo de fios: %f polegadas\n"
 
 #: ../src/toporouter.c:7296
 msgid "ROAR router: "
@@ -2500,7 +4901,8 @@ msgid ""
 "ERROR: Bad undo serial number %d in undo stack - expecting %d or lower\n"
 "       Please save your work and report this bug.\n"
 msgstr ""
-"ERRO: número serial de desfazer %d inadequado na pilha de desfazer - esperado %d ou menos\n"
+"ERRO: número serial de desfazer %d inadequado na pilha de desfazer - "
+"esperado %d ou menos\n"
 "       Por favor grave seu trabalho e informe essa falha.\n"
 
 #: ../src/undo.c:983
@@ -2601,7 +5003,8 @@ msgstr "Colocado na memória %d perfurações de fornecedor de %s\n"
 #: ../src/vendor.c:449
 #, c-format
 msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
-msgstr "Colocado na memória %d RefDes ignorado, %d Value ignorado, %d Descr gnorado\n"
+msgstr ""
+"Colocado na memória %d RefDes ignorado, %d Value ignorado, %d Descr gnorado\n"
 
 #: ../src/vendor.c:495
 #, c-format
