@@ -42,8 +42,10 @@ desktopdir=$(xdgdatadir)/applications
 desktop_in_files = pcb.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
+@INTLTOOL_XML_RULE@
 appdatadir = $(datadir)/appdata
-dist_appdata_DATA = pcb.appdata.xml
+appdata_DATA = $(appdata_in_files:.xml.in=.xml)
+appdata_in_files = pcb.appdata.xml.in
 
 @INTLTOOL_DESKTOP_RULE@
 

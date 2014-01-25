@@ -4,26 +4,26 @@
   <id type="desktop">gnome-power-statistics.desktop</id>
   <licence>GFDL</licence>
   <description>
-    <p>
+    <_p>
       PCB is an interactive printed circuit board editor for Unix, Linux,
       Windows, and Mac systems.
-    </p>
-    <p>
+    </_p>
+    <_p>
       PCB includes a rats nest feature and schematic/netlist import,
       design rule checking, and can provide industry standard RS-274X
       (Gerber), NC drill, and centroid data (X-Y data) output for use in
       the board fabrication and assembly process, as well as
       photorealistic and design review images.
-    </p>
-    <p>
+    </_p>
+    <_p>
       PCB offers high end features such as an autorouter and trace
       optimizer which can tremendously reduce layout time.
-    </p>
-    <p>
+    </_p>
+    <_p>
       For custom requirements, PCB offers a plug-in API for inserting
       new functionality and using that functionality from within the GUI
       as well as in scripts.
-    </p>
+    </_p>
   </description>
   <screenshots>
     <screenshot type="default" width="320" height="222">http://wiki.geda-project.org/_media/geda:screenshot_pcb_thumb.png</screenshot>
