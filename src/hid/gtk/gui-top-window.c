@@ -951,20 +951,20 @@ ModeButton;
 
 
 static ModeButton mode_buttons[] = {
-  {NULL, NULL, 0, 0, "via", VIA_MODE, via},
-  {NULL, NULL, 0, 0, "line", LINE_MODE, line},
-  {NULL, NULL, 0, 0, "arc", ARC_MODE, arc},
-  {NULL, NULL, 0, 0, "text", TEXT_MODE, text},
-  {NULL, NULL, 0, 0, "rectangle", RECTANGLE_MODE, rect},
-  {NULL, NULL, 0, 0, "polygon", POLYGON_MODE, poly},
-  {NULL, NULL, 0, 0, "polygonhole", POLYGONHOLE_MODE, polyhole},
-  {NULL, NULL, 0, 0, "buffer", PASTEBUFFER_MODE, buf},
-  {NULL, NULL, 0, 0, "remove", REMOVE_MODE, del},
-  {NULL, NULL, 0, 0, "rotate", ROTATE_MODE, rot},
-  {NULL, NULL, 0, 0, "insertPoint", INSERTPOINT_MODE, ins},
-  {NULL, NULL, 0, 0, "thermal", THERMAL_MODE, thrm},
-  {NULL, NULL, 0, 0, "select", ARROW_MODE, sel},
-  {NULL, NULL, 0, 0, "lock", LOCK_MODE, lock}
+  {NULL, NULL, 0, 0, N_("via"), VIA_MODE, via},
+  {NULL, NULL, 0, 0, N_("line"), LINE_MODE, line},
+  {NULL, NULL, 0, 0, N_("arc"), ARC_MODE, arc},
+  {NULL, NULL, 0, 0, N_("text"), TEXT_MODE, text},
+  {NULL, NULL, 0, 0, N_("rectangle"), RECTANGLE_MODE, rect},
+  {NULL, NULL, 0, 0, N_("polygon"), POLYGON_MODE, poly},
+  {NULL, NULL, 0, 0, N_("polygonhole"), POLYGONHOLE_MODE, polyhole},
+  {NULL, NULL, 0, 0, N_("buffer"), PASTEBUFFER_MODE, buf},
+  {NULL, NULL, 0, 0, N_("remove"), REMOVE_MODE, del},
+  {NULL, NULL, 0, 0, N_("rotate"), ROTATE_MODE, rot},
+  {NULL, NULL, 0, 0, N_("insertPoint"), INSERTPOINT_MODE, ins},
+  {NULL, NULL, 0, 0, N_("thermal"), THERMAL_MODE, thrm},
+  {NULL, NULL, 0, 0, N_("select"), ARROW_MODE, sel},
+  {NULL, NULL, 0, 0, N_("lock"), LOCK_MODE, lock}
 };
 
 static gint n_mode_buttons = G_N_ELEMENTS (mode_buttons);
@@ -1072,11 +1072,13 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
 
       /* Create tool button for mode frame */
       mb->button = gtk_radio_button_new (group);
+      gtk_widget_set_tooltip_text (mb->button, _(mb->name));
       group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->button));
       gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->button), FALSE);
 
       /* Create tool button for toolbar */
       mb->toolbar_button = gtk_radio_button_new (toolbar_group);
+      gtk_widget_set_tooltip_text (mb->toolbar_button, _(mb->name));
       toolbar_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->toolbar_button));
       gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->toolbar_button), FALSE);
 
