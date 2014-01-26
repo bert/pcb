@@ -15,6 +15,7 @@
 #include "error.h"
 #include "draw.h"
 #include "pcb-printf.h"
+#include "polygon.h"
 
 #include "hid.h"
 #include "hid_draw.h"
@@ -1268,6 +1269,7 @@ do_poly (const BoxType *b, void *cl)
   while ((pl = pl->next) != NULL);
 
   fprintf (global.f, "fill\n");
+  return 1;
 }
 
 static void
@@ -1541,7 +1543,7 @@ void ps_ps_graphics_init (HID_DRAW *graphics)
   graphics->fill_polygon       = ps_fill_polygon;
   graphics->fill_rect          = ps_fill_rect;
 
-  graphics->draw_pcb_polygon   = ps_draw_pcb_polygon;
+  graphics->draw_pcb_polygon   = do_poly;
 }
 
 void

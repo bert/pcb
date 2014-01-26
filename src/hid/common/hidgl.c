@@ -440,7 +440,7 @@ myCombine ( GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **
       if (combined_num_to_free < MAX_COMBINED_MALLOCS)
         combined_to_free [combined_num_to_free ++] = new_vertex;
       else
-        printf ("myCombine leaking %lu bytes of memory\n", 3 * sizeof (GLdouble));
+        printf ("myCombine leaking %d bytes of memory\n", 3 * sizeof (GLdouble));
     }
 
   new_vertex[0] = coords[0];
@@ -601,9 +601,10 @@ do_hole (const BoxType *b, void *cl)
   PLINE *curc = (PLINE *) b;
 
   /* Ignore the outer contour - we draw it first explicitly*/
-  if (curc->Flags.orient == PLF_DIR) {
-    return 0;
-  }
+  if (curc->Flags.orient == PLF_DIR)
+    {
+      return 0;
+    }
 
   tesselate_contour (info->tobj, curc, info->vertices, info->scale);
   return 1;
@@ -646,7 +647,7 @@ hidgl_fill_pcb_polygon (PolygonType *poly, const BoxType *clip_box, double scale
 
   /* Walk the polygon structure, counting vertices */
   /* This gives an upper bound on the amount of storage required */
-  for (contour = pa->contours; contour != NULL; contour = contour->next)
+  for (contour = poly->contours; contour != NULL; contour = contour->next)
     vertex_count = MAX (vertex_count, contour->Count);
 
   info.vertices = malloc (sizeof(GLdouble) * vertex_count * 3);
