@@ -37,6 +37,7 @@ src/hid/gtk/gui-library-window.c
 src/hid/gtk/gui-log-window.c
 src/hid/gtk/gui-misc.c
 src/hid/gtk/gui-netlist-window.c
+src/hid/gtk/gui-output-events.c
 src/hid/gtk/gui-top-window.c
 src/hid/lesstif/dialogs.c
 src/hid/lpr/lpr.c
