@@ -789,16 +789,64 @@ struct poly_info {
 };
 
 static int
-poly_callback (const BoxType * b, void *cl)
+poly_callback (const BoxType * b, void *cl, const int thindraw_fill)
 {
   struct poly_info *i = cl;
   PolygonType *polygon = (PolygonType *)b;
 
   set_layer_object_color (i->layer, (AnyObjectType *) polygon);
 
-  gui->graphics->draw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+  if (TEST_FLAG (SELECTEDFLAG, polygon))
+    color = i->layer->SelectedColor;
+  else if (TEST_FLAG (FOUNDFLAG, polygon))
+    color = PCB->ConnectedColor;
+  else
+    color = i->layer->Color;
+  gui->set_color (Output.fgGC, color);
+
+  if (gui->thindraw_pcb_polygon != NULL &&
+      (TEST_FLAG (THINDRAWFLAG, PCB) ||
+       TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
+    {
+      if (gui->thindraw_fill_pcb_polygon != NULL && thindraw_fill)
+        gui->thindraw_fill_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+      else
+        gui->thindraw_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+    }
+  else
+    gui->fill_pcb_polygon (Output.fgGC, polygon, i->drawn_area);
+
+  /* If checking planes, thin-draw any pieces which have been clipped away */
+  if (gui->thindraw_pcb_polygon != NULL &&
+      TEST_FLAG (CHECKPLANESFLAG, PCB) &&
+      !TEST_FLAG (FULLPOLYFLAG, polygon))
+    {
+      PolygonType poly = *polygon;
+
+      for (poly.Clipped = polygon->Clipped->f;
+           poly.Clipped != polygon->Clipped;
+           poly.Clipped = poly.Clipped->f)
+        {
+          if (gui->thindraw_fill_pcb_polygon != NULL && thindraw_fill)
+            gui->thindraw_fill_pcb_polygon (Output.fgGC, &poly, i->drawn_area);
+          else
+            gui->thindraw_pcb_polygon (Output.fgGC, &poly, i->drawn_area);
+        }
+    }
 
   return 1;
+}
+
+static int
+poly_callback_plain (const BoxType * b, void *cl)
+{
+  return poly_callback (b, cl, 0);
+}
+
+static int
+poly_callback_thindraw_fill (const BoxType * b, void *cl)
+{
+  return poly_callback (b, cl, 1);
 }
 
 static int
@@ -963,7 +1011,7 @@ DrawLayer (LayerType *Layer, const BoxType *screen)
   struct poly_info info = {screen, Layer};
 
   /* print the non-clearing polys */
-  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
+  r_search (Layer->polygon_tree, screen, NULL, poly_callback_plain, &info);
 
   if (TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
@@ -976,6 +1024,10 @@ DrawLayer (LayerType *Layer, const BoxType *screen)
 
   /* draw the layer text on screen */
   r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+
+  /* print the transparent filling of polys */
+  if (gui->thindraw_fill_pcb_polygon != NULL)
+    r_search (Layer->polygon_tree, screen, NULL, poly_callback_thindraw_fill, &info);
 
   /* We should check for gui->gui here, but it's kinda cool seeing the
      auto-outline magically disappear when you first add something to

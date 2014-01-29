@@ -587,6 +587,11 @@ void
 ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   common_thindraw_pcb_polygon (gc, poly, clip_box);
+}
+
+void
+ghid_thindraw_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
+{
   ghid_set_alpha_mult (gc, 0.25);
   gui->graphics->fill_pcb_polygon (gc, poly, clip_box);
   ghid_set_alpha_mult (gc, 1.0);
@@ -790,8 +795,9 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 
   /* Setup HID function pointers specific to the GL renderer*/
   ghid_hid.end_layer = ghid_end_layer;
-  ghid_graphics.fill_pcb_polygon = ghid_fill_pcb_polygon;
-  ghid_graphics.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
+  ghid_hid.fill_pcb_polygon = ghid_fill_pcb_polygon;
+  ghid_hid.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
+  ghid_hid.thindraw_fill_pcb_polygon = ghid_thindraw_fill_pcb_polygon;
 }
 
 void
