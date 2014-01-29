@@ -56,7 +56,6 @@ xmldir = $(mimedir)/packages
 xml_in_files = pcb.xml.in
 xml_DATA = $(xml_in_files:.xml.in=.xml)
 
-@INTLTOOL_XML_RULE@
 
 kdedatadir=@KDEDATADIR@
 mimelnkdir = $(kdedatadir)/mimelnk
