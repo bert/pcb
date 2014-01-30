@@ -371,7 +371,9 @@ PrintBOM (void)
   fprintf (fp, "# Author: %s\n", pcb_author ());
   fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
-  fprintf (fp, "# X,Y in %s.  rotation in degrees.\n", xy_unit->in_suffix);
+  /* don't use localized xy_unit->in_suffix here since */
+  /* the line itself is not localized and not for GUI  */
+  fprintf (fp, "# X,Y in %s.  rotation in degrees.\n", xy_unit->suffix);
   fprintf (fp, "# --------------------------------------------\n");
 
   /*
