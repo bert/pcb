@@ -47,7 +47,7 @@ src/main.c
 src/misc.c
 src/move.c
 src/netlist.c
-src/parse_y.c
+src/parse_y.y
 src/pcb-menu.res.h
 src/polygon.c
 src/rats.c
