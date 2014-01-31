@@ -723,6 +723,7 @@ if that works, then @pcb{} hasn't been installed properly.
 * Loading and Saving::
 * Printing::               Creating Gerber files or postscript files
 * Exporting::              Exporting a layout.
+* Connection Lists::       How to get a list of all or some connections.
 * Arrow Tool::             Selecting/Moving objects.
 * Rats Nest::		   Helps you place and route tracks against a netlist.
 * Design Rule Checking::   Check for manufactureability
@@ -730,7 +731,6 @@ if that works, then @pcb{} hasn't been installed properly.
 * Searching for elements:: Searching for elements
 * Measuring distances::    Measuring distances
 * Vendor drill mapping::   Mapping drills to a vendor specified list
-* Connection Lists::       How to get a list of all or some connections.
 @end menu
 
 
