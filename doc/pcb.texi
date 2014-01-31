@@ -146,7 +146,7 @@ a polygon.  A variety of other enhancements including a Gerber RS-274X
 driver and NC drill file generation have also been added.
 
 Release 1.6 provides automatic screen updates of changed regions.
-This should eliminate most of the need for the redraw ((@emph{R} key).
+This should eliminate most of the need for the redraw (@emph{R} key).
 Also some changes to what order items under the cursor are selected
 were made for better consistency - it is no longer possible to
 accidentally move a line or line point that is completely obscured
@@ -553,7 +553,7 @@ polygon creating a clearance, or touch the polygon. This behavior is
 selectable in the @b{Settings} menu for new lines. To change the
 behavior of an existing line, hit the @emph{J} key with the cross hair
 over the line. You can increase the size of the clearance by 2 mils on
-each edge with the with the
+each edge with the
 @emph{K} key. @emph{Shift-K} will decrease the clearance by 2 mils.
 The increment may be changed from 2 mils through the application
 resource file.
@@ -587,7 +587,7 @@ starting point is established at the end point.
 
 Whenever a starting point is established
 by either the Line or Arc tools it will be retained if you switch directly between the
-tools (e.g. @emph{F2} key for Lines, @emph{F8} key for Arcs. Arcs can either touch or
+tools (e.g. @emph{F2} key for Lines, @emph{F8} key for Arcs). Arcs can either touch or
 clear polygons just like lines do. Of course connection
 searches, undo and all the other features you'd expect work with arcs too.
 
@@ -1758,7 +1758,7 @@ has not been saved yet, then the backup file name is @file{PCB.####.backup} wher
 will be replaced by the process ID of the currenting running copy of @pcb{}.
 This default backup file name may be changed at compilation time via the
 @code{BACKUP_NAME}
-variable in @file{globalconfig.h}).  During critical
+variable in @file{globalconfig.h}.  During critical
 sections of the program or when data would be lost it is saved as
 @file{PCB.%i.save}.  This file name may be changed at compile time
 with the @code{SAVE_NAME} variable in @file{globalconfig.h}.
@@ -1787,7 +1787,7 @@ See the page about
 the @emph{Print()} action for additional information about the filenames.
 The control panel offers a number of options. Most of them are not available
 for Gerber output because it wouldn't make sense, for example,  to scale the gerber output
-(you'd get an incorrectly made board!)  The options are:
+(you'd get an incorrectly made board!). The options are:
 
 @table @samp
 @cindex device, selecting an output
@@ -2434,7 +2434,7 @@ steps will autoroute your design.
 @item Turn off visibility of any layers that you don't want the router
 to use.
 
-@item Turn of via visibility if you don't want the router to use any
+@item Turn off via visibility if you don't want the router to use any
 new vias. 
 
 @item Use only plain rectangles for power/ground planes that you want
@@ -2457,7 +2457,7 @@ new vias.
    use for any nets not having a defined route style in the netlist.
 
 @item Disable any nets that you don't want the autorouter to route
-   (double-click them in the  netlist window to add/remove the *)
+   (double-click them in the  netlist window to add/remove the *).
 
          NOTE: If you will be manually routing these later not using
    planes, it is usually better to let the autorouter route them then rip
@@ -2465,10 +2465,10 @@ new vias.
    manually, consider making it from one or more pure rectangles and
    letting the autorouter have a go at it.
 
-@item Create a fresh rat's nest. ('E' the 'W')
+@item Create a fresh rat's nest. (@emph{E} then @emph{W})
 
 @item Select ``show autorouter trials'' in the settings menu if you want
-   to watch what's happening
+   to watch what's happening.
 
 @item Choose ``autoroute all rats'' in the connection menu.
 
@@ -2777,7 +2777,7 @@ mode, respectively, which both default to @emph{XtDefaultForeground}.
 @cindex unix command
 @cindex m4
 @item elementCommand (string)
-@pcb{} uses a user defined command to read element files. This resources
+@pcb{} uses a user defined command to read element files. This resource
 is used to set the command which is executed by the users default shell.
 Two escape sequences are defined to pass the selected filename (%f) and the
 current search path (%p). The command must write the element data
@@ -2873,7 +2873,7 @@ for font files. See also, the resource @emph{fontFile}.
 @cindex grid
 @cindex cursor steps
 @item grid (int)
-This resources defines the initial value of one cursor step. It defaults
+This resource defines the initial value of one cursor step. It defaults
 to @emph{100 mil} and any changes are saved together with the layout data.
 
 @vindex gridColor
@@ -2924,7 +2924,7 @@ resources. The defaults are empty strings.
 @cindex unix command
 @item libraryCommand (string)
 @pcb{} uses a command to read element data from libraries.
-The resources is used to set the command which is executed by the users
+The resource is used to set the command which is executed by the users
 default shell.  Three escape sequences are defined to pass the selected
 filename (%f), the current search path (%p) as well (%a) as the three
 parameters @emph{template}, @emph{value} and @emph{package} to the command.
@@ -3221,7 +3221,7 @@ The value lies in the range -100..100 and it defaults to the maximum volume of
 @cindex colors
 @cindex color, warning
 @item warnColor (color)
-This resources defines the color to be used for drawing pins and pads when
+This resource defines the color to be used for drawing pins and pads when
 a warning has been issued about them.
 
 @vindex zoom
@@ -3255,7 +3255,7 @@ an X11 event, you can also execute any action command using a ":" command
 Take special care about translations related to the functions keys and the
 pointer buttons because most of the window managers use them too.
 Change the file according to your hardware/software environment.
-You may have to replace all occurances of @emph{baseTranslations} to
+You may have to replace all occurrences of @emph{baseTranslations} to
 @emph{translations} if you use a @code{X11R4} server.
 
 Passing @emph{Object} as an argument to an action routine causes the object
@@ -3819,7 +3819,7 @@ None<Key>F3:       Mode(PasteBuffer)
 @cindex polygon, closing a
 @cindex polygon point, go back to previous
 @cindex closing a polygon
-@item Polygon((Close|PreviousPoint)
+@item Polygon(Close|PreviousPoint)
 Polygons need a special action routine to make life easier. Calling
 @emph{Polygon(PreviousPoint)} resets the newly entered corner to the
 previous one. The Undo action will call Polygon(PreviousPoint)
@@ -4249,7 +4249,7 @@ is to examine the file @file{src/parse_y.y} which is the definitive
 definition of the file format.
 
 The PCB layout file contains the following contents, in this order (individual items
-are defined in @ref{File Syntax}:
+are defined in @ref{File Syntax}):
 
 @table @code
 
@@ -4461,7 +4461,7 @@ look at the comments and follow the macros step by step.
 
 @node File Syntax
 @section File Syntax
-@cindex File sytax
+@cindex File syntax
 @cindex Syntax, file
 
 @include pcbfile.texi
@@ -5351,7 +5351,7 @@ FreeBSD port at
 
 There are a some problems related to @code{X11R4} or systems derived from
 @code{X11} such as @code{OpenWindows}. @xref{Sun}. You at least have to change
-all occurances of @emph{baseTranslations} in the resource files to
+all occurrences of @emph{baseTranslations} in the resource files to
 @emph{translations} if you are using a @code{X11R4} server. Look at the
 @code{X11R5} @emph{Intrinsics} manual for details.
 
@@ -5613,13 +5613,13 @@ A hyphen in the context of square brackets denotes the range between the
 preceding and the following character.  E.g., the range of digits is
 ``0-9'' .  The range of letters from C to K is ``C-K'' .
 
-@item \^ inside square brackets
+@item ^ inside square brackets
 Inside square brackets the caret is an anti operator. Its presence makes
-the square prackets match anything except the contents of the brackets.
+the square brackets match anything except the contents of the brackets.
 
 @item ( )
 Round parenthesis group parts of a regular expression. This is very much
-like they do in math formulars.
+like they do in math formulas.
 
 @end table
 
@@ -5673,11 +5673,11 @@ Select all items, whose name starts with ``A'', ``B'', ``C'', or ``D''.
 
 @item .*N@{2@}.*
 Select all items, whose name contains two ``N'' in a row such as
-CONN23, or connA, but not CON5
+CONN23, or connA, but not CON5.
 
 @item [^D].*
 Select all items that do not start with the letter ``D'', such as C2, or
-R34, but not D34
+R34, but not D34.
 
 @end table
 
@@ -5870,7 +5870,7 @@ the thermal resistance to the plane, it becomes easier to solder to the
 pin.  In the drawing below, the pin on the left is connected to the
 polygon using a solid connection with no thermal relief, the middle
 pin is connected using a thermal, while the pin on the right has no
-connection to the polygon.  In PCB, the ``Thermal'' Tool is used to
+connection to the polygon.  In @pcb{}, the ``Thermal'' Tool is used to
 make both a solid connection and one with thermal relief (see @ref{Polygon Objects}).
 
 @center @image{thermal,,,Example of a thermal relief,png}
