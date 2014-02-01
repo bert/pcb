@@ -900,7 +900,7 @@ msgstr "Imprimir..."
 #: ../src/gpcb-menu.res:80
 #, fuzzy
 msgid "Preferences..."
-msgstr "Preferências do PCB"
+msgstr "Preferências..."
 
 #: ../src/gpcb-menu.res:82
 msgid "Quit"
