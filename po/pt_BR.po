@@ -1265,7 +1265,7 @@ msgstr "<Tecla>v"
 #: ../src/gpcb-menu.res:165 ../src/pcb-menu.res:75
 #, fuzzy
 msgid "Zoom In 2X"
-msgstr "Aproximação Em 2X"
+msgstr "Aproximação 2X"
 
 #: ../src/gpcb-menu.res:166 ../src/pcb-menu.res:81
 #, fuzzy
@@ -3080,7 +3080,7 @@ msgstr "Nova (somente nessa seção)"
 
 #: ../src/hid/gtk/gtkhid-main.c:156
 msgid "Various zoom factor changes."
-msgstr "Várias mudançs no fator de aproximação."
+msgstr "Várias mudanças no fator de aproximação."
 
 #: ../src/hid/gtk/gtkhid-main.c:239
 #, c-format
