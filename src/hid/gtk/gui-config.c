@@ -1245,7 +1245,7 @@ config_library_tab_create (GtkWidget * tab_vbox)
 			 "element directories.  For example:\n%s\n"
 			 "Elements should be organized into subdirectories below each\n"
 			 "top level directory.  Restart program for changes to take effect."
-			 "</small>") PCB_PATH_DELIMETER
+			 "</small>"), PCB_PATH_DELIMETER,
 			 "\t<b>~/gaf/pcb-elements" PCB_PATH_DELIMETER
 			 "packages" PCB_PATH_DELIMETER "/usr/local/pcb-elements</b>\n");
   label = gtk_label_new ("");
