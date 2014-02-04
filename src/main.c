@@ -1886,10 +1886,16 @@ main (int argc, char *argv[])
   setbuf (stdout, 0);
   InitPaths (argv[0]);
 
+#ifdef ENABLE_NLS
+#ifdef LOCALEDIR
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+#endif
   textdomain(GETTEXT_PACKAGE);
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
   setlocale(LC_ALL,"");
+  /*use decimal point instead of comma */
+  setlocale(LC_NUMERIC,"C");
+#endif
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
@@ -2050,8 +2056,6 @@ main (int argc, char *argv[])
 
   if (gui->printer || gui->exporter)
     {
-      // Workaround to fix batch output for non-C locales
-      setlocale(LC_NUMERIC,"C");
       gui->do_export (0);
       exit (0);
     }

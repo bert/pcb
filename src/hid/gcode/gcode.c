@@ -531,7 +531,6 @@ gcode_do_export (HID_Attr_Val * options)
   char variable_isoplunge[20], variable_isofeedrate[20];
   char variable_drilldepth[20], variable_milldepth[20];
   char variable_millplunge[20], variable_millfeedrate[20];
-  char *old_locale = setlocale (LC_NUMERIC, NULL);
 
   if (!options)
     {
@@ -575,7 +574,6 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_millfeedrate = options[HA_millfeedrate].real_value * scale;
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
-  setlocale (LC_NUMERIC, "C");   /* use . as separator */
   if (gcode_advanced)
     {
       /* give each variable distinct names, even if they don't appear
@@ -668,7 +666,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (!gcode_f)
             {
               bm_free (bm);
-              goto error;
+              return;
             }
           fprintf (gcode_f, "(Accuracy %d dpi)\n", gcode_dpi);
           fprintf (gcode_f, "(Tool diameter: %f %s)\n",
@@ -702,7 +700,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (r)
             {
               fprintf (stderr, "ERROR: pathlist function failed\n");
-              goto error;
+              return;
             }
           /* generate best polygon and write vertices in g-code format */
           d = process_path (plist, &param_default, bm, gcode_f,
@@ -712,7 +710,7 @@ gcode_do_export (HID_Attr_Val * options)
           if (d < 0)
             {
               fprintf (stderr, "ERROR: path process function failed\n");
-              goto error;
+              return;
             }
           if (gcode_predrill && save_drill)
             {
@@ -832,7 +830,7 @@ gcode_do_export (HID_Attr_Val * options)
                     gcode_f = gcode_start_gcode(layername, metric);
                   }
                   if (!gcode_f)
-                    goto error;
+                    return;
                   fprintf (gcode_f, "(Drill file: %d drills)\n", drill->n_holes);
                   if (metric)
                     fprintf (gcode_f, "(Drill diameter: %f mm)\n",
@@ -940,7 +938,7 @@ gcode_do_export (HID_Attr_Val * options)
 
                     gcode_f = gcode_start_gcode("drillmill", metric);
                     if (!gcode_f)
-                      goto error;
+                      return;
                     fprintf (gcode_f, "(Drillmill file)\n");
                     fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                              gcode_milltoolradius * 2, metric ? "mm" : "inch");
@@ -1062,7 +1060,7 @@ gcode_do_export (HID_Attr_Val * options)
 
       gcode_f = gcode_start_gcode("outline", metric);
       if (!gcode_f)
-        goto error;
+        return;
       fprintf (gcode_f, "(Outline mill file)\n");
       fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                gcode_milltoolradius * 2, metric ? "mm" : "inch");
@@ -1130,9 +1128,6 @@ gcode_do_export (HID_Attr_Val * options)
                mill_distance * 25.4, mill_distance);
       fclose (gcode_f);
     }
-
-error:
-  setlocale (LC_NUMERIC, old_locale);   /* restore locale */
 }
 
 /* *** PNG export (slightly modified code from PNG export HID) ************* */
