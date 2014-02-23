@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-01 14:29-0200\n"
+"POT-Creation-Date: 2014-02-23 05:45-0300\n"
 "PO-Revision-Date: 2014-01-01 09:37-0200\n"
 "Last-Translator: Jorge Barros de Abreu <ficmatin10@gmail.com>\n"
 "Language-Team: pt_BR <ldpbr-translation@lists.sourceforge.net>\n"
@@ -22,8 +22,8 @@ msgid ""
 "PCB is an interactive printed circuit board editor for Unix, Linux, Windows, "
 "and Mac systems."
 msgstr ""
-"PCB é um editor de placa de circuito impresso interativo para sistemas Unix, Linux, "
-"Windows, e Mac."
+"PCB é um editor de placa de circuito impresso interativo para sistemas Unix, "
+"Linux, Windows, e Mac."
 
 #: ../data/pcb.appdata.xml.in.h:2
 msgid ""
@@ -32,18 +32,21 @@ msgid ""
 "centroid data (X-Y data) output for use in the board fabrication and "
 "assembly process, as well as photorealistic and design review images."
 msgstr ""
-"PCB inclui um recurso de importação de ninhos de rato and diagramas esquemáticos e netlist, "
-"verificação de regras de desenho, e pode fornecer o padrão industrial RS-274X (Gerber), "
-"perfuração NC, e saída de dados de cantroid (dados X-Y) para uso em fabricação de placas e "
-"processo de fabricação, bem como imagens fotorealisticas e imagens de exibição de desenho."
+"PCB inclui um recurso de importação de ninhos de rato and diagramas "
+"esquemáticos e netlist, verificação de regras de desenho, e pode fornecer o "
+"padrão industrial RS-274X (Gerber), perfuração NC, e saída de dados de "
+"cantroid (dados X-Y) para uso em fabricação de placas e processo de "
+"fabricação, bem como imagens fotorealisticas e imagens de exibição de "
+"desenho."
 
 #: ../data/pcb.appdata.xml.in.h:3
 msgid ""
 "PCB offers high end features such as an autorouter and trace optimizer which "
 "can tremendously reduce layout time."
 msgstr ""
-"PCB ofereca recursos de alta qualidade tais como roteamento automático e otimizador de trilha "
-"que pode reduzir tremendamente o tempo do desenho do traçado."
+"PCB ofereca recursos de alta qualidade tais como roteamento automático e "
+"otimizador de trilha que pode reduzir tremendamente o tempo do desenho do "
+"traçado."
 
 #: ../data/pcb.appdata.xml.in.h:4
 msgid ""
@@ -51,9 +54,10 @@ msgid ""
 "functionality and using that functionality from within the GUI as well as in "
 "scripts."
 msgstr ""
-"Para requisitos personalizados, PCB oferece uma API de recursos adicionais para inserção "
-"de novas funcionalidades e utilização dessa nova funcionalidade a partir de dentro da "
-"interface gráfica do usuário bem com em scripts."
+"Para requisitos personalizados, PCB oferece uma API de recursos adicionais "
+"para inserção de novas funcionalidades e utilização dessa nova "
+"funcionalidade a partir de dentro da interface gráfica do usuário bem com em "
+"scripts."
 
 #: ../data/pcb.desktop.in.h:1
 msgid "PCB Designer"
@@ -166,7 +170,6 @@ msgstr "DRC abortado após %d erros de regra de desenho.\n"
 
 #. --------------------------------------------------------------------------
 #: ../src/action.c:1874
-#, fuzzy
 msgid "DumpLibrary()"
 msgstr "DumpLibrary()"
 
@@ -180,7 +183,6 @@ msgid "Flip(Object|Selected|SelectedElements)"
 msgstr "Vira(Objeto|Selecionado|ComponenteSelecionado)"
 
 #: ../src/action.c:1931
-#, fuzzy
 msgid "Flip an element to the opposite side of the board."
 msgstr "Transfere componentes para o lado posto da placa."
 
@@ -203,12 +205,13 @@ msgid ""
 "with rounded edges.\n"
 "Style = 5 has horizontal and vertical fingers with rounded edges.\n"
 msgstr ""
-"Ajusta o térmico (sobre a camada atual) dos conectores ou vias para o estilo dado.\n"
+"Ajusta o térmico (sobre a camada atual) dos conectores ou vias para o estilo "
+"dado.\n"
 "Estilo = 0 significa sem térmico.\n"
 "Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
 "Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
-"Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal "
-"com arestas arredondadas.\n"
+"Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal com "
+"arestas arredondadas.\n"
 "Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
 
 #: ../src/action.c:2124
@@ -216,8 +219,8 @@ msgid ""
 "SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, "
 "delta)"
 msgstr ""
-"SetValue(Grade|Linha|TamanhoLinha|Texto|TextoProporção|AnelPerfuraçãoOrifício|Via,"
-"|TamanhoVia, delta)"
+"SetValue(Grade|Linha|TamanhoLinha|Texto|TextoProporção|"
+"AnelPerfuraçãoOrifício|Via,|TamanhoVia, delta)"
 
 #: ../src/action.c:2128
 msgid "Change various board-wide values and sizes."
@@ -225,9 +228,8 @@ msgstr "Muda vários vaores e tamanhos de placas largas."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:2234
-#, fuzzy
 msgid "Quit()"
-msgstr "Sair"
+msgstr "Sair()"
 
 #: ../src/action.c:2236
 msgid "Quits the application after confirming."
@@ -250,7 +252,6 @@ msgid "DisperseElements(All|Selected)"
 msgstr "DisperseElements(Todos|Selecionados)"
 
 #: ../src/action.c:2341
-#, fuzzy
 msgid "Disperses elements."
 msgstr "Dispersa componentes."
 
@@ -302,14 +303,12 @@ msgstr "Muda ou usa o modo ferramenta."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:3220
-#, fuzzy
 msgid "RemoveSelected()"
-msgstr "Remover Selecionados"
+msgstr "RemoverSelecionados()"
 
 #: ../src/action.c:3222
-#, fuzzy
 msgid "Removes any selected objects."
-msgstr "Apague objetos selecionados."
+msgstr "Apague quaisquer objetos selecionados."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:3238
@@ -321,14 +320,13 @@ msgstr ""
 "Renumerar(nomearquivo)"
 
 #: ../src/action.c:3242
-#, fuzzy
 msgid ""
 "Renumber all elements.  The changes will be recorded to filename\n"
 "for use in backannotating these changes to the schematic."
 msgstr ""
-"Escolha um arquivo para salvar a renumeração.\n"
-"Esse arquivo pode ser usado para voltar anotações de\n"
-"mudança para o diagrama esquemático.\n"
+"Renumere todos os componentes. As modificações serão gravadas em "
+"nomearquivo.\n"
+"para uso em voltar anotações dessas mudanças para o diagrama esquemático."
 
 #.
 #. * We deal with the case where name already exists in this
@@ -389,7 +387,6 @@ msgstr ""
 "Apaga(Todos os ratos|ratos selecionados)"
 
 #: ../src/action.c:3806
-#, fuzzy
 msgid "Delete stuff."
 msgstr "Apagar coisas."
 
@@ -398,18 +395,15 @@ msgid "DeleteRats(AllRats|Selected|SelectedRats)"
 msgstr "ApagaRatos(Todos|Selecionados|SelectedRats)"
 
 #: ../src/action.c:3856
-#, fuzzy
 msgid "Delete rat lines."
 msgstr "Apaga linhas de rato."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:3888
-#, fuzzy
 msgid "AutoPlaceSelected()"
 msgstr "Coloca automaticamente componentes selecionados"
 
 #: ../src/action.c:3890
-#, fuzzy
 msgid "Auto-place selected components."
 msgstr "Coloca automaticamente componentes selecionados"
 
@@ -423,12 +417,10 @@ msgstr ""
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:3914
-#, fuzzy
 msgid "AutoRoute(AllRats|SelectedRats)"
 msgstr "AutoRoute(AllRats|SelectedRats)"
 
 #: ../src/action.c:3916
-#, fuzzy
 msgid "Auto-route some or all rat lines."
 msgstr "Auto-route some or all rat lines."
 
@@ -459,9 +451,8 @@ msgstr ""
 "ChangeSize(SelectedElements, delta)"
 
 #: ../src/action.c:4028
-#, fuzzy
 msgid "Changes the size of objects."
-msgstr "Modifica o tamanho de objetos.\n"
+msgstr "Modifica o tamanho de objetos."
 
 #: ../src/action.c:4125
 msgid ""
@@ -472,7 +463,6 @@ msgstr ""
 "ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
 
 #: ../src/action.c:4129
-#, fuzzy
 msgid "Changes the drilling hole size of objects."
 msgstr "Modifica orifício de perfuração dos objetos selecionados."
 
@@ -498,7 +488,6 @@ msgstr ""
 "ChangeClearSize(Selected|SelectedObjects, delta)"
 
 #: ../src/action.c:4192
-#, fuzzy
 msgid "Changes the clearance size of objects."
 msgstr "Modifica o tamanho da folga de objetos."
 
@@ -512,7 +501,9 @@ msgstr ""
 
 #: ../src/action.c:4270
 msgid "Ensures the mask is a minimum distance from pins and pads."
-msgstr "Garante que a máscara esteja a uma distância mínima de conectores e pastilhas."
+msgstr ""
+"Garante que a máscara esteja a uma distância mínima de conectores e "
+"pastilhas."
 
 #: ../src/action.c:4350
 msgid ""
@@ -543,9 +534,8 @@ msgstr ""
 "ChangeName(Traçado|Camada)"
 
 #: ../src/action.c:4552
-#, fuzzy
 msgid "Sets the name of objects."
-msgstr "Modifica a folga de objetos."
+msgstr "Ajusta o nome de objetos."
 
 #: ../src/action.c:4625 ../src/action.c:5923
 msgid "Enter the layout name:"
@@ -565,12 +555,10 @@ msgid "Converts dead polygon islands into separate polygons."
 msgstr "Converte ilhas de polígonos mortos em polígonos separados."
 
 #: ../src/action.c:4704
-#, fuzzy
 msgid "ToggleHideName(Object|SelectedElements)"
 msgstr "ToggleHideName(Objetos|SelecionadosComponentes)"
 
 #: ../src/action.c:4707
-#, fuzzy
 msgid "Toggles the visibility of element names."
 msgstr "Altere a visibilidade dos nomes dos componentes selecionados."
 
@@ -579,7 +567,6 @@ msgid "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
 msgstr "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
 
 #: ../src/action.c:4779
-#, fuzzy
 msgid "Changes the join (clearance through polygons) of objects."
 msgstr "Modifica a proximidade (folga através de polígonos) de objetos."
 
@@ -594,27 +581,24 @@ msgstr ""
 "ChangeSquare(Selected|SelectedObjects)"
 
 #: ../src/action.c:4842
-#, fuzzy
 msgid "Changes the square flag of pins and pads."
-msgstr "Altere o sinalizador de quadrado de um objeto\n"
+msgstr "Altere o sinalizador de quadrado de um objeto."
 
 #: ../src/action.c:4898
 msgid "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
 msgstr "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
 
 #: ../src/action.c:4900
-#, fuzzy
 msgid "sets the square-flag of objects."
-msgstr "Altere o sinalizador de quadrado de um objeto\n"
+msgstr "ajusta o sinalizador de quadrado de objetos."
 
 #: ../src/action.c:4956
 msgid "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
 msgstr "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
 
 #: ../src/action.c:4959
-#, fuzzy
 msgid "Clears the square-flag of pins and pads."
-msgstr "Clears the square-flag of pins and pads."
+msgstr "Apaga o sinalizador de quadrado de conectores e pastilhas."
 
 #: ../src/action.c:5015
 msgid ""
@@ -625,18 +609,16 @@ msgstr ""
 "ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
 
 #: ../src/action.c:5019
-#, fuzzy
 msgid "Changes the octagon-flag of pins and vias."
-msgstr "Modifique o sinalizador de octógono do objeto\n"
+msgstr "Modifique o sinalizador de octógono de conectores e vias."
 
 #: ../src/action.c:5078
 msgid "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
 msgstr "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
 
 #: ../src/action.c:5080
-#, fuzzy
 msgid "Sets the octagon-flag of objects."
-msgstr "Modifique o sinalizador de octógono do objeto\n"
+msgstr "Modifique o sinalizador de octógono do objetos."
 
 #: ../src/action.c:5139
 msgid ""
@@ -655,7 +637,6 @@ msgid "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
 msgstr "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
 
 #: ../src/action.c:5204
-#, fuzzy
 msgid "Changes the hole flag of objects."
 msgstr "Modifica o sinalizador de orifício de objetos."
 
@@ -664,9 +645,8 @@ msgid "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
 msgstr "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
 
 #: ../src/action.c:5251
-#, fuzzy
 msgid "Changes the no paste flag of objects."
-msgstr "Modifica o sinalizador de orifício de objetos."
+msgstr "Modifica o sinalizador de não colar de objetos."
 
 #: ../src/action.c:5297
 msgid ""
@@ -714,7 +694,9 @@ msgstr ""
 
 #: ../src/action.c:5512
 msgid "Unselects the object at the pointer location or the specified objects."
-msgstr "Remove seleção do objeto na localização informada ou de objetos específicados."
+msgstr ""
+"Remove seleção do objeto na localização informada ou de objetos "
+"específicados."
 
 #: ../src/action.c:5665
 msgid ""
@@ -727,9 +709,8 @@ msgstr ""
 "SaveTo(PasteBuffer,filename)"
 
 #: ../src/action.c:5669
-#, fuzzy
 msgid "Saves data to a file."
-msgstr "Grava o traçado atual em um novo arquivo"
+msgstr "Grava dados em um arquivo."
 
 #: ../src/action.c:5788
 msgid ""
@@ -740,18 +721,17 @@ msgstr ""
 "SaveSettings(local)"
 
 #: ../src/action.c:5791
-#, fuzzy
 msgid "Saves settings."
 msgstr "Grava Configurações."
 
 #: ../src/action.c:5812
 msgid "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
-msgstr "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+msgstr ""
+"LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
 
 #: ../src/action.c:5814
-#, fuzzy
 msgid "Load layout data from a file."
-msgstr "Coloca na memória arquivo de traçado"
+msgstr "Coloca na memória dados a partir de um arquivo."
 
 #: ../src/action.c:5878
 msgid "OK to override layout data?"
@@ -767,7 +747,6 @@ msgid "New([name])"
 msgstr "Novo([nome])"
 
 #: ../src/action.c:5905
-#, fuzzy
 msgid "Starts a new layout."
 msgstr "Inicia novo traçado."
 
@@ -822,20 +801,17 @@ msgstr "Desfazer modificações recentes."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:6352
-#, fuzzy
 msgid "Redo()"
-msgstr "Refazer"
+msgstr "Refazer()"
 
 #: ../src/action.c:6354
-#, fuzzy
 msgid "Redo recent \"undo\" operations."
 msgstr "Refaça a última operação de desfazer."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:6400
-#, fuzzy
 msgid "Polygon(Close|PreviousPoint)"
-msgstr "PreviousPoint do Polígono"
+msgstr "Polígono(Fecha|PontoAnterior)"
 
 #: ../src/action.c:6402
 msgid "Some polygon related stuff."
@@ -843,7 +819,6 @@ msgstr "Algumas coisas relacionadas a polígonos."
 
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:6448
-#, fuzzy
 msgid "RouteStyle(1|2|3|4)"
 msgstr "Estilos de Rota(1|2|3|4)"
 
@@ -857,7 +832,6 @@ msgid "MoveObject(X,Y,dim)"
 msgstr "MoveObjeto(X,Y,dim)"
 
 #: ../src/action.c:6486
-#, fuzzy
 msgid "Moves the object under the crosshair."
 msgstr "Move o objeto sob a mira."
 
@@ -870,17 +844,14 @@ msgid "MoveToCurrentLayer(Object|SelectedObjects)"
 msgstr "MoveToCurrentLayer(Object|SelectedObjects)"
 
 #: ../src/action.c:6538
-#, fuzzy
 msgid "Moves objects to the current layer."
-msgstr "Mova o objeto para a camada atual\n"
+msgstr "Mova objetos para a camada atual."
 
 #: ../src/action.c:6581
-#, fuzzy
 msgid "SetSame()"
 msgstr "Ajusta o Mesmo"
 
 #: ../src/action.c:6584
-#, fuzzy
 msgid "Sets current layer and sizes to match indicated item."
 msgstr "Grava a camada atual e tamanhos para coincidir com o item indicado."
 
@@ -892,14 +863,13 @@ msgid ""
 "SetFlag(SelectedElements, flag)\n"
 "flag = square | octagon | thermal | join"
 msgstr ""
-"SetFlag(Object|Selected|SelectedObjects, flag)\n"
-"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"SetFlag(SelectedElements, flag)\n"
+"SetFlag(Objeto|Selected|SelectedObjects, sinalizador)\n"
+"SetFlag(SelectedLines|SelectedPins|SelectedVias, sinalizador)\n"
+"SetFlag(SelectedPads|SelectedTexts|SelectedNames, sinalizador)\n"
+"SetFlag(SelectedElements, sinalizador)\n"
 "flag = quadrado | octógono | térmico | junção"
 
 #: ../src/action.c:6663
-#, fuzzy
 msgid "Sets flags on objects."
 msgstr "Ajusta sinalizadores sobre objetos."
 
@@ -918,9 +888,8 @@ msgstr ""
 "sinalizador = quadrado | octógono | térmico | junção"
 
 #: ../src/action.c:6694
-#, fuzzy
 msgid "Clears flags on objects."
-msgstr "Apaga o sinalizador sobre objetos."
+msgstr "Apaga sinalizadores sobre objetos."
 
 #: ../src/action.c:6719
 msgid ""
@@ -939,9 +908,8 @@ msgstr ""
 "valor = 0 | 1"
 
 #: ../src/action.c:6726
-#, fuzzy
 msgid "Sets or clears flags on objects."
-msgstr "Ajusta ou apaga sinalizadores sobre objetos.\n"
+msgstr "Ajusta ou apaga sinalizadores sobre objetos."
 
 #: ../src/action.c:6776
 #, c-format
@@ -997,7 +965,6 @@ msgid "ExecCommand(command)"
 msgstr "ExecCommand(comando)"
 
 #: ../src/action.c:7254
-#, fuzzy
 msgid "Runs a command."
 msgstr "Executar um comando."
 
@@ -1031,9 +998,8 @@ msgstr ""
 "Import(setdisperse,D,unidades)\n"
 
 #: ../src/action.c:7492
-#, fuzzy
 msgid "Import schematics."
-msgstr "Coloca diagramas esquemáticos na memória"
+msgstr "Importa diagramas esquemáticos."
 
 #: ../src/action.c:7626
 msgid "Enter dispersion:"
@@ -1077,7 +1043,6 @@ msgid "This GUI doesn't support Attribute Editing\n"
 msgstr "Essa Interface Gráfica de Usuário não suporta Edição de Atributo\n"
 
 #: ../src/action.c:7933
-#, fuzzy
 msgid "Layout Attributes"
 msgstr "Atributos de Traçado"
 
@@ -1100,7 +1065,7 @@ msgid "No element found there\n"
 msgstr "Nenhum elemento encontrado aí\n"
 
 #: ../src/action.c:8000 ../src/action.c:8001
-#, fuzzy, c-format
+#, c-format
 msgid "Element %s Attributes"
 msgstr "Atributos %s de Componente"
 
@@ -1143,14 +1108,14 @@ msgid "Loads a single footprint by name."
 msgstr "Coloca na memória uma única matriz pelo nome."
 
 #: ../src/buffer.c:808
-#, fuzzy, c-format
+#, c-format
 msgid "Footprint %s contains no elements"
 msgstr "Matriz %s vazia"
 
 #: ../src/buffer.c:813
 #, c-format
 msgid "Footprint %s contains multiple elements"
-msgstr "Matriz %s cntém múltiplos componentes"
+msgstr "Matriz %s contém múltiplos componentes"
 
 #: ../src/buffer.c:847
 msgid "Error!  Buffer doesn't contain a single element\n"
@@ -1631,12 +1596,13 @@ msgstr ""
 "mínima que pode confiávelmente ser reproduzida"
 
 #: ../src/find.c:4051
-#, fuzzy, c-format
+#, c-format
 msgid "Warning: %d pad has the nopaste flag set.\n"
 msgid_plural "Warning: %d pads have the nopaste flag set.\n"
-msgstr[0] "Atenção:  %d pastilha está com o sinalizador nopaste habilitado.\n"
+msgstr[0] ""
+"Atenção:  %d pastilha está com o sinalizador de não colar habilitado.\n"
 msgstr[1] ""
-"Atenção:  %d pastilhas estão com o sinalizador nopaste habilitado.\n"
+"Atenção:  %d pastilhas estão com o sinalizador de não colar habilitado.\n"
 
 #: ../src/find.c:4148
 #, c-format
@@ -1664,7 +1630,6 @@ msgid "Open..."
 msgstr "Abrir..."
 
 #: ../src/gpcb-menu.res:58
-#, fuzzy
 msgid "Load a layout from a file"
 msgstr "Coloca na memória arquivo de traçado"
 
@@ -1673,7 +1638,6 @@ msgid "Save"
 msgstr "Gravar"
 
 #: ../src/gpcb-menu.res:60
-#, fuzzy
 msgid "Saves current layout"
 msgstr "Grava traçado atual"
 
@@ -1711,7 +1675,6 @@ msgid "Revert to the layout stored on disk"
 msgstr "Reverter para o traçado gravado no disco"
 
 #: ../src/gpcb-menu.res:64 ../src/pcb-menu.res:36
-#, fuzzy
 msgid "Import Schematics"
 msgstr "Coloca diagramas esquemáticos na memória"
 
@@ -1722,32 +1685,26 @@ msgid "Load element to buffer"
 msgstr "Coloca componente na memória"
 
 #: ../src/gpcb-menu.res:66
-#, fuzzy
 msgid "Load layout to buffer"
-msgstr "Coloca na memória arquivo de traçado"
+msgstr "Coloca traçado na memória temporária"
 
 #: ../src/gpcb-menu.res:67
-#, fuzzy
 msgid "Load netlist"
-msgstr "Coloca na memória o arquivo de netlist"
+msgstr "Coloca na memória uma netlist"
 
 #: ../src/gpcb-menu.res:68 ../src/pcb-menu.res:41
-#, fuzzy
 msgid "Load vendor resource file"
-msgstr "Colocar na memória arquivo de recursos de fornecedor..."
+msgstr "Colocar na memória arquivo de recursos de fornecedor"
 
 #: ../src/gpcb-menu.res:70
-#, fuzzy
 msgid "Save connection data of"
-msgstr "Grava Dados de Conecção de ..."
+msgstr "Grava dados de conecção de"
 
 #: ../src/gpcb-menu.res:71 ../src/pcb-menu.res:47
-#, fuzzy
 msgid " a single element"
 msgstr " um único componente"
 
 #: ../src/gpcb-menu.res:72 ../src/pcb-menu.res:48
-#, fuzzy
 msgid " all elements"
 msgstr " todos os componentes"
 
@@ -1760,7 +1717,6 @@ msgid "Export..."
 msgstr "Exportar..."
 
 #: ../src/gpcb-menu.res:77 ../src/pcb-menu.res:44
-#, fuzzy
 msgid "Calibrate Printer..."
 msgstr "Faça a calibração da impressora..."
 
@@ -1769,7 +1725,6 @@ msgid "Print..."
 msgstr "Imprimir..."
 
 #: ../src/gpcb-menu.res:80
-#, fuzzy
 msgid "Preferences..."
 msgstr "Preferências..."
 
@@ -1826,7 +1781,6 @@ msgid "Shift Ctrl<Key>u"
 msgstr "Shift Ctrl<Tecla>u"
 
 #: ../src/gpcb-menu.res:296
-#, fuzzy
 msgid "Cut to buffer"
 msgstr "Cortar para a memória"
 
@@ -1839,7 +1793,6 @@ msgid "Ctrl<Key>x"
 msgstr "Ctrl<Tecla>x"
 
 #: ../src/gpcb-menu.res:96
-#, fuzzy
 msgid "Copy to buffer"
 msgstr "Copiar para a memória"
 
@@ -1852,7 +1805,6 @@ msgid "Ctrl<Key>c"
 msgstr "Ctrl<Tecla>c"
 
 #: ../src/gpcb-menu.res:298
-#, fuzzy
 msgid "Paste buffer"
 msgstr "Cola na memória"
 
@@ -1865,7 +1817,6 @@ msgid "Ctrl<Key>v"
 msgstr "Ctrl<Tecla>v"
 
 #: ../src/gpcb-menu.res:240 ../src/pcb-menu.res:146
-#, fuzzy
 msgid "Unselect all"
 msgstr "Remove seleção de tudo"
 
@@ -1878,7 +1829,6 @@ msgid "Shift Alt<Key>a"
 msgstr "Shift Alt<Tecla>a"
 
 #: ../src/gpcb-menu.res:236 ../src/pcb-menu.res:147
-#, fuzzy
 msgid "Select all visible"
 msgstr "Selecione tudo que estiver visível"
 
@@ -1892,10 +1842,9 @@ msgstr "Alt<Tecla>a"
 
 #: ../src/gpcb-menu.res:104
 msgid "Edit name of"
-msgstr "Edit name of"
+msgstr "Editar nome de"
 
 #: ../src/gpcb-menu.res:105
-#, fuzzy
 msgid "text on layout"
 msgstr "texto sobre traçado"
 
@@ -1908,7 +1857,6 @@ msgid "<Key>n"
 msgstr "<Tecla>n"
 
 #: ../src/gpcb-menu.res:106
-#, fuzzy
 msgid "layout"
 msgstr "traçado"
 
@@ -1921,7 +1869,6 @@ msgid "Edit attributes of"
 msgstr "Editar atributos de"
 
 #: ../src/gpcb-menu.res:110
-#, fuzzy
 msgid "Layout"
 msgstr "Traçado"
 
@@ -1930,9 +1877,8 @@ msgid "CurrentLayer"
 msgstr "Camada Atual"
 
 #: ../src/gpcb-menu.res:112
-#, fuzzy
 msgid "Element"
-msgstr "Componente:"
+msgstr "Componente"
 
 #. Create edit button
 #: ../src/gpcb-menu.res:115 ../src/hid/gtk/ghid-route-style-selector.c:417
@@ -1945,7 +1891,6 @@ msgid "Edit..."
 msgstr "Editar..."
 
 #: ../src/gpcb-menu.res:124
-#, fuzzy
 msgid "View"
 msgstr "Visão"
 
@@ -1966,12 +1911,10 @@ msgid "mm"
 msgstr "mm"
 
 #: ../src/gpcb-menu.res:130
-#, fuzzy
 msgid "Grid size"
 msgstr "Tamanho da grade"
 
 #: ../src/gpcb-menu.res:131 ../src/pcb-menu.res:98
-#, fuzzy
 msgid "No Grid"
 msgstr "Sem Grade"
 
@@ -2028,7 +1971,6 @@ msgid "1 mm"
 msgstr "1 mm"
 
 #: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
-#, fuzzy
 msgid "Grid -"
 msgstr "Grade -"
 
@@ -2041,7 +1983,6 @@ msgid "Shift<Key>g"
 msgstr "Shift<Tecla>g"
 
 #: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
-#, fuzzy
 msgid "Grid +"
 msgstr "Grade +"
 
@@ -2058,7 +1999,6 @@ msgid "Realign grid"
 msgstr "Realinhar grade"
 
 #: ../src/gpcb-menu.res:153
-#, fuzzy
 msgid "Displayed element name"
 msgstr "Mostra nome de componente"
 
@@ -2091,9 +2031,9 @@ msgid "<Key>d"
 msgstr "<Tecla>d"
 
 #: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Zoom In 20%"
-msgstr "Aproximação\n"
+msgstr "Aproximação 20%"
 
 #: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
 msgid "Z"
@@ -2104,9 +2044,9 @@ msgid "<Key>z"
 msgstr "<Tecla>z"
 
 #: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Zoom Out 20%"
-msgstr "Afastamento\n"
+msgstr "Afastamento 20%"
 
 #: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
 msgid "Shift-Z"
@@ -2121,7 +2061,6 @@ msgid "More zooms and view changes"
 msgstr "Mais aproximações e modos de visão"
 
 #: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
-#, fuzzy
 msgid "Zoom Max"
 msgstr "Aproximação Maxima"
 
@@ -2134,12 +2073,10 @@ msgid "<Key>v"
 msgstr "<Tecla>v"
 
 #: ../src/gpcb-menu.res:165 ../src/pcb-menu.res:75
-#, fuzzy
 msgid "Zoom In 2X"
 msgstr "Aproximação 2X"
 
 #: ../src/gpcb-menu.res:166 ../src/pcb-menu.res:81
-#, fuzzy
 msgid "Zoom Out 2X"
 msgstr "Afastamento 2X"
 
@@ -2230,7 +2167,6 @@ msgid "Ctrl Shift<Key>Tab"
 msgstr "Ctrl Shift<Tecla>Tab"
 
 #: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
-#, fuzzy
 msgid "Center cursor"
 msgstr "Cursor centralizado"
 
@@ -2243,12 +2179,10 @@ msgid "<Key>c"
 msgstr "<Tecla>c"
 
 #: ../src/gpcb-menu.res:183 ../src/pcb-menu.res:119
-#, fuzzy
 msgid "Shown Layers"
 msgstr "Mostra Camadas"
 
 #: ../src/gpcb-menu.res:186 ../src/pcb-menu.res:122
-#, fuzzy
 msgid "Edit Layer Groups"
 msgstr "Editar Grupos de Camada"
 
@@ -2257,7 +2191,6 @@ msgid "Current Layer"
 msgstr "Camada Atual"
 
 #: ../src/gpcb-menu.res:191 ../src/pcb-menu.res:127
-#, fuzzy
 msgid "Delete current layer"
 msgstr "Apaga camada atual"
 
@@ -2266,12 +2199,10 @@ msgid "Add new layer"
 msgstr "Adicionar nova camada"
 
 #: ../src/gpcb-menu.res:193 ../src/pcb-menu.res:129
-#, fuzzy
 msgid "Move current layer up"
 msgstr "Mova camada atual acima"
 
 #: ../src/gpcb-menu.res:194 ../src/pcb-menu.res:130
-#, fuzzy
 msgid "Move current layer down"
 msgstr "Mova camada atual abaixo"
 
@@ -2280,7 +2211,6 @@ msgid "Settings"
 msgstr "Configurações"
 
 #: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
-#, fuzzy
 msgid "'All-direction' lines"
 msgstr "Linhas em 'Todas as direções'"
 
@@ -2321,7 +2251,6 @@ msgid "Only Names"
 msgstr "Nomes Únicos"
 
 #: ../src/gpcb-menu.res:210 ../src/pcb-menu.res:69
-#, fuzzy
 msgid "Hide Names"
 msgstr "Esconder Nomes"
 
@@ -2334,7 +2263,6 @@ msgid "Require unique element names"
 msgstr "Exige nomes únicos de componente"
 
 #: ../src/gpcb-menu.res:214 ../src/pcb-menu.res:200
-#, fuzzy
 msgid "Auto-zero delta measurements"
 msgstr "Zera automaticamente medições delta"
 
@@ -2347,9 +2275,8 @@ msgid "New polygons are full ones"
 msgstr "Novos polígonos são cheios"
 
 #: ../src/gpcb-menu.res:217 ../src/pcb-menu.res:203
-#, fuzzy
 msgid "Show autorouter trials"
-msgstr "Roteando automaticamente trilhas"
+msgstr "Exibir trilhas roteadas automaticamente"
 
 #: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
 msgid "Thin draw"
@@ -2364,7 +2291,6 @@ msgid "<Key>|"
 msgstr "<Tecla>|"
 
 #: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
-#, fuzzy
 msgid "Thin draw poly"
 msgstr "Desenho fino para polígono"
 
@@ -2377,7 +2303,6 @@ msgid "Ctrl Shift<Key>p"
 msgstr "Ctrl Shift<Tecla>p"
 
 #: ../src/gpcb-menu.res:220 ../src/pcb-menu.res:206
-#, fuzzy
 msgid "Check polygons"
 msgstr "Verifica polígonos"
 
@@ -2402,7 +2327,6 @@ msgid " Crosshair"
 msgstr " Mira"
 
 #: ../src/gpcb-menu.res:228 ../src/pcb-menu.res:217
-#, fuzzy
 msgid "Set Dispersion"
 msgstr "Ajusta Dispersão"
 
@@ -2415,34 +2339,28 @@ msgid "Select all found"
 msgstr "Seleciona todos que encontrar"
 
 #: ../src/gpcb-menu.res:238
-#, fuzzy
 msgid "Select all connected"
 msgstr "Seleciona todos conectados"
 
 #: ../src/gpcb-menu.res:241
-#, fuzzy
 msgid "Unselect all found"
 msgstr "Remove a seleção de todos os objetos encontrados"
 
 #: ../src/gpcb-menu.res:242
-#, fuzzy
 msgid "Unselect all connected"
 msgstr "Remove a seleção de todos os objetos conectados"
 
 #: ../src/gpcb-menu.res:244 ../src/pcb-menu.res:230
-#, fuzzy
 msgid "Select by name"
 msgstr "Seleciona por nome"
 
 #: ../src/gpcb-menu.res:245 ../src/pcb-menu.res:231
-#, fuzzy
 msgid "All objects"
 msgstr "Todos os objetos"
 
 #: ../src/gpcb-menu.res:287 ../src/pcb-menu.res:268
-#, fuzzy
 msgid "Elements"
-msgstr "Componente"
+msgstr "Componentes"
 
 #: ../src/gpcb-menu.res:247 ../src/pcb-menu.res:233
 msgid "Pads"
@@ -2477,12 +2395,10 @@ msgid "Disperse all elements"
 msgstr "Apaga todos os componentes"
 
 #: ../src/gpcb-menu.res:255
-#, fuzzy
 msgid "Disperse selected elements"
 msgstr "Dispersar componentes selecionados"
 
 #: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
-#, fuzzy
 msgid "Move selected elements to other side"
 msgstr "Mova os objetos selecionados para outro lado"
 
@@ -2495,7 +2411,6 @@ msgid "Shift<Key>b"
 msgstr "Shift<Tecla>b"
 
 #: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
-#, fuzzy
 msgid "Move selected to current layer"
 msgstr "Mova os objetos selecionados para a camada atual"
 
@@ -2508,7 +2423,6 @@ msgid "Shift<Key>m"
 msgstr "Shift<Tecla>m"
 
 #: ../src/gpcb-menu.res:474
-#, fuzzy
 msgid "Remove selected objects"
 msgstr "Apague objetos selecionados"
 
@@ -2525,12 +2439,10 @@ msgid "Convert selection to element"
 msgstr "Converte seleção em elemento"
 
 #: ../src/gpcb-menu.res:262 ../src/pcb-menu.res:245
-#, fuzzy
 msgid "Optimize selected rats"
 msgstr "Otimize ratos selecionados"
 
 #: ../src/gpcb-menu.res:334 ../src/pcb-menu.res:311
-#, fuzzy
 msgid "Auto-route selected rats"
 msgstr "Roteamento automático de ratos selecionados"
 
@@ -2547,7 +2459,6 @@ msgid "Rip up selected auto-routed tracks"
 msgstr "Anule trilhas auto roteadas selecionadas"
 
 #: ../src/gpcb-menu.res:266 ../src/pcb-menu.res:249
-#, fuzzy
 msgid "Change size of selected objects"
 msgstr "Modifica tamanho de objetos selecionados"
 
@@ -2592,12 +2503,10 @@ msgid "Vias +10 mil"
 msgstr "Vias +10 mil"
 
 #: ../src/gpcb-menu.res:279 ../src/pcb-menu.res:261
-#, fuzzy
 msgid "Change drilling hole of selected objects"
 msgstr "Modifica orifício de perfuração dos objetos selecionados"
 
 #: ../src/gpcb-menu.res:286 ../src/pcb-menu.res:267
-#, fuzzy
 msgid "Change square-flag of selected objects"
 msgstr "Altere o sinalizador de quadrado dos objetos selecionados"
 
@@ -2638,7 +2547,6 @@ msgid "Clear buffer"
 msgstr "Apaga memória"
 
 #: ../src/gpcb-menu.res:309 ../src/pcb-menu.res:288
-#, fuzzy
 msgid "Convert buffer to element"
 msgstr "Converte memória em componente"
 
@@ -2647,12 +2555,10 @@ msgid "Break buffer elements to pieces"
 msgstr "Quebra componentes na memória em peças"
 
 #: ../src/gpcb-menu.res:311 ../src/pcb-menu.res:290
-#, fuzzy
 msgid "Save buffer elements to file"
-msgstr "Grava memória em arquivo"
+msgstr "Grava componentes da memória em arquivo"
 
 #: ../src/gpcb-menu.res:313
-#, fuzzy
 msgid "Select Buffer #1"
 msgstr "Seleciona Memória #1"
 
@@ -2665,7 +2571,6 @@ msgid "Shift<Key>1"
 msgstr "Shift<Tecla>1"
 
 #: ../src/gpcb-menu.res:314
-#, fuzzy
 msgid "Select Buffer #2"
 msgstr "Selecione Memória #2"
 
@@ -2678,9 +2583,8 @@ msgid "Shift<Key>2"
 msgstr "Shift<Tecla>1"
 
 #: ../src/gpcb-menu.res:315
-#, fuzzy
 msgid "Select Buffer #3"
-msgstr "Selecione Memória #3\n"
+msgstr "Selecione Memória #3"
 
 #: ../src/gpcb-menu.res:315 ../src/pcb-menu.res:295
 msgid "Shift-3"
@@ -2691,7 +2595,6 @@ msgid "Shift<Key>3"
 msgstr "Shift<Tecla>3"
 
 #: ../src/gpcb-menu.res:316
-#, fuzzy
 msgid "Select Buffer #4"
 msgstr "Selecione Memória #4"
 
@@ -2704,7 +2607,6 @@ msgid "Shift<Key>4"
 msgstr "Shift<Tecla>4"
 
 #: ../src/gpcb-menu.res:317
-#, fuzzy
 msgid "Select Buffer #5"
 msgstr "Selecione Memória #5"
 
@@ -2721,7 +2623,6 @@ msgid "Connects"
 msgstr "Conecções"
 
 #: ../src/gpcb-menu.res:324
-#, fuzzy
 msgid "Lookup connection"
 msgstr "Procura conecção"
 
@@ -2742,7 +2643,6 @@ msgid "Reset scanned lines/polygons"
 msgstr "Zere polígonos/linhas examinados"
 
 #: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
-#, fuzzy
 msgid "Reset all connections"
 msgstr "Zere todas as conecções"
 
@@ -2779,7 +2679,6 @@ msgid "<Key>e"
 msgstr "<Tecla>e"
 
 #: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
-#, fuzzy
 msgid "Erase selected rats"
 msgstr "Apaga os ratos selecionados"
 
@@ -2792,7 +2691,6 @@ msgid "Shift<Key>e"
 msgstr "Shift<Tecla>e"
 
 #: ../src/gpcb-menu.res:335 ../src/pcb-menu.res:312
-#, fuzzy
 msgid "Auto-route all rats"
 msgstr "Roteando automaticamente todos os ratos"
 
@@ -2801,7 +2699,6 @@ msgid "Rip up all auto-routed tracks"
 msgstr "Cancele todas as trilhas auto roteadas"
 
 #: ../src/gpcb-menu.res:338
-#, fuzzy
 msgid "Optimize routed tracks"
 msgstr "Otimize trilhas roteadas"
 
@@ -2826,7 +2723,6 @@ msgid "Unjaggy"
 msgstr "Aplainar"
 
 #: ../src/gpcb-menu.res:342 ../src/pcb-menu.res:318
-#, fuzzy
 msgid "Vianudge"
 msgstr "Reposicionar via"
 
@@ -2871,7 +2767,6 @@ msgid "Global Puller"
 msgstr "Desvio Global"
 
 #: ../src/gpcb-menu.res:349 ../src/pcb-menu.res:325
-#, fuzzy
 msgid "Selected"
 msgstr "Selecione"
 
@@ -2888,7 +2783,6 @@ msgid "Only autorouted nets"
 msgstr "Somente redes autoroteadas"
 
 #: ../src/gpcb-menu.res:357 ../src/pcb-menu.res:331
-#, fuzzy
 msgid "Design Rule Checker"
 msgstr "Verificação das Regras de Desenho"
 
@@ -2901,9 +2795,8 @@ msgid "Info"
 msgstr "Informação"
 
 #: ../src/gpcb-menu.res:494 ../src/pcb-menu.res:337
-#, fuzzy
 msgid "Generate object report"
-msgstr "Gerar relatório de objetos"
+msgstr "Gerar relatório de objeto"
 
 #: ../src/gpcb-menu.res:366 ../src/pcb-menu.res:337
 msgid "Ctrl-R"
@@ -2930,7 +2823,6 @@ msgid "Remove"
 msgstr "Remover"
 
 #: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
-#, fuzzy
 msgid "Delete"
 msgstr "Apagar"
 
@@ -2943,7 +2835,6 @@ msgid "Remove Selected"
 msgstr "Remover Selecionados"
 
 #: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
-#, fuzzy
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -2988,7 +2879,6 @@ msgid "<Key>b"
 msgstr "<Tecla>b"
 
 #: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
-#, fuzzy
 msgid "Find Connections"
 msgstr "Encontra Conecções"
 
@@ -3025,7 +2915,6 @@ msgid "Shift<Key>h"
 msgstr "Shift<Tecla>h"
 
 #: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
-#, fuzzy
 msgid "ChangeHole Object"
 msgstr "Objeto ChangeHole"
 
@@ -3062,7 +2951,6 @@ msgid "Shift<Key>j"
 msgstr "Shift<Tecla>j"
 
 #: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
-#, fuzzy
 msgid "Clear Object +"
 msgstr "Apaga Objeto +"
 
@@ -3075,7 +2963,6 @@ msgid "<Key>k"
 msgstr "<Tecla>k"
 
 #: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
-#, fuzzy
 msgid "Clear Object -"
 msgstr "Apaga Objeto -"
 
@@ -3112,7 +2999,6 @@ msgid "Shift Ctrl<Key>k"
 msgstr "Shift Ctrl<Tecla>k"
 
 #: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
-#, fuzzy
 msgid "Line Tool size +"
 msgstr "Ferramenta Linha tamanho +"
 
@@ -3125,9 +3011,8 @@ msgid "<Key>l"
 msgstr "<Tecla>l"
 
 #: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
-#, fuzzy
 msgid "Line Tool size -"
-msgstr "Ferramenta Linha tamnho -"
+msgstr "Ferramenta Linha tamanho -"
 
 #: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
 msgid "Shift-L"
@@ -3138,7 +3023,6 @@ msgid "Shift<Key>l"
 msgstr "Shift<Tecla>l"
 
 #: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
-#, fuzzy
 msgid "Move Object to current layer"
 msgstr "Mova o objeto para a camada atual"
 
@@ -3163,7 +3047,6 @@ msgid "Ctrl<Key>m"
 msgstr "Ctrl<Tecla>m"
 
 #: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
-#, fuzzy
 msgid "Select shortest rat"
 msgstr "Seleciona o rato mais curto"
 
@@ -3188,7 +3071,6 @@ msgid "Shift<Key>o"
 msgstr "Shift<Tecla>o"
 
 #: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
-#, fuzzy
 msgid "ChangeOctagon Object"
 msgstr "Objeto ChangeOctogon"
 
@@ -3237,7 +3119,6 @@ msgid "<Key>q"
 msgstr "<Tecla>q"
 
 #: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
-#, fuzzy
 msgid "ChangeSize +"
 msgstr "Muda Tamanho +"
 
@@ -3250,7 +3131,6 @@ msgid "<Key>s"
 msgstr "<Tecla>s"
 
 #: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
-#, fuzzy
 msgid "ChangeSize -"
 msgstr "Muda Tamanho -"
 
@@ -3311,9 +3191,8 @@ msgid "Shift<Key>t"
 msgstr "Shift<Tecla>t"
 
 #: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
-#, fuzzy
 msgid "Via Tool size +5 mil"
-msgstr "Ferramenta ia tamanho +5 mil"
+msgstr "Ferramenta Via tamanho +5 mil"
 
 #: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
 msgid "Shift-V"
@@ -3324,7 +3203,6 @@ msgid "Shift<Key>v"
 msgstr "Shift<Tecla>v"
 
 #: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
-#, fuzzy
 msgid "Via Tool size -5 mil"
 msgstr "Ferramenta Via tamanho -5 mil"
 
@@ -3433,7 +3311,6 @@ msgid "<Key>]"
 msgstr "<Tecla>]"
 
 #: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
-#, fuzzy
 msgid "Step Up"
 msgstr "Passo Adiante"
 
@@ -3471,19 +3348,16 @@ msgstr "<Tecla>Esquerda"
 
 # FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
 #: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
-#, fuzzy
 msgid "Step Right"
 msgstr "Passo Direita"
 
 # FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
 #: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
-#, fuzzy
 msgid "Right"
 msgstr "Direita"
 
 # FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
 #: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
-#, fuzzy
 msgid "<Key>Right"
 msgstr "<Tecla>Direita"
 
@@ -3524,7 +3398,6 @@ msgid "Click"
 msgstr "Clicar"
 
 #: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
-#, fuzzy
 msgid "Enter"
 msgstr "Enter"
 
@@ -3558,12 +3431,10 @@ msgid "DRC Check"
 msgstr "Verificação de DRC"
 
 #: ../src/gpcb-menu.res:460 ../src/pcb-menu.res:439
-#, fuzzy
 msgid "Netlist"
 msgstr "Netlist"
 
 #: ../src/gpcb-menu.res:461
-#, fuzzy
 msgid "Command Entry"
 msgstr "Entrada de Comando"
 
@@ -3592,22 +3463,18 @@ msgid "About..."
 msgstr "Sobre..."
 
 #: ../src/gpcb-menu.res:472
-#, fuzzy
 msgid "Operations on selections"
 msgstr "Operações sobre seleções"
 
 #: ../src/gpcb-menu.res:473 ../src/pcb-menu.res:226
-#, fuzzy
 msgid "Unselect all objects"
 msgstr "Remove a seleção de todos os objetos"
 
 #: ../src/gpcb-menu.res:475 ../src/pcb-menu.res:273
-#, fuzzy
 msgid "Copy selection to buffer"
 msgstr "Copia seleção para a memória"
 
 #: ../src/gpcb-menu.res:481 ../src/pcb-menu.res:275
-#, fuzzy
 msgid "Cut selection to buffer"
 msgstr "Corta seleção para a memória"
 
@@ -3620,19 +3487,16 @@ msgid "Autoroute selected elements"
 msgstr "Rotear automaticamente os componenetes selecionados"
 
 #: ../src/gpcb-menu.res:493
-#, fuzzy
 msgid "Operations on this location"
 msgstr "Operações sobre essa localização"
 
 #: ../src/gpcb-menu.res:497 ../src/pcb-menu.res:134
-#, fuzzy
 msgid "Undo last operation"
 msgstr "Desfazer a última operação"
 
 #: ../src/gpcb-menu.res:498 ../src/pcb-menu.res:135
-#, fuzzy
 msgid "Redo last undone operation"
-msgstr "Refaça a última operação de desfazer"
+msgstr "Refaça a última operação não concluída"
 
 #: ../src/gpcb-menu.res:501 ../src/pcb-menu.res:166
 msgid "None"
@@ -3651,7 +3515,6 @@ msgid "<Key>F1"
 msgstr "<Tecla>F1"
 
 #: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
-#, fuzzy
 msgid "Line"
 msgstr "Linha"
 
@@ -4337,7 +4200,6 @@ msgid "For 'g' and '<shift>g' grid change actions"
 msgstr "Para 'g' e '<shift>g' ações de modificar grade"
 
 #: ../src/hid/gtk/gui-config.c:1180 ../src/hid/gtk/gui-config.c:1201
-#, fuzzy
 msgid "Size:"
 msgstr "Tamanho:"
 
@@ -4352,7 +4214,6 @@ msgstr ""
 "Use '<ctrl>s' e '<shift><ctrl>s' para orifícios de perfuração."
 
 #: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
-#, fuzzy
 msgid "Line:"
 msgstr "Linha:"
 
@@ -4361,7 +4222,6 @@ msgid "For 'l' and '<shift>l' routing line width change actions"
 msgstr "Para 'l' e '<shift>l' ações de mudar largura de linha de rota"
 
 #: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
-#, fuzzy
 msgid "Clear:"
 msgstr "Apaga:"
 
@@ -4378,12 +4238,10 @@ msgid "Imperial Increment Settings"
 msgstr "Ajustes de Incremento Ingleses"
 
 #: ../src/hid/gtk/gui-config.c:1213
-#, fuzzy
 msgid "Save as Default"
 msgstr "Grava como Padrão"
 
 #: ../src/hid/gtk/gui-config.c:1216
-#, fuzzy
 msgid "Use values as the default for new layouts"
 msgstr "Use valores como padrão para novos traçados"
 
@@ -4400,18 +4258,19 @@ msgid ""
 "Elements should be organized into subdirectories below each\n"
 "top level directory.  Restart program for changes to take effect.</small>"
 msgstr ""
-"<small>Enter uma lista separada \"%s\" de diretórios de componente de nível mais alto\n"
+"<small>Enter uma lista separada \"%s\" de diretórios de componente de nível "
+"mais alto\n"
 " de nível mais alto.  Por exemplo:\n"
 "%s\n"
 "Componentes devem ser organizados em subdiretórios abaixo de cada\n"
-"diretório de nível mais alto.  Re-iniciar o programa para que modificações entrem em vigor.</small>"
+"diretório de nível mais alto.  Re-iniciar o programa para que modificações "
+"entrem em vigor.</small>"
 
 #: ../src/hid/gtk/gui-config.c:1283
 msgid "<h>Layer Names\n"
 msgstr "<h>Nomes de camada\n"
 
 #: ../src/hid/gtk/gui-config.c:1284
-#, fuzzy
 msgid ""
 "You may enter layer names for the layers drawn on the screen.\n"
 "The special 'top side' and 'bottom side' are layers which\n"
@@ -4447,7 +4306,6 @@ msgstr ""
 "uma camada simples\n"
 
 #: ../src/hid/gtk/gui-config.c:1297
-#, fuzzy
 msgid ""
 "For example, for a 4 layer board a useful layer group arrangement\n"
 "can be to have 3 screen displayed layers grouped into the same group\n"
@@ -4477,17 +4335,14 @@ msgid "top"
 msgstr "topo"
 
 #: ../src/hid/gtk/gui-config.c:1309
-#, fuzzy
 msgid "GND-top"
 msgstr "topo-GND"
 
 #: ../src/hid/gtk/gui-config.c:1311
-#, fuzzy
 msgid "Vcc-top"
 msgstr "topo-Vcc"
 
 #: ../src/hid/gtk/gui-config.c:1313 ../src/hid/gtk/gui-config.c:1563
-#, fuzzy
 msgid "top side"
 msgstr "lado do topo"
 
@@ -4528,7 +4383,6 @@ msgid "signal2"
 msgstr "sinal2"
 
 #: ../src/hid/gtk/gui-config.c:1445
-#, fuzzy
 msgid ""
 "Both, 'top side' and 'bottom side' layer must have at least\n"
 "\tone other layer in their group.\n"
@@ -4537,7 +4391,6 @@ msgstr ""
 "\tuma outra camada em seu grupo.\n"
 
 #: ../src/hid/gtk/gui-config.c:1452
-#, fuzzy
 msgid ""
 "The 'top side' and 'bottom side' layers are not allowed\n"
 "\tto be in the same layer group #\n"
@@ -4571,7 +4424,6 @@ msgstr "Grupos"
 
 #. -- Info tab
 #: ../src/hid/gtk/gui-config.c:1688
-#, fuzzy
 msgctxt "tab"
 msgid "Info"
 msgstr "Informação"
@@ -4656,7 +4508,6 @@ msgid "PCB User Input"
 msgstr "Entrada de Usuário do PCB"
 
 #: ../src/hid/gtk/gui-dialog.c:68
-#, fuzzy
 msgid "Enter something"
 msgstr "Informe alguma coisa"
 
@@ -5232,13 +5083,11 @@ msgstr ""
 "%mS (%mS)  %s<b>folga</b>=%mS  <b>texto</b>=%i%%  <b>memória</b>=#%i"
 
 #: ../src/hid/gtk/gui-misc.c:415
-#, fuzzy
 msgctxt "status"
 msgid "bottom"
 msgstr "inferior"
 
 #: ../src/hid/gtk/gui-misc.c:415
-#, fuzzy
 msgctxt "status"
 msgid "top"
 msgstr "topo"
@@ -5278,7 +5127,6 @@ msgid "Operations on selected 'Net Name':"
 msgstr "Operações sobre 'Nome de Fiação' selecionada:"
 
 #: ../src/hid/gtk/gui-netlist-window.c:791
-#, fuzzy
 msgctxt "netlist"
 msgid "Select"
 msgstr "Selecione"
@@ -5373,68 +5221,56 @@ msgid "Unsaved.pcb"
 msgstr "Naosalvo.pcb"
 
 #: ../src/hid/gtk/gui-top-window.c:954
-#, fuzzy
 msgid "via"
-msgstr "vias"
+msgstr "via"
 
 #: ../src/hid/gtk/gui-top-window.c:955
-#, fuzzy
 msgid "line"
 msgstr "linhas de rato"
 
 #: ../src/hid/gtk/gui-top-window.c:956
-#, fuzzy
 msgid "arc"
-msgstr "Arco"
+msgstr "arco"
 
 #: ../src/hid/gtk/gui-top-window.c:957
 msgid "text"
 msgstr "texto"
 
 #: ../src/hid/gtk/gui-top-window.c:958
-#, fuzzy
 msgid "rectangle"
-msgstr "Retângulo"
+msgstr "retângulo"
 
 #: ../src/hid/gtk/gui-top-window.c:959
-#, fuzzy
 msgid "polygon"
-msgstr "Polígono"
+msgstr "polígono"
 
 #: ../src/hid/gtk/gui-top-window.c:960
-#, fuzzy
 msgid "polygonhole"
-msgstr "Orifício de Polígono"
+msgstr "orifício de polígono"
 
 #: ../src/hid/gtk/gui-top-window.c:961
-#, fuzzy
 msgid "buffer"
-msgstr "Memória"
+msgstr "memória"
 
 #: ../src/hid/gtk/gui-top-window.c:962
-#, fuzzy
 msgid "remove"
-msgstr "Remover"
+msgstr "remover"
 
 #: ../src/hid/gtk/gui-top-window.c:963
-#, fuzzy
 msgid "rotate"
-msgstr "Rotacionar"
+msgstr "rotacionar"
 
 #: ../src/hid/gtk/gui-top-window.c:964
-#, fuzzy
 msgid "insertPoint"
-msgstr "Ponto de inserção"
+msgstr "ponto de inserção"
 
 #: ../src/hid/gtk/gui-top-window.c:965
-#, fuzzy
 msgid "thermal"
-msgstr "Térmico"
+msgstr "térmico"
 
 #: ../src/hid/gtk/gui-top-window.c:966
-#, fuzzy
 msgid "select"
-msgstr "Remove Seleção"
+msgstr "selecione"
 
 #: ../src/hid/gtk/gui-top-window.c:967
 msgid "lock"
@@ -5478,9 +5314,8 @@ msgstr "Condição desconhecida em ghid_listener_cb\n"
 #. %end-doc
 #.
 #: ../src/hid/gtk/gui-top-window.c:1679
-#, fuzzy
 msgid "Listen for actions on stdin"
-msgstr "Operações sobre seleções"
+msgstr "Espere por ações sobre a entrada padrão"
 
 #. %start-doc options "21 GTK+ GUI Options"
 #. @ftable @code
@@ -5517,16 +5352,14 @@ msgstr ""
 "ToggleView(Seda|Ratos|Conectores|Vias|Máscara|LadodeTrás)"
 
 #: ../src/hid/gtk/gui-top-window.c:1868
-#, fuzzy
 msgid "Toggle the visibility of the specified layer or layer group."
-msgstr "Altere a visibilidade do nome do componente sob o cursor\n"
+msgstr "Altere a visibilidade da camada especificada ou grupo de camada."
 
 #: ../src/hid/gtk/gui-top-window.c:1937
 msgid "SelectLayer(1..MAXLAYER|Silk|Rats)"
 msgstr "SelectLayer(1..MAXLAYER|Seda|Ratos)"
 
 #: ../src/hid/gtk/gui-top-window.c:1940
-#, fuzzy
 msgid "Select which layer is the current layer."
 msgstr "Seleciona qual camada é a atual."
 
@@ -5554,9 +5387,9 @@ msgid "Error: internal menu resource didn't parse\n"
 msgstr "Erro: recurso interno de menu não pode ser analizado\n"
 
 #: ../src/hid/gtk/gui-top-window.c:2127
-#, fuzzy, c-format
+#, c-format
 msgid "Loading menus from %s\n"
-msgstr "Colocando na memória menus de %s\n"
+msgstr "Colocando na memória menus a partir de %s\n"
 
 #: ../src/hid/gtk/gui-top-window.c:2133
 msgid "Using default menus\n"
@@ -5571,9 +5404,8 @@ msgid "Open the window which allows editing of the route styles."
 msgstr "Abre a janela que permite edição dos estilos de rota."
 
 #: ../src/hid/gtk/gui-top-window.c:2204
-#, fuzzy
 msgid "EditLayerGroups()\n"
-msgstr "Editar Grupos de Camada"
+msgstr "Editar Grupos de Camada()\n"
 
 #: ../src/hid/gtk/gui-top-window.c:2207
 msgid "Open the preferences window which allows editing of the layer groups."
@@ -5600,7 +5432,6 @@ msgstr "Erro de HID: pcb chamou a função PS %s não implementada.\n"
 #. %end-doc
 #.
 #: ../src/hid/lpr/lpr.c:41 ../src/hid/ps/ps.c:1329
-#, fuzzy
 msgid "lprcommand"
 msgstr "Comando lpr"
 
@@ -5673,7 +5504,6 @@ msgstr "Imprimir marcas de alinhamento sobre cada folha"
 #. %end-doc
 #.
 #: ../src/hid/ps/ps.c:188
-#, fuzzy
 msgid "outline"
 msgstr "linhas de saída"
 
@@ -5738,7 +5568,6 @@ msgid "ps-color"
 msgstr "cor ps"
 
 #: ../src/hid/ps/ps.c:231
-#, fuzzy
 msgid "Prints in color"
 msgstr "Imprimir em Cores"
 
@@ -5808,7 +5637,9 @@ msgstr "desvanecer gradual de ps"
 
 #: ../src/hid/ps/ps.c:284
 msgid "Fade amount for assembly drawings (0.0=missing, 1.0=solid)"
-msgstr "Quatdade de desvanecimento para desenhos de montagem (0.0=omitido, 1.0=sólido)"
+msgstr ""
+"Quatdade de desvanecimento para desenhos de montagem (0.0=omitido, "
+"1.0=sólido)"
 
 #. %start-doc options "91 Postscript Export"
 #. @ftable @code
@@ -5823,7 +5654,9 @@ msgstr "proporção"
 
 #: ../src/hid/ps/ps.c:296
 msgid "Scale value to compensate for printer sizing errors (1.0 = full scale)"
-msgstr "Valor de proporção a compensar para erros de ajuste de tamanho em impressoras (1.0 = proporção completa)"
+msgstr ""
+"Valor de proporção a compensar para erros de ajuste de tamanho em "
+"impressoras (1.0 = proporção completa)"
 
 #. %start-doc options "91 Postscript Export"
 #. @ftable @code
@@ -5839,7 +5672,8 @@ msgstr "multi-arquivo"
 
 #: ../src/hid/ps/ps.c:309
 msgid "Produce multiple files, one per page, instead of a single file"
-msgstr "Produz múltiplos arquivos, um para cada página, ao invés de um só arquivo"
+msgstr ""
+"Produz múltiplos arquivos, um para cada página, ao invés de um só arquivo"
 
 #. %start-doc options "91 Postscript Export"
 #. @ftable @code
@@ -5849,7 +5683,6 @@ msgstr "Produz múltiplos arquivos, um para cada página, ao invés de um só ar
 #. %end-doc
 #.
 #: ../src/hid/ps/ps.c:320
-#, fuzzy
 msgid "xcalib"
 msgstr "calibração-x"
 
@@ -5865,7 +5698,6 @@ msgstr "Largura do papel. Usada para calibração do eixo x"
 #. %end-doc
 #.
 #: ../src/hid/ps/ps.c:331
-#, fuzzy
 msgid "ycalib"
 msgstr "calibração-y"
 
@@ -5886,7 +5718,9 @@ msgstr "cobre de perfuração"
 
 #: ../src/hid/ps/ps.c:343
 msgid "Draw drill holes in pins / vias, instead of leaving solid copper"
-msgstr "Desenha orifícios de perfuração em conectores / vias, ao invés de deixar o cobre sólido"
+msgstr ""
+"Desenha orifícios de perfuração em conectores / vias, ao invés de deixar o "
+"cobre sólido"
 
 #. %start-doc options "91 Postscript Export"
 #. @ftable @code
@@ -5905,7 +5739,6 @@ msgid "Print file name and scale on printout"
 msgstr "Imprime nome de arquivo e proporção na saída de impressão"
 
 #: ../src/hid/ps/ps.c:1329
-#, fuzzy
 msgid "Command to print"
 msgstr "Comando para imprimir"
 
@@ -5969,8 +5802,8 @@ msgid ""
 "Also: component, solder, rats, invisible, pins, vias, elements or silk, "
 "mask, solderside.\n"
 msgstr ""
-"Também: componente, soldagem, ratos, invisível, conectores, vias, componentes ou seda, "
-"máscara, lado de soldagem.\n"
+"Também: componente, soldagem, ratos, invisível, conectores, vias, "
+"componentes ou seda, máscara, lado de soldagem.\n"
 
 #: ../src/misc.c:1461
 #, c-format
@@ -5978,7 +5811,6 @@ msgid "Request for bounding box of unsupported type %d\n"
 msgstr "Requisição de caixa associada de tipo não suportado %d\n"
 
 #: ../src/misc.c:2193
-#, fuzzy
 msgid ""
 "This is PCB, an interactive\n"
 "printed circuit board editor\n"
@@ -6027,7 +5859,6 @@ msgid "GUI:\n"
 msgstr "GUI:\n"
 
 #: ../src/misc.c:2232
-#, fuzzy
 msgid "Exporters:\n"
 msgstr "Exportadores:\n"
 
@@ -6052,9 +5883,8 @@ msgid "illegal fileformat\n"
 msgstr "formatoarquivo ilegal\n"
 
 #: ../src/parse_y.y:201
-#, fuzzy
 msgid "illegal layer-group string\n"
-msgstr "sequência ilegal de caracteres de agrupamentos de camadadas"
+msgstr "sequência ilegal de caracteres de agrupamentos de camadas\n"
 
 #: ../src/parse_y.y:657 ../src/parse_y.y:665
 msgid "illegal route-style string\n"
@@ -6081,6 +5911,7 @@ msgstr ""
 "ERRO de análise do arquivo '%s'\n"
 "    linha:        %i\n"
 "    descrição: '%s'\n"
+
 #: ../src/parse_y.y:1965
 #, c-format
 msgid ""
@@ -6092,54 +5923,47 @@ msgid ""
 "up to file version %d.\n"
 msgstr ""
 "ERRO:  O arquivo que você está tentando colocar na memóriaetá em um formato\n"
-"que é muito novo para essa versão do pcb.  Para colocar esse arquivo na memória\n"
+"que é muito novo para essa versão do pcb.  Para colocar esse arquivo na "
+"memória\n"
 "você precisa de uma versão do pcb que é >= %d.  Se você está\n"
-"usando uma versão construída a partir do repositório git, a data de código fonte\n"
+"usando uma versão construída a partir do repositório git, a data de código "
+"fonte\n"
 "deve ser >= %d.  Essa cópia do pcb somente pode ler arquivos\n"
 "até a versão %d.\n"
 
 #: ../src/pcb-menu.res:33
-#, fuzzy
 msgid "Save layout"
 msgstr "Grava traçado como"
 
 #: ../src/pcb-menu.res:34
-#, fuzzy
 msgid "Save layout as..."
 msgstr "Grava traçado como..."
 
 #: ../src/pcb-menu.res:37
-#, fuzzy
 msgid "Load layout"
 msgstr "Coloca na memória arquivo de traçado"
 
 #: ../src/pcb-menu.res:38
-#, fuzzy
 msgid "Load element data to paste-buffer"
-msgstr "Coloca dados de componente para colar na memória"
+msgstr "Coloca dados de componente para colar memória"
 
 #: ../src/pcb-menu.res:39
-#, fuzzy
 msgid "Load layout data to paste-buffer"
-msgstr "Coloca dados de traçado para colar na memória"
+msgstr "Coloca dados de traçado para colar memória"
 
 #: ../src/pcb-menu.res:42
-#, fuzzy
 msgid "Print layout..."
 msgstr "Imprime o traçado..."
 
 #: ../src/pcb-menu.res:43
-#, fuzzy
 msgid "Export layout..."
 msgstr "Exporta Traçado..."
 
 #: ../src/pcb-menu.res:46
-#, fuzzy
 msgid "Save connection data of..."
-msgstr "Grava Dados de Conecção Como ..."
+msgstr "Grava Dados de Conecção de ..."
 
 #: ../src/pcb-menu.res:51
-#, fuzzy
 msgid "Start new layout"
 msgstr "Inicia novo traçado"
 
@@ -6152,7 +5976,6 @@ msgid "Spin 180"
 msgstr "Gira 180"
 
 #: ../src/pcb-menu.res:61
-#, fuzzy
 msgid "Show soldermask"
 msgstr "Exibe máscara de soldagem"
 
@@ -6169,7 +5992,6 @@ msgid "Open pinout menu"
 msgstr "Abre menu de saída de componente"
 
 #: ../src/pcb-menu.res:83
-#, fuzzy
 msgid "Zoom Toggle"
 msgstr "Muda Aproximação"
 
@@ -6194,7 +6016,6 @@ msgid "Edit Names..."
 msgstr "Editar Nomes..."
 
 #: ../src/pcb-menu.res:150
-#, fuzzy
 msgid " Change text on layout"
 msgstr "Muda texto sobre traçado"
 
@@ -6211,21 +6032,18 @@ msgid "Edit Attributes..."
 msgstr "Editar atributos..."
 
 #: ../src/pcb-menu.res:154
-#, fuzzy
 msgid " Layout"
-msgstr "Traçado"
+msgstr " Traçado"
 
 #: ../src/pcb-menu.res:155
 msgid " CurrentLayer"
 msgstr "Camada Atual"
 
 #: ../src/pcb-menu.res:156
-#, fuzzy
 msgid " Element"
-msgstr "Componente"
+msgstr " Componente"
 
 #: ../src/pcb-menu.res:158
-#, fuzzy
 msgid "Board Sizes"
 msgstr "Tamanhos da Placa"
 
@@ -6234,7 +6052,6 @@ msgid "Command"
 msgstr "Comando"
 
 #: ../src/pcb-menu.res:188
-#, fuzzy
 msgid "Layer groups"
 msgstr "Grupos de Camada"
 
@@ -6247,7 +6064,6 @@ msgid "Enable vendor drill mapping"
 msgstr "Habilita mapeamento de perfuração de forncedor"
 
 #: ../src/pcb-menu.res:211
-#, fuzzy
 msgid "Import Settings"
 msgstr "Importar Configurações"
 
@@ -6256,42 +6072,34 @@ msgid "New elements added at..."
 msgstr "Novos componentes adicionados em..."
 
 #: ../src/pcb-menu.res:222
-#, fuzzy
 msgid "Select all visible objects"
 msgstr "Seleciona todos os objetos visíveis"
 
 #: ../src/pcb-menu.res:223
-#, fuzzy
 msgid "Select all found objects"
 msgstr "Seleciona todos os objetos encontrados"
 
 #: ../src/pcb-menu.res:224
-#, fuzzy
 msgid "Select all connected objects"
 msgstr "Seleciona todos os objetos conectados"
 
 #: ../src/pcb-menu.res:227
-#, fuzzy
 msgid "unselect all found objects"
-msgstr "Remove a seleção de todos os objetos encontrados"
+msgstr "remove a seleção de todos os objetos encontrados"
 
 #: ../src/pcb-menu.res:228
-#, fuzzy
 msgid "unselect all connected objects"
-msgstr "Remove a seleção de todos os objetos conectados"
+msgstr "remove a seleção de todos os objetos conectados"
 
 #: ../src/pcb-menu.res:235
-#, fuzzy
 msgid "Text Objects"
 msgstr "Objetos de Texto"
 
 #: ../src/pcb-menu.res:242
-#, fuzzy
 msgid "Delete selected objects"
 msgstr "Apaga objetos selecionados"
 
 #: ../src/pcb-menu.res:292
-#, fuzzy
 msgid "Select current buffer"
 msgstr "Selecione a memória atual"
 
@@ -6316,7 +6124,6 @@ msgid "#5"
 msgstr "#5"
 
 #: ../src/pcb-menu.res:301
-#, fuzzy
 msgid "Lookup connection to object"
 msgstr "Procura conecção a objeto"
 
@@ -6357,7 +6164,6 @@ msgid "Alt<Key>z"
 msgstr "Alt<Tecla>z"
 
 #: ../src/pcb-menu.res:436
-#, fuzzy
 msgid "Board Layout"
 msgstr "Traçado da Placa"
 
@@ -6451,9 +6257,11 @@ msgid ""
 "\n"
 "Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n"
 msgstr ""
-"Existem %d tamanhos de perfuração diferentes nesse traçado, %d orifícios no total\n"
+"Existem %d tamanhos de perfuração diferentes nesse traçado, %d orifícios no "
+"total\n"
 "\n"
-"Diam. de perfuração (%s)\t# de conetores\t# de Vias\t# de componetes\t# Sem anel de cobre\n"
+"Diam. de perfuração (%s)\t# de conetores\t# de Vias\t# de componetes\t# Sem "
+"anel de cobre\n"
 
 #. create dialog box
 #: ../src/report.c:114
@@ -6465,9 +6273,8 @@ msgid "ReportDialog()"
 msgstr "ReportDialog()"
 
 #: ../src/report.c:124
-#, fuzzy
 msgid "Report on the object under the crosshair"
-msgstr "Relatório so o objeto sob a mira\n"
+msgstr "Relatório do objeto sob a mira"
 
 #: ../src/report.c:158
 msgid ""
@@ -6490,7 +6297,7 @@ msgstr "Estrá TRAVADO.\n"
 
 #: ../src/report.c:166
 msgid ""
-"%m+VIA ID# %ld; Flags:%s\n"
+"%m+VIA ID# %ld;  Flags:%s\n"
 "(X,Y) = %$mD.\n"
 "Copper width = %$mS. Drill width = %$mS.\n"
 "Clearance width in polygons = %$mS.\n"
@@ -6595,6 +6402,7 @@ msgstr ""
 "O que coloca as extremidades em %$mD e em %$mD.\n"
 "Está na camada %d.\n"
 "%s"
+
 #: ../src/report.c:335
 msgid ""
 "%m+POLYGON ID# %ld;  Flags:%s\n"
@@ -6638,7 +6446,6 @@ msgstr ""
 "%s"
 
 #: ../src/report.c:396 ../src/report.c:430
-#, fuzzy
 msgid "solder (bottom)"
 msgstr "soldagem (inferior)"
 
@@ -6702,7 +6509,6 @@ msgstr ""
 "%s"
 
 #: ../src/report.c:471
-#, fuzzy
 msgid "It is an element name."
 msgstr "É um nome de componente."
 
@@ -6717,19 +6523,17 @@ msgstr ""
 "Pertence a um %s na camada %d.\n"
 
 #: ../src/report.c:484
-#, fuzzy
 msgctxt "report"
 msgid "line"
 msgstr "linha"
 
 #: ../src/report.c:484
-#, fuzzy
 msgctxt "report"
 msgid "polygon"
 msgstr "Polígono"
 
 #: ../src/report.c:493
-#, fuzzy, c-format
+#, c-format
 msgid "Unknown\n"
 msgstr "Desconhecido\n"
 
@@ -6761,9 +6565,8 @@ msgid "Net %s length %s\n"
 msgstr "Rede %s comprimento %s\n"
 
 #: ../src/report.c:711
-#, fuzzy
 msgid "No net under cursor.\n"
-msgstr "Nenhuma rede sob o ursor."
+msgstr "Nenhuma rede sob o ursor.\n"
 
 #: ../src/report.c:728 ../src/report.c:753
 msgid "-"
@@ -6780,9 +6583,9 @@ msgid "Net length: %s\n"
 msgstr "Comprimento da rede: %s\n"
 
 #: ../src/report.c:891
-#, fuzzy, c-format
+#, c-format
 msgid "No net named %s\n"
-msgstr "Nenhum net chamada %s\n"
+msgstr "Nenhuma net chamada %s\n"
 
 #: ../src/report.c:920
 msgid "Net found, but no lines or arcs were flagged.\n"
@@ -6801,7 +6604,6 @@ msgid "Produce various report."
 msgstr "Produz vários relatórios."
 
 #: ../src/report.c:985 ../src/report.c:1006
-#, fuzzy
 msgid "Click on an object"
 msgstr "Clique sobre um objeto"
 
@@ -6810,9 +6612,9 @@ msgid "That mode is NOT allowed when drawing ratlines!\n"
 msgstr "Esse modo NÃO é permitido quando desenhando linhas de rato!\n"
 
 #: ../src/toporouter.c:1121
-#, fuzzy, c-format
+#, c-format
 msgid "Elapsed time: %.2f seconds\n"
-msgstr "Tempo decorrido: %d.%02d segundos\n"
+msgstr "Tempo decorrido: %.2f segundos\n"
 
 #: ../src/toporouter.c:6503
 msgid ""
@@ -6864,7 +6666,6 @@ msgid "-------------------------------------\n"
 msgstr "-------------------------------------\n"
 
 #: ../src/toporouter.c:7750
-#, fuzzy
 msgid "Select a set of pads"
 msgstr "Seleciona um conjunto de pastilhas"
 
@@ -6873,19 +6674,16 @@ msgid "Pad escape"
 msgstr "Escape de pastilha"
 
 #: ../src/toporouter.c:7751
-#, fuzzy
 msgid "Escape()"
 msgstr "Escape()"
 
 #: ../src/toporouter.c:7752
-#, fuzzy
 msgid "Select net(s)"
 msgstr "Selecione net(s)"
 
 #: ../src/toporouter.c:7753
-#, fuzzy
 msgid "Topological autorouter"
-msgstr "Autorouter Topológico"
+msgstr "Autorouter topológico"
 
 #: ../src/toporouter.c:7753
 msgid "Toporouter()"
@@ -6919,9 +6717,8 @@ msgstr ""
 "       Por favor grave seu trabalho e informe essa falha.\n"
 
 #: ../src/undo.c:983
-#, fuzzy
 msgid "ERROR: Failed to undo some operations\n"
-msgstr "ERRO: Falha ao desfazer operações\n"
+msgstr "ERRO: Falha ao desfazer algumas operações\n"
 
 #: ../src/undo.c:1119
 msgid "Nothing to redo. Perhaps changes have been made since last undo\n"
@@ -6940,9 +6737,8 @@ msgstr ""
 "      Por favor grave seu trabalho e me envie um relatório sobre esse erro.\n"
 
 #: ../src/undo.c:1159
-#, fuzzy
 msgid "ERROR: Failed to redo some operations\n"
-msgstr "ERRO: Falha ao refazer operações\n"
+msgstr "ERRO: Falha ao refazer algumas operações\n"
 
 #: ../src/undo.c:1174
 msgid ""
@@ -6959,7 +6755,9 @@ msgstr "ApplyVendor()"
 
 #: ../src/vendor.c:107
 msgid "Applies the currently loaded vendor drill table to the current design."
-msgstr "Aplica o atualmente na memória tabela de perfuração de fornecedor para o desenho atual."
+msgstr ""
+"Aplica o atualmente na memória tabela de perfuração de fornecedor para o "
+"desenho atual."
 
 #. ************************************************************
 #: ../src/vendor.c:128
@@ -6976,7 +6774,6 @@ msgid "EnableVendor()"
 msgstr "EnableVendor()"
 
 #: ../src/vendor.c:162
-#, fuzzy
 msgid "Enables automatic drill size mapping."
 msgstr "Habilita mapeamento automático de tamanho de perfuração."
 
@@ -6986,7 +6783,6 @@ msgid "DisableVendor()"
 msgstr "DisableVendor()"
 
 #: ../src/vendor.c:190
-#, fuzzy
 msgid "Disables automatic drill size mapping."
 msgstr "Desabilita mapeamento automático de perfuração."
 
@@ -6996,18 +6792,16 @@ msgid "UnloadVendor()"
 msgstr "UnloadVendor()"
 
 #: ../src/vendor.c:216
-#, fuzzy
 msgid "Unloads the current vendor drill mapping table."
-msgstr "Remove da memória a atual tabela de mapeamento de perfuração de fornecedor."
+msgstr ""
+"Remove da memória a atual tabela de mapeamento de perfuração de fornecedor."
 
 #. ************************************************************
 #: ../src/vendor.c:245
-#, fuzzy
 msgid "LoadVendorFrom(filename)"
 msgstr "LoadVendorFrom(nomearquivo)"
 
 #: ../src/vendor.c:248
-#, fuzzy
 msgid "Loads the specified vendor resource file."
 msgstr "Colocar na memória arquivo de recursos de fornecedor."
 
@@ -7033,16 +6827,16 @@ msgid "Could not load vendor resource file \"%s\"\n"
 msgstr "Não posso carregar o arquivo de recurso do fornecedor \"%s\"\n"
 
 #: ../src/vendor.c:342
-#, fuzzy, c-format
+#, c-format
 msgid "\"%s\" is not a supported units.  Defaulting to inch\n"
-msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando para cima\n"
+msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando em polegada\n"
 
 #: ../src/vendor.c:355
 msgid "No drillmap resource found\n"
 msgstr "Nenhum recurso de mapeamento de perfuração encontrado\n"
 
 #: ../src/vendor.c:372
-#, fuzzy, c-format
+#, c-format
 msgid "\"%s\" is not a valid rounding type. Defaulting to up\n"
 msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando para cima\n"
 
@@ -7084,7 +6878,7 @@ msgstr ""
 "Colocado na memória %d RefDes ignorado, %d Value ignorado, %d Descr gnorado\n"
 
 #: ../src/vendor.c:494
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Via at %.2f, %.2f not changed. Possible reasons:\n"
 "\t- pad size too small\n"
@@ -7191,52 +6985,5 @@ msgstr ""
 "Mapeamento de fornecedor ignorado porque o componente %s está travado\n"
 
 #: ../src/vendor.c:933
-#, fuzzy
 msgid "re_exec error\n"
 msgstr "erro de re_exec\n"
-
-#~ msgid "<small>Enter a \""
-#~ msgstr "<pequeno>Enter um \""
-
-#~ msgid "toggled"
-#~ msgstr "modificado"
-
-#~ msgid "Click on a place to pan"
-#~ msgstr "Clique em um local para ver"
-
-#~ msgid "Auto pan speed"
-#~ msgstr "Velocidade de visão automática"
-
-#~ msgid "Grid Increment/Decrement"
-#~ msgstr "Incremento/Decremento de Grade"
-
-#~ msgid "Size Increment/Decrement"
-#~ msgstr "Incremento/Decremento de tamanho"
-
-#~ msgid "Line Increment/Decrement"
-#~ msgstr "Incremento/Decremento de linha"
-
-#~ msgid "Clear Increment/Decrement"
-#~ msgstr "Limpa Incremento/Decremento"
-
-#~ msgid "solder"
-#~ msgstr "soldagem"
-
-#~ msgid "GND-solder"
-#~ msgstr "Soldagem-GND"
-
-#~ msgid "Vcc-solder"
-#~ msgstr "Soldagem-Vcc"
-
-#~ msgid "solder side"
-#~ msgstr "Lado de saldagem"
-
-#~ msgid ""
-#~ "Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n"
-#~ "\n"
-
-#~ msgid "Undo bad serial number %d expecting %d\n"
-#~ msgstr "Desfazer número de série inválido %d esperado %d\n"
