@@ -1,0 +1,114 @@
+@node Instalacao
+@chapter Instalacao
+
+@menu
+* Instalando um Pacote Pronto::
+* Construindo Do CD Fonte::
+* Construindo Do CVS::
+@end menu
+
+@node Instalando um Pacote Pronto
+@section Instalando um Pacote Pronto
+
+@menu
+* Debian::
+* Fedora::
+* Gentoo::
+* NetBSD::
+* Ubuntu::
+@end menu
+
+@node Debian
+@subsection Debian
+
+@example
+apt-get install pcb
+@end example
+
+@node Fedora
+@subsection Fedora
+
+Para automaticamente fazer o download e instalar a vers@~{a}o mais recente (e
+depend@^{e}ncias) a partir de um dos (pr@'{e}-configurados) reposit@'{o}rios Fedora:
+
+@example
+yum install pcb
+@end example
+
+Para a insstala@,{c}@~{a}o com o yum voc@^{e} precisa de privil@'{e}gios de administrador.
+
+Para instalar um download manual via rpm:
+
+@example
+yum localinstall <nomearquivorpm>
+@end example
+
+Onde <nomearquivorpm> @'{e} o pacote rpm gravado localmente de sua prefer@^{e}ncia.
+Depend@^{e}ncias exigidas precisam serem gravadas e instaladas simult@^{a}neamente,
+ou antes.
+
+O comando "localinstall" @'{e} usado para instalar um conjunto de arquivos rpm gravados localmente.
+Se for exigido a habilita@,{c}@~{a}o de reposit@'{o}rios ir@'{a} ser usada para resolver depend@^{e}ncias.
+Note que o comando "install" ir@'{a} fzer uma instala@,{c}@~{a}o local, se for fornecido um nome de arquivo.
+Essa op@,{c}@~{a}o @'{e} mantida por motivo de compatibilidade somente.
+
+O comando "localupdate" @'{e} usado para atualizar o sistema especificando arquivo rpm armazenados localmete.
+Somente os arquivos rpm que tiverem uma ves@~{a}o mais antiga instalada ir@'{a}
+ser atendido, os restantes pacotes especificados ir@~{a}o ser ignorados.
+Se exigido os reposit@'{o}rios habilitados ir@~{a}o ser usados para resolver ddepend@^{e}ncias.
+Note que o comando "update" ir@'{a} fazer uma atualiza@,{c}@~{a}o local, se for fonecido um nome de arquivo.
+Essa op@,{c}@~{a}o @'{e} mantida por raz@~{o}es de compatibilidade somente.
+
+
+@node Gentoo
+@subsection Gentoo
+
+@example
+emerge pcb
+@end example
+
+@node NetBSD
+@subsection NetBSD
+
+Veja @url{ftp://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/cad/pcb/README.html}.
+
+@node Ubuntu
+@subsection Ubuntu
+
+@node Construindo Do CD Fonte
+@section Construindo Do CD Fonte
+
+@node Construindo Do CVS
+@section Construindo Do CVS
+
+@menu
+* Unix/Linux::
+* Mac OS/X::
+* Cygwin::
+@end menu
+
+@node Unix/Linux
+@subsection Unix/Linux
+
+Conectado @`{a} internet abra uma janela de terminal
+e execute os seguintes comandos como usu@'{a}rio comum:
+
+@example
+git clone git://git.geda-project.org/pcb.git
+cd pcb
+./autogen.sh
+./configure
+make
+@end example
+
+Como root execute:
+
+@example
+make install
+@end example
+
+@node Mac OS/X
+@subsection Mac OS/X
+
+@node Cygwin
+@subsection Cygwin

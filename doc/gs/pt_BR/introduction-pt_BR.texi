@@ -1,0 +1,33 @@
+@node Introducao
+@chapter Introdu@,{c}@~{a}o
+
+@img{../sample-board}
+
+@pcb{} inclui um programa autonomo (chamado @code{pcb}) que permite
+ao usu@'{a}rio criar, editar, e processar tra@,{c}ados para placas de circuito impresso,
+bem como uma biblioteca de defini@,{c}@~{o}es de matrizes para os componentes mais
+comuns.  Embora tenha sido originalmente escrito para computadores Atari, e mais tarde re-escrito
+para ambientes Unix-like, tem sido portado para outros sistemas
+operacionais, tais como Linux, MacOS/X, e Windows.
+
+Apesar de o @pcb{} ser usado de forma independente, adicionando componentes e tra@,{c}os
+manualmente, o @pcb{} trabalha melhor junto a um editor de diagramas esquem@'{a}ticos tais como
+@code{gschem} do projeto gEDA, com @code{gschem} @footnote{Nota do tradutor: o gschem @'{e} distribu@'{i}do
+no pacote geda-gaf atualmente geda-gaf-1.8.2.tar.gz.} ir@'{a} criar uma
+netlist, garantir que todos os componentes estejam corretos, etc.
+
+O arquivo no qual @code{pcb} armazena seus dados termina em @code{.pcb} tal com
+@code{minhaplaca.pcb}.  Adicionalmente, @code{pcb} l@^{e} matrizes de
+componentes individuais a partir de arquivos terminados em @code{.fp} e netlists a partir
+de arquivos terminando em @code{.net}.
+
+Existe v@'{a}rias sa@'{i}das diferentes do @code{pcb}.  Se voc@^{e} est@'{a}
+tendo suas placas fabricadas por terceiros profissionalmente, voc@^{e} ir@'{a} desejar exportar
+sua placa como um arquivo RS-247X (tamb@'{e}m chamado gerber).  Se voc@^{e} est@'{a} fabricando
+sua placa voc@^{e} mesmo, ir@'{a} provavelmente desejar imprim@'{i}-la.  Voc@^{e} pode tamb@'{e}m
+gravar sua placa no formato ``encapsulated postscript'' ou arquivo de imagem para usar em
+documentos ou em p@'{a}ginas.
+
+Uma nota sobre tipografia: Ao longo de todo esse documento, ``@pcb{}'' refere-se
+ao pacote completo, ``@code{pcb}'' refere-se ao programa espec@'{i}fico,
+e ``pcb'' refere-se a placas de circuitos impresso em geral.

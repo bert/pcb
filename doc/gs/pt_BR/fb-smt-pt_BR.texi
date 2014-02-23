@@ -1,0 +1,214 @@
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment 654efe7dfdc681b8b316bbc322ed41a5  fb-smt.texi
+@comment
+A terceira e @'{u}ltima placa na s@'{e}rie ``primeira placa'' ensinar@'{a} a voc@^{e}
+sobre placas com v@'{a}rias camadas, vias, e componentes SMT.  Novamente, assumimos
+que voc@^{e} concluiu as outras duas placas, e n@~{a}o iremos falar novamente sobre conceitos
+ensinados l@'{a}.  Usaremos o mesmo circuito da @'{u}ltima placa,
+mas para fazer coisas mais interessantes, adicionaremos algumas restri@,{c}@~{o}es.
+A placa deve ser a menor poss@'{i}vel, resistente a interfer@^{e}ncia eletromagn@'{e}tica 
+@footnote{Nota do tradutor: EMI-proof no original em ingl@^{e}s.}, e deve poder ser usada em
+outras montagens.  Ok, estou fazendo isso mais dif@'{i}cil, mas o que isso significa @'{e} que usaremos
+os menores componentes que um hobista pode esperar usar, uma
+placa de quatro camadas, e mais vias do que poder@'{i}amos de outra forma precisar.  Faremos
+isso para nos proporcionar uma opertunidade de aprender essas t@'{e}cnica, sem
+dispender tempo demais devido a um diagrama esquem@'{a}tico excessivamente grande.
+
+Iniciaremos com o mesmo esquema de antes.  Para nos ajudar na atribui@,{c}@~{a}o
+etapals de alimenta@,{c}@~{a}o, precisaremos nomear as trilhas de alimenta@,{c}@~{a}o no diagrama esquem@'{a}tico.  Veja
+a documenta@,{c}@~{a}o do @code{gschem} para detalhes, mas o que voc@^{e} deseja @'{e} dar um
+nome @`{a}s conec@,{c}@~{o}es ao aterramento @code{GND} e @`{a}s conec@,{c}@~{o}es na alimenta@,{c}@~{a}o @code{Vdd}.  Ajuste um
+novo arquivo de projeto @code{fb-smt.prj} como feito anteriormente.  Use @code{gattrib} para
+ajustar os atributos da matriz como segue:
+
+@multitable @columnfractions 0.25 0.15 0.15 0.15
+@item @tab @b{refdes} @tab @b{footprint} @tab @b{value}
+@item @tab C1 @tab 0402 @tab 1uF
+@item @tab J1 @tab pj102.fp @tab PJ102
+@item @tab LED1 @tab 0402 @tab RED
+@item @tab R1 @tab 0201 @tab 100k
+@item @tab R2 @tab 0201 @tab 100k
+@item @tab R3 @tab 0201 @tab 3.3k
+@item @tab U1 @tab MSOP8 @tab LMC555CMM
+@end multitable
+
+Execute o @code{pcb} e ajuste sua placa em branco.  Coloque ``Top'' and
+``lado de componente'' no grupo 1.  Coloque ``GND'' no grupo 2, ``alimenta@,{c}@~{a}o'' no
+grupo 3, e ``soldagem'' e ``lado de soldagem'' no grupo 4.  Mude para a aba
+@mnu{Change}, selecione a camada de soldagem na janela principal no, e
+coloque a camada de soldagem abaixo da camada de alimenta@,{c}@~{a}o.
+
+@img{../fb-smt-1}
+
+Ajuste o tamanho da plca para 50 mm por 50 mm.  Para usar tamanho de placa em unidades m@'{e}tricas, use
+@mnuuu{Vis@~{a}o,Unidades de grade,mm} no menu.  Ent@~{a}o, a prefer@^{e}ncia
+@mnu{Tamanho} usar@'{a} mil@'{i}metros.  Ajuste valores de DRC para 0.35 mm (aproximadamente
+13.5 mil) paa perfura@,{c}@~{a}o e 0.15mm (aproximadamente 6 mil) para tudo mais.
+Grave sua placa, sair do @code{pcb}, e execute o @code{gsch2pcb fb-smt.prj}.
+Volte ao @code{pcb}, importe e disperse os novos componentes, e coloque na mem@'{o}ria
+a netlist.
+
+Como fizemos anteriormente, mova os r@'{o}tulos para posi@,{c}@~{o}es adequadas e ajuste o tamanho dos mesmos.
+Voc@^{e} deve concluir com algo parecido com isso:
+
+@img{../fb-smt-2}
+
+O tamanho final de sua placa ser@'{a} de 12.5mm largura por 18 mm de altura, n@~{a}o
+tanto maior que o conector de alimenta@,{c}@~{a}o.  Inicie rotacionado o conector de alimenta@,{c}@~{a}o pondo-o
+com a face para baixo, e coloque sua marca em 5.5mm por 7mm.  O LED fica acima
+do conector de alimenta@,{c}@~{a}o, com R3 @`{a} direita do LED.  Os restantes componentes v@~{a}o
+para o outro lado da placa.  Veja como:
+
+Para cada componente que precisa ir para o outro lado da placa,
+coloque a mira sobre o componente e pressione a tecla @press{B}.
+
+@center @image{../fb-smt-3} @image{../fb-smt-4}
+
+O componente @'{e} exibido com um cinza leve because est@'{a} agora no ``lado afastado''
+da placa (Note que um dos bot@~{o}es de camada tem escrito sobre ele
+@mnu{lado afastado}).  Voc@^{e} pode virar a placa ao contr@'{a}rio (fazendo o lado afastado o lado
+perto, e vice-versa) pressionado a tecla @press{Tab}.  Uma vez que os
+componentes que precisamos colocar estiver no lado afastado, agora, vire a placa
+ao contr@'{a}rio.  Note que @'{e} uma virada acima-abaixo, de forma que o conector de alimenta@,{c}@~{a}o agora
+aparece no canto inferior esquerdo ao inv@'{e}s de no superior esquerdo.  Existem
+outros tipos de viradas que voc@^{e} pode fazer usando @press{Shift-Tab} (virar
+esquerda-direita), @press{Ctrl-Tab} (180 graus de rota@,{c}@~{a}o), ou
+@press{Ctrl-Shift-Tab} (nada se move, um tipo de vis@~{a}o em Raio-X).
+
+De qualquer forma, mova os componentes restantes pela placa de forma que eles se pare@,{c}am
+com:
+
+@img{../fb-smt-5}
+
+Ao fazer o roteamento de uma placa com m@'{u}ltiplas camadas, me parece melhor iniciar com os
+planos de aterramento e de alimenta@,{c}@~{a}o.  Primeiro, redimensione a placa para 12.5 mm de largura
+por 18 mm altura, e vire-a de forma a ver o lado dos componentes (o
+lado com o conector de alimenta@,{c}@~{a}o).  Se sua vers@~{a}o do @code{pcb} n@~{a}o
+permite tamanhos muito pequenos (algumas vers@~{o}es possuem uma polegada como valor m@'{i}nimo, outras
+0.6 polegada), grave o arquivo, sair do @code{pcb}, e editar @code{fb-smt.pcb}
+em um editor de texto de forma que a linha @code{PCB} do arquivo original fique da seguinte forma:
+
+@example
+PCB["" 49213 70866]
+@end example
+
+Quando voc@^{e} executar o @code{pcb} novamente, a placa ter@'{a} o tamanho correto.
+Ajuste a grade para 0.5 mm e garanta que ela esteja vis@'{i}vel.  Existe dois
+caminhos para criar uma ``camada plano'', o que significa uma camada que @'{e} cobre
+em sua maior parte.  Tais camadas s@~{a}o muitas vezes usadas para n@'{i}veis de alimenta@,{c}@~{a}o e de aterramento.  O
+primeiro caminho @'{e} usar a ferramenta pol@'{i}gono; o segundo @'{e} usar a
+ferramenta ret@^{a}ngulo, que @'{e} apenas um atalho para a ferramenta pol@'{i}gono.
+
+Fa@,{c}a da camada GND a camada atual e selecione a ferramenta POLY:
+
+@img{../fb-smt-6}
+
+A ferramenta pol@'{i}gono trabalha clicando em cada canto do pol@'{i}gono, em
+sequ@^{e}ncia.  Voc@^{e} completa o pol@'{i}gono ou clicando no ponto de
+partida novamente, ou pressionado @press{Shift-P}.  Criaremos um pol@'{i}gono
+que @'{e} 0.5mm afastado para fora da aresta da placa.  Nas imagens, iniciamos no
+canto inferior esquerdo e trabal@,{c}ha nosso caminho no sentido hor@'{a}rio.  Ao clicarmos
+no canto inferior esquerdo novamente, o pol@'{i}gono @'{e} criado:
+
+@center @image{../fb-smt-7} @image{../fb-smt-8} @image{../fb-smt-9} @image{../fb-smt-10} @image{../fb-smt-11}
+
+Nesse caso, estamos apenas desenhando um ret@^{a}ngulo, mas se voc@^{e} precisa de qualquer
+outra forma, apenas clique nos cantos que precisar.  Como um atalho, voc@^{e}
+pode criar um ret@^{a}ngulo com a ferramenta ret@^{a}ngulo, que cria
+pol@'{i}gono de ofrma retangular.  Fa@,{c}a da camada de alimenta@,{c}@~{a}o a camada atual e
+selecione a ferramenta RECT:
+
+@img{../fb-smt-12}
+
+Like the polygon tool, the rectangle tool works by clicking on
+corners.  Todavia, voc@^{e} somente tem que clcar sobre dois cantos
+diagonalmente opostos, como adiante:
+
+@center @image{../fb-smt-13} @image{../fb-smt-14}
+
+Se a dferen@,{c}a de cor for muito leve para voc@^{e}, voc@^{e} pode escolher outras
+cores atrav@'{e}s do menu @mnuu{Arquivo,Prefer@^{e}ncias}.  Ajustaremos
+a camada GND para verde e a cmada de alimenta@,{c}@~{a}o para vermelho para o restante
+desse tutorial.
+
+Para conectar os planos de aterramento e alimenta@,{c}@~{a}o a suas respectivas fia@,{c}@~{o}es, usaremos
+um t@'{e}rmico para conectar os pinos do conector de alimenta@,{c}@~{a}o a esses dois planos.  Podemos
+tambẽm apenas desenhar uma linha do conector ao polĩgono, mas t@'{e}rmicos s@~{a}o mais
+adequandos a essa tarefa.  Selecione a ferramenta THRM:
+
+@img{../fb-smt-16}
+
+O que a ferramenta t@'{e}rmico faz @'{e} conectar (ou disconectar) dedos t@'{e}rmicos
+entre coenctores ou vias, e os pol@'{i}gonos em volta deles.  Cada vez que voc@^{e}
+clica sobre um conector ou via, os dedos t@'{e}rmicos s@~{a}o conectados @`{a}
+camada atual.  Desejamos encontrar os conectores do conector de alimenta@,{c}@~{a}o que @'{e}
+conectado ao aterramento no diagrama esquem@'{a}tico, e conect@'{a}-lo ao aterramento na
+placa.  Usamos a caixa de d@'{a}logo de netlist para fazer isso.  Primeiro, otimize o ninho de
+ratos com @press{O} e torne a camada GND ativa.  se a caixa de di@'{a}logo de
+netlist n@~{a}o for exibida, use @mnuu{Janela,Netlist} para exib@'{i}-la.  Selecione a rede
+GND e clique em @mnu{Encontrar}:
+
+@img{../fb-smt-17}
+
+Note que um dos conectores no conector de alimenta@,{c}@~{a}o foi selecionado.
+Esse @'{e} o @'{u}nico que supostamente @'{e} para ser conectado ao plano de aterramento.
+Clique nele para criar um t@'{e}rmico:
+
+@img{../fb-smt-18}
+
+Se voc@^{e} otimizar o ninho de ratos novamente, os ratos n@~{a}o ir@~{a}o mais se conectar a aqueles
+conectores novamente, e os outros conectores e pastilhas que precisam conectar ao
+plano de aterramento est@~{a}o agora amrcados com c@'{i}rculos, significando ``esses precisam serem
+conectados a um plano''.  De qualquer forma, torne o plano de alimenta@,{c}@~{a}o
+ativo, encontre a rede VDD na netlist e crie seus t@'{e}rmicos no
+pino encotrado do conector de alimenta@,{c}@~{a}o.  Note que os dedos t@'{e}rmicos do GND verde no
+outro pino aparecem atrav@'{e}s da lacuna no plano de alimenta@,{c}@~{a}o vermelho - t@'{e}rmicos s@~{a}o
+criados em uma camada espec@'{i}fica, n@~{a}o em todas as camadas.
+
+@img{../fb-smt-19}
+
+Se voc@^{e} tentar rotear automaticamente a placa agora, o roteamento conectar@'{a}
+apenas todos aqueles pinos de alimenta@,{c}@~{a}o e de aterramento ao pino de alimenta@,{c}@~{a}o e ao pino de aterramento
+no conector de alimenta@,{c}@~{a}o.  De forma que, iremos primeiro associar todos os pinos de alimenta@,{c}@~{a}o e
+pinos de aterramento a seus planos respectivos manualmente, usando vias.  Estamos fazendo isso principalmente para
+demonstrar como se faz.  O primeiro passo @'{e} colocar as
+vias.  Selecione a ferramenta via no painel da esquerda:
+
+@img{../fb-smt-20}
+
+Clique sobre o bot@~{a}o @b{Estilo de Rota} para exibir a caixa de di@'{a}logo de
+estilos de rota, e ajuste @b{Orif@'{i}cio da via} para 0.4mm e @b{Tamanho da via} para 0.8mm.  Tamb@'{e}m
+ajuste @b{Espessura da linha} para 0.25mm.  Crie vias pr@'{o}ximo aos conectores que est@~{a}o
+conectados ao planos, como adiante:
+
+@img{../fb-smt-21}
+
+Note que tive que desligar os planos de alimenta@,{c}@~{a}o e aterramento, bem com linhas
+de rato, para ajudar voc@^{e} a ver onde as vias devem ir.  Desabilite o plano
+GND e ``encontre'' a rede VDD novamente, para selecionar quais c@'{i}rculos de rato
+(e dessa forma suas vias) precisam conectar ao plano de alimenta@,{c}@~{a}o.  Como voc@^{e}
+fez com os pinos do conector de alimenta@,{c}@~{a}o, use a ferramenta t@'{e}rmico para conectar as
+vias relevantes ao aplano de alimenta@,{c}@~{a}o.  Fa@,{c}a o mesmo para o plano GND.
+
+@center @image{../fb-smt-22} @image{../fb-smt-23}
+
+Agora voc@^{e} tem que conectar as vias aos conectores que precisam dela.  Para o
+LED @'{e} f@'{a}cil, aquela trilha vai para o topo.  Fa@,{c}a a camada de componente
+ativa e use a ferramenta LINE como voc@^{e} fez antes para
+desenhar uma linha a partir da via perto do LED, para a pastilha do LED que @'{e}
+conectada ao VDD.  Para as outras conec@,{c}@~{o}es, voc@^{e} ir@'{a} desejar virar a
+placa ao contr@'{a}rio, ent@~{a}o use a tecla @press{Tab} para viar a placa ao contr@'{a}rio, torne a
+camada de soldagem ativa, e conecte o resto dos conectores
+alimenta@,{c}@~{a}o/aterramento a suas vias.  Se voc@^{e} pressionar @press{O} agora, ver@'{a} que todos os
+c@'{i}rculos-ratos se foram:
+
+@center @image{../fb-smt-24} @image{../fb-smt-25}
+
+O @'{u}ltimo passo @'{e} o roteamento autom@'{a}tico.  Esconda toda as camadas de alimenta@,{c}@~{a}o, aterramento,
+e seda, otimize os ninhos de rato (@press{O}), e execute o autoroteador,
+otimizador, e arestas.  Feito!  Aqui est@'{a} como a placa se parece com
+o ajuste ``desenho fino de pol@'{i}gonos'' habilitado, para somente desenhar linhas de sa@'{i}da para
+os planos de alimenta@,{c}@~{a}o e aterramento, juntamente com algumas impress@~{o}es com qualidade fotogr@'{a}fica:
+
+@center @image{../fb-smt-26} @image{../fb-smt-top} @image{../fb-smt-bottom}

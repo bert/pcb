@@ -1,0 +1,339 @@
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment 66bd72b469ae8de44ba1294662cb3004  fb-blinker.texi
+@comment
+@hyphenation{per-so-na-li-za-da}}
+Essa pr@'{o}xima placa introduzir@'{a} alguns conceitos adicionais no @code{pcb}
+o que ajudar@'{a} voc@^{e} com placas mais elaboradas.  @'{E} assumido que voc@^{e} fez
+ a placa anterior, e os conceitos l@'{a} fornecidos n@~{a}o ser@~{a}o
+re-explicados.  Essa placa ser@'{a} outra placa de uma s@'{o} camada, mas com
+componentes adicionais.  Usaremos um diagrama esquem@'{a}tico para descrever o
+circuito, criar alguns s@'{i}mbolos personalizados e matrizes, e aprender a usar
+roteamento autom@'{a}tico.
+
+Come@,{c}aremos criando nossos s@'{i}mbolos personalizados e matrizes personalizadas.  Primeiro,
+devemos criar os diret@'{o}rios de s@'{i}mbolos locais e de matrizes e ensinar as
+ferramentas para usar esses s@'{i}mbolos locais e essas matrizes.  Minha prefer@^{e}ncia @'{e} criar subdiret@'{o}rios no
+diret@'{o}rio de projeto chamado @code{simbolos} (sem acento mesmo) e @code{matrizes}:
+
+@img{../fb-blinker-1}
+
+Vamos ent@~{a}o criar alguns arquivos para dizer ao @code{gschem}
+@footnote{Nota do tradutor: o @code{gschem} e o @code{gsch2pcb} s@~{a}o
+distribu@'{i}dos no pacote @code{geda-gaf} que pode ser encontrado em sua vers@~{a}o mais
+recente com o comando ``git clone git://git.geda-project.org/geda-gaf.git''.
+Se voc@^{e} conheceu primeiro o pcb e n@~{a}o conhece o @code{gschem} e o @code{gsch2pcb} vai
+sentir essa parte do tutorial um pouco solta mas resista um pouco mais
+pois vai dar tudo certo :-).} e ao @code{gsch2pcb} para
+olhar esses diret@'{o}rios.  O primeiro arquivo @'{e} chamado @code{gafrc} e
+cont@'{e}m apenas o seguinte:
+
+@example
+@include gafrc
+@end example
+
+O segundo arquivo @'{e} chamado @code{gschemrc} e cont@'{e}m apenas o seguinte:
+
+@example
+@include gschemrc
+@end example
+
+O terceiro @'{e} espec@'{i}fico do projeto.  O programa @code{gsch2pcb} pode ler
+seu comandos a partir de um arquivo de projeto, e usaremos esse arquivo de projeto para dizer ao @code{gsch2pcb}
+onde se localiza o diret@'{o}rio @code{matrizes}.  O arquivo @'{e} chamado
+@code{fb-blinker.prj} e cont@'{e}m:
+
+@example
+@include fb-blinker.prj
+@end example
+
+Esse arquivo de projeto diz ao @code{gsch2pcb} onde pegar descri@,{c}@~{o}es
+de componentes, qual diagrama esquem@'{a}tico ler (temo somente um), e qual
+nome base usar para os v@'{a}rios arquivos de sa@'{i}da.
+
+Devemos criar dois s@'{i}mbolos personalizados para esse projeto.  O primeiro @'{e} para
+nosso conector de alimenta@,{c}@~{a}o, e @'{e} puramente um s@'{i}mbolo personalizado.  A cria@,{c}@~{a}o de tal s@'{i}mbolo
+est@'{a} al@'{e}m do escopo desse tutorial.  Por favor consulte a documenta@,{c}ao
+do @code{gschem} para cria@,{c}@~{a}o de s@'{i}mbolos novos.  O segundo s@'{i}mbolo usa o
+utilit@'{a}rio @code{djboxsym} que voc@^{e} pode gravar a partir da internet (veja
+@url{http://www.gedasymbols.org/user/dj_delorie/tools/djboxsym.html}).
+
+O primeiro s@'{i}mbolo @'{e} chamado @code{symbols/powerjack.sym} e assemelha-se a
+isso:
+
+@img{../powerjack}
+
+Existe uma c@'{o}pia desse s@'{i}mbolo na distribui@,{c}@~{a}o em c@'{o}digo fonte para essa
+documenta@,{c}@~{a}o.  O segundo s@'{i}mbolo @'{e} constru@'{i}do a partir de @code{555.symdef}
+file:
+
+@example
+@include 555.symdef
+@end example
+
+e assemelha-se ao seguinte:
+
+@img{../555}
+
+Agora, usando esses s@'{i}mbolos, crie seu diagrama esquem@'{a}tico, e chame-o de
+@file{fb-blinker-sch.sch}.  Existe uma c@'{o}pia do arquivo contendo o diagrama esquem@'{a}tico na
+distribui@,{c}@~{a}o do c@'{o}digo fonte tamb@'{e}m.  O arquivo do diagrama esquem@'{a}tico deve parecer-se com:
+
+@center @image{../fb-blinker-sch,367pt,284pt}
+
+Usando @code{gschem} e/ou @code{gattrib}, ajuste os atributos
+@code{matriz} e @code{valor} como segue:
+
+@multitable @columnfractions 0.25 0.15 0.15 0.15
+@item @tab @b{refdes} @tab @b{matriz} @tab @b{valor}
+@item @tab C1 @tab RCY100 @tab 1uF
+@item @tab J1 @tab pj102.fp @tab PJ102
+@item @tab LED1 @tab RCY100 @tab RED
+@item @tab R1 @tab ACY400 @tab 100k
+@item @tab R2 @tab ACY400 @tab 100k
+@item @tab R3 @tab ACY400 @tab 3.3k
+@item @tab U1 @tab DIP8 @tab LM555CN
+@end multitable
+
+Agora devemos criar a matriz personalizada para o conector de alimenta@,{c}@~{a}o.  Embora
+exitam v@'{a}rias ferramentas de contribui@,{c}@~{o}es da comunidade que podem ser usadas para grandes
+matrizes (como BGAs @footnote{Nota do tradutor: Ball Grid Array - grade de
+furos organizados. Um exemplo conector BGA @'{e} o LGA1156 dos processadores
+intel I3, I5 e I6 que vemos nas placas-m@~{a}e de computador.}), para pequenos
+componentes, como esse que estamos fazendo, o caminho mais f@'{a}cil @'{e}
+criar a matriz no pr@'{o}prio @code{pcb}.  A cria@,{c}@~{a}o da matriz @'{e} feita
+criando uma ``placa'' com vias e trilhas, a seguir convertendo essa placa em um
+componente e gravando.
+
+V@'{a} para o diret@'{o}rio das matrizes e inicie o @code{pcb}.  N@~{a}o
+importa o quanto grande a @'{a}rea de trabalho seja, ou a quantidade das camadas.
+Avaliando as especifica@,{c}@~{o}es de nosso conector de alimenta@,{c}@~{a}o, notamos que medidas s@~{a}o
+dadas em d@'{e}cimos de mil@'{i}metro, de forma que iremos usar a grade m@'{e}trica.  Para
+iniciar, ajuste a grade para @b{1mm}, mova a mira para o centro da
+placa, presione @b{Ctrl-M} para ajustar a marca.  Essa marca ser@'{a} o
+ponto de refer@^{e}ncia para todas as medidas.  Usando a marca com um grade
+valor de grade @b{Ctrl-M}, garantimos que ser@'{a} f@'{a}cil clicar sobre o mesmo lugar
+posteriormente se for preciso.
+
+Agora ajuste a grade para @b{0.1mm}, que iremos usar para colocar todas as nossas vias
+e linhas.  Estamos usando vias para criar conectores, ent@~{a}o vamos precisar ajustar o
+tamanho da via e o d@^{a}metro da perfura@,{c}@~{a}o da via.  Clique no bot@~{a}o @b{Estilo de Rota} para exibir
+o di@'{a}logo de estilos de rota, e ajustar @b{Tamanho do orif@'{i}cio da via} para 1.6mm e @b{Tamanho do anel
+da via} para 3.6mm.  Aproveitando nossa estadia aqui, ajuste @b{Largura de linha} para 0.15mm, precisaremos
+dessa largura de linha quando desenharmos a linha de sa@'{i}da posteriormente.
+
+Agora, aproxime o suficiente para ver os pontos da grade.  Coloque uma via 3mm @`{a}
+esquerda da marca, uma via 3mm para a direita, e uma via 4.7mm acima.  O pr@'{o}ximo passo
+@'{e} importante!  Os conectores ser@~{a}o numerados na mesma ordem de cria@,{c}@~{a}o
+das vias.  Para colocar uma via, selecione a ferramenta @b{Via}, posicione
+a mira, e pressione o bot@~{a}o esquerdo do mouse.
+
+@center @image{../fb-blinker-2} @image{../fb-blinker-3}
+
+Usando a ferramenta linha, a mesma ferramenta que voc@^{e} usou para desenhar trilhas de cobre na
+primeira placa, iremos desenhar nossa linha de sa@'{i}da do conector na camada de
+seda.  Selecione a ferramenta linha, e torne a camada de seda ativa.  Desenhe
+tudo mais de uma caixa da forma que voc@^{e} desejar abragendo 10.7mm para a direita da
+marca, 3.7mm @`{a} esquerda, e 4.5mm acima e abaixo.  Tenha certeza de n@~{a}o
+desenhar sobre seus conectores, ou sua placa ir@'{a} ter tinta sobre os conectores.  A placa
+pode parecer-se com algo como:
+
+@img{../fb-blinker-4}
+
+Agora, ajuste a grade de volta para 1mm de forma que possamos facilmente clicar na marca.
+Selecione tudo usando @mnuu{Selecione,Selecione tudo que estiver vis@'{i}vel}
+nos menus.  Posicione a mira na marcar e pressione @kbd{Ctrl-C}
+todos os objetos para a mem@'{o}ria.  Use @mnuu{Mem@'{o}ria,Converte
+mem@'{o}ria em componente} nos menus para converter a mem@'{o}ria em componente.
+Voc@^{e} pode agora clicar em algum outro lugar sobre a placa para colar uma c@'{o}pia de seu
+novo componente para inspe@,{c}@~{a}o.
+
+A primeira coisa a ser feita @'{e} verificar os n@'{u}meros dos conectores.  Coloque a mira
+sobre a marca e pressione a tecla @kbd{D} para habilitar a numera@,{c}@~{a}o dos conectores.
+Garanta que a numera@,{c}@~{a}o esteja correta, a seguir pressione @kbd{D} novamente para voltar
+a numera@,{c}@~{a}o ao estado anterior.
+
+@img{../fb-blinker-5}
+
+Agora, vamos ajustar a posi@,{c}@~{a}o padr@~{a}o do r@'{o}tulo.  Coloque a
+mira na marca e pressione a tecla @kbd{N}.  Mude o nome do
+componente para @code{J?}.  Por padr@~{a}o a caixa de di@'{a}logo aparece sobre a marca do componente.  Use
+a ferramenta de sele@,{c}@~{a}o e a tecla @kbd{S} para posicionar o r@'{o}tulo como mostrado
+abaixo.
+
+@center @image{../fb-blinker-6} @image{../fb-blinker-7}
+
+Usando a ferramenta de sele@,{c}@~{a}o, posicione a mira sobre a marca do componente
+e clique sobre a marca para selecionar o componente.  Pressione @kbd{Ctrl-C} para copiar o componente para a
+mem@'{o}ria, e use @mnuu{Mem@'{o}ria,Grava componentes da mem@'{o}ria em arquivo} para gravar sua
+nova matriz em um arquivo.  Grave como @code{pj102.fp} no
+diret@'{o}rio ``matrizes''.  Note que o nome do arquivo deve coincidir com o
+atributo da matriz que voc@^{e} usou para o conector de port@^{e}ncia no seu diagrama esquem@'{a}tico.
+@footnote{Nota do tradutor: na linha 432 do arquivo fb-blinker-sch.sch.}
+
+Parab@'{e}ns!  Voc@^{e} criou sua primeira matriz de componente personalizada.
+
+Agora que temos nosso diagrama esquem@'{a}tico e nossa matriz de componente personalizada, precisamos
+mostrar como iniciar o tra@,{c}ado da placa.  A ferramenta que usaremos @'{e} o
+@code{gsch2pcb}, que l@^{e} diagramas esquem@'{a}ticos e pode criar ou atualizar uma
+placa de forma que a mesma se ad@'{e}que ao diagrama esquem@'{a}tico.  Uma vez que @code{gsch2pcb} n@~{a}o usa os mesmos padr@~{o}es
+do @code{pcb}, criaremos a placa no @code{pcb} e usaremos o
+@code{gsch2pcb} no modo de atualiza@,{c}@~{a}o.
+
+Quando se cria uma placa um pouco mais elaborada, @'{e} uma boa id@'{e}ia iniciar com uma
+placa maior que seu tamanho final.  Para esse projeto, o tamanho final
+ser@'{a} 1.4 polegadas de largura por 0.9 polegadas de altura.  Todavia, iniciaremos com
+placa de 2 por 2 polegadas para termos algum espa@,{c}o para mover coisas por a@'{i}.  Execute
+@code{pcb} e crie sua placa, ajustando o tamanho, as camadas, e
+estilos como no projeto anterior.  Garanta uma grade de
+100 mil, uma vez que os componentes que estamos usando s@~{a}o todas desenhadas espa@,{c}amento
+de 100 mil em mente.  Tamb@'{e}m, garanta que @mnuu{Configura@value{cedilha}@~{o}es,Mira adere a
+conectores e pastilhas} esteja selecionado.  Grave essa placa vazia como
+@code{fb-blinker.pcb} e saia.
+
+Agora execute @code{gsch2pcb}, informando o nome do arquivo de projeto:
+
+@example
+$ gsch2pcb fb-blinker.prj
+
+----------------------------------
+Done processing.  Work performed:
+7 file elements and 0 m4 elements added to fb-blinker.pcb.
+
+Next step:
+1.  Run pcb on your file fb-blinker.pcb.
+    You will find all your footprints in a bundle ready for you to place
+    or disperse with "Select -> Disperse all elements" in PCB.
+
+2.  From within PCB, select "File -> Load netlist file" and select 
+    fb-blinker.net to load the netlist.
+
+3.  From within PCB, enter
+
+           :ExecuteFile(fb-blinker.cmd)
+
+    to propagate the pin names of all footprints to the layout.
+
+@end example
+
+O que o @code{gsch2pcb} faz @'{e} remover componentes de sua placa que n@~{a}o existem
+no diagrama esquem@'{a}tico, fornece novos componentes que precisam ser adicionados, gera
+e atualiza a netlist, e cria um script que renomeia todos os conectores.
+Voc@^{e} n@~{a}o precisa usar todos os arquivos gerado - por exemplo, raramente uso o script
+que renomeia os conectores - mas o usaremos dessa vez, de forma que voc@^{e} aprenda como cada
+arquivo @'{e} usado.
+
+Faremos da forma que as dicas acima nos dizem para fazer.  Execute @code{pcb
+fb-blinker.pcb} para exibir a placa vazia.  Coloque na mem@'{o}ria os novos dados
+de componente, que coloca voc@^{e} na ferramenta mem@'{o}ria (BUF).  Clique sobre
+a placa para colocar todos esses novos componentes.  Todos estr@~{a}o  no mesmo
+local, mas corrigiremos isso mais tarde.  Coloque na mem@'{o}ria a nova netlist
+@footnote{Nota do tradutor: @mnuu{Arquivo,Coloca na mem@'{o}ria uma netlist}.}, e execute o
+script.  Ap@'{o}s fechar quaisquer caixas de di@'{a}logo que tenham aparecido, sua placa
+deve parecer-se com:
+
+@img{../fb-blinker-8}
+
+O pr@'{o}ximo passo @'{e} separar os componentes de forma que possamos iniciar a feitura do tra@,{c}ado
+de nossa placa  Use @mnuu{Selecione,Dispersar todos os componentes} no menu,
+o que espalha os componentes que antes estavam amontoados.  Ent@~{a}o, use
+@mnuu{Conec@value{cedilha}@~{o}es,Otimizar ninhos de rato} no menu (ou a tecla @kbd{O}) para
+desenhar todos os ratos sobre a placa.  A otimiza@,{c}@~{a}o ir@'{a} ajudar voc@^{e} a desenhar um
+@'{o}timo tra@,{c}ado para seus componentes.  Sua placa deve parecer-se com algo
+como (a sua pode varia dependendo com a dispers@~{a}o trabalhou):
+
+@img{../fb-blinker-9}
+
+Se voc@^{e} posicionar a mira sobre U1 e pressionar a tecla @kbd{D},
+voc@^{e} ver@'{a} que os conectores s@~{a}o agora rotulados com os mesmos r@'{o}tulos do diagrama
+esquem@'{a}tico.  Voc@^{e} pode usar @mnuu{Vis@~{a}o,Habilitar sa@'{i}da de conector mostra
+n@'{u}mero} no menu para comutar entre r@'{o}tulos simb@'{o}licos e os
+n@'{u}meros originais de conector @footnote{Nota do tradutor: a atua@,{c}@~{a}o
+desta op@,{c}@~{a}o de menu @'{e} vis@'{i}vel ao se usar a letra @kbd{D}. Com a op@,{c}@~{a}o
+selecionada ao se pressionar @kbd{D} aparecem n@'{u}meros. Com a op@,{c}@~{a}o n@~{a}o
+selecionada ao se pressionar a letra @kbd{D} aparecem os nomes.}.
+
+@img{../fb-blinker-10}
+
+Agora, como fizemos anteriormente, desejamos re-arrumar os componentes para diminuir e
+simplificar as conec@,{c}@~{o}es.  @'{E} aqui onde os ratos s@~{a}o @'{u}teis.  Como
+voc@^{e} re-arrumou os componentes, os ratos o seguiram, de forma que voc@^{e} pode ver como
+o toeamento e o movimento afetam seu tra@,{c}ado.  @`{A} mediada que voc@^{e} for movendo os componentes
+nas proximidades, pressione a tela @kbd{O} para dizer ao @code{pcb} para desenhar o
+melhor caminho conectando tudo em suas novas localiza@,{c}@~{o}es.
+
+@`{A} medida que voc@^{e} for movendo os componentes nas proximidades, lembre-se de selecionar o conector de alimenta@,{c}@~{a}o atrav@'{e}s de
+sua marca, uma vez que os conectores do conector de alimenta@,{c}@~{a}o possuem espa@,{c}amento m@'{e}trico.  Os outros
+componentes podem ser selecionados atrav@'{e}s de seus conectores, uma vez que eles possuem espa@,{c}amento em
+polegadas.  Atrav@'{e}s da sele@,{c}@~{a}o de componente por seus conectores, voc@^{e} garante que seus
+conectores fiuem sobre os pontos da grade na hora em que eles forem baixados sobre a placa.
+
+Re-arrume seus componentes de forma que eles se pare@,{c}am com o que segue, pr@'{o}ximo
+ao centro da placa.  Note que o ninho de ratos dir@'{a} a voc@^{e} quando
+voc@^{e} tem resistores invertidos, uma vez que eles n@~{a}o possuem ``polaridade''
+como um LED ou o  CI possuem.
+
+@img{../fb-blinker-11}
+
+Como fizemos anteriormente, desejamos mover os r@'{o}tulos refdes em torno do componente de forma que eles estejam
+ambos, componente e r@'{o}tulo, vis@'{i}veis e fora do caminho das trilhas.  Para fazer isso de forma f@'{a}cil, use
+@mnuu{Configura@value{cedilha}@~{o}es,Nomes @'{U}nicos} no menu para evitar que as ferramentas
+acidentalmente selecionem componentes ou linhas de rato.  Desabilite a grade, e
+use as ferramentas de sele@,{c}@~{a}o e de rota@,{c}@~{a}o, e a tecla de tamanho @kbd{S}, para tornar
+os r@'{o}tulos semelhantes a isso:
+
+@img{../fb-blinker-12}
+
+Agora use @mnuu{Configura@value{cedilha}@~{o}es,Travar Nomes} para evitar mover
+nossos r@'{o}tulos mais tarde.  Estamos ainda usando nossa placa tamanho maior.  Agora @'{e} a
+hora de reduzir a placa a seu tamanho final.  Primeiro, temos que mover os
+componentes para o canto superior esquerdo da placa.  Ponha a grade de volta a
+100 mil, @mnuu{Selecione,Selecione tudo que estiver vis@'{i}vel}, agarre um dos
+conectores, e mova tudo at@'{e} o canto, t@~{a}o perto quanto voc@^{e} puder chegar
+sem tocar as arestas:
+
+@img{../fb-blinker-13}
+
+Clique para remover a sele@,{c}@~{a}o e mude o tamanho da placa para 1400 mils de largura por 900
+mils de altura.  Lembre-se de gravar com frequ@^{e}ncia!
+
+Novamente, planejamos soldar manualmente essa placa, ent@~{a}o selecione
+tudo e fa@,{c}a todos os conectores 10 mils maior que o padr@~{a}o.
+
+Ao inv@'{e}s de rotear todas as trilhas manualmente, para essa placa usaremos
+o roteamento autom@'{a}tico.  Existe algumas coisas chave que voc@^{e} precisa saber
+ao usar o roteamento autom@'{a}tico.  Primeiro, o roteamento autom@'{a}tico usar@'{a} todas
+as camadas dispon@'{i}veis, ent@~{a}o devemos desabilitar as camadas que n@~{a}o desejamos que sejam
+roteadas.  Para fazer isso, clique no bot@~{a}o @b{componente} para desabilitar
+a camada @b{componente}:
+
+@img{../fb-blinker-14}
+
+O roteamento autom@'{a}tico tamb@'{e}m usar aquele que for o estilo padr@~{a}o, ent@~{a}o selecione o
+estilo @b{Fat}:
+
+@img{../fb-blinker-15}
+
+O roteamento autom@'{a}tico usa o ninho de ratos para determinar quais conec@,{c}@~{o}es ser@~{a}o
+roteadas automaticamente, ent@~{a}o pressione @kbd{O} agora para garantir que todos os ratos estejam
+presentes e reflitam a posi@,{c}@~{a}o mais recente dos componentes.  Par fazer o
+roteamento autom@'{a}tico, simplesmente selecione @mnuu{Conec@value{cedilha}@~{o}es,Roteamento autom@'{a}tico de todos os ratos selecionados}
+no menu.
+
+@img{../fb-blinker-16}
+
+Te@'{o}ricamente, voc@^{e} deve considerar sua placa ``conclu@'{i}da'' agora, mas para faz@^{e}-la
+parecer-se mais profissional, faremos mais algumas coisas.  Use
+@mnuuu{Conec@value{cedilha}@~{o}es,Otimize trilhas roteadas,Auto Otimizar} no menu
+duas vezes (ou at@'{e} que nenhuma modifica@,{c}@~{a}o adicional ocorra) para limpar as trilhas deixadas
+pelo roteamento autom@'{a}tico:
+
+@img{../fb-blinker-17}
+
+E finalmente, selecione @mnuuu{Conec@value{cedilha}@~{o}es,Otimize trilhas roteadas,Suavizar arestas}
+para suavizar os cantos pontudos:
+
+@img{../fb-blinker-18}
+
+Sua placa est@'{a} conclu@'{i}da.  Como fizemos anteriormente, voc@^{e} pode imprimir seu desenho ou produzir
+arquivos Gerber, de acordo com a forma atrav@'{e}s da qual voc@^{e} quer ver sua placa pronta.

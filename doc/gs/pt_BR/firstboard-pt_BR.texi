@@ -1,0 +1,45 @@
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment 524e680fc729234a91d22b5a3db1ed74  firstboard.texi
+@comment
+
+@node Sua Primeira Placa
+@chapter Sua Primeira Placa
+
+Nesse cap@'{i}tulo, caminharemos atrav@'{e}s da cria@,{c}@~{a}o de algumas
+placas simples, apenas para dar a voc@^{e} um id@'{e}ia da linha que o programa segue
+e como fazer coisas que s@~{a}o comuns a todos os projetos.  Cada placa
+ir@'{a} usar t@'{e}cnicas aprendidas na placa anterior.
+
+Embora esse manual n@~{a}o objetive incluir o programa @code{gschem} @footnote{Nota do tradutor: relembrando http://www.geda-project.org/geda:gaf},
+iremos instruir voc@^{e} sobre o m@'{i}nimo que voc@^{e} precisa saber para usar
+@code{gschem} com @code{pcb}.  Por favor consulte a documenta@,{c}@~{a}o do
+@code{gschem} para detalhes adicionais.
+
+A primeira placa ir@'{a} conter um @'{u}nico LED e um resistor.  Ir@'{a} mostrar a voc@^{e}
+como criar uma placa, colocar componentes, e posicionar trilhas.  A segunda
+placa ir@'{a} ser um pisca-pisca de um @'{u}nico LED, que envolver@'{a} cria@,{c}@~{a}o de
+diagrama esquem@'{a}tico, configurando um projeto, e criando novos s@'{i}mbolos e
+matrizes.  A terceira placa ser@'{a} outro pisca-pisca, dessa vez com
+dispositivos montados em superf@'{i}cie e quatro camadas, que introduzir@'{a} planos
+de pot@^{e}ncia, vias, e t@'{e}rmicos.
+
+@ifnottex
+@menu
+* Placa de LED::
+* Placa pisca pisca::
+* Pisca pisca SMT::
+@end menu
+@end ifnottex
+
+@node Placa de LED, Placa pisca pisca, Sua Primeira Placa, Sua Primeira Placa
+@section Placa de LED
+@include fb-led-pt_BR.texi
+
+@node Placa pisca pisca, Pisca pisca SMT, Placa de LED, Sua Primeira Placa
+@section Placa pisca pisca
+@include fb-blinker-pt_BR.texi
+
+@node Pisca pisca SMT, ,Placa pisca pisca, Sua Primeira Placa
+@section Pisca pisca SMT
+@include fb-smt-pt_BR.texi
