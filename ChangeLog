@@ -1,5 +1,3092 @@
-This ChangeLog is automatically generated from git commit messages
+This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
+
+2014-03-16   DJ Delorie * dj AT delorie dot com *
+
+	* tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-top.gcode: update gcode golden
+	files Checked with linuxcnc - the old goldens had zeros where the
+	parameters should have been.
+
+2014-02-23   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR adjusts and make update-po  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-02-03   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR.po update Closes-bug: lp-1275446
+
+2014-02-03   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: Minor changes in po pt_BR.po file Closes-bug: lp-1274404
+
+2014-02-03   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/hid/gtk/gui-config.c: Fix segfault caused by lack of commas in
+	a format expression Closes-bug: lp-1275407
+
+2014-02-01   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: Preferencias do PCB to Preferências...   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-02-01   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* doc/pcb.texi: Fix order of sections in the documentation Prevent warnings output by "make" when pcb.texi is processed.
+
+2014-01-31   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* doc/pcb.texi: Fix several typos in the documentation
+
+2014-01-31   أحمد المحمودي (Ahmed El-Mahmoudy) * aelmahmoudy AT sabily dot org *
+
+	* src/pcbtest.sh.in: Fix 'make distcheck' Use proper target directory for pcblib-newlib.  Closes-bug: lp-855405  Commit-message-by: Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+2014-01-31   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* po/POTFILES.in, po/POTFILES.skip: Add one more localized file to
+	POTFILES.in Additionally, the file generated from it is moved to POTFILES.skip
+
+2013-01-30   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/action.c, src/buffer.c, src/hid/common/actions.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-config.c,
+	src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-drc-window.c,
+	src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-top-window.c,
+	src/hid/lpr/lpr.c, src/misc.c, src/parse_y.y, src/report.c,
+	src/toporouter.c, src/vendor.c: Add strings to localization  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-30   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/hid/bom/bom.c: Don't use localized unit names in comments of
+	the X-Y files Fix a bug causing 'make distcheck' to fail for all bom_hid# tests in
+	localized environments because of using of a localized unit name in
+	a comment line of the output X-Y file.
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* po/POTFILES.in: Add a missing file to POTFILES.in
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* data/Makefile.am: Remove a duplicated line INTLTOOL_XML_RULE is used twice in Makefile.am, which results in
+	having two same lines in generated Makefile.
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* data/Makefile.am: Fix 'make distcheck' 'make distcheck' has been broken again in
+	c74ba603517380bae59f1ff68a5f100c2fb1c960
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/Makefile.am: Fix 'make distcheck' Fix a bug introduced in 6aa50cc4c93fec243cba9cd37c86090496af3feb
+
+2012-12-04   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-utils.c: Allow hotkeys in button labels Use _with_mnemonic functions to allow '_' hotkey.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-output-events.c, src/macro.h: Add UNKNOWN_NAME
+	macro UNKNOWN_NAME macro is the same as UNKNOWN, but allow to specify
+	"unknown name", which can be useful for localization.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-top-window.c: Add tooltips to mode menu buttons  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-18   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/POTFILES.in, src/hid/lpr/lpr.c, src/hid/ps/ps.c: Add strings
+	from LPR and PS HID's to translation  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-dialog-print.c: Print dialog i18n  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/.gitignore: Ignore data/pcb.appdata.xml.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am, data/pcb.appdata.xml, data/pcb.appdata.xml.in,
+	po/POTFILES.in: Let appdata have translatable strings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am: Added the appdata target to the Makefile.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml: Added an appdata file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-02-03   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-netlist-window.c: Fixing a typo.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-02-03   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-misc.c,
+	src/hid/gtk/gui-netlist-window.c, src/report.c: Add strings to
+	translation with context  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/gettext.h, src/global.h: Use gettext.h for pgettext()  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/ru.po: Updated Russian translation  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-25   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR language update  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-09-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/find.c: Use ngettext for message with plural form  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-16   xmd * shinobi dot jack AT gmail dot com *
+
+	* src/hid/gerber/gerber.c: gerber.c: added an option for Hackvana
+	file name convention.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/ghid-main-menu.c: Menu items i18n This adds i18n for gtk menus Closes-bug: lp-1113758
+
+2014-01-20   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* autogen.sh, src/.gitignore, src/Makefile.am: Fix menu
+	gettextization Changes were made to eliminate errors output by 'make distcheck' or
+	'make -C po update-po'.  Closes-bug: lp-913458
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/POTFILES.in: Fix .res.in to .res.h in POTFILES.in Affects-bug: lp-913458
+
+2014-01-18   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/LINGUAS, po/pt_BR.po: Added pt_BR translation file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-10   Kevin Redon * kevredon AT mail dot tsaitgaist dot info *
+
+	* src/djopt.c: add missing option splitlines in djopt_syntax  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-10   Kevin Redon * kevredon AT mail dot tsaitgaist dot info *
+
+	* src/action.c: fix missing ) typo in changeclearsize_syntax  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-misc.c, src/hid/gtk/gui-top-window.c: Fix lockup
+	when a scroll event is received outside the drawing area This can occur if the user is dragging a component in the drawing
+	area (hence a pointer grab is in operation), and during this drag,
+	the user moves the mouse outside the drawing area and touches the
+	scroll wheel.  We then hit the scroll event handler, mouse action handler, action
+	dispatcher etc.. and find we do not have a current location known.
+	(The cursor is outside the drawing area).  We then prompt for a
+	location, and using a recursive main- loop, wait for some kind (e.g.
+	a mouse click) which gives one.  The problem appears to be caused by the fact it is likely we get a
+	second scroll event with the first, and that we process this from
+	within the recursive main-loop. We are still outside the drawing
+	area, so prompt the user for a location, and enter another level of
+	recursion. (In my tests, I was able to hit 6 or 7 levels deep of
+	main-loop recursion).  Our code fails to exit its recursive main-loop if it rucurses, and
+	in any case, we would not want to prompt the user "n" times in a
+	row. The failure to exit from recursion is probably due to the event
+	handlers attached by the first recursive main-loop being called
+	prior to those attached later. (We attempt to quit the first
+	recursive main-loop, but cannot, as there are others now running).  As a quick work-around to the immediate problem, prevent scroll
+	events being received from within the recursive main-loop. This
+	prevents the lockup, but ideally we should re-think how we handle
+	these events to avoid requiring the user to click on a coordinate.  I have also added a GDK_THREADS_{LEAVE,ENTER} pair around running
+	the main-loop, as this is what GTK's code does for gtk_dialog_run().
+
+2013-08-03   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/hid_bom1/Makefile.am,
+	tests/golden/hid_bom1/bom_general.bom,
+	tests/golden/hid_bom1/bom_general.xy,
+	tests/golden/hid_bom2/Makefile.am,
+	tests/golden/hid_bom2/bom_general.xy,
+	tests/golden/hid_bom2/test.bom,
+	tests/golden/hid_bom3/bom_general.bom,
+	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom4/bom_general.bom,
+	tests/golden/hid_bom4/bom_general.xy: Regenerate tests after "Make
+	xy file output IPC 7531 compliant.".
+
+2012-12-31   dark141 AT gmail dot com * dark141 AT gmail dot com *
+
+	* src/hid/bom/bom.c: Make xy file output IPC 7531 compliant.   Improved code style by Bert Timmerman * bert dot timmerman AT
+	xs4all dot nl * dot
+
+2013-08-02   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* po/POTFILES.skip: Add intl/plural.c to POTFILES.skip
+
+2012-11-08   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c: src/action.c: add a number of comments.  ... in the hope they're right.
+
+2013-07-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/res_parse.y: src/res_parse.y: handle resource globals
+	gracefully.  Likely, res_file is used somewhere to check something. In case a
+	resource file was loaded earlier, but the current parsing is from a
+	string, res_file is still != NULL, so this check would mislead.  Solution: Clear res_file and res_filename as soon as the file           behind it gets closed.  Also replace a number of zeros with the more appropriate NULL.  Affects-bug: lp-1206882
+
+2013-07-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Additional checks for existing names In ActionElementList, add an additional check for
+	DESCRIPTION_NAME(e) before comparing with an old footprint.
+
+2013-06-22   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/Makefile.am: src/Makefile.am: revert the AM_CPPFLAGS change as
+	it breaks the building process.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2013-06-18   Leo Bärring * leo dot barring AT gmail dot com *
+
+	* configure.ac, doc/extract-docs, doc/pcb.texi, gts/Makefile.am,
+	src/Makefile.am, src/hid/lesstif/main.c: Patch to resolve archlinux
+	build warn/errors.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2013-04-19   Gabriel Paubert * paubert AT iram dot es *
+
+	* src/hid/gerber/gerber.c: Gerber: use 0.1mil resolution for
+	imperial drill files.   Acked-by: Andrew Poelstra * apoelstra AT wpsoftware dot net *
+	 Acked-by: Peter Stuge * peter AT stuge dot se *
+
+2013-04-19   Gabriel Paubert * paubert AT iram dot es *
+
+	* src/pcb-printf.c, src/pcb-printf.h: pcb-printf: Add 0.1mil
+	resolution, improve documentation and a small cleanup.  0.1mil resolution is needed for improved imperial drill file
+	generation.  Apart form this, the list of %m unit modifiers is now
+	fully documented and a redundant test was removed.   Acked-by: Andrew Poelstra * apoelstra AT wpsoftware dot net *
+	 Acked-by: Peter Stuge * peter AT stuge dot se *
+
+2013-04-19   Gabriel Paubert * paubert AT iram dot es *
+
+	* src/hid/gerber/gerber.c: Gerber: reset aperture numbers on
+	initialization.  This prevents aperture numbers from growing to infinity if you
+	export several times to Gerber in the same GUI session.   Acked-by: Andrew Poelstra * apoelstra AT wpsoftware dot net *
+	 Acked-by: Peter Stuge * peter AT stuge dot se *
+
+2013-04-13   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/ps/ps.c: ps.c: correction in printer calibration.   Reported-by: Stephen R. Besch * sbesch AT buffalo dot edu *  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-01   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* doc/gs/installation.texi: doc/gs/installation.texi: better use
+	"yum localinstall" to keep the updater synchronised.  Corrected some typos.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-04-18   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* doc/gs/installation.texi: doc/gs/installation.texi: Added a remark
+	about administrator-privileges.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-01-11   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* doc/gs/installation.texi: doc/gs/installation.texi: Added
+	information how to install pcb on Fedora.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-08-13   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/.gitignore: add parse_y.output to src/.gitignore  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-12-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/ghid-cell-renderer-visibility.c: Don't localize signal
+	name  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove some "flag" variable usage in DRCFind() Avoid confusion by passing *FLAG constants directly to some
+	functions.  This removes several cases where we would set the
+	variable, use it once, then change it for the next usage, making the
+	code more succinct.  I was not able to remove the flag variable entirely, as the while
+	loop calling DoIt() relies on it being changed inside the loop in
+	order to terminate. It should be possible to re-write the loop exit
+	condition if desired, but I'm not sure I completely understand the
+	behaviour of the existing code yet.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove "flag" variable in DRCAll(), and pass
+	explicitly each time.  This avoids confusion by making the flag passed to each call
+	clearer.  It removes several cases where we would set the variable,
+	use it once, then change it for the next usage, making the code more
+	succinct.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Fix flag passed to ListStart() in DRCFind().  We should have set the flag before calling ListStart(), as it marks
+	the first item with that flag.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Fix possible un-assigned use of "flag" in
+	DRCFind(), fix bloated test.  Caught by inspection.. no idea why the compiler didn't notice.  Before commit 4cbfadfb7a496e60c25f47c88bdb374b4d3777bb, our local
+	"flag" variable was the file-global "TheFlag". If the "shrink" test
+	was not run, the code called ClearFlagOnAllObjects() with the
+	previously assigned "TheFlag". After the above commit, we would use
+	"flag" unassigned.  If the shrink test is executed, the "FOUNDFLAG" is cleared from
+	objects, leaving a SELECTEDFLAG image on the copper in question as a
+	reference to compare against when considering the bloated geometry.
+	(This is the wrong reference, as we should be comparing against the
+	non-shrunk case).  If the shrink test was not run, we left no reference for the boated
+	test.  We should clear FOUNDFLAG _and_ SELECTEDFLAG after the shrunk test,
+	then construct a new reference to start with, using non-bloated
+	geometry.  This partly fixes the behaviour of the bloated test, as it is now
+	run against a non-bloated reference, not a shrunk reference. This
+	fixes false reports of "Copper areas too close" for track objects
+	encountered after a "Potential for broken trace" warning.  There are still other issues with the bloated DRC test. One
+	important one is that it may run multiple times on the same geometry
+	if a "Potential for broken trace" error is present, or if the
+	"shrink" test is not run.  The repeated runs are because in the "Potential for broken trace"
+	case, only part of the track (or none if we skip the shrink test)
+	will get the DRCFLAG set. DRCFind then will be called repeatedly on
+	all pins, pads and vias, despite having already touched the geometry
+	with the bloated test.  To fix this, we need to separate the shrink
+	and bloat tests into distinct passes, and set the DRCFLAG on objects
+	during both tests. We can't simply set the DRCFLAG from the bloated
+	test as it stands, as doing so would mask investigating "Potential
+	for broken trace" cases after the first encountered.  An example of false "Copper areas too close" being fixed by this
+	commit is the following test-case: FileVersion[20091103] PCB["" 65.000mm 15.0000mm] Grid[984.251969 0.0000 0.0000 1] PolyArea[3100.006200]
+	Thermal[0.500000] DRC[0.5000mm 0.5000mm 0.5000mm 0.2500mm 0.4000mm
+	0.5000mm] Flags("nameonpcb,uniquename,clearnew,snappin")
+	Groups("1,c:2,s:3:4")
+
+	Styles["Signal,0.5000mm,1.0000mm,0.5000mm,0.2500mm:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,6.00mil,24.02mil,11.81mil,6.00mil"]Attribute("PCB::grid::unit" "mm") Attribute("PCB::grid::size"
+	"0.2500mm") Via[9.7500mm 7.2500mm 1.6000mm 0.5000mm 0.0000 0.5000mm "" ""]
+	Via[53.5000mm 7.2500mm 1.6000mm 0.5000mm 0.0000 0.5000mm "" ""]
+	Layer(1 "top") ( 	Line[9.7500mm 8.5000mm 28.0000mm 8.5000mm 0.5000mm 0.5000mm
+		"clearline"] Line[9.7500mm 7.2500mm 9.7500mm 8.5000mm 0.5000mm
+		0.5000mm "clearline"] Line[28.2500mm 8.5000mm 53.5000mm 8.5000mm
+		0.5000mm 0.5000mm "clearline"] Line[53.5000mm 7.2500mm 53.5000mm
+	8.5000mm 0.5000mm 0.5000mm "clearline"] ) Layer(2 "bottom") ( )
+	Layer(3 "silk") ( ) Layer(4 "silk") ( )
+
+2013-01-03   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: png: --fill-holes Add an option to the PNG exporter to draw pin/via drill holes as
+	filled instead of hollow, for use with CNC machines that don't need
+	a "helper" hole in the copper.  Also fixed a doc typo.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Use SetThing, rather than open-coding
+	assignments to thing_* I'm trying to identify all uses of SetThing and similar consructs,
+	so I can eventually kill them.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove unnecessary PIN/VIA test from
+	SetThing() This is not needed since commit
+	d581a90edc7fb7c0b4c6351611cc4a6689d7620b which put similar code into
+	ADD_PV_TO_LIST(), the only caller which could have previously
+	resulted in a SetThing call with the wrong type.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Test for libgd once, not per HID which
+	uses it.  This avoids some repeated tests, so should help to speed up the
+	configure process a little. This commit also enforces testing for
+	the required PNG support in libgd if the gcode or nelma HIDs are
+	selected.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Remove CC_OR_CXX_FLAGS substitution
+	from configure.ac
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/Makefile.am: src/Makefile.am: We don't gain anything by
+	setting AM_CFLAGS to C_OR_CXX_FLAGS We were duplicating command-line flags un-necessarily, and it does
+	not stop the a build with the C++ compiler using CFLAGS, as was (in
+	hindsight) the original intention before commit
+	72cdf2ecef3361a00fbd0ee3e540f7383e62272c where I changed a complete
+	CFLAGS override to a AM_CFLAGS addition.  As we should not override CFLAGS in a Makefile (it prevents the user
+	from setting CFLAGS at "make" time), I'm removing this completely.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Use CPPFLAGS, not CFLAGS for our
+	include directives.  We were previously using CFLAGS for adding pre-processor includes,
+	where these should really end up in the CPPFLAGS variable.
+	Confusingly, their constituents tend to come from variables set by
+	autoconf / pkgconfig expansions in the form of LIBNAME_CFLAGS.  Doing this allows the user to easily override CFLAGS at build time
+	without needing to replicate the enture include path list.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Save and restore CPPFLAGS either side
+	of test for libgd Ensure we add GD_CFLAGS to the the main flag list later instead.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Don't add GD_CFLAGS to CFLAGS, only
+	CPPFLAGS GD_CFLAGS will almost certainly contain pre-processor flags, not
+	strictly compiler flags, and we don't need to have a copy in CFLAGS
+	as well.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Save and restore CPPFLAGS either side
+	of test for X11 stuff We add X_CFLAGS and X_LIBS to the main flag list later, so don't
+	leave an extra copy lying around in the CPPFLAGS variable.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Don't copy CFLAGS into CPPFLAGS for
+	X11 tests CFLAGS should work in its own right, and CPPFLAGS does not need a
+	copy.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: configure.ac: Don't add win32 build flags to
+	CPPFLAGS as well as CFLAGS These are compiler flags only, not preprocessor flags.
+
+2013-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* configure.ac: Remove CYGWIN_CFLAGS and CYGWIN_CPPFLAGS from
+	configure.ac We no longer ship a build-script which requries these. Any specific
+	CFLAGS for a given build should be overridden by specifying CFLAGS
+	at configure or make time.
+
+2013-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gcode/gcode.c: hid/gcode: Add a more direct "#include
+	<locale.h>" for setlocale() The lack of this include caused a failure to build on my machine
+	when compiled without optimisation (-O0). With any optimisation
+	turned on, the build would work without the include.  Having chased this strangeness down, it turns out that we were
+	including libintl.h via global.h, and that libintl.h includes
+	locale.h, IFF optimisation is turned on at the time it is
+	pre-processed.
+
+2013-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove some unnecessary includes.
+
+2013-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Move file-global "NumberOfPads" into the
+	function which uses it
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Pass flags to sub-functions without using
+	static variable "TheFlag".
+
+2012-12-30   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove some un-needed forward declarations of
+	static functions
+
+2012-12-25   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/polygon.c, src/polygon.h: Refactor signature of
+	PlowsPolygon callback to take userdata This allows callers to pass arbitrary data into their callbacks
+	without resorting to nasty workarounds like global variables.
+
+2012-12-30   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* : commit 6963cfda0ca661a7a1397ef5b54e418f76b89260  Author: Peter
+	Clifton * peter AT clifton-electronics dot co dot uk * Date:   Mon
+	Dec 24 00:13:41 2012 +0000
+
+2012-12-30   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/main.c: Change FOUND objects colour from green to purple...  Aim to differentiate the region connected to the search origin from
+	those which should be (but are not yet) connected to it.
+
+2012-12-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c: Tag physically/logically connected items differently
+	in the "Find" action This commit restores the semantic meaning of the "found" flag to
+	what it was before commit 764c3560a722c768a7048f5c70811ec363862882,
+	and uses the "connected" flag to identify which of the "found"
+	(logically connected) items are physically connected to the search
+	origin.  The aim here is to differentiate between what an ohm-meter would
+	show connected with the board as-currently designed, and what it
+	would read if all rat-lines were implemented.
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Use pointers to objects, not shallow copies of
+	their structures Since commit 4658e4074b4446337467f99fa2b8f9b7147e7e01, we don't
+	modify the copied objects, so we can use pointers instead.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/gpcb-menu.res.in, src/pcb-menu.res.in: Add
+	option to "Select" action, differentiating "FOUND" and "SELECTED"
+	objects The exising "Select" action included the variant
+	"Select(Connected)", which selected any object with the "FOUNDFLAG"
+	set.  As we now make a distinction between logical and physical
+	connectivity (FOUND and SELECTED) respectively, this commit
+	introduces a split into "Select(Found)" and "Select(Connected)"
+	variants.  There is a change here, in that "Select(Connected)" now acts on
+	objects with the CONNECTED flag set, (not the FOUND flag as it did
+	previously).
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/undo.h: draw.c: Support for coloring objects with
+	CONNECTEDFLAG set We now color objects with the FOUNDFLAG set in the FoundColor, not
+	the ConnectedColor as we did previously. Unsurprisingly, objects
+	with the CONNECTEDFLAG set get rendered in the ConnectedColor.  CONNECTEDFLAG is tested before FOUNDFLAG, and takes precidence if an
+	object has both flags set.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/create.c, src/global.h, src/main.c: Add FoundColor to resource
+	settings, distinct from the Connected color For now, set ConnectedColour and FoundColor to the same green, so we
+	can introduce this patch series without flip-flopping the renderered
+	colours.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/const.h, src/strflags.c: Add a new flag, "connected" /
+	CONNECTEDFLAG.  The intended use of this flag is to mark physical connections.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Avoid adding any rat-lines at all when AndRats
+	is false.  Previously we were adding some rat-lines when searching for physical
+	connections. We should stop at the physical->rat boundary, not the
+	opposite end of the ratline.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Fix inverted logic in LookupConnection() When AndRats is true, we may consider starting with a ratline
+	object, otherwise we do no. I got this backwards by mistake.
+
+2012-12-25   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove file-global "IsBad", use
+	PlowsPolygons() return value.  This variable was used to communicate state from the drc_callback(),
+	however PlowsPolygons() returns the sum of the values returned by
+	its callback function. As our callback returns 0 on success, 1 on
+	DRC failure, we know any non-zero return from PlowsPolygons()
+	implies a DRC problem.
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Avoid modifying bounds of the objects we are
+	passing down Bloat the bounding box into a local BoxType structure instead, to
+	avoid passing inconsistent objects to lower level functions.
+
+2012-12-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Avoid repeated lookup of layer pointer by
+	number Rename a few "layer" varaibles to "layer_no", and re-use "layer"
+	where necessary as a LayerType *, rather than a Cardinal.
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Tidy up some macro definitions (Whitespace only changes)
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Remove unused function pv_touch_callback()
+
+2012-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c: action.c: Fix drawing lines on silkscreen with
+	auto-enforce DRC enabled The auto-enforce DRC code was not incorrectly setting FOUNDFLAG on
+	one of each pair of line-segments drawn with a mouse-click.  Completes the fix from commit
+	aa7196dc29a761ecddda1a40d68fedf39ab78c31 Affects-bug: lp-699291
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/find.c, src/find.h,
+	src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/lesstif/netlist.c, src/rats.c, src/report.c, src/select.c,
+	src/set.c: Rename ResetFound{LinesAndPolygons,PinsViasAndPads} and
+	ResetConnections These functions are not specific to the "found" flag, (or the soon
+	to be introduced "connected" flag, so to avoid confusion, rename
+	them:   ClearFlagOnLinesAndPolygons ()   ClearFlagOnPinsViasAndPads ()   ClearFlagOnAllObjects ()
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c, src/const.h, src/copy.c: Add #define list of flags
+	to unset when copying into a buffer Previously, the removal of FOUNDFLAG was hard-coded in various
+	places, lets consolidate the location to one header file, as when we
+	split the FOUNDFLAG to differentiate logical and physical
+	connectivity, we will only have one location to update.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-drc-window.c: hid/gtk/gui-drc-window.c: Refactor
+	unset_found_flags() to use ResetConnections() There is a lot of code in this function which matches
+	ResetConnections(), we only need to take care of the undo buffer
+	management at the end.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/const.h: const.h: Re-indent flags with spaces, rather than
+	tabs Whitespace only change. Allows adding flags with longer hex-strings
+	without having to shuffle the indenting too much.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/const.h: const.h: Fix flag documentation for the NOPASTE flag We were listing the wrong flag value for this flag.
+
+2012-12-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Refactor some duplicated code for adding
+	objects to various lists
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: (GL) Disable scissor test for
+	pinout preview widget.  The partial drawing is interacting badly with our double-buffering,
+	as we are not painting the entire buffer we are swapping onto the
+	screen.  I have left a comment and some debug code, as this may need
+	revisiting to address what is really going on here.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Disable GL alpha-blending for
+	the pinout preview We aren't using subcompositing for this, so don't alpha-blend.
+
+2012-12-23   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: (GL) Start with the stencil test
+	disabled in all rendering Keep the pinout preview and pixmap rendering paths as close as
+	possible to the main drawing window one. There was probably no real
+	issue here, but it doesn't hurt to be consistent.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Use common GL setup and teardown
+	code for different expose paths
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c, src/copy.c, src/create.c, src/create.h,
+	src/parse_y.y: create.c: Remove Element parameter to
+	CreateNewElement() Lets always make a new element, not re-use old memory. It seems
+	saner to do this when we have an API with "New" in the name! No callers use the facility to fill in a pre-allocated (or already
+	used) ElementType structure any more.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/parse_y.y: parse_y.y: Pass NULL explicitly to
+	CreateNewElement(), rather than via yyElement This makes things clearer.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c, src/copy.c, src/copy.h,
+	src/hid/gtk/gui-pinout-preview.c: copy.c: Remove "Dest" variable to
+	CopyElementLowLevel() function We no longer require this, as all callers pass NULL in order that
+	CopyElementLowLevel() allocates memory for the new element.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c: AddElementToBuffer(): Let CopyElementLowLevel()
+	create the element to copy into.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui-pinout-preview.c, src/hid/gtk/gui-pinout-preview.h: 
+	hid/gtk: Make the pinout preview element use dynamicly allocated
+	memory.  By embedding the element structure in our data-structure, we were
+	forcing various element initialisation and copy routines to be
+	require operating on a pre-allocated ElementType - rather than just
+	returning us a pointer to a newly allocated ElementType.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/mymem.c: mymem.c: Allow elements to exist independently of a
+	buffer.  If the DataType pointer to GetElementMemory is NULL, we allocate
+	memory but don't add to the buffer's element list or counters.  This is useful as it will allow rendering of pinout previews without
+	needing separate (or static) memory allocation to hold the previewed
+	Element.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c: draw.c: Always draw pin / hole names when in pinout
+	preview This was removed a long time ago by mistake when refactoring some of
+	this drawing code, and causes missing text in the Lesstif HID pinout
+	preview.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/extents.c: hid/common: Fix extents computation in
+	nm units We still had some fallout from the nm units conversion here, using
+	MAXINT rather than COORD_MAX for some bounds checking.  This was completely breaking the lesstif HID pinout preview window.
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c, src/copy.c, src/copy.h,
+	src/hid/gtk/gui-pinout-preview.c: copy.c: Add mask_flags parameter
+	to CopyElementLowLevel() This avoids us needing to unset ExtraFlags separately in buffer.c
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/lesstif/netlist.c, src/select.c, src/select.h: select.c:
+	Rename SelectConnection() to SelectByFlag() and add flag parameter
+
+2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/select.c: select.c: Rename "Flag" to "select" for clarity.  This will help avoid confusion when adding a "flag" parameter to
+	specify which flag to check in SelectConnection().
+
+2012-12-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/find.h: find.c: Make some setup / teardown
+	functions not used outside of find.c static.  This makes the following functions private to find.c:   InitComponentLookup   FreeComponentLookupMemory   InitLayoutLookup   FreeLayoutLookupMemory
+
+2012-12-18   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/find.h: find.c: Remove unused APIs SaveFindFlag()
+	and RestoreFindFlag() The find.c APIs which require flags setting up now take the flag as
+	a function parameter.
+
+2012-12-18   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c,
+	src/rats.c, src/select.c: Remove calls to SaveFindFlag() These were needed before our APIs specified which flags they
+	operated on, but are now redundant. All entrypoints in find.c which
+	use flags now set the flag before commencing work.
+
+2012-12-18   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/find.h, src/hid/gtk/gui-netlist-window.c,
+	src/hid/lesstif/netlist.c, src/rats.c, src/select.c: find.c: Add
+	flag parameter to RatFindHook() API.  This saves us having to expose an API to save and restore the find.c
+	static "theFlag" variable.  The key difference (once the save/restore are removed), is that we
+	then won't restore "TheFlag" variable after we are done. This will
+	not matter as all entry-points in find.c now take a flag parameter
+	and there should not be reentrancy in these calls.
+
+2012-12-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/batch/batch.c: hid/batch: Add missing #include
+	"hid_draw.h" I should have built-tested all HIDs when I refectored this.. oops.
+
+2012-12-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: hid/lesstif: Fix incorrect structure
+	assignment due to bad refactoring.  I should have built-tested all HIDs when I refectored this.. oops.   Reported-by: Ralf Gerbig * rge AT quengel dot org *
+
+2012-12-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/find.h: find.c: Make
+	Is{Arc,Line,Pad,Polygon}InPolygon() functions static These are only used from within find.c, so make them static so the
+	compiler is more free to optimise their usage.
+
+2012-12-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: Remove unused functions {LO,PV}TouchesLine() and their
+	callbacks Unused since we removed the unused function clearLine()
+
+2012-12-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c, src/find.h: find.c: Remove unused function lineClear()
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/find.c, src/find.h,
+	src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c,
+	src/rats.c, src/report.c, src/select.c, src/set.c: Add flag
+	parameters to ResetFound{LinesAndPolygons,PinsViasAndPads},
+	ResetConnections This avoids relying on the state to be magically correct
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c: autoroute.c: Remove setting the Find flag to
+	DRCFLAG We don't use the find features directly, those we do already take
+	care of setting the appropriate flag.
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/find.c: find.c: Set TheFlag to FOUNDFLAG explicitly in
+	LookupUnusedPins() We relied on it being set to an appropriate value, instead set it to
+	FOUNDFLAG, similar to how LookupElementConnections() does.
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c: (GTK, Lesstif): Netlist window - Set find flag to FOUNDFLAG
+	explicitly Our "Select net" functionality depends on find.c's "TheFlag"
+	variable being set to FOUNDFLAG. In some circumstances (e.g. after a
+	DRC check), this may not be the case, and selecting nets from the
+	netlist window breaks.
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/select.c: select.c: Set an explicit flag to search using when
+	selecting nets by name If find.c's "TheFlag" variable is not equal to FOUNDFLAG, our code
+	for selecting nets by name did not work. This could happen, for
+	example - after a DRC check, where "TheFlag" appears to be left
+	equal to SELECTEDFLAG.
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove un-necessary call to
+	ResetConnections() This is not required by the call to CollectSubnets() which follows
+	it, and we don't have any other requirement to clear flags.  Futhermore, as toporouter.c does not setup which flag is being
+	operated on, the effect of this call will depend on which flag has
+	been left in "TheFlag" variable in find.c.
+
+2012-12-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c: autoroute.c: Remove unnecessary call to
+	ResetConnections() This is not required to call CollectSubnets, (as the rats.c internal
+	function GatherSubnets() cleans the flag from objects before it uses
+	it).  We also use DRCFLAG to mark nets in CreateRouteData(), however: 1. We should be able to assume the DRCFLAG is clear on all objects
+	   at the point we un-necessary to reset it.  2. We call GatherSubnets() after we reset the DRCFLAG contents, and    that leaves the objects in a clean state without that flag set.
+
+2012-12-13   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/ps/ps.c: hid/ps: Add support for rendering "fullpoly"
+	polygons Affects-bug: lp-1089532
+
+2012-12-13   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/draw_helpers.c: hid/common/draw_helpers.c: Fix
+	thindraw for "fullpoly" polygons Affects-bug: lp-1089532
+
+2012-12-13   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/hidgl.c: hid/common/hidgl.c: Add support for
+	rendering "fullpoly" polygons This finally bit someone (and eneded up with them producing a bad
+	batch of boards), so it is about time I fixed this.  Affects-bug: lp-1089532
+
+2012-12-07   Kevin Redon * kevredon AT mail dot tsaitgaist dot info *
+
+	* src/create.c: Don't merge lines with different clearances When multiple lines (with same direction, thickness, and clear
+	flags) are moved, they are merged into one line. We should also
+	check the line clearances match to ensure the lines are suitable for
+	merging.  [Commit message re-worded by Peter Clifton]  Signed-off-by: Kevin Redon * kevredon AT mail dot tsaitgaist dot
+	info *
+
+2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/hidgl.c: hid/common/hidgl.c: Make (polygon->clipped
+	== NULL) test silent This is the case for other implementations of this API, so we should
+	aim to be consistent.
+
+2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/hid/common/draw_helpers.c: Move polygon->Clipped
+	test into the HID implementations which require it.  This keeps draw.c more consistent between object types.
+
+2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Call ghid_fill_pcb_polygon via
+	(HID_DRAW *)->fill_pcb_polygon() This indirection allows a more graceful fallback in the case where
+	we run out of stencil bits and replace our (HID_DRAW
+	*)->fill_pcb_polygon() vfunc pointer with the
+	common_fill_pcb_polygon() implementation.
+
+2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/hid/common/draw_helpers.c,
+	src/hid/common/draw_helpers.h, src/hid/common/hidnogui.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c, src/hid/ps/ps.c,
+	src/hid_draw.h: Add (HID_DRAW *)->draw_pcb_polygon() API This pushes special case thindraw vs. fill handling out of the core,
+	and into each individual HID implementation. We retain the old
+	implementation as a helper function, common_gui_draw_pcb_polygon()
+	in hid/common/draw_helpers.c.  This keeps the API more consistent between polygons and other object
+	types by introducing the new (HID_DRAW *)->draw_pcb_polygon() API.  I've left the (HID_DRAW *)->{fill,thindraw}_pcb_polygon() APIs for
+	now, as it means we can avoid a little code duplucation between the
+	GUIs. We may consider removing (or hiding) these APIs at some point,
+	as they are now _NOT_ intended to be called from outside of the
+	GUI's (HID_DRAW *)->draw_pcb_polygon() implementation.
+
+2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/draw_helpers.c, src/hid/common/draw_helpers.h: 
+	hid/common: Fix including draw_helpers.h from draw_helpers.c The prototype for hid_common_fill_pcb_pv() was incorrect. To avoid
+	this kind of mistake in the future, include the header file from the
+	.c file.
+
+2012-11-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c: draw.c: Collapse line and arc drawing wrapper
+	functions into only callers
+
+2012-11-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/draw.h, src/hid/common/draw_helpers.c,
+	src/hid_draw.h, src/print.c: Move DrawTextLowlevel() routine from
+	draw.c into the HID_DRAW API The API is now called draw_pcb_text, and the default implementation
+	resides in hid/common/draw_helpers.c
+
+2012-11-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/hid/common/draw_helpers.c, src/hid_draw.h: Move
+	_draw_arc() routine from draw.c into HID_DRAW API The API is now called draw_pcb_arc, and the default implementation
+	resides in hid/common/draw_helpers.c
+
+2012-11-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/hid/common/draw_helpers.c, src/hid_draw.h: Move
+	_draw_line() routine from draw.c into HID_DRAW API The API is now called draw_pcb_line, and the default implementation
+	resides in hid/common/draw_helpers.c
+
+2012-11-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/hidgl.c: hidgl: Fixup signature gluTessCallback
+	functions to work on Win32 On windows these callbacks are invoked using stdcall calling
+	convention and we need to annotate then with the "CALLBACK" macro to
+	achieve this.  If we ever end up using glew.h, we can probably drop the #ifndef
+	CALLBACK check which #defines CALLBACK to an empty string on other
+	platforms.
+
+2012-11-23   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* src/Makefile.am: Add hid_draw.h to PCB_SRC in Makefile  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/hid_gcode1/Makefile.am,
+	tests/golden/hid_gcode1/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode11/Makefile.am,
+	tests/golden/hid_gcode11/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode2/Makefile.am,
+	tests/golden/hid_gcode2/out-drillmill.gcode,
+	tests/golden/hid_gcode3/Makefile.am,
+	tests/golden/hid_gcode3/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode4/Makefile.am,
+	tests/golden/hid_gcode4/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode5/Makefile.am,
+	tests/golden/hid_gcode5/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode6/Makefile.am,
+	tests/golden/hid_gcode6/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode7/Makefile.am,
+	tests/golden/hid_gcode7/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode8/Makefile.am,
+	tests/golden/hid_gcode8/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-drillmill.gcode,
+	tests/tests.list: gcode HID: regenerate the test files.  This covers the fixes introduced in the last three commits and also
+	removes a number of golden output files.
+
+2012-11-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: distribute drillmill radius' to
+	all drills.  Previously, it was distributed to only the first of it's size.
+
+2012-11-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: don't write "empty" drillmill
+	files.  All changes except the first and the last line are whitespace
+	changes.  Closes-bug: lp-1074196
+
+2012-11-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: choose the right set of
+	drillmill drills.  The logic was inverted.
+
+2012-11-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c: draw.c: Refactor color setting code to be more compact
+
+2012-11-21   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c, src/draw.c, src/hid.h,
+	src/hid/common/draw_helpers.c, src/hid/common/extents.c,
+	src/hid/common/hidnogui.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gui.h, src/hid/lesstif/main.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/hid_draw.h, src/print.c: Move HID drawing API
+	prototypes into a separate header file Due to the mess of places we define various things in and the order
+	we pull in headers, we cannot easily create APIs in hid.h which rely
+	on being passed PCB data-structures.
+
+2012-11-21   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid.h, src/hid/batch/batch.c, src/hid/common/draw_helpers.c,
+	src/hid/common/draw_helpers.h, src/hid/common/extents.c,
+	src/hid/common/hidnogui.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/hid/ps/ps.h: Rename HID_DRAW_API to just
+	HID_DRAW Just because its neater
+
+2012-08-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-top-window.c: Add strings to translation  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-21   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* po/ru.po: Updated Russian translation  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-20   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c: Revert moving
+	common_draw_helpers_init() call in lesstif and GTK HIDs Not a functional change.. I'm just being anal and wishing to keep
+	these matching the other HIDs.
+
+2012-11-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c, src/draw.c, src/hid.h, src/hid/batch/batch.c,
+	src/hid/common/draw_helpers.c, src/hid/common/draw_helpers.h,
+	src/hid/common/extents.c, src/hid/common/hidnogui.c,
+	src/hid/gcode/gcode.c, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gl.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c, src/hid/nelma/nelma.c, src/hid/png/png.c,
+	src/hid/ps/eps.c, src/hid/ps/ps.c: HID: Merge {fill/thindraw}_pcb_*
+	APIs into HID_DRAW_API structure I wanted to keep these separate from the pure graphics APIs, but
+	after poking at this more and more, it seems hard to justify why we
+	should do that.
+
+2012-11-20   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c: autoroute.c: Destroy debug graphics context when
+	we're finished with it I caught this one by inspection, as we don't tend to build with
+	autorouter debugging enabled. I tested quickly before comitting, and
+	this change doesn't break anything. This said, I couldn't see any
+	debug rendering output either (before or after this patch).. so that
+	might be broken somewhere.
+
+2012-11-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lpr/lpr.c: hid/lpr: Don't initiialise the graphics API
+	vtable Just being picky here..  I spent ages trying to work out why the old code didn't segfault,
+	given it does not call common_draw_helpers_init() to setup the
+	various pad, pin and polygon drawing routines.  It turns out that when we actually go to export, we call into the ps
+	HID directly - and ignore the lpr.c HID vtables.  Lets avoid confusion by partly setting up the lpr vtables, and leave
+	the graphics HID member as NULL.
+
+2012-11-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/batch/batch.c: hid/batch: Fix build after splitting out
+	graphics APIs I forgot this one, along with build-testing lesstif - oops.  Fixes breakage from commit 273b243d90cda84e09f52b7ff995fa82afdc3de0            and from commit 741f203565ba9f92b0ace80d858073f75ced2716
+
+2012-11-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c, src/draw.h, src/print.c: draw.c: Add hidGC parameter
+	to DrawTextLowLevel() function Avoid it assuming the correct gc to use is Output.fgGC
+
+2012-11-19   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/draw.c: draw.c: Add gc parameter to _draw_line() function Avoid it assuming the correct GC is Output.fgGC
+
+2012-11-18   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: Make lesstif_hid struct static again Changed to non-static un-necessarily in commit
+	a1d8ee04cc571cca4cbe7ef86b40bef612a0c387
+
+2012-11-18   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* src/hid/lesstif/main.c: lesstif: corrections on recent HID API
+	changes.   Reported by Eugene Mikhantiev * mikhantiev AT gmail dot com * PCB can not be built with `--with-gui=lesstif' due to the HID API
+	changes in commit 73b243d90cda84e09f52b7ff995fa82afdc3de0  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-15   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac: configure.ac: fixed a typo.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/find.c, src/find.h, src/netlist.c, src/report.c: 
+	Stop "find connected" following rat-lines. Fixes confusing output.  Suppose we have two nets, A and B, and some components. If we
+	connect a pin of a component which was supposed to be connected to
+	net A, to net B, the "f" (find connected) action will falsely show
+	the entirity of net A and net B connected to each other. In reality,
+	the nets are not electrically connected, it is just the ratline
+	between the mis-connected component pin (mis-connected to Net B),
+	and net A, where the ratline for that pin should end up.  It MIGHT be better if we fix this bug by not adding rat-lines to
+	shorted connections, as often those rat-lines would take some
+	convoluted route through the copper of the net which is shorted to
+	that connection end-point. These rat-line(s) would no longer be
+	spatially associated with the mis-connected wiring, and encourage
+	the user to further short net A and net B together to complete the
+	ratline.  This bug was a contributing factor to a mistake in a production
+	board I made recently, where as a last step in production, I added a
+	star- ground short between two different ground planes (analogue and
+	digital).  The "find connected" action, "f" showed them connected
+	together (as I expected), but unfortunately, due to a thermal I left
+	out, they were not actually connected - despite PCB's green
+	rendering suggesting that they were.
+
+2012-11-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c, src/crosshair.c, src/draw.c, src/hid.h,
+	src/hid/common/draw_helpers.c, src/hid/common/extents.c,
+	src/hid/common/hidnogui.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lpr/lpr.c, src/hid/nelma/nelma.c, src/hid/png/png.c,
+	src/hid/ps/eps.c, src/hid/ps/ps.c, src/hid/ps/ps.h, src/print.c: 
+	HID: Move non-PCB specific drawing calls into a separate API
+
+2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/Makefile.am, src/hid/gcode/gcode.c, src/hid/gcode/gcode.h: 
+	hid/gcode: Make gcode_hid structure static
+
+2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid.h, src/hid/common/extents.c, src/hid/common/hidnogui.c,
+	src/hid/gcode/gcode.c, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui.h, src/hid/nelma/nelma.c, src/hid/png/png.c,
+	src/hid/ps/eps.c, src/hid/ps/ps.c: Convert mask type to enum
+
+2012-11-14   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/djopt.c, src/flags.c, src/hid.h, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c, src/vendor.c: Convert argument in HID_Flags
+	to (void *) rather than (int) void * allows us to pass pointers on all platforms, 64bit or
+	otherwise. We can still use casting macros to safely pass integer
+	values via this pointer.  Avoids the ugliness of castnig a size_t sized offset_of value into
+	an int. Due to the size of our structures, this did not cause any
+	actual bugs, but was not good practice.
+
+2012-11-13   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/djopt.c, src/draw.h: Remove unused references to
+	SwitchDrawingWindow()
+
+2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/set.h: Remove unused prototypes SetZoom and
+	RedrawZoom, along with old #ifdef'd code SetZoom() was removed in commit
+	94e927e03850bfc0e8a0f3b161ae99b6784747f0 There were a few references to SetZoom left under an #ifdef
+	HAVE_LIBSTROKE, which will not work, so I have commented those as
+	well.
+
+2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/create.c, src/global.h, src/parse_y.y: Remove unused zoom
+	settings from the PCB and settings data-structures
+
+2012-11-13   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: parse_y.y: As of November 2012 the cursor position
+	is not written to file anymore  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-13   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c: Removed the cursor position from being written to the
+	pcb file.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-11-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/hidgl.c, src/hid/common/hidgl.h,
+	src/hid/gtk/gtkhid-gl.c: hid/common/hidgl: Add API to initialise a
+	rendering pass Serves as a place to perform any necessary initialisation within
+	hidgl.c, saving lots of separate calls being made by its callers.
+
+2012-11-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/ps/ps.c: Fix outline drawing to only apply on copper
+	layers This matches the old comments in the code, and fixes (removes)
+	outline drawing on the solder mask prints.  This partially reverts commit
+	294494e56695251e63c0da9f243d6f59447f1c9f "Fix PS rect/outline
+	logic", which changed the logic, and commit
+	d2458383a60b670ad1c42163ac24fcc63fcab457 where I changed the comment
+	to match the code.
+
+2012-11-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Fix stupid (missing
+	semicolon) bug breaking compile I was _sure_ I'd buid tested this before pusing... obviously not!
+
+2011-09-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Avoid using
+	g_object_{set,set}_data() where we don't need to Personally I hate to see data stashed and recalled with these
+	functions, especially where is just a case of passing appropriate
+	data to callback functions.
+
+2012-11-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui.h: Use trackball to allow rotation of 3D view
+
+2012-11-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-trackball.c: hid/gtk: Make the trackball widget
+	sexy * Use cairo to render a nice sphere with radial gradients.  * Use widget sensitivity of the track-ball drawing to better.    differentiate between 2D / 3D views.  * Allow double-clicking on the track-ball to reset the 3D view.
+
+2012-11-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* po/POTFILES.in, src/Makefile.am, src/hid/common/trackball.c,
+	src/hid/common/trackball.h, src/hid/gtk/gui-trackball.c,
+	src/hid/gtk/gui-trackball.h: Add virtual trackball code
+
+2012-11-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Add feature to force an
+	immediate redraw if framerate is low If more than a certain time (currently hard-coded at 50ms) has
+	elapsed since the last expose callback, invalidate_all() will wait
+	and process updates before returning.  This is handy to allow animation of auto-router progress, where the
+	gui mainloop is not hit until the auto-routing operation is fully
+	complete.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/hid_gcode1/Makefile.am,
+	tests/golden/hid_gcode1/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode10/Makefile.am,
+	tests/golden/hid_gcode10/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode11/Makefile.am,
+	tests/golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode2/Makefile.am,
+	tests/golden/hid_gcode2/out-0.0350.drill.gcode,
+	tests/golden/hid_gcode2/out-0.8890.drill.gcode,
+	tests/golden/hid_gcode2/out-bottom.gcode,
+	tests/golden/hid_gcode2/out-drillmill.gcode,
+	tests/golden/hid_gcode2/out-outline.gcode,
+	tests/golden/hid_gcode2/out-top.gcode,
+	tests/golden/hid_gcode3/Makefile.am,
+	tests/golden/hid_gcode3/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode4/Makefile.am,
+	tests/golden/hid_gcode4/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode5/Makefile.am,
+	tests/golden/hid_gcode5/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode6/Makefile.am,
+	tests/golden/hid_gcode6/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode7/Makefile.am,
+	tests/golden/hid_gcode7/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode8/Makefile.am,
+	tests/golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode9/Makefile.am,
+	tests/golden/hid_gcode9/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-drillmill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-outline.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-top.gcode, tests/tests.list: 
+	gocde HID: refresh all the G-code exporter tests.  There have been a lot of new features recently and a bunch of
+	comments refinements. Also the default unit was changed from inch to
+	mm, so don't be surprised too much there's nothing left as before.
+	All new test results have been hand-verified in a G-code viewer.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/run_tests.sh: testsuite: regenerate also Makefile.am.  Previously, running ./run_tests.sh --regen <some test> would have
+	simply deleted Makefile.am, which is required by the automatic
+	Makefile generation mechanism. Now this file is regenerated
+	properly, too.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/run_tests.sh: testsuite: limit regenerations to one test at
+	a time.  Previously, an accidental "./run_tests.sh --regen" without arguments
+	would regenerate all tests, causing a big mess.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: don't predrill drillmill holes.  As mill bits - in opposite to drill bits - are expected to be stiff,
+	predrilling drillmill holes is a waste of time.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: remove an obsolete TODO comment.  Units come along in groups, units other than mm and inch should be
+	handled properly already.
+
+2012-11-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: don't drill drillmill holes.  Actually, this just avoids writing out the drill G-code file for
+	sizes >= drillmill diameters. While files written out can be
+	ignored, not writing them should reduce confusion among all the
+	written files.
+
+2010-12-03   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: implement drill-milling.  This is, if a hole is equal or bigger than the milling tool, use the
+	milling tool instead of a drill tool to manufacture the hole. Big
+	advantage is, milling tools can create holes of arbitrary sizes by
+	moving a circle.  The feature is optional, on by default.  G02/G03 circle movements are avoided, as not all machine controllers
+	understand them. Instead, a polygon is milled, with enough sides to
+	stay for any hole size  within the user choosen accuracy.  If the hole is only slightly bigger than the mill tool, don't move
+	the circle; a simple plunge is enough.
+
+2012-10-28   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Correction of two typos.  Closes-bug: lp-1072285  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2012-09-03   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
+
+	* tools/pcbdiff: pcbdiff: add PCBDIFF_DPI to allow user-defined
+	resolution.  This should be the last part of fixing bug #1045907.
+
+2012-09-03   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
+
+	* tools/pcbdiff: pcbdiff: take out --only-visible.  This option leads to PNGs of different sizes and making stereo
+	images of PNGs of different sizes is (apparently) not possible.
+
+2012-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* tools/pcbdiff: pcbdiff: allow spaces in file names / file paths.
+
+2012-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* tools/pcbdiff: pcbdiff: add a level of abstraction for binaries.  This may help for future developments, where searching in places
+	other than PATH may be advised. It helps right now for quick
+	debugging hacks.
+
+2012-08-30   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
+
+	* ChangeLog, README, utils/git2cl: Improve documentation of
+	ChangeLog file Note in the file where it comes from.  Mention it and git commit
+	messages in the README.
+
+2012-08-30   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
+
+	* src/hid/ps/eps.c: fix a format string mismatch
+
+2012-08-30   Larry Doolittle * ldoolitt AT recycle dot lbl dot gov *
+
+	* ChangeLog, README, README.git, doc/pcb.texi, doc/refcard.tex,
+	src/hid/batch/batch.c, src/main.c, src/misc.c: replace gpleda.org
+	with geda-project.org
+
+2010-11-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: add user defined feedrates for
+	outline milling.  This includes two new fields in the GUI, as plunging (moving into
+	the material) has a different feedrate than the normal feedrate now.
+	These different feedrates are needed by many tools, e.g. end mills.
+
+2010-11-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: add user defined feedrates for
+	drilling.  This includes a new field in the GUI.
+
+2010-11-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c, src/hid/gcode/trace.c,
+	src/hid/gcode/trace.h: gcode HID: add user defined feedrates for
+	isolation milling.  This includes two new fields in the GUI, as plunging (moving into
+	the material) has a different feedrate from the normal feedrate now.
+	These different feedrates are needed by many tools, e.g. end mills.
+
+2012-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: move all the code common on file
+	open into a subroutine.
+
+2012-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: remove an unused struct.  The common HID code has now a better alternative, anyways, so it's
+	unlikely this will ever be used again.
+
+2012-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: fix a potential memory leak.
+
+2012-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: correct a few comments.
+
+2010-11-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: create G-code for milling the
+	outline of the board.  This is a rarther simple implementation, which mills a rectangle
+	with the maximum extents of the board.
+
+2010-11-02   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: reorder user interface to a more
+	logical sequence.  The new sequence is: general - isolation milling - drilling -
+	milling - output options.  Also completed the term "mill" to "iso-mill", as outline milling is
+	around the corner.  Default measurement unit changed to mm, as I'm not aware of a single
+	machine accepting "mil" as G-code unit.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: another few cleanups.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: release the PNG a lot earlier.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: rename gcode_f2 to gcode_f.  ... as there's no longer a gcode_f used.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: make usage of gcode_f local.  There's no need to keep a file open all the time, all the processing
+	is done in memory.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: simplify the backside flipping
+	algorithm.  As the PNG has to be copied to a bitmap anyways, this can also be
+	used to flip the back layer.  The code flipping the PNG is still in place, but only needed for the
+	PNG written do a file (for error checking).
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: remove an untrue comment.  Actually, gdImageCreate() creates an pallette-based image.
+
+2012-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: fix the bug producing an
+	inverted image.  For copying an pallette-based image, the pallette has to be copied,
+	too.
+
+2012-08-20   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: make G-code output aware of
+	dynamic extents.  This also offsets the produced G-code so the rectangular edge
+	closest to {0, 0} in pcb is {0, 0} in the G-code. Very useful when
+	actually producing boards.  The most simple way to achieve this is to draw just the part inside
+	the outline into the intermediate image. No change to the PNG tracer
+	needed.  Unfortunately, this exposes a bug, making the traced PNG image
+	inverted. This will be fixed with the next commit.
+
+2012-08-13   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/ps/eps.c: make EPS boundingbox parameters integers
+	Currently, the bounding box parameters given in the header of an EPS
+	file are floats. The standard calls for integers, though. Some
+	applications like epstool fail if the boundingbox is anything but
+	integer. This patch uses llrint() to output the nearest integer as
+	bounding box parameters. In addition, it adds a high resolution
+	header for the benefit of applications that can use the extra
+	precision.   Example of the bounding box lines produced by the patch:  %%BoundingBox: 0 0 370 426  %%HiResBoundingBox: 0.000000 0.000000 369.503937 426.196850  Closes-bug: lp-1035999
+
+2012-08-20   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: add header required for
+	UpdateExtents().
+
+2012-08-20   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: write board size according to
+	dynamic extent.  This isn't much, so far, more on dynamic extent to come.
+
+2012-08-20   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: make gcode_toolradius an int.  It's always used as such.
+
+2012-08-19   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/change.c, src/change.h, src/global.h: Introduce dynamic board
+	size.  The goal is to eventually define the board's extent by the outline
+	layer, only. That way, all the exporters can export properly sized
+	layouts.  Undoubtly, this can also influence the GUIs. For example, "zoom to
+	fit" becomes a slightly different meaning and drawing outside the
+	board's extent becomes possible. Autorouting and similars can be
+	limited to the actual board size. Resizing a board to the lower left
+	no longer requires the error-prone moving of all the stuff and keeps
+	file diffs small.
+
+2012-07-15   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: write drill size into the file,
+	too.  So far, drill size was given by the file name only, which can change
+	accidently.
+
+2012-07-15   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode HID: implement predrilling Predrilling is using the milling tool to mark all drill spots. This
+	eases and enhances accuracy of manual drilling.  This resolves patch #12 and obsoletes patch #11 and #13 of
+	Traumflug's wishlist: https://bugs.launchpad.net/pcb/+bug/699497 The difference between patch #12 and this patch is, drills for
+	predrilling are sorted regardless of size, so performance should be
+	better.
+
+2012-07-08   Eric Brombaugh * ebrombaugh1 AT cox dot net *
+
+	* src/hid/gtk/gui-dialog.c: gtk: point file selector dialogs at the
+	current directory Recent Gtk versions (at least 3 and onward) have broken the file
+	selection dialog in the case that no default directory was
+	specified: rather than using the current working directory, it uses
+	a fake "Recently Chosen Items" directory, from which save/load
+	doesn't work.  This patch fixes the behavior.  Commit by Andrew Poelstra
+
+2012-07-07   Gabriel Paubert * paubert AT iram dot es *
+
+	* src/hid/gerber/gerber.c: gerber: Implement option for metric
+	output Compiles cleanly, all tests pass, default behaviour is completely
+	unchanged. --Andrew
+
+2012-07-06   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* tests/golden/hid_bom1/bom_general.xy,
+	tests/golden/hid_bom2/bom_general.xy, tests/golden/hid_bom3/test.xy: 
+	Fix comments in golden samples for hid_bom[123] tests With the nanometers switchover, a comment in the BOM output changes
+	from "output in mils" to "output in mil", breaking tests.
+
+2012-07-06   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/hid/bom/bom.c: Fix bom.c behavior regarding xy-in-mm option If the --xy-in-mm option is passed, that should override any other
+	unit selection behavior (since this is a legacy option, so anyone
+	using it is not expecting the new many-unit features).  Also, fix a test-breaking change in output precision.  This has apparently been broken since da403312 (audit bom.c for the
+	nanometers switchover), but was only noticed recently when the HID
+	tests were fixed.
+
+2012-07-06   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* tests/golden/hid_bom1/bom_general.bom,
+	tests/golden/hid_bom1/bom_general.xy,
+	tests/golden/hid_bom2/bom_general.xy,
+	tests/golden/hid_bom2/test.bom,
+	tests/golden/hid_bom3/bom_general.bom,
+	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom4/bom_general.bom,
+	tests/golden/hid_bom4/bom_general.xy: Fix bom HID tests after commit
+	d30d3142 changed the line ordering Due to changes in macro.h, the ordering of the BOM output changed,
+	causing test failures.
+
+2012-06-14   Benjamin Bergman * ben AT benbergman dot ca *
+
+	* src/hid/png/png.c: Add options to change photo-mode colors.  Original patchset by Benjamin Bergman. Minor changes from Andrew
+	Poelstra.  Closes-bug: lp-1004796
+
+2012-05-25   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/ps/ps.c: Fix ps-bloat logic The ps-bloat option was using the int_value field instead of the
+	coord-value field, resulting in a bloat of zero all the time.
+	Fixed.
+
+2012-03-29   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/rats.c: Remove manhattan check from rats.c Since commit 644f8d9, I cannot get the autorouter to segfault when
+	it attempts to deal with ratlines connected to non-manhattan lines.
+	So, I see no reason not to draw such lines in the first place.  However, when the autorouter is used, it will ignore any rats which
+	lead to a non-manhattan line. (And therefore not connect two points,
+	if the shortest connection would involve connecting diagonal
+	traces.) This is unexpected behavior, though IMO no more unexpected than the
+	old behavior, which was to ignore diagonal line segments and simply
+	route amongst the manhattan ones.  Closes-bug: lp-699248
+
+2012-03-29   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/autoroute.c: Fix segfault when routing to non-straight pads Since the autorouter does not handle non-manhattan lines, it will
+	not route to non-straight pads. Therefore, when the autorouter
+	searches for the pins/pads at the endpoints of a rat, it ignores any
+	non-straght pads, returning NULL from the search.  The autorouter then tries to dereference this pointer and crashes.  The rest of the code, it seems, works to avoid ever giving such rats
+	to the autorouter, but it can be done if the user explicitly selects
+	such a rat and selects "Auto-route selected rats".  This patch catches the NULL pointer and simply ignores the rat.  It is possible that this is the cause of bug lp-699255, but this
+	seems unlikely, since the backtrace on that report does not show the
+	same NULL dereference, and the reporter was using "10-pin headers",
+	which presumably have no pads that could be marked as non-straight.  Affects-bug: lp-699255
+
+2012-03-29   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gcode/gcode.c: Wrap gcode_do_export in setlocale() calls During gcode export, we temporarily switch locales to C to ensure
+	that output uses the proper decimal separator.  Closes-bug: lp-912077
+
+2012-03-29   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/find.c: Fix infinite loop on PCB::skip-drc attribute When doing a DRC check, pcb skips checking any layers who have the
+	PCB::skip-drc attribute set. However, when determining whether the
+	check is complete (via the ListsEmpty()) function, it doesn't skip
+	these layers.  The result is an infinite loop, since if there is work to be done on
+	a skip-drc layer, the checker will keep running until it is done --
+	i.e., will keep running forever.  This patch skips skip-drc layers in ListsEmpty().  Closes-bug: lp-829123
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-top-window.c, src/hid/lesstif/menu.c: Make
+	SelectLayer() respond to layer name as well as index Closes-bug: lp-699470
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/parse_l.l: Parse floating-point values without leading 0
+	correctly Closes-bug: lp-916984
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/lesstif/main.c: Add missing const in lesstif/main.c
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-config.c, src/main.c: Allow saving of user
+	increment settings in Gtk.  It seems there is no clean way of implementing this without really
+	tearing up the setting-saving code and fixing the
+	SettingType/PCBType dichotomy, but at 26 lines, this was at least
+	short.  Closes-bug: lp-699464
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-config.c: Save CONFIG_Coord settings in Gtk The "Safe board width as default" checkbox has not been working
+	since commit fa2a0e35 back in August, when I added HID_Coord and
+	CONFIG_Coord to a couple of enums and forgot to update a switch
+	statement.  This patch fixes that. :-}
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-config.c, src/main.c, src/pcb-printf.c,
+	src/pcb-printf.h: Add grid-increment-mm (and similar) settings Added the following settings:   grid-increment-mm       grid-increment-mil   size-increment-mm       size-increment-mil   line-increment-mm       line-increment-mil   clear-increment-mm     clear-increment-mil These behave differently than the old settings of the same names
+	(from 20090929 and earlier). They take a measure, not a real number.
+	The -mm versions affect the increment settings when the user is
+	using a metric grid, and the -mil versions affect the settings for
+	imperial grids.  Old ~/.pcb/preferences files likely have lines like   grid-increment-mil = 5 which have been hanging around for several pcb versions. These
+	should be safely ignored, since, for example, "5" is now read as
+	"5nm", which is well below the minimum allowed increment setting.  These settings can be read but (so far) not written out, either to
+	the pcb or to the preferences file.
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-config.c: Add separate metric and imperial
+	increment settings to Gtk gui.
+
+2012-03-28   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c, src/main.c,
+	src/pcb-printf.c, src/pcb-printf.h: Collapse giant default increment
+	table into only two We now store two sets of increments - one for imperial and one for
+	metric. These will both be individually modifiable by the user.
+
+2012-02-06   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* ChangeLog, src/draw.c, src/main.c, src/parse_l.l, src/parse_y.y,
+	src/pcb-printf.c: Add "px" to the units allowed for --rat-thickness Add "px" to the set of units allowed for option --rat-thickness. The
+	purpose is to give thickness in terms of a fixed number of screen
+	pixels. Internally, this special unit is treated like nm. The
+	drawing routine decides to go for fixed width if rat thickness is
+	below 100nm.  Commit by Andrew Poelstra.  Closes-bug: lp-927422
+
+2012-03-27   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/gpcb-menu.res.in, src/pcb-menu.res.in: Change menus to use
+	user's settings for increments
+
+2012-03-27   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/action.c: Allow '+' and '-' (without magnitudes) for
+	user-preference in menu This does not actually change any menu files, just adds the
+	capability to use the user's settings in the Increments dialog for
+	controlling pcb.
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/misc.c: Check sscanf() return value in GetValue().  In case the user passes something like "+" with no digits to
+	GetValue, sscanf fails and the function returns an indeterminate
+	result. This patch fixes that, returning 0 instead if sscanf fails.
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/change.c: Remove empty if statement from change.c git blame dates an empty-body if statement back to 2003, so (presumably) the correct behavior is that it be empty. Therefore, I
+	removed the if to avoid confusing humans.  After this commit, pcb compiles completely and cleanly with:   clang version 2.9 (tags/RELEASE_29/final)   gcc version 4.6.2 20111027 (Red Hat 4.6.2-1)
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/res_parse.y: Add missing const in res_parse.y
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/djopt.c: Remove superfluous check that unsigned int is
+	nonnegative.  It seems to me that we'll sooner fix layer management altogether,
+	than change an index from an unsigned to signed variable. And in the
+	meantime, this check is unnecessary and potentially confusing.
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/change.c: Change no-ops from self-assignments to (void) casts This makes both clang and gcc happy (with nothing, both complain
+	about unused variables, and clang doesn't like the self-assignment).  splint still complains, but I think we'll have to live with that.
+
+2012-03-26   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-dialog.c: Add missing cast in hid/gtk/gui-dialog.c
+
+2012-03-17   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/parse_y.y: Fix segfault when reading Layer() with no name When reading pcb file with a line like   Layer (2 "") the lexer gives us a NULL in place of the empty string, which caused
+	a NULL-dereference and segfault. This patch allocates a new ""
+	string when reading nameless layers.  See
+
+	http://www.delorie.com/archives/browse.cgi?p=geda-user/2012/03/17/10:13:37
+
+2012-03-02   Felix Ruoff * Felix AT posaunenmission dot de *
+
+	* doc/pcb.texi: Fit docu to latest menu-item changes Affects-bug: lp-907040
+
+2012-03-06   Braddock Gaskill * braddock AT braddock dot com *
+
+	* src/gpcb-menu.res.in: Standardize gtk-menu Changes some names of menu-items. Also reodered some of them. This
+	will normalize the menu items to more closely follow modern menu
+	conventions like the Gnome user interface guidelines.  Closes-bug: lp-907040
+
+2012-03-02   Felix Ruoff * Felix AT posaunenmission dot de *
+
+	* doc/pcb.texi: actualize outdated menu-docu actualized some documentation for the menue. Some items has changed
+	their name and/or location in the past which was not changed in the
+	documentaion.
+
+2012-03-02   Felix Ruoff * Felix AT posaunenmission dot de *
+
+	* doc/pcb.texi: Actualize docu for (g)pcb-menu.res.in Today, pcb checks for more than one keyword in the
+	(g)pcb-menu.res.in: "Main Menu" and "Mouse".
+
+2012-02-21   Felix Ruoff * Felix AT posaunenmission dot de *
+
+	* src/hid/gtk/gui-dialog.c: Add file-filter for schematics import
+
+2012-02-17   Dan White * dan AT whiteaudio dot com *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-dialog.c,
+	src/hid/gtk/gui.h: hid/gtk: ImportGUI() can select multiple files ..with one small modification to the original patch by Felix Ruoff Closes-bug: lp-934616
+
+2011-12-18   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/main.c: Fixed command line batch output for some exporters This problem affects some exporters: gcode, eps, ps, nelma, probably
+	gerber (although it should already have been fixed for it). When
+	building pcb with non-C locale, pcb uses for output this locale's
+	settings. With locales using comma as numeric separator it causes
+	the wrong output for those formats. The problem does not affect an
+	export from GUI.  Closes-bug: lp-905968
+
+2012-01-20   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/line.c: Fiddle with the 45-degre line snapping code The results should be identical, but hopefully this is clearer code.  I believe there were some masked bugs lurking in the old
+	calculations, which shouldn't be present in the new code.
+
+2012-01-21   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Remove XOR colour logic from the
+	GL rederer.  This code was not being used, so remove it.
+
+2012-01-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/common/draw_helpers.c: hid/common/draw_helpers.c: Fix
+	prototype to draw_octagon_poly() The thin_draw parameter is a bool, not a Coord.
+
+2011-12-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/move.c: move.c: Fix off-by one in memory copy loop.  Shorten the loop so we don't don't try to memmove a zero length
+	chunk off the end of our array. Might have been harmless, but lets
+	not take the chance.  Rename some variables to make things a bit clearer as well.  (Caught by Coverity).  Coverity-CID: 12
+
+2012-01-12   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c: Set changed flag on PCB when locking / unlocking
+	objects
+
+2012-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/buffer.c: Update the crosshair constraints after mirroring or
+	rotating the buffer.  Avoids a bug where the paste location of the mirrored or rotated
+	buffer contents are improperly constrained based upon their old
+	bounding box.
+
+2011-12-26   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/djopt.c: djopt.c: Fix incorrect allocation.  I missed this fix from the commit
+	ff2492399fd4743c3fd89ffd4fe6650ad0d80a4a (Caught by coverity) Coverity-cid: 239
+
+2011-12-25   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* gts/matrix.c, gts/refine.c, gts/split.c, gts/vopt.c: gts: Avoid
+	performing computations with side-effects in g_assert statements g_assert (like assert), can be disabled at build time, so assertions
+	should therefore not contain any expressions which have
+	side-effects.  Coverity caught a number of these in the copy gts library we have
+	embedded.  There were also a couple which coverity didn't complain
+	about, which appear to be the same class of problem. Fix them by
+	separating the computation and the assertion test, adding a
+	temporary result variable as necessary.  Coverity-cid: 56 Coverity-cid: 57 Coverity-cid: 57 Coverity-cid: 58
+	Coverity-cid: 59
+
+2011-12-25   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c: hid/gtk: Avoid warnings when
+	netlist window is not created.  1. When the NetlistChanged action is fired, we should only update if
+	   the netlist window is visible. (It will be created up to date when
+	   the user asks for it).  2. Always show the netlist window when requested, even if it has no    entries. This is good for consistent UI behaviour anyway, as the
+	   user should be shown a blank netlist window if they request it..
+	   even if the is no content to display.
+
+2011-12-24   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/ghid-cell-renderer-visibility.c: hid/gtk: Add subtle
+	gradient effect to layer selector swatches Just because gradients are pretty ;)
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c: hid/gtk: Fix NetlistChanged
+	action crash when exporting from the commandline.  I broke this in commit 7308f512307158944482227d58e66373fd023d62 when
+	I added a missing notification to the GUI when free'ing the netlist.
+	It turns out that a command-line invoked export (such as used to
+	export images in the doc/ build) will hit this code-path, and
+	provoke the GUI netlist window code to try and update before the GUI
+	is actually loaded.  For now, lets fix this with a bandaid and just skip the netlist
+	update if the GUI is not up.  A brief inspection of the code (and test for the doc/ build)
+	suggests that the Lesstif HID is not affected by this problem. (It
+	has similar code to avoid creating the netlist window if the main
+	window is not already created).
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui.h: hid/gtk: Move
+	ghid_gui_is_up variable into the ghidgui structure.  This lets us access it outside of gtkhid-main.c
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/global.h, src/mymem.h: Remove *TypePtr and *TypeHandle aliases
+	now we no longer use them (May break build of plugins, hence keeping this as a separately
+	revertable commit).
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/autoplace.c, src/autoroute.c, src/buffer.c,
+	src/buffer.h, src/change.c, src/change.h, src/copy.c, src/copy.h,
+	src/create.c, src/create.h, src/crosshair.c, src/data.c,
+	src/data.h, src/djopt.c, src/draw.c, src/draw.h, src/drill.c,
+	src/drill.h, src/edif.y, src/file.c, src/find.c, src/find.h,
+	src/fontmode.c, src/global.h, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gl.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/gtk/gui-output-events.c, src/hid/gtk/gui.h,
+	src/hid/lesstif/netlist.c, src/hid/nelma/nelma.c, src/hid/ps/ps.c,
+	src/insert.c, src/insert.h, src/intersect.c, src/intersect.h,
+	src/line.c, src/line.h, src/macro.h, src/mirror.c, src/mirror.h,
+	src/misc.c, src/misc.h, src/move.c, src/move.h, src/mtspace.c,
+	src/mymem.c, src/mymem.h, src/netlist.c, src/parse_l.h,
+	src/parse_l.l, src/parse_y.y, src/polygon.c, src/polygon.h,
+	src/polygon1.c, src/print.c, src/puller.c, src/rats.c, src/rats.h,
+	src/remove.c, src/remove.h, src/report.c, src/rotate.c,
+	src/rotate.h, src/rubberband.c, src/search.c, src/search.h,
+	src/select.c, src/select.h, src/thermal.c, src/thermal.h,
+	src/toporouter.c, src/undo.c, src/undo.h, src/vendor.c,
+	src/vendor.h: Remove usage of *TypePtr and *TypeHandle type aliases Coverity already caught several bugs where we mixed up the various
+	FooType FooTypePtr and FooTypeHandle types when passing to sizeof().  Personally I find it much easier to follow FooType * and FooType **,
+	so drop the aliases and hopefully keep things earier to follow.
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/mymem.c: mymem.c: Fix incorrect types passed to sizeof() in a
+	couple of places (Caught by coverity) Coverity-cid: 242 Coverity-cid: 243 Coverity-cid: 244 Coverity-cid:
+	245
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/djopt.c: djopt.c: Allocate correct size for structure pointer (Caught by coverity) Coverity-cid: 239
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/undo.c: undo.c: Fix incorrect sizeof() when allocting memory
+	for netlist undo (Caught by coverity) Coverity-cid: 241
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: action.c: Unconditionally notify NetlistChanged()
+	when loading new netlist We need to call NetlistChanged() even if the loading failed,
+	otherwise the GUI is not informed that we free'd the old netlist.
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/mymem.c: Fix crash upon pressing "f" hotkey (find connected)
+	after a board revert.  Reproduction of this crash (before fix!): 1. Load a PCB with a netlist.  2. Open the netlist window to initialise the netlist.  3. File->Revert the PCB 4. Hit "f" key whilst the croshair is over any pad Analysis: When you File->Revert the layout, the GTK GUI's netlist window is
+	not cleared as the old layout is free'd (or as an equivalent cause..
+	"NetlistChanged(0)" is not called the reverted layout is loaded).  Having had the netlist window open before the revert, the
+	data-structures in the GUI are initialised, but point to the
+	pre-revert layout. They are not explicitly updated with a
+	"NetlistChanged" notification, so when the user next hits "f" for
+	find, it will try to use the stale pointers it already had.  Fix: Call "NetlistChanged (0);" after free'ing the netlist memory. The
+	"FreeNetlistMemory()" call only free's the individual nets, the
+	parent netlist structure which points to that memory and identifies
+	how many nets are present is zeroed by the FreeNetlistMemory() call,
+	so we can safely call NetlistChanged() at this point, before we have
+	reloaded a new netlist.
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* doc/pcb.texi, src/hid/bom/bom.c,
+	tests/golden/hid_bom1/bom_general.bom,
+	tests/golden/hid_bom1/bom_general.xy,
+	tests/golden/hid_bom2/bom_general.xy,
+	tests/golden/hid_bom2/test.bom,
+	tests/golden/hid_bom3/bom_general.bom,
+	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom4/bom_general.bom,
+	tests/golden/hid_bom4/bom_general.xy: Remove $Id$ lines from bom
+	exporter .xy and .bom output Modern version control systems don't use this kind of expansion, so
+	these lines don't serve much purpose.
+
+2011-12-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* Makefile.am, README.cvs_branches, README_FILES/Makefile.am,
+	acinclude.m4, autogen.sh, doc/ascii2texi.awk, doc/eps2png,
+	doc/extract-docs, doc/fractional_size.tab, doc/gs/gs.texi,
+	doc/gs/print-eps.scm, doc/ideas/database.txt,
+	doc/ideas/keepouts.txt, doc/letter_size.tab, doc/metric_size.tab,
+	doc/pcb.texi, doc/refcard.tex, doc/wire_size.tab, doc/wishlist.txt,
+	example/Makefile.am, example/libraries/Makefile.am,
+	example/libraries/example.inc, example/libraries/example.m4,
+	globalconst.h, lib/CreateLibrary.sh.in,
+	lib/CreateLibraryContents.sh.in, lib/ListLibraryContents.sh.in,
+	lib/QueryLibrary.sh.in, lib/TTL_74xx_DIL.list, lib/TTL_74xx_DIL.m4,
+	lib/amp.inc, lib/amphenol.inc, lib/amphenol.list, lib/amphenol.m4,
+	lib/bourns.inc, lib/candk.inc, lib/common.m4, lib/connector.inc,
+	lib/connector.list, lib/connector.m4, lib/crystal.list,
+	lib/crystal.m4, lib/cts.inc, lib/dil.inc, lib/geda.inc,
+	lib/gen_geda_list.awk, lib/gen_geda_m4.awk, lib/gen_list.awk,
+	lib/gen_m4.awk, lib/generic.list, lib/generic.m4, lib/jerry.list,
+	lib/jerry.m4, lib/johnstech.inc, lib/linear.list, lib/linear.m4,
+	lib/logic.list, lib/logic.m4, lib/lsi.list, lib/lsi.m4,
+	lib/m4lib_to_newlib.sh, lib/memory.list, lib/memory.m4,
+	lib/minicircuits.inc, lib/misc.inc, lib/nichicon.inc,
+	lib/optek.inc, lib/optical.list, lib/optical.m4, lib/panasonic.inc,
+	lib/pci.inc, lib/pci.list, lib/pci.m4, lib/plcc.inc,
+	lib/png_diff.sh, lib/qfn.inc, lib/qfp-ui.in, lib/qfp.inc,
+	lib/qfp2.inc, lib/qfpdj.inc, lib/resistor_0.25W.list,
+	lib/resistor_0.25W.m4, lib/resistor_adjust.list,
+	lib/resistor_adjust.m4, lib/resistor_array.list,
+	lib/resistor_array.m4, lib/rules.inc, lib/smt.inc,
+	lib/texas_inst_amplifier.list, lib/texas_inst_amplifier.m4,
+	lib/texas_inst_voltage_reg.list, lib/texas_inst_voltage_reg.m4,
+	lib/transistor.list, lib/transistor.m4,
+	newlib/2_pin_thru-hole_packages/Makefile.am, newlib/Makefile.am,
+	newlib/connectors/Makefile.am, newlib/crystal/Makefile.am,
+	newlib/electro-optics/Makefile.am, newlib/headers/Makefile.am,
+	newlib/keystone/Makefile.am, newlib/msp430/Makefile.am,
+	newlib/not_vetted_ingo/Makefile.am, newlib/sockets/Makefile.am,
+	newlib/tests/Makefile.am, src/Makefile.am, src/action.h,
+	src/autoplace.c, src/autoplace.h, src/autoroute.c, src/autoroute.h,
+	src/box.h, src/buffer.c, src/buffer.h, src/change.c, src/change.h,
+	src/clip.c, src/clip.h, src/command.c, src/command.h, src/compat.c,
+	src/compat.h, src/const.h, src/copy.c, src/copy.h, src/create.c,
+	src/create.h, src/crosshair.c, src/crosshair.h, src/data.c,
+	src/data.h, src/djopt.c, src/djopt.h, src/dolists.h, src/draw.c,
+	src/draw.h, src/drill.c, src/drill.h, src/error.c, src/error.h,
+	src/file.c, src/find.c, src/find.h, src/flags.c, src/fontmode.c,
+	src/gather-actions, src/global.h, src/heap.c, src/heap.h,
+	src/hid/batch/batch.c, src/hid/bom/bom.c, src/hid/common/actions.c,
+	src/hid/common/extents.c, src/hid/common/flags.c,
+	src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	src/hid/gcode/curve.c, src/hid/gcode/decompose.c,
+	src/hid/gcode/decompose.h, src/hid/gcode/gcode.h,
+	src/hid/gcode/lists.h, src/hid/gcode/trace.c,
+	src/hid/gcode/trace.h, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gtkhid.h,
+	src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-config.c,
+	src/hid/gtk/gui-dialog-print.c, src/hid/gtk/gui-dialog.c,
+	src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-drc-window.h,
+	src/hid/gtk/gui-icons-misc.data,
+	src/hid/gtk/gui-icons-mode-buttons.data,
+	src/hid/gtk/gui-keyref-window.c, src/hid/gtk/gui-library-window.c,
+	src/hid/gtk/gui-log-window.c, src/hid/gtk/gui-misc.c,
+	src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-pinout-preview.c,
+	src/hid/gtk/gui-pinout-preview.h, src/hid/gtk/gui-pinout-window.c,
+	src/hid/gtk/gui-top-window.c, src/hid/gtk/gui-utils.c,
+	src/hid/gtk/gui.h, src/hid/hidint.h, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/lesstif.h, src/hid/lesstif/library.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/lesstif/netlist.c, src/hid/lesstif/styles.c,
+	src/hid/lesstif/xincludes.h, src/hid/lpr/lpr.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.h, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/hid/ps/ps.h, src/icon.data,
+	src/icons/Makefile.am, src/insert.c, src/insert.h, src/intersect.c,
+	src/intersect.h, src/line.c, src/line.h, src/macro.h, src/main.c,
+	src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
+	src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
+	src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
+	src/parse_l.h, src/parse_l.l, src/parse_y.y, src/pcbtest.sh.in,
+	src/polygon.h, src/print.c, src/print.h, src/puller.c, src/rats.c,
+	src/rats.h, src/remove.c, src/remove.h, src/report.h,
+	src/res_lex.l, src/res_parse.y, src/resource.h, src/rotate.c,
+	src/rotate.h, src/rtree.c, src/rtree.h, src/rubberband.c,
+	src/rubberband.h, src/search.c, src/search.h, src/select.c,
+	src/select.h, src/set.c, src/set.h, src/strflags.c, src/strflags.h,
+	src/thermal.c, src/thermal.h, src/undo.c, src/undo.h, src/vector.c,
+	src/vector.h, src/vendor.c, src/vendor.h, tests/run_tests.sh,
+	tools/Makefile.am, tools/MergePCBPS, tools/Merge_dimPCBPS,
+	tutorial/Makefile.am: Remove remaining RCS $Id$ identifiers left
+	over from our CVS days (Including a couple of $Id magic strings from files we got from
+	potrace, which are used by the gcode exporter).
+
+2011-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* doc/eps2png: doc/eps2png: Remove version information from this
+	utility This is obsolete since we switched from CVS, and refers to something
+	called "Sciurix" (perhaps where we got this code from). Remove it
+	for clarity.  Also remove the -ident command line option, which we don't use, and
+	refers to the above removed version information.
+
+2011-12-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/crosshair.c, src/global.h,
+	src/hid/lesstif/main.c: Remove change log like comments from file
+	headers We use git to track changes, not individual file headers.
+
+2011-12-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/hidgl.c: hid/common/hidgl.c: Simplify angle
+	calculation for drawing line caps Make use of atan2 to avoid special casing horizontal lines, and move
+	make the input variables doubles to be consistent with that
+	function.  Our use of "tanl" was inappropriate for the float input,
+	dobule output variables we were using before (spotted by Dan
+	McMahill).  I have modified the semantic meaning of angle, to keep the more
+	conventional angle = atan2 (dy, dx); geometry. This means the angle
+	now refers to the angle of the line, not the angle of the line-cap
+	start. (The angle is adjusted before passing into the cap drawing
+	routines).
+
+2011-12-22   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit c2a56b84d76e2c23eafce8cd0a562cb39b381c66  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Thu Dec 22 19:01:51
+	2011 -0500
+
+2011-12-22   DJ Delorie * dj AT delorie dot com *
+
+	* gts/Makefile.am: Don't install gts files Closes-bug: lp-854396
+
+2011-12-22   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/set.c: Properly cancel rubberband move when user changes mode Closes-bug: lp-853609
+
+2011-12-21   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/move.c: Update line RUBBERENDFLAG after move, even for trivial
+	moves If you move a line segment, then drop it in its original place, the
+	rubberband preview will be incorrect every other time you do this.
+	This patch fixes that.  Note that there is still incorrect behavior if the user starts a
+	rubberband move, then hits Esc, then tries again.  Affects-bug: lp-853609
+
+2011-12-21   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/buffer.c, src/create.c, src/global.h, src/polygon.c: Revert
+	previous commit, only update clipping for visible buffers This also fixes the undo bug, but without the performance hit.  (It
+	may not fix other synchronization bugs, but given that we haven't
+	seen any, this should be okay.) Affects-bug: lp-699272
+
+2011-12-21   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/buffer.c: Clip polygons after moving between buffers When moving a polygon between buffers (i.e., from the undo buffer to
+	the PCB->Data buffer or vice-versa), line- and via-clipping is not
+	recalculated. This means that any elements drawn on a buffer before
+	the polygon is moved there, will not clip the polygon.  One way (the only way, AFAIK) to make this happen is by bug
+	lp-699272, which can reproduced as follows. I have inclided my
+	explanation of what is happening at each step.    1. Draw a polygon with a line intersecting it, with clearpoly      set and visible clearance between the two.a   2. Delete the polygon. [This moves the polygon verbatim, including      its clipped form, from PCB->Data to RemoveList, the undo
+	     buffer.]   3. Delete the line. [This moves it from PCB->Data to RemoveList,      calling RestoreToPolygon() to unclip any polygons on the screen      (but there aren't any!), then ClearFromPolygon() to clip the      polygon in the undo buffer (but this is already clipped!). In      other words, the line is deleted and the polygon unchanged.]   4. Hit undo. [This moves the line from the undo buffer back to      PCB->Data, calling RestoreToPolygon() to unclip the polygon in      the undo buffer, then ClearFromPolygon() to clip any polygons
+	     on the screen (but there aren't any!). So the polygon is no
+	     longer clipped.]   5. Hit undo. [This brings the polygon back, copying it verbatim
+	     from the undo buffer to PCB->Data. As it is not clipped here, it
+	     isn't clipped on the screen, giving rise to the "no clipping" bug.] This patch adds a call to InitClip() to MovePolygonToBuffer(), which
+	forces a recalculation of a polygon's clipping when it is moved
+	between buffers. This is perhaps not the most efficient fix, but
+	will prevent any such synchronization bugs.  Closes-bug: lp-699272
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/ghid-route-style-selector.c: gtk: allow route style
+	selector to have nothing selected The affects the the function ghid_route_style_selector_sync()
+	function, which is called from the RouteStylesChanged action to keep
+	the GUI in sync with pcb's state. It selects the route style that
+	matches pcb's state, or if none exists, does nothing.  This patch replaces "does nothing" with "deselects all styles", so
+	that the GUI will not be misleading.  Closes-bug: lp-699299
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/ghid-route-style-selector.c: gtk: fix memory leak in
+	route style selector When the route style selector is emptied (e.g., when new styles are
+	loaded from a .pcb file), any route style data not owned by pcb core
+	is freed. However, this did not apply to all temporary route style
+	data, even though the pcb core is completely unaware of those.  This commit frees all temporary route style data.
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/ghid-main-menu.c: gtk: Add "plus" and "minus" to
+	allowable keyboard shortcuts Closes-bug: sf-3081102
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/ghid-main-menu.c: gtk: check accelerator uniqueness in
+	a case-insensitive way Closes-bug: lp-699496
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/ghid-route-style-selector.c,
+	src/hid/gtk/gui-top-window.c: gtk: fix route style selector
+	accelerators When the route-style list is changed, the menu items are not updated
+	properly. (In fact, they come out of sync and point to invalid
+	memory and lose their accelerators.) This commit fixes all that.
+
+2011-12-20   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gtk/gui-library-window.c: gtk: library window: ignore
+	element if LoadElementToBuffer fails In gtk/gui-library-window.c, the library window's selection-change
+	callback calls LoadElementToBuffer() to read the selected element,
+	so it can show a preview and select the element if necessary.  The return value of this determines whether to set pcb's mode to
+	PASTEBUFFER_MODE. However, the library window preview is attempted
+	regardless. If LoadElementToBuffer failed, this causes a NULL
+	reference and segfault.  This patch skips the preview in the case that LoadElementToBuffer.  Closes-bug: lp-853628 Closes-bug: lp-852600
+
+2011-12-19   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit 93d1b34f9a0f3dae4f90f7fb4638626169d152d0  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Mon Dec 19 11:47:54
+	2011 -0500
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gerber/gerber.c: hid/gerber: Fixup trailing zeros from
+	commit b90fb6ae22ae83fdc0c802268dcbe74005bc705e (The trailing zero needs to be outside the format specifier)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: action.c: Fix leak of schname in ActionImport()
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/heap.c: heap.c: Don't set the v variable twice to the same
+	value in __upheap.  (Caught with clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/find.c: find.c: Tidy up some ugly code in
+	LookupLOConnectionsToLOList() Cleaned up whilst chasing some clang warnings. It appears there is
+	no real problem here, as max_copper_layers is going to be >0 for any
+	PCB. If not, there are potential uses of uninitialised data.
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: src/action.c: Abort the Import(setnewport,mask)
+	action if the mask isn't set This avoids using an uninitialised variable.  (Caught by clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/png/png.c: hid/png/png.c: Remove buggy code for swapping
+	x1/x2 and y1/y2 Since the png hid works, and this code is ineffective due to a typo,
+	we probably ought to remove it.  (Caught by clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gerber/gerber.c: gerber.c: Tidy up use_gc() routine to
+	avoid a static anlysis warning Don't unconditionally access the aptr variable right after we just
+	NULL tested it.  (Caught by clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gerber/gerber.c: hid/gerber: Fix a couple of typos in
+	drill_sort routine Should fix sorting of drill holes by coordinate.  (Caught by clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gerber/gerber.c: hid/gerber: Remove dead colour selection
+	code
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gcode/gcode.c, src/hid/nelma/nelma.c: Remove dead colour
+	selection code from nelma and gcode hids (Silences some unused code warnings from clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: action.c: Fixup some syntax so it appears as legal C
+	before macro expansion "if TEST_FLAG (...) {" does not look like legal C until the
+	TEST_FLAG macro is expanded. This works because the macro is wrapped
+	with a () like all good function-like pre-processor macros.  This bad style was upsetting cppcheck, which flagged up a syntax
+	error for this line. (Obviously it was not expanding macros before
+	checking).
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c: hid/gtk: Remove some assigned,
+	but unused variables in the netlist window (Caught with clang)
+
+2011-12-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-netlist-window.c: hid/gtk: Fix broken pad-center
+	finding code in the netlist window Looks like I made a copy+paste error in the code which shows the
+	user the location of a particular netlist connection.  (Caught with clang)
+
+2011-12-18   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* tests/tests.list: Increase DPI of test hid_png3 Since the nanometers conversion, hid_png3 has failed due to rounding
+	changes. I have changed the test's output DPI from 300 to 600, to
+	decrease the chances of this happening in the future.  Fixes-bug: lp-860037
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk/ghid_layer_selector.c:
+	Use g_malloc for the new_layer structure This eventually gets free'd with g_free(). We need match these
+	allocations and de-allocations carefully, otherwise various
+	corruption and crashes could occur.  (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/hidnogui.c: hid/common/hidnogui.c: Plug leak in
+	nogui_prompt_for and nogui_fileselect We forgot to free() the memory returned from read_stdin_line().
+	There is actually no need to strdup the answer anyway, so pass the
+	returned value directly and let the caller free it.  (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/hidinit.c: hid/common: Don't leak the dir resource
+	in hid_load_dir() Add missing closedir() call.  (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/file.c: file.c: Cleanup mixed pclose() / fclose() in
+	ReadNetlist() In the "Empty netlist file!" error path, we called pclose()
+	unconditionally where we should have tested "used_popen" first.  (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/file.c: file.c: Plug leak of libpaths variable in
+	ParseLibraryTree() function (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-main.c: hid/gtk: Free share_dir variable after
+	use (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gcode/gcode.c: hid/gcode: Fix memory leak in error path (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gcode/gcode.c: hid/gcode: Fix mismatched g_strdup_printf()
+	and free() Allocations from the g_*() functions shuold be free'd with g_free().  (Caught with cppcheck)
+
+2011-12-18   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/lpr/lpr.c: hid/lpr: Don't mis-match popen and fclose
+	(should be pclose) (Caught with cppcheck)
+
+2011-12-16   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/search.c: search.c: Return the pad who's center is closest to
+	the queried coordinate When snapping to pads we often find the case where the search radius
+	is wider than the spacing between pads. SearchPadByLocation()
+	previously returned the first pad it found whthin the search area,
+	meaning you could have the crosshair right above a particular pad,
+	yet snap to a different pad due to it being within the search radius
+	of the crosshair, and happening to be tested first by the r-tree
+	search code.  This proof of concept change makes SearchPadByLocation() return the
+	pad whos center coordinate is closest to the center of the search
+	location.  This fixes another annoying snapping behaviour for some parts such
+	as "0805", when operating with a fairly course grid. (NB: Search
+	radius for snapping is related to the size of the current grid).
+
+2011-12-16   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/crosshair.c: crosshair.c: Be paranoid about overflow when
+	finding an pad-center coordinates Not aiming to fix any particular bug here, but I noticed the
+	potential overflow here and thought I'd fix it. Longer term, we
+	perhaps ought to write some convenience functions for performing
+	operations like this correctly.
+
+2011-12-16   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/crosshair.c: crosshair.c: Snap to later-tested objects
+	equi-distant with the current snap.  This inequality adjustment means that when an element mark is
+	on-grid, and the first-snap is a grid location snap, the test
+	against the element mark will now pass, and mark the snap as a
+	non-grid snap.  This fixes the rather irritating bug where certain footprints, such
+	as SMT resistors became impossible to grab by their element mark
+	when that mark landed exactly on a grid point.
+
+2011-12-15   Andrew Poelstra * asp11 AT sfu dot ca *
+
+	* src/hid/gerber/gerber.c: Fix plated-drill overflow bug in gerber.c Plated drills are printed in 1/10 mils rather than mils (it's a
+	funny format). This was previously achieved by multiplying
+	coordinates by 10, then printing them as mils. However, this caused
+	an overflow for medium-large boards on 32-bit systems.  This fix just prints a trailing 0 onto the measures, rather than
+	computing the value times ten.
+
+2011-12-08   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/main.c: Add (protected) include for locale.h.  Needed for
+	setlocale() prototype as well as LC_ALL on some systems.
+
+2011-11-25   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gerber/gerber.c: gerber.c: Use ` modifier in pcb-printf to
+	fix internationalization bug
+
+2011-11-25   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gerber/gerber.c: Revert "Fix locale-dependent gerber
+	output" This reverts commit 2473e26c7d9581753a28f1f55a4a4b7ff109a3f2.  A better fix would be to use the new pcb-printf specifier, rather
+	than manually using g_ascii_strtod with the COORD_TO_ macros.
+
+2011-11-25   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/pcb-printf.c, src/pcb-printf.h: Add ` modifier to pcb-printf,
+	which forces '.' as a decimal separator This should be used for the gerber exporter and other formats that
+	need to use '.' regardless of locale in order to obey their
+	standards.  Note that the %mr specifier (which restricts suffixes to mm and mil
+	so that old pcb versions can read them) uses this by default, so no
+	changes need to be made to file.c.
+
+2011-11-20   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/golden/hid_gcode1/Makefile.am,
+	tests/golden/hid_gcode10/Makefile.am,
+	tests/golden/hid_gcode11/Makefile.am,
+	tests/golden/hid_gcode2/Makefile.am,
+	tests/golden/hid_gcode3/Makefile.am,
+	tests/golden/hid_gcode4/Makefile.am,
+	tests/golden/hid_gcode5/Makefile.am,
+	tests/golden/hid_gcode6/Makefile.am,
+	tests/golden/hid_gcode7/Makefile.am,
+	tests/golden/hid_gcode8/Makefile.am,
+	tests/golden/hid_gcode9/Makefile.am: gcode test Makefiles now dist
+	the golden results with the new filenames
+
+2011-11-20   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: gcode tests: date-stripping now supports all
+	valid dates
+
+2011-11-19   DJ Delorie * dj AT delorie dot com *
+
+	* src/set.c: Add missing pcb-printf.h set.c was calling pcb_g_strdup_printf() without #including
+	pcb-printf.h, resulting in a missing prototype warning.
+
+2011-11-16   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/png/png.c: png hid: fixed some instances of an 'int' being
+	used instead of Coord.  After the unit switch, some cases where an int has sufficed
+	previously no longer work. An example is png output of tilted,
+	square pads. Before this patch those pads do not get drawn
+	correctly; their size is completely wrong.
+
+2011-11-19   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: g-code hid: converted use of hypot() to
+	Distance()
+
+2011-11-19   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gerber/gerber.c: Fix locale-dependent gerber output pcb_printf doesn't have a modifier that lets you select a unit (%mi)
+	and locale-independent format (like %mr) at the same time.  The
+	gerber hid was using %mi to output to a file, but that resulted in
+	',' instead of '.' for some locales.  This patch switches it to call
+	g_ascii_formatd() on the value first, to ensure it's output with
+	'.'.
+
+2011-11-19   Ahmed El-Mahmoudy * aelmahmoudy AT sabily dot org *
+
+	* src/hid/common/hidgl.c: Fix typo (recieved -> received)
+
+2011-10-02   Alan Somers * asomers AT gmail dot com *
+
+	* tools/Makefile.am, tools/pcbdiff: Adding a script to graphically
+	diff PCB files
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/golden/hid_gcode1/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode2/out-0.0350.drill.gcode,
+	tests/golden/hid_gcode2/out-bottom.gcode,
+	tests/golden/hid_gcode2/out-top.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-top.gcode: reference gcode
+	tests now match the latest generated gcode
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: gcode tests: stripping creation timestamp more
+	robustly
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: fixed broken bom, xy and gcode testing I was comparing the reference files to themselves. Now comparing
+	reference and test files
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: test script: local-ized all variables passed
+	into functions. stuff no longer gets overwritten
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: test script: added missing boilerplate to set
+	normalized filenames
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/run_tests.sh: unit test script: fixed incorrect file
+	existence check
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/golden/hid_gcode1/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode2/out-0.0350.drill.gcode,
+	tests/golden/hid_gcode2/out-drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-0.0350.drill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-drill.gcode, tests/tests.list: 
+	gcode tests now look for the new size-specific drill files
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/tests.list: updated tests.list to use tool diameter instead
+	of radius when testing gcode
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/tests.list: fixed incorrect comment in tests.list
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: added some forgotten newlines in the gcode
+	output
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: g-code exporter now outputs NC-drills for
+	different hole sizes into different files
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: a few tab->spaces conversions in comments
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: removed some trailing whitespace in
+	comments
+
+2011-09-10   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: gcode exporter: reworked and cleaned up
+	sort_drill() This function no longer deallocates the memory passed into it, which
+	is a potential source of issues for the unsuspecting caller. Instead
+	it sorts the data in-place
+
+2011-09-09   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: gcode exporter: minor whitespace
+	corrections
+
+2011-09-09   Dima Kogan * dima AT secretsauce dot net *
+
+	* src/hid/gcode/gcode.c: gcode exporter: made some functions static
+
+2011-11-13   Dima Kogan * dima AT secretsauce dot net *
+
+	* tests/golden/hid_gcode1/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode1/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode10/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode10/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode11/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode11/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode2/out-bottom.gcode,
+	tests/golden/hid_gcode2/out-drill.gcode,
+	tests/golden/hid_gcode2/out-top.gcode,
+	tests/golden/hid_gcode2/out.bottom.cnc,
+	tests/golden/hid_gcode2/out.drill.cnc,
+	tests/golden/hid_gcode2/out.top.cnc,
+	tests/golden/hid_gcode3/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode3/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode5/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode5/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode7/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode7/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode8/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode8/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.top.cnc,
+	tests/golden/hid_gcode9/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-drill.gcode,
+	tests/golden/hid_gcode9/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.bottom.cnc,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.top.cnc,
+	tests/tests.list: renamed golden test files to match new gcode
+	output filenames
+
+2011-11-16   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/file.c, src/set.c: Add attribute PCB::grid::size for user's
+	grid setting This stores the grid size using pcb-printf for full precision; the
+	ordinary value in Grid[] needs to be in cmils for backward
+	compatibility, so it cannot store metric settings correctly.
+
+2011-11-12   Richard Barlow * richard AT richardbarlow dot co dot uk *
+
+	* src/pcb-printf.c: Fix parsing of route styles with units A bug appeared after route styles started being saved with units
+	suffixed. When loading a PCB file the units were ignored and
+	therefore it was assumed the values were in cmils.  This was a problem in the get_unit_struct() function which didn't
+	handle long strings well. If the unit was followed by more
+	characters strcmp would return non-zero. The function has already
+	worked out the length of the unit text and therefore strncmp should
+	be used.
+
+2011-11-06   DJ Delorie * dj AT delorie dot com *
+
+	* lib/geda.inc: Add 4-pin DIP Add DIP4 to the collection of standard DIP packages
+
+2011-11-06   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/ps/ps.c: Fix postscript alignment marks The delta-x and delta-y parameters of corner() are scales, not
+	coordinates.  Change them to "int" so the +1/-1 won't get scaled to
+	zero.
+
+2010-10-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: use drill cycles only for
+	advanced G-code.  Not all machine controllers understand drill cycles, so a more
+	common denominatior is needed. Gladly, almost all the code was there
+	in comments already.  Affects-bug: lp-699497
+
+2010-10-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: simplify code a bit.  This is mostly for additional code coming soon.  Affects-bug: lp-699497
+
+2010-10-21   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: add a comment about the tool
+	diameter into the G-code file.  Affects-bug: lp-699497
+
+2010-10-21   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: switch from tool-radius to
+	tool-diameter in the user interface.  Affects-bug: lp-699497
+
+2011-10-26   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/insert.c: Fix computation of 45-degree edges when inserting a
+	point into an edge Fixes a few mistakes introduced in commit
+	b59ab044afe3ac362f8cb4da10ea410280b4323a which was bisected to and
+	identified as the cuplrit by Gabriel Paubert.   Reported-by: Gabriel Paubert * paubert AT iram dot es *
+
+2010-10-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: remove a leftover debug-printf.  Affects-bug: lp-699497
+
+2010-10-20   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: Avoid more than one G or M code
+	per line for advanced G-code.  Some primitive G-code interpreters can't deal with multiple G or M
+	codes in one line, so avoid them at no cost. Alberto Maccioni asked
+	on geda-user make this optional.  Affects-bug: lp-699497
+
+2010-10-21   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c, src/hid/gcode/trace.c,
+	src/hid/gcode/trace.h: HID-gcode: add a flag wether to produce
+	advanced G-code.  Some primitive machine controllers don't understand what a variable
+	is, while those understanding variables can work without as well.
+	After all, using variables is just a convenience for later
+	hand-editing of the G-code programs. More changes for primitive
+	controllers are to come.  Affects-bug: lp-699497
+
+2010-10-21   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: create better file names.  If the user adds a suffix to a file name in the dialog, he expects
+	the resulting files to have these suffixes as well.  This patch is a combination of the following two patches by Markus
+	Hitter.  0001-HID-gcode-let-the-system-library-allocate-the-tempor.patch
+	0004-HID-gcode-create-better-file-names.patch The original patches are avaiable at the bug-report on launchpad
+	lp-699497. The combination and modifications where done by Felix
+	Ruoff.  Affects-bug: lp-699497
+
+2010-10-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: HID-gcode: get rid of tabulators in
+	gcode.c. Pure whitespace change.  Developers should decide wether to use tabs or not, but not mix
+	both.  Rebased to git head by Felix Ruoff Affects-bug: lp-699497
+
+2011-10-20   Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de *
+
+	* src/.gitignore: add gpcb-menu.res and pcb-menu.res to gitignore The files src/gpcb-menu.res and src/pcb-menu.res are generated
+	during the build. So git should not care for them.  Closes-bug: lp-879086
+
+2011-10-20   Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de *
+
+	* doc/.gitignore: add options.texi to gitignore The file doc/options.texi is produced by a script at compile time.
+	So git should not take care for it.  Affects-bug: lp-879086
+
+2011-10-20   Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de *
+
+	* doc/.gitignore: add gcode related files to gitignore The files   doc/gcode.pdf   doc/gcode.png   doc/gcode_control_img.pdf   doc/gcode_control_img.png   doc/gcode_tool_path.pdf   doc/gcode_tool_path.png are produced at compile time. So git
+	should not care for them.  Affects-bug: lp-879086
+
+2011-10-23   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/file.c: Bump PCB_FILE_VERSION_BASELINE up to 20091103.  The unit-parsing support that we now require from the pcb parser was
+	added by DJ in December 2008. So I am bumping up the output version
+	in file.c to the next release, 20091103.
+
+2011-10-23   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/pcb-printf.c, src/pcb-printf.h: Make pcb-printf output unit
+	suffixes with %mr spec This marks a change in the file format, but as we only use the mm
+	and mil suffixes (for now, anyway), it should not be a breaking one.  I did not update the file format version that is output.
+
+2011-05-22   Felix Ruoff * Felix AT posaunenmission dot de *
+
+	* src/gpcb-menu.res.in: hid/gtk: Remove double 'Remove Connected'
+	menu-item
+
+2011-09-19   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: 
+	top-bottom-in-preference-dialog-of-GTK-HID This patch replaces "component" and "solder" in the preference
+	dialog of GTK HID with "top" and "bottom". Incindences were in the
+	layer group tab and in the text of the info tab.
+
+2011-09-19   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-misc.c: top/bottom in status line of GTK-HID This patch replaces "component" and "solder" in the leftmost item of
+	the status line of the GTK HID with "top" and "bottom".
+
+2011-10-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/gpcb-menu.res.in, src/hid/common/hid_resource.c: Add support
+	for mice / touchpads with a left/right scroll-wheel  Tested-by: Dave McGuire * mcguire AT neurotica dot com *
+
+2011-10-05   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* globalconst.h, src/const.h, src/crosshair.c, src/global.h,
+	src/misc.c, src/move.h, src/rotate.c, src/search.c: Add snapping to
+	arc end-points
+
+2011-10-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c: hid/gtk: Fix
+	pinout preview rendering for back-side elements NB: There are still some bugs, in that when the board view is
+	flipped, this doesn't currently trigger a repaint of any preview
+	widgets which are open. They will refresh with the updated
+	coordinate system when they are next repainted. (Which might requre
+	a resize of the window on a compositing window manager).  Ideally we would track the correct view with the preview widget, but
+	for now this is a simple fix.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Convert some debugging constants
+	to COORD units properly (Broken since we switched to nanometers)
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Fix print of time taken by the
+	toporouter The old code conflated microseconds, milliseconds and was generally
+	nuts.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused, commented
+	print_trace() function
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c, src/toporouter.h: toporouter.c: Remove unused
+	(toporouter_t *)->stublength
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c, src/toporouter.h: toporouter.c: Remove unused
+	(toporouter_t *)->viamax
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c, src/toporouter.h: toporouter.c: Remove unused
+	(toporouter_t *)->serpintine_half_amplitude
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Re-write
+	{coord,point}_intersect_prop() to increase clariry.  Since the wind_* values computed in this function can be -1, 0 or 1,
+	it is clearer to test them using equality relations, not perform XOR
+	operations on their bit-patterns.  I believe the old code worked, but it would return an strange
+	constant for "true". To ram the point home, I've changed the
+	function to return bool.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove commented
+	tvertex_intersect() function The implementation being used is a macro in toporouter.h
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused function
+	tvertex_intersect_prop()
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Re-arrange the maths in
+	{vertices,coords}_on_line() Should given an identical result, but with a couple fewer
+	operations.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused function
+	points_on_line()
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused wind_double()
+	function
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused sloppy_.*wind()
+	functions
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter: Re-implement functions using atan
+	with atan2 Simplifies and condenses the code a lot.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Replace coord_xangle() with
+	coord_angle() The new function returning the "normal" coordinate system angle one
+	would expect. Replace usage of coord_xangle() in
+	export_pcb_drawarc() with the new function.  PCB's arc angles are a bit nutty, so lets try to contain that
+	strangeness to the arc exporting routine!
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused point_xangle()
+	function (Unused since the previous commit)
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Remove unused region_span()
+	function
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter: Remove unused
+	vertex_move_towards_point[_values]() functions
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Fix constants which assumed CMIL
+	for PCB's internal units This should make the toporouter work again.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporouter.c: Fixup and clean
+	read_board_constraints() and create_board_edge() Introduce a #defined constant which expresses how fine to break the
+	board edges into (the old hard-coded constant was broken since we
+	changed to nanometers).
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c: toporoute.c: Remove runtime Copyright message
+	from toporouter Not only is Anthony now not the only author of this code, we don't
+	do this for anything else.. why should we for this. It could
+	potentially act to discorage others from working on this code, and
+	we don't want that.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/toporouter.c, src/toporouter.h: toporouter.[ch]: Add generic
+	"contributors" copyright notice "Copyright (C) 2009-2011 PCB Contibrutors (See ChangeLog for
+	details)"
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/change.c: Revert "Change change.c to treat text scale as mils"
+	and fix harder..  This reverts commit 9396377717f7c49cf38d753a35e32d004294b09e and
+	fixes what was probably the underlying issue... I made a mistake in
+	commit 2d21a8ad8f38e07b17450450a096f1ce4b3bef0e such that it added
+	the existing text scale when setting an "absolute" text size, but
+	ignored it when setting a relative change. (Clearly backwards).  Additionally, I've switched to computing the new value in double
+	arithmetic to avoid a potential overflow when the input value is
+	large and we are using a 32-bit Coord type.  See commit 2d21a8ad8f38e07b17450450a096f1ce4b3bef0e for a
+	description of how text scale is defined and used. If we want to
+	change how our text is sized / scaled in the future, we would need
+	to change usage in many more places than the reverted commit
+	touched.
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: action.c: Fix the SetValue(TextScale, ...) action
+	after nanometer conversion
+
+2011-10-01   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: (GL Renderer) Use direct
+	rendering for off-screen pixmaps We use direct rendering for the rest (where possible), so why slow
+	down pixmap rendering. Also fixes a bug on my pcb+gl_experimental
+	branch where pixel shaders can't be shared between the direct
+	rendered widgets and the pixmap rendering code.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c,
+	src/hid/gtk/ghid-layer-selector.h, src/hid/gtk/gui-top-window.c: 
+	hid/gtk: Extend layer selector to allow editing layer names in situ Contains an unfortunate abstraciton break in the layer selector in
+	order to temporarily disable PCB's accelerators whilst the layer is
+	being renamed. It would be lovely to fix this and make things
+	cleaner in the future.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c,
+	src/hid/gtk/ghid-layer-selector.h: hid/gtk: Layer selector - Rename
+	"activatable" to "selectable" GTK has a special meaning for the word "activatable", meaning that
+	the item can be double-clicked, or "activated" by hitting enter on
+	it. We use it to mean selectable - so change the code to make this
+	clear.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Layer selector -
+	remove unused variable
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Refactor to remove
+	some duplicated code in the layer selector
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Better encapsulate
+	some of the layer selector initialisation The work we do within ghid_layer_selector_new() is better placed in
+	the appropriate class initialiser functions, otherwise we needn't go
+	to the trouble of subclassing a widget in the first place.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/ghid-layer-selector.c: hid/gtk: Don't refleak the
+	accel group created by the layer selector When the accel group is created, we have a reference to it - we
+	don't need another.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-utils.c, src/hid/gtk/gui.h: hid/gtk: Remove the
+	unused function utf8_dup_string
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-config.c: hid/gtk: Don't use dup_string where
+	doing so would mix g_free() and free() The core uses malloc(), strdup(), free() etc..  The GTK HID
+	primarily uses g_malloc(), g_strdup(), g_free() etc..  Mixing them can lead to bad behaviour and hard to debug crashes.
+	This commit is not aimed at fixing any known bugs, but is "by
+	inspection", as I spotted some of these when working on a layer
+	selector patch.
+
+2011-09-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/draw.h, src/hid/gtk/gtkhid-main.c: draw.c: Expose
+	some drawing APIs for the HIDs to use directly...  Exposes:   DrawLayerGroup   DrawPaste   DrawSilk   DrawMask   DrawHoles   PrintAssembly
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Simplify and correct
+	ghid_show_crosshair() logic for the GL renderer Drop the always-true parameter we were passed, and combine the code
+	from ghid_show_crosshair() and draw_crosshair() into one function.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c: hid/gtk: Remove always-true parameter
+	from show_crosshair() in GDK renderer Pass the render_priv pointer instead - this is vaguely useful. Also
+	tidy the function a little to make it clearer, rolling the code from
+	show_crosshair() and draw_crosshair() together into a combined
+	"draw_crosshair()" function.  The function no longer rejects negative x drawing coordinates, but
+	we aren't passed those anyway.
+
+2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gl.c: hid/gtk: Fix z-coordinate scaling for GL
+	views.  (Fixes a 3D rendering bug in my PCB+GL branches, no visible effect
+	for git HEAD builds).
+
+2011-09-23   Andrew Poelstra (local) * apoelstra AT wpsoftware dot net *
+
+	* src/pcb-printf.c: Move pcb-printf #if 0 guards for %mr specifier
+	to fix internationalization Since the previous version of pcb cannot read files with suffixes on
+	its measures, right now the %mr specifier outputs measures in cmils,
+	no suffix.  The future behavior would be to select appropriate units and use
+	those, but for now this is disabled by an #if 0 block around the
+	relevant call to CoordToString.  This patch moves the #if 0 block to the suffix-specific part of the
+	code, since we DO want the other behavior of the %mr spec,
+	specifically, the forcing of '.' as a decimal separator.
+
+2011-09-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/create.c: create.c: Don't emit RouteStylesChanged from within
+	CreateNewPCB() The route style selector is hanging onto pointers of the current
+	PCB's route styles. When the action "RouteStylesChanged" is called,
+	these are compared against the current route style to identify which
+	one the GUI should show as selected.  When this call comes from within CreateNewPCB, and the OLD PCB has
+	already been free'd, this causes free'd memory to be read, resulting
+	in valgrind output such as:     ==22404== Invalid read of size 8     ==22404==    at 0x4D82B3: ghid_route_style_selector_sync
+	    (ghid-route-style-selector.c:594) ==22404==    by 0x4BAB28:
+	    RouteStylesChanged (gtkhid-main.c:1157) ==22404==    by 0x49E0D3:
+	    hid_actionv (actions.c:247) ==22404==    by 0x447B7B: CreateNewPCB
+	    (create.c:194) ==22404==    by 0x4273E8: ActionNew (action.c:5902)     ==22404==  Address 0xd3c4458 is 13,880 bytes inside a block of
+	    size 14,120 free'd ==22404==    at 0x4C282E0: free
+	    (vg_replace_malloc.c:366) ==22404==    by 0x4273DE: ActionNew
+	(action.c:5901) Strictly speaking though - since CreateNewPCB does not directly
+	assign to the current PCB variable - it has no business in calling
+	the "RouteStylesChanged" action anyway.  Suitable update is taken care of later on in ActionNew(), as it
+	calls the "PCBChanged" action - the GTK implementation of which in
+	turn updates the route selector correctly.  Closes-bug: lp-856909
+
+2011-09-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c: action.c: Set PCB = NULL; after freeing it in
+	ActionNew() When we call CreateNewPCB(), it trips over some code which wants to
+	access the current PCB in order to determine whether to auto-save at
+	exit. The code in question does check if PCB is NULL first, so this
+	is a sufficient fix for this case.  Fixes valgrind output such as:     ==22404== Invalid read of size 8     ==22404==    at 0x470944: Parse (parse_l.l:282)     ==22404==    by 0x471913: ParseFont (parse_l.l:356)     ==22404==    by 0x447973: CreateDefaultFont (create.c:941)     ==22404==    by 0x447C58: CreateNewPCB (create.c:211)     ==22404==    by 0x4273E8: ActionNew (action.c:5902)     ==22404==  Address 0xd3c4538 is 14,104 bytes inside a block of
+	    size 14,120 free'd ==22404==    at 0x4C282E0: free
+	    (vg_replace_malloc.c:366) ==22404==    by 0x4273DE: ActionNew
+	(action.c:5901) Which is seen when starting an new layout from within PCB.  Affects-bug: lp-856909
+
+2011-09-19   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-main.c: hid/gtk: Fix Pan action to stop after
+	button release outside window Previously, we required in-view coordinates to stop and start the
+	pan-action, and when the button was released outside the viewport,
+	the code was querying the user to click at a particular location.  Since the pan action doesn't even use the passed in coordinates,
+	simply remove the requirement for the x-y coordinates from this
+	action.  Closes-bug: lp-699307
+
+2011-09-18   DJ Delorie * dj AT delorie dot com *
+
+	* doc/Makefile.am: Add options.texi to dist files
+
+2011-09-18   DJ Delorie * dj AT delorie dot com *
+
+	* NEWS: Today is the 18th :-)
+
+2011-09-18   DJ Delorie * dj AT delorie dot com *
+
+	* ChangeLog, NEWS: Update Changelog and NEWS for 20110918
 
 2011-09-18   DJ Delorie * dj AT delorie dot com *
 

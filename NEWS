@@ -1,4 +1,59 @@
 ========================================================================
+Release Notes for PCB snapshot 20140316
+========================================================================
+This release represents over 421 commits (mostly bugfixes and code
+refactoring) and as such this summary clearly is not complete.  See
+the ChangeLog file for the complete list of changes.
+
+Features
+--------
+
+- GTK gui uses GL now, including a pseudo-3D mode.
+- Brazilian translation added, others updated.
+- Many internationalization tweaks.
+- Mice with right-left scroll wheels now supported.
+- Major upgrades to the GCode exporter.
+- rat-thickness parameter can take a 'px' suffix
+- metric and imperial grids are now more independent.
+- photo exporter supports multiple color schemes.
+- gerbers can be output in metric.
+- There's now a difference between "found" (what the netlist wants)
+  and "connected" (what the copper says).
+- PNG exporter has --fill-holes to omit the "drill helper" completely.
+- gerber drill files now 0.1mil resolution.
+- XY file is now IPC 7531 compliant.
+
+Bug Fixes
+---------
+
+- Fix pan locking up pcb if you leave the window.
+- Many bugfixes related to the metric conversion, including the two
+  autorouters.
+- ps alignment marks fixed.
+- route styles in *.pcb files may contain units.
+- able to select more parts by their mark when their mark is on-grid.
+- gtk route selector may now have nothing selected, if the board has
+  custom route settings.
+- drc no longer hangs when some layers are skipped.
+- ps_bloat works again.
+- EPS header is more standards-compliant.
+- PS outlines are only drawn on copper layers, not mask layers.
+- cursor position and zoom are no longer written to the *.pcb file.
+- lines with different clearances aren't auto-merged.
+- pin names are drawn in the pinout window.
+- gerber aperture numbers won't increase between runs.
+- misc doc tweaks and fixes.
+
+Other
+-----
+
+- Many tweaks to the source code to make it cleaner.
+- The top and bottom layers are now consistently called "top" and
+  "bottom" instead of "solder" and "component"
+- *.pcb file version bumped to 20091103 to reflect coordinate units change.
+- gEDA/pcb project moved to geda-project.org
+
+========================================================================
 Release Notes for PCB snapshot 20110918
 ========================================================================
 This release represents over 797 commits and as such this summary 
