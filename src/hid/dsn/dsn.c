@@ -99,7 +99,7 @@ static HID_Attribute dsn_options[] = {
 REGISTER_ATTRIBUTES (dsn_options)
 
 static HID_Attr_Val dsn_values[NUM_OPTIONS];
-     
+
 static const char *dsn_filename;
 
 static HID_Attribute *dsn_get_export_options (int *n)
@@ -129,7 +129,7 @@ get_centroid (ElementType * element)
     sumx += (double) pin->X;
     sumy += (double) pin->Y;
     pin_cnt++;
-  } 
+  }
   END_LOOP;
 
   PAD_LOOP (element);
@@ -288,7 +288,7 @@ print_placement (FILE * fp)
                  ecentroid.X, ecentroid.Y, side);
     pcb_fprintf (fp, "    )\n");
     g_free (ename);
-  } 
+  }
   END_LOOP;
 
   VIA_LOOP (PCB->Data);
@@ -297,7 +297,7 @@ print_placement (FILE * fp)
     pcb_fprintf (fp, "      (place %d %.6mm %.6mm %s 0 (PN 0))\n", via->ID,
                  via->X, (PCB->MaxHeight - via->Y), "front");
     pcb_fprintf (fp, "    )\n");
-  } 
+  }
   END_LOOP;
   fprintf (fp, "  )\n");
 }
@@ -462,7 +462,7 @@ print_quoted_pin (FILE *fp, const char *s)
     {
       fprintf (fp, " %s", s);
     }
-  else 
+  else
     {
       char refdes_name[1024];
       int copy_len = hyphen_pos - s;
@@ -482,7 +482,7 @@ print_network (FILE * fp)
   for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
     {
       fprintf (fp, "    (net \"%s\"\n", PCB->NetlistLib.Menu[ni].Name + 2);
-      fprintf (fp, "      (pins");      
+      fprintf (fp, "      (pins");
       for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
         print_quoted_pin (fp, PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry);
       fprintf (fp, ")\n");
