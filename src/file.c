@@ -1108,7 +1108,7 @@ Backup (void)
 	  fprintf (stderr, "Backup():  malloc failed\n");
 	  exit (1);
 	}
-      sprintf (filename, "%s-", PCB->Filename);
+      sprintf (filename, "%s~", PCB->Filename);
     }
   else
     {
