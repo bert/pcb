@@ -676,6 +676,7 @@ typedef struct			/* some resources... */
     ShowSolderSide,		/* mirror output */
     SaveLastCommand,		/* save the last command entered by user */
     SaveInTMP,			/* always save data in /tmp */
+    SaveMetricOnly,		/* save with mm suffix only, not mil/mm hybrid */
     DrawGrid,			/* draw grid points */
     RatWarn,			/* rats nest has set warnings */
     StipplePolygons,		/* draw polygons with stipple */
