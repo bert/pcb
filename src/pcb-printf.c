@@ -108,6 +108,27 @@ void initialize_units()
     }
 }
 
+/* \brief Get/set a mask of units to use when saving .pcb files
+ * \par Function Description
+ * If passed 0, returns the current mask of units to use in a .pcb
+ * file; if passed anything else, replaces the current mask. This
+ * mask should only contain units which are readable by recent versions
+ * of pcb; currently this means only ALLOW_MIL and ALLOW_MM. (Versions
+ * prior to 20110703 nominally support other units, but in fact the scaling
+ * calculations are incorrect so the wrong values will be read! See commit
+ * 750a1c5 for more details.)
+ *
+ * \return the current mask.
+ */
+enum e_allow set_allow_readable(enum e_allow new_mask)
+{
+  static enum e_allow readable_mask = ALLOW_READABLE;
+  if (new_mask != 0)
+    readable_mask = new_mask;
+  return readable_mask;
+}
+
+
 /* TABLE FORMAT   |  default  |  min  |  max
  *          grid  |           |       |
  *          size  |           |       |
@@ -549,7 +570,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
                 case 'S': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix); break;
                 case 'M': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_METRIC, suffix); break;
                 case 'L': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_IMPERIAL, suffix); break;
-                case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, FILE_MODE); break;
+                case 'r': unit_str = CoordsToString(value, 1, spec->str, set_allow_readable(0), FILE_MODE); break;
                 /* All these fallthroughs are deliberate */
                 case '9': value[count++] = va_arg(args, Coord);
                 case '8': value[count++] = va_arg(args, Coord);

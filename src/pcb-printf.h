@@ -161,6 +161,7 @@ double coord_to_unit (const Unit *, Coord);
 Coord  unit_to_coord (const Unit *, double);
 Increments *get_increments_struct (enum e_family family);
 void copy_nonzero_increments (Increments *dst, const Increments *src);
+enum e_allow set_allow_readable(enum e_allow new_mask);
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
 int pcb_sprintf(char *string, const char *fmt, ...);
