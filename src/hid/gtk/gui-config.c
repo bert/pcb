@@ -121,6 +121,7 @@ static ConfigAttribute config_attributes[] = {
   {"gui-compact-vertical", CONFIG_Boolean, &_ghidgui.compact_vertical},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
+  {"save-metric-only", CONFIG_Unused, NULL},
   {"grid-units", CONFIG_Unused, NULL},
   {"grid", CONFIG_Unused, NULL},
 
@@ -925,6 +926,11 @@ config_general_tab_create (GtkWidget * tab_vbox)
 		    5.0, 25.0, 1.0, 1.0, 0, 0,
 		    config_history_spin_button_cb, NULL, FALSE,
 		    _("Number of commands to remember in the history list"));
+
+  ghid_check_button_connected (vbox, NULL, Settings.SaveMetricOnly,
+			       TRUE, FALSE, FALSE, 2,
+			       config_general_toggle_cb, &Settings.SaveMetricOnly,
+			       _("Use only metric units when saving pcb files"));
 }
 
 
