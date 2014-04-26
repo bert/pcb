@@ -459,6 +459,8 @@ describe_location (Coord X, Coord Y)
 }
 
 
+static int tooltip_update_timeout_id = 0;
+
 static gboolean check_object_tooltips (GHidPort *out)
 {
   char *description;
@@ -466,23 +468,23 @@ static gboolean check_object_tooltips (GHidPort *out)
   /* check if there are any pins or pads at that position */
   description = describe_location (out->crosshair_x, out->crosshair_y);
 
-  if (description == NULL)
-    return FALSE;
+  if (description) {
+    gtk_widget_set_tooltip_text (out->drawing_area, description);
+    g_free (description);
+  }
 
-  gtk_widget_set_tooltip_text (out->drawing_area, description);
-  g_free (description);
-
+  tooltip_update_timeout_id = 0;
   return FALSE;
 }
 
-static int tooltip_update_timeout_id = 0;
 
 static void
 cancel_tooltip_update ()
 {
-  if (tooltip_update_timeout_id)
+  if (tooltip_update_timeout_id) {
     g_source_remove (tooltip_update_timeout_id);
-  tooltip_update_timeout_id = 0;
+    tooltip_update_timeout_id = 0;
+  }
 }
 
 /* FIXME: If the GHidPort is ever destroyed, we must call
