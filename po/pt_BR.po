@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-23 05:45-0300\n"
+"POT-Creation-Date: 2014-05-03 06:48-0300\n"
 "PO-Revision-Date: 2014-01-01 09:37-0200\n"
 "Last-Translator: Jorge Barros de Abreu <ficmatin10@gmail.com>\n"
 "Language-Team: pt_BR <ldpbr-translation@lists.sourceforge.net>\n"
@@ -130,11 +130,11 @@ msgstr "Sinto muito, o objeto está travado\n"
 #. ---------------------------------------------------------------------------
 #: ../src/action.c:1768
 msgid "Atomic(Save|Restore|Close|Block)"
-msgstr "Atômica(Gravar|Recuperar|Fechar|Bloquear)"
+msgstr "Atômica(Salvar|Recuperar|Fechar|Bloquear)"
 
 #: ../src/action.c:1770
 msgid "Save or restore the undo serial number."
-msgstr "Gravar ou recuperar o número de série de desfazer."
+msgstr "Salva ou recuperar o número de série de desfazer."
 
 #. --------------------------------------------------------------------------
 #: ../src/action.c:1833
@@ -776,7 +776,7 @@ msgstr "Memória vazia!\n"
 
 #: ../src/action.c:6084
 msgid "Save Paste Buffer As ..."
-msgstr "Gravar Colagem de Memória Como ..."
+msgstr "Salva Colagem de Memória Como ..."
 
 #: ../src/action.c:6085
 msgid ""
@@ -1347,13 +1347,13 @@ msgstr "Escolha um arquivo para gravar todos os dados de conecção."
 msgid "File '%s' has no font information, using default font\n"
 msgstr "Arquivo '%s' não tem informação de fonte, usando a fonte padrão\n"
 
-#: ../src/file.c:1022
+#: ../src/file.c:1026
 #, c-format
 msgid "Trying to save your layout in '%s'\n"
 msgstr "Tentando gravar seu traçado em '%s'\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1186
+#: ../src/file.c:1190
 msgid ""
 "LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"
 msgstr ""
@@ -1361,7 +1361,7 @@ msgstr ""
 "trabalho\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1204
+#: ../src/file.c:1208
 msgid ""
 "LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
 msgstr ""
@@ -1369,23 +1369,23 @@ msgstr ""
 "trabalho\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1312
+#: ../src/file.c:1316
 msgid "ParseLibraryTree: Could not determine initial working directory\n"
 msgstr ""
 "ParseLibraryTree: Não posso determinar o diretório inicial de trabalho\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1347
+#: ../src/file.c:1351
 msgid "ParseLibraryTree: Could not determine new working directory\n"
 msgstr "ParseLibraryTree: Não posso determinar o novo diretório de trabalho\n"
 
 #. nothing to do
-#: ../src/file.c:1539
+#: ../src/file.c:1543
 #, c-format
 msgid "Importing PCB netlist %s\n"
 msgstr "Importando netlist do PCB %s\n"
 
-#: ../src/file.c:1577
+#: ../src/file.c:1581
 #, c-format
 msgid ""
 "Line length (%i) exceeded in netlist file.\n"
@@ -1394,11 +1394,11 @@ msgstr ""
 "Comprimento de linha (%i) excedeu no arquivo netlist.\n"
 "caracteres adicionais irão ser ignorados.\n"
 
-#: ../src/file.c:1631
+#: ../src/file.c:1635
 msgid "Empty netlist file!\n"
 msgstr "Arquivo de netlist vazio!\n"
 
-#: ../src/file.c:1671
+#: ../src/file.c:1675
 #, c-format
 msgid "Importing edif netlist %s\n"
 msgstr "Importando edif netlist %s\n"
@@ -1633,9 +1633,9 @@ msgstr "Abrir..."
 msgid "Load a layout from a file"
 msgstr "Coloca na memória arquivo de traçado"
 
-#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1976
+#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1982
 msgid "Save"
-msgstr "Gravar"
+msgstr "Salvar"
 
 #: ../src/gpcb-menu.res:60
 msgid "Saves current layout"
@@ -1651,7 +1651,7 @@ msgstr "Ctrl<Tecla>s"
 
 #: ../src/gpcb-menu.res:61
 msgid "Save As..."
-msgstr "Gravar Como..."
+msgstr "Salvar Como..."
 
 #: ../src/gpcb-menu.res:61
 msgid "Saves current layout into a new file"
@@ -2008,7 +2008,7 @@ msgstr "Descrição"
 
 #: ../src/gpcb-menu.res:155 ../src/pcb-menu.res:65
 msgid "Reference Designator"
-msgstr "Dsignador de Referência"
+msgstr "Designador de Referência"
 
 #: ../src/gpcb-menu.res:156 ../src/pcb-menu.res:66
 msgid "Value"
@@ -3409,7 +3409,7 @@ msgstr "<Tecla>Enter"
 msgid "Window"
 msgstr "Janela"
 
-#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2156
+#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2162
 #: ../src/pcb-menu.res:437
 msgid "Library"
 msgstr "Biblioteca"
@@ -4090,32 +4090,32 @@ msgstr "Referência de Comandos"
 msgid "Enter command:"
 msgstr "Informe comando:"
 
-#: ../src/hid/gtk/gui-config.c:896
+#: ../src/hid/gtk/gui-config.c:897
 msgid "Enables"
 msgstr "Habilita"
 
-#: ../src/hid/gtk/gui-config.c:901
+#: ../src/hid/gtk/gui-config.c:902
 msgid "Use separate window for command entry"
 msgstr "Use janela separada para informar comando"
 
-#: ../src/hid/gtk/gui-config.c:906
+#: ../src/hid/gtk/gui-config.c:907
 msgid "Alternate window layout to allow smaller horizontal size"
 msgstr "Janela de traçado alternativa para permitir menor tamanho horizontal"
 
-#: ../src/hid/gtk/gui-config.c:911
+#: ../src/hid/gtk/gui-config.c:912
 msgid "Alternate window layout to allow smaller vertical size"
 msgstr "Janela de traçado alternativa para permitir menor tamanho vertical"
 
-#: ../src/hid/gtk/gui-config.c:913
+#: ../src/hid/gtk/gui-config.c:914
 msgid "Backups"
 msgstr "Cópias de segurança"
 
-#: ../src/hid/gtk/gui-config.c:917
+#: ../src/hid/gtk/gui-config.c:918
 #, c-format
 msgid "If layout is modified at exit, save into PCB.%i.save"
 msgstr "Se o traçado for modificado ao sair, grave em /tmp/PCB.%i.save"
 
-#: ../src/hid/gtk/gui-config.c:920
+#: ../src/hid/gtk/gui-config.c:921
 msgid ""
 "Seconds between auto backups\n"
 "(set to zero to disable auto backups)"
@@ -4123,87 +4123,91 @@ msgstr ""
 "Segundos entre gravações automáticas de segurança\n"
 "(ajuste para zero para desabilitar cópias automáticas de segurança)"
 
-#: ../src/hid/gtk/gui-config.c:923
+#: ../src/hid/gtk/gui-config.c:924
 msgid "Misc"
 msgstr "Diversos"
 
-#: ../src/hid/gtk/gui-config.c:927
+#: ../src/hid/gtk/gui-config.c:928
 msgid "Number of commands to remember in the history list"
 msgstr "Número de comandos a serem lembrados no histórico de comandos"
 
+#: ../src/hid/gtk/gui-config.c:933
+msgid "Use only metric units when saving pcb files"
+msgstr "Use unidades métricas ao salvar arquivos pcb"
+
 #. ---- Board Size ----
-#: ../src/hid/gtk/gui-config.c:1027
+#: ../src/hid/gtk/gui-config.c:1033
 msgid "Board Size"
 msgstr "Tamanho da Placa"
 
-#: ../src/hid/gtk/gui-config.c:1041
+#: ../src/hid/gtk/gui-config.c:1047
 msgid "Width"
 msgstr "Largura"
 
 # FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
-#: ../src/hid/gtk/gui-config.c:1046
+#: ../src/hid/gtk/gui-config.c:1052
 msgid "Height"
 msgstr "Altura"
 
-#: ../src/hid/gtk/gui-config.c:1049
+#: ../src/hid/gtk/gui-config.c:1055
 msgid "Use this board size as the default for new layouts"
 msgstr "Use esse tamanho de placa como padrão para novos traçados"
 
 #. ---- Text Scale ----
-#: ../src/hid/gtk/gui-config.c:1052
+#: ../src/hid/gtk/gui-config.c:1058
 msgid "Text Scale"
 msgstr "Escala do Texto"
 
 #. ---- DRC Sizes ----
-#: ../src/hid/gtk/gui-config.c:1070
+#: ../src/hid/gtk/gui-config.c:1076
 msgid "Design Rule Checking"
 msgstr "Verificação das Regras de Desenho"
 
-#: ../src/hid/gtk/gui-config.c:1083
+#: ../src/hid/gtk/gui-config.c:1089
 msgid "Minimum copper spacing"
 msgstr "Espaçamento mínimo entre trilhas"
 
-#: ../src/hid/gtk/gui-config.c:1089
+#: ../src/hid/gtk/gui-config.c:1095
 msgid "Minimum copper width"
 msgstr "Largura mínima de trilha"
 
-#: ../src/hid/gtk/gui-config.c:1095
+#: ../src/hid/gtk/gui-config.c:1101
 msgid "Minimum touching copper overlap"
 msgstr "Sobreposição mínima ao encostar"
 
-#: ../src/hid/gtk/gui-config.c:1101
+#: ../src/hid/gtk/gui-config.c:1107
 msgid "Minimum silk width"
 msgstr "Largura mínima da seda"
 
-#: ../src/hid/gtk/gui-config.c:1107
+#: ../src/hid/gtk/gui-config.c:1113
 msgid "Minimum drill diameter"
 msgstr "Diâmetro mínimo de perfuração"
 
-#: ../src/hid/gtk/gui-config.c:1113
+#: ../src/hid/gtk/gui-config.c:1119
 msgid "Minimum annular ring"
 msgstr "Auréola anular mínima"
 
-#: ../src/hid/gtk/gui-config.c:1118
+#: ../src/hid/gtk/gui-config.c:1124
 msgid "Use DRC values as the default for new layouts"
 msgstr "Use valores DRC como padrão para novos traçados"
 
-#: ../src/hid/gtk/gui-config.c:1170
+#: ../src/hid/gtk/gui-config.c:1176
 msgid "Metric Increment Settings"
 msgstr "Configurações de Incremento de Métrica"
 
-#: ../src/hid/gtk/gui-config.c:1178 ../src/hid/gtk/gui-config.c:1199
+#: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
 msgid "Grid:"
 msgstr "Grade:"
 
-#: ../src/hid/gtk/gui-config.c:1179 ../src/hid/gtk/gui-config.c:1200
+#: ../src/hid/gtk/gui-config.c:1185 ../src/hid/gtk/gui-config.c:1206
 msgid "For 'g' and '<shift>g' grid change actions"
 msgstr "Para 'g' e '<shift>g' ações de modificar grade"
 
-#: ../src/hid/gtk/gui-config.c:1180 ../src/hid/gtk/gui-config.c:1201
+#: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
 msgid "Size:"
 msgstr "Tamanho:"
 
-#: ../src/hid/gtk/gui-config.c:1181 ../src/hid/gtk/gui-config.c:1202
+#: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
 msgid ""
 "For 's' and '<shift>s' size change actions on lines,\n"
 "pads, pins and text.\n"
@@ -4213,19 +4217,19 @@ msgstr ""
 "de linhas, pastilhas, conectores, texto.\n"
 "Use '<ctrl>s' e '<shift><ctrl>s' para orifícios de perfuração."
 
-#: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
+#: ../src/hid/gtk/gui-config.c:1190 ../src/hid/gtk/gui-config.c:1211
 msgid "Line:"
 msgstr "Linha:"
 
-#: ../src/hid/gtk/gui-config.c:1185 ../src/hid/gtk/gui-config.c:1206
+#: ../src/hid/gtk/gui-config.c:1191 ../src/hid/gtk/gui-config.c:1212
 msgid "For 'l' and '<shift>l' routing line width change actions"
 msgstr "Para 'l' e '<shift>l' ações de mudar largura de linha de rota"
 
-#: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
+#: ../src/hid/gtk/gui-config.c:1192 ../src/hid/gtk/gui-config.c:1213
 msgid "Clear:"
 msgstr "Apaga:"
 
-#: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
+#: ../src/hid/gtk/gui-config.c:1193 ../src/hid/gtk/gui-config.c:1214
 msgid ""
 "For 'k' and '<shift>k' line clearance inside polygon size\n"
 "change actions"
@@ -4233,23 +4237,23 @@ msgstr ""
 "Para 'k' e '<shift>k' ações de mudar o tamanho da folga da linha\n"
 "dentro do polígono"
 
-#: ../src/hid/gtk/gui-config.c:1191
+#: ../src/hid/gtk/gui-config.c:1197
 msgid "Imperial Increment Settings"
 msgstr "Ajustes de Incremento Ingleses"
 
-#: ../src/hid/gtk/gui-config.c:1213
+#: ../src/hid/gtk/gui-config.c:1219
 msgid "Save as Default"
 msgstr "Grava como Padrão"
 
-#: ../src/hid/gtk/gui-config.c:1216
+#: ../src/hid/gtk/gui-config.c:1222
 msgid "Use values as the default for new layouts"
 msgstr "Use valores como padrão para novos traçados"
 
-#: ../src/hid/gtk/gui-config.c:1240
+#: ../src/hid/gtk/gui-config.c:1246
 msgid "Element Directories"
 msgstr "Diretórios de componente"
 
-#: ../src/hid/gtk/gui-config.c:1243
+#: ../src/hid/gtk/gui-config.c:1249
 #, c-format
 msgid ""
 "<small>Enter a \"%s\" separated list of custom top level\n"
@@ -4266,11 +4270,11 @@ msgstr ""
 "diretório de nível mais alto.  Re-iniciar o programa para que modificações "
 "entrem em vigor.</small>"
 
-#: ../src/hid/gtk/gui-config.c:1283
+#: ../src/hid/gtk/gui-config.c:1289
 msgid "<h>Layer Names\n"
 msgstr "<h>Nomes de camada\n"
 
-#: ../src/hid/gtk/gui-config.c:1284
+#: ../src/hid/gtk/gui-config.c:1290
 msgid ""
 "You may enter layer names for the layers drawn on the screen.\n"
 "The special 'top side' and 'bottom side' are layers which\n"
@@ -4282,11 +4286,11 @@ msgstr ""
 "serão impressas, de forma que elas devem ter no seu grupo ao menos uma\n"
 "das outras camadas que foram desenhadas na tela.\n"
 
-#: ../src/hid/gtk/gui-config.c:1289
+#: ../src/hid/gtk/gui-config.c:1295
 msgid "<h>Layer Groups\n"
 msgstr "<h>Grupos de Camada\n"
 
-#: ../src/hid/gtk/gui-config.c:1290
+#: ../src/hid/gtk/gui-config.c:1296
 msgid ""
 "Each layer on the screen may be in its own group which allows the\n"
 "maximum number of board layers.  However, for boards with fewer\n"
@@ -4305,7 +4309,7 @@ msgstr ""
 "como\n"
 "uma camada simples\n"
 
-#: ../src/hid/gtk/gui-config.c:1297
+#: ../src/hid/gtk/gui-config.c:1303
 msgid ""
 "For example, for a 4 layer board a useful layer group arrangement\n"
 "can be to have 3 screen displayed layers grouped into the same group\n"
@@ -4326,63 +4330,63 @@ msgstr ""
 "você deve selecionar botões e inserir nomes na página de Configuração para\n"
 "estruturar quatro grupos de camadas similares a esse:\n"
 
-#: ../src/hid/gtk/gui-config.c:1305
+#: ../src/hid/gtk/gui-config.c:1311
 msgid "<b>Group 1:"
 msgstr "<b>Grupo 1:"
 
-#: ../src/hid/gtk/gui-config.c:1307
+#: ../src/hid/gtk/gui-config.c:1313
 msgid "top"
 msgstr "topo"
 
-#: ../src/hid/gtk/gui-config.c:1309
+#: ../src/hid/gtk/gui-config.c:1315
 msgid "GND-top"
 msgstr "topo-GND"
 
-#: ../src/hid/gtk/gui-config.c:1311
+#: ../src/hid/gtk/gui-config.c:1317
 msgid "Vcc-top"
 msgstr "topo-Vcc"
 
-#: ../src/hid/gtk/gui-config.c:1313 ../src/hid/gtk/gui-config.c:1563
+#: ../src/hid/gtk/gui-config.c:1319 ../src/hid/gtk/gui-config.c:1569
 msgid "top side"
 msgstr "lado do topo"
 
-#: ../src/hid/gtk/gui-config.c:1315
+#: ../src/hid/gtk/gui-config.c:1321
 msgid "<b>Group 2:"
 msgstr "<b>Grupo 2:"
 
-#: ../src/hid/gtk/gui-config.c:1317
+#: ../src/hid/gtk/gui-config.c:1323
 msgid "bottom"
 msgstr "inferior"
 
-#: ../src/hid/gtk/gui-config.c:1319
+#: ../src/hid/gtk/gui-config.c:1325
 msgid "GND-bottom"
 msgstr "inferior-GND"
 
-#: ../src/hid/gtk/gui-config.c:1321
+#: ../src/hid/gtk/gui-config.c:1327
 msgid "Vcc-bottom"
 msgstr "inferior-Vcc"
 
-#: ../src/hid/gtk/gui-config.c:1323 ../src/hid/gtk/gui-config.c:1565
+#: ../src/hid/gtk/gui-config.c:1329 ../src/hid/gtk/gui-config.c:1571
 msgid "bottom side"
 msgstr "lado inferior"
 
-#: ../src/hid/gtk/gui-config.c:1325
+#: ../src/hid/gtk/gui-config.c:1331
 msgid "<b>Group 3:"
 msgstr "<b>Grupo 3:"
 
-#: ../src/hid/gtk/gui-config.c:1327
+#: ../src/hid/gtk/gui-config.c:1333
 msgid "signal1"
 msgstr "sinal1"
 
-#: ../src/hid/gtk/gui-config.c:1329
+#: ../src/hid/gtk/gui-config.c:1335
 msgid "<b>Group 4:"
 msgstr "<b>Grupo 4:"
 
-#: ../src/hid/gtk/gui-config.c:1331
+#: ../src/hid/gtk/gui-config.c:1337
 msgid "signal2"
 msgstr "sinal2"
 
-#: ../src/hid/gtk/gui-config.c:1445
+#: ../src/hid/gtk/gui-config.c:1451
 msgid ""
 "Both, 'top side' and 'bottom side' layer must have at least\n"
 "\tone other layer in their group.\n"
@@ -4390,7 +4394,7 @@ msgstr ""
 "Ambas as camadas 'lado do topo' ou a 'lado inferior' devem ter ao menos\n"
 "\tuma outra camada em seu grupo.\n"
 
-#: ../src/hid/gtk/gui-config.c:1452
+#: ../src/hid/gtk/gui-config.c:1458
 msgid ""
 "The 'top side' and 'bottom side' layers are not allowed\n"
 "\tto be in the same layer group #\n"
@@ -4400,106 +4404,106 @@ msgstr ""
 
 #. working copy
 #. So can know if PCB changes on us
-#: ../src/hid/gtk/gui-config.c:1543
+#: ../src/hid/gtk/gui-config.c:1549
 msgid "Group #"
 msgstr "Grupo #"
 
 #. -- Change tab
-#: ../src/hid/gtk/gui-config.c:1631
+#: ../src/hid/gtk/gui-config.c:1637
 msgid "Change"
 msgstr "Modifica"
 
-#: ../src/hid/gtk/gui-config.c:1633
+#: ../src/hid/gtk/gui-config.c:1639
 msgid "Operations on currently selected layer:"
 msgstr "Operações sobre a camada selecionada atualmente:"
 
-#: ../src/hid/gtk/gui-config.c:1662
+#: ../src/hid/gtk/gui-config.c:1668
 msgid "Add new layer above currently selected layer:"
 msgstr "Adicione nova camada acima da camada selecionada atualmente:"
 
 #. -- Groups tab
-#: ../src/hid/gtk/gui-config.c:1672
+#: ../src/hid/gtk/gui-config.c:1678
 msgid "Groups"
 msgstr "Grupos"
 
 #. -- Info tab
-#: ../src/hid/gtk/gui-config.c:1688
+#: ../src/hid/gtk/gui-config.c:1694
 msgctxt "tab"
 msgid "Info"
 msgstr "Informação"
 
-#: ../src/hid/gtk/gui-config.c:1737
+#: ../src/hid/gtk/gui-config.c:1743
 #, c-format
 msgid "Current colors loaded: <b>%s</b>"
 msgstr "Cores atuais na memória: <b>%s</b>"
 
-#: ../src/hid/gtk/gui-config.c:1782
+#: ../src/hid/gtk/gui-config.c:1788
 msgid "Load Color File"
 msgstr "Colocar Arquivo de Cor na Memória"
 
-#: ../src/hid/gtk/gui-config.c:1812
+#: ../src/hid/gtk/gui-config.c:1818
 msgid "Save Color File"
 msgstr "Grava Arquivo de Cor"
 
-#: ../src/hid/gtk/gui-config.c:1818
+#: ../src/hid/gtk/gui-config.c:1824
 msgid "Sorry, not overwriting the default color file!"
 msgstr "Sinto muito, não posso sobregravar o arquivo de cores padronizadas!"
 
-#: ../src/hid/gtk/gui-config.c:1872
+#: ../src/hid/gtk/gui-config.c:1878
 #, c-format
 msgid "PCB %s Color"
 msgstr "Cor %s do PCB"
 
 #. ---- Main colors ----
-#: ../src/hid/gtk/gui-config.c:1902
+#: ../src/hid/gtk/gui-config.c:1908
 msgid "Main colors"
 msgstr "Cores principais"
 
 #. ---- Layer colors ----
-#: ../src/hid/gtk/gui-config.c:1917
+#: ../src/hid/gtk/gui-config.c:1923
 msgid "Layer colors"
 msgstr "Cores da Camada"
 
 #. ---- Selected colors ----
-#: ../src/hid/gtk/gui-config.c:1932
+#: ../src/hid/gtk/gui-config.c:1938
 msgid "Selected colors"
 msgstr "Cores selecionadas"
 
-#: ../src/hid/gtk/gui-config.c:1958
+#: ../src/hid/gtk/gui-config.c:1964
 msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
 msgstr ""
 "<b>Atenção:</b> modificações de cores não gravadas irão ser perdidas ao sair "
 "do programa."
 
-#: ../src/hid/gtk/gui-config.c:1973
+#: ../src/hid/gtk/gui-config.c:1979
 msgid "Load"
 msgstr "Colocar na Memória"
 
-#: ../src/hid/gtk/gui-config.c:1978
+#: ../src/hid/gtk/gui-config.c:1984
 msgid "Defaults"
 msgstr "Padrões"
 
-#: ../src/hid/gtk/gui-config.c:2112
+#: ../src/hid/gtk/gui-config.c:2118
 msgid "PCB Preferences"
 msgstr "Preferências do PCB"
 
-#: ../src/hid/gtk/gui-config.c:2137
+#: ../src/hid/gtk/gui-config.c:2143
 msgid "General"
 msgstr "Geral"
 
-#: ../src/hid/gtk/gui-config.c:2144
+#: ../src/hid/gtk/gui-config.c:2150
 msgid "Sizes"
 msgstr "Tamanhos"
 
-#: ../src/hid/gtk/gui-config.c:2150
+#: ../src/hid/gtk/gui-config.c:2156
 msgid "Increments"
 msgstr "Incrementos"
 
-#: ../src/hid/gtk/gui-config.c:2162
+#: ../src/hid/gtk/gui-config.c:2168
 msgid "Layers"
 msgstr "Camadas"
 
-#: ../src/hid/gtk/gui-config.c:2169
+#: ../src/hid/gtk/gui-config.c:2175
 msgid "Colors"
 msgstr "Cores"
 
@@ -4537,7 +4541,7 @@ msgstr ""
 
 #: ../src/hid/gtk/gui-dialog.c:230
 msgid "Close _without saving"
-msgstr "Fechar _sem gravar"
+msgstr "Fechar _sem salvar"
 
 #: ../src/hid/gtk/gui-dialog-print.c:327
 #, c-format
@@ -5776,12 +5780,12 @@ msgstr "Exporta postscript"
 msgid "2D View"
 msgstr "Visão 2D"
 
-#: ../src/main.c:2031
+#: ../src/main.c:2041
 #, c-format
 msgid "Executing startup script file %s\n"
 msgstr "Executando script de inicialização %s\n"
 
-#: ../src/main.c:2037
+#: ../src/main.c:2047
 #, c-format
 msgid "Executing startup action %s\n"
 msgstr "Executando ação de inicialização %s\n"
