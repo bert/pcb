@@ -377,7 +377,7 @@ find_pair (int Px, int Py)
   BoxType spot;
 
 #if TRACE1
-  pcb_printf ("\nPuller find_pair at %#mD\n", Crosshair.X, Crosshair.Y);
+  pcb_printf ("\nPuller find_pair at %#mD\n", Px, Py);
 #endif
 
   x = Px;
