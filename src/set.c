@@ -321,7 +321,7 @@ SetMode (int Mode)
   /* force a crosshair grid update because the valid range
    * may have changed
    */
-  MoveCrosshairRelative (0, 0);
+  FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
   notify_crosshair_change (true);
 }
 
