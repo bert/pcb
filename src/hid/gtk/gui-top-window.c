@@ -945,25 +945,40 @@ typedef struct
   gchar *name;
   gint mode;
   gchar **xpm;
+  gchar *tooltip;
 }
 ModeButton;
 
 
 static ModeButton mode_buttons[] = {
-  {NULL, NULL, 0, 0, N_("via"), VIA_MODE, via},
-  {NULL, NULL, 0, 0, N_("line"), LINE_MODE, line},
-  {NULL, NULL, 0, 0, N_("arc"), ARC_MODE, arc},
-  {NULL, NULL, 0, 0, N_("text"), TEXT_MODE, text},
-  {NULL, NULL, 0, 0, N_("rectangle"), RECTANGLE_MODE, rect},
-  {NULL, NULL, 0, 0, N_("polygon"), POLYGON_MODE, poly},
-  {NULL, NULL, 0, 0, N_("polygonhole"), POLYGONHOLE_MODE, polyhole},
-  {NULL, NULL, 0, 0, N_("buffer"), PASTEBUFFER_MODE, buf},
-  {NULL, NULL, 0, 0, N_("remove"), REMOVE_MODE, del},
-  {NULL, NULL, 0, 0, N_("rotate"), ROTATE_MODE, rot},
-  {NULL, NULL, 0, 0, N_("insertPoint"), INSERTPOINT_MODE, ins},
-  {NULL, NULL, 0, 0, N_("thermal"), THERMAL_MODE, thrm},
-  {NULL, NULL, 0, 0, N_("select"), ARROW_MODE, sel},
-  {NULL, NULL, 0, 0, N_("lock"), LOCK_MODE, lock}
+  {NULL, NULL, 0, 0, N_("via"), VIA_MODE, via,
+    N_("create vias with <select mouse button>")},
+  {NULL, NULL, 0, 0, N_("line"), LINE_MODE, line,
+    N_("create a line segment, toggle draw modes with '/' or '.'")},
+  {NULL, NULL, 0, 0, N_("arc"), ARC_MODE, arc,
+    N_("create an arc segment")},
+  {NULL, NULL, 0, 0, N_("text"), TEXT_MODE, text,
+    N_("create a text")},
+  {NULL, NULL, 0, 0, N_("rectangle"), RECTANGLE_MODE, rect,
+    N_("create a filled rectangle")},
+  {NULL, NULL, 0, 0, N_("polygon"), POLYGON_MODE, poly,
+    N_("create a polygon, <shift>-P for closing the polygon")},
+  {NULL, NULL, 0, 0, N_("polygonhole"), POLYGONHOLE_MODE, polyhole,
+    N_("create a hole into an existing polygon")},
+  {NULL, NULL, 0, 0, N_("buffer"), PASTEBUFFER_MODE, buf,
+    N_("paste the selection from buffer into the layout")},
+  {NULL, NULL, 0, 0, N_("remove"), REMOVE_MODE, del,
+    N_("remove objects under the cursor")},
+  {NULL, NULL, 0, 0, N_("rotate"), ROTATE_MODE, rot,
+    N_("rotate a selection or object CCW, hold the <shift> key to rotate CW")},
+  {NULL, NULL, 0, 0, N_("insertPoint"), INSERTPOINT_MODE, ins,
+    N_("add points into existing lines and polygons")},
+  {NULL, NULL, 0, 0, N_("thermal"), THERMAL_MODE, thrm,
+    N_("create thermals with <select mouse button>, toggle thermal style with <Shift> <select mouse button>")},
+  {NULL, NULL, 0, 0, N_("select"), ARROW_MODE, sel,
+    N_("select, deselect or move objects or selections")},
+  {NULL, NULL, 0, 0, N_("lock"), LOCK_MODE, lock,
+    N_("lock or unlock an object")}
 };
 
 static gint n_mode_buttons = G_N_ELEMENTS (mode_buttons);
@@ -1071,13 +1086,15 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
 
       /* Create tool button for mode frame */
       mb->button = gtk_radio_button_new (group);
-      gtk_widget_set_tooltip_text (mb->button, _(mb->name));
+      gtk_widget_set_tooltip_text (mb->button, _(mb->tooltip));
+      gtk_widget_set_name (mb->button, (mb->name));
       group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->button));
       gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->button), FALSE);
 
       /* Create tool button for toolbar */
       mb->toolbar_button = gtk_radio_button_new (toolbar_group);
-      gtk_widget_set_tooltip_text (mb->toolbar_button, _(mb->name));
+      gtk_widget_set_tooltip_text (mb->toolbar_button, _(mb->tooltip));
+      gtk_widget_set_name (mb->toolbar_button, (mb->name));
       toolbar_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->toolbar_button));
       gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->toolbar_button), FALSE);
 
