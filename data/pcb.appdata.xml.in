@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Bert Timmerman <bert.timmerman@xs4all.nl> -->
 <application>
-  <id type="desktop">gnome-power-statistics.desktop</id>
-  <licence>GFDL</licence>
+  <id type="desktop">pcb.desktop</id>
+  <metadata_license>GFDL-1.3</metadata_license>
+  <project_license>GPL-2.0</project_license>
   <description>
     <_p>
       PCB is an interactive printed circuit board editor for Unix, Linux,
@@ -26,7 +27,7 @@
     </_p>
   </description>
   <screenshots>
-    <screenshot type="default" width="320" height="222">http://wiki.geda-project.org/_media/geda:screenshot_pcb_thumb.png</screenshot>
+    <screenshot type="default" width="892" height="619">http://wiki.geda-project.org/_media/geda:screenshot_pcb.png</screenshot>
   </screenshots>
   <url type="homepage">http://pcb.geda-project.org/</url>
   <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
