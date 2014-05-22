@@ -195,6 +195,7 @@ MainMenu =
    {"Auto enforce DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
    -
    {"Rubber band mode" checked=rubberband Display(ToggleRubberBandMode)}
+   {"All directions rubber band mode" checked=alldirectionsrubberband Display(ToggleAllDirectionsRubberBandMode)}
    {"Require unique element names" checked=uniquename Display(ToggleUniqueNames)}
    {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}

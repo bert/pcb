@@ -45,12 +45,15 @@
 #include "line.h"
 #include "misc.h"
 #include "mymem.h"
+#include "rubberband.h"
 #include "search.h"
 #include "polygon.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+#define dprintf if(0)printf
 
 typedef struct
 {
@@ -376,8 +379,10 @@ XORDrawMoveOrCopyObject (void)
 {
   RubberbandType *ptr;
   Cardinal i;
+  LineType  LineOut;
+  PointType PointOut;
   Coord dx = Crosshair.X - Crosshair.AttachedObject.X,
-    dy = Crosshair.Y - Crosshair.AttachedObject.Y;
+        dy = Crosshair.Y - Crosshair.AttachedObject.Y;
 
   switch (Crosshair.AttachedObject.Type)
     {
@@ -390,11 +395,20 @@ XORDrawMoveOrCopyObject (void)
 
     case LINE_TYPE:
       {
-	LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
+        LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
 
-	XORDrawAttachedLine (line->Point1.X + dx, line->Point1.Y + dy,
-			     line->Point2.X + dx, line->Point2.Y + dy,
-			     line->Thickness);
+        dprintf("line->Point1.X = %d line->Point1.Y = %d RubberbandN = %d\n",
+                line->Point1.X, line->Point1.Y, 
+                Crosshair.AttachedObject.RubberbandN);
+
+        /* work out coords of line to draw given rubber mode */
+
+        RestrictMovementGivenRubberBandMode (line, &dx, &dy);
+        MoveLineGivenRubberBandMode (&LineOut, line, dx, dy, Crosshair);
+
+        XORDrawAttachedLine (LineOut.Point1.X, LineOut.Point1.Y,
+                             LineOut.Point2.X, LineOut.Point2.Y,
+                             LineOut.Thickness);
 	break;
       }
 
@@ -516,9 +530,14 @@ XORDrawMoveOrCopyObject (void)
 	      point1 = &ptr->Line->Point1;
 	      point2 = &ptr->Line->Point2;
 	    }
-	  XORDrawAttachedLine (point1->X,
-			       point1->Y, point2->X + dx,
-			       point2->Y + dy, ptr->Line->Thickness);
+
+          MovePointGivenRubberBandMode (&PointOut, point2, ptr->Line, dx, dy,
+                                        Crosshair.AttachedObject.Type, 0);
+
+          XORDrawAttachedLine (point1->X, point1->Y, 
+                               PointOut.X, PointOut.Y,
+                               ptr->Line->Thickness);
+
 	}
       else if (ptr->MovedPoint == &ptr->Line->Point1)
 	XORDrawAttachedLine (ptr->Line->Point1.X + dx,

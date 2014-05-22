@@ -133,7 +133,8 @@ typedef struct
     compact_horizontal,
     compact_vertical,
     use_command_window,
-    creating;
+    creating,
+    toggle_holdoff;
 
   gint n_mode_button_columns,
     top_window_width,

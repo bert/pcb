@@ -193,6 +193,7 @@ typedef enum
   F_ToggleShowDRC,
   F_ToggleLiveRoute,
   F_ToggleRubberBandMode,
+  F_ToggleAllDirectionsRubberBandMode,
   F_ToggleStartDirection,
   F_ToggleSnapPin,
   F_ToggleThindraw,
@@ -424,6 +425,7 @@ static FunctionType Functions[] = {
   {"ToggleName", F_ToggleName},
   {"ToggleObject", F_ToggleObject},
   {"ToggleRubberBandMode", F_ToggleRubberBandMode},
+  {"ToggleAllDirectionsRubberBandMode", F_ToggleAllDirectionsRubberBandMode},
   {"ToggleStartDirection", F_ToggleStartDirection},
   {"ToggleSnapPin", F_ToggleSnapPin},
   {"ToggleThindraw", F_ToggleThindraw},
@@ -2465,6 +2467,7 @@ static const char display_syntax[] =
   "Display(Grid|Redraw)\n"
   "Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+  "Display(ToggleAllDirectionsRubberBandMode)\n"
   "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
   "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
@@ -2501,6 +2504,10 @@ Changes crosshair drawing.  Crosshair may accept form of 4-ray,
 
 @item ToggleRubberBandMode
 If set, moving an object moves all the lines attached to it too.
+
+@item ToggleAllDirectionsRubberBandMode
+In RubberBand mode, lines can be moved in all directions.  If unset lines
+are restricted to 45 degrees when moving.
 
 @item ToggleStartDirection
 If set, each time you set a point in a line, the Clip toggles between
@@ -2697,6 +2704,10 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  notify_crosshair_change (false);
 	  TOGGLE_FLAG (RUBBERBANDFLAG, PCB);
 	  notify_crosshair_change (true);
+	  break;
+
+	case F_ToggleAllDirectionsRubberBandMode:
+	  TOGGLE_FLAG (ALLDIRECTIONSRUBBERBANDFLAG, PCB);
 	  break;
 
 	case F_ToggleStartDirection:

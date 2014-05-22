@@ -32,6 +32,7 @@
 #include "config.h"
 #endif
 
+#include <assert.h>
 #include <setjmp.h>
 #include <stdlib.h>
 
@@ -47,6 +48,8 @@
 #include "mymem.h"
 #include "polygon.h"
 #include "rtree.h"
+#include "rubberband.h"
+#include "remove.h"
 #include "search.h"
 #include "select.h"
 #include "thermal.h"
@@ -55,6 +58,8 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+#define dprintf if(0)printf
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -266,6 +271,7 @@ MoveLine (LayerType *Layer, LineType *Line)
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   r_delete_entry (Layer->line_tree, (BoxType *)Line);
   MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
+  SetLineBoundingBox (Line);
   r_insert_entry (Layer->line_tree, (BoxType *)Line, 0);
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   if (Layer->On)
@@ -789,34 +795,315 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 {
   RubberbandType *ptr;
   void *ptr2;
+  int   n;
+  Coord PreMoveObjX, PreMoveObjY;
+
+  dprintf("MoveObjectAndRubberband\n");
+  if (Type == LINE_TYPE) {
+    dprintf("  Line Type\n");
+    RestrictMovementGivenRubberBandMode ((LineType *) Ptr3, &DX, &DY);
+  }
 
   /* setup offset */
   DeltaX = DX;
   DeltaY = DY;
 
-  /* move all the lines... and reset the counter */
+  /* regular rubberband move of attached point in attached lines */
   ptr = Crosshair.AttachedObject.Rubberband;
-  while (Crosshair.AttachedObject.RubberbandN)
+  n = Crosshair.AttachedObject.RubberbandN;
+  while (n)
     {
-      /* first clear any marks that we made in the line flags */
-      CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
+      Coord dX, dY;
+
+      dX = DX; dY = DY;
+
+      /* 
+        Centre each moved points in pin/pad.  This has the nice side effect
+        or reducing the length of any stub tracks to zero so they will get
+        deleted later.
+      */
+      dprintf("Point Number %d--------------------------------\n",n);
+      dprintf("  MovedPoint (%ld,%ld)\n", ptr->MovedPoint->X, ptr->MovedPoint->Y);
+      dprintf("  Line       (%ld,%ld) (%ld,%ld)\n", 
+             ptr->Line->Point1.X, ptr->Line->Point1.Y,
+             ptr->Line->Point2.X, ptr->Line->Point2.Y);
+
+      if ((Type == PIN_TYPE) || (Type == VIA_TYPE)) {
+        PinType *PinPtr = (PinType *) Ptr1;
+        dprintf("       Pin   (%ld,%ld)\n", PinPtr->X, PinPtr->Y);
+        dprintf("       dX dY (%ld,%ld)\n", dX, dY);
+        dX += PinPtr->X - ptr->MovedPoint->X;
+        dY += PinPtr->Y - ptr->MovedPoint->Y;
+        dprintf("       dX dY (%ld,%ld)\n", dX, dY);
+      }
+      if (Type == PAD_TYPE) {
+        PadType *PadPtr = (PadType *) Ptr1;
+        PointType PadCentre;
+
+        PadCentre.X = (PadPtr->Point1.X + PadPtr->Point1.X)/2;
+        PadCentre.Y = (PadPtr->Point2.Y + PadPtr->Point2.Y)/2;
+        dX += PadCentre.X - ptr->MovedPoint->X;
+        dY += PadCentre.Y - ptr->MovedPoint->Y;
+      }
+
+      DeltaX = dX; DeltaY = dY;
       /* only update undo list if an actual movement happened */
       if (DX != 0 || DY != 0)
         {
           AddObjectToMoveUndoList (LINEPOINT_TYPE,
-                                   ptr->Layer, ptr->Line,
-                                   ptr->MovedPoint, DX, DY);
+                               ptr->Layer, ptr->Line, ptr->MovedPoint, dX,
+                               dY);
           MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
         }
-      Crosshair.AttachedObject.RubberbandN--;
+      n--;
       ptr++;
     }
 
   if (DX == 0 && DY == 0)
     return (NULL);
 
+  /* move the actual object */
+  DeltaX = DX;
+  DeltaY = DY;
   AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DX, DY);
   ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
+
+  /* now we do fixups to maintain 45 deg angles during rubberband
+     drags */
+  switch (Type) {
+
+  case LINE_TYPE:
+    {
+
+      /* In rubberband mode we nudge one end of the line we just moved 
+         to keep joined lines aligned 45 degrees  */
+
+      n = Crosshair.AttachedObject.RubberbandN;
+      ptr = Crosshair.AttachedObject.Rubberband;
+      while(n) {
+        Coord nudgeX, nudgeY;
+        LineType *line = (LineType *) Ptr3;
+        PointType PointOut;
+        PointType *nudge;
+
+        dprintf("  Nudging a line attached to line %d\n", n);
+
+        MovePointGivenRubberBandMode(&PointOut, ptr->MovedPoint, ptr->Line, 
+                                     DX, DY, Crosshair.AttachedObject.Type,
+                                     IsDiagonal(line));
+
+        nudgeX = PointOut.X - ptr->MovedPoint->X - DX; 
+        nudgeY = PointOut.Y - ptr->MovedPoint->Y - DY;
+        dprintf("  nudgeX = %ld  nudgeY = %ld\n", nudgeX, nudgeY);
+        DeltaX = nudgeX; DeltaY = nudgeY;
+
+        /* nudge point on attached line */
+
+        /* nudge point on line */
+        if ((ptr->MovedPoint->X == line->Point1.X) && 
+            (ptr->MovedPoint->Y == line->Point1.Y))
+        {
+          nudge = &line->Point1;
+          dprintf("    nudge point1\n"); 
+        }
+        else
+        {
+          dprintf("    nudge point2\n"); 
+          nudge = &line->Point2;
+        }
+
+        AddObjectToMoveUndoList (LINEPOINT_TYPE,
+                                 ptr->Layer, ptr->Line, ptr->MovedPoint, nudgeX,
+                                 nudgeY);
+        MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
+
+        AddObjectToMoveUndoList (LINEPOINT_TYPE, Ptr1, Ptr2, nudge, 
+                                 nudgeX,nudgeY);
+        MoveLinePoint (Ptr1, Ptr2, nudge);
+        ptr++;
+        n--;
+      }    
+    }
+    break;
+
+  case VIA_TYPE:
+  case PAD_TYPE:
+  case PIN_TYPE:
+  case ELEMENT_TYPE:
+    {
+      /* 
+         Generalised rubber band dragging of lines attached objects.  At
+         the start start of this code we have a non-45 line 'A' between
+         p1-p3. At the end of this code we want something like:
+
+
+              p2________p3
+             /    A     
+            /B         
+           /         
+          p1 
+
+         To make nice angles we need an two lines.  If A is already
+         attached to another line we use that as B.  If A is not
+         attached we create a line.
+
+         So the steps are (i) find or create B (ii) determine p2 and
+         (iii) move B to p1-p2, and A to p2-p3.
+
+         There are actually lots of ways to route lines between p1
+         and p3 using an intermediate point p2.  If we wanted to
+         be really clever we could test if B and A touch any other
+         objects, if so try some other routing methods.
+      */
+
+      n = Crosshair.AttachedObject.RubberbandN;
+      ptr = Crosshair.AttachedObject.Rubberband;
+      while(n) {
+        PointType p1, p2, p3;
+        PointType *lineA_p2, *lineB_p2; /* inital p2 points before move */
+        LineType *lineA = ptr->Line;
+        LineType *lineB;
+        Coord dX, dY;
+        int ignore;
+        PinType pin;
+
+        ignore = 0;
+
+        dprintf("  Line attached to an object %d---------------\n", n);    
+
+        if (!TEST_FLAG (RUBBERBANDFLAG, PCB))
+          ignore = 1;
+        if (TEST_FLAG (ALLDIRECTIONSRUBBERBANDFLAG, PCB))
+          ignore = 1;
+
+        /* ignore any xero length objects */
+        if ((lineA->Point1.X == lineA->Point2.X) &&
+            (lineA->Point1.Y == lineA->Point2.Y))
+          ignore = 1;
+
+        if (!ignore) {
+
+        /* map current points at end of line to our model */
+          if ((ptr->MovedPoint->X == lineA->Point1.X) && 
+              (ptr->MovedPoint->Y == lineA->Point1.Y)) 
+            {
+              p3 = lineA->Point1;
+              lineA_p2 = &lineA->Point2;
+            }
+          else
+            {
+              lineA_p2 = &lineA->Point1;
+              p3 = lineA->Point2;
+            }
+
+          dprintf("    Initial lineA\n");
+          dprintf("      p3.X = %ld  p3.Y = %ld\n", p3.X, p3.Y);
+          dprintf("      p2.X = %ld  p2.Y = %ld\n", lineA_p2->X, lineA_p2->Y);
+
+          /* now lets find/create line B  */
+
+          if ((lineB = FindLineAttachedToPoint (ptr->Layer, lineA, lineA_p2)) 
+              != NULL)
+            {
+              dprintf("    lineB found!\n");
+              if ((lineA_p2->X == lineB->Point1.X) && 
+                (lineA_p2->Y == lineB->Point1.Y))
+                {
+                  p1 = lineB->Point2;
+                  lineB_p2 = &lineB->Point1;
+                }
+              else
+                {
+                  p1 = lineB->Point1;	      
+                  lineB_p2 = &lineB->Point2;
+                }
+            }
+          else
+            {
+              /* No attached line found, lets create one, coords dont matter
+                 for now as it will be moved shortly */
+
+              dprintf("    lineB created!\n");
+              lineB = CreateNewLineOnLayer (ptr->Layer, 
+                                            lineA_p2->X, 
+                                            lineA_p2->Y, p3.X, p3.Y,
+                                            lineA->Thickness,
+                                            2 * lineA->Clearance,
+                                            lineA->Flags);
+              AddObjectToCreateUndoList (LINE_TYPE, CURRENT, lineB, lineB);
+              p1.X = lineA_p2->X; p1.Y = lineA_p2->Y;
+              lineB_p2 = &lineB->Point2;
+            }
+
+          dprintf("    Initial lineB\n");
+          dprintf("      p1.X = %ld  p1.Y = %ld\n", p1.X, p1.Y);
+          dprintf("      p2.X = %ld  p2.Y = %ld\n", lineB_p2->X, lineB_p2->Y);
+
+          /* OK, we now have lineA and lineB, p1, and p3 are set, need to
+             determine p2 such that we are routing lines at 45 deg. */
+          dY = abs(p3.Y - p1.Y);
+          dX = abs(p3.X - p1.X);
+          dprintf("    Final dX = %ld  dY = %ld\n", dX, dY);
+
+          if (dX < dY) {
+            p2.X = p1.X + SGN(p3.X - p1.X)*dX;
+            p2.Y = p1.Y + SGN(p3.Y - p1.Y)*dX;	
+          }
+          else {
+            p2.X = p1.X + SGN(p3.X - p1.X)*dY;
+            p2.Y = p1.Y + SGN(p3.Y - p1.Y)*dY;	
+          }
+
+          dprintf("    New p2:\n");
+          dprintf("      p2.X = %ld  p2.Y = %ld\n", p2.X, p2.Y);
+
+          /* Move lineA so it starts at p2 */
+          DeltaX = p2.X - lineA_p2->X; DeltaY = p2.Y - lineA_p2->Y;
+          dprintf("    lineA:\n");
+          dprintf("      DeltaX = %ld   DeltaY = %ld\n", DeltaX,  DeltaY);
+          AddObjectToMoveUndoList (LINEPOINT_TYPE,
+                                   ptr->Layer, lineA, lineA_p2, DeltaX,
+                                   DeltaY);
+          MoveLinePoint (ptr->Layer, lineA, lineA_p2); 
+
+          /* Move lineB so it ends at p2 */
+          DeltaX = p2.X - lineB_p2->X; DeltaY = p2.Y - lineB_p2->Y;
+          dprintf("    lineB:\n");
+          dprintf("      DeltaX = %ld   DeltaY = %ld\n", DeltaX,  DeltaY);
+          AddObjectToMoveUndoList (LINEPOINT_TYPE,
+                                   ptr->Layer, lineB, lineB_p2, DeltaX,
+                                   DeltaY);
+          MoveLinePoint (ptr->Layer, lineB, lineB_p2); 
+        }
+
+        /* next attached line to object */
+        ptr++;
+        n--;
+      }
+    }
+  }
+
+  /* final loop to reset counter and clear flags */
+
+  ptr = Crosshair.AttachedObject.Rubberband;
+  n = Crosshair.AttachedObject.RubberbandN;
+  while (n)
+    {
+      LineType *line = (LineType *) ptr->Line;
+      CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
+      Crosshair.AttachedObject.RubberbandN--;
+
+      /* clean up - delete any zero length lines */
+      if ((line->Point1.X == line->Point2.X) &&
+          (line->Point1.Y == line->Point2.Y))
+        {
+          RemoveLine (ptr->Layer, line);
+        }
+
+      n--;
+      ptr++;
+    }
+
   IncrementUndoSerialNumber ();
   return (ptr2);
 }

@@ -303,6 +303,7 @@ When set, element names are not drawn.
 #define ONLYNAMESFLAG           0x00080000
 #define NEWFULLPOLYFLAG         0x00100000
 #define HIDENAMESFLAG           0x00200000
+#define ALLDIRECTIONSRUBBERBANDFLAG 0x00040000
 
 /* ---------------------------------------------------------------------------
  * object types

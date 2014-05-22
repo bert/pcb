@@ -112,7 +112,7 @@ typedef unsigned char BYTE;
    for now.  */
 typedef struct
 {
-  unsigned long f;		/* generic flags */
+  unsigned int f; /* generic flags */
   unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
 } FlagType;
 
@@ -682,6 +682,7 @@ typedef struct			/* some resources... */
     StipplePolygons,		/* draw polygons with stipple */
     AllDirectionLines,		/* enable lines to all directions */
     RubberBandMode,		/* move, rotate use rubberband connections */
+    AllDirectionsRubberBandMode,/* rubberband tracks can move in all directions */
     SwapStartDirection,		/* change starting direction after each click */
     ShowDRC,			/* show drc region on crosshair */
     AutoDRC,			/* */

@@ -163,6 +163,8 @@ CreateNewPCB (bool SetDefaultNames)
   ptr->Clipping = 1;		/* this is the most useful starting point for now */
   if (Settings.RubberBandMode)
     SET_FLAG (RUBBERBANDFLAG, ptr);
+  if (Settings.AllDirectionsRubberBandMode)
+    SET_FLAG (ALLDIRECTIONSRUBBERBANDFLAG, ptr);
   if (Settings.SwapStartDirection)
     SET_FLAG (SWAPSTARTDIRFLAG, ptr);
   if (Settings.UniqueNames)
@@ -953,7 +955,7 @@ CreateNewRubberbandEntry (LayerType *Layer,
 
   /* we toggle the RUBBERENDFLAG of the line to determine if */
   /* both points are being moved. */
-  TOGGLE_FLAG (RUBBERENDFLAG, Line);
+  SET_FLAG (RUBBERENDFLAG, Line);
   ptr->Layer = Layer;
   ptr->Line = Line;
   ptr->MovedPoint = MovedPoint;

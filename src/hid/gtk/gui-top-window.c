@@ -933,6 +933,16 @@ make_route_style_buttons (GHidRouteStyleSelector *rss)
        GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 }
 
+static void
+toggle_all_directions_rubber_band_cb (GtkToggleAction * action, GHidPort * port)
+{
+  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
+  Settings.AllDirectionsRubberBandMode = gtk_toggle_action_get_active (action);
+  ghidgui->config_modified = TRUE;
+  if (!ghidgui->toggle_holdoff)
+    hid_actionl ("Display", "ToggleAllDirectionsRubberBandMode", "", NULL);
+}
+
 /*
  *  ---------------------------------------------------------------
  * Mode buttons
