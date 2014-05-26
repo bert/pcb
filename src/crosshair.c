@@ -426,16 +426,22 @@ XORDrawMoveOrCopyObject (void)
 	LineType *line;
 	PointType *point;
 
+        /* we are using AttachedLine for the new line points
+	 */
 	line = (LineType *) Crosshair.AttachedObject.Ptr2;
 	point = (PointType *) Crosshair.AttachedObject.Ptr3;
-	if (point == &line->Point1)
-	  XORDrawAttachedLine (point->X + dx,
-			       point->Y + dy, line->Point2.X,
-			       line->Point2.Y, line->Thickness);
-	else
-	  XORDrawAttachedLine (point->X + dx,
-			       point->Y + dy, line->Point1.X,
-			       line->Point1.Y, line->Thickness);
+	XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
+			     Crosshair.AttachedLine.Point1.Y,
+			     Crosshair.AttachedLine.Point2.X,
+			     Crosshair.AttachedLine.Point2.Y,
+			     line->Thickness);
+	  /* draw two lines ? */
+	  if (PCB->Clipping)
+	    XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
+				 Crosshair.AttachedLine.Point2.Y,
+				 Crosshair.X + point->X - Crosshair.AttachedObject.X,
+				 Crosshair.Y + point->Y - Crosshair.AttachedObject.Y,
+			         line->Thickness);
 	break;
       }
 
@@ -499,14 +505,16 @@ XORDrawMoveOrCopyObject (void)
     {
       PointType *point1, *point2;
 
+      /* something that don't borther us */
       if (TEST_FLAG (VIAFLAG, ptr->Line))
 	{
 	  /* this is a rat going to a polygon.  do not draw for rubberband */;
 	}
+      /* one point is moved */
       else if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
 	{
 	  /* 'point1' is always the fix-point */
-	  if (ptr->MovedPoint == &ptr->Line->Point1)
+	  if (ptr->first)
 	    {
 	      point1 = &ptr->Line->Point2;
 	      point2 = &ptr->Line->Point1;
@@ -516,11 +524,19 @@ XORDrawMoveOrCopyObject (void)
 	      point1 = &ptr->Line->Point1;
 	      point2 = &ptr->Line->Point2;
 	    }
+
 	  XORDrawAttachedLine (point1->X,
-			       point1->Y, point2->X + dx,
-			       point2->Y + dy, ptr->Line->Thickness);
+			       point1->Y, ptr->Point.X,
+			       ptr->Point.Y, ptr->Line->Thickness);
+	  if (ptr->Layer && PCB->Clipping)
+	    XORDrawAttachedLine (ptr->Point.X,
+				 ptr->Point.Y,
+				 point2->X + dx,
+				 point2->Y + dy,
+			         ptr->Line->Thickness);
 	}
-      else if (ptr->MovedPoint == &ptr->Line->Point1)
+      /* both ends are moved - draw the line just for first end */
+      else if (ptr->first)
 	XORDrawAttachedLine (ptr->Line->Point1.X + dx,
 			     ptr->Line->Point1.Y + dy,
 			     ptr->Line->Point2.X + dx,

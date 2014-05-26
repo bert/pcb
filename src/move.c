@@ -787,36 +787,98 @@ void *
 MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 			 Coord DX, Coord DY)
 {
+  LayerType *layer = (LayerType *) Ptr1;
+  LineType *line = (LineType *) Ptr2;
+  PointType *point = (PointType *) Ptr3;
   RubberbandType *ptr;
   void *ptr2;
 
-  /* setup offset */
-  DeltaX = DX;
-  DeltaY = DY;
+  if (DX == 0 && DY == 0)
+    return (NULL);
+
+  if ((Type == LINEPOINT_TYPE) && Ptr1)
+    {
+
+      /* new line point is stored in AttachedLine */
+      DeltaX = Crosshair.AttachedLine.Point2.X - point->X;
+      DeltaY = Crosshair.AttachedLine.Point2.Y - point->Y;
+    }
+  else
+    {
+      /* setup offset */
+      DeltaX = DX;
+      DeltaY = DY;
+    }
+
+  /* move the object */
+  AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DeltaX, DeltaY);
+  ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
+
+  /* move was not to destination point - it was line, create new one */
+  if ((DX != DeltaX) || (DY != DeltaY))
+    {
+      /* new line is needed */
+      if (layer && (PCB->Clipping != 0) &&
+         (line = CreateDrawnLineOnLayer(layer,
+                                        point->X,
+	                                point->Y,
+	                                point->X + DX - DeltaX,
+	                                point->Y + DY - DeltaY,
+                                        line->Thickness,
+	                                line->Clearance, line->Flags)))
+        {
+          addedLines++;
+          AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+          if (layer->On)
+            DrawLine (layer, line);
+        }
+    }
 
   /* move all the lines... and reset the counter */
   ptr = Crosshair.AttachedObject.Rubberband;
   while (Crosshair.AttachedObject.RubberbandN)
     {
+      bool flag = TEST_FLAG(RUBBERENDFLAG, ptr->Line);
+
       /* first clear any marks that we made in the line flags */
       CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
-      /* only update undo list if an actual movement happened */
-      if (DX != 0 || DY != 0)
+      if (ptr->first)
+	point = &ptr->Line->Point1;
+      else
+	point = &ptr->Line->Point2;
+
+      /* setup offset for moved point */
+      DeltaX = ptr->Point.X - point->X;
+      DeltaY = ptr->Point.Y - point->Y;
+      /* move old line */
+      AddObjectToMoveUndoList (LINEPOINT_TYPE,
+			       ptr->Layer, ptr->Line, point, DeltaX, DeltaY);
+      MoveLinePoint (ptr->Layer, ptr->Line, point);
+
+      /* is new line is needed?
+       * if flag is not set, both point are going
+       * to be moved, so no need to create second line
+       */
+      if (flag && ((DX != DeltaX) || (DY != DeltaY)))
         {
-          AddObjectToMoveUndoList (LINEPOINT_TYPE,
-                                   ptr->Layer, ptr->Line,
-                                   ptr->MovedPoint, DX, DY);
-          MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
-        }
+	  if (ptr->Layer && (PCB->Clipping != 0) &&
+	     (line = CreateDrawnLineOnLayer(ptr->Layer,
+                                            point->X,
+					    point->Y,
+					    point->X + DX - DeltaX,
+					    point->Y + DY - DeltaY,
+                                            ptr->Line->Thickness,
+					    ptr->Line->Clearance, ptr->Line->Flags)))
+	    {
+	      addedLines++;
+	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+	      if (ptr->Layer->On)
+	        DrawLine (ptr->Layer, line);
+	    }
+	}
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
     }
-
-  if (DX == 0 && DY == 0)
-    return (NULL);
-
-  AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DX, DY);
-  ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
   IncrementUndoSerialNumber ();
   return (ptr2);
 }

@@ -545,8 +545,9 @@ typedef struct			/* rubberband lines for element moves */
 {
   LayerType *Layer;		/* layer that holds the line */
   LineType *Line;		/* the line itself */
-  PointType *MovedPoint;	/* and finally the point */
-} RubberbandType;
+  PointType Point;	        /* moved point after move */
+  bool first;		        /* keep track which point is moving */
+} RubberbandType, *RubberbandTypePtr;
 
 typedef struct			/* current marked line */
 {

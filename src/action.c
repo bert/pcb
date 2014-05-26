@@ -840,6 +840,63 @@ AdjustAttachedObjects (void)
     case POLYGONHOLE_MODE:
       AdjustAttachedLine ();
       break;
+      /* move mode */
+    case MOVE_MODE:
+      {
+        LayerType *layer;
+        LineType *line;
+        PointType *point;
+        RubberbandType *ptr;
+        Cardinal i;
+
+        if (Crosshair.AttachedObject.Type == LINEPOINT_TYPE)
+	  {
+            layer = (LayerType *) Crosshair.AttachedObject.Ptr1;
+            line = (LineType *) Crosshair.AttachedObject.Ptr2;
+            point = (PointType *) Crosshair.AttachedObject.Ptr3;
+
+	    /* no one should be useing AttachedLine right now
+	     * so just use it
+	     */
+	    if (&line->Point1 == point)
+	      {
+	        Crosshair.AttachedLine.Point1.X = line->Point2.X;
+	        Crosshair.AttachedLine.Point1.Y = line->Point2.Y;
+              }
+	    else
+	      {
+	        Crosshair.AttachedLine.Point1.X = line->Point1.X;
+	        Crosshair.AttachedLine.Point1.Y = line->Point1.Y;
+	      }
+	    Crosshair.AttachedLine.State = STATE_SECOND;
+	    /* Adjust line functions expect Crosshair to point to
+	     * the destination of moved point. But when dragging
+	     * Crosshair points to where we clicked relativ to
+	     * the the moved point. So just adjust it to keep this
+	     * function happy.
+	     */
+  	    Crosshair.X += point->X - Crosshair.AttachedObject.X;
+  	    Crosshair.Y += point->Y - Crosshair.AttachedObject.Y;
+	    /* is should not be possible to move RAT, but be carful */
+      	    if (!layer || PCB->Clipping == 0)
+	      AdjustAttachedLine ();
+            else
+	      AdjustTwoLine (PCB->Clipping - 1);
+	    /* be nice and put it back */
+  	    Crosshair.X -= point->X - Crosshair.AttachedObject.X;
+  	    Crosshair.Y -= point->Y - Crosshair.AttachedObject.Y;
+          }
+        ptr = Crosshair.AttachedObject.Rubberband;
+        for(i = 0; i < Crosshair.AttachedObject.RubberbandN; ptr++, i++)
+          {
+      	    if (!(ptr->Layer) || !(TEST_FLAG(RUBBERENDFLAG, ptr->Line)) ||
+	        PCB->Clipping == 0)
+              AdjustRubberbandLine (ptr);
+      	    else
+              AdjustRubberbandTwoLine(ptr, PCB->Clipping - 1);
+          }
+	break;
+      }
       /* line creation mode */
     case LINE_MODE:
       if (PCB->RatDraw || PCB->Clipping == 0)
@@ -6504,7 +6561,7 @@ ActionMoveObject (int argc, char **argv, Coord x, Coord y)
   Coord nx, ny;
   bool absolute1, absolute2;
   void *ptr1, *ptr2, *ptr3;
-  int type;
+  int type, mode;
 
   ny = GetValue (y_str, units, &absolute1);
   nx = GetValue (x_str, units, &absolute2);
@@ -6524,6 +6581,21 @@ ActionMoveObject (int argc, char **argv, Coord x, Coord y)
     LookupRubberbandLines (type, ptr1, ptr2, ptr3);
   if (type == ELEMENT_TYPE)
     LookupRatLines (type, ptr1, ptr2, ptr3);
+
+  /* Just trick AdjustAttachedObject
+   * to think that we just moved the
+   * object */
+  mode = Settings.Mode;
+  Settings.Mode = MOVE_MODE;
+  Crosshair.AttachedObject.X = x;
+  Crosshair.AttachedObject.Y = y;
+  Crosshair.X += nx;
+  Crosshair.Y += ny;
+  AdjustAttachedObjects ();
+  Crosshair.X -= nx;
+  Crosshair.Y -= ny;
+  Settings.Mode = mode;
+
   MoveObjectAndRubberband (type, ptr1, ptr2, ptr3, nx, ny);
   SetChangedFlag (true);
   return 0;

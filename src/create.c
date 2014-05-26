@@ -956,7 +956,13 @@ CreateNewRubberbandEntry (LayerType *Layer,
   TOGGLE_FLAG (RUBBERENDFLAG, Line);
   ptr->Layer = Layer;
   ptr->Line = Line;
-  ptr->MovedPoint = MovedPoint;
+  ptr->Point.X = MovedPoint->X;
+  ptr->Point.Y = MovedPoint->Y;
+  ptr->Point.ID = MovedPoint->ID;
+  if (&ptr->Line->Point1 == MovedPoint)
+    ptr->first = true;
+  else
+    ptr->first = false;
   return (ptr);
 }
 

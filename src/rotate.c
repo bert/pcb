@@ -372,7 +372,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       changed = true;
       CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
       AddObjectToRotateUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
-				 ptr->MovedPoint, CenterX, CenterY, Steps);
+				 &ptr->Point, CenterX, CenterY, Steps);
       EraseLine (ptr->Line);
       if (ptr->Layer)
 	{
@@ -381,7 +381,10 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 	}
       else
 	r_delete_entry (PCB->Data->rat_tree, (BoxType *) ptr->Line);
-      RotatePointLowLevel (ptr->MovedPoint, CenterX, CenterY, Steps);
+      if (ptr->first)
+        RotatePointLowLevel (&ptr->Line->Point1, CenterX, CenterY, Steps);
+      else 
+        RotatePointLowLevel (&ptr->Line->Point2, CenterX, CenterY, Steps);
       SetLineBoundingBox (ptr->Line);
       if (ptr->Layer)
 	{

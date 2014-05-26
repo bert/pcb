@@ -239,6 +239,7 @@ AdjustInsertPoint (void)
   static PointType InsertedPoint;
   double m;
   Coord x, y, m1, m2;
+  Coord dx, dy;
   LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
 
   if (Crosshair.AttachedObject.State == STATE_FIRST)
@@ -246,16 +247,20 @@ AdjustInsertPoint (void)
   Crosshair.AttachedObject.Ptr3 = &InsertedPoint;
   if (gui->shift_is_pressed ())
     {
-      AttachedLineType myline;
+      PointType point1, point2;
+      dx = Crosshair.X - line->Point1.X;
+      dy = Crosshair.Y - line->Point1.Y;
+      m = dx * dx + dy * dy;
+      dx = Crosshair.X - line->Point2.X;
+      dy = Crosshair.Y - line->Point2.Y;
       /* only force 45 degree for nearest point */
-      if (Distance (Crosshair.X, Crosshair.Y, line->Point1.X, line->Point1.Y) <
-          Distance (Crosshair.X, Crosshair.Y, line->Point2.X, line->Point2.Y))
-	myline.Point1 = myline.Point2 = line->Point1;
+      if (m < (dx * dx + dy * dy))
+        point1 = point2 = line->Point1;
       else
-	myline.Point1 = myline.Point2 = line->Point2;
-      FortyFiveLine (&myline);
-      InsertedPoint.X = myline.Point2.X;
-      InsertedPoint.Y = myline.Point2.Y;
+        point1 = point2 = line->Point2;
+      FortyFiveLine (&point1, &point2);
+      InsertedPoint.X = point2.X;
+      InsertedPoint.Y = point2.Y;
       return &InsertedPoint;
     }
   if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))

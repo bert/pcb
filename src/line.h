@@ -37,7 +37,9 @@
  * prototypes
  */
 void AdjustAttachedLine (void);
+void AdjustRubberbandLine (RubberbandType *);
 void AdjustTwoLine (bool);
-void FortyFiveLine (AttachedLineType *);
+void AdjustRubberbandTwoLine (RubberbandType *, int);
+void FortyFiveLine (PointType *, PointType *);
 void EnforceLineDRC (void);
 #endif

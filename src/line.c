@@ -74,7 +74,46 @@ AdjustAttachedLine (void)
       line->Point2.Y = Crosshair.Y;
       return;
     }
-  FortyFiveLine (line);
+  FortyFiveLine (&line->Point1, &line->Point2);
+}
+
+/* ---------------------------------------------------------------------------
+ * Adjust the rubberband line to 45 degrees if necessary
+ */
+void
+AdjustRubberbandLine (RubberbandTypePtr ptr)
+{
+  Coord dx, dy;
+
+  if (ptr->first)
+    {
+      dx = ptr->Line->Point1.X;
+      dy = ptr->Line->Point1.Y;
+    }
+  else
+    {
+      dx = ptr->Line->Point2.X;
+      dy = ptr->Line->Point2.Y;
+    }
+  dx -= Crosshair.AttachedObject.X;
+  dy -= Crosshair.AttachedObject.Y;
+  if (!ptr->Layer || TEST_FLAG (ALLDIRECTIONFLAG, PCB) ||
+      !TEST_FLAG(RUBBERENDFLAG, ptr->Line))
+    {
+      ptr->Point.X = Crosshair.X + dx;
+      ptr->Point.Y = Crosshair.Y + dy;
+      return;
+    }
+  /* Adjust crosshair to point to where we want the line to end */
+  Crosshair.X += dx;
+  Crosshair.Y += dy;
+  if (ptr->first)
+    FortyFiveLine (&ptr->Line->Point2, &ptr->Point);
+  else
+    FortyFiveLine (&ptr->Line->Point1, &ptr->Point);
+  /* give it back */
+  Crosshair.X -= dx;
+  Crosshair.Y -= dy;
 }
 
 /* ---------------------------------------------------------------------------
@@ -89,15 +128,15 @@ AdjustAttachedLine (void)
  *           0
  */
 void
-FortyFiveLine (AttachedLineType *Line)
+FortyFiveLine (PointType *Point1, PointType *Point2)
 {
   Coord dx, dy, min, max;
   unsigned direction = 0;
   double m;
 
   /* first calculate direction of line */
-  dx = Crosshair.X - Line->Point1.X;
-  dy = Crosshair.Y - Line->Point1.Y;
+  dx = Crosshair.X - Point1->X;
+  dy = Crosshair.Y - Point1->Y;
 
   /* zero length line, don't draw anything */
   if (dx == 0 && dy == 0)
@@ -126,44 +165,81 @@ FortyFiveLine (AttachedLineType *Line)
   switch (direction)
     {
     case 0:
-      Line->Point2.X = Line->Point1.X;
-      Line->Point2.Y = Line->Point1.Y + max;
+      Point2->X = Point1->X;
+      Point2->Y = Point1->Y + max;
       break;
 
     case 4:
-      Line->Point2.X = Line->Point1.X;
-      Line->Point2.Y = Line->Point1.Y - max;
+      Point2->X = Point1->X;
+      Point2->Y = Crosshair.Y;
       break;
 
     case 2:
-      Line->Point2.X = Line->Point1.X + max;
-      Line->Point2.Y = Line->Point1.Y;
+      Point2->X = Point1->X + max;
+      Point2->Y = Point1->Y;
       break;
 
     case 6:
-      Line->Point2.X = Line->Point1.X - max;
-      Line->Point2.Y = Line->Point1.Y;
+      Point2->X = Crosshair.X;
+      Point2->Y = Point1->Y;
       break;
 
     case 1:
-      Line->Point2.X = Line->Point1.X + min;
-      Line->Point2.Y = Line->Point1.Y + min;
+      Point2->X = Point1->X + min;
+      Point2->Y = Point1->Y + min;
       break;
 
     case 3:
-      Line->Point2.X = Line->Point1.X + min;
-      Line->Point2.Y = Line->Point1.Y - min;
+      Point2->X = Point1->X + min;
+      Point2->Y = Point1->Y - min;
       break;
 
     case 5:
-      Line->Point2.X = Line->Point1.X - min;
-      Line->Point2.Y = Line->Point1.Y - min;
+      Point2->X = Point1->X - min;
+      Point2->Y = Point1->Y - min;
       break;
 
     case 7:
-      Line->Point2.X = Line->Point1.X - min;
-      Line->Point2.Y = Line->Point1.Y + min;
+      Point2->X = Point1->X - min;
+      Point2->Y = Point1->Y + min;
       break;
+    }
+}
+
+static void
+AdjustLinePoints (PointType *Point1, PointType *Point2, Coord Dx, Coord Dy, int Way)
+{
+  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
+    {
+      Point2->X = Point1->X + Dx;
+      Point2->Y = Point1->Y + Dy;
+      return;
+    }
+  if (!Way)
+    {
+      if (abs (Dx) > abs (Dy))
+	{
+	  Point2->X = Point1->X + Dx - SGN (Dx) * abs (Dy);
+	  Point2->Y = Point1->Y;
+	}
+      else
+	{
+	  Point2->X = Point1->X;
+	  Point2->Y = Point1->Y + Dy - SGN (Dy) * abs (Dx);
+	}
+    }
+  else
+    {
+      if (abs (Dx) > abs (Dy))
+	{
+	  Point2->X = Point1->X + SGN (Dx) * abs (Dy);
+	  Point2->Y = Point1->Y + Dy;
+	}
+      else
+	{
+	  Point2->X = Point1->X + Dx;
+	  Point2->Y = Point1->Y + SGN (Dy) * abs (Dx);;
+	}
     }
 }
 
@@ -173,7 +249,6 @@ FortyFiveLine (AttachedLineType *Line)
 void
 AdjustTwoLine (bool way)
 {
-  Coord dx, dy;
   AttachedLineType *line = &Crosshair.AttachedLine;
 
   if (Crosshair.AttachedLine.State == STATE_FIRST)
@@ -186,43 +261,43 @@ AdjustTwoLine (bool way)
     }
   else
     line->draw = true;
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-    {
-      line->Point2.X = Crosshair.X;
-      line->Point2.Y = Crosshair.Y;
-      return;
-    }
+
   /* swap the modes if shift is held down */
   if (gui->shift_is_pressed ())
     way = !way;
-  dx = Crosshair.X - line->Point1.X;
-  dy = Crosshair.Y - line->Point1.Y;
-  if (!way)
+  AdjustLinePoints(&line->Point1, &line->Point2, Crosshair.X - line->Point1.X, Crosshair.Y - line->Point1.Y, way);
+}
+
+/* ---------------------------------------------------------------------------
+ *  adjusts the insert rubberband lines to make them 45 degrees as necessary
+ */
+void
+AdjustRubberbandTwoLine (RubberbandTypePtr line, int way)
+{
+  PointType *point;
+  Coord dx, dy;
+
+  /* swap the modes if shift is held down */
+  if (gui->shift_is_pressed ())
+    way = !way;
+
+  dx = Crosshair.X - Crosshair.AttachedObject.X;
+  dy = Crosshair.Y - Crosshair.AttachedObject.Y;
+
+  if (line->first)
     {
-      if (abs (dx) > abs (dy))
-	{
-	  line->Point2.X = Crosshair.X - SGN (dx) * abs (dy);
-	  line->Point2.Y = line->Point1.Y;
-	}
-      else
-	{
-	  line->Point2.X = line->Point1.X;
-	  line->Point2.Y = Crosshair.Y - SGN (dy) * abs (dx);
-	}
+      point = &line->Line->Point2;
+      dx = line->Line->Point1.X + dx - point->X;
+      dy = line->Line->Point1.Y + dy - point->Y;
     }
   else
     {
-      if (abs (dx) > abs (dy))
-	{
-	  line->Point2.X = line->Point1.X + SGN (dx) * abs (dy);
-	  line->Point2.Y = Crosshair.Y;
-	}
-      else
-	{
-	  line->Point2.X = Crosshair.X;
-	  line->Point2.Y = line->Point1.Y + SGN (dy) * abs (dx);;
-	}
+      point = &line->Line->Point1;
+      dx = line->Line->Point2.X + dx - point->X;
+      dy = line->Line->Point2.Y + dy - point->Y;
     }
+
+  AdjustLinePoints(point, &line->Point, dx, dy, way);
 }
 
 struct drc_info
