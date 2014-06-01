@@ -596,7 +596,7 @@ ghid_port_window_leave_cb (GtkWidget * widget,
    */
 gint
 ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
-				  GdkEventScroll * ev, GHidPort * out)
+				  GdkEventScroll * ev, gpointer data)
 {
   ModifierKeysState mk;
   GdkModifierType state;
