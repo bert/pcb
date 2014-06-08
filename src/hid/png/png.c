@@ -69,9 +69,9 @@ static double scale = 1;
 static Coord x_shift = 0;
 static Coord y_shift = 0;
 static int show_solder_side;
-#define SCALE(w)   ((int)((w)/scale + 0.5))
-#define SCALE_X(x) ((int)(((x) - x_shift)/scale))
-#define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
+#define SCALE(w)   ((int)round((w)/scale))
+#define SCALE_X(x) ((int)round(((x) - x_shift)/scale))
+#define SCALE_Y(y) ((int)round(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
 #define SWAP_IF_SOLDER(a,b) do { Coord c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
 /* Used to detect non-trivial outlines */
@@ -913,7 +913,7 @@ png_do_export (HID_Attr_Val * options)
        * a scale of 1  means 1 pixel is 1 inch
        * a scale of 10 means 1 pixel is 10 inches
        */
-      scale = INCH_TO_COORD(1) / dpi;
+      scale = round(INCH_TO_COORD(1) / (double) dpi);
       w = w / scale;
       h = h / scale;
     }
