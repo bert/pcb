@@ -394,10 +394,10 @@ OctagonPoly (Coord x, Coord y, Coord radius)
  * or 4 for a quarter circle
  */
 void
-frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int range)
+frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
 {
   double e1, e2, t1;
-  int i;
+  int i, range;
 
   poly_InclVertex (c->head.prev, poly_CreateNode (v));
   /* move vector to origin */
@@ -405,7 +405,7 @@ frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int range)
   e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
 
   /* NB: the caller adds the last vertex, hence the -1 */
-  range = POLY_CIRC_SEGS / range - 1;
+  range = POLY_CIRC_SEGS / fraction - 1;
   for (i = 0; i < range; i++)
     {
       /* rotate the vector */
