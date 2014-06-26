@@ -1481,34 +1481,34 @@ showbox (BoxType b, Dimension thickness, int group)
 #if 1
   if (b.Y1 == b.Y2 || b.X1 == b.X2)
     thickness = 5;
-  line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+  line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 			       b.X1, b.Y1, b.X2, b.Y1, thickness, 0,
 			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (component_silk_layer), line,
+			     LAYER_PTR (top_silk_layer), line,
 			     line);
   if (b.Y1 != b.Y2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+      line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (component_silk_layer),
+				 LAYER_PTR (bottom_silk_layer),
 				 line, line);
     }
-  line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+  line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0,
 			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (component_silk_layer), line,
+			     LAYER_PTR (top_silk_layer), line,
 			     line);
   if (b.X1 != b.X2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+      line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (component_silk_layer),
+				 LAYER_PTR (top_silk_layer),
 				 line, line);
     }
 #endif
@@ -1553,7 +1553,7 @@ static void
 showroutebox (routebox_t * rb)
 {
   showbox (rb->sbox, rb->flags.source ? 20 : (rb->flags.target ? 10 : 1),
-	   rb->flags.is_via ? component_silk_layer : rb->group);
+	   rb->flags.is_via ? top_silk_layer : rb->group);
 }
 #endif
 

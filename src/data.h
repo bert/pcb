@@ -47,8 +47,8 @@ extern PCBType *PCB;
 
 #define max_group (PCB->Data->LayerN)
 #define max_copper_layer (PCB->Data->LayerN)
-#define solder_silk_layer (max_copper_layer + BOTTOM_SILK_LAYER)
-#define component_silk_layer (max_copper_layer + TOP_SILK_LAYER)
+#define bottom_silk_layer (max_copper_layer + BOTTOM_SILK_LAYER)
+#define top_silk_layer (max_copper_layer + TOP_SILK_LAYER)
 
 extern SettingType Settings;
 

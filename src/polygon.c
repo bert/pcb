@@ -873,7 +873,7 @@ struct cpInfo
   DataType *data;
   LayerType *layer;
   PolygonType *polygon;
-  bool solder;
+  bool bottom;
   POLYAREA *accumulate;
   int batch_size;
   jmp_buf env;
@@ -962,7 +962,7 @@ pad_sub_callback (const BoxType * b, void *cl)
   if (pad->Clearance == 0)
     return 0;
   polygon = info->polygon;
-  if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), !info->solder))
+  if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), !info->bottom))
     {
       if (SubtractPad (pad, polygon) < 0)
         longjmp (info->env, 1);
@@ -1042,7 +1042,7 @@ clearPoly (DataType *Data, LayerType *Layer, PolygonType * polygon,
       || GetLayerNumber (Data, Layer) >= max_copper_layer)
     return 0;
   group = Group (Data, GetLayerNumber (Data, Layer));
-  info.solder = (group == Group (Data, solder_silk_layer));
+  info.bottom = (group == Group (Data, bottom_silk_layer));
   info.data = Data;
   info.other = here;
   info.layer = Layer;
@@ -1058,7 +1058,7 @@ clearPoly (DataType *Data, LayerType *Layer, PolygonType * polygon,
       r = 0;
       info.accumulate = NULL;
       info.batch_size = 0;
-      if (info.solder || group == Group (Data, component_silk_layer))
+      if (info.bottom || group == Group (Data, top_silk_layer))
 	r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
       GROUP_LOOP (Data, group);
       {
@@ -1597,7 +1597,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
       {
         Cardinal group = GetLayerGroupNumberByNumber (
                             TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ?
-                              solder_silk_layer : component_silk_layer);
+                              bottom_silk_layer : top_silk_layer);
         GROUP_LOOP (Data, group);
         {
           info.layer = layer;

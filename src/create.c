@@ -124,15 +124,15 @@ pcb_colors_from_settings (PCBType *ptr)
       ptr->Data->Layer[i].Color = Settings.LayerColor[i];
       ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
     }
-  ptr->Data->Layer[component_silk_layer].Color =
-    Settings.ShowSolderSide ?
+  ptr->Data->Layer[top_silk_layer].Color =
+    Settings.ShowBottomSide ?
     Settings.InvisibleObjectsColor : Settings.ElementColor;
-  ptr->Data->Layer[component_silk_layer].SelectedColor =
+  ptr->Data->Layer[top_silk_layer].SelectedColor =
     Settings.ElementSelectedColor;
-  ptr->Data->Layer[solder_silk_layer].Color =
-    Settings.ShowSolderSide ?
+  ptr->Data->Layer[bottom_silk_layer].Color =
+    Settings.ShowBottomSide ?
     Settings.ElementColor : Settings.InvisibleObjectsColor;
-  ptr->Data->Layer[solder_silk_layer].SelectedColor =
+  ptr->Data->Layer[bottom_silk_layer].SelectedColor =
     Settings.ElementSelectedColor;
 }
 
@@ -223,8 +223,8 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
       if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 
-      pcb->Data->Layer[component_silk_layer].Name = strdup ("silk");
-      pcb->Data->Layer[solder_silk_layer].Name = strdup ("silk");
+      pcb->Data->Layer[top_silk_layer].Name = strdup ("silk");
+      pcb->Data->Layer[bottom_silk_layer].Name = strdup ("silk");
     }
   return 0;
 }

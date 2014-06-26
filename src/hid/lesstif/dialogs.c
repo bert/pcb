@@ -32,8 +32,8 @@ static int n;
 
 static int ok;
 
-#define COMPONENT_SIDE_NAME "(top)"
-#define SOLDER_SIDE_NAME "(bottom)"
+#define TOP_SIDE_NAME "(top)"
+#define BOTTOM_SIDE_NAME "(bottom)"
 
 /* ------------------------------------------------------------ */
 
@@ -1389,10 +1389,10 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
       int swidth;
       const char *name;
 
-      if (i == solder_silk_layer)
-	name = SOLDER_SIDE_NAME;
-      else if (i == component_silk_layer)
-	name = COMPONENT_SIDE_NAME;
+      if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
       else
 	name = PCB->Data->Layer[i].Name;
       XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
@@ -1474,10 +1474,10 @@ lesstif_update_layer_groups ()
       int swidth;
       const char *name;
 
-      if (i == solder_silk_layer)
-	name = SOLDER_SIDE_NAME;
-      else if (i == component_silk_layer)
-	name = COMPONENT_SIDE_NAME;
+      if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
       else
 	name = PCB->Data->Layer[i].Name;
       XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
@@ -1500,10 +1500,10 @@ lesstif_update_layer_groups ()
       n = 0;
       if (i < max_copper_layer)
 	name = PCB->Data->Layer[i].Name;
-      else if (i == solder_silk_layer)
-	name = SOLDER_SIDE_NAME;
-      else if (i == component_silk_layer)
-	name = COMPONENT_SIDE_NAME;
+      else if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
       stdarg (XmNlabelString, XmStringCreatePCB (name));
       XtSetValues (lglabels[i], args, n);
       for (j = 0; j < max_group; j++)

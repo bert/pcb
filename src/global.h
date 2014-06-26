@@ -673,7 +673,7 @@ typedef struct			/* some resources... */
   bool ClearLine, FullPoly,
     UniqueNames,		/* force unique names */
     SnapPin,			/* snap to pins and pads */
-    ShowSolderSide,		/* mirror output */
+    ShowBottomSide,		/* mirror output */
     SaveLastCommand,		/* save the last command entered by user */
     SaveInTMP,			/* always save data in /tmp */
     SaveMetricOnly,		/* save with mm suffix only, not mil/mm hybrid */

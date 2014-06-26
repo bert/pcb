@@ -1408,24 +1408,24 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
         case 'r':
         case 'R':
           ghid_flip_view (gport->pcb_x, gport->pcb_y, true, true);
-          Settings.ShowSolderSide = !Settings.ShowSolderSide; /* Swapped back below */
+          Settings.ShowBottomSide = !Settings.ShowBottomSide; /* Swapped back below */
           break;
         default:
           return 1;
       }
     }
 
-  Settings.ShowSolderSide = !Settings.ShowSolderSide;
+  Settings.ShowBottomSide = !Settings.ShowBottomSide;
 
-  if ((active_group == top_group   && top_on   && !bottom_on) ||
+  if ((active_group == top_group    && top_on    && !bottom_on) ||
       (active_group == bottom_group && bottom_on && !top_on))
     {
-      bool new_solder_vis = Settings.ShowSolderSide;
+      bool new_bottom_vis = Settings.ShowBottomSide;
 
       ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0],
-                             !new_solder_vis, !new_solder_vis);
+                             !new_bottom_vis, !new_bottom_vis);
       ChangeGroupVisibility (PCB->LayerGroups.Entries[bottom_group][0],
-                             new_solder_vis, new_solder_vis);
+                             new_bottom_vis, new_bottom_vis);
     }
 
   return 0;

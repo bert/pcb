@@ -205,21 +205,21 @@ collectSelectedElements ()
 
 #if 0				/* only for debugging box lists */
 #include "create.h"
-/* makes a line on the solder layer surrounding all boxes in blist */
+/* makes a line on the bottom silk layer surrounding all boxes in blist */
 static void
 showboxes (BoxListType *blist)
 {
   Cardinal i;
-  LayerType *SLayer = &(PCB->Data->Layer[solder_silk_layer]);
+  LayerType *layer = &(PCB->Data->Layer[bottom_silk_layer]);
   for (i = 0; i < blist->BoxN; i++)
     {
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
+      CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y1,
 			    blist->Box[i].X2, blist->Box[i].Y1, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y2,
+      CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y2,
 			    blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
+      CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y1,
 			    blist->Box[i].X1, blist->Box[i].Y2, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X2, blist->Box[i].Y1,
+      CreateNewLineOnLayer (layer, blist->Box[i].X2, blist->Box[i].Y1,
 			    blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
     }
 }

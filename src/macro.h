@@ -36,7 +36,7 @@
  * draw.c uses a different definition of TO_SCREEN
  */
 #ifndef	SWAP_IDENT
-#define	SWAP_IDENT			Settings.ShowSolderSide
+#define	SWAP_IDENT			Settings.ShowBottomSide
 #endif
 
 #define	SWAP_SIGN_X(x)		(x)
@@ -76,15 +76,15 @@
 #define	LAYER_ON_STACK(n)	(&PCB->Data->Layer[LayerStack[(n)]])
 #define LAYER_PTR(n)            (&PCB->Data->Layer[(n)])
 #define	CURRENT			(PCB->SilkActive ? &PCB->Data->Layer[ \
-				(Settings.ShowSolderSide ? solder_silk_layer : component_silk_layer)] \
+				(Settings.ShowBottomSide ? bottom_silk_layer : top_silk_layer)] \
 				: LAYER_ON_STACK(0))
 #define	INDEXOFCURRENT		(PCB->SilkActive ? \
-				(Settings.ShowSolderSide ? solder_silk_layer : component_silk_layer) \
+				(Settings.ShowBottomSide ? bottom_silk_layer : top_silk_layer) \
 				: LayerStack[0])
 #define SILKLAYER		Layer[ \
-				(Settings.ShowSolderSide ? solder_silk_layer : component_silk_layer)]
+				(Settings.ShowBottomSide ? bottom_silk_layer : top_silk_layer)]
 #define BACKSILKLAYER		Layer[ \
-				(Settings.ShowSolderSide ? component_silk_layer : solder_silk_layer)]
+				(Settings.ShowBottomSide ? top_silk_layer : bottom_silk_layer)]
 
 #define TEST_SILK_LAYER(layer)	(GetLayerNumber (PCB->Data, layer) >= max_copper_layer)
 

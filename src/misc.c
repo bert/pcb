@@ -1340,7 +1340,7 @@ LayerStringToLayerStack (char *s)
   PCB->ViaOn = false;
   PCB->RatOn = false;
   CLEAR_FLAG (SHOWMASKFLAG, PCB);
-  Settings.ShowSolderSide = 0;
+  Settings.ShowBottomSide = 0;
 
   for (i=argn-1; i>=0; i--)
     {
@@ -1358,7 +1358,7 @@ LayerStringToLayerStack (char *s)
       else if (strcasecmp (args[i], "mask") == 0)
 	SET_FLAG (SHOWMASKFLAG, PCB);
       else if (strcasecmp (args[i], "solderside") == 0)
-	Settings.ShowSolderSide = 1;
+	Settings.ShowBottomSide = 1;
       else if (isdigit ((int) args[i][0]))
 	{
 	  lno = atoi (args[i]);
@@ -1449,7 +1449,7 @@ GetLayerGroupNumberBySide (int side)
    * layer group associated with the relevant side's silk-screen
    */
   return GetLayerGroupNumberByNumber(
-      side == TOP_SIDE ? component_silk_layer : solder_silk_layer);
+      side == TOP_SIDE ? top_silk_layer : bottom_silk_layer);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1559,7 +1559,7 @@ SetArcBoundingBox (ArcType *Arc)
 void
 ResetStackAndVisibility (void)
 {
-  int comp_group;
+  int top_group;
   Cardinal i;
 
   for (i = 0; i < max_copper_layer + 2; i++)
@@ -1575,8 +1575,8 @@ ResetStackAndVisibility (void)
   PCB->RatOn = true;
 
   /* Bring the component group to the front and make it active.  */
-  comp_group = GetLayerGroupNumberBySide (TOP_SIDE);
-  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1, 1);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0], 1, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1979,10 +1979,10 @@ MoveLayerToGroup (int layer, int group)
   if (layer < 0 || layer > max_copper_layer + 1)
     return -1;
   prev = GetLayerGroupNumberByNumber (layer);
-  if ((layer == solder_silk_layer
-        && group == GetLayerGroupNumberByNumber (component_silk_layer))
-      || (layer == component_silk_layer
-          && group == GetLayerGroupNumberByNumber (solder_silk_layer))
+  if ((layer == bottom_silk_layer
+        && group == GetLayerGroupNumberByNumber (top_silk_layer))
+      || (layer == top_silk_layer
+          && group == GetLayerGroupNumberByNumber (bottom_silk_layer))
       || (group < 0 || group >= max_group) || (prev == group))
     return prev;
 
@@ -2018,11 +2018,11 @@ LayerGroupsToString (LayerGroupType *lg)
         for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
           {
             int layer = PCB->LayerGroups.Entries[group][entry];
-            if (layer == component_silk_layer)
+            if (layer == top_silk_layer)
               {
                 *cp++ = 'c';
               }
-            else if (layer == solder_silk_layer)
+            else if (layer == bottom_silk_layer)
               {
                 *cp++ = 's';
               }
