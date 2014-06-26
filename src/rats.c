@@ -76,7 +76,7 @@ static void TransferNet (NetListType *, NetType *, NetType *);
  * some local identifiers
  */
 static bool badnet = false;
-static Cardinal SLayer, CLayer;	/* layer group holding solder/component side */
+static Cardinal top_group, bottom_group;	/* layer group holding top/bottom side */
 
 /* ---------------------------------------------------------------------------
  * parse a connection description from a string
@@ -133,7 +133,7 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
           conn->type = PAD_TYPE;
           conn->ptr1 = element;
           conn->ptr2 = pad;
-          conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? SLayer : CLayer;
+          conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
 
           if (TEST_FLAG (EDGE2FLAG, pad))
             {
@@ -160,7 +160,7 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
           conn->type = PIN_TYPE;
           conn->ptr1 = element;
           conn->ptr2 = pin;
-          conn->group = SLayer;        /* any layer will do */
+          conn->group = bottom_group;        /* any layer will do */
           conn->X = pin->X;
           conn->Y = pin->Y;
           return true;
@@ -227,8 +227,8 @@ ProcNetlist (LibraryType *net_menu)
   badnet = false;
 
   /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-  CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
 
   Wantlist = (NetListType *)calloc (1, sizeof (NetListType));
   if (Wantlist)
@@ -530,7 +530,7 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
 	    conn->type = VIA_TYPE;
 	    conn->ptr1 = via;
 	    conn->ptr2 = via;
-	    conn->group = SLayer;
+	    conn->group = bottom_group;
 	  }
       }
       END_LOOP;
@@ -923,9 +923,8 @@ AddNet (void)
     }
 
   /* will work for pins to since the FLAG is common */
-  group1 = (TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ?
-	    GetLayerGroupNumberByNumber (solder_silk_layer) :
-	    GetLayerGroupNumberByNumber (component_silk_layer));
+  group1 = GetLayerGroupNumberBySide (
+            TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ? BOTTOM_SIDE : TOP_SIDE);
   strcpy (name1, ConnectionName (found, ptr1, ptr2));
   found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point2.X,
@@ -941,9 +940,8 @@ AddNet (void)
       Message (_("You must name the ending element first\n"));
       return (NULL);
     }
-  group2 = (TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ?
-	    GetLayerGroupNumberByNumber (solder_silk_layer) :
-	    GetLayerGroupNumberByNumber (component_silk_layer));
+  group2 = GetLayerGroupNumberBySide (
+            TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ? BOTTOM_SIDE : TOP_SIDE);
   name2 = ConnectionName (found, ptr1, ptr2);
 
   menu = netnode_to_netname (name1);

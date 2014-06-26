@@ -520,7 +520,7 @@ element_callback (const BoxType * b, void *cl)
 void
 PrintAssembly (int side, const BoxType * drawn_area)
 {
-  int side_group = GetLayerGroupNumberByNumber (max_copper_layer + side);
+  int side_group = GetLayerGroupNumberBySide (side);
 
   doing_assy = true;
   gui->graphics->set_draw_faded (Output.fgGC, 1);
@@ -539,7 +539,7 @@ static void
 DrawEverything (const BoxType *drawn_area)
 {
   int i, ngroups, side;
-  int component, solder;
+  int top_group, bottom_group;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
   /* This is the reverse of the order in which we draw them.  */
@@ -562,8 +562,8 @@ DrawEverything (const BoxType *drawn_area)
 	}
     }
 
-  component = GetLayerGroupNumberByNumber (component_silk_layer);
-  solder = GetLayerGroupNumberByNumber (solder_silk_layer);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
 
   /*
    * first draw all 'invisible' stuff
@@ -599,7 +599,7 @@ DrawEverything (const BoxType *drawn_area)
 
   /* Draw pins, pads, vias below silk */
   if (gui->gui)
-    DrawPPV (SWAP_IDENT ? solder : component, drawn_area);
+    DrawPPV (SWAP_IDENT ? bottom_group : top_group, drawn_area);
   else
     {
       CountHoles (&plated, &unplated, drawn_area);
@@ -739,8 +739,8 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
 static void
 DrawPPV (int group, const BoxType *drawn_area)
 {
-  int component_group = GetLayerGroupNumberByNumber (component_silk_layer);
-  int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
+  int top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  int bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   int side;
 
   if (PCB->PinOn || !gui->gui)
@@ -749,13 +749,13 @@ DrawPPV (int group, const BoxType *drawn_area)
       r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
 
       /* draw element pads */
-      if (group == component_group)
+      if (group == top_group)
         {
           side = TOP_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
         }
 
-      if (group == solder_group)
+      if (group == bottom_group)
         {
           side = BOTTOM_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);

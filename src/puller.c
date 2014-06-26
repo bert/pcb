@@ -626,7 +626,7 @@ static Extra multi_next;
 static GHashTable *lines;
 static GHashTable *arcs;
 static int did_something;
-static int current_is_component, current_is_solder;
+static int current_is_top, current_is_bottom;
 
 /* If set, these are the pins/pads/vias that this path ends on.  */
 /* static void *start_pin_pad, *end_pin_pad; */
@@ -942,12 +942,12 @@ find_pair_padline_callback (const BoxType * b, void *cl)
 
   if (TEST_FLAG (ONSOLDERFLAG, pad))
     {
-      if (!current_is_solder)
+      if (!current_is_bottom)
 	return 0;
     }
   else
     {
-      if (!current_is_component)
+      if (!current_is_top)
 	return 0;
     }
 
@@ -1010,12 +1010,12 @@ find_pair_padarc_callback (const BoxType * b, void *cl)
 
   if (TEST_FLAG (ONSOLDERFLAG, pad))
     {
-      if (!current_is_solder)
+      if (!current_is_bottom)
 	return 0;
     }
   else
     {
-      if (!current_is_component)
+      if (!current_is_top)
 	return 0;
     }
 
@@ -1782,12 +1782,12 @@ gp_pad_cb (const BoxType *b, void *cb)
 
   if (TEST_FLAG (ONSOLDERFLAG, p))
     {
-      if (!current_is_solder)
+      if (!current_is_bottom)
 	return 0;
     }
   else
     {
-      if (!current_is_component)
+      if (!current_is_top)
 	return 0;
     }
 
@@ -2576,10 +2576,10 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   /* This canonicalizes all the lines, and cleans up near-misses.  */
   /* hid_actionl ("djopt", "puller", 0); */
 
-  current_is_solder = (GetLayerGroupNumberByPointer(CURRENT)
-		       == GetLayerGroupNumberByNumber (solder_silk_layer));
-  current_is_component = (GetLayerGroupNumberByPointer(CURRENT)
-			  == GetLayerGroupNumberByNumber (component_silk_layer));
+  current_is_bottom = (GetLayerGroupNumberByPointer(CURRENT)
+                       == GetLayerGroupNumberBySide (BOTTOM_SIDE));
+  current_is_top = (GetLayerGroupNumberByPointer(CURRENT)
+                    == GetLayerGroupNumberBySide (TOP_SIDE));
 
   lines = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
   arcs  = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);

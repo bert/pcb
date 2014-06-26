@@ -502,7 +502,7 @@ png_get_export_options (int *n)
   return png_attribute_list;
 }
 
-static int comp_layer, solder_layer;
+static int top_group, bottom_group;
 
 static int
 group_for_layer (int l)
@@ -524,8 +524,8 @@ layer_sort (const void *va, const void *vb)
 
   if (a >= 0 && a <= max_copper_layer + 1)
     {
-      int aside = (al == solder_layer ? 0 : al == comp_layer ? 2 : 1);
-      int bside = (bl == solder_layer ? 0 : bl == comp_layer ? 2 : 1);
+      int aside = (al == bottom_group ? 0 : al == top_group ? 2 : 1);
+      int bside = (bl == bottom_group ? 0 : bl == top_group ? 2 : 1);
       if (bside != aside)
 	return bside - aside;
     }
@@ -581,8 +581,8 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
-  print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
-  print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
+  print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
+  print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
   for (i = 0; i < max_copper_layer; i++)
     if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
@@ -599,8 +599,8 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       CLEAR_FLAG (SHOWMASKFLAG, PCB);
       Settings.ShowSolderSide = 0;
 
-      comp_layer = GetLayerGroupNumberByNumber (component_silk_layer);
-      solder_layer = GetLayerGroupNumberByNumber (solder_silk_layer);
+      top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+      bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
       qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
 
       CLEAR_FLAG(THINDRAWFLAG, PCB);
@@ -611,19 +611,19 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	  int i, n=0;
 	  SET_FLAG (SHOWMASKFLAG, PCB);
 	  photo_has_inners = 0;
-	  if (comp_layer < solder_layer)
-	    for (i = comp_layer; i <= solder_layer; i++)
+	  if (top_group < bottom_group)
+	    for (i = top_group; i <= bottom_group; i++)
 	      {
 		photo_groups[n++] = i;
-		if (i != comp_layer && i != solder_layer
+		if (i != top_group && i != bottom_group
 		    && ! IsLayerGroupEmpty (i))
 		  photo_has_inners = 1;
 	      }
 	  else
-	    for (i = comp_layer; i >= solder_layer; i--)
+	    for (i = top_group; i >= bottom_group; i--)
 	      {
 		photo_groups[n++] = i;
-		if (i != comp_layer && i != solder_layer
+		if (i != top_group && i != bottom_group
 		    && ! IsLayerGroupEmpty (i))
 		  photo_has_inners = 1;
 	      }

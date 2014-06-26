@@ -1389,10 +1389,10 @@ static int
 SwapSides (int argc, char **argv, Coord x, Coord y)
 {
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
-  int comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
-  int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
-  bool comp_on = LAYER_PTR (PCB->LayerGroups.Entries[comp_group][0])->On;
-  bool solder_on = LAYER_PTR (PCB->LayerGroups.Entries[solder_group][0])->On;
+  int top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  int bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  bool top_on = LAYER_PTR (PCB->LayerGroups.Entries[top_group][0])->On;
+  bool bottom_on = LAYER_PTR (PCB->LayerGroups.Entries[bottom_group][0])->On;
 
   if (argc > 0)
     {
@@ -1417,14 +1417,14 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
 
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
 
-  if ((active_group == comp_group   && comp_on   && !solder_on) ||
-      (active_group == solder_group && solder_on && !comp_on))
+  if ((active_group == top_group   && top_on   && !bottom_on) ||
+      (active_group == bottom_group && bottom_on && !top_on))
     {
       bool new_solder_vis = Settings.ShowSolderSide;
 
-      ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0],
+      ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0],
                              !new_solder_vis, !new_solder_vis);
-      ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0],
+      ChangeGroupVisibility (PCB->LayerGroups.Entries[bottom_group][0],
                              new_solder_vis, new_solder_vis);
     }
 

@@ -152,11 +152,11 @@ PerturbationType;
 static void
 UpdateXY (NetListType *Nets)
 {
-  Cardinal SLayer, CLayer;
+  Cardinal top_group, bottom_group;
   Cardinal i, j;
-  /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-  CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
+  /* find layer groups of the top and bottom sides */
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   /* update all nets */
   for (i = 0; i < Nets->NetN; i++)
     {
@@ -166,14 +166,13 @@ UpdateXY (NetListType *Nets)
 	  switch (c->type)
 	    {
 	    case PAD_TYPE:
-	      c->group = TEST_FLAG (ONSOLDERFLAG,
-				    (ElementType *) c->ptr1)
-		? SLayer : CLayer;
+	      c->group = TEST_FLAG (ONSOLDERFLAG, (ElementType *) c->ptr1)
+	                  ? bottom_group : top_group;
 	      c->X = ((PadType *) c->ptr2)->Point1.X;
 	      c->Y = ((PadType *) c->ptr2)->Point1.Y;
 	      break;
 	    case PIN_TYPE:
-	      c->group = SLayer;	/* any layer will do */
+	      c->group = bottom_group;  /* any layer will do */
 	      c->X = ((PinType *) c->ptr2)->X;
 	      c->Y = ((PinType *) c->ptr2)->Y;
 	      break;

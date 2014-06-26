@@ -990,7 +990,7 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       PadType *pad = (PadType *) ptr2;
       LayerType *desired_layer;
       Cardinal desired_group;
-      Cardinal SLayer, CLayer;
+      Cardinal bottom_group, top_group;
       int found_our_layer = false;
 
       desired_layer = CURRENT;
@@ -1000,10 +1000,10 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
           desired_layer = (LayerType *)Crosshair.AttachedObject.Ptr1;
         }
 
-      /* find layer groups of the component side and solder side */
-      SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-      CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
-      desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? SLayer : CLayer;
+      /* find layer groups of the top and bottom sides */
+      top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+      bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+      desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
 
       GROUP_LOOP (PCB->Data, desired_group);
       {

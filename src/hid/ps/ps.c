@@ -664,8 +664,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	  global.outline_layer = layer;
 	}
     }
-  global.print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
-  global.print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
+  global.print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
+  global.print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
   for (i = 0; i < max_copper_layer; i++)
     if (global.print_group[GetLayerGroupNumberByNumber (i)])
       global.print_layer[i] = 1;
@@ -883,7 +883,7 @@ ps_set_layer (const char *name, int group, int empty)
 	mirror_this = !mirror_this;
       if (global.automirror
 	  &&
-	  ((idx >= 0 && group == GetLayerGroupNumberByNumber (solder_silk_layer))
+	  ((idx >= 0 && group == GetLayerGroupNumberBySide (BOTTOM_SIDE))
 	   || (idx < 0 && SL_SIDE (idx) == SL_BOTTOM_SIDE)))
 	mirror_this = !mirror_this;
 

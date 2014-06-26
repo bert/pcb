@@ -110,7 +110,7 @@ static FILE *gcode_f = NULL;
 
 static int is_mask;
 static int is_drill;
-static int is_solder;
+static int is_bottom;
 
 /*
  * Which groups of layers to export into PNG layer masks. 1 means export, 0
@@ -611,10 +611,10 @@ gcode_do_export (HID_Attr_Val * options)
           /* magic */
           idx = (i >= 0 && i < max_group) ?
             PCB->LayerGroups.Entries[i][0] : i;
-          is_solder =
+          is_bottom =
             (GetLayerGroupNumberByNumber (idx) ==
-             GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
-          save_drill = is_solder; /* save drills for one layer only */
+             GetLayerGroupNumberBySide (BOTTOM_SIDE)) ? 1 : 0;
+          save_drill = is_bottom; /* save drills for one layer only */
           gcode_start_png ();
           hid_save_and_show_layer_ons (save_ons);
           gcode_start_png_export ();
@@ -628,7 +628,7 @@ gcode_do_export (HID_Attr_Val * options)
             {
               for (c = 0; c < gdImageSY (gcode_im); c++)
                 {
-                  if (is_solder)
+                  if (is_bottom)
                     v =  /* flip vertically and horizontally */
                       gdImageGetPixel (gcode_im, gdImageSX (gcode_im) - 1 - r,
                                        gdImageSY (gcode_im) - 1 - c);
@@ -641,7 +641,7 @@ gcode_do_export (HID_Attr_Val * options)
                   BM_PUT (bm, r, c, p);
                 }
             }
-          if (is_solder)
+          if (is_bottom)
             { /* flip back layer, used only for PNG output */
               gdImagePtr temp_im =
                 gdImageCreate (gdImageSX (gcode_im), gdImageSY (gcode_im));
@@ -1048,7 +1048,7 @@ gcode_do_export (HID_Attr_Val * options)
             LINE_LOOP (layer);
               {
                 ... calculate the offset for all lines and polygons of this layer,
-                mirror it if is_solder, then mill it ...
+                mirror it if is_bottom, then mill it ...
               }
             END_LOOP;
           }

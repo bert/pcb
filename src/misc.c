@@ -1575,7 +1575,7 @@ ResetStackAndVisibility (void)
   PCB->RatOn = true;
 
   /* Bring the component group to the front and make it active.  */
-  comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
+  comp_group = GetLayerGroupNumberBySide (TOP_SIDE);
   ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1, 1);
 }
 

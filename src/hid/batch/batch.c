@@ -77,7 +77,7 @@ static int
 info (int argc, char **argv, Coord x, Coord y)
 {
   int i, j;
-  int cg, sg;
+  int top_group, bottom_group;
   if (!PCB || !PCB->Data || !PCB->Filename)
     {
       printf("No PCB loaded.\n");
@@ -87,15 +87,15 @@ info (int argc, char **argv, Coord x, Coord y)
   pcb_printf("Size: %ml x %ml mils, %mm x %mm mm\n",
 	 PCB->MaxWidth, PCB->MaxHeight,
 	 PCB->MaxWidth, PCB->MaxHeight);
-  cg = GetLayerGroupNumberByNumber (component_silk_layer);
-  sg = GetLayerGroupNumberByNumber (solder_silk_layer);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   for (i=0; i<MAX_LAYER; i++)
     {
       
       int lg = GetLayerGroupNumberByNumber (i);
       for (j=0; j<MAX_LAYER; j++)
 	putchar(j==lg ? '#' : '-');
-      printf(" %c %s\n", lg==cg ? 'c' : lg==sg ? 's' : '-',
+      printf(" %c %s\n", lg == top_group ? 'c' : lg == bottom_group ? 's' : '-',
 	     PCB->Data->Layer[i].Name);
     }
   return 0;

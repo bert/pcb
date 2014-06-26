@@ -959,8 +959,8 @@ CreateRouteData ()
     }
   /* if via visibility is turned off, don't use them */
   AutoRouteParameters.use_vias = routing_layers > 1 && PCB->ViaOn;
-  front = GetLayerGroupNumberByNumber (component_silk_layer);
-  back = GetLayerGroupNumberByNumber (solder_silk_layer);
+  front = GetLayerGroupNumberBySide (TOP_SIDE);
+  back = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   /* determine preferred routing direction on each group */
   for (i = 0; i < max_group; i++)
     {
