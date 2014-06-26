@@ -910,7 +910,7 @@ move_all_thermals (int old_index, int new_index)
 static int
 LastLayerInComponentGroup (int layer)
 {
-  int cgroup = GetLayerGroupNumberByNumber(max_group + COMPONENT_LAYER);
+  int cgroup = GetLayerGroupNumberByNumber(component_silk_layer);
   int lgroup = GetLayerGroupNumberByNumber(layer);
   if (cgroup == lgroup
       && PCB->LayerGroups.Number[lgroup] == 2)
@@ -921,7 +921,7 @@ LastLayerInComponentGroup (int layer)
 static int
 LastLayerInSolderGroup (int layer)
 {
-  int sgroup = GetLayerGroupNumberByNumber(max_group + SOLDER_LAYER);
+  int sgroup = GetLayerGroupNumberByNumber(solder_silk_layer);
   int lgroup = GetLayerGroupNumberByNumber(layer);
   if (sgroup == lgroup
       && PCB->LayerGroups.Number[lgroup] == 2)
