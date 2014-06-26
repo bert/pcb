@@ -571,7 +571,7 @@ DrawEverything (const BoxType *drawn_area)
   if (!TEST_FLAG (CHECKPLANESFLAG, PCB)
       && gui->set_layer ("invisible", SL (INVISIBLE, 0), 0))
     {
-      side = SWAP_IDENT ? COMPONENT_LAYER : SOLDER_LAYER;
+      side = SWAP_IDENT ? TOP_SIDE : BOTTOM_SIDE;
       if (PCB->ElementOn)
 	{
 	  r_search (PCB->Data->element_tree, drawn_area, NULL, element_callback, &side);
@@ -620,25 +620,25 @@ DrawEverything (const BoxType *drawn_area)
   /* Draw the solder mask if turned on */
   if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
     {
-      DrawMask (COMPONENT_LAYER, drawn_area);
+      DrawMask (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
     {
-      DrawMask (SOLDER_LAYER, drawn_area);
+      DrawMask (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
     {
-      DrawSilk (COMPONENT_LAYER, drawn_area);
+      DrawSilk (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("bottomsilk", SL (SILK, BOTTOM), 0))
     {
-      DrawSilk (SOLDER_LAYER, drawn_area);
+      DrawSilk (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
@@ -656,29 +656,29 @@ DrawEverything (const BoxType *drawn_area)
         }
     }
 
-  paste_empty = IsPasteEmpty (COMPONENT_LAYER);
+  paste_empty = IsPasteEmpty (TOP_SIDE);
   if (gui->set_layer ("toppaste", SL (PASTE, TOP), paste_empty))
     {
-      DrawPaste (COMPONENT_LAYER, drawn_area);
+      DrawPaste (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
-  paste_empty = IsPasteEmpty (SOLDER_LAYER);
+  paste_empty = IsPasteEmpty (BOTTOM_SIDE);
   if (gui->set_layer ("bottompaste", SL (PASTE, BOTTOM), paste_empty))
     {
-      DrawPaste (SOLDER_LAYER, drawn_area);
+      DrawPaste (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
     {
-      PrintAssembly (COMPONENT_LAYER, drawn_area);
+      PrintAssembly (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM), 0))
     {
-      PrintAssembly (SOLDER_LAYER, drawn_area);
+      PrintAssembly (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
@@ -751,13 +751,13 @@ DrawPPV (int group, const BoxType *drawn_area)
       /* draw element pads */
       if (group == component_group)
         {
-          side = COMPONENT_LAYER;
+          side = TOP_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
         }
 
       if (group == solder_group)
         {
-          side = SOLDER_LAYER;
+          side = BOTTOM_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
         }
     }

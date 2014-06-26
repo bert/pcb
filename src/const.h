@@ -36,11 +36,18 @@
 #include "globalconst.h"
 
 /* ---------------------------------------------------------------------------
- * the layer-numbers of the two additional special layers
- * 'component' and 'solder'. The offset of MAX_LAYER is not added
+ * integer codings for the board sides.
  */
-#define	SOLDER_LAYER		0
-#define	COMPONENT_LAYER		1
+#define BOTTOM_SIDE             0
+#define TOP_SIDE                1
+
+
+/* ---------------------------------------------------------------------------
+ * the layer-numbers of the two additional special (silkscreen) layers
+ * 'bottom' and 'top'. The offset of MAX_LAYER is not added
+ */
+#define BOTTOM_SILK_LAYER       0
+#define TOP_SILK_LAYER          1
 
 /* ---------------------------------------------------------------------------
  * misc constants

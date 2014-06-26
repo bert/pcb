@@ -88,8 +88,8 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
   Settings.minWid = PCB->minWid = 1;
   Settings.minSlk = PCB->minSlk = 1;
 
-  MoveLayerToGroup (max_copper_layer + COMPONENT_LAYER, 0);
-  MoveLayerToGroup (max_copper_layer + SOLDER_LAYER, 1);
+  MoveLayerToGroup (max_copper_layer + TOP_SILK_LAYER, 0);
+  MoveLayerToGroup (max_copper_layer + BOTTOM_SILK_LAYER, 1);
 
   while (PCB->Data->LayerN > 4)
     MoveLayer (4, -1);

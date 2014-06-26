@@ -1019,7 +1019,7 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
             case 'C':
             case 't':
             case 'T':
-              layer = LayerN + COMPONENT_LAYER;
+              layer = LayerN + TOP_SILK_LAYER;
               c_set = true;
               break;
 
@@ -1027,7 +1027,7 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
             case 'S':
             case 'b':
             case 'B':
-              layer = LayerN + SOLDER_LAYER;
+              layer = LayerN + BOTTOM_SILK_LAYER;
               s_set = true;
               break;
 
@@ -1037,7 +1037,7 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
               layer = atoi (s) - 1;
               break;
             }
-          if (layer > LayerN + MAX (SOLDER_LAYER, COMPONENT_LAYER) ||
+          if (layer > LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) ||
               member >= LayerN + 1)
             goto error;
           groupnum[layer] = group;
@@ -1056,14 +1056,19 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
       if (*s == ':')
         s++;
     }
-  if (!s_set)
-    LayerGroup->Entries[SOLDER_LAYER][LayerGroup->Number[SOLDER_LAYER]++] =
-      LayerN + SOLDER_LAYER;
-  if (!c_set)
-    LayerGroup->
-      Entries[COMPONENT_LAYER][LayerGroup->Number[COMPONENT_LAYER]++] =
-      LayerN + COMPONENT_LAYER;
 
+  /* If no explicit solder or component layer group was found in the layer
+   * group string, make group 0 the bottom side, and group 1 the top side.
+   * This is done by assigning the relevant silkscreen layers to those groups.
+   */
+  if (!s_set)
+    LayerGroup->Entries[0][LayerGroup->Number[0]++] = LayerN + BOTTOM_SILK_LAYER;
+  if (!c_set)
+    LayerGroup->Entries[1][LayerGroup->Number[1]++] = LayerN + TOP_SILK_LAYER;
+
+  /* Assign a unique layer group to each layer that was not explicitly
+   * assigned a particular group by its presence in the layer group string.
+   */
   for (layer = 0; layer < LayerN && group < LayerN; layer++)
     if (groupnum[layer] == -1)
       {

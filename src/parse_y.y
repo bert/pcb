@@ -1060,7 +1060,7 @@ text_newformat
 				if ($8 & ONSILKFLAG)
 				{
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
+						(($8 & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
 					CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
 						      OldFlags($8));
@@ -1085,7 +1085,7 @@ text_hi_format
 				if ($8.f & ONSILKFLAG)
 				{
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
+						(($8.f & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
 					CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
 				}
