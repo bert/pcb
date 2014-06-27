@@ -1440,6 +1440,19 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
 }
 
 /* ---------------------------------------------------------------------------
+ * returns the layergroup number for the passed side (TOP_LAYER or BOTTOM_LAYER)
+ */
+int
+GetLayerGroupNumberBySide (int side)
+{
+  /* Find the relavant board side layer group by determining the
+   * layer group associated with the relevant side's silk-screen
+   */
+  return GetLayerGroupNumberByNumber(
+      side == TOP_SIDE ? component_silk_layer : solder_silk_layer);
+}
+
+/* ---------------------------------------------------------------------------
  * returns a pointer to an objects bounding box;
  * data is valid until the routine is called again
  */
