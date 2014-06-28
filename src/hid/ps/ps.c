@@ -368,7 +368,7 @@ static struct {
   FILE *f;
   int pagecount;
   Coord linewidth;
-  bool print_group[MAX_LAYER];
+  bool print_group[MAX_GROUP];
   bool print_layer[MAX_LAYER];
   double fade_ratio;
   bool multi_file;

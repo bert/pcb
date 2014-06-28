@@ -194,8 +194,8 @@ OutputType;
  */
 typedef struct
 {
-  Cardinal Number[MAX_LAYER],	/* number of entries per groups */
-    Entries[MAX_LAYER][MAX_LAYER + 2];
+  Cardinal Number[MAX_GROUP],	/* number of entries per groups */
+    Entries[MAX_GROUP][MAX_LAYER + 2];
 } LayerGroupType;
 
 struct BoxType		/* a bounding box */

@@ -1323,7 +1323,7 @@ static GC lg_gc = 0;
 
 #if 0
 static Widget lglabels[MAX_LAYER + 2];
-static Widget lgbuttons[MAX_LAYER + 2][MAX_LAYER];
+static Widget lgbuttons[MAX_LAYER + 2][MAX_GROUP];
 #endif
 
 typedef struct {
@@ -1450,7 +1450,7 @@ lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 void
 lesstif_update_layer_groups ()
 {
-  int sets[MAX_LAYER + 2][MAX_LAYER];
+  int sets[MAX_LAYER + 2][MAX_GROUP];
   int i, j, n;
   LayerGroupType *l = &(PCB->LayerGroups);
 
@@ -1516,7 +1516,7 @@ lesstif_update_layer_groups ()
     }
   XtUnmanageChild(lg_buttonform);
   for (i = 0; i < MAX_LAYER + 2; i++)
-    for (j = 0; j < MAX_LAYER; j++)
+    for (j = 0; j < MAX_GROUP; j++)
       {
 	if (i < max_copper_layer + 2 && j < max_group)
 	  {
@@ -1605,7 +1605,7 @@ EditLayerGroups (int argc, char **argv, Coord x, Coord y)
 	  lglabels[i] = XmCreateLabel (layer_groups_form, "layer", args, n);
 	  XtManageChild (lglabels[i]);
 
-	  for (j = 0; j < MAX_LAYER; j++)
+	  for (j = 0; j < MAX_GROUP; j++)
 	    {
 	      n = 0;
 	      stdarg (XmNleftAttachment, XmATTACH_POSITION);

@@ -313,7 +313,7 @@ routebox_t;
 typedef struct routedata
 {
   /* one rtree per layer *group */
-  rtree_t *layergrouptree[MAX_LAYER];	/* no silkscreen layers here =) */
+  rtree_t *layergrouptree[MAX_GROUP];	/* no silkscreen layers here =) */
   /* root pointer into connectivity information */
   routebox_t *first_net;
   /* default routing style */
@@ -428,9 +428,9 @@ static void showroutebox (routebox_t * rb);
  */
 /* group number of groups that hold surface mount pads */
 static Cardinal front, back;
-static bool usedGroup[MAX_LAYER];
-static int x_cost[MAX_LAYER], y_cost[MAX_LAYER];
-static bool is_layer_group_active[MAX_LAYER];
+static bool usedGroup[MAX_GROUP];
+static int x_cost[MAX_GROUP], y_cost[MAX_GROUP];
+static bool is_layer_group_active[MAX_GROUP];
 static int ro = 0;
 static int smoothes = 1;
 static int passes = 12;
@@ -936,7 +936,7 @@ static routedata_t *
 CreateRouteData ()
 {
   NetListListType Nets;
-  PointerListType layergroupboxes[MAX_LAYER];
+  PointerListType layergroupboxes[MAX_GROUP];
   BoxType bbox;
   routedata_t *rd;
   int group, i;

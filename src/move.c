@@ -960,7 +960,7 @@ MoveLayer (int old_index, int new_index)
   for (l = 0; l < MAX_LAYER+2; l++)
     group_of_layer[l] = -1;
 
-  for (g = 0; g < MAX_LAYER; g++)
+  for (g = 0; g < MAX_GROUP; g++)
     for (i = 0; i < PCB->LayerGroups.Number[g]; i++)
       group_of_layer[PCB->LayerGroups.Entries[g][i]] = g;
 
@@ -1040,7 +1040,7 @@ MoveLayer (int old_index, int new_index)
 
   move_all_thermals(old_index, new_index);
 
-  for (g = 0; g < MAX_LAYER; g++)
+  for (g = 0; g < MAX_GROUP; g++)
     PCB->LayerGroups.Number[g] = 0;
   for (l = 0; l < max_copper_layer + 2; l++)
     {
@@ -1054,15 +1054,15 @@ MoveLayer (int old_index, int new_index)
       PCB->LayerGroups.Entries[g][i] = l;
     }
 
-  for (g = 1; g < MAX_LAYER; g++)
+  for (g = 1; g < MAX_GROUP; g++)
     if (PCB->LayerGroups.Number[g - 1] == 0)
       {
 	memmove (&PCB->LayerGroups.Number[g - 1],
 		 &PCB->LayerGroups.Number[g],
-		 (MAX_LAYER - g) * sizeof (PCB->LayerGroups.Number[g]));
+		 (MAX_GROUP - g) * sizeof (PCB->LayerGroups.Number[g]));
 	memmove (&PCB->LayerGroups.Entries[g - 1],
 		 &PCB->LayerGroups.Entries[g],
-		 (MAX_LAYER - g) * sizeof (PCB->LayerGroups.Entries[g]));
+		 (MAX_GROUP - g) * sizeof (PCB->LayerGroups.Entries[g]));
       }
 
   hid_action ("LayersChanged");

@@ -541,9 +541,9 @@ DrawEverything (const BoxType *drawn_area)
   int i, ngroups, side;
   int top_group, bottom_group;
   /* This is the list of layer groups we will draw.  */
-  int do_group[MAX_LAYER];
+  int do_group[MAX_GROUP];
   /* This is the reverse of the order in which we draw them.  */
-  int drawn_groups[MAX_LAYER];
+  int drawn_groups[MAX_GROUP];
   int plated, unplated;
   bool paste_empty;
 

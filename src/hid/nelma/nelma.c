@@ -123,7 +123,7 @@ static int      is_drill;
  * Which groups of layers to export into PNG layer masks. 1 means export, 0
  * means do not export.
  */
-static int      nelma_export_group[MAX_LAYER];
+static int      nelma_export_group[MAX_GROUP];
 
 /* Group that is currently exported. */
 static int      nelma_cur_group;
@@ -280,7 +280,7 @@ nelma_write_space(FILE * out)
 	fprintf(out, "\t\t\"air-bottom\"");
 
 	z = 10;
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -350,7 +350,7 @@ nelma_write_nets(FILE * out)
 
 			/* pin_name_to_xy(pin, &x, &y); */
 
-			for (i = 0; i < MAX_LAYER; i++)
+			for (i = 0; i < MAX_GROUP; i++)
 				if (nelma_export_group[i]) {
 					idx = (i >= 0 && i < max_group) ?
 						PCB->LayerGroups.Entries[i][0] : i;
@@ -428,7 +428,7 @@ nelma_write_layers(FILE * out)
 	nelma_write_layer(out, 1000, 2 * subh, "air-bottom", 0, "air");
 
 	z = 10;
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -469,7 +469,7 @@ nelma_write_object(FILE * out, LibraryEntryType *pin)
 	x = pcb_to_nelma (px);
 	y = pcb_to_nelma (py);
 
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -683,7 +683,7 @@ nelma_do_export(HID_Attr_Val * options)
 
 	nelma_choose_groups();
 
-	for (i = 0; i < MAX_LAYER; i++) {
+	for (i = 0; i < MAX_GROUP; i++) {
 		if (nelma_export_group[i]) {
 
 			nelma_cur_group = i;

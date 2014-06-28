@@ -93,7 +93,7 @@ info (int argc, char **argv, Coord x, Coord y)
     {
       
       int lg = GetLayerGroupNumberByNumber (i);
-      for (j=0; j<MAX_LAYER; j++)
+      for (j = 0; j < MAX_GROUP; j++)
 	putchar(j==lg ? '#' : '-');
       printf(" %c %s\n", lg == top_group ? 'c' : lg == bottom_group ? 's' : '-',
 	     PCB->Data->Layer[i].Name);

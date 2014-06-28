@@ -1271,7 +1271,7 @@ config_library_tab_create (GtkWidget * tab_vbox)
 static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
-static GtkWidget *group_button[MAX_LAYER + 2][MAX_LAYER];
+static GtkWidget *group_button[MAX_LAYER + 2][MAX_GROUP];
 
 #if FIXME
 static GtkWidget *use_layer_default_button;

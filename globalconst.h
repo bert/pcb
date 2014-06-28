@@ -71,6 +71,7 @@
  
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
+#define	MAX_GROUP		MAX_LAYER	/* max number of layer groups (should be equal to MAX_LAYER) */
 #define DEF_LAYER		8	/* default number of layers for new boards */
 #define NUM_STYLES		4
 #define	MIN_LINESIZE		MIL_TO_COORD(0.01)	/* thickness of lines */

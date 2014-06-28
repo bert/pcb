@@ -66,7 +66,7 @@ static FILE *f = 0;
 static Coord linewidth = -1;
 static int lastcap = -1;
 static int lastcolor = -1;
-static int print_group[MAX_LAYER];
+static int print_group[MAX_GROUP];
 static int print_layer[MAX_LAYER];
 static int fast_erase = -1;
 

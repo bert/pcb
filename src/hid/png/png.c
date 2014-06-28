@@ -112,7 +112,7 @@ static int linewidth = -1;
 static int lastgroup = -1;
 static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 static int lastcap = -1;
-static int print_group[MAX_LAYER];
+static int print_group[MAX_GROUP];
 static int print_layer[MAX_LAYER];
 
 /* For photo-mode we need the following layers as monochrome masks:

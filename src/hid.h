@@ -306,7 +306,7 @@ typedef enum
        (zero), the HID does not want that layer, and none of the drawing
        functions should be called.  If it returns true (nonzero), the
        items in that layer [group] should be drawn using the various
-       drawing functions.  In addition to the MAX_LAYERS copper layer
+       drawing functions.  In addition to the MAX_GROUP copper layer
        groups, you may select layers indicated by the macros SL_*
        defined above, or any others with an index of -1.  For copper
        layer groups, you may pass NULL for name to have a name fetched

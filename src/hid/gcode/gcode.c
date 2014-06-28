@@ -116,7 +116,7 @@ static int is_bottom;
  * Which groups of layers to export into PNG layer masks. 1 means export, 0
  * means do not export.
  */
-static int gcode_export_group[MAX_LAYER];
+static int gcode_export_group[MAX_GROUP];
 
 /* Group that is currently exported. */
 static int gcode_cur_group;
@@ -602,7 +602,7 @@ gcode_do_export (HID_Attr_Val * options)
     }
   UpdateExtents();
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < MAX_GROUP; i++)
     {
       if (gcode_export_group[i])
         {
