@@ -232,8 +232,6 @@ parsepcb
 		    if (yyPCB != NULL)
 		      {
 			/* This is the case where we load a footprint with file->open, or from the command line */
-			LayerFlag[0] = true;
-			LayerFlag[1] = true;
 			yyData->LayerN = 2;
 			CreateNewPCBPost (yyPCB, 0);
 			ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, yyData->LayerN);
