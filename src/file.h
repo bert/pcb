@@ -46,8 +46,6 @@ void DisableEmergencySave (void);
 int ReadLibraryContents (void);
 int ImportNetlist (char *);
 int SaveBufferElements (char *);
-void PreLoadElementPCB (void);
-void PostLoadElementPCB (void);
 void sort_netlist (void);
 
 /* 
