@@ -1468,7 +1468,7 @@ config_layers_apply (void)
       s = make_layer_group_string (&PCB->LayerGroups);
       if (dup_core_string (&Settings.Groups, s))
 	{
-	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, max_copper_layer);
+	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, &max_copper_layer);
 	  ghidgui->config_modified = TRUE;
 	}
       g_free (s);

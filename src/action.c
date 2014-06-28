@@ -5934,7 +5934,6 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
       RemovePCB (PCB);
       PCB = NULL;
       PCB = CreateNewPCB (true);
-      PCB->Data->LayerN = DEF_LAYER;
       CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */

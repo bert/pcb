@@ -1982,8 +1982,7 @@ main (int argc, char *argv[])
 
   /* Create a new PCB object in memory */
   PCB = CreateNewPCB (true);
-  PCB->Data->LayerN = DEF_LAYER;
-  ParseGroupString (Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
+  ParseGroupString (Settings.Groups, &PCB->LayerGroups, &PCB->Data->LayerN);
   /* Add silk layers to newly created PCB */
   CreateNewPCBPost (PCB, 1);
   if (argc > 1)

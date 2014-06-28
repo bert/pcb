@@ -987,12 +987,53 @@ error:
  * comma separated layer numbers (1,2,b:4,6,8,t)
  */
 int
-ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
+ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
 {
+  char *s;
   int group, member, layer;
   bool c_set = false,        /* flags for the two special layers to */
     s_set = false;              /* provide a default setting for old formats */
   int groupnum[MAX_LAYER + 2];
+
+  *LayerN = 0;
+
+  /* Deterimine the maximum layer number */
+  for (s = group_string; s && *s; s++)
+    {
+      while (*s && isspace ((int) *s))
+        s++;
+
+      switch (*s)
+        {
+        case 'c':
+        case 'C':
+        case 't':
+        case 'T':
+        case 's':
+        case 'S':
+        case 'b':
+        case 'B':
+          break;
+
+        default:
+          if (!isdigit ((int) *s))
+            goto error;
+          *LayerN = MAX (*LayerN, atoi (s));
+          break;
+        }
+
+      while (*++s && isdigit ((int) *s));
+
+      /* ignore white spaces and check for separator */
+      while (*s && isspace ((int) *s))
+        s++;
+
+      if (*s == '\0')
+        break;
+
+      if (*s != ':' && *s != ',')
+        goto error;
+    }
 
   /* clear struct */
   memset (LayerGroup, 0, sizeof (LayerGroupType));
@@ -1002,7 +1043,9 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
     groupnum[layer] = -1;
 
   /* loop over all groups */
-  for (group = 0; s && *s && group < LayerN; group++)
+  for (s = group_string, group = 0;
+       s && *s && group < *LayerN;
+       s++, group++)
     {
       while (*s && isspace ((int) *s))
         s++;
@@ -1019,7 +1062,7 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
             case 'C':
             case 't':
             case 'T':
-              layer = LayerN + TOP_SILK_LAYER;
+              layer = *LayerN + TOP_SILK_LAYER;
               c_set = true;
               break;
 
@@ -1027,18 +1070,16 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
             case 'S':
             case 'b':
             case 'B':
-              layer = LayerN + BOTTOM_SILK_LAYER;
+              layer = *LayerN + BOTTOM_SILK_LAYER;
               s_set = true;
               break;
 
             default:
-              if (!isdigit ((int) *s))
-                goto error;
               layer = atoi (s) - 1;
               break;
             }
-          if (layer > LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) ||
-              member >= LayerN + 1)
+          if (layer > *LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) ||
+              member >= *LayerN + 1)
             goto error;
           groupnum[layer] = group;
           LayerGroup->Entries[group][member++] = layer;
@@ -1049,12 +1090,8 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
             s++;
           if (!*s || *s == ':')
             break;
-          if (*s != ',')
-            goto error;
         }
       LayerGroup->Number[group] = member;
-      if (*s == ':')
-        s++;
     }
 
   /* If no explicit solder or component layer group was found in the layer
@@ -1062,14 +1099,14 @@ ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
    * This is done by assigning the relevant silkscreen layers to those groups.
    */
   if (!s_set)
-    LayerGroup->Entries[0][LayerGroup->Number[0]++] = LayerN + BOTTOM_SILK_LAYER;
+    LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
   if (!c_set)
-    LayerGroup->Entries[1][LayerGroup->Number[1]++] = LayerN + TOP_SILK_LAYER;
+    LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
 
   /* Assign a unique layer group to each layer that was not explicitly
    * assigned a particular group by its presence in the layer group string.
    */
-  for (layer = 0; layer < LayerN && group < LayerN; layer++)
+  for (layer = 0; layer < *LayerN && group < *LayerN; layer++)
     if (groupnum[layer] == -1)
       {
         LayerGroup->Entries[group][0] = layer;

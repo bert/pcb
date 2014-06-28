@@ -220,7 +220,7 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
 
   if (use_defaults)
     {
-      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
+      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, &pcb->Data->LayerN))
 	return 1;
 
       pcb->Data->Layer[top_silk_layer].Name = strdup ("silk");

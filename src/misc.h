@@ -63,7 +63,7 @@ BoxType * GetDataBoundingBox (DataType *);
 void CenterDisplay (Coord, Coord);
 void SetFontInfo (FontType *);
 char *make_route_string (RouteStyleType rs[], int n_styles);
-int ParseGroupString (char *, LayerGroupType *, int /* LayerN */);
+int ParseGroupString (char *, LayerGroupType *, int * /* LayerN */);
 int ParseRouteString (char *, RouteStyleType *, const char *);
 void QuitApplication (void);
 char *EvaluateFilename (char *, char *, char *, char *);
