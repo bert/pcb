@@ -617,7 +617,7 @@ ghid_scrolled_selection (GtkTreeView * treeview, GtkWidget * box,
 }
 
 GtkWidget *
-ghid_notebook_page (GtkWidget * tabs, char *name, gint pad, gint border)
+ghid_notebook_page (GtkWidget * tabs, const char *name, gint pad, gint border)
 {
   GtkWidget *label;
   GtkWidget *vbox;

@@ -412,7 +412,7 @@ GtkWidget *ghid_framed_vbox_end (GtkWidget * box, gchar * label,
 GtkWidget *ghid_category_vbox (GtkWidget * box, const gchar * category_header,
 			       gint header_pad, gint box_pad,
 			       gboolean pack_start, gboolean bottom_pad);
-GtkWidget *ghid_notebook_page (GtkWidget * tabs, char *name, gint pad,
+GtkWidget *ghid_notebook_page (GtkWidget * tabs, const char *name, gint pad,
 			       gint border);
 GtkWidget *ghid_framed_notebook_page (GtkWidget * tabs, char *name,
 				      gint border, gint frame_border,
