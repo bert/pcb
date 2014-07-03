@@ -52,7 +52,6 @@
 #include "global.h"
 #include "error.h" /* Message() */
 #include "data.h"
-#include "change.h" /* UpdateExtents() */
 #include "misc.h"
 #include "rats.h"
 
@@ -424,8 +423,8 @@ gcode_alloc_colors ()
 static void
 gcode_start_png ()
 {
-  gcode_im = gdImageCreate (pcb_to_gcode (PCB->ExtentMaxX - PCB->ExtentMinX),
-                            pcb_to_gcode (PCB->ExtentMaxY - PCB->ExtentMinY));
+  gcode_im = gdImageCreate (pcb_to_gcode (PCB->MaxWidth),
+                            pcb_to_gcode (PCB->MaxHeight));
   gcode_alloc_colors ();
 }
 
@@ -461,10 +460,10 @@ gcode_start_png_export ()
 {
   BoxType region;
 
-  region.X1 = PCB->ExtentMinX;
-  region.Y1 = PCB->ExtentMinY;
-  region.X2 = PCB->ExtentMaxX;
-  region.Y2 = PCB->ExtentMaxY;
+  region.X1 = 0;
+  region.Y1 = 0;
+  region.X2 = PCB->MaxWidth;
+  region.Y2 = PCB->MaxHeight;
 
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
@@ -494,12 +493,10 @@ gcode_start_gcode (const char *layername, bool metric)
   fprintf (file, "(Units: %s)\n", metric ? "mm" : "inch");
   if (metric)
     pcb_fprintf (file, "(Board size: %.2mm x %.2mm mm)\n",
-                 PCB->ExtentMaxX - PCB->ExtentMinX,
-                 PCB->ExtentMaxY - PCB->ExtentMinY);
+                 PCB->MaxWidth, PCB->MaxHeight);
   else
     pcb_fprintf (file, "(Board size: %.2mi x %.2mi inches)\n",
-                 PCB->ExtentMaxX - PCB->ExtentMinX,
-                 PCB->ExtentMaxY - PCB->ExtentMinY);
+                 PCB->MaxWidth, PCB->MaxHeight);
 
   return file;
 }
@@ -600,7 +597,6 @@ gcode_do_export (HID_Attr_Val * options)
       snprintf (variable_millplunge, 20, "%f", gcode_millplunge);
       snprintf (variable_millfeedrate, 20, "%f", gcode_millfeedrate);
     }
-  UpdateExtents();
 
   for (i = 0; i < MAX_GROUP; i++)
     {
@@ -1087,13 +1083,13 @@ gcode_do_export (HID_Attr_Val * options)
         }
       if (metric)
         {
-          upperX = COORD_TO_MM(PCB->ExtentMaxX - PCB->ExtentMinX);
-          upperY = COORD_TO_MM(PCB->ExtentMaxY - PCB->ExtentMinY);
+          upperX = COORD_TO_MM(PCB->MaxWidth);
+          upperY = COORD_TO_MM(PCB->MaxHeight);
         }
       else
         {
-          upperX = COORD_TO_INCH(PCB->ExtentMaxX - PCB->ExtentMinX);
-          upperY = COORD_TO_INCH(PCB->ExtentMaxY - PCB->ExtentMinY);
+          upperX = COORD_TO_INCH(PCB->MaxWidth);
+          upperY = COORD_TO_INCH(PCB->MaxHeight);
         }
       lowerX -= gcode_milltoolradius;
       lowerY -= gcode_milltoolradius;
@@ -1343,10 +1339,10 @@ gcode_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageRectangle (gcode_im,
-                    pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
-                    pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
-                    pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
-                    pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                    pcb_to_gcode (x1 - gcode_toolradius),
+                    pcb_to_gcode (y1 - gcode_toolradius),
+                    pcb_to_gcode (x2 + gcode_toolradius),
+                    pcb_to_gcode (y2 + gcode_toolradius),
                     gc->color->c);
 /*      printf("Rect %d %d %d %d\n",x1,y1,x2,y2); */
 }
@@ -1358,10 +1354,10 @@ gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageFilledRectangle (gcode_im,
-                      pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
-                      pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
-                      pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
-                      pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                      pcb_to_gcode (x1 - gcode_toolradius),
+                      pcb_to_gcode (y1 - gcode_toolradius),
+                      pcb_to_gcode (x2 + gcode_toolradius),
+                      pcb_to_gcode (y2 + gcode_toolradius),
                       gc->color->c);
 /*      printf("FillRect %d %d %d %d\n",x1,y1,x2,y2); */
 }
@@ -1373,8 +1369,8 @@ gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
     {
       Coord w = gc->width / 2;
       gcode_fill_rect (gc,
-                       x1 - PCB->ExtentMinX - w, y1 - PCB->ExtentMinX - w,
-                       x1 - PCB->ExtentMinX + w, y1 - PCB->ExtentMinY + w);
+                       x1 - w, y1 - w,
+                       x1 + w, y1 + w);
       return;
     }
   use_gc (gc);
@@ -1382,10 +1378,11 @@ gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageLine (gcode_im,
-               pcb_to_gcode (x1 - PCB->ExtentMinX),
-               pcb_to_gcode (y1 - PCB->ExtentMinY),
-               pcb_to_gcode (x2 - PCB->ExtentMinX),
-               pcb_to_gcode (y2 - PCB->ExtentMinY), gdBrushed);
+               pcb_to_gcode (x1),
+               pcb_to_gcode (y1),
+               pcb_to_gcode (x2),
+               pcb_to_gcode (y2),
+               gdBrushed);
 }
 
 static void
@@ -1429,8 +1426,8 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageArc (gcode_im,
-              pcb_to_gcode (cx - PCB->ExtentMinX),
-              pcb_to_gcode (cy - PCB->ExtentMinY),
+              pcb_to_gcode (cx),
+              pcb_to_gcode (cy),
               pcb_to_gcode (2 * width + gcode_toolradius * 2),
               pcb_to_gcode (2 * height + gcode_toolradius * 2), sa, ea,
               gdBrushed);
@@ -1521,8 +1518,8 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageFilledEllipse (gcode_im,
-                        pcb_to_gcode (cx - PCB->ExtentMinX),
-                        pcb_to_gcode (cy - PCB->ExtentMinY),
+                        pcb_to_gcode (cx),
+                        pcb_to_gcode (cy),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         gc->color->c);
@@ -1533,9 +1530,9 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
       struct single_size_drills* drill = get_drill (diameter_inches);
       add_hole (drill,
                 /* convert to inch, flip: will drill from bottom side */
-                COORD_TO_INCH(PCB->ExtentMaxX  - cx),  
+                COORD_TO_INCH(PCB->MaxWidth  - cx),
                 /* PCB reverses y axis */
-                COORD_TO_INCH(PCB->ExtentMaxY - cy)); 
+                COORD_TO_INCH(PCB->MaxHeight - cy));
     }
 }
 
@@ -1554,8 +1551,8 @@ gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   use_gc (gc);
   for (i = 0; i < n_coords; i++)
     {
-      points[i].x = pcb_to_gcode (x[i] - PCB->ExtentMinX);
-      points[i].y = pcb_to_gcode (y[i] - PCB->ExtentMinY);
+      points[i].x = pcb_to_gcode (x[i]);
+      points[i].y = pcb_to_gcode (y[i]);
     }
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
