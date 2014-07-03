@@ -1268,7 +1268,7 @@ PushOnTopOfLayerStack (int NewTop)
 {
   int i;
 
-  /* ignore silk layers */
+  /* ignore silk and other extra layers */
   if (NewTop < max_copper_layer)
     {
       /* first find position of passed one */
@@ -1302,22 +1302,22 @@ ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
             Layer, On, ChangeStackOrder);
 
   /* decrement 'i' to keep stack in order of layergroup */
-  if ((group = GetGroupOfLayer (Layer)) < max_group)
-    for (i = PCB->LayerGroups.Number[group]; i;)
-      {
-        int layer = PCB->LayerGroups.Entries[group][--i];
+  group = GetLayerGroupNumberByNumber (Layer);
+  for (i = PCB->LayerGroups.Number[group]; i;)
+    {
+      int layer = PCB->LayerGroups.Entries[group][--i];
 
-        /* don't count the passed member of the group */
-        if (layer != Layer && layer < max_copper_layer)
-          {
-            PCB->Data->Layer[layer].On = On;
+      /* don't count the passed member of the group */
+      if (layer != Layer && layer < max_copper_layer)
+        {
+          PCB->Data->Layer[layer].On = On;
 
-            /* push layer on top of stack if switched on */
-            if (On && ChangeStackOrder)
-              PushOnTopOfLayerStack (layer);
-            changed++;
-          }
-      }
+          /* push layer on top of stack if switched on */
+          if (On && ChangeStackOrder)
+            PushOnTopOfLayerStack (layer);
+          changed++;
+        }
+    }
 
   /* change at least the passed layer */
   PCB->Data->Layer[Layer].On = On;
@@ -1429,26 +1429,6 @@ LayerStringToLayerStack (char *s)
 	}
     }
 }
-
-/* ----------------------------------------------------------------------
- * lookup the group to which a layer belongs to
- * returns max_group if no group is found, or is
- * passed Layer is equal to max_copper_layer
- */
-int
-GetGroupOfLayer (int Layer)
-{
-  int group, i;
-
-  if (Layer == max_copper_layer)
-    return max_group;
-  for (group = 0; group < max_group; group++)
-    for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
-      if (PCB->LayerGroups.Entries[group][i] == Layer)
-        return (group);
-  return max_group;
-}
-
 
 /* ---------------------------------------------------------------------------
  * returns the layergroup number for the passed pointer

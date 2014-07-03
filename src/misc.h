@@ -75,7 +75,6 @@ int GetLayerNumber (DataType *, LayerType *);
 int GetLayerGroupNumberByPointer (LayerType *);
 int GetLayerGroupNumberByNumber (Cardinal);
 int GetLayerGroupNumberBySide (int);
-int GetGroupOfLayer (int);
 int ChangeGroupVisibility (int, bool, bool);
 void LayerStringToLayerStack (char *);
 
