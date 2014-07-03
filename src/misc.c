@@ -1045,7 +1045,7 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
   /* loop over all groups */
   for (s = group_string, group = 0;
        s && *s && group < *LayerN;
-       s++, group++)
+       group++)
     {
       while (*s && isspace ((int) *s))
         s++;
@@ -1092,6 +1092,8 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
             break;
         }
       LayerGroup->Number[group] = member;
+      if (*s == ':')
+        s++;
     }
 
   /* If no explicit solder or component layer group was found in the layer
