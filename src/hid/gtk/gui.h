@@ -193,6 +193,8 @@ typedef struct
   view_data view;
   Coord pcb_x, pcb_y;             /* PCB coordinates of the mouse pointer */
   Coord crosshair_x, crosshair_y; /* PCB coordinates of the crosshair     */
+
+  guint tooltip_update_timeout_id;
 }
 GHidPort;
 

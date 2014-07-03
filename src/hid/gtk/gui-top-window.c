@@ -1460,6 +1460,8 @@ ghid_build_pcb_top_window (void)
   ghid_pack_mode_buttons ();
   gdk_window_set_back_pixmap (gtk_widget_get_window (gport->drawing_area),
                               NULL, FALSE);
+
+  port->tooltip_update_timeout_id = 0;
 }
 
 
