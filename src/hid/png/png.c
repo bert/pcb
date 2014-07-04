@@ -505,33 +505,22 @@ png_get_export_options (int *n)
 static int top_group, bottom_group;
 
 static int
-group_for_layer (int l)
+layer_stack_sort (const void *va, const void *vb)
 {
-  if (l < max_copper_layer + 2 && l >= 0)
-    return GetLayerGroupNumberByNumber (l);
-  /* else something unique */
-  return max_group + 3 + l;
-}
+  int a_layer = *(int *) va;
+  int b_layer = *(int *) vb;
+  int a_group = GetLayerGroupNumberByNumber (a_layer);
+  int b_group = GetLayerGroupNumberByNumber (b_layer);
+  int aside = (a_group == bottom_group ? 0 : a_group == top_group ? 2 : 1);
+  int bside = (b_group == bottom_group ? 0 : b_group == top_group ? 2 : 1);
 
-static int
-layer_sort (const void *va, const void *vb)
-{
-  int a = *(int *) va;
-  int b = *(int *) vb;
-  int al = group_for_layer (a);
-  int bl = group_for_layer (b);
-  int d = bl - al;
+  if (bside != aside)
+    return bside - aside;
 
-  if (a >= 0 && a <= max_copper_layer + 1)
-    {
-      int aside = (al == bottom_group ? 0 : al == top_group ? 2 : 1);
-      int bside = (bl == bottom_group ? 0 : bl == top_group ? 2 : 1);
-      if (bside != aside)
-	return bside - aside;
-    }
-  if (d)
-    return d;
-  return b - a;
+  if (b_group != a_group)
+    return b_group - a_group;
+
+  return b_layer - a_layer;
 }
 
 static const char *filename;
@@ -601,7 +590,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
       top_group = GetLayerGroupNumberBySide (TOP_SIDE);
       bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
-      qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
+      qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_stack_sort);
 
       CLEAR_FLAG(THINDRAWFLAG, PCB);
       CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);

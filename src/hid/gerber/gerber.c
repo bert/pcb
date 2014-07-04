@@ -411,23 +411,17 @@ gerber_get_export_options (int *n)
 }
 
 static int
-group_for_layer (int l)
+layer_stack_sort (const void *va, const void *vb)
 {
-  if (l < max_copper_layer + 2 && l >= 0)
-    return GetLayerGroupNumberByNumber (l);
-  /* else something unique */
-  return max_group + 3 + l;
-}
+  int a_layer = *(int *) va;
+  int b_layer = *(int *) vb;
+  int a_group = GetLayerGroupNumberByNumber (a_layer);
+  int b_group = GetLayerGroupNumberByNumber (b_layer);
 
-static int
-layer_sort (const void *va, const void *vb)
-{
-  int a = *(int *) va;
-  int b = *(int *) vb;
-  int d = group_for_layer (b) - group_for_layer (a);
-  if (d)
-    return d;
-  return b - a;
+  if (b_group != a_group)
+    return b_group - a_group;
+
+  return b_layer - a_layer;
 }
 
 static void
@@ -670,7 +664,7 @@ gerber_do_export (HID_Attr_Val * options)
       print_layer[i] = 1;
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
-  qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
+  qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_stack_sort);
   linewidth = -1;
   lastcap = -1;
   lastgroup = -1;
