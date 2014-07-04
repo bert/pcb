@@ -482,7 +482,6 @@ cancel_tooltip_update (GHidPort *out)
 {
   if (out->tooltip_update_timeout_id)
     {
-      printf ("cancel_tooltip_update called to remove timeout id %i\n", out->tooltip_update_timeout_id);
       g_source_remove (out->tooltip_update_timeout_id);
       out->tooltip_update_timeout_id = 0;
     }
