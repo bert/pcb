@@ -1255,8 +1255,11 @@ NotifyMode (void)
 	  if ((Crosshair.AttachedLine.Point1.X !=
 	       Crosshair.AttachedLine.Point2.X
 	       || Crosshair.AttachedLine.Point1.Y !=
-	       Crosshair.AttachedLine.Point2.Y)
-	      && (line =
+	       Crosshair.AttachedLine.Point2.Y))
+            {
+              PinType *via;
+
+              if ((line =
 		  CreateDrawnLineOnLayer (CURRENT,
 					  Crosshair.AttachedLine.Point1.X,
 					  Crosshair.AttachedLine.Point1.Y,
@@ -1265,12 +1268,12 @@ NotifyMode (void)
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
 					  MakeFlags (line_flags))) != NULL)
-	    {
-	      PinType *via;
+                {
 
-	      addedLines++;
-	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-	      DrawLine (CURRENT, line);
+                  addedLines++;
+                  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+                  DrawLine (CURRENT, line);
+                }
 	      /* place a via if vias are visible, the layer is
 	         in a new group since the last line and there
 	         isn't a pin already here */
@@ -1303,8 +1306,9 @@ NotifyMode (void)
 	    }
 	  if (PCB->Clipping && (Note.X != Crosshair.AttachedLine.Point2.X
 				|| Note.Y !=
-				Crosshair.AttachedLine.Point2.Y)
-	      && (line =
+				Crosshair.AttachedLine.Point2.Y))
+            {
+              if ((line =
 		  CreateDrawnLineOnLayer (CURRENT,
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y,
@@ -1312,11 +1316,12 @@ NotifyMode (void)
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
 					  MakeFlags (line_flags))) != NULL)
-	    {
-	      addedLines++;
-	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-	      IncrementUndoSerialNumber ();
-	      DrawLine (CURRENT, line);
+                {
+                  addedLines++;
+                  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+                  IncrementUndoSerialNumber ();
+                  DrawLine (CURRENT, line);
+                }
 	      /* move to new start point */
 	      Crosshair.AttachedLine.Point1.X = Note.X;
 	      Crosshair.AttachedLine.Point1.Y = Note.Y;
