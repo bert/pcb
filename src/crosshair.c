@@ -844,8 +844,9 @@ check_snap_offgrid_line (struct snap_data *snap_data,
   /* Pick the nearest grid-point in the x or y direction
    * to align with, then adjust until we hit the line
    */
-  ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                              LINE_TYPE, &ptr1, &ptr2, &ptr3);
+  ans = SearchObjectByLocation (LINE_TYPE, &ptr1, &ptr2, &ptr3,
+                                Crosshair.X, Crosshair.Y, PCB->Grid / 2);
+
 
   if (ans == NO_TYPE)
     return;
@@ -961,8 +962,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (!PCB->RatDraw)
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (ELEMENT_TYPE, &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   if (ans & ELEMENT_TYPE)
     {
@@ -972,8 +973,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                PAD_TYPE, &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (PAD_TYPE, &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   /* Avoid self-snapping when moving */
   if (ans != NO_TYPE &&
@@ -1029,8 +1030,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                PIN_TYPE, &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (PIN_TYPE, &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   /* Avoid self-snapping when moving */
   if (ans != NO_TYPE &&
@@ -1047,8 +1048,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                VIA_TYPE, &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (VIA_TYPE, &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   /* Avoid snapping vias to any other vias */
   if (Settings.Mode == MOVE_MODE &&
@@ -1064,9 +1065,9 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                LINEPOINT_TYPE | ARCPOINT_TYPE,
-                                &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (LINEPOINT_TYPE | ARCPOINT_TYPE,
+                                  &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   if (ans != NO_TYPE)
     {
@@ -1078,8 +1079,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                POLYGONPOINT_TYPE, &ptr1, &ptr2, &ptr3);
+    ans = SearchObjectByLocation (POLYGONPOINT_TYPE, &ptr1, &ptr2, &ptr3,
+                                  Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   if (ans != NO_TYPE)
     {
@@ -1095,9 +1096,9 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (Settings.Mode == ARROW_MODE)
     {
-      ans = SearchScreenGridSlop (Crosshair.X, Crosshair.Y,
-                                  LINEPOINT_TYPE | ARCPOINT_TYPE,
-                                  &ptr1, &ptr2, &ptr3);
+      ans = SearchObjectByLocation (LINEPOINT_TYPE | ARCPOINT_TYPE,
+                                    &ptr1, &ptr2, &ptr3,
+                                    Crosshair.X, Crosshair.Y, PCB->Grid / 2);
       if (ans == NO_TYPE)
         hid_action("PointCursor");
       else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
