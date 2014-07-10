@@ -41,7 +41,6 @@
 #include <string.h>
 #endif
 #include <assert.h>
-#include <setjmp.h>
 #include <memory.h>
 #include <ctype.h>
 #include <signal.h>
