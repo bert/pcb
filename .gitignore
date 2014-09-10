@@ -13,3 +13,4 @@ stamp-*
 *.stamp
 /missing
 *.backup
+test-driver
