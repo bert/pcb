@@ -352,7 +352,7 @@ ghid_config_init (void)
 static gint
 parse_option_line (gchar * line, gchar ** option_result, gchar ** arg_result)
 {
-  gchar *s, *ss, option[64], arg[512];
+  gchar *s, *ss, *option = NULL, *arg = NULL;
   gint argc = 1;
 
   if (option_result)
@@ -367,8 +367,30 @@ parse_option_line (gchar * line, gchar ** option_result, gchar ** arg_result)
     return 0;
   if ((ss = strchr (s, '\n')) != NULL)
     *ss = '\0';
-  arg[0] = '\0';
-  sscanf (s, "%63s %511[^\n]", option, arg);
+
+  if ((ss = strchr (s, ' ')) != NULL) {
+    option = malloc(ss - s + 1);
+    if (option == NULL)
+      return 0;
+    memcpy(option, s, ss - s);
+    option[ss - s] = '\0';
+
+    arg = strdup(ss + 1);
+    if (arg == NULL) {
+      free(option);
+      return 0;
+    }
+  } else {
+    option = strdup(s);
+    if (option == NULL)
+      return 0;
+
+    arg = strdup("");
+    if (arg == NULL) {
+      free(option);
+      return 0;
+    }
+  }
 
   s = option;			/* Strip trailing ':' or '=' */
   while (*s && *s != ':' && *s != '=')
@@ -388,6 +410,9 @@ parse_option_line (gchar * line, gchar ** option_result, gchar ** arg_result)
       *arg_result = g_strdup (s);
       ++argc;
     }
+
+  free(arg);
+  free(option);
   return argc;
 }
 
