@@ -416,6 +416,23 @@ out:
 		"element-data", PASTEBUFFER->Data->Element->data, NULL);
 }
 
+/*! \brief If there is only one toplevel node, expand it. */
+
+static void
+maybe_expand_toplevel_node (GtkTreeView *tree_view)
+{
+  GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
+  if (gtk_tree_model_iter_n_children (model, NULL) == 1)
+    {
+      GtkTreePath *path = gtk_tree_path_new_first ();
+      if (path != NULL)
+        {
+          gtk_tree_view_expand_row (tree_view, path, FALSE);
+          gtk_tree_path_free(path);
+        }
+    }
+}
+
 /*! \brief Requests re-evaluation of the filter.
  *  \par Function Description
  *  This is the timeout function for the filtering of footprint
@@ -449,6 +466,7 @@ library_window_filter_timeout (gpointer data)
         } else {
           /* filter text is empty, collapse expanded tree */
           gtk_tree_view_collapse_all (library_window->libtreeview);
+          maybe_expand_toplevel_node (library_window->libtreeview);
         }
     }
 
@@ -653,6 +671,7 @@ library_window_callback_refresh_library (GtkButton * button,
 					  library_window, NULL);
 
   gtk_tree_view_set_model (library_window->libtreeview, model);
+  maybe_expand_toplevel_node (library_window->libtreeview);
 }
 #endif
 
@@ -707,6 +726,8 @@ create_lib_treeview (GhidLibraryWindow * library_window)
                     "key-press-event",
                     G_CALLBACK (tree_row_key_pressed),
                     NULL);
+
+  maybe_expand_toplevel_node (GTK_TREE_VIEW (libtreeview));
 
   /* connect callback to selection */
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (libtreeview));
