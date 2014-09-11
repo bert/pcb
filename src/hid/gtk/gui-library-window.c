@@ -101,6 +101,8 @@ library_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 
 enum
 {
+  MENU_TOPPATH_COLUMN,		/* Top path of the library         */
+  MENU_SUBPATH_COLUMN,		/* Relative path to the top        */
   MENU_NAME_COLUMN,		/* Text to display in the tree     */
   MENU_LIBRARY_COLUMN,		/* Pointer to the LibraryMenuType  */
   MENU_ENTRY_COLUMN,		/* Pointer to the LibraryEntryType */
@@ -515,16 +517,6 @@ library_window_callback_filter_button_clicked (GtkButton * button,
 
 }
 
-/* Helper function for create_lib_tree_model */
-static char *
-pcb_basename (char *p)
-{
-  char *rv = strrchr (p, '/');
-  if (rv)
-    return rv + 1;
-  return p;
-}
-
 /* \brief Create the tree model for the "Library" view.
  * \par Function Description
  * Creates a tree where the branches are the available library
@@ -534,11 +526,14 @@ static GtkTreeModel *
 create_lib_tree_model (GhidLibraryWindow * library_window)
 {
   GtkTreeStore *tree;
-  GtkTreeIter iter, p_iter, e_iter, c_iter;
+  char *rel_path, empty_string[] = ""; /* writable */
+  GtkTreeIter *iter, p_iter, e_iter, c_iter;
+  char *tok_start, *tok_end;
   gchar *name;
   gboolean exists;
 
   tree = gtk_tree_store_new (N_MENU_COLUMNS,
+			     G_TYPE_STRING, G_TYPE_STRING,
 			     G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
 
   MENU_LOOP (&Library);
@@ -549,39 +544,75 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
     if (!menu->directory)	/* Shouldn't happen */
       menu->directory = g_strdup ("???");
 
-    exists = FALSE;
-    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (tree), &e_iter))
-      do
-	{
-	  gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
-			      MENU_NAME_COLUMN, &name, -1);
-	  if (!strcmp (name, pcb_basename(menu->directory)))
+    rel_path = menu->Name;
+
+    if (strncmp(rel_path, menu->directory, strlen(menu->directory)) == 0)
+      {
+	if (rel_path[strlen(menu->directory)] == '\0')
+	  rel_path = empty_string;
+	else if (rel_path[strlen(menu->directory)] == '/')
+	  rel_path += strlen(menu->directory) + 1;
+      }
+
+    iter = NULL;
+    tok_start = tok_end = rel_path;
+
+    do
+      {
+	char saved_ch = *tok_end;
+	*tok_end = '\0';
+
+	exists = FALSE;
+	if (gtk_tree_model_iter_children (GTK_TREE_MODEL (tree), &e_iter, iter))
+	  do
 	    {
+	      gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+				  MENU_TOPPATH_COLUMN, &name, -1);
+	      if (strcmp (name, menu->directory) != 0)
+		continue;
+
+	      gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+				  MENU_SUBPATH_COLUMN, &name, -1);
+	      if (strcmp (name, rel_path) != 0)
+		continue;
+
 	      exists = TRUE;
 	      break;
 	    }
-	}
-      while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
+	  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
 
-    if (exists)
-      p_iter = e_iter;
-    else
-      {
-	gtk_tree_store_append (tree, &p_iter, NULL);
-	gtk_tree_store_set (tree, &p_iter,
-			    MENU_NAME_COLUMN, pcb_basename(menu->directory),
-			    MENU_LIBRARY_COLUMN, NULL,
-			    MENU_ENTRY_COLUMN, NULL, -1);
+	if (exists)
+	  p_iter = e_iter;
+	else
+	  {
+	    gtk_tree_store_append (tree, &p_iter, iter);
+	    gtk_tree_store_set (tree, &p_iter,
+				MENU_TOPPATH_COLUMN, menu->directory,
+				MENU_SUBPATH_COLUMN, rel_path,
+				MENU_NAME_COLUMN,
+				  tok_end == rel_path ?
+				    basename(menu->directory) : tok_start,
+				MENU_LIBRARY_COLUMN,
+				  saved_ch == '\0' ? menu : NULL,
+				MENU_ENTRY_COLUMN, NULL, -1);
+	  }
+	iter = &p_iter;
+
+	*tok_end = saved_ch;
+
+	tok_start = tok_end;
+	if (*tok_start == '/')
+	  tok_start++;
+	tok_end = strchrnul(tok_start, '/');
       }
-    gtk_tree_store_append (tree, &iter, &p_iter);
-    gtk_tree_store_set (tree, &iter,
-			MENU_NAME_COLUMN, pcb_basename(menu->Name),
-			MENU_LIBRARY_COLUMN, menu,
-			MENU_ENTRY_COLUMN, NULL, -1);
+    while (*tok_start != '\0');
+
     ENTRY_LOOP (menu);
     {
-      gtk_tree_store_append (tree, &c_iter, &iter);
+      gtk_tree_store_append (tree, &c_iter, iter);
       gtk_tree_store_set (tree, &c_iter,
+			  MENU_TOPPATH_COLUMN, menu->directory,
+			  MENU_SUBPATH_COLUMN, rel_path,
 			  MENU_NAME_COLUMN, entry->ListEntry,
 			  MENU_LIBRARY_COLUMN, menu,
 			  MENU_ENTRY_COLUMN, entry, -1);
