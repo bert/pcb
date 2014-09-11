@@ -121,7 +121,6 @@ static int WritePCBFile (char *);
 static int WritePipe (char *, bool);
 static int ParseLibraryTree (void);
 static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
-static char *pcb_basename (char *p);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -1111,16 +1110,6 @@ RemoveTMPData (void)
  * Parse the directory tree where newlib footprints are found
  */
 
-/* Helper function for ParseLibraryTree */
-static char *
-pcb_basename (char *p)
-{
-  char *rv = strrchr (p, '/');
-  if (rv)
-    return rv + 1;
-  return p;
-}
-
 /* This is a helper function for ParseLibrary Tree.   Given a char *path,
  * it finds all newlib footprints in that dir and sticks them into the
  * library menu structure named entry.
@@ -1180,8 +1169,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   /* Get pointer to memory holding menu */
   menu = GetLibraryMenuMemory (&Library);
   /* Populate menuname and path vars */
-  menu->Name = strdup (pcb_basename(subdir));
-  menu->directory = strdup (pcb_basename(toppath));
+  menu->Name = strdup (subdir);
+  menu->directory = strdup (toppath);
 
   /* Now loop over files in this directory looking for files.
    * We ignore certain files which are not footprints.

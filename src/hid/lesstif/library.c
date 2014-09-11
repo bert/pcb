@@ -118,6 +118,15 @@ build_library_dialog ()
   return 0;
 }
 
+static char *
+pcb_basename (char *p)
+{
+  char *rv = strrchr (p, '/');
+  if (rv)
+    return rv + 1;
+  return p;
+}
+
 static int
 LibraryChanged (int argc, char **argv, Coord x, Coord y)
 {
@@ -131,7 +140,8 @@ LibraryChanged (int argc, char **argv, Coord x, Coord y)
     free (library_strings);
   library_strings = (XmString *) malloc (Library.MenuN * sizeof (XmString));
   for (i = 0; i < Library.MenuN; i++)
-    library_strings[i] = XmStringCreatePCB (Library.Menu[i].Name);
+    library_strings[i] = XmStringCreatePCB (
+			   pcb_basename (Library.Menu[i].Name));
   n = 0;
   stdarg (XmNitems, library_strings);
   stdarg (XmNitemCount, Library.MenuN);

@@ -515,6 +515,16 @@ library_window_callback_filter_button_clicked (GtkButton * button,
 
 }
 
+/* Helper function for create_lib_tree_model */
+static char *
+pcb_basename (char *p)
+{
+  char *rv = strrchr (p, '/');
+  if (rv)
+    return rv + 1;
+  return p;
+}
+
 /* \brief Create the tree model for the "Library" view.
  * \par Function Description
  * Creates a tree where the branches are the available library
@@ -545,7 +555,7 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
 	{
 	  gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
 			      MENU_NAME_COLUMN, &name, -1);
-	  if (!strcmp (name, menu->directory))
+	  if (!strcmp (name, pcb_basename(menu->directory)))
 	    {
 	      exists = TRUE;
 	      break;
@@ -559,13 +569,13 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
       {
 	gtk_tree_store_append (tree, &p_iter, NULL);
 	gtk_tree_store_set (tree, &p_iter,
-			    MENU_NAME_COLUMN, menu->directory,
+			    MENU_NAME_COLUMN, pcb_basename(menu->directory),
 			    MENU_LIBRARY_COLUMN, NULL,
 			    MENU_ENTRY_COLUMN, NULL, -1);
       }
     gtk_tree_store_append (tree, &iter, &p_iter);
     gtk_tree_store_set (tree, &iter,
-			MENU_NAME_COLUMN, menu->Name,
+			MENU_NAME_COLUMN, pcb_basename(menu->Name),
 			MENU_LIBRARY_COLUMN, menu,
 			MENU_ENTRY_COLUMN, NULL, -1);
     ENTRY_LOOP (menu);
