@@ -120,7 +120,7 @@ static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, bool);
 static int ParseLibraryTree (void);
-static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
+static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -1115,7 +1115,7 @@ RemoveTMPData (void)
  * library menu structure named entry, and recurses into subdirectories.
  */
 static int
-LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
+LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
 {
   char olddir[MAXPATHLEN + 1];    /* The directory we start out in (cwd) */
   char subdir[MAXPATHLEN + 1];    /* The directory holding footprints to load */
@@ -1225,6 +1225,14 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   }
   closedir (subdirobj);
 
+  /* Don't recurse into relatively-specified directories--we might be
+     in the user's working directory, and the path might be "." */
+  if (!recursive) {
+    if (chdir (olddir))
+      ChdirErrorMessage (olddir);
+    return n_footprints;
+  }
+
   /* Then open this dir so we can loop over its contents. */
   if ((subdirobj = opendir (subdir)) == NULL)
     {
@@ -1268,7 +1276,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 	  strcat (subdir_path, PCB_DIR_SEPARATOR_S);
 	  strcat (subdir_path, subdirentry->d_name);
 
-	  n_footprints += LoadNewlibFootprintsFromDir(subdir_path, toppath);
+	  n_footprints += LoadNewlibFootprintsFromDir(subdir_path, toppath, true);
 	  free(subdir_path);
 	}
     }
@@ -1348,7 +1356,7 @@ ParseLibraryTree (void)
 #endif
 
       /* Next read in any footprints in the top level dir and below */
-      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath);
+      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath, *p == '/');
     }
 
   /* restore the original working directory */
