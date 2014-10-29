@@ -101,6 +101,8 @@ library_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 
 enum
 {
+  MENU_TOPPATH_COLUMN,		/* Top path of the library         */
+  MENU_SUBPATH_COLUMN,		/* Relative path to the top        */
   MENU_NAME_COLUMN,		/* Text to display in the tree     */
   MENU_LIBRARY_COLUMN,		/* Pointer to the LibraryMenuType  */
   MENU_ENTRY_COLUMN,		/* Pointer to the LibraryEntryType */
@@ -414,6 +416,23 @@ out:
 		"element-data", PASTEBUFFER->Data->Element->data, NULL);
 }
 
+/*! \brief If there is only one toplevel node, expand it. */
+
+static void
+maybe_expand_toplevel_node (GtkTreeView *tree_view)
+{
+  GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
+  if (gtk_tree_model_iter_n_children (model, NULL) == 1)
+    {
+      GtkTreePath *path = gtk_tree_path_new_first ();
+      if (path != NULL)
+        {
+          gtk_tree_view_expand_row (tree_view, path, FALSE);
+          gtk_tree_path_free(path);
+        }
+    }
+}
+
 /*! \brief Requests re-evaluation of the filter.
  *  \par Function Description
  *  This is the timeout function for the filtering of footprint
@@ -447,6 +466,7 @@ library_window_filter_timeout (gpointer data)
         } else {
           /* filter text is empty, collapse expanded tree */
           gtk_tree_view_collapse_all (library_window->libtreeview);
+          maybe_expand_toplevel_node (library_window->libtreeview);
         }
     }
 
@@ -524,11 +544,14 @@ static GtkTreeModel *
 create_lib_tree_model (GhidLibraryWindow * library_window)
 {
   GtkTreeStore *tree;
-  GtkTreeIter iter, p_iter, e_iter, c_iter;
+  char *rel_path, empty_string[] = ""; /* writable */
+  GtkTreeIter *iter, p_iter, e_iter, c_iter;
+  char *tok_start, *tok_end;
   gchar *name;
   gboolean exists;
 
   tree = gtk_tree_store_new (N_MENU_COLUMNS,
+			     G_TYPE_STRING, G_TYPE_STRING,
 			     G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
 
   MENU_LOOP (&Library);
@@ -539,39 +562,75 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
     if (!menu->directory)	/* Shouldn't happen */
       menu->directory = g_strdup ("???");
 
-    exists = FALSE;
-    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (tree), &e_iter))
-      do
-	{
-	  gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
-			      MENU_NAME_COLUMN, &name, -1);
-	  if (!strcmp (name, menu->directory))
+    rel_path = menu->Name;
+
+    if (strncmp(rel_path, menu->directory, strlen(menu->directory)) == 0)
+      {
+	if (rel_path[strlen(menu->directory)] == '\0')
+	  rel_path = empty_string;
+	else if (rel_path[strlen(menu->directory)] == '/')
+	  rel_path += strlen(menu->directory) + 1;
+      }
+
+    iter = NULL;
+    tok_start = tok_end = rel_path;
+
+    do
+      {
+	char saved_ch = *tok_end;
+	*tok_end = '\0';
+
+	exists = FALSE;
+	if (gtk_tree_model_iter_children (GTK_TREE_MODEL (tree), &e_iter, iter))
+	  do
 	    {
+	      gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+				  MENU_TOPPATH_COLUMN, &name, -1);
+	      if (strcmp (name, menu->directory) != 0)
+		continue;
+
+	      gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+				  MENU_SUBPATH_COLUMN, &name, -1);
+	      if (strcmp (name, rel_path) != 0)
+		continue;
+
 	      exists = TRUE;
 	      break;
 	    }
-	}
-      while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
+	  while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
 
-    if (exists)
-      p_iter = e_iter;
-    else
-      {
-	gtk_tree_store_append (tree, &p_iter, NULL);
-	gtk_tree_store_set (tree, &p_iter,
-			    MENU_NAME_COLUMN, menu->directory,
-			    MENU_LIBRARY_COLUMN, NULL,
-			    MENU_ENTRY_COLUMN, NULL, -1);
+	if (exists)
+	  p_iter = e_iter;
+	else
+	  {
+	    gtk_tree_store_append (tree, &p_iter, iter);
+	    gtk_tree_store_set (tree, &p_iter,
+				MENU_TOPPATH_COLUMN, menu->directory,
+				MENU_SUBPATH_COLUMN, rel_path,
+				MENU_NAME_COLUMN,
+				  tok_end == rel_path ?
+				    basename(menu->directory) : tok_start,
+				MENU_LIBRARY_COLUMN,
+				  saved_ch == '\0' ? menu : NULL,
+				MENU_ENTRY_COLUMN, NULL, -1);
+	  }
+	iter = &p_iter;
+
+	*tok_end = saved_ch;
+
+	tok_start = tok_end;
+	if (*tok_start == '/')
+	  tok_start++;
+	tok_end = strchrnul(tok_start, '/');
       }
-    gtk_tree_store_append (tree, &iter, &p_iter);
-    gtk_tree_store_set (tree, &iter,
-			MENU_NAME_COLUMN, menu->Name,
-			MENU_LIBRARY_COLUMN, menu,
-			MENU_ENTRY_COLUMN, NULL, -1);
+    while (*tok_start != '\0');
+
     ENTRY_LOOP (menu);
     {
-      gtk_tree_store_append (tree, &c_iter, &iter);
+      gtk_tree_store_append (tree, &c_iter, iter);
       gtk_tree_store_set (tree, &c_iter,
+			  MENU_TOPPATH_COLUMN, menu->directory,
+			  MENU_SUBPATH_COLUMN, rel_path,
 			  MENU_NAME_COLUMN, entry->ListEntry,
 			  MENU_LIBRARY_COLUMN, menu,
 			  MENU_ENTRY_COLUMN, entry, -1);
@@ -612,6 +671,7 @@ library_window_callback_refresh_library (GtkButton * button,
 					  library_window, NULL);
 
   gtk_tree_view_set_model (library_window->libtreeview, model);
+  maybe_expand_toplevel_node (library_window->libtreeview);
 }
 #endif
 
@@ -666,6 +726,8 @@ create_lib_treeview (GhidLibraryWindow * library_window)
                     "key-press-event",
                     G_CALLBACK (tree_row_key_pressed),
                     NULL);
+
+  maybe_expand_toplevel_node (GTK_TREE_VIEW (libtreeview));
 
   /* connect callback to selection */
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (libtreeview));

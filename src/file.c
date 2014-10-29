@@ -120,8 +120,7 @@ static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, bool);
 static int ParseLibraryTree (void);
-static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
-static char *pcb_basename (char *p);
+static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -1111,22 +1110,12 @@ RemoveTMPData (void)
  * Parse the directory tree where newlib footprints are found
  */
 
-/* Helper function for ParseLibraryTree */
-static char *
-pcb_basename (char *p)
-{
-  char *rv = strrchr (p, '/');
-  if (rv)
-    return rv + 1;
-  return p;
-}
-
 /* This is a helper function for ParseLibrary Tree.   Given a char *path,
- * it finds all newlib footprints in that dir and sticks them into the
- * library menu structure named entry.
+ * it finds all newlib footprints in that dir, sticks them into the
+ * library menu structure named entry, and recurses into subdirectories.
  */
 static int
-LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
+LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
 {
   char olddir[MAXPATHLEN + 1];    /* The directory we start out in (cwd) */
   char subdir[MAXPATHLEN + 1];    /* The directory holding footprints to load */
@@ -1180,8 +1169,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   /* Get pointer to memory holding menu */
   menu = GetLibraryMenuMemory (&Library);
   /* Populate menuname and path vars */
-  menu->Name = strdup (pcb_basename(subdir));
-  menu->directory = strdup (pcb_basename(toppath));
+  menu->Name = strdup (subdir);
+  menu->directory = strdup (toppath);
 
   /* Now loop over files in this directory looking for files.
    * We ignore certain files which are not footprints.
@@ -1234,6 +1223,63 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 	entry->Template = (char *) -1;
       }
   }
+  closedir (subdirobj);
+
+  /* Don't recurse into relatively-specified directories--we might be
+     in the user's working directory, and the path might be "." */
+  if (!recursive) {
+    if (chdir (olddir))
+      ChdirErrorMessage (olddir);
+    return n_footprints;
+  }
+
+  /* Then open this dir so we can loop over its contents. */
+  if ((subdirobj = opendir (subdir)) == NULL)
+    {
+      OpendirErrorMessage (subdir);
+      if (chdir (olddir))
+        ChdirErrorMessage (olddir);
+      return 0;
+    }
+
+  /* Now loop over files in this directory looking for subdirs.
+   * For each direntry which is a valid subdirectory,
+   * try to load newlib footprints inside it.
+   */
+  while ((subdirentry = readdir (subdirobj)) != NULL)
+    {
+#ifdef DEBUG
+      printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", subdirentry->d_name);
+#endif
+      /* Find subdirectories.  Ignore entries beginning with "." and CVS
+       * directories.
+       */
+      if (!stat (subdirentry->d_name, &buffer)
+	  && S_ISDIR (buffer.st_mode)
+	  && subdirentry->d_name[0] != '.'
+	  && NSTRCMP (subdirentry->d_name, "CVS") != 0)
+	{
+	  /* Found a valid subdirectory.  Try to load footprints from it.
+	   */
+	  char *subdir_path = (char *)calloc (
+	    1, strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1);
+	  if (subdir_path == NULL)
+	    {
+	      fprintf (stderr, "LoadNewlibFootprintsFromDir():  "
+			       "malloc failed\n");
+	      closedir (subdirobj);
+	      if (chdir (olddir))
+		ChdirErrorMessage (olddir);
+	      return n_footprints;
+	    }
+	  strcat (subdir_path, subdir);
+	  strcat (subdir_path, PCB_DIR_SEPARATOR_S);
+	  strcat (subdir_path, subdirentry->d_name);
+
+	  n_footprints += LoadNewlibFootprintsFromDir(subdir_path, toppath, true);
+	  free(subdir_path);
+	}
+    }
   /* Done.  Clean up, cd back into old dir, and return */
   closedir (subdirobj);
   if (chdir (olddir))
@@ -1244,10 +1290,8 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 
 /* This function loads the newlib footprints into the Library.
  * It examines all directories pointed to by Settings.LibraryTree.
- * In each directory specified there, it looks both in that directory,
- * as well as *one* level down.  It calls the subfunction 
- * LoadNewlibFootprintsFromDir to put the footprints into PCB's internal
- * datastructures.
+ * It calls the subfunction LoadNewlibFootprintsFromDir to put the
+ * footprints into PCB's internal datastructures.
  */
 static int
 ParseLibraryTree (void)
@@ -1256,9 +1300,6 @@ ParseLibraryTree (void)
   char working[MAXPATHLEN + 1];    /* String holding abs path to working dir */
   char *libpaths;                  /* String holding list of library paths to search */
   char *p;                         /* Helper string used in iteration */
-  DIR *dirobj;                     /* Iterable directory object */
-  struct dirent *direntry = NULL;  /* Object holding individual directory entries */
-  struct stat buffer;              /* buffer used in stat */
   int n_footprints = 0;            /* Running count of footprints found */
 
   /* Initialize path, working by writing 0 into every byte. */
@@ -1314,39 +1355,8 @@ ParseLibraryTree (void)
 	     toppath);
 #endif
 
-      /* Next read in any footprints in the top level dir */
-      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath);
-
-      /* Then open this dir so we can loop over its contents. */
-      if ((dirobj = opendir (toppath)) == NULL)
-	{
-	  OpendirErrorMessage (toppath);
-	  continue;
-	}
-
-      /* Now loop over files in this directory looking for subdirs.
-       * For each direntry which is a valid subdirectory,
-       * try to load newlib footprints inside it.
-       */
-      while ((direntry = readdir (dirobj)) != NULL)
-	{
-#ifdef DEBUG
-	  printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
-#endif
-	  /* Find subdirectories.  Ignore entries beginning with "." and CVS
-	   * directories.
-	   */
-	  if (!stat (direntry->d_name, &buffer)
-	      && S_ISDIR (buffer.st_mode) 
-	      && direntry->d_name[0] != '.'
-	      && NSTRCMP (direntry->d_name, "CVS") != 0)
-	    {
-	      /* Found a valid subdirectory.  Try to load footprints from it.
-	       */
-	      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, toppath);
-	    }
-	}
-      closedir (dirobj);
+      /* Next read in any footprints in the top level dir and below */
+      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath, *p == '/');
     }
 
   /* restore the original working directory */
