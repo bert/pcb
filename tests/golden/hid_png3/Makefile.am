@@ -1,4 +1,4 @@
 ## -*- makefile -*-
 
 EXTRA_DIST= \
-\tgerber_oneline.png
+	gerber_oneline.png
