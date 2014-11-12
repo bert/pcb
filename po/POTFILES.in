@@ -13,11 +13,11 @@ src/buffer.c
 src/change.c
 src/create.c
 src/crosshair.c
-src/edif.c
+src/edif.y
 src/error.c
 src/file.c
 src/find.c
-src/gpcb-menu.res.h
+src/gpcb-menu.res.in
 src/hid/batch/batch.c
 src/hid/common/actions.c
 src/hid/common/hidnogui.c
@@ -48,11 +48,11 @@ src/misc.c
 src/move.c
 src/netlist.c
 src/parse_y.y
-src/pcb-menu.res.h
+src/pcb-menu.res.in
 src/polygon.c
 src/rats.c
 src/report.c
-src/res_parse.c
+src/res_parse.y
 src/rotate.c
 src/select.c
 src/set.c
