@@ -8,5 +8,8 @@ EXTRA_DIST=	${EXAMPLES}
 EXAMPLES=\
 	LED.pcb \
 	LED.net \
-	LED2.pcb
+	LED2.pcb \
+	OpenSCAD.pcb \
+	OpenSCAD.3dm \
+	OpenSCAD.scad
 

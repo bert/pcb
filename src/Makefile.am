@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a
+	libgcode.a libscad.a
 
 pcblib_DATA= \
 	default_font \
@@ -243,6 +243,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
+	$(srcdir)/hid/scad/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
@@ -401,6 +402,14 @@ libgerber_a_CPPFLAGS = -I$(top_srcdir)
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
+
+libscad_a_CPPFLAGS = -I$(top_srcdir)
+LIBSCAD_SRCS = \
+	hid/hidint.h \
+	hid/scad/scad.c \
+	hid/scad/scadproto.c \
+	hid/scad/scadcomp.c
+libscad_a_SOURCES =  ${LIBSCAD_SRCS} hid/scad/scad.h
 
 libbom_a_CPPFLAGS = -I$(top_srcdir)
 libbom_a_SOURCES = \

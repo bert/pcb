@@ -1910,6 +1910,7 @@ select the desired exporter.
 * gcode::              G-code.
 * gerber::             Gerber.
 * nelma::              Nelma.
+* scad::               Advanced OpenSCAD.
 * png::		       Image.
 * ps::		       Postscript.
 * eps::		       Eps.
@@ -2010,6 +2011,194 @@ Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files.
 @cindex nelma
 
 Numerical analysis package export.
+
+@c ------------------- Advanced OpenSCAD exporter paragraph ---------------------
+
+@node scad
+@subsection OpenSCAD (advanced) (scad)
+@cindex scad
+
+@c @subsubsection Advanced OpenSCAD exporter overview
+
+This is an enhanced version of the OpenSCAD exporter. The exported model optionally includes copper tracks, silk screen, solder mask, board outline and components.
+
+The Advanced OpenSCAD exporter creates single, monolithic file. All component models are embedded into the output file, including first-level include files.
+
+@subsubsection Component models processing
+
+The component models are stored in the directory tree at @code{<path_to_pcb_binary>/../share/pcb/models/scad/}
+
+The model name (without extension) is stored in component's attributes or component's @emph{Description} field. The @code{.scad} extension is appended automatically.
+
+The comomponent's attributes are evaluated in following order:
+@itemize @bullet
+@item
+attribute @code{OpenSCAD::Model} - this attribute is specific to OpenSCAD export and have the highest priority; this atribute is supposed to be part of footprint file.
+@item
+attribute @code{Footprint::File} - this is the default attribute, it's value is set automatically when footprint is loaded
+@item
+component's @emph{Description} field - used mostly for compatibility with older releases of OpenSCAD export filter
+@end itemize
+
+There is also special attribute for secondary model (overlay) - this model is combined with the standard model; it can be used to combine heatsink with transistor model or DIP socket with DIP IC:
+@itemize @bullet
+@item
+attribute @code{OpenSCAD::Overlay}
+@end itemize
+
+The model name can contain relative path to the model root directory @code{<path_to_pcb_binary>/../share/pcb/models/scad/}.
+
+If @emph{Simple} models are selected, the suffix @code{-simple} is added to model name. So we should have @emph{Realistic} model with name @code{0805.scad} and corresponding @emph{Simple} model @code{0805-simple.scad}.
+
+Because the component rotation is not stored in internal data structures, it is tracked using the @code{Footprint::RotationTracking} attribute. It's value is maintained automatically but it can be adjusted manually.
+
+
+
+
+@subsubsection Project map file - obsolete
+
+Project map file helps to map models to individual components whenever the automatic selecton is not sufficient - for example the single footprint is used for several mechanically different components.
+The @code{0805} footprint is good example - one footprint is used for SMD resistors and SMD capacitors as well.
+
+The project map file is located in the same directory as the board layout; it have the same base file name with extension @code{.3dm}.
+
+The project map file contains records (one record per line) in the following format:
+@sp 1
+@smallexample
+<refdes>:<variable>:<value>
+@end smallexample
+@sp 1
+
+@table @emph
+@item <refdes>
+reference designator of the component
+@item <variable>
+one of predefined variable names
+@item <value>
+the value of the variable (everything up to end of the line)
+@c if the <value> starts with @code{@@} character, it represents the name of the script (located in @code{<path_to_pcb_binary>/../share/pcb/scad/scripts}), which is used to create value on-fly.
+@c For models all script output is used; for other variables only the first line of script output is used.
+@c The map file entry can contain command line parameters of the script; the contents of component's @emph{Value} fiels is appended to the list of parameters. For example, for the resistor R1 with value @code{10k} and the map entry:
+@c @sp 1
+@c @smallexample
+@c R1:model:@@genmodel.pl 0805
+@c @end smallexample
+@c @sp 1
+@c the script @code{<path_to_pcb_binary>/../share/pcb/scad/scripts/genmodel.pl 0805 10k} is called.
+@end table
+
+The empty lines and lines starting with @code{#} (comment lines) are ignored.
+
+Following variables are available:
+
+@table @b
+@item model
+model name (with or without @code{.scad} extension) @c or script name (prepended by @code{@@}) with parameters;
+@item translate
+relative position adjustment of the model, defined as OpenSCAD vector @code{[x,y,z]}
+@item rotate
+Z-axis rotation of the model
+@item scale
+size adjustment (scaling) of the model, defined as OpenSCAD vector @code{[sx,sy,sz]}
+@item overlay
+overlay model name (with or without @code{.scad} extension);
+@c or script name (prepended by @code{@@}) with parameters;
+overlay model is placed over the standard model; the overlay model can be used to combine two models with one footprint, like DIP package in the socket or transistor with cooler.
+@item overlay_translate
+relative position adjustment of the overlay model, defined as OpenSCAD vector @code{[x,y,z]}
+@item overlay_rotate
+Z-axis rotation of the overlay model
+@item overlay_scale
+size adjustment (scaling) of the overlay model, defined as OpenSCAD vector @code{[sx,sy,sz]}
+@end table
+
+Example of map file:
+@sp 1
+@smallexample
+C1:model:CAP0805
+C2:model:CAP0805
+U1:translate:[0,0,4.5]
+U1:overlay:DIPSOCKET14
+R1:model:RES0805
+R2:model:RES0805
+@end smallexample
+@sp 1
+
+@subsubsection Component model design
+
+The OpenSCAD component models used by exporter have to follow these design rules:
+@itemize @bullet
+@item
+All dimensions are in milimeters
+@item
+The coordinate system is the native OpenSCAD coordinate system: X axis heads to the right, Y axis heads up and Z axis heads to you
+@item
+The componet lies on XY plane, with top on positive Z side
+@item
+The Z axis passes through center mark of footprint
+@item
+The Z=0 plane of the component is aligned with top of copper plane on PCB
+@item
+It must be possible to enclose whole model inside another @code{module} definition. The @code{include} directives are allowed, as they are processed special way.
+@end itemize
+
+The model definitions can include other OpenSCAD source files. @b{Only one level of inclusion is supported}; 2nd level @code{include} directives are not processed and they are copied into the final model.
+
+The OpenSCAD exporter removes all 1st level @code{include} directives from model definitions and collects the included file names. After all components are processed, the include files are embedded into output file.
+If the include file cannot be found or opened, new @code{include} directive is emitted. There is always only one copy of the include file processed.
+
+Here is example of simple model. It illustrates the recommended model design - parametrized model prototype is defined in separate include file and it is instantiated in the component model file.
+@sp 1
+@smallexample
+/* File: RES0805.scad            */
+/* Instance of SMT chip resistor */
+
+include<proto/chip-r.scad>
+
+chip_r (
+    L=2.05,
+    T=0.35,
+    W=1.25,
+    H=0.50
+);
+/* EOF */
+
+/* File: proto/chip-r.scad                 */
+/* Parametrized model of SMT chip resistor */
+
+module chip_r(
+    L=2.05,
+    T=0.35,
+    W=1.25,
+    H=0.50,
+    padcolor=[0.9,0.9,0.9],
+    bodycolor=[1,1,0.9],
+    topcolor=[0.0,0.0,0.0],
+) @{
+    module chippad() @{
+        color(padcolor)cube([T,W,H],center=true);
+    @}
+    color(bodycolor) translate([0,0,H/2.]) cube([L-2*T+0.1,W-0.1,H-0.1],center=true);
+    color(topcolor) translate([0,0,H-0.05]) cube([L-2*T,W-0.2,0.05],center=true);
+    translate ([-L/2.+T/2.,0,H/2.]) chippad();
+    translate ([L/2.-T/2.,0,H/2.]) chippad();
+@}
+/* EOF */
+@end smallexample
+@sp 1
+
+@subsubsection Summary of attributes
+
+@table @emph
+@item xxx
+xxx
+@item xxx
+xxx
+@item xxx
+xxx
+@end table
+
+@c ---------------- End of OpenSCAD V2 exporter paragraph -----------------
 
 @node png
 @subsection Image (png)
@@ -2588,6 +2777,8 @@ The synopsis of the pcb command is:
     Export RS-274X (Gerber)
    @item nelma
     Numerical analysis package export
+   @item scad
+    export OpenSCAD
    @item png
     export GIF/JPEG/PNG
    @item ps

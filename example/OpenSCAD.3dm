@@ -1,0 +1,11 @@
+C1:model:CAP0805
+C2:model:CAP0805
+C3:model:CAP0805
+U2:translate:[0,0,4.5]
+U2:overlay:DIPSOCKET14
+R1:model:RES0805
+R2:model:RES0805
+R3:model:RES0805
+R4:model:RES0805
+
+
