@@ -27,7 +27,7 @@ TODO:
 
 - figure out when we need to call this:
   ghid_set_status_line_label ();
-  Everytime? 
+  Everytime?
 
 - the old quit callback had:
 
@@ -358,7 +358,7 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
 {
   int i;
 
-  if (action == NULL || node == NULL) 
+  if (action == NULL || node == NULL)
     return;
 
   for (i = 1; i < node->c; i++)
@@ -474,7 +474,7 @@ layer_process (gchar **color_string, char **text, int *set, int i)
   /* cheap hack to let users pass in NULL for either text or set if
    * they don't care about the result
    */
-   
+
   if (color_string == NULL)
     color_string = &tmpc;
 
@@ -483,7 +483,7 @@ layer_process (gchar **color_string, char **text, int *set, int i)
 
   if (set == NULL)
     set = &tmp;
-  
+
   switch (i)
     {
     case LAYER_BUTTON_SILK:
@@ -716,10 +716,10 @@ grid_units_button_cb (GtkWidget * widget, gpointer data)
  * move the cursor around.
  */
 static void
-absolute_label_size_req_cb (GtkWidget * widget, 
+absolute_label_size_req_cb (GtkWidget * widget,
 			    GtkRequisition *req, gpointer data)
 {
-  
+
   static gint w = 0;
   if (req->width > w)
     w = req->width;
@@ -728,10 +728,10 @@ absolute_label_size_req_cb (GtkWidget * widget,
 }
 
 static void
-relative_label_size_req_cb (GtkWidget * widget, 
+relative_label_size_req_cb (GtkWidget * widget,
 			    GtkRequisition *req, gpointer data)
 {
-  
+
   static gint w = 0;
   if (req->width > w)
     w = req->width;
@@ -793,7 +793,7 @@ make_virtual_layer_buttons (GtkWidget *layer_selector)
   gchar *text;
   gchar *color_string;
   gboolean active;
- 
+
   layer_process (&color_string, &text, &active, LAYER_BUTTON_SILK);
   ghid_layer_selector_add_layer (layersel, LAYER_BUTTON_SILK,
                                  text, color_string, active, TRUE, FALSE);
@@ -831,7 +831,7 @@ ghid_layer_buttons_color_update (void)
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_color);
   pcb_colors_from_settings (PCB);
 }
- 
+
 /*! \brief Populate a layer selector with all layers Gtk is aware of */
 static void
 make_layer_buttons (GtkWidget *layersel)
@@ -869,7 +869,7 @@ ghid_layer_buttons_update (void)
 
   if (ignore_layer_update)
     return;
- 
+
   ghid_layer_selector_delete_layers
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector),
      get_layer_delete);
@@ -1231,7 +1231,7 @@ fix_topbar_theming (void)
                     G_CALLBACK (do_fix_topbar_theming), NULL);
 }
 
-/* 
+/*
  * Create the top_window contents.  The config settings should be loaded
  * before this is called.
  */
@@ -1408,8 +1408,7 @@ ghid_build_pcb_top_window (void)
 
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_box_pack_start (GTK_BOX (ghidgui->status_line_hbox), label, FALSE,
-		      FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (ghidgui->status_line_hbox), label, FALSE, FALSE, 0);
   ghidgui->status_line_label = label;
 
   /* Depending on user setting, the command_combo_box may get packed into
@@ -1418,19 +1417,15 @@ ghid_build_pcb_top_window (void)
    */
 
   g_signal_connect (G_OBJECT (gport->drawing_area), "realize",
-		    G_CALLBACK (ghid_port_drawing_realize_cb),
-		    port);
+                    G_CALLBACK (ghid_port_drawing_realize_cb), port);
   g_signal_connect (G_OBJECT (gport->drawing_area), "expose_event",
-		    G_CALLBACK (ghid_drawing_area_expose_cb),
-		    port);
+                    G_CALLBACK (ghid_drawing_area_expose_cb), port);
   g_signal_connect (G_OBJECT (gport->top_window), "configure_event",
-		    G_CALLBACK (top_window_configure_event_cb), port);
+                    G_CALLBACK (top_window_configure_event_cb), port);
   g_signal_connect (gport->top_window, "enter-notify-event",
                     G_CALLBACK (top_window_enter_cb), port);
   g_signal_connect (G_OBJECT (gport->drawing_area), "configure_event",
-		    G_CALLBACK (ghid_port_drawing_area_configure_event_cb),
-		    port);
-
+                    G_CALLBACK (ghid_port_drawing_area_configure_event_cb), port);
 
   /* Mouse and key events will need to be intercepted when PCB needs a
      |  location from the user.
@@ -1462,36 +1457,43 @@ ghid_build_pcb_top_window (void)
                               NULL, FALSE);
 }
 
+/* Connect and disconnect just the signals a g_main_loop() will need.
+ * Cursor and motion events still need to be handled by the top level
+ * loop, so don't connect/reconnect these.
+ * A g_main_loop will be running when PCB wants the user to select a
+ * location or if command entry is needed in the status line hbox.
+ * During these times normal button/key presses are intercepted, either
+ * by new signal handlers or the command_combo_box entry.
+ */
 
-  /* Connect and disconnect just the signals a g_main_loop() will need.
-     |  Cursor and motion events still need to be handled by the top level
-     |  loop, so don't connect/reconnect these.
-     |  A g_main_loop will be running when PCB wants the user to select a
-     |  location or if command entry is needed in the status line hbox.
-     |  During these times normal button/key presses are intercepted, either
-     |  by new signal handlers or the command_combo_box entry.
-   */
-static gulong button_press_handler, button_release_handler,
-  key_press_handler, key_release_handler;
+static unsigned long button_press_handler;
+static unsigned long button_release_handler;
+static unsigned long scroll_event_handler;
+static unsigned long key_press_handler;
+static unsigned long key_release_handler;
 
 void
 ghid_interface_input_signals_connect (void)
 {
   button_press_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "button_press_event",
-		      G_CALLBACK (ghid_port_button_press_cb), NULL);
+              G_CALLBACK (ghid_port_button_press_cb), NULL);
 
   button_release_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "button_release_event",
-		      G_CALLBACK (ghid_port_button_release_cb), NULL);
+              G_CALLBACK (ghid_port_button_release_cb), NULL);
+
+  scroll_event_handler =
+    g_signal_connect (G_OBJECT (gport->drawing_area), "scroll_event",
+            G_CALLBACK (ghid_port_window_mouse_scroll_cb), NULL);
 
   key_press_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "key_press_event",
-		      G_CALLBACK (ghid_port_key_press_cb), NULL);
+              G_CALLBACK (ghid_port_key_press_cb), NULL);
 
   key_release_handler =
     g_signal_connect (G_OBJECT (gport->drawing_area), "key_release_event",
-		      G_CALLBACK (ghid_port_key_release_cb), NULL);
+              G_CALLBACK (ghid_port_key_release_cb), NULL);
 }
 
 void
@@ -1503,15 +1505,20 @@ ghid_interface_input_signals_disconnect (void)
   if (button_release_handler)
     g_signal_handler_disconnect (gport->drawing_area, button_release_handler);
 
+  if (scroll_event_handler)
+    g_signal_handler_disconnect (gport->drawing_area, scroll_event_handler);
+
   if (key_press_handler)
     g_signal_handler_disconnect (gport->drawing_area, key_press_handler);
 
   if (key_release_handler)
     g_signal_handler_disconnect (gport->drawing_area, key_release_handler);
 
-  button_press_handler = button_release_handler = 0;
-  key_press_handler = key_release_handler = 0;
-
+  button_press_handler   = 0;
+  button_release_handler = 0;
+  scroll_event_handler   = 0;
+  key_press_handler      = 0;
+  key_release_handler    = 0;
 }
 
 
@@ -1635,7 +1642,7 @@ ghid_listener_cb (GIOChannel *source,
     }
   else
     fprintf (stderr, _("Unknown condition in ghid_listener_cb\n"));
-  
+
   return TRUE;
 }
 
@@ -1723,12 +1730,12 @@ ghid_parse_arguments (int *argc, char ***argv)
                           1);
   sprintf(libdir, "%s%s", tmps, REST_OF_PATH);
   free(tmps);
-  
+
   Settings.LibraryTree = libdir;
 
 #undef REST_OF_PATH
 
-#endif 
+#endif
 
 #if defined (DEBUG)
   for (i = 0; i < *argc; i++)
@@ -1742,7 +1749,7 @@ ghid_parse_arguments (int *argc, char ***argv)
   /* g_thread_init (NULL); */
 
 #if defined (ENABLE_NLS)
-  /* Do our own setlocale() stufff since we want to override LC_NUMERIC   
+  /* Do our own setlocale() stufff since we want to override LC_NUMERIC
    */
   gtk_set_locale ();
   setlocale (LC_NUMERIC, "C");	/* use decimal point instead of comma */
@@ -1978,7 +1985,7 @@ HID_Action gtk_topwindow_action_list[] = {
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
 
-/* 
+/*
  * This function is used to check if a specified hotkey in the menu
  * resource file is "special".  In this case "special" means that gtk
  * assigns a particular meaning to it and the normal menu setup will
@@ -2015,9 +2022,9 @@ ghid_check_special_key (const char *accel, GtkAction *action,
       mods |= GHID_KEY_SHIFT;
     }
 
-  
+
   len = strlen (accel);
-  
+
 #define  CHECK_KEY(a) ((len >= strlen (a)) && (strcmp (accel + len - strlen (a), (a)) == 0))
 
   ind = 0;
@@ -2042,7 +2049,7 @@ ghid_check_special_key (const char *accel, GtkAction *action,
       ind = mods | GHID_KEY_RIGHT;
     }
 
-  if (ind > 0) 
+  if (ind > 0)
     {
       if (ind >= N_HOTKEY_ACTIONS)
 	{
@@ -2101,7 +2108,7 @@ ghid_load_menus (void)
       ghid_hotkey_actions[i].action = NULL;
       ghid_hotkey_actions[i].node = NULL;
     }
- 
+
   bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
     {
@@ -2126,7 +2133,7 @@ ghid_load_menus (void)
   mr = resource_subres (r, "MainMenu");
   if (!mr)
     mr = resource_subres (bir, "MainMenu");
-    
+
   if (mr)
     {
       menu_bar = ghid_main_menu_new (G_CALLBACK (ghid_menu_cb),
@@ -2205,7 +2212,7 @@ resource compatibility with the lesstif HID.
 static int
 EditLayerGroups(int argc, char **argv, Coord x, Coord y)
 {
-  
+
   if (argc != 0)
     AFAIL (editlayergroups);
 

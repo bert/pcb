@@ -318,7 +318,7 @@ djmin (int x, int y)
   return x < y ? x : y;
 }
 
-/* 
+/*
  * Find distance between 2 points.  We use floating point math here
  * because we can fairly easily overflow a 32 bit integer here.  In
  * fact it only takes 0.46" to do so.
@@ -2854,7 +2854,7 @@ grok_layer_groups ()
 }
 
 static const char djopt_syntax[] =
-  "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
+  "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull|splitlines)\n"
   "djopt(auto) - all of the above\n"
   "djopt(miter)";
 

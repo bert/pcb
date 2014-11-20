@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Bert Timmerman <bert.timmerman@xs4all.nl> -->
+<application>
+  <id type="desktop">pcb.desktop</id>
+  <metadata_license>GFDL-1.3</metadata_license>
+  <project_license>GPL-2.0</project_license>
+  <description>
+    <_p>
+      PCB is an interactive printed circuit board editor for Unix, Linux,
+      Windows, and Mac systems.
+    </_p>
+    <_p>
+      PCB includes a rats nest feature and schematic/netlist import,
+      design rule checking, and can provide industry standard RS-274X
+      (Gerber), NC drill, and centroid data (X-Y data) output for use in
+      the board fabrication and assembly process, as well as
+      photorealistic and design review images.
+    </_p>
+    <_p>
+      PCB offers high end features such as an autorouter and trace
+      optimizer which can tremendously reduce layout time.
+    </_p>
+    <_p>
+      For custom requirements, PCB offers a plug-in API for inserting
+      new functionality and using that functionality from within the GUI
+      as well as in scripts.
+    </_p>
+  </description>
+  <screenshots>
+    <screenshot type="default" width="892" height="619">http://wiki.geda-project.org/_media/geda:screenshot_pcb.png</screenshot>
+  </screenshots>
+  <url type="homepage">http://pcb.geda-project.org/</url>
+  <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
+</application>

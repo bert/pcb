@@ -1,0 +1,97 @@
+@node Installation
+@chapter Installation
+
+@menu
+* Installing a Pre-Built Package::
+* Building From the Source CD::
+* Building From CVS::
+@end menu
+
+@node Installing a Pre-Built Package
+@section Installing a Pre-Built Package
+
+@menu
+* Debian::
+* Fedora::
+* Gentoo::
+* NetBSD::
+* Ubuntu::
+@end menu
+
+@node Debian
+@subsection Debian
+
+@example
+apt-get install pcb
+@end example
+
+@node Fedora
+@subsection Fedora
+
+To automatically download and install the latest version (and
+dependencies) from one of the (pre-configured) Fedora repositories:
+
+@example
+yum install pcb
+@end example
+
+For the installation with yum you need administrator-privileges.
+
+To install a manually downloaded rpm:
+
+@example
+yum localinstall <rpmfilename>
+@end example
+
+Where <rpmfilename> is the downloaded rpm of your choice.
+Required dependencies need to be downloaded and installed simultaneously,
+or beforehand.
+
+"localinstall" is used to install a set of local rpm files.
+If required the enabled repositories will be used to resolve dependencies.
+Note that the install command will do a local install, if given a filename.
+This option is maintained for legacy reasons only.
+
+"localupdate" is used to update the system by specifying local rpm files.
+Only the specified rpm files of which an older version is already installed will
+be installed, the remaining specified packages will be ignored.
+If required the enabled repositories will be used to resolve dependencies.
+Note that the update command will do a local update, if given a filename.
+This option is maintained for legacy reasons only.
+
+
+@node Gentoo
+@subsection Gentoo
+
+@example
+emerge pcb
+@end example
+
+@node NetBSD
+@subsection NetBSD
+
+See @url{ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/cad/pcb/README.html}.
+
+@node Ubuntu
+@subsection Ubuntu
+
+@node Building From the Source CD
+@section Building From the Source CD
+
+@node Building From CVS
+@section Building From Source
+
+@menu
+* Unix/Linux::
+* Mac OS/X::
+* Cygwin::
+@end menu
+
+@node Unix/Linux
+@subsection Unix/Linux
+
+@node Mac OS/X
+@subsection Mac OS/X
+
+@node Cygwin
+@subsection Cygwin

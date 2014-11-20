@@ -32,7 +32,7 @@
  *   Every object that has to be checked is added to its list.
  *   Coarse searching is accomplished with the data rtrees.
  * - there's no 'speed-up' mechanism for polygons because they are not used
- *   as often as other objects 
+ *   as often as other objects
  * - the maximum distance between line and pin ... would depend on the angle
  *   between them. To speed up computation the limit is set to one half
  *   of the thickness of the objects (cause of square pins).
@@ -94,12 +94,12 @@
  */
 
 #define	SEPARATE(FP)							\
-	{											\
-		int	i;									\
-		fputc('#', (FP));						\
-		for (i = Settings.CharPerLine; i; i--)	\
-			fputc('=', (FP));					\
-		fputc('\n', (FP));						\
+	{								\
+		int	i;						\
+		fputc('#', (FP));					\
+		for (i = Settings.CharPerLine; i; i--)			\
+			fputc('=', (FP));				\
+		fputc('\n', (FP));					\
 	}
 
 #define LIST_ENTRY(list,I)      (((AnyObjectType **)list->Data)[(I)])
@@ -213,7 +213,7 @@ append_drc_violation (DrcViolationType *violation)
     }
 }
 /*
- * message when asked about continuing DRC checks after next 
+ * message when asked about continuing DRC checks after next
  * violation is found.
  */
 #define DRC_CONTINUE _("Press Next to continue DRC checking")
@@ -495,13 +495,13 @@ InitComponentLookup (void)
   /* initialize pad data; start by counting the total number
    * on each of the two possible layers
    */
-  NumberOfPads[COMPONENT_LAYER] = NumberOfPads[SOLDER_LAYER] = 0;
+  NumberOfPads[TOP_SILK_LAYER] = NumberOfPads[BOTTOM_SILK_LAYER] = 0;
   ALLPAD_LOOP (PCB->Data);
   {
     if (TEST_FLAG (ONSOLDERFLAG, pad))
-      NumberOfPads[SOLDER_LAYER]++;
+      NumberOfPads[BOTTOM_SILK_LAYER]++;
     else
-      NumberOfPads[COMPONENT_LAYER]++;
+      NumberOfPads[TOP_SILK_LAYER]++;
   }
   ENDALL_LOOP;
   for (i = 0; i < 2; i++)
@@ -631,8 +631,8 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (i->flag, pad) && IS_PV_ON_PAD (i->pv, pad) &&
       !TEST_FLAG (HOLEFLAG, i->pv) &&
-      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER :
-                       COMPONENT_LAYER, pad, i->flag))
+      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER :
+                       TOP_SILK_LAYER, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
 }
@@ -699,7 +699,7 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
 static bool
 LookupLOConnectionsToPVList (int flag, bool AndRats)
 {
-  Cardinal layer_no;
+  Cardinal layer_index;
   struct pv_info info;
 
   info.flag = flag;
@@ -721,14 +721,14 @@ LookupLOConnectionsToPVList (int flag, bool AndRats)
         return true;
 
       /* now all lines, arcs and polygons of the several layers */
-      for (layer_no = 0; layer_no < max_copper_layer; layer_no++)
+      for (layer_index = 0; layer_index < max_copper_layer; layer_index++)
         {
-          LayerType *layer = LAYER_PTR (layer_no);
+          LayerType *layer = LAYER_PTR (layer_index);
 
           if (layer->no_drc)
              continue;
 
-          info.layer = layer_no;
+          info.layer = layer_index;
 
           /* add touching lines */
           if (setjmp (info.env) == 0)
@@ -1071,33 +1071,33 @@ pv_rat_callback (const BoxType * b, void *cl)
 static bool
 LookupPVConnectionsToLOList (int flag, bool AndRats)
 {
-  Cardinal layer_no;
+  Cardinal layer_index;
   struct lo_info info;
 
   info.flag = flag;
 
   /* loop over all layers */
-  for (layer_no = 0; layer_no < max_copper_layer; layer_no++)
+  for (layer_index = 0; layer_index < max_copper_layer; layer_index++)
     {
-      LayerType *layer = LAYER_PTR (layer_no);
+      LayerType *layer = LAYER_PTR (layer_index);
 
       if (layer->no_drc)
                        continue;
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
         {
-          LineList[layer_no].Location = LineList[layer_no].Number;
-          ArcList[layer_no].Location = ArcList[layer_no].Number;
-          PolygonList[layer_no].Location = PolygonList[layer_no].Number;
+          LineList[layer_index].Location = LineList[layer_index].Number;
+          ArcList[layer_index].Location = ArcList[layer_index].Number;
+          PolygonList[layer_index].Location = PolygonList[layer_index].Number;
           continue;
         }
 
       /* check all lines */
-      while (LineList[layer_no].Location < LineList[layer_no].Number)
+      while (LineList[layer_index].Location < LineList[layer_index].Number)
         {
           BoxType search_box;
 
-          info.line = LINELIST_ENTRY (layer_no, LineList[layer_no].Location);
+          info.line = LINELIST_ENTRY (layer_index, LineList[layer_index].Location);
           search_box = expand_bounds ((BoxType *)info.line);
 
           if (setjmp (info.env) == 0)
@@ -1110,15 +1110,15 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
                       pv_line_callback, &info);
           else
             return true;
-          LineList[layer_no].Location++;
+          LineList[layer_index].Location++;
         }
 
       /* check all arcs */
-      while (ArcList[layer_no].Location < ArcList[layer_no].Number)
+      while (ArcList[layer_index].Location < ArcList[layer_index].Number)
         {
           BoxType search_box;
 
-          info.arc = ARCLIST_ENTRY (layer_no, ArcList[layer_no].Location);
+          info.arc = ARCLIST_ENTRY (layer_index, ArcList[layer_index].Location);
           search_box = expand_bounds ((BoxType *)info.arc);
 
           if (setjmp (info.env) == 0)
@@ -1131,16 +1131,16 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
                       pv_arc_callback, &info);
           else
             return true;
-          ArcList[layer_no].Location++;
+          ArcList[layer_index].Location++;
         }
 
       /* now all polygons */
-      info.layer = layer_no;
-      while (PolygonList[layer_no].Location < PolygonList[layer_no].Number)
+      info.layer = layer_index;
+      while (PolygonList[layer_index].Location < PolygonList[layer_index].Number)
         {
           BoxType search_box;
 
-          info.polygon = POLYGONLIST_ENTRY (layer_no, PolygonList[layer_no].Location);
+          info.polygon = POLYGONLIST_ENTRY (layer_index, PolygonList[layer_index].Location);
           search_box = expand_bounds ((BoxType *)info.polygon);
 
           if (setjmp (info.env) == 0)
@@ -1153,28 +1153,28 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
                       pv_poly_callback, &info);
           else
             return true;
-          PolygonList[layer_no].Location++;
+          PolygonList[layer_index].Location++;
         }
     }
 
   /* loop over all pad-layers */
-  for (layer_no = 0; layer_no < 2; layer_no++)
+  for (layer_index = 0; layer_index < 2; layer_index++)
     {
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
         {
-          PadList[layer_no].Location = PadList[layer_no].Number;
+          PadList[layer_index].Location = PadList[layer_index].Number;
           continue;
         }
 
       /* check all pads; for a detailed description see
        * the handling of lines in this subroutine
        */
-      while (PadList[layer_no].Location < PadList[layer_no].Number)
+      while (PadList[layer_index].Location < PadList[layer_index].Number)
         {
           BoxType search_box;
 
-          info.pad = PADLIST_ENTRY (layer_no, PadList[layer_no].Location);
+          info.pad = PADLIST_ENTRY (layer_index, PadList[layer_index].Location);
           search_box = expand_bounds ((BoxType *)info.pad);
 
           if (setjmp (info.env) == 0)
@@ -1187,7 +1187,7 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
                       pv_pad_callback, &info);
           else
             return true;
-          PadList[layer_no].Location++;
+          PadList[layer_index].Location++;
         }
     }
 
@@ -1406,7 +1406,7 @@ IsRatPointOnLineEnd (PointType *Point, LineType *Line)
   return (false);
 }
 
-static void 
+static void
 form_slanted_rectangle (PointType p[4], LineType *l)
 /* writes vertices of a squared line */
 {
@@ -1415,7 +1415,7 @@ form_slanted_rectangle (PointType p[4], LineType *l)
      dwx = l->Thickness / 2.0;
    else if (l->Point1.X == l->Point2.X)
      dwy = l->Thickness / 2.0;
-   else 
+   else
      {
        Coord dX = l->Point2.X - l->Point1.X;
        Coord dY = l->Point2.Y - l->Point1.Y;
@@ -1686,7 +1686,7 @@ LOCtoArcPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
       && ArcPadIntersect (i->arc, pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -1713,17 +1713,17 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer_no;
+      Cardinal layer_index;
       LayerType *layer;
       GList *i;
 
-      layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
-      layer = LAYER_PTR (layer_no);
+      layer_index = PCB->LayerGroups.Entries[LayerGroup][entry];
+      layer = LAYER_PTR (layer_index);
 
       /* handle normal layers */
-      if (layer_no < max_copper_layer)
+      if (layer_index < max_copper_layer)
         {
-          info.layer = layer_no;
+          info.layer = layer_index;
           /* add arcs */
           if (setjmp (info.env) == 0)
             r_search (layer->line_tree, &search_box,
@@ -1742,13 +1742,13 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
             {
               PolygonType *polygon = i->data;
               if (!TEST_FLAG (flag, polygon) && IsArcInPolygon (Arc, polygon)
-                  && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
+                  && ADD_POLYGON_TO_LIST (layer_index, polygon, flag))
                 return true;
             }
         }
       else
         {
-          info.layer = layer_no - max_copper_layer;
+          info.layer = layer_index - max_copper_layer;
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->pad_tree, &search_box, NULL,
                       LOCtoArcPad_callback, &info);
@@ -1820,7 +1820,7 @@ LOCtoLinePad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
       && LinePadIntersect (i->line, pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -1859,16 +1859,16 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer_no;
+      Cardinal layer_index;
       LayerType *layer;
 
-      layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
-      layer = LAYER_PTR (layer_no);
+      layer_index = PCB->LayerGroups.Entries[LayerGroup][entry];
+      layer = LAYER_PTR (layer_index);
 
       /* handle normal layers */
-      if (layer_no < max_copper_layer)
+      if (layer_index < max_copper_layer)
         {
-          info.layer = layer_no;
+          info.layer = layer_index;
           /* add lines */
           if (setjmp (info.env) == 0)
             r_search (layer->line_tree, &search_box,
@@ -1889,7 +1889,7 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
                 {
                   PolygonType *polygon = i->data;
                   if (!TEST_FLAG (flag, polygon) && IsLineInPolygon (Line, polygon)
-                      && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
+                      && ADD_POLYGON_TO_LIST (layer_index, polygon, flag))
                     return true;
                 }
             }
@@ -1897,7 +1897,7 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
       else
         {
           /* handle special 'pad' layers */
-          info.layer = layer_no - max_copper_layer;
+          info.layer = layer_index - max_copper_layer;
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->pad_tree, &search_box, NULL,
                       LOCtoLinePad_callback, &info);
@@ -1955,7 +1955,7 @@ LOCtoPad_callback (const BoxType * b, void *cl)
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-	(TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER) &&
+	(TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER) &&
       ((pad->Point1.X == i->Point->X && pad->Point1.Y == i->Point->Y) ||
        (pad->Point2.X == i->Point->X && pad->Point2.Y == i->Point->Y) ||
        ((pad->Point1.X + pad->Point2.X) / 2 == i->Point->X &&
@@ -1983,19 +1983,19 @@ LookupLOConnectionsToRatEnd (PointType *Point, Cardinal LayerGroup, int flag)
   /* loop over all layers of this group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer_no;
+      Cardinal layer_index;
       LayerType *layer;
 
-      layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
-      layer = LAYER_PTR (layer_no);
-      /* handle normal layers 
+      layer_index = PCB->LayerGroups.Entries[LayerGroup][entry];
+      layer = LAYER_PTR (layer_index);
+      /* handle normal layers
          rats don't ever touch
          arcs by definition
        */
 
-      if (layer_no < max_copper_layer)
+      if (layer_index < max_copper_layer)
         {
-          info.layer = layer_no;
+          info.layer = layer_index;
           if (setjmp (info.env) == 0)
             r_search_pt (layer->line_tree, Point, 1, NULL,
                       LOCtoRat_callback, &info);
@@ -2008,7 +2008,7 @@ LookupLOConnectionsToRatEnd (PointType *Point, Cardinal LayerGroup, int flag)
       else
         {
           /* handle special 'pad' layers */
-          info.layer = layer_no - max_copper_layer;
+          info.layer = layer_index - max_copper_layer;
           if (setjmp (info.env) == 0)
             r_search_pt (PCB->Data->pad_tree, Point, 1, NULL,
                       LOCtoPad_callback, &info);
@@ -2103,7 +2103,7 @@ LOCtoPadPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
       && PadPadIntersect (pad, i->pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -2142,15 +2142,15 @@ LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndR
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer_no;
+      Cardinal layer_index;
       LayerType *layer;
 
-      layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
-      layer = LAYER_PTR (layer_no);
+      layer_index = PCB->LayerGroups.Entries[LayerGroup][entry];
+      layer = LAYER_PTR (layer_index);
       /* handle normal layers */
-      if (layer_no < max_copper_layer)
+      if (layer_index < max_copper_layer)
         {
-          info.layer = layer_no;
+          info.layer = layer_index;
           /* add lines */
           if (setjmp (info.env) == 0)
             r_search (layer->line_tree, &search_box,
@@ -2173,7 +2173,7 @@ LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndR
       else
         {
           /* handle special 'pad' layers */
-          info.layer = layer_no - max_copper_layer;
+          info.layer = layer_index - max_copper_layer;
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->pad_tree, &search_box, NULL,
                       LOCtoPadPad_callback, &info);
@@ -2222,7 +2222,7 @@ LOCtoPolyPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
       && IsPadInPolygon (pad, i->polygon))
     {
       if (ADD_PAD_TO_LIST (i->layer, pad, i->flag))
@@ -2285,14 +2285,14 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
 /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer_no;
+      Cardinal layer_index;
       LayerType *layer;
 
-      layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
-      layer = LAYER_PTR (layer_no);
+      layer_index = PCB->LayerGroups.Entries[LayerGroup][entry];
+      layer = LAYER_PTR (layer_index);
 
       /* handle normal layers */
-      if (layer_no < max_copper_layer)
+      if (layer_index < max_copper_layer)
         {
           GList *i;
 
@@ -2302,11 +2302,11 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
               PolygonType *polygon = i->data;
               if (!TEST_FLAG (flag, polygon)
                   && IsPolygonInPolygon (polygon, Polygon)
-                  && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
+                  && ADD_POLYGON_TO_LIST (layer_index, polygon, flag))
                 return true;
             }
 
-          info.layer = layer_no;
+          info.layer = layer_index;
           /* check all lines */
           if (setjmp (info.env) == 0)
             r_search (layer->line_tree, &search_box,
@@ -2322,7 +2322,7 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
         }
       else
         {
-          info.layer = layer_no - max_copper_layer;
+          info.layer = layer_index - max_copper_layer;
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->pad_tree, &search_box,
                       NULL, LOCtoPolyPad_callback, &info);
@@ -2629,7 +2629,7 @@ reassign_no_drc_flags (void)
 
 
 /* ---------------------------------------------------------------------------
- * loops till no more connections are found 
+ * loops till no more connections are found
  */
 static bool
 DoIt (int flag, bool AndRats, bool AndDraw)
@@ -2677,8 +2677,8 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
             if (ADD_PV_TO_LIST (pin, flag))
               return true;
             DoIt (flag, true, true);
-            number = PadList[COMPONENT_LAYER].Number
-              + PadList[SOLDER_LAYER].Number + PVList.Number;
+            number = PadList[TOP_SILK_LAYER].Number
+              + PadList[BOTTOM_SILK_LAYER].Number + PVList.Number;
             /* the pin has no connection if it's the only
              * list entry; don't count vias
              */
@@ -2718,11 +2718,11 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
       {
         int i;
         if (ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
-                             ? SOLDER_LAYER : COMPONENT_LAYER, pad, flag))
+                             ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER, pad, flag))
           return true;
         DoIt (flag, true, true);
-        number = PadList[COMPONENT_LAYER].Number
-          + PadList[SOLDER_LAYER].Number + PVList.Number;
+        number = PadList[TOP_SILK_LAYER].Number
+          + PadList[BOTTOM_SILK_LAYER].Number + PVList.Number;
         /* the pin has no connection if it's the only
          * list entry; don't count vias
          */
@@ -2813,8 +2813,8 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
     DoIt (flag, true, AndDraw);
     /* printout all found connections */
     PrintPinConnections (FP, true);
-    PrintPadConnections (COMPONENT_LAYER, FP, false);
-    PrintPadConnections (SOLDER_LAYER, FP, false);
+    PrintPadConnections (TOP_SILK_LAYER, FP, false);
+    PrintPadConnections (BOTTOM_SILK_LAYER, FP, false);
     fputs ("\t}\n", FP);
     if (PrepareNextLoop (FP))
       return (true);
@@ -2832,14 +2832,14 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
         fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
         continue;
       }
-    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER;
+    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER;
     if (ADD_PAD_TO_LIST (layer, pad, flag))
       return true;
     DoIt (flag, true, AndDraw);
     /* print all found connections */
     PrintPadConnections (layer, FP, true);
     PrintPadConnections (layer ==
-                         (COMPONENT_LAYER ? SOLDER_LAYER : COMPONENT_LAYER),
+                         (TOP_SILK_LAYER ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER),
                          FP, false);
     PrintPinConnections (FP, false);
     fputs ("\t}\n", FP);
@@ -3032,7 +3032,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
         PadType *pad = (PadType *) ptr2;
         if (ADD_PAD_TO_LIST
             (TEST_FLAG
-             (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER, pad, flag))
+             (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER, pad, flag))
           return true;
         break;
       }
@@ -4046,7 +4046,7 @@ DRCAll (void)
   hid_action ("LayersChanged");
   gui->invalidate_all ();
 
-  if (nopastecnt > 0) 
+  if (nopastecnt > 0)
     {
       Message (_("Warning:  %d pad%s the nopaste flag set.\n"),
 	       nopastecnt,

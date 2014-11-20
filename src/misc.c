@@ -999,96 +999,156 @@ error:
  * comma separated layer numbers (1,2,b:4,6,8,t)
  */
 int
-ParseGroupString (char *s, LayerGroupType *LayerGroup, int LayerN)
+ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
 {
-  int group, member, layer;
-  bool c_set = false,        /* flags for the two special layers to */
+    char *str;
+    int group, member, layer;
+    bool c_set = false,        /* flags for the two special layers to */
     s_set = false;              /* provide a default setting for old formats */
-  int groupnum[MAX_LAYER + 2];
+    int groupnum[MAX_LAYER + 2];
 
-  /* clear struct */
-  memset (LayerGroup, 0, sizeof (LayerGroupType));
+    *LayerN = 0;
 
-  /* Clear assignments */
-  for (layer = 0; layer < MAX_LAYER + 2; layer++)
-    groupnum[layer] = -1;
+    /* Deterimine the maximum layer number */
+    for (str = group_string; str && *str; str++) {
 
-  /* loop over all groups */
-  for (group = 0; s && *s && group < LayerN; group++)
-    {
-      while (*s && isspace ((int) *s))
-        s++;
+        while (*str && isspace ((int) *str)) {
+            str++;
+        }
 
-      /* loop over all group members */
-      for (member = 0; *s; s++)
-        {
-          /* ignore white spaces and get layernumber */
-          while (*s && isspace ((int) *s))
-            s++;
-          switch (*s)
-            {
+        switch (*str) {
+
             case 'c':
             case 'C':
             case 't':
             case 'T':
-              layer = LayerN + COMPONENT_LAYER;
-              c_set = true;
-              break;
-
             case 's':
             case 'S':
             case 'b':
             case 'B':
-              layer = LayerN + SOLDER_LAYER;
-              s_set = true;
-              break;
+                break;
 
             default:
-              if (!isdigit ((int) *s))
-                goto error;
-              layer = atoi (s) - 1;
-              break;
-            }
-          if (layer > LayerN + MAX (SOLDER_LAYER, COMPONENT_LAYER) ||
-              member >= LayerN + 1)
-            goto error;
-          groupnum[layer] = group;
-          LayerGroup->Entries[group][member++] = layer;
-          while (*++s && isdigit ((int) *s));
+                if (!isdigit ((int) *str)) {
+                    goto error;
+                }
+                *LayerN = MAX (*LayerN, atoi (str));
+                break;
+        }
 
-          /* ignore white spaces and check for separator */
-          while (*s && isspace ((int) *s))
-            s++;
-          if (!*s || *s == ':')
+        while (*++str && isdigit ((int) *str));
+
+        /* ignore white spaces and check for separator */
+        while (*str && isspace ((int) *str)) {
+            str++;
+        }
+
+        if (*str == '\0') {
             break;
-          if (*s != ',')
+        }
+
+        if (*str != ':' && *str != ',') {
             goto error;
         }
-      LayerGroup->Number[group] = member;
-      if (*s == ':')
-        s++;
     }
-  if (!s_set)
-    LayerGroup->Entries[SOLDER_LAYER][LayerGroup->Number[SOLDER_LAYER]++] =
-      LayerN + SOLDER_LAYER;
-  if (!c_set)
-    LayerGroup->
-      Entries[COMPONENT_LAYER][LayerGroup->Number[COMPONENT_LAYER]++] =
-      LayerN + COMPONENT_LAYER;
 
-  for (layer = 0; layer < LayerN && group < LayerN; layer++)
-    if (groupnum[layer] == -1)
-      {
-        LayerGroup->Entries[group][0] = layer;
-        LayerGroup->Number[group] = 1;
-        group++;
-      }
-  return (0);
+    /* clear struct */
+    memset (LayerGroup, 0, sizeof (LayerGroupType));
 
-  /* reset structure on error */
-error:
-  memset (LayerGroup, 0, sizeof (LayerGroupType));
-  return (1);
+    /* Clear assignments */
+    for (layer = 0; layer < MAX_LAYER + 2; layer++) {
+        groupnum[layer] = -1;
+    }
+
+    /* loop over all groups */
+    for (str = group_string, group = 0; str && *str && group < *LayerN; group++) {
+
+        while (*str && isspace ((int) *str))
+            str++;
+
+        /* loop over all group members */
+        for (member = 0; *str; str++) {
+
+            /* ignore white spaces and get layernumber */
+            while (*str && isspace ((int) *str)) {
+                str++;
+            }
+
+            switch (*str) {
+
+                case 'c':
+                case 'C':
+                case 't':
+                case 'T':
+                    layer = *LayerN + TOP_SILK_LAYER;
+                    c_set = true;
+                    break;
+
+                case 's':
+                case 'S':
+                case 'b':
+                case 'B':
+                    layer = *LayerN + BOTTOM_SILK_LAYER;
+                    s_set = true;
+                    break;
+
+                default:
+                    layer = atoi (str) - 1;
+                    break;
+            }
+
+            if (layer > *LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) || member >= *LayerN + 1) {
+                goto error;
+            }
+
+            groupnum[layer] = group;
+            LayerGroup->Entries[group][member++] = layer;
+
+            while (*++str && isdigit ((int) *str));
+
+            /* ignore white spaces and check for separator */
+            while (*str && isspace ((int) *str))
+                str++;
+            if (!*str || *str == ':')
+                break;
+        }
+
+        LayerGroup->Number[group] = member;
+
+        if (*str == ':') {
+            str++;
+        }
+    }
+
+    /* If no explicit solder or component layer group was found in the layer
+     * group string, make group 0 the bottom side, and group 1 the top side.
+     * This is done by assigning the relevant silkscreen layers to those groups.
+     */
+    if (!s_set) {
+        LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
+    }
+
+    if (!c_set) {
+        LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
+    }
+
+    /* Assign a unique layer group to each layer that was not explicitly
+     * assigned a particular group by its presence in the layer group string.
+     */
+    for (layer = 0; layer < *LayerN && group < *LayerN; layer++) {
+        if (groupnum[layer] == -1) {
+            LayerGroup->Entries[group][0] = layer;
+            LayerGroup->Number[group] = 1;
+            group++;
+        }
+    }
+
+    return (0);
+
+    /* reset structure on error */
+    error:
+    memset (LayerGroup, 0, sizeof (LayerGroupType));
+    return (1);
 }
 
 /* ---------------------------------------------------------------------------

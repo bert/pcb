@@ -372,68 +372,68 @@ typedef struct
  */
 typedef struct			/* a single symbol */
 {
-  LineType *Line;
-  bool Valid;
-  Cardinal LineN,		/* number of lines */
-    LineMax;
-  Coord Width, Height,		/* size of cell */
-    Delta;			/* distance to next symbol */
+	LineType *Line;
+	bool Valid;
+	Cardinal LineN,			/* number of lines */
+	LineMax;
+	Coord Width, Height,		/* size of cell */
+	Delta;				/* distance to next symbol */
 } SymbolType;
 
-typedef struct			/* complete set of symbols */
+typedef struct				/* complete set of symbols */
 {
-  Coord MaxHeight,	/* maximum cell width and height */
-    MaxWidth;
-  BoxType DefaultSymbol;	/* the default symbol is a filled box */
-  SymbolType Symbol[MAX_FONTPOSITION + 1];
-  bool Valid;
+	Coord MaxHeight,			/* maximum cell width and height */
+	MaxWidth;
+	BoxType DefaultSymbol;	/* the default symbol is a filled box */
+	SymbolType Symbol[MAX_FONTPOSITION + 1];
+	bool Valid;
 } FontType;
 
-typedef struct			/* holds all objects */
+typedef struct				/* holds all objects */
 {
-  Cardinal ViaN,		/* number of vias */
-    ElementN,			/* and elements */
-    RatN;			/* and rat-lines */
-  int LayerN;			/* number of layers in this board */
-  GList *Via;
-  GList *Element;
-  GList *Rat;
-  rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
-   *rat_tree;
-  struct PCBType *pcb;
-  LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
-  int polyClip;
+	Cardinal ViaN,			/* number of vias */
+	ElementN,			/* and elements */
+	RatN;				/* and rat-lines */
+	int LayerN;			/* number of layers in this board */
+	GList *Via;
+	GList *Element;
+	GList *Rat;
+	rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
+	*rat_tree;
+	struct PCBType *pcb;
+	LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
+	int polyClip;
 } DataType;
 
-typedef struct			/* holds drill information */
+typedef struct				/* holds drill information */
 {
-  Coord DrillSize;		/* this drill's diameter */
-  Cardinal ElementN,		/* the number of elements using this drill size */
-    ElementMax,			/* max number of elements from malloc() */
-    PinCount,			/* number of pins drilled this size */
-    ViaCount,			/* number of vias drilled this size */
-    UnplatedCount,		/* number of these holes that are unplated */
-    PinN,			/* number of drill coordinates in the list */
-    PinMax;			/* max number of coordinates from malloc() */
-  PinType **Pin;		/* coordinates to drill */
-  ElementType **Element;	/* a pointer to an array of element pointers */
+	Coord DrillSize;			/* this drill's diameter */
+	Cardinal ElementN,		/* the number of elements using this drill size */
+	ElementMax,			/* max number of elements from malloc() */
+	PinCount,			/* number of pins drilled this size */
+	ViaCount,			/* number of vias drilled this size */
+	UnplatedCount,			/* number of these holes that are unplated */
+	PinN,				/* number of drill coordinates in the list */
+	PinMax;				/* max number of coordinates from malloc() */
+	PinType **Pin;			/* coordinates to drill */
+	ElementType **Element;		/* a pointer to an array of element pointers */
 } DrillType;
 
-typedef struct			/* holds a range of Drill Infos */
+typedef struct				/* holds a range of Drill Infos */
 {
-  Cardinal DrillN,		/* number of drill sizes */
-    DrillMax;			/* max number from malloc() */
-  DrillType *Drill;		/* plated holes */
+	Cardinal DrillN,			/* number of drill sizes */
+	DrillMax;			/* max number from malloc() */
+	DrillType *Drill;		/* plated holes */
 } DrillInfoType;
 
 typedef struct
 {
-  Coord Thick,			/* line thickness */
-    Diameter,			/* via diameter */
-    Hole,			/* via drill hole */
-    Keepaway;			/* min. separation from other nets */
-  char *Name;
-  int index;
+	Coord Thick,			/* line thickness */
+	Diameter,			/* via diameter */
+	Hole,			/* via drill hole */
+	Keepaway;			/* min. separation from other nets */
+	char *Name;
+	int index;
 } RouteStyleType;
 
 /* ---------------------------------------------------------------------------
@@ -441,13 +441,13 @@ typedef struct
  */
 typedef struct
 {
-  char *ListEntry;		/* the string for the selection box */
-  char *AllocatedMemory,	/* pointer to allocated memory; all others */
-    /* point to parts of the string */
-   *Template,			/* m4 template name */
-   *Package,			/* package */
-   *Value,			/* the value field */
-   *Description;		/* some descritional text */
+	char *ListEntry;			/* the string for the selection box */
+	char *AllocatedMemory,		/* pointer to allocated memory; all others */
+					/* point to parts of the string */
+	*Template,			/* m4 template name */
+	*Package,			/* package */
+	*Value,				/* the value field */
+	*Description;			/* some descritional text */
 } LibraryEntryType;
 
 /* If the internal flag is set, the only field that is valid is Name,
@@ -457,22 +457,22 @@ typedef struct
 
 typedef struct
 {
-  char *Name,			/* name of the menu entry */
-   *directory,			/* Directory name library elements are from */
-   *Style;			/* routing style */
-  Cardinal EntryN,		/* number of objects */
-    EntryMax;			/* number of reserved memory locations */
-  LibraryEntryType *Entry;	/* the entries */
-  char flag;			/* used by the netlist window to enable/disable nets */
-  char internal;		/* if set, this is an internal-only entry, not
-				   part of the global netlist. */
+	char *Name,			/* name of the menu entry */
+	*directory,			/* Directory name library elements are from */
+	*Style;				/* routing style */
+	Cardinal EntryN,			/* number of objects */
+	EntryMax;			/* number of reserved memory locations */
+	LibraryEntryType *Entry;		/* the entries */
+	char flag;			/* used by the netlist window to enable/disable nets */
+	char internal;			/* if set, this is an internal-only entry, not
+	part of the global netlist. */
 } LibraryMenuType;
 
 typedef struct
 {
-  Cardinal MenuN;               /* number of objects */
-  Cardinal MenuMax;             /* number of reserved memory locations */
-  LibraryMenuType *Menu;      /* the entries */
+	Cardinal MenuN;			/* number of objects */
+	Cardinal MenuMax;		/* number of reserved memory locations */
+	LibraryMenuType *Menu;		/* the entries */
 } LibraryType;
 
 
@@ -484,52 +484,52 @@ typedef struct
    */
 typedef struct PCBType
 {
-  long ID;			/* see macro.h */
-  FlagType Flags;
-  char *Name,			/* name of board */
-   *Filename,			/* name of file (from load) */
-   *PrintFilename,		/* from print dialog */
-   *Netlistname,		/* name of netlist file */
-    ThermStyle;			/* type of thermal to place with thermal tool */
-  bool Changed,		/* layout has been changed */
-    ViaOn,			/* visibility flags */
-    ElementOn, RatOn, InvisibleObjectsOn, PinOn, SilkActive,	/* active layer is actually silk */
-    RatDraw;			 /* we're drawing rats */
-  char *ViaColor,		/* some colors */
-   *ViaSelectedColor,
-    *PinColor,
-    *PinSelectedColor,
-    *PinNameColor,
-    *ElementColor,
-    *RatColor,
-    *InvisibleObjectsColor,
-    *InvisibleMarkColor,
-    *ElementSelectedColor,
-    *RatSelectedColor, *ConnectedColor, *FoundColor, *WarnColor, *MaskColor;
-  long CursorX,			/* cursor position as saved with layout */
-    CursorY, Clipping;
-  Coord Bloat,			/* drc sizes saved with layout */
-    Shrink, minWid, minSlk, minDrill, minRing;
-  Coord GridOffsetX,		/* as saved with layout */
-    GridOffsetY;
-  /* TODO: Set this always to MAX_COORD, no saving needed.
-           Kept for compatibility and until the GUI code can deal
-           with the dynamic extent. */
-  Coord MaxWidth, MaxHeight;	/* allowed size */
-  Coord ExtentMinX, ExtentMinY,	/* extent, defined by the outline layer */
-    ExtentMaxX, ExtentMaxY;
+	long ID;			/* see macro.h */
+	FlagType Flags;
+	char *Name,			/* name of board */
+	*Filename,			/* name of file (from load) */
+	*PrintFilename,		/* from print dialog */
+	*Netlistname,		/* name of netlist file */
+	ThermStyle;			/* type of thermal to place with thermal tool */
+	bool Changed,		/* layout has been changed */
+	ViaOn,			/* visibility flags */
+	ElementOn, RatOn, InvisibleObjectsOn, PinOn, SilkActive,	/* active layer is actually silk */
+	RatDraw;			 /* we're drawing rats */
+	char *ViaColor,		/* some colors */
+	*ViaSelectedColor,
+	*PinColor,
+	*PinSelectedColor,
+	*PinNameColor,
+	*ElementColor,
+	*RatColor,
+	*InvisibleObjectsColor,
+	*InvisibleMarkColor,
+	*ElementSelectedColor,
+	*RatSelectedColor, *ConnectedColor, *FoundColor, *WarnColor, *MaskColor;
+	long CursorX,			/* cursor position as saved with layout */
+	CursorY, Clipping;
+	Coord Bloat,			/* drc sizes saved with layout */
+	Shrink, minWid, minSlk, minDrill, minRing;
+	Coord GridOffsetX,		/* as saved with layout */
+	GridOffsetY;
+	/* TODO: Set this always to MAX_COORD, no saving needed.
+	 *          Kept for compatibility and until the GUI code can deal
+	 *          with the dynamic extent. */
+	Coord MaxWidth, MaxHeight;	/* allowed size */
+	Coord ExtentMinX, ExtentMinY,	/* extent, defined by the outline layer */
+	ExtentMaxX, ExtentMaxY;
 
-  Coord Grid;			/* used grid with offsets */
-  double IsleArea,		/* minimum poly island to retain */
-    ThermScale;			/* scale factor used with thermals */
-  FontType Font;
-  LayerGroupType LayerGroups;
-  RouteStyleType RouteStyle[NUM_STYLES];
-  LibraryType NetlistLib;
-  AttributeListType Attributes;
-  DataType *Data;		/* entire database */
+	Coord Grid;			/* used grid with offsets */
+	double IsleArea,		/* minimum poly island to retain */
+	ThermScale;			/* scale factor used with thermals */
+	FontType Font;
+	LayerGroupType LayerGroups;
+	RouteStyleType RouteStyle[NUM_STYLES];
+	LibraryType NetlistLib;
+	AttributeListType Attributes;
+	DataType *Data;		/* entire database */
 
-  bool is_footprint;		/* If set, the user has loaded a footprint, not a pcb. */
+	bool is_footprint;		/* If set, the user has loaded a footprint, not a pcb. */
 }
 PCBType;
 

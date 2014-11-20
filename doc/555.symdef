@@ -1,0 +1,23 @@
+[labels]
+555
+refdes=U?
+
+[left]
+7 DISCH
+
+6 THRESH
+2 TRIG
+
+[right]
+4 RES
+
+3 OUT
+
+5 CTRL
+
+[top]
+8 VCC
+
+[bottom]
+
+1 GND

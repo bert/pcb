@@ -35,10 +35,10 @@
 
 
 # ------------ library options -----------------
-# Set the directory to search for the library contents
-# This defaults to:  ${prefix}/share/pcb/
+# Set the directory to search for the library command and library contents
+# command.  This defaults to:  ${prefix}/share/pcb/
 #
-# lib-dir  directory
+# lib-command-dir  directory
 
 # Set the library command for copying elements from the library.
 # This defaults to:  QueryLibrary.sh '%p' '%f' %a
@@ -58,15 +58,15 @@
 #lib-path += path
 #lib-path =+ path
 
-# Set or add to the library paths.  The set, append to or prepend to
+# Set or add to the newlib library path.  The set, append to or prepend to
 # forms may be used here as well.  Components to this path are also
 # per user configurable via the gui Preferences->Library and paths entered
 # there are prepended to the final path after all rc files have been
-# processed.  This defaults to:  ${prefix}/share/pcb/stdlib
+# processed.  This defaults to:  ${prefix}/share/pcb/newlib
 #
-#library path
-#library += path
-#library =+ path
+#lib-newlib path
+#lib-newlib += path
+#lib-newlib =+ path
 
 
 # ------------- layout font -----------------

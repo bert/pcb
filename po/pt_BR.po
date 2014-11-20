@@ -1,0 +1,6993 @@
+# Brazilian Portuguese  translation for the gEDA pcb package.
+# Copyright (C) 1994,1995,1996 Thomas Nau
+# Copyright (C) 1997, 1998, 1999, 2000, 2001 Harry Eaton
+# This file is distributed under the same license as the pcb package.
+# Jorge Barros de Abreu <ficmatin10@gmail.com>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pcb VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-05-03 06:48-0300\n"
+"PO-Revision-Date: 2014-01-01 09:37-0200\n"
+"Last-Translator: Jorge Barros de Abreu <ficmatin10@gmail.com>\n"
+"Language-Team: pt_BR <ldpbr-translation@lists.sourceforge.net>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/pcb.appdata.xml.in.h:1
+msgid ""
+"PCB is an interactive printed circuit board editor for Unix, Linux, Windows, "
+"and Mac systems."
+msgstr ""
+"PCB é um editor de placa de circuito impresso interativo para sistemas Unix, "
+"Linux, Windows, e Mac."
+
+#: ../data/pcb.appdata.xml.in.h:2
+msgid ""
+"PCB includes a rats nest feature and schematic/netlist import, design rule "
+"checking, and can provide industry standard RS-274X (Gerber), NC drill, and "
+"centroid data (X-Y data) output for use in the board fabrication and "
+"assembly process, as well as photorealistic and design review images."
+msgstr ""
+"PCB inclui um recurso de importação de ninhos de rato and diagramas "
+"esquemáticos e netlist, verificação de regras de desenho, e pode fornecer o "
+"padrão industrial RS-274X (Gerber), perfuração NC, e saída de dados de "
+"cantroid (dados X-Y) para uso em fabricação de placas e processo de "
+"fabricação, bem como imagens fotorealisticas e imagens de exibição de "
+"desenho."
+
+#: ../data/pcb.appdata.xml.in.h:3
+msgid ""
+"PCB offers high end features such as an autorouter and trace optimizer which "
+"can tremendously reduce layout time."
+msgstr ""
+"PCB ofereca recursos de alta qualidade tais como roteamento automático e "
+"otimizador de trilha que pode reduzir tremendamente o tempo do desenho do "
+"traçado."
+
+#: ../data/pcb.appdata.xml.in.h:4
+msgid ""
+"For custom requirements, PCB offers a plug-in API for inserting new "
+"functionality and using that functionality from within the GUI as well as in "
+"scripts."
+msgstr ""
+"Para requisitos personalizados, PCB oferece uma API de recursos adicionais "
+"para inserção de novas funcionalidades e utilização dessa nova "
+"funcionalidade a partir de dentro da interface gráfica do usuário bem com em "
+"scripts."
+
+#: ../data/pcb.desktop.in.h:1
+msgid "PCB Designer"
+msgstr "Desenhista do PCB"
+
+#: ../data/pcb.desktop.in.h:2
+msgid "PCB Design"
+msgstr "Desenho do PCB"
+
+#: ../data/pcb.desktop.in.h:3
+msgid "Create and edit printed circuit board designs"
+msgstr "Cria e edita desenhos de placa de circuito impresso"
+
+#: ../data/pcb.xml.in.h:1 ../data/x-pcb-layout.desktop.in.h:1
+msgid "PCB layout"
+msgstr "Traçado PCB"
+
+#: ../data/pcb.xml.in.h:2 ../data/x-pcb-footprint.desktop.in.h:1
+msgid "PCB footprint"
+msgstr "Matriz PCB"
+
+#: ../data/pcb.xml.in.h:3 ../data/x-pcb-netlist.desktop.in.h:1
+msgid "PCB netlist"
+msgstr "Netlist PCB"
+
+#: ../data/pcb.xml.in.h:4 ../data/x-gerber.desktop.in.h:1
+msgid "Gerber file"
+msgstr "Arquivo Gerber"
+
+#: ../data/pcb.xml.in.h:5 ../data/x-excellon.desktop.in.h:1
+msgid "Excellon drill file"
+msgstr "Arquivo de perfuração Excellon"
+
+#: ../src/action.c:550
+#, c-format
+msgid "Unknown stroke %s\n"
+msgstr "Pressionamento desconhecido %s\n"
+
+#: ../src/action.c:754
+#, c-format
+msgid "Error: function hash size too small (%d vs %lu at %s:%d)\n"
+msgstr "Erro: tamanho do hash de função muito pequeno (%d vs %lu em %s:%d)\n"
+
+#. Change 'char' to 'int' and remove this when we get to 256
+#. strings to hash.
+#: ../src/action.c:762
+#, c-format
+msgid "Error: function hash type too small (%d vs %lu at %s:%d)\n"
+msgstr "Erro: tipo de hash de função muito pequeno (%d vs %lu em %s:%d)\n"
+
+#: ../src/action.c:1016
+msgid ""
+"You must turn via visibility on before\n"
+"you can place vias\n"
+msgstr ""
+"Você deve habilitar a visibilidade da via antes\n"
+"de colocar vias\n"
+
+#: ../src/action.c:1381 ../src/change.c:2294
+msgid "Enter text:"
+msgstr "Insira o texto:"
+
+#: ../src/action.c:1459 ../src/action.c:1602 ../src/action.c:1661
+#: ../src/action.c:1715 ../src/action.c:4066 ../src/action.c:6791
+#: ../src/move.c:477 ../src/move.c:568 ../src/move.c:666 ../src/move.c:740
+#: ../src/rotate.c:422
+msgid "Sorry, the object is locked\n"
+msgstr "Sinto muito, o objeto está travado\n"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:1768
+msgid "Atomic(Save|Restore|Close|Block)"
+msgstr "Atômica(Salvar|Recuperar|Fechar|Bloquear)"
+
+#: ../src/action.c:1770
+msgid "Save or restore the undo serial number."
+msgstr "Salva ou recuperar o número de série de desfazer."
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1833
+msgid "DRC()"
+msgstr "DRC()"
+
+#: ../src/action.c:1835
+msgid "Invoke the DRC check."
+msgstr "Verificar DRC."
+
+#: ../src/action.c:1851
+msgid ""
+"%m+Rules are minspace %$mS, minoverlap %$mS minwidth %$mS, minsilk %$mS\n"
+"min drill %$mS, min annular ring %$mS\n"
+msgstr ""
+"%m+Regras mínimas são espaçamento %$mS, sobreposição %$mS largura %$mS, seda "
+"%$mS\n"
+"perfuração %$mS, espeçura auréola do anel %$mS\n"
+
+#: ../src/action.c:1863
+msgid "No DRC problems found.\n"
+msgstr "Nenhum problema de DRC encontrado.\n"
+
+#: ../src/action.c:1865
+#, c-format
+msgid "Found %d design rule errors.\n"
+msgstr "Encontrado %d erros de regra de desenho\n"
+
+#: ../src/action.c:1867
+#, c-format
+msgid "Aborted DRC after %d design rule errors.\n"
+msgstr "DRC abortado após %d erros de regra de desenho.\n"
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1874
+msgid "DumpLibrary()"
+msgstr "DumpLibrary()"
+
+#: ../src/action.c:1877
+msgid "Display the entire contents of the libraries."
+msgstr "Mostrar todo o conteúdo das bibliotecas."
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1928
+msgid "Flip(Object|Selected|SelectedElements)"
+msgstr "Vira(Objeto|Selecionado|ComponenteSelecionado)"
+
+#: ../src/action.c:1931
+msgid "Flip an element to the opposite side of the board."
+msgstr "Transfere componentes para o lado posto da placa."
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1982
+msgid "Message(message)"
+msgstr "Message(messagem)"
+
+#: ../src/action.c:1984
+msgid "Writes a message to the log window."
+msgstr "Escreve uma mensagem na janela de registro."
+
+#: ../src/action.c:2019
+msgid ""
+"Set the thermal (on the current layer) of pins or vias to the given style.\n"
+"Style = 0 means no thermal.\n"
+"Style = 1 has diagonal fingers with sharp edges.\n"
+"Style = 2 has horizontal and vertical fingers with sharp edges.\n"
+"Style = 3 is a solid connection to the plane.Style = 4 has diagonal fingers "
+"with rounded edges.\n"
+"Style = 5 has horizontal and vertical fingers with rounded edges.\n"
+msgstr ""
+"Ajusta o térmico (sobre a camada atual) dos conectores ou vias para o estilo "
+"dado.\n"
+"Estilo = 0 significa sem térmico.\n"
+"Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
+"Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
+"Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal com "
+"arestas arredondadas.\n"
+"Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
+
+#: ../src/action.c:2124
+msgid ""
+"SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, "
+"delta)"
+msgstr ""
+"SetValue(Grade|Linha|TamanhoLinha|Texto|TextoProporção|"
+"AnelPerfuraçãoOrifício|Via,|TamanhoVia, delta)"
+
+#: ../src/action.c:2128
+msgid "Change various board-wide values and sizes."
+msgstr "Muda vários vaores e tamanhos de placas largas."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:2234
+msgid "Quit()"
+msgstr "Sair()"
+
+#: ../src/action.c:2236
+msgid "Quits the application after confirming."
+msgstr "Sai de uma aplicação após confirmação."
+
+#: ../src/action.c:2262
+msgid "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
+msgstr "Connection(Encontra|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
+
+#: ../src/action.c:2265
+msgid "Searches connections of the object at the cursor position."
+msgstr "Busca por conecções de objetos na posição do cursor."
+
+#: ../src/action.c:2300 ../src/report.c:692
+msgid "Click on a connection"
+msgstr "Clique sobre uma conecção"
+
+#: ../src/action.c:2339
+msgid "DisperseElements(All|Selected)"
+msgstr "DisperseElements(Todos|Selecionados)"
+
+#: ../src/action.c:2341
+msgid "Disperses elements."
+msgstr "Dispersa componentes."
+
+#: ../src/action.c:2464
+msgid ""
+"Display(NameOnPCB|Description|Value)\n"
+"Display(Grid|Redraw)\n"
+"Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
+"Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+"Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
+"Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
+"Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+"Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
+"Display(Pinout|PinOrPadName)"
+msgstr ""
+"Mostra(NameOnPCB|Descrição|Valor)\n"
+"Mostra(Grade|Redesenha)\n"
+"Mostra(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
+"Mostra(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+"Mostra(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
+"Mostra(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
+"Mostra(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+"Mostra(ToggleLiveRoute|LockNames|OnlyNames)\n"
+"Mostra(Pinout|PinOrPadName)"
+
+#: ../src/action.c:2474
+msgid "Several display-related actions."
+msgstr "Muitas ações relacionadas a exibir."
+
+#: ../src/action.c:2830 ../src/action.c:7985
+msgid "Click on an element"
+msgstr "Clique sobre um componente"
+
+#: ../src/action.c:2947
+msgid ""
+"Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+"Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+"Mode(Notify|Release|Cancel|Stroke)\n"
+"Mode(Save|Restore)"
+msgstr ""
+"Modo(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+"Modo(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+"Modo(Notify|Release|Cancel|Stroke)\n"
+"Modo(Save|Restore)"
+
+#: ../src/action.c:2952
+msgid "Change or use the tool mode."
+msgstr "Muda ou usa o modo ferramenta."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3220
+msgid "RemoveSelected()"
+msgstr "RemoverSelecionados()"
+
+#: ../src/action.c:3222
+msgid "Removes any selected objects."
+msgstr "Apague quaisquer objetos selecionados."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3238
+msgid ""
+"Renumber()\n"
+"Renumber(filename)"
+msgstr ""
+"Renumerar()\n"
+"Renumerar(nomearquivo)"
+
+#: ../src/action.c:3242
+msgid ""
+"Renumber all elements.  The changes will be recorded to filename\n"
+"for use in backannotating these changes to the schematic."
+msgstr ""
+"Renumere todos os componentes. As modificações serão gravadas em "
+"nomearquivo.\n"
+"para uso em voltar anotações dessas mudanças para o diagrama esquemático."
+
+#.
+#. * We deal with the case where name already exists in this
+#. * function so the GUI doesn't need to deal with it
+#.
+#: ../src/action.c:3279
+msgid "Save Renumber Annotation File As ..."
+msgstr "Grave o Arquivo de Anotação Renumerado Como ..."
+
+#: ../src/action.c:3280
+msgid ""
+"Choose a file to record the renumbering to.\n"
+"This file may be used to back annotate the\n"
+"change to the schematics.\n"
+msgstr ""
+"Escolha um arquivo para salvar a renumeração.\n"
+"Esse arquivo pode ser usado para voltar anotações de\n"
+"mudança para o diagrama esquemático.\n"
+
+#: ../src/action.c:3305 ../src/action.c:6112
+msgid "File exists!  Ok to overwrite?"
+msgstr "Arquivo existe! Pode sobrescrever?"
+
+#: ../src/action.c:3315
+#, c-format
+msgid "Could not open %s\n"
+msgstr "Não posso abrir %s\n"
+
+#: ../src/action.c:3432
+#, c-format
+msgid "realloc failed() in %s\n"
+msgstr "realloc failed() em %s\n"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3594
+msgid "RipUp(All|Selected|Element)"
+msgstr "Cancelar(Tudo|Selecionado|Componente)"
+
+#: ../src/action.c:3597
+msgid "Ripup auto-routed tracks, or convert an element to parts."
+msgstr "Cancelar tilhar autoroteadas, ou converter um componente em partes."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3723
+msgid "AddRats(AllRats|SelectedRats|Close)"
+msgstr "AddRats(AllRats|SelectedRats|Close)"
+
+#: ../src/action.c:3726
+msgid "Add one or more rat lines to the board."
+msgstr "Adicionar uma ou mais linhas de rato à placa."
+
+#: ../src/action.c:3803
+msgid ""
+"Delete(Object|Selected)\n"
+"Delete(AllRats|SelectedRats)"
+msgstr ""
+"Apaga(Objeto|Selecionado)\n"
+"Apaga(Todos os ratos|ratos selecionados)"
+
+#: ../src/action.c:3806
+msgid "Delete stuff."
+msgstr "Apagar coisas."
+
+#: ../src/action.c:3854
+msgid "DeleteRats(AllRats|Selected|SelectedRats)"
+msgstr "ApagaRatos(Todos|Selecionados|SelectedRats)"
+
+#: ../src/action.c:3856
+msgid "Delete rat lines."
+msgstr "Apaga linhas de rato."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3888
+msgid "AutoPlaceSelected()"
+msgstr "Coloca automaticamente componentes selecionados"
+
+#: ../src/action.c:3890
+msgid "Auto-place selected components."
+msgstr "Coloca automaticamente componentes selecionados"
+
+#: ../src/action.c:3903
+msgid ""
+"Auto-placement can NOT be undone.\n"
+"Do you want to continue anyway?\n"
+msgstr ""
+"Colocação automática não pode ser desfeita.\n"
+"Deseja prosseguir mesmo assim?\n"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3914
+msgid "AutoRoute(AllRats|SelectedRats)"
+msgstr "AutoRoute(AllRats|SelectedRats)"
+
+#: ../src/action.c:3916
+msgid "Auto-route some or all rat lines."
+msgstr "Auto-route some or all rat lines."
+
+#: ../src/action.c:3967
+msgid ""
+"MarkCrosshair()\n"
+"MarkCrosshair(Center)"
+msgstr ""
+"MarkCrosshair()\n"
+"MarkCrosshair(Centro)"
+
+#: ../src/action.c:3970
+msgid "Set/Reset the Crosshair mark."
+msgstr "Ajusta/Zera a marca de mira."
+
+#: ../src/action.c:4022
+msgid ""
+"ChangeSize(Object, delta)\n"
+"ChangeSize(SelectedObjects|Selected, delta)\n"
+"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+"ChangeSize(SelectedElements, delta)"
+msgstr ""
+"ChangeSize(Object, delta)\n"
+"ChangeSize(SelectedObjects|Selected, delta)\n"
+"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+"ChangeSize(SelectedElements, delta)"
+
+#: ../src/action.c:4028
+msgid "Changes the size of objects."
+msgstr "Modifica o tamanho de objetos."
+
+#: ../src/action.c:4125
+msgid ""
+"ChangeDrillSize(Object, delta)\n"
+"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
+msgstr ""
+"ChangeDrillSize(Object, delta)\n"
+"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
+
+#: ../src/action.c:4129
+msgid "Changes the drilling hole size of objects."
+msgstr "Modifica orifício de perfuração dos objetos selecionados."
+
+#: ../src/action.c:4154 ../src/action.c:4224 ../src/action.c:4587
+#: ../src/action.c:4675 ../src/action.c:4729 ../src/action.c:4805
+#: ../src/action.c:4866 ../src/action.c:4924 ../src/action.c:4983
+#: ../src/action.c:5041 ../src/action.c:5102 ../src/action.c:5165
+#: ../src/action.c:5227 ../src/action.c:5276 ../src/action.c:6561
+#: ../src/action.c:8187
+msgid "Select an Object"
+msgstr "Selecione um Objeto"
+
+#: ../src/action.c:4186
+msgid ""
+"ChangeClearSize(Object, delta)\n"
+"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+"ChangeClearSize(Selected|SelectedObjects, delta)"
+msgstr ""
+"ChangeClearSize(Object, delta)\n"
+"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+"ChangeClearSize(Selected|SelectedObjects, delta)"
+
+#: ../src/action.c:4192
+msgid "Changes the clearance size of objects."
+msgstr "Modifica o tamanho da folga de objetos."
+
+#: ../src/action.c:4266
+msgid ""
+"MinMaskGap(delta)\n"
+"MinMaskGap(Selected, delta)"
+msgstr ""
+"MinMaskGap(delta)\n"
+"MinMaskGap(Selecionado, delta)"
+
+#: ../src/action.c:4270
+msgid "Ensures the mask is a minimum distance from pins and pads."
+msgstr ""
+"Garante que a máscara esteja a uma distância mínima de conectores e "
+"pastilhas."
+
+#: ../src/action.c:4350
+msgid ""
+"MinClearGap(delta)\n"
+"MinClearGap(Selected, delta)"
+msgstr ""
+"MinClearGap(delta)\n"
+"MinClearGap(Selecionado, delta)"
+
+#: ../src/action.c:4354
+msgid "Ensures that polygons are a minimum distance from objects."
+msgstr "Garante que polígonos estejam a uma mínima distância de objetos."
+
+#: ../src/action.c:4456
+msgid "ChangePinName(ElementName,PinNumber,PinName)"
+msgstr "ChangePinName(ElementName,PinNumber,PinName)"
+
+#: ../src/action.c:4459
+msgid "Sets the name of a specific pin on a specific element."
+msgstr "Ajusta o nome de um conector específico de um componente específico."
+
+#: ../src/action.c:4549
+msgid ""
+"ChangeName(Object)\n"
+"ChangeName(Layout|Layer)"
+msgstr ""
+"ChangeName(Objeto)\n"
+"ChangeName(Traçado|Camada)"
+
+#: ../src/action.c:4552
+msgid "Sets the name of objects."
+msgstr "Ajusta o nome de objetos."
+
+#: ../src/action.c:4625 ../src/action.c:5923
+msgid "Enter the layout name:"
+msgstr "Informe o nome do traçado:"
+
+#: ../src/action.c:4633
+msgid "Enter the layer name:"
+msgstr "Informe o nome da camada:"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:4647
+msgid "MorphPolygon(Object|Selected)"
+msgstr "MorphPolygon(Objeto|Selecionado)"
+
+#: ../src/action.c:4650
+msgid "Converts dead polygon islands into separate polygons."
+msgstr "Converte ilhas de polígonos mortos em polígonos separados."
+
+#: ../src/action.c:4704
+msgid "ToggleHideName(Object|SelectedElements)"
+msgstr "ToggleHideName(Objetos|SelecionadosComponentes)"
+
+#: ../src/action.c:4707
+msgid "Toggles the visibility of element names."
+msgstr "Altere a visibilidade dos nomes dos componentes selecionados."
+
+#: ../src/action.c:4776
+msgid "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
+msgstr "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
+
+#: ../src/action.c:4779
+msgid "Changes the join (clearance through polygons) of objects."
+msgstr "Modifica a proximidade (folga através de polígonos) de objetos."
+
+#: ../src/action.c:4837
+msgid ""
+"ChangeSquare(ToggleObject)\n"
+"ChangeSquare(SelectedElements|SelectedPins)\n"
+"ChangeSquare(Selected|SelectedObjects)"
+msgstr ""
+"ChangeSquare(ToggleObject)\n"
+"ChangeSquare(SelectedElements|SelectedPins)\n"
+"ChangeSquare(Selected|SelectedObjects)"
+
+#: ../src/action.c:4842
+msgid "Changes the square flag of pins and pads."
+msgstr "Altere o sinalizador de quadrado de um objeto."
+
+#: ../src/action.c:4898
+msgid "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
+msgstr "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
+
+#: ../src/action.c:4900
+msgid "sets the square-flag of objects."
+msgstr "ajusta o sinalizador de quadrado de objetos."
+
+#: ../src/action.c:4956
+msgid "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
+msgstr "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
+
+#: ../src/action.c:4959
+msgid "Clears the square-flag of pins and pads."
+msgstr "Apaga o sinalizador de quadrado de conectores e pastilhas."
+
+#: ../src/action.c:5015
+msgid ""
+"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
+msgstr ""
+"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
+
+#: ../src/action.c:5019
+msgid "Changes the octagon-flag of pins and vias."
+msgstr "Modifique o sinalizador de octógono de conectores e vias."
+
+#: ../src/action.c:5078
+msgid "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
+msgstr "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
+
+#: ../src/action.c:5080
+msgid "Sets the octagon-flag of objects."
+msgstr "Modifique o sinalizador de octógono do objetos."
+
+#: ../src/action.c:5139
+msgid ""
+"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
+msgstr ""
+"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
+
+#: ../src/action.c:5143
+msgid "Clears the octagon-flag of pins and vias."
+msgstr "Apaga o sinalizador de octógono de conectores e vias."
+
+#: ../src/action.c:5202
+msgid "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
+msgstr "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
+
+#: ../src/action.c:5204
+msgid "Changes the hole flag of objects."
+msgstr "Modifica o sinalizador de orifício de objetos."
+
+#: ../src/action.c:5248
+msgid "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
+msgstr "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
+
+#: ../src/action.c:5251
+msgid "Changes the no paste flag of objects."
+msgstr "Modifica o sinalizador de não colar de objetos."
+
+#: ../src/action.c:5297
+msgid ""
+"Select(Object|ToggleObject)\n"
+"Select(All|Block|Connection)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Select(TextByName|ViaByName|NetByName)\n"
+"Select(TextByName|ViaByName|NetByName, Name)\n"
+"Select(Convert)"
+msgstr ""
+"Seleciona(Object|ToggleObject)\n"
+"Seleciona(All|Block|Connection)\n"
+"Seleciona(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Seleciona(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Seleciona(TextByName|ViaByName|NetByName)\n"
+"Seleciona(TextByName|ViaByName|NetByName, Name)\n"
+"Seleciona(Convert)"
+
+#: ../src/action.c:5305
+msgid "Toggles or sets the selection."
+msgstr "Modifica ou ajusta a seleção."
+
+#: ../src/action.c:5387 ../src/action.c:5583
+msgid "Enter pattern:"
+msgstr "Informe o modelo:"
+
+#: ../src/action.c:5470
+msgid "Select the Element's Mark Location"
+msgstr "Selecione a Marca de Localização do Componente"
+
+#: ../src/action.c:5505
+msgid ""
+"Unselect(All|Block|Connection)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Unselect(TextByName|ViaByName)\n"
+"Unselect(TextByName|ViaByName, Name)\n"
+msgstr ""
+"RemoveSeleção(All|Block|Connection)\n"
+"RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"RemoveSeleção(TextByName|ViaByName)\n"
+"RemoveSeleção(TextByName|ViaByName, Name)\n"
+
+#: ../src/action.c:5512
+msgid "Unselects the object at the pointer location or the specified objects."
+msgstr ""
+"Remove seleção do objeto na localização informada ou de objetos "
+"específicados."
+
+#: ../src/action.c:5665
+msgid ""
+"SaveTo(Layout|LayoutAs,filename)\n"
+"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+"SaveTo(PasteBuffer,filename)"
+msgstr ""
+"SaveTo(Layout|LayoutAs,filename)\n"
+"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+"SaveTo(PasteBuffer,filename)"
+
+#: ../src/action.c:5669
+msgid "Saves data to a file."
+msgstr "Grava dados em um arquivo."
+
+#: ../src/action.c:5788
+msgid ""
+"SaveSettings()\n"
+"SaveSettings(local)"
+msgstr ""
+"SaveSettings()\n"
+"SaveSettings(local)"
+
+#: ../src/action.c:5791
+msgid "Saves settings."
+msgstr "Grava Configurações."
+
+#: ../src/action.c:5812
+msgid "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+msgstr ""
+"LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+
+#: ../src/action.c:5814
+msgid "Load layout data from a file."
+msgstr "Coloca na memória dados a partir de um arquivo."
+
+#: ../src/action.c:5878
+msgid "OK to override layout data?"
+msgstr "Pode sobrescrever os dados do traçado?"
+
+#: ../src/action.c:5893
+msgid "OK to override changes?"
+msgstr "Pode sobrescrever modificações?"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:5903
+msgid "New([name])"
+msgstr "Novo([nome])"
+
+#: ../src/action.c:5905
+msgid "Starts a new layout."
+msgstr "Inicia novo traçado."
+
+#: ../src/action.c:5918
+msgid "OK to clear layout data?"
+msgstr "Pode apagar os dados do traçado ?"
+
+#: ../src/action.c:5969
+msgid ""
+"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+"PasteBuffer(Rotate, 1..3)\n"
+"PasteBuffer(Convert|Save|Restore|Mirror)\n"
+"PasteBuffer(ToLayout, X, Y, units)"
+msgstr ""
+"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+"PasteBuffer(Rotate, 1..3)\n"
+"PasteBuffer(Convert|Save|Restore|Mirror)\n"
+"PasteBuffer(ToLayout, X, Y, units)"
+
+#: ../src/action.c:5975
+msgid "Various operations on the paste buffer."
+msgstr "Várias operações sobre colar na memória."
+
+#: ../src/action.c:6078
+msgid "Buffer has no elements!\n"
+msgstr "Memória vazia!\n"
+
+#: ../src/action.c:6084
+msgid "Save Paste Buffer As ..."
+msgstr "Salva Colagem de Memória Como ..."
+
+#: ../src/action.c:6085
+msgid ""
+"Choose a file to save the contents of the\n"
+"paste buffer to.\n"
+msgstr ""
+"Escolha um arquivo para gravar o conteúdo da\n"
+"colagem da memória.\n"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6173
+msgid ""
+"Undo()\n"
+"Undo(ClearList)"
+msgstr ""
+"Undo()\n"
+"Undo(ClearList)"
+
+#: ../src/action.c:6176
+msgid "Undo recent changes."
+msgstr "Desfazer modificações recentes."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6352
+msgid "Redo()"
+msgstr "Refazer()"
+
+#: ../src/action.c:6354
+msgid "Redo recent \"undo\" operations."
+msgstr "Refaça a última operação de desfazer."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6400
+msgid "Polygon(Close|PreviousPoint)"
+msgstr "Polígono(Fecha|PontoAnterior)"
+
+#: ../src/action.c:6402
+msgid "Some polygon related stuff."
+msgstr "Algumas coisas relacionadas a polígonos."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6448
+msgid "RouteStyle(1|2|3|4)"
+msgstr "Estilos de Rota(1|2|3|4)"
+
+#: ../src/action.c:6451
+msgid "Copies the indicated routing style into the current sizes."
+msgstr "Copia o estilo de rota indicado no tamanho atuais."
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6483
+msgid "MoveObject(X,Y,dim)"
+msgstr "MoveObjeto(X,Y,dim)"
+
+#: ../src/action.c:6486
+msgid "Moves the object under the crosshair."
+msgstr "Move o objeto sob a mira."
+
+#: ../src/action.c:6515
+msgid "Nothing found under crosshair\n"
+msgstr "Nada encontrado sob a mira\n"
+
+#: ../src/action.c:6535
+msgid "MoveToCurrentLayer(Object|SelectedObjects)"
+msgstr "MoveToCurrentLayer(Object|SelectedObjects)"
+
+#: ../src/action.c:6538
+msgid "Moves objects to the current layer."
+msgstr "Mova objetos para a camada atual."
+
+#: ../src/action.c:6581
+msgid "SetSame()"
+msgstr "Ajusta o Mesmo"
+
+#: ../src/action.c:6584
+msgid "Sets current layer and sizes to match indicated item."
+msgstr "Grava a camada atual e tamanhos para coincidir com o item indicado."
+
+#: ../src/action.c:6657
+msgid ""
+"SetFlag(Object|Selected|SelectedObjects, flag)\n"
+"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"SetFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join"
+msgstr ""
+"SetFlag(Objeto|Selected|SelectedObjects, sinalizador)\n"
+"SetFlag(SelectedLines|SelectedPins|SelectedVias, sinalizador)\n"
+"SetFlag(SelectedPads|SelectedTexts|SelectedNames, sinalizador)\n"
+"SetFlag(SelectedElements, sinalizador)\n"
+"flag = quadrado | octógono | térmico | junção"
+
+#: ../src/action.c:6663
+msgid "Sets flags on objects."
+msgstr "Ajusta sinalizadores sobre objetos."
+
+#: ../src/action.c:6688
+msgid ""
+"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"ClrFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join"
+msgstr ""
+"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"ClrFlag(SelectedElements, flag)\n"
+"sinalizador = quadrado | octógono | térmico | junção"
+
+#: ../src/action.c:6694
+msgid "Clears flags on objects."
+msgstr "Apaga sinalizadores sobre objetos."
+
+#: ../src/action.c:6719
+msgid ""
+"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+"ChangeFlag(SelectedElements, flag, value)\n"
+"flag = square | octagon | thermal | join\n"
+"value = 0 | 1"
+msgstr ""
+"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+"ChangeFlag(SelectedElements, flag, value)\n"
+"sinalizador = quadrado | octógono | térmico | junção\n"
+"valor = 0 | 1"
+
+#: ../src/action.c:6726
+msgid "Sets or clears flags on objects."
+msgstr "Ajusta ou apaga sinalizadores sobre objetos."
+
+#: ../src/action.c:6776
+#, c-format
+msgid "%s():  Flag \"%s\" is not valid\n"
+msgstr "%s():  Sinalizador \"%s\" inválido\n"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6842
+msgid "ExecuteFile(filename)"
+msgstr "ExecuteFile(nomearquivo)"
+
+#: ../src/action.c:6844
+msgid "Run actions from the given file."
+msgstr "Run actions from the given file."
+
+#: ../src/action.c:6868
+#, c-format
+msgid "Could not open actions file \"%s\".\n"
+msgstr "Não posso abrir arquivo de ações \"%s\".\n"
+
+#: ../src/action.c:6969
+msgid "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)"
+msgstr "ElementList(Inicia|Feito|Precisa,<refdes>,<matriz>,<valor>)"
+
+#: ../src/action.c:6972
+msgid "Adds the given element if it doesn't already exist."
+msgstr "Adiciona o componente dado se ele não existir."
+
+#: ../src/action.c:7050
+msgid ""
+"Not all requested footprints were found.\n"
+"See the message log for details"
+msgstr ""
+"Falta ser encontrado algumas matrizes requisitadas.\n"
+"Veja mensagem no registro para detalhes"
+
+#: ../src/action.c:7187
+msgid "ElementSetAttr(refdes,name[,value])"
+msgstr "ElementSetAttr(refdes,name[,value])"
+
+#: ../src/action.c:7190
+msgid "Sets or clears an element-specific attribute."
+msgstr "Ajusta ou apaga um atributo específico de componente."
+
+#: ../src/action.c:7228
+#, c-format
+msgid "Cannot change attribute of %s - element not found\n"
+msgstr "Não posso mudar o atributo de %s - componente não encontrado\n"
+
+#. ----------------------------------------------------------------
+#: ../src/action.c:7252
+msgid "ExecCommand(command)"
+msgstr "ExecCommand(comando)"
+
+#: ../src/action.c:7254
+msgid "Runs a command."
+msgstr "Executar um comando."
+
+#. error
+#: ../src/action.c:7296
+msgid "Cannot fork!"
+msgstr "Não posso bifurcar"
+
+#: ../src/action.c:7451
+#, c-format
+msgid "%s():  Unable to determine temp directory name from the temp file\n"
+msgstr ""
+"%s():  Incapaz de determinar o nome do diretório temporário a partir do "
+"arquivo temporário\n"
+
+#: ../src/action.c:7474
+#, c-format
+msgid "Failed to unlink \"%s\"\n"
+msgstr "Falha para desfazer ligação \"%s\"\n"
+
+#: ../src/action.c:7487
+msgid ""
+"Import()\n"
+"Import([gnetlist|make[,source,source,...]])\n"
+"Import(setnewpoint[,(mark|center|X,Y)])\n"
+"Import(setdisperse,D,units)\n"
+msgstr ""
+"Import()\n"
+"Import([gnetlist|make[,source,source,...]])\n"
+"Import(setnewpoint[,(marca|centro|X,Y)])\n"
+"Import(setdisperse,D,unidades)\n"
+
+#: ../src/action.c:7492
+msgid "Import schematics."
+msgstr "Importa diagramas esquemáticos."
+
+#: ../src/action.c:7626
+msgid "Enter dispersion:"
+msgstr "Informe a dispersão:"
+
+#: ../src/action.c:7652
+msgid "Click on a location"
+msgstr "Clique sobre uma localização"
+
+#: ../src/action.c:7675
+msgid "Bad syntax for Import(setnewpoint)"
+msgstr "Sintaxe inadequada para Import(setnewpoint)"
+
+#: ../src/action.c:7764 ../src/action.c:7827
+msgid "Could not create temp file"
+msgstr "Não posso criar arquivo temporário"
+
+#: ../src/action.c:7881
+#, c-format
+msgid "Unknown import mode: %s\n"
+msgstr "Modo de importação desconhecido: %s\n"
+
+#: ../src/action.c:7898
+msgid ""
+"Attributes(Layout|Layer|Element)\n"
+"Attributes(Layer,layername)"
+msgstr ""
+"Attributes(Traçado|Camada|Componente)\n"
+"Attributes(Camada,nomecamada)"
+
+#: ../src/action.c:7902
+msgid ""
+"Let the user edit the attributes of the layout, current or given\n"
+"layer, or selected element."
+msgstr ""
+"Permite ao usuário editar os atributos do traçado, camada atual\n"
+"ou informada, ou componente selecionado."
+
+#: ../src/action.c:7925
+msgid "This GUI doesn't support Attribute Editing\n"
+msgstr "Essa Interface Gráfica de Usuário não suporta Edição de Atributo\n"
+
+#: ../src/action.c:7933
+msgid "Layout Attributes"
+msgstr "Atributos de Traçado"
+
+#: ../src/action.c:7952
+#, c-format
+msgid "No layer named %s\n"
+msgstr "Nenhuma camada chamada de %s\n"
+
+#: ../src/action.c:7957 ../src/action.c:7958
+#, c-format
+msgid "Layer %s Attributes"
+msgstr "Atributos %s da Camada"
+
+#: ../src/action.c:7979
+msgid "Too many elements selected\n"
+msgstr "Muitos componentes selecionados\n"
+
+#: ../src/action.c:7992
+msgid "No element found there\n"
+msgstr "Nenhum elemento encontrado aí\n"
+
+#: ../src/action.c:8000 ../src/action.c:8001
+#, c-format
+msgid "Element %s Attributes"
+msgstr "Atributos %s de Componente"
+
+#: ../src/action.c:8005
+msgid "Unnamed Element Attributes"
+msgstr "Atributos do Componente inominado"
+
+#: ../src/action.c:8097
+msgid "Click on Object or Flip Point"
+msgstr "Clique sobre o Objeto ou Ponto a ser Virado "
+
+#: ../src/action.c:8169
+msgid "Select item to use attributes from"
+msgstr "Selecione os itens para usar os atributos de"
+
+#: ../src/autoplace.c:766 ../src/rats.c:739 ../src/rats.c:831
+msgid "Can't add rat lines because no netlist is loaded.\n"
+msgstr ""
+"Não posso adicionar linhas de rato porque nenhuma netlist está carregada.\n"
+
+#: ../src/autoplace.c:773
+msgid "No elements selected to autoplace.\n"
+msgstr "Nenhum componente selecionado para colocação automática.\n"
+
+#: ../src/autoroute.c:4888
+msgid "Autorouting tracks"
+msgstr "Roteando automaticamente trilhas"
+
+#: ../src/buffer.c:717
+#, c-format
+msgid "Unable to load footprint %s\n"
+msgstr "Incapaz de colocar a matriz %s na memória\n"
+
+#: ../src/buffer.c:779
+msgid "LoadFootprint(filename[,refdes,value])"
+msgstr "LoadFootprint(nomearquivo[,refdes,valor])"
+
+#: ../src/buffer.c:782
+msgid "Loads a single footprint by name."
+msgstr "Coloca na memória uma única matriz pelo nome."
+
+#: ../src/buffer.c:808
+#, c-format
+msgid "Footprint %s contains no elements"
+msgstr "Matriz %s vazia"
+
+#: ../src/buffer.c:813
+#, c-format
+msgid "Footprint %s contains multiple elements"
+msgstr "Matriz %s contém múltiplos componentes"
+
+#: ../src/buffer.c:847
+msgid "Error!  Buffer doesn't contain a single element\n"
+msgstr "Erro! Memória não contém um único componente\n"
+
+#: ../src/buffer.c:1022
+msgid ""
+"Warning: All of the pads are on the opposite\n"
+"side from the component - that's probably not what\n"
+"you wanted\n"
+msgstr ""
+"Atenção: Todas as pastilhas estão do lado\n"
+"oposto aos componentes - isso não é provavelmente o que\n"
+"você desejou\n"
+
+#: ../src/buffer.c:1101
+msgid ""
+"There was nothing to convert!\n"
+"Elements must have some silk, pads or pins.\n"
+msgstr ""
+"Não existe nada a converter!\n"
+"Os componentes devem ter algumas sedas, pastilhas ou conectores.\n"
+
+#: ../src/buffer.c:1106
+msgid ""
+"There were polygons that can't be made into pins!\n"
+"So they were not included in the element\n"
+msgstr ""
+"Existem polígonos que não podem ser convertidos em conectores!\n"
+"Então eles não foram incluídos no componente\n"
+
+#: ../src/buffer.c:1350
+msgid "FreeRotateBuffer([Angle])"
+msgstr "FreeRotateBuffer([Angulo])"
+
+#: ../src/buffer.c:1353
+msgid ""
+"Rotates the current paste buffer contents by the specified angle.  The\n"
+"angle is given in degrees.  If no angle is given, the user is prompted\n"
+"for one.\n"
+msgstr ""
+"Rotaciona o conteúdo da memória de colar de um ângulo especificado.  O\n"
+"angulo é dado em graus.  Se nenhum ângulo for dado, o usuário é solicitado\n"
+"a informar um.\n"
+
+#: ../src/buffer.c:1370
+msgid "Enter Rotation (degrees, CCW):"
+msgstr "Informe Ângulo de Rotação (graus, anti-horários):"
+
+#: ../src/buffer.c:1409
+msgid "You can't mirror a buffer that has elements!\n"
+msgstr "Você não pode refletir uma memória que tem componentes!\n"
+
+#: ../src/buffer.c:1417
+msgid "You can't mirror a buffer that has text!\n"
+msgstr "Você não pode refletir uma memória que tem texto!\n"
+
+#: ../src/change.c:758
+msgid ""
+"To change the clearance of objects in a polygon, change the objects, not the "
+"polygon.\n"
+"Hint: To set a minimum clearance for a group of objects, select them all "
+"then :MinClearGap(Selected,=10,mil)"
+msgstr ""
+"Para mudar a folga de objetos em um polígono, mude os objetos, não o "
+"polígono.\n"
+"Dica: Para ajustar uma folga mínima para um grupo de objetos, selecione "
+"todos eles então :MinClearGap(Selected,=10,mil)"
+
+#: ../src/change.c:1051
+#, c-format
+msgid "Error: The name \"%s\" is not unique!\n"
+msgstr "Erro: O nome \"%s\" não é único!\n"
+
+#: ../src/change.c:2274
+msgid "Linename:"
+msgstr "Nome da linha:"
+
+#: ../src/change.c:2279
+msgid "Vianame:"
+msgstr "Nome da via:"
+
+#: ../src/change.c:2284
+#, c-format
+msgid "%s Pin Name:"
+msgstr "%s Nome do conector:"
+
+#: ../src/change.c:2289
+#, c-format
+msgid "%s Pad Name:"
+msgstr "%s Nome da Pastilha:"
+
+#: ../src/change.c:2299
+msgid "Elementname:"
+msgstr "Nome do componente:"
+
+#: ../src/create.c:250
+msgid ""
+"%m+Dropping via at %$mD because it's hole would overlap with the via at %"
+"$mD\n"
+msgstr ""
+"%m+Soltando via em %$mD porque seu orifíco pode sobrescrever com a via em %"
+"$mD\n"
+
+#: ../src/create.c:271
+msgid "%m+Mapped via drill hole to %$mS from %$mS per vendor table\n"
+msgstr ""
+"%m+Mapeado orifíco de perfuração da via para %$mS a partir de %$mS pela "
+"tabela do fornecedor\n"
+
+#: ../src/create.c:289
+msgid "%m+Increased via thickness to %$mS to allow enough copper at %$mD.\n"
+msgstr ""
+"%m+Incrementado espessura de via para %$mS para permitir cobre suficiente em "
+"%$mD.\n"
+
+#: ../src/create.c:811
+msgid ""
+"%m+Did not map pin #%s (%s) drill hole because %$mS is below the minimum "
+"allowed size\n"
+msgstr ""
+"%m+Não posso mapear orifíco de perfuração do conector #%s (%s) porque %$mS "
+"está abaixo do tamanho mínimo permitido\n"
+
+#: ../src/create.c:817
+msgid ""
+"%m+Did not map pin #%s (%s) drill hole because %$mS is above the maximum "
+"allowed size\n"
+msgstr ""
+"%m+Não posso mapear orifíco de perfuração do conector #%s (%s) porque %$mS "
+"está acima do tamanho máximo permitido\n"
+
+#: ../src/create.c:824
+msgid ""
+"%m+Did not map pin #%s (%s) drill hole because %$mS does not leave enough "
+"copper\n"
+msgstr ""
+"%m+Não posso mapear orifíco de perfuração do conector #%s (%s) porque %$mS "
+"não coloca cobre  suficiente\n"
+
+#: ../src/create.c:836
+msgid "%m+Mapped pin drill hole to %$mS from %$mS per vendor table\n"
+msgstr ""
+"%m+Mapeado orifíco de perfuração de conector para %$mS a partir de %$mS pela "
+"tabela do fornecedor\n"
+
+#: ../src/create.c:941
+#, c-format
+msgid "Can't find font-symbol-file '%s'\n"
+msgstr "Não encontro o arquivo fonte-símbolo '%s'\n"
+
+#: ../src/crosshair.c:759
+msgid ""
+"WARNING: A plugin is using the deprecated API HideCrosshair().\n"
+"         This API may be removed in a future release of PCB.\n"
+msgstr ""
+"ATENÇÃO: Uma extensão está usando a API HideCrosshair() que é antiga.\n"
+"         Essa API pode ser removida em uma futura versão do PCB.\n"
+
+#: ../src/crosshair.c:774
+msgid ""
+"WARNING: A plugin is using the deprecated API RestoreCrosshair().\n"
+"         This API may be removed in a future release of PCB.\n"
+msgstr ""
+"ATENÇÃO: Uma extensão está usando a API RestoreCrosshair() que é antiga.\n"
+"         Essa API pode ser removida em uma futura versão do PCB.\n"
+
+#: ../src/error.c:104 ../src/error.c:108
+#, c-format
+msgid ""
+"Can't open file\n"
+"   '%s'\n"
+"fopen() returned: '%s'\n"
+msgstr ""
+"Não posso abrir o arquivo\n"
+"    '%s'\n"
+"fopen() retornou: '%s'\n"
+
+#: ../src/error.c:124 ../src/error.c:128
+#, c-format
+msgid ""
+"Can't execute command\n"
+"   '%s'\n"
+"popen() returned: '%s'\n"
+msgstr ""
+"Não posso executar o comando\n"
+"   '%s'\n"
+"popen() retornou: '%s'\n"
+
+#: ../src/error.c:144 ../src/error.c:148
+#, c-format
+msgid ""
+"Can't scan directory\n"
+"   '%s'\n"
+"opendir() returned: '%s'\n"
+msgstr ""
+"Não posso examinar o diretório\n"
+"   '%s'\n"
+"opendir() retornou: '%s'\n"
+
+#: ../src/error.c:164 ../src/error.c:168
+#, c-format
+msgid ""
+"Can't change working directory to\n"
+"   '%s'\n"
+"chdir() returned: '%s'\n"
+msgstr ""
+"Não posso mudar o diretório de trabalho para\n"
+"   '%s'\n"
+"chdir() retornou: '%s'\n"
+
+#: ../src/file.c:264
+#, c-format
+msgid "File '%s' exists, use anyway?"
+msgstr "Arquivo '%s' existe, usar mesmo assim?"
+
+#. not used
+#. CheckAndOpenFile deals with the case where fname already exists
+#: ../src/file.c:306
+msgid "Save Connection Data As ..."
+msgstr "Grava Dados de Conecção Como ..."
+
+#: ../src/file.c:307
+msgid "Choose a file to save all connection data to."
+msgstr "Escolha um arquivo para gravar todos os dados de conecção."
+
+#: ../src/file.c:427
+#, c-format
+msgid "File '%s' has no font information, using default font\n"
+msgstr "Arquivo '%s' não tem informação de fonte, usando a fonte padrão\n"
+
+#: ../src/file.c:1026
+#, c-format
+msgid "Trying to save your layout in '%s'\n"
+msgstr "Tentando gravar seu traçado em '%s'\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1190
+msgid ""
+"LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"
+msgstr ""
+"LoadNewlibFootprintsFromDir: Não posso determinar o diretório inicial de "
+"trabalho\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1208
+msgid ""
+"LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
+msgstr ""
+"LoadNewlibFootprintsFromDir: Não posso determinar o novo diretório de "
+"trabalho\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1316
+msgid "ParseLibraryTree: Could not determine initial working directory\n"
+msgstr ""
+"ParseLibraryTree: Não posso determinar o diretório inicial de trabalho\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1351
+msgid "ParseLibraryTree: Could not determine new working directory\n"
+msgstr "ParseLibraryTree: Não posso determinar o novo diretório de trabalho\n"
+
+#. nothing to do
+#: ../src/file.c:1543
+#, c-format
+msgid "Importing PCB netlist %s\n"
+msgstr "Importando netlist do PCB %s\n"
+
+#: ../src/file.c:1581
+#, c-format
+msgid ""
+"Line length (%i) exceeded in netlist file.\n"
+"additional characters will be ignored.\n"
+msgstr ""
+"Comprimento de linha (%i) excedeu no arquivo netlist.\n"
+"caracteres adicionais irão ser ignorados.\n"
+
+#: ../src/file.c:1635
+msgid "Empty netlist file!\n"
+msgstr "Arquivo de netlist vazio!\n"
+
+#: ../src/file.c:1675
+#, c-format
+msgid "Importing edif netlist %s\n"
+msgstr "Importando edif netlist %s\n"
+
+#: ../src/find.c:201
+msgid "%m+near %$mD\n"
+msgstr "%m+perto %$mD\n"
+
+#: ../src/find.c:209
+#, c-format
+msgid "WARNING!  Design Rule error - %s\n"
+msgstr "ATENÇÃO!  Erro de Regra de Desenho - %s\n"
+
+#: ../src/find.c:210
+msgid "%m+near location %$mD\n"
+msgstr "%m+perto da localização %$mD\n"
+
+#.
+#. * message when asked about continuing DRC checks after next
+#. * violation is found.
+#.
+#: ../src/find.c:219
+msgid "Press Next to continue DRC checking"
+msgstr "Pressione Seguinte para continuar verificação de DRC"
+
+#: ../src/find.c:220
+msgid "Next"
+msgstr "Seguinte"
+
+#: ../src/find.c:221 ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+msgid "Cancel"
+msgstr "Cancela"
+
+#: ../src/find.c:854
+#, c-format
+msgid "bad layer number %d max_copper_layer=%d in find.c\n"
+msgstr "número de camada inadequado %d max_copper_layer=%d em find.c\n"
+
+#: ../src/find.c:896
+msgid "WARNING: Hole too close to pin.\n"
+msgstr "ATENÇÃO: Orifício muito próximo a conector.\n"
+
+#: ../src/find.c:898
+msgid "WARNING: Hole too close to via.\n"
+msgstr "ATENÇÃO: Orifício muito próximo a via.\n"
+
+#: ../src/find.c:967
+msgid "WARNING: Hole too close to line.\n"
+msgstr "ATENÇÃO: Orifício muito próximo a linha.\n"
+
+#: ../src/find.c:987
+msgid "WARNING: Hole too close to pad.\n"
+msgstr "ATENÇÃO: Orifício muito próximo pastilha.\n"
+
+#: ../src/find.c:1007
+msgid "WARNING: Hole touches arc.\n"
+msgstr "ATENÇÃO: Orifício toca arco.\n"
+
+#: ../src/find.c:3369
+msgid "Potential for broken trace"
+msgstr "Risco de trilha quebrada"
+
+#: ../src/find.c:3370
+msgid ""
+"Insufficient overlap between objects can lead to broken tracks\n"
+"due to registration errors with old wheel style photo-plotters."
+msgstr ""
+"Sobreposição insuficiente entre objetos pode levar a quebrar trilhas\n"
+"devido a erros de registro com antigo estilo de giro de impressoras "
+"fotográficas."
+
+#: ../src/find.c:3422
+msgid "Copper areas too close"
+msgstr "Áreas de cobre muito próximas"
+
+#: ../src/find.c:3423 ../src/find.c:3542
+msgid ""
+"Circuits that are too close may bridge during imaging, etching,\n"
+"plating, or soldering processes resulting in a direct short."
+msgstr ""
+"Circuitos que estão muito próximos podem se juntar durante desenho da "
+"matriz, corrosão,\n"
+"galvanoplastia, ou processos de soldagem resultando em um curto circuito."
+
+#: ../src/find.c:3487
+msgid "Line with insufficient clearance inside polygon\n"
+msgstr "Linha com folga insuficiente dentro do polígono\n"
+
+#: ../src/find.c:3496
+msgid "Arc with insufficient clearance inside polygon\n"
+msgstr "Arco com folga insuficiente dentro do polígono\n"
+
+#: ../src/find.c:3506
+msgid "Pad with insufficient clearance inside polygon\n"
+msgstr "Pastilha com folga insuficiente dentro do polígono\n"
+
+#: ../src/find.c:3515
+msgid "Pin with insufficient clearance inside polygon\n"
+msgstr "Conector com folga insuficiente dentro do polígono\n"
+
+#: ../src/find.c:3524
+msgid "Via with insufficient clearance inside polygon\n"
+msgstr "Via com folga insuficiente dentro do polígono\n"
+
+#: ../src/find.c:3666
+msgid "Line width is too thin"
+msgstr "Linha muito fina"
+
+#: ../src/find.c:3667 ../src/find.c:3711
+msgid ""
+"Process specifications dictate a minimum feature-width\n"
+"that can reliably be reproduced"
+msgstr ""
+"Especificações de processo ditam uma margem de fabricação mínima\n"
+"que pode confiávelmente ser reproduzido"
+
+# FIXME: original string has room for improvement.
+# "Arc width is too small"
+#: ../src/find.c:3710
+msgid "Arc width is too thin"
+msgstr "Largura do arco muito pequena"
+
+#: ../src/find.c:3755
+msgid "Pin annular ring too small"
+msgstr "Auréola anelar do conector é muito pequena"
+
+#: ../src/find.c:3756 ../src/find.c:3876
+msgid ""
+"Annular rings that are too small may erode during etching,\n"
+"resulting in a broken connection"
+msgstr ""
+"Auréolas anelares que são muito pequenas podem danificar durante a "
+"corrosão,\n"
+"resultando em uma conecção defeituosa"
+
+#: ../src/find.c:3787
+msgid "Pin drill size is too small"
+msgstr "Tamanho da perfuração do conector muito pequena"
+
+#: ../src/find.c:3788 ../src/find.c:3908
+msgid "Process rules dictate the minimum drill size which can be used"
+msgstr ""
+"Regras de processo ditam um tamanho mínimo de perfuração que pode ser usado"
+
+# FIXME: original string has room for improvement.
+# "Pad is too small"
+#: ../src/find.c:3830
+msgid "Pad is too thin"
+msgstr "Pastilha muito fina"
+
+#: ../src/find.c:3831
+msgid ""
+"Pads which are too thin may erode during etching,\n"
+"resulting in a broken or unreliable connection"
+msgstr ""
+"Pastilhas muito finas podem sofrer erosão durante a corrosão,\n"
+"resultando em uma conecção defeituosa e sem confiabilidade"
+
+#: ../src/find.c:3875
+msgid "Via annular ring too small"
+msgstr "Auréola anular da via é muito pequena"
+
+#: ../src/find.c:3907
+msgid "Via drill size is too small"
+msgstr "Tamanho da perfuração da via é muito pequena"
+
+# FIXME: original string has room for improvement.
+# "Silk line is too small"
+#: ../src/find.c:3950
+msgid "Silk line is too thin"
+msgstr "Linha de seda muito fina"
+
+#: ../src/find.c:3951
+msgid ""
+"Process specifications dictate a minimum silkscreen feature-width\n"
+"that can reliably be reproduced"
+msgstr ""
+"Especificações de processo ditam uma margem de fabricação de tela de seda "
+"mínima\n"
+"que pode confiávelmente ser reproduzida"
+
+# FIXME: original string has room for improvement.
+# "Element %s has %i silk lines which are too small"
+#: ../src/find.c:4002
+#, c-format
+msgid "Element %s has %i silk lines which are too thin"
+msgstr "Componente %s tem %i linhas de seda que são muito finas"
+
+#: ../src/find.c:4013
+msgid ""
+"Process specifications dictate a minimum silkscreen\n"
+"feature-width that can reliably be reproduced"
+msgstr ""
+"Especificações de processo ditam uma margem de fabricação de tela de seda\n"
+"mínima que pode confiávelmente ser reproduzida"
+
+#: ../src/find.c:4051
+#, c-format
+msgid "Warning: %d pad has the nopaste flag set.\n"
+msgid_plural "Warning: %d pads have the nopaste flag set.\n"
+msgstr[0] ""
+"Atenção:  %d pastilha está com o sinalizador de não colar habilitado.\n"
+msgstr[1] ""
+"Atenção:  %d pastilhas estão com o sinalizador de não colar habilitado.\n"
+
+#: ../src/find.c:4148
+#, c-format
+msgid "Internal error in BuildObjectList: unknown object type %i\n"
+msgstr "Erro Interno em BuildObjectList: tipo de objeto desconhecido %i\n"
+
+#: ../src/gpcb-menu.res:56
+msgid "File"
+msgstr "Arquivo"
+
+#: ../src/gpcb-menu.res:57 ../src/hid/gtk/gtkhid-main.c:994
+msgid "New"
+msgstr "Novo"
+
+#: ../src/gpcb-menu.res:57 ../src/pcb-menu.res:51
+msgid "Ctrl-N"
+msgstr "Ctrl-N"
+
+#: ../src/gpcb-menu.res:57 ../src/pcb-menu.res:51
+msgid "Ctrl<Key>n"
+msgstr "Ctrl<Tecla>n"
+
+#: ../src/gpcb-menu.res:58
+msgid "Open..."
+msgstr "Abrir..."
+
+#: ../src/gpcb-menu.res:58
+msgid "Load a layout from a file"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1982
+msgid "Save"
+msgstr "Salvar"
+
+#: ../src/gpcb-menu.res:60
+msgid "Saves current layout"
+msgstr "Grava traçado atual"
+
+#: ../src/gpcb-menu.res:60 ../src/pcb-menu.res:33
+msgid "Ctrl-S"
+msgstr "Ctrl-S"
+
+#: ../src/gpcb-menu.res:60 ../src/pcb-menu.res:33
+msgid "Ctrl<Key>s"
+msgstr "Ctrl<Tecla>s"
+
+#: ../src/gpcb-menu.res:61
+msgid "Save As..."
+msgstr "Salvar Como..."
+
+#: ../src/gpcb-menu.res:61
+msgid "Saves current layout into a new file"
+msgstr "Grava o traçado atual em um novo arquivo"
+
+#: ../src/gpcb-menu.res:61 ../src/pcb-menu.res:34
+msgid "Shift Ctrl-S"
+msgstr "Shift Ctrl-S"
+
+#: ../src/gpcb-menu.res:61 ../src/pcb-menu.res:34
+msgid "Shift Ctrl<Key>s"
+msgstr "Shift Ctrl<Tecla>s"
+
+#: ../src/gpcb-menu.res:62 ../src/hid/gtk/gtkhid-main.c:993
+#: ../src/pcb-menu.res:35
+msgid "Revert"
+msgstr "Reverter"
+
+#: ../src/gpcb-menu.res:62
+msgid "Revert to the layout stored on disk"
+msgstr "Reverter para o traçado gravado no disco"
+
+#: ../src/gpcb-menu.res:64 ../src/pcb-menu.res:36
+msgid "Import Schematics"
+msgstr "Coloca diagramas esquemáticos na memória"
+
+#. in case we have a dialog for loading a footprint file
+#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1239
+#: ../src/hid/gtk/gui-dialog.c:292
+msgid "Load element to buffer"
+msgstr "Coloca componente na memória"
+
+#: ../src/gpcb-menu.res:66
+msgid "Load layout to buffer"
+msgstr "Coloca traçado na memória temporária"
+
+#: ../src/gpcb-menu.res:67
+msgid "Load netlist"
+msgstr "Coloca na memória uma netlist"
+
+#: ../src/gpcb-menu.res:68 ../src/pcb-menu.res:41
+msgid "Load vendor resource file"
+msgstr "Colocar na memória arquivo de recursos de fornecedor"
+
+#: ../src/gpcb-menu.res:70
+msgid "Save connection data of"
+msgstr "Grava dados de conecção de"
+
+#: ../src/gpcb-menu.res:71 ../src/pcb-menu.res:47
+msgid " a single element"
+msgstr " um único componente"
+
+#: ../src/gpcb-menu.res:72 ../src/pcb-menu.res:48
+msgid " all elements"
+msgstr " todos os componentes"
+
+#: ../src/gpcb-menu.res:73 ../src/pcb-menu.res:49
+msgid " unused pins"
+msgstr "conectores livres"
+
+#: ../src/gpcb-menu.res:75
+msgid "Export..."
+msgstr "Exportar..."
+
+#: ../src/gpcb-menu.res:77 ../src/pcb-menu.res:44
+msgid "Calibrate Printer..."
+msgstr "Faça a calibração da impressora..."
+
+#: ../src/gpcb-menu.res:78
+msgid "Print..."
+msgstr "Imprimir..."
+
+#: ../src/gpcb-menu.res:80
+msgid "Preferences..."
+msgstr "Preferências..."
+
+#: ../src/gpcb-menu.res:82
+msgid "Quit"
+msgstr "Sair"
+
+#: ../src/gpcb-menu.res:82 ../src/pcb-menu.res:53
+msgid "Ctrl-Q"
+msgstr "Ctrl-Q"
+
+#: ../src/gpcb-menu.res:82 ../src/pcb-menu.res:53
+msgid "Ctrl<Key>q"
+msgstr "Ctrl<Tecla>q"
+
+#: ../src/gpcb-menu.res:88
+msgid "Edit"
+msgstr "Editar"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:418
+msgid "Undo"
+msgstr "Desfazer"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:134
+msgid "U"
+msgstr "U"
+
+#: ../src/gpcb-menu.res:89 ../src/pcb-menu.res:134
+msgid "<Key>u"
+msgstr "<Tecla>u"
+
+#: ../src/gpcb-menu.res:90
+msgid "Redo"
+msgstr "Refazer"
+
+#: ../src/gpcb-menu.res:90 ../src/pcb-menu.res:135
+msgid "Shift-R"
+msgstr "Shift-R"
+
+#: ../src/gpcb-menu.res:90 ../src/pcb-menu.res:135
+msgid "Shift<Key>r"
+msgstr "Shift<Tecla>r"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Clear undo-buffer"
+msgstr "Apagar histórico de desfazer"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Shift-Ctrl-U"
+msgstr "Shift-Ctrl-U"
+
+#: ../src/gpcb-menu.res:91 ../src/pcb-menu.res:136
+msgid "Shift Ctrl<Key>u"
+msgstr "Shift Ctrl<Tecla>u"
+
+#: ../src/gpcb-menu.res:296
+msgid "Cut to buffer"
+msgstr "Cortar para a memória"
+
+#: ../src/gpcb-menu.res:95 ../src/pcb-menu.res:140
+msgid "Ctrl-X"
+msgstr "Ctrl-X"
+
+#: ../src/gpcb-menu.res:95 ../src/pcb-menu.res:140
+msgid "Ctrl<Key>x"
+msgstr "Ctrl<Tecla>x"
+
+#: ../src/gpcb-menu.res:96
+msgid "Copy to buffer"
+msgstr "Copiar para a memória"
+
+#: ../src/gpcb-menu.res:98 ../src/pcb-menu.res:143
+msgid "Ctrl-C"
+msgstr "Ctrl-C"
+
+#: ../src/gpcb-menu.res:98 ../src/pcb-menu.res:143
+msgid "Ctrl<Key>c"
+msgstr "Ctrl<Tecla>c"
+
+#: ../src/gpcb-menu.res:298
+msgid "Paste buffer"
+msgstr "Cola na memória"
+
+#: ../src/gpcb-menu.res:99 ../src/pcb-menu.res:144
+msgid "Ctrl-V"
+msgstr "Ctrl-V"
+
+#: ../src/gpcb-menu.res:99 ../src/pcb-menu.res:144
+msgid "Ctrl<Key>v"
+msgstr "Ctrl<Tecla>v"
+
+#: ../src/gpcb-menu.res:240 ../src/pcb-menu.res:146
+msgid "Unselect all"
+msgstr "Remove seleção de tudo"
+
+#: ../src/gpcb-menu.res:101 ../src/pcb-menu.res:146
+msgid "Shift-Alt-A"
+msgstr "Shift-Alt-A"
+
+#: ../src/gpcb-menu.res:101 ../src/pcb-menu.res:146
+msgid "Shift Alt<Key>a"
+msgstr "Shift Alt<Tecla>a"
+
+#: ../src/gpcb-menu.res:236 ../src/pcb-menu.res:147
+msgid "Select all visible"
+msgstr "Selecione tudo que estiver visível"
+
+#: ../src/gpcb-menu.res:102 ../src/pcb-menu.res:147
+msgid "Alt-A"
+msgstr "Alt-A"
+
+#: ../src/gpcb-menu.res:102 ../src/pcb-menu.res:147
+msgid "Alt<Key>a"
+msgstr "Alt<Tecla>a"
+
+#: ../src/gpcb-menu.res:104
+msgid "Edit name of"
+msgstr "Editar nome de"
+
+#: ../src/gpcb-menu.res:105
+msgid "text on layout"
+msgstr "texto sobre traçado"
+
+#: ../src/gpcb-menu.res:105 ../src/pcb-menu.res:150
+msgid "N"
+msgstr "N"
+
+#: ../src/gpcb-menu.res:105 ../src/pcb-menu.res:150
+msgid "<Key>n"
+msgstr "<Tecla>n"
+
+#: ../src/gpcb-menu.res:106
+msgid "layout"
+msgstr "traçado"
+
+#: ../src/gpcb-menu.res:107
+msgid "active layer"
+msgstr "camada ativa"
+
+#: ../src/gpcb-menu.res:109
+msgid "Edit attributes of"
+msgstr "Editar atributos de"
+
+#: ../src/gpcb-menu.res:110
+msgid "Layout"
+msgstr "Traçado"
+
+#: ../src/gpcb-menu.res:111
+msgid "CurrentLayer"
+msgstr "Camada Atual"
+
+#: ../src/gpcb-menu.res:112
+msgid "Element"
+msgstr "Componente"
+
+#. Create edit button
+#: ../src/gpcb-menu.res:115 ../src/hid/gtk/ghid-route-style-selector.c:417
+#: ../src/pcb-menu.res:159
+msgid "Route Styles"
+msgstr "Estilos de Rota"
+
+#: ../src/gpcb-menu.res:117 ../src/pcb-menu.res:162
+msgid "Edit..."
+msgstr "Editar..."
+
+#: ../src/gpcb-menu.res:124
+msgid "View"
+msgstr "Visão"
+
+#: ../src/gpcb-menu.res:125
+msgid "Enable visible grid"
+msgstr "Habilitar grade visível"
+
+#: ../src/gpcb-menu.res:126
+msgid "Grid units"
+msgstr "Unidades de grade"
+
+#: ../src/gpcb-menu.res:127 ../src/pcb-menu.res:94
+msgid "mil"
+msgstr "mil"
+
+#: ../src/gpcb-menu.res:128 ../src/pcb-menu.res:95
+msgid "mm"
+msgstr "mm"
+
+#: ../src/gpcb-menu.res:130
+msgid "Grid size"
+msgstr "Tamanho da grade"
+
+#: ../src/gpcb-menu.res:131 ../src/pcb-menu.res:98
+msgid "No Grid"
+msgstr "Sem Grade"
+
+#: ../src/gpcb-menu.res:133 ../src/pcb-menu.res:100
+msgid "0.1 mil"
+msgstr "0.1 mil"
+
+#: ../src/gpcb-menu.res:134 ../src/pcb-menu.res:101
+msgid "1 mil"
+msgstr "1 mil"
+
+#: ../src/gpcb-menu.res:135 ../src/pcb-menu.res:102
+msgid "5 mil"
+msgstr "5 mil"
+
+#: ../src/gpcb-menu.res:136 ../src/pcb-menu.res:103
+msgid "10 mil"
+msgstr "10 mil"
+
+#: ../src/gpcb-menu.res:137 ../src/pcb-menu.res:104
+msgid "25 mil"
+msgstr "25 mil"
+
+#: ../src/gpcb-menu.res:138 ../src/pcb-menu.res:105
+msgid "50 mil"
+msgstr "50 mil"
+
+#: ../src/gpcb-menu.res:139 ../src/pcb-menu.res:106
+msgid "100 mil"
+msgstr "100 mil"
+
+#: ../src/gpcb-menu.res:141 ../src/pcb-menu.res:108
+msgid "0.01 mm"
+msgstr "0.01 mm"
+
+#: ../src/gpcb-menu.res:142 ../src/pcb-menu.res:109
+msgid "0.05 mm"
+msgstr "0.05 mm"
+
+#: ../src/gpcb-menu.res:143 ../src/pcb-menu.res:110
+msgid "0.1 mm"
+msgstr "0.1 mm"
+
+#: ../src/gpcb-menu.res:144 ../src/pcb-menu.res:111
+msgid "0.25 mm"
+msgstr "0.25 mm"
+
+#: ../src/gpcb-menu.res:145 ../src/pcb-menu.res:112
+msgid "0.5 mm"
+msgstr "0.5 mm"
+
+#: ../src/gpcb-menu.res:146 ../src/pcb-menu.res:113
+msgid "1 mm"
+msgstr "1 mm"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+msgid "Grid -"
+msgstr "Grade -"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+msgid "Shift-G"
+msgstr "Shift-G"
+
+#: ../src/gpcb-menu.res:148 ../src/pcb-menu.res:115
+msgid "Shift<Key>g"
+msgstr "Shift<Tecla>g"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+msgid "Grid +"
+msgstr "Grade +"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+msgid "G"
+msgstr "G"
+
+#: ../src/gpcb-menu.res:149 ../src/pcb-menu.res:116
+msgid "<Key>g"
+msgstr "<Tecla>g"
+
+#: ../src/gpcb-menu.res:151 ../src/pcb-menu.res:97
+msgid "Realign grid"
+msgstr "Realinhar grade"
+
+#: ../src/gpcb-menu.res:153
+msgid "Displayed element name"
+msgstr "Mostra nome de componente"
+
+#: ../src/gpcb-menu.res:154 ../src/pcb-menu.res:64
+msgid "Description"
+msgstr "Descrição"
+
+#: ../src/gpcb-menu.res:155 ../src/pcb-menu.res:65
+msgid "Reference Designator"
+msgstr "Designador de Referência"
+
+#: ../src/gpcb-menu.res:156 ../src/pcb-menu.res:66
+msgid "Value"
+msgstr "Valor"
+
+#: ../src/gpcb-menu.res:158
+msgid "Enable Pinout shows number"
+msgstr "Habilitar saída de conector mostra número"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "Pins/Via show Name/Number"
+msgstr "Conector/Via mostra Nome/Número"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "D"
+msgstr "D"
+
+#: ../src/gpcb-menu.res:159 ../src/pcb-menu.res:209
+msgid "<Key>d"
+msgstr "<Tecla>d"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+#, no-c-format
+msgid "Zoom In 20%"
+msgstr "Aproximação 20%"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+msgid "Z"
+msgstr "Z"
+
+#: ../src/gpcb-menu.res:161 ../src/pcb-menu.res:79
+msgid "<Key>z"
+msgstr "<Tecla>z"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+#, no-c-format
+msgid "Zoom Out 20%"
+msgstr "Afastamento 20%"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+msgid "Shift-Z"
+msgstr "Shift-Z"
+
+#: ../src/gpcb-menu.res:162 ../src/pcb-menu.res:80
+msgid "Shift<Key>z"
+msgstr "Shift<Tecla>z"
+
+#: ../src/gpcb-menu.res:163
+msgid "More zooms and view changes"
+msgstr "Mais aproximações e modos de visão"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+msgid "Zoom Max"
+msgstr "Aproximação Maxima"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+msgid "V"
+msgstr "V"
+
+#: ../src/gpcb-menu.res:164 ../src/pcb-menu.res:82
+msgid "<Key>v"
+msgstr "<Tecla>v"
+
+#: ../src/gpcb-menu.res:165 ../src/pcb-menu.res:75
+msgid "Zoom In 2X"
+msgstr "Aproximação 2X"
+
+#: ../src/gpcb-menu.res:166 ../src/pcb-menu.res:81
+msgid "Zoom Out 2X"
+msgstr "Afastamento 2X"
+
+#: ../src/gpcb-menu.res:167 ../src/pcb-menu.res:85
+msgid "Zoom to 0.1mil/px"
+msgstr "Aproximação de 0.1mil/px"
+
+#: ../src/gpcb-menu.res:168 ../src/pcb-menu.res:86
+msgid "Zoom to 0.01mm/px"
+msgstr "Aproximação de 0.01mm/px"
+
+#: ../src/gpcb-menu.res:169 ../src/pcb-menu.res:87
+msgid "Zoom to 1mil/px"
+msgstr "Aproximação de 1mm/px"
+
+#: ../src/gpcb-menu.res:170 ../src/pcb-menu.res:88
+msgid "Zoom to 0.05mm/px"
+msgstr "Aproximação de 0.05mm/px"
+
+#: ../src/gpcb-menu.res:171 ../src/pcb-menu.res:89
+msgid "Zoom to 2.5mil/px"
+msgstr "Aproximação de 2.5mil/px"
+
+#: ../src/gpcb-menu.res:172 ../src/pcb-menu.res:90
+msgid "Zoom to 0.1mm/px"
+msgstr "Aproximação de 0.1mm/px"
+
+#: ../src/gpcb-menu.res:173 ../src/pcb-menu.res:91
+msgid "Zoom to 10mil/px"
+msgstr "Aproximação de 10mil/px"
+
+#: ../src/gpcb-menu.res:174
+#, no-c-format
+msgid "Zoom In 20% and center"
+msgstr "Aproximação 20% e centro"
+
+#: ../src/gpcb-menu.res:175
+#, no-c-format
+msgid "Zoom Out 20% and center"
+msgstr "Afastamento 20% e centro"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "Flip up/down"
+msgstr "Vira acima/abaixo"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "Tab"
+msgstr "Tab"
+
+#: ../src/gpcb-menu.res:176 ../src/pcb-menu.res:56
+msgid "<Key>Tab"
+msgstr "<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Flip left/right"
+msgstr "Vira esquerda/direita"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Shift-Tab"
+msgstr "Shift-Tab"
+
+#: ../src/gpcb-menu.res:177 ../src/pcb-menu.res:57
+msgid "Shift<Key>Tab"
+msgstr "Shift<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:178
+msgid "Spin 180 degrees"
+msgstr "Girar 180 graus"
+
+#: ../src/gpcb-menu.res:178 ../src/pcb-menu.res:58
+msgid "Ctrl-Tab"
+msgstr "Ctrl-Tab"
+
+#: ../src/gpcb-menu.res:178 ../src/pcb-menu.res:58
+msgid "Ctrl<Key>Tab"
+msgstr "Ctrl<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Swap Sides"
+msgstr "Trocar lados"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Ctrl-Shift-Tab"
+msgstr "Ctrl-Shift-Tab"
+
+#: ../src/gpcb-menu.res:179 ../src/pcb-menu.res:59
+msgid "Ctrl Shift<Key>Tab"
+msgstr "Ctrl Shift<Tecla>Tab"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+msgid "Center cursor"
+msgstr "Cursor centralizado"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+msgid "C"
+msgstr "C"
+
+#: ../src/gpcb-menu.res:180 ../src/pcb-menu.res:60
+msgid "<Key>c"
+msgstr "<Tecla>c"
+
+#: ../src/gpcb-menu.res:183 ../src/pcb-menu.res:119
+msgid "Shown Layers"
+msgstr "Mostra Camadas"
+
+#: ../src/gpcb-menu.res:186 ../src/pcb-menu.res:122
+msgid "Edit Layer Groups"
+msgstr "Editar Grupos de Camada"
+
+#: ../src/gpcb-menu.res:188 ../src/pcb-menu.res:124
+msgid "Current Layer"
+msgstr "Camada Atual"
+
+#: ../src/gpcb-menu.res:191 ../src/pcb-menu.res:127
+msgid "Delete current layer"
+msgstr "Apaga camada atual"
+
+#: ../src/gpcb-menu.res:192 ../src/pcb-menu.res:128
+msgid "Add new layer"
+msgstr "Adicionar nova camada"
+
+#: ../src/gpcb-menu.res:193 ../src/pcb-menu.res:129
+msgid "Move current layer up"
+msgstr "Mova camada atual acima"
+
+#: ../src/gpcb-menu.res:194 ../src/pcb-menu.res:130
+msgid "Move current layer down"
+msgstr "Mova camada atual abaixo"
+
+#: ../src/gpcb-menu.res:201
+msgid "Settings"
+msgstr "Configurações"
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+msgid "'All-direction' lines"
+msgstr "Linhas em 'Todas as direções'"
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+msgid "."
+msgstr "."
+
+#: ../src/gpcb-menu.res:202 ../src/pcb-menu.res:191
+msgid "<Key>."
+msgstr "<Tecla>."
+
+#: ../src/gpcb-menu.res:203 ../src/pcb-menu.res:192
+msgid "Auto swap line start angle"
+msgstr "Trocar automaticamente ângulo de início de linha"
+
+#: ../src/gpcb-menu.res:204 ../src/pcb-menu.res:193
+msgid "Orthogonal moves"
+msgstr "Movimentos ortogonais"
+
+#: ../src/gpcb-menu.res:205 ../src/pcb-menu.res:194
+msgid "Crosshair snaps to pins and pads"
+msgstr "Mira adere a conectores e pastilhas"
+
+#: ../src/gpcb-menu.res:206 ../src/pcb-menu.res:195
+msgid "Crosshair shows DRC clearance"
+msgstr "Mira mostra folga DRC"
+
+#: ../src/gpcb-menu.res:207 ../src/pcb-menu.res:196
+msgid "Auto enforce DRC clearance"
+msgstr "Exigir automaticamente folga DRC"
+
+#: ../src/gpcb-menu.res:208 ../src/pcb-menu.res:67
+msgid "Lock Names"
+msgstr "Travar Nomes"
+
+#: ../src/gpcb-menu.res:209 ../src/pcb-menu.res:68
+msgid "Only Names"
+msgstr "Nomes Únicos"
+
+#: ../src/gpcb-menu.res:210 ../src/pcb-menu.res:69
+msgid "Hide Names"
+msgstr "Esconder Nomes"
+
+#: ../src/gpcb-menu.res:212 ../src/pcb-menu.res:198
+msgid "Rubber band mode"
+msgstr "Modo elástico"
+
+#: ../src/gpcb-menu.res:213 ../src/pcb-menu.res:199
+msgid "Require unique element names"
+msgstr "Exige nomes únicos de componente"
+
+#: ../src/gpcb-menu.res:214 ../src/pcb-menu.res:200
+msgid "Auto-zero delta measurements"
+msgstr "Zera automaticamente medições delta"
+
+#: ../src/gpcb-menu.res:215 ../src/pcb-menu.res:201
+msgid "New lines, arcs clear polygons"
+msgstr "Novas linhas/arcos apagam polígonos"
+
+#: ../src/gpcb-menu.res:216 ../src/pcb-menu.res:202
+msgid "New polygons are full ones"
+msgstr "Novos polígonos são cheios"
+
+#: ../src/gpcb-menu.res:217 ../src/pcb-menu.res:203
+msgid "Show autorouter trials"
+msgstr "Exibir trilhas roteadas automaticamente"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "Thin draw"
+msgstr "Desenho fino"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "|"
+msgstr "|"
+
+#: ../src/gpcb-menu.res:218 ../src/pcb-menu.res:204
+msgid "<Key>|"
+msgstr "<Tecla>|"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+msgid "Thin draw poly"
+msgstr "Desenho fino para polígono"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+msgid "Ctrl-Shift-P"
+msgstr "Ctrl-Shift-P"
+
+#: ../src/gpcb-menu.res:219 ../src/pcb-menu.res:205
+msgid "Ctrl Shift<Key>p"
+msgstr "Ctrl Shift<Tecla>p"
+
+#: ../src/gpcb-menu.res:220 ../src/pcb-menu.res:206
+msgid "Check polygons"
+msgstr "Verifica polígonos"
+
+#: ../src/gpcb-menu.res:222
+msgid "Vendor drill mapping"
+msgstr "Mapeamento perfuração de fornecedor"
+
+#: ../src/gpcb-menu.res:223
+msgid "Import New Elements at"
+msgstr "Importar Novos Componentes em"
+
+#: ../src/gpcb-menu.res:224 ../src/pcb-menu.res:213
+msgid " Center"
+msgstr " Centro"
+
+#: ../src/gpcb-menu.res:225 ../src/pcb-menu.res:214
+msgid " Mark"
+msgstr " Marcar"
+
+#: ../src/gpcb-menu.res:226 ../src/pcb-menu.res:215
+msgid " Crosshair"
+msgstr " Mira"
+
+#: ../src/gpcb-menu.res:228 ../src/pcb-menu.res:217
+msgid "Set Dispersion"
+msgstr "Ajusta Dispersão"
+
+#: ../src/gpcb-menu.res:235
+msgid "Select"
+msgstr "Selecione"
+
+#: ../src/gpcb-menu.res:237
+msgid "Select all found"
+msgstr "Seleciona todos que encontrar"
+
+#: ../src/gpcb-menu.res:238
+msgid "Select all connected"
+msgstr "Seleciona todos conectados"
+
+#: ../src/gpcb-menu.res:241
+msgid "Unselect all found"
+msgstr "Remove a seleção de todos os objetos encontrados"
+
+#: ../src/gpcb-menu.res:242
+msgid "Unselect all connected"
+msgstr "Remove a seleção de todos os objetos conectados"
+
+#: ../src/gpcb-menu.res:244 ../src/pcb-menu.res:230
+msgid "Select by name"
+msgstr "Seleciona por nome"
+
+#: ../src/gpcb-menu.res:245 ../src/pcb-menu.res:231
+msgid "All objects"
+msgstr "Todos os objetos"
+
+#: ../src/gpcb-menu.res:287 ../src/pcb-menu.res:268
+msgid "Elements"
+msgstr "Componentes"
+
+#: ../src/gpcb-menu.res:247 ../src/pcb-menu.res:233
+msgid "Pads"
+msgstr "Pastilhas"
+
+#: ../src/gpcb-menu.res:288 ../src/pcb-menu.res:269
+msgid "Pins"
+msgstr "Conectores"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "Text"
+msgstr "Texto"
+
+#: ../src/gpcb-menu.res:250 ../src/pcb-menu.res:236
+msgid "Vias"
+msgstr "Vias"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Auto-place selected elements"
+msgstr "Coloca automaticamente componentes selecionados"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Ctrl-P"
+msgstr "Ctrl-P"
+
+#: ../src/gpcb-menu.res:253 ../src/pcb-menu.res:238
+msgid "Ctrl<Key>p"
+msgstr "Ctrl<Tecla>p"
+
+#: ../src/gpcb-menu.res:254 ../src/pcb-menu.res:239
+msgid "Disperse all elements"
+msgstr "Apaga todos os componentes"
+
+#: ../src/gpcb-menu.res:255
+msgid "Disperse selected elements"
+msgstr "Dispersar componentes selecionados"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+msgid "Move selected elements to other side"
+msgstr "Mova os objetos selecionados para outro lado"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+msgid "Shift-B"
+msgstr "Shift-B"
+
+#: ../src/gpcb-menu.res:257 ../src/pcb-menu.res:240
+msgid "Shift<Key>b"
+msgstr "Shift<Tecla>b"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+msgid "Move selected to current layer"
+msgstr "Mova os objetos selecionados para a camada atual"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+msgid "Shift-M"
+msgstr "Shift-M"
+
+#: ../src/gpcb-menu.res:258 ../src/pcb-menu.res:241
+msgid "Shift<Key>m"
+msgstr "Shift<Tecla>m"
+
+#: ../src/gpcb-menu.res:474
+msgid "Remove selected objects"
+msgstr "Apague objetos selecionados"
+
+#: ../src/gpcb-menu.res:259 ../src/pcb-menu.res:362
+msgid "Shift-Delete"
+msgstr "Shift-Delete"
+
+#: ../src/gpcb-menu.res:259 ../src/pcb-menu.res:362
+msgid "Shift<Key>Delete"
+msgstr "Shift<Tecla>Delete"
+
+#: ../src/gpcb-menu.res:488 ../src/pcb-menu.res:243
+msgid "Convert selection to element"
+msgstr "Converte seleção em elemento"
+
+#: ../src/gpcb-menu.res:262 ../src/pcb-menu.res:245
+msgid "Optimize selected rats"
+msgstr "Otimize ratos selecionados"
+
+#: ../src/gpcb-menu.res:334 ../src/pcb-menu.res:311
+msgid "Auto-route selected rats"
+msgstr "Roteamento automático de ratos selecionados"
+
+#: ../src/gpcb-menu.res:263 ../src/pcb-menu.res:246
+msgid "Alt-R"
+msgstr "Alt-R"
+
+#: ../src/gpcb-menu.res:263 ../src/pcb-menu.res:246
+msgid "Alt<Key>r"
+msgstr "Alt<Tecla>r"
+
+#: ../src/gpcb-menu.res:491 ../src/pcb-menu.res:247
+msgid "Rip up selected auto-routed tracks"
+msgstr "Anule trilhas auto roteadas selecionadas"
+
+#: ../src/gpcb-menu.res:266 ../src/pcb-menu.res:249
+msgid "Change size of selected objects"
+msgstr "Modifica tamanho de objetos selecionados"
+
+#: ../src/gpcb-menu.res:267 ../src/pcb-menu.res:250
+msgid "Lines -10 mil"
+msgstr "Linhas -10 mil"
+
+#: ../src/gpcb-menu.res:268 ../src/pcb-menu.res:251
+msgid "Lines +10 mil"
+msgstr "Linhas +10 mil"
+
+#: ../src/gpcb-menu.res:269 ../src/pcb-menu.res:252
+msgid "Pads -10 mil"
+msgstr "Pastilhas -10 mil"
+
+#: ../src/gpcb-menu.res:270 ../src/pcb-menu.res:253
+msgid "Pads +10 mil"
+msgstr "Pastilhas +10 mil"
+
+#: ../src/gpcb-menu.res:282 ../src/pcb-menu.res:264
+msgid "Pins -10 mil"
+msgstr "Conectores -10 mil"
+
+#: ../src/gpcb-menu.res:283 ../src/pcb-menu.res:265
+msgid "Pins +10 mil"
+msgstr "Conectores +10 mil"
+
+#: ../src/gpcb-menu.res:273 ../src/pcb-menu.res:256
+msgid "Texts -10 mil"
+msgstr "Textos -10 mil"
+
+#: ../src/gpcb-menu.res:274 ../src/pcb-menu.res:257
+msgid "Texts +10 mil"
+msgstr "Textos +10 mil"
+
+#: ../src/gpcb-menu.res:280 ../src/pcb-menu.res:262
+msgid "Vias -10 mil"
+msgstr "Vias -10 mil"
+
+#: ../src/gpcb-menu.res:281 ../src/pcb-menu.res:263
+msgid "Vias +10 mil"
+msgstr "Vias +10 mil"
+
+#: ../src/gpcb-menu.res:279 ../src/pcb-menu.res:261
+msgid "Change drilling hole of selected objects"
+msgstr "Modifica orifício de perfuração dos objetos selecionados"
+
+#: ../src/gpcb-menu.res:286 ../src/pcb-menu.res:267
+msgid "Change square-flag of selected objects"
+msgstr "Altere o sinalizador de quadrado dos objetos selecionados"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "Buffer"
+msgstr "Memória"
+
+#: ../src/gpcb-menu.res:300 ../src/pcb-menu.res:279
+msgid "Rotate buffer 90 deg CCW"
+msgstr "Rotaciona memória 90 graus anti-horário"
+
+#: ../src/gpcb-menu.res:301 ../src/pcb-menu.res:280
+msgid "Shift-F7"
+msgstr "Shift-F7"
+
+#: ../src/gpcb-menu.res:301 ../src/pcb-menu.res:280
+msgid "Shift<Key>F7"
+msgstr "Shift<Tecla>F7"
+
+#: ../src/gpcb-menu.res:302 ../src/pcb-menu.res:281
+msgid "Rotate buffer 90 deg CW"
+msgstr "Rotaciona memória 90 graus horário"
+
+#: ../src/gpcb-menu.res:303 ../src/pcb-menu.res:282
+msgid "Arbitrarily Rotate Buffer"
+msgstr "Rotacão personalizada da memória"
+
+#: ../src/gpcb-menu.res:304 ../src/pcb-menu.res:283
+msgid "Mirror buffer (up/down)"
+msgstr "Espelhar memória (acima/abaixo)"
+
+#: ../src/gpcb-menu.res:305 ../src/pcb-menu.res:284
+msgid "Mirror buffer (left/right)"
+msgstr "Espelhar memória (esquerda/direita)"
+
+#: ../src/gpcb-menu.res:308 ../src/pcb-menu.res:287
+msgid "Clear buffer"
+msgstr "Apaga memória"
+
+#: ../src/gpcb-menu.res:309 ../src/pcb-menu.res:288
+msgid "Convert buffer to element"
+msgstr "Converte memória em componente"
+
+#: ../src/gpcb-menu.res:310 ../src/pcb-menu.res:289
+msgid "Break buffer elements to pieces"
+msgstr "Quebra componentes na memória em peças"
+
+#: ../src/gpcb-menu.res:311 ../src/pcb-menu.res:290
+msgid "Save buffer elements to file"
+msgstr "Grava componentes da memória em arquivo"
+
+#: ../src/gpcb-menu.res:313
+msgid "Select Buffer #1"
+msgstr "Seleciona Memória #1"
+
+#: ../src/gpcb-menu.res:313 ../src/pcb-menu.res:293
+msgid "Shift-1"
+msgstr "Shift-1"
+
+#: ../src/gpcb-menu.res:313 ../src/pcb-menu.res:293
+msgid "Shift<Key>1"
+msgstr "Shift<Tecla>1"
+
+#: ../src/gpcb-menu.res:314
+msgid "Select Buffer #2"
+msgstr "Selecione Memória #2"
+
+#: ../src/gpcb-menu.res:314 ../src/pcb-menu.res:294
+msgid "Shift-2"
+msgstr "Shift-2"
+
+#: ../src/gpcb-menu.res:314 ../src/pcb-menu.res:294
+msgid "Shift<Key>2"
+msgstr "Shift<Tecla>1"
+
+#: ../src/gpcb-menu.res:315
+msgid "Select Buffer #3"
+msgstr "Selecione Memória #3"
+
+#: ../src/gpcb-menu.res:315 ../src/pcb-menu.res:295
+msgid "Shift-3"
+msgstr "Shift-3"
+
+#: ../src/gpcb-menu.res:315 ../src/pcb-menu.res:295
+msgid "Shift<Key>3"
+msgstr "Shift<Tecla>3"
+
+#: ../src/gpcb-menu.res:316
+msgid "Select Buffer #4"
+msgstr "Selecione Memória #4"
+
+#: ../src/gpcb-menu.res:316 ../src/pcb-menu.res:296
+msgid "Shift-4"
+msgstr "Shift-4"
+
+#: ../src/gpcb-menu.res:316 ../src/pcb-menu.res:296
+msgid "Shift<Key>4"
+msgstr "Shift<Tecla>4"
+
+#: ../src/gpcb-menu.res:317
+msgid "Select Buffer #5"
+msgstr "Selecione Memória #5"
+
+#: ../src/gpcb-menu.res:317 ../src/pcb-menu.res:297
+msgid "Shift-5"
+msgstr "Shift-5"
+
+#: ../src/gpcb-menu.res:317 ../src/pcb-menu.res:297
+msgid "Shift<Key>5"
+msgstr "Shift<Tecla>5"
+
+#: ../src/gpcb-menu.res:323
+msgid "Connects"
+msgstr "Conecções"
+
+#: ../src/gpcb-menu.res:324
+msgid "Lookup connection"
+msgstr "Procura conecção"
+
+#: ../src/gpcb-menu.res:324 ../src/pcb-menu.res:301
+msgid "Ctrl-F"
+msgstr "Ctrl-F"
+
+#: ../src/gpcb-menu.res:324 ../src/pcb-menu.res:301
+msgid "Ctrl<Key>f"
+msgstr "Ctrl<Tecla>F"
+
+#: ../src/gpcb-menu.res:325 ../src/pcb-menu.res:302
+msgid "Reset scanned pads/pins/vias"
+msgstr "Zere pastilhas/conectores/vias examinados"
+
+#: ../src/gpcb-menu.res:326 ../src/pcb-menu.res:303
+msgid "Reset scanned lines/polygons"
+msgstr "Zere polígonos/linhas examinados"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+msgid "Reset all connections"
+msgstr "Zere todas as conecções"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+msgid "Shift-F"
+msgstr "Shift-F"
+
+#: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
+msgid "Shift<Key>f"
+msgstr "Shift<Tecla>f"
+
+#: ../src/gpcb-menu.res:329
+msgid "Optimize rats nest"
+msgstr "Otimizar ninhos de rato"
+
+#: ../src/gpcb-menu.res:330 ../src/pcb-menu.res:307
+msgid "O"
+msgstr "O"
+
+#: ../src/gpcb-menu.res:330 ../src/pcb-menu.res:307
+msgid "<Key>o"
+msgstr "<Tecla>o"
+
+#: ../src/gpcb-menu.res:331
+msgid "Erase rats nest"
+msgstr "Apaga ninho de ratos"
+
+#: ../src/gpcb-menu.res:331 ../src/pcb-menu.res:308
+msgid "E"
+msgstr "E"
+
+#: ../src/gpcb-menu.res:331 ../src/pcb-menu.res:308
+msgid "<Key>e"
+msgstr "<Tecla>e"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+msgid "Erase selected rats"
+msgstr "Apaga os ratos selecionados"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+msgid "Shift-E"
+msgstr "Shift-E"
+
+#: ../src/gpcb-menu.res:332 ../src/pcb-menu.res:309
+msgid "Shift<Key>e"
+msgstr "Shift<Tecla>e"
+
+#: ../src/gpcb-menu.res:335 ../src/pcb-menu.res:312
+msgid "Auto-route all rats"
+msgstr "Roteando automaticamente todos os ratos"
+
+#: ../src/gpcb-menu.res:336 ../src/pcb-menu.res:313
+msgid "Rip up all auto-routed tracks"
+msgstr "Cancele todas as trilhas auto roteadas"
+
+#: ../src/gpcb-menu.res:338
+msgid "Optimize routed tracks"
+msgstr "Otimize trilhas roteadas"
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Auto-Optimize"
+msgstr "Auto-Otimizar"
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Shift-="
+msgstr "Shift-="
+
+#: ../src/gpcb-menu.res:339 ../src/pcb-menu.res:315
+msgid "Shift<Key>="
+msgstr "Shift<Tecla>="
+
+#: ../src/gpcb-menu.res:340 ../src/pcb-menu.res:316
+msgid "Debumpify"
+msgstr "Desmanchar U"
+
+#: ../src/gpcb-menu.res:341 ../src/pcb-menu.res:317
+msgid "Unjaggy"
+msgstr "Aplainar"
+
+#: ../src/gpcb-menu.res:342 ../src/pcb-menu.res:318
+msgid "Vianudge"
+msgstr "Reposicionar via"
+
+#: ../src/gpcb-menu.res:343 ../src/pcb-menu.res:319
+msgid "Viatrim"
+msgstr "Remover via"
+
+#: ../src/gpcb-menu.res:344
+msgid "Ortho pull"
+msgstr "Mover cantos"
+
+#: ../src/gpcb-menu.res:345
+msgid "Simple optimization"
+msgstr "Otimização simples"
+
+#: ../src/gpcb-menu.res:345 ../src/pcb-menu.res:321
+msgid "="
+msgstr "="
+
+#: ../src/gpcb-menu.res:345 ../src/pcb-menu.res:321
+msgid "<Key>="
+msgstr "<Tecla>="
+
+#: ../src/gpcb-menu.res:346 ../src/pcb-menu.res:322
+msgid "Miter"
+msgstr "Suavisar arestas"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "Puller"
+msgstr "Desviar"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "Y"
+msgstr "Y"
+
+#: ../src/gpcb-menu.res:347 ../src/pcb-menu.res:323
+msgid "<Key>y"
+msgstr "<Tecla>y"
+
+#: ../src/gpcb-menu.res:348 ../src/pcb-menu.res:324
+msgid "Global Puller"
+msgstr "Desvio Global"
+
+#: ../src/gpcb-menu.res:349 ../src/pcb-menu.res:325
+msgid "Selected"
+msgstr "Selecione"
+
+#: ../src/gpcb-menu.res:350 ../src/pcb-menu.res:326
+msgid "Found"
+msgstr "Encontrado"
+
+#: ../src/gpcb-menu.res:351 ../src/pcb-menu.res:327
+msgid "All"
+msgstr "Todos"
+
+#: ../src/gpcb-menu.res:354 ../src/pcb-menu.res:329
+msgid "Only autorouted nets"
+msgstr "Somente redes autoroteadas"
+
+#: ../src/gpcb-menu.res:357 ../src/pcb-menu.res:331
+msgid "Design Rule Checker"
+msgstr "Verificação das Regras de Desenho"
+
+#: ../src/gpcb-menu.res:359 ../src/pcb-menu.res:333
+msgid "Apply vendor drill mapping"
+msgstr "Aplicar mapeamento de perfuração de fornecedor"
+
+#: ../src/gpcb-menu.res:365
+msgid "Info"
+msgstr "Informação"
+
+#: ../src/gpcb-menu.res:494 ../src/pcb-menu.res:337
+msgid "Generate object report"
+msgstr "Gerar relatório de objeto"
+
+#: ../src/gpcb-menu.res:366 ../src/pcb-menu.res:337
+msgid "Ctrl-R"
+msgstr "Ctrl-R"
+
+#: ../src/gpcb-menu.res:366 ../src/pcb-menu.res:337
+msgid "Ctrl<Key>r"
+msgstr "Ctrl<Tecla>r"
+
+#: ../src/gpcb-menu.res:367 ../src/pcb-menu.res:338
+msgid "Generate drill summary"
+msgstr "Gerar sumário de perfuração"
+
+#: ../src/gpcb-menu.res:368 ../src/pcb-menu.res:339
+msgid "Report found pins/pads"
+msgstr "Informe conectores/pastilhas encontradas"
+
+#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:341
+msgid "Key Bindings"
+msgstr "Associação de Teclas"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:342
+msgid "Remove"
+msgstr "Remover"
+
+#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+msgid "Delete"
+msgstr "Apagar"
+
+#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+msgid "<Key>Delete"
+msgstr "<Tecla>Delete"
+
+#: ../src/gpcb-menu.res:376
+msgid "Remove Selected"
+msgstr "Remover Selecionados"
+
+#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+msgid "Backspace"
+msgstr "Backspace"
+
+#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+msgid "<Key>BackSpace"
+msgstr "<Tecla>Backspace"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:362
+msgid "Remove Connected"
+msgstr "Remover Conectados"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+msgid "Shift-Backspace"
+msgstr "Shift-Backspace"
+
+#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+msgid "Shift<Key>BackSpace"
+msgstr "Shift<Tecla>Backspace"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "Set Same"
+msgstr "Ajusta o Mesmo"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "A"
+msgstr "A"
+
+#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+msgid "<Key>a"
+msgstr "<Tecla>a"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "Flip Object"
+msgstr "Vira Objeto"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "B"
+msgstr "B"
+
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+msgid "<Key>b"
+msgstr "<Tecla>b"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+msgid "Find Connections"
+msgstr "Encontra Conecções"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+msgid "F"
+msgstr "F"
+
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+msgid "<Key>f"
+msgstr "<Tecla>f"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "ToggleHideName Object"
+msgstr "Objeto ToggleHideName"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "H"
+msgstr "H"
+
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+msgid "<Key>h"
+msgstr "<Tecla>h"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "ToggleHideName SelectedElement"
+msgstr "ToggleHideName SelectedElement"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "Shift-H"
+msgstr "Shift-H"
+
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+msgid "Shift<Key>h"
+msgstr "Shift<Tecla>h"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+msgid "ChangeHole Object"
+msgstr "Objeto ChangeHole"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+msgid "Ctrl-H"
+msgstr "Ctrl-H"
+
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+msgid "Ctrl<Key>h"
+msgstr "Ctrl<Tecla>h"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "ChangeJoin Object"
+msgstr "ChangeJoin Object"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "J"
+msgstr "J"
+
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+msgid "<Key>j"
+msgstr "<Tecla>j"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "ChangeJoin SelectedObject"
+msgstr "ChangeJoin SelectedObject"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "Shift-J"
+msgstr "Shift-J"
+
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+msgid "Shift<Key>j"
+msgstr "Shift<Tecla>j"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+msgid "Clear Object +"
+msgstr "Apaga Objeto +"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+msgid "K"
+msgstr "K"
+
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+msgid "<Key>k"
+msgstr "<Tecla>k"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+msgid "Clear Object -"
+msgstr "Apaga Objeto -"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+msgid "Shift-K"
+msgstr "Shift-K"
+
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+msgid "Shift<Key>k"
+msgstr "Shift<Tecla>k"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Clear Selected +"
+msgstr "Apaga Selecionado +"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Ctrl-K"
+msgstr "Ctrl-K"
+
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+msgid "Ctrl<Key>k"
+msgstr "Ctrl<Tecla>k"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Clear Selected -"
+msgstr "Apaga Selecionado -"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Shift-Ctrl-K"
+msgstr "Shift-Ctrl-K"
+
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+msgid "Shift Ctrl<Key>k"
+msgstr "Shift Ctrl<Tecla>k"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+msgid "Line Tool size +"
+msgstr "Ferramenta Linha tamanho +"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+msgid "L"
+msgstr "L"
+
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+msgid "<Key>l"
+msgstr "<Tecla>l"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+msgid "Line Tool size -"
+msgstr "Ferramenta Linha tamanho -"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+msgid "Shift-L"
+msgstr "Shift-L"
+
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+msgid "Shift<Key>l"
+msgstr "Shift<Tecla>l"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+msgid "Move Object to current layer"
+msgstr "Mova o objeto para a camada atual"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+msgid "M"
+msgstr "M"
+
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+msgid "<Key>m"
+msgstr "<Tecla>m"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "MarkCrosshair"
+msgstr "Marca Mira"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "Ctrl-M"
+msgstr "Ctrl-M"
+
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+msgid "Ctrl<Key>m"
+msgstr "Ctrl<Tecla>m"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+msgid "Select shortest rat"
+msgstr "Seleciona o rato mais curto"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+msgid "Shift-N"
+msgstr "Shift-N"
+
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+msgid "Shift<Key>n"
+msgstr "Shift<Tecla>n"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "AddRats to selected pins"
+msgstr "Adiciona ratos a conectores selecionados"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "Shift-O"
+msgstr "Shift-O"
+
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+msgid "Shift<Key>o"
+msgstr "Shift<Tecla>o"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+msgid "ChangeOctagon Object"
+msgstr "Objeto ChangeOctogon"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+msgid "Ctrl-O"
+msgstr "Ctrl-O"
+
+#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+msgid "Ctrl<Key>o"
+msgstr "Ctrl<Tecla>o"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "Polygon PreviousPoint"
+msgstr "PreviousPoint do Polígono"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "P"
+msgstr "P"
+
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+msgid "<Key>p"
+msgstr "<Tecla>p"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Polygon Close"
+msgstr "Fecha Polígono"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Shift-P"
+msgstr "Shift-P"
+
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+msgid "Shift<Key>p"
+msgstr "Shift<Tecla>p"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "ChangeSquare Object"
+msgstr "Objeto ChangeSquare"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "Q"
+msgstr "Q"
+
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+msgid "<Key>q"
+msgstr "<Tecla>q"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+msgid "ChangeSize +"
+msgstr "Muda Tamanho +"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+msgid "S"
+msgstr "S"
+
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+msgid "<Key>s"
+msgstr "<Tecla>s"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+msgid "ChangeSize -"
+msgstr "Muda Tamanho -"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+msgid "Shift-S"
+msgstr "Shift-S"
+
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+msgid "Shift<Key>s"
+msgstr "Shift<Tecla>s"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "ChangeDrill +5 mil"
+msgstr "Muda Perfuração +5 mil"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "Alt-S"
+msgstr "Alt-S"
+
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+msgid "Alt<Key>s"
+msgstr "Alt<Tecla>s"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "ChangeDrill -5 mil"
+msgstr "Muda Perfuração -5 mil"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "Alt-Shift-S"
+msgstr "Alt-Shift-S"
+
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+msgid "Alt Shift<Key>s"
+msgstr "Alt Shift<Tecla>s"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "Text Tool scale +10 mil"
+msgstr "Ferramenta Texto escala +10 mil"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "T"
+msgstr "T"
+
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+msgid "<Key>t"
+msgstr "<Tecla>t"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Text Tool scale -10 mil"
+msgstr "Ferramenta Texo escala -10 mil"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Shift-T"
+msgstr "Shift-T"
+
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+msgid "Shift<Key>t"
+msgstr "Shift<Tecla>t"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+msgid "Via Tool size +5 mil"
+msgstr "Ferramenta Via tamanho +5 mil"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+msgid "Shift-V"
+msgstr "Shift-V"
+
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+msgid "Shift<Key>v"
+msgstr "Shift<Tecla>v"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+msgid "Via Tool size -5 mil"
+msgstr "Ferramenta Via tamanho -5 mil"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+msgid "Shift-Ctrl-V"
+msgstr "Shift-Ctrl-V"
+
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+msgid "Shift Ctrl<Key>v"
+msgstr "Shift Ctrl<Tecla>v"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Via Tool drill +5 mil"
+msgstr "Ferramenta Via perfuração +5 mil"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Alt-V"
+msgstr "Alt-V"
+
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+msgid "Alt<Key>v"
+msgstr "Alt<Tecla>v"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Via Tool drill -5 mil"
+msgstr "Ferramenta Via perfuração -5 mil"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Alt-Shift-V"
+msgstr "Alt-Shift-V"
+
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+msgid "Alt Shift<Key>v"
+msgstr "Alt Shift<Tecla>v"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "AddRats Selected"
+msgstr "Adicionar Ratos Selecionados"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "Shift-W"
+msgstr "Shift-W"
+
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+msgid "Shift<Key>w"
+msgstr "Shift<Tecla>w"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "Add All Rats"
+msgstr "Adicionar Todos os Ratos"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "W"
+msgstr "W"
+
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+msgid "<Key>w"
+msgstr "<Tecla>w"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "Cycle Clip"
+msgstr "Interromper Ciclo"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "/"
+msgstr "/"
+
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+msgid "<Key>/"
+msgstr "<Tecla>/"
+
+#: ../src/gpcb-menu.res:436
+msgid "Arrow Mode"
+msgstr "Modo Seta"
+
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+msgid "Space"
+msgstr "Espaço"
+
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+msgid "<Key>space"
+msgstr "<Tecla>espaço"
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "Temp Arrow ON"
+msgstr "Seta Temporária Ligado"
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "["
+msgstr "["
+
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+msgid "<Key>["
+msgstr "<Tecla>["
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "Temp Arrow OFF"
+msgstr "Seta Temporária Desligado"
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "]"
+msgstr "]"
+
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+msgid "<Key>]"
+msgstr "<Tecla>]"
+
+#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+msgid "Step Up"
+msgstr "Passo Adiante"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Up"
+msgstr "PgUp"
+
+#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+msgid "<Key>Up"
+msgstr "<Tecla>PgUp"
+
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+msgid "Step Down"
+msgstr "Passo Abaixo"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Down"
+msgstr "PgDown"
+
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+msgid "<Key>Down"
+msgstr "<Tecla>PgDown"
+
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+msgid "Step Left"
+msgstr "Passo Esquerda"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Left"
+msgstr "Esquerda"
+
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+msgid "<Key>Left"
+msgstr "<Tecla>Esquerda"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+msgid "Step Right"
+msgstr "Passo Direita"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+msgid "Right"
+msgstr "Direita"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+msgid "<Key>Right"
+msgstr "<Tecla>Direita"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Step +Up"
+msgstr "Passo +PgUp"
+
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+msgid "Shift<Key>Up"
+msgstr "Shift<Tecla>PgUp"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Step +Down"
+msgstr "Passo +Abaixo"
+
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+msgid "Shift<Key>Down"
+msgstr "Shift<Tecla>PgDown"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Step +Left"
+msgstr "Passo +Esquerda"
+
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+msgid "Shift<Key>Left"
+msgstr "Shift<Tecla>Esquerda"
+
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+msgid "Step +Right"
+msgstr "Passo +Direita"
+
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+msgid "Shift<Key>Right"
+msgstr "Shift<Tecla>Direita"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+msgid "Click"
+msgstr "Clicar"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+msgid "Enter"
+msgstr "Enter"
+
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+msgid "<Key>Enter"
+msgstr "<Tecla>Enter"
+
+#: ../src/gpcb-menu.res:456
+msgid "Window"
+msgstr "Janela"
+
+#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2162
+#: ../src/pcb-menu.res:437
+msgid "Library"
+msgstr "Biblioteca"
+
+#: ../src/gpcb-menu.res:457
+msgid "i"
+msgstr "i"
+
+#: ../src/gpcb-menu.res:457
+msgid "<Key>i"
+msgstr "<Tecla>i"
+
+#: ../src/gpcb-menu.res:458 ../src/pcb-menu.res:438
+msgid "Message Log"
+msgstr "Registro de Mensagens"
+
+#: ../src/gpcb-menu.res:459
+msgid "DRC Check"
+msgstr "Verificação de DRC"
+
+#: ../src/gpcb-menu.res:460 ../src/pcb-menu.res:439
+msgid "Netlist"
+msgstr "Netlist"
+
+#: ../src/gpcb-menu.res:461
+msgid "Command Entry"
+msgstr "Entrada de Comando"
+
+#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+msgid ":"
+msgstr ":"
+
+#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+msgid "<Key>:"
+msgstr "<Tecla>:"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Pinout"
+msgstr "Saída de conector"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Shift-D"
+msgstr "Shift-D"
+
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+msgid "Shift<Key>d"
+msgstr "Shift<Tecla>d"
+
+#: ../src/gpcb-menu.res:464 ../src/pcb-menu.res:32
+msgid "About..."
+msgstr "Sobre..."
+
+#: ../src/gpcb-menu.res:472
+msgid "Operations on selections"
+msgstr "Operações sobre seleções"
+
+#: ../src/gpcb-menu.res:473 ../src/pcb-menu.res:226
+msgid "Unselect all objects"
+msgstr "Remove a seleção de todos os objetos"
+
+#: ../src/gpcb-menu.res:475 ../src/pcb-menu.res:273
+msgid "Copy selection to buffer"
+msgstr "Copia seleção para a memória"
+
+#: ../src/gpcb-menu.res:481 ../src/pcb-menu.res:275
+msgid "Cut selection to buffer"
+msgstr "Corta seleção para a memória"
+
+#: ../src/gpcb-menu.res:489
+msgid "Auto place selected elements"
+msgstr "Coloca automaticamente os componenetes selecionados"
+
+#: ../src/gpcb-menu.res:490
+msgid "Autoroute selected elements"
+msgstr "Rotear automaticamente os componenetes selecionados"
+
+#: ../src/gpcb-menu.res:493
+msgid "Operations on this location"
+msgstr "Operações sobre essa localização"
+
+#: ../src/gpcb-menu.res:497 ../src/pcb-menu.res:134
+msgid "Undo last operation"
+msgstr "Desfazer a última operação"
+
+#: ../src/gpcb-menu.res:498 ../src/pcb-menu.res:135
+msgid "Redo last undone operation"
+msgstr "Refaça a última operação não concluída"
+
+#: ../src/gpcb-menu.res:501 ../src/pcb-menu.res:166
+msgid "None"
+msgstr "Nenhum"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "Via"
+msgstr "Via"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "F1"
+msgstr "F1"
+
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+msgid "<Key>F1"
+msgstr "<Tecla>F1"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+msgid "Line"
+msgstr "Linha"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+msgid "F2"
+msgstr "F2"
+
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+msgid "<Key>F2"
+msgstr "<Tecla>F2"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "Arc"
+msgstr "Arco"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "F3"
+msgstr "F3"
+
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+msgid "<Key>F3"
+msgstr "<Tecla>F3"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "F4"
+msgstr "F5"
+
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+msgid "<Key>F4"
+msgstr "<Tecla>F4"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "Rectangle"
+msgstr "Retângulo"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "F5"
+msgstr "F5"
+
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+msgid "<Key>F5"
+msgstr "<Tecla>F5"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "Polygon"
+msgstr "Polígono"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "F6"
+msgstr "F6"
+
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+msgid "<Key>F6"
+msgstr "<Tecla>F6"
+
+#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:173
+msgid "Polygon Hole"
+msgstr "Orifício de Polígono"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "F7"
+msgstr "F7"
+
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+msgid "<Key>F7"
+msgstr "<Tecla>F7"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+msgid "F8"
+msgstr "F8"
+
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+msgid "<Key>F8"
+msgstr "<Tecla>F8"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "Rotate"
+msgstr "Rotacionar"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "F9"
+msgstr "F9"
+
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+msgid "<Key>F9"
+msgstr "<Tecla>F9"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "Thermal"
+msgstr "Térmico"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "F10"
+msgstr "F10"
+
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+msgid "<Key>F10"
+msgstr "<Tecla>F10"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:420
+msgid "Arrow"
+msgstr "Seta"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+msgid "F11"
+msgstr "F11"
+
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+msgid "<Key>F11"
+msgstr "<Tecla>F11"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "Insert Point"
+msgstr "Ponto de inserção"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "Insert"
+msgstr "Ins"
+
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+msgid "<Key>Insert"
+msgstr "<Tecla>Ins"
+
+#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:180
+msgid "Move"
+msgstr "Mover"
+
+#: ../src/gpcb-menu.res:516 ../src/pcb-menu.res:181
+msgid "Copy"
+msgstr "Copiar"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "Lock"
+msgstr "Travar"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "F12"
+msgstr "F12"
+
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+msgid "<Key>F12"
+msgstr "<Tecla>F12"
+
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+msgid "Esc"
+msgstr "Esc"
+
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+msgid "<Key>Escape"
+msgstr "<Tecla>Esc"
+
+#: ../src/hid/common/actions.c:47
+#, c-format
+msgid "ERROR! Invalid action name, action \"%s\" not registered.\n"
+msgstr "ERRO! Nome de ação inválido, ação \"%s\" não registrada.\n"
+
+#: ../src/hid/common/actions.c:223
+#, c-format
+msgid "no action %s("
+msgstr "nenhuma ação %s("
+
+#: ../src/hid/common/actions.c:312
+#, c-format
+msgid "Syntax error: %s\n"
+msgstr "Erro de sintaxe: %s\n"
+
+#: ../src/hid/common/actions.c:313
+msgid "    expected: Action(arg1, arg2)"
+msgstr "    esperado: Ação(arg1, arg2)"
+
+#: ../src/hid/common/hidnogui.c:358
+msgid "OK to lose data ?"
+msgstr "Pode perder os dados ?"
+
+#: ../src/hid/gtk/ghid-cell-renderer-visibility.c:256
+msgid "Visibility state"
+msgstr "Estado de visibilidade"
+
+#: ../src/hid/gtk/ghid-cell-renderer-visibility.c:257
+msgid "Visibility of the layer"
+msgstr "Visibilidade da camada"
+
+#: ../src/hid/gtk/ghid-cell-renderer-visibility.c:262
+#: ../src/hid/gtk/ghid-cell-renderer-visibility.c:263
+msgid "Layer color"
+msgstr "Cor de camada"
+
+#: ../src/hid/gtk/ghid-coord-entry.c:87
+msgid "Change Units"
+msgstr "Mudar Unidades"
+
+#: ../src/hid/gtk/ghid-main-menu.c:119
+#, c-format
+msgid ""
+"Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n"
+msgstr ""
+"Não sei como analisar \"%s\" como um acelerador no arquivo de recurso de "
+"menu.\n"
+
+#: ../src/hid/gtk/ghid-main-menu.c:125
+msgid ""
+"Format is:\n"
+"modifiers<Key>k\n"
+"where \"modifiers\" is a space separated list of key modifiers\n"
+"and \"k\" is the name of the key.\n"
+"Allowed modifiers are:\n"
+"   Ctrl\n"
+"   Shift\n"
+"   Alt\n"
+"Please note that case is important.\n"
+msgstr ""
+"Formato é:\n"
+"modificadores<Tecla>k\n"
+"onde \"modificadores\" é uma lista separada por espaços de modificadores de "
+"tecla\n"
+"e \"k\" é o nome da tecla.\n"
+"Modificadores permitidos são:\n"
+"   Ctrl\n"
+"   Shift\n"
+"   Alt\n"
+"Por favor note que há diferença entre letras em caixa alta e baixa.\n"
+
+#: ../src/hid/gtk/ghid-main-menu.c:166
+#, c-format
+msgid ""
+"Duplicate accelerator found: \"%s\"\n"
+"The second occurance will be dropped\n"
+msgstr ""
+"Encontrado acelerador duplicado: \"%s\"\n"
+"A segunda ocorrência irá ser descartada\n"
+
+#. if we got this far it is supposed to be an X
+#. * resource.  For now ignore it and warn the user
+#: ../src/hid/gtk/ghid-main-menu.c:343
+#, c-format
+msgid ""
+"The gtk gui currently ignores \"%s\"as part of a menuitem resource.\n"
+"Feel free to provide patches\n"
+msgstr ""
+"A interface gráfica de usuário da gtk ignora \"%s\"como parte de um recurso "
+"de item de menu.\n"
+"Sinta-se livre para corrigir isso\n"
+
+#: ../src/hid/gtk/ghid-main-menu.c:377
+#, c-format
+msgid ""
+"GTK GUI currently ignores \"%s\" in the menu\n"
+"resource file.\n"
+msgstr ""
+"GTK GUI atualmente ignora \"%s\" no arquivo\n"
+"de recurso de menu.\n"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:137
+msgid "New Style"
+msgstr "Novo estilo"
+
+#. Build dialog
+#: ../src/hid/gtk/ghid-route-style-selector.c:183
+msgid "Edit Route Styles"
+msgstr "Editar Estilos de Rota"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:189
+msgid "Edit Style:"
+msgstr "Editar Estilo:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:209
+msgid "Route Style Data"
+msgstr "Dados de Estilo de Rota"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:213
+msgid "Name:"
+msgstr "Nome:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:221
+msgid "Line width:"
+msgstr "Largura de linha:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:224
+msgid "Via hole size:"
+msgstr "Tamanho do orifício da via:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:227
+msgid "Via ring size:"
+msgstr "Tamanho do anel da via:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:230
+msgid "Clearance:"
+msgstr "Folga:"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:234
+msgid "Set as Default"
+msgstr "Ajuste como Padrão"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:237
+msgid "Save route style settings as default"
+msgstr "Grava configurações do estilo de rota como padrão"
+
+#: ../src/hid/gtk/ghid-route-style-selector.c:243
+msgid "New (this session only)"
+msgstr "Nova (somente nessa seção)"
+
+#: ../src/hid/gtk/gtkhid-main.c:156
+msgid "Various zoom factor changes."
+msgstr "Várias mudanças no fator de aproximação."
+
+#: ../src/hid/gtk/gtkhid-main.c:239
+#, c-format
+msgid "ghid_calibrate() -- not implemented\n"
+msgstr "ghid_calibrate() -- não implementada\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:565 ../src/hid/gtk/gui-dialog.c:168
+msgid "_Cancel"
+msgstr "_Cancelar"
+
+#: ../src/hid/gtk/gtkhid-main.c:566 ../src/hid/gtk/gui-dialog.c:172
+msgid "_OK"
+msgstr "_OK"
+
+#: ../src/hid/gtk/gtkhid-main.c:720
+msgid "Progress"
+msgstr "Progresso"
+
+#. add [attr_max_rows]
+#: ../src/hid/gtk/gtkhid-main.c:887
+msgid "del"
+msgstr "apagar"
+
+#: ../src/hid/gtk/gtkhid-main.c:1090
+msgid "Tell the user about this version of PCB."
+msgstr "Informa ao usuário sobre essa versão do PCB."
+
+#: ../src/hid/gtk/gtkhid-main.c:1112
+msgid "Get a coordinate."
+msgstr "Pega uma coordenada."
+
+#: ../src/hid/gtk/gtkhid-main.c:1189
+#, c-format
+msgid "LayerGroupsChanged -- not implemented\n"
+msgstr "LayerGroupsChanged -- não implementada\n"
+
+#. in case we have a dialog for loading a netlist file
+#: ../src/hid/gtk/gtkhid-main.c:1233 ../src/hid/gtk/gui-dialog.c:319
+#: ../src/pcb-menu.res:40
+msgid "Load netlist file"
+msgstr "Coloca na memória o arquivo de netlist"
+
+#: ../src/hid/gtk/gtkhid-main.c:1245 ../src/hid/gtk/gui-dialog.c:306
+msgid "Load layout file to buffer"
+msgstr "Coloca na memória arquivo de traçado"
+
+#. in case we have a dialog for loading a layout file
+#: ../src/hid/gtk/gtkhid-main.c:1251 ../src/hid/gtk/gui-dialog.c:305
+msgid "Load layout file"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/hid/gtk/gtkhid-main.c:1277
+msgid "Save layout and/or element data to a user-selected file."
+msgstr "Grava traçado e/ou dados de componente em um arquivo do usuário."
+
+#: ../src/hid/gtk/gtkhid-main.c:1308
+msgid "Save element as"
+msgstr "Grava componente como"
+
+#: ../src/hid/gtk/gtkhid-main.c:1310
+msgid "Save layout as"
+msgstr "Grava traçado como"
+
+#: ../src/hid/gtk/gtkhid-main.c:1352
+msgid "Swaps the side of the board you're looking at."
+msgstr "Troca o lado da placa para o qual você está olhando."
+
+#: ../src/hid/gtk/gtkhid-main.c:1440
+msgid "Print the layout."
+msgstr "Imprime o traçado"
+
+#: ../src/hid/gtk/gtkhid-main.c:1465
+msgid "Can't find a suitable printer HID"
+msgstr "Não encontro uma impressora HID adequada"
+
+#: ../src/hid/gtk/gtkhid-main.c:1475
+msgid "Can't print empty layout"
+msgstr "Não posso imprimir traçado vazio"
+
+#: ../src/hid/gtk/gtkhid-main.c:1485
+msgid "Enter Values here:"
+msgstr "Informe Valores aqui:"
+
+#: ../src/hid/gtk/gtkhid-main.c:1487
+msgid "x-calibration"
+msgstr "calibração-x"
+
+#: ../src/hid/gtk/gtkhid-main.c:1487
+msgid "X scale for calibrating your printer"
+msgstr "Escala do eixo x para calibração de sua impressora"
+
+#: ../src/hid/gtk/gtkhid-main.c:1489
+msgid "y-calibration"
+msgstr "calibração-y"
+
+#: ../src/hid/gtk/gtkhid-main.c:1489
+msgid "Y scale for calibrating your printer"
+msgstr "Escala do eixo y para calibração de sua impressora"
+
+#: ../src/hid/gtk/gtkhid-main.c:1498
+msgid "Calibrate the printer."
+msgstr "Faça a calibração da impressora."
+
+#: ../src/hid/gtk/gtkhid-main.c:1515
+msgid "Printer Calibration Values"
+msgstr "Valores de Calibração da Impressora"
+
+#: ../src/hid/gtk/gtkhid-main.c:1516
+msgid "Enter calibration values for your printer"
+msgstr "Informe os valores de calibração para sua impressora"
+
+#: ../src/hid/gtk/gtkhid-main.c:1535
+msgid "Can't export empty layout"
+msgstr "Não posso exportar traçado vazio"
+
+#: ../src/hid/gtk/gtkhid-main.c:1563
+#, c-format
+msgid "%g redraws per second\n"
+msgstr "%g atualizações por segundo\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1574
+msgid "Moves the pointer to the center of the window."
+msgstr "Move o apontador para o centro da janela."
+
+#: ../src/hid/gtk/gtkhid-main.c:1626
+msgid "Move the cursor."
+msgstr "Mova o cursor."
+
+#: ../src/hid/gtk/gtkhid-main.c:1710
+msgid "Open various GUI windows."
+msgstr "Abre várias janelas de Interface Gráfica de Usuário."
+
+#: ../src/hid/gtk/gtkhid-main.c:1786
+msgid "Set the default measurement units."
+msgstr "Ajusta as unidades de medição padrão."
+
+#: ../src/hid/gtk/gtkhid-main.c:1833
+msgid "Scroll the viewport."
+msgstr "Role a porta de visão."
+
+#: ../src/hid/gtk/gtkhid-main.c:1883
+msgid ""
+"Start or stop panning (Mode = 1 to start, 0 to stop)\n"
+"Optional thumb argument is ignored for now in gtk hid.\n"
+msgstr ""
+"Inicia ou para um visual (Modo = 1 iniciar, 0 parar)\n"
+"Argumento opcional thumb é ignorado por agora no dispositivo de interface "
+"humana da gtk.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1909
+msgid ""
+"The gtk gui currently ignores the optional first argument to the Pan "
+"action.\n"
+"Feel free to provide patches.\n"
+msgstr ""
+"A interface gráfica de usuário da gtk atualmente igonora o primeiro "
+"argumento opcional para Visualização.\n"
+"Sinta-se livre para corrigir isso.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1923
+msgid ""
+"Bring up the popup menu specified by @code{MenuName}.\n"
+"If called by a mouse event then the mouse button number\n"
+"must be specified as the optional second argument."
+msgstr ""
+"Exibe menu especificado por @code{MenuName}.\n"
+"Se chamado por um evento de mouse então o numero do botão do mouse\n"
+"deve ser especificado como o segundo argumento opcional."
+
+#: ../src/hid/gtk/gtkhid-main.c:1948
+#, c-format
+msgid "The specified popup menu \"%s\" has not been defined.\n"
+msgstr "O menu especificado \"%s\" não foi definido.\n"
+
+#: ../src/hid/gtk/gtkhid-main.c:1965
+msgid "Asks user which schematics to import into PCB.\n"
+msgstr "Pergunta ao usuário qual diagrama esquemático importar no PCB.\n"
+
+#. in case we have a dialog for loading schematic files
+#: ../src/hid/gtk/gtkhid-main.c:1988 ../src/hid/gtk/gui-dialog.c:402
+msgid "Load schematics"
+msgstr "Coloca diagramas esquemáticos na memória"
+
+#: ../src/hid/gtk/gtkhid-main.c:2029
+msgid "Click on a location to center"
+msgstr "clique sobre uma localização para centralizar"
+
+#: ../src/hid/gtk/gtkhid-main.c:2049
+msgid "Click on a place to scroll"
+msgstr "Clique em um local para rolar"
+
+#: ../src/hid/gtk/gtkhid-main.c:2052
+msgid "Click on zoom focus"
+msgstr "Clique sobre o foco de aproximação"
+
+#: ../src/hid/gtk/gui-command-window.c:76
+msgid ""
+"Common commands easily accessible via the gui may not be included here.\n"
+msgstr ""
+"Comandos comuns facilmente acessíveis através do mouse podem não estarem "
+"incluídos aqui.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:78
+msgid ""
+"In user commands below, 'size' values may be absolute or relative\n"
+"if preceded by a '+' or '-'.  Where 'units' are indicated, use \n"
+"'mil' or 'mm' otherwise PCB internal units will be used.\n"
+msgstr ""
+"Nos comandos de usuário abaixo, valores de 'tamanho' podem ser absolutos ou "
+"relativos\n"
+"se precedidos por um '+' ou por um '-'.  Onde 'unidades' forem indicadas, "
+"use \n"
+"'mil' ou 'mm' de outra forma unidades internas do PCB irão ser usadas.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:92
+msgid "\tChanges the clearance of objects.\n"
+msgstr "\tModifica a folga de objetos.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:97
+msgid "\tChanges values.  Omit 'units' for 'grid' and 'zoom'.\n"
+msgstr "\tModifica valores. Omite 'unidades' para 'grade' e 'aproximação'.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:101
+msgid "\tChanges the join (clearance through polygons) of objects.\n"
+msgstr "\tModifica a proximidade (folga através de polígonos) de objetos.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:107
+msgid "\tToggles, sets, or clears the square flag of objects.\n"
+msgstr "\tModifica, ajusta, ou apaga o sinalizador de quadrado de objetos.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:113
+msgid "\tToggles, sets, or clears the octagon flag of objects.\n"
+msgstr "\tModifica, ajusta, ou apaga o sinalizador de octógono de objetos.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:117
+msgid "\tChanges the hole flag of objects.\n"
+msgstr "\tModifica o sinalizador de orifício de objetos.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:121
+msgid "\tFlip elements to the opposite side of the board.\n"
+msgstr "\tTransfere componentes para o lado posto da placa.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:127
+msgid ""
+"\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"
+msgstr ""
+"\tModifica, ajusta ou apaga um térmico (na camada atual) para conectores ou "
+"vias.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:131
+msgid ""
+"\tLoad a vendor file.  If 'filename' omitted, pop up file select dialog.\n"
+msgstr ""
+"Coloca na memória um arquivo de fornecedor.  Se o nome do arquivo for "
+"omitido, exibe a caixa de diálogo de seleção de arquivo.\n"
+
+#: ../src/hid/gtk/gui-command-window.c:312
+msgid "PCB Command Entry"
+msgstr "Entrada de Comando do PCB"
+
+#. Make the command reference scrolled text view.  Use high level
+#. |  utility functions in gui-utils.c
+#.
+#: ../src/hid/gtk/gui-command-window.c:330
+msgid "Command Reference"
+msgstr "Referência de Comandos"
+
+#: ../src/hid/gtk/gui-command-window.c:455
+msgid "Enter command:"
+msgstr "Informe comando:"
+
+#: ../src/hid/gtk/gui-config.c:897
+msgid "Enables"
+msgstr "Habilita"
+
+#: ../src/hid/gtk/gui-config.c:902
+msgid "Use separate window for command entry"
+msgstr "Use janela separada para informar comando"
+
+#: ../src/hid/gtk/gui-config.c:907
+msgid "Alternate window layout to allow smaller horizontal size"
+msgstr "Janela de traçado alternativa para permitir menor tamanho horizontal"
+
+#: ../src/hid/gtk/gui-config.c:912
+msgid "Alternate window layout to allow smaller vertical size"
+msgstr "Janela de traçado alternativa para permitir menor tamanho vertical"
+
+#: ../src/hid/gtk/gui-config.c:914
+msgid "Backups"
+msgstr "Cópias de segurança"
+
+#: ../src/hid/gtk/gui-config.c:918
+#, c-format
+msgid "If layout is modified at exit, save into PCB.%i.save"
+msgstr "Se o traçado for modificado ao sair, grave em /tmp/PCB.%i.save"
+
+#: ../src/hid/gtk/gui-config.c:921
+msgid ""
+"Seconds between auto backups\n"
+"(set to zero to disable auto backups)"
+msgstr ""
+"Segundos entre gravações automáticas de segurança\n"
+"(ajuste para zero para desabilitar cópias automáticas de segurança)"
+
+#: ../src/hid/gtk/gui-config.c:924
+msgid "Misc"
+msgstr "Diversos"
+
+#: ../src/hid/gtk/gui-config.c:928
+msgid "Number of commands to remember in the history list"
+msgstr "Número de comandos a serem lembrados no histórico de comandos"
+
+#: ../src/hid/gtk/gui-config.c:933
+msgid "Use only metric units when saving pcb files"
+msgstr "Use unidades métricas ao salvar arquivos pcb"
+
+#. ---- Board Size ----
+#: ../src/hid/gtk/gui-config.c:1033
+msgid "Board Size"
+msgstr "Tamanho da Placa"
+
+#: ../src/hid/gtk/gui-config.c:1047
+msgid "Width"
+msgstr "Largura"
+
+# FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
+#: ../src/hid/gtk/gui-config.c:1052
+msgid "Height"
+msgstr "Altura"
+
+#: ../src/hid/gtk/gui-config.c:1055
+msgid "Use this board size as the default for new layouts"
+msgstr "Use esse tamanho de placa como padrão para novos traçados"
+
+#. ---- Text Scale ----
+#: ../src/hid/gtk/gui-config.c:1058
+msgid "Text Scale"
+msgstr "Escala do Texto"
+
+#. ---- DRC Sizes ----
+#: ../src/hid/gtk/gui-config.c:1076
+msgid "Design Rule Checking"
+msgstr "Verificação das Regras de Desenho"
+
+#: ../src/hid/gtk/gui-config.c:1089
+msgid "Minimum copper spacing"
+msgstr "Espaçamento mínimo entre trilhas"
+
+#: ../src/hid/gtk/gui-config.c:1095
+msgid "Minimum copper width"
+msgstr "Largura mínima de trilha"
+
+#: ../src/hid/gtk/gui-config.c:1101
+msgid "Minimum touching copper overlap"
+msgstr "Sobreposição mínima ao encostar"
+
+#: ../src/hid/gtk/gui-config.c:1107
+msgid "Minimum silk width"
+msgstr "Largura mínima da seda"
+
+#: ../src/hid/gtk/gui-config.c:1113
+msgid "Minimum drill diameter"
+msgstr "Diâmetro mínimo de perfuração"
+
+#: ../src/hid/gtk/gui-config.c:1119
+msgid "Minimum annular ring"
+msgstr "Auréola anular mínima"
+
+#: ../src/hid/gtk/gui-config.c:1124
+msgid "Use DRC values as the default for new layouts"
+msgstr "Use valores DRC como padrão para novos traçados"
+
+#: ../src/hid/gtk/gui-config.c:1176
+msgid "Metric Increment Settings"
+msgstr "Configurações de Incremento de Métrica"
+
+#: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
+msgid "Grid:"
+msgstr "Grade:"
+
+#: ../src/hid/gtk/gui-config.c:1185 ../src/hid/gtk/gui-config.c:1206
+msgid "For 'g' and '<shift>g' grid change actions"
+msgstr "Para 'g' e '<shift>g' ações de modificar grade"
+
+#: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
+msgid "Size:"
+msgstr "Tamanho:"
+
+#: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
+msgid ""
+"For 's' and '<shift>s' size change actions on lines,\n"
+"pads, pins and text.\n"
+"Use '<ctrl>s' and '<shift><ctrl>s' for drill holes."
+msgstr ""
+"Para 's' e '<shift>s' ações de modificar tamanho\n"
+"de linhas, pastilhas, conectores, texto.\n"
+"Use '<ctrl>s' e '<shift><ctrl>s' para orifícios de perfuração."
+
+#: ../src/hid/gtk/gui-config.c:1190 ../src/hid/gtk/gui-config.c:1211
+msgid "Line:"
+msgstr "Linha:"
+
+#: ../src/hid/gtk/gui-config.c:1191 ../src/hid/gtk/gui-config.c:1212
+msgid "For 'l' and '<shift>l' routing line width change actions"
+msgstr "Para 'l' e '<shift>l' ações de mudar largura de linha de rota"
+
+#: ../src/hid/gtk/gui-config.c:1192 ../src/hid/gtk/gui-config.c:1213
+msgid "Clear:"
+msgstr "Apaga:"
+
+#: ../src/hid/gtk/gui-config.c:1193 ../src/hid/gtk/gui-config.c:1214
+msgid ""
+"For 'k' and '<shift>k' line clearance inside polygon size\n"
+"change actions"
+msgstr ""
+"Para 'k' e '<shift>k' ações de mudar o tamanho da folga da linha\n"
+"dentro do polígono"
+
+#: ../src/hid/gtk/gui-config.c:1197
+msgid "Imperial Increment Settings"
+msgstr "Ajustes de Incremento Ingleses"
+
+#: ../src/hid/gtk/gui-config.c:1219
+msgid "Save as Default"
+msgstr "Grava como Padrão"
+
+#: ../src/hid/gtk/gui-config.c:1222
+msgid "Use values as the default for new layouts"
+msgstr "Use valores como padrão para novos traçados"
+
+#: ../src/hid/gtk/gui-config.c:1246
+msgid "Element Directories"
+msgstr "Diretórios de componente"
+
+#: ../src/hid/gtk/gui-config.c:1249
+#, c-format
+msgid ""
+"<small>Enter a \"%s\" separated list of custom top level\n"
+"element directories.  For example:\n"
+"%s\n"
+"Elements should be organized into subdirectories below each\n"
+"top level directory.  Restart program for changes to take effect.</small>"
+msgstr ""
+"<small>Enter uma lista separada \"%s\" de diretórios de componente de nível "
+"mais alto\n"
+" de nível mais alto.  Por exemplo:\n"
+"%s\n"
+"Componentes devem ser organizados em subdiretórios abaixo de cada\n"
+"diretório de nível mais alto.  Re-iniciar o programa para que modificações "
+"entrem em vigor.</small>"
+
+#: ../src/hid/gtk/gui-config.c:1289
+msgid "<h>Layer Names\n"
+msgstr "<h>Nomes de camada\n"
+
+#: ../src/hid/gtk/gui-config.c:1290
+msgid ""
+"You may enter layer names for the layers drawn on the screen.\n"
+"The special 'top side' and 'bottom side' are layers which\n"
+"will be printed out, so they must have in their group at least one\n"
+"of the other layers that are drawn on the screen.\n"
+msgstr ""
+"Você pode inserir nomes para os desenhos de camada na tela.\n"
+"As camadas especiais 'lado do topo' e 'lado de inferior' são camadas que\n"
+"serão impressas, de forma que elas devem ter no seu grupo ao menos uma\n"
+"das outras camadas que foram desenhadas na tela.\n"
+
+#: ../src/hid/gtk/gui-config.c:1295
+msgid "<h>Layer Groups\n"
+msgstr "<h>Grupos de Camada\n"
+
+#: ../src/hid/gtk/gui-config.c:1296
+msgid ""
+"Each layer on the screen may be in its own group which allows the\n"
+"maximum number of board layers.  However, for boards with fewer\n"
+"layers, you may group layers together which will then print as a\n"
+"single layer on a printout.  This allows a visual color distinction\n"
+"to be displayed on the screen for signal groups which will print as\n"
+"a single layer\n"
+msgstr ""
+"Cada camada na tela pode estar no seu próprio grupo o que permite o\n"
+"número máximo de camadas de placa. Todavia, para placas com poucas\n"
+"camadas, você pode agrupar camadas juntas que irão então serem impressas "
+"como uma\n"
+"camada simples numa saída de impressora. Isso permite uma distinção visual "
+"de cores\n"
+"a serem mostradas na tela para grupos de sinal os quais irão ser impressos "
+"como\n"
+"uma camada simples\n"
+
+#: ../src/hid/gtk/gui-config.c:1303
+msgid ""
+"For example, for a 4 layer board a useful layer group arrangement\n"
+"can be to have 3 screen displayed layers grouped into the same group\n"
+"as the 'top side' and 'bottom side' printout layers.  Then\n"
+"groups such as signals, ground, and supply traces can be color\n"
+"coded on the screen while printing as a single layer.  For this\n"
+"you would select buttons and enter names on the Setup page to\n"
+"structure four layer groups similar to this:\n"
+msgstr ""
+"Por exemplo, para uma placa com 4 camadas uma associação útil de grupos de "
+"camada\n"
+"pode ser ter 3 camadas exibidas na tela agrupadas no mesmo grupo\n"
+"como as camadas de saída 'lado do topo' e 'lado inferior'.  Então\n"
+"grupos tais como sinais, aterramento, e trilhas de alimentação podem ser "
+"coloridas\n"
+"codificadas na tela enquanto a impressão ocorre em uma camada simples.  Para "
+"isso\n"
+"você deve selecionar botões e inserir nomes na página de Configuração para\n"
+"estruturar quatro grupos de camadas similares a esse:\n"
+
+#: ../src/hid/gtk/gui-config.c:1311
+msgid "<b>Group 1:"
+msgstr "<b>Grupo 1:"
+
+#: ../src/hid/gtk/gui-config.c:1313
+msgid "top"
+msgstr "topo"
+
+#: ../src/hid/gtk/gui-config.c:1315
+msgid "GND-top"
+msgstr "topo-GND"
+
+#: ../src/hid/gtk/gui-config.c:1317
+msgid "Vcc-top"
+msgstr "topo-Vcc"
+
+#: ../src/hid/gtk/gui-config.c:1319 ../src/hid/gtk/gui-config.c:1569
+msgid "top side"
+msgstr "lado do topo"
+
+#: ../src/hid/gtk/gui-config.c:1321
+msgid "<b>Group 2:"
+msgstr "<b>Grupo 2:"
+
+#: ../src/hid/gtk/gui-config.c:1323
+msgid "bottom"
+msgstr "inferior"
+
+#: ../src/hid/gtk/gui-config.c:1325
+msgid "GND-bottom"
+msgstr "inferior-GND"
+
+#: ../src/hid/gtk/gui-config.c:1327
+msgid "Vcc-bottom"
+msgstr "inferior-Vcc"
+
+#: ../src/hid/gtk/gui-config.c:1329 ../src/hid/gtk/gui-config.c:1571
+msgid "bottom side"
+msgstr "lado inferior"
+
+#: ../src/hid/gtk/gui-config.c:1331
+msgid "<b>Group 3:"
+msgstr "<b>Grupo 3:"
+
+#: ../src/hid/gtk/gui-config.c:1333
+msgid "signal1"
+msgstr "sinal1"
+
+#: ../src/hid/gtk/gui-config.c:1335
+msgid "<b>Group 4:"
+msgstr "<b>Grupo 4:"
+
+#: ../src/hid/gtk/gui-config.c:1337
+msgid "signal2"
+msgstr "sinal2"
+
+#: ../src/hid/gtk/gui-config.c:1451
+msgid ""
+"Both, 'top side' and 'bottom side' layer must have at least\n"
+"\tone other layer in their group.\n"
+msgstr ""
+"Ambas as camadas 'lado do topo' ou a 'lado inferior' devem ter ao menos\n"
+"\tuma outra camada em seu grupo.\n"
+
+#: ../src/hid/gtk/gui-config.c:1458
+msgid ""
+"The 'top side' and 'bottom side' layers are not allowed\n"
+"\tto be in the same layer group #\n"
+msgstr ""
+"Às camadas 'lado do topo' e 'lado inferior' não se permite\n"
+"\testarem no mesmo grupo de camada #\n"
+
+#. working copy
+#. So can know if PCB changes on us
+#: ../src/hid/gtk/gui-config.c:1549
+msgid "Group #"
+msgstr "Grupo #"
+
+#. -- Change tab
+#: ../src/hid/gtk/gui-config.c:1637
+msgid "Change"
+msgstr "Modifica"
+
+#: ../src/hid/gtk/gui-config.c:1639
+msgid "Operations on currently selected layer:"
+msgstr "Operações sobre a camada selecionada atualmente:"
+
+#: ../src/hid/gtk/gui-config.c:1668
+msgid "Add new layer above currently selected layer:"
+msgstr "Adicione nova camada acima da camada selecionada atualmente:"
+
+#. -- Groups tab
+#: ../src/hid/gtk/gui-config.c:1678
+msgid "Groups"
+msgstr "Grupos"
+
+#. -- Info tab
+#: ../src/hid/gtk/gui-config.c:1694
+msgctxt "tab"
+msgid "Info"
+msgstr "Informação"
+
+#: ../src/hid/gtk/gui-config.c:1743
+#, c-format
+msgid "Current colors loaded: <b>%s</b>"
+msgstr "Cores atuais na memória: <b>%s</b>"
+
+#: ../src/hid/gtk/gui-config.c:1788
+msgid "Load Color File"
+msgstr "Colocar Arquivo de Cor na Memória"
+
+#: ../src/hid/gtk/gui-config.c:1818
+msgid "Save Color File"
+msgstr "Grava Arquivo de Cor"
+
+#: ../src/hid/gtk/gui-config.c:1824
+msgid "Sorry, not overwriting the default color file!"
+msgstr "Sinto muito, não posso sobregravar o arquivo de cores padronizadas!"
+
+#: ../src/hid/gtk/gui-config.c:1878
+#, c-format
+msgid "PCB %s Color"
+msgstr "Cor %s do PCB"
+
+#. ---- Main colors ----
+#: ../src/hid/gtk/gui-config.c:1908
+msgid "Main colors"
+msgstr "Cores principais"
+
+#. ---- Layer colors ----
+#: ../src/hid/gtk/gui-config.c:1923
+msgid "Layer colors"
+msgstr "Cores da Camada"
+
+#. ---- Selected colors ----
+#: ../src/hid/gtk/gui-config.c:1938
+msgid "Selected colors"
+msgstr "Cores selecionadas"
+
+#: ../src/hid/gtk/gui-config.c:1964
+msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
+msgstr ""
+"<b>Atenção:</b> modificações de cores não gravadas irão ser perdidas ao sair "
+"do programa."
+
+#: ../src/hid/gtk/gui-config.c:1979
+msgid "Load"
+msgstr "Colocar na Memória"
+
+#: ../src/hid/gtk/gui-config.c:1984
+msgid "Defaults"
+msgstr "Padrões"
+
+#: ../src/hid/gtk/gui-config.c:2118
+msgid "PCB Preferences"
+msgstr "Preferências do PCB"
+
+#: ../src/hid/gtk/gui-config.c:2143
+msgid "General"
+msgstr "Geral"
+
+#: ../src/hid/gtk/gui-config.c:2150
+msgid "Sizes"
+msgstr "Tamanhos"
+
+#: ../src/hid/gtk/gui-config.c:2156
+msgid "Increments"
+msgstr "Incrementos"
+
+#: ../src/hid/gtk/gui-config.c:2168
+msgid "Layers"
+msgstr "Camadas"
+
+#: ../src/hid/gtk/gui-config.c:2175
+msgid "Colors"
+msgstr "Cores"
+
+#: ../src/hid/gtk/gui-dialog.c:54
+msgid "PCB User Input"
+msgstr "Entrada de Usuário do PCB"
+
+#: ../src/hid/gtk/gui-dialog.c:68
+msgid "Enter something"
+msgstr "Informe alguma coisa"
+
+#: ../src/hid/gtk/gui-dialog.c:118
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: ../src/hid/gtk/gui-dialog.c:124
+msgid "Sequence OK"
+msgstr "Sequência OK"
+
+#: ../src/hid/gtk/gui-dialog.c:212
+#, c-format
+msgid "Save the changes to layout before closing?"
+msgstr "Grava as modificações no traçado antes de sair?"
+
+#: ../src/hid/gtk/gui-dialog.c:215
+#, c-format
+msgid "Save the changes to layout \"%s\" before closing?"
+msgstr "Grava as modificações no traçado \"%s\" antes de fechar?"
+
+#: ../src/hid/gtk/gui-dialog.c:220
+msgid "If you don't save, all your changes will be permanently lost."
+msgstr ""
+"Se você não gravar, todas as suas modificações irão ser perdidas "
+"permanentemente."
+
+#: ../src/hid/gtk/gui-dialog.c:230
+msgid "Close _without saving"
+msgstr "Fechar _sem salvar"
+
+#: ../src/hid/gtk/gui-dialog-print.c:327
+#, c-format
+msgid "%s: unknown type of HID attribute\n"
+msgstr "%s: tipo de atributo de HID desconhecido\n"
+
+#: ../src/hid/gtk/gui-dialog-print.c:382
+#, c-format
+msgid "%s() -- malloc failed\n"
+msgstr "%s() -- malloc falhoufailed\n"
+
+#. non-zero means cancel was picked
+#: ../src/hid/gtk/gui-dialog-print.c:387
+msgid "PCB Print Layout"
+msgstr "Imprime Traçado do PCB"
+
+#: ../src/hid/gtk/gui-dialog-print.c:417
+msgid "PCB Export Layout"
+msgstr "Exporta Traçado do PCB"
+
+#: ../src/hid/gtk/gui-dialog-print.c:455
+msgid "Can't find a suitable exporter HID"
+msgstr "Não encontro um exportador HID adequado"
+
+#: ../src/hid/gtk/gui-drc-window.c:135
+#, c-format
+msgid "Object ID %i identified during DRC was not found. Stale DRC window?\n"
+msgstr ""
+"Identificação de objeto %i ocorrida durante DRC não encontrada. Janela de "
+"DRC obsoleta?\n"
+
+#: ../src/hid/gtk/gui-drc-window.c:536
+msgid ""
+"%m+<b>%s (%$mS)</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Required: %$mS</small>"
+msgstr ""
+"%m+<b>%s (%$mS)</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Requirido: %$mS</small>"
+
+#: ../src/hid/gtk/gui-drc-window.c:551
+msgid ""
+"%m+<b>%s</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Required: %$mS</small>"
+msgstr ""
+"%m+<b>%s</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Requerido: %$mS</small>"
+
+#: ../src/hid/gtk/gui-drc-window.c:772
+msgid "PCB DRC"
+msgstr "DRC do PCB"
+
+#. APPEND
+#: ../src/hid/gtk/gui-drc-window.c:806
+msgid "No."
+msgstr "Não."
+
+#. APPEND
+#: ../src/hid/gtk/gui-drc-window.c:814
+msgid "Violation details"
+msgstr "Detalhes da quebra de regra"
+
+#: ../src/hid/gtk/gui-keyref-window.c:44
+msgid "Keyboard\n"
+msgstr "Teclado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:45
+msgid "Keyboard shortcuts and actions available in PCB.\n"
+msgstr "Atalhos de teclado e ações disponíveis no PCB.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:46
+msgid "In below key actions, <s> is <shift>, <c> is <ctrl>\n"
+msgstr "Ações de tecla adiante, <s> é <shift>, <c> é <ctrl>\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:47
+msgid "and <a> is <alt> or <mod>\n"
+msgstr "e <a> é <alt> ou <mod>\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:51
+msgid "Set layer and size from line or arc\n"
+msgstr "Ajusta camada e tamanho de linha ou de arco\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:55
+msgid "Unselect all objects\n"
+msgstr "Remove a seleção de todos os objetos\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:59
+msgid "Flip element to opposite side of the board\n"
+msgstr "Transfere componente para o lado oposto da placa\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:61
+msgid "Flip selected objects to opposite side of the board\n"
+msgstr "Transfere objetos selecionados para o lado oposto da placa\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:65
+msgid "Copy selected to buffer and unselect\n"
+msgstr "Copia a seleção para a memória e remove a seleção\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:69
+msgid "Display pin/pad names (numbers with View->Enable pinout shows number)\n"
+msgstr ""
+"Mostra nomes de conector/pastilha (númeos com Ver->Ativado exibir número de "
+"saída de conector)\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:71
+msgid "Open pinout window for element under cursor\n"
+msgstr "Abra janela de saída de conector para o componente sob o cursor\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:75
+msgid "Delete all rats\n"
+msgstr "Apaga todos os ratos\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:77
+msgid "Delete selected rats\n"
+msgstr "Apaga os ratos selecionados\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:81
+msgid "Highlight connections to object\n"
+msgstr "Seleciona conecções a objeto\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:83
+msgid "Reset highlighted connections\n"
+msgstr "Remova conecções selecionadas\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:85
+msgid "Cumulative highlight connections to object\n"
+msgstr "Seleção cumulativa de conecções a objeto\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:89
+msgid "Increment grid by configured grid increment\n"
+msgstr "Incremento da grade pelo incremento de grade configurado\n"
+
+# FIXME: original string needs correction.
+# "Decrement grid by configured grid decrement\n"
+#: ../src/hid/gtk/gui-keyref-window.c:92
+msgid "Decrement grid by configured grid increment\n"
+msgstr "Decremento da grade pelo decremento de grade configurado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:96
+msgid "Toggle visibility of element name under cursor\n"
+msgstr "Altere a visibilidade do nome do componente sob o cursor\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:99
+msgid "Toggle visibility of selected element names\n"
+msgstr "Altere a visibilidade dos nomes dos componentes selecionados\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:102
+msgid "Toggle the hole flag of object under cursor\n"
+msgstr "Altere o sinalizador de orifíco do objeto sob o cursor\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:106
+msgid "Toggle line/arc should clear polygons flag of object under cursor\n"
+msgstr ""
+"Altere o sinalizador que indica se linha/arco deve apagar polígonos do "
+"objeto sob o cursor\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:109
+msgid "Toggle line/arc should clear polygons flag of selected\n"
+msgstr ""
+"Altere o sinalizador que indica se linha/arco deve apagar polígonos da "
+"seleção\n"
+
+# FIXME: original string has room for improvement.
+# "Increase clearance of object by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:113
+msgid "Increase clearance of object by configured clearance\n"
+msgstr "Incremente folga de objeto através da folga configurada\n"
+
+# FIXME: original string has room for improvement.
+# "Decrease clearance of object by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:116
+msgid "Decrease clearance of object by configured clearance\n"
+msgstr "Decremente folga de objeto usando a folga configurada\n"
+
+# FIXME: original string has room for improvement.
+# "Increase clearance of selected objects by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:119
+msgid "Increase clearance of selected objects by configured clearance\n"
+msgstr "Incremente folga de objetos selecionados usando a folga configurada\n"
+
+# FIXME: original string has room for improvement.
+# "Decrease clearance of selected objects by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:122
+msgid "Decrease clearance of selected objects by configured clearance\n"
+msgstr "Decremente folga de objetos selecionados usando a folga configurada\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:126
+msgid "Increment current route style line size by configured line increment\n"
+msgstr ""
+"Incremente o tamanho de linha do estilo de roteamento atual usando o "
+"incremento de linha configurado\n"
+
+# FIXME: original string needs correction.
+# "Decrement current route style line size by configured value\n"
+#: ../src/hid/gtk/gui-keyref-window.c:129
+msgid "Decrement current route style line size by configured line increment\n"
+msgstr ""
+"Decremente o tamanho de linha no estilo de roteamento atual usando o "
+"decremento de linha configurado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:133
+msgid "Move object to current layer\n"
+msgstr "Mova o objeto para a camada atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:136
+msgid "Move selected objects to current layer\n"
+msgstr "Mova os objetos selecionados para a camada atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:139
+msgid "Mark at cursor location for showing relative offsets\n"
+msgstr "Marque na localização do cursor para mostrar intervalos relativos\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:143
+msgid "Select the shortest unselected rat on the board\n"
+msgstr "Selecione o menor rato não selecionado na placa\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:147
+msgid "Optimize and draw all rats\n"
+msgstr "Otimize e desenhe todos os ratos\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:150
+msgid "Optimize and draw selected rats\n"
+msgstr "Otimize e desenhe ratos selecionados\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:154
+msgid "Change octagon flag of object\n"
+msgstr "Modifique o sinalizador de octógono do objeto\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:158
+msgid "Backup polygon drawing to previous point\n"
+msgstr "Cópia de polígono desenhado no ponto anterior\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:161
+msgid "Close polygon\n"
+msgstr "Fechar polígono\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:165
+msgid "Toggle the square flag of an object\n"
+msgstr "Altere o sinalizador de quadrado de um objeto\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:169
+msgid "Redo last undone operation\n"
+msgstr "Refaça a última operação de desfazer\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:173
+msgid "Increment size of an object by configured size increment\n"
+msgstr ""
+"Incremente o tamanho de um objeto usando o tamanho de incremento "
+"configurado\n"
+
+# FIXME: original string needs correction.
+# "Decrement size of an object by configured size decrement\n"
+#: ../src/hid/gtk/gui-keyref-window.c:175
+msgid "Decrement size of an object by configured size increment\n"
+msgstr ""
+"Decremente o tamanho de um objeto usando o tamanho de incremento "
+"configurado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:177
+msgid "Increment drill size of a pin or via\n"
+msgstr "Incremente o tamanho de perfuração de uma conector ou de uma via\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:179
+msgid "Decrement drill size of a pin or via\n"
+msgstr "Decremente o tamanho de perfuração de um conector ou de uma via\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:183
+msgid ""
+"Adjust text scale so new text increases by the configured size increment\n"
+msgstr ""
+"Ajuste a proporção do texto de forma que novo texto incremente usando o "
+"tamanho de incremento configurado\n"
+
+# increment is to be replaced with decrement
+#: ../src/hid/gtk/gui-keyref-window.c:185
+msgid ""
+"Adjust text scale so new text decreases by the configured size increment\n"
+msgstr ""
+"Ajuste a proporção do texto de forma que novo texto decremente usando o "
+"tamanho de incremento configurado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:189
+msgid "Undo last operation\n"
+msgstr "Desfazer a última operação\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:193
+msgid "Zoom to board extents\n"
+msgstr "Aproxime a extensão da placa\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:195
+msgid "Increment current route style via size\n"
+msgstr "Incremente o tamanho da via no estilo de rota atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:197
+msgid "Decrement current route style via size\n"
+msgstr "Decremente o tamanho da via no estilo de rota atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:199
+msgid "Increment current route style via hole size\n"
+msgstr "Incremente o tamanho do orifício da via no estilo de rota atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:201
+msgid "Decrement current route style via hole size\n"
+msgstr "Decremente o tamanho do orifício da via no estilo de rota atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:205
+msgid "Copy selection to buffer and enter pastebuffer mode\n"
+msgstr "Copie a seleção para memória e informe o modo de colar\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:207
+msgid "Cut selection to buffer and enter pastebuffer mode\n"
+msgstr "Corte a seleção para a memória e informe o modo de colar\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:211
+msgid "Zoom in\n"
+msgstr "Aproximação\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:213
+msgid "Zoom out\n"
+msgstr "Afastamento\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:217
+msgid "Toggle thin draw mode\n"
+msgstr "Altere o modo de desenho fino\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:221
+msgid "Cycle multiline mode (Using <s> overrides)\n"
+msgstr "Modo multilinha de ciclo (Usando <s> sobrescreve)\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:225
+msgid "Toggle all direction lines mode\n"
+msgstr "Mude todos os modos de linha de direção\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:229
+msgid "If drawing an object, return to a neutral state.\n"
+msgstr "Se desenhar um objeto, retorne ao estado neutro.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:233
+msgid "Switch view to other side\n"
+msgstr "Mude a visão para o outro lado\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:237
+msgid "Switch to select mode\n"
+msgstr "Mude para modo de seleção\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:241
+msgid "Enter user command or pop up command window\n"
+msgstr "Informe comando de usuário ou exiba janela de comando\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:245
+msgid "Delete object\n"
+msgstr "Apague objeto\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:249
+msgid "Select drawing layers\n"
+msgstr "Selecione camadas de desenho\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:253
+msgid "Select current buffer\n"
+msgstr "Selecione a memória atual\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:257
+msgid "Mouse\n"
+msgstr "Mouse\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:258
+msgid ""
+"Modifier key use can be combined with mouse button presses\n"
+"to modify mouse button actions.\n"
+msgstr ""
+"Tecla modificadora pode ser combinada com pressionamentos de botão de mouse\n"
+"para modificar ações de botões de mouse.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:261
+msgid "<b>Left button\n"
+msgstr "<b>Botão esquerdo\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:262
+msgid "\tPerform or initiate action determined by current mode.\n"
+msgstr "\tExecute ou inicie ação determinada pelo modo atual.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:265
+#: ../src/hid/gtk/gui-keyref-window.c:271
+#: ../src/hid/gtk/gui-keyref-window.c:285
+#: ../src/hid/gtk/gui-keyref-window.c:291
+msgid "<b><shift>"
+msgstr "<b><shift>"
+
+#: ../src/hid/gtk/gui-keyref-window.c:266
+msgid " - change rotation direction for rotation tool actions.\n"
+msgstr ""
+" - mude o sentido da rotação usado em ações da ferramenta de rotação.\n"
+
+# FIXME: This message has room for improvement !
+#: ../src/hid/gtk/gui-keyref-window.c:268
+msgid ""
+"\tAfter a draw operation has been left mouse button initiated,\n"
+"\tmodifier key effects:\n"
+msgstr ""
+"\tApós a operação de desenho ter sido iniciada pelo botão esquerdo do "
+"mouse,\n"
+"\tos efeitos de tecla modificadora são:\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:272
+msgid " - change line 45 degree direction and arc angle direction,\n"
+msgstr ""
+" - mude a direção da linha em 45 graus e a direção do ângulo do arco,\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:274
+msgid "<b>Middle button\n"
+msgstr "<b>Botão do meio\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:275
+msgid ""
+"\tIf a line, arc, rectangle, or polygon draw operation has been\n"
+"\tinitiated, a click restarts the draw operation at the cursor position.\n"
+msgstr ""
+"\tSe uma operação de desenho de linha, arco, retângulo, ou polígono tiver "
+"sido\n"
+"\tiniciada, um clique reinicia a operação de desenho na posição do cursor.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:278
+msgid ""
+"\tIf such a draw has not been initiated, a click selects objects and\n"
+"\ta press and drag moves objects.\n"
+msgstr ""
+"\tSe a operação de desenho não tiver sido iniciada, um clique seleciona "
+"objetos e\n"
+"\tum pressionamento e soltar move objetos.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:281
+msgid "<b>Right button\n"
+msgstr "<b>Botão direito\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:282
+msgid ""
+"\tPress and drag to pan.\n"
+"\tWhile drawing or moving, a click without a drag toggles auto pan mode.\n"
+msgstr ""
+"\tPressione e solte para ver.\n"
+"\tEnquanto desenhando ou movendo, um clique sem soltar muda o modo de visão "
+"automática.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:286
+msgid " - Popup a menu.\n"
+msgstr "- Exibe um menu.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:288
+msgid "<b>Scroll wheel\n"
+msgstr "<b>Roda de rolagem\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:289
+msgid "\tZoom in/out.\n"
+msgstr "\tAproxima/Afasta.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:292
+msgid " - pan vertically.\n"
+msgstr "- ver verticalmente.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:294
+msgid "<b><ctrl>"
+msgstr "<b><ctrl>"
+
+# two decimal points ?
+#: ../src/hid/gtk/gui-keyref-window.c:295
+msgid " - pan horizontally.\n"
+msgstr "- ver horizontalmente.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:297
+msgid "<b>Usage:\n"
+msgstr "<b>Uso:\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:298
+msgid ""
+"\tMouse actions can typically be combined.  For example: while moving\n"
+"\tan object (with left or middle press and drag), the right button may\n"
+"\tbe simultaneously clicked to toggle auto pan or pressed and dragged\n"
+"\tto manually pan.  Mouse moving or drawing may also be combined with\n"
+"\tkey actions.\n"
+msgstr ""
+"\tAções de mouse podem tipicamente serem combinadas.  Por exemplo: enquanto "
+"movendo\n"
+"\tum objeto (pressionado e soltando tanto o botão médio quanto o esquerdo), "
+"o direito pode\n"
+"\tser simultâneamente clicado para mudar visão automática ou presionado e "
+"solto\n"
+"\tpara visão manual.  Movendo ou desenhando com mouse pode também ser "
+"combinado com\n"
+"\tações de tecla.\n"
+
+#: ../src/hid/gtk/gui-keyref-window.c:353
+msgid "PCB Key Reference"
+msgstr "Referência de teclas do PCB"
+
+#: ../src/hid/gtk/gui-library-window.c:169
+msgid "PCB Library"
+msgstr "Biblioteca do PCB"
+
+#. GtkTreeViewColumn
+#: ../src/hid/gtk/gui-library-window.c:685
+msgid "Components"
+msgstr "Componentes"
+
+#. GtkLabel
+#: ../src/hid/gtk/gui-library-window.c:711
+msgid "Filter:"
+msgstr "Filtro:"
+
+#: ../src/hid/gtk/gui-library-window.c:805
+msgid "Select Footprint..."
+msgstr "Selecione Matriz..."
+
+#: ../src/hid/gtk/gui-library-window.c:827
+msgid "Libraries"
+msgstr "Bibliotecas"
+
+#. GtkFrame
+#: ../src/hid/gtk/gui-library-window.c:836
+msgid "Preview"
+msgstr "Prévia"
+
+#: ../src/hid/gtk/gui-log-window.c:85
+msgid "PCB Log"
+msgstr "Registro do PCB"
+
+#: ../src/hid/gtk/gui-misc.c:406
+msgid ""
+"%m+<b>view</b>=%s  <b>grid</b>=%$mS  %s%s  <b>line</b>=%mS  <b>via</b>=%mS "
+"(%mS)  %s<b>clearance</b>=%mS  <b>text</b>=%i%%  <b>buffer</b>=#%i"
+msgstr ""
+"%m+<b>visão</b>=%s  <b>grade</b>=%$mS  %s%s  <b>linha</b>=%mS  <b>via</b>="
+"%mS (%mS)  %s<b>folga</b>=%mS  <b>texto</b>=%i%%  <b>memória</b>=#%i"
+
+#: ../src/hid/gtk/gui-misc.c:415
+msgctxt "status"
+msgid "bottom"
+msgstr "inferior"
+
+#: ../src/hid/gtk/gui-misc.c:415
+msgctxt "status"
+msgid "top"
+msgstr "topo"
+
+#: ../src/hid/gtk/gui-misc.c:444
+#, c-format
+msgid "%m+r %-mS; phi %-.1f; %-mS %-mS"
+msgstr "%m+r %-mS; phi %-.1f; %-mS %-mS"
+
+#: ../src/hid/gtk/gui-misc.c:452
+msgid "r __.__; phi __._; __.__ __.__"
+msgstr "r __.__; phi __._; __.__ __.__"
+
+#: ../src/hid/gtk/gui-misc.c:454
+#, c-format
+msgid "%m+%-mS %-mS"
+msgstr "%m+%-mS %-mS"
+
+#: ../src/hid/gtk/gui-netlist-window.c:708
+msgid "PCB Netlist"
+msgstr "Netlist do PCB"
+
+#: ../src/hid/gtk/gui-netlist-window.c:735
+msgid " "
+msgstr " "
+
+#: ../src/hid/gtk/gui-netlist-window.c:741
+msgid "Net Name"
+msgstr "Nome de Fiação"
+
+#: ../src/hid/gtk/gui-netlist-window.c:772
+msgid "Nodes"
+msgstr "Nodos"
+
+#: ../src/hid/gtk/gui-netlist-window.c:784
+msgid "Operations on selected 'Net Name':"
+msgstr "Operações sobre 'Nome de Fiação' selecionada:"
+
+#: ../src/hid/gtk/gui-netlist-window.c:791
+msgctxt "netlist"
+msgid "Select"
+msgstr "Selecione"
+
+#: ../src/hid/gtk/gui-netlist-window.c:796
+msgid "Unselect"
+msgstr "Remove Seleção"
+
+#: ../src/hid/gtk/gui-netlist-window.c:801
+msgid "Find"
+msgstr "Encontrar"
+
+#: ../src/hid/gtk/gui-netlist-window.c:806
+msgid "Rip Up"
+msgstr "Anule"
+
+#: ../src/hid/gtk/gui-netlist-window.c:813
+msgid "Disable all nets for adding rats"
+msgstr "Desabilite todas as fiações para adicionar ratos"
+
+#: ../src/hid/gtk/gui-output-events.c:417
+#: ../src/hid/gtk/gui-output-events.c:453
+#: ../src/hid/gtk/gui-output-events.c:454
+msgid "--"
+msgstr "--"
+
+#: ../src/hid/gtk/gui-output-events.c:449
+#, c-format
+msgid ""
+"Element name: %s\n"
+"Pinname : %s\n"
+"Netname : %s"
+msgstr ""
+"Nome de componente: %s\n"
+"Nome de conector : %s\n"
+"Nomenet : %s"
+
+#: ../src/hid/gtk/gui-top-window.c:248
+msgid "Reload"
+msgstr "Coloque novamente na memória"
+
+#: ../src/hid/gtk/gui-top-window.c:269
+msgid "Do you want to drop your changes and reload the file?"
+msgstr ""
+"Deseja descartar suas modificações e colocar o arquivo novamente na memória?"
+
+#: ../src/hid/gtk/gui-top-window.c:270
+msgid "Do you want to reload the file?"
+msgstr "Deseja colocar o arquivo na memória novamente?"
+
+#: ../src/hid/gtk/gui-top-window.c:272
+#, c-format
+msgid ""
+"<b>The file %s has changed on disk</b>\n"
+"\n"
+"%s"
+msgstr ""
+"<b>O arquivo %s mudou no disco</b>\n"
+"\n"
+"%s"
+
+#: ../src/hid/gtk/gui-top-window.c:491
+msgid "silk"
+msgstr "seda"
+
+#: ../src/hid/gtk/gui-top-window.c:496
+msgid "rat lines"
+msgstr "linhas de rato"
+
+#: ../src/hid/gtk/gui-top-window.c:501
+msgid "pins/pads"
+msgstr "conectores/pastilhas"
+
+#: ../src/hid/gtk/gui-top-window.c:506
+msgid "vias"
+msgstr "vias"
+
+#: ../src/hid/gtk/gui-top-window.c:511
+msgid "far side"
+msgstr "lado oposto"
+
+#: ../src/hid/gtk/gui-top-window.c:516
+msgid "solder mask"
+msgstr "máscara de soldagem"
+
+#: ../src/hid/gtk/gui-top-window.c:689
+msgid "Unnamed"
+msgstr "Sem nome"
+
+#: ../src/hid/gtk/gui-top-window.c:692
+msgid "Unsaved.pcb"
+msgstr "Naosalvo.pcb"
+
+#: ../src/hid/gtk/gui-top-window.c:954
+msgid "via"
+msgstr "via"
+
+#: ../src/hid/gtk/gui-top-window.c:955
+msgid "line"
+msgstr "linhas de rato"
+
+#: ../src/hid/gtk/gui-top-window.c:956
+msgid "arc"
+msgstr "arco"
+
+#: ../src/hid/gtk/gui-top-window.c:957
+msgid "text"
+msgstr "texto"
+
+#: ../src/hid/gtk/gui-top-window.c:958
+msgid "rectangle"
+msgstr "retângulo"
+
+#: ../src/hid/gtk/gui-top-window.c:959
+msgid "polygon"
+msgstr "polígono"
+
+#: ../src/hid/gtk/gui-top-window.c:960
+msgid "polygonhole"
+msgstr "orifício de polígono"
+
+#: ../src/hid/gtk/gui-top-window.c:961
+msgid "buffer"
+msgstr "memória"
+
+#: ../src/hid/gtk/gui-top-window.c:962
+msgid "remove"
+msgstr "remover"
+
+#: ../src/hid/gtk/gui-top-window.c:963
+msgid "rotate"
+msgstr "rotacionar"
+
+#: ../src/hid/gtk/gui-top-window.c:964
+msgid "insertPoint"
+msgstr "ponto de inserção"
+
+#: ../src/hid/gtk/gui-top-window.c:965
+msgid "thermal"
+msgstr "térmico"
+
+#: ../src/hid/gtk/gui-top-window.c:966
+msgid "select"
+msgstr "selecione"
+
+#: ../src/hid/gtk/gui-top-window.c:967
+msgid "lock"
+msgstr "trava"
+
+#: ../src/hid/gtk/gui-top-window.c:1611
+msgid "Read end of pipe died!\n"
+msgstr "Leitura do final do cano fechou!\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1626
+msgid "ERROR status from g_io_channel_read_line\n"
+msgstr "ERRO situação atual de g_io_channel_read_line\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1631
+msgid ""
+"Input pipe returned EOF.  The --listen option is \n"
+"probably not running anymore in this session.\n"
+msgstr ""
+"Entrada do cano retornou EOF.  A opção --listen \n"
+"provavelmente não está executando mais nessa seção.\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1637
+msgid "AGAIN status from g_io_channel_read_line\n"
+msgstr "NOVAMENTE situação atual de g_io_channel_read_line\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1642
+#, c-format
+msgid "ERROR:  unhandled case in ghid_listener_cb\n"
+msgstr "ERRO:  caso não previsto em ghid_listener_cb\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1649
+#, c-format
+msgid "Unknown condition in ghid_listener_cb\n"
+msgstr "Condição desconhecida em ghid_listener_cb\n"
+
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --listen
+#. Listen for actions on stdin.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1679
+msgid "Listen for actions on stdin"
+msgstr "Espere por ações sobre a entrada padrão"
+
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --bg-image <string>
+#. File name of an image to put into the background of the GUI canvas. The image must
+#. be a color PPM image, in binary (not ASCII) format. It can be any size, and will be
+#. automatically scaled to fit the canvas.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1692
+msgid "Background Image"
+msgstr "Imagem de Fundo"
+
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --pcb-menu <string>
+#. Location of the @file{gpcb-menu.res} file which defines the menu for the GTK+ GUI.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1703
+msgid "Location of gpcb-menu.res file"
+msgstr "Localização do arquivo gpcb-menu.res"
+
+#: ../src/hid/gtk/gui-top-window.c:1863
+msgid ""
+"ToggleView(1..MAXLAYER)\n"
+"ToggleView(layername)\n"
+"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)"
+msgstr ""
+"ToggleView(1..MAXLAYER)\n"
+"ToggleView(nomecamada)\n"
+"ToggleView(Seda|Ratos|Conectores|Vias|Máscara|LadodeTrás)"
+
+#: ../src/hid/gtk/gui-top-window.c:1868
+msgid "Toggle the visibility of the specified layer or layer group."
+msgstr "Altere a visibilidade da camada especificada ou grupo de camada."
+
+#: ../src/hid/gtk/gui-top-window.c:1937
+msgid "SelectLayer(1..MAXLAYER|Silk|Rats)"
+msgstr "SelectLayer(1..MAXLAYER|Seda|Ratos)"
+
+#: ../src/hid/gtk/gui-top-window.c:1940
+msgid "Select which layer is the current layer."
+msgstr "Seleciona qual camada é a atual."
+
+#: ../src/hid/gtk/gui-top-window.c:2061
+#, c-format
+msgid ""
+"ERROR:  overflow of the ghid_hotkey_actions array.  Index = %d\n"
+"Please report this.\n"
+msgstr ""
+"ERRO:  sobrecarga do vetor estático ghid_hotkey_actions.  Index = %d\n"
+"Por favor me envie um relatório sobre isso.\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2085
+#, c-format
+msgid "Note:  home directory is \"%s\"\n"
+msgstr "Nota: diretório de usuário é \"%s\"\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2090
+msgid "Warning:  could not determine home directory\n"
+msgstr "Atenção: não posso determinar diretório de usuário\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2120
+#, c-format
+msgid "Error: internal menu resource didn't parse\n"
+msgstr "Erro: recurso interno de menu não pode ser analizado\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2127
+#, c-format
+msgid "Loading menus from %s\n"
+msgstr "Colocando na memória menus a partir de %s\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2133
+msgid "Using default menus\n"
+msgstr "Usando menus padrão\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2179
+msgid "AdjustStyle()\n"
+msgstr "AdjustStyle()\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2182
+msgid "Open the window which allows editing of the route styles."
+msgstr "Abre a janela que permite edição dos estilos de rota."
+
+#: ../src/hid/gtk/gui-top-window.c:2204
+msgid "EditLayerGroups()\n"
+msgstr "Editar Grupos de Camada()\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2207
+msgid "Open the preferences window which allows editing of the layer groups."
+msgstr "Abre a janela de preferências que permite edução de grupos de camadas."
+
+#: ../src/hid/lesstif/dialogs.c:1186
+#, c-format
+msgid "Units are %s."
+msgstr "Unidades são %s."
+
+#: ../src/hid/lpr/lpr.c:26
+#, c-format
+msgid "HID error: pcb called unimplemented PS function %s.\n"
+msgstr "Erro de HID: pcb chamou a função PS %s não implementada.\n"
+
+#. %start-doc options "98 lpr Printing Options"
+#. @ftable @code
+#. @item --lprcommand <string>
+#. Command to use for printing. Defaults to @code{lpr}. This can be used to produce
+#. PDF output with a virtual PDF printer. Example: @*
+#. @code{--lprcommand "lp -d CUPS-PDF-Printer"}.
+#. @end ftable
+#. @noindent In addition, all @ref{Postscript Export} options are valid.
+#. %end-doc
+#.
+#: ../src/hid/lpr/lpr.c:41 ../src/hid/ps/ps.c:1329
+msgid "lprcommand"
+msgstr "Comando lpr"
+
+#: ../src/hid/lpr/lpr.c:41
+msgid "Command to use for printing"
+msgstr "Comando a ser usado na impressão"
+
+#: ../src/hid/lpr/lpr.c:97
+#, c-format
+msgid "LPR: open %s\n"
+msgstr "LPR: abre %s\n"
+
+#: ../src/hid/lpr/lpr.c:136
+msgid "Postscript print"
+msgstr "Impressora postscript"
+
+#. other HIDs expect this to be first.
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --psfile <string>
+#. Name of the postscript output file. Can contain a path.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:153
+msgid "psfile"
+msgstr "arquivops"
+
+#: ../src/hid/ps/ps.c:153
+msgid "Postscript output file"
+msgstr "Arquivo de saída postscript"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex drill-helper
+#. @item --drill-helper
+#. Print a centering target in large drill holes.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:165
+msgid "drill-helper"
+msgstr "ajuda de perfuração"
+
+#: ../src/hid/ps/ps.c:165
+msgid "Print a centering target in large drill holes"
+msgstr "Imprime um alvo centralizado em grandes orifícios de perfuração"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex align-marks
+#. @item --align-marks
+#. Print alignment marks on each sheet. This is meant to ease alignment during exposure.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:177
+msgid "align-marks"
+msgstr "alinhar marcas"
+
+#: ../src/hid/ps/ps.c:177
+msgid "Print alignment marks on each sheet"
+msgstr "Imprimir marcas de alinhamento sobre cada folha"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --outline
+#. Print the contents of the outline layer on each sheet.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:188
+msgid "outline"
+msgstr "linhas de saída"
+
+#: ../src/hid/ps/ps.c:188
+msgid "Print outline on each sheet"
+msgstr "Imprime linha de saída sobre cada folha"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --mirror
+#. Print mirror image.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:198
+msgid "mirror"
+msgstr "espelho"
+
+#: ../src/hid/ps/ps.c:198
+msgid "Print mirror image of every page"
+msgstr "Imprimir imagem refletida de todas as páginas"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --fill-page
+#. Scale output to make the board fit the page.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:209
+msgid "fill-page"
+msgstr "preencher página"
+
+#: ../src/hid/ps/ps.c:209
+msgid "Scale board to fill page"
+msgstr "Proporção de placa preenchendo a página"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --auto-mirror
+#. Print mirror image of appropriate layers.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:220
+msgid "auto-mirror"
+msgstr "auto refletir"
+
+#: ../src/hid/ps/ps.c:220
+msgid "Print mirror image of appropriate layers"
+msgstr "Imprime imagens refletidas das camadas apropriadas"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --ps-color
+#. Postscript output in color.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:231
+msgid "ps-color"
+msgstr "cor ps"
+
+#: ../src/hid/ps/ps.c:231
+msgid "Prints in color"
+msgstr "Imprimir em Cores"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex ps-bloat
+#. @item --ps-bloat <num>
+#. Amount to add to trace/pad/pin edges.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:243
+msgid "ps-bloat"
+msgstr "inchaço ps"
+
+#: ../src/hid/ps/ps.c:243
+msgid "Amount to add to trace/pad/pin edges"
+msgstr "Qauntidade para adicionar a arestas de trilha/pastilha/conector"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex ps-invert
+#. @item --ps-invert
+#. Draw objects as white-on-black.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:255
+msgid "ps-invert"
+msgstr "inverter ps"
+
+#: ../src/hid/ps/ps.c:255
+msgid "Draw objects as white-on-black"
+msgstr "Desenha objetos em preto e branco"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --media <media-name>
+#. Size of the media, the postscript is fitted to. The parameter
+#. @code{<media-name>} can be any of the standard names for paper size: @samp{A0}
+#. to @samp{A10}, @samp{B0} to @samp{B10}, @samp{Letter}, @samp{11x17},
+#. @samp{Ledger}, @samp{Legal}, @samp{Executive}, @samp{A-Size}, @samp{B-size},
+#. @samp{C-Size}, @samp{D-size}, @samp{E-size}, @samp{US-Business_Card},
+#. @samp{Intl-Business_Card}.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:271
+msgid "media"
+msgstr "media"
+
+#: ../src/hid/ps/ps.c:271
+msgid "Media type"
+msgstr "Tipo de mídia"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex psfade
+#. @item --psfade <num>
+#. Fade amount for assembly drawings (0.0=missing, 1.0=solid).
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:283
+msgid "psfade"
+msgstr "desvanecer gradual de ps"
+
+#: ../src/hid/ps/ps.c:284
+msgid "Fade amount for assembly drawings (0.0=missing, 1.0=solid)"
+msgstr ""
+"Quatdade de desvanecimento para desenhos de montagem (0.0=omitido, "
+"1.0=sólido)"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --scale <num>
+#. Scale value to compensate for printer sizing errors (1.0 = full scale).
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:295
+msgid "scale"
+msgstr "proporção"
+
+#: ../src/hid/ps/ps.c:296
+msgid "Scale value to compensate for printer sizing errors (1.0 = full scale)"
+msgstr ""
+"Valor de proporção a compensar para erros de ajuste de tamanho em "
+"impressoras (1.0 = proporção completa)"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex multi-file
+#. @item --multi-file
+#. Produce multiple files, one per page, instead of a single multi page file.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:308
+msgid "multi-file"
+msgstr "multi-arquivo"
+
+#: ../src/hid/ps/ps.c:309
+msgid "Produce multiple files, one per page, instead of a single file"
+msgstr ""
+"Produz múltiplos arquivos, um para cada página, ao invés de um só arquivo"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --xcalib <num>
+#. Paper width. Used for x-Axis calibration.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:320
+msgid "xcalib"
+msgstr "calibração-x"
+
+#: ../src/hid/ps/ps.c:320
+msgid "Paper width. Used for x-Axis calibration"
+msgstr "Largura do papel. Usada para calibração do eixo x"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --ycalib <num>
+#. Paper height. Used for y-Axis calibration.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:331
+msgid "ycalib"
+msgstr "calibração-y"
+
+#: ../src/hid/ps/ps.c:331
+msgid "Paper height. Used for y-Axis calibration"
+msgstr "Altura do papel. Usada para calibração do eixo y"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --drill-copper
+#. Draw drill holes in pins / vias, instead of leaving solid copper.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:342
+msgid "drill-copper"
+msgstr "cobre de perfuração"
+
+#: ../src/hid/ps/ps.c:343
+msgid "Draw drill holes in pins / vias, instead of leaving solid copper"
+msgstr ""
+"Desenha orifícios de perfuração em conectores / vias, ao invés de deixar o "
+"cobre sólido"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex show-legend
+#. @item --show-legend
+#. Print file name and scale on printout.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:355
+msgid "show-legend"
+msgstr "exibe legenda"
+
+#: ../src/hid/ps/ps.c:355
+msgid "Print file name and scale on printout"
+msgstr "Imprime nome de arquivo e proporção na saída de impressão"
+
+#: ../src/hid/ps/ps.c:1329
+msgid "Command to print"
+msgstr "Comando para imprimir"
+
+#: ../src/hid/ps/ps.c:1438
+#, c-format
+msgid ""
+"X value of %g is too far off.\n"
+"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+msgstr ""
+"Valor X de %g é muito distante.\n"
+"Esperado próximo a: %.1f, %.1f, %.1f, %.1f\n"
+
+#: ../src/hid/ps/ps.c:1450
+#, c-format
+msgid ""
+"Y value of %g is too far off.\n"
+"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+msgstr ""
+"Valor Y de %g muito distante.\n"
+"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+
+#: ../src/hid/ps/ps.c:1462
+msgid "Print Calibration Page"
+msgstr "Página de Ajuste de Impressora"
+
+#: ../src/hid/ps/ps.c:1462
+msgid "Generates a printer calibration page"
+msgstr "Gera uma página de ajuste de impressora"
+
+#: ../src/hid/ps/ps.c:1555
+msgid "Postscript export"
+msgstr "Exporta postscript"
+
+#: ../src/hid/gtk/gui-trackball.c:259
+msgid "2D View"
+msgstr "Visão 2D"
+
+#: ../src/main.c:2041
+#, c-format
+msgid "Executing startup script file %s\n"
+msgstr "Executando script de inicialização %s\n"
+
+#: ../src/main.c:2047
+#, c-format
+msgid "Executing startup action %s\n"
+msgstr "Executando ação de inicialização %s\n"
+
+#: ../src/misc.c:1374
+#, c-format
+msgid "Warning: layer \"%s\" not known\n"
+msgstr "Atenção: camada \"%s\" desconhecida\n"
+
+#: ../src/misc.c:1377
+#, c-format
+msgid "Named layers in this board are:\n"
+msgstr "Camadas conhecidas nessa placa são:\n"
+
+#: ../src/misc.c:1381
+#, c-format
+msgid ""
+"Also: component, solder, rats, invisible, pins, vias, elements or silk, "
+"mask, solderside.\n"
+msgstr ""
+"Também: componente, soldagem, ratos, invisível, conectores, vias, "
+"componentes ou seda, máscara, lado de soldagem.\n"
+
+#: ../src/misc.c:1461
+#, c-format
+msgid "Request for bounding box of unsupported type %d\n"
+msgstr "Requisição de caixa associada de tipo não suportado %d\n"
+
+#: ../src/misc.c:2193
+msgid ""
+"This is PCB, an interactive\n"
+"printed circuit board editor\n"
+"version "
+msgstr ""
+"Esse é o PCB, um editor\n"
+"de placa de circuito impresso interativo\n"
+"versão "
+
+#: ../src/misc.c:2206
+msgid ""
+"It is licensed under the terms of the GNU\n"
+"General Public License version 2\n"
+"See the LICENSE file for more information\n"
+"\n"
+"For more information see:\n"
+msgstr ""
+"Licenciado nos termos da GNU\n"
+"General Public License versão 2\n"
+"Veja arquivo LICENSE para mais informação\n"
+"\n"
+"Para mais informação veja:\n"
+
+#: ../src/misc.c:2210
+msgid "PCB homepage: "
+msgstr "Sítio internet do PCB: "
+
+#: ../src/misc.c:2212
+msgid "gEDA homepage: "
+msgstr "Sítio internet do gEDA: "
+
+#: ../src/misc.c:2214
+msgid "gEDA Wiki: "
+msgstr "Wiki gEDA: "
+
+#: ../src/misc.c:2217
+msgid ""
+"\n"
+"----- Compile Time Options -----\n"
+msgstr ""
+"\n"
+"----- Opções Durante Compilação -----\n"
+
+#: ../src/misc.c:2219
+msgid "GUI:\n"
+msgstr "GUI:\n"
+
+#: ../src/misc.c:2232
+msgid "Exporters:\n"
+msgstr "Exportadores:\n"
+
+#: ../src/misc.c:2245
+msgid "Printers:\n"
+msgstr "Impressoras:\n"
+
+#: ../src/netlist.c:448 ../src/report.c:833 ../src/select.c:845
+#: ../src/vendor.c:896
+#, c-format
+msgid "regexp error: %s\n"
+msgstr "erro de expressão regular: %s\n"
+
+#: ../src/netlist.c:456 ../src/report.c:841 ../src/select.c:857
+#: ../src/vendor.c:916
+#, c-format
+msgid "re_comp error: %s\n"
+msgstr "erro de re_comp: %s\n"
+
+#: ../src/parse_y.y:169 ../src/parse_y.y:235 ../src/parse_y.y:258
+msgid "illegal fileformat\n"
+msgstr "formatoarquivo ilegal\n"
+
+#: ../src/parse_y.y:201
+msgid "illegal layer-group string\n"
+msgstr "sequência ilegal de caracteres de agrupamentos de camadas\n"
+
+#: ../src/parse_y.y:657 ../src/parse_y.y:665
+msgid "illegal route-style string\n"
+msgstr "sequência ilegal de caracteres de estilo de roteamento\n"
+
+#: ../src/parse_y.y:1148
+#, c-format
+msgid ""
+"WARNING parsing file '%s'\n"
+"    line:        %i\n"
+"    description: 'ignored polygon (< 3 points in a contour)'\n"
+msgstr ""
+"ALERTA de análise do arquivo '%s'\n"
+"    linha:        %i\n"
+"    descrição: 'polígono ignoradon (menos de três pontos em um contorno)'\n"
+
+#: ../src/parse_y.y:1949
+#, c-format
+msgid ""
+"ERROR parsing file '%s'\n"
+"    line:        %i\n"
+"    description: '%s'\n"
+msgstr ""
+"ERRO de análise do arquivo '%s'\n"
+"    linha:        %i\n"
+"    descrição: '%s'\n"
+
+#: ../src/parse_y.y:1965
+#, c-format
+msgid ""
+"ERROR:  The file you are attempting to load is in a format\n"
+"which is too new for this version of pcb.  To load this file\n"
+"you need a version of pcb which is >= %d.  If you are\n"
+"using a version built from git source, the source date\n"
+"must be >= %d.  This copy of pcb can only read files\n"
+"up to file version %d.\n"
+msgstr ""
+"ERRO:  O arquivo que você está tentando colocar na memóriaetá em um formato\n"
+"que é muito novo para essa versão do pcb.  Para colocar esse arquivo na "
+"memória\n"
+"você precisa de uma versão do pcb que é >= %d.  Se você está\n"
+"usando uma versão construída a partir do repositório git, a data de código "
+"fonte\n"
+"deve ser >= %d.  Essa cópia do pcb somente pode ler arquivos\n"
+"até a versão %d.\n"
+
+#: ../src/pcb-menu.res:33
+msgid "Save layout"
+msgstr "Grava traçado como"
+
+#: ../src/pcb-menu.res:34
+msgid "Save layout as..."
+msgstr "Grava traçado como..."
+
+#: ../src/pcb-menu.res:37
+msgid "Load layout"
+msgstr "Coloca na memória arquivo de traçado"
+
+#: ../src/pcb-menu.res:38
+msgid "Load element data to paste-buffer"
+msgstr "Coloca dados de componente para colar memória"
+
+#: ../src/pcb-menu.res:39
+msgid "Load layout data to paste-buffer"
+msgstr "Coloca dados de traçado para colar memória"
+
+#: ../src/pcb-menu.res:42
+msgid "Print layout..."
+msgstr "Imprime o traçado..."
+
+#: ../src/pcb-menu.res:43
+msgid "Export layout..."
+msgstr "Exporta Traçado..."
+
+#: ../src/pcb-menu.res:46
+msgid "Save connection data of..."
+msgstr "Grava Dados de Conecção de ..."
+
+#: ../src/pcb-menu.res:51
+msgid "Start new layout"
+msgstr "Inicia novo traçado"
+
+#: ../src/pcb-menu.res:53
+msgid "Quit Program"
+msgstr "Sair do Programa"
+
+#: ../src/pcb-menu.res:58
+msgid "Spin 180"
+msgstr "Gira 180"
+
+#: ../src/pcb-menu.res:61
+msgid "Show soldermask"
+msgstr "Exibe máscara de soldagem"
+
+#: ../src/pcb-menu.res:63
+msgid "Displayed element-name..."
+msgstr "Mostrado nome de componente..."
+
+#: ../src/pcb-menu.res:208
+msgid "Pinout shows number"
+msgstr "Mostra número saída de componente"
+
+#: ../src/pcb-menu.res:72
+msgid "Open pinout menu"
+msgstr "Abre menu de saída de componente"
+
+#: ../src/pcb-menu.res:83
+msgid "Zoom Toggle"
+msgstr "Muda Aproximação"
+
+#: ../src/pcb-menu.res:83
+msgid "`"
+msgstr "`"
+
+#: ../src/pcb-menu.res:83
+msgid "<Key>`"
+msgstr "<Tecla>`"
+
+#: ../src/pcb-menu.res:96
+msgid "Display grid"
+msgstr "Exibe grade"
+
+#: ../src/pcb-menu.res:277
+msgid "Paste buffer to layout"
+msgstr "Cola memória no traçado"
+
+#: ../src/pcb-menu.res:149
+msgid "Edit Names..."
+msgstr "Editar Nomes..."
+
+#: ../src/pcb-menu.res:150
+msgid " Change text on layout"
+msgstr "Muda texto sobre traçado"
+
+#: ../src/pcb-menu.res:151
+msgid " Edit name of layout"
+msgstr "Editar nome do traçado"
+
+#: ../src/pcb-menu.res:152
+msgid " Edit name of active layer"
+msgstr "Editar nome da camada ativa"
+
+#: ../src/pcb-menu.res:153
+msgid "Edit Attributes..."
+msgstr "Editar atributos..."
+
+#: ../src/pcb-menu.res:154
+msgid " Layout"
+msgstr " Traçado"
+
+#: ../src/pcb-menu.res:155
+msgid " CurrentLayer"
+msgstr "Camada Atual"
+
+#: ../src/pcb-menu.res:156
+msgid " Element"
+msgstr " Componente"
+
+#: ../src/pcb-menu.res:158
+msgid "Board Sizes"
+msgstr "Tamanhos da Placa"
+
+#: ../src/pcb-menu.res:185
+msgid "Command"
+msgstr "Comando"
+
+#: ../src/pcb-menu.res:188
+msgid "Layer groups"
+msgstr "Grupos de Camada"
+
+#: ../src/pcb-menu.res:189
+msgid "Edit layer groupings"
+msgstr "Editar agrupamentos de camadadas"
+
+#: ../src/pcb-menu.res:210
+msgid "Enable vendor drill mapping"
+msgstr "Habilita mapeamento de perfuração de forncedor"
+
+#: ../src/pcb-menu.res:211
+msgid "Import Settings"
+msgstr "Importar Configurações"
+
+#: ../src/pcb-menu.res:212
+msgid "New elements added at..."
+msgstr "Novos componentes adicionados em..."
+
+#: ../src/pcb-menu.res:222
+msgid "Select all visible objects"
+msgstr "Seleciona todos os objetos visíveis"
+
+#: ../src/pcb-menu.res:223
+msgid "Select all found objects"
+msgstr "Seleciona todos os objetos encontrados"
+
+#: ../src/pcb-menu.res:224
+msgid "Select all connected objects"
+msgstr "Seleciona todos os objetos conectados"
+
+#: ../src/pcb-menu.res:227
+msgid "unselect all found objects"
+msgstr "remove a seleção de todos os objetos encontrados"
+
+#: ../src/pcb-menu.res:228
+msgid "unselect all connected objects"
+msgstr "remove a seleção de todos os objetos conectados"
+
+#: ../src/pcb-menu.res:235
+msgid "Text Objects"
+msgstr "Objetos de Texto"
+
+#: ../src/pcb-menu.res:242
+msgid "Delete selected objects"
+msgstr "Apaga objetos selecionados"
+
+#: ../src/pcb-menu.res:292
+msgid "Select current buffer"
+msgstr "Selecione a memória atual"
+
+#: ../src/pcb-menu.res:293
+msgid "#1"
+msgstr "#1"
+
+#: ../src/pcb-menu.res:294
+msgid "#2"
+msgstr "#2"
+
+#: ../src/pcb-menu.res:295
+msgid "#3"
+msgstr "#3"
+
+#: ../src/pcb-menu.res:296
+msgid "#4"
+msgstr "#4"
+
+#: ../src/pcb-menu.res:297
+msgid "#5"
+msgstr "#5"
+
+#: ../src/pcb-menu.res:301
+msgid "Lookup connection to object"
+msgstr "Procura conecção a objeto"
+
+#: ../src/pcb-menu.res:306
+msgid "Optimize rats-nest"
+msgstr "Otimiza ninhos de ratos"
+
+#: ../src/pcb-menu.res:308
+msgid "Erase rats-nest"
+msgstr "Apaga ninhos de ratos"
+
+#: ../src/pcb-menu.res:320
+msgid "Orthopull"
+msgstr "Mover cantos"
+
+#: ../src/pcb-menu.res:321
+msgid "SimpleOpts"
+msgstr "Otimização simples"
+
+#: ../src/pcb-menu.res:340
+msgid "Report net length"
+msgstr "Informar comprimento da rede"
+
+#: ../src/pcb-menu.res:340
+msgid "R"
+msgstr "R"
+
+#: ../src/pcb-menu.res:340
+msgid "<Key>r"
+msgstr "<Tecla>r"
+
+#: ../src/pcb-menu.res:418
+msgid "Alt-Z"
+msgstr "Alt-Z"
+
+#: ../src/pcb-menu.res:418
+msgid "Alt<Key>z"
+msgstr "Alt<Tecla>z"
+
+#: ../src/pcb-menu.res:436
+msgid "Board Layout"
+msgstr "Traçado da Placa"
+
+#: ../src/polygon.c:1378
+msgid "Cannot close polygon because 45 degree lines are requested.\n"
+msgstr "Não posso fechar o polígono porque linhas de 45 graus são exigidas.\n"
+
+#: ../src/polygon.c:1386
+msgid "A polygon has to have at least 3 points\n"
+msgstr "Um polígono tem ao menos 3 pontos não alinhados\n"
+
+#: ../src/rats.c:108
+#, c-format
+msgid "Bad net-list format encountered near: \"%s\"\n"
+msgstr "Formato de net-list inadequado encontrado próximo de: \"%s\"\n"
+
+#: ../src/rats.c:189
+#, c-format
+msgid ""
+"Error! Netlist file is missing pin!\n"
+"white space after \"%s-\"\n"
+msgstr ""
+"Erro! Arquivo netlist faltando conector!\n"
+"Espaço em branco após \"%s-\"\n"
+
+#: ../src/rats.c:206
+#, c-format
+msgid "Can't find %s pin %s called for in netlist.\n"
+msgstr "Não encontro %s conector %s citado nessa netlist.\n"
+
+#: ../src/rats.c:276
+#, c-format
+msgid "Error! Element %s pin %s appears multiple times in the netlist file.\n"
+msgstr ""
+"Erro! Componente %s conector %s aparece múltiplas vezes no arquivo de "
+"netlist.\n"
+
+#: ../src/rats.c:373
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to %s pin %s\n"
+msgstr "Atenção! Fiação \"%s\" em curto com %s conector %s\n"
+
+#: ../src/rats.c:394 ../src/rats.c:430
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to net \"%s\"\n"
+msgstr "Atenção! Fiação \"%s\" em curto com a fiação \"%s\"\n"
+
+#: ../src/rats.c:409
+#, c-format
+msgid "Warning! Net \"%s\" is shorted  to %s pad %s\n"
+msgstr "Atenção! Fiação \"%s\" está em curto com %s pastilha \"%s\"\n"
+
+#: ../src/rats.c:802
+msgid ""
+"Congratulations!!\n"
+"The layout is complete and has no shorted nets.\n"
+msgstr ""
+"Parabéns!!\n"
+"O traçado está completo e não tem fiação em curto.\n"
+
+#: ../src/rats.c:805
+msgid ""
+"Nothing more to add, but there are\n"
+"either rat-lines in the layout, disabled nets\n"
+"in the net-list, or missing components\n"
+msgstr ""
+"Nada a adicionar, mas existe\n"
+"ou linhas de rato no traçado, fiação desabilitadas\n"
+"na net-list, ou componentes faltando\n"
+
+#: ../src/rats.c:915 ../src/rats.c:935
+msgid "No pad/pin under rat line\n"
+msgstr "Nenhuma pastilha/conector sob linha de rato\n"
+
+#: ../src/rats.c:921
+msgid "You must name the starting element first\n"
+msgstr "Você deve nomear o componente inicial primeiramente\n"
+
+#: ../src/rats.c:941
+msgid "You must name the ending element first\n"
+msgstr "Você deve nomear o componente final primeiramente\n"
+
+#: ../src/rats.c:955
+msgid "Both connections already in netlist - cannot merge nets\n"
+msgstr "Ambas as conecções já estão na netlist - não posso associar fiação\n"
+
+#: ../src/report.c:94
+#, c-format
+msgid ""
+"There are %d different drill sizes used in this layout, %d holes total\n"
+"\n"
+"Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n"
+msgstr ""
+"Existem %d tamanhos de perfuração diferentes nesse traçado, %d orifícios no "
+"total\n"
+"\n"
+"Diam. de perfuração (%s)\t# de conetores\t# de Vias\t# de componetes\t# Sem "
+"anel de cobre\n"
+
+#. create dialog box
+#: ../src/report.c:114
+msgid "Drill Report"
+msgstr "Relatório d Perfuração"
+
+#: ../src/report.c:121
+msgid "ReportDialog()"
+msgstr "ReportDialog()"
+
+#: ../src/report.c:124
+msgid "Report on the object under the crosshair"
+msgstr "Relatório do objeto sob a mira"
+
+#: ../src/report.c:158
+msgid ""
+"%m+VIA ID# %ld; Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"It is a pure hole of diameter %$mS.\n"
+"Name = \"%s\".%s"
+msgstr ""
+"%m+VIA ID# %ld; Sinalizadores:%s\n"
+"(X,Y) = %$mD.\n"
+"É um orifício puro de diâmetro %$mS.\n"
+"Nome = \"%s\".%s"
+
+#: ../src/report.c:164 ../src/report.c:182 ../src/report.c:213
+#: ../src/report.c:233 ../src/report.c:261 ../src/report.c:319
+#: ../src/report.c:347 ../src/report.c:397 ../src/report.c:431
+#: ../src/report.c:472
+msgid "It is LOCKED.\n"
+msgstr "Estrá TRAVADO.\n"
+
+#: ../src/report.c:166
+msgid ""
+"%m+VIA ID# %ld;  Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"Copper width = %$mS. Drill width = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"Annulus = %$mS.\n"
+"Solder mask hole = %$mS (gap = %$mS).\n"
+"Name = \"%s\".%s"
+msgstr ""
+"%m+VIA ID# %ld;  Sinalizadores:%s\n"
+"(X,Y) = %$mD.\n"
+"Largura do cobre = %$mS. Largura de perfução = %$mS.\n"
+"Largura da folga em polígonos = %$mS.\n"
+"Anelar = %$mS.\n"
+"Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
+"Nome = \"%s\".%s"
+
+#: ../src/report.c:206
+msgid ""
+"%m+PIN ID# %ld; Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"It is a mounting hole. Drill width = %$mS.\n"
+"It is owned by element %$mS.\n"
+"%s"
+msgstr ""
+"%m+PIN ID# %ld; Sinalizadores:%s\n"
+"(X,Y) = %$mD.\n"
+"É um orifício de montagem. Largura de perfuração = %$mS.\n"
+"é possuído pelo componente %$mS.\n"
+"%s"
+
+#: ../src/report.c:216
+msgid ""
+"%m+PIN ID# %ld;  Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"Copper width = %$mS. Drill width = %$mS.\n"
+"Clearance width to Polygon = %$mS.\n"
+"Annulus = %$mS.\n"
+"Solder mask hole = %$mS (gap = %$mS).\n"
+"Name = \"%s\".\n"
+"It is owned by element %s\n"
+" as pin number %s.\n"
+"%s"
+msgstr ""
+"%m+ID de CONECTOR# %ld;  Sinalizadores:%s\n"
+"(X,Y) = %$mD.\n"
+"Largura do cobre = %$mS. Largura de perfuração = %$mS.\n"
+"Largura da folga para polígonos = %$mS.\n"
+"Anelar = %$mS.\n"
+"Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
+"Nome = \"%s\".\n"
+"É possído pelo componente %s\n"
+" com número de conector %s.\n"
+"%s"
+
+#: ../src/report.c:248
+msgid ""
+"%m+LINE ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD, ID = %ld.\n"
+"Width = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"It is on layer %d\n"
+"and has name \"%s\".\n"
+"%s"
+msgstr ""
+"%m+LINE ID# %ld;  Sinalizadores:%s\n"
+"FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD, ID = %ld.\n"
+"Largura = %$mS.\n"
+"Largura de folga em polígonos = %$mS.\n"
+"Está na camada %d\n"
+"e tem o nome \"%s\".\n"
+"%s"
+
+#: ../src/report.c:275
+msgid ""
+"%m+RAT-LINE ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld; connects to layer group %d.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld; connects to layer group %d.\n"
+msgstr ""
+"%m+ID de RAT-LINE# %ld;  Sinalizadores:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
+
+#: ../src/report.c:302
+msgid ""
+"%m+ARC ID# %ld;  Flags:%s\n"
+"CenterPoint(X,Y) = %$mD.\n"
+"Radius = %$mS, Thickness = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"StartAngle = %ma degrees, DeltaAngle = %ma degrees.\n"
+"Bounding Box is %$mD, %$mD.\n"
+"That makes the end points at %$mD and %$mD.\n"
+"It is on layer %d.\n"
+"%s"
+msgstr ""
+"%m+ID de ARCO# %ld;  Sinalizadores:%s\n"
+"CenterPoint(X,Y) = %$mD.\n"
+"Raio = %$mS, Espessura = %$mS.\n"
+"Espessura da folga em polígonos = %$mS.\n"
+"StartAngle = %ma graus, DeltaAngle = %ma graus.\n"
+"Caixa Associada é %$mD, %$mD.\n"
+"O que coloca as extremidades em %$mD e em %$mD.\n"
+"Está na camada %d.\n"
+"%s"
+
+#: ../src/report.c:335
+msgid ""
+"%m+POLYGON ID# %ld;  Flags:%s\n"
+"Its bounding box is %$mD %$mD.\n"
+"It has %d points and could store %d more\n"
+"  without using more memory.\n"
+"It has %d holes and resides on layer %d.\n"
+"%s"
+msgstr ""
+"%m+ID de POLÍGONO# %ld;  Sinalizadores:%s\n"
+"Sua caixa associada é %$mD %$mD.\n"
+"Tem %d pontos e pode armazenar %d a mais\n"
+"  sem usar mais memória.\n"
+"Tem %d orifícios e localiza-se na camada %d.\n"
+"%s"
+
+#: ../src/report.c:374
+msgid ""
+"%m+PAD ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld.\n"
+"Width = %$mS.  Length = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"Solder mask = %$mS x %$mS (gap = %$mS).\n"
+"Name = \"%s\".\n"
+"It is owned by SMD element %s\n"
+"  as pin number %s and is on the %s\n"
+"side of the board.\n"
+"%s"
+msgstr ""
+"%m+ID de PASTILHA# %ld;  Sinalizadores:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld.\n"
+"Largura = %$mS.  Comprimento = %$mS.\n"
+"Largura da folga em polígonos = %$mS.\n"
+"Máscara de soldagem = %$mS x %$mS (gap = %$mS).\n"
+"Nome = \"%s\".\n"
+"É possuída pelo componente SMD %s\n"
+"  como número de conectorr %s e está sobre o lado\n"
+"%s da placa.\n"
+"%s"
+
+#: ../src/report.c:396 ../src/report.c:430
+msgid "solder (bottom)"
+msgstr "soldagem (inferior)"
+
+#: ../src/report.c:396 ../src/report.c:430
+msgid "component"
+msgstr "componente"
+
+#: ../src/report.c:411
+msgid ""
+"%m+ELEMENT ID# %ld;  Flags:%s\n"
+"BoundingBox %$mD %$mD.\n"
+"Descriptive Name \"%s\".\n"
+"Name on board \"%s\".\n"
+"Part number name \"%s\".\n"
+"It is %$mS tall and is located at (X,Y) = %$mD %s.\n"
+"Mark located at point (X,Y) = %$mD.\n"
+"It is on the %s side of the board.\n"
+"%s"
+msgstr ""
+"%m+ID de COMPONENTE# %ld;  Sinalizadores:%s\n"
+"BoundingBox %$mD %$mD.\n"
+"Nome Descritivo \"%s\".\n"
+"Nome na placa \"%s\".\n"
+"Nome no número da peça \"%s\".\n"
+"Tem %$mS de altura e está localizado em (X,Y) = %$mD %s.\n"
+"Marca localiada no ponto (X,Y) = %$mD.\n"
+"Está do lado %s da placa.\n"
+"%s"
+
+#: ../src/report.c:428
+msgid ""
+",\n"
+"  but it's hidden"
+msgstr ""
+",\n"
+"  mas está escondido"
+
+#: ../src/report.c:457
+#, c-format
+msgid "It is on layer %d."
+msgstr "Está sobre a camada %d."
+
+#: ../src/report.c:459
+msgid ""
+"%m+TEXT ID# %ld;  Flags:%s\n"
+"Located at (X,Y) = %$mD.\n"
+"Characters are %$mS tall.\n"
+"Value is \"%s\".\n"
+"Direction is %d.\n"
+"The bounding box is %$mD %$mD.\n"
+"%s\n"
+"%s"
+msgstr ""
+"%m+ID de TEXTO# %ld;  Sinalizadores:%s\n"
+"Localizado em (X,Y) = %$mD.\n"
+"Caracteres são %$mS tall.\n"
+"Valor é \"%s\".\n"
+"Direção é %d.\n"
+"A caixa associada é %$mD %$mD.\n"
+"%s\n"
+"%s"
+
+#: ../src/report.c:471
+msgid "It is an element name."
+msgstr "É um nome de componente."
+
+#: ../src/report.c:479
+msgid ""
+"%m+POINT ID# %ld.\n"
+"Located at (X,Y) = %$mD.\n"
+"It belongs to a %s on layer %d.\n"
+msgstr ""
+"%m+ID de PONTO# %ld.\n"
+"Localizado em (X,Y) = %$mD.\n"
+"Pertence a um %s na camada %d.\n"
+
+#: ../src/report.c:484
+msgctxt "report"
+msgid "line"
+msgstr "linha"
+
+#: ../src/report.c:484
+msgctxt "report"
+msgid "polygon"
+msgstr "Polígono"
+
+#: ../src/report.c:493
+#, c-format
+msgid "Unknown\n"
+msgstr "Desconhecido\n"
+
+#: ../src/report.c:499
+msgid "Nothing found to report on\n"
+msgstr "Nada encontrado para relatório\n"
+
+#. create dialog box
+#: ../src/report.c:503 ../src/report.c:545
+msgid "Report"
+msgstr "Relatório"
+
+#: ../src/report.c:516
+msgid "The following pins/pads are FOUND:\n"
+msgstr "Os seguintes conectores/pastilhas foram ENCONTRADOS:\n"
+
+#: ../src/report.c:523 ../src/report.c:535
+#, c-format
+msgid "%s-%s,%c"
+msgstr "%s-%s,%c"
+
+#: ../src/report.c:675 ../src/report.c:776 ../src/report.c:929
+msgid "%$m*"
+msgstr "%$m*"
+
+#: ../src/report.c:676
+#, c-format
+msgid "Net %s length %s\n"
+msgstr "Rede %s comprimento %s\n"
+
+#: ../src/report.c:711
+msgid "No net under cursor.\n"
+msgstr "Nenhuma rede sob o ursor.\n"
+
+#: ../src/report.c:728 ../src/report.c:753
+msgid "-"
+msgstr "-"
+
+#: ../src/report.c:778 ../src/report.c:931
+#, c-format
+msgid "Net \"%s\" length: %s\n"
+msgstr "Rede \"%s\" comprimento: %s\n"
+
+#: ../src/report.c:780 ../src/report.c:933
+#, c-format
+msgid "Net length: %s\n"
+msgstr "Comprimento da rede: %s\n"
+
+#: ../src/report.c:891
+#, c-format
+msgid "No net named %s\n"
+msgstr "Nenhuma net chamada %s\n"
+
+#: ../src/report.c:920
+msgid "Net found, but no lines or arcs were flagged.\n"
+msgstr "Net encontrada, mas sem linhas ou arcos foram sinalizadas.\n"
+
+#: ../src/report.c:922
+msgid "Net not found.\n"
+msgstr "Net desaparecida.\n"
+
+#: ../src/report.c:945
+msgid "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])"
+msgstr "Report(Objeto|DrillReport|FoundPins|NetLength|AllNetLengths|[,nome])"
+
+#: ../src/report.c:947
+msgid "Produce various report."
+msgstr "Produz vários relatórios."
+
+#: ../src/report.c:985 ../src/report.c:1006
+msgid "Click on an object"
+msgstr "Clique sobre um objeto"
+
+#: ../src/set.c:261
+msgid "That mode is NOT allowed when drawing ratlines!\n"
+msgstr "Esse modo NÃO é permitido quando desenhando linhas de rato!\n"
+
+#: ../src/toporouter.c:1121
+#, c-format
+msgid "Elapsed time: %.2f seconds\n"
+msgstr "Tempo decorrido: %.2f segundos\n"
+
+#: ../src/toporouter.c:6503
+msgid ""
+"Reticulating splines... successful\n"
+"\n"
+msgstr ""
+"Reticulando splines... successo\n"
+"\n"
+
+#. NB: We could use the %$mS specifier to print these distances, but we would
+#. *     have to cast to Coord, which might overflow for complex routing when
+#. *     PCB is built with Coord as a 32-bit integer.
+#.
+#: ../src/toporouter.c:6508 ../src/toporouter.c:6509
+#, c-format
+msgid "Wiring cost: %f inches\n"
+msgstr "Custo de fios: %f polegadas\n"
+
+#: ../src/toporouter.c:7296
+msgid "ROAR router: "
+msgstr "Roteador ROAR: "
+
+#: ../src/toporouter.c:7310
+#, c-format
+msgid "%d nets remaining\n"
+msgstr "%d fiações restantes\n"
+
+#: ../src/toporouter.c:7313
+#, c-format
+msgid "%d -> "
+msgstr "%d -> "
+
+#: ../src/toporouter.c:7489 ../src/toporouter.c:7490
+#, c-format
+msgid "RUBIX router: %d nets remaining\n"
+msgstr "Roteador RUBIX: %d fiações restantes\n"
+
+#: ../src/toporouter.c:7573
+msgid "Topological Autorouter\n"
+msgstr "Autorouter Topológico\n"
+
+#: ../src/toporouter.c:7574
+#, c-format
+msgid "Started %s"
+msgstr "Iniciado %s"
+
+#: ../src/toporouter.c:7575
+msgid "-------------------------------------\n"
+msgstr "-------------------------------------\n"
+
+#: ../src/toporouter.c:7750
+msgid "Select a set of pads"
+msgstr "Seleciona um conjunto de pastilhas"
+
+#: ../src/toporouter.c:7751
+msgid "Pad escape"
+msgstr "Escape de pastilha"
+
+#: ../src/toporouter.c:7751
+msgid "Escape()"
+msgstr "Escape()"
+
+#: ../src/toporouter.c:7752
+msgid "Select net(s)"
+msgstr "Selecione net(s)"
+
+#: ../src/toporouter.c:7753
+msgid "Topological autorouter"
+msgstr "Autorouter topológico"
+
+#: ../src/toporouter.c:7753
+msgid "Toporouter()"
+msgstr "Toporouter()"
+
+#: ../src/undo.c:221
+#, c-format
+msgid "Size of 'undo-list' exceeds %li kb\n"
+msgstr "Tamanho da 'undo-list' excedeu %li kb\n"
+
+#: ../src/undo.c:937
+msgid ""
+"ERROR: Attempt to Undo() with Serial == 0\n"
+"       Please save your work and report this bug.\n"
+msgstr ""
+"ERRO: Tentativa de Undo() com Serial == 0\n"
+"      Por favor grave seu trabalho e me envie um relatório sobre esse erro.\n"
+
+#: ../src/undo.c:944
+msgid "Nothing to undo - buffer is empty\n"
+msgstr "Nada a desfazer - memória vazia\n"
+
+#: ../src/undo.c:954
+#, c-format
+msgid ""
+"ERROR: Bad undo serial number %d in undo stack - expecting %d or lower\n"
+"       Please save your work and report this bug.\n"
+msgstr ""
+"ERRO: número serial de desfazer %d inadequado na pilha de desfazer - "
+"esperado %d ou menos\n"
+"       Por favor grave seu trabalho e informe essa falha.\n"
+
+#: ../src/undo.c:983
+msgid "ERROR: Failed to undo some operations\n"
+msgstr "ERRO: Falha ao desfazer algumas operações\n"
+
+#: ../src/undo.c:1119
+msgid "Nothing to redo. Perhaps changes have been made since last undo\n"
+msgstr ""
+"Nada a refazer. Pode ser que modificações tenham sido feitas desde o último "
+"desfazer\n"
+
+#: ../src/undo.c:1127
+#, c-format
+msgid ""
+"ERROR: Bad undo serial number %d in redo stack - expecting %d or higher\n"
+"       Please save your work and report this bug.\n"
+msgstr ""
+"ERRO: número serial de undo  %d inadequado na pilha de refazer - expectativa "
+"%d ou maior\n"
+"      Por favor grave seu trabalho e me envie um relatório sobre esse erro.\n"
+
+#: ../src/undo.c:1159
+msgid "ERROR: Failed to redo some operations\n"
+msgstr "ERRO: Falha ao refazer algumas operações\n"
+
+#: ../src/undo.c:1174
+msgid ""
+"ERROR: Operations were added to the Undo stack with an incorrect serial "
+"number\n"
+msgstr ""
+"ERRO: Operações foram adicionadas à pilha de desfazer com serial serial "
+"incorreto\n"
+
+#. ************************************************************
+#: ../src/vendor.c:104
+msgid "ApplyVendor()"
+msgstr "ApplyVendor()"
+
+#: ../src/vendor.c:107
+msgid "Applies the currently loaded vendor drill table to the current design."
+msgstr ""
+"Aplica o atualmente na memória tabela de perfuração de fornecedor para o "
+"desenho atual."
+
+#. ************************************************************
+#: ../src/vendor.c:128
+msgid "ToggleVendor()"
+msgstr "ToggleVendor()"
+
+#: ../src/vendor.c:131
+msgid "Toggles the state of automatic drill size mapping."
+msgstr "Muda o estado do mapeamento automático de tamanho de perfuração."
+
+#. ************************************************************
+#: ../src/vendor.c:159
+msgid "EnableVendor()"
+msgstr "EnableVendor()"
+
+#: ../src/vendor.c:162
+msgid "Enables automatic drill size mapping."
+msgstr "Habilita mapeamento automático de tamanho de perfuração."
+
+#. ************************************************************
+#: ../src/vendor.c:187
+msgid "DisableVendor()"
+msgstr "DisableVendor()"
+
+#: ../src/vendor.c:190
+msgid "Disables automatic drill size mapping."
+msgstr "Desabilita mapeamento automático de perfuração."
+
+#. ************************************************************
+#: ../src/vendor.c:213
+msgid "UnloadVendor()"
+msgstr "UnloadVendor()"
+
+#: ../src/vendor.c:216
+msgid "Unloads the current vendor drill mapping table."
+msgstr ""
+"Remove da memória a atual tabela de mapeamento de perfuração de fornecedor."
+
+#. ************************************************************
+#: ../src/vendor.c:245
+msgid "LoadVendorFrom(filename)"
+msgstr "LoadVendorFrom(nomearquivo)"
+
+#: ../src/vendor.c:248
+msgid "Loads the specified vendor resource file."
+msgstr "Colocar na memória arquivo de recursos de fornecedor."
+
+#: ../src/vendor.c:281
+msgid "Load Vendor Resource File..."
+msgstr "Colocar na Memória Arquivo de Recursos de Fornecedor..."
+
+#: ../src/vendor.c:282
+msgid ""
+"Picks a vendor resource file to load.\n"
+"This file can contain drc settings for a\n"
+"particular vendor as well as a list of\n"
+"predefined drills which are allowed."
+msgstr ""
+"Escolhe um arquivo de recursos de fornecedor para a memória.\n"
+"Esse arquivo pode conter ajustes de DRC para um\n"
+"fornecedor em particular bem com uma lista de\n"
+"orifícios pré-definidos que são permitidos."
+
+#: ../src/vendor.c:315
+#, c-format
+msgid "Could not load vendor resource file \"%s\"\n"
+msgstr "Não posso carregar o arquivo de recurso do fornecedor \"%s\"\n"
+
+#: ../src/vendor.c:342
+#, c-format
+msgid "\"%s\" is not a supported units.  Defaulting to inch\n"
+msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando em polegada\n"
+
+#: ../src/vendor.c:355
+msgid "No drillmap resource found\n"
+msgstr "Nenhum recurso de mapeamento de perfuração encontrado\n"
+
+#: ../src/vendor.c:372
+#, c-format
+msgid "\"%s\" is not a valid rounding type. Defaulting to up\n"
+msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando para cima\n"
+
+#: ../src/vendor.c:404 ../src/vendor.c:420
+#, c-format
+msgid "Set DRC minimum copper spacing to %.2f mils\n"
+msgstr "Ajuste DRC espaçamento mínimo entre trilhas para %.2f mils\n"
+
+#: ../src/vendor.c:412
+#, c-format
+msgid "Set DRC minimum copper overlap to %.2f mils\n"
+msgstr "Ajuste DRC sobreposição mínima entre trilhas para %.2f mils\n"
+
+#: ../src/vendor.c:428
+#, c-format
+msgid "Set DRC minimum silk width to %.2f mils\n"
+msgstr "Ajuste DRC de largura de seda mínima para %.2f mils\n"
+
+#: ../src/vendor.c:436
+#, c-format
+msgid "Set DRC minimum drill diameter to %.2f mils\n"
+msgstr "Ajuste DRC diâmetro mínimo de perfuração para %.2f mils\n"
+
+# annular is already ring shaped (pleonastic)
+#: ../src/vendor.c:444
+#, c-format
+msgid "Set DRC minimum annular ring to %.2f mils\n"
+msgstr "Ajuste DRC de largura mínima de auréola anular para %.2f mils\n"
+
+#: ../src/vendor.c:448
+#, c-format
+msgid "Loaded %d vendor drills from %s\n"
+msgstr "Colocado na memória %d perfurações de fornecedor de %s\n"
+
+#: ../src/vendor.c:449
+#, c-format
+msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
+msgstr ""
+"Colocado na memória %d RefDes ignorado, %d Value ignorado, %d Descr gnorado\n"
+
+#: ../src/vendor.c:494
+#, c-format
+msgid ""
+"Via at %.2f, %.2f not changed. Possible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+"Via em %.2f, %.2f não modificada.  Possíveis razões:\n"
+"\t- tamanho de pastilha muito pequeno\n"
+"\t- novo tamanho pode ser muito grande ou muito pequeno\n"
+
+#: ../src/vendor.c:503
+#, c-format
+msgid "Locked via at %.2f, %.2f not changed.\n"
+msgstr "Via travada em %.2f, %.2f não modificada.\n"
+
+#: ../src/vendor.c:534
+#, c-format
+msgid ""
+"Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
+"\tPossible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+"Conector %s (%s) em %.2f, %.2f (componente %s, %s, %s) não modificado.\n"
+"\tPossíveis razões:\n"
+"\t- tamanho de pastilha muito pequeno\n"
+"\t- novo tamanho pode ser muito grande ou muito pequeno\n"
+
+#: ../src/vendor.c:548
+#, c-format
+msgid "Locked pin at %-6.2f, %-6.2f not changed.\n"
+msgstr "Conector travado em %-6.2f, %-6.2f não modificados.\n"
+
+#: ../src/vendor.c:558
+#, c-format
+msgid "Updated %d drill sizes out of %d total\n"
+msgstr "Atualizado %d tamanhos de perfuração fora do %d total\n"
+
+#: ../src/vendor.c:567
+#, c-format
+msgid "Adjusted active via hole size to be %6.2f mils\n"
+msgstr "Ajustado tamanho de orifíco de via ativa para ser %6.2f mils\n"
+
+#: ../src/vendor.c:580
+#, c-format
+msgid "Adjusted %s routing style via hole size to be %6.2f mils\n"
+msgstr ""
+"Ajustado %s o tamanho do orifício de via que consta no estilo de roteamento "
+"para %6.2f mils\n"
+
+#: ../src/vendor.c:589
+#, c-format
+msgid "Increased %s routing style via diameter to %6.2f mils\n"
+msgstr ""
+"Incrementado de %s o diâmetro da via que consta no estilo de roteamento para "
+"%6.2f mils\n"
+
+#: ../src/vendor.c:641
+#, c-format
+msgid ""
+"Vendor drill list does not contain a drill >= %6.2f mil\n"
+"Using %6.2f mil instead.\n"
+msgstr ""
+"Lista de orifíco do fornecedor não possui uma perfuração >= %6.2f mil\n"
+"Usando %6.2f mil.\n"
+
+#: ../src/vendor.c:698
+#, c-format
+msgid "realloc() failed to allocate %ld bytes\n"
+msgstr "realloc() falhou em alocar %ld bytes\n"
+
+#: ../src/vendor.c:760
+msgid "Error:  null skip value\n"
+msgstr "Error:  valor nulo desconsiderado\n"
+
+#: ../src/vendor.c:796
+#, c-format
+msgid "realloc() failed\n"
+msgstr "realloc() falhou\n"
+
+#: ../src/vendor.c:806
+#, c-format
+msgid "Ignored resource type = %d in skips= section\n"
+msgstr "Ignorado recurso tipo = %d em skips= seção\n"
+
+#: ../src/vendor.c:828
+#, c-format
+msgid "Vendor mapping skipped because refdes = %s matches %s\n"
+msgstr "Mapeamento de fornecedor ignorado porque refdes = %s coincide com %s\n"
+
+#: ../src/vendor.c:840
+#, c-format
+msgid "Vendor mapping skipped because value = %s matches %s\n"
+msgstr "Mapeamento de fornecedor ignorado porque valor = %s coincide com %s\n"
+
+#: ../src/vendor.c:855
+#, c-format
+msgid "Vendor mapping skipped because descr = %s matches %s\n"
+msgstr "Mapeamento de fornecedor ignorado porque descr = %s conincide com %s\n"
+
+#: ../src/vendor.c:864
+#, c-format
+msgid "Vendor mapping skipped because element %s is locked\n"
+msgstr ""
+"Mapeamento de fornecedor ignorado porque o componente %s está travado\n"
+
+#: ../src/vendor.c:933
+msgid "re_exec error\n"
+msgstr "erro de re_exec\n"

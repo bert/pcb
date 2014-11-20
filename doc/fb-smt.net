@@ -1,0 +1,6 @@
+unnamed_net4	R3-1 U1-3 
+unnamed_net3	R3-2 LED1-2 
+VDD	J1-1 U1-4 U1-8 R1-2 LED1-1 
+GND	U1-1 J1-2 C1-1 
+unnamed_net2	U1-6 U1-2 C1-2 R2-1 
+unnamed_net1	U1-7 R1-1 R2-2 

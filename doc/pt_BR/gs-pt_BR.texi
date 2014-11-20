@@ -1,0 +1,141 @@
+\input texinfo    @c -*-texinfo-*-
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment 704720cf4ba9d6a50bb62623379e8889  gs.texi
+@comment
+@comment %**start of header
+@setfilename gs-pt_BR.info
+@settitle Iniciando no PCB
+@ifnothtml
+@setcontentsaftertitlepage
+@end ifnothtml
+@set cedilha @,{c}
+@comment %**end of header
+
+@include ../version.texi
+
+@comment This macro defines how we present the name of the pcb project.
+@comment Use @code{pcb} for the name of the executable, @pcb{} for the project.
+@macro pcb
+@sc{pcb}
+@end macro
+
+@ifinfo
+@format
+INFO-DIR-SECTION Miscellaneous
+START-INFO-DIR-ENTRY
+* pcb: (pcb).                   Um Editor Interativo de Placa de Circuito Impresso.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
+@iftex
+@finalout
+@end iftex
+
+@ifinfo
+
+Esse arquivo documenta como iniciar usando @pcb{}, o sistema
+interativo de tra@,{c}ado de placa de circuito impresso.
+
+Copyright (C) 2007 DJ Delorie
+Copyright (C) 2014 Vers@~{a}o pt_BR Jorge Barros de Abreu
+
+Esse programa @'{e} software livre; voc@^{e} pode redistribu@'{i}-lo e/ou modific@'{a}-lo
+sob os termos da Licen@,{c}a Publica Geral GNU como publicado pela
+Free Software Foundation; ou da vers@~{a}o 2 da Licen@,{c}a, ou (como
+voc@^{e} desejar) qualquer vers@~{a}o mais recente.
+
+Esse programa @'{e} distribu@'{i}do na esperan@,{c}a that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the @b{GNU
+General Public License} for more details.
+
+@end ifinfo
+
+@setchapternewpage on
+@headings single
+
+@tex
+\def\lastnegativepageno{\pageno}
+\def\savepageno{\pageno}
+@end tex
+
+@titlepage
+@title Iniciando no @pcb{}
+@author DJ Delorie
+@author Tradutor pt_BR: Jorge Barros de Abreu
+@end titlepage
+
+@tex
+\global\advance\pageno by 2
+@end tex
+
+@contents
+
+@ifnottex
+@node Top
+@top Iniciando no PCB
+
+Esse documento @'{e} um manual para @pcb{}, o sistema de tra@,{c}ado de
+placa de circuito impresso interativo.
+
+@menu
+* Introducao::   Introdu@,{c}@~{a}o ao @pcb{}.
+* Terminologia::   Termos e defini@,{c}@~{o}es.
+* Instalacao::
+* Sua Primeira Placa::
+@end menu
+
+@end ifnottex
+
+@comment our type of image
+@macro img{INAME}
+@center @image{../\INAME\}
+@end macro
+
+@macro press{TXT}
+@kbd{\TXT\}
+@end macro
+
+@iftex
+@tex
+\gdef\rarrow{$\rightarrow$}
+@end tex
+@end iftex
+@ifhtml
+@macro rarrow
+@html
+&rarr;
+@end html
+@end macro
+@end ifhtml
+@ifnottex
+@ifnothtml
+@macro rarrow
+->
+@end macro
+@end ifnothtml
+@end ifnottex
+
+@macro mnu{TXT}
+@b{\TXT\}
+@end macro
+
+@macro mnuu{T1,T2}
+@b{\T1\@rarrow{}\T2\}
+@end macro
+
+
+@macro mnuuu{T1,T2,T3}
+@b{\T1\@rarrow{}\T2\@rarrow{}\T3\}
+@end macro
+
+@c -----------------------------------------------------------------------------
+@c Each node herein will be moved to its own file when it's filled in.
+
+@include introduction-pt_BR.texi
+@include terminology-pt_BR.texi
+@include installation-pt_BR.texi
+@include firstboard-pt_BR.texi
+@bye

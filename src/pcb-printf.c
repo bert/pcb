@@ -50,7 +50,7 @@
 /* These should be kept in order of smallest scale_factor
  * to largest -- the code uses this ordering when finding
  * the best scale to use for a group of measures. */
- 
+
 static Unit Units[] = {
   { 0, "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
              0.00005, 0.0005, 0.0025, 0.05, 0.25,
@@ -70,9 +70,9 @@ static Unit Units[] = {
   { 0, "nm", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
              5, 50, 2500, 5000, 25000,
              { "" } },
-/* Hack: Pixels get parsed like nanometers. If the value of the 
- * resulting integer is sufficiently small, the code interprets 
- * it a screen pixels. This affects rat thickness. */            
+/* Hack: Pixels get parsed like nanometers. If the value of the
+ * resulting integer is sufficiently small, the code interprets
+ * it a screen pixels. This affects rat thickness. */
   { 0, "px", NULL, 'n', 1000000,  METRIC, ALLOW_NM, 0,
              5, 50, 2500, 5000, 25000,
              { "" } },
@@ -340,7 +340,7 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
       if ((Units[n].allow & allow) != 0 && (Units[n].family == family))
         {
           int n_above_one = 0;
-    
+
           for (i = 0; i < n_coords; ++i)
             if (fabs(value[i] * Units[n].scale_factor) > 1)
               ++n_above_one;
@@ -626,7 +626,7 @@ int pcb_sprintf(char *string, const char *fmt, ...)
   tmp = pcb_vprintf (fmt, args);
   strcpy (string, tmp);
   g_free (tmp);
-  
+
   va_end(args);
   return strlen (string);
 }
@@ -654,7 +654,7 @@ int pcb_fprintf(FILE *fh, const char *fmt, ...)
       rv = fprintf (fh, "%s", tmp);
       g_free (tmp);
     }
-  
+
   va_end(args);
   return rv;
 }
@@ -676,7 +676,7 @@ int pcb_printf(const char *fmt, ...)
   tmp = pcb_vprintf (fmt, args);
   rv = printf ("%s", tmp);
   g_free (tmp);
-  
+
   va_end(args);
   return rv;
 }

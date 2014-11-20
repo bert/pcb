@@ -3,7 +3,7 @@
 #
 #################################################################
 # This script extracts special comments from the source. It assembles
-# them in texinfo files that are included in the manual.  
+# them in texinfo files that are included in the manual.
 #################################################################
 #
 # The general format of what this script looks for is thusly:
@@ -128,7 +128,7 @@ for $cat (sort keys %text) {
 		if ($synt{$key}) {
 		    $new .= "\@cartouche\n\@format\n";
 		    $new .= $synt{$key};
-		    $new .= "\@end format\n\@end cartouche\n\n";
+		    $new .= "\n\@end format\n\@end cartouche\n\n";
 		}
 		if ($desc{$key}) {
 		    $new .= $desc{$key} . "\n";
@@ -235,7 +235,7 @@ sub scan_file {
 	    $tag = $1;
 	    $last = 0;
 	    $pending{$tag} = '';
-	    
+
 	    # note that the help/syntax string may start on the same line
 	    # as the "static const char"... bit so we pick out that part and
 	    # process it first.
@@ -244,16 +244,16 @@ sub scan_file {
 	      do {
 		  # eat trailing whitespace, new-lines, and carriage returns
 		  s/[\r\n\s]+$//;
-		  
+
 		  # we're done if we found the terminating ";"
 		  $last = 1 if /;$/;
-		  
+
 		  # otherwise we need to eat leading whitespace and the leading quote
 		  s/^[\s]*\"//; #"
-		  
+
 		  # convert \n to a newline
 		  s/\\n/\n/g;
-		  
+
 		  # eat trailing quotes
 		  s/\";?$//; #"
 		  s/\\\"/\"/g; #"
@@ -279,7 +279,7 @@ sub scan_file {
 	# \s+ -> one ore more whitespace
 	# ([^"^\s]+|".*?") -> a space-less string, or a string delimited by ", goes to $2
 	# (\s+(.*))? -> zero or more space separated strings
-	
+
 	    $cat = $1;
 	    $key = $2;
 	    # strip leading and trailing quotation marks from the key string

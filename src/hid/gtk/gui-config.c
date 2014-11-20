@@ -1164,7 +1164,7 @@ config_increments_tab_create (GtkWidget * tab_vbox)
 			  CE_SMALL, 0, increment_spin_button_cb,	\
 			  &incr_##family->type, FALSE,	\
                           msg)
-  
+
   /* ---- Metric Settings ---- */
   vbox = ghid_category_vbox (config_increments_vbox,
 			     _("Metric Increment Settings"), 4, 2, TRUE, TRUE);
@@ -1243,7 +1243,7 @@ config_library_tab_create (GtkWidget * tab_vbox)
   gtk_label_set_markup (GTK_LABEL (label),
 			_
 			("<small>Enter a \""
-			 PCB_PATH_DELIMETER 
+			 PCB_PATH_DELIMETER
 			 "\" separated list of custom top level\n"
 			 "element directories.  For example:\n"
 			 "\t<b>~/gaf/pcb-elements"
@@ -1465,7 +1465,7 @@ config_layers_apply (void)
       s = make_layer_group_string (&PCB->LayerGroups);
       if (dup_core_string (&Settings.Groups, s))
 	{
-	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, max_copper_layer);
+	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, &max_copper_layer);
 	  ghidgui->config_modified = TRUE;
 	}
       g_free (s);
@@ -1523,7 +1523,7 @@ ghid_config_groups_changed(void)
   if (config_groups_window)
     gtk_widget_destroy(config_groups_window);
 
-  config_groups_window = scrolled_window = 
+  config_groups_window = scrolled_window =
     gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_set_size_request (scrolled_window, 34, 408);
   gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 3);
@@ -1676,7 +1676,7 @@ config_layers_tab_create (GtkWidget * tab_vbox)
   config_groups_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), config_groups_vbox, FALSE, FALSE, 0);
   ghid_config_groups_changed();
-  
+
   sep = gtk_hseparator_new ();
   gtk_box_pack_start (GTK_BOX (vbox), sep, FALSE, FALSE, 4);
 

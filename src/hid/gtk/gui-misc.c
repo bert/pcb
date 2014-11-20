@@ -67,7 +67,7 @@ ghid_status_line_set_text (const gchar * text)
 void
 ghid_cursor_position_label_set_text (gchar * text)
 {
-  ghid_label_set_markup (ghidgui->cursor_position_absolute_label, text);  
+  ghid_label_set_markup (ghidgui->cursor_position_absolute_label, text);
 }
 
 void
@@ -324,7 +324,10 @@ run_get_location_loop (const gchar * message)
 		      G_CALLBACK (loop_key_press_cb), &loop);
 
   loop = g_main_loop_new (NULL, FALSE);
+
+  GDK_THREADS_LEAVE ();
   g_main_loop_run (loop);
+  GDK_THREADS_ENTER ();
 
   g_main_loop_unref (loop);
 

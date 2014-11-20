@@ -69,10 +69,10 @@ sed \
 	-e 's/ChangeLog//g' \
 	po/Makefile.in.in.orig > po/Makefile.in.in
 
-# Add rule for .res file processing
+# Menu i18n
 echo "
 %.res.h: %.res
-	\$(INTLTOOL_EXTRACT) --type=gettext/quoted $^" >> po/Makefile.in.in
+	make -C ../src \$@" >> po/Makefile.in.in
 
 rm -f po/Makefile.in.in.orig
 

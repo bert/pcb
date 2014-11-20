@@ -113,7 +113,7 @@
 #define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
 
 #define TEST_THERM(L,P)		((P)->Flags.t[(L)/2] & THERMFLAG(L) ? 1 : 0)
-#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf) 
+#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf)
 #define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/2] &= ~THERMFLAG(L)
 #define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/2] = ((P)->Flags.t[(L)/2] & ~THERMFLAG(L)) | ((V)  << (4 * ((L) % 2)))
 
@@ -151,11 +151,11 @@ extern int mem_any_set (unsigned char *, int);
 	((TEST_FLAG(ONSOLDERFLAG, (o)) != 0) == SWAP_IDENT)
 
 /* ---------------------------------------------------------------------------
- *  Determines if an object is on the given side. side is either SOLDER_LAYER
- *  or COMPONENT_LAYER.
+ *  Determines if an object is on the given side. side is either BOTTOM_SILK_LAYER
+ *  or TOP_SILK_LAYER.
  */
 #define ON_SIDE(element, side) \
-        (TEST_FLAG (ONSOLDERFLAG, element) == (side == SOLDER_LAYER))
+        (TEST_FLAG (ONSOLDERFLAG, element) == (side == BOTTOM_SILK_LAYER))
 
 /* ---------------------------------------------------------------------------
  * some loop shortcuts

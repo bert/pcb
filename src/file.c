@@ -526,7 +526,7 @@ PostLoadElementPCB ()
     return;
 
   CreateNewPCBPost (yyPCB, 0);
-  ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, yyData->LayerN);
+  ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
   e = yyPCB->Data->Element->data; /* we know there's only one */
   PCB = yyPCB;
   MoveElementLowLevel (yyPCB->Data,

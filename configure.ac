@@ -6,7 +6,7 @@ AC_CONFIG_SRCDIR([src/draw.c])
 AC_PREREQ([2.60])
 AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([config.h])
 
 ##########################################################################
 #
@@ -1236,8 +1236,12 @@ if test -d $srcdir/stdlib; then
    AC_CONFIG_FILES(stdlib/connector/DIN/Makefile)
    AC_CONFIG_FILES(stdlib/connector/MTA/Makefile)
    AC_CONFIG_FILES(stdlib/connector/RF/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/RIA/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/RJ/Makefile)
    AC_CONFIG_FILES(stdlib/connector/SUBD/Makefile)
+   AC_CONFIG_FILES(stdlib/connector/XL/Makefile)
    AC_CONFIG_FILES(stdlib/crystal/Makefile)
+   AC_CONFIG_FILES(stdlib/DFN/Makefile)
    AC_CONFIG_FILES(stdlib/DIP/Makefile)
    AC_CONFIG_FILES(stdlib/DO/Makefile)
    AC_CONFIG_FILES(stdlib/filter/Makefile)

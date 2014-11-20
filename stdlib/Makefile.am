@@ -7,6 +7,7 @@ SUBDIRS=\
         capacitor \
 	connector \
 	crystal \
+ 	DFN \
 	DIP \
 	DO \
 	filter \

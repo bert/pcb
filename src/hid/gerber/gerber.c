@@ -123,7 +123,7 @@ typedef struct aperture
 }
 Aperture;
 
-typedef struct 
+typedef struct
 {
   Aperture *data;
   int count;
@@ -744,7 +744,7 @@ gerber_set_layer (const char *name, int group, int empty)
       pagecount++;
       assign_file_suffix (filesuff, idx);
       f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
-      if (f == NULL) 
+      if (f == NULL)
 	{
 	  Message ( "Error:  Could not open %s for writing.\n", filename);
 	  return 1;

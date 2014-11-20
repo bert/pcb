@@ -1,5 +1,5 @@
 
-pcblibsubdir= @PCB_STDLIB_DIR@/header
+pcblibsubdir= @PCB_STDLIB_DIR@/generic
 
 pcblibsub_DATA= ${FOOTPRINTS}
 

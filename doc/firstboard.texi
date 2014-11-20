@@ -1,0 +1,32 @@
+@node Your First Board
+@chapter Your First Board
+
+In this chapter, we're going to walk you through creating a few very
+simple boards, just to give you an idea of the way the programs work
+and how to do the things that are common to all project.  Each board
+will build upon techniques learned from the previous board.
+
+While this manual is not intended to cover the @code{gschem} program,
+we will be instructing you on the minimum you'll need to know to use
+@code{gschem} with @code{pcb}.  Please refer to the @code{gschem}
+documentation for further details.
+
+The first board will be a simple LED and resistor.  It will show you
+how to create a board, place elements, and route traces.  The second
+board will be a simple LED blinker, which will involve creating
+schematics, setting up a project, and creating new symbols and
+footprints.  The third board will be another blinker, this time with
+surface mount devices and four layers, which will introduce power
+planes, vias, and thermals.
+
+@ifnottex
+@menu
+* LED Board::
+* Blinker Board::
+* SMT Blinker::
+@end menu
+@end ifnottex
+
+@include fb-led.texi
+@include fb-blinker.texi
+@include fb-smt.texi

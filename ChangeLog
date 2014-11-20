@@ -1,5 +1,286 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
+2014-03-16   DJ Delorie * dj AT delorie dot com *
+
+	* tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode4/gcode_oneline-top.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-bottom.gcode,
+	tests/golden/hid_gcode6/gcode_oneline-top.gcode: update gcode golden
+	files Checked with linuxcnc - the old goldens had zeros where the
+	parameters should have been.
+
+2014-02-23   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR adjusts and make update-po
+          Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-02-03   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR.po update Closes-bug: lp-1275446
+
+2014-02-03   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: Minor changes in po pt_BR.po file Closes-bug: lp-1274404
+
+2014-02-03   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/hid/gtk/gui-config.c: Fix segfault caused by lack of commas in
+	a format expression Closes-bug: lp-1275407
+
+2014-02-01   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: Preferencias do PCB to Preferências...
+          Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-02-01   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* doc/pcb.texi: Fix order of sections in the documentation Prevent
+        warnings output by "make" when pcb.texi is processed.
+
+2014-01-31   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* doc/pcb.texi: Fix several typos in the documentation
+
+2014-01-3  ahmed El-Mahmoudy aelmahmoudy AT sabily dot org*
+
+	* src/pcbtest.sh.in: Fix 'make distcheck' Use proper target directory for
+         pcblib-newlib.  Closes-bug: lp-855405  Commit-message-by: Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+2014-01-31   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* po/POTFILES.in, po/POTFILES.skip: Add one more localized file to
+	POTFILES.in Additionally, the file generated from it is moved to POTFILES.skip
+
+2013-01-30   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/action.c, src/buffer.c, src/hid/common/actions.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-config.c,
+	src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-drc-window.c,
+	src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-top-window.c,
+	src/hid/lpr/lpr.c, src/misc.c, src/parse_y.y, src/report.c,
+	src/toporouter.c, src/vendor.c: Add strings to localization
+        Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-30   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/hid/bom/bom.c: Don't use localized unit names in comments of
+	the X-Y files Fix a bug causing 'make distcheck' to fail for all bom_hid# tests in
+	localized environments because of using of a localized unit name in
+	a comment line of the output X-Y file.
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* po/POTFILES.in: Add a missing file to POTFILES.in
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* data/Makefile.am: Remove a duplicated line INTLTOOL_XML_RULE is used
+        twice in Makefile.am, which results in having two same lines in generated
+        Makefile.
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* data/Makefile.am: Fix 'make distcheck' 'make distcheck' has been broken again in
+	c74ba603517380bae59f1ff68a5f100c2fb1c960
+
+2014-01-29   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* src/Makefile.am: Fix 'make distcheck' Fix a bug introduced in 6aa50cc4c93fec243cba9cd37c86090496af3feb
+
+2012-12-04   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-utils.c: Allow hotkeys in button labels Use _with_mnemonic functions to allow '_' hotkey.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-output-events.c, src/macro.h: Add UNKNOWN_NAME
+	macro UNKNOWN_NAME macro is the same as UNKNOWN, but allow to specify
+	"unknown name", which can be useful for localization.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-top-window.c: Add tooltips to mode menu buttons  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-18   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/POTFILES.in, src/hid/lpr/lpr.c, src/hid/ps/ps.c: Add strings
+	from LPR and PS HID's to translation  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-dialog-print.c: Print dialog i18n  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/.gitignore: Ignore data/pcb.appdata.xml.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am, data/pcb.appdata.xml, data/pcb.appdata.xml.in,
+	po/POTFILES.in: Let appdata have translatable strings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am: Added the appdata target to the Makefile.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml: Added an appdata file.
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-02-03   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-netlist-window.c: Fixing a typo.
+       Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-02-03   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-misc.c,
+	src/hid/gtk/gui-netlist-window.c, src/report.c: Add strings to
+	translation with context  Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/gettext.h, src/global.h: Use gettext.h for pgettext()
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-26   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/ru.po: Updated Russian translation
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-25   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: pt_BR language update
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-09-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/find.c: Use ngettext for message with plural form
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-01-16   xmd * shinobi dot jack AT gmail dot com *
+
+	* src/hid/gerber/gerber.c: gerber.c: added an option for Hackvana
+	file name convention.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/ghid-main-menu.c: Menu items i18n This adds i18n for gtk menus Closes-bug: lp-1113758
+
+2014-01-20   Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+	* autogen.sh, src/.gitignore, src/Makefile.am: Fix menu
+	gettextization Changes were made to eliminate errors output by 'make distcheck' or
+	'make -C po update-po'.  Closes-bug: lp-913458
+
+2012-12-01   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/POTFILES.in: Fix .res.in to .res.h in POTFILES.in Affects-bug: lp-913458
+
+2014-01-18   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/LINGUAS, po/pt_BR.po: Added pt_BR translation file.
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-10   Kevin Redon * kevredon AT mail dot tsaitgaist dot info *
+
+	* src/djopt.c: add missing option splitlines in djopt_syntax
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-10   Kevin Redon * kevredon AT mail dot tsaitgaist dot info *
+
+	* src/action.c: fix missing ) typo in changeclearsize_syntax
+      Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2013-10-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-misc.c, src/hid/gtk/gui-top-window.c: Fix lockup
+	when a scroll event is received outside the drawing area This can
+    occur if the user is dragging a component in the drawing
+	area (hence a pointer grab is in operation), and during this drag,
+	the user moves the mouse outside the drawing area and touches the
+	scroll wheel.  We then hit the scroll event handler, mouse action handler, action
+	dispatcher etc.. and find we do not have a current location known.
+	(The cursor is outside the drawing area).  We then prompt for a
+	location, and using a recursive main- loop, wait for some kind (e.g.
+	a mouse click) which gives one.  The problem appears to be caused
+    by the fact it is likely we get a
+	second scroll event with the first, and that we process this from
+	within the recursive main-loop. We are still outside the drawing
+	area, so prompt the user for a location, and enter another level of
+	recursion. (In my tests, I was able to hit 6 or 7 levels deep of
+	main-loop recursion).  Our code fails to exit its recursive main-loop
+    if it rucurses, and
+	in any case, we would not want to prompt the user "n" times in a
+	row. The failure to exit from recursion is probably due to the event
+	handlers attached by the first recursive main-loop being called
+	prior to those attached later. (We attempt to quit the first
+	recursive main-loop, but cannot, as there are others now running).
+    As a quick work-around to the immediate problem, prevent scroll
+	events being received from within the recursive main-loop. This
+	prevents the lockup, but ideally we should re-think how we handle
+	these events to avoid requiring the user to click on a coordinate.
+    I have also added a GDK_THREADS_{LEAVE,ENTER} pair around running
+	the main-loop, as this is what GTK's code does for gtk_dialog_run().
+
+2013-08-03   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/hid_bom1/Makefile.am,
+	tests/golden/hid_bom1/bom_general.bom,
+	tests/golden/hid_bom1/bom_general.xy,
+	tests/golden/hid_bom2/Makefile.am,
+	tests/golden/hid_bom2/bom_general.xy,
+	tests/golden/hid_bom2/test.bom,
+	tests/golden/hid_bom3/bom_general.bom,
+	tests/golden/hid_bom3/test.xy,
+	tests/golden/hid_bom4/bom_general.bom,
+	tests/golden/hid_bom4/bom_general.xy: Regenerate tests after "Make
+	xy file output IPC 7531 compliant.".
+
+2012-12-31   dark141 AT gmail dot com * dark141 AT gmail dot com *
+
+	* src/hid/bom/bom.c: Make xy file output IPC 7531 compliant.
+    Improved code style by Bert Timmerman * bert dot timmerman AT
+	xs4all dot nl * dot
+
+2013-08-02   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* po/POTFILES.skip: Add intl/plural.c to POTFILES.skip
+
+2012-11-08   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c: src/action.c: add a number of comments.  ... in the hope they're right.
+
+2013-07-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/res_parse.y: src/res_parse.y: handle resource globals gracefully.  Likely,
+    res_file is used somewhere to check something. In case a resource file was loaded
+    earlier, but the current parsing is from a string, res_file is still != NULL, so this
+    check would mislead.
+    Solution: Clear res_file and res_filename as soon as the file
+    behind it gets closed.  Also replace a number of zeros with the more appropriate NULL.  Affects-bug: lp-1206882
+
+2013-07-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Additional checks for existing names In ActionElementList, add an additional check for
+	DESCRIPTION_NAME(e) before comparing with an old footprint.
+
+2013-06-22   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* src/Makefile.am: src/Makefile.am: revert the AM_CPPFLAGS change as
+	it breaks the building process.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2013-06-18   Leo Bärring * leo dot barring AT gmail dot com *
+
+	* configure.ac, doc/extract-docs, doc/pcb.texi, gts/Makefile.am,
+	src/Makefile.am, src/hid/lesstif/main.c: Patch to resolve archlinux
+	build warn/errors.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
 
 2013-05-02   Wiley E. Hill * wileyhill AT gmail dot com *
 
@@ -88,7 +369,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	newlib/tests/monoblock_small, src/Makefile.am, src/action.c,
 	src/buffer.c, src/file.c, src/global.h, src/hid/common/hidinit.c,
 	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-config.c,
-	src/hid/lesstif/main.c, src/main.c, src/misc.c, src/pcbtest.sh.in: 
+	src/hid/lesstif/main.c, src/main.c, src/misc.c, src/pcbtest.sh.in:
 	Bite the Bullet - Remove M4 Library, work in progress
 
 2013-04-19   Gabriel Paubert * paubert AT iram dot es *
@@ -539,7 +820,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2012-12-22   Peter Clifton * peter AT clifton-electronics dot co dot uk *
 
 	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
-	src/hid/gtk/gui-pinout-preview.c, src/hid/gtk/gui-pinout-preview.h: 
+	src/hid/gtk/gui-pinout-preview.c, src/hid/gtk/gui-pinout-preview.h:
 	hid/gtk: Make the pinout preview element use dynamicly allocated
 	memory.  By embedding the element structure in our data-structure, we were
 	forcing various element initialisation and copy routines to be
@@ -749,7 +1030,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2012-12-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
 
-	* src/hid/common/draw_helpers.c, src/hid/common/draw_helpers.h: 
+	* src/hid/common/draw_helpers.c, src/hid/common/draw_helpers.h:
 	hid/common: Fix including draw_helpers.h from draw_helpers.c The prototype for hid_common_fill_pcb_pv() was incorrect. To avoid
 	this kind of mistake in the future, include the header file from the
 	.c file.
@@ -940,7 +1221,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2012-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/action.c, src/find.c, src/find.h, src/netlist.c, src/report.c: 
+	* src/action.c, src/find.c, src/find.h, src/netlist.c, src/report.c:
 	Stop "find connected" following rat-lines. Fixes confusing output.  Suppose we have two nets, A and B, and some components. If we
 	connect a pin of a component which was supposed to be connected to
 	net A, to net B, the "f" (find connected) action will falsely show
@@ -968,12 +1249,12 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/hid/common/hidnogui.c, src/hid/gcode/gcode.c,
 	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
 	src/hid/lpr/lpr.c, src/hid/nelma/nelma.c, src/hid/png/png.c,
-	src/hid/ps/eps.c, src/hid/ps/ps.c, src/hid/ps/ps.h, src/print.c: 
+	src/hid/ps/eps.c, src/hid/ps/ps.c, src/hid/ps/ps.h, src/print.c:
 	HID: Move non-PCB specific drawing calls into a separate API
 
 2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
 
-	* src/Makefile.am, src/hid/gcode/gcode.c, src/hid/gcode/gcode.h: 
+	* src/Makefile.am, src/hid/gcode/gcode.c, src/hid/gcode/gcode.h:
 	hid/gcode: Make gcode_hid structure static
 
 2012-11-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
@@ -1152,7 +1433,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	tests/golden/hid_gcode9/gcode_oneline-bottom.gcode,
 	tests/golden/hid_gcode9/gcode_oneline-drillmill.gcode,
 	tests/golden/hid_gcode9/gcode_oneline-outline.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-top.gcode, tests/tests.list: 
+	tests/golden/hid_gcode9/gcode_oneline-top.gcode, tests/tests.list:
 	gocde HID: refresh all the G-code exporter tests.  There have been a lot of new features recently and a bunch of
 	comments refinements. Also the default unit was changed from inch to
 	mm, so don't be surprised too much there's nothing left as before.
@@ -1404,7 +1685,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2012-07-06   Andrew Poelstra * apoelstra AT wpsoftware dot net *
 
 	* tests/golden/hid_bom1/bom_general.xy,
-	tests/golden/hid_bom2/bom_general.xy, tests/golden/hid_bom3/test.xy: 
+	tests/golden/hid_bom2/bom_general.xy, tests/golden/hid_bom3/test.xy:
 	Fix comments in golden samples for hid_bom[123] tests With the nanometers switchover, a comment in the BOM output changes
 	from "output in mils" to "output in mil", breaking tests.
 
@@ -2347,7 +2628,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	tests/golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode,
 	tests/golden/hid_gcode8/gcode_oneline-drill.gcode,
 	tests/golden/hid_gcode9/gcode_oneline-0.0350.drill.gcode,
-	tests/golden/hid_gcode9/gcode_oneline-drill.gcode, tests/tests.list: 
+	tests/golden/hid_gcode9/gcode_oneline-drill.gcode, tests/tests.list:
 	gcode tests now look for the new size-specific drill files
 
 2011-11-13   Dima Kogan * dima AT secretsauce dot net *
@@ -2590,7 +2871,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-19   Kai-Martin Knaak * kmk AT lilalaser dot de *
 
-	* src/hid/gtk/gui-config.c: 
+	* src/hid/gtk/gui-config.c:
 	top-bottom-in-preference-dialog-of-GTK-HID This patch replaces "component" and "solder" in the preference
 	dialog of GTK HID with "top" and "bottom". Incindences were in the
 	layer group tab and in the text of the info tab.
@@ -2777,7 +3058,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-09-29   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
 	* src/hid/gtk/ghid-layer-selector.c,
-	src/hid/gtk/ghid-layer-selector.h, src/hid/gtk/gui-top-window.c: 
+	src/hid/gtk/ghid-layer-selector.h, src/hid/gtk/gui-top-window.c:
 	hid/gtk: Extend layer selector to allow editing layer names in situ Contains an unfortunate abstraciton break in the layer selector in
 	order to temporarily disable PCB's accelerators whilst the layer is
 	being renamed. It would be lovely to fix this and make things
@@ -3171,7 +3452,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-09-11   Dima Kogan * dima AT secretsauce dot net *
 
 	* src/hid/gtk/ghid-route-style-selector.c,
-	src/hid/gtk/ghid-route-style-selector.h, src/hid/gtk/gtkhid-main.c: 
+	src/hid/gtk/ghid-route-style-selector.h, src/hid/gtk/gtkhid-main.c:
 	Re-ordered all references in the style selector dialog to have one
 	consistent ordering.  Everything that refers to the settings in the style selector dialog
 	now does so in order of Line thickness Hole size Hole thickness (hole + annular ring)
@@ -3263,7 +3544,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-05   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/action.c, src/file.c, src/file.h, src/hid/common/actions.c: 
+	* src/action.c, src/file.c, src/file.h, src/hid/common/actions.c:
 	Implement a new RevertPCB() call, sharing code with LoadPCB() The RevertPCB() takes no filename parameter, and aside from that,
 	the only difference to LoadPCB is that when it calls the GUI's
 	"PCBChanged" action, it passes a new "revert" argument. This should
@@ -3324,7 +3605,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-library-window.c,
 	src/hid/gtk/gui-log-window.c, src/hid/gtk/gui-netlist-window.c,
-	src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c: 
+	src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c:
 	hid/gtk: Replace usage of the deprecated gtk_widget_set_uposition()
 	call The closest replacement is gtk_window_move(), and looking at the GTK
 	sources, appears to be what gtk_widget_set_uposition() calls
@@ -3490,7 +3771,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-05   DJ Delorie * dj AT delorie dot com *
 
-	* src/const.h, src/draw.c, src/misc.c, src/print.c, src/report.c: 
+	* src/const.h, src/draw.c, src/misc.c, src/print.c, src/report.c:
 	Fix text scaling exceeding Coord max.  The old way of scaling text was to multiply by scale/100 but this
 	could easily overflow on reasonably sized boards with a 32-bit Coord
 	type.  The new code scales by (double)scale/100.0 instead.  Since we
@@ -3516,7 +3797,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-05   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/hid/gtk/ghid-layer-selector.c, src/hid/gtk/gui-top-window.c: 
+	* src/hid/gtk/ghid-layer-selector.c, src/hid/gtk/gui-top-window.c:
 	gtk: fix behavior when hiding the last visible layer When you try to toggle the last layer invisible, pcb should refuse
 	to let you do so, since something has to be selected, and we don't
 	allow selection of invisible layers.  What actually happens is that pcb locks up. This patch fixes that.
@@ -3529,7 +3810,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-09-05   Andrew Poelstra * asp11 AT sfu dot ca *
 
 	* src/hid/gtk/ghid-route-style-selector.c,
-	src/hid/gtk/ghid-route-style-selector.h, src/hid/gtk/gtkhid-main.c: 
+	src/hid/gtk/ghid-route-style-selector.h, src/hid/gtk/gtkhid-main.c:
 	Implement RouteStylesChanged action This action looks at the actual route-style settings (i.e.,
 	Settings.LineThickness), and gives these to the route style
 	selector. The selector looks in its list and selects a style, if one
@@ -3560,7 +3841,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-03   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/hid/gtk/ghid-main-menu.c, src/hid/gtk/ghid-main-menu.h: 
+	* src/hid/gtk/ghid-main-menu.c, src/hid/gtk/ghid-main-menu.h:
 	Introduce functions for GHidRouteStyleSelector handling to menu
 
 2011-09-03   Andrew Poelstra * asp11 AT sfu dot ca *
@@ -3643,7 +3924,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-09-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c: 
+	* src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c:
 	hid/gtk: Don't pack the drawing area in a GtkViewport widget (For both the main window and the pinout preview). The GtkViewport
 	widget is designed to add scroll bars to a widget which doesn't have
 	native scroll capabilities. We are handling out own scroll-bars, so
@@ -3816,7 +4097,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-30   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid/gerber/gerber.c, src/hid/ps/eps.c, src/hid/ps/ps.c: 
+	* src/hid/gerber/gerber.c, src/hid/ps/eps.c, src/hid/ps/ps.c:
 	hid/{ps,eps,gerber}: Clear CHECKPLANESFLAG before exporting Ensure we are in a sensible view state before exporting. This update
 	those HIDs which cleared other similar renedering flags before
 	exporting to include the CHECKPLANES flag.
@@ -3881,7 +4162,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/hid/gtk/ghid-layer-selector.c, src/hid/gtk/gui-top-window.c: 
+	* src/hid/gtk/ghid-layer-selector.c, src/hid/gtk/gui-top-window.c:
 	Prevent recursion in layer selector events
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
@@ -3898,7 +4179,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	* src/Makefile.am, src/hid/gtk/ghid-layer-selector.c,
 	src/hid/gtk/ghid-layer-selector.h,
 	src/hid/gtk/gtk-pcb-layer-selector.c,
-	src/hid/gtk/gtk-pcb-layer-selector.h, src/hid/gtk/gui-top-window.c: 
+	src/hid/gtk/gtk-pcb-layer-selector.h, src/hid/gtk/gui-top-window.c:
 	Rename GtkPcbLayerSelector to GHidLayerSelector
 
 2011-08-29   Andrew Poelstra * asp11 AT sfu dot ca *
@@ -4123,7 +4404,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-08-26   Andrew Poelstra * asp11 AT sfu dot ca *
 
 	* src/hid/gtk/gtk-pcb-layer-selector.c,
-	src/hid/gtk/gtk-pcb-layer-selector.h, src/hid/gtk/gui-top-window.c: 
+	src/hid/gtk/gtk-pcb-layer-selector.h, src/hid/gtk/gui-top-window.c:
 	Support adding/deletion of layers in GtkPcbLayerSelector If you add a layer to a GtkPcbLayerSelector, and its ID is already
 	in the selector, it will update the layer instead of adding a new
 	one. This way, we can update the layer selector by:   1. Deleting all recently-deleted and non-copper layers.    2. Re-adding all layers (including new ones)   3. Re-adding all non-copper layers (so they go to the end) The old layer selector maintained MAX_LAYER + n layers (where n was
@@ -4204,7 +4485,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-26   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-output-events.c: 
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-output-events.c:
 	hid/gtk: Allow zooming out past the board size (up to 1/10 viewport
 	size) The 1/10 viewport size should be the same as the Lesstif HID allows.
 	The purpose of the limit is to avoid zooming in so small the PCB is
@@ -4429,7 +4710,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-15   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/hid/gtk/gtk-pcb-coord-entry.c, src/hid/gtk/gui-dialog-print.c: 
+	* src/hid/gtk/gtk-pcb-coord-entry.c, src/hid/gtk/gui-dialog-print.c:
 	Fix: spin increments not working in GtkPcbCoordEntry after unit
 	change
 
@@ -4462,7 +4743,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* src/hid/gtk/gtk-pcb-coord-entry.c,
 	src/hid/gtk/gtk-pcb-coord-entry.h, src/hid/gtk/gui-config.c,
-	src/hid/gtk/gui-dialog-size.c, src/pcb-printf.c, src/pcb-printf.h: 
+	src/hid/gtk/gui-dialog-size.c, src/pcb-printf.c, src/pcb-printf.h:
 	Use GtkPcbCoordEntry in gui-dialog-size.c
 
 2011-08-10   Andrew Poelstra * asp11 AT sfu dot ca *
@@ -4488,7 +4769,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* src/hid.h, src/hid/common/hidinit.c, src/hid/gtk/gui-config.c,
 	src/hid/gtk/gui-dialog-print.c, src/hid/lesstif/dialogs.c,
-	src/hid/lesstif/lesstif.h, src/hid/lesstif/main.c, src/main.c: 
+	src/hid/lesstif/lesstif.h, src/hid/lesstif/main.c, src/main.c:
 	Introduce HID_Coord type and related changes Give measure-specific HID options their own datatype, so that things
 	like the --grid option can support suffixes instead of exposing the
 	base unit. (In fact, since they use GetValue, they will keep right
@@ -4661,7 +4942,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-07-26   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/polyarea.h, src/polygon.c, src/polygon.h, src/polygon1.c: 
+	* src/polyarea.h, src/polygon.c, src/polygon.h, src/polygon1.c:
 	Audit polygon*, polyarea.h, implement Coord
 
 2011-07-25   Andrew Poelstra * asp11 AT sfu dot ca *
@@ -4698,7 +4979,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-07-27   Andrew Poelstra * asp11 AT sfu dot ca *
 
-	* src/file.c, src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c: 
+	* src/file.c, src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c:
 	Introduce PCB::grid::unit attribute This is PCB's first use of the Attribute() field in the file format.
 	It is a unit suffix string denoting the unit setting used by pcb
 	when loading the file.  Note the namespacing: as Attributes are persistent across
@@ -4911,7 +5192,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-08-10   DJ Delorie * dj AT delorie dot com *
 
-	* configure.ac, src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h: 
+	* configure.ac, src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h:
 	Detect XRender + Xinerama to avoid BadMatch Closes-bug: lp-699251 This seems to happen when your X server is using both Xinerama and
 	XRender, and only affects the XRenderChangePicture() call with a
 	clip_mask.  So, I added code to detect Xinerama+XRender and disable
@@ -4996,7 +5277,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-08-07   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
 	* po/POTFILES.in, src/Makefile.am, src/gpcb-menu.res,
-	src/gpcb-menu.res.in, src/pcb-menu.res, src/pcb-menu.res.in: 
+	src/gpcb-menu.res.in, src/pcb-menu.res, src/pcb-menu.res.in:
 	Generate pcb-menu.res and gpcb-menu.res from ".in" files No functional changes here, just a preliminary cleaning before
 	adding the topological autorouter to the menus. Doing so requies
 	conditional inclusion of certain lines, as the toporouter is not
@@ -5620,7 +5901,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-06-11   Andrew Poelstra * asp11 AT sfu dot ca *
 
 	* src/Makefile.am, src/pcb-printf.c, src/pcb-printf.h: Add
-	pcb-printf.c to allow custom specifiers for unit output From the header: /* This file defines a wrapper around sprintf, that  *  defines new specifiers that take pcb BDimension  *  objects as input.   *  * The new specifiers are:  *   %mm    output a measure in mm  *   %mM    output a measure in scaled (mm/um) metric  *   %ml    output a measure in mil  *   %mL    output a measure in scaled (mil/in) imperial  *   %ms    output a measure in most natural mm/mil units  *   %mS    output a measure in most natural scaled units  *   %md    output a pair of measures in most natural mm/mil units  *   %mD    output a pair of measures in most natural scaled units  *   %m3    output 3 measures in most natural scaled units  *     ...   *   %m9    output 9 measures in most natural scaled units  *   %m*    output a measure with unit given as an additional  *          const char* parameter  *   %mr    output a measure in a unit readable by parse_l.l  *          (this will always append a unit suffix)  *  * These accept the usual printf modifiers for %f,  *  as well as the additional modifier $ which is  *  used to output a unit suffix after the measure.   *  * KNOWN ISSUES:  *   No support for %zu size_t printf spec  *   No support for .* subspecifier for pcb specs  */
+	pcb-printf.c to allow custom specifiers for unit output From the header: /* This file defines a wrapper around sprintf, that  *  defines new specifiers that take pcb BDimension  *  objects as input.   *  * The new specifiers are:  *   %mm    output a measure in mm  *   %mM    output a measure in scaled (mm/um) metric  *   %ml    output a measure in mil  *   %mL    output a measure in scaled (mil/in) imperial  *   %ms    output a measure in most natural mm/mil units  *   %mS    output a measure in most natural scaled units  *   %md    output a pair of measures in most natural mm/mil units  *   %mD    output a pair of measures in most natural scaled units  *   %m3    output 3 measures in most natural scaled units  *     ...   *   %m9    output 9 measures in most natural scaled units  *   %m*    output a measure with unit given as an additional  *          const char* parameter  *   %mr    output a measure in a unit readable by parse_l.l  *          (this will always append a unit suffix)  *  * These accept
+the usual printf modifiers for %f,  *  as well as the additional modifier $ which is  *  used to output a unit suffix after the measure.   *  * KNOWN ISSUES:  *   No support for %zu size_t printf spec  *   No support for .* subspecifier for pcb specs  */
 
 2011-06-09   DJ Delorie * dj AT delorie dot com *
 
@@ -6138,7 +6420,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2011-05-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
 	* configure.ac, src/Makefile.am, src/hid/common/hidgl.c,
-	src/hid/common/hidgl.h, src/hid/gtk/gtkhid-gl.c, src/hid/gtk/gui.h: 
+	src/hid/common/hidgl.h, src/hid/gtk/gtkhid-gl.c, src/hid/gtk/gui.h:
 	hid/gtk: Drop in GL renderer - WOOT! Much of the generic GL drawing stuff lives in a new common helper,
 	hid/common/hidgl.[ch]. Unavoidably, there is a lot of GUI specific
 	setup and teardown code.  There are probably still bits of code in hid/gtk/gtkhid-gl.c which
@@ -6247,7 +6529,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-04-30   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid.h, src/hid/gtk/gtkhid-gdk.c, src/hid/lesstif/main.c: 
+	* src/hid.h, src/hid/gtk/gtkhid-gdk.c, src/hid/lesstif/main.c:
 	Remove live drawing parameters for HID->use_mask() These are no longer used by the autorouter, so lets clean the
 	use_mask() interface to JUST deal with _masking_ from now on ;)
 
@@ -7202,7 +7484,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2011-04-06   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gui-output-events.c: 
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gui-output-events.c:
 	hid/gtk: Only redraw the crosshair when necessary If we're about to repaint the screen from our backing pixmap, there
 	is no point un-XOR drawing our current crosshair first.
 
@@ -7293,7 +7575,8 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	selection / rubberband rectangle in the AttachedBox.state ==
 	STATE_THIRD state.  Digging through the version control history, this code appears to
 	have been present since the project was initially placed under CVS
-	control.  The 23 places this argument was previously false are:     ActionMovePointer         -  HideCrosshair (false);         -  RestoreCrosshair (false);     EventMoveCrosshair         -  RestoreCrosshair (false);     ActionDisplay         -  RestoreCrosshair (false);     ActionFreeRotateBuffer         -  HideCrosshair(false);         -  RestoreCrosshair(false);     MoveCrosshairAbsolute         -  HideCrosshair (false);     ghid_invalidate_all         -  RestoreCrosshair (FALSE);     ScrollAction (GTK HID)         -  HideCrosshair (FALSE);         -  RestoreCrosshair (FALSE);     ghid_port_ranges_changed         -  HideCrosshair (FALSE);     ghid_note_event_location         -  RestoreCrosshair (false);     idle_proc (Lesstif HID)         -  CrosshairOn (0);     CenterDisplay         -  RestoreCrosshair(false);     ReportDialog         -  HideCrosshair (false);         -  RestoreCrosshair (false);     ReportFoundPins         -  HideCrosshair (false);         -  RestoreCrosshair (false);     ReportNetLength         -  HideCrosshair (false);         -  RestoreCrosshair (false);     SetLocalRef         -  RestoreCrosshair (false);         -  HideCrosshair (false);         -  RestoreCrosshair (false);
+	control.  The 23 places this argument was previously false are:     ActionMovePointer         -  HideCrosshair (false);         -  RestoreCrosshair (false);     EventMoveCrosshair         -  RestoreCrosshair (false);     ActionDisplay         -  RestoreCrosshair (false);     ActionFreeRotateBuffer         -  HideCrosshair(false);         -  RestoreCrosshair(false);     MoveCrosshairAbsolute         -  HideCrosshair (false);     ghid_invalidate_all         -  RestoreCrosshair (FALSE);     ScrollAction (GTK HID)         -  HideCrosshair (FALSE);         -  RestoreCrosshair (FALSE);     ghid_port_ranges_changed         -  HideCrosshair (FALSE);     ghid_note_event_location         -  RestoreCrosshair (false);     idle_proc (Lesstif HID)         -  CrosshairOn (0);     CenterDisplay         -  RestoreCrosshair(false);     ReportDialog         -  HideCrosshair (false);         -  RestoreCrosshair (false);     ReportFoundPins         -  HideCrosshair (false);         -  RestoreCrosshair (false);
+ReportNetLength         -  HideCrosshair (false);         -  RestoreCrosshair (false);     SetLocalRef         -  RestoreCrosshair (false);         -  HideCrosshair (false);         -  RestoreCrosshair (false);
 
 2011-03-27   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
@@ -7908,7 +8191,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2010-12-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c: 
+	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c:
 	Remove unneeded Undo serial number save / restore in netlist lookup The RatFindHook function does not call anything which will increment
 	the Undo serial number, so the save / restore calls are not
 	required.
@@ -7976,7 +8259,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2010-12-22   Tibor Palinkas * geda AT igor2 dot repo dot hu *
 
-	* src/Makefile.am, src/free_atexit.c, src/free_atexit.h, src/main.c: 
+	* src/Makefile.am, src/free_atexit.c, src/free_atexit.h, src/main.c:
 	Add leaky_{malloc,realloc} functions for deliberate non-free'd
 	allocations These are to be used for local allocations made and cached for the
 	lifetime of the program (never free'd). Typically, these are stored
@@ -8093,7 +8376,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
 	src/hid/lesstif/styles.c, src/intersect.c, src/main.c, src/misc.c,
 	src/mymem.c, src/mymem.h, src/netlist.c, src/parse_l.l,
-	src/parse_y.y, src/rats.c, src/remove.c, src/report.c, src/undo.c: 
+	src/parse_y.y, src/rats.c, src/remove.c, src/report.c, src/undo.c:
 	Remove My* memory allocation routines. Just use the standard APIs
 	directly This means the following changes:   1.  Replace all calls to MyCalloc()  with calls to calloc()   2.  Replace all calls to MyMalloc()  with calls to malloc()   3.  Replace all calls to MyRealloc() with calls to realloc()   4.  Replace all calls to SaveFree()  with calls to free()   5a. Where the MYFREE(x) macro is used and its pointer clearing
 	      side- effect is required, call free (x); and (x) = NULL; directly.    5b. Where the MYFREE(x) macro is used, and (x) is immediately re-       assigned, or its location free'd or zero'd, skip the (x) =
@@ -8454,7 +8737,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
 	src/hid/ps/ps.c, src/line.c, src/macro.h, src/misc.c, src/move.c,
 	src/polygon.c, src/print.c, src/puller.c, src/rats.c, src/rtree.c,
-	src/rubberband.c, src/search.c, src/select.c, src/toporouter.c: 
+	src/rubberband.c, src/search.c, src/select.c, src/toporouter.c:
 	Split usage of "max_layer" into max_copper_layer and max_group  PCB has an equal number of layer groups as copper layers, so the
 	"max_layer" #define'd variable has been used throught the codebase
 	to delimit iteration over both layer groups, and layers.  This makes it hard for people reading the codebase to identify
@@ -8706,7 +8989,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/create.c, src/create.h, src/crosshair.c, src/file.c,
 	src/file.h, src/global.h, src/insert.c, src/insert.h, src/mymem.c,
 	src/mymem.h, src/parse_l.l, src/parse_y.y, src/polygon.c,
-	src/polygon.h, src/remove.c, src/report.c, src/undo.c, src/undo.h: 
+	src/polygon.h, src/remove.c, src/report.c, src/undo.c, src/undo.h:
 	Support holes in input polygons (incl. file-format addition) PCB file-format date is now 20100606, and files saved with this or
 	greater PCB version will not load with older versions of PCB.  If a
 	particular board doesn't make use of the polygon hole feature, the
@@ -8992,7 +9275,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	* doc/pcb.texi, src/action.c, src/hid.h, src/hid/batch/batch.c,
 	src/hid/common/actions.c, src/hid/common/hid_resource.c,
 	src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-top-window.c,
-	src/hid/lesstif/main.c, src/hid/lesstif/menu.c, src/main.c: 
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c, src/main.c:
 	Consolidate hid action parsing.  - Create a common routine hid_parse_command, which handles both
 	action script style "action(arg1, arg2);" and command entry style
 	"action arg1 arg2".  This is done by making a static
@@ -9055,7 +9338,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2010-03-01   Stuart Brorson * sdb AT cloud9 dot net *
 
 	* src/action.c, src/buffer.c, src/change.c, src/copy.c,
-	src/create.c, src/file.c, src/file.h, src/global.h, src/main.c: 
+	src/create.c, src/file.c, src/file.h, src/global.h, src/main.c:
 	Support for footprints not in subdirectories Added tons of debug spew to various files to aid in program tracing
 	Also, modify library loading stuff in file.c to allow footprints to
 	live directly in library directory (rather than only one level
@@ -9226,7 +9509,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
 
-	* src/hid/common/hidinit.c, src/hid/gtk/gui-config.c, src/main.c: 
+	* src/hid/common/hidinit.c, src/hid/gtk/gui-config.c, src/main.c:
 	Apply patch from Patrick Bernaud.  Modified code to not abort on HID_Mixed attributes. Th gtk HID is
 	modified to understand such an attribute (though the attribute
 	dialog has still no support for them), the lesstif HID is unchanged.
@@ -9655,7 +9938,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2010-02-01   DJ Delorie * dj AT delorie dot com *
 
-	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c: 
+	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c:
 	Rename NetlistChanged() to avoid conflicts Rename the existing static NetlistChanged() functions in the Gtk and
 	Lesstif HIDs to avoid conflicts with the core global
 	NetlistChanged() function.
@@ -9717,7 +10000,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* src/action.c, src/buffer.c, src/buffer.h, src/change.c,
 	src/change.h, src/create.c, src/draw.c, src/file.c,
-	src/hid/lesstif/main.c, src/misc.c, src/misc.h, src/netlist.c: 
+	src/hid/lesstif/main.c, src/misc.c, src/misc.h, src/netlist.c:
 	Work-in-progress for LF: netlist importing
 
 2010-01-01   DJ Delorie * dj AT delorie dot com *
@@ -10575,7 +10858,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2009-06-11   anthonix * anthonix AT anthonix-desktop dot (none) *
 
 	* src/Makefile.am, src/gts/gts.h, src/gts/predicates.c,
-	src/gts/predicates_init.c, src/toporouter.c, src/toporouter.h: 
+	src/gts/predicates_init.c, src/toporouter.c, src/toporouter.h:
 	Toporouter: Dynamic computation of GTS predicates
 
 2009-06-10   anthonix * anthonix AT anthonix-desktop dot (none) *
@@ -10909,7 +11192,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	gts/predicates_init.c, gts/psurface.c, gts/refine.c,
 	gts/rounding.h, gts/segment.c, gts/split.c, gts/stripe.c,
 	gts/surface.c, gts/triangle.c, gts/tribox3.c, gts/vertex.c,
-	gts/vopt.c, src/Makefile.am, src/toporouter.c, src/toporouter.h: 
+	gts/vopt.c, src/Makefile.am, src/toporouter.c, src/toporouter.h:
 	Added topological autorouter Topological autorouter (not yet exporting geometry) GTS with small
 	but crucial bug fixes
 
@@ -11183,7 +11466,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2008-12-27   DJ Delorie * dj AT delorie dot com *
 
 	* src/action.c, src/const.h, src/draw.c, src/flags.c,
-	src/gpcb-menu.res, src/pcb-menu.res, src/search.c, src/strflags.c: 
+	src/gpcb-menu.res, src/pcb-menu.res, src/search.c, src/strflags.c:
 	Add "hide names" option to hide all refdes on the board temporarily.
 
 2008-12-27   DJ Delorie * dj AT delorie dot com *
@@ -11468,7 +11751,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2008-11-25   Dan McMahill * dan AT mcmahill dot net *
 
 	* src/global.h, src/hid/common/hidinit.c,
-	src/hid/gtk/gui-top-window.c, src/hid/lesstif/menu.c, src/main.c: 
+	src/hid/gtk/gui-top-window.c, src/hid/lesstif/menu.c, src/main.c:
 	Determine the users home directory on program startup and remember
 	it for use in other places later.  This avoids repeated use of
 	getenv("HOME") which may have issues especially under windows.
@@ -11936,7 +12219,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2008-01-16   Dan McMahill * dan AT mcmahill dot net *
 
-	* Makefile.am, configure.ac, data/Makefile.am, icon-theme-installer: 
+	* Makefile.am, configure.ac, data/Makefile.am, icon-theme-installer:
 	check for gtk-update-icon-cache and use it.  For distcheck, disable
 	that via setting the GTK_UPDATE_ICON_CACHE_BIN to 'true' to avoid
 	creating a cache file which then is not removed.  A better way would
@@ -12069,7 +12352,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2008-01-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
 
-	* configure.ac, src/Makefile.am, src/hid/gtk/gui.h, src/main.c: 
+	* configure.ac, src/Makefile.am, src/hid/gtk/gui.h, src/main.c:
 	Activate gettext support in PCB by setting up the domain and locale
 	dir.
 
@@ -12125,7 +12408,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/hid/common/.cvsignore, src/hid/gerber/.cvsignore,
 	src/hid/gtk/.cvsignore, src/hid/lesstif/.cvsignore,
 	src/hid/lpr/.cvsignore, src/hid/nelma/.cvsignore,
-	src/hid/png/.cvsignore, src/hid/ps/.cvsignore, src/icons/.cvsignore: 
+	src/hid/png/.cvsignore, src/hid/ps/.cvsignore, src/icons/.cvsignore:
 	add a cvsignore file
 
 2008-01-10   Dan McMahill * dan AT mcmahill dot net *
@@ -12503,7 +12786,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2007-12-10   Ben Jackson * ben AT ben dot com *
 
-	* src/draw.c, src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h: 
+	* src/draw.c, src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h:
 	Add XRENDER support to the Lesstif HID.  Rat lines and soldermasks
 	are now displayed at 50% intensity on top of other drawn elements.
 
@@ -13191,7 +13474,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2007-08-01   DJ Delorie * dj AT delorie dot com *
 
-	* src/hid/gerber/gerber.c, src/hid/ps/eps.c, src/hid/ps/ps.c: 
+	* src/hid/gerber/gerber.c, src/hid/ps/eps.c, src/hid/ps/ps.c:
 	Gerber, PS, and EPS ignore the thindraw settings.  Fix bug in PS
 	when first item on the board is an arc.  PS "drill helper" changed
 	to a simple hole reduction so that copper extends to drilled hole
@@ -13276,7 +13559,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2007-05-17   Dan McMahill * dan AT mcmahill dot net *
 
-	* src/hid/gtk/gui-top-window.c, src/hid/lesstif/menu.c, src/main.c: 
+	* src/hid/gtk/gui-top-window.c, src/hid/lesstif/menu.c, src/main.c:
 	check for getenv() return codes everywhere and deal if getenv
 	returns NULL.  Noted by Peter Clifton.
 
@@ -13422,7 +13705,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* src/action.c, src/change.c, src/hid/gtk/gui-output-events.c,
 	src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c,
-	src/misc.c, src/output.c, src/output.h, src/set.c, src/thermal.c: 
+	src/misc.c, src/output.c, src/output.h, src/set.c, src/thermal.c:
 	Remove references to the now unused output.h.  To help keep it that
 	way, go ahead and remove the unused output.c and output.h files.
 
@@ -13616,7 +13899,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2007-02-15   DJ Delorie * dj AT delorie dot com *
 
-	* src/autoroute.c, src/hid/ps/ps.c, src/parse_l.l, src/polygon.c: 
+	* src/autoroute.c, src/hid/ps/ps.c, src/parse_l.l, src/polygon.c:
 	 Move declarations before statements (patch by Ben Jackson * ben AT
 	 ben dot com *)
 
@@ -13862,7 +14145,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	doc/pcb.texi, doc/version.texi, src/Makefile.am, src/Makefile.in,
 	src/file.c, src/global.h, src/hid/common/hidinit.c,
 	src/hid/gtk/gui-config.c, src/main.c, src/pcbtest.sh.in,
-	src/script/Makefile.am, src/script/Makefile.in, src/script/pcb.in: 
+	src/script/Makefile.am, src/script/Makefile.in, src/script/pcb.in:
 	Take a stab at making pcb installations be relocatable.  By this I
 	mean you can configure and install with ./configure --prefix=/original/path make make install mv
 	/original/path /new/path and still have pcb work.  To make this work, the binary path is determined at runtime and all
@@ -14205,7 +14488,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-12-13   Dan McMahill * dan AT mcmahill dot net *
 
-	* src/dbus-pcbmain.c, src/dbus-pcbmain.h, src/dbus.c, src/dbus.h: 
+	* src/dbus-pcbmain.c, src/dbus-pcbmain.h, src/dbus.c, src/dbus.h:
 	indent new code -- no other changes
 
 2006-12-13   Dan McMahill * dan AT mcmahill dot net *
@@ -14312,7 +14595,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2006-12-06   Dan McMahill * dan AT mcmahill dot net *
 
 	* src/hid/gtk/gui-library-window.c, src/hid/gtk/gui-log-window.c,
-	src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-pinout-window.c: 
+	src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-pinout-window.c:
 	Stop preventing the library, log, netlist, and pinout windows from
 	accepting focus.  Preventing them from accepting focus had the side
 	effect of breaking those dialogs on some systems with certain window
@@ -14550,7 +14833,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-10-19   Dan McMahill * dan AT mcmahill dot net *
 
-	* src/hid/gtk/gui-icons-misc.data, src/hid/gtk/gui-top-window.c: 
+	* src/hid/gtk/gui-icons-misc.data, src/hid/gtk/gui-top-window.c:
 	remove some SunPRO compiler complaints about initilizers being out
 	of range
 
@@ -14956,7 +15239,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-09-20   DJ Delorie * dj AT delorie dot com *
 
-	* src/hid/common/flags.c, src/hid/gerber/gerber.c, src/hid/hidint.h: 
+	* src/hid/common/flags.c, src/hid/gerber/gerber.c, src/hid/hidint.h:
 	Break out layer->filename code.  Fix bug in top/bottom detection.
 
 2006-09-14   Dan McMahill * dan AT mcmahill dot net *
@@ -15346,7 +15629,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-07-14   DJ Delorie * dj AT delorie dot com *
 
-	* src/autoplace.c, src/djopt.c, src/main.c, src/move.c, src/mymem.c: 
+	* src/autoplace.c, src/djopt.c, src/main.c, src/move.c, src/mymem.c:
 	Minor patches from Larry.
 
 2006-07-13   Harry Eaton * haceaton AT users dot sourceforge dot net *
@@ -15448,7 +15731,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/hid/ps/ps.c, src/line.c, src/macro.h, src/main.c, src/misc.c,
 	src/misc.h, src/move.c, src/move.h, src/parse_y.y,
 	src/pcb-menu.res, src/polygon.c, src/print.c, src/rats.c,
-	src/rtree.c, src/rubberband.c, src/search.c, src/undo.c, src/undo.h: 
+	src/rtree.c, src/rubberband.c, src/search.c, src/undo.c, src/undo.h:
 	flexible max_layers
 
 2006-06-09   DJ Delorie * dj AT delorie dot com *
@@ -15738,7 +16021,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 	* doc/actions.texi, doc/extract-docs, doc/pcb.texi,
 	doc/pcbfile.texi, doc/version.texi, src/const.h, src/hid.h,
-	src/hid/common/actions.c, src/hid/lesstif/main.c, src/parse_y.y: 
+	src/hid/common/actions.c, src/hid/lesstif/main.c, src/parse_y.y:
 	Remove all the prev-next-up links, reformat all the texi files to
 	allow for automatic structure generation.  Add helper hooks in the
 	extractor to let the source files control what types of nodes and
@@ -16038,7 +16321,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-04-11   DJ Delorie * dj AT delorie dot com *
 
-	* doc/actions.texi, doc/extract-docs, src/action.c, src/command.c: 
+	* doc/actions.texi, doc/extract-docs, src/action.c, src/command.c:
 	Document actions in command.c.
 
 2006-04-11   Dan McMahill * dan AT mcmahill dot net *
@@ -16370,7 +16653,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-03-26   Bill Wilson * billw2 AT users dot sourceforge dot net *
 
-	* src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-output-events.c: 
+	* src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-output-events.c:
 	Pan to a netlist window selected node if it's not visible.  Fix a pan bug.
 
 2006-03-25   Dan McMahill * dan AT mcmahill dot net *
@@ -16584,7 +16867,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-03-23   Bill Wilson * billw2 AT users dot sourceforge dot net *
 
-	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c: 
+	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c:
 	ghid_invalidate_all() when colors change.
 
 2006-03-23   Dan McMahill * dan AT mcmahill dot net *
@@ -16604,7 +16887,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2006-03-23   DJ Delorie * dj AT delorie dot com *
 
-	* src/drill.c, src/drill.h, src/hid/gerber/gerber.c, src/print.c: 
+	* src/drill.c, src/drill.h, src/hid/gerber/gerber.c, src/print.c:
 	Round drill sizes to nearest mil for fab drawings and gerber drill
 	file.
 
@@ -16988,7 +17271,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/rotate.c, src/rtree.c, src/search.c, src/select.c,
 	src/selector.c, src/selector.h, src/set.c, src/set.h,
 	src/sizedialog.c, src/sizedialog.h, src/strflags.c, src/todo,
-	src/undo.c, src/undo.h, src/vector.c, src/vendor.c, src/vendor.h: 
+	src/undo.c, src/undo.h, src/vector.c, src/vendor.c, src/vendor.h:
 	HID merge.
 
 2006-03-21   Dan McMahill * dan AT mcmahill dot net *
@@ -17011,7 +17294,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in: 
+	src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in:
 	regen
 
 2006-03-21   Dan McMahill * dan AT mcmahill dot net *
@@ -17246,7 +17529,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2005-12-02   Dan McMahill * dan AT mcmahill dot net *
 
-	* src/create.c, src/global.h, src/gui-netlist-window.c, src/rats.c: 
+	* src/create.c, src/global.h, src/gui-netlist-window.c, src/rats.c:
 	fix a bug which prevented disabling nets from the ratsnest
 
 2005-12-02   Dan McMahill * dan AT mcmahill dot net *
@@ -17392,7 +17675,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2005-07-18   Dan McMahill * dan AT mcmahill dot net *
 
-	* doc/refcard.tex, src/gui-keyref-window.c, src/gui-output-events.c: 
+	* doc/refcard.tex, src/gui-keyref-window.c, src/gui-output-events.c:
 	apply patches provided by Bill Wilson in patch #1230708.   Fix key bindings for drill size changes to be <mod>s  and <shift><mod>s to agree with the Xaw default key  bindings.   Add missing key bindings '/' and '.' for cycle  multiline mode and toggle 45 degree enforcement  respectively.   Fix refcard.tex to reflect the current set of key binding.   Now the gtk key bindings and the refcard should be in  sync and be the same as the default Xaw PCB bindings  with one exception: the buffer selection binding is  <control>1...5 instead of <shift>1...5. This can be  fixed but at the cost of removing the shortcuts from  the menus because gtk can't use <shift>digits as menu  shortcuts.
 
 2005-07-18   Dan McMahill * dan AT mcmahill dot net *
@@ -17402,7 +17685,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2005-07-18   Dan McMahill * dan AT mcmahill dot net *
 
-	* src/global.h, src/gui-config.c, src/gui-top-window.c, src/gui.h: 
+	* src/global.h, src/gui-config.c, src/gui-top-window.c, src/gui.h:
 	apply patches provided by Bill Wilson in patch #1227292  As per a request on the gEDA list, this patch adds a  Preferences option to make the layout name appear on  the window title bar instead of on the main menu bar  area. This is convenient when the layout name might be  somewhat long and takes up too much horizontal space on  the menu bar area.
 
 2005-07-18   Dan McMahill * dan AT mcmahill dot net *
@@ -19088,7 +19371,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	* src/action.c, src/buffer.c, src/change.c, src/create.c,
 	src/dialog.c, src/draw.c, src/find.c, src/global.h, src/move.c,
 	src/move.h, src/mymem.c, src/output.c, src/printpanner.c,
-	src/remove.c, src/rotate.c, src/rtree.c, src/search.c, src/select.c: 
+	src/remove.c, src/rotate.c, src/rtree.c, src/search.c, src/select.c:
 	Fixes for various bugs introduced with the rtree database
 	infrastructure
 
@@ -19668,7 +19951,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2004-01-15   Harry Eaton * haceaton AT users dot sourceforge dot net *
 
-	* src/action.c, src/const.h, src/menu.c, src/misc.c, src/set.c: 
+	* src/action.c, src/const.h, src/menu.c, src/misc.c, src/set.c:
 	Added Local reference measurement for line drawing and allow
 	not-overriding the mark position for moves and line-drawing
 
@@ -20010,7 +20293,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 	src/output.c, src/pinout.c, src/polygon.c, src/print.c,
 	src/printdialog.c, src/printpanner.c, src/rats.c, src/remove.c,
 	src/report.c, src/rotate.c, src/rubberband.c, src/search.c,
-	src/select.c, src/set.c, src/sizedialog.c, src/undo.c, src/vector.c: 
+	src/select.c, src/set.c, src/sizedialog.c, src/undo.c, src/vector.c:
 	Cleaned up coding formating from long-ago indent diaster with _LOOP
 	macros.  These should be formating changes only.
 
@@ -20209,7 +20492,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2003-09-30   Dan McMahill * dan AT mcmahill dot net *
 
-	* configure, example/Makefile.in, example/libraries/Makefile.in: 
+	* configure, example/Makefile.in, example/libraries/Makefile.in:
 	regen after example/libraries addition
 
 2003-09-30   Dan McMahill * dan AT mcmahill dot net *
@@ -20404,7 +20687,7 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 
 2003-06-22   DJ Delorie * dj AT delorie dot com *
 
-	* src/Pcb.ad.in, src/action.c, src/const.h, src/draw.c, src/menu.c: 
+	* src/Pcb.ad.in, src/action.c, src/const.h, src/draw.c, src/menu.c:
 	Add Thindraw
 
 2003-06-22   DJ Delorie * dj AT delorie dot com *

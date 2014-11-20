@@ -1,3 +1,4 @@
+data/pcb.appdata.xml.in
 data/pcb.desktop.in
 data/pcb.xml.in
 data/x-excellon.desktop.in
@@ -16,7 +17,7 @@ src/edif.c
 src/error.c
 src/file.c
 src/find.c
-src/gpcb-menu.res.in
+src/gpcb-menu.res.h
 src/hid/batch/batch.c
 src/hid/common/actions.c
 src/hid/common/hidnogui.c
@@ -36,16 +37,18 @@ src/hid/gtk/gui-library-window.c
 src/hid/gtk/gui-log-window.c
 src/hid/gtk/gui-misc.c
 src/hid/gtk/gui-netlist-window.c
+src/hid/gtk/gui-output-events.c
 src/hid/gtk/gui-top-window.c
 src/hid/lesstif/dialogs.c
+src/hid/lpr/lpr.c
 src/hid/ps/ps.c
 src/hid/gtk/gui-trackball.c
 src/main.c
 src/misc.c
 src/move.c
 src/netlist.c
-src/parse_y.c
-src/pcb-menu.res.in
+src/parse_y.y
+src/pcb-menu.res.h
 src/polygon.c
 src/rats.c
 src/report.c

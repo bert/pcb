@@ -220,7 +220,7 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
 
   if (use_defaults)
     {
-      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
+      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, &pcb->Data->LayerN))
 	return 1;
 
       pcb->Data->Layer[component_silk_layer].Name = strdup ("silk");
@@ -278,7 +278,7 @@ CreateNewVia (DataType *Data,
   SET_FLAG (VIAFLAG, Via);
   Via->ID = ID++;
 
-  /* 
+  /*
    * don't complain about MIN_PINORVIACOPPER on a mounting hole (pure
    * hole)
    */
@@ -797,7 +797,7 @@ CreateNewPin (ElementType *Element,
   pin->ID = ID++;
   pin->Element = Element;
 
-  /* 
+  /*
    * If there is no vendor drill map installed, this will simply
    * return DrillingHole.
    */

@@ -64,14 +64,14 @@ struct _GHidMainMenuClass
  * what would appear in gpcb-menu.res and the "out" string is what we
  * have to feed to gtk.  I was able to find these by using xev to find
  * the keycode and then looked at gtk+-2.10.9/gdk/keynames.txt (from the
- * gtk source distribution) to figure out the names that go with the 
+ * gtk source distribution) to figure out the names that go with the
  * codes.
  */
-static gchar *
+static char *
 translate_accelerator (const char *text)
 {
   GString *ret_val = g_string_new ("");
-  static struct { const char *in, *out; } key_table[] = 
+  static struct { const char *in, *out; } key_table[] =
   {
     {"Enter", "Return"},
     {"Alt",   "<alt>"},
@@ -188,211 +188,227 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
 {
   int i, j;
   const Resource *tmp_res;
-  gchar mnemonic = 0;
+  char mnemonic = 0;
 
-  for (i = 0; i < res->c; ++i)
-    {
-      const gchar *accel = NULL;
-      char *menu_label;
-      const char *res_val;
-      const Resource *sub_res = res->v[i].subres;
-      GtkAction *action = NULL;
+  for (i = 0; i < res->c; ++i) {
 
-      switch (resource_type (res->v[i]))
-        {
-        case 101:   /* name, subres: passthrough */
-          ghid_main_menu_real_add_resource (menu, shell, sub_res);
-          break;
-        case   1:   /* no name, subres */
-          tmp_res = resource_subres (sub_res, "a");  /* accelerator */
-          res_val = resource_value (sub_res, "m");   /* mnemonic */
-          if (res_val)
-            mnemonic = res_val[0];
-          /* The accelerator resource will have two values, like 
-           *   a={"Ctrl-Q" "Ctrl<Key>q"}
-           * The first Gtk ignores. The second needs to be translated. */
-          if (tmp_res)
-            accel = check_unique_accel
-                      (translate_accelerator (tmp_res->v[1].value));
+    const char *accel = NULL;
+    char *menu_label;
+    const char *res_val;
+    const Resource *sub_res = res->v[i].subres;
+    GtkAction *action = NULL;
 
-          /* Now look for the first unnamed value (not a subresource) to
-           * figure out the name of the menu or the menuitem. */
-          res_val = "button";
-          for (j = 0; j < sub_res->c; ++j)
-            if (resource_type (sub_res->v[j]) == 10)
-              {
-                res_val = sub_res->v[j].value;
-                break;
-              }
-          /* Hack '_' in based on mnemonic value */
-          if (!mnemonic)
+    switch (resource_type (res->v[i])) {
+
+      case 101:   /* name, subres: passthrough */
+        ghid_main_menu_real_add_resource (menu, shell, sub_res);
+        break;
+
+      case   1:   /* no name, subres */
+        tmp_res = resource_subres (sub_res, "a");  /* accelerator */
+        res_val = resource_value (sub_res, "m");   /* mnemonic */
+        if (res_val) {
+          mnemonic = res_val[0];
+        }
+        /* The accelerator resource will have two values, like
+         *   a={"Ctrl-Q" "Ctrl<Key>q"}
+         * The first Gtk ignores. The second needs to be translated. */
+        if (tmp_res) {
+          accel = check_unique_accel (translate_accelerator (tmp_res->v[1].value));
+        }
+
+        /* Now look for the first unnamed value (not a subresource) to
+         * figure out the name of the menu or the menuitem. */
+        res_val = "button";
+        for (j = 0; j < sub_res->c; ++j) {
+          if (resource_type (sub_res->v[j]) == 10) {
+
+            res_val = _(sub_res->v[j].value);
+            break;
+          }
+        }
+
+        /* Hack '_' in based on mnemonic value */
+        if (!mnemonic) {
+          menu_label = g_strdup (res_val);
+        }
+        else {
+
+          char *post_ = strchr (res_val, mnemonic);
+          if (post_ == NULL) {
             menu_label = g_strdup (res_val);
-          else
-            {
-              char *post_ = strchr (res_val, mnemonic);
-              if (post_ == NULL)
-                menu_label = g_strdup (res_val);
-              else
-                {
-                  GString *tmp = g_string_new ("");
-                  g_string_append_len (tmp, res_val, post_ - res_val);
-                  g_string_append_c (tmp, '_');
-                  g_string_append (tmp, post_);
-                  menu_label = g_string_free (tmp, FALSE);
-                }
+          }
+          else {
+
+            GString *tmp = g_string_new ("");
+            g_string_append_len (tmp, res_val, post_ - res_val);
+            g_string_append_c (tmp, '_');
+            g_string_append (tmp, post_);
+            menu_label = g_string_free (tmp, FALSE);
+          }
+        }
+        /* If the subresource we're processing also has unnamed
+         * subresources, it's a submenu, not a regular menuitem. */
+        if (sub_res->flags & FLAG_S) {
+
+          /* SUBMENU */
+          GtkWidget *submenu = gtk_menu_new ();
+          GtkWidget *item = gtk_menu_item_new_with_mnemonic (menu_label);
+          GtkWidget *tearoff = gtk_tearoff_menu_item_new ();
+
+          gtk_menu_shell_append (shell, item);
+          gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), submenu);
+
+          /* add tearoff to menu */
+          gtk_menu_shell_append (GTK_MENU_SHELL (submenu), tearoff);
+          /* recurse on the newly-added submenu */
+          ghid_main_menu_real_add_resource (menu,
+                                            GTK_MENU_SHELL (submenu),
+                                            sub_res);
+        }
+        else {
+
+          /* NON-SUBMENU: MENU ITEM */
+          const char *checked = resource_value (sub_res, "checked");
+          const char *label = resource_value (sub_res, "sensitive");
+          const char *tip = resource_value (sub_res, "tip");
+          if (checked) {
+
+            /* TOGGLE ITEM */
+            char *name = g_strdup_printf ("MainMenuAction%d",
+                                          action_counter++);
+
+            action = GTK_ACTION (gtk_toggle_action_new (name, menu_label,
+                                                        tip, NULL));
+            /* checked=foo       is a binary flag (checkbox)
+             * checked=foo,bar   is a flag compared to a value (radio) */
+            gtk_toggle_action_set_draw_as_radio
+            (GTK_TOGGLE_ACTION (action), !!strchr (checked, ','));
+          }
+          else if (label && strcmp (label, "false") == 0) {
+
+            /* INSENSITIVE ITEM */
+            GtkWidget *item = gtk_menu_item_new_with_label (menu_label);
+            gtk_widget_set_sensitive (item, FALSE);
+            gtk_menu_shell_append (shell, item);
+          }
+          else {
+
+            /* NORMAL ITEM */
+            char *name = g_strdup_printf ("MainMenuAction%d", action_counter++);
+            action = gtk_action_new (name, menu_label, tip, NULL);
+          }
+        }
+        /* Connect accelerator, if there is one */
+        if (action) {
+
+          GtkWidget *item;
+          gtk_action_set_accel_group (action, menu->accel_group);
+          gtk_action_group_add_action_with_accel (menu->action_group,
+                                                  action, accel);
+          gtk_action_connect_accelerator (action);
+          g_signal_connect (G_OBJECT (action), "activate", menu->action_cb,
+                            (gpointer) sub_res);
+          g_object_set_data (G_OBJECT (action), "resource",
+                             (gpointer) sub_res);
+          item = gtk_action_create_menu_item (action);
+          gtk_menu_shell_append (shell, item);
+          menu->actions = g_list_append (menu->actions, action);
+          menu->special_key_cb (accel, action, sub_res);
+        }
+        /* Scan rest of resource in case there is more work */
+        for (j = 0; j < sub_res->c; j++) {
+
+          const char *res_name;
+          /* named value = X resource */
+          if (resource_type (sub_res->v[j]) == 110) {
+
+            res_name = sub_res->v[j].name;
+
+            /* translate bg, fg to background, foreground */
+            if (strcmp (res_name, "fg") == 0) {
+              res_name = "foreground";
             }
-          /* If the subresource we're processing also has unnamed
-           * subresources, it's a submenu, not a regular menuitem. */
-          if (sub_res->flags & FLAG_S)
-            {
-              /* SUBMENU */
-              GtkWidget *submenu = gtk_menu_new ();
-              GtkWidget *item = gtk_menu_item_new_with_mnemonic (menu_label);
-              GtkWidget *tearoff = gtk_tearoff_menu_item_new ();
 
-              gtk_menu_shell_append (shell, item);
-              gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), submenu);
-
-              /* add tearoff to menu */
-              gtk_menu_shell_append (GTK_MENU_SHELL (submenu), tearoff);
-              /* recurse on the newly-added submenu */
-              ghid_main_menu_real_add_resource (menu,
-                                                GTK_MENU_SHELL (submenu),
-                                                sub_res);
+            if (strcmp (res_name, "bg") == 0) {
+              res_name = "background";
             }
-          else
-            {
-              /* NON-SUBMENU: MENU ITEM */
-              const char *checked = resource_value (sub_res, "checked");
-              const char *label = resource_value (sub_res, "sensitive");
-              const char *tip = resource_value (sub_res, "tip");
-              if (checked)
-                {
-                  /* TOGGLE ITEM */
-                  gchar *name = g_strdup_printf ("MainMenuAction%d",
-                                                 action_counter++);
 
-                  action = GTK_ACTION (gtk_toggle_action_new (name, menu_label,
-                                                              tip, NULL));
-                  /* checked=foo       is a binary flag (checkbox)
-                   * checked=foo,bar   is a flag compared to a value (radio) */
-                  gtk_toggle_action_set_draw_as_radio
-                    (GTK_TOGGLE_ACTION (action), !!strchr (checked, ','));
-                }
-              else if (label && strcmp (label, "false") == 0)
-                {
-                  /* INSENSITIVE ITEM */
-                  GtkWidget *item = gtk_menu_item_new_with_label (menu_label);
-                  gtk_widget_set_sensitive (item, FALSE);
-                  gtk_menu_shell_append (shell, item);
-                }
-              else
-                {
-                  /* NORMAL ITEM */
-                  gchar *name = g_strdup_printf ("MainMenuAction%d", action_counter++);
-                  action = gtk_action_new (name, menu_label, tip, NULL);
-                }
+            /* ignore special named values (m, a, sensitive) */
+            if (strcmp (res_name, "m") == 0 || strcmp (res_name, "a") == 0 || strcmp (res_name, "sensitive") == 0 || strcmp (res_name, "tip") == 0) {
+
+              break;
             }
-          /* Connect accelerator, if there is one */
-          if (action)
-            {
-              GtkWidget *item;
-              gtk_action_set_accel_group (action, menu->accel_group);
-              gtk_action_group_add_action_with_accel (menu->action_group,
-                                                      action, accel);
-              gtk_action_connect_accelerator (action);
-              g_signal_connect (G_OBJECT (action), "activate", menu->action_cb,
-                                (gpointer) sub_res);
-              g_object_set_data (G_OBJECT (action), "resource",
-                                 (gpointer) sub_res);
-              item = gtk_action_create_menu_item (action);
-              gtk_menu_shell_append (shell, item);
-              menu->actions = g_list_append (menu->actions, action);
-              menu->special_key_cb (accel, action, sub_res);
+
+            /* log checked and active special values */
+            if (action && strcmp (res_name, "checked") == 0) {
+              g_object_set_data (G_OBJECT (action), "checked-flag", sub_res->v[j].value);
             }
-          /* Scan rest of resource in case there is more work */
-          for (j = 0; j < sub_res->c; j++)
-            {
-              const char *res_name;
-              /* named value = X resource */
-              if (resource_type (sub_res->v[j]) == 110)
-                {
-                  res_name = sub_res->v[j].name;
-
-                  /* translate bg, fg to background, foreground */
-                  if (strcmp (res_name, "fg") == 0)   res_name = "foreground";
-                  if (strcmp (res_name, "bg") == 0)   res_name = "background";
-
-                  /* ignore special named values (m, a, sensitive) */
-                  if (strcmp (res_name, "m") == 0
-                      || strcmp (res_name, "a") == 0
-                      || strcmp (res_name, "sensitive") == 0
-                      || strcmp (res_name, "tip") == 0)
-                    break;
-
-                  /* log checked and active special values */
-                  if (action && strcmp (res_name, "checked") == 0)
-                    g_object_set_data (G_OBJECT (action), "checked-flag",
-                                       sub_res->v[j].value);
-                  else if (action && strcmp (res_name, "active") == 0)
-                    g_object_set_data (G_OBJECT (action), "active-flag",
-                                       sub_res->v[j].value);
-                  else
-                    /* if we got this far it is supposed to be an X
-                     * resource.  For now ignore it and warn the user */
-                    Message (_("The gtk gui currently ignores \"%s\""
-                               "as part of a menuitem resource.\n"
-                               "Feel free to provide patches\n"),
-                             sub_res->v[j].value);
-                }
+            else if (action && strcmp (res_name, "active") == 0) {
+              g_object_set_data (G_OBJECT (action), "active-flag", sub_res->v[j].value);
             }
-          break;
+            else {
+              /* if we got this far it is supposed to be an X
+               * resource.  For now ignore it and warn the user */
+              Message (_("The gtk gui currently ignores \"%s\""
+              "as part of a menuitem resource.\n"
+              "Feel free to provide patches\n"),
+              sub_res->v[j].value);
+            }
+          }
+        }
+        break;
+
         case  10:   /* no name, value */
           /* If we get here, the resource is "-" or "@foo" for some foo */
-          if (res->v[i].value[0] == '@')
-            {
-              GList *children;
-              int pos;
+          if (res->v[i].value[0] == '@') {
 
-              children = gtk_container_get_children (GTK_CONTAINER (shell));
-              pos = g_list_length (children);
-              g_list_free (children);
+            GList *children;
+            int pos;
 
-              if (strcmp (res->v[i].value, "@layerview") == 0)
-                {
-                  menu->layer_view_shell = shell;
-                  menu->layer_view_pos = pos;
-                }
-              else if (strcmp (res->v[i].value, "@layerpick") == 0)
-                {
-                  menu->layer_pick_shell = shell;
-                  menu->layer_pick_pos = pos;
-                }
-              else if (strcmp (res->v[i].value, "@routestyles") == 0)
-                {
-                  menu->route_style_shell = shell;
-                  menu->route_style_pos = pos;
-                }
-              else
-                Message (_("GTK GUI currently ignores \"%s\" in the menu\n"
-                           "resource file.\n"), res->v[i].value);
+            children = gtk_container_get_children (GTK_CONTAINER (shell));
+            pos = g_list_length (children);
+            g_list_free (children);
+
+            if (strcmp (res->v[i].value, "@layerview") == 0) {
+
+              menu->layer_view_shell = shell;
+              menu->layer_view_pos = pos;
             }
-          else if (strcmp (res->v[i].value, "-") == 0)
-            {
-              GtkWidget *item = gtk_separator_menu_item_new ();
-              gtk_menu_shell_append (shell, item);
+            else if (strcmp (res->v[i].value, "@layerpick") == 0) {
+
+              menu->layer_pick_shell = shell;
+              menu->layer_pick_pos = pos;
             }
-          else if (i > 0)
-            {
-              /* This is an action-less menuitem. It is really only useful
-               * when you're starting to build a new menu and you're looking
-               * to get the layout right. */
-              GtkWidget *item
-                = gtk_menu_item_new_with_label (res->v[i].value);
-              gtk_menu_shell_append (shell, item);
+            else if (strcmp (res->v[i].value, "@routestyles") == 0) {
+
+              menu->route_style_shell = shell;
+              menu->route_style_pos = pos;
             }
+            else {
+              Message (_("GTK GUI currently ignores \"%s\" in the menu\n"
+              "resource file.\n"), res->v[i].value);
+            }
+          }
+          else if (strcmp (res->v[i].value, "-") == 0) {
+
+            GtkWidget *item = gtk_separator_menu_item_new ();
+            gtk_menu_shell_append (shell, item);
+          }
+          else if (i > 0) {
+
+            /* This is an action-less menuitem. It is really only useful
+             * when you're starting to build a new menu and you're looking
+             * to get the layout right. */
+            GtkWidget *item;
+
+            item = gtk_menu_item_new_with_label (_(res->v[i].value));
+            gtk_menu_shell_append (shell, item);
+          }
           break;
-      }
+        default:
+          break;
+    }
   }
 }
 
@@ -497,7 +513,7 @@ ghid_main_menu_get_popup (GHidMainMenu *menu, const char *name)
 }
 
 
-/*! \brief Updates the toggle/active state of all items 
+/*! \brief Updates the toggle/active state of all items
  *  \par Function Description
  *  Loops through all actions, passing the action, its toggle
  *  flag (maybe NULL), and its active flag (maybe NULL), to a

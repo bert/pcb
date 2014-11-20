@@ -1,0 +1,3 @@
+elements-dir ./footprints
+schematics fb-blinker-sch.sch
+output-name fb-blinker

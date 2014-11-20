@@ -44,16 +44,18 @@ desktopdir=$(xdgdatadir)/applications
 desktop_in_files = pcb.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
-@INTLTOOL_DESKTOP_RULE@
+@INTLTOOL_XML_RULE@
+appdatadir = $(datadir)/appdata
+appdata_DATA = $(appdata_in_files:.xml.in=.xml)
+appdata_in_files = pcb.appdata.xml.in
 
+@INTLTOOL_DESKTOP_RULE@
 
 mimedir = $(xdgdatadir)/mime
 xmldir = $(mimedir)/packages
 
 xml_in_files = pcb.xml.in
 xml_DATA = $(xml_in_files:.xml.in=.xml)
-
-@INTLTOOL_XML_RULE@
 
 kdedatadir=@KDEDATADIR@
 mimelnkdir = $(kdedatadir)/mimelnk
@@ -98,11 +100,12 @@ endif
 	$(install_icon_exec) -u $(theme_icons)
 
 MAINTAINERCLEANFILES = *.log core FILE *~ Makefile.in
-DISTCLEANFILES = $(xml_DATA) $(application_DATA) $(desktop_DATA)
+DISTCLEANFILES = $(xml_DATA) $(appdata_DATA) $(application_DATA) $(desktop_DATA)
 EXTRA_DIST = $(mime_icon_files) $(mime_icon_sources) \
+             $(appdata_in_files) $(appdata_DATA) \
              $(xml_in_files) $(xml_DATA) \
              $(application_in_files) \
              $(app_icon_files) \
              $(desktop_in_files) $(desktop_DATA) \
-	     regen_files pcb_icon.ico
+	         regen_files pcb_icon.ico
 

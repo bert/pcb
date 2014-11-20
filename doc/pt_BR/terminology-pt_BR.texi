@@ -1,0 +1,575 @@
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment b2f4ede410eab3da8048cc2dbb9a3623  terminology.texi
+@comment
+@hyphenation{re-pre-sen-ta}
+@node Terminologia
+@chapter Terminologia
+
+@comment wrap terms at their definition
+@ifhtml
+@macro tdef{TERM}
+@html
+<a name="\TERM\">\TERM\</a>@end html
+@end macro
+@end ifhtml
+
+@iftex
+@tex
+\gdef\tdef#1{%
+  \ifpdf
+    \pdfdest name{#1} xyz
+    \pdfoutline goto name{#1} count 0 {#1}
+  \fi
+  #1%
+}
+@end tex
+@end iftex
+
+@ifnottex
+@ifnothtml
+@macro tdef{TERM}
+\TERM\
+@end macro
+@end ifnothtml
+@end ifnottex
+
+@comment wrap terms to cross reference
+@ifhtml
+@macro tref{TERM}
+@html
+<a href="#\TERM\">\TERM\</a>@end html
+@end macro
+@macro trefl{TERM,LINK}
+@html
+<a href="#\LINK\">\TERM\</a>@end html
+@end macro
+@end ifhtml
+
+@ifnothtml
+@macro tref{TERM}
+\TERM\
+@end macro
+@macro trefl{TERM,LINK}
+\TERM\
+@end macro
+@end ifnothtml
+
+@comment image legend
+@macro iml{ITXT}
+@center @i{\ITXT\}
+@end macro
+
+Existe alguma varia@,{c}@~{a}o de terminologia usada pelos pacotes EDA.  Para melhor
+entender a documenta@,{c}@~{a}o do @pcb{}, @'{e} importante ler completamente
+essas defini@,{c}@~{o}es de forma a entender como @pcb{} usa esses termos.
+
+@table @dfn
+
+@item @tdef{a@,{c}@~{a}o}
+Internamente, a maioria dos comandos do @code{pcb} usam uma interface comum para se conectar
+@`{a} interface gr@'{a}fica de usu@'{a}rio, aos scripts, e @`{a}s requisi@,{c}@~{o}es de usu@'{a}rio.  Chamamos isso de a@,{c}@~{o}es
+internas de comando, porque s@~{a}o a@,{c}@~{o}es que o pcb pode realizar.  Cada
+a@,{c}@~{a}o pode receber par@^{a}metros, de acordo com sua documenta@,{c}@~{a}o
+individual.  A@,{c}@~{o}es foram escritas como chamadas a fun@,{c}@~{o}es, e podem ser
+chamadas diretamente de dentro do @pcb{} usando a tecla ':'.
+
+@item @tdef{aur@'{e}ola}
+@itemx @tdef{aur@'{e}ola do anel}
+O anel de cobre em forma de rosca que envolve o orif@'{i}cio de um
+@tref{conector de componente}  ou @tref{via}.  No @pcb{}, o tamanho de um @tref{conector de componente} ou
+@tref{via} @'{e} o di@^{a}metro completo do cobre, n@~{a}o a dist@^{a}ncia
+da aresta mais externa do orif@'{i}cio para a aresta mais externa do cobre.  Quando
+nos referirmos especificamente ao tamanho da aur@'{e}ola, queremos dizer a dit@^{a}ncia
+da aresta mais externa do orif@'{i}cio at@'{e} a aresta mais externa do cobre; i.e. o total
+de cobre remanescente em volta do orif@'{i}cio perfurado.  Exemplo: um orif@'{i}cio perfurado de
+30 @tref{mil} com uma aur@'{e}ola de 8 @tref{mil} resulta em um conector de
+componente de (30 + 8 + 8).  Da mesma forma, um conector de componente de 50 @tref{mil} com uma
+perfura@,{c}@~{a}o de 30 @tref{mil} resulta em uma aur@'{e}ola de 10 @tref{mil}.
+
+@table @dfn
+@item di@^{a}metro externo - 3 na figura abaixo
+@item espessura da aur@'{e}ola de cobre - 1 na figura abaixo
+@item di@^{a}metro do orif@'{i}co perfurado na placa - 2 na figura abaixo
+@end table
+@img{../term-annulus-1}
+
+@item @tdef{abertura}
+Em refer@^{e}ncia a arquivos da @tref{RS-274X}, uma abertura @'{e} um pincel
+usado para desenhar coisas.  Originalmente, a abertura era um orif@'{i}co f@'{i}sico de
+um formato e tamanho espec@'{i}fico atrav@'{e}s do qual a luz sensibilizava um filme
+fotogr@'{a}fico.
+
+@item @tdef{arco}
+Uma trilha curvada desenhada sobre uma @tref{camada de desenho}.
+
+@item @tdef{atributo}
+Significados vari@'{a}veis.  @trefl{Componentes,componente} e @trefl{placas,placa}
+podem ter atributos referidos a elas, que s@~{a}o mapeamentos arbitr@'{a}rios
+entre um nome e seu valor.  O @pcb{} n@~{a}o usa atualmente esses
+atributos propriamente ditos.  Dentro do @code{pcb} um atributo @'{e} um valor
+arbitr@'{a}rio informado entre o n@'{u}cleo e os v@'{a}rios @trefl{DIHs,DIH}
+@footnote{Nota do tradutor: ver verbete DIH adiante.}, tais
+como caixas de verifica@,{c}@~{a}o e nomes de arquivo.
+
+@item @tdef{expandir}
+A maioria daquelas @'{a}reas de cobre pode ser expandida antes de ser permitido
+se tocarem.  Por exemplo, duas linhas de 40 @tref{mil@'{e}simos de polegada} separadas por 10 @tref{mil@'{e}simos de polegada} podem expandir at@'{e}
+(mas n@~{a}o incluindo) 5 @tref{mil@'{e}simos de polegada} antes de se tocarem, ent@~{a}o a expans@~{a}o m@'{a}xima
+deve ser de 4.99 @tref{mil@'{e}simos de polegada}.
+
+@item @tdef{placa}
+A placa de circuito impresso que est@'{a} despida de seu @tref{tra@,{c}ado}.
+``Placa'' refere-ser @`{a} placa f@'{i}sica, ``@tref{tra@,{c}ado}'' refere-se aos
+dados eletr@^{o}nicos.
+
+@item @tdef{mem@'{o}ria tempor@'{a}ria}
+Um espa@,{c}o tempor@'{a}rio de armazenamento dentro do @code{pcb} onde itens podem ser
+guardados at@'{e} que sejam necess@'{a}rios mais tarde.  Um tal espa@,{c}o tempor@'{a}rio de armazenamento @'{e} usado para as opera@,{c}@~{o}es
+rotineiras de cortar/copiar e colar.
+
+@item @tdef{clad}
+Uma fina camada de cobre anexada a uma fina camada de isolante.  Uma vez
+gravada, o cobre restante forma as conec@,{c}@~{o}es el@'{e}tricas
+descritas pelo arquivo do @tref{tra@,{c}ado}.
+
+@item @tdef{folga}
+A dist@^{a}ncia entre o cobre em volta de um orif@'{i}cio (a @tref{aur@'{e}ola}) e
+o cobre de um @tref{pol@'{i}gono} que envolve o orif@'{i}cio, ou entre qualquer outro
+item de cobre (@tref{linha} ou @tref{arco}) e um @tref{pol@'{i}gono} em
+volta.
+
+@table @dfn
+@item folga conector/via - 1 na figura abaixo
+@item folga entre trilhas - 2 na figura abaixo
+@end table
+
+@img{../term-clearance-1}
+
+@item @tdef{influ@^{e}ncia}
+A @'{a}rea em volta de um @tref{componente} que est@'{a} ainda sendo ``usada'' pelo
+@tref{componente}, devido a suas exig@^{e}ncias el@'{e}tricas e de
+folga mec@^{a}nica @footnote{Nota do tradutor: imagine algo como um transistor de
+pot@^{e}ncia com dissipador de calor. Sua @'{a}rea de influ@^{e}ncia @'{e} v@'{a}rias vezes maior que
+seu tamanho.}.  O @pcb{} n@~{a}o usa esse termo, nem explicitamente suporta uma
+defini@,{c}@~{a}o de influ@^{e}ncia para @trefl{componentes,componente}.
+
+@item @tdef{mira}
+@'{E} a localiza@,{c}@~{a}o atual na @tref{placa} que @'{e} usada quando voc@^{e}
+executa uma @tref{a@,{c}@~{a}o}.  Se ajuste @`{a} @tref{malha} estiver ativo, a
+mira reflete o ponto de malha mais pr@'{o}ximo ao @tref{cursor}, caso contr@'{a}rio
+a mira reflete apenas o @tref{cursor} em si mesmo.
+
+@item @tdef{cursor}
+O @pcb{} se refere ao cursor do seu mouse.  Veja ``@tref{mira}''.
+
+@item @tdef{camada de desenho}
+Enquanto se est@'{a} desenhando uma placa de circuito, @pcb{} fornece v@'{a}rias
+@trefl{camadas,camada} para serem desenhas.  Enquanto for conveniente pensar em
+cada camada de desenho como correspondendo a uma das @trefl{camadas
+f@'{i}sicas,camada f@'{i}sica} (de cobre, de seda, etc), @'{e} poss@'{i}vel agrupar
+m@'{u}ltiplas camadas de desenho juntas em uma @'{u}nica @tref{camada f@'{i}sica}, ou
+atribuir camadas de desenho a prop@'{o}sitos n@~{a}o correspondentes a camadas
+f@'{i}sicas.  Por exemplo, voc@^{e} pode ter duas camadas de desenho correspondendo
+@`{a} sua camada de cobre de aterramento, uma para o plano de aterramento propriamente dito e
+uma segunda (colorida diferentemente) outra para quaisquer sinais que precisem ser
+roteados para a camada de aterramento.
+
+@item @tdef{VRD}
+Verifica Regra de Desenho - Design Rule Check.  Seu desenho @'{e} visto e comparado a v@'{a}rias
+regras de desenho, tais como espessura m@'{i}nima da trilha e dist@^{a}ncia m@'{i}nima entre trilhas, e qualquer
+viola@,{c}@~{a}o dessas regras @'{e} mostrada.  Ent@~{a}o, voc@^{e} @'{e} torturado at@'{e} a morte com di@'{a}logos
+informais.
+
+@item @tdef{arquivo de perfura@,{c}@~{a}o}
+Um arquivo leg@'{i}vel a computador pensado para ser usado por m@'{a}quinas de perfura@,{c}@~{a}o
+automatizadas.  A informa@,{c}@~{a}o no arquivo inclui di@^{a}metros de perfura@,{c}@~{a}o e localiza@,{c}@~{a}o das perfura@,{c}@~{o}es.
+O @code{pcb} pode produzir mais de dois arquivos de perfura@,{c}@~{a}o, um para @trefl{orif@'{i}cios
+galvanizados,orif@'{i}cio galvanizado} e um para @trefl{orif@'{i}cios vazio,orif@'{i}cio vazio}.
+M@'{a}quinas de perfura@,{c}@~{a}o automatizadas foram originalmente desenhadas pela companhia
+Excellon, de forma que arquivos de perfura@,{c}@~{a}o foram algumas vezes chamados @trefl{arquivos
+excellon,arquivo excellon}.  Tamb@'{e}m chamados arquivos de @tref{NC drill} @footnote{Nota do tradutor: ver verbete adiante - NC drill.}.
+
+@item @tdef{componente}
+No @pcb{} um componente @footnote{Nota do tradutor: no original em ingl@^{e}s usa-se o termo ``elemento'' em lugar de ``componente''.} representa qualquer parte que voc@^{e} pode instalar sobre sua
+@tref{placa}, tais como resistores, capacitores, e circuitos integrados.
+Note que tamb@'{e}m se inclui qualquer coisa sobre sua @tref{placa} que tem
+sua pr@'{o}pria @tref{matriz}, mesmo se essa coisa n@~{a}o tenha um componente f@'{i}sico associado
+a essa @tref{matriz}, tal como um ponto de teste, marcas de localiza@,{c}@~{a}o, e conectores de
+borda @footnote{Nota do tradutor: conectores de borda - conectores que simplesmente ficam na beirada
+da placa como os existentes em uma placa m@~{a}e de computador.}.  Um componente tem uma @tref{matriz}, mas @'{e} mais  que uma
+@tref{matriz} - um componente tamb@'{e}m tem um designador de refer@^{e}ncia (refdes), valor,
+descri@,{c}@~{a}o, e localiza@,{c}@~{a}o.  ``@trefl{Matriz,matriz}'' refere-se ao
+modelo; ``componente'' refere-se @`{a} inst@^{a}ncia.  Por exemplo, seu
+@tref{tra@,{c}ado} pode ter quatro componentes que usam uma @tref{matriz}.
+
+@img{../term-element-1}
+@iml{Quatro exemplos de componente.}
+
+@item @tdef{resist@^{e}ncia @`{a} corros@~{a}o}
+N@~{a}o confundir com @tref{resist@^{e}ncia @`{a} soldagem}, resist@^{e}ncia @`{a} corros@~{a}o @'{e} usada
+durante a fabrica@,{c}@~{a}o das camadas de cobre para definir qual cobre @'{e}
+removido e qual cobre ir@'{a} permanecer.
+
+@item @tdef{arquivo excellon}
+Veja @tref{arquivo de perfura@,{c}@~{a}o}.
+
+@item @tdef{fab}
+@itemx @tdef{casa de fab}
+@itemx @tdef{casa de fabrica@,{c}@~{a}o}
+Uma companhia que produz (fabrica) placas de circuito a partir de arquivos
+de desenho mec@^{a}nicos.  A maioria aceitam (ou esperam) arquivos no formato
+@tref{gerber} (@tref{RS-274X}).
+
+@item @tdef{desenho de fab}
+@itemx @tdef{desenho de fabrica@,{c}@~{a}o}
+Um desenho que mostra uma vis@~{a}o geral mec@^{a}nica da @tref{placa},
+incluindo a linha de sa@'{i}da f@'{i}sica e todos os orif@'{i}cios f@'{i}sicos.  @'{E} muitas vezes
+usada pelos @trefl{fabricantes,fab} para verificar a coer@^{e}ncia de sua interpreta@,{c}@~{a}o dos
+arquivos de desenho encomendados.
+
+@item @tdef{matriz}
+Uma matriz @'{e} o modelo sobre uma placa de circuito baseado no qual suas partes s@~{a}o
+anexadas.  Inclui toda informa@,{c}@~{a}o sobre cobre, seda,
+@tref{m@'{a}scara de soldagem}, e @trefl{pasta,pasta de soldagem}.  Em outros programas EDA,
+pode significar ``modelo de ilha''.  ``Matriz'' algumas vezes @'{e}
+usado para referir-se ao arquivo de matriz.  ``Matriz'' refere-se ao
+modelo; ``@tref{componente}'' refere-se @`{a} inst@^{a}ncia.  Por exemplo, seu
+@tref{tra@,{c}ado} pode ter quatro @trefl{componentes,componente} que usam uma mesma
+matriz.
+
+@item @tdef{arquivo de matriz}
+Um arquivo que cont@'{e}m uma @'{u}nica defini@,{c}@~{a}o de @tref{matriz}.  Normalmente,
+significa que esse arquivo descreve um @tref{componente}, embora exista
+excess@~{o}es.
+
+@item @tdef{FR4}
+Uma especifica@,{c}@~{a}o para a camada isolante usada na fabrica@,{c}@~{a}o da placa de
+circuito impresso.  FR4 abrange a maioria classes comuns, e muitas vezes representa uma placa
+composta de fibra de vidro e epoxy.
+
+@item @tdef{gEDA}
+O conjunto de ferramentas de Automa@,{c}@~{a}o de Desenho Eletr@^{o}nico sob a Licen@,{c}a P@'{u}blica GNU - GPL'd Electronic Design Automation.  Veja
+@url{http://www.geda-project.org/}.  Inclui, entre outras coisas, o
+editor de esquemas @code{gschem}, que produz arquivos/sa@'{i}das que podem ser usadas como entradas
+para o @code{pcb}.
+
+@item @tdef{gerber}
+@itemx @tdef{arquivo gerber}
+O nome comum para um arquivo formatado conforme a @tref{RS-274X}.  Originalmente
+em homenagem @`{a} Gerber Photoplotter Company.
+
+@item @tdef{grade}
+Um modelo de localiza@,{c}@~{o}es sobre a @tref{placa} que pode ser mostrado, ou
+usado como um limite sobre localiza@,{c}@~{o}es da @tref{mira}.
+
+@item @tdef{gschem}
+O editor de diagramas esquem@'{a}ticos eletr@^{o}nicos que vem como o pacote @tref{gEDA}.
+
+@item @tdef{DIH}
+Dispositivo de Interface Humana - Human Interface Device.  Usamos ess termo para se referir a interfaces de usu@'{a}rio,
+impressoras, exportadores, e outros caminhos atrav@'{e}s dos quais o @code{pcb} interage com
+humanos.
+
+@item @tdef{exclus@~{a}o}
+Uma regi@~{a}o criada pelo desenhista unicamente para evitar que alguma coisa mais
+exista a@'{i}.  Por exemplo, um @tref{componente} com uma exclus@~{a}o de cobre
+pode evitar que o roteamento autom@'{a}tico coloque trilhas passando por aquela @'{a}rea.
+O @pcb{} atualmente n@~{a}o aceita zonas de exclus@~{a}o.
+
+@item @tdef{camada}
+Existem dois sinificados de ``camada'' no @pcb{}.  Veja ``@tref{camada de desenho}''
+ e ``@tref{camada f@'{i}sica}''.
+
+@item @tdef{tra@,{c}ado}
+A informa@,{c}@~{a}o de desenho da @tref{placa} despida de edi@,{c}@~{o}es que voc@^{e} tenha feito;
+@'{e} o que @'{e} armazenado em um arquivo do pcb e mostrado na tela.
+``@trefl{Placa,placa}'' refere-se @`{a} placa f@'{i}sica, ``tra@,{c}ado''
+refere-se aos dados eletr@^{o}nicos.
+
+@item @tdef{linha}
+Um segmento de reta desenhado na @tref{camada de desenho}. @footnote{Nota do tradutor: uma trilha de cobre marcada na camada de desenho.}
+
+@item @tdef{marca}
+Normalmente, @code{pcb} informa coordenadas em rela@,{c}@~{a}o @`{a} or@'{i}gem (canto superior
+esquerdo) da placa.  Todavia, voc@^{e} pode designar uma localiza@,{c}@~{a}o sobre a
+@tref{placa} tal que o @code{pcb} tamb@'{e}m informe coordenadas em rela@,{c}@~{a}o a
+essa nova localiza@,{c}@~{a}o.  Tal nova localiza@,{c}@~{a}o @'{e} a marca, e @'{e} desenhada na forma
+de um X.  @trefl{Componentes,componente} tamb@'{e}m possuem marca; @'{e} a or@'{i}gem do
+local a partir do qual outras localiza@,{c}@~{o}es dentro do @tref{componente} s@~{a}o
+medidos.  Marcas de @tref{componente} s@~{a}o desenhadas como pequenos diamantes.
+
+@img{../term-mark-1}
+@iml{marca de mira, marca de componente}
+
+
+@item @tdef{m@'{a}scara}
+Veja ``@tref{m@'{a}scara de soldagem}''.
+
+@item @tdef{mil}
+@itemx @tdef{mil@'{e}simo de polegada}
+No @pcb{} um mil @'{e} 0.001 pol, ou um ``mili-pol''.  Outros pacotes
+podem chamar o mil de ``@tref{thou}'', forma curta de mil@'{e}simo de polegada @footnote{Nota do tradutor: thousand, mil em ingl@^{e}s.
+
+@item @tdef{NC drill}
+Arquivo de perfura@,{c}@~{a}o controlada numericamente - Numerically Controlled Drill.  Veja ``@tref{arquivo de perfura@,{c}@~{a}o}''.
+
+@item @tdef{camada negativa}
+@itemx @tdef{plano negativo}
+Para a maioria das @trefl{camadas de desenho,camada de desenho}, tudo que voc@^{e} desenha
+corresponde a tudo que existe em uma @tref{camada f@'{i}sica}.  Por
+exemplo, uma desenho de @tref{trilha} sobre uma camada de cobre resulta em cobre
+existindo sobre a @tref{placa}.  Para camadas negativas, todavia, o que voc@^{e}
+desenha resulta no que @emph{n@~{a}o} existe na placa.  O
+arquivo de @tref{gerber} que gera a @tref{m@'{a}scara de soldagem}, por exemplo, est@'{a} na tal camada negativa - um
+c@'{i}rculo desenhado no @tref{gerber} que gera a @tref{m@'{a}scara de soldagem} resulta em um orif@'{i}cio na
+@tref{m@'{a}scara de soldagem} f@'{i}sica.  O @code{pcb} representa tal camada negativa de uma
+forma significativa na tela, mas exportadores podem usar uma camada negativa
+conforme a necessidade do processo de fabrica@,{c}@~{a}o.
+
+@item @tdef{netlist}
+Uma lista de conec@,{c}@~{o}es el@'{e}tricas simb@'{o}licas, normalmente fornecida com entrada
+ao @code{pcb} proveniente de um programa de tra@,{c}ado esquem@'{a}tico, que representa a
+conectividade el@'{e}trica desejada na placa.  O @pcb{} pode comparar a
+netlist desejada (carregada) com a atual netlist (cobre) e alertar
+voc@^{e} sobre conec@,{c}@~{o}es em curto circuito ou ausentes.  Se ouverem conec@,{c}@~{o}es
+ausentes, o @pcb{} pode usar a netlist para criar um @tref{ninho de rato} para lhe ajudar
+no roteamento dessas conec@,{c}@~{o}es ausentes.
+
+@item @tdef{linha de sa@'{i}da}
+A apar@^{e}ncia f@'{i}sica e medidas de sua @tref{placa}.  Por
+padr@~{a}o, @'{e} um ret@^{a}ngulo de tamanho da sua @'{a}rea de trabalho (o
+``tamanho da placa''), mas se voc@^{e} chama uma das @tref{camadas de desenho} de
+``linha de sa@'{i}da'' esse nome @'{e} usado.  Enquanto sua @tref{placa} for ela mesma um
+do formato de um pol@'{i}gono, um objeto do tipo @tref{pol@'{i}gono} desenhado n@~{a}o @'{e} usado para denotar
+sua linha de sa@'{i}da - por conven@,{c}@~{a}o, 10 @tref{mil} de largura de @trefl{linhas,linha} s@~{a}o
+usados para desenhar a linha de sa@'{i}da, e as linhas de centro que indicam
+as arestas atuais da linha de sa@'{i}da.
+
+@item @tdef{pastilha}
+Uma conec@,{c}@~{a}o el@'{e}trica a um @tref{componente} que n@~{a}o exige um
+orif@'{i}cio completo, por exemplo como usado por um dispositivo de montagem de superf@'{i}cie.
+@footnote{Nota do tradutor: o dispositivo apenas toca as pastilhas de
+cobre desenhadas na placa sem necessidade de perfura@,{c}@~{o}es.}
+
+@img{../term-pad-1}
+@iml{componente montado sobre uma superf@'{i}cie com oito pastilhas.}
+
+@item @tdef{cola}
+Veja ``@tref{cola de soldagem}''.
+
+@item @tdef{matriz de colar}
+Uma folha fina, comumente pl@'{a}stica ou met@'{a}lica e que varia entre  0.002 e 0.005 polegadas
+de espessura, com orif@'{i}cios onde a soldagem com @trefl{cola,cola de soldagem} deve ser aplicada @`{a} sua
+placa.
+
+@item @tdef{arquivo do pcb}
+Um arquivo usado pelo @code{pcb} para armazenar o tra@,{c}ado da placa.  Os nomes de tal arquivo terminam em
+@code{.pcb} e s@~{a}o normalmente arquivos no formato texto leg@'{i}vel (e edit@'{a}vel).
+
+@item @tdef{unidades do pcb}
+Internamente, @code{pcb} mant@'{e}m todas as medidas em suas pr@'{o}prias unidades,
+que s@~{a}o menores que ambas as unides @trefl{mils,mil} e mil@'{i}metros.  Essas duas s@~{a}o
+as unidades padr@~{a}o usadas em arquivos do @pcb{}.  Na @'{e}poca em que esse texto foi escrito,
+unidades do @code{pcb} s@~{a}oe 1/100 de um @tref{mil}, ou
+@iftex
+@math{10^{-5}}
+@end iftex
+@ifhtml
+@html
+10<sup>-5</sup>
+@end html
+@end ifhtml
+@ifnottex
+@ifnothtml
+0.00001
+@end ifnothtml
+@end ifnottex
+de polegada.
+
+@item @tdef{conector de componente}
+Uma conec@,{c}@~{a}o el@'{e}trica a um @tref{componente} que exige um
+orif@'{i}cio completo, por exemplo como necess@'{a}rio para um suporte/conector DIP para circuito integrado.  Ao contr@'{a}rio de um
+@tref{pastilha}.  Note que conectores de componenetes e @trefl{vias,via} s@~{a}o mecanicamente
+id@^{e}nticos, embora conectores de componentes possuam como padr@~{a}o a op@,{c}@~{a}o @tref{descoberto} @footnote{Nota do tradutor: untanted.} enquanto
+@trefl{vias,via} possuem como padr@~{a}o a op@,{c}@~{a}o  @tref{coberta}.
+
+@img{../term-pin-1}
+@iml{Componente DIP com oito conectores.}
+
+@item @tdef{camada f@'{i}sica}
+Na fabrica@,{c}@~{a}o de placas de circuito, uma camada f@'{i}sica @'{e}, por
+exemplo, cada camada de cobre, cada lado da @tref{tela de seda}, a
+@tref{m@'{a}scara de soldagem}, a @tref{matriz de colar}, a linha de sa@'{i}da f@'{i}sica,
+etc.  Cada camada f@'{i}sica requer que uma defini@,{c}@~{a}o @'{u}nica de camada seja
+produzida pelo @code{pcb}; para @trefl{fabs,fab} profissionais existe um
+arquivo de @tref{gerber} para cada camada f@'{i}sica.
+
+@item @tdef{orif@'{i}cio galvanizado}
+@itemx @tdef{orif@'{i}co completamente galvanizado}
+@itemx @tdef{PTH}
+Durante a fabrica@,{c}@~{a}o, alguns orif@'{i}cios tornam-se revestidos com cobre que
+conectam todas as camadas de cobre juntas naquele ponto.  Uma vez que isso @'{e}
+normalmente feito por galvanoplastia, tais orif@'{i}cios s@~{a}o chamados orif@'{i}cios
+``galvanizados'', e normalmente possuem uma @tref{aur@'{e}ola} de cobre em volta deles.
+
+@img{../term-platedhole-1}
+@iml{Orif@'{i}cios galvanizados e vazios.}
+
+@item @tdef{pol@'{i}gono}
+Um pol@'{i}gono define a linha de sa@'{i}da de uma regi@~{a}o desenhada sobre uma @tref{camada de
+desenho}.  Quando usado sobre uma @tref{camada de desenho} representando uma @tref{camada f@'{i}sica}
+de cobre, faz com que um pol@'{i}gono de cobre exista na
+placa final, por exemplo.  Diferentemente de @trefl{linhas,linha} e
+@trefl{arcos,arco}, um pol@'{i}gono n@~{a}o tem ``espessura''.
+
+@item @tdef{rato}
+@itemx @tdef{linhas de rato}
+@itemx @tdef{lista de rato}
+@itemx @tdef{ninho de rato}
+Um rato @'{e} uma representa@,{c}@~{a}o visual simb@'{o}lica de uma conec@,{c}@~{a}o el@'{e}trica
+desconectada - i.e. alguma coisa na @tref{netlist} que n@~{a}o existe
+como uma @tref{trilha} ainda.  @'{E} chamada um ninho de rato pela apar@^{e}ncia
+bagun@,{c}ada quando criado primeiramente, a partir do que, as conec@,{c}@~{o}es individuais
+foram chamadas linhas de rato ou apenas ratos.  Em um arquivo @pcb{}, a lista de rato @'{e}
+uma lista de todos os ratos que existem na placa; n@~{a}o significa sempre a mesma coisa
+que a @tref{netlist}, pelo fato de  voc@^{e} poder escolher trabalhar com um subconjunto
+da @tref{netlist} de cada vez, or esconder os ratos completamente.  Muitas
+fun@,{c}@~{o}es do @code{pcb} usam uma lista de rato para determinar sobre quais conec@,{c}@~{o}es
+trabalhar; por isso @'{e} importante para atualizar a lista de ratos antes de usar tais
+fun@,{c}@~{o}es.
+
+@item @tdef{ret@^{a}ngulo}
+Um caso especial de @tref{pol@'{i}gono}.
+
+@item @tdef{resist@^{e}ncia}
+No @pcb{} comumente significa @tref{resist@^{e}ncia @`{a} corros@~{a}o}.
+
+@item @tdef{rotear}
+No @pcb{} esse termo @'{e} um verbo, significando adicionar e organizar
+@trefl{trilhas,trilha} de forma que reflitam adequadamente a @tref{netlist}.
+Outros pacotes podem usar esse termo para refletir a @tref{linha de sa@'{i}da}, mas
+o @pcb{} n@~{a}o faz isso.
+
+@item @tdef{estilo de rota}
+Uma cole@,{c}@~{a}o de medidas, tais como espessura de @tref{trilha}, di@^{a}metro de perfura@,{c}@~{a}o,
+tamanho de @tref{conector de componente}, e @tref{folga}, que @'{e} usado ao fazer o roteamento
+de @trefl{trilhas,trilha}.  O @pcb{} pode manter trilha de ao menos quatro estilhos,
+que voc@^{e} pode rapidamente alternar entre eles.
+
+@item @tdef{RS-274D}
+@itemx @tdef{RS-274X}
+Um formato de arquivo usado originalmente por impressoras fotogr@'{a}ficas, mas agora usado por qualquer
+m@'{a}quina usada para fabricar placas de circuito impresso.  A variante D exige um
+arquivo separado definindo todas as @trefl{aberturas,abertura}, e @'{e}
+condiderada obsoleta.  A variante X @'{e} a mais recente e inclui as
+defini@,{c}@~{o}es de @tref{abertura}.  Uma vez que esses formatos foram definidos pela
+Gerber Photoplotter company, eles s@~{a}o comumente conhecidos como
+``arquivos de @tref{gerber}''.  Embora n@~{a}o haja ``dono'' da
+especifica@,{c}@~{a}o RS-274X, ela pode ser encontrada em v@'{a}rios locais online tais como
+@url{http://www.artwork.com/gerber/274x/rs274xrevd_e.pdf}.
+
+@item @tdef{encolher}
+Algumas @'{a}reas de cobre vizinhas podem decrescer em tamanho e n@~{a}o mais se
+tocarem (sobreposi@,{c}@~{a}o).
+
+@item @tdef{seda}
+@itemx @tdef{tela de seda}
+Uma camada de tinta ou pigmento desenhada sobre a placa de circuito (comumente, uma para
+cada lado da placa) com o objetivo de incluir, por exemplo, n@'{u}meros de s@'{e}rie
+ou linhas de sa@'{i}da de @tref{componente}.
+
+@item @tdef{m@'{a}scara de soldagem}
+Uma camada de filme resistente ao calor colocada sobre as camadas de cobre mais externas
+de sua placa, para evitar a ader@^{e}ncia da solda a qualquer cobre envolvido.
+Quando usada para cobrir @trefl{trilhas,trilha} roteadas entre
+@trefl{conectores de componente,conector de componente} ou @trefl{pastilhas,pastilha}, pode ajudar a evitar curtos circuito entre
+essas @trefl{trilhas,trilha}.  Note que quando mostrada no @code{pcb} a
+m@'{a}scara @'{e} desenhada onde o filme existe, mas na sa@'{i}da (para postscript ou
+@tref{gerber}, por exemplo), @'{e} muitas vezes ``desenhada'' onde a m@'{a}scara @'{e}
+para ser @emph{removida}.
+
+@item @tdef{resist@^{e}ncia @`{a} soldagem}
+Veja @tref{m@'{a}scara de soldagem}.
+
+@item @tdef{cola de soldagem}
+Solda triturada misturada com flux @footnote{Nota do tradutor: o flux @'{e} uma subst@^{a}ncia quimica que facilita diversas coisas; ou a condutividade t@'{e}rmica, ou a limpeza, ou a coes@~{a}o da mistura, etc.}.  Essa cola @'{e} normalmente espalhada com um rodo
+completamente sobre uma matriz de colar para depositar uma quantidade determinada de cola sobre cada
+@tref{pastilha} da placa de circuito.  Uma vez que a cola @'{e} aplicada, as partes podem ser
+posicionadas sobre a cola, e a placa aquecida derrete a cola
+e solda as partes na placa.
+
+@item @tdef{cobertura}
+Quando uma placa de circuito @'{e} feita com uma @tref{m@'{a}scara de soldagem}, voc@^{e} tem a
+op@,{c}@~{a}o de abrir um orif@'{i}cio na m@'{a}scara sobre @trefl{vias,via}, ou deixar a
+@trefl{m@'{a}scara,m@'{a}scara de soldagem} intacta sobre @trefl{vias,via}.  Uma @tref{via} com uma
+@trefl{m@'{a}scara,m@'{a}scara de soldagem} intacta sobre si @'{e} coberta, ent@~{a}o a
+@trefl{m@'{a}scara,m@'{a}scara de soldagem} atua como uma cobertura sobre o cobre e o orif@'{i}cio.
+
+@img{../term-tented-1}
+@iml{Vias coberta e via desdescoberta.}
+
+@item @tdef{t@'{e}rmico}
+@itemx @tdef{relevo t@'{e}rmico}
+Uma vez que o cobre @'{e} um eficiente dissipador de calor, conec@,{c}@~{o}es a regi@~{o}es grandes
+de cobre podem ser muito dif@'{i}ceis de soldar - o cobre dissipa calor
+evitando que voc@^{e} aque@,{c}a adequadamente a conec@,{c}@~{a}o.  Para corrigir isso,
+pequenos entalhes s@~{a}o feitos em volta de cada tal conec@,{c}@~{a}o para criar uma barreira
+t@'{e}rmica, de forma que o aquecimento aplicado na conec@,{c}@~{a}o permane@,{c}a na
+conec@,{c}@~{a}o.  Tal conjunto de entalhes, e as pontes de cobre que
+restaram, @'{e} chamado um ``t@'{e}rmico''.  T@'{e}rmicos chegam com muitos modelos,
+que permitem ao desenhista garantir adequada conectividade el@'{e}trica
+e/ou facilidade de fabrica@,{c}@~{a}o.
+
+@img{../term-thermal-1}
+@iml{Conector de componente sem conec@,{c}@~{a}o, tr@^{e}s tipos de t@'{e}rmico, e sem t@'{e}rmico.}
+
+@item @tdef{espessura}
+No @pcb{} refere-se muitas vezes @`{a} largura de uma @tref{linha} ou
+@tref{arco}, n@~{a}o @`{a} espessura da camada de cobre usado para produzir a
+@tref{placa}.  @'{E} tamb@'{e}m o ``tamanho'' de uma @tref{linha} ou
+@tref{arco}.
+
+@img{../term-thickness-1}
+
+@item @tdef{desenho fino}
+Um modo usado pela interrface gr@'{a}fica de usu@'{a}rio do @code{pcb} pelo qual objetos de placa s@~{a}o desenhados como
+linhas finas (ou linhas de sa@'{i}da) ao inv@'{e}s de como linhas com espessura padr@~{a}o.  Esse modo
+@'{e} @'{u}til para trabalho detalhado onde o tamanho dos objetos pode
+de outra forma obscurecer seu relacionamento com os outros.
+
+@item @tdef{thou}
+Veja ``@tref{mil}''. Thousand - 1000.
+
+@item @tdef{trasfer@^{e}ncia de toner}
+@itemx @tdef{TT}
+Um m@'{e}todo de fabrica@,{c}@~{a}o caseiro que envolve impress@~{a}o de uma camada com impressora
+laser, e transferindo o toner daquela impressora para uma placa de cobre
+n@~{a}o corro@'{i}da.  O toner atua como um @tref{resistor de corros@~{a}o}.
+
+@item @tdef{trilha}
+Qualquer cobre adicionado a uma camada de cobre cujo prop@'{o}sito @'{e} conectar
+sinais el@'{e}tricos entre @trefl{componentes,componente}.  Trilhas podem ser
+constru@'{i}das a partir de @trefl{linhas,linha}, @trefl{arcos,arco}, e
+@trefl{pol@'{i}gonos,pol@'{i}gono}.
+
+@item @tdef{orif@'{i}cio sem cobre}
+Durante a fabri@,{c}@~{a}o, alguns orif@'{i}cios s@~{a}o perfurados ap@'{o}s galvanoplastia, e
+ent@~{a}o n@~{a}o recebem o cobre que iria de outra forma conectar camadas.
+Tais orif@'{i}cios s@~{a}o orif@'{i}cios sem cobre, e normalmente n@~{a}o possem uma
+@tref{aur@'{e}ola} de cobre em torno de si.
+
+@img{../term-platedhole-1}
+@iml{Orif@'{i}cios galvanizados e vazios.}
+
+@item @tdef{sem cobertura}
+Quando um orif@'{i}cio @'{e} colocado na @tref{m@'{a}scara de soldagem} com o objetivo de expor uma
+@tref{via} abaixo dele, tal via @'{e} sem cobertura.  As @trefl{vias,via}
+sem cobertura s@~{a}o dispon@'{i}veis como pontos de teste ou locais para adicionar fios
+posteriormente.
+
+@item @tdef{via}
+Uma via @'{e} uma conec@,{c}@~{a}o entre diferentes camadas de cobre.  No @pcb{} todas as
+vias s@~{a}o vias ``completas'', no sentido de que elas conectam cobre em todas as camadas.
+
+@end table
