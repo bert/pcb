@@ -1,6 +1,4 @@
 intl/plural.c
 src/edif.c
-src/gpcb-menu.res.h
 src/parse_y.c
-src/pcb-menu.res.h
 src/res_parse.c
