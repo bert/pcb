@@ -270,6 +270,8 @@ gpcb-menu.h : gpcb-menu.res
 	$(INTLTOOL_EXTRACT) --type=gettext/quoted $^
 	mv -f $@ ${srcdir}/$@ || true
 
+check-local: gpcb-menu.res.h pcb-menu.res.h
+
 hid/common/hidlist.h : Makefile
 	$(MKDIR_P) hid/common
 	true > $@

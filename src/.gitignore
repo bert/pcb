@@ -8,6 +8,7 @@ predicates_init
 res_lex.c
 res_parse.[ch]
 *pcb-menu.h
+*pcb-menu.res.h
 pcbtest.sh
 pcb
 pcb.exe
