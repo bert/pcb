@@ -491,7 +491,7 @@ typedef enum
      * gui-> for making drawing calls. If the return value is NULL, then
      * permission has been denied, and the drawing must not continue.
      */
-    HID *(*request_debug_draw) (void);
+    HID_DRAW *(*request_debug_draw) (void);
 
     /* Flush pending drawing to the screen
      *

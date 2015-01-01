@@ -1226,12 +1226,12 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   return pixmap;
 }
 
-HID *
+HID_draw *
 ghid_request_debug_draw (void)
 {
   /* No special setup requirements, drawing goes into
    * the backing pixmap. */
-  return &ghid_hid;
+  return ghid_hid.graphics;
 }
 
 void

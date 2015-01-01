@@ -502,7 +502,7 @@ void ghid_port_drawing_realize_cb (GtkWidget *, gpointer);
 gboolean ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * ev);
 GdkPixmap *ghid_render_pixmap (int cx, int cy, double zoom,
                                int width, int height, int depth);
-HID *ghid_request_debug_draw (void);
+HID_DRAW *ghid_request_debug_draw (void);
 void ghid_flush_debug_draw (void);
 void ghid_finish_debug_draw (void);
 bool ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y);

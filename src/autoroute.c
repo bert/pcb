@@ -138,7 +138,7 @@ return dir;
 }
 
 #ifdef ROUTE_DEBUG
-HID *ddraw = NULL;
+HID_DRAW *ddraw = NULL;
 static hidGC ar_gc = 0;
 #endif
 
@@ -1469,14 +1469,14 @@ showbox (BoxType b, Dimension thickness, int group)
 
   if (ddraw != NULL)
     {
-      ddraw->graphics->set_line_width (ar_gc, thickness);
-      ddraw->graphics->set_line_cap (ar_gc, Trace_Cap);
-      ddraw->graphics->set_color (ar_gc, SLayer->Color);
+      ddraw->set_line_width (ar_gc, thickness);
+      ddraw->set_line_cap (ar_gc, Trace_Cap);
+      ddraw->set_color (ar_gc, SLayer->Color);
 
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
-      ddraw->graphics->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
+      ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
+      ddraw->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
+      ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
+      ddraw->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
     }
 
 #if 1
@@ -1525,23 +1525,23 @@ showedge (edge_t * e)
   if (ddraw == NULL)
     return;
 
-  ddraw->graphics->set_line_cap (ar_gc, Trace_Cap);
-  ddraw->graphics->set_line_width (ar_gc, 1);
-  ddraw->graphics->set_color (ar_gc, Settings.MaskColor);
+  ddraw->set_line_cap (ar_gc, Trace_Cap);
+  ddraw->set_line_width (ar_gc, 1);
+  ddraw->set_color (ar_gc, Settings.MaskColor);
 
   switch (e->expand_dir)
     {
     case NORTH:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
       break;
     case SOUTH:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
       break;
     case WEST:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
       break;
     case EAST:
-      ddraw->graphics->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
       break;
     default:
       break;
@@ -3673,7 +3673,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 
 #ifdef ROUTE_DEBUG
   if (ddraw != NULL)
-    ddraw->flush_debug_draw ();
+    gui->flush_debug_draw ();
 #endif
 }
 
@@ -5166,8 +5166,8 @@ AutoRoute (bool selected)
   ddraw = gui->request_debug_draw ();
   if (ddraw != NULL)
     {
-      ar_gc = ddraw->graphics->make_gc ();
-      ddraw->graphics->set_line_cap (ar_gc, Round_Cap);
+      ar_gc = ddraw->make_gc ();
+      ddraw->set_line_cap (ar_gc, Round_Cap);
     }
 #endif
 
@@ -5333,8 +5333,8 @@ donerouting:
 #ifdef ROUTE_DEBUG
   if (ddraw != NULL)
     {
-      ddraw->graphics->destroy_gc (ar_gc);
-      ddraw->finish_debug_draw ();
+      ddraw->destroy_gc (ar_gc);
+      gui->finish_debug_draw ();
     }
 #endif
 

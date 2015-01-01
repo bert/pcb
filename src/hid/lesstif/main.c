@@ -4003,12 +4003,12 @@ lesstif_progress (int so_far, int total, const char *message)
   return progress_cancelled;
 }
 
-static HID *
+static HID_DRAW *
 lesstif_request_debug_draw (void)
 {
   /* Send drawing to the backing pixmap */
   pixmap = main_pixmap;
-  return &lesstif_hid;
+  return lesstif_hid.graphics;
 }
 
 static void

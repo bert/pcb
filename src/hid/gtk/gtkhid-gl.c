@@ -1294,7 +1294,7 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   return pixmap;
 }
 
-HID *
+HID_DRAW *
 ghid_request_debug_draw (void)
 {
   GHidPort *port = gport;
@@ -1329,7 +1329,7 @@ ghid_request_debug_draw (void)
                 port->view.flip_y ? port->view.y0 - PCB->MaxHeight :
                              -port->view.y0, 0);
 
-  return &ghid_hid;
+  return ghid_hid.graphics;
 }
 
 void
