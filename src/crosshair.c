@@ -555,10 +555,11 @@ DrawAttached (void)
 
         if (TEST_FLAG (SHOWDRCFLAG, PCB))
           {
-            /* XXX: Naughty cheat - use the mask to draw DRC clearance! */
-            via.Mask = Settings.ViaThickness + PCB->Bloat * 2;
+            Coord mask_r = Settings.ViaThickness / 2 + PCB->Bloat;
             gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
-            gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, true);
+            gui->graphics->set_line_cap (Crosshair.GC, Round_Cap);
+            gui->graphics->set_line_width (Crosshair.GC, 0);
+            gui->graphics->draw_arc (Crosshair.GC, via.X, via.Y, mask_r, mask_r, 0, 360);
             gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
           }
         break;
