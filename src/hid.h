@@ -487,9 +487,9 @@ typedef enum
 
     /* Request permission for debug drawing
      *
-     * Returns a HID pointer which should be used rather than the global
-     * gui-> for making drawing calls. If the return value is NULL, then
-     * permission has been denied, and the drawing must not continue.
+     * Returns a HID_DRAW pointer which should be used rather than the global
+     * gui->graphics-> for making drawing calls. If the return value is NULL,
+     * then permission has been denied, and the drawing must not continue.
      */
     HID_DRAW *(*request_debug_draw) (void);
 
