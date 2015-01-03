@@ -1360,7 +1360,6 @@ static void
 work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
   static int pressed_button = 0;
-  static int ignore_release = 0;
 
   show_crosshair (0);
   switch (e->type)
@@ -1382,11 +1381,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
           return;
         /*printf("click %d\n", e->xbutton.button); */
         if (lesstif_button_event (w, e))
-	{
-	  ignore_release = 1;
-	  return;
-	}
-        ignore_release = 0;
+          return;
 
         notify_crosshair_change (false);
         pressed_button = e->xbutton.button;
