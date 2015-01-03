@@ -3947,7 +3947,6 @@ lesstif_progress_dialog (int so_far, int total, const char *msg)
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
-  static bool visible = false;
   static bool started = false;
   XEvent e;
   struct timeval time;
@@ -3958,7 +3957,6 @@ lesstif_progress (int so_far, int total, const char *message)
   if (so_far == 0 && total == 0 && message == NULL)
     {
       XtUnmanageChild (progress_dialog);
-      visible = false;
       started = false;
       progress_cancelled = false;
       return retval;
