@@ -99,6 +99,8 @@ static int bgred, bggreen, bgblue;
 
 static GC arc1_gc, arc2_gc;
 
+static hidGC crosshair_gc;
+
 /* These are for the pinout windows. */
 typedef struct PinoutData
 {
@@ -140,6 +142,11 @@ static double view_zoom = MIL_TO_COORD (10), prev_view_zoom = MIL_TO_COORD (10);
 static bool flip_x = 0, flip_y = 0;
 static bool autofade = 0;
 static bool crosshair_on = true;
+
+/* ---------------------------------------------------------------------------
+ * some local prototypes
+ */
+static hidGC lesstif_make_gc (void);
 
 static void
 ShowCrosshair (bool show)
@@ -1797,6 +1804,8 @@ lesstif_do_export (HID_Attr_Val * options)
   Widget menu;
   Widget work_area_frame;
 
+  crosshair_gc = lesstif_make_gc ();
+
   n = 0;
   stdarg (XtNwidth, &width);
   stdarg (XtNheight, &height);
@@ -2578,8 +2587,8 @@ idle_proc (XtPointer dummy)
       pixmap = window;
       if (crosshair_on)
         {
-          DrawAttached ();
-          DrawMark ();
+          DrawAttached (crosshair_gc);
+          DrawMark (crosshair_gc);
         }
       need_redraw = 0;
     }
@@ -2947,7 +2956,7 @@ lesstif_notify_crosshair_change (bool changes_complete)
     {
       save_pixmap = pixmap;
       pixmap = window;
-      DrawAttached ();
+      DrawAttached (crosshair_gc);
       pixmap = save_pixmap;
     }
 
@@ -2980,7 +2989,7 @@ lesstif_notify_mark_change (bool changes_complete)
     {
       save_pixmap = pixmap;
       pixmap = window;
-      DrawMark ();
+      DrawMark (crosshair_gc);
       pixmap = save_pixmap;
     }
 
@@ -4013,8 +4022,8 @@ lesstif_flush_debug_draw (void)
   pixmap = window;
   if (crosshair_on)
     {
-      DrawAttached ();
-      DrawMark ();
+      DrawAttached (crosshair_gc);
+      DrawMark (crosshair_gc);
     }
   pixmap = main_pixmap;
 }

@@ -42,6 +42,7 @@ typedef struct render_priv {
   Coord lead_user_x;
   Coord lead_user_y;
 
+  hidGC crosshair_gc;
 } render_priv;
 
 
@@ -790,11 +791,11 @@ redraw_region (GdkRectangle *rect)
 
   /* In some cases we are called with the crosshair still off */
   if (priv->attached_invalidate_depth == 0)
-    DrawAttached ();
+    DrawAttached (priv->crosshair_gc);
 
   /* In some cases we are called with the mark still off */
   if (priv->mark_invalidate_depth == 0)
-    DrawMark ();
+    DrawMark (priv->crosshair_gc);
 
   draw_lead_user (priv);
 
@@ -863,7 +864,7 @@ ghid_notify_crosshair_change (bool changes_complete)
     }
 
   if (priv->attached_invalidate_depth == 0)
-    DrawAttached ();
+    DrawAttached (priv->crosshair_gc);
 
   if (!changes_complete)
     {
@@ -901,7 +902,7 @@ ghid_notify_mark_change (bool changes_complete)
     }
 
   if (priv->mark_invalidate_depth == 0)
-    DrawMark ();
+    DrawMark (priv->crosshair_gc);
 
   if (!changes_complete)
     {
@@ -1038,11 +1039,15 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 {
   /* Init any GC's required */
   port->render_priv = g_new0 (render_priv, 1);
+  port->render_priv->crosshair_gc = gui->graphics->make_gc ();
 }
 
 void
 ghid_shutdown_renderer (GHidPort *port)
 {
+  render_priv *priv = port->render_priv;
+
+  gui->graphics->destroy_gc (priv->crosshair_gc);
   ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
