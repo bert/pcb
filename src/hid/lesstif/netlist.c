@@ -298,7 +298,7 @@ netlist_button (Widget parent, char *name, char *string,
 static int
 build_netlist_dialog ()
 {
-  Widget b_sel, b_unsel, b_find, b_ripup, b_rat_on, b_rat_off, l_ops;
+  Widget b_sel, b_unsel, b_find, b_rat_on, l_ops;
   XmString ops_str;
 
   if (!mainwind)
@@ -318,9 +318,9 @@ build_netlist_dialog ()
 			     (XtCallbackProc)nbcb_std_callback, (void *)nbcb_rat_on);
 
   n = 0;
-  b_rat_off = netlist_button (netlist_dialog, "rat_off", "Disable for rats",
-			      0, NLB_FORM, b_rat_on, 0,
-			      (XtCallbackProc)nbcb_std_callback, (void *)nbcb_rat_off);
+  netlist_button (netlist_dialog, "rat_off", "Disable for rats",
+                  0, NLB_FORM, b_rat_on, 0,
+                  (XtCallbackProc)nbcb_std_callback, (void *)nbcb_rat_off);
 
   n = 0;
   b_sel = netlist_button (netlist_dialog, "select", "Select",
@@ -339,9 +339,9 @@ build_netlist_dialog ()
 
 
   n = 0;
-  b_ripup = netlist_button (netlist_dialog, "ripup", "Rip Up",
-			    0, b_rat_on, b_find, 0,
-			    (XtCallbackProc)nbcb_ripup, 0);
+  netlist_button (netlist_dialog, "ripup", "Rip Up",
+                  0, b_rat_on, b_find, 0,
+                  (XtCallbackProc)nbcb_ripup, 0);
 
   n = 0;
   stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
