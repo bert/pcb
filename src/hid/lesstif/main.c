@@ -717,12 +717,11 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
 {
   char buf[10];
   KeySym sym;
-  int slen;
 
   switch (e->type)
     {
     case KeyPress:
-      slen = XLookupString ((XKeyEvent *)e, buf, sizeof (buf), &sym, NULL);
+      XLookupString ((XKeyEvent *)e, buf, sizeof (buf), &sym, NULL);
       switch (sym)
 	{
 	case XK_Escape:
