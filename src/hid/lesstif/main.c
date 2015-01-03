@@ -78,7 +78,7 @@ static Pixmap pixmap = 0;
 static Pixmap main_pixmap = 0;
 static Pixmap mask_pixmap = 0;
 static Pixmap mask_bitmap = 0;
-static int use_mask = 0;
+static enum mask_mode use_mask = HID_MASK_OFF;
 
 static int use_xrender = 0;
 #ifdef HAVE_XRENDER
@@ -233,7 +233,7 @@ Location of the @file{pcb-menu.res} file which defines the menu for the lesstif 
 
 REGISTER_ATTRIBUTES (lesstif_attribute_list)
 
-static void lesstif_use_mask (int use_it);
+static void lesstif_use_mask (enum mask_mode mode);
 static void zoom_max ();
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
@@ -2489,7 +2489,7 @@ idle_proc (XtPointer dummy)
     {
       int mx, my;
       BoxType region;
-      lesstif_use_mask (0);
+      lesstif_use_mask (HID_MASK_OFF);
       pixmap = main_pixmap;
       mx = view_width;
       my = view_height;
@@ -2570,7 +2570,7 @@ idle_proc (XtPointer dummy)
       DrawBackgroundImage();
       hid_expose_callback (&lesstif_hid, &region, 0);
       draw_grid ();
-      lesstif_use_mask (0);
+      lesstif_use_mask (HID_MASK_OFF);
       show_crosshair (0); /* To keep the drawn / not drawn info correct */
       XSetFunction (display, my_gc, GXcopy);
       XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
@@ -3060,14 +3060,14 @@ lesstif_destroy_gc (hidGC gc)
 }
 
 static void
-lesstif_use_mask (int use_it)
+lesstif_use_mask (enum mask_mode mode)
 {
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
       !use_xrender)
-    use_it = 0;
-  if ((use_it == 0) == (use_mask == 0))
+    mode = HID_MASK_OFF;
+  if ((mode == HID_MASK_OFF) == (use_mask == HID_MASK_OFF))
     return;
-  use_mask = use_it;
+  use_mask = mode;
   if (pinout)
     return;
   if (!window)
@@ -3080,7 +3080,7 @@ lesstif_use_mask (int use_it)
 		       XDefaultDepth (display, screen));
       mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
     }
-  if (use_it)
+  if (mode != HID_MASK_OFF)
     {
       pixmap = mask_pixmap;
       XSetForeground (display, my_gc, 0);
