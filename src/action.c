@@ -2025,7 +2025,7 @@ static const char setthermal_help[] =
   "Style = 0 means no thermal.\n"
   "Style = 1 has diagonal fingers with sharp edges.\n"
   "Style = 2 has horizontal and vertical fingers with sharp edges.\n"
-  "Style = 3 is a solid connection to the plane."
+  "Style = 3 is a solid connection to the plane.\n"
   "Style = 4 has diagonal fingers with rounded edges.\n"
   "Style = 5 has horizontal and vertical fingers with rounded edges.\n");
 
