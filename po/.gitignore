@@ -8,3 +8,4 @@ POTFILES
 Rules-quot
 Makevars.template
 .intltool-merge-cache
+pcb.pot
