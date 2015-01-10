@@ -1,7 +1,7 @@
-name=gd
-version=2.0.35
+name=libgd
+version=2.1.0
 release=1
-download=http://www.libgd.org/releases
+download=https://bitbucket.org/libgd/gd-libgd/downloads
 
 configure_opt="
   --disable-static
