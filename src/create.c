@@ -224,8 +224,8 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
 	return 1;
     }
 
-  pcb->Data->Layer[top_silk_layer].Name = strdup ("silk");
-  pcb->Data->Layer[bottom_silk_layer].Name = strdup ("silk");
+  pcb->Data->Layer[top_silk_layer].Name = strdup ("top silk");
+  pcb->Data->Layer[bottom_silk_layer].Name = strdup ("bottom silk");
 
   return 0;
 }
