@@ -9,6 +9,7 @@ jpeg
 zlib
 libpng
 tiff
+freetype
 pixman
 libiconv
 gettext
