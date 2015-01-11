@@ -1121,7 +1121,7 @@ ConvertBufferToElement (BufferType *Buffer)
 bool
 LoadLayoutToBuffer (BufferType *Buffer, char *Filename)
 {
-  PCBType *newPCB = CreateNewPCB (false);
+  PCBType *newPCB = CreateNewPCB ();
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))

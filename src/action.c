@@ -5938,7 +5938,7 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
 	SaveInTMP ();
       RemovePCB (PCB);
       PCB = NULL;
-      PCB = CreateNewPCB (true);
+      PCB = CreateNewPCB ();
       CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */
