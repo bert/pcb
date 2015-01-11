@@ -4,7 +4,6 @@ release=1
 origin=gnu
 configure_opt="
   --enable-relocatable
-  CXX=${host:+$host-g++}
 "
 
 # Solve an incompatibility with newer MinGW runtimes
