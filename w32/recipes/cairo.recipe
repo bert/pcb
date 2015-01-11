@@ -1,8 +1,11 @@
 name=cairo
-version=1.8.8
+version=1.10.2
 release=1
 download=http://www.cairographics.org/releases
 
 case "$host" in
-  *mingw*) configure_opt=--without-x ;;
+  *mingw*)
+    configure_opt=--without-x
+    CPPFLAGS="-D ffs=__builtin_ffs"
+  ;;
 esac
