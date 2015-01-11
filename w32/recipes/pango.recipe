@@ -1,9 +1,11 @@
 name=pango
-version=1.26.0
+major=1.28
+minor=3
 release=1
-download=http://ftp.gnome.org/pub/gnome/sources/pango/1.26
+version=$major.$minor
+download=http://ftp.gnome.org/pub/gnome/sources/$name/$major
 
 configure_opt="
   --with-included-modules
-  CXX=${host:+$host-g++}  
+  CXX=${host:+$host-g++}
 "
