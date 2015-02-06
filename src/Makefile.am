@@ -207,6 +207,16 @@ endif
 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
+TEST_SRCS = \
+	pcb-printf.c	\
+	main-test.c
+
+unittest_SOURCES = ${TEST_SRCS}
+unittest_CFLAGS = -DPCB_UNIT_TEST
+check_PROGRAMS = unittest
+check_SCRIPTS = unittest
+TESTS = unittest
+
 # Action, Attribute, and Flag lists.
 core_lists.h : ${PCB_SRCS} Makefile
 	true > $@

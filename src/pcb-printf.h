@@ -169,5 +169,10 @@ int pcb_printf(const char *fmt, ...);
 char *pcb_g_strdup_printf(const char *fmt, ...);
 gchar *pcb_vprintf(const char *fmt, va_list args);
 
+#ifdef PCB_UNIT_TEST
+void pcb_printf_register_tests ();
+void pcb_printf_test_unit ();
+#endif
+
 #endif
 
