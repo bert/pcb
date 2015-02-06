@@ -172,6 +172,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args);
 #ifdef PCB_UNIT_TEST
 void pcb_printf_register_tests ();
 void pcb_printf_test_unit ();
+void pcb_printf_test_printf ();
 #endif
 
 #endif
