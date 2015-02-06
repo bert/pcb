@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 2011 Andrew Poelstra
+ *  Copyright (C) 2015 Andrew Poelstra
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,9 +34,6 @@
 int
 main (int argc, char *argv[])
 {
-  char buf[1024];
-  Coord c, c1, c2, c3;
-
   initialize_units ();
   pcb_printf_register_tests ();
 
