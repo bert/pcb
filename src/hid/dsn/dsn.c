@@ -159,8 +159,8 @@ static void
 print_structure (FILE * fp)
 {
   int group;
-  int top_group = GetLayerGroupNumberByNumber (component_silk_layer);
-  int bot_group = GetLayerGroupNumberByNumber (solder_silk_layer);
+  int top_group = GetLayerGroupNumberByNumber (top_silk_layer);
+  int bot_group = GetLayerGroupNumberByNumber (bottom_silk_layer);
 
   int top_layer = PCB->LayerGroups.Entries[top_group][0];
   int bot_layer = PCB->LayerGroups.Entries[bot_group][0];
