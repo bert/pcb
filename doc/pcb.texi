@@ -85,6 +85,7 @@ board layout system.
 * Standard Drill Sizes::   Tables of standard drill sizes
 * Centroid File Format::   Details of the centroid (x-y) output file
 * Annotation File Format:: Details of the back annotation output file
+* pcbignore Files::        Use of pcbignore files
 * Action Reference::       Documentation for all available actions
 * Glossary::               Glossary
 * Index::                  The Index.
@@ -5831,6 +5832,64 @@ and the new name.
 *RENAME* ``old'' ``new''
 @end format
 @end cartouche
+
+@c --------------------------- Appendix -- pcbignore Files ----------------------
+@node pcbignore Files
+@appendix pcbignore Files
+@cindex pcbignore files
+
+@section Overview
+The pcbignore files may be used to specify certain subdirectory and file names
+that are to be ignored when constructing the menus of newlib style footprints in
+the PCB Library window.
+
+@section File Format
+@cindex pcbignore files, file format
+
+A pcbignore file contains one element per line.  An element is either pattern
+(a filesystem name, which may include shell wildcards) or a lone ``!'' (which
+indicates that the ignore list is to be cleared).  Leading and trailing
+whitespace is removed; embedded whitespace is retained.  Blank lines (after
+trimming) are ignored.
+
+Patterns that begin with a ``/'' specify subdirectories to be ignored.  All
+other patterns specify files to be ignored.
+
+An example pcbignore file is shown below.
+
+@example
+
+!
+/uselessdir
+nonsense.file
+*.rubbish
+
+@end example
+
+@section The Ignore List
+@cindex pcbignore files, ignore list
+
+The list of all subdirectories and files to be ignored, known as the Ignore
+List, is constructed as follows:
+
+The Ignore List is first initialized with a default list:
+
+@example
+
+/CVS
+Makefile
+Makefile.*
+*.png
+*.html
+*.pcb
+
+@end example
+
+Then, the user's @file{~/.pcb/pcbignore} file is read and processed.
+Finally, the @file{.pcbignore} file in the newlib's directory is read
+and processed.  Note that each distinct newlib style top-level directory
+has its own Ignore List (whether or not it contains a @file{.pcbignore}
+file).
 
 @c --------------------------- Appendix -- Actions ----------------------
 @node Action Reference

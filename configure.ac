@@ -673,7 +673,7 @@ AC_CHECK_FUNCS(vsnprintf)
 AC_CHECK_FUNCS(getpwuid getcwd)
 AC_CHECK_FUNCS(rand random)
 AC_CHECK_FUNCS(stat)
-
+AC_CHECK_FUNCS(fnmatch)
 AC_CHECK_FUNCS(mkdtemp)
 
 # normally used for all file i/o
