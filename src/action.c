@@ -3590,6 +3590,8 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   free (locked_element_list);
   free (element_list);
   free (cnt_list);
+  free (is);
+  free (was);
   return 0;
 }
 
@@ -7829,6 +7831,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	  tmpfile = tempfile_name_new ("gnetlist_output");
 	  if (tmpfile == NULL) {
 	    Message (_("Could not create temp file"));
+            free (sources);
 	    return 1;
 	  }
 	  must_free_tmpfile = 1;
