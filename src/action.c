@@ -1892,13 +1892,13 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
   int i, j;
 
   printf ("**** Do not count on this format.  It will change ****\n\n");
-  printf ("MenuN   = %d\n", Library.MenuN);
-  printf ("MenuMax = %d\n", Library.MenuMax);
+  printf ("MenuN   = %d\n", (int) Library.MenuN);
+  printf ("MenuMax = %d\n", (int) Library.MenuMax);
   for (i = 0; i < Library.MenuN; i++)
     {
       printf ("Library #%d:\n", i);
-      printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
-      printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
+      printf ("    EntryN    = %d\n", (int) Library.Menu[i].EntryN);
+      printf ("    EntryMax  = %d\n", (int) Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
       printf ("    directory = \"%s\"\n",
 	      UNKNOWN (Library.Menu[i].directory));
@@ -3476,7 +3476,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 		  tmpi = tmpi / 10;
 		}
 	      tmps = (char *)malloc (sz * sizeof (char));
-	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+	      sprintf (tmps, "%s%d", cnt_list[j].name, (int) cnt_list[j].cnt);
 
 	      /* 
 	       * now compare to the list of reserved (by locked
