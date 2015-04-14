@@ -82,7 +82,6 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
     {
       total_drills += AllDrills->Drill[n].PinCount;
       total_drills += AllDrills->Drill[n].ViaCount;
-      total_drills += AllDrills->Drill[n].UnplatedCount;
     }
 
   stringlist = (char *)malloc (512L + AllDrills->DrillN * 64L);
