@@ -1,49 +1,19 @@
-	# number of pads
-	# pad width in 1/1000 mil
-	# pad length in 1/1000 mil
-	# pad pitch 1/1000 mil
-	# seperation between pads on opposite sides 1/1000 mil
-	# X coordinates for the right hand column of pads (1/100 mils)
-	# pad clearance to plane layer in 1/100 mil
-	# pad soldermask width in 1/100 mil
-	# silk screen width (1/100 mils)
-	# figure out if we have an even or odd number of pins per side
-	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (1/100 mils)
-# element_flags, description, pcb-name, value, mark_x, mark_y,
-# text_x, text_y, text_direction, text_scale, text_flags
-Element[0x00000000 "Small outline package, wide (300mil)" "" "SO8W" 0 0 -2000 -6000 0 100 0x00000000]
+Element(0x0 "SO8W" "" "" -138 -147 0 100 0x0)
 (
-# 
-# Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
-        Pad[   -21000 -7500 
-			 -15000 -7500 
-			2000 1000 3000 "1" "1" 0x00000100]
-        Pad[   -21000 -2500 
-			 -15000 -2500 
-			2000 1000 3000 "2" "2" 0x00000100]
-        Pad[   -21000 2500 
-			 -15000 2500 
-			2000 1000 3000 "3" "3" 0x00000100]
-        Pad[   -21000 7500 
-			 -15000 7500 
-			2000 1000 3000 "4" "4" 0x00000100]
-        Pad[   21000 7500 
-			 15000 7500 
-			2000 1000 3000 "5" "5" 0x00000100]
-        Pad[   21000 2500 
-			 15000 2500 
-			2000 1000 3000 "6" "6" 0x00000100]
-        Pad[   21000 -2500 
-			 15000 -2500 
-			2000 1000 3000 "7" "7" 0x00000100]
-        Pad[   21000 -7500 
-			 15000 -7500 
-			2000 1000 3000 "8" "8" 0x00000100]
-	ElementLine[-23000 -9500 -23000  9500 1000]
-	ElementLine[-23000  9500  23000  9500 1000]
-	ElementLine[ 23000  9500  23000 -9500 1000]
-	ElementLine[-23000 -9500 -2500 -9500 1000]
-	ElementLine[ 23000 -9500  2500 -9500 1000]
-	# punt on the arc on small parts as it can cover the pads
-	ElementArc[0 -9500 2500 2500 0 180 1000]
+   Pad(-212 -75 -150 -75 24 "" "1" 0x0100)
+   Pad(-212 -25 -150 -25 24 "" "2" 0x0100)
+   Pad(-212 25 -150 25 24 "" "3" 0x0100)
+   Pad(-212 75 -150 75 24 "" "4" 0x0100)
+   Pad(150 75 212 75 24 "" "5" 0x0100)
+   Pad(150 25 212 25 24 "" "6" 0x0100)
+   Pad(150 -25 212 -25 24 "" "7" 0x0100)
+   Pad(150 -75 212 -75 24 "" "8" 0x0100)
+   ElementLine(-128 -22 -128 -51 10)
+   ElementLine(-128 -51 -92 -87 10)
+   ElementLine(-92 -87 128 -87 10)
+   ElementLine(128 -87 128 -22 10)
+   ElementLine(-128 22 -128 87 10)
+   ElementLine(-128 87 128 87 10)
+   ElementLine(128 87 128 22 10)
+   Mark(0 0)
 )

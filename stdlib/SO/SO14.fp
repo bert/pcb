@@ -1,67 +1,25 @@
-	# number of pads
-	# pad width in 1/1000 mil
-	# pad length in 1/1000 mil
-	# pad pitch 1/1000 mil
-	# seperation between pads on opposite sides 1/1000 mil
-	# X coordinates for the right hand column of pads (1/100 mils)
-	# pad clearance to plane layer in 1/100 mil
-	# pad soldermask width in 1/100 mil
-	# silk screen width (1/100 mils)
-	# figure out if we have an even or odd number of pins per side
-	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (1/100 mils)
-# element_flags, description, pcb-name, value, mark_x, mark_y,
-# text_x, text_y, text_direction, text_scale, text_flags
-Element[0x00000000 "Small outline package, narrow (150mil)" "" "SO14" 0 0 -2000 -6000 0 100 0x00000000]
+Element(0x0 "SO14" "" "" -59 -222 0 100 0x0)
 (
-# 
-# Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
-        Pad[   -13500 -15000 
-			 -7000 -15000 
-			2000 1000 3000 "1" "1" 0x00000100]
-        Pad[   -13500 -10000 
-			 -7000 -10000 
-			2000 1000 3000 "2" "2" 0x00000100]
-        Pad[   -13500 -5000 
-			 -7000 -5000 
-			2000 1000 3000 "3" "3" 0x00000100]
-        Pad[   -13500 0 
-			 -7000 0 
-			2000 1000 3000 "4" "4" 0x00000100]
-        Pad[   -13500 5000 
-			 -7000 5000 
-			2000 1000 3000 "5" "5" 0x00000100]
-        Pad[   -13500 10000 
-			 -7000 10000 
-			2000 1000 3000 "6" "6" 0x00000100]
-        Pad[   -13500 15000 
-			 -7000 15000 
-			2000 1000 3000 "7" "7" 0x00000100]
-        Pad[   13500 15000 
-			 7000 15000 
-			2000 1000 3000 "8" "8" 0x00000100]
-        Pad[   13500 10000 
-			 7000 10000 
-			2000 1000 3000 "9" "9" 0x00000100]
-        Pad[   13500 5000 
-			 7000 5000 
-			2000 1000 3000 "10" "10" 0x00000100]
-        Pad[   13500 0 
-			 7000 0 
-			2000 1000 3000 "11" "11" 0x00000100]
-        Pad[   13500 -5000 
-			 7000 -5000 
-			2000 1000 3000 "12" "12" 0x00000100]
-        Pad[   13500 -10000 
-			 7000 -10000 
-			2000 1000 3000 "13" "13" 0x00000100]
-        Pad[   13500 -15000 
-			 7000 -15000 
-			2000 1000 3000 "14" "14" 0x00000100]
-	ElementLine[-15500 -17000 -15500  17000 1000]
-	ElementLine[-15500  17000  15500  17000 1000]
-	ElementLine[ 15500  17000  15500 -17000 1000]
-	ElementLine[-15500 -17000 -2500 -17000 1000]
-	ElementLine[ 15500 -17000  2500 -17000 1000]
-	# punt on the arc on small parts as it can cover the pads
-	ElementArc[0 -17000 2500 2500 0 180 1000]
+   Pad(-134 -150 -71 -150 24 "" "1" 0x0100)
+   Pad(-134 -100 -71 -100 24 "" "2" 0x0100)
+   Pad(-134 -50 -71 -50 24 "" "3" 0x0100)
+   Pad(-134 0 -71 0 24 "" "4" 0x0100)
+   Pad(-134 50 -71 50 24 "" "5" 0x0100)
+   Pad(-134 100 -71 100 24 "" "6" 0x0100)
+   Pad(-134 150 -71 150 24 "" "7" 0x0100)
+   Pad(71 150 134 150 24 "" "8" 0x0100)
+   Pad(71 100 134 100 24 "" "9" 0x0100)
+   Pad(71 50 134 50 24 "" "10" 0x0100)
+   Pad(71 0 134 0 24 "" "11" 0x0100)
+   Pad(71 -50 134 -50 24 "" "12" 0x0100)
+   Pad(71 -100 134 -100 24 "" "13" 0x0100)
+   Pad(71 -150 134 -150 24 "" "14" 0x0100)
+   ElementLine(-49 -22 -49 -126 10)
+   ElementLine(-49 -126 -13 -162 10)
+   ElementLine(-13 -162 49 -162 10)
+   ElementLine(49 -162 49 -22 10)
+   ElementLine(-49 22 -49 162 10)
+   ElementLine(-49 162 49 162 10)
+   ElementLine(49 162 49 22 10)
+   Mark(0 0)
 )
