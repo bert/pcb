@@ -178,7 +178,7 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
 				   GTK_MESSAGE_QUESTION,
 				   GTK_BUTTONS_NONE,
 				   "%s", message);
-  gtk_dialog_add_buttons (GTK_DIALOG (dialog), 
+  gtk_dialog_add_buttons (GTK_DIALOG (dialog),
 			  cancelmsg, GTK_RESPONSE_CANCEL,
 			  okmsg, GTK_RESPONSE_OK,
 			  NULL);
@@ -264,20 +264,24 @@ ghid_dialog_close_confirm ()
 
 /* ---------------------------------------------- */
 /* Caller must g_free() the returned filename.*/
-gchar *
-ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
+char *
+ghid_dialog_file_select_open (char *title, char **path, char *shortcuts)
 {
   GtkWidget *dialog;
-  gchar *result = NULL, *folder, *seed;
+
+  char *folder, *seed;
+  char *result = NULL;
+
   GHidPort *out = &ghid_port;
+
   GtkFileFilter *no_filter;
 
   dialog = gtk_file_chooser_dialog_new (title,
-					GTK_WINDOW (out->top_window),
-					GTK_FILE_CHOOSER_ACTION_OPEN,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OK, GTK_RESPONSE_OK,
-					NULL);
+                                        GTK_WINDOW (out->top_window),
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                        GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                        NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
@@ -303,7 +307,7 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 
   /* in case we have a dialog for loading a layout file */
   if ((strcmp (title, _("Load layout file")) == 0)
-    || (strcmp (title, _("Load layout file to buffer")) == 0))
+    ||(strcmp (title, _("Load layout file to buffer")) == 0))
   {
     /* add a filter for layout files */
     GtkFileFilter *pcb_filter;
@@ -328,40 +332,42 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
     gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), net_filter);
   }
 
-  if (path && *path)
+  if (path && *path) {
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
-  else
-  {
-	gchar *default_path;
-	default_path = g_get_current_dir();
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
-	g_free(default_path);
+  }
+  else {
+
+    char *default_path;
+    default_path = g_get_current_dir();
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
+    g_free(default_path);
   }
 
-  if (shortcuts && *shortcuts)
-    {
-      folder = g_strdup (shortcuts);
-      seed = folder;
-      while ((folder = strtok (seed, ":")) != NULL)
-	{
-	  gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER (dialog),
-						folder, NULL);
-	  seed = NULL;
-	}
+  if (shortcuts && *shortcuts) {
+
+    folder = g_strdup (shortcuts);
+    seed = folder;
+    while ((folder = strtok (seed, ":")) != NULL) {
+
+      gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER (dialog),
+                                            folder, NULL);
+      seed = NULL;
+    }
+    g_free (folder);
+  }
+
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+
+    result = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    folder =
+    gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+    if (folder && path) {
+
+      dup_string (path, folder);
       g_free (folder);
     }
+  }
 
-  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
-    {
-      result = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      folder =
-	gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
-      if (folder && path)
-	{
-	  dup_string (path, folder);
-	  g_free (folder);
-	}
-    }
   gtk_widget_destroy (dialog);
 
 
@@ -526,13 +532,13 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
 #define NHIST 8
 typedef struct ghid_file_history_struct
 {
-  /* 
+  /*
    * an identifier as to which recent files pool this is.  For example
    * "boards", "eco", "netlists", etc.
    */
   char * id;
 
-  /* 
+  /*
    * the array of files or directories
    */
   char * history[NHIST];
@@ -557,7 +563,7 @@ ghid_fileselect (const char *title, const char *descr,
 
   if (history_tag && *history_tag)
     {
-      /* 
+      /*
        * I used a simple linear search here because the number of
        * entries in the array is likely to be quite small (5, maybe 10 at
        * the absolute most) and this function is used when pulling up
@@ -571,7 +577,7 @@ ghid_fileselect (const char *title, const char *descr,
 	{
 	  history_pool++;
 	}
-      
+
       /*
        * If we counted all the way to n_recent_dirs, that means we
        * didn't find our entry
@@ -580,7 +586,7 @@ ghid_fileselect (const char *title, const char *descr,
 	{
 	  n_recent_dirs++;
 
-	  recent_dirs = (ghid_file_history *)realloc (recent_dirs, 
+	  recent_dirs = (ghid_file_history *)realloc (recent_dirs,
 				  n_recent_dirs * sizeof (ghid_file_history));
 
 	  if (recent_dirs == NULL)
@@ -588,7 +594,7 @@ ghid_fileselect (const char *title, const char *descr,
 	      fprintf (stderr, "%s():  realloc failed\n", __FUNCTION__);
 	      exit (1);
 	    }
-	  
+
 	  recent_dirs[history_pool].id = strdup (history_tag);
 
 	  /* Initialize the entries in our history list to all be NULL */
@@ -607,8 +613,8 @@ ghid_fileselect (const char *title, const char *descr,
 
   dialog = gtk_file_chooser_dialog_new (title,
 					GTK_WINDOW (out->top_window),
-					(flags & HID_FILESELECT_READ) ? 
-					GTK_FILE_CHOOSER_ACTION_OPEN : 
+					(flags & HID_FILESELECT_READ) ?
+					GTK_FILE_CHOOSER_ACTION_OPEN :
 					GTK_FILE_CHOOSER_ACTION_SAVE,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_OK, GTK_RESPONSE_OK,
@@ -642,7 +648,7 @@ ghid_fileselect (const char *title, const char *descr,
   for (i = 0; i < NHIST && recent_dirs[history_pool].history[i] != NULL ; i++)
     {
       gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER (dialog),
-					    recent_dirs[history_pool].history[i], 
+					    recent_dirs[history_pool].history[i],
 					    NULL);
     }
 
@@ -660,7 +666,7 @@ ghid_fileselect (const char *title, const char *descr,
 	  char *tmps, *tmps2;
 	  int k = 0;
 
-	  /* 
+	  /*
 	   * Put this at the top of the list and bump everything else
 	   * down but skip any old entry of this directory
 	   *
@@ -682,7 +688,7 @@ ghid_fileselect (const char *title, const char *descr,
 		{
 		  k++;
 		}
-		     
+
 	      if (i + k < NHIST)
 		tmps2 = recent_dirs[history_pool].history[i + k];
 	      else
@@ -695,7 +701,7 @@ ghid_fileselect (const char *title, const char *descr,
 	      tmps = tmps2;
 	    }
 
-	  /* 
+	  /*
 	   * the last one has fallen off the end of the history list
 	   * so we need to free() it.
 	   */
@@ -704,7 +710,7 @@ ghid_fileselect (const char *title, const char *descr,
 	      free (tmps);
 	    }
 	}
-      
+
 #ifdef DEBUG
       printf ("\n\n-----\n\n");
       for (i = 0 ; i < NHIST ; i++)

@@ -5856,45 +5856,45 @@ ActionLoadFrom (int argc, char **argv, Coord x, Coord y)
   name = argv[1];
 
   if (strcasecmp (function, "ElementToBuffer") == 0)
-    {
-      notify_crosshair_change (false);
-      if (LoadElementToBuffer (PASTEBUFFER, name, true))
-	SetMode (PASTEBUFFER_MODE);
-      notify_crosshair_change (true);
-    }
+  {
+    notify_crosshair_change (false);
+    if (LoadElementToBuffer (PASTEBUFFER, name, true))
+      SetMode (PASTEBUFFER_MODE);
+    notify_crosshair_change (true);
+  }
 
   else if (strcasecmp (function, "LayoutToBuffer") == 0)
-    {
-      notify_crosshair_change (false);
-      if (LoadLayoutToBuffer (PASTEBUFFER, name))
-	SetMode (PASTEBUFFER_MODE);
-      notify_crosshair_change (true);
-    }
+  {
+    notify_crosshair_change (false);
+    if (LoadLayoutToBuffer (PASTEBUFFER, name))
+      SetMode (PASTEBUFFER_MODE);
+    notify_crosshair_change (true);
+  }
 
   else if (strcasecmp (function, "Layout") == 0)
-    {
-      if (!PCB->Changed ||
-	  gui->confirm_dialog (_("OK to override layout data?"), 0))
-	LoadPCB (name);
-    }
+  {
+    if (!PCB->Changed ||
+      gui->confirm_dialog (_("OK to override layout data?"), 0))
+      LoadPCB (name);
+  }
 
   else if (strcasecmp (function, "Netlist") == 0)
-    {
-      if (PCB->Netlistname)
-	free (PCB->Netlistname);
-      PCB->Netlistname = StripWhiteSpaceAndDup (name);
-      FreeLibraryMemory (&PCB->NetlistLib);
-      ImportNetlist (PCB->Netlistname);
-      NetlistChanged (1);
-    }
+  {
+    if (PCB->Netlistname)
+      free (PCB->Netlistname);
+    PCB->Netlistname = StripWhiteSpaceAndDup (name);
+    FreeLibraryMemory (&PCB->NetlistLib);
+    ImportNetlist (PCB->Netlistname);
+    NetlistChanged (1);
+  }
   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename
-	   && (!PCB->Changed
-	       || gui->confirm_dialog (_("OK to override changes?"), 0)))
+    && (!PCB->Changed
+    || gui->confirm_dialog (_("OK to override changes?"), 0)))
     {
       RevertPCB ();
     }
 
-  return 0;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -5915,7 +5915,7 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
   char *name = ARG (0);
 
   if (!PCB->Changed || gui->confirm_dialog (_("OK to clear layout data?"), 0))
-    {
+  {
       if (name)
 	name = strdup (name);
       else

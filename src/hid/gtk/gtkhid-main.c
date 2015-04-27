@@ -165,30 +165,30 @@ modified.  The @var{factor} is a floating point number, such as
 @code{1.5} or @code{0.75}.
 
 @table @code
-  
+
 @item +@var{factor}
 Values greater than 1.0 cause the board to be drawn smaller; more of
 the board will be visible.  Values between 0.0 and 1.0 cause the board
 to be drawn bigger; less of the board will be visible.
-  
+
 @item -@var{factor}
 Values greater than 1.0 cause the board to be drawn bigger; less of
 the board will be visible.  Values between 0.0 and 1.0 cause the board
 to be drawn smaller; more of the board will be visible.
- 
+
 @item =@var{factor}
- 
+
 The @var{factor} is an absolute zoom factor; the unit for this value
 is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
 @var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
 about the actual resolution of most screens - resulting in an "actual
 size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
 size.
- 
+
 @end table
- 
+
 Note that zoom factors of zero are silently ignored.
- 
+
 
 
 %end-doc */
@@ -373,7 +373,7 @@ GuiTimer;
   /* We need a wrapper around the hid timer because a gtk timer needs
      |  to return FALSE else the timer will be restarted.
    */
-static gboolean
+static int
 ghid_timer (GuiTimer * timer)
 {
   (*timer->func) (timer->user_data);
@@ -410,13 +410,13 @@ typedef struct
   hidval user_data;
   int fd;
   GIOChannel *channel;
-  gint id;
+  int id;
 }
 GuiWatch;
 
   /* We need a wrapper around the hid file watch to pass the correct flags
    */
-static gboolean
+static int
 ghid_watch (GIOChannel *source, GIOCondition condition, gpointer data)
 {
   unsigned int pcb_condition = 0;
@@ -471,7 +471,7 @@ ghid_unwatch_file (hidval data)
 {
   GuiWatch *watch = (GuiWatch*)data.ptr;
 
-  g_io_channel_shutdown( watch->channel, TRUE, NULL ); 
+  g_io_channel_shutdown( watch->channel, TRUE, NULL );
   g_io_channel_unref( watch->channel );
   g_free( watch );
 }
@@ -480,15 +480,15 @@ typedef struct
 {
   GSource source;
   void (*func) (hidval user_data);
-  hidval user_data; 
+  hidval user_data;
 } BlockHookSource;
 
-static gboolean ghid_block_hook_prepare  (GSource     *source,
-                                             gint     *timeout);
-static gboolean ghid_block_hook_check    (GSource     *source);
-static gboolean ghid_block_hook_dispatch (GSource     *source,
-                                          GSourceFunc  callback,
-                                          gpointer     user_data);
+static int ghid_block_hook_prepare  (GSource     *source,
+                                     int         *timeout);
+static int ghid_block_hook_check    (GSource     *source);
+static int ghid_block_hook_dispatch (GSource     *source,
+                                     GSourceFunc  callback,
+                                     void        *user_data);
 
 static GSourceFuncs ghid_block_hook_funcs = {
   ghid_block_hook_prepare,
@@ -497,22 +497,21 @@ static GSourceFuncs ghid_block_hook_funcs = {
   NULL // No destroy notification
 };
 
-static gboolean
-ghid_block_hook_prepare (GSource *source,
-                         gint    *timeout)
+static int
+ghid_block_hook_prepare (GSource *source, int *timeout)
 {
   hidval data = ((BlockHookSource *)source)->user_data;
   ((BlockHookSource *)source)->func( data );
   return FALSE;
 }
 
-static gboolean
+static int
 ghid_block_hook_check (GSource *source)
 {
   return FALSE;
 }
 
-static gboolean
+static int
 ghid_block_hook_dispatch (GSource     *source,
                           GSourceFunc  callback,
                           gpointer     user_data)
@@ -551,7 +550,7 @@ ghid_confirm_dialog (char *msg, ...)
   int rv = 0;
   va_list ap;
   char *cancelmsg = NULL, *okmsg = NULL;
-  static gint x = -1, y = -1;
+  static int x = -1, y = -1;
   GtkWidget *dialog;
   GHidPort *out = &ghid_port;
 
@@ -572,11 +571,11 @@ ghid_confirm_dialog (char *msg, ...)
 				   GTK_MESSAGE_QUESTION,
 				   GTK_BUTTONS_NONE,
 				   "%s", msg);
-  gtk_dialog_add_button (GTK_DIALOG (dialog), 
+  gtk_dialog_add_button (GTK_DIALOG (dialog),
 			  cancelmsg, GTK_RESPONSE_CANCEL);
   if (okmsg)
     {
-      gtk_dialog_add_button (GTK_DIALOG (dialog), 
+      gtk_dialog_add_button (GTK_DIALOG (dialog),
 			     okmsg, GTK_RESPONSE_OK);
     }
 
@@ -665,31 +664,29 @@ struct progress_dialog
   GtkWidget *dialog;
   GtkWidget *message;
   GtkWidget *progress;
-  gint response_id;
-  GMainLoop *loop;
-  gboolean destroyed;
-  gboolean started;
-  GTimer *timer;
 
-  gulong response_handler;
-  gulong destroy_handler;
-  gulong delete_handler;
+  int destroyed;
+  int response_id;
+  int started;
+
+  GMainLoop *loop;
+  GTimer    *timer;
+
+  unsigned long response_handler;
+  unsigned long destroy_handler;
+  unsigned long delete_handler;
 };
 
 static void
-run_response_handler (GtkDialog *dialog,
-                      gint response_id,
-                      gpointer data)
+run_response_handler (GtkDialog *dialog, int response_id, void *data)
 {
   struct progress_dialog *pd = data;
 
   pd->response_id = response_id;
 }
 
-static gint
-run_delete_handler (GtkDialog *dialog,
-                    GdkEventAny *event,
-                    gpointer data)
+static int
+run_delete_handler (GtkDialog *dialog, GdkEventAny *event, void *data)
 {
   struct progress_dialog *pd = data;
 
@@ -1075,7 +1072,7 @@ HID_DRC_GUI ghid_drc_gui = {
 extern HID_Attribute *ghid_get_export_options (int *);
 
 
-/* ------------------------------------------------------------ 
+/* ------------------------------------------------------------
  *
  * Actions specific to the GTK HID follow from here
  *
@@ -1218,9 +1215,9 @@ Load (int argc, char **argv, Coord x, Coord y)
   char *function;
   char *name = NULL;
 
-  static gchar *current_element_dir = NULL;
-  static gchar *current_layout_dir = NULL;
-  static gchar *current_netlist_dir = NULL;
+  static char *current_element_dir = NULL;
+  static char *current_layout_dir  = NULL;
+  static char *current_netlist_dir = NULL;
 
   /* we've been given the file name */
   if (argc > 1)
@@ -1228,39 +1225,39 @@ Load (int argc, char **argv, Coord x, Coord y)
 
   function = argc ? argv[0] : (char *)"Layout";
 
-  if (strcasecmp (function, "Netlist") == 0)
-    {
-      name = ghid_dialog_file_select_open (_("Load netlist file"),
-					   &current_netlist_dir,
-					   Settings.FilePath);
-    }
-  else if (strcasecmp (function, "ElementToBuffer") == 0)
-    {
-      name = ghid_dialog_file_select_open (_("Load element to buffer"),
-					   &current_element_dir,
-					   Settings.LibraryDir);
-    }
-  else if (strcasecmp (function, "LayoutToBuffer") == 0)
-    {
-      name = ghid_dialog_file_select_open (_("Load layout file to buffer"),
-					   &current_layout_dir,
-					   Settings.FilePath);
-    }
-  else if (strcasecmp (function, "Layout") == 0)
-    {
-      name = ghid_dialog_file_select_open (_("Load layout file"),
-					   &current_layout_dir,
-					   Settings.FilePath);
-    }
+  if (strcasecmp (function, "Netlist") == 0) {
 
-  if (name)
-    {
-      if (Settings.verbose)
-      	fprintf (stderr, "%s:  Calling LoadFrom(%s, %s)\n", __FUNCTION__,
-		 function, name);
+    name = ghid_dialog_file_select_open (_("Load netlist file"),
+                                           &current_netlist_dir,
+                                           Settings.FilePath);
+  }
+  else if (strcasecmp (function, "ElementToBuffer") == 0) {
+
+    name = ghid_dialog_file_select_open (_("Load element to buffer"),
+                                         &current_element_dir,
+                                         Settings.LibraryDir);
+  }
+  else if (strcasecmp (function, "LayoutToBuffer") == 0) {
+
+    name = ghid_dialog_file_select_open (_("Load layout file to buffer"),
+                                         &current_layout_dir,
+                                         Settings.FilePath);
+  }
+  else if (strcasecmp (function, "Layout") == 0) {
+
+    name = ghid_dialog_file_select_open (_("Load layout file"),
+                                         &current_layout_dir,
+                                         Settings.FilePath);
+  }
+
+  if (name) {
+
+    if (Settings.verbose)
+      fprintf (stderr, "%s:  Calling LoadFrom(%s, %s)\n", __FUNCTION__,
+               function, name);
       hid_actionl ("LoadFrom", function, name, NULL);
-      g_free (name);
-    }
+    g_free (name);
+  }
 
   return 0;
 }
@@ -1293,7 +1290,7 @@ Save (int argc, char **argv, Coord x, Coord y)
   char *name;
   char *prompt;
 
-  static gchar *current_dir = NULL;
+  static char *current_dir = NULL;
 
   if (argc > 1)
     return hid_actionv ("SaveTo", argc, argv);
@@ -1308,24 +1305,24 @@ Save (int argc, char **argv, Coord x, Coord y)
     prompt = _("Save element as");
   else
     prompt = _("Save layout as");
-  
+
   name = ghid_dialog_file_select_save (prompt,
 				       &current_dir,
 				       PCB->Filename, Settings.FilePath);
-  
+
   if (name)
     {
       if (Settings.verbose)
-	fprintf (stderr, "%s:  Calling SaveTo(%s, %s)\n", 
+	fprintf (stderr, "%s:  Calling SaveTo(%s, %s)\n",
 		 __FUNCTION__, function, name);
-      
+
       if (strcasecmp (function, "PasteBuffer") == 0)
 	hid_actionl ("PasteBuffer", "Save", name, NULL);
       else
 	{
-	  /* 
+	  /*
 	   * if we got this far and the function is Layout, then
-	   * we really needed it to be a LayoutAs.  Otherwise 
+	   * we really needed it to be a LayoutAs.  Otherwise
 	   * ActionSaveTo() will ignore the new file name we
 	   * just obtained.
 	   */
@@ -1952,7 +1949,7 @@ Popup (int argc, char **argv, Coord x, Coord y)
     {
       ghidgui->in_popup = TRUE;
       gtk_widget_grab_focus (ghid_port.drawing_area);
-      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 0, 
+      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 0,
 		      gtk_get_current_event_time());
     }
   return 0;
@@ -1975,10 +1972,10 @@ static int
 ImportGUI (int argc, char **argv, Coord x, Coord y)
 {
     GSList *names = NULL;
-    gchar *name = NULL;
-    gchar sname[128];
-    static gchar *current_layout_dir = NULL;
-    static int I_am_recursing = 0; 
+    char   *name = NULL;
+    char    sname[128];
+    static  char *current_layout_dir = NULL;
+    static int I_am_recursing = 0;
     int rv, nsources;
 
     if (I_am_recursing)
@@ -2103,7 +2100,7 @@ hid_gtk_init ()
   tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"
-  share_dir = (char *) malloc(strlen(tmps) + 
+  share_dir = (char *) malloc(strlen(tmps) +
 			  strlen(REST_OF_PATH) +
 			  1);
   sprintf (share_dir, "%s%s", tmps, REST_OF_PATH);

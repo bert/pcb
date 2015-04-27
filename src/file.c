@@ -1588,10 +1588,12 @@ int ImportNetlist (char *filename)
   int i;
   char* p;
 
-
   if (!filename) return (1);			/* nothing to do */
+
   fp = fopen (filename, "r");
+
   if (!fp) return (1);			/* bad filename */
+
   i = fread (buf, 1, sizeof(buf)-1, fp);
   fclose(fp);
   buf[i] = '\0';

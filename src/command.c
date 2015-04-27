@@ -283,7 +283,7 @@ CommandLoadNetlist (int argc, char **argv, Coord x, Coord y)
   char *filename, *name = NULL;
 
   switch (argc)
-    {
+  {
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
       break;
@@ -291,9 +291,12 @@ CommandLoadNetlist (int argc, char **argv, Coord x, Coord y)
     default:			/* usage */
       Message ("Usage: rn [name]\n  reads in a netlist file\n");
       return (1);
-    }
-  if (PCB->Netlistname)
+  }
+
+  if (PCB->Netlistname) {
     free (PCB->Netlistname);
+  }
+
   PCB->Netlistname = StripWhiteSpaceAndDup (filename);
   free (name);
   return (0);

@@ -74,7 +74,7 @@
 /*
  * Used to intercept "special" hotkeys that gtk doesn't usually pass
  * on to the menu hotkeys.  We catch them and put them back where we
- * want them. 
+ * want them.
  */
 
 /* The modifier keys */
@@ -290,7 +290,7 @@ gboolean ghid_port_button_release_cb (GtkWidget * drawing_area,
 
 gint ghid_port_window_enter_cb (GtkWidget * widget,
 			   GdkEventCrossing * ev, GHidPort * out);
-gint ghid_port_window_leave_cb (GtkWidget * widget, 
+gint ghid_port_window_leave_cb (GtkWidget * widget,
                            GdkEventCrossing * ev, GHidPort * out);
 gint ghid_port_window_motion_cb (GtkWidget * widget,
 				 GdkEventMotion * ev, GHidPort * out);
@@ -306,12 +306,10 @@ gint ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 */
 #define		GUI_DIALOG_RESPONSE_ALL	1
 
-gchar *ghid_dialog_file_select_open (gchar * title, gchar ** path,
-				     gchar * shortcuts);
-GSList *ghid_dialog_file_select_multiple (gchar * title, gchar ** path,
-				          gchar * shortcuts);
-gchar *ghid_dialog_file_select_save (gchar * title, gchar ** path,
-				     gchar * file, gchar * shortcuts);
+char   *ghid_dialog_file_select_open        (char *title, char **path, char *shortcuts);
+GSList *ghid_dialog_file_select_multiple    (char *title, char **path, char *shortcuts);
+char   *ghid_dialog_file_select_save        (char *title, char **path, char *file, char *shortcuts);
+
 void ghid_dialog_message (gchar * message);
 gboolean ghid_dialog_confirm (gchar * message, gchar *cancelmsg, gchar *okmsg);
 int ghid_dialog_close_confirm (void);
