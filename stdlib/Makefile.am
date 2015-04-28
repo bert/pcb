@@ -11,6 +11,7 @@ SUBDIRS=\
 	DIP \
 	DO \
 	filter \
+	fuse \
 	generic \
 	header \
 	inductor \
@@ -19,6 +20,7 @@ SUBDIRS=\
 	led \
 	misc \
 	optical \
+	PGA \
 	PLCC \
 	QFN \
 	QFP \
