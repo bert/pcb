@@ -91,6 +91,7 @@ static Unit Units[] = {
                1, 10, 100, 1000, 10000,
                { "pcb" } }
 };
+
 #define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
 /* \brief Initialize non-static data for pcb-printf
  * \par Function Description
@@ -121,6 +122,7 @@ static Increments increments_metric = {
   MM_TO_COORD3 (0.1,  0.005, 0.5),
   MM_TO_COORD3 (0.05, 0.005, 0.5)
 };
+
 static Increments increments_imperial = {
   "mil",
   MIL_TO_COORD3 (5,  1,   25),
@@ -128,6 +130,26 @@ static Increments increments_imperial = {
   MIL_TO_COORD3 (5,  0.5, 10),
   MIL_TO_COORD3 (2,  0.5, 10)
 };
+
+/* \brief Get/set a mask of units to use when saving .pcb files
+ * \par Function Description
+ * If passed 0, returns the current mask of units to use in a .pcb
+ * file; if passed anything else, replaces the current mask. This
+ * mask should only contain units which are readable by recent versions
+ * of pcb; currently this means only ALLOW_MIL and ALLOW_MM. (Versions
+ * prior to 20110703 nominally support other units, but in fact the scaling
+ * calculations are incorrect so the wrong values will be read! See commit
+ * 750a1c5 for more details.)
+ *
+ * \return the current mask.
+ */
+enum e_allow set_allow_readable(enum e_allow new_mask)
+{
+  static enum e_allow readable_mask = ALLOW_READABLE;
+  if (new_mask != 0)
+    readable_mask = new_mask;
+  return readable_mask;
+}
 
 /* \brief Obtain a unit object from its suffix
  * \par Function Description
@@ -549,7 +571,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
                 case 'S': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix); break;
                 case 'M': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_METRIC, suffix); break;
                 case 'L': unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_IMPERIAL, suffix); break;
-                case 'r': unit_str = CoordsToString(value, 1, spec->str, ALLOW_READABLE, FILE_MODE); break;
+                case 'r': unit_str = CoordsToString(value, 1, spec->str, set_allow_readable(0), FILE_MODE); break;
                 /* All these fallthroughs are deliberate */
                 case '9': value[count++] = va_arg(args, Coord);
                 case '8': value[count++] = va_arg(args, Coord);

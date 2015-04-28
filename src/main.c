@@ -1497,6 +1497,16 @@ If set, all data which would otherwise be lost are saved in a temporary file
   BSET (SaveInTMP, 0, "save-in-tmp",
        "When set, all data which would otherwise be lost are saved in /tmp"),
 
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --save-metric-only
+If set, save pcb files using only mm unit suffix rather than 'smart' mil/mm.
+@end ftable
+%end-doc
+*/
+  BSET (SaveMetricOnly, 0, "save-metric-only",
+       "If set, save pcb files using only mm unit suffix rather than 'smart' mil/mm."),
+
 /* %start-doc options "2 General GUI Options"
 @ftable @code
 @item --all-direction-lines

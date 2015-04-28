@@ -907,6 +907,13 @@ WritePCB (FILE * FP)
 {
   Cardinal i;
 
+  if (Settings.SaveMetricOnly) {
+    set_allow_readable (ALLOW_MM);
+  }
+  else {
+    set_allow_readable (ALLOW_READABLE);
+  }
+
   WritePCBInfoHeader (FP);
   WritePCBDataHeader (FP);
   WritePCBFontData (FP);

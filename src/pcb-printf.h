@@ -152,21 +152,21 @@ struct increments {
   Coord clear_max;
 };
 
-void initialize_units();
+void        initialize_units           (void);
+enum        e_allow set_allow_readable (enum e_allow new_mask);
+const Unit *get_unit_struct            (const char *suffix);
+const Unit *get_unit_list              (void);
+int         get_n_units                (void);
+double      coord_to_unit              (const Unit *, Coord);
+Coord       unit_to_coord              (const Unit *, double);
+Increments *get_increments_struct      (enum e_family family);
+void        copy_nonzero_increments    (Increments *dst, const Increments *src);
 
-const Unit *get_unit_struct (const char *suffix);
-const Unit *get_unit_list (void);
-int get_n_units (void);
-double coord_to_unit (const Unit *, Coord);
-Coord  unit_to_coord (const Unit *, double);
-Increments *get_increments_struct (enum e_family family);
-void copy_nonzero_increments (Increments *dst, const Increments *src);
-
-int pcb_fprintf(FILE *f, const char *fmt, ...);
-int pcb_sprintf(char *string, const char *fmt, ...);
-int pcb_printf(const char *fmt, ...);
-char *pcb_g_strdup_printf(const char *fmt, ...);
-gchar *pcb_vprintf(const char *fmt, va_list args);
+int         pcb_fprintf                (FILE *f, const char *fmt, ...);
+int         pcb_sprintf                (char *string, const char *fmt, ...);
+int         pcb_printf                 (const char *fmt, ...);
+char       *pcb_g_strdup_printf        (const char *fmt, ...);
+char       *pcb_vprintf                (const char *fmt, va_list args);
 
 #endif
 

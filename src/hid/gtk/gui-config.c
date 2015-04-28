@@ -121,6 +121,7 @@ static ConfigAttribute config_attributes[] = {
   {"gui-compact-vertical", CONFIG_Boolean, &_ghidgui.compact_vertical},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
+  {"save-metric-only", CONFIG_Unused, NULL},
   {"grid-units", CONFIG_Unused, NULL},
   {"grid", CONFIG_Unused, NULL},
 
@@ -896,37 +897,44 @@ config_general_tab_create (GtkWidget * tab_vbox)
   vbox = ghid_category_vbox (tab_vbox, _("Enables"), 4, 2, TRUE, TRUE);
 
   ghid_check_button_connected (vbox, NULL, ghidgui->use_command_window,
-			       TRUE, FALSE, FALSE, 2,
-			       config_command_window_toggle_cb, NULL,
-			       _("Use separate window for command entry"));
+                               TRUE, FALSE, FALSE, 2,
+                               config_command_window_toggle_cb, NULL,
+                             _("Use separate window for command entry"));
 
   ghid_check_button_connected (vbox, NULL, ghidgui->compact_horizontal,
-			       TRUE, FALSE, FALSE, 2,
-			       config_compact_horizontal_toggle_cb, NULL,
-			       _("Alternate window layout to allow smaller horizontal size"));
+                               TRUE, FALSE, FALSE, 2,
+                               config_compact_horizontal_toggle_cb, NULL,
+                             _("Alternate window layout to allow smaller horizontal size"));
 
   ghid_check_button_connected (vbox, NULL, ghidgui->compact_vertical,
-			       TRUE, FALSE, FALSE, 2,
-			       config_compact_vertical_toggle_cb, NULL,
-			       _("Alternate window layout to allow smaller vertical size"));
+                               TRUE, FALSE, FALSE, 2,
+                               config_compact_vertical_toggle_cb, NULL,
+                             _("Alternate window layout to allow smaller vertical size"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Backups"), 4, 2, TRUE, TRUE);
+
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,
-			       TRUE, FALSE, FALSE, 2,
-			       config_general_toggle_cb, &Settings.SaveInTMP,
-			       _("If layout is modified at exit, save into PCB.%i.save"));
+                               TRUE, FALSE, FALSE, 2,
+                               config_general_toggle_cb, &Settings.SaveInTMP,
+                             _("If layout is modified at exit, save into PCB.%i.save"));
+
   ghid_spin_button (vbox, NULL, Settings.BackupInterval, 0.0, 60 * 60, 60.0,
-		    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
-		    _("Seconds between auto backups\n"
-		      "(set to zero to disable auto backups)"));
+                    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
+		          _("Seconds between auto backups\n"
+                    "(set to zero to disable auto backups)"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Misc"), 4, 2, TRUE, TRUE);
-  ghid_spin_button (vbox, NULL, ghidgui->history_size,
-		    5.0, 25.0, 1.0, 1.0, 0, 0,
-		    config_history_spin_button_cb, NULL, FALSE,
-		    _("Number of commands to remember in the history list"));
-}
 
+  ghid_spin_button (vbox, NULL, ghidgui->history_size,
+                    5.0, 25.0, 1.0, 1.0, 0, 0,
+                    config_history_spin_button_cb, NULL, FALSE,
+                  _("Number of commands to remember in the history list"));
+
+  ghid_check_button_connected (vbox, NULL, Settings.SaveMetricOnly,
+                               TRUE, FALSE, FALSE, 2,
+                               config_general_toggle_cb, &Settings.SaveMetricOnly,
+                             _("Use only metric units when saving pcb files"));
+}
 
 static void
 config_general_apply (void)
@@ -934,7 +942,6 @@ config_general_apply (void)
   /* save the settings */
   ghid_config_files_write ();
 }
-
 
   /* -------------- The Sizes config page ----------------
    */
