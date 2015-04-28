@@ -361,14 +361,17 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
   if (action == NULL || node == NULL)
     return;
 
-  for (i = 1; i < node->c; i++)
-    if (resource_type (node->v[i]) == 10)
-      {
+  for (i = 1; i < node->count; i++) {
+
+    if (resource_type (node->v[i]) == 10) {
+
 #ifdef DEBUG_MENUS
         printf ("    %s\n", node->v[i].value);
 #endif
+
         hid_parse_actions (node->v[i].value);
-      }
+    }
+  }
 
   /* Sync gui widgets with pcb state */
   ghid_update_toggle_flags ();
@@ -2145,15 +2148,19 @@ ghid_load_menus (void)
   if (!mr)
     mr = resource_subres (bir, "PopupMenus");
 
-  if (mr)
-    {
-      int i;
-      for (i = 0; i < mr->c; i++)
-        if (resource_type (mr->v[i]) == 101)
-          /* This is a named resource which defines a popup menu */
-          ghid_main_menu_add_popup_resource (GHID_MAIN_MENU (menu_bar),
-                                             mr->v[i].name, mr->v[i].subres);
+  if (mr) {
+
+    int i;
+
+    for (i = 0; i < mr->count; i++) {
+
+      if (resource_type (mr->v[i]) == 101) {
+        /* This is a named resource which defines a popup menu */
+        ghid_main_menu_add_popup_resource (GHID_MAIN_MENU (menu_bar),
+                                           mr->v[i].name, mr->v[i].subres);
+      }
     }
+  }
 
 #ifdef DEBUG_MENUS
    puts ("Finished loading menus.");

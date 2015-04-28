@@ -89,24 +89,24 @@ load_mouse_resource (const Resource *res)
   resource_dump (res);
 #endif
 
-  button_count = res->c;
-  button_nums = (int *)malloc(res->c * sizeof(int));
-  mod_count = (int *)malloc(res->c * sizeof(int));
+  button_count = res->count;
+  button_nums = (int *)malloc(res->count * sizeof(int));
+  mod_count = (int *)malloc(res->count * sizeof(int));
   action_count = 0;
-  for (bi=0; bi<res->c; bi++)
+  for (bi=0; bi<res->count; bi++)
     {
       if (res->v[bi].value)
         action_count++;
 
       if (res->v[bi].subres)
-        action_count += res->v[bi].subres->c;
+        action_count += res->v[bi].subres->count;
 
     }
   mods = (unsigned int *)malloc(action_count * sizeof(int));
   actions = (Resource **)malloc(action_count * sizeof(Resource*));
 
   a = 0;
-  for (bi=0; bi<res->c; bi++)
+  for (bi=0; bi<res->count; bi++)
     {
       int button_num = button_name_to_num(res->v[bi].name);
 
@@ -119,16 +119,16 @@ load_mouse_resource (const Resource *res)
       if (res->v[bi].value)
         {
           mods[a] = 0;
-          actions[a++] = res_wrap (res->v[bi].value);         
+          actions[a++] = res_wrap (res->v[bi].value);
           mod_count[bi] = 1;
         }
 
       if (res->v[bi].subres)
 	{
 	  Resource *m = res->v[bi].subres;
-          mod_count[bi] += m->c;
+          mod_count[bi] += m->count;
 
-	  for (mi=0; mi<m->c; mi++, a++)
+	  for (mi=0; mi<m->count; mi++, a++)
 	    {
 	      switch (resource_type (m->v[mi]))
 		{
@@ -200,7 +200,7 @@ do_mouse_action (int button, int mod_mask)
   if (!action)
     return;
 
-  for (i = 0; i < action->c; i++)
+  for (i = 0; i < action->count; i++)
     if (action->v[i].value)
       if (hid_parse_actions (action->v[i].value))
         return;

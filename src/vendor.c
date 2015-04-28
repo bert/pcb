@@ -107,7 +107,7 @@ static const char apply_vendor_help[] =
   "Applies the currently loaded vendor drill table to the current design.";
 
 /* %start-doc actions ApplyVendor
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex ApplyVendor()
 
@@ -132,7 +132,7 @@ static const char toggle_vendor_help[] =
 
 /* %start-doc actions ToggleVendor
 
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex ToggleVendor()
 
@@ -163,7 +163,7 @@ static const char enable_vendor_help[] =
 
 /* %start-doc actions EnableVendor
 
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex EnableVendor()
 
@@ -191,7 +191,7 @@ static const char disable_vendor_help[] =
 
 /* %start-doc actions DisableVendor
 
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex DisableVendor()
 
@@ -217,7 +217,7 @@ static const char unload_vendor_help[] =
 
 /* %start-doc actions UnloadVendor
 
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex UnloadVendor()
 
@@ -249,7 +249,7 @@ static const char load_vendor_help[] =
 
 /* %start-doc actions LoadVendorFrom
 
-@cindex vendor map 
+@cindex vendor map
 @cindex vendor drill table
 @findex LoadVendorFrom()
 
@@ -378,40 +378,41 @@ ActionLoadVendorFrom (int argc, char **argv, Coord x, Coord y)
 
       process_skips (resource_subres (drlres, "skips"));
 
-      for (i = 0; i < drlres->c; i++)
-	{
-	  type = resource_type (drlres->v[i]);
-	  switch (type)
-	    {
-	    case 10:
-	      /* just a number */
-	      add_to_drills (drlres->v[i].value);
-	      break;
+      for (i = 0; i < drlres->count; i++) {
 
-	    default:
-	      break;
-	    }
-	}
+        type = resource_type (drlres->v[i]);
+        switch (type) {
+
+          case 10:
+            /* just a number */
+            add_to_drills (drlres->v[i].value);
+            break;
+
+          default:
+            break;
+        }
+      }
     }
 
   /* Extract the DRC resource */
   drcres = resource_subres (res, "drc");
 
   sval = resource_value (drcres, "copper_space");
-  if (sval != NULL)
-    {
-      PCB->Bloat = floor (sf * atof (sval) + 0.5);
-      Message (_("Set DRC minimum copper spacing to %.2f mils\n"),
-	       0.01 * PCB->Bloat);
-    }
+
+  if (sval != NULL) {
+
+    PCB->Bloat = floor (sf * atof (sval) + 0.5);
+    Message (_("Set DRC minimum copper spacing to %.2f mils\n"),
+               0.01 * PCB->Bloat);
+  }
 
   sval = resource_value (drcres, "copper_overlap");
-  if (sval != NULL)
-    {
-      PCB->Shrink = floor (sf * atof (sval) + 0.5);
-      Message (_("Set DRC minimum copper overlap to %.2f mils\n"),
-	       0.01 * PCB->Shrink);
-    }
+  if (sval != NULL) {
+
+    PCB->Shrink = floor (sf * atof (sval) + 0.5);
+    Message (_("Set DRC minimum copper overlap to %.2f mils\n"),
+               0.01 * PCB->Shrink);
+  }
 
   sval = resource_value (drcres, "copper_width");
   if (sval != NULL)
@@ -422,32 +423,32 @@ ActionLoadVendorFrom (int argc, char **argv, Coord x, Coord y)
     }
 
   sval = resource_value (drcres, "silk_width");
-  if (sval != NULL)
-    {
-      PCB->minSlk = floor (sf * atof (sval) + 0.5);
-      Message (_("Set DRC minimum silk width to %.2f mils\n"),
-	       0.01 * PCB->minSlk);
-    }
+  if (sval != NULL) {
+
+    PCB->minSlk = floor (sf * atof (sval) + 0.5);
+    Message (_("Set DRC minimum silk width to %.2f mils\n"),
+               0.01 * PCB->minSlk);
+  }
 
   sval = resource_value (drcres, "min_drill");
-  if (sval != NULL)
-    {
-      PCB->minDrill = floor (sf * atof (sval) + 0.5);
-      Message (_("Set DRC minimum drill diameter to %.2f mils\n"),
-	       0.01 * PCB->minDrill);
-    }
+  if (sval != NULL) {
+
+    PCB->minDrill = floor (sf * atof (sval) + 0.5);
+    Message (_("Set DRC minimum drill diameter to %.2f mils\n"),
+               0.01 * PCB->minDrill);
+  }
 
   sval = resource_value (drcres, "min_ring");
-  if (sval != NULL)
-    {
-      PCB->minRing = floor (sf * atof (sval) + 0.5);
-      Message (_("Set DRC minimum annular ring to %.2f mils\n"),
-	       0.01 * PCB->minRing);
-    }
+  if (sval != NULL) {
+
+    PCB->minRing = floor (sf * atof (sval) + 0.5);
+    Message (_("Set DRC minimum annular ring to %.2f mils\n"),
+               0.01 * PCB->minRing);
+  }
 
   Message (_("Loaded %d vendor drills from %s\n"), n_vendor_drills, fname);
   Message (_("Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"),
-	   n_refdes, n_value, n_descr);
+           n_refdes, n_value, n_descr);
 
   vendorMapEnable = true;
   apply_vendor_map ();
@@ -595,7 +596,7 @@ apply_vendor_map (void)
 	    }
 	}
 
-      /* 
+      /*
        * if we've changed anything, indicate that we need to save the
        * file, redraw things, and make sure we can undo.
        */
@@ -705,7 +706,7 @@ add_to_drills (char *sval)
   tmpd = atof (sval);
   val = floor (sf * tmpd + 0.5);
 
-  /* 
+  /*
    * We keep the array of vendor drills sorted to make it easier to
    * do the rounding later.  The algorithm used here is not so efficient,
    * but we're not dealing with much in the way of data.
@@ -745,69 +746,67 @@ process_skips (Resource * res)
   if (res == NULL)
     return;
 
-  for (i = 0; i < res->c; i++)
-    {
-      type = resource_type (res->v[i]);
-      switch (type)
-	{
-	case 1:
-	  /* 
-	   * an unnamed sub resource.  This is something like
-	   * {refdes "J3"}
-	   */
-	  sval = res->v[i].subres->v[0].value;
-	  if (sval == NULL)
-	    {
-	      Message ("Error:  null skip value\n");
-	    }
-	  else
-	    {
-	      if (NSTRCMP (sval, "refdes") == 0)
-		{
-		  cnt = &n_refdes;
-		  lst = &ignore_refdes;
-		}
-	      else if (NSTRCMP (sval, "value") == 0)
-		{
-		  cnt = &n_value;
-		  lst = &ignore_value;
-		}
-	      else if (NSTRCMP (sval, "descr") == 0)
-		{
-		  cnt = &n_descr;
-		  lst = &ignore_descr;
-		}
-	      else
-		{
-		  cnt = NULL;
-		}
+  for (i = 0; i < res->count; i++) {
 
-	      /* add the entry to the appropriate list */
-	      if (cnt != NULL)
-		{
-		  for (k = 1; k < res->v[i].subres->c; k++)
-		    {
-		      sval = res->v[i].subres->v[k].value;
-		      (*cnt)++;
-		      if ((*lst =
-			   (char **) realloc (*lst,
-					      (*cnt) * sizeof (char *))) ==
-			  NULL)
-			{
-			  fprintf (stderr, "realloc() failed\n");
-			  exit (-1);
-			}
-		      (*lst)[*cnt - 1] = strdup (sval);
-		    }
-		}
-	    }
-	  break;
+    type = resource_type (res->v[i]);
+    switch (type) {
 
-	default:
-	  Message (_("Ignored resource type = %d in skips= section\n"), type);
-	}
+      case 1:
+        /*
+         * an unnamed sub resource.  This is something like
+         * {refdes "J3"}
+         */
+        sval = res->v[i].subres->v[0].value;
+        if (sval == NULL) {
+          Message ("Error:  null skip value\n");
+        }
+        else {
+
+          if (NSTRCMP (sval, "refdes") == 0) {
+
+            cnt = &n_refdes;
+            lst = &ignore_refdes;
+          }
+          else if (NSTRCMP (sval, "value") == 0) {
+
+            cnt = &n_value;
+            lst = &ignore_value;
+          }
+          else if (NSTRCMP (sval, "descr") == 0) {
+
+            cnt = &n_descr;
+            lst = &ignore_descr;
+          }
+          else {
+
+            cnt = NULL;
+          }
+
+          /* add the entry to the appropriate list */
+          if (cnt != NULL) {
+
+            for (k = 1; k < res->v[i].subres->count; k++) {
+
+              sval = res->v[i].subres->v[k].value;
+              (*cnt)++;
+              if ((*lst =
+                (char **) realloc (*lst,
+                                   (*cnt) * sizeof (char *))) ==
+                                   NULL)
+              {
+                fprintf (stderr, "realloc() failed\n");
+                exit (-1);
+              }
+              (*lst)[*cnt - 1] = strdup (sval);
+            }
+          }
+        }
+        break;
+
+        default:
+          Message (_("Ignored resource type = %d in skips= section\n"), type);
     }
-
+  }
 }
 
 bool

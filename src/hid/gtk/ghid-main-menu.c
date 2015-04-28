@@ -190,7 +190,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
   const Resource *tmp_res;
   char mnemonic = 0;
 
-  for (i = 0; i < res->c; ++i) {
+  for (i = 0; i < res->count; ++i) {
 
     const char *accel = NULL;
     char *menu_label;
@@ -220,7 +220,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
         /* Now look for the first unnamed value (not a subresource) to
          * figure out the name of the menu or the menuitem. */
         res_val = "button";
-        for (j = 0; j < sub_res->c; ++j) {
+        for (j = 0; j < sub_res->count; ++j) {
           if (resource_type (sub_res->v[j]) == 10) {
 
             res_val = _(sub_res->v[j].value);
@@ -317,7 +317,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
           menu->special_key_cb (accel, action, sub_res);
         }
         /* Scan rest of resource in case there is more work */
-        for (j = 0; j < sub_res->c; j++) {
+        for (j = 0; j < sub_res->count; j++) {
 
           const char *res_name;
           /* named value = X resource */

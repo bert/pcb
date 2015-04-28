@@ -154,53 +154,61 @@ resource_create(Resource *parent)
   Resource *rv = (Resource *)malloc(sizeof(Resource));
   rv->parent = parent;
   rv->flags = 0;
-  rv->c = 0;
+  rv->count = 0;
   rv->v = (ResourceVal *)malloc(sizeof(ResourceVal));
   return rv;
 }
 
 void
-resource_add_val(Resource *n, char *name, char *value, Resource *subres)
+resource_add_val(Resource *res, char *name, char *value, Resource *subres)
 {
-  n->v = (ResourceVal *)realloc(n->v, sizeof(ResourceVal)*(n->c+1));
-  n->v[n->c].name = name;
-  n->v[n->c].value = value;
-  n->v[n->c].subres = subres;
-  n->c++;
+  res->v = (ResourceVal *)realloc(res->v, sizeof(ResourceVal)*(res->count+1));
+  res->v[res->count].name = name;
+  res->v[res->count].value = value;
+  res->v[res->count].subres = subres;
+  res->count++;
 }
 
 char *
 resource_value(const Resource *res, char *name)
 {
   int i;
-  if (res == 0 || name == 0)
-    return 0;
-  for (i=0; i<res->c; i++) {
-    if (res->v[i].name && res->v[i].value
-	&& NSTRCMP(res->v[i].name, name) == 0)
-      return res->v[i].value;
+
+ ResourceVal *value = NULL;
+
+  if (res && name) {
+
+    for (i = 0; i < res->count; i++) {
+      if (res->v[i].name   &&
+          res->v[i].value  &&
+          NSTRCMP(res->v[i].name, name) == 0)
+      {
+        value = res->v[i].value;
+        break;
+      }
+    }
   }
-  return 0;
+  return value;
 }
 
 Resource *
 resource_subres(const Resource *res, const char *name)
 {
   int i;
-  int result = 0;
+  Resource *subres = NULL;
 
-  if ( !(res == 0 || name == 0)) {
+  if (res && name) {
 
-    for (i=0; i<res->c; i++) {
+    for (i = 0; i < res->count; i++) {
       if (res->v[i].name && res->v[i].subres &&
           NSTRCMP(res->v[i].name, name) == 0)
       {
-        result = res->v[i].subres;
+        subres = res->v[i].subres;
         break;
       }
     }
   }
-  return result;
+  return subres;
 }
 
 int
@@ -217,14 +225,16 @@ dump_res(Resource *n, int l)
 {
   int i;
 
-  for (i=0; i<n->c; i++) {
-      if (n->v[i].subres) {
+  for (i = 0; i < n->count; i++) {
+
+    if (n->v[i].subres) {
 	  printf("%*cn[%s] = {\n", l, ' ', n->v[i].name? n->v[i].name :"");
-	  dump_res(n->v[i].subres, l+3);
+	  dump_res(n->v[i].subres, l + 3);
 	  printf("%*c}\n", l, ' ');
 	}
     else {
-	  printf("%*cn[%s] = v[%s]\n", l, ' ', n->v[i].name? n->v[i].name :"", n->v[i].value? n->v[i].value :"");
+	  printf("%*cn[%s] = v[%s]\n", l, ' ', n->v[i].name? n->v[i].name :"",
+                                         n->v[i].value? n->v[i].value :"");
    }
   }
 }
