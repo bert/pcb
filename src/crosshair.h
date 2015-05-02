@@ -46,7 +46,6 @@ void HideCrosshair (void);
 void RestoreCrosshair (void);
 void DrawAttached (void);
 void DrawMark (void);
-void MoveCrosshairRelative (Coord, Coord);
 bool MoveCrosshairAbsolute (Coord, Coord);
 void SetCrosshairRange (Coord, Coord, Coord, Coord);
 void InitCrosshair (void);

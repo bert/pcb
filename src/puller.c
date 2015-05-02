@@ -91,22 +91,22 @@ static double arc_dist;
 /* We canonicalize the arc and line such that the point to be moved is
    always Point2 for the line, and at start+delta for the arc.  */
 
-static int x, y;		/* the point we're moving */
-static int cx, cy;		/* centerpoint of the arc */
-static int ex, ey;		/* fixed end of the line */
+static Coord x, y;   /* the point we're moving */
+static Coord cx, cy; /* centerpoint of the arc */
+static Coord ex, ey; /* fixed end of the line */
 
 /* 0 is left (-x), 90 is down (+y), 180 is right (+x), 270 is up (-y) */
 
-static int
-within (int x1, int y1, int x2, int y2, int r)
+static Coord
+within (Coord x1, Coord y1, Coord x2, Coord y2, Coord r)
 {
   return Distance (x1, y1, x2, y2) <= r / 2;
 }
 
 static int
-arc_endpoint_is (ArcType *a, int angle, int x, int y)
+arc_endpoint_is (ArcType *a, int angle, Coord x, Coord y)
 {
-  int ax = a->X, ay = a->Y;
+  Coord ax = a->X, ay = a->Y;
 
   if (angle % 90 == 0)
     {
@@ -133,9 +133,11 @@ arc_endpoint_is (ArcType *a, int angle, int x, int y)
       ax -= a->Width * cos (rad);
       ay += a->Width * sin (rad);
     }
+
 #if TRACE1
   pcb_printf (" - arc endpoint %#mD\n", ax, ay);
 #endif
+
   arc_dist = Distance (ax, ay, x, y);
   if (arc_exact)
     return arc_dist < 2;
@@ -144,7 +146,7 @@ arc_endpoint_is (ArcType *a, int angle, int x, int y)
 
 /* Cross c->u and c->v, return the magnitute */
 static double
-cross2d (int cx, int cy, int ux, int uy, int vx, int vy)
+cross2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
   ux -= cx;
   uy -= cy;
@@ -155,7 +157,7 @@ cross2d (int cx, int cy, int ux, int uy, int vx, int vy)
 
 /* Likewise, for dot product. */
 static double
-dot2d (int cx, int cy, int ux, int uy, int vx, int vy)
+dot2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
   ux -= cx;
   uy -= cy;
@@ -167,19 +169,19 @@ dot2d (int cx, int cy, int ux, int uy, int vx, int vy)
 #if 0
 /* angle of c->v, relative to c->u, in radians.  Range is -pi..pi */
 static double
-angle2d (int cx, int cy, int ux, int uy, int vx, int vy)
+angle2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
   double cross;
   double magu, magv, sintheta;
 #if TRACE1
-  printf("angle2d %d,%d %d,%d %d,%d\n", cx, cy, ux, uy, vx, vy);
+  pcb_printf("angle2d %mD %mD %mD\n", cx, cy, ux, uy, vx, vy);
 #endif
   ux -= cx;
   uy -= cy;
   vx -= cx;
   vy -= cy;
 #if TRACE1
-  printf(" = %d,%d %d,%d\n", ux, uy, vx, vy);
+  pcb_printf(" = %mD %mD\n", ux, uy, vx, vy);
 #endif
   cross = (double)ux * vy - (double)uy * vx;
   magu = sqrt((double)ux*ux + (double)uy*uy);
@@ -221,9 +223,9 @@ det (double a, double b, double c, double d)
 /* The lines are x1y1-x2y2 and x3y3-x4y4.  Returns true if they
    intersect.  */
 static int
-intersection_of_lines (int x1, int y1, int x2, int y2,
-		       int x3, int y3, int x4, int y4,
-		       int *xr, int *yr)
+intersection_of_lines (Coord x1, Coord y1, Coord x2, Coord y2,
+                       Coord x3, Coord y3, Coord x4, Coord y4,
+                       Coord *xr, Coord *yr)
 {
   double x, y, d;
   d = det (x1 - x2, y1 - y2, x3 - x4, y3 - y4);
@@ -233,17 +235,17 @@ intersection_of_lines (int x1, int y1, int x2, int y2,
 	    det (x3, y3, x4, y4), x3 - x4) / d);
   y = (det (det (x1, y1, x2, y2), y1 - y2,
 	    det (x3, y3, x4, y4), y3 - y4) / d);
-  *xr = (int) (x + 0.5);
-  *yr = (int) (y + 0.5);
+  *xr = (Coord) (x + 0.5);
+  *yr = (Coord) (y + 0.5);
   return 1;
 }
 
 /* Same, for line segments.  Returns true if they intersect.  For this
    function, xr and yr may be NULL if you don't need the values.  */
 static int
-intersection_of_linesegs (int x1, int y1, int x2, int y2,
-			  int x3, int y3, int x4, int y4,
-			  int *xr, int *yr)
+intersection_of_linesegs (Coord x1, Coord y1, Coord x2, Coord y2,
+                          Coord x3, Coord y3, Coord x4, Coord y4,
+                          Coord *xr, Coord *yr)
 {
   double x, y, d;
   d = det (x1 - x2, y1 - y2, x3 - x4, y3 - y4);
@@ -260,30 +262,30 @@ intersection_of_linesegs (int x1, int y1, int x2, int y2,
       || MIN (y3, y4) > y || y > MAX (y3, y4))
     return 0;
   if (xr)
-    *xr = (int) (x + 0.5);
+    *xr = (Coord) (x + 0.5);
   if (yr)
-    *yr = (int) (y + 0.5);
+    *yr = (Coord) (y + 0.5);
   return 1;
 }
 
 /* distance between a line and a point */
 static double
-dist_lp (int x1, int y1, int x2, int y2, int px, int py)
+dist_lp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
 {
   double den = Distance (x1, y1, x2, y2);
   double rv = (fabs (((double)x2 - x1) * ((double)y1 - py)
-		     - ((double)x1 - px) * ((double)y2 - y1))
-	       / den);
+  - ((double)x1 - px) * ((double)y2 - y1)) / den);
+
 #if TRACE1
-  pcb_printf("dist %#mD-%#mD to %#mD is %f\n",
-	 x1, y1, x2, y2, px, py, rv);
+  pcb_printf("dist %#mD-%#mD to %#mD is %f\n", x1, y1, x2, y2, px, py, rv);
 #endif
+
   return rv;
 }
 
 /* distance between a line segment and a point */
 static double
-dist_lsp (int x1, int y1, int x2, int y2, int px, int py)
+dist_lsp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
 {
   double d;
   if (dot2d (x1, y1, x2, y2, px, py) < 0)
@@ -372,12 +374,12 @@ arc_callback (const BoxType * b, void *cl)
 }
 
 static int
-find_pair (int Px, int Py)
+find_pair (Coord Px, Coord Py)
 {
   BoxType spot;
 
 #if TRACE1
-  pcb_printf ("\nPuller find_pair at %#mD\n", Crosshair.X, Crosshair.Y);
+  pcb_printf ("\nPuller find_pair at %#mD\n", Px, Py);
 #endif
 
   x = Px;
@@ -604,8 +606,8 @@ typedef struct End {
   unsigned char in_pin:1;
   unsigned char at_pin:1;
   unsigned char is_pad:1;
-  unsigned char pending:1; /* set if this may be moved later */
-  int x, y; /* arc endpoint */
+  unsigned char pending:1;      /* set if this may be moved later */
+  Coord x, y;                   /* arc endpoint */
   /* If not NULL, points to End with pending==1 we're blocked on. */
   struct End *waiting_for;
 } End;
@@ -702,7 +704,7 @@ fix_arc_extra (ArcType *a, Extra *e)
 
 typedef struct {
   void *me;
-  int x, y;
+  Coord x, y;
   int is_arc;
   Extra **extra_ptr;
 } FindPairCallbackStruct;
@@ -778,7 +780,7 @@ find_pair_arc_callback (const BoxType * b, void *cl)
 }
 
 static void
-find_pairs_1 (void *me, Extra **e, int x, int y)
+find_pairs_1 (void *me, Extra **e, Coord x, Coord y)
 {
   FindPairCallbackStruct fpcs;
   BoxType b;
@@ -802,24 +804,29 @@ find_pairs_1 (void *me, Extra **e, int x, int y)
 }
 
 static int
-check_point_in_pin (PinType *pin, int x, int y, End *e)
+check_point_in_pin (PinType *pin, Coord x, Coord y, End *e)
 {
   int inside_p;
   int t = (pin->Thickness+1)/2;
-  if (TEST_FLAG (SQUAREFLAG, pin))
+  if (TEST_FLAG (SQUAREFLAG, pin)) {
     inside_p = (x >= pin->X - t && x <= pin->X + t
-		&& y >= pin->Y - t && y <= pin->Y + t);
-  else
+    && y >= pin->Y - t && y <= pin->Y + t);
+  }
+  else {
     inside_p = (Distance (pin->X, pin->Y, x, y) <= t);
+  }
 
-  if (inside_p)
-    {
-      e->in_pin = 1;
-      if (pin->X == x && pin->Y == y)
-	e->at_pin = 1;
-      e->pin = pin;
-      return 1;
+  if (inside_p) {
+
+    e->in_pin = 1;
+
+    if (pin->X == x && pin->Y == y) {
+      e->at_pin = 1;
     }
+
+    e->pin = pin;
+    return 1;
+  }
   return 0;
 }
 
@@ -875,57 +882,64 @@ find_pair_pinarc_callback (const BoxType * b, void *cl)
 }
 
 static int
-check_point_in_pad (PadType *pad, int x, int y, End *e)
+check_point_in_pad (PadType *pad, Coord x, Coord y, End *e)
 {
-  int inside_p;
-  int t;
+  int   inside_p;
+  Coord t;
 
   pcb_printf("pad %#mD - %#mD t %#mS  vs  %#mD\n", pad->Point1.X, pad->Point1.Y,
-	 pad->Point2.X, pad->Point2.Y, pad->Thickness, x, y);
-  t = (pad->Thickness+1)/2;
-  if (TEST_FLAG (SQUAREFLAG, pad))
-    {
+             pad->Point2.X, pad->Point2.Y, pad->Thickness, x, y);
+
+  t = (pad->Thickness+1) / 2;
+
+  if (TEST_FLAG (SQUAREFLAG, pad)) {
+
     inside_p = (x >= MIN (pad->Point1.X - t, pad->Point2.X - t)
-		&& x <= MAX (pad->Point1.X + t, pad->Point2.X + t)
-		&& y >= MIN (pad->Point1.Y - t, pad->Point2.Y - t)
-		&& y <= MAX (pad->Point1.Y + t, pad->Point2.Y + t));
+    && x <= MAX (pad->Point1.X + t, pad->Point2.X + t)
+    && y >= MIN (pad->Point1.Y - t, pad->Point2.Y - t)
+    && y <= MAX (pad->Point1.Y + t, pad->Point2.Y + t));
     printf(" - inside_p = %d\n", inside_p);
+  }
+  else {
+
+    if (pad->Point1.X == pad->Point2.X) {
+
+      inside_p = (x >= pad->Point1.X - t
+      && x <= pad->Point1.X + t
+      && y >= MIN (pad->Point1.Y, pad->Point2.Y)
+      && y <= MAX (pad->Point1.Y, pad->Point2.Y));
     }
-  else
-    {
-      if (pad->Point1.X == pad->Point2.X)
-	{
-	  inside_p = (x >= pad->Point1.X - t
-		      && x <= pad->Point1.X + t
-		      && y >= MIN (pad->Point1.Y, pad->Point2.Y)
-		      && y <= MAX (pad->Point1.Y, pad->Point2.Y));
-	}
-      else
-	{
-	  inside_p = (x >= MIN (pad->Point1.X, pad->Point2.X)
-		      && x <= MAX (pad->Point1.X, pad->Point2.X)
-		      && y >= pad->Point1.Y - t
-		      && y <= pad->Point1.Y + t);
-	}
-      if (!inside_p)
-	{
-	  if (Distance (pad->Point1.X, pad->Point1.Y, x, y) <= t
-	      || Distance (pad->Point2.X, pad->Point2.Y, x, y) <= t)
-	    inside_p = 1;
-	}
+    else {
+
+      inside_p = (x >= MIN (pad->Point1.X, pad->Point2.X)
+      && x <= MAX (pad->Point1.X, pad->Point2.X)
+      && y >= pad->Point1.Y - t
+      && y <= pad->Point1.Y + t);
+    }
+    if (!inside_p) {
+
+      if (Distance (pad->Point1.X, pad->Point1.Y, x, y) <= t
+        || Distance (pad->Point2.X, pad->Point2.Y, x, y) <= t)
+        inside_p = 1;
+    }
+  }
+
+  if (inside_p) {
+
+    e->in_pin = 1;
+
+    if (pad->Point1.X == x && pad->Point1.Y == y) {
+      e->at_pin = 1;
     }
 
-  if (inside_p)
-    {
-      e->in_pin = 1;
-      if (pad->Point1.X == x && pad->Point1.Y == y)
-	e->at_pin = 1;
-      if (pad->Point2.X == x && pad->Point2.Y == y)
-	e->at_pin = 1;
-      e->pin = pad;
-      e->is_pad = 1;
-      return 1;
+    if (pad->Point2.X == x && pad->Point2.Y == y) {
+      e->at_pin = 1;
     }
+
+    e->pin = pad;
+    e->is_pad = 1;
+    return 1;
+  }
   return 0;
 }
 
@@ -933,23 +947,25 @@ static int
 find_pair_padline_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
-  PadType *pad = (PadType *) cl;
-  Extra *e = LINE2EXTRA (line);
+  PadType  *pad  = (PadType *) cl;
+  Extra    *e    = LINE2EXTRA (line);
   int hits;
   double t;
   int intersect;
   double p1_d, p2_d;
 
-  if (TEST_FLAG (ONSOLDERFLAG, pad))
-    {
-      if (!current_is_solder)
-	return 0;
+  if (TEST_FLAG (ONSOLDERFLAG, pad)) {
+
+    if (!current_is_solder) {
+      return 0;
     }
-  else
-    {
-      if (!current_is_component)
-	return 0;
+  }
+  else {
+
+    if (!current_is_component) {
+      return 0;
     }
+  }
 
 #ifdef CHECK_LINE_PT_NEG
   if (line->Point1.X < 0)
@@ -981,8 +997,8 @@ find_pair_padline_callback (const BoxType * b, void *cl)
 		  line->Point2.X, line->Point2.Y,
 		  pad->Point2.X, pad->Point2.Y);
 
-  if (intersect || p1_d < t || p2_d < t)
-    {
+  if (intersect || p1_d < t || p2_d < t) {
+
       /* It does.  */
       /* FIXME: we should split the line.  */
 #if TRACE1
@@ -1112,7 +1128,7 @@ find_pairs ()
     box.Y2 = MAX(pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2;
     r_search (CURRENT->line_tree, &box, NULL, find_pair_padline_callback, pad);
     r_search (CURRENT->arc_tree, &box, NULL, find_pair_padarc_callback, pad);
-    
+
   } ENDALL_LOOP;
 
   g_hash_table_foreach (lines, (GHFunc)null_multi_next_ends, NULL);
@@ -1251,7 +1267,7 @@ print_extra (Extra *e, Extra *prev)
 	 e->end.at_pin ? "A" : "-",
 	 e->end.is_pad ? "P" : "-",
 	 e->end.pending ? "p" : "-");
-	 
+
   if (EXTRA_IS_LINE (e))
     {
       LineType *line = EXTRA2LINE (e);
@@ -1326,7 +1342,7 @@ static void
 reverse_line (LineType *line)
 {
   Extra *e = LINE2EXTRA (line);
-  int x, y;
+  Coord x, y;
   End etmp;
 
   x = line->Point1.X;
@@ -1370,7 +1386,7 @@ reverse_arc (ArcType *arc)
 }
 
 static void
-expand_box (BoxType *b, int x, int y, int t)
+expand_box (BoxType *b, Coord x, Coord y, Coord t)
 {
   b->X1 = MIN (b->X1, x-t);
   b->X2 = MAX (b->X2, x+t);
@@ -1383,14 +1399,14 @@ expand_box (BoxType *b, int x, int y, int t)
    working on. */
 
 /* what we're working with */
-static ArcType *start_arc;
+static ArcType  *start_arc;
 static LineType *start_line;
 static LineType *end_line;
-static ArcType *end_arc;
-static Extra *start_extra, *end_extra;
-static Extra *sarc_extra, *earc_extra;
-static void *start_pinpad, *end_pinpad;
-static int thickness;
+static ArcType  *end_arc;
+static Extra    *start_extra,  *end_extra;
+static Extra    *sarc_extra,   *earc_extra;
+static void     *start_pinpad, *end_pinpad;
+static Coord     thickness;
 
 /* Pre-computed values.  Note that all values are computed according
    to CARTESIAN coordinates, not PCB coordinates.  Do an up-down board
@@ -1405,21 +1421,22 @@ static double se_sign, sa_sign, ea_sign;
 static double best_angle, start_angle, end_dist;
 /* arc radii are positive when they're on the same side as the things
    we're interested in. */
-static int sa_r, ea_r;
-static int sa_x, sa_y; /* start "arc" point */
+static Coord sa_r, ea_r;
+static Coord sa_x, sa_y; /* start "arc" point */
 
 /* what we've found so far */
-static int fx, fy, fr, fp;
+static Coord fx, fy, fr;
+static int fp;
 static End *fp_end;
 static double fa; /* relative angle */
 
 #define gp_point(x,y,t,e) gp_point_2(x,y,t,e,0,0,__FUNCTION__)
 
 static int
-gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const char *name)
+gp_point_force (Coord x, Coord y, Coord t, End *e, int esa, int eda, int force, const char *name)
 {
   double r, a, d;
-  int scx, scy, sr;
+  Coord scx, scy, sr;
   double base_angle, rel_angle, point_angle;
 
 #if TRACE1
@@ -1554,14 +1571,14 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
 #if TRACE1
   printf("%f * %f < %f * %f ?\n", a, se_sign, best_angle, se_sign);
 #endif
-  if (a * se_sign == best_angle * se_sign)
-    {
+  if (a * se_sign == best_angle * se_sign) {
+
       double old_d = Distance (start_line->Point1.X, start_line->Point1.Y,
 			   fx, fy);
       double new_d = Distance (start_line->Point1.X, start_line->Point1.Y,
 			   x, y);
-      if (new_d > old_d)
-	{
+      if (new_d > old_d) {
+
 	  best_angle = a;
 	  fx = x;
 	  fy = y;
@@ -1585,7 +1602,7 @@ gp_point_force (int x, int y, int t, End *e, int esa, int eda, int force, const 
   return 1;
 }
 static int
-gp_point_2 (int x, int y, int t, End *e, int esa, int eda, const char *func)
+gp_point_2 (Coord x, Coord y, Coord t, End *e, int esa, int eda, const char *func)
 {
   double sc, ec;
   double sd, ed;
@@ -1717,7 +1734,7 @@ gp_arc_cb (const BoxType *b, void *cb)
 
   if (e->start.next || e->end.next)
     return 0;
-    
+
   gp_point (e->start.x, e->start.y, a->Thickness/2, 0);
   gp_point (e->end.x, e->end.y, a->Thickness/2, 0);
   return 0;
@@ -1749,7 +1766,7 @@ static int
 gp_pin_cb (const BoxType *b, void *cb)
 {
   const PinType *p = (PinType *) b;
-  int t2 = (p->Thickness+1)/2;
+  Coord t2 = (p->Thickness + 1) / 2;
 
   if (p == start_pinpad || p == end_pinpad)
     return 0;
@@ -1774,49 +1791,51 @@ static int
 gp_pad_cb (const BoxType *b, void *cb)
 {
   const PadType *p = (PadType *) b;
-  int t2 = (p->Thickness+1)/2;
+  Coord t2 = (p->Thickness + 1) / 2;
 
   if (p == start_pinpad || p == end_pinpad)
     return 0;
 
-  if (TEST_FLAG (ONSOLDERFLAG, p))
-    {
-      if (!current_is_solder)
-	return 0;
-    }
-  else
-    {
-      if (!current_is_component)
-	return 0;
+  if (TEST_FLAG (ONSOLDERFLAG, p)) {
+
+      if (!current_is_solder) {
+	    return 0;
+      }
+  }
+  else {
+
+      if (!current_is_component) {
+	    return 0;
+      }
     }
 
   /* FIXME: we lump octagonal pads in with square; safe, but not
      optimal.  I don't think we even support octagonal pads.  */
-  if (TEST_FLAG (SQUAREFLAG, p) || TEST_FLAG (OCTAGONFLAG, p))
-    {
-      if (p->Point1.X == p->Point2.X)
-	{
-	  int y1 = MIN (p->Point1.Y, p->Point2.Y) - t2;
-	  int y2 = MAX (p->Point1.Y, p->Point2.Y) + t2;
+  if (TEST_FLAG (SQUAREFLAG, p) || TEST_FLAG (OCTAGONFLAG, p)) {
 
-	  gp_point (p->Point1.X - t2, y1, 0, 0);
-	  gp_point (p->Point1.X - t2, y2, 0, 0);
-	  gp_point (p->Point1.X + t2, y1, 0, 0);
-	  gp_point (p->Point1.X + t2, y2, 0, 0);
-	}
-      else
-	{
-	  int x1 = MIN (p->Point1.X, p->Point2.X) - t2;
-	  int x2 = MAX (p->Point1.X, p->Point2.X) + t2;
+    if (p->Point1.X == p->Point2.X) {
 
-	  gp_point (x1, p->Point1.Y - t2, 0, 0);
-	  gp_point (x2, p->Point1.Y - t2, 0, 0);
-	  gp_point (x1, p->Point1.Y + t2, 0, 0);
-	  gp_point (x2, p->Point1.Y + t2, 0, 0);
-	}
+      Coord y1 = MIN (p->Point1.Y, p->Point2.Y) - t2;
+      Coord y2 = MAX (p->Point1.Y, p->Point2.Y) + t2;
+
+      gp_point (p->Point1.X - t2, y1, 0, 0);
+      gp_point (p->Point1.X - t2, y2, 0, 0);
+      gp_point (p->Point1.X + t2, y1, 0, 0);
+      gp_point (p->Point1.X + t2, y2, 0, 0);
     }
-  else
-    {
+    else {
+
+      Coord x1 = MIN (p->Point1.X, p->Point2.X) - t2;
+      Coord x2 = MAX (p->Point1.X, p->Point2.X) + t2;
+
+      gp_point (x1, p->Point1.Y - t2, 0, 0);
+      gp_point (x2, p->Point1.Y - t2, 0, 0);
+      gp_point (x1, p->Point1.Y + t2, 0, 0);
+      gp_point (x2, p->Point1.Y + t2, 0, 0);
+    }
+  }
+  else {
+
       gp_point (p->Point1.X, p->Point1.Y, t2, 0);
       gp_point (p->Point2.X, p->Point2.Y, t2, 0);
     }
@@ -1824,7 +1843,7 @@ gp_pad_cb (const BoxType *b, void *cb)
 }
 
 static LineType *
-create_line (LineType *sample, int x1, int y1, int x2, int y2)
+create_line (LineType *sample, Coord x1, Coord y1, Coord x2, Coord y2)
 {
 #if TRACE1
   Extra *e;
@@ -1845,7 +1864,7 @@ create_line (LineType *sample, int x1, int y1, int x2, int y2)
 }
 
 static ArcType *
-create_arc (LineType *sample, int x, int y, int r, int sa, int da)
+create_arc (LineType *sample, Coord x, Coord y, Coord r, Coord sa, Coord da)
 {
   Extra *e;
   ArcType *arc;
@@ -1997,7 +2016,7 @@ maybe_pull_1 (LineType *line)
 {
   BoxType box;
   /* Line half-thicknesses, including line space */
-  int ex, ey;
+  Coord ex, ey;
   LineType *new_line;
   Extra *new_lextra;
   ArcType *new_arc;
@@ -2072,7 +2091,7 @@ maybe_pull_1 (LineType *line)
       && start_extra->end.waiting_for->pending)
     return;
 #endif
-  
+
   if (start_line->Thickness != end_line->Thickness)
     return;
   thickness = (start_line->Thickness + 1)/2 + PCB->Bloat;
@@ -2299,9 +2318,10 @@ maybe_pull_1 (LineType *line)
     double oa = start_angle+fa - M_PI/2*se_sign;
     double ox = fx + fr * cos(oa);
     double oy = fy + fr * sin(oa);
+
 #if TRACE1
     pcb_printf("obstacle at %#mD angle %d = arc starts at %#mD\n",
-	   fx, fy, (int)r2d(oa), (int)ox, (int)oy);
+	   fx, fy, (Coord)r2d(oa), (Coord)ox, (Coord)oy);
 #endif
 
     if (Distance (ox, oy, end_line->Point2.X, end_line->Point2.Y)
@@ -2403,7 +2423,7 @@ maybe_pull_1 (LineType *line)
     {
       ex = end_line->Point2.X;
       ey = end_line->Point2.Y;
-    }	
+    }
 #if TRACE1
   pcb_printf("new point %#mS\n", ex, ey);
 #endif
