@@ -21,16 +21,11 @@
  */
 
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
 
 #include "global.h"
 #include "data.h"
@@ -38,7 +33,7 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

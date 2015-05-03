@@ -1,15 +1,9 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "xincludes.h"
 
-#include "compat.h"
 #include "global.h"
 #include "data.h"
 #include "misc.h"
@@ -20,7 +14,7 @@
 #include "../hidint.h"
 #include "lesstif.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

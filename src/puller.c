@@ -44,17 +44,13 @@
 
 */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "global.h"
 
-#include <math.h>
-#include <memory.h>
-#include <limits.h>
 #include <setjmp.h>
-
 
 #include "create.h"
 #include "data.h"
@@ -64,10 +60,9 @@
 #include "pcb-printf.h"
 #include "remove.h"
 #include "rtree.h"
-#include "strflags.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -722,7 +717,7 @@ find_pair_line_callback (const BoxType * b, void *cl)
 
   if (line == fpcs->me)
     return 0;
-#ifdef CHECK_LINE_PT_NEG
+#if CHECK_LINE_PT_NEG
   if (line->Point1.X < 0)
     abort1();
 #endif
@@ -838,7 +833,7 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
   Extra *e = LINE2EXTRA (line);
   int hits;
 
-#ifdef CHECK_LINE_PT_NEG
+#if CHECK_LINE_PT_NEG
   if (line->Point1.X < 0)
     abort1();
 #endif
@@ -966,7 +961,7 @@ find_pair_padline_callback (const BoxType * b, void *cl)
     }
   }
 
-#ifdef CHECK_LINE_PT_NEG
+#if CHECK_LINE_PT_NEG
   if (line->Point1.X < 0)
     abort1();
 #endif
@@ -1701,7 +1696,7 @@ gp_line_cb (const BoxType *b, void *cb)
     return 0;
   if (e->deleted)
     return 0;
-#ifdef CHECK_LINE_PT_NEG
+#if CHECK_LINE_PT_NEG
   if (l->Point1.X < 0)
     abort1();
 #endif
@@ -2639,7 +2634,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
 	    Extra *e = LINE2EXTRA (line);
 	    if (e->deleted)
 	      continue;
-#ifdef CHECK_LINE_PT_NEG
+#if CHECK_LINE_PT_NEG
 	    if (line->Point1.X < 0)
 	      abort1();
 #endif

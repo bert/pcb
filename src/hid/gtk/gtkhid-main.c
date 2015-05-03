@@ -1,13 +1,13 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
+
+#if HAVE_STRING_H
 #include <string.h>
 #endif
-#include <math.h>
+
 #include <time.h>
 
 
@@ -20,7 +20,7 @@
 #include "hid/common/draw_helpers.h"
 #include "pcb-printf.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -284,7 +284,7 @@ ghid_mod1_is_pressed ()
 
   gdk_window_get_pointer (gtk_widget_get_window (out->drawing_area),
                           NULL, NULL, &mask);
-#ifdef __APPLE__
+#if __APPLE__
   return (mask & ( 1 << 13 ) ) ? TRUE : FALSE;  // The option key is not MOD1, although it should be...
 #else
   return (mask & GDK_MOD1_MASK) ? TRUE : FALSE;
@@ -634,7 +634,7 @@ ghid_prompt_for (const char *msg, const char *default_string)
 }
 
 /* FIXME -- implement a proper file select dialog */
-#ifdef FIXME
+#if FIXME
 char *
 ghid_fileselect (const char *title, const char *descr,
 		 char *default_file, char *default_ext,
@@ -1992,7 +1992,7 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
       {
         name = names->data;
 
-#ifdef DEBUG
+#if DEBUG
         printf("File selected = %s\n", name);
 #endif
 
@@ -2079,7 +2079,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
  * directory.  Without that we can't find our fonts and
  * footprint libraries.
  */
-#ifdef WIN32
+#if WIN32
 #include <windows.h>
 #include <winreg.h>
 #endif
@@ -2090,14 +2090,14 @@ HID_DRAW ghid_graphics;
 void
 hid_gtk_init ()
 {
-#ifdef WIN32
+#if WIN32
   char * tmps;
   char * share_dir;
   char *loader_cache;
   FILE *loader_file;
 #endif
 
-#ifdef WIN32
+#if WIN32
   tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"

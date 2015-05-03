@@ -24,16 +24,12 @@
  *
  */
 
-
 /* crosshair stuff
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <memory.h>
-#include <math.h>
 
 #include "global.h"
 #include "hid_draw.h"
@@ -48,7 +44,7 @@
 #include "search.h"
 #include "polygon.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -119,7 +115,7 @@ XORDrawAttachedArc (Coord thick)
     {
       arc.X = Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
       sa = (wx >= 0) ? 0 : 180;
-#ifdef ARC45
+#if ARC45
       if (abs (wy) >= 2 * abs (wx))
 	dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
       else
@@ -130,7 +126,7 @@ XORDrawAttachedArc (Coord thick)
     {
       arc.Y = Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
       sa = (wy >= 0) ? -90 : 90;
-#ifdef ARC45
+#if ARC45
       if (abs (wx) >= 2 * abs (wy))
 	dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
       else

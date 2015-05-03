@@ -61,7 +61,7 @@
 
 /* routines to find connections between pins, vias, lines...
  */
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -83,7 +83,7 @@
 #include "undo.h"
 #include "rats.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -315,7 +315,7 @@ add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3
   LIST_ENTRY (list, list->Number) = object;
   list->Number++;
 
-#ifdef DEBUG
+#if DEBUG
   if (list.Number > list.Size)
     printf ("add_object_to_list overflow! type=%i num=%d size=%d\n", type, list.Number, list.Size);
 #endif

@@ -30,70 +30,45 @@
  * on several architectures
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
 #endif
 
 #include "global.h"
 
 #include <dirent.h>
-#ifdef HAVE_PWD_H
+#if HAVE_PWD_H
 #include <pwd.h>
 #endif
 #include <time.h>
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
 #include <sys/stat.h>
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
 
 #include <stdio.h>
 
-#ifdef HAVE_STDLIB_H
+#if HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 #include "buffer.h"
 #include "change.h"
 #include "create.h"
-#include "crosshair.h"
 #include "data.h"
 #include "edif_parse.h"
 #include "error.h"
 #include "file.h"
-#include "hid.h"
 #include "misc.h"
-#include "mymem.h"
 #include "parse_l.h"
 #include "pcb-printf.h"
-#include "polygon.h"
-#include "rats.h"
 #include "remove.h"
 #include "set.h"
 #include "strflags.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -389,7 +364,7 @@ real_load_pcb (char *Filename, bool revert)
   char *new_filename;
   PCBType *newPCB = CreateNewPCB (false);
   PCBType *oldPCB;
-#ifdef DEBUG
+#if DEBUG
   double elapsed;
   clock_t start, end;
 
@@ -458,7 +433,7 @@ real_load_pcb (char *Filename, bool revert)
       else
         hid_action ("PCBChanged");
 
-#ifdef DEBUG
+#if DEBUG
       end = clock ();
       elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
       gui->log ("Loading file %s took %f seconds of CPU time\n",
@@ -1221,7 +1196,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
     && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
     {
 
-#ifdef DEBUG
+#if DEBUG
       printf("... Found a footprint %s ... \n", subdirentry->d_name);
 #endif
 
@@ -1364,7 +1339,7 @@ ParseLibraryTree (char *libpath)
    * which is a valid subdirectory, try to load the footprints inside it. */
   while ((direntry = readdir (dirobj)) != NULL)	{
 
-#ifdef DEBUG
+#if DEBUG
     printf("In %s loop examining 2nd level direntry %s ... \n", __func__, direntry->d_name);
 #endif
 
@@ -1378,7 +1353,7 @@ ParseLibraryTree (char *libpath)
   }
   closedir (dirobj);
 
-#ifdef DEBUG
+#if DEBUG
   printf("%s Exit: found %d footprints.\n", __func__, n_footprints);
 #endif
 
@@ -1430,7 +1405,7 @@ ReadLibraryContents (void)
     /* remove trailing path delimeter */
     strncpy (toppath, libpath, sizeof (toppath) - 1);
 
-#ifdef DEBUG
+#if DEBUG
     fprintf(stderr, "%s: reading library contents:%s\n",__func__, toppath);
 #endif
 
@@ -1459,7 +1434,7 @@ ReadLibraryContents (void)
     /* remove trailing path delimeter */
     strncpy (toppath, libpath, sizeof (toppath) - 1);
 
-#ifdef DEBUG
+#if DEBUG
     fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n",__func__, toppath);
 #endif
 

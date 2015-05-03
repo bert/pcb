@@ -2,16 +2,10 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "global.h"
 #include "data.h"
 #include "misc.h"
 
-#include "hid.h"
 #include "../hidint.h"
 #include "../ps/ps.h"
 #include "hid/common/hidnogui.h"

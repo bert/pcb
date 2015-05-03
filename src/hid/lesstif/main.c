@@ -1,23 +1,19 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "global.h"
+
 #include <time.h>
-#include <string.h>
-#include <math.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/time.h>
 
 #include "xincludes.h"
 
-#include "global.h"
 #include "data.h"
 #include "action.h"
 #include "crosshair.h"
-#include "mymem.h"
 #include "misc.h"
 #include "pcb-printf.h"
 #include "resource.h"
@@ -32,7 +28,7 @@
 #include "hid/common/hid_resource.h"
 #include "lesstif.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -81,7 +77,7 @@ static Pixmap mask_bitmap = 0;
 static int use_mask = 0;
 
 static int use_xrender = 0;
-#ifdef HAVE_XRENDER
+#if HAVE_XRENDER
 static Picture main_picture;
 static Picture mask_picture;
 static Pixmap pale_pixmap;
@@ -1346,7 +1342,7 @@ mod_changed (XKeyEvent * e, int set)
     case XK_Control_R:
       ctrl_pressed = set;
       break;
-#ifdef __APPLE__
+#if __APPLE__
 	case XK_Mode_switch:
 #else
 	case XK_Alt_L:
@@ -1404,7 +1400,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         pressed_button = e->xbutton.button;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
-#ifdef __APPLE__
+#if __APPLE__
           + ((e->xbutton.state & (1<<13)) ? M_Alt : 0);
 #else
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
@@ -1424,7 +1420,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         pressed_button = 0;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
-#ifdef __APPLE__
+#if __APPLE__
           + ((e->xbutton.state & (1<<13)) ? M_Alt : 0)
 #else
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0)
@@ -1445,7 +1441,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 		       &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
 	shift_pressed = (keys_buttons & ShiftMask);
 	ctrl_pressed = (keys_buttons & ControlMask);
-#ifdef __APPLE__
+#if __APPLE__
 	alt_pressed = (keys_buttons & (1<<13));
 #else
 	alt_pressed = (keys_buttons & Mod1Mask);
@@ -1639,7 +1635,7 @@ work_area_make_pixmaps (Dimension width, Dimension height)
   mask_pixmap =
     XCreatePixmap (display, window, width, height,
 		   XDefaultDepth (display, screen));
-#ifdef HAVE_XRENDER
+#if HAVE_XRENDER
   if (main_picture)
     {
       XRenderFreePicture (display, main_picture);
@@ -1741,7 +1737,7 @@ work_area_first_expose (Widget work_area, void *me,
 
   work_area_make_pixmaps (width, height);
 
-#ifdef HAVE_XRENDER
+#if HAVE_XRENDER
   if (use_xrender)
     {
       XRenderPictureAttributes pa;
@@ -2216,10 +2212,10 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XtGetApplicationResources (appwidget, new_values, new_resources,
 			     rmax, 0, 0);
 
-#ifdef HAVE_XRENDER
+#if HAVE_XRENDER
   use_xrender = XRenderQueryExtension (display, &render_event, &render_error) &&
 	XRenderFindVisualFormat (display, DefaultVisual(display, screen));
-#ifdef HAVE_XINERAMA
+#if HAVE_XINERAMA
   /* Xinerama and XRender don't get along well */
   if (XineramaQueryExtension (display, &render_event, &render_error)
       && XineramaIsActive (display))
@@ -3110,7 +3106,7 @@ lesstif_use_mask (int use_it)
   else
     {
       pixmap = main_pixmap;
-#ifdef HAVE_XRENDER
+#if HAVE_XRENDER
       if (use_xrender)
 	{
 	  XRenderPictureAttributes pa;

@@ -28,7 +28,7 @@
 /* functions used to move pins, elements ...
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -38,21 +38,18 @@
 #include "global.h"
 
 #include "create.h"
-#include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
 #include "misc.h"
 #include "move.h"
-#include "mymem.h"
 #include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 #include "select.h"
-#include "thermal.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

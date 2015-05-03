@@ -1,5 +1,4 @@
-#include <string.h>
-#include <stdlib.h>
+#
 #include <errno.h>
 
 #include "global.h"
@@ -93,15 +92,18 @@ load_mouse_resource (const Resource *res)
   button_nums = (int *)malloc(res->count * sizeof(int));
   mod_count = (int *)malloc(res->count * sizeof(int));
   action_count = 0;
-  for (bi=0; bi<res->count; bi++)
-    {
-      if (res->v[bi].value)
+
+  for (bi=0; bi<res->count; bi++) {
+
+      if (res->v[bi].value) {
         action_count++;
+      }
 
-      if (res->v[bi].subres)
+      if (res->v[bi].subres) {
         action_count += res->v[bi].subres->count;
+      }
 
-    }
+  }
   mods = (unsigned int *)malloc(action_count * sizeof(int));
   actions = (Resource **)malloc(action_count * sizeof(Resource*));
 

@@ -33,13 +33,12 @@
 /* functions used to autoplace elements.
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
+
 #include "config.h"
 #endif
 
 #include <assert.h>
-#include <math.h>
-#include <memory.h>
 #include <stdlib.h>
 
 #include "global.h"
@@ -52,16 +51,14 @@
 #include "error.h"
 #include "intersect.h"
 #include "rtree.h"
-#include "macro.h"
 #include "mirror.h"
 #include "misc.h"
 #include "move.h"
-#include "mymem.h"
 #include "rats.h"
 #include "remove.h"
 #include "rotate.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -71,6 +68,7 @@
   r1->X1=MIN(r1->X1, x1); r1->Y1=MIN(r1->Y1, y1); \
   r1->X2=MAX(r1->X2, x2); r1->Y2=MAX(r1->Y2, y2); \
 }
+
 #define EXPANDRECT(r1, r2) EXPANDRECTXY(r1, r2->X1, r2->Y1, r2->X2, r2->Y2)
 
 /* ---------------------------------------------------------------------------
@@ -766,8 +764,8 @@ AutoPlaceSelected (void)
    * is supposed to look
    */
   Nets = ProcNetlist (&PCB->NetlistLib);
-  if (!Nets)
-    {
+  if (!Nets) {
+
       Message (_("Can't add rat lines because no netlist is loaded.\n"));
       goto done;
     }

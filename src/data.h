@@ -36,7 +36,6 @@
  * some shared identifiers
  */
 
-
 extern CrosshairType Crosshair;
 
 extern MarkType Marked;

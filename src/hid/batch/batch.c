@@ -1,15 +1,12 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
+#include "global.h"
+
 #include <unistd.h>
 
-#include "global.h"
-#include "hid.h"
+//#include "hid.h"
 #include "data.h"
 #include "misc.h"
 #include "hid.h"
@@ -22,7 +19,7 @@
 #include "hid/common/actions.h"
 #include "hid/common/hidinit.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -105,7 +102,6 @@ info (int argc, char **argv, Coord x, Coord y)
   }
   return 0;
 }
-
 
 HID_Action batch_action_list[] = {
   {"PCBChanged", 0, PCBChanged },

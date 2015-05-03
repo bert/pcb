@@ -24,15 +24,11 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "global.h"
-
-#include <memory.h>
-#include <limits.h>
-
 
 #include "data.h"
 #include "create.h"
@@ -44,7 +40,7 @@
 #include "find.h"
 #include "pcb-printf.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

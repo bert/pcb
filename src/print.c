@@ -33,33 +33,27 @@
 
 /* printing routines
  */
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "global.h"
-#include "hid_draw.h"
 
-#include <time.h>
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
+#include "hid_draw.h"
 #include "data.h"
 #include "draw.h"
 #include "drill.h"
 #include "file.h"
-#include "find.h"
 #include "error.h"
 #include "misc.h"
 #include "print.h"
 #include "polygon.h"
-#include "rtree.h"
-#include "search.h"
 
-#include "hid.h"
-
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

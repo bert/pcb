@@ -20,30 +20,21 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include "global.h"
+
 #include <ctype.h>
-#include <math.h>
-#include <stdio.h>
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_REGEX_H
+#if HAVE_REGEX_H
 #include <regex.h>
 #else
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #endif
@@ -52,13 +43,13 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "global.h"
+
 #include "resource.h"
 #include "set.h"
 #include "undo.h"
 #include "vendor.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

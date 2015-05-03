@@ -1,10 +1,6 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "global.h"
 #include "data.h"
@@ -13,7 +9,7 @@
 #include "hid.h"
 #include "../hidint.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -40,11 +36,11 @@ hid_register_flags (HID_Flag * a, int n)
   ha->flags = a;
   ha->n = n;
   n_flags += n;
-  if (all_flags)
-    {
+  if (all_flags) {
+
       free (all_flags);
       all_flags = 0;
-    }
+  }
 }
 
 static int

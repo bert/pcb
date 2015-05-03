@@ -27,8 +27,8 @@
 /* prototypes for file routines
  */
 
-#ifndef	PCB_FILE_H
-#define	PCB_FILE_H
+#ifndef PCB_FILE_H
+#define PCB_FILE_H
 
 #include <stdio.h>		/* needed to define 'FILE *' */
 #include "global.h"

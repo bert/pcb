@@ -28,9 +28,12 @@
 /* action routines for output window
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <assert.h>
+#include <stdlib.h> /* rand() */
 
 #include "global.h"
 
@@ -51,12 +54,10 @@
 #include "hid.h"
 #include "insert.h"
 #include "line.h"
-#include "mymem.h"
 #include "misc.h"
 #include "mirror.h"
 #include "move.h"
 #include "polygon.h"
-/*#include "print.h"*/
 #include "rats.h"
 #include "remove.h"
 #include "report.h"
@@ -68,22 +69,18 @@
 #include "thermal.h"
 #include "undo.h"
 #include "rtree.h"
-#include "macro.h"
 #include "pcb-printf.h"
 
-#include <assert.h>
-#include <stdlib.h> /* rand() */
-
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
 /* for fork() and friends */
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_WAIT_H
+#if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
 
@@ -322,10 +319,12 @@ static int defer_needs_update = 0;
 
 static Cardinal polyIndex = 0;
 static bool saved_mode = false;
-#ifdef HAVE_LIBSTROKE
+
+#if HAVE_LIBSTROKE
 static bool mid_stroke = false;
 static BoxType StrokeBox;
 #endif
+
 static FunctionType Functions[] = {
   {"AddSelected", F_AddSelected},
   {"All", F_All},
@@ -455,17 +454,16 @@ static void NotifyLine (void);
 static void NotifyBlock (void);
 static void NotifyMode (void);
 static void ClearWarnings (void);
-#ifdef HAVE_LIBSTROKE
-static void FinishStroke (void);
-extern void stroke_init (void);
-extern void stroke_record (int x, int y);
-extern int stroke_trans (char *s);
-#endif
 static void ChangeFlag (char *, char *, int, char *);
 
 #define ARG(n) (argc > (n) ? argv[n] : NULL)
 
-#ifdef HAVE_LIBSTROKE
+#if HAVE_LIBSTROKE
+
+static void FinishStroke (void);
+extern void stroke_init (void);
+extern void stroke_record (int x, int y);
+extern int stroke_trans (char *s);
 
 /* ---------------------------------------------------------------------------
  * FinishStroke - try to recognize the stroke sent
@@ -1063,11 +1061,11 @@ NotifyMode (void)
             Crosshair.AttachedBox.Point2.X =
             Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
             sa = (wx >= 0) ? 0 : 180;
-            #ifdef ARC45
+#if ARC45
             if (abs (wy) / 2 >= abs (wx))
               dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
             else
-              #endif
+#endif
               dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
           }
           else {
@@ -1075,11 +1073,11 @@ NotifyMode (void)
             Crosshair.AttachedBox.Point2.Y =
             Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
             sa = (wy >= 0) ? -90 : 90;
-            #ifdef ARC45
+#if ARC45
             if (abs (wx) / 2 >= abs (wy))
               dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
             else
-              #endif
+#endif
               dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
             wy = wx;
           }
@@ -1900,7 +1898,7 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
   printf ("MenuMax = %d\n", Library.MenuMax);
   for (i = 0; i < Library.MenuN; i++)
     {
-      printf ("Library #%d:\n", i);
+      printf ("Library#%d:\n", i);
       printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
       printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
@@ -1910,7 +1908,7 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
 
       for (j = 0; j < Library.Menu[i].EntryN; j++)
 	{
-	  printf ("    #%4d: ", j);
+	  printf ("#%4d: ", j);
 	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
 	    {
 	      printf ("newlib: \"%s\"\n",
@@ -2109,7 +2107,7 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
 void
 EventMoveCrosshair (int ev_x, int ev_y)
 {
-#ifdef HAVE_LIBSTROKE
+#if HAVE_LIBSTROKE
   if (mid_stroke)
     {
       StrokeBox.X2 = ev_x;
@@ -2454,7 +2452,7 @@ ActionDisperseElements (int argc, char **argv, Coord x, Coord y)
   }
   END_LOOP;
 
-  /* done with our action so increment the undo # */
+  /* done with our action so increment the undo# */
   IncrementUndoSerialNumber ();
 
   Redraw ();
@@ -3165,7 +3163,7 @@ ActionMode (int argc, char **argv, Coord x, Coord y)
 	  SetMode (ROTATE_MODE);
 	  break;
 	case F_Stroke:
-#ifdef HAVE_LIBSTROKE
+#if HAVE_LIBSTROKE
 	  mid_stroke = true;
 	  StrokeBox.X1 = Crosshair.X;
 	  StrokeBox.Y1 = Crosshair.Y;
@@ -4532,7 +4530,7 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
   }
   END_LOOP;
   /*
-   * done with our action so increment the undo # if we actually
+   * done with our action so increment the undo# if we actually
    * changed anything
    */
   if (changed)
@@ -7016,7 +7014,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   char *args[3];
   char *function = argv[0];
 
-#ifdef DEBUG
+#if DEBUG
   printf("Entered ActionElementList, executing function %s\n", function);
 #endif
 
@@ -7071,7 +7069,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   args[1] = refdes;
   args[2] = value;
 
-#ifdef DEBUG
+#if DEBUG
   printf("  ... footprint = %s\n", footprint);
   printf("  ... refdes = %s\n", refdes);
   printf("  ... value = %s\n", value);
@@ -7083,7 +7081,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
     {
       Coord nx, ny, d;
 
-#ifdef DEBUG
+#if DEBUG
       printf("  ... Footprint not on board, need to add it.\n");
 #endif
       /* Not on board, need to add it. */
@@ -7123,7 +7121,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
   else if (e && DESCRIPTION_NAME(e) && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
   {
-#ifdef DEBUG
+#if DEBUG
       printf("  ... Footprint on board, but different from footprint loaded.\n");
 #endif
       int er, pr, i;
@@ -7176,7 +7174,7 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
   SET_FLAG (FOUNDFLAG, e);
 
-#ifdef DEBUG
+#if DEBUG
   printf(" ... Leaving ActionElementList.\n");
 #endif
 
@@ -7280,7 +7278,7 @@ ActionExecCommand (int argc, char **argv, Coord x, Coord y)
 static int
 pcb_spawnvp (char **argv)
 {
-#ifdef HAVE__SPAWNVP
+#if HAVE__SPAWNVP
   int result = _spawnvp (_P_WAIT, argv[0], (const char * const *) argv);
   if (result == -1)
     return 1;
@@ -7333,14 +7331,15 @@ static char *
 tempfile_name_new (char * name)
 {
   char *tmpfile = NULL;
-#ifdef HAVE_MKDTEMP
+
+#if HAVE_MKDTEMP
   char *tmpdir, *mytmpdir;
   size_t len;
 #endif
 
   assert ( name != NULL );
 
-#ifdef HAVE_MKDTEMP
+#if HAVE_MKDTEMP
 #define TEMPLATE "pcb.XXXXXXXX"
 
 
@@ -7393,7 +7392,7 @@ tempfile_name_new (char * name)
    * in case someone decides to create multiple temp names.
    */
   tmpfile = strdup (tmpnam (NULL));
-#ifdef __WIN32__
+#if __WIN32__
     {
       /* Guile doesn't like \ separators */
       char *c;
@@ -7416,12 +7415,13 @@ tempfile_name_new (char * name)
 static int
 tempfile_unlink (char * name)
 {
-#ifdef DEBUG
+#if DEBUG
     /* SDB says:  Want to keep old temp files for examiniation when debugging */
   return 0;
 #endif
 
-#ifdef HAVE_MKDTEMP
+#if HAVE_MKDTEMP
+
   int e, rc2 = 0;
   char *dname;
 
@@ -7606,7 +7606,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
   char **sources = NULL;
   int nsources = 0;
 
-#ifdef DEBUG
+#if DEBUG
       printf("ActionImport:  ===========  Entering ActionImport  ============\n");
 #endif
 
@@ -7775,7 +7775,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	cmd[6+i] = sources[i];
       cmd[6+nsources] = NULL;
 
-#ifdef DEBUG
+#if DEBUG
       printf("ActionImport:  ===========  About to run gnetlist  ============\n");
       printf("%s %s %s %s %s %s %s ...\n",
 	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
@@ -7787,7 +7787,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	  return 1;
 	}
 
-#ifdef DEBUG
+#if DEBUG
       printf("ActionImport:  ===========  About to run ActionExecuteFile, file = %s  ============\n", tmpfile);
 #endif
 
@@ -7884,7 +7884,7 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
   DeleteRats (false);
   AddAllRats (false, NULL);
 
-#ifdef DEBUG
+#if DEBUG
       printf("ActionImport:  ===========  Leaving ActionImport  ============\n");
 #endif
 

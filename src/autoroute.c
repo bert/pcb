@@ -49,8 +49,10 @@
  * larger expansion boxes that one might do a better job of routing in.
  *--------------------------------------------------------------------
  */
+
 #define NET_HEAP 1
-#ifdef HAVE_CONFIG_H
+
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -71,7 +73,6 @@
 #include "rtree.h"
 #include "misc.h"
 #include "mtspace.h"
-#include "mymem.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
@@ -80,7 +81,7 @@
 #include "vector.h"
 #include "pcb-printf.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -136,7 +137,7 @@ directionIncrement(direction_t dir)
 return dir;
 }
 
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
 HID *ddraw = NULL;
 static hidGC ar_gc = 0;
 #endif
@@ -417,7 +418,8 @@ RD_DrawThermal (routedata_t * rd, Coord X, Coord Y,
 		Cardinal group, Cardinal layer, routebox_t * subnet,
 		bool is_bad);
 static void ResetSubnet (routebox_t * net);
-#ifdef ROUTE_DEBUG
+
+#if ROUTE_DEBUG
 static int showboxen = -2;
 static int aabort = 0;
 static void showroutebox (routebox_t * rb);
@@ -886,7 +888,7 @@ FindRouteBoxOnLayerGroup (routedata_t * rd,
   return info.winner;
 }
 
-#ifdef ROUTE_DEBUG_VERBOSE
+#if ROUTE_DEBUG_VERBOSE
 static void
 DumpRouteBox (routebox_t * rb)
 {
@@ -1455,7 +1457,7 @@ bloat_routebox (routebox_t * rb)
 }
 
 
-#ifdef ROUTE_DEBUG		/* only for debugging expansion areas */
+#if ROUTE_DEBUG		/* only for debugging expansion areas */
 
 /* makes a line on the solder layer silk surrounding the box */
 void
@@ -3615,7 +3617,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 				       path->group, subnet, is_bad, last_x);
       if (path->flags.is_via)
 	{			/* if via, then add via */
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
 	  printf (" (vias)");
 #endif
 	  assert (point_in_box (&path->box, nextpoint.X, nextpoint.Y));
@@ -3675,7 +3677,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     Draw ();
 
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
   if (ddraw != NULL)
     ddraw->flush_debug_draw ();
 #endif
@@ -4165,7 +4167,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   while (!heap_is_empty (s.workheap))
     {
       edge_t *e = (edge_t *)heap_remove_smallest (s.workheap);
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
       if (aabort)
 	goto dontexpand;
 #endif
@@ -4463,26 +4465,29 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   vector_destroy (&edge_vec);
 
   /* we should have a path in best_path now */
-  if (s.best_path)
-    {
+  if (s.best_path) {
+
       routebox_t *rb;
-#ifdef ROUTE_VERBOSE
+
+#if ROUTE_VERBOSE
       printf ("%d:%d RC %.0f", ro++, seen, s.best_cost);
 #endif
+
+
       result.found_route = true;
       result.best_route_cost = s.best_cost;
       /* determine if the best path had conflicts */
       result.route_had_conflicts = 0;
-      if (AutoRouteParameters.with_conflicts && s.best_path->conflicts_with)
-	{
-	  while (!vector_is_empty (s.best_path->conflicts_with))
-	    {
+      if (AutoRouteParameters.with_conflicts && s.best_path->conflicts_with) {
+
+	  while (!vector_is_empty (s.best_path->conflicts_with)) {
+
 	      rb = (routebox_t *)vector_remove_last (s.best_path->conflicts_with);
 	      rb->flags.is_bad = 1;
 	      result.route_had_conflicts++;
 	    }
 	}
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
       if (result.route_had_conflicts)
 	printf (" (%d conflicts)", result.route_had_conflicts);
 #endif
@@ -4495,18 +4500,18 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	}
       else
 	{
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
 	  printf (" (too many in fact)");
 #endif
 	  result.found_route = false;
 	}
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
       printf ("\n");
 #endif
     }
   else
     {
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
       printf ("%d:%d NO PATH FOUND.\n", ro++, seen);
 #endif
       result.best_route_cost = s.best_cost;
@@ -4670,7 +4675,7 @@ RouteAll (routedata_t * rd)
   struct routeone_status ros;
   bool rip;
   int request_cancel;
-#ifdef NET_HEAP
+#if NET_HEAP
   heap_t *net_heap;
 #endif
   heap_t *this_pass, *next_pass, *tmp;
@@ -4685,7 +4690,7 @@ RouteAll (routedata_t * rd)
    * the subsequent costs more representative */
   this_pass = heap_create ();
   next_pass = heap_create ();
-#ifdef NET_HEAP
+#if NET_HEAP
   net_heap = heap_create ();
 #endif
   LIST_LOOP (rd->first_net, different_net, net);
@@ -4709,7 +4714,7 @@ RouteAll (routedata_t * rd)
   /* refinement/finishing passes */
   for (i = 0; i <= passes + smoothes; i++)
     {
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
       if (i > 0 && i <= passes)
 	printf ("--------- STARTING REFINEMENT PASS %d ------------\n", i);
       else if (i > passes)
@@ -4723,7 +4728,7 @@ RouteAll (routedata_t * rd)
       this_heap_size = heap_size (this_pass);
       for (this_heap_item = 0; !heap_is_empty (this_pass); this_heap_item++)
 	{
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
 	  if (aabort)
 	    break;
 #endif
@@ -4813,7 +4818,7 @@ RouteAll (routedata_t * rd)
 	  /* and re-route! */
 	  total_net_cost = 0;
 	  /* only route that which isn't fully routed */
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
 	  if (ras.total_subnets == 0 || aabort)
 #else
 	  if (ras.total_subnets == 0)
@@ -4827,7 +4832,7 @@ RouteAll (routedata_t * rd)
 	   * some of them are unreachable from the first subnet. */
 	  LIST_LOOP (net, same_net, p);
 	  {
-#ifdef NET_HEAP
+#if NET_HEAP
 	    BoxType b = shrink_routebox (p);
 	    /* using a heap allows us to start from smaller objects and
 	     * end at bigger ones. also prefer to start at planes, then pads */
@@ -4934,7 +4939,7 @@ RouteAll (routedata_t * rd)
 	 i, ras.routed_subnets, ras.total_subnets, this_cost,
 	 ras.conflict_subnets, ras.failed, ras.ripped);
 #endif
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
       if (aabort)
 	break;
 #endif
@@ -4955,7 +4960,7 @@ RouteAll (routedata_t * rd)
 out:
   heap_destroy (&this_pass);
   heap_destroy (&next_pass);
-#ifdef NET_HEAP
+#if NET_HEAP
   heap_destroy (&net_heap);
 #endif
 
@@ -5166,7 +5171,7 @@ AutoRoute (bool selected)
   total_wire_length = 0;
   total_via_count = 0;
 
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
   ddraw = gui->request_debug_draw ();
   if (ddraw != NULL)
     {
@@ -5201,7 +5206,7 @@ AutoRoute (bool selected)
 	  i++;
       }
       END_LOOP;
-#ifdef ROUTE_VERBOSE
+#if ROUTE_VERBOSE
       printf ("%d nets!\n", i);
 #endif
       if (i == 0)
@@ -5283,7 +5288,7 @@ AutoRoute (bool selected)
 				      line->Point2.Y, line->group2);
 	  if (!a || !b)
 	    {
-#ifdef DEBUG_STALE_RATS
+#if DEBUG_STALE_RATS
 	      AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	      ASSIGN_FLAG (SELECTEDFLAG, true, line);
 	      DrawRat (line, 0);
@@ -5334,7 +5339,7 @@ donerouting:
 	  r_search (rd->layergrouptree[i], &big, NULL, ripout_livedraw_obj_cb, NULL);
 	}
     }
-#ifdef ROUTE_DEBUG
+#if ROUTE_DEBUG
   if (ddraw != NULL)
     {
       ddraw->graphics->destroy_gc (ar_gc);

@@ -27,7 +27,7 @@
 /* functions used by paste- and move/copy buffer
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -43,20 +43,17 @@
 #include "crosshair.h"
 #include "data.h"
 #include "error.h"
-#include "mymem.h"
 #include "mirror.h"
 #include "misc.h"
 #include "parse_l.h"
 #include "polygon.h"
-#include "rats.h"
 #include "rotate.h"
 #include "remove.h"
 #include "rtree.h"
-#include "search.h"
 #include "select.h"
 #include "set.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -595,7 +592,7 @@ make_footprint_hash ()
      in brackets in the description.  */
   for (i=0; i<Library.MenuN; i++)
     {
-#ifdef DEBUG
+#if DEBUG
   printf("In make_footprint_hash, looking for footprints in %s\n",
 	 Library.Menu[i].directory);
 #endif
@@ -607,7 +604,7 @@ make_footprint_hash ()
 	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
           /* file */
 	    {
-#ifdef DEBUG
+#if DEBUG
 /*	      printf(" ... Examining file %s\n", Library.Menu[i].Entry[j].AllocatedMemory); */
 #endif
 	      fp = strrchr (Library.Menu[i].Entry[j].AllocatedMemory, '/');
@@ -620,7 +617,7 @@ make_footprint_hash ()
 	      else
 		fp = Library.Menu[i].Entry[j].AllocatedMemory;
 
-#ifdef DEBUG
+#if DEBUG
 /* 	      printf(" ... found file footprint %s\n",  fp); */
 #endif
 
@@ -653,7 +650,7 @@ make_footprint_hash ()
   footprint_hash_size = num_entries;
   qsort (footprint_hash, num_entries, sizeof(footprint_hash[0]), footprint_hash_cmp);
 /*
-#ifdef DEBUG
+#if DEBUG
   printf("       found footprints:  \n");
   for (i=0; i<num_entries; i++)
     printf("[%s]\n", footprint_hash[i].footprint);
@@ -742,7 +739,7 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
       return i ? 0 : 1;
     }
 
-#ifdef DEBUG
+#if DEBUG
   {
     int j;
     printf("Library path: %s\n", Settings.LibraryPath);

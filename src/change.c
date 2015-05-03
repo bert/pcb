@@ -28,7 +28,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -38,25 +38,21 @@
 #include "global.h"
 
 #include "change.h"
-#include "create.h"
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "mymem.h"
 #include "misc.h"
 #include "mirror.h"
 #include "polygon.h"
-#include "rats.h"
 #include "remove.h"
 #include "rtree.h"
-#include "search.h"
 #include "select.h"
 #include "set.h"
 #include "thermal.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -1015,7 +1011,7 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element, int which
 {
   char *old = Element->Name[which].TextString;
 
-#ifdef DEBUG
+#if DEBUG
   printf("In ChangeElementText, updating old TextString %s to %s\n", old, new_name);
 #endif
 

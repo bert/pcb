@@ -29,7 +29,6 @@
 #define PCH_TOPOROUTER_H
 
 #include "data.h"
-#include "macro.h"
 #include "autoroute.h"
 #include "box.h"
 #include "create.h"
@@ -39,7 +38,6 @@
 #include "heap.h"
 #include "rtree.h"
 #include "misc.h"
-#include "mymem.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
@@ -49,7 +47,6 @@
 
 #include "gts.h"
 
-#include <stdlib.h>
 #include <getopt.h>
 
 #include <sys/time.h>

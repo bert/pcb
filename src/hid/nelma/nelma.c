@@ -51,14 +51,9 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <time.h>
 
@@ -68,7 +63,6 @@
 #include "misc.h"
 #include "rats.h"
 
-#include "hid.h"
 #include "hid_draw.h"
 #include "../hidint.h"
 #include "hid/common/hidnogui.h"
@@ -78,7 +72,7 @@
 
 #include "hid/common/hidinit.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -618,7 +612,7 @@ nelma_start_png(const char *basename, const char *suffix)
 static void
 nelma_finish_png()
 {
-#ifdef HAVE_GDIMAGEPNG
+#if HAVE_GDIMAGEPNG
 	gdImagePng(nelma_im, nelma_f);
 #else
 	Message("NELMA: PNG not supported by gd. Can't write layer mask.\n");

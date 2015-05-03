@@ -28,28 +28,22 @@
 /* drawing routines
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "global.h"
 #include "hid_draw.h"
 
-/*#include "clip.h"*/
-#include "compat.h"
-#include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "mymem.h"
 #include "misc.h"
 #include "rotate.h"
 #include "rtree.h"
-#include "search.h"
-#include "select.h"
 #include "print.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

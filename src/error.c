@@ -30,7 +30,7 @@
  * on several architectures
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -39,10 +39,10 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <signal.h>
-#ifdef HAVE_STRING_H
+#if HAVE_STRING_H
 #include <string.h>
 #endif
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <fcntl.h>
@@ -55,7 +55,7 @@
 
 #include "misc.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -72,7 +72,7 @@ extern int sys_nerr;		/* number of messages available from array */
 
 /* the list is already defined for some OS */
 #if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__linux__) && !defined(__DragonFly__)
-#ifdef USE_SYS_ERRLIST
+#if USE_SYS_ERRLIST
 extern char *sys_errlist[];	/* array of error messages */
 #endif
 #endif
@@ -100,7 +100,7 @@ OpenErrorMessage (char *Filename)
   char *utf8 = NULL;
 
   utf8_dup_string (&utf8, Filename);
-#ifdef USE_SYS_ERRLIST
+#if USE_SYS_ERRLIST
   Message (_("Can't open file\n"
 	     "   '%s'\nfopen() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
@@ -120,7 +120,7 @@ PopenErrorMessage (char *Filename)
   char *utf8 = NULL;
 
   utf8_dup_string (&utf8, Filename);
-#ifdef USE_SYS_ERRLIST
+#if USE_SYS_ERRLIST
   Message (_("Can't execute command\n"
 	     "   '%s'\npopen() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
@@ -140,7 +140,7 @@ OpendirErrorMessage (char *DirName)
   char *utf8 = NULL;
 
   utf8_dup_string (&utf8, DirName);
-#ifdef USE_SYS_ERRLIST
+#if USE_SYS_ERRLIST
   Message (_("Can't scan directory\n"
 	     "   '%s'\nopendir() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
@@ -160,7 +160,7 @@ ChdirErrorMessage (char *DirName)
   char *utf8 = NULL;
 
   utf8_dup_string (&utf8, DirName);
-#ifdef USE_SYS_ERRLIST
+#if USE_SYS_ERRLIST
   Message (_("Can't change working directory to\n"
 	     "   '%s'\nchdir() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
@@ -200,7 +200,7 @@ CatchSignal (int Signal)
 
   switch (Signal)
     {
-#ifdef SIGHUP
+#if SIGHUP
     case SIGHUP:
       s = "SIGHUP";
       break;
@@ -208,7 +208,7 @@ CatchSignal (int Signal)
     case SIGINT:
       s = "SIGINT";
       break;
-#ifdef SIGQUIT
+#if SIGQUIT
     case SIGQUIT:
       s = "SIGQUIT";
       break;

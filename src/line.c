@@ -25,14 +25,12 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <math.h>
 #include <setjmp.h>
 #include <stdlib.h>
-
 
 #include "global.h"
 #include "data.h"
@@ -42,7 +40,7 @@
 #include "misc.h"
 #include "rtree.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

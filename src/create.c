@@ -27,11 +27,10 @@
 /* functions used to create vias, pins ...
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <memory.h>
 #include <setjmp.h>
 #include <stdlib.h>
 
@@ -39,20 +38,17 @@
 
 #include "create.h"
 #include "data.h"
-#include "draw.h"
 #include "error.h"
-#include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
 #include "pcb-printf.h"
-#include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 #include "set.h"
 #include "undo.h"
 #include "vendor.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -676,7 +672,7 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
 {
   ElementType *Element;
 
-#ifdef DEBUG
+#if DEBUG
   printf("Entered CreateNewElement.....\n");
 #endif
 
@@ -698,7 +694,7 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
   Element->Flags = Flags;
   Element->ID = ID++;
 
-#ifdef DEBUG
+#if DEBUG
   printf("  .... Leaving CreateNewElement.\n");
 #endif
 

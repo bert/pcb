@@ -27,17 +27,14 @@
 
 /* main program, initializes some stuff and handles user input
  */
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#ifdef HAVE_LOCALE_H
+#if HAVE_LOCALE_H
 #include <locale.h>  /* setlocale() and LC_ALL */
 #endif
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
+
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -64,7 +61,7 @@
 /* This next one is so we can print the help messages. */
 #include "hid/hidint.h"
 
-#ifdef HAVE_DBUS
+#if HAVE_DBUS
 #include "dbus.h"
 #endif
 
@@ -72,14 +69,13 @@
 #include <libintl.h>
 #endif
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
 #define PCBLIBPATH ".:" PCBLIBDIR
 
-
-#ifdef HAVE_LIBSTROKE
+#if HAVE_LIBSTROKE
 extern void stroke_init (void);
 #endif
 
@@ -102,7 +98,7 @@ InitHandler (void)
   /* calling external program by popen() may cause a PIPE signal,
    * so we ignore it
    */
-#ifdef SIGPIPE
+#if SIGPIPE
   signal (SIGPIPE, SIG_IGN);
 #endif
 }
@@ -1233,7 +1229,7 @@ on Windows builds, an empty string (to disable this feature).
 %end-doc
 */
   SSET (LibraryContentsCommand,
-#ifdef __WIN32__
+#if __WIN32__
 	"",
 #else
 	"ListLibraryContents '%p' '%f'",
@@ -1673,7 +1669,7 @@ InitPaths (char *argv0)
 	haspath = 1;
     }
 
-#ifdef DEBUG
+#if DEBUG
   printf ("InitPaths (%s): haspath = %d\n", argv0, haspath);
 #endif
 
@@ -1698,7 +1694,7 @@ InitPaths (char *argv0)
 	  for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
 	       p = strtok (NULL, PCB_PATH_DELIMETER))
 	    {
-#ifdef DEBUG
+#if DEBUG
 	      printf ("Looking for %s in %s\n", argv0, p);
 #endif
 	      if ( (tmps = (char *)malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
@@ -1710,7 +1706,7 @@ InitPaths (char *argv0)
 	      r = stat (tmps, &sb);
 	      if (r == 0)
 		{
-#ifdef DEBUG
+#if DEBUG
 		  printf ("Found it:  \"%s\"\n", tmps);
 #endif
 		  bindir = lrealpath (tmps);
@@ -1724,7 +1720,7 @@ InitPaths (char *argv0)
 	}
     }
 
-#ifdef DEBUG
+#if DEBUG
   printf ("InitPaths():  bindir = \"%s\"\n", bindir);
 #endif
 
@@ -1741,7 +1737,7 @@ InitPaths (char *argv0)
       if (t2 != NULL)
         *t2 = '\0';
 
-#ifdef DEBUG
+#if DEBUG
       printf ("After stripping off the executible name, we found\n");
       printf ("bindir = \"%s\"\n", bindir);
 #endif
@@ -1800,7 +1796,7 @@ InitPaths (char *argv0)
     }
   sprintf (pcblibpath, "%s%s%s", stdlibdir, PCB_PATH_DELIMETER,  venlibdir);
 
-#ifdef DEBUG
+#if DEBUG
   printf ("bindir      = %s\n", bindir);
   printf ("pcblibdir   = %s\n", pcblibdir);
   printf ("stdlibdir   = %s\n", stdlibdir);
@@ -2018,7 +2014,7 @@ main (int argc, char *argv[])
       hid_action ("LibraryChanged");
     }
 
-    #ifdef HAVE_LIBSTROKE
+    #if HAVE_LIBSTROKE
     stroke_init ();
     #endif
 
@@ -2047,7 +2043,7 @@ main (int argc, char *argv[])
 
     EnableAutosave ();
 
-    #ifdef DEBUG
+    #if DEBUG
     printf ("Settings.LibraryDir        = \"%s\"\n", Settings.LibraryDir);
     printf ("Settings.FontPath          = \"%s\"\n", Settings.FontPath);
     printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
