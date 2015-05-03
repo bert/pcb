@@ -627,44 +627,49 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   if (the_file)
     ps_start_file (the_file);
 
-  if (global.fillpage)
-    {
-      double zx, zy;
-      if (PCB->MaxWidth > PCB->MaxHeight)
-	{
-	  zx = global.ps_height / PCB->MaxWidth;
-	  zy = global.ps_width  / PCB->MaxHeight;
-	}
-      else
-	{
-	  zx = global.ps_height / PCB->MaxHeight;
-	  zy = global.ps_width  / PCB->MaxWidth;
-	}
-      global.scale_factor *= MIN (zx, zy);
+  if (global.fillpage) {
+
+    double zx, zy;
+
+    if (PCB->MaxWidth > PCB->MaxHeight) {
+
+      zx = global.ps_height / PCB->MaxWidth;
+      zy = global.ps_width  / PCB->MaxHeight;
     }
+    else {
+
+      zx = global.ps_height / PCB->MaxHeight;
+      zy = global.ps_width  / PCB->MaxWidth;
+    }
+    global.scale_factor *= MIN (zx, zy);
+  }
 
   memset (global.print_group, 0, sizeof (global.print_group));
   memset (global.print_layer, 0, sizeof (global.print_layer));
 
   global.outline_layer = NULL;
 
-  for (i = 0; i < max_copper_layer; i++)
-    {
-      LayerType *layer = PCB->Data->Layer + i;
-      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	global.print_group[GetLayerGroupNumberByNumber (i)] = 1;
+  for (i = 0; i < max_copper_layer; i++) {
 
-      if (strcmp (layer->Name, "outline") == 0 ||
-	  strcmp (layer->Name, "route") == 0)
-	{
-	  global.outline_layer = layer;
-	}
-    }
-  global.print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
-  global.print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
-  for (i = 0; i < max_copper_layer; i++)
-    if (global.print_group[GetLayerGroupNumberByNumber (i)])
+    LayerType *layer = PCB->Data->Layer + i;
+    if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
+      global.print_group[GetLayerGroupNumberByNumber (i)] = 1;
+
+    if (strcmp (layer->Name, "outline") == 0 ||
+      strcmp (layer->Name, "route") == 0)
+      {
+        global.outline_layer = layer;
+      }
+  }
+
+  global.print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
+  global.print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
+
+  for (i = 0; i < max_copper_layer; i++) {
+    if (global.print_group[GetLayerGroupNumberByNumber (i)]) {
       global.print_layer[i] = 1;
+    }
+  }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
@@ -679,8 +684,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   global.region.X2 = PCB->MaxWidth;
   global.region.Y2 = PCB->MaxHeight;
 
-  if (!global.multi_file)
-    {
+  if (!global.multi_file) {
+
       /* %%Page DSC requires both a label and an ordinal */
       fprintf (the_file, "%%%%Page: TableOfContents 1\n");
       fprintf (the_file, "/Times-Roman findfont 24 scalefont setfont\n");
@@ -691,7 +696,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       global.doing_toc = 1;
       global.pagecount = 1;  /* 'pagecount' is modified by hid_expose_callback() call */
       hid_expose_callback (&ps_hid, &global.region, 0);
-    }
+  }
 
   global.pagecount = 1; /* Reset 'pagecount' if single file */
   global.doing_toc = 0;
@@ -786,9 +791,9 @@ ps_set_layer (const char *name, int group, int empty)
 {
   static int lastgroup = -1;
   time_t currenttime;
-  int idx = (group >= 0 && group < max_group)
-            ? PCB->LayerGroups.Entries[group][0]
-            : group;
+
+  int idx = (group >= 0 && group < max_group) ? PCB->LayerGroups.Entries[group][0] : group;
+
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
@@ -875,13 +880,15 @@ ps_set_layer (const char *name, int group, int empty)
        */
       fprintf (global.f, "%%%%Page: %s %d\n", layer_type_to_file_name(idx, FNS_fixed), global.pagecount);
 
-      if (global.mirror)
-	mirror_this = !mirror_this;
-      if (global.automirror
-	  &&
-	  ((idx >= 0 && group == GetLayerGroupNumberByNumber (solder_silk_layer))
-	   || (idx < 0 && SL_SIDE (idx) == SL_BOTTOM_SIDE)))
-	mirror_this = !mirror_this;
+      if (global.mirror) {
+        mirror_this = !mirror_this;
+      }
+
+      if (global.automirror &&
+        ((idx >= 0 && group == GetLayerGroupNumberBySide (BOTTOM_SIDE)) ||
+        (idx < 0 && SL_SIDE (idx) == SL_BOTTOM_SIDE))) {
+	    mirror_this = !mirror_this;
+      }
 
       fprintf (global.f, "/Helvetica findfont 10 scalefont setfont\n");
       if (global.legend)

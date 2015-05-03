@@ -149,13 +149,14 @@ eps_get_export_options (int *n)
   return eps_attribute_list;
 }
 
-static int comp_layer, solder_layer;
+static int top_group, bottom_group;
 
 static int
 group_for_layer (int l)
 {
-  if (l < max_copper_layer + 2 && l >= 0)
+  if (l < max_copper_layer + 2 && l >= 0) {
     return GetLayerGroupNumberByNumber (l);
+  }
   /* else something unique */
   return max_group + 3 + l;
 }
@@ -163,21 +164,23 @@ group_for_layer (int l)
 static int
 layer_sort (const void *va, const void *vb)
 {
-  int a = *(int *) va;
-  int b = *(int *) vb;
+  int a  = *(int *) va;
+  int b  = *(int *) vb;
   int al = group_for_layer (a);
   int bl = group_for_layer (b);
-  int d = bl - al;
+  int d  = bl - al;
 
-  if (a >= 0 && a <= max_copper_layer + 1)
-    {
-      int aside = (al == solder_layer ? 0 : al == comp_layer ? 2 : 1);
-      int bside = (bl == solder_layer ? 0 : bl == comp_layer ? 2 : 1);
-      if (bside != aside)
-	return bside - aside;
+  if (a >= 0 && a <= max_copper_layer + 1) {
+
+    int aside = (al == bottom_group ? 0 : al == top_group ? 2 : 1);
+    int bside = (bl == bottom_group ? 0 : bl == top_group ? 2 : 1);
+    if (bside != aside) {
+      return bside - aside;
     }
-  if (d)
+  }
+  if (d) {
     return d;
+  }
   return b - a;
 }
 
@@ -205,64 +208,75 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-  if (options[HA_only_visible].int_value)
+  if (options[HA_only_visible].int_value) {
     bounds = GetDataBoundingBox (PCB->Data);
-  else
+  }
+  else {
     bounds = &region;
+  }
 
   memset (print_group, 0, sizeof (print_group));
   memset (print_layer, 0, sizeof (print_layer));
 
   /* Figure out which layers actually have stuff on them.  */
-  for (i = 0; i < max_copper_layer; i++)
-    {
-      LayerType *layer = PCB->Data->Layer + i;
-      if (layer->On)
-	if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	  print_group[GetLayerGroupNumberByNumber (i)] = 1;
+  for (i = 0; i < max_copper_layer; i++) {
+
+    LayerType *layer = PCB->Data->Layer + i;
+    if (layer->On) {
+      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN) {
+        print_group[GetLayerGroupNumberByNumber (i)] = 1;
+      }
     }
+  }
 
   /* Now, if only one layer has real stuff on it, we can use the fast
      erase logic.  Otherwise, we have to use the expensive multi-mask
      erase.  */
   fast_erase = 0;
-  for (i = 0; i < max_group; i++)
-    if (print_group[i])
+  for (i = 0; i < max_group; i++) {
+    if (print_group[i]) {
       fast_erase ++;
+    }
+  }
 
   /* If NO layers had anything on them, at least print the component
      layer to get the pins.  */
-  if (fast_erase == 0)
-    {
-      print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
+  if (fast_erase == 0) {
+
+      print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
       fast_erase = 1;
-    }
+  }
 
   /* "fast_erase" is 1 if we can just paint white to erase.  */
   fast_erase = fast_erase == 1 ? 1 : 0;
 
   /* Now, for each group we're printing, mark its layers for
      printing.  */
-  for (i = 0; i < max_copper_layer; i++)
-    if (print_group[GetLayerGroupNumberByNumber (i)])
+  for (i = 0; i < max_copper_layer; i++) {
+    if (print_group[GetLayerGroupNumberByNumber (i)]) {
       print_layer[i] = 1;
+    }
+  }
 
   if (fast_erase) {
     eps_hid.poly_before = 1;
     eps_hid.poly_after = 0;
-  } else {
+  }
+  else {
     eps_hid.poly_before = 0;
     eps_hid.poly_after = 1;
   }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   as_shown = options[HA_as_shown].int_value;
-  if (!options[HA_as_shown].int_value)
-    {
-      comp_layer = GetLayerGroupNumberByNumber (component_silk_layer);
-      solder_layer = GetLayerGroupNumberByNumber (solder_silk_layer);
+
+  if (!options[HA_as_shown].int_value) {
+
+      top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+      bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
       qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
-    }
+  }
+
   fprintf (f, "%%!PS-Adobe-3.0 EPSF-3.0\n");
   linewidth = -1;
   lastcap = -1;
@@ -272,15 +286,15 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
 #define pcb2em(x) 1 + COORD_TO_INCH (x) * 72.0 * options[HA_scale].real_value
   fprintf (f, "%%%%BoundingBox: 0 0 %lli %lli\n",
-	   llrint (pcb2em (bounds->X2 - bounds->X1)),
-	   llrint (pcb2em (bounds->Y2 - bounds->Y1)) );
+       llrint (pcb2em (bounds->X2 - bounds->X1)),
+       llrint (pcb2em (bounds->Y2 - bounds->Y1)) );
   fprintf (f, "%%%%HiResBoundingBox: 0.000000 0.000000 %.6f %.6f\n",
-	   pcb2em (bounds->X2 - bounds->X1),
-	   pcb2em (bounds->Y2 - bounds->Y1));
+       pcb2em (bounds->X2 - bounds->X1),
+       pcb2em (bounds->Y2 - bounds->Y1));
 #undef pcb2em
   fprintf (f, "%%%%Pages: 1\n");
   fprintf (f,
-	   "save countdictstack mark newpath /showpage {} def /setpagedevice {pop} def\n");
+       "save countdictstack mark newpath /showpage {} def /setpagedevice {pop} def\n");
   fprintf (f, "%%%%EndProlog\n");
   fprintf (f, "%%%%Page: 1 1\n");
   fprintf (f, "%%%%BeginDocument: %s\n\n", filename);
@@ -289,27 +303,30 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "1 dup neg scale\n");
   fprintf (f, "%g dup scale\n", options[HA_scale].real_value);
   pcb_fprintf (f, "%mi %mi translate\n", -bounds->X1, -bounds->Y2);
-  if (options[HA_as_shown].int_value && Settings.ShowSolderSide)
+
+  if (options[HA_as_shown].int_value && Settings.ShowSolderSide) {
     pcb_fprintf (f, "-1 1 scale %mi 0 translate\n", bounds->X1 - bounds->X2);
+  }
+
   linewidth = -1;
   lastcap = -1;
   lastcolor = -1;
 #define Q (Coord) MIL_TO_COORD(10)
   pcb_fprintf (f,
-	   "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
-	   bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
-	   bounds->X2 + Q, bounds->Y2 + Q, bounds->X2 + Q, bounds->Y1 - Q,
-	   bounds->X1 - Q, bounds->Y1 - Q);
+       "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
+       bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
+       bounds->X2 + Q, bounds->Y2 + Q, bounds->X2 + Q, bounds->Y1 - Q,
+       bounds->X1 - Q, bounds->Y1 - Q);
 #undef Q
   fprintf (f, "/t { moveto lineto stroke } bind def\n");
   fprintf (f, "/tc { moveto lineto strokepath nclip } bind def\n");
   fprintf (f, "/r { /y2 exch def /x2 exch def /y1 exch def /x1 exch def\n");
   fprintf (f,
-	   "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
+       "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
   fprintf (f, "/c { 0 360 arc fill } bind def\n");
   fprintf (f, "/cc { 0 360 arc nclip } bind def\n");
   fprintf (f,
-	   "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
+       "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
 
   hid_expose_callback (&eps_hid, bounds, 0);
 
@@ -323,6 +340,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
   PCB->Flags = save_thindraw;
 }
+
 
 static void
 eps_do_export (HID_Attr_Val * options)

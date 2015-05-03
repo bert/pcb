@@ -228,7 +228,8 @@ AdjustTwoLine (bool way)
 struct drc_info
 {
   LineType *line;
-  bool solder;
+  bool bottom_side;
+  bool top_side;
   jmp_buf env;
 };
 
@@ -249,7 +250,7 @@ drcPad_callback (const BoxType * b, void *cl)
   PadType *pad = (PadType *) b;
   struct drc_info *i = (struct drc_info *) cl;
 
-  if (TEST_FLAG (ONSOLDERFLAG, pad) == i->solder &&
+  if (TEST_FLAG (ONSOLDERFLAG, pad) == i->bottom_side &&
       !TEST_FLAG (FOUNDFLAG, pad) && LinePadIntersect (i->line, pad))
     longjmp (i->env, 1);
   return 1;
@@ -281,7 +282,7 @@ drcArc_callback (const BoxType * b, void *cl)
  * adjusts the end point until there is no intersection or
  * it winds up back at the start. If way is false it checks
  * straight start, 45 end lines, otherwise it checks 45 start,
- * straight end. 
+ * straight end.
  *
  * It returns the straight-line length of the best answer, and
  * changes the position of the input point to the best answer.
@@ -294,7 +295,7 @@ drc_lines (PointType *end, bool way)
   Coord dx, dy, temp, last, length;
   Coord temp2, last2, length2;
   LineType line1, line2;
-  Cardinal group, comp;
+  Cardinal group;
   struct drc_info info;
   bool two_lines, x_is_long, blocker;
   PointType ans;
@@ -306,125 +307,133 @@ drc_lines (PointType *end, bool way)
   line1.Thickness = Settings.LineThickness + 2 * (PCB->Bloat + 1);
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;
-  line1.Point1.X = Crosshair.AttachedLine.Point1.X;
-  line1.Point1.Y = Crosshair.AttachedLine.Point1.Y;
+  line1.Point1.X  = Crosshair.AttachedLine.Point1.X;
+  line1.Point1.Y  = Crosshair.AttachedLine.Point1.Y;
   dy = end->Y - line1.Point1.Y;
   dx = end->X - line1.Point1.X;
-  if (abs (dx) > abs (dy))
-    {
+
+  if (abs (dx) > abs (dy)) {
+
       x_is_long = true;
       length = abs (dx);
-    }
-  else
-    {
+  }
+  else {
+
       x_is_long = false;
       length = abs (dy);
-    }
+  }
+
   group = GetGroupOfLayer (INDEXOFCURRENT);
-  comp = max_group + 10;	/* this out-of-range group might save a call */
-  if (GetLayerGroupNumberByNumber (solder_silk_layer) == group)
-    info.solder = true;
-  else
-    {
-      info.solder = false;
-      comp = GetLayerGroupNumberByNumber (component_silk_layer);
-    }
+
+  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == group);
+  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == group);
+
   temp = length;
   /* assume the worst */
   best = 0.0;
   ans.X = line1.Point1.X;
   ans.Y = line1.Point1.Y;
-  while (length != last)
-    {
+  while (length != last) {
+
       last = length;
-      if (x_is_long)
-	{
+      if (x_is_long) {
+
 	  dx = SGN (dx) * length;
 	  dy = end->Y - line1.Point1.Y;
 	  length2 = abs (dy);
-	}
-      else
-	{
+      }
+      else {
+
 	  dy = SGN (dy) * length;
 	  dx = end->X - line1.Point1.X;
 	  length2 = abs (dx);
-	}
+      }
+
       temp2 = length2;
       f2 = 1.0;
       s2 = 0.5;
       last2 = -1;
       blocker = true;
-      while (length2 != last2)
-	{
+      while (length2 != last2) {
+
 	  if (x_is_long)
 	    dy = SGN (dy) * length2;
 	  else
 	    dx = SGN (dx) * length2;
 	  two_lines = true;
-	  if (abs (dx) > abs (dy) && x_is_long)
-	    {
+
+	  if (abs (dx) > abs (dy) && x_is_long) {
+
 	      line1.Point2.X = line1.Point1.X +
 		(way ? SGN (dx) * abs (dy) : dx - SGN (dx) * abs (dy));
 	      line1.Point2.Y = line1.Point1.Y + (way ? dy : 0);
-	    }
-	  else if (abs (dy) >= abs (dx) && !x_is_long)
-	    {
+      }
+	  else if (abs (dy) >= abs (dx) && !x_is_long) {
+
 	      line1.Point2.X = line1.Point1.X + (way ? dx : 0);
 	      line1.Point2.Y = line1.Point1.Y +
 		(way ? SGN (dy) * abs (dx) : dy - SGN (dy) * abs (dx));
-	    }
-	  else if (x_is_long)
-	    {
-	      /* we've changed which axis is long, so only do one line */
-	      line1.Point2.X = line1.Point1.X + dx;
-	      line1.Point2.Y =
-		line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
-	      two_lines = false;
-	    }
-	  else
-	    {
-	      /* we've changed which axis is long, so only do one line */
-	      line1.Point2.Y = line1.Point1.Y + dy;
-	      line1.Point2.X =
-		line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
-	      two_lines = false;
-	    }
+      }
+	  else if (x_is_long) {
+
+        /* we've changed which axis is long, so only do one line */
+        line1.Point2.X = line1.Point1.X + dx;
+        line1.Point2.Y =
+        line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
+        two_lines = false;
+      }
+	  else {
+
+        /* we've changed which axis is long, so only do one line */
+        line1.Point2.Y = line1.Point1.Y + dy;
+        line1.Point2.X =
+        line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
+        two_lines = false;
+      }
+
 	  line2.Point1.X = line1.Point2.X;
 	  line2.Point1.Y = line1.Point2.Y;
-	  if (!two_lines)
-	    {
+
+	  if (!two_lines) {
+
 	      line2.Point2.Y = line1.Point2.Y;
 	      line2.Point2.X = line1.Point2.X;
-	    }
-	  else
-	    {
+      }
+	  else {
+
 	      line2.Point2.X = line1.Point1.X + dx;
 	      line2.Point2.Y = line1.Point1.Y + dy;
-	    }
+      }
+
 	  SetLineBoundingBox (&line1);
 	  SetLineBoundingBox (&line2);
 	  last2 = length2;
-	  if (setjmp (info.env) == 0)
-	    {
-	      info.line = &line1;
-	      r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL,
-			drcVia_callback, &info);
-	      r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL,
-			drcVia_callback, &info);
-	      if (info.solder || comp == group)
-		r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL,
-			  drcPad_callback, &info);
-	      if (two_lines)
-		{
-		  info.line = &line2;
-		  r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL,
-			    drcVia_callback, &info);
-		  r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL,
-			    drcVia_callback, &info);
-		  if (info.solder || comp == group)
-		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
-			      drcPad_callback, &info);
-		}
+
+	  if (setjmp (info.env) == 0) {
+
+        info.line = &line1;
+        r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL,
+                  drcVia_callback, &info);
+        r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL,
+                  drcVia_callback, &info);
+
+        if (info.bottom_side || info.top_side) {
+          r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL,
+                    drcPad_callback, &info);
+        }
+
+        if (two_lines) {
+
+          info.line = &line2;
+          r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL,
+                    drcVia_callback, &info);
+          r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL,
+                    drcVia_callback, &info);
+          if (info.bottom_side || info.top_side) {
+            r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
+                      drcPad_callback, &info);
+          }
+        }
 	      GROUP_LOOP (PCB->Data, group);
 	      {
 		info.line = &line1;

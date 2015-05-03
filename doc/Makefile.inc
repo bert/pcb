@@ -119,11 +119,11 @@ SUFFIXES = .dvi .eps .pcb .pdf .png .tab .tex
 
 %.png %.eps : %.pcb
 	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
-	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+	$(PERL) $(top_srcdir)/doc/eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.fp
 	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
-	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+	$(PERL) $(top_srcdir)/doc/eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.sch
 if MISSING_GSCHEM
@@ -133,7 +133,7 @@ if MISSING_GSCHEM
 	@echo "Changes to $< will be ignored"
 else
 	$(GSCHEM) -p -o $*.eps -s ./print-eps.scm $<
-	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+	$(PERL) $(top_srcdir)/doc/eps2png -resolution 100 -output $*.png $*.eps
 endif
 
 %.png %.eps : %.sym
@@ -144,7 +144,7 @@ if MISSING_GSCHEM
 	@echo "Changes to $< will be ignored"
 else
 	$(GSCHEM) -p -o $*.eps -s $(srcdir)/print-eps.scm $<
-	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+	$(PERL) $(top_srcdir)/doc/eps2png -resolution 100 -output $*.png $*.eps
 endif
 
 .eps.pdf :

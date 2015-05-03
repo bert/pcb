@@ -520,7 +520,7 @@ element_callback (const BoxType * b, void *cl)
 void
 PrintAssembly (int side, const BoxType * drawn_area)
 {
-  int side_group = GetLayerGroupNumberByNumber (max_copper_layer + side);
+  int side_group = GetLayerGroupNumberBySide (side);
 
   doing_assy = true;
   gui->graphics->set_draw_faded (Output.fgGC, 1);
@@ -539,7 +539,7 @@ static void
 DrawEverything (const BoxType *drawn_area)
 {
   int i, ngroups, side;
-  int component, solder;
+  int top_group, bottom_group;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
   /* This is the reverse of the order in which we draw them.  */
@@ -551,19 +551,20 @@ DrawEverything (const BoxType *drawn_area)
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
 
   memset (do_group, 0, sizeof (do_group));
-  for (ngroups = 0, i = 0; i < max_copper_layer; i++)
-    {
-      LayerType *l = LAYER_ON_STACK (i);
-      int group = GetLayerGroupNumberByNumber (LayerStack[i]);
-      if (l->On && !do_group[group])
-	{
-	  do_group[group] = 1;
-	  drawn_groups[ngroups++] = group;
-	}
-    }
 
-  component = GetLayerGroupNumberByNumber (component_silk_layer);
-  solder = GetLayerGroupNumberByNumber (solder_silk_layer);
+  for (ngroups = 0, i = 0; i < max_copper_layer; i++) {
+
+    LayerType *l = LAYER_ON_STACK (i);
+    int group = GetLayerGroupNumberByNumber (LayerStack[i]);
+    if (l->On && !do_group[group]) {
+
+      do_group[group] = 1;
+      drawn_groups[ngroups++] = group;
+    }
+  }
+
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
 
   /*
    * first draw all 'invisible' stuff
@@ -598,10 +599,11 @@ DrawEverything (const BoxType *drawn_area)
     return;
 
   /* Draw pins, pads, vias below silk */
-  if (gui->gui)
-    DrawPPV (SWAP_IDENT ? solder : component, drawn_area);
-  else
-    {
+  if (gui->gui) {
+    DrawPPV (SWAP_IDENT ? bottom_group : top_group, drawn_area);
+  }
+  else {
+
       CountHoles (&plated, &unplated, drawn_area);
 
       if (plated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
@@ -620,25 +622,25 @@ DrawEverything (const BoxType *drawn_area)
   /* Draw the solder mask if turned on */
   if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
     {
-      DrawMask (TOP_SILK_LAYER, drawn_area);
+      DrawMask (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
     {
-      DrawMask (BOTTOM_SILK_LAYER, drawn_area);
+      DrawMask (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
     {
-      DrawSilk (TOP_SILK_LAYER, drawn_area);
+      DrawSilk (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("bottomsilk", SL (SILK, BOTTOM), 0))
     {
-      DrawSilk (BOTTOM_SILK_LAYER, drawn_area);
+      DrawSilk (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
@@ -656,29 +658,29 @@ DrawEverything (const BoxType *drawn_area)
         }
     }
 
-  paste_empty = IsPasteEmpty (TOP_SILK_LAYER);
+  paste_empty = IsPasteEmpty (TOP_SIDE);
   if (gui->set_layer ("toppaste", SL (PASTE, TOP), paste_empty))
     {
-      DrawPaste (TOP_SILK_LAYER, drawn_area);
+      DrawPaste (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
-  paste_empty = IsPasteEmpty (BOTTOM_SILK_LAYER);
+  paste_empty = IsPasteEmpty (BOTTOM_SIDE);
   if (gui->set_layer ("bottompaste", SL (PASTE, BOTTOM), paste_empty))
     {
-      DrawPaste (BOTTOM_SILK_LAYER, drawn_area);
+      DrawPaste (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
     {
-      PrintAssembly (TOP_SILK_LAYER, drawn_area);
+      PrintAssembly (TOP_SIDE, drawn_area);
       gui->end_layer ();
     }
 
   if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM), 0))
     {
-      PrintAssembly (BOTTOM_SILK_LAYER, drawn_area);
+      PrintAssembly (BOTTOM_SIDE, drawn_area);
       gui->end_layer ();
     }
 
@@ -725,11 +727,11 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
    * This provides a nice visual indication that it is locked that
    * works even for color blind users.
    */
-  if (TEST_FLAG (LOCKFLAG, e) )
-    {
+  if (TEST_FLAG (LOCKFLAG, e) ) {
+
       gui->graphics->draw_line (Output.fgGC, X, Y, X + 2 * mark_size, Y);
       gui->graphics->draw_line (Output.fgGC, X, Y, X, Y - 4* mark_size);
-    }
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -739,37 +741,38 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
 static void
 DrawPPV (int group, const BoxType *drawn_area)
 {
-  int component_group = GetLayerGroupNumberByNumber (component_silk_layer);
-  int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
+  int top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  int bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   int side;
 
-  if (PCB->PinOn || !gui->gui)
-    {
+  if (PCB->PinOn || !gui->gui) {
+
       /* draw element pins */
       r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
 
       /* draw element pads */
-      if (group == component_group)
-        {
-          side = TOP_SILK_LAYER;
-          r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
-        }
+      if (group == top_group) {
 
-      if (group == solder_group)
-        {
-          side = BOTTOM_SILK_LAYER;
+          side = TOP_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
-        }
+      }
+
+      if (group == bottom_group) {
+
+          side = BOTTOM_SIDE;
+          r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
+      }
     }
 
   /* draw vias */
-  if (PCB->ViaOn || !gui->gui)
-    {
+  if (PCB->ViaOn || !gui->gui) {
+
       r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
-    }
-  if (PCB->PinOn || doing_assy)
+  }
+  if (PCB->PinOn || doing_assy) {
     r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
+  }
 }
 
 static int

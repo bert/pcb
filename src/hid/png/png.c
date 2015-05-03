@@ -69,9 +69,10 @@ static double scale = 1;
 static Coord x_shift = 0;
 static Coord y_shift = 0;
 static int show_solder_side;
-#define SCALE(w)   ((int)((w)/scale + 0.5))
-#define SCALE_X(x) ((int)(((x) - x_shift)/scale))
-#define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
+
+#define SCALE(w) ((int)round((w)/scale))
+#define SCALE_X(x) ((int)round(((x) - x_shift)/scale))
+#define SCALE_Y(y) ((int)round(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
 #define SWAP_IF_SOLDER(a,b) do { Coord c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
 /* Used to detect non-trivial outlines */
@@ -502,10 +503,9 @@ png_get_export_options (int *n)
   return png_attribute_list;
 }
 
-static int comp_layer, solder_layer;
+static int top_group, bottom_group;
 
-static int
-group_for_layer (int l)
+static int group_for_layer (int l)
 {
   if (l < max_copper_layer + 2 && l >= 0)
     return GetLayerGroupNumberByNumber (l);
@@ -513,24 +513,27 @@ group_for_layer (int l)
   return max_group + 3 + l;
 }
 
-static int
-layer_sort (const void *va, const void *vb)
+static int layer_sort (const void *va, const void *vb)
 {
-  int a = *(int *) va;
-  int b = *(int *) vb;
+  int a  = *(int *) va;
+  int b  = *(int *) vb;
   int al = group_for_layer (a);
   int bl = group_for_layer (b);
-  int d = bl - al;
+  int d  = bl - al;
 
-  if (a >= 0 && a <= max_copper_layer + 1)
-    {
-      int aside = (al == solder_layer ? 0 : al == comp_layer ? 2 : 1);
-      int bside = (bl == solder_layer ? 0 : bl == comp_layer ? 2 : 1);
-      if (bside != aside)
-	return bside - aside;
+  if (a >= 0 && a <= max_copper_layer + 1) {
+
+    int aside = (al == bottom_group ? 0 : al == top_group ? 2 : 1);
+    int bside = (bl == bottom_group ? 0 : bl == top_group ? 2 : 1);
+    if (bside != aside) {
+      return bside - aside;
     }
-  if (d)
+  }
+
+  if (d) {
     return d;
+  }
+
   return b - a;
 }
 
@@ -567,84 +570,96 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-  if (options[HA_only_visible].int_value)
-    bounds = GetDataBoundingBox (PCB->Data);    
-  else
+  if (options[HA_only_visible].int_value) {
+    bounds = GetDataBoundingBox (PCB->Data);
+  }
+  else {
     bounds = &region;
+  }
 
   memset (print_group, 0, sizeof (print_group));
   memset (print_layer, 0, sizeof (print_layer));
 
-  for (i = 0; i < max_copper_layer; i++)
-    {
+  for (i = 0; i < max_copper_layer; i++) {
+
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	print_group[GetLayerGroupNumberByNumber (i)] = 1;
-    }
-  print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
-  print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
-  for (i = 0; i < max_copper_layer; i++)
-    if (print_group[GetLayerGroupNumberByNumber (i)])
+    print_group[GetLayerGroupNumberByNumber (i)] = 1;
+  }
+
+  print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
+  print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
+
+  for (i = 0; i < max_copper_layer; i++) {
+    if (print_group[GetLayerGroupNumberByNumber (i)]) {
       print_layer[i] = 1;
+    }
+  }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
+
   save_flags = PCB->Flags;
   saved_show_solder_side = Settings.ShowSolderSide;
 
-  as_shown = options[HA_as_shown].int_value;
+  as_shown   = options[HA_as_shown].int_value;
   fill_holes = options[HA_fill_holes].int_value;
 
-  if (!options[HA_as_shown].int_value)
-    {
-      CLEAR_FLAG (SHOWMASKFLAG, PCB);
-      Settings.ShowSolderSide = 0;
+  if (!options[HA_as_shown].int_value) {
 
-      comp_layer = GetLayerGroupNumberByNumber (component_silk_layer);
-      solder_layer = GetLayerGroupNumberByNumber (solder_silk_layer);
-      qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
+    CLEAR_FLAG (SHOWMASKFLAG, PCB);
+    Settings.ShowSolderSide = 0;
 
-      CLEAR_FLAG(THINDRAWFLAG, PCB);
-      CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
+    top_group    = GetLayerGroupNumberBySide (TOP_SIDE);
+    bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+    qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
 
-      if (photo_mode)
-	{
-	  int i, n=0;
-	  SET_FLAG (SHOWMASKFLAG, PCB);
-	  photo_has_inners = 0;
-	  if (comp_layer < solder_layer)
-	    for (i = comp_layer; i <= solder_layer; i++)
-	      {
-		photo_groups[n++] = i;
-		if (i != comp_layer && i != solder_layer
-		    && ! IsLayerGroupEmpty (i))
-		  photo_has_inners = 1;
-	      }
-	  else
-	    for (i = comp_layer; i >= solder_layer; i--)
-	      {
-		photo_groups[n++] = i;
-		if (i != comp_layer && i != solder_layer
-		    && ! IsLayerGroupEmpty (i))
-		  photo_has_inners = 1;
-	      }
-	  if (!photo_has_inners)
-	    {
-	      photo_groups[1] = photo_groups[n - 1];
-	      n = 2;
-	    }
-	  photo_ngroups = n;
+    CLEAR_FLAG(THINDRAWFLAG, PCB);
+    CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
-	  if (photo_flip)
-	    {
-	      for (i=0, n=photo_ngroups-1; i<n; i++, n--)
-		{
-		  int tmp = photo_groups[i];
-		  photo_groups[i] = photo_groups[n];
-		  photo_groups[n] = tmp;
-		}
-	    }
-	}
+    if (photo_mode) {
+
+      int i, n=0;
+      SET_FLAG (SHOWMASKFLAG, PCB);
+      photo_has_inners = 0;
+      if (top_group < bottom_group) {
+        for (i = top_group; i <= bottom_group; i++) {
+
+          photo_groups[n++] = i;
+          if (i != top_group && i != bottom_group && ! IsLayerGroupEmpty (i)) {
+            photo_has_inners = 1;
+          }
+        }
+      }
+      else {
+        for (i = top_group; i >= bottom_group; i--) {
+
+          photo_groups[n++] = i;
+          if (i != top_group && i != bottom_group && ! IsLayerGroupEmpty (i)) {
+            photo_has_inners = 1;
+          }
+        }
+      }
+
+      if (!photo_has_inners) {
+
+        photo_groups[1] = photo_groups[n - 1];
+        n = 2;
+      }
+
+      photo_ngroups = n;
+
+      if (photo_flip) {
+
+        for (i=0, n=photo_ngroups-1; i<n; i++, n--) {
+
+          int tmp = photo_groups[i];
+          photo_groups[i] = photo_groups[n];
+          photo_groups[n] = tmp;
+        }
+      }
     }
+  }
+
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
   lastcap = -1;
@@ -657,11 +672,11 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
     {
       int i, j;
       for (i=0, j=max_copper_layer-1; i<j; i++, j--)
-	{
-	  int k = LayerStack[i];
-	  LayerStack[i] = LayerStack[j];
-	  LayerStack[j] = k;
-	}
+    {
+      int k = LayerStack[i];
+      LayerStack[i] = LayerStack[j];
+      LayerStack[j] = k;
+    }
     }
 
   hid_expose_callback (&png_hid, bounds, 0);
@@ -670,6 +685,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   PCB->Flags = save_flags;
   Settings.ShowSolderSide = saved_show_solder_side;
 }
+
 
 static void
 clip (color_struct *dest, color_struct *source)
@@ -803,29 +819,30 @@ png_do_export (HID_Attr_Val * options)
   const char *fmt;
   bool format_error = false;
 
-  if (color_cache)
-    {
+  if (color_cache) {
+
       free (color_cache);
       color_cache = NULL;
-    }
+  }
 
-  if (brush_cache)
-    {
+  if (brush_cache) {
+
       free (brush_cache);
       brush_cache = NULL;
-    }
+  }
 
-  if (!options)
-    {
-      png_get_export_options (0);
-      for (i = 0; i < NUM_OPTIONS; i++)
-	png_values[i] = png_attribute_list[i].default_val;
-      options = png_values;
+  if (!options) {
+
+    png_get_export_options (0);
+    for (i = 0; i < NUM_OPTIONS; i++) {
+      png_values[i] = png_attribute_list[i].default_val;
     }
+    options = png_values;
+  }
 
   if (options[HA_photo_mode].int_value
       || options[HA_ben_mode].int_value)
-    {
+  {
       photo_mode = 1;
       options[HA_mono].int_value = 1;
       options[HA_as_shown].int_value = 0;
@@ -833,100 +850,105 @@ png_do_export (HID_Attr_Val * options)
       photo_silk = photo_mask = photo_drill = 0;
       photo_outline = 0;
       if (options[HA_photo_flip_x].int_value
-	  || options[HA_ben_flip_x].int_value)
-	photo_flip = PHOTO_FLIP_X;
+      || options[HA_ben_flip_x].int_value)
+    photo_flip = PHOTO_FLIP_X;
       else if (options[HA_photo_flip_y].int_value
-	       || options[HA_ben_flip_y].int_value)
-	photo_flip = PHOTO_FLIP_Y;
+          || options[HA_ben_flip_y].int_value)
+    photo_flip = PHOTO_FLIP_Y;
       else
-	photo_flip = 0;
-    }
-  else
+    photo_flip = 0;
+  }
+  else {
     photo_mode = 0;
+  }
 
   filename = options[HA_pngfile].str_value;
   if (!filename)
     filename = "pcb-out.png";
 
   /* figure out width and height of the board */
-  if (options[HA_only_visible].int_value)
-    {
+  if (options[HA_only_visible].int_value) {
+
       bbox = GetDataBoundingBox (PCB->Data);
       x_shift = bbox->X1;
       y_shift = bbox->Y1;
       h = bbox->Y2 - bbox->Y1;
       w = bbox->X2 - bbox->X1;
-    }
-  else
-    {
+  }
+  else {
+
       x_shift = 0;
       y_shift = 0;
       h = PCB->MaxHeight;
       w = PCB->MaxWidth;
-    }
+  }
 
   /*
    * figure out the scale factor we need to make the image
    * fit in our specified PNG file size
    */
   xmax = ymax = dpi = 0;
-  if (options[HA_dpi].int_value != 0)
-    {
-      dpi = options[HA_dpi].int_value;
-      if (dpi < 0)
-	{
-	  fprintf (stderr, "ERROR:  dpi may not be < 0\n");
-	  return;
-	}
-    }
 
-  if (options[HA_xmax].int_value > 0)
-    {
+  if (options[HA_dpi].int_value != 0) {
+
+    dpi = options[HA_dpi].int_value;
+
+    if (dpi < 0) {
+
+      fprintf (stderr, "ERROR:  dpi may not be < 0\n");
+      return;
+    }
+  }
+
+  if (options[HA_xmax].int_value > 0) {
+
       xmax = options[HA_xmax].int_value;
       dpi = 0;
-    }
+  }
 
-  if (options[HA_ymax].int_value > 0)
-    {
+  if (options[HA_ymax].int_value > 0) {
+
       ymax = options[HA_ymax].int_value;
       dpi = 0;
-    }
+  }
 
-  if (options[HA_xymax].int_value > 0)
-    {
-      dpi = 0;
-      if (options[HA_xymax].int_value < xmax || xmax == 0)
-	xmax = options[HA_xymax].int_value;
-      if (options[HA_xymax].int_value < ymax || ymax == 0)
-	ymax = options[HA_xymax].int_value;
-    }
+  if (options[HA_xymax].int_value > 0) {
 
-  if (xmax < 0 || ymax < 0)
-    {
+    dpi = 0;
+    if (options[HA_xymax].int_value < xmax || xmax == 0) {
+      xmax = options[HA_xymax].int_value;
+    }
+    if (options[HA_xymax].int_value < ymax || ymax == 0) {
+      ymax = options[HA_xymax].int_value;
+    }
+  }
+
+  if (xmax < 0 || ymax < 0) {
+
       fprintf (stderr, "ERROR:  xmax and ymax may not be < 0\n");
       return;
-    }
-    
-  if (dpi > 0)
-    {
-      /*
-       * a scale of 1  means 1 pixel is 1 inch
+  }
+
+  if (dpi > 0) {
+
+      /* * a scale of 1  means 1 pixel is 1 inch
        * a scale of 10 means 1 pixel is 10 inches
        */
-      scale = INCH_TO_COORD(1) / dpi;
+      scale = round(INCH_TO_COORD(1) / (double) dpi);
+
       w = w / scale;
       h = h / scale;
-    }
-  else if( xmax == 0 && ymax == 0)
-    {
+  }
+  else if ( xmax == 0 && ymax == 0) {
+
       fprintf(stderr, "ERROR:  You may not set both xmax, ymax,"
-	      "and xy-max to zero\n");
+                              "and xy-max to zero\n");
       return;
-    }
-  else
-    {
-      if (ymax == 0 
-	  || ( (xmax > 0) 
+  }
+  else {
+
+      if (ymax == 0
+	  || ( (xmax > 0)
 	       && ((w / xmax) > (h / ymax)) ) )
 	{
 	  h = (h * xmax) / w;
@@ -939,20 +961,21 @@ png_do_export (HID_Attr_Val * options)
 	  scale = h / ymax;
 	  h = ymax;
 	}
-    }
+  }
 
   im = gdImageCreate (w, h);
-  if (im == NULL) 
-    {
-      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, w, h);
-      return;
-    }
-  
+
+  if (im == NULL) {
+
+    Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, w, h);
+    return;
+  }
+
   master_im = im;
 
   parse_bloat (options[HA_bloat].str_value);
 
-  /* 
+  /*
    * Allocate white and black -- the first color allocated
    * becomes the background color
    */
@@ -964,7 +987,7 @@ png_do_export (HID_Attr_Val * options)
   else
     white->a = 0;
   white->c = gdImageColorAllocateAlpha (im, white->r, white->g, white->b, white->a);
-  if (white->c == BADC) 
+  if (white->c == BADC)
     {
       Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__);
       return;
@@ -975,7 +998,7 @@ png_do_export (HID_Attr_Val * options)
   black = (color_struct *) malloc (sizeof (color_struct));
   black->r = black->g = black->b = black->a = 0;
   black->c = gdImageColorAllocate (im, black->r, black->g, black->b);
-  if (black->c == BADC) 
+  if (black->c == BADC)
     {
       Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__);
       return;
@@ -1027,7 +1050,7 @@ png_do_export (HID_Attr_Val * options)
       }
 
 
-      for (x=0; x<gdImageSX (im); x++) 
+      for (x=0; x<gdImageSX (im); x++)
 	{
 	  for (y=0; y<gdImageSY (im); y++)
 	    {
@@ -1035,9 +1058,9 @@ png_do_export (HID_Attr_Val * options)
 	      color_struct mask_colour, silk_colour;
 	      int cc, mask, silk;
 	      int transparent;
-	     
+
 	      if (photo_outline && have_outline) {
-		transparent=gdImageGetPixel(photo_outline, x, y);	      
+		transparent=gdImageGetPixel(photo_outline, x, y);
 	      } else {
 		transparent=0;
 	      }
@@ -1053,12 +1076,12 @@ png_do_export (HID_Attr_Val * options)
 
 	      if (photo_ngroups == 2)
 		blend (&cop, 0.3, &cop, &fr4);
-	      
+
 	      cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
 	      if (cc)
 		{
 		  int r;
-		  
+
 		  if (mask)
 		    rgb (&cop, 220, 145, 230);
 		  else
@@ -1102,15 +1125,15 @@ png_do_export (HID_Attr_Val * options)
 			    blend (&cop, 0.7, &cop, &white);
 			}
 		    }
-		  
+
 		  if (cc == TOP_SHADOW)
 		    blend (&cop, 0.7, &cop, &white);
 		  if (cc == BOTTOM_SHADOW)
 		    blend (&cop, 0.7, &cop, &black);
 		}
 
-	      if (photo_drill && !gdImageGetPixel (photo_drill, x, y)) 
-		{		
+	      if (photo_drill && !gdImageGetPixel (photo_drill, x, y))
+		{
 		  rgb (&p, 0, 0, 0);
 		  transparent=1;
 		}
@@ -1136,7 +1159,7 @@ png_do_export (HID_Attr_Val * options)
 		}
 	      else
 		p = cop;
-	      
+
 	      if (options[HA_use_alpha].int_value) {
 
 		cc = (transparent)?\
@@ -1147,7 +1170,7 @@ png_do_export (HID_Attr_Val * options)
 		cc = (transparent)?\
 		  gdImageColorResolve(im, 0, 0, 0):\
 		  gdImageColorResolve(im, p.r, p.g, p.b);
-	      }		  
+	      }
 
 	      if (photo_flip == PHOTO_FLIP_X)
 		gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
@@ -1288,9 +1311,9 @@ png_set_layer (const char *name, int group, int empty)
 	{
 	  static color_struct *black = NULL, *white = NULL;
 	  *photo_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
-          if (photo_im == NULL) 
+          if (photo_im == NULL)
 	    {
-	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, 
+	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__,
 		       gdImageSX (im), gdImageSY (im));
 	      return 0;
 	    }
@@ -1300,7 +1323,7 @@ png_set_layer (const char *name, int group, int empty)
 	  white->r = white->g = white->b = 255;
 	  white->a = 0;
 	  white->c = gdImageColorAllocate (*photo_im, white->r, white->g, white->b);
-	  if (white->c == BADC) 
+	  if (white->c == BADC)
 	    {
 	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return 0;
@@ -1309,7 +1332,7 @@ png_set_layer (const char *name, int group, int empty)
 	  black = (color_struct *) malloc (sizeof (color_struct));
 	  black->r = black->g = black->b = black->a = 0;
 	  black->c = gdImageColorAllocate (*photo_im, black->r, black->g, black->b);
-	  if (black->c == BADC) 
+	  if (black->c == BADC)
 	    {
 	      Message ("%s(): gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return 0;
@@ -1454,7 +1477,7 @@ png_set_color (hidGC gc, const char *name)
 	      &(gc->color->b));
       gc->color->c =
 	gdImageColorAllocate (master_im, gc->color->r, gc->color->g, gc->color->b);
-      if (gc->color->c == BADC) 
+      if (gc->color->c == BADC)
 	{
 	  Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	  return;
@@ -1550,22 +1573,22 @@ use_gc (hidGC gc)
 	{
 	  int bg, fg;
 	  gc->brush = gdImageCreate (r, r);
-	  if (gc->brush == NULL) 
+	  if (gc->brush == NULL)
 	    {
 	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, r, r);
 	      return;
 	    }
 
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
-	  if (bg == BADC) 
+	  if (bg == BADC)
 	    {
 	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return;
 	    }
 	  fg =
 	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
-				       gc->color->b, 0); 
-	  if (fg == BADC) 
+				       gc->color->b, 0);
+	  if (fg == BADC)
 	    {
 	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return;
@@ -1711,7 +1734,7 @@ png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
     return;
   }
 
-  /* 
+  /*
    * in gdImageArc, 0 degrees is to the right and +90 degrees is down
    * in pcb, 0 degrees is to the left and +90 degrees is down
    */
@@ -1733,7 +1756,7 @@ png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
       ea = start_angle;
     }
 
-  /* 
+  /*
    * make sure we start between 0 and 360 otherwise gd does
    * strange things
    */

@@ -232,6 +232,8 @@ ghid_dialog_close_confirm ()
                           GTK_STOCK_SAVE,            GTK_RESPONSE_YES,
                           NULL);
 
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_YES);
+
   /* Set the alternative button order (ok, cancel, help) for other systems */
   gtk_dialog_set_alternative_button_order(GTK_DIALOG(dialog),
                                           GTK_RESPONSE_YES,

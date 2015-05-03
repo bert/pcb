@@ -495,13 +495,13 @@ InitComponentLookup (void)
   /* initialize pad data; start by counting the total number
    * on each of the two possible layers
    */
-  NumberOfPads[TOP_SILK_LAYER] = NumberOfPads[BOTTOM_SILK_LAYER] = 0;
+  NumberOfPads[TOP_SIDE] = NumberOfPads[BOTTOM_SIDE] = 0;
   ALLPAD_LOOP (PCB->Data);
   {
     if (TEST_FLAG (ONSOLDERFLAG, pad))
-      NumberOfPads[BOTTOM_SILK_LAYER]++;
+      NumberOfPads[BOTTOM_SIDE]++;
     else
-      NumberOfPads[TOP_SILK_LAYER]++;
+      NumberOfPads[TOP_SIDE]++;
   }
   ENDALL_LOOP;
   for (i = 0; i < 2; i++)
@@ -631,8 +631,8 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (i->flag, pad) && IS_PV_ON_PAD (i->pv, pad) &&
       !TEST_FLAG (HOLEFLAG, i->pv) &&
-      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER :
-                       TOP_SILK_LAYER, pad, i->flag))
+      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE :
+                       TOP_SIDE, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
 }
@@ -1686,7 +1686,7 @@ LOCtoArcPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)
       && ArcPadIntersect (i->arc, pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -1820,7 +1820,7 @@ LOCtoLinePad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)
       && LinePadIntersect (i->line, pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -1955,7 +1955,7 @@ LOCtoPad_callback (const BoxType * b, void *cl)
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-	(TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER) &&
+	(TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE) &&
       ((pad->Point1.X == i->Point->X && pad->Point1.Y == i->Point->Y) ||
        (pad->Point2.X == i->Point->X && pad->Point2.Y == i->Point->Y) ||
        ((pad->Point1.X + pad->Point2.X) / 2 == i->Point->X &&
@@ -2103,7 +2103,7 @@ LOCtoPadPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)
       && PadPadIntersect (pad, i->pad) && ADD_PAD_TO_LIST (i->layer, pad, i->flag))
     longjmp (i->env, 1);
   return 0;
@@ -2222,7 +2222,7 @@ LOCtoPolyPad_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)
       && IsPadInPolygon (pad, i->polygon))
     {
       if (ADD_PAD_TO_LIST (i->layer, pad, i->flag))
@@ -2677,8 +2677,8 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
             if (ADD_PV_TO_LIST (pin, flag))
               return true;
             DoIt (flag, true, true);
-            number = PadList[TOP_SILK_LAYER].Number
-              + PadList[BOTTOM_SILK_LAYER].Number + PVList.Number;
+            number = PadList[TOP_SIDE].Number
+              + PadList[BOTTOM_SIDE].Number + PVList.Number;
             /* the pin has no connection if it's the only
              * list entry; don't count vias
              */
@@ -2718,11 +2718,11 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
       {
         int i;
         if (ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
-                             ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER, pad, flag))
+                             ? BOTTOM_SIDE : TOP_SIDE, pad, flag))
           return true;
         DoIt (flag, true, true);
-        number = PadList[TOP_SILK_LAYER].Number
-          + PadList[BOTTOM_SILK_LAYER].Number + PVList.Number;
+        number = PadList[TOP_SIDE].Number
+          + PadList[BOTTOM_SIDE].Number + PVList.Number;
         /* the pin has no connection if it's the only
          * list entry; don't count vias
          */
@@ -2813,8 +2813,8 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
     DoIt (flag, true, AndDraw);
     /* printout all found connections */
     PrintPinConnections (FP, true);
-    PrintPadConnections (TOP_SILK_LAYER, FP, false);
-    PrintPadConnections (BOTTOM_SILK_LAYER, FP, false);
+    PrintPadConnections (TOP_SIDE, FP, false);
+    PrintPadConnections (BOTTOM_SIDE, FP, false);
     fputs ("\t}\n", FP);
     if (PrepareNextLoop (FP))
       return (true);
@@ -2832,14 +2832,14 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
         fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
         continue;
       }
-    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER;
+    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE;
     if (ADD_PAD_TO_LIST (layer, pad, flag))
       return true;
     DoIt (flag, true, AndDraw);
     /* print all found connections */
     PrintPadConnections (layer, FP, true);
     PrintPadConnections (layer ==
-                         (TOP_SILK_LAYER ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER),
+                         (TOP_SIDE ? BOTTOM_SIDE : TOP_SIDE),
                          FP, false);
     PrintPinConnections (FP, false);
     fputs ("\t}\n", FP);
@@ -3032,7 +3032,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
         PadType *pad = (PadType *) ptr2;
         if (ADD_PAD_TO_LIST
             (TEST_FLAG
-             (ONSOLDERFLAG, pad) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER, pad, flag))
+             (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE, pad, flag))
           return true;
         break;
       }

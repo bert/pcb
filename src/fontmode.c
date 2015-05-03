@@ -150,18 +150,18 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
 			      w, maxy + oy, MIL_TO_COORD (1), MIL_TO_COORD (1), NoFlags ());
     }
 
-  for (l = 0; l < 16; l++)
-    {
+  for (l = 0; l < 16; l++) {
+
       int x = (l + 1) * CELL_SIZE;
       CreateDrawnLineOnLayer (lgrid, x, 0, x, PCB->MaxHeight, MIL_TO_COORD (1),
                               MIL_TO_COORD (1), NoFlags ());
-    }
-  for (l = 0; l <= MAX_FONTPOSITION / 16 + 1; l++)
-    {
+  }
+  for (l = 0; l <= MAX_FONTPOSITION / 16 + 1; l++) {
+
       int y = (l + 1) * CELL_SIZE;
       CreateDrawnLineOnLayer (lgrid, 0, y, PCB->MaxWidth, y, MIL_TO_COORD (1),
                               MIL_TO_COORD (1), NoFlags ());
-    }
+  }
   return 0;
 }
 

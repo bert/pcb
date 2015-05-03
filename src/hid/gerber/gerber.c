@@ -165,12 +165,12 @@ deinitApertureList (ApertureList *list)
 {
   Aperture *search = list->data;
   Aperture *next;
-  while (search)
-    {
+  while (search) {
+
       next = search->next;
       free(search);
       search = next;
-    }
+  }
   initApertureList (list);
 }
 
@@ -338,6 +338,8 @@ static const char *name_style_names[] = {
   "first",
 #define NAME_STYLE_EAGLE 3
   "eagle",
+#define NAME_STYLE_HACKVANA 4
+  "hackvana",
   NULL
 };
 
@@ -407,7 +409,21 @@ gerber_get_export_options (int *n)
     *n = NUM_OPTIONS;
   return gerber_options;
 }
+/*
+static int
+layer_stack_sort (const void *va, const void *vb)
+{
+  int a_layer = *(int *) va;
+  int b_layer = *(int *) vb;
+  int a_group = GetLayerGroupNumberByNumber (a_layer);
+  int b_group = GetLayerGroupNumberByNumber (b_layer);
 
+  if (b_group != a_group)
+    return b_group - a_group;
+
+  return b_layer - a_layer;
+}
+*/
 static int
 group_for_layer (int l)
 {
@@ -452,8 +468,8 @@ assign_eagle_file_suffix (char *dest, int idx)
   int nlayers;
   char *suff = "out";
 
-  switch (idx)
-    {
+  switch (idx) {
+
     case SL (SILK,      TOP):    suff = "plc"; break;
     case SL (SILK,      BOTTOM): suff = "pls"; break;
     case SL (MASK,      TOP):    suff = "stc"; break;
@@ -468,60 +484,119 @@ assign_eagle_file_suffix (char *dest, int idx)
     case SL (ASSY,      BOTTOM): suff = "asb"; break;
 
     default:
+
       group = GetLayerGroupNumberByNumber(idx);
       nlayers = PCB->LayerGroups.Number[group];
-      if (group == GetLayerGroupNumberByNumber(component_silk_layer))
-	{
-	  suff = "cmp";
-	}
-      else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
-	{
-	  suff = "sol";
-	}
-      else if (nlayers == 1
-	       && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
-		   strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
-	{
-	  suff = "oln";
-	}
+
+      if (group == GetLayerGroupNumberBySide(TOP_SIDE)) { /* Component */
+
+        suff = "cmp";
+      }
+      else if (group == GetLayerGroupNumberBySide(BOTTOM_SIDE)) { /* Solder */
+
+        suff = "sol";
+      }
+      else if (nlayers == 1 &&
+              (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
+               strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
+      {
+        suff = "oln";
+      }
       else
-	{
-	  static char buf[20];
-	  sprintf (buf, "ly%d", group);
-	  suff = buf;
-	}
+      {
+        static char buf[20];
+        sprintf (buf, "ly%d", group);
+        suff = buf;
+      }
+      break;
+  }
+
+  strcpy (dest, suff);
+}
+
+/* Very similar to layer_type_to_file_name() but appends only a
+   three-character suffix compatible with Hackvana's naming requirements  */
+static void
+assign_hackvana_file_suffix (char *dest, int idx)
+{
+  int group;
+  int nlayers;
+  char *suff = "defau.out";
+
+  switch (idx)
+    {
+    case SL (SILK,      TOP):    suff = "gto"; break;
+    case SL (SILK,      BOTTOM): suff = "gbo"; break;
+    case SL (MASK,      TOP):    suff = "gts"; break;
+    case SL (MASK,      BOTTOM): suff = "gbs"; break;
+    case SL (PDRILL,    0):      suff = "drl"; break;
+    case SL (UDRILL,    0):
+      suff = "_NPTH.drl";
+      break;
+    case SL (PASTE,     TOP):    suff = "gtp"; break;
+    case SL (PASTE,     BOTTOM): suff = "gbp"; break;
+    case SL (INVISIBLE, 0):      suff = "inv"; break;
+    case SL (FAB,       0):      suff = "fab"; break;
+    case SL (ASSY,      TOP):    suff = "ast"; break;
+    case SL (ASSY,      BOTTOM): suff = "asb"; break;
+
+    default:
+
+      group = GetLayerGroupNumberByNumber(idx);
+      nlayers = PCB->LayerGroups.Number[group];
+
+      if (group == GetLayerGroupNumberBySide(TOP_SIDE)) {
+        suff = "gtl";
+      }
+      else if (group == GetLayerGroupNumberBySide(BOTTOM_SIDE)) {
+        suff = "gbl";
+      }
+      else if (nlayers == 1 &&
+              (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||
+               strcmp (PCB->Data->Layer[idx].Name, "outline") == 0))
+      {
+        suff = "gm1";
+      }
+      else {
+
+        static char buf[20];
+        sprintf (buf, "g%d", group);
+        suff = buf;
+      }
       break;
     }
 
   strcpy (dest, suff);
 }
 
-static void
-assign_file_suffix (char *dest, int idx)
+static void assign_file_suffix (char *dest, int idx)
 {
-  int fns_style;
+  int fns_style    = FNS_fixed;
   const char *sext = ".gbr";
 
-  switch (name_style)
-    {
+  switch (name_style) {
+
     default:
     case NAME_STYLE_FIXED:  fns_style = FNS_fixed;  break;
     case NAME_STYLE_SINGLE: fns_style = FNS_single; break;
     case NAME_STYLE_FIRST:  fns_style = FNS_first;  break;
     case NAME_STYLE_EAGLE:
       assign_eagle_file_suffix (dest, idx);
+      break;
+    case NAME_STYLE_HACKVANA:
+      assign_hackvana_file_suffix (dest, idx);
       return;
-    }
+  }
 
-  switch (idx)
-    {
+  switch (idx) {
+
     case SL (PDRILL, 0):
       sext = ".cnc";
       break;
     case SL (UDRILL, 0):
       sext = ".cnc";
       break;
-    }
+  }
 
   strcpy (dest, layer_type_to_file_name (idx, fns_style));
   strcat (dest, sext);
@@ -541,26 +616,33 @@ gerber_do_export (HID_Attr_Val * options)
   CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
   CLEAR_FLAG(CHECKPLANESFLAG, PCB);
 
-  if (!options)
-    {
-      gerber_get_export_options (NULL);
-      for (i = 0; i < NUM_OPTIONS; i++)
-	gerber_values[i] = gerber_options[i].default_val;
-      options = gerber_values;
+  if (!options) {
+
+    gerber_get_export_options (NULL);
+
+    for (i = 0; i < NUM_OPTIONS; i++) {
+      gerber_values[i] = gerber_options[i].default_val;
     }
 
+    options = gerber_values;
+  }
+
   fnbase = options[HA_gerberfile].str_value;
-  if (!fnbase)
+
+  if (!fnbase) {
     fnbase = "pcb-out";
+  }
 
   verbose = options[HA_verbose].int_value;
   metric = options[HA_metric].int_value;
+
   if (metric) {
-	  x_convspec = "X%.0mu";
-	  y_convspec = "Y%.0mu";
-  } else {
-	  x_convspec = "X%.0mc";
-	  y_convspec = "Y%.0mc";
+      x_convspec = "X%.0mu";
+      y_convspec = "Y%.0mu";
+  }
+  else {
+      x_convspec = "X%.0mc";
+      y_convspec = "Y%.0mc";
   }
   all_layers = options[HA_all_layers].int_value;
 
@@ -569,15 +651,15 @@ gerber_do_export (HID_Attr_Val * options)
 
   outline_layer = NULL;
 
-  for (i = 0; i < max_copper_layer; i++)
+  for (i = 0; i < max_copper_layer; i++) {
+
+    LayerType *layer = PCB->Data->Layer + i;
+    if (strcmp (layer->Name, "outline") == 0 ||
+        strcmp (layer->Name, "route") == 0)
     {
-      LayerType *layer = PCB->Data->Layer + i;
-      if (strcmp (layer->Name, "outline") == 0 ||
-	  strcmp (layer->Name, "route") == 0)
-	{
-	  outline_layer = layer;
-	}
+        outline_layer = layer;
     }
+  }
 
   i = strlen (fnbase);
   filename = (char *)realloc (filename, i + 40);
@@ -585,34 +667,42 @@ gerber_do_export (HID_Attr_Val * options)
   strcat (filename, ".");
   filesuff = filename + strlen (filename);
 
-  if (all_layers)
-    {
+  if (all_layers) {
+
       memset (print_group, 1, sizeof (print_group));
       memset (print_layer, 1, sizeof (print_layer));
-    }
-  else
-    {
+  }
+  else {
+
       memset (print_group, 0, sizeof (print_group));
       memset (print_layer, 0, sizeof (print_layer));
-    }
+  }
 
   hid_save_and_show_layer_ons (save_ons);
-  for (i = 0; i < max_copper_layer; i++)
-    {
+
+  for (i = 0; i < max_copper_layer; i++) {
+
       LayerType *layer = PCB->Data->Layer + i;
-      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	print_group[GetLayerGroupNumberByNumber (i)] = 1;
-    }
-  print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
-  print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
-  for (i = 0; i < max_copper_layer; i++)
-    if (print_group[GetLayerGroupNumberByNumber (i)])
+      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN) {
+
+        print_group[GetLayerGroupNumberByNumber (i)] = 1;
+      }
+  }
+
+  print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
+  print_group[GetLayerGroupNumberBySide (TOP_SIDE)] = 1;
+
+  for (i = 0; i < max_copper_layer; i++) {
+    if (print_group[GetLayerGroupNumberByNumber (i)]) {
       print_layer[i] = 1;
+    }
+  }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
+
   linewidth = -1;
-  lastcap = -1;
+  lastcap   = -1;
   lastgroup = -1;
 
   region.X1 = 0;
@@ -684,27 +774,29 @@ gerber_set_layer (const char *name, int group, int empty)
       strcmp (name, "route") == 0)
     flash_drills = 1;
 
-  if (is_drill && n_pending_drills)
-    {
-      int i;
-      /* dump pending drills in sequence */
-      qsort (pending_drills, n_pending_drills, sizeof (pending_drills[0]),
-	     drill_sort);
-      for (i = 0; i < n_pending_drills; i++)
-	{
-	  if (i == 0 || pending_drills[i].diam != pending_drills[i - 1].diam)
-	    {
-	      Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
-	      fprintf (f, "T%02d\r\n", ap->dCode);
-	    }
-	  pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0mtY%06.0mt\r\n",
-		   gerberDrX (PCB, pending_drills[i].x),
-		   gerberDrY (PCB, pending_drills[i].y));
-	}
-      free (pending_drills);
-      n_pending_drills = max_pending_drills = 0;
-      pending_drills = NULL;
+  if (is_drill && n_pending_drills) {
+
+    int i;
+    /* dump pending drills in sequence */
+    qsort (pending_drills, n_pending_drills, sizeof (pending_drills[0]),
+           drill_sort);
+    for (i = 0; i < n_pending_drills; i++) {
+
+      if (i == 0 || pending_drills[i].diam != pending_drills[i - 1].diam) {
+
+        Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
+        fprintf (f, "T%02d\r\n", ap->dCode);
+      }
+
+      pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0mtY%06.0mt\r\n",
+                   gerberDrX (PCB, pending_drills[i].x),
+                   gerberDrY (PCB, pending_drills[i].y));
     }
+
+    free (pending_drills);
+    n_pending_drills = max_pending_drills = 0;
+    pending_drills = NULL;
+  }
 
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
@@ -714,8 +806,8 @@ gerber_set_layer (const char *name, int group, int empty)
 	  is_mask);
 #endif
 
-  if (group < 0 || group != lastgroup)
-    {
+  if (group < 0 || group != lastgroup) {
+
       time_t currenttime;
       char utcTime[64];
 #ifdef HAVE_GETPWUID

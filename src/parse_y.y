@@ -3,7 +3,7 @@
  *
  * If the file format is modified in any way, update
  * PCB_FILE_VERSION in file.h
- * 
+ *
  * ************************** README *******************
  */
 
@@ -74,9 +74,9 @@ extern	FontType	*yyFont;
 extern	int		yylineno;		/* linenumber */
 extern	char		*yyfilename;	/* in this file */
 
-static char *layer_group_string; 
+static char *layer_group_string;
 
-static AttributeListType *attr_list; 
+static AttributeListType *attr_list;
 
 int yyerror(const char *s);
 int yylex();
@@ -156,7 +156,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 @ref{Object Flags}.
 
 %end-doc */
-		
+
 parsepcb
 		:	{
 					/* reset flags for 'used layers';
@@ -178,11 +178,11 @@ parsepcb
 				layer_group_string = NULL;
 			}
 		  pcbfileversion
-		  pcbname 
+		  pcbname
 		  pcbgrid
 		  pcbcursor
 		  polyarea
-		  pcbthermal 
+		  pcbthermal
 		  pcbdrc
 		  pcbflags
 		  pcbgroups
@@ -212,7 +212,7 @@ parsepcb
 			ENDALL_LOOP;
 			PCB = pcb_save;
 			}
-			   
+
 		| { PreLoadElementPCB ();
 		    layer_group_string = NULL; }
 		  element
@@ -298,7 +298,7 @@ T_FILEVERSION '[' INTEGER ']'
       YYABORT;
     }
 }
-;	
+;
 
 /* %start-doc pcbfile PCB
 
@@ -339,7 +339,7 @@ pcbname
 				yyPCB->MaxWidth = NU ($4);
 				yyPCB->MaxHeight = NU ($5);
 			}
-		;	
+		;
 
 /* %start-doc pcbfile Grid
 
@@ -444,7 +444,7 @@ PolyArea [Area]
 @end syntax
 
 @table @var
-@item Area 
+@item Area
 Minimum area of polygon island to retain. If a polygon has clearances that cause an isolated island to be created, then will only be retained if the area exceeds this minimum area.
 @end table
 
@@ -775,7 +775,7 @@ via_oldformat
 				Coord	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
 
 					/* make sure that there's enough copper left */
-				if (OU($5) - hole < MIN_PINORVIACOPPER && 
+				if (OU($5) - hole < MIN_PINORVIACOPPER &&
 					OU($5) > MIN_PINORVIACOPPER)
 					hole = OU($5) - MIN_PINORVIACOPPER;
 
@@ -1060,7 +1060,7 @@ text_newformat
 				if ($8 & ONSILKFLAG)
 				{
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
+						(($8 & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
 					CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
 						      OldFlags($8));
@@ -1085,7 +1085,7 @@ text_hi_format
 				if ($8.f & ONSILKFLAG)
 				{
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
+						(($8.f & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
 					CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
 				}
@@ -1289,7 +1289,7 @@ element_1.3.4_format
 		;
 
 element_newformat
-			/* element_flags, description, pcb-name, value, 
+			/* element_flags, description, pcb-name, value,
 			 * text_x, text_y, text_direction, text_scale, text_flags
 			 */
 		: T_ELEMENT '(' INTEGER STRING STRING STRING measure measure measure measure INTEGER ')' '('
@@ -1590,7 +1590,7 @@ pin_oldformat
 				char	p_number[8];
 
 					/* make sure that there's enough copper left */
-				if (OU ($5) - hole < MIN_PINORVIACOPPER && 
+				if (OU ($5) - hole < MIN_PINORVIACOPPER &&
 					OU ($5) > MIN_PINORVIACOPPER)
 					hole = OU ($5) - MIN_PINORVIACOPPER;
 
@@ -1818,7 +1818,7 @@ nets
 		;
 
 netdefs
-		: net 
+		: net
 		| netdefs net
 		;
 
@@ -1969,7 +1969,7 @@ check_file_version (int ver)
 	     "up to file version %d.\n", ver, ver, PCB_FILE_VERSION);
     return 1;
   }
-  
+
   return 0;
 }
 

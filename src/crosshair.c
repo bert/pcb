@@ -990,40 +990,41 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       PadType *pad = (PadType *) ptr2;
       LayerType *desired_layer;
       Cardinal desired_group;
-      Cardinal SLayer, CLayer;
+      Cardinal bottom_group, top_group;
       int found_our_layer = false;
 
       desired_layer = CURRENT;
       if (Settings.Mode == MOVE_MODE &&
           Crosshair.AttachedObject.Type == LINEPOINT_TYPE)
-        {
+      {
           desired_layer = (LayerType *)Crosshair.AttachedObject.Ptr1;
-        }
+      }
 
-      /* find layer groups of the component side and solder side */
-      SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-      CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
-      desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? SLayer : CLayer;
+      /* find layer groups of the top and bottom sides */
+      top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+      bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+      desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
 
       GROUP_LOOP (PCB->Data, desired_group);
       {
-        if (layer == desired_layer)
-          {
+        if (layer == desired_layer) {
+
             found_our_layer = true;
             break;
-          }
+        }
       }
       END_LOOP;
 
-      if (found_our_layer == false)
+      if (found_our_layer == false) {
         ans = NO_TYPE;
+      }
     }
 
-  if (ans != NO_TYPE)
-    {
+    if (ans != NO_TYPE) {
+
       PadType *pad = (PadType *)ptr2;
       check_snap_object (&snap_data, pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2,
-                                     pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2,
+                         pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2,
                          true);
     }
 
@@ -1037,10 +1038,12 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       Settings.Mode == MOVE_MODE &&
       Crosshair.AttachedObject.Type == ELEMENT_TYPE &&
       ptr1 == Crosshair.AttachedObject.Ptr1)
+  {
     ans = NO_TYPE;
+  }
 
-  if (ans != NO_TYPE)
-    {
+  if (ans != NO_TYPE) {
+
       PinType *pin = (PinType *)ptr2;
       check_snap_object (&snap_data, pin->X, pin->Y, true);
     }

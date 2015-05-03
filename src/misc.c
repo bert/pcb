@@ -1124,12 +1124,14 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
      * group string, make group 0 the bottom side, and group 1 the top side.
      * This is done by assigning the relevant silkscreen layers to those groups.
      */
-    if (!s_set) {
-        LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
+    if (!s_set){
+      LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
+      //LayerGroup->Entries[0][LayerGroup->Number[0]++] = LayerN + BOTTOM_SILK_LAYER;
     }
 
     if (!c_set) {
-        LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
+      LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
+      //LayerGroup->Entries[1][LayerGroup->Number[1]++] = LayerN + TOP_SILK_LAYER;
     }
 
     /* Assign a unique layer group to each layer that was not explicitly
@@ -1506,6 +1508,19 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
 }
 
 /* ---------------------------------------------------------------------------
+ * returns the layergroup number for the passed side (TOP_LAYER or BOTTOM_LAYER)
+ */
+int
+GetLayerGroupNumberBySide (int side)
+{
+  /* Find the relavant board side layer group by determining the
+   * layer group associated with the relevant side's silk-screen
+   */
+  return GetLayerGroupNumberByNumber(
+      side == TOP_SIDE ? component_silk_layer : solder_silk_layer);
+}
+
+/* ---------------------------------------------------------------------------
  * returns a pointer to an objects bounding box;
  * data is valid until the routine is called again
  */
@@ -1615,12 +1630,13 @@ ResetStackAndVisibility (void)
   int comp_group;
   Cardinal i;
 
-  for (i = 0; i < max_copper_layer + 2; i++)
-    {
+  for (i = 0; i < max_copper_layer + 2; i++) {
+
       if (i < max_copper_layer)
         LayerStack[i] = i;
       PCB->Data->Layer[i].On = true;
-    }
+  }
+
   PCB->ElementOn = true;
   PCB->InvisibleObjectsOn = true;
   PCB->PinOn = true;
@@ -1628,7 +1644,7 @@ ResetStackAndVisibility (void)
   PCB->RatOn = true;
 
   /* Bring the component group to the front and make it active.  */
-  comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
+  comp_group = GetLayerGroupNumberBySide (TOP_SIDE);
   ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1, 1);
 }
 

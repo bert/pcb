@@ -3,7 +3,7 @@
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 1994,1995,1996 Thomas Nau
- * 
+ *
  *  This module, rats.c, was written and is Copyright (C) 1997 by harry eaton
  *  this module is also subject to the GNU GPL as described below
  *
@@ -76,7 +76,7 @@ static void TransferNet (NetListType *, NetType *, NetType *);
  * some local identifiers
  */
 static bool badnet = false;
-static Cardinal SLayer, CLayer;	/* layer group holding solder/component side */
+static Cardinal top_group, bottom_group; /* layer group holding top/bottom side */
 
 /* ---------------------------------------------------------------------------
  * parse a connection description from a string
@@ -123,46 +123,46 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
   if ((element = SearchElementByName (PCB->Data, ElementName)) == NULL)
     return false;
 
-  for (i = element->Pad; i != NULL; i = g_list_next (i))
+  for (i = element->Pad; i != NULL; i = g_list_next (i)) {
+
+    PadType *pad = i->data;
+
+    if (NSTRCMP (PinNum, pad->Number) == 0 &&
+      (!Same || !TEST_FLAG (DRCFLAG, pad)))
     {
-      PadType *pad = i->data;
+      conn->type  = PAD_TYPE;
+      conn->ptr1  = element;
+      conn->ptr2  = pad;
+      conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
 
-      if (NSTRCMP (PinNum, pad->Number) == 0 &&
-          (!Same || !TEST_FLAG (DRCFLAG, pad)))
-        {
-          conn->type = PAD_TYPE;
-          conn->ptr1 = element;
-          conn->ptr2 = pad;
-          conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? SLayer : CLayer;
+      if (TEST_FLAG (EDGE2FLAG, pad)) {
 
-          if (TEST_FLAG (EDGE2FLAG, pad))
-            {
-              conn->X = pad->Point2.X;
-              conn->Y = pad->Point2.Y;
-            }
-          else
-            {
-              conn->X = pad->Point1.X;
-              conn->Y = pad->Point1.Y;
-            }
-          return true;
-        }
+        conn->X = pad->Point2.X;
+        conn->Y = pad->Point2.Y;
+      }
+      else {
+
+        conn->X = pad->Point1.X;
+        conn->Y = pad->Point1.Y;
+      }
+      return true;
     }
+  }
 
-  for (i = element->Pin; i != NULL; i = g_list_next (i))
-    {
+  for (i = element->Pin; i != NULL; i = g_list_next (i)) {
+
       PinType *pin = i->data;
 
       if (!TEST_FLAG (HOLEFLAG, pin) &&
           pin->Number && NSTRCMP (PinNum, pin->Number) == 0 &&
           (!Same || !TEST_FLAG (DRCFLAG, pin)))
         {
-          conn->type = PIN_TYPE;
-          conn->ptr1 = element;
-          conn->ptr2 = pin;
-          conn->group = SLayer;        /* any layer will do */
-          conn->X = pin->X;
-          conn->Y = pin->Y;
+          conn->type  = PIN_TYPE;
+          conn->ptr1  = element;
+          conn->ptr2  = pin;
+          conn->group = bottom_group; /* any layer will do */
+          conn->X     = pin->X;
+          conn->Y     = pin->Y;
           return true;
         }
     }
@@ -227,12 +227,13 @@ ProcNetlist (LibraryType *net_menu)
   badnet = false;
 
   /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-  CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
 
   Wantlist = (NetListType *)calloc (1, sizeof (NetListType));
-  if (Wantlist)
-    {
+
+  if (Wantlist) {
+
       ALLPIN_LOOP (PCB->Data);
       {
 	pin->Spare = NULL;
@@ -455,88 +456,88 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
   Cardinal m, n;
   bool Warned = false;
 
-  for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++)
-    {
-      a = &Netl->Net[m];
-      ClearFlagOnAllObjects (false, DRCFLAG);
-      RatFindHook (a->Connection[0].type, a->Connection[0].ptr1,
-                   a->Connection[0].ptr2, a->Connection[0].ptr2,
-                   false, DRCFLAG, AndRats);
-      /* now anybody connected to the first point has DRCFLAG set */
-      /* so move those to this subnet */
-      CLEAR_FLAG (DRCFLAG, (PinType *) a->Connection[0].ptr2);
-      for (n = m + 1; n < Netl->NetN; n++)
-	{
-	  b = &Netl->Net[n];
-	  /* There can be only one connection in net b */
-	  if (TEST_FLAG (DRCFLAG, (PinType *) b->Connection[0].ptr2))
-	    {
-	      CLEAR_FLAG (DRCFLAG, (PinType *) b->Connection[0].ptr2);
-	      TransferNet (Netl, b, a);
-	      /* back up since new subnet is now at old index */
-	      n--;
-	    }
-	}
-      /* now add other possible attachment points to the subnet */
-      /* e.g. line end-points and vias */
-      /* don't add non-manhattan lines, the auto-router can't route to them */
-      ALLLINE_LOOP (PCB->Data);
+  for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++) {
+
+    a = &Netl->Net[m];
+    ClearFlagOnAllObjects (false, DRCFLAG);
+    RatFindHook (a->Connection[0].type, a->Connection[0].ptr1,
+                 a->Connection[0].ptr2, a->Connection[0].ptr2,
+                 false, DRCFLAG, AndRats);
+    /* now anybody connected to the first point has DRCFLAG set */
+    /* so move those to this subnet */
+    CLEAR_FLAG (DRCFLAG, (PinType *) a->Connection[0].ptr2);
+    for (n = m + 1; n < Netl->NetN; n++) {
+
+      b = &Netl->Net[n];
+      /* There can be only one connection in net b */
+      if (TEST_FLAG (DRCFLAG, (PinType *) b->Connection[0].ptr2))
       {
-	if (TEST_FLAG (DRCFLAG, line))
-	  {
-	    conn = GetConnectionMemory (a);
-	    conn->X = line->Point1.X;
-	    conn->Y = line->Point1.Y;
-	    conn->type = LINE_TYPE;
-	    conn->ptr1 = layer;
-	    conn->ptr2 = line;
-	    conn->group = GetLayerGroupNumberByPointer (layer);
-	    conn->menu = NULL;	/* agnostic view of where it belongs */
-	    conn = GetConnectionMemory (a);
-	    conn->X = line->Point2.X;
-	    conn->Y = line->Point2.Y;
-	    conn->type = LINE_TYPE;
-	    conn->ptr1 = layer;
-	    conn->ptr2 = line;
-	    conn->group = GetLayerGroupNumberByPointer (layer);
-	    conn->menu = NULL;
-	  }
+        CLEAR_FLAG (DRCFLAG, (PinType *) b->Connection[0].ptr2);
+        TransferNet (Netl, b, a);
+        /* back up since new subnet is now at old index */
+        n--;
       }
-      ENDALL_LOOP;
-      /* add polygons so the auto-router can see them as targets */
-      ALLPOLYGON_LOOP (PCB->Data);
-      {
-	if (TEST_FLAG (DRCFLAG, polygon))
-	  {
-	    conn = GetConnectionMemory (a);
-	    /* make point on a vertex */
-	    conn->X = polygon->Clipped->contours->head.point[0];
-	    conn->Y = polygon->Clipped->contours->head.point[1];
-	    conn->type = POLYGON_TYPE;
-	    conn->ptr1 = layer;
-	    conn->ptr2 = polygon;
-	    conn->group = GetLayerGroupNumberByPointer (layer);
-	    conn->menu = NULL;	/* agnostic view of where it belongs */
-	  }
-      }
-      ENDALL_LOOP;
-      VIA_LOOP (PCB->Data);
-      {
-	if (TEST_FLAG (DRCFLAG, via))
-	  {
-	    conn = GetConnectionMemory (a);
-	    conn->X = via->X;
-	    conn->Y = via->Y;
-	    conn->type = VIA_TYPE;
-	    conn->ptr1 = via;
-	    conn->ptr2 = via;
-	    conn->group = SLayer;
-	  }
-      }
-      END_LOOP;
-      if (!NoWarn)
-	Warned |= CheckShorts (a->Connection[0].menu);
     }
+    /* now add other possible attachment points to the subnet */
+    /* e.g. line end-points and vias */
+    /* don't add non-manhattan lines, the auto-router can't route to them */
+    ALLLINE_LOOP (PCB->Data);
+    {
+      if (TEST_FLAG (DRCFLAG, line)) {
+
+        conn = GetConnectionMemory (a);
+        conn->X = line->Point1.X;
+        conn->Y = line->Point1.Y;
+        conn->type = LINE_TYPE;
+        conn->ptr1 = layer;
+        conn->ptr2 = line;
+        conn->group = GetLayerGroupNumberByPointer (layer);
+        conn->menu = NULL;	/* agnostic view of where it belongs */
+        conn = GetConnectionMemory (a);
+        conn->X = line->Point2.X;
+        conn->Y = line->Point2.Y;
+        conn->type = LINE_TYPE;
+        conn->ptr1 = layer;
+        conn->ptr2 = line;
+        conn->group = GetLayerGroupNumberByPointer (layer);
+        conn->menu = NULL;
+      }
+    }
+    ENDALL_LOOP;
+    /* add polygons so the auto-router can see them as targets */
+    ALLPOLYGON_LOOP (PCB->Data);
+    {
+      if (TEST_FLAG (DRCFLAG, polygon)) {
+
+        conn = GetConnectionMemory (a);
+        /* make point on a vertex */
+        conn->X = polygon->Clipped->contours->head.point[0];
+        conn->Y = polygon->Clipped->contours->head.point[1];
+        conn->type = POLYGON_TYPE;
+        conn->ptr1 = layer;
+        conn->ptr2 = polygon;
+        conn->group = GetLayerGroupNumberByPointer (layer);
+        conn->menu = NULL;	/* agnostic view of where it belongs */
+      }
+    }
+    ENDALL_LOOP;
+    VIA_LOOP (PCB->Data);
+    {
+      if (TEST_FLAG (DRCFLAG, via)) {
+
+        conn = GetConnectionMemory (a);
+        conn->X = via->X;
+        conn->Y = via->Y;
+        conn->type = VIA_TYPE;
+        conn->ptr1 = via;
+        conn->ptr2 = via;
+        conn->group = bottom_group;
+      }
+    }
+    END_LOOP;
+    if (!NoWarn)
+      Warned |= CheckShorts (a->Connection[0].menu);
+  }
   ClearFlagOnAllObjects (false, DRCFLAG);
   return (Warned);
 }
@@ -789,7 +790,7 @@ AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionType *, registe
   if (changed)
     {
       IncrementUndoSerialNumber ();
-      if (PCB->Data->RatN > 0) 
+      if (PCB->Data->RatN > 0)
 	{
 	  Message ("%d rat line%s remaining\n", PCB->Data->RatN,
 		   PCB->Data->RatN > 1 ? "s" : "");
@@ -899,6 +900,7 @@ AddNet (void)
   Cardinal group1, group2;
   char ratname[20];
   int found;
+  int side;
   void *ptr1, *ptr2, *ptr3;
   LibraryMenuType *menu;
   LibraryEntryType *entry;
@@ -910,65 +912,73 @@ AddNet (void)
   found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point1.X,
 				  Crosshair.AttachedLine.Point1.Y, 5);
-  if (found == NO_TYPE)
-    {
+
+  if (found == NO_TYPE) {
+
       Message (_("No pad/pin under rat line\n"));
       return (NULL);
-    }
-  if (NAMEONPCB_NAME ((ElementType *) ptr1) == NULL
-      || *NAMEONPCB_NAME ((ElementType *) ptr1) == 0)
-    {
-      Message (_("You must name the starting element first\n"));
-      return (NULL);
-    }
+  }
+
+  if (NAMEONPCB_NAME ((ElementType *) ptr1) == NULL ||
+     *NAMEONPCB_NAME ((ElementType *) ptr1) == 0)
+  {
+    Message (_("You must name the starting element first\n"));
+    return (NULL);
+  }
 
   /* will work for pins to since the FLAG is common */
-  group1 = (TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ?
-	    GetLayerGroupNumberByNumber (solder_silk_layer) :
-	    GetLayerGroupNumberByNumber (component_silk_layer));
+  side   = TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ? BOTTOM_SIDE : TOP_SIDE;
+  group1 = GetLayerGroupNumberBySide (side);
+
   strcpy (name1, ConnectionName (found, ptr1, ptr2));
   found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point2.X,
 				  Crosshair.AttachedLine.Point2.Y, 5);
-  if (found == NO_TYPE)
-    {
-      Message (_("No pad/pin under rat line\n"));
-      return (NULL);
-    }
-  if (NAMEONPCB_NAME ((ElementType *) ptr1) == NULL
-      || *NAMEONPCB_NAME ((ElementType *) ptr1) == 0)
-    {
-      Message (_("You must name the ending element first\n"));
-      return (NULL);
-    }
-  group2 = (TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ?
-	    GetLayerGroupNumberByNumber (solder_silk_layer) :
-	    GetLayerGroupNumberByNumber (component_silk_layer));
+
+  if (found == NO_TYPE) {
+
+    Message (_("No pad/pin under rat line\n"));
+    return (NULL);
+  }
+
+  if (NAMEONPCB_NAME ((ElementType *) ptr1) == NULL ||
+    *NAMEONPCB_NAME ((ElementType *) ptr1) == 0)
+  {
+    Message (_("You must name the ending element first\n"));
+    return (NULL);
+  }
+
+  side   = TEST_FLAG (ONSOLDERFLAG, (PadType *) ptr2) ? BOTTOM_SIDE : TOP_SIDE;
+  group2 = GetLayerGroupNumberBySide (side);
+
   name2 = ConnectionName (found, ptr1, ptr2);
 
   menu = netnode_to_netname (name1);
-  if (menu)
-    {
-      if (netnode_to_netname (name2))
-	{
-	  Message (_
-		   ("Both connections already in netlist - cannot merge nets\n"));
-	  return (NULL);
-	}
-      entry = GetLibraryEntryMemory (menu);
-      entry->ListEntry = strdup (name2);
-      netnode_to_netname (name2);
-      goto ratIt;
+
+  if (menu) {
+
+    if (netnode_to_netname (name2)) {
+
+      Message (_
+      ("Both connections already in netlist - cannot merge nets\n"));
+      return (NULL);
     }
+    entry = GetLibraryEntryMemory (menu);
+    entry->ListEntry = strdup (name2);
+    netnode_to_netname (name2);
+    goto ratIt;
+  }
+
   /* ok, the first name did not belong to a net */
   menu = netnode_to_netname (name2);
-  if (menu)
-    {
-      entry = GetLibraryEntryMemory (menu);
-      entry->ListEntry = strdup (name1);
-      netnode_to_netname (name1);
-      goto ratIt;
-    }
+
+  if (menu) {
+
+    entry = GetLibraryEntryMemory (menu);
+    entry->ListEntry = strdup (name1);
+    netnode_to_netname (name1);
+    goto ratIt;
+  }
 
   /*
    * neither belong to a net, so create a new one.

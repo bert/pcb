@@ -95,7 +95,7 @@ rubber_callback (const BoxType * b, void *cl)
     return 0;
   if (line == i->line)
     return 0;
-  /* 
+  /*
    * Check to see if the line touches a rectangular region.
    * To do this we need to look for the intersection of a circular
    * region and a rectangular region.
@@ -113,7 +113,7 @@ rubber_callback (const BoxType * b, void *cl)
 	      ((i->box.Y1 <= line->Point1.Y) &&
 	       (line->Point1.Y <= i->box.Y2)))
 	    {
-	      /* 
+	      /*
 	       * The circle is positioned such that the closest point
 	       * on the rectangular region boundary is not at a corner
 	       * of the rectangle.  i.e. the shortest line from circle
@@ -124,7 +124,7 @@ rubber_callback (const BoxType * b, void *cl)
 	    }
 	  else
 	    {
-	      /* 
+	      /*
 	       * Now we must check the distance from the center of the
 	       * circle to the corners of the rectangle since the
 	       * closest part of the rectangular region is the corner.
@@ -222,7 +222,7 @@ static void
 CheckPadForRubberbandConnection (PadType *Pad)
 {
   Coord half = Pad->Thickness / 2;
-  Cardinal i, group;
+  Cardinal side, group;
   struct rubber_info info;
 
   info.box.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - half;
@@ -231,8 +231,9 @@ CheckPadForRubberbandConnection (PadType *Pad)
   info.box.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + half;
   info.radius = 0;
   info.line = NULL;
-  i = TEST_FLAG (ONSOLDERFLAG, Pad) ? solder_silk_layer : component_silk_layer;
-  group = GetLayerGroupNumberByNumber (i);
+
+  side  = TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE;
+  group = GetLayerGroupNumberBySide (side);
 
   /* check all visible layers in the same group */
   GROUP_LOOP (PCB->Data, group);
@@ -317,15 +318,15 @@ static void
 CheckPadForRat (PadType *Pad)
 {
   struct rinfo info;
-  Cardinal i;
+  Cardinal side;
 
-  i = TEST_FLAG (ONSOLDERFLAG, Pad) ? solder_silk_layer : component_silk_layer;
-  info.group = GetLayerGroupNumberByNumber (i);
-  info.pad = Pad;
-  info.type = PAD_TYPE;
+  side       = TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE;
+  info.group = GetLayerGroupNumberBySide (side);
 
-  r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL, rat_callback,
-	    &info);
+  info.pad   = Pad;
+  info.type  = PAD_TYPE;
+
+  r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL, rat_callback, &info);
 }
 
 static void

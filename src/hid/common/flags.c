@@ -181,7 +181,7 @@ layer_type_to_file_name (int idx, int style)
       group = GetLayerGroupNumberByNumber(idx);
       nlayers = PCB->LayerGroups.Number[group];
       single_name = PCB->Data->Layer[idx].Name;
-      if (group == GetLayerGroupNumberByNumber(component_silk_layer))
+      if (group == GetLayerGroupNumberBySide(TOP_SIDE))
 	{
 	  if (style == FNS_first
 	      || (style == FNS_single
@@ -189,7 +189,7 @@ layer_type_to_file_name (int idx, int style)
 	    return single_name;
 	  return "top";
 	}
-      else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
+      else if (group == GetLayerGroupNumberBySide(BOTTOM_SIDE))
 	{
 	  if (style == FNS_first
 	      || (style == FNS_single

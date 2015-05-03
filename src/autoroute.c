@@ -959,27 +959,29 @@ CreateRouteData ()
     }
   /* if via visibility is turned off, don't use them */
   AutoRouteParameters.use_vias = routing_layers > 1 && PCB->ViaOn;
-  front = GetLayerGroupNumberByNumber (component_silk_layer);
-  back = GetLayerGroupNumberByNumber (solder_silk_layer);
+  front = GetLayerGroupNumberBySide (TOP_SIDE);
+  back = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+
   /* determine preferred routing direction on each group */
-  for (i = 0; i < max_group; i++)
-    {
-      if (i != back && i != front)
-	{
-	  x_cost[i] = (i & 1) ? 2 : 1;
-	  y_cost[i] = (i & 1) ? 1 : 2;
-	}
-      else if (i == back)
-	{
-	  x_cost[i] = 4;
-	  y_cost[i] = 2;
-	}
-      else
-	{
-	  x_cost[i] = 2;
-	  y_cost[i] = 2;
-	}
+  for (i = 0; i < max_group; i++) {
+
+    if (i != back && i != front) {
+
+      x_cost[i] = (i & 1) ? 2 : 1;
+      y_cost[i] = (i & 1) ? 1 : 2;
     }
+    else if (i == back) {
+
+      x_cost[i] = 4;
+      y_cost[i] = 2;
+    }
+    else {
+
+      x_cost[i] = 2;
+      y_cost[i] = 2;
+    }
+  }
+
   /* create routedata */
   rd = (routedata_t *)malloc (sizeof (*rd));
   memset ((void *) rd, 0, sizeof (*rd));
@@ -1408,7 +1410,7 @@ TargetPoint (CheapPointType * nextpoint, const routebox_t * target)
 }
 
 /* return the *minimum cost* from a point to a route box, including possible
- * via costs if the route box is on a different layer. 
+ * via costs if the route box is on a different layer.
  * assume routbox is bloated unless it is an expansion area
  */
 static cost_t
@@ -2095,7 +2097,7 @@ __Expand_this_rect (const BoxType * box, void *cl)
   if (rb->flags.touched)
     return 0;
 
-  /* The inflated box outer edges include its own 
+  /* The inflated box outer edges include its own
    * track width plus its own keepaway.
    *
    * To check for intersection, we need to expand
@@ -2241,8 +2243,8 @@ boink_box (routebox_t * rb, struct E_result *res, direction_t dir)
  * for touch against such an object. Usually the expanding edge
  * bumps into neighboring pins on the same device that require a
  * keepaway, preventing seeing a target immediately. Rather than await
- * another expansion to actually touch the target, the edge breaker code 
- * looks past the keepaway to see these targets even though they 
+ * another expansion to actually touch the target, the edge breaker code
+ * looks past the keepaway to see these targets even though they
  * weren't actually touched in the expansion.
  */
 struct E_result *
@@ -2389,8 +2391,8 @@ Expand (rtree_t * rtree, edge_t * e, const BoxType * box)
 /* blocker_to_heap puts the blockers into a heap so they
  * can be retrieved in clockwise order. If a blocker
  * is also a target, it gets put into the vector too.
- * It returns 1 for any fixed blocker that is not part 
- * of this net and zero otherwise. 
+ * It returns 1 for any fixed blocker that is not part
+ * of this net and zero otherwise.
  */
 static int
 blocker_to_heap (heap_t * heap, routebox_t * rb,
@@ -2927,7 +2929,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	      /* if the last one didn't become a corner,
 	       * we still want to expand it straight out
 	       * in the direction of the previous edge,
-	       * which it belongs to. 
+	       * which it belongs to.
 	       */
 	      BoxType db = previous_edge (last, dir, &rb->sbox);
 	      moveable_edge (edges, &db, (direction_t)(dir - 1), rb, NULL, e, targets, s,
@@ -2980,7 +2982,7 @@ BreakManyEdges (struct routeone_state * s, rtree_t * targets, rtree_t * tree,
 	   * (1) it hit the board edge or (2) was the source of our expansion
 	   *
 	   * for this case (of hitting nothing) we give up trying for corner
-	   * expansions because it is likely that they're not possible anyway 
+	   * expansions because it is likely that they're not possible anyway
 	   */
 	  if ((e->expand_dir == ALL ? e->rb->came_from : e->expand_dir) !=
 	      ((dir + 2) % 4))
@@ -3292,7 +3294,7 @@ RD_DrawLine (routedata_t * rd,
       return;
     }
   /* Check if the lines concatenat. We only check the
-   * normal expected nextpoint=lastpoint condition 
+   * normal expected nextpoint=lastpoint condition
    */
   if (X1 == qX2 && Y1 == qY2 && qhthick == halfthick && qgroup == group)
     {
@@ -3518,7 +3520,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
       /* the target was a plane, so we need to find a good spot for the via
        * now. It's logical to place it close to the source box which
        * is where we're utlimately headed on this path. However, it
-       * must reside in the plane as well as the via area too. 
+       * must reside in the plane as well as the via area too.
        */
       nextpoint.X = CENTER_X (path->sbox);
       nextpoint.Y = CENTER_Y (path->sbox);
@@ -4242,7 +4244,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	  /* if there is already something here on this layer (like an
 	   * EXPANSION_AREA), then we don't want to expand from here
 	   * at least not inside the expansion area. A PLANE on the
-	   * other hand may be a target, or not. 
+	   * other hand may be a target, or not.
 	   */
 	  intersecting =
 	    FindOneInBox (rd->layergrouptree[e->rb->group], e->rb);
@@ -4675,7 +4677,7 @@ RouteAll (routedata_t * rd)
   int this_heap_size;
   int this_heap_item;
 
-  /* initialize heap for first pass; 
+  /* initialize heap for first pass;
    * do smallest area first; that makes
    * the subsequent costs more representative */
   this_pass = heap_create ();

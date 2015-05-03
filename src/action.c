@@ -1391,7 +1391,7 @@ NotifyMode (void)
             int flag = CLEARLINEFLAG;
 
             if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
-              GetLayerGroupNumberByNumber (solder_silk_layer))
+              GetLayerGroupNumberBySide (BOTTOM_SIDE))
               flag |= ONSOLDERFLAG;
 
             if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,

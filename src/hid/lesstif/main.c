@@ -614,79 +614,90 @@ static int
 SwapSides (int argc, char **argv, Coord x, Coord y)
 {
   int old_shown_side = Settings.ShowSolderSide;
-  int comp_group = GetLayerGroupNumberByNumber (component_silk_layer);
-  int solder_group = GetLayerGroupNumberByNumber (solder_silk_layer);
-  int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
-  int comp_layer;
-  int solder_layer;
-  int comp_showing = group_showing (comp_group, &comp_layer);
-  int solder_showing = group_showing (solder_group, &solder_layer);
+  int top_group      = GetLayerGroupNumberBySide (TOP_SIDE);
+  int bottom_group   = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  int active_group   = GetLayerGroupNumberByNumber (LayerStack[0]);
+  int top_showing    = group_showing (top_group, &top_layer);
+  int bottom_showing = group_showing (bottom_group, &bottom_layer);
 
-  if (argc > 0)
-    {
-      switch (argv[0][0]) {
+  int bottom_layer;
+  int top_layer;
+
+  if (argc > 0) {
+
+    switch (argv[0][0]) {
       case 'h':
       case 'H':
-	flip_x = ! flip_x;
-	break;
+        flip_x = ! flip_x;
+        break;
       case 'v':
       case 'V':
-	flip_y = ! flip_y;
-	break;
+        flip_y = ! flip_y;
+        break;
       case 'r':
       case 'R':
-	flip_x = ! flip_x;
-	flip_y = ! flip_y;
-	break;
+        flip_x = ! flip_x;
+        flip_y = ! flip_y;
+        break;
       default:
-	return 1;
-      }
-      /* SwapSides will swap this */
-      Settings.ShowSolderSide = (flip_x == flip_y);
+        return 1;
     }
+    /* SwapSides will swap this */
+    Settings.ShowSolderSide = (flip_x == flip_y);
+  }
 
   n = 0;
-  if (flip_x)
+
+  if (flip_x) {
     stdarg (XmNprocessingDirection, XmMAX_ON_LEFT);
-  else
+  }
+  else {
     stdarg (XmNprocessingDirection, XmMAX_ON_RIGHT);
+  }
+
   XtSetValues (hscroll, args, n);
 
   n = 0;
-  if (flip_y)
+
+  if (flip_y) {
     stdarg (XmNprocessingDirection, XmMAX_ON_TOP);
-  else
+  }
+  else {
     stdarg (XmNprocessingDirection, XmMAX_ON_BOTTOM);
+  }
+
   XtSetValues (vscroll, args, n);
 
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
 
   /* The idea is that if we're looking at the front side and the front
-     layer is active (or visa versa), switching sides should switch
-     layers too.  We used to only do this if the other layer wasn't
-     shown, but we now do it always.  Change it back if users get
-     confused.  */
-  if (Settings.ShowSolderSide != old_shown_side)
-    {
-      if (Settings.ShowSolderSide)
-	{
-	  if (active_group == comp_group)
-	    {
-	      if (comp_showing && !solder_showing)
-		ChangeGroupVisibility (comp_layer, 0, 0);
-	      ChangeGroupVisibility (solder_layer, 1, 1);
-	    }
-	}
-      else
-	{
-	  if (active_group == solder_group)
-	    {
-	      if (solder_showing && !comp_showing)
-		ChangeGroupVisibility (solder_layer, 0, 0);
-	      ChangeGroupVisibility (comp_layer, 1, 1);
-	    }
-	}
+   *    layer is active (or visa versa), switching sides should switch
+   *    layers too.  We used to only do this if the other layer wasn't
+   *    shown, but we now do it always.  Change it back if users get
+   *    confused.  */
+  if (Settings.ShowSolderSide != old_shown_side) {
+
+    if (Settings.ShowSolderSide) {
+
+      if (active_group == top_group) {
+
+        if (comp_showing && !solder_showing) {
+          ChangeGroupVisibility (comp_layer, 0, 0);
+        }
+        ChangeGroupVisibility (solder_layer, 1, 1);
+      }
     }
+    else {
+
+      if (active_group == solder_group) {
+
+        if (bottom_showing && !top_showing) {
+          ChangeGroupVisibility (bottom_layer, 0, 0);
+        }
+        ChangeGroupVisibility (top_layer, 1, 1);
+      }
+    }
+  }
   lesstif_invalidate_all ();
   return 0;
 }

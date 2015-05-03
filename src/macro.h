@@ -151,11 +151,11 @@ extern int mem_any_set (unsigned char *, int);
 	((TEST_FLAG(ONSOLDERFLAG, (o)) != 0) == SWAP_IDENT)
 
 /* ---------------------------------------------------------------------------
- *  Determines if an object is on the given side. side is either BOTTOM_SILK_LAYER
- *  or TOP_SILK_LAYER.
- */
+  * Determines if an object is on the given side. side is either BOTTOM_GROUP
+  * or TOP_GROUP.
+*/
 #define ON_SIDE(element, side) \
-        (TEST_FLAG (ONSOLDERFLAG, element) == (side == BOTTOM_SILK_LAYER))
+        (TEST_FLAG (ONSOLDERFLAG, element) == (side == BOTTOM_SIDE))
 
 /* ---------------------------------------------------------------------------
  * some loop shortcuts

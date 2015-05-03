@@ -628,7 +628,7 @@ static Extra multi_next;
 static GHashTable *lines;
 static GHashTable *arcs;
 static int did_something;
-static int current_is_component, current_is_solder;
+static int current_is_top, current_is_bottom;
 
 /* If set, these are the pins/pads/vias that this path ends on.  */
 /* static void *start_pin_pad, *end_pin_pad; */
@@ -947,8 +947,8 @@ static int
 find_pair_padline_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
-  PadType  *pad  = (PadType *) cl;
-  Extra    *e    = LINE2EXTRA (line);
+  PadType *pad = (PadType *) cl;
+  Extra *e = LINE2EXTRA (line);
   int hits;
   double t;
   int intersect;
@@ -956,13 +956,12 @@ find_pair_padline_callback (const BoxType * b, void *cl)
 
   if (TEST_FLAG (ONSOLDERFLAG, pad)) {
 
-    if (!current_is_solder) {
+    if (!current_is_bottom)
       return 0;
-    }
   }
   else {
 
-    if (!current_is_component) {
+    if (!current_is_top) {
       return 0;
     }
   }
@@ -986,32 +985,32 @@ find_pair_padline_callback (const BoxType * b, void *cl)
   /* FIXME: this is for round pads.  Good enough for now, but add
      square pad support later.  */
   intersect = intersection_of_linesegs (pad->Point1.X, pad->Point1.Y,
-					 pad->Point2.X, pad->Point2.Y,
-					 line->Point1.X, line->Point1.Y,
-					 line->Point2.X, line->Point2.Y,
-					 NULL, NULL);
+                     pad->Point2.X, pad->Point2.Y,
+                     line->Point1.X, line->Point1.Y,
+                     line->Point2.X, line->Point2.Y,
+                     NULL, NULL);
   p1_d = dist_lsp(line->Point1.X, line->Point1.Y,
-		  line->Point2.X, line->Point2.Y,
-		  pad->Point1.X, pad->Point1.Y);
+          line->Point2.X, line->Point2.Y,
+          pad->Point1.X, pad->Point1.Y);
   p2_d = dist_lsp(line->Point1.X, line->Point1.Y,
-		  line->Point2.X, line->Point2.Y,
-		  pad->Point2.X, pad->Point2.Y);
+          line->Point2.X, line->Point2.Y,
+          pad->Point2.X, pad->Point2.Y);
 
   if (intersect || p1_d < t || p2_d < t) {
 
-      /* It does.  */
-      /* FIXME: we should split the line.  */
+    /* It does.  */
+    /* FIXME: we should split the line.  */
 #if TRACE1
-      pcb_printf("splitting line %#mD-%#mD because it passes through pad %#mD-%#mD r %#mS\n",
-	     line->Point1.X, line->Point1.Y,
-	     line->Point2.X, line->Point2.Y,
-	     pad->Point1.X, pad->Point1.Y,
-	     pad->Point2.X, pad->Point2.Y,
-	     pad->Thickness/2);
+    pcb_printf("splitting line %#mD-%#mD because it passes through pad %#mD-%#mD r %#mS\n",
+               line->Point1.X, line->Point1.Y,
+               line->Point2.X, line->Point2.Y,
+               pad->Point1.X, pad->Point1.Y,
+               pad->Point2.X, pad->Point2.Y,
+               pad->Thickness/2);
 #endif
-      unlink_end (e, &e->start.next);
-      unlink_end (e, &e->end.next);
-    }
+    unlink_end (e, &e->start.next);
+    unlink_end (e, &e->end.next);
+  }
 
   return 0;
 }
@@ -1024,16 +1023,18 @@ find_pair_padarc_callback (const BoxType * b, void *cl)
   Extra *e = ARC2EXTRA (arc);
   int hits;
 
-  if (TEST_FLAG (ONSOLDERFLAG, pad))
-    {
-      if (!current_is_solder)
-	return 0;
+  if (TEST_FLAG (ONSOLDERFLAG, pad)) {
+
+    if (!current_is_bottom) {
+      return 0;
     }
-  else
-    {
-      if (!current_is_component)
-	return 0;
+  }
+  else {
+
+    if (!current_is_top) {
+      return 0;
     }
+  }
 
   hits = check_point_in_pad (pad, e->start.x, e->start.y, &(e->start));
   hits += check_point_in_pad (pad, e->end.x, e->end.y, &(e->end));
@@ -1793,21 +1794,22 @@ gp_pad_cb (const BoxType *b, void *cb)
   const PadType *p = (PadType *) b;
   Coord t2 = (p->Thickness + 1) / 2;
 
-  if (p == start_pinpad || p == end_pinpad)
+  if (p == start_pinpad || p == end_pinpad) {
     return 0;
+  }
 
   if (TEST_FLAG (ONSOLDERFLAG, p)) {
 
-      if (!current_is_solder) {
-	    return 0;
-      }
+    if (!current_is_bottom) {
+      return 0;
+    }
   }
   else {
 
-      if (!current_is_component) {
-	    return 0;
-      }
+    if (!current_is_top) {
+      return 0;
     }
+  }
 
   /* FIXME: we lump octagonal pads in with square; safe, but not
      optimal.  I don't think we even support octagonal pads.  */
@@ -2592,13 +2594,14 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
     select_flags = FOUNDFLAG;
 
   printf("optimizing...\n");
+
   /* This canonicalizes all the lines, and cleans up near-misses.  */
   /* hid_actionl ("djopt", "puller", 0); */
 
-  current_is_solder = (GetLayerGroupNumberByPointer(CURRENT)
-		       == GetLayerGroupNumberByNumber (solder_silk_layer));
-  current_is_component = (GetLayerGroupNumberByPointer(CURRENT)
-			  == GetLayerGroupNumberByNumber (component_silk_layer));
+  current_is_bottom = (GetLayerGroupNumberByPointer(CURRENT)
+                    == GetLayerGroupNumberBySide (BOTTOM_SIDE));
+  current_is_top = (GetLayerGroupNumberByPointer(CURRENT)
+                 == GetLayerGroupNumberBySide (TOP_SIDE));
 
   lines = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
   arcs  = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
