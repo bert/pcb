@@ -122,16 +122,27 @@ static int
 LibraryChanged (int argc, char **argv, Coord x, Coord y)
 {
   int i;
-  if (!Library.MenuN)
+
+  if (!Library.MenuN) {
     return 0;
-  if (build_library_dialog ())
+  }
+
+  if (build_library_dialog ()) {
     return 0;
+  }
+
   last_pick = -1;
-  if (library_strings)
+
+  if (library_strings) {
     free (library_strings);
+  }
+
   library_strings = (XmString *) malloc (Library.MenuN * sizeof (XmString));
-  for (i = 0; i < Library.MenuN; i++)
-    library_strings[i] = XmStringCreatePCB (Library.Menu[i].Name);
+
+  for (i = 0; i < Library.MenuN; i++) {
+    library_strings[i] = XmStringCreatePCB (pcb_basename (Library.Menu[i].Name));
+  }
+
   n = 0;
   stdarg (XmNitems, library_strings);
   stdarg (XmNitemCount, Library.MenuN);

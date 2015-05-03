@@ -33,24 +33,25 @@
 #include <stdio.h>		/* needed to define 'FILE *' */
 #include "global.h"
 
+
 FILE *CheckAndOpenFile (char *, bool, bool, bool *, bool *);
 FILE *OpenConnectionDataFile (void);
-int SavePCB (char *);
-int LoadPCB (char *);
-int RevertPCB (void);
-void EnableAutosave (void);
-void Backup (void);
-void SaveInTMP (void);
-void EmergencySave (void);
-void DisableEmergencySave (void);
-int ReadLibraryContents (void);
-int ImportNetlist (char *);
-int SaveBufferElements (char *);
-void PreLoadElementPCB (void);
-void PostLoadElementPCB (void);
-void sort_netlist (void);
 
-/* 
+int   SavePCB (char *);
+int   LoadPCB (char *);
+int   RevertPCB (void);
+void  EnableAutosave (void);
+void  Backup (void);
+void  SaveInTMP (void);
+void  EmergencySave (void);
+void  DisableEmergencySave (void);
+char *pcb_basename (char *fullname);
+int   ReadLibraryContents (void);
+int   ImportNetlist (char *);
+int   SaveBufferElements (char *);
+void  sort_netlist (void);
+
+/*
  * Whenever the pcb file format is modified, this version number
  * should be updated to the date when the new code is committed.
  * It will be written out to the file and also used by pcb to give

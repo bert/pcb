@@ -56,7 +56,7 @@
 #endif
 
 #include "gui.h"
-#include "global.h"
+#include "file.h"
 #include "buffer.h"
 #include "data.h"
 #include "set.h"
@@ -101,9 +101,11 @@ library_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 
 enum
 {
-  MENU_NAME_COLUMN,		/* Text to display in the tree     */
-  MENU_LIBRARY_COLUMN,		/* Pointer to the LibraryMenuType  */
-  MENU_ENTRY_COLUMN,		/* Pointer to the LibraryEntryType */
+  MENU_TOPPATH_COLUMN,       /* Top path of the library */
+  MENU_SUBPATH_COLUMN,       /* Relative path to the top */
+  MENU_NAME_COLUMN,          /* Text to display in the tree     */
+  MENU_LIBRARY_COLUMN,       /* Pointer to the LibraryMenuType  */
+  MENU_ENTRY_COLUMN,         /* Pointer to the LibraryEntryType */
   N_MENU_COLUMNS
 };
 
@@ -221,15 +223,14 @@ static GObjectClass *library_window_parent_class = NULL;
  *  \param [in] data  The library dialog.
  *  \returns TRUE if item should be visible, FALSE otherwise.
  */
-static gboolean
-lib_model_filter_visible_func (GtkTreeModel * model,
-			       GtkTreeIter * iter, gpointer data)
+static int
+lib_model_filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, void *data)
 {
   GhidLibraryWindow *library_window = (GhidLibraryWindow *) data;
-  const gchar *compname;
-  gchar *compname_upper, *text_upper, *pattern;
-  const gchar *text;
-  gboolean ret;
+  const char *compname;
+  char *compname_upper, *text_upper, *pattern;
+  const char *text;
+  bool ret;
 
   g_assert (GHID_IS_LIBRARY_WINDOW (data));
 
@@ -241,24 +242,24 @@ lib_model_filter_visible_func (GtkTreeModel * model,
 
   /* If this is a source, only display it if it has children that
    * match */
-  if (gtk_tree_model_iter_has_child (model, iter))
-    {
-      GtkTreeIter iter2;
+  if (gtk_tree_model_iter_has_child (model, iter)) {
 
-      gtk_tree_model_iter_children (model, &iter2, iter);
-      ret = FALSE;
-      do
-	{
-	  if (lib_model_filter_visible_func (model, &iter2, data))
-	    {
-	      ret = TRUE;
-	      break;
-	    }
-	}
-      while (gtk_tree_model_iter_next (model, &iter2));
-    }
-  else
-    {
+    GtkTreeIter iter2;
+
+    gtk_tree_model_iter_children (model, &iter2, iter);
+    ret = FALSE;
+
+    do {
+
+      if (lib_model_filter_visible_func (model, &iter2, data)) {
+
+        ret = TRUE;
+        break;
+      }
+    }while (gtk_tree_model_iter_next (model, &iter2));
+  }
+  else {
+
       gtk_tree_model_get (model, iter, MENU_NAME_COLUMN, &compname, -1);
       /* Do a case insensitive comparison, converting the strings
          to uppercase */
@@ -316,7 +317,7 @@ tree_row_activated (GtkTreeView       *tree_view,
  *  \param [in] user_data Not used.
  *  \return TRUE if CTRL-C event was handled, FALSE otherwise.
  */
-static gboolean
+static bool
 tree_row_key_pressed (GtkTreeView *tree_view,
                       GdkEventKey *event,
                       gpointer     user_data)
@@ -325,7 +326,7 @@ tree_row_key_pressed (GtkTreeView *tree_view,
   GtkTreeModel *model;
   GtkTreeIter iter;
   GtkClipboard *clipboard;
-  const gchar *compname;
+  const char *compname;
   guint default_mod_mask = gtk_accelerator_get_default_mod_mask();
 
   /* Handle both lower- and uppercase `c' */
@@ -368,7 +369,7 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
   GtkTreeIter iter;
   GhidLibraryWindow *library_window = (GhidLibraryWindow *) user_data;
   LibraryEntryType *entry = NULL;
-  gchar *m4_args;
+  char *m4_args;
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     return;
@@ -415,6 +416,22 @@ out:
 		"element-data", PASTEBUFFER->Data->Element->data, NULL);
 }
 
+/*! \brief If there is only one toplevel node, expand it. */
+static void
+maybe_expand_toplevel_node (GtkTreeView *tree_view)
+{
+  GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
+  if (gtk_tree_model_iter_n_children (model, NULL) == 1)
+    {
+      GtkTreePath *path = gtk_tree_path_new_first ();
+      if (path != NULL)
+        {
+          gtk_tree_view_expand_row (tree_view, path, FALSE);
+          gtk_tree_path_free(path);
+        }
+    }
+}
+
 /*! \brief Requests re-evaluation of the filter.
  *  \par Function Description
  *  This is the timeout function for the filtering of footprint
@@ -426,8 +443,8 @@ out:
  *  \param [in] data The library dialog.
  *  \returns FALSE to remove the timeout.
  */
-static gboolean
-library_window_filter_timeout (gpointer data)
+static int
+library_window_filter_timeout (void *data)
 {
   GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (data);
   GtkTreeModel *model;
@@ -437,19 +454,22 @@ library_window_filter_timeout (gpointer data)
 
   model = gtk_tree_view_get_model (library_window->libtreeview);
 
-  if (model != NULL)
-    {
-      const gchar *text = gtk_entry_get_text (library_window->entry_filter);
-      gtk_tree_model_filter_refilter ((GtkTreeModelFilter *) model);
-      if (strcmp (text, "") != 0)
-        {
-          /* filter text not-empty */
-          gtk_tree_view_expand_all (library_window->libtreeview);
-        } else {
-          /* filter text is empty, collapse expanded tree */
-          gtk_tree_view_collapse_all (library_window->libtreeview);
-        }
+  if (model != NULL) {
+
+    const char *text = gtk_entry_get_text (library_window->entry_filter);
+    gtk_tree_model_filter_refilter ((GtkTreeModelFilter *) model);
+
+    if (strcmp (text, "") != 0) {
+
+      /* filter text not-empty */
+      gtk_tree_view_expand_all (library_window->libtreeview);
     }
+    else {
+      /* filter text is empty, collapse expanded tree */
+      gtk_tree_view_collapse_all (library_window->libtreeview);
+      maybe_expand_toplevel_node (library_window->libtreeview);
+    }
+  }
 
   /* return FALSE to remove the source */
   return FALSE;
@@ -472,7 +492,7 @@ library_window_callback_filter_entry_changed (GtkEditable * editable,
 {
   GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (user_data);
   GtkWidget *button;
-  gboolean sensitive;
+  bool sensitive;
 
   /* turns button off if filter entry is empty */
   /* turns it on otherwise */
@@ -489,8 +509,8 @@ library_window_callback_filter_entry_changed (GtkEditable * editable,
   /* Schedule an update of the footprint list filter in
    * LIBRARY_FILTER_INTERVAL milliseconds */
   library_window->filter_timeout = g_timeout_add (LIBRARY_FILTER_INTERVAL,
-						  library_window_filter_timeout,
-						  library_window);
+                                                  library_window_filter_timeout,
+                                                  library_window);
 
 }
 
@@ -522,60 +542,105 @@ library_window_callback_filter_button_clicked (GtkButton * button,
  * sources and the leaves are the footprints.
  */
 static GtkTreeModel *
-create_lib_tree_model (GhidLibraryWindow * library_window)
+create_lib_tree_model (GhidLibraryWindow *library_window)
 {
   GtkTreeStore *tree;
-  GtkTreeIter iter, p_iter, e_iter, c_iter;
-  gchar *name;
-  gboolean exists;
+  GtkTreeIter *iter, p_iter, e_iter, c_iter;
+
+  char *rel_path, empty_string[] = ""; /* writable */
+  char *tok_start, *tok_end;
+  char *name;
+  bool exists;
 
   tree = gtk_tree_store_new (N_MENU_COLUMNS,
-			     G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
+                 G_TYPE_STRING, G_TYPE_STRING,
+                 G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
 
   MENU_LOOP (&Library);
   {
     /* Watch for directory changes of library parts and create new
        |  parent iter at each change.
      */
-    if (!menu->directory)	/* Shouldn't happen */
+    if (!menu->directory)   /* Shouldn't happen */
       menu->directory = g_strdup ("???");
 
-    exists = FALSE;
-    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (tree), &e_iter))
-      do
-	{
-	  gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
-			      MENU_NAME_COLUMN, &name, -1);
-	  if (!strcmp (name, menu->directory))
-	    {
-	      exists = TRUE;
-	      break;
-	    }
-	}
-      while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
+    rel_path = menu->Name;
 
-    if (exists)
-      p_iter = e_iter;
-    else
-      {
-	gtk_tree_store_append (tree, &p_iter, NULL);
-	gtk_tree_store_set (tree, &p_iter,
-			    MENU_NAME_COLUMN, menu->directory,
-			    MENU_LIBRARY_COLUMN, NULL,
-			    MENU_ENTRY_COLUMN, NULL, -1);
+    if (strncmp(rel_path, menu->directory, strlen(menu->directory)) == 0) {
+
+      if (rel_path[strlen(menu->directory)] == '\0') {
+        rel_path = empty_string;
       }
-    gtk_tree_store_append (tree, &iter, &p_iter);
-    gtk_tree_store_set (tree, &iter,
-			MENU_NAME_COLUMN, menu->Name,
-			MENU_LIBRARY_COLUMN, menu,
-			MENU_ENTRY_COLUMN, NULL, -1);
+      else if (rel_path[strlen(menu->directory)] == '/') {
+        rel_path += strlen(menu->directory) + 1;
+      }
+    }
+
+    iter = NULL;
+    tok_start = tok_end = rel_path;
+
+    do {
+      char saved_ch = *tok_end;
+      *tok_end = '\0';
+
+      exists = FALSE;
+
+      if (gtk_tree_model_iter_children (GTK_TREE_MODEL (tree), &e_iter, iter)) {
+
+        do {
+          gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+                              MENU_TOPPATH_COLUMN, &name, -1);
+          if (strcmp (name, menu->directory) != 0)
+            continue;
+
+          gtk_tree_model_get (GTK_TREE_MODEL (tree), &e_iter,
+                              MENU_SUBPATH_COLUMN, &name, -1);
+          if (strcmp (name, rel_path) != 0)
+            continue;
+
+          exists = TRUE;
+          break;
+
+        } while (gtk_tree_model_iter_next (GTK_TREE_MODEL (tree), &e_iter));
+      }
+
+      if (exists) {
+        p_iter = e_iter;
+      }
+      else {
+
+        gtk_tree_store_append (tree, &p_iter, iter);
+        gtk_tree_store_set (tree, &p_iter,
+                            MENU_TOPPATH_COLUMN, menu->directory,
+                            MENU_SUBPATH_COLUMN, rel_path,
+                            MENU_NAME_COLUMN,
+                            tok_end == rel_path ?
+                            basename(menu->directory) : tok_start,
+                            MENU_LIBRARY_COLUMN,
+                            saved_ch == '\0' ? menu : NULL,
+                            MENU_ENTRY_COLUMN, NULL, -1);
+      }
+
+      iter = &p_iter;
+
+      *tok_end = saved_ch;
+
+      tok_start = tok_end;
+      if (*tok_start == '/')
+        tok_start++;
+      tok_end = strchrnul(tok_start, '/');
+
+    } while (*tok_start != '\0');
+
     ENTRY_LOOP (menu);
     {
-      gtk_tree_store_append (tree, &c_iter, &iter);
+      gtk_tree_store_append (tree, &c_iter, iter);
       gtk_tree_store_set (tree, &c_iter,
-			  MENU_NAME_COLUMN, entry->ListEntry,
-			  MENU_LIBRARY_COLUMN, menu,
-			  MENU_ENTRY_COLUMN, entry, -1);
+              MENU_TOPPATH_COLUMN, menu->directory,
+              MENU_SUBPATH_COLUMN, rel_path,
+              MENU_NAME_COLUMN, entry->ListEntry,
+              MENU_LIBRARY_COLUMN, menu,
+              MENU_ENTRY_COLUMN, entry, -1);
     }
     END_LOOP;
 
@@ -593,8 +658,7 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
  * new signals, and then updates the library window.
  */
 static void
-library_window_callback_refresh_library (GtkButton * button,
-					 gpointer user_data)
+library_window_callback_refresh_library (GtkButton * button, void *user_data)
 {
   GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (user_data);
   GtkTreeModel *model;
@@ -613,19 +677,21 @@ library_window_callback_refresh_library (GtkButton * button,
 					  library_window, NULL);
 
   gtk_tree_view_set_model (library_window->libtreeview, model);
+  maybe_expand_toplevel_node (library_window->libtreeview);
 }
 #endif
 
 
 /*! \brief Creates the treeview for the "Library" view */
 static GtkWidget *
-create_lib_treeview (GhidLibraryWindow * library_window)
+create_lib_treeview (GhidLibraryWindow *library_window)
 {
-  GtkWidget *libtreeview, *vbox, *scrolled_win, *label,
-    *hbox, *entry, *button;
-  GtkTreeModel *child_model, *model;
-  GtkTreeSelection *selection;
-  GtkCellRenderer *renderer;
+  GtkWidget *libtreeview, *vbox, *scrolled_win, *label;
+  GtkWidget *hbox, *entry, *button;
+
+  GtkTreeModel      *child_model, *model;
+  GtkTreeSelection  *selection;
+  GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
 
   /* -- library selection view -- */
@@ -667,6 +733,8 @@ create_lib_treeview (GhidLibraryWindow * library_window)
                     "key-press-event",
                     G_CALLBACK (tree_row_key_pressed),
                     NULL);
+
+  maybe_expand_toplevel_node (GTK_TREE_VIEW (libtreeview));
 
   /* connect callback to selection */
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (libtreeview));
@@ -724,8 +792,8 @@ create_lib_treeview (GhidLibraryWindow * library_window)
 
   /* now that that we have an entry, set the filter func of model */
   gtk_tree_model_filter_set_visible_func ((GtkTreeModelFilter *) model,
-					  lib_model_filter_visible_func,
-					  library_window, NULL);
+                                          lib_model_filter_visible_func,
+                                          library_window, NULL);
 
   /* add the filter entry to the filter area */
   gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);

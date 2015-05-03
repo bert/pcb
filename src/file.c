@@ -116,12 +116,12 @@ static void WriteViaData (FILE *, DataType *);
 static void WritePCBRatData (FILE *);
 static void WriteElementData (FILE *, DataType *);
 static void WriteLayerData (FILE *, Cardinal, LayerType *);
-static int WritePCB (FILE *);
-static int WritePCBFile (char *);
-static int WritePipe (char *, bool);
-static int ParseLibraryTree (char *libpath);
-static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
-static char *pcb_basename (char *p);
+static int  WritePCB (FILE *);
+static int  WritePCBFile (char *);
+static int  WritePipe (char *, bool);
+static int  ParseLibraryTree (char *libpath);
+//static int  LoadNewlibFootprintsFromDir(char *path, char *toppath);
+static int  LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -132,7 +132,7 @@ static char *pcb_basename (char *p);
 /* --------------------------------------------------------------------------- */
 
 /* The idea here is to avoid gratuitously breaking backwards
-   compatibility due to a new but rarely used feature.  The first such
+   compatibility due to a new but rarely used feature. The first such
    case, for example, was the polygon Hole - if your design included
    polygon holes, you needed a newer PCB to read it, but if your
    design didn't include holes, PCB would produce a file that older
@@ -175,24 +175,24 @@ PCBFileVersionNeeded (void)
 static int
 string_cmp (const char *a, const char *b)
 {
-  while (*a && *b)
-    {
-      if (isdigit ((int) *a) && isdigit ((int) *b))
-	{
-	  int ia = atoi (a);
-	  int ib = atoi (b);
-	  if (ia != ib)
-	    return ia - ib;
-	  while (isdigit ((int) *a) && *(a+1))
-	    a++;
-	  while (isdigit ((int) *b) && *(b+1))
-	    b++;
-	}
-      else if (tolower ((int) *a) != tolower ((int) *b))
-	return tolower ((int) *a) - tolower ((int) *b);
-      a++;
-      b++;
+  while (*a && *b) {
+
+    if (isdigit ((int) *a) && isdigit ((int) *b)) {
+
+      int ia = atoi (a);
+      int ib = atoi (b);
+      if (ia != ib)
+        return ia - ib;
+      while (isdigit ((int) *a) && *(a+1))
+        a++;
+      while (isdigit ((int) *b) && *(b+1))
+        b++;
     }
+    else if (tolower ((int) *a) != tolower ((int) *b))
+      return tolower ((int) *a) - tolower ((int) *b);
+    a++;
+    b++;
+  }
   if (*a)
     return 1;
   if (*b)
@@ -1111,33 +1111,36 @@ RemoveTMPData (void)
 #endif
 
 /* ---------------------------------------------------------------------------
+ *  Utility function to retrive pointer to file base name
+ */
+char*
+pcb_basename (char *fullname)
+{
+  char *rv = strrchr (fullname, '/');
+  if (rv)
+    return rv + 1;
+  return fullname;
+}
+
+/* ---------------------------------------------------------------------------
  * Parse the directory tree where newlib footprints are found
  */
 
-/* Helper function for ParseLibraryTree */
-static char *
-pcb_basename (char *p)
-{
-  char *rv = strrchr (p, '/');
-  if (rv)
-    return rv + 1;
-  return p;
-}
-
-/* This is a helper function for ParseLibrary Tree.   Given a char *path,
- * it finds all newlib footprints in that dir and sticks them into the
- * library menu structure named entry.
- */
+ /* This is a helper function for ParseLibrary Tree. Given a char *path,
+  * the function finds all footprints in that dir and add a pointer them
+  * into the library menu structure named entry, and recurses into sub
+  * directories.
+  */
 static int
-LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
+LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
 {
   char olddir[MAXPATHLEN + 1];    /* The directory we start out in (cwd) */
   char subdir[MAXPATHLEN + 1];    /* The directory holding footprints to load */
   DIR *subdirobj;                 /* Interable object holding all subdir entries */
   struct dirent *subdirentry;     /* Individual subdir entry */
   struct stat buffer;             /* Buffer used in stat */
-  LibraryMenuType *menu = NULL; /* Pointer to PCB's library menu structure */
-  LibraryEntryType *entry;      /* Pointer to individual menu entry */
+  LibraryMenuType *menu = NULL;   /* Pointer to PCB's library menu structure */
+  LibraryEntryType *entry;        /* Pointer to individual menu entry */
   size_t l;
   size_t len;
   int n_footprints = 0;           /* Running count of footprints found in this subdir */
@@ -1145,54 +1148,60 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
   /* Cache old dir, then cd into subdir because stat is given relative file names. */
   memset (subdir, 0, sizeof subdir);
   memset (olddir, 0, sizeof olddir);
-  if (GetWorkingDirectory (olddir) == NULL)
-    {
-      Message (_("LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"));
-      return 0;
-    }
 
-  if (strcmp (libpath, "(local)") == 0)
+  if (GetWorkingDirectory (olddir) == NULL) {
+
+    Message (_("%s: Could not determine initial working directory\n"), __func__);
+    return 0;
+  }
+
+  if (strcmp (libpath, "(local)") == 0) {
     strcpy (subdir, ".");
-  else
+  }
+  else {
     strcpy (subdir, libpath);
+  }
 
-  if (chdir (subdir))
-    {
-      ChdirErrorMessage (subdir);
-      return 0;
-    }
+  if (chdir (subdir)) {
+
+    ChdirErrorMessage (subdir);
+    return 0;
+  }
 
   /* Determine subdir is abs path */
-  if (GetWorkingDirectory (subdir) == NULL)
-    {
-      Message (_("LoadNewlibFootprintsFromDir: Could not determine new working directory\n"));
-      if (chdir (olddir))
-        ChdirErrorMessage (olddir);
-      return 0;
+  if (GetWorkingDirectory (subdir) == NULL) {
+
+    Message (_("%s: Could not determine new working directory\n"), __func__);
+
+    if (chdir (olddir)) {
+      ChdirErrorMessage (olddir);
     }
+    return 0;
+  }
 
   /* First try opening the directory specified by path */
-  if ( (subdirobj = opendir (subdir)) == NULL )
-    {
-      OpendirErrorMessage (subdir);
-      if (chdir (olddir))
-        ChdirErrorMessage (olddir);
-      return 0;
-    }
+  if ( (subdirobj = opendir (subdir)) == NULL ) {
+
+    OpendirErrorMessage (subdir);
+    if (chdir (olddir))
+      ChdirErrorMessage (olddir);
+    return 0;
+  }
 
   /* Get pointer to memory holding menu */
   menu = GetLibraryMenuMemory (&Library);
+
   /* Populate menuname and path vars */
-  menu->Name = strdup (pcb_basename(subdir));
-  menu->directory = strdup (pcb_basename(toppath));
+  menu->Name = strdup (subdir);
+  menu->directory = strdup (toppath);
 
   /* Now loop over files in this directory looking for files.
    * We ignore certain files which are not footprints.
    */
-  while ((subdirentry = readdir (subdirobj)) != NULL)
-  {
-#ifdef DEBUG
-/*    printf("...  Examining file %s ... \n", subdirentry->d_name); */
+  while ((subdirentry = readdir (subdirobj)) != NULL) {
+
+#if DEBUG
+    printf("...  Examining file %s ... \n", subdirentry->d_name);
 #endif
 
     /* Ignore non-footprint files found in this directory
@@ -1203,51 +1212,113 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
     l = strlen (subdirentry->d_name);
     if (!stat (subdirentry->d_name, &buffer) && S_ISREG (buffer.st_mode)
       && subdirentry->d_name[0] != '.'
-      && NSTRCMP (subdirentry->d_name, "CVS") != 0
-      && NSTRCMP (subdirentry->d_name, "Makefile") != 0
-      && NSTRCMP (subdirentry->d_name, "Makefile.am") != 0
-      && NSTRCMP (subdirentry->d_name, "Makefile.in") != 0
-      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0)
-      && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0)
-      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
-      {
+    && NSTRCMP (subdirentry->d_name, "CVS") != 0
+    && NSTRCMP (subdirentry->d_name, "Makefile") != 0
+    && NSTRCMP (subdirentry->d_name, "Makefile.am") != 0
+    && NSTRCMP (subdirentry->d_name, "Makefile.in") != 0
+    && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0)
+    && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0)
+    && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
+    {
+
 #ifdef DEBUG
-/*	printf("...  Found a footprint %s ... \n", subdirentry->d_name); */
+      printf("... Found a footprint %s ... \n", subdirentry->d_name);
 #endif
-	n_footprints++;
-	entry = GetLibraryEntryMemory (menu);
 
-	/*
-	 * entry->AllocatedMemory points to abs path to the footprint.
-	 * entry->ListEntry points to fp name itself.
-	 */
-	len = strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1;
-	entry->AllocatedMemory = (char *)calloc (1, len);
-	strcat (entry->AllocatedMemory, subdir);
-	strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
+      n_footprints++;
+      entry = GetLibraryEntryMemory (menu);
 
-	/* store pointer to start of footprint name */
-	entry->ListEntry = entry->AllocatedMemory
-	    + strlen (entry->AllocatedMemory);
+      /* entry->AllocatedMemory points to abs path to the footprint.
+       * entry->ListEntry points to fp name itself.
+       */
+      len = strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1;
+      entry->AllocatedMemory = (char *)calloc (1, len);
+      strcat (entry->AllocatedMemory, subdir);
+      strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
 
-	/* Now place footprint name into AllocatedMemory */
-	strcat (entry->AllocatedMemory, subdirentry->d_name);
+      /* store pointer to start of footprint name */
+      entry->ListEntry = entry->AllocatedMemory
+      + strlen (entry->AllocatedMemory);
 
-	/* mark as directory tree (newlib) library */
-	entry->Template = (char *) -1;
-      }
+      /* Now place footprint name into AllocatedMemory */
+      strcat (entry->AllocatedMemory, subdirentry->d_name);
+
+      /* mark as directory tree (newlib) library */
+      entry->Template = (char *) -1;
+    }
   }
+  closedir (subdirobj);
+
+  /* Do not recurse into relatively-specified directories--we might be
+   * in the user's working directory, and the path might be "." */
+  if (!recursive) {
+    if (chdir (olddir))
+      ChdirErrorMessage (olddir);
+    return n_footprints;
+  }
+
+  /* Then open this dir so we can loop over its contents. */
+  if ((subdirobj = opendir (subdir)) == NULL) {
+
+    OpendirErrorMessage (subdir);
+    if (chdir (olddir))
+      ChdirErrorMessage (olddir);
+    return 0;
+  }
+
+  /* Now loop over files in this directory looking for subdirs.
+   * For each direntry which is a valid subdirectory,
+   * try to load newlib footprints inside it.
+   */
+  while ((subdirentry = readdir (subdirobj)) != NULL) {
+
+#if DEBUG
+    printf("In %s loop examining 2nd level direntry %s ... \n", __func__, subdirentry->d_name);
+#endif
+    /* Find subdirectories. Ignore entries beginning with "." and CVS
+     * directories.
+     */
+    if (!stat (subdirentry->d_name, &buffer) &&
+         S_ISDIR (buffer.st_mode) &&
+         subdirentry->d_name[0] != '.' &&
+         NSTRCMP (subdirentry->d_name, "CVS") != 0)
+    {
+      /* Found a valid subdirectory. Try to load footprints from it. */
+      char *subdir_path = (char *)calloc (
+        1, strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1);
+
+      if (subdir_path == NULL) {
+
+        fprintf (stderr, "%s: malloc failed\n", __func__);
+        closedir (subdirobj);
+        if (chdir (olddir)) {
+          ChdirErrorMessage (olddir);
+        }
+        return n_footprints;
+      }
+      strcat (subdir_path, subdir);
+      strcat (subdir_path, PCB_DIR_SEPARATOR_S);
+      strcat (subdir_path, subdirentry->d_name);
+
+      n_footprints += LoadNewlibFootprintsFromDir(subdir_path, toppath, true);
+      free(subdir_path);
+    }
+  }
+
   /* Done.  Clean up, cd back into old dir, and return */
   closedir (subdirobj);
-  if (chdir (olddir))
+
+  if (chdir (olddir)) {
     ChdirErrorMessage (olddir);
+  }
+
   return n_footprints;
 }
 
 /*! \brief Parse a Library Tree.
  * \par Function Description
- * This function loads the \a footprints into the \a Library. All
- * sub-directories in the passed path are examined. In each found
+ * This function loads footprints found in \a libpath into the library.
+ * All sub-directories in the passed path are examined. In each found
  * directory, it looks both in that directory, as well as one
  * level down.  It calls the subfunction LoadNewlibFootprintsFromDir
  * to put the footprints into PCB's internal datastructures.
@@ -1272,17 +1343,16 @@ ParseLibraryTree (char *libpath)
   }
 
   if (GetWorkingDirectory (libpath) == NULL) {
-      Message (_("ParseLibraryTree: Could not determine new working directory\n"));
+      Message (_("%s: Could not determine new working directory\n"), __func__);
       return 0;
   }
 
-#ifdef DEBUG
-  printf("In ParseLibraryTree, looking for footprints inside top level directory %s ... \n",
-	  libpath);
+#if DEBUG
+  printf("In %s, looking for footprints inside top level directory %s ... \n", __func__, libpath);
 #endif
 
   /* Next read in any footprints in the top level dir */
-  n_footprints += LoadNewlibFootprintsFromDir("(local)", libpath);
+  /* n_footprints += LoadNewlibFootprintsFromDir("(local)", libpath, *libpath == '/'); */
 
   /* Then open this dir so we can loop over its contents. */
   if ((dirobj = opendir (libpath)) == NULL) {
@@ -1293,21 +1363,23 @@ ParseLibraryTree (char *libpath)
   /* Now loop over files in this directory looking for subdirs. For each entry
    * which is a valid subdirectory, try to load the footprints inside it. */
   while ((direntry = readdir (dirobj)) != NULL)	{
+
 #ifdef DEBUG
-    printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
+    printf("In %s loop examining 2nd level direntry %s ... \n", __func__, direntry->d_name);
 #endif
+
     /* Find subdirectories, ignore entries beginning with "." and CVS directories. */
     if (!stat (direntry->d_name, &buffer) && S_ISDIR (buffer.st_mode)
       && direntry->d_name[0] != '.' && NSTRCMP (direntry->d_name, "CVS") != 0) {
 
       /* Found a valid subdirectory.  Try to load footprints from it.*/
-      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, libpath);
+      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, libpath, true);
     }
   }
   closedir (dirobj);
 
 #ifdef DEBUG
-  printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
+  printf("%s Exit: found %d footprints.\n", __func__, n_footprints);
 #endif
 
   return n_footprints;
@@ -1359,8 +1431,9 @@ ReadLibraryContents (void)
     strncpy (toppath, libpath, sizeof (toppath) - 1);
 
 #ifdef DEBUG
-    fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n", toppath);
+    fprintf(stderr, "%s: reading library contents:%s\n",__func__, toppath);
 #endif
+
     /* start out in the working directory in case the path is a relative path */
     if (chdir (working)) {
         ChdirErrorMessage (working);
@@ -1371,7 +1444,7 @@ ReadLibraryContents (void)
         ++result;
     }
     else {
-      fprintf(stderr, _("ReadLibraryContents: Error reading library contents:%s\n"), toppath);
+      fprintf(stderr, _("%s: Error reading library contents:%s\n"), __func__, toppath);
     }
   }
   free (libpaths);
@@ -1387,7 +1460,7 @@ ReadLibraryContents (void)
     strncpy (toppath, libpath, sizeof (toppath) - 1);
 
 #ifdef DEBUG
-    fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n", toppath);
+    fprintf(stderr, "ReadLibraryContents: reading library contents:%s\n",__func__, toppath);
 #endif
 
     /* start out in the working directory in case the path is a relative path */
@@ -1400,7 +1473,7 @@ ReadLibraryContents (void)
         ++result;
     }
     else {
-      fprintf(stderr, _("ReadLibraryContents: Error reading library contents:%s\n"), toppath);
+      fprintf(stderr, _("%s: Error reading library contents:%s\n"), __func__, toppath);
     }
   }
   free (libpaths);
@@ -1408,6 +1481,7 @@ ReadLibraryContents (void)
   if (result >= 0){
      sort_library (&Library);
   }
+
   /* restore the original working directory */
   if (chdir (working))
     ChdirErrorMessage (working);

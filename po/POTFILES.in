@@ -13,7 +13,7 @@ src/buffer.c
 src/change.c
 src/create.c
 src/crosshair.c
-src/edif.c
+src/edif.y
 src/error.c
 src/file.c
 src/find.c
@@ -52,7 +52,7 @@ src/pcb-menu.res.h
 src/polygon.c
 src/rats.c
 src/report.c
-src/res_parse.c
+src/res_parse.y
 src/rotate.c
 src/select.c
 src/set.c
