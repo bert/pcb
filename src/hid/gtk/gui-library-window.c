@@ -199,12 +199,13 @@ ghid_library_window_create (GHidPort * out)
  *  front with focus).
  */
 void
-ghid_library_window_show (GHidPort * out, gboolean raise)
+ghid_library_window_show (GHidPort * out, bool raise)
 {
   ghid_library_window_create (out);
   gtk_widget_show_all (library_window);
-  if (raise)
+  if (raise) {
     gtk_window_present (GTK_WINDOW(library_window));
+  }
 }
 
 static GObjectClass *library_window_parent_class = NULL;

@@ -819,7 +819,7 @@ ghid_drawing_area_configure_hook (GHidPort *port)
 {
 }
 
-gboolean
+bool
 ghid_start_drawing (GHidPort *port, GtkWidget *widget)
 {
   GdkGLContext *pGlContext = gtk_widget_get_gl_context (widget);
@@ -856,10 +856,8 @@ ghid_screen_update (void)
 }
 
 #define Z_NEAR 3.0
-gboolean
-ghid_drawing_area_expose_cb (GtkWidget *widget,
-                             GdkEventExpose *ev,
-                             GHidPort *port)
+bool
+ghid_drawing_area_expose_cb (GtkWidget *widget, GdkEventExpose *ev, GHidPort *port)
 {
   render_priv *priv = port->render_priv;
   GtkAllocation allocation;
@@ -1043,9 +1041,8 @@ ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
   return;
 }
 
-gboolean
-ghid_pinout_preview_expose (GtkWidget *widget,
-                            GdkEventExpose *ev)
+int
+ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GtkAllocation allocation;
@@ -1549,7 +1546,7 @@ ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
 }
 
 void
-ghid_view_2d (void *ball, gboolean view_2d, gpointer userdata)
+ghid_view_2d (void *ball, bool view_2d, gpointer userdata)
 {
   global_view_2d = view_2d;
   ghid_invalidate_all ();
@@ -1622,8 +1619,8 @@ draw_lead_user (render_priv *priv)
   glPopAttrib ();
 }
 
-gboolean
-lead_user_cb (gpointer data)
+static int
+lead_user_cb (void *data)
 {
   render_priv *priv = data;
   Coord step;

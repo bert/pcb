@@ -34,7 +34,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <setjmp.h>
 
 #include "global.h"
 
@@ -363,7 +362,7 @@ ChangeViaThermal (PinType *Via)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the thermal on a pin 
+ * changes the thermal on a pin
  * returns TRUE if changed
  */
 static void *
@@ -451,7 +450,7 @@ ChangeVia2ndSize (PinType *Via)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the clearance size of a via 
+ * changes the clearance size of a via
  * returns TRUE if changed
  */
 static void *
@@ -1478,7 +1477,7 @@ ClrPinSquare (ElementType *Element, PinType *Pin)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the octagon flag of a via 
+ * changes the octagon flag of a via
  */
 static void *
 ChangeViaOctagon (PinType *Via)
@@ -1497,7 +1496,7 @@ ChangeViaOctagon (PinType *Via)
 }
 
 /* ---------------------------------------------------------------------------
- * sets the octagon flag of a via 
+ * sets the octagon flag of a via
  */
 static void *
 SetViaOctagon (PinType *Via)
@@ -1509,7 +1508,7 @@ SetViaOctagon (PinType *Via)
 }
 
 /* ---------------------------------------------------------------------------
- * clears the octagon flag of a via 
+ * clears the octagon flag of a via
  */
 static void *
 ClrViaOctagon (PinType *Via)
@@ -1639,7 +1638,7 @@ ChangePolyClear (LayerType *Layer, PolygonType *Polygon)
 }
 
 /* ----------------------------------------------------------------------
- * changes the side of all selected and visible elements 
+ * changes the side of all selected and visible elements
  * returns true if anything has changed
  */
 bool
@@ -1685,7 +1684,7 @@ ChangeSelectedThermals (int types, int therm_style)
 }
 
 /* ----------------------------------------------------------------------
- * changes the size of all selected and visible object types 
+ * changes the size of all selected and visible object types
  * returns true if anything has changed
  */
 bool
@@ -1914,7 +1913,7 @@ ClrSelectedOctagon (int types)
 }
 
 /* ----------------------------------------------------------------------
- * changes the hole-flag of all selected and visible vias 
+ * changes the hole-flag of all selected and visible vias
  * returns true if anything has changed
  */
 bool
@@ -2345,68 +2344,7 @@ ChangePCBSize (Coord Width, Coord Height)
   else
     SetCrosshairRange (0, 0, Width, Height);
 
-  UpdateExtents();
   hid_action ("PCBChanged");
-}
-
-/* ---------------------------------------------------------------------------
- * finds the maximum size of a layout
- * according to the outline layer,
- * if present.
- */
-void
-UpdateExtents (void)
-{
-  Coord minX, minY, maxX, maxY;
-
-  minX = minY = COORD_MAX;
-  maxX = maxY = -COORD_MAX - 1;
-
-  LAYER_LOOP (PCB->Data, MAX_LAYER);
-    {
-      if (strcmp (layer->Name, "outline") == 0)
-        {
-          LINE_LOOP (layer);
-            {
-              if (line->Point1.X < minX)
-                minX = line->Point1.X;
-              if (line->Point1.Y < minY)
-                minY = line->Point1.Y;
-              if (line->Point2.X < minX)
-                minX = line->Point2.X;
-              if (line->Point2.Y < minY)
-                minY = line->Point2.Y;
-              if (line->Point1.X > maxX)
-                maxX = line->Point1.X;
-              if (line->Point1.Y > maxY)
-                maxY = line->Point1.Y;
-              if (line->Point2.X > maxX)
-                maxX = line->Point2.X;
-              if (line->Point2.Y > maxY)
-                maxY = line->Point2.Y;
-            }
-          END_LOOP;
-        }
-    }
-  END_LOOP;
-
-  if (minX == COORD_MAX || minY == COORD_MAX ||
-      maxX == -COORD_MAX - 1 || maxY == -COORD_MAX - 1 ||
-      maxX - minX == 0 || maxY - minY == 0)
-    {
-      // no or insufficient outline layer
-      PCB->ExtentMinX = 0;
-      PCB->ExtentMinY = 0;
-      PCB->ExtentMaxX = PCB->MaxWidth;
-      PCB->ExtentMaxY = PCB->MaxHeight;
-    }
-  else
-    {
-      PCB->ExtentMinX = minX;
-      PCB->ExtentMinY = minY;
-      PCB->ExtentMaxX = maxX;
-      PCB->ExtentMaxY = maxY;
-    }
 }
 
 /* ---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
        and faster computation. The license for this modified copy was
        switched to the GPL per term (3) of the original LGPL license.
        Copyright (C) 2006 harry eaton
- 
+
    based on:
        poly_Boolean: a polygon clip library
        Copyright (C) 1997  Alexey Nikitin, Michael Leonov
@@ -16,21 +16,21 @@
    in turn based on:
        nclip: a polygon clip library
        Copyright (C) 1993  Klamer Schutte
- 
+
        This program is free software; you can redistribute it and/or
        modify it under the terms of the GNU General Public
        License as published by the Free Software Foundation; either
        version 2 of the License, or (at your option) any later version.
- 
+
        This program is distributed in the hope that it will be useful,
        but WITHOUT ANY WARRANTY; without even the implied warranty of
        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
        General Public License for more details.
- 
+
        You should have received a copy of the GNU General Public
        License along with this program; if not, write to the Free
        Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- 
+
       polygon1.c
       (C) 1997 Alexey Nikitin, Michael Leonov
       (C) 1993 Klamer Schutte
@@ -723,7 +723,7 @@ get_seg (const BoxType * b, void *cl)
  * (C) 2006, harry eaton
  * This uses an rtree to find A-B intersections. Whenever a new vertex is
  * added, the search for intersections is re-started because the rounding
- * could alter the topology otherwise. 
+ * could alter the topology otherwise.
  * This should use a faster algorithm for snap rounding intersection finding.
  * The best algorthim is probably found in:
  *
@@ -2510,8 +2510,8 @@ poly_IniContour (PLINE * c)
     return;
   /* bzero (c, sizeof(PLINE)); */
   c->head.next = c->head.prev = &c->head;
-  c->xmin = c->ymin = 0x7fffffff;
-  c->xmax = c->ymax = 0x80000000;
+  c->xmin = c->ymin = COORD_MAX;
+  c->xmax = c->ymax = -COORD_MAX - 1;
   c->is_round = FALSE;
   c->cx = 0;
   c->cy = 0;
@@ -2600,7 +2600,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 	  Vsub2 (p1, c->point, p->point);
 	  Vsub2 (p2, c->next->point, c->point);
 	  /* If the product below is zero then
-	   * the points on either side of c 
+	   * the points on either side of c
 	   * are on the same line!
 	   * So, remove the point c
 	   */
@@ -2899,7 +2899,7 @@ poly_InsideContour (PLINE * c, Vector p)
   info.f = 0;
   info.p[0] = ray.X1 = p[0];
   info.p[1] = ray.Y1 = p[1];
-  ray.X2 = 0x7fffffff;
+  ray.X2 = COORD_MAX;
   ray.Y2 = p[1] + 1;
   if (setjmp (info.env) == 0)
     r_search (c->tree, &ray, NULL, crossing, &info);

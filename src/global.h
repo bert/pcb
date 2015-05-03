@@ -198,8 +198,8 @@ OutputType;
  */
 typedef struct
 {
-  Cardinal Number[MAX_LAYER],	/* number of entries per groups */
-    Entries[MAX_LAYER][MAX_LAYER + 2];
+  Cardinal Number[MAX_GROUP],	/* number of entries per groups */
+    Entries[MAX_GROUP][MAX_LAYER + 2];
 } LayerGroupType;
 
 struct BoxType		/* a bounding box */
@@ -511,13 +511,8 @@ typedef struct PCBType
 	Coord Bloat,			/* drc sizes saved with layout */
 	Shrink, minWid, minSlk, minDrill, minRing;
 	Coord GridOffsetX,		/* as saved with layout */
-	GridOffsetY;
-	/* TODO: Set this always to MAX_COORD, no saving needed.
-	 *          Kept for compatibility and until the GUI code can deal
-	 *          with the dynamic extent. */
-	Coord MaxWidth, MaxHeight;	/* allowed size */
-	Coord ExtentMinX, ExtentMinY,	/* extent, defined by the outline layer */
-	ExtentMaxX, ExtentMaxY;
+	GridOffsetY, MaxWidth,	/* allowed size */
+	MaxHeight;
 
 	Coord Grid;			/* used grid with offsets */
 	double IsleArea,		/* minimum poly island to retain */
@@ -683,7 +678,7 @@ typedef struct			/* some resources... */
   bool ClearLine, FullPoly,
     UniqueNames,		/* force unique names */
     SnapPin,			/* snap to pins and pads */
-    ShowSolderSide,		/* mirror output */
+    ShowBottomSide,		/* mirror output */
     SaveLastCommand,		/* save the last command entered by user */
     SaveInTMP,			/* always save data in /tmp */
   SaveMetricOnly,        /* save with mm suffix only, not mil/mm hybrid */

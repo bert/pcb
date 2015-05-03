@@ -1,5 +1,6 @@
 Makefile
 Makefile.in
+build-pcb.log
 *.cache
 /config.*
 /configure
@@ -13,3 +14,6 @@ stamp-*
 *.stamp
 /missing
 *.backup
+test-driver
+*-swp
+

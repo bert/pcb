@@ -6,7 +6,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "global.h"
 #include "data.h"

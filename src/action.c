@@ -974,14 +974,12 @@ NotifyMode (void)
   void *ptr1, *ptr2, *ptr3;
   int type;
 
-  if (Settings.RatWarn) {
+  if (Settings.RatWarn)
     ClearWarnings ();
-  }
-
   switch (Settings.Mode) {
 
-    case ARROW_MODE: {
-
+    case ARROW_MODE:
+    {
       int test;
       hidval hv;
 
@@ -996,7 +994,6 @@ NotifyMode (void)
       for (test = (SELECT_TYPES | MOVE_TYPES) & ~RATLINE_TYPE; test; test &= ~type)
       {
         type = SearchScreen (Note.X, Note.Y, test, &ptr1, &ptr2, &ptr3);
-
         if (!Note.Hit && (type & MOVE_TYPES) &&
           !TEST_FLAG (LOCKFLAG, (PinType *) ptr2))
         {
@@ -1005,29 +1002,25 @@ NotifyMode (void)
           Note.ptr2 = ptr2;
           Note.ptr3 = ptr3;
         }
-
         if (!Note.Moving && (type & SELECT_TYPES) &&
           TEST_FLAG (SELECTEDFLAG, (PinType *) ptr2))
-        {
           Note.Moving = true;
-        }
-
         if ((Note.Hit && Note.Moving) || type == NO_TYPE)
           break;
       }
       break;
     }
 
-    case VIA_MODE: {
-
+    case VIA_MODE:
+    {
       PinType *via;
 
       if (!PCB->ViaOn) {
+
         Message (_("You must turn via visibility on before\n"
         "you can place vias\n"));
         break;
       }
-
       if ((via = CreateNewVia (PCB->Data, Note.X, Note.Y,
         Settings.ViaThickness, 2 * Settings.Keepaway,
         0, Settings.ViaDrillingHole, NULL,
@@ -1043,8 +1036,8 @@ NotifyMode (void)
       break;
     }
 
-    case ARC_MODE: {
-
+    case ARC_MODE:
+    {
       switch (Crosshair.AttachedBox.State) {
 
         case STATE_FIRST:
@@ -1056,14 +1049,15 @@ NotifyMode (void)
           break;
 
         case STATE_SECOND:
-        case STATE_THIRD: {
-
+        case STATE_THIRD:
+        {
           ArcType *arc;
           Coord wx, wy;
           Angle sa, dir;
 
           wx = Note.X - Crosshair.AttachedBox.Point1.X;
           wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
+
           if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx))) {
 
             Crosshair.AttachedBox.Point2.X =
@@ -1076,8 +1070,8 @@ NotifyMode (void)
               #endif
               dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
           }
-          else
-          {
+          else {
+
             Crosshair.AttachedBox.Point2.Y =
             Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
             sa = (wy >= 0) ? -90 : 90;
@@ -1089,9 +1083,9 @@ NotifyMode (void)
               dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
             wy = wx;
           }
+
           if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
-            Crosshair.
-            AttachedBox.
+            Crosshair. AttachedBox.
             Point2.X,
             Crosshair.
             AttachedBox.
@@ -1164,37 +1158,34 @@ NotifyMode (void)
 
         TextType *thing = (TextType *) ptr3;
         TOGGLE_FLAG (LOCKFLAG, thing);
-
         if (TEST_FLAG (LOCKFLAG, thing) && TEST_FLAG (SELECTEDFLAG, thing)) {
           /* this is not un-doable since LOCK isn't */
           CLEAR_FLAG (SELECTEDFLAG, thing);
           DrawObject (type, ptr1, ptr2);
           Draw ();
         }
-
         SetChangedFlag (true);
         hid_actionl ("Report", "Object", NULL);
       }
       break;
     }
-    case THERMAL_MODE: {
-
+    case THERMAL_MODE:
+    {
       if (((type = SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2, &ptr3)) != NO_TYPE) &&
         !TEST_FLAG (HOLEFLAG, (PinType *) ptr3))
       {
         if (gui->shift_is_pressed ()) {
+
           int tstyle = GET_THERM (INDEXOFCURRENT, (PinType *) ptr3);
           tstyle++;
           if (tstyle > 5)
             tstyle = 1;
           ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
         }
-        else if (GET_THERM (INDEXOFCURRENT, (PinType *) ptr3)) {
+        else if (GET_THERM (INDEXOFCURRENT, (PinType *) ptr3))
           ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
-        }
-        else {
+        else
           ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
-        }
       }
       break;
     }
@@ -1218,9 +1209,10 @@ NotifyMode (void)
         break;
       }
 
-      if (PCB->RatDraw)
-      {
+      if (PCB->RatDraw) {
+
         RatType *line;
+
         if ((line = AddNet ())) {
 
           addedLines++;
@@ -1247,38 +1239,46 @@ NotifyMode (void)
         if (TEST_FLAG (CLEARNEWFLAG, PCB))
           line_flags |= CLEARLINEFLAG;
 
-        if (PCB->Clipping &&
-          Crosshair.AttachedLine.Point1.X == Crosshair.AttachedLine.Point2.X &&
-          Crosshair.AttachedLine.Point1.Y == Crosshair.AttachedLine.Point2.Y &&
-          (Crosshair.AttachedLine.Point2.X != Note.X ||
+        if (PCB->Clipping
+          && Crosshair.AttachedLine.Point1.X ==
+          Crosshair.AttachedLine.Point2.X
+          && Crosshair.AttachedLine.Point1.Y ==
+          Crosshair.AttachedLine.Point2.Y
+          && (Crosshair.AttachedLine.Point2.X != Note.X ||
           Crosshair.AttachedLine.Point2.Y != Note.Y))
         {
           /* We will only need to paint the second line segment.
-           *         Since we only check for vias on the first segment,
-           *         swap them so the non-empty segment is the first segment. */
+           *            Since we only check for vias on the first segment,
+           *            swap them so the non-empty segment is the first segment. */
           Crosshair.AttachedLine.Point2.X = Note.X;
           Crosshair.AttachedLine.Point2.Y = Note.Y;
         }
 
-        if ((Crosshair.AttachedLine.Point1.X != Crosshair.AttachedLine.Point2.X ||
-          Crosshair.AttachedLine.Point1.Y != Crosshair.AttachedLine.Point2.Y) &&
-          (line = CreateDrawnLineOnLayer (CURRENT,
-                                          Crosshair.AttachedLine.Point1.X,
-                                          Crosshair.AttachedLine.Point1.Y,
-                                          Crosshair.AttachedLine.Point2.X,
-                                          Crosshair.AttachedLine.Point2.Y,
-                                          Settings.LineThickness,
-                                          2 * Settings.Keepaway,
-                                          MakeFlags (line_flags))) != NULL)
+        if ((Crosshair.AttachedLine.Point1.X !=
+          Crosshair.AttachedLine.Point2.X
+          || Crosshair.AttachedLine.Point1.Y !=
+          Crosshair.AttachedLine.Point2.Y))
         {
           PinType *via;
 
-          addedLines++;
-          AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-          DrawLine (CURRENT, line);
+          if ((line =
+            CreateDrawnLineOnLayer (CURRENT,
+                                    Crosshair.AttachedLine.Point1.X,
+                                    Crosshair.AttachedLine.Point1.Y,
+                                    Crosshair.AttachedLine.Point2.X,
+                                    Crosshair.AttachedLine.Point2.Y,
+                                    Settings.LineThickness,
+                                    2 * Settings.Keepaway,
+                                    MakeFlags (line_flags))) != NULL)
+          {
+
+            addedLines++;
+            AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+            DrawLine (CURRENT, line);
+          }
           /* place a via if vias are visible, the layer is
-           *         in a new group since the last line and there
-           *         isn't a pin already here */
+           *            in a new group since the last line and there
+           *            isn't a pin already here */
           if (PCB->ViaOn && GetLayerGroupNumberByPointer (CURRENT) !=
             GetLayerGroupNumberByPointer (lastLayer) &&
             SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
@@ -1308,20 +1308,22 @@ NotifyMode (void)
         }
         if (PCB->Clipping && (Note.X != Crosshair.AttachedLine.Point2.X
           || Note.Y !=
-          Crosshair.AttachedLine.Point2.Y)
-          && (line =
-          CreateDrawnLineOnLayer (CURRENT,
-                                  Crosshair.AttachedLine.Point2.X,
-                                  Crosshair.AttachedLine.Point2.Y,
-                                  Note.X, Note.Y,
-                                  Settings.LineThickness,
-                                  2 * Settings.Keepaway,
-                                  MakeFlags (line_flags))) != NULL)
+          Crosshair.AttachedLine.Point2.Y))
         {
-          addedLines++;
-          AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-          IncrementUndoSerialNumber ();
-          DrawLine (CURRENT, line);
+          if ((line =
+            CreateDrawnLineOnLayer (CURRENT,
+                                    Crosshair.AttachedLine.Point2.X,
+                                    Crosshair.AttachedLine.Point2.Y,
+                                    Note.X, Note.Y,
+                                    Settings.LineThickness,
+                                    2 * Settings.Keepaway,
+                                    MakeFlags (line_flags))) != NULL)
+          {
+            addedLines++;
+            AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+            IncrementUndoSerialNumber ();
+            DrawLine (CURRENT, line);
+          }
           /* move to new start point */
           Crosshair.AttachedLine.Point1.X = Note.X;
           Crosshair.AttachedLine.Point1.Y = Note.Y;
@@ -1393,7 +1395,6 @@ NotifyMode (void)
             if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
               GetLayerGroupNumberBySide (BOTTOM_SIDE))
               flag |= ONSOLDERFLAG;
-
             if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
               Note.Y, 0, Settings.TextScale,
               string, MakeFlags (flag))) != NULL)
@@ -1409,8 +1410,8 @@ NotifyMode (void)
         break;
       }
 
-      case POLYGON_MODE: {
-
+      case POLYGON_MODE:
+      {
         PointType *points = Crosshair.AttachedPolygon.Points;
         Cardinal n = Crosshair.AttachedPolygon.PointN;
 
@@ -1445,8 +1446,8 @@ NotifyMode (void)
         break;
       }
 
-      case POLYGONHOLE_MODE: {
-
+      case POLYGONHOLE_MODE:
+      {
         switch (Crosshair.AttachedObject.State) {
 
           /* first notify, lookup object */
@@ -1472,8 +1473,8 @@ NotifyMode (void)
             break;
 
             /* second notify, insert new point into object */
-            case STATE_SECOND: {
-
+            case STATE_SECOND:
+            {
               PointType *points = Crosshair.AttachedPolygon.Points;
               Cardinal n = Crosshair.AttachedPolygon.PointN;
               POLYAREA *original, *new_hole, *result;
@@ -1540,21 +1541,21 @@ NotifyMode (void)
         break;
       }
 
-      case PASTEBUFFER_MODE: {
-
+      case PASTEBUFFER_MODE:
+      {
         TextType estr[MAX_ELEMENTNAMES];
         ElementType *e = 0;
 
         if (gui->shift_is_pressed ()) {
 
           int type =
-          SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
-                        &ptr3);
-          if (type == ELEMENT_TYPE)
-          {
-            e = (ElementType *) ptr1;
-            if (e) {
+          SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
 
+          if (type == ELEMENT_TYPE) {
+
+            e = (ElementType *) ptr1;
+            if (e)
+            {
               int i;
 
               memcpy (estr, e->Name,
@@ -1565,6 +1566,7 @@ NotifyMode (void)
             }
           }
         }
+
         if (CopyPastebufferToLayout (Note.X, Note.Y)) {
           SetChangedFlag (true);
         }
@@ -1572,17 +1574,17 @@ NotifyMode (void)
         if (e) {
 
           int type =
-          SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
-                        &ptr3);
-          if (type == ELEMENT_TYPE && ptr1)
-          {
+          SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+
+          if (type == ELEMENT_TYPE && ptr1) {
+
             int i, save_n;
             e = (ElementType *) ptr1;
 
             save_n = NAME_INDEX (PCB);
 
-            for (i = 0; i < MAX_ELEMENTNAMES; i++)
-            {
+            for (i = 0; i < MAX_ELEMENTNAMES; i++) {
+
               if (i == save_n)
                 EraseElementName (e);
               r_delete_entry (PCB->Data->name_tree[i],
@@ -1638,7 +1640,10 @@ NotifyMode (void)
         break;
 
       case ROTATE_MODE:
-        RotateScreenObject (Note.X, Note.Y, gui->shift_is_pressed ()? (SWAP_IDENT ? 1 : 3) : (SWAP_IDENT ? 3 : 1));
+        RotateScreenObject (Note.X, Note.Y,
+                            gui->shift_is_pressed ()? (SWAP_IDENT ?
+                            1 : 3)
+                            : (SWAP_IDENT ? 3 : 1));
         break;
 
         /* both are almost the same */
@@ -1647,8 +1652,8 @@ NotifyMode (void)
           switch (Crosshair.AttachedObject.State) {
 
             /* first notify, lookup object */
-            case STATE_FIRST: {
-
+            case STATE_FIRST:
+            {
               int types = (Settings.Mode == COPY_MODE) ?
               COPY_TYPES : MOVE_TYPES;
 
@@ -1657,8 +1662,8 @@ NotifyMode (void)
                             &Crosshair.AttachedObject.Ptr1,
                             &Crosshair.AttachedObject.Ptr2,
                             &Crosshair.AttachedObject.Ptr3);
-              if (Crosshair.AttachedObject.Type != NO_TYPE)
-              {
+              if (Crosshair.AttachedObject.Type != NO_TYPE) {
+
                 if (Settings.Mode == MOVE_MODE &&
                   TEST_FLAG (LOCKFLAG, (PinType *)
                   Crosshair.AttachedObject.Ptr2))
@@ -1706,7 +1711,6 @@ NotifyMode (void)
 
               /* first notify, lookup object */
               case STATE_FIRST:
-
                 Crosshair.AttachedObject.Type =
                 SearchScreen (Note.X, Note.Y, INSERT_TYPES,
                               &Crosshair.AttachedObject.Ptr1,
@@ -1715,7 +1719,8 @@ NotifyMode (void)
 
                 if (Crosshair.AttachedObject.Type != NO_TYPE) {
 
-                  if (TEST_FLAG (LOCKFLAG, (PolygonType *) Crosshair.AttachedObject.Ptr2))
+                  if (TEST_FLAG (LOCKFLAG, (PolygonType *)
+                    Crosshair.AttachedObject.Ptr2))
                   {
                     Message (_("Sorry, the object is locked\n"));
                     Crosshair.AttachedObject.Type = NO_TYPE;
@@ -1725,9 +1730,12 @@ NotifyMode (void)
 
                     /* get starting point of nearest segment */
                     if (Crosshair.AttachedObject.Type == POLYGON_TYPE) {
+
                       fake.poly =
                       (PolygonType *) Crosshair.AttachedObject.Ptr2;
-                      polyIndex = GetLowestDistancePolygonPoint (fake.poly, Note.X, Note.Y);
+                      polyIndex =
+                      GetLowestDistancePolygonPoint (fake.poly, Note.X,
+                                                     Note.Y);
                       fake.line.Point1 = fake.poly->Points[polyIndex];
                       fake.line.Point2 = fake.poly->Points[
                       prev_contour_point (fake.poly, polyIndex)];
@@ -1742,7 +1750,6 @@ NotifyMode (void)
 
                 /* second notify, insert new point into object */
                 case STATE_SECOND:
-
                   if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
                     InsertPointIntoObject (POLYGON_TYPE,
                                            Crosshair.AttachedObject.Ptr1, fake.poly,
@@ -1764,7 +1771,6 @@ NotifyMode (void)
             break;
   }
 }
-
 
 /* --------------------------------------------------------------------------- */
 
@@ -6213,19 +6219,19 @@ ActionUndo (int argc, char **argv, Coord x, Coord y)
 	  return 0;
 	}
       /* move anchor point if undoing during line creation */
-      if (Settings.Mode == LINE_MODE)
-	{
-	  if (Crosshair.AttachedLine.State == STATE_SECOND)
-	    {
-	      if (TEST_FLAG (AUTODRCFLAG, PCB))
-		Undo (true);	/* undo the connection find */
-	      Crosshair.AttachedLine.State = STATE_FIRST;
-	      SetLocalRef (0, 0, false);
-	      notify_crosshair_change (true);
-	      return 0;
-	    }
-	  if (Crosshair.AttachedLine.State == STATE_THIRD)
-	    {
+      if (Settings.Mode == LINE_MODE) {
+
+	  if (Crosshair.AttachedLine.State == STATE_SECOND) {
+
+        if (TEST_FLAG (AUTODRCFLAG, PCB))
+          Undo (true);	/* undo the connection find */
+          Crosshair.AttachedLine.State = STATE_FIRST;
+        SetLocalRef (0, 0, false);
+        notify_crosshair_change (true);
+        return 0;
+      }
+	  if (Crosshair.AttachedLine.State == STATE_THIRD) {
+
 	      int type;
 	      void *ptr1, *ptr3, *ptrtmp;
 	      LineType *ptr2;

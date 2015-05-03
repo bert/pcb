@@ -44,8 +44,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <setjmp.h>
-
 
 #include "data.h"
 #include "draw.h"

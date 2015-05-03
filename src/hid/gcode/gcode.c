@@ -41,7 +41,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include <time.h>
 
@@ -52,7 +51,6 @@
 #include "global.h"
 #include "error.h" /* Message() */
 #include "data.h"
-#include "change.h" /* UpdateExtents() */
 #include "misc.h"
 #include "rats.h"
 
@@ -110,13 +108,13 @@ static FILE *gcode_f = NULL;
 
 static int is_mask;
 static int is_drill;
-static int is_solder;
+static int is_bottom;
 
 /*
  * Which groups of layers to export into PNG layer masks. 1 means export, 0
  * means do not export.
  */
-static int gcode_export_group[MAX_LAYER];
+static int gcode_export_group[MAX_GROUP];
 
 /* Group that is currently exported. */
 static int gcode_cur_group;
@@ -424,8 +422,8 @@ gcode_alloc_colors ()
 static void
 gcode_start_png ()
 {
-  gcode_im = gdImageCreate (pcb_to_gcode (PCB->ExtentMaxX - PCB->ExtentMinX),
-                            pcb_to_gcode (PCB->ExtentMaxY - PCB->ExtentMinY));
+  gcode_im = gdImageCreate (pcb_to_gcode (PCB->MaxWidth),
+                            pcb_to_gcode (PCB->MaxHeight));
   gcode_alloc_colors ();
 }
 
@@ -461,10 +459,10 @@ gcode_start_png_export ()
 {
   BoxType region;
 
-  region.X1 = PCB->ExtentMinX;
-  region.Y1 = PCB->ExtentMinY;
-  region.X2 = PCB->ExtentMaxX;
-  region.Y2 = PCB->ExtentMaxY;
+  region.X1 = 0;
+  region.Y1 = 0;
+  region.X2 = PCB->MaxWidth;
+  region.Y2 = PCB->MaxHeight;
 
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
@@ -494,12 +492,10 @@ gcode_start_gcode (const char *layername, bool metric)
   fprintf (file, "(Units: %s)\n", metric ? "mm" : "inch");
   if (metric)
     pcb_fprintf (file, "(Board size: %.2mm x %.2mm mm)\n",
-                 PCB->ExtentMaxX - PCB->ExtentMinX,
-                 PCB->ExtentMaxY - PCB->ExtentMinY);
+                 PCB->MaxWidth, PCB->MaxHeight);
   else
     pcb_fprintf (file, "(Board size: %.2mi x %.2mi inches)\n",
-                 PCB->ExtentMaxX - PCB->ExtentMinX,
-                 PCB->ExtentMaxY - PCB->ExtentMinY);
+                 PCB->MaxWidth, PCB->MaxHeight);
 
   return file;
 }
@@ -576,8 +572,9 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
   setlocale (LC_NUMERIC, "C");   /* use . as separator */
-  if (gcode_advanced)
-    {
+
+  if (gcode_advanced) {
+
       /* give each variable distinct names, even if they don't appear
          together in a file. This allows to join output files */
       strcpy (variable_safeZ, "#100");
@@ -588,9 +585,9 @@ gcode_do_export (HID_Attr_Val * options)
       strcpy (variable_milldepth, "#105");
       strcpy (variable_millplunge, "#106");
       strcpy (variable_millfeedrate, "#107");
-    }
-  else
-    {
+  }
+  else {
+
       snprintf (variable_safeZ, 20, "%f", gcode_safeZ);
       snprintf (variable_cutdepth, 20, "%f", gcode_cutdepth);
       snprintf (variable_isoplunge, 20, "%f", gcode_isoplunge);
@@ -599,22 +596,22 @@ gcode_do_export (HID_Attr_Val * options)
       snprintf (variable_milldepth, 20, "%f", gcode_milldepth);
       snprintf (variable_millplunge, 20, "%f", gcode_millplunge);
       snprintf (variable_millfeedrate, 20, "%f", gcode_millfeedrate);
-    }
-  UpdateExtents();
+  }
 
-  for (i = 0; i < MAX_LAYER; i++)
-    {
-      if (gcode_export_group[i])
-        {
+  for (i = 0; i < MAX_GROUP; i++) {
+
+      if (gcode_export_group[i]) {
+
           gcode_cur_group = i;
 
           /* magic */
           idx = (i >= 0 && i < max_group) ?
             PCB->LayerGroups.Entries[i][0] : i;
-          is_solder =
+          is_bottom =
             (GetLayerGroupNumberByNumber (idx) ==
-             GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
-          save_drill = is_solder; /* save drills for one layer only */
+            GetLayerGroupNumberBySide (BOTTOM_SIDE)) ? 1 : 0;
+            save_drill = is_bottom; /* save drills for one layer only */
+
           gcode_start_png ();
           hid_save_and_show_layer_ons (save_ons);
           gcode_start_png_export ();
@@ -624,58 +621,63 @@ gcode_do_export (HID_Attr_Val * options)
 /* potrace uses a different kind of bitmap; for simplicity gcode_im is
    copied to this format and flipped as needed along the way */
           bm = bm_new (gdImageSX (gcode_im), gdImageSY (gcode_im));
-          for (r = 0; r < gdImageSX (gcode_im); r++)
-            {
-              for (c = 0; c < gdImageSY (gcode_im); c++)
-                {
-                  if (is_solder)
-                    v =  /* flip vertically and horizontally */
-                      gdImageGetPixel (gcode_im, gdImageSX (gcode_im) - 1 - r,
-                                       gdImageSY (gcode_im) - 1 - c);
-                  else
-                    v =  /* flip only vertically */
-                      gdImageGetPixel (gcode_im, r,
-                                       gdImageSY (gcode_im) - 1 - c);
-                  p = (gcode_im->red[v] || gcode_im->green[v]
-                       || gcode_im->blue[v]) ? 0 : 0xFFFFFF;
-                  BM_PUT (bm, r, c, p);
-                }
+          for (r = 0; r < gdImageSX (gcode_im); r++) {
+
+            for (c = 0; c < gdImageSY (gcode_im); c++) {
+
+              if (is_bottom) {
+                v =  /* flip vertically and horizontally */
+                gdImageGetPixel (gcode_im, gdImageSX (gcode_im) - 1 - r,
+                                 gdImageSY (gcode_im) - 1 - c);
+              }
+              else {
+                v =  /* flip only vertically */
+                gdImageGetPixel (gcode_im, r,
+                                 gdImageSY (gcode_im) - 1 - c);
+              }
+              p = (gcode_im->red[v] || gcode_im->green[v]
+              || gcode_im->blue[v]) ? 0 : 0xFFFFFF;
+              BM_PUT (bm, r, c, p);
             }
-          if (is_solder)
-            { /* flip back layer, used only for PNG output */
-              gdImagePtr temp_im =
-                gdImageCreate (gdImageSX (gcode_im), gdImageSY (gcode_im));
-              gdImageColorAllocate (temp_im, white->r, white->g, white->b);
-              gdImageColorAllocate (temp_im, black->r, black->g, black->b);
-              gdImageCopy (temp_im, gcode_im, 0, 0, 0, 0,
-                           gdImageSX (gcode_im), gdImageSY (gcode_im));
-              for (r = 0; r < gdImageSX (gcode_im); r++)
-                {
-                  for (c = 0; c < gdImageSY (gcode_im); c++)
-                    {
-                      gdImageSetPixel (gcode_im, r, c,
-                                       gdImageGetPixel (temp_im,
-                                                        gdImageSX (gcode_im) -
-                                                        1 - r, c));
-                    }
-                }
-              gdImageDestroy (temp_im);
+          }
+
+          if (is_bottom) {
+            /* flip back layer, used only for PNG output */
+            gdImagePtr temp_im =
+            gdImageCreate (gdImageSX (gcode_im), gdImageSY (gcode_im));
+            gdImageColorAllocate (temp_im, white->r, white->g, white->b);
+            gdImageColorAllocate (temp_im, black->r, black->g, black->b);
+            gdImageCopy (temp_im, gcode_im, 0, 0, 0, 0,
+                         gdImageSX (gcode_im), gdImageSY (gcode_im));
+            for (r = 0; r < gdImageSX (gcode_im); r++) {
+
+              for (c = 0; c < gdImageSY (gcode_im); c++) {
+
+                gdImageSetPixel (gcode_im, r, c,
+                                 gdImageGetPixel (temp_im,
+                                                  gdImageSX (gcode_im) -
+                                                  1 - r, c));
+              }
             }
+            gdImageDestroy (temp_im);
+          }
+
           gcode_finish_png (layer_type_to_file_name (idx, FNS_fixed));
           plist = NULL;
           gcode_f = gcode_start_gcode (layer_type_to_file_name (idx, FNS_fixed),
                                        metric);
-          if (!gcode_f)
-            {
+          if (!gcode_f) {
+
               bm_free (bm);
               goto error;
-            }
+          }
+
           fprintf (gcode_f, "(Accuracy %d dpi)\n", gcode_dpi);
           fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                    options[HA_tooldiameter].real_value * scale,
                    metric ? "mm" : "inch");
-          if (gcode_advanced)
-            {
+          if (gcode_advanced) {
+
               fprintf (gcode_f, "%s=%f  (safe Z)\n",
                        variable_safeZ, gcode_safeZ);
               fprintf (gcode_f, "%s=%f  (cutting depth)\n",
@@ -684,7 +686,7 @@ gcode_do_export (HID_Attr_Val * options)
                        variable_isoplunge, gcode_isoplunge);
               fprintf (gcode_f, "%s=%f  (feedrate)\n",
                        variable_isofeedrate, gcode_isofeedrate);
-            }
+          }
           if (gcode_predrill && save_drill)
             fprintf (gcode_f, "(with predrilling)\n");
           else
@@ -699,23 +701,25 @@ gcode_do_export (HID_Attr_Val * options)
           fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
           /* extract contour points from image */
           r = bm_to_pathlist (bm, &plist, &param_default);
-          if (r)
-            {
+          if (r) {
+
               fprintf (stderr, "ERROR: pathlist function failed\n");
               goto error;
-            }
+          }
+
           /* generate best polygon and write vertices in g-code format */
           d = process_path (plist, &param_default, bm, gcode_f,
                             metric ? 25.4 / gcode_dpi : 1.0 / gcode_dpi,
                             variable_cutdepth, variable_safeZ,
                             variable_isoplunge, variable_isofeedrate);
-          if (d < 0)
-            {
+
+          if (d < 0) {
               fprintf (stderr, "ERROR: path process function failed\n");
               goto error;
-            }
-          if (gcode_predrill && save_drill)
-            {
+          }
+
+          if (gcode_predrill && save_drill) {
+
               int n_all_drills = 0;
               struct drill_hole* all_drills = NULL;
               /* count all drills to be predrilled */
@@ -761,51 +765,59 @@ gcode_do_export (HID_Attr_Val * options)
               fprintf (gcode_f, "(predrilling)\n");
               fprintf (gcode_f, "F%s\n", variable_isoplunge);
 
-              for (r = 0; r < n_all_drills; r++)
-                {
+              for (r = 0; r < n_all_drills; r++) {
+
                   double drillX, drillY;
 
-                  if (metric)
-                    {
+                  if (metric) {
+
                       drillX = all_drills[r].x * 25.4;
                       drillY = all_drills[r].y * 25.4;
-                    }
-                  else
-                    {
+                  }
+                  else {
+
                       drillX = all_drills[r].x;
                       drillY = all_drills[r].y;
-                    }
+                  }
                   if (gcode_advanced)
                     fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
                              variable_cutdepth, variable_safeZ);
-                  else
-                    {
+                  else {
+
                       fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
                       fprintf (gcode_f, "G1 Z%s\n", variable_cutdepth);
                       fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
-                    }
+                  }
                 }
               fprintf (gcode_f, "(%d predrills)\n", n_all_drills);
               free(all_drills);
-            }
-          if (metric)
+          }
+
+          if (metric) {
             fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n", d,
                      d * 1 / 25.4);
-          else
+          }
+          else {
             fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n",
                      25.4 * d, d);
-          if (gcode_advanced)
+          }
+
+          if (gcode_advanced) {
             fprintf (gcode_f, "M5 M9 M2\n");
-          else
+          }
+          else {
             fprintf (gcode_f, "M5\nM9\nM2\n");
+          }
+
           pathlist_free (plist);
           bm_free (bm);
           fclose (gcode_f);
           gcode_f = NULL;
-          if (save_drill)
-            {
+
+          if (save_drill) {
+
               for (int i_drill_file=0; i_drill_file < n_drills; i_drill_file++)
-                {
+              {
                   struct single_size_drills* drill = &drills[i_drill_file];
 
                   /* don't drill drillmill holes */
@@ -840,8 +852,8 @@ gcode_do_export (HID_Attr_Val * options)
                   else
                     fprintf (gcode_f, "(Drill diameter: %f inch)\n",
                              drill->diameter_inches);
-                  if (gcode_advanced)
-                    {
+                  if (gcode_advanced) {
+
                       fprintf (gcode_f, "%s=%f  (safe Z)\n",
                                variable_safeZ, gcode_safeZ);
                       fprintf (gcode_f, "%s=%f  (drill depth)\n",
@@ -849,54 +861,59 @@ gcode_do_export (HID_Attr_Val * options)
                       fprintf (gcode_f, "(---------------------------------)\n");
                       fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%f\n",
                                metric ? 21 : 20, gcode_drillfeedrate);
-                    }
-                  else
-                    {
+                  }
+                  else {
+
                       fprintf (gcode_f, "(---------------------------------)\n");
                       fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%f\n",
                                metric ? 21 : 20, gcode_drillfeedrate);
-                    }
+                  }
+
                   fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
-                  for (r = 0; r < drill->n_holes; r++)
-                    {
+
+                  for (r = 0; r < drill->n_holes; r++) {
+
                       double drillX, drillY;
 
-                      if (metric)
-                        {
+                      if (metric) {
+
                           drillX = drill->holes[r].x * 25.4;
                           drillY = drill->holes[r].y * 25.4;
-                        }
-                      else
-                        {
+                      }
+                      else {
+
                           drillX = drill->holes[r].x;
                           drillY = drill->holes[r].y;
-                        }
+                      }
                       if (gcode_advanced)
                         fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
                                  variable_drilldepth, variable_safeZ);
-                      else
-                        {
+                      else {
+
                           fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
                           fprintf (gcode_f, "G1 Z%s\n", variable_drilldepth);
                           fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
-                        }
-                      if (r > 0)
+                      }
+                      if (r > 0) {
                         d += Distance(drill->holes[r - 1].x, drill->holes[r - 1].y,
                                       drill->holes[r    ].x, drill->holes[r    ].y);
-                    }
-                  if (gcode_advanced)
+                      }
+                  }
+                  if (gcode_advanced) {
                     fprintf (gcode_f, "M5 M9 M2\n");
-                  else
+                  }
+                  else {
                     fprintf (gcode_f, "M5\nM9\nM2\n");
-                  fprintf (gcode_f, "(end, total distance %.2fmm = %.2fin)\n",
-                           25.4 * d, d);
+                  }
+
+                  fprintf (gcode_f, "(end, total distance %.2fmm = %.2fin)\n", 25.4 * d, d);
                   fclose (gcode_f);
                 }
 
 /* ******************* handle drill-milling **************************** */
-              if (save_drill && gcode_drillmill)
-                {
-                  int n_drillmill_drills = 0;
+              if (save_drill && gcode_drillmill) {
+
+                int n_drillmill_drills = 0;
                   struct drill_hole* drillmill_drills = NULL;
                   double* drillmill_radiuss = NULL;
                   double mill_radius, inaccuracy;
@@ -944,8 +961,8 @@ gcode_do_export (HID_Attr_Val * options)
                     fprintf (gcode_f, "(Drillmill file)\n");
                     fprintf (gcode_f, "(Tool diameter: %f %s)\n",
                              gcode_milltoolradius * 2, metric ? "mm" : "inch");
-                    if (gcode_advanced)
-                      {
+                    if (gcode_advanced) {
+
                         fprintf (gcode_f, "%s=%f  (safe Z)\n",
                                  variable_safeZ, gcode_safeZ);
                         fprintf (gcode_f, "%s=%f  (mill depth)\n",
@@ -957,35 +974,36 @@ gcode_do_export (HID_Attr_Val * options)
                         fprintf (gcode_f, "(---------------------------------)\n");
                         fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
                                  metric ? 21 : 20);
-                      }
-                    else
-                      {
+                    }
+                    else {
+
                         fprintf (gcode_f, "(---------------------------------)\n");
                         fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\n",
                                  metric ? 21 : 20);
-                      }
-                    for (r = 0; r < n_drillmill_drills; r++)
-                      {
+                    }
+                    for (r = 0; r < n_drillmill_drills; r++) {
+
                         double drillX, drillY;
 
-                        if (metric)
-                          {
+                        if (metric) {
+
                             drillX = drillmill_drills[r].x * 25.4;
                             drillY = drillmill_drills[r].y * 25.4;
-                          }
-                        else
-                          {
+                        }
+                        else {
+
                             drillX = drillmill_drills[r].x;
                             drillY = drillmill_drills[r].y;
-                          }
+                        }
                         fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
                         fprintf (gcode_f, "G1 Z%s F%s\n",
                                  variable_milldepth, variable_millplunge);
 
                         mill_radius = drillmill_radiuss[r] - gcode_milltoolradius;
                         inaccuracy = (metric ? 25.4 : 1.) / gcode_dpi;
-                        if (mill_radius > inaccuracy)
-                          {
+
+                        if (mill_radius > inaccuracy) {
+
                             int n_sides;
 
                             /* calculate how many polygon sides we need to stay
@@ -995,17 +1013,18 @@ gcode_do_export (HID_Attr_Val * options)
                             if (n_sides < 4)
                               n_sides = 4;
                             fprintf (gcode_f, "F%s\n", variable_millfeedrate);
-                            for (i = 0; i <= n_sides; i++)
-                              {
+
+                            for (i = 0; i <= n_sides; i++) {
+
                                 double angle = M_PI * 2 * i / n_sides;
                                 fprintf (gcode_f, "G1 X%f Y%f\n",
                                          drillX + mill_radius * cos (angle),
                                          drillY + mill_radius * sin (angle));
-                              }
+                            }
                             fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
-                          }
+                        }
                         fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
-                      }
+                    }
                     if (gcode_advanced)
                       fprintf (gcode_f, "M5 M9 M2\n");
                     else
@@ -1015,7 +1034,7 @@ gcode_do_export (HID_Attr_Val * options)
                     free(drillmill_radiuss);
                     free(drillmill_drills);
                   }
-                }
+              }
 /* ******************* end of per-layer writing ************************ */
 
               for (int i_drill_file=0; i_drill_file < n_drills; i_drill_file++)
@@ -1048,7 +1067,7 @@ gcode_do_export (HID_Attr_Val * options)
             LINE_LOOP (layer);
               {
                 ... calculate the offset for all lines and polygons of this layer,
-                mirror it if is_solder, then mill it ...
+                mirror it if is_bottom, then mill it ...
               }
             END_LOOP;
           }
@@ -1079,22 +1098,20 @@ gcode_do_export (HID_Attr_Val * options)
           fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
                    metric ? 21 : 20);
         }
-      else
-        {
+      else {
+
           fprintf (gcode_f, "(---------------------------------)\n");
           fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\n",
                    metric ? 21 : 20);
-        }
-      if (metric)
-        {
-          upperX = COORD_TO_MM(PCB->ExtentMaxX - PCB->ExtentMinX);
-          upperY = COORD_TO_MM(PCB->ExtentMaxY - PCB->ExtentMinY);
-        }
-      else
-        {
-          upperX = COORD_TO_INCH(PCB->ExtentMaxX - PCB->ExtentMinX);
-          upperY = COORD_TO_INCH(PCB->ExtentMaxY - PCB->ExtentMinY);
-        }
+      }
+      if (metric) {
+          upperX = COORD_TO_MM(PCB->MaxWidth);
+          upperY = COORD_TO_MM(PCB->MaxHeight);
+      }
+      else {
+          upperX = COORD_TO_INCH(PCB->MaxWidth);
+          upperY = COORD_TO_INCH(PCB->MaxHeight);
+      }
       lowerX -= gcode_milltoolradius;
       lowerY -= gcode_milltoolradius;
       upperX += gcode_milltoolradius;
@@ -1343,10 +1360,10 @@ gcode_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   use_gc (gc);
   gdImageRectangle (gcode_im,
-                    pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
-                    pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
-                    pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
-                    pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                    pcb_to_gcode (x1 - gcode_toolradius),
+                    pcb_to_gcode (y1 - gcode_toolradius),
+                    pcb_to_gcode (x2 + gcode_toolradius),
+                    pcb_to_gcode (y2 + gcode_toolradius),
                     gc->color->c);
 /*      printf("Rect %d %d %d %d\n",x1,y1,x2,y2); */
 }
@@ -1358,10 +1375,10 @@ gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageFilledRectangle (gcode_im,
-                      pcb_to_gcode (x1 - PCB->ExtentMinX - gcode_toolradius),
-                      pcb_to_gcode (y1 - PCB->ExtentMinY - gcode_toolradius),
-                      pcb_to_gcode (x2 - PCB->ExtentMinX + gcode_toolradius),
-                      pcb_to_gcode (y2 - PCB->ExtentMinY + gcode_toolradius),
+                      pcb_to_gcode (x1 - gcode_toolradius),
+                      pcb_to_gcode (y1 - gcode_toolradius),
+                      pcb_to_gcode (x2 + gcode_toolradius),
+                      pcb_to_gcode (y2 + gcode_toolradius),
                       gc->color->c);
 /*      printf("FillRect %d %d %d %d\n",x1,y1,x2,y2); */
 }
@@ -1373,8 +1390,8 @@ gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
     {
       Coord w = gc->width / 2;
       gcode_fill_rect (gc,
-                       x1 - PCB->ExtentMinX - w, y1 - PCB->ExtentMinX - w,
-                       x1 - PCB->ExtentMinX + w, y1 - PCB->ExtentMinY + w);
+                       x1 - w, y1 - w,
+                       x1 + w, y1 + w);
       return;
     }
   use_gc (gc);
@@ -1382,10 +1399,10 @@ gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageLine (gcode_im,
-               pcb_to_gcode (x1 - PCB->ExtentMinX),
-               pcb_to_gcode (y1 - PCB->ExtentMinY),
-               pcb_to_gcode (x2 - PCB->ExtentMinX),
-               pcb_to_gcode (y2 - PCB->ExtentMinY), gdBrushed);
+               pcb_to_gcode (x1),
+               pcb_to_gcode (y1),
+               pcb_to_gcode (x2),
+               pcb_to_gcode (y2), gdBrushed);
 }
 
 static void
@@ -1429,8 +1446,8 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageArc (gcode_im,
-              pcb_to_gcode (cx - PCB->ExtentMinX),
-              pcb_to_gcode (cy - PCB->ExtentMinY),
+              pcb_to_gcode (cx),
+              pcb_to_gcode (cy),
               pcb_to_gcode (2 * width + gcode_toolradius * 2),
               pcb_to_gcode (2 * height + gcode_toolradius * 2), sa, ea,
               gdBrushed);
@@ -1521,8 +1538,8 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
   gdImageFilledEllipse (gcode_im,
-                        pcb_to_gcode (cx - PCB->ExtentMinX),
-                        pcb_to_gcode (cy - PCB->ExtentMinY),
+                        pcb_to_gcode (cx),
+                        pcb_to_gcode (cy),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         gc->color->c);
@@ -1533,9 +1550,9 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
       struct single_size_drills* drill = get_drill (diameter_inches);
       add_hole (drill,
                 /* convert to inch, flip: will drill from bottom side */
-                COORD_TO_INCH(PCB->ExtentMaxX  - cx),  
+                COORD_TO_INCH(PCB->MaxWidth  - cx),
                 /* PCB reverses y axis */
-                COORD_TO_INCH(PCB->ExtentMaxY - cy)); 
+                COORD_TO_INCH(PCB->MaxHeight - cy));
     }
 }
 
@@ -1554,8 +1571,8 @@ gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   use_gc (gc);
   for (i = 0; i < n_coords; i++)
     {
-      points[i].x = pcb_to_gcode (x[i] - PCB->ExtentMinX);
-      points[i].y = pcb_to_gcode (y[i] - PCB->ExtentMinY);
+      points[i].x = pcb_to_gcode (x[i]);
+      points[i].y = pcb_to_gcode (y[i]);
     }
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;

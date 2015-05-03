@@ -113,8 +113,9 @@ static line_s *lines;
 
 static int layer_groupings[MAX_LAYER];
 static char layer_type[MAX_LAYER];
-#define LT_COMPONENT 1
-#define LT_SOLDER 2
+
+#define LT_TOP 1
+#define LT_BOTTOM 2
 
 static int autorouted_only = 1;
 
@@ -2789,7 +2790,7 @@ padcleaner ()
       ALLPAD_LOOP (PCB->Data);
 	{
 	  int layerflag =
-	    TEST_FLAG (ONSOLDERFLAG, element) ? LT_SOLDER : LT_COMPONENT;
+	    TEST_FLAG (ONSOLDERFLAG, element) ? LT_BOTTOM : LT_TOP;
 
 	  if (layer_type[l->layer] != layerflag)
 	    continue;
@@ -2823,34 +2824,39 @@ grok_layer_groups ()
   LayerGroupType *l = &(PCB->LayerGroups);
 
   solder_layer = component_layer = -1;
-  for (i = 0; i < max_copper_layer; i++)
-    {
-      layer_type[i] = 0;
-      layer_groupings[i] = 0;
+  for (i = 0; i < max_copper_layer; i++) {
+
+    layer_type[i] = 0;
+    layer_groupings[i] = 0;
+  }
+
+  for (i = 0; i < max_group; i++) {
+
+    f = 0;
+
+    for (j = 0; j < l->Number[i]; j++) {
+
+      if (l->Entries[i][j] == bottom_silk_layer)
+        f |= LT_BOTTOM;
+      if (l->Entries[i][j] == top_silk_layer)
+        f |= LT_TOP;
     }
-  for (i = 0; i < max_group; i++)
-    {
-      f = 0;
-      for (j = 0; j < l->Number[i]; j++)
-	{
-	  if (l->Entries[i][j] == solder_silk_layer)
-	    f |= LT_SOLDER;
-	  if (l->Entries[i][j] == component_silk_layer)
-	    f |= LT_COMPONENT;
-	}
-      for (j = 0; j < l->Number[i]; j++)
-	{
-	  if (l->Entries[i][j] < max_copper_layer)
-	    {
-	      layer_type[l->Entries[i][j]] |= f;
-	      layer_groupings[l->Entries[i][j]] = i;
-	      if (solder_layer == -1 && f == LT_SOLDER)
-		solder_layer = l->Entries[i][j];
-	      if (component_layer == -1 && f == LT_COMPONENT)
-		component_layer = l->Entries[i][j];
-	    }
-	}
+
+    for (j = 0; j < l->Number[i]; j++) {
+
+      if (l->Entries[i][j] < max_copper_layer) {
+
+        layer_type[l->Entries[i][j]] |= f;
+        layer_groupings[l->Entries[i][j]] = i;
+        if (solder_layer == -1 && f == LT_BOTTOM) {
+          solder_layer = l->Entries[i][j];
+        }
+        if (component_layer == -1 && f == LT_TOP) {
+          component_layer = l->Entries[i][j];
+        }
+      }
     }
+  }
 }
 
 static const char djopt_syntax[] =

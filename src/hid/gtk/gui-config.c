@@ -70,7 +70,7 @@ enum ConfigType
 
 typedef struct
 {
-  gchar *name;
+  char *name;
   enum ConfigType type;
   void *value;
 }
@@ -96,10 +96,10 @@ ConfigColor;
 
 static GList *config_color_list, *lib_newlib_list;
 
-static gchar *lib_newlib_config, *board_size_override;
+static char *lib_newlib_config, *board_size_override;
 
 
-static gchar *color_file;
+static char *color_file;
 
 extern void ghid_set_special_colors (HID_Attribute * ha);
 
@@ -177,7 +177,7 @@ static ConfigAttribute config_attributes[] = {
 };
 
 static gboolean
-dup_core_string (gchar ** dst, const gchar * src)
+dup_core_string (char ** dst, const char * src)
 {
   if (dst == NULL || (*dst == NULL && src == NULL))
     return FALSE;
@@ -192,13 +192,13 @@ dup_core_string (gchar ** dst, const gchar * src)
 }
 
 static FILE *
-config_file_open (gchar * mode)
+config_file_open (char * mode)
 {
   FILE *f;
-  gchar *homedir, *fname;
+  char *homedir, *fname;
 
 
-  homedir = (gchar *) g_get_home_dir ();
+  homedir = (char *) g_get_home_dir ();
   if (!homedir)
     {
       g_message ("config_file_open: Can't get home directory!");
@@ -248,7 +248,7 @@ config_file_open (gchar * mode)
 }
 
 static ConfigAttribute *
-lookup_config_attribute (gchar * name, gboolean if_null_value)
+lookup_config_attribute (char * name, gboolean if_null_value)
 {
   ConfigAttribute *ca;
 
@@ -272,7 +272,7 @@ ghid_config_init (void)
   HID_Attribute *a;
   ConfigAttribute *ca, dummy_attribute;
   ConfigColor *cc;
-  gint len;
+  int len;
 
   ghidgui->n_mode_button_columns = 3;
   ghidgui->small_label_markup = TRUE;
@@ -349,11 +349,11 @@ ghid_config_init (void)
   }
 }
 
-static gint
-parse_option_line (gchar * line, gchar ** option_result, gchar ** arg_result)
+static int
+parse_option_line (char * line, char ** option_result, char ** arg_result)
 {
-  gchar *s, *ss, option[64], arg[512];
-  gint argc = 1;
+  char *s, *ss, option[64], arg[512];
+  int argc = 1;
 
   if (option_result)
     *option_result = NULL;
@@ -392,12 +392,12 @@ parse_option_line (gchar * line, gchar ** option_result, gchar ** arg_result)
 }
 
 static gboolean
-set_config_attribute (gchar * option, gchar * arg)
+set_config_attribute (char * option, char * arg)
 {
   ConfigAttribute *ca;
 #if 0
   struct lconv *lc;
-  gchar locale_point, *comma_point, *period_point;
+  char locale_point, *comma_point, *period_point;
 
   /* Until LC_NUMERIC is totally resolved, check if we need to decimal
      |  point convert.  Ultimately, data files will be POSIX and gui
@@ -412,11 +412,11 @@ set_config_attribute (gchar * option, gchar * arg)
   switch (ca->type)
     {
     case CONFIG_Boolean:
-      *(gchar *) ca->value = (gchar) atoi (arg);
+      *(char *) ca->value = (char) atoi (arg);
       break;
 
     case CONFIG_Integer:
-      *(gint *) ca->value = atoi (arg);
+      *(int *) ca->value = atoi (arg);
       break;
 
     case CONFIG_Real:
@@ -434,7 +434,7 @@ set_config_attribute (gchar * option, gchar * arg)
       break;
 
     case CONFIG_String:
-      dup_string ((gchar **) ca->value, arg ? arg : (gchar *)"");
+      dup_string ((char **) ca->value, arg ? arg : (char *)"");
       break;
     case CONFIG_Coord:
       *(Coord *) ca->value = GetValue (arg, NULL, NULL);
@@ -445,29 +445,35 @@ set_config_attribute (gchar * option, gchar * arg)
   return TRUE;
 }
 
+/* TODO Line counter for errors?*
+ * How large is config, 1 line at a time is slow,
+ */
 static void
 config_file_read (void)
 {
   FILE *f;
-  gchar buf[512], *option, *arg;
+  char *buf = NULL;
+  char *option, *arg;
+  size_t n = 0;
 
-  if ((f = config_file_open ("r")) == NULL)
+  if ((f = config_file_open ("r")) == NULL) {
     return;
+  }
 
-  buf[0] = '\0';
-  while (fgets (buf, sizeof (buf), f))
-    {
-      if (parse_option_line (buf, &option, &arg) > 0)
-	set_config_attribute (option, arg);
-      g_free (option);
-      g_free (arg);
+  while (getline (&buf, &n, f) != -1) {
+
+    if (parse_option_line (buf, &option, &arg) > 0) {
+      set_config_attribute (option, arg);
     }
-
+    g_free (option);
+    g_free (arg);
+  }
+  free (buf);
   fclose (f);
 }
 
 static void
-config_colors_write (gchar * path)
+config_colors_write (char * path)
 {
   FILE *f;
   GList *list;
@@ -486,13 +492,13 @@ config_colors_write (gchar * path)
 }
 
 static int
-config_colors_read (gchar * path)
+config_colors_read (char * path)
 {
   FILE *f;
   GList *list;
   ConfigColor *cc;
   HID_Attribute *ha;
-  gchar *s, buf[512], option[64], arg[512];
+  char *s, buf[512], option[64], arg[512];
 
   if (!path || !*path || (f = fopen (path, "r")) == NULL)
     return FALSE;
@@ -526,22 +532,22 @@ config_colors_read (gchar * path)
   return TRUE;
 }
 
-static gchar *
-expand_dir (gchar * dir)
+static char *
+expand_dir (char * dir)
 {
-  gchar *s;
+  char *s;
 
   if (*dir == '~')
-    s = g_build_filename ((gchar *) g_get_home_dir (), dir + 1, NULL);
+    s = g_build_filename ((char *) g_get_home_dir (), dir + 1, NULL);
   else
     s = g_strdup (dir);
   return s;
 }
 
 static void
-add_to_paths_list (GList ** list, gchar * path_string)
+add_to_paths_list (GList ** list, char * path_string)
 {
-  gchar *p, *paths;
+  char *p, *paths;
 
   paths = g_strdup (path_string);
   for (p = strtok (paths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
@@ -552,13 +558,13 @@ add_to_paths_list (GList ** list, gchar * path_string)
   /* Parse command line code borrowed from hid/common/hidinit.c
    */
 static void
-parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
+parse_optionv (int * argc, char *** argv, gboolean from_cmd_line)
 {
   HID_AttrNode *ha;
   HID_Attribute *a;
   const Unit *unit;
-  gchar *ep;
-  gint e, ok, offset;
+  char *ep;
+  int e, ok, offset;
   gboolean matched = FALSE;
 
   offset = from_cmd_line ? 2 : 0;
@@ -687,11 +693,11 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 }
 
 static void
-load_rc_file (gchar * path)
+load_rc_file (char * path)
 {
   FILE *f;
-  gchar buf[1024], *av[2], **argv;
-  gint argc;
+  char buf[1024], *av[2], **argv;
+  int argc;
 
   f = fopen (path, "r");
   if (!f)
@@ -713,7 +719,7 @@ load_rc_file (gchar * path)
 static void
 load_rc_files (void)
 {
-  gchar *path;
+  char *path;
 
   load_rc_file ("/etc/pcbrc");
   load_rc_file ("/usr/local/etc/pcbrc");
@@ -722,7 +728,7 @@ load_rc_files (void)
   load_rc_file (path);
   g_free (path);
 
-  path = g_build_filename ((gchar *) g_get_home_dir (), ".pcb/pcbrc", NULL);
+  path = g_build_filename ((char *) g_get_home_dir (), ".pcb/pcbrc", NULL);
   load_rc_file (path);
   g_free (path);
 
@@ -731,11 +737,11 @@ load_rc_files (void)
 
 
 void
-ghid_config_files_read (gint * argc, gchar *** argv)
+ghid_config_files_read (int * argc, char *** argv)
 {
   GList *list;
-  gchar *str, *dir;
-  gint width, height;
+  char *str, *dir;
+  int width, height;
 
   ghidgui = &_ghidgui;
 
@@ -760,7 +766,7 @@ ghid_config_files_read (gint * argc, gchar *** argv)
   for (list = lib_newlib_list; list; list = list->next)
     {
       str = Settings.UserLibrary;
-      dir = expand_dir ((gchar *) list->data);
+      dir = expand_dir ((char *) list->data);
       Settings.UserLibrary = g_strconcat (str, PCB_PATH_DELIMETER, dir, NULL);
       g_free (dir);
       g_free (str);
@@ -784,11 +790,11 @@ ghid_config_files_write (void)
       switch (ca->type)
 	{
 	case CONFIG_Boolean:
-	  fprintf (f, "%s = %d\n", ca->name, (gint) * (gchar *) ca->value);
+	  fprintf (f, "%s = %d\n", ca->name, (int) * (char *) ca->value);
 	  break;
 
 	case CONFIG_Integer:
-	  fprintf (f, "%s = %d\n", ca->name, *(gint *) ca->value);
+	  fprintf (f, "%s = %d\n", ca->name, *(int *) ca->value);
 	  break;
 
 	case CONFIG_Real:
@@ -868,7 +874,7 @@ config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
 static void
 config_general_toggle_cb (GtkToggleButton * button, void * setting)
 {
-  *(gint *)setting = gtk_toggle_button_get_active (button);
+  *(int *)setting = gtk_toggle_button_get_active (button);
   ghidgui->config_modified = TRUE;
 }
 
@@ -1002,7 +1008,7 @@ config_sizes_apply (void)
 static void
 text_spin_button_cb (GtkSpinButton * spin, void * dst)
 {
-  *(gint *)dst = gtk_spin_button_get_value_as_int (spin);
+  *(int *)dst = gtk_spin_button_get_value_as_int (spin);
   ghidgui->config_modified = TRUE;
   ghid_set_status_line_label ();
 }
@@ -1272,13 +1278,13 @@ config_library_tab_create (GtkWidget * tab_vbox)
 static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
-static GtkWidget *group_button[MAX_LAYER + 2][MAX_LAYER];
+static GtkWidget *group_button[MAX_LAYER + 2][MAX_GROUP];
 
 #if FIXME
 static GtkWidget *use_layer_default_button;
 #endif
 
-static gint config_layer_group[MAX_LAYER + 2];
+static int config_layer_group[MAX_LAYER + 2];
 
 static LayerGroupType layer_groups,	/* Working copy */
  *lg_monitor;			/* Keep track if our working copy */
@@ -1286,7 +1292,7 @@ static LayerGroupType layer_groups,	/* Working copy */
 
 static gboolean groups_modified, groups_holdoff, layers_applying;
 
-static gchar *layer_info_text[] = {
+static char *layer_info_text[] = {
   N_("<h>Layer Names\n"),
   N_("You may enter layer names for the layers drawn on the screen.\n"
      "The special 'top side' and 'bottom side' are layers which\n"
@@ -1342,8 +1348,8 @@ static gchar *layer_info_text[] = {
 static void
 config_layer_groups_radio_button_cb (GtkToggleButton * button, gpointer data)
 {
-  gint layer = GPOINTER_TO_INT (data) >> 8;
-  gint group = GPOINTER_TO_INT (data) & 0xff;
+  int layer = GPOINTER_TO_INT (data) >> 8;
+  int group = GPOINTER_TO_INT (data) & 0xff;
 
   if (!gtk_toggle_button_get_active (button) || groups_holdoff)
     return;
@@ -1355,34 +1361,44 @@ config_layer_groups_radio_button_cb (GtkToggleButton * button, gpointer data)
   /* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
      |  but use g_string functions.
    */
-static gchar *
+static char *
 make_layer_group_string (LayerGroupType * lg)
 {
   GString *string;
-  gint group, entry, layer;
+  int group, entry, layer;
 
   string = g_string_new ("");
 
-  for (group = 0; group < max_group; group++)
-    {
-      if (lg->Number[group] == 0)
-	continue;
-      for (entry = 0; entry < lg->Number[group]; entry++)
-	{
-	  layer = lg->Entries[group][entry];
-	  if (layer == component_silk_layer)
-	    string = g_string_append (string, "c");
-	  else if (layer == solder_silk_layer)
-	    string = g_string_append (string, "s");
-	  else
-	    g_string_append_printf (string, "%d", layer + 1);
+  for (group = 0; group < max_group; group++) {
 
-	  if (entry != lg->Number[group] - 1)
-	    string = g_string_append (string, ",");
-	}
-      if (group != max_group - 1)
-	string = g_string_append (string, ":");
+    if (lg->Number[group] == 0) {
+      continue;
     }
+
+    for (entry = 0; entry < lg->Number[group]; entry++) {
+
+      layer = lg->Entries[group][entry];
+
+      if (layer == top_silk_layer) {
+        string = g_string_append (string, "c");
+      }
+      else if (layer == bottom_silk_layer) {
+        string = g_string_append (string, "s");
+
+      }
+      else {
+        g_string_append_printf (string, "%d", layer + 1);
+      }
+
+      if (entry != lg->Number[group] - 1) {
+        string = g_string_append (string, ",");
+      }
+    }
+
+    if (group != max_group - 1) {
+      string = g_string_append (string, ":");
+    }
+  }
   return g_string_free (string, FALSE);	/* Don't free string->str */
 }
 
@@ -1390,90 +1406,101 @@ static void
 config_layers_apply (void)
 {
   LayerType *layer;
-  gchar *s;
-  gint group, i;
-  gint componentgroup = 0, soldergroup = 0;
-  gboolean use_as_default = FALSE, layers_modified = FALSE;
+  char *s;
+  int group, i;
+  int top_group = 0, bottom_group = 0;
 
-#if FIXME
+  bool use_as_default = FALSE, layers_modified = FALSE;
+
+  #if FIXME
   use_as_default =
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-				  (use_layer_default_button));
-#endif
+  gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+  (use_layer_default_button));
+  #endif
 
   /* Get each layer name entry and dup if modified into the PCB layer names
-     |  and, if to use as default, the Settings layer names.
+   *    |  and, if to use as default, the Settings layer names.
    */
-  for (i = 0; i < max_copper_layer; ++i)
-    {
-      layer = &PCB->Data->Layer[i];
-      s = ghid_entry_get_text (layer_entry[i]);
-      if (dup_core_string (&layer->Name, s))
-	layers_modified = TRUE;
-/* FIXME */
-      if (use_as_default && dup_core_string (&Settings.DefaultLayerName[i], s))
-	ghidgui->config_modified = TRUE;
+  for (i = 0; i < max_copper_layer; ++i) {
 
+    layer = &PCB->Data->Layer[i];
+    s = ghid_entry_get_text (layer_entry[i]);
+
+    if (dup_core_string (&layer->Name, s)) {
+      layers_modified = TRUE;
     }
+
+    /* FIXME */
+    if (use_as_default && dup_core_string (&Settings.DefaultLayerName[i], s)) {
+      ghidgui->config_modified = TRUE;
+    }
+
+  }
   /* Layer names can be changed from the menus and that can update the
-     |  config.  So holdoff the loop.
+   *    |  config.  So holdoff the loop.
    */
   layers_applying = TRUE;
-  if (layers_modified)
+
+  if (layers_modified) {
     ghid_layer_buttons_update ();
+  }
+
   layers_applying = FALSE;
 
-  if (groups_modified)		/* If any group radio buttons were toggled. */
-    {
-      /* clear all entries and read layer by layer
-       */
-      for (group = 0; group < max_group; group++)
-	layer_groups.Number[group] = 0;
+  if (groups_modified) {		/* If any group radio buttons were toggled. */
 
-      for (i = 0; i < max_copper_layer + 2; i++)
-	{
-	  group = config_layer_group[i] - 1;
-	  layer_groups.Entries[group][layer_groups.Number[group]++] = i;
-
-	  if (i == component_silk_layer)
-	    componentgroup = group;
-	  else if (i == solder_silk_layer)
-	    soldergroup = group;
-	}
-
-      /* do some cross-checking
-         |  top-side and bottom-side must be in different groups
-         |  top-side and bottom-side must not be the only one in the group
-       */
-      if (layer_groups.Number[soldergroup] <= 1
-	  || layer_groups.Number[componentgroup] <= 1)
-	{
-	  Message (_
-		   ("Both, 'top side' and 'bottom side' layer must have at least\n"
-		    "\tone other layer in their group.\n"));
-	  return;
-	}
-      else if (soldergroup == componentgroup)
-	{
-	  Message (_
-		   ("The 'top side' and 'bottom side' layers are not allowed\n"
-		    "\tto be in the same layer group #\n"));
-	  return;
-	}
-      PCB->LayerGroups = layer_groups;
-      ghid_invalidate_all();
-      groups_modified = FALSE;
+    /* clear all entries and read layer by layer
+     */
+    for (group = 0; group < max_group; group++) {
+      layer_groups.Number[group] = 0;
     }
-  if (use_as_default)
-    {
-      s = make_layer_group_string (&PCB->LayerGroups);
-      if (dup_core_string (&Settings.Groups, s))
-	{
-	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, &max_copper_layer);
-	  ghidgui->config_modified = TRUE;
-	}
-      g_free (s);
+
+    for (i = 0; i < max_copper_layer + 2; i++) {
+
+      group = config_layer_group[i] - 1;
+      layer_groups.Entries[group][layer_groups.Number[group]++] = i;
+
+      if (i == top_silk_layer) {
+        top_group = group;
+      }
+      else if (i == bottom_silk_layer) {
+        bottom_group = group;
+      }
     }
+
+    /* do some cross-checking
+     *        |  top-side and bottom-side must be in different groups
+     *        |  top-side and bottom-side must not be the only one in the group
+     */
+    if (layer_groups.Number[bottom_group] <= 1 ||
+        layer_groups.Number[top_group] <= 1)
+    {
+      Message (_ ("Both, 'top side' and 'bottom side' layer must have at least\n"
+                  "\tone other layer in their group.\n"));
+      return;
+    }
+    else if (bottom_group == top_group)
+    {
+      Message (_
+      ("The 'top side' and 'bottom side' layers are not allowed\n"
+      "\tto be in the same layer group #\n"));
+      return;
+    }
+    PCB->LayerGroups = layer_groups;
+    ghid_invalidate_all();
+    groups_modified = FALSE;
+  }
+
+  if (use_as_default) {
+
+    s = make_layer_group_string (&PCB->LayerGroups);
+    if (dup_core_string (&Settings.Groups, s)) {
+
+      ParseGroupString (Settings.Groups, &Settings.LayerGroups, &max_copper_layer);
+      ghidgui->config_modified = TRUE;
+    }
+    g_free (s);
+  }
 }
 
 static void
@@ -1500,9 +1527,9 @@ config_layer_group_button_state_update (void)
 static void
 layer_name_entry_cb(GtkWidget *entry, gpointer data)
 {
-	gint		i = GPOINTER_TO_INT(data);
+	int		i = GPOINTER_TO_INT(data);
 	LayerType	*layer;
-	gchar		*name;
+	char		*name;
 
 	layer = &PCB->Data->Layer[i];
 	name = ghid_entry_get_text(entry);
@@ -1515,8 +1542,8 @@ ghid_config_groups_changed(void)
 {
   GtkWidget *vbox, *table, *button, *label, *scrolled_window;
   GSList *group;
-  gchar buf[32], *name;
-  gint layer, i;
+  char buf[32], *name;
+  int layer, i;
 
   if (!config_groups_vbox)
 	return;
@@ -1551,70 +1578,75 @@ ghid_config_groups_changed(void)
   gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
 
-  for (i = 1; i < max_group + 1; ++i)
-    {
-	if (i < 10)
-		snprintf (buf, sizeof (buf), "  %d", i);
-	else
-		snprintf (buf, sizeof (buf), "%d", i);
-      label = gtk_label_new (buf);
-      gtk_table_attach_defaults (GTK_TABLE (table), label, i, i + 1, 0, 1);
+  for (i = 1; i < max_group + 1; ++i) {
+
+    if (i < 10) {
+      snprintf (buf, sizeof (buf), "  %d", i);
     }
+    else {
+      snprintf (buf, sizeof (buf), "%d", i);
+    }
+    label = gtk_label_new (buf);
+    gtk_table_attach_defaults (GTK_TABLE (table), label, i, i + 1, 0, 1);
+  }
 
   /* Create a row of radio toggle buttons for layer.  So each layer
      |  can have an active radio button set for the group it needs to be in.
    */
-  for (layer = 0; layer < max_copper_layer + 2; ++layer)
-    {
-      if (layer == component_silk_layer)
-	name = _("top side");
-      else if (layer == solder_silk_layer)
-	name = _("bottom side");
-      else
-	name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
+  for (layer = 0; layer < max_copper_layer + 2; ++layer) {
 
-      if (layer >= max_copper_layer)
-	{
-	  label = gtk_label_new (name);
-	  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	  gtk_table_attach_defaults (GTK_TABLE (table), label,
-				     0, 1, layer + 1, layer + 2);
-	}
-      else
-	{
-	  layer_entry[layer] = gtk_entry_new ();
-	  gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
-	  gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
-				     0, 1, layer + 1, layer + 2);
-	  g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
-				G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
-	}
-
-      group = NULL;
-      for (i = 0; i < max_group; ++i)
-	{
-	  snprintf (buf, sizeof (buf), "%2.2d", i+1);
-	  button = gtk_radio_button_new_with_label (group, buf);
-
-	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
-	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
-	  gtk_table_attach_defaults (GTK_TABLE (table), button,
-				     i + 1, i + 2, layer + 1, layer + 2);
-	  g_signal_connect (G_OBJECT (button), "toggled",
-			    G_CALLBACK (config_layer_groups_radio_button_cb),
-			    GINT_TO_POINTER ((layer << 8) | (i + 1)));
-	  group_button[layer][i] = button;
-	}
+    if (layer == top_silk_layer) {
+      name = _("top side");
     }
+    else if (layer == bottom_silk_layer) {
+      name = _("bottom side");
+    }
+    else {
+      name = (char *) UNKNOWN (PCB->Data->Layer[layer].Name);
+    }
+
+    if (layer >= max_copper_layer) {
+
+      label = gtk_label_new (name);
+      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      gtk_table_attach_defaults (GTK_TABLE (table), label,
+                                 0, 1, layer + 1, layer + 2);
+    }
+    else {
+
+      layer_entry[layer] = gtk_entry_new ();
+      gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
+      gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
+                                 0, 1, layer + 1, layer + 2);
+      g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
+                                G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
+    }
+
+    group = NULL;
+
+    for (i = 0; i < max_group; ++i) {
+
+      snprintf (buf, sizeof (buf), "%2.2d", i+1);
+      button = gtk_radio_button_new_with_label (group, buf);
+
+      gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
+      group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
+      gtk_table_attach_defaults (GTK_TABLE (table), button,
+                                 i + 1, i + 2, layer + 1, layer + 2);
+      g_signal_connect (G_OBJECT (button), "toggled",
+                                  G_CALLBACK (config_layer_groups_radio_button_cb),
+                                  GINT_TO_POINTER ((layer << 8) | (i + 1)));
+      group_button[layer][i] = button;
+    }
+  }
   gtk_widget_show_all(config_groups_vbox);
   config_layer_group_button_state_update ();
 }
 
-
 static void
-edit_layer_button_cb(GtkWidget *widget, gchar *data)
+edit_layer_button_cb(GtkWidget *widget, char *data)
 {
-	gchar	**argv;
+	char	**argv;
 
 	if (PCB->RatDraw || PCB->SilkActive)
 		return;
@@ -1629,7 +1661,7 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *tabs, *vbox, *vbox1, *button, *text, *sep;
   GtkWidget *hbox, *arrow;
-  gint i;
+  int i;
 
   tabs = gtk_notebook_new ();
   gtk_box_pack_start (GTK_BOX (tab_vbox), tabs, TRUE, TRUE, 0);
@@ -1643,8 +1675,8 @@ config_layers_tab_create (GtkWidget * tab_vbox)
   button = gtk_button_new();
   arrow = gtk_arrow_new(GTK_ARROW_UP, GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(button), arrow);
-  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
-		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,up");
+  g_signal_connect(G_OBJECT(button), (char *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (char *)"c,up");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -1652,15 +1684,15 @@ config_layers_tab_create (GtkWidget * tab_vbox)
   button = gtk_button_new();
   arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(button), arrow);
-  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
-		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,down");
+  g_signal_connect(G_OBJECT(button), (char *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (char *)"c,down");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
   button = gtk_button_new_from_stock(GTK_STOCK_DELETE);
-  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
-		   G_CALLBACK(edit_layer_button_cb), (gchar *)"c,-1");
+  g_signal_connect(G_OBJECT(button), (char *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (char *)"c,-1");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -1669,8 +1701,8 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 			_("Add new layer above currently selected layer:"),
 			4, 2, TRUE, TRUE);
   button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-  g_signal_connect(G_OBJECT(button), (gchar *)"clicked",
-		   G_CALLBACK(edit_layer_button_cb), (gchar *)"-1,c");
+  g_signal_connect(G_OBJECT(button), (char *)"clicked",
+		   G_CALLBACK(edit_layer_button_cb), (char *)"-1,c");
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
@@ -1696,13 +1728,13 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 
   text = ghid_scrolled_text_view (vbox, NULL,
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  for (i = 0; i < sizeof (layer_info_text) / sizeof (gchar *); ++i)
+  for (i = 0; i < sizeof (layer_info_text) / sizeof (char *); ++i)
     ghid_text_view_append (text, _(layer_info_text[i]));
 }
 
 
 void
-ghid_config_layer_name_update (gchar * name, gint layer)
+ghid_config_layer_name_update (char * name, int layer)
 {
   if (!config_window || layers_applying || !name)
     return;
@@ -1734,7 +1766,7 @@ static gboolean config_colors_modified;
 static void
 config_color_file_set_label (void)
 {
-  gchar *str, *name;
+  char *str, *name;
 
   if (!*color_file)
     name = g_strdup ("defaults");
@@ -1784,7 +1816,7 @@ config_color_defaults_cb (gpointer data)
 static void
 config_color_load_cb (gpointer data)
 {
-  gchar *path, *dir = g_strdup (color_dir);
+  char *path, *dir = g_strdup (color_dir);
 
   path = ghid_dialog_file_select_open (_("Load Color File"), &dir, NULL);
   if (path)
@@ -1813,7 +1845,7 @@ config_color_load_cb (gpointer data)
 static void
 config_color_save_cb (gpointer data)
 {
-  gchar *name, *path, *dir = g_strdup (color_dir);
+  char *name, *path, *dir = g_strdup (color_dir);
 
   path =
     ghid_dialog_file_select_save (_("Save Color File"), &dir, NULL, NULL);
@@ -1845,7 +1877,7 @@ config_color_set_cb (GtkWidget * button, ConfigColor * cc)
 {
   GdkColor new_color;
   HID_Attribute *ha = cc->attributes;
-  gchar *str;
+  char *str;
 
   gtk_color_button_get_color (GTK_COLOR_BUTTON (button), &new_color);
   str = ghid_get_color_name (&new_color);
@@ -1867,7 +1899,7 @@ config_color_button_create (GtkWidget * box, ConfigColor * cc)
 {
   GtkWidget *button, *hbox, *label;
   HID_Attribute *ha = cc->attributes;
-  gchar *title;
+  char *title;
 
   hbox = gtk_hbox_new (FALSE, 6);
   gtk_box_pack_start (GTK_BOX (box), hbox, FALSE, FALSE, 0);
@@ -2007,7 +2039,7 @@ config_page_create (GtkTreeStore * tree, GtkTreeIter * iter,
 		    GtkNotebook * notebook)
 {
   GtkWidget *vbox;
-  gint page;
+  int page;
 
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_notebook_append_page (notebook, vbox, NULL);
@@ -2019,7 +2051,7 @@ config_page_create (GtkTreeStore * tree, GtkTreeIter * iter,
 void
 ghid_config_handle_units_changed (void)
 {
-  gchar *text = pcb_g_strdup_printf ("<b>%s</b>",
+  char *text = pcb_g_strdup_printf ("<b>%s</b>",
                                      Settings.grid_unit->in_suffix);
   ghid_set_cursor_position_labels ();
   gtk_label_set_markup (GTK_LABEL (ghidgui->grid_units_label), text);
@@ -2085,7 +2117,7 @@ config_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
 {
   GtkTreeIter iter;
   GtkTreeModel *model;
-  gint page;
+  int page;
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     return;

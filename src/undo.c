@@ -685,6 +685,7 @@ UndoRemovePoint (UndoListType *Entry)
 
   /* lookup entry (polygon not point was saved) by it's ID */
   assert (Entry->Kind == POLYGON_TYPE);
+
   type =
     SearchObjectByID (PCB->Data, (void **) &layer, (void **) &polygon, &ptr3,
 		      Entry->ID, Entry->Kind);
@@ -732,6 +733,7 @@ UndoInsertPoint (UndoListType *Entry)
   bool last_in_contour = false;
 
   assert (Entry->Kind == POLYGONPOINT_TYPE);
+
   /* lookup entry by it's ID */
   type =
     SearchObjectByID (PCB->Data, (void **) &layer, (void **) &polygon,
@@ -883,25 +885,25 @@ UndoNetlistChange (UndoListType *Entry)
 
       /* iterate over each pin on the net */
       for (j = 0; j < lib->Menu[i].EntryN; j++) {
-	
+
 	if (lib->Menu[i].Entry[j].ListEntry)
 	  free (lib->Menu[i].Entry[j].ListEntry);
-	
+
 	if (lib->Menu[i].Entry[j].AllocatedMemory)
 	  free (lib->Menu[i].Entry[j].AllocatedMemory);
-	
+
 	if (lib->Menu[i].Entry[j].Template)
 	  free (lib->Menu[i].Entry[j].Template);
-	
+
 	if (lib->Menu[i].Entry[j].Package)
 	  free (lib->Menu[i].Entry[j].Package);
-	
+
 	if (lib->Menu[i].Entry[j].Value)
 	  free (lib->Menu[i].Entry[j].Value);
-	
+
 	if (lib->Menu[i].Entry[j].Description)
 	  free (lib->Menu[i].Entry[j].Description);
-	
+
       }
     }
 
@@ -1629,7 +1631,7 @@ AddNetlistLibToUndoList (LibraryType *lib)
   UndoListType *undo;
   unsigned int i, j;
   LibraryType *old;
-  
+
   if (!Locked)
     {
       undo = GetUndoSlot (UNDO_NETLISTCHANGE, 0, 0);
@@ -1654,57 +1656,57 @@ AddNetlistLibToUndoList (LibraryType *lib)
 	  old->Menu[i].EntryN = lib->Menu[i].EntryN;
 	  old->Menu[i].EntryMax = lib->Menu[i].EntryMax;
 
-	  old->Menu[i].Name = 
+	  old->Menu[i].Name =
 	    lib->Menu[i].Name ? strdup (lib->Menu[i].Name) : NULL;
-	  
-	  old->Menu[i].directory = 
+
+	  old->Menu[i].directory =
 	    lib->Menu[i].directory ? strdup (lib->Menu[i].directory) : NULL;
-	  
-	  old->Menu[i].Style = 
+
+	  old->Menu[i].Style =
 	    lib->Menu[i].Style ? strdup (lib->Menu[i].Style) : NULL;
 
-      
-	  old->Menu[i].Entry = 
+
+	  old->Menu[i].Entry =
 	    (LibraryEntryType *)malloc (old->Menu[i].EntryMax * sizeof (LibraryEntryType));
 	  if (old->Menu[i].Entry == NULL)
 	    {
 	      fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
 	      exit (1);
 	    }
-	  
+
 	  /* iterate over each pin on the net */
 	  for (j = 0; j < lib->Menu[i].EntryN; j++) {
 
-	    old->Menu[i].Entry[j].ListEntry = 
-	      lib->Menu[i].Entry[j].ListEntry ? 
+	    old->Menu[i].Entry[j].ListEntry =
+	      lib->Menu[i].Entry[j].ListEntry ?
 	      strdup (lib->Menu[i].Entry[j].ListEntry) :
 	      NULL;
 
-	    old->Menu[i].Entry[j].AllocatedMemory = 
-	      lib->Menu[i].Entry[j].AllocatedMemory ? 
+	    old->Menu[i].Entry[j].AllocatedMemory =
+	      lib->Menu[i].Entry[j].AllocatedMemory ?
 	      strdup (lib->Menu[i].Entry[j].AllocatedMemory) :
 	      NULL;
 
-	    old->Menu[i].Entry[j].Template = 
-	      lib->Menu[i].Entry[j].Template ? 
+	    old->Menu[i].Entry[j].Template =
+	      lib->Menu[i].Entry[j].Template ?
 	      strdup (lib->Menu[i].Entry[j].Template) :
 	      NULL;
 
-	    old->Menu[i].Entry[j].Package = 
-	      lib->Menu[i].Entry[j].Package ? 
+	    old->Menu[i].Entry[j].Package =
+	      lib->Menu[i].Entry[j].Package ?
 	      strdup (lib->Menu[i].Entry[j].Package) :
 	      NULL;
 
-	    old->Menu[i].Entry[j].Value = 
-	      lib->Menu[i].Entry[j].Value ? 
+	    old->Menu[i].Entry[j].Value =
+	      lib->Menu[i].Entry[j].Value ?
 	      strdup (lib->Menu[i].Entry[j].Value) :
 	      NULL;
 
-	    old->Menu[i].Entry[j].Description = 
-	      lib->Menu[i].Entry[j].Description ? 
+	    old->Menu[i].Entry[j].Description =
+	      lib->Menu[i].Entry[j].Description ?
 	      strdup (lib->Menu[i].Entry[j].Description) :
 	      NULL;
-	    
+
 
 	  }
 	}

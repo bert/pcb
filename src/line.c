@@ -323,7 +323,7 @@ drc_lines (PointType *end, bool way)
       length = abs (dy);
   }
 
-  group = GetGroupOfLayer (INDEXOFCURRENT);
+  group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
 
   info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == group);
   info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == group);

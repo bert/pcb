@@ -752,13 +752,13 @@ ghid_violation_renderer_new (void)
 
 
 void
-ghid_drc_window_show (gboolean raise)
+ghid_drc_window_show (bool raise)
 {
   GtkWidget *vbox, *hbox, *button, *scrolled_window;
   GtkCellRenderer *violation_renderer;
 
-  if (drc_window)
-    {
+  if (drc_window) {
+
       if (raise)
 	gtk_window_present(GTK_WINDOW(drc_window));
       return;

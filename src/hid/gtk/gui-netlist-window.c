@@ -24,7 +24,7 @@
  *
  */
 
-/* 
+/*
  * This file written by Bill Wilson for the PCB Gtk port
  */
 
@@ -89,7 +89,7 @@ static LibraryMenuType *node_selected_net;
    |  The netlist window code has a public interface providing hooks so PCB
    |  code can control the net and node treeviews:
    |
-   |	ghid_get_net_from_node_name gchar *node_name, gboolean enabled_only)
+   |	ghid_get_net_from_node_name char *node_name, gboolean enabled_only)
    |		Given a node name (eg C101-1), walk through the nets in the net
    |		data model and search each net for the given node_name.  If found
    |		and enabled_only is true, make the net treeview scroll to and
@@ -102,7 +102,7 @@ static LibraryMenuType *node_selected_net;
    |		look up the node, the net the node belongs to will also be
    |		highlighted in the net treeview.
    |
-   |	ghid_netlist_window_update(gboolean init_nodes)
+   |	ghid_netlist_window_update(bool init_nodes)
    |		PCB calls this to tell the gui netlist code the layout net has
    |		changed and the gui data structures (net and optionally node data
    |		models) should be rebuilt.
@@ -122,7 +122,7 @@ static LibraryMenuType *node_selected_net;
    |  contains an allocated array of LibraryMenuType structs.  Each of these
    |  structs represents a net in the netlist and contains an array
    |  of LibraryEntryType structs which represent the nodes connecting to
-   |  the net.  So we have: 
+   |  the net.  So we have:
    |
    |                      Nets              Nodes
    |       LibraryType    LibraryMenuType   LibraryEntryType
@@ -141,7 +141,7 @@ static LibraryMenuType *node_selected_net;
    | names would be nodes C101-1, R101-2, etc
 */
 
-LibraryEntryType *node_get_node_from_name (gchar * node_name,
+LibraryEntryType *node_get_node_from_name (char * node_name,
 					   LibraryMenuType ** node_net);
 
 enum
@@ -227,7 +227,7 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   LibraryEntryType *node;
   ConnectionType conn;
   Coord x, y;
-  static gchar *node_name;
+  static char *node_name;
 
   if (selection_holdoff)	/* PCB is highlighting, user is not selecting */
     return;
@@ -439,7 +439,7 @@ net_selection_double_click_cb (GtkTreeView * treeview, GtkTreePath * path,
 {
   GtkTreeModel *model;
   GtkTreeIter iter;
-  gchar *str;
+  char *str;
   LibraryMenuType *menu;
 
   model = gtk_tree_view_get_model (treeview);
@@ -527,7 +527,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
 {
   LibraryEntryType *entry;
   ConnectionType conn;
-  gint i;
+  int i;
   gboolean select_flag = GPOINTER_TO_INT (data);
 
   if (!selected_net)
@@ -598,7 +598,7 @@ netlist_rip_up_cb (GtkWidget * widget, gpointer data)
 typedef struct {
   LibraryEntryType *ret_val;
   LibraryMenuType *node_net;
-  const gchar *node_name;
+  const char *node_name;
   bool found;
 } node_get_node_from_name_state;
 
@@ -629,7 +629,7 @@ node_get_node_from_name_helper (GtkTreeModel *model, GtkTreePath *path,
 }
 
 LibraryEntryType *
-node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
+node_get_node_from_name (char * node_name, LibraryMenuType ** node_net)
 {
   node_get_node_from_name_state state;
 
@@ -659,7 +659,7 @@ node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
 
 /* ---------- Manage the GUI treeview of the data models -----------
  */
-static gint
+static int
 netlist_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 				   gpointer data)
 {
@@ -807,7 +807,7 @@ ghid_netlist_window_create (GHidPort * out)
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (netlist_rip_up_cb), GINT_TO_POINTER (0));
-  
+
   ghid_check_button_connected (vbox, &disable_all_button, FALSE, TRUE, FALSE,
 			       FALSE, 0, netlist_disable_all_cb, NULL,
 			       _("Disable all nets for adding rats"));
@@ -831,32 +831,33 @@ ghid_netlist_window_create (GHidPort * out)
 }
 
 void
-ghid_netlist_window_show (GHidPort * out, gboolean raise)
+ghid_netlist_window_show (GHidPort *out, bool raise)
 {
   ghid_netlist_window_create (out);
   gtk_widget_show_all (netlist_window);
   ghid_netlist_window_update (TRUE);
-  if (raise)
+  if (raise) {
     gtk_window_present(GTK_WINDOW(netlist_window));
+  }
 }
 
 struct ggnfnn_task {
-  gboolean enabled_only;
-  gchar *node_name;
+  bool enabled_only;
+  char *node_name;
   LibraryMenuType *found_net;
   GtkTreeIter iter;
 };
 
-static gboolean
+static int
 hunt_named_node (GtkTreeModel *model, GtkTreePath *path,
-                 GtkTreeIter *iter, gpointer data)
+                 GtkTreeIter  *iter,  void        *data)
 {
   struct ggnfnn_task *task = (struct ggnfnn_task *)data;
   LibraryMenuType *net;
   LibraryEntryType *node;
-  gchar *str;
-  gint j;
-  gboolean is_disabled;
+  char *str;
+  int j;
+  bool is_disabled;
 
   /* We only want to inspect leaf nodes in the tree */
   if (gtk_tree_model_iter_has_child (model, iter))
@@ -884,7 +885,7 @@ hunt_named_node (GtkTreeModel *model, GtkTreePath *path,
 }
 
 LibraryMenuType *
-ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
+ghid_get_net_from_node_name (char * node_name, bool enabled_only)
 {
   GtkTreePath *path;
   struct ggnfnn_task task;
@@ -916,8 +917,7 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
      |  expecting normal select action to happen?  Or should the node
      |  treeview also get updated?  Original PCB code just tries to highlight.
    */
-  if (task.found_net && enabled_only)
-    {
+  if (task.found_net && enabled_only) {
       selection_holdoff = TRUE;
       path = gtk_tree_model_get_path (net_model, &task.iter);
       gtk_tree_view_scroll_to_cell (net_treeview, path, NULL, TRUE, 0.5, 0.5);
@@ -932,12 +932,12 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
    |  and its net highlighted.
 */
 void
-ghid_netlist_highlight_node (gchar * node_name)
+ghid_netlist_highlight_node (char * node_name)
 {
   GtkTreePath *path;
   GtkTreeIter iter;
   LibraryMenuType *net;
-  gchar *name;
+  char *name;
 
   if (!node_name)
     return;
@@ -956,8 +956,9 @@ ghid_netlist_highlight_node (gchar * node_name)
       {
 	gtk_tree_model_get (node_model, &iter, NODE_NAME_COLUMN, &name, -1);
 
-	if (!strcmp (node_name, name))
-	  {			/* found it, so highlight it */
+	if (!strcmp (node_name, name)) {
+
+      /* found it, so highlight it */
 	    selection_holdoff = TRUE;
 	    selected_net = net;
 	    path = gtk_tree_model_get_path (node_model, &iter);
@@ -966,7 +967,7 @@ ghid_netlist_highlight_node (gchar * node_name)
 	    gtk_tree_selection_select_path (gtk_tree_view_get_selection
 					    (node_treeview), path);
 	    selection_holdoff = FALSE;
-	  }
+    }
 	g_free (name);
       }
     while (gtk_tree_model_iter_next (node_model, &iter));
@@ -976,7 +977,7 @@ ghid_netlist_highlight_node (gchar * node_name)
    |  what's in the netlist window.
 */
 void
-ghid_netlist_window_update (gboolean init_nodes)
+ghid_netlist_window_update (bool init_nodes)
 {
   GtkTreeModel *model;
 
@@ -1001,7 +1002,7 @@ ghid_netlist_window_update (gboolean init_nodes)
     node_model_update ((&PCB->NetlistLib)->Menu);
 }
 
-static gint
+static int
 GhidNetlistChanged (int argc, char **argv, Coord x, Coord y)
 {
   /* XXX: We get called before the GUI is up when
@@ -1028,7 +1029,7 @@ static const char netlistshow_help[] =
 "Selects the given pinname or netname in the netlist window. Does not \
 show the window if it isn't already shown.";
 
-static gint
+static int
 GhidNetlistShow (int argc, char **argv, Coord x, Coord y)
 {
   ghid_netlist_window_create (gport);
@@ -1043,7 +1044,7 @@ static const char netlistpresent_syntax[] =
 static const char netlistpresent_help[] =
 "Presents the netlist window.";
 
-static gint
+static int
 GhidNetlistPresent (int argc, char **argv, Coord x, Coord y)
 {
   ghid_netlist_window_show (gport, TRUE);

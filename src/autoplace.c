@@ -65,6 +65,8 @@
 #include <dmalloc.h>
 #endif
 
+#line 68 "autoplace.c"
+
 #define EXPANDRECTXY(r1, x1, y1, x2, y2) { \
   r1->X1=MIN(r1->X1, x1); r1->Y1=MIN(r1->Y1, y1); \
   r1->X2=MAX(r1->X2, x2); r1->Y2=MAX(r1->Y2, y2); \
@@ -152,37 +154,39 @@ PerturbationType;
 static void
 UpdateXY (NetListType *Nets)
 {
-  Cardinal SLayer, CLayer;
+  Cardinal top_group, bottom_group;
   Cardinal i, j;
-  /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
-  CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
+
+  /* find layer groups of the top and bottom sides */
+  top_group    = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+
   /* update all nets */
-  for (i = 0; i < Nets->NetN; i++)
-    {
-      for (j = 0; j < Nets->Net[i].ConnectionN; j++)
-	{
-	  ConnectionType *c = &(Nets->Net[i].Connection[j]);
-	  switch (c->type)
-	    {
-	    case PAD_TYPE:
-	      c->group = TEST_FLAG (ONSOLDERFLAG,
-				    (ElementType *) c->ptr1)
-		? SLayer : CLayer;
-	      c->X = ((PadType *) c->ptr2)->Point1.X;
-	      c->Y = ((PadType *) c->ptr2)->Point1.Y;
-	      break;
-	    case PIN_TYPE:
-	      c->group = SLayer;	/* any layer will do */
-	      c->X = ((PinType *) c->ptr2)->X;
-	      c->Y = ((PinType *) c->ptr2)->Y;
-	      break;
-	    default:
-	      Message ("Odd connection type encountered in " "UpdateXY");
-	      break;
-	    }
-	}
+  for (i = 0; i < Nets->NetN; i++) {
+
+    for (j = 0; j < Nets->Net[i].ConnectionN; j++) {
+
+      ConnectionType *c = &(Nets->Net[i].Connection[j]);
+
+      switch (c->type) {
+
+        case PAD_TYPE:
+          c->group = TEST_FLAG (ONSOLDERFLAG, (ElementType *) c->ptr1)
+          ? bottom_group : top_group;
+          c->X = ((PadType *) c->ptr2)->Point1.X;
+          c->Y = ((PadType *) c->ptr2)->Point1.Y;
+          break;
+        case PIN_TYPE:
+          c->group = bottom_group;  /* any layer will do */
+          c->X = ((PinType *) c->ptr2)->X;
+          c->Y = ((PinType *) c->ptr2)->Y;
+          break;
+        default:
+          Message ("Odd connection type encountered in " "UpdateXY");
+          break;
+      }
     }
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -206,23 +210,24 @@ collectSelectedElements ()
 
 #if 0				/* only for debugging box lists */
 #include "create.h"
-/* makes a line on the solder layer surrounding all boxes in blist */
+/* makes a line on the bottom silk layer surrounding all boxes in blist */
 static void
 showboxes (BoxListType *blist)
 {
   Cardinal i;
-  LayerType *SLayer = &(PCB->Data->Layer[solder_silk_layer]);
-  for (i = 0; i < blist->BoxN; i++)
-    {
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
-			    blist->Box[i].X2, blist->Box[i].Y1, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y2,
-			    blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
-			    blist->Box[i].X1, blist->Box[i].Y2, 1, 1, 0);
-      CreateNewLineOnLayer (SLayer, blist->Box[i].X2, blist->Box[i].Y1,
-			    blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
-    }
+  LayerType *layer = &(PCB->Data->Layer[bottom_silk_layer]);
+
+  for (i = 0; i < blist->BoxN; i++) {
+
+    CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y1,
+                          blist->Box[i].X2, blist->Box[i].Y1, 1, 1, 0);
+    CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y2,
+                          blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
+    CreateNewLineOnLayer (layer, blist->Box[i].X1, blist->Box[i].Y1,
+                          blist->Box[i].X1, blist->Box[i].Y2, 1, 1, 0);
+    CreateNewLineOnLayer (layer, blist->Box[i].X2, blist->Box[i].Y1,
+                          blist->Box[i].X2, blist->Box[i].Y2, 1, 1, 0);
+  }
 }
 #endif
 
@@ -526,7 +531,7 @@ ComputeCost (NetListType *Nets, double T0, double T)
 	GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			  &seboxes : &ceboxes);
       *boxpp = (struct ebox *)malloc (sizeof (**boxpp));
-      if (*boxpp == NULL ) 
+      if (*boxpp == NULL )
 	{
 	  fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
 	  exit (1);

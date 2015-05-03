@@ -246,7 +246,7 @@ ghid_notify_gui_is_up ()
 }
 
 int
-ghid_shift_is_pressed ()
+ghid_shift_is_pressed (void)
 {
   GdkModifierType mask;
   GHidPort *out = &ghid_port;
@@ -1405,25 +1405,25 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
       case 'r':
       case 'R':
         ghid_flip_view (gport->pcb_x, gport->pcb_y, true, true);
-        Settings.ShowSolderSide = !Settings.ShowSolderSide; /* Swapped back below */
+        Settings.ShowBottomSide = !Settings.ShowBottomSide; /* Swapped back below */
         break;
       default:
         return 1;
     }
   }
 
-  Settings.ShowSolderSide = !Settings.ShowSolderSide;
+  Settings.ShowBottomSide = !Settings.ShowBottomSide;
 
   if ((active_group == top_group && top_on && !bottom_on) ||
     (active_group == bottom_group && bottom_on && !top_on))
   {
-    bool new_solder_vis = Settings.ShowSolderSide;
+    bool new_bottom_vis = Settings.ShowBottomSide;
 
     ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0],
-                           !new_solder_vis, !new_solder_vis);
+                           new_bottom_vis, !new_bottom_vis);
 
     ChangeGroupVisibility (PCB->LayerGroups.Entries[bottom_group][0],
-                           new_solder_vis, new_solder_vis);
+                           new_bottom_vis, new_bottom_vis);
   }
 
   return 0;
@@ -1745,31 +1745,31 @@ DoWindows (int argc, char **argv, Coord x, Coord y)
 {
   char *a = argc == 1 ? argv[0] : (char *)"";
 
-  if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
-    {
-    }
-  else if (strcmp (a, "2") == 0 || strcasecmp (a, "Library") == 0)
-    {
+  if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0) {
+
+  }
+  else if (strcmp (a, "2") == 0 || strcasecmp (a, "Library") == 0) {
+
       ghid_library_window_show (gport, TRUE);
-    }
-  else if (strcmp (a, "3") == 0 || strcasecmp (a, "Log") == 0)
-    {
+  }
+  else if (strcmp (a, "3") == 0 || strcasecmp (a, "Log") == 0) {
+
       ghid_log_window_show (TRUE);
-    }
-  else if (strcmp (a, "4") == 0 || strcasecmp (a, "Netlist") == 0)
-    {
+  }
+  else if (strcmp (a, "4") == 0 || strcasecmp (a, "Netlist") == 0) {
+
       ghid_netlist_window_show (gport, TRUE);
-    }
-  else if (strcmp (a, "5") == 0 || strcasecmp (a, "Preferences") == 0)
-    {
+  }
+  else if (strcmp (a, "5") == 0 || strcasecmp (a, "Preferences") == 0) {
+
       ghid_config_window_show ();
-    }
-  else if (strcmp (a, "6") == 0 || strcasecmp (a, "DRC") == 0)
-    {
+  }
+  else if (strcmp (a, "6") == 0 || strcasecmp (a, "DRC") == 0) {
+
       ghid_drc_window_show (TRUE);
-    }
-  else
-    {
+  }
+  else {
+
       AFAIL (dowindows);
     }
 

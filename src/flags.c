@@ -253,7 +253,7 @@ HID_Flag flags_flag_list[] = {
   {"fullpoly",             FlagSETTINGS,     OFFSET_POINTER (SettingType, FullPoly)},
   {"clearline",            FlagSETTINGS,     OFFSET_POINTER (SettingType, ClearLine)},
   {"uniquenames",          FlagSETTINGS,     OFFSET_POINTER (SettingType, UniqueNames)},
-  {"showsolderside",       FlagSETTINGS,     OFFSET_POINTER (SettingType, ShowSolderSide)},
+  {"showsolderside",       FlagSETTINGS,     OFFSET_POINTER (SettingType, ShowBottomSide)},
   {"savelastcommand",      FlagSETTINGS,     OFFSET_POINTER (SettingType, SaveLastCommand)},
   {"saveintmp",            FlagSETTINGS,     OFFSET_POINTER (SettingType, SaveInTMP)},
   {"drawgrid",             FlagSETTINGS,     OFFSET_POINTER (SettingType, DrawGrid)},

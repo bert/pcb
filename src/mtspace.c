@@ -225,7 +225,7 @@ heap_append (heap_t *heap, CheapPointType *desired, BoxType *newone)
 
 static inline void
 append (struct query_closure * qc, BoxType *newone)
-{ 
+{
   if (qc->desired)
     heap_append (qc->checking.h, qc->desired, newone);
   else

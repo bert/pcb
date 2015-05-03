@@ -33,22 +33,22 @@
 
 /*
  * FIXME:
- * 
+ *
  * If you have a section of a net that does not contain any pins then that
  * section will be missing from the Nelma's copper geometry.
- * 
+ *
  * For example:
- * 
+ *
  * this section will be ignored by Nelma |       |
- * 
+ *
  * ||             ||=======||            ||     component layer ||
  * ||       ||            || ||=============||       ||============||
  * solder layer
- * 
+ *
  * pin1           via      via           pin2
- * 
+ *
  * Single layer layouts are always exported correctly.
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -59,7 +59,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include <time.h>
 
@@ -123,7 +122,7 @@ static int      is_drill;
  * Which groups of layers to export into PNG layer masks. 1 means export, 0
  * means do not export.
  */
-static int      nelma_export_group[MAX_LAYER];
+static int      nelma_export_group[MAX_GROUP];
 
 /* Group that is currently exported. */
 static int      nelma_cur_group;
@@ -237,7 +236,7 @@ nelma_get_png_name(const char *basename, const char *suffix)
 
 /* Retrieves coordinates (in default PCB units) of a pin or pad. */
 /* Copied from netlist.c */
-static int 
+static int
 pin_name_to_xy (LibraryEntryType * pin, Coord *x, Coord *y)
 {
 	ConnectionType  conn;
@@ -258,7 +257,7 @@ pin_name_to_xy (LibraryEntryType * pin, Coord *x, Coord *y)
 
 /* *** Exporting netlist data and geometry to the nelma config file ******** */
 
-static void 
+static void
 nelma_write_space(FILE * out)
 {
 	double          xh, zh;
@@ -280,7 +279,7 @@ nelma_write_space(FILE * out)
 	fprintf(out, "\t\t\"air-bottom\"");
 
 	z = 10;
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -300,7 +299,7 @@ nelma_write_space(FILE * out)
 }
 
 
-static void 
+static void
 nelma_write_material(FILE * out, char *name, char *type, double e)
 {
 	fprintf(out, "material %s {\n", name);
@@ -311,7 +310,7 @@ nelma_write_material(FILE * out, char *name, char *type, double e)
 	fprintf(out, "}\n");
 }
 
-static void 
+static void
 nelma_write_materials(FILE * out)
 {
 	fprintf(out, "\n/* **** Materials **** */\n\n");
@@ -322,7 +321,7 @@ nelma_write_materials(FILE * out)
 			     nelma_air_epsilon * nelma_substratee);
 }
 
-static void 
+static void
 nelma_write_nets(FILE * out)
 {
 	LibraryType     netlist;
@@ -350,7 +349,7 @@ nelma_write_nets(FILE * out)
 
 			/* pin_name_to_xy(pin, &x, &y); */
 
-			for (i = 0; i < MAX_LAYER; i++)
+			for (i = 0; i < MAX_GROUP; i++)
 				if (nelma_export_group[i]) {
 					idx = (i >= 0 && i < max_group) ?
 						PCB->LayerGroups.Entries[i][0] : i;
@@ -369,7 +368,7 @@ nelma_write_nets(FILE * out)
 	}
 }
 
-static void 
+static void
 nelma_write_layer(FILE * out, int z, int h,
 		  const char *name, int full,
 		  char *mat)
@@ -407,7 +406,7 @@ nelma_write_layer(FILE * out, int z, int h,
 	fprintf(out, "}\n");
 }
 
-static void 
+static void
 nelma_write_layers(FILE * out)
 {
 	int             i, idx;
@@ -428,7 +427,7 @@ nelma_write_layers(FILE * out)
 	nelma_write_layer(out, 1000, 2 * subh, "air-bottom", 0, "air");
 
 	z = 10;
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -454,7 +453,7 @@ nelma_write_layers(FILE * out)
 		}
 }
 
-static void 
+static void
 nelma_write_object(FILE * out, LibraryEntryType *pin)
 {
 	int             i, idx;
@@ -469,7 +468,7 @@ nelma_write_object(FILE * out, LibraryEntryType *pin)
 	x = pcb_to_nelma (px);
 	y = pcb_to_nelma (py);
 
-	for (i = 0; i < MAX_LAYER; i++)
+	for (i = 0; i < MAX_GROUP; i++)
 		if (nelma_export_group[i]) {
 			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
@@ -492,7 +491,7 @@ nelma_write_object(FILE * out, LibraryEntryType *pin)
 		}
 }
 
-static void 
+static void
 nelma_write_objects(FILE * out)
 {
 	LibraryType     netlist;
@@ -518,7 +517,7 @@ nelma_write_objects(FILE * out)
 
 /* *** Main export callback ************************************************ */
 
-static void 
+static void
 nelma_parse_arguments(int *argc, char ***argv)
 {
 	hid_register_attributes(nelma_attribute_list,
@@ -545,7 +544,7 @@ nelma_get_export_options(int *n)
 }
 
 /* Populates nelma_export_group array */
-void 
+void
 nelma_choose_groups()
 {
 	int             n, m;
@@ -577,7 +576,7 @@ nelma_choose_groups()
 	}
 }
 
-static void 
+static void
 nelma_alloc_colors()
 {
 	/*
@@ -594,7 +593,7 @@ nelma_alloc_colors()
 	black->c = gdImageColorAllocate(nelma_im, black->r, black->g, black->b);
 }
 
-static void 
+static void
 nelma_start_png(const char *basename, const char *suffix)
 {
 	int             h, w;
@@ -616,7 +615,7 @@ nelma_start_png(const char *basename, const char *suffix)
 	free(buf);
 }
 
-static void 
+static void
 nelma_finish_png()
 {
 #ifdef HAVE_GDIMAGEPNG
@@ -634,7 +633,7 @@ nelma_finish_png()
 	nelma_f = NULL;
 }
 
-void 
+void
 nelma_start_png_export()
 {
 	BoxType         region;
@@ -650,7 +649,7 @@ nelma_start_png_export()
 	hid_expose_callback(&nelma_hid, &region, 0);
 }
 
-static void 
+static void
 nelma_do_export(HID_Attr_Val * options)
 {
 	int             save_ons[MAX_LAYER + 2];
@@ -683,7 +682,7 @@ nelma_do_export(HID_Attr_Val * options)
 
 	nelma_choose_groups();
 
-	for (i = 0; i < MAX_LAYER; i++) {
+	for (i = 0; i < MAX_GROUP; i++) {
 		if (nelma_export_group[i]) {
 
 			nelma_cur_group = i;
@@ -726,7 +725,7 @@ nelma_do_export(HID_Attr_Val * options)
 
 /* *** PNG export (slightly modified code from PNG export HID) ************* */
 
-static int 
+static int
 nelma_set_layer(const char *name, int group, int empty)
 {
 	int             idx = (group >= 0 && group < max_group) ?
@@ -758,7 +757,7 @@ nelma_set_layer(const char *name, int group, int empty)
 	return 0;
 }
 
-static hidGC 
+static hidGC
 nelma_make_gc(void)
 {
 	hidGC           rv = (hidGC) malloc(sizeof(struct hid_gc_struct));
@@ -771,19 +770,19 @@ nelma_make_gc(void)
 	return rv;
 }
 
-static void 
+static void
 nelma_destroy_gc(hidGC gc)
 {
 	free(gc);
 }
 
-static void 
+static void
 nelma_use_mask(enum mask_mode mode)
 {
 	/* does nothing */
 }
 
-static void 
+static void
 nelma_set_color(hidGC gc, const char *name)
 {
 	if (nelma_im == NULL) {

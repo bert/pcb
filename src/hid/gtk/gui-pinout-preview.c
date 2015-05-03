@@ -80,8 +80,8 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
       return;
     }
 
-  /* 
-   * copy element data 
+  /*
+   * copy element data
    * enable output of pin and padnames
    * move element to a 5% offset from zero position
    * set all package lines/arcs to zero width
@@ -116,7 +116,7 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 
   ARC_LOOP (pinout->element);
   {
-    /* 
+    /*
      * for whatever reason setting a thickness of 0 causes the arcs to
      * not display so pick 1 which does display but is still quite
      * thin.
@@ -208,7 +208,6 @@ ghid_pinout_preview_set_property (GObject * object, guint property_id,
 
 }
 
-
 /*! \brief GObject property getter function
  *
  *  \par Function Description
@@ -233,7 +232,6 @@ ghid_pinout_preview_get_property (GObject * object, guint property_id,
 
 }
 
-
 /*! \brief GType class initialiser for GhidPinoutPreview
  *
  *  \par Function Description
@@ -243,27 +241,26 @@ ghid_pinout_preview_get_property (GObject * object, guint property_id,
  *  \param [in]  klass       The GhidPinoutPreviewClass we are initialising
  */
 static void
-ghid_pinout_preview_class_init (GhidPinoutPreviewClass * klass)
+ghid_pinout_preview_class_init (GhidPinoutPreviewClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GObjectClass   *gobject_class    = G_OBJECT_CLASS (klass);
   GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS (klass);
 
-  gobject_class->finalize = ghid_pinout_preview_finalize;
+  gobject_class->finalize     = ghid_pinout_preview_finalize;
   gobject_class->set_property = ghid_pinout_preview_set_property;
   gobject_class->get_property = ghid_pinout_preview_get_property;
-  gobject_class->constructed = ghid_pinout_preview_constructed;
+  gobject_class->constructed  = ghid_pinout_preview_constructed;
 
-  gtk_widget_class->expose_event = ghid_pinout_preview_expose;
+  gtk_widget_class->expose_event  = ghid_pinout_preview_expose;
 
   ghid_pinout_preview_parent_class = (GObjectClass *)g_type_class_peek_parent (klass);
 
   g_object_class_install_property (gobject_class, PROP_ELEMENT_DATA,
-				   g_param_spec_pointer ("element-data",
-							 "",
-							 "",
-							 G_PARAM_WRITABLE));
+                                   g_param_spec_pointer ("element-data",
+                                                         "",
+                                                         "",
+                                                         G_PARAM_WRITABLE));
 }
-
 
 /*! \brief Function to retrieve GhidPinoutPreview's GType identifier.
  *
@@ -300,7 +297,6 @@ ghid_pinout_preview_get_type ()
 
   return ghid_pinout_preview_type;
 }
-
 
 /*! \brief Convenience function to create a new pinout preview
  *

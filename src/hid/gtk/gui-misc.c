@@ -56,7 +56,7 @@ GdkPixmap *XC_clock_source, *XC_clock_mask,
 static GdkCursorType oldCursor;
 
 void
-ghid_status_line_set_text (const gchar * text)
+ghid_status_line_set_text (const char * text)
 {
   if (ghidgui->command_entry_status_line_active)
     return;
@@ -65,13 +65,13 @@ ghid_status_line_set_text (const gchar * text)
 }
 
 void
-ghid_cursor_position_label_set_text (gchar * text)
+ghid_cursor_position_label_set_text (char * text)
 {
   ghid_label_set_markup (ghidgui->cursor_position_absolute_label, text);
 }
 
 void
-ghid_cursor_position_relative_label_set_text (gchar * text)
+ghid_cursor_position_relative_label_set_text (char * text)
 {
   ghid_label_set_markup (ghidgui->cursor_position_relative_label, text);
 }
@@ -238,16 +238,16 @@ ghid_restore_cursor (void)
 
 
   /* =============================================================== */
-static gboolean got_location;
+static bool got_location;
 
   /* If user hits a key instead of the mouse button, we'll abort unless
      |  it's the enter key (which accepts the current crosshair location).
    */
-static gboolean
+static bool
 loop_key_press_cb (GtkWidget * drawing_area, GdkEventKey * kev,
 		   GMainLoop ** loop)
 {
-  gint ksym = kev->keyval;
+  int ksym = kev->keyval;
 
   if (ghid_is_modifier_key_sym (ksym))
     return TRUE;
@@ -271,7 +271,7 @@ loop_key_press_cb (GtkWidget * drawing_area, GdkEventKey * kev,
   /* User hit a mouse button in the Output drawing area, so quit the loop
      |  and the cursor values when the button was pressed will be used.
    */
-static gboolean
+static int
 loop_button_press_cb (GtkWidget * drawing_area, GdkEventButton * ev,
 		      GMainLoop ** loop)
 {
@@ -286,12 +286,12 @@ loop_button_press_cb (GtkWidget * drawing_area, GdkEventButton * ev,
      |  area, quit the loop so the top level loop can continue and use the
      |  the mouse pointer coordinates at the time of the mouse button event.
    */
-static gboolean
-run_get_location_loop (const gchar * message)
+static int
+run_get_location_loop (const char * message)
 {
   GMainLoop *loop;
-  gulong button_handler, key_handler;
-  gint oldObjState, oldLineState, oldBoxState;
+  unsigned long button_handler, key_handler;
+  int oldObjState, oldLineState, oldBoxState;
 
   ghid_status_line_set_text (message);
 
@@ -365,7 +365,7 @@ ghid_create_abort_dialog (char *msg)
 {
 }
 
-gboolean
+bool
 ghid_check_abort (void)
 {
   return FALSE;			/* Abort isn't implemented, so never abort */
@@ -379,7 +379,7 @@ ghid_end_abort (void)
 void
 ghid_get_pointer (int *x, int *y)
 {
-  gint xp, yp;
+  int xp, yp;
 
   gdk_window_get_pointer (gtk_widget_get_window (gport->drawing_area),
                           &xp, &yp, NULL);
@@ -395,35 +395,31 @@ ghid_get_pointer (int *x, int *y)
 void
 ghid_set_status_line_label (void)
 {
-  gchar *flag = TEST_FLAG (ALLDIRECTIONFLAG, PCB)
-                ? "all"
-                : (PCB->Clipping == 0
-                    ? "45"
-                    : (PCB->Clipping == 1
-                      ? "45_/"
-                      : "45\\_"));
-  gchar *text = pcb_g_strdup_printf (
-        _("%m+<b>view</b>=%s  "
-          "<b>grid</b>=%$mS  "
-          "%s%s  "
-          "<b>line</b>=%mS  "
-          "<b>via</b>=%mS (%mS)  %s"
-          "<b>clearance</b>=%mS  "
-          "<b>text</b>=%i%%  "
-          "<b>buffer</b>=#%i"),
-      Settings.grid_unit->allow,
-      Settings.ShowSolderSide ? _("bottom") : _("top"),
-      PCB->Grid,
-      flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-      Settings.LineThickness,
-      Settings.ViaThickness,
-      Settings.ViaDrillingHole,
-      ghidgui->compact_horizontal ? "\n" : "",
-      Settings.Keepaway,
-      Settings.TextScale, Settings.BufferNumber + 1);
+  char *flag = TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all"  :
+                         (PCB->Clipping == 0     ? "45"   :
+                         (PCB->Clipping == 1     ? "45_/" : "45\\_"));
 
-  ghid_status_line_set_text (text);
-  g_free (text);
+  char *text = pcb_g_strdup_printf ( _("%m+<b>view</b>=%s "
+                                       "<b>grid</b>=%$mS "
+                                       "%s%s "
+                                       "<b>line</b>=%mS "
+                                       "<b>via</b>=%mS (%mS) %s"
+                                       "<b>clearance</b>=%mS "
+                                       "<b>text</b>=%i%% "
+                                       "<b>buffer</b>=#%i"),
+                                     Settings.grid_unit->allow,
+                                     Settings.ShowBottomSide ? _("bottom") : _("top"),
+                                     PCB->Grid,
+                                     flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R " : " ",
+                                     Settings.LineThickness,
+                                     Settings.ViaThickness,
+                                     Settings.ViaDrillingHole,
+                                     ghidgui->compact_horizontal ? "\n" : "",
+                                     Settings.Keepaway,
+                                     Settings.TextScale, Settings.BufferNumber + 1);
+
+    ghid_status_line_set_text (text);
+    g_free (text);
 }
 
 /* ---------------------------------------------------------------------------
@@ -432,10 +428,10 @@ ghid_set_status_line_label (void)
 void
 ghid_set_cursor_position_labels (void)
 {
-  gchar *text;
+  char *text;
 
-  if (Marked.status)
-    {
+  if (Marked.status) {
+
       Coord dx = Crosshair.X - Marked.X;
       Coord dy = Crosshair.Y - Marked.Y;
       Coord r  = Distance (Crosshair.X, Crosshair.Y, Marked.X, Marked.Y);
@@ -446,9 +442,10 @@ ghid_set_cursor_position_labels (void)
                                   r, a, dx, dy);
       ghid_cursor_position_relative_label_set_text (text);
       g_free (text);
-    }
-  else
+  }
+  else {
     ghid_cursor_position_relative_label_set_text ("r __.__; phi __._; __.__ __.__");
+  }
 
 
   text = pcb_g_strdup_printf ("%m+%-mS %-mS",

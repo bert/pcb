@@ -223,7 +223,7 @@ command_entry_activate_cb (GtkWidget * widget, gpointer data)
      |  ghidgui->use_command_window is TRUE, the command_combo_box will live
      |  in a command window vbox or float if the command window is not up.
      |  But if ghidgui->use_command_window is FALSE, the command_combo_box
-     |  will live in the status_line_hbox either shown or hidden. 
+     |  will live in the status_line_hbox either shown or hidden.
      |  Since it's never destroyed, the combo history strings never need
      |  rebuilding and history is maintained if the combo box location is moved.
    */
@@ -295,7 +295,7 @@ ghid_command_use_command_window_sync (void)
      |  ActionCommand() to show the command window.
    */
 void
-ghid_command_window_show (gboolean raise)
+ghid_command_window_show (bool raise)
 {
   GtkWidget *vbox, *vbox1, *hbox, *button, *expander, *text;
   gint i;
@@ -443,7 +443,7 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
 
 
 void
-ghid_handle_user_command (gboolean raise)
+ghid_handle_user_command (bool raise)
 {
   char *command;
   static char *previous = NULL;

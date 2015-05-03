@@ -79,10 +79,9 @@ bool IsLineInQuadrangle (PointType p[4], LineType * Line);
 bool IsArcInRectangle (Coord, Coord, Coord, Coord, ArcType *);
 bool IsPointInPad (Coord, Coord, Coord, PadType *);
 bool IsPointInBox (Coord, Coord, BoxType *, Coord);
-int SearchObjectByLocation (unsigned, void **, void **, void **, Coord, Coord, Coord);
-int SearchScreen (Coord, Coord, int, void **, void **, void **);
-int SearchScreenGridSlop (Coord, Coord, int, void **, void **, void **);
-int SearchObjectByID (DataType *, void **, void **, void **, int, int);
-ElementType * SearchElementByName (DataType *, char *);
+int  SearchObjectByLocation (unsigned, void **, void **, void **, Coord, Coord, Coord);
+int  SearchScreen (Coord, Coord, int, void **, void **, void **);
+int  SearchObjectByID (DataType *, void **, void **, void **, int, int);
+ElementType *SearchElementByName (DataType *, char *);
 
 #endif

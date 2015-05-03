@@ -110,7 +110,7 @@ ghid_log_window_create ()
 }
 
 void
-ghid_log_window_show (gboolean raise)
+ghid_log_window_show (bool raise)
 {
   ghid_log_window_create ();
   gtk_widget_show_all (log_window);

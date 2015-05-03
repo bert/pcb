@@ -74,7 +74,6 @@
 #include <unistd.h>
 #endif
 
-
 #include "buffer.h"
 #include "change.h"
 #include "create.h"
@@ -85,7 +84,6 @@
 #include "file.h"
 #include "hid.h"
 #include "misc.h"
-#include "move.h"
 #include "mymem.h"
 #include "parse_l.h"
 #include "pcb-printf.h"
@@ -493,48 +491,6 @@ int
 RevertPCB (void)
 {
   return real_load_pcb (PCB->Filename, true);
-}
-
-/* ---------------------------------------------------------------------------
- * functions for loading elements-as-pcb
- */
-
-extern	PCBType *		yyPCB;
-extern	DataType *		yyData;
-extern	FontType *		yyFont;
-
-void
-PreLoadElementPCB ()
-{
-
-  if (!yyPCB)
-    return;
-
-  yyFont = &yyPCB->Font;
-  yyData = yyPCB->Data;
-  yyData->pcb = yyPCB;
-  yyData->LayerN = 0;
-}
-
-void
-PostLoadElementPCB ()
-{
-  PCBType *pcb_save = PCB;
-  ElementType *e;
-
-  if (!yyPCB)
-    return;
-
-  CreateNewPCBPost (yyPCB, 0);
-  ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
-  e = yyPCB->Data->Element->data; /* we know there's only one */
-  PCB = yyPCB;
-  MoveElementLowLevel (yyPCB->Data,
-		       e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
-  PCB = pcb_save;
-  yyPCB->MaxWidth = e->BoundingBox.X2;
-  yyPCB->MaxHeight = e->BoundingBox.Y2;
-  yyPCB->is_footprint = 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1104,27 +1060,27 @@ Backup (void)
 {
   char *filename = NULL;
 
-  if( PCB && PCB->Filename )
-    {
-      filename 	= (char *) malloc (sizeof (char) * (strlen (PCB->Filename) + 2));
-      if (filename == NULL)
-	{
-	  fprintf (stderr, "Backup():  malloc failed\n");
-	  exit (1);
-	}
-      sprintf (filename, "%s~", PCB->Filename);
+  if ( PCB && PCB->Filename ) {
+
+    filename 	= (char *) malloc (sizeof (char) * (strlen (PCB->Filename) + 2));
+    if (filename == NULL) {
+
+      fprintf (stderr, "Backup():  malloc failed\n");
+      exit (1);
     }
-  else
-    {
-      /* BACKUP_NAME has %.8i which  will be replaced by the process ID */
-      filename 	= (char *) malloc (sizeof (char) * (strlen (BACKUP_NAME) + 8));
-      if (filename == NULL)
-	{
-	  fprintf (stderr, "Backup():  malloc failed\n");
-	  exit (1);
-	}
-      sprintf (filename, BACKUP_NAME, (int) getpid ());
+    sprintf (filename, "%s~", PCB->Filename);
+  }
+  else {
+
+    /* BACKUP_NAME has %.8i which  will be replaced by the process ID */
+    filename 	= (char *) malloc (sizeof (char) * (strlen (BACKUP_NAME) + 8));
+    if (filename == NULL) {
+
+      fprintf (stderr, "Backup():  malloc failed\n");
+      exit (1);
     }
+    sprintf (filename, BACKUP_NAME, (int) getpid ());
+  }
 
   WritePCBFile (filename);
   free (filename);

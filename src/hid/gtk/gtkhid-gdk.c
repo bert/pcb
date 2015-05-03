@@ -1327,8 +1327,8 @@ draw_lead_user (render_priv *priv)
     }
 }
 
-gboolean
-lead_user_cb (gpointer data)
+static int
+lead_user_cb (void *data)
 {
   render_priv *priv = data;
   Coord step;

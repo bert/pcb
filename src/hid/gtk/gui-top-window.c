@@ -1458,6 +1458,8 @@ ghid_build_pcb_top_window (void)
   ghid_pack_mode_buttons ();
   gdk_window_set_back_pixmap (gtk_widget_get_window (gport->drawing_area),
                               NULL, FALSE);
+
+  port->tooltip_update_timeout_id = 0;
 }
 
 /* Connect and disconnect just the signals a g_main_loop() will need.
@@ -1530,7 +1532,7 @@ ghid_interface_input_signals_disconnect (void)
      |  the user needs to be doing.
    */
 void
-ghid_interface_set_sensitive (gboolean sensitive)
+ghid_interface_set_sensitive (bool sensitive)
 {
   gtk_widget_set_sensitive (ghidgui->left_toolbar, sensitive);
   gtk_widget_set_sensitive (ghidgui->menu_hbox, sensitive);

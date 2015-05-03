@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
-#include <assert.h>
 #include <ctype.h>
 #include <math.h>
 
@@ -313,7 +312,7 @@ static int pagecount = 0;
 static int linewidth = -1;
 static int lastgroup = -1;
 static int lastcap = -1;
-static int print_group[MAX_LAYER];
+static int print_group[MAX_GROUP];
 static int print_layer[MAX_LAYER];
 static int lastX, lastY;	/* the last X and Y coordinate */
 
@@ -409,7 +408,7 @@ gerber_get_export_options (int *n)
     *n = NUM_OPTIONS;
   return gerber_options;
 }
-/*
+
 static int
 layer_stack_sort (const void *va, const void *vb)
 {
@@ -418,37 +417,18 @@ layer_stack_sort (const void *va, const void *vb)
   int a_group = GetLayerGroupNumberByNumber (a_layer);
   int b_group = GetLayerGroupNumberByNumber (b_layer);
 
-  if (b_group != a_group)
+  if (b_group != a_group) {
     return b_group - a_group;
+  }
 
   return b_layer - a_layer;
-}
-*/
-static int
-group_for_layer (int l)
-{
-  if (l < max_copper_layer + 2 && l >= 0)
-    return GetLayerGroupNumberByNumber (l);
-  /* else something unique */
-  return max_group + 3 + l;
-}
-
-static int
-layer_sort (const void *va, const void *vb)
-{
-  int a = *(int *) va;
-  int b = *(int *) vb;
-  int d = group_for_layer (b) - group_for_layer (a);
-  if (d)
-    return d;
-  return b - a;
 }
 
 static void
 maybe_close_f (FILE *f)
 {
-  if (f)
-    {
+  if (f) {
+
       if (was_drill)
 	fprintf (f, "M30\r\n");
       else
@@ -582,7 +562,7 @@ static void assign_file_suffix (char *dest, int idx)
     case NAME_STYLE_FIRST:  fns_style = FNS_first;  break;
     case NAME_STYLE_EAGLE:
       assign_eagle_file_suffix (dest, idx);
-      break;
+      return;
     case NAME_STYLE_HACKVANA:
       assign_hackvana_file_suffix (dest, idx);
       return;
@@ -699,7 +679,7 @@ gerber_do_export (HID_Attr_Val * options)
   }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
-  qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
+  qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_stack_sort);
 
   linewidth = -1;
   lastcap   = -1;

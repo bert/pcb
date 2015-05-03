@@ -474,7 +474,7 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
     {
       if (!ParseElementFile (Buffer->Data, Name))
 	{
-	  if (Settings.ShowSolderSide)
+	  if (Settings.ShowBottomSide)
 	    SwapBuffer (Buffer);
 	  SetBufferBoundingBox (Buffer);
 	  if (Buffer->Data->ElementN)
@@ -499,7 +499,7 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 	  element = Buffer->Data->Element->data;
 
 	  /* always add elements using top-side coordinates */
-	  if (Settings.ShowSolderSide)
+	  if (Settings.ShowBottomSide)
 	    MirrorElementCoordinates (Buffer->Data, element, 0);
 	  SetElementBoundingBox (Buffer->Data, element, &PCB->Font);
 
@@ -1535,11 +1535,11 @@ SwapBuffer (BufferType *Buffer)
     r_insert_entry (layer->text_tree, (BoxType *)text, 0);
   }
   ENDALL_LOOP;
+
   /* swap silkscreen layers */
-  swap = Buffer->Data->Layer[solder_silk_layer];
-  Buffer->Data->Layer[solder_silk_layer] =
-    Buffer->Data->Layer[component_silk_layer];
-  Buffer->Data->Layer[component_silk_layer] = swap;
+  swap = Buffer->Data->Layer[bottom_silk_layer];
+  Buffer->Data->Layer[bottom_silk_layer] = Buffer->Data->Layer[top_silk_layer];
+  Buffer->Data->Layer[top_silk_layer] = swap;
 
   /* swap layer groups when balanced */
   top_group = GetLayerGroupNumberBySide (TOP_SIDE);
@@ -1547,45 +1547,46 @@ SwapBuffer (BufferType *Buffer)
 
   if (PCB->LayerGroups.Number[top_group] == PCB->LayerGroups.Number[bottom_group])
   {
-      for (j = k = 0; j < PCB->LayerGroups.Number[bottom_group]; j++) {
+    for (j = k = 0; j < PCB->LayerGroups.Number[bottom_group]; j++) {
 
-	  int t1, t2;
-	  Cardinal cnumber = PCB->LayerGroups.Entries[top_group][k];
-      Cardinal snumber = PCB->LayerGroups.Entries[bottom_group][j];
+      int t1, t2;
 
-	  if (snumber >= max_copper_layer) {
-	    continue;
+      Cardinal top_number    = PCB->LayerGroups.Entries[top_group][k];
+      Cardinal bottom_number = PCB->LayerGroups.Entries[bottom_group][j];
+
+      if (bottom_number >= max_copper_layer) {
+        continue;
       }
 
-	  swap = Buffer->Data->Layer[snumber];
+      swap = Buffer->Data->Layer[bottom_number];
 
-	  while (cnumber >= max_copper_layer) {
-	      k++;
-	      cnumber = PCB->LayerGroups.Entries[top_group][k];
+      while (top_number >= max_copper_layer) {
+        k++;
+        top_number = PCB->LayerGroups.Entries[top_group][k];
       }
 
-	  Buffer->Data->Layer[snumber] = Buffer->Data->Layer[cnumber];
-	  Buffer->Data->Layer[cnumber] = swap;
-	  k++;
-	  /* move the thermal flags with the layers */
-	  ALLPIN_LOOP (Buffer->Data);
-	  {
-	    t1 = TEST_THERM (snumber, pin);
-	    t2 = TEST_THERM (cnumber, pin);
-	    ASSIGN_THERM (snumber, t2, pin);
-	    ASSIGN_THERM (cnumber, t1, pin);
-	  }
-	  ENDALL_LOOP;
-	  VIA_LOOP (Buffer->Data);
-	  {
-	    t1 = TEST_THERM (snumber, via);
-	    t2 = TEST_THERM (cnumber, via);
-	    ASSIGN_THERM (snumber, t2, via);
-	    ASSIGN_THERM (cnumber, t1, via);
-	  }
-	  END_LOOP;
-	}
+      Buffer->Data->Layer[bottom_number] = Buffer->Data->Layer[top_number];
+      Buffer->Data->Layer[top_number] = swap;
+      k++;
+      /* move the thermal flags with the layers */
+      ALLPIN_LOOP (Buffer->Data);
+      {
+        t1 = TEST_THERM (bottom_number, pin);
+        t2 = TEST_THERM (top_number, pin);
+        ASSIGN_THERM (bottom_number, t2, pin);
+        ASSIGN_THERM (top_number, t1, pin);
+      }
+      ENDALL_LOOP;
+      VIA_LOOP (Buffer->Data);
+      {
+        t1 = TEST_THERM (bottom_number, via);
+        t2 = TEST_THERM (top_number, via);
+        ASSIGN_THERM (bottom_number, t2, via);
+        ASSIGN_THERM (top_number, t1, via);
+      }
+      END_LOOP;
     }
+  }
   SetBufferBoundingBox (Buffer);
   SetCrosshairRangeToBuffer ();
 }

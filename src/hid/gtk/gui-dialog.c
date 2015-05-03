@@ -41,13 +41,13 @@
 #endif
 
 /* ---------------------------------------------- */
-gchar *
+char *
 ghid_dialog_input (const char * prompt, const char * initial)
 {
   GtkWidget *dialog;
   GtkWidget *content_area;
   GtkWidget *vbox, *label, *entry;
-  gchar *string;
+  char *string;
   gboolean response;
   GHidPort *out = &ghid_port;
 
@@ -106,8 +106,8 @@ ghid_dialog_about (void)
 }
 
 /* ---------------------------------------------- */
-gint
-ghid_dialog_confirm_all (gchar * all_message)
+int
+ghid_dialog_confirm_all (char * all_message)
 {
   GtkWidget *dialog;
   GtkWidget *content_area;
@@ -139,7 +139,7 @@ ghid_dialog_confirm_all (gchar * all_message)
 
 /* ---------------------------------------------- */
 void
-ghid_dialog_message (gchar * message)
+ghid_dialog_message (char * message)
 {
   GtkWidget *dialog;
   GHidPort *out = &ghid_port;
@@ -155,12 +155,12 @@ ghid_dialog_message (gchar * message)
 }
 
 /* ---------------------------------------------- */
-gboolean
-ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
+bool
+ghid_dialog_confirm (char * message, char * cancelmsg, char * okmsg)
 {
   static gint x = -1, y = -1;
   GtkWidget *dialog;
-  gboolean confirm = FALSE;
+  bool confirm = FALSE;
   GHidPort *out = &ghid_port;
 
   if (cancelmsg == NULL)
@@ -203,8 +203,8 @@ ghid_dialog_close_confirm ()
   GtkWidget *dialog;
   gint rv;
   GHidPort *out = &ghid_port;
-  gchar *tmp;
-  gchar *str;
+  char *tmp;
+  char *str;
 
   if (PCB->Filename == NULL)
     {
@@ -380,11 +380,11 @@ ghid_dialog_file_select_open (char *title, char **path, char *shortcuts)
 /* ---------------------------------------------- */
 /* Caller must g_slist_free() the returned list .*/
 GSList *
-ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts)
+ghid_dialog_file_select_multiple(char * title, char ** path, char * shortcuts)
 {
   GtkWidget *dialog;
   GSList *result = NULL;
-  gchar *folder, *seed;
+  char *folder, *seed;
   GHidPort *out = &ghid_port;
   GtkFileFilter *no_filter;
 
@@ -423,7 +423,7 @@ ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
   else
   {
-	gchar *default_path;
+	char *default_path;
 	default_path = g_get_current_dir();
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
 	g_free(default_path);
@@ -462,12 +462,12 @@ ghid_dialog_file_select_multiple(gchar * title, gchar ** path, gchar * shortcuts
 
 /* ---------------------------------------------- */
 /* Caller must g_free() the returned filename. */
-gchar *
-ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
-			      gchar * shortcuts)
+char *
+ghid_dialog_file_select_save (char * title, char ** path, char * file,
+			      char * shortcuts)
 {
   GtkWidget *dialog;
-  gchar *result = NULL, *folder, *seed;
+  char *result = NULL, *folder, *seed;
   GHidPort *out = &ghid_port;
 
   dialog = gtk_file_chooser_dialog_new (title,
@@ -485,7 +485,7 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
   else
   {
-	gchar *default_path;
+	char *default_path;
 	default_path = g_get_current_dir();
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
 	g_free(default_path);
@@ -551,15 +551,15 @@ static ghid_file_history * recent_dirs = NULL;
 
 /* ---------------------------------------------- */
 /* Caller must g_free() the returned filename. */
-gchar *
+char *
 ghid_fileselect (const char *title, const char *descr,
                  char *default_file, char *default_ext,
 		 const char *history_tag, int flags)
 {
   GtkWidget *dialog;
-  gchar *result = NULL;
+  char *result = NULL;
   GHidPort *out = &ghid_port;
-  gchar *path = NULL, *base = NULL;
+  char *path = NULL, *base = NULL;
   int history_pool = -1;
   int i;
 
@@ -631,7 +631,7 @@ ghid_fileselect (const char *title, const char *descr,
     }
   else
 	{
-	  gchar *default_path;
+	  char *default_path;
 	  default_path = g_get_current_dir();
 	  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), default_path);
 	  g_free(default_path);

@@ -59,22 +59,20 @@
 # include <dmalloc.h> /* see http://dmalloc.com */
 #endif
 
-static	LayerType	*Layer;
-static	PolygonType	*Polygon;
-static	SymbolType	*Symbol;
-static	int		pin_num;
-static	LibraryMenuType	*Menu;
-static	bool			LayerFlag[MAX_LAYER + 2];
+static LayerType    *Layer;
+static PolygonType  *Polygon;
+static SymbolType   *Symbol;
+static LibraryMenuType *Menu;
+static bool LayerFlag[MAX_LAYER + 2];
+static int  pin_num;
 
-extern	char		*yytext;		/* defined by LEX */
-extern	PCBType		*yyPCB;
-extern	DataType	*yyData;
-extern	ElementType	*yyElement;
-extern	FontType	*yyFont;
-extern	int		yylineno;		/* linenumber */
-extern	char		*yyfilename;	/* in this file */
-
-static char *layer_group_string;
+extern char        *yytext;       /* defined by LEX */
+extern PCBType     *yyPCB;
+extern DataType    *yyData;
+extern ElementType *yyElement;
+extern FontType    *yyFont;
+extern in           yylineno;     /* linenumber */
+extern char        *yyfilename;   /* in this file */
 
 static AttributeListType *attr_list;
 
@@ -104,7 +102,7 @@ static Coord new_units (PLMeasure m);
 
 %verbose
 
-%union									/* define YYSTACK type */
+%union                                	/* define YYSTACK type */
 {
 	int		integer;
 	double		number;
@@ -159,85 +157,99 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 
 parsepcb
 		:	{
-					/* reset flags for 'used layers';
-					 * init font and data pointers
-					 */
-				int	i;
+                	/* reset flags for 'used layers';
+                	 * init font and data pointers
+                	 */
+                int	i;
 
-				if (!yyPCB)
-				{
-					Message("illegal fileformat\n");
-					YYABORT;
-				}
-				for (i = 0; i < MAX_LAYER + 2; i++)
-					LayerFlag[i] = false;
-				yyFont = &yyPCB->Font;
-				yyData = yyPCB->Data;
-				yyData->pcb = yyPCB;
-				yyData->LayerN = 0;
-				layer_group_string = NULL;
-			}
-		  pcbfileversion
-		  pcbname
-		  pcbgrid
-		  pcbcursor
-		  polyarea
-		  pcbthermal
-		  pcbdrc
-		  pcbflags
-		  pcbgroups
-		  pcbstyles
-		  pcbfont
-		  pcbdata
-		  pcbnetlist
-			{
-			  PCBType *pcb_save = PCB;
+                if (!yyPCB) {
 
-			  if (layer_group_string == NULL)
-			    layer_group_string = Settings.Groups;
-			  CreateNewPCBPost (yyPCB, 0);
-			  if (ParseGroupString(layer_group_string, &yyPCB->LayerGroups, yyData->LayerN))
-			    {
-			      Message("illegal layer-group string\n");
-			      YYABORT;
-			    }
+                	Message("illegal fileformat\n");
+                	YYABORT;
+                }
+
+                for (i = 0; i < MAX_LAYER + 2; i++) {
+                  LayerFlag[i] = false;
+                }
+
+                yyFont = &yyPCB->Font;
+                yyData = yyPCB->Data;
+                yyData->pcb = yyPCB;
+                yyData->LayerN = 0;
+          }
+          pcbfileversion
+          pcbname
+          pcbgrid
+          pcbcursor
+          polyarea
+          pcbthermal
+          pcbdrc
+          pcbflags
+          pcbgroups
+          pcbstyles
+          pcbfont
+          pcbdata
+          pcbnetlist
+          {
+	          PCBType *pcb_save = PCB;
+	          CreateNewPCBPost (yyPCB, 0);
+
 			/* initialize the polygon clipping now since
 			 * we didn't know the layer grouping before.
 			 */
 			PCB = yyPCB;
 			ALLPOLYGON_LOOP (yyData);
 			{
-			  InitClip (yyData, layer, polygon);
+	          InitClip (yyData, layer, polygon);
 			}
 			ENDALL_LOOP;
 			PCB = pcb_save;
 			}
 
-		| { PreLoadElementPCB ();
-		    layer_group_string = NULL; }
-		  element
-		  { LayerFlag[0] = true;
-		    LayerFlag[1] = true;
-		    yyData->LayerN = 2;
-		    PostLoadElementPCB ();
-		  }
+            | {
+              if (yyPCB != NULL) {
+
+                /* This case is when we load a footprint with file->open, or from the command line */
+                yyFont = &yyPCB->Font;
+                yyData = yyPCB->Data;
+                yyData->pcb = yyPCB;
+                yyData->LayerN = 0;
+             }
+           }
+          element
+          {
+            PCBType *pcb_save = PCB;
+            ElementType *e;
+            if (yyPCB != NULL) {
+
+              /* This case is when we load a footprint with file->open, or from the command line */
+              CreateNewPCBPost (yyPCB, 0);
+              ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
+              e = yyPCB->Data->Element->data; /* we know there's only one */
+              PCB = yyPCB;
+              MoveElementLowLevel (yyPCB->Data, e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
+              PCB = pcb_save;
+              yyPCB->MaxWidth = e->BoundingBox.X2;
+              yyPCB->MaxHeight = e->BoundingBox.Y2;
+              yyPCB->is_footprint = 1;
+            }
 		;
 
 parsedata
 		:	{
-					/* reset flags for 'used layers';
-					 * init font and data pointers
-					 */
-				int	i;
+                	/* reset flags for 'used layers';
+                	 * init font and data pointers
+                	 */
+                int	i;
 
-				if (!yyData || !yyFont)
-				{
-					Message("illegal fileformat\n");
-					YYABORT;
-				}
-				for (i = 0; i < MAX_LAYER + 2; i++)
-					LayerFlag[i] = false;
-				yyData->LayerN = 0;
+                if (!yyData || !yyFont)
+                {
+                	Message("illegal fileformat\n");
+                	YYABORT;
+                }
+                for (i = 0; i < MAX_LAYER + 2; i++)
+                	LayerFlag[i] = false;
+                yyData->LayerN = 0;
 			}
 		 pcbdata
 		;
@@ -250,23 +262,23 @@ pcbfont
 parsefont
 		:
 			{
-					/* mark all symbols invalid */
-				int	i;
+                	/* mark all symbols invalid */
+                int	i;
 
-				if (!yyFont)
-				{
-					Message("illegal fileformat\n");
-					YYABORT;
-				}
-				yyFont->Valid = false;
-				for (i = 0; i <= MAX_FONTPOSITION; i++)
-					free (yyFont->Symbol[i].Line);
-				bzero(yyFont->Symbol, sizeof(yyFont->Symbol));
+                if (!yyFont)
+                {
+                	Message("illegal fileformat\n");
+                	YYABORT;
+                }
+                yyFont->Valid = false;
+                for (i = 0; i <= MAX_FONTPOSITION; i++)
+                	free (yyFont->Symbol[i].Line);
+                bzero(yyFont->Symbol, sizeof(yyFont->Symbol));
 			}
-		  symbols
+          symbols
 			{
-				yyFont->Valid = true;
-		  		SetFontInfo(yyFont);
+                yyFont->Valid = true;
+          		SetFontInfo(yyFont);
 			}
 		;
 
@@ -293,10 +305,10 @@ pcbfileversion
 : |
 T_FILEVERSION '[' INTEGER ']'
 {
-  if (check_file_version ($3) != 0)
-    {
+  if (check_file_version ($3) != 0) {
+
       YYABORT;
-    }
+  }
 }
 ;
 
@@ -323,21 +335,21 @@ chosen.
 pcbname
 		: T_PCB '(' STRING ')'
 			{
-				yyPCB->Name = $3;
-				yyPCB->MaxWidth = MAX_COORD;
-				yyPCB->MaxHeight = MAX_COORD;
+                yyPCB->Name = $3;
+                yyPCB->MaxWidth = MAX_COORD;
+                yyPCB->MaxHeight = MAX_COORD;
 			}
 		| T_PCB '(' STRING measure measure ')'
 			{
-				yyPCB->Name = $3;
-				yyPCB->MaxWidth = OU ($4);
-				yyPCB->MaxHeight = OU ($5);
+                yyPCB->Name = $3;
+                yyPCB->MaxWidth = OU ($4);
+                yyPCB->MaxHeight = OU ($5);
 			}
 		| T_PCB '[' STRING measure measure ']'
 			{
-				yyPCB->Name = $3;
-				yyPCB->MaxWidth = NU ($4);
-				yyPCB->MaxHeight = NU ($5);
+                yyPCB->Name = $3;
+                yyPCB->MaxWidth = NU ($4);
+                yyPCB->MaxHeight = NU ($5);
 			}
 		;
 
@@ -369,34 +381,34 @@ pcbgrid
 pcbgridold
 		: T_GRID '(' measure measure measure ')'
 			{
-				yyPCB->Grid = OU ($3);
-				yyPCB->GridOffsetX = OU ($4);
-				yyPCB->GridOffsetY = OU ($5);
+                yyPCB->Grid = OU ($3);
+                yyPCB->GridOffsetX = OU ($4);
+                yyPCB->GridOffsetY = OU ($5);
 			}
 		;
 pcbgridnew
 		: T_GRID '(' measure measure measure INTEGER ')'
 			{
-				yyPCB->Grid = OU ($3);
-				yyPCB->GridOffsetX = OU ($4);
-				yyPCB->GridOffsetY = OU ($5);
-				if ($6)
-					Settings.DrawGrid = true;
-				else
-					Settings.DrawGrid = false;
+                yyPCB->Grid = OU ($3);
+                yyPCB->GridOffsetX = OU ($4);
+                yyPCB->GridOffsetY = OU ($5);
+                if ($6)
+                	Settings.DrawGrid = true;
+                else
+                	Settings.DrawGrid = false;
 			}
 		;
 
 pcbhigrid
 		: T_GRID '[' measure measure measure INTEGER ']'
 			{
-				yyPCB->Grid = NU ($3);
-				yyPCB->GridOffsetX = NU ($4);
-				yyPCB->GridOffsetY = NU ($5);
-				if ($6)
-					Settings.DrawGrid = true;
-				else
-					Settings.DrawGrid = false;
+                yyPCB->Grid = NU ($3);
+                yyPCB->GridOffsetX = NU ($4);
+                yyPCB->GridOffsetY = NU ($5);
+                if ($6)
+                	Settings.DrawGrid = true;
+                else
+                	Settings.DrawGrid = false;
 			}
 		;
 
@@ -426,13 +438,13 @@ This field is ignored by PCB.
 pcbcursor
 		: T_CURSOR '(' measure measure number ')'
 			{
-				yyPCB->CursorX = OU ($3);
-				yyPCB->CursorY = OU ($4);
+                yyPCB->CursorX = OU ($3);
+                yyPCB->CursorY = OU ($4);
 			}
 		| T_CURSOR '[' measure measure number ']'
 			{
-				yyPCB->CursorX = NU ($3);
-				yyPCB->CursorY = NU ($4);
+                yyPCB->CursorX = NU ($3);
+                yyPCB->CursorY = NU ($4);
 			}
 		|
 		;
@@ -454,8 +466,8 @@ polyarea
 		:
 		| T_AREA '[' number ']'
 			{
-				/* Read in cmil^2 for now; in future this should be a noop. */
-				yyPCB->IsleArea = MIL_TO_COORD (MIL_TO_COORD ($3) / 100.0) / 100.0;
+                /* Read in cmil^2 for now; in future this should be a noop. */
+                yyPCB->IsleArea = MIL_TO_COORD (MIL_TO_COORD ($3) / 100.0) / 100.0;
 			}
 		;
 
@@ -481,7 +493,7 @@ pcbthermal
 		:
 		| T_THERMAL '[' number ']'
 			{
-				yyPCB->ThermScale = $3;
+                yyPCB->ThermScale = $3;
 			}
 		;
 
@@ -519,34 +531,34 @@ pcbdrc
 
 pcbdrc1
                 : T_DRC '[' measure measure measure ']'
-		        {
-				yyPCB->Bloat = NU ($3);
-				yyPCB->Shrink = NU ($4);
-				yyPCB->minWid = NU ($5);
-				yyPCB->minRing = NU ($5);
+                {
+                yyPCB->Bloat = NU ($3);
+                yyPCB->Shrink = NU ($4);
+                yyPCB->minWid = NU ($5);
+                yyPCB->minRing = NU ($5);
 			}
 		;
 
 pcbdrc2
                 : T_DRC '[' measure measure measure measure ']'
-		        {
-				yyPCB->Bloat = NU ($3);
-				yyPCB->Shrink = NU ($4);
-				yyPCB->minWid = NU ($5);
-				yyPCB->minSlk = NU ($6);
-				yyPCB->minRing = NU ($5);
+                {
+                yyPCB->Bloat = NU ($3);
+                yyPCB->Shrink = NU ($4);
+                yyPCB->minWid = NU ($5);
+                yyPCB->minSlk = NU ($6);
+                yyPCB->minRing = NU ($5);
 			}
 		;
 
 pcbdrc3
                 : T_DRC '[' measure measure measure measure measure measure ']'
-		        {
-				yyPCB->Bloat = NU ($3);
-				yyPCB->Shrink = NU ($4);
-				yyPCB->minWid = NU ($5);
-				yyPCB->minSlk = NU ($6);
-				yyPCB->minDrill = NU ($7);
-				yyPCB->minRing = NU ($8);
+                {
+                yyPCB->Bloat = NU ($3);
+                yyPCB->Shrink = NU ($4);
+                yyPCB->minWid = NU ($5);
+                yyPCB->minSlk = NU ($6);
+                yyPCB->minDrill = NU ($7);
+                yyPCB->minRing = NU ($8);
 			}
 		;
 
@@ -568,11 +580,11 @@ represent pcb-wide flags as defined in @ref{PCBFlags}.
 pcbflags
 		: T_FLAGS '(' INTEGER ')'
 			{
-				yyPCB->Flags = MakeFlags ($3 & PCB_FLAGS);
+                yyPCB->Flags = MakeFlags ($3 & PCB_FLAGS);
 			}
 		| T_FLAGS '(' STRING ')'
 			{
-			  yyPCB->Flags = string_to_pcbflags ($3, yyerror);
+	          yyPCB->Flags = string_to_pcbflags ($3, yyerror);
 			}
 		|
 		;
@@ -602,12 +614,15 @@ Groups("1,2,c:3:4:5,6,s:7,8")
 %end-doc */
 
 pcbgroups
-		: T_GROUPS '(' STRING ')'
-			{
-			  layer_group_string = $3;
-			}
-		|
-		;
+  : T_GROUPS '(' STRING ')'
+  {
+    if (ParseGroupString ($3, &yyPCB->LayerGroups, &yyData->LayerN)) {
+      Message(_("illegal layer-group string\n"));
+      YYABORT;
+    }
+  }
+  |
+;
 
 /* %start-doc pcbfile Styles
 
@@ -652,19 +667,19 @@ is split across lines only to make it readable.
 pcbstyles
 		: T_STYLES '(' STRING ')'
 			{
-				if (ParseRouteString($3, &yyPCB->RouteStyle[0], "mil"))
-				{
-					Message("illegal route-style string\n");
-					YYABORT;
-				}
+                if (ParseRouteString($3, &yyPCB->RouteStyle[0], "mil"))
+                {
+                	Message("illegal route-style string\n");
+                	YYABORT;
+                }
 			}
 		| T_STYLES '[' STRING ']'
 			{
-				if (ParseRouteString($3, &yyPCB->RouteStyle[0], "cmil"))
-				{
-					Message("illegal route-style string\n");
-					YYABORT;
-				}
+                if (ParseRouteString($3, &yyPCB->RouteStyle[0], "cmil"))
+                {
+                	Message("illegal route-style string\n");
+                	YYABORT;
+                }
 			}
 		|
 		;
@@ -731,9 +746,9 @@ via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
 		: T_VIA '[' measure measure measure measure measure measure STRING flags ']'
 			{
-				CreateNewVia(yyData, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7),
-				                     NU ($8), $9, $10);
-				free ($9);
+                CreateNewVia(yyData, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7),
+                                     NU ($8), $9, $10);
+                free ($9);
 			}
 		;
 
@@ -741,9 +756,9 @@ via_2.0_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
 		: T_VIA '(' measure measure measure measure measure measure STRING INTEGER ')'
 			{
-				CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7), OU ($8), $9,
-					OldFlags($10));
-				free ($9);
+                CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7), OU ($8), $9,
+                	OldFlags($10));
+                free ($9);
 			}
 		;
 
@@ -752,9 +767,9 @@ via_1.7_format
 			/* x, y, thickness, clearance, drilling-hole, name, flags */
 		: T_VIA '(' measure measure measure measure measure STRING INTEGER ')'
 			{
-				CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), OU ($6),
-					     OU ($5) + OU($6), OU ($7), $8, OldFlags($9));
-				free ($8);
+                CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), OU ($6),
+                	     OU ($5) + OU($6), OU ($7), $8, OldFlags($9));
+                free ($8);
 			}
 		;
 
@@ -762,9 +777,9 @@ via_newformat
 			/* x, y, thickness, drilling-hole, name, flags */
 		: T_VIA '(' measure measure measure measure STRING INTEGER ')'
 			{
-				CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
-					OU($5) + 2*MASKFRAME,  OU ($6), $7, OldFlags($8));
-				free ($7);
+                CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
+                	OU($5) + 2*MASKFRAME,  OU ($6), $7, OldFlags($8));
+                free ($7);
 			}
 		;
 
@@ -772,16 +787,16 @@ via_oldformat
 			/* old format: x, y, thickness, name, flags */
 		: T_VIA '(' measure measure measure STRING INTEGER ')'
 			{
-				Coord	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
+                Coord	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
 
-					/* make sure that there's enough copper left */
-				if (OU($5) - hole < MIN_PINORVIACOPPER &&
-					OU($5) > MIN_PINORVIACOPPER)
-					hole = OU($5) - MIN_PINORVIACOPPER;
+                	/* make sure that there's enough copper left */
+                if (OU($5) - hole < MIN_PINORVIACOPPER &&
+                	OU($5) > MIN_PINORVIACOPPER)
+                	hole = OU($5) - MIN_PINORVIACOPPER;
 
-				CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
-					OU($5) + 2*MASKFRAME, hole, $6, OldFlags($7));
-				free ($6);
+                CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
+                	OU($5) + 2*MASKFRAME, hole, $6, OldFlags($7));
+                free ($6);
 			}
 		;
 
@@ -808,13 +823,13 @@ Numeric flags.
 rats
 		: T_RAT '[' measure measure INTEGER measure measure INTEGER flags ']'
 			{
-				CreateNewRat(yyData, NU ($3), NU ($4), NU ($6), NU ($7), $5, $8,
-					Settings.RatThickness, $9);
+                CreateNewRat(yyData, NU ($3), NU ($4), NU ($6), NU ($7), $5, $8,
+                	Settings.RatThickness, $9);
 			}
 		| T_RAT '(' measure measure INTEGER measure measure INTEGER INTEGER ')'
 			{
-				CreateNewRat(yyData, OU ($3), OU ($4), OU ($6), OU ($7), $5, $8,
-					Settings.RatThickness, OldFlags($9));
+                CreateNewRat(yyData, OU ($3), OU ($4), OU ($6), OU ($7), $5, $8,
+                	Settings.RatThickness, OldFlags($9));
 			}
 		;
 
@@ -844,27 +859,25 @@ layer
 			/* name */
 		: T_LAYER '(' INTEGER STRING opt_string ')' '('
 			{
-				if ($3 <= 0 || $3 > MAX_LAYER + 2)
-				{
-					yyerror("Layernumber out of range");
-					YYABORT;
-				}
-				if (LayerFlag[$3-1])
-				{
-					yyerror("Layernumber used twice");
-					YYABORT;
-				}
-				Layer = &yyData->Layer[$3-1];
+                if ($3 <= 0 || $3 > MAX_LAYER + 2)
+                {
+                	yyerror("Layernumber out of range");
+                	YYABORT;
+                }
+                if (LayerFlag[$3-1])
+                {
+                	yyerror("Layernumber used twice");
+                	YYABORT;
+                }
+                Layer = &yyData->Layer[$3-1];
 
-					/* memory for name is already allocated */
-				Layer->Name = $4;
+                /* memory for name is already allocated */
+                Layer->Name = $4;
                          	if (Layer->Name == NULL)
                                    Layer->Name = strdup("");
-				LayerFlag[$3-1] = true;
-				if (yyData->LayerN + 2 < $3)
-				  yyData->LayerN = $3 - 2;
+                LayerFlag[$3-1] = true;
 			}
-		  layerdata ')'
+          layerdata ')'
 		;
 
 layerdata
@@ -887,8 +900,8 @@ layerdefinition
 			/* x1, y1, x2, y2, flags */
 		| T_RECTANGLE '(' measure measure measure measure INTEGER ')'
 			{
-				CreateNewPolygonFromRectangle(Layer,
-					OU ($3), OU ($4), OU ($3) + OU ($5), OU ($4) + OU ($6), OldFlags($7));
+                CreateNewPolygonFromRectangle(Layer,
+                	OU ($3), OU ($4), OU ($3) + OU ($5), OU ($4) + OU ($6), OldFlags($7));
 			}
 		| text_hi_format
 		| text_newformat
@@ -926,8 +939,8 @@ line_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
 		: T_LINE '[' measure measure measure measure measure measure flags ']'
 			{
-				CreateNewLineOnLayer(Layer, NU ($3), NU ($4), NU ($5), NU ($6),
-				                            NU ($7), NU ($8), $9);
+                CreateNewLineOnLayer(Layer, NU ($3), NU ($4), NU ($5), NU ($6),
+                                            NU ($7), NU ($8), $9);
 			}
 		;
 
@@ -935,8 +948,8 @@ line_1.7_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
 		: T_LINE '(' measure measure measure measure measure measure INTEGER ')'
 			{
-				CreateNewLineOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6),
-						     OU ($7), OU ($8), OldFlags($9));
+                CreateNewLineOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6),
+                             OU ($7), OU ($8), OldFlags($9));
 			}
 		;
 
@@ -944,10 +957,10 @@ line_oldformat
 			/* x1, y1, x2, y2, thickness, flags */
 		: T_LINE '(' measure measure measure measure measure measure ')'
 			{
-				/* eliminate old-style rat-lines */
+                /* eliminate old-style rat-lines */
 			if ((IV ($8) & RATFLAG) == 0)
-				CreateNewLineOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7),
-					200*GROUNDPLANEFRAME, OldFlags(IV ($8)));
+                CreateNewLineOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7),
+                	200*GROUNDPLANEFRAME, OldFlags(IV ($8)));
 			}
 		;
 
@@ -992,8 +1005,8 @@ arc_hi_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '[' measure measure measure measure measure measure number number flags ']'
 			{
-			  CreateNewArcOnLayer(Layer, NU ($3), NU ($4), NU ($5), NU ($6), $9, $10,
-			                             NU ($7), NU ($8), $11);
+	          CreateNewArcOnLayer(Layer, NU ($3), NU ($4), NU ($5), NU ($6), $9, $10,
+	                                     NU ($7), NU ($8), $11);
 			}
 		;
 
@@ -1001,8 +1014,8 @@ arc_1.7_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '(' measure measure measure measure measure measure number number INTEGER ')'
 			{
-				CreateNewArcOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6), $9, $10,
-						    OU ($7), OU ($8), OldFlags($11));
+                CreateNewArcOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($6), $9, $10,
+                            OU ($7), OU ($8), OldFlags($11));
 			}
 		;
 
@@ -1010,8 +1023,8 @@ arc_oldformat
 			/* x, y, width, height, thickness, startangle, delta, flags */
 		: T_ARC '(' measure measure measure measure measure measure number INTEGER ')'
 			{
-				CreateNewArcOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($5), IV ($8), $9,
-					OU ($7), 200*GROUNDPLANEFRAME, OldFlags($10));
+                CreateNewArcOnLayer(Layer, OU ($3), OU ($4), OU ($5), OU ($5), IV ($8), $9,
+                	OU ($7), 200*GROUNDPLANEFRAME, OldFlags($10));
 			}
 		;
 
@@ -1047,9 +1060,9 @@ text_oldformat
 			/* x, y, direction, text, flags */
 		: T_TEXT '(' measure measure number STRING INTEGER ')'
 			{
-					/* use a default scale of 100% */
-				CreateNewText(Layer,yyFont,OU ($3), OU ($4), $5, 100, $6, OldFlags($7));
-				free ($6);
+                	/* use a default scale of 100% */
+                CreateNewText(Layer,yyFont,OU ($3), OU ($4), $5, 100, $6, OldFlags($7));
+                free ($6);
 			}
 		;
 
@@ -1057,41 +1070,41 @@ text_newformat
 			/* x, y, direction, scale, text, flags */
 		: T_TEXT '(' measure measure number number STRING INTEGER ')'
 			{
-				if ($8 & ONSILKFLAG)
-				{
-					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8 & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
+                if ($8 & ONSILKFLAG)
+                {
+                	LayerType *lay = &yyData->Layer[yyData->LayerN +
+                		(($8 & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
-					CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
-						      OldFlags($8));
-				}
-				else
-					CreateNewText(Layer, yyFont, OU ($3), OU ($4), $5, $6, $7,
-						      OldFlags($8));
-				free ($7);
+                	CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
+                              OldFlags($8));
+                }
+                else
+                	CreateNewText(Layer, yyFont, OU ($3), OU ($4), $5, $6, $7,
+                              OldFlags($8));
+                free ($7);
 			}
 		;
 text_hi_format
 			/* x, y, direction, scale, text, flags */
 		: T_TEXT '[' measure measure number number STRING flags ']'
 			{
-				/* FIXME: shouldn't know about .f */
-				/* I don't think this matters because anything with hi_format
-				 * will have the silk on its own layer in the file rather
-				 * than using the ONSILKFLAG and having it in a copper layer.
-				 * Thus there is no need for anything besides the 'else'
-				 * part of this code.
-				 */
-				if ($8.f & ONSILKFLAG)
-				{
-					LayerType *lay = &yyData->Layer[yyData->LayerN +
-						(($8.f & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
+                /* FIXME: shouldn't know about .f */
+                /* I don't think this matters because anything with hi_format
+                 * will have the silk on its own layer in the file rather
+                 * than using the ONSILKFLAG and having it in a copper layer.
+                 * Thus there is no need for anything besides the 'else'
+                 * part of this code.
+                 */
+                if ($8.f & ONSILKFLAG)
+                {
+                	LayerType *lay = &yyData->Layer[yyData->LayerN +
+                		(($8.f & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
-					CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
-				}
-				else
-					CreateNewText(Layer, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
-				free ($7);
+                	CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
+                }
+                else
+                	CreateNewText(Layer, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
+                free ($7);
 			}
 		;
 
@@ -1124,40 +1137,40 @@ polygon_format
 		: /* flags are passed in */
 		T_POLYGON '(' flags ')' '('
 			{
-				Polygon = CreateNewPolygon(Layer, $3);
+                Polygon = CreateNewPolygon(Layer, $3);
 			}
-		  polygonpoints
-		  polygonholes ')'
+          polygonpoints
+          polygonholes ')'
 			{
-				Cardinal contour, contour_start, contour_end;
-				bool bad_contour_found = false;
-				/* ignore junk */
-				for (contour = 0; contour <= Polygon->HoleIndexN; contour++)
-				  {
-				    contour_start = (contour == 0) ?
-						      0 : Polygon->HoleIndex[contour - 1];
-				    contour_end = (contour == Polygon->HoleIndexN) ?
-						 Polygon->PointN :
-						 Polygon->HoleIndex[contour];
-				    if (contour_end - contour_start < 3)
-				      bad_contour_found = true;
-				  }
+                Cardinal contour, contour_start, contour_end;
+                bool bad_contour_found = false;
+                /* ignore junk */
+                for (contour = 0; contour <= Polygon->HoleIndexN; contour++)
+                  {
+                    contour_start = (contour == 0) ?
+                              0 : Polygon->HoleIndex[contour - 1];
+                    contour_end = (contour == Polygon->HoleIndexN) ?
+                		 Polygon->PointN :
+                		 Polygon->HoleIndex[contour];
+                    if (contour_end - contour_start < 3)
+                      bad_contour_found = true;
+                  }
 
-				if (bad_contour_found)
-				  {
-				    Message("WARNING parsing file '%s'\n"
-					    "    line:        %i\n"
-					    "    description: 'ignored polygon (< 3 points in a contour)'\n",
-					    yyfilename, yylineno);
-				    DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
-				  }
-				else
-				  {
-				    SetPolygonBoundingBox (Polygon);
-				    if (!Layer->polygon_tree)
-				      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
-				    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-				  }
+                if (bad_contour_found)
+                  {
+                    Message("WARNING parsing file '%s'\n"
+                	    "    line:        %i\n"
+                	    "    description: 'ignored polygon (< 3 points in a contour)'\n",
+                	    yyfilename, yylineno);
+                    DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
+                  }
+                else
+                  {
+                    SetPolygonBoundingBox (Polygon);
+                    if (!Layer->polygon_tree)
+                      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
+                    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+                  }
 			}
 		;
 
@@ -1169,9 +1182,9 @@ polygonholes
 polygonhole
 		: T_POLYGON_HOLE '('
 			{
-				CreateNewHoleInPolygon (Polygon);
+                CreateNewHoleInPolygon (Polygon);
 			}
-		  polygonpoints ')'
+          polygonpoints ')'
 		;
 
 polygonpoints
@@ -1183,11 +1196,11 @@ polygonpoint
 			/* xcoord ycoord */
 		: '(' measure measure ')'
 			{
-				CreateNewPointInPolygon(Polygon, OU ($2), OU ($3));
+                CreateNewPointInPolygon(Polygon, OU ($2), OU ($3));
 			}
 		| '[' measure measure ']'
 			{
-				CreateNewPointInPolygon(Polygon, NU ($2), NU ($3));
+                CreateNewPointInPolygon(Polygon, NU ($2), NU ($3));
 			}
 		;
 
@@ -1258,15 +1271,15 @@ element_oldformat
 			 */
 		: T_ELEMENT '(' STRING STRING measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyFont, NoFlags(),
-					$3, $4, NULL, OU ($5), OU ($6), $7, 100, NoFlags(), false);
-				free ($3);
-				free ($4);
-				pin_num = 1;
+                yyElement = CreateNewElement(yyData, yyFont, NoFlags(),
+                	$3, $4, NULL, OU ($5), OU ($6), $7, 100, NoFlags(), false);
+                free ($3);
+                free ($4);
+                pin_num = 1;
 			}
-		  elementdefinitions ')'
+          elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyData, yyElement, yyFont);
+                SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -1276,15 +1289,15 @@ element_1.3.4_format
 			 */
 		: T_ELEMENT '(' INTEGER STRING STRING measure measure measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
-					$4, $5, NULL, OU ($6), OU ($7), IV ($8), IV ($9), OldFlags($10), false);
-				free ($4);
-				free ($5);
-				pin_num = 1;
+                yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
+                	$4, $5, NULL, OU ($6), OU ($7), IV ($8), IV ($9), OldFlags($10), false);
+                free ($4);
+                free ($5);
+                pin_num = 1;
 			}
-		  elementdefinitions ')'
+          elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyData, yyElement, yyFont);
+                SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -1294,16 +1307,16 @@ element_newformat
 			 */
 		: T_ELEMENT '(' INTEGER STRING STRING STRING measure measure measure measure INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
-					$4, $5, $6, OU ($7), OU ($8), IV ($9), IV ($10), OldFlags($11), false);
-				free ($4);
-				free ($5);
-				free ($6);
-				pin_num = 1;
+                yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
+                	$4, $5, $6, OU ($7), OU ($8), IV ($9), IV ($10), OldFlags($11), false);
+                free ($4);
+                free ($5);
+                free ($6);
+                pin_num = 1;
 			}
-		  elementdefinitions ')'
+          elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyData, yyElement, yyFont);
+                SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -1314,18 +1327,18 @@ element_1.7_format
 		: T_ELEMENT '(' INTEGER STRING STRING STRING measure measure
 			measure measure number number INTEGER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
-					$4, $5, $6, OU ($7) + OU ($9), OU ($8) + OU ($10),
-					$11, $12, OldFlags($13), false);
-				yyElement->MarkX = OU ($7);
-				yyElement->MarkY = OU ($8);
-				free ($4);
-				free ($5);
-				free ($6);
+                yyElement = CreateNewElement(yyData, yyFont, OldFlags($3),
+                	$4, $5, $6, OU ($7) + OU ($9), OU ($8) + OU ($10),
+                	$11, $12, OldFlags($13), false);
+                yyElement->MarkX = OU ($7);
+                yyElement->MarkY = OU ($8);
+                free ($4);
+                free ($5);
+                free ($6);
 			}
-		  relementdefs ')'
+          relementdefs ')'
 			{
-				SetElementBoundingBox(yyData, yyElement, yyFont);
+                SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -1336,18 +1349,18 @@ element_hi_format
 		: T_ELEMENT '[' flags STRING STRING STRING measure measure
 			measure measure number number flags ']' '('
 			{
-				yyElement = CreateNewElement(yyData, yyFont, $3,
-					$4, $5, $6, NU ($7) + NU ($9), NU ($8) + NU ($10),
-					$11, $12, $13, false);
-				yyElement->MarkX = NU ($7);
-				yyElement->MarkY = NU ($8);
-				free ($4);
-				free ($5);
-				free ($6);
+                yyElement = CreateNewElement(yyData, yyFont, $3,
+                	$4, $5, $6, NU ($7) + NU ($9), NU ($8) + NU ($10),
+                	$11, $12, $13, false);
+                yyElement->MarkX = NU ($7);
+                yyElement->MarkY = NU ($8);
+                free ($4);
+                free ($5);
+                free ($6);
 			}
-		  relementdefs ')'
+          relementdefs ')'
 			{
-				SetElementBoundingBox(yyData, yyElement, yyFont);
+                SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -1427,33 +1440,33 @@ elementdefinition
 			/* x1, y1, x2, y2, thickness */
 		| T_ELEMENTLINE '[' measure measure measure measure measure ']'
 			{
-				CreateNewLineInElement(yyElement, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7));
+                CreateNewLineInElement(yyElement, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7));
 			}
 			/* x1, y1, x2, y2, thickness */
 		| T_ELEMENTLINE '(' measure measure measure measure measure ')'
 			{
-				CreateNewLineInElement(yyElement, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7));
+                CreateNewLineInElement(yyElement, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7));
 			}
 			/* x, y, width, height, startangle, anglediff, thickness */
 		| T_ELEMENTARC '[' measure measure measure measure number number measure ']'
 			{
-				CreateNewArcInElement(yyElement, NU ($3), NU ($4), NU ($5), NU ($6), $7, $8, NU ($9));
+                CreateNewArcInElement(yyElement, NU ($3), NU ($4), NU ($5), NU ($6), $7, $8, NU ($9));
 			}
 			/* x, y, width, height, startangle, anglediff, thickness */
 		| T_ELEMENTARC '(' measure measure measure measure number number measure ')'
 			{
-				CreateNewArcInElement(yyElement, OU ($3), OU ($4), OU ($5), OU ($6), $7, $8, OU ($9));
+                CreateNewArcInElement(yyElement, OU ($3), OU ($4), OU ($5), OU ($6), $7, $8, OU ($9));
 			}
 			/* x, y position */
 		| T_MARK '[' measure measure ']'
 			{
-				yyElement->MarkX = NU ($3);
-				yyElement->MarkY = NU ($4);
+                yyElement->MarkX = NU ($3);
+                yyElement->MarkY = NU ($4);
 			}
 		| T_MARK '(' measure measure ')'
 			{
-				yyElement->MarkX = OU ($3);
-				yyElement->MarkY = OU ($4);
+                yyElement->MarkX = OU ($3);
+                yyElement->MarkY = OU ($4);
 			}
 		| { attr_list = & yyElement->Attributes; } attribute
 		;
@@ -1471,26 +1484,26 @@ relementdef
 			/* x1, y1, x2, y2, thickness */
 		| T_ELEMENTLINE '[' measure measure measure measure measure ']'
 			{
-				CreateNewLineInElement(yyElement, NU ($3) + yyElement->MarkX,
-					NU ($4) + yyElement->MarkY, NU ($5) + yyElement->MarkX,
-					NU ($6) + yyElement->MarkY, NU ($7));
+                CreateNewLineInElement(yyElement, NU ($3) + yyElement->MarkX,
+                	NU ($4) + yyElement->MarkY, NU ($5) + yyElement->MarkX,
+                	NU ($6) + yyElement->MarkY, NU ($7));
 			}
 		| T_ELEMENTLINE '(' measure measure measure measure measure ')'
 			{
-				CreateNewLineInElement(yyElement, OU ($3) + yyElement->MarkX,
-					OU ($4) + yyElement->MarkY, OU ($5) + yyElement->MarkX,
-					OU ($6) + yyElement->MarkY, OU ($7));
+                CreateNewLineInElement(yyElement, OU ($3) + yyElement->MarkX,
+                	OU ($4) + yyElement->MarkY, OU ($5) + yyElement->MarkX,
+                	OU ($6) + yyElement->MarkY, OU ($7));
 			}
 			/* x, y, width, height, startangle, anglediff, thickness */
 		| T_ELEMENTARC '[' measure measure measure measure number number measure ']'
 			{
-				CreateNewArcInElement(yyElement, NU ($3) + yyElement->MarkX,
-					NU ($4) + yyElement->MarkY, NU ($5), NU ($6), $7, $8, NU ($9));
+                CreateNewArcInElement(yyElement, NU ($3) + yyElement->MarkX,
+                	NU ($4) + yyElement->MarkY, NU ($5), NU ($6), $7, $8, NU ($9));
 			}
 		| T_ELEMENTARC '(' measure measure measure measure number number measure ')'
 			{
-				CreateNewArcInElement(yyElement, OU ($3) + yyElement->MarkX,
-					OU ($4) + yyElement->MarkY, OU ($5), OU ($6), $7, $8, OU ($9));
+                CreateNewArcInElement(yyElement, OU ($3) + yyElement->MarkX,
+                	OU ($4) + yyElement->MarkY, OU ($5), OU ($6), $7, $8, OU ($9));
 			}
 		| { attr_list = & yyElement->Attributes; } attribute
 		;
@@ -1532,26 +1545,26 @@ numerical flags only
 
 pin_hi_format
 			/* x, y, thickness, clearance, mask, drilling hole, name,
-			   number, flags */
+	           number, flags */
 		: T_PIN '[' measure measure measure measure measure measure STRING STRING flags ']'
 			{
-				CreateNewPin(yyElement, NU ($3) + yyElement->MarkX,
-					NU ($4) + yyElement->MarkY, NU ($5), NU ($6), NU ($7), NU ($8), $9,
-					$10, $11);
-				free ($9);
-				free ($10);
+                CreateNewPin(yyElement, NU ($3) + yyElement->MarkX,
+                	NU ($4) + yyElement->MarkY, NU ($5), NU ($6), NU ($7), NU ($8), $9,
+                	$10, $11);
+                free ($9);
+                free ($10);
 			}
 		;
 pin_1.7_format
 			/* x, y, thickness, clearance, mask, drilling hole, name,
-			   number, flags */
+	           number, flags */
 		: T_PIN '(' measure measure measure measure measure measure STRING STRING INTEGER ')'
 			{
-				CreateNewPin(yyElement, OU ($3) + yyElement->MarkX,
-					OU ($4) + yyElement->MarkY, OU ($5), OU ($6), OU ($7), OU ($8), $9,
-					$10, OldFlags($11));
-				free ($9);
-				free ($10);
+                CreateNewPin(yyElement, OU ($3) + yyElement->MarkX,
+                	OU ($4) + yyElement->MarkY, OU ($5), OU ($6), OU ($7), OU ($8), $9,
+                	$10, OldFlags($11));
+                free ($9);
+                free ($10);
 			}
 		;
 
@@ -1559,10 +1572,10 @@ pin_1.6.3_format
 			/* x, y, thickness, drilling hole, name, number, flags */
 		: T_PIN '(' measure measure measure measure STRING STRING INTEGER ')'
 			{
-				CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
-					OU ($5) + 2*MASKFRAME, OU ($6), $7, $8, OldFlags($9));
-				free ($7);
-				free ($8);
+                CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
+                	OU ($5) + 2*MASKFRAME, OU ($6), $7, $8, OldFlags($9));
+                free ($7);
+                free ($8);
 			}
 		;
 
@@ -1570,13 +1583,13 @@ pin_newformat
 			/* x, y, thickness, drilling hole, name, flags */
 		: T_PIN '(' measure measure measure measure STRING INTEGER ')'
 			{
-				char	p_number[8];
+                char	p_number[8];
 
-				sprintf(p_number, "%d", pin_num++);
-				CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
-					OU ($5) + 2*MASKFRAME, OU ($6), $7, p_number, OldFlags($8));
+                sprintf(p_number, "%d", pin_num++);
+                CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
+                	OU ($5) + 2*MASKFRAME, OU ($6), $7, p_number, OldFlags($8));
 
-				free ($7);
+                free ($7);
 			}
 		;
 
@@ -1586,18 +1599,18 @@ pin_oldformat
 			 */
 		: T_PIN '(' measure measure measure STRING INTEGER ')'
 			{
-				Coord	hole = OU ($5) * DEFAULT_DRILLINGHOLE;
-				char	p_number[8];
+                Coord	hole = OU ($5) * DEFAULT_DRILLINGHOLE;
+                char	p_number[8];
 
-					/* make sure that there's enough copper left */
-				if (OU ($5) - hole < MIN_PINORVIACOPPER &&
-					OU ($5) > MIN_PINORVIACOPPER)
-					hole = OU ($5) - MIN_PINORVIACOPPER;
+                	/* make sure that there's enough copper left */
+                if (OU ($5) - hole < MIN_PINORVIACOPPER &&
+                	OU ($5) > MIN_PINORVIACOPPER)
+                	hole = OU ($5) - MIN_PINORVIACOPPER;
 
-				sprintf(p_number, "%d", pin_num++);
-				CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
-					OU ($5) + 2*MASKFRAME, hole, $6, p_number, OldFlags($7));
-				free ($6);
+                sprintf(p_number, "%d", pin_num++);
+                CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
+                	OU ($5) + 2*MASKFRAME, hole, $6, p_number, OldFlags($7));
+                free ($6);
 			}
 		;
 
@@ -1640,13 +1653,13 @@ pad_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
 		: T_PAD '[' measure measure measure measure measure measure measure STRING STRING flags ']'
 			{
-				CreateNewPad(yyElement, NU ($3) + yyElement->MarkX,
-					NU ($4) + yyElement->MarkY,
-					NU ($5) + yyElement->MarkX,
-					NU ($6) + yyElement->MarkY, NU ($7), NU ($8), NU ($9),
-					$10, $11, $12);
-				free ($10);
-				free ($11);
+                CreateNewPad(yyElement, NU ($3) + yyElement->MarkX,
+                	NU ($4) + yyElement->MarkY,
+                	NU ($5) + yyElement->MarkX,
+                	NU ($6) + yyElement->MarkY, NU ($7), NU ($8), NU ($9),
+                	$10, $11, $12);
+                free ($10);
+                free ($11);
 			}
 		;
 
@@ -1654,12 +1667,12 @@ pad_1.7_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
 		: T_PAD '(' measure measure measure measure measure measure measure STRING STRING INTEGER ')'
 			{
-				CreateNewPad(yyElement,OU ($3) + yyElement->MarkX,
-					OU ($4) + yyElement->MarkY, OU ($5) + yyElement->MarkX,
-					OU ($6) + yyElement->MarkY, OU ($7), OU ($8), OU ($9),
-					$10, $11, OldFlags($12));
-				free ($10);
-				free ($11);
+                CreateNewPad(yyElement,OU ($3) + yyElement->MarkX,
+                	OU ($4) + yyElement->MarkY, OU ($5) + yyElement->MarkX,
+                	OU ($6) + yyElement->MarkY, OU ($7), OU ($8), OU ($9),
+                	$10, $11, OldFlags($12));
+                free ($10);
+                free ($11);
 			}
 		;
 
@@ -1667,10 +1680,10 @@ pad_newformat
 			/* x1, y1, x2, y2, thickness, name , pad number, flags */
 		: T_PAD '(' measure measure measure measure measure STRING STRING INTEGER ')'
 			{
-				CreateNewPad(yyElement,OU ($3),OU ($4),OU ($5),OU ($6),OU ($7), 2*GROUNDPLANEFRAME,
-					OU ($7) + 2*MASKFRAME, $8, $9, OldFlags($10));
-				free ($8);
-				free ($9);
+                CreateNewPad(yyElement,OU ($3),OU ($4),OU ($5),OU ($6),OU ($7), 2*GROUNDPLANEFRAME,
+                	OU ($7) + 2*MASKFRAME, $8, $9, OldFlags($10));
+                free ($8);
+                free ($9);
 			}
 		;
 
@@ -1678,12 +1691,12 @@ pad
 			/* x1, y1, x2, y2, thickness, name and flags */
 		: T_PAD '(' measure measure measure measure measure STRING INTEGER ')'
 			{
-				char		p_number[8];
+                char		p_number[8];
 
-				sprintf(p_number, "%d", pin_num++);
-				CreateNewPad(yyElement,OU ($3),OU ($4),OU ($5),OU ($6),OU ($7), 2*GROUNDPLANEFRAME,
-					OU ($7) + 2*MASKFRAME, $8,p_number, OldFlags($9));
-				free ($8);
+                sprintf(p_number, "%d", pin_num++);
+                CreateNewPad(yyElement,OU ($3),OU ($4),OU ($5),OU ($6),OU ($7), 2*GROUNDPLANEFRAME,
+                	OU ($7) + 2*MASKFRAME, $8,p_number, OldFlags($9));
+                free ($8);
 			}
 		;
 
@@ -1719,35 +1732,35 @@ symbol : symbolhead symboldata ')'
 
 symbolhead	: T_SYMBOL '[' symbolid measure ']' '('
 			{
-				if ($3 <= 0 || $3 > MAX_FONTPOSITION)
-				{
-					yyerror("fontposition out of range");
-					YYABORT;
-				}
-				Symbol = &yyFont->Symbol[$3];
-				if (Symbol->Valid)
-				{
-					yyerror("symbol ID used twice");
-					YYABORT;
-				}
-				Symbol->Valid = true;
-				Symbol->Delta = NU ($4);
+                if ($3 <= 0 || $3 > MAX_FONTPOSITION)
+                {
+                	yyerror("fontposition out of range");
+                	YYABORT;
+                }
+                Symbol = &yyFont->Symbol[$3];
+                if (Symbol->Valid)
+                {
+                	yyerror("symbol ID used twice");
+                	YYABORT;
+                }
+                Symbol->Valid = true;
+                Symbol->Delta = NU ($4);
 			}
 		| T_SYMBOL '(' symbolid measure ')' '('
 			{
-				if ($3 <= 0 || $3 > MAX_FONTPOSITION)
-				{
-					yyerror("fontposition out of range");
-					YYABORT;
-				}
-				Symbol = &yyFont->Symbol[$3];
-				if (Symbol->Valid)
-				{
-					yyerror("symbol ID used twice");
-					YYABORT;
-				}
-				Symbol->Valid = true;
-				Symbol->Delta = OU ($4);
+                if ($3 <= 0 || $3 > MAX_FONTPOSITION)
+                {
+                	yyerror("fontposition out of range");
+                	YYABORT;
+                }
+                Symbol = &yyFont->Symbol[$3];
+                if (Symbol->Valid)
+                {
+                	yyerror("symbol ID used twice");
+                	YYABORT;
+                }
+                Symbol->Valid = true;
+                Symbol->Delta = OU ($4);
 			}
 		;
 
@@ -1782,14 +1795,14 @@ symboldefinition
 			/* x1, y1, x2, y2, thickness */
 		: T_SYMBOLLINE '(' measure measure measure measure measure ')'
 			{
-				CreateNewLineInSymbol(Symbol, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7));
+                CreateNewLineInSymbol(Symbol, OU ($3), OU ($4), OU ($5), OU ($6), OU ($7));
 			}
 		;
 hiressymbol
 			/* x1, y1, x2, y2, thickness */
 		: T_SYMBOLLINE '[' measure measure measure measure measure ']'
 			{
-				CreateNewLineInSymbol(Symbol, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7));
+                CreateNewLineInSymbol(Symbol, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7));
 			}
 		;
 
@@ -1809,7 +1822,7 @@ pcbnetlist	: pcbnetdef
 pcbnetdef
 			/* net(...) net(...) ... */
 		: T_NETLIST '(' ')' '('
-		  nets ')'
+          nets ')'
 		;
 
 nets
@@ -1843,9 +1856,9 @@ net
 			/* name style pin pin ... */
 		: T_NET '(' STRING STRING ')' '('
 			{
-				Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4);
-				free ($3);
-				free ($4);
+                Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4);
+                free ($3);
+                free ($4);
 			}
 		 connections ')'
 		;
@@ -1878,8 +1891,8 @@ pin 7 of U14, or @code{"T4-E"} for pin E of T4.
 conn
 		: T_CONN '(' STRING ')'
 			{
-				CreateNewConnection(Menu, $3);
-				free ($3);
+                CreateNewConnection(Menu, $3);
+                free ($3);
 			}
 		;
 
@@ -1908,9 +1921,9 @@ if the value is interpreted as, for example, a number.
 attribute
 		: T_ATTRIBUTE '(' STRING STRING ')'
 			{
-			  CreateNewAttribute (attr_list, $3, $4 ? $4 : (char *)"");
-				free ($3);
-				free ($4);
+	          CreateNewAttribute (attr_list, $3, $4 ? $4 : (char *)"");
+                free ($3);
+                free ($4);
 			}
 		;
 

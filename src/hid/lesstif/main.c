@@ -613,7 +613,7 @@ group_showing (int g, int *c)
 static int
 SwapSides (int argc, char **argv, Coord x, Coord y)
 {
-  int old_shown_side = Settings.ShowSolderSide;
+  int old_shown_side = Settings.ShowBottomSide;
   int top_group      = GetLayerGroupNumberBySide (TOP_SIDE);
   int bottom_group   = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   int active_group   = GetLayerGroupNumberByNumber (LayerStack[0]);
@@ -643,7 +643,7 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
         return 1;
     }
     /* SwapSides will swap this */
-    Settings.ShowSolderSide = (flip_x == flip_y);
+    Settings.ShowBottomSide = (flip_x == flip_y);
   }
 
   n = 0;
@@ -668,16 +668,16 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
 
   XtSetValues (vscroll, args, n);
 
-  Settings.ShowSolderSide = !Settings.ShowSolderSide;
+  Settings.ShowBottomSide = !Settings.ShowBottomSide;
 
   /* The idea is that if we're looking at the front side and the front
    *    layer is active (or visa versa), switching sides should switch
    *    layers too.  We used to only do this if the other layer wasn't
    *    shown, but we now do it always.  Change it back if users get
    *    confused.  */
-  if (Settings.ShowSolderSide != old_shown_side) {
+  if (Settings.ShowBottomSide != old_shown_side) {
 
-    if (Settings.ShowSolderSide) {
+    if (Settings.ShowBottomSide) {
 
       if (active_group == top_group) {
 

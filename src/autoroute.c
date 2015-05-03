@@ -313,7 +313,7 @@ routebox_t;
 typedef struct routedata
 {
   /* one rtree per layer *group */
-  rtree_t *layergrouptree[MAX_LAYER];	/* no silkscreen layers here =) */
+  rtree_t *layergrouptree[MAX_GROUP];	/* no silkscreen layers here =) */
   /* root pointer into connectivity information */
   routebox_t *first_net;
   /* default routing style */
@@ -428,9 +428,9 @@ static void showroutebox (routebox_t * rb);
  */
 /* group number of groups that hold surface mount pads */
 static Cardinal front, back;
-static bool usedGroup[MAX_LAYER];
-static int x_cost[MAX_LAYER], y_cost[MAX_LAYER];
-static bool is_layer_group_active[MAX_LAYER];
+static bool usedGroup[MAX_GROUP];
+static int x_cost[MAX_GROUP], y_cost[MAX_GROUP];
+static bool is_layer_group_active[MAX_GROUP];
 static int ro = 0;
 static int smoothes = 1;
 static int passes = 12;
@@ -936,7 +936,7 @@ static routedata_t *
 CreateRouteData ()
 {
   NetListListType Nets;
-  PointerListType layergroupboxes[MAX_LAYER];
+  PointerListType layergroupboxes[MAX_GROUP];
   BoxType bbox;
   routedata_t *rd;
   int group, i;
@@ -1481,36 +1481,39 @@ showbox (BoxType b, Dimension thickness, int group)
     }
 
 #if 1
-  if (b.Y1 == b.Y2 || b.X1 == b.X2)
+
+  if (b.Y1 == b.Y2 || b.X1 == b.X2) {
     thickness = 5;
-  line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+  }
+
+  line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 			       b.X1, b.Y1, b.X2, b.Y1, thickness, 0,
 			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (component_silk_layer), line,
+			     LAYER_PTR (top_silk_layer), line,
 			     line);
   if (b.Y1 != b.Y2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+      line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (component_silk_layer),
+				 LAYER_PTR (top_silk_layer),
 				 line, line);
     }
-  line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+  line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0,
 			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (component_silk_layer), line,
+			     LAYER_PTR (top_silk_layer), line,
 			     line);
   if (b.X1 != b.X2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (component_silk_layer),
+      line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (component_silk_layer),
+				 LAYER_PTR (top_silk_layer),
 				 line, line);
     }
 #endif
@@ -1555,7 +1558,7 @@ static void
 showroutebox (routebox_t * rb)
 {
   showbox (rb->sbox, rb->flags.source ? 20 : (rb->flags.target ? 10 : 1),
-	   rb->flags.is_via ? component_silk_layer : rb->group);
+	   rb->flags.is_via ? top_silk_layer : rb->group);
 }
 #endif
 

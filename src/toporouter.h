@@ -28,7 +28,6 @@
 #ifndef PCB_TOPOROUTER_H
 #define PCH_TOPOROUTER_H
 
-#include <assert.h>
 #include "data.h"
 #include "macro.h"
 #include "autoroute.h"
@@ -113,16 +112,16 @@
 #define TOPOROUTER_BBOX_CLASS(klass)  GTS_OBJECT_CLASS_CAST (klass, toporouter_bbox_class_t, toporouter_bbox_class ())
 
 typedef enum {
-  PAD, 
-  PIN, 
-  VIA, 
-  ARC, 
-  VIA_SHADOW, 
-  LINE, 
-  OTHER, 
-  BOARD, 
-  EXPANSION_AREA, 
-  POLYGON, 
+  PAD,
+  PIN,
+  VIA,
+  ARC,
+  VIA_SHADOW,
+  LINE,
+  OTHER,
+  BOARD,
+  EXPANSION_AREA,
+  POLYGON,
   TEMP
 } toporouter_term_t;
 
@@ -246,9 +245,9 @@ typedef struct {
   GtsSurface *surface;
 //  GtsTriangle *t;
 //  GtsVertex *v1, *v2, *v3;
-  
+
   GList *vertices;
-  GList *constraints; 
+  GList *constraints;
   GList *edges;
 
 } toporouter_layer_t;
@@ -282,10 +281,10 @@ struct _toporouter_route_t {
   gdouble score, detourscore;
 
   toporouter_vertex_t *curpoint;
-  GHashTable *alltemppoints; 
-  
+  GHashTable *alltemppoints;
+
   GList *path;
-  
+
   guint flags;
 
   GList *destvertices, *srcvertices;
@@ -350,7 +349,7 @@ struct _toporouter_oproute_t {
   guint layergroup;
   gdouble tof;
   GList *path;
-  
+
   toporouter_serpintine_t *serp;
 };
 
@@ -363,7 +362,7 @@ typedef struct _toporouter_oproute_t toporouter_oproute_t;
 
 struct _toporouter_arc_t {
   GtsObject object;
-  
+
   gdouble x0, y0, x1, y1;
   toporouter_vertex_t *centre, *v;
   gdouble r;
@@ -409,7 +408,7 @@ struct _toporouter_t {
   GNode *bboxtree;
 
   toporouter_layer_t *layers;
-  
+
   GList *paths;
 
   GList *keepoutlayers;
@@ -430,7 +429,7 @@ struct _toporouter_t {
 
   gint (*netsort)(toporouter_netscore_t **, toporouter_netscore_t **);
 
-  struct timeval starttime;  
+  struct timeval starttime;
 
   FILE *debug;
 };
@@ -448,8 +447,8 @@ typedef struct {
 #ifdef CAIRO_H
   cairo_t *cr;
   cairo_surface_t *surface;
-#endif  
-  
+#endif
+
   double s; /* scale factor */
 
   int mode;
@@ -461,7 +460,7 @@ typedef struct {
 
 #define FOREACH_CLUSTER(clusters) do { \
   for(toporouter_cluster_t **i = ((toporouter_cluster_t **)clusters->pdata) + clusters->len - 1; i >= (toporouter_cluster_t **)clusters->pdata && clusters->len > 0; --i) { \
-    toporouter_cluster_t *cluster = *i; 
+    toporouter_cluster_t *cluster = *i;
 
 #define FOREACH_BBOX(boxes) do { \
   for(toporouter_bbox_t **i = ((toporouter_bbox_t **)boxes->pdata) + boxes->len - 1; i >= (toporouter_bbox_t **)boxes->pdata && boxes->len > 0; --i) { \

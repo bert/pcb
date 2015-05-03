@@ -1061,9 +1061,10 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
     }
 
     /* loop over all groups */
-    for (str = group_string, group = 0; str && *str && group < *LayerN; group++) {
+    for (str = group_string, group = 0; str && *str && group < *LayerN; group++)
+    {
 
-        while (*str && isspace ((int) *str))
+      while (*str && isspace ((int) *str))
             str++;
 
         /* loop over all group members */
@@ -1107,10 +1108,13 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
             while (*++str && isdigit ((int) *str));
 
             /* ignore white spaces and check for separator */
-            while (*str && isspace ((int) *str))
+            while (*str && isspace ((int) *str)) {
                 str++;
-            if (!*str || *str == ':')
+            }
+
+            if (!*str || *str == ':') {
                 break;
+            }
         }
 
         LayerGroup->Number[group] = member;
@@ -1126,12 +1130,10 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
      */
     if (!s_set){
       LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
-      //LayerGroup->Entries[0][LayerGroup->Number[0]++] = LayerN + BOTTOM_SILK_LAYER;
     }
 
     if (!c_set) {
       LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
-      //LayerGroup->Entries[1][LayerGroup->Number[1]++] = LayerN + TOP_SILK_LAYER;
     }
 
     /* Assign a unique layer group to each layer that was not explicitly
@@ -1298,19 +1300,23 @@ PushOnTopOfLayerStack (int NewTop)
 {
   int i;
 
-  /* ignore silk layers */
-  if (NewTop < max_copper_layer)
-    {
-      /* first find position of passed one */
-      for (i = 0; i < max_copper_layer; i++)
-        if (LayerStack[i] == NewTop)
-          break;
+  /* ignore silk and other extra layers*/
+  if (NewTop < max_copper_layer) {
 
-      /* bring this element to the top of the stack */
-      for (; i; i--)
-        LayerStack[i] = LayerStack[i - 1];
-      LayerStack[0] = NewTop;
+    /* first find position of passed one */
+    for (i = 0; i < max_copper_layer; i++) {
+      if (LayerStack[i] == NewTop) {
+        break;
+      }
     }
+
+    /* bring this element to the top of the stack */
+    for (; i; i--) {
+      LayerStack[i] = LayerStack[i - 1];
+    }
+
+    LayerStack[0] = NewTop;
+  }
 }
 
 
@@ -1324,35 +1330,40 @@ ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
   int group, i, changed = 1;    /* at least the current layer changes */
 
   /* Warning: these special case values must agree with what gui-top-window.c
-     |  thinks the are.
+   *    |  thinks the are.
    */
 
-  if (Settings.verbose)
+  if (Settings.verbose) {
     printf ("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
             Layer, On, ChangeStackOrder);
+  }
 
   /* decrement 'i' to keep stack in order of layergroup */
-  if ((group = GetGroupOfLayer (Layer)) < max_group)
-    for (i = PCB->LayerGroups.Number[group]; i;)
-      {
-        int layer = PCB->LayerGroups.Entries[group][--i];
+  group = GetLayerGroupNumberByNumber (Layer);
 
-        /* don't count the passed member of the group */
-        if (layer != Layer && layer < max_copper_layer)
-          {
-            PCB->Data->Layer[layer].On = On;
+  for (i = PCB->LayerGroups.Number[group]; i;) {
 
-            /* push layer on top of stack if switched on */
-            if (On && ChangeStackOrder)
-              PushOnTopOfLayerStack (layer);
-            changed++;
-          }
+    int layer = PCB->LayerGroups.Entries[group][--i];
+
+    /* don't count the passed member of the group */
+    if (layer != Layer && layer < max_copper_layer) {
+
+      PCB->Data->Layer[layer].On = On;
+
+      /* push layer on top of stack if switched on */
+      if (On && ChangeStackOrder) {
+        PushOnTopOfLayerStack (layer);
       }
+      changed++;
+    }
+  }
 
   /* change at least the passed layer */
   PCB->Data->Layer[Layer].On = On;
-  if (On && ChangeStackOrder)
+
+  if (On && ChangeStackOrder) {
     PushOnTopOfLayerStack (Layer);
+  }
 
   /* update control panel and exit */
   hid_action ("LayersChanged");
@@ -1409,7 +1420,7 @@ LayerStringToLayerStack (char *s)
   PCB->ViaOn = false;
   PCB->RatOn = false;
   CLEAR_FLAG (SHOWMASKFLAG, PCB);
-  Settings.ShowSolderSide = 0;
+  Settings.ShowBottomSide = 0;
 
   for (i=argn-1; i>=0; i--)
     {
@@ -1427,7 +1438,7 @@ LayerStringToLayerStack (char *s)
       else if (strcasecmp (args[i], "mask") == 0)
 	SET_FLAG (SHOWMASKFLAG, PCB);
       else if (strcasecmp (args[i], "solderside") == 0)
-	Settings.ShowSolderSide = 1;
+	Settings.ShowBottomSide = 1;
       else if (isdigit ((int) args[i][0]))
 	{
 	  lno = atoi (args[i]);
@@ -1464,6 +1475,7 @@ LayerStringToLayerStack (char *s)
  * returns max_group if no group is found, or is
  * passed Layer is equal to max_copper_layer
  */
+/*
 int
 GetGroupOfLayer (int Layer)
 {
@@ -1477,7 +1489,7 @@ GetGroupOfLayer (int Layer)
         return (group);
   return max_group;
 }
-
+*/
 
 /* ---------------------------------------------------------------------------
  * returns the layergroup number for the passed pointer
@@ -1516,8 +1528,8 @@ GetLayerGroupNumberBySide (int side)
   /* Find the relavant board side layer group by determining the
    * layer group associated with the relevant side's silk-screen
    */
-  return GetLayerGroupNumberByNumber(
-      side == TOP_SIDE ? component_silk_layer : solder_silk_layer);
+  int which_one = side == TOP_SIDE ? top_silk_layer : bottom_silk_layer;
+  return GetLayerGroupNumberByNumber(which_one);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1627,13 +1639,14 @@ SetArcBoundingBox (ArcType *Arc)
 void
 ResetStackAndVisibility (void)
 {
-  int comp_group;
+  int top_group;
   Cardinal i;
 
   for (i = 0; i < max_copper_layer + 2; i++) {
 
-      if (i < max_copper_layer)
+      if (i < max_copper_layer) {
         LayerStack[i] = i;
+      }
       PCB->Data->Layer[i].On = true;
   }
 
@@ -1644,8 +1657,8 @@ ResetStackAndVisibility (void)
   PCB->RatOn = true;
 
   /* Bring the component group to the front and make it active.  */
-  comp_group = GetLayerGroupNumberBySide (TOP_SIDE);
-  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1, 1);
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0], 1, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2048,17 +2061,22 @@ MoveLayerToGroup (int layer, int group)
   if (layer < 0 || layer > max_copper_layer + 1)
     return -1;
   prev = GetLayerGroupNumberByNumber (layer);
-  if ((layer == solder_silk_layer
-        && group == GetLayerGroupNumberByNumber (component_silk_layer))
-      || (layer == component_silk_layer
-          && group == GetLayerGroupNumberByNumber (solder_silk_layer))
-      || (group < 0 || group >= max_group) || (prev == group))
+  if ((layer == bottom_silk_layer &&
+       group == GetLayerGroupNumberByNumber (top_silk_layer)) ||
+      (layer == top_silk_layer &&
+       group == GetLayerGroupNumberByNumber (bottom_silk_layer)) ||
+      (group < 0 || group >= max_group) || (prev == group))
+  {
     return prev;
+  }
 
   /* Remove layer from prev group */
-  for (j = i = 0; i < PCB->LayerGroups.Number[prev]; i++)
-    if (PCB->LayerGroups.Entries[prev][i] != layer)
+  for (j = i = 0; i < PCB->LayerGroups.Number[prev]; i++) {
+    if (PCB->LayerGroups.Entries[prev][i] != layer) {
       PCB->LayerGroups.Entries[prev][j++] = PCB->LayerGroups.Entries[prev][i];
+    }
+  }
+
   PCB->LayerGroups.Number[prev]--;
 
   /* Add layer to new group.  */
@@ -2087,11 +2105,11 @@ LayerGroupsToString (LayerGroupType *lg)
         for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
           {
             int layer = PCB->LayerGroups.Entries[group][entry];
-            if (layer == component_silk_layer)
+            if (layer == top_silk_layer)
               {
                 *cp++ = 'c';
               }
-            else if (layer == solder_silk_layer)
+            else if (layer == bottom_silk_layer)
               {
                 *cp++ = 's';
               }

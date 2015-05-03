@@ -228,7 +228,7 @@ SearchPadByLocation (int locked, ElementType ** Element, PadType ** Pad,
 }
 
 /* ---------------------------------------------------------------------------
- * searches ordinary line on the SearchLayer 
+ * searches ordinary line on the SearchLayer
  */
 
 struct line_info
@@ -321,7 +321,7 @@ SearchRatLineByLocation (int locked, RatType ** Line, RatType ** Dummy1,
 }
 
 /* ---------------------------------------------------------------------------
- * searches arc on the SearchLayer 
+ * searches arc on the SearchLayer
  */
 struct arc_info
 {
@@ -428,7 +428,7 @@ polygon_callback (const BoxType * box, void *cl)
 
 
 /* ---------------------------------------------------------------------------
- * searches a polygon on the SearchLayer 
+ * searches a polygon on the SearchLayer
  */
 static bool
 SearchPolygonByLocation (int locked, LayerType ** Layer,
@@ -739,12 +739,12 @@ IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
  * the length of the line is
  *
  *   L = ((X2-X1)^2 + (Y2-Y1)^2)^0.5
- * 
+ *
  * let Q be the point of perpendicular projection of (X,Y) onto the line
  *
  *   QX = X1 + D1*(X2-X1) / L
  *   QY = Y1 + D1*(Y2-Y1) / L
- * 
+ *
  * with (from vector geometry)
  *
  *        (Y1-Y)(Y1-Y2)+(X1-X)(X1-X2)
@@ -956,7 +956,7 @@ bool
 IsPointInPad (Coord X, Coord Y, Coord Radius, PadType *Pad)
 {
   double r, Sin, Cos;
-  Coord x; 
+  Coord x;
   Coord t2 = (Pad->Thickness + 1) / 2, range;
   PadType pad = *Pad;
 
@@ -1008,7 +1008,7 @@ IsPointInPad (Coord X, Coord Y, Coord Radius, PadType *Pad)
 	{
 	  if (Y <= t2)
             range = X - r;
-          else 
+          else
 	    return Radius > Distance (r, t2, X, Y);
 	}
       else
@@ -1018,7 +1018,7 @@ IsPointInPad (Coord X, Coord Y, Coord Radius, PadType *Pad)
     {
       if (X <= 0)
 	return (Radius + t2) > Distance (0, 0, X, Y);
-      else if (X >= r) 
+      else if (X >= r)
 	return (Radius + t2) > Distance (r, 0, X, Y);
       else
 	range = Y - t2;
@@ -1132,7 +1132,7 @@ IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
 /* ---------------------------------------------------------------------------
  * searches for any kind of object or for a set of object types
  * the calling routine passes two pointers to allocated memory for storing
- * the results. 
+ * the results.
  * A type value is returned too which is NO_TYPE if no objects has been found.
  * A set of object types is passed in.
  * The object is located by it's position.
@@ -1381,7 +1381,7 @@ SearchObjectByLocation (unsigned Type,
  * the object is visible or not. The search is performed on a PCB, a
  * buffer or on the remove list.
  * The calling routine passes two pointers to allocated memory for storing
- * the results. 
+ * the results.
  * A type value is returned too which is NO_TYPE if no objects has been found.
  */
 int
@@ -1605,7 +1605,7 @@ SearchElementByName (DataType *Base, char *Name)
 }
 
 /* ---------------------------------------------------------------------------
- * searches the cursor position for the type 
+ * searches the cursor position for the type
  */
 int
 SearchScreen (Coord X, Coord Y, int Type, void **Result1,
@@ -1615,19 +1615,5 @@ SearchScreen (Coord X, Coord Y, int Type, void **Result1,
 
   ans = SearchObjectByLocation (Type, Result1, Result2, Result3,
 				X, Y, SLOP * pixel_slop);
-  return (ans);
-}
-
-/* ---------------------------------------------------------------------------
- * searches the cursor position for the type
- */
-int
-SearchScreenGridSlop (Coord X, Coord Y, int Type, void **Result1,
-	      void **Result2, void **Result3)
-{
-  int ans;
-
-  ans = SearchObjectByLocation (Type, Result1, Result2, Result3,
-				X, Y, PCB->Grid / 2);
   return (ans);
 }

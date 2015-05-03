@@ -39,7 +39,7 @@
 static GtkWidget *keyref_window;
 
 
-static gchar *key_ref_text[] = {
+static char *key_ref_text[] = {
   "<h>",
   N_("Keyboard\n"),
   N_("Keyboard shortcuts and actions available in PCB.\n"),
@@ -307,9 +307,10 @@ static gchar *key_ref_text[] = {
 
   /* Remember user window resizes.
    */
-static gint
-keyref_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
-				  gpointer data)
+static int
+keyref_window_configure_event_cb (GtkWidget * widget,
+                                  GdkEventConfigure *ev,
+                                  void *data)
 {
   GtkAllocation allocation;
 
@@ -328,23 +329,25 @@ keyref_close_cb (gpointer data)
 }
 
 static void
-keyref_destroy_cb (GtkWidget * widget, gpointer data)
+keyref_destroy_cb (GtkWidget * widget, void *data)
 {
   keyref_window = NULL;
 }
 
 void
-ghid_keyref_window_show (gboolean raise)
+ghid_keyref_window_show (bool raise)
 {
   GtkWidget *vbox, *hbox, *button, *text;
-  gint i;
+  int  i;
 
-  if (keyref_window)
-    {
-      if (raise)
-			  gtk_window_present(GTK_WINDOW(keyref_window));
-      return;
+  if (keyref_window) {
+
+    if (raise) {
+      gtk_window_present(GTK_WINDOW(keyref_window));
     }
+    return;
+  }
+
   keyref_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (G_OBJECT (keyref_window), "destroy",
 		    G_CALLBACK (keyref_destroy_cb), NULL);
@@ -362,7 +365,7 @@ ghid_keyref_window_show (gboolean raise)
 
   text = ghid_scrolled_text_view (vbox, NULL,
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  for (i = 0; i < sizeof (key_ref_text) / sizeof (gchar *); ++i)
+  for (i = 0; i < sizeof (key_ref_text) / sizeof (char *); ++i)
     ghid_text_view_append (text, _(key_ref_text[i]));
 
   /* The keyref window close button.

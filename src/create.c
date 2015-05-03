@@ -31,7 +31,6 @@
 #include "config.h"
 #endif
 
-#include <assert.h>
 #include <memory.h>
 #include <setjmp.h>
 #include <stdlib.h>
@@ -119,21 +118,21 @@ pcb_colors_from_settings (PCBType *ptr)
   ptr->ViaSelectedColor = Settings.ViaSelectedColor;
   ptr->WarnColor = Settings.WarnColor;
   ptr->MaskColor = Settings.MaskColor;
-  for (i = 0; i < MAX_LAYER; i++)
-    {
-      ptr->Data->Layer[i].Color = Settings.LayerColor[i];
-      ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
-    }
-  ptr->Data->Layer[component_silk_layer].Color =
-    Settings.ShowSolderSide ?
-    Settings.InvisibleObjectsColor : Settings.ElementColor;
-  ptr->Data->Layer[component_silk_layer].SelectedColor =
-    Settings.ElementSelectedColor;
-  ptr->Data->Layer[solder_silk_layer].Color =
-    Settings.ShowSolderSide ?
-    Settings.ElementColor : Settings.InvisibleObjectsColor;
-  ptr->Data->Layer[solder_silk_layer].SelectedColor =
-    Settings.ElementSelectedColor;
+
+  for (i = 0; i < MAX_LAYER; i++) {
+
+    ptr->Data->Layer[i].Color = Settings.LayerColor[i];
+    ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
+  }
+
+  ptr->Data->Layer[top_silk_layer].Color = Settings.ShowBottomSide ?
+                                           Settings.InvisibleObjectsColor :
+                                           Settings.ElementColor;
+  ptr->Data->Layer[bottom_silk_layer].Color = Settings.ShowBottomSide ?
+                                              Settings.ElementColor :
+                                              Settings.InvisibleObjectsColor;
+  ptr->Data->Layer[top_silk_layer].SelectedColor = Settings.ElementSelectedColor;
+  ptr->Data->Layer[bottom_silk_layer].SelectedColor = Settings.ElementSelectedColor;
 }
 
 /* ---------------------------------------------------------------------------
@@ -218,14 +217,16 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
   /* copy default settings */
   pcb_colors_from_settings (pcb);
 
-  if (use_defaults)
-    {
-      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, &pcb->Data->LayerN))
-	return 1;
+  if (use_defaults) {
 
-      pcb->Data->Layer[component_silk_layer].Name = strdup ("silk");
-      pcb->Data->Layer[solder_silk_layer].Name = strdup ("silk");
+    if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, &pcb->Data->LayerN))
+    {
+      return 1;
     }
+
+    pcb->Data->Layer[top_silk_layer].Name    = strdup ("silk");
+    pcb->Data->Layer[bottom_silk_layer].Name = strdup ("silk");
+  }
   return 0;
 }
 
