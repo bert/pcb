@@ -22,7 +22,7 @@
 
 /* #define DEBUG_MENUS */
 
-#ifdef DAN_FIXME
+#if DAN_FIXME
 TODO:
 
 - figure out when we need to call this:
@@ -67,13 +67,13 @@ a zoom in/out.
 */
 
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <unistd.h>
 
-#ifdef HAVE_LOCALE_H
+#if HAVE_LOCALE_H
 #include <locale.h>
 #endif
 
@@ -123,7 +123,7 @@ a zoom in/out.
 #include "gui-icons-misc.data"
 #include "gui-trackball.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -365,7 +365,7 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
 
     if (resource_type (node->v[i]) == 10) {
 
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
         printf ("    %s\n", node->v[i].value);
 #endif
 
@@ -1246,7 +1246,7 @@ ghid_build_pcb_top_window (void)
   GtkWidget *vbox, *frame;
   GtkWidget *label;
   /* FIXME: IFDEF HACK */
-#ifdef ENABLE_GL
+#if ENABLE_GL
   GtkWidget *trackball;
 #endif
   GHidPort *port = &ghid_port;
@@ -1328,7 +1328,7 @@ ghid_build_pcb_top_window (void)
                       FALSE, FALSE, 0);
 
   /* FIXME: IFDEF HACK */
-#ifdef ENABLE_GL
+#if ENABLE_GL
   trackball = ghid_trackball_new ();
   g_signal_connect (trackball, "rotation-changed",
                     G_CALLBACK (ghid_port_rotate), NULL);
@@ -1725,7 +1725,7 @@ ghid_parse_arguments (int *argc, char ***argv)
   GdkPixbuf *icon;
 
   /* on windows we need to figure out the installation directory */
-#ifdef WIN32
+#if WIN32
   char * tmps;
   char * libdir;
   tmps = g_win32_get_package_installation_directory(PACKAGE "-" VERSION, NULL);
@@ -1784,8 +1784,8 @@ ghid_parse_arguments (int *argc, char ***argv)
 	Settings.AutoPlace = 1;
     }
 
-#ifdef ENABLE_NLS
-#ifdef LOCALEDIR
+#if ENABLE_NLS
+#if LOCALEDIR
   bindtextdomain (PACKAGE, LOCALEDIR);
 #endif
   textdomain (PACKAGE);
@@ -1885,7 +1885,7 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
 
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
   puts ("Starting ToggleView().");
 #endif
 
@@ -1965,7 +1965,7 @@ SelectLayer (int argc, char **argv, Coord x, Coord y)
   else if (newl == -1)
     newl = atoi (argv[0]) - 1;
 
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
   printf ("SelectLayer():  newl = %d\n", newl);
 #endif
 
@@ -2009,7 +2009,7 @@ ghid_check_special_key (const char *accel, GtkAction *action,
   if (action == NULL || accel == NULL || *accel == '\0')
     return ;
 
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
   printf ("%s(\"%s\", \"%s\")\n", __FUNCTION__, accel, name);
 #endif
 
@@ -2065,7 +2065,7 @@ ghid_check_special_key (const char *accel, GtkAction *action,
 
       ghid_hotkey_actions[ind].action = action;
       ghid_hotkey_actions[ind].node = node;
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
       printf ("Adding \"special\" hotkey to ghid_hotkey_actions[%u] :"
 	      " %s (%s)\n", ind, accel, name);
 #endif
@@ -2164,7 +2164,7 @@ ghid_load_menus (void)
     }
   }
 
-#ifdef DEBUG_MENUS
+#if DEBUG_MENUS
    puts ("Finished loading menus.");
 #endif
 

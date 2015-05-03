@@ -32,20 +32,20 @@
 /* operations on vectors.
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <assert.h>
 #include <stdlib.h>
-#ifdef HAVE_STRING_H
+#if HAVE_STRING_H
 #include <string.h>
 #endif
 
 #include "global.h"
 #include "vector.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

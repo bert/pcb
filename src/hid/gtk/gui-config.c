@@ -23,13 +23,8 @@
 /* This file written by Bill Wilson for the PCB Gtk port.
 */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
 #endif
 
 #include "gui.h"
@@ -50,7 +45,7 @@
 #if 0
 #include <locale.h>
 #endif
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

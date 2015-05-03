@@ -1,4 +1,4 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -17,7 +17,7 @@
  */
 
 #define GL_GLEXT_PROTOTYPES 1
-#ifdef HAVE_OPENGL_GL_H
+#if HAVE_OPENGL_GL_H
 #   include <OpenGL/gl.h>
 #else
 #   include <GL/gl.h>
@@ -29,7 +29,7 @@
 #include "hid/common/draw_helpers.h"
 #include "hid/common/trackball.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -1112,7 +1112,7 @@ ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
              ev->area.width, ev->area.height);
 #endif
 
-#ifdef DEBUG
+#if DEBUG
   printf ("EVT: %i, %i, w=%i, h=%i, Scissor setup: glScissor (%f, %f, %f, %f);\n",
           ev->area.x, ev->area.y, ev->area.width, ev->area.height,
              (double)ev->area.x,
@@ -1555,13 +1555,13 @@ ghid_view_2d (void *ball, bool view_2d, gpointer userdata)
 void
 ghid_port_rotate (void *ball, float *quarternion, gpointer userdata)
 {
-#ifdef DEBUG_ROTATE
+#if DEBUG_ROTATE
   int row, column;
 #endif
 
   build_rotmatrix (view_matrix, quarternion);
 
-#ifdef DEBUG_ROTATE
+#if DEBUG_ROTATE
   for (row = 0; row < 4; row++) {
     printf ("[ %f", view_matrix[row][0]);
     for (column = 1; column < 4; column++) {

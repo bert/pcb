@@ -33,7 +33,7 @@
  * The latter is used by a CNC milling machine to mill the pcb.
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -44,7 +44,7 @@
 
 #include <time.h>
 
-#ifdef HAVE_LOCALE_H
+#if HAVE_LOCALE_H
 #include <locale.h>
 #endif
 
@@ -69,7 +69,7 @@
 
 #include "hid/common/hidinit.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -430,7 +430,7 @@ gcode_start_png ()
 static void
 gcode_finish_png (const char *layername)
 {
-#ifdef HAVE_GDIMAGEPNG
+#if HAVE_GDIMAGEPNG
   char *pngname, *filename;
   FILE *file = NULL;
 

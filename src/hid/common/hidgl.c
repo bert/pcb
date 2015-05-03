@@ -20,13 +20,13 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef HAVE_STRING_H
+#if HAVE_STRING_H
 #include <string.h>
 #endif
 #include <math.h>
@@ -38,13 +38,13 @@
  *   http://www.opengl.org/registry/ABI/
  */
 #define GL_GLEXT_PROTOTYPES 1
-#ifdef HAVE_OPENGL_GL_H
+#if HAVE_OPENGL_GL_H
 #   include <OpenGL/gl.h>
 #else
 #   include <GL/gl.h>
 #endif
 
-#ifdef HAVE_OPENGL_GLU_H
+#if HAVE_OPENGL_GLU_H
 #   include <OpenGL/glu.h>
 #else
 #   include <GL/glu.h>
@@ -62,7 +62,7 @@
 #include "hidgl.h"
 #include "rtree.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

@@ -1,4 +1,4 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#ifdef HAVE_PWD_H
+#if HAVE_PWD_H
 #include <pwd.h>
 #endif
 
@@ -32,7 +32,7 @@
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hidinit.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -790,7 +790,7 @@ gerber_set_layer (const char *name, int group, int empty)
 
       time_t currenttime;
       char utcTime[64];
-#ifdef HAVE_GETPWUID
+#if HAVE_GETPWUID
       struct passwd *pwentry;
 #endif
       ApertureList *aptr_list;
@@ -860,7 +860,7 @@ gerber_set_layer (const char *name, int group, int empty)
       fprintf (f, "G04 Creator: %s " VERSION " *\r\n", Progname);
       fprintf (f, "G04 CreationDate: %s *\r\n", utcTime);
 
-#ifdef HAVE_GETPWUID
+#if HAVE_GETPWUID
       /* ID the user. */
       pwentry = getpwuid (getuid ());
       fprintf (f, "G04 For: %s *\r\n", pwentry->pw_name);

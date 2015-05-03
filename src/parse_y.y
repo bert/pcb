@@ -37,10 +37,10 @@
 /* grammar to parse ASCII input of PCB description
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+/*
 #include "global.h"
 #include "create.h"
 #include "data.h"
@@ -55,10 +55,10 @@
 #include "strflags.h"
 #include "thermal.h"
 
-#ifdef HAVE_LIBDMALLOC
-# include <dmalloc.h> /* see http://dmalloc.com */
+#if HAVE_LIBDMALLOC
+# include <dmalloc.h>
 #endif
-
+*/
 static LayerType    *Layer;
 static PolygonType  *Polygon;
 static SymbolType   *Symbol;

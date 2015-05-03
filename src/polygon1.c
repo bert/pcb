@@ -101,7 +101,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #undef DEBUG_GATHER
 #undef DEBUG_ANGLE
 #undef DEBUG
-#ifdef DEBUG
+#if DEBUG
 #define DEBUGP(...) pcb_fprintf(stderr, ## __VA_ARGS__)
 #else
 #define DEBUGP(...)
@@ -122,7 +122,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 	t = (a)[1], (a)[1] = (b)[1], (b)[1] = t; \
 }
 
-#ifdef DEBUG
+#if DEBUG
 static char *theState (VNODE * v);
 
 static void
@@ -253,7 +253,7 @@ new_descriptor (VNODE * a, char poly, char side)
     ang = 4.0 - ang;		/* 4th quadrant */
   l->angle = ang;
   assert (ang >= 0.0 && ang <= 4.0);
-#ifdef DEBUG_ANGLE
+#if DEBUG_ANGLE
   DEBUGP ("node on %c at %#mD assigned angle %g on side %c\n", poly,
 	  a->point[0], a->point[1], ang, side);
 #endif
@@ -636,7 +636,7 @@ seg_in_seg (const BoxType * b, void *cl)
       new_node = node_add_single_point (i->v, cnt > 1 ? s2 : s1);
       if (new_node != NULL)
 	{
-#ifdef DEBUG_INTERSECT
+#if DEBUG_INTERSECT
 	  DEBUGP ("new intersection on segment \"i\" at %#mD\n",
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
@@ -648,7 +648,7 @@ seg_in_seg (const BoxType * b, void *cl)
       new_node = node_add_single_point (s->v, cnt > 1 ? s2 : s1);
       if (new_node != NULL)
 	{
-#ifdef DEBUG_INTERSECT
+#if DEBUG_INTERSECT
 	  DEBUGP ("new intersection on segment \"s\" at %#mD\n",
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
@@ -1022,7 +1022,7 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst, BOOLp test)
   return FALSE;
 }				/* cntr_in_M_POLYAREA */
 
-#ifdef DEBUG
+#if DEBUG
 
 static char *
 theState (VNODE * v)
@@ -1048,7 +1048,7 @@ theState (VNODE * v)
     }
 }
 
-#ifdef DEBUG_ALL_LABELS
+#if DEBUG_ALL_LABELS
 static void
 print_labels (PLINE * a)
 {
@@ -1096,7 +1096,7 @@ label_contour (PLINE * a)
       LABEL_NODE (cur, label);
     }
   while ((cur = cur->next) != first_labelled);
-#ifdef DEBUG_ALL_LABELS
+#if DEBUG_ALL_LABELS
   print_labels (a);
   DEBUGP ("\n\n");
 #endif
@@ -1343,7 +1343,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
       if (heap_is_empty (heap))
 	{
 #ifndef NDEBUG
-#ifdef DEBUG
+#if DEBUG
 	  poly_dump (dest);
 #endif
 #endif
@@ -1380,7 +1380,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 	{
 	  /* bad input polygons were given */
 #ifndef NDEBUG
-#ifdef DEBUG
+#if DEBUG
 	  poly_dump (dest);
 #endif
 #endif
@@ -1567,7 +1567,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 	return FALSE;
       return TRUE;
     }
-#ifdef DEBUG_JUMP
+#if DEBUG_JUMP
   DEBUGP ("jump entering node at %$mD\n", (*cur)->point[0], (*cur)->point[1]);
 #endif
   if (*cdir == FORW)
@@ -1586,7 +1586,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 	  if ((d->side == 'N' && newone == FORW) ||
 	      (d->side == 'P' && newone == BACKW))
 	    {
-#ifdef DEBUG_JUMP
+#if DEBUG_JUMP
 	      if (newone == FORW)
 		DEBUGP ("jump leaving node at %#mD\n",
 			e->next->point[0], e->next->point[1]);
@@ -1609,7 +1609,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 {
   VNODE *cur = start, *newn;
   DIRECTION dir = initdir;
-#ifdef DEBUG_GATHER
+#if DEBUG_GATHER
   DEBUGP ("gather direction = %d\n", dir);
 #endif
   assert (*result == NULL);
@@ -1631,7 +1631,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 	    return err_no_memory;
 	  poly_InclVertex ((*result)->head.prev, newn);
 	}
-#ifdef DEBUG_GATHER
+#if DEBUG_GATHER
       DEBUGP ("gather vertex at %#mD\n", cur->point[0], cur->point[1]);
 #endif
       /* Now mark the edge as included.  */
@@ -1666,7 +1666,7 @@ Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
   poly_PreContour (p, TRUE);
   if (p->Count > 2)
     {
-#ifdef DEBUG_GATHER
+#if DEBUG_GATHER
       DEBUGP ("adding contour with %d verticies and direction %c\n",
 	      p->Count, p->Flags.orient ? 'F' : 'B');
 #endif
@@ -1675,7 +1675,7 @@ Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
   else
     {
       /* some sort of computation error ? */
-#ifdef DEBUG_GATHER
+#if DEBUG_GATHER
       DEBUGP ("Bad contour! Not enough points!!\n");
 #endif
       poly_DelContour (&p);
@@ -2262,7 +2262,7 @@ Touching (POLYAREA * a, POLYAREA * b)
 
   if ((code = setjmp (e)) == 0)
     {
-#ifdef DEBUG
+#if DEBUG
       if (!poly_Valid (a))
 	return -1;
       if (!poly_Valid (b))
@@ -2338,7 +2338,7 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 
   if ((code = setjmp (e)) == 0)
     {
-#ifdef DEBUG
+#if DEBUG
       assert (poly_Valid (a));
       assert (poly_Valid (b));
 #endif
@@ -2424,7 +2424,7 @@ poly_AndSubtract_free (POLYAREA * ai, POLYAREA * bi,
   if ((code = setjmp (e)) == 0)
     {
 
-#ifdef DEBUG
+#if DEBUG
       if (!poly_Valid (a))
 	return -1;
       if (!poly_Valid (b))

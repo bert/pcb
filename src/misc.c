@@ -28,13 +28,13 @@
 /* misc functions used by several modules
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <stdlib.h>
 #include <stdarg.h>
-#ifdef HAVE_STRING_H
+#if HAVE_STRING_H
 #include <string.h>
 #endif
 #include <memory.h>
@@ -44,10 +44,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <math.h>
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_PWD_H
+#if HAVE_PWD_H
 #include <pwd.h>
 #endif
 
@@ -60,21 +60,17 @@
 #include "draw.h"
 #include "file.h"
 #include "error.h"
-#include "mymem.h"
 #include "misc.h"
 #include "move.h"
 #include "pcb-printf.h"
 #include "polygon.h"
-#include "remove.h"
 #include "rtree.h"
 #include "rotate.h"
 #include "rubberband.h"
-#include "search.h"
 #include "set.h"
 #include "undo.h"
-#include "action.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -1740,7 +1736,7 @@ RestoreStackAndVisibility (void)
 char *
 GetWorkingDirectory (char *path)
 {
-#ifdef HAVE_GETCWD
+#if HAVE_GETCWD
   return getcwd (path, MAXPATHLEN);
 #else
   /* seems that some BSD releases lack of a prototype for getwd() */
@@ -2130,7 +2126,7 @@ LayerGroupsToString (LayerGroupType *lg)
 char *
 pcb_author (void)
 {
-#ifdef HAVE_GETPWUID
+#if HAVE_GETPWUID
   static struct passwd *pwentry;
   static char *fab_author = 0;
 
@@ -2367,7 +2363,7 @@ GetInfoString (void)
  * mkdir() implentation, mostly for plugins, which don't have our config.h.
  */
 
-#ifdef MKDIR_IS_PCBMKDIR
+#if MKDIR_IS_PCBMKDIR
 #error "Don't know how to create a directory on this system."
 #endif
 

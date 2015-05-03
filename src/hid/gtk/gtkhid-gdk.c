@@ -1,4 +1,4 @@
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -10,7 +10,7 @@
 #include "gui.h"
 #include "hid/common/draw_helpers.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 

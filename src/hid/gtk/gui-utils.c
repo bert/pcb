@@ -26,14 +26,14 @@
  * gstocks and are copied here for the Gtk PCB port.
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "gui.h"
 #include <gdk/gdkkeysyms.h>
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -582,13 +582,15 @@ ghid_category_vbox (GtkWidget * box, const char * category_header,
   char *s;
 
   vbox = gtk_vbox_new (FALSE, 0);
-  if (pack_start)
+  if (pack_start) {
     gtk_box_pack_start (GTK_BOX (box), vbox, FALSE, FALSE, 0);
-  else
+  }
+  else {
     gtk_box_pack_end (GTK_BOX (box), vbox, FALSE, FALSE, 0);
+  }
 
-  if (category_header)
-    {
+  if (category_header) {
+
       label = gtk_label_new (NULL);
       s = g_strconcat ("<span weight=\"bold\">", category_header,
 		       "</span>", NULL);
@@ -605,25 +607,26 @@ ghid_category_vbox (GtkWidget * box, const char * category_header,
   vbox1 = gtk_vbox_new (FALSE, box_pad);
   gtk_box_pack_start (GTK_BOX (hbox), vbox1, TRUE, TRUE, 0);
 
-  if (bottom_pad)
-    {
+  if (bottom_pad) {
+
       label = gtk_label_new ("");
       gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-    }
+  }
   return vbox1;
 }
 
 GtkTreeSelection *
 ghid_scrolled_selection (GtkTreeView * treeview, GtkWidget * box,
-			 GtkSelectionMode s_mode,
-			 GtkPolicyType h_policy, GtkPolicyType v_policy,
-			 void (*func_cb) (GtkTreeSelection *, void *), void *data)
+                         GtkSelectionMode s_mode,
+                         GtkPolicyType h_policy, GtkPolicyType v_policy,
+                         void (*func_cb) (GtkTreeSelection *, void *), void *data)
 {
   GtkTreeSelection *selection;
   GtkWidget *scrolled;
 
-  if (!box || !treeview)
+  if (!box || !treeview) {
     return NULL;
+  }
 
   scrolled = gtk_scrolled_window_new (NULL, NULL);
   gtk_box_pack_start (GTK_BOX (box), scrolled, TRUE, TRUE, 0);
