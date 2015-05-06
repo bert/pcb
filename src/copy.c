@@ -29,7 +29,7 @@
  * may change cause of dynamic memory allocation
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -51,7 +51,7 @@
 #include "select.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -110,7 +110,7 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
 }
 
 /* ---------------------------------------------------------------------------
- * copies data from one element to another and creates the destination 
+ * copies data from one element to another and creates the destination
  * if necessary
  */
 ElementType *
@@ -178,7 +178,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Src,
 }
 
 /* ---------------------------------------------------------------------------
- * copies a via 
+ * copies a via
  */
 static void *
 CopyVia (PinType *Via)
@@ -197,7 +197,7 @@ CopyVia (PinType *Via)
 }
 
 /* ---------------------------------------------------------------------------
- * copies a line 
+ * copies a line
  */
 static void *
 CopyLine (LayerType *Layer, LineType *Line)
@@ -239,7 +239,7 @@ CopyArc (LayerType *Layer, ArcType *Arc)
 }
 
 /* ---------------------------------------------------------------------------
- * copies a text 
+ * copies a text
  */
 static void *
 CopyText (LayerType *Layer, TextType *Text)
@@ -256,7 +256,7 @@ CopyText (LayerType *Layer, TextType *Text)
 }
 
 /* ---------------------------------------------------------------------------
- * copies a polygon 
+ * copies a polygon
  */
 static void *
 CopyPolygon (LayerType *Layer, PolygonType *Polygon)
@@ -276,13 +276,13 @@ CopyPolygon (LayerType *Layer, PolygonType *Polygon)
 }
 
 /* ---------------------------------------------------------------------------
- * copies an element onto the PCB.  Then does a draw. 
+ * copies an element onto the PCB.  Then does a draw.
  */
 static void *
 CopyElement (ElementType *Element)
 {
 
-#ifdef DEBUG
+#if DEBUG
   printf("Entered CopyElement, trying to copy element %s\n",
 	 Element->Name[1].TextString);
 #endif
@@ -302,7 +302,7 @@ CopyElement (ElementType *Element)
     {
       DrawElementPinsAndPads (element);
     }
-#ifdef DEBUG
+#if DEBUG
   printf(" ... Leaving CopyElement.\n");
 #endif
   return (element);
@@ -318,7 +318,7 @@ CopyPastebufferToLayout (Coord X, Coord Y)
   Cardinal i;
   bool changed = false;
 
-#ifdef DEBUG
+#if DEBUG
   printf("Entering CopyPastebufferToLayout.....\n");
 #endif
 
@@ -365,7 +365,7 @@ CopyPastebufferToLayout (Coord X, Coord Y)
     {
       ELEMENT_LOOP (PASTEBUFFER->Data);
       {
-#ifdef DEBUG
+#if DEBUG
 	printf("In CopyPastebufferToLayout, pasting element %s\n",
 	      element->Name[1].TextString);
 #endif
@@ -395,7 +395,7 @@ CopyPastebufferToLayout (Coord X, Coord Y)
       IncrementUndoSerialNumber ();
     }
 
-#ifdef DEBUG
+#if DEBUG
   printf("  .... Leaving CopyPastebufferToLayout.\n");
 #endif
 
