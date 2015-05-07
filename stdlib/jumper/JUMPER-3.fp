@@ -1,8 +1,9 @@
-Element(0x00 "Jumper, i.e. single row headers" "" "JUMPER3" 160 0 3 100 0x00)
+Element(0x00 "Jumper, i.e. single row headers" "J?" "JUMPER3" 180 0 3 125 0x00)
 (
-	Pin(50 50 60 38 "1" 0x101)
-	 Pin(50 150 60 38 "2" 0x01)
-	 Pin(50 250 60 38 "3" 0x01)
+	Pin(50  50 60 38 "1" 0x101)
+	Pin(50 150 60 38 "2" 0x01)
+	Pin(50 250 60 38 "3" 0x01)
+	
 	ElementLine(0 0 0 300 10)
 	ElementLine(0 300 100 300 10)
 	ElementLine(100 300 100 0 10)
