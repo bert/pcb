@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-03 06:48-0300\n"
+"POT-Creation-Date: 2015-05-03 11:14-0500\n"
 "PO-Revision-Date: 2014-01-01 09:37-0200\n"
 "Last-Translator: Jorge Barros de Abreu <ficmatin10@gmail.com>\n"
 "Language-Team: pt_BR <ldpbr-translation@lists.sourceforge.net>\n"
@@ -91,24 +91,24 @@ msgstr "Arquivo Gerber"
 msgid "Excellon drill file"
 msgstr "Arquivo de perfuração Excellon"
 
-#: ../src/action.c:550
+#: ../src/action.c:551
 #, c-format
 msgid "Unknown stroke %s\n"
 msgstr "Pressionamento desconhecido %s\n"
 
-#: ../src/action.c:754
+#: ../src/action.c:760
 #, c-format
 msgid "Error: function hash size too small (%d vs %lu at %s:%d)\n"
 msgstr "Erro: tamanho do hash de função muito pequeno (%d vs %lu em %s:%d)\n"
 
 #. Change 'char' to 'int' and remove this when we get to 256
 #. strings to hash.
-#: ../src/action.c:762
+#: ../src/action.c:768
 #, c-format
 msgid "Error: function hash type too small (%d vs %lu at %s:%d)\n"
 msgstr "Erro: tipo de hash de função muito pequeno (%d vs %lu em %s:%d)\n"
 
-#: ../src/action.c:1016
+#: ../src/action.c:1021
 msgid ""
 "You must turn via visibility on before\n"
 "you can place vias\n"
@@ -116,36 +116,18 @@ msgstr ""
 "Você deve habilitar a visibilidade da via antes\n"
 "de colocar vias\n"
 
-#: ../src/action.c:1381 ../src/change.c:2294
+#: ../src/action.c:1389 ../src/change.c:2293
 msgid "Enter text:"
 msgstr "Insira o texto:"
 
-#: ../src/action.c:1459 ../src/action.c:1602 ../src/action.c:1661
-#: ../src/action.c:1715 ../src/action.c:4066 ../src/action.c:6791
+#: ../src/action.c:1467 ../src/action.c:1613 ../src/action.c:1672
+#: ../src/action.c:1726 ../src/action.c:4073 ../src/action.c:6795
 #: ../src/move.c:477 ../src/move.c:568 ../src/move.c:666 ../src/move.c:740
 #: ../src/rotate.c:422
 msgid "Sorry, the object is locked\n"
 msgstr "Sinto muito, o objeto está travado\n"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:1768
-msgid "Atomic(Save|Restore|Close|Block)"
-msgstr "Atômica(Salvar|Recuperar|Fechar|Bloquear)"
-
-#: ../src/action.c:1770
-msgid "Save or restore the undo serial number."
-msgstr "Salva ou recuperar o número de série de desfazer."
-
-#. --------------------------------------------------------------------------
-#: ../src/action.c:1833
-msgid "DRC()"
-msgstr "DRC()"
-
-#: ../src/action.c:1835
-msgid "Invoke the DRC check."
-msgstr "Verificar DRC."
-
-#: ../src/action.c:1851
+#: ../src/action.c:1861
 msgid ""
 "%m+Rules are minspace %$mS, minoverlap %$mS minwidth %$mS, minsilk %$mS\n"
 "min drill %$mS, min annular ring %$mS\n"
@@ -154,189 +136,37 @@ msgstr ""
 "%$mS\n"
 "perfuração %$mS, espeçura auréola do anel %$mS\n"
 
-#: ../src/action.c:1863
+#: ../src/action.c:1873
 msgid "No DRC problems found.\n"
 msgstr "Nenhum problema de DRC encontrado.\n"
 
-#: ../src/action.c:1865
+#: ../src/action.c:1875
 #, c-format
 msgid "Found %d design rule errors.\n"
 msgstr "Encontrado %d erros de regra de desenho\n"
 
-#: ../src/action.c:1867
+#: ../src/action.c:1877
 #, c-format
 msgid "Aborted DRC after %d design rule errors.\n"
 msgstr "DRC abortado após %d erros de regra de desenho.\n"
 
-#. --------------------------------------------------------------------------
-#: ../src/action.c:1874
-msgid "DumpLibrary()"
-msgstr "DumpLibrary()"
-
-#: ../src/action.c:1877
-msgid "Display the entire contents of the libraries."
-msgstr "Mostrar todo o conteúdo das bibliotecas."
-
-#. --------------------------------------------------------------------------
-#: ../src/action.c:1928
-msgid "Flip(Object|Selected|SelectedElements)"
-msgstr "Vira(Objeto|Selecionado|ComponenteSelecionado)"
-
-#: ../src/action.c:1931
-msgid "Flip an element to the opposite side of the board."
-msgstr "Transfere componentes para o lado posto da placa."
-
-#. --------------------------------------------------------------------------
-#: ../src/action.c:1982
-msgid "Message(message)"
-msgstr "Message(messagem)"
-
-#: ../src/action.c:1984
-msgid "Writes a message to the log window."
-msgstr "Escreve uma mensagem na janela de registro."
-
-#: ../src/action.c:2019
-msgid ""
-"Set the thermal (on the current layer) of pins or vias to the given style.\n"
-"Style = 0 means no thermal.\n"
-"Style = 1 has diagonal fingers with sharp edges.\n"
-"Style = 2 has horizontal and vertical fingers with sharp edges.\n"
-"Style = 3 is a solid connection to the plane.Style = 4 has diagonal fingers "
-"with rounded edges.\n"
-"Style = 5 has horizontal and vertical fingers with rounded edges.\n"
-msgstr ""
-"Ajusta o térmico (sobre a camada atual) dos conectores ou vias para o estilo "
-"dado.\n"
-"Estilo = 0 significa sem térmico.\n"
-"Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
-"Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
-"Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal com "
-"arestas arredondadas.\n"
-"Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
-
-#: ../src/action.c:2124
-msgid ""
-"SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, "
-"delta)"
-msgstr ""
-"SetValue(Grade|Linha|TamanhoLinha|Texto|TextoProporção|"
-"AnelPerfuraçãoOrifício|Via,|TamanhoVia, delta)"
-
-#: ../src/action.c:2128
-msgid "Change various board-wide values and sizes."
-msgstr "Muda vários vaores e tamanhos de placas largas."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:2234
-msgid "Quit()"
-msgstr "Sair()"
-
-#: ../src/action.c:2236
-msgid "Quits the application after confirming."
-msgstr "Sai de uma aplicação após confirmação."
-
-#: ../src/action.c:2262
-msgid "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
-msgstr "Connection(Encontra|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
-
-#: ../src/action.c:2265
-msgid "Searches connections of the object at the cursor position."
-msgstr "Busca por conecções de objetos na posição do cursor."
-
-#: ../src/action.c:2300 ../src/report.c:692
+#: ../src/action.c:2308
 msgid "Click on a connection"
 msgstr "Clique sobre uma conecção"
 
-#: ../src/action.c:2339
-msgid "DisperseElements(All|Selected)"
-msgstr "DisperseElements(Todos|Selecionados)"
-
-#: ../src/action.c:2341
-msgid "Disperses elements."
-msgstr "Dispersa componentes."
-
-#: ../src/action.c:2464
-msgid ""
-"Display(NameOnPCB|Description|Value)\n"
-"Display(Grid|Redraw)\n"
-"Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
-"Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-"Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
-"Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
-"Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-"Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
-"Display(Pinout|PinOrPadName)"
-msgstr ""
-"Mostra(NameOnPCB|Descrição|Valor)\n"
-"Mostra(Grade|Redesenha)\n"
-"Mostra(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
-"Mostra(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-"Mostra(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
-"Mostra(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
-"Mostra(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-"Mostra(ToggleLiveRoute|LockNames|OnlyNames)\n"
-"Mostra(Pinout|PinOrPadName)"
-
-#: ../src/action.c:2474
-msgid "Several display-related actions."
-msgstr "Muitas ações relacionadas a exibir."
-
-#: ../src/action.c:2830 ../src/action.c:7985
+#: ../src/action.c:2838 ../src/action.c:7986
 msgid "Click on an element"
 msgstr "Clique sobre um componente"
-
-#: ../src/action.c:2947
-msgid ""
-"Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
-"Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
-"Mode(Notify|Release|Cancel|Stroke)\n"
-"Mode(Save|Restore)"
-msgstr ""
-"Modo(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
-"Modo(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
-"Modo(Notify|Release|Cancel|Stroke)\n"
-"Modo(Save|Restore)"
-
-#: ../src/action.c:2952
-msgid "Change or use the tool mode."
-msgstr "Muda ou usa o modo ferramenta."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3220
-msgid "RemoveSelected()"
-msgstr "RemoverSelecionados()"
-
-#: ../src/action.c:3222
-msgid "Removes any selected objects."
-msgstr "Apague quaisquer objetos selecionados."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3238
-msgid ""
-"Renumber()\n"
-"Renumber(filename)"
-msgstr ""
-"Renumerar()\n"
-"Renumerar(nomearquivo)"
-
-#: ../src/action.c:3242
-msgid ""
-"Renumber all elements.  The changes will be recorded to filename\n"
-"for use in backannotating these changes to the schematic."
-msgstr ""
-"Renumere todos os componentes. As modificações serão gravadas em "
-"nomearquivo.\n"
-"para uso em voltar anotações dessas mudanças para o diagrama esquemático."
 
 #.
 #. * We deal with the case where name already exists in this
 #. * function so the GUI doesn't need to deal with it
 #.
-#: ../src/action.c:3279
+#: ../src/action.c:3287
 msgid "Save Renumber Annotation File As ..."
 msgstr "Grave o Arquivo de Anotação Renumerado Como ..."
 
-#: ../src/action.c:3280
+#: ../src/action.c:3288
 msgid ""
 "Choose a file to record the renumbering to.\n"
 "This file may be used to back annotate the\n"
@@ -346,68 +176,16 @@ msgstr ""
 "Esse arquivo pode ser usado para voltar anotações de\n"
 "mudança para o diagrama esquemático.\n"
 
-#: ../src/action.c:3305 ../src/action.c:6112
+#: ../src/action.c:3313 ../src/action.c:6117
 msgid "File exists!  Ok to overwrite?"
 msgstr "Arquivo existe! Pode sobrescrever?"
 
-#: ../src/action.c:3315
+#: ../src/action.c:3323
 #, c-format
 msgid "Could not open %s\n"
 msgstr "Não posso abrir %s\n"
 
-#: ../src/action.c:3432
-#, c-format
-msgid "realloc failed() in %s\n"
-msgstr "realloc failed() em %s\n"
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3594
-msgid "RipUp(All|Selected|Element)"
-msgstr "Cancelar(Tudo|Selecionado|Componente)"
-
-#: ../src/action.c:3597
-msgid "Ripup auto-routed tracks, or convert an element to parts."
-msgstr "Cancelar tilhar autoroteadas, ou converter um componente em partes."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3723
-msgid "AddRats(AllRats|SelectedRats|Close)"
-msgstr "AddRats(AllRats|SelectedRats|Close)"
-
-#: ../src/action.c:3726
-msgid "Add one or more rat lines to the board."
-msgstr "Adicionar uma ou mais linhas de rato à placa."
-
-#: ../src/action.c:3803
-msgid ""
-"Delete(Object|Selected)\n"
-"Delete(AllRats|SelectedRats)"
-msgstr ""
-"Apaga(Objeto|Selecionado)\n"
-"Apaga(Todos os ratos|ratos selecionados)"
-
-#: ../src/action.c:3806
-msgid "Delete stuff."
-msgstr "Apagar coisas."
-
-#: ../src/action.c:3854
-msgid "DeleteRats(AllRats|Selected|SelectedRats)"
-msgstr "ApagaRatos(Todos|Selecionados|SelectedRats)"
-
-#: ../src/action.c:3856
-msgid "Delete rat lines."
-msgstr "Apaga linhas de rato."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3888
-msgid "AutoPlaceSelected()"
-msgstr "Coloca automaticamente componentes selecionados"
-
-#: ../src/action.c:3890
-msgid "Auto-place selected components."
-msgstr "Coloca automaticamente componentes selecionados"
-
-#: ../src/action.c:3903
+#: ../src/action.c:3910
 msgid ""
 "Auto-placement can NOT be undone.\n"
 "Do you want to continue anyway?\n"
@@ -415,370 +193,52 @@ msgstr ""
 "Colocação automática não pode ser desfeita.\n"
 "Deseja prosseguir mesmo assim?\n"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:3914
-msgid "AutoRoute(AllRats|SelectedRats)"
-msgstr "AutoRoute(AllRats|SelectedRats)"
-
-#: ../src/action.c:3916
-msgid "Auto-route some or all rat lines."
-msgstr "Auto-route some or all rat lines."
-
-#: ../src/action.c:3967
-msgid ""
-"MarkCrosshair()\n"
-"MarkCrosshair(Center)"
-msgstr ""
-"MarkCrosshair()\n"
-"MarkCrosshair(Centro)"
-
-#: ../src/action.c:3970
-msgid "Set/Reset the Crosshair mark."
-msgstr "Ajusta/Zera a marca de mira."
-
-#: ../src/action.c:4022
-msgid ""
-"ChangeSize(Object, delta)\n"
-"ChangeSize(SelectedObjects|Selected, delta)\n"
-"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
-"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
-"ChangeSize(SelectedElements, delta)"
-msgstr ""
-"ChangeSize(Object, delta)\n"
-"ChangeSize(SelectedObjects|Selected, delta)\n"
-"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
-"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
-"ChangeSize(SelectedElements, delta)"
-
-#: ../src/action.c:4028
-msgid "Changes the size of objects."
-msgstr "Modifica o tamanho de objetos."
-
-#: ../src/action.c:4125
-msgid ""
-"ChangeDrillSize(Object, delta)\n"
-"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
-msgstr ""
-"ChangeDrillSize(Object, delta)\n"
-"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
-
-#: ../src/action.c:4129
-msgid "Changes the drilling hole size of objects."
-msgstr "Modifica orifício de perfuração dos objetos selecionados."
-
-#: ../src/action.c:4154 ../src/action.c:4224 ../src/action.c:4587
-#: ../src/action.c:4675 ../src/action.c:4729 ../src/action.c:4805
-#: ../src/action.c:4866 ../src/action.c:4924 ../src/action.c:4983
-#: ../src/action.c:5041 ../src/action.c:5102 ../src/action.c:5165
-#: ../src/action.c:5227 ../src/action.c:5276 ../src/action.c:6561
+#: ../src/action.c:4161 ../src/action.c:4231 ../src/action.c:4594
+#: ../src/action.c:4682 ../src/action.c:4736 ../src/action.c:4812
+#: ../src/action.c:4873 ../src/action.c:4931 ../src/action.c:4990
+#: ../src/action.c:5048 ../src/action.c:5109 ../src/action.c:5172
+#: ../src/action.c:5234 ../src/action.c:5282 ../src/action.c:6565
 #: ../src/action.c:8187
 msgid "Select an Object"
 msgstr "Selecione um Objeto"
 
-#: ../src/action.c:4186
-msgid ""
-"ChangeClearSize(Object, delta)\n"
-"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
-"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
-"ChangeClearSize(Selected|SelectedObjects, delta)"
-msgstr ""
-"ChangeClearSize(Object, delta)\n"
-"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
-"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
-"ChangeClearSize(Selected|SelectedObjects, delta)"
-
-#: ../src/action.c:4192
-msgid "Changes the clearance size of objects."
-msgstr "Modifica o tamanho da folga de objetos."
-
-#: ../src/action.c:4266
-msgid ""
-"MinMaskGap(delta)\n"
-"MinMaskGap(Selected, delta)"
-msgstr ""
-"MinMaskGap(delta)\n"
-"MinMaskGap(Selecionado, delta)"
-
-#: ../src/action.c:4270
-msgid "Ensures the mask is a minimum distance from pins and pads."
-msgstr ""
-"Garante que a máscara esteja a uma distância mínima de conectores e "
-"pastilhas."
-
-#: ../src/action.c:4350
-msgid ""
-"MinClearGap(delta)\n"
-"MinClearGap(Selected, delta)"
-msgstr ""
-"MinClearGap(delta)\n"
-"MinClearGap(Selecionado, delta)"
-
-#: ../src/action.c:4354
-msgid "Ensures that polygons are a minimum distance from objects."
-msgstr "Garante que polígonos estejam a uma mínima distância de objetos."
-
-#: ../src/action.c:4456
-msgid "ChangePinName(ElementName,PinNumber,PinName)"
-msgstr "ChangePinName(ElementName,PinNumber,PinName)"
-
-#: ../src/action.c:4459
-msgid "Sets the name of a specific pin on a specific element."
-msgstr "Ajusta o nome de um conector específico de um componente específico."
-
-#: ../src/action.c:4549
-msgid ""
-"ChangeName(Object)\n"
-"ChangeName(Layout|Layer)"
-msgstr ""
-"ChangeName(Objeto)\n"
-"ChangeName(Traçado|Camada)"
-
-#: ../src/action.c:4552
-msgid "Sets the name of objects."
-msgstr "Ajusta o nome de objetos."
-
-#: ../src/action.c:4625 ../src/action.c:5923
+#: ../src/action.c:4632 ../src/action.c:5929
 msgid "Enter the layout name:"
 msgstr "Informe o nome do traçado:"
 
-#: ../src/action.c:4633
+#: ../src/action.c:4640
 msgid "Enter the layer name:"
 msgstr "Informe o nome da camada:"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:4647
-msgid "MorphPolygon(Object|Selected)"
-msgstr "MorphPolygon(Objeto|Selecionado)"
-
-#: ../src/action.c:4650
-msgid "Converts dead polygon islands into separate polygons."
-msgstr "Converte ilhas de polígonos mortos em polígonos separados."
-
-#: ../src/action.c:4704
-msgid "ToggleHideName(Object|SelectedElements)"
-msgstr "ToggleHideName(Objetos|SelecionadosComponentes)"
-
-#: ../src/action.c:4707
-msgid "Toggles the visibility of element names."
-msgstr "Altere a visibilidade dos nomes dos componentes selecionados."
-
-#: ../src/action.c:4776
-msgid "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
-msgstr "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
-
-#: ../src/action.c:4779
-msgid "Changes the join (clearance through polygons) of objects."
-msgstr "Modifica a proximidade (folga através de polígonos) de objetos."
-
-#: ../src/action.c:4837
-msgid ""
-"ChangeSquare(ToggleObject)\n"
-"ChangeSquare(SelectedElements|SelectedPins)\n"
-"ChangeSquare(Selected|SelectedObjects)"
-msgstr ""
-"ChangeSquare(ToggleObject)\n"
-"ChangeSquare(SelectedElements|SelectedPins)\n"
-"ChangeSquare(Selected|SelectedObjects)"
-
-#: ../src/action.c:4842
-msgid "Changes the square flag of pins and pads."
-msgstr "Altere o sinalizador de quadrado de um objeto."
-
-#: ../src/action.c:4898
-msgid "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
-msgstr "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
-
-#: ../src/action.c:4900
-msgid "sets the square-flag of objects."
-msgstr "ajusta o sinalizador de quadrado de objetos."
-
-#: ../src/action.c:4956
-msgid "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
-msgstr "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
-
-#: ../src/action.c:4959
-msgid "Clears the square-flag of pins and pads."
-msgstr "Apaga o sinalizador de quadrado de conectores e pastilhas."
-
-#: ../src/action.c:5015
-msgid ""
-"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
-"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
-msgstr ""
-"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
-"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
-
-#: ../src/action.c:5019
-msgid "Changes the octagon-flag of pins and vias."
-msgstr "Modifique o sinalizador de octógono de conectores e vias."
-
-#: ../src/action.c:5078
-msgid "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
-msgstr "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
-
-#: ../src/action.c:5080
-msgid "Sets the octagon-flag of objects."
-msgstr "Modifique o sinalizador de octógono do objetos."
-
-#: ../src/action.c:5139
-msgid ""
-"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
-"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
-msgstr ""
-"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
-"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
-
-#: ../src/action.c:5143
-msgid "Clears the octagon-flag of pins and vias."
-msgstr "Apaga o sinalizador de octógono de conectores e vias."
-
-#: ../src/action.c:5202
-msgid "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
-msgstr "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
-
-#: ../src/action.c:5204
-msgid "Changes the hole flag of objects."
-msgstr "Modifica o sinalizador de orifício de objetos."
-
-#: ../src/action.c:5248
-msgid "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
-msgstr "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
-
-#: ../src/action.c:5251
-msgid "Changes the no paste flag of objects."
-msgstr "Modifica o sinalizador de não colar de objetos."
-
-#: ../src/action.c:5297
-msgid ""
-"Select(Object|ToggleObject)\n"
-"Select(All|Block|Connection)\n"
-"Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"Select(TextByName|ViaByName|NetByName)\n"
-"Select(TextByName|ViaByName|NetByName, Name)\n"
-"Select(Convert)"
-msgstr ""
-"Seleciona(Object|ToggleObject)\n"
-"Seleciona(All|Block|Connection)\n"
-"Seleciona(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"Seleciona(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"Seleciona(TextByName|ViaByName|NetByName)\n"
-"Seleciona(TextByName|ViaByName|NetByName, Name)\n"
-"Seleciona(Convert)"
-
-#: ../src/action.c:5305
-msgid "Toggles or sets the selection."
-msgstr "Modifica ou ajusta a seleção."
-
-#: ../src/action.c:5387 ../src/action.c:5583
+#: ../src/action.c:5393 ../src/action.c:5589
 msgid "Enter pattern:"
 msgstr "Informe o modelo:"
 
-#: ../src/action.c:5470
+#: ../src/action.c:5476
 msgid "Select the Element's Mark Location"
 msgstr "Selecione a Marca de Localização do Componente"
 
-#: ../src/action.c:5505
-msgid ""
-"Unselect(All|Block|Connection)\n"
-"Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"Unselect(TextByName|ViaByName)\n"
-"Unselect(TextByName|ViaByName, Name)\n"
-msgstr ""
-"RemoveSeleção(All|Block|Connection)\n"
-"RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"RemoveSeleção(TextByName|ViaByName)\n"
-"RemoveSeleção(TextByName|ViaByName, Name)\n"
-
-#: ../src/action.c:5512
-msgid "Unselects the object at the pointer location or the specified objects."
-msgstr ""
-"Remove seleção do objeto na localização informada ou de objetos "
-"específicados."
-
-#: ../src/action.c:5665
-msgid ""
-"SaveTo(Layout|LayoutAs,filename)\n"
-"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
-"SaveTo(PasteBuffer,filename)"
-msgstr ""
-"SaveTo(Layout|LayoutAs,filename)\n"
-"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
-"SaveTo(PasteBuffer,filename)"
-
-#: ../src/action.c:5669
-msgid "Saves data to a file."
-msgstr "Grava dados em um arquivo."
-
-#: ../src/action.c:5788
-msgid ""
-"SaveSettings()\n"
-"SaveSettings(local)"
-msgstr ""
-"SaveSettings()\n"
-"SaveSettings(local)"
-
-#: ../src/action.c:5791
-msgid "Saves settings."
-msgstr "Grava Configurações."
-
-#: ../src/action.c:5812
-msgid "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
-msgstr ""
-"LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
-
-#: ../src/action.c:5814
-msgid "Load layout data from a file."
-msgstr "Coloca na memória dados a partir de um arquivo."
-
-#: ../src/action.c:5878
+#: ../src/action.c:5884
 msgid "OK to override layout data?"
 msgstr "Pode sobrescrever os dados do traçado?"
 
-#: ../src/action.c:5893
+#: ../src/action.c:5899
 msgid "OK to override changes?"
 msgstr "Pode sobrescrever modificações?"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:5903
-msgid "New([name])"
-msgstr "Novo([nome])"
-
-#: ../src/action.c:5905
-msgid "Starts a new layout."
-msgstr "Inicia novo traçado."
-
-#: ../src/action.c:5918
+#: ../src/action.c:5924
 msgid "OK to clear layout data?"
 msgstr "Pode apagar os dados do traçado ?"
 
-#: ../src/action.c:5969
-msgid ""
-"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
-"PasteBuffer(Rotate, 1..3)\n"
-"PasteBuffer(Convert|Save|Restore|Mirror)\n"
-"PasteBuffer(ToLayout, X, Y, units)"
-msgstr ""
-"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
-"PasteBuffer(Rotate, 1..3)\n"
-"PasteBuffer(Convert|Save|Restore|Mirror)\n"
-"PasteBuffer(ToLayout, X, Y, units)"
-
-#: ../src/action.c:5975
-msgid "Various operations on the paste buffer."
-msgstr "Várias operações sobre colar na memória."
-
-#: ../src/action.c:6078
+#: ../src/action.c:6083
 msgid "Buffer has no elements!\n"
 msgstr "Memória vazia!\n"
 
-#: ../src/action.c:6084
+#: ../src/action.c:6089
 msgid "Save Paste Buffer As ..."
 msgstr "Salva Colagem de Memória Como ..."
 
-#: ../src/action.c:6085
+#: ../src/action.c:6090
 msgid ""
 "Choose a file to save the contents of the\n"
 "paste buffer to.\n"
@@ -786,292 +246,79 @@ msgstr ""
 "Escolha um arquivo para gravar o conteúdo da\n"
 "colagem da memória.\n"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6173
-msgid ""
-"Undo()\n"
-"Undo(ClearList)"
-msgstr ""
-"Undo()\n"
-"Undo(ClearList)"
-
-#: ../src/action.c:6176
-msgid "Undo recent changes."
-msgstr "Desfazer modificações recentes."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6352
-msgid "Redo()"
-msgstr "Refazer()"
-
-#: ../src/action.c:6354
-msgid "Redo recent \"undo\" operations."
-msgstr "Refaça a última operação de desfazer."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6400
-msgid "Polygon(Close|PreviousPoint)"
-msgstr "Polígono(Fecha|PontoAnterior)"
-
-#: ../src/action.c:6402
-msgid "Some polygon related stuff."
-msgstr "Algumas coisas relacionadas a polígonos."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6448
-msgid "RouteStyle(1|2|3|4)"
-msgstr "Estilos de Rota(1|2|3|4)"
-
-#: ../src/action.c:6451
-msgid "Copies the indicated routing style into the current sizes."
-msgstr "Copia o estilo de rota indicado no tamanho atuais."
-
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6483
-msgid "MoveObject(X,Y,dim)"
-msgstr "MoveObjeto(X,Y,dim)"
-
-#: ../src/action.c:6486
-msgid "Moves the object under the crosshair."
-msgstr "Move o objeto sob a mira."
-
-#: ../src/action.c:6515
+#: ../src/action.c:6519
 msgid "Nothing found under crosshair\n"
 msgstr "Nada encontrado sob a mira\n"
 
-#: ../src/action.c:6535
-msgid "MoveToCurrentLayer(Object|SelectedObjects)"
-msgstr "MoveToCurrentLayer(Object|SelectedObjects)"
-
-#: ../src/action.c:6538
-msgid "Moves objects to the current layer."
-msgstr "Mova objetos para a camada atual."
-
-#: ../src/action.c:6581
-msgid "SetSame()"
-msgstr "Ajusta o Mesmo"
-
-#: ../src/action.c:6584
-msgid "Sets current layer and sizes to match indicated item."
-msgstr "Grava a camada atual e tamanhos para coincidir com o item indicado."
-
-#: ../src/action.c:6657
-msgid ""
-"SetFlag(Object|Selected|SelectedObjects, flag)\n"
-"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"SetFlag(SelectedElements, flag)\n"
-"flag = square | octagon | thermal | join"
-msgstr ""
-"SetFlag(Objeto|Selected|SelectedObjects, sinalizador)\n"
-"SetFlag(SelectedLines|SelectedPins|SelectedVias, sinalizador)\n"
-"SetFlag(SelectedPads|SelectedTexts|SelectedNames, sinalizador)\n"
-"SetFlag(SelectedElements, sinalizador)\n"
-"flag = quadrado | octógono | térmico | junção"
-
-#: ../src/action.c:6663
-msgid "Sets flags on objects."
-msgstr "Ajusta sinalizadores sobre objetos."
-
-#: ../src/action.c:6688
-msgid ""
-"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
-"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"ClrFlag(SelectedElements, flag)\n"
-"flag = square | octagon | thermal | join"
-msgstr ""
-"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
-"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"ClrFlag(SelectedElements, flag)\n"
-"sinalizador = quadrado | octógono | térmico | junção"
-
-#: ../src/action.c:6694
-msgid "Clears flags on objects."
-msgstr "Apaga sinalizadores sobre objetos."
-
-#: ../src/action.c:6719
-msgid ""
-"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
-"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
-"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
-"ChangeFlag(SelectedElements, flag, value)\n"
-"flag = square | octagon | thermal | join\n"
-"value = 0 | 1"
-msgstr ""
-"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
-"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
-"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
-"ChangeFlag(SelectedElements, flag, value)\n"
-"sinalizador = quadrado | octógono | térmico | junção\n"
-"valor = 0 | 1"
-
-#: ../src/action.c:6726
-msgid "Sets or clears flags on objects."
-msgstr "Ajusta ou apaga sinalizadores sobre objetos."
-
-#: ../src/action.c:6776
+#: ../src/action.c:6780
 #, c-format
 msgid "%s():  Flag \"%s\" is not valid\n"
 msgstr "%s():  Sinalizador \"%s\" inválido\n"
 
-#. ---------------------------------------------------------------------------
-#: ../src/action.c:6842
-msgid "ExecuteFile(filename)"
-msgstr "ExecuteFile(nomearquivo)"
-
-#: ../src/action.c:6844
-msgid "Run actions from the given file."
-msgstr "Run actions from the given file."
-
-#: ../src/action.c:6868
+#: ../src/action.c:6872
 #, c-format
 msgid "Could not open actions file \"%s\".\n"
 msgstr "Não posso abrir arquivo de ações \"%s\".\n"
-
-#: ../src/action.c:6969
-msgid "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)"
-msgstr "ElementList(Inicia|Feito|Precisa,<refdes>,<matriz>,<valor>)"
-
-#: ../src/action.c:6972
-msgid "Adds the given element if it doesn't already exist."
-msgstr "Adiciona o componente dado se ele não existir."
-
-#: ../src/action.c:7050
-msgid ""
-"Not all requested footprints were found.\n"
-"See the message log for details"
-msgstr ""
-"Falta ser encontrado algumas matrizes requisitadas.\n"
-"Veja mensagem no registro para detalhes"
-
-#: ../src/action.c:7187
-msgid "ElementSetAttr(refdes,name[,value])"
-msgstr "ElementSetAttr(refdes,name[,value])"
-
-#: ../src/action.c:7190
-msgid "Sets or clears an element-specific attribute."
-msgstr "Ajusta ou apaga um atributo específico de componente."
 
 #: ../src/action.c:7228
 #, c-format
 msgid "Cannot change attribute of %s - element not found\n"
 msgstr "Não posso mudar o atributo de %s - componente não encontrado\n"
 
-#. ----------------------------------------------------------------
-#: ../src/action.c:7252
-msgid "ExecCommand(command)"
-msgstr "ExecCommand(comando)"
-
-#: ../src/action.c:7254
-msgid "Runs a command."
-msgstr "Executar um comando."
-
 #. error
 #: ../src/action.c:7296
 msgid "Cannot fork!"
 msgstr "Não posso bifurcar"
 
-#: ../src/action.c:7451
+#: ../src/action.c:7453
 #, c-format
 msgid "%s():  Unable to determine temp directory name from the temp file\n"
 msgstr ""
 "%s():  Incapaz de determinar o nome do diretório temporário a partir do "
 "arquivo temporário\n"
 
-#: ../src/action.c:7474
+#: ../src/action.c:7476
 #, c-format
 msgid "Failed to unlink \"%s\"\n"
 msgstr "Falha para desfazer ligação \"%s\"\n"
 
-#: ../src/action.c:7487
-msgid ""
-"Import()\n"
-"Import([gnetlist|make[,source,source,...]])\n"
-"Import(setnewpoint[,(mark|center|X,Y)])\n"
-"Import(setdisperse,D,units)\n"
-msgstr ""
-"Import()\n"
-"Import([gnetlist|make[,source,source,...]])\n"
-"Import(setnewpoint[,(marca|centro|X,Y)])\n"
-"Import(setdisperse,D,unidades)\n"
-
-#: ../src/action.c:7492
-msgid "Import schematics."
-msgstr "Importa diagramas esquemáticos."
-
-#: ../src/action.c:7626
+#: ../src/action.c:7628
 msgid "Enter dispersion:"
 msgstr "Informe a dispersão:"
 
-#: ../src/action.c:7652
+#: ../src/action.c:7654
 msgid "Click on a location"
 msgstr "Clique sobre uma localização"
 
-#: ../src/action.c:7675
+#: ../src/action.c:7677
 msgid "Bad syntax for Import(setnewpoint)"
 msgstr "Sintaxe inadequada para Import(setnewpoint)"
 
-#: ../src/action.c:7764 ../src/action.c:7827
+#: ../src/action.c:7766 ../src/action.c:7829
 msgid "Could not create temp file"
 msgstr "Não posso criar arquivo temporário"
 
-#: ../src/action.c:7881
+#: ../src/action.c:7883
 #, c-format
 msgid "Unknown import mode: %s\n"
 msgstr "Modo de importação desconhecido: %s\n"
 
-#: ../src/action.c:7898
-msgid ""
-"Attributes(Layout|Layer|Element)\n"
-"Attributes(Layer,layername)"
-msgstr ""
-"Attributes(Traçado|Camada|Componente)\n"
-"Attributes(Camada,nomecamada)"
-
-#: ../src/action.c:7902
-msgid ""
-"Let the user edit the attributes of the layout, current or given\n"
-"layer, or selected element."
-msgstr ""
-"Permite ao usuário editar os atributos do traçado, camada atual\n"
-"ou informada, ou componente selecionado."
-
-#: ../src/action.c:7925
+#: ../src/action.c:7927
 msgid "This GUI doesn't support Attribute Editing\n"
 msgstr "Essa Interface Gráfica de Usuário não suporta Edição de Atributo\n"
 
-#: ../src/action.c:7933
-msgid "Layout Attributes"
-msgstr "Atributos de Traçado"
-
-#: ../src/action.c:7952
+#: ../src/action.c:7954
 #, c-format
 msgid "No layer named %s\n"
 msgstr "Nenhuma camada chamada de %s\n"
 
-#: ../src/action.c:7957 ../src/action.c:7958
-#, c-format
-msgid "Layer %s Attributes"
-msgstr "Atributos %s da Camada"
-
-#: ../src/action.c:7979
+#: ../src/action.c:7980
 msgid "Too many elements selected\n"
 msgstr "Muitos componentes selecionados\n"
 
-#: ../src/action.c:7992
+#: ../src/action.c:7993
 msgid "No element found there\n"
 msgstr "Nenhum elemento encontrado aí\n"
-
-#: ../src/action.c:8000 ../src/action.c:8001
-#, c-format
-msgid "Element %s Attributes"
-msgstr "Atributos %s de Componente"
-
-#: ../src/action.c:8005
-msgid "Unnamed Element Attributes"
-msgstr "Atributos do Componente inominado"
 
 #: ../src/action.c:8097
 msgid "Click on Object or Flip Point"
@@ -1081,47 +328,24 @@ msgstr "Clique sobre o Objeto ou Ponto a ser Virado "
 msgid "Select item to use attributes from"
 msgstr "Selecione os itens para usar os atributos de"
 
-#: ../src/autoplace.c:766 ../src/rats.c:739 ../src/rats.c:831
+#: autoplace.c:771 ../src/rats.c:740 ../src/rats.c:832
 msgid "Can't add rat lines because no netlist is loaded.\n"
 msgstr ""
 "Não posso adicionar linhas de rato porque nenhuma netlist está carregada.\n"
 
-#: ../src/autoplace.c:773
+#: autoplace.c:778
 msgid "No elements selected to autoplace.\n"
 msgstr "Nenhum componente selecionado para colocação automática.\n"
 
-#: ../src/autoroute.c:4888
+#: ../src/autoroute.c:4899
 msgid "Autorouting tracks"
 msgstr "Roteando automaticamente trilhas"
 
-#: ../src/buffer.c:717
-#, c-format
-msgid "Unable to load footprint %s\n"
-msgstr "Incapaz de colocar a matriz %s na memória\n"
-
-#: ../src/buffer.c:779
-msgid "LoadFootprint(filename[,refdes,value])"
-msgstr "LoadFootprint(nomearquivo[,refdes,valor])"
-
-#: ../src/buffer.c:782
-msgid "Loads a single footprint by name."
-msgstr "Coloca na memória uma única matriz pelo nome."
-
-#: ../src/buffer.c:808
-#, c-format
-msgid "Footprint %s contains no elements"
-msgstr "Matriz %s vazia"
-
-#: ../src/buffer.c:813
-#, c-format
-msgid "Footprint %s contains multiple elements"
-msgstr "Matriz %s contém múltiplos componentes"
-
-#: ../src/buffer.c:847
+#: ../src/buffer.c:846
 msgid "Error!  Buffer doesn't contain a single element\n"
 msgstr "Erro! Memória não contém um único componente\n"
 
-#: ../src/buffer.c:1022
+#: ../src/buffer.c:1023
 msgid ""
 "Warning: All of the pads are on the opposite\n"
 "side from the component - that's probably not what\n"
@@ -1131,7 +355,7 @@ msgstr ""
 "oposto aos componentes - isso não é provavelmente o que\n"
 "você desejou\n"
 
-#: ../src/buffer.c:1101
+#: ../src/buffer.c:1102
 msgid ""
 "There was nothing to convert!\n"
 "Elements must have some silk, pads or pins.\n"
@@ -1139,7 +363,7 @@ msgstr ""
 "Não existe nada a converter!\n"
 "Os componentes devem ter algumas sedas, pastilhas ou conectores.\n"
 
-#: ../src/buffer.c:1106
+#: ../src/buffer.c:1107
 msgid ""
 "There were polygons that can't be made into pins!\n"
 "So they were not included in the element\n"
@@ -1147,33 +371,15 @@ msgstr ""
 "Existem polígonos que não podem ser convertidos em conectores!\n"
 "Então eles não foram incluídos no componente\n"
 
-#: ../src/buffer.c:1350
-msgid "FreeRotateBuffer([Angle])"
-msgstr "FreeRotateBuffer([Angulo])"
-
-#: ../src/buffer.c:1353
-msgid ""
-"Rotates the current paste buffer contents by the specified angle.  The\n"
-"angle is given in degrees.  If no angle is given, the user is prompted\n"
-"for one.\n"
-msgstr ""
-"Rotaciona o conteúdo da memória de colar de um ângulo especificado.  O\n"
-"angulo é dado em graus.  Se nenhum ângulo for dado, o usuário é solicitado\n"
-"a informar um.\n"
-
-#: ../src/buffer.c:1370
-msgid "Enter Rotation (degrees, CCW):"
-msgstr "Informe Ângulo de Rotação (graus, anti-horários):"
-
-#: ../src/buffer.c:1409
+#: ../src/buffer.c:1410
 msgid "You can't mirror a buffer that has elements!\n"
 msgstr "Você não pode refletir uma memória que tem componentes!\n"
 
-#: ../src/buffer.c:1417
+#: ../src/buffer.c:1418
 msgid "You can't mirror a buffer that has text!\n"
 msgstr "Você não pode refletir uma memória que tem texto!\n"
 
-#: ../src/change.c:758
+#: ../src/change.c:757
 msgid ""
 "To change the clearance of objects in a polygon, change the objects, not the "
 "polygon.\n"
@@ -1185,30 +391,30 @@ msgstr ""
 "Dica: Para ajustar uma folga mínima para um grupo de objetos, selecione "
 "todos eles então :MinClearGap(Selected,=10,mil)"
 
-#: ../src/change.c:1051
+#: ../src/change.c:1050
 #, c-format
 msgid "Error: The name \"%s\" is not unique!\n"
 msgstr "Erro: O nome \"%s\" não é único!\n"
 
-#: ../src/change.c:2274
+#: ../src/change.c:2273
 msgid "Linename:"
 msgstr "Nome da linha:"
 
-#: ../src/change.c:2279
+#: ../src/change.c:2278
 msgid "Vianame:"
 msgstr "Nome da via:"
 
-#: ../src/change.c:2284
+#: ../src/change.c:2283
 #, c-format
 msgid "%s Pin Name:"
 msgstr "%s Nome do conector:"
 
-#: ../src/change.c:2289
+#: ../src/change.c:2288
 #, c-format
 msgid "%s Pad Name:"
 msgstr "%s Nome da Pastilha:"
 
-#: ../src/change.c:2299
+#: ../src/change.c:2298
 msgid "Elementname:"
 msgstr "Nome do componente:"
 
@@ -1267,7 +473,7 @@ msgstr ""
 msgid "Can't find font-symbol-file '%s'\n"
 msgstr "Não encontro o arquivo fonte-símbolo '%s'\n"
 
-#: ../src/crosshair.c:759
+#: ../src/crosshair.c:755
 msgid ""
 "WARNING: A plugin is using the deprecated API HideCrosshair().\n"
 "         This API may be removed in a future release of PCB.\n"
@@ -1275,7 +481,7 @@ msgstr ""
 "ATENÇÃO: Uma extensão está usando a API HideCrosshair() que é antiga.\n"
 "         Essa API pode ser removida em uma futura versão do PCB.\n"
 
-#: ../src/crosshair.c:774
+#: ../src/crosshair.c:770
 msgid ""
 "WARNING: A plugin is using the deprecated API RestoreCrosshair().\n"
 "         This API may be removed in a future release of PCB.\n"
@@ -1327,65 +533,63 @@ msgstr ""
 "   '%s'\n"
 "chdir() retornou: '%s'\n"
 
-#: ../src/file.c:264
+#: ../src/file.c:263
 #, c-format
 msgid "File '%s' exists, use anyway?"
 msgstr "Arquivo '%s' existe, usar mesmo assim?"
 
 #. not used
 #. CheckAndOpenFile deals with the case where fname already exists
-#: ../src/file.c:306
+#: ../src/file.c:305
 msgid "Save Connection Data As ..."
 msgstr "Grava Dados de Conecção Como ..."
 
-#: ../src/file.c:307
+#: ../src/file.c:306
 msgid "Choose a file to save all connection data to."
 msgstr "Escolha um arquivo para gravar todos os dados de conecção."
 
-#: ../src/file.c:427
+#: ../src/file.c:426
 #, c-format
 msgid "File '%s' has no font information, using default font\n"
 msgstr "Arquivo '%s' não tem informação de fonte, usando a fonte padrão\n"
 
-#: ../src/file.c:1026
+#: ../src/file.c:986
 #, c-format
 msgid "Trying to save your layout in '%s'\n"
 msgstr "Tentando gravar seu traçado em '%s'\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1190
-msgid ""
-"LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"
-msgstr ""
-"LoadNewlibFootprintsFromDir: Não posso determinar o diretório inicial de "
-"trabalho\n"
-
-# FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1208
-msgid ""
-"LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
-msgstr ""
-"LoadNewlibFootprintsFromDir: Não posso determinar o novo diretório de "
-"trabalho\n"
-
-# FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1316
-msgid "ParseLibraryTree: Could not determine initial working directory\n"
+#: ../src/file.c:1154
+#, fuzzy, c-format
+msgid "%s: Could not determine initial working directory\n"
 msgstr ""
 "ParseLibraryTree: Não posso determinar o diretório inicial de trabalho\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1351
-msgid "ParseLibraryTree: Could not determine new working directory\n"
+#: ../src/file.c:1174 ../src/file.c:1346
+#, fuzzy, c-format
+msgid "%s: Could not determine new working directory\n"
 msgstr "ParseLibraryTree: Não posso determinar o novo diretório de trabalho\n"
 
+# FIXME: is this an Error:  or a Warning:   ?
+#: ../src/file.c:1419
+#, fuzzy
+msgid "ReadLibraryContents: Could not determine initial working directory\n"
+msgstr ""
+"ParseLibraryTree: Não posso determinar o diretório inicial de trabalho\n"
+
+#: ../src/file.c:1447 ../src/file.c:1476
+#, c-format
+msgid "%s: Error reading library contents:%s\n"
+msgstr ""
+
 #. nothing to do
-#: ../src/file.c:1543
+#: ../src/file.c:1516
 #, c-format
 msgid "Importing PCB netlist %s\n"
 msgstr "Importando netlist do PCB %s\n"
 
-#: ../src/file.c:1581
+#: ../src/file.c:1554
 #, c-format
 msgid ""
 "Line length (%i) exceeded in netlist file.\n"
@@ -1394,11 +598,11 @@ msgstr ""
 "Comprimento de linha (%i) excedeu no arquivo netlist.\n"
 "caracteres adicionais irão ser ignorados.\n"
 
-#: ../src/file.c:1635
+#: ../src/file.c:1608
 msgid "Empty netlist file!\n"
 msgstr "Arquivo de netlist vazio!\n"
 
-#: ../src/file.c:1675
+#: ../src/file.c:1650
 #, c-format
 msgid "Importing edif netlist %s\n"
 msgstr "Importando edif netlist %s\n"
@@ -1596,13 +800,10 @@ msgstr ""
 "mínima que pode confiávelmente ser reproduzida"
 
 #: ../src/find.c:4051
-#, c-format
-msgid "Warning: %d pad has the nopaste flag set.\n"
-msgid_plural "Warning: %d pads have the nopaste flag set.\n"
-msgstr[0] ""
+#, fuzzy, c-format
+msgid "Warning:  %d pad%s the nopaste flag set.\n"
+msgstr ""
 "Atenção:  %d pastilha está com o sinalizador de não colar habilitado.\n"
-msgstr[1] ""
-"Atenção:  %d pastilhas estão com o sinalizador de não colar habilitado.\n"
 
 #: ../src/find.c:4148
 #, c-format
@@ -1613,7 +814,7 @@ msgstr "Erro Interno em BuildObjectList: tipo de objeto desconhecido %i\n"
 msgid "File"
 msgstr "Arquivo"
 
-#: ../src/gpcb-menu.res:57 ../src/hid/gtk/gtkhid-main.c:994
+#: ../src/gpcb-menu.res:57
 msgid "New"
 msgstr "Novo"
 
@@ -1633,7 +834,7 @@ msgstr "Abrir..."
 msgid "Load a layout from a file"
 msgstr "Coloca na memória arquivo de traçado"
 
-#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1982
+#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:2054
 msgid "Save"
 msgstr "Salvar"
 
@@ -1665,8 +866,7 @@ msgstr "Shift Ctrl-S"
 msgid "Shift Ctrl<Key>s"
 msgstr "Shift Ctrl<Tecla>s"
 
-#: ../src/gpcb-menu.res:62 ../src/hid/gtk/gtkhid-main.c:993
-#: ../src/pcb-menu.res:35
+#: ../src/gpcb-menu.res:62 ../src/pcb-menu.res:35
 msgid "Revert"
 msgstr "Reverter"
 
@@ -1679,8 +879,8 @@ msgid "Import Schematics"
 msgstr "Coloca diagramas esquemáticos na memória"
 
 #. in case we have a dialog for loading a footprint file
-#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1239
-#: ../src/hid/gtk/gui-dialog.c:292
+#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1236
+#: ../src/hid/gtk/gui-dialog.c:298
 msgid "Load element to buffer"
 msgstr "Coloca componente na memória"
 
@@ -2330,7 +1530,7 @@ msgstr " Mira"
 msgid "Set Dispersion"
 msgstr "Ajusta Dispersão"
 
-#: ../src/gpcb-menu.res:235
+#: ../src/gpcb-menu.res:235 ../src/hid/gtk/gui-netlist-window.c:791
 msgid "Select"
 msgstr "Selecione"
 
@@ -2790,7 +1990,8 @@ msgstr "Verificação das Regras de Desenho"
 msgid "Apply vendor drill mapping"
 msgstr "Aplicar mapeamento de perfuração de fornecedor"
 
-#: ../src/gpcb-menu.res:365
+#. -- Info tab
+#: ../src/gpcb-menu.res:365 ../src/hid/gtk/gui-config.c:1766
 msgid "Info"
 msgstr "Informação"
 
@@ -3409,7 +2610,7 @@ msgstr "<Tecla>Enter"
 msgid "Window"
 msgstr "Janela"
 
-#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2162
+#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2234
 #: ../src/pcb-menu.res:437
 msgid "Library"
 msgstr "Biblioteca"
@@ -3671,11 +2872,6 @@ msgstr "<Tecla>Esc"
 msgid "ERROR! Invalid action name, action \"%s\" not registered.\n"
 msgstr "ERRO! Nome de ação inválido, ação \"%s\" não registrada.\n"
 
-#: ../src/hid/common/actions.c:223
-#, c-format
-msgid "no action %s("
-msgstr "nenhuma ação %s("
-
 #: ../src/hid/common/actions.c:312
 #, c-format
 msgid "Syntax error: %s\n"
@@ -3748,7 +2944,7 @@ msgstr ""
 
 #. if we got this far it is supposed to be an X
 #. * resource.  For now ignore it and warn the user
-#: ../src/hid/gtk/ghid-main-menu.c:343
+#: ../src/hid/gtk/ghid-main-menu.c:353
 #, c-format
 msgid ""
 "The gtk gui currently ignores \"%s\"as part of a menuitem resource.\n"
@@ -3758,7 +2954,7 @@ msgstr ""
 "de item de menu.\n"
 "Sinta-se livre para corrigir isso\n"
 
-#: ../src/hid/gtk/ghid-main-menu.c:377
+#: ../src/hid/gtk/ghid-main-menu.c:389
 #, c-format
 msgid ""
 "GTK GUI currently ignores \"%s\" in the menu\n"
@@ -3825,141 +3021,136 @@ msgstr "Várias mudanças no fator de aproximação."
 msgid "ghid_calibrate() -- not implemented\n"
 msgstr "ghid_calibrate() -- não implementada\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:565 ../src/hid/gtk/gui-dialog.c:168
+#: ../src/hid/gtk/gtkhid-main.c:564 ../src/hid/gtk/gui-dialog.c:168
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: ../src/hid/gtk/gtkhid-main.c:566 ../src/hid/gtk/gui-dialog.c:172
+#: ../src/hid/gtk/gtkhid-main.c:565 ../src/hid/gtk/gui-dialog.c:172
 msgid "_OK"
 msgstr "_OK"
 
-#: ../src/hid/gtk/gtkhid-main.c:720
+#: ../src/hid/gtk/gtkhid-main.c:717
 msgid "Progress"
 msgstr "Progresso"
 
-#. add [attr_max_rows]
-#: ../src/hid/gtk/gtkhid-main.c:887
-msgid "del"
-msgstr "apagar"
-
-#: ../src/hid/gtk/gtkhid-main.c:1090
+#: ../src/hid/gtk/gtkhid-main.c:1087
 msgid "Tell the user about this version of PCB."
 msgstr "Informa ao usuário sobre essa versão do PCB."
 
-#: ../src/hid/gtk/gtkhid-main.c:1112
+#: ../src/hid/gtk/gtkhid-main.c:1109
 msgid "Get a coordinate."
 msgstr "Pega uma coordenada."
 
-#: ../src/hid/gtk/gtkhid-main.c:1189
+#: ../src/hid/gtk/gtkhid-main.c:1186
 #, c-format
 msgid "LayerGroupsChanged -- not implemented\n"
 msgstr "LayerGroupsChanged -- não implementada\n"
 
 #. in case we have a dialog for loading a netlist file
-#: ../src/hid/gtk/gtkhid-main.c:1233 ../src/hid/gtk/gui-dialog.c:319
+#: ../src/hid/gtk/gtkhid-main.c:1230 ../src/hid/gtk/gui-dialog.c:325
 #: ../src/pcb-menu.res:40
 msgid "Load netlist file"
 msgstr "Coloca na memória o arquivo de netlist"
 
-#: ../src/hid/gtk/gtkhid-main.c:1245 ../src/hid/gtk/gui-dialog.c:306
+#: ../src/hid/gtk/gtkhid-main.c:1242 ../src/hid/gtk/gui-dialog.c:312
 msgid "Load layout file to buffer"
 msgstr "Coloca na memória arquivo de traçado"
 
 #. in case we have a dialog for loading a layout file
-#: ../src/hid/gtk/gtkhid-main.c:1251 ../src/hid/gtk/gui-dialog.c:305
+#: ../src/hid/gtk/gtkhid-main.c:1248 ../src/hid/gtk/gui-dialog.c:311
 msgid "Load layout file"
 msgstr "Coloca na memória arquivo de traçado"
 
-#: ../src/hid/gtk/gtkhid-main.c:1277
+#: ../src/hid/gtk/gtkhid-main.c:1274
 msgid "Save layout and/or element data to a user-selected file."
 msgstr "Grava traçado e/ou dados de componente em um arquivo do usuário."
 
-#: ../src/hid/gtk/gtkhid-main.c:1308
+#: ../src/hid/gtk/gtkhid-main.c:1305
 msgid "Save element as"
 msgstr "Grava componente como"
 
-#: ../src/hid/gtk/gtkhid-main.c:1310
+#: ../src/hid/gtk/gtkhid-main.c:1307
 msgid "Save layout as"
 msgstr "Grava traçado como"
 
-#: ../src/hid/gtk/gtkhid-main.c:1352
+#: ../src/hid/gtk/gtkhid-main.c:1349
 msgid "Swaps the side of the board you're looking at."
 msgstr "Troca o lado da placa para o qual você está olhando."
 
-#: ../src/hid/gtk/gtkhid-main.c:1440
+#: ../src/hid/gtk/gtkhid-main.c:1438
 msgid "Print the layout."
 msgstr "Imprime o traçado"
 
-#: ../src/hid/gtk/gtkhid-main.c:1465
+#: ../src/hid/gtk/gtkhid-main.c:1463
 msgid "Can't find a suitable printer HID"
 msgstr "Não encontro uma impressora HID adequada"
 
-#: ../src/hid/gtk/gtkhid-main.c:1475
+#: ../src/hid/gtk/gtkhid-main.c:1473
 msgid "Can't print empty layout"
 msgstr "Não posso imprimir traçado vazio"
 
-#: ../src/hid/gtk/gtkhid-main.c:1485
+#: ../src/hid/gtk/gtkhid-main.c:1483
 msgid "Enter Values here:"
 msgstr "Informe Valores aqui:"
 
-#: ../src/hid/gtk/gtkhid-main.c:1487
+#: ../src/hid/gtk/gtkhid-main.c:1485
 msgid "x-calibration"
 msgstr "calibração-x"
 
-#: ../src/hid/gtk/gtkhid-main.c:1487
+#: ../src/hid/gtk/gtkhid-main.c:1485
 msgid "X scale for calibrating your printer"
 msgstr "Escala do eixo x para calibração de sua impressora"
 
-#: ../src/hid/gtk/gtkhid-main.c:1489
+#: ../src/hid/gtk/gtkhid-main.c:1487
 msgid "y-calibration"
 msgstr "calibração-y"
 
-#: ../src/hid/gtk/gtkhid-main.c:1489
+#: ../src/hid/gtk/gtkhid-main.c:1487
 msgid "Y scale for calibrating your printer"
 msgstr "Escala do eixo y para calibração de sua impressora"
 
-#: ../src/hid/gtk/gtkhid-main.c:1498
+#: ../src/hid/gtk/gtkhid-main.c:1496
 msgid "Calibrate the printer."
 msgstr "Faça a calibração da impressora."
 
-#: ../src/hid/gtk/gtkhid-main.c:1515
+#: ../src/hid/gtk/gtkhid-main.c:1513
 msgid "Printer Calibration Values"
 msgstr "Valores de Calibração da Impressora"
 
-#: ../src/hid/gtk/gtkhid-main.c:1516
+#: ../src/hid/gtk/gtkhid-main.c:1514
 msgid "Enter calibration values for your printer"
 msgstr "Informe os valores de calibração para sua impressora"
 
-#: ../src/hid/gtk/gtkhid-main.c:1535
+#: ../src/hid/gtk/gtkhid-main.c:1533
 msgid "Can't export empty layout"
 msgstr "Não posso exportar traçado vazio"
 
-#: ../src/hid/gtk/gtkhid-main.c:1563
+#: ../src/hid/gtk/gtkhid-main.c:1561
 #, c-format
 msgid "%g redraws per second\n"
 msgstr "%g atualizações por segundo\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1574
+#: ../src/hid/gtk/gtkhid-main.c:1572
 msgid "Moves the pointer to the center of the window."
 msgstr "Move o apontador para o centro da janela."
 
-#: ../src/hid/gtk/gtkhid-main.c:1626
+#: ../src/hid/gtk/gtkhid-main.c:1624
 msgid "Move the cursor."
 msgstr "Mova o cursor."
 
-#: ../src/hid/gtk/gtkhid-main.c:1710
+#: ../src/hid/gtk/gtkhid-main.c:1708
 msgid "Open various GUI windows."
 msgstr "Abre várias janelas de Interface Gráfica de Usuário."
 
-#: ../src/hid/gtk/gtkhid-main.c:1786
+#: ../src/hid/gtk/gtkhid-main.c:1784
 msgid "Set the default measurement units."
 msgstr "Ajusta as unidades de medição padrão."
 
-#: ../src/hid/gtk/gtkhid-main.c:1833
+#: ../src/hid/gtk/gtkhid-main.c:1831
 msgid "Scroll the viewport."
 msgstr "Role a porta de visão."
 
-#: ../src/hid/gtk/gtkhid-main.c:1883
+#: ../src/hid/gtk/gtkhid-main.c:1881
 msgid ""
 "Start or stop panning (Mode = 1 to start, 0 to stop)\n"
 "Optional thumb argument is ignored for now in gtk hid.\n"
@@ -3968,7 +3159,7 @@ msgstr ""
 "Argumento opcional thumb é ignorado por agora no dispositivo de interface "
 "humana da gtk.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1909
+#: ../src/hid/gtk/gtkhid-main.c:1907
 msgid ""
 "The gtk gui currently ignores the optional first argument to the Pan "
 "action.\n"
@@ -3978,7 +3169,7 @@ msgstr ""
 "argumento opcional para Visualização.\n"
 "Sinta-se livre para corrigir isso.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1923
+#: ../src/hid/gtk/gtkhid-main.c:1921
 msgid ""
 "Bring up the popup menu specified by @code{MenuName}.\n"
 "If called by a mouse event then the mouse button number\n"
@@ -3988,29 +3179,29 @@ msgstr ""
 "Se chamado por um evento de mouse então o numero do botão do mouse\n"
 "deve ser especificado como o segundo argumento opcional."
 
-#: ../src/hid/gtk/gtkhid-main.c:1948
+#: ../src/hid/gtk/gtkhid-main.c:1946
 #, c-format
 msgid "The specified popup menu \"%s\" has not been defined.\n"
 msgstr "O menu especificado \"%s\" não foi definido.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1965
+#: ../src/hid/gtk/gtkhid-main.c:1963
 msgid "Asks user which schematics to import into PCB.\n"
 msgstr "Pergunta ao usuário qual diagrama esquemático importar no PCB.\n"
 
 #. in case we have a dialog for loading schematic files
-#: ../src/hid/gtk/gtkhid-main.c:1988 ../src/hid/gtk/gui-dialog.c:402
+#: ../src/hid/gtk/gtkhid-main.c:1986 ../src/hid/gtk/gui-dialog.c:410
 msgid "Load schematics"
 msgstr "Coloca diagramas esquemáticos na memória"
 
-#: ../src/hid/gtk/gtkhid-main.c:2029
+#: ../src/hid/gtk/gtkhid-main.c:2027
 msgid "Click on a location to center"
 msgstr "clique sobre uma localização para centralizar"
 
-#: ../src/hid/gtk/gtkhid-main.c:2049
+#: ../src/hid/gtk/gtkhid-main.c:2047
 msgid "Click on a place to scroll"
 msgstr "Clique em um local para rolar"
 
-#: ../src/hid/gtk/gtkhid-main.c:2052
+#: ../src/hid/gtk/gtkhid-main.c:2050
 msgid "Click on zoom focus"
 msgstr "Clique sobre o foco de aproximação"
 
@@ -4090,32 +3281,32 @@ msgstr "Referência de Comandos"
 msgid "Enter command:"
 msgstr "Informe comando:"
 
-#: ../src/hid/gtk/gui-config.c:897
+#: ../src/hid/gtk/gui-config.c:942
 msgid "Enables"
 msgstr "Habilita"
 
-#: ../src/hid/gtk/gui-config.c:902
+#: ../src/hid/gtk/gui-config.c:947
 msgid "Use separate window for command entry"
 msgstr "Use janela separada para informar comando"
 
-#: ../src/hid/gtk/gui-config.c:907
+#: ../src/hid/gtk/gui-config.c:952
 msgid "Alternate window layout to allow smaller horizontal size"
 msgstr "Janela de traçado alternativa para permitir menor tamanho horizontal"
 
-#: ../src/hid/gtk/gui-config.c:912
+#: ../src/hid/gtk/gui-config.c:957
 msgid "Alternate window layout to allow smaller vertical size"
 msgstr "Janela de traçado alternativa para permitir menor tamanho vertical"
 
-#: ../src/hid/gtk/gui-config.c:914
+#: ../src/hid/gtk/gui-config.c:959
 msgid "Backups"
 msgstr "Cópias de segurança"
 
-#: ../src/hid/gtk/gui-config.c:918
+#: ../src/hid/gtk/gui-config.c:964
 #, c-format
 msgid "If layout is modified at exit, save into PCB.%i.save"
 msgstr "Se o traçado for modificado ao sair, grave em /tmp/PCB.%i.save"
 
-#: ../src/hid/gtk/gui-config.c:921
+#: ../src/hid/gtk/gui-config.c:968
 msgid ""
 "Seconds between auto backups\n"
 "(set to zero to disable auto backups)"
@@ -4123,91 +3314,91 @@ msgstr ""
 "Segundos entre gravações automáticas de segurança\n"
 "(ajuste para zero para desabilitar cópias automáticas de segurança)"
 
-#: ../src/hid/gtk/gui-config.c:924
+#: ../src/hid/gtk/gui-config.c:971
 msgid "Misc"
 msgstr "Diversos"
 
-#: ../src/hid/gtk/gui-config.c:928
+#: ../src/hid/gtk/gui-config.c:976
 msgid "Number of commands to remember in the history list"
 msgstr "Número de comandos a serem lembrados no histórico de comandos"
 
-#: ../src/hid/gtk/gui-config.c:933
+#: ../src/hid/gtk/gui-config.c:981
 msgid "Use only metric units when saving pcb files"
 msgstr "Use unidades métricas ao salvar arquivos pcb"
 
 #. ---- Board Size ----
-#: ../src/hid/gtk/gui-config.c:1033
+#: ../src/hid/gtk/gui-config.c:1079
 msgid "Board Size"
 msgstr "Tamanho da Placa"
 
-#: ../src/hid/gtk/gui-config.c:1047
+#: ../src/hid/gtk/gui-config.c:1093
 msgid "Width"
 msgstr "Largura"
 
 # FIXME: this should be changed to "Length" if and when 3D geometrical GUIs, 3D-exporters, 3D-printers emerge or are used.
-#: ../src/hid/gtk/gui-config.c:1052
+#: ../src/hid/gtk/gui-config.c:1098
 msgid "Height"
 msgstr "Altura"
 
-#: ../src/hid/gtk/gui-config.c:1055
+#: ../src/hid/gtk/gui-config.c:1101
 msgid "Use this board size as the default for new layouts"
 msgstr "Use esse tamanho de placa como padrão para novos traçados"
 
 #. ---- Text Scale ----
-#: ../src/hid/gtk/gui-config.c:1058
+#: ../src/hid/gtk/gui-config.c:1104
 msgid "Text Scale"
 msgstr "Escala do Texto"
 
 #. ---- DRC Sizes ----
-#: ../src/hid/gtk/gui-config.c:1076
+#: ../src/hid/gtk/gui-config.c:1122
 msgid "Design Rule Checking"
 msgstr "Verificação das Regras de Desenho"
 
-#: ../src/hid/gtk/gui-config.c:1089
+#: ../src/hid/gtk/gui-config.c:1135
 msgid "Minimum copper spacing"
 msgstr "Espaçamento mínimo entre trilhas"
 
-#: ../src/hid/gtk/gui-config.c:1095
+#: ../src/hid/gtk/gui-config.c:1141
 msgid "Minimum copper width"
 msgstr "Largura mínima de trilha"
 
-#: ../src/hid/gtk/gui-config.c:1101
+#: ../src/hid/gtk/gui-config.c:1147
 msgid "Minimum touching copper overlap"
 msgstr "Sobreposição mínima ao encostar"
 
-#: ../src/hid/gtk/gui-config.c:1107
+#: ../src/hid/gtk/gui-config.c:1153
 msgid "Minimum silk width"
 msgstr "Largura mínima da seda"
 
-#: ../src/hid/gtk/gui-config.c:1113
+#: ../src/hid/gtk/gui-config.c:1159
 msgid "Minimum drill diameter"
 msgstr "Diâmetro mínimo de perfuração"
 
-#: ../src/hid/gtk/gui-config.c:1119
+#: ../src/hid/gtk/gui-config.c:1165
 msgid "Minimum annular ring"
 msgstr "Auréola anular mínima"
 
-#: ../src/hid/gtk/gui-config.c:1124
+#: ../src/hid/gtk/gui-config.c:1170
 msgid "Use DRC values as the default for new layouts"
 msgstr "Use valores DRC como padrão para novos traçados"
 
-#: ../src/hid/gtk/gui-config.c:1176
+#: ../src/hid/gtk/gui-config.c:1222
 msgid "Metric Increment Settings"
 msgstr "Configurações de Incremento de Métrica"
 
-#: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
+#: ../src/hid/gtk/gui-config.c:1230 ../src/hid/gtk/gui-config.c:1251
 msgid "Grid:"
 msgstr "Grade:"
 
-#: ../src/hid/gtk/gui-config.c:1185 ../src/hid/gtk/gui-config.c:1206
+#: ../src/hid/gtk/gui-config.c:1231 ../src/hid/gtk/gui-config.c:1252
 msgid "For 'g' and '<shift>g' grid change actions"
 msgstr "Para 'g' e '<shift>g' ações de modificar grade"
 
-#: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
+#: ../src/hid/gtk/gui-config.c:1232 ../src/hid/gtk/gui-config.c:1253
 msgid "Size:"
 msgstr "Tamanho:"
 
-#: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
+#: ../src/hid/gtk/gui-config.c:1233 ../src/hid/gtk/gui-config.c:1254
 msgid ""
 "For 's' and '<shift>s' size change actions on lines,\n"
 "pads, pins and text.\n"
@@ -4217,19 +3408,19 @@ msgstr ""
 "de linhas, pastilhas, conectores, texto.\n"
 "Use '<ctrl>s' e '<shift><ctrl>s' para orifícios de perfuração."
 
-#: ../src/hid/gtk/gui-config.c:1190 ../src/hid/gtk/gui-config.c:1211
+#: ../src/hid/gtk/gui-config.c:1236 ../src/hid/gtk/gui-config.c:1257
 msgid "Line:"
 msgstr "Linha:"
 
-#: ../src/hid/gtk/gui-config.c:1191 ../src/hid/gtk/gui-config.c:1212
+#: ../src/hid/gtk/gui-config.c:1237 ../src/hid/gtk/gui-config.c:1258
 msgid "For 'l' and '<shift>l' routing line width change actions"
 msgstr "Para 'l' e '<shift>l' ações de mudar largura de linha de rota"
 
-#: ../src/hid/gtk/gui-config.c:1192 ../src/hid/gtk/gui-config.c:1213
+#: ../src/hid/gtk/gui-config.c:1238 ../src/hid/gtk/gui-config.c:1259
 msgid "Clear:"
 msgstr "Apaga:"
 
-#: ../src/hid/gtk/gui-config.c:1193 ../src/hid/gtk/gui-config.c:1214
+#: ../src/hid/gtk/gui-config.c:1239 ../src/hid/gtk/gui-config.c:1260
 msgid ""
 "For 'k' and '<shift>k' line clearance inside polygon size\n"
 "change actions"
@@ -4237,23 +3428,23 @@ msgstr ""
 "Para 'k' e '<shift>k' ações de mudar o tamanho da folga da linha\n"
 "dentro do polígono"
 
-#: ../src/hid/gtk/gui-config.c:1197
+#: ../src/hid/gtk/gui-config.c:1243
 msgid "Imperial Increment Settings"
 msgstr "Ajustes de Incremento Ingleses"
 
-#: ../src/hid/gtk/gui-config.c:1219
+#: ../src/hid/gtk/gui-config.c:1265
 msgid "Save as Default"
 msgstr "Grava como Padrão"
 
-#: ../src/hid/gtk/gui-config.c:1222
+#: ../src/hid/gtk/gui-config.c:1268
 msgid "Use values as the default for new layouts"
 msgstr "Use valores como padrão para novos traçados"
 
-#: ../src/hid/gtk/gui-config.c:1246
+#: ../src/hid/gtk/gui-config.c:1292
 msgid "Element Directories"
 msgstr "Diretórios de componente"
 
-#: ../src/hid/gtk/gui-config.c:1249
+#: ../src/hid/gtk/gui-config.c:1295
 #, c-format
 msgid ""
 "<small>Enter a \"%s\" separated list of custom top level\n"
@@ -4270,11 +3461,11 @@ msgstr ""
 "diretório de nível mais alto.  Re-iniciar o programa para que modificações "
 "entrem em vigor.</small>"
 
-#: ../src/hid/gtk/gui-config.c:1289
+#: ../src/hid/gtk/gui-config.c:1335
 msgid "<h>Layer Names\n"
 msgstr "<h>Nomes de camada\n"
 
-#: ../src/hid/gtk/gui-config.c:1290
+#: ../src/hid/gtk/gui-config.c:1336
 msgid ""
 "You may enter layer names for the layers drawn on the screen.\n"
 "The special 'top side' and 'bottom side' are layers which\n"
@@ -4286,11 +3477,11 @@ msgstr ""
 "serão impressas, de forma que elas devem ter no seu grupo ao menos uma\n"
 "das outras camadas que foram desenhadas na tela.\n"
 
-#: ../src/hid/gtk/gui-config.c:1295
+#: ../src/hid/gtk/gui-config.c:1341
 msgid "<h>Layer Groups\n"
 msgstr "<h>Grupos de Camada\n"
 
-#: ../src/hid/gtk/gui-config.c:1296
+#: ../src/hid/gtk/gui-config.c:1342
 msgid ""
 "Each layer on the screen may be in its own group which allows the\n"
 "maximum number of board layers.  However, for boards with fewer\n"
@@ -4309,7 +3500,7 @@ msgstr ""
 "como\n"
 "uma camada simples\n"
 
-#: ../src/hid/gtk/gui-config.c:1303
+#: ../src/hid/gtk/gui-config.c:1349
 msgid ""
 "For example, for a 4 layer board a useful layer group arrangement\n"
 "can be to have 3 screen displayed layers grouped into the same group\n"
@@ -4330,63 +3521,63 @@ msgstr ""
 "você deve selecionar botões e inserir nomes na página de Configuração para\n"
 "estruturar quatro grupos de camadas similares a esse:\n"
 
-#: ../src/hid/gtk/gui-config.c:1311
+#: ../src/hid/gtk/gui-config.c:1357
 msgid "<b>Group 1:"
 msgstr "<b>Grupo 1:"
 
-#: ../src/hid/gtk/gui-config.c:1313
+#: ../src/hid/gtk/gui-config.c:1359 ../src/hid/gtk/gui-misc.c:411
 msgid "top"
 msgstr "topo"
 
-#: ../src/hid/gtk/gui-config.c:1315
+#: ../src/hid/gtk/gui-config.c:1361
 msgid "GND-top"
 msgstr "topo-GND"
 
-#: ../src/hid/gtk/gui-config.c:1317
+#: ../src/hid/gtk/gui-config.c:1363
 msgid "Vcc-top"
 msgstr "topo-Vcc"
 
-#: ../src/hid/gtk/gui-config.c:1319 ../src/hid/gtk/gui-config.c:1569
+#: ../src/hid/gtk/gui-config.c:1365 ../src/hid/gtk/gui-config.c:1638
 msgid "top side"
 msgstr "lado do topo"
 
-#: ../src/hid/gtk/gui-config.c:1321
+#: ../src/hid/gtk/gui-config.c:1367
 msgid "<b>Group 2:"
 msgstr "<b>Grupo 2:"
 
-#: ../src/hid/gtk/gui-config.c:1323
+#: ../src/hid/gtk/gui-config.c:1369 ../src/hid/gtk/gui-misc.c:411
 msgid "bottom"
 msgstr "inferior"
 
-#: ../src/hid/gtk/gui-config.c:1325
+#: ../src/hid/gtk/gui-config.c:1371
 msgid "GND-bottom"
 msgstr "inferior-GND"
 
-#: ../src/hid/gtk/gui-config.c:1327
+#: ../src/hid/gtk/gui-config.c:1373
 msgid "Vcc-bottom"
 msgstr "inferior-Vcc"
 
-#: ../src/hid/gtk/gui-config.c:1329 ../src/hid/gtk/gui-config.c:1571
+#: ../src/hid/gtk/gui-config.c:1375 ../src/hid/gtk/gui-config.c:1641
 msgid "bottom side"
 msgstr "lado inferior"
 
-#: ../src/hid/gtk/gui-config.c:1331
+#: ../src/hid/gtk/gui-config.c:1377
 msgid "<b>Group 3:"
 msgstr "<b>Grupo 3:"
 
-#: ../src/hid/gtk/gui-config.c:1333
+#: ../src/hid/gtk/gui-config.c:1379
 msgid "signal1"
 msgstr "sinal1"
 
-#: ../src/hid/gtk/gui-config.c:1335
+#: ../src/hid/gtk/gui-config.c:1381
 msgid "<b>Group 4:"
 msgstr "<b>Grupo 4:"
 
-#: ../src/hid/gtk/gui-config.c:1337
+#: ../src/hid/gtk/gui-config.c:1383
 msgid "signal2"
 msgstr "sinal2"
 
-#: ../src/hid/gtk/gui-config.c:1451
+#: ../src/hid/gtk/gui-config.c:1517
 msgid ""
 "Both, 'top side' and 'bottom side' layer must have at least\n"
 "\tone other layer in their group.\n"
@@ -4394,7 +3585,7 @@ msgstr ""
 "Ambas as camadas 'lado do topo' ou a 'lado inferior' devem ter ao menos\n"
 "\tuma outra camada em seu grupo.\n"
 
-#: ../src/hid/gtk/gui-config.c:1458
+#: ../src/hid/gtk/gui-config.c:1524
 msgid ""
 "The 'top side' and 'bottom side' layers are not allowed\n"
 "\tto be in the same layer group #\n"
@@ -4404,124 +3595,102 @@ msgstr ""
 
 #. working copy
 #. So can know if PCB changes on us
-#: ../src/hid/gtk/gui-config.c:1549
+#: ../src/hid/gtk/gui-config.c:1616
 msgid "Group #"
 msgstr "Grupo #"
 
 #. -- Change tab
-#: ../src/hid/gtk/gui-config.c:1637
+#: ../src/hid/gtk/gui-config.c:1709
 msgid "Change"
 msgstr "Modifica"
 
-#: ../src/hid/gtk/gui-config.c:1639
+#: ../src/hid/gtk/gui-config.c:1711
 msgid "Operations on currently selected layer:"
 msgstr "Operações sobre a camada selecionada atualmente:"
 
-#: ../src/hid/gtk/gui-config.c:1668
+#: ../src/hid/gtk/gui-config.c:1740
 msgid "Add new layer above currently selected layer:"
 msgstr "Adicione nova camada acima da camada selecionada atualmente:"
 
 #. -- Groups tab
-#: ../src/hid/gtk/gui-config.c:1678
+#: ../src/hid/gtk/gui-config.c:1750
 msgid "Groups"
 msgstr "Grupos"
 
-#. -- Info tab
-#: ../src/hid/gtk/gui-config.c:1694
-msgctxt "tab"
-msgid "Info"
-msgstr "Informação"
-
-#: ../src/hid/gtk/gui-config.c:1743
+#: ../src/hid/gtk/gui-config.c:1815
 #, c-format
 msgid "Current colors loaded: <b>%s</b>"
 msgstr "Cores atuais na memória: <b>%s</b>"
 
-#: ../src/hid/gtk/gui-config.c:1788
+#: ../src/hid/gtk/gui-config.c:1860
 msgid "Load Color File"
 msgstr "Colocar Arquivo de Cor na Memória"
 
-#: ../src/hid/gtk/gui-config.c:1818
+#: ../src/hid/gtk/gui-config.c:1890
 msgid "Save Color File"
 msgstr "Grava Arquivo de Cor"
 
-#: ../src/hid/gtk/gui-config.c:1824
+#: ../src/hid/gtk/gui-config.c:1896
 msgid "Sorry, not overwriting the default color file!"
 msgstr "Sinto muito, não posso sobregravar o arquivo de cores padronizadas!"
 
-#: ../src/hid/gtk/gui-config.c:1878
+#: ../src/hid/gtk/gui-config.c:1950
 #, c-format
 msgid "PCB %s Color"
 msgstr "Cor %s do PCB"
 
 #. ---- Main colors ----
-#: ../src/hid/gtk/gui-config.c:1908
+#: ../src/hid/gtk/gui-config.c:1980
 msgid "Main colors"
 msgstr "Cores principais"
 
 #. ---- Layer colors ----
-#: ../src/hid/gtk/gui-config.c:1923
+#: ../src/hid/gtk/gui-config.c:1995
 msgid "Layer colors"
 msgstr "Cores da Camada"
 
 #. ---- Selected colors ----
-#: ../src/hid/gtk/gui-config.c:1938
+#: ../src/hid/gtk/gui-config.c:2010
 msgid "Selected colors"
 msgstr "Cores selecionadas"
 
-#: ../src/hid/gtk/gui-config.c:1964
+#: ../src/hid/gtk/gui-config.c:2036
 msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
 msgstr ""
 "<b>Atenção:</b> modificações de cores não gravadas irão ser perdidas ao sair "
 "do programa."
 
-#: ../src/hid/gtk/gui-config.c:1979
+#: ../src/hid/gtk/gui-config.c:2051
 msgid "Load"
 msgstr "Colocar na Memória"
 
-#: ../src/hid/gtk/gui-config.c:1984
+#: ../src/hid/gtk/gui-config.c:2056
 msgid "Defaults"
 msgstr "Padrões"
 
-#: ../src/hid/gtk/gui-config.c:2118
+#: ../src/hid/gtk/gui-config.c:2190
 msgid "PCB Preferences"
 msgstr "Preferências do PCB"
 
-#: ../src/hid/gtk/gui-config.c:2143
+#: ../src/hid/gtk/gui-config.c:2215
 msgid "General"
 msgstr "Geral"
 
-#: ../src/hid/gtk/gui-config.c:2150
+#: ../src/hid/gtk/gui-config.c:2222
 msgid "Sizes"
 msgstr "Tamanhos"
 
-#: ../src/hid/gtk/gui-config.c:2156
+#: ../src/hid/gtk/gui-config.c:2228
 msgid "Increments"
 msgstr "Incrementos"
 
-#: ../src/hid/gtk/gui-config.c:2168
+#: ../src/hid/gtk/gui-config.c:2240
 msgid "Layers"
 msgstr "Camadas"
 
-#: ../src/hid/gtk/gui-config.c:2175
+#: ../src/hid/gtk/gui-config.c:2247
 msgid "Colors"
 msgstr "Cores"
-
-#: ../src/hid/gtk/gui-dialog.c:54
-msgid "PCB User Input"
-msgstr "Entrada de Usuário do PCB"
-
-#: ../src/hid/gtk/gui-dialog.c:68
-msgid "Enter something"
-msgstr "Informe alguma coisa"
-
-#: ../src/hid/gtk/gui-dialog.c:118
-msgid "Confirm"
-msgstr "Confirmar"
-
-#: ../src/hid/gtk/gui-dialog.c:124
-msgid "Sequence OK"
-msgstr "Sequência OK"
 
 #: ../src/hid/gtk/gui-dialog.c:212
 #, c-format
@@ -4543,16 +3712,6 @@ msgstr ""
 msgid "Close _without saving"
 msgstr "Fechar _sem salvar"
 
-#: ../src/hid/gtk/gui-dialog-print.c:327
-#, c-format
-msgid "%s: unknown type of HID attribute\n"
-msgstr "%s: tipo de atributo de HID desconhecido\n"
-
-#: ../src/hid/gtk/gui-dialog-print.c:382
-#, c-format
-msgid "%s() -- malloc failed\n"
-msgstr "%s() -- malloc falhoufailed\n"
-
 #. non-zero means cancel was picked
 #: ../src/hid/gtk/gui-dialog-print.c:387
 msgid "PCB Print Layout"
@@ -4572,34 +3731,6 @@ msgid "Object ID %i identified during DRC was not found. Stale DRC window?\n"
 msgstr ""
 "Identificação de objeto %i ocorrida durante DRC não encontrada. Janela de "
 "DRC obsoleta?\n"
-
-#: ../src/hid/gtk/gui-drc-window.c:536
-msgid ""
-"%m+<b>%s (%$mS)</b>\n"
-"<span size='1024'> </span>\n"
-"<small><i>%s</i>\n"
-"<span size='5120'> </span>\n"
-"Required: %$mS</small>"
-msgstr ""
-"%m+<b>%s (%$mS)</b>\n"
-"<span size='1024'> </span>\n"
-"<small><i>%s</i>\n"
-"<span size='5120'> </span>\n"
-"Requirido: %$mS</small>"
-
-#: ../src/hid/gtk/gui-drc-window.c:551
-msgid ""
-"%m+<b>%s</b>\n"
-"<span size='1024'> </span>\n"
-"<small><i>%s</i>\n"
-"<span size='5120'> </span>\n"
-"Required: %$mS</small>"
-msgstr ""
-"%m+<b>%s</b>\n"
-"<span size='1024'> </span>\n"
-"<small><i>%s</i>\n"
-"<span size='5120'> </span>\n"
-"Requerido: %$mS</small>"
 
 #: ../src/hid/gtk/gui-drc-window.c:772
 msgid "PCB DRC"
@@ -5043,34 +4174,34 @@ msgstr ""
 "combinado com\n"
 "\tações de tecla.\n"
 
-#: ../src/hid/gtk/gui-keyref-window.c:353
+#: ../src/hid/gtk/gui-keyref-window.c:356
 msgid "PCB Key Reference"
 msgstr "Referência de teclas do PCB"
 
-#: ../src/hid/gtk/gui-library-window.c:169
+#: ../src/hid/gtk/gui-library-window.c:171
 msgid "PCB Library"
 msgstr "Biblioteca do PCB"
 
 #. GtkTreeViewColumn
-#: ../src/hid/gtk/gui-library-window.c:685
+#: ../src/hid/gtk/gui-library-window.c:754
 msgid "Components"
 msgstr "Componentes"
 
 #. GtkLabel
-#: ../src/hid/gtk/gui-library-window.c:711
+#: ../src/hid/gtk/gui-library-window.c:780
 msgid "Filter:"
 msgstr "Filtro:"
 
-#: ../src/hid/gtk/gui-library-window.c:805
+#: ../src/hid/gtk/gui-library-window.c:874
 msgid "Select Footprint..."
 msgstr "Selecione Matriz..."
 
-#: ../src/hid/gtk/gui-library-window.c:827
+#: ../src/hid/gtk/gui-library-window.c:896
 msgid "Libraries"
 msgstr "Bibliotecas"
 
 #. GtkFrame
-#: ../src/hid/gtk/gui-library-window.c:836
+#: ../src/hid/gtk/gui-library-window.c:905
 msgid "Preview"
 msgstr "Prévia"
 
@@ -5078,37 +4209,14 @@ msgstr "Prévia"
 msgid "PCB Log"
 msgstr "Registro do PCB"
 
-#: ../src/hid/gtk/gui-misc.c:406
+#: ../src/hid/gtk/gui-misc.c:402
+#, fuzzy
 msgid ""
-"%m+<b>view</b>=%s  <b>grid</b>=%$mS  %s%s  <b>line</b>=%mS  <b>via</b>=%mS "
-"(%mS)  %s<b>clearance</b>=%mS  <b>text</b>=%i%%  <b>buffer</b>=#%i"
+"%m+<b>view</b>=%s <b>grid</b>=%$mS %s%s <b>line</b>=%mS <b>via</b>=%mS (%mS) "
+"%s<b>clearance</b>=%mS <b>text</b>=%i%% <b>buffer</b>=#%i"
 msgstr ""
 "%m+<b>visão</b>=%s  <b>grade</b>=%$mS  %s%s  <b>linha</b>=%mS  <b>via</b>="
 "%mS (%mS)  %s<b>folga</b>=%mS  <b>texto</b>=%i%%  <b>memória</b>=#%i"
-
-#: ../src/hid/gtk/gui-misc.c:415
-msgctxt "status"
-msgid "bottom"
-msgstr "inferior"
-
-#: ../src/hid/gtk/gui-misc.c:415
-msgctxt "status"
-msgid "top"
-msgstr "topo"
-
-#: ../src/hid/gtk/gui-misc.c:444
-#, c-format
-msgid "%m+r %-mS; phi %-.1f; %-mS %-mS"
-msgstr "%m+r %-mS; phi %-.1f; %-mS %-mS"
-
-#: ../src/hid/gtk/gui-misc.c:452
-msgid "r __.__; phi __._; __.__ __.__"
-msgstr "r __.__; phi __._; __.__ __.__"
-
-#: ../src/hid/gtk/gui-misc.c:454
-#, c-format
-msgid "%m+%-mS %-mS"
-msgstr "%m+%-mS %-mS"
 
 #: ../src/hid/gtk/gui-netlist-window.c:708
 msgid "PCB Netlist"
@@ -5130,11 +4238,6 @@ msgstr "Nodos"
 msgid "Operations on selected 'Net Name':"
 msgstr "Operações sobre 'Nome de Fiação' selecionada:"
 
-#: ../src/hid/gtk/gui-netlist-window.c:791
-msgctxt "netlist"
-msgid "Select"
-msgstr "Selecione"
-
 #: ../src/hid/gtk/gui-netlist-window.c:796
 msgid "Unselect"
 msgstr "Remove Seleção"
@@ -5150,23 +4253,6 @@ msgstr "Anule"
 #: ../src/hid/gtk/gui-netlist-window.c:813
 msgid "Disable all nets for adding rats"
 msgstr "Desabilite todas as fiações para adicionar ratos"
-
-#: ../src/hid/gtk/gui-output-events.c:417
-#: ../src/hid/gtk/gui-output-events.c:453
-#: ../src/hid/gtk/gui-output-events.c:454
-msgid "--"
-msgstr "--"
-
-#: ../src/hid/gtk/gui-output-events.c:449
-#, c-format
-msgid ""
-"Element name: %s\n"
-"Pinname : %s\n"
-"Netname : %s"
-msgstr ""
-"Nome de componente: %s\n"
-"Nome de conector : %s\n"
-"Nomenet : %s"
 
 #: ../src/hid/gtk/gui-top-window.c:248
 msgid "Reload"
@@ -5192,93 +4278,37 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/hid/gtk/gui-top-window.c:491
+#: ../src/hid/gtk/gui-top-window.c:494
 msgid "silk"
 msgstr "seda"
 
-#: ../src/hid/gtk/gui-top-window.c:496
+#: ../src/hid/gtk/gui-top-window.c:499
 msgid "rat lines"
 msgstr "linhas de rato"
 
-#: ../src/hid/gtk/gui-top-window.c:501
+#: ../src/hid/gtk/gui-top-window.c:504
 msgid "pins/pads"
 msgstr "conectores/pastilhas"
 
-#: ../src/hid/gtk/gui-top-window.c:506
+#: ../src/hid/gtk/gui-top-window.c:509
 msgid "vias"
 msgstr "vias"
 
-#: ../src/hid/gtk/gui-top-window.c:511
+#: ../src/hid/gtk/gui-top-window.c:514
 msgid "far side"
 msgstr "lado oposto"
 
-#: ../src/hid/gtk/gui-top-window.c:516
+#: ../src/hid/gtk/gui-top-window.c:519
 msgid "solder mask"
 msgstr "máscara de soldagem"
 
-#: ../src/hid/gtk/gui-top-window.c:689
+#: ../src/hid/gtk/gui-top-window.c:692
 msgid "Unnamed"
 msgstr "Sem nome"
 
-#: ../src/hid/gtk/gui-top-window.c:692
+#: ../src/hid/gtk/gui-top-window.c:695
 msgid "Unsaved.pcb"
 msgstr "Naosalvo.pcb"
-
-#: ../src/hid/gtk/gui-top-window.c:954
-msgid "via"
-msgstr "via"
-
-#: ../src/hid/gtk/gui-top-window.c:955
-msgid "line"
-msgstr "linhas de rato"
-
-#: ../src/hid/gtk/gui-top-window.c:956
-msgid "arc"
-msgstr "arco"
-
-#: ../src/hid/gtk/gui-top-window.c:957
-msgid "text"
-msgstr "texto"
-
-#: ../src/hid/gtk/gui-top-window.c:958
-msgid "rectangle"
-msgstr "retângulo"
-
-#: ../src/hid/gtk/gui-top-window.c:959
-msgid "polygon"
-msgstr "polígono"
-
-#: ../src/hid/gtk/gui-top-window.c:960
-msgid "polygonhole"
-msgstr "orifício de polígono"
-
-#: ../src/hid/gtk/gui-top-window.c:961
-msgid "buffer"
-msgstr "memória"
-
-#: ../src/hid/gtk/gui-top-window.c:962
-msgid "remove"
-msgstr "remover"
-
-#: ../src/hid/gtk/gui-top-window.c:963
-msgid "rotate"
-msgstr "rotacionar"
-
-#: ../src/hid/gtk/gui-top-window.c:964
-msgid "insertPoint"
-msgstr "ponto de inserção"
-
-#: ../src/hid/gtk/gui-top-window.c:965
-msgid "thermal"
-msgstr "térmico"
-
-#: ../src/hid/gtk/gui-top-window.c:966
-msgid "select"
-msgstr "selecione"
-
-#: ../src/hid/gtk/gui-top-window.c:967
-msgid "lock"
-msgstr "trava"
 
 #: ../src/hid/gtk/gui-top-window.c:1611
 msgid "Read end of pipe died!\n"
@@ -5309,63 +4339,6 @@ msgstr "ERRO:  caso não previsto em ghid_listener_cb\n"
 #, c-format
 msgid "Unknown condition in ghid_listener_cb\n"
 msgstr "Condição desconhecida em ghid_listener_cb\n"
-
-#. %start-doc options "21 GTK+ GUI Options"
-#. @ftable @code
-#. @item --listen
-#. Listen for actions on stdin.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/gtk/gui-top-window.c:1679
-msgid "Listen for actions on stdin"
-msgstr "Espere por ações sobre a entrada padrão"
-
-#. %start-doc options "21 GTK+ GUI Options"
-#. @ftable @code
-#. @item --bg-image <string>
-#. File name of an image to put into the background of the GUI canvas. The image must
-#. be a color PPM image, in binary (not ASCII) format. It can be any size, and will be
-#. automatically scaled to fit the canvas.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/gtk/gui-top-window.c:1692
-msgid "Background Image"
-msgstr "Imagem de Fundo"
-
-#. %start-doc options "21 GTK+ GUI Options"
-#. @ftable @code
-#. @item --pcb-menu <string>
-#. Location of the @file{gpcb-menu.res} file which defines the menu for the GTK+ GUI.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/gtk/gui-top-window.c:1703
-msgid "Location of gpcb-menu.res file"
-msgstr "Localização do arquivo gpcb-menu.res"
-
-#: ../src/hid/gtk/gui-top-window.c:1863
-msgid ""
-"ToggleView(1..MAXLAYER)\n"
-"ToggleView(layername)\n"
-"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)"
-msgstr ""
-"ToggleView(1..MAXLAYER)\n"
-"ToggleView(nomecamada)\n"
-"ToggleView(Seda|Ratos|Conectores|Vias|Máscara|LadodeTrás)"
-
-#: ../src/hid/gtk/gui-top-window.c:1868
-msgid "Toggle the visibility of the specified layer or layer group."
-msgstr "Altere a visibilidade da camada especificada ou grupo de camada."
-
-#: ../src/hid/gtk/gui-top-window.c:1937
-msgid "SelectLayer(1..MAXLAYER|Silk|Rats)"
-msgstr "SelectLayer(1..MAXLAYER|Seda|Ratos)"
-
-#: ../src/hid/gtk/gui-top-window.c:1940
-msgid "Select which layer is the current layer."
-msgstr "Seleciona qual camada é a atual."
 
 #: ../src/hid/gtk/gui-top-window.c:2061
 #, c-format
@@ -5399,541 +4372,46 @@ msgstr "Colocando na memória menus a partir de %s\n"
 msgid "Using default menus\n"
 msgstr "Usando menus padrão\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2179
-msgid "AdjustStyle()\n"
-msgstr "AdjustStyle()\n"
-
-#: ../src/hid/gtk/gui-top-window.c:2182
-msgid "Open the window which allows editing of the route styles."
-msgstr "Abre a janela que permite edição dos estilos de rota."
-
-#: ../src/hid/gtk/gui-top-window.c:2204
-msgid "EditLayerGroups()\n"
-msgstr "Editar Grupos de Camada()\n"
-
-#: ../src/hid/gtk/gui-top-window.c:2207
-msgid "Open the preferences window which allows editing of the layer groups."
-msgstr "Abre a janela de preferências que permite edução de grupos de camadas."
-
 #: ../src/hid/lesstif/dialogs.c:1186
 #, c-format
 msgid "Units are %s."
 msgstr "Unidades são %s."
 
-#: ../src/hid/lpr/lpr.c:26
-#, c-format
-msgid "HID error: pcb called unimplemented PS function %s.\n"
-msgstr "Erro de HID: pcb chamou a função PS %s não implementada.\n"
-
-#. %start-doc options "98 lpr Printing Options"
-#. @ftable @code
-#. @item --lprcommand <string>
-#. Command to use for printing. Defaults to @code{lpr}. This can be used to produce
-#. PDF output with a virtual PDF printer. Example: @*
-#. @code{--lprcommand "lp -d CUPS-PDF-Printer"}.
-#. @end ftable
-#. @noindent In addition, all @ref{Postscript Export} options are valid.
-#. %end-doc
-#.
-#: ../src/hid/lpr/lpr.c:41 ../src/hid/ps/ps.c:1329
-msgid "lprcommand"
-msgstr "Comando lpr"
-
-#: ../src/hid/lpr/lpr.c:41
-msgid "Command to use for printing"
-msgstr "Comando a ser usado na impressão"
-
-#: ../src/hid/lpr/lpr.c:97
-#, c-format
-msgid "LPR: open %s\n"
-msgstr "LPR: abre %s\n"
-
-#: ../src/hid/lpr/lpr.c:136
-msgid "Postscript print"
-msgstr "Impressora postscript"
-
-#. other HIDs expect this to be first.
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --psfile <string>
-#. Name of the postscript output file. Can contain a path.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:153
-msgid "psfile"
-msgstr "arquivops"
-
-#: ../src/hid/ps/ps.c:153
-msgid "Postscript output file"
-msgstr "Arquivo de saída postscript"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex drill-helper
-#. @item --drill-helper
-#. Print a centering target in large drill holes.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:165
-msgid "drill-helper"
-msgstr "ajuda de perfuração"
-
-#: ../src/hid/ps/ps.c:165
-msgid "Print a centering target in large drill holes"
-msgstr "Imprime um alvo centralizado em grandes orifícios de perfuração"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex align-marks
-#. @item --align-marks
-#. Print alignment marks on each sheet. This is meant to ease alignment during exposure.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:177
-msgid "align-marks"
-msgstr "alinhar marcas"
-
-#: ../src/hid/ps/ps.c:177
-msgid "Print alignment marks on each sheet"
-msgstr "Imprimir marcas de alinhamento sobre cada folha"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --outline
-#. Print the contents of the outline layer on each sheet.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:188
-msgid "outline"
-msgstr "linhas de saída"
-
-#: ../src/hid/ps/ps.c:188
-msgid "Print outline on each sheet"
-msgstr "Imprime linha de saída sobre cada folha"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --mirror
-#. Print mirror image.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:198
-msgid "mirror"
-msgstr "espelho"
-
-#: ../src/hid/ps/ps.c:198
-msgid "Print mirror image of every page"
-msgstr "Imprimir imagem refletida de todas as páginas"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --fill-page
-#. Scale output to make the board fit the page.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:209
-msgid "fill-page"
-msgstr "preencher página"
-
-#: ../src/hid/ps/ps.c:209
-msgid "Scale board to fill page"
-msgstr "Proporção de placa preenchendo a página"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --auto-mirror
-#. Print mirror image of appropriate layers.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:220
-msgid "auto-mirror"
-msgstr "auto refletir"
-
-#: ../src/hid/ps/ps.c:220
-msgid "Print mirror image of appropriate layers"
-msgstr "Imprime imagens refletidas das camadas apropriadas"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --ps-color
-#. Postscript output in color.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:231
-msgid "ps-color"
-msgstr "cor ps"
-
-#: ../src/hid/ps/ps.c:231
-msgid "Prints in color"
-msgstr "Imprimir em Cores"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex ps-bloat
-#. @item --ps-bloat <num>
-#. Amount to add to trace/pad/pin edges.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:243
-msgid "ps-bloat"
-msgstr "inchaço ps"
-
-#: ../src/hid/ps/ps.c:243
-msgid "Amount to add to trace/pad/pin edges"
-msgstr "Qauntidade para adicionar a arestas de trilha/pastilha/conector"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex ps-invert
-#. @item --ps-invert
-#. Draw objects as white-on-black.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:255
-msgid "ps-invert"
-msgstr "inverter ps"
-
-#: ../src/hid/ps/ps.c:255
-msgid "Draw objects as white-on-black"
-msgstr "Desenha objetos em preto e branco"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --media <media-name>
-#. Size of the media, the postscript is fitted to. The parameter
-#. @code{<media-name>} can be any of the standard names for paper size: @samp{A0}
-#. to @samp{A10}, @samp{B0} to @samp{B10}, @samp{Letter}, @samp{11x17},
-#. @samp{Ledger}, @samp{Legal}, @samp{Executive}, @samp{A-Size}, @samp{B-size},
-#. @samp{C-Size}, @samp{D-size}, @samp{E-size}, @samp{US-Business_Card},
-#. @samp{Intl-Business_Card}.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:271
-msgid "media"
-msgstr "media"
-
-#: ../src/hid/ps/ps.c:271
-msgid "Media type"
-msgstr "Tipo de mídia"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex psfade
-#. @item --psfade <num>
-#. Fade amount for assembly drawings (0.0=missing, 1.0=solid).
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:283
-msgid "psfade"
-msgstr "desvanecer gradual de ps"
-
-#: ../src/hid/ps/ps.c:284
-msgid "Fade amount for assembly drawings (0.0=missing, 1.0=solid)"
-msgstr ""
-"Quatdade de desvanecimento para desenhos de montagem (0.0=omitido, "
-"1.0=sólido)"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --scale <num>
-#. Scale value to compensate for printer sizing errors (1.0 = full scale).
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:295
-msgid "scale"
-msgstr "proporção"
-
-#: ../src/hid/ps/ps.c:296
-msgid "Scale value to compensate for printer sizing errors (1.0 = full scale)"
-msgstr ""
-"Valor de proporção a compensar para erros de ajuste de tamanho em "
-"impressoras (1.0 = proporção completa)"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex multi-file
-#. @item --multi-file
-#. Produce multiple files, one per page, instead of a single multi page file.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:308
-msgid "multi-file"
-msgstr "multi-arquivo"
-
-#: ../src/hid/ps/ps.c:309
-msgid "Produce multiple files, one per page, instead of a single file"
-msgstr ""
-"Produz múltiplos arquivos, um para cada página, ao invés de um só arquivo"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --xcalib <num>
-#. Paper width. Used for x-Axis calibration.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:320
-msgid "xcalib"
-msgstr "calibração-x"
-
-#: ../src/hid/ps/ps.c:320
-msgid "Paper width. Used for x-Axis calibration"
-msgstr "Largura do papel. Usada para calibração do eixo x"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --ycalib <num>
-#. Paper height. Used for y-Axis calibration.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:331
-msgid "ycalib"
-msgstr "calibração-y"
-
-#: ../src/hid/ps/ps.c:331
-msgid "Paper height. Used for y-Axis calibration"
-msgstr "Altura do papel. Usada para calibração do eixo y"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @item --drill-copper
-#. Draw drill holes in pins / vias, instead of leaving solid copper.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:342
-msgid "drill-copper"
-msgstr "cobre de perfuração"
-
-#: ../src/hid/ps/ps.c:343
-msgid "Draw drill holes in pins / vias, instead of leaving solid copper"
-msgstr ""
-"Desenha orifícios de perfuração em conectores / vias, ao invés de deixar o "
-"cobre sólido"
-
-#. %start-doc options "91 Postscript Export"
-#. @ftable @code
-#. @cindex show-legend
-#. @item --show-legend
-#. Print file name and scale on printout.
-#. @end ftable
-#. %end-doc
-#.
-#: ../src/hid/ps/ps.c:355
-msgid "show-legend"
-msgstr "exibe legenda"
-
-#: ../src/hid/ps/ps.c:355
-msgid "Print file name and scale on printout"
-msgstr "Imprime nome de arquivo e proporção na saída de impressão"
-
-#: ../src/hid/ps/ps.c:1329
-msgid "Command to print"
-msgstr "Comando para imprimir"
-
-#: ../src/hid/ps/ps.c:1438
-#, c-format
-msgid ""
-"X value of %g is too far off.\n"
-"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
-msgstr ""
-"Valor X de %g é muito distante.\n"
-"Esperado próximo a: %.1f, %.1f, %.1f, %.1f\n"
-
-#: ../src/hid/ps/ps.c:1450
-#, c-format
-msgid ""
-"Y value of %g is too far off.\n"
-"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
-msgstr ""
-"Valor Y de %g muito distante.\n"
-"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
-
-#: ../src/hid/ps/ps.c:1462
+#: ../src/hid/ps/ps.c:1457
 msgid "Print Calibration Page"
 msgstr "Página de Ajuste de Impressora"
 
-#: ../src/hid/ps/ps.c:1462
+#: ../src/hid/ps/ps.c:1457
 msgid "Generates a printer calibration page"
 msgstr "Gera uma página de ajuste de impressora"
-
-#: ../src/hid/ps/ps.c:1555
-msgid "Postscript export"
-msgstr "Exporta postscript"
 
 #: ../src/hid/gtk/gui-trackball.c:259
 msgid "2D View"
 msgstr "Visão 2D"
 
-#: ../src/main.c:2041
+#: ../src/main.c:2026
 #, c-format
 msgid "Executing startup script file %s\n"
 msgstr "Executando script de inicialização %s\n"
 
-#: ../src/main.c:2047
+#: ../src/main.c:2032
 #, c-format
 msgid "Executing startup action %s\n"
 msgstr "Executando ação de inicialização %s\n"
 
-#: ../src/misc.c:1374
-#, c-format
-msgid "Warning: layer \"%s\" not known\n"
-msgstr "Atenção: camada \"%s\" desconhecida\n"
-
-#: ../src/misc.c:1377
-#, c-format
-msgid "Named layers in this board are:\n"
-msgstr "Camadas conhecidas nessa placa são:\n"
-
-#: ../src/misc.c:1381
-#, c-format
-msgid ""
-"Also: component, solder, rats, invisible, pins, vias, elements or silk, "
-"mask, solderside.\n"
-msgstr ""
-"Também: componente, soldagem, ratos, invisível, conectores, vias, "
-"componentes ou seda, máscara, lado de soldagem.\n"
-
-#: ../src/misc.c:1461
-#, c-format
-msgid "Request for bounding box of unsupported type %d\n"
-msgstr "Requisição de caixa associada de tipo não suportado %d\n"
-
-#: ../src/misc.c:2193
-msgid ""
-"This is PCB, an interactive\n"
-"printed circuit board editor\n"
-"version "
-msgstr ""
-"Esse é o PCB, um editor\n"
-"de placa de circuito impresso interativo\n"
-"versão "
-
-#: ../src/misc.c:2206
-msgid ""
-"It is licensed under the terms of the GNU\n"
-"General Public License version 2\n"
-"See the LICENSE file for more information\n"
-"\n"
-"For more information see:\n"
-msgstr ""
-"Licenciado nos termos da GNU\n"
-"General Public License versão 2\n"
-"Veja arquivo LICENSE para mais informação\n"
-"\n"
-"Para mais informação veja:\n"
-
-#: ../src/misc.c:2210
-msgid "PCB homepage: "
-msgstr "Sítio internet do PCB: "
-
-#: ../src/misc.c:2212
-msgid "gEDA homepage: "
-msgstr "Sítio internet do gEDA: "
-
-#: ../src/misc.c:2214
-msgid "gEDA Wiki: "
-msgstr "Wiki gEDA: "
-
-#: ../src/misc.c:2217
-msgid ""
-"\n"
-"----- Compile Time Options -----\n"
-msgstr ""
-"\n"
-"----- Opções Durante Compilação -----\n"
-
-#: ../src/misc.c:2219
-msgid "GUI:\n"
-msgstr "GUI:\n"
-
-#: ../src/misc.c:2232
-msgid "Exporters:\n"
-msgstr "Exportadores:\n"
-
-#: ../src/misc.c:2245
-msgid "Printers:\n"
-msgstr "Impressoras:\n"
-
-#: ../src/netlist.c:448 ../src/report.c:833 ../src/select.c:845
-#: ../src/vendor.c:896
+#: ../src/netlist.c:448 ../src/report.c:832 ../src/select.c:845
 #, c-format
 msgid "regexp error: %s\n"
 msgstr "erro de expressão regular: %s\n"
 
-#: ../src/netlist.c:456 ../src/report.c:841 ../src/select.c:857
-#: ../src/vendor.c:916
+#: ../src/netlist.c:456 ../src/report.c:840 ../src/select.c:857
 #, c-format
 msgid "re_comp error: %s\n"
 msgstr "erro de re_comp: %s\n"
 
-#: ../src/parse_y.y:169 ../src/parse_y.y:235 ../src/parse_y.y:258
-msgid "illegal fileformat\n"
-msgstr "formatoarquivo ilegal\n"
-
-#: ../src/parse_y.y:201
+#: ../src/parse_y.y:620
 msgid "illegal layer-group string\n"
 msgstr "sequência ilegal de caracteres de agrupamentos de camadas\n"
-
-#: ../src/parse_y.y:657 ../src/parse_y.y:665
-msgid "illegal route-style string\n"
-msgstr "sequência ilegal de caracteres de estilo de roteamento\n"
-
-#: ../src/parse_y.y:1148
-#, c-format
-msgid ""
-"WARNING parsing file '%s'\n"
-"    line:        %i\n"
-"    description: 'ignored polygon (< 3 points in a contour)'\n"
-msgstr ""
-"ALERTA de análise do arquivo '%s'\n"
-"    linha:        %i\n"
-"    descrição: 'polígono ignoradon (menos de três pontos em um contorno)'\n"
-
-#: ../src/parse_y.y:1949
-#, c-format
-msgid ""
-"ERROR parsing file '%s'\n"
-"    line:        %i\n"
-"    description: '%s'\n"
-msgstr ""
-"ERRO de análise do arquivo '%s'\n"
-"    linha:        %i\n"
-"    descrição: '%s'\n"
-
-#: ../src/parse_y.y:1965
-#, c-format
-msgid ""
-"ERROR:  The file you are attempting to load is in a format\n"
-"which is too new for this version of pcb.  To load this file\n"
-"you need a version of pcb which is >= %d.  If you are\n"
-"using a version built from git source, the source date\n"
-"must be >= %d.  This copy of pcb can only read files\n"
-"up to file version %d.\n"
-msgstr ""
-"ERRO:  O arquivo que você está tentando colocar na memóriaetá em um formato\n"
-"que é muito novo para essa versão do pcb.  Para colocar esse arquivo na "
-"memória\n"
-"você precisa de uma versão do pcb que é >= %d.  Se você está\n"
-"usando uma versão construída a partir do repositório git, a data de código "
-"fonte\n"
-"deve ser >= %d.  Essa cópia do pcb somente pode ler arquivos\n"
-"até a versão %d.\n"
 
 #: ../src/pcb-menu.res:33
 msgid "Save layout"
@@ -6171,11 +4649,11 @@ msgstr "Alt<Tecla>z"
 msgid "Board Layout"
 msgstr "Traçado da Placa"
 
-#: ../src/polygon.c:1378
+#: ../src/polygon.c:1377
 msgid "Cannot close polygon because 45 degree lines are requested.\n"
 msgstr "Não posso fechar o polígono porque linhas de 45 graus são exigidas.\n"
 
-#: ../src/polygon.c:1386
+#: ../src/polygon.c:1385
 msgid "A polygon has to have at least 3 points\n"
 msgstr "Um polígono tem ao menos 3 pontos não alinhados\n"
 
@@ -6198,29 +4676,29 @@ msgstr ""
 msgid "Can't find %s pin %s called for in netlist.\n"
 msgstr "Não encontro %s conector %s citado nessa netlist.\n"
 
-#: ../src/rats.c:276
+#: ../src/rats.c:277
 #, c-format
 msgid "Error! Element %s pin %s appears multiple times in the netlist file.\n"
 msgstr ""
 "Erro! Componente %s conector %s aparece múltiplas vezes no arquivo de "
 "netlist.\n"
 
-#: ../src/rats.c:373
+#: ../src/rats.c:374
 #, c-format
 msgid "Warning! Net \"%s\" is shorted to %s pin %s\n"
 msgstr "Atenção! Fiação \"%s\" em curto com %s conector %s\n"
 
-#: ../src/rats.c:394 ../src/rats.c:430
+#: ../src/rats.c:395 ../src/rats.c:431
 #, c-format
 msgid "Warning! Net \"%s\" is shorted to net \"%s\"\n"
 msgstr "Atenção! Fiação \"%s\" em curto com a fiação \"%s\"\n"
 
-#: ../src/rats.c:409
+#: ../src/rats.c:410
 #, c-format
 msgid "Warning! Net \"%s\" is shorted  to %s pad %s\n"
 msgstr "Atenção! Fiação \"%s\" está em curto com %s pastilha \"%s\"\n"
 
-#: ../src/rats.c:802
+#: ../src/rats.c:803
 msgid ""
 "Congratulations!!\n"
 "The layout is complete and has no shorted nets.\n"
@@ -6228,7 +4706,7 @@ msgstr ""
 "Parabéns!!\n"
 "O traçado está completo e não tem fiação em curto.\n"
 
-#: ../src/rats.c:805
+#: ../src/rats.c:806
 msgid ""
 "Nothing more to add, but there are\n"
 "either rat-lines in the layout, disabled nets\n"
@@ -6238,378 +4716,25 @@ msgstr ""
 "ou linhas de rato no traçado, fiação desabilitadas\n"
 "na net-list, ou componentes faltando\n"
 
-#: ../src/rats.c:915 ../src/rats.c:935
+#: ../src/rats.c:918 ../src/rats.c:940
 msgid "No pad/pin under rat line\n"
 msgstr "Nenhuma pastilha/conector sob linha de rato\n"
 
-#: ../src/rats.c:921
+#: ../src/rats.c:925
 msgid "You must name the starting element first\n"
 msgstr "Você deve nomear o componente inicial primeiramente\n"
 
-#: ../src/rats.c:941
+#: ../src/rats.c:947
 msgid "You must name the ending element first\n"
 msgstr "Você deve nomear o componente final primeiramente\n"
 
-#: ../src/rats.c:955
+#: ../src/rats.c:963
 msgid "Both connections already in netlist - cannot merge nets\n"
 msgstr "Ambas as conecções já estão na netlist - não posso associar fiação\n"
 
-#: ../src/report.c:94
-#, c-format
-msgid ""
-"There are %d different drill sizes used in this layout, %d holes total\n"
-"\n"
-"Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n"
-msgstr ""
-"Existem %d tamanhos de perfuração diferentes nesse traçado, %d orifícios no "
-"total\n"
-"\n"
-"Diam. de perfuração (%s)\t# de conetores\t# de Vias\t# de componetes\t# Sem "
-"anel de cobre\n"
-
-#. create dialog box
-#: ../src/report.c:114
-msgid "Drill Report"
-msgstr "Relatório d Perfuração"
-
-#: ../src/report.c:121
-msgid "ReportDialog()"
-msgstr "ReportDialog()"
-
-#: ../src/report.c:124
-msgid "Report on the object under the crosshair"
-msgstr "Relatório do objeto sob a mira"
-
-#: ../src/report.c:158
-msgid ""
-"%m+VIA ID# %ld; Flags:%s\n"
-"(X,Y) = %$mD.\n"
-"It is a pure hole of diameter %$mS.\n"
-"Name = \"%s\".%s"
-msgstr ""
-"%m+VIA ID# %ld; Sinalizadores:%s\n"
-"(X,Y) = %$mD.\n"
-"É um orifício puro de diâmetro %$mS.\n"
-"Nome = \"%s\".%s"
-
-#: ../src/report.c:164 ../src/report.c:182 ../src/report.c:213
-#: ../src/report.c:233 ../src/report.c:261 ../src/report.c:319
-#: ../src/report.c:347 ../src/report.c:397 ../src/report.c:431
-#: ../src/report.c:472
-msgid "It is LOCKED.\n"
-msgstr "Estrá TRAVADO.\n"
-
-#: ../src/report.c:166
-msgid ""
-"%m+VIA ID# %ld;  Flags:%s\n"
-"(X,Y) = %$mD.\n"
-"Copper width = %$mS. Drill width = %$mS.\n"
-"Clearance width in polygons = %$mS.\n"
-"Annulus = %$mS.\n"
-"Solder mask hole = %$mS (gap = %$mS).\n"
-"Name = \"%s\".%s"
-msgstr ""
-"%m+VIA ID# %ld;  Sinalizadores:%s\n"
-"(X,Y) = %$mD.\n"
-"Largura do cobre = %$mS. Largura de perfução = %$mS.\n"
-"Largura da folga em polígonos = %$mS.\n"
-"Anelar = %$mS.\n"
-"Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
-"Nome = \"%s\".%s"
-
-#: ../src/report.c:206
-msgid ""
-"%m+PIN ID# %ld; Flags:%s\n"
-"(X,Y) = %$mD.\n"
-"It is a mounting hole. Drill width = %$mS.\n"
-"It is owned by element %$mS.\n"
-"%s"
-msgstr ""
-"%m+PIN ID# %ld; Sinalizadores:%s\n"
-"(X,Y) = %$mD.\n"
-"É um orifício de montagem. Largura de perfuração = %$mS.\n"
-"é possuído pelo componente %$mS.\n"
-"%s"
-
-#: ../src/report.c:216
-msgid ""
-"%m+PIN ID# %ld;  Flags:%s\n"
-"(X,Y) = %$mD.\n"
-"Copper width = %$mS. Drill width = %$mS.\n"
-"Clearance width to Polygon = %$mS.\n"
-"Annulus = %$mS.\n"
-"Solder mask hole = %$mS (gap = %$mS).\n"
-"Name = \"%s\".\n"
-"It is owned by element %s\n"
-" as pin number %s.\n"
-"%s"
-msgstr ""
-"%m+ID de CONECTOR# %ld;  Sinalizadores:%s\n"
-"(X,Y) = %$mD.\n"
-"Largura do cobre = %$mS. Largura de perfuração = %$mS.\n"
-"Largura da folga para polígonos = %$mS.\n"
-"Anelar = %$mS.\n"
-"Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
-"Nome = \"%s\".\n"
-"É possído pelo componente %s\n"
-" com número de conector %s.\n"
-"%s"
-
-#: ../src/report.c:248
-msgid ""
-"%m+LINE ID# %ld;  Flags:%s\n"
-"FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
-"SecondPoint(X,Y) = %$mD, ID = %ld.\n"
-"Width = %$mS.\n"
-"Clearance width in polygons = %$mS.\n"
-"It is on layer %d\n"
-"and has name \"%s\".\n"
-"%s"
-msgstr ""
-"%m+LINE ID# %ld;  Sinalizadores:%s\n"
-"FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
-"SecondPoint(X,Y) = %$mD, ID = %ld.\n"
-"Largura = %$mS.\n"
-"Largura de folga em polígonos = %$mS.\n"
-"Está na camada %d\n"
-"e tem o nome \"%s\".\n"
-"%s"
-
-#: ../src/report.c:275
-msgid ""
-"%m+RAT-LINE ID# %ld;  Flags:%s\n"
-"FirstPoint(X,Y)  = %$mD; ID = %ld; connects to layer group %d.\n"
-"SecondPoint(X,Y) = %$mD; ID = %ld; connects to layer group %d.\n"
-msgstr ""
-"%m+ID de RAT-LINE# %ld;  Sinalizadores:%s\n"
-"FirstPoint(X,Y)  = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
-"SecondPoint(X,Y) = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
-
-#: ../src/report.c:302
-msgid ""
-"%m+ARC ID# %ld;  Flags:%s\n"
-"CenterPoint(X,Y) = %$mD.\n"
-"Radius = %$mS, Thickness = %$mS.\n"
-"Clearance width in polygons = %$mS.\n"
-"StartAngle = %ma degrees, DeltaAngle = %ma degrees.\n"
-"Bounding Box is %$mD, %$mD.\n"
-"That makes the end points at %$mD and %$mD.\n"
-"It is on layer %d.\n"
-"%s"
-msgstr ""
-"%m+ID de ARCO# %ld;  Sinalizadores:%s\n"
-"CenterPoint(X,Y) = %$mD.\n"
-"Raio = %$mS, Espessura = %$mS.\n"
-"Espessura da folga em polígonos = %$mS.\n"
-"StartAngle = %ma graus, DeltaAngle = %ma graus.\n"
-"Caixa Associada é %$mD, %$mD.\n"
-"O que coloca as extremidades em %$mD e em %$mD.\n"
-"Está na camada %d.\n"
-"%s"
-
-#: ../src/report.c:335
-msgid ""
-"%m+POLYGON ID# %ld;  Flags:%s\n"
-"Its bounding box is %$mD %$mD.\n"
-"It has %d points and could store %d more\n"
-"  without using more memory.\n"
-"It has %d holes and resides on layer %d.\n"
-"%s"
-msgstr ""
-"%m+ID de POLÍGONO# %ld;  Sinalizadores:%s\n"
-"Sua caixa associada é %$mD %$mD.\n"
-"Tem %d pontos e pode armazenar %d a mais\n"
-"  sem usar mais memória.\n"
-"Tem %d orifícios e localiza-se na camada %d.\n"
-"%s"
-
-#: ../src/report.c:374
-msgid ""
-"%m+PAD ID# %ld;  Flags:%s\n"
-"FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
-"SecondPoint(X,Y) = %$mD; ID = %ld.\n"
-"Width = %$mS.  Length = %$mS.\n"
-"Clearance width in polygons = %$mS.\n"
-"Solder mask = %$mS x %$mS (gap = %$mS).\n"
-"Name = \"%s\".\n"
-"It is owned by SMD element %s\n"
-"  as pin number %s and is on the %s\n"
-"side of the board.\n"
-"%s"
-msgstr ""
-"%m+ID de PASTILHA# %ld;  Sinalizadores:%s\n"
-"FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
-"SecondPoint(X,Y) = %$mD; ID = %ld.\n"
-"Largura = %$mS.  Comprimento = %$mS.\n"
-"Largura da folga em polígonos = %$mS.\n"
-"Máscara de soldagem = %$mS x %$mS (gap = %$mS).\n"
-"Nome = \"%s\".\n"
-"É possuída pelo componente SMD %s\n"
-"  como número de conectorr %s e está sobre o lado\n"
-"%s da placa.\n"
-"%s"
-
-#: ../src/report.c:396 ../src/report.c:430
-msgid "solder (bottom)"
-msgstr "soldagem (inferior)"
-
-#: ../src/report.c:396 ../src/report.c:430
-msgid "component"
-msgstr "componente"
-
-#: ../src/report.c:411
-msgid ""
-"%m+ELEMENT ID# %ld;  Flags:%s\n"
-"BoundingBox %$mD %$mD.\n"
-"Descriptive Name \"%s\".\n"
-"Name on board \"%s\".\n"
-"Part number name \"%s\".\n"
-"It is %$mS tall and is located at (X,Y) = %$mD %s.\n"
-"Mark located at point (X,Y) = %$mD.\n"
-"It is on the %s side of the board.\n"
-"%s"
-msgstr ""
-"%m+ID de COMPONENTE# %ld;  Sinalizadores:%s\n"
-"BoundingBox %$mD %$mD.\n"
-"Nome Descritivo \"%s\".\n"
-"Nome na placa \"%s\".\n"
-"Nome no número da peça \"%s\".\n"
-"Tem %$mS de altura e está localizado em (X,Y) = %$mD %s.\n"
-"Marca localiada no ponto (X,Y) = %$mD.\n"
-"Está do lado %s da placa.\n"
-"%s"
-
-#: ../src/report.c:428
-msgid ""
-",\n"
-"  but it's hidden"
-msgstr ""
-",\n"
-"  mas está escondido"
-
-#: ../src/report.c:457
-#, c-format
-msgid "It is on layer %d."
-msgstr "Está sobre a camada %d."
-
-#: ../src/report.c:459
-msgid ""
-"%m+TEXT ID# %ld;  Flags:%s\n"
-"Located at (X,Y) = %$mD.\n"
-"Characters are %$mS tall.\n"
-"Value is \"%s\".\n"
-"Direction is %d.\n"
-"The bounding box is %$mD %$mD.\n"
-"%s\n"
-"%s"
-msgstr ""
-"%m+ID de TEXTO# %ld;  Sinalizadores:%s\n"
-"Localizado em (X,Y) = %$mD.\n"
-"Caracteres são %$mS tall.\n"
-"Valor é \"%s\".\n"
-"Direção é %d.\n"
-"A caixa associada é %$mD %$mD.\n"
-"%s\n"
-"%s"
-
-#: ../src/report.c:471
-msgid "It is an element name."
-msgstr "É um nome de componente."
-
-#: ../src/report.c:479
-msgid ""
-"%m+POINT ID# %ld.\n"
-"Located at (X,Y) = %$mD.\n"
-"It belongs to a %s on layer %d.\n"
-msgstr ""
-"%m+ID de PONTO# %ld.\n"
-"Localizado em (X,Y) = %$mD.\n"
-"Pertence a um %s na camada %d.\n"
-
-#: ../src/report.c:484
-msgctxt "report"
-msgid "line"
-msgstr "linha"
-
-#: ../src/report.c:484
-msgctxt "report"
-msgid "polygon"
-msgstr "Polígono"
-
-#: ../src/report.c:493
-#, c-format
-msgid "Unknown\n"
-msgstr "Desconhecido\n"
-
-#: ../src/report.c:499
+#: ../src/report.c:498
 msgid "Nothing found to report on\n"
 msgstr "Nada encontrado para relatório\n"
-
-#. create dialog box
-#: ../src/report.c:503 ../src/report.c:545
-msgid "Report"
-msgstr "Relatório"
-
-#: ../src/report.c:516
-msgid "The following pins/pads are FOUND:\n"
-msgstr "Os seguintes conectores/pastilhas foram ENCONTRADOS:\n"
-
-#: ../src/report.c:523 ../src/report.c:535
-#, c-format
-msgid "%s-%s,%c"
-msgstr "%s-%s,%c"
-
-#: ../src/report.c:675 ../src/report.c:776 ../src/report.c:929
-msgid "%$m*"
-msgstr "%$m*"
-
-#: ../src/report.c:676
-#, c-format
-msgid "Net %s length %s\n"
-msgstr "Rede %s comprimento %s\n"
-
-#: ../src/report.c:711
-msgid "No net under cursor.\n"
-msgstr "Nenhuma rede sob o ursor.\n"
-
-#: ../src/report.c:728 ../src/report.c:753
-msgid "-"
-msgstr "-"
-
-#: ../src/report.c:778 ../src/report.c:931
-#, c-format
-msgid "Net \"%s\" length: %s\n"
-msgstr "Rede \"%s\" comprimento: %s\n"
-
-#: ../src/report.c:780 ../src/report.c:933
-#, c-format
-msgid "Net length: %s\n"
-msgstr "Comprimento da rede: %s\n"
-
-#: ../src/report.c:891
-#, c-format
-msgid "No net named %s\n"
-msgstr "Nenhuma net chamada %s\n"
-
-#: ../src/report.c:920
-msgid "Net found, but no lines or arcs were flagged.\n"
-msgstr "Net encontrada, mas sem linhas ou arcos foram sinalizadas.\n"
-
-#: ../src/report.c:922
-msgid "Net not found.\n"
-msgstr "Net desaparecida.\n"
-
-#: ../src/report.c:945
-msgid "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])"
-msgstr "Report(Objeto|DrillReport|FoundPins|NetLength|AllNetLengths|[,nome])"
-
-#: ../src/report.c:947
-msgid "Produce various report."
-msgstr "Produz vários relatórios."
-
-#: ../src/report.c:985 ../src/report.c:1006
-msgid "Click on an object"
-msgstr "Clique sobre um objeto"
 
 #: ../src/set.c:261
 msgid "That mode is NOT allowed when drawing ratlines!\n"
@@ -6632,7 +4757,7 @@ msgstr ""
 #. *     have to cast to Coord, which might overflow for complex routing when
 #. *     PCB is built with Coord as a 32-bit integer.
 #.
-#: ../src/toporouter.c:6508 ../src/toporouter.c:6509
+#: ../src/toporouter.c:6508
 #, c-format
 msgid "Wiring cost: %f inches\n"
 msgstr "Custo de fios: %f polegadas\n"
@@ -6651,7 +4776,7 @@ msgstr "%d fiações restantes\n"
 msgid "%d -> "
 msgstr "%d -> "
 
-#: ../src/toporouter.c:7489 ../src/toporouter.c:7490
+#: ../src/toporouter.c:7489
 #, c-format
 msgid "RUBIX router: %d nets remaining\n"
 msgstr "Roteador RUBIX: %d fiações restantes\n"
@@ -6669,36 +4794,12 @@ msgstr "Iniciado %s"
 msgid "-------------------------------------\n"
 msgstr "-------------------------------------\n"
 
-#: ../src/toporouter.c:7750
-msgid "Select a set of pads"
-msgstr "Seleciona um conjunto de pastilhas"
-
-#: ../src/toporouter.c:7751
-msgid "Pad escape"
-msgstr "Escape de pastilha"
-
-#: ../src/toporouter.c:7751
-msgid "Escape()"
-msgstr "Escape()"
-
-#: ../src/toporouter.c:7752
-msgid "Select net(s)"
-msgstr "Selecione net(s)"
-
-#: ../src/toporouter.c:7753
-msgid "Topological autorouter"
-msgstr "Autorouter topológico"
-
-#: ../src/toporouter.c:7753
-msgid "Toporouter()"
-msgstr "Toporouter()"
-
 #: ../src/undo.c:221
 #, c-format
 msgid "Size of 'undo-list' exceeds %li kb\n"
 msgstr "Tamanho da 'undo-list' excedeu %li kb\n"
 
-#: ../src/undo.c:937
+#: ../src/undo.c:939
 msgid ""
 "ERROR: Attempt to Undo() with Serial == 0\n"
 "       Please save your work and report this bug.\n"
@@ -6706,11 +4807,11 @@ msgstr ""
 "ERRO: Tentativa de Undo() com Serial == 0\n"
 "      Por favor grave seu trabalho e me envie um relatório sobre esse erro.\n"
 
-#: ../src/undo.c:944
+#: ../src/undo.c:946
 msgid "Nothing to undo - buffer is empty\n"
 msgstr "Nada a desfazer - memória vazia\n"
 
-#: ../src/undo.c:954
+#: ../src/undo.c:956
 #, c-format
 msgid ""
 "ERROR: Bad undo serial number %d in undo stack - expecting %d or lower\n"
@@ -6720,17 +4821,17 @@ msgstr ""
 "esperado %d ou menos\n"
 "       Por favor grave seu trabalho e informe essa falha.\n"
 
-#: ../src/undo.c:983
+#: ../src/undo.c:985
 msgid "ERROR: Failed to undo some operations\n"
 msgstr "ERRO: Falha ao desfazer algumas operações\n"
 
-#: ../src/undo.c:1119
+#: ../src/undo.c:1121
 msgid "Nothing to redo. Perhaps changes have been made since last undo\n"
 msgstr ""
 "Nada a refazer. Pode ser que modificações tenham sido feitas desde o último "
 "desfazer\n"
 
-#: ../src/undo.c:1127
+#: ../src/undo.c:1129
 #, c-format
 msgid ""
 "ERROR: Bad undo serial number %d in redo stack - expecting %d or higher\n"
@@ -6740,74 +4841,17 @@ msgstr ""
 "%d ou maior\n"
 "      Por favor grave seu trabalho e me envie um relatório sobre esse erro.\n"
 
-#: ../src/undo.c:1159
+#: ../src/undo.c:1161
 msgid "ERROR: Failed to redo some operations\n"
 msgstr "ERRO: Falha ao refazer algumas operações\n"
 
-#: ../src/undo.c:1174
+#: ../src/undo.c:1176
 msgid ""
 "ERROR: Operations were added to the Undo stack with an incorrect serial "
 "number\n"
 msgstr ""
 "ERRO: Operações foram adicionadas à pilha de desfazer com serial serial "
 "incorreto\n"
-
-#. ************************************************************
-#: ../src/vendor.c:104
-msgid "ApplyVendor()"
-msgstr "ApplyVendor()"
-
-#: ../src/vendor.c:107
-msgid "Applies the currently loaded vendor drill table to the current design."
-msgstr ""
-"Aplica o atualmente na memória tabela de perfuração de fornecedor para o "
-"desenho atual."
-
-#. ************************************************************
-#: ../src/vendor.c:128
-msgid "ToggleVendor()"
-msgstr "ToggleVendor()"
-
-#: ../src/vendor.c:131
-msgid "Toggles the state of automatic drill size mapping."
-msgstr "Muda o estado do mapeamento automático de tamanho de perfuração."
-
-#. ************************************************************
-#: ../src/vendor.c:159
-msgid "EnableVendor()"
-msgstr "EnableVendor()"
-
-#: ../src/vendor.c:162
-msgid "Enables automatic drill size mapping."
-msgstr "Habilita mapeamento automático de tamanho de perfuração."
-
-#. ************************************************************
-#: ../src/vendor.c:187
-msgid "DisableVendor()"
-msgstr "DisableVendor()"
-
-#: ../src/vendor.c:190
-msgid "Disables automatic drill size mapping."
-msgstr "Desabilita mapeamento automático de perfuração."
-
-#. ************************************************************
-#: ../src/vendor.c:213
-msgid "UnloadVendor()"
-msgstr "UnloadVendor()"
-
-#: ../src/vendor.c:216
-msgid "Unloads the current vendor drill mapping table."
-msgstr ""
-"Remove da memória a atual tabela de mapeamento de perfuração de fornecedor."
-
-#. ************************************************************
-#: ../src/vendor.c:245
-msgid "LoadVendorFrom(filename)"
-msgstr "LoadVendorFrom(nomearquivo)"
-
-#: ../src/vendor.c:248
-msgid "Loads the specified vendor resource file."
-msgstr "Colocar na memória arquivo de recursos de fornecedor."
 
 #: ../src/vendor.c:281
 msgid "Load Vendor Resource File..."
@@ -6830,61 +4874,56 @@ msgstr ""
 msgid "Could not load vendor resource file \"%s\"\n"
 msgstr "Não posso carregar o arquivo de recurso do fornecedor \"%s\"\n"
 
-#: ../src/vendor.c:342
-#, c-format
-msgid "\"%s\" is not a supported units.  Defaulting to inch\n"
-msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando em polegada\n"
-
 #: ../src/vendor.c:355
 msgid "No drillmap resource found\n"
 msgstr "Nenhum recurso de mapeamento de perfuração encontrado\n"
 
-#: ../src/vendor.c:372
-#, c-format
-msgid "\"%s\" is not a valid rounding type. Defaulting to up\n"
+#: ../src/vendor.c:373
+#, fuzzy, c-format
+msgid "\"%s\" is not a valid rounding type.  Defaulting to up\n"
 msgstr "\"%s\" é um tipo de roteamento inválido.  Padronizando para cima\n"
 
-#: ../src/vendor.c:404 ../src/vendor.c:420
+#: ../src/vendor.c:405 ../src/vendor.c:421
 #, c-format
 msgid "Set DRC minimum copper spacing to %.2f mils\n"
 msgstr "Ajuste DRC espaçamento mínimo entre trilhas para %.2f mils\n"
 
-#: ../src/vendor.c:412
+#: ../src/vendor.c:413
 #, c-format
 msgid "Set DRC minimum copper overlap to %.2f mils\n"
 msgstr "Ajuste DRC sobreposição mínima entre trilhas para %.2f mils\n"
 
-#: ../src/vendor.c:428
+#: ../src/vendor.c:429
 #, c-format
 msgid "Set DRC minimum silk width to %.2f mils\n"
 msgstr "Ajuste DRC de largura de seda mínima para %.2f mils\n"
 
-#: ../src/vendor.c:436
+#: ../src/vendor.c:437
 #, c-format
 msgid "Set DRC minimum drill diameter to %.2f mils\n"
 msgstr "Ajuste DRC diâmetro mínimo de perfuração para %.2f mils\n"
 
 # annular is already ring shaped (pleonastic)
-#: ../src/vendor.c:444
+#: ../src/vendor.c:445
 #, c-format
 msgid "Set DRC minimum annular ring to %.2f mils\n"
 msgstr "Ajuste DRC de largura mínima de auréola anular para %.2f mils\n"
 
-#: ../src/vendor.c:448
+#: ../src/vendor.c:449
 #, c-format
 msgid "Loaded %d vendor drills from %s\n"
 msgstr "Colocado na memória %d perfurações de fornecedor de %s\n"
 
-#: ../src/vendor.c:449
+#: ../src/vendor.c:450
 #, c-format
 msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
 msgstr ""
 "Colocado na memória %d RefDes ignorado, %d Value ignorado, %d Descr gnorado\n"
 
-#: ../src/vendor.c:494
-#, c-format
+#: ../src/vendor.c:496
+#, fuzzy, c-format
 msgid ""
-"Via at %.2f, %.2f not changed. Possible reasons:\n"
+"Via at %.2f, %.2f not changed.  Possible reasons:\n"
 "\t- pad size too small\n"
 "\t- new size would be too large or too small\n"
 msgstr ""
@@ -6892,12 +4931,12 @@ msgstr ""
 "\t- tamanho de pastilha muito pequeno\n"
 "\t- novo tamanho pode ser muito grande ou muito pequeno\n"
 
-#: ../src/vendor.c:503
+#: ../src/vendor.c:504
 #, c-format
 msgid "Locked via at %.2f, %.2f not changed.\n"
 msgstr "Via travada em %.2f, %.2f não modificada.\n"
 
-#: ../src/vendor.c:534
+#: ../src/vendor.c:536
 #, c-format
 msgid ""
 "Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
@@ -6910,36 +4949,36 @@ msgstr ""
 "\t- tamanho de pastilha muito pequeno\n"
 "\t- novo tamanho pode ser muito grande ou muito pequeno\n"
 
-#: ../src/vendor.c:548
+#: ../src/vendor.c:550
 #, c-format
 msgid "Locked pin at %-6.2f, %-6.2f not changed.\n"
 msgstr "Conector travado em %-6.2f, %-6.2f não modificados.\n"
 
-#: ../src/vendor.c:558
+#: ../src/vendor.c:560
 #, c-format
 msgid "Updated %d drill sizes out of %d total\n"
 msgstr "Atualizado %d tamanhos de perfuração fora do %d total\n"
 
-#: ../src/vendor.c:567
+#: ../src/vendor.c:569
 #, c-format
 msgid "Adjusted active via hole size to be %6.2f mils\n"
 msgstr "Ajustado tamanho de orifíco de via ativa para ser %6.2f mils\n"
 
-#: ../src/vendor.c:580
+#: ../src/vendor.c:583
 #, c-format
 msgid "Adjusted %s routing style via hole size to be %6.2f mils\n"
 msgstr ""
 "Ajustado %s o tamanho do orifício de via que consta no estilo de roteamento "
 "para %6.2f mils\n"
 
-#: ../src/vendor.c:589
+#: ../src/vendor.c:592
 #, c-format
 msgid "Increased %s routing style via diameter to %6.2f mils\n"
 msgstr ""
 "Incrementado de %s o diâmetro da via que consta no estilo de roteamento para "
 "%6.2f mils\n"
 
-#: ../src/vendor.c:641
+#: ../src/vendor.c:643
 #, c-format
 msgid ""
 "Vendor drill list does not contain a drill >= %6.2f mil\n"
@@ -6948,36 +4987,22 @@ msgstr ""
 "Lista de orifíco do fornecedor não possui uma perfuração >= %6.2f mil\n"
 "Usando %6.2f mil.\n"
 
-#: ../src/vendor.c:698
-#, c-format
-msgid "realloc() failed to allocate %ld bytes\n"
-msgstr "realloc() falhou em alocar %ld bytes\n"
-
-#: ../src/vendor.c:760
-msgid "Error:  null skip value\n"
-msgstr "Error:  valor nulo desconsiderado\n"
-
-#: ../src/vendor.c:796
-#, c-format
-msgid "realloc() failed\n"
-msgstr "realloc() falhou\n"
-
-#: ../src/vendor.c:806
+#: ../src/vendor.c:807
 #, c-format
 msgid "Ignored resource type = %d in skips= section\n"
 msgstr "Ignorado recurso tipo = %d em skips= seção\n"
 
-#: ../src/vendor.c:828
+#: ../src/vendor.c:829
 #, c-format
 msgid "Vendor mapping skipped because refdes = %s matches %s\n"
 msgstr "Mapeamento de fornecedor ignorado porque refdes = %s coincide com %s\n"
 
-#: ../src/vendor.c:840
+#: ../src/vendor.c:841
 #, c-format
 msgid "Vendor mapping skipped because value = %s matches %s\n"
 msgstr "Mapeamento de fornecedor ignorado porque valor = %s coincide com %s\n"
 
-#: ../src/vendor.c:855
+#: ../src/vendor.c:856
 #, c-format
 msgid "Vendor mapping skipped because descr = %s matches %s\n"
 msgstr "Mapeamento de fornecedor ignorado porque descr = %s conincide com %s\n"
@@ -6988,6 +5013,1458 @@ msgid "Vendor mapping skipped because element %s is locked\n"
 msgstr ""
 "Mapeamento de fornecedor ignorado porque o componente %s está travado\n"
 
-#: ../src/vendor.c:933
-msgid "re_exec error\n"
-msgstr "erro de re_exec\n"
+#~ msgid "Atomic(Save|Restore|Close|Block)"
+#~ msgstr "Atômica(Salvar|Recuperar|Fechar|Bloquear)"
+
+#~ msgid "Save or restore the undo serial number."
+#~ msgstr "Salva ou recuperar o número de série de desfazer."
+
+#~ msgid "DRC()"
+#~ msgstr "DRC()"
+
+#~ msgid "Invoke the DRC check."
+#~ msgstr "Verificar DRC."
+
+#~ msgid "DumpLibrary()"
+#~ msgstr "DumpLibrary()"
+
+#~ msgid "Display the entire contents of the libraries."
+#~ msgstr "Mostrar todo o conteúdo das bibliotecas."
+
+#~ msgid "Flip(Object|Selected|SelectedElements)"
+#~ msgstr "Vira(Objeto|Selecionado|ComponenteSelecionado)"
+
+#~ msgid "Flip an element to the opposite side of the board."
+#~ msgstr "Transfere componentes para o lado posto da placa."
+
+#~ msgid "Message(message)"
+#~ msgstr "Message(messagem)"
+
+#~ msgid "Writes a message to the log window."
+#~ msgstr "Escreve uma mensagem na janela de registro."
+
+#~ msgid ""
+#~ "Set the thermal (on the current layer) of pins or vias to the given "
+#~ "style.\n"
+#~ "Style = 0 means no thermal.\n"
+#~ "Style = 1 has diagonal fingers with sharp edges.\n"
+#~ "Style = 2 has horizontal and vertical fingers with sharp edges.\n"
+#~ "Style = 3 is a solid connection to the plane.Style = 4 has diagonal "
+#~ "fingers with rounded edges.\n"
+#~ "Style = 5 has horizontal and vertical fingers with rounded edges.\n"
+#~ msgstr ""
+#~ "Ajusta o térmico (sobre a camada atual) dos conectores ou vias para o "
+#~ "estilo dado.\n"
+#~ "Estilo = 0 significa sem térmico.\n"
+#~ "Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
+#~ "Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
+#~ "Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal "
+#~ "com arestas arredondadas.\n"
+#~ "Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
+
+#~ msgid ""
+#~ "SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, "
+#~ "delta)"
+#~ msgstr ""
+#~ "SetValue(Grade|Linha|TamanhoLinha|Texto|TextoProporção|"
+#~ "AnelPerfuraçãoOrifício|Via,|TamanhoVia, delta)"
+
+#~ msgid "Change various board-wide values and sizes."
+#~ msgstr "Muda vários vaores e tamanhos de placas largas."
+
+#~ msgid "Quit()"
+#~ msgstr "Sair()"
+
+#~ msgid "Quits the application after confirming."
+#~ msgstr "Sai de uma aplicação após confirmação."
+
+#~ msgid "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
+#~ msgstr "Connection(Encontra|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
+
+#~ msgid "Searches connections of the object at the cursor position."
+#~ msgstr "Busca por conecções de objetos na posição do cursor."
+
+#~ msgid "DisperseElements(All|Selected)"
+#~ msgstr "DisperseElements(Todos|Selecionados)"
+
+#~ msgid "Disperses elements."
+#~ msgstr "Dispersa componentes."
+
+#~ msgid ""
+#~ "Display(NameOnPCB|Description|Value)\n"
+#~ "Display(Grid|Redraw)\n"
+#~ "Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
+#~ "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+#~ "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|"
+#~ "ToggleSnapPin)\n"
+#~ "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|"
+#~ "ToggleLocalRef)\n"
+#~ "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+#~ "Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
+#~ "Display(Pinout|PinOrPadName)"
+#~ msgstr ""
+#~ "Mostra(NameOnPCB|Descrição|Valor)\n"
+#~ "Mostra(Grade|Redesenha)\n"
+#~ "Mostra(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
+#~ "Mostra(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+#~ "Mostra(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|"
+#~ "ToggleSnapPin)\n"
+#~ "Mostra(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
+#~ "Mostra(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+#~ "Mostra(ToggleLiveRoute|LockNames|OnlyNames)\n"
+#~ "Mostra(Pinout|PinOrPadName)"
+
+#~ msgid "Several display-related actions."
+#~ msgstr "Muitas ações relacionadas a exibir."
+
+#~ msgid ""
+#~ "Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+#~ "Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+#~ "Mode(Notify|Release|Cancel|Stroke)\n"
+#~ "Mode(Save|Restore)"
+#~ msgstr ""
+#~ "Modo(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+#~ "Modo(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+#~ "Modo(Notify|Release|Cancel|Stroke)\n"
+#~ "Modo(Save|Restore)"
+
+#~ msgid "Change or use the tool mode."
+#~ msgstr "Muda ou usa o modo ferramenta."
+
+#~ msgid "RemoveSelected()"
+#~ msgstr "RemoverSelecionados()"
+
+#~ msgid "Removes any selected objects."
+#~ msgstr "Apague quaisquer objetos selecionados."
+
+#~ msgid ""
+#~ "Renumber()\n"
+#~ "Renumber(filename)"
+#~ msgstr ""
+#~ "Renumerar()\n"
+#~ "Renumerar(nomearquivo)"
+
+#~ msgid ""
+#~ "Renumber all elements.  The changes will be recorded to filename\n"
+#~ "for use in backannotating these changes to the schematic."
+#~ msgstr ""
+#~ "Renumere todos os componentes. As modificações serão gravadas em "
+#~ "nomearquivo.\n"
+#~ "para uso em voltar anotações dessas mudanças para o diagrama esquemático."
+
+#~ msgid "realloc failed() in %s\n"
+#~ msgstr "realloc failed() em %s\n"
+
+#~ msgid "RipUp(All|Selected|Element)"
+#~ msgstr "Cancelar(Tudo|Selecionado|Componente)"
+
+#~ msgid "Ripup auto-routed tracks, or convert an element to parts."
+#~ msgstr "Cancelar tilhar autoroteadas, ou converter um componente em partes."
+
+#~ msgid "AddRats(AllRats|SelectedRats|Close)"
+#~ msgstr "AddRats(AllRats|SelectedRats|Close)"
+
+#~ msgid "Add one or more rat lines to the board."
+#~ msgstr "Adicionar uma ou mais linhas de rato à placa."
+
+#~ msgid ""
+#~ "Delete(Object|Selected)\n"
+#~ "Delete(AllRats|SelectedRats)"
+#~ msgstr ""
+#~ "Apaga(Objeto|Selecionado)\n"
+#~ "Apaga(Todos os ratos|ratos selecionados)"
+
+#~ msgid "Delete stuff."
+#~ msgstr "Apagar coisas."
+
+#~ msgid "DeleteRats(AllRats|Selected|SelectedRats)"
+#~ msgstr "ApagaRatos(Todos|Selecionados|SelectedRats)"
+
+#~ msgid "Delete rat lines."
+#~ msgstr "Apaga linhas de rato."
+
+#~ msgid "AutoPlaceSelected()"
+#~ msgstr "Coloca automaticamente componentes selecionados"
+
+#~ msgid "Auto-place selected components."
+#~ msgstr "Coloca automaticamente componentes selecionados"
+
+#~ msgid "AutoRoute(AllRats|SelectedRats)"
+#~ msgstr "AutoRoute(AllRats|SelectedRats)"
+
+#~ msgid "Auto-route some or all rat lines."
+#~ msgstr "Auto-route some or all rat lines."
+
+#~ msgid ""
+#~ "MarkCrosshair()\n"
+#~ "MarkCrosshair(Center)"
+#~ msgstr ""
+#~ "MarkCrosshair()\n"
+#~ "MarkCrosshair(Centro)"
+
+#~ msgid "Set/Reset the Crosshair mark."
+#~ msgstr "Ajusta/Zera a marca de mira."
+
+#~ msgid ""
+#~ "ChangeSize(Object, delta)\n"
+#~ "ChangeSize(SelectedObjects|Selected, delta)\n"
+#~ "ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+#~ "ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+#~ "ChangeSize(SelectedElements, delta)"
+#~ msgstr ""
+#~ "ChangeSize(Object, delta)\n"
+#~ "ChangeSize(SelectedObjects|Selected, delta)\n"
+#~ "ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+#~ "ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+#~ "ChangeSize(SelectedElements, delta)"
+
+#~ msgid "Changes the size of objects."
+#~ msgstr "Modifica o tamanho de objetos."
+
+#~ msgid ""
+#~ "ChangeDrillSize(Object, delta)\n"
+#~ "ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
+#~ msgstr ""
+#~ "ChangeDrillSize(Object, delta)\n"
+#~ "ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
+
+#~ msgid "Changes the drilling hole size of objects."
+#~ msgstr "Modifica orifício de perfuração dos objetos selecionados."
+
+#~ msgid ""
+#~ "ChangeClearSize(Object, delta)\n"
+#~ "ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+#~ "ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+#~ "ChangeClearSize(Selected|SelectedObjects, delta)"
+#~ msgstr ""
+#~ "ChangeClearSize(Object, delta)\n"
+#~ "ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+#~ "ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+#~ "ChangeClearSize(Selected|SelectedObjects, delta)"
+
+#~ msgid "Changes the clearance size of objects."
+#~ msgstr "Modifica o tamanho da folga de objetos."
+
+#~ msgid ""
+#~ "MinMaskGap(delta)\n"
+#~ "MinMaskGap(Selected, delta)"
+#~ msgstr ""
+#~ "MinMaskGap(delta)\n"
+#~ "MinMaskGap(Selecionado, delta)"
+
+#~ msgid "Ensures the mask is a minimum distance from pins and pads."
+#~ msgstr ""
+#~ "Garante que a máscara esteja a uma distância mínima de conectores e "
+#~ "pastilhas."
+
+#~ msgid ""
+#~ "MinClearGap(delta)\n"
+#~ "MinClearGap(Selected, delta)"
+#~ msgstr ""
+#~ "MinClearGap(delta)\n"
+#~ "MinClearGap(Selecionado, delta)"
+
+#~ msgid "Ensures that polygons are a minimum distance from objects."
+#~ msgstr "Garante que polígonos estejam a uma mínima distância de objetos."
+
+#~ msgid "ChangePinName(ElementName,PinNumber,PinName)"
+#~ msgstr "ChangePinName(ElementName,PinNumber,PinName)"
+
+#~ msgid "Sets the name of a specific pin on a specific element."
+#~ msgstr ""
+#~ "Ajusta o nome de um conector específico de um componente específico."
+
+#~ msgid ""
+#~ "ChangeName(Object)\n"
+#~ "ChangeName(Layout|Layer)"
+#~ msgstr ""
+#~ "ChangeName(Objeto)\n"
+#~ "ChangeName(Traçado|Camada)"
+
+#~ msgid "Sets the name of objects."
+#~ msgstr "Ajusta o nome de objetos."
+
+#~ msgid "MorphPolygon(Object|Selected)"
+#~ msgstr "MorphPolygon(Objeto|Selecionado)"
+
+#~ msgid "Converts dead polygon islands into separate polygons."
+#~ msgstr "Converte ilhas de polígonos mortos em polígonos separados."
+
+#~ msgid "ToggleHideName(Object|SelectedElements)"
+#~ msgstr "ToggleHideName(Objetos|SelecionadosComponentes)"
+
+#~ msgid "Toggles the visibility of element names."
+#~ msgstr "Altere a visibilidade dos nomes dos componentes selecionados."
+
+#~ msgid "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
+#~ msgstr "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
+
+#~ msgid "Changes the join (clearance through polygons) of objects."
+#~ msgstr "Modifica a proximidade (folga através de polígonos) de objetos."
+
+#~ msgid ""
+#~ "ChangeSquare(ToggleObject)\n"
+#~ "ChangeSquare(SelectedElements|SelectedPins)\n"
+#~ "ChangeSquare(Selected|SelectedObjects)"
+#~ msgstr ""
+#~ "ChangeSquare(ToggleObject)\n"
+#~ "ChangeSquare(SelectedElements|SelectedPins)\n"
+#~ "ChangeSquare(Selected|SelectedObjects)"
+
+#~ msgid "Changes the square flag of pins and pads."
+#~ msgstr "Altere o sinalizador de quadrado de um objeto."
+
+#~ msgid "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
+#~ msgstr "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
+
+#~ msgid "sets the square-flag of objects."
+#~ msgstr "ajusta o sinalizador de quadrado de objetos."
+
+#~ msgid "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
+#~ msgstr "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
+
+#~ msgid "Clears the square-flag of pins and pads."
+#~ msgstr "Apaga o sinalizador de quadrado de conectores e pastilhas."
+
+#~ msgid ""
+#~ "ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+#~ "ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
+#~ msgstr ""
+#~ "ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+#~ "ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
+
+#~ msgid "Changes the octagon-flag of pins and vias."
+#~ msgstr "Modifique o sinalizador de octógono de conectores e vias."
+
+#~ msgid "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
+#~ msgstr "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
+
+#~ msgid "Sets the octagon-flag of objects."
+#~ msgstr "Modifique o sinalizador de octógono do objetos."
+
+#~ msgid ""
+#~ "ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+#~ "ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
+#~ msgstr ""
+#~ "ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+#~ "ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
+
+#~ msgid "Clears the octagon-flag of pins and vias."
+#~ msgstr "Apaga o sinalizador de octógono de conectores e vias."
+
+#~ msgid "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
+#~ msgstr "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
+
+#~ msgid "Changes the hole flag of objects."
+#~ msgstr "Modifica o sinalizador de orifício de objetos."
+
+#~ msgid "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
+#~ msgstr "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
+
+#~ msgid "Changes the no paste flag of objects."
+#~ msgstr "Modifica o sinalizador de não colar de objetos."
+
+#~ msgid ""
+#~ "Select(Object|ToggleObject)\n"
+#~ "Select(All|Block|Connection)\n"
+#~ "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+#~ "Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+#~ "Select(TextByName|ViaByName|NetByName)\n"
+#~ "Select(TextByName|ViaByName|NetByName, Name)\n"
+#~ "Select(Convert)"
+#~ msgstr ""
+#~ "Seleciona(Object|ToggleObject)\n"
+#~ "Seleciona(All|Block|Connection)\n"
+#~ "Seleciona(ElementByName|ObjectByName|PadByName|PinByName)\n"
+#~ "Seleciona(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+#~ "Seleciona(TextByName|ViaByName|NetByName)\n"
+#~ "Seleciona(TextByName|ViaByName|NetByName, Name)\n"
+#~ "Seleciona(Convert)"
+
+#~ msgid "Toggles or sets the selection."
+#~ msgstr "Modifica ou ajusta a seleção."
+
+#~ msgid ""
+#~ "Unselect(All|Block|Connection)\n"
+#~ "Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
+#~ "Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+#~ "Unselect(TextByName|ViaByName)\n"
+#~ "Unselect(TextByName|ViaByName, Name)\n"
+#~ msgstr ""
+#~ "RemoveSeleção(All|Block|Connection)\n"
+#~ "RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName)\n"
+#~ "RemoveSeleção(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+#~ "RemoveSeleção(TextByName|ViaByName)\n"
+#~ "RemoveSeleção(TextByName|ViaByName, Name)\n"
+
+#~ msgid ""
+#~ "Unselects the object at the pointer location or the specified objects."
+#~ msgstr ""
+#~ "Remove seleção do objeto na localização informada ou de objetos "
+#~ "específicados."
+
+#~ msgid ""
+#~ "SaveTo(Layout|LayoutAs,filename)\n"
+#~ "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+#~ "SaveTo(PasteBuffer,filename)"
+#~ msgstr ""
+#~ "SaveTo(Layout|LayoutAs,filename)\n"
+#~ "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+#~ "SaveTo(PasteBuffer,filename)"
+
+#~ msgid "Saves data to a file."
+#~ msgstr "Grava dados em um arquivo."
+
+#~ msgid ""
+#~ "SaveSettings()\n"
+#~ "SaveSettings(local)"
+#~ msgstr ""
+#~ "SaveSettings()\n"
+#~ "SaveSettings(local)"
+
+#~ msgid "Saves settings."
+#~ msgstr "Grava Configurações."
+
+#~ msgid ""
+#~ "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+#~ msgstr ""
+#~ "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+
+#~ msgid "Load layout data from a file."
+#~ msgstr "Coloca na memória dados a partir de um arquivo."
+
+#~ msgid "New([name])"
+#~ msgstr "Novo([nome])"
+
+#~ msgid "Starts a new layout."
+#~ msgstr "Inicia novo traçado."
+
+#~ msgid ""
+#~ "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+#~ "PasteBuffer(Rotate, 1..3)\n"
+#~ "PasteBuffer(Convert|Save|Restore|Mirror)\n"
+#~ "PasteBuffer(ToLayout, X, Y, units)"
+#~ msgstr ""
+#~ "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+#~ "PasteBuffer(Rotate, 1..3)\n"
+#~ "PasteBuffer(Convert|Save|Restore|Mirror)\n"
+#~ "PasteBuffer(ToLayout, X, Y, units)"
+
+#~ msgid "Various operations on the paste buffer."
+#~ msgstr "Várias operações sobre colar na memória."
+
+#~ msgid ""
+#~ "Undo()\n"
+#~ "Undo(ClearList)"
+#~ msgstr ""
+#~ "Undo()\n"
+#~ "Undo(ClearList)"
+
+#~ msgid "Undo recent changes."
+#~ msgstr "Desfazer modificações recentes."
+
+#~ msgid "Redo()"
+#~ msgstr "Refazer()"
+
+#~ msgid "Redo recent \"undo\" operations."
+#~ msgstr "Refaça a última operação de desfazer."
+
+#~ msgid "Polygon(Close|PreviousPoint)"
+#~ msgstr "Polígono(Fecha|PontoAnterior)"
+
+#~ msgid "Some polygon related stuff."
+#~ msgstr "Algumas coisas relacionadas a polígonos."
+
+#~ msgid "RouteStyle(1|2|3|4)"
+#~ msgstr "Estilos de Rota(1|2|3|4)"
+
+#~ msgid "Copies the indicated routing style into the current sizes."
+#~ msgstr "Copia o estilo de rota indicado no tamanho atuais."
+
+#~ msgid "MoveObject(X,Y,dim)"
+#~ msgstr "MoveObjeto(X,Y,dim)"
+
+#~ msgid "Moves the object under the crosshair."
+#~ msgstr "Move o objeto sob a mira."
+
+#~ msgid "MoveToCurrentLayer(Object|SelectedObjects)"
+#~ msgstr "MoveToCurrentLayer(Object|SelectedObjects)"
+
+#~ msgid "Moves objects to the current layer."
+#~ msgstr "Mova objetos para a camada atual."
+
+#~ msgid "SetSame()"
+#~ msgstr "Ajusta o Mesmo"
+
+#~ msgid "Sets current layer and sizes to match indicated item."
+#~ msgstr "Grava a camada atual e tamanhos para coincidir com o item indicado."
+
+#~ msgid ""
+#~ "SetFlag(Object|Selected|SelectedObjects, flag)\n"
+#~ "SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+#~ "SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+#~ "SetFlag(SelectedElements, flag)\n"
+#~ "flag = square | octagon | thermal | join"
+#~ msgstr ""
+#~ "SetFlag(Objeto|Selected|SelectedObjects, sinalizador)\n"
+#~ "SetFlag(SelectedLines|SelectedPins|SelectedVias, sinalizador)\n"
+#~ "SetFlag(SelectedPads|SelectedTexts|SelectedNames, sinalizador)\n"
+#~ "SetFlag(SelectedElements, sinalizador)\n"
+#~ "flag = quadrado | octógono | térmico | junção"
+
+#~ msgid "Sets flags on objects."
+#~ msgstr "Ajusta sinalizadores sobre objetos."
+
+#~ msgid ""
+#~ "ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+#~ "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+#~ "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+#~ "ClrFlag(SelectedElements, flag)\n"
+#~ "flag = square | octagon | thermal | join"
+#~ msgstr ""
+#~ "ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+#~ "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+#~ "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+#~ "ClrFlag(SelectedElements, flag)\n"
+#~ "sinalizador = quadrado | octógono | térmico | junção"
+
+#~ msgid "Clears flags on objects."
+#~ msgstr "Apaga sinalizadores sobre objetos."
+
+#~ msgid ""
+#~ "ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+#~ "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+#~ "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+#~ "ChangeFlag(SelectedElements, flag, value)\n"
+#~ "flag = square | octagon | thermal | join\n"
+#~ "value = 0 | 1"
+#~ msgstr ""
+#~ "ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+#~ "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+#~ "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+#~ "ChangeFlag(SelectedElements, flag, value)\n"
+#~ "sinalizador = quadrado | octógono | térmico | junção\n"
+#~ "valor = 0 | 1"
+
+#~ msgid "Sets or clears flags on objects."
+#~ msgstr "Ajusta ou apaga sinalizadores sobre objetos."
+
+#~ msgid "ExecuteFile(filename)"
+#~ msgstr "ExecuteFile(nomearquivo)"
+
+#~ msgid "Run actions from the given file."
+#~ msgstr "Run actions from the given file."
+
+#~ msgid "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)"
+#~ msgstr "ElementList(Inicia|Feito|Precisa,<refdes>,<matriz>,<valor>)"
+
+#~ msgid "Adds the given element if it doesn't already exist."
+#~ msgstr "Adiciona o componente dado se ele não existir."
+
+#~ msgid ""
+#~ "Not all requested footprints were found.\n"
+#~ "See the message log for details"
+#~ msgstr ""
+#~ "Falta ser encontrado algumas matrizes requisitadas.\n"
+#~ "Veja mensagem no registro para detalhes"
+
+#~ msgid "ElementSetAttr(refdes,name[,value])"
+#~ msgstr "ElementSetAttr(refdes,name[,value])"
+
+#~ msgid "Sets or clears an element-specific attribute."
+#~ msgstr "Ajusta ou apaga um atributo específico de componente."
+
+#~ msgid "ExecCommand(command)"
+#~ msgstr "ExecCommand(comando)"
+
+#~ msgid "Runs a command."
+#~ msgstr "Executar um comando."
+
+#~ msgid ""
+#~ "Import()\n"
+#~ "Import([gnetlist|make[,source,source,...]])\n"
+#~ "Import(setnewpoint[,(mark|center|X,Y)])\n"
+#~ "Import(setdisperse,D,units)\n"
+#~ msgstr ""
+#~ "Import()\n"
+#~ "Import([gnetlist|make[,source,source,...]])\n"
+#~ "Import(setnewpoint[,(marca|centro|X,Y)])\n"
+#~ "Import(setdisperse,D,unidades)\n"
+
+#~ msgid "Import schematics."
+#~ msgstr "Importa diagramas esquemáticos."
+
+#~ msgid ""
+#~ "Attributes(Layout|Layer|Element)\n"
+#~ "Attributes(Layer,layername)"
+#~ msgstr ""
+#~ "Attributes(Traçado|Camada|Componente)\n"
+#~ "Attributes(Camada,nomecamada)"
+
+#~ msgid ""
+#~ "Let the user edit the attributes of the layout, current or given\n"
+#~ "layer, or selected element."
+#~ msgstr ""
+#~ "Permite ao usuário editar os atributos do traçado, camada atual\n"
+#~ "ou informada, ou componente selecionado."
+
+#~ msgid "Layout Attributes"
+#~ msgstr "Atributos de Traçado"
+
+#~ msgid "Layer %s Attributes"
+#~ msgstr "Atributos %s da Camada"
+
+#~ msgid "Element %s Attributes"
+#~ msgstr "Atributos %s de Componente"
+
+#~ msgid "Unnamed Element Attributes"
+#~ msgstr "Atributos do Componente inominado"
+
+#~ msgid "Unable to load footprint %s\n"
+#~ msgstr "Incapaz de colocar a matriz %s na memória\n"
+
+#~ msgid "LoadFootprint(filename[,refdes,value])"
+#~ msgstr "LoadFootprint(nomearquivo[,refdes,valor])"
+
+#~ msgid "Loads a single footprint by name."
+#~ msgstr "Coloca na memória uma única matriz pelo nome."
+
+#~ msgid "Footprint %s contains no elements"
+#~ msgstr "Matriz %s vazia"
+
+#~ msgid "Footprint %s contains multiple elements"
+#~ msgstr "Matriz %s contém múltiplos componentes"
+
+#~ msgid "FreeRotateBuffer([Angle])"
+#~ msgstr "FreeRotateBuffer([Angulo])"
+
+#~ msgid ""
+#~ "Rotates the current paste buffer contents by the specified angle.  The\n"
+#~ "angle is given in degrees.  If no angle is given, the user is prompted\n"
+#~ "for one.\n"
+#~ msgstr ""
+#~ "Rotaciona o conteúdo da memória de colar de um ângulo especificado.  O\n"
+#~ "angulo é dado em graus.  Se nenhum ângulo for dado, o usuário é "
+#~ "solicitado\n"
+#~ "a informar um.\n"
+
+#~ msgid "Enter Rotation (degrees, CCW):"
+#~ msgstr "Informe Ângulo de Rotação (graus, anti-horários):"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#~ msgid ""
+#~ "LoadNewlibFootprintsFromDir: Could not determine initial working "
+#~ "directory\n"
+#~ msgstr ""
+#~ "LoadNewlibFootprintsFromDir: Não posso determinar o diretório inicial de "
+#~ "trabalho\n"
+
+# FIXME: is this an Error:  or a Warning:   ?
+#~ msgid ""
+#~ "LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
+#~ msgstr ""
+#~ "LoadNewlibFootprintsFromDir: Não posso determinar o novo diretório de "
+#~ "trabalho\n"
+
+#~ msgid "no action %s("
+#~ msgstr "nenhuma ação %s("
+
+#~ msgid "del"
+#~ msgstr "apagar"
+
+#~ msgctxt "tab"
+#~ msgid "Info"
+#~ msgstr "Informação"
+
+#~ msgid "PCB User Input"
+#~ msgstr "Entrada de Usuário do PCB"
+
+#~ msgid "Enter something"
+#~ msgstr "Informe alguma coisa"
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmar"
+
+#~ msgid "Sequence OK"
+#~ msgstr "Sequência OK"
+
+#~ msgid "%s: unknown type of HID attribute\n"
+#~ msgstr "%s: tipo de atributo de HID desconhecido\n"
+
+#~ msgid "%s() -- malloc failed\n"
+#~ msgstr "%s() -- malloc falhoufailed\n"
+
+#~ msgid ""
+#~ "%m+<b>%s (%$mS)</b>\n"
+#~ "<span size='1024'> </span>\n"
+#~ "<small><i>%s</i>\n"
+#~ "<span size='5120'> </span>\n"
+#~ "Required: %$mS</small>"
+#~ msgstr ""
+#~ "%m+<b>%s (%$mS)</b>\n"
+#~ "<span size='1024'> </span>\n"
+#~ "<small><i>%s</i>\n"
+#~ "<span size='5120'> </span>\n"
+#~ "Requirido: %$mS</small>"
+
+#~ msgid ""
+#~ "%m+<b>%s</b>\n"
+#~ "<span size='1024'> </span>\n"
+#~ "<small><i>%s</i>\n"
+#~ "<span size='5120'> </span>\n"
+#~ "Required: %$mS</small>"
+#~ msgstr ""
+#~ "%m+<b>%s</b>\n"
+#~ "<span size='1024'> </span>\n"
+#~ "<small><i>%s</i>\n"
+#~ "<span size='5120'> </span>\n"
+#~ "Requerido: %$mS</small>"
+
+#~ msgctxt "status"
+#~ msgid "bottom"
+#~ msgstr "inferior"
+
+#~ msgctxt "status"
+#~ msgid "top"
+#~ msgstr "topo"
+
+#~ msgid "%m+r %-mS; phi %-.1f; %-mS %-mS"
+#~ msgstr "%m+r %-mS; phi %-.1f; %-mS %-mS"
+
+#~ msgid "r __.__; phi __._; __.__ __.__"
+#~ msgstr "r __.__; phi __._; __.__ __.__"
+
+#~ msgid "%m+%-mS %-mS"
+#~ msgstr "%m+%-mS %-mS"
+
+#~ msgctxt "netlist"
+#~ msgid "Select"
+#~ msgstr "Selecione"
+
+#~ msgid "--"
+#~ msgstr "--"
+
+#~ msgid ""
+#~ "Element name: %s\n"
+#~ "Pinname : %s\n"
+#~ "Netname : %s"
+#~ msgstr ""
+#~ "Nome de componente: %s\n"
+#~ "Nome de conector : %s\n"
+#~ "Nomenet : %s"
+
+#~ msgid "via"
+#~ msgstr "via"
+
+#~ msgid "line"
+#~ msgstr "linhas de rato"
+
+#~ msgid "arc"
+#~ msgstr "arco"
+
+#~ msgid "text"
+#~ msgstr "texto"
+
+#~ msgid "rectangle"
+#~ msgstr "retângulo"
+
+#~ msgid "polygon"
+#~ msgstr "polígono"
+
+#~ msgid "polygonhole"
+#~ msgstr "orifício de polígono"
+
+#~ msgid "buffer"
+#~ msgstr "memória"
+
+#~ msgid "remove"
+#~ msgstr "remover"
+
+#~ msgid "rotate"
+#~ msgstr "rotacionar"
+
+#~ msgid "insertPoint"
+#~ msgstr "ponto de inserção"
+
+#~ msgid "thermal"
+#~ msgstr "térmico"
+
+#~ msgid "select"
+#~ msgstr "selecione"
+
+#~ msgid "lock"
+#~ msgstr "trava"
+
+#~ msgid "Listen for actions on stdin"
+#~ msgstr "Espere por ações sobre a entrada padrão"
+
+#~ msgid "Background Image"
+#~ msgstr "Imagem de Fundo"
+
+#~ msgid "Location of gpcb-menu.res file"
+#~ msgstr "Localização do arquivo gpcb-menu.res"
+
+#~ msgid ""
+#~ "ToggleView(1..MAXLAYER)\n"
+#~ "ToggleView(layername)\n"
+#~ "ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)"
+#~ msgstr ""
+#~ "ToggleView(1..MAXLAYER)\n"
+#~ "ToggleView(nomecamada)\n"
+#~ "ToggleView(Seda|Ratos|Conectores|Vias|Máscara|LadodeTrás)"
+
+#~ msgid "Toggle the visibility of the specified layer or layer group."
+#~ msgstr "Altere a visibilidade da camada especificada ou grupo de camada."
+
+#~ msgid "SelectLayer(1..MAXLAYER|Silk|Rats)"
+#~ msgstr "SelectLayer(1..MAXLAYER|Seda|Ratos)"
+
+#~ msgid "Select which layer is the current layer."
+#~ msgstr "Seleciona qual camada é a atual."
+
+#~ msgid "AdjustStyle()\n"
+#~ msgstr "AdjustStyle()\n"
+
+#~ msgid "Open the window which allows editing of the route styles."
+#~ msgstr "Abre a janela que permite edição dos estilos de rota."
+
+#~ msgid "EditLayerGroups()\n"
+#~ msgstr "Editar Grupos de Camada()\n"
+
+#~ msgid ""
+#~ "Open the preferences window which allows editing of the layer groups."
+#~ msgstr ""
+#~ "Abre a janela de preferências que permite edução de grupos de camadas."
+
+#~ msgid "HID error: pcb called unimplemented PS function %s.\n"
+#~ msgstr "Erro de HID: pcb chamou a função PS %s não implementada.\n"
+
+#~ msgid "lprcommand"
+#~ msgstr "Comando lpr"
+
+#~ msgid "Command to use for printing"
+#~ msgstr "Comando a ser usado na impressão"
+
+#~ msgid "LPR: open %s\n"
+#~ msgstr "LPR: abre %s\n"
+
+#~ msgid "Postscript print"
+#~ msgstr "Impressora postscript"
+
+#~ msgid "psfile"
+#~ msgstr "arquivops"
+
+#~ msgid "Postscript output file"
+#~ msgstr "Arquivo de saída postscript"
+
+#~ msgid "drill-helper"
+#~ msgstr "ajuda de perfuração"
+
+#~ msgid "Print a centering target in large drill holes"
+#~ msgstr "Imprime um alvo centralizado em grandes orifícios de perfuração"
+
+#~ msgid "align-marks"
+#~ msgstr "alinhar marcas"
+
+#~ msgid "Print alignment marks on each sheet"
+#~ msgstr "Imprimir marcas de alinhamento sobre cada folha"
+
+#~ msgid "outline"
+#~ msgstr "linhas de saída"
+
+#~ msgid "Print outline on each sheet"
+#~ msgstr "Imprime linha de saída sobre cada folha"
+
+#~ msgid "mirror"
+#~ msgstr "espelho"
+
+#~ msgid "Print mirror image of every page"
+#~ msgstr "Imprimir imagem refletida de todas as páginas"
+
+#~ msgid "fill-page"
+#~ msgstr "preencher página"
+
+#~ msgid "Scale board to fill page"
+#~ msgstr "Proporção de placa preenchendo a página"
+
+#~ msgid "auto-mirror"
+#~ msgstr "auto refletir"
+
+#~ msgid "Print mirror image of appropriate layers"
+#~ msgstr "Imprime imagens refletidas das camadas apropriadas"
+
+#~ msgid "ps-color"
+#~ msgstr "cor ps"
+
+#~ msgid "Prints in color"
+#~ msgstr "Imprimir em Cores"
+
+#~ msgid "ps-bloat"
+#~ msgstr "inchaço ps"
+
+#~ msgid "Amount to add to trace/pad/pin edges"
+#~ msgstr "Qauntidade para adicionar a arestas de trilha/pastilha/conector"
+
+#~ msgid "ps-invert"
+#~ msgstr "inverter ps"
+
+#~ msgid "Draw objects as white-on-black"
+#~ msgstr "Desenha objetos em preto e branco"
+
+#~ msgid "media"
+#~ msgstr "media"
+
+#~ msgid "Media type"
+#~ msgstr "Tipo de mídia"
+
+#~ msgid "psfade"
+#~ msgstr "desvanecer gradual de ps"
+
+#~ msgid "Fade amount for assembly drawings (0.0=missing, 1.0=solid)"
+#~ msgstr ""
+#~ "Quatdade de desvanecimento para desenhos de montagem (0.0=omitido, "
+#~ "1.0=sólido)"
+
+#~ msgid "scale"
+#~ msgstr "proporção"
+
+#~ msgid ""
+#~ "Scale value to compensate for printer sizing errors (1.0 = full scale)"
+#~ msgstr ""
+#~ "Valor de proporção a compensar para erros de ajuste de tamanho em "
+#~ "impressoras (1.0 = proporção completa)"
+
+#~ msgid "multi-file"
+#~ msgstr "multi-arquivo"
+
+#~ msgid "Produce multiple files, one per page, instead of a single file"
+#~ msgstr ""
+#~ "Produz múltiplos arquivos, um para cada página, ao invés de um só arquivo"
+
+#~ msgid "xcalib"
+#~ msgstr "calibração-x"
+
+#~ msgid "Paper width. Used for x-Axis calibration"
+#~ msgstr "Largura do papel. Usada para calibração do eixo x"
+
+#~ msgid "ycalib"
+#~ msgstr "calibração-y"
+
+#~ msgid "Paper height. Used for y-Axis calibration"
+#~ msgstr "Altura do papel. Usada para calibração do eixo y"
+
+#~ msgid "drill-copper"
+#~ msgstr "cobre de perfuração"
+
+#~ msgid "Draw drill holes in pins / vias, instead of leaving solid copper"
+#~ msgstr ""
+#~ "Desenha orifícios de perfuração em conectores / vias, ao invés de deixar "
+#~ "o cobre sólido"
+
+#~ msgid "show-legend"
+#~ msgstr "exibe legenda"
+
+#~ msgid "Print file name and scale on printout"
+#~ msgstr "Imprime nome de arquivo e proporção na saída de impressão"
+
+#~ msgid "Command to print"
+#~ msgstr "Comando para imprimir"
+
+#~ msgid ""
+#~ "X value of %g is too far off.\n"
+#~ "Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+#~ msgstr ""
+#~ "Valor X de %g é muito distante.\n"
+#~ "Esperado próximo a: %.1f, %.1f, %.1f, %.1f\n"
+
+#~ msgid ""
+#~ "Y value of %g is too far off.\n"
+#~ "Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+#~ msgstr ""
+#~ "Valor Y de %g muito distante.\n"
+#~ "Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+
+#~ msgid "Postscript export"
+#~ msgstr "Exporta postscript"
+
+#~ msgid "Warning: layer \"%s\" not known\n"
+#~ msgstr "Atenção: camada \"%s\" desconhecida\n"
+
+#~ msgid "Named layers in this board are:\n"
+#~ msgstr "Camadas conhecidas nessa placa são:\n"
+
+#~ msgid ""
+#~ "Also: component, solder, rats, invisible, pins, vias, elements or silk, "
+#~ "mask, solderside.\n"
+#~ msgstr ""
+#~ "Também: componente, soldagem, ratos, invisível, conectores, vias, "
+#~ "componentes ou seda, máscara, lado de soldagem.\n"
+
+#~ msgid "Request for bounding box of unsupported type %d\n"
+#~ msgstr "Requisição de caixa associada de tipo não suportado %d\n"
+
+#~ msgid ""
+#~ "This is PCB, an interactive\n"
+#~ "printed circuit board editor\n"
+#~ "version "
+#~ msgstr ""
+#~ "Esse é o PCB, um editor\n"
+#~ "de placa de circuito impresso interativo\n"
+#~ "versão "
+
+#~ msgid ""
+#~ "It is licensed under the terms of the GNU\n"
+#~ "General Public License version 2\n"
+#~ "See the LICENSE file for more information\n"
+#~ "\n"
+#~ "For more information see:\n"
+#~ msgstr ""
+#~ "Licenciado nos termos da GNU\n"
+#~ "General Public License versão 2\n"
+#~ "Veja arquivo LICENSE para mais informação\n"
+#~ "\n"
+#~ "Para mais informação veja:\n"
+
+#~ msgid "PCB homepage: "
+#~ msgstr "Sítio internet do PCB: "
+
+#~ msgid "gEDA homepage: "
+#~ msgstr "Sítio internet do gEDA: "
+
+#~ msgid "gEDA Wiki: "
+#~ msgstr "Wiki gEDA: "
+
+#~ msgid ""
+#~ "\n"
+#~ "----- Compile Time Options -----\n"
+#~ msgstr ""
+#~ "\n"
+#~ "----- Opções Durante Compilação -----\n"
+
+#~ msgid "GUI:\n"
+#~ msgstr "GUI:\n"
+
+#~ msgid "Exporters:\n"
+#~ msgstr "Exportadores:\n"
+
+#~ msgid "Printers:\n"
+#~ msgstr "Impressoras:\n"
+
+#~ msgid "illegal fileformat\n"
+#~ msgstr "formatoarquivo ilegal\n"
+
+#~ msgid "illegal route-style string\n"
+#~ msgstr "sequência ilegal de caracteres de estilo de roteamento\n"
+
+#~ msgid ""
+#~ "WARNING parsing file '%s'\n"
+#~ "    line:        %i\n"
+#~ "    description: 'ignored polygon (< 3 points in a contour)'\n"
+#~ msgstr ""
+#~ "ALERTA de análise do arquivo '%s'\n"
+#~ "    linha:        %i\n"
+#~ "    descrição: 'polígono ignoradon (menos de três pontos em um "
+#~ "contorno)'\n"
+
+#~ msgid ""
+#~ "ERROR parsing file '%s'\n"
+#~ "    line:        %i\n"
+#~ "    description: '%s'\n"
+#~ msgstr ""
+#~ "ERRO de análise do arquivo '%s'\n"
+#~ "    linha:        %i\n"
+#~ "    descrição: '%s'\n"
+
+#~ msgid ""
+#~ "ERROR:  The file you are attempting to load is in a format\n"
+#~ "which is too new for this version of pcb.  To load this file\n"
+#~ "you need a version of pcb which is >= %d.  If you are\n"
+#~ "using a version built from git source, the source date\n"
+#~ "must be >= %d.  This copy of pcb can only read files\n"
+#~ "up to file version %d.\n"
+#~ msgstr ""
+#~ "ERRO:  O arquivo que você está tentando colocar na memóriaetá em um "
+#~ "formato\n"
+#~ "que é muito novo para essa versão do pcb.  Para colocar esse arquivo na "
+#~ "memória\n"
+#~ "você precisa de uma versão do pcb que é >= %d.  Se você está\n"
+#~ "usando uma versão construída a partir do repositório git, a data de "
+#~ "código fonte\n"
+#~ "deve ser >= %d.  Essa cópia do pcb somente pode ler arquivos\n"
+#~ "até a versão %d.\n"
+
+#~ msgid ""
+#~ "There are %d different drill sizes used in this layout, %d holes total\n"
+#~ "\n"
+#~ "Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n"
+#~ msgstr ""
+#~ "Existem %d tamanhos de perfuração diferentes nesse traçado, %d orifícios "
+#~ "no total\n"
+#~ "\n"
+#~ "Diam. de perfuração (%s)\t# de conetores\t# de Vias\t# de componetes\t# "
+#~ "Sem anel de cobre\n"
+
+#~ msgid "Drill Report"
+#~ msgstr "Relatório d Perfuração"
+
+#~ msgid "ReportDialog()"
+#~ msgstr "ReportDialog()"
+
+#~ msgid "Report on the object under the crosshair"
+#~ msgstr "Relatório do objeto sob a mira"
+
+#~ msgid ""
+#~ "%m+VIA ID# %ld; Flags:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "It is a pure hole of diameter %$mS.\n"
+#~ "Name = \"%s\".%s"
+#~ msgstr ""
+#~ "%m+VIA ID# %ld; Sinalizadores:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "É um orifício puro de diâmetro %$mS.\n"
+#~ "Nome = \"%s\".%s"
+
+#~ msgid "It is LOCKED.\n"
+#~ msgstr "Estrá TRAVADO.\n"
+
+#~ msgid ""
+#~ "%m+VIA ID# %ld;  Flags:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "Copper width = %$mS. Drill width = %$mS.\n"
+#~ "Clearance width in polygons = %$mS.\n"
+#~ "Annulus = %$mS.\n"
+#~ "Solder mask hole = %$mS (gap = %$mS).\n"
+#~ "Name = \"%s\".%s"
+#~ msgstr ""
+#~ "%m+VIA ID# %ld;  Sinalizadores:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "Largura do cobre = %$mS. Largura de perfução = %$mS.\n"
+#~ "Largura da folga em polígonos = %$mS.\n"
+#~ "Anelar = %$mS.\n"
+#~ "Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
+#~ "Nome = \"%s\".%s"
+
+#~ msgid ""
+#~ "%m+PIN ID# %ld; Flags:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "It is a mounting hole. Drill width = %$mS.\n"
+#~ "It is owned by element %$mS.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+PIN ID# %ld; Sinalizadores:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "É um orifício de montagem. Largura de perfuração = %$mS.\n"
+#~ "é possuído pelo componente %$mS.\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "%m+PIN ID# %ld;  Flags:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "Copper width = %$mS. Drill width = %$mS.\n"
+#~ "Clearance width to Polygon = %$mS.\n"
+#~ "Annulus = %$mS.\n"
+#~ "Solder mask hole = %$mS (gap = %$mS).\n"
+#~ "Name = \"%s\".\n"
+#~ "It is owned by element %s\n"
+#~ " as pin number %s.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de CONECTOR# %ld;  Sinalizadores:%s\n"
+#~ "(X,Y) = %$mD.\n"
+#~ "Largura do cobre = %$mS. Largura de perfuração = %$mS.\n"
+#~ "Largura da folga para polígonos = %$mS.\n"
+#~ "Anelar = %$mS.\n"
+#~ "Orifício de máscara de soldagem = %$mS (gap = %$mS).\n"
+#~ "Nome = \"%s\".\n"
+#~ "É possído pelo componente %s\n"
+#~ " com número de conector %s.\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "%m+LINE ID# %ld;  Flags:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
+#~ "SecondPoint(X,Y) = %$mD, ID = %ld.\n"
+#~ "Width = %$mS.\n"
+#~ "Clearance width in polygons = %$mS.\n"
+#~ "It is on layer %d\n"
+#~ "and has name \"%s\".\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+LINE ID# %ld;  Sinalizadores:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
+#~ "SecondPoint(X,Y) = %$mD, ID = %ld.\n"
+#~ "Largura = %$mS.\n"
+#~ "Largura de folga em polígonos = %$mS.\n"
+#~ "Está na camada %d\n"
+#~ "e tem o nome \"%s\".\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "%m+RAT-LINE ID# %ld;  Flags:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD; ID = %ld; connects to layer group %d.\n"
+#~ "SecondPoint(X,Y) = %$mD; ID = %ld; connects to layer group %d.\n"
+#~ msgstr ""
+#~ "%m+ID de RAT-LINE# %ld;  Sinalizadores:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
+#~ "SecondPoint(X,Y) = %$mD; ID = %ld; conecta-se ao grupode camada %d.\n"
+
+#~ msgid ""
+#~ "%m+ARC ID# %ld;  Flags:%s\n"
+#~ "CenterPoint(X,Y) = %$mD.\n"
+#~ "Radius = %$mS, Thickness = %$mS.\n"
+#~ "Clearance width in polygons = %$mS.\n"
+#~ "StartAngle = %ma degrees, DeltaAngle = %ma degrees.\n"
+#~ "Bounding Box is %$mD, %$mD.\n"
+#~ "That makes the end points at %$mD and %$mD.\n"
+#~ "It is on layer %d.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de ARCO# %ld;  Sinalizadores:%s\n"
+#~ "CenterPoint(X,Y) = %$mD.\n"
+#~ "Raio = %$mS, Espessura = %$mS.\n"
+#~ "Espessura da folga em polígonos = %$mS.\n"
+#~ "StartAngle = %ma graus, DeltaAngle = %ma graus.\n"
+#~ "Caixa Associada é %$mD, %$mD.\n"
+#~ "O que coloca as extremidades em %$mD e em %$mD.\n"
+#~ "Está na camada %d.\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "%m+POLYGON ID# %ld;  Flags:%s\n"
+#~ "Its bounding box is %$mD %$mD.\n"
+#~ "It has %d points and could store %d more\n"
+#~ "  without using more memory.\n"
+#~ "It has %d holes and resides on layer %d.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de POLÍGONO# %ld;  Sinalizadores:%s\n"
+#~ "Sua caixa associada é %$mD %$mD.\n"
+#~ "Tem %d pontos e pode armazenar %d a mais\n"
+#~ "  sem usar mais memória.\n"
+#~ "Tem %d orifícios e localiza-se na camada %d.\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "%m+PAD ID# %ld;  Flags:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
+#~ "SecondPoint(X,Y) = %$mD; ID = %ld.\n"
+#~ "Width = %$mS.  Length = %$mS.\n"
+#~ "Clearance width in polygons = %$mS.\n"
+#~ "Solder mask = %$mS x %$mS (gap = %$mS).\n"
+#~ "Name = \"%s\".\n"
+#~ "It is owned by SMD element %s\n"
+#~ "  as pin number %s and is on the %s\n"
+#~ "side of the board.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de PASTILHA# %ld;  Sinalizadores:%s\n"
+#~ "FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
+#~ "SecondPoint(X,Y) = %$mD; ID = %ld.\n"
+#~ "Largura = %$mS.  Comprimento = %$mS.\n"
+#~ "Largura da folga em polígonos = %$mS.\n"
+#~ "Máscara de soldagem = %$mS x %$mS (gap = %$mS).\n"
+#~ "Nome = \"%s\".\n"
+#~ "É possuída pelo componente SMD %s\n"
+#~ "  como número de conectorr %s e está sobre o lado\n"
+#~ "%s da placa.\n"
+#~ "%s"
+
+#~ msgid "solder (bottom)"
+#~ msgstr "soldagem (inferior)"
+
+#~ msgid "component"
+#~ msgstr "componente"
+
+#~ msgid ""
+#~ "%m+ELEMENT ID# %ld;  Flags:%s\n"
+#~ "BoundingBox %$mD %$mD.\n"
+#~ "Descriptive Name \"%s\".\n"
+#~ "Name on board \"%s\".\n"
+#~ "Part number name \"%s\".\n"
+#~ "It is %$mS tall and is located at (X,Y) = %$mD %s.\n"
+#~ "Mark located at point (X,Y) = %$mD.\n"
+#~ "It is on the %s side of the board.\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de COMPONENTE# %ld;  Sinalizadores:%s\n"
+#~ "BoundingBox %$mD %$mD.\n"
+#~ "Nome Descritivo \"%s\".\n"
+#~ "Nome na placa \"%s\".\n"
+#~ "Nome no número da peça \"%s\".\n"
+#~ "Tem %$mS de altura e está localizado em (X,Y) = %$mD %s.\n"
+#~ "Marca localiada no ponto (X,Y) = %$mD.\n"
+#~ "Está do lado %s da placa.\n"
+#~ "%s"
+
+#~ msgid ""
+#~ ",\n"
+#~ "  but it's hidden"
+#~ msgstr ""
+#~ ",\n"
+#~ "  mas está escondido"
+
+#~ msgid "It is on layer %d."
+#~ msgstr "Está sobre a camada %d."
+
+#~ msgid ""
+#~ "%m+TEXT ID# %ld;  Flags:%s\n"
+#~ "Located at (X,Y) = %$mD.\n"
+#~ "Characters are %$mS tall.\n"
+#~ "Value is \"%s\".\n"
+#~ "Direction is %d.\n"
+#~ "The bounding box is %$mD %$mD.\n"
+#~ "%s\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%m+ID de TEXTO# %ld;  Sinalizadores:%s\n"
+#~ "Localizado em (X,Y) = %$mD.\n"
+#~ "Caracteres são %$mS tall.\n"
+#~ "Valor é \"%s\".\n"
+#~ "Direção é %d.\n"
+#~ "A caixa associada é %$mD %$mD.\n"
+#~ "%s\n"
+#~ "%s"
+
+#~ msgid "It is an element name."
+#~ msgstr "É um nome de componente."
+
+#~ msgid ""
+#~ "%m+POINT ID# %ld.\n"
+#~ "Located at (X,Y) = %$mD.\n"
+#~ "It belongs to a %s on layer %d.\n"
+#~ msgstr ""
+#~ "%m+ID de PONTO# %ld.\n"
+#~ "Localizado em (X,Y) = %$mD.\n"
+#~ "Pertence a um %s na camada %d.\n"
+
+#~ msgctxt "report"
+#~ msgid "line"
+#~ msgstr "linha"
+
+#~ msgctxt "report"
+#~ msgid "polygon"
+#~ msgstr "Polígono"
+
+#~ msgid "Unknown\n"
+#~ msgstr "Desconhecido\n"
+
+#~ msgid "Report"
+#~ msgstr "Relatório"
+
+#~ msgid "The following pins/pads are FOUND:\n"
+#~ msgstr "Os seguintes conectores/pastilhas foram ENCONTRADOS:\n"
+
+#~ msgid "%s-%s,%c"
+#~ msgstr "%s-%s,%c"
+
+#~ msgid "%$m*"
+#~ msgstr "%$m*"
+
+#~ msgid "Net %s length %s\n"
+#~ msgstr "Rede %s comprimento %s\n"
+
+#~ msgid "No net under cursor.\n"
+#~ msgstr "Nenhuma rede sob o ursor.\n"
+
+#~ msgid "-"
+#~ msgstr "-"
+
+#~ msgid "Net \"%s\" length: %s\n"
+#~ msgstr "Rede \"%s\" comprimento: %s\n"
+
+#~ msgid "Net length: %s\n"
+#~ msgstr "Comprimento da rede: %s\n"
+
+#~ msgid "No net named %s\n"
+#~ msgstr "Nenhuma net chamada %s\n"
+
+#~ msgid "Net found, but no lines or arcs were flagged.\n"
+#~ msgstr "Net encontrada, mas sem linhas ou arcos foram sinalizadas.\n"
+
+#~ msgid "Net not found.\n"
+#~ msgstr "Net desaparecida.\n"
+
+#~ msgid "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])"
+#~ msgstr ""
+#~ "Report(Objeto|DrillReport|FoundPins|NetLength|AllNetLengths|[,nome])"
+
+#~ msgid "Produce various report."
+#~ msgstr "Produz vários relatórios."
+
+#~ msgid "Click on an object"
+#~ msgstr "Clique sobre um objeto"
+
+#~ msgid "Select a set of pads"
+#~ msgstr "Seleciona um conjunto de pastilhas"
+
+#~ msgid "Pad escape"
+#~ msgstr "Escape de pastilha"
+
+#~ msgid "Escape()"
+#~ msgstr "Escape()"
+
+#~ msgid "Select net(s)"
+#~ msgstr "Selecione net(s)"
+
+#~ msgid "Topological autorouter"
+#~ msgstr "Autorouter topológico"
+
+#~ msgid "Toporouter()"
+#~ msgstr "Toporouter()"
+
+#~ msgid "ApplyVendor()"
+#~ msgstr "ApplyVendor()"
+
+#~ msgid ""
+#~ "Applies the currently loaded vendor drill table to the current design."
+#~ msgstr ""
+#~ "Aplica o atualmente na memória tabela de perfuração de fornecedor para o "
+#~ "desenho atual."
+
+#~ msgid "ToggleVendor()"
+#~ msgstr "ToggleVendor()"
+
+#~ msgid "Toggles the state of automatic drill size mapping."
+#~ msgstr "Muda o estado do mapeamento automático de tamanho de perfuração."
+
+#~ msgid "EnableVendor()"
+#~ msgstr "EnableVendor()"
+
+#~ msgid "Enables automatic drill size mapping."
+#~ msgstr "Habilita mapeamento automático de tamanho de perfuração."
+
+#~ msgid "DisableVendor()"
+#~ msgstr "DisableVendor()"
+
+#~ msgid "Disables automatic drill size mapping."
+#~ msgstr "Desabilita mapeamento automático de perfuração."
+
+#~ msgid "UnloadVendor()"
+#~ msgstr "UnloadVendor()"
+
+#~ msgid "Unloads the current vendor drill mapping table."
+#~ msgstr ""
+#~ "Remove da memória a atual tabela de mapeamento de perfuração de "
+#~ "fornecedor."
+
+#~ msgid "LoadVendorFrom(filename)"
+#~ msgstr "LoadVendorFrom(nomearquivo)"
+
+#~ msgid "Loads the specified vendor resource file."
+#~ msgstr "Colocar na memória arquivo de recursos de fornecedor."
+
+#~ msgid "\"%s\" is not a supported units.  Defaulting to inch\n"
+#~ msgstr ""
+#~ "\"%s\" é um tipo de roteamento inválido.  Padronizando em polegada\n"
+
+#~ msgid "realloc() failed to allocate %ld bytes\n"
+#~ msgstr "realloc() falhou em alocar %ld bytes\n"
+
+#~ msgid "Error:  null skip value\n"
+#~ msgstr "Error:  valor nulo desconsiderado\n"
+
+#~ msgid "realloc() failed\n"
+#~ msgstr "realloc() falhou\n"
+
+#~ msgid "re_exec error\n"
+#~ msgstr "erro de re_exec\n"
