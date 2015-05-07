@@ -80,6 +80,7 @@
 #include "undo.h"
 #include "vector.h"
 #include "pcb-printf.h"
+#include "hid_draw.h"
 
 #if HAVE_LIBDMALLOC
 #include <dmalloc.h>

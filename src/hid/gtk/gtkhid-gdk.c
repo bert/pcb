@@ -52,9 +52,9 @@ typedef struct hid_gc_struct
 
   gchar *colorname;
   Coord width;
-  gint cap, join;
+  int cap, join;
   gchar xor_mask;
-  gint mask_seq;
+  int mask_seq;
 }
 hid_gc_struct;
 
@@ -220,8 +220,8 @@ ghid_draw_bg_image (void)
 {
   static GdkPixbuf *pixbuf;
   GdkInterpType interp_type;
-  gint x, y, w, h, w_src, h_src;
-  static gint w_scaled, h_scaled;
+  int x, y, w, h, w_src, h_src;
+  static int w_scaled, h_scaled;
   render_priv *priv = gport->render_priv;
 
   if (!ghidgui->bg_pixbuf)
@@ -535,8 +535,8 @@ void
 ghid_draw_arc (hidGC gc, Coord cx, Coord cy,
 	       Coord xradius, Coord yradius, Angle start_angle, Angle delta_angle)
 {
-  gint vrx, vry;
-  gint w, h, radius;
+  int vrx, vry;
+  int w, h, radius;
   render_priv *priv = gport->render_priv;
 
   w = gport->width * gport->view.coord_per_px;
@@ -574,7 +574,7 @@ ghid_draw_arc (hidGC gc, Coord cx, Coord cy,
 void
 ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  gint w, h, lw;
+  int w, h, lw;
   render_priv *priv = gport->render_priv;
 
   lw = gc->width;
@@ -598,13 +598,13 @@ ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
   if (x1 > x2)
     {
-      gint xt = x1;
+      int xt = x1;
       x1 = x2;
       x2 = xt;
     }
   if (y1 > y2)
     {
-      gint yt = y1;
+      int yt = y1;
       y1 = y2;
       y2 = yt;
     }
@@ -618,7 +618,7 @@ ghid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 void
 ghid_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
-  gint w, h, vr;
+  int w, h, vr;
   render_priv *priv = gport->render_priv;
 
   w = gport->width * gport->view.coord_per_px;
@@ -660,7 +660,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 void
 ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  gint w, h, lw, xx, yy;
+  int w, h, lw, xx, yy;
   render_priv *priv = gport->render_priv;
 
   lw = gc->width;
@@ -915,7 +915,7 @@ ghid_notify_mark_change (bool changes_complete)
 }
 
 static void
-draw_right_cross (GdkGC *xor_gc, gint x, gint y)
+draw_right_cross (GdkGC *xor_gc, int x, int y)
 {
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
 
@@ -924,10 +924,10 @@ draw_right_cross (GdkGC *xor_gc, gint x, gint y)
 }
 
 static void
-draw_slanted_cross (GdkGC *xor_gc, gint x, gint y)
+draw_slanted_cross (GdkGC *xor_gc, int x, int y)
 {
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
-  gint x0, y0, x1, y1;
+  int x0, y0, x1, y1;
 
   x0 = x + (gport->height - y);
   x0 = MAX(0, MIN (x0, gport->width));
@@ -951,10 +951,10 @@ draw_slanted_cross (GdkGC *xor_gc, gint x, gint y)
 }
 
 static void
-draw_dozen_cross (GdkGC *xor_gc, gint x, gint y)
+draw_dozen_cross (GdkGC *xor_gc, int x, int y)
 {
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
-  gint x0, y0, x1, y1;
+  int x0, y0, x1, y1;
   gdouble tan60 = sqrt (3);
 
   x0 = x + (gport->height - y) / tan60;
@@ -1003,7 +1003,7 @@ draw_crosshair (render_priv *priv)
 {
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
   GtkStyle *style = gtk_widget_get_style (gport->drawing_area);
-  gint x, y;
+  int x, y;
   static GdkGC *xor_gc;
   static GdkColor cross_color;
 
@@ -1226,7 +1226,7 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
   return pixmap;
 }
 
-HID *
+HID_DRAW *
 ghid_request_debug_draw (void)
 {
   /* No special setup requirements, drawing goes into

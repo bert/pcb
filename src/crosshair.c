@@ -533,34 +533,36 @@ XORDrawMoveOrCopyObject (void)
 void
 DrawAttached (void)
 {
-  switch (Settings.Mode)
-    {
+  switch (Settings.Mode) {
+
     case VIA_MODE:
-      {
-        /* Make a dummy via structure to draw from */
-        PinType via;
-        via.X = Crosshair.X;
-        via.Y = Crosshair.Y;
-        via.Thickness = Settings.ViaThickness;
-        via.Clearance = 2 * Settings.Keepaway;
-        via.DrillingHole = Settings.ViaDrillingHole;
-        via.Mask = 0;
-        via.Flags = NoFlags ();
+    {
+      /* Make a dummy via structure to draw from */
+      PinType via;
+      via.X = Crosshair.X;
+      via.Y = Crosshair.Y;
+      via.Thickness = Settings.ViaThickness;
+      via.Clearance = 2 * Settings.Keepaway;
+      via.DrillingHole = Settings.ViaDrillingHole;
+      via.Mask = 0;
+      via.Flags = NoFlags ();
 
-        gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, true, false);
+      gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, true, false);
 
-        if (TEST_FLAG (SHOWDRCFLAG, PCB))
-          {
-            /* XXX: Naughty cheat - use the mask to draw DRC clearance! */
-            via.Mask = Settings.ViaThickness + PCB->Bloat * 2;
-            gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
-            gui->graphics->thindraw_pcb_pv (Crosshair.GC, Crosshair.GC, &via, false, true);
-            gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
-          }
-        break;
+      if (TEST_FLAG (SHOWDRCFLAG, PCB)) {
+
+        Coord mask_r = Settings.ViaThickness / 2 + PCB->Bloat;
+        gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
+        gui->graphics->set_line_cap (Crosshair.GC, Round_Cap);
+        gui->graphics->set_line_width (Crosshair.GC, 0);
+        gui->graphics->draw_arc (Crosshair.GC, via.X, via.Y, mask_r, mask_r, 0, 360);
+        gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
+
       }
+      break;
+    }
 
-      /* the attached line is used by both LINEMODE, POLYGON_MODE and POLYGONHOLE_MODE*/
+    /* the attached line is used by both LINEMODE, POLYGON_MODE and POLYGONHOLE_MODE*/
     case POLYGON_MODE:
     case POLYGONHOLE_MODE:
       /* draw only if starting point is set */
@@ -571,62 +573,63 @@ DrawAttached (void)
                                   Crosshair.AttachedLine.Point2.X,
                                   Crosshair.AttachedLine.Point2.Y);
 
-      /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
-      if (Crosshair.AttachedPolygon.PointN > 1)
-	{
-	  XORPolygon (&Crosshair.AttachedPolygon, 0, 0);
-	}
-      break;
+        /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
+        if (Crosshair.AttachedPolygon.PointN > 1) {
+          XORPolygon (&Crosshair.AttachedPolygon, 0, 0);
+        }
+        break;
 
     case ARC_MODE:
-      if (Crosshair.AttachedBox.State != STATE_FIRST)
-	{
-	  XORDrawAttachedArc (Settings.LineThickness);
-	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
-	    {
-	      gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
-	      XORDrawAttachedArc (Settings.LineThickness +
-				  2 * (PCB->Bloat + 1));
-	      gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
-	    }
 
-	}
+      if (Crosshair.AttachedBox.State != STATE_FIRST) {
+
+        XORDrawAttachedArc (Settings.LineThickness);
+        if (TEST_FLAG (SHOWDRCFLAG, PCB)) {
+
+          gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
+          XORDrawAttachedArc (Settings.LineThickness +
+          2 * (PCB->Bloat + 1));
+          gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
+        }
+
+      }
       break;
 
     case LINE_MODE:
       /* draw only if starting point exists and the line has length */
       if (Crosshair.AttachedLine.State != STATE_FIRST &&
-	  Crosshair.AttachedLine.draw)
-	{
-	  XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
-			       Crosshair.AttachedLine.Point1.Y,
-			       Crosshair.AttachedLine.Point2.X,
-			       Crosshair.AttachedLine.Point2.Y,
-			       PCB->RatDraw ? 10 : Settings.LineThickness);
-	  /* draw two lines ? */
-	  if (PCB->Clipping)
-	    XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
-				 Crosshair.AttachedLine.Point2.Y,
-				 Crosshair.X, Crosshair.Y,
-				 PCB->RatDraw ? 10 : Settings.LineThickness);
-	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
-	    {
-	      gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
-	      XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
-				   Crosshair.AttachedLine.Point1.Y,
-				   Crosshair.AttachedLine.Point2.X,
-				   Crosshair.AttachedLine.Point2.Y,
-				   PCB->RatDraw ? 10 : Settings.LineThickness
-				   + 2 * (PCB->Bloat + 1));
-	      if (PCB->Clipping)
-		XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
-				     Crosshair.AttachedLine.Point2.Y,
-				     Crosshair.X, Crosshair.Y,
-				     PCB->RatDraw ? 10 : Settings.
-				     LineThickness + 2 * (PCB->Bloat + 1));
-	      gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
-	    }
-	}
+          Crosshair.AttachedLine.draw)
+      {
+        XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
+                             Crosshair.AttachedLine.Point1.Y,
+                             Crosshair.AttachedLine.Point2.X,
+                             Crosshair.AttachedLine.Point2.Y,
+                             PCB->RatDraw ? 10 : Settings.LineThickness);
+        /* draw two lines ? */
+        if (PCB->Clipping)
+          XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
+                               Crosshair.AttachedLine.Point2.Y,
+                               Crosshair.X, Crosshair.Y,
+                               PCB->RatDraw ? 10 : Settings.LineThickness);
+
+          if (TEST_FLAG (SHOWDRCFLAG, PCB)) {
+
+            gui->graphics->set_color (Crosshair.GC, Settings.CrossColor);
+            XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
+                                 Crosshair.AttachedLine.Point1.Y,
+                                 Crosshair.AttachedLine.Point2.X,
+                                 Crosshair.AttachedLine.Point2.Y,
+                                 PCB->RatDraw ? 10 : Settings.LineThickness
+                                 + 2 * (PCB->Bloat + 1));
+            if (PCB->Clipping)
+              XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
+                                   Crosshair.AttachedLine.Point2.Y,
+                                   Crosshair.X, Crosshair.Y,
+                                   PCB->RatDraw ? 10 : Settings.
+                                   LineThickness + 2 * (PCB->Bloat + 1));
+              gui->graphics->set_color (Crosshair.GC, Settings.CrosshairColor);
+          }
+      }
       break;
 
     case PASTEBUFFER_MODE:
@@ -641,20 +644,20 @@ DrawAttached (void)
     case INSERTPOINT_MODE:
       XORDrawInsertPointObject ();
       break;
-    }
+  }
 
   /* an attached box does not depend on a special mode */
   if (Crosshair.AttachedBox.State == STATE_SECOND ||
-      Crosshair.AttachedBox.State == STATE_THIRD)
-    {
-      Coord x1, y1, x2, y2;
+    Crosshair.AttachedBox.State == STATE_THIRD)
+  {
+    Coord x1, y1, x2, y2;
 
-      x1 = Crosshair.AttachedBox.Point1.X;
-      y1 = Crosshair.AttachedBox.Point1.Y;
-      x2 = Crosshair.AttachedBox.Point2.X;
-      y2 = Crosshair.AttachedBox.Point2.Y;
-      gui->graphics->draw_rect (Crosshair.GC, x1, y1, x2, y2);
-    }
+    x1 = Crosshair.AttachedBox.Point1.X;
+    y1 = Crosshair.AttachedBox.Point1.Y;
+    x2 = Crosshair.AttachedBox.Point2.X;
+    y2 = Crosshair.AttachedBox.Point2.Y;
+    gui->graphics->draw_rect (Crosshair.GC, x1, y1, x2, y2);
+  }
 }
 
 

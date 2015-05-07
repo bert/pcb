@@ -138,7 +138,7 @@ void heap_free (heap_t *heap, void (*freefunc) (void *))
 {
   assert (heap);
   assert (__heap_is_good (heap));
-  for ( ; heap->size; heap->size--)  
+  for ( ; heap->size; heap->size--)
    {
      if (heap->element[heap->size].data)
        freefunc (heap->element[heap->size].data);

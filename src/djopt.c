@@ -1287,12 +1287,14 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   cn = 0;
   ln = 0;
   pull = 0;
-  while (c2)
-    {
-      if (c2->pad || c2->pin || c2->n_lines < 2)
-	return 0;
-      if (cn >= cm)
-	{
+
+  while (c2) {
+
+    if (c2->pad || c2->pin || c2->n_lines < 2) {
+	  return 0;
+    }
+      if (cn >= cm) {
+
 	  cm = cn + 10;
 	  cs = (corner_s **) realloc (cs, cm * sizeof (corner_s *));
 	}
@@ -1301,19 +1303,21 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (r1 < r2)
 	r1 = r2;
       l = 0;
-      for (i = 0; i < c2->n_lines; i++)
-	{
+      for (i = 0; i < c2->n_lines; i++) {
+
 	  int o = line_orient (c2->lines[i], c2);
 	  if (o == DIAGONAL)
 	    return 0;
-	  if (o == fdir)
-	    {
+	  if (o == fdir) {
+
 	      if (l)
 		return 0;	/* we don't support overlapping lines yet */
 	      l = c2->lines[i];
 	    }
-	  if (o == rdir && c2->lines[i] != ls[ln - 1])
+	  if (o == rdir && c2->lines[i] != ls[ln - 1]) {
 	    return 0;		/* likewise */
+      }
+
 	  if (o == adir)
 	    pull++;
 	  if (o == sdir)
@@ -1325,14 +1329,15 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	saw_sel = 1;
       if (autorouted (l->line))
 	saw_auto = 1;
-      if (ln >= lm)
-	{
+      if (ln >= lm) {
+
 	  lm = ln + 10;
 	  ls = (line_s **) realloc (ls, lm * sizeof (line_s *));
 	}
       ls[ln++] = l;
       c2 = other_corner (l, c2);
     }
+
   if (cn < 2 || pull == 0)
     return 0;
   if (any_sel && !saw_sel)
@@ -1369,7 +1374,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	   fdir == RIGHT ? "right" : "down ", c->x, c->y, cn, pull, max);
 
   switch (edir)
-    {
+  {
     case UP:
       rr.y1 = c->y - r1 - max;
       break;
@@ -1389,8 +1394,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   rr.y2 += SB + 1;
 
   snap = 0;
-  for (cb = corners; cb; cb = cb->next)
-    {
+  for (cb = corners; cb; cb = cb->next) {
+
       int sep;
       if (DELETED (cb))
 	continue;
@@ -1444,22 +1449,22 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
     }
 
   /* We must now check every line segment against our corners.  */
-  for (l = lines; l; l = l->next)
-    {
+  for (l = lines; l; l = l->next) {
+
       int o, x1, x2, y1, y2;
       if (DELETED (l))
 	continue;
       dprintf ("check line %#mD to %#mD\n", l->s->x, l->s->y, l->e->x, l->e->y);
-      if (l->s->net == c->net)
-	{
+      if (l->s->net == c->net) {
+
 	  dprintf ("  same net\n");
 	  continue;
 	}
       o = line_orient (l, 0);
       /* We don't need to check perpendicular lines, because their
          corners already take care of it.  */
-      if ((fdir == RIGHT && (o == UP || o == DOWN))
-	  || (fdir == DOWN && (o == RIGHT || o == LEFT)))
+      if ((fdir == RIGHT && (o == UP || o == DOWN)) ||
+	      (fdir == DOWN && (o == RIGHT || o == LEFT)))
 	{
 	  dprintf ("  perpendicular\n");
 	  continue;
@@ -1522,8 +1527,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	}
 
       /* Ok, now see how far we can get for each of our corners. */
-      for (i = 0; i < cn; i++)
-	{
+      for (i = 0; i < cn; i++) {
+
 	  int r = l->line->Thickness + SB + corner_radius (cs[i]) + 1;
 	  int len = 0;
 	  if ((fdir == RIGHT && (x2 < cs[i]->x || x1 > cs[i]->x))
@@ -1532,7 +1537,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	  if (!intersecting_layers (cs[i]->layer, l->layer))
 	    continue;
 	  switch (edir)
-	    {
+      {
 	    case RIGHT:
 	      len = x1 - c->x;
 	      break;
@@ -1559,39 +1564,42 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   /* We must make sure that if a segment isn't being completely
      removed, that any vias and/or pads don't overlap.  */
   done = 0;
-  while (!done)
-    {
-      done = 1;
-      for (i = 0; i < cn; i++)
-	for (li = 0; li < cs[i]->n_lines; li++)
-	  {
-	    line_s *l = cs[i]->lines[li];
-	    corner_s *oc = other_corner (l, cs[i]);
-	    if (line_orient (l, cs[i]) != edir)
-	      continue;
-	    len = line_length (l);
-	    if (!oc->pad || !cs[i]->via)
-	      {
-		if (!is_hole (l->s) || !is_hole (l->e))
-		  continue;
-		if (len == max)
-		  continue;
-	      }
-	    len -= corner_radius (l->s);
-	    len -= corner_radius (l->e);
-	    len -= SB + 1;
-	    if (max > len)
-	      {
-		max = len;
-		done = 0;
-	      }
-	  }
+  while (!done) {
+
+    done = 1;
+    for (i = 0; i < cn; i++) {
+      for (li = 0; li < cs[i]->n_lines; li++) {
+
+        line_s *l = cs[i]->lines[li];
+        corner_s *oc = other_corner (l, cs[i]);
+        if (line_orient (l, cs[i]) != edir)
+          continue;
+        len = line_length (l);
+
+        if (!oc->pad || !cs[i]->via) {
+
+          if (!is_hole (l->s) || !is_hole (l->e))
+            continue;
+          if (len == max)
+            continue;
+        }
+        len -= corner_radius (l->s);
+        len -= corner_radius (l->e);
+        len -= SB + 1;
+        if (max > len) {
+
+          max = len;
+          done = 0;
+        }
+      }
     }
+  }
 
   if (max <= 0)
-    return 0;
+      return 0;
+
   switch (edir)
-    {
+  {
     case UP:
       len = c->y - max;
       break;
@@ -1604,28 +1612,31 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
     case RIGHT:
       len = c->x + max;
       break;
-    }
-  if (snap && max > Settings.Grid)
-    {
-      if (pull < 0)
-	len += Settings.Grid - 1;
-      len = gridsnap (len);
-    }
-  if ((fdir == RIGHT && len == cs[0]->y) || (fdir == DOWN && len == cs[0]->x))
+  }
+
+  if (snap && max > Settings.Grid) {
+
+    if (pull < 0)
+      len += Settings.Grid - 1;
+    len = gridsnap (len);
+  }
+  if ((fdir == RIGHT && len == cs[0]->y) || (fdir == DOWN && len == cs[0]->x)) {
     return 0;
-  for (i = 0; i < cn; i++)
-    {
-      if (fdir == RIGHT)
-	{
-	  max = len - cs[i]->y;
-	  move_corner (cs[i], cs[i]->x, len);
-	}
-      else
-	{
-	  max = len - cs[i]->x;
-	  move_corner (cs[i], len, cs[i]->y);
-	}
+  }
+
+  for (i = 0; i < cn; i++) {
+
+    if (fdir == RIGHT) {
+
+      max = len - cs[i]->y;
+      move_corner (cs[i], cs[i]->x, len);
     }
+    else
+    {
+      max = len - cs[i]->x;
+      move_corner (cs[i], len, cs[i]->y);
+    }
+  }
   return max * pull;
 }
 
