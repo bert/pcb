@@ -11,7 +11,7 @@
 	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (1/100 mils)
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
-Element[0x00000000 "Thin shrink small outline package, narrow (3mm)" "" "TSSOP8" 0 0 -2000 -6000 0 100 0x00000000]
+Element[0x00000000 "Thin shrink small outline package, narrow (3mm)" "U?" "TSSOP8" 0 0 -10000 -12200 0 100 0x00000000]
 (
 # 
 # Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
