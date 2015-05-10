@@ -1,4 +1,4 @@
-Element[0x00000000 "Square Quad-side flat pack" "" "LQFP64_10" 0 0 -2000 -6000 0 100 0x00000000]
+Element[0x00000000 "Square Quad-side flat pack" "U?" "LQFP64_10" 0 0 21000 -26000 0 100 0x00000000]
 (
 	# left row
 	Pad[-24134  -14763  -20736  -14763  1102  3000 1402 "1" "1"  0x00000100]
