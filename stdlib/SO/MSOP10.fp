@@ -1,4 +1,4 @@
-Element(0x00 "Mini small outline package, .5mm" "" "MSOP10" 121 50 3 100 0x00)
+Element(0x00 "Mini small outline package, .5mm" "U?" "MSOP10" 0 -75 0 100 0x00)
 (
 	Pad(6 9 32 9 12 "1" 0x00)
 	Pad(6 29 32 29 12 "2" 0x100)
