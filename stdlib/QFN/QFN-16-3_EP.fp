@@ -24,8 +24,16 @@
    # grow by 200 mils on each side
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
+
 Element[0x00000000 "Square Quad Flat Nolead (QFN) package" "" "QFN16_3_EP" 0 0 -7889 -8939 0 100 0x00000000]
 (
+
+#   ElementLine[-1.50mm   1.50mm  -1.50mm -1.50mm 100]
+#    ElementLine[ 1.50mm   1.50mm   1.50mm -1.50mm 100]
+
+#    ElementLine[ 1.50mm  -1.50mm  -1.50mm -1.50mm 100]
+#    ElementLine[ 1.50mm   1.50mm  -1.50mm  1.50mm 100]
+
 # Pad[X1, Y1, X2, Y3, width, clearance,
 #     soldermask, "pin name", "pin number", flags]
 # left row

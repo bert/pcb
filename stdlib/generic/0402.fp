@@ -7,6 +7,12 @@
 # text_x, text_y, text_direction, text_scale, text_flags
 Element[0x00000000 "Standard SMT resistor, capacitor etc" "" "0402" 0 0 -4000 -8000 0 100 ""]
 (
+
+# This draw the the left and right side of the component, assuming a 1 mil metalization on each
+# end
+#	ElementLine[-2100 1000 -2100 -1000 100]
+#	ElementLine[ 2100 1000  2100 -1000 100]
+
 # 
 # Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
 	Pad[-1574 -393
