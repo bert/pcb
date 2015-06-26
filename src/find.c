@@ -3951,8 +3951,8 @@ DRCAll (void)
             LocateError (&x, &y);
             BuildObjectList (&object_count, &object_id_list, &object_type_list);
             violation = pcb_drc_violation_new (_("Silk line is too thin"),
-                                               _("Process specifications dictate a minimum silkscreen feature-width\n"
-                                                 "that can reliably be reproduced"),
+                                               _("Process specifications dictate a minimum silkscreen\n"
+                                               "feature-width that can reliably be reproduced"),
                                                x, y,
                                                0,    /* ANGLE OF ERROR UNKNOWN */
                                                TRUE, /* MEASUREMENT OF ERROR KNOWN */
