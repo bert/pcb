@@ -1,13 +1,10 @@
-	                             # 78 for SOT23
-	                             # 82 for SOT23
-	      # 41 for SOT23
-	               # 34 for SOT23, 24 for SOT25
 Element(0x00 "SMT transistor, 4 pins" "" "SOT143" 144 0 3 100 0x00)
 (
-	ElementLine(0 0 0 139 10)
-	ElementLine(0 139 124 139 10)
-	ElementLine(124 139 124 0 10)
-	ElementLine(124 0 0 0 10)
+	ElementLine(0 0 0 139 5)
+	ElementLine(0 139 124 139 5)
+	ElementLine(124 139 124 0 5)
+	ElementLine(124 0 0 0 5)
+
 	# 1st side, 1st pin
 	# extra width
 	   Pad(28 110
