@@ -1,9 +1,10 @@
 Element(0x00 "SMT transistor, 4 pins" "" "SOT223" 305 0 3 100 0x00)
 (
-	ElementLine(0 0 0 414 10)
-	ElementLine(0 414 285 414 10)
-	ElementLine(285 414 285 0 10)
-	ElementLine(285 0 0 0 10)
+	ElementLine(0 0 0 414 5)
+	ElementLine(0 414 285 414 5)
+	ElementLine(285 414 285 0 5)
+	ElementLine(285 0 0 0 5)
+
 	# 1st pin on pin side
 	Pad(52 296
 	    52 362
