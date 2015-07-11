@@ -17,7 +17,6 @@
 
 #include <time.h>
 
-#include "config.h"
 #include "global.h"
 #include "data.h"
 #include "misc.h"
@@ -42,25 +41,25 @@
 /* Function prototypes                                                        */
 /*----------------------------------------------------------------------------*/
 
-static HID_Attribute * gerber_get_export_options (int *n);
-static void gerber_do_export (HID_Attr_Val * options);
-static void gerber_parse_arguments (int *argc, char ***argv);
-static int gerber_set_layer (const char *name, int group, int empty);
-static hidGC gerber_make_gc (void);
-static void gerber_destroy_gc (hidGC gc);
-static void gerber_use_mask (enum mask_mode mode);
-static void gerber_set_color (hidGC gc, const char *name);
-static void gerber_set_line_cap (hidGC gc, EndCapStyle style);
-static void gerber_set_line_width (hidGC gc, Coord width);
-static void gerber_set_draw_xor (hidGC gc, int _xor);
-static void gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
-static void gerber_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
-static void gerber_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void gerber_calibrate (double xval, double yval);
-static void gerber_set_crosshair (int x, int y, int action);
-static void gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y);
+static HID_Attribute   *gerber_get_export_options (int *n);
+static void             gerber_do_export          (HID_Attr_Val * options);
+static void             gerber_parse_arguments    (int *argc, char ***argv);
+static int              gerber_set_layer          (const char *name, int group, int empty);
+static hidGC            gerber_make_gc            (void);
+static void             gerber_destroy_gc         (hidGC gc);
+static void             gerber_use_mask           (enum mask_mode mode);
+static void             gerber_set_color          (hidGC gc, const char *name);
+static void             gerber_set_line_cap       (hidGC gc, EndCapStyle style);
+static void             gerber_set_line_width     (hidGC gc, Coord width);
+static void             gerber_set_draw_xor       (hidGC gc, int _xor);
+static void             gerber_draw_line          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void             gerber_draw_arc           (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
+static void             gerber_draw_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void             gerber_fill_circle        (hidGC gc, Coord cx, Coord cy, Coord radius);
+static void             gerber_fill_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void             gerber_calibrate          (double xval, double yval);
+static void             gerber_set_crosshair      (int x, int y, int action);
+static void             gerber_fill_polygon       (hidGC gc, int n_coords, Coord *x, Coord *y);
 
 /*----------------------------------------------------------------------------*/
 /* Utility routines                                                           */
