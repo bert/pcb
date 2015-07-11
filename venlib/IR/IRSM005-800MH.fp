@@ -60,9 +60,11 @@ Element["" "Also IRSM005-301MH-2" "U?" "" 1.8178mm 8.0937mm 0.0000 1700.000 0 10
 	Pad[ 4.2020mm -7.3825mm  4.2020mm -3.2677mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
 	Pad[ 3.7194mm -7.3825mm  4.2020mm -7.3825mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
 	Pad[ 3.6178mm -7.4841mm  3.7194mm -7.3825mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
+
 	Pad[ 3.6178mm -7.8651mm  3.6178mm -7.4841mm   8.00mil  8.00mil  16.00mil "VS" "17" "square"]
 	Pad[ 3.4146mm -7.8651mm  3.6178mm -7.8651mm   8.00mil  8.00mil  16.00mil "VS" "17" "square"]
 	Pad[ 3.4146mm -7.8651mm  3.4146mm -7.4841mm   8.00mil  8.00mil  16.00mil "VS" "17" "square"]
+
 	Pad[ 3.3130mm -7.3825mm  3.4146mm -7.4841mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
 	Pad[ 2.5256mm -7.3825mm  3.3130mm -7.3825mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
 	Pad[ 2.4240mm -7.4841mm  2.5256mm -7.3825mm   8.00mil  8.00mil  16.00mil "VS" "16" "edge2"]
