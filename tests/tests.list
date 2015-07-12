@@ -179,3 +179,25 @@ hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
 hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
 
+######################################################################
+# ---------------------------------------------
+# IPC-D-356 export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+# --netlist-file <filename> Name of output file (If "ipcd356_test.ipc" then the time Stamp is omitted so that the compare can be done without error.
+#
+# Generates an IPC-D-356 Netlist
+#
+hid_ipcd356 | ipcd356.pcb | IPC-D-356 | --netlist-file ipcd356_test.ipc | | bom:ipcd356_test.ipc
+#
+
+    Status
+    API
+    Training
+    Shop
+    Blog
+    About
+    Help
+

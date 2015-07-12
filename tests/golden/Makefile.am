@@ -21,4 +21,6 @@ SUBDIRS=	\
 	hid_gerber3 \
 	hid_png1 \
 	hid_png2 \
-	hid_png3
+	hid_png3 \
+	hid_ipcd356
+

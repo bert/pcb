@@ -432,7 +432,8 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices: bom gerber gcode nelma png ps [[default=bom gerber gcode nelma png ps]]],
+[ --with-exporters= Enable export devices: bom gerber gcode ipcd356 nelma png ps [[default=bom gerber gcode ipcd356 nelma png ps]]],
+
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
@@ -1313,6 +1314,8 @@ AC_CONFIG_FILES(tests/golden/hid_gerber3/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_ipcd356/Makefile)
+
 AC_CONFIG_FILES(tests/Makefile)
 
 dnl GTS 0.7.6 - http://gts.sourceforge.net/

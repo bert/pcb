@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a
+	libgcode.a libipcd356.a
 
 pcblib_DATA= \
 	default_font \
@@ -157,7 +157,7 @@ PCB_SRCS = \
 	hid/common/draw_helpers.h \
 	hid/common/hid_resource.c \
 	hid/common/hid_resource.h \
-	hid/hidint.h 
+	hid/hidint.h
 
 EXTRA_pcb_SOURCES = ${DBUS_SRCS} ${GL_SRCS} toporouter.c toporouter.h
 DBUS_SRCS= \
@@ -189,6 +189,7 @@ BUILT_SOURCES = \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
+	hid/ipcd356/ipcd356_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	parse_y.h \
@@ -229,6 +230,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
 	$(srcdir)/hid/gtk/hid.conf \
 	$(srcdir)/hid/gtk/pcb.rc \
+	$(srcdir)/hid/ipcd356/hid.conf \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
@@ -314,6 +316,7 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
 	hid/gtk/gui-utils.c
+
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
 hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
@@ -358,7 +361,6 @@ pcb_DEPENDENCIES+=	pcb_icon.o
 
 endif
 
-
 liblesstif_a_CPPFLAGS = -I./hid/lesstif
 LIBLESSTIF_SRCS = \
 	dolists.h \
@@ -370,7 +372,7 @@ LIBLESSTIF_SRCS = \
 	hid/lesstif/menu.c \
 	hid/lesstif/netlist.c \
 	hid/lesstif/styles.c \
-	hid/lesstif/xincludes.h 
+	hid/lesstif/xincludes.h
 liblesstif_a_SOURCES = ${LIBLESSTIF_SRCS} hid/lesstif/lesstif_lists.h
 
 hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
@@ -382,7 +384,7 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 libbatch_a_CPPFLAGS = -I./hid/batch
 LIBBATCH_SRCS = \
 	hid/hidint.h \
-	hid/batch/batch.c 
+	hid/batch/batch.c
 libbatch_a_SOURCES = ${LIBBATCH_SRCS} hid/batch/batch_lists.h
 
 hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
@@ -399,13 +401,19 @@ libbom_a_SOURCES = \
 	hid/hidint.h \
 	hid/bom/bom.c
 
+LIBIPCD356_SRCS = \
+	hid/hidint.h \
+	hid/ipcd356/ipcd356.c
+
+libipcd356_a_SOURCES = ${LIBIPCD356_SRCS}
+
 libps_a_CPPFLAGS = -I./hid/ps
 LIBPS_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/ps/ps.c \
 	hid/ps/ps.h \
-	hid/ps/eps.c 
+	hid/ps/eps.c
 libps_a_SOURCES = ${LIBPS_SRCS} hid/ps/ps_lists.h
 
 hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
@@ -419,7 +427,7 @@ LIBPNG_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/png/png.c \
-	hid/png/png.h 
+	hid/png/png.h
 libpng_a_SOURCES = ${LIBPNG_SRCS} hid/png/png_lists.h
 
 hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
@@ -442,7 +450,7 @@ LIBGCODE_SRCS = \
 	hid/gcode/auxiliary.h \
 	hid/gcode/bitmap.h \
 	hid/gcode/lists.h \
-	hid/gcode/potracelib.h 
+	hid/gcode/potracelib.h
 libgcode_a_SOURCES = ${LIBGCODE_SRCS} hid/gcode/gcode_lists.h
 
 hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
@@ -472,6 +480,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
+	hid/ipcd356/ipcd356_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
