@@ -967,13 +967,18 @@ CreateNewNet (LibraryType *lib, char *name, char *style)
   char temp[64];
 
   sprintf (temp, "  %s", name);
-  menu = GetLibraryMenuMemory (lib);
+
+  menu       = GetLibraryMenuMemory (lib);
   menu->Name = strdup (temp);
-  menu->flag = 1;		/* net is enabled by default */
-  if (style == NULL || NSTRCMP ("(unknown)", style) == 0)
+  menu->flag = 1;               /* net is enabled by default */
+
+  if (style == NULL || NSTRCMP ("(unknown)", style) == 0) {
     menu->Style = NULL;
-  else
+  }
+  else {
     menu->Style = strdup (style);
+  }
+
   return (menu);
 }
 

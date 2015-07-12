@@ -33,15 +33,12 @@
  * silkscreen layer. Perhaps the design is not the best.
  */
 
-#ifndef	PCB_GLOBAL_H
-#define	PCB_GLOBAL_H
+#ifndef PCB_GLOBAL_H
+#define PCB_GLOBAL_H
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include "const.h"
-#include "macro.h"
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
@@ -56,6 +53,9 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include <glib.h>
+
+#include "const.h"
+#include "macro.h"
 
 /* Forward declarations for structures the HIDs need.  */
 typedef struct BoxType BoxType;
@@ -457,31 +457,30 @@ typedef struct
 
 typedef struct
 {
-	char *Name,			/* name of the menu entry */
-	*directory,			/* Directory name library elements are from */
-	*Style;				/* routing style */
-	Cardinal EntryN,			/* number of objects */
-	EntryMax;			/* number of reserved memory locations */
-	LibraryEntryType *Entry;		/* the entries */
-	char flag;			/* used by the netlist window to enable/disable nets */
-	char internal;			/* if set, this is an internal-only entry, not
-	part of the global netlist. */
+  char *Name;                /* name of the menu entry */
+  char *directory;           /* Directory name library elements are from */
+  char *Style;               /* routing style */
+  Cardinal EntryN,           /* number of objects */
+  EntryMax;                  /* number of reserved memory locations */
+  LibraryEntryType *Entry;   /* the entries */
+  char flag;	                 /* used by the netlist window to enable/disable nets */
+  char internal;             /* If set, this is an internal-only hack entry, not part of the global netlist. */
 } LibraryMenuType;
 
 typedef struct
 {
-	Cardinal MenuN;			/* number of objects */
-	Cardinal MenuMax;		/* number of reserved memory locations */
-	LibraryMenuType *Menu;		/* the entries */
+  Cardinal MenuN;            /* number of objects */
+  Cardinal MenuMax;          /* number of reserved memory locations */
+  LibraryMenuType *Menu;     /* the entries */
 } LibraryType;
 
 
-  /* The PCBType struct holds information about board layout most of which is
-     |  saved with the layout.  A new PCB layout struct is first initialized
-     |  with values from the user configurable Settings struct and then reset
-     |  to the saved layout values when a layout is loaded.
-     |  This struct is also used for the remove list and for buffer handling
-   */
+/* The PCBType struct holds information about board layout most of which is
+ * saved with the layout.  A new PCB layout struct is first initialized
+ * with values from the user configurable Settings struct and then reset
+ * to the saved layout values when a layout is loaded.
+ * This struct is also used for the remove list and for buffer handling
+ */
 typedef struct PCBType
 {
 	long ID;			/* see macro.h */
