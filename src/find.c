@@ -2925,54 +2925,6 @@ DrawNewConnections (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * find all connections to pins within one element
- */
-void
-LookupElementConnections (ElementType *Element, FILE * FP)
-{
-  /* reset all currently marked connections */
-  User = true;
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
-  InitConnectionLookup ();
-  PrintElementConnections (Element, FP, FOUNDFLAG, true);
-  SetChangedFlag (true);
-  if (Settings.RingBellWhenFinished)
-    gui->beep ();
-  FreeConnectionLookupMemory ();
-  IncrementUndoSerialNumber ();
-  User = false;
-  Draw ();
-}
-
-/* ---------------------------------------------------------------------------
- * find all connections to pins of all element
- */
-void
-LookupConnectionsToAllElements (FILE * FP)
-{
-  /* reset all currently marked connections */
-  User = false;
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
-  InitConnectionLookup ();
-
-  ELEMENT_LOOP (PCB->Data);
-  {
-    /* break if abort dialog returned true */
-    if (PrintElementConnections (element, FP, FOUNDFLAG, false))
-      break;
-    SEPARATE (FP);
-    if (Settings.ResetAfterElement && n != 1)
-      ClearFlagOnAllObjects (false, FOUNDFLAG);
-  }
-  END_LOOP;
-  if (Settings.RingBellWhenFinished)
-    gui->beep ();
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
-  FreeConnectionLookupMemory ();
-  Redraw ();
-}
-
 /*---------------------------------------------------------------------------
  * add the starting object to the list of found objects
  */
@@ -3040,6 +2992,66 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
   return (false);
 }
 
+/* ---------------------------------------------------------------------------
+ * find all connections to pins within one element
+ */
+void
+LookupElementConnections (ElementType *Element, FILE * FP)
+{
+  /* reset all currently marked connections */
+  User = true;
+  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  InitConnectionLookup ();
+  PrintElementConnections (Element, FP, FOUNDFLAG, true);
+  SetChangedFlag (true);
+  if (Settings.RingBellWhenFinished)
+    gui->beep ();
+  FreeConnectionLookupMemory ();
+  IncrementUndoSerialNumber ();
+  User = false;
+  Draw ();
+}
+
+
+void LookupConnectionByPin (int type, void *ptr1)
+{
+  User = 0;
+
+  InitConnectionLookup ();
+  ListStart (type, NULL, ptr1, NULL, FOUNDFLAG);
+
+  DoIt (FOUNDFLAG, true, false);
+
+  FreeConnectionLookupMemory ();
+}
+
+/* ---------------------------------------------------------------------------
+ * find all connections to pins of all element
+ */
+void
+LookupConnectionsToAllElements (FILE * FP)
+{
+  /* reset all currently marked connections */
+  User = false;
+  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  InitConnectionLookup ();
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    /* break if abort dialog returned true */
+    if (PrintElementConnections (element, FP, FOUNDFLAG, false))
+      break;
+    SEPARATE (FP);
+    if (Settings.ResetAfterElement && n != 1)
+      ClearFlagOnAllObjects (false, FOUNDFLAG);
+  }
+  END_LOOP;
+  if (Settings.RingBellWhenFinished)
+    gui->beep ();
+  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  FreeConnectionLookupMemory ();
+  Redraw ();
+}
 
 /* ---------------------------------------------------------------------------
  * looks up all connections from the object at the given coordinates
@@ -3289,28 +3301,28 @@ DumpList (void)
 {
   Cardinal i;
 
-  for (i = 0; i < 2; i++)
-    {
-      PadList[i].Number = 0;
-      PadList[i].Location = 0;
-      PadList[i].DrawLocation = 0;
-    }
+  for (i = 0; i < 2; i++) {
+
+    PadList[i].Number = 0;
+    PadList[i].Location = 0;
+    PadList[i].DrawLocation = 0;
+  }
 
   PVList.Number = 0;
   PVList.Location = 0;
 
-  for (i = 0; i < max_copper_layer; i++)
-    {
-      LineList[i].Location = 0;
-      LineList[i].DrawLocation = 0;
-      LineList[i].Number = 0;
-      ArcList[i].Location = 0;
-      ArcList[i].DrawLocation = 0;
-      ArcList[i].Number = 0;
-      PolygonList[i].Location = 0;
-      PolygonList[i].DrawLocation = 0;
-      PolygonList[i].Number = 0;
-    }
+  for (i = 0; i < max_copper_layer; i++) {
+
+    LineList[i].Location = 0;
+    LineList[i].DrawLocation = 0;
+    LineList[i].Number = 0;
+    ArcList[i].Location = 0;
+    ArcList[i].DrawLocation = 0;
+    ArcList[i].Number = 0;
+    PolygonList[i].Location = 0;
+    PolygonList[i].DrawLocation = 0;
+    PolygonList[i].Number = 0;
+  }
   RatList.Number = 0;
   RatList.Location = 0;
   RatList.DrawLocation = 0;
@@ -3345,8 +3357,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
       Bloat = 0;
       drc = true;               /* abort the search if we find anything not already found */
-      if (DoIt (FOUNDFLAG, true, false))
-        {
+      if (DoIt (FOUNDFLAG, true, false)) {
+
           DumpList ();
           /* make the flag changes undoable */
           ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);

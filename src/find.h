@@ -49,6 +49,7 @@ bool PinLineIntersect (PinType *, LineType *);
 bool LinePadIntersect (LineType *, PadType *);
 bool ArcPadIntersect (ArcType *, PadType *);
 void LookupElementConnections (ElementType *, FILE *);
+void LookupConnectionByPin (int type, void *ptr1);
 void LookupConnectionsToAllElements (FILE *);
 void LookupConnection (Coord, Coord, bool, Coord, int, bool AndRats);
 void LookupUnusedPins (FILE *);
