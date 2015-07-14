@@ -1,14 +1,11 @@
-# 78 for SOT23
-# 82 for SOT23
-# 41 for SOT23
-# 34 for SOT23, 24 for SOT25
 Element(0x00 "SMT transistor, 8 pins" "" "SOT238" 100 0 3 100 0x00)
 (
-	ElementLine(0 0 0 119 10)
-	ElementLine(0 119 106 119 10)
-	ElementLine(106 119 106 0 10)
-	ElementLine(106 0 0 0 10)
-        ElementLine(0 119 -10 129 10)
+	ElementLine(0 0 0 119 5)
+	ElementLine(0 119 106 119 5)
+	ElementLine(106 119 106 0 5)
+	ElementLine(106 0 0 0 5)
+    ElementLine(0 119 -10 129 5)
+
 	# 1st side, 1st pin
 	Pad(14 84
 	       14 104
