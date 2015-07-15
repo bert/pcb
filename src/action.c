@@ -1,5 +1,11 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/action.c
+ *
+ * \brief Action routines for output window.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 1994,1995,1996 Thomas Nau
@@ -23,9 +29,6 @@
  *  Harry Eaton, 6697 Buttonhole Ct, Columbia, MD 21044, USA
  *  haceaton@aplcomm.jhuapl.edu
  *
- */
-
-/* action routines for output window
  */
 
 #ifdef HAVE_CONFIG_H
@@ -467,8 +470,8 @@ static void ChangeFlag (char *, char *, int, char *);
 
 #ifdef HAVE_LIBSTROKE
 
-/* ---------------------------------------------------------------------------
- * FinishStroke - try to recognize the stroke sent
+/*!
+ * \brief Try to recognize the stroke sent.
  */
 void
 FinishStroke (void)
@@ -556,8 +559,8 @@ FinishStroke (void)
 }
 #endif
 
-/* ---------------------------------------------------------------------------
- * Clear warning color from pins/pads
+/*!
+ * \brief Clear warning color from pins/pads.
  */
 static void
 ClearWarnings ()
@@ -584,7 +587,8 @@ ClearWarnings ()
   Draw ();
 }
 
-/* ---------------------------------------------------------------------------
+/*!
+ * \brief Click callback.
  *
  * This is called a clicktime after a mouse down, to we can distinguish
  * between short clicks (typically: select or create something) and long
@@ -642,9 +646,8 @@ click_cb (hidval hv)
     }
 }
 
-/* ---------------------------------------------------------------------------
- *
- * This is typically called when the mouse has moved or the mouse
+/*!
+ * \brief This is typically called when the mouse has moved or the mouse
  * button was released.
  */
 static void
@@ -717,9 +720,6 @@ ReleaseMode (void)
   saved_mode = false;
 }
 
-/* ---------------------------------------------------------------------------
- * get function ID of passed string
- */
 #define HSIZE 257
 static char function_hash[HSIZE];
 static int hash_initted = 0;
@@ -738,6 +738,9 @@ hashfunc(String s)
   return i;
 }
 
+/*!
+ * \brief Get function ID of passed string.
+ */
 static int
 GetFunctionID (String Ident)
 {
@@ -786,9 +789,10 @@ GetFunctionID (String Ident)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * set new coordinates if in 'RECTANGLE' mode
- * the cursor shape is also adjusted
+/*!
+ * \brief Set new coordinates if in 'RECTANGLE' mode.
+ *
+ * The cursor shape is also adjusted.
  */
 static void
 AdjustAttachedBox (void)
@@ -810,8 +814,9 @@ AdjustAttachedBox (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * adjusts the objects which are to be created like attached lines...
+/*!
+ * \brief Adjusts the objects which are to be created like attached
+ * lines.
  */
 void
 AdjustAttachedObjects (void)
@@ -858,8 +863,8 @@ AdjustAttachedObjects (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * creates points of a line
+/*!
+ * \brief Creates points of a line.
  */
 static void
 NotifyLine (void)
@@ -929,8 +934,8 @@ NotifyLine (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * create first or second corner of a marked block
+/*!
+ * \brief Create first or second corner of a marked block.
  */
 static void
 NotifyBlock (void)
@@ -954,14 +959,15 @@ NotifyBlock (void)
 }
 
 
-/* ---------------------------------------------------------------------------
- *
- * This is called after every mode change, like mouse button pressed,
+/*!
+ * \brief This is called after every mode change, like mouse button pressed,
  * mouse button released, dragging something started or a different tool
- * selected. It does what's appropriate for the current mode setting.
+ * selected.
+ *
+ * It does what's appropriate for the current mode setting.
  * This can also mean creation of an object at the current crosshair location.
  *
- * new created objects are added to the create undo list of course
+ * New created objects are added to the create undo list of course.
  */
 static void
 NotifyMode (void)
@@ -2097,11 +2103,11 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
   AFAIL (setthermal);
 }
 
-/* ---------------------------------------------------------------------------
- * !!! no action routine !!!
+/*!
+ * \brief Event handler to set the cursor according to the X pointer
+ * position called from inside main.c.
  *
- * event handler to set the cursor according to the X pointer position
- * called from inside main.c
+ * \warning !!! no action routine !!!
  */
 void
 EventMoveCrosshair (int ev_x, int ev_y)
@@ -5959,8 +5965,8 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * no operation, just for testing purposes
+/*!
+ * \brief No operation, just for testing purposes.
  * syntax: Bell(volume)
  */
 void
@@ -7319,12 +7325,15 @@ pcb_spawnvp (char **argv)
 }
 
 /* ---------------------------------------------------------------- */
-/* 
- * Creates a new temporary file name.  Hopefully the operating system
- * provides a mkdtemp() function to securily create a temporary
- * directory with mode 0700.  If so then that directory is created and
- * the returned string is made up of the directory plus the name
- * variable.  For example:
+
+/*! 
+ * \brief Creates a new temporary file name.
+ * 
+ * Hopefully the operating system provides a mkdtemp() function to
+ * securily create a temporary directory with mode 0700.\n
+ * If so then that directory is created and the returned string is made
+ * up of the directory plus the name variable.\n
+ * For example:\n
  *
  * tempfile_name_new ("myfile") might return
  * "/var/tmp/pcb.123456/myfile".
@@ -7415,10 +7424,12 @@ tempfile_name_new (char * name)
 }
 
 /* ---------------------------------------------------------------- */
-/*
- * Unlink a temporary file.  If we have mkdtemp() then our temp file
- * lives in a temporary directory and we need to remove that directory
- * too.
+
+/*!
+ * \brief Unlink a temporary file.
+ * 
+ * If we have mkdtemp() then our temp file lives in a temporary
+ * directory and we need to remove that directory too.
  */
 static int
 tempfile_unlink (char * name)
