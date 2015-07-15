@@ -1,5 +1,11 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/action.h
+ *
+ * \brief Prototypes for action routines.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 1994,1995,1996 Thomas Nau
@@ -22,9 +28,6 @@
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
  *  Thomas.Nau@rz.uni-ulm.de
  *
- */
-
-/* prototypes for action routines
  */
 
 #ifndef	PCB_ACTION_H
