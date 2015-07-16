@@ -4,10 +4,11 @@
 	               # 34 for SOT23, 24 for SOT25
 Element(0x00 "SMT diode (pin 1 is cathode)" "" "SOT23D" 148 0 3 100 0x00)
 (
-	ElementLine(0 0 0 139 10)
-	ElementLine(0 139 128 139 10)
-	ElementLine(128 139 128 0 10)
-	ElementLine(128 0 0 0 10)
+	ElementLine(0 0 0 139 5)
+	ElementLine(0 139 128 139 5)
+	ElementLine(128 139 128 0 5)
+	ElementLine(128 0 0 0 5)
+
 	# 1st side, 1st pin
 	Pad(25 107
 	       25 113
