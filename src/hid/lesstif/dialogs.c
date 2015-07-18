@@ -1060,23 +1060,24 @@ Export (int argc, char **argv, Coord x, Coord y)
 
   hids = hid_enumerate ();
 
-  if (!selector)
-    {
+  if (!selector)  {
+
       n = 0;
       stdarg (XmNtitle, "Export HIDs");
       selector = create_form_ok_dialog ("export", 0);
-      for (i = 0; hids[i]; i++)
-	{
-	  if (hids[i]->exporter)
-	    {
+
+      for (i = 0; hids[i]; i++) {
+
+	  if (hids[i]->exporter) {
+
 	      n = 0;
-	      if (prev)
-		{
+	      if (prev) {
+
 		  stdarg (XmNtopAttachment, XmATTACH_WIDGET);
 		  stdarg (XmNtopWidget, prev);
 		}
-	      else
-		{
+	      else {
+
 		  stdarg (XmNtopAttachment, XmATTACH_FORM);
 		}
 	      stdarg (XmNrightAttachment, XmATTACH_FORM);
@@ -1104,8 +1105,7 @@ Export (int argc, char **argv, Coord x, Coord y)
 
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals, "Export", NULL))
-    {
+  if (lesstif_attribute_dialog (opts, n, vals, "Export", NULL)) {
       free (vals);
       return 1;
     }
