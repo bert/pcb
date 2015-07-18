@@ -428,20 +428,19 @@ maybe_close_f (FILE *f)
 {
   if (f) {
 
-      if (was_drill)
-	fprintf (f, "M30\r\n");
-      else
-	fprintf (f, "M02*\r\n");
-      fclose (f);
-    }
+    if (was_drill)
+      fprintf (f, "M30\r\n");
+    else
+      fprintf (f, "M02*\r\n");
+    fclose (f);
+  }
 }
 
 static BoxType region;
 
 /* Very similar to layer_type_to_file_name() but appends only a
    three-character suffix compatible with Eagle's defaults.  */
-static void
-assign_eagle_file_suffix (char *dest, int idx)
+static void assign_eagle_file_suffix (char *dest, int idx)
 {
   int group;
   int nlayers;
@@ -495,8 +494,7 @@ assign_eagle_file_suffix (char *dest, int idx)
 
 /* Very similar to layer_type_to_file_name() but appends only a
    three-character suffix compatible with Hackvana's naming requirements  */
-static void
-assign_hackvana_file_suffix (char *dest, int idx)
+static void assign_hackvana_file_suffix (char *dest, int idx)
 {
   int group;
   int nlayers;
@@ -709,15 +707,13 @@ gerber_do_export (HID_Attr_Val * options)
   PCB->Flags = save_thindraw;
 }
 
-static void
-gerber_parse_arguments (int *argc, char ***argv)
+static void gerber_parse_arguments (int *argc, char ***argv)
 {
   hid_register_attributes (gerber_options, NUM_OPTIONS);
   hid_parse_command_line (argc, argv);
 }
 
-static int
-drill_sort (const void *va, const void *vb)
+static int drill_sort (const void *va, const void *vb)
 {
   PendingDrills *a = (PendingDrills *) va;
   PendingDrills *b = (PendingDrills *) vb;
@@ -728,8 +724,7 @@ drill_sort (const void *va, const void *vb)
   return a->y - b->y;
 }
 
-static int
-gerber_set_layer (const char *name, int group, int empty)
+static int gerber_set_layer (const char *name, int group, int empty)
 {
   int want_outline;
   char *cp;
@@ -972,24 +967,24 @@ gerber_use_mask (enum mask_mode mode)
 static void
 gerber_set_color (hidGC gc, const char *name)
 {
-  if (strcmp (name, "erase") == 0)
-    {
-      gc->color = 1;
-      gc->erase = 1;
-      gc->drill = 0;
-    }
-  else if (strcmp (name, "drill") == 0)
-    {
-      gc->color = 1;
-      gc->erase = 0;
-      gc->drill = 1;
-    }
-  else
-    {
-      gc->color = 0;
-      gc->erase = 0;
-      gc->drill = 0;
-    }
+  if (strcmp (name, "erase") == 0) {
+
+    gc->color = 1;
+    gc->erase = 1;
+    gc->drill = 0;
+  }
+  else if (strcmp (name, "drill") == 0) {
+
+    gc->color = 1;
+    gc->erase = 0;
+    gc->drill = 1;
+  }
+  else {
+
+    gc->color = 0;
+    gc->erase = 0;
+    gc->drill = 0;
+  }
 }
 
 static void
@@ -1013,45 +1008,51 @@ gerber_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc, int radius)
 {
-  if (radius)
-    {
-      radius *= 2;
-      if (radius != linewidth || lastcap != Round_Cap)
-	{
-	  Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
-	  if (aptr == NULL)
-	    pcb_fprintf (stderr, "error: aperture for radius %$mS type ROUND is null\n", radius);
-	  else if (f && !is_drill)
-	    fprintf (f, "G54D%d*", aptr->dCode);
-	  linewidth = radius;
-	  lastcap = Round_Cap;
-	}
-    }
-  else if (linewidth != gc->width || lastcap != gc->cap)
-    {
-      Aperture *aptr;
-      ApertureShape shape;
+  if (radius) {
 
-      linewidth = gc->width;
-      lastcap = gc->cap;
-      switch (gc->cap)
-	{
-	case Round_Cap:
-	case Trace_Cap:
-	  shape = ROUND;
-	  break;
-	default:
-	case Square_Cap:
-	  shape = SQUARE;
-	  break;
-	}
-      aptr = findAperture (curr_aptr_list, linewidth, shape);
+    radius *= 2;
+
+    if (radius != linewidth || lastcap != Round_Cap) {
+
+      Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
       if (aptr == NULL)
-        pcb_fprintf (stderr, "error: aperture for width %$mS type %s is null\n",
-                 linewidth, shape == ROUND ? "ROUND" : "SQUARE");
-      else if (f)
-	fprintf (f, "G54D%d*", aptr->dCode);
+        pcb_fprintf (stderr, "error: aperture for radius %$mS type ROUND is null\n", radius);
+      else if (f && !is_drill)
+        fprintf (f, "G54D%d*", aptr->dCode);
+      linewidth = radius;
+      lastcap = Round_Cap;
     }
+  }
+  else if (linewidth != gc->width || lastcap != gc->cap) {
+
+    Aperture *aptr;
+    ApertureShape shape;
+
+    linewidth = gc->width;
+    lastcap = gc->cap;
+
+    switch (gc->cap) {
+
+      case Round_Cap:
+      case Trace_Cap:
+        shape = ROUND;
+        break;
+      default:
+      case Square_Cap:
+        shape = SQUARE;
+        break;
+    }
+
+    aptr = findAperture (curr_aptr_list, linewidth, shape);
+
+    if (aptr == NULL) {
+      pcb_fprintf (stderr, "error: aperture for width %$mS type %s is null\n",
+                   linewidth, shape == ROUND ? "ROUND" : "SQUARE");
+    }
+    else if (f) {
+        fprintf (f, "G54D%d*", aptr->dCode);
+    }
+  }
 }
 
 static void
@@ -1068,63 +1069,76 @@ gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   bool m = false;
 
-  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
-    {
-      Coord x[5], y[5];
-      double tx, ty, theta;
+  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap) {
 
-      theta = atan2 (y2-y1, x2-x1);
+    Coord x[5], y[5];
+    double tx, ty, theta;
 
-      /* T is a vector half a thickness long, in the direction of
-	 one of the corners.  */
-      tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
-      ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
+    theta = atan2 (y2-y1, x2-x1);
 
-      x[0] = x1 - tx;      y[0] = y1 - ty;
-      x[1] = x2 + ty;      y[1] = y2 - tx;
-      x[2] = x2 + tx;      y[2] = y2 + ty;
-      x[3] = x1 - ty;      y[3] = y1 + tx;
+    /* T is a vector half a thickness long, in the direction of
+     * one of the corners.  */
+    tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
+    ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
 
-      x[4] = x[0]; y[4] = y[0];
-      gerber_fill_polygon (gc, 5, x, y);
-      return;
-    }
+    x[0] = x1 - tx;      y[0] = y1 - ty;
+    x[1] = x2 + ty;      y[1] = y2 - tx;
+    x[2] = x2 + tx;      y[2] = y2 + ty;
+    x[3] = x1 - ty;      y[3] = y1 + tx;
+
+    x[4] = x[0]; y[4] = y[0];
+    gerber_fill_polygon (gc, 5, x, y);
+    return;
+  }
 
   use_gc (gc, 0);
   if (!f)
     return;
 
-  if (x1 != lastX)
-    {
-      m = true;
-      lastX = x1;
-      print_xcoord (f, PCB, lastX);
-    }
-  if (y1 != lastY)
-    {
-      m = true;
-      lastY = y1;
-      print_ycoord (f, PCB, lastY);
-    }
-  if ((x1 == x2) && (y1 == y2))
+  if (x1 != lastX) {
+
+    m = true;
+    lastX = x1;
+    print_xcoord (f, PCB, lastX);
+  }
+
+  if (y1 != lastY) {
+
+    m = true;
+    lastY = y1;
+    print_ycoord (f, PCB, lastY);
+
+  }
+
+  if ((x1 == x2) && (y1 == y2)) {
+
     fprintf (f, "D03*\r\n");
-  else
-    {
-      if (m)
-	fprintf (f, "D02*");
-      if (x2 != lastX)
-	{
-	  lastX = x2;
-	  print_xcoord (f, PCB, lastX);
-	}
-      if (y2 != lastY)
-	{
-	  lastY = y2;
-	  print_ycoord (f, PCB, lastY);
-	}
-      fprintf (f, "D01*\r\n");
+
+  }
+  else {
+
+    if (m) {
+
+      fprintf (f, "D02*");
+
     }
 
+    if (x2 != lastX) {
+
+      lastX = x2;
+      print_xcoord (f, PCB, lastX);
+
+    }
+
+    if (y2 != lastY) {
+
+      lastY = y2;
+      print_ycoord (f, PCB, lastY);
+
+    }
+
+    fprintf (f, "D01*\r\n");
+  }
 }
 
 static void
@@ -1263,47 +1277,58 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   use_gc (gc, 10 * 100);
   if (!f)
     return;
+
   fprintf (f, "G36*\r\n");
-  for (i = 0; i < n_coords; i++)
-    {
-      if (x[i] != lastX)
-	{
-	  m = true;
-	  lastX = x[i];
-	  print_xcoord (f, PCB, lastX);
-	}
-      if (y[i] != lastY)
-	{
-	  m = true;
-	  lastY = y[i];
-	  print_ycoord (f, PCB, lastY);
-	}
-      if (firstTime)
-	{
-	  firstTime = 0;
-	  startX = x[i];
-	  startY = y[i];
-	  if (m)
-	    fprintf (f, "D02*");
-	}
-      else if (m)
-	fprintf (f, "D01*\r\n");
-      m = false;
-    }
-  if (startX != lastX)
-    {
+
+  for (i = 0; i < n_coords; i++) {
+
+    if (x[i] != lastX) {
+
       m = true;
-      lastX = startX;
-      print_xcoord (f, PCB, startX);
+      lastX = x[i];
+      print_xcoord (f, PCB, lastX);
     }
-  if (startY != lastY)
-    {
+
+    if (y[i] != lastY) {
+
       m = true;
-      lastY = startY;
+      lastY = y[i];
       print_ycoord (f, PCB, lastY);
     }
-  if (m)
+
+    if (firstTime) {
+
+      firstTime = 0;
+      startX = x[i];
+      startY = y[i];
+      if (m)
+        fprintf (f, "D02*");
+    }
+    else if (m) {
+      fprintf (f, "D01*\r\n");
+    }
+
+    m = false;
+  }
+
+  if (startX != lastX) {
+
+    m = true;
+    lastX = startX;
+    print_xcoord (f, PCB, startX);
+  }
+
+  if (startY != lastY) {
+
+    m = true;
+    lastY = startY;
+    print_ycoord (f, PCB, lastY);
+  }
+
+  if (m) {
     fprintf (f, "D01*\r\n");
+  }
+
   fprintf (f, "G37*\r\n");
 }
 
