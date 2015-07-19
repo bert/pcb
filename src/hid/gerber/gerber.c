@@ -401,7 +401,7 @@ static HID_Attribute *
 gerber_get_export_options (int *n)
 {
   static char *last_made_filename = NULL;
-  if (PCB) derive_default_filename(PCB->Filename, &gerber_options[HA_gerberfile], "", &last_made_filename);
+  if (PCB) hc_util_derive_default_filename(PCB->Filename, &gerber_options[HA_gerberfile], "", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
@@ -821,8 +821,7 @@ static int gerber_set_layer (const char *name, int group, int empty)
       if (verbose)
 	{
 	  int c = aptr_list->count;
-	  printf ("Gerber: %d aperture%s in %s\n", c,
-		  c == 1 ? "" : "s", filename);
+	  printf ("Gerber: %d aperture%s in %s\n", c, c == 1 ? "" : "s", filename);
 	}
 
       if (is_drill)
@@ -839,7 +838,7 @@ static int gerber_set_layer (const char *name, int group, int empty)
 	}
 
       fprintf (f, "G04 start of page %d for group %d idx %d *\r\n",
-	       pagecount, group, idx);
+               pagecount, group, idx);
 
       /* Create a portable timestamp. */
       currenttime = time (NULL);

@@ -55,13 +55,15 @@ hid_load_dir (char *dirname)
   struct dirent *de;
 
   dir = opendir (dirname);
-  if (!dir)
-    {
+
+  if (!dir) {
+
       free (dirname);
       return;
-    }
-  while ((de = readdir (dir)) != NULL)
-    {
+  }
+
+  while ((de = readdir (dir)) != NULL) {
+
       void *sym;
       void (*symv)();
       void *so;
@@ -153,22 +155,27 @@ hid_register_hid (HID * hid)
   int i;
   int sz = (hid_num_hids + 2) * sizeof (HID *);
 
-  if (hid->struct_size != sizeof (HID))
-    {
-      fprintf (stderr, "Warning: hid \"%s\" has an incompatible ABI.\n",
-	       hid->name);
+  if (hid->struct_size != sizeof (HID)) {
+
+    fprintf (stderr, "Warning: hid \"%s\" has an incompatible ABI.\n",
+             hid->name);
+    return;
+  }
+
+  for (i=0; i<hid_num_hids; i++) {
+    if (hid == hid_list[i]) {
       return;
     }
-
-  for (i=0; i<hid_num_hids; i++)
-    if (hid == hid_list[i])
-      return;
+  }
 
   hid_num_hids++;
-  if (hid_list)
+
+  if (hid_list) {
     hid_list = (HID **) realloc (hid_list, sz);
-  else
+  }
+  else {
     hid_list = (HID **) malloc (sz);
+  }
 
   hid_list[hid_num_hids - 1] = hid;
   hid_list[hid_num_hids] = 0;
@@ -180,9 +187,11 @@ hid_find_gui ()
 {
   int i;
 
-  for (i = 0; i < hid_num_hids; i++)
-    if (!hid_list[i]->printer && !hid_list[i]->exporter)
+  for (i = 0; i < hid_num_hids; i++)  {
+    if (!hid_list[i]->printer && !hid_list[i]->exporter) {
       return hid_list[i];
+    }
+  }
 
   fprintf (stderr, "Error: No GUI available.\n");
   exit (1);
@@ -250,171 +259,178 @@ hid_parse_command_line (int *argc, char ***argv)
 
   for (ha = hid_attr_nodes; ha; ha = ha->next)
     for (i = 0; i < ha->n; i++)
-      {
-	HID_Attribute *a = ha->attributes + i;
-	switch (a->type)
-	  {
-	  case HID_Label:
-	    break;
-	  case HID_Integer:
-	    if (a->value)
-	      *(int *) a->value = a->default_val.int_value;
-	    break;
-	  case HID_Coord:
-	    if (a->value)
-	      *(Coord *) a->value = a->default_val.coord_value;
-	    break;
-	  case HID_Boolean:
-	    if (a->value)
-	      *(char *) a->value = a->default_val.int_value;
-	    break;
-	  case HID_Real:
-	    if (a->value)
-	      *(double *) a->value = a->default_val.real_value;
-	    break;
-	  case HID_String:
-	    if (a->value)
-	      *(const char **) a->value = a->default_val.str_value;
-	    break;
-	  case HID_Enum:
-	    if (a->value)
-	      *(int *) a->value = a->default_val.int_value;
-	    break;
-	  case HID_Mixed:
-	    if (a->value) {
-              *(HID_Attr_Val *) a->value = a->default_val;
-	  case HID_Unit:
-	    if (a->value)
-	      *(int *) a->value = a->default_val.int_value;
-	    break;
-           }
-           break;
-	  default:
-	    abort ();
-	  }
-      }
-
-  while (*argc && (*argv)[0][0] == '-' && (*argv)[0][1] == '-')
     {
+      HID_Attribute *a = ha->attributes + i;
+      switch (a->type)
+      {
+        case HID_Label:
+          break;
+        case HID_Integer:
+          if (a->value)
+            *(int *) a->value = a->default_val.int_value;
+          break;
+        case HID_Coord:
+          if (a->value)
+            *(Coord *) a->value = a->default_val.coord_value;
+          break;
+        case HID_Boolean:
+          if (a->value)
+            *(char *) a->value = a->default_val.int_value;
+          break;
+        case HID_Real:
+          if (a->value)
+            *(double *) a->value = a->default_val.real_value;
+          break;
+        case HID_String:
+          if (a->value)
+            *(const char **) a->value = a->default_val.str_value;
+          break;
+        case HID_Enum:
+          if (a->value)
+            *(int *) a->value = a->default_val.int_value;
+          break;
+        case HID_Mixed:
+          if (a->value) {
+            *(HID_Attr_Val *) a->value = a->default_val;
+        case HID_Unit:
+          if (a->value)
+            *(int *) a->value = a->default_val.int_value;
+          break;
+          }
+          break;
+        default:
+          abort ();
+      }
+    }
+
+    while (*argc && (*argv)[0][0] == '-' && (*argv)[0][1] == '-') {
+
       int bool_val;
       int arg_ofs;
 
       bool_val = 1;
       arg_ofs = 2;
-    try_no_arg:
-      for (ha = hid_attr_nodes; ha; ha = ha->next)
-	for (i = 0; i < ha->n; i++)
-	  if (strcmp ((*argv)[0] + arg_ofs, ha->attributes[i].name) == 0)
-	    {
-	      HID_Attribute *a = ha->attributes + i;
-	      char *ep;
-              const Unit *unit;
-	      switch (ha->attributes[i].type)
-		{
-		case HID_Label:
-		  break;
-		case HID_Integer:
-		  if (a->value)
-		    *(int *) a->value = strtol ((*argv)[1], 0, 0);
-		  else
-		    a->default_val.int_value = strtol ((*argv)[1], 0, 0);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Coord:
-		  if (a->value)
-		    *(Coord *) a->value = GetValue ((*argv)[1], NULL, NULL);
-		  else
-		    a->default_val.coord_value = GetValue ((*argv)[1], NULL, NULL);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Real:
-		  if (a->value)
-		    *(double *) a->value = strtod ((*argv)[1], 0);
-		  else
-		    a->default_val.real_value = strtod ((*argv)[1], 0);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_String:
-		  if (a->value)
-		    *(char **) a->value = (*argv)[1];
-		  else
-		    a->default_val.str_value = (*argv)[1];
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Boolean:
-		  if (a->value)
-		    *(char *) a->value = bool_val;
-		  else
-		    a->default_val.int_value = bool_val;
-		  break;
-		case HID_Mixed:
-		  a->default_val.real_value = strtod ((*argv)[1], &ep);
-		  goto do_enum;
-		case HID_Enum:
-		  ep = (*argv)[1];
-		do_enum:
-		  ok = 0;
-		  for (e = 0; a->enumerations[e]; e++)
-		    if (strcmp (a->enumerations[e], ep) == 0)
-		      {
-			ok = 1;
-			a->default_val.int_value = e;
-			a->default_val.str_value = ep;
-			break;
-		      }
-		  if (!ok)
-		    {
-		      fprintf (stderr,
-			       "ERROR:  \"%s\" is an unknown value for the --%s option\n",
-			       (*argv)[1], a->name);
-		      exit (1);
-		    }
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Path:
-		  abort ();
-		  a->default_val.str_value = (*argv)[1];
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Unit:
-                  unit = get_unit_struct ((*argv)[1]);
-                  if (unit == NULL)
-		    {
-		      fprintf (stderr,
-			       "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
-			       (*argv)[1], a->name);
-		      exit (1);
-		    }
-		  a->default_val.int_value = unit->index;
-		  a->default_val.str_value = unit->suffix;
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		}
-	      (*argc)--;
-	      (*argv)++;
-	      ha = 0;
-	      goto got_match;
-	    }
-      if (bool_val == 1 && strncmp ((*argv)[0], "--no-", 5) == 0)
-	{
-	  bool_val = 0;
-	  arg_ofs = 5;
-	  goto try_no_arg;
-	}
+      try_no_arg:
+
+      for (ha = hid_attr_nodes; ha; ha = ha->next) {
+
+        for (i = 0; i < ha->n; i++) {
+
+          if (strcmp ((*argv)[0] + arg_ofs, ha->attributes[i].name) == 0) {
+
+            HID_Attribute *a = ha->attributes + i;
+            char *ep;
+            const Unit *unit;
+            switch (ha->attributes[i].type) {
+
+              case HID_Label:
+                break;
+              case HID_Integer:
+                if (a->value)
+                  *(int *) a->value = strtol ((*argv)[1], 0, 0);
+                else
+                  a->default_val.int_value = strtol ((*argv)[1], 0, 0);
+                (*argc)--;
+                (*argv)++;
+                break;
+              case HID_Coord:
+                if (a->value)
+                  *(Coord *) a->value = GetValue ((*argv)[1], NULL, NULL);
+                else
+                  a->default_val.coord_value = GetValue ((*argv)[1], NULL, NULL);
+                (*argc)--;
+                (*argv)++;
+                break;
+              case HID_Real:
+                if (a->value)
+                  *(double *) a->value = strtod ((*argv)[1], 0);
+                else
+                  a->default_val.real_value = strtod ((*argv)[1], 0);
+                (*argc)--;
+                (*argv)++;
+                break;
+              case HID_String:
+                if (a->value)
+                  *(char **) a->value = (*argv)[1];
+                else
+                  a->default_val.str_value = (*argv)[1];
+                (*argc)--;
+                (*argv)++;
+                break;
+              case HID_Boolean:
+                if (a->value)
+                  *(char *) a->value = bool_val;
+                else
+                  a->default_val.int_value = bool_val;
+                break;
+              case HID_Mixed:
+                a->default_val.real_value = strtod ((*argv)[1], &ep);
+                goto do_enum;
+              case HID_Enum:
+                ep = (*argv)[1];
+                do_enum:
+                ok = 0;
+                for (e = 0; a->enumerations[e]; e++)
+                  if (strcmp (a->enumerations[e], ep) == 0)
+                  {
+                    ok = 1;
+                    a->default_val.int_value = e;
+                    a->default_val.str_value = ep;
+                    break;
+                  }
+                  if (!ok) {
+
+                    fprintf (stderr,
+                             "ERROR:  \"%s\" is an unknown value for the --%s option\n",
+                             (*argv)[1], a->name);
+                    exit (1);
+                  }
+                  (*argc)--;
+                  (*argv)++;
+                  break;
+              case HID_Path:
+                abort ();
+                a->default_val.str_value = (*argv)[1];
+                (*argc)--;
+                (*argv)++;
+                break;
+              case HID_Unit:
+                unit = get_unit_struct ((*argv)[1]);
+                if (unit == NULL)
+                {
+                  fprintf (stderr,
+                           "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+                           (*argv)[1], a->name);
+                  exit (1);
+                }
+                a->default_val.int_value = unit->index;
+                a->default_val.str_value = unit->suffix;
+                (*argc)--;
+                (*argv)++;
+                break;
+            }
+            (*argc)--;
+            (*argv)++;
+            ha = 0;
+            goto got_match;
+          }
+        }
+      }
+
+      if (bool_val == 1 && strncmp ((*argv)[0], "--no-", 5) == 0) {
+
+        bool_val = 0;
+        arg_ofs = 5;
+        goto try_no_arg;
+      }
+
       fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
       exit (1);
-    got_match:;
+      got_match:;
     }
 
-  (*argc)++;
-  (*argv)--;
+    (*argc)++;
+    (*argv)--;
 }
 
 static int
@@ -730,35 +746,4 @@ hid_cache_color (int set, const char *name, hidval * val, void **vcache)
   cache->lru = e;
 
   return 1;
-}
-
-/* otherwise homeless function, refactored out of the five export HIDs */
-void
-derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory)
-{
-	char *buf;
-	char *pf;
-
-	if (pcbfile == NULL)
-	  pf = strdup ("unknown.pcb");
-	else
-	  pf = strdup (pcbfile);
-
-	if (!pf || (memory && filename_attrib->default_val.str_value != *memory)) return;
-
-	buf = (char *)malloc (strlen (pf) + strlen(suffix) + 1);
-	if (memory) *memory = buf;
-	if (buf) {
-		size_t bl;
-		strcpy (buf, pf);
-		bl = strlen(buf);
-		if (bl > 4 && strcmp (buf + bl - 4, ".pcb") == 0)
-			buf[bl - 4] = 0;
-		strcat(buf, suffix);
-		if (filename_attrib->default_val.str_value)
-			free ((void *) filename_attrib->default_val.str_value);
-		filename_attrib->default_val.str_value = buf;
-	}
-
-	free (pf);
 }

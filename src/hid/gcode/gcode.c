@@ -250,7 +250,8 @@ HID_Attribute gcode_attribute_list[] = {
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
 
 REGISTER_ATTRIBUTES (gcode_attribute_list)
-     static HID_Attr_Val gcode_values[NUM_OPTIONS];
+
+static HID_Attr_Val gcode_values[NUM_OPTIONS];
 
 /* *** Utility funcions **************************************************** */
 
@@ -356,7 +357,7 @@ gcode_get_export_options (int *n)
 
   if (PCB)
     {
-      derive_default_filename (PCB->Filename,
+      hc_util_derive_default_filename (PCB->Filename,
                                &gcode_attribute_list[HA_basename],
                                ".gcode", &last_made_filename);
     }

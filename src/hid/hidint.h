@@ -70,4 +70,4 @@ BoxType *hid_get_extents (void *item);
 
 #endif
 
-void derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory);
+void hc_util_derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory);

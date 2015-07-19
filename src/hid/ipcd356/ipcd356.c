@@ -71,6 +71,8 @@ Name of the IPC-D-356 Netlist output file.
 
 #define NUM_OPTIONS (sizeof(IPCD356_options)/sizeof(IPCD356_options[0]))
 
+REGISTER_ATTRIBUTES(IPCD356_options)
+
 static HID_Attr_Val IPCD356_values[NUM_OPTIONS];
 
 static const char *IPCD356_filename;
@@ -82,7 +84,7 @@ IPCD356_get_export_options (int *n)
 
   if (PCB)
     {
-      derive_default_filename (PCB->Filename,
+      hc_util_derive_default_filename (PCB->Filename,
                    &IPCD356_options[HA_IPCD356_filename], ".ipc",
                    &last_IPCD356_filename);
     }

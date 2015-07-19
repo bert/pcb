@@ -98,8 +98,8 @@ bom_get_export_options (int *n)
       last_unit_value = bom_options[HA_unit].default_val.int_value;
     }
   if (PCB) {
-    derive_default_filename(PCB->Filename, &bom_options[HA_bomfile], ".bom", &last_bom_filename);
-    derive_default_filename(PCB->Filename, &bom_options[HA_xyfile ], ".xy" , &last_xy_filename );
+    hc_util_derive_default_filename(PCB->Filename, &bom_options[HA_bomfile], ".bom", &last_bom_filename);
+    hc_util_derive_default_filename(PCB->Filename, &bom_options[HA_xyfile ], ".xy" , &last_xy_filename );
   }
 
   if (n)

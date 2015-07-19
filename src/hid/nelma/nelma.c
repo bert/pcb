@@ -204,7 +204,8 @@ Substrate relative epsilon.
 #define NUM_OPTIONS (sizeof(nelma_attribute_list)/sizeof(nelma_attribute_list[0]))
 
 REGISTER_ATTRIBUTES(nelma_attribute_list)
-	static HID_Attr_Val nelma_values[NUM_OPTIONS];
+
+static HID_Attr_Val nelma_values[NUM_OPTIONS];
 
 /* *** Utility funcions **************************************************** */
 
@@ -526,7 +527,7 @@ nelma_get_export_options(int *n)
 	static char    *last_made_filename = 0;
 
 	if (PCB) {
-		derive_default_filename(PCB->Filename,
+		hc_util_derive_default_filename(PCB->Filename,
 					&nelma_attribute_list[HA_basename],
 					".nelma",
 					&last_made_filename);

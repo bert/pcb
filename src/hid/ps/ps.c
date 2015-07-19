@@ -404,7 +404,7 @@ ps_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
   if (PCB)
-    derive_default_filename(PCB->Filename, &ps_attribute_list[HA_psfile], ".ps", &last_made_filename);
+    hc_util_derive_default_filename(PCB->Filename, &ps_attribute_list[HA_psfile], ".ps", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
