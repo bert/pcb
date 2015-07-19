@@ -500,8 +500,8 @@ static void assign_hackvana_file_suffix (char *dest, int idx)
   int nlayers;
   char *suff = "defau.out";
 
-  switch (idx)
-    {
+  switch (idx) {
+
     case SL (SILK,      TOP):    suff = "gto"; break;
     case SL (SILK,      BOTTOM): suff = "gbo"; break;
     case SL (MASK,      TOP):    suff = "gts"; break;
@@ -1164,8 +1164,8 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
      "circular interpolation" so there's a chance it just doesn't
      support ellipses at all.  Thus, we draw them out with line
      segments.  Note that most arcs in pcb are circles anyway.  */
-  if (width != height)
-    {
+  if (width != height) {
+
       double step, angle;
       Coord max = width > height ? width : height;
       Coord minr = max - gc->width / 10;
@@ -1198,18 +1198,19 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 
   arcStopX = cx - width * cos (TO_RADIANS (start_angle + delta_angle));
   arcStopY = cy + height * sin (TO_RADIANS (start_angle + delta_angle));
-  if (arcStartX != lastX)
-    {
+
+  if (arcStartX != lastX) {
+
       m = true;
       lastX = arcStartX;
       print_xcoord (f, PCB, lastX);
-    }
-  if (arcStartY != lastY)
-    {
+  }
+  if (arcStartY != lastY) {
+
       m = true;
       lastY = arcStartY;
       print_ycoord (f, PCB, lastY);
-    }
+  }
   if (m)
     fprintf (f, "D02*");
   pcb_fprintf (f,
@@ -1231,8 +1232,10 @@ gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   if (is_drill)
     radius = 50 * round (radius / 50.0);
   use_gc (gc, radius);
+
   if (!f)
     return;
+
   if (is_drill)
     {
       if (n_pending_drills >= max_pending_drills)
