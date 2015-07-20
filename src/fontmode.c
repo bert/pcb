@@ -69,6 +69,12 @@ static const char fontedit_help[] =
 
 /* %start-doc actions FontEdit
 
+This command only allows a font to be edited if the layout being edited contains
+font symbols. The existing font symbols are displayed on a layer with an overlaid
+grid, with the new version of the font on another layer which can be modified.
+Font symbols consist only of lines. The blue lines next to the font symbols
+indicate the space required after the symbol when it is used.
+
 %end-doc */
 
 static int
@@ -170,6 +176,11 @@ static const char fontsave_syntax[] = "FontSave()";
 static const char fontsave_help[] = "Convert the current PCB back to a font.";
 
 /* %start-doc actions FontSave
+
+Once a font has been modified with the FontEdit command, the layout can be saved
+as a new PCB layout. The new PCB layout can then be opened with a text editor so
+that the font section can be removed and saved as a new "default_font" file for
+use in other PCB layouts.
 
 %end-doc */
 
