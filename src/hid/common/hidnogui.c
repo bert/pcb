@@ -429,7 +429,7 @@ nogui_progress (int so_far, int total, const char *message)
   return 0;
 }
 
-static HID *
+static HID_DRAW *
 nogui_request_debug_draw (void)
 {
   return NULL;

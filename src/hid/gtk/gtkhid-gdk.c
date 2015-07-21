@@ -1188,8 +1188,7 @@ ghid_render_pixmap (int cx, int cy, double zoom, int width, int height, int dept
 
   pixmap = gdk_pixmap_new (NULL, width, height, depth);
 
-  /* Setup drawable and zoom factor for drawing routines
-   */
+  /* Setup drawable and zoom factor for drawing routines */
 
   gport->drawable = pixmap;
   gport->view.coord_per_px = zoom;
@@ -1231,7 +1230,7 @@ ghid_request_debug_draw (void)
 {
   /* No special setup requirements, drawing goes into
    * the backing pixmap. */
-  return &ghid_hid;
+  return ghid_hid.graphics;
 }
 
 void

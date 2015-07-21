@@ -139,7 +139,7 @@ return dir;
 }
 
 #if ROUTE_DEBUG
-HID *ddraw = NULL;
+HID_DRAW *ddraw = NULL;
 static hidGC ar_gc = 0;
 #endif
 
@@ -1471,17 +1471,17 @@ showbox (BoxType b, Dimension thickness, int group)
   if (showboxen != -1 && showboxen != group)
     return;
 
-  if (ddraw != NULL)
-    {
-      ddraw->graphics->set_line_width (ar_gc, thickness);
-      ddraw->graphics->set_line_cap (ar_gc, Trace_Cap);
-      ddraw->graphics->set_color (ar_gc, SLayer->Color);
+  if (ddraw != NULL) {
 
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
-      ddraw->graphics->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
-      ddraw->graphics->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
-    }
+    ddraw->set_line_width (ar_gc, thickness);
+    ddraw->set_line_cap (ar_gc, Trace_Cap);
+    ddraw->set_color (ar_gc, SLayer->Color);
+
+    ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X2, b.Y1);
+    ddraw->draw_line (ar_gc, b.X1, b.Y2, b.X2, b.Y2);
+    ddraw->draw_line (ar_gc, b.X1, b.Y1, b.X1, b.Y2);
+    ddraw->draw_line (ar_gc, b.X2, b.Y1, b.X2, b.Y2);
+  }
 
 #if 1
 
@@ -1495,30 +1495,33 @@ showbox (BoxType b, Dimension thickness, int group)
   AddObjectToCreateUndoList (LINE_TYPE,
 			     LAYER_PTR (top_silk_layer), line,
 			     line);
-  if (b.Y1 != b.Y2)
-    {
+
+  if (b.Y1 != b.Y2) {
+
       line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
 				 LAYER_PTR (top_silk_layer),
 				 line, line);
-    }
+  }
+
   line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0,
 			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
 			     LAYER_PTR (top_silk_layer), line,
 			     line);
-  if (b.X1 != b.X2)
-    {
+
+  if (b.X1 != b.X2) {
+
       line = CreateNewLineOnLayer (LAYER_PTR (top_silk_layer),
 				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0,
 				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
 				 LAYER_PTR (top_silk_layer),
 				 line, line);
-    }
+  }
 #endif
 }
 #endif
@@ -1532,23 +1535,23 @@ showedge (edge_t * e)
   if (ddraw == NULL)
     return;
 
-  ddraw->graphics->set_line_cap (ar_gc, Trace_Cap);
-  ddraw->graphics->set_line_width (ar_gc, 1);
-  ddraw->graphics->set_color (ar_gc, Settings.MaskColor);
+  ddraw->set_line_cap (ar_gc, Trace_Cap);
+  ddraw->set_line_width (ar_gc, 1);
+  ddraw->set_color (ar_gc, Settings.MaskColor);
 
   switch (e->expand_dir)
     {
     case NORTH:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X2, b->Y1);
       break;
     case SOUTH:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y2, b->X2, b->Y2);
       break;
     case WEST:
-      ddraw->graphics->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
+      ddraw->draw_line (ar_gc, b->X1, b->Y1, b->X1, b->Y2);
       break;
     case EAST:
-      ddraw->graphics->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
+      ddraw->draw_line (ar_gc, b->X2, b->Y1, b->X2, b->Y2);
       break;
     default:
       break;
@@ -1812,9 +1815,11 @@ CreateViaEdge (const BoxType * area, Cardinal group,
   rb = CreateExpansionArea (area, group, parent, true, previous_edge);
   rb->flags.is_via = 1;
   rb->came_from = ALL;
+
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_VIA_BOXES)
   showroutebox (rb);
 #endif /* ROUTE_DEBUG && DEBUG_SHOW_VIA_BOXES */
+
   /* for planes, choose a point near the target */
   if (previous_edge->flags.in_plane)
     {
@@ -2069,9 +2074,11 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
  * are *ONLY* used for path searching. No need to call  InitLists ()
  */
   rb->came_from = src_edge->expand_dir;
+
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
   showroutebox (rb);
 #endif /* ROUTE_DEBUG && DEBUG_SHOW_EXPANSION_BOXES */
+
   return rb;
 }
 
@@ -2463,9 +2470,11 @@ CreateBridge (const BoxType * area, routebox_t * parent, direction_t dir)
   rb->flags.nobloat = 1;
   rb->style = parent->style;
   rb->conflicts_with = parent->conflicts_with;
+
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EDGES)
   showroutebox (rb);
 #endif
+
   return rb;
 }
 
@@ -3568,9 +3577,11 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 				       lastpoint, nextpoint, halfwidth,
 				       path->group, subnet, is_bad, last_x);
     }
+
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
   showroutebox (path);
 #if defined(ROUTE_VERBOSE)
+
   pcb_printf ("TRACEPOINT start %#mD\n", nextpoint.X, nextpoint.Y);
 #endif
 #endif
@@ -3598,6 +3609,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 	TargetPoint (&nextpoint, path);
       assert (point_in_box (&lastpath->box, lastpoint.X, lastpoint.Y));
       assert (point_in_box (&path->box, nextpoint.X, nextpoint.Y));
+
 #if defined(ROUTE_DEBUG_VERBOSE)
       printf ("TRACEPATH: ");
       DumpRouteBox (path);
@@ -3630,6 +3642,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
       showroutebox (path);
 #endif /* ROUTE_DEBUG && DEBUG_SHOW_ROUTE_BOXES */
+
       /* if this is connected to a plane, draw the thermal */
       if (path->flags.is_thermal || path->type == PLANE)
 	RD_DrawThermal (rd, lastpoint.X, lastpoint.Y, path->group,
@@ -3658,6 +3671,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 					       nextpoint, lastpoint,
 					       halfwidth, path->group, subnet,
 					       is_bad, last_x);
+
 #if defined(ROUTE_DEBUG_VERBOSE)
 	      printf ("TRACEPATH: ");
 	      DumpRouteBox (path);
@@ -3671,6 +3685,7 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 	    }
 	}
     }
+
   while (!path->flags.source);
   /* flush the line queue */
   RD_DrawLine (rd, -1, 0, 0, 0, 0, 0, NULL, false, false);
@@ -3679,8 +3694,8 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
     Draw ();
 
 #if ROUTE_DEBUG
-  if (ddraw != NULL)
-    ddraw->flush_debug_draw ();
+  if (gui != NULL)
+    gui->flush_debug_draw ();
 #endif
 }
 
@@ -5176,8 +5191,8 @@ AutoRoute (bool selected)
   ddraw = gui->request_debug_draw ();
   if (ddraw != NULL)
     {
-      ar_gc = ddraw->graphics->make_gc ();
-      ddraw->graphics->set_line_cap (ar_gc, Round_Cap);
+      ar_gc = ddraw->make_gc ();
+      ddraw->set_line_cap (ar_gc, Round_Cap);
     }
 #endif
 
@@ -5343,7 +5358,7 @@ donerouting:
 #if ROUTE_DEBUG
   if (ddraw != NULL)
     {
-      ddraw->graphics->destroy_gc (ar_gc);
+      ddraw->destroy_gc (ar_gc);
       ddraw->finish_debug_draw ();
     }
 #endif
@@ -5353,8 +5368,9 @@ donerouting:
   Message ("Total added wire length = %$mS, %d vias added\n",
 	   (Coord) total_wire_length, total_via_count);
   DestroyRouteData (&rd);
-  if (changed)
-    {
+
+  if (changed) {
+
       SaveUndoSerialNumber ();
 
       /* optimize rats, we've changed connectivity a lot. */
@@ -5366,7 +5382,8 @@ donerouting:
       IncrementUndoSerialNumber ();
 
       Redraw ();
-    }
+  }
+
 #if defined (ROUTE_DEBUG)
   aabort = 0;
 #endif

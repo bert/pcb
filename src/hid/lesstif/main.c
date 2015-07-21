@@ -4010,12 +4010,12 @@ lesstif_progress (int so_far, int total, const char *message)
   return progress_cancelled;
 }
 
-static HID *
+static HID_DRAW*
 lesstif_request_debug_draw (void)
 {
   /* Send drawing to the backing pixmap */
   pixmap = main_pixmap;
-  return &lesstif_hid;
+  return lesstif_hid.graphics;
 }
 
 static void
@@ -4026,11 +4026,11 @@ lesstif_flush_debug_draw (void)
   XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
              view_height, 0, 0);
   pixmap = window;
-  if (crosshair_on)
-    {
+  if (crosshair_on) {
+
       DrawAttached ();
       DrawMark ();
-    }
+  }
   pixmap = main_pixmap;
 }
 
