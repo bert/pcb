@@ -1,37 +1,40 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/autoplace.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Functions used to autoplace elements.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-
-/*
- * This moduel, autoplace.c, was written by and is
+ * \author This module, autoplace.c, was written by and is
  * Copyright (c) 2001 C. Scott Ananian
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
  */
 
-/* functions used to autoplace elements.
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -101,7 +104,9 @@ const struct
   Coord large_grid_size;	/* snap perturbations to this grid when T is high */
   Coord small_grid_size;	/* snap to this grid when T is small. */
 }
-/* wire cost is manhattan distance (in mils), thus 1 inch = 1000 */
+/*!
+ * \brief Wire cost is manhattan distance (in mils), thus 1 inch = 1000.
+ */
 CostParameter =
 {
   3e3,				/* via cost */
@@ -145,9 +150,10 @@ PerturbationType;
  * some local identifiers
  */
 
-/* ---------------------------------------------------------------------------
- * Update the X, Y and group position information stored in the NetList after
- * elements have possibly been moved, rotated, flipped, etc.
+/*!
+ * \brief Update the X, Y and group position information stored in the
+ * NetList after elements have possibly been moved, rotated, flipped,
+ * etc.
  */
 static void
 UpdateXY (NetListType *Nets)
@@ -184,8 +190,8 @@ UpdateXY (NetListType *Nets)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * Create a list of selected elements.
+/*!
+ * \brief Create a list of selected elements.
  */
 static PointerListType
 collectSelectedElements ()
@@ -205,7 +211,10 @@ collectSelectedElements ()
 
 #if 0				/* only for debugging box lists */
 #include "create.h"
-/* makes a line on the bottom silk layer surrounding all boxes in blist */
+/*!
+ * \brief Makes a line on the bottom silk layer surrounding all boxes in
+ * blist
+ */
 static void
 showboxes (BoxListType *blist)
 {
@@ -225,40 +234,62 @@ showboxes (BoxListType *blist)
 }
 #endif
 
-/* ---------------------------------------------------------------------------
- * Helper function to compute "closest neighbor" for a box in a rtree.
- * The closest neighbor on a certain side is the closest one in a trapezoid
- * emanating from that side.
+/*!
+ * \brief Helper function to compute "closest neighbor" for a box in a
+ *  rtree.
+ *
+ * The closest neighbor on a certain side is the closest one in a
+ * trapezoid emanating from that side.
  */
-/*------ r_find_neighbor ------*/
 struct r_neighbor_info
 {
   const BoxType *neighbor;
   BoxType trap;
   direction_t search_dir;
 };
+
 #define ROTATEBOX(box) { Coord t;\
     t = (box).X1; (box).X1 = - (box).Y1; (box).Y1 = t;\
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
 }
-/* helper methods for __r_find_neighbor */
+
+/*!
+ * \brief Helper methods for __r_find_neighbor.
+ *
+ * <pre>
+  ______________ __ trap.y1     __
+  \            /               |__| query rect.
+   \__________/  __ trap.y2
+   |          |
+   trap.x1    trap.x2   sides at 45-degree angle
+
+ * </pre>
+ */
 static int
 __r_find_neighbor_reg_in_sea (const BoxType * region, void *cl)
 {
   struct r_neighbor_info *ni = (struct r_neighbor_info *) cl;
   BoxType query = *region;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
-  /*  ______________ __ trap.y1     __
-   *  \            /               |__| query rect.
-   *   \__________/  __ trap.y2
-   *   |          |
-   *   trap.x1    trap.x2   sides at 45-degree angle
-   */
   return (query.Y2 > ni->trap.Y1) && (query.Y1 < ni->trap.Y2) &&
     (query.X2 + ni->trap.Y2 > ni->trap.X1 + query.Y1) &&
     (query.X1 + query.Y1 < ni->trap.X2 + ni->trap.Y2);
 }
+
+/*!
+ * \brief .
+ *
+ * <pre>
+
+  ______________ __ trap.y1     __
+  \            /               |__| query rect.
+   \__________/  __ trap.y2
+   |          |
+   trap.x1    trap.x2   sides at 45-degree angle
+
+ * </pre>
+ */
 static int
 __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
 {
@@ -266,12 +297,6 @@ __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
   BoxType query = *box;
   int r;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
-  /*  ______________ __ trap.y1     __
-   *  \            /               |__| query rect.
-   *   \__________/  __ trap.y2
-   *   |          |
-   *   trap.x1    trap.x2   sides at 45-degree angle
-   */
   r = (query.Y2 > ni->trap.Y1) && (query.Y1 < ni->trap.Y2) &&
     (query.X2 + ni->trap.Y2 > ni->trap.X1 + query.Y1) &&
     (query.X1 + query.Y1 < ni->trap.X2 + ni->trap.Y2);
@@ -284,8 +309,11 @@ __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
   return r;
 }
 
-/* main r_find_neighbor routine.  Returns NULL if no neighbor in the
- * requested direction. */
+/*!
+ * \brief main r_find_neighbor routine.
+ *
+ * Returns NULL if no neighbor in the requested direction.
+ */
 static const BoxType *
 r_find_neighbor (rtree_t * rtree, const BoxType * box,
 		 direction_t search_direction)
@@ -312,14 +340,15 @@ r_find_neighbor (rtree_t * rtree, const BoxType * box,
   return ni.neighbor;
 }
 
-/* ---------------------------------------------------------------------------
- * Compute cost function.
- *  note that area overlap cost is correct for SMD devices: SMD devices on
- *  opposite sides of the board don't overlap.
+/*!
+ * \brief Compute cost function.
+ *
+ * Note that area overlap cost is correct for SMD devices: SMD devices on
+ * opposite sides of the board don't overlap.
  *
  * Algorithms follow those described in sections 4.1 of
- *  "Placement and Routing of Electronic Modules" edited by Michael Pecht
- *  Marcel Dekker, Inc. 1993.  ISBN: 0-8247-8916-4 TK7868.P7.P57 1993
+ * "Placement and Routing of Electronic Modules" edited by Michael Pecht
+ * Marcel Dekker, Inc. 1993.  ISBN: 0-8247-8916-4 TK7868.P7.P57 1993
  */
 static double
 ComputeCost (NetListType *Nets, double T0, double T)
@@ -603,13 +632,15 @@ ComputeCost (NetListType *Nets, double T0, double T)
   return W + (delta1 + delta2 + delta3 - delta4 + delta5);
 }
 
-/* ---------------------------------------------------------------------------
+/*!
+ * \brief .
+ *
  * Perturb:
- *  1) flip SMD from solder side to component side or vice-versa.
- *  2) rotate component 90, 180, or 270 degrees.
- *  3) shift component random + or - amount in random direction.
- *     (magnitude of shift decreases over time)
- *  -- Only perturb selected elements (need count/list of selected?) --
+ * 1) flip SMD from solder side to component side or vice-versa.\n
+ * 2) rotate component 90, 180, or 270 degrees.\n
+ * 3) shift component random + or - amount in random direction.\n
+ *    (magnitude of shift decreases over time)\n
+ * -- Only perturb selected elements (need count/list of selected?) --
  */
 PerturbationType
 createPerturbation (PointerListType *selected, double T)
@@ -741,8 +772,8 @@ doPerturb (PerturbationType * pt, bool undo)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * Auto-place selected components.
+/*!
+ * \brief Auto-place selected components.
  */
 bool
 AutoPlaceSelected (void)
