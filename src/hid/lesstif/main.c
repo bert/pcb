@@ -3958,7 +3958,6 @@ lesstif_progress_dialog (int so_far, int total, const char *msg)
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
-  static bool visible = false;
   static bool started = false;
   XEvent e;
   struct timeval time;
@@ -3966,14 +3965,13 @@ lesstif_progress (int so_far, int total, const char *message)
   static double time_then = 0.0;
   int retval = 0;
 
-  if (so_far == 0 && total == 0 && message == NULL)
-    {
+  if (so_far == 0 && total == 0 && message == NULL) {
+
       XtUnmanageChild (progress_dialog);
-      visible = false;
       started = false;
       progress_cancelled = false;
       return retval;
-    }
+  }
 
   gettimeofday (&time, NULL);
   time_now = time.tv_sec + time.tv_usec / 1000000.0;
