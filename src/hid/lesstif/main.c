@@ -724,23 +724,23 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
 {
   char buf[10];
   KeySym sym;
-  int slen;
+  //int slen;
 
-  switch (e->type)
-    {
-    case KeyPress:
-      slen = XLookupString ((XKeyEvent *)e, buf, sizeof (buf), &sym, NULL);
-      switch (sym)
-	{
-	case XK_Escape:
-	  XtUnmanageChild (m_cmd);
-	  XtUnmanageChild (m_cmd_label);
-	  XmTextSetString (w, "");
-	  *cont = False;
-	  break;
-	}
-      break;
+  if (e->type == KeyPress) {
+
+    //slen =
+    XLookupString ((XKeyEvent *)e, buf, sizeof (buf), &sym, NULL);
+
+    switch (sym) {
+
+      case XK_Escape:
+        XtUnmanageChild (m_cmd);
+        XtUnmanageChild (m_cmd_label);
+        XmTextSetString (w, "");
+        *cont = False;
+        break;
     }
+  }
 }
 
 static const char command_syntax[] =
