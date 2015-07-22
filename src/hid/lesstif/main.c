@@ -1368,15 +1368,14 @@ static void
 work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
   static int pressed_button = 0;
-  static int ignore_release = 0;
 
   show_crosshair (0);
-  switch (e->type)
-    {
+  switch (e->type) {
+
     case KeyPress:
       mod_changed (&(e->xkey), 1);
       if (lesstif_key_event (&(e->xkey)))
-	return;
+        return;
       break;
 
     case KeyRelease:
@@ -1384,77 +1383,76 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       break;
 
     case ButtonPress:
-      {
-        int mods;
-        if (pressed_button)
-          return;
-        /*printf("click %d\n", e->xbutton.button); */
-        if (lesstif_button_event (w, e))
-	{
-	  ignore_release = 1;
-	  return;
-	}
-        ignore_release = 0;
+    {
+      int mods;
+      if (pressed_button)
+        return;
+      /*printf("click %d\n", e->xbutton.button); */
+      if (lesstif_button_event (w, e)) {
 
-        notify_crosshair_change (false);
-        pressed_button = e->xbutton.button;
-        mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
-          + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
-#if __APPLE__
-          + ((e->xbutton.state & (1<<13)) ? M_Alt : 0);
-#else
-          + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
-#endif
-        do_mouse_action(e->xbutton.button, mods);
-        notify_crosshair_change (true);
-        break;
+        return;
       }
+
+      notify_crosshair_change (false);
+      pressed_button = e->xbutton.button;
+      mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
+      + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
+#if __APPLE__
+      + ((e->xbutton.state & (1<<13)) ? M_Alt : 0);
+#else
+      + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
+#endif
+      do_mouse_action(e->xbutton.button, mods);
+      notify_crosshair_change (true);
+      break;
+    }
 
     case ButtonRelease:
-      {
-        int mods;
-        if (e->xbutton.button != pressed_button)
-          return;
-        lesstif_button_event (w, e);
-        notify_crosshair_change (false);
-        pressed_button = 0;
-        mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
-          + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
-#if __APPLE__
-          + ((e->xbutton.state & (1<<13)) ? M_Alt : 0)
-#else
-          + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0)
-#endif
-          + M_Release;
-        do_mouse_action (e->xbutton.button, mods);
-        notify_crosshair_change (true);
-        break;
+    {
+      int mods;
+      if (e->xbutton.button != pressed_button) {
+        return;
       }
+      lesstif_button_event (w, e);
+      notify_crosshair_change (false);
+      pressed_button = 0;
+      mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
+      + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
+#if __APPLE__
+      + ((e->xbutton.state & (1<<13)) ? M_Alt : 0)
+#else
+      + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0)
+#endif
+      + M_Release;
+      do_mouse_action (e->xbutton.button, mods);
+      notify_crosshair_change (true);
+      break;
+    }
 
     case MotionNotify:
-      {
-	Window root, child;
-	unsigned int keys_buttons;
-	int root_x, root_y, pos_x, pos_y;
-	while (XCheckMaskEvent (display, PointerMotionMask, e));
-	XQueryPointer (display, e->xmotion.window, &root, &child,
-		       &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
-	shift_pressed = (keys_buttons & ShiftMask);
-	ctrl_pressed = (keys_buttons & ControlMask);
+    {
+      Window root, child;
+      unsigned int keys_buttons;
+      int root_x, root_y, pos_x, pos_y;
+      while (XCheckMaskEvent (display, PointerMotionMask, e));
+      XQueryPointer (display, e->xmotion.window, &root, &child,
+                     &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
+      shift_pressed = (keys_buttons & ShiftMask);
+      ctrl_pressed = (keys_buttons & ControlMask);
 #if __APPLE__
-	alt_pressed = (keys_buttons & (1<<13));
+      alt_pressed = (keys_buttons & (1<<13));
 #else
-	alt_pressed = (keys_buttons & Mod1Mask);
+      alt_pressed = (keys_buttons & Mod1Mask);
 #endif
-	/*pcb_printf("m %#mS %#mS\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
-	crosshair_in_window = 1;
-	in_move_event = 1;
-	if (panning)
-	  Pan (2, pos_x, pos_y);
-	EventMoveCrosshair (Px (pos_x), Py (pos_y));
-	in_move_event = 0;
-      }
-      break;
+      /*pcb_printf("m %#mS %#mS\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
+      crosshair_in_window = 1;
+      in_move_event = 1;
+      if (panning)
+        Pan (2, pos_x, pos_y);
+      EventMoveCrosshair (Px (pos_x), Py (pos_y));
+      in_move_event = 0;
+    }
+    break;
 
     case LeaveNotify:
       crosshair_in_window = 0;
@@ -1474,7 +1472,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
     default:
       printf ("work_area: unknown event %d\n", e->type);
       break;
-    }
+  }
 }
 
 static void
