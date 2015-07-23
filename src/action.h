@@ -8,6 +8,7 @@
  * <h1><b>Copyright.</b></h1>\n
  *
  * PCB, interactive printed circuit board design
+ *
  * Copyright (C) 1994,1995,1996 Thomas Nau
  *
  * This program is free software; you can redistribute it and/or modify
