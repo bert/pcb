@@ -1,42 +1,21 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/autoroute.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Functions used to autoroute nets.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * this file, autoroute.c, was written and is
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-/* this file, autoroute.c, was written and is
  * Copyright (c) 2001 C. Scott Ananian
+ *
  * Copyright (c) 2006 harry eaton
+ *
  * Copyright (c) 2009 harry eaton
- */
-/* functions used to autoroute nets.
- */
-/*
- *-------------------------------------------------------------------
+ *
  * This file implements a rectangle-expansion router, based on
  * "A Method for Gridless Routing of Printed Circuit Boards" by
  * A. C. Finch, K. J. Mackenzie, G. J. Balsdon, and G. Symonds in the
  * 1985 Proceedings of the 22nd ACM/IEEE Design Automation Conference.
+ *
  * This reference is available from the ACM Digital Library at
  * http://www.acm.org/dl for those with institutional or personal
  * access to it.  It's also available from your local engineering
@@ -47,8 +26,37 @@
  * at once. Previously, these were emulated with discrete boxes moving
  * in the cardinal directions. With the new method, there are fewer but
  * larger expansion boxes that one might do a better job of routing in.
- *--------------------------------------------------------------------
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
+ *
  */
+
 #define NET_HEAP 1
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -1292,7 +1300,9 @@ DestroyRouteData (routedata_t ** rd)
  * routebox reference counting.
  */
 
-/* increment the reference count on a routebox. */
+/*!
+ * \brief Increment the reference count on a routebox.
+ */
 static void
 RB_up_count (routebox_t * rb)
 {
@@ -1300,8 +1310,10 @@ RB_up_count (routebox_t * rb)
   rb->refcount++;
 }
 
-/* decrement the reference count on a routebox, freeing if this box becomes
- * unused. */
+/*!
+ * \brief Decrement the reference count on a routebox, freeing if this
+ * box becomes unused.
+ */
 static void
 RB_down_count (routebox_t * rb)
 {
@@ -1355,8 +1367,10 @@ cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
   return r;
 }
 
-/* return the minimum *cost* from a point to a box on any layer.
- * It's safe to return a smaller than minimum cost
+/*!
+ * \brief Return the minimum *cost* from a point to a box on any layer.
+ *
+ * It's safe to return a smaller than minimum cost.
  */
 static cost_t
 cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
@@ -1376,7 +1390,9 @@ cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
     return c2 * AutoRouteParameters.MinPenalty + c1;
 }
 
-/* get to actual pins/pad target coordinates */
+/*!
+ * \brief Get to actual pins/pad target coordinates.
+ */
 bool
 TargetPoint (CheapPointType * nextpoint, const routebox_t * target)
 {
@@ -1408,9 +1424,12 @@ TargetPoint (CheapPointType * nextpoint, const routebox_t * target)
   return false;
 }
 
-/* return the *minimum cost* from a point to a route box, including possible
- * via costs if the route box is on a different layer. 
- * assume routbox is bloated unless it is an expansion area
+/*!
+ * \brief Return the *minimum cost* from a point to a route box,
+ * including possible via costs if the route box is on a different
+ * layer.
+ *
+ * Assume routbox is bloated unless it is an expansion area.
  */
 static cost_t
 cost_to_routebox (const CheapPointType * p, Cardinal point_layer,
@@ -1456,7 +1475,9 @@ bloat_routebox (routebox_t * rb)
 
 #ifdef ROUTE_DEBUG		/* only for debugging expansion areas */
 
-/* makes a line on the solder layer silk surrounding the box */
+/*!
+ * \brief Makes a line on the solder layer silk surrounding the box.
+ */
 void
 showbox (BoxType b, Dimension thickness, int group)
 {
@@ -1558,7 +1579,10 @@ showroutebox (routebox_t * rb)
 }
 #endif
 
-/* return a "parent" of this edge which immediately precedes it in the route.*/
+/*!
+ * \brief Return a "parent" of this edge which immediately precedes it
+ * in the route.
+ */
 static routebox_t *
 route_parent (routebox_t * rb)
 {
@@ -1582,18 +1606,18 @@ path_conflicts (routebox_t * rb, routebox_t * conflictor, bool branch)
   return rb->conflicts_with;
 }
 
-/* Touch everything (except fixed) on each net found
+/*!
+ * \brief Touch everything (except fixed) on each net found
  * in the conflicts vector. If the vector is different
  * from the last one touched, untouch the last batch
  * and touch the new one. Always call with touch=1
  * (except for recursive call). Call with NULL, 1 to
  * clear the last batch touched.
  *
- * touched items become invisible to current path
+ * Touched items become invisible to current path
  * so we don't encounter the same conflictor more
- * than once
+ * than once.
  */
-
 static void
 touch_conflicts (vector_t * conflicts, int touch)
 {
@@ -1629,17 +1653,23 @@ touch_conflicts (vector_t * conflicts, int touch)
     last_size = n;
 }
 
-/* return a "parent" of this edge which resides in a r-tree somewhere */
-/* -- actually, this "parent" *may* be a via box, which doesn't live in
- * a r-tree. -- */
+/*!
+ * \brief Return a "parent" of this edge which resides in a r-tree
+ * somewhere.
+ *
+ * Actually, this "parent" *may* be a via box, which doesn't live in
+ * a r-tree.
+ */
 static routebox_t *
 nonhomeless_parent (routebox_t * rb)
 {
   return route_parent (rb);
 }
 
-/* some routines to find the minimum *cost* from a cost point to
- * a target (any target) */
+/*!
+ * \brief Some routines to find the minimum *cost* from a cost point to
+ * a target (any target).
+ */
 struct mincost_target_closure
 {
   const CheapPointType *CostPoint;
@@ -1681,8 +1711,12 @@ __found_new_guess (const BoxType * box, void *cl)
     return 0;			/* not less expensive than our last guess */
 }
 
-/* target_guess is our guess at what the nearest target is, or NULL if we
- * just plum don't have a clue. */
+/*!
+ * \brief .
+ *
+ * \c target_guess is our guess at what the nearest target is, or
+ * \c NULL if we just plum don't have a clue.
+ */
 static routebox_t *
 mincost_target_to_point (const CheapPointType * CostPoint,
 			 Cardinal CostPointLayer,
@@ -1704,8 +1738,11 @@ mincost_target_to_point (const CheapPointType * CostPoint,
   return mtc.nearest;
 }
 
-/* create edge from field values */
-/* mincost_target_guess can be NULL */
+/*!
+ * \brief Create edge from field values.
+ *
+ * mincost_target_guess can be \c NULL .
+ */
 static edge_t *
 CreateEdge (routebox_t * rb,
 	    Coord CostPointX, Coord CostPointY,
@@ -1753,8 +1790,11 @@ CreateEdge (routebox_t * rb,
   return e;
 }
 
-/* create edge, using previous edge to fill in defaults. */
-/* most of the work here is in determining a new cost point */
+/*!
+ * \brief Create edge, using previous edge to fill in defaults.
+ *
+ * Most of the work here is in determining a new cost point.
+ */
 static edge_t *
 CreateEdge2 (routebox_t * rb, direction_t expand_dir,
 	     edge_t * previous_edge, rtree_t * targets, routebox_t * guess)
@@ -1781,7 +1821,9 @@ CreateEdge2 (routebox_t * rb, direction_t expand_dir,
 		     expand_dir, targets);
 }
 
-/* create via edge, using previous edge to fill in defaults. */
+/*!
+ * \brief Create via edge, using previous edge to fill in defaults.
+ */
 static edge_t *
 CreateViaEdge (const BoxType * area, Cardinal group,
 	       routebox_t * parent, edge_t * previous_edge,
@@ -1860,8 +1902,10 @@ CreateViaEdge (const BoxType * area, Cardinal group,
   return ne;
 }
 
-/* create "interior" edge for routing with conflicts */
-/* Presently once we "jump inside" the conflicting object
+/*!
+ * \brief Create "interior" edge for routing with conflicts.
+ *
+ * Presently once we "jump inside" the conflicting object
  * we consider it a routing highway to travel inside since
  * it will become available if the conflict is elliminated.
  * That is why we ignore the interior_edge argument.
@@ -1918,7 +1962,9 @@ DestroyEdge (edge_t ** e)
   *e = NULL;
 }
 
-/* cost function for an edge. */
+/*!
+ * \brief Cost function for an edge.
+ */
 static cost_t
 edge_cost (const edge_t * e, const cost_t too_big)
 {
@@ -1933,9 +1979,14 @@ edge_cost (const edge_t * e, const cost_t too_big)
     cost_to_routebox (&e->cost_point, e->rb->group, e->mincost_target);
 }
 
-/* given an edge of a box, return a box containing exactly the points on that
- * edge.  Note that the return box is treated as closed; that is, the bottom and
- * right "edges" consist of points (just barely) not in the (half-open) box. */
+/*!
+ * \brief Given an edge of a box, return a box containing exactly the
+ * points on that edge.
+ *
+ * Note that the return box is treated as closed; that is, the bottom
+ * and right "edges" consist of points (just barely) not in the
+ * (half-open) box.
+ */
 static BoxType
 edge_to_box (const routebox_t * rb, direction_t expand_dir)
 {
@@ -2025,10 +2076,13 @@ edge_intersect (const BoxType * child, const BoxType * parent)
 }
 #endif
 
-/* area is the expansion area, on layer group 'group'. 'parent' is the
- * immediately preceding expansion area, for backtracing. 'lastarea' is
- * the last expansion area created, we string these together in a loop
- * so we can remove them all easily at the end. */
+/*!
+ * \brief Area is the expansion area, on layer group 'group'.
+ *
+ * 'parent' is the immediately preceding expansion area, for backtracing.
+ * 'lastarea' is the last expansion area created, we string these
+ * together in a loop so we can remove them all easily at the end.
+ */
 static routebox_t *
 CreateExpansionArea (const BoxType * area, Cardinal group,
 		     routebox_t * parent,
@@ -2078,8 +2132,10 @@ struct E_result
   int done;
 };
 
-/* test method for Expand()
- * this routebox potentially is a blocker limiting expansion
+/*!
+ * \brief Test method for Expand().
+ *
+ * This routebox potentially is a blocker limiting expansion
  * if this is so, we limit the inflate box so another exactly
  * like it wouldn't be seen. We do this while keep the inflated
  * box as large as possible.
@@ -2232,7 +2288,8 @@ boink_box (routebox_t * rb, struct E_result *res, direction_t dir)
   return false;
 }
 
-/* main Expand routine.
+/*!
+ * \brief Main Expand routine.
  *
  * The expansion probe edge includes the keepaway and half thickness
  * as the search is performed in order to see everything relevant.
@@ -2387,7 +2444,8 @@ Expand (rtree_t * rtree, edge_t * e, const BoxType * box)
   return &ans;
 }
 
-/* blocker_to_heap puts the blockers into a heap so they
+/*!
+ * \brief \c blocker_to_heap puts the blockers into a heap so they
  * can be retrieved in clockwise order. If a blocker
  * is also a target, it gets put into the vector too.
  * It returns 1 for any fixed blocker that is not part 
@@ -2431,7 +2489,8 @@ blocker_to_heap (heap_t * heap, routebox_t * rb,
   return 0;
 }
 
-/* this creates an EXPANSION_AREA to bridge small gaps or,
+/*!
+ * \brief This creates an EXPANSION_AREA to bridge small gaps or,
  * (more commonly) create a supper-thin box to provide a
  * home for an expansion edge.
  */
@@ -2462,7 +2521,8 @@ CreateBridge (const BoxType * area, routebox_t * parent, direction_t dir)
   return rb;
 }
 
-/* moveable_edge prepares the new search edges based on the
+/*!
+ * \brief \c moveable_edge prepares the new search edges based on the
  * starting box, direction and blocker if any.
  */
 void
@@ -2701,7 +2761,8 @@ __GatherBlockers (const BoxType * box, void *cl)
   return blocker_to_heap (bi->heap, rb, &bi->box, bi->dir);
 }
 
-/* shrink the box to the last limit for the previous direction,
+/*!
+ * \brief Shrink the box to the last limit for the previous direction,
  * i.e. if dir is SOUTH, then this means fixing up an EAST leftover
  * edge, which would be the southern most edge for that example.
  */
@@ -2727,7 +2788,8 @@ previous_edge (Coord last, direction_t i, const BoxType * b)
   return db;
 }
 
-/* Break all the edges of the box that need breaking, handling
+/*!
+ * \brief Break all the edges of the box that need breaking, handling
  * targets as they are found, and putting any moveable edges
  * in the return vector.
  */
@@ -3148,7 +3210,10 @@ ftherm_rect_in_reg (const BoxType * box, void *cl)
   return 1;
 }
 
-/* check for a pin or via target that a polygon can just use a thermal to connect to */
+/*!
+ * \brief Check for a pin or via target that a polygon can just use a
+ * thermal to connect to.
+ */
 routebox_t *
 FindThermable (rtree_t * rtree, routebox_t * rb)
 {
@@ -3165,9 +3230,9 @@ FindThermable (rtree_t * rtree, routebox_t * rb)
   return info.plane;
 }
 
-/*--------------------------------------------------------------------
- * Route-tracing code: once we've got a path of expansion boxes, trace
- * a line through them to actually create the connection.
+/*!
+ * \brief Route-tracing code: once we've got a path of expansion boxes,
+ * trace a line through them to actually create the connection.
  */
 static void
 RD_DrawThermal (routedata_t * rd, Coord X, Coord Y,
@@ -3482,12 +3547,14 @@ add_clearance (CheapPointType * nextpoint, const BoxType * b)
 }
 #endif
 
-/* This back-traces the expansion boxes along the best path
+/*!
+ * \brief This back-traces the expansion boxes along the best path
  * it draws the lines that will make the actual path.
- * during refinement passes, it should try to maximize the area
+ *
+ * During refinement passes, it should try to maximize the area
  * for other tracks so routing completion is easier.
  *
- * during smoothing passes, it should try to make a better path,
+ * During smoothing passes, it should try to make a better path,
  * possibly using diagonals, etc. The path boxes are larger on
  * average now so there is more possiblity to decide on a nice
  * path. Any combination of lines and arcs is possible, so long
@@ -3677,7 +3744,9 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
 #endif
 }
 
-/* create a fake "edge" used to defer via site searching. */
+/*!
+ * \brief Create a fake "edge" used to defer via site searching.
+ */
 static void
 CreateSearchEdge (struct routeone_state *s, vetting_t * work, edge_t * parent,
 		  routebox_t * rb, conflict_t conflict, rtree_t * targets,
@@ -3760,7 +3829,9 @@ best_path_candidate (struct routeone_state *s,
 }
 
 
-/* vectors for via site candidates (see mtspace.h) */
+/*!
+ * \brief Vectors for via site candidates (see mtspace.h).
+ */
 struct routeone_via_site_state
 {
   vector_t *free_space_vec;
@@ -5008,8 +5079,11 @@ FindPin (const BoxType * box, PinType ** pin)
 }
 
 
-/* paths go on first 'on' layer in group */
-/* returns 'true' if any paths were added. */
+/*!
+ * \brief Paths go on first 'on' layer in group.
+ *
+ * Returns 'true' if any paths were added.
+ */
 bool
 IronDownAllUnfixedPaths (routedata_t * rd)
 {
