@@ -37,7 +37,7 @@ void
 hid_register_actions (HID_Action * a, int n)
 {
   int i, count = 0;
-  
+
   all_actions = (HID_Action **)realloc (all_actions,
                          (n_actions + n) * sizeof (HID_Action*));
   for (i = 0; i < n; i++)
@@ -88,7 +88,7 @@ hid_find_action (const char *name)
 {
   HID_Action **action;
   int i;
-  
+
   if (name == NULL)
     return 0;
 
@@ -115,7 +115,7 @@ print_actions ()
 
   if (!all_actions_sorted)
     sort_actions ();
-  
+
   fprintf (stderr, "Registered Actions:\n");
   for (i = 0; i < n_actions; i++)
     {
@@ -237,12 +237,12 @@ hid_actionv (const char *name, int argc, char **argv)
 	printf ("%s%s", i ? "," : "", argv[i]);
       printf (")\033[0m\n");
     }
-  
+
   old_action     = current_action;
   current_action = a;
   ret = current_action->trigger_cb (argc, argv, x, y);
   current_action = old_action;
-  
+
   return ret;
 }
 
@@ -272,13 +272,13 @@ another:
   /* eat leading spaces and tabs */
   while (*sp && isspace ((int) *sp))
     sp++;
-  
+
   if (!*sp)
     {
       retcode = 0;
       goto cleanup;
     }
-  
+
   aname = cp;
 
   /* copy the action name, assumes name does not have a space or '('
@@ -314,11 +314,11 @@ another:
       retcode = 1;
       goto cleanup;
     }
-  
+
   /* get the parameters to pass to the action */
   while (1)
     {
-      /* 
+      /*
        * maybe_empty == 0 means that the last char examined was not a
        * ","
        */
@@ -341,7 +341,7 @@ another:
         {
 	  maybe_empty = 0;
 	  in_quotes = 0;
-	  /* 
+	  /*
 	   * if we have more parameters than memory in our array of
 	   * pointers, then either allocate some or grow the array
 	   */
@@ -357,7 +357,7 @@ another:
 	  while (*sp && isspace ((int) *sp))
 	    sp++;
 	  list[num++] = cp;
-	  
+
 	  /* search for the end of the argument, we want to keep going
            * if we are in quotes or the char is not a delimiter
            */
@@ -366,7 +366,7 @@ another:
                                        && (parens || !isspace ((int) *sp)))))
 	    {
 	      /*
-	       * single quotes give literal value inside, including '\'. 
+	       * single quotes give literal value inside, including '\'.
 	       * you can't have a single inside single quotes.
 	       * doubles quotes gives literal value inside, but allows escape.
 	       */
@@ -393,15 +393,15 @@ another:
 	    *cp2 = 0;
 	}
     }
-  
+
  cleanup:
-  
+
   if (list != NULL)
     free(list);
-  
+
   if (str != NULL)
     free (str);
-  
+
   return retcode;
 }
 
@@ -446,9 +446,9 @@ static const char pcbchanged_help[] =
 
 %end-doc */
 
-static const char routestyleschanged_syntax[] = 
+static const char routestyleschanged_syntax[] =
   "RouteStylesChanged()";
-static const char routestyleschanged_help[] = 
+static const char routestyleschanged_help[] =
   "Tells the GUI that the routing styles have changed.";
 
 /* %start-doc actions RouteStylesChanged
@@ -457,9 +457,9 @@ static const char routestyleschanged_help[] =
 
 %end-doc */
 
-static const char netlistchanged_syntax[] = 
+static const char netlistchanged_syntax[] =
   "NetlistChanged()";
-static const char netlistchanged_help[] = 
+static const char netlistchanged_help[] =
   "Tells the GUI that the netlist has changed.";
 
 /* %start-doc actions NetlistChanged
@@ -468,9 +468,9 @@ static const char netlistchanged_help[] =
 
 %end-doc */
 
-static const char layerschanged_syntax[] = 
+static const char layerschanged_syntax[] =
   "LayersChanged()";
-static const char layerschanged_help[] = 
+static const char layerschanged_help[] =
   "Tells the GUI that the layers have changed.";
 
 /* %start-doc actions LayersChanged
@@ -481,9 +481,9 @@ This includes layer names, colors, stacking order, visibility, etc.
 
 %end-doc */
 
-static const char librarychanged_syntax[] = 
+static const char librarychanged_syntax[] =
   "LibraryChanged()";
-static const char librarychanged_help[] = 
+static const char librarychanged_help[] =
   "Tells the GUI that the libraries have changed.";
 
 /* %start-doc actions LibraryChanged
