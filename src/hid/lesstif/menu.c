@@ -749,14 +749,15 @@ static void
 radio_callback (Widget toggle, ToggleItem * me,
 		XmToggleButtonCallbackStruct * cbs)
 {
-  if (!cbs->set)		/* uh uh, can't turn it off */
+  if (!cbs->set)	 {	/* uh uh, can't turn it off */
     XmToggleButtonSetState (toggle, 1, 0);
-  else
-    {
+  }
+  else {
+
       ToggleItem *ti;
       for (ti = toggle_items; ti; ti = ti->next)
-	if (strcmp (me->group, ti->group) == 0)
-	  {
+	  if (strcmp (me->group, ti->group) == 0) {
+
 	    if (me->item == ti->item || strcmp (me->item, ti->item) == 0)
 	      XmToggleButtonSetState (ti->w, 1, 0);
 	    else
@@ -812,38 +813,39 @@ lesstif_get_coords (const char *msg, Coord *px, Coord *py)
 }
 
 static void
-callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
+callback (Widget w, Resource *node, XmPushButtonCallbackStruct * pbcs)
 {
   int vi;
   have_xy = 0;
   lesstif_show_crosshair (0);
-  if (pbcs->event && pbcs->event->type == KeyPress)
-    {
-      Dimension wx, wy;
-      Widget aw = XtWindowToWidget (display, pbcs->event->xkey.window);
-      action_x = pbcs->event->xkey.x;
-      action_y = pbcs->event->xkey.y;
-      if (aw)
-	{
-	  Widget p = work_area;
-	  while (p && p != aw)
-	    {
-	      n = 0;
-	      stdarg (XmNx, &wx);
-	      stdarg (XmNy, &wy);
-	      XtGetValues (p, args, n);
-	      action_x -= wx;
-	      action_y -= wy;
-	      p = XtParent (p);
-	    }
-	  if (p == aw)
-	    have_xy = 1;
-	}
-      //pcb_printf("have xy from %s: %$mD\n", XtName(aw), action_x, action_y);
+
+  if (pbcs->event && pbcs->event->type == KeyPress) {
+
+    Dimension wx, wy;
+    Widget aw = XtWindowToWidget (display, pbcs->event->xkey.window);
+    action_x = pbcs->event->xkey.x;
+    action_y = pbcs->event->xkey.y;
+    if (aw) {
+
+      Widget p = work_area;
+      while (p && p != aw) {
+
+        n = 0;
+        stdarg (XmNx, &wx);
+        stdarg (XmNy, &wy);
+        XtGetValues (p, args, n);
+        action_x -= wx;
+        action_y -= wy;
+        p = XtParent (p);
+      }
+      if (p == aw)
+        have_xy = 1;
     }
+    //pcb_printf("have xy from %s: %$mD\n", XtName(aw), action_x, action_y);
+  }
 
   lesstif_need_idle_proc ();
-  for (vi = 1; vi < node->c; vi++)
+  for (vi = 1; vi < node->count; vi++)
     if (resource_type (node->v[vi]) == 10)
       if (hid_parse_actions (node->v[vi].value))
 	return;
@@ -893,8 +895,9 @@ DumpKeys2 ()
   printf ("in dumpkeys! %d\n", acc_num);
   qsort (acc_table, acc_num, sizeof (acc_table_t), acc_sort);
   ch[1] = 0;
-  for (i = 0; i < acc_num; i++)
-    {
+
+  for (i = 0; i < acc_num; i++) {
+
       char mod[16];
       int vi;
       char *tabs = "";
@@ -908,13 +911,14 @@ DumpKeys2 ()
 	      acc_table[i].key_char ? ch : XKeysymToString (acc_table[i].
 							    u.a.key));
 
-      for (vi = 1; vi < acc_table[i].u.a.node->c; vi++)
-	if (resource_type (acc_table[i].u.a.node->v[vi]) == 10)
-	  {
-	    printf ("%s%s", tabs, acc_table[i].u.a.node->v[vi].value);
-	    tabs = "\n\t\t\t  ";
-	  }
+      for (vi = 1; vi < acc_table[i].u.a.node->count; vi++) {
 
+        if (resource_type (acc_table[i].u.a.node->v[vi]) == 10) {
+
+          printf ("%s%s", tabs, acc_table[i].u.a.node->v[vi].value);
+          tabs = "\n\t\t\t  ";
+        }
+      }
       printf ("\n");
     }
   exit (0);
@@ -927,15 +931,16 @@ find_or_create_acc (char mods, char key, KeySym sym,
   int i, max;
   acc_table_t *a;
 
-  if (*table)
-    for (i=(*n_ents)-1; i>=0; i--)
-      {
-	a = & (*table)[i];
-	if (a->mods == mods
-	    && a->key_char == key
-	    && (mods & M_Multi || a->u.a.key == sym))
-	  return a;
-      }
+  if (*table) {
+    for (i=(*n_ents)-1; i>=0; i--) {
+
+      a = & (*table)[i];
+      if (a->mods == mods
+        && a->key_char == key
+        && (mods & M_Multi || a->u.a.key == sym))
+        return a;
+    }
+  }
 
   (*n_ents) ++;
   max = (*n_ents + 16) & ~15;
@@ -966,8 +971,8 @@ note_accelerator (char *acc, Resource * node)
   KeySym key = 0;
   int multi_key = 0;
 
-  while (isalpha ((int) acc[0]))
-    {
+  while (isalpha ((int) acc[0])) {
+
       if (strncmp (acc, "Shift", 5) == 0)
 	{
 	  mods |= M_Shift;
@@ -1208,7 +1213,7 @@ lesstif_key_event (XKeyEvent * e)
   /* Parsing actions may not return until more user interaction
      happens, so remember which table we're scanning.  */
   my_table = cur_table;
-  for (vi = 1; vi < my_table[i].u.a.node->c; vi++)
+  for (vi = 1; vi < my_table[i].u.a.node->count; vi++)
     if (resource_type (my_table[i].u.a.node->v[vi]) == 10)
       if (hid_parse_actions
 	  (my_table[i].u.a.node->v[vi].value))
@@ -1225,184 +1230,187 @@ add_resource_to_menu (Widget menu, Resource * node, XtCallbackProc callback)
   Widget sub, btn;
   Resource *r;
 
-  for (i = 0; i < node->c; i++)
-    switch (resource_type (node->v[i]))
-      {
+  for (i = 0; i < node->count; i++)
+
+    switch (resource_type (node->v[i])) {
       case 101:		/* named subnode */
-	n = 0;
-	stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
-	sub = XmCreatePulldownMenu (menu, node->v[i].name, args, n);
-	XtSetValues (sub, args, n);
-	n = 0;
-	stdarg (XmNsubMenuId, sub);
-	btn = XmCreateCascadeButton (menu, node->v[i].name, args, n);
-	XtManageChild (btn);
-	add_resource_to_menu (sub, node->v[i].subres, callback);
-	break;
+        n = 0;
+        stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
+        sub = XmCreatePulldownMenu (menu, node->v[i].name, args, n);
+        XtSetValues (sub, args, n);
+        n = 0;
+        stdarg (XmNsubMenuId, sub);
+        btn = XmCreateCascadeButton (menu, node->v[i].name, args, n);
+        XtManageChild (btn);
+        add_resource_to_menu (sub, node->v[i].subres, callback);
+        break;
 
       case 1:			/* unnamed subres */
-	n = 0;
-#if 0
-	if ((v = resource_value (node->v[i].subres, "fg")))
-	  {
-	    do_color (v, XmNforeground);
-	  }
-	if ((v = resource_value (node->v[i].subres, "bg")))
-	  {
-	    do_color (v, XmNbackground);
-	  }
-	if ((v = resource_value (node->v[i].subres, "font")))
-	  {
-	    XFontStruct *fs = XLoadQueryFont (display, v);
-	    if (fs)
-	      {
-		XmFontList fl =
-		  XmFontListCreate (fs, XmSTRING_DEFAULT_CHARSET);
-		stdarg (XmNfontList, fl);
-	      }
-	  }
-#endif
-	if ((v = resource_value (node->v[i].subres, "m")))
-	  {
-	    stdarg (XmNmnemonic, v);
-	  }
-	if ((r = resource_subres (node->v[i].subres, "a")))
-	  {
-	    XmString as = XmStringCreatePCB (r->v[0].value);
-	    stdarg (XmNacceleratorText, as);
-	    //stdarg(XmNaccelerator, r->v[1].value);
-	    note_accelerator (r->v[1].value, node->v[i].subres);
-	  }
-	v = "button";
-	for (j = 0; j < node->v[i].subres->c; j++)
-	  if (resource_type (node->v[i].subres->v[j]) == 10)
-	    {
-	      v = node->v[i].subres->v[j].value;
-	      break;
-	    }
-	stdarg (XmNlabelString, XmStringCreatePCB (v));
-	if (node->v[i].subres->flags & FLAG_S)
-	  {
-	    int nn = n;
-	    stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
-	    sub = XmCreatePulldownMenu (menu, v, args + nn, n - nn);
-	    n = nn;
-	    stdarg (XmNsubMenuId, sub);
-	    btn = XmCreateCascadeButton (menu, "menubutton", args, n);
-	    XtManageChild (btn);
-	    add_resource_to_menu (sub, node->v[i].subres, callback);
-	  }
-	else
-	  {
-	    Resource *radio = resource_subres (node->v[i].subres, "radio");
-	    char *checked = resource_value (node->v[i].subres, "checked");
-	    char *label = resource_value (node->v[i].subres, "sensitive");
-	    if (radio)
-	      {
-		ToggleItem *ti = (ToggleItem *) malloc (sizeof (ToggleItem));
-		ti->next = toggle_items;
-		ti->group = radio->v[0].value;
-		ti->item = radio->v[1].value;
-		ti->callback = callback;
-		ti->node = node->v[i].subres;
-		toggle_items = ti;
+        n = 0;
+        #if 0
+        if ((v = resource_value (node->v[i].subres, "fg")))
+        {
+          do_color (v, XmNforeground);
+    }
+    if ((v = resource_value (node->v[i].subres, "bg")))
+    {
+      do_color (v, XmNbackground);
+    }
+    if ((v = resource_value (node->v[i].subres, "font")))
+    {
+      XFontStruct *fs = XLoadQueryFont (display, v);
+      if (fs)
+      {
+        XmFontList fl =
+        XmFontListCreate (fs, XmSTRING_DEFAULT_CHARSET);
+        stdarg (XmNfontList, fl);
+    }
+    }
+    #endif
 
-		if (resource_value (node->v[i].subres, "set"))
-		  {
-		    stdarg (XmNset, True);
-		  }
-		stdarg (XmNindicatorType, XmONE_OF_MANY);
-		btn = XmCreateToggleButton (menu, "menubutton", args, n);
-		ti->w = btn;
-		XtAddCallback (btn, XmNvalueChangedCallback,
-			       (XtCallbackProc) radio_callback,
-			       (XtPointer) ti);
-	      }
-	    else if (checked)
-	      {
-		if (strchr (checked, ','))
-		  stdarg (XmNindicatorType, XmONE_OF_MANY);
-		else
-		  stdarg (XmNindicatorType, XmN_OF_MANY);
-		btn = XmCreateToggleButton (menu, "menubutton", args, n);
-		XtAddCallback (btn, XmNvalueChangedCallback,
-			       callback, (XtPointer) node->v[i].subres);
-	      }
-	    else if (label && strcmp (label, "false") == 0)
-	      {
-		stdarg (XmNalignment, XmALIGNMENT_BEGINNING);
-		btn = XmCreateLabel (menu, "menulabel", args, n);
-	      }
-	    else
-	      {
-		btn = XmCreatePushButton (menu, "menubutton", args, n);
-		XtAddCallback (btn, XmNactivateCallback,
-			       callback, (XtPointer) node->v[i].subres);
-	      }
+    if ((v = resource_value (node->v[i].subres, "m"))) {
 
-	    for (j = 0; j < node->v[i].subres->c; j++)
-	      switch (resource_type (node->v[i].subres->v[j]))
-		{
-		case 110:	/* named value = X resource */
-		  {
-		    char *n = node->v[i].subres->v[j].name;
-		    if (strcmp (n, "fg") == 0)
-		      n = "foreground";
-		    if (strcmp (n, "bg") == 0)
-		      n = "background";
-		    if (strcmp (n, "m") == 0
-			|| strcmp (n, "a") == 0
-			|| strcmp (n, "sensitive") == 0)
-		      break;
-		    if (strcmp (n, "checked") == 0)
-		      {
-			note_widget_flag (btn, XmNset,
-					  node->v[i].subres->v[j].value);
-			break;
-		      }
-		    if (strcmp (n, "active") == 0)
-		      {
-			note_widget_flag (btn, XmNsensitive,
-					  node->v[i].subres->v[j].value);
-			break;
-		      }
-		    XtVaSetValues (btn, XtVaTypedArg,
-				   n,
-				   XtRString,
-				   node->v[i].subres->v[j].value,
-				   strlen (node->v[i].subres->v[j].value) + 1,
-				   NULL);
-		  }
-		  break;
-		}
+      stdarg (XmNmnemonic, v);
+    }
 
-	    XtManageChild (btn);
-	  }
-	break;
+    if ((r = resource_subres (node->v[i].subres, "a"))) {
 
-      case 10:			/* unnamed value */
-	n = 0;
-	if (node->v[i].value[0] == '@')
-	  {
-	    if (strcmp (node->v[i].value, "@layerview") == 0)
-	      insert_layerview_buttons (menu);
-	    if (strcmp (node->v[i].value, "@layerpick") == 0)
-	      insert_layerpick_buttons (menu);
-	    if (strcmp (node->v[i].value, "@routestyles") == 0)
-	      lesstif_insert_style_buttons (menu);
-	  }
-	else if (strcmp (node->v[i].value, "-") == 0)
-	  {
-	    btn = XmCreateSeparator (menu, "sep", args, n);
-	    XtManageChild (btn);
-	  }
-	else if (i > 0)
-	  {
-	    btn = XmCreatePushButton (menu, node->v[i].value, args, n);
-	    XtManageChild (btn);
-	  }
-	break;
+      XmString as = XmStringCreatePCB (r->v[0].value);
+      stdarg (XmNacceleratorText, as);
+      //stdarg(XmNaccelerator, r->v[1].value);
+      note_accelerator (r->v[1].value, node->v[i].subres);
+    }
+
+    v = "button";
+
+    for (j = 0; j < node->v[i].subres->count; j++)
+
+      if (resource_type (node->v[i].subres->v[j]) == 10) {
+        v = node->v[i].subres->v[j].value;
+        break;
       }
+      stdarg (XmNlabelString, XmStringCreatePCB (v));
+
+    if (node->v[i].subres->flags & FLAG_S) {
+
+      int nn = n;
+      stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
+      sub = XmCreatePulldownMenu (menu, v, args + nn, n - nn);
+      n = nn;
+      stdarg (XmNsubMenuId, sub);
+      btn = XmCreateCascadeButton (menu, "menubutton", args, n);
+      XtManageChild (btn);
+      add_resource_to_menu (sub, node->v[i].subres, callback);
+    }
+    else {
+
+      Resource *radio = resource_subres (node->v[i].subres, "radio");
+      char *checked = resource_value (node->v[i].subres, "checked");
+      char *label = resource_value (node->v[i].subres, "sensitive");
+      if (radio) {
+
+        ToggleItem *ti = (ToggleItem *) malloc (sizeof (ToggleItem));
+        ti->next = toggle_items;
+        ti->group = radio->v[0].value;
+        ti->item = radio->v[1].value;
+        ti->callback = callback;
+        ti->node = node->v[i].subres;
+        toggle_items = ti;
+
+        if (resource_value (node->v[i].subres, "set")) {
+
+          stdarg (XmNset, True);
+        }
+        stdarg (XmNindicatorType, XmONE_OF_MANY);
+        btn = XmCreateToggleButton (menu, "menubutton", args, n);
+        ti->w = btn;
+        XtAddCallback (btn, XmNvalueChangedCallback,
+                       (XtCallbackProc) radio_callback,
+                       (XtPointer) ti);
+      }
+      else if (checked) {
+
+        if (strchr (checked, ','))
+          stdarg (XmNindicatorType, XmONE_OF_MANY);
+        else
+          stdarg (XmNindicatorType, XmN_OF_MANY);
+        btn = XmCreateToggleButton (menu, "menubutton", args, n);
+        XtAddCallback (btn, XmNvalueChangedCallback,
+                       callback, (XtPointer) node->v[i].subres);
+      }
+      else if (label && strcmp (label, "false") == 0) {
+
+        stdarg (XmNalignment, XmALIGNMENT_BEGINNING);
+        btn = XmCreateLabel (menu, "menulabel", args, n);
+      }
+      else {
+
+        btn = XmCreatePushButton (menu, "menubutton", args, n);
+        XtAddCallback (btn, XmNactivateCallback,
+                       callback, (XtPointer) node->v[i].subres);
+      }
+
+      for (j = 0; j < node->v[i].subres->count; j++)
+
+        switch (resource_type (node->v[i].subres->v[j])) {
+          case 110:	/* named value = X resource */
+          {
+            char *n = node->v[i].subres->v[j].name;
+            if (strcmp (n, "fg") == 0)
+              n = "foreground";
+            if (strcmp (n, "bg") == 0)
+              n = "background";
+            if (strcmp (n, "m") == 0
+              || strcmp (n, "a") == 0
+              || strcmp (n, "sensitive") == 0)
+              break;
+            if (strcmp (n, "checked") == 0) {
+
+              note_widget_flag (btn, XmNset,
+                                node->v[i].subres->v[j].value);
+              break;
+            }
+
+            if (strcmp (n, "active") == 0) {
+
+              note_widget_flag (btn, XmNsensitive,
+                                node->v[i].subres->v[j].value);
+              break;
+            }
+            XtVaSetValues (btn, XtVaTypedArg,
+                           n,
+                           XtRString,
+                           node->v[i].subres->v[j].value,
+                           strlen (node->v[i].subres->v[j].value) + 1,
+                           NULL);
+          }
+          break;
+        }
+
+        XtManageChild (btn);
+    }
+    break;
+
+    case 10:			/* unnamed value */
+      n = 0;
+      if (node->v[i].value[0] == '@') {
+        if (strcmp (node->v[i].value, "@layerview") == 0)
+          insert_layerview_buttons (menu);
+        if (strcmp (node->v[i].value, "@layerpick") == 0)
+          insert_layerpick_buttons (menu);
+        if (strcmp (node->v[i].value, "@routestyles") == 0)
+          lesstif_insert_style_buttons (menu);
+      }
+      else if (strcmp (node->v[i].value, "-") == 0) {
+        btn = XmCreateSeparator (menu, "sep", args, n);
+        XtManageChild (btn);
+      }
+      else if (i > 0) {
+        btn = XmCreatePushButton (menu, node->v[i].value, args, n);
+        XtManageChild (btn);
+      }
+      break;
+    }
 }
 
 extern char *lesstif_pcbmenu_path;
@@ -1428,9 +1436,9 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
     {
       Message ("Warning:  could not determine home directory (from HOME)\n");
     }
-  else 
+  else
     {
-      home_pcbmenu = Concat (home, PCB_DIR_SEPARATOR_S, ".pcb", 
+      home_pcbmenu = Concat (home, PCB_DIR_SEPARATOR_S, ".pcb",
          PCB_DIR_SEPARATOR_S, "pcb-menu.res", NULL);
     }
 
