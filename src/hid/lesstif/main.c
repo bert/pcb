@@ -10,6 +10,7 @@
 #include <sys/time.h>
 
 #include "xincludes.h"
+#include <X11/XKBlib.h> /* for XkbKeycodeToKeysym */
 
 #include "data.h"
 #include "action.h"
@@ -1329,11 +1330,19 @@ Pan (int mode, int x, int y)
     }
 }
 
+
+
 static void
-mod_changed (XKeyEvent * e, int set)
+mod_changed (XKeyEvent *event, int set)
 {
-  switch (XKeycodeToKeysym (display, e->keycode, 0))
-    {
+  //switch (XKeycodeToKeysym (display, event->keycode, 0)) {
+  KeySym keysym;
+  unsigned int state;
+
+  state  = event->state & ShiftMask ? 1 : 0;
+  keysym = XkbKeycodeToKeysym (display, event->keycode, 0, state);
+
+  switch (keysym) {
     case XK_Shift_L:
     case XK_Shift_R:
       shift_pressed = set;
@@ -1343,22 +1352,25 @@ mod_changed (XKeyEvent * e, int set)
       ctrl_pressed = set;
       break;
 #if __APPLE__
-	case XK_Mode_switch:
+    case XK_Mode_switch:
 #else
-	case XK_Alt_L:
-	case XK_Alt_R:
+    case XK_Alt_L:
+    case XK_Alt_R:
 #endif
-	  alt_pressed = set;
-	  break;
+      alt_pressed = set;
+      break;
     default:
-	  // to include the Apple keyboard left and right command keys use XK_Meta_L and XK_Meta_R respectivly.
+      // to include the Apple keyboard left and right command keys use XK_Meta_L and XK_Meta_R respectivly.
       return;
-    }
+  }
+
   in_move_event = 1;
   notify_crosshair_change (false);
+
   if (panning)
-    Pan (2, e->x, e->y);
-  EventMoveCrosshair (Px (e->x), Py (e->y));
+    Pan (2, event->x,event->y);
+
+  EventMoveCrosshair (Px (event->x), Py (event->y));
   AdjustAttachedObjects ();
   notify_crosshair_change (true);
   in_move_event = 0;
