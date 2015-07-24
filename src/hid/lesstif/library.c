@@ -10,6 +10,7 @@
 #include "set.h"
 #include "buffer.h"
 
+#include "file.h"           /* need for pcb_basename */
 #include "hid.h"
 #include "../hidint.h"
 #include "lesstif.h"
