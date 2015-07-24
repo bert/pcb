@@ -70,32 +70,30 @@ char    *EvaluateFilename         (char *, char *, char *, char *);
 char    *ExpandFilename           (char *, char *);
 void     SetTextBoundingBox       (FontType *, TextType *);
 
-void    SaveOutputWindow             (void);
-int     GetLayerNumber               (DataType *, LayerType *);
-int     GetLayerGroupNumberByPointer (LayerType *);
-int     GetLayerGroupNumberByNumber  (Cardinal);
-int     GetLayerGroupNumberBySide    (int);
+void     SaveOutputWindow             (void);
+int      GetLayerNumber               (DataType *, LayerType *);
+int      GetLayerGroupNumberByPointer (LayerType *);
+int      GetLayerGroupNumberByNumber  (Cardinal);
+int      GetLayerGroupNumberBySide    (int);
 //int     GetGroupOfLayer              (int);
-int     ChangeGroupVisibility        (int, bool, bool);
-void    LayerStringToLayerStack      (char *);
+int      ChangeGroupVisibility        (int, bool, bool);
+void     LayerStringToLayerStack      (char *);
 
-
-BoxType * GetObjectBoundingBox (int, void *, void *, void *);
-void ResetStackAndVisibility (void);
-void SaveStackAndVisibility (void);
-void RestoreStackAndVisibility (void);
-char *GetWorkingDirectory (char *);
-void CreateQuotedString (DynamicStringType *, char *);
-BoxType * GetArcEnds (ArcType *);
-void ChangeArcAngles (LayerType *, ArcType *, Angle, Angle);
-char *UniqueElementName (DataType *, char *);
-void AttachForCopy (Coord, Coord);
-double GetValue (const char *, const char *, bool *);
-double GetValueEx (const char *, const char *, bool *, UnitList, const char *);
-int FileExists (const char *);
-char *Concat (const char *, ...);	/* end with NULL */
-
-char *pcb_author ();
+BoxType *GetObjectBoundingBox (int, void *, void *, void *);
+void     ResetStackAndVisibility (void);
+void     SaveStackAndVisibility (void);
+void     RestoreStackAndVisibility (void);
+char    *GetWorkingDirectory (char *);
+void     CreateQuotedString (DynamicStringType *, char *);
+BoxType *GetArcEnds (ArcType *);
+void     ChangeArcAngles (LayerType *, ArcType *, Angle, Angle);
+char    *UniqueElementName (DataType *, char *);
+void     AttachForCopy (Coord, Coord);
+double   GetValue (const char *, const char *, bool *);
+double   GetValueEx (const char *, const char *, bool *, UnitList, const char *);
+int      FileExists (const char *);
+char    *Concat (const char *, ...);	/* end with NULL */
+char    *pcb_author ();
 
 /* Returns NULL if the name isn't found, else the value for that named
    attribute.  */
@@ -149,24 +147,24 @@ void NetlistChanged (int force_unfreeze);
  * two.
  */
 #if HAVE_MKDIR
-        #if MKDIR_TAKES_ONE_ARG
+  #if MKDIR_TAKES_ONE_ARG
          /* MinGW32 */
-#include <io.h> /* mkdir under MinGW only takes one argument */
-         #define MKDIR(a, b) mkdir(a)
-        #else
-         #define MKDIR(a, b) mkdir(a, b)
-        #endif
+    #include <io.h> /* mkdir under MinGW only takes one argument */
+    #define MKDIR(a, b) mkdir(a)
+  #else
+    #define MKDIR(a, b) mkdir(a, b)
+  #endif
 #else
-        #if HAVE__MKDIR
+  #if HAVE__MKDIR
          /* plain Windows 32 */
-         #define MKDIR(a, b) _mkdir(a)
-        #else
-         #define MKDIR(a, b) pcb_mkdir(a, b)
-         #define MKDIR_IS_PCBMKDIR 1
-         int pcb_mkdir (const char *path, int mode);
-        #endif
+    #define MKDIR(a, b) _mkdir(a)
+  #else
+    #define MKDIR(a, b) pcb_mkdir(a, b)
+    /* What about glib?? */
+    #define MKDIR_IS_PCBMKDIR 1
+    int pcb_mkdir (const char *path, int mode);
+  #endif
 #endif
-
 
 #endif /* PCB_MISC_H */
 
