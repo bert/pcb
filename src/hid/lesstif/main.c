@@ -23,7 +23,9 @@
 
 #include "hid.h"
 #include "hid_draw.h"
+
 #include "../hidint.h"
+
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "hid/common/hid_resource.h"
@@ -230,7 +232,7 @@ Location of the @file{pcb-menu.res} file which defines the menu for the lesstif 
 
 REGISTER_ATTRIBUTES (lesstif_attribute_list)
 
-static void lesstif_use_mask (int use_it);
+static void lesstif_use_mask (enum mask_mode use_it);
 static void zoom_max ();
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
@@ -610,15 +612,14 @@ group_showing (int g, int *c)
 static int
 SwapSides (int argc, char **argv, Coord x, Coord y)
 {
+  int bottom_layer;
+  int top_layer;
   int old_shown_side = Settings.ShowBottomSide;
   int top_group      = GetLayerGroupNumberBySide (TOP_SIDE);
   int bottom_group   = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   int active_group   = GetLayerGroupNumberByNumber (LayerStack[0]);
   int top_showing    = group_showing (top_group, &top_layer);
   int bottom_showing = group_showing (bottom_group, &bottom_layer);
-
-  int bottom_layer;
-  int top_layer;
 
   if (argc > 0) {
 
@@ -678,19 +679,17 @@ SwapSides (int argc, char **argv, Coord x, Coord y)
 
       if (active_group == top_group) {
 
-        if (comp_showing && !solder_showing) {
-          ChangeGroupVisibility (comp_layer, 0, 0);
-        }
-        ChangeGroupVisibility (solder_layer, 1, 1);
+        if (top_showing && !bottom_showing)
+          ChangeGroupVisibility (top_layer, 0, 0);
+        ChangeGroupVisibility (bottom_layer, 1, 1);
       }
     }
     else {
 
-      if (active_group == solder_group) {
+      if (active_group == bottom_group) {
 
-        if (bottom_showing && !top_showing) {
+        if (bottom_showing && !top_showing)
           ChangeGroupVisibility (bottom_layer, 0, 0);
-        }
         ChangeGroupVisibility (top_layer, 1, 1);
       }
     }
@@ -3083,28 +3082,34 @@ lesstif_destroy_gc (hidGC gc)
 }
 
 static void
-lesstif_use_mask (int use_it)
+lesstif_use_mask (enum mask_mode use_it)
 {
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
       !use_xrender)
     use_it = 0;
+
   if ((use_it == 0) == (use_mask == 0))
     return;
+
   use_mask = use_it;
+
   if (pinout)
     return;
+
   if (!window)
     return;
+
   /*  printf("use_mask(%d)\n", use_it); */
-  if (!mask_pixmap)
-    {
+  if (!mask_pixmap) {
+
       mask_pixmap =
 	XCreatePixmap (display, window, pixmap_w, pixmap_h,
 		       XDefaultDepth (display, screen));
       mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
-    }
-  if (use_it)
-    {
+  }
+
+  if (use_it) {
+
       pixmap = mask_pixmap;
       XSetForeground (display, my_gc, 0);
       XSetFunction (display, my_gc, GXcopy);
@@ -3112,13 +3117,13 @@ lesstif_use_mask (int use_it)
 		      0, 0, view_width, view_height);
       XFillRectangle (display, mask_bitmap, bclear_gc,
 		      0, 0, view_width, view_height);
-    }
-  else
-    {
+  }
+  else {
+
       pixmap = main_pixmap;
 #if HAVE_XRENDER
-      if (use_xrender)
-	{
+      if (use_xrender) {
+
 	  XRenderPictureAttributes pa;
 
 	  pa.clip_mask = mask_bitmap;
@@ -3133,7 +3138,7 @@ lesstif_use_mask (int use_it)
 	  XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
 		     0, 0, view_width, view_height, 0, 0);
 	}
-    }
+  }
 }
 
 static void
