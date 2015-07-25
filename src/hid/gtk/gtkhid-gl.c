@@ -70,6 +70,8 @@ typedef struct render_priv {
   Coord lead_user_x;
   Coord lead_user_y;
 
+  hidGC crosshair_gc;
+
 } render_priv;
 
 
@@ -80,7 +82,7 @@ typedef struct hid_gc_struct
   const char *colorname;
   double alpha_mult;
   Coord width;
-  gint cap, join;
+  int cap, join;
 }
 hid_gc_struct;
 
@@ -642,7 +644,7 @@ ghid_notify_mark_change (bool changes_complete)
 }
 
 static void
-draw_right_cross (gint x, gint y, gint z)
+draw_right_cross (int x, int y, int z)
 {
   glVertex3i (x, 0, z);
   glVertex3i (x, PCB->MaxHeight, z);
@@ -651,9 +653,9 @@ draw_right_cross (gint x, gint y, gint z)
 }
 
 static void
-draw_slanted_cross (gint x, gint y, gint z)
+draw_slanted_cross (int x, int y, int z)
 {
-  gint x0, y0, x1, y1;
+  int x0, y0, x1, y1;
 
   x0 = x + (PCB->MaxHeight - y);
   x0 = MAX(0, MIN (x0, PCB->MaxWidth));
@@ -679,10 +681,10 @@ draw_slanted_cross (gint x, gint y, gint z)
 }
 
 static void
-draw_dozen_cross (gint x, gint y, gint z)
+draw_dozen_cross (int x, int y, int z)
 {
-  gint x0, y0, x1, y1;
-  gdouble tan60 = sqrt (3);
+  int x0, y0, x1, y1;
+  double tan60 = sqrt (3);
 
   x0 = x + (PCB->MaxHeight - y) / tan60;
   x0 = MAX(0, MIN (x0, PCB->MaxWidth));
@@ -732,12 +734,12 @@ draw_dozen_cross (gint x, gint y, gint z)
 static void
 draw_crosshair (render_priv *priv)
 {
-  gint x, y, z;
+  int x, y, z;
   static int done_once = 0;
   static GdkColor cross_color;
 
-  if (!done_once)
-    {
+  if (!done_once) {
+
       done_once = 1;
       /* FIXME: when CrossColor changed from config */
       ghid_map_color_string (Settings.CrossColor, &cross_color);
@@ -773,6 +775,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   render_priv *priv;
 
   port->render_priv = priv = g_new0 (render_priv, 1);
+  port->render_priv->crosshair_gc = gui->graphics->make_gc ();
 
   priv->time_since_expose = g_timer_new ();
 
@@ -797,6 +800,9 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 void
 ghid_shutdown_renderer (GHidPort *port)
 {
+  render_priv *priv = port->render_priv;
+
+  gui->graphics->destroy_gc (priv->crosshair_gc);
   ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
@@ -1006,8 +1012,8 @@ ghid_drawing_area_expose_cb (GtkWidget *widget, GdkEventExpose *ev, GHidPort *po
 
   ghid_invalidate_current_gc ();
 
-  DrawAttached ();
-  DrawMark ();
+  DrawAttached (priv->crosshair_gc);
+  DrawMark (priv->crosshair_gc);
   hidgl_flush_triangles (&buffer);
 
   draw_crosshair (priv);

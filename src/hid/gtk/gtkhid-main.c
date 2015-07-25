@@ -10,7 +10,6 @@
 
 #include <time.h>
 
-
 #include "action.h"
 #include "crosshair.h"
 #include "error.h"

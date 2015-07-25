@@ -98,6 +98,7 @@ static Pixel bgcolor, offlimit_color, grid_color;
 static int bgred, bggreen, bgblue;
 
 static GC arc1_gc, arc2_gc;
+static hidGC crosshair_gc;
 
 /* These are for the pinout windows. */
 typedef struct PinoutData
@@ -140,6 +141,11 @@ static double view_zoom = MIL_TO_COORD (10), prev_view_zoom = MIL_TO_COORD (10);
 static bool flip_x = 0, flip_y = 0;
 static bool autofade = 0;
 static bool crosshair_on = true;
+
+/* ---------------------------------------------------------------------------
+ * Local prototypes
+ */
+static hidGC lesstif_make_gc (void);
 
 static void
 ShowCrosshair (bool show)
@@ -1820,6 +1826,8 @@ lesstif_do_export (HID_Attr_Val * options)
   Widget menu;
   Widget work_area_frame;
 
+  crosshair_gc = lesstif_make_gc ();
+
   n = 0;
   stdarg (XtNwidth, &width);
   stdarg (XtNheight, &height);
@@ -1827,10 +1835,13 @@ lesstif_do_export (HID_Attr_Val * options)
 
   if (width < 1)
     width = 640;
+
   if (width > XDisplayWidth (display, screen))
     width = XDisplayWidth (display, screen);
+
   if (height < 1)
     height = 480;
+
   if (height > XDisplayHeight (display, screen))
     height = XDisplayHeight (display, screen);
 
@@ -1851,8 +1862,7 @@ lesstif_do_export (HID_Attr_Val * options)
 
   n = 0;
   stdarg (XmNshadowType, XmSHADOW_IN);
-  work_area_frame =
-    XmCreateFrame (mainwind, "work_area_frame", args, n);
+  work_area_frame = XmCreateFrame (mainwind, "work_area_frame", args, n);
   XtManageChild (work_area_frame);
 
   n = 0;
@@ -2610,8 +2620,8 @@ idle_proc (XtPointer dummy)
 
     if (crosshair_on) {
 
-      DrawAttached ();
-      DrawMark ();
+      DrawAttached (crosshair_gc);
+      DrawMark (crosshair_gc);
     }
     need_redraw = 0;
   }
@@ -2966,8 +2976,8 @@ lesstif_notify_crosshair_change (bool changes_complete)
   if (changes_complete)
     invalidate_depth --;
 
-  if (invalidate_depth < 0)
-    {
+  if (invalidate_depth < 0) {
+
       invalidate_depth = 0;
       /* A mismatch of changes_complete == false and == true notifications
        * is not expected to occur, but we will try to handle it gracefully.
@@ -2978,11 +2988,11 @@ lesstif_notify_crosshair_change (bool changes_complete)
       return;
     }
 
-  if (invalidate_depth == 0 && crosshair_on)
-    {
+  if (invalidate_depth == 0 && crosshair_on) {
+
       save_pixmap = pixmap;
       pixmap = window;
-      DrawAttached ();
+      DrawAttached (crosshair_gc);
       pixmap = save_pixmap;
     }
 
@@ -2999,8 +3009,8 @@ lesstif_notify_mark_change (bool changes_complete)
   if (changes_complete)
     invalidate_depth --;
 
-  if (invalidate_depth < 0)
-    {
+  if (invalidate_depth < 0) {
+
       invalidate_depth = 0;
       /* A mismatch of changes_complete == false and == true notifications
        * is not expected to occur, but we will try to handle it gracefully.
@@ -3011,11 +3021,11 @@ lesstif_notify_mark_change (bool changes_complete)
       return;
     }
 
-  if (invalidate_depth == 0 && crosshair_on)
-    {
+  if (invalidate_depth == 0 && crosshair_on) {
+
       save_pixmap = pixmap;
       pixmap = window;
-      DrawMark ();
+      DrawMark (crosshair_gc);
       pixmap = save_pixmap;
     }
 
@@ -3027,11 +3037,12 @@ static int
 lesstif_set_layer (const char *name, int group, int empty)
 {
   int idx = group;
-  if (idx >= 0 && idx < max_group)
-    {
+
+  if (idx >= 0 && idx < max_group) {
+
       int n = PCB->LayerGroups.Number[group];
-      for (idx = 0; idx < n-1; idx ++)
-	{
+      for (idx = 0; idx < n-1; idx ++) {
+
 	  int ni = PCB->LayerGroups.Entries[group][idx];
 	  if (ni >= 0 && ni < max_copper_layer + 2
 	      && PCB->Data->Layer[ni].On)
@@ -3053,10 +3064,11 @@ lesstif_set_layer (const char *name, int group, int empty)
 #endif
   if (idx >= 0 && idx < max_copper_layer + 2)
     return pinout ? 1 : PCB->Data->Layer[idx].On;
-  if (idx < 0)
-    {
-      switch (SL_TYPE (idx))
-	{
+
+  if (idx < 0) {
+
+    switch (SL_TYPE (idx)) {
+
 	case SL_INVISIBLE:
 	  return pinout ? 0 : PCB->InvisibleObjectsOn;
 	case SL_MASK:
@@ -3075,7 +3087,7 @@ lesstif_set_layer (const char *name, int group, int empty)
 	case SL_RATS:
 	  return PCB->RatOn;
 	}
-    }
+  }
   return 0;
 }
 
@@ -4054,8 +4066,8 @@ lesstif_flush_debug_draw (void)
   pixmap = window;
   if (crosshair_on) {
 
-      DrawAttached ();
-      DrawMark ();
+      DrawAttached (crosshair_gc);
+      DrawMark (crosshair_gc);
   }
   pixmap = main_pixmap;
 }

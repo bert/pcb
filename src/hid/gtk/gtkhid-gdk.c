@@ -42,68 +42,71 @@ typedef struct render_priv {
   Coord lead_user_x;
   Coord lead_user_y;
 
+  hidGC crosshair_gc;
+
 } render_priv;
 
 
 typedef struct hid_gc_struct
 {
-  HID *me_pointer;
+  HID   *me_pointer;
   GdkGC *gc;
+  Coord  width;
+  char  *colorname;
+  char   xor_mask;
 
-  gchar *colorname;
-  Coord width;
-  int cap, join;
-  gchar xor_mask;
-  int mask_seq;
+  int  cap;
+  int  join;
+  int  mask_seq;
 }
 hid_gc_struct;
 
-
 static void draw_lead_user (render_priv *priv);
-
 
 int
 ghid_set_layer (const char *name, int group, int empty)
 {
   int idx = group;
-  if (idx >= 0 && idx < max_group)
-    {
-      int n = PCB->LayerGroups.Number[group];
-      for (idx = 0; idx < n-1; idx ++)
-	{
-	  int ni = PCB->LayerGroups.Entries[group][idx];
-	  if (ni >= 0 && ni < max_copper_layer + 2
-	      && PCB->Data->Layer[ni].On)
-	    break;
-	}
-      idx = PCB->LayerGroups.Entries[group][idx];
+
+  if (idx >= 0 && idx < max_group) {
+
+    int n = PCB->LayerGroups.Number[group];
+    for (idx = 0; idx < n-1; idx ++) {
+
+      int ni = PCB->LayerGroups.Entries[group][idx];
+      if (ni >= 0 && ni < max_copper_layer + 2
+        && PCB->Data->Layer[ni].On)
+        break;
     }
+    idx = PCB->LayerGroups.Entries[group][idx];
+  }
 
   if (idx >= 0 && idx < max_copper_layer + 2)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
-  if (idx < 0)
-    {
-      switch (SL_TYPE (idx))
-	{
-	case SL_INVISIBLE:
-	  return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
-	case SL_MASK:
-	  if (SL_MYSIDE (idx) /*&& !pinout */ )
-	    return TEST_FLAG (SHOWMASKFLAG, PCB);
-	  return 0;
-	case SL_SILK:
-	  if (SL_MYSIDE (idx) /*|| pinout */ )
-	    return PCB->ElementOn;
-	  return 0;
-	case SL_ASSY:
-	  return 0;
-	case SL_PDRILL:
-	case SL_UDRILL:
-	  return 1;
-	case SL_RATS:
-	  return PCB->RatOn;
-	}
+
+  if (idx < 0) {
+
+    switch (SL_TYPE (idx)) {
+
+      case SL_INVISIBLE:
+        return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
+      case SL_MASK:
+        if (SL_MYSIDE (idx) /*&& !pinout */ )
+          return TEST_FLAG (SHOWMASKFLAG, PCB);
+        return 0;
+      case SL_SILK:
+        if (SL_MYSIDE (idx) /*|| pinout */ )
+          return PCB->ElementOn;
+        return 0;
+      case SL_ASSY:
+        return 0;
+      case SL_PDRILL:
+      case SL_UDRILL:
+        return 1;
+      case SL_RATS:
+        return PCB->RatOn;
     }
+  }
   return 0;
 }
 
@@ -741,22 +744,24 @@ redraw_region (GdkRectangle *rect)
   region.Y1 = MAX (0, MIN (PCB->MaxHeight, region.Y1));
   region.Y2 = MAX (0, MIN (PCB->MaxHeight, region.Y2));
 
-  eleft = Vx (0);
-  eright = Vx (PCB->MaxWidth);
-  etop = Vy (0);
+  eleft   = Vx (0);
+  eright  = Vx (PCB->MaxWidth);
+  etop    = Vy (0);
   ebottom = Vy (PCB->MaxHeight);
-  if (eleft > eright)
-    {
+
+  if (eleft > eright) {
+
       int tmp = eleft;
       eleft = eright;
       eright = tmp;
-    }
-  if (etop > ebottom)
-    {
+  }
+
+  if (etop > ebottom) {
+
       int tmp = etop;
       etop = ebottom;
       ebottom = tmp;
-    }
+  }
 
   if (eleft > 0)
     gdk_draw_rectangle (gport->drawable, priv->offlimits_gc,
@@ -790,11 +795,12 @@ redraw_region (GdkRectangle *rect)
 
   /* In some cases we are called with the crosshair still off */
   if (priv->attached_invalidate_depth == 0)
-    DrawAttached ();
+    DrawAttached (priv->crosshair_gc);
 
   /* In some cases we are called with the mark still off */
-  if (priv->mark_invalidate_depth == 0)
-    DrawMark ();
+  if (priv->mark_invalidate_depth == 0) {
+    DrawMark (priv->crosshair_gc);
+  }
 
   draw_lead_user (priv);
 
@@ -811,9 +817,9 @@ ghid_invalidate_lr (int left, int right, int top, int bottom)
   int minx, maxx, miny, maxy;
   GdkRectangle rect;
 
-  dleft = Vx (left);
-  dright = Vx (right);
-  dtop = Vy (top);
+  dleft   = Vx (left);
+  dright  = Vx (right);
+  dtop    = Vy (top);
   dbottom = Vy (bottom);
 
   minx = MIN (dleft, dright);
@@ -823,7 +829,8 @@ ghid_invalidate_lr (int left, int right, int top, int bottom)
 
   rect.x = minx;
   rect.y = miny;
-  rect.width = maxx - minx;
+
+  rect.width  = maxx - minx;
   rect.height = maxy - miny;
 
   redraw_region (&rect);
@@ -863,17 +870,17 @@ ghid_notify_crosshair_change (bool changes_complete)
     }
 
   if (priv->attached_invalidate_depth == 0)
-    DrawAttached ();
+    DrawAttached (priv->crosshair_gc);
 
-  if (!changes_complete)
-    {
+  if (!changes_complete) {
+
       priv->attached_invalidate_depth ++;
-    }
-  else if (gport->drawing_area != NULL)
-    {
+  }
+  else if (gport->drawing_area != NULL) {
+
       /* Queue a GTK expose when changes are complete */
       ghid_draw_area_update (gport, NULL);
-    }
+  }
 }
 
 void
@@ -901,17 +908,17 @@ ghid_notify_mark_change (bool changes_complete)
     }
 
   if (priv->mark_invalidate_depth == 0)
-    DrawMark ();
+    DrawMark (priv->crosshair_gc);
 
-  if (!changes_complete)
-    {
+  if (!changes_complete) {
+
       priv->mark_invalidate_depth ++;
-    }
-  else if (gport->drawing_area != NULL)
-    {
+  }
+  else if (gport->drawing_area != NULL) {
+
       /* Queue a GTK expose when changes are complete */
       ghid_draw_area_update (gport, NULL);
-    }
+  }
 }
 
 static void
@@ -1038,11 +1045,16 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 {
   /* Init any GC's required */
   port->render_priv = g_new0 (render_priv, 1);
+  port->render_priv->crosshair_gc = gui->graphics->make_gc ();
 }
 
 void
 ghid_shutdown_renderer (GHidPort *port)
 {
+  render_priv *priv = port->render_priv;
+
+  gui->graphics->destroy_gc (priv->crosshair_gc);
+
   ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
