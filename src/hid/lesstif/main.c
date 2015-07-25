@@ -77,9 +77,10 @@ static Pixmap pixmap = 0;
 static Pixmap main_pixmap = 0;
 static Pixmap mask_pixmap = 0;
 static Pixmap mask_bitmap = 0;
-static int use_mask = 0;
+static enum mask_mode use_mask = HID_MASK_OFF;
 
 static int use_xrender = 0;
+
 #if HAVE_XRENDER
 static Picture main_picture;
 static Picture mask_picture;
@@ -232,7 +233,7 @@ Location of the @file{pcb-menu.res} file which defines the menu for the lesstif 
 
 REGISTER_ATTRIBUTES (lesstif_attribute_list)
 
-static void lesstif_use_mask (enum mask_mode use_it);
+static void lesstif_use_mask (enum mask_mode mode);
 static void zoom_max ();
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
@@ -2457,7 +2458,7 @@ lesstif_update_status_line ()
   XmString xs;
 
   switch (Settings.Mode)
-    {
+  {
     case VIA_MODE:
       buf = pcb_g_strdup_printf ("%m+%.2mS/%.2mS \370=%.2mS", UUNIT,
                                  S.ViaThickness, S.Keepaway, S.ViaDrillingHole);
@@ -2490,7 +2491,7 @@ lesstif_update_status_line ()
     default:
       buf = g_strdup("");
       break;
-    }
+  }
 
   xs = XmStringCreatePCB (buf);
   n = 0;
@@ -2507,183 +2508,192 @@ static int need_redraw = 0;
 static Boolean
 idle_proc (XtPointer dummy)
 {
-  if (need_redraw)
-    {
-      int mx, my;
-      BoxType region;
-      lesstif_use_mask (0);
-      pixmap = main_pixmap;
-      mx = view_width;
-      my = view_height;
-      region.X1 = Px (0);
-      region.Y1 = Py (0);
-      region.X2 = Px (view_width);
-      region.Y2 = Py (view_height);
-      if (flip_x)
-	{
-	  Coord tmp = region.X1;
-	  region.X1 = region.X2;
-	  region.X2 = tmp;
-	}
-      if (flip_y)
-	{
-	  Coord tmp = region.Y1;
-	  region.Y1 = region.Y2;
-	  region.Y2 = tmp;
-	}
-      XSetForeground (display, bg_gc, bgcolor);
-      XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
+  if (need_redraw) {
 
-      if (region.X1 < 0 || region.Y1 < 0
-	  || region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
-	{
-	  int leftmost, rightmost, topmost, bottommost;
+    int mx, my;
+    BoxType region;
+    lesstif_use_mask (HID_MASK_OFF);
+    pixmap = main_pixmap;
+    mx = view_width;
+    my = view_height;
+    region.X1 = Px (0);
+    region.Y1 = Py (0);
+    region.X2 = Px (view_width);
+    region.Y2 = Py (view_height);
 
-	  leftmost = Vx (0);
-	  rightmost = Vx (PCB->MaxWidth);
-	  topmost = Vy (0);
-	  bottommost = Vy (PCB->MaxHeight);
-	  if (leftmost > rightmost) {
-	    int t = leftmost;
-	    leftmost = rightmost;
-	    rightmost = t;
-	  }
-	  if (topmost > bottommost) {
-	    int t = topmost;
-	    topmost = bottommost;
-	    bottommost = t;
-	  }
-	  if (leftmost < 0)
-	    leftmost = 0;
-	  if (topmost < 0)
-	    topmost = 0;
-	  if (rightmost > view_width)
-	    rightmost = view_width;
-	  if (bottommost > view_height)
-	    bottommost = view_height;
+    if (flip_x) {
 
-	  XSetForeground (display, bg_gc, offlimit_color);
-
-	  /* L T R
-             L x R
-             L B R */
-
-	  if (leftmost > 0)
-	    {
-	      XFillRectangle (display, main_pixmap, bg_gc, 0, 0,
-			      leftmost, view_height);
-	    }
-	  if (rightmost < view_width)
-	    {
-	      XFillRectangle (display, main_pixmap, bg_gc, rightmost+1, 0,
-			      view_width-rightmost+1, view_height);
-	    }
-	  if (topmost > 0)
-	    {
-	      XFillRectangle (display, main_pixmap, bg_gc, leftmost, 0,
-			      rightmost-leftmost+1, topmost);
-	    }
-	  if (bottommost < view_height)
-	    {
-	      XFillRectangle (display, main_pixmap, bg_gc, leftmost, bottommost+1,
-			      rightmost-leftmost+1, view_height-bottommost+1);
-	    }
-	}
-      DrawBackgroundImage();
-      hid_expose_callback (&lesstif_hid, &region, 0);
-      draw_grid ();
-      lesstif_use_mask (0);
-      show_crosshair (0); /* To keep the drawn / not drawn info correct */
-      XSetFunction (display, my_gc, GXcopy);
-      XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
-		 view_height, 0, 0);
-      pixmap = window;
-      if (crosshair_on)
-        {
-          DrawAttached ();
-          DrawMark ();
-        }
-      need_redraw = 0;
+      Coord tmp = region.X1;
+      region.X1 = region.X2;
+      region.X2 = tmp;
     }
+
+    if (flip_y) {
+
+      Coord tmp = region.Y1;
+      region.Y1 = region.Y2;
+      region.Y2 = tmp;
+    }
+    XSetForeground (display, bg_gc, bgcolor);
+    XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
+
+    if (region.X1 < 0 || region.Y1 < 0
+      || region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
+    {
+      int leftmost, rightmost, topmost, bottommost;
+
+      leftmost = Vx (0);
+      rightmost = Vx (PCB->MaxWidth);
+      topmost = Vy (0);
+      bottommost = Vy (PCB->MaxHeight);
+      if (leftmost > rightmost) {
+        int t = leftmost;
+        leftmost = rightmost;
+        rightmost = t;
+      }
+
+      if (topmost > bottommost) {
+        int t = topmost;
+        topmost = bottommost;
+        bottommost = t;
+      }
+
+      if (leftmost < 0)
+        leftmost = 0;
+
+      if (topmost < 0)
+        topmost = 0;
+
+      if (rightmost > view_width)
+        rightmost = view_width;
+
+      if (bottommost > view_height)
+        bottommost = view_height;
+
+      XSetForeground (display, bg_gc, offlimit_color);
+
+      /* L T R
+       *            L x R
+       *            L B R */
+
+      if (leftmost > 0) {
+
+        XFillRectangle (display, main_pixmap, bg_gc, 0, 0,
+                        leftmost, view_height);
+      }
+      if (rightmost < view_width) {
+
+        XFillRectangle (display, main_pixmap, bg_gc, rightmost+1, 0,
+                        view_width-rightmost+1, view_height);
+      }
+      if (topmost > 0) {
+
+        XFillRectangle (display, main_pixmap, bg_gc, leftmost, 0,
+                        rightmost-leftmost+1, topmost);
+      }
+      if (bottommost < view_height) {
+
+        XFillRectangle (display, main_pixmap, bg_gc, leftmost, bottommost+1,
+                        rightmost-leftmost+1, view_height-bottommost+1);
+      }
+    }
+
+    DrawBackgroundImage();
+    hid_expose_callback (&lesstif_hid, &region, 0);
+    draw_grid ();
+    lesstif_use_mask (HID_MASK_OFF);
+    show_crosshair (0); /* To keep the drawn / not drawn info correct */
+    XSetFunction (display, my_gc, GXcopy);
+    XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
+               view_height, 0, 0);
+    pixmap = window;
+
+    if (crosshair_on) {
+
+      DrawAttached ();
+      DrawMark ();
+    }
+    need_redraw = 0;
+  }
 
   {
     static int c_x = -2, c_y = -2;
     static MarkType saved_mark;
     static const Unit *old_grid_unit = NULL;
     if (crosshair_x != c_x || crosshair_y != c_y
-	|| Settings.grid_unit != old_grid_unit
-	|| memcmp (&saved_mark, &Marked, sizeof (MarkType)))
-      {
-	static int last_state = 0;
-	static int this_state = 0;
+      || Settings.grid_unit != old_grid_unit
+      || memcmp (&saved_mark, &Marked, sizeof (MarkType)))
+    {
+      static int last_state = 0;
+      static int this_state = 0;
 
-	c_x = crosshair_x;
-	c_y = crosshair_y;
+      c_x = crosshair_x;
+      c_y = crosshair_y;
 
-	this_state =
-	  cursor_pos_to_widget (crosshair_x, crosshair_y, m_crosshair,
-			    this_state);
-	if (Marked.status)
-	  mark_delta_to_widget (crosshair_x - Marked.X, crosshair_y - Marked.Y,
-			    m_mark);
+      this_state =
+      cursor_pos_to_widget (crosshair_x, crosshair_y, m_crosshair,
+                            this_state);
+      if (Marked.status)
+        mark_delta_to_widget (crosshair_x - Marked.X, crosshair_y - Marked.Y,
+                              m_mark);
 
-	if (Marked.status != saved_mark.status)
-	  {
-	    if (Marked.status)
-	      {
-		XtManageChild (XtParent (m_mark));
-		XtManageChild (m_mark);
-		n = 0;
-		stdarg (XmNleftAttachment, XmATTACH_WIDGET);
-		stdarg (XmNleftWidget, XtParent (m_mark));
-		XtSetValues (XtParent (m_crosshair), args, n);
-	      }
-	    else
-	      {
-		n = 0;
-		stdarg (XmNleftAttachment, XmATTACH_FORM);
-		XtSetValues (XtParent (m_crosshair), args, n);
-		XtUnmanageChild (XtParent (m_mark));
-	      }
-	    last_state = this_state + 100;
-	  }
-	memcpy (&saved_mark, &Marked, sizeof (MarkType));
+        if (Marked.status != saved_mark.status) {
 
-	if (old_grid_unit != Settings.grid_unit)
-	  {
-	    old_grid_unit = Settings.grid_unit;
-	    /* Force a resize on units change.  */
-	    last_state ++;
-	  }
+          if (Marked.status)
+          {
+            XtManageChild (XtParent (m_mark));
+            XtManageChild (m_mark);
+            n = 0;
+            stdarg (XmNleftAttachment, XmATTACH_WIDGET);
+            stdarg (XmNleftWidget, XtParent (m_mark));
+            XtSetValues (XtParent (m_crosshair), args, n);
+          }
+          else {
 
-	/* This is obtuse.  We want to enable XmRESIZE_ANY long enough
-	   to shrink to fit the new format (if any), then switch it
-	   back to XmRESIZE_GROW to prevent it from shrinking due to
-	   changes in the number of actual digits printed.  Thus, when
-	   you switch from a small grid and %.2f formats to a large
-	   grid and %d formats, you aren't punished with a wide and
-	   mostly white-space label widget.  "this_state" indicates
-	   which of the above formats we're using.  "last_state" is
-	   either zero (when resizing) or the same as "this_state"
-	   (when grow-only), or a non-zero but not "this_state" which
-	   means we need to start a resize cycle.  */
-	if (this_state != last_state && last_state)
-	  {
-	    n = 0;
-	    stdarg (XmNresizePolicy, XmRESIZE_ANY);
-	    XtSetValues (XtParent (m_mark), args, n);
-	    XtSetValues (XtParent (m_crosshair), args, n);
-	    last_state = 0;
-	  }
-	else if (this_state != last_state)
-	  {
-	    n = 0;
-	    stdarg (XmNresizePolicy, XmRESIZE_GROW);
-	    XtSetValues (XtParent (m_mark), args, n);
-	    XtSetValues (XtParent (m_crosshair), args, n);
-	    last_state = this_state;
-	  }
-      }
+            n = 0;
+            stdarg (XmNleftAttachment, XmATTACH_FORM);
+            XtSetValues (XtParent (m_crosshair), args, n);
+            XtUnmanageChild (XtParent (m_mark));
+          }
+          last_state = this_state + 100;
+        }
+        memcpy (&saved_mark, &Marked, sizeof (MarkType));
+
+        if (old_grid_unit != Settings.grid_unit) {
+
+          old_grid_unit = Settings.grid_unit;
+          /* Force a resize on units change.  */
+          last_state ++;
+        }
+
+        /* This is obtuse.  We want to enable XmRESIZE_ANY long enough
+         *   to shrink to fit the new format (if any), then switch it
+         *   back to XmRESIZE_GROW to prevent it from shrinking due to
+         *   changes in the number of actual digits printed.  Thus, when
+         *   you switch from a small grid and %.2f formats to a large
+         *   grid and %d formats, you aren't punished with a wide and
+         *   mostly white-space label widget.  "this_state" indicates
+         *   which of the above formats we're using.  "last_state" is
+         *   either zero (when resizing) or the same as "this_state"
+         *   (when grow-only), or a non-zero but not "this_state" which
+         *   means we need to start a resize cycle.  */
+        if (this_state != last_state && last_state) {
+
+          n = 0;
+          stdarg (XmNresizePolicy, XmRESIZE_ANY);
+          XtSetValues (XtParent (m_mark), args, n);
+          XtSetValues (XtParent (m_crosshair), args, n);
+          last_state = 0;
+        }
+        else if (this_state != last_state) {
+
+          n = 0;
+          stdarg (XmNresizePolicy, XmRESIZE_GROW);
+          XtSetValues (XtParent (m_mark), args, n);
+          XtSetValues (XtParent (m_crosshair), args, n);
+          last_state = this_state;
+        }
+    }
   }
 
   {
@@ -2692,221 +2702,225 @@ idle_proc (XtPointer dummy)
     static const Unit *old_unit;
     XmString ms;
     if (PCB->Grid != old_grid
-	|| PCB->GridOffsetX != old_gx
-	|| PCB->GridOffsetY != old_gy || Settings.grid_unit != old_unit)
-      {
-	static char buf[100];
-	old_grid = PCB->Grid;
-	old_unit = Settings.grid_unit;
-	old_gx = PCB->GridOffsetX;
-	old_gy = PCB->GridOffsetY;
-	if (old_grid == 1)
-	  {
-	    strcpy (buf, "No Grid");
-	  }
-	else
-	  {
-	    if (old_gx || old_gy)
-	      pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, old_grid, old_gx, old_gy);
-	    else
-	      pcb_sprintf (buf, "%m+%$mS", UUNIT, old_grid);
-	  }
-	ms = XmStringCreatePCB (buf);
-	n = 0;
-	stdarg (XmNlabelString, ms);
-	XtSetValues (m_grid, args, n);
+      || PCB->GridOffsetX != old_gx
+      || PCB->GridOffsetY != old_gy || Settings.grid_unit != old_unit)
+    {
+      static char buf[100];
+      old_grid = PCB->Grid;
+      old_unit = Settings.grid_unit;
+      old_gx = PCB->GridOffsetX;
+      old_gy = PCB->GridOffsetY;
+
+      if (old_grid == 1) {
+
+        strcpy (buf, "No Grid");
       }
+      else {
+
+        if (old_gx || old_gy)
+          pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, old_grid, old_gx, old_gy);
+        else
+          pcb_sprintf (buf, "%m+%$mS", UUNIT, old_grid);
+      }
+      ms = XmStringCreatePCB (buf);
+      n = 0;
+      stdarg (XmNlabelString, ms);
+      XtSetValues (m_grid, args, n);
+    }
   }
 
   {
     static double old_zoom = -1;
     static const Unit *old_grid_unit = NULL;
     if (view_zoom != old_zoom || Settings.grid_unit != old_grid_unit)
-      {
-	gchar *buf = pcb_g_strdup_printf ("%m+%$mS/pix",
-                                          Settings.grid_unit->allow, (Coord) view_zoom);
-	XmString ms;
+    {
+      gchar *buf = pcb_g_strdup_printf ("%m+%$mS/pix",
+                                        Settings.grid_unit->allow, (Coord) view_zoom);
+      XmString ms;
 
-	old_zoom = view_zoom;
-	old_grid_unit = Settings.grid_unit;
+      old_zoom = view_zoom;
+      old_grid_unit = Settings.grid_unit;
 
-	ms = XmStringCreatePCB (buf);
-	n = 0;
-	stdarg (XmNlabelString, ms);
-	XtSetValues (m_zoom, args, n);
-        g_free (buf);
-      }
+      ms = XmStringCreatePCB (buf);
+      n = 0;
+      stdarg (XmNlabelString, ms);
+      XtSetValues (m_zoom, args, n);
+      g_free (buf);
+    }
   }
 
   {
-    if (old_cursor_mode != Settings.Mode)
-      {
-	char *s = "None";
-	XmString ms;
-	int cursor = -1;
-	static int free_cursor = 0;
+    if (old_cursor_mode != Settings.Mode) {
 
-	old_cursor_mode = Settings.Mode;
-	switch (Settings.Mode)
-	  {
-	  case NO_MODE:
-	    s = "None";
-	    cursor = XC_X_cursor;
-	    break;
-	  case VIA_MODE:
-	    s = "Via";
-	    cursor = -1;
-	    break;
-	  case LINE_MODE:
-	    s = "Line";
-	    cursor = XC_pencil;
-	    break;
-	  case RECTANGLE_MODE:
-	    s = "Rectangle";
-	    cursor = XC_ul_angle;
-	    break;
-	  case POLYGON_MODE:
-	    s = "Polygon";
-	    cursor = XC_sb_up_arrow;
-	    break;
-	  case POLYGONHOLE_MODE:
-	    s = "Polygon Hole";
-	    cursor = XC_sb_up_arrow;
-	    break;
-	  case PASTEBUFFER_MODE:
-	    s = "Paste";
-	    cursor = XC_hand1;
-	    break;
-	  case TEXT_MODE:
-	    s = "Text";
-	    cursor = XC_xterm;
-	    break;
-	  case ROTATE_MODE:
-	    s = "Rotate";
-	    cursor = XC_exchange;
-	    break;
-	  case REMOVE_MODE:
-	    s = "Remove";
-	    cursor = XC_pirate;
-	    break;
-	  case MOVE_MODE:
-	    s = "Move";
-	    cursor = XC_crosshair;
-	    break;
-	  case COPY_MODE:
-	    s = "Copy";
-	    cursor = XC_crosshair;
-	    break;
-	  case INSERTPOINT_MODE:
-	    s = "Insert";
-	    cursor = XC_dotbox;
-	    break;
-	  case RUBBERBANDMOVE_MODE:
-	    s = "RBMove";
-	    cursor = XC_top_left_corner;
-	    break;
-	  case THERMAL_MODE:
-	    s = "Thermal";
-	    cursor = XC_iron_cross;
-	    break;
-	  case ARC_MODE:
-	    s = "Arc";
-	    cursor = XC_question_arrow;
-	    break;
-	  case ARROW_MODE:
-	    s = "Arrow";
-	    if (over_point)
-	      cursor = XC_draped_box;
-	    else
-	      cursor = XC_left_ptr;
-	    break;
-	  case LOCK_MODE:
-	    s = "Lock";
-	    cursor = XC_hand2;
-	    break;
-	  }
-	ms = XmStringCreatePCB (s);
-	n = 0;
-	stdarg (XmNlabelString, ms);
-	XtSetValues (m_mode, args, n);
+      char *s = "None";
+      XmString ms;
+      int cursor = -1;
+      static int free_cursor = 0;
 
-	if (free_cursor)
-	  {
-	    XFreeCursor (display, my_cursor);
-	    free_cursor = 0;
-	  }
-	if (cursor == -1)
-	  {
-	    static Pixmap nocur_source = 0;
-	    static Pixmap nocur_mask = 0;
-	    static Cursor nocursor = 0;
-	    if (nocur_source == 0)
-	      {
-		XColor fg, bg;
-		nocur_source =
-		  XCreateBitmapFromData (display, window, "\0", 1, 1);
-		nocur_mask =
-		  XCreateBitmapFromData (display, window, "\0", 1, 1);
+      old_cursor_mode = Settings.Mode;
 
-		fg.red = fg.green = fg.blue = 65535;
-		bg.red = bg.green = bg.blue = 0;
-		fg.flags = bg.flags = DoRed | DoGreen | DoBlue;
-		nocursor = XCreatePixmapCursor (display, nocur_source,
-						nocur_mask, &fg, &bg, 0, 0);
-	      }
-	    my_cursor = nocursor;
-	  }
-	else
-	  {
-	    my_cursor = XCreateFontCursor (display, cursor);
-	    free_cursor = 1;
-	  }
-	XDefineCursor (display, window, my_cursor);
-	lesstif_update_status_line ();
+      switch (Settings.Mode) {
+        case NO_MODE:
+          s = "None";
+          cursor = XC_X_cursor;
+          break;
+        case VIA_MODE:
+          s = "Via";
+          cursor = -1;
+          break;
+        case LINE_MODE:
+          s = "Line";
+          cursor = XC_pencil;
+          break;
+        case RECTANGLE_MODE:
+          s = "Rectangle";
+          cursor = XC_ul_angle;
+          break;
+        case POLYGON_MODE:
+          s = "Polygon";
+          cursor = XC_sb_up_arrow;
+          break;
+        case POLYGONHOLE_MODE:
+          s = "Polygon Hole";
+          cursor = XC_sb_up_arrow;
+          break;
+        case PASTEBUFFER_MODE:
+          s = "Paste";
+          cursor = XC_hand1;
+          break;
+        case TEXT_MODE:
+          s = "Text";
+          cursor = XC_xterm;
+          break;
+        case ROTATE_MODE:
+          s = "Rotate";
+          cursor = XC_exchange;
+          break;
+        case REMOVE_MODE:
+          s = "Remove";
+          cursor = XC_pirate;
+          break;
+        case MOVE_MODE:
+          s = "Move";
+          cursor = XC_crosshair;
+          break;
+        case COPY_MODE:
+          s = "Copy";
+          cursor = XC_crosshair;
+          break;
+        case INSERTPOINT_MODE:
+          s = "Insert";
+          cursor = XC_dotbox;
+          break;
+        case RUBBERBANDMOVE_MODE:
+          s = "RBMove";
+          cursor = XC_top_left_corner;
+          break;
+        case THERMAL_MODE:
+          s = "Thermal";
+          cursor = XC_iron_cross;
+          break;
+        case ARC_MODE:
+          s = "Arc";
+          cursor = XC_question_arrow;
+          break;
+        case ARROW_MODE:
+          s = "Arrow";
+          if (over_point)
+            cursor = XC_draped_box;
+          else
+            cursor = XC_left_ptr;
+          break;
+        case LOCK_MODE:
+          s = "Lock";
+          cursor = XC_hand2;
+          break;
       }
+      ms = XmStringCreatePCB (s);
+      n = 0;
+      stdarg (XmNlabelString, ms);
+      XtSetValues (m_mode, args, n);
+
+      if (free_cursor) {
+
+        XFreeCursor (display, my_cursor);
+        free_cursor = 0;
+      }
+
+      if (cursor == -1) {
+
+        static Pixmap nocur_source = 0;
+        static Pixmap nocur_mask = 0;
+        static Cursor nocursor = 0;
+
+        if (nocur_source == 0) {
+
+          XColor fg, bg;
+          nocur_source =
+          XCreateBitmapFromData (display, window, "\0", 1, 1);
+          nocur_mask =
+          XCreateBitmapFromData (display, window, "\0", 1, 1);
+
+          fg.red = fg.green = fg.blue = 65535;
+          bg.red = bg.green = bg.blue = 0;
+          fg.flags = bg.flags = DoRed | DoGreen | DoBlue;
+          nocursor = XCreatePixmapCursor (display, nocur_source,
+                                          nocur_mask, &fg, &bg, 0, 0);
+        }
+        my_cursor = nocursor;
+      }
+      else {
+
+        my_cursor = XCreateFontCursor (display, cursor);
+        free_cursor = 1;
+      }
+      XDefineCursor (display, window, my_cursor);
+      lesstif_update_status_line ();
+    }
   }
   {
     static char *old_clip = 0;
     static int old_tscale = -1;
     char *new_clip = cur_clip ();
 
-    if (new_clip != old_clip || Settings.TextScale != old_tscale)
-      {
-	lesstif_update_status_line ();
-	old_clip = new_clip;
-	old_tscale = Settings.TextScale;
-      }
+    if (new_clip != old_clip || Settings.TextScale != old_tscale) {
+
+      lesstif_update_status_line ();
+      old_clip = new_clip;
+      old_tscale = Settings.TextScale;
+    }
   }
 
   {
     static int old_nrats = -1;
     static char buf[20];
 
-    if (old_nrats != PCB->Data->RatN)
-      {
-	old_nrats = PCB->Data->RatN;
-	sprintf(buf, "%d rat%s", PCB->Data->RatN, PCB->Data->RatN == 1 ? "" : "s");
-	if (PCB->Data->RatN)
-	  {
-	    XtManageChild(XtParent(m_rats));
-	    XtManageChild(m_rats);
-	    n = 0;
-	    stdarg (XmNleftWidget, m_rats);
-	    XtSetValues (XtParent (m_status), args, n);
-	  }
+    if (old_nrats != PCB->Data->RatN) {
 
-	n = 0;
-	stdarg (XmNlabelString, XmStringCreatePCB (buf));
-	XtSetValues (m_rats, args, n);
+      old_nrats = PCB->Data->RatN;
+      sprintf(buf, "%d rat%s", PCB->Data->RatN, PCB->Data->RatN == 1 ? "" : "s");
 
-	if (!PCB->Data->RatN)
-	  {
-	    n = 0;
-	    stdarg (XmNleftWidget, m_mode);
-	    XtSetValues (XtParent (m_status), args, n);
-	    XtUnmanageChild(XtParent(m_rats));
-	  }
+      if (PCB->Data->RatN) {
+
+        XtManageChild(XtParent(m_rats));
+        XtManageChild(m_rats);
+        n = 0;
+        stdarg (XmNleftWidget, m_rats);
+        XtSetValues (XtParent (m_status), args, n);
       }
+
+      n = 0;
+      stdarg (XmNlabelString, XmStringCreatePCB (buf));
+      XtSetValues (m_rats, args, n);
+
+      if (!PCB->Data->RatN) {
+
+        n = 0;
+        stdarg (XmNleftWidget, m_mode);
+        XtSetValues (XtParent (m_status), args, n);
+        XtUnmanageChild(XtParent(m_rats));
+      }
+    }
   }
 
   lesstif_update_widget_flags ();
@@ -2916,8 +2930,7 @@ idle_proc (XtPointer dummy)
   return True;
 }
 
-void
-lesstif_need_idle_proc ()
+void lesstif_need_idle_proc (void)
 {
   if (idle_proc_set || window == 0)
     return;
@@ -3082,16 +3095,16 @@ lesstif_destroy_gc (hidGC gc)
 }
 
 static void
-lesstif_use_mask (enum mask_mode use_it)
+lesstif_use_mask (enum mask_mode mode)
 {
   if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
-      !use_xrender)
-    use_it = 0;
+    !use_xrender)
+    mode = HID_MASK_OFF;
 
-  if ((use_it == 0) == (use_mask == 0))
+  if ((mode == HID_MASK_OFF) == (use_mask == HID_MASK_OFF))
     return;
 
-  use_mask = use_it;
+  use_mask = mode;
 
   if (pinout)
     return;
@@ -3102,42 +3115,42 @@ lesstif_use_mask (enum mask_mode use_it)
   /*  printf("use_mask(%d)\n", use_it); */
   if (!mask_pixmap) {
 
-      mask_pixmap =
-	XCreatePixmap (display, window, pixmap_w, pixmap_h,
-		       XDefaultDepth (display, screen));
-      mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
+    mask_pixmap =
+    XCreatePixmap (display, window, pixmap_w, pixmap_h,
+                   XDefaultDepth (display, screen));
+    mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
   }
 
-  if (use_it) {
+  if (mode != HID_MASK_OFF) {
 
-      pixmap = mask_pixmap;
-      XSetForeground (display, my_gc, 0);
-      XSetFunction (display, my_gc, GXcopy);
-      XFillRectangle (display, mask_pixmap, my_gc,
-		      0, 0, view_width, view_height);
-      XFillRectangle (display, mask_bitmap, bclear_gc,
-		      0, 0, view_width, view_height);
+    pixmap = mask_pixmap;
+    XSetForeground (display, my_gc, 0);
+    XSetFunction (display, my_gc, GXcopy);
+    XFillRectangle (display, mask_pixmap, my_gc,
+                    0, 0, view_width, view_height);
+    XFillRectangle (display, mask_bitmap, bclear_gc,
+                    0, 0, view_width, view_height);
   }
   else {
 
-      pixmap = main_pixmap;
+    pixmap = main_pixmap;
 #if HAVE_XRENDER
-      if (use_xrender) {
+    if (use_xrender) {
 
-	  XRenderPictureAttributes pa;
+      XRenderPictureAttributes pa;
 
-	  pa.clip_mask = mask_bitmap;
-	  XRenderChangePicture(display, main_picture, CPClipMask, &pa);
-	  XRenderComposite(display, PictOpOver, mask_picture, pale_picture,
-	        main_picture, 0, 0, 0, 0, 0, 0, view_width, view_height);
-	}
-      else
+      pa.clip_mask = mask_bitmap;
+      XRenderChangePicture(display, main_picture, CPClipMask, &pa);
+      XRenderComposite(display, PictOpOver, mask_picture, pale_picture,
+                       main_picture, 0, 0, 0, 0, 0, 0, view_width, view_height);
+    }
+    else
 #endif /* HAVE_XRENDER */
-	{
-	  XSetClipMask (display, clip_gc, mask_bitmap);
-	  XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
-		     0, 0, view_width, view_height, 0, 0);
-	}
+      {
+        XSetClipMask (display, clip_gc, mask_bitmap);
+        XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
+                   0, 0, view_width, view_height, 0, 0);
+      }
   }
 }
 
