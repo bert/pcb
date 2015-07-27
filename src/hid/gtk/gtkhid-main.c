@@ -1547,17 +1547,17 @@ Benchmark (int argc, char **argv, Coord x, Coord y)
 
   gdk_display_sync (display);
   time (&start);
-  do
-    {
+
+  do {
       ghid_invalidate_all ();
       gdk_window_process_updates (gtk_widget_get_window (gport->drawing_area),
                                   FALSE);
       time (&end);
       i++;
-    }
-  while (end - start < 10);
+  } while (end - start < 10);
 
-  printf (_("%g redraws per second\n"), i / 10.0);
+  printf (_("%g redraws per second\n"), (double)i / (double)(end-start));
+  //printf (_("%g redraws per second\n"), i / 10.0);
 
   return 0;
 }
