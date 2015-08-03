@@ -7,4 +7,5 @@ POTFILES
 *.sin
 Rules-quot
 Makevars.template
+pcb.pot
 .intltool-merge-cache
