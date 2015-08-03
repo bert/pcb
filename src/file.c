@@ -362,7 +362,7 @@ real_load_pcb (char *Filename, bool revert)
 {
   const char *unit_suffix, *grid_size;
   char *new_filename;
-  PCBType *newPCB = CreateNewPCB (false);
+  PCBType *newPCB = CreateNewPCB ();
   PCBType *oldPCB;
 #if DEBUG
   double elapsed;
@@ -410,19 +410,23 @@ real_load_pcb (char *Filename, bool revert)
 
       /* Use attribute PCB::grid::unit as unit, if we can */
       unit_suffix = AttributeGet (PCB, "PCB::grid::unit");
-      if (unit_suffix && *unit_suffix)
-        {
+
+      if (unit_suffix && *unit_suffix) {
+
           const Unit *new_unit = get_unit_struct (unit_suffix);
           if (new_unit)
             Settings.grid_unit = new_unit;
-        }
+      }
+
       AttributePut (PCB, "PCB::grid::unit", Settings.grid_unit->suffix);
+
       /* Use attribute PCB::grid::size as size, if we can */
       grid_size = AttributeGet (PCB, "PCB::grid::size");
-      if (grid_size)
-        {
+
+      if (grid_size) {
+
           PCB->Grid = GetValue (grid_size, NULL, NULL);
-        }
+      }
 
       sort_netlist ();
 

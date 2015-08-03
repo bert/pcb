@@ -2016,7 +2016,7 @@ ActionMessage (int argc, char **argv, Coord x, Coord y)
 }
 
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 static const char setthermal_syntax[] =
   "SetThermal(Object|SelectedPins|SelectedVias|Selected, Style)";
@@ -3265,66 +3265,72 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   FILE *out;
   static char * default_file = NULL;
   size_t cnt_list_sz = 100;
-  struct _cnt_list
-  {
+
+  struct _cnt_list {
     char *name;
     unsigned int cnt;
   } *cnt_list;
+
   char **was, **is, *pin;
   unsigned int c_cnt = 0;
   int unique, ok;
   int free_name = 0;
 
-  if (argc < 1)
-    {
-      /*
-       * We deal with the case where name already exists in this
-       * function so the GUI doesn't need to deal with it
-       */
-      name = gui->fileselect (_("Save Renumber Annotation File As ..."),
-			      _("Choose a file to record the renumbering to.\n"
-				"This file may be used to back annotate the\n"
-				"change to the schematics.\n"),
-			      default_file, ".eco", "eco",
-			      0);
+  if (argc < 1) {
 
-      free_name = 1;
-    }
-  else
+    /*
+     * We deal with the case where name already exists in this
+     * function so the GUI doesn't need to deal with it
+     */
+    name = gui->fileselect (_("Save Renumber Annotation File As ..."),
+                              _("Choose a file to record the renumbering to.\n"
+                              "This file may be used to back annotate the\n"
+                              "change to the schematics.\n"),
+                            default_file, ".eco", "eco",
+                            0);
+
+    free_name = 1;
+  }
+  else {
     name = argv[0];
+  }
 
-  if (default_file)
-    {
-      free (default_file);
-      default_file = NULL;
+  if (default_file) {
+
+    free (default_file);
+    default_file = NULL;
+  }
+
+  if (name && *name) {
+
+    default_file = strdup (name);
+  }
+
+  if ((out = fopen (name, "r"))) {
+
+    fclose (out);
+
+    if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0)) {
+
+      if (free_name && name) {
+        free (name);
+      }
+      return 0;
     }
+  }
 
-  if (name && *name)
-    {
-      default_file = strdup (name);
+  if ((out = fopen (name, "w")) == NULL) {
+
+    Message (_("Could not open %s\n"), name);
+    if (free_name && name) {
+      free (name);
     }
+    return 1;
+  }
 
-  if ((out = fopen (name, "r")))
-    {
-      fclose (out);
-      if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
-	{
-	  if (free_name && name)
-	    free (name);
-	  return 0;
-	}
-    }
-
-  if ((out = fopen (name, "w")) == NULL)
-    {
-      Message (_("Could not open %s\n"), name);
-      if (free_name && name)
-	free (name);
-      return 1;
-    }
-
-  if (free_name && name)
+  if (free_name && name) {
     free (name);
+  }
 
   fprintf (out, "*COMMENT* PCB Annotation File\n");
   fprintf (out, "*FILEVERSION* 20061031\n");
@@ -3338,14 +3344,16 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
    */
   element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementType *));
   locked_element_list = (ElementType **)calloc (PCB->Data->ElementN, sizeof (ElementType *));
+
   was = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
-  is = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
+  is  = (char **)calloc (PCB->Data->ElementN, sizeof (char *));
+
   if (element_list == NULL || locked_element_list == NULL || was == NULL
-      || is == NULL)
-    {
-      fprintf (stderr, "calloc() failed in %s\n", __FUNCTION__);
-      exit (1);
-    }
+    || is == NULL)
+  {
+    fprintf (stderr, "calloc() failed in %s\n", __FUNCTION__);
+    exit (1);
+  }
 
 
   cnt = 0;
@@ -3353,54 +3361,49 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   ELEMENT_LOOP (PCB->Data);
   {
     if (TEST_FLAG (LOCKFLAG, element->Name) || TEST_FLAG (LOCKFLAG, element))
+    {
+      /*
+       * add to the list of locked elements which we won't try to
+       * renumber and whose reference designators are now reserved.
+       */
+      pcb_fprintf (out,
+                   "*WARN* Element \"%s\" at %$md is locked and will not be renumbered.\n",
+                   UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX, element->MarkY);
+      locked_element_list[lock_cnt] = element;
+      lock_cnt++;
+    }
+    else {
+      /* count of devices which will be renumbered */
+      cnt++;
+
+      /* search for correct position in the list */
+      i = 0;
+      while (element_list[i] && element->MarkY > element_list[i]->MarkY)
+        i++;
+
+      /*
+       * We have found the position where we have the first element that
+       * has the same Y value or a lower Y value.  Now move forward if
+       * needed through the X values
+       */
+      while (element_list[i]
+        && element->MarkY == element_list[i]->MarkY
+        && element->MarkX > element_list[i]->MarkX)
+        i++;
+
+      for (j = cnt - 1; j > i; j--)
       {
-	/*
-	 * add to the list of locked elements which we won't try to
-	 * renumber and whose reference designators are now reserved.
-	 */
-	pcb_fprintf (out,
-		     "*WARN* Element \"%s\" at %$md is locked and will not be renumbered.\n",
-		      UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX, element->MarkY);
-	locked_element_list[lock_cnt] = element;
-	lock_cnt++;
+        element_list[j] = element_list[j - 1];
       }
-
-    else
-      {
-	/* count of devices which will be renumbered */
-	cnt++;
-
-	/* search for correct position in the list */
-	i = 0;
-	while (element_list[i] && element->MarkY > element_list[i]->MarkY)
-	  i++;
-
-	/*
-	 * We have found the position where we have the first element that
-	 * has the same Y value or a lower Y value.  Now move forward if
-	 * needed through the X values
-	 */
-	while (element_list[i]
-	       && element->MarkY == element_list[i]->MarkY
-	       && element->MarkX > element_list[i]->MarkX)
-	  i++;
-
-	for (j = cnt - 1; j > i; j--)
-	  {
-	    element_list[j] = element_list[j - 1];
-	  }
-	element_list[i] = element;
-      }
+      element_list[i] = element;
+    }
   }
   END_LOOP;
-
 
   /*
    * Now that the elements are sorted by board position, we go through
    * and renumber them.
-   */
-
-  /*
+   *
    * turn off the flag which requires unique names so it doesn't get
    * in our way.  When we're done with the renumber we will have unique
    * names.
@@ -3409,124 +3412,124 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   CLEAR_FLAG (UNIQUENAMEFLAG, PCB);
 
   cnt_list = (struct _cnt_list *)calloc (cnt_list_sz, sizeof (struct _cnt_list));
-  for (i = 0; i < cnt; i++)
-    {
-      /* If there is no refdes, maybe just spit out a warning */
-      if (NAMEONPCB_NAME (element_list[i]))
-	{
-	  /* figure out the prefix */
-	  tmps = strdup (NAMEONPCB_NAME (element_list[i]));
-	  j = 0;
-	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
-		 && tmps[j] != '?')
-	    j++;
-	  tmps[j] = '\0';
 
-	  /* check the counter for this prefix */
-	  for (j = 0;
-	       cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
-	       && j < cnt_list_sz; j++);
+  for (i = 0; i < cnt; i++) {
 
-	  /* grow the list if needed */
-	  if (j == cnt_list_sz)
-	    {
-	      cnt_list_sz += 100;
-	      cnt_list = (struct _cnt_list *)realloc (cnt_list, cnt_list_sz);
-	      if (cnt_list == NULL)
-		{
-		  fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
-		  exit (1);
-		}
-	      /* zero out the memory that we added */
-	      for (tmpi = j; tmpi < cnt_list_sz; tmpi++)
-		{
-		  cnt_list[tmpi].name = NULL;
-		  cnt_list[tmpi].cnt = 0;
-		}
-	    }
+    /* If there is no refdes, maybe just spit out a warning */
+    if (NAMEONPCB_NAME (element_list[i])) {
 
-	  /*
-	   * start a new counter if we don't have a counter for this
-	   * prefix
-	   */
-	  if (!cnt_list[j].name)
-	    {
-	      cnt_list[j].name = strdup (tmps);
-	      cnt_list[j].cnt = 0;
-	    }
+      /* figure out the prefix */
+      tmps = strdup (NAMEONPCB_NAME (element_list[i]));
+      j = 0;
+      while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
+        && tmps[j] != '?')
+        j++;
+      tmps[j] = '\0';
 
-	  /*
-	   * check to see if the new refdes is already used by a
-	   * locked element
-	   */
-	  do
-	    {
-	      ok = 1;
-	      cnt_list[j].cnt++;
-	      free (tmps);
+      /* check the counter for this prefix */
+      for (j = 0;
+           cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
+           && j < cnt_list_sz; j++);
 
-	      /* space for the prefix plus 1 digit plus the '\0' */
-	      sz = strlen (cnt_list[j].name) + 2;
+      /* grow the list if needed */
+      if (j == cnt_list_sz) {
 
-	      /* and 1 more per extra digit needed to hold the number */
-	      tmpi = cnt_list[j].cnt;
-	      while (tmpi > 10)
-		{
-		  sz++;
-		  tmpi = tmpi / 10;
-		}
-	      tmps = (char *)malloc (sz * sizeof (char));
-	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+        cnt_list_sz += 100;
+        cnt_list = (struct _cnt_list *)realloc (cnt_list, cnt_list_sz);
+        if (cnt_list == NULL) {
 
-	      /*
-	       * now compare to the list of reserved (by locked
-	       * elements) names
-	       */
-	      for (k = 0; k < lock_cnt; k++)
-		{
-		  if (strcmp
-		      (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
-		       tmps) == 0)
-		    {
-		      ok = 0;
-		      break;
-		    }
-		}
+          fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
+          exit (1);
+        }
+        /* zero out the memory that we added */
+        for (tmpi = j; tmpi < cnt_list_sz; tmpi++) {
 
-	    }
-	  while (!ok);
+          cnt_list[tmpi].name = NULL;
+          cnt_list[tmpi].cnt = 0;
+        }
+      }
 
-	  if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
-	    {
-	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
-		       NAMEONPCB_NAME (element_list[i]), tmps);
+      /*
+       * start a new counter if we don't have a counter for this
+       * prefix
+       */
+      if (!cnt_list[j].name) {
 
-	      /* add this rename to our table of renames so we can update the netlist */
-	      was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
-	      is[c_cnt] = strdup (tmps);
-	      c_cnt++;
+        cnt_list[j].name = strdup (tmps);
+        cnt_list[j].cnt = 0;
+      }
 
-	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
-					     element_list[i],
-					     NAMEONPCB_NAME (element_list
-							     [i]));
+      /*
+       * check to see if the new refdes is already used by a
+       * locked element
+       */
+      do {
 
-	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
-				tmps);
-	      changed = true;
+        ok = 1;
+        cnt_list[j].cnt++;
+        free (tmps);
 
-	      /* we don't free tmps in this case because it is used */
-	    }
-	  else
-	    free (tmps);
-	}
+        /* space for the prefix plus 1 digit plus the '\0' */
+        sz = strlen (cnt_list[j].name) + 2;
+
+        /* and 1 more per extra digit needed to hold the number */
+        tmpi = cnt_list[j].cnt;
+        while (tmpi > 10) {
+
+          sz++;
+          tmpi = tmpi / 10;
+        }
+        tmps = (char *)malloc (sz * sizeof (char));
+        sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+
+        /*
+         * now compare to the list of reserved (by locked
+         * elements) names
+         */
+        for (k = 0; k < lock_cnt; k++) {
+
+          if (strcmp
+            (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
+             tmps) == 0)
+          {
+            ok = 0;
+            break;
+          }
+        }
+
+      }
+      while (!ok);
+
+      if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0) {
+
+        fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
+                 NAMEONPCB_NAME (element_list[i]), tmps);
+
+        /* add this rename to our table of renames so we can update the netlist */
+        was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
+        is[c_cnt] = strdup (tmps);
+        c_cnt++;
+
+        AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
+                                       element_list[i],
+                                       NAMEONPCB_NAME (element_list
+                                       [i]));
+
+        ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
+                          tmps);
+        changed = true;
+
+        /* we don't free tmps in this case because it is used */
+      }
       else
-	{
-	  pcb_fprintf (out, "*WARN* Element at %$md has no name.\n",
-		   element_list[i]->MarkX, element_list[i]->MarkY);
-	}
-
+        free (tmps);
     }
+    else {
+      pcb_fprintf (out, "*WARN* Element at %$md has no name.\n",
+                   element_list[i]->MarkX, element_list[i]->MarkY);
+    }
+
+  }
 
   fclose (out);
 
@@ -3534,65 +3537,64 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
   if (unique)
     SET_FLAG (UNIQUENAMEFLAG, PCB);
 
-  if (changed)
-    {
+  if (changed) {
 
-      /* update the netlist */
-      AddNetlistLibToUndoList (&(PCB->NetlistLib));
 
-      /* iterate over each net */
-      for (i = 0; i < PCB->NetlistLib.MenuN; i++)
-	{
+    /* update the netlist */
+    AddNetlistLibToUndoList (&(PCB->NetlistLib));
 
-	  /* iterate over each pin on the net */
-	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++)
-	    {
+    /* iterate over each net */
+    for (i = 0; i < PCB->NetlistLib.MenuN; i++) {
 
-	      /* figure out the pin number part from strings like U3-21 */
-	      tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-	      for (k = 0; tmps[k] && tmps[k] != '-'; k++);
-	      tmps[k] = '\0';
-	      pin = tmps + k + 1;
+      /* iterate over each pin on the net */
+      for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++) {
 
-	      /* iterate over the list of changed reference designators */
-	      for (k = 0; k < c_cnt; k++)
-		{
-		  /*
-		   * if the pin needs to change, change it and quit
-		   * searching in the list.
-		   */
-		  if (strcmp (tmps, was[k]) == 0)
-		    {
-		      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-		      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
-			(char *)malloc ((strlen (is[k]) + strlen (pin) +
-				 2) * sizeof (char));
-		      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
-			       "%s-%s", is[k], pin);
-		      k = c_cnt;
-		    }
+        /* figure out the pin number part from strings like U3-21 */
+        tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+        for (k = 0; tmps[k] && tmps[k] != '-'; k++);
+        tmps[k] = '\0';
+        pin = tmps + k + 1;
 
-		}
-	      free (tmps);
-	    }
-	}
-      for (k = 0; k < c_cnt; k++)
-	{
-	  free (was[k]);
-	  free (is[k]);
-	}
+        /* iterate over the list of changed reference designators */
+        for (k = 0; k < c_cnt; k++) {
 
-      NetlistChanged (0);
-      IncrementUndoSerialNumber ();
-      SetChangedFlag (true);
+          /*
+           * if the pin needs to change, change it and quit
+           * searching in the list.
+           */
+          if (strcmp (tmps, was[k]) == 0) {
+
+            free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+            PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
+            (char *)malloc ((strlen (is[k]) + strlen (pin) +
+            2) * sizeof (char));
+            sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
+                     "%s-%s", is[k], pin);
+            k = c_cnt;
+          }
+
+        }
+        free (tmps);
+      }
     }
+    for (k = 0; k < c_cnt; k++) {
+
+      free (was[k]);
+      free (is[k]);
+    }
+
+    NetlistChanged (0);
+    IncrementUndoSerialNumber ();
+    SetChangedFlag (true);
+  }
 
   free (locked_element_list);
   free (element_list);
   free (cnt_list);
+  free (is);
+  free (was);
   return 0;
 }
-
 
 /* --------------------------------------------------------------------------- */
 
@@ -5936,7 +5938,7 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
 	SaveInTMP ();
       RemovePCB (PCB);
       PCB = NULL;
-      PCB = CreateNewPCB (true);
+      PCB = CreateNewPCB ();
       CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */
@@ -7753,15 +7755,16 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
       nsources = 1;
     }
 
-  if (strcasecmp (mode, "gnetlist") == 0)
-    {
+  if (strcasecmp (mode, "gnetlist") == 0) {
+
       char *tmpfile = tempfile_name_new ("gnetlist_output");
       char **cmd;
       int i;
 
       if (tmpfile == NULL) {
-	Message (_("Could not create temp file"));
-	return 1;
+        Message (_("Could not create temp file"));
+        free (sources);
+        return 1;
       }
 
       cmd = (char **) malloc ((7 + nsources) * sizeof (char *));
