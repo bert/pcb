@@ -37,32 +37,33 @@
    things.  */
 void CreateBeLenient (bool);
 
-DataType * CreateNewBuffer (void);
-void pcb_colors_from_settings (PCBType *);
-PCBType * CreateNewPCB (bool);
+DataType *CreateNewBuffer (void);
+void      pcb_colors_from_settings (PCBType *);
+PCBType  *CreateNewPCB (void);
 /* Called after PCB->Data->LayerN is set.  Returns zero if no errors,
    else nonzero.  */
-int CreateNewPCBPost (PCBType *, int /* set defaults */);
-PinType * CreateNewVia (DataType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, FlagType);
-LineType * CreateDrawnLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
-LineType * CreateNewLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
-RatType * CreateNewRat (DataType *, Coord, Coord, Coord, Coord, Cardinal, Cardinal, Coord, FlagType);
-ArcType * CreateNewArcOnLayer (LayerType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord, Coord, FlagType);
-PolygonType * CreateNewPolygonFromRectangle (LayerType *, Coord, Coord, Coord, Coord, FlagType);
-TextType * CreateNewText (LayerType *, FontType *, Coord, Coord, unsigned, int, char *, FlagType);
-PolygonType * CreateNewPolygon (LayerType *, FlagType);
-PointType * CreateNewPointInPolygon (PolygonType *, Coord, Coord);
-PolygonType * CreateNewHoleInPolygon (PolygonType *polygon);
-ElementType * CreateNewElement (DataType *, FontType *, FlagType, char *, char *, char *, Coord, Coord, BYTE, int, FlagType, bool);
-LineType * CreateNewLineInElement (ElementType *, Coord, Coord, Coord, Coord, Coord);
-ArcType * CreateNewArcInElement (ElementType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord);
-PinType * CreateNewPin (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
-PadType * CreateNewPad (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
-LineType * CreateNewLineInSymbol (SymbolType *, Coord, Coord, Coord, Coord, Coord);
-void CreateDefaultFont (PCBType *);
-RubberbandType * CreateNewRubberbandEntry (LayerType *, LineType *, PointType *);
-LibraryMenuType * CreateNewNet (LibraryType *, char *, char *);
-LibraryEntryType * CreateNewConnection (LibraryMenuType *, char *);
-AttributeType * CreateNewAttribute (AttributeListType *list, char *name, char *value);
+int         CreateNewPCBPost (PCBType *, int /* set defaults */);
+PinType     *CreateNewVia (DataType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, FlagType);
+LineType    *CreateDrawnLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
+LineType    *CreateNewLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
+RatType     *CreateNewRat (DataType *, Coord, Coord, Coord, Coord, Cardinal, Cardinal, Coord, FlagType);
+ArcType     *CreateNewArcOnLayer (LayerType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord, Coord, FlagType);
+PolygonType *CreateNewPolygonFromRectangle (LayerType *, Coord, Coord, Coord, Coord, FlagType);
+TextType    *CreateNewText (LayerType *, FontType *, Coord, Coord, unsigned, int, char *, FlagType);
+PolygonType *CreateNewPolygon (LayerType *, FlagType);
+PointType   *CreateNewPointInPolygon (PolygonType *, Coord, Coord);
+PolygonType *CreateNewHoleInPolygon (PolygonType *polygon);
+ElementType *CreateNewElement (DataType *, FontType *, FlagType, char *, char *, char *, Coord, Coord, BYTE, int, FlagType, bool);
+LineType    *CreateNewLineInElement (ElementType *, Coord, Coord, Coord, Coord, Coord);
+ArcType     *CreateNewArcInElement (ElementType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord);
+PinType     *CreateNewPin (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
+PadType     *CreateNewPad (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
+LineType    *CreateNewLineInSymbol (SymbolType *, Coord, Coord, Coord, Coord, Coord);
+void         CreateDefaultFont (PCBType *);
+
+RubberbandType   *CreateNewRubberbandEntry (LayerType *, LineType *, PointType *);
+LibraryMenuType  *CreateNewNet (LibraryType *, char *, char *);
+LibraryEntryType *CreateNewConnection (LibraryMenuType *, char *);
+AttributeType    *CreateNewAttribute (AttributeListType *list, char *name, char *value);
 
 #endif

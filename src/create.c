@@ -134,8 +134,7 @@ pcb_colors_from_settings (PCBType *ptr)
 /* ---------------------------------------------------------------------------
  * creates a new PCB
  */
-PCBType *
-CreateNewPCB (bool SetDefaultNames)
+PCBType *CreateNewPCB (void)
 {
   PCBType *ptr;
   int i;
@@ -151,39 +150,55 @@ CreateNewPCB (bool SetDefaultNames)
   ptr->SilkActive = false;
   ptr->RatDraw = false;
   SET_FLAG (NAMEONPCBFLAG, ptr);
+
   if (Settings.ShowNumber)
     SET_FLAG (SHOWNUMBERFLAG, ptr);
+
   if (Settings.AllDirectionLines)
     SET_FLAG (ALLDIRECTIONFLAG, ptr);
+
   ptr->Clipping = 1;		/* this is the most useful starting point for now */
+
   if (Settings.RubberBandMode)
     SET_FLAG (RUBBERBANDFLAG, ptr);
+
   if (Settings.SwapStartDirection)
     SET_FLAG (SWAPSTARTDIRFLAG, ptr);
+
   if (Settings.UniqueNames)
     SET_FLAG (UNIQUENAMEFLAG, ptr);
+
   if (Settings.SnapPin)
     SET_FLAG (SNAPPINFLAG, ptr);
+
   if (Settings.ClearLine)
     SET_FLAG (CLEARNEWFLAG, ptr);
+
   if (Settings.FullPoly)
     SET_FLAG (NEWFULLPOLYFLAG, ptr);
+
   if (Settings.OrthogonalMoves)
     SET_FLAG (ORTHOMOVEFLAG, ptr);
+
   if (Settings.liveRouting)
     SET_FLAG (LIVEROUTEFLAG, ptr);
+
   if (Settings.ShowDRC)
     SET_FLAG (SHOWDRCFLAG, ptr);
+
   if (Settings.AutoDRC)
     SET_FLAG (AUTODRCFLAG, ptr);
+
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
+
   STYLE_LOOP (ptr);
   {
     *style = Settings.RouteStyle[n];
     style->index = n;
   }
   END_LOOP;
+
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
   ptr->ID = ID++;
@@ -196,10 +211,11 @@ CreateNewPCB (bool SetDefaultNames)
   ptr->minDrill = Settings.minDrill;
   ptr->minRing = Settings.minRing;
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < MAX_LAYER; i++) {
     ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
+  }
 
-	CreateDefaultFont (ptr);
+  CreateDefaultFont (ptr);
 
   return (ptr);
 }
@@ -219,10 +235,11 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
     {
       return 1;
     }
-
-    pcb->Data->Layer[top_silk_layer].Name    = strdup ("silk");
-    pcb->Data->Layer[bottom_silk_layer].Name = strdup ("silk");
   }
+
+  pcb->Data->Layer[top_silk_layer].Name = strdup ("top silk");
+  pcb->Data->Layer[bottom_silk_layer].Name = strdup ("bottom silk");
+
   return 0;
 }
 
