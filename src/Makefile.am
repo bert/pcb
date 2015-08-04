@@ -209,6 +209,16 @@ endif
 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
+TEST_SRCS = \
+	pcb-printf.c	\
+	main-test.c
+
+unittest_SOURCES = ${TEST_SRCS}
+unittest_CFLAGS = -DPCB_UNIT_TEST
+check_PROGRAMS = unittest
+check_SCRIPTS = unittest
+TESTS = unittest
+
 # Action, Attribute, and Flag lists.
 core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
@@ -394,13 +404,19 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+libbom_a_SOURCES = \
+	hid/hidint.h \
+	hid/bom/bom.c
+
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
 
-libbom_a_SOURCES = \
+LIBGENCAD_SRCS = \
 	hid/hidint.h \
-	hid/bom/bom.c
+	hid/gencad/gencad.c
+
+libgencad_a_SOURCES = ${LIBGENCAD_SRCS}
 
 LIBIPCD356_SRCS = \
 	hid/hidint.h \
