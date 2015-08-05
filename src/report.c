@@ -78,12 +78,11 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
   AllDrills = GetDrillInfo (PCB->Data);
   RoundDrillInfo (AllDrills, 100);
 
-  for (n = 0; n < AllDrills->DrillN; n++)
-    {
+  for (n = 0; n < AllDrills->DrillN; n++) {
+
       total_drills += AllDrills->Drill[n].PinCount;
       total_drills += AllDrills->Drill[n].ViaCount;
-      total_drills += AllDrills->Drill[n].UnplatedCount;
-    }
+  }
 
   stringlist = (char *)malloc (512L + AllDrills->DrillN * 64L);
 
@@ -97,8 +96,9 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
   thestring = stringlist;
   while (*thestring != '\0')
     thestring++;
-  for (n = 0; n < AllDrills->DrillN; n++)
-    {
+
+  for (n = 0; n < AllDrills->DrillN; n++) {
+
       pcb_sprintf (thestring,
 	       "%10m*\t\t%d\t\t%d\t\t%d\t\t%d\n",
 	       Settings.grid_unit->suffix,
@@ -936,8 +936,8 @@ ReportNetLengthByName (char *tofind, int x, int y)
 }
 
 /* ---------------------------------------------------------------------------
- * reports on an object 
- * syntax: 
+ * reports on an object
+ * syntax:
  */
 
 static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])";
