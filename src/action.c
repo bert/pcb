@@ -1894,28 +1894,28 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
   int i, j;
 
   printf ("**** Do not count on this format.  It will change ****\n\n");
-  printf ("MenuN   = %d\n", Library.MenuN);
-  printf ("MenuMax = %d\n", Library.MenuMax);
+  printf ("MenuN = %d\n", (int) Library.MenuN);
+  printf ("MenuMax = %d\n", (int) Library.MenuMax);
   for (i = 0; i < Library.MenuN; i++)
     {
       printf ("Library#%d:\n", i);
-      printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
-      printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
+      printf ("    EntryN    = %d\n",       (int)  Library.Menu[i].EntryN);
+      printf ("    EntryMax  = %d\n",       (int)  Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
       printf ("    directory = \"%s\"\n", UNKNOWN (Library.Menu[i].directory));
       printf ("    Style     = \"%s\"\n", UNKNOWN (Library.Menu[i].Style));
-      printf ("    flag      = %d\n", Library.Menu[i].flag);
+      printf ("    flag      = %d\n",              Library.Menu[i].flag);
 
-      for (j = 0; j < Library.Menu[i].EntryN; j++)
-	{
+      for (j = 0; j < Library.Menu[i].EntryN; j++) {
+
 	  printf ("#%4d: ", j);
-	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
-	    {
+	  if (Library.Menu[i].Entry[j].Template == (char *) -1) {
+
 	      printf ("newlib: \"%s\"\n",
 		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
 	    }
-	  else
-	    {
+	  else {
+
 	      printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
 		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry),
 		      UNKNOWN (Library.Menu[i].Entry[j].Template),
@@ -3480,7 +3480,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
           tmpi = tmpi / 10;
         }
         tmps = (char *)malloc (sz * sizeof (char));
-        sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+        sprintf (tmps, "%s%d", cnt_list[j].name, (int) cnt_list[j].cnt);
 
         /*
          * now compare to the list of reserved (by locked
