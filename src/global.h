@@ -107,7 +107,7 @@ typedef unsigned int Cardinal;
 /*typedef unsigned int	Pixel;*/
 typedef char *String;
 typedef short Position;
-typedef short Dimension;
+typedef unsigned short Dimension;
 #endif
 typedef unsigned char BYTE;
 
@@ -125,7 +125,6 @@ typedef struct
 #define __FUNCTION2(a,b) __FUNCTION1(a,b)
 #define __FUNCTION__ __FUNCTION2(__FILE__,__LINE__)
 #endif
-
 
 /* ---------------------------------------------------------------------------
  * Macros to annotate branch-prediction information.
@@ -156,7 +155,6 @@ typedef struct
 #define LIKELY(expr) (expr)
 #define UNLIKELY(expr) (expr)
 #endif
-
 
 /* ---------------------------------------------------------------------------
  * Do not change the following definitions even if they're not very
@@ -377,24 +375,24 @@ typedef struct			/* a single symbol */
 	Cardinal LineN,			/* number of lines */
 	LineMax;
 	Coord Width, Height,		/* size of cell */
-	Delta;				/* distance to next symbol */
+	Delta;				    /* distance to next symbol */
 } SymbolType;
 
 typedef struct				/* complete set of symbols */
 {
-	Coord MaxHeight,			/* maximum cell width and height */
-	MaxWidth;
-	BoxType DefaultSymbol;	/* the default symbol is a filled box */
-	SymbolType Symbol[MAX_FONTPOSITION + 1];
-	bool Valid;
+  Coord MaxHeight,			/* maximum cell width and height */
+  MaxWidth;
+  BoxType DefaultSymbol;	    /* the default symbol is a filled box */
+  SymbolType Symbol[MAX_FONTPOSITION + 1];
+  bool Valid;
 } FontType;
 
 typedef struct				/* holds all objects */
 {
 	Cardinal ViaN,			/* number of vias */
-	ElementN,			/* and elements */
-	RatN;				/* and rat-lines */
-	int LayerN;			/* number of layers in this board */
+	ElementN,			    /* and elements */
+	RatN;				    /* and rat-lines */
+	int LayerN;			    /* number of layers in this board */
 	GList *Via;
 	GList *Element;
 	GList *Rat;
@@ -509,8 +507,10 @@ typedef struct PCBType
 	CursorY, Clipping;
 	Coord Bloat,			/* drc sizes saved with layout */
 	Shrink, minWid, minSlk, minDrill, minRing;
-	Coord GridOffsetX,		/* as saved with layout */
-	GridOffsetY, MaxWidth,	/* allowed size */
+
+    Coord GridOffsetX,		/* as saved with layout */
+	GridOffsetY,
+    MaxWidth,	            /* allowed size */
 	MaxHeight;
 
 	Coord Grid;			/* used grid with offsets */
@@ -635,21 +635,21 @@ typedef struct			/* some resources... */
     *GridColor,
     *LayerColor[MAX_LAYER],
     *LayerSelectedColor[MAX_LAYER], *WarnColor, *MaskColor;
-  Coord ViaThickness,		/* some preset values */
+    Coord ViaThickness,		/* some preset values */
     ViaDrillingHole, LineThickness, RatThickness, Keepaway,	/* default size of a new layout */
     MaxWidth, MaxHeight,
     AlignmentDistance, Bloat,	/* default drc sizes */
     Shrink, minWid, minSlk, minDrill, minRing;
-  int TextScale;		/* text scaling in % */
-  Coord Grid;			/* grid in pcb-units */
-  double IsleArea;		/* polygon min area */
-  int PinoutNameLength,		/* max displayed length of a pinname */
+    int TextScale;		/* text scaling in % */
+    Coord Grid;			/* grid in pcb-units */
+    double IsleArea;		/* polygon min area */
+    int PinoutNameLength,		/* max displayed length of a pinname */
     Volume,			/* the speakers volume -100..100 */
     CharPerLine,		/* width of an output line in characters */
     Mode,			/* currently active mode */
     BufferNumber;		/* number of the current buffer */
-  int BackupInterval;		/* time between two backups in seconds */
-  char *DefaultLayerName[MAX_LAYER], *FontCommand,	/* commands for file loading... */
+    int BackupInterval;		/* time between two backups in seconds */
+    char *DefaultLayerName[MAX_LAYER], *FontCommand,	/* commands for file loading... */
    *FileCommand, *ElementCommand, *PrintFile,
    *LibraryDir,
    *LibraryCommand,
