@@ -72,6 +72,8 @@
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
 #define	MAX_GROUP		MAX_LAYER	/* max number of layer groups (should be equal to MAX_LAYER) */
+
+#define NO_ERROR			0
 #define NUM_STYLES		4
 #define	MIN_LINESIZE		MIL_TO_COORD(0.01)	/* thickness of lines */
 #define	MAX_LINESIZE		LARGE_VALUE
