@@ -1,5 +1,11 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/action.c
+ *
+ * \brief Action routines for output window.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 1994,1995,1996 Thomas Nau
@@ -465,8 +471,9 @@ extern void stroke_init (void);
 extern void stroke_record (int x, int y);
 extern int stroke_trans (char *s);
 
-/* ---------------------------------------------------------------------------
- * FinishStroke - try to recognize the stroke sent
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Try to recognize the stroke sent.
  */
 void
 FinishStroke (void)
@@ -554,8 +561,9 @@ FinishStroke (void)
 }
 #endif
 
-/* ---------------------------------------------------------------------------
- * Clear warning color from pins/pads
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Clear warning color from pins/pads.
  */
 static void
 ClearWarnings ()
@@ -582,8 +590,9 @@ ClearWarnings ()
   Draw ();
 }
 
-/* ---------------------------------------------------------------------------
- *
+/* --------------------------------------------------------------------------*/
+/*!\brief Click callback.
+ * \par Function Description
  * This is called a clicktime after a mouse down, to we can distinguish
  * between short clicks (typically: select or create something) and long
  * clicks. Long clicks typically drag something.
@@ -639,8 +648,9 @@ click_cb (hidval hv)
   }
 }
 
-/* ---------------------------------------------------------------------------
- *
+/* --------------------------------------------------------------------------*/
+/*!\brief ReleaseMode
+ * \par Function Description
  * This is typically called when the mouse has moved or the mouse
  * button was released.
  */
@@ -721,7 +731,7 @@ ReleaseMode (void)
 }
 
 /* ---------------------------------------------------------------------------
- * get function ID of passed string
+ * function ID
  */
 #define HSIZE 257
 static char function_hash[HSIZE];
@@ -741,6 +751,9 @@ hashfunc(String s)
   return i;
 }
 
+/*!
+ * \brief Get function ID of passed string.
+ */
 static int
 GetFunctionID (String Ident)
 {
@@ -789,10 +802,13 @@ GetFunctionID (String Ident)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * set new coordinates if in 'RECTANGLE' mode
- * the cursor shape is also adjusted
- */
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Set new coordinates
+ * \par Function Description
+ * Set new coordinates if in 'RECTANGLE' mode. The cursor shape is also
+ * adjusted.
+*/
 static void
 AdjustAttachedBox (void)
 {
@@ -813,8 +829,10 @@ AdjustAttachedBox (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * adjusts the objects which are to be created like attached lines...
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Adjusts the objects which are to be created like attached
+ * lines.
  */
 void
 AdjustAttachedObjects (void)
@@ -861,8 +879,9 @@ AdjustAttachedObjects (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * creates points of a line
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Creates points of a line.
  */
 static void
 NotifyLine (void)
@@ -932,8 +951,9 @@ NotifyLine (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * create first or second corner of a marked block
+/* --------------------------------------------------------------------------*/
+/*!
+ * \brief Create first or second corner of a marked block.
  */
 static void
 NotifyBlock (void)
@@ -956,13 +976,13 @@ NotifyBlock (void)
   notify_crosshair_change (true);
 }
 
-
-/* ---------------------------------------------------------------------------
- *
+/*! \brief After every Mode change
+ * \par Function Description
  * This is called after every mode change, like mouse button pressed,
  * mouse button released, dragging something started or a different tool
- * selected. It does what's appropriate for the current mode setting.
- * This can also mean creation of an object at the current crosshair location.
+ * selected. It does what is appropriate for the current mode setting.
+ * This can also mean creation of an object at the current crosshair
+ * location.
  *
  * new created objects are added to the create undo list of course
  */
@@ -1083,12 +1103,12 @@ NotifyMode (void)
           }
 
           if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
-            Crosshair. AttachedBox.
-            Point2.X,
-            Crosshair.
-            AttachedBox.
-            Point2.Y,
-            abs (wy),
+                                                          Crosshair. AttachedBox.
+                                                          Point2.X,
+                                                          Crosshair.
+                                                          AttachedBox.
+                                                          Point2.Y,
+                                                          abs (wy),
                                                           abs (wy),
                                                           sa,
                                                           dir,
@@ -1226,6 +1246,7 @@ NotifyMode (void)
         break;
       }
       else {
+
         /* create line if both ends are determined && length != 0 */
 
         LineType *line;
@@ -1355,17 +1376,17 @@ NotifyMode (void)
           if (TEST_FLAG (NEWFULLPOLYFLAG, PCB))
             flags |= FULLPOLYFLAG;
           if ((polygon = CreateNewPolygonFromRectangle (CURRENT,
-            Crosshair.
-            AttachedBox.Point1.X,
-            Crosshair.
-            AttachedBox.Point1.Y,
-            Crosshair.
-            AttachedBox.Point2.X,
-            Crosshair.
-            AttachedBox.Point2.Y,
-            MakeFlags
-            (flags))) !=
-            NULL)
+                                                        Crosshair.
+                                                        AttachedBox.Point1.X,
+                                                        Crosshair.
+                                                        AttachedBox.Point1.Y,
+                                                        Crosshair.
+                                                        AttachedBox.Point2.X,
+                                                        Crosshair.
+                                                        AttachedBox.Point2.Y,
+                                                        MakeFlags
+                                                        (flags))) !=
+                                                        NULL)
           {
             AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
                                        polygon, polygon);
@@ -2098,12 +2119,14 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
   AFAIL (setthermal);
 }
 
-/* ---------------------------------------------------------------------------
- * !!! no action routine !!!
+/*!
+ * \brief Move Crosshair Event Handler
+ * \par Function Description
+ *  Event handler to set the cursor according to the X pointer
+ *  position called from inside main.c.
  *
- * event handler to set the cursor according to the X pointer position
- * called from inside main.c
- */
+ * \warning !!! no action routine !!!
+*/
 void
 EventMoveCrosshair (int ev_x, int ev_y)
 {
@@ -2169,8 +2192,8 @@ ActionSetValue (int argc, char **argv, Coord x, Coord y)
   int text_scale;
   int err = 0;
 
-  if (function && val)
-    {
+  if (function && val) {
+
       value = GetValue (val, units, &absolute);
       switch (GetFunctionID (function))
 	{
@@ -5957,8 +5980,8 @@ ActionNew (int argc, char **argv, Coord x, Coord y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * no operation, just for testing purposes
+/*!
+ * \brief No operation, just for testing purposes.
  * syntax: Bell(volume)
  */
 void
@@ -6020,7 +6043,6 @@ coordinates in the layout.  The @code{X} and @code{Y} are treated like
 location.  Otherwise, it's absolute.  Units can be
 @code{mil} or @code{mm}; if unspecified, units are PCB's internal
 units, currently 1/100 mil.
-
 
 @item 1..MAX_BUFFER
 Selects the given buffer to be the current paste buffer.
@@ -7311,13 +7333,14 @@ pcb_spawnvp (char **argv)
 #endif
 }
 
-/* ---------------------------------------------------------------- */
-/*
- * Creates a new temporary file name.  Hopefully the operating system
- * provides a mkdtemp() function to securily create a temporary
- * directory with mode 0700.  If so then that directory is created and
- * the returned string is made up of the directory plus the name
- * variable.  For example:
+/*!
+ * \brief Creates a new temporary file name.
+ *
+ * Hopefully the operating system provides a mkdtemp() function to
+ * securily create a temporary directory with mode 0700.\n
+ * If so then that directory is created and the returned string is made
+ * up of the directory plus the name variable.\n
+ * For example:\n
  *
  * tempfile_name_new ("myfile") might return
  * "/var/tmp/pcb.123456/myfile".
@@ -7366,6 +7389,7 @@ tempfile_name_new (char * name)
   (void)strcat (mytmpdir, tmpdir);
   (void)strcat (mytmpdir, PCB_DIR_SEPARATOR_S);
   (void)strcat (mytmpdir, TEMPLATE);
+
   if (mkdtemp (mytmpdir) == NULL) {
     fprintf (stderr, "%s():  mkdtemp (\"%s\") failed\n", __FUNCTION__, mytmpdir);
     free (mytmpdir);
@@ -7409,11 +7433,12 @@ tempfile_name_new (char * name)
 }
 
 /* ---------------------------------------------------------------- */
-/*
- * Unlink a temporary file.  If we have mkdtemp() then our temp file
- * lives in a temporary directory and we need to remove that directory
- * too.
- */
+/*!
+ * \brief Unlink a temporary file.
+ *
+ * If we have mkdtemp() then our temp file lives in a temporary
+ * directory and we need to remove that directory too.
+*/
 static int
 tempfile_unlink (char * name)
 {
