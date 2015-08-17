@@ -4316,8 +4316,62 @@ attachment point.
 A number of user defined Symbols are called a font. There is only one per
 layout. All symbols are made of lines. See the file @file{default_font}
 as an example.
+A font file is simply a text file that contains the defined symbols making
+up the font. The font file text can be inserted into a layout file after
+the Styles definition.
+
+If a layout file does not contain a font, component labels will be
+invisible, although component outlines, pins and pads will be visible.
 
 The lowest x and y coordinates of all lines of a font are transformed to (0,0).
+Font symbols are typically 4000mil high, and are rendered with SymbolLine
+primitives. Arcs and polygons are not supported in font symbols.
+
+A typical symbol:
+
+@example
+Symbol['"' 1200]
+(
+ SymbolLine[0 1000 0 2334 800]
+ SymbolLine[1523 1000 1523 2334 800]
+)
+@end example
+
+In the example above, 1200 indicates the intercharacter spacing required after the
+symbol, in this case the symbol is the double quote '"'. The SymbolLine
+definitions define the lines making up the symbol as @code{[x1 y1 x2 y2
+linewidth]}. Standard height symbols, such as the letter H or N,
+span 1000 to 5000 in the y axis, where 0,0 is at the upper left. Taller symbols,
+such as a bracket, may span 0 to 6000 in the y axis.
+Symbols for use as @pcb{} fonts can be generated from fonts intended for use in pen plotters
+or engravers, known as centerline fonts, or one stroke fonts. Outline fonts, such
+as TTF fonts, if converted to @pcb{} format, are usually converted into polygons which are
+incompatible with font symbol rendering.
+
+A practical means by which a new font symbol can be created is to export the character as
+an Encapsulated Postscript (EPS) image, and run a utility such as
+@code{pstoedit} to convert to @pcb{} compatible line descriptions.
+
+@example
+pstoedit artwork.eps -psarg "-r1000x1000" -f pcb artwork.pcb
+@end example
+
+The @code{-r1000x1000} command makes the paths adhere to a 1000x1000 grid.
+The resulting @file{artwork.pcb} file can be used to create a font symbol. An efficient way
+to convert multiple symbols is to export an entire glyph table as EPS, run the
+@code{pstoedit} utility to create a PCB file with all of the font symbols of interest, and
+after loading the PCB file, select one font symbol at a time and save the PCB file using
+@emph{CTRL-S}. In a console terminal:
+
+@example
+cat artwork.pcb | grep "elected" > SelectedSymbol.txt
+@end example
+
+will extract the line descriptors for the selected symbol, which can then be used to
+create a font symbol, after extraction of the x1,y1,x2,y2 coordinates, followed by suitable
+scaling and translation of the coordinates.
+
+A set of font symbols can be combined to create a font file.
 
 @node Netlist File
 @section Netlist File Format
