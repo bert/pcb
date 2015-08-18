@@ -1,35 +1,39 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/box.h
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Random box-related utilities.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-
-/* this file, box.h, was written and is
+ * \author This file, box.h, was written and is
  * Copyright (c) 2001 C. Scott Ananian.
- */
-
-/* random box-related utilities.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
+ *
  */
 
 #ifndef PCB_BOX_H
@@ -44,8 +48,11 @@ typedef enum
 { NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3, NE = 4, SE = 5, SW = 6, NW =
     7, ALL = 8 } direction_t;
 
-/* rotates box 90-degrees cw */
-/* that's a strange rotation! */
+/*!
+ * \brief Rotates box 90-degrees cw.
+ *
+ * That's a strange rotation!
+ */
 #define ROTATEBOX_CW(box) { Coord t;\
     t = (box).X1; (box).X1 = -(box).Y2; (box).Y2 = (box).X2;\
     (box).X2 = -(box).Y1; (box).Y1 = t;\
@@ -173,7 +180,10 @@ bloat_box (const BoxType * box, Coord amount)
   return shrink_box (box, -amount);
 }
 
-/* construct a minimum box that touches the input box at the center */
+/*!
+ * \brief Construct a minimum box that touches the input box at the
+ * center.
+ */
 static inline BoxType
 box_center (const BoxType * box)
 {
@@ -185,7 +195,10 @@ box_center (const BoxType * box)
   return r;
 }
 
-/* construct a minimum box that touches the input box at the corner */
+/*!
+ * \brief Construct a minimum box that touches the input box at the
+ * corner.
+ */
 static inline BoxType
 box_corner (const BoxType * box)
 {
@@ -197,7 +210,9 @@ box_corner (const BoxType * box)
   return r;
 }
 
-/* construct a box that holds a single point */
+/*!
+ * \brief Construct a box that holds a single point.
+ */
 static inline BoxType
 point_box (Coord X, Coord Y)
 {
@@ -209,7 +224,9 @@ point_box (Coord X, Coord Y)
   return r;
 }
 
-/* close a bounding box by pushing its upper right corner */
+/*!
+ * \brief Close a bounding box by pushing its upper right corner.
+ */
 static inline void
 close_box (BoxType * r)
 {
@@ -217,9 +234,14 @@ close_box (BoxType * r)
   r->Y2++;
 }
 
-/* return the square of the minimum distance from a point to some point
- * inside a box.  The box is half-closed!  That is, the top-left corner
- * is considered in the box, but the bottom-right corner is not. */
+/*!
+ * \brief Return the square of the minimum distance from a point to some
+ * point inside a box.
+ *
+ * The box is half-closed!\n
+ * That is, the top-left corner is considered in the box, but the
+ * bottom-right corner is not.
+ */
 static inline double
 dist2_to_box (const CheapPointType * p, const BoxType * b)
 {
