@@ -103,7 +103,6 @@ PCB_SRCS = \
 	netlist.c \
 	parse_l.h \
 	parse_l.l \
-	parse_y.h \
 	parse_y.y \
 	pcb-printf.c \
 	pcb-printf.h \
