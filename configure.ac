@@ -78,8 +78,6 @@ else
 	AC_MSG_RESULT([no])
 fi
 
-AM_MAINTAINER_MODE
-
 
 dnl determine host type
 AC_CANONICAL_HOST
