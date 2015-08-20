@@ -738,72 +738,77 @@ void
 doPerturb (PerturbationType * pt, bool undo)
 {
   Coord bbcx, bbcy;
+
   /* compute center of element bounding box */
   bbcx = (pt->element->VBox.X1 + pt->element->VBox.X2) / 2;
   bbcy = (pt->element->VBox.Y1 + pt->element->VBox.Y2) / 2;
+
   /* do exchange, shift or flip/rotate */
-  switch (pt->which)
-    {
+  switch (pt->which) {
+
     case SHIFT:
-      {
-	Coord DX = pt->DX, DY = pt->DY;
-	if (undo)
-	  {
-	    DX = -DX;
-	    DY = -DY;
-	  }
-	MoveElementLowLevel (PCB->Data, pt->element, DX, DY);
-	return;
+    {
+      Coord DX = pt->DX, DY = pt->DY;
+      if (undo) {
+
+        DX = -DX;
+        DY = -DY;
       }
+      MoveElementLowLevel (PCB->Data, pt->element, DX, DY);
+      break;
+    }
+
     case ROTATE:
+    {
+      unsigned b = pt->rotate;
+      if (undo)
+        b = (4 - b) & 3;
+      /* 0 - flip; 1-3, rotate. */
+      if (b)
+        RotateElementLowLevel (PCB->Data, pt->element, bbcx, bbcy, b);
+      else
       {
-	unsigned b = pt->rotate;
-	if (undo)
-	  b = (4 - b) & 3;
-	/* 0 - flip; 1-3, rotate. */
-	if (b)
-	  RotateElementLowLevel (PCB->Data, pt->element, bbcx, bbcy, b);
-	else
-	  {
-	    Coord y = pt->element->VBox.Y1;
-	    MirrorElementCoordinates (PCB->Data, pt->element, 0);
-	    /* mirroring moves the element.  move it back. */
-	    MoveElementLowLevel (PCB->Data, pt->element, 0,
-				 y - pt->element->VBox.Y1);
-	  }
-	return;
+        Coord y = pt->element->VBox.Y1;
+        MirrorElementCoordinates (PCB->Data, pt->element, 0);
+        /* mirroring moves the element.  move it back. */
+        MoveElementLowLevel (PCB->Data, pt->element, 0,
+                             y - pt->element->VBox.Y1);
       }
+    }
+      break;
+
     case EXCHANGE:
+    {
+      /* first exchange positions */
+      Coord x1 = pt->element->VBox.X1;
+      Coord y1 = pt->element->VBox.Y1;
+      Coord x2 = pt->other->BoundingBox.X1;
+      Coord y2 = pt->other->BoundingBox.Y1;
+      MoveElementLowLevel (PCB->Data, pt->element, x2 - x1, y2 - y1);
+      MoveElementLowLevel (PCB->Data, pt->other, x1 - x2, y1 - y2);
+      /* then flip both elements if they are on opposite sides */
+      if (TEST_FLAG (ONSOLDERFLAG, pt->element) !=
+          TEST_FLAG (ONSOLDERFLAG, pt->other))
       {
-	/* first exchange positions */
-	Coord x1 = pt->element->VBox.X1;
-	Coord y1 = pt->element->VBox.Y1;
-	Coord x2 = pt->other->BoundingBox.X1;
-	Coord y2 = pt->other->BoundingBox.Y1;
-	MoveElementLowLevel (PCB->Data, pt->element, x2 - x1, y2 - y1);
-	MoveElementLowLevel (PCB->Data, pt->other, x1 - x2, y1 - y2);
-	/* then flip both elements if they are on opposite sides */
-	if (TEST_FLAG (ONSOLDERFLAG, pt->element) !=
-	    TEST_FLAG (ONSOLDERFLAG, pt->other))
-	  {
-	    PerturbationType mypt;
-	    mypt.element = pt->element;
-	    mypt.which = ROTATE;
-	    mypt.rotate = 0;	/* flip */
-	    doPerturb (&mypt, undo);
-	    mypt.element = pt->other;
-	    doPerturb (&mypt, undo);
-	  }
-	/* done */
-	return;
+        PerturbationType mypt;
+        mypt.element = pt->element;
+        mypt.which = ROTATE;
+        mypt.rotate = 0;	/* flip */
+        doPerturb (&mypt, undo);
+        mypt.element = pt->other;
+        doPerturb (&mypt, undo);
       }
+    }
+    /* done */
+    break;
+
     default:
       assert (0);
-    }
+  }
 }
 
-/* ---------------------------------------------------------------------------
- * Auto-place selected components.
+/*!
+ * \brief Auto-place selected components.
  */
 bool
 AutoPlaceSelected (void)
