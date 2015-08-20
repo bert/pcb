@@ -1,36 +1,38 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/autoplace.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Functions used to autoplace elements.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-
-/*
- * This moduel, autoplace.c, was written by and is
+ * \author This module, autoplace.c, was written by and is
  * Copyright (c) 2001 C. Scott Ananian
- */
-
-/* functions used to autoplace elements.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
  */
 
 #if HAVE_CONFIG_H
@@ -101,7 +103,11 @@ const struct
   Coord large_grid_size;	/* snap perturbations to this grid when T is high */
   Coord small_grid_size;	/* snap to this grid when T is small. */
 }
-/* wire cost is manhattan distance (in mils), thus 1 inch = 1000 */
+
+/*!
+ * \brief Wire cost is manhattan distance (in mils), thus 1 inch = 1000.
+ */
+
 CostParameter =
 {
   3e3,				/* via cost */
@@ -145,9 +151,11 @@ PerturbationType;
  * some local identifiers
  */
 
-/* ---------------------------------------------------------------------------
- * Update the X, Y and group position information stored in the NetList after
- * elements have possibly been moved, rotated, flipped, etc.
+/*!
+ * \brief Update the X, Y and group position information
+ * \par
+ * Update the X, Y and group position information stored in the NetList
+ * after elements have possibly been moved, rotated, flipped, etc.
  */
 static void
 UpdateXY (NetListType *Nets)
@@ -187,8 +195,10 @@ UpdateXY (NetListType *Nets)
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Create a list of selected elements.
+/*!
+ * \brief Create list of selected elements.
+ * \par
+ * Creates a list of selected elements.
  */
 static PointerListType
 collectSelectedElements ()
@@ -206,9 +216,15 @@ collectSelectedElements ()
   return list;
 }
 
-#if 0				/* only for debugging box lists */
+#if 0
+
 #include "create.h"
-/* makes a line on the bottom silk layer surrounding all boxes in blist */
+
+/*!
+ * \brief Add line on the bottom silk layer for debugging
+ * Makes a line on the bottom silk layer surrounding all boxes in blist,
+ * for debugging box lists.
+*/
 static void
 showboxes (BoxListType *blist)
 {
@@ -229,12 +245,15 @@ showboxes (BoxListType *blist)
 }
 #endif
 
-/* ---------------------------------------------------------------------------
- * Helper function to compute "closest neighbor" for a box in a rtree.
+/*!
+ * \brief Compute "closest neighbor" for a box in a rtree.
+ * \par
+ * Helper functions to compute "closest neighbor" for a box in a rtree.
  * The closest neighbor on a certain side is the closest one in a trapezoid
  * emanating from that side.
  */
-/*------ r_find_neighbor ------*/
+
+/*! \def r_neighbor_info */
 struct r_neighbor_info
 {
   const BoxType *neighbor;
@@ -246,23 +265,45 @@ struct r_neighbor_info
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
 }
-/* helper methods for __r_find_neighbor */
+
+/*!
+ * \brief Helper methods for __r_find_neighbor.
+ *
+ * <pre>
+
+ *  ______________ __ trap.y1     __
+ *  \            /               |__| query rect.
+ *   \__________/  __ trap.y2
+ *   |          |
+ *   trap.x1    trap.x2   sides at 45-degree angle
+
+ * </pre>
+ */
 static int
 __r_find_neighbor_reg_in_sea (const BoxType * region, void *cl)
 {
   struct r_neighbor_info *ni = (struct r_neighbor_info *) cl;
   BoxType query = *region;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
-  /*  ______________ __ trap.y1     __
-   *  \            /               |__| query rect.
-   *   \__________/  __ trap.y2
-   *   |          |
-   *   trap.x1    trap.x2   sides at 45-degree angle
-   */
+
   return (query.Y2 > ni->trap.Y1) && (query.Y1 < ni->trap.Y2) &&
     (query.X2 + ni->trap.Y2 > ni->trap.X1 + query.Y1) &&
     (query.X1 + query.Y1 < ni->trap.X2 + ni->trap.Y2);
 }
+
+/*!
+ * \brief .
+ *
+ * <pre>
+
+ ______________ __ trap.y1 __
+ \ / |__| query rect.
+ \__________/ __ trap.y2
+ | |
+ trap.x1 trap.x2 sides at 45-degree angle
+
+ * </pre>
+ */
 static int
 __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
 {
@@ -270,12 +311,7 @@ __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
   BoxType query = *box;
   int r;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
-  /*  ______________ __ trap.y1     __
-   *  \            /               |__| query rect.
-   *   \__________/  __ trap.y2
-   *   |          |
-   *   trap.x1    trap.x2   sides at 45-degree angle
-   */
+
   r = (query.Y2 > ni->trap.Y1) && (query.Y1 < ni->trap.Y2) &&
     (query.X2 + ni->trap.Y2 > ni->trap.X1 + query.Y1) &&
     (query.X1 + query.Y1 < ni->trap.X2 + ni->trap.Y2);
@@ -288,8 +324,11 @@ __r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
   return r;
 }
 
-/* main r_find_neighbor routine.  Returns NULL if no neighbor in the
- * requested direction. */
+/*!
+ * \brief main r_find_neighbor routine
+ *
+ * Returns NULL if no neighbor in the requested direction.
+ */
 static const BoxType *
 r_find_neighbor (rtree_t * rtree, const BoxType * box,
 		 direction_t search_direction)
@@ -316,15 +355,15 @@ r_find_neighbor (rtree_t * rtree, const BoxType * box,
   return ni.neighbor;
 }
 
-/* ---------------------------------------------------------------------------
- * Compute cost function.
- *  note that area overlap cost is correct for SMD devices: SMD devices on
- *  opposite sides of the board don't overlap.
- *
- * Algorithms follow those described in sections 4.1 of
+/*! \brief Compute cost function.
+ *  \par
+ *  Algorithms follow those described in sections 4.1 of
  *  "Placement and Routing of Electronic Modules" edited by Michael Pecht
  *  Marcel Dekker, Inc. 1993.  ISBN: 0-8247-8916-4 TK7868.P7.P57 1993
- */
+ *
+ *  \note that area overlap cost is correct for SMD devices: SMD devices on
+ *        opposite sides of the board don't overlap.
+*/
 static double
 ComputeCost (NetListType *Nets, double T0, double T)
 {
@@ -343,12 +382,13 @@ ComputeCost (NetListType *Nets, double T0, double T)
   BoxListType componentside = { 0, 0, NULL };	/* component side bounds */
   /* make sure the NetList have the proper updated X and Y coords */
   UpdateXY (Nets);
+
   /* wire length term.  approximated by half-perimeter of minimum
    * rectangle enclosing the net.  Note that we penalize vias in
    * all-SMD nets by making the rectangle a cube and weighting
    * the "layer height" of the net. */
-  for (i = 0; i < Nets->NetN; i++)
-    {
+  for (i = 0; i < Nets->NetN; i++) {
+
       NetType *n = &Nets->Net[i];
       if (n->ConnectionN < 2)
 	continue;		/* no cost to go nowhere */
@@ -357,8 +397,8 @@ ComputeCost (NetListType *Nets, double T0, double T)
       thegroup = n->Connection[0].group;
       allpads = (n->Connection[0].type == PAD_TYPE);
       allsameside = true;
-      for (j = 1; j < n->ConnectionN; j++)
-	{
+      for (j = 1; j < n->ConnectionN; j++) {
+
 	  ConnectionType *c = &(n->Connection[j]);
 	  MAKEMIN (minx, c->X);
 	  MAKEMAX (maxx, c->X);
@@ -377,10 +417,12 @@ ComputeCost (NetListType *Nets, double T0, double T)
 	box->X2 = maxx;
 	box->Y2 = maxy;
       }
-      /* okay, add half-perimeter to cost! */
-      W += COORD_TO_MIL(maxx - minx) + COORD_TO_MIL(maxy - miny) +
+
+    /* okay, add half-perimeter to cost! */
+    W += COORD_TO_MIL(maxx - minx) + COORD_TO_MIL(maxy - miny) +
 	((allpads && !allsameside) ? CostParameter.via_cost : 0);
     }
+
   /* now compute penalty function Wc which is proportional to
    * amount of overlap and congestion. */
   /* delta1 is congestion penalty function */
@@ -389,8 +431,10 @@ ComputeCost (NetListType *Nets, double T0, double T)
 #if 0
   printf ("Wire Congestion Area: %f\n", ComputeIntersectionArea (&bounds));
 #endif
+
   /* free bounding rectangles */
   FreeBoxListMemory (&bounds);
+
   /* now collect module areas (bounding rect of pins/pads) */
   /* two lists for solder side / component side. */
 
@@ -402,16 +446,17 @@ ComputeCost (NetListType *Nets, double T0, double T)
     BoxType *lastbox = NULL;
     Coord thickness;
     Coord clearance;
-    if (TEST_FLAG (ONSOLDERFLAG, element))
-      {
-	thisside = &solderside;
-	otherside = &componentside;
-      }
-    else
-      {
-	thisside = &componentside;
-	otherside = &solderside;
-      }
+    if (TEST_FLAG (ONSOLDERFLAG, element)) {
+
+      thisside = &solderside;
+      otherside = &componentside;
+    }
+    else {
+
+      thisside = &componentside;
+      otherside = &solderside;
+    }
+
     box = GetBoxMemory (thisside);
     /* protect against elements with no pins/pads */
     if (element->PinN == 0 && element->PadN == 0)
@@ -422,6 +467,7 @@ ComputeCost (NetListType *Nets, double T0, double T)
     box->Y1 = MAX_COORD;
     box->X2 = -MAX_COORD;
     box->Y2 = -MAX_COORD;
+
     PIN_LOOP (element);
     {
       thickness = pin->Thickness / 2;
@@ -432,6 +478,7 @@ ComputeCost (NetListType *Nets, double T0, double T)
 		    pin->X + (thickness + clearance),
 		    pin->Y + (thickness + clearance))}
     END_LOOP;
+
     PAD_LOOP (element);
     {
       thickness = pad->Thickness / 2;
@@ -449,6 +496,7 @@ ComputeCost (NetListType *Nets, double T0, double T)
 		    MAX (pad->Point1.Y,
 			   pad->Point2.Y) + (thickness + clearance))}
     END_LOOP;
+
     /* add a box for each pin to the "opposite side":
      * surface mount components can't sit on top of pins */
     if (!CostParameter.fast)
@@ -465,25 +513,27 @@ ComputeCost (NetListType *Nets, double T0, double T)
       box->Y2 = pin->Y + thickness;
       /* speed hack! coalesce with last box if we can */
       if (lastbox != NULL &&
-	  ((lastbox->X1 == box->X1 &&
-	    lastbox->X2 == box->X2 &&
-	    MIN (abs (lastbox->Y1 - box->Y2),
-		 abs (box->Y1 - lastbox->Y2)) <
-	    clearance) || (lastbox->Y1 == box->Y1
-			   && lastbox->Y2 == box->Y2
-			   &&
-			   MIN (abs
-				(lastbox->X1 -
-				 box->X2),
-				abs (box->X1 - lastbox->X2)) < clearance)))
-	{
-	  EXPANDRECT (lastbox, box);
-	  otherside->BoxN--;
-	}
-      else
-	lastbox = box;
+        ((lastbox->X1 == box->X1 &&
+        lastbox->X2 == box->X2 &&
+        MIN (abs (lastbox->Y1 - box->Y2),
+             abs (box->Y1 - lastbox->Y2)) <
+             clearance) || (lastbox->Y1 == box->Y1
+             && lastbox->Y2 == box->Y2
+             &&
+             MIN (abs
+             (lastbox->X1 -
+             box->X2),
+             abs (box->X1 - lastbox->X2)) < clearance)))
+      {
+        EXPANDRECT (lastbox, box);
+        otherside->BoxN--;
+      }
+      else {
+        lastbox = box;
+      }
     }
     END_LOOP;
+
     /* assess out of bounds penalty */
     if (element->VBox.X1 < 0 ||
 	element->VBox.Y1 < 0 ||
@@ -491,6 +541,7 @@ ComputeCost (NetListType *Nets, double T0, double T)
       delta3 += CostParameter.out_of_bounds_penalty;
   }
   END_LOOP;
+
   /* compute intersection area of module areas box list */
   delta2 = sqrt (fabs (ComputeIntersectionArea (&solderside) +
 		       ComputeIntersectionArea (&componentside))) *
@@ -529,8 +580,8 @@ ComputeCost (NetListType *Nets, double T0, double T)
 	GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			  &seboxes : &ceboxes);
       *boxpp = (struct ebox *)malloc (sizeof (**boxpp));
-      if (*boxpp == NULL )
-	{
+      if (*boxpp == NULL ) {
+
 	  fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
 	  exit (1);
 	}
@@ -539,12 +590,15 @@ ComputeCost (NetListType *Nets, double T0, double T)
       (*boxpp)->element = element;
     }
     END_LOOP;
+
     rt_s = r_create_tree ((const BoxType **) seboxes.Ptr, seboxes.PtrN, 1);
     rt_c = r_create_tree ((const BoxType **) ceboxes.Ptr, ceboxes.PtrN, 1);
     FreePointerListMemory (&seboxes);
     FreePointerListMemory (&ceboxes);
+
     /* now, for each element, find its neighbor on all four sides */
     delta4 = 0;
+
     for (i = 0; i < 4; i++)
       ELEMENT_LOOP (PCB->Data);
     {
@@ -607,7 +661,9 @@ ComputeCost (NetListType *Nets, double T0, double T)
   return W + (delta1 + delta2 + delta3 - delta4 + delta5);
 }
 
-/* ---------------------------------------------------------------------------
+/*!
+ * \brief Create Perturbation
+ *
  * Perturb:
  *  1) flip SMD from solder side to component side or vice-versa.
  *  2) rotate component 90, 180, or 270 degrees.
@@ -622,8 +678,9 @@ createPerturbation (PointerListType *selected, double T)
   /* pick element to perturb */
   pt.element = (ElementType *) selected->Ptr[random () % selected->PtrN];
   /* exchange, flip/rotate or shift? */
-  switch (random () % ((selected->PtrN > 1) ? 3 : 2))
-    {
+
+  switch (random () % ((selected->PtrN > 1) ? 3 : 2)) {
+
     case 0:
       {				/* shift! */
 	Coord grid;
@@ -758,27 +815,27 @@ AutoPlaceSelected (void)
   bool changed = false;
 
   /* (initial netlist processing copied from AddAllRats) */
-  /* the netlist library has the text form
-   * ProcNetlist fills in the Netlist
-   * structure the way the final routing
-   * is supposed to look
+  /* The netlist library has the text form
+   * ProcNetlist fills in the Netlist structure the way the final
+   * routing is supposed to look
    */
   Nets = ProcNetlist (&PCB->NetlistLib);
   if (!Nets) {
 
       Message (_("Can't add rat lines because no netlist is loaded.\n"));
       goto done;
-    }
+  }
 
   Selected = collectSelectedElements ();
-  if (Selected.PtrN == 0)
-    {
+
+  if (Selected.PtrN == 0) {
+
       Message (_("No elements selected to autoplace.\n"));
       goto done;
-    }
+  }
 
   /* simulated annealing */
-  {				/* compute T0 by doing a random series of moves. */
+  { /* compute T0 by doing a random series of moves. */
     const int TRIALS = 10;
     const double Tx = MIL_TO_COORD (300), P = 0.95;
     double Cs = 0.0;
@@ -794,6 +851,7 @@ AutoPlaceSelected (void)
     T0 = -(Cs / TRIALS) / log (P);
     printf ("Initial T: %f\n", T0);
   }
+
   /* now anneal in earnest */
   {
     double T = T0;
@@ -809,8 +867,8 @@ AutoPlaceSelected (void)
 	pt = createPerturbation (&Selected, T);
 	doPerturb (&pt, false);
 	Cprime = ComputeCost (Nets, T0, T);
-	if (Cprime < C0)
-	  {			/* good move! */
+	if (Cprime < C0) {
+	    /* good move! */
 	    C0 = Cprime;
 	    good_moves++;
 	    steps++;
@@ -822,12 +880,15 @@ AutoPlaceSelected (void)
 	    C0 = Cprime;
 	    steps++;
 	  }
-	else
+	else {
 	  doPerturb (&pt, true);	/* undo last change */
+    }
+
 	moves++;
-	/* are we at the end of a stage? */
-	if (good_moves >= good_move_cutoff || moves >= move_cutoff)
-	  {
+
+    /* are we at the end of a stage? */
+	if (good_moves >= good_move_cutoff || moves >= move_cutoff) {
+
 	    printf ("END OF STAGE: COST %.0f\t"
 		    "GOOD_MOVES %d\tMOVES %d\t"
 		    "T: %.1f\n", C0, good_moves, moves, T);
@@ -839,10 +900,11 @@ AutoPlaceSelected (void)
 	    T *= CostParameter.gamma;
 	    /* cost is T dependent, so recompute */
 	    C0 = ComputeCost (Nets, T0, T);
-	  }
+    }
       }
     changed = (steps > 0);
   }
+
 done:
   if (changed)
     {
