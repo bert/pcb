@@ -70,7 +70,6 @@ docs_yesno=yes
 ])
 AC_SUBST(DOC)
 
-
 AC_MSG_CHECKING([if maintainer mode is required])
 if test "$docs_yesno" = "yes" -a "$pcb_git_version" = "yes" ; then
 	AC_MSG_RESULT([yes -- the documentation build is enabled and your sources are from git])
@@ -78,9 +77,6 @@ if test "$docs_yesno" = "yes" -a "$pcb_git_version" = "yes" ; then
 else
 	AC_MSG_RESULT([no])
 fi
-
-AM_MAINTAINER_MODE
-
 
 dnl determine host type
 AC_CANONICAL_HOST
@@ -432,7 +428,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[ --with-exporters= Enable export devices: bom gerber gcode ipcd356 nelma png ps [[default=bom gerber gcode ipcd356 nelma png ps]]],
+[ --with-exporters= Enable export devices: bom gencad gerber gcode ipcd356 nelma png ps [[default=bom gencad gerber gcode ipcd356 nelma png ps]]],
 
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
