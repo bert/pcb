@@ -806,6 +806,9 @@ into the footprint as well.  The footprint remains in the paste buffer.
 
 %end-doc */
 
+/*!
+ * \brief This action is called from ActionElementAddIf().
+ */
 int
 LoadFootprint (int argc, char **argv, Coord x, Coord y)
 {
