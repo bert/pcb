@@ -16,8 +16,9 @@
 #    found to be not helpful or the branch was picked to the official repo
 #    already.
 #
-#    It's the last commit instead of the branch name, because if there are new
-#    commits on the branch, the branch should be picked up again.
+#    It's the last known (stale) commit instead of the branch name,
+#    because if there appear new commits on the branch, the branch
+#    should be reviewed up again.
 #
 #
 # TODO: also allow to ignore single commits, for example by changing their
