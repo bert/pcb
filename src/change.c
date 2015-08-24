@@ -1,31 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/change.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * \brief Functions used to change object properties.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
- */
-
-/* functions used to change object properties
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -341,9 +343,10 @@ static ObjectFunctionType ClrOctagonFunctions = {
   NULL
 };
 
-/* ---------------------------------------------------------------------------
- * changes the thermal on a via
- * returns TRUE if changed
+/*!
+ * \brief Changes the thermal on a via.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeViaThermal (PinType *Via)
@@ -361,9 +364,10 @@ ChangeViaThermal (PinType *Via)
   return Via;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the thermal on a pin 
- * returns TRUE if changed
+/*!
+ * \brief Changes the thermal on a pin.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePinThermal (ElementType *element, PinType *Pin)
@@ -381,9 +385,10 @@ ChangePinThermal (ElementType *element, PinType *Pin)
   return Pin;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the size of a via
- * returns TRUE if changed
+/*!
+ * \brief Changes the size of a via.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeViaSize (PinType *Via)
@@ -416,9 +421,10 @@ ChangeViaSize (PinType *Via)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the drilling hole of a via
- * returns TRUE if changed
+/*!
+ * \brief Changes the drilling hole of a via.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeVia2ndSize (PinType *Via)
@@ -449,9 +455,10 @@ ChangeVia2ndSize (PinType *Via)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of a via 
- * returns TRUE if changed
+/*!
+ * \brief Changes the clearance size of a via.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeViaClearSize (PinType *Via)
@@ -483,9 +490,10 @@ ChangeViaClearSize (PinType *Via)
 }
 
 
-/* ---------------------------------------------------------------------------
- * changes the size of a pin
- * returns TRUE if changed
+/*!
+ * \brief Changes the size of a pin.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePinSize (ElementType *Element, PinType *Pin)
@@ -515,9 +523,10 @@ ChangePinSize (ElementType *Element, PinType *Pin)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of a pin
- * returns TRUE if changed
+/*!
+ * \brief Changes the clearance size of a pin.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePinClearSize (ElementType *Element, PinType *Pin)
@@ -547,9 +556,10 @@ ChangePinClearSize (ElementType *Element, PinType *Pin)
   return (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the size of a pad
- * returns TRUE if changed
+/*!
+ * \brief Changes the size of a pad.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePadSize (ElementType *Element, PadType *Pad)
@@ -576,9 +586,10 @@ ChangePadSize (ElementType *Element, PadType *Pad)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of a pad
- * returns TRUE if changed
+/*!
+ * \brief Changes the clearance size of a pad.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePadClearSize (ElementType *Element, PadType *Pad)
@@ -608,9 +619,10 @@ ChangePadClearSize (ElementType *Element, PadType *Pad)
   return Pad;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the drilling hole of all pins of an element
- * returns TRUE if changed
+/*!
+ * \brief Changes the drilling hole of all pins of an element.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeElement2ndSize (ElementType *Element)
@@ -651,9 +663,10 @@ ChangeElement2ndSize (ElementType *Element)
     return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the drilling hole of a pin
- * returns TRUE if changed
+/*!
+ * \brief Changes the drilling hole of a pin.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePin2ndSize (ElementType *Element, PinType *Pin)
@@ -684,9 +697,10 @@ ChangePin2ndSize (ElementType *Element, PinType *Pin)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the size of a line
- * returns TRUE if changed
+/*!
+ * \brief Changes the size of a line.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeLineSize (LayerType *Layer, LineType *Line)
@@ -712,9 +726,10 @@ ChangeLineSize (LayerType *Layer, LineType *Line)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of a line
- * returns TRUE if changed
+/*!
+ * \brief Changes the clearance size of a line.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeLineClearSize (LayerType *Layer, LineType *Line)
@@ -745,8 +760,8 @@ ChangeLineClearSize (LayerType *Layer, LineType *Line)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * Handle attepts to change the clearance of a polygon.
+/*!
+ * \brief Handle attempts to change the clearance of a polygon.
  */
 static void *
 ChangePolygonClearSize (LayerType *Layer, PolygonType *poly)
@@ -765,9 +780,10 @@ ChangePolygonClearSize (LayerType *Layer, PolygonType *poly)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the size of an arc
- * returns TRUE if changed
+/*!
+ * \brief Changes the size of an arc.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeArcSize (LayerType *Layer, ArcType *Arc)
@@ -793,9 +809,10 @@ ChangeArcSize (LayerType *Layer, ArcType *Arc)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of an arc
- * returns TRUE if changed
+/*!
+ * \brief Changes the clearance size of an arc.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeArcClearSize (LayerType *Layer, ArcType *Arc)
@@ -826,9 +843,10 @@ ChangeArcClearSize (LayerType *Layer, ArcType *Arc)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the scaling factor of a text object
- * returns TRUE if changed
+/*!
+ * \brief Changes the scaling factor of a text object.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeTextSize (LayerType *Layer, TextType *Text)
@@ -856,9 +874,10 @@ ChangeTextSize (LayerType *Layer, TextType *Text)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the scaling factor of an element's outline
- * returns TRUE if changed
+/*!
+ * \brief Changes the scaling factor of an element's outline.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeElementSize (ElementType *Element)
@@ -903,9 +922,10 @@ ChangeElementSize (ElementType *Element)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the scaling factor of a elementname object
- * returns TRUE if changed
+/*!
+ * \brief Changes the scaling factor of a elementname object.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeElementNameSize (ElementType *Element)
@@ -934,8 +954,8 @@ ChangeElementNameSize (ElementType *Element)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a via
+/*!
+ * \brief Changes the name of a via.
  */
 static void *
 ChangeViaName (PinType *Via)
@@ -953,8 +973,8 @@ ChangeViaName (PinType *Via)
   return (old);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a pin
+/*!
+ * \brief Changes the name of a pin.
  */
 static void *
 ChangePinName (ElementType *Element, PinType *Pin)
@@ -973,8 +993,8 @@ ChangePinName (ElementType *Element, PinType *Pin)
   return (old);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a pad
+/*!
+ * \brief Changes the name of a pad.
  */
 static void *
 ChangePadName (ElementType *Element, PadType *Pad)
@@ -993,8 +1013,8 @@ ChangePadName (ElementType *Element, PadType *Pad)
   return (old);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a line
+/*!
+ * \brief Changes the name of a line.
  */
 static void *
 ChangeLineName (LayerType *Layer, LineType *Line)
@@ -1006,8 +1026,8 @@ ChangeLineName (LayerType *Layer, LineType *Line)
   return (old);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the layout-name of an element
+/*!
+ * \brief Changes the layout-name of an element.
  */
 
 char *
@@ -1055,11 +1075,13 @@ ChangeElementName (ElementType *Element)
   return ChangeElementText (PCB, PCB->Data, Element, NAME_INDEX (PCB), NewName);
 }
 
-/* ---------------------------------------------------------------------------
- * sets data of a text object and calculates bounding box
- * memory must have already been allocated
- * the one for the new string is allocated
- * returns true if the string has been changed
+/*!
+ * \brief Sets data of a text object and calculates bounding box.
+ *
+ * Memory must have already been allocated.
+ * The one for the new string is allocated.
+ *
+ * \return True if the string has been changed.
  */
 static void *
 ChangeTextName (LayerType *Layer, TextType *Text)
@@ -1079,8 +1101,9 @@ ChangeTextName (LayerType *Layer, TextType *Text)
   return (old);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a layout; memory has to be already allocated
+/*!
+ * \brief Changes the name of a layout; memory has to be already
+ * allocated.
  */
 bool
 ChangeLayoutName (char *Name)
@@ -1091,9 +1114,10 @@ ChangeLayoutName (char *Name)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the side of the board an element is on
- * returns TRUE if done
+/*!
+ * \brief Changes the side of the board an element is on.
+ *
+ * \return TRUE if done.
  */
 bool
 ChangeElementSide (ElementType *Element, Coord yoff)
@@ -1107,8 +1131,9 @@ ChangeElementSide (ElementType *Element, Coord yoff)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of a layer; memory has to be already allocated
+/*!
+ * \brief Changes the name of a layer; memory has to be already
+ * allocated.
  */
 bool
 ChangeLayerName (LayerType *Layer, char *Name)
@@ -1119,8 +1144,8 @@ ChangeLayerName (LayerType *Layer, char *Name)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance flag of a line
+/*!
+ * \brief Changes the clearance flag of a line.
  */
 static void *
 ChangeLineJoin (LayerType *Layer, LineType *Line)
@@ -1144,8 +1169,8 @@ ChangeLineJoin (LayerType *Layer, LineType *Line)
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the clearance flag of a line
+/*!
+ * \brief Sets the clearance flag of a line.
  */
 static void *
 SetLineJoin (LayerType *Layer, LineType *Line)
@@ -1155,8 +1180,8 @@ SetLineJoin (LayerType *Layer, LineType *Line)
   return ChangeLineJoin (Layer, Line);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the clearance flag of a line
+/*!
+ * \brief Clears the clearance flag of a line.
  */
 static void *
 ClrLineJoin (LayerType *Layer, LineType *Line)
@@ -1166,8 +1191,8 @@ ClrLineJoin (LayerType *Layer, LineType *Line)
   return ChangeLineJoin (Layer, Line);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance flag of an arc
+/*!
+ * \brief Changes the clearance flag of an arc.
  */
 static void *
 ChangeArcJoin (LayerType *Layer, ArcType *Arc)
@@ -1191,8 +1216,8 @@ ChangeArcJoin (LayerType *Layer, ArcType *Arc)
   return (Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the clearance flag of an arc
+/*!
+ * \brief Sets the clearance flag of an arc.
  */
 static void *
 SetArcJoin (LayerType *Layer, ArcType *Arc)
@@ -1202,8 +1227,8 @@ SetArcJoin (LayerType *Layer, ArcType *Arc)
   return ChangeArcJoin (Layer, Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the clearance flag of an arc
+/*!
+ * \brief Clears the clearance flag of an arc.
  */
 static void *
 ClrArcJoin (LayerType *Layer, ArcType *Arc)
@@ -1213,8 +1238,8 @@ ClrArcJoin (LayerType *Layer, ArcType *Arc)
   return ChangeArcJoin (Layer, Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance flag of a text
+/*!
+ * \brief Changes the clearance flag of a text.
  */
 static void *
 ChangeTextJoin (LayerType *Layer, TextType *Text)
@@ -1238,8 +1263,8 @@ ChangeTextJoin (LayerType *Layer, TextType *Text)
   return (Text);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the clearance flag of a text
+/*!
+ * \brief Sets the clearance flag of a text.
  */
 static void *
 SetTextJoin (LayerType *Layer, TextType *Text)
@@ -1249,8 +1274,8 @@ SetTextJoin (LayerType *Layer, TextType *Text)
   return ChangeTextJoin (Layer, Text);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the clearance flag of a text
+/*!
+ * \brief Clears the clearance flag of a text.
  */
 static void *
 ClrTextJoin (LayerType *Layer, TextType *Text)
@@ -1260,8 +1285,8 @@ ClrTextJoin (LayerType *Layer, TextType *Text)
   return ChangeTextJoin (Layer, Text);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the square flag of all pins on an element
+/*!
+ * \brief Changes the square flag of all pins on an element.
  */
 static void *
 ChangeElementSquare (ElementType *Element)
@@ -1283,8 +1308,8 @@ ChangeElementSquare (ElementType *Element)
   return (ans);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the square flag of all pins on an element
+/*!
+ * \brief Sets the square flag of all pins on an element.
  */
 static void *
 SetElementSquare (ElementType *Element)
@@ -1306,8 +1331,8 @@ SetElementSquare (ElementType *Element)
   return (ans);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the square flag of all pins on an element
+/*!
+ * \brief Clears the square flag of all pins on an element.
  */
 static void *
 ClrElementSquare (ElementType *Element)
@@ -1329,8 +1354,8 @@ ClrElementSquare (ElementType *Element)
   return (ans);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the octagon flags of all pins of an element
+/*!
+ * \brief Changes the octagon flags of all pins of an element.
  */
 static void *
 ChangeElementOctagon (ElementType *Element)
@@ -1348,8 +1373,8 @@ ChangeElementOctagon (ElementType *Element)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the octagon flags of all pins of an element
+/*!
+ * \brief Sets the octagon flags of all pins of an element.
  */
 static void *
 SetElementOctagon (ElementType *Element)
@@ -1367,8 +1392,8 @@ SetElementOctagon (ElementType *Element)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the octagon flags of all pins of an element
+/*!
+ * \brief Clears the octagon flags of all pins of an element.
  */
 static void *
 ClrElementOctagon (ElementType *Element)
@@ -1386,8 +1411,8 @@ ClrElementOctagon (ElementType *Element)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the square flag of a pad
+/*!
+ * \brief Changes the square flag of a pad.
  */
 static void *
 ChangePadSquare (ElementType *Element, PadType *Pad)
@@ -1405,8 +1430,8 @@ ChangePadSquare (ElementType *Element, PadType *Pad)
   return (Pad);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the square flag of a pad
+/*!
+ * \brief Sets the square flag of a pad.
  */
 static void *
 SetPadSquare (ElementType *Element, PadType *Pad)
@@ -1419,8 +1444,8 @@ SetPadSquare (ElementType *Element, PadType *Pad)
 }
 
 
-/* ---------------------------------------------------------------------------
- * clears the square flag of a pad
+/*!
+ * \brief Clears the square flag of a pad.
  */
 static void *
 ClrPadSquare (ElementType *Element, PadType *Pad)
@@ -1433,8 +1458,8 @@ ClrPadSquare (ElementType *Element, PadType *Pad)
 }
 
 
-/* ---------------------------------------------------------------------------
- * changes the square flag of a pin
+/*!
+ * \brief Changes the square flag of a pin.
  */
 static void *
 ChangePinSquare (ElementType *Element, PinType *Pin)
@@ -1452,8 +1477,8 @@ ChangePinSquare (ElementType *Element, PinType *Pin)
   return (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the square flag of a pin
+/*!
+ * \brief Sets the square flag of a pin.
  */
 static void *
 SetPinSquare (ElementType *Element, PinType *Pin)
@@ -1464,8 +1489,8 @@ SetPinSquare (ElementType *Element, PinType *Pin)
   return (ChangePinSquare (Element, Pin));
 }
 
-/* ---------------------------------------------------------------------------
- * clears the square flag of a pin
+/*!
+ * \brief Clears the square flag of a pin.
  */
 static void *
 ClrPinSquare (ElementType *Element, PinType *Pin)
@@ -1476,8 +1501,8 @@ ClrPinSquare (ElementType *Element, PinType *Pin)
   return (ChangePinSquare (Element, Pin));
 }
 
-/* ---------------------------------------------------------------------------
- * changes the octagon flag of a via 
+/*!
+ * \brief Changes the octagon flag of a via.
  */
 static void *
 ChangeViaOctagon (PinType *Via)
@@ -1495,8 +1520,8 @@ ChangeViaOctagon (PinType *Via)
   return (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the octagon flag of a via 
+/*!
+ * \brief Sets the octagon flag of a via.
  */
 static void *
 SetViaOctagon (PinType *Via)
@@ -1507,8 +1532,8 @@ SetViaOctagon (PinType *Via)
   return (ChangeViaOctagon (Via));
 }
 
-/* ---------------------------------------------------------------------------
- * clears the octagon flag of a via 
+/*!
+ * \brief Clears the octagon flag of a via.
  */
 static void *
 ClrViaOctagon (PinType *Via)
@@ -1519,8 +1544,8 @@ ClrViaOctagon (PinType *Via)
   return (ChangeViaOctagon (Via));
 }
 
-/* ---------------------------------------------------------------------------
- * changes the octagon flag of a pin
+/*!
+ * \brief Changes the octagon flag of a pin.
  */
 static void *
 ChangePinOctagon (ElementType *Element, PinType *Pin)
@@ -1538,8 +1563,8 @@ ChangePinOctagon (ElementType *Element, PinType *Pin)
   return (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the octagon flag of a pin
+/*!
+ * \brief Sets the octagon flag of a pin.
  */
 static void *
 SetPinOctagon (ElementType *Element, PinType *Pin)
@@ -1550,8 +1575,8 @@ SetPinOctagon (ElementType *Element, PinType *Pin)
   return (ChangePinOctagon (Element, Pin));
 }
 
-/* ---------------------------------------------------------------------------
- * clears the octagon flag of a pin
+/*!
+ * \brief Clears the octagon flag of a pin.
  */
 static void *
 ClrPinOctagon (ElementType *Element, PinType *Pin)
@@ -1562,8 +1587,8 @@ ClrPinOctagon (ElementType *Element, PinType *Pin)
   return (ChangePinOctagon (Element, Pin));
 }
 
-/* ---------------------------------------------------------------------------
- * changes the hole flag of a via
+/*!
+ * \brief Changes the hole flag of a via.
  */
 bool
 ChangeHole (PinType *Via)
@@ -1605,8 +1630,8 @@ ChangeHole (PinType *Via)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the nopaste flag of a pad
+/*!
+ * \brief Changes the nopaste flag of a pad.
  */
 bool
 ChangePaste (PadType *Pad)
@@ -1621,8 +1646,8 @@ ChangePaste (PadType *Pad)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the CLEARPOLY flag of a polygon
+/*!
+ * \brief Changes the CLEARPOLY flag of a polygon.
  */
 static void *
 ChangePolyClear (LayerType *Layer, PolygonType *Polygon)
@@ -1637,9 +1662,10 @@ ChangePolyClear (LayerType *Layer, PolygonType *Polygon)
   return (Polygon);
 }
 
-/* ----------------------------------------------------------------------
- * changes the side of all selected and visible elements 
- * returns true if anything has changed
+/*!
+ * \brief Changes the side of all selected and visible elements.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedElementSide (void)
@@ -1664,9 +1690,11 @@ ChangeSelectedElementSide (void)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the thermals on all selected and visible pins
- * and/or vias. Returns true if anything has changed
+/*!
+ * \brief Changes the thermals on all selected and visible pins and/or
+ * vias.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedThermals (int types, int therm_style)
@@ -1683,9 +1711,10 @@ ChangeSelectedThermals (int types, int therm_style)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the size of all selected and visible object types 
- * returns true if anything has changed
+/*!
+ * \brief Changes the size of all selected and visible object types.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedSize (int types, Coord Difference, bool fixIt)
@@ -1705,9 +1734,10 @@ ChangeSelectedSize (int types, Coord Difference, bool fixIt)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the clearance size of all selected and visible objects
- * returns true if anything has changed
+/*!
+ * \brief Changes the clearance size of all selected and visible objects.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedClearSize (int types, Coord Difference, bool fixIt)
@@ -1729,9 +1759,11 @@ ChangeSelectedClearSize (int types, Coord Difference, bool fixIt)
   return (change);
 }
 
-/* --------------------------------------------------------------------------
- * changes the 2nd size (drilling hole) of all selected and visible objects
- * returns true if anything has changed
+/*!
+ * \brief Changes the 2nd size (drilling hole) of all selected and
+ * visible objects.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelected2ndSize (int types, Coord Difference, bool fixIt)
@@ -1750,9 +1782,11 @@ ChangeSelected2ndSize (int types, Coord Difference, bool fixIt)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns true if anything has changed
+/*!
+ * \brief Changes the clearance flag (join) of all selected and visible
+ * lines and/or arcs.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedJoin (int types)
@@ -1768,9 +1802,11 @@ ChangeSelectedJoin (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns true if anything has changed
+/*!
+ * \brief Changes the clearance flag (join) of all selected and visible
+ * lines and/or arcs.
+ *
+ * \return True if anything has changed.
  */
 bool
 SetSelectedJoin (int types)
@@ -1786,9 +1822,11 @@ SetSelectedJoin (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns true if anything has changed
+/*!
+ * \brief Changes the clearance flag (join) of all selected and visible
+ * lines and/or arcs.
+ *
+ * \return True if anything has changed.
  */
 bool
 ClrSelectedJoin (int types)
@@ -1804,9 +1842,11 @@ ClrSelectedJoin (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the square-flag of all selected and visible pins or pads
- * returns true if anything has changed
+/*!
+ * \brief Changes the square-flag of all selected and visible pins or
+ * pads.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedSquare (int types)
@@ -1822,9 +1862,10 @@ ChangeSelectedSquare (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * sets the square-flag of all selected and visible pins or pads
- * returns true if anything has changed
+/*!
+ * \brief Sets the square-flag of all selected and visible pins or pads.
+ *
+ * \return True if anything has changed.
  */
 bool
 SetSelectedSquare (int types)
@@ -1840,9 +1881,11 @@ SetSelectedSquare (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * clears the square-flag of all selected and visible pins or pads
- * returns true if anything has changed
+/*!
+ * \brief Clears the square-flag of all selected and visible pins or
+ * pads.
+ *
+ * \return True if anything has changed.
  */
 bool
 ClrSelectedSquare (int types)
@@ -1858,9 +1901,11 @@ ClrSelectedSquare (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the octagon-flag of all selected and visible pins and vias
- * returns true if anything has changed
+/*!
+ * \brief Changes the octagon-flag of all selected and visible pins and
+ * vias.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedOctagon (int types)
@@ -1876,9 +1921,11 @@ ChangeSelectedOctagon (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * sets the octagon-flag of all selected and visible pins and vias
- * returns true if anything has changed
+/*!
+ * \brief Sets the octagon-flag of all selected and visible pins and
+ * vias.
+ *
+ * \return True if anything has changed.
  */
 bool
 SetSelectedOctagon (int types)
@@ -1894,9 +1941,11 @@ SetSelectedOctagon (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * clears the octagon-flag of all selected and visible pins and vias
- * returns true if anything has changed
+/*!
+ * \brief Clears the octagon-flag of all selected and visible pins and
+ * vias.
+ *
+ * \return True if anything has changed.
  */
 bool
 ClrSelectedOctagon (int types)
@@ -1912,9 +1961,10 @@ ClrSelectedOctagon (int types)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the hole-flag of all selected and visible vias 
- * returns true if anything has changed
+/*!
+ * \brief Changes the hole-flag of all selected and visible vias.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedHole (void)
@@ -1936,9 +1986,10 @@ ChangeSelectedHole (void)
   return (change);
 }
 
-/* ----------------------------------------------------------------------
- * changes the no paste-flag of all selected and visible pads
- * returns true if anything has changed
+/*!
+ * \brief Changes the no paste-flag of all selected and visible pads.
+ *
+ * \return True if anything has changed.
  */
 bool
 ChangeSelectedPaste (void)
@@ -1960,9 +2011,10 @@ ChangeSelectedPaste (void)
 }
 
 
-/* ---------------------------------------------------------------------------
- * changes the size of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the size of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -1983,9 +2035,10 @@ ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (change);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the clearance size of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -2012,9 +2065,10 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (change);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the thermal of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the thermal of the passed object.
+ *
+ * \return True if anything is changed.
  *
  */
 bool
@@ -2035,9 +2089,10 @@ ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (change);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the 2nd size of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the 2nd size of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -2060,9 +2115,10 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (change);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the mask size of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the mask size of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -2084,12 +2140,13 @@ ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (change);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the name of the passed object
- * returns the old name
+/*!
+ * \brief Changes the name of the passed object.
  *
- * The allocated memory isn't freed because the old string is used
+ * \warning The allocated memory isn't freed because the old string is used
  * by the undo module.
+ *
+ * \return The old name.
  */
 void *
 ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
@@ -2102,9 +2159,10 @@ ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the clearance-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2118,9 +2176,10 @@ ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the clearance-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Sets the clearance-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 SetObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2134,9 +2193,10 @@ SetObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the clearance-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Clears the clearance-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ClrObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2150,9 +2210,10 @@ ClrObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the square-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the square-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2167,9 +2228,10 @@ ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the square-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Sets the square-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2183,9 +2245,10 @@ SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the square-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Clears the square-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ClrObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2199,9 +2262,10 @@ ClrObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the octagon-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Changes the octagon-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2216,9 +2280,10 @@ ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the octagon-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Sets the octagon-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2232,9 +2297,10 @@ SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * clears the octagon-flag of the passed object
- * Returns true if anything is changed
+/*!
+ * \brief Clears the octagon-flag of the passed object.
+ *
+ * \return True if anything is changed.
  */
 bool
 ClrObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -2248,10 +2314,10 @@ ClrObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * queries the user for a new object name and changes it
+/*!
+ * \bief Queries the user for a new object name and changes it.
  *
- * The allocated memory isn't freed because the old string is used
+ * \warning The allocated memory isn't freed because the old string is used
  * by the undo module.
  */
 void *
@@ -2315,11 +2381,10 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the maximum size of a layout
- * adjusts the scrollbars
- * releases the saved pixmap if necessary
- * and adjusts the cursor confinement box
+/*!
+ * \brief Changes the maximum size of a layout, adjusts the scrollbars,
+ * releases the saved pixmap if necessary and adjusts the cursor
+ * confinement box.
  */
 void
 ChangePCBSize (Coord Width, Coord Height)
@@ -2346,9 +2411,10 @@ ChangePCBSize (Coord Width, Coord Height)
   hid_action ("PCBChanged");
 }
 
-/* ---------------------------------------------------------------------------
- * changes the mask size of a pad
- * returns TRUE if changed
+/*!
+ * \brief Changes the mask size of a pad.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePadMaskSize (ElementType *Element, PadType *Pad)
@@ -2371,9 +2437,10 @@ ChangePadMaskSize (ElementType *Element, PadType *Pad)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the mask size of a pin
- * returns TRUE if changed
+/*!
+ * \brief Changes the mask size of a pin.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangePinMaskSize (ElementType *Element, PinType *Pin)
@@ -2396,9 +2463,10 @@ ChangePinMaskSize (ElementType *Element, PinType *Pin)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * changes the mask size of a via
- * returns TRUE if changed
+/*!
+ * \brief Changes the mask size of a via.
+ *
+ * \return TRUE if changed.
  */
 static void *
 ChangeViaMaskSize (PinType *Via)
