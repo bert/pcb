@@ -1939,7 +1939,7 @@ number
 measure
 		/* Default unit (no suffix) is cmil */
 		: number	{ do_measure(&$$, $1, MIL_TO_COORD ($1) / 100.0, 0); }
-		| number T_UMIL	{ M ($$, $1, MIL_TO_COORD ($1) / 100000.0); }
+		| number T_UMIL	{ M ($$, $1, MIL_TO_COORD ($1) / 1000000.0); }
 		| number T_CMIL	{ M ($$, $1, MIL_TO_COORD ($1) / 100.0); }
 		| number T_MIL	{ M ($$, $1, MIL_TO_COORD ($1)); }
 		| number T_IN	{ M ($$, $1, INCH_TO_COORD ($1)); }
