@@ -1,8 +1,51 @@
 #!/bin/bash
 
-# This script attaches a number of known repositores and creates local
-# branches from their branches. The point is to make all the hidden stuff
-# visible.
+##
+# \file antifork/antifork.sh
+#
+# \brief Main script for the Antifork system.
+#
+# <hr>
+#
+# <h1><b>Copyright.</b></h1>\n
+#
+# Antifork for
+# PCB, interactive printed circuit board design
+# Copyright (C) 2015      Markus "Traumflug" Hitter <mah@jump-ing.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#
+# Antifork fetches from known, forked repositores and creates local branches
+# of their branches. The point is to make all the hidden stuff visible, to
+# allow easy cherry-picking, to allow rebasing, and also to deal with forks
+# using StGit (which hilariously messes up a Git repository in a way not
+# viewable in gitk).
+#
+# Along the way, branches in forks can be filtered. This is useful for
+# forked branches which simply duplicate branches in the official repo,
+# which handle topics already finished and similar stuff.
+#
+# Antifork is meant to run in local clones, not in the official repo. Copied
+# branches are prefixed with the name of the fork when fetched for the first
+# time. If a forked branch got updated in the fork and is fetched again, it
+# additionally gets the prefix "today-". This means to make it easy to
+# recognize changes in hte fork.
+#
+# Happy antiforking, everybody!
+#
 #
 # Format of the repository description files:
 #
@@ -18,7 +61,7 @@
 #
 #    It's the last known (stale) commit instead of the branch name,
 #    because if there appear new commits on the branch, the branch
-#    should be reviewed up again.
+#    should be reviewed again.
 #
 #
 # TODO: also allow to ignore single commits, for example by changing their
