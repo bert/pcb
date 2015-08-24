@@ -4319,24 +4319,24 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
   {
     PIN_LOOP (element);
     {
-      if (!TEST_FLAGS (flags, pin))
+      if (!TEST_FLAGS (flags, pin) || ! pin->Mask)
 	continue;
-      if (TEST_FLAG(HOLEFLAG, pin))
-	thickness = pin->DrillingHole;
-      else
-	thickness = pin->Thickness;
 
-      if (pin->Mask < thickness + value)
+	thickness = pin->DrillingHole;
+      if (pin->Thickness > thickness)
+	thickness = pin->Thickness;
+      thickness += value;
+
+      if (pin->Mask < thickness)
 	{
-	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
-				thickness + value, 1);
+	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, thickness, 1);
 	  RestoreUndoSerialNumber ();
 	}
     }
     END_LOOP;
     PAD_LOOP (element);
     {
-      if (!TEST_FLAGS (flags, pad))
+      if (!TEST_FLAGS (flags, pad) || ! pad->Mask)
 	continue;
       if (pad->Mask < pad->Thickness + value)
 	{
@@ -4350,11 +4350,17 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
   END_LOOP;
   VIA_LOOP (PCB->Data);
   {
-    if (!TEST_FLAGS (flags, via))
+    if (!TEST_FLAGS (flags, via) || ! via->Mask)
       continue;
-    if (via->Mask && via->Mask < via->Thickness + value)
+
+    thickness = via->DrillingHole;
+    if (via->Thickness > thickness)
+      thickness = via->Thickness;
+    thickness += value;
+
+    if (via->Mask < thickness)
       {
-	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
+	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, thickness, 1);
 	RestoreUndoSerialNumber ();
       }
   }
