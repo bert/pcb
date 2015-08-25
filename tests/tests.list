@@ -28,10 +28,12 @@
 # characters) that identifies the test.
 #
 # layout file(s) - a list of layout files.  Files listed are relative to
-# the $(top_srcdir)/tests/inputs directory.
+# the $(top_srcdir)/tests/inputs directory. Action tests are expected to have
+# a like-named script file with .script suffix in the same directory.
 #
 # [export hid name] - the name of the export HID to use.  This is used both for
-# running pcb as well as determining how we process the output
+# running pcb as well as determining how we process the output.  For testing
+# actions, which are independent from HIDs, put 'action' there.
 #
 # [optional arguments to pcb] - a list of additional arguments to be passed to pcb.
 # This is where one would specify additional options which are specific to a particular
@@ -71,6 +73,11 @@
 #    gif -- GIF file
 #    jpg -- JPEG file
 #    png -- Portable network graphics (PNG) file
+#
+# ACTIONS
+#
+#    ACTIONS act on the layout file directly, so input and output file
+#    are of the same name.
 #
 ######################################################################
 # ---------------------------------------------
@@ -149,8 +156,6 @@ hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.bottom.gbr  g
 hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.bottom.gbr  gbx:out.top.gbr cnc:out.plated-drill.cnc
 hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.gbr gbx:arcs.top.gbr gbx:arcs.group1.gbr gbx:arcs.group4.gbr cnc:arcs.plated-drill.cnc
 #
-
-
 ######################################################################
 # ---------------------------------------------
 # PNG export HID
@@ -178,4 +183,18 @@ hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
 hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
-
+######################################################################
+# ---------------------------------------------
+# Actions
+# ---------------------------------------------
+######################################################################
+#
+# Tested actions:
+#
+#   MinMaskGap()           Ensures that pins, pads and vias have a minimum
+#                          solder mask gap.
+#
+# Produces a change in the input layout.
+#
+MinMaskGap | minmaskgap.pcb | action | | | pcb:minmaskgap.pcb
+#
