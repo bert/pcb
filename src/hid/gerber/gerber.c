@@ -243,7 +243,7 @@ fprintAperture (FILE *f, Aperture *aptr)
       break;
     case OCTAGON:
       pcb_fprintf (f, metric ? "%%AMOCT%d*5,0,8,0,0,%.3`mm,22.5*%%\r\n"
-	       "%%ADD%dOCT%d*%%\r\n" : "%%AMOCT%d*5,0,8,0,0,%.3`mm,22.5*%%\r\n"
+	       "%%ADD%dOCT%d*%%\r\n" : "%%AMOCT%d*5,0,8,0,0,%.4`mi,22.5*%%\r\n"
 	       "%%ADD%dOCT%d*%%\r\n", aptr->dCode,
 	       (Coord) ((double) aptr->width / COS_22_5_DEGREE), aptr->dCode,
 	       aptr->dCode);
