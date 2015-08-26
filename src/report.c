@@ -76,7 +76,6 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
   int total_drills = 0;
 
   AllDrills = GetDrillInfo (PCB->Data);
-  RoundDrillInfo (AllDrills, 100);
 
   for (n = 0; n < AllDrills->DrillN; n++)
     {

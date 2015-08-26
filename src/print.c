@@ -223,7 +223,6 @@ PrintFab (hidGC gc)
   time_t currenttime;
   char utcTime[64];
   AllDrills = GetDrillInfo (PCB->Data);
-  RoundDrillInfo (AllDrills, MIL_TO_COORD(1));
   yoff = -TEXT_LINE;
 
   /* count how many drill description lines will be needed */

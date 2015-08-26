@@ -210,6 +210,25 @@ GetDrillInfo (DataType *top)
 
 #define ROUND(x,n) ((int)(((x)+(n)/2)/(n))*(n))
 
+/*
+  Currently unused. Was used in ReportDrills() in report.c and in PrintFab()
+  in print.c (generation of the Gerber fab file), but not when generating the
+  actual CNC files, so the number of drills in the drill report and in the
+  CNC file could differ. This was confusing.
+*/
+#if 0
+/*!
+  \brief Join similar sized drill sets.
+
+  \param d Set of all drills to look at, in subsets for each drill size.
+
+  \param roundto Rounding error. Drills differing less than this value are
+  considered to be of the pame size and joined into a common set.
+
+  \note In case of hits the number of drill sets changes, so the number of
+  distinct drill sizes changes as well. This can be confusing if
+  RoundDisplayInfo() is used for one kind of display/output, but not for others.
+*/
 void
 RoundDrillInfo (DrillInfoType *d, int roundto)
 {
@@ -278,6 +297,7 @@ RoundDrillInfo (DrillInfoType *d, int roundto)
 	}
     }
 }
+#endif
 
 void
 FreeDrillInfo (DrillInfoType *Drills)
