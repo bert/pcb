@@ -215,6 +215,11 @@ RoundDrillInfo (DrillInfoType *d, int roundto)
 {
   unsigned int i = 0;
 
+  /* round in the case with only one drill, too */
+  if (d->DrillN == 1) {
+    d->Drill[0].DrillSize = ROUND (d->Drill[0].DrillSize, roundto);
+  }
+
   while ((d->DrillN > 0) && (i < d->DrillN - 1))
     {
       int diam1 = ROUND (d->Drill[i].DrillSize, roundto);
