@@ -73,10 +73,6 @@ a zoom in/out.
 
 #include <unistd.h>
 
-#ifdef HAVE_LOCALE_H
-#include <locale.h>
-#endif
-
 #include "ghid-layer-selector.h"
 #include "ghid-route-style-selector.h"
 #include "gtkhid.h"
@@ -1758,17 +1754,15 @@ ghid_parse_arguments (int *argc, char ***argv)
    */
   /* g_thread_init (NULL); */
 
-#if defined (ENABLE_NLS)
-  /* Do our own setlocale() stufff since we want to override LC_NUMERIC   
-   */
+#ifdef ENABLE_NLS
+  /* Do our own setlocale() stuff since we want to override LC_NUMERIC. */
   gtk_set_locale ();
   setlocale (LC_NUMERIC, "C");	/* use decimal point instead of comma */
 #endif
 
   /*
-   * Prevent gtk_init() and gtk_init_check() from automatically
-   * calling setlocale (LC_ALL, "") which would undo LC_NUMERIC if ENABLE_NLS
-   * We also don't want locale set if no ENABLE_NLS to keep "C" LC_NUMERIC.
+   * Prevent gtk_init() and gtk_init_check() from automatically calling
+   * setlocale (LC_ALL, "") which would undo LC_NUMERIC handling above.
    */
   gtk_disable_setlocale ();
 
@@ -1789,13 +1783,9 @@ ghid_parse_arguments (int *argc, char ***argv)
 	Settings.AutoPlace = 1;
     }
 
-#ifdef ENABLE_NLS
-#ifdef LOCALEDIR
   bindtextdomain (PACKAGE, LOCALEDIR);
-#endif
   textdomain (PACKAGE);
   bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif /* ENABLE_NLS */
 
   icon = gdk_pixbuf_new_from_xpm_data ((const gchar **) icon_bits);
   gtk_window_set_default_icon (icon);

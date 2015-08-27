@@ -782,11 +782,7 @@ ghid_text_view_append_strings (GtkWidget * view, gchar ** string,
 	  tag = g_strdup (s);
 	  continue;
 	}
-#if defined(ENABLE_NLS)
-      s = gettext (string[i]);
-#else
-      s = string[i];
-#endif
+      s = _(string[i]);
       if (tag)
 	{
 	  t = g_strconcat (tag, s, NULL);

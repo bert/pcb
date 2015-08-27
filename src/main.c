@@ -31,9 +31,6 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_LOCALE_H
-#include <locale.h>  /* setlocale() and LC_ALL */
-#endif
 #include <stdlib.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -1884,9 +1881,12 @@ main (int argc, char *argv[])
   InitPaths (argv[0]);
 
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-  textdomain(GETTEXT_PACKAGE);
-  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+  textdomain (GETTEXT_PACKAGE);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+
+#ifdef ENABLE_NLS
   setlocale(LC_ALL,"");
+#endif
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
@@ -2046,8 +2046,6 @@ main (int argc, char *argv[])
 
   if (gui->printer || gui->exporter)
     {
-      // Workaround to fix batch output for non-C locales
-      setlocale(LC_NUMERIC,"C");
       gui->do_export (0);
       exit (0);
     }
