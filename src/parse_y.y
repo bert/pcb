@@ -34,13 +34,12 @@
  *
  */
 
-/* grammar to parse ASCII input of PCB description
- */
+/* grammar to parse ASCII input of PCB description */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-/*
+
 #include "global.h"
 #include "create.h"
 #include "data.h"
@@ -48,6 +47,7 @@
 #include "file.h"
 #include "mymem.h"
 #include "misc.h"
+#include "move.h"
 #include "parse_l.h"
 #include "polygon.h"
 #include "remove.h"
@@ -58,7 +58,7 @@
 #if HAVE_LIBDMALLOC
 # include <dmalloc.h>
 #endif
-*/
+
 static LayerType    *Layer;
 static PolygonType  *Polygon;
 static SymbolType   *Symbol;
@@ -71,7 +71,7 @@ extern PCBType     *yyPCB;
 extern DataType    *yyData;
 extern ElementType *yyElement;
 extern FontType    *yyFont;
-extern in           yylineno;     /* linenumber */
+extern int          yylineno;     /* linenumber */
 extern char        *yyfilename;   /* in this file */
 
 static AttributeListType *attr_list;
@@ -190,49 +190,48 @@ parsepcb
           pcbfont
           pcbdata
           pcbnetlist
-          {
-	          PCBType *pcb_save = PCB;
-	          CreateNewPCBPost (yyPCB, 0);
+			{
+			  PCBType *pcb_save = PCB;
 
+			  CreateNewPCBPost (yyPCB, 0);
 			/* initialize the polygon clipping now since
 			 * we didn't know the layer grouping before.
 			 */
 			PCB = yyPCB;
 			ALLPOLYGON_LOOP (yyData);
 			{
-	          InitClip (yyData, layer, polygon);
+			  InitClip (yyData, layer, polygon);
 			}
 			ENDALL_LOOP;
 			PCB = pcb_save;
 			}
 
-            | {
-              if (yyPCB != NULL) {
-
-                /* This case is when we load a footprint with file->open, or from the command line */
-                yyFont = &yyPCB->Font;
-                yyData = yyPCB->Data;
-                yyData->pcb = yyPCB;
-                yyData->LayerN = 0;
-             }
-           }
-          element
-          {
-            PCBType *pcb_save = PCB;
-            ElementType *e;
-            if (yyPCB != NULL) {
-
-              /* This case is when we load a footprint with file->open, or from the command line */
-              CreateNewPCBPost (yyPCB, 0);
-              ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
-              e = yyPCB->Data->Element->data; /* we know there's only one */
-              PCB = yyPCB;
-              MoveElementLowLevel (yyPCB->Data, e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
-              PCB = pcb_save;
-              yyPCB->MaxWidth = e->BoundingBox.X2;
-              yyPCB->MaxHeight = e->BoundingBox.Y2;
-              yyPCB->is_footprint = 1;
-            }
+		| {
+		    if (yyPCB != NULL) {
+			  /* This case is when we load a footprint with file->open, or from the command line */
+			   yyFont = &yyPCB->Font;
+			   yyData = yyPCB->Data;
+			   yyData->pcb = yyPCB;
+			   yyData->LayerN = 0;
+		     }
+		  }
+		  element
+		  {
+		    PCBType *pcb_save = PCB;
+		    ElementType *e;
+		    if (yyPCB != NULL) {
+			/* This case is when we load a footprint with file->open, or from the command line */
+			CreateNewPCBPost (yyPCB, 0);
+			ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
+			e = yyPCB->Data->Element->data; /* we know there's only one */
+			PCB = yyPCB;
+			MoveElementLowLevel (yyPCB->Data, e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
+			PCB = pcb_save;
+			yyPCB->MaxWidth = e->BoundingBox.X2;
+			yyPCB->MaxHeight = e->BoundingBox.Y2;
+			yyPCB->is_footprint = 1;
+		      }
+		  }
 		;
 
 parsedata
@@ -242,13 +241,13 @@ parsedata
                 	 */
                 int	i;
 
-                if (!yyData || !yyFont)
-                {
-                	Message("illegal fileformat\n");
-                	YYABORT;
+                if (!yyData || !yyFont) {
+                	  Message("illegal fileformat\n");
+                	  YYABORT;
                 }
-                for (i = 0; i < MAX_LAYER + 2; i++)
-                	LayerFlag[i] = false;
+                for (i = 0; i < MAX_LAYER + 2; i++) {
+                  LayerFlag[i] = false;
+                }
                 yyData->LayerN = 0;
 			}
 		 pcbdata
@@ -265,14 +264,14 @@ parsefont
                 	/* mark all symbols invalid */
                 int	i;
 
-                if (!yyFont)
-                {
+                if (!yyFont) {
                 	Message("illegal fileformat\n");
                 	YYABORT;
                 }
                 yyFont->Valid = false;
-                for (i = 0; i <= MAX_FONTPOSITION; i++)
-                	free (yyFont->Symbol[i].Line);
+                for (i = 0; i <= MAX_FONTPOSITION; i++) {
+                	 free (yyFont->Symbol[i].Line);
+                }
                 bzero(yyFont->Symbol, sizeof(yyFont->Symbol));
 			}
           symbols
@@ -306,7 +305,6 @@ pcbfileversion
 T_FILEVERSION '[' INTEGER ']'
 {
   if (check_file_version ($3) != 0) {
-
       YYABORT;
   }
 }
@@ -1921,9 +1919,9 @@ if the value is interpreted as, for example, a number.
 attribute
 		: T_ATTRIBUTE '(' STRING STRING ')'
 			{
-	          CreateNewAttribute (attr_list, $3, $4 ? $4 : (char *)"");
-                free ($3);
-                free ($4);
+			  CreateNewAttribute (attr_list, $3, $4 ? $4 : (char *)"");
+				free ($3);
+				free ($4);
 			}
 		;
 
@@ -1938,7 +1936,7 @@ number
 
 measure
 		/* Default unit (no suffix) is cmil */
-		: number	{ do_measure(&$$, $1, MIL_TO_COORD ($1) / 100.0, 0); }
+		: number			{ do_measure(&$$, $1, MIL_TO_COORD ($1) / 100.0, 0); }
 		| number T_UMIL	{ M ($$, $1, MIL_TO_COORD ($1) / 1000000.0); }
 		| number T_CMIL	{ M ($$, $1, MIL_TO_COORD ($1) / 100.0); }
 		| number T_MIL	{ M ($$, $1, MIL_TO_COORD ($1)); }
@@ -1947,7 +1945,7 @@ measure
 		| number T_PX	{ M ($$, $1, MM_TO_COORD ($1) / 1000000.0); }
 		| number T_UM	{ M ($$, $1, MM_TO_COORD ($1) / 1000.0); }
 		| number T_MM	{ M ($$, $1, MM_TO_COORD ($1)); }
-		| number T_M	{ M ($$, $1, MM_TO_COORD ($1) * 1000.0); }
+		| number T_M		{ M ($$, $1, MM_TO_COORD ($1) * 1000.0); }
 		| number T_KM	{ M ($$, $1, MM_TO_COORD ($1) * 1000000.0); }
 		;
 
