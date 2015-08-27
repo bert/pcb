@@ -17,6 +17,9 @@ ignorebranch 209e1031656f58ffe40189d93893457975c4042f
 wiki, empty branch on master.
 ignorebranch 4101b611a84fbcd00cf984c8303502935cce38e9
 
+LP1170912, android, both empty branches on master.
+ignorebranch 4cba2a2a8cddfa06c03cd0448c74885a68d24ddb
+
 Copies of release branches.
 ignorebranch 107caa49d26c6850ba928d3bdfa5ae8484c159b0
 ignorebranch e2442c2f5431d3a3d78c776798e6e0ed388047f0
@@ -39,3 +42,9 @@ ignorebranch 06dfa5db5076a511268f0dcecea547f54a4d8161
 
 LP1035979, committed to master.
 ignorebranch cc022c20234addfdba4b533a1aa8e302e9def007
+
+LP1022076, superseded by LP1022076v2.
+ignorebranch 1a0126ac71e58eaa577f3eb405239244096ce2b5
+
+LP1074268, not going to be picked, this was resolved a similar, different way.
+ignorebranch e000cb9ff608822733890172a753d081c8a8437b
