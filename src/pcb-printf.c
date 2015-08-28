@@ -545,13 +545,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
               break;
             case 'e': case 'E': case 'f':
             case 'g': case 'G':
-              if (strchr (spec->str, '*'))
-                {
-                  int prec = va_arg(args, int);
-                  unit_str = g_strdup_printf (spec->str, va_arg(args, double), prec);
-                }
-              else
-                unit_str = g_strdup_printf (spec->str, va_arg(args, double));
+              unit_str = g_strdup_printf (spec->str, va_arg(args, double));
               break;
             case 'c':
               if(strchr (spec->str, 'l') && sizeof(int) <= sizeof(wchar_t))
