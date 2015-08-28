@@ -535,7 +535,7 @@ PrintBOM (void)
 	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
-	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2mS,%.2mS,%g,%s\n",
+	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2`mS,%.2`mS,%g,%s\n",
 		     xy_unit->allow, name, descr, value, x, y,
 		     theta, FRONT (element) == 1 ? "top" : "bottom");
 	free (name);

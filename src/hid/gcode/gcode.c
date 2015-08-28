@@ -492,10 +492,10 @@ gcode_start_gcode (const char *layername, bool metric)
   fprintf (file, "(%s)\n", buffer);
   fprintf (file, "(Units: %s)\n", metric ? "mm" : "inch");
   if (metric)
-    pcb_fprintf (file, "(Board size: %.2mm x %.2mm mm)\n",
+    pcb_fprintf (file, "(Board size: %.2`mm x %.2`mm mm)\n",
                  PCB->MaxWidth, PCB->MaxHeight);
   else
-    pcb_fprintf (file, "(Board size: %.2mi x %.2mi inches)\n",
+    pcb_fprintf (file, "(Board size: %.2`mi x %.2`mi inches)\n",
                  PCB->MaxWidth, PCB->MaxHeight);
 
   return file;
