@@ -18,6 +18,7 @@
 #include "lists.h"
 #include "auxiliary.h"
 #include "trace.h"
+#include "ascii-printf.h"
 //#include "progress.h"
 
 #define INFTY 10000000		/* it suffices that this is longer than any
@@ -1418,13 +1419,14 @@ plotpolygon (privpath_t * pp, FILE * f, double scale,
   po = pp->po;
   pt = pp->pt;
 
-  fprintf (f, "G0 X%f Y%f    (start point)\n", pt[po[0]].x * scale,
-	   pt[po[0]].y * scale);
-  fprintf (f, "G1 Z%s F%s\n", var_cutdepth, var_plunge);
-  fprintf (f, "F%s\n", var_feedrate);
+  ascii_fprintf (f, "G0 X%f Y%f    (start point)\n", pt[po[0]].x * scale,
+		 pt[po[0]].y * scale);
+  ascii_fprintf (f, "G1 Z%s F%s\n", var_cutdepth, var_plunge);
+  ascii_fprintf (f, "F%s\n", var_feedrate);
   for (i = 1; i < m; i++)
     {
-      fprintf (f, "G1 X%f Y%f\n", pt[po[i]].x * scale, pt[po[i]].y * scale);
+      ascii_fprintf (f, "G1 X%f Y%f\n",
+		     pt[po[i]].x * scale, pt[po[i]].y * scale);
       dm +=
 	sqrt ((pt[po[i]].x - pt[po[i - 1]].x) * scale * (pt[po[i]].x -
 							 pt[po[i - 1]].x) *
@@ -1434,14 +1436,14 @@ plotpolygon (privpath_t * pp, FILE * f, double scale,
 								     1]].y) *
 	      scale);
     }
-  fprintf (f, "G1 X%f Y%f\n", pt[po[0]].x * scale, pt[po[0]].y * scale);
-  fprintf (f, "G0 Z%s\n", var_safeZ);
+  ascii_fprintf (f, "G1 X%f Y%f\n", pt[po[0]].x * scale, pt[po[0]].y * scale);
+  ascii_fprintf (f, "G0 Z%s\n", var_safeZ);
   dm +=
     sqrt ((pt[po[m - 1]].x - pt[po[0]].x) * scale * (pt[po[m - 1]].x -
 						     pt[po[0]].x) * scale +
 	  (pt[po[m - 1]].y - pt[po[0]].y) * scale * (pt[po[m - 1]].y -
 						     pt[po[0]].y) * scale);
-  fprintf (f, "(polygon end, distance %.2f)\n", dm);
+  ascii_fprintf (f, "(polygon end, distance %.2f)\n", dm);
   return dm;
 }
 

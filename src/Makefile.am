@@ -31,6 +31,7 @@ endif
 PCB_SRCS = \
 	action.c \
 	action.h \
+	ascii-printf.c \
 	autoplace.c \
 	autoplace.h \
 	autoroute.c \
@@ -207,6 +208,7 @@ endif
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 TEST_SRCS = \
+	ascii-printf.c \
 	pcb-printf.c	\
 	main-test.c
 

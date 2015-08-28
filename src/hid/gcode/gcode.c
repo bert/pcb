@@ -665,19 +665,19 @@ gcode_do_export (HID_Attr_Val * options)
               return;
             }
           fprintf (gcode_f, "(Accuracy %d dpi)\n", gcode_dpi);
-          fprintf (gcode_f, "(Tool diameter: %f %s)\n",
-                   options[HA_tooldiameter].real_value * scale,
-                   metric ? "mm" : "inch");
+          ascii_fprintf (gcode_f, "(Tool diameter: %f %s)\n",
+                         options[HA_tooldiameter].real_value * scale,
+                         metric ? "mm" : "inch");
           if (gcode_advanced)
             {
-              fprintf (gcode_f, "%s=%f  (safe Z)\n",
-                       variable_safeZ, gcode_safeZ);
-              fprintf (gcode_f, "%s=%f  (cutting depth)\n",
-                       variable_cutdepth, gcode_cutdepth);
-              fprintf (gcode_f, "%s=%f  (plunge feedrate)\n",
-                       variable_isoplunge, gcode_isoplunge);
-              fprintf (gcode_f, "%s=%f  (feedrate)\n",
-                       variable_isofeedrate, gcode_isofeedrate);
+              ascii_fprintf (gcode_f, "%s=%f  (safe Z)\n",
+                             variable_safeZ, gcode_safeZ);
+              ascii_fprintf (gcode_f, "%s=%f  (cutting depth)\n",
+                             variable_cutdepth, gcode_cutdepth);
+              ascii_fprintf (gcode_f, "%s=%f  (plunge feedrate)\n",
+                             variable_isoplunge, gcode_isoplunge);
+              ascii_fprintf (gcode_f, "%s=%f  (feedrate)\n",
+                             variable_isofeedrate, gcode_isofeedrate);
             }
           if (gcode_predrill && save_drill)
             fprintf (gcode_f, "(with predrilling)\n");
@@ -770,24 +770,25 @@ gcode_do_export (HID_Attr_Val * options)
                       drillY = all_drills[r].y;
                     }
                   if (gcode_advanced)
-                    fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
-                             variable_cutdepth, variable_safeZ);
+                    ascii_fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n",
+                                   drillX, drillY, variable_cutdepth,
+                                   variable_safeZ);
                   else
                     {
-                      fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
-                      fprintf (gcode_f, "G1 Z%s\n", variable_cutdepth);
-                      fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
+                      ascii_fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
+                      ascii_fprintf (gcode_f, "G1 Z%s\n", variable_cutdepth);
+                      ascii_fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
                     }
                 }
               fprintf (gcode_f, "(%d predrills)\n", n_all_drills);
               free(all_drills);
             }
           if (metric)
-            fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n", d,
-                     d * 1 / 25.4);
+            ascii_fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n", d,
+                           d * 1 / 25.4);
           else
-            fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n",
-                     25.4 * d, d);
+            ascii_fprintf (gcode_f, "(milling distance %.2fmm = %.2fin)\n",
+                           25.4 * d, d);
           if (gcode_advanced)
             fprintf (gcode_f, "M5 M9 M2\n");
           else
@@ -829,26 +830,30 @@ gcode_do_export (HID_Attr_Val * options)
                     return;
                   fprintf (gcode_f, "(Drill file: %d drills)\n", drill->n_holes);
                   if (metric)
-                    fprintf (gcode_f, "(Drill diameter: %f mm)\n",
-                             drill->diameter_inches * 25.4);
+                    ascii_fprintf (gcode_f, "(Drill diameter: %f mm)\n",
+                                   drill->diameter_inches * 25.4);
                   else
-                    fprintf (gcode_f, "(Drill diameter: %f inch)\n",
-                             drill->diameter_inches);
+                    ascii_fprintf (gcode_f, "(Drill diameter: %f inch)\n",
+                                   drill->diameter_inches);
                   if (gcode_advanced)
                     {
-                      fprintf (gcode_f, "%s=%f  (safe Z)\n",
-                               variable_safeZ, gcode_safeZ);
-                      fprintf (gcode_f, "%s=%f  (drill depth)\n",
-                               variable_drilldepth, gcode_drilldepth);
+                      ascii_fprintf (gcode_f, "%s=%f  (safe Z)\n",
+                                     variable_safeZ, gcode_safeZ);
+                      ascii_fprintf (gcode_f, "%s=%f  (drill depth)\n",
+                                     variable_drilldepth, gcode_drilldepth);
                       fprintf (gcode_f, "(---------------------------------)\n");
-                      fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%f\n",
-                               metric ? 21 : 20, gcode_drillfeedrate);
+                      fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 ",
+                                     metric ? 21 : 20);
+                      ascii_fprintf (gcode_f, "S3000 M7 F%f\n",
+                                     gcode_drillfeedrate);
                     }
                   else
                     {
                       fprintf (gcode_f, "(---------------------------------)\n");
-                      fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%f\n",
-                               metric ? 21 : 20, gcode_drillfeedrate);
+                      fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 ",
+                               metric ? 21 : 20);
+                      ascii_fprintf (gcode_f, "S3000\nM7\nF%f\n",
+                                     gcode_drillfeedrate);
                     }
                   fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
                   for (r = 0; r < drill->n_holes; r++)
@@ -866,11 +871,13 @@ gcode_do_export (HID_Attr_Val * options)
                           drillY = drill->holes[r].y;
                         }
                       if (gcode_advanced)
-                        fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
-                                 variable_drilldepth, variable_safeZ);
+                        ascii_fprintf (gcode_f, "G81 X%f Y%f Z%s R%s\n",
+                                       drillX, drillY, variable_drilldepth,
+                                       variable_safeZ);
                       else
                         {
-                          fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
+                          ascii_fprintf (gcode_f, "G0 X%f Y%f\n",
+                                         drillX, drillY);
                           fprintf (gcode_f, "G1 Z%s\n", variable_drilldepth);
                           fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
                         }
@@ -882,8 +889,8 @@ gcode_do_export (HID_Attr_Val * options)
                     fprintf (gcode_f, "M5 M9 M2\n");
                   else
                     fprintf (gcode_f, "M5\nM9\nM2\n");
-                  fprintf (gcode_f, "(end, total distance %.2fmm = %.2fin)\n",
-                           25.4 * d, d);
+                  ascii_fprintf (gcode_f,
+                    "(end, total distance %.2fmm = %.2fin)\n", 25.4 * d, d);
                   fclose (gcode_f);
                 }
 
@@ -936,21 +943,22 @@ gcode_do_export (HID_Attr_Val * options)
                     if (!gcode_f)
                       return;
                     fprintf (gcode_f, "(Drillmill file)\n");
-                    fprintf (gcode_f, "(Tool diameter: %f %s)\n",
-                             gcode_milltoolradius * 2, metric ? "mm" : "inch");
+                    ascii_fprintf (gcode_f, "(Tool diameter: %f %s)\n",
+                                   gcode_milltoolradius * 2,
+                                   metric ? "mm" : "inch");
                     if (gcode_advanced)
                       {
-                        fprintf (gcode_f, "%s=%f  (safe Z)\n",
-                                 variable_safeZ, gcode_safeZ);
-                        fprintf (gcode_f, "%s=%f  (mill depth)\n",
-                                 variable_milldepth, gcode_milldepth);
-                        fprintf (gcode_f, "%s=%f  (mill plunge feedrate)\n",
-                                 variable_millplunge, gcode_millplunge);
-                        fprintf (gcode_f, "%s=%f  (mill feedrate)\n",
-                                 variable_millfeedrate, gcode_millfeedrate);
+                        ascii_fprintf (gcode_f, "%s=%f  (safe Z)\n",
+                                       variable_safeZ, gcode_safeZ);
+                        ascii_fprintf (gcode_f, "%s=%f  (mill depth)\n",
+                                       variable_milldepth, gcode_milldepth);
+                        ascii_fprintf (gcode_f, "%s=%f  (mill plunge feedrate)\n",
+                                       variable_millplunge, gcode_millplunge);
+                        ascii_fprintf (gcode_f, "%s=%f  (mill feedrate)\n",
+                                       variable_millfeedrate, gcode_millfeedrate);
                         fprintf (gcode_f, "(---------------------------------)\n");
                         fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
-                                 metric ? 21 : 20);
+                                       metric ? 21 : 20);
                       }
                     else
                       {
@@ -972,7 +980,7 @@ gcode_do_export (HID_Attr_Val * options)
                             drillX = drillmill_drills[r].x;
                             drillY = drillmill_drills[r].y;
                           }
-                        fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
+                        ascii_fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
                         fprintf (gcode_f, "G1 Z%s F%s\n",
                                  variable_milldepth, variable_millplunge);
 
@@ -992,11 +1000,12 @@ gcode_do_export (HID_Attr_Val * options)
                             for (i = 0; i <= n_sides; i++)
                               {
                                 double angle = M_PI * 2 * i / n_sides;
-                                fprintf (gcode_f, "G1 X%f Y%f\n",
+                                ascii_fprintf (gcode_f, "G1 X%f Y%f\n",
                                          drillX + mill_radius * cos (angle),
                                          drillY + mill_radius * sin (angle));
                               }
-                            fprintf (gcode_f, "G0 X%f Y%f\n", drillX, drillY);
+                            ascii_fprintf (gcode_f, "G0 X%f Y%f\n",
+                                           drillX, drillY);
                           }
                         fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
                       }
@@ -1058,17 +1067,18 @@ gcode_do_export (HID_Attr_Val * options)
       if (!gcode_f)
         return;
       fprintf (gcode_f, "(Outline mill file)\n");
-      fprintf (gcode_f, "(Tool diameter: %f %s)\n",
-               gcode_milltoolradius * 2, metric ? "mm" : "inch");
+      ascii_fprintf (gcode_f, "(Tool diameter: %f %s)\n",
+                     gcode_milltoolradius * 2, metric ? "mm" : "inch");
       if (gcode_advanced)
         {
-          fprintf (gcode_f, "%s=%f  (safe Z)\n", variable_safeZ, gcode_safeZ);
-          fprintf (gcode_f, "%s=%f  (mill depth)\n",
-                   variable_milldepth, gcode_milldepth);
-          fprintf (gcode_f, "%s=%f  (mill plunge feedrate)\n",
-                   variable_millplunge, gcode_millplunge);
-          fprintf (gcode_f, "%s=%f  (mill feedrate)\n",
-                   variable_millfeedrate, gcode_millfeedrate);
+          ascii_fprintf (gcode_f, "%s=%f  (safe Z)\n",
+                         variable_safeZ, gcode_safeZ);
+          ascii_fprintf (gcode_f, "%s=%f  (mill depth)\n",
+                         variable_milldepth, gcode_milldepth);
+          ascii_fprintf (gcode_f, "%s=%f  (mill plunge feedrate)\n",
+                         variable_millplunge, gcode_millplunge);
+          ascii_fprintf (gcode_f, "%s=%f  (mill feedrate)\n",
+                         variable_millfeedrate, gcode_millfeedrate);
           fprintf (gcode_f, "(---------------------------------)\n");
           fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
                    metric ? 21 : 20);
@@ -1097,15 +1107,15 @@ gcode_do_export (HID_Attr_Val * options)
       fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
       /* mill the two edges adjectant to 0,0 first to disconnect the
          workpiece from the raw material last */
-      fprintf (gcode_f, "G0 X%f Y%f\n", upperX, lowerY);
-      fprintf (gcode_f, "G1 Z%s F%s\n",
-               variable_milldepth, variable_millplunge);
-      fprintf (gcode_f, "G1 X%f Y%f F%s\n",
-               lowerX, lowerY, variable_millfeedrate);
-      fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, upperY);
-      fprintf (gcode_f, "G1 X%f Y%f\n", upperX, upperY);
-      fprintf (gcode_f, "G1 X%f Y%f\n", upperX, lowerY);
-      fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
+      ascii_fprintf (gcode_f, "G0 X%f Y%f\n", upperX, lowerY);
+      ascii_fprintf (gcode_f, "G1 Z%s F%s\n",
+                     variable_milldepth, variable_millplunge);
+      ascii_fprintf (gcode_f, "G1 X%f Y%f F%s\n",
+                     lowerX, lowerY, variable_millfeedrate);
+      ascii_fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, upperY);
+      ascii_fprintf (gcode_f, "G1 X%f Y%f\n", upperX, upperY);
+      ascii_fprintf (gcode_f, "G1 X%f Y%f\n", upperX, lowerY);
+      ascii_fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
 
       if (gcode_advanced)
         fprintf (gcode_f, "M5 M9 M2\n");
@@ -1114,14 +1124,14 @@ gcode_do_export (HID_Attr_Val * options)
       mill_distance = abs(gcode_safeZ - gcode_milldepth);
       if (metric)
         mill_distance /= 25.4;
-      fprintf (gcode_f, "(end, total distance G0 %.2f mm = %.2f in)\n",
-               mill_distance * 25.4, mill_distance);
+      ascii_fprintf (gcode_f, "(end, total distance G0 %.2f mm = %.2f in)\n",
+                     mill_distance * 25.4, mill_distance);
       mill_distance = (upperX - lowerX + upperY - lowerY) * 2;
       mill_distance += abs(gcode_safeZ - gcode_milldepth);
       if (metric)
         mill_distance /= 25.4;
-      fprintf (gcode_f, "(     total distance G1 %.2f mm = %.2f in)\n",
-               mill_distance * 25.4, mill_distance);
+      ascii_fprintf (gcode_f, "(     total distance G1 %.2f mm = %.2f in)\n",
+                     mill_distance * 25.4, mill_distance);
       fclose (gcode_f);
     }
 }

@@ -30,12 +30,14 @@
 
 #include "global.h"
 #include "pcb-printf.h"
+#include "ascii-printf.h"
 
 int
 main (int argc, char *argv[])
 {
   initialize_units ();
   pcb_printf_register_tests ();
+  ascii_printf_register_tests ();
 
   g_test_init (&argc, &argv, NULL);
   g_test_run ();
