@@ -475,46 +475,54 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
           gchar *unit_str = NULL;
           const char *ext_unit = "";
           Coord value[10];
-          int count, i;
+          int count, i, done;
 
-          g_string_assign (spec, "");
+          g_string_assign (spec, "%");
 
-          /* Get printf sub-specifiers */
-          g_string_append_c (spec, *fmt++);
-          while(isdigit(*fmt) || *fmt == '.' || *fmt == ' ' || *fmt == '*'
-                              || *fmt == '#' || *fmt == 'l' || *fmt == 'L'
-                              || *fmt == 'h' || *fmt == '+' || *fmt == '-')
-          {
-            if (*fmt == '*')
-              {
-                g_string_append_printf (spec, "%d", va_arg (args, int));
-                fmt++;
-              }
-            else
-              g_string_append_c (spec, *fmt++);
-          }
-          /* Get our sub-specifiers */
-          while (1)
+          done = 0;
+          while ( ! done && fmt++ && *fmt)
             {
               switch (*fmt)
                 {
+                /* Our sub-specifiers */
                 case '#':
                   mask = ALLOW_CMIL;  /* This must be pcb's base unit */
-                  fmt++;
                   break;
                 case '$':
                   suffix = (suffix == NO_SUFFIX) ? SUFFIX : FILE_MODE;
-                  fmt++;
                   break;
                 case '`':
                   suffix = (suffix == SUFFIX) ? FILE_MODE : FILE_MODE_NO_SUFFIX;
-                  fmt++;
+                  break;
+                /* Printf sub-specifiers */
+                case '*':
+                  g_string_append_printf (spec, "%d", va_arg (args, int));
+                  break;
+                case '.':
+                case ' ':
+                //case '#': (duplicate)
+                case 'l':
+                case 'L':
+                case 'h':
+                case '+':
+                case '-':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                  g_string_append_c (spec, *fmt);
                   break;
                 default:
-                  goto end_sub_specifiers;
+                  done = 1;
                 }
             }
-end_sub_specifiers:
+
           /* Tack full specifier onto specifier */
           if (*fmt != 'm')
             g_string_append_c (spec, *fmt);
@@ -523,9 +531,9 @@ end_sub_specifiers:
             /* Printf specs */
             case 'o': case 'i': case 'd':
             case 'u': case 'x': case 'X':
-              if(spec->str[1] == 'l')
+              if(strchr (spec->str, 'l'))
                 {
-                  if(spec->str[2] == 'l')
+                  if(strchr (spec->str, 'l') != strrchr (spec->str, 'l'))
                     unit_str = g_strdup_printf (spec->str, va_arg(args, long long));
                   else
                     unit_str = g_strdup_printf (spec->str, va_arg(args, long));
@@ -546,13 +554,13 @@ end_sub_specifiers:
                 unit_str = g_strdup_printf (spec->str, va_arg(args, double));
               break;
             case 'c':
-              if(spec->str[1] == 'l' && sizeof(int) <= sizeof(wchar_t))
+              if(strchr (spec->str, 'l') && sizeof(int) <= sizeof(wchar_t))
                 unit_str = g_strdup_printf (spec->str, va_arg(args, wchar_t));
               else
                 unit_str = g_strdup_printf (spec->str, va_arg(args, int));
               break;
             case 's':
-              if(spec->str[0] == 'l')
+              if(strchr (spec->str, 'l'))
                 unit_str = g_strdup_printf (spec->str, va_arg(args, wchar_t *));
               else
                 unit_str = g_strdup_printf (spec->str, va_arg(args, char *));
