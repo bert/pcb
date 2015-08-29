@@ -7659,7 +7659,8 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
     {
       const char *xs, *ys, *units;
       Coord x, y;
-      char buf[50];
+      const size_t buf_len = 50;
+      char buf[buf_len];
 
       xs = ARG (1);
       ys = ARG (2);
@@ -7694,9 +7695,9 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
 	  return 1;
 	}
 
-      pcb_sprintf (buf, "%$ms", x);
+      pcb_snprintf (buf, buf_len, "%$ms", x);
       AttributePut (PCB, "import::newX", buf);
-      pcb_sprintf (buf, "%$ms", y);
+      pcb_snprintf (buf, buf_len, "%$ms", y);
       AttributePut (PCB, "import::newY", buf);
       return 0;
     }

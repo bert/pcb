@@ -183,6 +183,7 @@ corner_name (corner_s * c)
   static int bn = 0;
   char *bp;
   bn = (bn + 1) % 4;
+  size_t size_left;
 
   if (c->net == 0xf1eef1ee)
     {
@@ -193,20 +194,22 @@ corner_name (corner_s * c)
   sprintf (buf[bn], "\033[%dm[%p ",
 	   (c->pin || c->pad || c->via) ? 33 : 34, (void *) c);
   bp = buf[bn] + strlen (buf[bn]);
+  size_left = sizeof (buf[bn]) - strlen (buf[bn]);
 
   if (c->pin)
-    pcb_sprintf (bp, "pin %s:%s at %#mD", element_name_for (c), c->pin->Number, c->x, c->y);
+    pcb_snprintf (bp, size_left, "pin %s:%s at %#mD",
+		  element_name_for (c), c->pin->Number, c->x, c->y);
   else if (c->via)
-    pcb_sprintf (bp, "via at %#mD", c->x, c->y);
+    pcb_snprintf (bp, size_left, "via at %#mD", c->x, c->y);
   else if (c->pad)
     {
-      pcb_sprintf (bp, "pad %s:%s at %#mD %#mD-%#mD",
+      pcb_snprintf (bp, size_left, "pad %s:%s at %#mD %#mD-%#mD",
 	       element_name_for (c), c->pad->Number, c->x, c->y,
 	       c->pad->Point1.X, c->pad->Point1.Y,
 	       c->pad->Point2.X, c->pad->Point2.Y);
     }
   else
-    pcb_sprintf (bp, "at %#mD", c->x, c->y);
+    pcb_snprintf (bp, size_left, "at %#mD", c->x, c->y);
   sprintf (bp + strlen (bp), " n%d l%d]\033[0m", c->n_lines, c->layer);
   return buf[bn];
 }

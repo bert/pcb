@@ -164,7 +164,7 @@ void copy_nonzero_increments (Increments *dst, const Increments *src);
 enum e_allow set_allow_readable(enum e_allow new_mask);
 
 int pcb_fprintf(FILE *f, const char *fmt, ...);
-int pcb_sprintf(char *string, const char *fmt, ...);
+int pcb_snprintf(char *string, size_t size, const char *fmt, ...);
 int pcb_printf(const char *fmt, ...);
 char *pcb_g_strdup_printf(const char *fmt, ...);
 gchar *pcb_vprintf(const char *fmt, va_list args);

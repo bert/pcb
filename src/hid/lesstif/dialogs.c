@@ -706,7 +706,8 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   attrcount = -1;
   for (i = 0; i < n_attrs; i++)
     {
-      static char buf[30];
+      const size_t buf_len = 30;
+      static char buf[buf_len];
       n = 0;
 
       if (attrs[i].help_text == ATTR_UNDOCUMENTED)
@@ -748,7 +749,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	case HID_Coord:
 	  stdarg (XmNcolumns, 13);
 	  stdarg (XmNresizeWidth, True);
-	  pcb_sprintf (buf, "%$mS", results[i].coord_value);
+	  pcb_snprintf (buf, buf_len, "%$mS", results[i].coord_value);
 	  stdarg (XmNvalue, buf);
 	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
 	  break;
@@ -1135,11 +1136,12 @@ sz_str2val (Widget w, bool pcbu)
 static void
 sz_val2str (Widget w, Coord u, int pcbu)
 {
-  static char buf[40];
+  const size_t buf_len = 40;
+  static char buf[buf_len];
   if (pcbu)
-    pcb_sprintf (buf, "%m+%.2mS", Settings.grid_unit->allow, u);
+    pcb_snprintf (buf, buf_len, "%m+%.2mS", Settings.grid_unit->allow, u);
   else
-    pcb_sprintf (buf, "%#mS %%", u);
+    pcb_snprintf (buf, buf_len, "%#mS %%", u);
   XmTextSetString (w, buf);
 }
 

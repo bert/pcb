@@ -652,26 +652,39 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
 }
 
 
-/* \brief Wrapper for pcb_vprintf that outputs to a string
+/*!
+ * \brief Wrapper for pcb_vprintf that outputs to a string.
  *
- * \param [in] string  Pointer to string to output into
- * \param [in] fmt     Format specifier
+ * \param [in] string  Pointer to string to output into.
  *
- * \return The length of the written string
+ * \param [in] size    Maximum length of this string, including the
+ *                     terminating null byte.
+ *
+ * \param [in] fmt     Format specifier.
+ *
+ * \return The length of the written string. In case the string was truncated
+ *         due to the size limit, it's the length of the string which would
+ *         have been written if enough space had been available.
+ *
+ * The returned string is guaranteed to be null terminated, even if truncated.
  */
-int pcb_sprintf(char *string, const char *fmt, ...)
+int pcb_snprintf(char *string, size_t size, const char *fmt, ...)
 {
   gchar *tmp;
+  gsize length;
 
   va_list args;
   va_start(args, fmt);
 
   tmp = pcb_vprintf (fmt, args);
-  strcpy (string, tmp);
+  length = strlen (tmp);
+  strncpy (string, tmp, size);
+  string[size - 1] = '\0';
+
   g_free (tmp);
-  
   va_end(args);
-  return strlen (string);
+
+  return length;
 }
 
 /* \brief Wrapper for pcb_vprintf that outputs to a file
