@@ -543,9 +543,17 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
                   unit_str = g_strdup_printf (spec->str, va_arg(args, int));
                 }
               break;
-            case 'e': case 'E': case 'f':
+            case 'e': case 'E':
+            case 'f': case 'F':
             case 'g': case 'G':
-              unit_str = g_strdup_printf (spec->str, va_arg(args, double));
+              if(suffix == FILE_MODE || suffix == FILE_MODE_NO_SUFFIX)
+                {
+                  gchar buffer[128];
+                  g_ascii_formatd (buffer, 128, spec->str, va_arg(args, double));
+                  unit_str = g_strdup_printf ("%s", buffer);
+                }
+              else
+                unit_str = g_strdup_printf (spec->str, va_arg(args, double));
               break;
             case 'c':
               if(strchr (spec->str, 'l') && sizeof(int) <= sizeof(wchar_t))
@@ -807,6 +815,9 @@ pcb_printf_test_printf ()
 
   g_assert_cmpstr (pcb_g_strdup_printf ("%mD", c, d), ==, "(314, 218)");
   g_assert_cmpstr (pcb_g_strdup_printf ("%$mD", c, d), ==, "(314, 218) nm");
+
+  g_assert_cmpstr (pcb_g_strdup_printf ("%`f", 7.2456), ==, "7.245600");
+  g_assert_cmpstr (pcb_g_strdup_printf ("%`.2f", 7.2456), ==, "7.25");
 
   /* Some crashes noticed by Peter Clifton */
   /* specifiers in "wrong" order (should work fine) */
