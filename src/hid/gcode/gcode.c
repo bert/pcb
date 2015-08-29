@@ -819,11 +819,11 @@ gcode_do_export (HID_Attr_Val * options)
                   {
                     // get the filename with the drill size encoded in it
                     char layername[32];
-                    snprintf(layername, sizeof(layername),
-                             "%.4f.drill",
-                             metric ?
-                             drill->diameter_inches * 25.4 :
-                             drill->diameter_inches);
+                    pcb_snprintf(layername, sizeof(layername),
+                                 "%`.4f.drill",
+                                 metric ?
+                                 drill->diameter_inches * 25.4 :
+                                 drill->diameter_inches);
                     gcode_f = gcode_start_gcode(layername, metric);
                   }
                   if (!gcode_f)
@@ -1279,7 +1279,8 @@ use_gc (hidGC gc)
     {
       static void *bcache = 0;
       hidval bval;
-      char name[256];
+      const size_t name_len = 256;
+      char name[name_len];
       char type;
       int r;
 
@@ -1296,8 +1297,8 @@ use_gc (hidGC gc)
           type = 'S';
           break;
         }
-      sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
-               gc->color->b, type, r);
+      snprintf (name, name_len, "#%.2x%.2x%.2x_%c_%d", gc->color->r,
+                gc->color->g, gc->color->b, type, r);
 
       if (hid_cache_color (0, name, &bval, &bcache))
         {
