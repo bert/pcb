@@ -149,7 +149,6 @@ for REPO in "${REPOS[@]}"; do
   git fetch "${REPO}" >/dev/null
   echo " done."
 
-  git checkout master >/dev/null 2>&1
   git branch -r | grep "${REPO}/" | grep -v ".stgit" | \
     while read BRANCH; do
       LOCAL_BRANCH=$(echo "${BRANCH}" | tr -d ' ' | tr / -)
@@ -166,7 +165,6 @@ for REPO in "${REPOS[@]}"; do
         echo "Handling ${BRANCH}."
       fi
 
-      git checkout "${BRANCH}" 2>/dev/null
       if git show -q "${LOCAL_BRANCH}" >/dev/null 2>&1; then
         # Local branch exists.
         if git show -q "${TODAY_BRANCH}" >/dev/null 2>&1; then
@@ -175,18 +173,16 @@ for REPO in "${REPOS[@]}"; do
           git branch --move "${TODAY_BRANCH}" "${LOCAL_BRANCH}"
         fi
 
-        # If the remote branch changed, make it a TODAY_BRANCH
-        if [ "$(git show -q HEAD | head -1)" != \
+        # If the remote branch changed, make it a TODAY_BRANCH.
+        if [ "$(git show -q "${BRANCH}" | head -1)" != \
              "$(git show -q "${LOCAL_BRANCH}" | head -1)" ]
         then
-          git checkout -b "${TODAY_BRANCH}"
+          git branch "${TODAY_BRANCH}" "${BRANCH}"
         fi
       else
         # NO local branch.
-        git checkout -b "${LOCAL_BRANCH}"
+        git branch "${LOCAL_BRANCH}" "${BRANCH}"
       fi
-      git checkout master >/dev/null 2>&1
-
 
     done
 
