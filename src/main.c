@@ -1885,7 +1885,8 @@ main (int argc, char *argv[])
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
 #ifdef ENABLE_NLS
-  setlocale(LC_ALL,"");
+  setlocale (LC_ALL, "");
+  setlocale (LC_NUMERIC, "C");
 #endif
 
   srand ( time(NULL) ); /* Set seed for rand() */
