@@ -126,9 +126,10 @@ static gchar *command_ref_text[] = {
   "\ttarget = {object | selectedpins | selectedvias | selected}\n",
   N_("\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"),
   "\n",
-  "<b>loadvendor(target)\n",
+  "<b>loadvendorfrom(filename)\n",
+  "<b>unloadvendor()\n",
   "\ttarget = [filename]\n",
-  N_("\tLoad a vendor file.  If 'filename' omitted, pop up file select dialog.\n"),
+  N_("\tLoad a vendor file.  If 'filename' is omitted, pop up a file select dialog.\n"),
 };
 
 
