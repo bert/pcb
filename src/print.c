@@ -221,7 +221,11 @@ PrintFab (hidGC gc)
   DrillInfoType *AllDrills;
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
+  const char *utcFmt = "%c UTC";
   char utcTime[64];
+#ifdef ENABLE_NLS
+  char *oldlocale;
+#endif
   AllDrills = GetDrillInfo (PCB->Data);
   yoff = -TEXT_LINE;
 
@@ -290,12 +294,15 @@ PrintFab (hidGC gc)
 	   "There are %d different drill sizes used in this layout, %d holes total",
 	   AllDrills->DrillN, total_drills);
   /* Create a portable timestamp. */
+#ifdef ENABLE_NLS
+  oldlocale = setlocale (LC_TIME, "C");
+#endif
   currenttime = time (NULL);
-  {
-    /* avoid gcc complaints */
-    const char *fmt = "%c UTC";
-    strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
-  }
+  strftime (utcTime, sizeof utcTime, utcFmt, gmtime (&currenttime));
+#ifdef ENABLE_NLS
+  setlocale (LC_TIME, oldlocale);
+#endif
+
   yoff = -TEXT_LINE;
   for (i = 0; i < max_copper_layer; i++)
     {
