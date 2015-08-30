@@ -211,6 +211,41 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   return value;
 }
 
+/*!
+ * \brief Extract a unit-less value from a string.
+ *
+ * \param val       String containing the value to be read.
+ *
+ * \param absolute  Returns wether the returned value is an absolute one.
+ *
+ * \return The value read, with sign.
+ *
+ * This is the same as GetValue() and GetValueEX(), but totally ignoring units.
+ * Typical application is a list selector, like the type of thermal to apply
+ * to a pin.
+ */
+double GetUnitlessValue (const char *val, bool *absolute) {
+  double value;
+
+  if (*val == '=')
+    {
+      *absolute = true;
+      val++;
+    }
+  else
+    {
+      if (isdigit ((int) *val))
+        *absolute = true;
+      else
+        *absolute = false;
+    }
+
+  if (sscanf (val, "%lf", &value) < 1)
+    return 0.;
+
+  return value;
+}
+
 /* ---------------------------------------------------------------------------
  * sets the bounding box of a point (which is silly)
  */

@@ -2063,11 +2063,24 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
   int type, kind;
   int err = 0;
 
-  if (function && *function && style && *style)
+  if (function && *function)
     {
       bool absolute;
 
-      kind = GetValue (style, NULL, &absolute);
+      if ( ! style || ! *style)
+	{
+	  kind = PCB->ThermStyle;
+	  absolute = true;
+	}
+      else
+	kind = GetUnitlessValue (style, &absolute);
+
+      /* To allow relative values we could search for the first selected
+	 item and make 'kind' relative to that, but that's not too useful
+	 and requires quite some code. For example there's no
+	 GetFirstSelectedPin() function available. Let's postpone this
+	 functionality, there are more urgent things to do. */
+
       if (absolute)
 	switch (GetFunctionID (function))
 	  {
@@ -2097,11 +2110,14 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
 	  }
       else
 	err = 1;
-      if (!err)
-	return 0;
     }
+  else
+    err = 1;
 
-  AFAIL (setthermal);
+  if (err)
+    AFAIL (setthermal);
+
+  return 0;
 }
 
 /*!

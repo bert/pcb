@@ -91,6 +91,7 @@ char *UniqueElementName (DataType *, char *);
 void AttachForCopy (Coord, Coord);
 double GetValue (const char *, const char *, bool *);
 double GetValueEx (const char *, const char *, bool *, UnitList, const char *);
+double GetUnitlessValue (const char *, bool *);
 int FileExists (const char *);
 char *Concat (const char *, ...);	/* end with NULL */
 
