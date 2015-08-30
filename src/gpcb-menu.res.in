@@ -365,6 +365,7 @@ MainMenu =
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
+   {"Report net length" Report(NetLength) a={"R" "<Key>r"}}
    {"Key Bindings"
     {"Remove" a={"Delete" "<Key>Delete"}
      Mode(Save)
