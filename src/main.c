@@ -54,6 +54,7 @@
 #include "lrealpath.h"
 #include "free_atexit.h"
 #include "polygon.h"
+#include "gettext.h"
 #include "pcb-printf.h"
 
 #include "hid/common/actions.h"
@@ -63,10 +64,6 @@
 
 #if HAVE_DBUS
 #include "dbus.h"
-#endif
-
-#if ENABLE_NLS
-#include <libintl.h>
 #endif
 
 #if HAVE_LIBDMALLOC
