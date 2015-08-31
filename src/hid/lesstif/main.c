@@ -2682,8 +2682,7 @@ idle_proc (XtPointer dummy)
 	|| PCB->GridOffsetX != old_gx
 	|| PCB->GridOffsetY != old_gy || Settings.grid_unit != old_unit)
       {
-	const size_t buf_len = 100;
-	static char buf[buf_len];
+	static char buf[100];
 	old_grid = PCB->Grid;
 	old_unit = Settings.grid_unit;
 	old_gx = PCB->GridOffsetX;
@@ -2695,10 +2694,10 @@ idle_proc (XtPointer dummy)
 	else
 	  {
 	    if (old_gx || old_gy)
-	      pcb_snprintf (buf, buf_len, "%m+%$mS @%mS,%mS",
+	      pcb_snprintf (buf, sizeof (buf), "%m+%$mS @%mS,%mS",
 			    UUNIT, old_grid, old_gx, old_gy);
 	    else
-	      pcb_snprintf (buf, buf_len, "%m+%$mS", UUNIT, old_grid);
+	      pcb_snprintf (buf, sizeof (buf), "%m+%$mS", UUNIT, old_grid);
 	  }
 	ms = XmStringCreatePCB (buf);
 	n = 0;

@@ -97,7 +97,7 @@ update_one_value (int i, Coord v)
 {
   char buf[100];
 
-  pcb_snprintf (buf, 100, "%m+%.2mS", unit->allow, v);
+  pcb_snprintf (buf, sizeof (buf), "%m+%.2mS", unit->allow, v);
   XmTextSetString (style_values[i], buf);
   n = 0;
   stdarg (XmNlabelString, ustr);

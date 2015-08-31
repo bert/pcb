@@ -182,8 +182,8 @@ corner_name (corner_s * c)
   static char buf[4][100];
   static int bn = 0;
   char *bp;
-  bn = (bn + 1) % 4;
   size_t size_left;
+  bn = (bn + 1) % 4;
 
   if (c->net == 0xf1eef1ee)
     {
