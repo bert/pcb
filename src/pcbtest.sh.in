@@ -47,45 +47,35 @@ TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
 #
 
 use_gdb=no
-if [ "X$1" = "X-gdb" ]; then
-	use_gdb=yes
-	shift
-fi
-
 args=""
 export_args=""
 
 while test $# -ne 0 ; do
 	case $1 in
+		-gdb)
+			use_gdb=yes
+			;;
 		-x)
 			export_args="$1 $2"
-			shift 2
+			shift
 			;;
 		*)
 			args="$args $1"
-			shift
 			;;
 	esac
+	shift
 done
 
 # build up the complete argument list
 arg_list="$export_args $TEST_PATHS $TEST_CMDS $args"
 
 if test $use_gdb = yes ; then
-	tmpd=/tmp/pcbtest.$$
-	tmpf=${tmpd}/pcbtest.gdb
-	mkdir -p -m 0700 ${tmpd}
-	rc=$?
-	if test $rc -ne 0 ; then
-		echo "$0:  Could not create ${tmpd} with mode = 0700"
-	 	echo "   mkdir returned $rc"
-		exit 1
-	fi
+	tmpf=/tmp/pcbtest.$$.gdb
 	cat > $tmpf << EOF
 set args $arg_list
 EOF
-	exec gdb -x $tmpf ./pcb
-	rm -fr $tmpd
+	gdb -x $tmpf @TOP_BUILDDIR@/src/pcb
+	rm -f $tmpf
 else
 	exec @TOP_BUILDDIR@/src/pcb $arg_list
 fi
