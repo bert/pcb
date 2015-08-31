@@ -33,7 +33,6 @@
 #include "gui.h"
 #include <gdk/gdkkeysyms.h>
 
-#include "command.h"
 #include "crosshair.h"
 
 #ifdef HAVE_LIBDMALLOC
