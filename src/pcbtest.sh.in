@@ -59,8 +59,11 @@ while test $# -ne 0 ; do
 			export_args="$1 $2"
 			shift
 			;;
-		*)
+		-*)
 			args="$args $1"
+			;;
+		*)
+			file="$1"
 			;;
 	esac
 	shift
@@ -72,11 +75,11 @@ arg_list="$export_args $TEST_PATHS $TEST_CMDS $args"
 if test $use_gdb = yes ; then
 	tmpf=/tmp/pcbtest.$$.gdb
 	cat > $tmpf << EOF
-set args $arg_list
+set args $arg_list "$file"
 EOF
 	gdb -x $tmpf @TOP_BUILDDIR@/src/pcb
 	rm -f $tmpf
 else
-	exec @TOP_BUILDDIR@/src/pcb $arg_list
+	exec @TOP_BUILDDIR@/src/pcb $arg_list "$file"
 fi
 
