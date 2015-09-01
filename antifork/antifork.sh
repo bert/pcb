@@ -169,7 +169,7 @@ for REPO in "${REPOS[@]}"; do
         # Local branch exists.
         if git show -q "${TODAY_BRANCH}" >/dev/null 2>&1; then
           # Today branch exists. Make it the new LOCAL_BRANCH.
-          git branch --move --force "${TODAY_BRANCH}" "${LOCAL_BRANCH}"
+          git branch -M "${TODAY_BRANCH}" "${LOCAL_BRANCH}"
         fi
 
         # If the remote branch changed, make it a TODAY_BRANCH.
