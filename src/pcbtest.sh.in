@@ -59,11 +59,11 @@ while test $# -ne 0 ; do
 			export_args="$1 $2"
 			shift
 			;;
-		-*)
-			args="$args $1"
+		*.pcb)
+			file="$1"
 			;;
 		*)
-			file="$1"
+			args="$args $1"
 			;;
 	esac
 	shift
