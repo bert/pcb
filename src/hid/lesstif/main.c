@@ -545,6 +545,9 @@ PanAction (int argc, char **argv, Coord x, Coord y)
 {
   int mode;
 
+  if (argc < 1)
+    return 1;
+
   if (argc == 2)
     {
       pan_thumb_mode = (strcasecmp (argv[0], "thumb") == 0) ? 1 : 0;

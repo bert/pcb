@@ -5741,10 +5741,9 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
   char *function;
   char *name;
 
-  function = argv[0];
-  name = argv[1];
-
-  if (strcasecmp (function, "Layout") == 0)
+  function = ARG (0);
+  
+  if ( ! function || strcasecmp (function, "Layout") == 0)
     {
       if (SavePCB (PCB->Filename) == 0)
         SetChangedFlag (false);
@@ -5753,6 +5752,8 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
 
   if (argc != 2)
     AFAIL (saveto);
+
+  name = argv[1];
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
@@ -7053,7 +7054,12 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   ElementType *e = NULL;
   char *refdes, *value, *footprint, *old;
   char *args[3];
-  char *function = argv[0];
+  char *function;
+
+  if (argc < 1)
+    AFAIL (elementlist);
+
+  function = argv[0];
 
 #ifdef DEBUG
   printf("Entered ActionElementList, executing function %s\n", function);
