@@ -1770,15 +1770,9 @@ ghid_parse_arguments (int *argc, char ***argv)
    */
   /* g_thread_init (NULL); */
 
-#ifdef ENABLE_NLS
-  /* Do our own setlocale() stuff since we want to override LC_NUMERIC. */
-  gtk_set_locale ();
-  setlocale (LC_NUMERIC, "C");	/* use decimal point instead of comma */
-#endif
-
   /*
    * Prevent gtk_init() and gtk_init_check() from automatically calling
-   * setlocale (LC_ALL, "") which would undo LC_NUMERIC handling above.
+   * setlocale (LC_ALL, "") which would undo LC_NUMERIC handling in main().
    */
   gtk_disable_setlocale ();
 
