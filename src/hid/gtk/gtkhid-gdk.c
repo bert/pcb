@@ -1078,7 +1078,7 @@ ghid_drawing_area_configure_hook (GHidPort *port)
 
   if (port->mask)
     {
-      gdk_pixmap_unref (port->mask);
+      g_object_unref (port->mask);
       port->mask = gdk_pixmap_new (0, port->width, port->height, 1);
     }
 }
