@@ -1802,8 +1802,8 @@ ghid_parse_arguments (int *argc, char ***argv)
 
   window = gport->top_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "PCB");
-  gtk_window_set_default_size(GTK_WINDOW(window),
-			       ghidgui->top_window_width, ghidgui->top_window_height);
+  gtk_window_resize (GTK_WINDOW(window),
+                     ghidgui->top_window_width, ghidgui->top_window_height);
 
   if (Settings.AutoPlace)
     gtk_window_move (GTK_WINDOW (window), 10, 10);

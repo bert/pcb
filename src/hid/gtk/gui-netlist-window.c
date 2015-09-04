@@ -709,8 +709,8 @@ ghid_netlist_window_create (GHidPort * out)
   gtk_window_set_wmclass (GTK_WINDOW (netlist_window), "PCB_Netlist", "PCB");
   g_signal_connect (G_OBJECT (netlist_window), "configure_event",
 		    G_CALLBACK (netlist_window_configure_event_cb), NULL);
-  gtk_window_set_default_size (GTK_WINDOW (netlist_window),
-			       -1, ghidgui->netlist_window_height);
+  gtk_window_resize (GTK_WINDOW (netlist_window),
+                     -1, ghidgui->netlist_window_height);
 
   gtk_container_set_border_width (GTK_CONTAINER (netlist_window), 2);
 

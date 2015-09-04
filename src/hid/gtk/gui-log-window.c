@@ -84,9 +84,9 @@ ghid_log_window_create ()
 		    G_CALLBACK (log_window_configure_event_cb), NULL);
   gtk_window_set_title (GTK_WINDOW (log_window), _("PCB Log"));
   gtk_window_set_wmclass (GTK_WINDOW (log_window), "PCB_Log", "PCB");
-  gtk_window_set_default_size (GTK_WINDOW (log_window),
-			       ghidgui->log_window_width,
-			       ghidgui->log_window_height);
+  gtk_window_resize (GTK_WINDOW (log_window),
+                     ghidgui->log_window_width,
+                     ghidgui->log_window_height);
 
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);

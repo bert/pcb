@@ -771,9 +771,8 @@ ghid_drc_window_show (gboolean raise)
 		    G_CALLBACK (drc_window_configure_event_cb), NULL);
   gtk_window_set_title (GTK_WINDOW (drc_window), _("PCB DRC"));
   gtk_window_set_wmclass (GTK_WINDOW (drc_window), "PCB_DRC", "PCB");
-  gtk_window_set_default_size (GTK_WINDOW (drc_window),
-			       ghidgui->drc_window_width,
-			       ghidgui->drc_window_height);
+  gtk_window_resize (GTK_WINDOW (drc_window),
+                     ghidgui->drc_window_width, ghidgui->drc_window_height);
 
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (drc_window), vbox);
