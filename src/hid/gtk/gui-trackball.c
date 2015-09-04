@@ -169,7 +169,7 @@ ghid_trackball_expose (GtkWidget * widget, GdkEventExpose * ev)
                                          2 * radius * 0.50,
                                          2 * radius * 0.71);
 
-  color = widget->style->fg[GTK_WIDGET_STATE (widget)];
+  color = widget->style->fg[gtk_widget_get_state (widget)];
 
   cairo_pattern_add_color_stop_rgb (pattern, 0.0,
                                     (color.red   / 65535. * 0.5 + 4.5) / 5.,
@@ -194,7 +194,7 @@ ghid_trackball_expose (GtkWidget * widget, GdkEventExpose * ev)
 
   cairo_fill_preserve (cr);
 
-  gdk_cairo_set_source_color (cr, &widget->style->bg[GTK_WIDGET_STATE (widget)]);
+  gdk_cairo_set_source_color (cr, &widget->style->bg[gtk_widget_get_state (widget)]);
   cairo_set_line_width (cr, 0.4);
   cairo_stroke (cr);
 
