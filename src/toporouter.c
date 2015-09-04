@@ -479,43 +479,43 @@ toporouter_draw_edge(gpointer item, gpointer data)
         case BOARD:
           cairo_set_source_rgba(dc->cr, 1.0f, 0.0f, 1.0f, 0.9f);
           cairo_move_to(dc->cr, 
-              tc->c.edge.segment.v1->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v1->p.y * dc->s + MARGIN);
+              tc->c.segment.v1->p.x * dc->s + MARGIN, 
+              tc->c.segment.v1->p.y * dc->s + MARGIN);
           cairo_line_to(dc->cr, 
-              tc->c.edge.segment.v2->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v2->p.y * dc->s + MARGIN);
+              tc->c.segment.v2->p.x * dc->s + MARGIN, 
+              tc->c.segment.v2->p.y * dc->s + MARGIN);
           cairo_stroke(dc->cr);
           break;
         case PIN:
         case PAD:
           cairo_set_source_rgba(dc->cr, 1.0f, 0.0f, 0.0f, 0.9f);
           cairo_move_to(dc->cr, 
-              tc->c.edge.segment.v1->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v1->p.y * dc->s + MARGIN);
+              tc->c.segment.v1->p.x * dc->s + MARGIN, 
+              tc->c.segment.v1->p.y * dc->s + MARGIN);
           cairo_line_to(dc->cr, 
-              tc->c.edge.segment.v2->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v2->p.y * dc->s + MARGIN);
+              tc->c.segment.v2->p.x * dc->s + MARGIN, 
+              tc->c.segment.v2->p.y * dc->s + MARGIN);
           cairo_stroke(dc->cr);
           break;
         case LINE:
           cairo_set_source_rgba(dc->cr, 0.0f, 1.0f, 0.0f, 0.9f);
           cairo_move_to(dc->cr, 
-              tc->c.edge.segment.v1->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v1->p.y * dc->s + MARGIN);
+              tc->c.segment.v1->p.x * dc->s + MARGIN, 
+              tc->c.segment.v1->p.y * dc->s + MARGIN);
           cairo_line_to(dc->cr, 
-              tc->c.edge.segment.v2->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v2->p.y * dc->s + MARGIN);
+              tc->c.segment.v2->p.x * dc->s + MARGIN, 
+              tc->c.segment.v2->p.y * dc->s + MARGIN);
           cairo_stroke(dc->cr);
           break;
 
         default:
           cairo_set_source_rgba(dc->cr, 1.0f, 1.0f, 0.0f, 0.9f);
           cairo_move_to(dc->cr, 
-              tc->c.edge.segment.v1->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v1->p.y * dc->s + MARGIN);
+              tc->c.segment.v1->p.x * dc->s + MARGIN, 
+              tc->c.segment.v1->p.y * dc->s + MARGIN);
           cairo_line_to(dc->cr, 
-              tc->c.edge.segment.v2->p.x * dc->s + MARGIN, 
-              tc->c.edge.segment.v2->p.y * dc->s + MARGIN);
+              tc->c.segment.v2->p.x * dc->s + MARGIN, 
+              tc->c.segment.v2->p.y * dc->s + MARGIN);
           cairo_stroke(dc->cr);
           break;
       }
@@ -1141,10 +1141,10 @@ static inline void
 print_toporouter_constraint(toporouter_constraint_t *tc) 
 {
   printf("%f,%f -> %f,%f ", 
-      tc->c.edge.segment.v1->p.x,
-      tc->c.edge.segment.v1->p.y,
-      tc->c.edge.segment.v2->p.x,
-      tc->c.edge.segment.v2->p.y);
+      tc->c.segment.v1->p.x,
+      tc->c.segment.v1->p.y,
+      tc->c.segment.v2->p.x,
+      tc->c.segment.v2->p.y);
 }
 
 static inline void
@@ -2364,7 +2364,7 @@ check_cons_continuation:
     // toporouter_constraint_t *c1 = TOPOROUTER_CONSTRAINT(i->data);
     // printf("adding cons: "); print_constraint(c1);
 
-    GSList *conflicts = gts_delaunay_add_constraint (l->surface, (GtsConstraint *)i->data);
+    GSList *conflicts = gts_delaunay_add_constraint (l->surface, i->data);
     GSList *j = conflicts;
     while(j) {
       if(TOPOROUTER_IS_CONSTRAINT(j->data)) {
