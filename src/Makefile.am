@@ -198,8 +198,6 @@ pcb_DEPENDENCIES = @HIDLIBS@
 
 if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
-pcb_LDADD += ../gts/libgts.a
-pcb_DEPENDENCIES += ../gts/libgts.a
 endif
 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
@@ -221,7 +219,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	mv $@.tmp $@
 
 # for globalconst.h
-INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/../gts
+INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 

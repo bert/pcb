@@ -314,6 +314,14 @@ AS_CASE(["x$enable_toporouter"],[xyes | xno],,
 AC_MSG_RESULT([$enable_toporouter])
 AM_CONDITIONAL([WITH_TOPOROUTER], test $enable_toporouter != no)
 
+if test "x$enable_toporouter" = "xyes"; then
+  AC_SEARCH_LIBS(gts_object_class_new, gts, ,
+    [AC_MSG_ERROR([You have requested to build with the toporouter.  For this to work, you must have the GTS library installed, typically found in packages named 'libgts-dev' or similar.
+Alternatively, you can disable building toporouter with --disable-toporouter.
+    ])]
+  )
+fi
+
 AC_MSG_CHECKING([whether to enable toporouter output])
 AC_ARG_ENABLE([toporouter-output],
  [AS_HELP_STRING([--enable-toporouter-output], [enable toporouter graphical output [default=no]]) ]
@@ -1320,9 +1328,6 @@ AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
-
-dnl GTS 0.7.6 - http://gts.sourceforge.net/
-AC_CONFIG_FILES(gts/Makefile)
 
 dnl win32 build scripts
 AC_CONFIG_FILES(w32/Makefile)
