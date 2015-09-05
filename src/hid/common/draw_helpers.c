@@ -424,6 +424,48 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
     }
 }
 
+/* Computes the coordinates of the corners of a squared pad.  */
+static void
+common_get_pad_polygon(Coord x[4], Coord y[4], const PadType *l, int w)
+{
+  Coord dX, dY;
+  double dwx, dwy;
+
+  dX = l->Point2.X - l->Point1.X;
+  dY = l->Point2.Y - l->Point1.Y;
+
+  if (dY == 0)
+    {
+      dwx = w / 2;
+      dwy = 0;
+    }
+  else if (dX == 0)
+    {
+      dwx = 0;
+      dwy = w / 2;
+    }
+  else
+    {
+      double r;
+
+      r = sqrt (dX * (double) dX + dY * (double) dY) * 2;
+      dwx = w / r * dX;
+      dwy =  w / r * dY;
+    }
+
+  x[0] = l->Point1.X - dwx + dwy;
+  y[0] = l->Point1.Y - dwy - dwx;
+
+  x[1] = l->Point1.X - dwx - dwy;
+  y[1] = l->Point1.Y - dwy + dwx;
+
+  x[2] = l->Point2.X + dwx - dwy;
+  y[2] = l->Point2.Y + dwy + dwx;
+
+  x[3] = l->Point2.X + dwx + dwy;
+  y[3] = l->Point2.Y + dwy - dwx;
+}
+
 void
 common_fill_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 {
@@ -454,8 +496,15 @@ common_fill_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
                                Square_Cap : Round_Cap);
       gui->graphics->set_line_width (gc, w);
 
-      gui->graphics->draw_line (gc, pad->Point1.X, pad->Point1.Y,
-                          pad->Point2.X, pad->Point2.Y);
+      if (TEST_FLAG (SQUAREFLAG, pad))
+        {
+          Coord x[4], y[4];
+          common_get_pad_polygon (x, y, pad, w);
+          gui->graphics->fill_polygon (gc, 4, x, y);
+        }
+      else
+        gui->graphics->draw_line (gc, pad->Point1.X, pad->Point1.Y,
+                                  pad->Point2.X, pad->Point2.Y);
     }
 }
 
