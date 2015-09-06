@@ -2195,11 +2195,9 @@ Opens the window which allows editing of the route styles.
 static int
 AdjustStyle(int argc, char **argv, Coord x, Coord y)
 {
-  if (argc > 1)
-    AFAIL (adjuststyle);
-
   ghid_route_style_selector_edit_dialog
     (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
+
   return 0;
 }
 
