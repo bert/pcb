@@ -332,7 +332,7 @@ CopyPastebufferToLayout (Coord X, Coord Y)
   DeltaX = X - PASTEBUFFER->X, DeltaY = Y - PASTEBUFFER->Y;
 
   /* paste all layers */
-  for (i = 0; i < max_copper_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     {
       LayerType *sourcelayer = &PASTEBUFFER->Data->Layer[i];
       LayerType *destlayer = LAYER_PTR (i);

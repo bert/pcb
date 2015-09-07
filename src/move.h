@@ -102,7 +102,7 @@ void *MoveObjectAndRubberband (int, void *, void *, void *,
 			       Coord, Coord);
 bool MoveSelectedObjectsToLayer (LayerType *);
 
-/* index is 0..MAX_LAYER-1.  If old_index is -1, a new layer is
+/* index is 0..MAX_ALL_LAYER-1.  If old_index is -1, a new layer is
    inserted at that index.  If new_index is -1, the specified layer is
    deleted.  Returns non-zero on error, zero if OK.  */
 int MoveLayer(int old_index, int new_index);

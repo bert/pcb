@@ -713,7 +713,7 @@ FreeDataMemory (DataType *data)
   g_list_free_full (data->Element, (GDestroyNotify)FreeElement);
   g_list_free_full (data->Rat, (GDestroyNotify)FreeRat);
 
-  for (layer = data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
+  for (layer = data->Layer, i = 0; i < MAX_ALL_LAYER; layer++, i++)
     {
       FreeAttributeListMemory (&layer->Attributes);
       TEXT_LOOP (layer);

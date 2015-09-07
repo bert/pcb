@@ -1917,7 +1917,7 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
   else
     {
       l = -1;
-      for (i = 0; i < max_copper_layer + 2; i++)
+      for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;

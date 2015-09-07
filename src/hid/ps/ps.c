@@ -369,7 +369,7 @@ static struct {
   int pagecount;
   Coord linewidth;
   bool print_group[MAX_GROUP];
-  bool print_layer[MAX_LAYER];
+  bool print_layer[MAX_ALL_LAYER];
   double fade_ratio;
   bool multi_file;
   Coord media_width, media_height, ps_width, ps_height;
@@ -707,7 +707,7 @@ static void
 ps_do_export (HID_Attr_Val * options)
 {
   FILE *fh;
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   int i;
 
   if (!options)

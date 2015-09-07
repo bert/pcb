@@ -65,7 +65,7 @@ static	PolygonType	*Polygon;
 static	SymbolType	*Symbol;
 static	int		pin_num;
 static	LibraryMenuType	*Menu;
-static	bool			LayerFlag[MAX_LAYER + 2];
+static	bool			LayerFlag[MAX_ALL_LAYER];
 
 extern	char		*yytext;		/* defined by LEX */
 extern	PCBType		*yyPCB;
@@ -168,7 +168,7 @@ parsepcb
 					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
-				for (i = 0; i < MAX_LAYER + 2; i++)
+				for (i = 0; i < MAX_ALL_LAYER; i++)
 					LayerFlag[i] = false;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
@@ -252,7 +252,7 @@ parsedata
 					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
-				for (i = 0; i < MAX_LAYER + 2; i++)
+				for (i = 0; i < MAX_ALL_LAYER; i++)
 					LayerFlag[i] = false;
 				yyData->LayerN = 0;
 			}
@@ -867,7 +867,7 @@ layer
 			/* name */
 		: T_LAYER '(' INTEGER STRING opt_string ')' '('
 			{
-				if ($3 <= 0 || $3 > MAX_LAYER + 2)
+				if ($3 <= 0 || $3 > MAX_ALL_LAYER)
 				{
 					yyerror("Layernumber out of range");
 					YYABORT;

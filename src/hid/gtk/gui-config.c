@@ -1299,13 +1299,13 @@ config_library_tab_create (GtkWidget * tab_vbox)
 static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
-static GtkWidget *group_button[MAX_LAYER + 2][MAX_GROUP];
+static GtkWidget *group_button[MAX_ALL_LAYER][MAX_GROUP];
 
 #if FIXME
 static GtkWidget *use_layer_default_button;
 #endif
 
-static gint config_layer_group[MAX_LAYER + 2];
+static gint config_layer_group[MAX_ALL_LAYER];
 
 static LayerGroupType layer_groups,	/* Working copy */
  *lg_monitor;			/* Keep track if our working copy */
@@ -1457,7 +1457,7 @@ config_layers_apply (void)
       for (group = 0; group < max_group; group++)
 	layer_groups.Number[group] = 0;
 
-      for (i = 0; i < max_copper_layer + 2; i++)
+      for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
 	{
 	  group = config_layer_group[i] - 1;
 	  layer_groups.Entries[group][layer_groups.Number[group]++] = i;
@@ -1564,7 +1564,8 @@ ghid_config_groups_changed(void)
   gtk_widget_show (scrolled_window);
 
 
-  table = gtk_table_new (max_copper_layer + 3, max_group + 1, FALSE);
+  table = gtk_table_new (max_copper_layer + SILK_LAYER + 1,
+                         max_group + 1, FALSE);
   config_groups_table = table;
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
   gtk_scrolled_window_add_with_viewport (
@@ -1591,7 +1592,7 @@ ghid_config_groups_changed(void)
   /* Create a row of radio toggle buttons for layer.  So each layer
      |  can have an active radio button set for the group it needs to be in.
    */
-  for (layer = 0; layer < max_copper_layer + 2; ++layer)
+  for (layer = 0; layer < max_copper_layer + SILK_LAYER; ++layer)
     {
       if (layer == top_silk_layer)
 	name = _("top side");

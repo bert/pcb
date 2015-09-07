@@ -653,7 +653,7 @@ nelma_start_png_export()
 static void 
 nelma_do_export(HID_Attr_Val * options)
 {
-	int             save_ons[MAX_LAYER + 2];
+	int             save_ons[MAX_ALL_LAYER];
 	int             i, idx;
 	FILE           *nelma_config;
 	char           *buf;

@@ -113,7 +113,7 @@ typedef unsigned char BYTE;
 typedef struct
 {
   unsigned long f;		/* generic flags */
-  unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
+  unsigned char t[(MAX_LAYER + 1) / 2];  /* thermals */
 } FlagType;
 
 #ifndef __GNUC__
@@ -195,7 +195,7 @@ OutputType;
 typedef struct
 {
   Cardinal Number[MAX_GROUP],	/* number of entries per groups */
-    Entries[MAX_GROUP][MAX_LAYER + 2];
+    Entries[MAX_GROUP][MAX_ALL_LAYER];
 } LayerGroupType;
 
 struct BoxType		/* a bounding box */
@@ -398,7 +398,7 @@ typedef struct			/* holds all objects */
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
    *rat_tree;
   struct PCBType *pcb;
-  LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
+  LayerType Layer[MAX_ALL_LAYER];
   int polyClip;
 } DataType;
 

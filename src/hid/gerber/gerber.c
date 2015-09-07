@@ -314,7 +314,7 @@ static int linewidth = -1;
 static int lastgroup = -1;
 static int lastcap = -1;
 static int print_group[MAX_GROUP];
-static int print_layer[MAX_LAYER];
+static int print_layer[MAX_ALL_LAYER];
 static int lastX, lastY;	/* the last X and Y coordinate */
 
 static const char *copy_outline_names[] = {
@@ -587,7 +587,7 @@ gerber_do_export (HID_Attr_Val * options)
   const char *fnbase;
   int i;
   static int saved_layer_stack[MAX_LAYER];
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   FlagType save_thindraw;
 
   save_thindraw = PCB->Flags;

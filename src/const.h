@@ -43,12 +43,55 @@
 #define TOP_SIDE                1
 
 
+/*!
+ * Layer Stack.
+ *
+ * The situation is not ideal, because on top of the ordinary layer stack
+ * there are two (both) silk layers. It was a hack to separate these and
+ * probably done to easier iterate through non-silk layers, only. As we have
+ * layer types now, iterating through any kind of distinct layer type has
+ * become simple, see LAYER_TYPE_LOOP() in macro.h.
+ *
+ * Accordingly, the separation of these two silk layers should go away, they
+ * should return to be "normal" layers. One might want to have more than two
+ * silk layers, after all.
+ *
+ * Anyways, here's the current setup:
+ *
+ *   Copper layer 0             \
+ *   Copper layer 1             |
+ *   Outline layer              >- in unspecified order
+ *   Routing layer              |
+ *   (...additional layers...)  /     <== max_copper_layer
+ *   Bottom silk layer
+ *   Top silk layer                   <== max_copper_layer + SILK_LAYER
+ *   (...unused layers...)
+ *   (last layer - 2)                 <== MAX_LAYER
+ *   (last layer - 1)
+ *   (last layer)                     <== MAX_ALL_LAYER
+ *                                        ( == MAX_LAYER + SILK_LAYER)
+ *
+ * With all layers in use (rarely the case), max_copper_layer == MAX_LAYER.
+ *
+ * \note Position on the layer stack does not decide wether a layer is on the
+ *       top side, on the bottom side or in between. Each layer is part of a
+ *       layer group, and this group represents the physical layer, like top,
+ *       inner or bottom.
+ */
+
+
 /* ---------------------------------------------------------------------------
  * the layer-numbers of the two additional special (silkscreen) layers
  * 'bottom' and 'top'. The offset of MAX_LAYER is not added
  */
+#define SILK_LAYER              2
 #define BOTTOM_SILK_LAYER       0
 #define TOP_SILK_LAYER          1
+
+/* ---------------------------------------------------------------------------
+ * the resulting maximum number of layers, including additional silk layers
+ */
+#define MAX_ALL_LAYER           (MAX_LAYER + SILK_LAYER)
 
 /* ---------------------------------------------------------------------------
  * misc constants

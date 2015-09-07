@@ -96,7 +96,7 @@ Debug (int argc, char **argv, Coord x, Coord y)
   for (i = 0; i < argc; i++)
     printf (" [%d] `%s'", i, argv[i]);
   pcb_printf (" x,y %$mD\n", x, y);
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_layer + SILK_LAYER; i++)
     {
       printf("0x%08x %s (%s)\n",
              PCB->Data->Layer[i].Type,
@@ -158,15 +158,15 @@ DumpKeys (int argc, char **argv, Coord x, Coord y)
 
 /*-----------------------------------------------------------------------------*/
 
-#define LB_SILK	(MAX_LAYER+0)
-#define LB_RATS	(MAX_LAYER+1)
+#define LB_SILK (MAX_LAYER + BOTTOM_SILK_LAYER)
+#define LB_RATS (MAX_LAYER + 1)
 #define LB_NUMPICK (LB_RATS+1)
 /* more */
-#define LB_PINS	(MAX_LAYER+2)
-#define LB_VIAS	(MAX_LAYER+3)
-#define LB_BACK	(MAX_LAYER+4)
-#define LB_MASK	(MAX_LAYER+5)
-#define LB_NUM  (MAX_LAYER+6)
+#define LB_PINS (MAX_ALL_LAYER)
+#define LB_VIAS (MAX_ALL_LAYER + 1)
+#define LB_BACK (MAX_ALL_LAYER + 2)
+#define LB_MASK (MAX_ALL_LAYER + 3)
+#define LB_NUM  (MAX_ALL_LAYER + 4)
 
 typedef struct
 {
@@ -511,7 +511,7 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
   else
     {
       l = -1;
-      for (i = 0; i < max_copper_layer + 2; i++)
+      for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;

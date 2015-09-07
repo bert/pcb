@@ -67,7 +67,7 @@ static Coord linewidth = -1;
 static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_GROUP];
-static int print_layer[MAX_LAYER];
+static int print_layer[MAX_ALL_LAYER];
 static int fast_erase = -1;
 
 static HID_Attribute eps_attribute_list[] = {
@@ -317,7 +317,7 @@ static void
 eps_do_export (HID_Attr_Val * options)
 {
   int i;
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
 
   if (!options)
     {

@@ -504,7 +504,7 @@ gcode_start_gcode (const char *layername, bool metric)
 static void
 gcode_do_export (HID_Attr_Val * options)
 {
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   int i, idx;
   const Unit *unit;
   double scale = 0, d = 0;
@@ -1044,17 +1044,14 @@ gcode_do_export (HID_Attr_Val * options)
      * all of them to the right side and mill that.
      */
     /* a better implementation might look like this:
-    LAYER_LOOP (PCB->Data, MAX_LAYER);
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE);
       {
-        if (strcmp (layer->Name, "outline") == 0)
+        LINE_LOOP (layer);
           {
-            LINE_LOOP (layer);
-              {
-                ... calculate the offset for all lines and polygons of this layer,
-                mirror it if is_bottom, then mill it ...
-              }
-            END_LOOP;
+            ... calculate the offset for all lines and polygons of this layer,
+            mirror it if is_bottom, then mill it ...
           }
+        END_LOOP;
       }
     END_LOOP;
 

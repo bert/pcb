@@ -34,7 +34,7 @@ extents_set_layer (const char *name, int group, int empty)
     {
       idx = PCB->LayerGroups.Entries[idx][0];
     }
-  if (idx >= 0 && idx < max_copper_layer + 2)
+  if (idx >= 0 && idx < max_copper_layer + SILK_LAYER)
     return 1;
   if (idx < 0)
     {
