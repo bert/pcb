@@ -124,8 +124,6 @@
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
-#define BOTTOM_LAYER 0
-#define TOP_LAYER 1
 
 static DrcViolationType
 *pcb_drc_violation_new (const char *title,

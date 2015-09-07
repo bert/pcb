@@ -1494,7 +1494,7 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
 }
 
 /* ---------------------------------------------------------------------------
- * returns the layergroup number for the passed side (TOP_LAYER or BOTTOM_LAYER)
+ * returns the layergroup number for the passed side (TOP_SIDE or BOTTOM_SIDE)
  */
 int
 GetLayerGroupNumberBySide (int side)
