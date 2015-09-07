@@ -1,32 +1,36 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/copy.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Functions used to copy pins, elements ...
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * It's necessary to copy data by calling create... since the base pointer
+ * may change cause of dynamic memory allocation.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * PCB, interactive printed circuit board design
  *
- */
-
-/* functions used to copy pins, elements ...
- * it's necessary to copy data by calling create... since the base pointer
- * may change cause of dynamic memory allocation
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -84,9 +88,10 @@ static ObjectFunctionType CopyFunctions = {
   NULL
 };
 
-/* ---------------------------------------------------------------------------
- * copies data from one polygon to another
- * 'Dest' has to exist
+/*!
+ * \brief Copies data from one polygon to another.
+ *
+ * 'Dest' has to exist.
  */
 PolygonType *
 CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
@@ -109,9 +114,9 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
   return (Dest);
 }
 
-/* ---------------------------------------------------------------------------
- * copies data from one element to another and creates the destination 
- * if necessary
+/*!
+ * \brief Copies data from one element to another and creates the
+ * destination if necessary.
  */
 ElementType *
 CopyElementLowLevel (DataType *Data, ElementType *Src,
@@ -177,8 +182,8 @@ CopyElementLowLevel (DataType *Data, ElementType *Src,
   return (Dest);
 }
 
-/* ---------------------------------------------------------------------------
- * copies a via 
+/*!
+ * \brief Copies a via.
  */
 static void *
 CopyVia (PinType *Via)
@@ -196,8 +201,8 @@ CopyVia (PinType *Via)
   return (via);
 }
 
-/* ---------------------------------------------------------------------------
- * copies a line 
+/*!
+ * \brief Copies a line.
  */
 static void *
 CopyLine (LayerType *Layer, LineType *Line)
@@ -219,8 +224,8 @@ CopyLine (LayerType *Layer, LineType *Line)
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * copies an arc
+/*!
+ * \brief Copies an arc.
  */
 static void *
 CopyArc (LayerType *Layer, ArcType *Arc)
@@ -238,8 +243,8 @@ CopyArc (LayerType *Layer, ArcType *Arc)
   return (arc);
 }
 
-/* ---------------------------------------------------------------------------
- * copies a text 
+/*!
+ * \brief Copies a text.
  */
 static void *
 CopyText (LayerType *Layer, TextType *Text)
@@ -255,8 +260,8 @@ CopyText (LayerType *Layer, TextType *Text)
   return (text);
 }
 
-/* ---------------------------------------------------------------------------
- * copies a polygon 
+/*!
+ * \brief Copies a polygon.
  */
 static void *
 CopyPolygon (LayerType *Layer, PolygonType *Polygon)
@@ -275,8 +280,8 @@ CopyPolygon (LayerType *Layer, PolygonType *Polygon)
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * copies an element onto the PCB.  Then does a draw. 
+/*!
+ * \brief Copies an element onto the PCB, then does a draw.
  */
 static void *
 CopyElement (ElementType *Element)
@@ -308,9 +313,10 @@ CopyElement (ElementType *Element)
   return (element);
 }
 
-/* ---------------------------------------------------------------------------
- * pastes the contents of the buffer to the layout. Only visible objects
- * are handled by the routine.
+/*!
+ * \brief Pastes the contents of the buffer to the layout.
+ *
+ * \note Only visible objects are handled by the routine.
  */
 bool
 CopyPastebufferToLayout (Coord X, Coord Y)
@@ -402,10 +408,11 @@ CopyPastebufferToLayout (Coord X, Coord Y)
   return (changed);
 }
 
-/* ---------------------------------------------------------------------------
- * copies the object identified by its data pointers and the type
- * the new objects is moved by DX,DY
- * I assume that the appropriate layer ... is switched on
+/*!
+ * \brief Copies the object identified by its data pointers and the type
+ * the new objects is moved by DX,DY.
+ *
+ * \note I assume that the appropriate layer ... is switched on.
  */
 void *
 CopyObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
