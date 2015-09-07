@@ -1,30 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/create.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * \brief Functions used to create vias, pins ...
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
- */
-
-/* functions used to create vias, pins ...
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,18 +75,21 @@ static void AddTextToElement (TextType *, FontType *,
 			      Coord, Coord, unsigned, char *, int,
 			      FlagType);
 
-/* ---------------------------------------------------------------------------
- *  Set the lenience mode.
+/*!
+ * \brief Set the lenience mode.
+ *
+ * \c TRUE during file loads, for example to allow overlapping vias.\n
+ * \c FALSE otherwise, to stop the user from doing normally dangerous
+ * things.
  */
-
 void
 CreateBeLenient (bool v)
 {
   be_lenient = v;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new paste buffer
+/*!
+ * \brief Creates a new paste buffer.
  */
 DataType *
 CreateNewBuffer (void)
@@ -94,9 +100,11 @@ CreateNewBuffer (void)
   return data;
 }
 
-/* ---------------------------------------------------------------------------
- * Perhaps PCB should internally just use the Settings colors?  For now,
- * use this to set PCB colors so the config can reassign PCB colors.
+/*!
+ * \brief Perhaps PCB should internally just use the Settings colors?
+ *
+ * For now, use this to set PCB colors so the config can reassign PCB
+ * colors.
  */
 void
 pcb_colors_from_settings (PCBType *ptr)
@@ -136,8 +144,8 @@ pcb_colors_from_settings (PCBType *ptr)
     Settings.ElementSelectedColor;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new PCB
+/*!
+ * \brief Creates a new PCB.
  */
 PCBType *
 CreateNewPCB (void)
@@ -209,8 +217,13 @@ CreateNewPCB (void)
   return (ptr);
 }
 
-/* This post-processing step adds the top and bottom silk layers to a
- * pre-existing PCB.
+/*!
+ * \brief This post-processing step adds the top and bottom silk layers
+ * to a pre-existing PCB.
+ *
+ * Called after PCB->Data->LayerN is set.
+ *
+ * \return Returns zero if no errors, else nonzero.
  */
 int
 CreateNewPCBPost (PCBType *pcb, int use_defaults)
@@ -230,8 +243,8 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new via
+/*!
+ * \brief Creates a new via.
  */
 PinType *
 CreateNewVia (DataType *Data,
@@ -397,8 +410,9 @@ line_callback (const BoxType * b, void *cl)
 }
 
 
-/* ---------------------------------------------------------------------------
- * creates a new line on a layer and checks for overlap and extension
+/*!
+ * \brief Creates a new line on a layer and checks for overlap and
+ * extension.
  */
 LineType *
 CreateDrawnLineOnLayer (LayerType *Layer,
@@ -485,8 +499,8 @@ CreateNewLineOnLayer (LayerType *Layer,
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new rat-line
+/*!
+ * \brief Creates a new rat-line.
  */
 RatType *
 CreateNewRat (DataType *Data, Coord X1, Coord Y1,
@@ -517,8 +531,8 @@ CreateNewRat (DataType *Data, Coord X1, Coord Y1,
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new arc on a layer
+/*!
+ * \brief Creates a new arc on a layer.
  */
 ArcType *
 CreateNewArcOnLayer (LayerType *Layer,
@@ -561,8 +575,8 @@ CreateNewArcOnLayer (LayerType *Layer,
 }
 
 
-/* ---------------------------------------------------------------------------
- * creates a new polygon from the old formats rectangle data
+/*!
+ * \brief Creates a new polygon from the old formats rectangle data.
  */
 PolygonType *
 CreateNewPolygonFromRectangle (LayerType *Layer,
@@ -585,8 +599,8 @@ CreateNewPolygonFromRectangle (LayerType *Layer,
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new text on a layer
+/*!
+ * \brief Creates a new text on a layer.
  */
 TextType *
 CreateNewText (LayerType *Layer, FontType *PCBFont,
@@ -621,8 +635,8 @@ CreateNewText (LayerType *Layer, FontType *PCBFont,
   return (text);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new polygon on a layer
+/*!
+ * \brief Creates a new polygon on a layer.
  */
 PolygonType *
 CreateNewPolygon (LayerType *Layer, FlagType Flags)
@@ -638,8 +652,8 @@ CreateNewPolygon (LayerType *Layer, FlagType Flags)
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new point in a polygon
+/*!
+ * \brief Creates a new point in a polygon.
  */
 PointType *
 CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
@@ -653,8 +667,8 @@ CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
   return (point);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new hole in a polygon
+/*!
+ * \brief Creates a new hole in a polygon.
  */
 PolygonType *
 CreateNewHoleInPolygon (PolygonType *Polygon)
@@ -664,9 +678,10 @@ CreateNewHoleInPolygon (PolygonType *Polygon)
   return Polygon;
 }
 
-/* ---------------------------------------------------------------------------
- * creates an new element
- * memory is allocated if needed
+/*!
+ * \brief Creates an new element.
+ *
+ * \note Memory is allocated if needed.
  */
 ElementType *
 CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
@@ -705,8 +720,8 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
   return (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new arc in an element
+/*!
+ * \brief Creates a new arc in an element.
  */
 ArcType *
 CreateNewArcInElement (ElementType *Element,
@@ -743,8 +758,8 @@ CreateNewArcInElement (ElementType *Element,
   return arc;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new line for an element
+/*!
+ * \brief Creates a new line for an element.
  */
 LineType *
 CreateNewLineInElement (ElementType *Element,
@@ -772,8 +787,8 @@ CreateNewLineInElement (ElementType *Element,
   return line;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new pin in an element
+/*!
+ * \brief Creates a new pin in an element.
  */
 PinType *
 CreateNewPin (ElementType *Element,
@@ -841,8 +856,8 @@ CreateNewPin (ElementType *Element,
   return (pin);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new pad in an element
+/*!
+ * \brief Creates a new pad in an element.
  */
 PadType *
 CreateNewPad (ElementType *Element,
@@ -879,9 +894,10 @@ CreateNewPad (ElementType *Element,
   return (pad);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new textobject as part of an element
- * copies the values to the appropriate text object
+/*!
+ * \brief Creates a new textobject as part of an element.
+ *
+ * Copies the values to the appropriate text object.
  */
 static void
 AddTextToElement (TextType *Text, FontType *PCBFont,
@@ -901,8 +917,8 @@ AddTextToElement (TextType *Text, FontType *PCBFont,
   Text->ID = ID++;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new line in a symbol
+/*!
+ * \brief Creates a new line in a symbol.
  */
 LineType *
 CreateNewLineInSymbol (SymbolType *Symbol,
@@ -930,10 +946,12 @@ CreateNewLineInSymbol (SymbolType *Symbol,
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * parses a file with font information and installs it into the provided PCB
- * checks directories given as colon separated list by resource fontPath
- * if the fonts filename doesn't contain a directory component
+/*!
+ * \brief Parses a file with font information and installs it into the
+ * provided PCB.
+ *
+ * Checks directories given as colon separated list by resource fontPath
+ * if the fonts filename doesn't contain a directory component.
  */
 void
 CreateDefaultFont (PCBType *pcb)
@@ -942,9 +960,11 @@ CreateDefaultFont (PCBType *pcb)
     Message (_("Can't find font-symbol-file '%s'\n"), Settings.FontFile);
 }
 
-/* ---------------------------------------------------------------------------
- * adds a new line to the rubberband list of 'Crosshair.AttachedObject'
- * if Layer == 0  it is a rat line
+/*!
+ * \brief Adds a new line to the rubberband list of
+ * 'Crosshair.AttachedObject'.
+ *
+ * If Layer == 0  it is a rat line.
  */
 RubberbandType *
 CreateNewRubberbandEntry (LayerType *Layer,
@@ -961,8 +981,8 @@ CreateNewRubberbandEntry (LayerType *Layer,
   return (ptr);
 }
 
-/* ---------------------------------------------------------------------------
- * Add a new net to the netlist menu
+/*!
+ * \brief Add a new net to the netlist menu.
  */
 LibraryMenuType *
 CreateNewNet (LibraryType *lib, char *name, char *style)
@@ -981,8 +1001,8 @@ CreateNewNet (LibraryType *lib, char *name, char *style)
   return (menu);
 }
 
-/* ---------------------------------------------------------------------------
- * Add a connection to the net
+/*!
+ * \brief Add a connection to the net.
  */
 LibraryEntryType *
 CreateNewConnection (LibraryMenuType *net, char *conn)
@@ -993,8 +1013,8 @@ CreateNewConnection (LibraryMenuType *net, char *conn)
   return (entry);
 }
 
-/* ---------------------------------------------------------------------------
- * Add an attribute to a list.
+/*!
+ * \brief Add an attribute to a list..
  */
 AttributeType *
 CreateNewAttribute (AttributeListType *list, char *name, char *value)
