@@ -1,6 +1,10 @@
-/*
+/*!
+ * \file src/dbus-pacbmain.h
+ *
+ * \brief D-Bus IPC logic
+ *
  * PCB, an interactive printed circuit board editor
- * D-Bus IPC logic
+ *
  * Copyright (C) 2006 University of Cambridge
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef PCB_DBUS_PCBMAIN_H
 #define PCB_DBUS_PCBMAIN_H
 
