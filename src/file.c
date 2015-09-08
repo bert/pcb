@@ -410,6 +410,7 @@ real_load_pcb (char *Filename, bool revert)
 
       CreateNewPCBPost (PCB, 0);
       ResetStackAndVisibility ();
+      AssignDefaultLayerTypes();
 
       /* update cursor location */
       Crosshair.X = CLAMP (PCB->CursorX, 0, PCB->MaxWidth);
@@ -774,7 +775,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
     {
       fprintf (FP, "Layer(%i ", (int) Number + 1);
       PrintQuotedString (FP, (char *)EMPTY (layer->Name));
-      fputs (")\n(\n", FP);
+      fprintf (FP, " %s)\n(\n", layertype_to_string (layer->Type));
       WriteAttributeList (FP, &layer->Attributes, "\t");
 
       for (n = layer->Line; n != NULL; n = g_list_next (n))

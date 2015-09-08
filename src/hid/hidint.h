@@ -2,8 +2,8 @@
    modules, not from the common PCB code.  */
 
 /* These decode the set_layer index. */
-#define SL_TYPE(x) ((x) < 0 ? (x) & 0x0f0 : 0)
-#define SL_SIDE(x) ((x) & 0x00f)
+#define SL_HANTI(x) ((x) < 0 ? (x) & SL_ANTI : 0)
+#define SL_HTYPE(x) ((x) < 0 ? (x) & 0xff0 : 0)
 #define SL_MYSIDE(x) ((((x) & SL_BOTTOM_SIDE)!=0) == (SWAP_IDENT != 0))
 
 /* Called by the init funcs, used to set up hid_list.  */

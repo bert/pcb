@@ -808,34 +808,34 @@ Element["" "SINGLE_PIN" "P3" "unknown" 40.0000mm 22.0000mm -0.8000mm 2.0000mm 0 
 	Pin[0.0000 0.0000 4.0000mm 1.0000mm 6.0000mm 2.5000mm "1" "1" ""]
 
 	)
-Layer(1 "component")
+Layer(1 "component" "top,copper")
 (
 )
-Layer(2 "solder")
+Layer(2 "solder" "bottom,copper")
 (
 )
-Layer(3 "GND")
+Layer(3 "GND" "inner,copper")
 (
 )
-Layer(4 "power")
+Layer(4 "power" "inner,copper")
 (
 )
-Layer(5 "signal1")
+Layer(5 "signal1" "inner,copper")
 (
 )
-Layer(6 "signal2")
+Layer(6 "signal2" "inner,copper")
 (
 )
-Layer(7 "signal3")
+Layer(7 "signal3" "inner,copper")
 (
 )
-Layer(8 "signal4")
+Layer(8 "signal4" "inner,copper")
 (
 )
-Layer(9 "bottom silk")
+Layer(9 "bottom silk" "bottom,silk")
 (
 )
-Layer(10 "top silk")
+Layer(10 "top silk" "top,silk")
 (
 	Text[12.0000mm 5.0000mm 0 100 "Mask 0" ""]
 	Text[22.0000mm 5.0000mm 0 100 "Thickness < Drillhole" ""]

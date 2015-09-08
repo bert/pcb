@@ -155,7 +155,7 @@ ghid_set_layer (const char *name, int group, int empty)
     }
   if (idx < 0)
     {
-      switch (SL_TYPE (idx))
+      switch (SL_HTYPE (idx))
 	{
 	case SL_INVISIBLE:
 	  return PCB->InvisibleObjectsOn;

@@ -38,7 +38,7 @@ extents_set_layer (const char *name, int group, int empty)
     return 1;
   if (idx < 0)
     {
-      switch (SL_TYPE (idx))
+      switch (SL_HTYPE (idx))
 	{
 	case SL_INVISIBLE:
 	case SL_MASK:

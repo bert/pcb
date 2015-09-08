@@ -879,11 +879,15 @@ layer
 				}
 				Layer = &yyData->Layer[$3-1];
 
-					/* memory for name is already allocated */
+                                /* memory for name is already allocated */
 				Layer->Name = $4;
                          	if (Layer->Name == NULL)
                                    Layer->Name = strdup("");
 				LayerFlag[$3-1] = true;
+                                if ($5)
+                                  Layer->Type = string_to_layertype ($5, yyerror);
+                                else
+                                  Layer->Type = guess_layertype_from_name ($4, $3, yyData);
 			}
 		  layerdata ')'
 		;

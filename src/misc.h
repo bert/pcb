@@ -135,6 +135,9 @@ extern const char *c_dtostr(double d);
 /* Returns a string with info about this copy of pcb. */
 char * GetInfoString (void);
 
+/* Sets up any remaining layer type guesses. */
+void AssignDefaultLayerTypes ();
+
 /* Return a relative rotation for an element, useful only for
    comparing two similar footprints.  */
 int ElementOrientation (ElementType *e);

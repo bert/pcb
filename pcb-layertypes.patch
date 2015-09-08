@@ -1,0 +1,1008 @@
+? .deps
+? .test
+? 3wx4h.ps
+? 456.pcb
+? 4wx3h.ps
+? Makefile
+? PCB.00001717.backup
+? PCB.00002038.backup
+? PCB.00002293.backup
+? PCB.00009743.save
+? PCB.00009987.backup
+? PCB.00011410.save
+? PCB.00011938.backup
+? PCB.00015423.backup
+? PCB.00015511.backup
+? PCB.00015653.backup
+? PCB.00015741.backup
+? PCB.00015847.backup
+? PCB.00016031.backup
+? PCB.00017345.backup
+? PCB.00017392.backup
+? PCB.00018708.backup
+? PCB.00018989.backup
+? PCB.00020089.backup
+? PCB.00020934.backup
+? PCB.00024019.save
+? PCB.00024266.backup
+? PCB.00024571.save
+? PCB.00024614.save
+? PCB.00024956.backup
+? PCB.00027758.save
+? PCB.00027779.backup
+? PCB.00028715.backup
+? PCB.00029759.save
+? PCB.00029969.save
+? PCB.00030363.save
+? PCB.00030862.save
+? PCB.00030864.save
+? PCB.00031078.backup
+? PCB.00032283.save
+? PCB.00032287.save
+? PCB.00032449.save
+? Pcb
+? board-back.eps
+? board-front.eps
+? board-paste.pcb
+? board-paste.ps.back.ps
+? board-paste.ps.backassembly.ps
+? board-paste.ps.backmask.ps
+? board-paste.ps.backpaste.ps
+? board-paste.ps.backsilk.ps
+? board-paste.ps.fab.ps
+? board-paste.ps.front.ps
+? board-paste.ps.frontassembly.ps
+? board-paste.ps.frontmask.ps
+? board-paste.ps.frontpaste.ps
+? board-paste.ps.frontsilk.ps
+? board-paste.ps.group2.ps
+? board-paste.ps.plated-drill.ps
+? board.eps
+? board.pcb
+? board.ps
+? caprats.pcb
+? challenge.back.gbr
+? challenge.backmask.gbr
+? challenge.backpaste.gbr
+? challenge.backsilk.gbr
+? challenge.eps
+? challenge.fab.gbr
+? challenge.front.gbr
+? challenge.frontmask.gbr
+? challenge.frontpaste.gbr
+? challenge.frontsilk.gbr
+? challenge.pcb
+? challenge.plated-drill.cnc
+? challenge.ps
+? challenge.ps.back.ps
+? challenge.ps.backassembly.ps
+? challenge.ps.backmask.ps
+? challenge.ps.backpaste.ps
+? challenge.ps.backsilk.ps
+? challenge.ps.fab.ps
+? challenge.ps.front.ps
+? challenge.ps.frontassembly.ps
+? challenge.ps.frontmask.ps
+? challenge.ps.frontpaste.ps
+? challenge.ps.frontsilk.ps
+? challenge.ps.plated-drill.ps
+? clearpoly.pcb
+? clip.extra
+? control.pdf
+? control.ps
+? control2.pcb
+? control2.ps
+? control2.ps.back.ps
+? control2.ps.backassembly.ps
+? control2.ps.backmask.ps
+? control2.ps.backsilk.ps
+? control2.ps.fab.ps
+? control2.ps.front.ps
+? control2.ps.frontassembly.ps
+? control2.ps.frontmask.ps
+? control2.ps.frontpaste.ps
+? control2.ps.frontsilk.ps
+? control2.ps.group3.ps
+? control2.ps.plated-drill.ps
+? core_lists.h
+? dj.script
+? djtest.pcb
+? drilltest.back.gbr
+? drilltest.backmask.gbr
+? drilltest.fab.gbr
+? drilltest.front.gbr
+? drilltest.frontmask.gbr
+? drilltest.pcb
+? drilltest.plated-drill.cnc
+? drilltest.ps
+? ellipse.fab.gbr
+? ellipse.front.gbr
+? ellipse.pcb
+? foo
+? foo1
+? footprints
+? furnace-nr.pcb
+? furnace-nr.pcb-
+? furnace2.back.gbr
+? furnace2.backmask.gbr
+? furnace2.backpaste.gbr
+? furnace2.backsilk.gbr
+? furnace2.fab.gbr
+? furnace2.front.gbr
+? furnace2.frontmask.gbr
+? furnace2.frontpaste.gbr
+? furnace2.frontsilk.gbr
+? furnace2.group1.gbr
+? furnace2.group2.gbr
+? furnace2.group4.gbr
+? furnace2.group5.gbr
+? furnace2.pcb
+? furnace2.pcb-
+? furnace2.plated-drill.cnc
+? furnace2.ps
+? fxsmod.back.gbr
+? fxsmod.backmask.gbr
+? fxsmod.backpaste.gbr
+? fxsmod.backsilk.gbr
+? fxsmod.fab.gbr
+? fxsmod.front.gbr
+? fxsmod.frontmask.gbr
+? fxsmod.frontpaste.gbr
+? fxsmod.frontsilk.gbr
+? fxsmod.plated-drill.cnc
+? gpcb-menu.h
+? io_port2.pcb
+? lsf-5.pcb
+? m3achal01.back.gbr
+? m3achal01.backmask.gbr
+? m3achal01.backpaste.gbr
+? m3achal01.backsilk.gbr
+? m3achal01.fab.gbr
+? m3achal01.front.gbr
+? m3achal01.frontmask.gbr
+? m3achal01.frontpaste.gbr
+? m3achal01.frontsilk.gbr
+? m3achal01.outline.gbr
+? m3achal01.pcb
+? m3achal01.pcb-
+? m3achal01.plated-drill.cnc
+? m3achal01.ps
+? minwid.pcb
+? minwid.pcb-
+? minwid.ps
+? msp430-cc2420.pcb
+? opt-1.pcb
+? opt-grid-1.pcb
+? packing.pcb
+? parse_l.c
+? parse_y.c
+? parse_y.h
+? pb-power.ps
+? pcb
+? pcb-menu.h
+? pcb.settings
+? pcbtest.sh
+? popen.c
+? proto.pcb
+? proto3.pcb
+? ps2xcf
+? pshole.back.gbr
+? pshole.backmask.gbr
+? pshole.eps
+? pshole.fab.gbr
+? pshole.front.gbr
+? pshole.frontmask.gbr
+? pshole.frontsilk.gbr
+? pshole.pcb
+? pshole.plated-drill.cnc
+? pshole.ps
+? pshole.unplated-drill.cnc
+? r8c-ssop20.eps
+? r8c-ssop20.fp
+? r8c-ssop20.png
+? r8c-ssop20.ps
+? re.pcb
+? re2.pcb
+? res_lex.c
+? res_parse.c
+? res_parse.h
+? sbc.pcb
+? sbc2.pcb
+? script1.txt
+? script2.txt
+? script3.txt
+? smt-challenge.pcb
+? smt-challenge.ps
+? t13.fab.gbr
+? t13.pcb
+? temp
+? test1.pcb
+? test2.pcb
+? test3.pcb
+? testtherm.pcb
+? thermal-1.pcb
+? thermal-2.pcb
+? thermal-test.pcb
+? thermal.eps
+? tmp
+? tomdean.net
+? tomdean.pcb
+? tps61200.pcb
+? tps61200.pcb-
+? tps61200.ps
+? tweak-all
+? twister.eps
+? unknown.ps
+? viahole.pcb
+? hid/batch/.deps
+? hid/batch/.dirstamp
+? hid/batch/batch_lists.h
+? hid/bom/.deps
+? hid/bom/.dirstamp
+? hid/common/.deps
+? hid/common/.dirstamp
+? hid/common/hidlist.h
+? hid/gerber/.deps
+? hid/gerber/.dirstamp
+? hid/gtk/.deps
+? hid/gtk/.dirstamp
+? hid/gtk/gtk_lists.h
+? hid/lesstif/.deps
+? hid/lesstif/.dirstamp
+? hid/lesstif/lesstif_lists.h
+? hid/lpr/.deps
+? hid/lpr/.dirstamp
+? hid/nelma/.deps
+? hid/nelma/.dirstamp
+? hid/nelma/nelma_lists.h
+? hid/png/.deps
+? hid/png/.dirstamp
+? hid/png/png_lists.h
+? hid/ps/.deps
+? hid/ps/.dirstamp
+? hid/ps/ps_lists.h
+? icons/Makefile
+? script/Makefile
+? script/pcb
+Index: file.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/file.c,v
+retrieving revision 1.65
+diff -p -U3 -r1.65  file.c
+--- file.c	1 Aug 2007 02:52:06 -0000	1.65
++++ file.c	4 Aug 2007 21:23:55 -0000
+@@ -338,6 +338,7 @@ LoadPCB (char *Filename)
+ 
+       CreateNewPCBPost (PCB, 0);
+       ResetStackAndVisibility ();
++      AssignDefaultLayerTypes();
+ 
+       /* update cursor location */
+       Crosshair.X = MAX (0, MIN (PCB->CursorX, (LocationType) PCB->MaxWidth));
+@@ -759,7 +760,7 @@ WriteLayerData (FILE * FP, Cardinal Numb
+     {
+       fprintf (FP, "Layer(%i ", (int) Number + 1);
+       PrintQuotedString (FP, EMPTY (layer->Name));
+-      fputs (")\n(\n", FP);
++      fprintf (FP, " %s)\n(\n", layertype_to_string (layer->Type));
+ 
+       for (n = 0; n < layer->LineN; n++)
+ 	{
+Index: global.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/global.h,v
+retrieving revision 1.54
+diff -p -U3 -r1.54  global.h
+--- global.h	20 Apr 2007 11:31:13 -0000	1.54
++++ global.h	4 Aug 2007 21:23:55 -0000
+@@ -226,6 +226,7 @@ typedef struct
+ 
+ typedef struct			/* holds information about one layer */
+ {
++  unsigned int Type;		/* SL_* from hid.h */
+   char *Name;			/* layer name */
+   Cardinal LineN,		/* number of lines */
+     TextN,			/* labels */
+Index: hid.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid.h,v
+retrieving revision 1.19
+diff -p -U3 -r1.19  hid.h
+--- hid.h	4 Mar 2007 03:17:59 -0000	1.19
++++ hid.h	4 Aug 2007 21:23:55 -0000
+@@ -183,9 +183,15 @@ extern "C"
+   extern char *program_directory;
+   extern char *program_basename;
+ 
++/* These are used both for set_layer() and for the layer type. */
++#define SL_SIDE_MASK	0x000F
+ #define SL_0_SIDE	0x0000
+ #define SL_TOP_SIDE	0x0001
+ #define SL_BOTTOM_SIDE	0x0002
++#define SL_INNER_SIDE	0x0004
++
++#define SL_TYPE_MASK	0x0FF0
++#define SL_COPPER	0x0000
+ #define SL_SILK		0x0010
+ #define SL_MASK		0x0020
+ #define SL_PDRILL	0x0030
+@@ -194,8 +200,18 @@ extern "C"
+ #define SL_INVISIBLE	0x0060
+ #define SL_FAB		0x0070
+ #define SL_ASSY		0x0080
++#define SL_OUTLINE	0x0090
++#define SL_NOTES	0x00A0
++#define SL_KEEPOUT	0x00B0
++#define SL_RATS		0x00C0
++
++#define SL_ANTI_FLAG	0x1000
++
+ /* Callers should use this.  */
+-#define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
++#define SL(type,side) (~0xffff | SL_##type | SL_##side##_SIDE)
++#define SL_ANTI(x) ((x) & SL_ANTI_FLAG)
++#define SL_TYPE(x) ((x) & SL_TYPE_MASK)
++#define SL_SIDE(x) ((x) & SL_SIDE_MASK)
+ 
+ /* File Watch flags */
+ /* Based upon those in dbus/dbus-connection.h */
+Index: macro.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/macro.h,v
+retrieving revision 1.27
+diff -p -U3 -r1.27  macro.h
+--- macro.h	20 Apr 2007 11:31:13 -0000	1.27
++++ macro.h	4 Aug 2007 21:23:55 -0000
+@@ -190,7 +190,9 @@
+ #define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? 1 : 0)
+ #define	TOGGLE_FLAG(F,P)	((P)->Flags.f ^= (F))
+ #define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
++#define	ASSIGN_FLAGS(F,M,P)	((P)->Flags.f = ((P)->Flags.f & (~(M))) | (F))
+ #define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? 1 : 0)
++#define TEST_MASK(F,M,P)        (((P)->Flags.f & (M)) == (F) ? 1 : 0)
+ 
+ #define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
+ 
+Index: misc.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/misc.c,v
+retrieving revision 1.65
+diff -p -U3 -r1.65  misc.c
+--- misc.c	1 Aug 2007 02:49:53 -0000	1.65
++++ misc.c	4 Aug 2007 21:23:55 -0000
+@@ -805,6 +805,29 @@ error:
+   return (1);
+ }
+ 
++void
++AssignDefaultLayerTypes()
++{
++  int i;
++  int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
++  int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
++
++  for (i=0; i<max_layer; i++)
++    {
++      LayerTypePtr layer = PCB->Data->Layer + i;
++      if (layer->Type == 0)
++	{
++	  int grp = GetLayerGroupNumberByNumber (i);
++	  if (grp == comp_group)
++	    layer->Type |= SL_TOP_SIDE;
++	  else if (grp == solder_group)
++	    layer->Type |= SL_BOTTOM_SIDE;
++	  else
++	    layer->Type |= SL_INNER_SIDE;
++	}
++    }
++}
++
+ /* ---------------------------------------------------------------------------
+  * quits application
+  */
+Index: misc.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/misc.h,v
+retrieving revision 1.22
+diff -p -U3 -r1.22  misc.h
+--- misc.h	20 Apr 2007 11:31:13 -0000	1.22
++++ misc.h	4 Aug 2007 21:23:55 -0000
+@@ -103,4 +103,7 @@ extern const char *c_dtostr(double d);
+ /* Returns a string with info about this copy of pcb. */
+ char * GetInfoString (void);
+ 
++/* Sets up any remaining layer type guesses.  */
++void AssignDefaultLayerTypes ();
++
+ #endif
+Index: parse_y.y
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/parse_y.y,v
+retrieving revision 1.40
+diff -p -U3 -r1.40  parse_y.y
+--- parse_y.y	21 Apr 2007 21:21:55 -0000	1.40
++++ parse_y.y	4 Aug 2007 21:23:55 -0000
+@@ -850,13 +850,18 @@ layer
+ 					yyerror("Layernumber used twice");
+ 					YYABORT;
+ 				}
++
+ 				Layer = &yyData->Layer[$3-1];
+ 
+-					/* memory for name is already allocated */
++				/* memory for name is already allocated */
+ 				Layer->Name = $4;
+ 				LayerFlag[$3-1] = True;
+ 				if (yyData->LayerN + 2 < $3)
+ 				  yyData->LayerN = $3 - 2;
++				if ($5)
++				  Layer->Type = string_to_layertype ($5, yyerror);
++				else
++				  Layer->Type = guess_layertype_from_name ($4, $3, yyData);
+ 			}
+ 		  layerdata ')'
+ 		;
+Index: strflags.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/strflags.c,v
+retrieving revision 1.17
+diff -p -U3 -r1.17  strflags.c
+--- strflags.c	1 Aug 2007 02:59:16 -0000	1.17
++++ strflags.c	4 Aug 2007 21:23:55 -0000
+@@ -35,6 +35,7 @@
+ #include <stdlib.h>
+ #endif
+ #ifdef HAVE_STRING_H
++#define _GNU_SOURCE
+ #include <string.h>
+ #endif
+ 
+@@ -48,6 +49,7 @@
+ #include "global.h"
+ #include "compat.h"
+ #include "const.h"
++#include "hid.h"
+ #include "strflags.h"
+ 
+ #ifdef HAVE_LIBDMALLOC
+@@ -74,9 +76,13 @@ typedef struct
+ typedef struct
+ {
+ 
+-  /* This is the bit that we're setting.  */
++  /* This is the bits that we're looking at.  */
+   int mask;
+ 
++  /* This is the bit pattern that we're setting.  */
++  int value;
++#define B(x) x,x
++
+   /* The name used in the output file.  */
+   char *name;
+   int nlen;
+@@ -89,53 +95,78 @@ typedef struct
+ } FlagBitsType;
+ 
+ static FlagBitsType object_flagbits[] = {
+-  { PINFLAG, N ("pin"), ALL_TYPES },
+-  { VIAFLAG, N ("via"), ALL_TYPES },
+-  { FOUNDFLAG, N ("found"), ALL_TYPES },
+-  { HOLEFLAG, N ("hole"), PIN_TYPES },
+-  { RATFLAG, N ("rat"), RATLINE_TYPE },
+-  { PININPOLYFLAG, N ("pininpoly"), PIN_TYPES | PAD_TYPE },
+-  { CLEARPOLYFLAG, N ("clearpoly"), POLYGON_TYPE },
+-  { HIDENAMEFLAG, N ("hidename"), ELEMENT_TYPE },
+-  { DISPLAYNAMEFLAG, N ("showname"), ELEMENT_TYPE },
+-  { CLEARLINEFLAG, N ("clearline"), LINE_TYPE | ARC_TYPE },
+-  { SELECTEDFLAG, N ("selected"), ALL_TYPES },
+-  { ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE },
+-  { AUTOFLAG, N ("auto"), ALL_TYPES },
+-  { SQUAREFLAG, N ("square"), PIN_TYPES | PAD_TYPE },
+-  { RUBBERENDFLAG, N ("rubberend"), LINE_TYPE | ARC_TYPE },
+-  { WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE },
+-  { USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE },
+-  { OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE },
+-  { DRCFLAG, N ("drc"), ALL_TYPES },
+-  { LOCKFLAG, N ("lock"), ALL_TYPES },
+-  { EDGE2FLAG, N ("edge2"), ALL_TYPES },
+-  { NOPASTEFLAG, N ("nopaste"), PAD_TYPE }
++  { B(PINFLAG), N ("pin"), ALL_TYPES },
++  { B(VIAFLAG), N ("via"), ALL_TYPES },
++  { B(FOUNDFLAG), N ("found"), ALL_TYPES },
++  { B(HOLEFLAG), N ("hole"), PIN_TYPES },
++  { B(RATFLAG), N ("rat"), RATLINE_TYPE },
++  { B(PININPOLYFLAG), N ("pininpoly"), PIN_TYPES | PAD_TYPE },
++  { B(CLEARPOLYFLAG), N ("clearpoly"), POLYGON_TYPE },
++  { B(HIDENAMEFLAG), N ("hidename"), ELEMENT_TYPE },
++  { B(DISPLAYNAMEFLAG), N ("showname"), ELEMENT_TYPE },
++  { B(CLEARLINEFLAG), N ("clearline"), LINE_TYPE | ARC_TYPE },
++  { B(SELECTEDFLAG), N ("selected"), ALL_TYPES },
++  { B(ONSOLDERFLAG), N ("onsolder"), ELEMENT_TYPE | PAD_TYPE },
++  { B(AUTOFLAG), N ("auto"), ALL_TYPES },
++  { B(SQUAREFLAG), N ("square"), PIN_TYPES | PAD_TYPE },
++  { B(RUBBERENDFLAG), N ("rubberend"), LINE_TYPE | ARC_TYPE },
++  { B(WARNFLAG), N ("warn"), PIN_TYPES | PAD_TYPE },
++  { B(USETHERMALFLAG), N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE },
++  { B(OCTAGONFLAG), N ("octagon"), PIN_TYPES | PAD_TYPE },
++  { B(DRCFLAG), N ("drc"), ALL_TYPES },
++  { B(LOCKFLAG), N ("lock"), ALL_TYPES },
++  { B(EDGE2FLAG), N ("edge2"), ALL_TYPES },
++  { B(NOPASTEFLAG), N ("nopaste"), PAD_TYPE }
+ };
+ 
+ static FlagBitsType pcb_flagbits[] = {
+-  { SHOWNUMBERFLAG, N ("shownumber"), 1 },
+-  { LOCALREFFLAG, N ("localref"), 1 },
+-  { CHECKPLANESFLAG, N ("checkplanes"), 1 },
+-  { SHOWDRCFLAG, N ("showdrc"), 1 },
+-  { RUBBERBANDFLAG, N ("rubberband"), 1 },
+-  { DESCRIPTIONFLAG, N ("description"), 1 },
+-  { NAMEONPCBFLAG, N ("nameonpcb"), 1 },
+-  { AUTODRCFLAG, N ("autodrc"), 1 },
+-  { ALLDIRECTIONFLAG, N ("alldirection"), 1 },
+-  { SWAPSTARTDIRFLAG, N ("swapstartdir"), 1 },
+-  { UNIQUENAMEFLAG, N ("uniquename"), 1 },
+-  { CLEARNEWFLAG, N ("clearnew"), 1 },
+-  { SNAPPINFLAG, N ("snappin"), 1 },
+-  { SHOWMASKFLAG, N ("showmask"), 1 },
+-  { THINDRAWFLAG, N ("thindraw"), 1 },
+-  { ORTHOMOVEFLAG, N ("orthomove"), 1 },
+-  { LIVEROUTEFLAG, N ("liveroute"), 1 },
+-  { THINDRAWPOLYFLAG, N ("thindrawpoly"), 1 },
+-  { LOCKNAMESFLAG, N ("locknames"), 1 },
+-  { ONLYNAMESFLAG, N ("onlynames"), 1 },
++  { B(SHOWNUMBERFLAG), N ("shownumber"), ALL_TYPES },
++  { B(LOCALREFFLAG), N ("localref"), ALL_TYPES },
++  { B(CHECKPLANESFLAG), N ("checkplanes"), ALL_TYPES },
++  { B(SHOWDRCFLAG), N ("showdrc"), ALL_TYPES },
++  { B(RUBBERBANDFLAG), N ("rubberband"), ALL_TYPES },
++  { B(DESCRIPTIONFLAG), N ("description"), ALL_TYPES },
++  { B(NAMEONPCBFLAG), N ("nameonpcb"), ALL_TYPES },
++  { B(AUTODRCFLAG), N ("autodrc"), ALL_TYPES },
++  { B(ALLDIRECTIONFLAG), N ("alldirection"), ALL_TYPES },
++  { B(SWAPSTARTDIRFLAG), N ("swapstartdir"), ALL_TYPES },
++  { B(UNIQUENAMEFLAG), N ("uniquename"), ALL_TYPES },
++  { B(CLEARNEWFLAG), N ("clearnew"), ALL_TYPES },
++  { B(SNAPPINFLAG), N ("snappin"), ALL_TYPES },
++  { B(SHOWMASKFLAG), N ("showmask"), ALL_TYPES },
++  { B(THINDRAWFLAG), N ("thindraw"), ALL_TYPES },
++  { B(ORTHOMOVEFLAG), N ("orthomove"), ALL_TYPES },
++  { B(LIVEROUTEFLAG), N ("liveroute"), ALL_TYPES },
++  { B(THINDRAWPOLYFLAG), N ("thindrawpoly"), ALL_TYPES },
++  { B(LOCKNAMESFLAG), N ("locknames"), ALL_TYPES },
++  { B(ONLYNAMESFLAG), N ("onlynames"), ALL_TYPES },
++};
++
++static FlagBitsType layer_typebits[] = {
++  /*{B(SL_0_MASK), N ("nosides"), ALL_TYPES },*/ /* we want this to be the "unflagged" value */
++  {B(SL_TOP_SIDE), N ("top"), ALL_TYPES },
++  {B(SL_BOTTOM_SIDE), N ("bottom"), ALL_TYPES },
++  {B(SL_INNER_SIDE), N ("inner"), ALL_TYPES },
++
++  {B(SL_ANTI_FLAG), N ("anti"), ALL_TYPES },
++
++  /* copper is zero, so must be first.  */
++  {SL_TYPE_MASK, SL_COPPER, N ("copper"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_SILK, N ("silk"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_MASK, N ("mask"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_PDRILL, N ("pdrill"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_UDRILL, N ("udrill"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_PASTE, N ("paste"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_INVISIBLE, N ("invisible"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_FAB, N ("fab"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_ASSY, N ("assy"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_OUTLINE, N ("outline"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_NOTES, N ("notes"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_KEEPOUT, N ("keepout"), ALL_TYPES },
++  {SL_TYPE_MASK, SL_RATS, N ("rats"), ALL_TYPES },
+ };
+ 
++#undef B
+ #undef N
+ 
+ /*
+@@ -359,8 +390,6 @@ print_layer_list ()
+ /*
+  * Ok, now the two entry points to this file.  The first, string_to_flags,
+  * is passed a string (usually from parse_y.y) and returns a "set of flags".
+- * In theory, this can be anything, but for now it's just an integer.  Later
+- * it might be a structure, for example.
+  *
+  * Currently, there is no error handling :-P
+  */
+@@ -419,7 +448,10 @@ common_string_to_flags (const char *flag
+ 		&& memcmp (flagbits[i].name, fp, flen) == 0)
+ 	      {
+ 		found = 1;
+-		SET_FLAG (flagbits[i].mask, &rv);
++		if (flagbits[i].mask == flagbits[i].value)
++		  SET_FLAG (flagbits[i].mask, &rv);
++		else
++		  ASSIGN_FLAGS (flagbits[i].value, flagbits[i].mask, &rv);
+ 		break;
+ 	      }
+ 	  if (!found)
+@@ -455,6 +487,18 @@ string_to_pcbflags (const char *flagstri
+ 				 ENTRIES (pcb_flagbits));
+ }
+ 
++unsigned int
++string_to_layertype (const char *flagstring,
++		    int (*error) (const char *msg))
++{
++  FlagType f;
++  f = common_string_to_flags (flagstring,
++			      error,
++			      layer_typebits,
++			      ENTRIES (layer_typebits));
++  return f.f;
++}
++
+ 
+ /*
+  * Given a set of flags for a given type of object, return a string
+@@ -500,7 +544,7 @@ common_flags_to_string (FlagType flags,
+   len = 3;			/* for "()\0" */
+   for (i = 0; i < n_flagbits; i++)
+     if ((flagbits[i].object_types & object_type)
+-	&& (TEST_FLAG (flagbits[i].mask, &fh)))
++	&& (TEST_MASK (flagbits[i].value, flagbits[i].mask, &fh)))
+       {
+ 	len += flagbits[i].nlen + 1;
+ 	CLEAR_FLAG (flagbits[i].mask, &fh);
+@@ -521,7 +565,7 @@ common_flags_to_string (FlagType flags,
+   fh = savef;
+   for (i = 0; i < n_flagbits; i++)
+     if (flagbits[i].object_types & object_type
+-	&& (TEST_FLAG (flagbits[i].mask, &fh)))
++	&& (TEST_MASK (flagbits[i].value, flagbits[i].mask, &fh)))
+       {
+ 	if (bp != buf + 1)
+ 	  *bp++ = ',';
+@@ -567,6 +611,50 @@ pcbflags_to_string (FlagType flags)
+ 				 ENTRIES (pcb_flagbits));
+ }
+ 
++char *
++layertype_to_string (unsigned int type)
++{
++  char *rv;
++  FlagType flags;
++
++  memset(&flags, 0, sizeof(flags));
++  flags.f = type;
++  
++  rv = common_flags_to_string (flags,
++			       ALL_TYPES,
++			       layer_typebits,
++			       ENTRIES (layer_typebits));
++  return rv;
++}
++
++unsigned int
++guess_layertype_from_name (const char *name,
++			   int layer_number,
++			   DataType *data)
++{
++  int rv = 0;
++  int i;
++
++  for (i=0; i<sizeof(layer_typebits)/sizeof(layer_typebits[0]); i++)
++    {
++      if (strcasestr (name, layer_typebits[i].name))
++	rv |= layer_typebits[i].value;
++    }
++  if (strcasestr (name, "route"))
++    rv |= SL_OUTLINE;
++  if ((rv & SL_SIDE_MASK) == 0)
++    {
++      if ((rv & SL_TYPE_MASK) == SL_SILK)
++	{
++	  if ((data->Layer[layer_number-2].Type & SL_TYPE_MASK) == SL_SILK)
++	    rv |= SL_TOP_SIDE;
++	  else
++	    rv |= SL_BOTTOM_SIDE;
++	}
++    }
++  return rv;
++}
++
+ #if FLAG_TEST
+ 
+ static void
+@@ -574,12 +662,11 @@ dump_flag (FlagType * f)
+ {
+   int l;
+   printf ("F:%08x T:[", f->f);
+-  for (l = 0; l < (MAX_LAYER + 7) / 8; l++)
++  for (l = 0; l < (MAX_LAYER + 1) / 2; l++)
+     printf (" %02x", f->t[l]);
+   printf ("]");
+ }
+ 
+-
+ int
+ mem_any_set (unsigned char *ptr, int bytes)
+ {
+Index: strflags.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/strflags.h,v
+retrieving revision 1.6
+diff -p -U3 -r1.6  strflags.h
+--- strflags.h	20 Apr 2007 11:31:13 -0000	1.6
++++ strflags.h	4 Aug 2007 21:23:55 -0000
+@@ -48,4 +48,13 @@ FlagType string_to_pcbflags (const char 
+ 			  int (*error) (const char *msg));
+ char *pcbflags_to_string (FlagType flags);
+ 
++/* Same as above, but for layer flags.  */
++unsigned int string_to_layertype (const char *typestring,
++				  int (*error) (const char *msg));
++char *layertype_to_string (unsigned int type);
++unsigned int guess_layertype_from_name (const char *name,
++					int layer_number,
++					DataType *data);
++
++
+ #endif
+Index: hid/hidint.h
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/hidint.h,v
+retrieving revision 1.6
+diff -p -U3 -r1.6  hid/hidint.h
+--- hid/hidint.h	9 Oct 2006 00:35:26 -0000	1.6
++++ hid/hidint.h	4 Aug 2007 21:23:55 -0000
+@@ -4,8 +4,8 @@
+    modules, not from the common PCB code.  */
+ 
+ /* These decode the set_layer index. */
+-#define SL_TYPE(x) ((x) < 0 ? (x) & 0x0f0 : 0)
+-#define SL_SIDE(x) ((x) & 0x00f)
++#define SL_HANTI(x) ((x) < 0 ? (x) & SL_ANTI : 0)
++#define SL_HTYPE(x) ((x) < 0 ? (x) & 0xff0 : 0)
+ #define SL_MYSIDE(x) ((((x) & SL_BOTTOM_SIDE)!=0) == (SWAP_IDENT != 0))
+ 
+ /* Called by the init funcs, used to set up hid_list.  */
+Index: hid/common/extents.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/common/extents.c,v
+retrieving revision 1.8
+diff -p -U3 -r1.8  hid/common/extents.c
+--- hid/common/extents.c	7 Dec 2006 13:10:36 -0000	1.8
++++ hid/common/extents.c	4 Aug 2007 21:23:55 -0000
+@@ -45,7 +45,7 @@ extents_set_layer (const char *name, int
+     return 1;
+   if (idx < 0)
+     {
+-      switch (SL_TYPE (idx))
++      switch (SL_HTYPE (idx))
+ 	{
+ 	case SL_INVISIBLE:
+ 	case SL_MASK:
+Index: hid/gerber/gerber.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/gerber/gerber.c,v
+retrieving revision 1.28
+diff -p -U3 -r1.28  hid/gerber/gerber.c
+--- hid/gerber/gerber.c	1 Aug 2007 02:11:49 -0000	1.28
++++ hid/gerber/gerber.c	4 Aug 2007 21:23:55 -0000
+@@ -441,7 +441,7 @@ gerber_set_layer (const char *name, int 
+ 
+   if (strcmp (name, "invisible") == 0)
+     return 0;
+-  if (SL_TYPE (idx) == SL_ASSY)
++  if (SL_HTYPE (idx) == SL_ASSY)
+     return 0;
+ 
+   flash_drills = 0;
+@@ -472,8 +472,8 @@ gerber_set_layer (const char *name, int 
+       pending_drills = 0;
+     }
+ 
+-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+-  is_mask = (SL_TYPE (idx) == SL_MASK);
++  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
++  is_mask = (SL_HTYPE (idx) == SL_MASK);
+   current_mask = 0;
+ #if 0
+   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
+Index: hid/gtk/gtkhid-main.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/gtk/gtkhid-main.c,v
+retrieving revision 1.41
+diff -p -U3 -r1.41  hid/gtk/gtkhid-main.c
+--- hid/gtk/gtkhid-main.c	13 Jun 2007 01:51:09 -0000	1.41
++++ hid/gtk/gtkhid-main.c	4 Aug 2007 21:23:55 -0000
+@@ -587,7 +587,7 @@ ghid_set_layer (const char *name, int gr
+     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
+   if (idx < 0)
+     {
+-      switch (SL_TYPE (idx))
++      switch (SL_HTYPE (idx))
+ 	{
+ 	case SL_INVISIBLE:
+ 	  return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
+Index: hid/lesstif/main.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/lesstif/main.c,v
+retrieving revision 1.58
+diff -p -U3 -r1.58  hid/lesstif/main.c
+--- hid/lesstif/main.c	1 Aug 2007 03:03:09 -0000	1.58
++++ hid/lesstif/main.c	4 Aug 2007 21:23:56 -0000
+@@ -2841,7 +2841,7 @@ lesstif_set_layer (const char *name, int
+     return pinout ? 1 : PCB->Data->Layer[idx].On;
+   if (idx < 0)
+     {
+-      switch (SL_TYPE (idx))
++      switch (SL_HTYPE (idx))
+ 	{
+ 	case SL_INVISIBLE:
+ 	  return pinout ? 0 : PCB->InvisibleObjectsOn;
+Index: hid/lesstif/menu.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/lesstif/menu.c,v
+retrieving revision 1.26
+diff -p -U3 -r1.26  hid/lesstif/menu.c
+--- hid/lesstif/menu.c	1 Aug 2007 01:29:34 -0000	1.26
++++ hid/lesstif/menu.c	4 Aug 2007 21:23:56 -0000
+@@ -98,6 +98,13 @@ Debug (int argc, char **argv, int x, int
+   for (i = 0; i < argc; i++)
+     printf (" [%d] `%s'", i, argv[i]);
+   printf (" x,y %d,%d\n", x, y);
++  for (i=0; i<max_layer+2; i++)
++    {
++      printf("0x%08x %s (%s)\n",
++	     PCB->Data->Layer[i].Type,
++	     PCB->Data->Layer[i].Name,
++	     layertype_to_string (PCB->Data->Layer[i].Type));
++    }
+   return 0;
+ }
+ 
+Index: hid/nelma/nelma.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/nelma/nelma.c,v
+retrieving revision 1.2
+diff -p -U3 -r1.2  hid/nelma/nelma.c
+--- hid/nelma/nelma.c	20 Apr 2007 11:31:15 -0000	1.2
++++ hid/nelma/nelma.c	4 Aug 2007 21:23:56 -0000
+@@ -533,7 +533,7 @@ nelma_choose_groups()
+ 			 * layers have negative indexes?
+ 			 */
+ 
+-			if (SL_TYPE(n) == 0) {
++			if (SL_HTYPE(n) == 0) {
+ 				/* layer is a copper layer */
+ 				m = GetLayerGroupNumberByNumber(n);
+ 
+@@ -709,8 +709,8 @@ nelma_set_layer(const char *name, int gr
+ 	if (strcmp(name, "invisible") == 0) {
+ 		return 0;
+ 	}
+-	is_drill = (SL_TYPE(idx) == SL_PDRILL || SL_TYPE(idx) == SL_UDRILL);
+-	is_mask = (SL_TYPE(idx) == SL_MASK);
++	is_drill = (SL_HTYPE(idx) == SL_PDRILL || SL_HTYPE(idx) == SL_UDRILL);
++	is_mask = (SL_HTYPE(idx) == SL_MASK);
+ 
+ 	if (is_mask) {
+ 		/* Don't print masks */
+Index: hid/png/png.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/png/png.c,v
+retrieving revision 1.18
+diff -p -U3 -r1.18  hid/png/png.c
+--- hid/png/png.c	20 Apr 2007 11:31:16 -0000	1.18
++++ hid/png/png.c	4 Aug 2007 21:23:56 -0000
+@@ -494,14 +494,14 @@ png_set_layer (const char *name, int gro
+ 
+   if (idx >= 0 && idx < max_layer && !print_layer[idx])
+     return 0;
+-  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
++  if (SL_HTYPE (idx) == SL_ASSY || SL_HTYPE (idx) == SL_FAB)
+     return 0;
+ 
+   if (strcmp (name, "invisible") == 0)
+     return 0;
+ 
+-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+-  is_mask = (SL_TYPE (idx) == SL_MASK);
++  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
++  is_mask = (SL_HTYPE (idx) == SL_MASK);
+ 
+   if (is_mask)
+     return 0;
+Index: hid/ps/eps.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/ps/eps.c,v
+retrieving revision 1.18
+diff -p -U3 -r1.18  hid/ps/eps.c
+--- hid/ps/eps.c	1 Aug 2007 02:11:49 -0000	1.18
++++ hid/ps/eps.c	4 Aug 2007 21:23:56 -0000
+@@ -317,15 +317,15 @@ eps_set_layer (const char *name, int gro
+ 
+   if (idx >= 0 && idx < max_layer && !print_layer[idx])
+     return 0;
+-  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
++  if (SL_HTYPE (idx) == SL_ASSY || SL_HTYPE (idx) == SL_FAB)
+     return 0;
+ 
+   if (strcmp (name, "invisible") == 0)
+     return 0;
+ 
+-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+-  is_mask = (SL_TYPE (idx) == SL_MASK);
+-  is_paste = (SL_TYPE (idx) == SL_PASTE);
++  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
++  is_mask = (SL_HTYPE (idx) == SL_MASK);
++  is_paste = (SL_HTYPE (idx) == SL_PASTE);
+ 
+   if (is_mask || is_paste)
+     return 0;
+Index: hid/ps/ps.c
+===================================================================
+RCS file: /cvsroot/pcb/pcb/src/hid/ps/ps.c,v
+retrieving revision 1.33
+diff -p -U3 -r1.33  hid/ps/ps.c
+--- hid/ps/ps.c	1 Aug 2007 02:11:49 -0000	1.33
++++ hid/ps/ps.c	4 Aug 2007 21:23:56 -0000
+@@ -494,9 +494,9 @@ ps_set_layer (const char *name, int grou
+   if (strcmp (name, "invisible") == 0)
+     return 0;
+ 
+-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+-  is_mask = (SL_TYPE (idx) == SL_MASK);
+-  is_assy = (SL_TYPE (idx) == SL_ASSY);
++  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
++  is_mask = (SL_HTYPE (idx) == SL_MASK);
++  is_assy = (SL_HTYPE (idx) == SL_ASSY);
+ #if 0
+   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
+ 	  is_mask);
+@@ -580,7 +580,7 @@ ps_set_layer (const char *name, int grou
+       if (mirror_this)
+ 	fprintf (f, "1 -1 scale\n");
+ 
+-      if (SL_TYPE (idx) == SL_FAB)
++      if (SL_HTYPE (idx) == SL_FAB)
+ 	fprintf (f, "0.00001 dup neg scale\n");
+       else
+ 	fprintf (f, "%g dup neg scale\n", (fill_zoom * scale_value));
+@@ -591,7 +591,7 @@ ps_set_layer (const char *name, int grou
+        * even if it means some of the board falls off the right edge.
+        * If users don't want to make smaller boards, or use fewer drill
+        * sizes, they can always ignore this sheet. */
+-      if (SL_TYPE (idx) == SL_FAB) {
++      if (SL_HTYPE (idx) == SL_FAB) {
+         int natural = (int) ((boffset - 0.5) * 100000) - PCB->MaxHeight / 2;
+ 	int needed  = PrintFab_overhang();
+         fprintf (f, "%% PrintFab overhang natural %d, needed %d\n", natural, needed);
+@@ -648,7 +648,7 @@ ps_set_layer (const char *name, int grou
+ #if 0
+   /* Try to outsmart ps2pdf's heuristics for page rotation, by putting
+    * text on all pages -- even if that text is blank */
+-  if (SL_TYPE (idx) != SL_FAB)
++  if (SL_HTYPE (idx) != SL_FAB)
+     fprintf (f,
+ 	     "gsave tx ty translate 1 -1 scale 0 0 moveto (Layer %s) show grestore newpath /ty ty ts sub def\n",
+ 	     name);
+@@ -871,7 +871,19 @@ static void
+ ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
+ {
+   use_gc (gc);
+-  fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
++  if (x1 > x2)
++    {
++      int t = x1;
++      x2 = x2;
++      x2 = t;
++    }
++  if (y1 > y2)
++    {
++      int t = y1;
++      y2 = y2;
++      y2 = t;
++    }
++  fprintf (f, "%d %d %d %d r\n", x1-bloat, y1-bloat, x2+bloat, y2+bloat);
+ }
+ 
+ HID_Attribute ps_calib_attribute_list[] = {

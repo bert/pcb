@@ -566,7 +566,7 @@ nelma_choose_groups()
 			 * layers have negative indexes?
 			 */
 
-			if (SL_TYPE(n) == 0) {
+			if (SL_HTYPE(n) == 0) {
 				/* layer is a copper layer */
 				m = GetLayerGroupNumberByNumber(n);
 
@@ -738,8 +738,8 @@ nelma_set_layer(const char *name, int group, int empty)
 	if (strcmp(name, "invisible") == 0) {
 		return 0;
 	}
-	is_drill = (SL_TYPE(idx) == SL_PDRILL || SL_TYPE(idx) == SL_UDRILL);
-	is_mask = (SL_TYPE(idx) == SL_MASK);
+	is_drill = (SL_HTYPE(idx) == SL_PDRILL || SL_HTYPE(idx) == SL_UDRILL);
+	is_mask = (SL_HTYPE(idx) == SL_MASK);
 
 	if (is_mask) {
 		/* Don't print masks */

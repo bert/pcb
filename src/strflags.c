@@ -47,6 +47,7 @@
 #include "global.h"
 #include "compat.h"
 #include "const.h"
+#include "hid.h"
 #include "strflags.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -71,8 +72,12 @@ typedef struct
 typedef struct
 {
 
-  /* This is the bit that we're setting.  */
+  /* This is the bits that we're looking at. */
   int mask;
+
+  /* This is the bit pattern that we're setting. */
+  int value;
+#define B(x) x,x
 
   /* The name used in the output file.  */
   char *name;
@@ -86,57 +91,82 @@ typedef struct
 } FlagBitsType;
 
 static FlagBitsType object_flagbits[] = {
-  { PINFLAG, N ("pin"), ALL_TYPES },
-  { VIAFLAG, N ("via"), ALL_TYPES },
-  { FOUNDFLAG, N ("found"), ALL_TYPES },
-  { HOLEFLAG, N ("hole"), PIN_TYPES },
-  { RATFLAG, N ("rat"), RATLINE_TYPE },
-  { PININPOLYFLAG, N ("pininpoly"), PIN_TYPES | PAD_TYPE },
-  { CLEARPOLYFLAG, N ("clearpoly"), POLYGON_TYPE },
-  { HIDENAMEFLAG, N ("hidename"), ELEMENT_TYPE },
-  { DISPLAYNAMEFLAG, N ("showname"), ELEMENT_TYPE },
-  { CLEARLINEFLAG, N ("clearline"), LINE_TYPE | ARC_TYPE | TEXT_TYPE },
-  { SELECTEDFLAG, N ("selected"), ALL_TYPES },
-  { ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE | TEXT_TYPE },
-  { AUTOFLAG, N ("auto"), ALL_TYPES },
-  { SQUAREFLAG, N ("square"), PIN_TYPES | PAD_TYPE },
-  { RUBBERENDFLAG, N ("rubberend"), LINE_TYPE | ARC_TYPE },
-  { WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE },
-  { USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE },
-  { OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE },
-  { DRCFLAG, N ("drc"), ALL_TYPES },
-  { LOCKFLAG, N ("lock"), ALL_TYPES },
-  { EDGE2FLAG, N ("edge2"), ALL_TYPES },
-  { FULLPOLYFLAG, N ("fullpoly"), POLYGON_TYPE},
-  { NOPASTEFLAG, N ("nopaste"), PAD_TYPE },
-  { CONNECTEDFLAG, N ("connected"), ALL_TYPES }
+  { B(PINFLAG), N ("pin"), ALL_TYPES },
+  { B(VIAFLAG), N ("via"), ALL_TYPES },
+  { B(FOUNDFLAG), N ("found"), ALL_TYPES },
+  { B(HOLEFLAG), N ("hole"), PIN_TYPES },
+  { B(RATFLAG), N ("rat"), RATLINE_TYPE },
+  { B(PININPOLYFLAG), N ("pininpoly"), PIN_TYPES | PAD_TYPE },
+  { B(CLEARPOLYFLAG), N ("clearpoly"), POLYGON_TYPE },
+  { B(HIDENAMEFLAG), N ("hidename"), ELEMENT_TYPE },
+  { B(DISPLAYNAMEFLAG), N ("showname"), ELEMENT_TYPE },
+  { B(CLEARLINEFLAG), N ("clearline"), LINE_TYPE | ARC_TYPE | TEXT_TYPE },
+  { B(SELECTEDFLAG), N ("selected"), ALL_TYPES },
+  { B(ONSOLDERFLAG), N ("onsolder"), ELEMENT_TYPE | PAD_TYPE | TEXT_TYPE },
+  { B(AUTOFLAG), N ("auto"), ALL_TYPES },
+  { B(SQUAREFLAG), N ("square"), PIN_TYPES | PAD_TYPE },
+  { B(RUBBERENDFLAG), N ("rubberend"), LINE_TYPE | ARC_TYPE },
+  { B(WARNFLAG), N ("warn"), PIN_TYPES | PAD_TYPE },
+  { B(USETHERMALFLAG), N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE },
+  { B(OCTAGONFLAG), N ("octagon"), PIN_TYPES | PAD_TYPE },
+  { B(DRCFLAG), N ("drc"), ALL_TYPES },
+  { B(LOCKFLAG), N ("lock"), ALL_TYPES },
+  { B(EDGE2FLAG), N ("edge2"), ALL_TYPES },
+  { B(FULLPOLYFLAG), N ("fullpoly"), POLYGON_TYPE},
+  { B(NOPASTEFLAG), N ("nopaste"), PAD_TYPE },
+  { B(CONNECTEDFLAG), N ("connected"), ALL_TYPES },
 };
 
 static FlagBitsType pcb_flagbits[] = {
-  { SHOWNUMBERFLAG, N ("shownumber"), 1 },
-  { LOCALREFFLAG, N ("localref"), 1 },
-  { CHECKPLANESFLAG, N ("checkplanes"), 1 },
-  { SHOWDRCFLAG, N ("showdrc"), 1 },
-  { RUBBERBANDFLAG, N ("rubberband"), 1 },
-  { DESCRIPTIONFLAG, N ("description"), 1 },
-  { NAMEONPCBFLAG, N ("nameonpcb"), 1 },
-  { AUTODRCFLAG, N ("autodrc"), 1 },
-  { ALLDIRECTIONFLAG, N ("alldirection"), 1 },
-  { SWAPSTARTDIRFLAG, N ("swapstartdir"), 1 },
-  { UNIQUENAMEFLAG, N ("uniquename"), 1 },
-  { CLEARNEWFLAG, N ("clearnew"), 1 },
-  { NEWFULLPOLYFLAG, N ("newfullpoly"), 1 },
-  { SNAPPINFLAG, N ("snappin"), 1 },
-  { SHOWMASKFLAG, N ("showmask"), 1 },
-  { THINDRAWFLAG, N ("thindraw"), 1 },
-  { ORTHOMOVEFLAG, N ("orthomove"), 1 },
-  { LIVEROUTEFLAG, N ("liveroute"), 1 },
-  { THINDRAWPOLYFLAG, N ("thindrawpoly"), 1 },
-  { LOCKNAMESFLAG, N ("locknames"), 1 },
-  { ONLYNAMESFLAG, N ("onlynames"), 1 },
-  { HIDENAMESFLAG, N ("hidenames"), 1 },
+  { B(SHOWNUMBERFLAG), N ("shownumber"), ALL_TYPES },
+  { B(LOCALREFFLAG), N ("localref"), ALL_TYPES },
+  { B(CHECKPLANESFLAG), N ("checkplanes"), ALL_TYPES },
+  { B(SHOWDRCFLAG), N ("showdrc"), ALL_TYPES },
+  { B(RUBBERBANDFLAG), N ("rubberband"), ALL_TYPES },
+  { B(DESCRIPTIONFLAG), N ("description"), ALL_TYPES },
+  { B(NAMEONPCBFLAG), N ("nameonpcb"), ALL_TYPES },
+  { B(AUTODRCFLAG), N ("autodrc"), ALL_TYPES },
+  { B(ALLDIRECTIONFLAG), N ("alldirection"), ALL_TYPES },
+  { B(SWAPSTARTDIRFLAG), N ("swapstartdir"), ALL_TYPES },
+  { B(UNIQUENAMEFLAG), N ("uniquename"), ALL_TYPES },
+  { B(CLEARNEWFLAG), N ("clearnew"), ALL_TYPES },
+  { B(NEWFULLPOLYFLAG), N ("newfullpoly"), ALL_TYPES },
+  { B(SNAPPINFLAG), N ("snappin"), ALL_TYPES },
+  { B(SHOWMASKFLAG), N ("showmask"), ALL_TYPES },
+  { B(THINDRAWFLAG), N ("thindraw"), ALL_TYPES },
+  { B(ORTHOMOVEFLAG), N ("orthomove"), ALL_TYPES },
+  { B(LIVEROUTEFLAG), N ("liveroute"), ALL_TYPES },
+  { B(THINDRAWPOLYFLAG), N ("thindrawpoly"), ALL_TYPES },
+  { B(LOCKNAMESFLAG), N ("locknames"), ALL_TYPES },
+  { B(ONLYNAMESFLAG), N ("onlynames"), ALL_TYPES },
+  { B(HIDENAMESFLAG), N ("hidenames"), ALL_TYPES },
 };
 
+static FlagBitsType layer_typebits[] = {
+  /*{B(SL_0_MASK), N ("nosides"), ALL_TYPES },*/ /* we want this to be the "unflagged" value. */
+  {B(SL_TOP_SIDE), N ("top"), ALL_TYPES },
+  {B(SL_BOTTOM_SIDE), N ("bottom"), ALL_TYPES },
+  {B(SL_INNER_SIDE), N ("inner"), ALL_TYPES },
+
+  {B(SL_ANTI_FLAG), N ("anti"), ALL_TYPES },
+
+  /* copper is zero, so must be first. */
+  {SL_TYPE_MASK, SL_COPPER, N ("copper"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_SILK, N ("silk"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_MASK, N ("mask"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_PDRILL, N ("pdrill"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_UDRILL, N ("udrill"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_PASTE, N ("paste"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_INVISIBLE, N ("invisible"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_FAB, N ("fab"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_ASSY, N ("assy"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_OUTLINE, N ("outline"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_NOTES, N ("notes"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_KEEPOUT, N ("keepout"), ALL_TYPES },
+  {SL_TYPE_MASK, SL_RATS, N ("rats"), ALL_TYPES },
+};
+
+#undef B
 #undef N
 
 /*
@@ -360,8 +390,6 @@ print_layer_list ()
 /*
  * Ok, now the two entry points to this file.  The first, string_to_flags,
  * is passed a string (usually from parse_y.y) and returns a "set of flags".
- * In theory, this can be anything, but for now it's just an integer.  Later
- * it might be a structure, for example.
  *
  * Currently, there is no error handling :-P
  */
@@ -420,7 +448,10 @@ common_string_to_flags (const char *flagstring,
 		&& memcmp (flagbits[i].name, fp, flen) == 0)
 	      {
 		found = 1;
-		SET_FLAG (flagbits[i].mask, &rv);
+                if (flagbits[i].mask == flagbits[i].value)
+                  SET_FLAG (flagbits[i].mask, &rv);
+                else
+                  ASSIGN_FLAGS (flagbits[i].value, flagbits[i].mask, &rv);
 		break;
 	      }
 	  if (!found)
@@ -456,6 +487,17 @@ string_to_pcbflags (const char *flagstring,
 				 ENTRIES (pcb_flagbits));
 }
 
+unsigned int
+string_to_layertype (const char *flagstring,
+                     int (*error) (const char *msg))
+{
+  FlagType f;
+  f = common_string_to_flags (flagstring,
+                              error,
+                              layer_typebits,
+                              ENTRIES (layer_typebits));
+  return f.f;
+}
 
 /*
  * Given a set of flags for a given type of object, return a string
@@ -501,7 +543,7 @@ common_flags_to_string (FlagType flags,
   len = 3;			/* for "()\0" */
   for (i = 0; i < n_flagbits; i++)
     if ((flagbits[i].object_types & object_type)
-	&& (TEST_FLAG (flagbits[i].mask, &fh)))
+        && (TEST_MASK (flagbits[i].value, flagbits[i].mask, &fh)))
       {
 	len += flagbits[i].nlen + 1;
 	CLEAR_FLAG (flagbits[i].mask, &fh);
@@ -522,7 +564,7 @@ common_flags_to_string (FlagType flags,
   fh = savef;
   for (i = 0; i < n_flagbits; i++)
     if (flagbits[i].object_types & object_type
-	&& (TEST_FLAG (flagbits[i].mask, &fh)))
+        && (TEST_MASK (flagbits[i].value, flagbits[i].mask, &fh)))
       {
 	if (bp != buf + 1)
 	  *bp++ = ',';
@@ -568,6 +610,52 @@ pcbflags_to_string (FlagType flags)
 				 ENTRIES (pcb_flagbits));
 }
 
+char *
+layertype_to_string (unsigned int type)
+{
+  char *rv;
+  FlagType flags;
+
+  memset(&flags, 0, sizeof(flags));
+  flags.f = type;
+  
+  rv = common_flags_to_string (flags,
+                               ALL_TYPES,
+                               layer_typebits,
+                               ENTRIES (layer_typebits));
+  return rv;
+}
+
+unsigned int
+guess_layertype_from_name (const char *name,
+                           int layer_number,
+                           DataType *data)
+{
+  int rv = 0;
+  int i;
+
+  for (i = 0; i < ENTRIES (layer_typebits); i++)
+    {
+      if (strcasestr (name, layer_typebits[i].name))
+        rv |= layer_typebits[i].value;
+    }
+
+  if (strcasestr (name, "route"))
+    rv |= SL_OUTLINE;
+
+  if ((rv & SL_SIDE_MASK) == 0)
+    {
+      if ((rv & SL_TYPE_MASK) == SL_SILK)
+        {
+          if ((data->Layer[layer_number - 2].Type & SL_TYPE_MASK) == SL_SILK)
+            rv |= SL_TOP_SIDE;
+          else
+            rv |= SL_BOTTOM_SIDE;
+        }
+    }
+  return rv;
+}
+
 #if FLAG_TEST
 
 static void
@@ -575,11 +663,10 @@ dump_flag (FlagType * f)
 {
   int l;
   printf ("F:%08x T:[", f->f);
-  for (l = 0; l < (MAX_LAYER + 7) / 8; l++)
+  for (l = 0; l < (MAX_LAYER + 1) / 2; l++)
     printf (" %02x", f->t[l]);
   printf ("]");
 }
-
 
 int
 mem_any_set (unsigned char *ptr, int bytes)

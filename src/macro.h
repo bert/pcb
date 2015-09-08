@@ -107,7 +107,9 @@
 #define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? 1 : 0)
 #define	TOGGLE_FLAG(F,P)	((P)->Flags.f ^= (F))
 #define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
+#define ASSIGN_FLAGS(F,M,P)     ((P)->Flags.f = ((P)->Flags.f & (~(M))) | (F))
 #define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? 1 : 0)
+#define TEST_MASK(F,M,P)        (((P)->Flags.f & (M)) == (F) ? 1 : 0)
 
 #define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
 

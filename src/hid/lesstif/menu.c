@@ -96,6 +96,13 @@ Debug (int argc, char **argv, Coord x, Coord y)
   for (i = 0; i < argc; i++)
     printf (" [%d] `%s'", i, argv[i]);
   pcb_printf (" x,y %$mD\n", x, y);
+  for (i = 0; i < max_layer + 2; i++)
+    {
+      printf("0x%08x %s (%s)\n",
+             PCB->Data->Layer[i].Type,
+             PCB->Data->Layer[i].Name,
+             layertype_to_string (PCB->Data->Layer[i].Type));
+    }
   return 0;
 }
 
