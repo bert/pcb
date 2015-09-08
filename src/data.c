@@ -1,31 +1,35 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/data.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Just defines common identifiers.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-/* just defines common identifiers
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -40,17 +44,17 @@
  * some shared identifiers
  */
 
-CrosshairType Crosshair;	/* information about cursor settings */
-MarkType Marked;		/* a cross-hair mark */
-OutputType Output;		/* some widgets ... used for drawing */
-PCBType *PCB;			/* pointer to layout struct */
+CrosshairType Crosshair;	/*!< information about cursor settings. */
+MarkType Marked;		/*!< a cross-hair mark. */
+OutputType Output;		/*!< some widgets ... used for drawing. */
+PCBType *PCB;			/*!< pointer to layout struct. */
 
 char *Progname;
 SettingType Settings;
-int LayerStack[MAX_LAYER];	/* determines the layer draw order */
+int LayerStack[MAX_LAYER];	/*!< determines the layer draw order. */
 
-BufferType Buffers[MAX_BUFFER];	/* my buffers */
-LibraryType Library;		/* the library */
-bool Bumped;			/* if the undo serial number has changed */
+BufferType Buffers[MAX_BUFFER];	/*!< my buffers. */
+LibraryType Library;		/*!< the library. */
+bool Bumped;			/*!< if the undo serial number has changed. */
 
 int addedLines;
