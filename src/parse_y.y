@@ -851,7 +851,9 @@ Layer (LayerNum "Name") (
 @item LayerNum
 The layer number.  Layers are numbered sequentially, starting with 1.
 The last two layers (9 and 10 by default) are solder-side silk and
-component-side silk, in that order.
+component-side silk, in that order. The two silk layers also mark top and
+bottom side; the layer group where the solder-side silk layer is member in
+is the solder side group. Analogous for the other side.
 @item Name
 The layer name.
 @item contents
