@@ -1,31 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/crosshair.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Crosshair stuff.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
- */
-
-
-/* crosshair stuff
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -58,10 +60,13 @@ typedef struct
 } point;
 
 
+/*!
+ * \brief Make a copy of the pin structure, moved to the correct
+ * position
+ */
 static void
 thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
 {
-  /* Make a copy of the pin structure, moved to the correct position */
   PinType moved_pv = *pv;
   moved_pv.X += x;
   moved_pv.Y += y;
@@ -69,8 +74,9 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
   gui->graphics->thindraw_pcb_pv (gc, gc, &moved_pv, true, false);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a tmp polygon with coordinates converted to screen system
+/*!
+ * \brief Creates a tmp polygon with coordinates converted to screen
+ * system.
  */
 static void
 XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy)
@@ -87,8 +93,8 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy)
     }
 }
 
-/*-----------------------------------------------------------
- * Draws the outline of an arc
+/*!
+ * \brief Draws the outline of an arc.
  */
 static void
 XORDrawAttachedArc (hidGC gc, Coord thick)
@@ -143,8 +149,8 @@ XORDrawAttachedArc (hidGC gc, Coord thick)
     }
 }
 
-/*-----------------------------------------------------------
- * Draws the outline of a line
+/*!
+ * \brief Draws the outline of a line.
  */
 static void
 XORDrawAttachedLine (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2, Coord thick)
@@ -170,8 +176,9 @@ XORDrawAttachedLine (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2, Coord thi
     }
 }
 
-/* ---------------------------------------------------------------------------
- * draws the elements of a loaded circuit which is to be merged in
+/*!
+ * \brief Draws the elements of a loaded circuit which is to be merged
+ * in.
  */
 static void
 XORDrawElement (hidGC gc, ElementType *Element, Coord DX, Coord DY)
@@ -267,8 +274,8 @@ XORDrawElement (hidGC gc, ElementType *Element, Coord DX, Coord DY)
                             Element->MarkY + DY + EMARK_SIZE);
 }
 
-/* ---------------------------------------------------------------------------
- * draws all visible and attached objects of the pastebuffer
+/*!
+ * \brief Draws all visible and attached objects of the pastebuffer.
  */
 static void
 XORDrawBuffer (hidGC gc, BufferType *Buffer)
@@ -342,8 +349,8 @@ XORDrawBuffer (hidGC gc, BufferType *Buffer)
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * draws the rubberband to insert points into polygons/lines/...
+/*!
+ * \brief Draws the rubberband to insert points into polygons/lines/...
  */
 static void
 XORDrawInsertPointObject (hidGC gc)
@@ -358,8 +365,8 @@ XORDrawInsertPointObject (hidGC gc)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * draws the attached object while in MOVE_MODE or COPY_MODE
+/*!
+ * \brief Draws the attached object while in MOVE_MODE or COPY_MODE.
  */
 static void
 XORDrawMoveOrCopyObject (hidGC gc)
@@ -520,8 +527,8 @@ XORDrawMoveOrCopyObject (hidGC gc)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * draws additional stuff that follows the crosshair
+/*!
+ * \brief Draws additional stuff that follows the crosshair.
  */
 void
 DrawAttached (hidGC gc)
@@ -656,8 +663,8 @@ DrawAttached (hidGC gc)
 }
 
 
-/* --------------------------------------------------------------------------
- * draw the marker position
+/*!
+ * \brief Draw the marker position.
  */
 void
 DrawMark (hidGC gc)
@@ -681,8 +688,8 @@ DrawMark (hidGC gc)
                   Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
 }
 
-/* ---------------------------------------------------------------------------
- * Returns the nearest grid-point to the given Coord
+/*!
+ * \brief Returns the nearest grid-point to the given Coord.
  */
 Coord
 GridFit (Coord x, Coord grid_spacing, Coord grid_offset)
@@ -694,8 +701,9 @@ GridFit (Coord x, Coord grid_spacing, Coord grid_offset)
 }
 
 
-/* ---------------------------------------------------------------------------
- * notify the GUI that data relating to the crosshair is being changed.
+/*!
+ * \brief Notify the GUI that data relating to the crosshair is being
+ * changed.
  *
  * The argument passed is false to notify "changes are about to happen",
  * and true to notify "changes have finished".
@@ -717,8 +725,8 @@ notify_crosshair_change (bool changes_complete)
 }
 
 
-/* ---------------------------------------------------------------------------
- * notify the GUI that data relating to the mark is being changed.
+/*!
+ * \brief Notify the GUI that data relating to the mark is being changed.
  *
  * The argument passed is false to notify "changes are about to happen",
  * and true to notify "changes have finished".
@@ -739,8 +747,10 @@ notify_mark_change (bool changes_complete)
 }
 
 
-/* ---------------------------------------------------------------------------
- * Convenience for plugins using the old {Hide,Restore}Crosshair API.
+/*!
+ * \brief Convenience for plugins using the old {Hide,Restore}Crosshair
+ * API.
+ *
  * This links up to notify the GUI of the expected changes using the new APIs.
  *
  * Use of this old API is deprecated, as the names don't necessarily reflect
@@ -779,8 +789,8 @@ RestoreCrosshair (void)
   notify_mark_change (true);
 }
 
-/* ---------------------------------------------------------------------------
- * Returns the square of the given number
+/*!
+ * \brief Returns the square of the given number.
  */
 static double
 square (double x)
@@ -801,7 +811,10 @@ struct snap_data {
   Coord x, y;
 };
 
-/* Snap to a given location if it is the closest thing we found so far.
+/*!
+ * \brief Snap to a given location if it is the closest thing we found
+ * so far.
+ *
  * If "prefer_to_grid" is set, the passed location will take preference
  * over a closer grid points we already snapped to UNLESS the user is
  * pressing the SHIFT key. If the SHIFT key is pressed, the closest object
@@ -916,8 +929,9 @@ check_snap_offgrid_line (struct snap_data *snap_data,
     }
 }
 
-/* ---------------------------------------------------------------------------
- * recalculates the passed coordinates to fit the current grid setting
+/*!
+ * \brief Recalculates the passed coordinates to fit the current grid
+ * setting.
  */
 void
 FitCrosshairIntoGrid (Coord X, Coord Y)
@@ -1112,9 +1126,10 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_DO_NOTHING);
 }
 
-/* ---------------------------------------------------------------------------
- * move crosshair absolute
- * return true if the crosshair was moved from its existing position
+/*!
+ * \brief Move crosshair absolute.
+ *
+ * \return true if the crosshair was moved from its existing position.
  */
 bool
 MoveCrosshairAbsolute (Coord X, Coord Y)
@@ -1143,8 +1158,8 @@ MoveCrosshairAbsolute (Coord X, Coord Y)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the valid range for the crosshair cursor
+/*!
+ * \brief Sets the valid range for the crosshair cursor.
  */
 void
 SetCrosshairRange (Coord MinX, Coord MinY, Coord MaxX, Coord MaxY)
@@ -1158,9 +1173,10 @@ SetCrosshairRange (Coord MinX, Coord MinY, Coord MaxX, Coord MaxY)
   FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
 }
 
-/* ---------------------------------------------------------------------------
- * initializes crosshair stuff
- * clears the struct, allocates to graphical contexts
+/*!
+ * \brief Initializes crosshair stuff.
+ *
+ * Clears the struct, allocates to graphical contexts.
  */
 void
 InitCrosshair (void)
@@ -1177,8 +1193,8 @@ InitCrosshair (void)
   Marked.status = false;
 }
 
-/* ---------------------------------------------------------------------------
- * exits crosshair routines, release GCs
+/*!
+ * \brief Exits crosshair routines, release GCs.
  */
 void
 DestroyCrosshair (void)
