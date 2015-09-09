@@ -1161,7 +1161,59 @@ error:
 void
 AssignDefaultLayerTypes()
 {
-  /* We'll need this later. */
+  int num_found;
+  Cardinal outline_layer = -1;
+
+  /**
+   * There can be only one outline layer. During parsing guess_layertype()
+   * applied well known cases already, but as this function operates on a
+   * single layer only, it might end up with more than one hit for the whole
+   * file. Especially after loading an older layout without saved flags.
+   */
+  num_found = 0;
+  LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+    outline_layer = n;
+    num_found++;
+  END_LOOP;
+
+  if (num_found != 1)
+    /* No or duplicate outline! Try to find a layer which is named exactly
+       "outline". */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      if ( ! strcasecmp (layer->Name, "outline"))
+        {
+          outline_layer = n;
+          num_found = 1;
+          break;
+        }
+    END_LOOP;
+
+  if (num_found != 1)
+    /* Next, try to find a layer which is named exactly "route". */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      if ( ! strcasecmp (layer->Name, "route"))
+        {
+          outline_layer = n;
+          num_found = 1;
+          break;
+        }
+    END_LOOP;
+
+  if (num_found != 1)
+    /* As last resort, take the first layer claiming to be outline. */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      outline_layer = n;
+      num_found = 1;
+      break;
+    END_LOOP;
+
+  /* Make sure our found outline layer is the only one. */
+  LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+    if (n == outline_layer)
+      layer->Type = LT_OUTLINE;
+    else
+      layer->Type = LT_ROUTE;  /* best guess */
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
