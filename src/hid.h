@@ -197,14 +197,16 @@ extern "C"
   extern char *program_directory;
   extern char *program_basename;
 
-/* These are used both for set_layer() and for the layer type. */
-#define SL_SIDE_MASK    0x000F
+/* These are used for set_layer(). */
 #define SL_0_SIDE	0x0000
 #define SL_TOP_SIDE	0x0001
 #define SL_BOTTOM_SIDE	0x0002
 #define SL_INNER_SIDE   0x0004
 
-#define SL_TYPE_MASK    0x0FF0
+/* Callers should use this.  */
+#define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
+
+/* These define the type of a layer. */
 #define SL_COPPER       0x0000
 #define SL_SILK		0x0010
 #define SL_MASK		0x0020
@@ -218,14 +220,6 @@ extern "C"
 #define SL_OUTLINE      0x00A0
 #define SL_NOTES        0x00B0
 #define SL_KEEPOUT      0x00C0
-
-#define SL_ANTI_FLAG    0x1000
-
-/* Callers should use this.  */
-#define SL(type,side) (~0xffff | SL_##type | SL_##side##_SIDE)
-#define SL_ANTI(x) ((x) & SL_ANTI_FLAG)
-#define SL_TYPE(x) ((x) & SL_TYPE_MASK)
-#define SL_SIDE(x) ((x) & SL_SIDE_MASK)
 
 /* File Watch flags */
 /* Based upon those in dbus/dbus-connection.h */

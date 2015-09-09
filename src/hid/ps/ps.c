@@ -801,11 +801,11 @@ ps_set_layer (const char *name, int group, int empty)
   if (strcmp (name, "invisible") == 0)
     return 0;
 
-  global.is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
-  global.is_mask  = (SL_HTYPE (idx) == SL_MASK);
-  global.is_assy  = (SL_HTYPE (idx) == SL_ASSY);
-  global.is_copper = (SL_HTYPE (idx) == SL_COPPER);
-  global.is_paste  = (SL_HTYPE (idx) == SL_PASTE);
+  global.is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  global.is_mask  = (SL_TYPE (idx) == SL_MASK);
+  global.is_assy  = (SL_TYPE (idx) == SL_ASSY);
+  global.is_copper = (SL_TYPE (idx) == 0);
+  global.is_paste  = (SL_TYPE (idx) == SL_PASTE);
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, global.is_drill,
 	  global.is_mask);
@@ -918,14 +918,14 @@ ps_set_layer (const char *name, int group, int empty)
 	fprintf (global.f, "1 -1 scale\n");
 
       fprintf (global.f, "%g dup neg scale\n",
-               (SL_HTYPE (idx) == SL_FAB) ? 1.0 : global.scale_factor);
+               (SL_TYPE (idx) == SL_FAB) ? 1.0 : global.scale_factor);
       pcb_fprintf (global.f, "%mi %mi translate\n", -PCB->MaxWidth / 2, -PCB->MaxHeight / 2);
 
       /* Keep the drill list from falling off the left edge of the paper,
        * even if it means some of the board falls off the right edge.
        * If users don't want to make smaller boards, or use fewer drill
        * sizes, they can always ignore this sheet. */
-      if (SL_HTYPE (idx) == SL_FAB) {
+      if (SL_TYPE (idx) == SL_FAB) {
         Coord natural = boffset - MIL_TO_COORD(500) - PCB->MaxHeight / 2;
 	Coord needed  = PrintFab_overhang ();
         pcb_fprintf (global.f, "%% PrintFab overhang natural %mi, needed %mi\n", natural, needed);
@@ -983,7 +983,7 @@ ps_set_layer (const char *name, int group, int empty)
 #if 0
   /* Try to outsmart ps2pdf's heuristics for page rotation, by putting
    * text on all pages -- even if that text is blank */
-  if (SL_HTYPE (idx) != SL_FAB)
+  if (SL_TYPE (idx) != SL_FAB)
     fprintf (global.f,
 	     "gsave tx ty translate 1 -1 scale 0 0 moveto (Layer %s) show grestore newpath /ty ty ts sub def\n",
 	     name);

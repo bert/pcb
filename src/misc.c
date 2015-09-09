@@ -1161,21 +1161,7 @@ error:
 void
 AssignDefaultLayerTypes()
 {
-  int top_group = GetLayerGroupNumberByNumber (top_silk_layer);
-  int bottom_group = GetLayerGroupNumberByNumber (bottom_silk_layer);
-
-  LAYER_LOOP (PCB->Data, max_copper_layer)
-    if (layer->Type == 0)
-      {
-        int group = GetLayerGroupNumberByNumber (n);
-        if (group == top_group)
-          layer->Type |= SL_TOP_SIDE;
-        else if (group == bottom_group)
-          layer->Type |= SL_BOTTOM_SIDE;
-        else
-          layer->Type |= SL_INNER_SIDE;
-      }
-  END_LOOP;
+  /* We'll need this later. */
 }
 
 /* ---------------------------------------------------------------------------

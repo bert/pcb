@@ -1210,15 +1210,15 @@ png_set_layer (const char *name, int group, int empty)
 
   if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
     return 0;
-  if (SL_HTYPE (idx) == SL_ASSY || SL_HTYPE (idx) == SL_FAB)
+  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
     return 0;
 
   if (strcmp (name, "invisible") == 0)
     return 0;
 
-  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
-  is_mask = (SL_HTYPE (idx) == SL_MASK);
-  is_copper = (SL_HTYPE (idx) == SL_COPPER);
+  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  is_mask = (SL_TYPE (idx) == SL_MASK);
+  is_copper = (SL_TYPE (idx) == 0);
 
   if (is_drill && fill_holes)
     return 0;

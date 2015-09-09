@@ -84,7 +84,7 @@ ghid_set_layer (const char *name, int group, int empty)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
   if (idx < 0)
     {
-      switch (SL_HTYPE (idx))
+      switch (SL_TYPE (idx))
 	{
 	case SL_INVISIBLE:
 	  return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;

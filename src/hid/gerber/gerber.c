@@ -730,7 +730,7 @@ gerber_set_layer (const char *name, int group, int empty)
 
   if (strcmp (name, "invisible") == 0)
     return 0;
-  if (SL_HTYPE (idx) == SL_ASSY)
+  if (SL_TYPE (idx) == SL_ASSY)
     return 0;
 
   flash_drills = 0;
@@ -760,8 +760,8 @@ gerber_set_layer (const char *name, int group, int empty)
       pending_drills = NULL;
     }
 
-  is_drill = (SL_HTYPE (idx) == SL_PDRILL || SL_HTYPE (idx) == SL_UDRILL);
-  is_mask = (SL_HTYPE (idx) == SL_MASK);
+  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  is_mask = (SL_TYPE (idx) == SL_MASK);
   current_mask = HID_MASK_OFF;
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
