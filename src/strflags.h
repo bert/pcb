@@ -51,8 +51,8 @@ char *pcbflags_to_string (FlagType flags);
 unsigned int string_to_layertype (const char *typestring,
                                   int (*error) (const char *msg));
 char *layertype_to_string (unsigned int type);
-unsigned int guess_layertype_from_name (const char *name,
-                                        int layer_number,
-                                        DataType *data);
+unsigned int guess_layertype (const char *name,
+                              int layer_number,
+                              DataType *data);
 
 #endif

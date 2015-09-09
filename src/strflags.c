@@ -632,20 +632,26 @@ layertype_to_string (LayertypeType type)
   return rv;
 }
 
+/*!
+ * Given a layer without type, try to guess its type, mostly from its name.
+ * This is used by parse_y.y for compatibility with old file formats and
+ * _not_ used when such flags are already present in the file.
+ */
 LayertypeType
-guess_layertype_from_name (const char *name,
-                           int layer_number,
-                           DataType *data)
+guess_layertype (const char *name, int layer_number, DataType *data)
 {
   LayertypeType type;
 
+  /* First try to find known (partial) matches. */
   for (type = 0; type < LT_NUM_LAYERTYPES; type++)
     {
       if (strcasestr (name, layertype_name[type]))
         break;
     }
+
+  /* Nothing found? Then it's likely copper. */
   if (type == LT_NUM_LAYERTYPES)
-    type = 0;
+    type = LT_COPPER;
 
   return type;
 }

@@ -887,7 +887,7 @@ layer
                                 if ($5)
                                   Layer->Type = string_to_layertype ($5, yyerror);
                                 else
-                                  Layer->Type = guess_layertype_from_name ($4, $3, yyData);
+                                  Layer->Type = guess_layertype ($4, $3, yyData);
 			}
 		  layerdata ')'
 		;
