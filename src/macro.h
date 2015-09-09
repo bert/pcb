@@ -467,5 +467,11 @@ extern int mem_any_set (unsigned char *, int);
 	{ \
 	   LayerType *layer = (&data->Layer[(n)]);
 
+#define LAYER_TYPE_LOOP(data, ml, type) do { \
+        Cardinal n; \
+        for (n = 0; n < ml; n++) { \
+          LayerType *layer = (&data->Layer[(n)]); \
+          if (layer->Type != (type)) \
+            continue;
 
 #endif
