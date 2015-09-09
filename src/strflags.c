@@ -643,9 +643,9 @@ guess_layertype_from_name (const char *name,
   if (strcasestr (name, "route"))
     rv |= SL_OUTLINE;
 
-  if ((rv & SL_SIDE_MASK) == 0)
+  if (SL_SIDE(rv) == 0)
     {
-      if ((rv & SL_TYPE_MASK) == SL_SILK)
+      if (SL_TYPE(rv) == SL_SILK)
         {
           if ((data->Layer[layer_number - 2].Type & SL_TYPE_MASK) == SL_SILK)
             rv |= SL_TOP_SIDE;
