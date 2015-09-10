@@ -219,6 +219,7 @@ typedef enum
   LT_FAB,
   LT_ASSY,
   LT_OUTLINE,
+  LT_ROUTE,
   LT_NOTES,
   LT_KEEPOUT,
   LT_NUM_LAYERTYPES  /* must be the last one */

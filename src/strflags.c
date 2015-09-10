@@ -157,6 +157,7 @@ static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
   "fab",          /* LT_FAB */
   "assy",         /* LT_ASSY */
   "outline",      /* LT_OUTLINE */
+  "route",        /* LT_ROUTE */
   "notes",        /* LT_NOTES */
   "keepout",      /* LT_KEEPOUT */
   "no_type"       /* LT_NUM_LAYERTYPES */
@@ -645,9 +646,6 @@ guess_layertype_from_name (const char *name,
     }
   if (type == LT_NUM_LAYERTYPES)
     type = 0;
-
-  if (strcasestr (name, "route"))
-    type = LT_OUTLINE;
 
   return type;
 }
