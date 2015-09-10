@@ -293,7 +293,7 @@ struct rtree
 
 typedef struct			/* holds information about one layer */
 {
-  unsigned int Type;            /* SL_* from hid.h */
+  LayertypeType Type;           /* LT_* from hid.h */
   char *Name;			/* layer name */
   Cardinal LineN,		/* number of lines */
     TextN,			/* labels */

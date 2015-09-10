@@ -72,8 +72,7 @@ typedef struct
 typedef struct
 {
 
-  /* This is the bit or value that we're looking at. Global PCB
-     and object properties use and'able bits, layers use plain numbers. */
+  /* This is the bit that we're setting.  */
   int mask;
 
   /* The name used in the output file.  */
@@ -111,7 +110,7 @@ static FlagBitsType object_flagbits[] = {
   { EDGE2FLAG, N ("edge2"), ALL_TYPES },
   { FULLPOLYFLAG, N ("fullpoly"), POLYGON_TYPE},
   { NOPASTEFLAG, N ("nopaste"), PAD_TYPE },
-  { CONNECTEDFLAG, N ("connected"), ALL_TYPES },
+  { CONNECTEDFLAG, N ("connected"), ALL_TYPES }
 };
 
 static FlagBitsType pcb_flagbits[] = {
@@ -139,24 +138,29 @@ static FlagBitsType pcb_flagbits[] = {
   { HIDENAMESFLAG, N ("hidenames"), ALL_TYPES },
 };
 
-static FlagBitsType layer_typebits[] = {
-  /* copper is zero, so must be first. */
-  {SL_COPPER, N ("copper"), ALL_TYPES },
-  {SL_SILK, N ("silk"), ALL_TYPES },
-  {SL_MASK, N ("mask"), ALL_TYPES },
-  {SL_PDRILL, N ("pdrill"), ALL_TYPES },
-  {SL_UDRILL, N ("udrill"), ALL_TYPES },
-  {SL_PASTE, N ("paste"), ALL_TYPES },
-  {SL_INVISIBLE, N ("invisible"), ALL_TYPES },
-  {SL_FAB, N ("fab"), ALL_TYPES },
-  {SL_ASSY, N ("assy"), ALL_TYPES },
-  {SL_OUTLINE, N ("outline"), ALL_TYPES },
-  {SL_NOTES, N ("notes"), ALL_TYPES },
-  {SL_KEEPOUT, N ("keepout"), ALL_TYPES },
-  {SL_RATS, N ("rats"), ALL_TYPES },
-};
-
 #undef N
+
+/**
+ * These are the names of all the Layertypes defined in hid.h. Order here
+ * has to match the order of typedef enum LayertypeType there.
+ *
+ * They're used for parsing/writing layer types from/to the layout file.
+ */
+static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
+  "copper",       /* LT_COPPER */
+  "silk",         /* LT_SILK */
+  "mask",         /* LT_MASK */
+  "pdrill",       /* LT_PDRILL */
+  "udrill",       /* LT_UDRILL */
+  "paste",        /* LT_PASTE */
+  "invisible",    /* LT_INVISIBLE */
+  "fab",          /* LT_FAB */
+  "assy",         /* LT_ASSY */
+  "outline",      /* LT_OUTLINE */
+  "notes",        /* LT_NOTES */
+  "keepout",      /* LT_KEEPOUT */
+  "no_type"       /* LT_NUM_LAYERTYPES */
+};
 
 /*
  * This helper function maintains a small list of buffers which are
@@ -437,7 +441,7 @@ common_string_to_flags (const char *flagstring,
 		&& memcmp (flagbits[i].name, fp, flen) == 0)
 	      {
 		found = 1;
-                  SET_FLAG (flagbits[i].mask, &rv);
+		SET_FLAG (flagbits[i].mask, &rv);
 		break;
 	      }
 	  if (!found)
@@ -473,16 +477,30 @@ string_to_pcbflags (const char *flagstring,
 				 ENTRIES (pcb_flagbits));
 }
 
-unsigned int
+LayertypeType
 string_to_layertype (const char *flagstring,
                      int (*error) (const char *msg))
 {
-  FlagType f;
-  f = common_string_to_flags (flagstring,
-                              error,
-                              layer_typebits,
-                              ENTRIES (layer_typebits));
-  return f.f;
+  LayertypeType type = 0;
+
+  if (*flagstring == '"')
+    flagstring++;
+
+  while (flagstring > (char *)1 && strlen (flagstring) > 1)
+    {
+      for (type = 0; type < LT_NUM_LAYERTYPES; type++)
+        {
+          if (strcmp (flagstring, layertype_name[type]) == 0)
+            break;
+        }
+
+      if (type == LT_NUM_LAYERTYPES)
+        flagstring = strchr (flagstring, ',') + 1;
+      else
+        break;
+    }
+
+  return type;
 }
 
 /*
@@ -529,7 +547,7 @@ common_flags_to_string (FlagType flags,
   len = 3;			/* for "()\0" */
   for (i = 0; i < n_flagbits; i++)
     if ((flagbits[i].object_types & object_type)
-        && (TEST_FLAG (flagbits[i].mask, &fh)))
+	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
 	len += flagbits[i].nlen + 1;
 	CLEAR_FLAG (flagbits[i].mask, &fh);
@@ -550,7 +568,7 @@ common_flags_to_string (FlagType flags,
   fh = savef;
   for (i = 0; i < n_flagbits; i++)
     if (flagbits[i].object_types & object_type
-        && (TEST_FLAG (flagbits[i].mask, &fh)))
+	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
 	if (bp != buf + 1)
 	  *bp++ = ',';
@@ -597,44 +615,41 @@ pcbflags_to_string (FlagType flags)
 }
 
 char *
-layertype_to_string (unsigned int type)
+layertype_to_string (LayertypeType type)
 {
-  int i;
   char *rv = "\"\"";
 
-  for (i = 0; i < ENTRIES (layer_typebits); i++)
-    if (layer_typebits[i].mask == type)
-      {
-        int len;
+  if (type < LT_NUM_LAYERTYPES)
+    {
+      int len;
 
-        len = strlen (layer_typebits[i].name) + 3;
-        rv = alloc_buf (len);
-        snprintf (rv, len, "\"%s\"", layer_typebits[i].name);
-
-        break;
-      }
+      len = strlen (layertype_name[type]) + 3;
+      rv = alloc_buf (len);
+      snprintf (rv, len, "\"%s\"", layertype_name[type]);
+    }
 
   return rv;
 }
 
-unsigned int
+LayertypeType
 guess_layertype_from_name (const char *name,
                            int layer_number,
                            DataType *data)
 {
-  int rv = 0;
-  int i;
+  LayertypeType type;
 
-  for (i = 0; i < ENTRIES (layer_typebits); i++)
+  for (type = 0; type < LT_NUM_LAYERTYPES; type++)
     {
-      if (strcasestr (name, layer_typebits[i].name))
-        rv = layer_typebits[i].mask;
+      if (strcasestr (name, layertype_name[type]))
+        break;
     }
+  if (type == LT_NUM_LAYERTYPES)
+    type = 0;
 
   if (strcasestr (name, "route"))
-    rv = SL_OUTLINE;
+    type = LT_OUTLINE;
 
-  return rv;
+  return type;
 }
 
 #if FLAG_TEST

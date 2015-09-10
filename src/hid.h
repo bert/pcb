@@ -207,7 +207,24 @@ extern "C"
 #define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
 
 /* These define the type of a layer. */
-#define SL_COPPER       0x0000
+typedef enum
+{
+  LT_COPPER = 0,
+  LT_SILK,
+  LT_MASK,
+  LT_PDRILL,
+  LT_UDRILL,
+  LT_PASTE,
+  LT_INVISIBLE,
+  LT_FAB,
+  LT_ASSY,
+  LT_OUTLINE,
+  LT_NOTES,
+  LT_KEEPOUT,
+  LT_NUM_LAYERTYPES  /* must be the last one */
+} LayertypeType;
+
+/* These are deprecated and about to go away. */
 #define SL_SILK		0x0010
 #define SL_MASK		0x0020
 #define SL_PDRILL	0x0030
@@ -217,9 +234,6 @@ extern "C"
 #define SL_FAB		0x0070
 #define SL_ASSY		0x0080
 #define SL_RATS		0x0090
-#define SL_OUTLINE      0x00A0
-#define SL_NOTES        0x00B0
-#define SL_KEEPOUT      0x00C0
 
 /* File Watch flags */
 /* Based upon those in dbus/dbus-connection.h */
