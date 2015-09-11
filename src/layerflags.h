@@ -32,7 +32,7 @@
 
 unsigned int string_to_layertype (const char *typestring,
                                   int (*error) (const char *msg));
-char *layertype_to_string (unsigned int type);
+const char *layertype_to_string (unsigned int type);
 unsigned int guess_layertype (const char *name,
                               int layer_number,
                               DataType *data);

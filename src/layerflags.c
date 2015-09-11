@@ -94,17 +94,13 @@ string_to_layertype (const char *flagstring,
   return type;
 }
 
-char *
+const char *
 layertype_to_string (LayertypeType type)
 {
-  static char buf[32];
-  char *rv = "\"\"";
+  const char *rv = "";
 
   if (type < LT_NUM_LAYERTYPES)
-    {
-      snprintf (buf, sizeof (buf), "\"%s\"", layertype_name[type]);
-      rv = buf;
-    }
+    rv = layertype_name[type];
 
   return rv;
 }
