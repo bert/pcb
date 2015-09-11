@@ -33,6 +33,9 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -40,6 +43,8 @@
 #include "globalconst.h"
 #include "global.h"
 #include "compat.h"
+#include "data.h"
+#include "error.h"
 #include "hid.h"
 #include "strflags.h"
 
@@ -129,3 +134,76 @@ guess_layertype (const char *name, int layer_number, DataType *data)
   return type;
 }
 
+/* --------------------------------------------------------------------------- */
+
+static const char listlayertypes_syntax[] =
+  N_("ListLayertypes()");
+
+static const char listlayertypes_help[] =
+  N_("List available layertypes.\n");
+
+static int
+ActionListLayertypes (int argc, char **argv, Coord x, Coord y)
+{
+  LayertypeType type;
+
+  Message (N_("Available layer types:\n"));
+  for (type = 0; type < LT_NUM_LAYERTYPES; type++)
+    Message ("    %s (%d)\n", layertype_name[type], type);
+
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static const char setlayertype_syntax[] =
+  N_("SetLayertype(layer, type)");
+
+static const char setlayertype_help[] =
+  N_("Sets the type of a layer. Type can be given by name or by number.\n"
+     "For a list of available types, run ListLayertypes().");
+
+int
+ActionSetLayertype (int argc, char **argv, Coord x, Coord y)
+{
+  int index;
+  LayertypeType type;
+
+  if (argc != 2)
+    AFAIL (setlayertype);
+
+  /* layer array is zero-based, file format counts layers starting at 1. */
+  index = atoi (argv[0]) - 1;
+  if (index < 0 || index >= max_copper_layer + SILK_LAYER)
+    {
+      Message (N_("Layer index %d out of range, must be 0 ... %d\n"),
+               index + 1, max_copper_layer + SILK_LAYER);
+      return 1;
+    }
+
+  if (isdigit (argv[1][0]))
+    type = atoi (argv[1]);
+  else
+    type = string_to_layertype (argv[1], NULL);
+
+  if (type < 0 || type >= LT_NUM_LAYERTYPES)
+    {
+      Message (N_("Invalid layer type (%d) requested. "
+                  "See ListLayertypes() for a list.\n"), type);
+      return 1;
+    }
+
+  PCB->Data->Layer[index].Type = type;
+
+  return 0;
+}
+
+HID_Action layerflags_action_list[] = {
+  {"ListLayertypes", 0, ActionListLayertypes,
+   listlayertypes_help, listlayertypes_syntax}
+  ,
+  {"SetLayertype", 0, ActionSetLayertype,
+   setlayertype_help, setlayertype_syntax}
+};
+
+REGISTER_ACTIONS (layerflags_action_list)
