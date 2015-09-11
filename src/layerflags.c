@@ -59,16 +59,13 @@ static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
   "copper",       /* LT_COPPER */
   "silk",         /* LT_SILK */
   "mask",         /* LT_MASK */
-  "pdrill",       /* LT_PDRILL */
-  "udrill",       /* LT_UDRILL */
   "paste",        /* LT_PASTE */
-  "invisible",    /* LT_INVISIBLE */
-  "fab",          /* LT_FAB */
-  "assy",         /* LT_ASSY */
   "outline",      /* LT_OUTLINE */
   "route",        /* LT_ROUTE */
-  "notes",        /* LT_NOTES */
   "keepout",      /* LT_KEEPOUT */
+  "fab",          /* LT_FAB */
+  "assy",         /* LT_ASSY */
+  "notes",        /* LT_NOTES */
   "no_type"       /* LT_NUM_LAYERTYPES */
 };
 
