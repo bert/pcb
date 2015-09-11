@@ -5,6 +5,8 @@
 #define SL_TYPE(x) ((x) < 0 ? (x) & 0x0f0 : 0)
 #define SL_SIDE(x) ((x) & 0x00f)
 #define SL_MYSIDE(x) ((((x) & SL_BOTTOM_SIDE)!=0) == (SWAP_IDENT != 0))
+#define SL_NO(x) ((x) >> 16 & 0xff)
+#define SL_REMOVE_NO(x) ((x) | 0xff0000)
 
 /* Called by the init funcs, used to set up hid_list.  */
 extern void hid_register_hid (HID * hid);

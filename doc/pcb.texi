@@ -289,7 +289,7 @@ For details see @samp{fontCommand}, @ref{Resources}.
 @section Vias
 @cindex vias, an overview
 
-Vias provide through-hole connectivity across all layers.
+Vias provide through-hole connectivity across layers.
 While vias look a lot like element pins, don't use vias
 for adding elements to the layout, even if that seems
 easier than creating a new element. The default solder-mask
@@ -303,8 +303,11 @@ and also appear in the unplated drill file. @emph{Ctrl-H} key over
 a via switches it between being a pure-mounting hole and a regular via.
 You can assign a name to a via, which is useful during the creation
 of new element definitions.
-Each via exists on all copper layers. (@emph{i.e.}
-blind and buried vias are not supported)
+The layers a via exists on is determined by the layer visibility
+at the time of via creation. To creat a standard via that connects
+all layers, ensure that all layers are visible when creating the via.
+It is possible to create blind and buried vias by making only those
+layers visible the via shall exist on and then creating the via.
 
 
 @node Element Objects

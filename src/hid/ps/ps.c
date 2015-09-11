@@ -801,7 +801,7 @@ ps_set_layer (const char *name, int group, int empty)
   if (strcmp (name, "invisible") == 0)
     return 0;
 
-  global.is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  global.is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL || SL_TYPE (idx) == SL_SPDRILL);
   global.is_mask  = (SL_TYPE (idx) == SL_MASK);
   global.is_assy  = (SL_TYPE (idx) == SL_ASSY);
   global.is_copper = (SL_TYPE (idx) == 0);

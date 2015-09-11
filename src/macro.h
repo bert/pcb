@@ -121,6 +121,13 @@
 extern int mem_any_set (unsigned char *, int);
 #define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
 
+#define TEST_DISAB_LAY(L,P)		((P)->Flags.dl[(L)>>3] & (1 << ((L) & 7)) ? 1 : 0)
+#define SET_DISAB_LAY(L,P)		(P)->Flags.dl[(L)>>3] |= (1 << ((L) & 7))
+#define CLEAR_DISAB_LAY(L,P)	(P)->Flags.dl[(L)>>3] &= ~(1 << ((L) & 7))
+#define ASSIGN_DISAB_LAY(L,V,P)	(P)->Flags.dl[(L)>>3] = ((P)->Flags.dl[(L)>>3] & ~(1 << ((L) & 7))) | ((V) ? 1 << ((L) & 7) : 0)
+
+#define TEST_ANY_DISAB_LAY(P)	mem_any_set((P)->Flags.dl, sizeof((P)->Flags.dl))
+
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure
  */
