@@ -37,12 +37,6 @@
 #include <string.h>
 #endif
 
-#ifdef FLAG_TEST
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-
 #include "globalconst.h"
 #include "global.h"
 #include "compat.h"
@@ -528,7 +522,6 @@ common_flags_to_string (FlagType flags,
 
   fh.Flags = flags;
 
-#ifndef FLAG_TEST
   switch (object_type)
     {
     case VIA_TYPE:
@@ -541,7 +534,6 @@ common_flags_to_string (FlagType flags,
       CLEAR_FLAG (PINFLAG, &fh);
       break;
     }
-#endif
 
   savef = fh;
 
@@ -655,143 +647,3 @@ guess_layertype (const char *name, int layer_number, DataType *data)
 
   return type;
 }
-
-#if FLAG_TEST
-
-static void
-dump_flag (FlagType * f)
-{
-  int l;
-  printf ("F:%08x T:[", f->f);
-  for (l = 0; l < (MAX_LAYER + 1) / 2; l++)
-    printf (" %02x", f->t[l]);
-  printf ("]");
-}
-
-int
-mem_any_set (unsigned char *ptr, int bytes)
-{
-  while (bytes--)
-    if (*ptr++)
-      return 1;
-  return 0;
-}
-
-
-/*
- * This exists for standalone testing of this file.
- *
- * Compile as: gcc -DHAVE_CONFIG_H -DFLAG_TEST strflags.c -o strflags.x -I..
- * and then run it.
- */
-
-int
-main ()
-{
-  time_t now;
-  int i;
-  int errors = 0, count = 0;
-
-  time (&now);
-  srandom ((unsigned int) now + getpid ());
-
-  grow_layer_list (0);
-  for (i = 0; i < 16; i++)
-    {
-      int j;
-      char *p;
-      if (i != 1 && i != 4 && i != 5 && i != 9)
-	set_layer_list (i, 1);
-      else
-	set_layer_list (i, 0);
-      p = print_layer_list ();
-      printf ("%2d : %20s =", i, p);
-      parse_layer_list (p + 1, 0);
-      for (j = 0; j < num_layers; j++)
-	printf (" %d", layers[j]);
-      printf ("\n");
-    }
-
-  while (count < 1000000)
-    {
-      FlagHolder fh;
-      char *str;
-      FlagType new_flags;
-      int i;
-      int otype;
-
-      otype = ALL_TYPES;
-      fh.Flags = empty_flags;
-      for (i = 0; i < ENTRIES (object_flagbits); i++)
-	{
-	  if (TEST_FLAG (object_flagbits[i].mask, &fh))
-	    continue;
-	  if ((otype & object_flagbits[i].object_types) == 0)
-	    continue;
-	  if ((random () & 4) == 0)
-	    continue;
-
-	  otype &= object_flagbits[i].object_types;
-	  SET_FLAG (object_flagbits[i].mask, &fh);
-	}
-
-      if (otype & PIN_TYPES)
-	for (i = 0; i < MAX_LAYER; i++)
-	  if (random () & 4)
-	    ASSIGN_THERM (i, 3, &fh);
-
-      str = flags_to_string (fh.Flags, otype);
-      new_flags = string_to_flags (str, 0);
-
-      count++;
-      if (FLAGS_EQUAL (fh.Flags, new_flags))
-	continue;
-
-      dump_flag (&fh.Flags);
-      printf (" ");
-      dump_flag (&new_flags);
-      printf ("\n");
-      if (++errors == 5)
-	exit (1);
-    }
-
-  while (count < 1000000)
-    {
-      FlagHolder fh;
-      char *str;
-      FlagType new_flags;
-      int i;
-      int otype;
-
-      otype = ALL_TYPES;
-      fh.Flags = empty_flags;
-      for (i = 0; i < ENTRIES (pcb_flagbits); i++)
-	{
-	  if (TEST_FLAG (pcb_flagbits[i].mask, &fh))
-	    continue;
-	  if ((random () & 4) == 0)
-	    continue;
-
-	  otype &= pcb_flagbits[i].object_types;
-	  SET_FLAG (pcb_flagbits[i].mask, &fh);
-	}
-
-      str = pcbflags_to_string (fh.Flags);
-      new_flags = string_to_pcbflags (str, 0);
-
-      count++;
-      if (FLAGS_EQUAL (fh.Flags, new_flags))
-	continue;
-
-      dump_flag (&fh.Flags);
-      printf (" ");
-      dump_flag (&new_flags);
-      printf ("\n");
-      if (++errors == 5)
-	exit (1);
-    }
-  printf ("%d out of %d failed\n", errors, count);
-  return errors;
-}
-
-#endif
