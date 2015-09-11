@@ -40,7 +40,6 @@
 #include "globalconst.h"
 #include "global.h"
 #include "compat.h"
-#include "const.h"
 #include "hid.h"
 #include "strflags.h"
 
@@ -133,29 +132,6 @@ static FlagBitsType pcb_flagbits[] = {
 };
 
 #undef N
-
-/**
- * These are the names of all the Layertypes defined in hid.h. Order here
- * has to match the order of typedef enum LayertypeType there.
- *
- * They're used for parsing/writing layer types from/to the layout file.
- */
-static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
-  "copper",       /* LT_COPPER */
-  "silk",         /* LT_SILK */
-  "mask",         /* LT_MASK */
-  "pdrill",       /* LT_PDRILL */
-  "udrill",       /* LT_UDRILL */
-  "paste",        /* LT_PASTE */
-  "invisible",    /* LT_INVISIBLE */
-  "fab",          /* LT_FAB */
-  "assy",         /* LT_ASSY */
-  "outline",      /* LT_OUTLINE */
-  "route",        /* LT_ROUTE */
-  "notes",        /* LT_NOTES */
-  "keepout",      /* LT_KEEPOUT */
-  "no_type"       /* LT_NUM_LAYERTYPES */
-};
 
 /*
  * This helper function maintains a small list of buffers which are
@@ -472,32 +448,6 @@ string_to_pcbflags (const char *flagstring,
 				 ENTRIES (pcb_flagbits));
 }
 
-LayertypeType
-string_to_layertype (const char *flagstring,
-                     int (*error) (const char *msg))
-{
-  LayertypeType type = 0;
-
-  if (*flagstring == '"')
-    flagstring++;
-
-  while (flagstring > (char *)1 && strlen (flagstring) > 1)
-    {
-      for (type = 0; type < LT_NUM_LAYERTYPES; type++)
-        {
-          if (strcmp (flagstring, layertype_name[type]) == 0)
-            break;
-        }
-
-      if (type == LT_NUM_LAYERTYPES)
-        flagstring = strchr (flagstring, ',') + 1;
-      else
-        break;
-    }
-
-  return type;
-}
-
 /*
  * Given a set of flags for a given type of object, return a string
  * which reflects those flags.  The only requirement is that this
@@ -605,45 +555,4 @@ pcbflags_to_string (FlagType flags)
 				 ALL_TYPES,
 				 pcb_flagbits,
 				 ENTRIES (pcb_flagbits));
-}
-
-char *
-layertype_to_string (LayertypeType type)
-{
-  char *rv = "\"\"";
-
-  if (type < LT_NUM_LAYERTYPES)
-    {
-      int len;
-
-      len = strlen (layertype_name[type]) + 3;
-      rv = alloc_buf (len);
-      snprintf (rv, len, "\"%s\"", layertype_name[type]);
-    }
-
-  return rv;
-}
-
-/*!
- * Given a layer without type, try to guess its type, mostly from its name.
- * This is used by parse_y.y for compatibility with old file formats and
- * _not_ used when such flags are already present in the file.
- */
-LayertypeType
-guess_layertype (const char *name, int layer_number, DataType *data)
-{
-  LayertypeType type;
-
-  /* First try to find known (partial) matches. */
-  for (type = 0; type < LT_NUM_LAYERTYPES; type++)
-    {
-      if (strcasestr (name, layertype_name[type]))
-        break;
-    }
-
-  /* Nothing found? Then it's likely copper. */
-  if (type == LT_NUM_LAYERTYPES)
-    type = LT_COPPER;
-
-  return type;
 }

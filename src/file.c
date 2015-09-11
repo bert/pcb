@@ -83,6 +83,7 @@
 #include "error.h"
 #include "file.h"
 #include "hid.h"
+#include "layerflags.h"
 #include "misc.h"
 #include "mymem.h"
 #include "parse_l.h"

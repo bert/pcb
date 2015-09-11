@@ -82,6 +82,8 @@ PCB_SRCS = \
 	insert.h \
 	intersect.c \
 	intersect.h \
+	layerflags.c \
+	layerflags.h \
 	line.c \
 	line.h \
 	lrealpath.c \
