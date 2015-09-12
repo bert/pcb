@@ -83,6 +83,7 @@ static void DrawPPV (int group, const BoxType *);
 static void AddPart (void *);
 static void DrawEMark (ElementType *, Coord, Coord, bool);
 static void DrawRats (const BoxType *);
+static int pin_via_callback (const BoxType * b, void *cl);
 
 static void
 set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
@@ -374,11 +375,47 @@ EMark_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static int check_draw_via (const PinType *via, enum via_mode via_m, const HoleType * hole_type /* may be NULL */)
+{
+  switch (via_m) {
+    case via_on_current: /* only (holes of) vias enabled on current layer */
+      if (TEST_DISAB_LAY(INDEXOFCURRENT, via))
+        return 0; /* do not draw */
+      return 1; /* draw */
+    case via_on_visible: /* only (holes of) vias enabled on any visible layer */
+      {
+        int i;
+        for (i = 0; i < MAX_LAYER; i++)
+          if (LAYER_PTR(i)->On && !TEST_DISAB_LAY(i, via))
+            break;
+        if (i >= MAX_LAYER)
+          return 0; /* do not draw */
+      }
+      return 1; /* draw */
+    case via_on_all: /* only (holes of) vias on all layers */
+      if (TEST_ANY_DISAB_LAY(via))
+        return 0; /* do not draw */
+      return 1; /* draw */
+    case via_all: /* (holes of) all vias */
+      return 1; /* draw */
+    case via_by_hole_type: /* draw (holes of) vias with specified hole type */
+      if (hole_type == NULL || memcmp (via->Flags.dl, hole_type, sizeof( HoleType )) != 0)
+        return 0; /* do not draw */
+      return 1; /* draw */
+  }
+  return 1; /* draw */
+}
+
 static int
 hole_callback (const BoxType * b, void *cl)
 {
   PinType *pv = (PinType *) b;
   int plated = cl ? *(int *) cl : -1;
+
+  struct hole_info * hole_i = (struct hole_info *)cl;
+
+  if (!check_draw_via (pv, hole_i->via_m, &hole_i->hole_type))
+    return 1;
 
   if ((plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
       (plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))

@@ -423,6 +423,35 @@ typedef struct			/* holds a range of Drill Infos */
   DrillType *Drill;		/* plated holes */
 } DrillInfoType;
 
+enum via_mode
+{
+  via_on_current, /*!< draw (holes of) vias enabled on current layer. */
+  via_on_visible, /*!< draw (holes of) vias enabled on any visble layer. */
+  via_on_all, /*!< draw (holes of) vias enabled on all layers. */
+  via_all, /*!< draw all (holes of) vias. */
+  via_by_hole_type, /*!< draw (holes of) vias with specified hole type. */
+};
+
+typedef struct
+{
+  unsigned char dl[(MAX_LAYER + 7) >> 3];
+    /*!< hole type == dl member of object flags. */
+} HoleType;
+
+struct hole_info
+{
+  int plated;
+    /*!< -1: draw all holes, 0: draw ony unplated holes,
+     * 1: draw only plated holes. */
+  enum via_mode via_m; /*!< for holes of vias. */
+  HoleType hole_type; /*!< the hole type to draw (for via_m == via_by_hole_type). */
+};
+
+struct via_info
+{
+  enum via_mode via_m;
+};
+
 typedef struct
 {
   Coord Thick,			/* line thickness */

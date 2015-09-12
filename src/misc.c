@@ -716,8 +716,15 @@ IsPasteEmpty (int side)
 
 typedef struct
 {
+  int cnt; /*!< number of hole types in list. */
+  HoleType list[16]; /*!< list with hole types. */
+} HoleTypeList;
+
+typedef struct
+{
   int nplated;
   int nunplated;
+  HoleTypeList hole_types; /*!< hole types of plated holes. */
 } HoleCountStruct;
 
 static int
@@ -725,10 +732,33 @@ hole_counting_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
+  int i;
+
+  /* count plated and unplated holes */
   if (TEST_FLAG (HOLEFLAG, pin))
     hcs->nunplated++;
   else
     hcs->nplated++;
+
+  /* collect all hole types for plated holes */
+  if (!TEST_FLAG (HOLEFLAG, pin))
+  {
+    /* search hole type in list */
+    for (i = 0; i < hcs->hole_types.cnt; i++)
+      if (memcmp (&pin->Flags.dl, &hcs->hole_types.list[i], sizeof (HoleType) ) == 0 )
+        break; /* found hole type in list */
+    /* not found */
+    if (i >= hcs->hole_types.cnt)
+    {
+      /* add hole type to list */
+      if (hcs->hole_types.cnt < sizeof (hcs->hole_types.list) / sizeof (hcs->hole_types.list[0]))
+      { /* ignore if list is full */
+        memcpy (&hcs->hole_types.list[hcs->hole_types.cnt], &pin->Flags.dl, sizeof (HoleType));
+        hcs->hole_types.cnt++;
+      }
+    }
+  }
+
   return 1;
 }
 
