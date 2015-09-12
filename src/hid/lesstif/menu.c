@@ -96,7 +96,7 @@ Debug (int argc, char **argv, Coord x, Coord y)
   for (i = 0; i < argc; i++)
     printf (" [%d] `%s'", i, argv[i]);
   pcb_printf (" x,y %$mD\n", x, y);
-  for (i = 0; i < max_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     {
       printf("0x%08x %s (%s)\n",
              PCB->Data->Layer[i].Type,
