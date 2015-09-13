@@ -1,5 +1,3 @@
-#!/bin/sh
-#
 
 This documents what is done to create a pcb release.  The releases now
 are done by branching the sources, fixing up the release version number
