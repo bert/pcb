@@ -843,7 +843,7 @@ rats
 /* %start-doc pcbfile Layer
 
 @syntax
-Layer (LayerNum "Name") (
+Layer (LayerNum "Name" "Flags") (
 @ @ @ @dots{} contents @dots{}
 )
 @end syntax
@@ -857,6 +857,16 @@ bottom side; the layer group where the solder-side silk layer is member in
 is the solder side group. Analogous for the other side.
 @item Name
 The layer name.
+
+For layout files predating layer flags the name also defines
+the layer type in some situations. For example, a layer named @emph{outline}
+was considered to be the layer defining the extents of the board.
+@item Flags
+Layer flags. Currently this is the layer type, like @emph{copper}, @emph{silk}
+or @emph{outline}. For a complete list see layertype_name[] in layerflags.c.
+
+With layer flags missing, the type of layer is guessed at load time, mostly by
+the layer name. This mechanism ensures compatibility with older layouts.
 @item contents
 The contents of the layer, which may include attributes, lines, arcs, rectangles,
 text, and polygons.
