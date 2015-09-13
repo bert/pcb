@@ -137,7 +137,15 @@ static const char listlayertypes_syntax[] =
   N_("ListLayertypes()");
 
 static const char listlayertypes_help[] =
-  N_("List available layertypes.\n");
+  N_("List all available layertypes.\n");
+
+/* %start-doc actions ListLayertypes
+
+Lists all available layer types. These are the valid types for the second
+argument of @pxref{SetLayertype Action} or when editing the layout file with
+a text editor.
+
+%end-doc */
 
 static int
 ActionListLayertypes (int argc, char **argv, Coord x, Coord y)
@@ -159,6 +167,17 @@ static const char setlayertype_syntax[] =
 static const char setlayertype_help[] =
   N_("Sets the type of a layer. Type can be given by name or by number.\n"
      "For a list of available types, run ListLayertypes().");
+
+/* %start-doc actions SetLayertype
+
+Layers can have various types, like @emph{copper}, @emph{silk} or
+@emph{outline}. Behaviour of GUI and exporters largely depend on these types.
+For example, searching for electrical connections searches only layers of type
+@emph{copper}, all other layers are ignored.
+
+For a list of available types see @pxref{ListLayertypes Action}.
+
+%end-doc */
 
 int
 ActionSetLayertype (int argc, char **argv, Coord x, Coord y)
