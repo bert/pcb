@@ -238,7 +238,9 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
     }
 
   pcb->Data->Layer[top_silk_layer].Name = strdup ("top silk");
+  pcb->Data->Layer[top_silk_layer].Type = LT_SILK;
   pcb->Data->Layer[bottom_silk_layer].Name = strdup ("bottom silk");
+  pcb->Data->Layer[bottom_silk_layer].Type = LT_SILK;
 
   return 0;
 }
