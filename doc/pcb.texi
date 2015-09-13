@@ -2493,18 +2493,35 @@ the trace optimizer.
 
 @cindex user commands
 @cindex entering user commands
-The entering of user-commands is initiated by the action routine
-@emph{Command()} (normally bound to the @code{(":")} character) which
-replaces the bottom statusline with an input area or opens a separate
-command window.  It is finished by either @emph{<Key>Return} or
-@emph{<Key>Escape} to confirm or to abort. These two key-bindings
-cannot be changed from the resource file.  The triggering event,
-normally a key press, is ignored.
+The entering of user-commands is initiated by selecting @emph{Command entry}
+in the menu or typing a @code{(":")}. This runs the action routine
+@emph{Command()}, which replaces the bottom statusline with an input area or
+opens a separate command window.  Error and diagnostic messages go to the
+Message Log, so it's a good idea to have this window open as well.  Command
+entry is finished by either @emph{<Key>Return} or @emph{<Key>Escape} to confirm
+or to abort.
 
 Commands can be entered in one of two styles, command entry syntax:
-``@emph{Command arg1 arg2}'' or action script syntax ``@emph{Action1(arg1,
-arg2); Action2(arg1, arg2);}''.  Quoting arguments works similar to
-bash quoting:
+
+@example
+Command arg1 arg2
+@end example
+
+or action script syntax:
+
+@example
+Action1(arg1, arg2); Action2(arg1, arg2);
+@end example
+
+To find out about how a command works, use the argument @emph{usage}:
+
+@example
+SaveTo usage
+@end example
+
+There is a command for usage of the complete set of commands.
+
+Quoting arguments works similar to bash quoting:
 
 @itemize
 @item A backslash (\) is the escape character.  It preserves the literal
@@ -2519,9 +2536,6 @@ between single quotes, even when preceded by a blackslash.
 all characters within the quotes, with the exception of '\' which
 maintains its special meaning as an escape character.
 @end itemize
-
-There are simple @emph{usage} dialogs for each command and one for the
-complete set of commands.
 
 @table @samp
 
