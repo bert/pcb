@@ -70,15 +70,6 @@ docs_yesno=yes
 AC_SUBST(DOC)
 
 
-AC_MSG_CHECKING([if maintainer mode is required])
-if test "$docs_yesno" = "yes" -a "$pcb_git_version" = "yes" ; then
-	AC_MSG_RESULT([yes -- the documentation build is enabled and your sources are from git])
-	enable_maintainer_mode=yes
-else
-	AC_MSG_RESULT([no])
-fi
-
-
 dnl determine host type
 AC_CANONICAL_HOST
 AC_MSG_CHECKING(for windows)
