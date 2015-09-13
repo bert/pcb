@@ -22,6 +22,7 @@
 #include "resource.h"
 #include "lesstif.h"
 #include "mymem.h"
+#include "layerflags.h"
 
 #include "pcb-menu.h"
 
