@@ -221,7 +221,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	mv $@.tmp $@
 
 # for globalconst.h
-INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
+AM_CPPFLAGS= -I$(top_srcdir) -I$(srcdir)/icons
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
