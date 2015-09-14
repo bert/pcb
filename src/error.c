@@ -1,31 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/error.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * \brief Error and debug functions.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 
-/* error and debug functions
+/*
  * getpid() needs a cast to (int) to get rid of compiler warnings
  * on several architectures
  */
@@ -66,20 +72,20 @@
  */
 
 #if !defined(HAVE_STRERROR)
-extern int sys_nerr;		/* number of messages available from array */
+extern int sys_nerr;		/*!< Number of messages available from array. */
 #define USE_SYS_ERRLIST
 #endif
 
 /* the list is already defined for some OS */
 #if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__linux__) && !defined(__DragonFly__)
 #ifdef USE_SYS_ERRLIST
-extern char *sys_errlist[];	/* array of error messages */
+extern char *sys_errlist[];	/*!< Array of error messages. */
 #endif
 #endif
 
 
-/* ---------------------------------------------------------------------------
- * output of message in a dialog window or log window
+/*!
+ * \brief Output of message in a dialog window or log window.
  */
 void
 Message (const char *Format, ...)
@@ -91,8 +97,8 @@ Message (const char *Format, ...)
 }
 
 
-/* ---------------------------------------------------------------------------
- * print standard 'open error'
+/*!
+ * \brief Print standard 'open error'.
  */
 void
 OpenErrorMessage (char *Filename)
@@ -111,8 +117,8 @@ OpenErrorMessage (char *Filename)
   free (utf8);
 }
 
-/* ---------------------------------------------------------------------------
- * print standard 'popen error'
+/*!
+ * \brief Print standard 'popen error'.
  */
 void
 PopenErrorMessage (char *Filename)
@@ -131,8 +137,8 @@ PopenErrorMessage (char *Filename)
   free (utf8);
 }
 
-/* ---------------------------------------------------------------------------
- * print standard 'opendir'
+/*!
+ * \brief Print standard 'opendir'.
  */
 void
 OpendirErrorMessage (char *DirName)
@@ -151,8 +157,8 @@ OpendirErrorMessage (char *DirName)
   free (utf8);
 }
 
-/* ---------------------------------------------------------------------------
- * print standard 'chdir error'
+/*!
+ * \brief Print standard 'chdir error'.
  */
 void
 ChdirErrorMessage (char *DirName)
@@ -171,8 +177,8 @@ ChdirErrorMessage (char *DirName)
   free (utf8);
 }
 
-/* ---------------------------------------------------------------------------
- * output of fatal error message
+/*!
+ * \brief Output of fatal error message.
  */
 void
 MyFatal (char *Format, ...)
@@ -190,8 +196,8 @@ MyFatal (char *Format, ...)
   exit (1);
 }
 
-/* ---------------------------------------------------------------------------
- * catches signals which abort the program
+/*!
+ * \brief Catches signals which abort the program.
  */
 void
 CatchSignal (int Signal)
