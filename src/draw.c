@@ -1,31 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/draw.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2003, 2004 Thomas Nau
+ * \brief Drawing routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2003, 2004 Thomas Nau
  *
- */
-
-
-/* drawing routines
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -105,8 +107,8 @@ set_layer_object_color (LayerType *layer, AnyObjectType *obj)
   set_object_color (obj, NULL, layer->SelectedColor, PCB->ConnectedColor, PCB->FoundColor, layer->Color);
 }
 
-/*---------------------------------------------------------------------------
- *  Adds the update rect to the update region
+/*!
+ * \brief Adds the update rect to the update region.
  */
 static void
 AddPart (void *b)
@@ -119,8 +121,8 @@ AddPart (void *b)
   Block.Y2 = MAX (Block.Y2, box->Y2);
 }
 
-/*
- * initiate the actual redrawing of the updated area
+/*!
+ * \brief Initiate the actual redrawing of the updated area.
  */
 void
 Draw (void)
@@ -133,8 +135,8 @@ Draw (void)
   Block.X2 = Block.Y2 = -MAXINT;
 }
 
-/* ---------------------------------------------------------------------- 
- * redraws all the data by the event handlers
+/*!
+ * \brief Redraws all the data by the event handlers.
  */
 void
 Redraw (void)
@@ -513,10 +515,9 @@ element_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * prints assembly drawing.
+/*!
+ * \brief Prints assembly drawing.
  */
-
 void
 PrintAssembly (int side, const BoxType * drawn_area)
 {
@@ -532,8 +533,9 @@ PrintAssembly (int side, const BoxType * drawn_area)
   doing_assy = false;
 }
 
-/* ---------------------------------------------------------------------------
- * initializes some identifiers for a new zoom factor and redraws whole screen
+/*!
+ * \brief Initializes some identifiers for a new zoom factor and redraws
+ * whole screen.
  */
 static void
 DrawEverything (const BoxType *drawn_area)
@@ -732,9 +734,9 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * Draws pins pads and vias - Always draws for non-gui HIDs,
- * otherwise drawing depends on PCB->PinOn and PCB->ViaOn
+/*!
+ * \brief Draws pins pads and vias - Always draws for non-gui HIDs,
+ * otherwise drawing depends on PCB->PinOn and PCB->ViaOn.
  */
 static void
 DrawPPV (int group, const BoxType *drawn_area)
@@ -811,10 +813,9 @@ clearPad_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * Draws silk layer.
+/*!
+ * \brief Draws silk layer.
  */
-
 void
 DrawSilk (int side, const BoxType * drawn_area)
 {
@@ -871,8 +872,8 @@ DrawMaskBoardArea (int mask_type, const BoxType *drawn_area)
                                            drawn_area->X2, drawn_area->Y2);
 }
 
-/* ---------------------------------------------------------------------------
- * draws solder mask layer - this will cover nearly everything
+/*!
+ * \brief Draws solder mask layer - this will cover nearly everything.
  */
 void
 DrawMask (int side, const BoxType *screen)
@@ -900,8 +901,8 @@ DrawMask (int side, const BoxType *screen)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * draws solder paste layer for a given side of the board
+/*!
+ * \brief Draws solder paste layer for a given side of the board.
  */
 void
 DrawPaste (int side, const BoxType *drawn_area)
@@ -992,9 +993,11 @@ DrawLayer (LayerType *Layer, const BoxType *screen)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * draws one layer group.  If the exporter is not a GUI,
- * also draws the pins / pads / vias in this layer group.
+/*!
+ * \brief Draws one layer group.
+ *
+ * If the exporter is not a GUI, also draws the pins / pads / vias in
+ * this layer group.
  */
 void
 DrawLayerGroup (int group, const BoxType *drawn_area)
@@ -1084,8 +1087,8 @@ GatherPadName (PadType *Pad)
   return;
 }
 
-/* ---------------------------------------------------------------------------
- * draw a via object
+/*!
+ * \brief Draw a via object.
  */
 void
 DrawVia (PinType *Via)
@@ -1095,8 +1098,8 @@ DrawVia (PinType *Via)
     DrawViaName (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * draws the name of a via
+/*!
+ * \brief Draws the name of a via.
  */
 void
 DrawViaName (PinType *Via)
@@ -1104,8 +1107,8 @@ DrawViaName (PinType *Via)
   GatherPVName (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * draw a pin object
+/*!
+ * \brief Draw a pin object.
  */
 void
 DrawPin (PinType *Pin)
@@ -1116,8 +1119,8 @@ DrawPin (PinType *Pin)
     DrawPinName (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * draws the name of a pin
+/*!
+ * \brief Draws the name of a pin.
  */
 void
 DrawPinName (PinType *Pin)
@@ -1125,8 +1128,8 @@ DrawPinName (PinType *Pin)
   GatherPVName (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * draw a pad object
+/*!
+ * \brief Draw a pad object.
  */
 void
 DrawPad (PadType *Pad)
@@ -1136,8 +1139,8 @@ DrawPad (PadType *Pad)
     DrawPadName (Pad);
 }
 
-/* ---------------------------------------------------------------------------
- * draws the name of a pad
+/*!
+ * \brief Draws the name of a pad.
  */
 void
 DrawPadName (PadType *Pad)
@@ -1145,8 +1148,8 @@ DrawPadName (PadType *Pad)
   GatherPadName (Pad);
 }
 
-/* ---------------------------------------------------------------------------
- * draws a line on a layer
+/*!
+ * \brief Draws a line on a layer.
  */
 void
 DrawLine (LayerType *Layer, LineType *Line)
@@ -1154,8 +1157,8 @@ DrawLine (LayerType *Layer, LineType *Line)
   AddPart (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * draws a ratline
+/*!
+ * \brief Draws a ratline.
  */
 void
 DrawRat (RatType *Rat)
@@ -1179,8 +1182,8 @@ DrawRat (RatType *Rat)
     DrawLine (NULL, (LineType *)Rat);
 }
 
-/* ---------------------------------------------------------------------------
- * draws an arc on a layer
+/*!
+ * \brief Draws an arc on a layer.
  */
 void
 DrawArc (LayerType *Layer, ArcType *Arc)
@@ -1188,8 +1191,8 @@ DrawArc (LayerType *Layer, ArcType *Arc)
   AddPart (Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * draws a text on a layer
+/*!
+ * \brief Draws a text on a layer.
  */
 void
 DrawText (LayerType *Layer, TextType *Text)
@@ -1198,8 +1201,8 @@ DrawText (LayerType *Layer, TextType *Text)
 }
 
 
-/* ---------------------------------------------------------------------------
- * draws a polygon on a layer
+/*!
+ * \brief Draws a polygon on a layer.
  */
 void
 DrawPolygon (LayerType *Layer, PolygonType *Polygon)
@@ -1207,8 +1210,8 @@ DrawPolygon (LayerType *Layer, PolygonType *Polygon)
   AddPart (Polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * draws an element
+/*!
+ * \brief Draws an element.
  */
 void
 DrawElement (ElementType *Element)
@@ -1218,8 +1221,8 @@ DrawElement (ElementType *Element)
   DrawElementPinsAndPads (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * draws the name of an element
+/*!
+ * \brief Draws the name of an element.
  */
 void
 DrawElementName (ElementType *Element)
@@ -1229,8 +1232,8 @@ DrawElementName (ElementType *Element)
   DrawText (NULL, &ELEMENT_TEXT (PCB, Element));
 }
 
-/* ---------------------------------------------------------------------------
- * draws the package of an element
+/*!
+ * \brief Draws the package of an element.
  */
 void
 DrawElementPackage (ElementType *Element)
@@ -1247,8 +1250,8 @@ DrawElementPackage (ElementType *Element)
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * draw pins of an element
+/*!
+ * \brief Draw pins of an element.
  */
 void
 DrawElementPinsAndPads (ElementType *Element)
@@ -1266,8 +1269,8 @@ DrawElementPinsAndPads (ElementType *Element)
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * erase a via
+/*!
+ * \brief Erase a via.
  */
 void
 EraseVia (PinType *Via)
@@ -1277,8 +1280,8 @@ EraseVia (PinType *Via)
     EraseViaName (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * erase a ratline
+/*!
+ * \brief Erase a ratline.
  */
 void
 EraseRat (RatType *Rat)
@@ -1300,8 +1303,8 @@ EraseRat (RatType *Rat)
 }
 
 
-/* ---------------------------------------------------------------------------
- * erase a via name
+/*!
+ * \brief Erase a via name.
  */
 void
 EraseViaName (PinType *Via)
@@ -1309,8 +1312,8 @@ EraseViaName (PinType *Via)
   GatherPVName (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * erase a pad object
+/*!
+ * \brief Erase a pad object.
  */
 void
 ErasePad (PadType *Pad)
@@ -1320,8 +1323,8 @@ ErasePad (PadType *Pad)
     ErasePadName (Pad);
 }
 
-/* ---------------------------------------------------------------------------
- * erase a pad name
+/*!
+ * \brief Erase a pad name.
  */
 void
 ErasePadName (PadType *Pad)
@@ -1329,8 +1332,8 @@ ErasePadName (PadType *Pad)
   GatherPadName (Pad);
 }
 
-/* ---------------------------------------------------------------------------
- * erase a pin object
+/*!
+ * \brief Erase a pin object.
  */
 void
 ErasePin (PinType *Pin)
@@ -1340,8 +1343,8 @@ ErasePin (PinType *Pin)
     ErasePinName (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * erase a pin name
+/*!
+ * \brief Erase a pin name.
  */
 void
 ErasePinName (PinType *Pin)
@@ -1349,8 +1352,8 @@ ErasePinName (PinType *Pin)
   GatherPVName (Pin);
 }
 
-/* ---------------------------------------------------------------------------
- * erases a line on a layer
+/*!
+ * \brief Erases a line on a layer.
  */
 void
 EraseLine (LineType *Line)
@@ -1358,8 +1361,8 @@ EraseLine (LineType *Line)
   AddPart (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * erases an arc on a layer
+/*!
+ * \brief Erases an arc on a layer.
  */
 void
 EraseArc (ArcType *Arc)
@@ -1369,8 +1372,8 @@ EraseArc (ArcType *Arc)
   AddPart (Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * erases a text on a layer
+/*!
+ * \brief Erases a text on a layer.
  */
 void
 EraseText (LayerType *Layer, TextType *Text)
@@ -1378,8 +1381,8 @@ EraseText (LayerType *Layer, TextType *Text)
   AddPart (Text);
 }
 
-/* ---------------------------------------------------------------------------
- * erases a polygon on a layer
+/*!
+ * \brief Erases a polygon on a layer.
  */
 void
 ErasePolygon (PolygonType *Polygon)
@@ -1387,8 +1390,8 @@ ErasePolygon (PolygonType *Polygon)
   AddPart (Polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * erases an element
+/*!
+ * \brief Erases an element.
  */
 void
 EraseElement (ElementType *Element)
@@ -1407,8 +1410,8 @@ EraseElement (ElementType *Element)
   EraseElementPinsAndPads (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * erases all pins and pads of an element
+/*!
+ * \brief Erases all pins and pads of an element.
  */
 void
 EraseElementPinsAndPads (ElementType *Element)
@@ -1425,8 +1428,8 @@ EraseElementPinsAndPads (ElementType *Element)
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * erases the name of an element
+/*!
+ * \brief Erases the name of an element.
  */
 void
 EraseElementName (ElementType *Element)
@@ -1533,10 +1536,9 @@ draw_element (ElementType *element)
   draw_element_pins_and_pads (element);
 }
 
-/* ---------------------------------------------------------------------------
- * HID drawing callback.
+/*!
+ * \brief HID drawing callback.
  */
-
 void
 hid_expose_callback (HID * hid, BoxType * region, void *item)
 {
