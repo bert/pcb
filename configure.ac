@@ -1302,29 +1302,6 @@ if test -d $srcdir/tutorial; then
 fi
 
 dnl testsuite
-AC_CONFIG_FILES(tests/inputs/Makefile)
-AC_CONFIG_FILES(tests/golden/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_bom1/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_bom2/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_bom3/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_bom4/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode1/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode2/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode3/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode4/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode5/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode6/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode7/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode8/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode9/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode10/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gcode11/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_gerber3/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
-AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
 dnl win32 build scripts

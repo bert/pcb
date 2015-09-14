@@ -88,19 +88,28 @@ are adding multiple tests, then you can list them all on the same
 command line.
 
 *IMPORTANT*
-Verify that the generated .png files for your new tests are correct.  These
+Verify that the generated files for your new tests are correct.  These
 files will have been placed in the golden/ subdirectory.
 
 ----------------------------------------------------------------------
-Update Makefile.am's
+Update Makefile.am
 ----------------------------------------------------------------------
 
-Update inputs/Makefile.am and golden/Makefile.am to include your new
-files.  If you added new Makefile.am's then be sure to also update
-configure.ac at the top level of the source tree.
+Update EXTRA_DIST in Makefile.am to also include your new files.  The
+ones in input/ as well as those in golden/.  Files created in output/
+are _not_ part of the distribution.
 
 ----------------------------------------------------------------------
 Add the new files to git
 ----------------------------------------------------------------------
 
+'git add' the same files you added to the list in Makefile.am.
 
+----------------------------------------------------------------------
+Check for successful distribution
+----------------------------------------------------------------------
+
+If possible, run a 'make distcheck'.  This will run the tests in a
+build directory, which likely fails if you forgot something.  If you
+can't run a distcheck, push to the repository and ask somebody else
+to do so.
