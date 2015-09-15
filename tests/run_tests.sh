@@ -585,6 +585,7 @@ for t in $all_tests ; do
 	else
 	    path_files="${path_files} ${INDIR}/${f}"
 	    cp "${INDIR}/${f}" "${rundir}"
+	    chmod u+w "${rundir}/${f}"
 	fi
     done
 
