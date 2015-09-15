@@ -179,7 +179,6 @@ GL_SRCS= \
 	hid/common/trackball.c \
 	hid/common/trackball.h
 
-
 BUILT_SOURCES = \
 	core_lists.h \
 	gpcb-menu.h \
@@ -202,14 +201,16 @@ if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
 endif
 
+# All these -I$(top_srcdir) in this file are for globalconst.h.
+pcb_CPPFLAGS = -I$(top_srcdir)
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 TEST_SRCS = \
 	pcb-printf.c	\
 	main-test.c
 
+unittest_CPPFLAGS = -I$(top_srcdir) -DPCB_UNIT_TEST
 unittest_SOURCES = ${TEST_SRCS}
-unittest_CFLAGS = -DPCB_UNIT_TEST
 check_PROGRAMS = unittest
 check_SCRIPTS = unittest
 TESTS = unittest
@@ -219,9 +220,6 @@ core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
-
-# for globalconst.h
-AM_CPPFLAGS= -I$(top_srcdir) -I$(srcdir)/icons
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
@@ -286,7 +284,7 @@ hid/common/hidlist.h : Makefile
 	  echo "HID_DEF($${e})" >> $@; \
 	done
 
-libgtk_a_CPPFLAGS = -I./hid/gtk
+libgtk_a_CPPFLAGS = -I$(top_srcdir) -I./hid/gtk
 LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -340,7 +338,6 @@ dbus-introspect.h : dbus.xml Makefile
 
 PCB_SRCS+=	${DBUS_SRCS}
 BUILT_SOURCES+=	dbus-introspect.h
-
 endif
 
 # If we are building with GL support, we need some extra files
@@ -362,11 +359,9 @@ pcb_icon.ico: $(top_srcdir)/data/pcb_icon.ico
 
 pcb_LDADD+=			pcb_icon.o
 pcb_DEPENDENCIES+=	pcb_icon.o
-
 endif
 
-
-liblesstif_a_CPPFLAGS = -I./hid/lesstif
+liblesstif_a_CPPFLAGS = -I$(top_srcdir) -I./hid/lesstif
 LIBLESSTIF_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -386,7 +381,7 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libbatch_a_CPPFLAGS = -I./hid/batch
+libbatch_a_CPPFLAGS = -I$(top_srcdir) -I./hid/batch
 LIBBATCH_SRCS = \
 	hid/hidint.h \
 	hid/batch/batch.c 
@@ -398,15 +393,17 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+libgerber_a_CPPFLAGS = -I$(top_srcdir)
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
 
+libbom_a_CPPFLAGS = -I$(top_srcdir)
 libbom_a_SOURCES = \
 	hid/hidint.h \
 	hid/bom/bom.c
 
-libps_a_CPPFLAGS = -I./hid/ps
+libps_a_CPPFLAGS = -I$(top_srcdir) -I./hid/ps
 LIBPS_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -421,7 +418,7 @@ hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libpng_a_CPPFLAGS = -I./hid/png
+libpng_a_CPPFLAGS = -I$(top_srcdir) -I./hid/png
 LIBPNG_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -435,7 +432,7 @@ hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libgcode_a_CPPFLAGS = -I./hid/gcode
+libgcode_a_CPPFLAGS = -I$(top_srcdir) -I./hid/gcode
 LIBGCODE_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -458,7 +455,7 @@ hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
 	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libnelma_a_CPPFLAGS = -I./hid/nelma
+libnelma_a_CPPFLAGS = -I$(top_srcdir) -I./hid/nelma
 LIBNELMA_SRCS = \
 	dolists.h \
 	hid/hidint.h \
@@ -471,6 +468,7 @@ hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
 	(for f in ${LIBNELMA_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+liblpr_a_CPPFLAGS = -I$(top_srcdir)
 liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
