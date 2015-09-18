@@ -835,13 +835,13 @@ gcode_do_export (HID_Attr_Val * options)
                   sort_drill (drill->holes, drill->n_holes);
 
                   {
-                    // get the filename with the drill size encoded in it
+                    /* get the filename with the drill size encoded in it */
                     char layername[32];
-                    snprintf(layername, sizeof(layername),
-                             "%.4f.drill",
-                             metric ?
-                             drill->diameter_inches * 25.4 :
-                             drill->diameter_inches);
+                    pcb_snprintf(layername, sizeof(layername),
+                                 "%`.4f.drill",
+                                 metric ?
+                                 drill->diameter_inches * 25.4 :
+                                 drill->diameter_inches);
                     gcode_f = gcode_start_gcode(layername, metric);
                   }
                   if (!gcode_f)
