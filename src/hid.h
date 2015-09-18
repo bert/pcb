@@ -383,9 +383,10 @@ typedef enum
        screen may be adjusted so that the cursor and the crosshair are
        at the same point on the screen.  */
     void (*set_crosshair) (int x_, int y_, int cursor_action_);
-#define HID_SC_DO_NOTHING	0
-#define HID_SC_WARP_POINTER	1
-#define HID_SC_PAN_VIEWPORT	2
+#define HID_SC_DO_NOTHING                          0
+#define HID_SC_WARP_POINTER	                       1
+#define HID_SC_PAN_VIEWPORT                        2
+#define HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER 3
 
     /* Causes func to be called at some point in the future.  Timers are
        only good for *one* call; if you want it to repeat, add another
