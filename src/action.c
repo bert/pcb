@@ -4312,20 +4312,21 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool absolute;
+  bool  absolute;
+  Coord thickness;
   Coord value;
-  int flags;
+  int   flags;
 
   if (!function)
     return 1;
   if (strcasecmp (function, "Selected") == 0)
     flags = SELECTEDFLAG;
   else
-    {
-      units = delta;
-      delta = function;
-      flags = 0;
-    }
+  {
+    units = delta;
+    delta = function;
+    flags = 0;
+  }
   value = 2 * GetValue (delta, units, &absolute);
 
   SaveUndoSerialNumber ();
@@ -4334,25 +4335,34 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
     PIN_LOOP (element);
     {
       if (!TEST_FLAGS (flags, pin))
-	continue;
-      if (pin->Mask < pin->Thickness + value)
-	{
-	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
-				pin->Thickness + value, 1);
-	  RestoreUndoSerialNumber ();
-	}
+        continue;
+
+      if (TEST_FLAG(HOLEFLAG, pin)) {
+        thickness = pin->DrillingHole;
+      }
+      else {
+        thickness = pin->Thickness;
+      }
+
+      if (pin->Mask < thickness + value) {
+
+        ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
+                              thickness + value, 1);
+        RestoreUndoSerialNumber ();
+      }
     }
     END_LOOP;
     PAD_LOOP (element);
     {
       if (!TEST_FLAGS (flags, pad))
-	continue;
+        continue;
+
       if (pad->Mask < pad->Thickness + value)
-	{
-	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
-				pad->Thickness + value, 1);
-	  RestoreUndoSerialNumber ();
-	}
+      {
+        ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+                              pad->Thickness + value, 1);
+        RestoreUndoSerialNumber ();
+      }
     }
     END_LOOP;
   }
@@ -4362,10 +4372,10 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
     if (!TEST_FLAGS (flags, via))
       continue;
     if (via->Mask && via->Mask < via->Thickness + value)
-      {
-	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
-	RestoreUndoSerialNumber ();
-      }
+    {
+      ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
+      RestoreUndoSerialNumber ();
+    }
   }
   END_LOOP;
   RestoreUndoSerialNumber ();
