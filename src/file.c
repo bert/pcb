@@ -539,7 +539,7 @@ WritePCBDataHeader (FILE * FP)
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
   pcb_fprintf (FP, " %mr %mr]\n\n", PCB->MaxWidth, PCB->MaxHeight);
-  pcb_fprintf (FP, "Grid[%s %mr %mr %d]\n", c_dtostr (COORD_TO_MIL (PCB->Grid) * 100), PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
+  pcb_fprintf (FP, "Grid[%mr %mr %mr %d]\n", PCB->Grid, PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
   /* PolyArea should be output in square cmils, no suffix */
   fprintf (FP, "PolyArea[%s]\n", c_dtostr (COORD_TO_MIL (COORD_TO_MIL (PCB->IsleArea) * 100) * 100));
   pcb_fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
