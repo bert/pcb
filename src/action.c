@@ -4345,7 +4345,6 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
       }
 
       if (pin->Mask < thickness + value) {
-
         ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
                               thickness + value, 1);
         RestoreUndoSerialNumber ();
@@ -4357,8 +4356,7 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
       if (!TEST_FLAGS (flags, pad))
         continue;
 
-      if (pad->Mask < pad->Thickness + value)
-      {
+      if (pad->Mask < pad->Thickness + value) {
         ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
                               pad->Thickness + value, 1);
         RestoreUndoSerialNumber ();
@@ -4367,17 +4365,18 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
     END_LOOP;
   }
   END_LOOP;
+
   VIA_LOOP (PCB->Data);
   {
     if (!TEST_FLAGS (flags, via))
       continue;
-    if (via->Mask && via->Mask < via->Thickness + value)
-    {
+    if (via->Mask && via->Mask < via->Thickness + value) {
       ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
       RestoreUndoSerialNumber ();
     }
   }
   END_LOOP;
+
   RestoreUndoSerialNumber ();
   IncrementUndoSerialNumber ();
   return 0;
