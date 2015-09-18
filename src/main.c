@@ -1862,7 +1862,7 @@ main (int argc, char *argv[])
    * - register 'call on exit()' function
    */
 
-  #include "core_lists.h"
+#include "core_lists.h"
 
   setbuf (stdout, 0);
   InitPaths (argv[0]);
@@ -1870,7 +1870,11 @@ main (int argc, char *argv[])
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   textdomain(GETTEXT_PACKAGE);
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-  setlocale(LC_ALL,"");
+
+#ifdef ENABLE_NLS
+  setlocale (LC_ALL, "");
+  setlocale (LC_NUMERIC, "C");
+#endif
 
   srand ( time(NULL) ); /* Set seed for rand() */
 
@@ -2011,9 +2015,9 @@ main (int argc, char *argv[])
       hid_action ("LibraryChanged");
     }
 
-    #if HAVE_LIBSTROKE
+#if HAVE_LIBSTROKE
     stroke_init ();
-    #endif
+#endif
 
     if (Settings.ScriptFilename) {
       Message (_("Executing startup script file %s\n"),
@@ -2029,18 +2033,20 @@ main (int argc, char *argv[])
     if (gui->printer || gui->exporter) {
 
       // Workaround to fix batch output for non-C locales
+#ifdef ENABLE_NLS
       setlocale(LC_NUMERIC,"C");
+#endif
       gui->do_export (0);
       exit (0);
     }
 
-    #if HAVE_DBUS
+#if HAVE_DBUS
     pcb_dbus_setup();
-    #endif
+#endif
 
     EnableAutosave ();
 
-    #if DEBUG
+#if DEBUG
     printf ("Settings.LibraryDir        = \"%s\"\n", Settings.LibraryDir);
     printf ("Settings.FontPath          = \"%s\"\n", Settings.FontPath);
     printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
@@ -2050,12 +2056,12 @@ main (int argc, char *argv[])
             UNKNOWN (Settings.MakeProgram));
     printf ("Settings.GnetlistProgram = \"%s\"\n",
             UNKNOWN (Settings.GnetlistProgram));
-    #endif
+#endif
 
     gui->do_export (0);
-    #if HAVE_DBUS
+#if HAVE_DBUS
     pcb_dbus_finish();
-    #endif
+#endif
 
     return (0);
   }
