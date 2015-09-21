@@ -3822,6 +3822,8 @@ pinout_unmap (Widget w, PinoutData * pd, void *v)
   free (pd);
 }
 
+BoxType *hid_get_extents (void *item);
+
 static void
 lesstif_show_item (void *item)
 {

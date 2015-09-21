@@ -1,0 +1,3 @@
+# /usr/bin/pcb is an alternative installed by postinst script of either pcb-gtk
+# or pcb-lesstiff
+pcb-common: desktop-command-not-in-package usr/share/applications/pcb.desktop pcb
