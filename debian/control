@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Eugene Mikhantiev <mikhantiev@gmail.com>
 XSBC-Original-Maintainer: Debian Electronics Team <pkg-electronics-devel@lists.alioth.debian.org>
 Uploaders: Eugene Mikhantiev <mikhantiev@gmail.com>
-Build-Depends: debhelper (>= 9), bison, flex, libgtkglext1-dev, tk8.5, libgd2-xpm-dev | libgd2-dev, libdbus-1-dev, libmotif-dev, libxmu-dev, libxml-parser-perl, intltool, imagemagick, gerbv, autopoint, autoconf, gawk, texinfo
+Build-Depends: debhelper (>= 9), bison, flex, libgts-dev, libgtkglext1-dev, tk, libgd2-xpm-dev | libgd2-dev, libdbus-1-dev, libmotif-dev, libxmu-dev, libxml-parser-perl, intltool, imagemagick, gerbv, autopoint, autoconf, gawk, texinfo, texlive-binaries
 Standards-Version: 3.9.3
 DM-Upload-Allowed: yes
 Homepage: http://pcb.geda-project.org/
