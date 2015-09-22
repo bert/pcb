@@ -1,27 +1,39 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/fontmode.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2006 DJ Delorie
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \todo We currently hardcode the grid and PCB size.\n
+ * What we should do in the future is scan the font for its extents, and
+ * size the grid appropriately.\n
+ * Also, when we convert back to a font, we should search the grid for
+ * the gridlines and use them to figure out where the symbols are.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
- *  dj@delorie.com
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 2006 DJ Delorie
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
+ * dj@delorie.com
  */
 
 #ifdef HAVE_CONFIG_H
@@ -49,12 +61,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-/* FIXME - we currently hardcode the grid and PCB size.  What we
-   should do in the future is scan the font for its extents, and size
-   the grid appropriately.  Also, when we convert back to a font, we
-   should search the grid for the gridlines and use them to figure out
-   where the symbols are. */
 
 #define CELL_SIZE	MIL_TO_COORD (100)
 #define CELL_OFFSET	MIL_TO_COORD (10)
