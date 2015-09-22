@@ -11,12 +11,15 @@ export DH_VERBOSE=1
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure --builddirectory=build_gtk -- $(CONFIGURE_OPTS) --with-gui=gtk
-	dh_auto_configure --builddirectory=build_lesstif -- $(CONFIGURE_OPTS) --with-gui=lesstif
+	./autogen.sh
+	dh_auto_configure --builddirectory=build_gtk -- $(CONFIGURE_OPTS) \
+		--with-gui=gtk
+	dh_auto_configure --builddirectory=build_lesstif -- $(CONFIGURE_OPTS) \
+		--with-gui=lesstif --disable-doc
 
 override_dh_auto_build:
-	dh_auto_build --builddirectory=build_gtk
-	dh_auto_build --builddirectory=build_lesstif
+	dh_auto_build -S autoconf --builddirectory=build_gtk
+	dh_auto_build -S autoconf --builddirectory=build_lesstif
 
 override_dh_auto_test:
 	#dh_auto_test --builddirectory build_gtk
