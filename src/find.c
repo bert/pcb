@@ -1,66 +1,78 @@
-/*
+/*!
+ * \file src/find.c
  *
- *                            COPYRIGHT
+ * \brief Routines to find connections between pins, vias, lines ...
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * Short description:\n
+ * <ul>
+ * <li> Lists for pins and vias, lines, arcs, pads and for polygons are
+ *   created.\n
+ *   Every object that has to be checked is added to its list.\n
+ *   Coarse searching is accomplished with the data rtrees.</li>
+ * <li> There's no 'speed-up' mechanism for polygons because they are
+ *   not used as often as other objects.</li> 
+ * <li> The maximum distance between line and pin ... would depend on
+ *   the angle between them. To speed up computation the limit is set
+ *   to one half of the thickness of the objects (cause of square
+ *   pins).</li>
+ * </ul>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * PV:  means pin or via (objects that connect layers).\n
+ * LO:  all non PV objects (layer objects like lines, arcs, polygons,
+ * pads).
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <ol>
+ * <li> First, the LO or PV at the given coordinates is looked
+ *   up.</li>
+ * <li> All LO connections to that PV are looked up next.</li>
+ * <li> Lookup of all LOs connected to LOs from (2).\n
+ *   This step is repeated until no more new connections are found.</li>
+ * <li> Lookup all PVs connected to the LOs from (2) and (3).</li>
+ * <li> Start again with (1) for all new PVs from (4).</li>
+ * </ol>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Intersection of line <--> circle:\n
+ * <ul>
+ * <li> Calculate the signed distance from the line to the center,
+ *   return false if abs(distance) > R.</li>
+ * <li> Get the distance from the line <--> distancevector intersection
+ *   to (X1,Y1) in range [0,1], return true if 0 <= distance <= 1.</li>
+ * <li> Depending on (r > 1.0 or r < 0.0) check the distance of X2,Y2 or
+ *   X1,Y1 to X,Y.</li>
+ * </ul>
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Intersection of line <--> line:\n
+ * <ul>
+ * <li> See the description of 'LineLineIntersect()'.</li>
+ * </ul>
  *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/*
- * short description:
- * - lists for pins and vias, lines, arcs, pads and for polygons are created.
- *   Every object that has to be checked is added to its list.
- *   Coarse searching is accomplished with the data rtrees.
- * - there's no 'speed-up' mechanism for polygons because they are not used
- *   as often as other objects 
- * - the maximum distance between line and pin ... would depend on the angle
- *   between them. To speed up computation the limit is set to one half
- *   of the thickness of the objects (cause of square pins).
- *
- * PV:  means pin or via (objects that connect layers)
- * LO:  all non PV objects (layer objects like lines, arcs, polygons, pads)
- *
- * 1. first, the LO or PV at the given coordinates is looked up
- * 2. all LO connections to that PV are looked up next
- * 3. lookup of all LOs connected to LOs from (2).
- *    This step is repeated until no more new connections are found.
- * 4. lookup all PVs connected to the LOs from (2) and (3)
- * 5. start again with (1) for all new PVs from (4)
- *
- * Intersection of line <--> circle:
- * - calculate the signed distance from the line to the center,
- *   return false if abs(distance) > R
- * - get the distance from the line <--> distancevector intersection to
- *   (X1,Y1) in range [0,1], return true if 0 <= distance <= 1
- * - depending on (r > 1.0 or r < 0.0) check the distance of X2,Y2 or X1,Y1
- *   to X,Y
- *
- * Intersection of line <--> line:
- * - see the description of 'LineLineIntersect()'
- */
-
-/* routines to find connections between pins, vias, lines...
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -213,14 +225,15 @@ append_drc_violation (DrcViolationType *violation)
                violation->x, violation->y);
     }
 }
-/*
- * message when asked about continuing DRC checks after next 
- * violation is found.
- */
+
 #define DRC_CONTINUE _("Press Next to continue DRC checking")
 #define DRC_NEXT _("Next")
 #define DRC_CANCEL _("Cancel")
 
+/*!
+ * \brief Message when asked about continuing DRC checks after next 
+ * violation is found.
+ */
 static int
 throw_drc_dialog(void)
 {
@@ -240,17 +253,17 @@ throw_drc_dialog(void)
   return r;
 }
 
-/* ---------------------------------------------------------------------------
- * some local types
+/*!
+ * \brief Some local types.
  *
- * the two 'dummy' structs for PVs and Pads are necessary for creating
- * connection lists which include the element's name
+ * The two 'dummy' structs for PVs and Pads are necessary for creating
+ * connection lists which include the element's name.
  */
 typedef struct
 {
-  void **Data;                  /* pointer to index data */
-  Cardinal Location,            /* currently used position */
-    DrawLocation, Number,       /* number of objects in list */
+  void **Data;                  /*!< Pointer to index data. */
+  Cardinal Location,            /*!< Currently used position. */
+    DrawLocation, Number,       /*!< Number of objects in list. */
     Size;
 } ListType;
 
@@ -260,11 +273,11 @@ typedef struct
 static Coord Bloat = 0;
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
 static int thing_type;
-static bool User = false;    /* user action causing this */
-static bool drc = false;     /* whether to stop if finding something not found */
-static Cardinal drcerr_count;   /* count of drc errors */
+static bool User = false;    /*!< User action causing this. */
+static bool drc = false;     /*!< Whether to stop if finding something not found. */
+static Cardinal drcerr_count;   /*!< Count of drc errors */
 static Cardinal TotalP, TotalV;
-static ListType LineList[MAX_LAYER],    /* list of objects to */
+static ListType LineList[MAX_LAYER],    /*!< List of objects to. */
   PolygonList[MAX_LAYER], ArcList[MAX_LAYER], PadList[2], RatList, PVList;
 
 /* ---------------------------------------------------------------------------
@@ -288,9 +301,11 @@ static bool IsLineInPolygon (LineType *, PolygonType *);
 static bool IsPadInPolygon (PadType *, PolygonType *);
 static bool IsPolygonInPolygon (PolygonType *, PolygonType *);
 
-/* ---------------------------------------------------------------------------
- * some of the 'pad' routines are the same as for lines because the 'pad'
- * struct starts with a line struct. See global.h for details
+/*!
+ * \brief.
+ *
+ * Some of the 'pad' routines are the same as for lines because the 'pad'
+ * struct starts with a line struct. See global.h for details.
  */
 bool
 LinePadIntersect (LineType *Line, PadType *Pad)
@@ -451,8 +466,8 @@ PV_TOUCH_PV (PinType *PV1, PinType *PV2)
   return BoxBoxIntersection (&b1, &b2);
 }
 
-/* ---------------------------------------------------------------------------
- * releases all allocated memory
+/*!
+ * \brief Releases all allocated memory.
  */
 static void
 FreeLayoutLookupMemory (void)
@@ -483,9 +498,10 @@ FreeComponentLookupMemory (void)
   PadList[1].Data = NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * allocates memory for component related stacks ...
- * initializes index and sorts it by X1 and X2
+/*!
+ * \brief Allocates memory for component related stacks ...
+ *
+ * Initializes index and sorts it by X1 and X2.
  */
 static void
 InitComponentLookup (void)
@@ -518,9 +534,10 @@ InitComponentLookup (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * allocates memory for component related stacks ...
- * initializes index and sorts it by X1 and X2
+/*!
+ * \brief Allocates memory for layout related stacks ...
+ *
+ * Initializes index and sorts it by X1 and X2.
  */
 static void
 InitLayoutLookup (void)
@@ -693,9 +710,9 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a PV is connected to LOs, if it is, the LO is added to
- * the appropriate list and the 'used' flag is set
+/*!
+ * \brief Checks if a PV is connected to LOs, if it is, the LO is added
+ * to the appropriate list and the 'used' flag is set.
  */
 static bool
 LookupLOConnectionsToPVList (int flag, bool AndRats)
@@ -764,8 +781,9 @@ LookupLOConnectionsToPVList (int flag, bool AndRats)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * find all connections between LO at the current list position and new LOs
+/*!
+ * \brief Find all connections between LO at the current list position
+ * and new LOs.
  */
 static bool
 LookupLOConnectionsToLOList (int flag, bool AndRats)
@@ -904,8 +922,8 @@ pv_pv_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches for new PVs that are connected to PVs on the list
+/*!
+ * \brief Searches for new PVs that are connected to PVs on the list.
  */
 static bool
 LookupPVConnectionsToPVList (int flag)
@@ -1065,8 +1083,9 @@ pv_rat_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches for new PVs that are connected to NEW LOs on the list
+/*!
+ * \brief Searches for new PVs that are connected to NEW LOs on the list.
+ *
  * This routine updates the position counter of the lists too.
  */
 static bool
@@ -1217,7 +1236,9 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
   return (false);
 }
 
-/* reduce arc start angle and delta to 0..360 */
+/*!
+ * \brief Reduce arc start angle and delta to 0..360.
+ */
 static void
 normalize_angles (Angle *sa, Angle *d)
 {
@@ -1253,30 +1274,31 @@ get_arc_ends (Coord *box, ArcType *arc)
   box[2] = arc->X - arc->Width  * cos (M180 * (arc->StartAngle + arc->Delta));
   box[3] = arc->Y + arc->Height * sin (M180 * (arc->StartAngle + arc->Delta));
 }
-/* ---------------------------------------------------------------------------
- * check if two arcs intersect
- * first we check for circle intersections,
- * then find the actual points of intersection
- * and test them to see if they are on arcs
+
+/*!
+ * \brief Check if two arcs intersect.
  *
- * consider a, the distance from the center of arc 1
+ * First we check for circle intersections,
+ * then find the actual points of intersection
+ * and test them to see if they are on arcs.
+ *
+ * Consider a, the distance from the center of arc 1
  * to the point perpendicular to the intersecting points.
  *
- *  a = (r1^2 - r2^2 + l^2)/(2l)
+ * \ta = (r1^2 - r2^2 + l^2)/(2l)
  *
- * the perpendicular distance to the point of intersection
- * is then
+ * The perpendicular distance to the point of intersection
+ * is then:
  *
- * d = sqrt(r1^2 - a^2)
+ * \td = sqrt(r1^2 - a^2)
  *
- * the points of intersection would then be
+ * The points of intersection would then be:
  *
- * x = X1 + a/l dx +- d/l dy
- * y = Y1 + a/l dy -+ d/l dx
+ * \tx = X1 + a/l dx +- d/l dy
  *
- * where dx = X2 - X1 and dy = Y2 - Y1
+ * \ty = Y1 + a/l dy -+ d/l dx
  *
- *
+ * Where dx = X2 - X1 and dy = Y2 - Y1.
  */
 static bool
 ArcArcIntersect (ArcType *Arc1, ArcType *Arc2)
@@ -1394,8 +1416,8 @@ ArcArcIntersect (ArcType *Arc1, ArcType *Arc2)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * Tests if point is same as line end point
+/*!
+ * \brief Tests if point is same as line end point.
  */
 static bool
 IsRatPointOnLineEnd (PointType *Point, LineType *Line)
@@ -1407,9 +1429,11 @@ IsRatPointOnLineEnd (PointType *Point, LineType *Line)
   return (false);
 }
 
+/*!
+ * \brief Writes vertices of a squared line.
+ */
 static void 
 form_slanted_rectangle (PointType p[4], LineType *l)
-/* writes vertices of a squared line */
 {
    double dwx = 0, dwy = 0;
    if (l->Point1.Y == l->Point2.Y)
@@ -1429,24 +1453,30 @@ form_slanted_rectangle (PointType p[4], LineType *l)
     p[2].X = l->Point2.X + dwx - dwy; p[2].Y = l->Point2.Y + dwy + dwx;
     p[3].X = l->Point2.X + dwx + dwy; p[3].Y = l->Point2.Y + dwy - dwx;
 }
-/* ---------------------------------------------------------------------------
- * checks if two lines intersect
- * from news FAQ:
+
+/*!
+ * \brief Checks if two lines intersect.
  *
- *  Let A,B,C,D be 2-space position vectors.  Then the directed line
- *  segments AB & CD are given by:
+ * <pre>
+ * From news FAQ:
+ *
+ * Let A,B,C,D be 2-space position vectors.
+ *
+ * Then the directed line segments AB & CD are given by:
  *
  *      AB=A+r(B-A), r in [0,1]
+ *
  *      CD=C+s(D-C), s in [0,1]
  *
- *  If AB & CD intersect, then
+ * If AB & CD intersect, then
  *
  *      A+r(B-A)=C+s(D-C), or
  *
- *      XA+r(XB-XA)=XC+s(XD-XC)
+ *      XA+r(XB-XA)=XC+s*(XD-XC)
+ *
  *      YA+r(YB-YA)=YC+s(YD-YC)  for some r,s in [0,1]
  *
- *  Solving the above for r and s yields
+ * Solving the above for r and s yields
  *
  *          (YA-YC)(XD-XC)-(XA-XC)(YD-YC)
  *      r = -----------------------------  (eqn 1)
@@ -1456,33 +1486,36 @@ form_slanted_rectangle (PointType p[4], LineType *l)
  *      s = -----------------------------  (eqn 2)
  *          (XB-XA)(YD-YC)-(YB-YA)(XD-XC)
  *
- *  Let I be the position vector of the intersection point, then
+ * Let I be the position vector of the intersection point, then:
  *
  *      I=A+r(B-A) or
  *
  *      XI=XA+r(XB-XA)
+ *
  *      YI=YA+r(YB-YA)
  *
- *  By examining the values of r & s, you can also determine some
- *  other limiting conditions:
+ * By examining the values of r & s, you can also determine some
+ * other limiting conditions:
  *
  *      If 0<=r<=1 & 0<=s<=1, intersection exists
+ *
  *          r<0 or r>1 or s<0 or s>1 line segments do not intersect
  *
  *      If the denominator in eqn 1 is zero, AB & CD are parallel
+ *
  *      If the numerator in eqn 1 is also zero, AB & CD are coincident
  *
- *  If the intersection point of the 2 lines are needed (lines in this
- *  context mean infinite lines) regardless whether the two line
- *  segments intersect, then
+ * If the intersection point of the 2 lines are needed (lines in this
+ * context mean infinite lines) regardless whether the two line
+ * segments intersect, then
  *
  *      If r>1, I is located on extension of AB
  *      If r<0, I is located on extension of BA
  *      If s>1, I is located on extension of CD
  *      If s<0, I is located on extension of DC
  *
- *  Also note that the denominators of eqn 1 & 2 are identical.
- *
+ * Also note that the denominators of eqn 1 & 2 are identical.
+ * </pre>
  */
 bool
 LineLineIntersect (LineType *Line1, LineType *Line2)
@@ -1564,9 +1597,8 @@ LineLineIntersect (LineType *Line1, LineType *Line2)
   return false;
 }
 
-/*---------------------------------------------------
- *
- * Check for line intersection with an arc
+/*!
+ * \brief Check for line intersection with an arc.
  *
  * Mostly this is like the circle/line intersection
  * found in IsPointOnLine (search.c) see the detailed
@@ -1580,18 +1612,20 @@ LineLineIntersect (LineType *Line1, LineType *Line2)
  * plus or minus a distance delta = sqrt(Radius^2 - d^2)
  * but it's handy to normalize with respect to l, the line
  * length so a single projection is done (e.g. we don't first
- * find the point Q
+ * find the point Q.
  *
- * The projection is now of the form
+ * <pre>
+ * The projection is now of the form:
  *
  *      Px = X1 + (r +- r2)(X2 - X1)
  *      Py = Y1 + (r +- r2)(Y2 - Y1)
+ * </pre>
  *
  * Where r2 sqrt(Radius^2 l^2 - d^2)/l^2
- * note that this is the variable d, not the symbol d described in IsPointOnLine
- * (variable d = symbol d * l)
+ * note that this is the variable d, not the symbol d described in
+ * IsPointOnLine (variable d = symbol d * l).
  *
- * The end points are hell so they are checked individually
+ * The end points are hell so they are checked individually.
  */
 bool
 LineArcIntersect (LineType *Line, ArcType *Arc)
@@ -1693,12 +1727,14 @@ LOCtoArcPad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches all LOs that are connected to the given arc on the given
- * layergroup. All found connections are added to the list
+/*!
+ * \brief Searches all LOs that are connected to the given arc on the
+ * given layergroup.
  *
- * the notation that is used is:
- * Xij means Xj at arc i
+ * All found connections are added to the list.
+ *
+ * The notation that is used is:\n
+ * Xij means Xj at arc i.
  */
 static bool
 LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndRats)
@@ -1827,12 +1863,14 @@ LOCtoLinePad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches all LOs that are connected to the given line on the given
- * layergroup. All found connections are added to the list
+/*!
+ * \brief Searches all LOs that are connected to the given line on the
+ * given layergroup.
  *
- * the notation that is used is:
- * Xij means Xj at line i
+ * All found connections are added to the list.
+ *
+ * The notation that is used is:
+ * Xij means Xj at line i.
  */
 static bool
 LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
@@ -1966,12 +2004,14 @@ LOCtoPad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches all LOs that are connected to the given rat-line on the given
- * layergroup. All found connections are added to the list
+/*!
+ * \brief Searches all LOs that are connected to the given rat-line on
+ * the given layergroup.
  *
- * the notation that is used is:
- * Xij means Xj at line i
+ * All found connections are added to the list.
+ *
+ * The notation that is used is:
+ * Xij means Xj at line i.
  */
 static bool
 LookupLOConnectionsToRatEnd (PointType *Point, Cardinal LayerGroup, int flag)
@@ -2110,9 +2150,11 @@ LOCtoPadPad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches all LOs that are connected to the given pad on the given
- * layergroup. All found connections are added to the list
+/*!
+ * \brief Searches all LOs that are connected to the given pad on the
+ * given layergroup.
+ *
+ * All found connections are added to the list.
  */
 static bool
 LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndRats)
@@ -2253,9 +2295,11 @@ LOCtoPolyRat_callback (const BoxType * b, void *cl)
 }
 
 
-/* ---------------------------------------------------------------------------
- * looks up LOs that are connected to the given polygon
- * on the given layergroup. All found connections are added to the list
+/*!
+ * \brief Looks up LOs that are connected to the given polygon on the
+ * given layergroup.
+ *
+ * All found connections are added to the list.
  */
 static bool
 LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int flag, bool AndRats)
@@ -2334,11 +2378,11 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * checks if an arc has a connection to a polygon
+/*!
+ * \brief Checks if an arc has a connection to a polygon.
  *
  * - first check if the arc can intersect with the polygon by
- *   evaluating the bounding boxes
+ *   evaluating the bounding boxes.
  * - check the two end points of the arc. If none of them matches
  * - check all segments of the polygon against the arc.
  */
@@ -2366,8 +2410,8 @@ IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a line has a connection to a polygon
+/*!
+ * \brief Checks if a line has a connection to a polygon.
  *
  * - first check if the line can intersect with the polygon by
  *   evaluating the bounding boxes
@@ -2408,10 +2452,10 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a pad connects to a non-clearing polygon
+/*!
+ * \brief Checks if a pad connects to a non-clearing polygon.
  *
- * The polygon is assumed to already have been proven non-clearing
+ * The polygon is assumed to already have been proven non-clearing.
  */
 static bool
 IsPadInPolygon (PadType *pad, PolygonType *polygon)
@@ -2419,11 +2463,11 @@ IsPadInPolygon (PadType *pad, PolygonType *polygon)
     return IsLineInPolygon ((LineType *) pad, polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a polygon has a connection to a second one
+/*!
+ * \brief Checks if a polygon has a connection to a second one.
  *
  * First check all points out of P1 against P2 and vice versa.
- * If both fail check all lines of P1 against the ones of P2
+ * If both fail check all lines of P1 against the ones of P2.
  */
 static bool
 IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
@@ -2480,8 +2524,8 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * writes the several names of an element to a file
+/*!
+ * \brief Writes the several names of an element to a file.
  */
 static void
 PrintElementNameList (ElementType *Element, FILE * FP)
@@ -2494,8 +2538,8 @@ PrintElementNameList (ElementType *Element, FILE * FP)
   fprintf (FP, "(%s %s %s)\n", cname.Data, pname.Data, vname.Data);
 }
 
-/* ---------------------------------------------------------------------------
- * writes the several names of an element to a file
+/*!
+ * \brief Writes the several names of an element to a file.
  */
 static void
 PrintConnectionElementName (ElementType *Element, FILE * FP)
@@ -2505,8 +2549,8 @@ PrintConnectionElementName (ElementType *Element, FILE * FP)
   fputs ("{\n", FP);
 }
 
-/* ---------------------------------------------------------------------------
- * prints one {pin,pad,via}/element entry of connection lists
+/*!
+ * \brief Prints one {pin,pad,via}/element entry of connection lists.
  */
 static void
 PrintConnectionListEntry (char *ObjName, ElementType *Element,
@@ -2527,9 +2571,9 @@ PrintConnectionListEntry (char *ObjName, ElementType *Element,
     }
 }
 
-/* ---------------------------------------------------------------------------
- * prints all found connections of a pads to file FP
- * the connections are stacked in 'PadList'
+/*!
+ * \brief Prints all found connections of a pads to file FP
+ * the connections are stacked in 'PadList'.
  */
 static void
 PrintPadConnections (Cardinal Layer, FILE * FP, bool IsFirst)
@@ -2563,9 +2607,9 @@ PrintPadConnections (Cardinal Layer, FILE * FP, bool IsFirst)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * prints all found connections of a pin to file FP
- * the connections are stacked in 'PVList'
+/*!
+ * \brief Prints all found connections of a pin to file FP
+ * the connections are stacked in 'PVList'.
  */
 static void
 PrintPinConnections (FILE * FP, bool IsFirst)
@@ -2594,8 +2638,8 @@ PrintPinConnections (FILE * FP, bool IsFirst)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * checks if all lists of new objects are handled
+/*!
+ * \brief Checks if all lists of new objects are handled.
  */
 static bool
 ListsEmpty (bool AndRats)
@@ -2629,8 +2673,8 @@ reassign_no_drc_flags (void)
 
 
 
-/* ---------------------------------------------------------------------------
- * loops till no more connections are found 
+/*!
+ * \brief Loops till no more connections are found.
  */
 static bool
 DoIt (int flag, bool AndRats, bool AndDraw)
@@ -2655,8 +2699,8 @@ DoIt (int flag, bool AndRats, bool AndDraw)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * prints all unused pins of an element to file FP
+/*!
+ * \brief Prints all unused pins of an element to file FP.
  */
 static bool
 PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int flag)
@@ -2762,8 +2806,8 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * resets some flags for looking up the next pin/pad
+/*!
+ * \brief Resets some flags for looking up the next pin/pad.
  */
 static bool
 PrepareNextLoop (FILE * FP)
@@ -2789,10 +2833,12 @@ PrepareNextLoop (FILE * FP)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * finds all connections to the pins of the passed element.
- * The result is written to file FP
- * Returns true if operation was aborted
+/*!
+ * \brief Finds all connections to the pins of the passed element.
+ *
+ * The result is written to file FP.
+ *
+ * \return true if operation was aborted.
  */
 static bool
 PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw)
@@ -2852,9 +2898,9 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * draws all new connections which have been found since the
- * routine was called the last time
+/*!
+ * \brief Draws all new connections which have been found since the
+ * routine was called the last time.
  */
 static void
 DrawNewConnections (void)
@@ -2926,8 +2972,8 @@ DrawNewConnections (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * find all connections to pins within one element
+/*!
+ * \brief Find all connections to pins within one element.
  */
 void
 LookupElementConnections (ElementType *Element, FILE * FP)
@@ -2946,8 +2992,8 @@ LookupElementConnections (ElementType *Element, FILE * FP)
   Draw ();
 }
 
-/* ---------------------------------------------------------------------------
- * find all connections to pins of all element
+/*!
+ * \brief Find all connections to pins of all element.
  */
 void
 LookupConnectionsToAllElements (FILE * FP)
@@ -2974,8 +3020,8 @@ LookupConnectionsToAllElements (FILE * FP)
   Redraw ();
 }
 
-/*---------------------------------------------------------------------------
- * add the starting object to the list of found objects
+/*!
+ * \brief Add the starting object to the list of found objects.
  */
 static bool
 ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
@@ -3042,11 +3088,13 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
 }
 
 
-/* ---------------------------------------------------------------------------
- * looks up all connections from the object at the given coordinates
- * the TheFlag (normally 'FOUNDFLAG') is set for all objects found
- * the objects are re-drawn if AndDraw is true
- * also the action is marked as undoable if AndDraw is true
+/*!
+ * \brief Looks up all connections from the object at the given
+ * coordinates the TheFlag (normally 'FOUNDFLAG') is set for all objects
+ * found.
+ *
+ * The objects are re-drawn if AndDraw is true, also the action is
+ * marked as undoable if AndDraw is true.
  */
 void
 LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
@@ -3103,9 +3151,10 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
   FreeConnectionLookupMemory ();
 }
 
-/* ---------------------------------------------------------------------------
- * find connections for rats nesting
- * assumes InitConnectionLookup() has already been done
+/*!
+ * \brief Find connections for rats nesting.
+ *
+ * Assumes InitConnectionLookup() has already been done.
  */
 void
 RatFindHook (int type, void *ptr1, void *ptr2, void *ptr3,
@@ -3118,8 +3167,8 @@ RatFindHook (int type, void *ptr1, void *ptr2, void *ptr3,
   User = false;
 }
 
-/* ---------------------------------------------------------------------------
- * find all unused pins of all element
+/*!
+ * \brief Find all unused pins of all elements.
  */
 void
 LookupUnusedPins (FILE * FP)
@@ -3147,8 +3196,8 @@ LookupUnusedPins (FILE * FP)
   Draw ();
 }
 
-/* ---------------------------------------------------------------------------
- * resets all used flags of pins and vias
+/*!
+ * \brief Resets all used flags of pins and vias.
  */
 bool
 ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
@@ -3203,8 +3252,8 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
   return change;
 }
 
-/* ---------------------------------------------------------------------------
- * resets all used flags of LOs
+/*!
+ * \brief Resets all used flags of LOs.
  */
 bool
 ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
@@ -3268,8 +3317,8 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   return change;
 }
 
-/* ---------------------------------------------------------------------------
- * resets all found connections
+/*!
+ * \brief Resets all found connections.
  */
 bool
 ClearFlagOnAllObjects (bool AndDraw, int flag)
@@ -3282,8 +3331,8 @@ ClearFlagOnAllObjects (bool AndDraw, int flag)
   return change;
 }
 
-/*----------------------------------------------------------------------------
- * Dumps the list contents
+/*!
+ * \brief Dumps the list contents.
  */
 static void
 DumpList (void)
@@ -3322,9 +3371,12 @@ struct drc_info
   int flag;
 };
 
-/*-----------------------------------------------------------------------------
- * Check for DRC violations on a single net starting from the pad or pin
- * sees if the connectivity changes when everything is bloated, or shrunk
+/*!
+ * \brief Check for DRC violations on a single net starting from the pad
+ * or pin.
+ *
+ * Sees if the connectivity changes when everything is bloated, or
+ * shrunk.
  */
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
@@ -3457,8 +3509,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   return (false);
 }
 
-/* DRC clearance callback */
-
+/*!
+ * \brief DRC clearance callback.
+ */
 static int
 drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
               int type, void *ptr1, void *ptr2, void *userdata)
@@ -3563,9 +3616,10 @@ doIsBad:
   return 0;
 }
 
-/*-----------------------------------------------------------------------------
- * Check for DRC violations
- * see if the connectivity changes when everything is bloated, or shrunk
+/*!
+ * \brief Check for DRC violations.
+ *
+ * See if the connectivity changes when everything is bloated, or shrunk.
  */
 int
 DRCAll (void)
@@ -4056,8 +4110,8 @@ DRCAll (void)
   return IsBad ? -drcerr_count : drcerr_count;
 }
 
-/*----------------------------------------------------------------------------
- * Locate the coordinatates of offending item (thing)
+/*!
+ * \brief Locate the coordinatates of offending item (thing).
  */
 static void
 LocateError (Coord *x, Coord *y)
@@ -4117,8 +4171,10 @@ LocateError (Coord *x, Coord *y)
 }
 
 
-/*----------------------------------------------------------------------------
- * Build a list of the of offending items by ID. (Currently just "thing")
+/*!
+ * \brief Build a list of the of offending items by ID.
+ *
+ * (Currently just "thing").
  */
 static void
 BuildObjectList (int *object_count, long int **object_id_list, int **object_type_list)
@@ -4152,8 +4208,8 @@ BuildObjectList (int *object_count, long int **object_id_list, int **object_type
 }
 
 
-/*----------------------------------------------------------------------------
- * center the display to show the offending item (thing)
+/*!
+ * \brief Center the display to show the offending item (thing).
  */
 static void
 GotoError (void)
