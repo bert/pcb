@@ -950,24 +950,39 @@ typedef struct
   char        *name;
   int          mode;
   char       **xpm;
+  char        *tooltip;
 }
 ModeButton;
 
 static ModeButton mode_buttons[] = {
-  {NULL, NULL, 0, 0, "via", VIA_MODE, via},
-  {NULL, NULL, 0, 0, "line", LINE_MODE, line},
-  {NULL, NULL, 0, 0, "arc", ARC_MODE, arc},
-  {NULL, NULL, 0, 0, "text", TEXT_MODE, text},
-  {NULL, NULL, 0, 0, "rectangle", RECTANGLE_MODE, rect},
-  {NULL, NULL, 0, 0, "polygon", POLYGON_MODE, poly},
-  {NULL, NULL, 0, 0, "polygonhole", POLYGONHOLE_MODE, polyhole},
-  {NULL, NULL, 0, 0, "buffer", PASTEBUFFER_MODE, buf},
-  {NULL, NULL, 0, 0, "remove", REMOVE_MODE, del},
-  {NULL, NULL, 0, 0, "rotate", ROTATE_MODE, rot},
-  {NULL, NULL, 0, 0, "insertPoint", INSERTPOINT_MODE, ins},
-  {NULL, NULL, 0, 0, "thermal", THERMAL_MODE, thrm},
-  {NULL, NULL, 0, 0, "select", ARROW_MODE, sel},
-  {NULL, NULL, 0, 0, "lock", LOCK_MODE, lock}
+  {NULL, NULL, 0, 0, N_("via"), VIA_MODE, via,
+    N_("create vias with <select mouse button>")},
+  {NULL, NULL, 0, 0, N_("line"), LINE_MODE, line,
+    N_("create a line segment, toggle draw modes with '/' or '.'")},
+  {NULL, NULL, 0, 0, N_("arc"), ARC_MODE, arc,
+    N_("create an arc segment")},
+  {NULL, NULL, 0, 0, N_("text"), TEXT_MODE, text,
+    N_("create a text")},
+  {NULL, NULL, 0, 0, N_("rectangle"), RECTANGLE_MODE, rect,
+    N_("create a filled rectangle")},
+  {NULL, NULL, 0, 0, N_("polygon"), POLYGON_MODE, poly,
+    N_("create a polygon, <shift>-P for closing the polygon")},
+  {NULL, NULL, 0, 0, N_("polygonhole"), POLYGONHOLE_MODE, polyhole,
+    N_("create a hole into an existing polygon")},
+  {NULL, NULL, 0, 0, N_("buffer"), PASTEBUFFER_MODE, buf,
+    N_("paste the selection from buffer into the layout")},
+  {NULL, NULL, 0, 0, N_("remove"), REMOVE_MODE, del,
+    N_("remove objects under the cursor")},
+  {NULL, NULL, 0, 0, N_("rotate"), ROTATE_MODE, rot,
+    N_("rotate a selection or object CCW, hold the <shift> key to rotate CW")},
+  {NULL, NULL, 0, 0, N_("insertPoint"), INSERTPOINT_MODE, ins,
+    N_("add points into existing lines and polygons")},
+  {NULL, NULL, 0, 0, N_("thermal"), THERMAL_MODE, thrm,
+    N_("create thermals with <select mouse button>, toggle thermal style with <Shift> <select mouse button>")},
+  {NULL, NULL, 0, 0, N_("select"), ARROW_MODE, sel,
+    N_("select, deselect or move objects or selections")},
+  {NULL, NULL, 0, 0, N_("lock"), LOCK_MODE, lock,
+    N_("lock or unlock an object")}
 };
 
 static int n_mode_buttons = G_N_ELEMENTS (mode_buttons);
@@ -1079,17 +1094,20 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
 
     /* Create tool button for mode frame */
     mb->button = gtk_radio_button_new (group);
+    gtk_widget_set_tooltip_text (mb->button, _(mb->tooltip));
+    gtk_widget_set_name (mb->button, (mb->name));
     group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->button));
     gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->button), FALSE);
 
     /* Create tool button for toolbar */
     mb->toolbar_button = gtk_radio_button_new (toolbar_group);
+    gtk_widget_set_tooltip_text (mb->toolbar_button, _(mb->tooltip));
+    gtk_widget_set_name (mb->toolbar_button, (mb->name));
     toolbar_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (mb->toolbar_button));
     gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (mb->toolbar_button), FALSE);
 
     /* Pack mode-frame button into the frame */
     if ((i % ghidgui->n_mode_button_columns) == 0) {
-
       hbox = gtk_hbox_new (FALSE, 0);
       gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     }
@@ -1106,7 +1124,6 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
     pixbuf = gdk_pixbuf_new_from_xpm_data ((const char **) mb->xpm);
     image = gtk_image_new_from_pixbuf (pixbuf);
     gtk_container_add (GTK_CONTAINER (mb->button), image);
-
     image = gtk_image_new_from_pixbuf (pixbuf);
     gtk_container_add (GTK_CONTAINER (mb->toolbar_button), image);
     g_object_unref (pixbuf);
@@ -1125,6 +1142,7 @@ make_mode_buttons_and_toolbar (GtkWidget **mode_frame,
                       G_CALLBACK (mode_toolbar_button_toggled_cb), mb);
   }
 }
+
 
 
 /*
