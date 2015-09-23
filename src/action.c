@@ -2078,45 +2078,66 @@ ActionSetThermal (int argc, char **argv, Coord x, Coord y)
   int type, kind;
   int err = 0;
 
-  if (function && *function && style && *style)
-    {
-      bool absolute;
+  if (function && *function) {
 
-      kind = GetValue (style, NULL, &absolute);
-      if (absolute)
-	switch (GetFunctionID (function))
-	  {
-	  case F_Object:
-	    if ((type =
-		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      {
-		ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
-		IncrementUndoSerialNumber ();
-		Draw ();
-	      }
-	    break;
-	  case F_SelectedPins:
-	    ChangeSelectedThermals (PIN_TYPE, kind);
-	    break;
-	  case F_SelectedVias:
-	    ChangeSelectedThermals (VIA_TYPE, kind);
-	    break;
-	  case F_Selected:
-	  case F_SelectedElements:
-	    ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
-	    break;
-	  default:
-	    err = 1;
-	    break;
-	  }
-      else
-	err = 1;
-      if (!err)
-	return 0;
+    bool absolute;
+
+    if ( ! style || ! *style) {
+      kind = PCB->ThermStyle;
+      absolute = true;
+    }
+    else {
+      kind = GetUnitlessValue (style, &absolute);
     }
 
-  AFAIL (setthermal);
+    /* To allow relative values we could search for the first selected
+     * item and make 'kind' relative to that, but that's not too useful
+     * and requires quite some code. For example there's no
+     * GetFirstSelectedPin() function available. Let's postpone this
+     * functionality, there are more urgent things to do. */
+
+    if (absolute) {
+
+      switch (GetFunctionID (function)) {
+
+        case F_Object:
+          if ((type =
+            SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+                          &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+          {
+            ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
+            IncrementUndoSerialNumber ();
+            Draw ();
+          }
+          break;
+        case F_SelectedPins:
+          ChangeSelectedThermals (PIN_TYPE, kind);
+          break;
+        case F_SelectedVias:
+          ChangeSelectedThermals (VIA_TYPE, kind);
+          break;
+        case F_Selected:
+        case F_SelectedElements:
+          ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
+          break;
+        default:
+          err = 1;
+          break;
+      }
+    }
+    else {
+      err = 1;
+    }
+  }
+  else {
+    err = 1;
+  }
+
+  if (err) {
+    AFAIL (setthermal);
+  }
+
+  return 0;
 }
 
 /*!
@@ -4398,6 +4419,7 @@ needed to ensure a minimum distance between their edges and the
 polygon edges.
 
 %end-doc */
+
 static int
 ActionMinClearGap (int argc, char **argv, Coord x, Coord y)
 {
@@ -4953,42 +4975,43 @@ static int
 ActionSetSquare (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
-  if (function && *function)
-    {
-      switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords (_("Select an Object"), &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGESQUARE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (SetObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (true);
-	    break;
-	  }
+  if (function && *function) {
 
-	case F_SelectedElements:
-	  if (SetSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (true);
-	  break;
+    switch (GetFunctionID (function)) {
 
-	case F_SelectedPins:
-	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (true);
-	  break;
+      case F_ToggleObject:
+      case F_Object:
+      {
+        int type;
+        void *ptr1, *ptr2, *ptr3;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (true);
-	  break;
-	}
+        gui->get_coords (_("Select an Object"), &x, &y);
+        if ((type =
+          SearchScreen (x, y, CHANGESQUARE_TYPES,
+                        &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+          if (SetObjectSquare (type, ptr1, ptr2, ptr3))
+            SetChangedFlag (true);
+          break;
+      }
+
+      case F_SelectedElements:
+        if (SetSelectedSquare (ELEMENT_TYPE))
+          SetChangedFlag (true);
+        break;
+
+      case F_SelectedPins:
+        if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+          SetChangedFlag (true);
+        break;
+
+      case F_Selected:
+      case F_SelectedObjects:
+        if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+          SetChangedFlag (true);
+        break;
     }
+  }
   return 0;
 }
 
@@ -5012,42 +5035,42 @@ static int
 ActionClearSquare (int argc, char **argv, Coord x, Coord y)
 {
   char *function = ARG (0);
-  if (function && *function)
-    {
-      switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+  if (function && *function) {
 
-	    gui->get_coords (_("Select an Object"), &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGESQUARE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (true);
-	    break;
-	  }
+    switch (GetFunctionID (function)) {
 
-	case F_SelectedElements:
-	  if (ClrSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (true);
-	  break;
+      case F_ToggleObject:
+      case F_Object:
+      {
+        int type;
+        void *ptr1, *ptr2, *ptr3;
 
-	case F_SelectedPins:
-	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (true);
-	  break;
+        gui->get_coords (_("Select an Object"), &x, &y);
+        if ((type =
+          SearchScreen (x, y, CHANGESQUARE_TYPES,
+                        &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+          if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
+            SetChangedFlag (true);
+          break;
+      }
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (true);
-	  break;
-	}
+      case F_SelectedElements:
+        if (ClrSelectedSquare (ELEMENT_TYPE))
+          SetChangedFlag (true);
+        break;
+
+      case F_SelectedPins:
+        if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+          SetChangedFlag (true);
+        break;
+
+      case F_Selected:
+      case F_SelectedObjects:
+        if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+          SetChangedFlag (true);
+        break;
     }
+  }
   return 0;
 }
 

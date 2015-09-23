@@ -130,9 +130,9 @@ double
 GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_units, const char *default_unit)
 {
   double value;
-  int n = -1;
-  bool scaled = 0;
-  bool dummy;
+  int    n      = -1;
+  bool   scaled = 0;
+  bool   dummy;
 
   /* Allow NULL to be passed for absolute */
   if(absolute == NULL)
@@ -141,12 +141,103 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
   /* if the first character is a sign we have to add the
    * value to the current one
    */
+  if (*val == '=') {
+
+    *absolute = true;
+    if (sscanf (val+1, "%lf%n", &value, &n) < 1)
+      return 0;
+    n++;
+  }
+  else {
+
+    if (isdigit ((int) *val))
+      *absolute = true;
+    else
+      *absolute = false;
+    if (sscanf (val, "%lf%n", &value, &n) < 1)
+      return 0;
+  }
+
+  if (!units && n > 0)
+    units = val + n;
+
+  while (units && *units == ' ')
+    units ++;
+
+  if (units && *units) {
+
+    int i;
+    const Unit *unit = get_unit_struct (units);
+
+    if (unit != NULL) {
+
+      value  = unit_to_coord (unit, value);
+      scaled = 1;
+    }
+
+    if (extra_units) {
+
+      for (i = 0; *extra_units[i].suffix; ++i) {
+
+        if (strncmp (units, extra_units[i].suffix,
+          strlen(extra_units[i].suffix)) == 0)
+        {
+          value *= extra_units[i].scale;
+          if (extra_units[i].flags & UNIT_PERCENT)
+            value /= 100.0;
+          scaled = 1;
+        }
+      }
+    }
+  }
+
+  /* Apply default unit */
+  if (!scaled && default_unit && *default_unit) {
+
+    int i;
+    const Unit *unit = get_unit_struct (default_unit);
+
+    if (extra_units) {
+
+      for (i = 0; *extra_units[i].suffix; ++i) {
+
+        if (strcmp (extra_units[i].suffix, default_unit) == 0) {
+
+          value *= extra_units[i].scale;
+          if (extra_units[i].flags & UNIT_PERCENT)
+            value /= 100.0;
+          scaled = 1;
+        }
+      }
+    }
+
+    if (!scaled && unit != NULL) {
+      value = unit_to_coord (unit, value);
+    }
+  }
+
+  return value;
+}
+
+/*!
+ * \brief Extract a unit-less value from a string.
+ *
+ * \param val       String containing the value to be read.
+ * \param absolute  Returns wether the returned value is an absolute one.
+ *
+ * \return The value read, with sign.
+ *
+ * This is the same as GetValue() and GetValueEX(), but totally ignoring units.
+ * Typical application is a list selector, like the type of thermal to apply
+ * to a pin.
+ */
+double GetUnitlessValue (const char *val, bool *absolute) {
+  double value;
+
   if (*val == '=')
     {
       *absolute = true;
-      if (sscanf (val+1, "%lf%n", &value, &n) < 1)
-        return 0;
-      n++;
+      val++;
     }
   else
     {
@@ -154,55 +245,10 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
         *absolute = true;
       else
         *absolute = false;
-      if (sscanf (val, "%lf%n", &value, &n) < 1)
-        return 0;
     }
-  if (!units && n > 0)
-    units = val + n;
 
-  while (units && *units == ' ')
-    units ++;
-
-  if (units && *units)
-    {
-      int i;
-      const Unit *unit = get_unit_struct (units);
-      if (unit != NULL)
-        {
-          value  = unit_to_coord (unit, value);
-          scaled = 1;
-        }
-      if (extra_units)
-        {
-          for (i = 0; *extra_units[i].suffix; ++i)
-            {
-              if (strncmp (units, extra_units[i].suffix, strlen(extra_units[i].suffix)) == 0)
-                {
-                  value *= extra_units[i].scale;
-                  if (extra_units[i].flags & UNIT_PERCENT)
-                    value /= 100.0;
-                  scaled = 1;
-                }
-            }
-        }
-    }
-  /* Apply default unit */
-  if (!scaled && default_unit && *default_unit)
-    {
-      int i;
-      const Unit *unit = get_unit_struct (default_unit);
-      if (extra_units)
-        for (i = 0; *extra_units[i].suffix; ++i)
-          if (strcmp (extra_units[i].suffix, default_unit) == 0)
-            {
-              value *= extra_units[i].scale;
-              if (extra_units[i].flags & UNIT_PERCENT)
-                value /= 100.0;
-              scaled = 1;
-            }
-      if (!scaled && unit != NULL)
-        value = unit_to_coord (unit, value);
-    }
+  if (sscanf (val, "%lf", &value) < 1)
+    return 0.;
 
   return value;
 }
