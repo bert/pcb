@@ -48,7 +48,6 @@
 #include "autoroute.h"
 #include "buffer.h"
 #include "change.h"
-#include "command.h"
 #include "copy.h"
 #include "create.h"
 #include "crosshair.h"

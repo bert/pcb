@@ -43,7 +43,6 @@ PCB_SRCS = \
 	clip.c \
 	clip.h \
 	command.c \
-	command.h \
 	compat.c \
 	compat.h \
 	const.h \

@@ -33,7 +33,6 @@
 
 #include "data.h"
 #include "gui.h"
-#include "command.h"
 
 #if HAVE_LIBDMALLOC
 #include <dmalloc.h>
