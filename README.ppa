@@ -180,6 +180,51 @@ To round up, remove this committed changelog entry and the build:
   rm -rf packagebuild
 
 
+Building with pbuilder
+----------------------
+
+If you want to modify the packaging system, e.g. for testing dependencies, it's
+a good idea to build in a chroot'ed environment. There are many tools out there
+to make this easy ... and almost as many which I (Traumflug) found to not
+work as described. If you think that's me, well, have a look at
+
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=779255
+
+The tool which was found to actually work is 'pbuilder'. It's very similar to
+the tool used by these build farm machines (sbuild).
+
+
+We have build dependencies in 'universe', so let's pbuilder know this:
+
+  echo "COMPONENTS=\"main restricted universe multiverse\"" > ${HOME}/.pbuilderrc
+
+Then build a base chroot image:
+
+  # To build for 32-bit on a 64-bit machine, add --architecture i386
+  # To build for a different distribution, add --distribution vivid
+  sudo pbuilder create --debootstrapopts --variant=buildd
+
+It's recommended to update this chroot image once daily:
+
+  sudo pbuilder update
+
+
+The above has to be done only once. To actually build the package, prepare the
+source package as shown in the previous section, but don't upload to Launchpad
+and also don't remove packagebuild/. Then it's as simple as this:
+
+  (cd packagebuild && sudo pbuilder build *.dsc)
+
+Built packages end up in /var/cache/pbuilder/result/.
+
+
+Cleaning:
+
+  sudo rm -r /var/cache/pbuilder  # remove chroot image and apt cache
+
+... and don't forget to remove the stuff made in the previous section.
+
+
 TODO:
 -----
 
