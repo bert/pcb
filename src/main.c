@@ -1884,8 +1884,9 @@ main (int argc, char *argv[])
 
   hid_load_settings ();
 
-  program_name = argv[0];
+  program_name     = argv[0];
   program_basename = strrchr (program_name, PCB_DIR_SEPARATOR_C);
+
   if (program_basename) {
     program_directory = strdup (program_name);
     *strrchr (program_directory, PCB_DIR_SEPARATOR_C) = 0;
@@ -1918,151 +1919,151 @@ main (int argc, char *argv[])
     argc -= 2;
     argv += 2;
   }
-  /* Otherwise start GUI. */
-  else {
+  else { /* Otherwise start GUI. */
 
     gui = hid_find_gui ();
+  }
 
-    /* Exit with error if GUI failed to start. */
-    if (!gui)
-      exit (1);
+  /* Exit with error if GUI failed to start. */
+  if (!gui)
+    exit (1);
 
-    /* Set up layers. */
-    for (i = 0; i < MAX_LAYER; i++) {
+  /* Set up layers. */
+  for (i = 0; i < MAX_LAYER; i++) {
 
-      char buf[20];
-      sprintf (buf, "signal%d", i + 1);
-      Settings.DefaultLayerName[i] = strdup (buf);
-      Settings.LayerColor[i] = "#c49350";
-      Settings.LayerSelectedColor[i] = "#00ffff";
-    }
+    char buf[20];
+    sprintf (buf, "signal%d", i + 1);
+    Settings.DefaultLayerName[i] = strdup (buf);
+    Settings.LayerColor[i] = "#c49350";
+    Settings.LayerSelectedColor[i] = "#00ffff";
+  }
 
-    gui->parse_arguments (&argc, &argv);
+  gui->parse_arguments (&argc, &argv);
 
-    if (show_help || (argc > 1 && argv[1][0] == '-'))
-      usage ();
-    if (show_version)
-      print_version ();
-    if (show_defaults)
-      print_defaults ();
-    if (show_copyright)
-      copyright ();
+  if (show_help || (argc > 1 && argv[1][0] == '-'))
+    usage ();
+  if (show_version)
+    print_version ();
+  if (show_defaults)
+    print_defaults ();
+  if (show_copyright)
+    copyright ();
 
-    settings_post_process ();
+  settings_post_process ();
 
-    if (show_actions) {
-      print_actions ();
-      exit (0);
-    }
+  if (show_actions) {
+    print_actions ();
+    exit (0);
+  }
 
-    if (do_dump_actions) {
-      extern void dump_actions (void);
-      dump_actions ();
-      exit (0);
-    }
+  if (do_dump_actions) {
+    extern void dump_actions (void);
+    dump_actions ();
+    exit (0);
+  }
 
-    /* Create a new PCB object in memory */
-    PCB = CreateNewPCB ();
+  /* Create a new PCB object in memory */
+  PCB = CreateNewPCB ();
 
-    ParseGroupString (Settings.Groups, &PCB->LayerGroups, &PCB->Data->LayerN);
-    /* Add silk layers to newly created PCB */
-    CreateNewPCBPost (PCB, 1);
-    if (argc > 1)
-      command_line_pcb = argv[1];
+  ParseGroupString (Settings.Groups, &PCB->LayerGroups, &PCB->Data->LayerN);
 
+  /* Add silk layers to newly created PCB */
+  CreateNewPCBPost (PCB, 1);
 
-    ResetStackAndVisibility ();
+  if (argc > 1)
+    command_line_pcb = argv[1];
 
-    if (gui->gui)
-      InitCrosshair ();
+  ResetStackAndVisibility ();
 
-    InitHandler ();
-    InitBuffers ();
-    SetMode (ARROW_MODE);
+  if (gui->gui)
+    InitCrosshair ();
 
-    if (command_line_pcb) {
-      /* keep filename even if initial load command failed;
-       * file might not exist
-       */
-      if (LoadPCB (command_line_pcb)) {
-        PCB->Filename = strdup (command_line_pcb);
-      }
-    }
+  InitHandler ();
+  InitBuffers ();
+  SetMode (ARROW_MODE);
 
-    if (Settings.InitialLayerStack && Settings.InitialLayerStack[0]) {
-
-      LayerStringToLayerStack (Settings.InitialLayerStack);
-    }
-
-    /* This must be called before any other atexit functions
-     * are registered, as it configures an atexit function to
-     * clean up and free various items of allocated memory,
-     * and must be the last last atexit function to run.
+  if (command_line_pcb) {
+    /* keep filename even if initial load command failed;
+     * file might not exist
      */
-    leaky_init ();
-
-    /* Register a function to be called when the program terminates.
-     * This makes sure that data is saved even if LEX/YACC routines
-     * abort the program.
-     * If the OS doesn't have at least one of them,
-     * the critical sections will be handled by parse_l.l
-     */
-    atexit (EmergencySave);
-
-    /* read the library file and display it if it's not empty
-     */
-    if (!ReadLibraryContents () && Library.MenuN) {
-      hid_action ("LibraryChanged");
+    if (LoadPCB (command_line_pcb)) {
+      PCB->Filename = strdup (command_line_pcb);
     }
+  }
+
+  if (Settings.InitialLayerStack && Settings.InitialLayerStack[0]) {
+
+    LayerStringToLayerStack (Settings.InitialLayerStack);
+  }
+
+  /* This must be called before any other atexit functions
+   * are registered, as it configures an atexit function to
+   * clean up and free various items of allocated memory,
+   * and must be the last last atexit function to run.
+   */
+  leaky_init ();
+
+  /* Register a function to be called when the program terminates.
+   * This makes sure that data is saved even if LEX/YACC routines
+   * abort the program.
+   * If the OS doesn't have at least one of them,
+   * the critical sections will be handled by parse_l.l
+   */
+  atexit (EmergencySave);
+
+  /* read the library file and display it if it's not empty
+   */
+  if (!ReadLibraryContents () && Library.MenuN) {
+    hid_action ("LibraryChanged");
+  }
 
 #if HAVE_LIBSTROKE
-    stroke_init ();
+  stroke_init ();
 #endif
 
-    if (Settings.ScriptFilename) {
-      Message (_("Executing startup script file %s\n"),
-                 Settings.ScriptFilename);
-      hid_actionl ("ExecuteFile", Settings.ScriptFilename, NULL);
-    }
+  if (Settings.ScriptFilename) {
+    Message (_("Executing startup script file %s\n"),
+               Settings.ScriptFilename);
+    hid_actionl ("ExecuteFile", Settings.ScriptFilename, NULL);
+  }
 
-    if (Settings.ActionString) {
-      Message (_("Executing startup action %s\n"), Settings.ActionString);
-      hid_parse_actions (Settings.ActionString);
-    }
+  if (Settings.ActionString) {
+    Message (_("Executing startup action %s\n"), Settings.ActionString);
+    hid_parse_actions (Settings.ActionString);
+  }
 
-    if (gui->printer || gui->exporter) {
+  if (gui->printer || gui->exporter) {
 
-      // Workaround to fix batch output for non-C locales
+    // Workaround to fix batch output for non-C locales
 #ifdef ENABLE_NLS
-      setlocale(LC_NUMERIC,"C");
+    setlocale(LC_NUMERIC,"C");
 #endif
-      gui->do_export (0);
-      exit (0);
-    }
+    gui->do_export (0);
+    exit (0);
+  }
 
 #if HAVE_DBUS
-    pcb_dbus_setup();
+  pcb_dbus_setup();
 #endif
 
-    EnableAutosave ();
+  EnableAutosave ();
 
 #if DEBUG
-    printf ("Settings.LibraryDir        = \"%s\"\n", Settings.LibraryDir);
-    printf ("Settings.FontPath          = \"%s\"\n", Settings.FontPath);
-    printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
-    printf ("Settings.LibraryPath       = \"%s\"\n", Settings.LibraryPath);
-    printf ("Settings.UserLibrary       = \"%s\"\n", Settings.UserLibrary);
-    printf ("Settings.MakeProgram = \"%s\"\n",
-            UNKNOWN (Settings.MakeProgram));
-    printf ("Settings.GnetlistProgram = \"%s\"\n",
-            UNKNOWN (Settings.GnetlistProgram));
+  printf ("Settings.LibraryDir        = \"%s\"\n", Settings.LibraryDir);
+  printf ("Settings.FontPath          = \"%s\"\n", Settings.FontPath);
+  printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
+  printf ("Settings.LibraryPath       = \"%s\"\n", Settings.LibraryPath);
+  printf ("Settings.UserLibrary       = \"%s\"\n", Settings.UserLibrary);
+  printf ("Settings.MakeProgram = \"%s\"\n",
+          UNKNOWN (Settings.MakeProgram));
+  printf ("Settings.GnetlistProgram = \"%s\"\n",
+          UNKNOWN (Settings.GnetlistProgram));
 #endif
 
-    gui->do_export (0);
+  gui->do_export (0);
 #if HAVE_DBUS
-    pcb_dbus_finish();
+  pcb_dbus_finish();
 #endif
 
-    return (0);
-  }
+  return (0);
 }
