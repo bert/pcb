@@ -214,14 +214,20 @@ hid_find_exporter (const char *which)
 {
   int i;
 
-  for (i = 0; i < hid_num_hids; i++)
-    if (hid_list[i]->exporter && strcmp (which, hid_list[i]->name) == 0)
+  for (i = 0; i < hid_num_hids; i++) {
+    if (hid_list[i]->exporter && strcmp (which, hid_list[i]->name) == 0) {
       return hid_list[i];
+    }
+  }
 
   fprintf (stderr, "Invalid exporter %s, available ones:", which);
-  for (i = 0; i < hid_num_hids; i++)
-    if (hid_list[i]->exporter)
+
+  for (i = 0; i < hid_num_hids; i++) {
+    if (hid_list[i]->exporter) {
       fprintf (stderr, " %s", hid_list[i]->name);
+    }
+  }
+
   fprintf (stderr, "\n");
 
   return 0;
@@ -257,12 +263,14 @@ hid_parse_command_line (int *argc, char ***argv)
   (*argc)--;
   (*argv)++;
 
-  for (ha = hid_attr_nodes; ha; ha = ha->next)
-    for (i = 0; i < ha->n; i++)
-    {
+  for (ha = hid_attr_nodes; ha; ha = ha->next) {
+
+    for (i = 0; i < ha->n; i++) {
+
       HID_Attribute *a = ha->attributes + i;
-      switch (a->type)
-      {
+
+      switch (a->type) {
+
         case HID_Label:
           break;
         case HID_Integer:
@@ -302,135 +310,136 @@ hid_parse_command_line (int *argc, char ***argv)
           abort ();
       }
     }
+  }
 
-    while (*argc && (*argv)[0][0] == '-' && (*argv)[0][1] == '-') {
+  while (*argc && (*argv)[0][0] == '-' && (*argv)[0][1] == '-') {
 
-      int bool_val;
-      int arg_ofs;
+    int bool_val;
+    int arg_ofs;
 
-      bool_val = 1;
-      arg_ofs = 2;
-      try_no_arg:
+    bool_val = 1;
+    arg_ofs = 2;
+    try_no_arg:
 
-      for (ha = hid_attr_nodes; ha; ha = ha->next) {
+    for (ha = hid_attr_nodes; ha; ha = ha->next) {
 
-        for (i = 0; i < ha->n; i++) {
+      for (i = 0; i < ha->n; i++) {
 
-          if (strcmp ((*argv)[0] + arg_ofs, ha->attributes[i].name) == 0) {
+        if (strcmp ((*argv)[0] + arg_ofs, ha->attributes[i].name) == 0) {
 
-            HID_Attribute *a = ha->attributes + i;
-            char *ep;
-            const Unit *unit;
-            switch (ha->attributes[i].type) {
+          HID_Attribute *a = ha->attributes + i;
+          char *ep;
+          const Unit *unit;
+          switch (ha->attributes[i].type) {
 
-              case HID_Label:
-                break;
-              case HID_Integer:
-                if (a->value)
-                  *(int *) a->value = strtol ((*argv)[1], 0, 0);
-                else
-                  a->default_val.int_value = strtol ((*argv)[1], 0, 0);
-                (*argc)--;
-                (*argv)++;
-                break;
-              case HID_Coord:
-                if (a->value)
-                  *(Coord *) a->value = GetValue ((*argv)[1], NULL, NULL);
-                else
-                  a->default_val.coord_value = GetValue ((*argv)[1], NULL, NULL);
-                (*argc)--;
-                (*argv)++;
-                break;
-              case HID_Real:
-                if (a->value)
-                  *(double *) a->value = strtod ((*argv)[1], 0);
-                else
-                  a->default_val.real_value = strtod ((*argv)[1], 0);
-                (*argc)--;
-                (*argv)++;
-                break;
-              case HID_String:
-                if (a->value)
-                  *(char **) a->value = (*argv)[1];
-                else
-                  a->default_val.str_value = (*argv)[1];
-                (*argc)--;
-                (*argv)++;
-                break;
-              case HID_Boolean:
-                if (a->value)
-                  *(char *) a->value = bool_val;
-                else
-                  a->default_val.int_value = bool_val;
-                break;
-              case HID_Mixed:
-                a->default_val.real_value = strtod ((*argv)[1], &ep);
-                goto do_enum;
-              case HID_Enum:
-                ep = (*argv)[1];
-                do_enum:
-                ok = 0;
-                for (e = 0; a->enumerations[e]; e++)
-                  if (strcmp (a->enumerations[e], ep) == 0)
-                  {
-                    ok = 1;
-                    a->default_val.int_value = e;
-                    a->default_val.str_value = ep;
-                    break;
-                  }
-                  if (!ok) {
-
-                    fprintf (stderr,
-                             "ERROR:  \"%s\" is an unknown value for the --%s option\n",
-                             (*argv)[1], a->name);
-                    exit (1);
-                  }
-                  (*argc)--;
-                  (*argv)++;
-                  break;
-              case HID_Path:
-                abort ();
+            case HID_Label:
+              break;
+            case HID_Integer:
+              if (a->value)
+                *(int *) a->value = strtol ((*argv)[1], 0, 0);
+              else
+                a->default_val.int_value = strtol ((*argv)[1], 0, 0);
+              (*argc)--;
+              (*argv)++;
+              break;
+            case HID_Coord:
+              if (a->value)
+                *(Coord *) a->value = GetValue ((*argv)[1], NULL, NULL);
+              else
+                a->default_val.coord_value = GetValue ((*argv)[1], NULL, NULL);
+              (*argc)--;
+              (*argv)++;
+              break;
+            case HID_Real:
+              if (a->value)
+                *(double *) a->value = strtod ((*argv)[1], 0);
+              else
+                a->default_val.real_value = strtod ((*argv)[1], 0);
+              (*argc)--;
+              (*argv)++;
+              break;
+            case HID_String:
+              if (a->value)
+                *(char **) a->value = (*argv)[1];
+              else
                 a->default_val.str_value = (*argv)[1];
-                (*argc)--;
-                (*argv)++;
-                break;
-              case HID_Unit:
-                unit = get_unit_struct ((*argv)[1]);
-                if (unit == NULL)
+              (*argc)--;
+              (*argv)++;
+              break;
+            case HID_Boolean:
+              if (a->value)
+                *(char *) a->value = bool_val;
+              else
+                a->default_val.int_value = bool_val;
+              break;
+            case HID_Mixed:
+              a->default_val.real_value = strtod ((*argv)[1], &ep);
+              goto do_enum;
+            case HID_Enum:
+              ep = (*argv)[1];
+              do_enum:
+              ok = 0;
+              for (e = 0; a->enumerations[e]; e++)
+                if (strcmp (a->enumerations[e], ep) == 0)
                 {
+                  ok = 1;
+                  a->default_val.int_value = e;
+                  a->default_val.str_value = ep;
+                  break;
+                }
+                if (!ok) {
+
                   fprintf (stderr,
-                           "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+                           "ERROR:  \"%s\" is an unknown value for the --%s option\n",
                            (*argv)[1], a->name);
                   exit (1);
                 }
-                a->default_val.int_value = unit->index;
-                a->default_val.str_value = unit->suffix;
                 (*argc)--;
                 (*argv)++;
                 break;
-            }
-            (*argc)--;
-            (*argv)++;
-            ha = 0;
-            goto got_match;
+            case HID_Path:
+              abort ();
+              a->default_val.str_value = (*argv)[1];
+              (*argc)--;
+              (*argv)++;
+              break;
+            case HID_Unit:
+              unit = get_unit_struct ((*argv)[1]);
+              if (unit == NULL)
+              {
+                fprintf (stderr,
+                         "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+                         (*argv)[1], a->name);
+                exit (1);
+              }
+              a->default_val.int_value = unit->index;
+              a->default_val.str_value = unit->suffix;
+              (*argc)--;
+              (*argv)++;
+              break;
           }
+          (*argc)--;
+          (*argv)++;
+          ha = 0;
+          goto got_match;
         }
       }
-
-      if (bool_val == 1 && strncmp ((*argv)[0], "--no-", 5) == 0) {
-
-        bool_val = 0;
-        arg_ofs = 5;
-        goto try_no_arg;
-      }
-
-      fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
-      exit (1);
-      got_match:;
     }
 
-    (*argc)++;
-    (*argv)--;
+    if (bool_val == 1 && strncmp ((*argv)[0], "--no-", 5) == 0) {
+
+      bool_val = 0;
+      arg_ofs = 5;
+      goto try_no_arg;
+    }
+
+    fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
+    exit (1);
+    got_match:;
+  }
+
+  (*argc)++;
+  (*argv)--;
 }
 
 static int

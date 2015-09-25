@@ -633,8 +633,8 @@ create_form_ok_dialog (char *name, int ok)
 
 int
 lesstif_attribute_dialog (HID_Attribute * attrs,
-			  int n_attrs, HID_Attr_Val * results,
-			  const char * title, const char * descr)
+                          int n_attrs, HID_Attr_Val * results,
+                          const char * title, const char * descr)
 {
   Widget dialog, topform, lform, form;
   Widget *wl;
@@ -646,14 +646,16 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   if (!empty)
     empty = XmStringCreatePCB (" ");
 
-  for (i = 0; i < n_attrs; i++)
-    {
-      if (attrs[i].help_text != ATTR_UNDOCUMENTED)
-	actual_nattrs ++;
-      results[i] = attrs[i].default_val;
-      if (results[i].str_value)
-	results[i].str_value = strdup (results[i].str_value);
-    }
+  for (i = 0; i < n_attrs; i++) {
+
+    if (attrs[i].help_text != ATTR_UNDOCUMENTED)
+      actual_nattrs ++;
+
+    results[i] = attrs[i].default_val;
+
+    if (results[i].str_value)
+      results[i].str_value = strdup (results[i].str_value);
+  }
 
   wl = (Widget *) malloc (n_attrs * sizeof (Widget));
 
@@ -683,127 +685,130 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   XtManageChild (form);
 
   attrcount = -1;
-  for (i = 0; i < n_attrs; i++)
-    {
-      Widget w;
 
-      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
-	continue;
-      attrcount ++;
+  for (i = 0; i < n_attrs; i++) {
 
-      n = 0;
-      stdarg (XmNleftAttachment, XmATTACH_FORM);
-      stdarg (XmNrightAttachment, XmATTACH_FORM);
-      stdarg (XmNtopAttachment, XmATTACH_POSITION);
-      stdarg (XmNtopPosition, attrcount);
-      stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-      stdarg (XmNbottomPosition, attrcount + 1);
-      stdarg (XmNalignment, XmALIGNMENT_END);
-      w = XmCreateLabel (lform, attrs[i].name, args, n);
-      XtManageChild (w);
-    }
+    Widget w;
+
+    if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+      continue;
+    attrcount ++;
+
+    n = 0;
+    stdarg (XmNleftAttachment, XmATTACH_FORM);
+    stdarg (XmNrightAttachment, XmATTACH_FORM);
+    stdarg (XmNtopAttachment, XmATTACH_POSITION);
+    stdarg (XmNtopPosition, attrcount);
+    stdarg (XmNbottomAttachment, XmATTACH_POSITION);
+    stdarg (XmNbottomPosition, attrcount + 1);
+    stdarg (XmNalignment, XmALIGNMENT_END);
+    w = XmCreateLabel (lform, attrs[i].name, args, n);
+    XtManageChild (w);
+  }
 
   attrcount = -1;
-  for (i = 0; i < n_attrs; i++)
+
+  for (i = 0; i < n_attrs; i++) {
+
+    static char buf[30];
+    n = 0;
+
+    if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+      continue;
+    attrcount ++;
+
+    stdarg (XmNleftAttachment, XmATTACH_FORM);
+    stdarg (XmNrightAttachment, XmATTACH_FORM);
+    stdarg (XmNtopAttachment, XmATTACH_POSITION);
+    stdarg (XmNtopPosition, attrcount);
+    stdarg (XmNbottomAttachment, XmATTACH_POSITION);
+    stdarg (XmNbottomPosition, attrcount + 1);
+    stdarg (XmNalignment, XmALIGNMENT_END);
+
+    switch (attrs[i].type)
     {
-      static char buf[30];
-      n = 0;
+      case HID_Label:
+        stdarg (XmNlabelString, empty);
+        wl[i] = XmCreateLabel (form, attrs[i].name, args, n);
+        break;
+      case HID_Boolean:
+        stdarg (XmNlabelString, empty);
+        stdarg (XmNset, results[i].int_value);
+        wl[i] = XmCreateToggleButton (form, attrs[i].name, args, n);
+        break;
+      case HID_String:
+        stdarg (XmNcolumns, 40);
+        stdarg (XmNresizeWidth, True);
+        stdarg (XmNvalue, results[i].str_value);
+        wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
+        break;
+      case HID_Integer:
+        stdarg (XmNcolumns, 13);
+        stdarg (XmNresizeWidth, True);
+        sprintf (buf, "%d", results[i].int_value);
+        stdarg (XmNvalue, buf);
+        wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
+        break;
+      case HID_Coord:
+        stdarg (XmNcolumns, 13);
+        stdarg (XmNresizeWidth, True);
+        pcb_sprintf (buf, "%$mS", results[i].coord_value);
+        stdarg (XmNvalue, buf);
+        wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
+        break;
+      case HID_Real:
+        stdarg (XmNcolumns, 16);
+        stdarg (XmNresizeWidth, True);
+        sprintf (buf, "%g", results[i].real_value);
+        stdarg (XmNvalue, buf);
+        wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
+        break;
+      case HID_Enum:
+      {
+        static XmString empty = 0;
+        Widget submenu, default_button=0;
+        int sn = n;
 
-      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
-	continue;
-      attrcount ++;
+        if (empty == 0)
+          empty = XmStringCreatePCB ("");
 
-      stdarg (XmNleftAttachment, XmATTACH_FORM);
-      stdarg (XmNrightAttachment, XmATTACH_FORM);
-      stdarg (XmNtopAttachment, XmATTACH_POSITION);
-      stdarg (XmNtopPosition, attrcount);
-      stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-      stdarg (XmNbottomPosition, attrcount + 1);
-      stdarg (XmNalignment, XmALIGNMENT_END);
+        submenu = XmCreatePulldownMenu (form, attrs[i].name, args+sn, n-sn);
 
-      switch (attrs[i].type)
-	{
-	case HID_Label:
-	  stdarg (XmNlabelString, empty);
-	  wl[i] = XmCreateLabel (form, attrs[i].name, args, n);
-	  break;
-	case HID_Boolean:
-	  stdarg (XmNlabelString, empty);
-	  stdarg (XmNset, results[i].int_value);
-	  wl[i] = XmCreateToggleButton (form, attrs[i].name, args, n);
-	  break;
-	case HID_String:
-	  stdarg (XmNcolumns, 40);
-	  stdarg (XmNresizeWidth, True);
-	  stdarg (XmNvalue, results[i].str_value);
-	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
-	  break;
-	case HID_Integer:
-	  stdarg (XmNcolumns, 13);
-	  stdarg (XmNresizeWidth, True);
-	  sprintf (buf, "%d", results[i].int_value);
-	  stdarg (XmNvalue, buf);
-	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
-	  break;
-	case HID_Coord:
-	  stdarg (XmNcolumns, 13);
-	  stdarg (XmNresizeWidth, True);
-	  pcb_sprintf (buf, "%$mS", results[i].coord_value);
-	  stdarg (XmNvalue, buf);
-	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
-	  break;
-	case HID_Real:
-	  stdarg (XmNcolumns, 16);
-	  stdarg (XmNresizeWidth, True);
-	  sprintf (buf, "%g", results[i].real_value);
-	  stdarg (XmNvalue, buf);
-	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
-	  break;
-	case HID_Enum:
-	  {
-	    static XmString empty = 0;
-	    Widget submenu, default_button=0;
-	    int sn = n;
+        n = sn;
+        stdarg (XmNlabelString, empty);
+        stdarg (XmNsubMenuId, submenu);
+        wl[i] = XmCreateOptionMenu (form, attrs[i].name, args, n);
 
-	    if (empty == 0)
-	      empty = XmStringCreatePCB ("");
+        for (sn=0; attrs[i].enumerations[sn]; sn++) {
 
-	    submenu = XmCreatePulldownMenu (form, attrs[i].name, args+sn, n-sn);
+          Widget btn;
+          XmString label;
+          n = 0;
+          label = XmStringCreatePCB ((char *)attrs[i].enumerations[sn]);
+          stdarg (XmNuserData, & attrs[i].enumerations[sn]);
+          stdarg (XmNlabelString, label);
+          btn = XmCreatePushButton (submenu, "menubutton", args, n);
+          XtManageChild (btn);
+          XmStringFree (label);
+          if (sn == attrs[i].default_val.int_value)
+            default_button = btn;
+        }
 
-	    n = sn;
-	    stdarg (XmNlabelString, empty);
-	    stdarg (XmNsubMenuId, submenu);
-	    wl[i] = XmCreateOptionMenu (form, attrs[i].name, args, n);
+        if (default_button) {
 
-	    for (sn=0; attrs[i].enumerations[sn]; sn++)
-	      {
-		Widget btn;
-		XmString label;
-		n = 0;
-		label = XmStringCreatePCB ((char *)attrs[i].enumerations[sn]);
-		stdarg (XmNuserData, & attrs[i].enumerations[sn]);
-		stdarg (XmNlabelString, label);
-		btn = XmCreatePushButton (submenu, "menubutton", args, n);
-		XtManageChild (btn);
-		XmStringFree (label);
-		if (sn == attrs[i].default_val.int_value)
-		  default_button = btn;
-	      }
-	    if (default_button)
-	      {
-		n = 0;
-		stdarg (XmNmenuHistory, default_button);
-		XtSetValues (wl[i], args, n);
-	      }
-	  }
-	  break;
-	default:
-	  wl[i] = XmCreateLabel (form, "UNIMPLEMENTED", args, n);
-	  break;
-	}
-
-      XtManageChild (wl[i]);
+          n = 0;
+          stdarg (XmNmenuHistory, default_button);
+          XtSetValues (wl[i], args, n);
+        }
+      }
+      break;
+      default:
+        wl[i] = XmCreateLabel (form, "UNIMPLEMENTED", args, n);
+        break;
     }
+
+    XtManageChild (wl[i]);
+  }
 
   rv = wait_for_dialog (dialog);
 

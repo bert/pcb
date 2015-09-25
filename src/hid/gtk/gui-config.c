@@ -71,7 +71,6 @@ typedef struct
 }
 ConfigAttribute;
 
-
 enum ColorTypes
 {
   MISC_COLOR,

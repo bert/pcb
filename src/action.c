@@ -7077,8 +7077,8 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   printf("Entered ActionElementList, executing function %s\n", function);
 #endif
 
-  if (strcasecmp (function, "start") == 0)
-    {
+  if (strcasecmp (function, "start") == 0) {
+
       ELEMENT_LOOP (PCB->Data);
       {
 	CLEAR_FLAG (FOUNDFLAG, element);
@@ -7669,286 +7669,289 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
   int nsources = 0;
 
 #if DEBUG
-      printf("ActionImport:  ===========  Entering ActionImport  ============\n");
+  printf("ActionImport:  ===========  Entering ActionImport  ============\n");
 #endif
 
   mode = ARG (0);
 
-  if (mode && strcasecmp (mode, "setdisperse") == 0)
-    {
-      char *ds, *units;
-      char buf[50];
+  if (mode && strcasecmp (mode, "setdisperse") == 0) {
 
-      ds = ARG (1);
-      units = ARG (2);
-      if (!ds)
-	{
-	  const char *as = AttributeGet (PCB, "import::disperse");
-	  ds = gui->prompt_for(_("Enter dispersion:"), as ? as : "0");
-	}
-      if (units)
-	{
-	  sprintf(buf, "%s%s", ds, units);
-	  AttributePut (PCB, "import::disperse", buf);
-	}
-      else
-	AttributePut (PCB, "import::disperse", ds);
-      if (ARG (1) == NULL)
-        free (ds);
+    char *ds, *units;
+    char buf[50];
+
+    ds = ARG (1);
+    units = ARG (2);
+    if (!ds) {
+
+      const char *as = AttributeGet (PCB, "import::disperse");
+      ds = gui->prompt_for(_("Enter dispersion:"), as ? as : "0");
+    }
+    if (units)
+    {
+      sprintf(buf, "%s%s", ds, units);
+      AttributePut (PCB, "import::disperse", buf);
+    }
+    else
+      AttributePut (PCB, "import::disperse", ds);
+    if (ARG (1) == NULL)
+      free (ds);
+    return 0;
+  }
+
+  if (mode && strcasecmp (mode, "setnewpoint") == 0) {
+
+    const char *xs, *ys, *units;
+    Coord x, y;
+    char buf[50];
+
+    xs = ARG (1);
+    ys = ARG (2);
+    units = ARG (3);
+
+    if (!xs) {
+
+      gui->get_coords (_("Click on a location"), &x, &y);
+    }
+    else if (strcasecmp (xs, "center") == 0) {
+
+      AttributeRemove (PCB, "import::newX");
+      AttributeRemove (PCB, "import::newY");
       return 0;
     }
+    else if (strcasecmp (xs, "mark") == 0) {
 
-  if (mode && strcasecmp (mode, "setnewpoint") == 0)
-    {
-      const char *xs, *ys, *units;
-      Coord x, y;
-      char buf[50];
+      if (!Marked.status)
+        return 0;
 
-      xs = ARG (1);
-      ys = ARG (2);
-      units = ARG (3);
-
-      if (!xs)
-	{
-	  gui->get_coords (_("Click on a location"), &x, &y);
-	}
-      else if (strcasecmp (xs, "center") == 0)
-	{
-	  AttributeRemove (PCB, "import::newX");
-	  AttributeRemove (PCB, "import::newY");
-	  return 0;
-	}
-      else if (strcasecmp (xs, "mark") == 0)
-	{
-	  if (!Marked.status)
-	    return 0;
-
-	  x = Marked.X;
-	  y = Marked.Y;
-	}
-      else if (ys)
-	{
-	  x = GetValue (xs, units, NULL);
-	  y = GetValue (ys, units, NULL);
-	}
-      else
-	{
-	  Message (_("Bad syntax for Import(setnewpoint)"));
-	  return 1;
-	}
-
-      pcb_sprintf (buf, "%$ms", x);
-      AttributePut (PCB, "import::newX", buf);
-      pcb_sprintf (buf, "%$ms", y);
-      AttributePut (PCB, "import::newY", buf);
-      return 0;
+      x = Marked.X;
+      y = Marked.Y;
     }
+    else if (ys) {
+
+      x = GetValue (xs, units, NULL);
+      y = GetValue (ys, units, NULL);
+    }
+    else {
+
+      Message (_("Bad syntax for Import(setnewpoint)"));
+      return 1;
+    }
+
+    pcb_sprintf (buf, "%$ms", x);
+    AttributePut (PCB, "import::newX", buf);
+    pcb_sprintf (buf, "%$ms", y);
+    AttributePut (PCB, "import::newY", buf);
+    return 0;
+  }
 
   if (! mode)
     mode = AttributeGet (PCB, "import::mode");
   if (! mode)
     mode = "gnetlist";
 
-  if (argc > 1)
-    {
-      sources = argv + 1;
-      nsources = argc - 1;
-    }
+  if (argc > 1) {
 
-  if (! sources)
-    {
-      char sname[40];
-      char *src;
+    sources = argv + 1;
+    nsources = argc - 1;
+  }
 
+  if (! sources) {
+
+    char sname[40];
+    char *src;
+
+    nsources = -1;
+    do {
+      nsources ++;
+      sprintf(sname, "import::src%d", nsources);
+      src = AttributeGet (PCB, sname);
+    } while (src);
+
+    if (nsources > 0) {
+
+      sources = (char **) malloc ((nsources + 1) * sizeof (char *));
       nsources = -1;
       do {
-	nsources ++;
-	sprintf(sname, "import::src%d", nsources);
-	src = AttributeGet (PCB, sname);
+        nsources ++;
+        sprintf(sname, "import::src%d", nsources);
+        src = AttributeGet (PCB, sname);
+        sources[nsources] = src;
       } while (src);
+    }
+  }
 
-      if (nsources > 0)
-	{
-	  sources = (char **) malloc ((nsources + 1) * sizeof (char *));
-	  nsources = -1;
-	  do {
-	    nsources ++;
-	    sprintf(sname, "import::src%d", nsources);
-	    src = AttributeGet (PCB, sname);
-	    sources[nsources] = src;
-	  } while (src);
-	}
+  if (! sources) {
+
+    /* Replace .pcb with .sch and hope for the best.  */
+    char *pcbname = PCB->Filename;
+    char *schname;
+    char *dot, *slash, *bslash;
+
+    if (!pcbname)
+      return hid_action("ImportGUI");
+
+    schname = (char *) malloc (strlen(pcbname) + 5);
+    strcpy (schname, pcbname);
+    dot = strchr (schname, '.');
+    slash = strchr (schname, '/');
+    bslash = strchr (schname, '\\');
+    if (dot && slash && dot < slash)
+      dot = NULL;
+    if (dot && bslash && dot < bslash)
+      dot = NULL;
+    if (dot)
+      *dot = 0;
+    strcat (schname, ".sch");
+
+    if (access (schname, F_OK)) {
+
+      free (schname);
+      return hid_action("ImportGUI");
     }
 
-  if (! sources)
-    {
-      /* Replace .pcb with .sch and hope for the best.  */
-      char *pcbname = PCB->Filename;
-      char *schname;
-      char *dot, *slash, *bslash;
-
-      if (!pcbname)
-	return hid_action("ImportGUI");
-
-      schname = (char *) malloc (strlen(pcbname) + 5);
-      strcpy (schname, pcbname);
-      dot = strchr (schname, '.');
-      slash = strchr (schname, '/');
-      bslash = strchr (schname, '\\');
-      if (dot && slash && dot < slash)
-	dot = NULL;
-      if (dot && bslash && dot < bslash)
-	dot = NULL;
-      if (dot)
-	*dot = 0;
-      strcat (schname, ".sch");
-
-      if (access (schname, F_OK))
-        {
-          free (schname);
-          return hid_action("ImportGUI");
-        }
-
-      sources = (char **) malloc (2 * sizeof (char *));
-      sources[0] = schname;
-      sources[1] = NULL;
-      nsources = 1;
-    }
+    sources = (char **) malloc (2 * sizeof (char *));
+    sources[0] = schname;
+    sources[1] = NULL;
+    nsources = 1;
+  }
 
   if (strcasecmp (mode, "gnetlist") == 0) {
 
-      char *tmpfile = tempfile_name_new ("gnetlist_output");
-      char **cmd;
-      int i;
+    char *tmpfile = tempfile_name_new ("gnetlist_output");
+    char **cmd;
+    int i;
 
-      if (tmpfile == NULL) {
-        Message (_("Could not create temp file"));
-        free (sources);
-        return 1;
-      }
-
-      cmd = (char **) malloc ((7 + nsources) * sizeof (char *));
-      cmd[0] =  Settings.GnetlistProgram;
-      cmd[1] = "-g";
-      cmd[2] = "pcbfwd";
-      cmd[3] = "-o";
-      cmd[4] = tmpfile;
-      cmd[5] = "--";
-      for (i=0; i<nsources; i++)
-	cmd[6+i] = sources[i];
-      cmd[6+nsources] = NULL;
-
-#if DEBUG
-      printf("ActionImport:  ===========  About to run gnetlist  ============\n");
-      printf("%s %s %s %s %s %s %s ...\n",
-	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
-#endif
-
-      if (pcb_spawnvp (cmd))
-	{
-	  unlink (tmpfile);
-	  return 1;
-	}
-
-#if DEBUG
-      printf("ActionImport:  ===========  About to run ActionExecuteFile, file = %s  ============\n", tmpfile);
-#endif
-
-      cmd[0] = tmpfile;
-      cmd[1] = NULL;
-      ActionExecuteFile (1, cmd, 0, 0);
-
-      free (cmd);
-      tempfile_unlink (tmpfile);
+    if (tmpfile == NULL) {
+      Message (_("Could not create temp file"));
+      free (sources);
+      return 1;
     }
-  else if (strcasecmp (mode, "make") == 0)
-    {
-      int must_free_tmpfile = 0;
-      char *tmpfile;
-      char *cmd[10];
-      int i;
-      char *srclist;
-      int srclen;
-      char *user_outfile = NULL;
-      char *user_makefile = NULL;
-      char *user_target = NULL;
+
+    cmd = (char **) malloc ((7 + nsources) * sizeof (char *));
+    cmd[0] =  Settings.GnetlistProgram;
+    cmd[1] = "-g";
+    cmd[2] = "pcbfwd";
+    cmd[3] = "-o";
+    cmd[4] = tmpfile;
+    cmd[5] = "--";
+    for (i=0; i<nsources; i++)
+      cmd[6+i] = sources[i];
+    cmd[6+nsources] = NULL;
+
+#if DEBUG
+    printf("ActionImport:  ===========  About to run gnetlist  ============\n");
+    printf("%s %s %s %s %s %s %s ...\n",
+           cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
+#endif
+
+    if (pcb_spawnvp (cmd)) {
+
+      unlink (tmpfile);
+      return 1;
+    }
+
+#if DEBUG
+    printf("ActionImport:  ===========  About to run ActionExecuteFile, file = %s  ============\n", tmpfile);
+#endif
+
+    cmd[0] = tmpfile;
+    cmd[1] = NULL;
+    ActionExecuteFile (1, cmd, 0, 0);
+
+    free (cmd);
+    tempfile_unlink (tmpfile);
+  }
+  else if (strcasecmp (mode, "make") == 0) {
+
+    int must_free_tmpfile = 0;
+    char *tmpfile;
+    char *cmd[10];
+    int i;
+    char *srclist;
+    int srclen;
+    char *user_outfile = NULL;
+    char *user_makefile = NULL;
+    char *user_target = NULL;
 
 
-      user_outfile = AttributeGet (PCB, "import::outfile");
-      user_makefile = AttributeGet (PCB, "import::makefile");
-      user_target = AttributeGet (PCB, "import::target");
-      if (user_outfile && !user_target)
-	user_target = user_outfile;
+    user_outfile = AttributeGet (PCB, "import::outfile");
+    user_makefile = AttributeGet (PCB, "import::makefile");
+    user_target = AttributeGet (PCB, "import::target");
+    if (user_outfile && !user_target)
+      user_target = user_outfile;
 
-      if (user_outfile)
-	tmpfile = user_outfile;
-      else
-	{
-	  tmpfile = tempfile_name_new ("gnetlist_output");
-	  if (tmpfile == NULL) {
-	    Message (_("Could not create temp file"));
-	    return 1;
-	  }
-	  must_free_tmpfile = 1;
-	}
+    if (user_outfile) {
+      tmpfile = user_outfile;
+    }
+    else {
 
-      srclen = sizeof("SRCLIST=") + 2;
-      for (i=0; i<nsources; i++)
-	srclen += strlen (sources[i]) + 2;
-      srclist = (char *) malloc (srclen);
-      strcpy (srclist, "SRCLIST=");
-      for (i=0; i<nsources; i++)
-	{
-	  if (i)
-	    strcat (srclist, " ");
-	  strcat (srclist, sources[i]);
-	}
+      tmpfile = tempfile_name_new ("gnetlist_output");
+    if (tmpfile == NULL) {
+      Message (_("Could not create temp file"));
+    return 1;
+    }
+    must_free_tmpfile = 1;
+    }
 
-      cmd[0] = Settings.MakeProgram;
-      cmd[1] = "-s";
-      cmd[2] = Concat ("PCB=", PCB->Filename, NULL);
-      cmd[3] = srclist;
-      cmd[4] = Concat ("OUT=", tmpfile, NULL);
-      i = 5;
-      if (user_makefile)
-	{
-	  cmd[i++] = "-f";
-	  cmd[i++] = user_makefile;
-	}
-      cmd[i++] = user_target ? user_target : (char *)"pcb_import";
-      cmd[i++] = NULL;
+    srclen = sizeof("SRCLIST=") + 2;
+    for (i=0; i<nsources; i++)
+      srclen += strlen (sources[i]) + 2;
+    srclist = (char *) malloc (srclen);
+    strcpy (srclist, "SRCLIST=");
+    for (i=0; i<nsources; i++) {
 
-      if (pcb_spawnvp (cmd))
-	{
-	  if (must_free_tmpfile)
-	    unlink (tmpfile);
-	  free (cmd[2]);
-	  free (cmd[3]);
-	  free (cmd[4]);
-	  return 1;
-	}
+      if (i) {
+        strcat (srclist, " ");
+      }
+      strcat (srclist, sources[i]);
+    }
 
-      cmd[0] = tmpfile;
-      cmd[1] = NULL;
-      ActionExecuteFile (1, cmd, 0, 0);
+    cmd[0] = Settings.MakeProgram;
+    cmd[1] = "-s";
+    cmd[2] = Concat ("PCB=", PCB->Filename, NULL);
+    cmd[3] = srclist;
+    cmd[4] = Concat ("OUT=", tmpfile, NULL);
+    i = 5;
+    if (user_makefile) {
 
+      cmd[i++] = "-f";
+      cmd[i++] = user_makefile;
+    }
+    cmd[i++] = user_target ? user_target : (char *)"pcb_import";
+    cmd[i++] = NULL;
+
+    if (pcb_spawnvp (cmd)) {
+
+      if (must_free_tmpfile)
+        unlink (tmpfile);
       free (cmd[2]);
       free (cmd[3]);
       free (cmd[4]);
-      if (must_free_tmpfile)
-	tempfile_unlink (tmpfile);
-    }
-  else
-    {
-      Message (_("Unknown import mode: %s\n"), mode);
       return 1;
     }
+
+    cmd[0] = tmpfile;
+    cmd[1] = NULL;
+    ActionExecuteFile (1, cmd, 0, 0);
+
+    free (cmd[2]);
+    free (cmd[3]);
+    free (cmd[4]);
+    if (must_free_tmpfile) {
+      tempfile_unlink (tmpfile);
+    }
+  }
+  else {
+
+    Message (_("Unknown import mode: %s\n"), mode);
+    return 1;
+  }
 
   DeleteRats (false);
   AddAllRats (false, NULL);
 
 #if DEBUG
-      printf("ActionImport:  ===========  Leaving ActionImport  ============\n");
+  printf("ActionImport:  ===========  Leaving ActionImport  ============\n");
 #endif
 
   return 0;

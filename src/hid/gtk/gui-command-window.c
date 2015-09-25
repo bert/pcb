@@ -41,8 +41,8 @@
 
 static GtkWidget *command_window;
 static GtkWidget *combo_vbox;
-static GList *history_list;
-static gchar *command_entered;
+static GList     *history_list;
+static char      *command_entered;
 static GMainLoop *loop;
 
 

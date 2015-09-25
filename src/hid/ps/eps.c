@@ -335,24 +335,25 @@ eps_do_export (HID_Attr_Val * options)
   int i;
   int save_ons[MAX_LAYER + 2];
 
-  if (!options)
-    {
-      eps_get_export_options (0);
-      for (i = 0; i < NUM_OPTIONS; i++)
-	eps_values[i] = eps_attribute_list[i].default_val;
-      options = eps_values;
-    }
+  if (!options) {
+
+    eps_get_export_options (0);
+    for (i = 0; i < NUM_OPTIONS; i++)
+      eps_values[i] = eps_attribute_list[i].default_val;
+    options = eps_values;
+  }
 
   filename = options[HA_psfile].str_value;
   if (!filename)
     filename = "pcb-out.eps";
 
   f = fopen (filename, "w");
-  if (!f)
-    {
-      perror (filename);
-      return;
-    }
+
+  if (!f) {
+
+    perror (filename);
+    return;
+  }
 
   if (!options[HA_as_shown].int_value)
     hid_save_and_show_layer_ons (save_ons);
@@ -367,8 +368,8 @@ static void
 eps_parse_arguments (int *argc, char ***argv)
 {
   hid_register_attributes (eps_attribute_list,
-			   sizeof (eps_attribute_list) /
-			   sizeof (eps_attribute_list[0]));
+                           sizeof (eps_attribute_list) /
+                           sizeof (eps_attribute_list[0]));
   hid_parse_command_line (argc, argv);
 }
 

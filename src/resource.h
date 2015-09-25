@@ -7,8 +7,8 @@ struct Resource;
 
 typedef struct ResourceVal
 {
-  char *name;
-  char *value;
+  char  *name;
+  char  *value;
   struct Resource *subres;
 } ResourceVal;
 
