@@ -1,4 +1,4 @@
-Element(0x00 "SMT transistor SOT353, 5 pins" "" "SC88A" 100 0 3 100 0x00)
+Element(0x00 "SMT transistor SC88A, 5 pins" "" "SOT325" 100 0 3 100 0x00)
 (
 	ElementLine( 0   0  0 119 10)
 	ElementLine( 0 119 80 119 10)
@@ -16,7 +16,7 @@ Element(0x00 "SMT transistor SOT353, 5 pins" "" "SC88A" 100 0 3 100 0x00)
 
 	# 2nd side, 3rd pin
 	Pad(14 84 14 104 15 "4" "4" 0x100)
-
+	
     # 2nd side, 2nd pin
 
 	# 2nd side, 1st pin
