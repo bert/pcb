@@ -1,9 +1,9 @@
 Element(0x00 "SMT transistor, 4 pins" "" "SOT89" 203 0 3 100 0x00)
 (
-	ElementLine(0 0 0 207 10)
-	ElementLine(0 207 183 207 10)
-	ElementLine(183 207 183 0 10)
-	ElementLine(183 0 0 0 10)
+	ElementLine(0 0 0 207 5)
+	ElementLine(0 207 183 207 5)
+	ElementLine(183 207 183 0 5)
+	ElementLine(183 0 0 0 5)
 	# 1st pin on pin side
 	Pad(30 152
 	    30 176
