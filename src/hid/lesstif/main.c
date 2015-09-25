@@ -47,13 +47,13 @@
 
 typedef struct hid_gc_struct
 {
-  HID *me_pointer;
-  Pixel color;
+  HID        *me_pointer;   /* aka self */
+  Pixel       color;
   const char *colorname;
-  int width;
+  int         width;
   EndCapStyle cap;
-  char xor_set;
-  char erase;
+  char        xor_set;
+  char        erase;
 } hid_gc_struct;
 
 static HID lesstif_hid;
@@ -64,19 +64,21 @@ static HID_DRAW lesstif_graphics;
 XtAppContext app_context;
 Widget appwidget;
 Display *display;
-static Window window = 0;
-static Cursor my_cursor = 0;
+
+static Window window       = 0;
+static Cursor my_cursor    = 0;
 static int old_cursor_mode = -1;
-static int over_point = 0;
+static int over_point      = 0;
 
 /* The first is the "current" pixmap.  The main_ is the real one we
    usually use, the mask_ are the ones for doing polygon masks.  The
    pixmap is the saved pixels, the bitmap is for the "erase" color.
    We set pixmap to point to main_pixmap or mask_pixmap as needed.  */
-static Pixmap pixmap = 0;
-static Pixmap main_pixmap = 0;
-static Pixmap mask_pixmap = 0;
-static Pixmap mask_bitmap = 0;
+static Pixmap pixmap       = 0;
+static Pixmap main_pixmap  = 0;
+static Pixmap mask_pixmap  = 0;
+static Pixmap mask_bitmap  = 0;
+
 static enum mask_mode use_mask = HID_MASK_OFF;
 
 static int use_xrender = 0;
@@ -92,8 +94,14 @@ static int pixmap_w = 0, pixmap_h = 0;
 Screen *screen_s;
 int screen;
 static Colormap colormap;
-static GC my_gc = 0, bg_gc, clip_gc = 0, bset_gc = 0, bclear_gc = 0, mask_gc =
-  0;
+
+static GC my_gc     = 0;
+static GC bg_gc     = 0;
+static GC clip_gc   = 0;
+static GC bset_gc   = 0;
+static GC bclear_gc = 0;
+static GC mask_gc   = 0;
+
 static Pixel bgcolor, offlimit_color, grid_color;
 static int bgred, bggreen, bgblue;
 
@@ -130,16 +138,21 @@ Widget m_click;
 
 /* This is the size, in pixels, of the viewport.  */
 static int view_width, view_height;
+
 /* This is the PCB location represented by the upper left corner of
    the viewport.  Note that PCB coordinates put 0,0 in the upper left,
    much like X does.  */
-static int view_left_x = 0, view_top_y = 0;
+static int view_left_x = 0;
+static int view_top_y  = 0;
+
 /* Denotes PCB units per screen pixel.  Larger numbers mean zooming
    out - the largest value means you are looking at the whole
    board.  */
 static double view_zoom = MIL_TO_COORD (10), prev_view_zoom = MIL_TO_COORD (10);
-static bool flip_x = 0, flip_y = 0;
-static bool autofade = 0;
+
+static bool flip_x       = 0;
+static bool flip_y       = 0;
+static bool autofade     = 0;
 static bool crosshair_on = true;
 
 /* ---------------------------------------------------------------------------
@@ -188,13 +201,13 @@ REGISTER_FLAGS (lesstif_main_flag_list)
 
 static Arg args[30];
 static int n;
+
 #define stdarg(t,v) XtSetArg(args[n], t, v), n++
 
-
-static int use_private_colormap = 0;
-static int stdin_listen = 0;
+static int   use_private_colormap  = 0;
+static int   stdin_listen          = 0;
 static char *background_image_file = 0;
-char *lesstif_pcbmenu_path = "pcb-menu.res";
+char        *lesstif_pcbmenu_path  = "pcb-menu.res";
 
 HID_Attribute lesstif_attribute_list[] = {
   {"install", "Install private colormap",
@@ -544,16 +557,18 @@ PanAction (int argc, char **argv, Coord x, Coord y)
 {
   int mode;
 
-  if (argc == 2)
-    {
-      pan_thumb_mode = (strcasecmp (argv[0], "thumb") == 0) ? 1 : 0;
-      mode = atoi (argv[1]);
-    }
-  else
-    {
-      pan_thumb_mode = 0;
-      mode = atoi (argv[0]);
-    }
+  if (argc < 1)
+    return 1;
+
+  if (argc == 2) {
+    pan_thumb_mode = (strcasecmp (argv[0], "thumb") == 0) ? 1 : 0;
+    mode           = atoi (argv[1]);
+  }
+  else {
+    pan_thumb_mode = 0;
+    mode           = atoi (argv[0]);
+  }
+
   Pan (mode, Vx(x), Vy(y));
 
   return 0;

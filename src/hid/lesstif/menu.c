@@ -115,7 +115,12 @@ passed a 1, does nothing but pretends to fail.
 static int
 Return (int argc, char **argv, Coord x, Coord y)
 {
-  return atoi (argv[0]);
+  if (argc < 1)
+    return 0;
+  else if (argc == 1)
+    return atoi (argv[0]);
+
+  return 1;
 }
 
 static const char dumpkeys_syntax[] =

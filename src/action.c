@@ -5763,84 +5763,92 @@ ActionSaveTo (int argc, char **argv, Coord x, Coord y)
   char *function;
   char *name;
 
-  function = argv[0];
-  name = argv[1];
+  function = ARG (0);
 
-  if (strcasecmp (function, "Layout") == 0)
-    {
-      if (SavePCB (PCB->Filename) == 0)
-        SetChangedFlag (false);
-      return 0;
-    }
+  if ( ! function || strcasecmp (function, "Layout") == 0) {
+
+    if (SavePCB (PCB->Filename) == 0)
+      SetChangedFlag (false);
+    return 0;
+  }
 
   if (argc != 2)
     AFAIL (saveto);
 
-  if (strcasecmp (function, "LayoutAs") == 0)
-    {
-      if (SavePCB (name) == 0)
-        {
-          SetChangedFlag (false);
-          free (PCB->Filename);
-          PCB->Filename = strdup (name);
-          if (gui->notify_filename_changed != NULL)
-            gui->notify_filename_changed ();
-        }
-      return 0;
-    }
+  name = argv[1];
 
-  if (strcasecmp (function, "AllConnections") == 0)
-    {
-      FILE *fp;
-      bool result;
-      if ((fp = CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
-	{
-	  LookupConnectionsToAllElements (fp);
-	  fclose (fp);
-	  SetChangedFlag (true);
-	}
-      return 0;
-    }
+  if (strcasecmp (function, "LayoutAs") == 0) {
 
-  if (strcasecmp (function, "AllUnusedPins") == 0)
-    {
-      FILE *fp;
-      bool result;
-      if ((fp = CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
-	{
-	  LookupUnusedPins (fp);
-	  fclose (fp);
-	  SetChangedFlag (true);
-	}
-      return 0;
-    }
+    if (SavePCB (name) == 0) {
 
-  if (strcasecmp (function, "ElementConnections") == 0)
+      SetChangedFlag (false);
+      free (PCB->Filename);
+      PCB->Filename = strdup (name);
+      if (gui->notify_filename_changed != NULL)
+        gui->notify_filename_changed ();
+    }
+    return 0;
+  }
+
+  if (strcasecmp (function, "AllConnections") == 0) {
+
+    FILE *fp;
+    bool  result;
+
+    fp = CheckAndOpenFile (name, true, false, &result, NULL);
+
+    if (fp) {
+
+      LookupConnectionsToAllElements (fp);
+      fclose (fp);
+      SetChangedFlag (true);
+    }
+    return 0;
+  }
+
+  if (strcasecmp (function, "AllUnusedPins") == 0) {
+
+    FILE *fp;
+    bool  result;
+
+    fp = CheckAndOpenFile (name, true, false, &result, NULL);
+
+    if (fp) {
+
+      LookupUnusedPins (fp);
+      fclose (fp);
+      SetChangedFlag (true);
+    }
+    return 0;
+  }
+
+  if (strcasecmp (function, "ElementConnections") == 0) {
+
+    void        *ptrtmp;
+    bool         result;
+
+    if ((SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
+         &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
     {
       ElementType *element;
-      void *ptrtmp;
-      FILE *fp;
-      bool result;
+      FILE        *fp;
 
-      if ((SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
-			 &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
-	{
-	  element = (ElementType *) ptrtmp;
-	  if ((fp =
-	       CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
-	    {
-	      LookupElementConnections (element, fp);
-	      fclose (fp);
-	      SetChangedFlag (true);
-	    }
-	}
-      return 0;
-    }
+      element = (ElementType*) ptrtmp;
+      fp      = CheckAndOpenFile (name, true, false, &result, NULL);
 
-  if (strcasecmp (function, "PasteBuffer") == 0)
-    {
-      return SaveBufferElements (name);
+      if (fp) {
+        LookupElementConnections (element, fp);
+        fclose (fp);
+        SetChangedFlag (true);
+      }
     }
+    return 0;
+  }
+
+  if (strcasecmp (function, "PasteBuffer") == 0) {
+
+    return SaveBufferElements (name);
+  }
 
   AFAIL (saveto);
 }
@@ -7068,10 +7076,15 @@ parse_layout_attribute_units (char *name, int def)
 static int
 ActionElementList (int argc, char **argv, Coord x, Coord y)
 {
-  ElementType *e = NULL;
+  ElementType *el = NULL;
   char *refdes, *value, *footprint, *old;
   char *args[3];
-  char *function = argv[0];
+  char *function;
+
+  if (argc < 1)
+    AFAIL (elementlist);
+
+  function = argv[0];
 
 #if DEBUG
   printf("Entered ActionElementList, executing function %s\n", function);
@@ -7079,37 +7092,37 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
 
   if (strcasecmp (function, "start") == 0) {
 
-      ELEMENT_LOOP (PCB->Data);
-      {
-	CLEAR_FLAG (FOUNDFLAG, element);
-      }
-      END_LOOP;
-      element_cache = NULL;
-      number_of_footprints_not_found = 0;
-      return 0;
-    }
-
-  if (strcasecmp (function, "done") == 0)
+    ELEMENT_LOOP (PCB->Data);
     {
-      ELEMENT_LOOP (PCB->Data);
-      {
-	if (TEST_FLAG (FOUNDFLAG, element))
-	  {
-	    CLEAR_FLAG (FOUNDFLAG, element);
-	  }
-	else if (! EMPTY_STRING_P (NAMEONPCB_NAME (element)))
-	  {
-	    /* Unnamed elements should remain untouched */
-	    SET_FLAG (SELECTEDFLAG, element);
-	  }
-      }
-      END_LOOP;
-      if (number_of_footprints_not_found > 0)
-	gui->confirm_dialog ("Not all requested footprints were found.\n"
-			     "See the message log for details",
-			     "Ok", NULL);
-      return 0;
+      CLEAR_FLAG (FOUNDFLAG, element);
     }
+    END_LOOP;
+    element_cache = NULL;
+    number_of_footprints_not_found = 0;
+    return 0;
+  }
+
+  if (strcasecmp (function, "done") == 0) {
+
+    ELEMENT_LOOP (PCB->Data);
+    {
+      if (TEST_FLAG (FOUNDFLAG, element))
+      {
+        CLEAR_FLAG (FOUNDFLAG, element);
+      }
+      else if (! EMPTY_STRING_P (NAMEONPCB_NAME (element)))
+      {
+        /* Unnamed elements should remain untouched */
+        SET_FLAG (SELECTEDFLAG, element);
+      }
+    }
+    END_LOOP;
+    if (number_of_footprints_not_found > 0)
+      gui->confirm_dialog ("Not all requested footprints were found.\n"
+      "See the message log for details",
+      "Ok", NULL);
+    return 0;
+  }
 
   if (strcasecmp (function, "need") != 0)
     AFAIL (elementlist);
@@ -7120,9 +7133,9 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   argc --;
   argv ++;
 
-  refdes = ARG(0);
+  refdes    = ARG(0);
   footprint = ARG(1);
-  value = ARG(2);
+  value     = ARG(2);
 
   args[0] = footprint;
   args[1] = refdes;
@@ -7134,104 +7147,113 @@ ActionElementList (int argc, char **argv, Coord x, Coord y)
   printf("  ... value = %s\n", value);
 #endif
 
-  e = find_element_by_refdes (refdes);
+  el = find_element_by_refdes (refdes);
 
-  if (!e)
-    {
-      Coord nx, ny, d;
+  if (!el) {
+
+    Coord nx, ny, d;
 
 #if DEBUG
-      printf("  ... Footprint not on board, need to add it.\n");
+    printf("  ... Footprint not on board, need to add it.\n");
 #endif
-      /* Not on board, need to add it. */
-      if (LoadFootprint(argc, args, x, y))
-	{
-	  number_of_footprints_not_found ++;
-	  return 1;
-	}
 
-      nx = PCB->MaxWidth / 2;
-      ny = PCB->MaxHeight / 2;
-      d = MIN (PCB->MaxWidth, PCB->MaxHeight) / 10;
+    /* Not on board, need to add it. */
+    if (LoadFootprint(argc, args, x, y)) {
+      number_of_footprints_not_found ++;
+      return 1;
+    }
 
-      nx = parse_layout_attribute_units ("import::newX", nx);
-      ny = parse_layout_attribute_units ("import::newY", ny);
-      d = parse_layout_attribute_units ("import::disperse", d);
+    nx = PCB->MaxWidth / 2;
+    ny = PCB->MaxHeight / 2;
+    d = MIN (PCB->MaxWidth, PCB->MaxHeight) / 10;
 
-      if (d > 0)
-	{
-	  nx += rand () % (d*2) - d;
-	  ny += rand () % (d*2) - d;
-	}
+    nx = parse_layout_attribute_units ("import::newX", nx);
+    ny = parse_layout_attribute_units ("import::newY", ny);
+    d = parse_layout_attribute_units ("import::disperse", d);
 
-      if (nx < 0)
-	nx = 0;
-      if (nx >= PCB->MaxWidth)
-	nx = PCB->MaxWidth - 1;
-      if (ny < 0)
-	ny = 0;
-      if (ny >= PCB->MaxHeight)
-	ny = PCB->MaxHeight - 1;
+    if (d > 0) {
 
-      /* Place components onto center of board. */
-      if (CopyPastebufferToLayout (nx, ny))
-	SetChangedFlag (true);
+      nx += rand () % (d*2) - d;
+      ny += rand () % (d*2) - d;
+    }
+
+    if (nx < 0)
+      nx = 0;
+
+    if (nx >= PCB->MaxWidth)
+      nx = PCB->MaxWidth - 1;
+
+    if (ny < 0)
+      ny = 0;
+
+    if (ny >= PCB->MaxHeight)
+      ny = PCB->MaxHeight - 1;
+
+    /* Place components onto center of board. */
+    if (CopyPastebufferToLayout (nx, ny))
+      SetChangedFlag (true);
   }
 
-  else if (e && DESCRIPTION_NAME(e) && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
+  else if (el && DESCRIPTION_NAME(el) && strcmp (DESCRIPTION_NAME(el), footprint) != 0)
   {
+
 #if DEBUG
-      printf("  ... Footprint on board, but different from footprint loaded.\n");
+    printf("  ... Footprint on board, but different from footprint loaded.\n");
 #endif
-      int er, pr, i;
-      Coord mx, my;
-      ElementType *pe;
 
-      /* Different footprint, we need to swap them out.  */
-      if (LoadFootprint(argc, args, x, y))
-	{
-	  number_of_footprints_not_found ++;
-	  return 1;
-	}
+    int er, pr, i;
+    Coord mx, my;
+    ElementType *pe;
 
-      er = ElementOrientation (e);
-      pe = PASTEBUFFER->Data->Element->data;
-      if (!FRONT (e))
-	MirrorElementCoordinates (PASTEBUFFER->Data, pe, pe->MarkY*2 - PCB->MaxHeight);
-      pr = ElementOrientation (pe);
+    /* Different footprint, we need to swap them out.  */
+    if (LoadFootprint(argc, args, x, y)) {
 
-      mx = e->MarkX;
-      my = e->MarkY;
-
-      if (er != pr)
-	RotateElementLowLevel (PASTEBUFFER->Data, pe, pe->MarkX, pe->MarkY, (er-pr+4)%4);
-
-      for (i=0; i<MAX_ELEMENTNAMES; i++)
-	{
-	  pe->Name[i].X = e->Name[i].X - mx + pe->MarkX ;
-	  pe->Name[i].Y = e->Name[i].Y - my + pe->MarkY ;
-	  pe->Name[i].Direction = e->Name[i].Direction;
-	  pe->Name[i].Scale = e->Name[i].Scale;
-	}
-
-      RemoveElement (e);
-
-      if (CopyPastebufferToLayout (mx, my))
-	SetChangedFlag (true);
+      number_of_footprints_not_found ++;
+      return 1;
     }
+
+    er = ElementOrientation (el);
+    pe = PASTEBUFFER->Data->Element->data;
+
+    if (!FRONT (el))
+      MirrorElementCoordinates (PASTEBUFFER->Data, pe, pe->MarkY*2 - PCB->MaxHeight);
+
+    pr = ElementOrientation (pe);
+    mx = el->MarkX;
+    my = el->MarkY;
+
+    if (er != pr)
+      RotateElementLowLevel (PASTEBUFFER->Data, pe, pe->MarkX, pe->MarkY, (er-pr+4)%4);
+
+    for (i = 0; i < MAX_ELEMENTNAMES; i++) {
+
+      pe->Name[i].X         = el->Name[i].X - mx + pe->MarkX ;
+      pe->Name[i].Y         = el->Name[i].Y - my + pe->MarkY ;
+      pe->Name[i].Direction = el->Name[i].Direction;
+      pe->Name[i].Scale     = el->Name[i].Scale;
+    }
+
+    RemoveElement (el);
+
+    if (CopyPastebufferToLayout (mx, my))
+      SetChangedFlag (true);
+  }
 
   /* Now reload footprint */
   element_cache = NULL;
-  e = find_element_by_refdes (refdes);
+  el = find_element_by_refdes (refdes);
 
-  old = ChangeElementText (PCB, PCB->Data, e, NAMEONPCB_INDEX, strdup (refdes));
-  if (old)
-    free(old);
-  old = ChangeElementText (PCB, PCB->Data, e, VALUE_INDEX, strdup (value));
+  old = ChangeElementText (PCB, PCB->Data, el, NAMEONPCB_INDEX, strdup (refdes));
+
   if (old)
     free(old);
 
-  SET_FLAG (FOUNDFLAG, e);
+  old = ChangeElementText (PCB, PCB->Data, el, VALUE_INDEX, strdup (value));
+
+  if (old)
+    free(old);
+
+  SET_FLAG (FOUNDFLAG, el);
 
 #if DEBUG
   printf(" ... Leaving ActionElementList.\n");
