@@ -140,9 +140,10 @@ GPG key.
   echo                                                 >> debian/changelog
   cat temp >>debian/changelog
   rm temp
+  sed -i "s/^Uploaders:.*/Uploaders: ${MY_SIGNATURE}/" debian/control
   unset MY_SIGNATURE TODAY TIMESTAMP REL
   # git-buildpackage picks up comitted stuff, only, so commit the above.
-  git commit debian/changelog -m "weekly build"
+  git commit debian/changelog debian/control -m "weekly build"
 
 
 Then build as explained above:
