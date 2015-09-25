@@ -357,7 +357,7 @@ ghid_port_drawing_area_configure_event_cb (GtkWidget *widget,
   gport->height = ev->height;
 
   if (gport->pixmap) {
-    gdk_pixmap_unref (gport->pixmap);
+    g_object_unref (gport->pixmap);
   }
 
   gport->pixmap = gdk_pixmap_new (gtk_widget_get_window (widget),

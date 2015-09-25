@@ -1069,10 +1069,9 @@ void
 ghid_drawing_area_configure_hook (GHidPort *port)
 {
   static int done_once = 0;
-  render_priv *priv = port->render_priv;
+  render_priv *priv    = port->render_priv;
 
-  if (!done_once)
-    {
+  if (!done_once) {
       priv->bg_gc = gdk_gc_new (port->drawable);
       gdk_gc_set_foreground (priv->bg_gc, &port->bg_color);
       gdk_gc_set_clip_origin (priv->bg_gc, 0, 0);
@@ -1083,9 +1082,8 @@ ghid_drawing_area_configure_hook (GHidPort *port)
       done_once = 1;
     }
 
-  if (port->mask)
-    {
-      gdk_pixmap_unref (port->mask);
+  if (port->mask) {
+      g_object_unref (port->mask);
       port->mask = gdk_pixmap_new (0, port->width, port->height, 1);
     }
 }
@@ -1104,10 +1102,10 @@ ghid_screen_update (void)
   draw_crosshair (priv);
 }
 
-gboolean
-ghid_drawing_area_expose_cb (GtkWidget *widget,
+int
+ghid_drawing_area_expose_cb (GtkWidget      *widget,
                              GdkEventExpose *ev,
-                             GHidPort *port)
+                             GHidPort       *port)
 {
   render_priv *priv = port->render_priv;
   GdkWindow *window = gtk_widget_get_window (gport->drawing_area);
@@ -1120,12 +1118,12 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
 }
 
 void
-ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
+ghid_port_drawing_realize_cb (GtkWidget *widget, void *data)
 {
 }
 
-gboolean
-ghid_pinout_preview_expose (GtkWidget *widget,
+int
+ghid_pinout_preview_expose (GtkWidget      *widget,
                             GdkEventExpose *ev)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
