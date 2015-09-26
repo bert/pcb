@@ -15,7 +15,9 @@ check_SCRIPTS=		${RUN_TESTS}
 
 # if we have the required tools, then run the regression test
 if HAVE_TEST_TOOLS
-TESTS=	${RUN_TESTS}
+  TESTS = ${RUN_TESTS}
+else
+  TESTS = missing_test
 endif
 
 # Instead of recursing into each of the many subdirectories, simply define
@@ -101,6 +103,13 @@ EXTRA_DIST = \
   golden/hid_png2/myfile.png \
   golden/hid_png3/gerber_oneline.png \
   golden/MinMaskGap/minmaskgap.pcb
+
+.PHONY: missing_test
+missing_test:
+	@echo "Test environment was found to be incomplete at configuration time,"
+	@echo "can't run regression tests. Check configure output to find out which"
+	@echo "tools are missing."
+	@false
 
 # these are created by 'make check'
 clean-local:
