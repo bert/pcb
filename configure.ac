@@ -1319,6 +1319,15 @@ expandedKDEDATADIR=`eval "echo $KDEDATADIR"`
 AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:
 
+   Cross Compiling:          $cross_compiling
+   CC:                       $CC
+   CXX:                      $CXX
+   CPPFLAGS:                 $CPPFLAGS
+   CFLAGS:                   $CFLAGS
+   CXXFLAGS:                 $CXXFLAGS
+   LIBS:                     $LIBS
+   PCB:                      $PCB
+
    GUI:                      $with_gui
    Printer:                  $with_printer
    Exporters:                $with_exporters
@@ -1331,14 +1340,5 @@ AC_MSG_RESULT([
    KDE data directory:       $expandedKDEDATADIR
    dmalloc debugging:        $with_dmalloc
    ElectricFence debugging:  $with_efence
-
-   Cross Compiling:          $cross_compiling
-   CC:                       $CC
-   CXX:                      $CXX
-   CPPFLAGS:                 $CPPFLAGS
-   CFLAGS:                   $CFLAGS
-   CXXFLAGS:                 $CXXFLAGS
-   LIBS:                     $LIBS
-   PCB:                      $PCB
-
+   Regression tests enabled: $have_test_tools
 ])
