@@ -1765,26 +1765,16 @@ ghid_parse_arguments (int *argc, char ***argv)
 #endif
 
 #if defined (DEBUG)
-  for (i = 0; i < *argc; i++)
-    {
+  for (i = 0; i < *argc; i++) {
       printf ("ghid_parse_arguments():  *argv[%d] = \"%s\"\n", i, (*argv)[i]);
-    }
+  }
 #endif
 
-  /* Threads aren't used in PCB, but this call would go here.
-   */
+  /* Threads aren't used in PCB, but this call would go here. */
   /* g_thread_init (NULL); */
 
-#if defined (ENABLE_NLS)
-  /* Do our own setlocale() stufff since we want to override LC_NUMERIC
-   */
-  gtk_set_locale ();
-  setlocale (LC_NUMERIC, "C");	/* use decimal point instead of comma */
-#endif
-
-  /*
-   * Prevent gtk_init() and gtk_init_check() from automatically
-   * calling setlocale (LC_ALL, "") which would undo LC_NUMERIC if ENABLE_NLS
+  /* Prevent gtk_init() and gtk_init_check() from automatically calling
+   * setlocale (LC_ALL, "") which would undo LC_NUMERIC if ENABLE_NLS
    * We also don't want locale set if no ENABLE_NLS to keep "C" LC_NUMERIC.
    */
   gtk_disable_setlocale ();
@@ -1800,11 +1790,12 @@ ghid_parse_arguments (int *argc, char ***argv)
   ghid_config_files_read (argc, argv);
 
   Settings.AutoPlace = 0;
-  for (i = 0; i < *argc; i++)
-    {
-      if (strcmp ((*argv)[i], "-auto-place") == 0)
-	Settings.AutoPlace = 1;
+
+  for (i = 0; i < *argc; i++) {
+    if (strcmp ((*argv)[i], "-auto-place") == 0) {
+      Settings.AutoPlace = 1;
     }
+  }
 
 #ifdef ENABLE_NLS
 #ifdef LOCALEDIR
@@ -1822,8 +1813,9 @@ ghid_parse_arguments (int *argc, char ***argv)
   gtk_window_set_default_size(GTK_WINDOW(window),
 			       ghidgui->top_window_width, ghidgui->top_window_height);
 
-  if (Settings.AutoPlace)
+  if (Settings.AutoPlace) {
     gtk_window_move (GTK_WINDOW (window), 10, 10);
+  }
 
   gtk_widget_show_all (gport->top_window);
   ghidgui->creating = TRUE;
