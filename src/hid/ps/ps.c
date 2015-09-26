@@ -1193,7 +1193,7 @@ ps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	     Angle start_angle, Angle delta_angle)
 {
   Angle sa, ea;
-  assert (width > 0);
+  double linewidth;
 
   if (delta_angle > 0)
     {
@@ -1206,13 +1206,32 @@ ps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
       ea = start_angle;
     }
 
-  if (width <= 0)
-    width = MIL_TO_COORD (10);
-
   use_gc (gc);
-  pcb_fprintf (global.f, "%ma %ma %mi %mi %mi %mi %g a\n",
-               sa, ea, -width, height, cx, cy,
-               (double) (global.linewidth + 2 * global.bloat) / (double) width);
+
+  /* Other than pcb's screen renderer, PostScript (at least GhostScript)
+     internally limits linewidth to (diameter / 2), so no drawing of a dot with
+     a circle of zero diameter. Compensate for this by making diameter larger
+     and line width thinner.
+
+     Handling of this case currently has only circles in mind, no ellipses.
+     The regular case works with ellipses, too. */
+  if (width < global.linewidth)
+    {
+      Coord outer_radius;
+
+      outer_radius = width + global.linewidth / 2 + global.bloat;
+      width = height = outer_radius / 2;
+      linewidth = 2.0;
+    }
+  else
+    linewidth = (double) (global.linewidth + 2 * global.bloat) / (double) width;
+
+  /* The line of PostScript written here is a bit odd; linewidth isn't
+     absolute, but relative to circle diameter. This is neccessary for
+     ellipses, which are drawn by streching (transforming) a circle. */
+  pcb_fprintf (global.f, "%ma %ma %mi %mi %mi %mi %`g a\n",
+               sa, ea, -width, height, cx, cy, linewidth);
+
 }
 
 static void
