@@ -759,83 +759,85 @@ ghid_drc_window_show (bool raise)
 
   if (drc_window) {
 
-      if (raise)
-	gtk_window_present(GTK_WINDOW(drc_window));
-      return;
+    if (raise) {
+      gtk_window_present(GTK_WINDOW(drc_window));
     }
+  }
+  else {
+    drc_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    g_signal_connect (G_OBJECT (drc_window), "destroy",
+                      G_CALLBACK (drc_destroy_cb), NULL);
+    g_signal_connect (G_OBJECT (drc_window), "configure_event",
+                      G_CALLBACK (drc_window_configure_event_cb), NULL);
+    gtk_window_set_title (GTK_WINDOW (drc_window), _("PCB DRC"));
+    gtk_window_set_wmclass (GTK_WINDOW (drc_window), "PCB_DRC", "PCB");
+    gtk_window_resize (GTK_WINDOW (drc_window),
+                       ghidgui->drc_window_width,
+                       ghidgui->drc_window_height);
 
- drc_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  g_signal_connect (G_OBJECT (drc_window), "destroy",
-		    G_CALLBACK (drc_destroy_cb), NULL);
-  g_signal_connect (G_OBJECT (drc_window), "configure_event",
-		    G_CALLBACK (drc_window_configure_event_cb), NULL);
-  gtk_window_set_title (GTK_WINDOW (drc_window), _("PCB DRC"));
-  gtk_window_set_wmclass (GTK_WINDOW (drc_window), "PCB_DRC", "PCB");
-  gtk_window_set_default_size (GTK_WINDOW (drc_window),
-			       ghidgui->drc_window_width,
-			       ghidgui->drc_window_height);
+    vbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (drc_window), vbox);
+    gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
+    gtk_box_set_spacing (GTK_BOX (vbox), 6);
 
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (drc_window), vbox);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
-  gtk_box_set_spacing (GTK_BOX (vbox), 6);
+    drc_list_model = gtk_list_store_new (NUM_DRC_COLUMNS,
+                                         G_TYPE_INT,      /* DRC_VIOLATION_NUM_COL */
+                                         G_TYPE_OBJECT);  /* DRC_VIOLATION_OBJ_COL */
 
-  drc_list_model = gtk_list_store_new (NUM_DRC_COLUMNS,
-				       G_TYPE_INT,      /* DRC_VIOLATION_NUM_COL */
-				       G_TYPE_OBJECT);  /* DRC_VIOLATION_OBJ_COL */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (vbox), scrolled_window,
+                        TRUE /* EXPAND */, TRUE /* FILL */, 0 /* PADDING */);
 
-  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-  gtk_box_pack_start (GTK_BOX (vbox), scrolled_window,
-		      TRUE /* EXPAND */, TRUE /* FILL */, 0 /* PADDING */);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    drc_list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (drc_list_model));
+    gtk_container_add (GTK_CONTAINER (scrolled_window), drc_list);
 
-  drc_list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (drc_list_model));
-  gtk_container_add (GTK_CONTAINER (scrolled_window), drc_list);
+    gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (drc_list), TRUE);
+    g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (drc_list)), "changed",
+                      G_CALLBACK (selection_changed_cb), NULL);
+    g_signal_connect (drc_list, "row-activated",
+                      G_CALLBACK (row_activated_cb), NULL);
 
-  gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (drc_list), TRUE);
-  g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (drc_list)), "changed",
-		    G_CALLBACK (selection_changed_cb), NULL);
-  g_signal_connect (drc_list, "row-activated",
-		    G_CALLBACK (row_activated_cb), NULL);
+    violation_renderer = gtk_cell_renderer_text_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (drc_list),
+                                                 -1, /* APPEND */
+                                                 _("No."), /* TITLE */
+                                                 violation_renderer,
+                                                 "text", DRC_VIOLATION_NUM_COL,
+                                                 NULL);
 
-  violation_renderer = gtk_cell_renderer_text_new ();
-  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (drc_list),
-					       -1, /* APPEND */
-					       _("No."), /* TITLE */
-					       violation_renderer,
-					       "text", DRC_VIOLATION_NUM_COL,
-					       NULL);
+    violation_renderer = ghid_violation_renderer_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (drc_list),
+                                                 -1, /* APPEND */
+                                                 _("Violation details"), /* TITLE */
+                                                 violation_renderer,
+                                                 "violation", DRC_VIOLATION_OBJ_COL,
+                                                 NULL);
 
-  violation_renderer = ghid_violation_renderer_new ();
-  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (drc_list),
-					       -1, /* APPEND */
-					       _("Violation details"), /* TITLE */
-					       violation_renderer,
-					       "violation", DRC_VIOLATION_OBJ_COL,
-					       NULL);
+    hbox = gtk_hbutton_box_new ();
+    gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-  hbox = gtk_hbutton_box_new ();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+    gtk_box_set_spacing (GTK_BOX (hbox), 6);
 
-  gtk_box_set_spacing (GTK_BOX (hbox), 6);
+    button = gtk_button_new_from_stock (GTK_STOCK_REFRESH);
+    g_signal_connect (G_OBJECT (button), "clicked",
+                      G_CALLBACK (drc_refresh_cb), NULL);
+    gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
-  button = gtk_button_new_from_stock (GTK_STOCK_REFRESH);
-  g_signal_connect (G_OBJECT (button), "clicked",
-		    G_CALLBACK (drc_refresh_cb), NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
+    button = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
+    g_signal_connect (G_OBJECT (button), "clicked",
+                      G_CALLBACK (drc_close_cb), NULL);
+    gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
-  button = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
-  g_signal_connect (G_OBJECT (button), "clicked",
-		    G_CALLBACK (drc_close_cb), NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
+    gtk_widget_realize (drc_window);
+    if (Settings.AutoPlace)
+      gtk_window_move (GTK_WINDOW (drc_window), 10, 10);
+    gtk_widget_show_all (drc_window);
+  }
 
-  gtk_widget_realize (drc_window);
-  if (Settings.AutoPlace)
-    gtk_window_move (GTK_WINDOW (drc_window), 10, 10);
-  gtk_widget_show_all (drc_window);
 }
 
 void ghid_drc_window_append_violation (DrcViolationType *violation)
