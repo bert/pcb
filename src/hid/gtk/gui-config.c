@@ -1592,31 +1592,16 @@ ghid_config_groups_changed(void)
   /* Create a row of radio toggle buttons for layer.  So each layer
      |  can have an active radio button set for the group it needs to be in.
    */
-  for (layer = 0; layer < max_copper_layer + SILK_LAYER; ++layer)
+  for (layer = 0; layer < max_copper_layer; ++layer)
     {
-      if (layer == top_silk_layer)
-	name = _("top side");
-      else if (layer == bottom_silk_layer)
-	name = _("bottom side");
-      else
 	name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
 
-      if (layer >= max_copper_layer)
-	{
-	  label = gtk_label_new (name);
-	  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	  gtk_table_attach_defaults (GTK_TABLE (table), label,
-				     0, 1, layer + 1, layer + 2);
-	}
-      else
-	{
 	  layer_entry[layer] = gtk_entry_new ();
 	  gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
 	  gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
 				     0, 1, layer + 1, layer + 2);
 	  g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
 				G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
-	}
 
       group = NULL;
       for (i = 0; i < max_group; ++i)
@@ -1634,6 +1619,52 @@ ghid_config_groups_changed(void)
 	  group_button[layer][i] = button;
 	}
     }
+
+  /* silk layers double as layer groups. Their sequence in the layer stack is
+	hard coded to be bottom before top. So some special treatment is needed.
+   */
+  group = NULL;
+  layer = top_silk_layer;
+  label = gtk_label_new ("top side");
+  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_table_attach_defaults (GTK_TABLE (table), label,
+				     0, 1, layer + 1, layer + 2);
+  for (i = 0; i < max_group; ++i)
+	{
+	  snprintf (buf, sizeof (buf), "%2.2d", i+1);
+	  button = gtk_radio_button_new_with_label (group, buf);
+
+	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
+	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
+	  gtk_table_attach_defaults (GTK_TABLE (table), button,
+				     i + 1, i + 2, layer + 1, layer + 2);
+	  g_signal_connect (G_OBJECT (button), "toggled",
+			    G_CALLBACK (config_layer_groups_radio_button_cb),
+			    GINT_TO_POINTER ((layer << 8) | (i + 1)));
+	  group_button[layer][i] = button;
+	}
+  
+  group = NULL;
+  layer = bottom_silk_layer;
+  label = gtk_label_new ("bottom side");
+  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_table_attach_defaults (GTK_TABLE (table), label,
+				     0, 1, layer + 1, layer + 2);
+  for (i = 0; i < max_group; ++i)
+	{
+	  snprintf (buf, sizeof (buf), "%2.2d", i+1);
+	  button = gtk_radio_button_new_with_label (group, buf);
+
+	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
+	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
+	  gtk_table_attach_defaults (GTK_TABLE (table), button,
+				     i + 1, i + 2, layer + 1, layer + 2);
+	  g_signal_connect (G_OBJECT (button), "toggled",
+			    G_CALLBACK (config_layer_groups_radio_button_cb),
+			    GINT_TO_POINTER ((layer << 8) | (i + 1)));
+	  group_button[layer][i] = button;
+	}
+
   gtk_widget_show_all(config_groups_vbox);
   config_layer_group_button_state_update ();
 }
