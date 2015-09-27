@@ -164,9 +164,9 @@ ghid_library_window_create (GHidPort * out)
                     G_CALLBACK (library_window_callback_response), NULL);
   g_signal_connect (G_OBJECT (library_window), "configure_event",
                     G_CALLBACK (library_window_configure_event_cb), NULL);
-  gtk_window_set_default_size (GTK_WINDOW (library_window),
-                               ghidgui->library_window_width,
-                               ghidgui->library_window_height);
+  gtk_window_resize (GTK_WINDOW (library_window),
+                     ghidgui->library_window_width,
+                     ghidgui->library_window_height);
 
   gtk_window_set_title (GTK_WINDOW (library_window), _("PCB Library"));
   gtk_window_set_wmclass (GTK_WINDOW (library_window), "PCB_Library",

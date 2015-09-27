@@ -84,8 +84,7 @@ ghid_pinout_window_show (GHidPort * out, ElementType * element)
   ghid_pinout_preview_get_natural_size (GHID_PINOUT_PREVIEW (preview),
                                         &width, &height);
 
-  gtk_window_set_default_size (GTK_WINDOW (top_window),
-                               width + 50, height + 50);
+  gtk_window_resize (GTK_WINDOW (top_window), width + 50, height + 50);
 
   hbox = gtk_hbutton_box_new ();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
