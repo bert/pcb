@@ -386,7 +386,8 @@ typedef enum
 #define HID_SC_DO_NOTHING                          0
 #define HID_SC_WARP_POINTER	                       1
 #define HID_SC_PAN_VIEWPORT                        2
-#define HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER 3
+#define HID_SC_CENTER_IN_VIEWPORT                  3
+#define HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER 4
 
     /* Causes func to be called at some point in the future.  Timers are
        only good for *one* call; if you want it to repeat, add another

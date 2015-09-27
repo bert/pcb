@@ -305,6 +305,7 @@ ghid_set_crosshair (int x, int y, int action)
 
   if (action != HID_SC_PAN_VIEWPORT &&
       action != HID_SC_WARP_POINTER &&
+      action != HID_SC_CENTER_IN_VIEWPORT &&
       action != HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER)
     return;
 
@@ -319,6 +320,15 @@ ghid_set_crosshair (int x, int y, int action)
   screen = gdk_display_get_default_screen (display);
 
   switch (action) {
+
+    case HID_SC_CENTER_IN_VIEWPORT:
+
+      // Center the viewport on the crosshair
+      ghid_pan_view_abs (gport->crosshair_x - gport->view.width / 2,
+                         gport->crosshair_y - gport->view.height / 2,
+                         0, 0);
+
+      break;
 
     case HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER:
 
