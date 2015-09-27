@@ -134,6 +134,7 @@ PCB_SRCS = \
 	select.h \
 	set.c \
 	set.h \
+	smartdisperse.c \
 	strflags.c \
 	strflags.h \
 	thermal.c \
