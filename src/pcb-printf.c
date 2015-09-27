@@ -765,6 +765,9 @@ pcb_printf_register_tests ()
 void
 pcb_printf_test_unit ()
 {
+  Unit u;
+  double base;
+
   Coord c[] = {
     unit_to_coord (get_unit_struct ("m"), 1.0),
     unit_to_coord (get_unit_struct ("mm"), 1.0),
@@ -773,6 +776,33 @@ pcb_printf_test_unit ()
     unit_to_coord (get_unit_struct ("mil"), 0.5),
     unit_to_coord (get_unit_struct ("nm"), 67)
   };
+
+  /* int index;
+  const char *suffix;
+  const char *in_suffix;
+  char printf_code;
+  double scale_factor;
+  enum e_family family;
+  enum e_allow  allow;
+  int default_prec;
+  double step_tiny;
+  double step_small;
+  double step_medium;
+  double step_large;
+  double step_huge;
+  const char *alias[1];
+  */
+  printf("\n\nsizeof(double) = %d\n", sizeof(double));
+  u = *(get_unit_struct ("m"));
+  printf ("suffix %s  in_suffix %s printf_code %c\n", u.suffix, u.in_suffix, u.printf_code);
+  printf ("scale_factor %f  default_prec %d\n", u.scale_factor, u.default_prec);
+  printf ("step_tiny %f  step_small %f\n", u.step_tiny, u.step_small);
+  printf ("step_medium %f  step_huge %f\n", u.step_medium, u.step_huge);
+
+  base = MM_TO_COORD (1.0);
+  printf("base %f\n", base);
+  printf("result %f\n", base / u.scale_factor);
+  printf("Coord result %ld\n", (Coord)(base / u.scale_factor));
 
   /* Loop unrolled for ease of pinpointing failure */
   g_assert (get_unit_struct ("m") != NULL);
