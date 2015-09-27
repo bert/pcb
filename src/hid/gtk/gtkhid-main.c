@@ -39,7 +39,6 @@ pan_common (GHidPort *port)
   ghidgui->adjustment_changed_holdoff = FALSE;
 
   ghid_port_ranges_changed();
-  gdk_window_process_all_updates ();
 }
 
 static void
@@ -336,6 +335,10 @@ ghid_set_crosshair (int x, int y, int action)
       ghid_pan_view_abs (gport->crosshair_x - gport->view.width / 2,
                          gport->crosshair_y - gport->view.height / 2,
                          0, 0);
+  
+      // We do this to make sure gdk has an up-to-date idea of the widget
+      // coordinates so gdk_display_warp_pointer will go to the right spot.
+      gdk_window_process_all_updates ();
 
       // Warp pointer to crosshair
       ghid_pcb_to_event_coords (gport->crosshair_x, gport->crosshair_y,
