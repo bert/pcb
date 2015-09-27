@@ -44,7 +44,7 @@
      |  gui code in gui-top-window.c and group code in misc.c must agree
      |  on what layer is what!
    */
-#define LAYER_BUTTON_SILK     (MAX_LAYER + BOTTOM_SILK_LAYER)
+#define LAYER_BUTTON_SILK     (MAX_LAYER)
 #define LAYER_BUTTON_RATS     (MAX_LAYER + 1)
 #define	N_SELECTABLE_LAYER_BUTTONS	(LAYER_BUTTON_RATS + 1)
 
