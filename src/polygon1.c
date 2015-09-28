@@ -393,11 +393,22 @@ node_label (VNODE * pn)
   if (pn->cvc_next->angle == pn->cvc_next->prev->angle)
     l = pn->cvc_next->prev;
   else
-    l = pn->cvc_next->next;
+    l = pn->cvc_next;
 
   first_l = l;
   while ((l->poly == this_poly) && (l != first_l->prev))
+  {
     l = l->next;
+
+    /* Skip over hairline pairs of edges from the other polygon, as they are not necessarily
+     * sorted in the correct order, and thus can mislead as to whether we are inside or outside
+     */
+    if (l->poly == l->next->poly &&
+        l->side != l->next->side && /* <-- PCJC: Not sure if this is required for sanity */
+        l->angle == l->next->angle)
+      l = l->next->next;
+  }
+
   assert (l->poly != this_poly);
 
   assert (l && l->angle >= 0 && l->angle <= 4.0);
