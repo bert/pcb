@@ -74,14 +74,14 @@ ghid_set_layer (const char *name, int group, int empty)
     for (idx = 0; idx < n-1; idx ++) {
 
       int ni = PCB->LayerGroups.Entries[group][idx];
-      if (ni >= 0 && ni < max_copper_layer + 2
+      if (ni >= 0 && ni < max_copper_layer + SILK_LAYER
         && PCB->Data->Layer[ni].On)
         break;
     }
     idx = PCB->LayerGroups.Entries[group][idx];
   }
 
-  if (idx >= 0 && idx < max_copper_layer + 2)
+  if (idx >= 0 && idx < max_copper_layer + SILK_LAYER)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
 
   if (idx < 0) {
@@ -125,7 +125,7 @@ ghid_make_gc (void)
 
   rv = g_new0 (hid_gc_struct, 1);
   rv->me_pointer = &ghid_hid;
-  rv->colorname = Settings.BackgroundColor;
+  rv->colorname  = Settings.BackgroundColor;
   return rv;
 }
 
@@ -1122,9 +1122,7 @@ ghid_port_drawing_realize_cb (GtkWidget *widget, void *data)
 {
 }
 
-int
-ghid_pinout_preview_expose (GtkWidget      *widget,
-                            GdkEventExpose *ev)
+int ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GdkWindow *window = gtk_widget_get_window (widget);

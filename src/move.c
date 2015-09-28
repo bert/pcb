@@ -978,10 +978,10 @@ MoveLayer (int old_index, int new_index)
       lp = &PCB->Data->Layer[new_index];
       memmove (&PCB->Data->Layer[new_index + 1],
            &PCB->Data->Layer[new_index],
-           (max_copper_layer + 2 - new_index) * sizeof (LayerType));
+           (max_copper_layer + SILK_LAYER - new_index) * sizeof (LayerType));
       memmove (&group_of_layer[new_index + 1],
            &group_of_layer[new_index],
-           (max_copper_layer + 2 - new_index) * sizeof (int));
+           (max_copper_layer + SILK_LAYER - new_index) * sizeof (int));
       max_copper_layer++;
       memset (lp, 0, sizeof (LayerType));
       lp->On = 1;
@@ -998,11 +998,11 @@ MoveLayer (int old_index, int new_index)
       /* Delete the layer at old_index */
       memmove (&PCB->Data->Layer[old_index],
            &PCB->Data->Layer[old_index + 1],
-           (max_copper_layer + 2 - old_index - 1) * sizeof (LayerType));
-      memset (&PCB->Data->Layer[max_copper_layer + 2 - 1], 0, sizeof (LayerType));
+           (max_copper_layer + SILK_LAYER - old_index - 1) * sizeof (LayerType));
+      memset (&PCB->Data->Layer[max_copper_layer + SILK_LAYER - 1], 0, sizeof (LayerType));
       memmove (&group_of_layer[old_index],
            &group_of_layer[old_index + 1],
-           (max_copper_layer + 2 - old_index - 1) * sizeof (int));
+           (max_copper_layer + SILK_LAYER - old_index - 1) * sizeof (int));
       for (l = 0; l < max_copper_layer; l++)
     if (LayerStack[l] == old_index)
       memmove (LayerStack + l,
@@ -1046,7 +1046,7 @@ MoveLayer (int old_index, int new_index)
     PCB->LayerGroups.Number[g] = 0;
   }
 
-  for (l = 0; l < max_copper_layer + 2; l++) {
+  for (l = 0; l < max_copper_layer + SILK_LAYER; l++) {
 
     g = group_of_layer[l];
 

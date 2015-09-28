@@ -661,7 +661,7 @@ IsDataEmpty (DataType *Data)
 
   hasNoObjects = (Data->ViaN == 0);
   hasNoObjects &= (Data->ElementN == 0);
-  for (i = 0; i < max_copper_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     hasNoObjects = hasNoObjects &&
       Data->Layer[i].LineN == 0 &&
       Data->Layer[i].ArcN == 0 &&
@@ -1450,7 +1450,7 @@ LayerStringToLayerStack (char *s)
 	}
     }
 
-  for (i = 0; i < max_copper_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     {
       if (i < max_copper_layer)
         LayerStack[i] = i;
@@ -1684,7 +1684,7 @@ ResetStackAndVisibility (void)
   int top_group;
   Cardinal i;
 
-  for (i = 0; i < max_copper_layer + 2; i++) {
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++) {
 
       if (i < max_copper_layer) {
         LayerStack[i] = i;
@@ -1725,7 +1725,7 @@ SaveStackAndVisibility (void)
                "yet restored.  cnt = %d\n", SavedStack.cnt);
     }
 
-  for (i = 0; i < max_copper_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     {
       if (i < max_copper_layer)
         SavedStack.LayerStack[i] = LayerStack[i];
@@ -1759,7 +1759,7 @@ RestoreStackAndVisibility (void)
                " wrong.  cnt = %d\n", SavedStack.cnt);
     }
 
-  for (i = 0; i < max_copper_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
     {
       if (i < max_copper_layer)
         LayerStack[i] = SavedStack.LayerStack[i];

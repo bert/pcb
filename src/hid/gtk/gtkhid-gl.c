@@ -63,7 +63,7 @@ typedef struct render_priv {
   GTimer *time_since_expose;
 
   /* Feature for leading the user to a particular location */
-  guint lead_user_timeout;
+  unsigned int lead_user_timeout;
   GTimer *lead_user_timer;
   bool lead_user;
   Coord lead_user_radius;
@@ -71,14 +71,12 @@ typedef struct render_priv {
   Coord lead_user_y;
 
   hidGC crosshair_gc;
-
 } render_priv;
 
 
 typedef struct hid_gc_struct
 {
   HID *me_pointer;
-
   const char *colorname;
   double alpha_mult;
   Coord width;
@@ -133,29 +131,33 @@ ghid_set_layer (const char *name, int group, int empty)
 {
   render_priv *priv = gport->render_priv;
   int idx = group;
-  if (idx >= 0 && idx < max_group)
-    {
-      int n = PCB->LayerGroups.Number[group];
-      for (idx = 0; idx < n-1; idx ++)
-	{
-	  int ni = PCB->LayerGroups.Entries[group][idx];
-	  if (ni >= 0 && ni < max_copper_layer + 2
-	      && PCB->Data->Layer[ni].On)
-	    break;
-	}
-      idx = PCB->LayerGroups.Entries[group][idx];
+
+  if (idx >= 0 && idx < max_group) {
+
+    int n = PCB->LayerGroups.Number[group];
+
+    for (idx = 0; idx < n-1; idx ++) {
+
+      int ni = PCB->LayerGroups.Entries[group][idx];
+
+      if (ni >= 0 && ni < max_copper_layer + SILK_LAYER
+        && PCB->Data->Layer[ni].On)
+        break;
+    }
+    idx = PCB->LayerGroups.Entries[group][idx];
   }
 
   end_subcomposite ();
   start_subcomposite ();
 
-  if (idx >= 0 && idx < max_copper_layer + 2)
-    {
+  if (idx >= 0 && idx < max_copper_layer + SILK_LAYER) {
+
       priv->trans_lines = true;
       return PCB->Data->Layer[idx].On;
-    }
-  if (idx < 0)
-    {
+  }
+
+  if (idx < 0) {
+
       switch (SL_TYPE (idx))
 	{
 	case SL_INVISIBLE:
@@ -179,7 +181,7 @@ ghid_set_layer (const char *name, int group, int empty)
 	    priv->trans_lines = true;
 	  return PCB->RatOn;
 	}
-    }
+  }
   return 0;
 }
 
@@ -195,14 +197,13 @@ ghid_destroy_gc (hidGC gc)
   g_free (gc);
 }
 
-hidGC
-ghid_make_gc (void)
+hidGC ghid_make_gc (void)
 {
   hidGC rv;
 
   rv = g_new0 (hid_gc_struct, 1);
   rv->me_pointer = &ghid_hid;
-  rv->colorname = Settings.BackgroundColor;
+  rv->colorname  = Settings.BackgroundColor;
   rv->alpha_mult = 1.0;
   return rv;
 }
@@ -240,8 +241,8 @@ ghid_draw_bg_image (void)
   if (!ghidgui->bg_pixbuf)
     return;
 
-  if (texture_handle == 0)
-    {
+  if (texture_handle == 0) {
+
       int width =             gdk_pixbuf_get_width (ghidgui->bg_pixbuf);
       int height =            gdk_pixbuf_get_height (ghidgui->bg_pixbuf);
       int rowstride =         gdk_pixbuf_get_rowstride (ghidgui->bg_pixbuf);
@@ -262,7 +263,7 @@ ghid_draw_bg_image (void)
 
       glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
                     (n_channels == 4) ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, pixels);
-    }
+  }
 
   glBindTexture (GL_TEXTURE_2D, texture_handle);
 
@@ -301,7 +302,7 @@ ghid_use_mask (enum mask_mode mode)
   hidgl_flush_triangles (&buffer);
 
   switch (mode)
-    {
+  {
     case HID_MASK_BEFORE:
       /* The HID asks not to receive this mask type, so warn if we get it */
       g_return_if_reached ();
@@ -328,7 +329,7 @@ ghid_use_mask (enum mask_mode mode)
       hidgl_return_stencil_bit (stencil_bit);     /* Relinquish any bitplane we previously used */
       glDisable (GL_STENCIL_TEST);                /* Disable Stencil test */
       break;
-    }
+  }
   cur_mask = mode;
 }
 
@@ -341,9 +342,9 @@ set_special_grid_color (void)
 {
   if (!gport->colormap)
     return;
-  gport->grid_color.red ^= gport->bg_color.red;
+  gport->grid_color.red   ^= gport->bg_color.red;
   gport->grid_color.green ^= gport->bg_color.green;
-  gport->grid_color.blue ^= gport->bg_color.blue;
+  gport->grid_color.blue  ^= gport->bg_color.blue;
 }
 
 void
@@ -351,20 +352,21 @@ ghid_set_special_colors (HID_Attribute * ha)
 {
   if (!ha->name || !ha->value)
     return;
-  if (!strcmp (ha->name, "background-color"))
-    {
-      ghid_map_color_string (*(char **) ha->value, &gport->bg_color);
-      set_special_grid_color ();
-    }
-  else if (!strcmp (ha->name, "off-limit-color"))
-  {
-      ghid_map_color_string (*(char **) ha->value, &gport->offlimits_color);
-    }
-  else if (!strcmp (ha->name, "grid-color"))
-    {
-      ghid_map_color_string (*(char **) ha->value, &gport->grid_color);
-      set_special_grid_color ();
-    }
+
+  if (!strcmp (ha->name, "background-color")) {
+
+    ghid_map_color_string (*(char **) ha->value, &gport->bg_color);
+    set_special_grid_color ();
+  }
+  else if (!strcmp (ha->name, "off-limit-color")) {
+
+    ghid_map_color_string (*(char **) ha->value, &gport->offlimits_color);
+  }
+  else if (!strcmp (ha->name, "grid-color")) {
+
+    ghid_map_color_string (*(char **) ha->value, &gport->grid_color);
+    set_special_grid_color ();
+  }
 }
 
 typedef struct
@@ -396,34 +398,36 @@ set_gl_color_for_gc (hidGC gc)
 
   if (gport->colormap == NULL)
     gport->colormap = gtk_widget_get_colormap (gport->top_window);
-  if (strcmp (gc->colorname, "erase") == 0)
-    {
+
+  if (strcmp (gc->colorname, "erase") == 0) {
+
       r = gport->bg_color.red   / 65535.;
       g = gport->bg_color.green / 65535.;
       b = gport->bg_color.blue  / 65535.;
       a = 1.0;
-    }
-  else if (strcmp (gc->colorname, "drill") == 0)
-    {
+  }
+  else if (strcmp (gc->colorname, "drill") == 0) {
+
       r = gport->offlimits_color.red   / 65535.;
       g = gport->offlimits_color.green / 65535.;
       b = gport->offlimits_color.blue  / 65535.;
       a = 0.85;
-    }
-  else
-    {
-      if (hid_cache_color (0, gc->colorname, &cval, &cache))
-        cc = (ColorCache *) cval.ptr;
-      else
-        {
+  }
+  else {
+
+      if (hid_cache_color (0, gc->colorname, &cval, &cache)) {
+        cc = (ColorCache*) cval.ptr;
+      }
+      else {
+
           cc = (ColorCache *) malloc (sizeof (ColorCache));
           memset (cc, 0, sizeof (*cc));
           cval.ptr = cc;
           hid_cache_color (1, gc->colorname, &cval, &cache);
-        }
+      }
 
-      if (!cc->color_set)
-        {
+      if (!cc->color_set) {
+
           if (gdk_color_parse (gc->colorname, &cc->color))
             gdk_color_alloc (gport->colormap, &cc->color);
           else
@@ -437,10 +441,14 @@ set_gl_color_for_gc (hidGC gc)
       g = cc->green;
       b = cc->blue;
       a = 0.7;
-    }
+  }
+
   if (1) {
+
     double maxi, mult;
+
     a *= gc->alpha_mult;
+
     if (!priv->trans_lines)
       a = 1.0;
     maxi = r;
@@ -518,11 +526,11 @@ ghid_invalidate_current_gc (void)
 static int
 use_gc (hidGC gc)
 {
-  if (gc->me_pointer != &ghid_hid)
-    {
+  if (gc->me_pointer != &ghid_hid) {
+
       fprintf (stderr, "Fatal: GC from another HID passed to GTK HID\n");
       abort ();
-    }
+  }
 
   if (current_gc == gc)
     return 1;
@@ -609,6 +617,7 @@ ghid_invalidate_lr (int left, int right, int top, int bottom)
 }
 
 #define MAX_ELAPSED (50. / 1000.) /* 50ms */
+
 void
 ghid_invalidate_all ()
 {
@@ -665,6 +674,7 @@ draw_slanted_cross (int x, int y, int z)
   y0 = MAX(0, MIN (y0, PCB->MaxHeight));
   y1 = y - x;
   y1 = MAX(0, MIN (y1, PCB->MaxHeight));
+
   glVertex3i (x0, y0, z);
   glVertex3i (x1, y1, z);
 
@@ -743,7 +753,7 @@ draw_crosshair (render_priv *priv)
       done_once = 1;
       /* FIXME: when CrossColor changed from config */
       ghid_map_color_string (Settings.CrossColor, &cross_color);
-    }
+  }
 
   x = gport->crosshair_x;
   y = gport->crosshair_y;
@@ -785,8 +795,8 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   priv->glconfig = gdk_gl_config_new_by_mode (GDK_GL_MODE_RGBA    |
                                               GDK_GL_MODE_STENCIL |
                                               GDK_GL_MODE_DOUBLE);
-  if (!priv->glconfig)
-    {
+  if (!priv->glconfig) {
+
       printf ("Could not setup GL-context!\n");
       return; /* Should we abort? */
     }
@@ -863,7 +873,9 @@ ghid_screen_update (void)
 
 #define Z_NEAR 3.0
 bool
-ghid_drawing_area_expose_cb (GtkWidget *widget, GdkEventExpose *ev, GHidPort *port)
+ghid_drawing_area_expose_cb (GtkWidget      *widget,
+                             GdkEventExpose *ev,
+                             GHidPort       *port)
 {
   render_priv *priv = port->render_priv;
   GtkAllocation allocation;
@@ -968,7 +980,6 @@ ghid_drawing_area_expose_cb (GtkWidget *widget, GdkEventExpose *ev, GHidPort *po
   min_x = MIN (min_x, new_x);  max_x = MAX (max_x, new_x);
   min_y = MIN (min_y, new_y);  max_y = MAX (max_y, new_y);
 
-  /* */
   ghid_unproject_to_z_plane (ev->area.x,
                              ev->area.y + ev->area.height,
                              min_depth,
@@ -1047,8 +1058,7 @@ ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
   return;
 }
 
-int
-ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
+int ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GtkAllocation allocation;
@@ -1625,7 +1635,7 @@ draw_lead_user (render_priv *priv)
   glPopAttrib ();
 }
 
-static int
+int
 lead_user_cb (void *data)
 {
   render_priv *priv = data;

@@ -48,12 +48,12 @@ wait_for_dialog (Widget w)
 {
   ok = -1;
   XtManageChild (w);
-  while (ok == -1 && XtIsManaged (w)) {
-
-    XEvent e;
-    XtAppNextEvent (app_context, &e);
-    XtDispatchEvent (&e);
-  }
+  while (ok == -1 && XtIsManaged (w))
+    {
+      XEvent e;
+      XtAppNextEvent (app_context, &e);
+      XtDispatchEvent (&e);
+    }
   XtUnmanageChild (w);
   return ok;
 }
@@ -308,14 +308,16 @@ log_dismiss (Widget w, void *up, void *cbp)
 void
 lesstif_logv (const char *fmt, va_list ap)
 {
-  gchar *buf, *scan;
-  if (!mainwind)
-    {
+  char *buf, *scan;
+
+  if (!mainwind) {
+
       vprintf (fmt, ap);
       return;
-    }
-  if (!log_form)
-    {
+  }
+
+  if (!log_form) {
+
       Widget clear_button, dismiss_button;
 
       n = 0;
@@ -356,26 +358,31 @@ lesstif_logv (const char *fmt, va_list ap)
 
       XtManageChild (log_form);
     }
-  if (pending_newline)
-    {
+
+  if (pending_newline) {
+
       XmTextInsert (log_text, log_size++, "\n");
       pending_newline = 0;
-    }
-  buf = pcb_vprintf (fmt, ap);
+  }
+
+  buf  = pcb_vprintf (fmt, ap);
   scan = &buf[strlen (buf) - 1];
-  while (scan >= buf && *scan == '\n')
-    {
+
+  while (scan >= buf && *scan == '\n') {
       pending_newline++;
       *scan-- = 0;
-    }
+  }
+
   XmTextInsert (log_text, log_size, buf);
   log_size += strlen (buf);
 
   scan = strrchr(buf, '\n');
+
   if (scan)
     scan++;
   else
     scan = buf;
+
   XmTextSetCursorPosition (log_text, log_size - strlen(scan));
   g_free (buf);
 }
@@ -404,8 +411,8 @@ lesstif_confirm_dialog (char *msg, ...)
   if (mainwind == 0)
     return 1;
 
-  if (confirm_dialog == 0)
-    {
+  if (confirm_dialog == 0) {
+
       n = 0;
       stdarg (XmNdefaultButtonType, XmDIALOG_OK_BUTTON);
       stdarg (XmNtitle, "Confirm");
@@ -422,15 +429,14 @@ lesstif_confirm_dialog (char *msg, ...)
 	XmMessageBoxGetChild (confirm_dialog, XmDIALOG_MESSAGE_LABEL);
       XtUnmanageChild (XmMessageBoxGetChild
 		       (confirm_dialog, XmDIALOG_HELP_BUTTON));
-    }
+  }
 
   va_start (ap, msg);
   cancelmsg = va_arg (ap, char *);
   okmsg = va_arg (ap, char *);
   va_end (ap);
 
-  if (!cancelmsg)
-    {
+  if (!cancelmsg) {
       cancelmsg = "Cancel";
       okmsg = "Ok";
     }
@@ -438,14 +444,14 @@ lesstif_confirm_dialog (char *msg, ...)
   n = 0;
   xs = XmStringCreatePCB (cancelmsg);
 
-  if (okmsg)
-    {
+  if (okmsg) {
       stdarg (XmNcancelLabelString, xs);
       xs = XmStringCreatePCB (okmsg);
       XtManageChild (confirm_cancel);
-    }
-  else
+  }
+  else {
     XtUnmanageChild (confirm_cancel);
+  }
 
   stdarg (XmNokLabelString, xs);
 
@@ -487,8 +493,8 @@ static Widget report = 0, report_form;
 void
 lesstif_report_dialog (char *title, char *msg)
 {
-  if (!report)
-    {
+  if (!report) {
+
       if (mainwind == 0)
 	return;
 
@@ -509,7 +515,8 @@ lesstif_report_dialog (char *title, char *msg)
       stdarg (XmNbottomAttachment, XmATTACH_FORM);
       report = XmCreateScrolledText (report_form, "text", args, n);
       XtManageChild (report);
-    }
+  }
+
   n = 0;
   stdarg (XmNtitle, title);
   XtSetValues (report_form, args, n);
@@ -539,8 +546,9 @@ lesstif_prompt_for (const char *msg, const char *default_string)
 {
   char *rv;
   XmString xs;
-  if (prompt_dialog == 0)
-    {
+
+  if (prompt_dialog == 0) {
+
       n = 0;
       stdarg (XmNautoUnmanage, False);
       stdarg (XmNtitle, "PCB Prompt");
@@ -564,20 +572,25 @@ lesstif_prompt_for (const char *msg, const char *default_string)
       prompt_text = XmCreateText (prompt_dialog, "text", args, n);
       XtManageChild (prompt_text);
       XtAddCallback (prompt_text, XmNactivateCallback,
-		     (XtCallbackProc) dialog_callback, (XtPointer) 1);
-    }
+                     (XtCallbackProc) dialog_callback, (XtPointer) 1);
+  }
+
   if (!default_string)
     default_string = "";
+
   if (!msg)
     msg = "Enter text:";
+
   n = 0;
   xs = XmStringCreatePCB ((char *)msg);
+
   stdarg (XmNlabelString, xs);
   XtSetValues (prompt_label, args, n);
   XmTextSetString (prompt_text, (char *)default_string);
   XmTextSetCursorPosition (prompt_text, strlen (default_string));
   wait_for_dialog (prompt_dialog);
   rv = XmTextGetString (prompt_text);
+
   return rv;
 }
 
@@ -600,7 +613,7 @@ static int
 PromptFor (int argc, char **argv, Coord x, Coord y)
 {
   char *rv = lesstif_prompt_for (argc > 0 ? argv[0] : 0,
-				 argc > 1 ? argv[1] : 0);
+                                 argc > 1 ? argv[1] : 0);
   printf ("rv = `%s'\n", rv);
   return 0;
 }
@@ -618,10 +631,10 @@ create_form_ok_dialog (char *name, int ok)
   XtUnmanageChild (XmMessageBoxGetChild (dialog, XmDIALOG_MESSAGE_LABEL));
   XtUnmanageChild (XmMessageBoxGetChild (dialog, XmDIALOG_HELP_BUTTON));
   XtAddCallback (dialog, XmNcancelCallback, (XtCallbackProc) dialog_callback,
-		 (XtPointer) 0);
+                 (XtPointer) 0);
   if (ok)
     XtAddCallback (dialog, XmNokCallback, (XtCallbackProc) dialog_callback,
-		   (XtPointer) 1);
+                   (XtPointer) 1);
   else
     XtUnmanageChild (XmMessageBoxGetChild (dialog, XmDIALOG_OK_BUTTON));
 
@@ -633,8 +646,8 @@ create_form_ok_dialog (char *name, int ok)
 
 int
 lesstif_attribute_dialog (HID_Attribute * attrs,
-                          int n_attrs, HID_Attr_Val * results,
-                          const char * title, const char * descr)
+			  int n_attrs, HID_Attr_Val * results,
+			  const char * title, const char * descr)
 {
   Widget dialog, topform, lform, form;
   Widget *wl;
@@ -660,7 +673,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   wl = (Widget *) malloc (n_attrs * sizeof (Widget));
 
   topform = create_form_ok_dialog ((char *)title, 1);
-  dialog = XtParent (topform);
+  dialog  = XtParent (topform);
 
   n = 0;
   stdarg (XmNfractionBase, n_attrs);
@@ -692,6 +705,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 
     if (attrs[i].help_text == ATTR_UNDOCUMENTED)
       continue;
+
     attrcount ++;
 
     n = 0;
@@ -752,7 +766,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
       case HID_Coord:
         stdarg (XmNcolumns, 13);
         stdarg (XmNresizeWidth, True);
-        pcb_sprintf (buf, "%$mS", results[i].coord_value);
+        pcb_snprintf (buf, sizeof (buf), "%$mS", results[i].coord_value);
         stdarg (XmNvalue, buf);
         wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
         break;
@@ -779,8 +793,8 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
         stdarg (XmNsubMenuId, submenu);
         wl[i] = XmCreateOptionMenu (form, attrs[i].name, args, n);
 
-        for (sn=0; attrs[i].enumerations[sn]; sn++) {
-
+        for (sn=0; attrs[i].enumerations[sn]; sn++)
+        {
           Widget btn;
           XmString label;
           n = 0;
@@ -793,9 +807,8 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
           if (sn == attrs[i].default_val.int_value)
             default_button = btn;
         }
-
-        if (default_button) {
-
+        if (default_button)
+        {
           n = 0;
           stdarg (XmNmenuHistory, default_button);
           XtSetValues (wl[i], args, n);
@@ -812,51 +825,51 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 
   rv = wait_for_dialog (dialog);
 
-  for (i = 0; i < n_attrs; i++)
+  for (i = 0; i < n_attrs; i++) {
+
+    char *cp;
+
+    if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+      continue;
+
+    switch (attrs[i].type)
     {
-      char *cp;
+      case HID_Boolean:
+        results[i].int_value = XmToggleButtonGetState (wl[i]);
+        break;
+      case HID_String:
+        results[i].str_value = XmTextGetString (wl[i]);
+        break;
+      case HID_Integer:
+        cp = XmTextGetString (wl[i]);
+        sscanf (cp, "%d", &results[i].int_value);
+        break;
+      case HID_Coord:
+        cp = XmTextGetString (wl[i]);
+        results[i].coord_value = GetValue (cp, NULL, NULL);
+        break;
+      case HID_Real:
+        cp = XmTextGetString (wl[i]);
+        sscanf (cp, "%lg", &results[i].real_value);
+        break;
+      case HID_Enum:
+      {
+        const char **uptr;
+        Widget btn;
 
-      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
-	continue;
-
-      switch (attrs[i].type)
-	{
-	case HID_Boolean:
-	  results[i].int_value = XmToggleButtonGetState (wl[i]);
-	  break;
-	case HID_String:
-	  results[i].str_value = XmTextGetString (wl[i]);
-	  break;
-	case HID_Integer:
-	  cp = XmTextGetString (wl[i]);
-	  sscanf (cp, "%d", &results[i].int_value);
-	  break;
-	case HID_Coord:
-	  cp = XmTextGetString (wl[i]);
-	  results[i].coord_value = GetValue (cp, NULL, NULL);
-	  break;
-	case HID_Real:
-	  cp = XmTextGetString (wl[i]);
-	  sscanf (cp, "%lg", &results[i].real_value);
-	  break;
-	case HID_Enum:
-	  {
-	    const char **uptr;
-	    Widget btn;
-
-	    n = 0;
-	    stdarg (XmNmenuHistory, &btn);
-	    XtGetValues (wl[i], args, n);
-	    n = 0;
-	    stdarg (XmNuserData, &uptr);
-	    XtGetValues (btn, args, n);
-	    results[i].int_value = uptr - attrs[i].enumerations;
-	  }
-	  break;
-	default:
-	  break;
-	}
+        n = 0;
+        stdarg (XmNmenuHistory, &btn);
+        XtGetValues (wl[i], args, n);
+        n = 0;
+        stdarg (XmNuserData, &uptr);
+        XtGetValues (btn, args, n);
+        results[i].int_value = uptr - attrs[i].enumerations;
+      }
+      break;
+      default:
+        break;
     }
+  }
 
   free (wl);
   XtDestroyWidget (dialog);
@@ -946,8 +959,8 @@ static int
 About (int argc, char **argv, Coord x, Coord y)
 {
   static Widget about = 0;
-  if (!about)
-    {
+
+  if (!about) {
       Cardinal n = 0;
       XmString xs = XmStringCreatePCB (GetInfoString ());
       stdarg (XmNmessageString, xs);
@@ -984,20 +997,23 @@ Print (int argc, char **argv, Coord x, Coord y)
   int n;
 
   printer = hid_find_printer ();
-  if (!printer)
-    {
+
+  if (!printer) {
       lesstif_confirm_dialog ("No printer?", "Oh well", 0);
       return 1;
-    }
+  }
+
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals, "Print", ""))
-    {
+
+  if (lesstif_attribute_dialog (opts, n, vals, "Print", "")) {
       free (vals);
       return 1;
-    }
+  }
+
   printer->do_export (vals);
   free (vals);
+
   return 0;
 }
 
@@ -1065,24 +1081,23 @@ Export (int argc, char **argv, Coord x, Coord y)
 
   hids = hid_enumerate ();
 
-  if (!selector)  {
-
+  if (!selector)
+    {
       n = 0;
       stdarg (XmNtitle, "Export HIDs");
       selector = create_form_ok_dialog ("export", 0);
-
-      for (i = 0; hids[i]; i++) {
-
-	  if (hids[i]->exporter) {
-
+      for (i = 0; hids[i]; i++)
+	{
+	  if (hids[i]->exporter)
+	    {
 	      n = 0;
-	      if (prev) {
-
+	      if (prev)
+		{
 		  stdarg (XmNtopAttachment, XmATTACH_WIDGET);
 		  stdarg (XmNtopWidget, prev);
 		}
-	      else {
-
+	      else
+		{
 		  stdarg (XmNtopAttachment, XmATTACH_FORM);
 		}
 	      stdarg (XmNrightAttachment, XmATTACH_FORM);
@@ -1110,7 +1125,8 @@ Export (int argc, char **argv, Coord x, Coord y)
 
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals, "Export", NULL)) {
+  if (lesstif_attribute_dialog (opts, n, vals, "Export", NULL))
+    {
       free (vals);
       return 1;
     }
@@ -1142,9 +1158,9 @@ sz_val2str (Widget w, Coord u, int pcbu)
 {
   static char buf[40];
   if (pcbu)
-    pcb_sprintf (buf, "%m+%.2mS", Settings.grid_unit->allow, u);
+    pcb_snprintf (buf, sizeof (buf), "%m+%.2mS", Settings.grid_unit->allow, u);
   else
-    pcb_sprintf (buf, "%#mS %%", u);
+    pcb_snprintf (buf, sizeof (buf), "%#mS %%", u);
   XmTextSetString (w, buf);
 }
 
@@ -1319,16 +1335,16 @@ AdjustSizes (int argc, char **argv, Coord x, Coord y)
 static Widget layer_groups_form = 0;
 static Widget lg_buttonform = 0;
 
-static int lg_setcol[MAX_LAYER+2];
+static int lg_setcol[MAX_ALL_LAYER];
 static int lg_width, lg_height;
-static int lg_r[MAX_LAYER+3];
-static int lg_c[MAX_LAYER+1];
+static int lg_r[MAX_ALL_LAYER + 1];
+static int lg_c[MAX_ALL_LAYER + 1];
 static int lg_label_width, lg_fa, lg_fd;
 static GC lg_gc = 0;
 
 #if 0
-static Widget lglabels[MAX_LAYER + 2];
-static Widget lgbuttons[MAX_LAYER + 2][MAX_GROUP];
+static Widget lglabels[MAX_ALL_LAYER];
+static Widget lgbuttons[MAX_ALL_LAYER][MAX_GROUP];
 #endif
 
 typedef struct {
@@ -1354,15 +1370,13 @@ lgbutton_cb (Widget w, int ij, void *cbs)
   layer = ij / max_group;
   group = ij % max_group;
   group = MoveLayerToGroup (layer, group);
-  for (k = 0; k < max_group; k++) {
-
-    if (k == group) {
-      XmToggleButtonSetState (lgbuttons[layer][k], 1, 0);
+  for (k = 0; k < max_group; k++)
+    {
+      if (k == group)
+	XmToggleButtonSetState (lgbuttons[layer][k], 1, 0);
+      else
+	XmToggleButtonSetState (lgbuttons[layer][k], 0, 0);
     }
-    else {
-      XmToggleButtonSetState (lgbuttons[layer][k], 0, 0);
-    }
-  }
 }
 #endif
 
@@ -1387,44 +1401,38 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   XSetForeground (display, lg_gc, lgr.fg);
   for (i = 0; i < max_group; i++)
     XDrawLine(display, win, lg_gc, lg_c[i], 0, lg_c[i], lg_height);
-  for (i = 1; i < max_copper_layer + 2; i++)
+  for (i = 1; i < max_copper_layer + SILK_LAYER; i++)
     XDrawLine(display, win, lg_gc, lg_label_width, lg_r[i], lg_width, lg_r[i]);
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+    {
+      int dir;
+      XCharStruct size;
+      int swidth;
+      const char *name;
 
-  for (i = 0; i < max_copper_layer + 2; i++) {
-
-    int dir;
-    XCharStruct size;
-    int swidth;
-    const char *name;
-
-    if (i == bottom_silk_layer) {
-      name = BOTTOM_SIDE_NAME;
+      if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
+      else
+	name = PCB->Data->Layer[i].Name;
+      XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
+      swidth = size.rbearing - size.lbearing;
+      XDrawString(display, win, lg_gc,
+		  (lg_label_width - swidth)/2 - size.lbearing,
+		  (lg_r[i] + lg_r[i+1] + lg_fd + lg_fa)/2 - 1,
+		  name, strlen(name));
     }
-    else if (i == top_silk_layer) {
-      name = TOP_SIDE_NAME;
-    }
-    else {
-      name = PCB->Data->Layer[i].Name;
-    }
-
-    XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
-    swidth = size.rbearing - size.lbearing;
-    XDrawString(display, win, lg_gc,
-                (lg_label_width - swidth)/2 - size.lbearing,
-                (lg_r[i] + lg_r[i+1] + lg_fd + lg_fa)/2 - 1,
-                name, strlen(name));
-  }
   XSetForeground (display, lg_gc, lgr.sel);
-
-  for (i = 0; i < max_copper_layer + 2; i++) {
-
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+    {
       int c = lg_setcol[i];
       int x1 = lg_c[c] + 2;
       int x2 = lg_c[c+1] - 2;
       int y1 = lg_r[i] + 2;
       int y2 = lg_r[i+1] - 2;
       XFillRectangle (display, win, lg_gc, x1, y1, x2-x1+1, y2-y1+1);
-  }
+    }
 }
 
 static void
@@ -1433,7 +1441,8 @@ lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   int layer, group;
   if (cbs->event->type != ButtonPress)
     return;
-  layer = cbs->event->xbutton.y * (max_copper_layer + 2) / lg_height;
+  layer = cbs->event->xbutton.y * (max_copper_layer + SILK_LAYER) /
+          lg_height;
   group = (cbs->event->xbutton.x - lg_label_width) * max_group / (lg_width - lg_label_width);
   group = MoveLayerToGroup (layer, group);
   lg_setcol[layer] = group;
@@ -1453,21 +1462,17 @@ lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   lg_width = width;
   lg_height = height;
 
-  for (i = 0; i <= max_group; i++) {
+  for (i=0; i<=max_group; i++)
     lg_c[i] = lg_label_width + (lg_width - lg_label_width) * i / max_group;
-  }
-
-  for (i = 0; i <= max_copper_layer+2; i++) {
-    lg_r[i] = lg_height * i / (max_copper_layer + 2);
-  }
-
+  for (i=0; i<=max_copper_layer + SILK_LAYER; i++)
+    lg_r[i] = lg_height * i / (max_copper_layer + SILK_LAYER);
   lgbutton_expose (w, 0, 0);
 }
 
 void
 lesstif_update_layer_groups ()
 {
-  int sets[MAX_LAYER + 2][MAX_GROUP];
+  int sets[MAX_ALL_LAYER][MAX_GROUP];
   int i, j, n;
   LayerGroupType *l = &(PCB->LayerGroups);
 
@@ -1476,94 +1481,83 @@ lesstif_update_layer_groups ()
 
   memset (sets, 0, sizeof (sets));
 
-  for (i = 0; i < max_group; i++) {
-    for (j = 0; j < l->Number[i]; j++) {
-      sets[l->Entries[i][j]][i] = 1;
-      lg_setcol[l->Entries[i][j]] = i;
-    }
-  }
+  for (i = 0; i < max_group; i++)
+    for (j = 0; j < l->Number[i]; j++)
+      {
+	sets[l->Entries[i][j]][i] = 1;
+	lg_setcol[l->Entries[i][j]] = i;
+      }
 
   lg_label_width = 0;
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+    {
+      int dir;
+      XCharStruct size;
+      int swidth;
+      const char *name;
 
-  for (i = 0; i < max_copper_layer + 2; i++) {
-
-    int dir;
-    XCharStruct size;
-    int swidth;
-    const char *name;
-
-    if (i == bottom_silk_layer) {
-      name = BOTTOM_SIDE_NAME;
+      if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
+      else
+	name = PCB->Data->Layer[i].Name;
+      XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
+      swidth = size.rbearing - size.lbearing;
+      if (lg_label_width < swidth)
+	lg_label_width = swidth;
     }
-    else if (i == top_silk_layer) {
-      name = TOP_SIDE_NAME;
-    }
-    else {
-      name = PCB->Data->Layer[i].Name;
-    }
-
-    XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
-    swidth = size.rbearing - size.lbearing;
-    if (lg_label_width < swidth)
-      lg_label_width = swidth;
-  }
   lg_label_width += 4;
 
   n = 0;
   stdarg(XmNwidth, lg_label_width + (lg_fa+lg_fd) * max_group);
-  stdarg(XmNheight, (lg_fa+lg_fd) * (max_copper_layer + 2));
+  stdarg(XmNheight, (lg_fa+lg_fd) * (max_copper_layer + SILK_LAYER));
   XtSetValues(lg_buttonform, args, n);
   lgbutton_expose (lg_buttonform, 0, 0);
 
 #if 0
-  for (i = 0; i < max_copper_layer + 2; i++) {
-
-    char *name = "unknown";
-    n = 0;
-
-    if (i < max_copper_layer) {
-      name = PCB->Data->Layer[i].Name;
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+    {
+      char *name = "unknown";
+      n = 0;
+      if (i < max_copper_layer)
+	name = PCB->Data->Layer[i].Name;
+      else if (i == bottom_silk_layer)
+	name = BOTTOM_SIDE_NAME;
+      else if (i == top_silk_layer)
+	name = TOP_SIDE_NAME;
+      stdarg (XmNlabelString, XmStringCreatePCB (name));
+      XtSetValues (lglabels[i], args, n);
+      for (j = 0; j < max_group; j++)
+	{
+	  if (sets[i][j] != XmToggleButtonGetState (lgbuttons[i][j]))
+	    {
+	      XmToggleButtonSetState (lgbuttons[i][j], sets[i][j], 0);
+	    }
+	}
     }
-    else if (i == bottom_silk_layer) {
-      name = BOTTOM_SIDE_NAME;
-    }
-    else if (i == top_silk_layer) {
-      name = TOP_SIDE_NAME;
-    }
-
-    stdarg (XmNlabelString, XmStringCreatePCB (name));
-    XtSetValues (lglabels[i], args, n);
-
-    for (j = 0; j < max_group; j++) {
-
-      if (sets[i][j] != XmToggleButtonGetState (lgbuttons[i][j]))
-      {
-        XmToggleButtonSetState (lgbuttons[i][j], sets[i][j], 0);
-      }
-    }
-  }
   XtUnmanageChild(lg_buttonform);
-  for (i = 0; i < MAX_LAYER + 2; i++)
-    for (j = 0; j < MAX_GROUP; j++) {
-
-      if (i < max_copper_layer + 2 && j < max_group) {
-
-        XtManageChild(lgbuttons[i][j]);
-        n = 0;
-        stdarg (XmNleftPosition, j * (max_copper_layer + 2));
-        stdarg (XmNrightPosition, (j + 1) * (max_copper_layer + 2));
-        stdarg (XmNtopPosition, i * max_group);
-        stdarg (XmNbottomPosition, (i + 1) * max_group);
-        XtSetValues(lgbuttons[i][j], args, n);
+  for (i = 0; i < MAX_ALL_LAYER; i++)
+    for (j = 0; j < MAX_GROUP; j++)
+      {
+	if (i < max_copper_layer + SILK_LAYER && j < max_group)
+	  {
+	    XtManageChild(lgbuttons[i][j]);
+	    n = 0;
+	    stdarg (XmNleftPosition, j * (max_copper_layer + SILK_LAYER));
+	    stdarg (XmNrightPosition, (j + 1) * (max_copper_layer + SILK_LAYER));
+	    stdarg (XmNtopPosition, i * max_group);
+	    stdarg (XmNbottomPosition, (i + 1) * max_group);
+	    XtSetValues(lgbuttons[i][j], args, n);
+	  }
+	else
+	  XtUnmanageChild(lgbuttons[i][j]);
       }
-      else
-        XtUnmanageChild(lgbuttons[i][j]);
-    }
-    n = 0;
-    stdarg (XmNfractionBase, max_copper_layer + 2);
+  n = 0;
+  stdarg (XmNfractionBase, max_copper_layer + SILK_LAYER);
   XtSetValues (layer_groups_form, args, n);
   n = 0;
-  stdarg (XmNfractionBase, max_group * (max_copper_layer + 2));
+  stdarg (XmNfractionBase, max_group * (max_copper_layer + SILK_LAYER));
   XtSetValues (lg_buttonform, args, n);
   XtManageChild(lg_buttonform);
 #endif
@@ -1590,10 +1584,11 @@ See @ref{ChangeName Action}.
 static int
 EditLayerGroups (int argc, char **argv, Coord x, Coord y)
 {
-  if (!layer_groups_form) {
+  if (!layer_groups_form)
+    {
 
       n = 0;
-      stdarg (XmNfractionBase, max_copper_layer + 2);
+      stdarg (XmNfractionBase, max_copper_layer + SILK_LAYER);
       stdarg (XmNtitle, "Layer Groups");
       layer_groups_form = XmCreateFormDialog (mainwind, "layers", args, n);
 
@@ -1616,50 +1611,50 @@ EditLayerGroups (int argc, char **argv, Coord x, Coord y)
 			 "layergroups", "LayerGroups",
 			 lg_resources, XtNumber(lg_resources), 0, 0);
 #if 0
-      stdarg (XmNfractionBase, max_group * (MAX_LAYER + 2));
+      stdarg (XmNfractionBase, max_group * (MAX_ALL_LAYER));
       lg_buttonform = XmCreateForm (layer_groups_form, "lgbutton", args, n);
 
-      for (i = 0; i < MAX_LAYER + 2; i++) {
+      for (i = 0; i < MAX_ALL_LAYER; i++)
+	{
+	  n = 0;
+	  stdarg (XmNleftAttachment, XmATTACH_FORM);
+	  stdarg (XmNtopAttachment, XmATTACH_POSITION);
+	  stdarg (XmNtopPosition, i);
+	  stdarg (XmNbottomAttachment, XmATTACH_POSITION);
+	  stdarg (XmNbottomPosition, i + 1);
+	  stdarg (XmNrightAttachment, XmATTACH_WIDGET);
+	  stdarg (XmNrightWidget, lg_buttonform);
+	  lglabels[i] = XmCreateLabel (layer_groups_form, "layer", args, n);
+	  XtManageChild (lglabels[i]);
 
-        n = 0;
-        stdarg (XmNleftAttachment, XmATTACH_FORM);
-        stdarg (XmNtopAttachment, XmATTACH_POSITION);
-        stdarg (XmNtopPosition, i);
-        stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-        stdarg (XmNbottomPosition, i + 1);
-        stdarg (XmNrightAttachment, XmATTACH_WIDGET);
-        stdarg (XmNrightWidget, lg_buttonform);
-        lglabels[i] = XmCreateLabel (layer_groups_form, "layer", args, n);
-        XtManageChild (lglabels[i]);
+	  for (j = 0; j < MAX_GROUP; j++)
+	    {
+	      n = 0;
+	      stdarg (XmNleftAttachment, XmATTACH_POSITION);
+	      stdarg (XmNleftPosition, j * (MAX_LAYER));
+	      stdarg (XmNrightAttachment, XmATTACH_POSITION);
+	      stdarg (XmNrightPosition, (j + 1) * (MAX_LAYER));
+	      stdarg (XmNtopAttachment, XmATTACH_POSITION);
+	      stdarg (XmNtopPosition, i * MAX_LAYER);
+	      stdarg (XmNbottomAttachment, XmATTACH_POSITION);
+	      stdarg (XmNbottomPosition, (i + 1) * MAX_LAYER);
+	      stdarg (XmNlabelString, XmStringCreatePCB (" "));
+	      stdarg (XmNspacing, 0);
+	      stdarg (XmNvisibleWhenOff, True);
+	      stdarg (XmNfillOnSelect, True);
+	      stdarg (XmNshadowThickness, 0);
+	      stdarg (XmNmarginWidth, 0);
+	      stdarg (XmNmarginHeight, 0);
+	      stdarg (XmNhighlightThickness, 0);
+	      lgbuttons[i][j] =
+		XmCreateToggleButton (lg_buttonform, "label", args, n);
+	      XtManageChild (lgbuttons[i][j]);
 
-        for (j = 0; j < MAX_GROUP; j++) {
-
-          n = 0;
-          stdarg (XmNleftAttachment, XmATTACH_POSITION);
-          stdarg (XmNleftPosition, j * (MAX_LAYER + 2));
-          stdarg (XmNrightAttachment, XmATTACH_POSITION);
-          stdarg (XmNrightPosition, (j + 1) * (MAX_LAYER + 2));
-          stdarg (XmNtopAttachment, XmATTACH_POSITION);
-          stdarg (XmNtopPosition, i * MAX_LAYER);
-          stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-          stdarg (XmNbottomPosition, (i + 1) * MAX_LAYER);
-          stdarg (XmNlabelString, XmStringCreatePCB (" "));
-          stdarg (XmNspacing, 0);
-          stdarg (XmNvisibleWhenOff, True);
-          stdarg (XmNfillOnSelect, True);
-          stdarg (XmNshadowThickness, 0);
-          stdarg (XmNmarginWidth, 0);
-          stdarg (XmNmarginHeight, 0);
-          stdarg (XmNhighlightThickness, 0);
-          lgbuttons[i][j] =
-          XmCreateToggleButton (lg_buttonform, "label", args, n);
-          XtManageChild (lgbuttons[i][j]);
-
-          XtAddCallback (lgbuttons[i][j], XmNvalueChangedCallback,
-                         (XtCallbackProc) lgbutton_cb,
-                         (XtPointer) (i * max_group + j));
-        }
-      }
+	      XtAddCallback (lgbuttons[i][j], XmNvalueChangedCallback,
+			     (XtCallbackProc) lgbutton_cb,
+			     (XtPointer) (i * max_group + j));
+	    }
+	}
 #endif
     }
   lesstif_update_layer_groups ();
@@ -1694,8 +1689,8 @@ fiddle_with_bb_layout ()
   short ncolumns = 20;
   short vcolumns = 20;
 
-  for (i=0; i<attr_num_rows; i++)
-    {
+  for (i=0; i<attr_num_rows; i++) {
+
       String v;
 
       n = 0;
@@ -1709,10 +1704,10 @@ fiddle_with_bb_layout ()
       XtGetValues (attr_row[i].w_value, args, n);
       if (vcolumns < strlen (v))
 	vcolumns = strlen (v);
-    }
+  }
 
-  for (i=0; i<attr_num_rows; i++)
-    {
+  for (i=0; i<attr_num_rows; i++) {
+
       n = 0;
       stdarg (XmNcolumns, ncolumns);
       XtSetValues (attr_row[i].w_name, args, n);
@@ -1720,10 +1715,10 @@ fiddle_with_bb_layout ()
       n = 0;
       stdarg (XmNcolumns, vcolumns);
       XtSetValues (attr_row[i].w_value, args, n);
-    }
+  }
 
-  for (i=0; i<attr_num_rows; i++)
-    {
+  for (i=0; i<attr_num_rows; i++) {
+
       Dimension w, h;
       n = 0;
       stdarg (XmNwidth, &w);
@@ -1746,10 +1741,10 @@ fiddle_with_bb_layout ()
 	max_height = h;
       if (max_value_width < w)
 	max_value_width = w;
-    }
+  }
 
-  for (i=0; i<attr_num_rows; i++)
-    {
+  for (i=0; i<attr_num_rows; i++) {
+
       n = 0;
       stdarg (XmNx, 0);
       stdarg (XmNy, i * max_height);
@@ -1770,7 +1765,7 @@ fiddle_with_bb_layout ()
       stdarg (XmNwidth, max_value_width);
       stdarg (XmNheight, max_height);
       XtSetValues (attr_row[i].w_value, args, n);
-    }
+  }
 
   n = 0;
   stdarg (XmNwidth, max_del_width + max_name_width + max_value_width + 1);
@@ -1781,16 +1776,16 @@ fiddle_with_bb_layout ()
 static void
 lesstif_attributes_need_rows (int new_max)
 {
-  if (attr_max_rows < new_max)
-    {
+  if (attr_max_rows < new_max) {
+
       if (attr_row)
 	attr_row = (AttrRow *) realloc (attr_row, new_max * sizeof(AttrRow));
       else
 	attr_row = (AttrRow *) malloc (new_max * sizeof(AttrRow));
-    }
+  }
 
-  while (attr_max_rows < new_max)
-    {
+  while (attr_max_rows < new_max) {
+
       n = 0;
       attr_row[attr_max_rows].del = XmCreatePushButton (f_top, "del", args, n);
       XtManageChild (attr_row[attr_max_rows].del);
@@ -1813,11 +1808,11 @@ lesstif_attributes_need_rows (int new_max)
 		     (XtCallbackProc) fiddle_with_bb_layout, NULL);
 
       attr_max_rows ++;
-    }
+  }
 
   /* Manage any previously unused rows we now need to show.  */
-  while (attr_num_rows < new_max)
-    {
+  while (attr_num_rows < new_max) {
+
       XtManageChild (attr_row[attr_num_rows].del);
       XtManageChild (attr_row[attr_num_rows].w_name);
       XtManageChild (attr_row[attr_num_rows].w_value);
@@ -1833,20 +1828,19 @@ lesstif_attributes_revert ()
   lesstif_attributes_need_rows (attributes_list->Number);
 
   /* Unmanage any previously used rows we don't need.  */
-  while (attr_num_rows > attributes_list->Number)
-    {
+  while (attr_num_rows > attributes_list->Number) {
+
       attr_num_rows --;
       XtUnmanageChild (attr_row[attr_num_rows].del);
       XtUnmanageChild (attr_row[attr_num_rows].w_name);
       XtUnmanageChild (attr_row[attr_num_rows].w_value);
-    }
+  }
 
   /* Fill in values */
-  for (i=0; i<attributes_list->Number; i++)
-    {
+  for (i=0; i<attributes_list->Number; i++) {
       XmTextFieldSetString (attr_row[i].w_name, attributes_list->List[i].name);
       XmTextFieldSetString (attr_row[i].w_value, attributes_list->List[i].value);
-    }
+  }
 
   fiddle_with_bb_layout ();
 }
@@ -1872,11 +1866,11 @@ attributes_delete_callback (Widget w, void *v, void *cbs)
   wn = attr_row[n].w_name;
   wv = attr_row[n].w_value;
 
-  for (i=n; i<attr_num_rows-1; i++)
-    {
+  for (i=n; i<attr_num_rows-1; i++) {
       attr_row[i].w_name = attr_row[i+1].w_name;
       attr_row[i].w_value = attr_row[i+1].w_value;
-    }
+  }
+
   attr_row[attr_num_rows-1].w_name = wn;
   attr_row[attr_num_rows-1].w_value = wv;
   attr_num_rows --;
@@ -1899,8 +1893,8 @@ lesstif_attributes_dialog (char *owner, AttributeListType *attrs_list)
   Widget bform, sw, b_ok, b_cancel, b_revert, b_new;
   Widget sep;
 
-  if (attr_dialog == NULL)
-    {
+  if (attr_dialog == NULL) {
+
       n = 0;
       stdarg (XmNautoUnmanage, False);
       stdarg (XmNtitle, owner);
@@ -1968,32 +1962,33 @@ lesstif_attributes_dialog (char *owner, AttributeListType *attrs_list)
       stdarg (XmNmarginWidth, 0);
       f_top = XmCreateBulletinBoard (sw, "f_top", args, n);
       XtManageChild (f_top);
-    }
-  else
-    {
+  }
+  else {
+
       n = 0;
       stdarg (XmNtitle, owner);
       XtSetValues (XtParent (attr_dialog), args, n);
-    }
+  }
 
   attributes_list = attrs_list;
   lesstif_attributes_revert ();
 
   fiddle_with_bb_layout ();
 
-  if (wait_for_dialog (attr_dialog) == 0)
-    {
+  if (wait_for_dialog (attr_dialog) == 0) {
+
       int i;
       /* Copy the values back */
-      for (i=0; i<attributes_list->Number; i++)
-	{
+    for (i=0; i<attributes_list->Number; i++) {
+
 	  if (attributes_list->List[i].name)
 	    free (attributes_list->List[i].name);
 	  if (attributes_list->List[i].value)
 	    free (attributes_list->List[i].value);
 	}
-      if (attributes_list->Max < attr_num_rows)
-	{
+
+    if (attributes_list->Max < attr_num_rows) {
+
 	  int sz = attr_num_rows * sizeof (AttributeType);
 	  if (attributes_list->List == NULL)
 	    attributes_list->List = (AttributeType *) malloc (sz);
@@ -2001,13 +1996,14 @@ lesstif_attributes_dialog (char *owner, AttributeListType *attrs_list)
 	    attributes_list->List = (AttributeType *) realloc (attributes_list->List, sz);
 	  attributes_list->Max = attr_num_rows;
 	}
-      for (i=0; i<attr_num_rows; i++)
-	{
+
+    for (i=0; i<attr_num_rows; i++) {
+
 	  attributes_list->List[i].name = strdup (XmTextFieldGetString (attr_row[i].w_name));
 	  attributes_list->List[i].value = strdup (XmTextFieldGetString (attr_row[i].w_value));
 	  attributes_list->Number = attr_num_rows;
 	}
-    }
+  }
 
   return;
 }
@@ -2043,6 +2039,7 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
 
   if (xms_sch == 0)
     xms_sch = XmStringCreatePCB ("*.sch");
+
   if (xms_import == 0)
     xms_import = XmStringCreatePCB ("Import from");
 
@@ -2081,12 +2078,13 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
      This is the common case and means we don't have to get clever
      about converting absolute paths into relative paths.  */
   bname = name;
-  if (strcmp (original_dir, target_dir) == 0)
-    {
+
+  if (strcmp (original_dir, target_dir) == 0) {
+
       last_slash = strrchr (name, '/');
       if (last_slash)
 	bname = last_slash + 1;
-    }
+  }
 
   AttributePut (PCB, "import::src0", bname);
 
