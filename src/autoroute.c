@@ -5118,9 +5118,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      /* orthogonal; thickness is 2*halfwidth */
 	      /* flip coordinates, if bl_to_ur */
 	      b = p->sbox;
-	      total_wire_length +=
-		sqrt ((b.X2 - b.X1 - th) * (b.X2 - b.X1 - th) +
-		      (b.Y2 - b.Y1 - th) * (b.Y2 - b.Y1 - th));
+	      total_wire_length += hypot (b.X2 - b.X1 - th, b.Y2 - b.Y1 - th);
 	      b = shrink_box (&b, halfwidth);
 	      if (b.X2 == b.X1 + 1)
 		b.X2 = b.X1;

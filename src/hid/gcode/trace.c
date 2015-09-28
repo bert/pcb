@@ -133,7 +133,7 @@ pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
   b = (xy - (double) x * y / k) / k;
   c = (y2 - (double) y * y / k) / k;
 
-  lambda2 = (a + c + sqrt ((a - c) * (a - c) + 4 * b * b)) / 2;	/* larger e.value */
+  lambda2 = (a + c + hypot (a - c, 2 * b)) / 2;	/* larger e.value */
 
   /* now find e.vector for lambda2 */
   a -= lambda2;
@@ -141,7 +141,7 @@ pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
 
   if (fabs (a) >= fabs (c))
     {
-      l = sqrt (a * a + b * b);
+      l = hypot (a, b);
       if (l != 0)
 	{
 	  dir->x = -b / l;
@@ -150,7 +150,7 @@ pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
     }
   else
     {
-      l = sqrt (c * c + b * b);
+      l = hypot (c, b);
       if (l != 0)
 	{
 	  dir->x = -c / l;
@@ -245,7 +245,7 @@ iprod1 (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
 static inline double
 ddist (dpoint_t p, dpoint_t q)
 {
-  return sqrt (sq (p.x - q.x) + sq (p.y - q.y));
+  return hypot (p.x - q.x, p.y - q.y);
 }
 
 /* calculate point of a bezier curve */
@@ -1427,22 +1427,11 @@ plotpolygon (privpath_t * pp, FILE * f, double scale,
     {
       pcb_fprintf (f, "G1 X%`f Y%`f\n",
 		   pt[po[i]].x * scale, pt[po[i]].y * scale);
-      dm +=
-	sqrt ((pt[po[i]].x - pt[po[i - 1]].x) * scale * (pt[po[i]].x -
-							 pt[po[i - 1]].x) *
-	      scale + (pt[po[i]].y - pt[po[i - 1]].y) * scale * (pt[po[i]].y -
-								 pt[po
-								    [i -
-								     1]].y) *
-	      scale);
+      dm += fabs (scale) * hypot (pt[po[i]].x - pt[po[i - 1]].x, pt[po[i]].y - pt[po[i - 1]].y);
     }
   pcb_fprintf (f, "G1 X%`f Y%`f\n", pt[po[0]].x * scale, pt[po[0]].y * scale);
   pcb_fprintf (f, "G0 Z%s\n", var_safeZ);
-  dm +=
-    sqrt ((pt[po[m - 1]].x - pt[po[0]].x) * scale * (pt[po[m - 1]].x -
-						     pt[po[0]].x) * scale +
-	  (pt[po[m - 1]].y - pt[po[0]].y) * scale * (pt[po[m - 1]].y -
-						     pt[po[0]].y) * scale);
+  dm += fabs (scale) * hypot (pt[po[m - 1]].x - pt[po[0]].x, pt[po[m - 1]].y - pt[po[0]].y);
   pcb_fprintf (f, "(polygon end, distance %`.2f)\n", dm);
   return dm;
 }

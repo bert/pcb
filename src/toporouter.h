@@ -74,11 +74,7 @@
 
 //#define DEBUG_ROAR 1
 
-#define coord_distance(a,b,c,d) sqrt(pow(a-c,2)+pow(b-d,2))
-#define coord_distance2(a,b,c,d) (pow(a-c,2)+pow(b-d,2))
-
-#define tvdistance(a,b) sqrt(pow(vx(a)-vx(b),2)+pow(vy(a)-vy(b),2))
-#define tvdistance2(a,b) (pow(vx(a)-vx(b),2)+pow(vy(a)-vy(b),2))
+#define tvdistance(a,b) hypot(vx(a)-vx(b),vy(a)-vy(b))
 
 #define edge_v1(e) (GTS_SEGMENT(e)->v1)
 #define edge_v2(e) (GTS_SEGMENT(e)->v2)

@@ -408,7 +408,7 @@ common_thindraw_pcb_pad (hidGC gc, PadType *pad, bool clear, bool mask)
 
       dx = x2 - x1;
       dy = y2 - y1;
-      h = t / sqrt (SQUARE (dx) + SQUARE (dy));
+      h = t / hypot (dx, dy);
       ox = dy * h + 0.5 * SGN (dy);
       oy = -(dx * h + 0.5 * SGN (dx));
 
@@ -448,7 +448,7 @@ common_get_pad_polygon(Coord x[4], Coord y[4], const PadType *l, int w)
     {
       double r;
 
-      r = sqrt (dX * (double) dX + dY * (double) dY) * 2;
+      r = hypot (dX, dY) * 2;
       dwx = w / r * dX;
       dwy =  w / r * dY;
     }

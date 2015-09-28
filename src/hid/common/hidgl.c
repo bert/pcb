@@ -241,7 +241,7 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
   deltax = x2 - x1;
   deltay = y2 - y1;
 
-  length = sqrt (deltax * deltax + deltay * deltay);
+  length = hypot (deltax, deltay);
 
   if (length == 0) {
     /* Assume the orientation of the line is horizontal */

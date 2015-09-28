@@ -81,9 +81,6 @@
 #define SIN1D	0.0174524064372835
 
 static jmp_buf abort_buf;
-
-#define sqr(x) (1.0*(x)*(x))
-
 static int multi, line_exact, arc_exact;
 static LineType *the_line;
 static ArcType *the_arc;
@@ -192,8 +189,8 @@ angle2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
   pcb_printf(" = %mD %mD\n", ux, uy, vx, vy);
 #endif
   cross = (double)ux * vy - (double)uy * vx;
-  magu = sqrt((double)ux*ux + (double)uy*uy);
-  magv = sqrt((double)vx*vx + (double)vy*vy);
+  magu = hypot(ux, uy);
+  magv = hypot(vx, vy);
   sintheta = cross / (magu * magv);
 #if TRACE1
   printf(" = %f / (%f * %f) = %f\n", cross, magu, magv, sintheta);

@@ -514,7 +514,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick)
   segs = 1;
   if(thick > 0)
     segs = MAX (segs, a->Delta * M_PI / 360 *
-                      sqrt (sqrt ((double)rx * rx + (double)ry * ry) /
+                      sqrt (hypot (rx, ry) /
                             POLY_ARC_MAX_DEVIATION / 2 / thick));
   segs = MAX(segs, a->Delta / ARC_ANGLE);
 
@@ -603,9 +603,7 @@ LinePoly (LineType * L, Coord thick)
   if (thick <= 0)
     return NULL;
   half = (thick + 1) / 2;
-  d =
-    sqrt (SQUARE (l->Point1.X - l->Point2.X) +
-          SQUARE (l->Point1.Y - l->Point2.Y));
+  d = hypot (l->Point1.X - l->Point2.X, l->Point1.Y - l->Point2.Y);
   if (!TEST_FLAG (SQUAREFLAG,l))
     if (d == 0)                   /* line is a point */
       return CirclePoly (l->Point1.X, l->Point1.Y, half);
@@ -669,9 +667,7 @@ SquarePadPoly (PadType * pad, Coord clear)
   int halfthick = (pad->Thickness + 1) / 2;
   int halfclear = (clear + 1) / 2;
 
-  d =
-    sqrt (SQUARE (pad->Point1.X - pad->Point2.X) +
-          SQUARE (pad->Point1.Y - pad->Point2.Y));
+  d = hypot (pad->Point1.X - pad->Point2.X, pad->Point1.Y - pad->Point2.Y);
   if (d != 0)
     {
       double a = halfthick / d;

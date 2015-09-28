@@ -785,7 +785,7 @@ IsPointOnLine (Coord X, Coord Y, Coord Radius, LineType *Line)
   D2 = ((double) (X - Line->Point1.X) * (Line->Point2.Y - Line->Point1.Y)
         - (double) (Y - Line->Point1.Y) * (Line->Point2.X - Line->Point1.X)) / L;
   /* Total distance is then the pythagorean sum of these */
-  return sqrt (D1*D1 + D2*D2) <= Radius + Line->Thickness / 2;
+  return hypot (D1, D2) <= Radius + Line->Thickness / 2;
 }
 
 /* ---------------------------------------------------------------------------

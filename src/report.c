@@ -575,12 +575,10 @@ XYtoNetLength (Coord x, Coord y, int *found)
   {
     if (TEST_FLAG (FOUNDFLAG, line))
       {
-	double l;
 	int dx, dy;
 	dx = line->Point1.X - line->Point2.X;
 	dy = line->Point1.Y - line->Point2.Y;
-	l = sqrt ((double)dx*dx + (double)dy*dy);
-	length += l;
+	length += hypot (dx, dy);
 	*found = 1;
       }
   }
