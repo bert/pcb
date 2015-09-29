@@ -5,30 +5,31 @@ html_DATA=	${HTML}
 
 SUBDIRS=\
         capacitor \
-	connector \
-	crystal \
- 	DFN \
-	DIP \
-	DO \
-	filter \
-	fuse \
-	generic \
-	header \
-	inductor \
-	jtag \
-	jumper \
-	led \
-	misc \
-	optical \
-	PGA \
-	PLCC \
-	QFN \
-	QFP \
-	resistor \
-	SIP \
-	SO \
-	socket \
-	TO
+        connector \
+        crystal \
+        DFN \
+        DIP \
+        DO \
+        filter \
+        fuse \
+        generic \
+        header \
+        inductor \
+        jtag \
+        jumper \
+        led \
+        misc \
+        optical \
+        PGA \
+        PLCC \
+        QFN \
+        QFP \
+        resistor \
+        SIP \
+        SC \
+        SO \
+        socket \
+        TO
 
 HTML=  stdlib.html stdlibf.html
 

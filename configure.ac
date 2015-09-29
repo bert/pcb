@@ -1257,6 +1257,7 @@ if test -d $srcdir/stdlib; then
    AC_CONFIG_FILES(stdlib/QFP/Makefile)
    AC_CONFIG_FILES(stdlib/resistor/Makefile)
    AC_CONFIG_FILES(stdlib/SIP/Makefile)
+   AC_CONFIG_FILES(stdlib/SC/Makefile)
    AC_CONFIG_FILES(stdlib/SO/Makefile)
    AC_CONFIG_FILES(stdlib/SO/HTSSOP/Makefile)
    AC_CONFIG_FILES(stdlib/SO/MSOP/Makefile)
