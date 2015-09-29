@@ -1,4 +1,4 @@
-Element(0x00 "SMT transistor SOT353, 5 pins" "" "SC88A" 100 0 3 100 0x00)
+Element(0x00 "SMT transistor, alias SOT353, 5 pins" "U?" "SC88A" 100 -65 3 100 0x00)
 (
 	ElementLine( 0   0  0 119 10)
 	ElementLine( 0 119 80 119 10)
