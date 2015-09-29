@@ -2742,10 +2742,12 @@ idle_proc (XtPointer dummy)
       }
       else {
 
-        if (old_gx || old_gy)
-          pcb_sprintf (buf, "%m+%$mS @%mS,%mS", UUNIT, old_grid, old_gx, old_gy);
-        else
-          pcb_sprintf (buf, "%m+%$mS", UUNIT, old_grid);
+        if (old_gx || old_gy) {
+          pcb_snprintf (buf, sizeof (buf), "%m+%$mS @%mS,%mS", UUNIT, old_grid, old_gx, old_gy);
+        }
+        else {
+          pcb_snprintf (buf, sizeof (buf), "%m+%$mS", UUNIT, old_grid);
+        }
       }
       ms = XmStringCreatePCB (buf);
       n = 0;
@@ -2757,9 +2759,9 @@ idle_proc (XtPointer dummy)
   {
     static double old_zoom = -1;
     static const Unit *old_grid_unit = NULL;
-    if (view_zoom != old_zoom || Settings.grid_unit != old_grid_unit)
-    {
-      gchar *buf = pcb_g_strdup_printf ("%m+%$mS/pix",
+    if (view_zoom != old_zoom || Settings.grid_unit != old_grid_unit) {
+
+      char *buf = pcb_g_strdup_printf ("%m+%$mS/pix",
                                         Settings.grid_unit->allow, (Coord) view_zoom);
       XmString ms;
 

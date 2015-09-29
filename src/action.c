@@ -7759,9 +7759,9 @@ ActionImport (int argc, char **argv, Coord x, Coord y)
       return 1;
     }
 
-    pcb_sprintf (buf, "%$ms", x);
+    pcb_snprintf (buf, sizeof (buf), "%$ms", x);
     AttributePut (PCB, "import::newX", buf);
-    pcb_sprintf (buf, "%$ms", y);
+    pcb_snprintf (buf, sizeof (buf), "%$ms", y);
     AttributePut (PCB, "import::newY", buf);
     return 0;
   }
