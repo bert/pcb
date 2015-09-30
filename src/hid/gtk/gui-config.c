@@ -1575,7 +1575,7 @@ ghid_config_groups_changed(void)
   layer_groups = PCB->LayerGroups;	/* working copy */
   lg_monitor = &PCB->LayerGroups;	/* So can know if PCB changes on us */
 
-  label = gtk_label_new (_("Group #"));
+  label = gtk_label_new (_("Layer group number: "));
   gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
 
@@ -1626,9 +1626,9 @@ ghid_config_groups_changed(void)
    */
   group = NULL;
   layer = top_silk_layer;
-  label = gtk_label_new ("top side");
+  label = gtk_label_new ("Top side: ");
   row = max_copper_layer + 1;
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_table_attach_defaults (GTK_TABLE (table), label,
 				     0, 1, row, row + 1);
   for (i = 0; i < max_group; ++i)
@@ -1646,9 +1646,9 @@ ghid_config_groups_changed(void)
   
   group = NULL;
   layer = bottom_silk_layer;
-  label = gtk_label_new ("bottom side");
+  label = gtk_label_new ("Bottom side: ");
   row = max_copper_layer + 2;
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_table_attach_defaults (GTK_TABLE (table), label,
 				     0, 1, row, row + 1);
   for (i = 0; i < max_group; ++i)
