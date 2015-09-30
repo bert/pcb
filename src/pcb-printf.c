@@ -273,7 +273,7 @@ Coord unit_to_coord (const Unit *unit, double x)
   base = unit->family == METRIC
            ? MM_TO_COORD (x)
            : MIL_TO_COORD (x);
-  return base / unit->scale_factor;
+  return DOUBLE_TO_COORD (base / unit->scale_factor);
 }
 
 static int min_sig_figs(double d)

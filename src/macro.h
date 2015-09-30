@@ -70,6 +70,9 @@
 #define SQUARE(x)		((float) (x) * (float) (x))
 #define TO_RADIANS(degrees)	(M180 * (degrees))
 
+/* Proper rounding for double -> Coord. */
+#define DOUBLE_TO_COORD(x) ((x) >= 0 ? (Coord)((x) + 0.5) : (Coord)((x) - 0.5))
+
 /* ---------------------------------------------------------------------------
  * layer macros
  */
