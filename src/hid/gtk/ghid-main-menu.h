@@ -9,7 +9,7 @@
 #include "ghid-route-style-selector.h"
 #include "resource.h"
 
-G_BEGIN_DECLS  /* keep c++ happy */
+G_BEGIN_DECLS
 
 #define GHID_MAIN_MENU_TYPE            (ghid_main_menu_get_type ())
 #define GHID_MAIN_MENU(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GHID_MAIN_MENU_TYPE, GHidMainMenu))
@@ -41,5 +41,5 @@ void ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
 void ghid_main_menu_install_route_style_selector (GHidMainMenu *mm,
                                                   GHidRouteStyleSelector *rss);
 
-G_END_DECLS  /* keep c++ happy */
+G_END_DECLS
 #endif

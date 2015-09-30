@@ -70,7 +70,10 @@ struct _GHidMainMenuClass
 static char *
 translate_accelerator (const char *text)
 {
-  GString *ret_val = g_string_new ("");
+  enum {MOD, KEY} state = MOD;
+
+  GString *ret_val;
+
   static struct { const char *in, *out; } key_table[] =
   {
     {"Enter", "Return"},
@@ -90,68 +93,70 @@ translate_accelerator (const char *text)
     {NULL, NULL}
   };
 
-  enum {MOD, KEY} state = MOD;
-  while (*text != '\0')
-    {
-      static gboolean gave_msg;
-      gboolean found = FALSE;
-      int i;
+  ret_val = g_string_new ("");
 
-      if (state == MOD && strncmp (text, "<Key>", 5) == 0)
-        {
-          state = KEY;
-          text += 5;
-        }
-      for (i = 0; key_table[i].in != NULL; ++i)
-        {
-          int len = strlen (key_table[i].in);
-          if (strncmp (text, key_table[i].in, len) == 0)
-            {
-              found = TRUE;
-              g_string_append (ret_val, key_table[i].out);
-              text += len;
-            }
-        }
-      if (found == FALSE)
-        switch (state)
-          {
-          case MOD:
-            Message (_("Don't know how to parse \"%s\" as an "
-                       "accelerator in the menu resource file.\n"),
-                     text);
-            if (!gave_msg)
-              {
-                gave_msg = TRUE;
-                Message (_("Format is:\n"
-                           "modifiers<Key>k\n"
-                           "where \"modifiers\" is a space "
-                           "separated list of key modifiers\n"
-                           "and \"k\" is the name of the key.\n"
-                           "Allowed modifiers are:\n"
-                           "   Ctrl\n"
-                           "   Shift\n"
-                           "   Alt\n"
-                           "Please note that case is important.\n"));
-              }
-            break;
-          case KEY:
-            g_string_append_c (ret_val, *text);
-            ++text;
-            break;
-          }
+  while (*text != '\0') {
+
+    static int gave_msg;
+    int found = FALSE;
+    int i;
+
+    if (state == MOD && strncmp (text, "<Key>", 5) == 0) {
+      state = KEY;
+      text += 5;
     }
+
+    for (i = 0; key_table[i].in != NULL; ++i) {
+
+      int len = strlen (key_table[i].in);
+
+      if (strncmp (text, key_table[i].in, len) == 0) {
+
+        found = TRUE;
+        g_string_append (ret_val, key_table[i].out);
+        text += len;
+      }
+    }
+
+    if (found == FALSE)
+      switch (state) {
+
+        case MOD:
+          Message (_("Don't know how to parse \"%s\" as an "
+                     "accelerator in the menu resource file.\n"),
+          text);
+          if (!gave_msg) {
+            gave_msg = TRUE;
+            Message (_("Format is:\n"
+                       "modifiers<Key>k\n"
+                       "where \"modifiers\" is a space "
+                       "separated list of key modifiers\n"
+                       "and \"k\" is the name of the key.\n"
+                       "Allowed modifiers are:\n"
+                       "   Ctrl\n"
+                       "   Shift\n"
+                       "   Alt\n"
+                       "Please note that case is important.\n"));
+          }
+          break;
+        case KEY:
+          g_string_append_c (ret_val, *text);
+          ++text;
+          break;
+      }
+  }
   return g_string_free (ret_val, FALSE);
 }
 
-static gboolean
-g_str_case_equal (gconstpointer v1, gconstpointer v2)
+static int
+g_str_case_equal (const void *v1, const void *v2)
 {
   return strcasecmp (v1, v2);
 }
 
 /*! \brief Check that translated accelerators are unique; warn otherwise. */
-static const char *
-check_unique_accel (const char *accelerator)
+static char *
+check_unique_accel (char *accelerator)
 {
   static GHashTable *accel_table;
 
@@ -161,16 +166,16 @@ check_unique_accel (const char *accelerator)
   if (!accel_table)
     accel_table = g_hash_table_new (g_str_hash, g_str_case_equal);
 
-  if (g_hash_table_lookup (accel_table, accelerator))
-    {
+  if (g_hash_table_lookup (accel_table, accelerator)) {
+
        Message (_("Duplicate accelerator found: \"%s\"\n"
                   "The second occurance will be dropped\n"),
                 accelerator);
         return NULL;
-    }
+  }
 
   g_hash_table_insert (accel_table,
-                       (gpointer) accelerator, (gpointer) accelerator);
+                       (void*)accelerator, (void*)accelerator);
 
   return accelerator;
 }
@@ -192,11 +197,11 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
 
   for (i = 0; i < res->count; ++i) {
 
-    const char *accel = NULL;
-    char *menu_label;
-    const char *res_val;
-    const Resource *sub_res = res->v[i].subres;
-    GtkAction *action = NULL;
+    GtkAction      *action      = NULL;
+          char     *accel       = NULL;
+          char     *menu_label;
+    const char     *res_val;
+    const Resource *sub_res     = res->v[i].subres;
 
     switch (resource_type (res->v[i])) {
 
@@ -207,9 +212,11 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
       case   1:   /* no name, subres */
         tmp_res = resource_subres (sub_res, "a");  /* accelerator */
         res_val = resource_value (sub_res, "m");   /* mnemonic */
+
         if (res_val) {
           mnemonic = res_val[0];
         }
+
         /* The accelerator resource will have two values, like
          *   a={"Ctrl-Q" "Ctrl<Key>q"}
          * The first Gtk ignores. The second needs to be translated. */
@@ -220,9 +227,10 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
         /* Now look for the first unnamed value (not a subresource) to
          * figure out the name of the menu or the menuitem. */
         res_val = "button";
-        for (j = 0; j < sub_res->count; ++j) {
-          if (resource_type (sub_res->v[j]) == 10) {
 
+        for (j = 0; j < sub_res->count; ++j) {
+
+          if (resource_type (sub_res->v[j]) == 10) {
             res_val = _(sub_res->v[j].value);
             break;
           }
@@ -235,6 +243,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
         else {
 
           char *post_ = strchr (res_val, mnemonic);
+
           if (post_ == NULL) {
             menu_label = g_strdup (res_val);
           }
@@ -247,6 +256,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
             menu_label = g_string_free (tmp, FALSE);
           }
         }
+
         /* If the subresource we're processing also has unnamed
          * subresources, it's a submenu, not a regular menuitem. */
         if (sub_res->flags & FLAG_S) {
@@ -272,6 +282,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
           const char *checked = resource_value (sub_res, "checked");
           const char *label = resource_value (sub_res, "sensitive");
           const char *tip = resource_value (sub_res, "tip");
+
           if (checked) {
 
             /* TOGGLE ITEM */
@@ -284,42 +295,56 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
              * checked=foo,bar   is a flag compared to a value (radio) */
             gtk_toggle_action_set_draw_as_radio
             (GTK_TOGGLE_ACTION (action), !!strchr (checked, ','));
+            g_free(name);
           }
           else if (label && strcmp (label, "false") == 0) {
 
             /* INSENSITIVE ITEM */
-            GtkWidget *item = gtk_menu_item_new_with_label (menu_label);
+            GtkWidget *item;
+
+            item = gtk_menu_item_new_with_label (menu_label);
             gtk_widget_set_sensitive (item, FALSE);
             gtk_menu_shell_append (shell, item);
           }
           else {
 
             /* NORMAL ITEM */
-            char *name = g_strdup_printf ("MainMenuAction%d", action_counter++);
+            char *name;
+
+            name = g_strdup_printf ("MainMenuAction%d", action_counter++);
             action = gtk_action_new (name, menu_label, tip, NULL);
+            g_free(name);
           }
         }
+
+        g_free(menu_label);
+
         /* Connect accelerator, if there is one */
         if (action) {
 
           GtkWidget *item;
+
           gtk_action_set_accel_group (action, menu->accel_group);
           gtk_action_group_add_action_with_accel (menu->action_group,
                                                   action, accel);
           gtk_action_connect_accelerator (action);
           g_signal_connect (G_OBJECT (action), "activate", menu->action_cb,
-                            (gpointer) sub_res);
+                            (void *) sub_res);
           g_object_set_data (G_OBJECT (action), "resource",
-                             (gpointer) sub_res);
+                             (void *) sub_res);
           item = gtk_action_create_menu_item (action);
           gtk_menu_shell_append (shell, item);
           menu->actions = g_list_append (menu->actions, action);
           menu->special_key_cb (accel, action, sub_res);
         }
+
+        g_free(accel);
+
         /* Scan rest of resource in case there is more work */
         for (j = 0; j < sub_res->count; j++) {
 
           const char *res_name;
+
           /* named value = X resource */
           if (resource_type (sub_res->v[j]) == 110) {
 
@@ -351,8 +376,8 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               /* if we got this far it is supposed to be an X
                * resource.  For now ignore it and warn the user */
               Message (_("The gtk gui currently ignores \"%s\""
-              "as part of a menuitem resource.\n"
-              "Feel free to provide patches\n"),
+                         "as part of a menuitem resource.\n"
+                         "Feel free to provide patches\n"),
               sub_res->v[j].value);
             }
           }
@@ -360,6 +385,7 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
         break;
 
         case  10:   /* no name, value */
+
           /* If we get here, the resource is "-" or "@foo" for some foo */
           if (res->v[i].value[0] == '@') {
 
@@ -501,7 +527,7 @@ ghid_main_menu_add_popup_resource (GHidMainMenu *menu, const char *name,
   GtkWidget *new_menu = gtk_menu_new ();
   g_object_ref_sink (new_menu);
   ghid_main_menu_real_add_resource (menu, GTK_MENU_SHELL (new_menu), res);
-  g_hash_table_insert (menu->popup_table, (gpointer) name, new_menu);
+  g_hash_table_insert (menu->popup_table, (void*) name, new_menu);
   gtk_widget_show_all (new_menu);
 }
 
@@ -530,8 +556,8 @@ ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
                                                 const char *active_flag))
 {
   GList *list;
-  for (list = menu->actions; list; list = list->next)
-    {
+
+  for (list = menu->actions; list; list = list->next) {
       Resource *res = g_object_get_data (G_OBJECT (list->data), "resource");
       const char *tf = g_object_get_data (G_OBJECT (list->data),
                                           "checked-flag");
