@@ -1621,8 +1621,10 @@ ghid_config_groups_changed(void)
 	}
     }
 
-  /* silk layers double as layer groups. Their sequence in the layer stack is
-	hard coded to be bottom before top. So some special treatment is needed.
+  /* silk layers double as special layer groups 'top side' and 'bottom side'. 
+    So some special treatment is needed:
+    1) top and bottom silk cannot be renamed by the user
+    2) The dialog shows the top side buttons above bottom side button row
    */
   group = NULL;
   layer = top_silk_layer;
