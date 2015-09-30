@@ -1587,8 +1587,7 @@ static void settings_post_process ()
 
   ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], "cmil");
 
-  /*
-   * Make sure we have settings for some various programs we may wish
+  /* Make sure we have settings for some various programs we may wish
    * to call
    */
   if (Settings.MakeProgram == NULL) {
@@ -1596,6 +1595,7 @@ static void settings_post_process ()
     if (tmps != NULL)
       Settings.MakeProgram = strdup (tmps);
   }
+
   if (Settings.MakeProgram == NULL) {
     Settings.MakeProgram = strdup ("make");
   }
@@ -1605,12 +1605,14 @@ static void settings_post_process ()
     if (tmps != NULL)
       Settings.GnetlistProgram = strdup (tmps);
   }
+
   if (Settings.GnetlistProgram == NULL) {
     Settings.GnetlistProgram = strdup ("gnetlist");
   }
 
   if (grid_units)
     Settings.grid_unit = get_unit_struct (grid_units);
+
   if (!grid_units || Settings.grid_unit == NULL)
     Settings.grid_unit = get_unit_struct ("mil");
 
@@ -1920,7 +1922,6 @@ main (int argc, char *argv[])
     argv += 2;
   }
   else { /* Otherwise start GUI. */
-
     gui = hid_find_gui ();
   }
 
@@ -1930,11 +1931,10 @@ main (int argc, char *argv[])
 
   /* Set up layers. */
   for (i = 0; i < MAX_LAYER; i++) {
-
     char buf[20];
     sprintf (buf, "signal%d", i + 1);
-    Settings.DefaultLayerName[i] = strdup (buf);
-    Settings.LayerColor[i] = "#c49350";
+    Settings.DefaultLayerName[i]   = strdup (buf);
+    Settings.LayerColor[i]         = "#c49350";
     Settings.LayerSelectedColor[i] = "#00ffff";
   }
 
@@ -1992,7 +1992,6 @@ main (int argc, char *argv[])
   }
 
   if (Settings.InitialLayerStack && Settings.InitialLayerStack[0]) {
-
     LayerStringToLayerStack (Settings.InitialLayerStack);
   }
 
@@ -2034,7 +2033,7 @@ main (int argc, char *argv[])
 
   if (gui->printer || gui->exporter) {
 
-    // Workaround to fix batch output for non-C locales
+    /* Workaround to fix batch output for non-C locales */
 #ifdef ENABLE_NLS
     setlocale(LC_NUMERIC,"C");
 #endif
@@ -2054,13 +2053,18 @@ main (int argc, char *argv[])
   printf ("Settings.ElementPath       = \"%s\"\n", Settings.ElementPath);
   printf ("Settings.LibraryPath       = \"%s\"\n", Settings.LibraryPath);
   printf ("Settings.UserLibrary       = \"%s\"\n", Settings.UserLibrary);
-  printf ("Settings.MakeProgram = \"%s\"\n",
-          UNKNOWN (Settings.MakeProgram));
-  printf ("Settings.GnetlistProgram = \"%s\"\n",
-          UNKNOWN (Settings.GnetlistProgram));
+
+  printf ("Settings.MakeProgram = \"%s\"\n", UNKNOWN (Settings.MakeProgram));
+  printf ("Settings.GnetlistProgram = \"%s\"\n", UNKNOWN (Settings.GnetlistProgram));
 #endif
 
   gui->do_export (0);
+
+  /* Release default layer names. */
+  for (i = 0; i < MAX_LAYER; i++) {
+    g_free(Settings.DefaultLayerName[i]);
+  }
+
 #if HAVE_DBUS
   pcb_dbus_finish();
 #endif
