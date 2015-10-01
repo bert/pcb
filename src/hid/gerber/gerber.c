@@ -231,8 +231,7 @@ findAperture (ApertureList *list, Coord width, ApertureShape shape)
 static void
 fprintAperture (FILE *f, Aperture *aptr)
 {
-  switch (aptr->shape)
-    {
+  switch (aptr->shape) {
     case ROUND:
       pcb_fprintf (f, metric ? "%%ADD%dC,%.3`mm*%%\r\n" : "%%ADD%dC,%.4`mi*%%\r\n", aptr->dCode, aptr->width);
       break;
@@ -273,15 +272,16 @@ fprintAperture (FILE *f, Aperture *aptr)
 static ApertureList *
 setLayerApertureList (int layer_idx)
 {
-  if (layer_idx >= layer_list_max)
-    {
+  if (layer_idx >= layer_list_max) {
+
       int i = layer_list_max;
+
       layer_list_max  = 2 * (layer_idx + 1);
       layer_aptr_list = (ApertureList *)
                         realloc (layer_aptr_list, layer_list_max * sizeof (*layer_aptr_list));
       for (; i < layer_list_max; ++i)
         initApertureList (&layer_aptr_list[i]);
-    }
+  }
   curr_aptr_list = &layer_aptr_list[layer_idx];
   return curr_aptr_list;
 }
@@ -401,7 +401,11 @@ static HID_Attribute *
 gerber_get_export_options (int *n)
 {
   static char *last_made_filename = NULL;
-  if (PCB) hc_util_derive_default_filename(PCB->Filename, &gerber_options[HA_gerberfile], "", &last_made_filename);
+
+  if (PCB)
+    hc_util_derive_default_filename(PCB->Filename,
+                                    &gerber_options[HA_gerberfile],
+                                    "", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
@@ -585,7 +589,7 @@ gerber_do_export (HID_Attr_Val * options)
   const char *fnbase;
   int i;
   static int saved_layer_stack[MAX_LAYER];
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   FlagType save_thindraw;
 
   save_thindraw = PCB->Flags;

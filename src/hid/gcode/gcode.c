@@ -504,7 +504,7 @@ gcode_start_gcode (const char *layername, bool metric)
 static void
 gcode_do_export (HID_Attr_Val * options)
 {
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   int i, idx;
   const Unit *unit;
   double scale = 0, d = 0;

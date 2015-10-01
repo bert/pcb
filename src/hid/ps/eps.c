@@ -333,7 +333,7 @@ static void
 eps_do_export (HID_Attr_Val * options)
 {
   int i;
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
 
   if (!options) {
 

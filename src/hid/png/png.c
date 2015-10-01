@@ -798,7 +798,7 @@ ts_bs_sm (gdImagePtr im)
 static void
 png_do_export (HID_Attr_Val * options)
 {
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   int i;
   BoxType *bbox;
   Coord w, h;
@@ -1007,168 +1007,169 @@ png_do_export (HID_Attr_Val * options)
   if (!options[HA_as_shown].int_value)
     hid_restore_layer_ons (save_ons);
 
-  if (photo_mode)
-    {
-      int x, y;
-      color_struct white, black, fr4;
+  if (photo_mode) {
 
-      rgb (&white, 255, 255, 255);
-      rgb (&black, 0, 0, 0);
-      rgb (&fr4, 70, 70, 70);
+    int x, y;
+    color_struct white, black, fr4;
 
-      im = master_im;
+    rgb (&white, 255, 255, 255);
+    rgb (&black, 0, 0, 0);
+    rgb (&fr4, 70, 70, 70);
 
-      ts_bs (photo_copper[photo_groups[0]]);
+    im = master_im;
+
+    ts_bs (photo_copper[photo_groups[0]]);
+
+    if (photo_silk)
       ts_bs (photo_silk);
+
+    if (photo_mask)
       ts_bs_sm (photo_mask);
 
-      if (photo_outline && have_outline) {
-	int black=gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00);
+    if (photo_outline && have_outline) {
+      int black=gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00);
 
-	// go all the way around the image, trying to fill the outline
-	for (x=0; x<gdImageSX(im); x++) {
-	  gdImageFillToBorder(photo_outline, x, 0, black, black);
-	  gdImageFillToBorder(photo_outline, x, gdImageSY(im)-1, black, black);
-	}
-	for (y=1; y<gdImageSY(im)-1; y++) {
-	  gdImageFillToBorder(photo_outline, 0, y, black, black);
-	  gdImageFillToBorder(photo_outline, gdImageSX(im)-1, y, black, black);
-
-	}
+      // go all the way around the image, trying to fill the outline
+      for (x=0; x<gdImageSX(im); x++) {
+        gdImageFillToBorder(photo_outline, x, 0, black, black);
+        gdImageFillToBorder(photo_outline, x, gdImageSY(im)-1, black, black);
       }
+      for (y=1; y<gdImageSY(im)-1; y++) {
+        gdImageFillToBorder(photo_outline, 0, y, black, black);
+        gdImageFillToBorder(photo_outline, gdImageSX(im)-1, y, black, black);
 
-
-      for (x=0; x<gdImageSX (im); x++)
-	{
-	  for (y=0; y<gdImageSY (im); y++)
-	    {
-	      color_struct p, cop;
-	      color_struct mask_colour, silk_colour;
-	      int cc, mask, silk;
-	      int transparent;
-
-	      if (photo_outline && have_outline) {
-		transparent=gdImageGetPixel(photo_outline, x, y);
-	      } else {
-		transparent=0;
-	      }
-
-	      mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
-	      silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
-
-	      if (photo_copper[photo_groups[1]]
-		  && gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
-		rgb (&cop, 40, 40, 40);
-	      else
-		rgb (&cop, 100, 100, 110);
-
-	      if (photo_ngroups == 2)
-		blend (&cop, 0.3, &cop, &fr4);
-
-	      cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
-	      if (cc)
-		{
-		  int r;
-
-		  if (mask)
-		    rgb (&cop, 220, 145, 230);
-		  else
-		    {
-		      if (options[HA_photo_plating].int_value == PLATING_GOLD)
-			{
-			  // ENIG
-			  rgb (&cop, 185, 146, 52);
-
-			  // increase top shadow to increase shininess
-			  if (cc == TOP_SHADOW)
-			    blend (&cop, 0.7, &cop, &white);
-			}
-		      else if (options[HA_photo_plating].int_value == PLATING_TIN)
-			{
-			  // tinned
-			  rgb (&cop, 140, 150, 160);
-
-			  // add some variation to make it look more matte
-			  r = (rand() % 5 - 2) * 2;
-			  cop.r += r;
-			  cop.g += r;
-			  cop.b += r;
-			}
-		      else if (options[HA_photo_plating].int_value == PLATING_SILVER)
-			{
-			  // silver
-			  rgb (&cop, 192, 192, 185);
-
-			  // increase top shadow to increase shininess
-			  if (cc == TOP_SHADOW)
-			    blend (&cop, 0.7, &cop, &white);
-			}
-		      else if (options[HA_photo_plating].int_value == PLATING_COPPER)
-			{
-			  // copper
-			  rgb (&cop, 184, 115, 51);
-
-			  // increase top shadow to increase shininess
-			  if (cc == TOP_SHADOW)
-			    blend (&cop, 0.7, &cop, &white);
-			}
-		    }
-
-		  if (cc == TOP_SHADOW)
-		    blend (&cop, 0.7, &cop, &white);
-		  if (cc == BOTTOM_SHADOW)
-		    blend (&cop, 0.7, &cop, &black);
-		}
-
-	      if (photo_drill && !gdImageGetPixel (photo_drill, x, y))
-		{
-		  rgb (&p, 0, 0, 0);
-		  transparent=1;
-		}
-	      else if (silk)
-		{
-		  silk_colour = silk_colours[options[HA_photo_silk_colour].int_value];
-		  blend (&p, 1.0, &silk_colour, &silk_colour);
-		  if (silk == TOP_SHADOW)
-		    add (&p, 1.0, &p, 1.0, &silk_top_shadow);
-		  else if (silk == BOTTOM_SHADOW)
-		    subtract (&p, 1.0, &p, 1.0, &silk_bottom_shadow);
-		}
-	      else if (mask)
-		{
-		  p = cop;
-		  mask_colour = mask_colours[options[HA_photo_mask_colour].int_value];
-		  multiply (&p, &p, &mask_colour);
-		  add (&p, 1, &p, 0.2, &mask_colour);
-		  if (mask == TOP_SHADOW)
-		    blend (&p, 0.7, &p, &white);
-		  if (mask == BOTTOM_SHADOW)
-		    blend (&p, 0.7, &p, &black);
-		}
-	      else
-		p = cop;
-
-	      if (options[HA_use_alpha].int_value) {
-
-		cc = (transparent)?\
-		  gdImageColorResolveAlpha(im, 0, 0, 0, 127):\
-		  gdImageColorResolveAlpha(im, p.r, p.g, p.b, 0);
-
-	      } else {
-		cc = (transparent)?\
-		  gdImageColorResolve(im, 0, 0, 0):\
-		  gdImageColorResolve(im, p.r, p.g, p.b);
-	      }
-
-	      if (photo_flip == PHOTO_FLIP_X)
-		gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
-	      else if (photo_flip == PHOTO_FLIP_Y)
-		gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
-	      else
-		gdImageSetPixel (im, x, y, cc);
-	    }
-	}
+      }
     }
+
+    for (x=0; x<gdImageSX (im); x++) {
+
+      for (y=0; y<gdImageSY (im); y++) {
+
+        color_struct p, cop;
+        color_struct mask_colour, silk_colour;
+        int cc, mask, silk;
+        int transparent;
+
+        if (photo_outline && have_outline) {
+          transparent=gdImageGetPixel(photo_outline, x, y);
+        } else {
+          transparent=0;
+        }
+
+        mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
+        silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
+
+        if (photo_copper[photo_groups[1]]
+          && gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
+          rgb (&cop, 40, 40, 40);
+        else
+          rgb (&cop, 100, 100, 110);
+
+        if (photo_ngroups == 2)
+          blend (&cop, 0.3, &cop, &fr4);
+
+        cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
+
+        if (cc) {
+
+          int r;
+
+          if (mask)
+            rgb (&cop, 220, 145, 230);
+          else {
+            if (options[HA_photo_plating].int_value == PLATING_GOLD) {
+
+              // ENIG
+              rgb (&cop, 185, 146, 52);
+
+              // increase top shadow to increase shininess
+              if (cc == TOP_SHADOW)
+                blend (&cop, 0.7, &cop, &white);
+            }
+            else if (options[HA_photo_plating].int_value == PLATING_TIN) {
+
+              // tinned
+              rgb (&cop, 140, 150, 160);
+
+              // add some variation to make it look more matte
+              r = (rand() % 5 - 2) * 2;
+              cop.r += r;
+              cop.g += r;
+              cop.b += r;
+            }
+            else if (options[HA_photo_plating].int_value == PLATING_SILVER)
+            {
+              // silver
+              rgb (&cop, 192, 192, 185);
+
+              // increase top shadow to increase shininess
+              if (cc == TOP_SHADOW)
+                blend (&cop, 0.7, &cop, &white);
+            }
+            else if (options[HA_photo_plating].int_value == PLATING_COPPER)
+            {
+              // copper
+              rgb (&cop, 184, 115, 51);
+
+              // increase top shadow to increase shininess
+              if (cc == TOP_SHADOW)
+                blend (&cop, 0.7, &cop, &white);
+            }
+          }
+
+          if (cc == TOP_SHADOW)
+            blend (&cop, 0.7, &cop, &white);
+          if (cc == BOTTOM_SHADOW)
+            blend (&cop, 0.7, &cop, &black);
+        }
+
+        if (photo_drill && !gdImageGetPixel (photo_drill, x, y)) {
+          rgb (&p, 0, 0, 0);
+          transparent=1;
+        }
+        else if (silk) {
+          silk_colour = silk_colours[options[HA_photo_silk_colour].int_value];
+          blend (&p, 1.0, &silk_colour, &silk_colour);
+          if (silk == TOP_SHADOW)
+            add (&p, 1.0, &p, 1.0, &silk_top_shadow);
+          else if (silk == BOTTOM_SHADOW)
+            subtract (&p, 1.0, &p, 1.0, &silk_bottom_shadow);
+        }
+        else if (mask)
+        {
+          p = cop;
+          mask_colour = mask_colours[options[HA_photo_mask_colour].int_value];
+          multiply (&p, &p, &mask_colour);
+          add (&p, 1, &p, 0.2, &mask_colour);
+          if (mask == TOP_SHADOW)
+            blend (&p, 0.7, &p, &white);
+          if (mask == BOTTOM_SHADOW)
+            blend (&p, 0.7, &p, &black);
+        }
+        else
+          p = cop;
+
+        if (options[HA_use_alpha].int_value) {
+
+          cc = (transparent)?\
+          gdImageColorResolveAlpha(im, 0, 0, 0, 127):\
+          gdImageColorResolveAlpha(im, p.r, p.g, p.b, 0);
+
+        } else {
+          cc = (transparent)?\
+          gdImageColorResolve(im, 0, 0, 0):\
+          gdImageColorResolve(im, p.r, p.g, p.b);
+        }
+
+        if (photo_flip == PHOTO_FLIP_X)
+          gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
+        else if (photo_flip == PHOTO_FLIP_Y)
+          gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
+        else
+          gdImageSetPixel (im, x, y, cc);
+      }
+    }
+  }
 
   /* actually write out the image */
   fmt = filetypes[options[HA_filetype].int_value];

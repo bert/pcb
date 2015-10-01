@@ -93,7 +93,7 @@ double   GetValue (const char *, const char *, bool *);
 double   GetValueEx (const char *, const char *, bool *, UnitList, const char *);
 double   GetUnitlessValue (const char *, bool *);
 int      FileExists (const char *);
-char    *Concat (const char *, ...);	/* end with NULL */
+char    *Concat (const char *, ...);    /* end with NULL */
 char    *pcb_author ();
 
 /* Returns NULL if the name isn't found, else the value for that named
@@ -134,6 +134,9 @@ extern const char *c_dtostr(double d);
 /* Returns a string with info about this copy of pcb. */
 char * GetInfoString (void);
 
+/* Sets up any remaining layer type guesses. */
+void AssignDefaultLayerTypes ();
+
 /* Return a relative rotation for an element, useful only for
    comparing two similar footprints.  */
 int ElementOrientation (ElementType *e);
@@ -168,4 +171,3 @@ void NetlistChanged (int force_unfreeze);
 #endif
 
 #endif /* PCB_MISC_H */
-

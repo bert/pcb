@@ -197,20 +197,55 @@ extern "C"
   extern char *program_directory;
   extern char *program_basename;
 
+/* These are used for set_layer(). */
 #define SL_0_SIDE	0x0000
 #define SL_TOP_SIDE	0x0001
 #define SL_BOTTOM_SIDE	0x0002
-#define SL_SILK		0x0010
-#define SL_MASK		0x0020
-#define SL_PDRILL	0x0030
-#define SL_UDRILL	0x0040
-#define SL_PASTE	0x0050
-#define SL_INVISIBLE	0x0060
-#define SL_FAB		0x0070
-#define SL_ASSY		0x0080
-#define SL_RATS		0x0090
+#define SL_INNER_SIDE   0x0004
+
+/*!
+ * These are types of "layers" without direct physical representation. Their
+ * content can be derived from other layers and element data.
+ *
+ * These values are used by DrawEverything() in draw.c to ask the active GUI
+ * or exporter to act on these layers. Depending on the GUI/exporter they
+ * result in a per-layer file, in some additional graphics or just nothing.
+ */
+#define SL_SILK         0x0010  /* physical layer, deprecated, use LT_SILK */
+#define SL_MASK         0x0020
+#define SL_PDRILL       0x0030
+#define SL_UDRILL       0x0040
+#define SL_PASTE        0x0050
+#define SL_INVISIBLE    0x0060
+#define SL_FAB          0x0070
+#define SL_ASSY         0x0080
+#define SL_RATS         0x0090
+
 /* Callers should use this.  */
 #define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
+
+/*!
+ * These are layers with direct physical representation, like copper, dye
+ * or to be milled paths. Their data can't be derived from other layers or
+ * element data.
+ *
+ * To add more layer types, add them to the list here and in layerflags.c.
+ * Order of entries in both lists must be the same.
+ */
+typedef enum
+{
+  LT_COPPER = 0,
+  LT_SILK,
+  LT_MASK,           /**< Complements SL_MASK above. */
+  LT_PASTE,          /**< Complements SL_PASTE above. */
+  LT_OUTLINE,        /**< Board outline; exists only once. */
+  LT_ROUTE,
+  LT_KEEPOUT,
+  LT_FAB,            /**< Complements SL_FAB above. */
+  LT_ASSY,           /**< Complements SL_ASSY above. */
+  LT_NOTES,
+  LT_NUM_LAYERTYPES  /* must be the last one */
+} LayertypeType;
 
 /* File Watch flags */
 /* Based upon those in dbus/dbus-connection.h */
@@ -218,12 +253,13 @@ typedef enum
 {
   PCB_WATCH_READABLE = 1 << 0, /**< As in POLLIN */
   PCB_WATCH_WRITABLE = 1 << 1, /**< As in POLLOUT */
-  PCB_WATCH_ERROR    = 1 << 2, /**< As in POLLERR */
+  PCB_WATCH_ERROR    = 1 << 2, /**< As in POLLERR */ 
   PCB_WATCH_HANGUP   = 1 << 3  /**< As in POLLHUP */
 } PCBWatchFlags;
 
 /* DRC GUI Hooks */
-  typedef struct {
+  typedef struct
+  {
     int log_drc_overview;
     int log_drc_violations;
     void (*reset_drc_dialog_message) (void);
@@ -410,7 +446,7 @@ typedef enum
        HID's this would mean a file select dialog box.  The 'flags'
        argument is the bitwise OR of the following values.  */
 #define HID_FILESELECT_READ  0x01
-
+    
     /* The function calling hid->fileselect will deal with the case
        where the selected file already exists.  If not given, then the
        gui will prompt with an "overwrite?" prompt.  Only used when
@@ -439,7 +475,7 @@ typedef enum
      *
      * flags are the bitwise or of the HID_FILESELECT defines above
      */
-
+    
     char *(*fileselect) (const char *title_, const char *descr_,
 			 char *default_file_, char *default_ext_,
 			 const char *history_tag_, int flags_);
@@ -447,11 +483,11 @@ typedef enum
     /* A generic dialog to ask for a set of attributes.  If n_attrs is
        zero, attrs(.name) must be NULL terminated.  Returns non-zero if
        an error occurred (usually, this means the user cancelled the
-       dialog or something). title is the title of the dialog box
+       dialog or something). title is the title of the dialog box 
        descr (if not NULL) can be a longer description of what the
        attributes are used for.  The HID may choose to ignore it or it
        may use it for a tooltip or text in a dialog box, or a help
-       string.
+       string. 
     */
     int (*attribute_dialog) (HID_Attribute * attrs_,
 			     int n_attrs_, HID_Attr_Val * results_,

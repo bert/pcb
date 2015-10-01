@@ -618,6 +618,7 @@ nelma_finish_png()
 #else
 	Message("NELMA: PNG not supported by gd. Can't write layer mask.\n");
 #endif
+
 	gdImageDestroy(nelma_im);
 	fclose(nelma_f);
 
@@ -647,7 +648,7 @@ nelma_start_png_export()
 static void
 nelma_do_export(HID_Attr_Val * options)
 {
-	int             save_ons[MAX_LAYER + 2];
+	int             save_ons[MAX_ALL_LAYER];
 	int             i, idx;
 	FILE           *nelma_config;
 	char           *buf;
@@ -662,16 +663,21 @@ nelma_do_export(HID_Attr_Val * options)
 		}
 		options = nelma_values;
 	}
+
 	nelma_basename = options[HA_basename].str_value;
+
 	if (!nelma_basename) {
 		nelma_basename = "pcb-out";
 	}
+
 	nelma_dpi = options[HA_dpi].int_value;
-	if (nelma_dpi < 0) {
+
+    if (nelma_dpi < 0) {
 		fprintf(stderr, "ERROR:  dpi may not be < 0\n");
 		return;
 	}
-	nelma_copperh = options[HA_copperh].int_value;
+
+	nelma_copperh    = options[HA_copperh].int_value;
 	nelma_substrateh = options[HA_substrateh].int_value;
 	nelma_substratee = options[HA_substratee].real_value;
 
@@ -701,6 +707,7 @@ nelma_do_export(HID_Attr_Val * options)
 	buf = (char *)malloc(sizeof(*buf) * len);
 
 	sprintf(buf, "%s.em", nelma_basename);
+
 	nelma_config = fopen(buf, "w");
 
 	free(buf);

@@ -1311,13 +1311,13 @@ config_library_tab_create (GtkWidget * tab_vbox)
 static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
-static GtkWidget *group_button[MAX_LAYER + 2][MAX_GROUP];
+static GtkWidget *group_button[MAX_ALL_LAYER][MAX_GROUP];
 
 #if FIXME
 static GtkWidget *use_layer_default_button;
 #endif
 
-static int config_layer_group[MAX_LAYER + 2];
+static int config_layer_group[MAX_ALL_LAYER];
 
 static LayerGroupType layer_groups,	/* Working copy */
  *lg_monitor;			/* Keep track if our working copy */

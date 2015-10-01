@@ -197,7 +197,7 @@ OutputType;
 typedef struct
 {
   Cardinal Number[MAX_GROUP],	/* number of entries per groups */
-    Entries[MAX_GROUP][MAX_LAYER + 2];
+    Entries[MAX_GROUP][MAX_ALL_LAYER];
 } LayerGroupType;
 
 struct BoxType		/* a bounding box */
@@ -295,6 +295,7 @@ struct rtree
 
 typedef struct			/* holds information about one layer */
 {
+  LayertypeType Type;    /* LT_* from hid.h */
   char *Name;			/* layer name */
   Cardinal LineN,		/* number of lines */
     TextN,			/* labels */
@@ -399,7 +400,7 @@ typedef struct				/* holds all objects */
 	rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
 	*rat_tree;
 	struct PCBType *pcb;
-	LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
+	LayerType Layer[MAX_ALL_LAYER];	/* add 2 silkscreen layers */
 	int polyClip;
 } DataType;
 

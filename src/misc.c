@@ -60,15 +60,19 @@
 #include "draw.h"
 #include "file.h"
 #include "error.h"
+//#include "mymem.h"
 #include "misc.h"
 #include "move.h"
 #include "pcb-printf.h"
 #include "polygon.h"
+//#include "remove.h"
 #include "rtree.h"
 #include "rotate.h"
 #include "rubberband.h"
+//#include "search.h"
 #include "set.h"
 #include "undo.h"
+//#include "action.h"
 
 #if HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -90,8 +94,8 @@ static void GetGridLockCoordinates (int, void *, void *, void *,
 static struct
 {
   bool ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
-  int LayerStack[MAX_LAYER];
-  bool LayerOn[MAX_LAYER];
+  int LayerStack[MAX_ALL_LAYER];
+  bool LayerOn[MAX_ALL_LAYER];
   int cnt;
 } SavedStack;
 
@@ -121,18 +125,18 @@ NormalizeAngle (Angle a)
  * bool variable absolute to false if it leads with a +/- character
  */
 double
-GetValue (const char *val, const char *units, bool * absolute)
+GetValue (const char *val, const char *units, bool *absolute)
 {
   return GetValueEx(val, units, absolute, NULL, "cmil");
 }
 
 double
-GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_units, const char *default_unit)
+GetValueEx (const char *val, const char *units, bool *absolute, UnitList extra_units, const char *default_unit)
 {
   double value;
-  int    n      = -1;
-  bool   scaled = 0;
-  bool   dummy;
+  int n = -1;
+  bool scaled = 0;
+  bool dummy;
 
   /* Allow NULL to be passed for absolute */
   if(absolute == NULL)
@@ -170,17 +174,14 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
     const Unit *unit = get_unit_struct (units);
 
     if (unit != NULL) {
-
       value  = unit_to_coord (unit, value);
       scaled = 1;
     }
-
     if (extra_units) {
 
       for (i = 0; *extra_units[i].suffix; ++i) {
 
-        if (strncmp (units, extra_units[i].suffix,
-          strlen(extra_units[i].suffix)) == 0)
+        if (strncmp (units, extra_units[i].suffix, strlen(extra_units[i].suffix)) == 0)
         {
           value *= extra_units[i].scale;
           if (extra_units[i].flags & UNIT_PERCENT)
@@ -198,11 +199,8 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
     const Unit *unit = get_unit_struct (default_unit);
 
     if (extra_units) {
-
       for (i = 0; *extra_units[i].suffix; ++i) {
-
         if (strcmp (extra_units[i].suffix, default_unit) == 0) {
-
           value *= extra_units[i].scale;
           if (extra_units[i].flags & UNIT_PERCENT)
             value /= 100.0;
@@ -210,7 +208,6 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
         }
       }
     }
-
     if (!scaled && unit != NULL) {
       value = unit_to_coord (unit, value);
     }
@@ -923,9 +920,11 @@ GetNum (char **s, const char *default_unit)
 {
   /* Read value */
   Coord ret_val = GetValueEx (*s, NULL, NULL, NULL, default_unit);
+
   /* Advance pointer */
-  while(isalnum(**s) || **s == '.')
+  while(isalnum(**s) || **s == '.') {
      (*s)++;
+  }
   return ret_val;
 }
 
@@ -967,34 +966,23 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   for (style = 0; style < NUM_STYLES; style++, routeStyle++)
     {
-      if (!s)
-        goto error;
-
       while (*s && isspace ((int) *s))
         s++;
-
       for (i = 0; *s && *s != ','; i++)
         Name[i] = *s++;
-
       Name[i] = '\0';
-
       routeStyle->Name = strdup (Name);
-
       if (!isdigit ((int) *++s))
         goto error;
       routeStyle->Thick = GetNum (&s, default_unit);
-
       while (*s && isspace ((int) *s))
         s++;
       if (*s++ != ',')
         goto error;
-
       while (*s && isspace ((int) *s))
         s++;
-
       if (!isdigit ((int) *s))
         goto error;
-
       routeStyle->Diameter = GetNum (&s, default_unit);
       while (*s && isspace ((int) *s))
         s++;
@@ -1028,7 +1016,6 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
             goto error;
         }
     }
-
   return (0);
 
 error:
@@ -1043,158 +1030,200 @@ error:
 int
 ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
 {
-    char *str;
-    int group, member, layer;
-    bool c_set = false,        /* flags for the two special layers to */
+  char *str;
+  int group, member, layer;
+  bool c_set = false,        /* flags for the two special layers to */
     s_set = false;              /* provide a default setting for old formats */
-    int groupnum[MAX_LAYER + 2];
+  int groupnum[MAX_ALL_LAYER];
 
-    *LayerN = 0;
+  *LayerN = 0;
 
-    /* Deterimine the maximum layer number */
-    for (str = group_string; str && *str; str++) {
+  /* Deterimine the maximum layer number */
+  for (str = group_string; str && *str; str++)
+    {
+      while (*str && isspace ((int) *str))
+        str++;
 
-        while (*str && isspace ((int) *str)) {
-            str++;
+      switch (*str)
+        {
+        case 'c':
+        case 'C':
+        case 't':
+        case 'T':
+        case 's':
+        case 'S':
+        case 'b':
+        case 'B':
+          break;
+
+        default:
+          if (!isdigit ((int) *str))
+            goto error;
+          *LayerN = MAX (*LayerN, atoi (str));
+          break;
         }
 
-        switch (*str) {
+      while (*++str && isdigit ((int) *str));
 
-            case 'c':
-            case 'C':
-            case 't':
-            case 'T':
-            case 's':
-            case 'S':
-            case 'b':
-            case 'B':
-                break;
+      /* ignore white spaces and check for separator */
+      while (*str && isspace ((int) *str))
+        str++;
 
-            default:
-                if (!isdigit ((int) *str)) {
-                    goto error;
-                }
-                *LayerN = MAX (*LayerN, atoi (str));
-                break;
+      if (*str == '\0')
+        break;
+
+      if (*str != ':' && *str != ',')
+        goto error;
+    }
+
+  /* clear struct */
+  memset (LayerGroup, 0, sizeof (LayerGroupType));
+
+  /* Clear assignments */
+  for (layer = 0; layer < MAX_ALL_LAYER; layer++)
+    groupnum[layer] = -1;
+
+  /* loop over all groups */
+  for (str = group_string, group = 0;
+       str && *str && group < *LayerN;
+       group++)
+    {
+      while (*str && isspace ((int) *str))
+        str++;
+
+      /* loop over all group members */
+      for (member = 0; *str; str++) {
+
+        /* ignore white spaces and get layernumber */
+        while (*str && isspace ((int) *str))
+          str++;
+        switch (*str)
+        {
+          case 'c':
+          case 'C':
+          case 't':
+          case 'T':
+            layer = *LayerN + TOP_SILK_LAYER;
+            c_set = true;
+            break;
+
+          case 's':
+          case 'S':
+          case 'b':
+          case 'B':
+            layer = *LayerN + BOTTOM_SILK_LAYER;
+            s_set = true;
+            break;
+
+          default:
+            layer = atoi (str) - 1;
+            break;
         }
+
+        if (layer > *LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) ||
+          member >= *LayerN + 1)
+          goto error;
+        groupnum[layer] = group;
+        LayerGroup->Entries[group][member++] = layer;
 
         while (*++str && isdigit ((int) *str));
 
         /* ignore white spaces and check for separator */
-        while (*str && isspace ((int) *str)) {
-            str++;
-        }
+        while (*str && isspace ((int) *str))
+          str++;
 
-        if (*str == '\0') {
-            break;
-        }
+        if (!*str || *str == ':')
+          break;
+      }
 
-        if (*str != ':' && *str != ',') {
-            goto error;
-        }
+      LayerGroup->Number[group] = member;
+      if (*str == ':')
+        str++;
     }
 
-    /* clear struct */
-    memset (LayerGroup, 0, sizeof (LayerGroupType));
+  /* If no explicit solder or component layer group was found in the layer
+   * group string, make group 0 the bottom side, and group 1 the top side.
+   * This is done by assigning the relevant silkscreen layers to those groups.
+   */
+  if (!s_set)
+    LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
+  if (!c_set)
+    LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
 
-    /* Clear assignments */
-    for (layer = 0; layer < MAX_LAYER + 2; layer++) {
-        groupnum[layer] = -1;
-    }
+  /* Assign a unique layer group to each layer that was not explicitly
+   * assigned a particular group by its presence in the layer group string.
+   */
+  for (layer = 0; layer < *LayerN && group < *LayerN; layer++)
+    if (groupnum[layer] == -1)
+      {
+        LayerGroup->Entries[group][0] = layer;
+        LayerGroup->Number[group] = 1;
+        group++;
+      }
+  return (0);
 
-    /* loop over all groups */
-    for (str = group_string, group = 0; str && *str && group < *LayerN; group++)
-    {
+  /* reset structure on error */
+error:
+  memset (LayerGroup, 0, sizeof (LayerGroupType));
+  return (1);
+}
 
-      while (*str && isspace ((int) *str))
-            str++;
+void
+AssignDefaultLayerTypes()
+{
+  int num_found;
+  Cardinal outline_layer = -1;
 
-        /* loop over all group members */
-        for (member = 0; *str; str++) {
+  /**
+   * There can be only one outline layer. During parsing guess_layertype()
+   * applied well known cases already, but as this function operates on a
+   * single layer only, it might end up with more than one hit for the whole
+   * file. Especially after loading an older layout without saved flags.
+   */
+  num_found = 0;
+  LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+    outline_layer = n;
+    num_found++;
+  END_LOOP;
 
-            /* ignore white spaces and get layernumber */
-            while (*str && isspace ((int) *str)) {
-                str++;
-            }
+  if (num_found != 1)
 
-            switch (*str) {
+    /* No or duplicate outline! Try to find a layer which is named exactly
+       "outline". */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      if ( ! strcasecmp (layer->Name, "outline")) {
+          outline_layer = n;
+          num_found = 1;
+          break;
+      }
+    END_LOOP;
 
-                case 'c':
-                case 'C':
-                case 't':
-                case 'T':
-                    layer = *LayerN + TOP_SILK_LAYER;
-                    c_set = true;
-                    break;
-
-                case 's':
-                case 'S':
-                case 'b':
-                case 'B':
-                    layer = *LayerN + BOTTOM_SILK_LAYER;
-                    s_set = true;
-                    break;
-
-                default:
-                    layer = atoi (str) - 1;
-                    break;
-            }
-
-            if (layer > *LayerN + MAX (BOTTOM_SILK_LAYER, TOP_SILK_LAYER) || member >= *LayerN + 1) {
-                goto error;
-            }
-
-            groupnum[layer] = group;
-            LayerGroup->Entries[group][member++] = layer;
-
-            while (*++str && isdigit ((int) *str));
-
-            /* ignore white spaces and check for separator */
-            while (*str && isspace ((int) *str)) {
-                str++;
-            }
-
-            if (!*str || *str == ':') {
-                break;
-            }
+  if (num_found != 1)
+    /* Next, try to find a layer which is named exactly "route". */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      if ( ! strcasecmp (layer->Name, "route"))
+        {
+          outline_layer = n;
+          num_found = 1;
+          break;
         }
+    END_LOOP;
 
-        LayerGroup->Number[group] = member;
+  if (num_found != 1)
+    /* As last resort, take the first layer claiming to be outline. */
+    LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+      outline_layer = n;
+      num_found = 1;
+      break;
+    END_LOOP;
 
-        if (*str == ':') {
-            str++;
-        }
-    }
-
-    /* If no explicit solder or component layer group was found in the layer
-     * group string, make group 0 the bottom side, and group 1 the top side.
-     * This is done by assigning the relevant silkscreen layers to those groups.
-     */
-    if (!s_set){
-      LayerGroup->Entries[0][LayerGroup->Number[0]++] = *LayerN + BOTTOM_SILK_LAYER;
-    }
-
-    if (!c_set) {
-      LayerGroup->Entries[1][LayerGroup->Number[1]++] = *LayerN + TOP_SILK_LAYER;
-    }
-
-    /* Assign a unique layer group to each layer that was not explicitly
-     * assigned a particular group by its presence in the layer group string.
-     */
-    for (layer = 0; layer < *LayerN && group < *LayerN; layer++) {
-        if (groupnum[layer] == -1) {
-            LayerGroup->Entries[group][0] = layer;
-            LayerGroup->Number[group] = 1;
-            group++;
-        }
-    }
-
-    return (0);
-
-    /* reset structure on error */
-    error:
-    memset (LayerGroup, 0, sizeof (LayerGroupType));
-    return (1);
+  /* Make sure our found outline layer is the only one. */
+  LAYER_TYPE_LOOP (PCB->Data, max_copper_layer, LT_OUTLINE)
+    if (n == outline_layer)
+      layer->Type = LT_OUTLINE;
+    else
+      layer->Type = LT_ROUTE;  /* best guess */
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1203,8 +1232,7 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
 void
 QuitApplication (void)
 {
-  /*
-   * save data if necessary.  It not needed, then don't trigger EmergencySave
+  /* save data if necessary.  It not needed, then don't trigger EmergencySave
    * via our atexit() registering of EmergencySave().  We presumeably wanted to
    * exit here and thus it is not an emergency.
    */
@@ -1233,19 +1261,19 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
   static DynamicStringType command;
   char *p;
 
-  if (Settings.verbose)
-    {
+  if (Settings.verbose) {
+
       printf ("EvaluateFilename:\n");
       printf ("\tTemplate: \033[33m%s\033[0m\n", Template);
       printf ("\tPath: \033[33m%s\033[0m\n", Path);
       printf ("\tFilename: \033[33m%s\033[0m\n", Filename);
       printf ("\tParameter: \033[33m%s\033[0m\n", Parameter);
-    }
+  }
 
   DSClearString (&command);
 
-  for (p = Template; p && *p; p++)
-    {
+  for (p = Template; p && *p; p++) {
+
       /* copy character or add string to command */
       if (*p == '%'
           && (*(p + 1) == 'f' || *(p + 1) == 'p' || *(p + 1) == 'a'))
@@ -1285,33 +1313,32 @@ ExpandFilename (char *Dirname, char *Filename)
 
   /* allocate memory for commandline and build it */
   DSClearString (&answer);
-  if (Dirname)
-    {
+  if (Dirname) {
+
       command = (char *)calloc (strlen (Filename) + strlen (Dirname) + 7,
                         sizeof (char));
       sprintf (command, "echo %s/%s", Dirname, Filename);
-    }
-  else
-    {
+  }
+  else {
       command = (char *)calloc (strlen (Filename) + 6, sizeof (char));
       sprintf (command, "echo %s", Filename);
-    }
+  }
 
   /* execute it with shell */
-  if ((pipe = popen (command, "r")) != NULL)
-    {
-      /* discard all but the first returned line */
-      for (;;)
-        {
-          if ((c = fgetc (pipe)) == EOF || c == '\n' || c == '\r')
-            break;
-          else
-            DSAddCharacter (&answer, c);
-        }
+  if ((pipe = popen (command, "r")) != NULL) {
 
-      free (command);
-      return (pclose (pipe) ? NULL : answer.Data);
+    /* discard all but the first returned line */
+    for (;;) {
+
+      if ((c = fgetc (pipe)) == EOF || c == '\n' || c == '\r')
+        break;
+      else
+        DSAddCharacter (&answer, c);
     }
+
+    free (command);
+    return (pclose (pipe) ? NULL : answer.Data);
+  }
 
   /* couldn't be expanded by the shell */
   PopenErrorMessage (command);
@@ -1328,7 +1355,7 @@ GetLayerNumber (DataType *Data, LayerType *Layer)
 {
   int i;
 
-  for (i = 0; i < MAX_LAYER + 2; i++)
+  for (i = 0; i < MAX_ALL_LAYER; i++)
     if (Layer == &Data->Layer[i])
       break;
   return (i);
@@ -1342,23 +1369,19 @@ PushOnTopOfLayerStack (int NewTop)
 {
   int i;
 
-  /* ignore silk and other extra layers*/
+  /* ignore silk and other extra layers */
   if (NewTop < max_copper_layer) {
 
-    /* first find position of passed one */
-    for (i = 0; i < max_copper_layer; i++) {
-      if (LayerStack[i] == NewTop) {
-        break;
-      }
-    }
+      /* first find position of passed one */
+      for (i = 0; i < max_copper_layer; i++)
+        if (LayerStack[i] == NewTop)
+          break;
 
-    /* bring this element to the top of the stack */
-    for (; i; i--) {
-      LayerStack[i] = LayerStack[i - 1];
+      /* bring this element to the top of the stack */
+      for (; i; i--)
+        LayerStack[i] = LayerStack[i - 1];
+      LayerStack[0] = NewTop;
     }
-
-    LayerStack[0] = NewTop;
-  }
 }
 
 
@@ -1372,40 +1395,35 @@ ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
   int group, i, changed = 1;    /* at least the current layer changes */
 
   /* Warning: these special case values must agree with what gui-top-window.c
-   *    |  thinks the are.
+     |  thinks the are.
    */
 
-  if (Settings.verbose) {
+  if (Settings.verbose)
     printf ("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
             Layer, On, ChangeStackOrder);
-  }
 
   /* decrement 'i' to keep stack in order of layergroup */
   group = GetLayerGroupNumberByNumber (Layer);
+  for (i = PCB->LayerGroups.Number[group]; i;)
+    {
+      int layer = PCB->LayerGroups.Entries[group][--i];
 
-  for (i = PCB->LayerGroups.Number[group]; i;) {
+      /* don't count the passed member of the group */
+      if (layer != Layer && layer < max_copper_layer)
+        {
+          PCB->Data->Layer[layer].On = On;
 
-    int layer = PCB->LayerGroups.Entries[group][--i];
-
-    /* don't count the passed member of the group */
-    if (layer != Layer && layer < max_copper_layer) {
-
-      PCB->Data->Layer[layer].On = On;
-
-      /* push layer on top of stack if switched on */
-      if (On && ChangeStackOrder) {
-        PushOnTopOfLayerStack (layer);
-      }
-      changed++;
+          /* push layer on top of stack if switched on */
+          if (On && ChangeStackOrder)
+            PushOnTopOfLayerStack (layer);
+          changed++;
+        }
     }
-  }
 
   /* change at least the passed layer */
   PCB->Data->Layer[Layer].On = On;
-
-  if (On && ChangeStackOrder) {
+  if (On && ChangeStackOrder)
     PushOnTopOfLayerStack (Layer);
-  }
 
   /* update control panel and exit */
   hid_action ("LayersChanged");
@@ -1418,44 +1436,42 @@ ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
 */
 
 void
-LayerStringToLayerStack (char *s)
+LayerStringToLayerStack (char *str)
 {
   static int listed_layers = 0;
-  int l = strlen (s);
+  int l = strlen (str);
   char **args;
   int i, argn, lno;
   int prev_sep = 1;
 
-  s = strdup (s);
+  str = strdup (str);
   args = (char **) malloc (l * sizeof (char *));
   argn = 0;
 
-  for (i=0; i<l; i++)
-    {
-      switch (s[i])
-	{
-	case ' ':
-	case '\t':
-	case ',':
-	case ';':
-	case ':':
-	  prev_sep = 1;
-	  s[i] = '\0';
-	  break;
-	default:
-	  if (prev_sep)
-	    args[argn++] = s+i;
-	  prev_sep = 0;
-	  break;
-	}
+  for (i=0; i<l; i++) {
+    switch (str[i]) {
+      case ' ':
+      case '\t':
+      case ',':
+      case ';':
+      case ':':
+        prev_sep = 1;
+        str[i] = '\0';
+        break;
+      default:
+        if (prev_sep)
+          args[argn++] = str+i;
+        prev_sep = 0;
+        break;
     }
+  }
 
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
-    {
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++) {
       if (i < max_copper_layer)
         LayerStack[i] = i;
       PCB->Data->Layer[i].On = false;
-    }
+  }
+
   PCB->ElementOn = false;
   PCB->InvisibleObjectsOn = false;
   PCB->PinOn = false;
@@ -1464,8 +1480,7 @@ LayerStringToLayerStack (char *s)
   CLEAR_FLAG (SHOWMASKFLAG, PCB);
   Settings.ShowBottomSide = 0;
 
-  for (i=argn-1; i>=0; i--)
-    {
+  for (i=argn-1; i>=0; i--) {
       if (strcasecmp (args[i], "rats") == 0)
 	PCB->RatOn = true;
       else if (strcasecmp (args[i], "invisible") == 0)
@@ -1498,40 +1513,20 @@ LayerStringToLayerStack (char *s)
 	      }
 	  if (!found)
 	    {
-	      fprintf(stderr, "Warning: layer \"%s\" not known\n", args[i]);
+	      fprintf(stderr, _("Warning: layer \"%s\" not known\n"), args[i]);
 	      if (!listed_layers)
 		{
-		  fprintf (stderr, "Named layers in this board are:\n");
+		  fprintf (stderr, _("Named layers in this board are:\n"));
 		  listed_layers = 1;
 		  for (lno=0; lno < max_copper_layer; lno ++)
 		    fprintf(stderr, "\t%s\n", PCB->Data->Layer[lno].Name);
-		  fprintf(stderr, "Also: component, solder, rats, invisible, pins, vias, elements or silk, mask, solderside.\n");
+		  fprintf(stderr, _("Also: component, solder, rats, invisible, "
+			"pins, vias, elements or silk, mask, solderside.\n"));
 		}
 	    }
 	}
     }
 }
-
-/* ----------------------------------------------------------------------
- * lookup the group to which a layer belongs to
- * returns max_group if no group is found, or is
- * passed Layer is equal to max_copper_layer
- */
-/*
-int
-GetGroupOfLayer (int Layer)
-{
-  int group, i;
-
-  if (Layer == max_copper_layer)
-    return max_group;
-  for (group = 0; group < max_group; group++)
-    for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
-      if (PCB->LayerGroups.Entries[group][i] == Layer)
-        return (group);
-  return max_group;
-}
-*/
 
 /* ---------------------------------------------------------------------------
  * returns the layergroup number for the passed pointer
@@ -1562,7 +1557,7 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
 }
 
 /* ---------------------------------------------------------------------------
- * returns the layergroup number for the passed side (TOP_LAYER or BOTTOM_LAYER)
+ * returns the layergroup number for the passed side (TOP_SIDE or BOTTOM_SIDE)
  */
 int
 GetLayerGroupNumberBySide (int side)
@@ -1570,8 +1565,8 @@ GetLayerGroupNumberBySide (int side)
   /* Find the relavant board side layer group by determining the
    * layer group associated with the relevant side's silk-screen
    */
-  int which_one = side == TOP_SIDE ? top_silk_layer : bottom_silk_layer;
-  return GetLayerGroupNumberByNumber(which_one);
+  return GetLayerGroupNumberByNumber(
+      side == TOP_SIDE ? top_silk_layer : bottom_silk_layer);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1598,7 +1593,7 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     case LINEPOINT_TYPE:
       return (BoxType *)Ptr3;
     default:
-      Message ("Request for bounding box of unsupported type %d\n", Type);
+      Message (_("Request for bounding box of unsupported type %d\n"), Type);
       return (BoxType *)Ptr2;
     }
 }
@@ -1684,14 +1679,12 @@ ResetStackAndVisibility (void)
   int top_group;
   Cardinal i;
 
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++) {
-
-      if (i < max_copper_layer) {
+  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+    {
+      if (i < max_copper_layer)
         LayerStack[i] = i;
-      }
       PCB->Data->Layer[i].On = true;
-  }
-
+    }
   PCB->ElementOn = true;
   PCB->InvisibleObjectsOn = true;
   PCB->PinOn = true;
@@ -2103,22 +2096,17 @@ MoveLayerToGroup (int layer, int group)
   if (layer < 0 || layer > max_copper_layer + 1)
     return -1;
   prev = GetLayerGroupNumberByNumber (layer);
-  if ((layer == bottom_silk_layer &&
-       group == GetLayerGroupNumberByNumber (top_silk_layer)) ||
-      (layer == top_silk_layer &&
-       group == GetLayerGroupNumberByNumber (bottom_silk_layer)) ||
-      (group < 0 || group >= max_group) || (prev == group))
-  {
+  if ((layer == bottom_silk_layer
+        && group == GetLayerGroupNumberByNumber (top_silk_layer))
+      || (layer == top_silk_layer
+          && group == GetLayerGroupNumberByNumber (bottom_silk_layer))
+      || (group < 0 || group >= max_group) || (prev == group))
     return prev;
-  }
 
   /* Remove layer from prev group */
-  for (j = i = 0; i < PCB->LayerGroups.Number[prev]; i++) {
-    if (PCB->LayerGroups.Entries[prev][i] != layer) {
+  for (j = i = 0; i < PCB->LayerGroups.Number[prev]; i++)
+    if (PCB->LayerGroups.Entries[prev][i] != layer)
       PCB->LayerGroups.Entries[prev][j++] = PCB->LayerGroups.Entries[prev][i];
-    }
-  }
-
   PCB->LayerGroups.Number[prev]--;
 
   /* Add layer to new group.  */
@@ -2131,9 +2119,9 @@ MoveLayerToGroup (int layer, int group)
 char *
 LayerGroupsToString (LayerGroupType *lg)
 {
-#if MAX_LAYER < 9998
+#if MAX_ALL_LAYER < 9999
   /* Allows for layer numbers 0..9999 */
-  static char buf[(MAX_LAYER + 2) * 5 + 1];
+  static char buf[(MAX_ALL_LAYER) * 5 + 1];
 #endif
   char *cp = buf;
   char sep = 0;
@@ -2336,32 +2324,34 @@ GetInfoString (void)
   if (first_time)
     {
       first_time = 0;
-      DSAddString (&info, "This is PCB, an interactive\n");
-      DSAddString (&info, "printed circuit board editor\n");
-      DSAddString (&info, "version ");
-      DSAddString (&info, VERSION);
-      DSAddString (&info, "\n\n");
-      DSAddString (&info, "Compiled on " __DATE__ " at " __TIME__);
-      DSAddString (&info, "\n\n" "by Wiley E. Hill\n\n");
       DSAddString (&info,
-                   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n");
-      DSAddString (&info, "Copyright (C) Harry Eaton 1998-2007\n");
-      DSAddString (&info, "Copyright (C) C. Scott Ananian 2001\n");
+	  _("This is PCB, an interactive\n"
+	    "printed circuit board editor\n"
+	    "version "));
       DSAddString (&info,
-                   "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n");
+	    VERSION "\n\n"
+	    "Compiled on " __DATE__ " at " __TIME__ "\n\n"
+	    "by harry eaton\n\n"
+	    "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
+	    "Copyright (C) harry eaton 1998-2007\n"
+	    "Copyright (C) C. Scott Ananian 2001\n"
+	    "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n"
+	    "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n\n");
       DSAddString (&info,
-                   "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n\n");
-      DSAddString (&info, "It is licensed under the terms of the GNU\n");
-      DSAddString (&info, "General Public License version 2\n");
-      DSAddString (&info, "See the LICENSE file for more information\n\n");
-      DSAddString (&info, "For more information see:\n\n");
-      DSAddString (&info, "PCB homepage: http://pcb.geda-project.org\n");
-      DSAddString (&info, "gEDA homepage: http://www.geda-project.org\n");
-      DSAddString (&info, "gEDA Wiki: http://wiki.geda-project.org\n");
+	  _("It is licensed under the terms of the GNU\n"
+	    "General Public License version 2\n"
+	    "See the LICENSE file for more information\n\n"
+	    "For more information see:\n"));
+      DSAddString (&info, _("PCB homepage: "));
+      DSAddString (&info, "http://pcb.geda-project.org\n");
+      DSAddString (&info, _("gEDA homepage: "));
+      DSAddString (&info, "http://www.geda-project.org\n");
+      DSAddString (&info, _("gEDA Wiki: "));
+      DSAddString (&info, "http://wiki.geda-project.org\n");
 
-      DSAddString (&info, "----- Compile Time Options -----\n");
+      DSAddString (&info, _("\n----- Compile Time Options -----\n"));
       hids = hid_enumerate ();
-      DSAddString (&info, "GUI:\n");
+      DSAddString (&info, _("GUI:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->gui)
@@ -2374,7 +2364,7 @@ GetInfoString (void)
             }
         }
 
-      DSAddString (&info, "Exporters:\n");
+      DSAddString (&info, _("Exporters:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->exporter)
@@ -2387,7 +2377,7 @@ GetInfoString (void)
             }
         }
 
-      DSAddString (&info, "Printers:\n");
+      DSAddString (&info, _("Printers:\n"));
       for (i = 0; hids[i]; i++)
         {
           if (hids[i]->printer)

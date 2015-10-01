@@ -708,18 +708,22 @@ static void
 ps_do_export (HID_Attr_Val * options)
 {
   FILE *fh;
-  int save_ons[MAX_LAYER + 2];
+  int save_ons[MAX_ALL_LAYER];
   int i;
 
-  if (!options)
-    {
-      ps_get_export_options (0);
-      for (i = 0; i < NUM_OPTIONS; i++)
-	global.ps_values[i] = ps_attribute_list[i].default_val;
-      options = global.ps_values;
+  if (!options) {
+
+    ps_get_export_options (0);
+
+    for (i = 0; i < NUM_OPTIONS; i++) {
+      global.ps_values[i] = ps_attribute_list[i].default_val;
     }
 
+    options = global.ps_values;
+  }
+
   global.filename = options[HA_psfile].str_value;
+
   if (!global.filename)
     global.filename = "pcb-out.ps";
 

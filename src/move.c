@@ -918,7 +918,7 @@ LastNormalLayerInSideGroup (int side, int layer)
 int
 MoveLayer (int old_index, int new_index)
 {
-  int group_of_layer[MAX_LAYER + 2], l, g, i;
+  int group_of_layer[MAX_ALL_LAYER], l, g, i;
   LayerType saved_layer;
   int saved_group;
 
@@ -954,7 +954,7 @@ MoveLayer (int old_index, int new_index)
       return 1;
     }
 
-  for (l = 0; l < MAX_LAYER + 2; l++) {
+  for (l = 0; l < MAX_ALL_LAYER; l++) {
     group_of_layer[l] = -1;
   }
 
