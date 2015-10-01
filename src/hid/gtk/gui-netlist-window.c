@@ -666,6 +666,7 @@ netlist_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
   GtkAllocation allocation;
 
   gtk_widget_get_allocation (widget, &allocation);
+  ghidgui->netlist_window_width  = allocation.width;
   ghidgui->netlist_window_height = allocation.height;
   ghidgui->config_modified = TRUE;
   return FALSE;
@@ -710,7 +711,8 @@ ghid_netlist_window_create (GHidPort * out)
   g_signal_connect (G_OBJECT (netlist_window), "configure_event",
                     G_CALLBACK (netlist_window_configure_event_cb), NULL);
   gtk_window_resize (GTK_WINDOW (netlist_window),
-                     -1, ghidgui->netlist_window_height);
+                     ghidgui->netlist_window_width,
+                     ghidgui->netlist_window_height);
 
   gtk_container_set_border_width (GTK_CONTAINER (netlist_window), 2);
 

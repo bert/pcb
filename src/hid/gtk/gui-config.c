@@ -84,7 +84,7 @@ typedef struct
   HID_Attribute *attributes;
   enum ColorTypes type;
   GdkColor color;
-  gboolean color_is_mapped;
+  int  color_is_mapped;
 }
 ConfigColor;
 
@@ -137,6 +137,7 @@ static ConfigAttribute config_attributes[] = {
   {"drc-window-height", CONFIG_Integer, &_ghidgui.drc_window_height},
   {"library-window-width", CONFIG_Integer, &_ghidgui.library_window_width},
   {"library-window-height", CONFIG_Integer, &_ghidgui.library_window_height},
+  {"netlist-window-width", CONFIG_Integer, &_ghidgui.netlist_window_width},
   {"netlist-window-height", CONFIG_Integer, &_ghidgui.netlist_window_height},
   {"keyref-window-width", CONFIG_Integer, &_ghidgui.keyref_window_width},
   {"keyref-window-height", CONFIG_Integer, &_ghidgui.keyref_window_height},
@@ -170,7 +171,7 @@ static ConfigAttribute config_attributes[] = {
   {"layer-name-8", CONFIG_Unused, NULL},
 };
 
-static gboolean
+static int
 dup_core_string (char ** dst, const char * src)
 {
   if (dst == NULL || (*dst == NULL && src == NULL))
@@ -242,7 +243,7 @@ config_file_open (char * mode)
 }
 
 static ConfigAttribute *
-lookup_config_attribute (char * name, gboolean if_null_value)
+lookup_config_attribute (char * name, int  if_null_value)
 {
   ConfigAttribute *ca;
 
@@ -424,7 +425,7 @@ parse_option_line (char * line, char ** option_result, char ** arg_result)
   return argc;
 }
 
-static gboolean
+static int
 set_config_attribute (char * option, char * arg)
 {
   ConfigAttribute *ca;
@@ -591,14 +592,14 @@ add_to_paths_list (GList ** list, char * path_string)
   /* Parse command line code borrowed from hid/common/hidinit.c
    */
 static void
-parse_optionv (int * argc, char *** argv, gboolean from_cmd_line)
+parse_optionv (int * argc, char *** argv, int  from_cmd_line)
 {
   HID_AttrNode *ha;
   HID_Attribute *a;
   const Unit *unit;
   char *ep;
   int e, ok, offset;
-  gboolean matched = FALSE;
+  int  matched = FALSE;
 
   offset = from_cmd_line ? 2 : 0;
 
@@ -863,8 +864,8 @@ static GtkWidget *config_window;
 static void
 config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  gboolean active = gtk_toggle_button_get_active (button);
-  static gboolean holdoff;
+  int  active = gtk_toggle_button_get_active (button);
+  static int  holdoff;
 
   if (holdoff)
     return;
@@ -887,7 +888,7 @@ config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
 static void
 config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  gboolean active = gtk_toggle_button_get_active (button);
+  int  active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_horizontal = active;
   ghid_set_status_line_label ();
@@ -897,7 +898,7 @@ config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 static void
 config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  gboolean active = gtk_toggle_button_get_active (button);
+  int  active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_vertical = active;
   ghid_pack_mode_buttons();
@@ -997,7 +998,7 @@ static Coord new_board_width, new_board_height;
 static void
 config_sizes_apply (void)
 {
-  gboolean active;
+  int  active;
 
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
@@ -1012,8 +1013,8 @@ config_sizes_apply (void)
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 				  (use_drc_sizes_default_button));
-  if (active)
-    {
+
+  if (active) {
       Settings.Bloat = PCB->Bloat;
       Settings.Shrink = PCB->Shrink;
       Settings.minWid = PCB->minWid;
@@ -1022,13 +1023,12 @@ config_sizes_apply (void)
       Settings.minDrill = PCB->minDrill;
       Settings.minRing = PCB->minRing;
       ghidgui->config_modified = TRUE;
-    }
+  }
 
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 				  (use_increments_default_button));
-  if (active)
-    {
+  if (active) {
       save_increments (get_increments_struct (METRIC),
                        get_increments_struct (IMPERIAL));
       ghidgui->config_modified = TRUE;
@@ -1041,7 +1041,7 @@ config_sizes_apply (void)
 static void
 text_spin_button_cb (GtkSpinButton * spin, void * dst)
 {
-  *(int *)dst = gtk_spin_button_get_value_as_int (spin);
+  *(int*)dst = gtk_spin_button_get_value_as_int (spin);
   ghidgui->config_modified = TRUE;
   ghid_set_status_line_label ();
 }
@@ -1058,10 +1058,9 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *table, *vbox, *hbox;
 
-  /* Need a vbox we can destroy if user changes grid units.
-   */
-  if (!config_sizes_vbox)
-    {
+  /* Need a vbox we can destroy if user changes grid units. */
+
+  if (!config_sizes_vbox) {
       vbox = gtk_vbox_new (FALSE, 0);
       gtk_box_pack_start (GTK_BOX (tab_vbox), vbox, FALSE, FALSE, 0);
       gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
@@ -1188,10 +1187,8 @@ config_increments_tab_create (GtkWidget * tab_vbox)
   Increments *incr_mil = get_increments_struct (IMPERIAL);
   GtkWidget *vbox, *hbox, *table;
 
-  /* Need a vbox we can destroy if user changes grid units.
-   */
-  if (!config_increments_vbox)
-    {
+  /* Need a vbox we can destroy if user changes grid units. */
+  if (!config_increments_vbox) {
       vbox = gtk_vbox_new (FALSE, 0);
       gtk_box_pack_start (GTK_BOX (tab_vbox), vbox, FALSE, FALSE, 0);
       gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
@@ -1306,8 +1303,7 @@ config_library_tab_create (GtkWidget * tab_vbox)
 }
 
 
-  /* -------------- The Layers Group config page ----------------
-   */
+/* -------------- The Layers Group config page ---------------- */
 static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
@@ -1321,9 +1317,9 @@ static int config_layer_group[MAX_ALL_LAYER];
 
 static LayerGroupType layer_groups,	/* Working copy */
  *lg_monitor;			/* Keep track if our working copy */
-										/* needs to be changed (new layout) */
+                        /* needs to be changed (new layout) */
 
-static gboolean groups_modified, groups_holdoff, layers_applying;
+static int  groups_modified, groups_holdoff, layers_applying;
 
 static char *layer_info_text[] = {
   N_("<h>Layer Names\n"),
@@ -1391,9 +1387,9 @@ config_layer_groups_radio_button_cb (GtkToggleButton * button, gpointer data)
   ghidgui->config_modified = TRUE;
 }
 
-  /* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
-     |  but use g_string functions.
-   */
+/* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
+ * but use g_string functions.
+ */
 static char *
 make_layer_group_string (LayerGroupType * lg)
 {
@@ -1794,7 +1790,7 @@ static GtkWidget *config_colors_vbox,
 
 static void config_colors_tab_create (GtkWidget * tab_vbox);
 
-static gboolean config_colors_modified;
+static int  config_colors_modified;
 
 static void
 config_color_file_set_label (void)
