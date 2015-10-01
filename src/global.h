@@ -840,8 +840,8 @@ struct drc_violation_st
 extern char *bindir;       /* The dir in which PCB installation was found */
 extern char *pcblibdir;    /* The system M4 fp directory */
 extern char *pcblibpath;   /* The search path for M4 fps */
-extern char *pcbtreedir;   /* The system newlib fp directory */
-extern char *pcbtreepath;  /* The search path for newlib fps */
+extern char *pcbtreedir;   /* The system stdlib fp directory */
+extern char *pcbtreepath;  /* The search path for stdlib fps */
 extern char *exec_prefix;
 extern char *homedir;
 

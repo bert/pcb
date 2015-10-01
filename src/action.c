@@ -1931,9 +1931,9 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
 	  printf ("#%4d: ", j);
 	  if (Library.Menu[i].Entry[j].Template == (char *) -1) {
 
-	      printf ("newlib: \"%s\"\n",
+	      printf ("stdlib: \"%s\"\n",
 		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
-	    }
+      }
 	  else {
 
 	      printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
@@ -2963,9 +2963,9 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  err = 1;
 	}
     }
-  else if (function && str_dir)
-    {
-      switch (GetFunctionID (function))
+  else if (function && str_dir) {
+
+    switch (GetFunctionID (function))
 	{
 	case F_ToggleGrid:
 	  if (argc > 2)
@@ -2981,14 +2981,16 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  err = 1;
 	  break;
 	}
-    }
+  }
+  else {
+    err = 1;
+  }
 
-  if (!err)
-    return 0;
+  if (err)
+    AFAIL (display);
 
-  AFAIL (display);
+  return 0;
 }
-
 /* --------------------------------------------------------------------------- */
 
 static const char mode_syntax[] =
@@ -5902,7 +5904,7 @@ Loads an entire PCB layout to the paste buffer.
 @item ElementToBuffer
 Loads the given element file into the paste buffer.  Element files
 contain only a single @code{Element} definition, such as the
-``newlib'' library uses.
+``stdlib'' library uses.
 
 @item Netlist
 Loads a new netlist, replacing any current netlist.

@@ -1102,7 +1102,7 @@ pcb_basename (char *fullname)
 }
 
 /* ---------------------------------------------------------------------------
- * Parse the directory tree where newlib footprints are found
+ * Parse the directory tree where stdlib footprints are found
  */
 
  /* This is a helper function for ParseLibrary Tree. Given a char *path,
@@ -1222,7 +1222,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
       /* Now place footprint name into AllocatedMemory */
       strcat (entry->AllocatedMemory, subdirentry->d_name);
 
-      /* mark as directory tree (newlib) library */
+      /* mark as directory tree (stdlib) library */
       entry->Template = (char *) -1;
     }
   }
@@ -1247,7 +1247,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
 
   /* Now loop over files in this directory looking for subdirs.
    * For each direntry which is a valid subdirectory,
-   * try to load newlib footprints inside it.
+   * try to load stdlib footprints inside it.
    */
   while ((subdirentry = readdir (subdirobj)) != NULL) {
 

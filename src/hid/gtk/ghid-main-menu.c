@@ -27,9 +27,9 @@ struct _GHidMainMenu
   GtkActionGroup *action_group;
   GtkAccelGroup *accel_group;
 
-  gint layer_view_pos;
-  gint layer_pick_pos;
-  gint route_style_pos;
+  int layer_view_pos;
+  int layer_pick_pos;
+  int route_style_pos;
 
   GtkMenuShell *layer_view_shell;
   GtkMenuShell *layer_pick_shell;
@@ -38,9 +38,9 @@ struct _GHidMainMenu
   GList *actions;
   GHashTable *popup_table;
 
-  gint n_layer_views;
-  gint n_layer_picks;
-  gint n_route_styles;
+  int n_layer_views;
+  int n_layer_picks;
+  int n_route_styles;
 
   GCallback action_cb;
   void (*special_key_cb) (const char *accel, GtkAction *action,

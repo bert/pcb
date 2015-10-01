@@ -40,11 +40,11 @@ extern "C"
 
 /* Pass either filename OR stringtab.  */
   Resource *resource_parse   (const char *filename, const char **stringtab);
-  char     *resource_value   (const Resource * res, char *name);
-  Resource *resource_subres  (const Resource * res, const char *name);
-  Resource *resource_create  (Resource * parent);
-  void      resource_add_val (Resource * n, char *name, char *value, Resource * subres);
-  void      resource_dump    (Resource * res);
+  char     *resource_value   (const Resource *res, char *name);
+  Resource *resource_subres  (const Resource *res, const char *name);
+  Resource *resource_create  (Resource *parent);
+  void      resource_add_val (Resource *n, char *name, char *value, Resource *subres);
+  void      resource_dump    (Resource *res);
 
 #ifdef __cplusplus
 }

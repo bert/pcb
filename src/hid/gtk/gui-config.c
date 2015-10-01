@@ -88,9 +88,9 @@ typedef struct
 }
 ConfigColor;
 
-static GList *config_color_list, *lib_newlib_list;
+static GList *config_color_list, *lib_stdlib_list;
 
-static char *lib_newlib_config, *board_size_override;
+static char *lib_stdlib_config, *board_size_override;
 
 
 static char *color_file;
@@ -158,7 +158,7 @@ static ConfigAttribute config_attributes[] = {
 
   {"groups", CONFIG_Unused, NULL},
   {"route-styles", CONFIG_Unused, NULL},
-  {"library-newlib", CONFIG_String, &lib_newlib_config},
+  {"library-stdlib", CONFIG_String, &lib_stdlib_config},
   {"color-file", CONFIG_String, &color_file},
 /* FIXME: construct layer-names- in a list */
   {"layer-name-1", CONFIG_Unused, NULL},
@@ -794,10 +794,10 @@ ghid_config_files_read (int * argc, char *** argv)
       Settings.MaxHeight = TO_PCB_UNITS (height);
     }
 
-  if (lib_newlib_config && *lib_newlib_config)
-    add_to_paths_list (&lib_newlib_list, lib_newlib_config);
+  if (lib_stdlib_config && *lib_stdlib_config)
+    add_to_paths_list (&lib_stdlib_list, lib_stdlib_config);
 
-  for (list = lib_newlib_list; list; list = list->next)
+  for (list = lib_stdlib_list; list; list = list->next)
     {
       str = Settings.UserLibrary;
       dir = expand_dir ((char *) list->data);
@@ -1263,13 +1263,13 @@ config_increments_tab_create (GtkWidget * tab_vbox)
 
   /* -------------- The Library config page ----------------
    */
-static GtkWidget *library_newlib_entry;
+static GtkWidget *library_stdlib_entry;
 
 static void
 config_library_apply (void)
 {
   if (dup_string
-      (&lib_newlib_config, ghid_entry_get_text (library_newlib_entry)))
+      (&lib_stdlib_config, ghid_entry_get_text (library_stdlib_entry)))
     ghidgui->config_modified = TRUE;
 }
 
@@ -1297,8 +1297,8 @@ config_library_tab_create (GtkWidget * tab_vbox)
   g_string_free (string, TRUE);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
   entry = gtk_entry_new ();
-  library_newlib_entry = entry;
-  gtk_entry_set_text (GTK_ENTRY (entry), lib_newlib_config);
+  library_stdlib_entry = entry;
+  gtk_entry_set_text (GTK_ENTRY (entry), lib_stdlib_config);
   gtk_box_pack_start (GTK_BOX (vbox), entry, FALSE, FALSE, 4);
 }
 
