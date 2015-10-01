@@ -801,12 +801,6 @@ struct drc_violation_st
 #define	UNDO_CLEAR		       0x40000	/* clear/restore to polygons */
 #define	UNDO_NETLISTCHANGE	       0x80000	/* netlist change */
 
-
-/* ---------------------------------------------------------------------------
- * add a macro for wrapping RCS ID's in so that ident will still work
- * but we won't get as many compiler warnings
- */
-
 #ifndef GCC_VERSION
 #define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
 #endif /* GCC_VERSION */
