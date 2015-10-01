@@ -1602,11 +1602,13 @@ ghid_create_pcb_widgets (void)
 
   if (bg_image_file)
     ghidgui->bg_pixbuf = gdk_pixbuf_new_from_file(bg_image_file, &err);
-  if (err)
-    {
+
+  if (err) {
+
     g_error("%s", err->message);
     g_error_free(err);
-    }
+  }
+
   ghid_build_pcb_top_window ();
   ghid_install_accel_groups (GTK_WINDOW (port->top_window), ghidgui);
   ghid_update_toggle_flags ();
@@ -1616,10 +1618,8 @@ ghid_create_pcb_widgets (void)
   ghid_mode_buttons_update ();
 }
 
-static gboolean
-ghid_listener_cb (GIOChannel *source,
-		  GIOCondition condition,
-		  gpointer data)
+static int
+ghid_listener_cb (GIOChannel *source, GIOCondition condition, void *data)
 {
   GIOStatus status;
   char *str;
@@ -1627,48 +1627,45 @@ ghid_listener_cb (GIOChannel *source,
   gsize term;
   GError *err = NULL;
 
-
-  if (condition & G_IO_HUP)
-    {
+  if (condition & G_IO_HUP) {
       gui->log (_("Read end of pipe died!\n"));
       return FALSE;
+  }
+
+  if (condition == G_IO_IN) {
+    status = g_io_channel_read_line (source, &str, &len, &term, &err);
+    switch (status) {
+      case G_IO_STATUS_NORMAL:
+        hid_parse_actions (str);
+        g_free (str);
+        break;
+
+      case G_IO_STATUS_ERROR:
+        gui->log (_("ERROR status from g_io_channel_read_line\n"));
+        return FALSE;
+        break;
+
+      case G_IO_STATUS_EOF:
+        gui->log (_("Input pipe returned EOF.  The --listen option is \n"
+        "probably not running anymore in this session.\n"));
+        return FALSE;
+        break;
+
+      case G_IO_STATUS_AGAIN:
+        gui->log (_("AGAIN status from g_io_channel_read_line\n"));
+        return FALSE;
+        break;
+
+      default:
+        fprintf (stderr, _("ERROR:  unhandled case in ghid_listener_cb\n"));
+        return FALSE;
+        break;
     }
 
-  if (condition == G_IO_IN)
-    {
-      status = g_io_channel_read_line (source, &str, &len, &term, &err);
-      switch (status)
-	{
-	case G_IO_STATUS_NORMAL:
-	  hid_parse_actions (str);
-	  g_free (str);
-	  break;
-
-	case G_IO_STATUS_ERROR:
-	  gui->log (_("ERROR status from g_io_channel_read_line\n"));
-	  return FALSE;
-	  break;
-
-	case G_IO_STATUS_EOF:
-	  gui->log (_("Input pipe returned EOF.  The --listen option is \n"
-		    "probably not running anymore in this session.\n"));
-	  return FALSE;
-	  break;
-
-	case G_IO_STATUS_AGAIN:
-	  gui->log (_("AGAIN status from g_io_channel_read_line\n"));
-	  return FALSE;
-	  break;
-
-	default:
-	  fprintf (stderr, _("ERROR:  unhandled case in ghid_listener_cb\n"));
-	  return FALSE;
-	  break;
-	}
-
-    }
-  else
+  }
+  else {
     fprintf (stderr, _("Unknown condition in ghid_listener_cb\n"));
+  }
 
   return TRUE;
 }
@@ -2120,53 +2117,57 @@ get_menu_filename (void)
 static GtkWidget *
 ghid_load_menus (void)
 {
-  char *filename;
-  const Resource *r = 0, *bir;
+  char           *filename;
+  const Resource *r = 0;
+  const Resource *bir;
   const Resource *mr;
-  GtkWidget *menu_bar = NULL;
+  GtkWidget      *menu_bar = NULL;
   int i;
 
-  for (i = 0; i < N_HOTKEY_ACTIONS; i++)
-    {
+  for (i = 0; i < N_HOTKEY_ACTIONS; i++) {
       ghid_hotkey_actions[i].action = NULL;
       ghid_hotkey_actions[i].node = NULL;
-    }
+  }
 
   bir = resource_parse (0, gpcb_menu_default);
-  if (!bir)
-    {
+
+  if (!bir) {
       fprintf (stderr, _("Error: internal menu resource didn't parse\n"));
       exit(1);
-    }
+  }
 
   filename = get_menu_filename ();
-  if (filename)
-    {
+
+  if (filename) {
+
       Message (_("Loading menus from %s\n"), filename);
       r = resource_parse (filename, 0);
-    }
+  }
 
-  if (!r)
-    {
+  if (!r) {
       Message (_("Using default menus\n"));
       r = bir;
-    }
+  }
+
   free (filename);
 
   mr = resource_subres (r, "MainMenu");
-  if (!mr)
-    mr = resource_subres (bir, "MainMenu");
 
-  if (mr)
-    {
+  if (!mr) {
+    mr = resource_subres (bir, "MainMenu");
+  }
+
+  if (mr) {
       menu_bar = ghid_main_menu_new (G_CALLBACK (ghid_menu_cb),
                                      ghid_check_special_key);
       ghid_main_menu_add_resource (GHID_MAIN_MENU (menu_bar), mr);
-    }
+  }
 
   mr = resource_subres (r, "PopupMenus");
-  if (!mr)
+
+  if (!mr) {
     mr = resource_subres (bir, "PopupMenus");
+  }
 
   if (mr) {
 
@@ -2186,10 +2187,12 @@ ghid_load_menus (void)
    puts ("Finished loading menus.");
 #endif
 
-    mr = resource_subres (r, "Mouse");
-    if (!mr)
+  mr = resource_subres (r, "Mouse");
+
+  if (!mr)
       mr = resource_subres (bir, "Mouse");
-    if (mr)
+
+  if (mr)
       load_mouse_resource (mr);
 
   return menu_bar;
@@ -2212,11 +2215,9 @@ Opens the window which allows editing of the route styles.
 static int
 AdjustStyle(int argc, char **argv, Coord x, Coord y)
 {
-  if (argc > 1)
-    AFAIL (adjuststyle);
-
   ghid_route_style_selector_edit_dialog
     (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
+
   return 0;
 }
 
