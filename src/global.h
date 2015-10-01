@@ -801,11 +801,9 @@ struct drc_violation_st
 #define	UNDO_CLEAR		       0x40000	/* clear/restore to polygons */
 #define	UNDO_NETLISTCHANGE	       0x80000	/* netlist change */
 
-#ifndef GCC_VERSION
-#define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
-#endif /* GCC_VERSION */
-
-#if GCC_VERSION > 2007
+/* ---------------------------------------------------------------------------
+ */
+#if (__GNUC__ * 1000 + __GNUC_MINOR__) > 2007
 #define ATTRIBUTE_UNUSED __attribute__((unused))
 #else
 #define ATTRIBUTE_UNUSED
