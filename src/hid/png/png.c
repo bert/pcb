@@ -913,7 +913,7 @@ png_do_export (HID_Attr_Val * options)
 
   if (xmax < 0 || ymax < 0) {
 
-      fprintf (stderr, "ERROR:  xmax and ymax may not be < 0\n");
+      fprintf (stderr, "ERROR:  xmax and ymax may not be less than zero\n");
       return;
   }
 
@@ -929,25 +929,20 @@ png_do_export (HID_Attr_Val * options)
   }
   else if ( xmax == 0 && ymax == 0) {
 
-      fprintf(stderr, "ERROR:  You may not set both xmax, ymax,"
-                              "and xy-max to zero\n");
+      fprintf (stderr, "ERROR:  Both xmax and ymax may not be zero\n");
       return;
   }
   else {
 
-      if (ymax == 0
-	  || ( (xmax > 0)
-	       && ((w / xmax) > (h / ymax)) ) )
-	{
-	  h = (h * xmax) / w;
+    if (ymax == 0 || ( (xmax > 0) && ((w / xmax) > (h / ymax)) ) ) {
 	  scale = w / xmax;
-	  w = xmax;
+      h     = h / scale;
+	  w     = xmax;
 	}
-      else
-	{
-	  w = (w * ymax) / h;
+    else {
 	  scale = h / ymax;
-	  h = ymax;
+      w     = w / scale;
+	  h     = ymax;
 	}
   }
 
