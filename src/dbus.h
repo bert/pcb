@@ -1,6 +1,10 @@
-/*
+/*!
+ * \file src/dbus.h
+ *
+ * \brief D-Bus IPC logic
+ *
  * PCB, an interactive printed circuit board editor
- * D-Bus IPC logic
+ *
  * Copyright (C) 2006 University of Cambridge
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,10 +24,7 @@
 #ifndef PCB_DBUS_H
 #define PCB_DBUS_H
 
-/* Carry out all actions to setup the D-Bus and register appropriate callbacks */
 void pcb_dbus_setup ();
-
-/* Carry out all actions to finalise the D-Bus connection */
 void pcb_dbus_finish ();
 
 

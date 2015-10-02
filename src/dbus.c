@@ -1,6 +1,13 @@
-/*
+/*!
+ * \file src/dbus.c
+ *
+ * \brief D-Bus IPC logic
+ *
+ * D-Bus code originally derrived from example-service.c in the
+ * dbus-glib bindings.
+ *
  * PCB, an interactive printed circuit board editor
- * D-Bus IPC logic
+ *
  * Copyright (C) 2006 University of Cambridge
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,10 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-/*
- *  D-Bus code originally derrived from example-service.c in the dbus-glib bindings
  */
 
 #define DBUS_API_SUBJECT_TO_CHANGE
@@ -318,6 +321,10 @@ handle_dbus_message (DBusConnection * connection, DBusMessage * message,
 }
 
 
+/*!
+ * \brief Carry out all actions to setup the D-Bus and register
+ * appropriate callbacks.
+ */
 void
 pcb_dbus_setup (void)
 {
@@ -374,6 +381,10 @@ pcb_dbus_setup (void)
 }
 
 
+
+/*!
+ * \brief Carry out all actions to finalise the D-Bus connection.
+ */
 void
 pcb_dbus_finish (void)
 {

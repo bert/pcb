@@ -62,6 +62,7 @@
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
+#define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
 #define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
 #define	EMPTY_STRING_P(a)	((a) ? (a)[0]==0 : 1)
@@ -113,7 +114,7 @@
 #define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
 
 #define TEST_THERM(L,P)		((P)->Flags.t[(L)/2] & THERMFLAG(L) ? 1 : 0)
-#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf)
+#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf) 
 #define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/2] &= ~THERMFLAG(L)
 #define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/2] = ((P)->Flags.t[(L)/2] & ~THERMFLAG(L)) | ((V)  << (4 * ((L) % 2)))
 
@@ -151,9 +152,9 @@ extern int mem_any_set (unsigned char *, int);
 	((TEST_FLAG(ONSOLDERFLAG, (o)) != 0) == SWAP_IDENT)
 
 /* ---------------------------------------------------------------------------
-  * Determines if an object is on the given side. side is either BOTTOM_GROUP
-  * or TOP_GROUP.
-*/
+ *  Determines if an object is on the given side. side is either BOTTOM_GROUP
+ *  or TOP_GROUP.
+ */
 #define ON_SIDE(element, side) \
         (TEST_FLAG (ONSOLDERFLAG, element) == (side == BOTTOM_SIDE))
 
@@ -368,7 +369,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	SILKLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerType *layer = (top)->Layer;		\
-	layer += max_copper_layer;			\
+	layer += max_copper_layer + BOTTOM_SILK_LAYER;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		LINE_LOOP(layer)
@@ -376,7 +377,7 @@ extern int mem_any_set (unsigned char *, int);
 #define SILKARC_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerType *layer = (top)->Layer;		\
-	layer += max_copper_layer;			\
+	layer += max_copper_layer + BOTTOM_SILK_LAYER;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
@@ -384,7 +385,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	SILKPOLYGON_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerType *layer = (top)->Layer;		\
-	layer += max_copper_layer;			\
+	layer += max_copper_layer + BOTTOM_SILK_LAYER;			\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		POLYGON_LOOP(layer)
@@ -466,5 +467,11 @@ extern int mem_any_set (unsigned char *, int);
 	{ \
 	   LayerType *layer = (&data->Layer[(n)]);
 
+#define LAYER_TYPE_LOOP(data, ml, type) do { \
+        Cardinal n; \
+        for (n = 0; n < ml; n++) { \
+          LayerType *layer = (&data->Layer[(n)]); \
+          if (layer->Type != (type)) \
+            continue;
 
 #endif

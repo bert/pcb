@@ -1031,7 +1031,7 @@ EnableAutosave (void)
 
 /* ---------------------------------------------------------------------------
  * creates backup file.  The default is to use the pcb file name with
- * a "-" appended (like "foo.pcb-") and if we don't have a pcb file name
+ * a "~" appended (like "foo.pcb~") and if we don't have a pcb file name
  * then use the template in BACKUP_NAME
  */
 void

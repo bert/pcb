@@ -1,36 +1,41 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/create.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * \brief Functions used to create vias, pins ...
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
- */
-
-/* functions used to create vias, pins ...
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+//#include <assert.h>
+//#include <memory.h>
 #include <setjmp.h>
 #include <stdlib.h>
 
@@ -38,10 +43,13 @@
 
 #include "create.h"
 #include "data.h"
+//#include "draw.h"
 #include "error.h"
+//#include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
 #include "pcb-printf.h"
+//#include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 #include "set.h"
@@ -67,18 +75,21 @@ static void AddTextToElement (TextType *, FontType *,
 			      Coord, Coord, unsigned, char *, int,
 			      FlagType);
 
-/* ---------------------------------------------------------------------------
- *  Set the lenience mode.
+/*!
+ * \brief Set the lenience mode.
+ *
+ * \c TRUE during file loads, for example to allow overlapping vias.\n
+ * \c FALSE otherwise, to stop the user from doing normally dangerous
+ * things.
  */
-
 void
 CreateBeLenient (bool v)
 {
   be_lenient = v;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new paste buffer
+/*!
+ * \brief Creates a new paste buffer.
  */
 DataType *
 CreateNewBuffer (void)
@@ -89,9 +100,11 @@ CreateNewBuffer (void)
   return data;
 }
 
-/* ---------------------------------------------------------------------------
- * Perhaps PCB should internally just use the Settings colors?  For now,
- * use this to set PCB colors so the config can reassign PCB colors.
+/*!
+ * \brief Perhaps PCB should internally just use the Settings colors?
+ *
+ * For now, use this to set PCB colors so the config can reassign PCB
+ * colors.
  */
 void
 pcb_colors_from_settings (PCBType *ptr)
@@ -116,25 +129,26 @@ pcb_colors_from_settings (PCBType *ptr)
   ptr->MaskColor = Settings.MaskColor;
 
   for (i = 0; i < MAX_LAYER; i++) {
-
-    ptr->Data->Layer[i].Color = Settings.LayerColor[i];
-    ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
-  }
-
-  ptr->Data->Layer[top_silk_layer].Color = Settings.ShowBottomSide ?
-                                           Settings.InvisibleObjectsColor :
-                                           Settings.ElementColor;
-  ptr->Data->Layer[bottom_silk_layer].Color = Settings.ShowBottomSide ?
-                                              Settings.ElementColor :
-                                              Settings.InvisibleObjectsColor;
-  ptr->Data->Layer[top_silk_layer].SelectedColor = Settings.ElementSelectedColor;
-  ptr->Data->Layer[bottom_silk_layer].SelectedColor = Settings.ElementSelectedColor;
+      ptr->Data->Layer[i].Color = Settings.LayerColor[i];
+      ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
+    }
+  ptr->Data->Layer[top_silk_layer].Color =
+    Settings.ShowBottomSide ?
+    Settings.InvisibleObjectsColor : Settings.ElementColor;
+  ptr->Data->Layer[top_silk_layer].SelectedColor =
+    Settings.ElementSelectedColor;
+  ptr->Data->Layer[bottom_silk_layer].Color =
+    Settings.ShowBottomSide ?
+    Settings.ElementColor : Settings.InvisibleObjectsColor;
+  ptr->Data->Layer[bottom_silk_layer].SelectedColor =
+    Settings.ElementSelectedColor;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new PCB
+/*!
+ * \brief Creates a new PCB.
  */
-PCBType *CreateNewPCB (void)
+PCBType *
+CreateNewPCB (void)
 {
   PCBType *ptr;
   int i;
@@ -150,13 +164,10 @@ PCBType *CreateNewPCB (void)
   ptr->SilkActive = false;
   ptr->RatDraw = false;
   SET_FLAG (NAMEONPCBFLAG, ptr);
-
   if (Settings.ShowNumber)
     SET_FLAG (SHOWNUMBERFLAG, ptr);
-
   if (Settings.AllDirectionLines)
     SET_FLAG (ALLDIRECTIONFLAG, ptr);
-
   ptr->Clipping = 1;		/* this is the most useful starting point for now */
 
   if (Settings.RubberBandMode)
@@ -191,7 +202,6 @@ PCBType *CreateNewPCB (void)
 
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
-
   STYLE_LOOP (ptr);
   {
     *style = Settings.RouteStyle[n];
@@ -215,13 +225,18 @@ PCBType *CreateNewPCB (void)
     ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
   }
 
-  CreateDefaultFont (ptr);
+	CreateDefaultFont (ptr);
 
   return (ptr);
 }
 
-/* This post-processing step adds the top and bottom silk layers to a
- * pre-existing PCB.
+/*!
+ * \brief This post-processing step adds the top and bottom silk layers
+ * to a pre-existing PCB.
+ *
+ * Called after PCB->Data->LayerN is set.
+ *
+ * \return Returns zero if no errors, else nonzero.
  */
 int
 CreateNewPCBPost (PCBType *pcb, int use_defaults)
@@ -230,21 +245,23 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
   pcb_colors_from_settings (pcb);
 
   if (use_defaults) {
-
-    if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, &pcb->Data->LayerN))
-    {
-      return 1;
-    }
+      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups,
+                                             &pcb->Data->LayerN))
+      {
+        return 1;
+      }
   }
 
   pcb->Data->Layer[top_silk_layer].Name = strdup ("top silk");
+  pcb->Data->Layer[top_silk_layer].Type = LT_SILK;
   pcb->Data->Layer[bottom_silk_layer].Name = strdup ("bottom silk");
+  pcb->Data->Layer[bottom_silk_layer].Type = LT_SILK;
 
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new via
+/*!
+ * \brief Creates a new via.
  */
 PinType *
 CreateNewVia (DataType *Data,
@@ -254,25 +271,25 @@ CreateNewVia (DataType *Data,
 {
   PinType *Via;
 
-  if (!be_lenient)
-    {
+  if (!be_lenient) {
+
       VIA_LOOP (Data);
       {
-	if (Distance (X, Y, via->X, via->Y) <=
-	    via->DrillingHole / 2 + DrillingHole / 2)
-	  {
-	    Message (_("%m+Dropping via at %$mD because it's hole would overlap with the via "
-		       "at %$mD\n"), Settings.grid_unit->allow, X, Y, via->X, via->Y);
-	    return (NULL);		/* don't allow via stacking */
-	  }
+        double dist = Distance (X, Y, via->X, via->Y);
+        if (dist <= via->DrillingHole / 2 + DrillingHole / 2) {
+          Message (_("%m+Dropping via at %$mD because it's hole would overlap with the via "
+          "at %$mD\n"), Settings.grid_unit->allow, X, Y, via->X, via->Y);
+          return (NULL);		/* don't allow via stacking */
+        }
       }
       END_LOOP;
-    }
+  }
 
   Via = GetViaMemory (Data);
 
   if (!Via)
     return (Via);
+
   /* copy values */
   Via->X = X;
   Via->Y = Y;
@@ -280,11 +297,12 @@ CreateNewVia (DataType *Data,
   Via->Clearance = Clearance;
   Via->Mask = Mask;
   Via->DrillingHole = vendorDrillMap (DrillingHole);
-  if (Via->DrillingHole != DrillingHole)
-    {
+
+  if (Via->DrillingHole != DrillingHole) {
+
       Message (_("%m+Mapped via drill hole to %$mS from %$mS per vendor table\n"),
 	       Settings.grid_unit->allow, Via->DrillingHole, DrillingHole);
-    }
+  }
 
   Via->Name = STRDUP (Name);
   Via->Flags = Flags;
@@ -306,9 +324,13 @@ CreateNewVia (DataType *Data,
     }
 
   SetPinBoundingBox (Via);
-  if (!Data->via_tree)
+
+  if (!Data->via_tree) {
     Data->via_tree = r_create_tree (NULL, 0, 0);
+  }
+
   r_insert_entry (Data->via_tree, (BoxType *) Via, 0);
+
   return (Via);
 }
 
@@ -331,87 +353,93 @@ line_callback (const BoxType * b, void *cl)
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
       line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
-    {
+  {
       i->ans = (LineType *) (-1);
       longjmp (i->env, 1);
-    }
+  }
+
   /* check the other point order */
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
       line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
-    {
+  {
       i->ans = (LineType *) (-1);
       longjmp (i->env, 1);
-    }
+  }
+
   if (line->Point2.X == i->X1 &&
       line->Point1.X == i->X2 &&
       line->Point2.Y == i->Y1 && line->Point1.Y == i->Y2)
-    {
+  {
       i->ans = (LineType *) - 1;
       longjmp (i->env, 1);
-    }
+  }
+
   /* remove unnecessary line points */
   if (line->Thickness == i->Thickness &&
-      /* don't merge lines if the clearances differ  */
+
+    /* don't merge lines if the clearances differ  */
       line->Clearance == i->Clearance &&
       /* don't merge lines if the clear flags differ  */
       TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARLINEFLAG, i))
-    {
-      if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
-	{
-	  i->test.Point1.X = line->Point2.X;
+  {
+      if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1) {
+
+        i->test.Point1.X = line->Point2.X;
 	  i->test.Point1.Y = line->Point2.Y;
 	  i->test.Point2.X = i->X2;
 	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
-	    {
+
+      if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test)) {
 	      i->ans = line;
 	      longjmp (i->env, 1);
-	    }
+      }
 	}
-      else if (line->Point2.X == i->X1 && line->Point2.Y == i->Y1)
-	{
-	  i->test.Point1.X = line->Point1.X;
+    else if (line->Point2.X == i->X1 && line->Point2.Y == i->Y1) {
+
+      i->test.Point1.X = line->Point1.X;
 	  i->test.Point1.Y = line->Point1.Y;
 	  i->test.Point2.X = i->X2;
 	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
-	    {
+
+      if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test)) {
 	      i->ans = line;
 	      longjmp (i->env, 1);
-	    }
+      }
 	}
-      else if (line->Point1.X == i->X2 && line->Point1.Y == i->Y2)
-	{
-	  i->test.Point1.X = line->Point2.X;
+    else if (line->Point1.X == i->X2 && line->Point1.Y == i->Y2) {
+
+      i->test.Point1.X = line->Point2.X;
 	  i->test.Point1.Y = line->Point2.Y;
 	  i->test.Point2.X = i->X1;
 	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
-	    {
+
+      if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test)) {
 	      i->ans = line;
 	      longjmp (i->env, 1);
-	    }
+      }
 	}
-      else if (line->Point2.X == i->X2 && line->Point2.Y == i->Y2)
-	{
-	  i->test.Point1.X = line->Point1.X;
+    else if (line->Point2.X == i->X2 && line->Point2.Y == i->Y2) {
+
+      i->test.Point1.X = line->Point1.X;
 	  i->test.Point1.Y = line->Point1.Y;
 	  i->test.Point2.X = i->X1;
 	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
-	    {
+
+      if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test)) {
+
 	      i->ans = line;
 	      longjmp (i->env, 1);
-	    }
-	}
+      }
     }
+  }
   return 0;
 }
 
 
-/* ---------------------------------------------------------------------------
- * creates a new line on a layer and checks for overlap and extension
+/*!
+ * \brief Creates a new line on a layer and checks for overlap and
+ * extension.
  */
 LineType *
 CreateDrawnLineOnLayer (LayerType *Layer,
@@ -427,10 +455,13 @@ CreateDrawnLineOnLayer (LayerType *Layer,
   search.X2 = MAX (X1, X2);
   search.Y1 = MIN (Y1, Y2);
   search.Y2 = MAX (Y1, Y2);
+
   if (search.Y2 == search.Y1)
     search.Y2++;
+
   if (search.X2 == search.X1)
     search.X2++;
+
   info.X1 = X1;
   info.X2 = X2;
   info.Y1 = Y1;
@@ -441,29 +472,29 @@ CreateDrawnLineOnLayer (LayerType *Layer,
   info.test.Thickness = 0;
   info.test.Flags = NoFlags ();
   info.ans = NULL;
-  /* prevent stacking of duplicate lines
-   * and remove needless intermediate points
-   * verify that the layer is on the board first!
+
+  /* prevent stacking of duplicate lines and remove needless intermediate
+   * points verify that the layer is on the board first!
    */
-  if (setjmp (info.env) == 0)
-    {
+  if (setjmp (info.env) == 0) {
       r_search (Layer->line_tree, &search, NULL, line_callback, &info);
       return CreateNewLineOnLayer (Layer, X1, Y1, X2, Y2,
 				   Thickness, Clearance, Flags);
-    }
+  }
 
   if ((void *) info.ans == (void *) (-1))
     return NULL;		/* stacked line */
+
   /* remove unnecessary points */
-  if (info.ans)
-    {
+  if (info.ans) {
+
       /* must do this BEFORE getting new line memory */
       MoveObjectToRemoveUndoList (LINE_TYPE, Layer, info.ans, info.ans);
       X1 = info.test.Point1.X;
       X2 = info.test.Point2.X;
       Y1 = info.test.Point1.Y;
       Y2 = info.test.Point2.Y;
-    }
+  }
   return CreateNewLineOnLayer (Layer, X1, Y1, X2, Y2,
 			       Thickness, Clearance, Flags);
 }
@@ -478,8 +509,10 @@ CreateNewLineOnLayer (LayerType *Layer,
   LineType *Line;
 
   Line = GetLineMemory (Layer);
+
   if (!Line)
     return (Line);
+
   Line->ID = ID++;
   Line->Flags = Flags;
   CLEAR_FLAG (RATFLAG, Line);
@@ -492,19 +525,22 @@ CreateNewLineOnLayer (LayerType *Layer,
   Line->Point2.Y = Y2;
   Line->Point2.ID = ID++;
   SetLineBoundingBox (Line);
+
   if (!Layer->line_tree)
     Layer->line_tree = r_create_tree (NULL, 0, 0);
+
   r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
+
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new rat-line
+/*!
+ * \brief Creates a new rat-line.
  */
 RatType *
 CreateNewRat (DataType *Data, Coord X1, Coord Y1,
-	      Coord X2, Coord Y2, Cardinal group1,
-	      Cardinal group2, Coord Thickness, FlagType Flags)
+              Coord X2, Coord Y2, Cardinal group1,
+              Cardinal group2, Coord Thickness, FlagType Flags)
 {
   RatType *Line = GetRatMemory (Data);
 
@@ -513,34 +549,40 @@ CreateNewRat (DataType *Data, Coord X1, Coord Y1,
 
   Line->ID = ID++;
   Line->Flags = Flags;
+
   SET_FLAG (RATFLAG, Line);
+
   Line->Thickness = Thickness;
-  Line->Point1.X = X1;
-  Line->Point1.Y = Y1;
+  Line->Point1.X  = X1;
+  Line->Point1.Y  = Y1;
   Line->Point1.ID = ID++;
-  Line->Point2.X = X2;
-  Line->Point2.Y = Y2;
+  Line->Point2.X  = X2;
+  Line->Point2.Y  = Y2;
   Line->Point2.ID = ID++;
-  Line->group1 = group1;
-  Line->group2 = group2;
+  Line->group1    = group1;
+  Line->group2    = group2;
+
   SetLineBoundingBox ((LineType *) Line);
+
   if (!Data->rat_tree)
     Data->rat_tree = r_create_tree (NULL, 0, 0);
+
   r_insert_entry (Data->rat_tree, &Line->BoundingBox, 0);
+
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new arc on a layer
+/*!
+ * \brief Creates a new arc on a layer.
  */
 ArcType *
 CreateNewArcOnLayer (LayerType *Layer,
-		     Coord X1, Coord Y1,
-		     Coord width,
-		     Coord height,
-		     Angle sa,
-		     Angle dir, Coord Thickness,
-		     Coord Clearance, FlagType Flags)
+                     Coord X1, Coord Y1,
+                     Coord width,
+                     Coord height,
+                     Angle sa,
+                     Angle dir, Coord Thickness,
+                     Coord Clearance, FlagType Flags)
 {
   ArcType *Arc;
 
@@ -553,6 +595,7 @@ CreateNewArcOnLayer (LayerType *Layer,
   }
   END_LOOP;
   Arc = GetArcMemory (Layer);
+
   if (!Arc)
     return (Arc);
 
@@ -566,16 +609,19 @@ CreateNewArcOnLayer (LayerType *Layer,
   Arc->Height = height;
   Arc->StartAngle = sa;
   Arc->Delta = dir;
+
   SetArcBoundingBox (Arc);
+
   if (!Layer->arc_tree)
     Layer->arc_tree = r_create_tree (NULL, 0, 0);
+
   r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
   return (Arc);
 }
 
 
-/* ---------------------------------------------------------------------------
- * creates a new polygon from the old formats rectangle data
+/*!
+ * \brief Creates a new polygon from the old formats rectangle data.
  */
 PolygonType *
 CreateNewPolygonFromRectangle (LayerType *Layer,
@@ -598,8 +644,8 @@ CreateNewPolygonFromRectangle (LayerType *Layer,
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new text on a layer
+/*!
+ * \brief Creates a new text on a layer.
  */
 TextType *
 CreateNewText (LayerType *Layer, FontType *PCBFont,
@@ -634,8 +680,8 @@ CreateNewText (LayerType *Layer, FontType *PCBFont,
   return (text);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new polygon on a layer
+/*!
+ * \brief Creates a new polygon on a layer.
  */
 PolygonType *
 CreateNewPolygon (LayerType *Layer, FlagType Flags)
@@ -651,8 +697,8 @@ CreateNewPolygon (LayerType *Layer, FlagType Flags)
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new point in a polygon
+/*!
+ * \brief Creates a new point in a polygon.
  */
 PointType *
 CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
@@ -666,8 +712,8 @@ CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
   return (point);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new hole in a polygon
+/*!
+ * \brief Creates a new hole in a polygon.
  */
 PolygonType *
 CreateNewHoleInPolygon (PolygonType *Polygon)
@@ -677,15 +723,16 @@ CreateNewHoleInPolygon (PolygonType *Polygon)
   return Polygon;
 }
 
-/* ---------------------------------------------------------------------------
- * creates an new element
- * memory is allocated if needed
+/*!
+ * \brief Creates an new element.
+ *
+ * \note Memory is allocated if needed.
  */
 ElementType *
 CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
-		  char *Description, char *NameOnPCB, char *Value,
-		  Coord TextX, Coord TextY, BYTE Direction,
-		  int TextScale, FlagType TextFlags, bool uniqueName)
+                  char *Description, char *NameOnPCB, char *Value,
+                  Coord TextX, Coord TextY, BYTE Direction,
+                  int TextScale, FlagType TextFlags, bool uniqueName)
 {
   ElementType *Element;
 
@@ -698,13 +745,15 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
   /* copy values and set additional information */
   TextScale = MAX (MIN_TEXTSCALE, TextScale);
   AddTextToElement (&DESCRIPTION_TEXT (Element), PCBFont, TextX, TextY,
-		    Direction, Description, TextScale, TextFlags);
+                    Direction, Description, TextScale, TextFlags);
+
   if (uniqueName)
     NameOnPCB = UniqueElementName (Data, NameOnPCB);
+
   AddTextToElement (&NAMEONPCB_TEXT (Element), PCBFont, TextX, TextY,
-		    Direction, NameOnPCB, TextScale, TextFlags);
+                    Direction, NameOnPCB, TextScale, TextFlags);
   AddTextToElement (&VALUE_TEXT (Element), PCBFont, TextX, TextY,
-		    Direction, Value, TextScale, TextFlags);
+                    Direction, Value, TextScale, TextFlags);
   DESCRIPTION_TEXT (Element).Element = Element;
   NAMEONPCB_TEXT (Element).Element = Element;
   VALUE_TEXT (Element).Element = Element;
@@ -718,14 +767,14 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
   return (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new arc in an element
+/*!
+ * \brief Creates a new arc in an element.
  */
 ArcType *
 CreateNewArcInElement (ElementType *Element,
-		       Coord X, Coord Y,
-		       Coord Width, Coord Height,
-		       Angle angle, Angle delta, Coord Thickness)
+                       Coord X, Coord Y,
+                       Coord Width, Coord Height,
+                       Angle angle, Angle delta, Coord Thickness)
 {
   ArcType *arc;
 
@@ -734,13 +783,15 @@ CreateNewArcInElement (ElementType *Element,
   Element->ArcN ++;
 
   /* set Delta (0,360], StartAngle in [0,360) */
-  if (delta < 0)
-    {
+  if (delta < 0) {
+
       delta = -delta;
       angle -= delta;
-    }
+  }
+
   angle = NormalizeAngle (angle);
   delta = NormalizeAngle (delta);
+
   if (delta == 0)
     delta = 360;
 
@@ -756,14 +807,14 @@ CreateNewArcInElement (ElementType *Element,
   return arc;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new line for an element
+/*!
+ * \brief Creates a new line for an element.
  */
 LineType *
 CreateNewLineInElement (ElementType *Element,
-			Coord X1, Coord Y1,
-			Coord X2, Coord Y2,
-			Coord Thickness)
+                        Coord X1, Coord Y1,
+                        Coord X2, Coord Y2,
+                        Coord Thickness)
 {
   LineType *line;
 
@@ -782,11 +833,12 @@ CreateNewLineInElement (ElementType *Element,
   line->Thickness = Thickness;
   line->Flags = NoFlags ();
   line->ID = ID++;
+
   return line;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new pin in an element
+/*!
+ * \brief Creates a new pin in an element.
  */
 PinType *
 CreateNewPin (ElementType *Element,
@@ -818,44 +870,43 @@ CreateNewPin (ElementType *Element,
   pin->DrillingHole = vendorDrillMap (DrillingHole);
 
   /* Unless we should not map drills on this element, map them! */
-  if (vendorIsElementMappable (Element))
-    {
-      if (pin->DrillingHole < MIN_PINORVIASIZE)
-	{
+  if (vendorIsElementMappable (Element)) {
+
+    if (pin->DrillingHole < MIN_PINORVIASIZE) {
+
 	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS is below the minimum allowed size\n"),
 		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
-	}
-      else if (pin->DrillingHole > MAX_PINORVIASIZE)
-	{
+    }
+    else if (pin->DrillingHole > MAX_PINORVIASIZE) {
+
 	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS is above the maximum allowed size\n"),
 		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
-      else if (!TEST_FLAG (HOLEFLAG, pin)
-	       && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER))
+    else if (!TEST_FLAG (HOLEFLAG, pin) &&
+	        (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER))
 	{
 	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS does not leave enough copper\n"),
 		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
-    }
-  else
-    {
+  }
+  else {
       pin->DrillingHole = DrillingHole;
-    }
+  }
 
-  if (pin->DrillingHole != DrillingHole)
-    {
+  if (pin->DrillingHole != DrillingHole) {
+
       Message (_("%m+Mapped pin drill hole to %$mS from %$mS per vendor table\n"),
 	       Settings.grid_unit->allow, pin->DrillingHole, DrillingHole);
-    }
+  }
 
   return (pin);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new pad in an element
+/*!
+ * \brief Creates a new pad in an element.
  */
 PadType *
 CreateNewPad (ElementType *Element,
@@ -866,20 +917,20 @@ CreateNewPad (ElementType *Element,
   PadType *pad = GetPadMemory (Element);
 
   /* copy values */
-  if (X1 > X2 || (X1 == X2 && Y1 > Y2))
-    {
+  if (X1 > X2 || (X1 == X2 && Y1 > Y2)) {
+
       pad->Point1.X = X2;
       pad->Point1.Y = Y2;
       pad->Point2.X = X1;
       pad->Point2.Y = Y1;
-    }
-  else
-    {
+  }
+  else {
+
       pad->Point1.X = X1;
       pad->Point1.Y = Y1;
       pad->Point2.X = X2;
       pad->Point2.Y = Y2;
-    }
+  }
   pad->Thickness = Thickness;
   pad->Clearance = Clearance;
   pad->Mask = Mask;
@@ -889,12 +940,14 @@ CreateNewPad (ElementType *Element,
   CLEAR_FLAG (WARNFLAG, pad);
   pad->ID = ID++;
   pad->Element = Element;
+
   return (pad);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new textobject as part of an element
- * copies the values to the appropriate text object
+/*!
+ * \brief Creates a new textobject as part of an element.
+ *
+ * Copies the values to the appropriate text object.
  */
 static void
 AddTextToElement (TextType *Text, FontType *PCBFont,
@@ -914,8 +967,8 @@ AddTextToElement (TextType *Text, FontType *PCBFont,
   Text->ID = ID++;
 }
 
-/* ---------------------------------------------------------------------------
- * creates a new line in a symbol
+/*!
+ * \brief Creates a new line in a symbol.
  */
 LineType *
 CreateNewLineInSymbol (SymbolType *Symbol,
@@ -925,13 +978,13 @@ CreateNewLineInSymbol (SymbolType *Symbol,
   LineType *line = Symbol->Line;
 
   /* realloc new memory if necessary and clear it */
-  if (Symbol->LineN >= Symbol->LineMax)
-    {
+  if (Symbol->LineN >= Symbol->LineMax) {
+
       Symbol->LineMax += STEP_SYMBOLLINE;
       line = (LineType *)realloc (line, Symbol->LineMax * sizeof (LineType));
       Symbol->Line = line;
       memset (line + Symbol->LineN, 0, STEP_SYMBOLLINE * sizeof (LineType));
-    }
+  }
 
   /* copy values */
   line = line + Symbol->LineN++;
@@ -940,13 +993,16 @@ CreateNewLineInSymbol (SymbolType *Symbol,
   line->Point2.X = X2;
   line->Point2.Y = Y2;
   line->Thickness = Thickness;
+
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * parses a file with font information and installs it into the provided PCB
- * checks directories given as colon separated list by resource fontPath
- * if the fonts filename doesn't contain a directory component
+/*!
+ * \brief Parses a file with font information and installs it into the
+ * provided PCB.
+ *
+ * Checks directories given as colon separated list by resource fontPath
+ * if the fonts filename doesn't contain a directory component.
  */
 void
 CreateDefaultFont (PCBType *pcb)
@@ -955,9 +1011,11 @@ CreateDefaultFont (PCBType *pcb)
     Message (_("Can't find font-symbol-file '%s'\n"), Settings.FontFile);
 }
 
-/* ---------------------------------------------------------------------------
- * adds a new line to the rubberband list of 'Crosshair.AttachedObject'
- * if Layer == 0  it is a rat line
+/*!
+ * \brief Adds a new line to the rubberband list of
+ * 'Crosshair.AttachedObject'.
+ *
+ * If Layer == 0  it is a rat line.
  */
 RubberbandType *
 CreateNewRubberbandEntry (LayerType *Layer,
@@ -974,8 +1032,8 @@ CreateNewRubberbandEntry (LayerType *Layer,
   return (ptr);
 }
 
-/* ---------------------------------------------------------------------------
- * Add a new net to the netlist menu
+/*!
+ * \brief Add a new net to the netlist menu.
  */
 LibraryMenuType *
 CreateNewNet (LibraryType *lib, char *name, char *style)
@@ -984,23 +1042,20 @@ CreateNewNet (LibraryType *lib, char *name, char *style)
   char temp[64];
 
   sprintf (temp, "  %s", name);
-
-  menu       = GetLibraryMenuMemory (lib);
+  menu = GetLibraryMenuMemory (lib);
   menu->Name = strdup (temp);
-  menu->flag = 1;               /* net is enabled by default */
+  menu->flag = 1;		/* net is enabled by default */
 
-  if (style == NULL || NSTRCMP ("(unknown)", style) == 0) {
+  if (style == NULL || NSTRCMP ("(unknown)", style) == 0)
     menu->Style = NULL;
-  }
-  else {
+  else
     menu->Style = strdup (style);
-  }
 
   return (menu);
 }
 
-/* ---------------------------------------------------------------------------
- * Add a connection to the net
+/*!
+ * \brief Add a connection to the net.
  */
 LibraryEntryType *
 CreateNewConnection (LibraryMenuType *net, char *conn)
@@ -1011,19 +1066,20 @@ CreateNewConnection (LibraryMenuType *net, char *conn)
   return (entry);
 }
 
-/* ---------------------------------------------------------------------------
- * Add an attribute to a list.
+/*!
+ * \brief Add an attribute to a list..
  */
 AttributeType *
 CreateNewAttribute (AttributeListType *list, char *name, char *value)
 {
-  if (list->Number >= list->Max)
-    {
+  if (list->Number >= list->Max) {
       list->Max += 10;
-      list->List = (AttributeType *)realloc (list->List, list->Max * sizeof (AttributeType));
-    }
-  list->List[list->Number].name = STRDUP (name);
+      list->List = (AttributeType*)realloc (list->List, list->Max * sizeof (AttributeType));
+  }
+
+  list->List[list->Number].name  = STRDUP (name);
   list->List[list->Number].value = STRDUP (value);
   list->Number++;
+
   return &list->List[list->Number - 1];
 }

@@ -214,7 +214,13 @@ PrintFab (hidGC gc)
   DrillInfoType *AllDrills;
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
+  const char *utcFmt = "%c UTC";
   char utcTime[64];
+
+#ifdef ENABLE_NLS
+  char *oldlocale;
+#endif
+
   AllDrills = GetDrillInfo (PCB->Data);
   RoundDrillInfo (AllDrills, MIL_TO_COORD(1));
   yoff = -TEXT_LINE;
@@ -285,32 +291,40 @@ PrintFab (hidGC gc)
 	   AllDrills->DrillN, total_drills);
   /* Create a portable timestamp. */
   currenttime = time (NULL);
-  {
-    /* avoid gcc complaints */
-    const char *fmt = "%c UTC";
-    strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
-  }
+
+#ifdef ENABLE_NLS
+  oldlocale = setlocale (LC_TIME, "C");
+#endif
+
+  strftime (utcTime, sizeof utcTime, utcFmt, gmtime (&currenttime));
+
+#ifdef ENABLE_NLS
+  setlocale (LC_TIME, oldlocale);
+#endif
+
   yoff = -TEXT_LINE;
-  for (i = 0; i < max_copper_layer; i++)
-    {
+
+  for (i = 0; i < max_copper_layer; i++) {
+
       LayerType *l = LAYER_PTR (i);
-      if (l->Name && (l->LineN || l->ArcN))
-	{
+      if (l->Name && (l->LineN || l->ArcN)) {
+
 	  if (strcmp ("route", l->Name) == 0)
 	    break;
 	  if (strcmp ("outline", l->Name) == 0)
 	    break;
-	}
-    }
-  if (i == max_copper_layer)
-    {
+      }
+  }
+
+  if (i == max_copper_layer) {
+
       gui->graphics->set_line_width (gc,  MIL_TO_COORD(10));
       gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
       gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
       gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth,
-		      PCB->MaxHeight);
+                                PCB->MaxHeight);
       gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth,
-		      PCB->MaxHeight);
+                                PCB->MaxHeight);
       /*FPrintOutline (); */
       gui->graphics->set_line_width (gc, FAB_LINE_W);
       text_at (gc, MIL_TO_COORD(2000), yoff, 0,
@@ -320,9 +334,9 @@ PrintFab (hidGC gc)
 	       "Board outline is the centerline of this %f mil"
 	       " rectangle - 0,0 to %f,%f mils",
 	       COORD_TO_MIL(FAB_LINE_W), COORD_TO_MIL(PCB->MaxWidth), COORD_TO_MIL(PCB->MaxHeight));
-    }
-  else
-    {
+  }
+  else {
+
       LayerType *layer = LAYER_PTR (i);
       gui->graphics->set_line_width (gc, MIL_TO_COORD(10));
       LINE_LOOP (layer);
