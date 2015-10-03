@@ -3641,6 +3641,21 @@ DRCAll (void)
 
   reset_drc_dialog_message();
 
+  /* This phony violation informs user about what DRC does NOT catch.  */
+  violation
+    = pcb_drc_violation_new (
+        _("WARNING: DRC doesn't catch everything"),
+        _("Detection of outright shorts, missing connections, etc.\n"
+          "is handled via rat's nest addition.  To catch these problems,\n"
+          "display the message log using Window->Message Log, then use\n"
+          "Connects->Optimize rats nest (O hotkey) and watch for messages.\n"),
+        /* All remaining arguments are not relevant to this application.  */
+        0, 0, 0, TRUE, 0, 0, 0, NULL, NULL);
+  append_drc_violation (violation);
+  pcb_drc_violation_free (violation);
+  if (!throw_drc_dialog())
+    return (true);
+
   IsBad = false;
   drcerr_count = 0;
   SaveStackAndVisibility ();
