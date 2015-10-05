@@ -1,9 +1,9 @@
 Element(0x00 "SMT transistor SC88A, 5 pins" "" "SOT325" 100 0 3 100 0x00)
 (
-	ElementLine( 0   0  0 119 10)
-	ElementLine( 0 119 80 119 10)
-	ElementLine(80 119 80   0 10)
-	ElementLine(80   0  0   0 10)
+	ElementLine( 0   0  0 119 5)
+	ElementLine( 0 119 80 119 5)
+	ElementLine(80 119 80   0 5)
+	ElementLine(80   0  0   0 5)
 
 	# 1st side, 1st pin
     Pad(65 14 65 34 15 "1" "1" 0x100)

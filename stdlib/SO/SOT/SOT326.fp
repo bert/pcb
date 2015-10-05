@@ -1,13 +1,12 @@
-	                             # 78 for SOT23
-	                             # 82 for SOT23
-	      # 41 for SOT23
-	               # 34 for SOT23, 24 for SOT25
 Element(0x00 "SMT transistor, 6 pins" "" "SOT326" 100 0 3 100 0x00)
 (
-	ElementLine(0 0 0 119 10)
-	ElementLine(0 119 80 119 10)
-	ElementLine(80 119 80 0 10)
-	ElementLine(80 0 0 0 10)
+	ElementLine(0 0 0 119 5)
+	ElementLine(0 119 80 119 5)
+	ElementLine(80 119 80 0 5)
+	ElementLine(80 0 0 0 5)
+
+	ElementLine(0 119 -10 129 5)
+
 	# 1st side, 1st pin
 	Pad(14 84
 	       14 104
