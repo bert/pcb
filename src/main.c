@@ -2042,7 +2042,7 @@ main (int argc, char *argv[])
   }
 
 #if HAVE_DBUS
-  pcb_dbus_setup();
+  pcb_dbus_setup ();
 #endif
 
   EnableAutosave ();

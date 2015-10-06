@@ -61,6 +61,7 @@
 #include "edif_parse.h"
 #include "error.h"
 #include "file.h"
+#include "layerflags.h"
 #include "misc.h"
 #include "parse_l.h"
 #include "pcb-printf.h"
@@ -386,6 +387,7 @@ real_load_pcb (char *Filename, bool revert)
 
       CreateNewPCBPost (PCB, 0);
       ResetStackAndVisibility ();
+      AssignDefaultLayerTypes ();
 
       /* update cursor location */
       Crosshair.X = CLAMP (PCB->CursorX, 0, PCB->MaxWidth);
@@ -753,7 +755,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
     {
       fprintf (FP, "Layer(%i ", (int) Number + 1);
       PrintQuotedString (FP, (char *)EMPTY (layer->Name));
-      fputs (")\n(\n", FP);
+      fprintf (FP, " %s)\n(\n", layertype_to_string (layer->Type));
       WriteAttributeList (FP, &layer->Attributes, "\t");
 
       for (n = layer->Line; n != NULL; n = g_list_next (n))
@@ -1004,10 +1006,11 @@ static void
 backup_cb (hidval data)
 {
   backup_timer.ptr = NULL;
+
   Backup ();
   if (Settings.BackupInterval > 0 && gui->add_timer)
     backup_timer = gui->add_timer (backup_cb,
-				   1000 * Settings.BackupInterval, data);
+                                   1000 * Settings.BackupInterval, data);
 }
 
 void
@@ -1022,11 +1025,11 @@ EnableAutosave (void)
     gui->stop_timer (backup_timer);
 
   backup_timer.ptr = NULL;
+
   /* Start up a new timer */
   if (Settings.BackupInterval > 0 && gui->add_timer)
     backup_timer = gui->add_timer (backup_cb,
-				   1000 * Settings.BackupInterval,
-				   x);
+                                   1000 * Settings.BackupInterval, x);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1066,6 +1069,7 @@ Backup (void)
 }
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
+
 /* ---------------------------------------------------------------------------
  * makes a temporary copy of the data. This is useful for systems which
  * doesn't support calling functions on exit. We use this to save the data

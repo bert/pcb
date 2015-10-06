@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
+//#include <assert.h>
 #include <ctype.h>
 #include <math.h>
 
@@ -41,25 +42,25 @@
 /* Function prototypes                                                        */
 /*----------------------------------------------------------------------------*/
 
-static HID_Attribute   *gerber_get_export_options (int *n);
-static void             gerber_do_export          (HID_Attr_Val * options);
-static void             gerber_parse_arguments    (int *argc, char ***argv);
-static int              gerber_set_layer          (const char *name, int group, int empty);
-static hidGC            gerber_make_gc            (void);
-static void             gerber_destroy_gc         (hidGC gc);
-static void             gerber_use_mask           (enum mask_mode mode);
-static void             gerber_set_color          (hidGC gc, const char *name);
-static void             gerber_set_line_cap       (hidGC gc, EndCapStyle style);
-static void             gerber_set_line_width     (hidGC gc, Coord width);
-static void             gerber_set_draw_xor       (hidGC gc, int _xor);
-static void             gerber_draw_line          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void             gerber_draw_arc           (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
-static void             gerber_draw_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void             gerber_fill_circle        (hidGC gc, Coord cx, Coord cy, Coord radius);
-static void             gerber_fill_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
-static void             gerber_calibrate          (double xval, double yval);
-static void             gerber_set_crosshair      (int x, int y, int action);
-static void             gerber_fill_polygon       (hidGC gc, int n_coords, Coord *x, Coord *y);
+static HID_Attribute *gerber_get_export_options (int *n);
+static void  gerber_do_export          (HID_Attr_Val *options);
+static void  gerber_parse_arguments    (int *argc, char ***argv);
+static int   gerber_set_layer          (const char *name, int group, int empty);
+static hidGC gerber_make_gc            (void);
+static void  gerber_destroy_gc         (hidGC gc);
+static void  gerber_use_mask           (enum mask_mode mode);
+static void  gerber_set_color          (hidGC gc, const char *name);
+static void  gerber_set_line_cap       (hidGC gc, EndCapStyle style);
+static void  gerber_set_line_width     (hidGC gc, Coord width);
+static void  gerber_set_draw_xor       (hidGC gc, int _xor);
+static void  gerber_draw_line          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void  gerber_draw_arc           (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle start_angle, Angle delta_angle);
+static void  gerber_draw_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void  gerber_fill_circle        (hidGC gc, Coord cx, Coord cy, Coord radius);
+static void  gerber_fill_rect          (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void  gerber_calibrate          (double xval, double yval);
+static void  gerber_set_crosshair      (int x, int y, int action);
+static void  gerber_fill_polygon       (hidGC gc, int n_coords, Coord *x, Coord *y);
 
 /*----------------------------------------------------------------------------*/
 /* Utility routines                                                           */
@@ -163,6 +164,7 @@ deinitApertureList (ApertureList *list)
 {
   Aperture *search = list->data;
   Aperture *next;
+
   while (search) {
 
       next = search->next;
@@ -275,7 +277,6 @@ setLayerApertureList (int layer_idx)
   if (layer_idx >= layer_list_max) {
 
       int i = layer_list_max;
-
       layer_list_max  = 2 * (layer_idx + 1);
       layer_aptr_list = (ApertureList *)
                         realloc (layer_aptr_list, layer_list_max * sizeof (*layer_aptr_list));
@@ -312,7 +313,7 @@ static int linewidth = -1;
 static int lastgroup = -1;
 static int lastcap = -1;
 static int print_group[MAX_GROUP];
-static int print_layer[MAX_LAYER];
+static int print_layer[MAX_ALL_LAYER];
 static int lastX, lastY;	/* the last X and Y coordinate */
 
 static const char *copy_outline_names[] = {
@@ -401,12 +402,10 @@ static HID_Attribute *
 gerber_get_export_options (int *n)
 {
   static char *last_made_filename = NULL;
-
   if (PCB)
     hc_util_derive_default_filename(PCB->Filename,
                                     &gerber_options[HA_gerberfile],
                                     "", &last_made_filename);
-
   if (n)
     *n = NUM_OPTIONS;
   return gerber_options;
@@ -423,7 +422,6 @@ layer_stack_sort (const void *va, const void *vb)
   if (b_group != a_group) {
     return b_group - a_group;
   }
-
   return b_layer - a_layer;
 }
 
@@ -431,7 +429,6 @@ static void
 maybe_close_f (FILE *f)
 {
   if (f) {
-
     if (was_drill)
       fprintf (f, "M30\r\n");
     else
@@ -451,7 +448,6 @@ static void assign_eagle_file_suffix (char *dest, int idx)
   char *suff = "out";
 
   switch (idx) {
-
     case SL (SILK,      TOP):    suff = "plc"; break;
     case SL (SILK,      BOTTOM): suff = "pls"; break;
     case SL (MASK,      TOP):    suff = "stc"; break;
@@ -466,15 +462,13 @@ static void assign_eagle_file_suffix (char *dest, int idx)
     case SL (ASSY,      BOTTOM): suff = "asb"; break;
 
     default:
-
       group = GetLayerGroupNumberByNumber(idx);
       nlayers = PCB->LayerGroups.Number[group];
-
       if (group == GetLayerGroupNumberBySide(TOP_SIDE)) { /* Component */
 
         suff = "cmp";
       }
-      else if (group == GetLayerGroupNumberBySide(BOTTOM_SIDE)) { /* Solder */
+      else if (group == GetLayerGroupNumberBySide(BOTTOM_SIDE)) {/* Solder */
 
         suff = "sol";
       }
@@ -484,9 +478,10 @@ static void assign_eagle_file_suffix (char *dest, int idx)
       {
         suff = "oln";
       }
-      else
-      {
+      else {
+
         static char buf[20];
+
         sprintf (buf, "ly%d", group);
         suff = buf;
       }
@@ -505,7 +500,6 @@ static void assign_hackvana_file_suffix (char *dest, int idx)
   char *suff = "defau.out";
 
   switch (idx) {
-
     case SL (SILK,      TOP):    suff = "gto"; break;
     case SL (SILK,      BOTTOM): suff = "gbo"; break;
     case SL (MASK,      TOP):    suff = "gts"; break;
@@ -522,10 +516,8 @@ static void assign_hackvana_file_suffix (char *dest, int idx)
     case SL (ASSY,      BOTTOM): suff = "asb"; break;
 
     default:
-
-      group = GetLayerGroupNumberByNumber(idx);
+      group   = GetLayerGroupNumberByNumber(idx);
       nlayers = PCB->LayerGroups.Number[group];
-
       if (group == GetLayerGroupNumberBySide(TOP_SIDE)) {
         suff = "gtl";
       }
@@ -541,6 +533,7 @@ static void assign_hackvana_file_suffix (char *dest, int idx)
       else {
 
         static char buf[20];
+
         sprintf (buf, "g%d", group);
         suff = buf;
       }
@@ -552,11 +545,10 @@ static void assign_hackvana_file_suffix (char *dest, int idx)
 
 static void assign_file_suffix (char *dest, int idx)
 {
-  int fns_style    = FNS_fixed;
+  int fns_style;
   const char *sext = ".gbr";
 
   switch (name_style) {
-
     default:
     case NAME_STYLE_FIXED:  fns_style = FNS_fixed;  break;
     case NAME_STYLE_SINGLE: fns_style = FNS_single; break;
@@ -570,7 +562,6 @@ static void assign_file_suffix (char *dest, int idx)
   }
 
   switch (idx) {
-
     case SL (PDRILL, 0):
       sext = ".cnc";
       break;
@@ -618,12 +609,12 @@ gerber_do_export (HID_Attr_Val * options)
   metric = options[HA_metric].int_value;
 
   if (metric) {
-      x_convspec = "X%.0mu";
-      y_convspec = "Y%.0mu";
+    x_convspec = "X%.0mu";
+    y_convspec = "Y%.0mu";
   }
   else {
-      x_convspec = "X%.0mc";
-      y_convspec = "Y%.0mc";
+    x_convspec = "X%.0mc";
+    y_convspec = "Y%.0mc";
   }
   all_layers = options[HA_all_layers].int_value;
 
@@ -633,7 +624,6 @@ gerber_do_export (HID_Attr_Val * options)
   outline_layer = NULL;
 
   for (i = 0; i < max_copper_layer; i++) {
-
     LayerType *layer = PCB->Data->Layer + i;
     if (strcmp (layer->Name, "outline") == 0 ||
         strcmp (layer->Name, "route") == 0)
@@ -643,7 +633,7 @@ gerber_do_export (HID_Attr_Val * options)
   }
 
   i = strlen (fnbase);
-  filename = (char *)realloc (filename, i + 40);
+  filename = (char*)realloc (filename, i + 40);
   strcpy (filename, fnbase);
   strcat (filename, ".");
   filesuff = filename + strlen (filename);
@@ -663,11 +653,11 @@ gerber_do_export (HID_Attr_Val * options)
 
   for (i = 0; i < max_copper_layer; i++) {
 
-      LayerType *layer = PCB->Data->Layer + i;
-      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN) {
+    LayerType *layer = PCB->Data->Layer + i;
 
-        print_group[GetLayerGroupNumberByNumber (i)] = 1;
-      }
+    if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN) {
+      print_group[GetLayerGroupNumberByNumber (i)] = 1;
+    }
   }
 
   print_group[GetLayerGroupNumberBySide (BOTTOM_SIDE)] = 1;
@@ -721,10 +711,13 @@ static int drill_sort (const void *va, const void *vb)
 {
   PendingDrills *a = (PendingDrills *) va;
   PendingDrills *b = (PendingDrills *) vb;
+
   if (a->diam != b->diam)
     return a->diam - b->diam;
+
   if (a->x != b->x)
     return a->x - b->x;
+
   return a->y - b->y;
 }
 
@@ -732,9 +725,8 @@ static int gerber_set_layer (const char *name, int group, int empty)
 {
   int want_outline;
   char *cp;
-  int idx = (group >= 0
-	     && group <
-	     max_group) ? PCB->LayerGroups.Entries[group][0] : group;
+  int idx =
+  (group >= 0 && group < max_group) ? PCB->LayerGroups.Entries[group][0] : group;
 
   if (name == NULL)
     name = PCB->Data->Layer[idx].Name;
@@ -765,12 +757,10 @@ static int gerber_set_layer (const char *name, int group, int empty)
         Aperture *ap = findAperture (curr_aptr_list, pending_drills[i].diam, ROUND);
         fprintf (f, "T%02d\r\n", ap->dCode);
       }
-
       pcb_fprintf (f, metric ? "X%06.0muY%06.0mu\r\n" : "X%06.0mtY%06.0mt\r\n",
                    gerberDrX (PCB, pending_drills[i].x),
                    gerberDrY (PCB, pending_drills[i].y));
     }
-
     free (pending_drills);
     n_pending_drills = max_pending_drills = 0;
     pending_drills = NULL;
@@ -779,170 +769,176 @@ static int gerber_set_layer (const char *name, int group, int empty)
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   current_mask = HID_MASK_OFF;
+
 #if 0
-  printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
-	  is_mask);
+  printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill, is_mask);
 #endif
 
   if (group < 0 || group != lastgroup) {
 
-      time_t currenttime;
-      char utcTime[64];
 #if HAVE_GETPWUID
-      struct passwd *pwentry;
-#endif
-      ApertureList *aptr_list;
-      Aperture *search;
-
-      lastgroup = group;
-      lastX = -1;
-      lastY = -1;
-      linewidth = -1;
-      lastcap = -1;
-
-      aptr_list = setLayerApertureList (layer_list_idx++);
-
-      if (finding_apertures)
-	goto emit_outline;
-
-      if (aptr_list->count == 0 && !all_layers)
-	return 0;
-
-      maybe_close_f (f);
-      f = NULL;
-
-      pagecount++;
-      assign_file_suffix (filesuff, idx);
-      f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
-      if (f == NULL)
-	{
-	  Message ( "Error:  Could not open %s for writing.\n", filename);
-	  return 1;
-	}
-
-      was_drill = is_drill;
-
-      if (verbose)
-	{
-	  int c = aptr_list->count;
-	  printf ("Gerber: %d aperture%s in %s\n", c, c == 1 ? "" : "s", filename);
-	}
-
-      if (is_drill)
-	{
-	  /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
-	     always six-digit 0.1 mil or µm resolution (i.e. 001100 = 0.11" or 1.1mm)*/
-	  fprintf (f, "M48\r\n");
-	  fprintf (f, metric ? "METRIC,000.000\r\n" : "INCH\r\n");
-	  for (search = aptr_list->data; search; search = search->next)
-		  pcb_fprintf (f, metric ? "T%02dC%.3`mm\r\n" : "T%02dC%.3`mi\r\n", search->dCode, search->width);
-	  fprintf (f, "%%\r\n");
-	  /* FIXME */
-	  return 1;
-	}
-
-      fprintf (f, "G04 start of page %d for group %d idx %d *\r\n",
-               pagecount, group, idx);
-
-      /* Create a portable timestamp. */
-      currenttime = time (NULL);
-      {
-	/* avoid gcc complaints */
-	const char *fmt = "%c UTC";
-	strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
-      }
-      /* Print a cute file header at the beginning of each file. */
-      fprintf (f, "G04 Title: %s, %s *\r\n", UNKNOWN (PCB->Name),
-	       UNKNOWN (name));
-      fprintf (f, "G04 Creator: %s " VERSION " *\r\n", Progname);
-      fprintf (f, "G04 CreationDate: %s *\r\n", utcTime);
-
-#if HAVE_GETPWUID
-      /* ID the user. */
-      pwentry = getpwuid (getuid ());
-      fprintf (f, "G04 For: %s *\r\n", pwentry->pw_name);
+    struct passwd *pwentry;
 #endif
 
-      fprintf (f, "G04 Format: Gerber/RS-274X *\r\n");
-      pcb_fprintf (f, metric ? "G04 PCB-Dimensions (mm): %.2mm %.2mm *\r\n" :
-	       "G04 PCB-Dimensions (mil): %.2ml %.2ml *\r\n",
-	       PCB->MaxWidth, PCB->MaxHeight);
-      fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\r\n");
+    time_t currenttime;
+    char utcTime[64];
 
-      /* Signal data in inches. */
-      fprintf (f, metric ? "%%MOMM*%%\r\n" : "%%MOIN*%%\r\n");
+    ApertureList *aptr_list;
+    Aperture     *search;
 
-      /* Signal Leading zero suppression, Absolute Data, 2.5 format in inch, 4.3 in mm */
-      fprintf (f, metric ? "%%FSLAX43Y43*%%\r\n" : "%%FSLAX25Y25*%%\r\n");
+    lastgroup = group;
+    lastX     = -1;
+    lastY     = -1;
+    linewidth = -1;
+    lastcap   = -1;
 
-      /* build a legal identifier. */
-      if (layername)
-	free (layername);
-      layername = strdup (filesuff);
-      if (strrchr (layername, '.'))
-	* strrchr (layername, '.') = 0;
+    aptr_list = setLayerApertureList (layer_list_idx++);
 
-      for (cp=layername; *cp; cp++)
-	{
-	  if (isalnum((int) *cp))
-	    *cp = toupper((int) *cp);
-	  else
-	    *cp = '_';
-	}
-      fprintf (f, "%%LN%s*%%\r\n", layername);
-      lncount = 1;
+    if (finding_apertures)
+      goto emit_outline;
 
-      for (search = aptr_list->data; search; search = search->next)
-        fprintAperture(f, search);
-      if (aptr_list->count == 0)
-	/* We need to put *something* in the file to make it be parsed
-	   as RS-274X instead of RS-274D. */
-	fprintf (f, "%%ADD11C,0.0100*%%\r\n");
+    if (aptr_list->count == 0 && !all_layers)
+      return 0;
+
+    maybe_close_f (f);
+    f = NULL;
+
+    pagecount++;
+    assign_file_suffix (filesuff, idx);
+
+    f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
+
+    if (f == NULL) {
+
+      Message ( "Error:  Could not open %s for writing.\n", filename);
+    return 1;
     }
 
- emit_outline:
+    was_drill = is_drill;
+
+    if (verbose) {
+
+      int c = aptr_list->count;
+      printf ("Gerber: %d aperture%s in %s\n", c,
+      c == 1 ? "" : "s", filename);
+    }
+
+    if (is_drill) {
+
+      /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
+       *     always six-digit 0.1 mil or µm resolution (i.e. 001100 = 0.11" or 1.1mm)*/
+      fprintf (f, "M48\r\n");
+      fprintf (f, metric ? "METRIC,000.000\r\n" : "INCH\r\n");
+      for (search = aptr_list->data; search; search = search->next)
+        pcb_fprintf (f, metric ? "T%02dC%.3`mm\r\n" : "T%02dC%.3`mi\r\n", search->dCode, search->width);
+      fprintf (f, "%%\r\n");
+      /* FIXME */
+      return 1;
+    }
+
+    fprintf (f, "G04 start of page %d for group %d idx %d *\r\n",
+             pagecount, group, idx);
+
+    /* Create a portable timestamp. */
+    currenttime = time (NULL);
+    {
+      /* avoid gcc complaints */
+      const char *fmt = "%c UTC";
+      strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
+    }
+    /* Print a cute file header at the beginning of each file. */
+    fprintf (f, "G04 Title: %s, %s *\r\n", UNKNOWN(PCB->Name), UNKNOWN(name));
+    fprintf (f, "G04 Creator: %s " VERSION " *\r\n", Progname);
+    fprintf (f, "G04 CreationDate: %s *\r\n", utcTime);
+
+#if HAVE_GETPWUID
+    /* ID the user. */
+    pwentry = getpwuid (getuid ());
+    fprintf (f, "G04 For: %s *\r\n", pwentry->pw_name);
+#endif
+
+    fprintf (f, "G04 Format: Gerber/RS-274X *\r\n");
+    pcb_fprintf (f, metric ? "G04 PCB-Dimensions (mm): %.2mm %.2mm *\r\n" :
+    "G04 PCB-Dimensions (mil): %.2ml %.2ml *\r\n",
+                 PCB->MaxWidth, PCB->MaxHeight);
+    fprintf (f, "G04 PCB-Coordinate-Origin: lower left *\r\n");
+
+    /* Signal data in inches. */
+    fprintf (f, metric ? "%%MOMM*%%\r\n" : "%%MOIN*%%\r\n");
+
+    /* Signal Leading zero suppression, Absolute Data, 2.5 format in inch, 4.3 in mm */
+    fprintf (f, metric ? "%%FSLAX43Y43*%%\r\n" : "%%FSLAX25Y25*%%\r\n");
+
+    /* build a legal identifier. */
+    if (layername)
+      free (layername);
+
+    layername = strdup (filesuff);
+
+    if (strrchr (layername, '.'))
+      *strrchr (layername, '.') = 0;
+
+    for (cp=layername; *cp; cp++) {
+
+      if (isalnum((int) *cp))
+        *cp = toupper((int) *cp);
+      else
+        *cp = '_';
+    }
+
+    fprintf (f, "%%LN%s*%%\r\n", layername);
+    lncount = 1;
+
+    for (search = aptr_list->data; search; search = search->next)
+      fprintAperture(f, search);
+    if (aptr_list->count == 0)
+      /* We need to put *something* in the file to make it be parsed
+       *   as RS-274X instead of RS-274D. */
+      fprintf (f, "%%ADD11C,0.0100*%%\r\n");
+  }
+
+  emit_outline:
   /* If we're printing a copper layer other than the outline layer,
-     and we want to "print outlines", and we have an outline layer,
-     print the outline layer on this layer also.  */
+   *    and we want to "print outlines", and we have an outline layer,
+   *    print the outline layer on this layer also.  */
   want_outline = 0;
   if (copy_outline_mode == COPY_OUTLINE_MASK
-      && SL_TYPE (idx) == SL_MASK)
+    && SL_TYPE (idx) == SL_MASK)
     want_outline = 1;
   if (copy_outline_mode == COPY_OUTLINE_SILK
-      && SL_TYPE (idx) == SL_SILK)
+    && SL_TYPE (idx) == SL_SILK)
     want_outline = 1;
-  if (copy_outline_mode == COPY_OUTLINE_ALL
-      && (SL_TYPE (idx) == SL_SILK
-	  || SL_TYPE (idx) == SL_MASK
-	  || SL_TYPE (idx) == SL_FAB
-	  || SL_TYPE (idx) == SL_ASSY
-	  || SL_TYPE (idx) == 0))
+  if (copy_outline_mode == COPY_OUTLINE_ALL && (SL_TYPE (idx) == SL_SILK ||
+                                                SL_TYPE (idx) == SL_MASK ||
+                                                SL_TYPE (idx) == SL_FAB  ||
+                                                SL_TYPE (idx) == SL_ASSY ||
+                                                SL_TYPE (idx) == 0))
+  {
     want_outline = 1;
+  }
 
-  if (want_outline
-      && strcmp (name, "outline")
-      && strcmp (name, "route"))
+  if (want_outline && strcmp (name, "outline") && strcmp (name, "route"))
+  {
+    if (outline_layer
+      && outline_layer != PCB->Data->Layer+idx)
+      DrawLayer (outline_layer, &region);
+    else if (!outline_layer)
     {
-      if (outline_layer
-	  && outline_layer != PCB->Data->Layer+idx)
-	DrawLayer (outline_layer, &region);
-      else if (!outline_layer)
-	{
-	  hidGC gc = gui->graphics->make_gc ();
-	  printf("name %s idx %d\n", name, idx);
-	  if (SL_TYPE (idx) == SL_SILK)
-	    gui->graphics->set_line_width (gc, PCB->minSlk);
-	  else if (group >= 0)
-	    gui->graphics->set_line_width (gc, PCB->minWid);
-	  else
-	    gui->graphics->set_line_width (gc, AUTO_OUTLINE_WIDTH);
-	  gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
-	  gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
-	  gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->graphics->destroy_gc (gc);
-	}
+      hidGC gc = gui->graphics->make_gc ();
+      printf("name %s idx %d\n", name, idx);
+    if (SL_TYPE (idx) == SL_SILK)
+      gui->graphics->set_line_width (gc, PCB->minSlk);
+    else if (group >= 0)
+      gui->graphics->set_line_width (gc, PCB->minWid);
+    else
+      gui->graphics->set_line_width (gc, AUTO_OUTLINE_WIDTH);
+    gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
+    gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
+    gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
+    gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
+    gui->graphics->destroy_gc (gc);
     }
+  }
 
   return 1;
 }
@@ -970,24 +966,24 @@ gerber_use_mask (enum mask_mode mode)
 static void
 gerber_set_color (hidGC gc, const char *name)
 {
-  if (strcmp (name, "erase") == 0) {
-
-    gc->color = 1;
-    gc->erase = 1;
-    gc->drill = 0;
-  }
-  else if (strcmp (name, "drill") == 0) {
-
-    gc->color = 1;
-    gc->erase = 0;
-    gc->drill = 1;
-  }
-  else {
-
-    gc->color = 0;
-    gc->erase = 0;
-    gc->drill = 0;
-  }
+  if (strcmp (name, "erase") == 0)
+    {
+      gc->color = 1;
+      gc->erase = 1;
+      gc->drill = 0;
+    }
+  else if (strcmp (name, "drill") == 0)
+    {
+      gc->color = 1;
+      gc->erase = 0;
+      gc->drill = 1;
+    }
+  else
+    {
+      gc->color = 0;
+      gc->erase = 0;
+      gc->drill = 0;
+    }
 }
 
 static void
@@ -1011,51 +1007,45 @@ gerber_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc, int radius)
 {
-  if (radius) {
+  if (radius)
+    {
+      radius *= 2;
+      if (radius != linewidth || lastcap != Round_Cap)
+	{
+	  Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
+	  if (aptr == NULL)
+	    pcb_fprintf (stderr, "error: aperture for radius %$mS type ROUND is null\n", radius);
+	  else if (f && !is_drill)
+	    fprintf (f, "G54D%d*", aptr->dCode);
+	  linewidth = radius;
+	  lastcap = Round_Cap;
+	}
+    }
+  else if (linewidth != gc->width || lastcap != gc->cap)
+    {
+      Aperture *aptr;
+      ApertureShape shape;
 
-    radius *= 2;
-
-    if (radius != linewidth || lastcap != Round_Cap) {
-
-      Aperture *aptr = findAperture (curr_aptr_list, radius, ROUND);
+      linewidth = gc->width;
+      lastcap = gc->cap;
+      switch (gc->cap)
+	{
+	case Round_Cap:
+	case Trace_Cap:
+	  shape = ROUND;
+	  break;
+	default:
+	case Square_Cap:
+	  shape = SQUARE;
+	  break;
+	}
+      aptr = findAperture (curr_aptr_list, linewidth, shape);
       if (aptr == NULL)
-        pcb_fprintf (stderr, "error: aperture for radius %$mS type ROUND is null\n", radius);
-      else if (f && !is_drill)
-        fprintf (f, "G54D%d*", aptr->dCode);
-      linewidth = radius;
-      lastcap = Round_Cap;
+        pcb_fprintf (stderr, "error: aperture for width %$mS type %s is null\n",
+                 linewidth, shape == ROUND ? "ROUND" : "SQUARE");
+      else if (f)
+	fprintf (f, "G54D%d*", aptr->dCode);
     }
-  }
-  else if (linewidth != gc->width || lastcap != gc->cap) {
-
-    Aperture *aptr;
-    ApertureShape shape;
-
-    linewidth = gc->width;
-    lastcap = gc->cap;
-
-    switch (gc->cap) {
-
-      case Round_Cap:
-      case Trace_Cap:
-        shape = ROUND;
-        break;
-      default:
-      case Square_Cap:
-        shape = SQUARE;
-        break;
-    }
-
-    aptr = findAperture (curr_aptr_list, linewidth, shape);
-
-    if (aptr == NULL) {
-      pcb_fprintf (stderr, "error: aperture for width %$mS type %s is null\n",
-                   linewidth, shape == ROUND ? "ROUND" : "SQUARE");
-    }
-    else if (f) {
-        fprintf (f, "G54D%d*", aptr->dCode);
-    }
-  }
 }
 
 static void
@@ -1072,76 +1062,63 @@ gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   bool m = false;
 
-  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap) {
+  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
+    {
+      Coord x[5], y[5];
+      double tx, ty, theta;
 
-    Coord x[5], y[5];
-    double tx, ty, theta;
+      theta = atan2 (y2-y1, x2-x1);
 
-    theta = atan2 (y2-y1, x2-x1);
+      /* T is a vector half a thickness long, in the direction of
+	 one of the corners.  */
+      tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
+      ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
 
-    /* T is a vector half a thickness long, in the direction of
-     * one of the corners.  */
-    tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
-    ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
+      x[0] = x1 - tx;      y[0] = y1 - ty;
+      x[1] = x2 + ty;      y[1] = y2 - tx;
+      x[2] = x2 + tx;      y[2] = y2 + ty;
+      x[3] = x1 - ty;      y[3] = y1 + tx;
 
-    x[0] = x1 - tx;      y[0] = y1 - ty;
-    x[1] = x2 + ty;      y[1] = y2 - tx;
-    x[2] = x2 + tx;      y[2] = y2 + ty;
-    x[3] = x1 - ty;      y[3] = y1 + tx;
-
-    x[4] = x[0]; y[4] = y[0];
-    gerber_fill_polygon (gc, 5, x, y);
-    return;
-  }
+      x[4] = x[0]; y[4] = y[0];
+      gerber_fill_polygon (gc, 5, x, y);
+      return;
+    }
 
   use_gc (gc, 0);
   if (!f)
     return;
 
-  if (x1 != lastX) {
-
-    m = true;
-    lastX = x1;
-    print_xcoord (f, PCB, lastX);
-  }
-
-  if (y1 != lastY) {
-
-    m = true;
-    lastY = y1;
-    print_ycoord (f, PCB, lastY);
-
-  }
-
-  if ((x1 == x2) && (y1 == y2)) {
-
-    fprintf (f, "D03*\r\n");
-
-  }
-  else {
-
-    if (m) {
-
-      fprintf (f, "D02*");
-
-    }
-
-    if (x2 != lastX) {
-
-      lastX = x2;
+  if (x1 != lastX)
+    {
+      m = true;
+      lastX = x1;
       print_xcoord (f, PCB, lastX);
-
     }
-
-    if (y2 != lastY) {
-
-      lastY = y2;
+  if (y1 != lastY)
+    {
+      m = true;
+      lastY = y1;
       print_ycoord (f, PCB, lastY);
-
+    }
+  if ((x1 == x2) && (y1 == y2))
+    fprintf (f, "D03*\r\n");
+  else
+    {
+      if (m)
+	fprintf (f, "D02*");
+      if (x2 != lastX)
+	{
+	  lastX = x2;
+	  print_xcoord (f, PCB, lastX);
+	}
+      if (y2 != lastY)
+	{
+	  lastY = y2;
+	  print_ycoord (f, PCB, lastY);
+	}
+      fprintf (f, "D01*\r\n");
     }
 
-    fprintf (f, "D01*\r\n");
-  }
 }
 
 static void
@@ -1186,8 +1163,9 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
       x0 = arcStartX;
       y0 = arcStartY;
       angle = start_angle;
-      while (nsteps > 0)
-	{
+
+      while (nsteps > 0) {
+
 	  nsteps --;
 	  x1 = cx - width * cos (TO_RADIANS (angle+step));
 	  y1 = cy + height * sin (TO_RADIANS (angle+step));
@@ -1208,14 +1186,17 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
       lastX = arcStartX;
       print_xcoord (f, PCB, lastX);
   }
+
   if (arcStartY != lastY) {
 
       m = true;
       lastY = arcStartY;
       print_ycoord (f, PCB, lastY);
   }
-  if (m)
+  if (m) {
     fprintf (f, "D02*");
+  }
+
   pcb_fprintf (f,
 	   metric ? "G75*G0%1dX%.0muY%.0muI%.0muJ%.0muD01*G01*\r\n" :
 	   "G75*G0%1dX%.0mcY%.0mcI%.0mcJ%.0mcD01*G01*\r\n",
@@ -1235,14 +1216,12 @@ gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   if (is_drill)
     radius = 50 * round (radius / 50.0);
   use_gc (gc, radius);
-
   if (!f)
     return;
+  if (is_drill) {
 
-  if (is_drill)
-    {
-      if (n_pending_drills >= max_pending_drills)
-	{
+      if (n_pending_drills >= max_pending_drills) {
+
 	  max_pending_drills += 100;
 	  pending_drills = (PendingDrills *) realloc(pending_drills,
 	                                             max_pending_drills *
@@ -1256,16 +1235,16 @@ gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
     }
   else if (gc->drill && !flash_drills)
     return;
-  if (cx != lastX)
-    {
+  if (cx != lastX) {
+
       lastX = cx;
       print_xcoord (f, PCB, lastX);
-    }
-  if (cy != lastY)
-    {
+  }
+  if (cy != lastY) {
+
       lastY = cy;
       print_ycoord (f, PCB, lastY);
-    }
+  }
   fprintf (f, "D03*\r\n");
 }
 
@@ -1283,7 +1262,6 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
   use_gc (gc, 10 * 100);
   if (!f)
     return;
-
   fprintf (f, "G36*\r\n");
 
   for (i = 0; i < n_coords; i++) {
@@ -1294,14 +1272,12 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
       lastX = x[i];
       print_xcoord (f, PCB, lastX);
     }
-
     if (y[i] != lastY) {
 
       m = true;
       lastY = y[i];
       print_ycoord (f, PCB, lastY);
     }
-
     if (firstTime) {
 
       firstTime = 0;
@@ -1310,31 +1286,24 @@ gerber_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
       if (m)
         fprintf (f, "D02*");
     }
-    else if (m) {
+    else if (m)
       fprintf (f, "D01*\r\n");
-    }
-
     m = false;
   }
-
   if (startX != lastX) {
 
     m = true;
     lastX = startX;
     print_xcoord (f, PCB, startX);
   }
-
   if (startY != lastY) {
 
     m = true;
     lastY = startY;
     print_ycoord (f, PCB, lastY);
   }
-
-  if (m) {
+  if (m)
     fprintf (f, "D01*\r\n");
-  }
-
   fprintf (f, "G37*\r\n");
 }
 

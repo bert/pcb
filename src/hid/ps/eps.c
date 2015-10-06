@@ -66,7 +66,7 @@ static Coord linewidth = -1;
 static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_GROUP];
-static int print_layer[MAX_LAYER];
+static int print_layer[MAX_ALL_LAYER];
 static int fast_erase = -1;
 
 static HID_Attribute eps_attribute_list[] = {
@@ -141,10 +141,14 @@ eps_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
 
-  if (PCB) hc_util_derive_default_filename(PCB->Filename, &eps_attribute_list[HA_psfile], ".eps", &last_made_filename);
+  if (PCB)
+    hc_util_derive_default_filename(PCB->Filename,
+                                    &eps_attribute_list[HA_psfile],
+                                    ".eps", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
+
   return eps_attribute_list;
 }
 
@@ -273,15 +277,15 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
 #define pcb2em(x) 1 + COORD_TO_INCH (x) * 72.0 * options[HA_scale].real_value
   fprintf (f, "%%%%BoundingBox: 0 0 %lli %lli\n",
-       llrint (pcb2em (bounds->X2 - bounds->X1)),
-       llrint (pcb2em (bounds->Y2 - bounds->Y1)) );
+	   llrint (pcb2em (bounds->X2 - bounds->X1)),
+	   llrint (pcb2em (bounds->Y2 - bounds->Y1)) );
   fprintf (f, "%%%%HiResBoundingBox: 0.000000 0.000000 %.6f %.6f\n",
-       pcb2em (bounds->X2 - bounds->X1),
-       pcb2em (bounds->Y2 - bounds->Y1));
+	   pcb2em (bounds->X2 - bounds->X1),
+	   pcb2em (bounds->Y2 - bounds->Y1));
 #undef pcb2em
   fprintf (f, "%%%%Pages: 1\n");
   fprintf (f,
-       "save countdictstack mark newpath /showpage {} def /setpagedevice {pop} def\n");
+	   "save countdictstack mark newpath /showpage {} def /setpagedevice {pop} def\n");
   fprintf (f, "%%%%EndProlog\n");
   fprintf (f, "%%%%Page: 1 1\n");
   fprintf (f, "%%%%BeginDocument: %s\n\n", filename);
@@ -290,30 +294,27 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "1 dup neg scale\n");
   fprintf (f, "%g dup scale\n", options[HA_scale].real_value);
   pcb_fprintf (f, "%mi %mi translate\n", -bounds->X1, -bounds->Y2);
-
-  if (options[HA_as_shown].int_value && Settings.ShowBottomSide) {
+  if (options[HA_as_shown].int_value && Settings.ShowBottomSide)
     pcb_fprintf (f, "-1 1 scale %mi 0 translate\n", bounds->X1 - bounds->X2);
-  }
-
   linewidth = -1;
   lastcap = -1;
   lastcolor = -1;
 #define Q (Coord) MIL_TO_COORD(10)
   pcb_fprintf (f,
-       "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
-       bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
-       bounds->X2 + Q, bounds->Y2 + Q, bounds->X2 + Q, bounds->Y1 - Q,
-       bounds->X1 - Q, bounds->Y1 - Q);
+	   "/nclip { %mi %mi moveto %mi %mi lineto %mi %mi lineto %mi %mi lineto %mi %mi lineto eoclip newpath } def\n",
+	   bounds->X1 - Q, bounds->Y1 - Q, bounds->X1 - Q, bounds->Y2 + Q,
+	   bounds->X2 + Q, bounds->Y2 + Q, bounds->X2 + Q, bounds->Y1 - Q,
+	   bounds->X1 - Q, bounds->Y1 - Q);
 #undef Q
   fprintf (f, "/t { moveto lineto stroke } bind def\n");
   fprintf (f, "/tc { moveto lineto strokepath nclip } bind def\n");
   fprintf (f, "/r { /y2 exch def /x2 exch def /y1 exch def /x1 exch def\n");
   fprintf (f,
-       "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
+	   "     x1 y1 moveto x1 y2 lineto x2 y2 lineto x2 y1 lineto closepath fill } bind def\n");
   fprintf (f, "/c { 0 360 arc fill } bind def\n");
   fprintf (f, "/cc { 0 360 arc nclip } bind def\n");
   fprintf (f,
-       "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
+	   "/a { gsave setlinewidth translate scale 0 0 1 5 3 roll arc stroke grestore} bind def\n");
 
   hid_expose_callback (&eps_hid, bounds, 0);
 
@@ -328,7 +329,6 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   PCB->Flags = save_thindraw;
 }
 
-
 static void
 eps_do_export (HID_Attr_Val * options)
 {
@@ -338,8 +338,11 @@ eps_do_export (HID_Attr_Val * options)
   if (!options) {
 
     eps_get_export_options (0);
-    for (i = 0; i < NUM_OPTIONS; i++)
+
+    for (i = 0; i < NUM_OPTIONS; i++) {
       eps_values[i] = eps_attribute_list[i].default_val;
+    }
+
     options = eps_values;
   }
 
@@ -350,16 +353,19 @@ eps_do_export (HID_Attr_Val * options)
   f = fopen (filename, "w");
 
   if (!f) {
-
-    perror (filename);
-    return;
+      perror (filename);
+      return;
   }
 
-  if (!options[HA_as_shown].int_value)
+  if (!options[HA_as_shown].int_value) {
     hid_save_and_show_layer_ons (save_ons);
+  }
+
   eps_hid_export_to_file (f, options);
-  if (!options[HA_as_shown].int_value)
+
+  if (!options[HA_as_shown].int_value) {
     hid_restore_layer_ons (save_ons);
+  }
 
   fclose (f);
 }
@@ -368,8 +374,8 @@ static void
 eps_parse_arguments (int *argc, char ***argv)
 {
   hid_register_attributes (eps_attribute_list,
-                           sizeof (eps_attribute_list) /
-                           sizeof (eps_attribute_list[0]));
+			   sizeof (eps_attribute_list) /
+			   sizeof (eps_attribute_list[0]));
   hid_parse_command_line (argc, argv);
 }
 
@@ -380,14 +386,16 @@ static int is_drill;
 static int
 eps_set_layer (const char *name, int group, int empty)
 {
-  int idx = (group >= 0
-	     && group <
-	     max_group) ? PCB->LayerGroups.Entries[group][0] : group;
-  if (name == 0)
+  int idx =
+  (group >= 0 && group < max_group) ? PCB->LayerGroups.Entries[group][0] : group;
+
+  if (name == 0) {
     name = PCB->Data->Layer[idx].Name;
+  }
 
   if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
     return 0;
+
   if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
     return 0;
 
@@ -407,28 +415,25 @@ eps_set_layer (const char *name, int group, int empty)
   fprintf (f, "%% Layer %s group %d drill %d mask %d\n", name, group,
 	   is_drill, is_mask);
 
-  if (as_shown)
-    {
-      switch (idx)
-	{
-	case SL (SILK, TOP):
-	case SL (SILK, BOTTOM):
-	  if (SL_MYSIDE (idx))
-	    return PCB->ElementOn;
-	  else
-	    return 0;
-	}
+  if (as_shown) {
+
+    switch (idx) {
+      case SL (SILK, TOP):
+      case SL (SILK, BOTTOM):
+        if (SL_MYSIDE (idx))
+          return PCB->ElementOn;
+        else
+          return 0;
     }
-  else
-    {
-      switch (idx)
-	{
-	case SL (SILK, TOP):
-	  return 1;
-	case SL (SILK, BOTTOM):
-	  return 0;
-	}
+  }
+  else {
+    switch (idx) {
+      case SL (SILK, TOP):
+        return 1;
+      case SL (SILK, BOTTOM):
+        return 0;
     }
+  }
 
   return 1;
 }
@@ -453,25 +458,23 @@ static void
 eps_use_mask (enum mask_mode mode)
 {
   static int mask_pending = 0;
-  switch (mode)
-    {
+
+  switch (mode) {
     case HID_MASK_CLEAR:
-      if (!mask_pending)
-	{
-	  mask_pending = 1;
-	  fprintf (f, "gsave\n");
-	}
+      if (!mask_pending) {
+	    mask_pending = 1;
+	    fprintf (f, "gsave\n");
+      }
       break;
     case HID_MASK_BEFORE:
     case HID_MASK_AFTER:
       break;
     case HID_MASK_OFF:
-      if (mask_pending)
-	{
-	  mask_pending = 0;
-	  fprintf (f, "grestore\n");
-	  lastcolor = -1;
-	}
+      if (mask_pending) {
+        mask_pending = 0;
+        fprintf (f, "grestore\n");
+        lastcolor = -1;
+      }
       break;
     }
 }
@@ -482,35 +485,35 @@ eps_set_color (hidGC gc, const char *name)
   static void *cache = 0;
   hidval cval;
 
-  if (strcmp (name, "erase") == 0)
-    {
+  if (strcmp (name, "erase") == 0) {
       gc->color = 0xffffff;
       gc->erase = fast_erase ? 0 : 1;
       return;
-    }
-  if (strcmp (name, "drill") == 0)
-    {
+  }
+
+  if (strcmp (name, "drill") == 0) {
       gc->color = 0xffffff;
       gc->erase = 0;
       return;
-    }
+  }
+
   gc->erase = 0;
-  if (hid_cache_color (0, name, &cval, &cache))
-    {
+
+  if (hid_cache_color (0, name, &cval, &cache)) {
       gc->color = cval.lval;
-    }
-  else if (in_mono)
-    {
+  }
+  else if (in_mono) {
       gc->color = 0;
-    }
-  else if (name[0] == '#')
-    {
+  }
+  else if (name[0] == '#') {
+
       unsigned int r, g, b;
       sscanf (name + 1, "%2x%2x%2x", &r, &g, &b);
       gc->color = (r << 16) + (g << 8) + b;
-    }
-  else
+  }
+  else {
     gc->color = 0;
+  }
 }
 
 static void
@@ -534,35 +537,41 @@ eps_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc)
 {
-  if (linewidth != gc->width)
-    {
+  if (linewidth != gc->width) {
+
       pcb_fprintf (f, "%mi setlinewidth\n", gc->width);
       linewidth = gc->width;
+  }
+
+  if (lastcap != gc->cap) {
+
+    int c;
+
+    switch (gc->cap) {
+
+      case Round_Cap:
+      case Trace_Cap:
+        c = 1;
+        break;
+      default:
+      case Square_Cap:
+        c = 2;
+        break;
     }
-  if (lastcap != gc->cap)
-    {
-      int c;
-      switch (gc->cap)
-	{
-	case Round_Cap:
-	case Trace_Cap:
-	  c = 1;
-	  break;
-	default:
-	case Square_Cap:
-	  c = 2;
-	  break;
-	}
-      fprintf (f, "%d setlinecap\n", c);
-      lastcap = gc->cap;
-    }
-  if (lastcolor != gc->color)
-    {
+
+    fprintf (f, "%d setlinecap\n", c);
+    lastcap = gc->cap;
+  }
+
+  if (lastcolor != gc->color) {
+
       int c = gc->color;
+
 #define CV(x,b) (((x>>b)&0xff)/255.0)
+
       fprintf (f, "%g %g %g setrgbcolor\n", CV (c, 16), CV (c, 8), CV (c, 0));
       lastcolor = gc->color;
-    }
+  }
 }
 
 static void eps_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
@@ -579,17 +588,20 @@ static void
 eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   Coord w = gc->width / 2;
-  if (x1 == x2 && y1 == y2)
-    {
+
+  if (x1 == x2 && y1 == y2) {
+
       if (gc->cap == Square_Cap)
 	eps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       else
 	eps_fill_circle (gc, x1, y1, w);
       return;
-    }
+  }
+
   use_gc (gc);
-  if (gc->erase && gc->cap != Square_Cap)
-    {
+
+  if (gc->erase && gc->cap != Square_Cap) {
+
       double ang = atan2 (y2 - y1, x2 - x1);
       double dx = w * sin (ang);
       double dy = -w * cos (ang);
@@ -603,7 +615,7 @@ eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
       fprintf (f, "nclip\n");
 
       return;
-    }
+  }
   pcb_fprintf (f, "%mi %mi %mi %mi %s\n", x1, y1, x2, y2, gc->erase ? "tc" : "t");
 }
 
@@ -612,23 +624,26 @@ eps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	      Angle start_angle, Angle delta_angle)
 {
   Angle sa, ea;
-  if (delta_angle > 0)
-    {
+
+  if (delta_angle > 0) {
+
       sa = start_angle;
       ea = start_angle + delta_angle;
-    }
-  else
-    {
+  }
+  else {
+
       sa = start_angle + delta_angle;
       ea = start_angle;
     }
+
 #if 0
   printf ("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
+
   use_gc (gc);
   pcb_fprintf (f, "%ma %ma %mi %mi %mi %mi %g a\n",
-	   sa, ea, -width, height, cx, cy, (double) linewidth / width);
+               sa, ea, -width, height, cx, cy, (double) linewidth / width);
 }
 
 static void
@@ -643,12 +658,13 @@ eps_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   int i;
   char *op = "moveto";
+
   use_gc (gc);
-  for (i = 0; i < n_coords; i++)
-    {
+
+  for (i = 0; i < n_coords; i++) {
       pcb_fprintf (f, "%mi %mi %s\n", x[i], y[i], op);
       op = "lineto";
-    }
+  }
   fprintf (f, "fill\n");
 }
 

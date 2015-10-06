@@ -253,7 +253,7 @@ typedef enum
 {
   PCB_WATCH_READABLE = 1 << 0, /**< As in POLLIN */
   PCB_WATCH_WRITABLE = 1 << 1, /**< As in POLLOUT */
-  PCB_WATCH_ERROR    = 1 << 2, /**< As in POLLERR */ 
+  PCB_WATCH_ERROR    = 1 << 2, /**< As in POLLERR */
   PCB_WATCH_HANGUP   = 1 << 3  /**< As in POLLHUP */
 } PCBWatchFlags;
 
@@ -383,9 +383,11 @@ typedef enum
        screen may be adjusted so that the cursor and the crosshair are
        at the same point on the screen.  */
     void (*set_crosshair) (int x_, int y_, int cursor_action_);
-#define HID_SC_DO_NOTHING	0
-#define HID_SC_WARP_POINTER	1
-#define HID_SC_PAN_VIEWPORT	2
+#define HID_SC_DO_NOTHING                          0
+#define HID_SC_WARP_POINTER	                       1
+#define HID_SC_PAN_VIEWPORT                        2
+#define HID_SC_CENTER_IN_VIEWPORT                  3
+#define HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER 4
 
     /* Causes func to be called at some point in the future.  Timers are
        only good for *one* call; if you want it to repeat, add another
@@ -446,7 +448,7 @@ typedef enum
        HID's this would mean a file select dialog box.  The 'flags'
        argument is the bitwise OR of the following values.  */
 #define HID_FILESELECT_READ  0x01
-    
+
     /* The function calling hid->fileselect will deal with the case
        where the selected file already exists.  If not given, then the
        gui will prompt with an "overwrite?" prompt.  Only used when
@@ -475,7 +477,7 @@ typedef enum
      *
      * flags are the bitwise or of the HID_FILESELECT defines above
      */
-    
+
     char *(*fileselect) (const char *title_, const char *descr_,
 			 char *default_file_, char *default_ext_,
 			 const char *history_tag_, int flags_);
@@ -483,11 +485,11 @@ typedef enum
     /* A generic dialog to ask for a set of attributes.  If n_attrs is
        zero, attrs(.name) must be NULL terminated.  Returns non-zero if
        an error occurred (usually, this means the user cancelled the
-       dialog or something). title is the title of the dialog box 
+       dialog or something). title is the title of the dialog box
        descr (if not NULL) can be a longer description of what the
        attributes are used for.  The HID may choose to ignore it or it
        may use it for a tooltip or text in a dialog box, or a help
-       string. 
+       string.
     */
     int (*attribute_dialog) (HID_Attribute * attrs_,
 			     int n_attrs_, HID_Attr_Val * results_,

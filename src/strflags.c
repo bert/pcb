@@ -24,32 +24,26 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <stdio.h>
 #include <ctype.h>
-#ifdef HAVE_STDLIB_H
+#if HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
-#ifdef HAVE_STRING_H
+#if HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef FLAG_TEST
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
 #endif
 
 #include "globalconst.h"
 #include "global.h"
 #include "compat.h"
-#include "const.h"
+#include "hid.h"
 #include "strflags.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -113,28 +107,28 @@ static FlagBitsType object_flagbits[] = {
 };
 
 static FlagBitsType pcb_flagbits[] = {
-  { SHOWNUMBERFLAG, N ("shownumber"), 1 },
-  { LOCALREFFLAG, N ("localref"), 1 },
-  { CHECKPLANESFLAG, N ("checkplanes"), 1 },
-  { SHOWDRCFLAG, N ("showdrc"), 1 },
-  { RUBBERBANDFLAG, N ("rubberband"), 1 },
-  { DESCRIPTIONFLAG, N ("description"), 1 },
-  { NAMEONPCBFLAG, N ("nameonpcb"), 1 },
-  { AUTODRCFLAG, N ("autodrc"), 1 },
-  { ALLDIRECTIONFLAG, N ("alldirection"), 1 },
-  { SWAPSTARTDIRFLAG, N ("swapstartdir"), 1 },
-  { UNIQUENAMEFLAG, N ("uniquename"), 1 },
-  { CLEARNEWFLAG, N ("clearnew"), 1 },
-  { NEWFULLPOLYFLAG, N ("newfullpoly"), 1 },
-  { SNAPPINFLAG, N ("snappin"), 1 },
-  { SHOWMASKFLAG, N ("showmask"), 1 },
-  { THINDRAWFLAG, N ("thindraw"), 1 },
-  { ORTHOMOVEFLAG, N ("orthomove"), 1 },
-  { LIVEROUTEFLAG, N ("liveroute"), 1 },
-  { THINDRAWPOLYFLAG, N ("thindrawpoly"), 1 },
-  { LOCKNAMESFLAG, N ("locknames"), 1 },
-  { ONLYNAMESFLAG, N ("onlynames"), 1 },
-  { HIDENAMESFLAG, N ("hidenames"), 1 },
+  { SHOWNUMBERFLAG, N ("shownumber"), ALL_TYPES },
+  { LOCALREFFLAG, N ("localref"), ALL_TYPES },
+  { CHECKPLANESFLAG, N ("checkplanes"), ALL_TYPES },
+  { SHOWDRCFLAG, N ("showdrc"), ALL_TYPES },
+  { RUBBERBANDFLAG, N ("rubberband"), ALL_TYPES },
+  { DESCRIPTIONFLAG, N ("description"), ALL_TYPES },
+  { NAMEONPCBFLAG, N ("nameonpcb"), ALL_TYPES },
+  { AUTODRCFLAG, N ("autodrc"), ALL_TYPES },
+  { ALLDIRECTIONFLAG, N ("alldirection"), ALL_TYPES },
+  { SWAPSTARTDIRFLAG, N ("swapstartdir"), ALL_TYPES },
+  { UNIQUENAMEFLAG, N ("uniquename"), ALL_TYPES },
+  { CLEARNEWFLAG, N ("clearnew"), ALL_TYPES },
+  { NEWFULLPOLYFLAG, N ("newfullpoly"), ALL_TYPES },
+  { SNAPPINFLAG, N ("snappin"), ALL_TYPES },
+  { SHOWMASKFLAG, N ("showmask"), ALL_TYPES },
+  { THINDRAWFLAG, N ("thindraw"), ALL_TYPES },
+  { ORTHOMOVEFLAG, N ("orthomove"), ALL_TYPES },
+  { LIVEROUTEFLAG, N ("liveroute"), ALL_TYPES },
+  { THINDRAWPOLYFLAG, N ("thindrawpoly"), ALL_TYPES },
+  { LOCKNAMESFLAG, N ("locknames"), ALL_TYPES },
+  { ONLYNAMESFLAG, N ("onlynames"), ALL_TYPES },
+  { HIDENAMESFLAG, N ("hidenames"), ALL_TYPES },
 };
 
 #undef N
@@ -220,7 +214,7 @@ set_layer_list (int layer, int v)
  * print_layer_list() does the opposite - it uses the flags set in
  * layers[] to build a string that represents them, using the syntax
  * above.
- * 
+ *
  */
 
 /* Returns a pointer to the first character past the list. */
@@ -360,8 +354,6 @@ print_layer_list ()
 /*
  * Ok, now the two entry points to this file.  The first, string_to_flags,
  * is passed a string (usually from parse_y.y) and returns a "set of flags".
- * In theory, this can be anything, but for now it's just an integer.  Later
- * it might be a structure, for example.
  *
  * Currently, there is no error handling :-P
  */
@@ -456,7 +448,6 @@ string_to_pcbflags (const char *flagstring,
 				 ENTRIES (pcb_flagbits));
 }
 
-
 /*
  * Given a set of flags for a given type of object, return a string
  * which reflects those flags.  The only requirement is that this
@@ -481,7 +472,6 @@ common_flags_to_string (FlagType flags,
 
   fh.Flags = flags;
 
-#ifndef FLAG_TEST
   switch (object_type)
     {
     case VIA_TYPE:
@@ -494,7 +484,6 @@ common_flags_to_string (FlagType flags,
       CLEAR_FLAG (PINFLAG, &fh);
       break;
     }
-#endif
 
   savef = fh;
 
@@ -567,144 +556,3 @@ pcbflags_to_string (FlagType flags)
 				 pcb_flagbits,
 				 ENTRIES (pcb_flagbits));
 }
-
-#if FLAG_TEST
-
-static void
-dump_flag (FlagType * f)
-{
-  int l;
-  printf ("F:%08x T:[", f->f);
-  for (l = 0; l < (MAX_LAYER + 7) / 8; l++)
-    printf (" %02x", f->t[l]);
-  printf ("]");
-}
-
-
-int
-mem_any_set (unsigned char *ptr, int bytes)
-{
-  while (bytes--)
-    if (*ptr++)
-      return 1;
-  return 0;
-}
-
-
-/*
- * This exists for standalone testing of this file.
- *
- * Compile as: gcc -DHAVE_CONFIG_H -DFLAG_TEST strflags.c -o strflags.x -I..
- * and then run it.
- */
-
-int
-main ()
-{
-  time_t now;
-  int i;
-  int errors = 0, count = 0;
-
-  time (&now);
-  srandom ((unsigned int) now + getpid ());
-
-  grow_layer_list (0);
-  for (i = 0; i < 16; i++)
-    {
-      int j;
-      char *p;
-      if (i != 1 && i != 4 && i != 5 && i != 9)
-	set_layer_list (i, 1);
-      else
-	set_layer_list (i, 0);
-      p = print_layer_list ();
-      printf ("%2d : %20s =", i, p);
-      parse_layer_list (p + 1, 0);
-      for (j = 0; j < num_layers; j++)
-	printf (" %d", layers[j]);
-      printf ("\n");
-    }
-
-  while (count < 1000000)
-    {
-      FlagHolder fh;
-      char *str;
-      FlagType new_flags;
-      int i;
-      int otype;
-
-      otype = ALL_TYPES;
-      fh.Flags = empty_flags;
-      for (i = 0; i < ENTRIES (object_flagbits); i++)
-	{
-	  if (TEST_FLAG (object_flagbits[i].mask, &fh))
-	    continue;
-	  if ((otype & object_flagbits[i].object_types) == 0)
-	    continue;
-	  if ((random () & 4) == 0)
-	    continue;
-
-	  otype &= object_flagbits[i].object_types;
-	  SET_FLAG (object_flagbits[i].mask, &fh);
-	}
-
-      if (otype & PIN_TYPES)
-	for (i = 0; i < MAX_LAYER; i++)
-	  if (random () & 4)
-	    ASSIGN_THERM (i, 3, &fh);
-
-      str = flags_to_string (fh.Flags, otype);
-      new_flags = string_to_flags (str, 0);
-
-      count++;
-      if (FLAGS_EQUAL (fh.Flags, new_flags))
-	continue;
-
-      dump_flag (&fh.Flags);
-      printf (" ");
-      dump_flag (&new_flags);
-      printf ("\n");
-      if (++errors == 5)
-	exit (1);
-    }
-
-  while (count < 1000000)
-    {
-      FlagHolder fh;
-      char *str;
-      FlagType new_flags;
-      int i;
-      int otype;
-
-      otype = ALL_TYPES;
-      fh.Flags = empty_flags;
-      for (i = 0; i < ENTRIES (pcb_flagbits); i++)
-	{
-	  if (TEST_FLAG (pcb_flagbits[i].mask, &fh))
-	    continue;
-	  if ((random () & 4) == 0)
-	    continue;
-
-	  otype &= pcb_flagbits[i].object_types;
-	  SET_FLAG (pcb_flagbits[i].mask, &fh);
-	}
-
-      str = pcbflags_to_string (fh.Flags);
-      new_flags = string_to_pcbflags (str, 0);
-
-      count++;
-      if (FLAGS_EQUAL (fh.Flags, new_flags))
-	continue;
-
-      dump_flag (&fh.Flags);
-      printf (" ");
-      dump_flag (&new_flags);
-      printf ("\n");
-      if (++errors == 5)
-	exit (1);
-    }
-  printf ("%d out of %d failed\n", errors, count);
-  return errors;
-}
-
-#endif

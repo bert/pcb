@@ -3079,6 +3079,7 @@ lesstif_set_layer (const char *name, int group, int empty)
   else
     autofade = 0;
 #endif
+
   if (idx >= 0 && idx < max_copper_layer + SILK_LAYER)
     return pinout ? 1 : PCB->Data->Layer[idx].On;
 
