@@ -1,27 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/djopt.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2003 DJ Delorie
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
- *  dj@delorie.com
+ * Copyright (C) 2003 DJ Delorie
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
+ * dj@delorie.com
  */
 
 #if HAVE_CONFIG_H
@@ -68,8 +74,13 @@
 #define ORIENT(x) ((x) & 0xf0)
 #define DIRECT(x) ((x) & 0x0f)
 
-/* Manhattan length of the longest "freckle" */
-#define LONGEST_FRECKLE	2
+#define LONGEST_FRECKLE	2 /*!< Manhattan length of the longest "freckle" */
+
+#define DELETE(q) (q)->layer = 0xdeadbeef
+#define DELETED(q) ((q)->layer == 0xdeadbeef)
+
+#define LT_TOP 1
+#define LT_BOTTOM 2
 
 struct line_s;
 
@@ -101,17 +112,11 @@ typedef struct rect_s
   int x1, y1, x2, y2;
 } rect_s;
 
-#define DELETE(q) (q)->layer = 0xdeadbeef
-#define DELETED(q) ((q)->layer == 0xdeadbeef)
-
 static corner_s *corners, *next_corner = 0;
 static line_s *lines;
 
 static int layer_groupings[MAX_LAYER];
 static char layer_type[MAX_LAYER];
-
-#define LT_TOP 1
-#define LT_BOTTOM 2
 
 static int autorouted_only = 1;
 
@@ -177,11 +182,9 @@ static char *
 corner_name (corner_s * c)
 {
   static char buf[4][100];
-  static int  bn = 0;
+  static int bn = 0;
   char *bp;
-
   size_t size_left;
-
   bn = (bn + 1) % 4;
 
   if (c->net == 0xf1eef1ee) {
@@ -191,29 +194,25 @@ corner_name (corner_s * c)
   }
 
   sprintf (buf[bn], "\033[%dm[%p ",
-           (c->pin || c->pad || c->via) ? 33 : 34, (void *) c);
-
+	   (c->pin || c->pad || c->via) ? 33 : 34, (void *) c);
   bp = buf[bn] + strlen (buf[bn]);
+  size_left = sizeof (buf[bn]) - strlen (buf[bn]);
 
-  if (c->pin) {
+  if (c->pin)
     pcb_snprintf (bp, size_left, "pin %s:%s at %#mD",
-                  element_name_for (c), c->pin->Number, c->x, c->y);
-  }
-  else if (c->via) {
+		  element_name_for (c), c->pin->Number, c->x, c->y);
+  else if (c->via)
     pcb_snprintf (bp, size_left, "via at %#mD", c->x, c->y);
-  }
-  else if (c->pad) {
-    pcb_snprintf (bp, size_left, "pad %s:%s at %#mD %#mD-%#mD",
-                  element_name_for (c), c->pad->Number, c->x, c->y,
-                  c->pad->Point1.X, c->pad->Point1.Y,
-                  c->pad->Point2.X, c->pad->Point2.Y);
-  }
-  else {
+  else if (c->pad)
+    {
+      pcb_snprintf (bp, size_left, "pad %s:%s at %#mD %#mD-%#mD",
+	       element_name_for (c), c->pad->Number, c->x, c->y,
+	       c->pad->Point1.X, c->pad->Point1.Y,
+	       c->pad->Point2.X, c->pad->Point2.Y);
+    }
+  else
     pcb_snprintf (bp, size_left, "at %#mD", c->x, c->y);
-  }
-
   sprintf (bp + strlen (bp), " n%d l%d]\033[0m", c->n_lines, c->layer);
-
   return buf[bn];
 }
 
@@ -234,6 +233,7 @@ dj_abort (char *msg, ...)
 #define check(c,l)
 #else
 #define check(c,l) check2(__LINE__,c,l)
+
 static void
 check2 (int srcline, corner_s * c, line_s * l)
 {
@@ -324,10 +324,12 @@ djmin (int x, int y)
   return x < y ? x : y;
 }
 
-/*
- * Find distance between 2 points.  We use floating point math here
- * because we can fairly easily overflow a 32 bit integer here.  In
- * fact it only takes 0.46" to do so.
+/*!
+ * \brief Find distance between 2 points.
+ *
+ * We use floating point math here because we can fairly easily overflow
+ * a 32 bit integer here.
+ * In fact it only takes 0.46" to do so.
  */
 static int
 dist (int x1, int y1, int x2, int y2)
@@ -1113,7 +1115,9 @@ canonicalize_line (line_s * l)
   return 0;
 }
 
-/* Make sure all vias are at line end points */
+/*!
+ * \brief Make sure all vias are at line end points.
+ */
 static int
 canonicalize_lines ()
 {
@@ -1296,14 +1300,12 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   cn = 0;
   ln = 0;
   pull = 0;
-
-  while (c2) {
-
-    if (c2->pad || c2->pin || c2->n_lines < 2) {
-	  return 0;
-    }
-      if (cn >= cm) {
-
+  while (c2)
+    {
+      if (c2->pad || c2->pin || c2->n_lines < 2)
+	return 0;
+      if (cn >= cm)
+	{
 	  cm = cn + 10;
 	  cs = (corner_s **) realloc (cs, cm * sizeof (corner_s *));
 	}
@@ -1312,21 +1314,19 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (r1 < r2)
 	r1 = r2;
       l = 0;
-      for (i = 0; i < c2->n_lines; i++) {
-
+      for (i = 0; i < c2->n_lines; i++)
+	{
 	  int o = line_orient (c2->lines[i], c2);
 	  if (o == DIAGONAL)
 	    return 0;
-	  if (o == fdir) {
-
+	  if (o == fdir)
+	    {
 	      if (l)
 		return 0;	/* we don't support overlapping lines yet */
 	      l = c2->lines[i];
 	    }
-	  if (o == rdir && c2->lines[i] != ls[ln - 1]) {
+	  if (o == rdir && c2->lines[i] != ls[ln - 1])
 	    return 0;		/* likewise */
-      }
-
 	  if (o == adir)
 	    pull++;
 	  if (o == sdir)
@@ -1338,15 +1338,14 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	saw_sel = 1;
       if (autorouted (l->line))
 	saw_auto = 1;
-      if (ln >= lm) {
-
+      if (ln >= lm)
+	{
 	  lm = ln + 10;
 	  ls = (line_s **) realloc (ls, lm * sizeof (line_s *));
 	}
       ls[ln++] = l;
       c2 = other_corner (l, c2);
     }
-
   if (cn < 2 || pull == 0)
     return 0;
   if (any_sel && !saw_sel)
@@ -1383,7 +1382,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	   fdir == RIGHT ? "right" : "down ", c->x, c->y, cn, pull, max);
 
   switch (edir)
-  {
+    {
     case UP:
       rr.y1 = c->y - r1 - max;
       break;
@@ -1403,8 +1402,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   rr.y2 += SB + 1;
 
   snap = 0;
-  for (cb = corners; cb; cb = cb->next) {
-
+  for (cb = corners; cb; cb = cb->next)
+    {
       int sep;
       if (DELETED (cb))
 	continue;
@@ -1464,16 +1463,16 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (DELETED (l))
 	continue;
       dprintf ("check line %#mD to %#mD\n", l->s->x, l->s->y, l->e->x, l->e->y);
-      if (l->s->net == c->net) {
-
+      if (l->s->net == c->net)
+	{
 	  dprintf ("  same net\n");
 	  continue;
 	}
       o = line_orient (l, 0);
       /* We don't need to check perpendicular lines, because their
          corners already take care of it.  */
-      if ((fdir == RIGHT && (o == UP || o == DOWN)) ||
-	      (fdir == DOWN && (o == RIGHT || o == LEFT)))
+      if ((fdir == RIGHT && (o == UP || o == DOWN))
+	  || (fdir == DOWN && (o == RIGHT || o == LEFT)))
 	{
 	  dprintf ("  perpendicular\n");
 	  continue;
@@ -1584,9 +1583,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
         if (line_orient (l, cs[i]) != edir)
           continue;
         len = line_length (l);
-
-        if (!oc->pad || !cs[i]->via) {
-
+        if (!oc->pad || !cs[i]->via)
+        {
           if (!is_hole (l->s) || !is_hole (l->e))
             continue;
           if (len == max)
@@ -1605,10 +1603,9 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   }
 
   if (max <= 0)
-      return 0;
+    return 0;
 
-  switch (edir)
-  {
+  switch (edir) {
     case UP:
       len = c->y - max;
       break;
@@ -1625,35 +1622,36 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 
   if (snap && max > Settings.Grid) {
 
-    if (pull < 0)
-      len += Settings.Grid - 1;
-    len = gridsnap (len);
-  }
-  if ((fdir == RIGHT && len == cs[0]->y) || (fdir == DOWN && len == cs[0]->x)) {
+      if (pull < 0)
+	len += Settings.Grid - 1;
+      len = gridsnap (len);
+    }
+  if ((fdir == RIGHT && len == cs[0]->y) || (fdir == DOWN && len == cs[0]->x))
     return 0;
-  }
 
   for (i = 0; i < cn; i++) {
 
-    if (fdir == RIGHT) {
-
-      max = len - cs[i]->y;
-      move_corner (cs[i], cs[i]->x, len);
+      if (fdir == RIGHT)
+	{
+	  max = len - cs[i]->y;
+	  move_corner (cs[i], cs[i]->x, len);
+	}
+      else
+	{
+	  max = len - cs[i]->x;
+	  move_corner (cs[i], len, cs[i]->y);
+	}
     }
-    else
-    {
-      max = len - cs[i]->x;
-      move_corner (cs[i], len, cs[i]->y);
-    }
-  }
   return max * pull;
 }
 
+/*!
+ * \brief Look for straight runs which could be moved to reduce total
+ * trace length.
+ */
 static int
 orthopull ()
 {
-  /* Look for straight runs which could be moved to reduce total trace
-     length.  */
   int any_sel = any_line_selected ();
   corner_s *c;
   int rv = 0;
@@ -1687,10 +1685,12 @@ orthopull ()
   return rv;
 }
 
+/*!
+ * \brief Look for "U" shaped traces we can shorten (or eliminate).
+ */
 static int
 debumpify ()
 {
-  /* Look for "U" shaped traces we can shorten (or eliminate) */
   int rv = 0;
   int any_selected = any_line_selected ();
   line_s *l, *l1, *l2;
@@ -1846,10 +1846,12 @@ simple_corner (corner_s * c)
   return 1;
 }
 
+/*!
+ * \brief Look for sequences of simple corners we can reduce.
+ */
 static int
 unjaggy_once ()
 {
-  /* Look for sequences of simple corners we can reduce. */
   int rv = 0;
   corner_s *c, *c0, *c1, *cc;
   int l, w, sel = any_line_selected ();
@@ -1959,11 +1961,13 @@ unjaggy ()
   return r;
 }
 
+/*!
+ * \brief Look for vias with all lines leaving the same way, try to
+ * nudge via to eliminate one or more of them.
+ */
 static int
 vianudge ()
 {
-  /* Look for vias with all lines leaving the same way, try to nudge
-     via to eliminate one or more of them. */
   int rv = 0;
   corner_s *c, *c2, *c3;
   line_s *l;
@@ -2078,12 +2082,15 @@ vianudge ()
   return rv;
 }
 
+/*!
+ * \brief Look for traces that can be moved to the other side of the
+ * board, to reduce the number of vias needed.
+ *
+ * For now, we look for simple lines, not multi-segmented lines.
+ */
 static int
 viatrim ()
 {
-  /* Look for traces that can be moved to the other side of the board,
-     to reduce the number of vias needed.  For now, we look for simple
-     lines, not multi-segmented lines.  */
   line_s *l, *l2;
   int i, rv = 0, vrm = 0;
   int any_sel = any_line_selected ();
@@ -2558,6 +2565,13 @@ connect_corners (corner_s * c1, corner_s * c2)
     }
 }
 
+/*!
+ * \brief Look for pins that have no connections.
+ *
+ * See if there's a corner close by that should be connected to it.
+ * This usually happens when the MUCS router needs to route to an
+ * off-grid pin.
+ */
 static void
 pinsnap ()
 {
@@ -2572,9 +2586,6 @@ pinsnap ()
   int close = 0;
   corner_s *c2;
 
-  /* Look for pins that have no connections.  See if there's a corner
-     close by that should be connected to it.  This usually happens
-     when the MUCS router needs to route to an off-grid pin.  */
   while (again)
     {
       again = 0;
@@ -2840,39 +2851,34 @@ grok_layer_groups ()
   LayerGroupType *l = &(PCB->LayerGroups);
 
   solder_layer = component_layer = -1;
-  for (i = 0; i < max_copper_layer; i++) {
-
-    layer_type[i] = 0;
-    layer_groupings[i] = 0;
-  }
-
-  for (i = 0; i < max_group; i++) {
-
-    f = 0;
-
-    for (j = 0; j < l->Number[i]; j++) {
-
-      if (l->Entries[i][j] == bottom_silk_layer)
-        f |= LT_BOTTOM;
-      if (l->Entries[i][j] == top_silk_layer)
-        f |= LT_TOP;
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      layer_type[i] = 0;
+      layer_groupings[i] = 0;
     }
-
-    for (j = 0; j < l->Number[i]; j++) {
-
-      if (l->Entries[i][j] < max_copper_layer) {
-
-        layer_type[l->Entries[i][j]] |= f;
-        layer_groupings[l->Entries[i][j]] = i;
-        if (solder_layer == -1 && f == LT_BOTTOM) {
-          solder_layer = l->Entries[i][j];
-        }
-        if (component_layer == -1 && f == LT_TOP) {
-          component_layer = l->Entries[i][j];
-        }
-      }
+  for (i = 0; i < max_group; i++)
+    {
+      f = 0;
+      for (j = 0; j < l->Number[i]; j++)
+	{
+	  if (l->Entries[i][j] == bottom_silk_layer)
+	    f |= LT_BOTTOM;
+	  if (l->Entries[i][j] == top_silk_layer)
+	    f |= LT_TOP;
+	}
+      for (j = 0; j < l->Number[i]; j++)
+	{
+	  if (l->Entries[i][j] < max_copper_layer)
+	    {
+	      layer_type[l->Entries[i][j]] |= f;
+	      layer_groupings[l->Entries[i][j]] = i;
+	      if (solder_layer == -1 && f == LT_BOTTOM)
+		solder_layer = l->Entries[i][j];
+	      if (component_layer == -1 && f == LT_TOP)
+		component_layer = l->Entries[i][j];
+	    }
+	}
     }
-  }
 }
 
 static const char djopt_syntax[] =
