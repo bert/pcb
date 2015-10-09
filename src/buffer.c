@@ -1,30 +1,34 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/buffer.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
+ * \brief Functions used by paste- and move/copy buffer.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
- */
-
-/* functions used by paste- and move/copy buffer
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -108,8 +112,8 @@ MoveLineToBuffer,
 
 static int ExtraFlag = 0;
 
-/* ---------------------------------------------------------------------------
- * copies a via to paste buffer
+/*!
+ * \brief Copies a via to paste buffer.
  */
 static void *
 AddViaToBuffer (PinType *Via)
@@ -119,8 +123,8 @@ AddViaToBuffer (PinType *Via)
 			MaskFlags (Via->Flags, NOCOPY_FLAGS | ExtraFlag)));
 }
 
-/* ---------------------------------------------------------------------------
- * copies a rat-line to paste buffer
+/*!
+ * \brief Copies a rat-line to paste buffer.
  */
 static void *
 AddRatToBuffer (RatType *Rat)
@@ -131,8 +135,8 @@ AddRatToBuffer (RatType *Rat)
 			MaskFlags (Rat->Flags, NOCOPY_FLAGS | ExtraFlag)));
 }
 
-/* ---------------------------------------------------------------------------
- * copies a line to buffer
+/*!
+ * \brief Copies a line to buffer.
  */
 static void *
 AddLineToBuffer (LayerType *Layer, LineType *Line)
@@ -150,8 +154,8 @@ AddLineToBuffer (LayerType *Layer, LineType *Line)
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * copies an arc to buffer
+/*!
+ * \brief Copies an arc to buffer.
  */
 static void *
 AddArcToBuffer (LayerType *Layer, ArcType *Arc)
@@ -165,8 +169,8 @@ AddArcToBuffer (LayerType *Layer, ArcType *Arc)
 					  NOCOPY_FLAGS | ExtraFlag)));
 }
 
-/* ---------------------------------------------------------------------------
- * copies a text to buffer
+/*!
+ * \brief Copies a text to buffer.
  */
 static void *
 AddTextToBuffer (LayerType *Layer, TextType *Text)
@@ -178,8 +182,8 @@ AddTextToBuffer (LayerType *Layer, TextType *Text)
 			 MaskFlags (Text->Flags, ExtraFlag)));
 }
 
-/* ---------------------------------------------------------------------------
- * copies a polygon to buffer
+/*!
+ * \brief Copies a polygon to buffer.
  */
 static void *
 AddPolygonToBuffer (LayerType *Layer, PolygonType *Polygon)
@@ -202,8 +206,8 @@ AddPolygonToBuffer (LayerType *Layer, PolygonType *Polygon)
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * copies a element to buffer
+/*!
+ * \brief Copies a element to buffer.
  */
 static void *
 AddElementToBuffer (ElementType *Element)
@@ -211,8 +215,9 @@ AddElementToBuffer (ElementType *Element)
   return CopyElementLowLevel (Dest, Element, false, 0, 0, NOCOPY_FLAGS | ExtraFlag);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a via to paste buffer without allocating memory for the name
+/*!
+ * \brief Moves a via to paste buffer without allocating memory for the
+ * name.
  */
 static void *
 MoveViaToBuffer (PinType *via)
@@ -234,8 +239,8 @@ MoveViaToBuffer (PinType *via)
   return via;
 }
 
-/* ---------------------------------------------------------------------------
- * moves a rat-line to paste buffer
+/*!
+ * \brief Moves a rat-line to paste buffer.
  */
 static void *
 MoveRatToBuffer (RatType *rat)
@@ -255,8 +260,8 @@ MoveRatToBuffer (RatType *rat)
   return rat;
 }
 
-/* ---------------------------------------------------------------------------
- * moves a line to buffer
+/*!
+ * \brief Moves a line to buffer.
  */
 static void *
 MoveLineToBuffer (LayerType *layer, LineType *line)
@@ -280,8 +285,8 @@ MoveLineToBuffer (LayerType *layer, LineType *line)
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * moves an arc to buffer
+/*!
+ * \brief Moves an arc to buffer.
  */
 static void *
 MoveArcToBuffer (LayerType *layer, ArcType *arc)
@@ -305,8 +310,8 @@ MoveArcToBuffer (LayerType *layer, ArcType *arc)
   return (arc);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a text to buffer without allocating memory for the name
+/*!
+ * \brief Moves a text to buffer without allocating memory for the name.
  */
 static void *
 MoveTextToBuffer (LayerType *layer, TextType *text)
@@ -328,8 +333,10 @@ MoveTextToBuffer (LayerType *layer, TextType *text)
   return (text);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a polygon to buffer. Doesn't allocate memory for the points
+/*!
+ * \brief Moves a polygon to buffer.
+ *
+ * Doesn't allocate memory for the points.
  */
 static void *
 MovePolygonToBuffer (LayerType *layer, PolygonType *polygon)
@@ -351,8 +358,9 @@ MovePolygonToBuffer (LayerType *layer, PolygonType *polygon)
   return (polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a element to buffer without allocating memory for pins/names
+/*!
+ * \brief Moves a element to buffer without allocating memory for
+ * pins/names.
  */
 static void *
 MoveElementToBuffer (ElementType *element)
@@ -398,8 +406,8 @@ MoveElementToBuffer (ElementType *element)
   return element;
 }
 
-/* ---------------------------------------------------------------------------
- * calculates the bounding box of the buffer
+/*!
+ * \brief Calculates the bounding box of the buffer.
  */
 void
 SetBufferBoundingBox (BufferType *Buffer)
@@ -410,8 +418,8 @@ SetBufferBoundingBox (BufferType *Buffer)
     Buffer->BoundingBox = *box;
 }
 
-/* ---------------------------------------------------------------------------
- * clears the contents of the paste buffer
+/*!
+ * \brief Clears the contents of the paste buffer.
  */
 void
 ClearBuffer (BufferType *Buffer)
@@ -423,9 +431,10 @@ ClearBuffer (BufferType *Buffer)
     }
 }
 
-/* ----------------------------------------------------------------------
- * copies all selected and visible objects to the paste buffer
- * returns true if any objects have been removed
+/*!
+ * \brief Copies all selected and visible objects to the paste buffer.
+ *
+ * \return true if any objects have been removed.
  */
 void
 AddSelectedToBuffer (BufferType *Buffer, Coord X, Coord Y, bool LeaveSelected)
@@ -455,11 +464,13 @@ AddSelectedToBuffer (BufferType *Buffer, Coord X, Coord Y, bool LeaveSelected)
   ExtraFlag = 0;
 }
 
-/* ---------------------------------------------------------------------------
- * loads element data from file/library into buffer
- * parse the file with disabled 'PCB mode' (see parser)
- * returns false on error
- * if successful, update some other stuff and reposition the pastebuffer
+/*!
+ * \brief Loads element data from file/library into buffer.
+ *
+ * Parse the file with disabled 'PCB mode' (see parser).
+ *
+ * \return false on error, if successful, update some other stuff and
+ * reposition the pastebuffer.
  */
 bool
 LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
@@ -513,22 +524,6 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 }
 
 
-/*---------------------------------------------------------------------------
- * Searches for the given element by "footprint" name, and loads it
- * into the buffer.
- */
-
-/* Figuring out which library entry is the one we want is a little
-   tricky.  For file-based footprints, it's just a matter of finding
-   the first match in the search list.  For m4-based footprints you
-   need to know what magic to pass to the m4 functions.  Fortunately,
-   the footprint needed is determined when we build the m4 libraries
-   and stored as a comment in the description, so we can search for
-   that to find the magic we need.  We use a hash to store the
-   corresponding footprints and pointers to the library tree so we can
-   quickly find the various bits we need to load a given
-   footprint.  */
-
 typedef struct {
   char *footprint;
   int footprint_allocated;
@@ -553,9 +548,12 @@ clear_footprint_hash ()
   footprint_hash_size = 0;
 }
 
-/* Used to sort footprint pointer entries.  Note we include the index
-   numbers so that same-named footprints are sorted by the library
-   search order.  */
+/*!
+ * \brief Used to sort footprint pointer entries.
+ *
+ * \note We include the index numbers so that same-named footprints are
+ * sorted by the library search order.
+ */
 static int
 footprint_hash_cmp (const void *va, const void *vb)
 {
@@ -658,6 +656,21 @@ make_footprint_hash ()
 */
 }
 
+/*!
+ * \brief Searches for the given element by "footprint" name, and loads
+ * it into the buffer.
+ *
+ * Figuring out which library entry is the one we want is a little
+ * tricky.  For file-based footprints, it's just a matter of finding
+ * the first match in the search list.  For m4-based footprints you
+ * need to know what magic to pass to the m4 functions.  Fortunately,
+ * the footprint needed is determined when we build the m4 libraries
+ * and stored as a comment in the description, so we can search for
+ * that to find the magic we need.  We use a hash to store the
+ * corresponding footprints and pointers to the library tree so we can
+ * quickly find the various bits we need to load a given
+ * footprint.
+ */
 FootprintHashEntry *
 search_footprint_hash (const char *footprint)
 {
@@ -688,7 +701,11 @@ search_footprint_hash (const char *footprint)
   return NULL;
 }
 
-/* Returns zero on success, non-zero on error.  */
+/*!
+ * \brief .
+ *
+ * \return zero on success, non-zero on error.
+ */
 int
 LoadFootprintByName (BufferType *Buffer, char *Footprint)
 {
@@ -711,7 +728,7 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
     }
   if (!fpe)
     {
-      Message("Unable to load footprint %s\n", Footprint);
+      Message(_("Unable to load footprint %s\n"), Footprint);
       return 1;
     }
 
@@ -743,6 +760,7 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
   {
     int j;
     printf("Library path: %s\n", Settings.LibraryPath);
+    //printf("Library tree: %s\n", Settings.LibraryTree);
     printf("Library tree: %s\n", Settings.UserLibrary);
 
     printf("Library:\n");
@@ -772,9 +790,11 @@ LoadFootprintByName (BufferType *Buffer, char *Footprint)
 }
 
 
-static const char loadfootprint_syntax[] = "LoadFootprint(filename[,refdes,value])";
+static const char loadfootprint_syntax[] =
+  N_("LoadFootprint(filename[,refdes,value])");
 
-static const char loadfootprint_help[] = "Loads a single footprint by name.";
+static const char loadfootprint_help[] =
+  N_("Loads a single footprint by name.");
 
 /* %start-doc actions LoadFootprint
 
@@ -784,6 +804,9 @@ into the footprint as well.  The footprint remains in the paste buffer.
 
 %end-doc */
 
+/*!
+ * \brief This action is called from ActionElementAddIf().
+ */
 int
 LoadFootprint (int argc, char **argv, Coord x, Coord y)
 {
@@ -800,12 +823,12 @@ LoadFootprint (int argc, char **argv, Coord x, Coord y)
 
   if (PASTEBUFFER->Data->ElementN == 0)
     {
-      Message("Footprint %s contains no elements", name);
+      Message(_("Footprint %s contains no elements"), name);
       return 1;
     }
   if (PASTEBUFFER->Data->ElementN > 1)
     {
-      Message("Footprint %s contains multiple elements", name);
+      Message(_("Footprint %s contains multiple elements"), name);
       return 1;
     }
 
@@ -826,24 +849,21 @@ LoadFootprint (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
-/*---------------------------------------------------------------------------
- *
- * break buffer element into pieces
+/*!
+ * \brief Break buffer element into pieces.
  */
 bool
 SmashBufferElement (BufferType *Buffer)
 {
   ElementType *element;
   Cardinal group;
-
   LayerType *top_layer, *bottom_layer;
 
-  if (Buffer->Data->ElementN != 1) {
-
+  if (Buffer->Data->ElementN != 1)
+    {
       Message (_("Error!  Buffer doesn't contain a single element\n"));
       return (false);
-  }
-
+    }
   /*
    * At this point the buffer should contain just a single element.
    * Now we detach the single element from the buffer and then clear the
@@ -860,14 +880,12 @@ SmashBufferElement (BufferType *Buffer)
   ELEMENTLINE_LOOP (element);
   {
     CreateNewLineOnLayer (&Buffer->Data->SILKLAYER,
-                          line->Point1.X, line->Point1.Y,
-                          line->Point2.X, line->Point2.Y,
-                          line->Thickness, 0, NoFlags ());
-    if (line) {
+			  line->Point1.X, line->Point1.Y,
+			  line->Point2.X, line->Point2.Y,
+			  line->Thickness, 0, NoFlags ());
+    if (line)
       line->Number = STRDUP (NAMEONPCB_NAME (element));
-    }
   }
-
   END_LOOP;
   ARC_LOOP (element);
   {
@@ -880,31 +898,27 @@ SmashBufferElement (BufferType *Buffer)
   {
     FlagType f = NoFlags ();
     AddFlags (f, VIAFLAG);
-    if (TEST_FLAG (HOLEFLAG, pin)) {
+    if (TEST_FLAG (HOLEFLAG, pin))
       AddFlags (f, HOLEFLAG);
-    }
 
     CreateNewVia (Buffer->Data, pin->X, pin->Y,
-                  pin->Thickness, pin->Clearance, pin->Mask,
-                  pin->DrillingHole, pin->Number, f);
+		  pin->Thickness, pin->Clearance, pin->Mask,
+		  pin->DrillingHole, pin->Number, f);
   }
   END_LOOP;
-
-  group        = GetLayerGroupNumberBySide (SWAP_IDENT ? BOTTOM_SIDE : TOP_SIDE);
-  top_layer    = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
-  group        = GetLayerGroupNumberBySide (SWAP_IDENT ? TOP_SIDE : BOTTOM_SIDE);
+  group = GetLayerGroupNumberBySide (SWAP_IDENT ? BOTTOM_SIDE : TOP_SIDE);
+  top_layer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
+  group = GetLayerGroupNumberBySide (SWAP_IDENT ? TOP_SIDE : BOTTOM_SIDE);
   bottom_layer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
-
   PAD_LOOP (element);
   {
     LineType *line;
     line = CreateNewLineOnLayer (TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_layer : top_layer,
-                                 pad->Point1.X, pad->Point1.Y,
-                                 pad->Point2.X, pad->Point2.Y,
-                                 pad->Thickness, pad->Clearance, NoFlags ());
-    if (line) {
+				 pad->Point1.X, pad->Point1.Y,
+				 pad->Point2.X, pad->Point2.Y,
+				 pad->Thickness, pad->Clearance, NoFlags ());
+    if (line)
       line->Number = STRDUP (pad->Number);
-    }
   }
   END_LOOP;
   FreeElementMemory (element);
@@ -912,9 +926,10 @@ SmashBufferElement (BufferType *Buffer)
   return (true);
 }
 
-/*---------------------------------------------------------------------------
+/*!
+ * \brief See if a polygon is a rectangle.
  *
- * see if a polygon is a rectangle.  If so, canonicalize it.
+ * If so, canonicalize it.
  */
 
 static int
@@ -949,9 +964,8 @@ polygon_is_rectangle (PolygonType *poly)
   return 0;
 }
 
-/*---------------------------------------------------------------------------
- *
- * convert buffer contents into an element
+/*!
+ * \brief Convert buffer contents into an element.
  */
 bool
 ConvertBufferToElement (BufferType *Buffer)
@@ -984,95 +998,96 @@ ConvertBufferToElement (BufferType *Buffer)
 		    NULL, via->Name, MaskFlags (via->Flags,
 						VIAFLAG | NOCOPY_FLAGS |
 						SELECTEDFLAG | WARNFLAG));
-    else {
-
+    else
+      {
 	sprintf (num, "%d", pin_n++);
 	CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		      via->Clearance, via->Mask, via->DrillingHole,
 		      NULL, num, MaskFlags (via->Flags,
 					    VIAFLAG | NOCOPY_FLAGS | SELECTEDFLAG
 					    | WARNFLAG));
-    }
+      }
     hasParts = true;
   }
   END_LOOP;
 
-  for (onsolder = 0; onsolder < 2; onsolder ++) {
-
-    int side;
-    int onsolderflag;
-
-    if ((!onsolder) == (!SWAP_IDENT)) {
-
-      side = TOP_SIDE;
-      onsolderflag = NOFLAG;
-    }
-    else {
-
-      side = BOTTOM_SIDE;
-      onsolderflag = ONSOLDERFLAG;
-    }
-
-    #define MAYBE_WARN() \
-    if (onsolder && !hasParts && !warned) { \
-      warned = true; \
-      Message \
-      (_("Warning: All of the pads are on the opposite\n" \
-      "side from the component - that's probably not what\n" \
-      "you wanted\n")); \
-    } \
-
-  /* get the component-side SM pads */
-  group = GetLayerGroupNumberByNumber (side);
-  GROUP_LOOP (Buffer->Data, group);
-  {
-    char num[8];
-    LINE_LOOP (layer);
+  for (onsolder = 0; onsolder < 2; onsolder ++)
     {
-      sprintf (num, "%d", pin_n++);
-      CreateNewPad (Element, line->Point1.X,
-                    line->Point1.Y, line->Point2.X,
-                    line->Point2.Y, line->Thickness,
-                    line->Clearance,
-                    line->Thickness + line->Clearance, NULL,
-                    line->Number ? line->Number : num,
-                    MakeFlags (onsolderflag));
-      MAYBE_WARN();
-      hasParts = true;
-    }
-    END_LOOP;
-    POLYGON_LOOP (layer);
-    {
-      Coord x1, y1, x2, y2, w, h, t;
+      int side;
+      int onsolderflag;
 
-      if (! polygon_is_rectangle (polygon)) {
+      if ((!onsolder) == (!SWAP_IDENT))
+	{
+	  side = TOP_SIDE;
+	  onsolderflag = NOFLAG;
+	}
+      else
+	{
+	  side = BOTTOM_SIDE;
+	  onsolderflag = ONSOLDERFLAG;
+	}
 
-        crooked = true;
-        continue;
+#define MAYBE_WARN() \
+	  if (onsolder && !hasParts && !warned) \
+	    { \
+	      warned = true; \
+	      Message \
+		(_("Warning: All of the pads are on the opposite\n" \
+		   "side from the component - that's probably not what\n" \
+		   "you wanted\n")); \
+	    } \
+
+      /* get the component-side SM pads */
+      group = GetLayerGroupNumberBySide (side);
+      GROUP_LOOP (Buffer->Data, group);
+      {
+	char num[8];
+	LINE_LOOP (layer);
+	{
+	  sprintf (num, "%d", pin_n++);
+	  CreateNewPad (Element, line->Point1.X,
+			line->Point1.Y, line->Point2.X,
+			line->Point2.Y, line->Thickness,
+			line->Clearance,
+			line->Thickness + line->Clearance, NULL,
+			line->Number ? line->Number : num,
+			MakeFlags (onsolderflag));
+	  MAYBE_WARN();
+	  hasParts = true;
+	}
+	END_LOOP;
+	POLYGON_LOOP (layer);
+	{
+	  Coord x1, y1, x2, y2, w, h, t;
+
+	  if (! polygon_is_rectangle (polygon))
+	    {
+	      crooked = true;
+	      continue;
+	    }
+
+	  w = polygon->Points[2].X - polygon->Points[0].X;
+	  h = polygon->Points[1].Y - polygon->Points[0].Y;
+	  t = (w < h) ? w : h;
+	  x1 = polygon->Points[0].X + t/2;
+	  y1 = polygon->Points[0].Y + t/2;
+	  x2 = x1 + (w-t);
+	  y2 = y1 + (h-t);
+
+	  sprintf (num, "%d", pin_n++);
+	  CreateNewPad (Element,
+			x1, y1, x2, y2, t,
+			2 * Settings.Keepaway,
+			t + Settings.Keepaway,
+			NULL, num,
+			MakeFlags (SQUAREFLAG | onsolderflag));
+	  MAYBE_WARN();
+	  hasParts = true;
+	}
+	END_LOOP;
       }
-
-      w = polygon->Points[2].X - polygon->Points[0].X;
-      h = polygon->Points[1].Y - polygon->Points[0].Y;
-      t = (w < h) ? w : h;
-      x1 = polygon->Points[0].X + t/2;
-      y1 = polygon->Points[0].Y + t/2;
-      x2 = x1 + (w-t);
-      y2 = y1 + (h-t);
-
-      sprintf (num, "%d", pin_n++);
-      CreateNewPad (Element,
-                    x1, y1, x2, y2, t,
-                    2 * Settings.Keepaway,
-                    t + Settings.Keepaway,
-                    NULL, num,
-                    MakeFlags (SQUAREFLAG | onsolderflag));
-      MAYBE_WARN();
-      hasParts = true;
+      END_LOOP;
     }
-    END_LOOP;
-  }
-  END_LOOP;
-  }
 
   /* now add the silkscreen. NOTE: elements must have pads or pins too */
   LINE_LOOP (&Buffer->Data->SILKLAYER);
@@ -1115,10 +1130,11 @@ ConvertBufferToElement (BufferType *Buffer)
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * load PCB into buffer
- * parse the file with enabled 'PCB mode' (see parser)
- * if successful, update some other stuff
+/*!
+ * \brief Load PCB into buffer.
+ *
+ * Parse the file with enabled 'PCB mode' (see parser).
+ * If successful, update some other stuff.
  */
 bool
 LoadLayoutToBuffer (BufferType *Buffer, char *Filename)
@@ -1146,8 +1162,8 @@ LoadLayoutToBuffer (BufferType *Buffer, char *Filename)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * rotates the contents of the pastebuffer
+/*!
+ * \brief Rotates the contents of the pastebuffer.
  */
 void
 RotateBuffer (BufferType *Buffer, BYTE Number)
@@ -1345,12 +1361,12 @@ FreeRotateBuffer (BufferType *Buffer, Angle angle)
 /* -------------------------------------------------------------------------- */
 
 static const char freerotatebuffer_syntax[] =
-  "FreeRotateBuffer([Angle])";
+  N_("FreeRotateBuffer([Angle])");
 
 static const char freerotatebuffer_help[] =
-  "Rotates the current paste buffer contents by the specified angle.  The\n"
+  N_("Rotates the current paste buffer contents by the specified angle.  The\n"
   "angle is given in degrees.  If no angle is given, the user is prompted\n"
-  "for one.\n";
+  "for one.\n");
 
 /* %start-doc actions FreeRotateBuffer
 
@@ -1365,7 +1381,7 @@ ActionFreeRotateBuffer(int argc, char **argv, Coord x, Coord y)
   char *angle_s;
 
   if (argc < 1)
-    angle_s = gui->prompt_for ("Enter Rotation (degrees, CCW):", "0");
+    angle_s = gui->prompt_for (_("Enter Rotation (degrees, CCW):"), "0");
   else
     angle_s = argv[0];
 
@@ -1375,8 +1391,8 @@ ActionFreeRotateBuffer(int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * initializes the buffers by allocating memory
+/*!
+ * \brief Initializes the buffers by allocating memory.
  */
 void
 InitBuffers (void)
@@ -1458,8 +1474,8 @@ MirrorBuffer (BufferType *Buffer)
 }
 
 
-/* ---------------------------------------------------------------------------
- * flip components/tracks from one side to the other
+/*!
+ * \brief Flip components/tracks from one side to the other.
  */
 static void
 SwapBuffer (BufferType *Buffer)
@@ -1532,65 +1548,61 @@ SwapBuffer (BufferType *Buffer)
     r_insert_entry (layer->text_tree, (BoxType *)text, 0);
   }
   ENDALL_LOOP;
-
   /* swap silkscreen layers */
   swap = Buffer->Data->Layer[bottom_silk_layer];
-  Buffer->Data->Layer[bottom_silk_layer] = Buffer->Data->Layer[top_silk_layer];
+  Buffer->Data->Layer[bottom_silk_layer] =
+    Buffer->Data->Layer[top_silk_layer];
   Buffer->Data->Layer[top_silk_layer] = swap;
 
   /* swap layer groups when balanced */
   top_group = GetLayerGroupNumberBySide (TOP_SIDE);
   bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
-
   if (PCB->LayerGroups.Number[top_group] == PCB->LayerGroups.Number[bottom_group])
-  {
-    for (j = k = 0; j < PCB->LayerGroups.Number[bottom_group]; j++) {
+    {
+      for (j = k = 0; j < PCB->LayerGroups.Number[bottom_group]; j++)
+	{
+	  int t1, t2;
+	  Cardinal top_number = PCB->LayerGroups.Entries[top_group][k];
+	  Cardinal bottom_number = PCB->LayerGroups.Entries[bottom_group][j];
 
-      int t1, t2;
+	  if (bottom_number >= max_copper_layer)
+	    continue;
+	  swap = Buffer->Data->Layer[bottom_number];
 
-      Cardinal top_number    = PCB->LayerGroups.Entries[top_group][k];
-      Cardinal bottom_number = PCB->LayerGroups.Entries[bottom_group][j];
-
-      if (bottom_number >= max_copper_layer) {
-        continue;
-      }
-
-      swap = Buffer->Data->Layer[bottom_number];
-
-      while (top_number >= max_copper_layer) {
-        k++;
-        top_number = PCB->LayerGroups.Entries[top_group][k];
-      }
-
-      Buffer->Data->Layer[bottom_number] = Buffer->Data->Layer[top_number];
-      Buffer->Data->Layer[top_number] = swap;
-      k++;
-      /* move the thermal flags with the layers */
-      ALLPIN_LOOP (Buffer->Data);
-      {
-        t1 = TEST_THERM (bottom_number, pin);
-        t2 = TEST_THERM (top_number, pin);
-        ASSIGN_THERM (bottom_number, t2, pin);
-        ASSIGN_THERM (top_number, t1, pin);
-      }
-      ENDALL_LOOP;
-      VIA_LOOP (Buffer->Data);
-      {
-        t1 = TEST_THERM (bottom_number, via);
-        t2 = TEST_THERM (top_number, via);
-        ASSIGN_THERM (bottom_number, t2, via);
-        ASSIGN_THERM (top_number, t1, via);
-      }
-      END_LOOP;
+	  while (top_number >= max_copper_layer)
+	    {
+	      k++;
+	      top_number = PCB->LayerGroups.Entries[top_group][k];
+	    }
+	  Buffer->Data->Layer[bottom_number] = Buffer->Data->Layer[top_number];
+	  Buffer->Data->Layer[top_number] = swap;
+	  k++;
+	  /* move the thermal flags with the layers */
+	  ALLPIN_LOOP (Buffer->Data);
+	  {
+	    t1 = TEST_THERM (bottom_number, pin);
+	    t2 = TEST_THERM (top_number, pin);
+	    ASSIGN_THERM (bottom_number, t2, pin);
+	    ASSIGN_THERM (top_number, t1, pin);
+	  }
+	  ENDALL_LOOP;
+	  VIA_LOOP (Buffer->Data);
+	  {
+	    t1 = TEST_THERM (bottom_number, via);
+	    t2 = TEST_THERM (top_number, via);
+	    ASSIGN_THERM (bottom_number, t2, via);
+	    ASSIGN_THERM (top_number, t1, via);
+	  }
+	  END_LOOP;
+	}
     }
-  }
   SetBufferBoundingBox (Buffer);
   SetCrosshairRangeToBuffer ();
 }
 
-/* ----------------------------------------------------------------------
- * moves the passed object to the passed buffer and removes it
- * from its original place
+/*!
+ * \brief Moves the passed object to the passed buffer and removes it
+ * from its original place.
  */
 void *
 MoveObjectToBuffer (DataType *Destination, DataType *Src,
@@ -1602,8 +1614,8 @@ MoveObjectToBuffer (DataType *Destination, DataType *Src,
   return (ObjectOperation (&MoveBufferFunctions, Type, Ptr1, Ptr2, Ptr3));
 }
 
-/* ----------------------------------------------------------------------
- * Adds the passed object to the passed buffer
+/*!
+ * \brief Adds the passed object to the passed buffer.
  */
 void *
 CopyObjectToBuffer (DataType *Destination, DataType *Src,

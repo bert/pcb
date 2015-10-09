@@ -1755,7 +1755,8 @@ ghid_parse_arguments (int *argc, char ***argv)
   sprintf(libdir, "%s%s", tmps, REST_OF_PATH);
   free(tmps);
 
-  Settings.LibraryTree = libdir;
+  //Settings.LibraryTree = libdir;
+  Settings.UserLibrary = libdir;
 
 #undef REST_OF_PATH
 
