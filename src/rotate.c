@@ -207,13 +207,48 @@ RotateArcLowLevel (ArcType *Arc, Coord X, Coord Y, unsigned Number)
   ROTATE (Arc->Point2.X, Arc->Point2.Y, X, Y, Number);
 }
 
-/*!
+void
+TrackRotationAngle ( ElementType *Element, Angle angle)
+{
+  Angle tmp_angle = (Angle)0;
+  char *attr, newattr[12];
+
+  if ((attr = AttributeGetFromList (&(Element->Attributes), "Footprint::RotationTracking"))!=NULL)
+  {
+    sscanf(attr, "%lf", &tmp_angle);
+  }
+
+  /* change direction for objects on far side of PCB */
+  if (ON_SIDE(Element,(Settings.ShowBottomSide)?BOTTOM_SIDE:TOP_SIDE))
+  {
+    tmp_angle = tmp_angle + angle;
+  } else {
+    tmp_angle = tmp_angle - angle;
+  }
+
+  /* Normalize angle 0 - 360 degrees */
+  while (tmp_angle >= 360.0 )
+  {
+    tmp_angle -= 360.0;
+  }
+  while (tmp_angle < 0.0 )
+  {
+    tmp_angle += 360.0;
+  }
+
+  snprintf(newattr,sizeof(newattr),"%.6lf", tmp_angle);
+  AttributePutToList (&(Element->Attributes), "Footprint::RotationTracking", newattr, 1);
+}
+
+/* ---------------------------------------------------------------------------
  * \brief Rotate an element in 90 degree steps.
- */
+ * */
 void
 RotateElementLowLevel (DataType *Data, ElementType *Element,
 		       Coord X, Coord Y, unsigned Number)
 {
+  unsigned short tmp_angles[]={0,90,180,270};
+
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
@@ -258,6 +293,8 @@ RotateElementLowLevel (DataType *Data, ElementType *Element,
   /* SetElementBoundingBox reenters the rtree data */
   SetElementBoundingBox (Data, Element, &PCB->Font);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
+
+  TrackRotationAngle(Element, (Angle)tmp_angles[Number & 0x03]);
 }
 
 /*!

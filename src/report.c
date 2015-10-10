@@ -151,6 +151,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
   void *ptr1, *ptr2, *ptr3;
   int type;
   char report[2048];
+  char *attr;
 
   type = SearchScreen (x, y, REPORT_TYPES, &ptr1, &ptr2, &ptr3);
   if (type == NO_TYPE)
@@ -424,6 +425,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 	  }
 #endif
 	element = (ElementType *) ptr2;
+	attr = AttributeGetFromList (&(element->Attributes), "Footprint::RotationTracking");
 	pcb_snprintf (report, sizeof (report), _("%m+ELEMENT ID# %ld;  Flags:%s\n"
 		 "BoundingBox %$mD %$mD.\n"
 		 "Descriptive Name \"%s\".\n"
@@ -431,6 +433,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 "Part number name \"%s\".\n"
 		 "It is %$mS tall and is located at (X,Y) = %$mD %s.\n"
 		 "Mark located at point (X,Y) = %$mD.\n"
+                 "Element is rotated by %s degrees.\n"
 		 "It is on the %s side of the board.\n"
 		 "%s"), USER_UNITMASK,
 		 element->ID, flags_to_string (element->Flags, ELEMENT_TYPE),
@@ -443,6 +446,7 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		 element->Name[1].X, element->Name[1].Y,
 		 TEST_FLAG (HIDENAMEFLAG, element) ? _(",\n  but it's hidden") : "",
 		 element->MarkX, element->MarkY,
+                 (attr)?attr:"0.00",
 		 TEST_FLAG (ONSOLDERFLAG, element) ? _("solder (bottom)") : _("component"),
 		 TEST_FLAG (LOCKFLAG, element) ? _("It is LOCKED.\n") : "");
 	break;

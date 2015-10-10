@@ -69,6 +69,7 @@ void RotateArcLowLevel (ArcType *, Coord, Coord, unsigned);
 void RotateBoxLowLevel (BoxType *, Coord, Coord, unsigned);
 void RotateTextLowLevel (TextType *, Coord, Coord, unsigned);
 void RotatePolygonLowLevel (PolygonType *, Coord, Coord, unsigned);
+void TrackRotationAngle ( ElementType *, Angle);
 void RotateElementLowLevel (DataType *, ElementType *, Coord, Coord, unsigned);
 void *RotateObject (int, void *, void *, void *, Coord, Coord,
 		    unsigned);

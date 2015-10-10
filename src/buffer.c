@@ -1295,6 +1295,8 @@ FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
   free_rotate (&Element->MarkX, &Element->MarkY, X, Y, cosa, sina);
   SetElementBoundingBox (Data, Element, &PCB->Font);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
+
+  TrackRotationAngle(Element, angle);
 }
 
 void
