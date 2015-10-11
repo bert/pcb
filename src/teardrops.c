@@ -210,6 +210,25 @@ check_pin (PinType * _pin)
     }
 }
 
+/* %start-doc actions Teardrops
+
+The @code{Teardrops()} action adds teardrops to the intersections
+between traces and pins/vias. This is a simplistic test, so there are
+cases where you'd think it would add them but doesn't.
+
+If the trace doesn't end at *exactly* the same point as the pin/via, it
+will be skipped. This often happens with metric parts on an Imperial
+grid or visa-versa.
+
+If a trace passes through a pin/via but doesn't end there, there won't
+be any teardrops. Use :djopt(none) to split those lines into two
+segments, each of which ends at the pin/via.
+
+Known Bugs:
+
+Square pins are teardropped too.
+
+%end-doc */
 static int
 teardrops (int argc, char **argv, Coord x, Coord y)
 {
