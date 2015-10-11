@@ -1,5 +1,5 @@
 /*!
- * \file src/teardrop.c
+ * \file src/teardrops.c
  *
  * \brief Functions for handling the teardrop property of pins and vias.
  *

@@ -58,7 +58,7 @@ src/rotate.c
 src/select.c
 src/set.c
 src/smartdisperse.c
-src/teardrop.c
+src/teardrops.c
 src/toporouter.c
 src/undo.c
 src/vendor.c

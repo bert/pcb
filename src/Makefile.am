@@ -137,7 +137,7 @@ PCB_SRCS = \
 	smartdisperse.c \
 	strflags.c \
 	strflags.h \
-	teardrop.c \
+	teardrops.c \
 	thermal.c \
 	thermal.h \
 	undo.c \
