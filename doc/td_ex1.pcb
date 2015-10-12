@@ -1,0 +1,146 @@
+# release: pcb 1.99z
+
+# To read pcb files, the pcb version (or the git source date) must be >= the file version
+FileVersion[20091103]
+
+PCB["" 1000.00mil 750.00mil]
+
+Grid[10.00mil 0.0000 0.0000 0]
+PolyArea[3100.006200]
+Thermal[0.500000]
+DRC[0.10mil 0.10mil 0.10mil 0.10mil 0.15mil 0.10mil]
+Flags("nameonpcb,uniquename,clearnew,snappin")
+Groups("1,c:2:3:4:5:6:7:8,s")
+Styles["Signal,10.00mil,20.00mil,40.00mil,10.00mil:(null),0.0000,0.0000,0.0000,0.0000:(null),0.0000,0.0000,0.0000,0.0000:(null),0.0000,0.0000,0.0000,0.0000"]
+
+Attribute("PCB::grid::unit" "mil")
+Via[110.00mil 190.00mil 44.00mil 20.00mil 0.0000 40.00mil "" ""]
+Via[400.00mil 190.00mil 44.00mil 20.00mil 0.0000 40.00mil "" ""]
+Via[400.00mil 490.00mil 44.00mil 20.00mil 0.0000 40.00mil "" ""]
+Via[110.00mil 490.00mil 44.00mil 20.00mil 0.0000 40.00mil "" ""]
+
+Element["" "Dual in-line package, narrow (300 mil)" "U1" "DIP8" 510.00mil 190.00mil 170.00mil 50.00mil 3 100 ""]
+(
+	Pin[0.0000 0.0000 60.00mil 30.00mil 66.00mil 28.00mil "1" "1" "square"]
+	Pin[0.0000 100.00mil 60.00mil 30.00mil 66.00mil 28.00mil "2" "2" ""]
+	Pin[0.0000 200.00mil 60.00mil 30.00mil 66.00mil 28.00mil "3" "3" ""]
+	Pin[0.0000 300.00mil 60.00mil 30.00mil 66.00mil 28.00mil "4" "4" ""]
+	Pin[300.00mil 300.00mil 60.00mil 30.00mil 66.00mil 28.00mil "5" "5" ""]
+	Pin[300.00mil 200.00mil 60.00mil 30.00mil 66.00mil 28.00mil "6" "6" ""]
+	Pin[300.00mil 100.00mil 60.00mil 30.00mil 66.00mil 28.00mil "7" "7" ""]
+	Pin[300.00mil 0.0000 60.00mil 30.00mil 66.00mil 28.00mil "8" "8" ""]
+	ElementLine [-50.00mil -50.00mil -50.00mil 350.00mil 10.00mil]
+	ElementLine [-50.00mil 350.00mil 350.00mil 350.00mil 10.00mil]
+	ElementLine [350.00mil 350.00mil 350.00mil -50.00mil 10.00mil]
+	ElementLine [-50.00mil -50.00mil 100.00mil -50.00mil 10.00mil]
+	ElementLine [200.00mil -50.00mil 350.00mil -50.00mil 10.00mil]
+	ElementArc [150.00mil -50.00mil 50.00mil 50.00mil 0 180 10.00mil]
+
+	)
+
+Element["" "Standard SMT resistor, capacitor etc" "C1" "0603" 660.00mil 630.00mil -31.50mil -31.50mil 0 100 ""]
+(
+	Pad[-25.59mil -4.92mil -25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "1" "1" "square"]
+	Pad[25.59mil -4.92mil 25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "2" "2" "square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "R2" "0603" 400.00mil 340.00mil -31.50mil -31.50mil 1 100 "auto"]
+(
+	Pad[-4.92mil -25.59mil 4.92mil -25.59mil 29.52mil 20.00mil 35.52mil "1" "1" "onsolder,square"]
+	Pad[-4.92mil 25.59mil 4.92mil 25.59mil 29.52mil 20.00mil 35.52mil "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "R1" "0603" 110.00mil 340.00mil -31.50mil -31.50mil 1 100 "auto"]
+(
+	Pad[-4.92mil -25.59mil 4.92mil -25.59mil 29.52mil 20.00mil 35.52mil "1" "1" "onsolder,square"]
+	Pad[-4.92mil 25.59mil 4.92mil 25.59mil 29.52mil 20.00mil 35.52mil "2" "2" "onsolder,square"]
+
+	)
+Layer(1 "top" "copper")
+(
+	Line[16.1140mm 630.00mil 16.1140mm 13.3200mm 10.00mil 20.00mil "clearline"]
+	Line[16.1140mm 13.3200mm 600.00mil 490.00mil 10.00mil 20.00mil "clearline"]
+	Line[17.4140mm 630.00mil 17.4140mm 244.41mil 10.00mil 20.00mil "clearline"]
+	Line[17.4140mm 244.41mil 740.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[740.00mil 190.00mil 810.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[510.00mil 190.00mil 400.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[110.00mil 190.00mil 410.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[110.00mil 490.00mil 600.00mil 490.00mil 10.00mil 20.00mil "clearline"]
+	Arc[3.8365mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[3.8365mm 3.7835mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[9.1175mm 3.7835mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[9.1175mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[11.4210mm 3.2930mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[11.4210mm 6.3590mm 1.5330mm 1.5330mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[14.4870mm 13.9790mm 1.5330mm 1.5330mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[14.4870mm 10.9130mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[19.0410mm 3.2930mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[19.0410mm 6.3590mm 1.5330mm 1.5330mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[11.2025mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[11.2025mm 3.7835mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[9.1175mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[9.1175mm 13.4885mm 1.0425mm 1.0425mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[3.8365mm 13.4885mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[3.8365mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[3.8365mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[3.8365mm 3.7835mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[11.2025mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[11.2025mm 3.7835mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[9.1175mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[9.1175mm 13.4885mm 1.0425mm 1.0425mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[11.2025mm 13.4885mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[11.2025mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[3.8365mm 13.4885mm 1.0425mm 1.0425mm 10.00mil 20.00mil 270 45 "clearline"]
+	Arc[3.8365mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 90 -45 "clearline"]
+	Arc[11.4210mm 3.2930mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[11.4210mm 6.3590mm 1.5330mm 1.5330mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[19.0410mm 3.2930mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[19.0410mm 6.3590mm 1.5330mm 1.5330mm 10.00mil 20.00mil -90 -45 "clearline"]
+	Arc[11.4210mm 10.9130mm 1.5330mm 1.5330mm 10.00mil 20.00mil 90 45 "clearline"]
+	Arc[11.4210mm 13.9790mm 1.5330mm 1.5330mm 10.00mil 20.00mil -90 -45 "clearline"]
+)
+Layer(2 "power" "copper")
+(
+)
+Layer(3 "signal1" "copper")
+(
+)
+Layer(4 "signal2" "copper")
+(
+)
+Layer(5 "signal3" "copper")
+(
+)
+Layer(6 "signal4" "copper")
+(
+)
+Layer(7 "GND" "copper")
+(
+)
+Layer(8 "bottom" "copper")
+(
+	Line[110.00mil 314.41mil 110.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[400.00mil 314.41mil 400.00mil 190.00mil 10.00mil 20.00mil "clearline"]
+	Line[110.00mil 365.59mil 110.00mil 490.00mil 10.00mil 20.00mil "clearline"]
+	Line[400.00mil 365.59mil 400.00mil 490.00mil 10.00mil 20.00mil "clearline"]
+	Arc[1.7515mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 180 45 "clearline"]
+	Arc[3.8365mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 -45 "clearline"]
+	Arc[9.1175mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 180 45 "clearline"]
+	Arc[11.2025mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 -45 "clearline"]
+	Arc[1.7515mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 180 45 "clearline"]
+	Arc[3.8365mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 -45 "clearline"]
+	Arc[9.1175mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 180 45 "clearline"]
+	Arc[11.2025mm 5.8685mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 -45 "clearline"]
+	Arc[11.2025mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 45 "clearline"]
+	Arc[9.1175mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil -180 -45 "clearline"]
+	Arc[3.8365mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil 0 45 "clearline"]
+	Arc[1.7515mm 11.4035mm 1.0425mm 1.0425mm 10.00mil 20.00mil -180 -45 "clearline"]
+)
+Layer(9 "bottom silk" "silk")
+(
+)
+Layer(10 "top silk" "silk")
+(
+)

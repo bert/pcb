@@ -213,20 +213,43 @@ check_pin (PinType * _pin)
 /* %start-doc actions Teardrops
 
 The @code{Teardrops()} action adds teardrops to the intersections
-between traces and pins/vias. This is a simplistic test, so there are
-cases where you'd think it would add them but doesn't.
+between traces and pins/vias.
 
-If the trace doesn't end at *exactly* the same point as the pin/via, it
-will be skipped. This often happens with metric parts on an Imperial
-grid or visa-versa.
+This is a simplistic test, so there are cases where you'd think it would
+add them but doesn't.
+
+If the trace doesn't end at @emph{exactly} the same point as the pin/via, it
+will be skipped.
+
+This often happens with metric parts on an Imperial grid or visa-versa.
 
 If a trace passes through a pin/via but doesn't end there, there won't
-be any teardrops. Use :djopt(none) to split those lines into two
-segments, each of which ends at the pin/via.
+be any teardrops.
+
+Use @code{:djopt(none)} to split those lines into two segments, each of which
+ends at the pin/via.
+
+Usage:
+
+This action takes no parameters.
+
+To invoke it, use the command window, usually by typing ":".
+
+Example:
+
+@code{:Teardrops()}
+
+@center @image{td_ex1,,,Example of how Teardrops works,png}
+
+With the lesstif HID you can add this action to your menu or a hotkey by
+editing $HOME/.pcb/pcb-menu.res (grab a copy from the pcb source if you
+haven't one there yet). 
 
 Known Bugs:
 
 Square pins are teardropped too.
+
+Refdes silk is no longer visible.
 
 %end-doc */
 static int
