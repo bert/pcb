@@ -468,6 +468,42 @@ AddSelectedToBuffer (BufferType *Buffer, Coord X, Coord Y, bool LeaveSelected)
 }
 
 /*!
+ * \brief Adds attribute with footprint filename to element
+ *  
+ * Adds footprint filename attribute to be used by exporters requiring external models
+ * - for newlib footprints adds fiilename without path and extension (.fp)
+ * - for m4 footprintas adds the Value field
+*/
+void
+TrackFootprintName(ElementType *element,  char *Footprint, bool strip_path)
+{
+  char *fp,*s;
+  int l;
+
+  if (Footprint == NULL) 
+    return;
+
+  if (strip_path)
+  {
+    if ((fp = strdup(Footprint))==NULL)
+      return;
+
+    s = basename(fp);
+
+    /* now remove .fp extension */
+    l = strlen(s);
+    if (( l > 3 ) && !strcmp(s+l-3, ".fp"))
+    {
+	s[l-3]='\0';
+    }
+    AttributePutToList (&(element->Attributes), "Footprint::File", s, 1);
+    free(fp);
+  } else {
+    AttributePutToList (&(element->Attributes), "Footprint::File", Footprint, 1);
+  }
+}
+
+/*!
  * \brief Loads element data from file/library into buffer.
  *
  * Parse the file with disabled 'PCB mode' (see parser).
@@ -491,6 +527,9 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 	  if (Buffer->Data->ElementN)
 	    {
 	      element = Buffer->Data->Element->data;
+
+	      TrackFootprintName(element, Name, true);
+
 	      Buffer->X = element->MarkX;
 	      Buffer->Y = element->MarkY;
 	    }
@@ -508,6 +547,8 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 	  && Buffer->Data->ElementN != 0)
 	{
 	  element = Buffer->Data->Element->data;
+
+	  TrackFootprintName(element, VALUE_NAME(element), false);
 
 	  /* always add elements using top-side coordinates */
 	  if (Settings.ShowBottomSide)
