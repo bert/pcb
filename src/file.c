@@ -521,8 +521,13 @@ WriteAttributeList (FILE * FP, AttributeListType *list, char *prefix)
   int i;
 
   for (i = 0; i < list->Number; i++)
-    fprintf (FP, "%sAttribute(\"%s\" \"%s\")\n",
-	     prefix, list->List[i].name, list->List[i].value);
+  {
+    fprintf (FP, "%sAttribute(", prefix);
+    PrintQuotedString(FP, list->List[i].name);
+    fputs (" ", FP);
+    PrintQuotedString(FP, list->List[i].value);
+    fputs (")\n", FP);
+  }
 }
 
 /*!
