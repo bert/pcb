@@ -50,7 +50,7 @@ typedef struct hid_gc_struct
 {
   HID *me_pointer;
   Pixel color;
-  const char *colorname;
+  char *colorname;
   int width;
   EndCapStyle cap;
   char xor_set;
@@ -3079,12 +3079,15 @@ lesstif_make_gc (void)
   hidGC rv = (hid_gc_struct *) malloc (sizeof (hid_gc_struct));
   memset (rv, 0, sizeof (hid_gc_struct));
   rv->me_pointer = &lesstif_hid;
+  rv->colorname = NULL;
   return rv;
 }
 
 static void
 lesstif_destroy_gc (hidGC gc)
 {
+  if (gc->colorname != NULL)
+    g_free(gc->colorname);
   free (gc);
 }
 
@@ -3153,7 +3156,14 @@ lesstif_set_color (hidGC gc, const char *name)
     return;
   if (!name)
     name = "red";
-  gc->colorname = name;
+
+  if (name != gc->colorname)
+    {
+      if (gc->colorname != NULL)
+        g_free(gc->colorname);
+      gc->colorname = g_strdup(name);
+    }
+
   if (strcmp (name, "erase") == 0)
     {
       gc->color = bgcolor;

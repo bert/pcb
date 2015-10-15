@@ -85,7 +85,7 @@ typedef struct hid_gc_struct
 {
   HID *me_pointer;
 
-  const char *colorname;
+  char *colorname;
   double alpha_mult;
   Coord width;
   gint cap, join;
@@ -198,6 +198,8 @@ ghid_end_layer (void)
 void
 ghid_destroy_gc (hidGC gc)
 {
+  if (gc->colorname != NULL)
+    g_free(gc->colorname);
   g_free (gc);
 }
 
@@ -208,7 +210,7 @@ ghid_make_gc (void)
 
   rv = g_new0 (hid_gc_struct, 1);
   rv->me_pointer = &ghid_hid;
-  rv->colorname = Settings.BackgroundColor;
+  rv->colorname = g_strdup(Settings.BackgroundColor);
   rv->alpha_mult = 1.0;
   return rv;
 }
@@ -470,7 +472,12 @@ set_gl_color_for_gc (hidGC gc)
 void
 ghid_set_color (hidGC gc, const char *name)
 {
-  gc->colorname = name;
+  if (name != gc->colorname)
+    {
+      if (gc->colorname != NULL)
+        g_free((void *)gc->colorname);
+      gc->colorname = g_strdup(name);
+    }
   set_gl_color_for_gc (gc);
 }
 

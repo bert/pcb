@@ -252,6 +252,8 @@ HID_Flag flags_flag_list[] = {
   {"onlynames",            FlagTESTFLAG,     GINT_TO_POINTER (ONLYNAMESFLAG)},
   {"newfullpoly",          FlagTESTFLAG,     GINT_TO_POINTER (NEWFULLPOLYFLAG)},
   {"hidenames",            FlagTESTFLAG,     GINT_TO_POINTER (HIDENAMESFLAG)},
+  {"snapoffgridline",      FlagTESTFLAG,     GINT_TO_POINTER (SNAPOFFGRIDLINEFLAG)},
+  {"highlightonpoint",     FlagTESTFLAG,     GINT_TO_POINTER (HIGHLIGHTONPOINTFLAG)},
 
   {"grid_units_mm",        FlagUnitsMm,      NULL},
   {"grid_units_mil",       FlagUnitsMil,     NULL},

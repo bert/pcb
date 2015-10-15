@@ -268,9 +268,9 @@ If set, this object has been as physically connected by @code{FindConnection()}.
                                              also pinout text for pins is vertical */
 #define VISITFLAG               0x8000  /*!< marker to avoid re-visiting an object */
 #define CONNECTEDFLAG          0x10000  /*!< flag like FOUND flag, but used to identify physically connected objects (not rats) */
+#define ONPOINTFLAG            0x20000  /*!< crosshair is on line point or arc point */
 
-
-#define NOCOPY_FLAGS (FOUNDFLAG | CONNECTEDFLAG)
+#define NOCOPY_FLAGS (FOUNDFLAG | CONNECTEDFLAG | ONPOINTFLAG)
 
 /* ---------------------------------------------------------------------------
  * PCB flags
@@ -327,10 +327,14 @@ Everything but names are locked, the mouse cannot select anything else.
 New polygons are full polygons.
 @item 0x200000
 When set, element names are not drawn.
+@item 0x400000
+snap to certain off-grid points.
+@item 0x800000
+highlight lines and arcs when the crosshair is on one of their endpoints.
 @end table
 %end-doc */
 
-#define	PCB_FLAGS		0x000fffff	/* all used flags */
+#define	PCB_FLAGS		0x00ffffff	/* all used flags */
 
 #define SHOWNUMBERFLAG          0x00000001
 #define LOCALREFFLAG            0x00000002
@@ -354,6 +358,8 @@ When set, element names are not drawn.
 #define ONLYNAMESFLAG           0x00080000
 #define NEWFULLPOLYFLAG         0x00100000
 #define HIDENAMESFLAG           0x00200000
+#define SNAPOFFGRIDLINEFLAG     0x00400000
+#define HIGHLIGHTONPOINTFLAG    0x00800000
 
 /* ---------------------------------------------------------------------------
  * object types

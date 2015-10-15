@@ -198,6 +198,8 @@ typedef enum
   F_ToggleRubberBandMode,
   F_ToggleStartDirection,
   F_ToggleSnapPin,
+  F_ToggleSnapOffGridLine,
+  F_ToggleHighlightOnPoint,
   F_ToggleThindraw,
   F_ToggleLockNames,
   F_ToggleOnlyNames,
@@ -429,6 +431,8 @@ static FunctionType Functions[] = {
   {"ToggleRubberBandMode", F_ToggleRubberBandMode},
   {"ToggleStartDirection", F_ToggleStartDirection},
   {"ToggleSnapPin", F_ToggleSnapPin},
+  {"ToggleSnapOffGridLine", F_ToggleSnapOffGridLine},
+  {"ToggleHighlightOnPoint", F_ToggleHighlightOnPoint},
   {"ToggleThindraw", F_ToggleThindraw},
   {"ToggleThindrawPoly", F_ToggleThindrawPoly},
   {"ToggleLockNames", F_ToggleLockNames},
@@ -2501,7 +2505,8 @@ static const char display_syntax[] =
   "Display(Grid|Redraw)\n"
   "Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
+  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly)\n"
+  "Display(ToggleSnapPin|ToggleSnapOffGridLine|ToggleHighlightOnPoint)\n"
   "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
   "Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
@@ -2549,6 +2554,13 @@ match that of another element.
 @item ToggleSnapPin
 If set, pin centers and pad end points are treated as additional grid
 points that the cursor can snap to.
+
+@item ToggleSnapOffGridLine
+If set, snap at some sensible point along a line.
+
+@item ToggleHighlightOnPoint
+If set, highlights lines and arcs when the crosshair is on one of their
+two (end) points.
 
 @item ToggleLocalRef
 If set, the mark is automatically set to the beginning of any move, so
@@ -2750,6 +2762,18 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  TOGGLE_FLAG (SNAPPINFLAG, PCB);
 	  notify_crosshair_change (true);
 	  break;
+
+        case F_ToggleSnapOffGridLine:
+          notify_crosshair_change (false);
+	  TOGGLE_FLAG (SNAPOFFGRIDLINEFLAG, PCB);
+	  notify_crosshair_change (true);
+          break;
+
+        case F_ToggleHighlightOnPoint:
+          notify_crosshair_change (false);
+	  TOGGLE_FLAG (HIGHLIGHTONPOINTFLAG, PCB);
+	  notify_crosshair_change (true);
+          break;
 
 	case F_ToggleLocalRef:
 	  TOGGLE_FLAG (LOCALREFFLAG, PCB);

@@ -202,6 +202,7 @@ MainMenu =
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
    {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
    {"Crosshair snaps to pins and pads" checked=snappin Display(ToggleSnapPin)}
+   {"Crosshair snaps to off-grid points on lines" checked=snapoffgridline Display(ToggleSnapOffGridLine)}
    {"Crosshair shows DRC clearance" checked=showdrc Display(ToggleShowDRC)}
    {"Auto enforce DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
    {"Lock Names" checked=locknames Display(ToggleLockNames)}
@@ -214,6 +215,7 @@ MainMenu =
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
    {"New polygons are full ones" checked=newfullpoly Display(ToggleFullPoly)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
+   {"Highlighting on line, arc points" checked=highlightonpoint Display(ToggleHighlightOnPoint)}
    {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
    {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}

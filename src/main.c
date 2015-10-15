@@ -1482,6 +1482,27 @@ that the cursor can snap to.
   BSET (SnapPin, 1, "snap-pin",
        "If set, the cursor snaps to pads and pin centers"),
 
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --snap-offgrid-line
+If set, the cursor snaps at sensible points along a line
+@end ftable
+%end-doc
+*/
+  BSET (SnapOffGridLine, 1, "snap-offgrid-line",
+       "If set, the cursor snaps at sensible points along a line"),
+
+/* %start-doc options "2 General GUI Options"
+@ftable @code
+@item --highlight-on-point
+If set, highlights lines and arcs when the crosshair is on one of their
+two (end) points.
+@end ftable
+%end-doc
+*/
+  BSET (HighlightOnPoint, 0, "highlight-on-point",
+       "If set, highlights lines and arcs when the cursor is on their endpoints"),
+
 /* %start-doc options "1 General Options"
 @ftable @code
 @item --save-last-command

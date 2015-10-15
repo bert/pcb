@@ -87,9 +87,31 @@ static void DrawEMark (ElementType *, Coord, Coord, bool);
 static void DrawRats (const BoxType *);
 
 static void
+LightenColor(const char *orig, char buf[8], double factor)
+{
+  unsigned int r, g, b;
+
+  if (orig[0] == '#')
+    {
+      sscanf(&orig[1], "%2x%2x%2x", &r, &g, &b);
+      r = MIN(255, r * factor);
+      g = MIN(255, g * factor);
+      b = MIN(255, b * factor);
+    }
+  else
+    {
+      r = 0xff;
+      g = 0xff;
+      b = 0xff;
+    }
+  snprintf(buf, sizeof("#XXXXXX"), "#%02x%02x%02x", r, g, b);
+}
+
+static void
 set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
                   char *connected_color, char *found_color, char *normal_color)
 {
+  char buf[sizeof("#XXXXXX")];
   char *color;
 
   if      (warn_color      != NULL && TEST_FLAG (WARNFLAG,      obj)) color = warn_color;
@@ -97,6 +119,13 @@ set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
   else if (connected_color != NULL && TEST_FLAG (CONNECTEDFLAG, obj)) color = connected_color;
   else if (found_color     != NULL && TEST_FLAG (FOUNDFLAG,     obj)) color = found_color;
   else                                                                color = normal_color;
+
+  if (TEST_FLAG(ONPOINTFLAG, obj))
+    {
+      assert(color != NULL);
+      LightenColor(color, buf, 1.75);
+      color = buf;
+    }
 
   gui->graphics->set_color (Output.fgGC, color);
 }

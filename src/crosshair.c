@@ -36,10 +36,12 @@
 
 #include <memory.h>
 #include <math.h>
+#include <glib.h>
 
 #include "global.h"
 #include "hid_draw.h"
 
+#include "box.h"
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
@@ -47,6 +49,7 @@
 #include "line.h"
 #include "misc.h"
 #include "mymem.h"
+#include "rtree.h"
 #include "search.h"
 #include "polygon.h"
 
@@ -847,6 +850,163 @@ RestoreCrosshair (void)
   notify_mark_change (true);
 }
 
+/*
+ * Below is the implementation of the "highlight on endpoint" functionality.
+ * This highlights lines and arcs when the crosshair is on of their (two)
+ * endpoints.
+ */
+struct onpoint_search_info {
+  CrosshairType *crosshair;
+  Coord X;
+  Coord Y;
+};
+
+static int
+onpoint_line_callback(const BoxType *box, void *cl)
+{
+  struct onpoint_search_info *info = (struct onpoint_search_info *)cl;
+  CrosshairType *crosshair = info->crosshair;
+  LineType *line = (LineType *)box;
+
+#ifdef DEBUG_ONPOINT
+  printf("X=%ld Y=%ld    X1=%ld Y1=%ld X2=%ld Y2=%ld\n", info->X, info->Y,
+	line->Point1.X,
+	line->Point1.Y,
+	line->Point2.X,
+	line->Point2.Y);
+#endif
+  if ((line->Point1.X == info->X && line->Point1.Y == info->Y) ||
+      (line->Point2.X == info->X && line->Point2.Y == info->Y))
+    {
+      crosshair->onpoint_objs =
+        g_list_prepend(crosshair->onpoint_objs, line);
+      crosshair->onpoint_objs_types =
+        g_list_prepend(crosshair->onpoint_objs_types, 
+        GINT_TO_POINTER(LINE_TYPE));
+      SET_FLAG(ONPOINTFLAG, (AnyObjectType *)line);
+      DrawLine(NULL, line);
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+static int
+onpoint_arc_callback(const BoxType *box, void *cl)
+{
+  struct onpoint_search_info *info = (struct onpoint_search_info *)cl;
+  CrosshairType *crosshair = info->crosshair;
+  ArcType *arc = (ArcType *)box;
+
+  if ((arc->Point1.X == info->X && arc->Point1.Y == info->Y) ||
+      (arc->Point2.X == info->X && arc->Point2.Y == info->Y))
+    {
+      crosshair->onpoint_objs =
+        g_list_prepend(crosshair->onpoint_objs, arc);
+      crosshair->onpoint_objs_types =
+        g_list_prepend(crosshair->onpoint_objs_types, GINT_TO_POINTER(ARC_TYPE));
+      SET_FLAG(ONPOINTFLAG, (AnyObjectType *)arc);
+      DrawArc(NULL, arc);
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+void DrawLineOrArc(int type, void *obj)
+{
+  switch (type)
+  {
+  case LINEPOINT_TYPE:
+    /* Attention: We can use a NULL pointer here for the layer,
+     * because it is not used in the DrawLine() function anyways.
+     * ATM DrawLine() only alls AddPart() internally, which invalidates
+     * the area specified by the line's bounding box.
+     */
+     DrawLine(NULL, (LineType *)obj);
+    break;
+  case ARCPOINT_TYPE:
+    /* See comment above */
+    DrawArc(NULL, (ArcType *)obj);
+    break;
+  }
+}
+
+/*
+ * Searches for lines or arcs which have points that are exactly
+ * at the given coordinates and adds them to the crosshair's
+ * object list along with their respective type.
+ */
+static void
+onpoint_work(CrosshairType *crosshair, Coord X, Coord Y)
+{
+  BoxType SearchBox = point_box(X, Y);
+  struct onpoint_search_info info;
+  int i;
+  GList *lobjs, *ltypes;
+  GList *old_onpoint_objs = crosshair->onpoint_objs;
+  GList *old_onpoint_objs_types = crosshair->onpoint_objs_types;
+  bool redraw = false;
+
+  crosshair->onpoint_objs = NULL;
+  crosshair->onpoint_objs_types = NULL;
+
+  info.crosshair = crosshair;
+  info.X = X;
+  info.Y = Y;
+
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      LayerType *layer = &PCB->Data->Layer[i];
+      /* Only find points of arcs and lines on currently visible layers. */
+      if (!layer->On)
+        continue;
+      r_search(layer->line_tree, &SearchBox, NULL,
+        onpoint_line_callback, &info);
+      r_search(layer->arc_tree, &SearchBox, NULL,
+        onpoint_arc_callback, &info);
+    }
+
+  /* Undraw the old objects */
+  for (lobjs = old_onpoint_objs, ltypes = old_onpoint_objs_types;
+       lobjs != NULL;
+       lobjs = lobjs->next, ltypes = ltypes->next)
+    {
+      /* only remove and redraw those which aren't in the new list */
+      if (g_list_find(crosshair->onpoint_objs, lobjs->data) != NULL)
+        continue;
+
+      CLEAR_FLAG(ONPOINTFLAG, (AnyObjectType *)lobjs->data);
+      DrawLineOrArc(GPOINTER_TO_INT(ltypes->data), lobjs->data);
+      redraw = true;
+    }
+
+  /* draw the new objects */
+  for (lobjs = crosshair->onpoint_objs,
+       ltypes = crosshair->onpoint_objs_types;
+       lobjs != NULL;
+       lobjs = lobjs->next, ltypes = ltypes->next)
+    {
+      /* only draw those which aren't in the old list */
+      if (g_list_find(old_onpoint_objs, lobjs->data) != NULL)
+        continue;
+      DrawLineOrArc(GPOINTER_TO_INT(ltypes->data), lobjs->data);
+      redraw = true;
+    }
+
+  g_list_free(old_onpoint_objs);
+  g_list_free(old_onpoint_objs_types);
+
+  if (redraw)
+    {
+      Redraw();
+    }
+}
+
 /*!
  * \brief Returns the square of the given number.
  */
@@ -1146,7 +1306,11 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
-  check_snap_offgrid_line (&snap_data, nearest_grid_x, nearest_grid_y);
+  /*
+   * Snap to offgrid points on lines.
+   */
+  if (TEST_FLAG (SNAPOFFGRIDLINEFLAG, PCB))
+    check_snap_offgrid_line (&snap_data, nearest_grid_x, nearest_grid_y);
 
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
@@ -1164,6 +1328,9 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       Crosshair.X = snap_data.x;
       Crosshair.Y = snap_data.y;
     }
+
+  if (TEST_FLAG (HIGHLIGHTONPOINTFLAG, PCB))
+    onpoint_work(&Crosshair, Crosshair.X, Crosshair.Y);
 
   if (Settings.Mode == ARROW_MODE)
     {
@@ -1246,6 +1413,10 @@ InitCrosshair (void)
   Crosshair.MinX = Crosshair.MinY = 0;
   Crosshair.MaxX = PCB->MaxWidth;
   Crosshair.MaxY = PCB->MaxHeight;
+
+  /* Initialize the onpoint data. */
+  Crosshair.onpoint_objs = NULL;
+  Crosshair.onpoint_objs_types = NULL;
 
   /* clear the mark */
   Marked.status = false;

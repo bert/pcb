@@ -113,6 +113,8 @@ ghid_destroy_gc (hidGC gc)
 {
   if (gc->gc)
     g_object_unref (gc->gc);
+  if (gc->colorname != NULL)
+    g_free(gc->colorname);
   g_free (gc);
 }
 
@@ -123,7 +125,7 @@ ghid_make_gc (void)
 
   rv = g_new0 (hid_gc_struct, 1);
   rv->me_pointer = &ghid_hid;
-  rv->colorname = Settings.BackgroundColor;
+  rv->colorname = g_strdup(Settings.BackgroundColor);
   return rv;
 }
 
@@ -378,7 +380,13 @@ ghid_set_color (hidGC gc, const char *name)
       name = "magenta";
     }
 
-  gc->colorname = (char *) name;
+  if (name != gc->colorname)
+    {
+      if (gc->colorname != NULL)
+        g_free(gc->colorname);
+      gc->colorname = g_strdup(name);
+    }
+
   if (!gc->gc)
     return;
   if (gport->colormap == 0)

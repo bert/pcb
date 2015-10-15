@@ -718,6 +718,8 @@ typedef struct
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject; /*!< Data of attached objects. */
   enum crosshair_shape shape; /*!< Shape of Crosshair. */
+  GList *onpoint_objs;		/* list of associated lines/arc */
+  GList *onpoint_objs_types;	/* ..and a list of their respective types */
 } CrosshairType;
 
 typedef struct
@@ -824,6 +826,8 @@ typedef struct
     FullPoly,
     UniqueNames, /*!< Force unique names. */
     SnapPin, /*!< Snap to pins and pads. */
+    SnapOffGridLine, /*!< Snap to certain off-grid points along a line. */
+    HighlightOnPoint, /*!< Highlight if crosshair is on endpoints. */
     ShowBottomSide, /*!< Mirror output. */
     SaveLastCommand, /*!< Save the last command entered by user. */
     SaveInTMP, /*!< Always save data in /tmp. */
