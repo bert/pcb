@@ -56,7 +56,7 @@ distance_between_points(int x1,int y1, int x2, int y2)
   int distance;
   a = (x1-x2);
   b = (y1-y2);
-  distance = sqrt((pow( x1 - x2, 2 )) + (pow( y1 - y2 , 2)));
+  distance = sqrt((pow( a, 2 )) + (pow( b, 2)));
   return distance; 
 }
 
