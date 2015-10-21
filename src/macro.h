@@ -27,7 +27,10 @@
 /* some commonly used macros not related to a special C-file
  * the file is included by global.h after const.h
  */
-
+/*
+ * WEH Comment out UNKNOWN_NAME, this is not used any where
+ *
+ */
 #ifndef	PCB_MACRO_H
 #define	PCB_MACRO_H
 
@@ -62,7 +65,7 @@
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
-#define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
+// #define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
 #define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
 #define	EMPTY_STRING_P(a)	((a) ? (a)[0]==0 : 1)
@@ -114,7 +117,7 @@
 #define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
 
 #define TEST_THERM(L,P)		((P)->Flags.t[(L)/2] & THERMFLAG(L) ? 1 : 0)
-#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf) 
+#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf)
 #define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/2] &= ~THERMFLAG(L)
 #define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/2] = ((P)->Flags.t[(L)/2] & ~THERMFLAG(L)) | ((V)  << (4 * ((L) % 2)))
 
