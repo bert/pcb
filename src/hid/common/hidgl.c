@@ -38,16 +38,28 @@
  *   http://www.opengl.org/registry/ABI/
  */
 #define GL_GLEXT_PROTOTYPES 1
-#ifdef HAVE_OPENGL_GL_H
-#   include <OpenGL/gl.h>
+
+/* This follows autoconf's recommendation for the AX_CHECK_GL macro
+   https://www.gnu.org/software/autoconf-archive/ax_check_gl.html */
+#if defined HAVE_WINDOWS_H && defined _WIN32
+#  include <windows.h>
+#endif
+#if defined HAVE_GL_GL_H
+#  include <GL/gl.h>
+#elif defined HAVE_OPENGL_GL_H
+#  include <OpenGL/gl.h>
 #else
-#   include <GL/gl.h>
+#  error autoconf couldnt find gl.h
 #endif
 
-#ifdef HAVE_OPENGL_GLU_H
-#   include <OpenGL/glu.h>
+/* This follows autoconf's recommendation for the AX_CHECK_GLU macro
+   https://www.gnu.org/software/autoconf-archive/ax_check_glu.html */
+#if defined HAVE_GL_GLU_H
+#  include <GL/glu.h>
+#elif defined HAVE_OPENGL_GLU_H
+#  include <OpenGL/glu.h>
 #else
-#   include <GL/glu.h>
+#  error autoconf couldnt find glu.h
 #endif
 
 #include "action.h"
@@ -440,7 +452,7 @@ myCombine ( GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **
       if (combined_num_to_free < MAX_COMBINED_MALLOCS)
         combined_to_free [combined_num_to_free ++] = new_vertex;
       else
-        printf ("myCombine leaking %lu bytes of memory\n", 3 * sizeof (GLdouble));
+        printf ("myCombine leaking %u bytes of memory\n", 3 * sizeof (GLdouble));
     }
 
   new_vertex[0] = coords[0];

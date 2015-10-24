@@ -154,6 +154,15 @@ padorder (ConnectionType *conna, ConnectionType *connb)
 
 static const char smartdisperse_syntax[] = "SmartDisperse([All|Selected])";
 
+/* %start-doc actions SmartDisperse
+
+The @code{SmartDisperse([All|Selected])} action is a special-purpose
+optimization for dispersing elements.
+
+Run with @code{:SmartDisperse()} or @code{:SmartDisperse(Selected)}
+(you can also say @code{:SmartDisperse(All)}, but that's the default).
+
+%end-doc */
 static int
 smartdisperse (int argc, char **argv, Coord x, Coord y)
 {

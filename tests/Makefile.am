@@ -28,6 +28,7 @@ EXTRA_DIST = \
   tests.list \
   README.txt \
   inputs/bom_general.pcb \
+  inputs/circles.pcb \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
@@ -102,6 +103,7 @@ EXTRA_DIST = \
   golden/hid_png1/gerber_oneline.png \
   golden/hid_png2/myfile.png \
   golden/hid_png3/gerber_oneline.png \
+  golden/hid_ps1/circles.ps \
   golden/MinMaskGap/minmaskgap.pcb
 
 .PHONY: missing_test

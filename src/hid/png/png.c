@@ -996,9 +996,12 @@ png_do_export (HID_Attr_Val * options)
 
       im = master_im;
 
-      ts_bs (photo_copper[photo_groups[0]]);
-      ts_bs (photo_silk);
-      ts_bs_sm (photo_mask);
+      if (photo_copper[photo_groups[0]])
+        ts_bs (photo_copper[photo_groups[0]]);
+      if (photo_silk)
+        ts_bs (photo_silk);
+      if (photo_mask)
+        ts_bs_sm (photo_mask);
 
       if (photo_outline && have_outline) {
 	int black=gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00);
@@ -1043,7 +1046,11 @@ png_do_export (HID_Attr_Val * options)
 	      if (photo_ngroups == 2)
 		blend (&cop, 0.3, &cop, &fr4);
 	      
-	      cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
+              if (photo_copper[photo_groups[0]])
+                cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
+              else
+                cc = 0;
+
 	      if (cc)
 		{
 		  int r;

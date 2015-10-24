@@ -253,6 +253,12 @@ sub scan_file {
 		  
 		  # convert \n to a newline
 		  s/\\n/\n/g;
+
+		  # eat the first part of the N_("..."); macros including leading spaces 
+		  s/\s*N_\s*\(\s*\"//;
+
+		  # eat the trailing part of the N_("..."); macros
+		  s/\"\s*\)\s*;\s*$/$1/;
 		  
 		  # eat trailing quotes
 		  s/\";?$//; #"
