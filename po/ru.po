@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb-git\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-25 15:30+0400\n"
+"POT-Creation-Date: 2015-10-24 21:19+0200\n"
 "PO-Revision-Date: 2014-01-25 17:07+0400\n"
 "Last-Translator: Sergey Alyoshin <alyoshin.s@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../data/pcb.appdata.xml.in.h:1
+#, fuzzy
+msgid ""
+"PCB is an interactive printed circuit board editor for Unix, Linux, Windows, "
+"and Mac systems."
+msgstr ""
+"PCB - интерактивный редактор печатных плат\n"
+"версия "
+
+#: ../data/pcb.appdata.xml.in.h:2
+msgid ""
+"PCB includes a rats nest feature and schematic/netlist import, design rule "
+"checking, and can provide industry standard RS-274X (Gerber), NC drill, and "
+"centroid data (X-Y data) output for use in the board fabrication and "
+"assembly process, as well as photorealistic and design review images."
+msgstr ""
+
+#: ../data/pcb.appdata.xml.in.h:3
+msgid ""
+"PCB offers high end features such as an autorouter and trace optimizer which "
+"can tremendously reduce layout time."
+msgstr ""
+
+#: ../data/pcb.appdata.xml.in.h:4
+msgid ""
+"For custom requirements, PCB offers a plug-in API for inserting new "
+"functionality and using that functionality from within the GUI as well as in "
+"scripts."
+msgstr ""
 
 #: ../data/pcb.desktop.in.h:1
 msgid "PCB Designer"
@@ -53,12 +83,12 @@ msgstr "Gerber-файл"
 msgid "Excellon drill file"
 msgstr "Файл сверловки Excellon"
 
-#: ../src/action.c:550
+#: ../src/action.c:553
 #, c-format
 msgid "Unknown stroke %s\n"
 msgstr "Неизвестный жест %s\n"
 
-#: ../src/action.c:754
+#: ../src/action.c:757
 #, c-format
 msgid "Error: function hash size too small (%d vs %lu at %s:%d)\n"
 msgstr ""
@@ -66,12 +96,12 @@ msgstr ""
 
 #. Change 'char' to 'int' and remove this when we get to 256
 #. strings to hash.
-#: ../src/action.c:762
+#: ../src/action.c:765
 #, c-format
 msgid "Error: function hash type too small (%d vs %lu at %s:%d)\n"
 msgstr "Ошибка: слишком маленький тип хеша функции (%d против %lu в %s:%d)\n"
 
-#: ../src/action.c:1016
+#: ../src/action.c:1022
 msgid ""
 "You must turn via visibility on before\n"
 "you can place vias\n"
@@ -79,18 +109,36 @@ msgstr ""
 "Необходимо включить отображение переходов\n"
 "перед тем как их размещать\n"
 
-#: ../src/action.c:1381 ../src/change.c:2294
+#: ../src/action.c:1392 ../src/change.c:2364
 msgid "Enter text:"
 msgstr "Текст:"
 
-#: ../src/action.c:1459 ../src/action.c:1602 ../src/action.c:1661
-#: ../src/action.c:1715 ../src/action.c:4064 ../src/action.c:6787
+#: ../src/action.c:1470 ../src/action.c:1613 ../src/action.c:1672
+#: ../src/action.c:1726 ../src/action.c:4098 ../src/action.c:6835
 #: ../src/move.c:477 ../src/move.c:568 ../src/move.c:666 ../src/move.c:740
 #: ../src/rotate.c:422
 msgid "Sorry, the object is locked\n"
 msgstr "Объект заблокирован\n"
 
-#: ../src/action.c:1851
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:1779
+msgid "Atomic(Save|Restore|Close|Block)"
+msgstr ""
+
+#: ../src/action.c:1781
+msgid "Save or restore the undo serial number."
+msgstr ""
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1844
+msgid "DRC()"
+msgstr ""
+
+#: ../src/action.c:1846
+msgid "Invoke the DRC check."
+msgstr ""
+
+#: ../src/action.c:1862
 msgid ""
 "%m+Rules are minspace %$mS, minoverlap %$mS minwidth %$mS, minsilk %$mS\n"
 "min drill %$mS, min annular ring %$mS\n"
@@ -99,37 +147,171 @@ msgstr ""
 "толщину %$mS, шёлкографию %$mS, диаметр переходного отверстия %$mS, \n"
 "\tтолщину кольца перехода %$mS\n"
 
-#: ../src/action.c:1863
+#: ../src/action.c:1874
 msgid "No DRC problems found.\n"
 msgstr "Нарушений проектных норм не найдено.\n"
 
-#: ../src/action.c:1865
+#: ../src/action.c:1876
 #, c-format
 msgid "Found %d design rule errors.\n"
 msgstr "Найдено %d нарушений проектных норм.\n"
 
-#: ../src/action.c:1867
+#: ../src/action.c:1878
 #, c-format
 msgid "Aborted DRC after %d design rule errors.\n"
 msgstr "Проверка проектных норм прекращена после %d нарушений.\n"
 
-#: ../src/action.c:2299
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1885
+#, fuzzy
+msgid "DumpLibrary()"
+msgstr "Библиотека"
+
+#: ../src/action.c:1888
+msgid "Display the entire contents of the libraries."
+msgstr ""
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1939
+msgid "Flip(Object|Selected|SelectedElements)"
+msgstr ""
+
+#: ../src/action.c:1942
+#, fuzzy
+msgid "Flip an element to the opposite side of the board."
+msgstr "\tПеренести элементы на противоположную сторону платы.\n"
+
+#. --------------------------------------------------------------------------
+#: ../src/action.c:1993
+msgid "Message(message)"
+msgstr ""
+
+#: ../src/action.c:1995
+msgid "Writes a message to the log window."
+msgstr ""
+
+#: ../src/action.c:2030
+msgid ""
+"Set the thermal (on the current layer) of pins or vias to the given style.\n"
+"Style = 0 means no thermal.\n"
+"Style = 1 has diagonal fingers with sharp edges.\n"
+"Style = 2 has horizontal and vertical fingers with sharp edges.\n"
+"Style = 3 is a solid connection to the plane.\n"
+"Style = 4 has diagonal fingers with rounded edges.\n"
+"Style = 5 has horizontal and vertical fingers with rounded edges.\n"
+msgstr ""
+
+#: ../src/action.c:2151
+msgid ""
+"SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, "
+"delta)"
+msgstr ""
+
+#: ../src/action.c:2155
+msgid "Change various board-wide values and sizes."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:2261
+#, fuzzy
+msgid "Quit()"
+msgstr "Выход"
+
+#: ../src/action.c:2263
+msgid "Quits the application after confirming."
+msgstr ""
+
+#: ../src/action.c:2289
+msgid "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
+msgstr ""
+
+#: ../src/action.c:2292
+msgid "Searches connections of the object at the cursor position."
+msgstr ""
+
+#: ../src/action.c:2327 ../src/report.c:700
 msgid "Click on a connection"
 msgstr "Щёлкните на соединении"
 
-#: ../src/action.c:2829 ../src/action.c:7976
+#: ../src/action.c:2366
+msgid "DisperseElements(All|Selected)"
+msgstr ""
+
+#: ../src/action.c:2368
+#, fuzzy
+msgid "Disperses elements."
+msgstr "Распределить все элементы"
+
+#: ../src/action.c:2491
+msgid ""
+"Display(NameOnPCB|Description|Value)\n"
+"Display(Grid|Redraw)\n"
+"Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
+"Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+"Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
+"Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
+"Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+"Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
+"Display(Pinout|PinOrPadName)"
+msgstr ""
+
+#: ../src/action.c:2501
+msgid "Several display-related actions."
+msgstr ""
+
+#: ../src/action.c:2857 ../src/action.c:8040
 msgid "Click on an element"
 msgstr "Щёлкните на элементе"
+
+#: ../src/action.c:2976
+msgid ""
+"Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+"Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+"Mode(Notify|Release|Cancel|Stroke)\n"
+"Mode(Save|Restore)"
+msgstr ""
+
+#: ../src/action.c:2981
+msgid "Change or use the tool mode."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3249
+#, fuzzy
+msgid "RemoveSelected()"
+msgstr "Удалить выбранное"
+
+#: ../src/action.c:3251
+#, fuzzy
+msgid "Removes any selected objects."
+msgstr "Удалить выбранные объекты"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3267
+msgid ""
+"Renumber()\n"
+"Renumber(filename)"
+msgstr ""
+
+#: ../src/action.c:3271
+#, fuzzy
+msgid ""
+"Renumber all elements.  The changes will be recorded to filename\n"
+"for use in backannotating these changes to the schematic."
+msgstr ""
+"Выберите файл для записи перенумерации.\n"
+"Этот файл может быть использован для\n"
+"обратной аннотации изменений в схеме.\n"
 
 #.
 #. * We deal with the case where name already exists in this
 #. * function so the GUI doesn't need to deal with it
 #.
-#: ../src/action.c:3278
+#: ../src/action.c:3308
 msgid "Save Renumber Annotation File As ..."
 msgstr "Сохранить файл аннотации перенумерации как..."
 
-#: ../src/action.c:3279
+#: ../src/action.c:3309
 msgid ""
 "Choose a file to record the renumbering to.\n"
 "This file may be used to back annotate the\n"
@@ -139,16 +321,70 @@ msgstr ""
 "Этот файл может быть использован для\n"
 "обратной аннотации изменений в схеме.\n"
 
-#: ../src/action.c:3304 ../src/action.c:6109
+#: ../src/action.c:3334 ../src/action.c:6156
 msgid "File exists!  Ok to overwrite?"
 msgstr "Файл существует! Перезаписать?"
 
-#: ../src/action.c:3314
+#: ../src/action.c:3344
 #, c-format
 msgid "Could not open %s\n"
 msgstr "Невозможно открыть %s\n"
 
-#: ../src/action.c:3901
+#: ../src/action.c:3461
+#, c-format
+msgid "realloc failed() in %s\n"
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3625
+msgid "RipUp(All|Selected|Element)"
+msgstr ""
+
+#: ../src/action.c:3628
+msgid "Ripup auto-routed tracks, or convert an element to parts."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3754
+msgid "AddRats(AllRats|SelectedRats|Close)"
+msgstr ""
+
+#: ../src/action.c:3757
+msgid "Add one or more rat lines to the board."
+msgstr ""
+
+#: ../src/action.c:3835
+msgid ""
+"Delete(Object|Selected)\n"
+"Delete(AllRats|SelectedRats)"
+msgstr ""
+
+#: ../src/action.c:3838
+#, fuzzy
+msgid "Delete stuff."
+msgstr "Удалить"
+
+#: ../src/action.c:3886
+msgid "DeleteRats(AllRats|Selected|SelectedRats)"
+msgstr ""
+
+#: ../src/action.c:3888
+#, fuzzy
+msgid "Delete rat lines."
+msgstr "соединения"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3920
+#, fuzzy
+msgid "AutoPlaceSelected()"
+msgstr "Авторазмещение выбранных элементов"
+
+#: ../src/action.c:3922
+#, fuzzy
+msgid "Auto-place selected components."
+msgstr "Авторазмещение выбранных элементов"
+
+#: ../src/action.c:3935
 msgid ""
 "Auto-placement can NOT be undone.\n"
 "Do you want to continue anyway?\n"
@@ -156,52 +392,338 @@ msgstr ""
 "Авторазмещение не может быть отменено.\n"
 "Хотите продолжить?\n"
 
-#: ../src/action.c:4152 ../src/action.c:4222 ../src/action.c:4585
-#: ../src/action.c:4673 ../src/action.c:4727 ../src/action.c:4803
-#: ../src/action.c:4864 ../src/action.c:4922 ../src/action.c:4981
-#: ../src/action.c:5039 ../src/action.c:5100 ../src/action.c:5163
-#: ../src/action.c:5225 ../src/action.c:5273 ../src/action.c:6557
-#: ../src/action.c:8177
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:3946
+#, fuzzy
+msgid "AutoRoute(AllRats|SelectedRats)"
+msgstr "Автотрассировка выбранных соединений"
+
+#: ../src/action.c:3948
+#, fuzzy
+msgid "Auto-route some or all rat lines."
+msgstr "Автотрассировка всех соединений"
+
+#: ../src/action.c:3999
+msgid ""
+"MarkCrosshair()\n"
+"MarkCrosshair(Center)"
+msgstr ""
+
+#: ../src/action.c:4002
+msgid "Set/Reset the Crosshair mark."
+msgstr ""
+
+#: ../src/action.c:4054
+msgid ""
+"ChangeSize(Object, delta)\n"
+"ChangeSize(SelectedObjects|Selected, delta)\n"
+"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+"ChangeSize(SelectedElements, delta)"
+msgstr ""
+
+#: ../src/action.c:4060
+#, fuzzy
+msgid "Changes the size of objects."
+msgstr "\tИзменить отступы для объектов.\n"
+
+#: ../src/action.c:4157
+msgid ""
+"ChangeDrillSize(Object, delta)\n"
+"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)"
+msgstr ""
+
+#: ../src/action.c:4161
+#, fuzzy
+msgid "Changes the drilling hole size of objects."
+msgstr "Изменить отверстия выбранных объектов"
+
+#: ../src/action.c:4186 ../src/action.c:4256 ../src/action.c:4631
+#: ../src/action.c:4719 ../src/action.c:4773 ../src/action.c:4849
+#: ../src/action.c:4910 ../src/action.c:4968 ../src/action.c:5027
+#: ../src/action.c:5085 ../src/action.c:5146 ../src/action.c:5209
+#: ../src/action.c:5271 ../src/action.c:5320 ../src/action.c:6605
+#: ../src/action.c:8242
 msgid "Select an Object"
 msgstr "Выберите объект"
 
-#: ../src/action.c:4623 ../src/action.c:5920
+#: ../src/action.c:4218
+msgid ""
+"ChangeClearSize(Object, delta)\n"
+"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+"ChangeClearSize(Selected|SelectedObjects, delta)"
+msgstr ""
+
+#: ../src/action.c:4224
+#, fuzzy
+msgid "Changes the clearance size of objects."
+msgstr "\tИзменить отступы для объектов.\n"
+
+#: ../src/action.c:4298
+msgid ""
+"MinMaskGap(delta)\n"
+"MinMaskGap(Selected, delta)"
+msgstr ""
+
+#: ../src/action.c:4302
+msgid "Ensures the mask is a minimum distance from pins and pads."
+msgstr ""
+
+#: ../src/action.c:4394
+msgid ""
+"MinClearGap(delta)\n"
+"MinClearGap(Selected, delta)"
+msgstr ""
+
+#: ../src/action.c:4398
+msgid "Ensures that polygons are a minimum distance from objects."
+msgstr ""
+
+#: ../src/action.c:4500
+msgid "ChangePinName(ElementName,PinNumber,PinName)"
+msgstr ""
+
+#: ../src/action.c:4503
+msgid "Sets the name of a specific pin on a specific element."
+msgstr ""
+
+#: ../src/action.c:4593
+msgid ""
+"ChangeName(Object)\n"
+"ChangeName(Layout|Layer)"
+msgstr ""
+
+#: ../src/action.c:4596
+#, fuzzy
+msgid "Sets the name of objects."
+msgstr "\tИзменить отступы для объектов.\n"
+
+#: ../src/action.c:4669 ../src/action.c:5968
 msgid "Enter the layout name:"
 msgstr "Название трассировки:"
 
-#: ../src/action.c:4631
+#: ../src/action.c:4677
 msgid "Enter the layer name:"
 msgstr "Название слоя:"
 
-#: ../src/action.c:5384 ../src/action.c:5580
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:4691
+msgid "MorphPolygon(Object|Selected)"
+msgstr ""
+
+#: ../src/action.c:4694
+msgid "Converts dead polygon islands into separate polygons."
+msgstr ""
+
+#: ../src/action.c:4748
+#, fuzzy
+msgid "ToggleHideName(Object|SelectedElements)"
+msgstr "Переключить скрытие названия выбранного элемента"
+
+#: ../src/action.c:4751
+#, fuzzy
+msgid "Toggles the visibility of element names."
+msgstr "Переключить отображение названий выбранных элементов\n"
+
+#: ../src/action.c:4820
+msgid "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)"
+msgstr ""
+
+#: ../src/action.c:4823
+#, fuzzy
+msgid "Changes the join (clearance through polygons) of objects."
+msgstr "\tИзменить стык (зазор между полигонами) объектов.\n"
+
+#: ../src/action.c:4881
+msgid ""
+"ChangeSquare(ToggleObject)\n"
+"ChangeSquare(SelectedElements|SelectedPins)\n"
+"ChangeSquare(Selected|SelectedObjects)"
+msgstr ""
+
+#: ../src/action.c:4886
+#, fuzzy
+msgid "Changes the square flag of pins and pads."
+msgstr "Изменить флаг прямоугольного объекта\n"
+
+#: ../src/action.c:4942
+msgid "SetSquare(ToggleObject|SelectedElements|SelectedPins)"
+msgstr ""
+
+#: ../src/action.c:4944
+#, fuzzy
+msgid "sets the square-flag of objects."
+msgstr "Изменить флаг прямоугольного объекта\n"
+
+#: ../src/action.c:5000
+msgid "ClearSquare(ToggleObject|SelectedElements|SelectedPins)"
+msgstr ""
+
+#: ../src/action.c:5003
+#, fuzzy
+msgid "Clears the square-flag of pins and pads."
+msgstr "Привязка указателя к выводам и площадкам"
+
+#: ../src/action.c:5059
+msgid ""
+"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)"
+msgstr ""
+
+#: ../src/action.c:5063
+#, fuzzy
+msgid "Changes the octagon-flag of pins and vias."
+msgstr "Изменить флаг восьмиугольного объекта\n"
+
+#: ../src/action.c:5122
+msgid "SetOctagon(Object|ToggleObject|SelectedElements|Selected)"
+msgstr ""
+
+#: ../src/action.c:5124
+#, fuzzy
+msgid "Sets the octagon-flag of objects."
+msgstr "Изменить флаг восьмиугольного объекта\n"
+
+#: ../src/action.c:5183
+msgid ""
+"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)"
+msgstr ""
+
+#: ../src/action.c:5187
+msgid "Clears the octagon-flag of pins and vias."
+msgstr ""
+
+#: ../src/action.c:5246
+msgid "ChangeHole(ToggleObject|Object|SelectedVias|Selected)"
+msgstr ""
+
+#: ../src/action.c:5248
+#, fuzzy
+msgid "Changes the hole flag of objects."
+msgstr "\tИзменить флаг отверстия для объектов.\n"
+
+#: ../src/action.c:5292
+msgid "ChangePaste(ToggleObject|Object|SelectedPads|Selected)"
+msgstr ""
+
+#: ../src/action.c:5295
+#, fuzzy
+msgid "Changes the no paste flag of objects."
+msgstr "\tИзменить флаг отверстия для объектов.\n"
+
+#: ../src/action.c:5341
+msgid ""
+"Select(Object|ToggleObject)\n"
+"Select(All|Block|Connection)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Select(TextByName|ViaByName|NetByName)\n"
+"Select(TextByName|ViaByName|NetByName, Name)\n"
+"Select(Convert)"
+msgstr ""
+
+#: ../src/action.c:5349
+msgid "Toggles or sets the selection."
+msgstr ""
+
+#: ../src/action.c:5431 ../src/action.c:5627
 msgid "Enter pattern:"
 msgstr "Посадочное место:"
 
-#: ../src/action.c:5467
+#: ../src/action.c:5514
 msgid "Select the Element's Mark Location"
 msgstr "Выберите расположение отметки элемента"
 
-#: ../src/action.c:5875
+#: ../src/action.c:5549
+msgid ""
+"Unselect(All|Block|Connection)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Unselect(TextByName|ViaByName)\n"
+"Unselect(TextByName|ViaByName, Name)\n"
+msgstr ""
+
+#: ../src/action.c:5556
+msgid "Unselects the object at the pointer location or the specified objects."
+msgstr ""
+
+#: ../src/action.c:5709
+msgid ""
+"SaveTo(Layout|LayoutAs,filename)\n"
+"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+"SaveTo(PasteBuffer,filename)"
+msgstr ""
+
+#: ../src/action.c:5713
+#, fuzzy
+msgid "Saves data to a file."
+msgstr "Сохранить текущую трассировку в новый файл"
+
+#: ../src/action.c:5833
+msgid ""
+"SaveSettings()\n"
+"SaveSettings(local)"
+msgstr ""
+
+#: ../src/action.c:5836
+#, fuzzy
+msgid "Saves settings."
+msgstr "Настройки"
+
+#: ../src/action.c:5857
+msgid "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)"
+msgstr ""
+
+#: ../src/action.c:5859
+#, fuzzy
+msgid "Load layout data from a file."
+msgstr "Загрузить трассировку из файла"
+
+#: ../src/action.c:5923
 msgid "OK to override layout data?"
 msgstr "Заменить данные трассировки?"
 
-#: ../src/action.c:5890
+#: ../src/action.c:5938
 msgid "OK to override changes?"
 msgstr "Заменить изменения?"
 
-#: ../src/action.c:5915
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:5948
+msgid "New([name])"
+msgstr ""
+
+#: ../src/action.c:5950
+#, fuzzy
+msgid "Starts a new layout."
+msgstr "Начать новую трассировку"
+
+#: ../src/action.c:5963
 msgid "OK to clear layout data?"
 msgstr "Удалить данные трассировки?"
 
-#: ../src/action.c:6075
+#: ../src/action.c:6013
+msgid ""
+"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+"PasteBuffer(Rotate, 1..3)\n"
+"PasteBuffer(Convert|Save|Restore|Mirror)\n"
+"PasteBuffer(ToLayout, X, Y, units)"
+msgstr ""
+
+#: ../src/action.c:6019
+msgid "Various operations on the paste buffer."
+msgstr ""
+
+#: ../src/action.c:6122
 msgid "Buffer has no elements!\n"
 msgstr "В буфере нет элементов!\n"
 
-#: ../src/action.c:6081
+#: ../src/action.c:6128
 msgid "Save Paste Buffer As ..."
 msgstr "Сохранить буфер обмена как..."
 
-#: ../src/action.c:6082
+#: ../src/action.c:6129
 msgid ""
 "Choose a file to save the contents of the\n"
 "paste buffer to.\n"
@@ -209,106 +731,328 @@ msgstr ""
 "Выберите файл для сохранения содержимого\n"
 "буфера обмена\n"
 
-#: ../src/action.c:6511
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6217
+msgid ""
+"Undo()\n"
+"Undo(ClearList)"
+msgstr ""
+
+#: ../src/action.c:6220
+msgid "Undo recent changes."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6396
+#, fuzzy
+msgid "Redo()"
+msgstr "Вернуть"
+
+#: ../src/action.c:6398
+#, fuzzy
+msgid "Redo recent \"undo\" operations."
+msgstr "Вернуть последнее отменённое действие"
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6444
+#, fuzzy
+msgid "Polygon(Close|PreviousPoint)"
+msgstr "Предыдущая вершина полигона"
+
+#: ../src/action.c:6446
+msgid "Some polygon related stuff."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6492
+#, fuzzy
+msgid "RouteStyle(1|2|3|4)"
+msgstr "Стили трассировки"
+
+#: ../src/action.c:6495
+msgid "Copies the indicated routing style into the current sizes."
+msgstr ""
+
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6527
+msgid "MoveObject(X,Y,dim)"
+msgstr ""
+
+#: ../src/action.c:6530
+#, fuzzy
+msgid "Moves the object under the crosshair."
+msgstr "Под курсором ничего не найдено\n"
+
+#: ../src/action.c:6559
 msgid "Nothing found under crosshair\n"
 msgstr "Под курсором ничего не найдено\n"
 
-#: ../src/action.c:6772
+#: ../src/action.c:6579
+msgid "MoveToCurrentLayer(Object|SelectedObjects)"
+msgstr ""
+
+#: ../src/action.c:6582
+#, fuzzy
+msgid "Moves objects to the current layer."
+msgstr "Переместить объект на текущий слой\n"
+
+#: ../src/action.c:6625
+#, fuzzy
+msgid "SetSame()"
+msgstr "Установить такой же"
+
+#: ../src/action.c:6628
+#, fuzzy
+msgid "Sets current layer and sizes to match indicated item."
+msgstr "Сохранить текущую трассировку в новый файл"
+
+#: ../src/action.c:6701
+msgid ""
+"SetFlag(Object|Selected|SelectedObjects, flag)\n"
+"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"SetFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join"
+msgstr ""
+
+#: ../src/action.c:6707
+#, fuzzy
+msgid "Sets flags on objects."
+msgstr "Выбрать все найденные объекты"
+
+#: ../src/action.c:6732
+msgid ""
+"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"ClrFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join"
+msgstr ""
+
+#: ../src/action.c:6738
+#, fuzzy
+msgid "Clears flags on objects."
+msgstr "\tИзменить флаг отверстия для объектов.\n"
+
+#: ../src/action.c:6763
+msgid ""
+"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+"ChangeFlag(SelectedElements, flag, value)\n"
+"flag = square | octagon | thermal | join\n"
+"value = 0 | 1"
+msgstr ""
+
+#: ../src/action.c:6770
+#, fuzzy
+msgid "Sets or clears flags on objects."
+msgstr "\tПереключить, установить или убрать флаг прямоугольных объектов.\n"
+
+#: ../src/action.c:6820
 #, c-format
 msgid "%s():  Flag \"%s\" is not valid\n"
 msgstr "%s(): флаг «%s» не действителен\n"
 
-#: ../src/action.c:6864
+#. ---------------------------------------------------------------------------
+#: ../src/action.c:6886
+msgid "ExecuteFile(filename)"
+msgstr ""
+
+#: ../src/action.c:6888
+msgid "Run actions from the given file."
+msgstr ""
+
+#: ../src/action.c:6912
 #, c-format
 msgid "Could not open actions file \"%s\".\n"
 msgstr "Невозможно открыть файл действий «%s».\n"
 
-#: ../src/action.c:7220
+#: ../src/action.c:7013
+msgid "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)"
+msgstr ""
+
+#: ../src/action.c:7016
+msgid "Adds the given element if it doesn't already exist."
+msgstr ""
+
+#: ../src/action.c:7099
+msgid ""
+"Not all requested footprints were found.\n"
+"See the message log for details"
+msgstr ""
+
+#: ../src/action.c:7236
+msgid "ElementSetAttr(refdes,name[,value])"
+msgstr ""
+
+#: ../src/action.c:7239
+msgid "Sets or clears an element-specific attribute."
+msgstr ""
+
+#: ../src/action.c:7277
 #, c-format
 msgid "Cannot change attribute of %s - element not found\n"
 msgstr "Невозможно изменить атрибут для %s — элемент не найден\n"
 
+#. ----------------------------------------------------------------
+#: ../src/action.c:7301
+msgid "ExecCommand(command)"
+msgstr ""
+
+#: ../src/action.c:7303
+#, fuzzy
+msgid "Runs a command."
+msgstr "Введите команду:"
+
 #. error
-#: ../src/action.c:7288
+#: ../src/action.c:7345
 msgid "Cannot fork!"
 msgstr "Невозможно создать дочерний процесс!"
 
-#: ../src/action.c:7443
+#: ../src/action.c:7505
 #, c-format
 msgid "%s():  Unable to determine temp directory name from the temp file\n"
 msgstr ""
 "%s(): невозможно определить название временного каталога по названию "
 "временного файла\n"
 
-#: ../src/action.c:7466
+#: ../src/action.c:7528
 #, c-format
 msgid "Failed to unlink \"%s\"\n"
 msgstr "Невозможно удалить «%s»\n"
 
-#: ../src/action.c:7618
+#: ../src/action.c:7541
+msgid ""
+"Import()\n"
+"Import([gnetlist|make[,source,source,...]])\n"
+"Import(setnewpoint[,(mark|center|X,Y)])\n"
+"Import(setdisperse,D,units)\n"
+msgstr ""
+
+#: ../src/action.c:7546
+#, fuzzy
+msgid "Import schematics."
+msgstr "Импортировать схему"
+
+#: ../src/action.c:7680
 msgid "Enter dispersion:"
 msgstr "Разброс:"
 
-#: ../src/action.c:7644
+#: ../src/action.c:7706
 msgid "Click on a location"
 msgstr "Щёлкните на расположении"
 
-#: ../src/action.c:7667
+#: ../src/action.c:7729
 msgid "Bad syntax for Import(setnewpoint)"
 msgstr "Неверный синтаксис для Import(setnewpoint)"
 
-#: ../src/action.c:7756 ../src/action.c:7819
+#: ../src/action.c:7818 ../src/action.c:7881
 msgid "Could not create temp file"
 msgstr "Невозможно создать временный файл"
 
-#: ../src/action.c:7873
+#: ../src/action.c:7936
 #, c-format
 msgid "Unknown import mode: %s\n"
 msgstr "Неизвестный режим импорта: %s\n"
 
-#: ../src/action.c:7917
+#: ../src/action.c:7953
+msgid ""
+"Attributes(Layout|Layer|Element)\n"
+"Attributes(Layer,layername)"
+msgstr ""
+
+#: ../src/action.c:7957
+msgid ""
+"Let the user edit the attributes of the layout, current or given\n"
+"layer, or selected element."
+msgstr ""
+
+#: ../src/action.c:7980
 msgid "This GUI doesn't support Attribute Editing\n"
 msgstr "Этот графический интерфейс не поддерживает редактирование атрибутов\n"
 
-#: ../src/action.c:7944
+#: ../src/action.c:7988
+#, fuzzy
+msgid "Layout Attributes"
+msgstr "Изменить атрибуты..."
+
+#: ../src/action.c:8007
 #, c-format
 msgid "No layer named %s\n"
 msgstr "Нет слоя с названием %s\n"
 
-#: ../src/action.c:7970
+#: ../src/action.c:8012 ../src/action.c:8013
+#, c-format
+msgid "Layer %s Attributes"
+msgstr ""
+
+#: ../src/action.c:8034
 msgid "Too many elements selected\n"
 msgstr "Выбрано слишком много элементов\n"
 
-#: ../src/action.c:7983
+#: ../src/action.c:8047
 msgid "No element found there\n"
 msgstr "Элемент не найден\n"
 
-#: ../src/action.c:8087
+#: ../src/action.c:8055 ../src/action.c:8056
+#, fuzzy, c-format
+msgid "Element %s Attributes"
+msgstr "Изменить атрибуты..."
+
+#: ../src/action.c:8060
+msgid "Unnamed Element Attributes"
+msgstr ""
+
+#: ../src/action.c:8152
 msgid "Click on Object or Flip Point"
 msgstr "Щёлкните на объекте или точке перестановки"
 
-#: ../src/action.c:8159
+#: ../src/action.c:8224
 msgid "Select item to use attributes from"
 msgstr "Выберите элемент для использования его атрибутов"
 
-#: ../src/autoplace.c:766 ../src/rats.c:739 ../src/rats.c:831
+#: ../src/autoplace.c:796 ../src/rats.c:739 ../src/rats.c:831
 msgid "Can't add rat lines because no netlist is loaded.\n"
 msgstr ""
 "Невозможно добавить соединения, так как список соединений не загружен.\n"
 
-#: ../src/autoplace.c:773
+#: ../src/autoplace.c:803
 msgid "No elements selected to autoplace.\n"
 msgstr "Элементы для авторазмещения не выбраны.\n"
 
-#: ../src/autoroute.c:4888
+#: ../src/autoroute.c:4960
 msgid "Autorouting tracks"
 msgstr "Автотрассировка соединений"
 
-#: ../src/buffer.c:845
+#: ../src/buffer.c:734
+#, c-format
+msgid "Unable to load footprint %s\n"
+msgstr ""
+
+#: ../src/buffer.c:796
+msgid "LoadFootprint(filename[,refdes,value])"
+msgstr ""
+
+#: ../src/buffer.c:799
+msgid "Loads a single footprint by name."
+msgstr ""
+
+#: ../src/buffer.c:828
+#, fuzzy, c-format
+msgid "Footprint %s contains no elements"
+msgstr "Преобразовать выбранное в элемент"
+
+#: ../src/buffer.c:833
+#, c-format
+msgid "Footprint %s contains multiple elements"
+msgstr ""
+
+#: ../src/buffer.c:866
 msgid "Error!  Buffer doesn't contain a single element\n"
 msgstr "Ошибка! В буфере нет ни одного элемента\n"
 
-#: ../src/buffer.c:1020
+#: ../src/buffer.c:1037
 msgid ""
 "Warning: All of the pads are on the opposite\n"
 "side from the component - that's probably not what\n"
@@ -318,7 +1062,7 @@ msgstr ""
 "противоположной стороне от компонента.\n"
 "Вероятно, это не то, что вам нужно.\n"
 
-#: ../src/buffer.c:1099
+#: ../src/buffer.c:1116
 msgid ""
 "There was nothing to convert!\n"
 "Elements must have some silk, pads or pins.\n"
@@ -326,7 +1070,7 @@ msgstr ""
 "Преобразовывать нечего!\n"
 "Элементы должны содержать шёлкографию, площадки или выводы.\n"
 
-#: ../src/buffer.c:1104
+#: ../src/buffer.c:1121
 msgid ""
 "There were polygons that can't be made into pins!\n"
 "So they were not included in the element\n"
@@ -334,15 +1078,30 @@ msgstr ""
 "Есть полигоны, которые не могут быть преобразованы в выводы!\n"
 "Поэтому они не включены в элемент\n"
 
-#: ../src/buffer.c:1407
+#: ../src/buffer.c:1366
+msgid "FreeRotateBuffer([Angle])"
+msgstr ""
+
+#: ../src/buffer.c:1369
+msgid ""
+"Rotates the current paste buffer contents by the specified angle.  The\n"
+"angle is given in degrees.  If no angle is given, the user is prompted\n"
+"for one.\n"
+msgstr ""
+
+#: ../src/buffer.c:1386
+msgid "Enter Rotation (degrees, CCW):"
+msgstr ""
+
+#: ../src/buffer.c:1425
 msgid "You can't mirror a buffer that has elements!\n"
 msgstr "Невозможно отразить буфер содержащий элементы!\n"
 
-#: ../src/buffer.c:1415
+#: ../src/buffer.c:1433
 msgid "You can't mirror a buffer that has text!\n"
 msgstr "Невозможно отразить буфер содержащий текст!\n"
 
-#: ../src/change.c:758
+#: ../src/change.c:772
 msgid ""
 "To change the clearance of objects in a polygon, change the objects, not the "
 "polygon.\n"
@@ -354,34 +1113,34 @@ msgstr ""
 "Замечание: для установки минимального отступа для группы объектов, выберите "
 "их все и выполните :MinClearGap(Selected,=10,mil)"
 
-#: ../src/change.c:1051
+#: ../src/change.c:1075
 #, c-format
 msgid "Error: The name \"%s\" is not unique!\n"
 msgstr "Ошибка: название «%s» не является уникальным!\n"
 
-#: ../src/change.c:2274
+#: ../src/change.c:2344
 msgid "Linename:"
 msgstr "Назв. линии:"
 
-#: ../src/change.c:2279
+#: ../src/change.c:2349
 msgid "Vianame:"
 msgstr "Название перехода:"
 
-#: ../src/change.c:2284
+#: ../src/change.c:2354
 #, c-format
 msgid "%s Pin Name:"
 msgstr "%s название вывода:"
 
-#: ../src/change.c:2289
+#: ../src/change.c:2359
 #, c-format
 msgid "%s Pad Name:"
 msgstr "%s название конт. площадки:"
 
-#: ../src/change.c:2299
+#: ../src/change.c:2369
 msgid "Elementname:"
 msgstr "Назв. элемента:"
 
-#: ../src/create.c:250
+#: ../src/create.c:266
 msgid ""
 "%m+Dropping via at %$mD because it's hole would overlap with the via at %"
 "$mD\n"
@@ -389,17 +1148,17 @@ msgstr ""
 "%m+Переход не будет установлен в %$mD, так как он перекрывается с переходом "
 "в %$mD\n"
 
-#: ../src/create.c:271
+#: ../src/create.c:287
 msgid "%m+Mapped via drill hole to %$mS from %$mS per vendor table\n"
 msgstr ""
 "%m+Переходное отверстие преобразовано в %$mS из %$mS по карте "
 "производственных отверстий\n"
 
-#: ../src/create.c:289
+#: ../src/create.c:305
 msgid "%m+Increased via thickness to %$mS to allow enough copper at %$mD.\n"
 msgstr "%m+Толщина перехода увеличена до %$mS для проводника в %$mD\n"
 
-#: ../src/create.c:811
+#: ../src/create.c:829
 msgid ""
 "%m+Did not map pin #%s (%s) drill hole because %$mS is below the minimum "
 "allowed size\n"
@@ -407,15 +1166,15 @@ msgstr ""
 "%m+Отверстие вывода №%s (%s) не преобразовано, так как оно меньше минимально "
 "допустимого на %$mS\n"
 
-#: ../src/create.c:817
+#: ../src/create.c:835
 msgid ""
 "%m+Did not map pin #%s (%s) drill hole because %$mS is above the maximum "
 "allowed size\n"
 msgstr ""
-"%m+Отверстие вывода №%s (%s) не преобразовано, так как оно больше максимально "
-"допустимого на %$mS\n"
+"%m+Отверстие вывода №%s (%s) не преобразовано, так как оно больше "
+"максимально допустимого на %$mS\n"
 
-#: ../src/create.c:824
+#: ../src/create.c:842
 msgid ""
 "%m+Did not map pin #%s (%s) drill hole because %$mS does not leave enough "
 "copper\n"
@@ -423,18 +1182,18 @@ msgstr ""
 "%m+Отверстие вывода №%s (%s) не преобразовано, так как %$mS не достаточно "
 "для проводника\n"
 
-#: ../src/create.c:836
+#: ../src/create.c:854
 msgid "%m+Mapped pin drill hole to %$mS from %$mS per vendor table\n"
 msgstr ""
-"%m+Отверстие вывода преобразовано в %$mS из %$mS по карте "
-"производственных отверстий\n"
+"%m+Отверстие вывода преобразовано в %$mS из %$mS по карте производственных "
+"отверстий\n"
 
-#: ../src/create.c:941
+#: ../src/create.c:962
 #, c-format
 msgid "Can't find font-symbol-file '%s'\n"
 msgstr "Невозможно найти файл символов шрифта '%s'\n"
 
-#: ../src/crosshair.c:759
+#: ../src/crosshair.c:768
 msgid ""
 "WARNING: A plugin is using the deprecated API HideCrosshair().\n"
 "         This API may be removed in a future release of PCB.\n"
@@ -442,7 +1201,7 @@ msgstr ""
 "ПРЕДУПРЕЖДЕНИЕ: плагин использует устаревший API HideCrosshair().\n"
 "         Эта функция может быть удалена в будущих выпусках PCB.\n"
 
-#: ../src/crosshair.c:774
+#: ../src/crosshair.c:783
 msgid ""
 "WARNING: A plugin is using the deprecated API RestoreCrosshair().\n"
 "         This API may be removed in a future release of PCB.\n"
@@ -450,7 +1209,7 @@ msgstr ""
 "ПРЕДУПРЕЖДЕНИЕ: плагин использует устаревший API RestoreCrosshair().\n"
 "         Эта функция может быть удалена в будущих выпусках PCB.\n"
 
-#: ../src/error.c:104 ../src/error.c:108
+#: ../src/error.c:110 ../src/error.c:114
 #, c-format
 msgid ""
 "Can't open file\n"
@@ -461,7 +1220,7 @@ msgstr ""
 "   '%s'\n"
 "Функция fopen() возвратила: '%s'\n"
 
-#: ../src/error.c:124 ../src/error.c:128
+#: ../src/error.c:130 ../src/error.c:134
 #, c-format
 msgid ""
 "Can't execute command\n"
@@ -472,7 +1231,7 @@ msgstr ""
 "   '%s'\n"
 "Функция popen() возвратила: '%s'\n"
 
-#: ../src/error.c:144 ../src/error.c:148
+#: ../src/error.c:150 ../src/error.c:154
 #, c-format
 msgid ""
 "Can't scan directory\n"
@@ -483,7 +1242,7 @@ msgstr ""
 "   '%s'\n"
 "Функция opendir() возвратила: '%s'\n"
 
-#: ../src/error.c:164 ../src/error.c:168
+#: ../src/error.c:170 ../src/error.c:174
 #, c-format
 msgid ""
 "Can't change working directory to\n"
@@ -494,60 +1253,60 @@ msgstr ""
 "   '%s'\n"
 "Функция chdir() возвратила: '%s'\n"
 
-#: ../src/file.c:264
+#: ../src/file.c:267
 #, c-format
 msgid "File '%s' exists, use anyway?"
 msgstr "Файл '%s' существует, всё равно использовать?"
 
 #. not used
 #. CheckAndOpenFile deals with the case where fname already exists
-#: ../src/file.c:306
+#: ../src/file.c:309
 msgid "Save Connection Data As ..."
 msgstr "Сохранить данные соединений как..."
 
-#: ../src/file.c:307
+#: ../src/file.c:310
 msgid "Choose a file to save all connection data to."
 msgstr "Выберите файл для сохранения данных соединений."
 
-#: ../src/file.c:427
+#: ../src/file.c:433
 #, c-format
 msgid "File '%s' has no font information, using default font\n"
 msgstr ""
 "Файл '%s' не содержит информации о шрифте, используется шрифт по умолчанию\n"
 
-#: ../src/file.c:1022
+#: ../src/file.c:993
 #, c-format
 msgid "Trying to save your layout in '%s'\n"
 msgstr "Попытка сохранить трассировку в '%s'\n"
 
-#: ../src/file.c:1186
+#: ../src/file.c:1151
 msgid ""
 "LoadNewlibFootprintsFromDir: Could not determine initial working directory\n"
 msgstr ""
 "LoadNewlibFootprintsFromDir: невозможно определить начальный рабочий "
 "каталог\n"
 
-#: ../src/file.c:1204
+#: ../src/file.c:1169
 msgid ""
 "LoadNewlibFootprintsFromDir: Could not determine new working directory\n"
 msgstr ""
 "LoadNewlibFootprintsFromDir: невозможно определить новый рабочий каталог\n"
 
-#: ../src/file.c:1312
+#: ../src/file.c:1331
 msgid "ParseLibraryTree: Could not determine initial working directory\n"
 msgstr "ParseLibraryTree: невозможно определить начальный рабочий каталог\n"
 
-#: ../src/file.c:1347
+#: ../src/file.c:1366
 msgid "ParseLibraryTree: Could not determine new working directory\n"
 msgstr "ParseLibraryTree: невозможно определить новый рабочий каталог\n"
 
 #. nothing to do
-#: ../src/file.c:1539
+#: ../src/file.c:1527
 #, c-format
 msgid "Importing PCB netlist %s\n"
 msgstr "Импорт списка соединений PCB %s\n"
 
-#: ../src/file.c:1577
+#: ../src/file.c:1565
 #, c-format
 msgid ""
 "Line length (%i) exceeded in netlist file.\n"
@@ -556,74 +1315,70 @@ msgstr ""
 "Длина строки (%i) превышена в файле списка соединений.\n"
 "Дополнительные символы будут проигнорированы.\n"
 
-#: ../src/file.c:1631
+#: ../src/file.c:1619
 msgid "Empty netlist file!\n"
 msgstr "Пустой файл списка соединений!\n"
 
-#: ../src/file.c:1671
+#: ../src/file.c:1659
 #, c-format
 msgid "Importing edif netlist %s\n"
 msgstr "Импорт списка соединений edif %s\n"
 
-#: ../src/find.c:201
+#: ../src/find.c:214
 msgid "%m+near %$mD\n"
 msgstr "%m+около %$mD\n"
 
-#: ../src/find.c:209
+#: ../src/find.c:222
 #, c-format
 msgid "WARNING!  Design Rule error - %s\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ! Ошибка проектной нормы — %s\n"
 
-#: ../src/find.c:210
+#: ../src/find.c:223
 msgid "%m+near location %$mD\n"
 msgstr "%m+около расположения %$mD\n"
 
-#.
-#. * message when asked about continuing DRC checks after next
-#. * violation is found.
-#.
-#: ../src/find.c:219
+#: ../src/find.c:229
 msgid "Press Next to continue DRC checking"
 msgstr "Нажмите Далее для продолжения проверки проектных норм"
 
-#: ../src/find.c:220
+#: ../src/find.c:230
 msgid "Next"
 msgstr "Далее"
 
-#: ../src/find.c:221 ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+#: ../src/find.c:231 ../src/gpcb-menu.res:519 ../src/pcb-menu.res:183
 msgid "Cancel"
 msgstr "Отмена"
 
-#: ../src/find.c:854
+#: ../src/find.c:873
 #, c-format
 msgid "bad layer number %d max_copper_layer=%d in find.c\n"
 msgstr "неверный номер слоя %d, max_copper_layer=%d в find.c\n"
 
-#: ../src/find.c:896
+#: ../src/find.c:915
 msgid "WARNING: Hole too close to pin.\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ: отверстие слишком близко к выводу.\n"
 
-#: ../src/find.c:898
+#: ../src/find.c:917
 msgid "WARNING: Hole too close to via.\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ: отверстие слишком близко к переходу.\n"
 
-#: ../src/find.c:967
+#: ../src/find.c:986
 msgid "WARNING: Hole too close to line.\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ: отверстие слишком близко к трассе.\n"
 
-#: ../src/find.c:987
+#: ../src/find.c:1006
 msgid "WARNING: Hole too close to pad.\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ: отверстие слишком близко к площадке.\n"
 
-#: ../src/find.c:1007
+#: ../src/find.c:1026
 msgid "WARNING: Hole touches arc.\n"
 msgstr "ПРЕДУПРЕЖДЕНИЕ: отверстие касается дуги.\n"
 
-#: ../src/find.c:3369
+#: ../src/find.c:3422
 msgid "Potential for broken trace"
 msgstr "Возможность разрыва трассы"
 
-#: ../src/find.c:3370
+#: ../src/find.c:3423
 msgid ""
 "Insufficient overlap between objects can lead to broken tracks\n"
 "due to registration errors with old wheel style photo-plotters."
@@ -631,11 +1386,11 @@ msgstr ""
 "Недостаточное перекрытие между объектами может привести к разрывам трасс\n"
 "из-за ошибок совмещения на старых апертурных фото-плоттерах."
 
-#: ../src/find.c:3422
+#: ../src/find.c:3475
 msgid "Copper areas too close"
 msgstr "Области заливки слишком близко"
 
-#: ../src/find.c:3423 ../src/find.c:3542
+#: ../src/find.c:3476 ../src/find.c:3596
 msgid ""
 "Circuits that are too close may bridge during imaging, etching,\n"
 "plating, or soldering processes resulting in a direct short."
@@ -643,31 +1398,31 @@ msgstr ""
 "Элементы, расположенные слишком близко, могут быть закорочены в\n"
 "процессе формирования изображения, травления, металлизации или пайки."
 
-#: ../src/find.c:3487
+#: ../src/find.c:3541
 msgid "Line with insufficient clearance inside polygon\n"
 msgstr "Трасса в полигоне с недостаточным отступом\n"
 
-#: ../src/find.c:3496
+#: ../src/find.c:3550
 msgid "Arc with insufficient clearance inside polygon\n"
 msgstr "Дуга в полигоне с недостаточным отступом\n"
 
-#: ../src/find.c:3506
+#: ../src/find.c:3560
 msgid "Pad with insufficient clearance inside polygon\n"
 msgstr "Площадка в полигоне с недостаточным отступом\n"
 
-#: ../src/find.c:3515
+#: ../src/find.c:3569
 msgid "Pin with insufficient clearance inside polygon\n"
 msgstr "Вывод в полигоне с недостаточным отступом\n"
 
-#: ../src/find.c:3524
+#: ../src/find.c:3578
 msgid "Via with insufficient clearance inside polygon\n"
 msgstr "Переход в полигоне с недостаточным отступом\n"
 
-#: ../src/find.c:3666
+#: ../src/find.c:3721
 msgid "Line width is too thin"
 msgstr "Толщина трассы слишком мала"
 
-#: ../src/find.c:3667 ../src/find.c:3711
+#: ../src/find.c:3722 ../src/find.c:3766
 msgid ""
 "Process specifications dictate a minimum feature-width\n"
 "that can reliably be reproduced"
@@ -675,15 +1430,15 @@ msgstr ""
 "Технологический процесс определяет минимальный размер\n"
 "топологии, который может быть создан"
 
-#: ../src/find.c:3710
+#: ../src/find.c:3765
 msgid "Arc width is too thin"
 msgstr "Толщина дуги слишком мала"
 
-#: ../src/find.c:3755
+#: ../src/find.c:3810
 msgid "Pin annular ring too small"
 msgstr "Кольцо вывода слишком мало"
 
-#: ../src/find.c:3756 ../src/find.c:3876
+#: ../src/find.c:3811 ../src/find.c:3931
 msgid ""
 "Annular rings that are too small may erode during etching,\n"
 "resulting in a broken connection"
@@ -691,20 +1446,20 @@ msgstr ""
 "Слишком малые кольца могут быть искажены при травлении,\n"
 "что приведёт к повреждению соединения"
 
-#: ../src/find.c:3787
+#: ../src/find.c:3842
 msgid "Pin drill size is too small"
 msgstr "Размер отверстия вывода слишком мал"
 
-#: ../src/find.c:3788 ../src/find.c:3908
+#: ../src/find.c:3843 ../src/find.c:3963
 msgid "Process rules dictate the minimum drill size which can be used"
 msgstr ""
 "Нормы процесса изготовления задают минимально возможный размер отверстия"
 
-#: ../src/find.c:3830
+#: ../src/find.c:3885
 msgid "Pad is too thin"
 msgstr "Толщина площадки слишком мала"
 
-#: ../src/find.c:3831
+#: ../src/find.c:3886
 msgid ""
 "Pads which are too thin may erode during etching,\n"
 "resulting in a broken or unreliable connection"
@@ -712,32 +1467,19 @@ msgstr ""
 "Слишком узкие площадки могут быть разрушены при травлении,\n"
 "что приведёт к отсутствию соединения или к ненадёжному соединению"
 
-#: ../src/find.c:3875
+#: ../src/find.c:3930
 msgid "Via annular ring too small"
 msgstr "Кольцо перехода слишком мало"
 
-#: ../src/find.c:3907
+#: ../src/find.c:3962
 msgid "Via drill size is too small"
 msgstr "Переходное отверстие слишком мало"
 
-#: ../src/find.c:3950
+#: ../src/find.c:4005
 msgid "Silk line is too thin"
 msgstr "Толщина линии шёлкографии слишком мала"
 
-#: ../src/find.c:3951
-msgid ""
-"Process specifications dictate a minimum silkscreen feature-width\n"
-"that can reliably be reproduced"
-msgstr ""
-"Технологический процесс определяет минимальную толщину шёлкографии,\n"
-"которая может быть нанесена"
-
-#: ../src/find.c:4002
-#, c-format
-msgid "Element %s has %i silk lines which are too thin"
-msgstr "Элемент %s содержит %i слишком тонких линий шёлкографии"
-
-#: ../src/find.c:4013
+#: ../src/find.c:4006 ../src/find.c:4068
 msgid ""
 "Process specifications dictate a minimum silkscreen\n"
 "feature-width that can reliably be reproduced"
@@ -745,7 +1487,12 @@ msgstr ""
 "Технологический процесс определяет минимальную\n"
 "толщину линии шёлкографии, которая может быть нанесена"
 
-#: ../src/find.c:4051
+#: ../src/find.c:4057
+#, c-format
+msgid "Element %s has %i silk lines which are too thin"
+msgstr "Элемент %s содержит %i слишком тонких линий шёлкографии"
+
+#: ../src/find.c:4106
 #, c-format
 msgid "Warning: %d pad has the nopaste flag set.\n"
 msgid_plural "Warning: %d pads have the nopaste flag set.\n"
@@ -753,7 +1500,7 @@ msgstr[0] "Предупреждение: для %d площадок устано
 msgstr[1] "Предупреждение: для %d площадки установлен флаг nopaste.\n"
 msgstr[2] "Предупреждение: для %d площадок установлен флаг nopaste.\n"
 
-#: ../src/find.c:4148
+#: ../src/find.c:4205
 #, c-format
 msgid "Internal error in BuildObjectList: unknown object type %i\n"
 msgstr "Внутренняя ошибка в BuildObjectList: неизвестный тип объекта %i\n"
@@ -762,7 +1509,7 @@ msgstr "Внутренняя ошибка в BuildObjectList: неизвестн
 msgid "File"
 msgstr "Файл"
 
-#: ../src/gpcb-menu.res:57
+#: ../src/gpcb-menu.res:57 ../src/hid/gtk/gtkhid-main.c:1015
 msgid "New"
 msgstr "Новый"
 
@@ -782,7 +1529,7 @@ msgstr "Открыть..."
 msgid "Load a layout from a file"
 msgstr "Загрузить трассировку из файла"
 
-#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:1979
+#: ../src/gpcb-menu.res:60 ../src/hid/gtk/gui-config.c:2041
 msgid "Save"
 msgstr "Сохранить"
 
@@ -814,7 +1561,8 @@ msgstr "Shift Ctrl-S"
 msgid "Shift Ctrl<Key>s"
 msgstr "Shift Ctrl<Key>s"
 
-#: ../src/gpcb-menu.res:62 ../src/pcb-menu.res:35
+#: ../src/gpcb-menu.res:62 ../src/hid/gtk/gtkhid-main.c:1014
+#: ../src/pcb-menu.res:35
 msgid "Revert"
 msgstr "Перезагрузить"
 
@@ -827,7 +1575,7 @@ msgid "Import Schematics"
 msgstr "Импортировать схему"
 
 #. in case we have a dialog for loading a footprint file
-#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1239
+#: ../src/gpcb-menu.res:65 ../src/hid/gtk/gtkhid-main.c:1260
 #: ../src/hid/gtk/gui-dialog.c:292
 msgid "Load element to buffer"
 msgstr "Загрузить элемент в буфер"
@@ -1478,7 +2226,7 @@ msgstr "Курсору"
 msgid "Set Dispersion"
 msgstr "Разброс:"
 
-#: ../src/gpcb-menu.res:235 ../src/hid/gtk/gui-netlist-window.c:791
+#: ../src/gpcb-menu.res:235
 msgid "Select"
 msgstr "Выбрать"
 
@@ -1518,7 +2266,7 @@ msgstr "Площадки"
 msgid "Pins"
 msgstr "Выводы"
 
-#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:170
 msgid "Text"
 msgstr "Текст"
 
@@ -1570,7 +2318,7 @@ msgstr "Shift-M"
 msgid "Shift<Key>m"
 msgstr "Shift<Key>m"
 
-#: ../src/gpcb-menu.res:474
+#: ../src/gpcb-menu.res:475
 msgid "Remove selected objects"
 msgstr "Удалить выбранные объекты"
 
@@ -1582,7 +2330,7 @@ msgstr "Shift-Delete"
 msgid "Shift<Key>Delete"
 msgstr "Shift<Key>Delete"
 
-#: ../src/gpcb-menu.res:488 ../src/pcb-menu.res:243
+#: ../src/gpcb-menu.res:489 ../src/pcb-menu.res:243
 msgid "Convert selection to element"
 msgstr "Преобразовать выбранное в элемент"
 
@@ -1602,7 +2350,7 @@ msgstr "Alt-R"
 msgid "Alt<Key>r"
 msgstr "Alt<Key>r"
 
-#: ../src/gpcb-menu.res:491 ../src/pcb-menu.res:247
+#: ../src/gpcb-menu.res:492 ../src/pcb-menu.res:247
 msgid "Rip up selected auto-routed tracks"
 msgstr "Разорвать выбранные автотрассированные трассы"
 
@@ -1658,7 +2406,7 @@ msgstr "Изменить отверстия выбранных объектов"
 msgid "Change square-flag of selected objects"
 msgstr "Изменить прямоугольную форму выбранных объектов"
 
-#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:174
 msgid "Buffer"
 msgstr "Буфер"
 
@@ -1938,12 +2686,11 @@ msgstr "Проверка проектных норм"
 msgid "Apply vendor drill mapping"
 msgstr "Применить карту производственных отверстий"
 
-#. -- Info tab
-#: ../src/gpcb-menu.res:365 ../src/hid/gtk/gui-config.c:1691
+#: ../src/gpcb-menu.res:365
 msgid "Info"
 msgstr "Информация"
 
-#: ../src/gpcb-menu.res:494 ../src/pcb-menu.res:337
+#: ../src/gpcb-menu.res:495 ../src/pcb-menu.res:337
 msgid "Generate object report"
 msgstr "Отчёт об объектах"
 
@@ -1963,852 +2710,864 @@ msgstr "Отчёт о сверловке"
 msgid "Report found pins/pads"
 msgstr "Отчёт о найденных выводах/площадках"
 
-#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:341
+#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:340
+msgid "Report net length"
+msgstr "Отчёт о длине соединения"
+
+#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:340
+msgid "R"
+msgstr "R"
+
+#: ../src/gpcb-menu.res:369 ../src/pcb-menu.res:340
+msgid "<Key>r"
+msgstr "<Key>r"
+
+#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:341
 msgid "Key Bindings"
 msgstr "Назначение клавиш"
 
-#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:342
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:342
 msgid "Remove"
 msgstr "Удалить"
 
-#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+#: ../src/gpcb-menu.res:371 ../src/pcb-menu.res:242
 msgid "Delete"
 msgstr "Удалить"
 
-#: ../src/gpcb-menu.res:370 ../src/pcb-menu.res:242
+#: ../src/gpcb-menu.res:371 ../src/pcb-menu.res:242
 msgid "<Key>Delete"
 msgstr "<Key>Delete"
 
-#: ../src/gpcb-menu.res:376
+#: ../src/gpcb-menu.res:377
 msgid "Remove Selected"
 msgstr "Удалить выбранное"
 
-#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+#: ../src/gpcb-menu.res:377 ../src/pcb-menu.res:342
 msgid "Backspace"
 msgstr "Backspace"
 
-#: ../src/gpcb-menu.res:376 ../src/pcb-menu.res:342
+#: ../src/gpcb-menu.res:377 ../src/pcb-menu.res:342
 msgid "<Key>BackSpace"
 msgstr "<Key>BackSpace"
 
-#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:362
+#: ../src/gpcb-menu.res:380 ../src/pcb-menu.res:362
 msgid "Remove Connected"
 msgstr "Удалить соединённые"
 
-#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+#: ../src/gpcb-menu.res:380 ../src/pcb-menu.res:345
 msgid "Shift-Backspace"
 msgstr "Shift-Backspace"
 
-#: ../src/gpcb-menu.res:379 ../src/pcb-menu.res:345
+#: ../src/gpcb-menu.res:380 ../src/pcb-menu.res:345
 msgid "Shift<Key>BackSpace"
 msgstr "Shift<Key>Backspace"
 
-#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:379
 msgid "Set Same"
 msgstr "Установить такой же"
 
-#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:379
 msgid "A"
 msgstr "A"
 
-#: ../src/gpcb-menu.res:396 ../src/pcb-menu.res:379
+#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:379
 msgid "<Key>a"
 msgstr "<Key>a"
 
-#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:380
 msgid "Flip Object"
 msgstr "Переставить объект"
 
-#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:380
 msgid "B"
 msgstr "B"
 
-#: ../src/gpcb-menu.res:397 ../src/pcb-menu.res:380
+#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:380
 msgid "<Key>b"
 msgstr "<Key>b"
 
-#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:381
 msgid "Find Connections"
 msgstr "Найти соединения"
 
-#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:381
 msgid "F"
 msgstr "F"
 
-#: ../src/gpcb-menu.res:398 ../src/pcb-menu.res:381
+#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:381
 msgid "<Key>f"
 msgstr "<Key>f"
 
-#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:382
 msgid "ToggleHideName Object"
 msgstr "Переключить скрытие названия объекта"
 
-#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:382
 msgid "H"
 msgstr "H"
 
-#: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:382
+#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:382
 msgid "<Key>h"
 msgstr "<Key>h"
 
-#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:383
 msgid "ToggleHideName SelectedElement"
 msgstr "Переключить скрытие названия выбранного элемента"
 
-#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:383
 msgid "Shift-H"
 msgstr "Shift-H"
 
-#: ../src/gpcb-menu.res:400 ../src/pcb-menu.res:383
+#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:383
 msgid "Shift<Key>h"
 msgstr "Shift<Key>h"
 
-#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:384
 msgid "ChangeHole Object"
 msgstr "Изменить отверстие объекта"
 
-#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:384
 msgid "Ctrl-H"
 msgstr "Ctrl-H"
 
-#: ../src/gpcb-menu.res:401 ../src/pcb-menu.res:384
+#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:384
 msgid "Ctrl<Key>h"
 msgstr "Ctrl<Key>h"
 
-#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:385
 msgid "ChangeJoin Object"
 msgstr "Изменить стык объекта"
 
-#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:385
 msgid "J"
 msgstr "J"
 
-#: ../src/gpcb-menu.res:402 ../src/pcb-menu.res:385
+#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:385
 msgid "<Key>j"
 msgstr "<Key>j"
 
-#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:386
 msgid "ChangeJoin SelectedObject"
 msgstr "Изменить стык выбранного объекта"
 
-#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:386
 msgid "Shift-J"
 msgstr "Shift-J"
 
-#: ../src/gpcb-menu.res:403 ../src/pcb-menu.res:386
+#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:386
 msgid "Shift<Key>j"
 msgstr "Shift<Key>j"
 
-#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:387
 msgid "Clear Object +"
 msgstr "Отступ от объекта +"
 
-#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:387
 msgid "K"
 msgstr "K"
 
-#: ../src/gpcb-menu.res:404 ../src/pcb-menu.res:387
+#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:387
 msgid "<Key>k"
 msgstr "<Key>k"
 
-#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:388
 msgid "Clear Object -"
 msgstr "Отступ от объекта -"
 
-#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:388
 msgid "Shift-K"
 msgstr "Shift-K"
 
-#: ../src/gpcb-menu.res:405 ../src/pcb-menu.res:388
+#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:388
 msgid "Shift<Key>k"
 msgstr "Shift<Key>k"
 
-#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:389
 msgid "Clear Selected +"
 msgstr "Отступ от выбранного +"
 
-#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:389
 msgid "Ctrl-K"
 msgstr "Ctrl-K"
 
-#: ../src/gpcb-menu.res:406 ../src/pcb-menu.res:389
+#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:389
 msgid "Ctrl<Key>k"
 msgstr "Ctrl<Key>k"
 
-#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:390
 msgid "Clear Selected -"
 msgstr "Отступ от выбранного -"
 
-#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:390
 msgid "Shift-Ctrl-K"
 msgstr "Shift-Ctrl-K"
 
-#: ../src/gpcb-menu.res:407 ../src/pcb-menu.res:390
+#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:390
 msgid "Shift Ctrl<Key>k"
 msgstr "Shift Ctrl<Key>k"
 
-#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:391
 msgid "Line Tool size +"
 msgstr "Инструмент линии +"
 
-#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:391
 msgid "L"
 msgstr "L"
 
-#: ../src/gpcb-menu.res:408 ../src/pcb-menu.res:391
+#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:391
 msgid "<Key>l"
 msgstr "<Key>l"
 
-#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:392
 msgid "Line Tool size -"
 msgstr "Инструмент линии -"
 
-#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:392
 msgid "Shift-L"
 msgstr "Shift-L"
 
-#: ../src/gpcb-menu.res:409 ../src/pcb-menu.res:392
+#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:392
 msgid "Shift<Key>l"
 msgstr "Shift<Key>l"
 
-#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:393
 msgid "Move Object to current layer"
 msgstr "Переместить объект на текущий слой"
 
-#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:393
 msgid "M"
 msgstr "M"
 
-#: ../src/gpcb-menu.res:410 ../src/pcb-menu.res:393
+#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:393
 msgid "<Key>m"
 msgstr "<Key>m"
 
-#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:394
 msgid "MarkCrosshair"
 msgstr "Отметить курсор"
 
-#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:394
 msgid "Ctrl-M"
 msgstr "Ctrl-M"
 
-#: ../src/gpcb-menu.res:411 ../src/pcb-menu.res:394
+#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:394
 msgid "Ctrl<Key>m"
 msgstr "Ctrl<Key>m"
 
-#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:395
 msgid "Select shortest rat"
 msgstr "Выбрать кратчайшее соединение"
 
-#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:395
 msgid "Shift-N"
 msgstr "Shift-N"
 
-#: ../src/gpcb-menu.res:412 ../src/pcb-menu.res:395
+#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:395
 msgid "Shift<Key>n"
 msgstr "Shift<Key>n"
 
-#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+#: ../src/gpcb-menu.res:414 ../src/pcb-menu.res:396
 msgid "AddRats to selected pins"
 msgstr "Добавить соединения к выбранному выводу"
 
-#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+#: ../src/gpcb-menu.res:414 ../src/pcb-menu.res:396
 msgid "Shift-O"
 msgstr "Shift-O"
 
-#: ../src/gpcb-menu.res:413 ../src/pcb-menu.res:396
+#: ../src/gpcb-menu.res:414 ../src/pcb-menu.res:396
 msgid "Shift<Key>o"
 msgstr "Shift<Key>o"
 
-#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:402
 msgid "ChangeOctagon Object"
 msgstr "Изменить восьмиугольный объект"
 
-#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:402
 msgid "Ctrl-O"
 msgstr "Ctrl-O"
 
-#: ../src/gpcb-menu.res:419 ../src/pcb-menu.res:402
+#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:402
 msgid "Ctrl<Key>o"
 msgstr "Ctrl<Key>o"
 
-#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:403
 msgid "Polygon PreviousPoint"
 msgstr "Предыдущая вершина полигона"
 
-#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:403
 msgid "P"
 msgstr "p"
 
-#: ../src/gpcb-menu.res:420 ../src/pcb-menu.res:403
+#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:403
 msgid "<Key>p"
 msgstr "<Key>p"
 
-#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:404
 msgid "Polygon Close"
 msgstr "Закрыть полигон"
 
-#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:404
 msgid "Shift-P"
 msgstr "Shift-P"
 
-#: ../src/gpcb-menu.res:421 ../src/pcb-menu.res:404
+#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:404
 msgid "Shift<Key>p"
 msgstr "Shift<Key>p"
 
-#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:405
 msgid "ChangeSquare Object"
 msgstr "Изменить прямоугольный объект"
 
-#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:405
 msgid "Q"
 msgstr "Q"
 
-#: ../src/gpcb-menu.res:422 ../src/pcb-menu.res:405
+#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:405
 msgid "<Key>q"
 msgstr "<Key>q"
 
-#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:406
 msgid "ChangeSize +"
 msgstr "Размер +"
 
-#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:406
 msgid "S"
 msgstr "S"
 
-#: ../src/gpcb-menu.res:423 ../src/pcb-menu.res:406
+#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:406
 msgid "<Key>s"
 msgstr "<Key>s"
 
-#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:407
 msgid "ChangeSize -"
 msgstr "Размер -"
 
-#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:407
 msgid "Shift-S"
 msgstr "Shift-S"
 
-#: ../src/gpcb-menu.res:424 ../src/pcb-menu.res:407
+#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:407
 msgid "Shift<Key>s"
 msgstr "Shift<Key>s"
 
-#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:408
 msgid "ChangeDrill +5 mil"
 msgstr "Отверстие +5 мил"
 
-#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:408
 msgid "Alt-S"
 msgstr "Alt-S"
 
-#: ../src/gpcb-menu.res:425 ../src/pcb-menu.res:408
+#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:408
 msgid "Alt<Key>s"
 msgstr "Alt<Key>s"
 
-#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:409
 msgid "ChangeDrill -5 mil"
 msgstr "Отверстие -5 мил"
 
-#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:409
 msgid "Alt-Shift-S"
 msgstr "Alt-Shift-S"
 
-#: ../src/gpcb-menu.res:426 ../src/pcb-menu.res:409
+#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:409
 msgid "Alt Shift<Key>s"
 msgstr "Alt Shift<Key>s"
 
-#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:410
 msgid "Text Tool scale +10 mil"
 msgstr "Размер инструмента текста +10 мил"
 
-#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:410
 msgid "T"
 msgstr "T"
 
-#: ../src/gpcb-menu.res:427 ../src/pcb-menu.res:410
+#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:410
 msgid "<Key>t"
 msgstr "<Key>t"
 
-#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:411
 msgid "Text Tool scale -10 mil"
 msgstr "Размер инструмента текста -10 мил"
 
-#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:411
 msgid "Shift-T"
 msgstr "Shift-T"
 
-#: ../src/gpcb-menu.res:428 ../src/pcb-menu.res:411
+#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:411
 msgid "Shift<Key>t"
 msgstr "Shift<Key>t"
 
-#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:412
 msgid "Via Tool size +5 mil"
 msgstr "Размер инструмента перехода +5 мил"
 
-#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:412
 msgid "Shift-V"
 msgstr "Shift-V"
 
-#: ../src/gpcb-menu.res:429 ../src/pcb-menu.res:412
+#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:412
 msgid "Shift<Key>v"
 msgstr "Shift<Key>v"
 
-#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:413
 msgid "Via Tool size -5 mil"
 msgstr "Размер инструмента перехода -5 мил"
 
-#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:413
 msgid "Shift-Ctrl-V"
 msgstr "Shift-Ctrl-V"
 
-#: ../src/gpcb-menu.res:430 ../src/pcb-menu.res:413
+#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:413
 msgid "Shift Ctrl<Key>v"
 msgstr "Shift Ctrl<Key>v"
 
-#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:414
 msgid "Via Tool drill +5 mil"
 msgstr "Инструмент переходного отверстия +5 мил"
 
-#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:414
 msgid "Alt-V"
 msgstr "Alt-V"
 
-#: ../src/gpcb-menu.res:431 ../src/pcb-menu.res:414
+#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:414
 msgid "Alt<Key>v"
 msgstr "Alt<Key>v"
 
-#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:415
 msgid "Via Tool drill -5 mil"
 msgstr "Инструмент переходного отверстия -5 мил"
 
-#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:415
 msgid "Alt-Shift-V"
 msgstr "Alt-Shift-V"
 
-#: ../src/gpcb-menu.res:432 ../src/pcb-menu.res:415
+#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:415
 msgid "Alt Shift<Key>v"
 msgstr "Alt Shift<Key>v"
 
-#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:416
 msgid "AddRats Selected"
 msgstr "Добавить выбранные соединения"
 
-#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:416
 msgid "Shift-W"
 msgstr "Shift-W"
 
-#: ../src/gpcb-menu.res:433 ../src/pcb-menu.res:416
+#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:416
 msgid "Shift<Key>w"
 msgstr "Shift<Key>w"
 
-#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:417
 msgid "Add All Rats"
 msgstr "Добавить все соединения"
 
-#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:417
 msgid "W"
 msgstr "W"
 
-#: ../src/gpcb-menu.res:434 ../src/pcb-menu.res:417
+#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:417
 msgid "<Key>w"
 msgstr "<Key>w"
 
-#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:419
 msgid "Cycle Clip"
 msgstr "Переключить ограничитель"
 
-#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:419
 msgid "/"
 msgstr "/"
 
-#: ../src/gpcb-menu.res:435 ../src/pcb-menu.res:419
+#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:419
 msgid "<Key>/"
 msgstr "<Key>/"
 
-#: ../src/gpcb-menu.res:436
+#: ../src/gpcb-menu.res:437
 msgid "Arrow Mode"
 msgstr "Режим выбора"
 
-#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:420
 msgid "Space"
 msgstr "Пробел"
 
-#: ../src/gpcb-menu.res:436 ../src/pcb-menu.res:420
+#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:420
 msgid "<Key>space"
 msgstr "<Key>пробел"
 
-#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:421
 msgid "Temp Arrow ON"
 msgstr "Включить временный выбор"
 
-#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:421
 msgid "["
 msgstr "["
 
-#: ../src/gpcb-menu.res:437 ../src/pcb-menu.res:421
+#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:421
 msgid "<Key>["
 msgstr "<Key>["
 
-#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+#: ../src/gpcb-menu.res:439 ../src/pcb-menu.res:422
 msgid "Temp Arrow OFF"
 msgstr "Отключить временный выбор"
 
-#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+#: ../src/gpcb-menu.res:439 ../src/pcb-menu.res:422
 msgid "]"
 msgstr "]"
 
-#: ../src/gpcb-menu.res:438 ../src/pcb-menu.res:422
+#: ../src/gpcb-menu.res:439 ../src/pcb-menu.res:422
 msgid "<Key>]"
 msgstr "<Key>]"
 
-#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:424
 msgid "Step Up"
 msgstr "Шаг вверх"
 
-#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:428
 msgid "Up"
 msgstr "Вверх"
 
-#: ../src/gpcb-menu.res:440 ../src/pcb-menu.res:424
+#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:424
 msgid "<Key>Up"
 msgstr "<Key>Вверх"
 
-#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:425
 msgid "Step Down"
 msgstr "Шаг вниз"
 
-#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:429
 msgid "Down"
 msgstr "Вниз"
 
-#: ../src/gpcb-menu.res:441 ../src/pcb-menu.res:425
+#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:425
 msgid "<Key>Down"
 msgstr "<Key>Вниз"
 
-#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:426
 msgid "Step Left"
 msgstr "Шаг влево"
 
-#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:430
 msgid "Left"
 msgstr "Влево"
 
-#: ../src/gpcb-menu.res:442 ../src/pcb-menu.res:426
+#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:426
 msgid "<Key>Left"
 msgstr "<Key>Влево"
 
-#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:427
 msgid "Step Right"
 msgstr "Шаг вправо"
 
-#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:431
 msgid "Right"
 msgstr "Право"
 
-#: ../src/gpcb-menu.res:443 ../src/pcb-menu.res:427
+#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:427
 msgid "<Key>Right"
 msgstr "<Key>Вправо"
 
-#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:428
 msgid "Step +Up"
 msgstr "Шаг +вверх"
 
-#: ../src/gpcb-menu.res:444 ../src/pcb-menu.res:428
+#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:428
 msgid "Shift<Key>Up"
 msgstr "Shift<Key>Вверх"
 
-#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:429
 msgid "Step +Down"
 msgstr "Шаг +вниз"
 
-#: ../src/gpcb-menu.res:445 ../src/pcb-menu.res:429
+#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:429
 msgid "Shift<Key>Down"
 msgstr "Shift<Key>Вниз"
 
-#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:430
 msgid "Step +Left"
 msgstr "Шаг +влево"
 
-#: ../src/gpcb-menu.res:446 ../src/pcb-menu.res:430
+#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:430
 msgid "Shift<Key>Left"
 msgstr "Shift<Key>Влево"
 
-#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:431
 msgid "Step +Right"
 msgstr "Шаг +вправо"
 
-#: ../src/gpcb-menu.res:447 ../src/pcb-menu.res:431
+#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:431
 msgid "Shift<Key>Right"
 msgstr "Shift<Key>Вправо"
 
-#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+#: ../src/gpcb-menu.res:449 ../src/pcb-menu.res:432
 msgid "Click"
 msgstr "Щелчок"
 
-#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+#: ../src/gpcb-menu.res:449 ../src/pcb-menu.res:432
 msgid "Enter"
 msgstr "Enter"
 
-#: ../src/gpcb-menu.res:448 ../src/pcb-menu.res:432
+#: ../src/gpcb-menu.res:449 ../src/pcb-menu.res:432
 msgid "<Key>Enter"
 msgstr "<Key>Enter"
 
-#: ../src/gpcb-menu.res:456
+#: ../src/gpcb-menu.res:457
 msgid "Window"
 msgstr "Окно"
 
-#: ../src/gpcb-menu.res:457 ../src/hid/gtk/gui-config.c:2159
+#: ../src/gpcb-menu.res:458 ../src/hid/gtk/gui-config.c:2221
 #: ../src/pcb-menu.res:437
 msgid "Library"
 msgstr "Библиотека"
 
-#: ../src/gpcb-menu.res:457
+#: ../src/gpcb-menu.res:458
 msgid "i"
 msgstr "i"
 
-#: ../src/gpcb-menu.res:457
+#: ../src/gpcb-menu.res:458
 msgid "<Key>i"
 msgstr "<Key>i"
 
-#: ../src/gpcb-menu.res:458 ../src/pcb-menu.res:438
+#: ../src/gpcb-menu.res:459 ../src/pcb-menu.res:438
 msgid "Message Log"
 msgstr "Журнал сообщений"
 
-#: ../src/gpcb-menu.res:459
+#: ../src/gpcb-menu.res:460
 msgid "DRC Check"
 msgstr "Проверка проектных норм"
 
-#: ../src/gpcb-menu.res:460 ../src/pcb-menu.res:439
+#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:439
 msgid "Netlist"
 msgstr "Список соединений"
 
-#: ../src/gpcb-menu.res:461
+#: ../src/gpcb-menu.res:462
 msgid "Command Entry"
 msgstr "Ввод команды"
 
-#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:185
 msgid ":"
 msgstr ":"
 
-#: ../src/gpcb-menu.res:461 ../src/pcb-menu.res:185
+#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:185
 msgid "<Key>:"
 msgstr "<Key>:"
 
-#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+#: ../src/gpcb-menu.res:463 ../src/pcb-menu.res:440
 msgid "Pinout"
 msgstr "Выводы элемента"
 
-#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+#: ../src/gpcb-menu.res:463 ../src/pcb-menu.res:440
 msgid "Shift-D"
 msgstr "Shift-D"
 
-#: ../src/gpcb-menu.res:462 ../src/pcb-menu.res:440
+#: ../src/gpcb-menu.res:463 ../src/pcb-menu.res:440
 msgid "Shift<Key>d"
 msgstr "Shift<Key>d"
 
-#: ../src/gpcb-menu.res:464 ../src/pcb-menu.res:32
+#: ../src/gpcb-menu.res:465 ../src/pcb-menu.res:32
 msgid "About..."
 msgstr "О программе..."
 
-#: ../src/gpcb-menu.res:472
+#: ../src/gpcb-menu.res:473
 msgid "Operations on selections"
 msgstr "Действия над выбранным"
 
-#: ../src/gpcb-menu.res:473 ../src/pcb-menu.res:226
+#: ../src/gpcb-menu.res:474 ../src/pcb-menu.res:226
 msgid "Unselect all objects"
 msgstr "Снять выделение со всех объектов"
 
-#: ../src/gpcb-menu.res:475 ../src/pcb-menu.res:273
+#: ../src/gpcb-menu.res:476 ../src/pcb-menu.res:273
 msgid "Copy selection to buffer"
 msgstr "Копировать выбранное в буфер"
 
-#: ../src/gpcb-menu.res:481 ../src/pcb-menu.res:275
+#: ../src/gpcb-menu.res:482 ../src/pcb-menu.res:275
 msgid "Cut selection to buffer"
 msgstr "Вырезать выбранное в буфер"
 
-#: ../src/gpcb-menu.res:489
+#: ../src/gpcb-menu.res:490
 msgid "Auto place selected elements"
 msgstr "Авторазмещение выбранных элементов"
 
-#: ../src/gpcb-menu.res:490
+#: ../src/gpcb-menu.res:491
 msgid "Autoroute selected elements"
 msgstr "Автотрассировка выбранных элементов"
 
-#: ../src/gpcb-menu.res:493
+#: ../src/gpcb-menu.res:494
 msgid "Operations on this location"
 msgstr "Действия над этим расположением"
 
-#: ../src/gpcb-menu.res:497 ../src/pcb-menu.res:134
+#: ../src/gpcb-menu.res:498 ../src/pcb-menu.res:134
 msgid "Undo last operation"
 msgstr "Отменить последнее действие"
 
-#: ../src/gpcb-menu.res:498 ../src/pcb-menu.res:135
+#: ../src/gpcb-menu.res:499 ../src/pcb-menu.res:135
 msgid "Redo last undone operation"
 msgstr "Вернуть последнее отменённое действие"
 
-#: ../src/gpcb-menu.res:501 ../src/pcb-menu.res:166
+#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:166
 msgid "None"
 msgstr "Ничего"
 
-#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:167
 msgid "Via"
 msgstr "Переход"
 
-#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:167
 msgid "F1"
 msgstr "F1"
 
-#: ../src/gpcb-menu.res:502 ../src/pcb-menu.res:167
+#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:167
 msgid "<Key>F1"
 msgstr "<Key>F1"
 
-#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:168
 msgid "Line"
 msgstr "Линия"
 
-#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:168
 msgid "F2"
 msgstr "F2"
 
-#: ../src/gpcb-menu.res:503 ../src/pcb-menu.res:168
+#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:168
 msgid "<Key>F2"
 msgstr "<Key>F2"
 
-#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:169
 msgid "Arc"
 msgstr "Дуга"
 
-#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:169
 msgid "F3"
 msgstr "F3"
 
-#: ../src/gpcb-menu.res:504 ../src/pcb-menu.res:169
+#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:169
 msgid "<Key>F3"
 msgstr "<Key>F3"
 
-#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:170
 msgid "F4"
 msgstr "F4"
 
-#: ../src/gpcb-menu.res:505 ../src/pcb-menu.res:170
+#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:170
 msgid "<Key>F4"
 msgstr "<Key>F4"
 
-#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:171
 msgid "Rectangle"
 msgstr "Прямоугольник"
 
-#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:171
 msgid "F5"
 msgstr "F5"
 
-#: ../src/gpcb-menu.res:506 ../src/pcb-menu.res:171
+#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:171
 msgid "<Key>F5"
 msgstr "<Key>F5"
 
-#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:172
 msgid "Polygon"
 msgstr "Полигон"
 
-#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:172
 msgid "F6"
 msgstr "F6"
 
-#: ../src/gpcb-menu.res:507 ../src/pcb-menu.res:172
+#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:172
 msgid "<Key>F6"
 msgstr "<Key>F6"
 
-#: ../src/gpcb-menu.res:508 ../src/pcb-menu.res:173
+#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:173
 msgid "Polygon Hole"
 msgstr "Отверстие в полигоне"
 
-#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:174
 msgid "F7"
 msgstr "F7"
 
-#: ../src/gpcb-menu.res:509 ../src/pcb-menu.res:174
+#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:174
 msgid "<Key>F7"
 msgstr "<Key>F7"
 
-#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:175
 msgid "F8"
 msgstr "F8"
 
-#: ../src/gpcb-menu.res:510 ../src/pcb-menu.res:175
+#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:175
 msgid "<Key>F8"
 msgstr "<Key>F8"
 
-#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:176
 msgid "Rotate"
 msgstr "Повернуть"
 
-#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:176
 msgid "F9"
 msgstr "F9"
 
-#: ../src/gpcb-menu.res:511 ../src/pcb-menu.res:176
+#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:176
 msgid "<Key>F9"
 msgstr "<Key>F9"
 
-#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:177
 msgid "Thermal"
 msgstr "Термобарьер"
 
-#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:177
 msgid "F10"
 msgstr "F10"
 
-#: ../src/gpcb-menu.res:512 ../src/pcb-menu.res:177
+#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:177
 msgid "<Key>F10"
 msgstr "<Key>F10"
 
-#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:420
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:420
 msgid "Arrow"
 msgstr "Выбор"
 
-#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:178
 msgid "F11"
 msgstr "F11"
 
-#: ../src/gpcb-menu.res:513 ../src/pcb-menu.res:178
+#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:178
 msgid "<Key>F11"
 msgstr "<Key>F11"
 
-#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:179
 msgid "Insert Point"
 msgstr "Точка вставки"
 
-#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:179
 msgid "Insert"
 msgstr "Вставить"
 
-#: ../src/gpcb-menu.res:514 ../src/pcb-menu.res:179
+#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:179
 msgid "<Key>Insert"
 msgstr "<Key>Insert"
 
-#: ../src/gpcb-menu.res:515 ../src/pcb-menu.res:180
+#: ../src/gpcb-menu.res:516 ../src/pcb-menu.res:180
 msgid "Move"
 msgstr "Переместить"
 
-#: ../src/gpcb-menu.res:516 ../src/pcb-menu.res:181
+#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:181
 msgid "Copy"
 msgstr "Копировать"
 
-#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:182
 msgid "Lock"
 msgstr "Заблокировать"
 
-#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:182
 msgid "F12"
 msgstr "F12"
 
-#: ../src/gpcb-menu.res:517 ../src/pcb-menu.res:182
+#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:182
 msgid "<Key>F12"
 msgstr "<Key>F12"
 
-#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+#: ../src/gpcb-menu.res:519 ../src/pcb-menu.res:183
 msgid "Esc"
 msgstr "Esc"
 
-#: ../src/gpcb-menu.res:518 ../src/pcb-menu.res:183
+#: ../src/gpcb-menu.res:519 ../src/pcb-menu.res:183
 msgid "<Key>Escape"
 msgstr "<Key>Escape"
 
@@ -2816,6 +3575,11 @@ msgstr "<Key>Escape"
 #, c-format
 msgid "ERROR! Invalid action name, action \"%s\" not registered.\n"
 msgstr "ОШИБКА! Неверное имя операции, операция «%s» не зарегистрирована.\n"
+
+#: ../src/hid/common/actions.c:223
+#, c-format
+msgid "no action %s("
+msgstr ""
 
 #: ../src/hid/common/actions.c:312
 #, c-format
@@ -2954,145 +3718,150 @@ msgstr "Сделать настройками стиля трассировки 
 msgid "New (this session only)"
 msgstr "Новый (только для этой сессии)"
 
-#: ../src/hid/gtk/gtkhid-main.c:156
+#: ../src/hid/gtk/gtkhid-main.c:144
 msgid "Various zoom factor changes."
 msgstr "Различные изменения коэффициента увеличения."
 
-#: ../src/hid/gtk/gtkhid-main.c:239
+#: ../src/hid/gtk/gtkhid-main.c:227
 #, c-format
 msgid "ghid_calibrate() -- not implemented\n"
 msgstr "ghid_calibrate() — не реализовано\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:565 ../src/hid/gtk/gui-dialog.c:168
+#: ../src/hid/gtk/gtkhid-main.c:586 ../src/hid/gtk/gui-dialog.c:167
 msgid "_Cancel"
 msgstr "О_тмена"
 
-#: ../src/hid/gtk/gtkhid-main.c:566 ../src/hid/gtk/gui-dialog.c:172
+#: ../src/hid/gtk/gtkhid-main.c:587 ../src/hid/gtk/gui-dialog.c:171
 msgid "_OK"
 msgstr "_Да"
 
-#: ../src/hid/gtk/gtkhid-main.c:720
+#: ../src/hid/gtk/gtkhid-main.c:741
 msgid "Progress"
 msgstr "Выполнение"
 
-#: ../src/hid/gtk/gtkhid-main.c:1090
+#. add [attr_max_rows]
+#: ../src/hid/gtk/gtkhid-main.c:908
+msgid "del"
+msgstr ""
+
+#: ../src/hid/gtk/gtkhid-main.c:1111
 msgid "Tell the user about this version of PCB."
 msgstr "Сообщить пользователю об этой версии PCB."
 
-#: ../src/hid/gtk/gtkhid-main.c:1112
+#: ../src/hid/gtk/gtkhid-main.c:1133
 msgid "Get a coordinate."
 msgstr "Получить координаты."
 
-#: ../src/hid/gtk/gtkhid-main.c:1189
+#: ../src/hid/gtk/gtkhid-main.c:1210
 #, c-format
 msgid "LayerGroupsChanged -- not implemented\n"
 msgstr "LayerGroupsChanged — не реализовано\n"
 
 #. in case we have a dialog for loading a netlist file
-#: ../src/hid/gtk/gtkhid-main.c:1233 ../src/hid/gtk/gui-dialog.c:319
+#: ../src/hid/gtk/gtkhid-main.c:1254 ../src/hid/gtk/gui-dialog.c:319
 #: ../src/pcb-menu.res:40
 msgid "Load netlist file"
 msgstr "Загрузить файл списка соединений"
 
-#: ../src/hid/gtk/gtkhid-main.c:1245 ../src/hid/gtk/gui-dialog.c:306
+#: ../src/hid/gtk/gtkhid-main.c:1266 ../src/hid/gtk/gui-dialog.c:306
 msgid "Load layout file to buffer"
 msgstr "Загрузить файл трассировки в буфер"
 
 #. in case we have a dialog for loading a layout file
-#: ../src/hid/gtk/gtkhid-main.c:1251 ../src/hid/gtk/gui-dialog.c:305
+#: ../src/hid/gtk/gtkhid-main.c:1272 ../src/hid/gtk/gui-dialog.c:305
 msgid "Load layout file"
 msgstr "Загрузить файл трассировки"
 
-#: ../src/hid/gtk/gtkhid-main.c:1277
+#: ../src/hid/gtk/gtkhid-main.c:1298
 msgid "Save layout and/or element data to a user-selected file."
 msgstr "Сохранить трассировку и/или элемент в указанный пользователем файл."
 
-#: ../src/hid/gtk/gtkhid-main.c:1308
+#: ../src/hid/gtk/gtkhid-main.c:1329
 msgid "Save element as"
 msgstr "Сохранить элемент как"
 
-#: ../src/hid/gtk/gtkhid-main.c:1310
+#: ../src/hid/gtk/gtkhid-main.c:1331
 msgid "Save layout as"
 msgstr "Сохранить трассировку как"
 
-#: ../src/hid/gtk/gtkhid-main.c:1352
+#: ../src/hid/gtk/gtkhid-main.c:1373
 msgid "Swaps the side of the board you're looking at."
 msgstr "Изменить видимую сторону платы"
 
-#: ../src/hid/gtk/gtkhid-main.c:1440
+#: ../src/hid/gtk/gtkhid-main.c:1464
 msgid "Print the layout."
 msgstr "Печатать трассировку."
 
-#: ../src/hid/gtk/gtkhid-main.c:1465
+#: ../src/hid/gtk/gtkhid-main.c:1489
 msgid "Can't find a suitable printer HID"
 msgstr "Невозможно найти подходящий HID принтера"
 
-#: ../src/hid/gtk/gtkhid-main.c:1475
+#: ../src/hid/gtk/gtkhid-main.c:1499
 msgid "Can't print empty layout"
 msgstr "Невозможно печатать пустую трассировку"
 
-#: ../src/hid/gtk/gtkhid-main.c:1485
+#: ../src/hid/gtk/gtkhid-main.c:1509
 msgid "Enter Values here:"
 msgstr "Введите значения:"
 
-#: ../src/hid/gtk/gtkhid-main.c:1487
+#: ../src/hid/gtk/gtkhid-main.c:1511
 msgid "x-calibration"
 msgstr "x-калибровка"
 
-#: ../src/hid/gtk/gtkhid-main.c:1487
+#: ../src/hid/gtk/gtkhid-main.c:1511
 msgid "X scale for calibrating your printer"
 msgstr "Коэффициент по X калибровки вашего принтера"
 
-#: ../src/hid/gtk/gtkhid-main.c:1489
+#: ../src/hid/gtk/gtkhid-main.c:1513
 msgid "y-calibration"
 msgstr "y-калибровка"
 
-#: ../src/hid/gtk/gtkhid-main.c:1489
+#: ../src/hid/gtk/gtkhid-main.c:1513
 msgid "Y scale for calibrating your printer"
 msgstr "Коэффициент по Y калибровки вашего принтера"
 
-#: ../src/hid/gtk/gtkhid-main.c:1498
+#: ../src/hid/gtk/gtkhid-main.c:1522
 msgid "Calibrate the printer."
 msgstr "Калибровать принтер."
 
-#: ../src/hid/gtk/gtkhid-main.c:1515
+#: ../src/hid/gtk/gtkhid-main.c:1539
 msgid "Printer Calibration Values"
 msgstr "Калибровочные значения принтера"
 
-#: ../src/hid/gtk/gtkhid-main.c:1516
+#: ../src/hid/gtk/gtkhid-main.c:1540
 msgid "Enter calibration values for your printer"
 msgstr "Введите калибровочные значения вашего принтера"
 
-#: ../src/hid/gtk/gtkhid-main.c:1535
+#: ../src/hid/gtk/gtkhid-main.c:1559
 msgid "Can't export empty layout"
 msgstr "Невозможно экспортировать пустую трассировку"
 
-#: ../src/hid/gtk/gtkhid-main.c:1563
+#: ../src/hid/gtk/gtkhid-main.c:1587
 #, c-format
 msgid "%g redraws per second\n"
 msgstr "%g перерисовок в секунду\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1574
+#: ../src/hid/gtk/gtkhid-main.c:1598
 msgid "Moves the pointer to the center of the window."
 msgstr "Переместить указатель в центр окна."
 
-#: ../src/hid/gtk/gtkhid-main.c:1626
+#: ../src/hid/gtk/gtkhid-main.c:1650
 msgid "Move the cursor."
 msgstr "Переместить курсор."
 
-#: ../src/hid/gtk/gtkhid-main.c:1710
+#: ../src/hid/gtk/gtkhid-main.c:1734
 msgid "Open various GUI windows."
 msgstr "Открыть различные окна графического пользовательского интерфейса."
 
-#: ../src/hid/gtk/gtkhid-main.c:1786
+#: ../src/hid/gtk/gtkhid-main.c:1810
 msgid "Set the default measurement units."
 msgstr "Установить единицы измерения по умолчанию."
 
-#: ../src/hid/gtk/gtkhid-main.c:1833
+#: ../src/hid/gtk/gtkhid-main.c:1857
 msgid "Scroll the viewport."
 msgstr "Прокрутить область просмотра."
 
-#: ../src/hid/gtk/gtkhid-main.c:1883
+#: ../src/hid/gtk/gtkhid-main.c:1907
 msgid ""
 "Start or stop panning (Mode = 1 to start, 0 to stop)\n"
 "Optional thumb argument is ignored for now in gtk hid.\n"
@@ -3100,7 +3869,7 @@ msgstr ""
 "Начать (Mode = 1) или остановить (Mode = 0) режим панорамирования\n"
 "Необязательный аргумент thumb сейчас игнорируется в gtk hid.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1909
+#: ../src/hid/gtk/gtkhid-main.c:1933
 msgid ""
 "The gtk gui currently ignores the optional first argument to the Pan "
 "action.\n"
@@ -3110,7 +3879,7 @@ msgstr ""
 "необязательный первый аргумент действия Pan (прокрутки).\n"
 "Не стесняйтесь предоставлять патчи.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1923
+#: ../src/hid/gtk/gtkhid-main.c:1947
 msgid ""
 "Bring up the popup menu specified by @code{MenuName}.\n"
 "If called by a mouse event then the mouse button number\n"
@@ -3120,40 +3889,40 @@ msgstr ""
 "Если вызывается по событию мыши, то номер кнопки мышки\n"
 "должен быть указан как второй аргумент."
 
-#: ../src/hid/gtk/gtkhid-main.c:1948
+#: ../src/hid/gtk/gtkhid-main.c:1972
 #, c-format
 msgid "The specified popup menu \"%s\" has not been defined.\n"
 msgstr "Указанное выпадающее меню «%s» не было определено.\n"
 
-#: ../src/hid/gtk/gtkhid-main.c:1965
+#: ../src/hid/gtk/gtkhid-main.c:1989
 msgid "Asks user which schematics to import into PCB.\n"
 msgstr "Спросить пользователя, какую схему импортировать в PCB.\n"
 
 #. in case we have a dialog for loading schematic files
-#: ../src/hid/gtk/gtkhid-main.c:1988 ../src/hid/gtk/gui-dialog.c:402
+#: ../src/hid/gtk/gtkhid-main.c:2012 ../src/hid/gtk/gui-dialog.c:402
 msgid "Load schematics"
 msgstr "Импортировать схему"
 
-#: ../src/hid/gtk/gtkhid-main.c:2029
+#: ../src/hid/gtk/gtkhid-main.c:2053
 msgid "Click on a location to center"
 msgstr "Щёлкните на месте центровки"
 
-#: ../src/hid/gtk/gtkhid-main.c:2049
+#: ../src/hid/gtk/gtkhid-main.c:2073
 msgid "Click on a place to scroll"
 msgstr "Укажите позицию для прокрутки"
 
-#: ../src/hid/gtk/gtkhid-main.c:2052
+#: ../src/hid/gtk/gtkhid-main.c:2076
 msgid "Click on zoom focus"
 msgstr "Щёлкните центре масштабирования"
 
-#: ../src/hid/gtk/gui-command-window.c:76
+#: ../src/hid/gtk/gui-command-window.c:75
 msgid ""
 "Common commands easily accessible via the gui may not be included here.\n"
 msgstr ""
 "Общие команды, доступные через графический интерфейс, не могут быть "
 "использованы здесь.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:78
+#: ../src/hid/gtk/gui-command-window.c:77
 msgid ""
 "In user commands below, 'size' values may be absolute or relative\n"
 "if preceded by a '+' or '-'.  Where 'units' are indicated, use \n"
@@ -3163,91 +3932,93 @@ msgstr ""
 "(начинается на '+' или '-'). Если указана размерность, используйте\n"
 "'мил' или 'мм', иначе будет использована внутренняя размерность PCB.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:92
+#: ../src/hid/gtk/gui-command-window.c:91
 msgid "\tChanges the clearance of objects.\n"
 msgstr "\tИзменить отступы для объектов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:97
+#: ../src/hid/gtk/gui-command-window.c:96
 msgid "\tChanges values.  Omit 'units' for 'grid' and 'zoom'.\n"
 msgstr ""
 "\tИзменить значения. Для 'grid' и 'zoom' размерность 'units' не "
 "указывается.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:101
+#: ../src/hid/gtk/gui-command-window.c:100
 msgid "\tChanges the join (clearance through polygons) of objects.\n"
 msgstr "\tИзменить стык (зазор между полигонами) объектов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:107
+#: ../src/hid/gtk/gui-command-window.c:106
 msgid "\tToggles, sets, or clears the square flag of objects.\n"
 msgstr "\tПереключить, установить или убрать флаг прямоугольных объектов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:113
+#: ../src/hid/gtk/gui-command-window.c:112
 msgid "\tToggles, sets, or clears the octagon flag of objects.\n"
 msgstr "\tПереключить, установить или убрать флаг восьмиугольных объектов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:117
+#: ../src/hid/gtk/gui-command-window.c:116
 msgid "\tChanges the hole flag of objects.\n"
 msgstr "\tИзменить флаг отверстия для объектов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:121
+#: ../src/hid/gtk/gui-command-window.c:120
 msgid "\tFlip elements to the opposite side of the board.\n"
 msgstr "\tПеренести элементы на противоположную сторону платы.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:127
+#: ../src/hid/gtk/gui-command-window.c:125
 msgid ""
-"\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"
+"\tSet or clear a thermal (on the current layer) to pins or vias.\n"
+"\tIf 'style' is omitted, the layout's default style is taken. Setting\n"
+"\tthermals to style 0 (zero) turns the thermals off.\n"
 msgstr ""
-"\tПереключить, установить или убрать термобарьеры (на текущем слое) для "
-"выводов или переходов.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:131
+#: ../src/hid/gtk/gui-command-window.c:132
+#, fuzzy
 msgid ""
-"\tLoad a vendor file.  If 'filename' omitted, pop up file select dialog.\n"
+"\tLoad a vendor file.  If 'filename' is omitted, pop up a file select "
+"dialog.\n"
 msgstr ""
 "\tЗагрузить файл производителя. Если название файла не указано, отобразить "
 "диалог выбора файла.\n"
 
-#: ../src/hid/gtk/gui-command-window.c:312
+#: ../src/hid/gtk/gui-command-window.c:313
 msgid "PCB Command Entry"
 msgstr "PCB ввод команд"
 
 #. Make the command reference scrolled text view.  Use high level
 #. |  utility functions in gui-utils.c
 #.
-#: ../src/hid/gtk/gui-command-window.c:330
+#: ../src/hid/gtk/gui-command-window.c:331
 msgid "Command Reference"
 msgstr "Справка по командам"
 
-#: ../src/hid/gtk/gui-command-window.c:455
+#: ../src/hid/gtk/gui-command-window.c:456
 msgid "Enter command:"
 msgstr "Введите команду:"
 
-#: ../src/hid/gtk/gui-config.c:896
+#: ../src/hid/gtk/gui-config.c:925
 msgid "Enables"
 msgstr "Разрешения"
 
-#: ../src/hid/gtk/gui-config.c:901
+#: ../src/hid/gtk/gui-config.c:930
 msgid "Use separate window for command entry"
 msgstr "Использовать отдельное окно для ввода команд"
 
-#: ../src/hid/gtk/gui-config.c:906
+#: ../src/hid/gtk/gui-config.c:935
 msgid "Alternate window layout to allow smaller horizontal size"
 msgstr "Изменить расположение окон для экономии места по горизонтали"
 
-#: ../src/hid/gtk/gui-config.c:911
+#: ../src/hid/gtk/gui-config.c:940
 msgid "Alternate window layout to allow smaller vertical size"
 msgstr "Изменить расположение окон для экономии места по вертикали"
 
-#: ../src/hid/gtk/gui-config.c:913
+#: ../src/hid/gtk/gui-config.c:942
 msgid "Backups"
 msgstr "Резервные копии"
 
-#: ../src/hid/gtk/gui-config.c:917
+#: ../src/hid/gtk/gui-config.c:946
 #, c-format
 msgid "If layout is modified at exit, save into PCB.%i.save"
 msgstr "При выходе сохранять изменения трассировки в файл PCB.%i.save"
 
-#: ../src/hid/gtk/gui-config.c:920
+#: ../src/hid/gtk/gui-config.c:949
 msgid ""
 "Seconds between auto backups\n"
 "(set to zero to disable auto backups)"
@@ -3255,86 +4026,90 @@ msgstr ""
 "Количество секунд между автосохранениями\n"
 "(нуль для отключения)"
 
-#: ../src/hid/gtk/gui-config.c:923
+#: ../src/hid/gtk/gui-config.c:952
 msgid "Misc"
 msgstr "Прочее"
 
-#: ../src/hid/gtk/gui-config.c:927
+#: ../src/hid/gtk/gui-config.c:956
 msgid "Number of commands to remember in the history list"
 msgstr "Количество команд в истории"
 
+#: ../src/hid/gtk/gui-config.c:961
+msgid "Use only metric units when saving pcb files"
+msgstr ""
+
 #. ---- Board Size ----
-#: ../src/hid/gtk/gui-config.c:1027
+#: ../src/hid/gtk/gui-config.c:1061
 msgid "Board Size"
 msgstr "Размер платы"
 
-#: ../src/hid/gtk/gui-config.c:1041
+#: ../src/hid/gtk/gui-config.c:1075
 msgid "Width"
 msgstr "Ширина"
 
-#: ../src/hid/gtk/gui-config.c:1046
+#: ../src/hid/gtk/gui-config.c:1080
 msgid "Height"
 msgstr "Высота"
 
-#: ../src/hid/gtk/gui-config.c:1049
+#: ../src/hid/gtk/gui-config.c:1083
 msgid "Use this board size as the default for new layouts"
 msgstr "Использовать этот размер по умолчанию"
 
 #. ---- Text Scale ----
-#: ../src/hid/gtk/gui-config.c:1052
+#: ../src/hid/gtk/gui-config.c:1086
 msgid "Text Scale"
 msgstr "Масштаб текста"
 
 #. ---- DRC Sizes ----
-#: ../src/hid/gtk/gui-config.c:1070
+#: ../src/hid/gtk/gui-config.c:1104
 msgid "Design Rule Checking"
 msgstr "Проверка проектных норм"
 
-#: ../src/hid/gtk/gui-config.c:1083
+#: ../src/hid/gtk/gui-config.c:1117
 msgid "Minimum copper spacing"
 msgstr "Минимальный отступ для проводника"
 
-#: ../src/hid/gtk/gui-config.c:1089
+#: ../src/hid/gtk/gui-config.c:1123
 msgid "Minimum copper width"
 msgstr "Минимальная толщина проводника"
 
-#: ../src/hid/gtk/gui-config.c:1095
+#: ../src/hid/gtk/gui-config.c:1129
 msgid "Minimum touching copper overlap"
 msgstr "Минимальное перекрытие проводника"
 
-#: ../src/hid/gtk/gui-config.c:1101
+#: ../src/hid/gtk/gui-config.c:1135
 msgid "Minimum silk width"
 msgstr "Минимальная толщина шёлкографии"
 
-#: ../src/hid/gtk/gui-config.c:1107
+#: ../src/hid/gtk/gui-config.c:1141
 msgid "Minimum drill diameter"
 msgstr "Минимальный диаметр отверстия"
 
-#: ../src/hid/gtk/gui-config.c:1113
+#: ../src/hid/gtk/gui-config.c:1147
 msgid "Minimum annular ring"
 msgstr "Минимальное кольцо"
 
-#: ../src/hid/gtk/gui-config.c:1118
+#: ../src/hid/gtk/gui-config.c:1152
 msgid "Use DRC values as the default for new layouts"
 msgstr "Использовать эти значения по умолчанию"
 
-#: ../src/hid/gtk/gui-config.c:1170
+#: ../src/hid/gtk/gui-config.c:1204
 msgid "Metric Increment Settings"
 msgstr "Приращения в метрической системе мер"
 
-#: ../src/hid/gtk/gui-config.c:1178 ../src/hid/gtk/gui-config.c:1199
+#: ../src/hid/gtk/gui-config.c:1212 ../src/hid/gtk/gui-config.c:1233
 msgid "Grid:"
 msgstr "Сетка:"
 
-#: ../src/hid/gtk/gui-config.c:1179 ../src/hid/gtk/gui-config.c:1200
+#: ../src/hid/gtk/gui-config.c:1213 ../src/hid/gtk/gui-config.c:1234
 msgid "For 'g' and '<shift>g' grid change actions"
 msgstr "Для изменения сетки нажатием 'g' и '<shift>g'"
 
-#: ../src/hid/gtk/gui-config.c:1180 ../src/hid/gtk/gui-config.c:1201
+#: ../src/hid/gtk/gui-config.c:1214 ../src/hid/gtk/gui-config.c:1235
 msgid "Size:"
 msgstr "Размер:"
 
-#: ../src/hid/gtk/gui-config.c:1181 ../src/hid/gtk/gui-config.c:1202
+#: ../src/hid/gtk/gui-config.c:1215 ../src/hid/gtk/gui-config.c:1236
 msgid ""
 "For 's' and '<shift>s' size change actions on lines,\n"
 "pads, pins and text.\n"
@@ -3344,19 +4119,19 @@ msgstr ""
 "нажатии 's' и '<shift>s'.\n"
 "Для изменения отверстий используйте '<ctrl>s' и <shift><ctrl>s'."
 
-#: ../src/hid/gtk/gui-config.c:1184 ../src/hid/gtk/gui-config.c:1205
+#: ../src/hid/gtk/gui-config.c:1218 ../src/hid/gtk/gui-config.c:1239
 msgid "Line:"
 msgstr "Линия:"
 
-#: ../src/hid/gtk/gui-config.c:1185 ../src/hid/gtk/gui-config.c:1206
+#: ../src/hid/gtk/gui-config.c:1219 ../src/hid/gtk/gui-config.c:1240
 msgid "For 'l' and '<shift>l' routing line width change actions"
 msgstr "Для изменения толщины линии трассировки нажатием 'l' и '<shift>l'"
 
-#: ../src/hid/gtk/gui-config.c:1186 ../src/hid/gtk/gui-config.c:1207
+#: ../src/hid/gtk/gui-config.c:1220 ../src/hid/gtk/gui-config.c:1241
 msgid "Clear:"
 msgstr "Зазор:"
 
-#: ../src/hid/gtk/gui-config.c:1187 ../src/hid/gtk/gui-config.c:1208
+#: ../src/hid/gtk/gui-config.c:1221 ../src/hid/gtk/gui-config.c:1242
 msgid ""
 "For 'k' and '<shift>k' line clearance inside polygon size\n"
 "change actions"
@@ -3364,31 +4139,37 @@ msgstr ""
 "Для изменения отступа внутри полигона нажатием 'k' и '<shift>k'\n"
 "при изменении размера"
 
-#: ../src/hid/gtk/gui-config.c:1191
+#: ../src/hid/gtk/gui-config.c:1225
 msgid "Imperial Increment Settings"
 msgstr "Приращения в английской системе мер"
 
-#: ../src/hid/gtk/gui-config.c:1213
+#: ../src/hid/gtk/gui-config.c:1247
 msgid "Save as Default"
 msgstr "Сохранить по умолчанию"
 
-#: ../src/hid/gtk/gui-config.c:1216
+#: ../src/hid/gtk/gui-config.c:1250
 msgid "Use values as the default for new layouts"
 msgstr "Использовать как значения по умолчанию для новых чертежей"
 
-#: ../src/hid/gtk/gui-config.c:1239
+#: ../src/hid/gtk/gui-config.c:1274
 msgid "Element Directories"
 msgstr "Каталог элементов"
 
-#: ../src/hid/gtk/gui-config.c:1245
-msgid "<small>Enter a \""
-msgstr "<small>Введите \""
+#: ../src/hid/gtk/gui-config.c:1277
+#, c-format
+msgid ""
+"<small>Enter a \"%s\" separated list of custom top level\n"
+"element directories.  For example:\n"
+"%s\n"
+"Elements should be organized into subdirectories below each\n"
+"top level directory.  Restart program for changes to take effect.</small>"
+msgstr ""
 
-#: ../src/hid/gtk/gui-config.c:1286
+#: ../src/hid/gtk/gui-config.c:1317
 msgid "<h>Layer Names\n"
 msgstr "<h>Названия слоёв\n"
 
-#: ../src/hid/gtk/gui-config.c:1287
+#: ../src/hid/gtk/gui-config.c:1318
 msgid ""
 "You may enter layer names for the layers drawn on the screen.\n"
 "The special 'top side' and 'bottom side' are layers which\n"
@@ -3400,11 +4181,11 @@ msgstr ""
 "будут напечатаны, поэтому должны содержать в своих группах\n"
 "хотя бы по одному другому отображаемому слою.\n"
 
-#: ../src/hid/gtk/gui-config.c:1292
+#: ../src/hid/gtk/gui-config.c:1323
 msgid "<h>Layer Groups\n"
 msgstr "<h>Группы слоёв\n"
 
-#: ../src/hid/gtk/gui-config.c:1293
+#: ../src/hid/gtk/gui-config.c:1324
 msgid ""
 "Each layer on the screen may be in its own group which allows the\n"
 "maximum number of board layers.  However, for boards with fewer\n"
@@ -3419,7 +4200,7 @@ msgstr ""
 "даст один слой. Это позволяет задавать цветовое различие при отображении\n"
 "для групп сигналов при выводе формирующих один слой.\n"
 
-#: ../src/hid/gtk/gui-config.c:1300
+#: ../src/hid/gtk/gui-config.c:1331
 msgid ""
 "For example, for a 4 layer board a useful layer group arrangement\n"
 "can be to have 3 screen displayed layers grouped into the same group\n"
@@ -3437,63 +4218,63 @@ msgstr ""
 "кнопки и укажите названия на странице настроек для задания структуры\n"
 "четырёх групп слоев наподобие этой:\n"
 
-#: ../src/hid/gtk/gui-config.c:1308
+#: ../src/hid/gtk/gui-config.c:1339
 msgid "<b>Group 1:"
 msgstr "<b>Группа 1:"
 
-#: ../src/hid/gtk/gui-config.c:1310 ../src/hid/gtk/gui-misc.c:415
+#: ../src/hid/gtk/gui-config.c:1341
 msgid "top"
 msgstr "top"
 
-#: ../src/hid/gtk/gui-config.c:1312
+#: ../src/hid/gtk/gui-config.c:1343
 msgid "GND-top"
 msgstr "GND-top"
 
-#: ../src/hid/gtk/gui-config.c:1314
+#: ../src/hid/gtk/gui-config.c:1345
 msgid "Vcc-top"
 msgstr "Vcc-top"
 
-#: ../src/hid/gtk/gui-config.c:1316 ../src/hid/gtk/gui-config.c:1566
+#: ../src/hid/gtk/gui-config.c:1347
 msgid "top side"
 msgstr "верхняя сторона"
 
-#: ../src/hid/gtk/gui-config.c:1318
+#: ../src/hid/gtk/gui-config.c:1349
 msgid "<b>Group 2:"
 msgstr "<b>Группа 2:"
 
-#: ../src/hid/gtk/gui-config.c:1320 ../src/hid/gtk/gui-misc.c:415
+#: ../src/hid/gtk/gui-config.c:1351
 msgid "bottom"
 msgstr "bottom"
 
-#: ../src/hid/gtk/gui-config.c:1322
+#: ../src/hid/gtk/gui-config.c:1353
 msgid "GND-bottom"
 msgstr "GND-bottom"
 
-#: ../src/hid/gtk/gui-config.c:1324
+#: ../src/hid/gtk/gui-config.c:1355
 msgid "Vcc-bottom"
 msgstr "Vcc-bottom"
 
-#: ../src/hid/gtk/gui-config.c:1326 ../src/hid/gtk/gui-config.c:1568
+#: ../src/hid/gtk/gui-config.c:1357
 msgid "bottom side"
 msgstr "нижняя сторона"
 
-#: ../src/hid/gtk/gui-config.c:1328
+#: ../src/hid/gtk/gui-config.c:1359
 msgid "<b>Group 3:"
 msgstr "<b>Группа 3:"
 
-#: ../src/hid/gtk/gui-config.c:1330
+#: ../src/hid/gtk/gui-config.c:1361
 msgid "signal1"
 msgstr "signal1"
 
-#: ../src/hid/gtk/gui-config.c:1332
+#: ../src/hid/gtk/gui-config.c:1363
 msgid "<b>Group 4:"
 msgstr "<b>Группа 4:"
 
-#: ../src/hid/gtk/gui-config.c:1334
+#: ../src/hid/gtk/gui-config.c:1365
 msgid "signal2"
 msgstr "signal2"
 
-#: ../src/hid/gtk/gui-config.c:1448
+#: ../src/hid/gtk/gui-config.c:1479
 msgid ""
 "Both, 'top side' and 'bottom side' layer must have at least\n"
 "\tone other layer in their group.\n"
@@ -3501,7 +4282,7 @@ msgstr ""
 "Каждый из слоёв 'верхняя сторона' и 'нижняя сторона' должен содержать\n"
 "\tхотя бы один другой слой в своей группе.\n"
 
-#: ../src/hid/gtk/gui-config.c:1455
+#: ../src/hid/gtk/gui-config.c:1486
 msgid ""
 "The 'top side' and 'bottom side' layers are not allowed\n"
 "\tto be in the same layer group #\n"
@@ -3511,120 +4292,155 @@ msgstr ""
 
 #. working copy
 #. So can know if PCB changes on us
-#: ../src/hid/gtk/gui-config.c:1546
-msgid "Group #"
-msgstr "Группа №"
+#: ../src/hid/gtk/gui-config.c:1578
+#, fuzzy
+msgid "Layer group number: "
+msgstr "Группы слоёв"
 
 #. -- Change tab
-#: ../src/hid/gtk/gui-config.c:1634
+#: ../src/hid/gtk/gui-config.c:1696
 msgid "Change"
 msgstr "Изменить"
 
-#: ../src/hid/gtk/gui-config.c:1636
+#: ../src/hid/gtk/gui-config.c:1698
 msgid "Operations on currently selected layer:"
 msgstr "Действия над выбранными слоями:"
 
-#: ../src/hid/gtk/gui-config.c:1665
+#: ../src/hid/gtk/gui-config.c:1727
 msgid "Add new layer above currently selected layer:"
 msgstr "Добавить новый слой перед выбранным слоем:"
 
 #. -- Groups tab
-#: ../src/hid/gtk/gui-config.c:1675
+#: ../src/hid/gtk/gui-config.c:1737
 msgid "Groups"
 msgstr "Группы"
 
-#: ../src/hid/gtk/gui-config.c:1740
+#. -- Info tab
+#: ../src/hid/gtk/gui-config.c:1753
+#, fuzzy
+msgctxt "tab"
+msgid "Info"
+msgstr "Информация"
+
+#: ../src/hid/gtk/gui-config.c:1802
 #, c-format
 msgid "Current colors loaded: <b>%s</b>"
 msgstr "Текущие загруженные цвета: <b>%s</b>"
 
-#: ../src/hid/gtk/gui-config.c:1785
+#: ../src/hid/gtk/gui-config.c:1847
 msgid "Load Color File"
 msgstr "Загрузить файл цветов"
 
-#: ../src/hid/gtk/gui-config.c:1815
+#: ../src/hid/gtk/gui-config.c:1877
 msgid "Save Color File"
 msgstr "Сохранить файл цветов"
 
-#: ../src/hid/gtk/gui-config.c:1821
+#: ../src/hid/gtk/gui-config.c:1883
 msgid "Sorry, not overwriting the default color file!"
 msgstr "Файл цветов по умолчанию не будет перезаписан!"
 
-#: ../src/hid/gtk/gui-config.c:1875
+#: ../src/hid/gtk/gui-config.c:1937
 #, c-format
 msgid "PCB %s Color"
 msgstr "PCB цвет %s"
 
 #. ---- Main colors ----
-#: ../src/hid/gtk/gui-config.c:1905
+#: ../src/hid/gtk/gui-config.c:1967
 msgid "Main colors"
 msgstr "Основные цвета"
 
 #. ---- Layer colors ----
-#: ../src/hid/gtk/gui-config.c:1920
+#: ../src/hid/gtk/gui-config.c:1982
 msgid "Layer colors"
 msgstr "Цвета слоёв"
 
 #. ---- Selected colors ----
-#: ../src/hid/gtk/gui-config.c:1935
+#: ../src/hid/gtk/gui-config.c:1997
 msgid "Selected colors"
 msgstr "Цвета выбранного"
 
-#: ../src/hid/gtk/gui-config.c:1961
+#: ../src/hid/gtk/gui-config.c:2023
 msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
 msgstr ""
 "<b>Предупреждение:</b> несохранённые изменения цвета будут утеряны при "
 "выходе из программы."
 
-#: ../src/hid/gtk/gui-config.c:1976
+#: ../src/hid/gtk/gui-config.c:2038
 msgid "Load"
 msgstr "Загрузить"
 
-#: ../src/hid/gtk/gui-config.c:1981
+#: ../src/hid/gtk/gui-config.c:2043
 msgid "Defaults"
 msgstr "По умолчанию"
 
-#: ../src/hid/gtk/gui-config.c:2115
+#: ../src/hid/gtk/gui-config.c:2177
 msgid "PCB Preferences"
 msgstr "PCB настройки"
 
-#: ../src/hid/gtk/gui-config.c:2140
+#: ../src/hid/gtk/gui-config.c:2202
 msgid "General"
 msgstr "Общие"
 
-#: ../src/hid/gtk/gui-config.c:2147
+#: ../src/hid/gtk/gui-config.c:2209
 msgid "Sizes"
 msgstr "Размеры"
 
-#: ../src/hid/gtk/gui-config.c:2153
+#: ../src/hid/gtk/gui-config.c:2215
 msgid "Increments"
 msgstr "Приращения"
 
-#: ../src/hid/gtk/gui-config.c:2165
+#: ../src/hid/gtk/gui-config.c:2227
 msgid "Layers"
 msgstr "Слои"
 
-#: ../src/hid/gtk/gui-config.c:2172
+#: ../src/hid/gtk/gui-config.c:2234
 msgid "Colors"
 msgstr "Цвета"
 
-#: ../src/hid/gtk/gui-dialog.c:212
+#: ../src/hid/gtk/gui-dialog.c:53
+msgid "PCB User Input"
+msgstr ""
+
+#: ../src/hid/gtk/gui-dialog.c:67
+#, fuzzy
+msgid "Enter something"
+msgstr "Разброс:"
+
+#: ../src/hid/gtk/gui-dialog.c:117
+msgid "Confirm"
+msgstr ""
+
+#: ../src/hid/gtk/gui-dialog.c:123
+msgid "Sequence OK"
+msgstr ""
+
+#: ../src/hid/gtk/gui-dialog.c:211
 #, c-format
 msgid "Save the changes to layout before closing?"
 msgstr "Сохранить изменения трассировки перед закрытием?"
 
-#: ../src/hid/gtk/gui-dialog.c:215
+#: ../src/hid/gtk/gui-dialog.c:214
 #, c-format
 msgid "Save the changes to layout \"%s\" before closing?"
 msgstr "Сохранить в «%s» изменения трассировки перед закрытием?"
 
-#: ../src/hid/gtk/gui-dialog.c:220
+#: ../src/hid/gtk/gui-dialog.c:219
 msgid "If you don't save, all your changes will be permanently lost."
 msgstr "Если изменения не будут сохранены, они будут безвозвратно утеряны."
 
-#: ../src/hid/gtk/gui-dialog.c:230
+#: ../src/hid/gtk/gui-dialog.c:229
 msgid "Close _without saving"
 msgstr "_Закрыть без сохранения"
+
+#: ../src/hid/gtk/gui-dialog-print.c:327
+#, c-format
+msgid "%s: unknown type of HID attribute\n"
+msgstr ""
+
+#: ../src/hid/gtk/gui-dialog-print.c:382
+#, c-format
+msgid "%s() -- malloc failed\n"
+msgstr ""
 
 #. non-zero means cancel was picked
 #: ../src/hid/gtk/gui-dialog-print.c:387
@@ -3646,17 +4462,35 @@ msgstr ""
 "Не найден объект %i идентифицированный при проверке проектных норм. Окно "
 "проектных норм устарело?\n"
 
-#: ../src/hid/gtk/gui-drc-window.c:772
+#: ../src/hid/gtk/gui-drc-window.c:538
+msgid ""
+"%m+<b>%s (%$mS)</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Required: %$mS</small>"
+msgstr ""
+
+#: ../src/hid/gtk/gui-drc-window.c:553
+msgid ""
+"%m+<b>%s</b>\n"
+"<span size='1024'> </span>\n"
+"<small><i>%s</i>\n"
+"<span size='5120'> </span>\n"
+"Required: %$mS</small>"
+msgstr ""
+
+#: ../src/hid/gtk/gui-drc-window.c:774
 msgid "PCB DRC"
 msgstr "Проектные нормы платы"
 
 #. APPEND
-#: ../src/hid/gtk/gui-drc-window.c:806
+#: ../src/hid/gtk/gui-drc-window.c:812
 msgid "No."
 msgstr "№"
 
 #. APPEND
-#: ../src/hid/gtk/gui-drc-window.c:814
+#: ../src/hid/gtk/gui-drc-window.c:820
 msgid "Violation details"
 msgstr "Описание нарушения"
 
@@ -4053,30 +4887,30 @@ msgstr ""
 msgid "PCB Key Reference"
 msgstr "Справка по действиям PCB"
 
-#: ../src/hid/gtk/gui-library-window.c:169
+#: ../src/hid/gtk/gui-library-window.c:171
 msgid "PCB Library"
 msgstr "Библиотека PCB"
 
 #. GtkTreeViewColumn
-#: ../src/hid/gtk/gui-library-window.c:685
+#: ../src/hid/gtk/gui-library-window.c:747
 msgid "Components"
 msgstr "Компоненты"
 
 #. GtkLabel
-#: ../src/hid/gtk/gui-library-window.c:711
+#: ../src/hid/gtk/gui-library-window.c:773
 msgid "Filter:"
 msgstr "Фильтр:"
 
-#: ../src/hid/gtk/gui-library-window.c:805
+#: ../src/hid/gtk/gui-library-window.c:867
 msgid "Select Footprint..."
 msgstr "Выберите посадочное место..."
 
-#: ../src/hid/gtk/gui-library-window.c:827
+#: ../src/hid/gtk/gui-library-window.c:889
 msgid "Libraries"
 msgstr "Библиотеки"
 
 #. GtkFrame
-#: ../src/hid/gtk/gui-library-window.c:836
+#: ../src/hid/gtk/gui-library-window.c:898
 msgid "Preview"
 msgstr "Предпросмотр"
 
@@ -4092,55 +4926,101 @@ msgstr ""
 "%m+<b>вид</b>=%s  <b>сетка</b>=%$mS  %s%s  <b>линия</b>=%mS  <b>отверстие</"
 "b>=%mS (%mS)  %s<b>зазор</b>=%mS  <b>текст</b>=%i%%  <b>буфер</b>=#%i"
 
-#: ../src/hid/gtk/gui-netlist-window.c:708
+#: ../src/hid/gtk/gui-misc.c:415
+#, fuzzy
+msgctxt "status"
+msgid "bottom"
+msgstr "bottom"
+
+#: ../src/hid/gtk/gui-misc.c:415
+#, fuzzy
+msgctxt "status"
+msgid "top"
+msgstr "top"
+
+#: ../src/hid/gtk/gui-misc.c:444
+#, c-format
+msgid "%m+r %-mS; phi %-.1f; %-mS %-mS"
+msgstr ""
+
+#: ../src/hid/gtk/gui-misc.c:452
+msgid "r __.__; phi __._; __.__ __.__"
+msgstr ""
+
+#: ../src/hid/gtk/gui-misc.c:454
+#, c-format
+msgid "%m+%-mS %-mS"
+msgstr ""
+
+#: ../src/hid/gtk/gui-netlist-window.c:709
 msgid "PCB Netlist"
 msgstr "PCB список соединений"
 
-#: ../src/hid/gtk/gui-netlist-window.c:735
+#: ../src/hid/gtk/gui-netlist-window.c:737
 msgid " "
 msgstr " "
 
-#: ../src/hid/gtk/gui-netlist-window.c:741
+#: ../src/hid/gtk/gui-netlist-window.c:743
 msgid "Net Name"
 msgstr "Название соединения"
 
-#: ../src/hid/gtk/gui-netlist-window.c:772
+#: ../src/hid/gtk/gui-netlist-window.c:774
 msgid "Nodes"
 msgstr "n"
 
-#: ../src/hid/gtk/gui-netlist-window.c:784
+#: ../src/hid/gtk/gui-netlist-window.c:786
 msgid "Operations on selected 'Net Name':"
 msgstr "Действия над выбранными соединениями:"
 
-#: ../src/hid/gtk/gui-netlist-window.c:796
+#: ../src/hid/gtk/gui-netlist-window.c:793
+#, fuzzy
+msgctxt "netlist"
+msgid "Select"
+msgstr "Выбрать"
+
+#: ../src/hid/gtk/gui-netlist-window.c:798
 msgid "Unselect"
 msgstr "Снять выделение"
 
-#: ../src/hid/gtk/gui-netlist-window.c:801
+#: ../src/hid/gtk/gui-netlist-window.c:803
 msgid "Find"
 msgstr "Найти"
 
-#: ../src/hid/gtk/gui-netlist-window.c:806
+#: ../src/hid/gtk/gui-netlist-window.c:808
 msgid "Rip Up"
 msgstr "Разорвать"
 
-#: ../src/hid/gtk/gui-netlist-window.c:813
+#: ../src/hid/gtk/gui-netlist-window.c:815
 msgid "Disable all nets for adding rats"
 msgstr "Отключить все соединения"
 
-#: ../src/hid/gtk/gui-top-window.c:248
+#: ../src/hid/gtk/gui-output-events.c:417
+#: ../src/hid/gtk/gui-output-events.c:453
+#: ../src/hid/gtk/gui-output-events.c:454
+msgid "--"
+msgstr ""
+
+#: ../src/hid/gtk/gui-output-events.c:449
+#, c-format
+msgid ""
+"Element name: %s\n"
+"Pinname : %s\n"
+"Netname : %s"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:243
 msgid "Reload"
 msgstr "Перезагрузить"
 
-#: ../src/hid/gtk/gui-top-window.c:269
+#: ../src/hid/gtk/gui-top-window.c:264
 msgid "Do you want to drop your changes and reload the file?"
 msgstr "Хотите отбросить ваши изменения и перезагрузить файл?"
 
-#: ../src/hid/gtk/gui-top-window.c:270
+#: ../src/hid/gtk/gui-top-window.c:265
 msgid "Do you want to reload the file?"
 msgstr "Перезагрузить файл?"
 
-#: ../src/hid/gtk/gui-top-window.c:272
+#: ../src/hid/gtk/gui-top-window.c:267
 #, c-format
 msgid ""
 "<b>The file %s has changed on disk</b>\n"
@@ -4151,47 +5031,171 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/hid/gtk/gui-top-window.c:491
-msgid "silk"
-msgstr "шёлкография"
-
-#: ../src/hid/gtk/gui-top-window.c:496
+#: ../src/hid/gtk/gui-top-window.c:494
 msgid "rat lines"
 msgstr "соединения"
 
-#: ../src/hid/gtk/gui-top-window.c:501
+#: ../src/hid/gtk/gui-top-window.c:499
 msgid "pins/pads"
 msgstr "выводы/площадки"
 
-#: ../src/hid/gtk/gui-top-window.c:506
+#: ../src/hid/gtk/gui-top-window.c:504
 msgid "vias"
 msgstr "переходы"
 
-#: ../src/hid/gtk/gui-top-window.c:511
+#: ../src/hid/gtk/gui-top-window.c:509
 msgid "far side"
 msgstr "обратная сторона"
 
-#: ../src/hid/gtk/gui-top-window.c:516
+#: ../src/hid/gtk/gui-top-window.c:514
 msgid "solder mask"
 msgstr "маска"
 
-#: ../src/hid/gtk/gui-top-window.c:689
+#: ../src/hid/gtk/gui-top-window.c:687
 msgid "Unnamed"
 msgstr "Безымянный"
 
-#: ../src/hid/gtk/gui-top-window.c:692
+#: ../src/hid/gtk/gui-top-window.c:690
 msgid "Unsaved.pcb"
 msgstr "Несохранённый.pcb"
 
-#: ../src/hid/gtk/gui-top-window.c:1609
+#: ../src/hid/gtk/gui-top-window.c:953
+#, fuzzy
+msgid "via"
+msgstr "переходы"
+
+#: ../src/hid/gtk/gui-top-window.c:954
+msgid "create vias with <select mouse button>"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:955
+#, fuzzy
+msgid "line"
+msgstr "соединения"
+
+#: ../src/hid/gtk/gui-top-window.c:956
+msgid "create a line segment, toggle draw modes with '/' or '.'"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:957
+#, fuzzy
+msgid "arc"
+msgstr "Дуга"
+
+#: ../src/hid/gtk/gui-top-window.c:958
+msgid "create an arc segment"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:959
+msgid "text"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:960
+msgid "create a text"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:961
+#, fuzzy
+msgid "rectangle"
+msgstr "Прямоугольник"
+
+#: ../src/hid/gtk/gui-top-window.c:962
+msgid "create a filled rectangle"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:963
+#, fuzzy
+msgid "polygon"
+msgstr "Полигон"
+
+#: ../src/hid/gtk/gui-top-window.c:964
+msgid "create a polygon, <shift>-P for closing the polygon"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:965
+#, fuzzy
+msgid "polygonhole"
+msgstr "Отверстие в полигоне"
+
+#: ../src/hid/gtk/gui-top-window.c:966
+msgid "create a hole into an existing polygon"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:967
+#, fuzzy
+msgid "buffer"
+msgstr "Буфер"
+
+#: ../src/hid/gtk/gui-top-window.c:968
+#, fuzzy
+msgid "paste the selection from buffer into the layout"
+msgstr "Вставить трассировку из буфера"
+
+#: ../src/hid/gtk/gui-top-window.c:969
+#, fuzzy
+msgid "remove"
+msgstr "Удалить"
+
+#: ../src/hid/gtk/gui-top-window.c:970
+#, fuzzy
+msgid "remove objects under the cursor"
+msgstr "Переключить флаг отверстия объекта под курсором\n"
+
+#: ../src/hid/gtk/gui-top-window.c:971
+#, fuzzy
+msgid "rotate"
+msgstr "Повернуть"
+
+#: ../src/hid/gtk/gui-top-window.c:972
+msgid "rotate a selection or object CCW, hold the <shift> key to rotate CW"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:973
+#, fuzzy
+msgid "insertPoint"
+msgstr "Точка вставки"
+
+#: ../src/hid/gtk/gui-top-window.c:974
+msgid "add points into existing lines and polygons"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:975
+#, fuzzy
+msgid "thermal"
+msgstr "Термобарьер"
+
+#: ../src/hid/gtk/gui-top-window.c:976
+msgid ""
+"create thermals with <select mouse button>, toggle thermal style with "
+"<Shift> <select mouse button>"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:977
+#, fuzzy
+msgid "select"
+msgstr "Снять выделение"
+
+#: ../src/hid/gtk/gui-top-window.c:978
+msgid "select, deselect or move objects or selections"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:979
+msgid "lock"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:980
+msgid "lock or unlock an object"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:1628
 msgid "Read end of pipe died!\n"
 msgstr "Прекращено чтение канала!\n"
 
-#: ../src/hid/gtk/gui-top-window.c:1624
+#: ../src/hid/gtk/gui-top-window.c:1643
 msgid "ERROR status from g_io_channel_read_line\n"
 msgstr "ОШИБКА-статус из g_io_channel_read_line\n"
 
-#: ../src/hid/gtk/gui-top-window.c:1629
+#: ../src/hid/gtk/gui-top-window.c:1648
 msgid ""
 "Input pipe returned EOF.  The --listen option is \n"
 "probably not running anymore in this session.\n"
@@ -4199,21 +5203,78 @@ msgstr ""
 "Входной канал вернул символ конца фала (EOF).\n"
 "Параметр --listen, вероятно, более не работает в этой сессии.\n"
 
-#: ../src/hid/gtk/gui-top-window.c:1635
+#: ../src/hid/gtk/gui-top-window.c:1654
 msgid "AGAIN status from g_io_channel_read_line\n"
 msgstr "ПОВТОР-статус из g_io_channel_read_line\n"
 
-#: ../src/hid/gtk/gui-top-window.c:1640
+#: ../src/hid/gtk/gui-top-window.c:1659
 #, c-format
 msgid "ERROR:  unhandled case in ghid_listener_cb\n"
 msgstr "ОШИБКА: необработанный case в ghid_listener_cb\n"
 
-#: ../src/hid/gtk/gui-top-window.c:1647
+#: ../src/hid/gtk/gui-top-window.c:1666
 #, c-format
 msgid "Unknown condition in ghid_listener_cb\n"
 msgstr "Неизвестное условие в ghid_listener_cb\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2059
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --listen
+#. Listen for actions on stdin.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1696
+#, fuzzy
+msgid "Listen for actions on stdin"
+msgstr "Действия над выбранным"
+
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --bg-image <string>
+#. File name of an image to put into the background of the GUI canvas. The image must
+#. be a color PPM image, in binary (not ASCII) format. It can be any size, and will be
+#. automatically scaled to fit the canvas.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1709
+msgid "Background Image"
+msgstr ""
+
+#. %start-doc options "21 GTK+ GUI Options"
+#. @ftable @code
+#. @item --pcb-menu <string>
+#. Location of the @file{gpcb-menu.res} file which defines the menu for the GTK+ GUI.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/gtk/gui-top-window.c:1720
+msgid "Location of gpcb-menu.res file"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:1868
+msgid ""
+"ToggleView(1..MAXLAYER)\n"
+"ToggleView(layername)\n"
+"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:1873
+#, fuzzy
+msgid "Toggle the visibility of the specified layer or layer group."
+msgstr "Переключить отображение названия элемента под курсором\n"
+
+#: ../src/hid/gtk/gui-top-window.c:1942
+msgid "SelectLayer(1..MAXLAYER|Silk|Rats)"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:1945
+#, fuzzy
+msgid "Select which layer is the current layer."
+msgstr "Удалить текущий слой"
+
+#: ../src/hid/gtk/gui-top-window.c:2066
 #, c-format
 msgid ""
 "ERROR:  overflow of the ghid_hotkey_actions array.  Index = %d\n"
@@ -4222,65 +5283,588 @@ msgstr ""
 "ERROR:  overflow of the ghid_hotkey_actions array.  Index = %d\n"
 "Пожалуйста, сообщите об этой ошибке.\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2083
+#: ../src/hid/gtk/gui-top-window.c:2090
 #, c-format
 msgid "Note:  home directory is \"%s\"\n"
 msgstr "Замечание: домашний каталог «%s»\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2088
+#: ../src/hid/gtk/gui-top-window.c:2095
 msgid "Warning:  could not determine home directory\n"
 msgstr "Предупреждение: невозможно определить домашний каталог\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2118
+#: ../src/hid/gtk/gui-top-window.c:2125
 #, c-format
 msgid "Error: internal menu resource didn't parse\n"
 msgstr "Ошибка: внутренние ресурсы меню не обработаны\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2125
+#: ../src/hid/gtk/gui-top-window.c:2132
 #, c-format
 msgid "Loading menus from %s\n"
 msgstr "Загрузка меню из %s\n"
 
-#: ../src/hid/gtk/gui-top-window.c:2131
+#: ../src/hid/gtk/gui-top-window.c:2138
 msgid "Using default menus\n"
 msgstr "Использую меню по умолчанию\n"
+
+#: ../src/hid/gtk/gui-top-window.c:2184
+msgid "AdjustStyle()\n"
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:2187
+msgid "Open the window which allows editing of the route styles."
+msgstr ""
+
+#: ../src/hid/gtk/gui-top-window.c:2207
+#, fuzzy
+msgid "EditLayerGroups()\n"
+msgstr "Редактировать группы слоёв"
+
+#: ../src/hid/gtk/gui-top-window.c:2210
+msgid "Open the preferences window which allows editing of the layer groups."
+msgstr ""
 
 #: ../src/hid/lesstif/dialogs.c:1186
 #, c-format
 msgid "Units are %s."
 msgstr "Единицы измерения — %s."
 
-#: ../src/hid/ps/ps.c:1456
+#: ../src/hid/lpr/lpr.c:26
+#, c-format
+msgid "HID error: pcb called unimplemented PS function %s.\n"
+msgstr ""
+
+#. %start-doc options "98 lpr Printing Options"
+#. @ftable @code
+#. @item --lprcommand <string>
+#. Command to use for printing. Defaults to @code{lpr}. This can be used to produce
+#. PDF output with a virtual PDF printer. Example: @*
+#. @code{--lprcommand "lp -d CUPS-PDF-Printer"}.
+#. @end ftable
+#. @noindent In addition, all @ref{Postscript Export} options are valid.
+#. %end-doc
+#.
+#: ../src/hid/lpr/lpr.c:41 ../src/hid/ps/ps.c:1346
+#, fuzzy
+msgid "lprcommand"
+msgstr "Команда"
+
+#: ../src/hid/lpr/lpr.c:41
+msgid "Command to use for printing"
+msgstr "Команда используемая для печати"
+
+#: ../src/hid/lpr/lpr.c:97
+#, c-format
+msgid "LPR: open %s\n"
+msgstr ""
+
+#: ../src/hid/lpr/lpr.c:136
+msgid "Postscript print"
+msgstr "Печать Postscript"
+
+#. other HIDs expect this to be first.
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --psfile <string>
+#. Name of the postscript output file. Can contain a path.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:153
+msgid "psfile"
+msgstr "файл PS"
+
+#: ../src/hid/ps/ps.c:153
+msgid "Postscript output file"
+msgstr "Выходной файл Postscript"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex drill-helper
+#. @item --drill-helper
+#. Print a centering target in large drill holes.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:165
+msgid "drill-helper"
+msgstr "вспомогательные отверстия"
+
+#: ../src/hid/ps/ps.c:165
+msgid "Print a centering target in large drill holes"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex align-marks
+#. @item --align-marks
+#. Print alignment marks on each sheet. This is meant to ease alignment during exposure.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:177
+msgid "align-marks"
+msgstr "маркеры"
+
+#: ../src/hid/ps/ps.c:177
+msgid "Print alignment marks on each sheet"
+msgstr "Печатать макреры выравнивания на каждой странице"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --outline
+#. Print the contents of the outline layer on each sheet.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:188
+#, fuzzy
+msgid "outline"
+msgstr "соединения"
+
+#: ../src/hid/ps/ps.c:188
+#, fuzzy
+msgid "Print outline on each sheet"
+msgstr "Печатать макреры выравнивания на каждой странице"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --mirror
+#. Print mirror image.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:198
+msgid "mirror"
+msgstr "отразить"
+
+#: ../src/hid/ps/ps.c:198
+msgid "Print mirror image of every page"
+msgstr "Печатать изображение отражённым на каждой странице"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --fill-page
+#. Scale output to make the board fit the page.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:209
+msgid "fill-page"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:209
+msgid "Scale board to fill page"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --auto-mirror
+#. Print mirror image of appropriate layers.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:220
+#, fuzzy
+msgid "auto-mirror"
+msgstr "отразить"
+
+#: ../src/hid/ps/ps.c:220
+#, fuzzy
+msgid "Print mirror image of appropriate layers"
+msgstr "Печатать изображение отражённым на каждой странице"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --ps-color
+#. Postscript output in color.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:231
+msgid "ps-color"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:231
+#, fuzzy
+msgid "Prints in color"
+msgstr "Основные цвета"
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex ps-bloat
+#. @item --ps-bloat <num>
+#. Amount to add to trace/pad/pin edges.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:243
+msgid "ps-bloat"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:243
+msgid "Amount to add to trace/pad/pin edges"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex ps-invert
+#. @item --ps-invert
+#. Draw objects as white-on-black.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:255
+msgid "ps-invert"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:255
+msgid "Draw objects as white-on-black"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --media <media-name>
+#. Size of the media, the postscript is fitted to. The parameter
+#. @code{<media-name>} can be any of the standard names for paper size: @samp{A0}
+#. to @samp{A10}, @samp{B0} to @samp{B10}, @samp{Letter}, @samp{11x17},
+#. @samp{Ledger}, @samp{Legal}, @samp{Executive}, @samp{A-Size}, @samp{B-size},
+#. @samp{C-Size}, @samp{D-size}, @samp{E-size}, @samp{US-Business_Card},
+#. @samp{Intl-Business_Card}.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:271
+msgid "media"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:271
+msgid "Media type"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex psfade
+#. @item --psfade <num>
+#. Fade amount for assembly drawings (0.0=missing, 1.0=solid).
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:283
+msgid "psfade"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:284
+msgid "Fade amount for assembly drawings (0.0=missing, 1.0=solid)"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --scale <num>
+#. Scale value to compensate for printer sizing errors (1.0 = full scale).
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:295
+msgid "scale"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:296
+msgid "Scale value to compensate for printer sizing errors (1.0 = full scale)"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex multi-file
+#. @item --multi-file
+#. Produce multiple files, one per page, instead of a single multi page file.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:308
+msgid "multi-file"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:309
+msgid "Produce multiple files, one per page, instead of a single file"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --xcalib <num>
+#. Paper width. Used for x-Axis calibration.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:320
+#, fuzzy
+msgid "xcalib"
+msgstr "x-калибровка"
+
+#: ../src/hid/ps/ps.c:320
+msgid "Paper width. Used for x-Axis calibration"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --ycalib <num>
+#. Paper height. Used for y-Axis calibration.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:331
+#, fuzzy
+msgid "ycalib"
+msgstr "y-калибровка"
+
+#: ../src/hid/ps/ps.c:331
+msgid "Paper height. Used for y-Axis calibration"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @item --drill-copper
+#. Draw drill holes in pins / vias, instead of leaving solid copper.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:342
+#, fuzzy
+msgid "drill-copper"
+msgstr "вспомогательные отверстия"
+
+#: ../src/hid/ps/ps.c:343
+msgid "Draw drill holes in pins / vias, instead of leaving solid copper"
+msgstr ""
+
+#. %start-doc options "91 Postscript Export"
+#. @ftable @code
+#. @cindex show-legend
+#. @item --show-legend
+#. Print file name and scale on printout.
+#. @end ftable
+#. %end-doc
+#.
+#: ../src/hid/ps/ps.c:355
+msgid "show-legend"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:355
+msgid "Print file name and scale on printout"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:1346
+#, fuzzy
+msgid "Command to print"
+msgstr "Команда используемая для печати"
+
+#: ../src/hid/ps/ps.c:1455
+#, c-format
+msgid ""
+"X value of %g is too far off.\n"
+"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:1467
+#, c-format
+msgid ""
+"Y value of %g is too far off.\n"
+"Expecting it near: %.1f, %.1f, %.1f, %.1f\n"
+msgstr ""
+
+#: ../src/hid/ps/ps.c:1479
 msgid "Print Calibration Page"
 msgstr "Печатать страницу калибровки"
 
-#: ../src/hid/ps/ps.c:1456
+#: ../src/hid/ps/ps.c:1479
 msgid "Generates a printer calibration page"
 msgstr "Создать страницу калибровки принтера"
+
+#: ../src/hid/ps/ps.c:1572
+#, fuzzy
+msgid "Postscript export"
+msgstr "Печать Postscript"
+
+#: ../src/hid/png/png.c:846
+#, c-format
+msgid "ERROR:  Unable to determine bounding box limits\n"
+msgstr ""
+
+#: ../src/hid/png/png.c:847
+#, c-format
+msgid "ERROR:  Does the file contain any data?\n"
+msgstr ""
 
 #: ../src/hid/gtk/gui-trackball.c:259
 msgid "2D View"
 msgstr "2D-вид"
 
-#: ../src/main.c:2031
+#: ../src/layerflags.c:137
+msgid "ListLayertypes()"
+msgstr ""
+
+#: ../src/layerflags.c:140
+msgid "List all available layertypes.\n"
+msgstr ""
+
+#: ../src/layerflags.c:155
+msgid "Available layer types:\n"
+msgstr ""
+
+#: ../src/layerflags.c:165
+msgid "SetLayertype(layer, type)"
+msgstr ""
+
+#: ../src/layerflags.c:168
+msgid ""
+"Sets the type of a layer. Type can be given by name or by number.\n"
+"For a list of available types, run ListLayertypes()."
+msgstr ""
+
+#: ../src/layerflags.c:195
+#, c-format
+msgid "Layer index %d out of range, must be 0 ... %d\n"
+msgstr ""
+
+#: ../src/layerflags.c:207
+#, c-format
+msgid "Invalid layer type (%d) requested. See ListLayertypes() for a list.\n"
+msgstr ""
+
+#: ../src/main.c:2038
 #, c-format
 msgid "Executing startup script file %s\n"
 msgstr "Выполнение скрипта запуска из файла %s\n"
 
-#: ../src/main.c:2037
+#: ../src/main.c:2044
 #, c-format
 msgid "Executing startup action %s\n"
 msgstr "Выполнение действия запуска %s\n"
 
-#: ../src/netlist.c:448 ../src/report.c:832 ../src/select.c:845
+#: ../src/misc.c:1520
+#, c-format
+msgid "Warning: layer \"%s\" not known\n"
+msgstr ""
+
+#: ../src/misc.c:1523
+#, c-format
+msgid "Named layers in this board are:\n"
+msgstr ""
+
+#: ../src/misc.c:1527
+#, c-format
+msgid ""
+"Also: component, solder, rats, invisible, pins, vias, elements or silk, "
+"mask, solderside.\n"
+msgstr ""
+
+#: ../src/misc.c:1600
+#, c-format
+msgid "Request for bounding box of unsupported type %d\n"
+msgstr ""
+
+#: ../src/misc.c:2332
+msgid ""
+"This is PCB, an interactive\n"
+"printed circuit board editor\n"
+"version "
+msgstr ""
+"PCB - интерактивный редактор печатных плат\n"
+"версия "
+
+#: ../src/misc.c:2345
+msgid ""
+"It is licensed under the terms of the GNU\n"
+"General Public License version 2\n"
+"See the LICENSE file for more information\n"
+"\n"
+"For more information see:\n"
+msgstr ""
+
+#: ../src/misc.c:2349
+msgid "PCB homepage: "
+msgstr ""
+
+#: ../src/misc.c:2351
+msgid "gEDA homepage: "
+msgstr ""
+
+#: ../src/misc.c:2353
+msgid "gEDA Wiki: "
+msgstr ""
+
+#: ../src/misc.c:2356
+msgid ""
+"\n"
+"----- Compile Time Options -----\n"
+msgstr ""
+
+#: ../src/misc.c:2358
+msgid "GUI:\n"
+msgstr "Графический пользовательский интерфейс:\n"
+
+#: ../src/misc.c:2371
+msgid "Exporters:\n"
+msgstr "Экспорт:\n"
+
+#: ../src/misc.c:2384
+msgid "Printers:\n"
+msgstr "Принтеры:\n"
+
+#: ../src/netlist.c:447 ../src/report.c:841 ../src/select.c:845
+#: ../src/vendor.c:896
 #, c-format
 msgid "regexp error: %s\n"
 msgstr "Ошибка regexp: %s\n"
 
-#: ../src/netlist.c:456 ../src/report.c:840 ../src/select.c:857
+#: ../src/netlist.c:455 ../src/report.c:849 ../src/select.c:857
+#: ../src/vendor.c:916
 #, c-format
 msgid "re_comp error: %s\n"
 msgstr "Ошибка re_comp: %s\n"
+
+#: ../src/parse_y.y:169 ../src/parse_y.y:253 ../src/parse_y.y:276
+msgid "illegal fileformat\n"
+msgstr ""
+
+#: ../src/parse_y.y:181
+msgid "illegal default layer-group string\n"
+msgstr ""
+
+#: ../src/parse_y.y:627
+#, fuzzy
+msgid "illegal layer-group string\n"
+msgstr "Редактировать группы слоёв"
+
+#: ../src/parse_y.y:679 ../src/parse_y.y:687
+msgid "illegal route-style string\n"
+msgstr ""
+
+#: ../src/parse_y.y:1184
+#, c-format
+msgid ""
+"WARNING parsing file '%s'\n"
+"    line:        %i\n"
+"    description: 'ignored polygon (< 3 points in a contour)'\n"
+msgstr ""
+
+#: ../src/parse_y.y:1985
+#, c-format
+msgid ""
+"ERROR parsing file '%s'\n"
+"    line:        %i\n"
+"    description: '%s'\n"
+msgstr ""
+
+#: ../src/parse_y.y:2001
+#, c-format
+msgid ""
+"ERROR:  The file you are attempting to load is in a format\n"
+"which is too new for this version of pcb.  To load this file\n"
+"you need a version of pcb which is >= %d.  If you are\n"
+"using a version built from git source, the source date\n"
+"must be >= %d.  This copy of pcb can only read files\n"
+"up to file version %d.\n"
+msgstr ""
 
 #: ../src/pcb-menu.res:33
 msgid "Save layout"
@@ -4494,18 +6078,6 @@ msgstr "Вытяжка под 90°"
 msgid "SimpleOpts"
 msgstr "Простая оптимизация"
 
-#: ../src/pcb-menu.res:340
-msgid "Report net length"
-msgstr "Отчёт о длине соединения"
-
-#: ../src/pcb-menu.res:340
-msgid "R"
-msgstr "R"
-
-#: ../src/pcb-menu.res:340
-msgid "<Key>r"
-msgstr "<Key>r"
-
 #: ../src/pcb-menu.res:418
 msgid "Alt-Z"
 msgstr "Alt-Z"
@@ -4585,7 +6157,7 @@ msgstr ""
 "неотрассированные соединения, или отключённые соединения\n"
 "в списке соединений, или отсутствующие компоненты\n"
 
-#: ../src/rats.c:915 ../src/rats.c:935
+#: ../src/rats.c:915 ../src/rats.c:934
 msgid "No pad/pin under rat line\n"
 msgstr "Под линией соединения нет площадки/вывода\n"
 
@@ -4593,21 +6165,297 @@ msgstr "Под линией соединения нет площадки/выв�
 msgid "You must name the starting element first\n"
 msgstr "Сначала нужно указать название начального элемента\n"
 
-#: ../src/rats.c:941
+#: ../src/rats.c:940
 msgid "You must name the ending element first\n"
 msgstr "Сначала нужно указать название конечного элемента\n"
 
-#: ../src/rats.c:955
+#: ../src/rats.c:953
 msgid "Both connections already in netlist - cannot merge nets\n"
 msgstr "Оба соединения уже в списке соединений — невозможно объединить\n"
 
-#: ../src/report.c:498
+#: ../src/report.c:94
+#, c-format
+msgid ""
+"There are %d different drill sizes used in this layout, %d holes total\n"
+"\n"
+"Drill Diam. (%s)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n"
+msgstr ""
+
+#. create dialog box
+#: ../src/report.c:122
+msgid "Drill Report"
+msgstr ""
+
+#: ../src/report.c:129
+msgid "ReportDialog()"
+msgstr ""
+
+#: ../src/report.c:132
+#, fuzzy
+msgid "Report on the object under the crosshair"
+msgstr "Под курсором ничего не найдено\n"
+
+#: ../src/report.c:166
+msgid ""
+"%m+VIA ID# %ld; Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"It is a pure hole of diameter %$mS.\n"
+"Name = \"%s\".%s"
+msgstr ""
+
+#: ../src/report.c:172 ../src/report.c:190 ../src/report.c:221
+#: ../src/report.c:241 ../src/report.c:269 ../src/report.c:327
+#: ../src/report.c:355 ../src/report.c:405 ../src/report.c:439
+#: ../src/report.c:480
+msgid "It is LOCKED.\n"
+msgstr ""
+
+#: ../src/report.c:174
+msgid ""
+"%m+VIA ID# %ld;  Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"Copper width = %$mS. Drill width = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"Annulus = %$mS.\n"
+"Solder mask hole = %$mS (gap = %$mS).\n"
+"Name = \"%s\".%s"
+msgstr ""
+
+#: ../src/report.c:214
+msgid ""
+"%m+PIN ID# %ld; Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"It is a mounting hole. Drill width = %$mS.\n"
+"It is owned by element %$mS.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:224
+msgid ""
+"%m+PIN ID# %ld;  Flags:%s\n"
+"(X,Y) = %$mD.\n"
+"Copper width = %$mS. Drill width = %$mS.\n"
+"Clearance width to Polygon = %$mS.\n"
+"Annulus = %$mS.\n"
+"Solder mask hole = %$mS (gap = %$mS).\n"
+"Name = \"%s\".\n"
+"It is owned by element %s\n"
+" as pin number %s.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:256
+msgid ""
+"%m+LINE ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD, ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD, ID = %ld.\n"
+"Width = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"It is on layer %d\n"
+"and has name \"%s\".\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:283
+msgid ""
+"%m+RAT-LINE ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld; connects to layer group %d.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld; connects to layer group %d.\n"
+msgstr ""
+
+#: ../src/report.c:310
+msgid ""
+"%m+ARC ID# %ld;  Flags:%s\n"
+"CenterPoint(X,Y) = %$mD.\n"
+"Radius = %$mS, Thickness = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"StartAngle = %ma degrees, DeltaAngle = %ma degrees.\n"
+"Bounding Box is %$mD, %$mD.\n"
+"That makes the end points at %$mD and %$mD.\n"
+"It is on layer %d.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:343
+msgid ""
+"%m+POLYGON ID# %ld;  Flags:%s\n"
+"Its bounding box is %$mD %$mD.\n"
+"It has %d points and could store %d more\n"
+"  without using more memory.\n"
+"It has %d holes and resides on layer %d.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:382
+msgid ""
+"%m+PAD ID# %ld;  Flags:%s\n"
+"FirstPoint(X,Y)  = %$mD; ID = %ld.\n"
+"SecondPoint(X,Y) = %$mD; ID = %ld.\n"
+"Width = %$mS.  Length = %$mS.\n"
+"Clearance width in polygons = %$mS.\n"
+"Solder mask = %$mS x %$mS (gap = %$mS).\n"
+"Name = \"%s\".\n"
+"It is owned by SMD element %s\n"
+"  as pin number %s and is on the %s\n"
+"side of the board.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:404 ../src/report.c:438
+#, fuzzy
+msgid "solder (bottom)"
+msgstr "маска"
+
+#: ../src/report.c:404 ../src/report.c:438
+msgid "component"
+msgstr "компонент"
+
+#: ../src/report.c:419
+msgid ""
+"%m+ELEMENT ID# %ld;  Flags:%s\n"
+"BoundingBox %$mD %$mD.\n"
+"Descriptive Name \"%s\".\n"
+"Name on board \"%s\".\n"
+"Part number name \"%s\".\n"
+"It is %$mS tall and is located at (X,Y) = %$mD %s.\n"
+"Mark located at point (X,Y) = %$mD.\n"
+"It is on the %s side of the board.\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:436
+msgid ""
+",\n"
+"  but it's hidden"
+msgstr ""
+
+#: ../src/report.c:465
+#, c-format
+msgid "It is on layer %d."
+msgstr ""
+
+#: ../src/report.c:467
+msgid ""
+"%m+TEXT ID# %ld;  Flags:%s\n"
+"Located at (X,Y) = %$mD.\n"
+"Characters are %$mS tall.\n"
+"Value is \"%s\".\n"
+"Direction is %d.\n"
+"The bounding box is %$mD %$mD.\n"
+"%s\n"
+"%s"
+msgstr ""
+
+#: ../src/report.c:479
+#, fuzzy
+msgid "It is an element name."
+msgstr "Название отображаемого элемента"
+
+#: ../src/report.c:487
+msgid ""
+"%m+POINT ID# %ld.\n"
+"Located at (X,Y) = %$mD.\n"
+"It belongs to a %s on layer %d.\n"
+msgstr ""
+
+#: ../src/report.c:492
+#, fuzzy
+msgctxt "report"
+msgid "line"
+msgstr "соединения"
+
+#: ../src/report.c:492
+#, fuzzy
+msgctxt "report"
+msgid "polygon"
+msgstr "Полигон"
+
+#: ../src/report.c:501
+#, fuzzy, c-format
+msgid "Unknown\n"
+msgstr "Неизвестный жест %s\n"
+
+#: ../src/report.c:507
 msgid "Nothing found to report on\n"
 msgstr "Для отчёта ничего не найдено\n"
+
+#. create dialog box
+#: ../src/report.c:511 ../src/report.c:553
+msgid "Report"
+msgstr ""
+
+#: ../src/report.c:524
+msgid "The following pins/pads are FOUND:\n"
+msgstr ""
+
+#: ../src/report.c:531 ../src/report.c:543
+#, c-format
+msgid "%s-%s,%c"
+msgstr ""
+
+#: ../src/report.c:683 ../src/report.c:784 ../src/report.c:937
+msgid "%$m*"
+msgstr ""
+
+#: ../src/report.c:684
+#, c-format
+msgid "Net %s length %s\n"
+msgstr ""
+
+#: ../src/report.c:719
+#, fuzzy
+msgid "No net under cursor.\n"
+msgstr "Переместить курсор."
+
+#: ../src/report.c:736 ../src/report.c:761
+msgid "-"
+msgstr ""
+
+#: ../src/report.c:786 ../src/report.c:939
+#, c-format
+msgid "Net \"%s\" length: %s\n"
+msgstr ""
+
+#: ../src/report.c:788 ../src/report.c:941
+#, c-format
+msgid "Net length: %s\n"
+msgstr ""
+
+#: ../src/report.c:899
+#, fuzzy, c-format
+msgid "No net named %s\n"
+msgstr "Нет слоя с названием %s\n"
+
+#: ../src/report.c:928
+msgid "Net found, but no lines or arcs were flagged.\n"
+msgstr ""
+
+#: ../src/report.c:930
+msgid "Net not found.\n"
+msgstr ""
+
+#: ../src/report.c:953
+msgid "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])"
+msgstr ""
+
+#: ../src/report.c:955
+msgid "Produce various report."
+msgstr ""
+
+#: ../src/report.c:993 ../src/report.c:1014
+#, fuzzy
+msgid "Click on an object"
+msgstr "Щёлкните на соединении"
 
 #: ../src/set.c:261
 msgid "That mode is NOT allowed when drawing ratlines!\n"
 msgstr "Этот режим недопустим при создании соединений!\n"
+
+#: ../src/smartdisperse.c:197
+#, fuzzy
+msgid "Can't use SmartDisperse because no netlist is loaded.\n"
+msgstr ""
+"Невозможно добавить соединения, так как список соединений не загружен.\n"
 
 #: ../src/toporouter.c:1121
 #, c-format
@@ -4626,7 +6474,7 @@ msgstr ""
 #. *     have to cast to Coord, which might overflow for complex routing when
 #. *     PCB is built with Coord as a 32-bit integer.
 #.
-#: ../src/toporouter.c:6508
+#: ../src/toporouter.c:6508 ../src/toporouter.c:6509
 #, c-format
 msgid "Wiring cost: %f inches\n"
 msgstr "Оценка соединений: %f дюймов\n"
@@ -4645,23 +6493,51 @@ msgstr "Осталось %d соединений\n"
 msgid "%d -> "
 msgstr "%d -> "
 
-#: ../src/toporouter.c:7489
+#: ../src/toporouter.c:7489 ../src/toporouter.c:7490
 #, c-format
 msgid "RUBIX router: %d nets remaining\n"
 msgstr "Трассировщик RUBIX: осталось %d соединений\n"
 
-#: ../src/toporouter.c:7573
+#: ../src/toporouter.c:7571
 msgid "Topological Autorouter\n"
 msgstr "Топологический автотрассировщик\n"
 
-#: ../src/toporouter.c:7574
+#: ../src/toporouter.c:7572
 #, c-format
 msgid "Started %s"
 msgstr "Начало %s"
 
-#: ../src/toporouter.c:7575
+#: ../src/toporouter.c:7573
 msgid "-------------------------------------\n"
 msgstr "-------------------------------------\n"
+
+#: ../src/toporouter.c:7748
+#, fuzzy
+msgid "Select a set of pads"
+msgstr "Выбрать кратчайшее соединение"
+
+#: ../src/toporouter.c:7749
+msgid "Pad escape"
+msgstr ""
+
+#: ../src/toporouter.c:7749
+#, fuzzy
+msgid "Escape()"
+msgstr "<Key>Escape"
+
+#: ../src/toporouter.c:7750
+#, fuzzy
+msgid "Select net(s)"
+msgstr "Выберите объект"
+
+#: ../src/toporouter.c:7751
+#, fuzzy
+msgid "Topological autorouter"
+msgstr "Топологический автотрассировщик\n"
+
+#: ../src/toporouter.c:7751
+msgid "Toporouter()"
+msgstr ""
 
 #: ../src/undo.c:221
 #, c-format
@@ -4719,6 +6595,65 @@ msgid ""
 msgstr ""
 "ОШИБКА: действия были добавлены с стек отмены с неверным порядковым номером\n"
 
+#. ************************************************************
+#: ../src/vendor.c:104
+msgid "ApplyVendor()"
+msgstr ""
+
+#: ../src/vendor.c:107
+msgid "Applies the currently loaded vendor drill table to the current design."
+msgstr ""
+
+#. ************************************************************
+#: ../src/vendor.c:128
+msgid "ToggleVendor()"
+msgstr ""
+
+#: ../src/vendor.c:131
+msgid "Toggles the state of automatic drill size mapping."
+msgstr ""
+
+#. ************************************************************
+#: ../src/vendor.c:159
+msgid "EnableVendor()"
+msgstr ""
+
+#: ../src/vendor.c:162
+#, fuzzy
+msgid "Enables automatic drill size mapping."
+msgstr "Использовать карту производственных отверстий"
+
+#. ************************************************************
+#: ../src/vendor.c:187
+msgid "DisableVendor()"
+msgstr ""
+
+#: ../src/vendor.c:190
+#, fuzzy
+msgid "Disables automatic drill size mapping."
+msgstr "Использовать карту производственных отверстий"
+
+#. ************************************************************
+#: ../src/vendor.c:213
+msgid "UnloadVendor()"
+msgstr ""
+
+#: ../src/vendor.c:216
+#, fuzzy
+msgid "Unloads the current vendor drill mapping table."
+msgstr "Использовать карту производственных отверстий"
+
+#. ************************************************************
+#: ../src/vendor.c:245
+#, fuzzy
+msgid "LoadVendorFrom(filename)"
+msgstr "Загрузить файл ресурсов производителя"
+
+#: ../src/vendor.c:248
+#, fuzzy
+msgid "Loads the specified vendor resource file."
+msgstr "Загрузить файл ресурсов производителя"
+
 #: ../src/vendor.c:281
 msgid "Load Vendor Resource File..."
 msgstr "Загрузить файл ресурсов производителя..."
@@ -4740,13 +6675,18 @@ msgstr ""
 msgid "Could not load vendor resource file \"%s\"\n"
 msgstr "Невозможно загрузить файл «%s» ресурсов производителя\n"
 
+#: ../src/vendor.c:342
+#, fuzzy, c-format
+msgid "\"%s\" is not a supported units.  Defaulting to inch\n"
+msgstr "«%s» не может быть типом скругления. Используется верхний\n"
+
 #: ../src/vendor.c:355
 msgid "No drillmap resource found\n"
 msgstr "Не найдены ресурсы карты производственных отверстий\n"
 
-#: ../src/vendor.c:373
-#, c-format
-msgid "\"%s\" is not a valid rounding type.  Defaulting to up\n"
+#: ../src/vendor.c:372
+#, fuzzy, c-format
+msgid "\"%s\" is not a valid rounding type. Defaulting to up\n"
 msgstr "«%s» не может быть типом скругления. Используется верхний\n"
 
 #: ../src/vendor.c:404 ../src/vendor.c:420
@@ -4786,10 +6726,10 @@ msgstr "Загружено %d производственных отверсти�
 msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
 msgstr "Пропущено загруженных %d поз.обозн., %d номинал., %d описан.\n"
 
-#: ../src/vendor.c:495
-#, c-format
+#: ../src/vendor.c:494
+#, fuzzy, c-format
 msgid ""
-"Via at %.2f, %.2f not changed.  Possible reasons:\n"
+"Via at %.2f, %.2f not changed. Possible reasons:\n"
 "\t- pad size too small\n"
 "\t- new size would be too large or too small\n"
 msgstr ""
@@ -4802,7 +6742,7 @@ msgstr ""
 msgid "Locked via at %.2f, %.2f not changed.\n"
 msgstr "Заблокированный переход %.2f, %.2f не изменён.\n"
 
-#: ../src/vendor.c:535
+#: ../src/vendor.c:534
 #, c-format
 msgid ""
 "Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
@@ -4815,32 +6755,32 @@ msgstr ""
 "\t- размер площадки слишком мал\n"
 "\t- новый размер будет слишком велик или мал\n"
 
-#: ../src/vendor.c:549
+#: ../src/vendor.c:548
 #, c-format
 msgid "Locked pin at %-6.2f, %-6.2f not changed.\n"
 msgstr "Заблокированный вывод %-6.2f, %-6.2f не изменён.\n"
 
-#: ../src/vendor.c:559
+#: ../src/vendor.c:558
 #, c-format
 msgid "Updated %d drill sizes out of %d total\n"
 msgstr "Изменено %d отверстий из %d\n"
 
-#: ../src/vendor.c:568
+#: ../src/vendor.c:567
 #, c-format
 msgid "Adjusted active via hole size to be %6.2f mils\n"
 msgstr "Изменено текущее переходное отверстие %6.2f мил\n"
 
-#: ../src/vendor.c:582
+#: ../src/vendor.c:580
 #, c-format
 msgid "Adjusted %s routing style via hole size to be %6.2f mils\n"
 msgstr "Для стиля трассировки %s изменено переходное отверстие до %6.2f мил\n"
 
-#: ../src/vendor.c:591
+#: ../src/vendor.c:589
 #, c-format
 msgid "Increased %s routing style via diameter to %6.2f mils\n"
 msgstr "Для стиля трассировки %s увеличено переходное отверстие до %6.2f мил\n"
 
-#: ../src/vendor.c:642
+#: ../src/vendor.c:641
 #, c-format
 msgid ""
 "Vendor drill list does not contain a drill >= %6.2f mil\n"
@@ -4849,65 +6789,79 @@ msgstr ""
 "Список отверстий не содержит отверстия >= %6.2f мил\n"
 "Использую %6.2f мил.\n"
 
-#: ../src/vendor.c:807
+#: ../src/vendor.c:698
+#, c-format
+msgid "realloc() failed to allocate %ld bytes\n"
+msgstr ""
+
+#: ../src/vendor.c:760
+msgid "Error:  null skip value\n"
+msgstr ""
+
+#: ../src/vendor.c:796
+#, c-format
+msgid "realloc() failed\n"
+msgstr ""
+
+#: ../src/vendor.c:806
 #, c-format
 msgid "Ignored resource type = %d in skips= section\n"
 msgstr "Пропущен ресурс типа = %d из раздела skips=\n"
 
-#: ../src/vendor.c:830
+#: ../src/vendor.c:828
 #, c-format
 msgid "Vendor mapping skipped because refdes = %s matches %s\n"
 msgstr ""
 "Пропущено применение карты производственных отверстий,\n"
 "так как refdes = %s совпадает с %s\n"
 
-#: ../src/vendor.c:842
+#: ../src/vendor.c:840
 #, c-format
 msgid "Vendor mapping skipped because value = %s matches %s\n"
 msgstr ""
 "Пропущено применение карты производственных отверстий,\n"
 "так как value = %s совпадает с %s\n"
 
-#: ../src/vendor.c:857
+#: ../src/vendor.c:855
 #, c-format
 msgid "Vendor mapping skipped because descr = %s matches %s\n"
 msgstr ""
 "Пропущено применение карты производственных отверстий,\n"
 "так как descr = %s совпадает с %s\n"
 
-#: ../src/vendor.c:865
+#: ../src/vendor.c:864
 #, c-format
 msgid "Vendor mapping skipped because element %s is locked\n"
 msgstr ""
 "Пропущено применение карты производственных отверстий,\n"
 "так как элемент %s заблокирован\n"
 
-#~ msgid "Command to use for printing"
-#~ msgstr "Команда используемая для печати"
+#: ../src/vendor.c:933
+#, fuzzy
+msgid "re_exec error\n"
+msgstr "Ошибка regexp: %s\n"
 
-#~ msgid "Postscript print"
-#~ msgstr "Печать Postscript"
+#~ msgid ""
+#~ "Process specifications dictate a minimum silkscreen feature-width\n"
+#~ "that can reliably be reproduced"
+#~ msgstr ""
+#~ "Технологический процесс определяет минимальную толщину шёлкографии,\n"
+#~ "которая может быть нанесена"
 
-#~ msgid "psfile"
-#~ msgstr "файл PS"
+#~ msgid ""
+#~ "\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"
+#~ msgstr ""
+#~ "\tПереключить, установить или убрать термобарьеры (на текущем слое) для "
+#~ "выводов или переходов.\n"
 
-#~ msgid "Postscript output file"
-#~ msgstr "Выходной файл Postscript"
+#~ msgid "<small>Enter a \""
+#~ msgstr "<small>Введите \""
 
-#~ msgid "drill-helper"
-#~ msgstr "вспомогательные отверстия"
+#~ msgid "Group #"
+#~ msgstr "Группа №"
 
-#~ msgid "align-marks"
-#~ msgstr "маркеры"
-
-#~ msgid "Print alignment marks on each sheet"
-#~ msgstr "Печатать макреры выравнивания на каждой странице"
-
-#~ msgid "mirror"
-#~ msgstr "отразить"
-
-#~ msgid "Print mirror image of every page"
-#~ msgstr "Печатать изображение отражённым на каждой странице"
+#~ msgid "silk"
+#~ msgstr "шёлкография"
 
 #~ msgid "Don't combine metric/English grids like that!\n"
 #~ msgstr "Не объединяйте таким образом метрические и дюймовые сетки!\n"
@@ -4979,9 +6933,6 @@ msgstr ""
 
 #~ msgid "solder side"
 #~ msgstr "сторона пайки"
-
-#~ msgid "component"
-#~ msgstr "компонент"
 
 #~ msgid "<b>mm</b> "
 #~ msgstr "<b>мм</b> "
@@ -5081,32 +7032,15 @@ msgstr ""
 #~ msgid "Rip-up selected auto-routed tracks"
 #~ msgstr "Разорвать выбранные автотрассированные трассы"
 
-#~ msgid ""
-#~ "This is PCB, an interactive\n"
-#~ "printed circuit board editor\n"
-#~ "version "
-#~ msgstr ""
-#~ "PCB - интерактивный редактор печатных плат\n"
-#~ "версия "
-
 #~ msgid "Compiled on "
 #~ msgstr "Дата сборки "
 
 #~ msgid " at "
 #~ msgstr " в "
 
-#~ msgid "GUI:\n"
-#~ msgstr "Графический пользовательский интерфейс:\n"
-
-#~ msgid "Exporters:\n"
-#~ msgstr "Экспорт:\n"
-
-#~ msgid "Printers:\n"
-#~ msgstr "Принтеры:\n"
-
 #~ msgid ""
-#~ "(Please measure ONE of the horizontal lines, in the units indicated for)"
-#~ "t\n"
+#~ "(Please measure ONE of the horizontal lines, in the units indicated "
+#~ "for)t\n"
 #~ msgstr ""
 #~ "(Измерьте ОДНУ из горизонтальных линий в указанных единицах изменения)t\n"
 
