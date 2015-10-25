@@ -38,17 +38,17 @@
 #include "hid_draw.h"
 
 /*#include "clip.h"*/
-#include "compat.h"
-#include "crosshair.h"
+//#include "compat.h"
+//#include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "mymem.h"
+//#include "mymem.h"
 #include "misc.h"
 #include "rotate.h"
 #include "rtree.h"
-#include "search.h"
-#include "select.h"
+//#include "search.h"
+//#include "select.h"
 #include "print.h"
 
 #if HAVE_LIBDMALLOC
@@ -56,7 +56,7 @@
 #endif
 
 #undef NDEBUG
-#include <assert.h>
+//#include <assert.h>
 
 #ifndef MAXINT
 #define MAXINT (((unsigned int)(~0))>>1)
@@ -553,16 +553,17 @@ DrawEverything (const BoxType *drawn_area)
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
 
   memset (do_group, 0, sizeof (do_group));
-  for (ngroups = 0, i = 0; i < max_copper_layer; i++)
-    {
-      LayerType *l = LAYER_ON_STACK (i);
-      int group = GetLayerGroupNumberByNumber (LayerStack[i]);
-      if (l->On && !do_group[group])
-	{
-	  do_group[group] = 1;
-	  drawn_groups[ngroups++] = group;
-	}
+  for (ngroups = 0, i = 0; i < max_copper_layer; i++) {
+
+    LayerType *l = LAYER_ON_STACK (i);
+    int group    = GetLayerGroupNumberByNumber (LayerStack[i]);
+
+    if (l->On && !do_group[group]) {
+
+      do_group[group] = 1;
+      drawn_groups[ngroups++] = group;
     }
+  }
 
   top_group = GetLayerGroupNumberBySide (TOP_SIDE);
   bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
@@ -600,10 +601,11 @@ DrawEverything (const BoxType *drawn_area)
     return;
 
   /* Draw pins, pads, vias below silk */
-  if (gui->gui)
+  if (gui->gui) {
     DrawPPV (SWAP_IDENT ? bottom_group : top_group, drawn_area);
-  else
-    {
+  }
+  else {
+
       CountHoles (&plated, &unplated, drawn_area);
 
       if (plated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
@@ -727,11 +729,11 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
    * This provides a nice visual indication that it is locked that
    * works even for color blind users.
    */
-  if (TEST_FLAG (LOCKFLAG, e) )
-    {
+  if (TEST_FLAG (LOCKFLAG, e) ) {
+
       gui->graphics->draw_line (Output.fgGC, X, Y, X + 2 * mark_size, Y);
       gui->graphics->draw_line (Output.fgGC, X, Y, X, Y - 4* mark_size);
-    }
+  }
 }
 
 /*!
@@ -745,43 +747,47 @@ DrawPPV (int group, const BoxType *drawn_area)
   int bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
   int side;
 
-  if (PCB->PinOn || !gui->gui)
-    {
+  if (PCB->PinOn || !gui->gui) {
+
       /* draw element pins */
       r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
 
       /* draw element pads */
-      if (group == top_group)
-        {
+      if (group == top_group) {
+
           side = TOP_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
         }
 
-      if (group == bottom_group)
-        {
+      if (group == bottom_group) {
+
           side = BOTTOM_SIDE;
           r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
         }
     }
 
   /* draw vias */
-  if (PCB->ViaOn || !gui->gui)
-    {
+  if (PCB->ViaOn || !gui->gui) {
+
       r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
-    }
-  if (PCB->PinOn || doing_assy)
+  }
+
+  if (PCB->PinOn || doing_assy) {
     r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
+  }
 }
 
 static int
 clearPin_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
+
   if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
     gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
   else
     gui->graphics->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+
   return 1;
 }
 
