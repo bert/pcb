@@ -979,17 +979,18 @@ ChangeViaName (PinType *Via)
 static void *
 ChangePinName (ElementType *Element, PinType *Pin)
 {
-  char *old = Pin->Name;
+  char **pin_n_or_v=(TEST_FLAG (SHOWNUMBERFLAG, PCB))?&(Pin->Number):&(Pin->Name);
+  char *old = *pin_n_or_v;
 
   (void) Element;		/* get rid of 'unused...' warnings */
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     {
       ErasePinName (Pin);
-      Pin->Name = NewName;
+      *pin_n_or_v = NewName;
       DrawPinName (Pin);
     }
   else
-    Pin->Name = NewName;
+    *pin_n_or_v = NewName;
   return (old);
 }
 
@@ -999,17 +1000,18 @@ ChangePinName (ElementType *Element, PinType *Pin)
 static void *
 ChangePadName (ElementType *Element, PadType *Pad)
 {
-  char *old = Pad->Name;
+  char **pad_n_or_v=(TEST_FLAG (SHOWNUMBERFLAG, PCB))?&(Pad->Number):&(Pad->Name);
+  char *old = *pad_n_or_v;
 
   (void) Element;		/* get rid of 'unused...' warnings */
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     {
       ErasePadName (Pad);
-      Pad->Name = NewName;
+      *pad_n_or_v = NewName;
       DrawPadName (Pad);
     }
   else
-    Pad->Name = NewName;
+    *pad_n_or_v = NewName;
   return (old);
 }
 
@@ -2459,6 +2461,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   char *name = NULL;
   char msg[513];
+  static char *element_prompts[]={"Element description:", "Element name:", "Element value:" };
 
   /* if passed an element name, make it an element reference instead */
   if (Type == ELEMENTNAME_TYPE)
@@ -2480,13 +2483,25 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       break;
 
     case PIN_TYPE:
-      sprintf (msg, _("%s Pin Name:"), EMPTY (((PinType *) Ptr2)->Number));
-      name = gui->prompt_for (msg, EMPTY (((PinType *) Ptr2)->Name));
+      if (TEST_FLAG (SHOWNUMBERFLAG, PCB))
+      {
+        sprintf (msg, _("%s Pin Number:"), EMPTY (((PinType *) Ptr2)->Number));
+        name = gui->prompt_for (msg, EMPTY (((PinType *) Ptr2)->Number));
+      } else {
+        sprintf (msg, _("%s Pin Name:"), EMPTY (((PinType *) Ptr2)->Number));
+        name = gui->prompt_for (msg, EMPTY (((PinType *) Ptr2)->Name));
+      }
       break;
 
     case PAD_TYPE:
-      sprintf (msg, _("%s Pad Name:"), EMPTY (((PadType *) Ptr2)->Number));
-      name = gui->prompt_for (msg, EMPTY (((PadType *) Ptr2)->Name));
+      if (TEST_FLAG (SHOWNUMBERFLAG, PCB))
+      {
+        sprintf (msg, _("%s Pad Number:"), EMPTY (((PadType *) Ptr2)->Number));
+        name = gui->prompt_for (msg, EMPTY (((PadType *) Ptr2)->Number));
+      } else {
+        sprintf (msg, _("%s Pad Name:"), EMPTY (((PadType *) Ptr2)->Number));
+        name = gui->prompt_for (msg, EMPTY (((PadType *) Ptr2)->Name));
+      }
       break;
 
     case TEXT_TYPE:
@@ -2495,7 +2510,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       break;
 
     case ELEMENT_TYPE:
-      name = gui->prompt_for (_("Elementname:"),
+      name = gui->prompt_for (gettext(element_prompts[NAME_INDEX(PCB)]),
 			      EMPTY (ELEMENT_NAME
 				     (PCB, (ElementType *) Ptr2)));
       break;
