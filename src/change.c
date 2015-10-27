@@ -128,6 +128,7 @@ static void *ChangePolyClear (LayerType *, PolygonType *);
 static int Delta;		/* change of size */
 static int Absolute;		/* Absolute size */
 static char *NewName;		/* new name */
+static int NewNameIndex;	/* new name index*/
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
   ChangeTextSize,
@@ -979,11 +980,11 @@ ChangeViaName (PinType *Via)
 static void *
 ChangePinName (ElementType *Element, PinType *Pin)
 {
-  char **pin_n_or_v=(TEST_FLAG (SHOWNUMBERFLAG, PCB))?&(Pin->Number):&(Pin->Name);
+  char **pin_n_or_v=(NewNameIndex)?&(Pin->Number):&(Pin->Name);
   char *old = *pin_n_or_v;
 
   (void) Element;		/* get rid of 'unused...' warnings */
-  if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
+  if (TEST_FLAG (DISPLAYNAMEFLAG, Pin) && NewNameIndex == TEST_FLAG (SHOWNUMBERFLAG, PCB))
     {
       ErasePinName (Pin);
       *pin_n_or_v = NewName;
@@ -1000,11 +1001,11 @@ ChangePinName (ElementType *Element, PinType *Pin)
 static void *
 ChangePadName (ElementType *Element, PadType *Pad)
 {
-  char **pad_n_or_v=(TEST_FLAG (SHOWNUMBERFLAG, PCB))?&(Pad->Number):&(Pad->Name);
+  char **pad_n_or_v=(NewNameIndex)?&(Pad->Number):&(Pad->Name);
   char *old = *pad_n_or_v;
 
   (void) Element;		/* get rid of 'unused...' warnings */
-  if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
+  if (TEST_FLAG (DISPLAYNAMEFLAG, Pad) && NewNameIndex == TEST_FLAG (SHOWNUMBERFLAG, PCB))
     {
       ErasePadName (Pad);
       *pad_n_or_v = NewName;
@@ -1079,7 +1080,7 @@ ChangeElementName (ElementType *Element)
 	}
     }
 
-  return ChangeElementText (PCB, PCB->Data, Element, NAME_INDEX (PCB), NewName);
+  return ChangeElementText (PCB, PCB->Data, Element, NewNameIndex, NewName);
 }
 
 /*!
@@ -2285,11 +2286,12 @@ ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  * \return The old name.
  */
 void *
-ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
+ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name, int idx)
 {
   void *result;
   /* setup identifier */
   NewName = Name;
+  NewNameIndex = idx;
   result = ObjectOperation (&ChangeNameFunctions, Type, Ptr1, Ptr2, Ptr3);
   Draw ();
   return (result);
@@ -2462,6 +2464,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   char *name = NULL;
   char msg[513];
   static char *element_prompts[]={"Element description:", "Element name:", "Element value:" };
+  int idx = 0;
 
   /* if passed an element name, make it an element reference instead */
   if (Type == ELEMENTNAME_TYPE)
@@ -2491,6 +2494,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
         sprintf (msg, _("%s Pin Name:"), EMPTY (((PinType *) Ptr2)->Number));
         name = gui->prompt_for (msg, EMPTY (((PinType *) Ptr2)->Name));
       }
+      idx = TEST_FLAG (SHOWNUMBERFLAG, PCB);
       break;
 
     case PAD_TYPE:
@@ -2502,6 +2506,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
         sprintf (msg, _("%s Pad Name:"), EMPTY (((PadType *) Ptr2)->Number));
         name = gui->prompt_for (msg, EMPTY (((PadType *) Ptr2)->Name));
       }
+      idx = TEST_FLAG (SHOWNUMBERFLAG, PCB);
       break;
 
     case TEXT_TYPE:
@@ -2513,15 +2518,16 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       name = gui->prompt_for (gettext(element_prompts[NAME_INDEX(PCB)]),
 			      EMPTY (ELEMENT_NAME
 				     (PCB, (ElementType *) Ptr2)));
+      idx = NAME_INDEX(PCB);
       break;
     }
   if (name)
     {
       /* NB: ChangeObjectName takes ownership of the passed memory */
-      char *old = (char *)ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
+      char *old = (char *)ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name, idx);
       if (old != (char *) -1)
 	{
-	  AddObjectToChangeNameUndoList (Type, Ptr1, Ptr2, Ptr3, old);
+	  AddObjectToChangeNameUndoList (Type, Ptr1, Ptr2, Ptr3, old, idx);
 	  IncrementUndoSerialNumber ();
 	}
       Draw ();

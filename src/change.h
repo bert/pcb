@@ -108,7 +108,7 @@ bool ClrObjectSquare (int, void *, void *, void *);
 bool ChangeObjectOctagon (int, void *, void *, void *);
 bool SetObjectOctagon (int, void *, void *, void *);
 bool ClrObjectOctagon (int, void *, void *, void *);
-void *ChangeObjectName (int, void *, void *, void *, char *);
+void *ChangeObjectName (int, void *, void *, void *, char *, int);
 void *QueryInputAndChangeObjectName (int, void *, void *, void *);
 void ChangePCBSize (Coord, Coord);
 char *ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element,

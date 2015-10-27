@@ -3572,10 +3572,10 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
 					     element_list[i],
 					     NAMEONPCB_NAME (element_list
-							     [i]));
+							     [i]), NAMEONPCB_INDEX);
 
 	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
-				tmps);
+				tmps, NAMEONPCB_INDEX);
 	      changed = true;
 
 	      /* we don't free tmps in this case because it is used */
@@ -4577,7 +4577,7 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
 	  if (NSTRCMP (pinnum, pin->Number) == 0)
 	    {
 	      AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL,
-					     pin, pin->Name);
+					     pin, pin->Name, 0);
 	      /*
 	       * Note:  we can't free() pin->Name first because 
 	       * it is used in the undo list
@@ -4594,7 +4594,7 @@ ActionChangePinName (int argc, char **argv, Coord x, Coord y)
 	  if (NSTRCMP (pinnum, pad->Number) == 0)
 	    {
 	      AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL,
-					     pad, pad->Name);
+					     pad, pad->Name, 0);
 	      /* 
 	       * Note:  we can't free() pad->Name first because 
 	       * it is used in the undo list
