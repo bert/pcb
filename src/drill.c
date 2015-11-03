@@ -1,31 +1,36 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/drill.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief .
  *
- *  This module, drill.c, was written and is Copyright (C) 1997 harry eaton
+ * <hr>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * PCB, interactive printed circuit board design
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * This module, drill.c, was written and is Copyright (C) 1997 harry eaton
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -210,10 +215,34 @@ GetDrillInfo (DataType *top)
 
 #define ROUND(x,n) ((int)(((x)+(n)/2)/(n))*(n))
 
+/*
+  Currently unused. Was used in ReportDrills() in report.c and in PrintFab()
+  in print.c (generation of the Gerber fab file), but not when generating the
+  actual CNC files, so the number of drills in the drill report and in the
+  CNC file could differ. This was confusing.
+*/
+
+/*!
+  \brief Join similar sized drill sets.
+
+  \param d Set of all drills to look at, in subsets for each drill size.
+
+  \param roundto Rounding error. Drills differing less than this value are
+  considered to be of the pame size and joined into a common set.
+
+  \note In case of hits the number of drill sets changes, so the number of
+  distinct drill sizes changes as well. This can be confusing if
+  RoundDisplayInfo() is used for one kind of display/output, but not for others.
+*/
 void
 RoundDrillInfo (DrillInfoType *d, int roundto)
 {
   unsigned int i = 0;
+
+  /* round in the case with only one drill, too */
+  if (d->DrillN == 1) {
+    d->Drill[0].DrillSize = ROUND (d->Drill[0].DrillSize, roundto);
+  }
 
   while ((d->DrillN > 0) && (i < d->DrillN - 1))
     {
