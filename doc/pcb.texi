@@ -2493,18 +2493,35 @@ the trace optimizer.
 
 @cindex user commands
 @cindex entering user commands
-The entering of user-commands is initiated by the action routine
-@emph{Command()} (normally bound to the @code{(":")} character) which
-replaces the bottom statusline with an input area or opens a separate
-command window.  It is finished by either @emph{<Key>Return} or
-@emph{<Key>Escape} to confirm or to abort. These two key-bindings
-cannot be changed from the resource file.  The triggering event,
-normally a key press, is ignored.
+The entering of user-commands is initiated by selecting @emph{Command entry}
+in the menu or typing a @code{(":")}. This runs the action routine
+@emph{Command()}, which replaces the bottom statusline with an input area or
+opens a separate command window.  Error and diagnostic messages go to the
+Message Log, so it's a good idea to have this window open as well.  Command
+entry is finished by either @emph{<Key>Return} or @emph{<Key>Escape} to confirm
+or to abort.
 
 Commands can be entered in one of two styles, command entry syntax:
-``@emph{Command arg1 arg2}'' or action script syntax ``@emph{Action1(arg1,
-arg2); Action2(arg1, arg2);}''.  Quoting arguments works similar to
-bash quoting:
+
+@example
+Command arg1 arg2
+@end example
+
+or action script syntax:
+
+@example
+Action1(arg1, arg2); Action2(arg1, arg2);
+@end example
+
+To find out about how a command works, use the argument @emph{usage}:
+
+@example
+SaveTo usage
+@end example
+
+There is a command for usage of the complete set of commands.
+
+Quoting arguments works similar to bash quoting:
 
 @itemize
 @item A backslash (\) is the escape character.  It preserves the literal
@@ -2520,94 +2537,23 @@ all characters within the quotes, with the exception of '\' which
 maintains its special meaning as an escape character.
 @end itemize
 
-There are simple @emph{usage} dialogs for each command and one for the
-complete set of commands.
+Action commands allow you to initiate actions which are not bound to any menu
+item.  They can be used to initiate any action with whatever arguments you
+enter.  For example, to change the drilling hole diameter of all vias in the
+layout to 32 mils, you could select everything using the selection menu, then
+type:
+@example
+:ChangeDrillSize(SelectedVias, 32mil)
+@end example
 
-@table @samp
+Another example might be to set the grid to 2.5 mil by typing:
+@example
+:SetValue(Grid, 2.5mil)
+@end example
 
-@findex :l
-@cindex loading layouts
-@cindex layout, loading a
-@item l [filename]
-Loads a new datafile (layout) and, if confirmed, overwrites any existing unsaved data.
-The filename and the searchpath (@emph{filePath}) are passed to the
-command defined by @emph{fileCommand}.
-If no filename is specified a file select box will popup.
-
-@findex :le
-@cindex loading elements to buffer
-@cindex element, loading to buffer
-@item le [filename]
-Loads an element description into the paste buffer.
-The filename and the searchpath (@emph{elementPath}) are passed to the
-command defined by @emph{elementCommand}.
-If no filename is specified a file select box will popup.
-
-@findex :m
-@cindex loading a layout to buffer
-@cindex merging layouts
-@cindex layout, loading to buffer
-@cindex layout, merging a
-@item m [filename]
-Loads an layout file into the paste buffer.
-The filename and the searchpath (@emph{filePath}) are passed to the
-command defined by @emph{fileCommand}.
-If no filename is specified a file select box will popup.
-
-@findex :q
-@cindex exit
-@cindex quit
-@item q[!]
-Quits the program without saving any data (after confirmation).
-q! doesn't ask for confirmation, it just quits.
-
-@findex :s
-@cindex saving layouts
-@cindex layout files, saving of
-@item s [filename]
-Data and the filename are passed to the command defined by the resource
-@emph{saveCommand}. It must read the layout data from @emph{stdin}.
-If no filename is entered, either the last one is used
-again or, if it is not available, a file select box will pop up.
-
-@findex :rn
-@cindex rat's nest
-@cindex layout-name
-@item rn [filename]
-Reads in a netlist file.  If no filename is given
-a file select box will pop up.
-The file is read via the command defined by the
-@emph{RatCommand} resource. The command must send its output to @emph{stdout}.
-
-Netlists are used for generating rat's nests (see @ref{Rats Nest}) and for
-verifying the board layout (which is also accomplished by the @emph{Ratsnest}
-command).
-
-@findex :w[q]
-@cindex saving layouts
-@cindex layout files, saving of
-@item w[q] [filename]
-These commands have been added for the convenience of @code{vi} users and
-have the same functionality as @emph{s} combined with @emph{q}.
-
-@findex :actionCommand()
-@cindex action command
-@cindex Actions, initiating
-@item actionCommand
-Causes the actionCommand to be executed.  This allows you to initiate actions
-for which no bindings exist in the resource file.  It can be used to initiate any
-action with whatever arguments you enter.  This makes it possible to do things
-that otherwise would be extremely tedious.  For example, to change the drilling
-hole diameter of all vias in the layout to 32 mils, you could select everything using the
-selection menu, then type "@emph{:ChangeDrillSize(SelectedVias, 32)}".  (This will
-only work provided the via's diameter is sufficiently large to accommodate a 32 mil hole).
-Another example might be to set the grid to 1 mil by typing "@emph{:SetValue(Grid, 1)}".
-Note that some actions use the current cursor location, so be sure to place the cursor
-where you want before entering the command.  This is one of my favorite new
-features in 1.5 and can be a powerful tool. Study the @ref{Actions} section to
-see what actions are available.
-
-@end table
+Note that some actions use the current cursor location, so be sure to place
+the cursor where you want before entering the command.  For more actions, see
+the @ref{Actions} section.
 
 
 @c --------------------------- chapter 4 -------------------------------
@@ -4316,6 +4262,7 @@ attachment point.
 A number of user defined Symbols are called a font. There is only one per
 layout. All symbols are made of lines. See the file @file{default_font}
 as an example.
+
 A font file is simply a text file that contains the defined symbols making
 up the font. The font file text can be inserted into a layout file after
 the Styles definition.
@@ -4324,6 +4271,7 @@ If a layout file does not contain a font, component labels will be
 invisible, although component outlines, pins and pads will be visible.
 
 The lowest x and y coordinates of all lines of a font are transformed to (0,0).
+
 Font symbols are typically 4000mil high, and are rendered with SymbolLine
 primitives. Arcs and polygons are not supported in font symbols.
 
@@ -4332,13 +4280,13 @@ A typical symbol:
 @example
 Symbol['"' 1200]
 (
- SymbolLine[0 1000 0 2334 800]
- SymbolLine[1523 1000 1523 2334 800]
+    SymbolLine[0 1000 0 2334 800]
+    SymbolLine[1523 1000 1523 2334 800]
 )
 @end example
 
 In the example above, 1200 indicates the intercharacter spacing required after the
-symbol, in this case the symbol is the double quote '"'. The SymbolLine
+symbol, in this case the symbol is the double quote '"'.  The SymbolLine
 definitions define the lines making up the symbol as @code{[x1 y1 x2 y2
 linewidth]}. Standard height symbols, such as the letter H or N,
 span 1000 to 5000 in the y axis, where 0,0 is at the upper left. Taller symbols,

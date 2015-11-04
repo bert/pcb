@@ -1,0 +1,369 @@
+@comment
+@comment versao pt_BR baseada no md5sum abaixo:
+@comment 8ef029756b3192871f2008121d8432a4  fb-led.texi
+@comment
+@hyphenation{lo-ca-li-za-do}
+@hyphenation{su-ce-t@'i-vel}
+Essa primeira placa ir@'{a} mostrar a voc@^{e} a opera@,{c}@~{a}o b@'{a}sica do @code{pcb}.
+Cada novo comando ou opera@,{c}@~{a}o que @'{e} introduzida ir@'{a} ser descrita em
+detalhes somente da primeira vez.  Muitas opera@,{c}@~{o}es podem ser
+chamadas ou por um menu de op@,{c}@~{a}o, como @mnuu{Arquivo,Sair} para
+selecionar a op@,{c}@~{a}o ``Sair'' no menu ``Arquivo'', ou por uma tecla de
+atalho, como @kbd{Ctrl-Q}.  Quando dizemos @kbd{Ctrl-Q} queremos dizer manter pressionada
+a tecla @key{Ctrl} enquanto d@'{a}-se um toque r@'{a}pido na tecla @key{Q} soltando-se todas as teclas em seguida.  Quando dizemos
+@kbd{Shift-Q} queremos dizer manter pressionada a tecla @key{Shift} enquanto d@'{a}-se um toque r@'{a}pido
+na tecla @key{Q} soltando-se todas as teclas em seguinda.
+
+Por exemplo, a primeira vez descrevermos o comando Sair, iremos dizer,
+``agora sair do @code{pcb} usando o comando Sair (@mnuu{Arquivo,Sair} ou
+@kbd{Ctrl-Q})''.  Qualquer outra vez, apenas diremos ``agora Sair.''
+
+O primeiro passo nesse projeto @'{e} executar o @code{pcb}.  Uma vez que as configurac@~{o}es padronizadas
+do @code{pcb} usam o diret@'{o}rio atual para seus arquivos, @'{e} uma boa
+id@'{e}ia criar um novo subdiret@'{o}rio para esse projeto, entre nesse novo diret@'{o}rio usando o comando @code{cd}
+em uma janela de terminal, e ent@~{a}o execute o pcb a partir da@'{i}:
+
+@center @image{../fb-led-1} @image{../fb-led-2}
+
+Agora @'{e} uma boa hora para praticar aquele comando Sair :-)
+
+Tamb@'{e}m, se voc@^{e} perguntar a algu@'{e}m do @code{pcb} por algo mais, esse algu@'{e}m ir@'{a}
+provavelmene desejar saber qual vers@~{a}o de @code{pcb} e da interface gr@'{a}fica de usu@'{a}rio que voc@^{e} est@'{a} usando.  Para ver isso,
+use o comando Sobre (@mnuu{Janela,Sobre...}).
+
+Note que quando @code{pcb} inicia, cria n@~{a}o somente sua janela principal
+(desenhada acima), mas duas janelas adcionais.  Uma @'{e} a ``Biblioteca
+do PCB'', que iremos falar dela mais tarde, e a outra @'{e} a ``Registro do
+PCB'' que cont@'{e}m todas as mensagens - alertas, erros, etc.  Por
+agora, voc@^{e} pode apenas mover essas duas janelas para um local que n@~{a}o obstrua sua vis@~{a}o da janela principal.  Se voc@^{e} fech@'{a}-las,
+poder@'{a} reabr@'{i}-las usando @mnuu{Janela,Biblioteca} e @mnuu{Janela,Registro de Mensagens}.
+
+Para qualquer placa que voc@^{e} cria, uma das primeiras coisas que voc@^{e} precisa decidir
+sobre essa placa @'{e} o tamanho.  Se voc@^{e} deseja que a placa deve ser ``t@~{a}o
+pequena quanto for poss@'{i}vel ser'', ent@~{a}o voc@^{e} pode criar a placa maior que voc@^{e} precisa e
+mudar o tamanho mais tarde.  Para essa placa exemplo, supostamente - desejamos
+que tenha uma polegada por uma polegada.  Os controles de tamanho da placa est@~{a}o localizados na
+janela de Prefer@^{e}ncias (@mnuu{Arquivo,Prefer@^{e}ncias}), que cont@'{e}m ambas as
+prefer@^{e}ncias espec@'{i}ficas da placa e prefer@^{e}ncias espec@'{i}ficas de usu@'{a}rio.  Desejamos as prefer@^{e}ncias de
+@b{Tamanhos}, ent@~{a}o clique sobre a palavra @b{Tamanhos}.  A janela dever@'{a} parecer-se
+como a seguinte:
+
+@img{../fb-led-3}
+
+N@~{a}o desejamos usar a ``Escala do Texto'' ou  ``Verifica@,{c}@~{a}o das Regras de Desenho'' @footnote{Nota do tradutor: DRC - Design Rule Check.} ainda.  Note que
+as unidades s@~{a}o mils @footnote{Nota do tradutor: mil@'{e}simos de polegada.}, de forma que o tamanho padr@~{a}o da placa @'{e} seis polegadas de largura e
+cinco polegadas de altura.  Mude esses n@'{u}meros para @code{1000.0} cada:
+
+@img{../fb-led-4}
+
+O pr@'{o}ximo passo @'{e} especificar as camadas, esse passo define quantas camadas de cobre
+teremos e os nomes de cada uma.  Selecione as prefer@^{e}ncias de
+@b{Camadas}.  Voc@^{e} ir@'{a} ver tr@^{e}s abas no topo da janela de prefer@^{e}ncias de camadas; clique sobre
+a aba @b{Grupos} para mostrar as prefer@^{e}ncias de camadas de grupo.  Para esse projeto,
+tudo que desejamos fazer @'{e} garantir que a camada de soldagem esteja sobre o lado de
+soldagem, e a camada dos componente esteja no lado do componente.  Clique nas
+caixas para colocar ``soldagem'' e ``lado do topo'' no grupo 1, e
+``aterramento'' e ``lado inferior'' no grupo 2, a seguir clique em @b{OK}:
+@footnote{Nota do tradutor: na primeira vez que @'{e} usado os nomes originais de
+camadas s@~{a}o top, ground, signal2, signal3, power, bottom, outline, spare. 
+Isso pode ser mudado por meio do arquivo ``preferences'', localizado no
+diret@'{o}rio /home/usu@'{a}rio/.pcb. Pode-se usar algo como topo, aterramento, sinal2, sinal3, alimenta@,{c}@~{a}o,
+inferior, linha de sa@'{i}da, reserva.}
+
+@img{../fb-led-6}
+
+Existe alguns ajustes para serem feitos agora, uma vez que eles s@~{a}o
+gravados com a placa.  Primeiramente, vamos habilitar a grade
+(@mnuu{Vis@~{a}o,Habilitar Grade Vis@'{i}vel} se isso j@'{a} n@~{a}o tiver sido feito anteriormente) e ajuste a
+grade em 0.1" ou 100 mil (@mnuuu{Vis@~{a}o,Tamanho da grade,100 mil}).  A grade @'{e}
+desenhada como um campo de pontos pequeninos, que podem serem dif@'{i}ceis de ver sobre nossa placa
+mas ser@~{a}o f@'{a}ceis de ver se houverem muitos deles.  Por exemplo,
+mude para uma grade de 10 mil e note a diferen@,{c}a (lembre-se de
+voltar para os 100 mil).
+
+A seguir, desejamos garantir que quaisquer novas trilhas que criarmos n@~{a}o sejam
+conectada automaticamente a quaisquer pol@'{i}gonos que venhamos a adicionar - por exemplo,
+adicionando um plano de aterramento ou ``preenchimento hemorr@'{a}gico''.  O menu @b{Configura@,{c}@~{o}es} tem
+muitos ajustes, mas por agora, apenas garanta que @b{Novas linhas/arcos
+apagam pol@'{i}gonos} e @b{Mira adere a conectores e pastilhas} estejam
+marcados, e @b{Exigir automaticamente folga DRC} @footnote{Nota do tradutor: designe rule check - verifica regra de desenho.} esteja desmarcada.
+
+Temos configurada nossa placa, @'{e} uma boa hora para grav@'{a}-la.  Use o
+comando Gravar (@mnuu{Arquivo,Gravar}).  Uma vez que essa @'{e} a primeira grava@,{c}@~{a}o,
+voc@^{e} ir@'{a} ser perguntado por um nome de arquivo de tra@,{c}ado.  Chamaremos esse tra@,{c}ado de
+@code{fb-led.pcb} de forma que deve ser digitado isso onde diz @b{Nome} e clique sobre OK.
+Agora que essa sua placa tem um arquivo associado a ela, voc@^{e} pode apenas
+@mnuu{Arquivo,Gravar} sempre que voc@^{e} desejar gravar seu trabalho.
+
+Iniciaremos adicionando o circuito atual.  Esse circuito constar@'{a} de um
+@'{u}nico LED em s@'{e}rie com um resistor, e um conector para bateria.  N@~{a}o
+precisaremos de diagrama esquem@'{a}tico, iremos apenas adicionar componentes e conec@,{c}@~{o}es
+manualmente.  O primeiro passo @'{e} escolher um @emph{estilo de rota} para suas
+novas trilhas.  O canto inferior esquerdo lista quatro estilos de rota
+dispon@'{i}veis.  Garanta que @b{Signal} esteja selecionado, ent@~{a}o clique sobre @b{Estilos de Rota}
+para exibir a janela de estilo de rota.  Iremos usar trilhas claramente
+largas, que s@~{a}o t@'{i}picas de placas simples.  Nessa janela de estilos de rota, ajuste a
+Largura de linha em 20, Tamanho do orif@'{i}cio da via em 36, Tamanho da via em 76, e folga em 20;
+ent@~{a}o clique em @b{OK}:
+
+@center @image{../fb-led-7} @image{../fb-led-8}
+
+O pr@'{o}ximo passo @'{e} adicionar os tr@^{e}s componentes necess@'{a}rios.  Em grandes projetos, esse passo
+ser@'{a} feito por meio de @code{gsch2pcb} mas voc@^{e} precisar@'{a} saber os nomes das matrizes
+para isso.  Encontre a janela de bilbioteca (se voc@^{e} a tiver deixado aberta) ou abra-a
+(caso a tenha fechado anteriormente) com @mnuu{Janela,Biblioteca}.  Clique sobre o tri@^{a}ngulo ao lado
+de @b{pcblib} para abrir a biblioteca pcblib.  Role abaixo at@'{e} a palavra @b{~geda} e
+clique sobre ela, para abrir a biblioteca ~geda.
+
+@center @image{../fb-led-9} @image{../fb-led-10} @image{../fb-led-11}
+
+Quando voc@^{e} traz os componentes para fora da biblioteca, note que existe
+algum texto entre colch@^{e}tes - esse @'{e} o nome da matriz que voc@^{e} precisar@'{a}
+para @code{gsch2pcb}.  Primeiramente precisamos do LED.  Usaremos
+@code{RCY100P} para o LED, que @'{e} um cilindro radial, polarizado, 100
+mil entre os terminais.  Role para baixo at@'{e} encontrar o @code{RCY100P}, e clique sobre ele.  Quando
+voc@^{e} mover o cursor de volta para a janela do @code{pcb} window, voc@^{e} ver@'{a} que o cursor
+agora conduz a linha de sa@'{i}da do componente com ele:
+
+@img{../fb-led-12}
+
+Pressione o bot@~{a}o esquerdo do mouse para colocar um componente sobre a sua placa.  Moveremos
+o componente mais tarde.  Fa@,{c}a o mesmo para uma matriz @code{ACY400} para o
+resistor, e um @code{HEADER2_1} @footnote{Nota do tradutor: o @code{HEADER2_1} refere-se a, por exemplo, um
+conector para jumper com dois terminais do tipo encontrado na placa m@~{a}e de um computador e que s@~{a}o usados para
+conectar o alto-falante interno da cpu (o que emite os beeps de inicializa@,{c}@~{a}o) e os leds do gabinete.}.  Sua placa deve agora parecer-se com
+alguma coisa semelhante a:
+
+@img{../fb-led-13}
+
+Usaremos as ferramentas de sele@,{c}@~{a}o e de rota@,{c}@~{a}o para posicionar os componentes onde
+desejamos.  A paleta de ferramentas est@'{a} acima dos estilos de rota, do lado
+esquerdo.  As duas ferramentas que queremos s@~{a}o @b{SEL} e @b{ROT}:
+
+@img{../fb-led-14}
+
+Primeiro clique na ferramenta ROT (rota@,{c}@~{a}o).  O cursor deve mudar a forma para atuar como uma
+dica que voc@^{e} rotacionar@'{a} qualquer coisa que voc@^{e} clicar sobre ela.  Posicione o cursor
+sobre a pastilha quadrada do conector para jumper e clique no bot@~{a}o esquerdo do mouse:
+
+@center @image{../fb-led-15} @image{../fb-led-16}
+
+Agora clique na ferramenta SEL (sele@,{c}@~{a}o), tamb@'{e}m conhecida como ``ferramenta
+seta''.  Voc@^{e} move componentes pressionando o bot@~{a}o esquerdo do mouse enquanto o
+cursor est@'{a} sobre o componente, e movendo o mouse enquanto segura o
+bot@~{a}o.  O componente propriamente dito n@~{a}o se move; ao inv@'{e}s disso, uma linha de sa@'{i}da
+do componente em forma de arma@,{c}@~{a}o de arame @'{e} movida (muito parecida com aquela vis@'{i}vel ao se colocar um novo componente sobre uma placa).  Quando voc@^{e}
+libera o bot@~{a}o do mouse, o componente @'{e} movido.
+
+@center @image{../fb-led-17} @image{../fb-led-18} @image{../fb-led-19}
+
+Mova o conector de jumper com dois terminais de forma que o conector quadrado localize-se em 200,600 (as coordenadas
+da mira s@~{a}o mostradas no canto superior direito da janela), o
+pino quadrado do resistor em 400,400, e o pino quadrado LED  em 500,700.
+Sua placa deve agora parecer-se com:
+
+@img{../fb-led-20}
+
+Agora @'{e} uma hora realmente boa para gravar seu tra@,{c}ado.
+
+Agora adicionaremos as trilhas que conectam os componentes.  Usaremos
+a ferramenta LINE para adicionar as trilhas.  Uma vez que essa @'{e} uma placa simples, ela @'{e} sucet@'{i}vel
+de ser constru@'{i}da como uma placa com somente um lado, com as trilhas na parte de
+``tr@'{a}s'', ent@~{a}o desejamos que a camada de @b{soldagem} seja a camada de desenho.  Do lado
+esquerdo da janela tem uma cole@,{c}@~{a}o de bot@~{o}es representando o nome das v@'{a}rias
+camadas na sua placa.  Um deles chama-se @b{topo}.  D@^{e} dois cliques sobre a palavra @b{topo}
+e mude-a para @b{soldagem} clicando a seguir sobre a tecla @kbd{Enter}.
+
+@center @image{../fb-led-21} @image{../fb-led-22}
+
+A forma como a ferramenta linha trabalha @'{e} clicar sobre o ponto inicial,
+mover a mira para o ponto final, e clicar novamente.  N@~{a}o @'{e}
+necess@'{a}rio que voc@^{e} mantenha o bot@~{a}o do mouse pressionado, voc@^{e} deve ter a habilidade para
+rolar e aproximar para encontrar o ponto final.  Voc@^{e} tamb@'{e}m pode clicar sobre
+pontos intermedi@'{a}rios para fazer trilhas com m@'{u}ltiplos cantos.  Para terminar a
+trilha, ou iniciar uma nova trilha, pressone a tecla @kbd{Esc}.  Se
+voc@^{e} pressionar a tecla @kbd{Esc} novamente, voc@^{e} retorna para a sele@,{c}@~{a}o de ferramentas.
+
+Se voc@^{e} tenta conectar dois pontos que n@~{a}o est@~{a}o sobre a mesma linha vertical,
+linha horizontal, ou diagonal, a ferramenta linha criar@'{a} um par de
+trilhas para conect@'{a}-los.  Uma ir@'{a} ser ou vertical ou horizontal,
+e a outra ser@'{a} diagonal.  O segmento vertical/horizontal ser@'{a}
+conectado ao ponto inicial, e o segmento diagonal seguir@'{a}
+a mira.  Se voc@^{e} olhar para a barra de status, ver@'{a} um
+s@'{i}mbolo @code{_/} que indica isso:
+
+@img{../fb-led-23}
+
+Pressionando a tecla @kbd{/} muda esse modo.  Se a barra de status na parte inferior da tela exibe @code{\_} a
+diagonal ser@'{a} colocada no ponto de in@'{i}cio, e a
+vertical/horizontal ser@'{a} colocada na mira.  Se a barra de status n@~{a}o mostra nada,
+somente um segmento de cada vez ser@'{a} desenhado, ao inv@'{e}s de dois.  Tamb@'{e}m, voc@^{e}
+pode usar a tecla @kbd{Shift} para mudar tempor@'{a}riamente entre os modos
+@code{\_} e @code{_/}.
+
+@center @image{../fb-led-24} @image{../fb-led-25} @image{../fb-led-26}
+
+Dessa forma vamos adicionar as tr@^{e}s trilhas que precisamos.  Pressione a tecla @kbd{/} at@'{e} que
+@code{_/} seja mostrado (@'{e} o padr@~{a}o quando o @code{pcb} @'{e} aberto) e
+conecta o pino esquerdo do resistor ao pino de cima do conector do jumper.  Clique, mova,
+clique, @kbd{Esc}.  Conecte o pino da esquerda do LED ao pino inferior do jumper.
+Conecte o pino direito do resistor ao pino direito do LED.
+
+@center @image{../fb-led-27} @image{../fb-led-28}
+
+Adiante faremos alguns ajustes na nossa placa de circuito impresso @footnote{Nota do tradutor: PCB em ingl@^{e}s, PCI em portugu@^{e}s de agora em diante.}.  A menos que voc@^{e} tenha sua pr@'{o}pria
+biblioteca e que voc@^{e} a tenha configurado para ser ``na medida certa'', @'{e} prov@'{a}vel que voc@^{e}
+precise ajustar algumas coisas durante o processo de tra@,{c}ado da placa.
+Por exemplo, voc@^{e} pode precisar fazer um compartimento para uma trilha entre dois conectores.
+No nosso caso, iremos fazer alguns ajustes que s@~{a}o apropriados
+para algumas placas feitas em casa.  Faremos as pastilhas maiores, par o caso de
+perfurarmos fora do centro.  Existe um comando gen@'{e}rico de ``modifica@,{c}@~{a}o de tamanho'' que @'{e}
+associado @`{a} tecla @kbd{S}.  Coloque a mira sobre um dos conectores e
+digite @kbd{S} e o conector ficar@'{a} maior.  Pressione @kbd{Shift-S} e o conector
+ficar@'{a} menor.  Voc@^{e} pode mudar o tamanho de conectores, pastilhas, trilhas, e at@'{e} de
+sedas dessa forma.  Todavia, se voc@^{e} deseja mudar muitas coisas de uma s@'{o}
+vez, existe um caminho simples.  Use a entrada de menu @mnuu{Selecione,
+Selecione tudo que estiver vis@'{i}vel} para selecionar tudo.  Agora voc@^{e} pode usar o
+menu @mnuu{Selecione,Modifica o tamanho dos objetos selecionados} para mudar todas as
+coisas selecionadas de uma s@'{o} vez.  No nosso caso, desejamos a op@,{c}@~{a}o
+@mnu{Pins +10 mil} para fazer nossos conectores um pouco maiores.  Ap@'{o}s clicar nos conectores, veja
+que todos os conectores est@~{a}o um pouco maiores.  Agora voc@^{e} pode
+usar @mnuu{Selecione,Remover a sele@value{cedilha}@~{a}o de todos os objetos} para remover a sele@,{c}@~{a}o de todos eles.
+
+Voc@^{e} tamb@'{e}m pode usar a ferramenta de sele@,{c}@~{a}o (@b{SEL}) para selecionar e para remover sele@,{c}@~{a}o.  Para
+selecionar, ou clique com o bot@~{a}o esquerdo do mouse sobre o objeto que voc@^{e} deseja
+selecionar, ou arraste um ret@^{a}ngulo em torno de um grupo de coisas.  Para remover a sele@,{c}@~{a}o,
+apenas clique em algum lugar vazio.  Voc@^{e} pode tamb@'{e}m
+segurar a tecla shift e clicar para selecionar alguma coisa sem remover sele@,{c}@~{a}o de outra,
+como se voc@^{e} desejasse selecionar duas ou tr@^{e}s coisas que n@~{a}o pertencem ao mesmo grupo
+de forma pr@'{a}tica.
+
+Adiante colocaremos r@'{o}tulos em nossos componentes.  Cada componentes tem tr@^{e}s sequ@^{e}ncias
+de caractere que esse componente pode mostrar; voc@^{e} escolhe qual mostrar atrav@'{e}s de uma op@,{c}@~{a}o
+no menu @mnu{Vis@~{a}o}.  O padr@~{a}o @'{e} mostrar o designador de refer@^{e}ncia (refdes),
+que @'{e} o que desejamos por agora.
+
+Uma vez que ambos conectores e componentes podem ter r@'{o}tulos, desabilitar a grade nos
+permite selecionar cada elemento (@mnuuu{Visualizar,Tamanho da grade,Sem Grade}).  Agora
+selecione o menu @mnuuu{Editar,Editar nome de,texto sobre o tracado}.  A maior parte da
+interface gr@'{a}fica de usu@'{a}rio torna-se ``cinza'' e @code{pcb} solicita @b{Selecionar um Objeto}.
+Clicar com o bot@~{a}o esquerdo do mouse sobre o resistor (no corpo, n@~{a}o nos conectores).  Uma caixa
+de di@'{a}logo aparece perguntando a voc@^{e} pelo novo nome.  Garanta que a caixa tenha como t@'{i}tulo
+a palavra ``Componente'' e n@~{a}o a palavra ``Conector'', e escreva dentro da caixa de di@'{a}logo @code{R1}:
+
+@center @image{../fb-led-29} @image{../fb-led-30} @image{../fb-led-31}
+
+Voc@^{e} pode agora arrastar e soltar o nome onde voc@^{e} desejar, sendo cuidadoso
+para selecionar o r@'{o}tulo e n@~{a}o uma trilha:
+
+@img{../fb-led-32}
+
+Voc@^{e} pode tamb@'{e}m usar atalhos de teclado.  Posicione a mira sobre o
+LED, mas n@~{a}o sobre seus conectores, e pressione a tecla @kbd{n} (de ``nome'').
+Digite dentro @code{D1}.  Ajuste o nome do jumper para @code{J1} e arrume
+os nomes de forma que eles se pare@,{c}am como o seguinte:
+
+@img{../fb-led-33}
+
+Lembre-se de gravar seu trabalho ocasionalmente.  O @code{pcb} gravar@'{a}
+normalmente uma c@'{o}pia autom@'{a}tica de vez em quando, mas @'{e} um bom h@'{a}bito
+gravar o trabalho manualmente quando voc@^{e} estiver em algum ponto adequado do trabalho.
+
+Podemos tamb@'{e}m adicionar texto extra nas camadas de seda e de cobre.
+Vamos adicionar algum texto ao jumper, de forma que saibamos qual local conectar a
+bateria.  Desejamos usar a ferramenta texto:
+
+@img{../fb-led-34}
+
+Desejamos tamb@'{e}m que a camada de seda seja a camada padr@~{a}o de desenho:
+
+@img{../fb-led-35}
+
+Agora, clique sobre o conector quadrado do jumper, e coloque @code{+} no
+di@'{a}logo que aparece.  Use a tecla @kbd{S} um monte de vezes para
+fazer o jumper maior, a seguir use a ferramenta de sele@,{c}@~{a}o para ajustar a posi@,{c}@~{a}o do jumper.  Fa@,{c}a
+o mesmo para o r@'{o}tulo @code{-}.
+
+@center @image{../fb-led-36} @image{../fb-led-37} @image{../fb-led-38}
+
+Agora que terminamos com os r@'{o}tulos, ajuste a grade de volta para 100 mil no
+caso de voc@^{e} mover quaisquer das trilhas ou componentes; uma vez que eles estavam fora da grade
+@'{e} dif@'{i}cil traz@^{e}-los de volta para a grade novamente.
+
+Terminamos de editar a placa, ent@~{a}o se voc@^{e} n@~{a}o o fez ainda, grave seu
+trabalho.  Mas agora que a placa est@'{a} terminada, o que fazer com a placa?  Bem,
+isso depende de como voc@^{e} vai fazer sua placa.  Se voc@^{e} deseja
+fazer voc@^{e} mesmo, voc@^{e} provavelmente deseja enviar a placa para a impressora.  Se voc@^{e}
+deseja que outros a fa@,{c}am, os outros ir@~{a}o querer os arquivos gerber.
+
+No seu menu @mnu{Arquivo}, existem tr@^{e}s op@,{c}@~{o}es que estamos interessados.
+
+@img{../fb-led-39}
+
+A op@,{c}@~{a}o @mnu{Imprimir...} imprime seu tra@,{c}ado, mas note que essa op@,{c}@~{a}o
+imprimir@'{a} 11 p@'{a}ginas de camadas de placa!  Provavelmente n@~{a}o @'{e} o que voc@^{e}
+normalmente deseja, mas fa@,{c}a isso de qualquer forma.
+
+@img{../fb-led-40}
+
+Existe muitas op@,{c}@~{o}es ai, mas somente algumas voc@^{e} precisa
+conhecer por enquanto.  Selecione ``Preencher p@'{a}gina'' e ``cor ps'' e
+clique em @b{OK}.  ``Preencher p@'{a}gina'' ajusta sua impress@~{a}o de forma a preencher a p@'{a}gina.
+``cor ps'' faz com que cada camada seja impressa com a mesma cor que voc@^{e}
+v@^{e} na tela.  Se voc@^{e} est@'{a} fazendo placas em casa usando transfer@^{e}ncia
+de toner, voc@^{e} deseja desabilitar essas op@,{c}@~{o}es (@emph{off}), e deseja habilitar
+``espelho''.
+
+Na maioria dos casos, voc@^{e} n@~{a}o deseja imprimir o desenho completo.  Comumente
+voc@^{e} usar@'{a} a op@,{c}@~{a}o @mnu{Exportar} para exportar seu tra@,{c}ado em
+um formato que outros possam usar.  Quando voc@^{e} exporta, uma lista de poss@'{i}veis
+tipos de exporta@,{c}@~{a}o @'{e} oferecida:
+
+@img{../fb-led-41}
+
+Clique sobre @mnu{gerber} de forma que possamos criar alguns arquivos Gerber (RS-274X),
+que @'{e} o arquivo padr@~{a}o da ind@'{u}stria para descri@,{c}@~{a}o de placas de circuito.
+
+@img{../fb-led-42}
+
+Clique sobre @b{verbose} ent@~{a}o @b{OK}.  Voc@^{e} ver@'{a} algo como isso em
+seu terminal:
+
+@smallexample
+Gerber: 5 apertures in fb-led.front.gbr
+Gerber: 5 apertures in fb-led.back.gbr
+Gerber: 3 apertures in fb-led.frontmask.gbr
+Gerber: 3 apertures in fb-led.backmask.gbr
+Gerber: 2 apertures in fb-led.plated-drill.cnc
+Gerber: 3 apertures in fb-led.frontsilk.gbr
+Gerber: 3 apertures in fb-led.fab.gbr
+@end smallexample
+
+Para uma placa de um @'{u}nico lado, a maioria dos fabricantes de placa precisar@'{a} dos arquivos
+back, backmask, plated-drill, frontsilk, e fab.  O @code{pcb} sempre
+produz arquivos gerber ``positivos'' no caso do fabricante perguntar.
+
+Para fabrica@,{c}@~{a}o em casa, voc@^{e} desejar@'{a} imprimir (veja acima) sem as
+op@,{c}@~{o}es ps-color ou fill-page.  Para essa placa simples, n@~{a}o precisa
+calibrar a impressora.  Se voc@^{e} est@'{a} perfurando seus pr@'{o}prios orif@'{i}cios, voc@^{e} pode
+selecionar a op@,{c}@~{a}o @b{drill helper}, que reduz o di@^{a}metro
+dos orif@'{i}cios no cobre onde quer que voc@^{e} esteja perfurando para ajudar voc@^{e} a centralizar
+a perfura@,{c}@~{a}o de forma apropriada.  Se voc@^{e} usa o exportador @b{ps}, selecionar a
+op@,{c}@~{a}o ``multiplos arquivos'' coloca cada camada em um arquivo separado.  Dessa forma,
+voc@^{e} pode imprimir somente as camadas que voc@^{e} est@'{a} interessado.
+
+Vamos ver o que foi produzido.  Saia do @code{pcb} com
+@mnuu{Arquivo,Sair} e encontre seu terminal novamente.  Uso os programas
+livres @code{gv} e @code{gerbv} para ver meus arquivos exportados;
+@code{gv} @'{e} GhostScript, mas seu computador provavelmente sabe o que fazer
+se for feito um duplo clique sobre um arquivo .ps no seu navegador de arquivos.  O @code{gerbv}
+@'{e} um visualizador de arquivos gerber que @'{e} parte do pacote gEDA:
+
+@smallexample
+$ gerbv fb-led.*.gbr fb-led.*.cnc
+@end smallexample
+
+@img{../fb-led-43}
+
+Por hoje @'{e} s@'{o}!  O pr@'{o}ximo passo @'{e} fazer a placa (ou ter ela
+fabricada), o que est@'{a} al@'{e}m da finalidade desse tutorial.
