@@ -11,9 +11,10 @@ AUTOMAKE_OPTIONS = subdir-objects
 HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
-	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a libipcd356.a
+	libgtk.a liblesstif.a libbatch.a  \
+	libbom.a libgcode.a libgencad.a libgerber.a \
+	libipcd356.a liblpr.a libnelma.a  libpng.a libps.a \
+	libopenscad.a libscad.a
 
 pcblib_DATA= \
 	default_font \
@@ -182,7 +183,6 @@ GL_SRCS= \
 	hid/common/trackball.c \
 	hid/common/trackball.h
 
-
 BUILT_SOURCES = \
 	core_lists.h \
 	gpcb-menu.h \
@@ -245,9 +245,11 @@ EXTRA_DIST= \
 	$(srcdir)/hid/ipcd356/hid.conf \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
+	$(srcdir)/hid/openscad/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
+	$(srcdir)/hid/scad/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
@@ -413,6 +415,12 @@ libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
 
+libscad_a_SOURCES = \
+	hid/hidint.h \
+	hid/scad/scad.c \
+	hid/scad/scadproto.c \
+	hid/scad/scadcomp.c
+
 LIBGENCAD_SRCS = \
 	hid/hidint.h \
 	hid/gencad/gencad.c
@@ -477,6 +485,12 @@ hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
 	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+hid/ipcd356/ipcd356_lists.h : ${LIBIPCD356_SRCS} Makefile
+	$(MKDIR_P) hid/ipcd356
+	true > $@
+	(for f in ${LIBIPCD356_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 libnelma_a_CPPFLAGS = -I./hid/nelma
 LIBNELMA_SRCS = \
 	dolists.h \
@@ -493,6 +507,10 @@ hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
 liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
+
+libopenscad_a_SOURCES = \
+	hid/hidint.h \
+	hid/openscad/openscad.c
 
 DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \

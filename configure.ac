@@ -420,7 +420,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[ --with-exporters= Enable export devices: bom gencad gerber gcode ipcd356 nelma png ps [[default=bom gencad gerber gcode ipcd356 nelma png ps]]],
+[ --with-exporters= Enable export devices: bom gencad gerber gcode ipcd356 nelma openscad png ps [[default=bom gencad gerber gcode ipcd356 nelma openscad png ps]]],
 
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
@@ -1300,6 +1300,10 @@ AC_CONFIG_FILES(tests/golden/hid_gcode11/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_openscad1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_openscad2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_openscad3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_openscad4/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)

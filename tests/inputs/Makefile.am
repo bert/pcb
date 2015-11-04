@@ -6,4 +6,5 @@ EXTRA_DIST= \
 	gerber_oneline.pcb \
 	gerber_arcs.pcb \
 	ipcd356.pcb \
-	minmaskgap.pcb
+	minmaskgap.pcb \
+	openscad_general.pcb
