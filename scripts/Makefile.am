@@ -10,7 +10,7 @@ SH_DATA     	= ${SH_SCRIPTS}
 dist_SH_DATA 	= $(SH_SCRIPTS)
 
 htmldir	     	= $(TARGET_DIR)
-#html_DATA    	= ${HTML}
+html_DATA    	= ${HTML}
 
 HTML            = index.html
 
@@ -25,8 +25,8 @@ SH_SCRIPTS	= CreateLibrary \
 EXTRA_DIST	= ${wildcard *.sh} ${HTML}
 
 install-data-hook:
-	$(MKDIR_P) $(DESTDIR)/$(TARGET_DIR)
-	for file in ${SH_SCRIPTS}; do \
+	@$(MKDIR_P) $(DESTDIR)/$(TARGET_DIR)
+	@for file in ${SH_SCRIPTS}; do \
 	  cp -p $(srcdir)/$$file $(distdir)/$(TARGET_DIR)/; \
 	  cp -p $(srcdir)/$$file.sh $(distdir)/$(TARGET_DIR)/; \
 	done;
