@@ -54,7 +54,7 @@
 #include "rtree.h"
 #include "strflags.h"
 #include "thermal.h"
-//#include "move.h"
+#include "move.h"
 
 #if HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
@@ -1149,7 +1149,7 @@ Polygon (SFlags) (
 Symbolic or numeric flags.
 @item X Y
 Coordinates of each vertex.  You must list at least three coordinates.
-@item Hole (...)
+@item Hole
 Defines a hole within the polygon's outer contour. There may be zero or more such sections.
 @end table
 
