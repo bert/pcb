@@ -304,7 +304,7 @@ print_and_free (FILE *fp, BomList *bom)
 	{
 	  if (fp)
 	    {
-	      fprintf (fp, "%s ", bom->refdes->str);
+	      fprintf (fp, " %s", bom->refdes->str);
 	    }
 	  free (bom->refdes->str);
 	  lasts = bom->refdes;
