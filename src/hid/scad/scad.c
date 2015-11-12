@@ -206,19 +206,20 @@ static void
 scad_close_layer ()
 {
 
-  if (!outline_layer)
-    {
-      if (drill_layer)
-	{
-	  fprintf (scad_output, "];\n\n");
-	}
-      else
-	{
-	  fprintf (scad_output, "}\n}\n\n");
-	}
+  if (!outline_layer) {
 
-      fprintf (scad_output, "\n// END_OF_LAYER %s\n\n", layer_id);
+    if (drill_layer) {
+
+      fprintf (scad_output, "];\n\n");
     }
+    else {
+
+      fprintf (scad_output, "}\n}\n\n");
+    }
+
+    fprintf (scad_output, "\n// END_OF_LAYER %s\n\n", layer_id);
+  }
+
   layer_open = 0;
 }
 
@@ -231,14 +232,17 @@ static HID_Attribute *
 scad_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
+
   if (PCB) {
     hc_util_derive_default_filename(PCB->Filename,
                                     &scad_options[HA_scadfile],
                                     ".scad", &last_made_filename);
   }
 
-  if (n)
+  if (n) {
     *n = NUM_OPTIONS;
+  }
+
   return scad_options;
 }
 
@@ -257,43 +261,44 @@ scad_get_export_options (int *n)
 static void
 init_outline ()
 {
-  outline_segments = 0;
+  outline_segments         = 0;
   n_alloc_outline_segments = 0;
-  n_outline_segments = 0;
+  n_outline_segments       = 0;
 }
 
 static void
 add_outline_segment (Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  if (!n_alloc_outline_segments)
-    {
-      outline_segments = (t_outline_segment *) malloc (sizeof (t_outline_segment) * 50);
-      n_alloc_outline_segments = 50;
-      if (!outline_segments)
-	{
-	  Message (" Error: Cannot allocate memory for board outline. Board outline cannot be created.\n");
-	  return;
-	}
-    }
-  else
-    {
-      if (n_alloc_outline_segments == n_outline_segments)
-	{
-	  t_outline_segment *os = (t_outline_segment *) realloc (outline_segments,
-								 sizeof (t_outline_segment) * (n_alloc_outline_segments + 50));
+  if (!n_alloc_outline_segments) {
 
-	  if (os)
-	    {
-	      outline_segments = os;
-	      n_alloc_outline_segments = n_alloc_outline_segments + 50;
-	    }
-	  else
-	    {
-	      Message (" Error: Cannot allocate more memory for board outline. Board outline will be incomplete.\n");
-	      return;
-	    }
-	}
+    outline_segments = (t_outline_segment *) malloc (sizeof (t_outline_segment) * 50);
+    n_alloc_outline_segments = 50;
+
+    if (!outline_segments) {
+
+      Message (" Error: Cannot allocate memory for board outline. Board outline cannot be created.\n");
+      return;
     }
+  }
+  else {
+
+    if (n_alloc_outline_segments == n_outline_segments) {
+
+      t_outline_segment *os = (t_outline_segment *) realloc (outline_segments,
+                                                             sizeof (t_outline_segment) * (n_alloc_outline_segments + 50));
+
+      if (os) {
+
+        outline_segments = os;
+        n_alloc_outline_segments = n_alloc_outline_segments + 50;
+      }
+      else {
+
+        Message (" Error: Cannot allocate more memory for board outline. Board outline will be incomplete.\n");
+        return;
+      }
+    }
+  }
 
   outline_segments[n_outline_segments].processed = 0;
   outline_segments[n_outline_segments].x1 = x1;
@@ -323,83 +328,88 @@ scad_process_outline ()
   int i, j, n;
   t_OutlinePoint *op;
 
-  if (outline_segments && n_outline_segments)
-    {
+  if (outline_segments && n_outline_segments) {
 
-      op = malloc (n_outline_segments * 2 * sizeof (t_OutlinePoint));
 
-      if (op != NULL)
-	{
+    op = malloc (n_outline_segments * 2 * sizeof (t_OutlinePoint));
 
-	n=0;
-	for (i=0; i<n_outline_segments; i++ ) {
+    if (op != NULL) {
 
-		if (!outline_segments[i].processed) {
-		  outline_segments[i].processed = 1;
-		  op[n].x = outline_segments[i].x1;
-		  op[n].y = outline_segments[i].y1;
-		  op[n].marker = 1;
-		  op[n+1].x = outline_segments[i].x2;
-		  op[n+1].y = outline_segments[i].y2;
-		  op[n+1].marker = 0;
-		  n+=2;;
-		  do {
-		  for (j=i+1; j< n_outline_segments ; j++ ) {
-			if (!outline_segments[j].processed) {
-				if (is_same_point(op[n-1].x, op[n-1].y, outline_segments[j].x1, outline_segments[j].y1 )) {
-					op[n-1].x = (op[n-1].x + outline_segments[j].x1)/2;
-					op[n-1].y = (op[n-1].y + outline_segments[j].y1)/2;
-					op[n].x = outline_segments[j].x2;
-					op[n].y = outline_segments[j].y2;
-					n++;
-					outline_segments[j].processed=1;
-					break;
-				} else if (is_same_point(op[n-1].x, op[n-1].y, outline_segments[j].x2, outline_segments[j].y2 )) {
-					op[n-1].x = (op[n-1].x + outline_segments[j].x2)/2;
-					op[n-1].y = (op[n-1].y + outline_segments[j].y2)/2;
-					op[n].x = outline_segments[j].x1;
-					op[n].y = outline_segments[j].y1;
-					n++;
-					outline_segments[j].processed=1;
-					break;
-				}
-			}
-		  }
-		  } while (j<n_outline_segments);
-		}
-	}
 
-	  fprintf (scad_output, "module board_outline () {\n\tpolygon([");
+      n=0;
 
-	  /* Outline points*/
-	  for (i = 0; i < n; i++)
-	    {
-	      fprintf (scad_output, "\t\t[%f, %f]%s\n", scad_scale_coord ((float) op[i].x), -scad_scale_coord ((float) op[i].y), (i < (n - 1)) ? ", " : "");
-	    }
+      for (i=0; i<n_outline_segments; i++ ) {
 
-	  /* Outline paths*/
-	  fprintf (scad_output, "\t],[\n\t\t");
+        if (!outline_segments[i].processed) {
 
-	  fprintf (scad_output, "\t\t[");
-	  for (i = 0; i < n; i++)
-	    {
-//	      if (!(i % 10) && i)
-//		fprintf (scad_output, "\n\t\t");
-	      if (i > 0 && op[i].marker) fprintf (scad_output, "],\n\t\t[");
-//	      fprintf (scad_output, "%d%s", i, (i < (n - 1)) ? ", " : "");
-	      fprintf (scad_output, "%d%s", i, ((i < (n - 1)) && op[i+1].marker==0) ? ", " : "");
-	    }
-	  fprintf (scad_output, "\t]]);\n");
-	  fprintf (scad_output, "}\n\n");
-	}
-      else
-	{
-	  Message (" Error: Cannot allocate more memory for board outline. Board outline will be incomplete.\n");
-	}
-      if (op)
-	free (op);
-      free (outline_segments);
+          outline_segments[i].processed = 1;
+          op[n].x = outline_segments[i].x1;
+          op[n].y = outline_segments[i].y1;
+          op[n].marker = 1;
+          op[n+1].x = outline_segments[i].x2;
+          op[n+1].y = outline_segments[i].y2;
+          op[n+1].marker = 0;
+          n+=2;;
+
+          do {
+
+            for (j=i+1; j< n_outline_segments ; j++ ) {
+              if (!outline_segments[j].processed) {
+                if (is_same_point(op[n-1].x, op[n-1].y, outline_segments[j].x1, outline_segments[j].y1 )) {
+                  op[n-1].x = (op[n-1].x + outline_segments[j].x1)/2;
+                  op[n-1].y = (op[n-1].y + outline_segments[j].y1)/2;
+                  op[n].x = outline_segments[j].x2;
+                  op[n].y = outline_segments[j].y2;
+                  n++;
+                  outline_segments[j].processed=1;
+                  break;
+                }
+                else if (is_same_point(op[n-1].x, op[n-1].y, outline_segments[j].x2, outline_segments[j].y2 )) {
+                  op[n-1].x = (op[n-1].x + outline_segments[j].x2)/2;
+                  op[n-1].y = (op[n-1].y + outline_segments[j].y2)/2;
+                  op[n].x = outline_segments[j].x1;
+                  op[n].y = outline_segments[j].y1;
+                  n++;
+                  outline_segments[j].processed=1;
+                  break;
+                }
+              }
+            }
+          } while (j<n_outline_segments);
+        }
+      }
+
+      fprintf (scad_output, "module board_outline () {\n\tpolygon([");
+
+      /* Outline points*/
+      for (i = 0; i < n; i++) {
+
+        fprintf (scad_output, "\t\t[%f, %f]%s\n", scad_scale_coord ((float) op[i].x), -scad_scale_coord ((float) op[i].y), (i < (n - 1)) ? ", " : "");
+      }
+
+      /* Outline paths*/
+      fprintf (scad_output, "\t],[\n\t\t");
+
+      fprintf (scad_output, "\t\t[");
+      for (i = 0; i < n; i++)
+      {
+        //	      if (!(i % 10) && i)
+        //		fprintf (scad_output, "\n\t\t");
+        if (i > 0 && op[i].marker) fprintf (scad_output, "],\n\t\t[");
+        //	      fprintf (scad_output, "%d%s", i, (i < (n - 1)) ? ", " : "");
+        fprintf (scad_output, "%d%s", i, ((i < (n - 1)) && op[i+1].marker==0) ? ", " : "");
+      }
+      fprintf (scad_output, "\t]]);\n");
+      fprintf (scad_output, "}\n\n");
     }
+    else {
+
+      Message (" Error: Cannot allocate more memory for board outline. Board outline will be incomplete.\n");
+    }
+    if (op)
+      free (op);
+    free (outline_segments);
+  }
 }
 
 static void
@@ -499,27 +509,28 @@ scad_do_export (HID_Attr_Val * options)
 
   hid_expose_callback (&scad_hid, &region, 0);
 
-// And now .... Board outlines
+  /* Board outlines */
 
-  if (opt_outline_type == SCAD_OUTLINE_SIZE)
-    {
+  if (opt_outline_type == SCAD_OUTLINE_SIZE) {
+
       fprintf (scad_output, "module board_outline () {\n\tpolygon(");
       fprintf (scad_output, "[[0,0],[0,%f],[%f,%f],[%f,0]],\n", -scad_scale_coord ((float) PCB->MaxHeight), scad_scale_coord ((float) PCB->MaxWidth), -scad_scale_coord ((float) PCB->MaxHeight), scad_scale_coord ((float) PCB->MaxWidth));
       fprintf (scad_output, "[[0,1,2,3]]);\n");
       fprintf (scad_output, "}\n\n");
 
-    }
-  else if (opt_outline_type == SCAD_OUTLINE_OUTLINE /* and collected lines */ )
-    {
-      scad_process_outline ();
-    }
+  }
+  else if (opt_outline_type == SCAD_OUTLINE_OUTLINE) { /* and collected lines */
 
-  if (layer_open)
-    {
+      scad_process_outline ();
+  }
+
+  if (layer_open) {
+
       scad_close_layer ();
-    }
+  }
 
   scad_generate_holes ();
+
   if (opt_exp_copper)
     scad_generate_plating ();
 
@@ -548,8 +559,8 @@ scad_do_export (HID_Attr_Val * options)
     fprintf (scad_output, "/*                                                 */\n");
     fprintf (scad_output, "/***************************************************/\n");
 
-  if (opt_exp_copper)
-    {
+  if (opt_exp_copper) {
+
       for (i = 0; i < max_group; i++)
 	{
 	  if (group_data[i].draw)

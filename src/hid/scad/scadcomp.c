@@ -674,40 +674,42 @@ scad_open_model (char *model, char *first_line, int size)
   FILE *f = NULL;
   char *cmd;
 
-  if (model[0] == '@')
-    {
-      l = strlen (pcblibdir) + 1 + strlen (SCADBASE) + 1 + strlen (SCADSCRIPTS) + 1 + strlen (model);
-      if ((cmd = (char *) malloc (l * sizeof (char))) != NULL)
-	{
-	  sprintf (cmd, "%s%s%s%s%s%s%s", pcblibdir, PCB_DIR_SEPARATOR_S, SCADBASE, PCB_DIR_SEPARATOR_S, SCADSCRIPTS, PCB_DIR_SEPARATOR_S, model + 1);
-	  f = popen (cmd, "r");
-	}
+  if (model[0] == '@') {
 
-      is_popen = 1;
+    l = strlen (pcblibdir) + 1 + strlen (SCADBASE) + 1 + strlen (SCADSCRIPTS) + 1 + strlen (model);
+
+    if ((cmd = (char *) malloc (l * sizeof (char))) != NULL) {
+      sprintf (cmd, "%s%s%s%s%s%s%s", pcblibdir, PCB_DIR_SEPARATOR_S, SCADBASE, PCB_DIR_SEPARATOR_S, SCADSCRIPTS, PCB_DIR_SEPARATOR_S, model + 1);
+      f = popen (cmd, "r");
     }
-  else
+
+    is_popen = 1;
+  }
+  else {
+
+    l = strlen (pcblibdir) + 1 + strlen (SCADBASE) + 1 + strlen (SCADMODELS) + 1 + strlen (model) + 1;
+    if ((cmd = (char *) malloc (l * sizeof (char))) != NULL)
     {
-      l = strlen (pcblibdir) + 1 + strlen (SCADBASE) + 1 + strlen (SCADMODELS) + 1 + strlen (model) + 1;
-      if ((cmd = (char *) malloc (l * sizeof (char))) != NULL)
-	{
-	  sprintf (cmd, "%s%s%s%s%s%s%s", pcblibdir, PCB_DIR_SEPARATOR_S, SCADBASE, PCB_DIR_SEPARATOR_S, SCADMODELS, PCB_DIR_SEPARATOR_S, model);
-	  f = fopen (cmd, "r");
-	  is_popen = 0;
-	}
+      sprintf (cmd, "%s%s%s%s%s%s%s", pcblibdir, PCB_DIR_SEPARATOR_S, SCADBASE, PCB_DIR_SEPARATOR_S, SCADMODELS, PCB_DIR_SEPARATOR_S, model);
+      f = fopen (cmd, "r");
+      is_popen = 0;
     }
+  }
+
   if (cmd)
     free (cmd);
 
-  if (f && fgets (first_line, size, f))
-    {
-      return f;
+  if (f && fgets (first_line, size, f)) {
+
+    return f;
+  }
+  else {
+
+    if (f) {
+      scad_close_model (f);
     }
-  else
-    {
-      if (f)
-	scad_close_model (f);
-      return NULL;
-    }
+    return NULL;
+  }
 
   return NULL;
 
@@ -1232,14 +1234,14 @@ scad_process_components (void)
   char *name_with_fpext, *fp_path, *map_filename, *map_path;
   float angle;
   map3d_struct map = { 0, 0, 0 };
-
+fprintf(stderr, "%s at line %d \n", __func__, __LINE__);
   scad_init_footprints ();
-
+fprintf(stderr, "%s at line %d \n", __func__, __LINE__);
   element_buffer.Data = CreateNewBuffer ();
-
+fprintf(stderr, "%s at line %d \n", __func__, __LINE__);
   fprintf (scad_output, "module all_components() {\n");
 
-
+fprintf(stderr, "%s at line %d \n", __func__, __LINE__);
   ELEMENT_LOOP (PCB->Data);
   {
 
@@ -1247,14 +1249,13 @@ scad_process_components (void)
     angle = 0;
 
     /* no description - element cannot be identified */
-    if (EMPTY_STRING_P (DESCRIPTION_NAME (element)))
-    {
+    if (EMPTY_STRING_P (DESCRIPTION_NAME (element))) {
       continue;
     }
 
 
-    if (element->PinN != 0 || element->PadN != 0)
-    {
+    if (element->PinN != 0 || element->PadN != 0) {
+
       /* element has at least one pin, we can try ti find angle */
       /* we need to find footprint */
       name_with_fpext = NULL;
@@ -1303,8 +1304,7 @@ scad_process_components (void)
     map_filename = Concat (DESCRIPTION_NAME (element), SCAD_MAP_EXT, NULL);
     map_path = scad_locate_map (map_filename);
 
-    if (!map_path)
-    {
+    if (!map_path)  {
       free (map_filename);
       map_filename = Concat (DESCRIPTION_NAME (element), SCAD_FPMAP_EXT, NULL);
       map_path = scad_locate_map (map_filename);

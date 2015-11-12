@@ -38,8 +38,6 @@ extern int LoadFootprintByName (BufferType * Buffer, char *Footprint);
 #define SCADMODELS "models"
 #define SCADSCRIPTS "scripts"
 
-
-
 /* dimensions (nanometer version) and colors*/
 #define METRIC_SCALE	0.000001
 
@@ -65,7 +63,6 @@ extern int LoadFootprintByName (BufferType * Buffer, char *Footprint);
 #define SCAD_MASK_COLOR_R		"[0.8, 0.1, 0.1, 0.65]"
 #define SCAD_MASK_COLOR_B		"[0.1, 0.1, 0.8, 0.65]"
 
-
 #define SCAD_OUTLINE_NONE	0
 #define SCAD_OUTLINE_OUTLINE	1
 #define SCAD_OUTLINE_SIZE	2
@@ -82,7 +79,6 @@ extern int LoadFootprintByName (BufferType * Buffer, char *Footprint);
 #define MAX_LAYER_COLORS (MAX_LAYER *2)
 
 /* polygon attributes */
-
 #define POLY_CW		1
 #define POLY_CCW	2
 
@@ -120,7 +116,6 @@ typedef struct fplist_struct
   char *path;
 } fplist_struct;
 
-
 /* variable and its value, read from map file */
 typedef struct mapvar_struct
 {
@@ -154,6 +149,4 @@ extern float scad_scale_coord (float x);
 
 void scad_process_components (void);
 
-
 #endif
-
