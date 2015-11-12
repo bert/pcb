@@ -142,6 +142,7 @@ static Increments increments_metric = {
   MM_TO_COORD3 (0.1,  0.005, 0.5),
   MM_TO_COORD3 (0.05, 0.005, 0.5)
 };
+
 static Increments increments_imperial = {
   "mil",
   MIL_TO_COORD3 (5,  1,   25),
@@ -150,8 +151,8 @@ static Increments increments_imperial = {
   MIL_TO_COORD3 (2,  0.5, 10)
 };
 
-/* \brief Obtain a unit object from its suffix
- * \par Function Description
+/*! \brief Obtain a unit object from its suffix
+ *  \par Function Description
  * Looks up a given suffix in the main units array. Internationalized
  * unit suffixes are not supported, though pluralized units are, for
  * backward-compatibility.
@@ -164,14 +165,17 @@ const Unit *get_unit_struct (const char *const_suffix)
 {
   int i;
   int s_len = 0;
+
   /* Turn given suffix into something we can modify... */
   char *m_suffix = g_strdup (const_suffix);
+
   /* ...and store this in a pointer we can move. */
   char *suffix = m_suffix;
 
   /* Determine bounds */
   while (isspace (*suffix))
     ++suffix;
+
   while (isalnum (suffix[s_len]))
     ++s_len;
 
@@ -267,11 +271,16 @@ double coord_to_unit (const Unit *unit, Coord x)
  */
 Coord unit_to_coord (const Unit *unit, double x)
 {
-  double base;
+  volatile double base, result;
+
   if (unit == NULL)
     return -1;
+
   base = unit->family == METRIC ? MM_TO_COORD (x) : MIL_TO_COORD (x);
-  return base / unit->scale_factor;
+
+  result = base / unit->scale_factor;
+
+  return result;
 }
 
 static int min_sig_figs(double d)
@@ -772,12 +781,12 @@ void
 pcb_printf_test_unit ()
 {
   Coord c[] = {
-    unit_to_coord (get_unit_struct ("m"), 1.0),
-    unit_to_coord (get_unit_struct ("mm"), 1.0),
-    unit_to_coord (get_unit_struct ("um"), 1.0),
+    unit_to_coord (get_unit_struct ("m"),   1.0),
+    unit_to_coord (get_unit_struct ("mm"),  1.0),
+    unit_to_coord (get_unit_struct ("um"),  1.0),
     unit_to_coord (get_unit_struct ("mil"), 1.0),
     unit_to_coord (get_unit_struct ("mil"), 0.5),
-    unit_to_coord (get_unit_struct ("nm"), 67)
+    unit_to_coord (get_unit_struct ("nm"),  67)
   };
 
   /* Loop unrolled for ease of pinpointing failure */
