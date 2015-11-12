@@ -1995,7 +1995,7 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
         printf("File selected = %s\n", name);
 #endif
 
-        sprintf (sname, "import::src%d", nsources);
+        snprintf (sname, sizeof (sname), "import::src%d", nsources);
         AttributePut (PCB, sname, name);
 
         g_free (name);
@@ -2093,6 +2093,7 @@ hid_gtk_init ()
   char * tmps;
   char * share_dir;
   char *loader_cache;
+  size_t buffer_size;
   FILE *loader_file;
 #endif
 
@@ -2100,16 +2101,16 @@ hid_gtk_init ()
   tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"
-  share_dir = (char *) malloc(strlen(tmps) +
-			  strlen(REST_OF_PATH) +
-			  1);
-  sprintf (share_dir, "%s%s", tmps, REST_OF_PATH);
+
+  buffer_size = strlen (tmps) + strlen (REST_OF_PATH) + 1;
+  share_dir = (char *)malloc (buffer_size);
+  snprintf (share_dir, buffer_size, "%s%s", tmps, REST_OF_PATH);
 
   /* Point to our gdk-pixbuf loader cache.  */
-  loader_cache = (char *) malloc (strlen (bindir) +
-				  strlen (REST_OF_CACHE) +
-				  1);
-  sprintf (loader_cache, "%s%s", bindir, REST_OF_CACHE);
+  buffer_size = strlen (bindir) + strlen (REST_OF_CACHE) + 1);
+  loader_cache = (char *)malloc (buffer_size);
+  snprintf (loader_cache, buffer_size, "%s%s", bindir, REST_OF_CACHE);
+
   loader_file = fopen (loader_cache, "r");
   if (loader_file)
     {
