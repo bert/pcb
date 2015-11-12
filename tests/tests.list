@@ -39,7 +39,7 @@
 # This is where one would specify additional options which are specific to a particular
 # export HID.
 #
-# [mismatch] If specified as "mismatch" (no quotes), then the result 
+# [mismatch] If specified as "mismatch" (no quotes), then the result
 # should *not* match the reference.  This can be thought of as a test
 # on the testsuite to make sure we can properly detect when a change has
 # occurred.
@@ -59,8 +59,8 @@
 #
 # GCODE
 #
-#    gcode -- G-Code file.  Note that these typically have .cnc as the 
-#             extension but we're already using the 'cnc' type for 
+#    gcode -- G-Code file.  Note that these typically have .cnc as the
+#             extension but we're already using the 'cnc' type for
 #             Excellon drill files.
 #
 # GERBER
@@ -221,14 +221,14 @@ hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
 hid_ipcd356 | ipcd356.pcb | IPC-D-356 | --netlist-file ipcd356_test.ipc | | bom:ipcd356_test.ipc
 #
-
-    Status
-    API
-    Training
-    Shop
-    Blog
-    About
-    Help
+#
+#    Status
+#    API
+#    Training
+#    Shop
+#    Blog
+#    About
+#    Help
 
 ######################################################################
 # ---------------------------------------------

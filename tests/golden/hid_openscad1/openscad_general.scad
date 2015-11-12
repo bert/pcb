@@ -1,7 +1,7 @@
 /*!
  * \file Basic_OpenSCAD_Test.scad
  *
- * \author Copyright Bert Timmerman.
+ * \author Copyright Wiley Edward Hill.
  *
  * \brief PCB - OpenSCAD 3D-model exporter Version 1.0
  *
@@ -143,4 +143,3 @@ module Basic_OpenSCAD_Test ()
 }
 
 /* EOF */
-

@@ -28,7 +28,7 @@ if test "x${magic_test_skip}" = "xyes" ; then
 
 The environment variable PCB_MAGIC_TEST_SKIP is set to yes.
 This causes the testsuite to skip all tests and report no errors.
-This is used for certain debugging *only*.  The primary use is to 
+This is used for certain debugging *only*.  The primary use is to
 allow testing of the 'distcheck' target without including the effects
 of the testsuite. The reason this is useful is that due to minor differences
 in library versions and perhaps roundoff in different CPU's, the testsuite
@@ -62,7 +62,7 @@ The resulting output files are examined in various ways to make sure
 they are correct.  The exact details of how they are compared varies.
 For example, the PNG outputs are compared using tools from the ImageMagick
 suite while the ASCII centroid and bill of materials files are normalized
-with awk and then compared with the standard diff utility.  The normalization
+with awk and then compared with the standard diff utility. The normalization
 removes things like a comment line which contains the creation date.
 
 OPTIONS
@@ -70,7 +70,7 @@ OPTIONS
 -d | --debug              Enables extra debug output
 
 -g | --golden <dir>    :  Specifies that <dir> should be used for the
-                          reference files. 
+                          reference files.
 -r | --regen           :  Specifies that the results should be taken as new
                           reference files instead of comparing them to the
                           existing ones.
@@ -111,7 +111,7 @@ while test -n "$1"
   do
   case "$1"
       in
-      
+
       -d|--debug)
 	  do_debug=yes
 	  shift
@@ -121,29 +121,29 @@ while test -n "$1"
 	  usage
 	  exit 0
 	  ;;
-      
+
       -g|--golden)
 	# set the 'golden' directory.
 	  REFDIR="$2"
 	  shift 2
 	  ;;
-      
+
       -r|--regen)
 	# regenerate the 'golden' output files.  Use this with caution.
 	# In particular, all differences should be noted and understood.
 	  regen=yes
 	  shift
 	  ;;
-      
+
       -*)
 	  echo "unknown option: $1"
 	  exit 1
 	  ;;
-      
+
       *)
 	  break
 	  ;;
-      
+
   esac
 done
 
@@ -171,7 +171,7 @@ top_srcdir=${top_srcdir:-.}
 # so we need to look 3 levels up and then down to src
 PCB=${PCB:-../../../src/pcbtest.sh}
 
-# The gerbv executible 
+# The gerbv executible
 GERBV=${GERBV:-gerbv}
 GERBV_DEFAULT_FLAGS=${GERBV_DEFAULT_FLAGS:---export=png --window=640x480}
 
@@ -194,9 +194,10 @@ AWK=${AWK:-awk}
 # the list of tests to run
 TESTLIST=${srcdir}/tests.list
 
-if test "X$regen" = "Xyes" ; then
-    OUTDIR="${REFDIR}"
-fi
+# If regenerating then make the REFDIR the output dir
+#if test "X$regen" = "Xyes" ; then
+#    OUTDIR="${REFDIR}"
+#fi
 
 # create output directory
 if test ! -d $OUTDIR ; then
@@ -285,13 +286,13 @@ compare_check() {
     local f1="$2"
     local f2="$3"
 
-    if test ! -f "$f1" ; then 
+    if test ! -f "$f1" ; then
 	echo "$0:  ${fn}(): $f1 does not exist"
 	test_skipped=yes
 	return 1
     fi
 
-    if test ! -f "$f2" ; then 
+    if test ! -f "$f2" ; then
 	echo "$0:  ${fn}(): $f2 does not exist"
 	test_skipped=yes
 	return 1
@@ -345,9 +346,9 @@ compare_bom() {
     #  # Title: Basic BOM/XY Test - PCB BOM
     #  # Quantity, Description, Value, RefDes
     #  # --------------------------------------------
-    #  8,"Standard SMT resistor, capacitor etc","RESC3216N",R90_TOP R180_TOP R270_TOP R0_TOP R270_BOT R180_BOT R90_BOT R0_BOT 
-    #  8,"Dual in-line package, narrow (300 mil)","DIP8",UDIP90_TOP UDIP180_TOP UDIP270_TOP UDIP0_TOP UDIP270_BOT UDIP180_BOT UDIP90_BOT UDIP0_BOT 
-    #  8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT 
+    #  8,"Standard SMT resistor, capacitor etc","RESC3216N",R90_TOP R180_TOP R270_TOP R0_TOP R270_BOT R180_BOT R90_BOT R0_BOT
+    #  8,"Dual in-line package, narrow (300 mil)","DIP8",UDIP90_TOP UDIP180_TOP UDIP270_TOP UDIP0_TOP UDIP270_BOT UDIP180_BOT UDIP90_BOT UDIP0_BOT
+    #  8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT
 
     #  For comparison, we need to ignore changes in the Date and Author lines.
     local cf1=${tmpd}/`basename $f1`-ref
@@ -543,7 +544,7 @@ for t in $all_tests ; do
     refdir="${REFDIR}/${t}"
     errdir=${rundir}/mismatch
 
-    # test_name | layout file(s) | [export hid name] | [optional arguments to pcb] |  [mismatch] 
+    # test_name | layout file(s) | [export hid name] | [optional arguments to pcb] |  [mismatch]
     # | output files
     name=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $1}'`
     files=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $2}'`
@@ -551,12 +552,12 @@ for t in $all_tests ; do
     args=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $4}'`
     mismatch=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {if($5 == "mismatch"){print "yes"}else{print "no"}}'`
     out_files=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $6}'`
-   
+
     # strip whitespace from single file names
     while test "X${files# }" != "X${files#}" ; do
       files="${files# }"
     done
-    
+
     while test "X${files% }" != "X${files%}" ; do
       files="${files% }"
     done
@@ -566,7 +567,7 @@ for t in $all_tests ; do
 	skip=`expr $skip + 1`
 	continue
     fi
-    
+
     if test "X${args}" != "X" ; then
 	pcb_flags="${args}"
     fi
@@ -620,7 +621,7 @@ for t in $all_tests ; do
 	skip=`expr $skip + 1`
 	continue
     fi
-    
+
     ######################################################################
     #
     # run PCB
@@ -643,18 +644,12 @@ for t in $all_tests ; do
 
     if test "X$regen" = "Xyes" ; then
       if test "X${hid}" != "Xaction" ; then
-        echo "## -*- makefile -*-" > ${rundir}/Makefile.am
-        echo >> ${rundir}/Makefile.am
-        echo -n "EXTRA_DIST=" >> ${rundir}/Makefile.am
-        for f in $out_files ; do
-          fn=`echo $f | sed 's;.*:;;g'`
-          echo " \\" >> ${rundir}/Makefile.am
-          echo -n "\t$fn" >> ${rundir}/Makefile.am
-        done
-        echo >> ${rundir}/Makefile.am
+        (mv ${REFDIR}/${t}/Makefile_insert ${rundir}/Makefile_insert)
+        (rm -rf ${REFDIR}/${t})
+        (rm -f ${rundir}/*.pcb)
+        (mv ${rundir} ${REFDIR}/${t})
       fi
-
-	echo "Regenerated ${t}"
+	  echo "Regenerated ${t}"
     else
 	# compare the result to our reference file
 	test_failed=no
@@ -706,7 +701,7 @@ for t in $all_tests ; do
 		png)
 		    compare_image ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
-		
+
 		# actions
 		pcb)
 		    compare_pcb ${refdir}/${fn} ${rundir}/${fn}
@@ -740,7 +735,7 @@ for t in $all_tests ; do
 	fi
 
     fi
-    
+
 done
 
 show_sep

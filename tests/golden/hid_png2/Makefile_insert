@@ -1,0 +1,4 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_png2/myfile.png

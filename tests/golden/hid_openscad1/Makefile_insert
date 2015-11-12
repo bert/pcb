@@ -1,0 +1,5 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_openscad1/openscad_general.pcb \
+				golden/hid_openscad1/openscad_general.scad

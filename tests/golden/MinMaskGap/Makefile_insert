@@ -1,0 +1,5 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+		golden/MinMaskGap/minmaskgap.pcb
+

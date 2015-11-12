@@ -1,0 +1,9 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_gerber3/arcs.bottom.gbr \
+				golden/hid_gerber3/arcs.fab.gbr \
+				golden/hid_gerber3/arcs.top.gbr \
+				golden/hid_gerber3/arcs.group1.gbr \
+				golden/hid_gerber3/arcs.group4.gbr \
+				golden/hid_gerber3/arcs.plated-drill.cnc

@@ -1,0 +1,5 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_bom3/bom_general.bom \
+				golden/hid_bom3/test.xy

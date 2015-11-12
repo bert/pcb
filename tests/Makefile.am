@@ -1,7 +1,5 @@
 ## -*- makefile -*-
 
-SUBDIRS=	golden inputs
-
 TESTS_ENVIRONMENT=	\
 	GERBV=${GERBV} \
 	IM_ANIMATE=${IM_ANIMATE} \
@@ -20,9 +18,43 @@ if HAVE_TEST_TOOLS
 TESTS=	${RUN_TESTS}
 endif
 
-EXTRA_DIST=	${RUN_TESTS} tests.list README.txt
+EXTRA_DIST= ${RUN_TESTS} tests.list README.txt
+
+include inputs/Makefile_insert
+
+include golden/hid_bom1/Makefile_insert
+include golden/hid_bom2/Makefile_insert
+include golden/hid_bom3/Makefile_insert
+include golden/hid_bom4/Makefile_insert
+
+include golden/hid_gerber1/Makefile_insert
+include golden/hid_gerber2/Makefile_insert
+include golden/hid_gerber3/Makefile_insert
+include golden/hid_gcode1/Makefile_insert
+include golden/hid_gcode2/Makefile_insert
+include golden/hid_gcode3/Makefile_insert
+include golden/hid_gcode4/Makefile_insert
+include golden/hid_gcode5/Makefile_insert
+include golden/hid_gcode6/Makefile_insert
+include golden/hid_gcode7/Makefile_insert
+include golden/hid_gcode8/Makefile_insert
+include golden/hid_gcode9/Makefile_insert
+include golden/hid_gcode10/Makefile_insert
+include golden/hid_gcode11/Makefile_insert
+
+include golden/hid_ipcd356/Makefile_insert
+
+include golden/hid_openscad1/Makefile_insert
+include golden/hid_openscad2/Makefile_insert
+include golden/hid_openscad3/Makefile_insert
+include golden/hid_openscad4/Makefile_insert
+
+include golden/hid_png1/Makefile_insert
+include golden/hid_png2/Makefile_insert
+include golden/hid_png3/Makefile_insert
+
+include golden/MinMaskGap/Makefile_insert
 
 # these are created by 'make check'
 clean-local:
 	rm -rf outputs
-

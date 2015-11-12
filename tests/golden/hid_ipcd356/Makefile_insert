@@ -1,0 +1,4 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_ipcd356/ipcd356_test.ipc

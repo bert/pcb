@@ -1,0 +1,7 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+				golden/hid_gcode8/gcode_oneline-0.8890.drill.gcode \
+				golden/hid_gcode8/gcode_oneline-bottom.gcode \
+				golden/hid_gcode8/gcode_oneline-outline.gcode \
+				golden/hid_gcode8/gcode_oneline-top.gcode

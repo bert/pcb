@@ -1,4 +1,4 @@
-# release: pcb 1.99z
+# release: pcb 2.00
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20091103]
@@ -788,12 +788,12 @@ Symbol['~' 12.00mil]
 Attribute("PCB::grid::unit" "mm")
 Attribute("PCB::grid::size" "1.0000mm")
 Via[15.0000mm 12.0000mm 4.0000mm 1.0000mm 0.0000 2.5000mm "" ""]
-Via[29.0000mm 12.0000mm 2.0000mm 1.0000mm 4.5000mm 2.5000mm "" "hole"]
+Via[29.0000mm 12.0000mm 2.0000mm 1.0000mm 4.0000mm 2.5000mm "" "hole"]
 Via[40.0000mm 12.0000mm 4.0000mm 1.0000mm 6.0000mm 2.5000mm "" ""]
 
 Element["" "SINGLE_PIN" "P1" "unknown" 15.0000mm 22.0000mm -0.7000mm 2.0000mm 0 100 ""]
 (
-	Pin[0.0000 0.0000 4.0000mm 1.0000mm 0.0000 2.5000mm "1" "1" ""]
+	Pin[0.0000 0.0000 4.0000mm 1.0000mm 6.0000mm 2.5000mm "1" "1" ""]
 
 	)
 

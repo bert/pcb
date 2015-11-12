@@ -1,0 +1,11 @@
+## -*- makefile -*-
+
+EXTRA_DIST+= \
+			inputs/bom_general.pcb \
+			inputs/gcode_oneline.pcb \
+			inputs/gerber_oneline.pcb \
+			inputs/gerber_arcs.pcb \
+			inputs/ipcd356.pcb \
+			inputs/minmaskgap.pcb \
+			inputs/minmaskgap.script \
+			inputs/openscad_general.pcb
