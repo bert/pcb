@@ -622,6 +622,8 @@ click_cb (hidval hv)
 	}
       else if (Note.Hit && !gui->shift_is_pressed ())
 	{
+	  BoxType box;
+
 	  SaveMode ();
 	  saved_mode = true;
 	  SetMode (gui->control_is_pressed ()? COPY_MODE : MOVE_MODE);
@@ -629,6 +631,19 @@ click_cb (hidval hv)
 	  Crosshair.AttachedObject.Ptr2 = Note.ptr2;
 	  Crosshair.AttachedObject.Ptr3 = Note.ptr3;
 	  Crosshair.AttachedObject.Type = Note.Hit;
+
+	  if (Crosshair.drags != NULL) {
+	    free(Crosshair.drags);
+	    Crosshair.drags = NULL;
+	  }
+	  Crosshair.dragx = Note.X;
+	  Crosshair.dragy = Note.Y;
+	  box.X1 = Note.X + SLOP * pixel_slop;
+	  box.X2 = Note.X - SLOP * pixel_slop;
+	  box.Y1 = Note.Y + SLOP * pixel_slop;
+	  box.Y2 = Note.Y - SLOP * pixel_slop;
+	  Crosshair.drags = ListBlock (&box, &Crosshair.drags_len);
+	  Crosshair.drags_current = 0;
 	  AttachForCopy (Note.X, Note.Y);
 	}
       else
@@ -1957,6 +1972,75 @@ ActionDumpLibrary (int argc, char **argv, Coord x, Coord y)
 
   return 0;
 }
+
+/* ---------------------------------------------------------------- */
+static const char cycledrag_syntax[] =
+  "CycleDrag()\n";
+
+static const char cycledrag_help[] = "Cycle through which object is being dragged";
+
+#define close_enough(a, b) ((((a)-(b)) > 0) ? ((a)-(b) < (SLOP * pixel_slop)) : ((a)-(b) > -(SLOP * pixel_slop)))
+static int
+CycleDrag (int argc, char **argv, Coord x, Coord y)
+{
+	void *ptr1, *ptr2, *ptr3;
+	int over = 0;
+
+	if (Crosshair.drags == NULL)
+		return (int) NULL;
+	
+	do {
+		Crosshair.drags_current++;
+		if (Crosshair.drags_current >= Crosshair.drags_len) {
+			Crosshair.drags_current = 0;
+			over++;
+		}
+
+		if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], LINE_TYPE) != NO_TYPE) {
+			/* line has two endpoints, check which one is close to the original x;y */
+			LineType *l = ptr2;
+			if (close_enough(Note.X, l->Point1.X) && close_enough(Note.Y, l->Point1.Y)) {
+				Crosshair.AttachedObject.Type =  LINEPOINT_TYPE;
+				Crosshair.AttachedObject.Ptr1 =  ptr1;
+				Crosshair.AttachedObject.Ptr2 =  ptr2;
+				Crosshair.AttachedObject.Ptr3 =  &l->Point1;
+				return 0;
+			}
+			if (close_enough(Note.X, l->Point2.X) && close_enough(Note.Y, l->Point2.Y)) {
+				Crosshair.AttachedObject.Type =  LINEPOINT_TYPE;
+				Crosshair.AttachedObject.Ptr1 =  ptr1;
+				Crosshair.AttachedObject.Ptr2 =  ptr2;
+				Crosshair.AttachedObject.Ptr3 =  &l->Point2;
+				return 0;
+			}
+		}
+		else if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], VIA_TYPE) != NO_TYPE) {
+			Crosshair.AttachedObject.Type =  VIA_TYPE;
+			Crosshair.AttachedObject.Ptr1 =  ptr1;
+			Crosshair.AttachedObject.Ptr2 =  ptr2;
+			Crosshair.AttachedObject.Ptr3 =  ptr3;
+			return 0;
+		}
+		else if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], PAD_TYPE) != NO_TYPE) {
+			Crosshair.AttachedObject.Type =  ELEMENT_TYPE;
+			Crosshair.AttachedObject.Ptr1 =  ptr1;
+			Crosshair.AttachedObject.Ptr2 =  ptr2;
+			Crosshair.AttachedObject.Ptr3 =  ptr3;
+			return 0;
+		}
+		else if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], ARC_TYPE) != NO_TYPE) {
+			Crosshair.AttachedObject.Type =  ARC_TYPE;
+			Crosshair.AttachedObject.Ptr1 =  ptr1;
+			Crosshair.AttachedObject.Ptr2 =  ptr2;
+			Crosshair.AttachedObject.Ptr3 =  ptr3;
+			return 0;
+		}
+
+	} while(over <= 1);
+
+	return -1;
+}
+#undef close_enough
 
 /* -------------------------------------------------------------------------- */
 
@@ -8338,6 +8422,9 @@ HID_Action action_action_list[] = {
   ,
   {"DRC", 0, ActionDRCheck,
    drc_help, drc_syntax}
+  ,
+  {"CycleDrag", 0, CycleDrag,
+   cycledrag_help, cycledrag_syntax}
   ,
   {"DumpLibrary", 0, ActionDumpLibrary,
    dumplibrary_help, dumplibrary_syntax}

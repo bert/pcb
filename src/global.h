@@ -720,6 +720,10 @@ typedef struct
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject; /*!< Data of attached objects. */
   enum crosshair_shape shape; /*!< Shape of Crosshair. */
+  /* list of object IDs that could have been dragged so that they can be cycled */
+  long int *drags;
+  int drags_len, drags_current;
+  Coord dragx, dragy; /* the point where drag started */
 } CrosshairType;
 
 typedef struct

@@ -300,6 +300,7 @@ MainMenu =
     {"Buried from current layer" SetViaLayers(selected,c,-)}
     {"Buried to current layer" SetViaLayers(selected,-,c)}
    }
+   {"Cycle object being dragged" CycleDrag() a={"x" "<Key>x"}}
   }
 
 #

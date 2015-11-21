@@ -43,6 +43,7 @@
 
 bool SelectObject (void);
 bool SelectBlock (BoxType *, bool);
+long int *ListBlock (BoxType *Box, int *len);
 bool SelectedOperation (ObjectFunctionType *, bool, int);
 void *ObjectOperation (ObjectFunctionType *, int, void *, void *, void *);
 bool SelectByFlag (int flag, bool select);
