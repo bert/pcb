@@ -437,9 +437,13 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
       IncrementUndoSerialNumber ();
     }
 
-  if (len == NULL) {
-	  static long int non_zero;
-	  return (changed ? &non_zero : NULL);
+	if (len == NULL) {
+		static long int non_zero;
+		return (changed ? &non_zero : NULL);
+	}
+	else {
+		*len = used;
+		return list;
 	}
 }
 #undef append
@@ -454,6 +458,15 @@ SelectBlock (BoxType *Box, bool Flag)
 {
 	/* do not list, set flag */
 	return (ListBlock_ (Box, Flag, NULL) == NULL) ? false : true;
+}
+
+/* ----------------------------------------------------------------------
+ * List all visible objects within the passed box
+ */
+long int *
+ListBlock (BoxType *Box, int *len)
+{
+	return ListBlock_(Box, 1, len);
 }
 
 /* ----------------------------------------------------------------------
