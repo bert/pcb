@@ -213,17 +213,39 @@ SelectObject (void)
   return (changed);
 }
 
-/*!
- * \brief Selects/unselects all visible objects within the passed box.
- *
- * "select" determines if the block is to be selected or unselected.
- *
- * \return true if the state of any object has changed.
+/* ----------------------------------------------------------------------
+ * selects/unselects or lists visible objects within the passed box
+ * If len is NULL:
+ *  Flag determines if the block is to be selected or unselected
+ *  returns non-NULL if the state of any object has changed
+ * if len is non-NULLL
+ *  returns a list of object IDs matched the search and loads len with the
+ *  length of the list. Returns NULL on no match.
  */
-bool
-SelectBlock (BoxType *Box, bool select)
+static long int *
+ListBlock_ (BoxType *Box, bool Flag, int *len)
 {
-  bool changed = false;
+  int changed = 0;
+  int used = 0, alloced = 0;
+  long int *list = NULL;
+ 
+  /* append an object to the return list OR set the flag if there's no list */
+#define append(undo_type, p1, obj) \
+  do { \
+    if (len == NULL) { \
+    AddObjectToFlagUndoList (undo_type, p1, obj, obj); \
+    ASSIGN_FLAG (SELECTEDFLAG, Flag, obj); \
+  } \
+  else { \
+    if (used >= alloced) { \
+      alloced += 64; \
+      list = realloc(list, sizeof(*list) * alloced); \
+    } \
+    list[used] = obj->ID; \
+    used++; \
+  } \
+  changed = 1; \
+} while(0)
 
   if (PCB->RatOn || !select)
     RAT_LOOP (PCB->Data);
@@ -231,11 +253,9 @@ SelectBlock (BoxType *Box, bool select)
     if (LINE_IN_BOX ((LineType *) line, Box) &&
 	!TEST_FLAG (LOCKFLAG, line) && TEST_FLAG (SELECTEDFLAG, line) != select)
       {
-	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-	ASSIGN_FLAG (SELECTEDFLAG, select, line);
+	append(RATLINE_TYPE, line, line);
 	if (PCB->RatOn)
 	  DrawRat (line);
-	changed = true;
       }
   }
   END_LOOP;
@@ -263,11 +283,9 @@ SelectBlock (BoxType *Box, bool select)
 	  && !TEST_FLAG (LOCKFLAG, line)
 	  && TEST_FLAG (SELECTEDFLAG, line) != select)
 	{
-	  AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-	  ASSIGN_FLAG (SELECTEDFLAG, select, line);
+	  append(LINE_TYPE, layer, line);
 	  if (layer->On)
 	    DrawLine (layer, line);
-	  changed = true;
 	}
     }
     END_LOOP;
@@ -277,11 +295,9 @@ SelectBlock (BoxType *Box, bool select)
 	  && !TEST_FLAG (LOCKFLAG, arc)
 	  && TEST_FLAG (SELECTEDFLAG, arc) != select)
 	{
-	  AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-	  ASSIGN_FLAG (SELECTEDFLAG, select, arc);
+	  append(ARC_TYPE, layer, arc);
 	  if (layer->On)
 	    DrawArc (layer, arc);
-	  changed = true;
 	}
     }
     END_LOOP;
@@ -293,11 +309,9 @@ SelectBlock (BoxType *Box, bool select)
 	      && !TEST_FLAG (LOCKFLAG, text)
 	      && TEST_FLAG (SELECTEDFLAG, text) != select)
 	    {
-	      AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
-	      ASSIGN_FLAG (SELECTEDFLAG, select, text);
+	      append(TEXT_TYPE, layer, text);
 	      if (TEXT_IS_VISIBLE(PCB, layer, text))
 		DrawText (layer, text);
-	      changed = true;
 	    }
 	}
     }
@@ -308,11 +322,9 @@ SelectBlock (BoxType *Box, bool select)
 	  && !TEST_FLAG (LOCKFLAG, polygon)
 	  && TEST_FLAG (SELECTEDFLAG, polygon) != select)
 	{
-	  AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-	  ASSIGN_FLAG (SELECTEDFLAG, select, polygon);
+	  append(POLYGON_TYPE, layer, polygon);
 	  if (layer->On)
 	    DrawPolygon (layer, polygon);
-	  changed = true;
 	}
     }
     END_LOOP;
@@ -338,30 +350,23 @@ SelectBlock (BoxType *Box, bool select)
 	      /* select all names of element */
 	      ELEMENTTEXT_LOOP (element);
 	      {
-		AddObjectToFlagUndoList (ELEMENTNAME_TYPE,
-					 element, text, text);
-		ASSIGN_FLAG (SELECTEDFLAG, select, text);
+		append(ELEMENTNAME_TYPE, element, text);
 	      }
 	      END_LOOP;
 	      if (PCB->ElementOn)
 		DrawElementName (element);
-	      changed = true;
 	    }
 	  if ((PCB->PinOn || !select) && ELEMENT_IN_BOX (element, Box))
 	    if (TEST_FLAG (SELECTEDFLAG, element) != select)
 	      {
-		AddObjectToFlagUndoList (ELEMENT_TYPE,
-					 element, element, element);
-		ASSIGN_FLAG (SELECTEDFLAG, select, element);
+		append(ELEMENT_TYPE, element, element);
 		PIN_LOOP (element);
 		{
 		  if (TEST_FLAG (SELECTEDFLAG, pin) != select)
 		    {
-		      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-		      ASSIGN_FLAG (SELECTEDFLAG, select, pin);
+		      append(PIN_TYPE, element, pin);
 		      if (PCB->PinOn)
 			DrawPin (pin);
-		      changed = true;
 		    }
 		}
 		END_LOOP;
@@ -369,11 +374,9 @@ SelectBlock (BoxType *Box, bool select)
 		{
 		  if (TEST_FLAG (SELECTEDFLAG, pad) != select)
 		    {
-		      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-		      ASSIGN_FLAG (SELECTEDFLAG, select, pad);
+		      append(PAD_TYPE, element, pad);
 		      if (PCB->PinOn)
 			DrawPad (pad);
-		      changed = true;
 		    }
 		}
 		END_LOOP;
@@ -390,11 +393,9 @@ SelectBlock (BoxType *Box, bool select)
 	    if ((VIA_OR_PIN_IN_BOX (pin, Box)
 		 && TEST_FLAG (SELECTEDFLAG, pin) != select))
 	      {
-		AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-		ASSIGN_FLAG (SELECTEDFLAG, select, pin);
+		append(PIN_TYPE, element, pin);
 		if (PCB->PinOn)
 		  DrawPin (pin);
-		changed = true;
 	      }
 	  }
 	  END_LOOP;
@@ -406,11 +407,9 @@ SelectBlock (BoxType *Box, bool select)
 		    || PCB->InvisibleObjectsOn
 		    || !select))
 	      {
-		AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-		ASSIGN_FLAG (SELECTEDFLAG, select, pad);
+		append(PAD_TYPE, element, pad);
 		if (PCB->PinOn)
 		  DrawPad (pad);
-		changed = true;
 	      }
 	  }
 	  END_LOOP;
@@ -426,11 +425,9 @@ SelectBlock (BoxType *Box, bool select)
 	&& !TEST_FLAG (LOCKFLAG, via)
 	&& TEST_FLAG (SELECTEDFLAG, via) != select)
       {
-	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	ASSIGN_FLAG (SELECTEDFLAG, select, via);
+	append(VIA_TYPE, via, via);
 	if (PCB->ViaOn)
 	  DrawVia (via);
-	changed = true;
       }
   }
   END_LOOP;
@@ -439,7 +436,26 @@ SelectBlock (BoxType *Box, bool select)
       Draw ();
       IncrementUndoSerialNumber ();
     }
-  return (changed);
+
+  if (len == NULL) {
+	  static long int non_zero;
+	  return (changed ? &non_zero : NULL);
+	}
+}
+#undef append
+
+/*!
+ * \brief Selects/unselects all visible objects within the passed box.
+ *
+ * Flag determines if the block is to be selected or unselected.
+ *
+ * \return true if the state of any object has changed.
+ */
+bool
+SelectBlock (BoxType *Box, bool Flag)
+{
+	/* do not list, set flag */
+	return (ListBlock_ (Box, Flag, NULL) == NULL) ? false : true;
 }
 
 /*!
