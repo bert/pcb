@@ -76,14 +76,14 @@ int lines_intersect(Coord ax1, Coord ay1, Coord ax2, Coord ay2, Coord bx1, Coord
 
 /* == the same but accept if any part of the object touches the box == */
 #define POINT_IN_CIRCLE(x, y, cx, cy, r) \
-	(((x)-(cx)) * ((x)-(cx)) + ((y)-(cy)) * ((y)-(cy)) <= (r)*(r))
+	(Distance2(x, y, cx, cy) <= (double)(r) * (double)(r))
 
-#define CIRCLE_TOUCH_BOX(cx, cy, r, b) \
+#define CIRCLE_TOUCHES_BOX(cx, cy, r, b) \
 	(    POINT_IN_BOX((cx)-(r),(cy),(b)) || POINT_IN_BOX((cx)+(r),(cy),(b)) || POINT_IN_BOX((cx),(cy)-(r),(b)) || POINT_IN_BOX((cx),(cy)+(r),(b)) \
 	  || POINT_IN_CIRCLE((b)->X1, (b)->Y1, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X2, (b)->Y1, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X1, (b)->Y2, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X2, (b)->Y2, (cx), (cy), (r)))
 
 #define	VIA_OR_PIN_TOUCHES_BOX(v,b) \
-	CIRCLE_TOUCH_BOX((v)->X,(v)->Y,((v)->Thickness + (v)->DrillingHole/2),(b))
+	CIRCLE_TOUCHES_BOX((v)->X,(v)->Y,((v)->Thickness + (v)->DrillingHole/2),(b))
 
 #define	LINE_TOUCHES_BOX(l,b)	\
 	(    lines_intersect((l)->Point1.X,(l)->Point1.Y,(l)->Point2.X,(l)->Point2.Y, (b)->X1, (b)->Y1, (b)->X2, (b)->Y1) \
