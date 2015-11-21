@@ -713,14 +713,11 @@ ReleaseMode (void)
     }
   else if (Settings.Mode == ARROW_MODE)
     {
-      box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
-		    Crosshair.AttachedBox.Point2.X);
-      box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
-		    Crosshair.AttachedBox.Point2.Y);
-      box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
-		    Crosshair.AttachedBox.Point2.X);
-      box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
-		    Crosshair.AttachedBox.Point2.Y);
+      box.X1 = Crosshair.AttachedBox.Point1.X;
+      box.Y1 = Crosshair.AttachedBox.Point1.Y;
+      box.X2 = Crosshair.AttachedBox.Point2.X;
+      box.Y2 = Crosshair.AttachedBox.Point2.Y;
+
       RestoreUndoSerialNumber ();
       if (SelectBlock (&box, true))
 	SetChangedFlag (true);

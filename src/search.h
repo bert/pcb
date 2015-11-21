@@ -37,6 +37,8 @@
 
 #include "global.h"
 
+int lines_intersect(Coord ax1, Coord ay1, Coord ax2, Coord ay2, Coord bx1, Coord by1, Coord bx2, Coord by2);
+
 #define SLOP 5
 /* ---------------------------------------------------------------------------
  * some useful macros
@@ -71,6 +73,73 @@
 
 #define ARC_IN_BOX(a,b)		\
 	(BOX_IN_BOX(&((a)->BoundingBox), (b)))
+
+/* == the same but accept if any part of the object touches the box == */
+#define POINT_IN_CIRCLE(x, y, cx, cy, r) \
+	(((x)-(cx)) * ((x)-(cx)) + ((y)-(cy)) * ((y)-(cy)) <= (r)*(r))
+
+#define CIRCLE_TOUCH_BOX(cx, cy, r, b) \
+	(    POINT_IN_BOX((cx)-(r),(cy),(b)) || POINT_IN_BOX((cx)+(r),(cy),(b)) || POINT_IN_BOX((cx),(cy)-(r),(b)) || POINT_IN_BOX((cx),(cy)+(r),(b)) \
+	  || POINT_IN_CIRCLE((b)->X1, (b)->Y1, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X2, (b)->Y1, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X1, (b)->Y2, (cx), (cy), (r)) || POINT_IN_CIRCLE((b)->X2, (b)->Y2, (cx), (cy), (r)))
+
+#define	VIA_OR_PIN_TOUCHES_BOX(v,b) \
+	CIRCLE_TOUCH_BOX((v)->X,(v)->Y,((v)->Thickness + (v)->DrillingHole/2),(b))
+
+#define	LINE_TOUCHES_BOX(l,b)	\
+	(    lines_intersect((l)->Point1.X,(l)->Point1.Y,(l)->Point2.X,(l)->Point2.Y, (b)->X1, (b)->Y1, (b)->X2, (b)->Y1) \
+	  || lines_intersect((l)->Point1.X,(l)->Point1.Y,(l)->Point2.X,(l)->Point2.Y, (b)->X1, (b)->Y1, (b)->X1, (b)->Y2) \
+	  || lines_intersect((l)->Point1.X,(l)->Point1.Y,(l)->Point2.X,(l)->Point2.Y, (b)->X2, (b)->Y2, (b)->X1, (b)->Y2) \
+	  || lines_intersect((l)->Point1.X,(l)->Point1.Y,(l)->Point2.X,(l)->Point2.Y, (b)->X2, (b)->Y2, (b)->X2, (b)->Y1))
+
+#define	PAD_TOUCHES_BOX(p,b)	LINE_TOUCHES_BOX((LineType *)(p),(b))
+
+/* a corner of either box is within the other, or edges cross */
+#define	BOX_TOUCHES_BOX(b1,b2)	\
+	(   POINT_IN_BOX((b1)->X1,(b1)->Y1,b2) || POINT_IN_BOX((b1)->X1,(b1)->Y2,b2) || POINT_IN_BOX((b1)->X2,(b1)->Y1,b2) || POINT_IN_BOX((b1)->X2,(b1)->Y2,b2)  \
+	 || POINT_IN_BOX((b2)->X1,(b2)->Y1,b1) || POINT_IN_BOX((b2)->X1,(b2)->Y2,b1) || POINT_IN_BOX((b2)->X2,(b2)->Y1,b1) || POINT_IN_BOX((b2)->X2,(b2)->Y2,b1)  \
+	 || lines_intersect((b1)->X1,(b1)->Y1, (b1)->X2,(b1)->Y1, (b2)->X1,(b2)->Y1, (b2)->X1,(b2)->Y2) \
+	 || lines_intersect((b2)->X1,(b2)->Y1, (b2)->X2,(b2)->Y1, (b1)->X1,(b1)->Y1, (b1)->X1,(b1)->Y2))
+
+#define	TEXT_TOUCHES_BOX(t,b)	\
+	(BOX_TOUCHES_BOX(&((t)->BoundingBox), (b)))
+
+#define	POLYGON_TOUCHES_BOX(p,b)	\
+	(BOX_TOUCHES_BOX(&((p)->BoundingBox), (b)))
+
+#define	ELEMENT_TOUCHES_BOX(e,b)	\
+	(BOX_TOUCHES_BOX(&((e)->BoundingBox), (b)))
+
+#define ARC_TOUCHES_BOX(a,b)		\
+	(BOX_TOUCHES_BOX(&((a)->BoundingBox), (b)))
+
+
+/* == the combination of *_IN_* and *_TOUCHES_*: use IN for positive boxes == */
+#define IS_BOX_NEGATIVE(b) (((b)->X2 < (b)->X1) || ((b)->Y2 < (b)->Y1))
+
+#define	BOX_NEAR_BOX(b1,b) \
+	(IS_BOX_NEGATIVE(b) ? BOX_TOUCHES_BOX(b1,b) : BOX_IN_BOX(b1,b))
+
+#define	VIA_OR_PIN_NEAR_BOX(v,b) \
+	(IS_BOX_NEGATIVE(b) ? VIA_OR_PIN_TOUCHES_BOX(v,b) : VIA_OR_PIN_IN_BOX(v,b))
+
+#define	LINE_NEAR_BOX(l,b) \
+	(IS_BOX_NEGATIVE(b) ? LINE_TOUCHES_BOX(l,b) : LINE_IN_BOX(l,b))
+
+#define	PAD_NEAR_BOX(p,b) \
+	(IS_BOX_NEGATIVE(b) ? PAD_TOUCHES_BOX(p,b) : PAD_IN_BOX(p,b))
+
+#define	TEXT_NEAR_BOX(t,b) \
+	(IS_BOX_NEGATIVE(b) ? TEXT_TOUCHES_BOX(t,b) : TEXT_IN_BOX(t,b))
+
+#define	POLYGON_NEAR_BOX(p,b) \
+	(IS_BOX_NEGATIVE(b) ? POLYGON_TOUCHES_BOX(p,b) : POLYGON_IN_BOX(p,b))
+
+#define	ELEMENT_NEAR_BOX(e,b) \
+	(IS_BOX_NEGATIVE(b) ? ELEMENT_TOUCHES_BOX(e,b) : ELEMENT_IN_BOX(e,b))
+
+#define ARC_NEAR_BOX(a,b) \
+	(IS_BOX_NEGATIVE(b) ? ARC_TOUCHES_BOX(a,b) : ARC_IN_BOX(a,b))
+
 
 /* ---------------------------------------------------------------------------
  * prototypes

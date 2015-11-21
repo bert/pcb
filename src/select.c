@@ -247,10 +247,16 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
   changed = 1; \
 } while(0)
 
-  if (PCB->RatOn || !select)
+  if (IS_BOX_NEGATIVE(Box) && ((Box->X1 == Box->X2) || (Box->Y2 == Box->Y1))) {
+    if (len != NULL)
+      *len = 0;
+    return NULL;
+  }
+
+  if (PCB->RatOn || !Flag)
     RAT_LOOP (PCB->Data);
   {
-    if (LINE_IN_BOX ((LineType *) line, Box) &&
+    if (LINE_NEAR_BOX ((LineType *) line, Box) &&
 	!TEST_FLAG (LOCKFLAG, line) && TEST_FLAG (SELECTEDFLAG, line) != select)
       {
 	append(RATLINE_TYPE, line, line);
@@ -279,7 +285,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
 
     LINE_LOOP (layer);
     {
-      if (LINE_IN_BOX (line, Box)
+      if (LINE_NEAR_BOX (line, Box)
 	  && !TEST_FLAG (LOCKFLAG, line)
 	  && TEST_FLAG (SELECTEDFLAG, line) != select)
 	{
@@ -291,7 +297,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
     END_LOOP;
     ARC_LOOP (layer);
     {
-      if (ARC_IN_BOX (arc, Box)
+      if (ARC_NEAR_BOX (arc, Box)
 	  && !TEST_FLAG (LOCKFLAG, arc)
 	  && TEST_FLAG (SELECTEDFLAG, arc) != select)
 	{
@@ -305,7 +311,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
     {
       if (!select || TEXT_IS_VISIBLE(PCB, layer, text))
 	{
-	  if (TEXT_IN_BOX (text, Box)
+	  if (TEXT_NEAR_BOX (text, Box)
 	      && !TEST_FLAG (LOCKFLAG, text)
 	      && TEST_FLAG (SELECTEDFLAG, text) != select)
 	    {
@@ -318,7 +324,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
     END_LOOP;
     POLYGON_LOOP (layer);
     {
-      if (POLYGON_IN_BOX (polygon, Box)
+      if (POLYGON_NEAR_BOX (polygon, Box)
 	  && !TEST_FLAG (LOCKFLAG, polygon)
 	  && TEST_FLAG (SELECTEDFLAG, polygon) != select)
 	{
@@ -341,7 +347,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
 	  && ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
 	      || PCB->InvisibleObjectsOn))
 	{
-	  if (BOX_IN_BOX
+	  if (BOX_NEAR_BOX
 	      (&ELEMENT_TEXT (PCB, element).BoundingBox, Box)
 	      && !TEST_FLAG (LOCKFLAG, &ELEMENT_TEXT (PCB, element))
 	      && TEST_FLAG (SELECTEDFLAG,
@@ -356,7 +362,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
 	      if (PCB->ElementOn)
 		DrawElementName (element);
 	    }
-	  if ((PCB->PinOn || !select) && ELEMENT_IN_BOX (element, Box))
+	  if ((PCB->PinOn || !Flag) && ELEMENT_NEAR_BOX (element, Box))
 	    if (TEST_FLAG (SELECTEDFLAG, element) != select)
 	      {
 		append(ELEMENT_TYPE, element, element);
@@ -390,8 +396,8 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
 	{
 	  PIN_LOOP (element);
 	  {
-	    if ((VIA_OR_PIN_IN_BOX (pin, Box)
-		 && TEST_FLAG (SELECTEDFLAG, pin) != select))
+	    if ((VIA_OR_PIN_NEAR_BOX (pin, Box)
+		 && TEST_FLAG (SELECTEDFLAG, pin) != Flag))
 	      {
 		append(PIN_TYPE, element, pin);
 		if (PCB->PinOn)
@@ -401,7 +407,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
 	  END_LOOP;
 	  PAD_LOOP (element);
 	  {
-	    if (PAD_IN_BOX (pad, Box)
+	    if (PAD_NEAR_BOX (pad, Box)
 		&& TEST_FLAG (SELECTEDFLAG, pad) != select
 		&& (TEST_FLAG (ONSOLDERFLAG, pad) == SWAP_IDENT
 		    || PCB->InvisibleObjectsOn
@@ -421,7 +427,7 @@ ListBlock_ (BoxType *Box, bool Flag, int *len)
   if (PCB->ViaOn || !select)
     VIA_LOOP (PCB->Data);
   {
-    if (VIA_OR_PIN_IN_BOX (via, Box)
+    if (VIA_OR_PIN_NEAR_BOX (via, Box)
 	&& !TEST_FLAG (LOCKFLAG, via)
 	&& TEST_FLAG (SELECTEDFLAG, via) != select)
       {

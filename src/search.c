@@ -1681,3 +1681,42 @@ SearchScreen (Coord X, Coord Y, int Type, void **Result1,
 				X, Y, SLOP * pixel_slop);
   return (ans);
 }
+
+int lines_intersect(Coord ax1, Coord ay1, Coord ax2, Coord ay2, Coord bx1, Coord by1, Coord bx2, Coord by2)
+{
+/* TODO: this should be long double if Coord is 64 bits */
+	double ua, ub, xi, yi, X1, Y1, X2, Y2, X3, Y3, X4, Y4, tmp;
+
+	/* maths from http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/ */
+
+	X1 = ax1;
+	X2 = ax2;
+	X3 = bx1;
+	X4 = bx2;
+	Y1 = ay1;
+	Y2 = ay2;
+	Y3 = by1;
+	Y4 = by2;
+
+	tmp = ((Y4-Y3)*(X2-X1) - (X4-X3)*(Y2-Y1));
+	ua=((X4-X3)*(Y1-Y3) - (Y4-Y3)*(X1-X3)) / tmp;
+	ub=((X2-X1)*(Y1-Y3) - (Y2-Y1)*(X1-X3)) / tmp;
+	xi = X1 + ua * (X2 - X1);
+	yi = Y1 + ua * (Y2 - Y1);
+
+#define check(e1, e2, i) \
+	if (e1 < e2) { \
+		if ((i < e1) || (i > e2)) \
+			return 0; \
+	} \
+	else { \
+		if ((i > e1) || (i < e2)) \
+			return 0; \
+	}
+
+	check(ax1, ax2, xi);
+	check(bx1, bx2, xi);
+	check(ay1, ay2, yi);
+	check(by1, by2, yi);
+	return 1;
+}
