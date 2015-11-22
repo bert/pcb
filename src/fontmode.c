@@ -1,30 +1,43 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/fontmode.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2006 DJ Delorie
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \todo We currently hardcode the grid and PCB size.\n
+ * What we should do in the future is scan the font for its extents, and
+ * size the grid appropriately.\n
+ * Also, when we convert back to a font, we should search the grid for
+ * the gridlines and use them to figure out where the symbols are.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
- *  dj@delorie.com
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 2006 DJ Delorie
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA  02110-1301  USA, <http://www.gnu.org/licenses/>.
+ *
+ * Contact addresses for paper mail and Email:
+ * DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
+ * dj@delorie.com
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -46,15 +59,9 @@
 #include "undo.h"
 #include "pcb-printf.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-/* FIXME - we currently hardcode the grid and PCB size.  What we
-   should do in the future is scan the font for its extents, and size
-   the grid appropriately.  Also, when we convert back to a font, we
-   should search the grid for the gridlines and use them to figure out
-   where the symbols are. */
 
 #define CELL_SIZE	MIL_TO_COORD (100)
 #define CELL_OFFSET	MIL_TO_COORD (10)
@@ -68,11 +75,13 @@ static const char fontedit_help[] =
   "Convert the current font to a PCB for editing.";
 
 /* %start-doc actions FontEdit
- This command only allows a font to be edited if the layout being edited contains
- font symbols. The existing font symbols are displayed on a layer with an overlaid
- grid, with the new version of the font on another layer which can be modified.
- Font symbols consist only of lines. The blue lines next to the font symbols
- indicate the space required after the symbol when it is used.
+
+This command only allows a font to be edited if the layout being edited contains
+font symbols. The existing font symbols are displayed on a layer with an overlaid
+grid, with the new version of the font on another layer which can be modified.
+Font symbols consist only of lines. The blue lines next to the font symbols
+indicate the space required after the symbol when it is used.
+
 %end-doc */
 
 static int
@@ -155,7 +164,6 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
     }
 
   for (l = 0; l < 16; l++) {
-
       int x = (l + 1) * CELL_SIZE;
       CreateDrawnLineOnLayer (lgrid, x, 0, x, PCB->MaxHeight, MIL_TO_COORD (1),
                               MIL_TO_COORD (1), NoFlags ());
@@ -174,10 +182,12 @@ static const char fontsave_syntax[] = "FontSave()";
 static const char fontsave_help[] = "Convert the current PCB back to a font.";
 
 /* %start-doc actions FontSave
+
 Once a font has been modified with the FontEdit command, the layout can be saved
 as a new PCB layout. The new PCB layout can then be opened with a text editor so
 that the font section can be removed and saved as a new "default_font" file for
 use in other PCB layouts.
+
 %end-doc */
 
 static int
