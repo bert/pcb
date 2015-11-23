@@ -137,6 +137,7 @@ PCB_SRCS = \
 	select.h \
 	set.c \
 	set.h \
+	smartdisperse.c \
 	strflags.c \
 	strflags.h \
 	thermal.c \
@@ -191,6 +192,7 @@ BUILT_SOURCES = \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
+	hid/gencad/gencad_lists.h \
 	hid/ipcd356/ipcd356_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
@@ -237,6 +239,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
 	$(srcdir)/hid/gcode/hid.conf \
+	$(srcdir)/hid/gencad/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
@@ -417,18 +420,21 @@ libgerber_a_SOURCES = \
 
 libscad_a_SOURCES = \
 	hid/hidint.h \
+	hid/scad/scad.h \
 	hid/scad/scad.c \
 	hid/scad/scadproto.c \
 	hid/scad/scadcomp.c
 
 LIBGENCAD_SRCS = \
 	hid/hidint.h \
+	hid/gencad/gencad.h \
 	hid/gencad/gencad.c
 
 libgencad_a_SOURCES = ${LIBGENCAD_SRCS}
 
 LIBIPCD356_SRCS = \
 	hid/hidint.h \
+	hid/ipcd356/ipcd356.h \
 	hid/ipcd356/ipcd356.c
 
 libipcd356_a_SOURCES = ${LIBIPCD356_SRCS}
@@ -485,6 +491,12 @@ hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
 	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+hid/gencad/gencad_lists.h : ${LIBGENCAD_SRCS} Makefile
+	$(MKDIR_P) hid/gencad
+	true > $@
+	(for f in ${LIBGENCAD_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 hid/ipcd356/ipcd356_lists.h : ${LIBIPCD356_SRCS} Makefile
 	$(MKDIR_P) hid/ipcd356
 	true > $@
@@ -520,6 +532,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
+	hid/gencad/gencad_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	core_lists.h \
