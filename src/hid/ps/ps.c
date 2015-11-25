@@ -1280,14 +1280,19 @@ fill_polyarea (hidGC gc, POLYAREA * pa, const BoxType * clip_box)
 static void
 ps_draw_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
 {
-  fill_polyarea (gc, poly->Clipped, clip_box);
-  if (TEST_FLAG (FULLPOLYFLAG, poly))
-    {
+  if (poly->Clipped) {
+
+    fill_polyarea (gc, poly->Clipped, clip_box);
+
+    if (TEST_FLAG (FULLPOLYFLAG, poly)) {
+
       POLYAREA *pa;
 
-      for (pa = poly->Clipped->f; pa != poly->Clipped; pa = pa->f)
+      for (pa = poly->Clipped->f; pa != poly->Clipped; pa = pa->f) {
         fill_polyarea (gc, pa, clip_box);
+      }
     }
+  }
 }
 
 static void
