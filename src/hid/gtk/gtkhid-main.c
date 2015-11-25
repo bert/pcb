@@ -28,25 +28,15 @@ pan_common (GHidPort *port)
 {
   int event_x, event_y;
 
-  /* We need to fix up the PCB coordinates corresponding to the last
-  * event so convert it back to event coordinates temporarily. */
-  ghid_pcb_to_event_coords (gport->pcb_x, gport->pcb_y, &event_x, &event_y);
-
   /* Don't pan so far the board is completely off the screen */
   port->view.x0 = MAX (-port->view.width,  port->view.x0);
   port->view.y0 = MAX (-port->view.height, port->view.y0);
   port->view.x0 = MIN ( port->view.x0, PCB->MaxWidth);
   port->view.y0 = MIN ( port->view.y0, PCB->MaxHeight);
 
-  /* Fix up noted event coordinates to match where we clamped. Alternatively
-   * we could call ghid_note_event_location (NULL); to get a new pointer
-   * location, but this costs us an xserver round-trip (on X11 platforms)
-   */
-  ghid_event_to_pcb_coords (event_x, event_y, &gport->pcb_x, &gport->pcb_y);
-
   ghidgui->adjustment_changed_holdoff = TRUE;
-  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view.x0);
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view.y0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->h_range), port->view.x0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), port->view.y0);
   ghidgui->adjustment_changed_holdoff = FALSE;
 
   ghid_port_ranges_changed();
