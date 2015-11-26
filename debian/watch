@@ -1,0 +1,3 @@
+version=3
+http://sf.net/pcb/pcb-(.*)\.tar\.gz
+http://geda.seul.org/dist/pcb-(.*)\.tar\.gz
