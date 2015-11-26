@@ -832,16 +832,24 @@ GetDataBoundingBox (DataType *Data)
 }
 
 /* ---------------------------------------------------------------------------
- * centers the displayed PCB around the specified point (X,Y)
+ * centers the displayed PCB around the specified point (X,Y), and move the
+ * crosshair there. If warp_pointer is true warp the pointer to the crosshair
  */
 void
-CenterDisplay (Coord X, Coord Y)
+CenterDisplay (Coord X, Coord Y, bool warp_pointer)
 {
   Coord save_grid = PCB->Grid;
   PCB->Grid = 1;
   if (MoveCrosshairAbsolute (X, Y))
     notify_crosshair_change (true);
-  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER);
+  if (warp_pointer) {
+    gui->set_crosshair (Crosshair.X, Crosshair.Y,
+                        HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER );
+  }
+  else {
+    gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_CENTER_IN_VIEWPORT);
+  }
+
   PCB->Grid = save_grid;
 }
 

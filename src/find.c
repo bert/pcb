@@ -4182,7 +4182,7 @@ GotoError (void)
           GetLayerNumber (PCB->Data, (LayerType *) thing_ptr1),
           true, true);
     }
-  CenterDisplay (X, Y);
+  CenterDisplay (X, Y, false);
 }
 
 void
