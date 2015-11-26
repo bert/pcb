@@ -304,7 +304,8 @@ ghid_set_crosshair (int x, int y, int action)
     }
 
   if (action != HID_SC_PAN_VIEWPORT &&
-      action != HID_SC_WARP_POINTER)
+      action != HID_SC_WARP_POINTER &&
+      action != HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER)
     return;
 
   /* Find out where the drawing area is on the screen. gdk_display_get_pointer
@@ -313,9 +314,33 @@ ghid_set_crosshair (int x, int y, int action)
    */
   gdk_window_get_origin (gtk_widget_get_window (gport->drawing_area),
                          &offset_x, &offset_y);
+
   display = gdk_display_get_default ();
+  screen  = gdk_display_get_default_screen (display);
 
   switch (action) {
+
+      case HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER:
+
+          /* Center the viewport on the crosshair */
+          ghid_pan_view_abs (gport->crosshair_x - gport->view.width / 2,
+                             gport->crosshair_y - gport->view.height / 2,
+                             0, 0);
+
+          /* We do this to make sure gdk has an up-to-date idea of the
+           * widget coordinates so gdk_display_warp_pointer will go to
+           * the right spot.
+           */
+          gdk_window_process_all_updates ();
+
+          /* Warp pointer to crosshair */
+          ghid_pcb_to_event_coords (gport->crosshair_x, gport->crosshair_y,
+                                    &widget_x, &widget_y);
+          gdk_display_warp_pointer (display, screen, widget_x + offset_x,
+                                    widget_y + offset_y);
+
+          break;
+
     case HID_SC_PAN_VIEWPORT:
       /* Pan the board in the viewport so that the crosshair (who's location
        * relative on the board was set above) lands where the pointer is.

@@ -3593,6 +3593,17 @@ lesstif_set_crosshair (int x, int y, int action)
 
     }
 
+    if (action == HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER)
+	{
+		fprintf (
+			stderr,
+		   "warning:%s:%i: HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER not "
+		   "implemented in this HID, using HID_SC_WARP_POINTER instead\n",
+		   __FILE__,
+		   __LINE__ );
+		action = HID_SC_WARP_POINTER;
+	}
+
   if (action == HID_SC_PAN_VIEWPORT)
     {
       Window root, child;

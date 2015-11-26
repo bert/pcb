@@ -841,7 +841,7 @@ CenterDisplay (Coord X, Coord Y)
   PCB->Grid = 1;
   if (MoveCrosshairAbsolute (X, Y))
     notify_crosshair_change (true);
-  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
+  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_CENTER_IN_VIEWPORT_AND_WARP_POINTER);
   PCB->Grid = save_grid;
 }
 
