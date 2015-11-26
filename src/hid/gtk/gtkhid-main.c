@@ -26,8 +26,6 @@
 static void
 pan_common (GHidPort *port)
 {
-  int event_x, event_y;
-
   /* Don't pan so far the board is completely off the screen */
   port->view.x0 = MAX (-port->view.width,  port->view.x0);
   port->view.y0 = MAX (-port->view.height, port->view.y0);
