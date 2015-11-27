@@ -38,16 +38,28 @@
  *   http://www.opengl.org/registry/ABI/
  */
 #define GL_GLEXT_PROTOTYPES 1
-#if HAVE_OPENGL_GL_H
-#   include <OpenGL/gl.h>
+
+/* This follows autoconf's recommendation for the AX_CHECK_GL macro
+   https://www.gnu.org/software/autoconf-archive/ax_check_gl.html */
+#if defined HAVE_WINDOWS_H && defined _WIN32
+#  include <windows.h>
+#endif
+#if defined HAVE_GL_GL_H
+#  include <GL/gl.h>
+#elif defined HAVE_OPENGL_GL_H
+#  include <OpenGL/gl.h>
 #else
-#   include <GL/gl.h>
+#  error autoconf couldnt find gl.h
 #endif
 
-#if HAVE_OPENGL_GLU_H
-#   include <OpenGL/glu.h>
+/* This follows autoconf's recommendation for the AX_CHECK_GLU macro
+   https://www.gnu.org/software/autoconf-archive/ax_check_glu.html */
+#if defined HAVE_GL_GLU_H
+#  include <GL/glu.h>
+#elif defined HAVE_OPENGL_GLU_H
+#  include <OpenGL/glu.h>
 #else
-#   include <GL/glu.h>
+#  error autoconf couldnt find glu.h
 #endif
 
 #include "action.h"

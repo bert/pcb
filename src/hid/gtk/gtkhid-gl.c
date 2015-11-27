@@ -15,12 +15,19 @@
  * in order to get prototypes:
  *   http://www.opengl.org/registry/ABI/
  */
-
 #define GL_GLEXT_PROTOTYPES 1
-#if HAVE_OPENGL_GL_H
-#   include <OpenGL/gl.h>
+
+/* This follows autoconf's recommendation for the AX_CHECK_GL macro
+   https://www.gnu.org/software/autoconf-archive/ax_check_gl.html */
+#if defined HAVE_WINDOWS_H && defined _WIN32
+#  include <windows.h>
+#endif
+#if defined HAVE_GL_GL_H
+#  include <GL/gl.h>
+#elif defined HAVE_OPENGL_GL_H
+#  include <OpenGL/gl.h>
 #else
-#   include <GL/gl.h>
+#  error autoconf couldnt find gl.h
 #endif
 
 #include <gtk/gtkgl.h>
@@ -77,6 +84,7 @@ typedef struct render_priv {
 typedef struct hid_gc_struct
 {
   HID *me_pointer;
+
   const char *colorname;
   double alpha_mult;
   Coord width;
@@ -137,9 +145,7 @@ ghid_set_layer (const char *name, int group, int empty)
     int n = PCB->LayerGroups.Number[group];
 
     for (idx = 0; idx < n-1; idx ++) {
-
       int ni = PCB->LayerGroups.Entries[group][idx];
-
       if (ni >= 0 && ni < max_copper_layer + SILK_LAYER
         && PCB->Data->Layer[ni].On)
         break;
@@ -152,35 +158,35 @@ ghid_set_layer (const char *name, int group, int empty)
 
   if (idx >= 0 && idx < max_copper_layer + SILK_LAYER) {
 
-      priv->trans_lines = true;
-      return PCB->Data->Layer[idx].On;
+    priv->trans_lines = true;
+    return PCB->Data->Layer[idx].On;
   }
 
   if (idx < 0) {
 
-      switch (SL_TYPE (idx))
-	{
-	case SL_INVISIBLE:
-	  return PCB->InvisibleObjectsOn;
-	case SL_MASK:
-	  if (SL_MYSIDE (idx))
-	    return TEST_FLAG (SHOWMASKFLAG, PCB);
-	  return 0;
-	case SL_SILK:
-	  priv->trans_lines = true;
-	  if (SL_MYSIDE (idx))
-	    return PCB->ElementOn;
-	  return 0;
-	case SL_ASSY:
-	  return 0;
-	case SL_PDRILL:
-	case SL_UDRILL:
-	  return 1;
-	case SL_RATS:
-	  if (PCB->RatOn)
-	    priv->trans_lines = true;
-	  return PCB->RatOn;
-	}
+    switch (SL_TYPE (idx))
+    {
+      case SL_INVISIBLE:
+        return PCB->InvisibleObjectsOn;
+      case SL_MASK:
+        if (SL_MYSIDE (idx))
+          return TEST_FLAG (SHOWMASKFLAG, PCB);
+        return 0;
+      case SL_SILK:
+        priv->trans_lines = true;
+        if (SL_MYSIDE (idx))
+          return PCB->ElementOn;
+        return 0;
+      case SL_ASSY:
+        return 0;
+      case SL_PDRILL:
+      case SL_UDRILL:
+        return 1;
+      case SL_RATS:
+        if (PCB->RatOn)
+          priv->trans_lines = true;
+        return PCB->RatOn;
+    }
   }
   return 0;
 }
@@ -388,8 +394,8 @@ set_gl_color_for_gc (hidGC gc)
   double r, g, b, a;
 
   if (priv->current_colorname != NULL &&
-      strcmp (priv->current_colorname, gc->colorname) == 0 &&
-      priv->current_alpha_mult == gc->alpha_mult)
+    strcmp (priv->current_colorname, gc->colorname) == 0 &&
+    priv->current_alpha_mult == gc->alpha_mult)
     return;
 
   free (priv->current_colorname);
@@ -401,46 +407,47 @@ set_gl_color_for_gc (hidGC gc)
 
   if (strcmp (gc->colorname, "erase") == 0) {
 
-      r = gport->bg_color.red   / 65535.;
-      g = gport->bg_color.green / 65535.;
-      b = gport->bg_color.blue  / 65535.;
-      a = 1.0;
+    r = gport->bg_color.red   / 65535.;
+    g = gport->bg_color.green / 65535.;
+    b = gport->bg_color.blue  / 65535.;
+    a = 1.0;
   }
   else if (strcmp (gc->colorname, "drill") == 0) {
 
-      r = gport->offlimits_color.red   / 65535.;
-      g = gport->offlimits_color.green / 65535.;
-      b = gport->offlimits_color.blue  / 65535.;
-      a = 0.85;
+    r = gport->offlimits_color.red   / 65535.;
+    g = gport->offlimits_color.green / 65535.;
+    b = gport->offlimits_color.blue  / 65535.;
+    a = 0.85;
   }
   else {
 
-      if (hid_cache_color (0, gc->colorname, &cval, &cache)) {
-        cc = (ColorCache*) cval.ptr;
-      }
-      else {
+    if (hid_cache_color (0, gc->colorname, &cval, &cache)) {
+      cc = (ColorCache*) cval.ptr;
+    }
+    else {
 
-          cc = (ColorCache *) malloc (sizeof (ColorCache));
-          memset (cc, 0, sizeof (*cc));
-          cval.ptr = cc;
-          hid_cache_color (1, gc->colorname, &cval, &cache);
-      }
+      cc = (ColorCache*) malloc (sizeof (ColorCache));
+      memset (cc, 0, sizeof (*cc));
+      cval.ptr = cc;
+      hid_cache_color (1, gc->colorname, &cval, &cache);
+    }
 
-      if (!cc->color_set) {
+    if (!cc->color_set) {
 
-          if (gdk_color_parse (gc->colorname, &cc->color))
-            gdk_color_alloc (gport->colormap, &cc->color);
-          else
-            gdk_color_white (gport->colormap, &cc->color);
-          cc->red   = cc->color.red   / 65535.;
-          cc->green = cc->color.green / 65535.;
-          cc->blue  = cc->color.blue  / 65535.;
-          cc->color_set = 1;
-        }
-      r = cc->red;
-      g = cc->green;
-      b = cc->blue;
-      a = 0.7;
+      if (gdk_color_parse (gc->colorname, &cc->color))
+        gdk_color_alloc (gport->colormap, &cc->color);
+      else
+        gdk_color_white (gport->colormap, &cc->color);
+
+      cc->red   = cc->color.red   / 65535.;
+      cc->green = cc->color.green / 65535.;
+      cc->blue  = cc->color.blue  / 65535.;
+      cc->color_set = 1;
+    }
+    r = cc->red;
+    g = cc->green;
+    b = cc->blue;
+    a = 0.7;
   }
 
   if (1) {
@@ -451,15 +458,23 @@ set_gl_color_for_gc (hidGC gc)
 
     if (!priv->trans_lines)
       a = 1.0;
+
     maxi = r;
-    if (g > maxi) maxi = g;
-    if (b > maxi) maxi = b;
+
+    if (g > maxi)
+      maxi = g;
+
+    if (b > maxi)
+      maxi = b;
+
     mult = MIN (1 / a, 1 / maxi);
+
 #if 1
     r = r * mult;
     g = g * mult;
     b = b * mult;
 #endif
+
   }
 
   if(!priv->in_context)
@@ -799,7 +814,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 
       printf ("Could not setup GL-context!\n");
       return; /* Should we abort? */
-    }
+  }
 
   /* Setup HID function pointers specific to the GL renderer*/
   ghid_hid.end_layer = ghid_end_layer;
@@ -872,6 +887,7 @@ ghid_screen_update (void)
 }
 
 #define Z_NEAR 3.0
+
 bool
 ghid_drawing_area_expose_cb (GtkWidget      *widget,
                              GdkEventExpose *ev,
@@ -955,7 +971,6 @@ ghid_drawing_area_expose_cb (GtkWidget      *widget,
   min_x = MIN (min_x, new_x);  max_x = MAX (max_x, new_x);
   min_y = MIN (min_y, new_y);  max_y = MAX (max_y, new_y);
 
-  /* */
   ghid_unproject_to_z_plane (ev->area.x + ev->area.width,
                              ev->area.y,
                              min_depth, &new_x, &new_y);
@@ -967,7 +982,6 @@ ghid_drawing_area_expose_cb (GtkWidget      *widget,
   min_x = MIN (min_x, new_x);  max_x = MAX (max_x, new_x);
   min_y = MIN (min_y, new_y);  max_y = MAX (max_y, new_y);
 
-  /* */
   ghid_unproject_to_z_plane (ev->area.x + ev->area.width,
                              ev->area.y + ev->area.height,
                              min_depth, &new_x, &new_y);
@@ -1046,7 +1060,7 @@ ghid_drawing_area_expose_cb (GtkWidget      *widget,
  * the issue. The problem appears to have been fixed in recent mesa versions.
  */
 void
-ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
+ghid_port_drawing_realize_cb (GtkWidget *widget, void *data)
 {
   GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
   GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
@@ -1058,7 +1072,8 @@ ghid_port_drawing_realize_cb (GtkWidget *widget, gpointer data)
   return;
 }
 
-int ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
+int
+ghid_pinout_preview_expose (GtkWidget *widget, GdkEventExpose *ev)
 {
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GtkAllocation allocation;
@@ -1562,14 +1577,14 @@ ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
 }
 
 void
-ghid_view_2d (void *ball, bool view_2d, gpointer userdata)
+ghid_view_2d (void *ball, bool view_2d, void *userdata)
 {
   global_view_2d = view_2d;
   ghid_invalidate_all ();
 }
 
 void
-ghid_port_rotate (void *ball, float *quarternion, gpointer userdata)
+ghid_port_rotate (void *ball, float *quarternion, void *userdata)
 {
 #if DEBUG_ROTATE
   int row, column;
