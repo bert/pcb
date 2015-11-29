@@ -1981,6 +1981,15 @@ static const char cycledrag_help[] = "Cycle through which object is being dragge
 
 #define close_enough(a, b) ((((a)-(b)) > 0) ? ((a)-(b) < (SLOP * pixel_slop)) : ((a)-(b) > -(SLOP * pixel_slop)))
 
+/* %start-doc actions CycleDrag
+
+@code{CycleDrag} provides an action that can cycle through objects that could
+be dragged in the given point while the left mouse button is pressed.
+
+This lets the user explicitly select the one object to work on.
+
+%end-doc */
+
 /*!
  * \brief Cycle through which object under the crosshair is being
  * dragged.
