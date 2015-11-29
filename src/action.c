@@ -1980,6 +1980,11 @@ static const char cycledrag_syntax[] =
 static const char cycledrag_help[] = "Cycle through which object is being dragged";
 
 #define close_enough(a, b) ((((a)-(b)) > 0) ? ((a)-(b) < (SLOP * pixel_slop)) : ((a)-(b) > -(SLOP * pixel_slop)))
+
+/*!
+ * \brief Cycle through which object under the crosshair is being
+ * dragged.
+ */
 static int
 CycleDrag (int argc, char **argv, Coord x, Coord y)
 {
