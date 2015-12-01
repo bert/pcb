@@ -1200,20 +1200,28 @@ ps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	     Angle start_angle, Angle delta_angle)
 {
   Angle sa, ea;
-  if (delta_angle > 0)
-    {
+
+  if (delta_angle > 0) {
+
       sa = start_angle;
       ea = start_angle + delta_angle;
     }
-  else
-    {
+  else {
+
       sa = start_angle + delta_angle;
       ea = start_angle;
     }
+
 #if 0
   printf ("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
 #endif
+
+  if (width <= 0) {
+    printf ("%s: line <%d> width = <%d>\n", __func__, __LINE__, (int)width);
+    width = MIL_TO_COORD (10);
+  }
+
   use_gc (gc);
   pcb_fprintf (global.f, "%ma %ma %mi %mi %mi %mi %g a\n",
                sa, ea, -width, height, cx, cy,
