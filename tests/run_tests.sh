@@ -478,6 +478,43 @@ compare_scad() {
 
 ##########################################################################
 #
+# PostScript comparison
+#
+
+compare_ps() {
+    local f1="$1"
+    local f2="$2"
+    compare_check "compare_ps" "$f1" "$f2" || return 1
+
+    # PostScript output is difficult to compare, because the last page
+    # ( = fab page) contains a date stamp written not as text, but drawn
+    # with lines. For now we only check wether the file contains valid
+    # PostScript and wether the page count matches.
+    TEMP_FILE=`mktemp`
+    echo "%!"                                      > ${TEMP_FILE}
+    echo "currentpagedevice /PageCount get"       >> ${TEMP_FILE}
+    echo " == flush"                              >> ${TEMP_FILE}
+
+    ORG_COUNT=`gs -q -dNODISPLAY -dBATCH -dNOPAUSE "$f1" ${TEMP_FILE}`
+    NEW_COUNT=`gs -q -dNODISPLAY -dBATCH -dNOPAUSE "$f2" ${TEMP_FILE}`
+    RESULT=$?
+
+    rm -f ${TEMP_FILE}
+
+    if test ${RESULT} -ne 0; then
+        echo "Invalid PostScript generated."
+        test_failed=yes
+    else if test "${ORG_COUNT}" != "${NEW_COUNT}"; then
+        echo -n "Page count of generated PostScript is ${NEW_COUNT} "
+        echo    "instead of expected ${OLD_COUNT}."
+        test_failed=yes
+    fi; fi
+
+    unset ORG_COUNT NEW_COUNT RESULT
+}
+
+##########################################################################
+#
 # GIF/JPEG/PNG comparison routines
 #
 
@@ -706,6 +743,10 @@ for t in $all_tests ; do
 		pcb)
 		    compare_pcb ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
+		# PS HID
+		ps)
+			compare_ps ${refdir}/${fn} ${rundir}/${fn}
+			;;
 
 		# unknown
 		*)

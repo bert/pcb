@@ -2,6 +2,7 @@
 
 EXTRA_DIST+= \
 			inputs/bom_general.pcb \
+			inputs/circles.pcb \
 			inputs/gcode_oneline.pcb \
 			inputs/gerber_oneline.pcb \
 			inputs/gerber_arcs.pcb \

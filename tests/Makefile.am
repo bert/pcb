@@ -55,6 +55,8 @@ include golden/hid_png1/Makefile_insert
 include golden/hid_png2/Makefile_insert
 include golden/hid_png3/Makefile_insert
 
+include golden/hid_ps1/Makefile_insert
+
 include golden/MinMaskGap/Makefile_insert
 
 missing_test:

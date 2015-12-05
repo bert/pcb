@@ -78,6 +78,10 @@
 #    jpg -- JPEG file
 #    png -- Portable network graphics (PNG) file
 #
+# PS
+#
+# ps -- PostScript file
+#
 # ACTIONS
 #
 # ACTIONS act on the layout file directly, so input and output file
@@ -207,7 +211,17 @@ hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
 hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
-
+######################################################################
+# ---------------------------------------------
+# PostScript export HID
+# ---------------------------------------------
+######################################################################
+#
+# Produces one PostScript file, unless asked to export into one file
+# per page.
+#
+hid_ps1 | circles.pcb | ps | --psfile circles.ps | | ps:circles.ps
+#
 ######################################################################
 # ---------------------------------------------
 # IPC-D-356 export HID
