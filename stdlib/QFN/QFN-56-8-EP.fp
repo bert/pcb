@@ -24,7 +24,7 @@
    # grow by 200 mils on each side
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
-Element[0x00000000 "Square Quad Flat Nolead (QFN) package" "" "QFN56_8_EP" 0 0 -17732 -18782 0 100 0x00000000]
+Element[0x00 "Square Quad Flat Nolead (QFN) package" "U?" "QFN56-8-EP" 0 0 -18000 -25000 0 100 0x00]
 (
 # Pad[X1, Y1, X2, Y3, width, clearance,
 #     soldermask, "pin name", "pin number", flags]
@@ -91,7 +91,7 @@ Element[0x00000000 "Square Quad Flat Nolead (QFN) package" "" "QFN56_8_EP" 0 0 -
 # Exposed paddle (if this is an exposed paddle part)
 # Pad(X1, Y1, X2, Y3, width, clearance,
 #     soldermask, "pin name", "pin number", flags)
-	Pad[0 0 0 0 26181 0 26581 "57" "57" 0x00000100]
+	Pad[0 0 0 0 22835 0 22835 "57" "57" 0x00000100]
 # Silk screen around package
 ElementLine[ 17732  17732  17732 -17732 1000]
 ElementLine[ 17732 -17732 -17732 -17732 1000]

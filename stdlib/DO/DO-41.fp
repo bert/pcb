@@ -3,10 +3,11 @@
 # description: DO-41 diode
 # dist-license: GPL 3
 # use-license: unlimited
-Element["" "" "" "" 26195 5760 0 0 2 100 ""]
+Element["" "" "D?" "" 26195 5760 0 -11000 0 100 ""]
 (
-	Pin[22037 79 9500 2000 10700 4200 "" "2" "edge2"]
-	Pin[-20463 79 9500 2000 10700 4200 "" "1" "square,edge2"]
+	Pin[22037 79 9500 2000 10700 4200 "" "1" "edge2"]
+	Pin[-20463 79 9500 2000 10700 4200 "" "2" "square,edge2"]
+
 	ElementLine [-9063 5129 10637 5129 1000]
 	ElementLine [-9063 -4971 -9063 5129 1000]
 	ElementLine [-9063 -4971 10637 -4971 1000]

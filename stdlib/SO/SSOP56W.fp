@@ -28,6 +28,7 @@ Element(0x00 "Shrink small outline package, 25mil, wide" "" "SSOP56W" 233 50 3 1
 	Pad(8 637 30 637 16 "26" 0x100)
 	Pad(8 662 30 662 16 "27" 0x100)
 	Pad(8 687 30 687 16 "28" 0x100)
+
 	Pad(396 688 418 688 16 "29" 0x100)
 	Pad(396 663 418 663 16 "30" 0x100)
 	Pad(396 638 418 638 16 "31" 0x100)
@@ -56,6 +57,7 @@ Element(0x00 "Shrink small outline package, 25mil, wide" "" "SSOP56W" 233 50 3 1
 	Pad(396 63 418 63 16 "54" 0x100)
 	Pad(396 38 418 38 16 "55" 0x100)
 	Pad(396 13 418 13 16 "56" 0x100)
+	
 	ElementLine(-10 -10 188 -10 10)
 	ElementArc(213 -10 25 25 0 180 10)
 	ElementLine(238 -10 436 -10 10)
@@ -64,3 +66,4 @@ Element(0x00 "Shrink small outline package, 25mil, wide" "" "SSOP56W" 233 50 3 1
 	ElementLine(-10 710 -10 -10 10)
 	Mark(23 12)
 )
+
