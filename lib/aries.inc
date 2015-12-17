@@ -52,6 +52,10 @@ define(`PKG_ARIES_DIP',
 
 	define(`SILKLYT', `eval(SILKYT - 485)')
 
+	# y-location of REFDES silk
+	define(`REFDESY', `eval(SILKYT - 125)')
+
+	# width of box drawn in silk for the lever
 	define(`SILKLW', `150')
 
 	ifelse(eval(eval(`$6') ==  2), 1, `
@@ -67,7 +71,7 @@ define(`PKG_ARIES_DIP',
 	define(`PADXR', `eval(`$5' / 2)')
 
 	define(`CENTERX', `eval(MAXX / 2)')
-Element(0x00 "$1" "`$2'" "$3" SILKXR 100 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0 REFDESY 0 200 0x00)
 (
         # footprint runs in two vertical rows with pin 1 at upper left
 	# X = 0 will be the center line of the part
