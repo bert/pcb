@@ -811,13 +811,12 @@ struct drc_violation_st
 
 
 /* ---------------------------------------------------------------------------
- * add a macro for wrapping RCS ID's in so that ident will still work
- * but we won't get as many compiler warnings
+ * GCC Versions
  */
 
 #ifndef GCC_VERSION
 #define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
-#endif /* GCC_VERSION */
+#endif
 
 #if GCC_VERSION > 2007
 #define ATTRIBUTE_UNUSED __attribute__((unused))
