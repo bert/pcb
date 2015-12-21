@@ -125,8 +125,18 @@ IT_PROG_INTLTOOL([0.35.0])
 
 AC_C_INLINE
 AC_PROG_CC_STDC
+AC_PROG_CC_C99
 AM_PROG_CC_C_O
 AC_PROG_CPP
+
+AC_MSG_CHECKING([that C compiler supports C99])
+if test "X$ac_cv_prog_cc_c99" = "Xno"; then
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([A C99-compliant compiler is requred])
+else
+  AC_MSG_RESULT([yes])
+fi
+
 AC_PROG_AWK
 AC_PROG_MKDIR_P
 
