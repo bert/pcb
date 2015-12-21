@@ -198,48 +198,47 @@ config_file_open (char * mode)
   FILE *f;
   char *homedir, *fname;
 
-
   homedir = (char *) g_get_home_dir ();
-  if (!homedir)
-    {
-      g_message ("config_file_open: Can't get home directory!");
-      return NULL;
-    }
 
-  if (!config_dir)
-    {
-      config_dir =
-	g_build_path (G_DIR_SEPARATOR_S, homedir, PCB_CONFIG_DIR, NULL);
-      if (!g_file_test (config_dir, G_FILE_TEST_IS_DIR)
-	  && MKDIR (config_dir, 0755) < 0)
-	{
-	  g_message ("config_file_open: Can't make \"%s\" directory!",
-		     config_dir);
-	  g_free (config_dir);
-	  config_dir = NULL;
-	  return NULL;
-	}
-    }
+  if (!homedir) {
+    g_message ("config_file_open: Can't get home directory!");
+    return NULL;
+  }
 
-  if (!color_dir)		/* Convenient to make the color dir here */
+  if (!config_dir) {
+
+    config_dir =
+    g_build_path (G_DIR_SEPARATOR_S, homedir, PCB_CONFIG_DIR, NULL);
+    if (!g_file_test (config_dir, G_FILE_TEST_IS_DIR) &&
+      MKDIR (config_dir, 0755) < 0)
     {
-      color_dir =
-	g_build_path (G_DIR_SEPARATOR_S, config_dir, PCB_COLORS_DIR, NULL);
-      if (!g_file_test (color_dir, G_FILE_TEST_IS_DIR))
-	{
-	  if (MKDIR (color_dir, 0755) < 0)
-	    {
-	      g_message ("config_file_open: Can't make \"%s\" directory!",
-			 color_dir);
-	      g_free (color_dir);
-	      color_dir = NULL;
-	    }
-	  fname = g_build_path (G_DIR_SEPARATOR_S,
-				color_dir, "Default", NULL);
-	  dup_string (&color_file, fname);
-	  g_free (fname);
-	}
+      g_message ("config_file_open: Can't make \"%s\" directory!",
+               config_dir);
+    g_free (config_dir);
+    config_dir = NULL;
+    return NULL;
     }
+  }
+
+  if (!color_dir) { /* Convenient to make the color dir here */
+
+    color_dir =
+    g_build_path (G_DIR_SEPARATOR_S, config_dir, PCB_COLORS_DIR, NULL);
+    if (!g_file_test (color_dir, G_FILE_TEST_IS_DIR)) {
+
+      if (MKDIR (color_dir, 0755) < 0) {
+
+        g_message ("config_file_open: Can't make \"%s\" directory!",
+                   color_dir);
+        g_free (color_dir);
+        color_dir = NULL;
+      }
+      fname = g_build_path (G_DIR_SEPARATOR_S,
+                            color_dir, "Default", NULL);
+      dup_string (&color_file, fname);
+      g_free (fname);
+    }
+  }
 
   fname = g_build_path (G_DIR_SEPARATOR_S, config_dir, PCB_CONFIG_FILE, NULL);
   f = fopen (fname, mode);
@@ -256,12 +255,12 @@ lookup_config_attribute (char *name, int if_null_value)
   for (ca = &config_attributes[0];
        ca < &config_attributes[0] + G_N_ELEMENTS (config_attributes); ++ca)
     {
-      if (name && (!strcmp (name, ca->name)))
-	{
-	  if (ca->value && if_null_value)
-	    break;
-	  return ca;
-	}
+      if (name && (!strcmp (name, ca->name))) {
+
+        if (ca->value && if_null_value)
+          break;
+        return ca;
+      }
     }
   return NULL;
 }
@@ -280,73 +279,73 @@ ghid_config_init (void)
   ghidgui->history_size = 5;
   dup_string (&color_file, "");
 
-  for (ha = hid_attr_nodes; ha; ha = ha->next)
-    {
-      for (a = ha->attributes; a < ha->attributes + ha->n; ++a)
-	{
-	  if (!a->value)
-	    continue;
-	  if ((ca = lookup_config_attribute (a->name, TRUE)) == NULL)
-	    ca = &dummy_attribute;
-	  ca->value = a->value;	/* Typically &Setting.xxx */
-	  ca->type = CONFIG_Unused;
-	  switch (a->type)
-	    {
-	    case HID_Boolean:
-	      *(char *) a->value = a->default_val.int_value;
-	      ca->type = CONFIG_Boolean;
-	      break;
-	    case HID_Integer:
-	      *(int *) a->value = a->default_val.int_value;
-	      ca->type = CONFIG_Integer;
-	      break;
-	    case HID_Coord:
-	      *(Coord *) a->value = a->default_val.coord_value;
-	      ca->type = CONFIG_Coord;
-	      break;
-	    case HID_Real:
-	      *(double *) a->value = a->default_val.real_value;
-	      ca->type = CONFIG_Real;
-	      break;
+  for (ha = hid_attr_nodes; ha; ha = ha->next) {
 
-	    case HID_String:
-	      if (!a->name)
-		break;
-	      *(char **) a->value = g_strdup (a->default_val.str_value);
-	      ca->type = CONFIG_String;
+    for (a = ha->attributes; a < ha->attributes + ha->n; ++a) {
 
-	      len = strlen (a->name);
-	      if (len < 7 || strstr (a->name, "color") == NULL)
-		break;
+      if (!a->value)
+        continue;
+      if ((ca = lookup_config_attribute (a->name, TRUE)) == NULL)
+        ca = &dummy_attribute;
+      ca->value = a->value;	/* Typically &Setting.xxx */
+      ca->type = CONFIG_Unused;
+      switch (a->type)
+      {
+        case HID_Boolean:
+          *(char *) a->value = a->default_val.int_value;
+          ca->type = CONFIG_Boolean;
+          break;
+        case HID_Integer:
+          *(int *) a->value = a->default_val.int_value;
+          ca->type = CONFIG_Integer;
+          break;
+        case HID_Coord:
+          *(Coord *) a->value = a->default_val.coord_value;
+          ca->type = CONFIG_Coord;
+          break;
+        case HID_Real:
+          *(double *) a->value = a->default_val.real_value;
+          ca->type = CONFIG_Real;
+          break;
 
-	      cc = g_new0 (ConfigColor, 1);
-	      cc->attributes = a;
+        case HID_String:
+          if (!a->name)
+            break;
+          *(char **) a->value = g_strdup (a->default_val.str_value);
+          ca->type = CONFIG_String;
 
-	      if (!strncmp (a->name, "layer-color", 11))
-		cc->type = LAYER_COLOR;
-	      else if (!strncmp (a->name, "layer-selected-color", 20))
-		cc->type = LAYER_SELECTED_COLOR;
-	      else if (!strncmp (a->name + len - 14, "selected-color", 14))
-		cc->type = MISC_SELECTED_COLOR;
-	      else
-		cc->type = MISC_COLOR;
+          len = strlen (a->name);
+          if (len < 7 || strstr (a->name, "color") == NULL)
+            break;
 
-	      config_color_list = g_list_append (config_color_list, cc);
-	      break;
+          cc = g_new0 (ConfigColor, 1);
+          cc->attributes = a;
 
-	    case HID_Enum:
-	    case HID_Unit:
-	      *(int *) a->value = a->default_val.int_value;
-	      break;
+          if (!strncmp (a->name, "layer-color", 11))
+            cc->type = LAYER_COLOR;
+          else if (!strncmp (a->name, "layer-selected-color", 20))
+            cc->type = LAYER_SELECTED_COLOR;
+          else if (!strncmp (a->name + len - 14, "selected-color", 14))
+            cc->type = MISC_SELECTED_COLOR;
+          else
+            cc->type = MISC_COLOR;
 
-	    case HID_Label:
-	    case HID_Mixed:
-	    case HID_Path:
-	      break;
-	    default:
-	      abort ();
-	    }
-	  }
+          config_color_list = g_list_append (config_color_list, cc);
+          break;
+
+        case HID_Enum:
+        case HID_Unit:
+          *(int *) a->value = a->default_val.int_value;
+          break;
+
+        case HID_Label:
+        case HID_Mixed:
+        case HID_Path:
+          break;
+        default:
+          abort ();
+      }
+    }
   }
 }
 
@@ -449,6 +448,7 @@ set_config_attribute (char * option, char * arg)
 
   if ((ca = lookup_config_attribute (option, FALSE)) == NULL)
     return FALSE;
+
   switch (ca->type)
     {
     case CONFIG_Boolean:
@@ -522,12 +522,12 @@ config_colors_write (char * path)
 
   if ((f = fopen (path, "w")) == NULL)
     return;
-  for (list = config_color_list; list; list = list->next)
-    {
+
+  for (list = config_color_list; list; list = list->next) {
       cc = (ConfigColor *) list->data;
       ha = cc->attributes;
       fprintf (f, "%s =\t%s\n", ha->name, *(char **) ha->value);
-    }
+  }
   fclose (f);
 }
 
@@ -545,28 +545,30 @@ config_colors_read (char * path)
 
   while (fgets (buf, sizeof (buf), f)) {
 
-      sscanf (buf, "%63s %511[^\n]", option, arg);
-      s = option;		/* Strip trailing ':' or '=' */
-      while (*s && *s != ':' && *s != '=')
-	++s;
-      *s = '\0';
-      s = arg;			/* Strip leading ':', '=', and whitespace */
-      while (*s == ' ' || *s == '\t' || *s == ':' || *s == '=')
-	++s;
-
-      for (list = config_color_list; list; list = list->next)
-	{
-	  cc = (ConfigColor *) list->data;
-	  ha = cc->attributes;
-	  if (!strcmp (option, ha->name))
-	    {
-	      *(char **) ha->value = g_strdup (s);
-	      cc->color_is_mapped = FALSE;
-	      ghid_set_special_colors (ha);
-	      break;
-	    }
-	}
+    sscanf (buf, "%63s %511[^\n]", option, arg);
+    s = option;		/* Strip trailing ':' or '=' */
+    while (*s && *s != ':' && *s != '=') {
+      ++s;
     }
+
+    *s = '\0';
+     s = arg;			/* Strip leading ':', '=', and whitespace */
+    while (*s == ' ' || *s == '\t' || *s == ':' || *s == '=')
+      ++s;
+
+    for (list = config_color_list; list; list = list->next)  {
+
+      cc = (ConfigColor *) list->data;
+      ha = cc->attributes;
+      if (!strcmp (option, ha->name))
+      {
+        *(char **) ha->value = g_strdup (s);
+        cc->color_is_mapped = FALSE;
+        ghid_set_special_colors (ha);
+        break;
+      }
+    }
+  }
   fclose (f);
 
   return TRUE;
@@ -610,124 +612,123 @@ parse_optionv (int * argc, char *** argv, int from_cmd_line)
   offset = from_cmd_line ? 2 : 0;
 
   while (*argc
-	 && (((*argv)[0][0] == '-' && (*argv)[0][1] == '-')
-	     || !from_cmd_line))
-    {
-      for (ha = hid_attr_nodes; ha; ha = ha->next)
-	{
-	  for (a = ha->attributes; a < ha->attributes + ha->n; ++a)
-	    {
-	      if (!a->name || strcmp ((*argv)[0] + offset, a->name))
-		continue;
-	      switch (a->type)
-		{
-		case HID_Label:
-		  break;
-		case HID_Integer:
-		  if (a->value)
-		    *(int *) a->value = strtol ((*argv)[1], 0, 0);
-		  else
-		    a->default_val.int_value = strtol ((*argv)[1], 0, 0);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Coord:
-		  if (a->value)
-		    *(Coord *) a->value = GetValue ((*argv)[1], 0, 0);
-		  else
-		    a->default_val.coord_value = GetValue ((*argv)[1], 0, 0);
-		  (*argc)--;
-		  (*argv)++;
-                  break;
-		case HID_Real:
-		  if (a->value)
-		    *(double *) a->value = strtod ((*argv)[1], 0);
-		  else
-		    a->default_val.real_value = strtod ((*argv)[1], 0);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_String:
-		  if (a->value)
-		    *(char **) a->value = g_strdup((*argv)[1]);
-		  else
-		    a->default_val.str_value = g_strdup((*argv)[1]);
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Boolean:
-		  if (a->value)
-		    *(char *) a->value = 1;
-		  else
-		    a->default_val.int_value = 1;
-		  break;
-		case HID_Mixed:
-		  a->default_val.real_value = strtod ((*argv)[1], &ep);
-		  goto do_enum;
-		case HID_Enum:
-		  ep = (*argv)[1];
-		do_enum:
-		  ok = 0;
-		  for (e = 0; a->enumerations[e]; e++)
-		    if (strcmp (a->enumerations[e], ep) == 0)
-		      {
-			ok = 1;
-			a->default_val.int_value = e;
-			a->default_val.str_value = ep;
-			break;
-		      }
-		  if (!ok)
-		    {
-		      fprintf (stderr,
-			       "ERROR:  \"%s\" is an unknown value for the --%s option\n",
-			       (*argv)[1], a->name);
-		      exit (1);
-		    }
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-		case HID_Path:
-		  abort ();
-		  a->default_val.str_value = (*argv)[1];
-		  (*argc)--;
-		  (*argv)++;
-		  break;
-	        case HID_Unit:
-                  unit = get_unit_struct ((*argv)[1]);
-                  if (unit == NULL)
-		    {
-		      fprintf (stderr,
-		               "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
-			       (*argv)[1], a->name);
-		      exit (1);
-		    }
-	          a->default_val.int_value = unit->index;
-	          a->default_val.str_value = unit->suffix;
-		  (*argc)--;
-		  (*argv)++;
-	          break;
-		}
-	      (*argc)--;
-	      (*argv)++;
-	      ha = 0;
-	      goto got_match;
-	    }
-	  if (a < ha->attributes + ha->n)
-	    matched = TRUE;
-	}
-      if (!matched)
-	{
-	  if (from_cmd_line)
-	    {
-	      fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
-	      exit (1);
-	    }
-	  else
-//                              ghid_log("unrecognized option: %s\n", (*argv)[0]);
-	    fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
-	}
-    got_match:;
+    && (((*argv)[0][0] == '-' && (*argv)[0][1] == '-')
+    || !from_cmd_line))
+  {
+    for (ha = hid_attr_nodes; ha; ha = ha->next) {
+
+      for (a = ha->attributes; a < ha->attributes + ha->n; ++a) {
+
+        if (!a->name || strcmp ((*argv)[0] + offset, a->name))
+          continue;
+
+        switch (a->type)
+        {
+          case HID_Label:
+            break;
+          case HID_Integer:
+            if (a->value)
+              *(int *) a->value = strtol ((*argv)[1], 0, 0);
+            else
+              a->default_val.int_value = strtol ((*argv)[1], 0, 0);
+            (*argc)--;
+            (*argv)++;
+            break;
+          case HID_Coord:
+            if (a->value)
+              *(Coord *) a->value = GetValue ((*argv)[1], 0, 0);
+            else
+              a->default_val.coord_value = GetValue ((*argv)[1], 0, 0);
+            (*argc)--;
+            (*argv)++;
+            break;
+          case HID_Real:
+            if (a->value)
+              *(double *) a->value = strtod ((*argv)[1], 0);
+            else
+              a->default_val.real_value = strtod ((*argv)[1], 0);
+            (*argc)--;
+            (*argv)++;
+            break;
+          case HID_String:
+            if (a->value)
+              *(char **) a->value = g_strdup((*argv)[1]);
+            else
+              a->default_val.str_value = g_strdup((*argv)[1]);
+            (*argc)--;
+            (*argv)++;
+            break;
+          case HID_Boolean:
+            if (a->value)
+              *(char *) a->value = 1;
+            else
+              a->default_val.int_value = 1;
+            break;
+          case HID_Mixed:
+            a->default_val.real_value = strtod ((*argv)[1], &ep);
+            goto do_enum;
+          case HID_Enum:
+            ep = (*argv)[1];
+            do_enum:
+            ok = 0;
+            for (e = 0; a->enumerations[e]; e++)
+              if (strcmp (a->enumerations[e], ep) == 0) {
+                ok = 1;
+                a->default_val.int_value = e;
+                a->default_val.str_value = ep;
+                break;
+              }
+              if (!ok) {
+                fprintf (stderr,
+                         "ERROR:  \"%s\" is an unknown value for the --%s option\n",
+                         (*argv)[1], a->name);
+                exit (1);
+              }
+              (*argc)--;
+              (*argv)++;
+              break;
+          case HID_Path:
+            abort ();
+            a->default_val.str_value = (*argv)[1];
+            (*argc)--;
+            (*argv)++;
+            break;
+          case HID_Unit:
+            unit = get_unit_struct ((*argv)[1]);
+            if (unit == NULL)
+            {
+              fprintf (stderr,
+                       "ERROR:  unit \"%s\" is unknown to pcb (option --%s)\n",
+                       (*argv)[1], a->name);
+              exit (1);
+            }
+            a->default_val.int_value = unit->index;
+            a->default_val.str_value = unit->suffix;
+            (*argc)--;
+            (*argv)++;
+            break;
+        }
+        (*argc)--;
+        (*argv)++;
+        ha = 0;
+        goto got_match;
+      }
+      if (a < ha->attributes + ha->n)
+        matched = TRUE;
     }
+    if (!matched) {
+
+      if (from_cmd_line) {
+
+        fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
+        exit (1);
+      }
+      else
+
+        fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
+    }
+    got_match:;
+  }
   (*argc)++;
   (*argv)--;
 }
@@ -829,46 +830,45 @@ ghid_config_files_write (void)
 
   for (ca = &config_attributes[0];
        ca < &config_attributes[0] + G_N_ELEMENTS (config_attributes); ++ca)
-    {
-      switch (ca->type)
-	{
-	case CONFIG_Boolean:
-	  fprintf (f, "%s = %d\n", ca->name, (int) * (char *) ca->value);
-	  break;
+  {
+    switch (ca->type) {
 
-	case CONFIG_Integer:
-	  fprintf (f, "%s = %d\n", ca->name, *(int *) ca->value);
-	  break;
+      case CONFIG_Boolean:
+        fprintf (f, "%s = %d\n", ca->name, (int) * (char *) ca->value);
+        break;
 
-	case CONFIG_Real:
-	  fprintf (f, "%s = %f\n", ca->name, *(double *) ca->value);
-	  break;
+      case CONFIG_Integer:
+        fprintf (f, "%s = %d\n", ca->name, *(int *) ca->value);
+        break;
 
-	case CONFIG_Coord:
-	  pcb_fprintf (f, "%s = %$mS\n", ca->name, *(Coord *) ca->value);
-	  break;
+      case CONFIG_Real:
+        fprintf (f, "%s = %f\n", ca->name, *(double *) ca->value);
+        break;
 
-	case CONFIG_String:
-	  if (*(char **) ca->value == NULL)
-	    fprintf (f, "# %s = NULL\n", ca->name);
-	  else
-	    fprintf (f, "%s = %s\n", ca->name, *(char **) ca->value);
-	  break;
-	default:
-	  break;
-	}
+      case CONFIG_Coord:
+        pcb_fprintf (f, "%s = %$mS\n", ca->name, *(Coord *) ca->value);
+        break;
+
+      case CONFIG_String:
+        if (*(char **) ca->value == NULL)
+          fprintf (f, "# %s = NULL\n", ca->name);
+        else
+          fprintf (f, "%s = %s\n", ca->name, *(char **) ca->value);
+        break;
+      default:
+        break;
     }
+  }
   fclose (f);
 
   ghidgui->config_modified = FALSE;
 }
 
-/* =================== OK, now the gui stuff ======================
-*/
+/* =================== OK, now the gui stuff ====================== */
+
 static GtkWidget *config_window;
 
-  /* -------------- The General config page ----------------
-   */
+  /* -------------- The General config page ---------------- */
 
 static void
 config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
@@ -880,10 +880,9 @@ config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
     return;
 
   /* Can't toggle into command window mode if the status line command
-     |  entry is active.
+   * entry is active.
    */
-  if (ghidgui->command_entry_status_line_active)
-    {
+  if (ghidgui->command_entry_status_line_active) {
       holdoff = TRUE;
       gtk_toggle_button_set_active (button, FALSE);
       holdoff = FALSE;
@@ -991,15 +990,15 @@ config_general_apply (void)
 }
 
 
-  /* -------------- The Sizes config page ----------------
-   */
+  /* -------------- The Sizes config page ---------------- */
 
 static GtkWidget *config_sizes_vbox,
-  *config_sizes_tab_vbox, *config_text_spin_button;
+                 *config_sizes_tab_vbox,
+                 *config_text_spin_button;
 
 static GtkWidget *use_board_size_default_button,
-  *use_drc_sizes_default_button,
-  *use_increments_default_button;
+                 *use_drc_sizes_default_button,
+                 *use_increments_default_button;
 
 static Coord new_board_width, new_board_height;
 
@@ -1008,21 +1007,17 @@ config_sizes_apply (void)
 {
   int active;
 
-  active =
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-				  (use_board_size_default_button));
-  if (active)
-    {
-      Settings.MaxWidth = new_board_width;
-      Settings.MaxHeight = new_board_height;
-      ghidgui->config_modified = TRUE;
-    }
+  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+                                        (use_board_size_default_button));
+  if (active) {
+    Settings.MaxWidth = new_board_width;
+    Settings.MaxHeight = new_board_height;
+    ghidgui->config_modified = TRUE;
+  }
 
-  active =
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-				  (use_drc_sizes_default_button));
-  if (active)
-    {
+  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+                                        (use_drc_sizes_default_button));
+  if (active) {
       Settings.Bloat = PCB->Bloat;
       Settings.Shrink = PCB->Shrink;
       Settings.minWid = PCB->minWid;
@@ -1031,17 +1026,15 @@ config_sizes_apply (void)
       Settings.minDrill = PCB->minDrill;
       Settings.minRing = PCB->minRing;
       ghidgui->config_modified = TRUE;
-    }
+  }
 
-  active =
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-				  (use_increments_default_button));
-  if (active)
-    {
+  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+                                        (use_increments_default_button));
+  if (active) {
       save_increments (get_increments_struct (METRIC),
                        get_increments_struct (IMPERIAL));
       ghidgui->config_modified = TRUE;
-    }
+  }
 
   if (PCB->MaxWidth != new_board_width || PCB->MaxHeight != new_board_height)
     ChangePCBSize (new_board_width, new_board_height);
@@ -1392,9 +1385,10 @@ config_layer_groups_radio_button_cb (GtkToggleButton * button, gpointer data)
 
   if (!gtk_toggle_button_get_active (button) || groups_holdoff)
     return;
+
   config_layer_group[layer] = group;
-  groups_modified = TRUE;
-  ghidgui->config_modified = TRUE;
+  groups_modified           = TRUE;
+  ghidgui->config_modified  = TRUE;
 }
 
   /* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
@@ -1445,8 +1439,10 @@ config_layers_apply (void)
   LayerType *layer;
   char *s;
   int group, i;
-  int top_group = 0, bottom_group = 0;
-  bool use_as_default = FALSE, layers_modified = FALSE;
+  int top_group = 0;
+  int bottom_group = 0;
+  bool use_as_default = FALSE;
+  bool layers_modified = FALSE;
 
 #if FIXME
   use_as_default =
@@ -1574,12 +1570,13 @@ void
 ghid_config_groups_changed(void)
 {
   GtkWidget *vbox, *table, *button, *label, *scrolled_window;
-  GSList *group;
-  gchar buf[32], *name;
-  gint layer, row, i;
+  GSList    *group;
+  char       buf[32];
+  int        layer, row, i;
 
   if (!config_groups_vbox)
     return;
+
   vbox = config_groups_vbox;
 
   if (config_groups_table)
@@ -1629,7 +1626,9 @@ ghid_config_groups_changed(void)
    */
   for (layer = 0; layer < max_copper_layer; ++layer) {
 
-    name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
+    char *name;
+
+    name = (char*) UNKNOWN (PCB->Data->Layer[layer].Name);
     row  = layer + 1;
 
     layer_entry[layer] = gtk_entry_new ();
