@@ -27,6 +27,11 @@
 #include "config.h"
 #endif
 
+/*
+#if HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+*/
 #include "gui.h"
 #include "hid.h"
 #include "../hidint.h"
@@ -70,6 +75,7 @@ typedef struct
   void *value;
 }
 ConfigAttribute;
+
 
 enum ColorTypes
 {
@@ -243,7 +249,7 @@ config_file_open (char * mode)
 }
 
 static ConfigAttribute *
-lookup_config_attribute (char * name, int  if_null_value)
+lookup_config_attribute (char *name, int if_null_value)
 {
   ConfigAttribute *ca;
 
@@ -347,7 +353,7 @@ ghid_config_init (void)
 static int
 parse_option_line (char * line, char ** option_result, char ** arg_result)
 {
-  gchar *s, *ss, *option = NULL, *arg = NULL;
+  char *s, *ss, *option = NULL, *arg = NULL;
   int argc = 1;
 
   if (option_result)
@@ -394,15 +400,15 @@ parse_option_line (char * line, char ** option_result, char ** arg_result)
     }
   }
 
-  /* Strip trailing ':' or '=' */
-  s = option;
-  while (*s && *s != ':' && *s != '=')
+  s = option;			/* Strip trailing ':' or '=' */
+  while (*s && *s != ':' && *s != '=') {
     ++s;
+  }
+
   *s = '\0';
 
-  /* Strip leading ':', '=', and whitespace */
-  s = arg;
-  while (*s == ' ' || *s == '\t' || *s == ':' || *s == '=' || *s == '"') {
+  s = arg;			/* Strip leading ':', '=', and whitespace */
+  while (*s == ' ' || *s == '\t' || *s == ':' || *s == '=' || *s == '"')  {
     ++s;
   }
 
@@ -487,14 +493,13 @@ config_file_read (void)
 {
   FILE *f;
   char *buf = NULL;
+  size_t num  = 0;
   char *option, *arg;
-  size_t n = 0;
 
-  if ((f = config_file_open ("r")) == NULL) {
+  if ((f = config_file_open ("r")) == NULL)
     return;
-  }
 
-  while (getline (&buf, &n, f) != -1) {
+  while (getline (&buf, &num, f) != -1) {
 
     if (parse_option_line (buf, &option, &arg) > 0) {
       set_config_attribute (option, arg);
@@ -502,6 +507,7 @@ config_file_read (void)
     g_free (option);
     g_free (arg);
   }
+
   free (buf);
   fclose (f);
 }
@@ -537,8 +543,8 @@ config_colors_read (char * path)
   if (!path || !*path || (f = fopen (path, "r")) == NULL)
     return FALSE;
 
-  while (fgets (buf, sizeof (buf), f))
-    {
+  while (fgets (buf, sizeof (buf), f)) {
+
       sscanf (buf, "%63s %511[^\n]", option, arg);
       s = option;		/* Strip trailing ':' or '=' */
       while (*s && *s != ':' && *s != '=')
@@ -592,14 +598,14 @@ add_to_paths_list (GList ** list, char * path_string)
   /* Parse command line code borrowed from hid/common/hidinit.c
    */
 static void
-parse_optionv (int * argc, char *** argv, int  from_cmd_line)
+parse_optionv (int * argc, char *** argv, int from_cmd_line)
 {
   HID_AttrNode *ha;
   HID_Attribute *a;
   const Unit *unit;
   char *ep;
   int e, ok, offset;
-  int  matched = FALSE;
+  int matched = FALSE;
 
   offset = from_cmd_line ? 2 : 0;
 
@@ -734,11 +740,13 @@ load_rc_file (char * path)
   int argc;
 
   f = fopen (path, "r");
+
   if (!f)
     return;
 
   if (Settings.verbose)
     printf ("Loading pcbrc file: %s\n", path);
+
   while (fgets (buf, sizeof (buf), f)) {
 
       argv = &(av[0]);
@@ -771,10 +779,9 @@ load_rc_files (void)
 
 
 void
-ghid_config_files_read (int * argc, char *** argv)
+ghid_config_files_read (int *argc, char ***argv)
 {
   GList *list;
-  char *str, *dir;
   int width, height;
 
   ghidgui = &_ghidgui;
@@ -797,14 +804,16 @@ ghid_config_files_read (int * argc, char *** argv)
   if (lib_stdlib_config && *lib_stdlib_config)
     add_to_paths_list (&lib_stdlib_list, lib_stdlib_config);
 
-  for (list = lib_stdlib_list; list; list = list->next)
-    {
-      str = Settings.UserLibrary;
-      dir = expand_dir ((char *) list->data);
-      Settings.UserLibrary = g_strconcat (str, PCB_PATH_DELIMETER, dir, NULL);
-      g_free (dir);
-      g_free (str);
-    }
+  for (list = lib_stdlib_list; list; list = list->next) {
+
+    char *str, *dir;
+
+    str = Settings.UserLibrary;
+    dir = expand_dir ((char *) list->data);
+    Settings.UserLibrary = g_strconcat (str, PCB_PATH_DELIMETER, dir, NULL);
+    g_free (dir);
+    g_free (str);
+  }
 }
 
 void
@@ -864,8 +873,8 @@ static GtkWidget *config_window;
 static void
 config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  int  active = gtk_toggle_button_get_active (button);
-  static int  holdoff;
+  int active = gtk_toggle_button_get_active (button);
+  static int holdoff;
 
   if (holdoff)
     return;
@@ -888,7 +897,7 @@ config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
 static void
 config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  int  active = gtk_toggle_button_get_active (button);
+  int active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_horizontal = active;
   ghid_set_status_line_label ();
@@ -898,7 +907,7 @@ config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 static void
 config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
 {
-  int  active = gtk_toggle_button_get_active (button);
+  int active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_vertical = active;
   ghid_pack_mode_buttons();
@@ -937,44 +946,42 @@ config_general_tab_create (GtkWidget * tab_vbox)
   vbox = ghid_category_vbox (tab_vbox, _("Enables"), 4, 2, TRUE, TRUE);
 
   ghid_check_button_connected (vbox, NULL, ghidgui->use_command_window,
-                               TRUE, FALSE, FALSE, 2,
-                               config_command_window_toggle_cb, NULL,
-                             _("Use separate window for command entry"));
+			       TRUE, FALSE, FALSE, 2,
+			       config_command_window_toggle_cb, NULL,
+			       _("Use separate window for command entry"));
 
   ghid_check_button_connected (vbox, NULL, ghidgui->compact_horizontal,
-                               TRUE, FALSE, FALSE, 2,
-                               config_compact_horizontal_toggle_cb, NULL,
-                             _("Alternate window layout to allow smaller horizontal size"));
+			       TRUE, FALSE, FALSE, 2,
+			       config_compact_horizontal_toggle_cb, NULL,
+			       _("Alternate window layout to allow smaller horizontal size"));
 
   ghid_check_button_connected (vbox, NULL, ghidgui->compact_vertical,
-                               TRUE, FALSE, FALSE, 2,
-                               config_compact_vertical_toggle_cb, NULL,
-                             _("Alternate window layout to allow smaller vertical size"));
+			       TRUE, FALSE, FALSE, 2,
+			       config_compact_vertical_toggle_cb, NULL,
+			       _("Alternate window layout to allow smaller vertical size"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Backups"), 4, 2, TRUE, TRUE);
-
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,
-                               TRUE, FALSE, FALSE, 2,
-                               config_general_toggle_cb, &Settings.SaveInTMP,
-                             _("If layout is modified at exit, save into PCB.%i.save"));
-
+			       TRUE, FALSE, FALSE, 2,
+			       config_general_toggle_cb, &Settings.SaveInTMP,
+			       _("If layout is modified at exit, save into PCB.%i.save"));
   ghid_spin_button (vbox, NULL, Settings.BackupInterval, 0.0, 60 * 60, 60.0,
-                    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
-		          _("Seconds between auto backups\n"
-                    "(set to zero to disable auto backups)"));
+		    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
+		    _("Seconds between auto backups\n"
+		      "(set to zero to disable auto backups)"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Misc"), 4, 2, TRUE, TRUE);
-
   ghid_spin_button (vbox, NULL, ghidgui->history_size,
-                    5.0, 25.0, 1.0, 1.0, 0, 0,
-                    config_history_spin_button_cb, NULL, FALSE,
-                  _("Number of commands to remember in the history list"));
+		    5.0, 25.0, 1.0, 1.0, 0, 0,
+		    config_history_spin_button_cb, NULL, FALSE,
+		    _("Number of commands to remember in the history list"));
 
   ghid_check_button_connected (vbox, NULL, Settings.SaveMetricOnly,
-                               TRUE, FALSE, FALSE, 2,
-                               config_general_toggle_cb, &Settings.SaveMetricOnly,
-                             _("Use only metric units when saving pcb files"));
+			       TRUE, FALSE, FALSE, 2,
+			       config_general_toggle_cb, &Settings.SaveMetricOnly,
+			       _("Use only metric units when saving pcb files"));
 }
+
 
 static void
 config_general_apply (void)
@@ -982,6 +989,7 @@ config_general_apply (void)
   /* save the settings */
   ghid_config_files_write ();
 }
+
 
   /* -------------- The Sizes config page ----------------
    */
@@ -998,7 +1006,7 @@ static Coord new_board_width, new_board_height;
 static void
 config_sizes_apply (void)
 {
-  int  active;
+  int active;
 
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
@@ -1013,8 +1021,8 @@ config_sizes_apply (void)
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 				  (use_drc_sizes_default_button));
-
-  if (active) {
+  if (active)
+    {
       Settings.Bloat = PCB->Bloat;
       Settings.Shrink = PCB->Shrink;
       Settings.minWid = PCB->minWid;
@@ -1023,12 +1031,13 @@ config_sizes_apply (void)
       Settings.minDrill = PCB->minDrill;
       Settings.minRing = PCB->minRing;
       ghidgui->config_modified = TRUE;
-  }
+    }
 
   active =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 				  (use_increments_default_button));
-  if (active) {
+  if (active)
+    {
       save_increments (get_increments_struct (METRIC),
                        get_increments_struct (IMPERIAL));
       ghidgui->config_modified = TRUE;
@@ -1039,7 +1048,7 @@ config_sizes_apply (void)
 }
 
 static void
-text_spin_button_cb (GtkSpinButton * spin, void * dst)
+text_spin_button_cb (GtkSpinButton* spin, void* dst)
 {
   *(int*)dst = gtk_spin_button_get_value_as_int (spin);
   ghidgui->config_modified = TRUE;
@@ -1047,14 +1056,14 @@ text_spin_button_cb (GtkSpinButton * spin, void * dst)
 }
 
 static void
-coord_entry_cb (GHidCoordEntry * ce, void * dst)
+coord_entry_cb (GHidCoordEntry *ce, void *dst)
 {
-  *(Coord *) dst = ghid_coord_entry_get_value (ce);
+  *(Coord*) dst = ghid_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 
 static void
-config_sizes_tab_create (GtkWidget * tab_vbox)
+config_sizes_tab_create (GtkWidget *tab_vbox)
 {
   GtkWidget *table, *vbox, *hbox;
 
@@ -1066,7 +1075,7 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
       gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
       config_sizes_vbox = vbox;
       config_sizes_tab_vbox = tab_vbox;
-    }
+  }
 
   /* ---- Board Size ---- */
   vbox = ghid_category_vbox (config_sizes_vbox, _("Board Size"),
@@ -1174,14 +1183,14 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 static GtkWidget *config_increments_vbox, *config_increments_tab_vbox;
 
 static void
-increment_spin_button_cb (GHidCoordEntry * ce, void * dst)
+increment_spin_button_cb (GHidCoordEntry *ce, void * dst)
 {
   *(Coord *)dst = ghid_coord_entry_get_value (ce);
   ghidgui->config_modified = TRUE;
 }
 
 static void
-config_increments_tab_create (GtkWidget * tab_vbox)
+config_increments_tab_create (GtkWidget *tab_vbox)
 {
   Increments *incr_mm  = get_increments_struct (METRIC);
   Increments *incr_mil = get_increments_struct (IMPERIAL);
@@ -1261,8 +1270,8 @@ config_increments_tab_create (GtkWidget * tab_vbox)
   gtk_widget_show_all (config_increments_vbox);
 }
 
-  /* -------------- The Library config page ----------------
-   */
+  /* -------------- The Library config page ---------------- */
+
 static GtkWidget *library_stdlib_entry;
 
 static void
@@ -1281,16 +1290,16 @@ config_library_tab_create (GtkWidget * tab_vbox)
 
   gtk_container_set_border_width (GTK_CONTAINER (tab_vbox), 6);
   vbox = ghid_category_vbox (tab_vbox, _("Element Directories"),
-                 4, 2, TRUE, TRUE);
+			     4, 2, TRUE, TRUE);
   string = g_string_new ("");
   g_string_printf (string, _("<small>Enter a \"%s\" "
-             "separated list of custom top level\n"
-             "element directories.  For example:\n%s\n"
-             "Elements should be organized into subdirectories below each\n"
-             "top level directory.  Restart program for changes to take effect."
-             "</small>"), PCB_PATH_DELIMETER,
-             "\t<b>~/gaf/pcb-elements" PCB_PATH_DELIMETER
-             "packages" PCB_PATH_DELIMETER "/usr/local/pcb-elements</b>\n");
+			 "separated list of custom top level\n"
+			 "element directories.  For example:\n%s\n"
+			 "Elements should be organized into subdirectories below each\n"
+			 "top level directory.  Restart program for changes to take effect."
+			 "</small>"), PCB_PATH_DELIMETER,
+			 "\t<b>~/gaf/pcb-elements" PCB_PATH_DELIMETER
+			 "packages" PCB_PATH_DELIMETER "/usr/local/pcb-elements</b>\n");
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label), string->str);
@@ -1303,8 +1312,9 @@ config_library_tab_create (GtkWidget * tab_vbox)
 }
 
 
-/* -------------- The Layers Group config page ---------------- */
-static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
+  /* -------------- The Layers Group config page ---------------- */
+
+static GtkWidget *config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
 static GtkWidget *group_button[MAX_ALL_LAYER][MAX_GROUP];
@@ -1315,11 +1325,11 @@ static GtkWidget *use_layer_default_button;
 
 static int config_layer_group[MAX_ALL_LAYER];
 
-static LayerGroupType layer_groups,	/* Working copy */
- *lg_monitor;			/* Keep track if our working copy */
-                        /* needs to be changed (new layout) */
+static LayerGroupType layer_groups,  /* Working copy */
+ *lg_monitor;                        /* Keep track if our working copy */
+                                     /* needs to be changed (new layout) */
 
-static int  groups_modified, groups_holdoff, layers_applying;
+static int groups_modified, groups_holdoff, layers_applying;
 
 static char *layer_info_text[] = {
   N_("<h>Layer Names\n"),
@@ -1387,11 +1397,11 @@ config_layer_groups_radio_button_cb (GtkToggleButton * button, gpointer data)
   ghidgui->config_modified = TRUE;
 }
 
-/* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
- * but use g_string functions.
- */
+  /* Construct a layer group string.  Follow logic in WritePCBDataHeader(),
+   * but use g_string functions.
+   */
 static char *
-make_layer_group_string (LayerGroupType * lg)
+make_layer_group_string (LayerGroupType *lg)
 {
   GString *string;
   int group, entry, layer;
@@ -1413,7 +1423,6 @@ make_layer_group_string (LayerGroupType * lg)
       }
       else if (layer == bottom_silk_layer) {
         string = g_string_append (string, "s");
-
       }
       else {
         g_string_append_printf (string, "%d", layer + 1);
@@ -1423,7 +1432,6 @@ make_layer_group_string (LayerGroupType * lg)
         string = g_string_append (string, ",");
       }
     }
-
     if (group != max_group - 1) {
       string = g_string_append (string, ":");
     }
@@ -1438,23 +1446,21 @@ config_layers_apply (void)
   char *s;
   int group, i;
   int top_group = 0, bottom_group = 0;
-
   bool use_as_default = FALSE, layers_modified = FALSE;
 
-  #if FIXME
+#if FIXME
   use_as_default =
-  gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
-  (use_layer_default_button));
-  #endif
+    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
+				  (use_layer_default_button));
+#endif
 
   /* Get each layer name entry and dup if modified into the PCB layer names
-   *    |  and, if to use as default, the Settings layer names.
+   * and, if to use as default, the Settings layer names.
    */
   for (i = 0; i < max_copper_layer; ++i) {
 
     layer = &PCB->Data->Layer[i];
     s = ghid_entry_get_text (layer_entry[i]);
-
     if (dup_core_string (&layer->Name, s)) {
       layers_modified = TRUE;
     }
@@ -1465,8 +1471,9 @@ config_layers_apply (void)
     }
 
   }
+
   /* Layer names can be changed from the menus and that can update the
-   *    |  config.  So holdoff the loop.
+   * config.  So holdoff the loop.
    */
   layers_applying = TRUE;
 
@@ -1476,10 +1483,9 @@ config_layers_apply (void)
 
   layers_applying = FALSE;
 
-  if (groups_modified) {		/* If any group radio buttons were toggled. */
+  if (groups_modified) { /* If any group radio buttons were toggled. */
 
-    /* clear all entries and read layer by layer
-     */
+    /* clear all entries and read layer by layer */
     for (group = 0; group < max_group; group++) {
       layer_groups.Number[group] = 0;
     }
@@ -1489,27 +1495,25 @@ config_layers_apply (void)
       group = config_layer_group[i] - 1;
       layer_groups.Entries[group][layer_groups.Number[group]++] = i;
 
-      if (i == top_silk_layer) {
+      if (i == top_silk_layer)
         top_group = group;
-      }
-      else if (i == bottom_silk_layer) {
+      else if (i == bottom_silk_layer)
         bottom_group = group;
-      }
     }
 
     /* do some cross-checking
-     *        |  top-side and bottom-side must be in different groups
-     *        |  top-side and bottom-side must not be the only one in the group
+     * top-side and bottom-side must be in different groups
+     * top-side and bottom-side must not be the only one in the group
      */
     if (layer_groups.Number[bottom_group] <= 1 ||
         layer_groups.Number[top_group] <= 1)
     {
-      Message (_ ("Both, 'top side' and 'bottom side' layer must have at least\n"
-                  "\tone other layer in their group.\n"));
+      Message (_("Both, 'top side' and 'bottom side' layer must have at least\n"
+                 "\tone other layer in their group.\n"));
       return;
     }
-    else if (bottom_group == top_group)
-    {
+    else if (bottom_group == top_group) {
+
       Message (_
       ("The 'top side' and 'bottom side' layers are not allowed\n"
       "\tto be in the same layer group #\n"));
@@ -1571,15 +1575,15 @@ ghid_config_groups_changed(void)
 {
   GtkWidget *vbox, *table, *button, *label, *scrolled_window;
   GSList *group;
-  char buf[32], *name;
-  int layer, row, i;
+  gchar buf[32], *name;
+  gint layer, row, i;
 
   if (!config_groups_vbox)
-	return;
+    return;
   vbox = config_groups_vbox;
 
   if (config_groups_table)
-	gtk_widget_destroy(config_groups_table);
+    gtk_widget_destroy(config_groups_table);
   if (config_groups_window)
     gtk_widget_destroy(config_groups_window);
 
@@ -1593,24 +1597,25 @@ ghid_config_groups_changed(void)
   gtk_widget_show (scrolled_window);
 
 
-  table = gtk_table_new (max_copper_layer + SILK_LAYER + 1, max_group + 1, FALSE);
+  table = gtk_table_new (max_copper_layer + SILK_LAYER + 1,
+                         max_group + 1, FALSE);
   config_groups_table = table;
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
   gtk_scrolled_window_add_with_viewport (
         GTK_SCROLLED_WINDOW (scrolled_window), table);
   gtk_widget_show (table);
 
-  layer_groups = PCB->LayerGroups;	/* working copy */
-  lg_monitor = &PCB->LayerGroups;	/* So can know if PCB changes on us */
+  layer_groups = PCB->LayerGroups;  /* working copy */
+  lg_monitor   = &PCB->LayerGroups; /* So can know if PCB changes on us */
 
-  label = gtk_label_new (_("Group #"));
+  label = gtk_label_new (_("Layer group number: "));
   gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
 
   for (i = 1; i < max_group + 1; ++i) {
 
     if (i < 10) {
-      snprintf (buf, sizeof (buf), "  %d", i);
+      snprintf (buf, sizeof (buf), "%d   ", i);
     }
     else {
       snprintf (buf, sizeof (buf), "%d", i);
@@ -1622,17 +1627,17 @@ ghid_config_groups_changed(void)
   /* Create a row of radio toggle buttons for layer.  So each layer
      |  can have an active radio button set for the group it needs to be in.
    */
-
   for (layer = 0; layer < max_copper_layer; ++layer) {
 
-      name = (char *) UNKNOWN (PCB->Data->Layer[layer].Name);
-      row = layer + 1;
-      layer_entry[layer] = gtk_entry_new ();
-      gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
-      gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
-                                 0, 1, row, row + 1);
-      g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
-                                G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
+    name = (gchar *) UNKNOWN (PCB->Data->Layer[layer].Name);
+    row  = layer + 1;
+
+    layer_entry[layer] = gtk_entry_new ();
+    gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
+    gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
+                               0, 1, row, row + 1);
+    g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
+                     G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
 
     group = NULL;
 
@@ -1646,24 +1651,24 @@ ghid_config_groups_changed(void)
       gtk_table_attach_defaults (GTK_TABLE (table), button,
                                  i + 1, i + 2, row, row +1);
       g_signal_connect (G_OBJECT (button), "toggled",
-                                  G_CALLBACK (config_layer_groups_radio_button_cb),
-                                  GINT_TO_POINTER ((layer << 8) | (i + 1)));
+                        G_CALLBACK (config_layer_groups_radio_button_cb),
+                        GINT_TO_POINTER ((layer << 8) | (i + 1)));
       group_button[layer][i] = button;
     }
   }
 
   /* silk layers double as special layer groups 'top side' and 'bottom side'.
-   S *o some special treatment is needed:
-   1) top and bottom silk cannot be renamed by the user
-   2) The dialog shows the top side buttons above bottom side button row
+    So some special treatment is needed:
+    1) top and bottom silk cannot be renamed by the user
+    2) The dialog shows the top side buttons above bottom side button row
    */
   group = NULL;
   layer = top_silk_layer;
-  label = gtk_label_new ("top side");
+  label = gtk_label_new ("Top side: ");
   row = max_copper_layer + 1;
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_table_attach_defaults (GTK_TABLE (table), label,
-                             0, 1, row, row + 1);
+                     0, 1, row, row + 1);
 
   for (i = 0; i < max_group; ++i) {
 
@@ -1675,19 +1680,18 @@ ghid_config_groups_changed(void)
     gtk_table_attach_defaults (GTK_TABLE (table), button,
                                i + 1, i + 2, row, row + 1);
     g_signal_connect (G_OBJECT (button), "toggled",
-                                G_CALLBACK (config_layer_groups_radio_button_cb),
-                                GINT_TO_POINTER ((layer << 8) | (i + 1)));
+                      G_CALLBACK (config_layer_groups_radio_button_cb),
+                      GINT_TO_POINTER ((layer << 8) | (i + 1)));
     group_button[layer][i] = button;
   }
 
   group = NULL;
   layer = bottom_silk_layer;
-  label = gtk_label_new ("bottom side");
-  row   = max_copper_layer + 2;
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  label = gtk_label_new ("Bottom side: ");
+  row = max_copper_layer + 2;
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_table_attach_defaults (GTK_TABLE (table), label,
-                             0, 1, row, row + 1);
-
+                     0, 1, row, row + 1);
   for (i = 0; i < max_group; ++i) {
 
     snprintf (buf, sizeof (buf), "%2.2d", i+1);
@@ -1706,6 +1710,7 @@ ghid_config_groups_changed(void)
   gtk_widget_show_all(config_groups_vbox);
   config_layer_group_button_state_update ();
 }
+
 
 static void
 edit_layer_button_cb(GtkWidget *widget, char *data)
@@ -1788,8 +1793,8 @@ config_layers_tab_create (GtkWidget * tab_vbox)
 
 
 /* -- Info tab */
-  vbox = ghid_notebook_page (tabs, _("Info"), 0, 6);
 
+  vbox = ghid_notebook_page (tabs, _("Info"), 0, 6);
   text = ghid_scrolled_text_view (vbox, NULL,
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   for (i = 0; i < sizeof (layer_info_text) / sizeof (char *); ++i)
@@ -1825,7 +1830,7 @@ static GtkWidget *config_colors_vbox,
 
 static void config_colors_tab_create (GtkWidget * tab_vbox);
 
-static int  config_colors_modified;
+static int config_colors_modified;
 
 static void
 config_color_file_set_label (void)
