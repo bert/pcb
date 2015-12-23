@@ -78,6 +78,20 @@
 #include <dmalloc.h>
 #endif
 
+#define MAX_PIXELS_ARC_TO_CHORD 0.5
+#define MIN_SLICES 6
+
+#define MIN_TRIANGLES_PER_CAP 3
+#define MAX_TRIANGLES_PER_CAP 90
+
+#define MIN_SLICES_PER_ARC 6
+#define MAX_SLICES_PER_ARC 360
+
+#define MIN_TRIANGLES_PER_CIRCLE 6
+#define MAX_TRIANGLES_PER_CIRCLE 360
+
+#define MAX_COMBINED_MALLOCS 2500
+#define MAX_COMBINED_VERTICES 2500
 
 triangle_buffer buffer;
 float global_depth = 0;
@@ -181,8 +195,6 @@ hidgl_draw_grid (BoxType *drawn_area)
   glDisableClientState (GL_VERTEX_ARRAY);
 }
 
-#define MAX_PIXELS_ARC_TO_CHORD 0.5
-#define MIN_SLICES 6
 int calc_slices (float pix_radius, float sweep_angle)
 {
   float slices;
@@ -194,8 +206,7 @@ int calc_slices (float pix_radius, float sweep_angle)
   return (int)ceilf (slices);
 }
 
-#define MIN_TRIANGLES_PER_CAP 3
-#define MAX_TRIANGLES_PER_CAP 90
+
 static void draw_cap (Coord width, Coord x, Coord y, Angle angle, double scale)
 {
   float last_capx, last_capy;
@@ -288,8 +299,6 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
     }
 }
 
-#define MIN_SLICES_PER_ARC 6
-#define MAX_SLICES_PER_ARC 360
 void
 hidgl_draw_arc (Coord width, Coord x, Coord y, Coord rx, Coord ry,
                 Angle start_angle, Angle delta_angle, double scale)
@@ -383,8 +392,6 @@ hidgl_draw_rect (Coord x1, Coord y1, Coord x2, Coord y2)
 void
 hidgl_fill_circle (Coord vx, Coord vy, Coord vr, double scale)
 {
-#define MIN_TRIANGLES_PER_CIRCLE 6
-#define MAX_TRIANGLES_PER_CIRCLE 360
   float last_x, last_y;
   float radius = vr;
   int slices;
@@ -413,7 +420,7 @@ hidgl_fill_circle (Coord vx, Coord vy, Coord vr, double scale)
   }
 }
 
-#define MAX_COMBINED_MALLOCS 2500
+
 static void *combined_to_free [MAX_COMBINED_MALLOCS];
 static int combined_num_to_free = 0;
 
@@ -434,7 +441,7 @@ myError (GLenum errno)
 static void CALLBACK
 myCombine ( GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **dataOut )
 {
-#define MAX_COMBINED_VERTICES 2500
+
   static GLdouble combined_vertices [3 * MAX_COMBINED_VERTICES];
   static int num_combined_vertices = 0;
 
