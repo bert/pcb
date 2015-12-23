@@ -47,6 +47,7 @@
 #include	<string.h>
 
 #include "global.h"
+#include "pcb-printf.h"
 #include "rtree.h"
 #include "heap.h"
 
