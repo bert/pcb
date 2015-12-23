@@ -116,7 +116,8 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 # Additional images
 images= \
 	gcode_control_img.eps \
-	gcode_tool_path.eps
+	gcode_tool_path.eps \
+	td_ex1.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
