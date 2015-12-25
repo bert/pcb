@@ -39,6 +39,11 @@
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+
+#if defined(ENABLE_NLS) && defined(HAVE_LOCALE_H)
+#include <locale.h>
+#endif
+
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>

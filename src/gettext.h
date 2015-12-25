@@ -33,6 +33,9 @@
 
 /* Get declarations of GNU message catalog functions.  */
 # include <libintl.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 /* You can set the DEFAULT_TEXT_DOMAIN macro to specify the domain used by
    the gettext() and ngettext() macros.  This is an alternative to calling

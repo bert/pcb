@@ -50,6 +50,9 @@
 #include <unistd.h>
 #endif
 
+#if defined(ENABLE_NLS) && defined(HAVE_LOCALE_H)
+#include <locale.h>
+#endif
 
 #include "data.h"
 #include "draw.h"
