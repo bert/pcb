@@ -990,18 +990,18 @@ line_oldformat
 /* %start-doc pcbfile Arc
 
 @syntax
-Arc [X Y Width Height Thickness Clearance StartAngle DeltaAngle SFlags]
-Arc (X Y Width Height Thickness Clearance StartAngle DeltaAngle NFlags)
-Arc (X Y Width Height Thickness StartAngle DeltaAngle NFlags)
+Arc [X Y RadiusX RadiusY Thickness Clearance StartAngle DeltaAngle SFlags]
+Arc (X Y RadiusX RadiusY Thickness Clearance StartAngle DeltaAngle NFlags)
+Arc (X Y RadiusX RadiusY Thickness StartAngle DeltaAngle NFlags)
 @end syntax
 
 @table @var
 @item X Y
 Coordinates of the center of the arc.
-@item Width Height
-The width and height, from the center to the edge.  The bounds of the
-circle of which this arc is a segment, is thus @math{2*Width} by
-@math{2*Height}.
+@item RadiusX RadiusY
+The RadiusX and RadiusY, from the center to the edge (centerline of the
+trace).  The bounds of the circle of which this arc is a segment, is
+thus @math{2*RadiusX} by @math{2*RadiusY}.
 @item Thickness
 The width of the copper trace which forms the arc.
 @item Clearance
