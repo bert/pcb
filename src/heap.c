@@ -1,35 +1,39 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/heap.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Operations on heaps.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * This file, heap.c, was written and is
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Copyright (c) 2001 C. Scott Ananian
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <hr>
  *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
+ * <h1><b>Copyright.</b></h1>\n
  *
- */
-
-/* this file, heap.c, was written and is
- * Copyright (c) 2001 C. Scott Ananian.
- */
-
-/* operations on heaps.
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
  */
 
 #ifdef HAVE_CONFIG_H
@@ -105,7 +109,9 @@ __heap_is_good (heap_t * heap)
 }
 #endif /* ! NDEBUG */
 
-/* create an empty heap */
+/*!
+ * \brief Create an empty heap.
+ */
 heap_t *
 heap_create ()
 {
@@ -121,7 +127,9 @@ heap_create ()
   return heap;
 }
 
-/* destroy a heap */
+/*!
+ * \brief Destroy a heap.
+ */
 void
 heap_destroy (heap_t ** heap)
 {
@@ -133,7 +141,9 @@ heap_destroy (heap_t ** heap)
   *heap = NULL;
 }
 
-/* free all elements in the heap */
+/*!
+ * \brief Free all elements in the heap.
+ */
 void heap_free (heap_t *heap, void (*freefunc) (void *))
 {
   assert (heap);
@@ -146,6 +156,7 @@ void heap_free (heap_t *heap, void (*freefunc) (void *))
 }
 
 /* -- mutation -- */
+
 static void
 __upheap (heap_t * heap, int k)
 {
@@ -184,9 +195,12 @@ heap_insert (heap_t * heap, cost_t cost, void *data)
   return;
 }
 
-/* this procedure moves down the heap, exchanging the node at position
- * k with the smaller of its two children as necessary and stopping when
- * the node at k is smaller than both children or the bottom is reached.
+/*!
+ * \brief This procedure moves down the heap.
+ * 
+ * Exchanging the node at position k with the smaller of its two
+ * children as necessary and stopping when the node at k is smaller than
+ * both children or the bottom is reached.
  */
 static void
 __downheap (heap_t * heap, int k)
@@ -210,6 +224,9 @@ __downheap (heap_t * heap, int k)
   heap->element[k] = v;
 }
 
+/*!
+ * \brief Remove the smallest item from the heap.
+ */
 void *
 heap_remove_smallest (heap_t * heap)
 {
@@ -227,6 +244,12 @@ heap_remove_smallest (heap_t * heap)
   return v.data;
 }
 
+/*!
+ * \brief Replace the smallest item with a new item and return the
+ * smallest item.
+ *
+ * If the new item is the smallest, than return it, instead.
+ */
 void *
 heap_replace (heap_t * heap, cost_t cost, void *data)
 {
@@ -247,6 +270,10 @@ heap_replace (heap_t * heap, cost_t cost, void *data)
 }
 
 /* -- interrogation -- */
+
+/*!
+ * \brief Return whether the heap is empty.
+ */
 int
 heap_is_empty (heap_t * heap)
 {
@@ -255,6 +282,10 @@ heap_is_empty (heap_t * heap)
 }
 
 /* -- size -- */
+
+/*!
+ * \brief Return the size of the heap.
+ */
 int
 heap_size (heap_t * heap)
 {
