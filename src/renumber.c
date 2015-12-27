@@ -102,9 +102,9 @@ renumber_block (int argc, char **argv, Coord x, Coord y)
 
     AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
                                    element,
-                                   NAMEONPCB_NAME (element));
+                                   NAMEONPCB_NAME (element), NAMEONPCB_INDEX);
 
-    ChangeObjectName (ELEMENT_TYPE, element, NULL, NULL, new_ref);
+    ChangeObjectName (ELEMENT_TYPE, element, NULL, NULL, new_ref, NAMEONPCB_INDEX);
   }
   END_LOOP;
   IncrementUndoSerialNumber ();
@@ -170,7 +170,7 @@ renumber_buffer (int argc, char **argv, Coord x, Coord y)
     memcpy (new_ref, old_ref, refdes_split - old_ref);
     strcpy (new_ref + (refdes_split - old_ref), num_buf);
 
-    ChangeObjectName (ELEMENT_TYPE, element, NULL, NULL, new_ref);
+    ChangeObjectName (ELEMENT_TYPE, element, NULL, NULL, new_ref, NAMEONPCB_INDEX);
   }
   END_LOOP;
   return 0;
