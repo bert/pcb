@@ -2014,10 +2014,6 @@ ghid_check_special_key (const char *accel, GtkAction *action,
   if (action == NULL || accel == NULL || *accel == '\0')
     return ;
 
-#ifdef DEBUG_MENUS
-  printf ("%s(\"%s\", \"%s\")\n", __FUNCTION__, accel, name);
-#endif
-
   mods = 0;
   if (strstr (accel, "<alt>") )
     {
@@ -2070,10 +2066,6 @@ ghid_check_special_key (const char *accel, GtkAction *action,
 
       ghid_hotkey_actions[ind].action = action;
       ghid_hotkey_actions[ind].node = node;
-#ifdef DEBUG_MENUS
-      printf ("Adding \"special\" hotkey to ghid_hotkey_actions[%u] :"
-	      " %s (%s)\n", ind, accel, name);
-#endif
     }
 }
 
