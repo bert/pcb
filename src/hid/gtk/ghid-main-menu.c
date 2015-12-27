@@ -249,9 +249,12 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               GtkWidget *submenu = gtk_menu_new ();
               GtkWidget *item = gtk_menu_item_new_with_mnemonic (menu_label);
               GtkWidget *tearoff = gtk_tearoff_menu_item_new ();
+              const char *tip = resource_value (sub_res, "tip");
 
               gtk_menu_shell_append (shell, item);
               gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), submenu);
+
+              gtk_widget_set_tooltip_text (item, tip);
 
               /* add tearoff to menu */
               gtk_menu_shell_append (GTK_MENU_SHELL (submenu), tearoff);
@@ -285,15 +288,18 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
                   GtkWidget *item = gtk_menu_item_new_with_label (menu_label);
                   gtk_widget_set_sensitive (item, FALSE);
                   gtk_menu_shell_append (shell, item);
+                  gtk_widget_set_tooltip_text (item, tip);
                 }
               else
                 {
                   /* NORMAL ITEM */
-                  gchar *name = g_strdup_printf ("MainMenuAction%d", action_counter++);
+                  gchar *name
+                    = g_strdup_printf ("MainMenuAction%d", action_counter++);
                   action = gtk_action_new (name, menu_label, tip, NULL);
                 }
             }
-          /* Connect accelerator, if there is one */
+          /* If this menu item has an associated, create and set up it's
+           * widget.  */
           if (action)
             {
               GtkWidget *item;
@@ -309,6 +315,12 @@ ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
               gtk_menu_shell_append (shell, item);
               menu->actions = g_list_append (menu->actions, action);
               menu->special_key_cb (accel, action, sub_res);
+              /* For some reason passing the tip to the GtkAction associated
+               * with this widget isn't sufficient to make the tooltip actually
+               * display, so we do this as well.  */
+              gtk_widget_set_tooltip_text (
+                  item,
+                  gtk_action_get_tooltip (action) );
             }
           /* Scan rest of resource in case there is more work */
           for (j = 0; j < sub_res->c; j++)
