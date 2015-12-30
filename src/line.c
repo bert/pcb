@@ -304,7 +304,7 @@ drc_lines (PointType *end, bool way)
   s = 0.5;
   last = -1;
   line1.Flags = line2.Flags = NoFlags ();
-  line1.Thickness = Settings.LineThickness + 2 * (PCB->Bloat + 1);
+  line1.Thickness = Settings.LineThickness + 2 * PCB->Bloat;
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;
   line1.Point1.X = Crosshair.AttachedLine.Point1.X;
