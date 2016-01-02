@@ -802,6 +802,19 @@ IsPointOnLine (Coord X, Coord Y, Coord Radius, LineType *Line)
   return hypot (D1, D2) <= Radius + Line->Thickness / 2;
 }
 
+static int
+is_point_on_line (Coord px, Coord py, Coord lx1, Coord ly1, Coord lx2, Coord ly2)
+{
+  /* ohh well... let's hope the optimizer does something clever with inlining... */
+  LineType l;
+  l.Point1.X = lx1;
+  l.Point1.Y = ly1;
+  l.Point2.X = lx2;
+  l.Point2.Y = ly2;
+  l.Thickness = 1;
+  return IsPointOnLine (px, py, 1, &l);
+}
+
 /*!
  * \brief Checks if a line crosses a rectangle.
  */
@@ -1686,6 +1699,20 @@ int lines_intersect(Coord ax1, Coord ay1, Coord ax2, Coord ay2, Coord bx1, Coord
 {
 /* TODO: this should be long double if Coord is 64 bits */
 	double ua, ub, xi, yi, X1, Y1, X2, Y2, X3, Y3, X4, Y4, tmp;
+
+	int is_a_pt, is_b_pt;
+ 
+	/* degenerate cases: a line is actually a point */
+	is_a_pt = (ax1 == ax2) && (ay1 == ay2);
+	is_b_pt = (bx1 == bx2) && (by1 == by2);
+
+	if (is_a_pt && is_b_pt)
+		return (ax1 == bx1) && (ay1 == by1);
+
+	if (is_a_pt)
+		return is_point_on_line(ax1, ay1,  bx1, by1, bx2, by2);
+	if (is_b_pt)
+		return is_point_on_line(bx1, by1,  ax1, ay1, ax2, ay2);
 
 	/* maths from http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/ */
 
