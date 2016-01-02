@@ -2038,8 +2038,8 @@ CycleDrag (int argc, char **argv, Coord x, Coord y)
 		else if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], PAD_TYPE) != NO_TYPE) {
 			Crosshair.AttachedObject.Type =  ELEMENT_TYPE;
 			Crosshair.AttachedObject.Ptr1 =  ptr1;
-			Crosshair.AttachedObject.Ptr2 =  ptr2;
-			Crosshair.AttachedObject.Ptr3 =  ptr3;
+			Crosshair.AttachedObject.Ptr2 =  ptr1;
+			Crosshair.AttachedObject.Ptr3 =  ptr1;
 			return 0;
 		}
 		else if (SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Crosshair.drags[Crosshair.drags_current], ARC_TYPE) != NO_TYPE) {
