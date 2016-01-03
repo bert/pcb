@@ -20,6 +20,8 @@
 
 AWK=awk
 
+export LANG=C
+
 if test -z "$*"
 then
 	echo ""
