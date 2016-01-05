@@ -121,7 +121,8 @@ MainMenu =
 # View Menu
 #
   {"View" m=V
-   {"Enable visible grid" checked=drawgrid Display(Grid)}
+   {"Enable visible grid" tip="Display dots on grid points" checked=drawgrid
+    Display(Grid)}
    {"Grid units"
     {"mil" checked=grid_units_mil,1 SetUnits(mil)}
     {"mm"  checked=grid_units_mm,1 SetUnits(mm)}
@@ -147,7 +148,7 @@ MainMenu =
     {"Grid -" SetValue(Grid,-) a={"Shift-G" "Shift<Key>g"}}
     {"Grid +" SetValue(Grid,+) a={"G" "<Key>g"}}
    }
-   {"Realign grid" GetXY(Click to set the grid origin) Display(ToggleGrid)}
+   {"Realign grid" tip="FIXM: i need a tip I look useful" GetXY(Click to set the grid origin) Display(ToggleGrid)}
    -
    {"Displayed element name"
     {"Description" Display(Description) checked=elementname,1}

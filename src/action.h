@@ -45,6 +45,8 @@ void AdjustAttachedObjects (void);
 void warpNoWhere (void);
 
 /* In gui-misc.c */
+// FIXME: No function named ActionGetXY exists now, so maybe this prototype
+// should go away.  Check the other prototypes in this interface also.
 bool ActionGetLocation (char *);
 void ActionGetXY (char *);
 
