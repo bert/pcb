@@ -71,7 +71,7 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
   moved_pv.X += x;
   moved_pv.Y += y;
 
-  gui->graphics->thindraw_pcb_pv (gc, gc, &moved_pv, true, false);
+  hid_draw_thin_pcb_pv (gc, gc, &moved_pv, true, false);
 }
 
 /*!
@@ -92,25 +92,23 @@ draw_dashed_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   {
     /*! \todo line too short, just draw it -> magic value;
      * with a proper geo lib this would be gone anyway. */
-    gui->graphics->draw_line (gc, x1, y1, x2, y2);
+    hid_draw_line (gc, x1, y1, x2, y2);
     return;
   }
 
   /* first seg is drawn from x1, y1 with no rounding error due to n-1 == 0 */
   for (n = 1; n < segs; n += 2)
-    gui->graphics->draw_line (gc,
-                              x1 + (dx * (double) (n-1) / (double) segs),
-                              y1 + (dy * (double) (n-1) / (double) segs),
-                              x1 + (dx * (double) n / (double) segs),
-                              y1 + (dy * (double) n / (double) segs));
+    hid_draw_line (gc, x1 + (dx * (double) (n-1) / (double) segs),
+                       y1 + (dy * (double) (n-1) / (double) segs),
+                       x1 + (dx * (double) n / (double) segs),
+                       y1 + (dy * (double) n / (double) segs));
 
   /* make sure the last segment is drawn properly to x2 and y2,
    * don't leave room for rounding errors. */
-  gui->graphics->draw_line (gc,
-                            x2 - (dx / (double) segs),
-                            y2 - (dy / (double) segs),
-                            x2,
-                            y2);
+  hid_draw_line (gc, x2 - (dx / (double) segs),
+                     y2 - (dy / (double) segs),
+                     x2,
+                     y2);
 }
 
 /*!
@@ -143,11 +141,10 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
         }
 
       /* normal contour line */
-      gui->graphics->draw_line (gc,
-                                polygon->Points[i].X + dx,
-                                polygon->Points[i].Y + dy,
-                                polygon->Points[next].X + dx,
-                                polygon->Points[next].Y + dy);
+      hid_draw_line (gc, polygon->Points[i].X + dx,
+                         polygon->Points[i].Y + dy,
+                         polygon->Points[next].X + dx,
+                         polygon->Points[next].Y + dy);
     }
 }
 
@@ -198,12 +195,12 @@ XORDrawAttachedArc (hidGC gc, Coord thick)
   arc.Width = arc.Height = wy;
   bx = GetArcEnds (&arc);
   /*  sa = sa - 180; */
-  gui->graphics->draw_arc (gc, arc.X, arc.Y, wy + wid, wy + wid, sa, dir);
+  hid_draw_arc (gc, arc.X, arc.Y, wy + wid, wy + wid, sa, dir);
   if (wid > pixel_slop)
     {
-      gui->graphics->draw_arc (gc, arc.X, arc.Y, wy - wid, wy - wid, sa, dir);
-      gui->graphics->draw_arc (gc, bx->X1, bx->Y1, wid, wid, sa,      -180 * SGN (dir));
-      gui->graphics->draw_arc (gc, bx->X2, bx->Y2, wid, wid, sa + dir, 180 * SGN (dir));
+      hid_draw_arc (gc, arc.X, arc.Y, wy - wid, wy - wid, sa, dir);
+      hid_draw_arc (gc, bx->X1, bx->Y1, wid, wid, sa,      -180 * SGN (dir));
+      hid_draw_arc (gc, bx->X2, bx->Y2, wid, wid, sa + dir, 180 * SGN (dir));
     }
 }
 
@@ -224,13 +221,13 @@ XORDrawAttachedLine (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2, Coord thi
     h = 0.0;
   ox = dy * h + 0.5 * SGN (dy);
   oy = -(dx * h + 0.5 * SGN (dx));
-  gui->graphics->draw_line (gc, x1 + ox, y1 + oy, x2 + ox, y2 + oy);
+  hid_draw_line (gc, x1 + ox, y1 + oy, x2 + ox, y2 + oy);
   if (abs (ox) >= pixel_slop || abs (oy) >= pixel_slop)
     {
       Angle angle = atan2 (dx, dy) * 57.295779;
-      gui->graphics->draw_line (gc, x1 - ox, y1 - oy, x2 - ox, y2 - oy);
-      gui->graphics->draw_arc (gc, x1, y1, thick / 2, thick / 2, angle - 180, 180);
-      gui->graphics->draw_arc (gc, x2, y2, thick / 2, thick / 2, angle, 180);
+      hid_draw_line (gc, x1 - ox, y1 - oy, x2 - ox, y2 - oy);
+      hid_draw_arc (gc, x1, y1, thick / 2, thick / 2, angle - 180, 180);
+      hid_draw_arc (gc, x2, y2, thick / 2, thick / 2, angle, 180);
     }
 }
 
@@ -244,46 +241,40 @@ XORDrawElement (hidGC gc, ElementType *Element, Coord DX, Coord DY)
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
     {
-      gui->graphics->draw_line (gc,
-                                DX + Element->BoundingBox.X1,
-                                DY + Element->BoundingBox.Y1,
-                                DX + Element->BoundingBox.X1,
-                                DY + Element->BoundingBox.Y2);
-      gui->graphics->draw_line (gc,
-                                DX + Element->BoundingBox.X1,
-                                DY + Element->BoundingBox.Y2,
-                                DX + Element->BoundingBox.X2,
-                                DY + Element->BoundingBox.Y2);
-      gui->graphics->draw_line (gc,
-                                DX + Element->BoundingBox.X2,
-                                DY + Element->BoundingBox.Y2,
-                                DX + Element->BoundingBox.X2,
-                                DY + Element->BoundingBox.Y1);
-      gui->graphics->draw_line (gc,
-                                DX + Element->BoundingBox.X2,
-                                DY + Element->BoundingBox.Y1,
-                                DX + Element->BoundingBox.X1,
-                                DY + Element->BoundingBox.Y1);
+      hid_draw_line (gc, DX + Element->BoundingBox.X1,
+                         DY + Element->BoundingBox.Y1,
+                         DX + Element->BoundingBox.X1,
+                         DY + Element->BoundingBox.Y2);
+      hid_draw_line (gc, DX + Element->BoundingBox.X1,
+                         DY + Element->BoundingBox.Y2,
+                         DX + Element->BoundingBox.X2,
+                         DY + Element->BoundingBox.Y2);
+      hid_draw_line (gc, DX + Element->BoundingBox.X2,
+                         DY + Element->BoundingBox.Y2,
+                         DX + Element->BoundingBox.X2,
+                         DY + Element->BoundingBox.Y1);
+      hid_draw_line (gc, DX + Element->BoundingBox.X2,
+                         DY + Element->BoundingBox.Y1,
+                         DX + Element->BoundingBox.X1,
+                         DY + Element->BoundingBox.Y1);
     }
   else
     {
       ELEMENTLINE_LOOP (Element);
       {
-        gui->graphics->draw_line (gc,
-                                  DX + line->Point1.X,
-                                  DY + line->Point1.Y,
-                                  DX + line->Point2.X,
-                                  DY + line->Point2.Y);
+        hid_draw_line (gc, DX + line->Point1.X,
+                           DY + line->Point1.Y,
+                           DX + line->Point2.X,
+                           DY + line->Point2.Y);
       }
       END_LOOP;
 
       /* arc coordinates and angles have to be converted to X11 notation */
       ARC_LOOP (Element);
       {
-        gui->graphics->draw_arc (gc,
-                                 DX + arc->X,
-                                 DY + arc->Y,
-                                 arc->Width, arc->Height, arc->StartAngle, arc->Delta);
+        hid_draw_arc (gc, DX + arc->X,
+                          DY + arc->Y,
+                          arc->Width, arc->Height, arc->StartAngle, arc->Delta);
       }
       END_LOOP;
     }
@@ -305,31 +296,27 @@ XORDrawElement (hidGC gc, ElementType *Element, Coord DX, Coord DY)
         moved_pad.Point1.X += DX; moved_pad.Point1.Y += DY;
         moved_pad.Point2.X += DX; moved_pad.Point2.Y += DY;
 
-        gui->graphics->thindraw_pcb_pad (gc, &moved_pad, false, false);
+        hid_draw_thin_pcb_pad (gc, &moved_pad, false, false);
       }
   }
   END_LOOP;
   /* mark */
-  gui->graphics->draw_line (gc,
-                            Element->MarkX + DX - EMARK_SIZE,
-                            Element->MarkY + DY,
-                            Element->MarkX + DX,
-                            Element->MarkY + DY - EMARK_SIZE);
-  gui->graphics->draw_line (gc,
-                            Element->MarkX + DX + EMARK_SIZE,
-                            Element->MarkY + DY,
-                            Element->MarkX + DX,
-                            Element->MarkY + DY - EMARK_SIZE);
-  gui->graphics->draw_line (gc,
-                            Element->MarkX + DX - EMARK_SIZE,
-                            Element->MarkY + DY,
-                            Element->MarkX + DX,
-                            Element->MarkY + DY + EMARK_SIZE);
-  gui->graphics->draw_line (gc,
-                            Element->MarkX + DX + EMARK_SIZE,
-                            Element->MarkY + DY,
-                            Element->MarkX + DX,
-                            Element->MarkY + DY + EMARK_SIZE);
+  hid_draw_line (gc, Element->MarkX + DX - EMARK_SIZE,
+                     Element->MarkY + DY,
+                     Element->MarkX + DX,
+                     Element->MarkY + DY - EMARK_SIZE);
+  hid_draw_line (gc, Element->MarkX + DX + EMARK_SIZE,
+                     Element->MarkY + DY,
+                     Element->MarkX + DX,
+                     Element->MarkY + DY - EMARK_SIZE);
+  hid_draw_line (gc, Element->MarkX + DX - EMARK_SIZE,
+                     Element->MarkY + DY,
+                     Element->MarkX + DX,
+                     Element->MarkY + DY + EMARK_SIZE);
+  hid_draw_line (gc, Element->MarkX + DX + EMARK_SIZE,
+                     Element->MarkY + DY,
+                     Element->MarkX + DX,
+                     Element->MarkY + DY + EMARK_SIZE);
 }
 
 /*!
@@ -358,25 +345,21 @@ XORDrawBuffer (hidGC gc, BufferType *Buffer)
 					y +line->Point1.Y, x +line->Point2.X,
 					y +line->Point2.Y, line->Thickness);
 */
-	gui->graphics->draw_line (gc,
-	                          x + line->Point1.X, y + line->Point1.Y,
-	                          x + line->Point2.X, y + line->Point2.Y);
+	hid_draw_line (gc, x + line->Point1.X, y + line->Point1.Y,
+	                   x + line->Point2.X, y + line->Point2.Y);
 	}
 	END_LOOP;
 	ARC_LOOP (layer);
 	{
-	  gui->graphics->draw_arc (gc,
-	                           x + arc->X,
-	                           y + arc->Y,
-	                           arc->Width,
-	                           arc->Height, arc->StartAngle, arc->Delta);
+	  hid_draw_arc (gc, x + arc->X,
+	                    y + arc->Y,
+	                    arc->Width, arc->Height, arc->StartAngle, arc->Delta);
 	}
 	END_LOOP;
 	TEXT_LOOP (layer);
 	{
 	  BoxType *box = &text->BoundingBox;
-	  gui->graphics->draw_rect (gc,
-	                            x + box->X1, y + box->Y1, x + box->X2, y + box->Y2);
+	  hid_draw_rect (gc, x + box->X1, y + box->Y1, x + box->X2, y + box->Y2);
 	}
 	END_LOOP;
 	/* the tmp polygon has n+1 points because the first
@@ -418,8 +401,8 @@ XORDrawInsertPointObject (hidGC gc)
 
   if (Crosshair.AttachedObject.Type != NO_TYPE)
     {
-      gui->graphics->draw_line (gc, point->X, point->Y, line->Point1.X, line->Point1.Y);
-      gui->graphics->draw_line (gc, point->X, point->Y, line->Point2.X, line->Point2.Y);
+      hid_draw_line (gc, point->X, point->Y, line->Point1.X, line->Point1.Y);
+      hid_draw_line (gc, point->X, point->Y, line->Point2.X, line->Point2.Y);
     }
 }
 
@@ -457,10 +440,9 @@ XORDrawMoveOrCopyObject (hidGC gc)
       {
 	ArcType *Arc = (ArcType *) Crosshair.AttachedObject.Ptr2;
 
-	gui->graphics->draw_arc (gc,
-	                         Arc->X + dx,
-	                         Arc->Y + dy,
-	                         Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta);
+	hid_draw_arc (gc, Arc->X + dx,
+	                  Arc->Y + dy,
+	                  Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta);
 	break;
       }
 
@@ -507,12 +489,10 @@ XORDrawMoveOrCopyObject (hidGC gc)
 	next = next_contour_point (polygon, point_idx);
 
 	/* draw the two segments */
-	gui->graphics->draw_line (gc,
-	                          polygon->Points[prev].X, polygon->Points[prev].Y,
-	                          point->X + dx, point->Y + dy);
-	gui->graphics->draw_line (gc,
-	                          point->X + dx, point->Y + dy,
-	                          polygon->Points[next].X, polygon->Points[next].Y);
+	hid_draw_line (gc, polygon->Points[prev].X, polygon->Points[prev].Y,
+	                   point->X + dx, point->Y + dy);
+	hid_draw_line (gc, point->X + dx, point->Y + dy,
+	                   polygon->Points[next].X, polygon->Points[next].Y);
 	break;
       }
 
@@ -522,18 +502,15 @@ XORDrawMoveOrCopyObject (hidGC gc)
 	ElementType *element =
 	  (ElementType *) Crosshair.AttachedObject.Ptr1;
 
-	gui->graphics->draw_line (gc,
-	                          element->MarkX,
-	                          element->MarkY, Crosshair.X, Crosshair.Y);
+	hid_draw_line (gc, element->MarkX, element->MarkY,
+	                   Crosshair.X, Crosshair.Y);
 	/* fall through to move the text as a box outline */
       }
     case TEXT_TYPE:
       {
 	TextType *text = (TextType *) Crosshair.AttachedObject.Ptr2;
 	BoxType *box = &text->BoundingBox;
-	gui->graphics->draw_rect (gc,
-	                          box->X1 + dx,
-	                          box->Y1 + dy, box->X2 + dx, box->Y2 + dy);
+	hid_draw_rect (gc, box->X1 + dx, box->Y1 + dy, box->X2 + dx, box->Y2 + dy);
 	break;
       }
 
@@ -591,10 +568,10 @@ XORDrawMoveOrCopyObject (hidGC gc)
 void
 DrawAttached (hidGC gc)
 {
-  gui->graphics->set_color (gc, Settings.CrosshairColor);
-  gui->graphics->set_draw_xor (gc, 1);
-  gui->graphics->set_line_cap (gc, Trace_Cap);
-  gui->graphics->set_line_width (gc, 1);
+  hid_draw_set_color (gc, Settings.CrosshairColor);
+  hid_draw_set_draw_xor (gc, 1);
+  hid_draw_set_line_cap (gc, Trace_Cap);
+  hid_draw_set_line_width (gc, 1);
 
   switch (Settings.Mode)
     {
@@ -610,16 +587,16 @@ DrawAttached (hidGC gc)
         via.Mask = 0;
         via.Flags = NoFlags ();
 
-        gui->graphics->thindraw_pcb_pv (gc, gc, &via, true, false);
+        hid_draw_thin_pcb_pv (gc, gc, &via, true, false);
 
         if (TEST_FLAG (SHOWDRCFLAG, PCB))
           {
             Coord mask_r = Settings.ViaThickness / 2 + PCB->Bloat;
-            gui->graphics->set_color (gc, Settings.CrossColor);
-            gui->graphics->set_line_cap (gc, Round_Cap);
-            gui->graphics->set_line_width (gc, 0);
-            gui->graphics->draw_arc (gc, via.X, via.Y, mask_r, mask_r, 0, 360);
-            gui->graphics->set_color (gc, Settings.CrosshairColor);
+            hid_draw_set_color (gc, Settings.CrossColor);
+            hid_draw_set_line_cap (gc, Round_Cap);
+            hid_draw_set_line_width (gc, 0);
+            hid_draw_arc (gc, via.X, via.Y, mask_r, mask_r, 0, 360);
+            hid_draw_set_color (gc, Settings.CrosshairColor);
           }
         break;
       }
@@ -629,11 +606,10 @@ DrawAttached (hidGC gc)
     case POLYGONHOLE_MODE:
       /* draw only if starting point is set */
       if (Crosshair.AttachedLine.State != STATE_FIRST)
-        gui->graphics->draw_line (gc,
-                                  Crosshair.AttachedLine.Point1.X,
-                                  Crosshair.AttachedLine.Point1.Y,
-                                  Crosshair.AttachedLine.Point2.X,
-                                  Crosshair.AttachedLine.Point2.Y);
+        hid_draw_line (gc, Crosshair.AttachedLine.Point1.X,
+                           Crosshair.AttachedLine.Point1.Y,
+                           Crosshair.AttachedLine.Point2.X,
+                           Crosshair.AttachedLine.Point2.Y);
 
       /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
       if (Crosshair.AttachedPolygon.PointN > 1)
@@ -648,9 +624,9 @@ DrawAttached (hidGC gc)
 	  XORDrawAttachedArc (gc, Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      gui->graphics->set_color (gc, Settings.CrossColor);
+	      hid_draw_set_color (gc, Settings.CrossColor);
 	      XORDrawAttachedArc (gc, Settings.LineThickness + 2 * PCB->Bloat);
-	      gui->graphics->set_color (gc, Settings.CrosshairColor);
+	      hid_draw_set_color (gc, Settings.CrosshairColor);
 	    }
 
 	}
@@ -674,7 +650,7 @@ DrawAttached (hidGC gc)
 	                         PCB->RatDraw ? 10 : Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      gui->graphics->set_color (gc, Settings.CrossColor);
+	      hid_draw_set_color (gc, Settings.CrossColor);
 	      XORDrawAttachedLine (gc, Crosshair.AttachedLine.Point1.X,
 	                               Crosshair.AttachedLine.Point1.Y,
 	                           Crosshair.AttachedLine.Point2.X,
@@ -687,7 +663,7 @@ DrawAttached (hidGC gc)
 		                     Crosshair.X, Crosshair.Y,
 		                     PCB->RatDraw ? 10 : Settings.
 		                     LineThickness + 2 * PCB->Bloat);
-	      gui->graphics->set_color (gc, Settings.CrosshairColor);
+	      hid_draw_set_color (gc, Settings.CrosshairColor);
 	    }
 	}
       break;
@@ -716,7 +692,7 @@ DrawAttached (hidGC gc)
       y1 = Crosshair.AttachedBox.Point1.Y;
       x2 = Crosshair.AttachedBox.Point2.X;
       y2 = Crosshair.AttachedBox.Point2.Y;
-      gui->graphics->draw_rect (gc, x1, y1, x2, y2);
+      hid_draw_rect (gc, x1, y1, x2, y2);
     }
 }
 
@@ -727,23 +703,19 @@ DrawAttached (hidGC gc)
 void
 DrawMark (hidGC gc)
 {
-  gui->graphics->set_color (gc, Settings.CrosshairColor);
-  gui->graphics->set_draw_xor (gc, 1);
-  gui->graphics->set_line_cap (gc, Trace_Cap);
-  gui->graphics->set_line_width (gc, 1);
+  hid_draw_set_color (gc, Settings.CrosshairColor);
+  hid_draw_set_draw_xor (gc, 1);
+  hid_draw_set_line_cap (gc, Trace_Cap);
+  hid_draw_set_line_width (gc, 1);
 
   /* Mark is not drawn when it is not set */
   if (!Marked.status)
     return;
 
-  gui->graphics->draw_line (gc,
-                  Marked.X - MARK_SIZE,
-                  Marked.Y - MARK_SIZE,
-                  Marked.X + MARK_SIZE, Marked.Y + MARK_SIZE);
-  gui->graphics->draw_line (gc,
-                  Marked.X + MARK_SIZE,
-                  Marked.Y - MARK_SIZE,
-                  Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
+  hid_draw_line (gc, Marked.X - MARK_SIZE, Marked.Y - MARK_SIZE,
+                     Marked.X + MARK_SIZE, Marked.Y + MARK_SIZE);
+  hid_draw_line (gc, Marked.X + MARK_SIZE, Marked.Y - MARK_SIZE,
+                     Marked.X - MARK_SIZE, Marked.Y + MARK_SIZE);
 }
 
 /*!

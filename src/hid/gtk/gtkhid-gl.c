@@ -607,7 +607,7 @@ ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   common_thindraw_pcb_polygon (gc, poly, clip_box);
   ghid_set_alpha_mult (gc, 0.25);
-  gui->graphics->fill_pcb_polygon (gc, poly, clip_box);
+  hid_draw_fill_pcb_polygon (gc, poly, clip_box);
   ghid_set_alpha_mult (gc, 1.0);
 }
 
@@ -792,7 +792,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   render_priv *priv;
 
   port->render_priv = priv = g_new0 (render_priv, 1);
-  port->render_priv->crosshair_gc = gui->graphics->make_gc ();
+  port->render_priv->crosshair_gc = hid_draw_make_gc (&ghid_graphics);
 
   priv->time_since_expose = g_timer_new ();
 
@@ -819,7 +819,7 @@ ghid_shutdown_renderer (GHidPort *port)
 {
   render_priv *priv = port->render_priv;
 
-  gui->graphics->destroy_gc (priv->crosshair_gc);
+  hid_draw_destroy_gc (priv->crosshair_gc);
   ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;

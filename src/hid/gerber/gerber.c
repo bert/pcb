@@ -915,19 +915,19 @@ gerber_set_layer (const char *name, int group, int empty)
 	DrawLayer (outline_layer, &region);
       else if (!outline_layer)
 	{
-	  hidGC gc = gui->graphics->make_gc ();
+	  hidGC gc = hid_draw_make_gc (&gerber_graphics);
 	  printf("name %s idx %d\n", name, idx);
 	  if (SL_TYPE (idx) == SL_SILK)
-	    gui->graphics->set_line_width (gc, PCB->minSlk);
+	    hid_draw_set_line_width (gc, PCB->minSlk);
 	  else if (group >= 0)
-	    gui->graphics->set_line_width (gc, PCB->minWid);
+	    hid_draw_set_line_width (gc, PCB->minWid);
 	  else
-	    gui->graphics->set_line_width (gc, AUTO_OUTLINE_WIDTH);
-	  gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
-	  gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
-	  gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
-	  gui->graphics->destroy_gc (gc);
+	    hid_draw_set_line_width (gc, AUTO_OUTLINE_WIDTH);
+	  hid_draw_line (gc, 0, 0, PCB->MaxWidth, 0);
+	  hid_draw_line (gc, 0, 0, 0, PCB->MaxHeight);
+	  hid_draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth, PCB->MaxHeight);
+	  hid_draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight);
+	  hid_draw_destroy_gc (gc);
 	}
     }
 

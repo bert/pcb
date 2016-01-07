@@ -1089,7 +1089,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 {
   /* Init any GC's required */
   port->render_priv = g_new0 (render_priv, 1);
-  port->render_priv->crosshair_gc = gui->graphics->make_gc ();
+  port->render_priv->crosshair_gc = hid_draw_make_gc (&ghid_graphics);
 }
 
 void
@@ -1097,7 +1097,7 @@ ghid_shutdown_renderer (GHidPort *port)
 {
   render_priv *priv = port->render_priv;
 
-  gui->graphics->destroy_gc (priv->crosshair_gc);
+  hid_draw_destroy_gc (priv->crosshair_gc);
   ghid_cancel_lead_user ();
   g_free (port->render_priv);
   port->render_priv = NULL;
