@@ -695,6 +695,7 @@ hid_eps_init ()
 
   eps_hid.graphics            = &eps_graphics;
 
+  common_nogui_graphics_class_init (&eps_graphics_class);
   common_draw_helpers_class_init (&eps_graphics_class);
 
   eps_graphics_class.set_layer      = eps_set_layer;
@@ -714,6 +715,7 @@ hid_eps_init ()
 
   eps_graphics.klass = &eps_graphics_class;
   eps_graphics.poly_after = true;
+  common_nogui_graphics_init (&eps_graphics);
   common_draw_helpers_init (&eps_graphics);
 
   hid_register_hid (&eps_hid);

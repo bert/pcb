@@ -1079,6 +1079,7 @@ hid_nelma_init()
 
   nelma_hid.graphics            = &nelma_graphics;
 
+  common_nogui_graphics_class_init (&nelma_graphics_class);
   common_draw_helpers_class_init (&nelma_graphics_class);
 
   nelma_graphics_class.set_layer      = nelma_set_layer;
@@ -1099,6 +1100,7 @@ hid_nelma_init()
 
   nelma_graphics.klass = &nelma_graphics_class;
   nelma_graphics.poly_before = true;
+  common_nogui_graphics_init (&nelma_graphics);
   common_draw_helpers_init (&nelma_graphics);
 
   hid_register_hid (&nelma_hid);

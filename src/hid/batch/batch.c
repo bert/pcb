@@ -361,6 +361,7 @@ hid_batch_init ()
 
   batch_hid.graphics              = &batch_graphics;
 
+  common_nogui_graphics_class_init (&batch_graphics_class);
   common_draw_helpers_class_init (&batch_graphics_class);
 
   batch_graphics_class.set_layer      = batch_set_layer;
@@ -379,6 +380,7 @@ hid_batch_init ()
   batch_graphics_class.fill_rect      = batch_fill_rect;
 
   batch_graphics.klass = &batch_graphics_class;
+  common_nogui_graphics_init (&batch_graphics);
   common_draw_helpers_init (&batch_graphics);
 
   hid_register_hid (&batch_hid);

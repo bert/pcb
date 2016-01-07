@@ -1867,6 +1867,7 @@ hid_png_init ()
 
   png_hid.graphics            = &png_graphics;
 
+  common_nogui_graphics_class_init (&png_graphics_class);
   common_draw_helpers_class_init (&png_graphics_class);
 
   png_graphics_class.set_layer      = png_set_layer;
@@ -1886,6 +1887,7 @@ hid_png_init ()
 
   png_graphics.klass = &png_graphics_class;
   png_graphics.poly_before = true;
+  common_nogui_graphics_init (&png_graphics);
   common_draw_helpers_init (&png_graphics);
 
 #ifdef HAVE_SOME_FORMAT

@@ -52,6 +52,7 @@
 #include "pcb-printf.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "hid/common/hidnogui.h"
 #include "../hidint.h"
 

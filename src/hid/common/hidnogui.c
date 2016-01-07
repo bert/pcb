@@ -476,7 +476,7 @@ common_nogui_init (HID *hid)
   hid->finish_debug_draw =    nogui_finish_debug_draw;
 }
 
-static void
+void
 common_nogui_graphics_class_init (HID_DRAW_CLASS *klass)
 {
   klass->set_layer =       nogui_set_layer;
@@ -503,7 +503,7 @@ common_nogui_graphics_class_init (HID_DRAW_CLASS *klass)
   klass->thindraw_pcb_pv =  nogui_thindraw_pcb_pv;
 }
 
-static void
+void
 common_nogui_graphics_init (HID_DRAW *graphics)
 {
 }

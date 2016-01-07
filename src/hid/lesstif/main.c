@@ -4179,6 +4179,7 @@ hid_lesstif_init ()
 
   lesstif_hid.graphics                = &lesstif_graphics;
 
+  common_nogui_graphics_class_init (&lesstif_graphics_class);
   common_draw_helpers_class_init (&lesstif_graphics_class);
 
   lesstif_graphics_class.set_layer      = lesstif_set_layer;
@@ -4200,6 +4201,7 @@ hid_lesstif_init ()
 
   lesstif_graphics.klass = &lesstif_graphics_class;
   lesstif_graphics.poly_before = true;
+  common_nogui_graphics_init (&lesstif_graphics);
   common_draw_helpers_init (&lesstif_graphics);
 
   hid_register_hid (&lesstif_hid);

@@ -1360,6 +1360,7 @@ hid_gerber_init ()
 
   gerber_hid.graphics            = &gerber_graphics;
 
+  common_nogui_graphics_class_init (&gerber_graphics_class);
   common_draw_helpers_class_init (&gerber_graphics_class);
 
   gerber_graphics_class.set_layer      = gerber_set_layer;
@@ -1378,6 +1379,7 @@ hid_gerber_init ()
   gerber_graphics_class.fill_rect      = gerber_fill_rect;
 
   gerber_graphics.klass = &gerber_graphics_class;
+  common_nogui_graphics_init (&gerber_graphics);
   common_draw_helpers_init (&gerber_graphics);
 
   hid_register_hid (&gerber_hid);

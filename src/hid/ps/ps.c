@@ -1596,11 +1596,13 @@ hid_ps_init ()
 
   ps_hid.graphics           = &ps_graphics;
 
+  common_nogui_graphics_class_init (&ps_graphics_class);
   common_draw_helpers_class_init (&ps_graphics_class);
   ps_ps_graphics_class_init (&ps_graphics_class);
 
   ps_graphics.klass = &ps_graphics_class;
   ps_graphics.poly_before = true;
+  common_nogui_graphics_init (&ps_graphics);
   common_draw_helpers_init (&ps_graphics);
   ps_ps_graphics_init (&ps_graphics);
 
