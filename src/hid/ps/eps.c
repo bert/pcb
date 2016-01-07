@@ -424,7 +424,7 @@ eps_make_gc (void)
   hidGC gc = (hidGC) calloc (1, sizeof (struct eps_gc_struct));
   epsGC eps_gc = (epsGC)gc;
 
-  gc->me_pointer = &eps_hid;
+  gc->hid = &eps_hid;
 
   eps_gc->cap = Trace_Cap;
   eps_gc->width = 0;

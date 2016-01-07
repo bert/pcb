@@ -1198,7 +1198,7 @@ gcode_make_gc (void)
   hidGC gc = (hidGC) calloc (1, sizeof (struct gcode_gc_struct));
   gcodeGC gcode_gc = (gcodeGC)gc;
 
-  gc->me_pointer = &gcode_hid;
+  gc->hid = &gcode_hid;
 
   gcode_gc->cap = Trace_Cap;
   gcode_gc->width = 1;
@@ -1286,7 +1286,7 @@ use_gc (hidGC gc)
 
   int need_brush = 0;
 
-  if (gc->me_pointer != &gcode_hid)
+  if (gc->hid != &gcode_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to gcode HID\n");
       abort ();

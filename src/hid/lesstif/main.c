@@ -3111,7 +3111,7 @@ lesstif_make_gc (void)
 {
   hidGC gc = (hidGC)calloc (1, sizeof (struct lesstif_gc_struct));
 
-  gc->me_pointer = &lesstif_hid;
+  gc->hid = &lesstif_hid;
 
   return gc;
 }
@@ -3241,7 +3241,7 @@ set_gc (hidGC gc)
 {
   lesstifGC lesstif_gc = (lesstifGC)gc;
   int cap, join, width;
-  if (gc->me_pointer != &lesstif_hid)
+  if (gc->hid != &lesstif_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to lesstif HID\n");
       abort ();

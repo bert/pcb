@@ -1365,7 +1365,7 @@ png_make_gc (void)
   hidGC gc = (hidGC) calloc (1, sizeof (struct png_gc_struct));
   pngGC png_gc = (pngGC)gc;
 
-  gc->me_pointer = &png_hid;
+  gc->hid = &png_hid;
 
   png_gc->cap = Trace_Cap;
   png_gc->width = 1;
@@ -1507,7 +1507,7 @@ use_gc (hidGC gc)
 
   int need_brush = 0;
 
-  if (gc->me_pointer != &png_hid)
+  if (gc->hid != &png_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to png HID\n");
       abort ();

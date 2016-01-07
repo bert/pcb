@@ -765,7 +765,7 @@ nelma_make_gc(void)
 	hidGC gc = (hidGC) calloc (1, sizeof(struct hid_gc_struct));
 	nelmaGC nelma_gc = (nelmaGC)gc;
 
-	gc->me_pointer = &nelma_hid;
+	gc->hid = &nelma_hid;
 
 	nelma_gc->cap = Trace_Cap;
 	nelma_gc->width = 1;
@@ -848,7 +848,7 @@ use_gc(hidGC gc)
 	nelmaGC nelma_gc = (nelmaGC)gc;
 	int             need_brush = 0;
 
-	if (gc->me_pointer != &nelma_hid) {
+	if (gc->hid != &nelma_hid) {
 		fprintf(stderr, "Fatal: GC from another HID passed to nelma HID\n");
 		abort();
 	}

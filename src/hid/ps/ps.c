@@ -1015,7 +1015,7 @@ ps_make_gc (void)
   hidGC gc = (hidGC) calloc (1, sizeof (struct ps_gc_struct));
   psGC ps_gc = (psGC)gc;
 
-  gc->me_pointer = &ps_hid;
+  gc->hid = &ps_hid;
   ps_gc->cap = Trace_Cap;
 
   return gc;
@@ -1101,7 +1101,7 @@ use_gc (hidGC gc)
       lastcap = lastcolor = -1;
       return;
     }
-  if (gc->me_pointer != &ps_hid)
+  if (gc->hid != &ps_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to ps HID\n");
       abort ();

@@ -158,7 +158,7 @@ ghid_make_gc (void)
   hidGC gc = (hidGC)g_new0 (struct gtk_gc_struct, 1);
   gtkGC gtk_gc = (gtkGC)gc;
 
-  gc->me_pointer = &ghid_hid;
+  gc->hid = &ghid_hid;
 
   gtk_gc->colorname = Settings.BackgroundColor;
 
@@ -530,7 +530,7 @@ use_gc (hidGC gc)
   render_priv *priv = gport->render_priv;
   GdkWindow *window = gtk_widget_get_window (gport->top_window);
 
-  if (gc->me_pointer != &ghid_hid)
+  if (gc->hid != &ghid_hid)
     {
       fprintf (stderr, "Fatal: GC from another HID passed to GTK HID\n");
       abort ();

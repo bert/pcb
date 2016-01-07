@@ -940,7 +940,7 @@ gerber_make_gc (void)
   hidGC gc = (hidGC) calloc (1, sizeof (struct gerber_gc_struct));
   gerberGC gerber_gc = (gerberGC)gc;
 
-  gc->me_pointer = &gerber_hid;
+  gc->hid = &gerber_hid;
 
   gerber_gc->cap = Trace_Cap;
 
