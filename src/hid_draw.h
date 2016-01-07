@@ -108,4 +108,5 @@ struct hid_draw_st
 /* Base hidGC elements visible to any module */
 struct hid_gc_struct {
   HID *hid;   /* Used by HIDs to validate the GCs passed belong to them */
+  HID_DRAW *hid_draw;
 };

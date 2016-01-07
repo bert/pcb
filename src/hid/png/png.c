@@ -1366,6 +1366,7 @@ png_make_gc (void)
   pngGC png_gc = (pngGC)gc;
 
   gc->hid = &png_hid;
+  gc->hid_draw = &png_graphics;
 
   png_gc->cap = Trace_Cap;
   png_gc->width = 1;

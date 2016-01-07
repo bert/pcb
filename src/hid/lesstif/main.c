@@ -3112,6 +3112,7 @@ lesstif_make_gc (void)
   hidGC gc = (hidGC)calloc (1, sizeof (struct lesstif_gc_struct));
 
   gc->hid = &lesstif_hid;
+  gc->hid_draw = &lesstif_graphics;
 
   return gc;
 }

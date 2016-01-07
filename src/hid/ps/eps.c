@@ -425,6 +425,7 @@ eps_make_gc (void)
   epsGC eps_gc = (epsGC)gc;
 
   gc->hid = &eps_hid;
+  gc->hid_draw = &eps_graphics;
 
   eps_gc->cap = Trace_Cap;
   eps_gc->width = 0;

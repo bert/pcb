@@ -766,6 +766,7 @@ nelma_make_gc(void)
 	nelmaGC nelma_gc = (nelmaGC)gc;
 
 	gc->hid = &nelma_hid;
+	gc->hid_draw = &nelma_graphics;
 
 	nelma_gc->cap = Trace_Cap;
 	nelma_gc->width = 1;

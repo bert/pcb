@@ -205,6 +205,7 @@ ghid_make_gc (void)
   gtkGC gtk_gc = (gtkGC)gc;
 
   gc->hid = &ghid_hid;
+  gc->hid_draw = &ghid_graphics;
 
   gtk_gc->colorname = Settings.BackgroundColor;
   gtk_gc->alpha_mult = 1.0;
