@@ -4199,6 +4199,8 @@ hid_lesstif_init ()
 
   lesstif_graphics_class.draw_pcb_polygon = common_gui_draw_pcb_polygon;
 
+  lesstif_graphics_class.can_draw_in_mask_clear = true;
+
   lesstif_graphics.klass = &lesstif_graphics_class;
   lesstif_graphics.poly_before = true;
   common_nogui_graphics_init (&lesstif_graphics);

@@ -1035,12 +1035,11 @@ DrawRats (const BoxType *drawn_area)
    * XXX gtk only allows negative drawing.
    * XXX using the mask here is to get rat transparency
    */
-  int can_mask = strcmp(gui->name, "lesstif") == 0;
 
-  if (can_mask)
+  if (hid_draw_can_draw_in_mask_clear (gui->graphics))
     hid_draw_use_mask (gui->graphics, HID_MASK_CLEAR);
   r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
-  if (can_mask)
+  if (hid_draw_can_draw_in_mask_clear (gui->graphics))
     hid_draw_use_mask (gui->graphics, HID_MASK_OFF);
 }
 
