@@ -1594,8 +1594,6 @@ hid_ps_init ()
   ps_hid.description        = N_("Postscript export");
   ps_hid.exporter           = 1;
 
-  ps_hid.graphics           = &ps_graphics;
-
   common_nogui_graphics_class_init (&ps_graphics_class);
   common_draw_helpers_class_init (&ps_graphics_class);
   ps_ps_graphics_class_init (&ps_graphics_class);

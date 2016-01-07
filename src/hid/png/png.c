@@ -1865,8 +1865,6 @@ hid_png_init ()
   png_hid.calibrate           = png_calibrate;
   png_hid.set_crosshair       = png_set_crosshair;
 
-  png_hid.graphics            = &png_graphics;
-
   common_nogui_graphics_class_init (&png_graphics_class);
   common_draw_helpers_class_init (&png_graphics_class);
 

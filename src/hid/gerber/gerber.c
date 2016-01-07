@@ -1358,8 +1358,6 @@ hid_gerber_init ()
   gerber_hid.calibrate           = gerber_calibrate;
   gerber_hid.set_crosshair       = gerber_set_crosshair;
 
-  gerber_hid.graphics            = &gerber_graphics;
-
   common_nogui_graphics_class_init (&gerber_graphics_class);
   common_draw_helpers_class_init (&gerber_graphics_class);
 

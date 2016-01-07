@@ -182,8 +182,6 @@ hid_extents_init (void)
   extents_hid.name                = "extents-extents";
   extents_hid.description         = "used to calculate extents";
 
-  extents_hid.graphics            = &extents_graphics;
-
   common_draw_helpers_class_init (&extents_graphics_class);
 
   extents_graphics_class.set_layer      = extents_set_layer;

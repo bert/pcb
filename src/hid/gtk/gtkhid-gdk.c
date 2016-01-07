@@ -1286,7 +1286,7 @@ ghid_request_debug_draw (void)
 {
   /* No special setup requirements, drawing goes into
    * the backing pixmap. */
-  return ghid_hid.graphics;
+  return &ghid_graphics;
 }
 
 void

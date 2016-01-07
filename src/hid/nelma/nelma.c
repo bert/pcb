@@ -1077,8 +1077,6 @@ hid_nelma_init()
   nelma_hid.calibrate           = nelma_calibrate;
   nelma_hid.set_crosshair       = nelma_set_crosshair;
 
-  nelma_hid.graphics            = &nelma_graphics;
-
   common_nogui_graphics_class_init (&nelma_graphics_class);
   common_draw_helpers_class_init (&nelma_graphics_class);
 

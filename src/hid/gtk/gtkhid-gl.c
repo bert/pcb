@@ -1372,7 +1372,7 @@ ghid_request_debug_draw (void)
                 port->view.flip_y ? port->view.y0 - PCB->MaxHeight :
                              -port->view.y0, 0);
 
-  return ghid_hid.graphics;
+  return &ghid_graphics;
 }
 
 void

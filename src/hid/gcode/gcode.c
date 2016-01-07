@@ -1647,8 +1647,6 @@ hid_gcode_init ()
   gcode_hid.calibrate           = gcode_calibrate;
   gcode_hid.set_crosshair       = gcode_set_crosshair;
 
-  gcode_hid.graphics            = &gcode_graphics;
-
   common_nogui_graphics_class_init (&gcode_graphics_class);
   common_draw_helpers_class_init (&gcode_graphics_class);
 

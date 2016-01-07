@@ -359,8 +359,6 @@ hid_batch_init ()
   batch_hid.attribute_dialog      = batch_attribute_dialog;
   batch_hid.show_item             = batch_show_item;
 
-  batch_hid.graphics              = &batch_graphics;
-
   common_nogui_graphics_class_init (&batch_graphics_class);
   common_draw_helpers_class_init (&batch_graphics_class);
 
