@@ -60,6 +60,7 @@
 
 static HID png_hid;
 static HID_DRAW png_graphics;
+static HID_DRAW_CLASS png_graphics_class;
 
 static void *color_cache = NULL;
 static void *brush_cache = NULL;
@@ -1849,9 +1850,9 @@ hid_png_init ()
 {
   memset (&png_hid, 0, sizeof (HID));
   memset (&png_graphics, 0, sizeof (HID_DRAW));
+  memset (&png_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&png_hid);
-  common_draw_helpers_init (&png_graphics);
 
   png_hid.struct_size = sizeof (HID);
   png_hid.name        = "png";
@@ -1868,19 +1869,24 @@ hid_png_init ()
 
   png_hid.graphics            = &png_graphics;
 
-  png_graphics.make_gc        = png_make_gc;
-  png_graphics.destroy_gc     = png_destroy_gc;
-  png_graphics.use_mask       = png_use_mask;
-  png_graphics.set_color      = png_set_color;
-  png_graphics.set_line_cap   = png_set_line_cap;
-  png_graphics.set_line_width = png_set_line_width;
-  png_graphics.set_draw_xor   = png_set_draw_xor;
-  png_graphics.draw_line      = png_draw_line;
-  png_graphics.draw_arc       = png_draw_arc;
-  png_graphics.draw_rect      = png_draw_rect;
-  png_graphics.fill_circle    = png_fill_circle;
-  png_graphics.fill_polygon   = png_fill_polygon;
-  png_graphics.fill_rect      = png_fill_rect;
+  common_draw_helpers_class_init (&png_graphics_class);
+
+  png_graphics_class.make_gc        = png_make_gc;
+  png_graphics_class.destroy_gc     = png_destroy_gc;
+  png_graphics_class.use_mask       = png_use_mask;
+  png_graphics_class.set_color      = png_set_color;
+  png_graphics_class.set_line_cap   = png_set_line_cap;
+  png_graphics_class.set_line_width = png_set_line_width;
+  png_graphics_class.set_draw_xor   = png_set_draw_xor;
+  png_graphics_class.draw_line      = png_draw_line;
+  png_graphics_class.draw_arc       = png_draw_arc;
+  png_graphics_class.draw_rect      = png_draw_rect;
+  png_graphics_class.fill_circle    = png_fill_circle;
+  png_graphics_class.fill_polygon   = png_fill_polygon;
+  png_graphics_class.fill_rect      = png_fill_rect;
+
+  png_graphics.klass = &png_graphics_class;
+  common_draw_helpers_init (&png_graphics);
 
 #ifdef HAVE_SOME_FORMAT
   hid_register_hid (&png_hid);

@@ -13,6 +13,7 @@
 #include "misc.h"
 
 #include "hid.h"
+#include "hid_draw.h"
 #include "../hidint.h"
 #include "../ps/ps.h"
 #include "hid/common/hidnogui.h"

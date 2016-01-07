@@ -42,6 +42,7 @@
 
 extern HID ghid_hid;
 extern HID_DRAW ghid_graphics;
+extern HID_DRAW_CLASS ghid_graphics_class;
 
 static hidGC current_gc = NULL;
 
@@ -810,8 +811,8 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 
   /* Setup HID function pointers specific to the GL renderer*/
   ghid_hid.end_layer = ghid_end_layer;
-  ghid_graphics.fill_pcb_polygon = ghid_fill_pcb_polygon;
-  ghid_graphics.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
+  ghid_graphics_class.fill_pcb_polygon = ghid_fill_pcb_polygon;
+  ghid_graphics_class.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
 }
 
 void
@@ -902,7 +903,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
      we can't use the hidgl polygon drawing routine */
   /* TODO: We could use the GLU tessellator though */
   if (hidgl_stencil_bits() == 0)
-    ghid_graphics.fill_pcb_polygon = common_fill_pcb_polygon;
+    ghid_graphics_class.fill_pcb_polygon = common_fill_pcb_polygon;
 
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

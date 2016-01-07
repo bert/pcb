@@ -164,6 +164,7 @@ extents_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
 static HID extents_hid;
 static HID_DRAW extents_graphics;
+static HID_DRAW_CLASS extents_graphics_class;
 
 void
 hid_extents_init (void)
@@ -175,8 +176,7 @@ hid_extents_init (void)
 
   memset (&extents_hid, 0, sizeof (HID));
   memset (&extents_graphics, 0, sizeof (HID_DRAW));
-
-  common_draw_helpers_init (&extents_graphics);
+  memset (&extents_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   extents_hid.struct_size         = sizeof (HID);
   extents_hid.name                = "extents-extents";
@@ -187,19 +187,24 @@ hid_extents_init (void)
 
   extents_hid.graphics            = &extents_graphics;
 
-  extents_graphics.make_gc        = extents_make_gc;
-  extents_graphics.destroy_gc     = extents_destroy_gc;
-  extents_graphics.use_mask       = extents_use_mask;
-  extents_graphics.set_color      = extents_set_color;
-  extents_graphics.set_line_cap   = extents_set_line_cap;
-  extents_graphics.set_line_width = extents_set_line_width;
-  extents_graphics.set_draw_xor   = extents_set_draw_xor;
-  extents_graphics.draw_line      = extents_draw_line;
-  extents_graphics.draw_arc       = extents_draw_arc;
-  extents_graphics.draw_rect      = extents_draw_rect;
-  extents_graphics.fill_circle    = extents_fill_circle;
-  extents_graphics.fill_polygon   = extents_fill_polygon;
-  extents_graphics.fill_rect      = extents_fill_rect;
+  common_draw_helpers_class_init (&extents_graphics_class);
+
+  extents_graphics_class.make_gc        = extents_make_gc;
+  extents_graphics_class.destroy_gc     = extents_destroy_gc;
+  extents_graphics_class.use_mask       = extents_use_mask;
+  extents_graphics_class.set_color      = extents_set_color;
+  extents_graphics_class.set_line_cap   = extents_set_line_cap;
+  extents_graphics_class.set_line_width = extents_set_line_width;
+  extents_graphics_class.set_draw_xor   = extents_set_draw_xor;
+  extents_graphics_class.draw_line      = extents_draw_line;
+  extents_graphics_class.draw_arc       = extents_draw_arc;
+  extents_graphics_class.draw_rect      = extents_draw_rect;
+  extents_graphics_class.fill_circle    = extents_fill_circle;
+  extents_graphics_class.fill_polygon   = extents_fill_polygon;
+  extents_graphics_class.fill_rect      = extents_fill_rect;
+
+  extents_graphics.klass = &extents_graphics_class;
+  common_draw_helpers_init (&extents_graphics);
 
   initialised = true;
 }

@@ -478,39 +478,46 @@ common_nogui_init (HID *hid)
   hid->finish_debug_draw =    nogui_finish_debug_draw;
 }
 
-void
+static void
+common_nogui_graphics_class_init (HID_DRAW_CLASS *klass)
+{
+  klass->make_gc =         nogui_make_gc;
+  klass->destroy_gc =      nogui_destroy_gc;
+  klass->use_mask =        nogui_use_mask;
+  klass->set_color =       nogui_set_color;
+  klass->set_line_cap =    nogui_set_line_cap;
+  klass->set_line_width =  nogui_set_line_width;
+  klass->set_draw_xor =    nogui_set_draw_xor;
+  klass->set_draw_faded =  nogui_set_draw_faded;
+  klass->draw_line =       nogui_draw_line;
+  klass->draw_arc =        nogui_draw_arc;
+  klass->draw_rect =       nogui_draw_rect;
+  klass->fill_circle =     nogui_fill_circle;
+  klass->fill_polygon =    nogui_fill_polygon;
+  klass->fill_rect =       nogui_fill_rect;
+
+  klass->draw_pcb_polygon = nogui_draw_pcb_polygon;
+  klass->fill_pcb_pad =     nogui_fill_pcb_pad;
+  klass->thindraw_pcb_pad = nogui_thindraw_pcb_pad;
+  klass->fill_pcb_pv =      nogui_fill_pcb_pv;
+  klass->thindraw_pcb_pv =  nogui_thindraw_pcb_pv;
+}
+
+static void
 common_nogui_graphics_init (HID_DRAW *graphics)
 {
-  graphics->make_gc =         nogui_make_gc;
-  graphics->destroy_gc =      nogui_destroy_gc;
-  graphics->use_mask =        nogui_use_mask;
-  graphics->set_color =       nogui_set_color;
-  graphics->set_line_cap =    nogui_set_line_cap;
-  graphics->set_line_width =  nogui_set_line_width;
-  graphics->set_draw_xor =    nogui_set_draw_xor;
-  graphics->set_draw_faded =  nogui_set_draw_faded;
-  graphics->draw_line =       nogui_draw_line;
-  graphics->draw_arc =        nogui_draw_arc;
-  graphics->draw_rect =       nogui_draw_rect;
-  graphics->fill_circle =     nogui_fill_circle;
-  graphics->fill_polygon =    nogui_fill_polygon;
-  graphics->fill_rect =       nogui_fill_rect;
-
-  graphics->draw_pcb_polygon = nogui_draw_pcb_polygon;
-  graphics->fill_pcb_pad =     nogui_fill_pcb_pad;
-  graphics->thindraw_pcb_pad = nogui_thindraw_pcb_pad;
-  graphics->fill_pcb_pv =      nogui_fill_pcb_pv;
-  graphics->thindraw_pcb_pv =  nogui_thindraw_pcb_pv;
 }
 
 static HID nogui_hid;
 static HID_DRAW nogui_graphics;
+static HID_DRAW_CLASS nogui_graphics_class;
 
 HID *
 hid_nogui_get_hid (void)
 {
   memset (&nogui_hid, 0, sizeof (HID));
   memset (&nogui_graphics, 0, sizeof (HID_DRAW));
+  memset (&nogui_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   nogui_hid.struct_size = sizeof (HID);
   nogui_hid.name        = "nogui";
@@ -519,6 +526,10 @@ hid_nogui_get_hid (void)
   nogui_hid.graphics    = &nogui_graphics;
 
   common_nogui_init (&nogui_hid);
+
+  common_nogui_graphics_class_init (&nogui_graphics_class);
+
+  nogui_graphics.klass = &nogui_graphics_class;
   common_nogui_graphics_init (&nogui_graphics);
 
   return &nogui_hid;

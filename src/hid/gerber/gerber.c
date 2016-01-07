@@ -292,6 +292,7 @@ setLayerApertureList (int layer_idx)
 
 static HID gerber_hid;
 static HID_DRAW gerber_graphics;
+static HID_DRAW_CLASS gerber_graphics_class;
 
 typedef struct gerber_gc_struct
 {
@@ -1342,9 +1343,9 @@ hid_gerber_init ()
 {
   memset (&gerber_hid, 0, sizeof (gerber_hid));
   memset (&gerber_graphics, 0, sizeof (gerber_graphics));
+  memset (&gerber_graphics_class, 0, sizeof (gerber_graphics_class));
 
   common_nogui_init (&gerber_hid);
-  common_draw_helpers_init (&gerber_graphics);
 
   gerber_hid.struct_size         = sizeof (gerber_hid);
   gerber_hid.name                = "gerber";
@@ -1360,19 +1361,24 @@ hid_gerber_init ()
 
   gerber_hid.graphics            = &gerber_graphics;
 
-  gerber_graphics.make_gc        = gerber_make_gc;
-  gerber_graphics.destroy_gc     = gerber_destroy_gc;
-  gerber_graphics.use_mask       = gerber_use_mask;
-  gerber_graphics.set_color      = gerber_set_color;
-  gerber_graphics.set_line_cap   = gerber_set_line_cap;
-  gerber_graphics.set_line_width = gerber_set_line_width;
-  gerber_graphics.set_draw_xor   = gerber_set_draw_xor;
-  gerber_graphics.draw_line      = gerber_draw_line;
-  gerber_graphics.draw_arc       = gerber_draw_arc;
-  gerber_graphics.draw_rect      = gerber_draw_rect;
-  gerber_graphics.fill_circle    = gerber_fill_circle;
-  gerber_graphics.fill_polygon   = gerber_fill_polygon;
-  gerber_graphics.fill_rect      = gerber_fill_rect;
+  common_draw_helpers_class_init (&gerber_graphics_class);
+
+  gerber_graphics_class.make_gc        = gerber_make_gc;
+  gerber_graphics_class.destroy_gc     = gerber_destroy_gc;
+  gerber_graphics_class.use_mask       = gerber_use_mask;
+  gerber_graphics_class.set_color      = gerber_set_color;
+  gerber_graphics_class.set_line_cap   = gerber_set_line_cap;
+  gerber_graphics_class.set_line_width = gerber_set_line_width;
+  gerber_graphics_class.set_draw_xor   = gerber_set_draw_xor;
+  gerber_graphics_class.draw_line      = gerber_draw_line;
+  gerber_graphics_class.draw_arc       = gerber_draw_arc;
+  gerber_graphics_class.draw_rect      = gerber_draw_rect;
+  gerber_graphics_class.fill_circle    = gerber_fill_circle;
+  gerber_graphics_class.fill_polygon   = gerber_fill_polygon;
+  gerber_graphics_class.fill_rect      = gerber_fill_rect;
+
+  gerber_graphics.klass = &gerber_graphics_class;
+  common_draw_helpers_init (&gerber_graphics);
 
   hid_register_hid (&gerber_hid);
 }

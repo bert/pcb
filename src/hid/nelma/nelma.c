@@ -108,6 +108,7 @@ typedef struct nelma_gc_struct {
 
 static HID nelma_hid;
 static HID_DRAW nelma_graphics;
+static HID_DRAW_CLASS nelma_graphics_class;
 
 static struct color_struct *black = NULL, *white = NULL;
 static Coord    linewidth = -1;
@@ -1061,9 +1062,9 @@ hid_nelma_init()
 {
   memset (&nelma_hid, 0, sizeof (HID));
   memset (&nelma_graphics, 0, sizeof (HID_DRAW));
+  memset (&nelma_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&nelma_hid);
-  common_draw_helpers_init (&nelma_graphics);
 
   nelma_hid.struct_size         = sizeof (HID);
   nelma_hid.name                = "nelma";
@@ -1080,20 +1081,25 @@ hid_nelma_init()
 
   nelma_hid.graphics            = &nelma_graphics;
 
-  nelma_graphics.make_gc        = nelma_make_gc;
-  nelma_graphics.destroy_gc     = nelma_destroy_gc;
-  nelma_graphics.use_mask       = nelma_use_mask;
-  nelma_graphics.set_color      = nelma_set_color;
-  nelma_graphics.set_line_cap   = nelma_set_line_cap;
-  nelma_graphics.set_line_width = nelma_set_line_width;
-  nelma_graphics.set_draw_xor   = nelma_set_draw_xor;
-  nelma_graphics.set_draw_faded = nelma_set_draw_faded;
-  nelma_graphics.draw_line      = nelma_draw_line;
-  nelma_graphics.draw_arc       = nelma_draw_arc;
-  nelma_graphics.draw_rect      = nelma_draw_rect;
-  nelma_graphics.fill_circle    = nelma_fill_circle;
-  nelma_graphics.fill_polygon   = nelma_fill_polygon;
-  nelma_graphics.fill_rect      = nelma_fill_rect;
+  common_draw_helpers_class_init (&nelma_graphics_class);
+
+  nelma_graphics_class.make_gc        = nelma_make_gc;
+  nelma_graphics_class.destroy_gc     = nelma_destroy_gc;
+  nelma_graphics_class.use_mask       = nelma_use_mask;
+  nelma_graphics_class.set_color      = nelma_set_color;
+  nelma_graphics_class.set_line_cap   = nelma_set_line_cap;
+  nelma_graphics_class.set_line_width = nelma_set_line_width;
+  nelma_graphics_class.set_draw_xor   = nelma_set_draw_xor;
+  nelma_graphics_class.set_draw_faded = nelma_set_draw_faded;
+  nelma_graphics_class.draw_line      = nelma_draw_line;
+  nelma_graphics_class.draw_arc       = nelma_draw_arc;
+  nelma_graphics_class.draw_rect      = nelma_draw_rect;
+  nelma_graphics_class.fill_circle    = nelma_fill_circle;
+  nelma_graphics_class.fill_polygon   = nelma_fill_polygon;
+  nelma_graphics_class.fill_rect      = nelma_fill_rect;
+
+  nelma_graphics.klass = &nelma_graphics_class;
+  common_draw_helpers_init (&nelma_graphics);
 
   hid_register_hid (&nelma_hid);
 

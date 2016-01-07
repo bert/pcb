@@ -47,6 +47,7 @@ typedef struct ps_gc_struct
 
 HID ps_hid;
 static HID_DRAW ps_graphics;
+static HID_DRAW_CLASS ps_graphics_class;
 
 static const char *medias[] = {
   "A0", "A1", "A2", "A3", "A4", "A5",
@@ -1555,24 +1556,28 @@ void ps_ps_init (HID *hid)
   hid->set_crosshair      = ps_set_crosshair;
 }
 
+void ps_ps_graphics_class_init (HID_DRAW_CLASS *klass)
+{
+  klass->make_gc            = ps_make_gc;
+  klass->destroy_gc         = ps_destroy_gc;
+  klass->use_mask           = ps_use_mask;
+  klass->set_color          = ps_set_color;
+  klass->set_line_cap       = ps_set_line_cap;
+  klass->set_line_width     = ps_set_line_width;
+  klass->set_draw_xor       = ps_set_draw_xor;
+  klass->set_draw_faded     = ps_set_draw_faded;
+  klass->draw_line          = ps_draw_line;
+  klass->draw_arc           = ps_draw_arc;
+  klass->draw_rect          = ps_draw_rect;
+  klass->fill_circle        = ps_fill_circle;
+  klass->fill_polygon       = ps_fill_polygon;
+  klass->fill_rect          = ps_fill_rect;
+
+  klass->draw_pcb_polygon   = ps_draw_pcb_polygon;
+}
+
 void ps_ps_graphics_init (HID_DRAW *graphics)
 {
-  graphics->make_gc            = ps_make_gc;
-  graphics->destroy_gc         = ps_destroy_gc;
-  graphics->use_mask           = ps_use_mask;
-  graphics->set_color          = ps_set_color;
-  graphics->set_line_cap       = ps_set_line_cap;
-  graphics->set_line_width     = ps_set_line_width;
-  graphics->set_draw_xor       = ps_set_draw_xor;
-  graphics->set_draw_faded     = ps_set_draw_faded;
-  graphics->draw_line          = ps_draw_line;
-  graphics->draw_arc           = ps_draw_arc;
-  graphics->draw_rect          = ps_draw_rect;
-  graphics->fill_circle        = ps_fill_circle;
-  graphics->fill_polygon       = ps_fill_polygon;
-  graphics->fill_rect          = ps_fill_rect;
-
-  graphics->draw_pcb_polygon   = ps_draw_pcb_polygon;
 }
 
 void
@@ -1582,9 +1587,7 @@ hid_ps_init ()
   memset (&ps_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&ps_hid);
-  common_draw_helpers_init (&ps_graphics);
   ps_ps_init (&ps_hid);
-  ps_ps_graphics_init (&ps_graphics);
 
   ps_hid.struct_size        = sizeof (HID);
   ps_hid.name               = "ps";
@@ -1593,6 +1596,13 @@ hid_ps_init ()
   ps_hid.poly_before        = 1;
 
   ps_hid.graphics           = &ps_graphics;
+
+  common_draw_helpers_class_init (&ps_graphics_class);
+  ps_ps_graphics_class_init (&ps_graphics_class);
+
+  ps_graphics.klass = &ps_graphics_class;
+  common_draw_helpers_init (&ps_graphics);
+  ps_ps_graphics_init (&ps_graphics);
 
   hid_register_hid (&ps_hid);
 

@@ -673,17 +673,22 @@ common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bo
 }
 
 void
+common_draw_helpers_class_init (HID_DRAW_CLASS *klass)
+{
+  klass->draw_pcb_line        = common_draw_pcb_line;
+  klass->draw_pcb_arc         = common_draw_pcb_arc;
+  klass->draw_pcb_text        = common_draw_pcb_text;
+  klass->draw_pcb_polygon     = common_fill_pcb_polygon; /* Default is the non-GUI case */
+
+  klass->fill_pcb_polygon     = common_fill_pcb_polygon;
+  klass->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
+  klass->fill_pcb_pad         = common_fill_pcb_pad;
+  klass->thindraw_pcb_pad     = common_thindraw_pcb_pad;
+  klass->fill_pcb_pv          = common_fill_pcb_pv;
+  klass->thindraw_pcb_pv      = common_thindraw_pcb_pv;
+}
+
+void
 common_draw_helpers_init (HID_DRAW *graphics)
 {
-  graphics->draw_pcb_line        = common_draw_pcb_line;
-  graphics->draw_pcb_arc         = common_draw_pcb_arc;
-  graphics->draw_pcb_text        = common_draw_pcb_text;
-  graphics->draw_pcb_polygon     = common_fill_pcb_polygon; /* Default is the non-GUI case */
-
-  graphics->fill_pcb_polygon     = common_fill_pcb_polygon;
-  graphics->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
-  graphics->fill_pcb_pad         = common_fill_pcb_pad;
-  graphics->thindraw_pcb_pad     = common_thindraw_pcb_pad;
-  graphics->fill_pcb_pv          = common_fill_pcb_pv;
-  graphics->thindraw_pcb_pv      = common_thindraw_pcb_pv;
 }

@@ -63,6 +63,7 @@ typedef struct eps_gc_struct
 
 static HID eps_hid;
 static HID_DRAW eps_graphics;
+static HID_DRAW_CLASS eps_graphics_class;
 
 static FILE *f = 0;
 static Coord linewidth = -1;
@@ -677,9 +678,9 @@ hid_eps_init ()
 {
   memset (&eps_hid, 0, sizeof (HID));
   memset (&eps_graphics, 0, sizeof (HID_DRAW));
+  memset (&eps_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&eps_hid);
-  common_draw_helpers_init (&eps_graphics);
 
   eps_hid.struct_size         = sizeof (HID);
   eps_hid.name                = "eps";
@@ -696,19 +697,24 @@ hid_eps_init ()
 
   eps_hid.graphics            = &eps_graphics;
 
-  eps_graphics.make_gc        = eps_make_gc;
-  eps_graphics.destroy_gc     = eps_destroy_gc;
-  eps_graphics.use_mask       = eps_use_mask;
-  eps_graphics.set_color      = eps_set_color;
-  eps_graphics.set_line_cap   = eps_set_line_cap;
-  eps_graphics.set_line_width = eps_set_line_width;
-  eps_graphics.set_draw_xor   = eps_set_draw_xor;
-  eps_graphics.draw_line      = eps_draw_line;
-  eps_graphics.draw_arc       = eps_draw_arc;
-  eps_graphics.draw_rect      = eps_draw_rect;
-  eps_graphics.fill_circle    = eps_fill_circle;
-  eps_graphics.fill_polygon   = eps_fill_polygon;
-  eps_graphics.fill_rect      = eps_fill_rect;
+  common_draw_helpers_class_init (&eps_graphics_class);
+
+  eps_graphics_class.make_gc        = eps_make_gc;
+  eps_graphics_class.destroy_gc     = eps_destroy_gc;
+  eps_graphics_class.use_mask       = eps_use_mask;
+  eps_graphics_class.set_color      = eps_set_color;
+  eps_graphics_class.set_line_cap   = eps_set_line_cap;
+  eps_graphics_class.set_line_width = eps_set_line_width;
+  eps_graphics_class.set_draw_xor   = eps_set_draw_xor;
+  eps_graphics_class.draw_line      = eps_draw_line;
+  eps_graphics_class.draw_arc       = eps_draw_arc;
+  eps_graphics_class.draw_rect      = eps_draw_rect;
+  eps_graphics_class.fill_circle    = eps_fill_circle;
+  eps_graphics_class.fill_polygon   = eps_fill_polygon;
+  eps_graphics_class.fill_rect      = eps_fill_rect;
+
+  eps_graphics.klass = &eps_graphics_class;
+  common_draw_helpers_init (&eps_graphics);
 
   hid_register_hid (&eps_hid);
 }

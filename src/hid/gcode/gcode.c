@@ -83,6 +83,7 @@
 
 static HID gcode_hid;
 static HID_DRAW gcode_graphics;
+static HID_DRAW_CLASS gcode_graphics_class;
 
 struct color_struct
 {
@@ -1631,9 +1632,9 @@ hid_gcode_init ()
 {
   memset (&gcode_hid, 0, sizeof (HID));
   memset (&gcode_graphics, 0, sizeof (HID_DRAW));
+  memset (&gcode_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&gcode_hid);
-  common_draw_helpers_init (&gcode_graphics);
 
   gcode_hid.struct_size         = sizeof (HID);
   gcode_hid.name                = "gcode";
@@ -1650,20 +1651,25 @@ hid_gcode_init ()
 
   gcode_hid.graphics            = &gcode_graphics;
 
-  gcode_graphics.make_gc        = gcode_make_gc;
-  gcode_graphics.destroy_gc     = gcode_destroy_gc;
-  gcode_graphics.use_mask       = gcode_use_mask;
-  gcode_graphics.set_color      = gcode_set_color;
-  gcode_graphics.set_line_cap   = gcode_set_line_cap;
-  gcode_graphics.set_line_width = gcode_set_line_width;
-  gcode_graphics.set_draw_xor   = gcode_set_draw_xor;
-  gcode_graphics.set_draw_faded = gcode_set_draw_faded;
-  gcode_graphics.draw_line      = gcode_draw_line;
-  gcode_graphics.draw_arc       = gcode_draw_arc;
-  gcode_graphics.draw_rect      = gcode_draw_rect;
-  gcode_graphics.fill_circle    = gcode_fill_circle;
-  gcode_graphics.fill_polygon   = gcode_fill_polygon;
-  gcode_graphics.fill_rect      = gcode_fill_rect;
+  common_draw_helpers_class_init (&gcode_graphics_class);
+
+  gcode_graphics_class.make_gc        = gcode_make_gc;
+  gcode_graphics_class.destroy_gc     = gcode_destroy_gc;
+  gcode_graphics_class.use_mask       = gcode_use_mask;
+  gcode_graphics_class.set_color      = gcode_set_color;
+  gcode_graphics_class.set_line_cap   = gcode_set_line_cap;
+  gcode_graphics_class.set_line_width = gcode_set_line_width;
+  gcode_graphics_class.set_draw_xor   = gcode_set_draw_xor;
+  gcode_graphics_class.set_draw_faded = gcode_set_draw_faded;
+  gcode_graphics_class.draw_line      = gcode_draw_line;
+  gcode_graphics_class.draw_arc       = gcode_draw_arc;
+  gcode_graphics_class.draw_rect      = gcode_draw_rect;
+  gcode_graphics_class.fill_circle    = gcode_fill_circle;
+  gcode_graphics_class.fill_polygon   = gcode_fill_polygon;
+  gcode_graphics_class.fill_rect      = gcode_fill_rect;
+
+  gcode_graphics.klass = &gcode_graphics_class;
+  common_draw_helpers_init (&gcode_graphics);
 
   hid_register_hid (&gcode_hid);
 

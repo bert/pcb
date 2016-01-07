@@ -93,6 +93,7 @@ typedef struct lesstif_gc_struct
 
 static HID lesstif_hid;
 static HID_DRAW lesstif_graphics;
+static HID_DRAW_CLASS lesstif_graphics_class;
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GUI function %s\n", __FUNCTION__), abort()
 
@@ -4127,9 +4128,9 @@ hid_lesstif_init ()
 {
   memset (&lesstif_hid, 0, sizeof (HID));
   memset (&lesstif_graphics, 0, sizeof (HID_DRAW));
+  memset (&lesstif_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&lesstif_hid);
-  common_draw_helpers_init (&lesstif_graphics);
 
   lesstif_hid.struct_size             = sizeof (HID);
   lesstif_hid.name                    = "lesstif";
@@ -4180,21 +4181,26 @@ hid_lesstif_init ()
 
   lesstif_hid.graphics                = &lesstif_graphics;
 
-  lesstif_graphics.make_gc             = lesstif_make_gc;
-  lesstif_graphics.destroy_gc          = lesstif_destroy_gc;
-  lesstif_graphics.use_mask            = lesstif_use_mask;
-  lesstif_graphics.set_color           = lesstif_set_color;
-  lesstif_graphics.set_line_cap        = lesstif_set_line_cap;
-  lesstif_graphics.set_line_width      = lesstif_set_line_width;
-  lesstif_graphics.set_draw_xor        = lesstif_set_draw_xor;
-  lesstif_graphics.draw_line           = lesstif_draw_line;
-  lesstif_graphics.draw_arc            = lesstif_draw_arc;
-  lesstif_graphics.draw_rect           = lesstif_draw_rect;
-  lesstif_graphics.fill_circle         = lesstif_fill_circle;
-  lesstif_graphics.fill_polygon        = lesstif_fill_polygon;
-  lesstif_graphics.fill_rect           = lesstif_fill_rect;
+  common_draw_helpers_class_init (&lesstif_graphics_class);
 
-  lesstif_graphics.draw_pcb_polygon    = common_gui_draw_pcb_polygon;
+  lesstif_graphics_class.make_gc        = lesstif_make_gc;
+  lesstif_graphics_class.destroy_gc     = lesstif_destroy_gc;
+  lesstif_graphics_class.use_mask       = lesstif_use_mask;
+  lesstif_graphics_class.set_color      = lesstif_set_color;
+  lesstif_graphics_class.set_line_cap   = lesstif_set_line_cap;
+  lesstif_graphics_class.set_line_width = lesstif_set_line_width;
+  lesstif_graphics_class.set_draw_xor   = lesstif_set_draw_xor;
+  lesstif_graphics_class.draw_line      = lesstif_draw_line;
+  lesstif_graphics_class.draw_arc       = lesstif_draw_arc;
+  lesstif_graphics_class.draw_rect      = lesstif_draw_rect;
+  lesstif_graphics_class.fill_circle    = lesstif_fill_circle;
+  lesstif_graphics_class.fill_polygon   = lesstif_fill_polygon;
+  lesstif_graphics_class.fill_rect      = lesstif_fill_rect;
+
+  lesstif_graphics_class.draw_pcb_polygon = common_gui_draw_pcb_polygon;
+
+  lesstif_graphics.klass = &lesstif_graphics_class;
+  common_draw_helpers_init (&lesstif_graphics);
 
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"

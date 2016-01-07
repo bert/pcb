@@ -2143,6 +2143,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
 
 HID ghid_hid;
 HID_DRAW ghid_graphics;
+struct hid_draw_class_st ghid_graphics_class;
 
 void
 hid_gtk_init ()
@@ -2182,9 +2183,9 @@ hid_gtk_init ()
 
   memset (&ghid_hid, 0, sizeof (HID));
   memset (&ghid_graphics, 0, sizeof (HID_DRAW));
+  memset (&ghid_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&ghid_hid);
-  common_draw_helpers_init (&ghid_graphics);
 
   ghid_hid.struct_size              = sizeof (HID);
   ghid_hid.name                     = "gtk";
@@ -2237,21 +2238,26 @@ hid_gtk_init ()
 
   ghid_hid.graphics                 = &ghid_graphics;
 
-  ghid_graphics.make_gc             = ghid_make_gc;
-  ghid_graphics.destroy_gc          = ghid_destroy_gc;
-  ghid_graphics.use_mask            = ghid_use_mask;
-  ghid_graphics.set_color           = ghid_set_color;
-  ghid_graphics.set_line_cap        = ghid_set_line_cap;
-  ghid_graphics.set_line_width      = ghid_set_line_width;
-  ghid_graphics.set_draw_xor        = ghid_set_draw_xor;
-  ghid_graphics.draw_line           = ghid_draw_line;
-  ghid_graphics.draw_arc            = ghid_draw_arc;
-  ghid_graphics.draw_rect           = ghid_draw_rect;
-  ghid_graphics.fill_circle         = ghid_fill_circle;
-  ghid_graphics.fill_polygon        = ghid_fill_polygon;
-  ghid_graphics.fill_rect           = ghid_fill_rect;
+  common_draw_helpers_class_init (&ghid_graphics_class);
 
-  ghid_graphics.draw_pcb_polygon    = common_gui_draw_pcb_polygon;
+  ghid_graphics_class.make_gc        = ghid_make_gc;
+  ghid_graphics_class.destroy_gc     = ghid_destroy_gc;
+  ghid_graphics_class.use_mask       = ghid_use_mask;
+  ghid_graphics_class.set_color      = ghid_set_color;
+  ghid_graphics_class.set_line_cap   = ghid_set_line_cap;
+  ghid_graphics_class.set_line_width = ghid_set_line_width;
+  ghid_graphics_class.set_draw_xor   = ghid_set_draw_xor;
+  ghid_graphics_class.draw_line      = ghid_draw_line;
+  ghid_graphics_class.draw_arc       = ghid_draw_arc;
+  ghid_graphics_class.draw_rect      = ghid_draw_rect;
+  ghid_graphics_class.fill_circle    = ghid_fill_circle;
+  ghid_graphics_class.fill_polygon   = ghid_fill_polygon;
+  ghid_graphics_class.fill_rect      = ghid_fill_rect;
+
+  ghid_graphics_class.draw_pcb_polygon = common_gui_draw_pcb_polygon;
+
+  ghid_graphics.klass = &ghid_graphics_class;
+  common_draw_helpers_init (&ghid_graphics);
 
   hid_register_hid (&ghid_hid);
 #include "gtk_lists.h"

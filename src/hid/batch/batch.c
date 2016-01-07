@@ -323,15 +323,16 @@ batch_show_item (void *item)
 
 static HID batch_hid;
 static HID_DRAW batch_graphics;
+static HID_DRAW_CLASS batch_graphics_class;
 
 void
 hid_batch_init ()
 {
   memset (&batch_hid, 0, sizeof (HID));
   memset (&batch_graphics, 0, sizeof (HID_DRAW));
+  memset (&batch_graphics_class, 0, sizeof (HID_DRAW_CLASS));
 
   common_nogui_init (&batch_hid);
-  common_draw_helpers_init (&batch_graphics);
 
   batch_hid.struct_size           = sizeof (HID);
   batch_hid.name                  = "batch";
@@ -361,19 +362,24 @@ hid_batch_init ()
 
   batch_hid.graphics              = &batch_graphics;
 
-  batch_graphics.make_gc          = batch_make_gc;
-  batch_graphics.destroy_gc       = batch_destroy_gc;
-  batch_graphics.use_mask         = batch_use_mask;
-  batch_graphics.set_color        = batch_set_color;
-  batch_graphics.set_line_cap     = batch_set_line_cap;
-  batch_graphics.set_line_width   = batch_set_line_width;
-  batch_graphics.set_draw_xor     = batch_set_draw_xor;
-  batch_graphics.draw_line        = batch_draw_line;
-  batch_graphics.draw_arc         = batch_draw_arc;
-  batch_graphics.draw_rect        = batch_draw_rect;
-  batch_graphics.fill_circle      = batch_fill_circle;
-  batch_graphics.fill_polygon     = batch_fill_polygon;
-  batch_graphics.fill_rect        = batch_fill_rect;
+  common_draw_helpers_class_init (&batch_graphics_class);
+
+  batch_graphics_class.make_gc        = batch_make_gc;
+  batch_graphics_class.destroy_gc     = batch_destroy_gc;
+  batch_graphics_class.use_mask       = batch_use_mask;
+  batch_graphics_class.set_color      = batch_set_color;
+  batch_graphics_class.set_line_cap   = batch_set_line_cap;
+  batch_graphics_class.set_line_width = batch_set_line_width;
+  batch_graphics_class.set_draw_xor   = batch_set_draw_xor;
+  batch_graphics_class.draw_line      = batch_draw_line;
+  batch_graphics_class.draw_arc       = batch_draw_arc;
+  batch_graphics_class.draw_rect      = batch_draw_rect;
+  batch_graphics_class.fill_circle    = batch_fill_circle;
+  batch_graphics_class.fill_polygon   = batch_fill_polygon;
+  batch_graphics_class.fill_rect      = batch_fill_rect;
+
+  batch_graphics.klass = &batch_graphics_class;
+  common_draw_helpers_init (&batch_graphics);
 
   hid_register_hid (&batch_hid);
 #include "batch_lists.h"
