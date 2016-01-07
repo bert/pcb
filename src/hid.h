@@ -783,7 +783,7 @@ typedef enum
    *
    * This callback is also used for printing and exporting.
    */
-  void hid_expose_callback (HID * hid_, struct BoxType *region_, void *item_);
+  void hid_expose_callback (HID_DRAW *hid_draw, struct BoxType *region_, void *item_);
 
   extern HID *gui;
     /*!< This is initially set to a "no-gui" gui, and later reset by

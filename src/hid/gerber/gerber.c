@@ -683,11 +683,11 @@ gerber_do_export (HID_Attr_Val * options)
   lastgroup = -1;
   layer_list_idx = 0;
   finding_apertures = 1;
-  hid_expose_callback (&gerber_hid, &region, 0);
+  hid_expose_callback (&gerber_graphics, &region, 0);
 
   layer_list_idx = 0;
   finding_apertures = 0;
-  hid_expose_callback (&gerber_hid, &region, 0);
+  hid_expose_callback (&gerber_graphics, &region, 0);
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
 

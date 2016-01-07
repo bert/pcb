@@ -488,7 +488,7 @@ gcode_start_png_export ()
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
 
-  hid_expose_callback (&gcode_hid, &region, 0);
+  hid_expose_callback (&gcode_graphics, &region, 0);
 }
 
 static FILE *
