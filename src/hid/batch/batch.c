@@ -344,7 +344,6 @@ hid_batch_init ()
   batch_hid.parse_arguments       = batch_parse_arguments;
   batch_hid.invalidate_lr         = batch_invalidate_lr;
   batch_hid.invalidate_all        = batch_invalidate_all;
-  batch_hid.set_layer             = batch_set_layer;
   batch_hid.calibrate             = batch_calibrate;
   batch_hid.shift_is_pressed      = batch_shift_is_pressed;
   batch_hid.control_is_pressed    = batch_control_is_pressed;
@@ -364,6 +363,7 @@ hid_batch_init ()
 
   common_draw_helpers_class_init (&batch_graphics_class);
 
+  batch_graphics_class.set_layer      = batch_set_layer;
   batch_graphics_class.make_gc        = batch_make_gc;
   batch_graphics_class.destroy_gc     = batch_destroy_gc;
   batch_graphics_class.use_mask       = batch_use_mask;

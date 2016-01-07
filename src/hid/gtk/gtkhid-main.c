@@ -2191,7 +2191,6 @@ hid_gtk_init ()
   ghid_hid.name                     = "gtk";
   ghid_hid.description              = "Gtk - The Gimp Toolkit";
   ghid_hid.gui                      = 1;
-  ghid_hid.poly_after               = 1;
 
   ghid_hid.get_export_options       = ghid_get_export_options;
   ghid_hid.do_export                = ghid_do_export;
@@ -2200,7 +2199,6 @@ hid_gtk_init ()
   ghid_hid.invalidate_all           = ghid_invalidate_all;
   ghid_hid.notify_crosshair_change  = ghid_notify_crosshair_change;
   ghid_hid.notify_mark_change       = ghid_notify_mark_change;
-  ghid_hid.set_layer                = ghid_set_layer;
 
   ghid_hid.calibrate                = ghid_calibrate;
   ghid_hid.shift_is_pressed         = ghid_shift_is_pressed;
@@ -2240,6 +2238,7 @@ hid_gtk_init ()
 
   common_draw_helpers_class_init (&ghid_graphics_class);
 
+  ghid_graphics_class.set_layer      = ghid_set_layer;
   ghid_graphics_class.make_gc        = ghid_make_gc;
   ghid_graphics_class.destroy_gc     = ghid_destroy_gc;
   ghid_graphics_class.use_mask       = ghid_use_mask;
@@ -2256,7 +2255,10 @@ hid_gtk_init ()
 
   ghid_graphics_class.draw_pcb_polygon = common_gui_draw_pcb_polygon;
 
+  ghid_graphics_class.gui = true;
+
   ghid_graphics.klass = &ghid_graphics_class;
+  ghid_graphics.poly_after = true;
   common_draw_helpers_init (&ghid_graphics);
 
   hid_register_hid (&ghid_hid);

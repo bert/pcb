@@ -448,8 +448,6 @@ common_nogui_init (HID *hid)
   hid->parse_arguments =      nogui_parse_arguments;
   hid->invalidate_lr =        nogui_invalidate_lr;
   hid->invalidate_all =       nogui_invalidate_all;
-  hid->set_layer =            nogui_set_layer;
-  hid->end_layer =            nogui_end_layer;
   hid->calibrate =            nogui_calibrate;
   hid->shift_is_pressed =     nogui_shift_is_pressed;
   hid->control_is_pressed =   nogui_control_is_pressed;
@@ -481,6 +479,8 @@ common_nogui_init (HID *hid)
 static void
 common_nogui_graphics_class_init (HID_DRAW_CLASS *klass)
 {
+  klass->set_layer =       nogui_set_layer;
+  klass->end_layer =       nogui_end_layer;
   klass->make_gc =         nogui_make_gc;
   klass->destroy_gc =      nogui_destroy_gc;
   klass->use_mask =        nogui_use_mask;

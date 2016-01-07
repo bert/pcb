@@ -51,6 +51,30 @@ enum mask_mode
  */
 typedef struct hid_draw_class_st
 {
+  int (*set_layer) (const char *name_, int group_, int _empty);
+    /*!< During redraw or print/export cycles, this is called once per
+     * layer (or layer group, for copper layers).
+     *
+     * If it returns false (zero), the HID does not want that layer,
+     * and none of the drawing functions should be called.
+     *
+     * If it returns true (nonzero), the items in that layer [group]
+     * should be drawn using the various drawing functions.
+     *
+     * In addition to the MAX_GROUP copper layer groups, you may
+     * select layers indicated by the macros SL_* defined above, or
+     * any others with an index of -1.
+     *
+     * For copper layer groups, you may pass NULL for name to have a
+     * name fetched from the PCB struct.
+     *
+     * The EMPTY argument is a hint - if set, the layer is empty, if
+     * zero it may be non-empty.
+     */
+
+  void (*end_layer) (void);
+    /*!< Tell the GUI the layer last selected has been finished with. */
+
   hidGC (*make_gc) (void); /*!< Make an empty graphics context.  */
   void (*destroy_gc) (hidGC gc);
   void (*use_mask) (enum mask_mode mode);
@@ -103,12 +127,28 @@ typedef struct hid_draw_class_st
   void (*fill_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
   void (*thindraw_pcb_pv) (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask);
 
+  /* draw.c currently uses this to shortcut and special-case certain rendering when displaying on-screen */
+  bool gui;
+
 } HID_DRAW_CLASS;
 
 /* Base HID_DRAW elements visible to any module */
 struct hid_draw_st
 {
   HID_DRAW_CLASS *klass;
+
+  bool poly_before;
+    /*!< If set, the redraw code will draw polygons before erasing the
+     * clearances.
+     */
+
+  bool poly_after;
+    /*!< If set, the redraw code will draw polygons after erasing the
+     * clearances.
+     *
+     * \note Note that HIDs may set both of these, in which case
+     * polygons will be drawn twice.
+     */
 };
 
 /* Base hidGC elements visible to any module */
@@ -117,7 +157,28 @@ struct hid_gc_struct {
   HID_DRAW *hid_draw;
 };
 
+
+/* Getters for class properties */
+inline bool
+hid_draw_is_gui (HID_DRAW *hid_draw)
+{
+  return hid_draw->klass->gui;
+}
+
+
 /* Calling wrappers to access the vfunc table */
+
+inline int
+hid_draw_set_layer (HID_DRAW *hid_draw, const char *name, int group, int empty)
+{
+  return hid_draw->klass->set_layer (name, group, empty);
+}
+
+inline void
+hid_draw_end_layer (HID_DRAW *hid_draw)
+{
+  hid_draw->klass->end_layer ();
+}
 
 inline hidGC
 hid_draw_make_gc (HID_DRAW *hid_draw)
