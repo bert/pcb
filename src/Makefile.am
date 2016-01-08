@@ -115,6 +115,7 @@ PCB_SRCS = \
 	print.h \
 	rats.c \
 	rats.h \
+	relocate.c \
 	remove.c \
 	remove.h \
 	renumber.c \

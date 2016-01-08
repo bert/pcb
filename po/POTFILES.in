@@ -53,6 +53,7 @@ src/parse_y.y
 src/pcb-menu.res.h
 src/polygon.c
 src/rats.c
+src/relocate.c
 src/renumber.c
 src/report.c
 src/res_parse.y
