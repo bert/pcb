@@ -84,7 +84,8 @@ renumber_block (int argc, char **argv, Coord x, Coord y)
     char *new_ref;
     int num;
 
-    if (!TEST_FLAG (SELECTEDFLAG, element))
+    if (!TEST_FLAG (SELECTEDFLAG, element)
+        || EMPTY_STRING_P(element->Name[1].TextString))
       continue;
 
     old_ref = element->Name[1].TextString;
@@ -153,6 +154,9 @@ renumber_buffer (int argc, char **argv, Coord x, Coord y)
     char *old_ref;
     char *new_ref;
     int num;
+
+    if (EMPTY_STRING_P(element->Name[1].TextString))
+      continue;
 
     old_ref = element->Name[1].TextString;
     for (refdes_split=cp=old_ref; *cp; cp++)
