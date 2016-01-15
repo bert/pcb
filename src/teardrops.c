@@ -51,12 +51,10 @@ static int new_arcs = 0;
 int
 distance_between_points(int x1,int y1, int x2, int y2)
 {
-  int a;
-  int b;
-  int distance;
-  a = (x1-x2);
-  b = (y1-y2);
-  distance = hypot (a, b);
+  volatile int distance;
+
+  distance = hypot (x1 - x2, y1 - y2);
+
   return distance;
 }
 
