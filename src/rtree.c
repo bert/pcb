@@ -230,14 +230,26 @@ __r_dump_tree (struct rtree_node *node, int depth)
     printf ("  ");
   if (!node->flags.is_leaf)
     {
-      printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
-              node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
+      printf (
+          "p=0x%p node X(%" PRIi64 ", %" PRIi64 ") Y(%" PRIi64 ", %" PRIi64
+          ")\n",
+          (void *) node,
+          (int64_t) (node->box.X1),
+          (int64_t) (node->box.X2),
+          (int64_t) (node->box.Y1),
+          (int64_t) (node->box.Y2) );
     }
   else
     {
-      printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", (void *) node,
-              node->flags.manage, node->box.X1, node->box.X2, node->box.Y1,
-              node->box.Y2);
+      printf (
+          "p=0x%p leaf manage(%02x) X(%" PRIi64 ", %" PRIi64 ") Y(%" PRIi64
+          ", %" PRIi64 ")\n",
+          (void *) node,
+          node->flags.manage,
+          (int64_t) (node->box.X1),
+          (int64_t) (node->box.X2),
+          (int64_t) (node->box.Y1),
+          (int64_t) (node->box.Y2) );
       for (j = 0; j < M_SIZE; j++)
         {
           if (!node->u.rects[j].bptr)
@@ -250,10 +262,14 @@ __r_dump_tree (struct rtree_node *node, int depth)
           count++;
           for (i = 0; i < depth + 1; i++)
             printf ("  ");
-          printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n",
-                  (void *) (node->u.rects[j].bptr),
-                  node->u.rects[j].bounds.X1, node->u.rects[j].bounds.X2,
-                  node->u.rects[j].bounds.Y1, node->u.rects[j].bounds.Y2);
+          printf (
+              "entry 0x%p X(%" PRIi64 ", %" PRIi64 ") Y(%" PRIi64 ", "
+              "%" PRIi64 ")\n",
+              (void *) (node->u.rects[j].bptr),
+              (int64_t) (node->u.rects[j].bounds.X1),
+              (int64_t) (node->u.rects[j].bounds.X2),
+              (int64_t) (node->u.rects[j].bounds.Y1),
+              (int64_t) (node->u.rects[j].bounds.Y2) );
         }
       return;
     }
@@ -379,7 +395,7 @@ adjust_bounds (struct rtree_node *node)
 }
 
 /* create an r-tree from an unsorted list of boxes.
- * the r-tree will keep pointers into 
+ * the r-tree will keep pointers into
  * it, so don't free the box list until you've called r_destroy_tree.
  * if you set 'manage' to true, r_destroy_tree will free your boxlist.
  */
