@@ -57,7 +57,7 @@ distance_between_points(int x1,int y1, int x2, int y2)
   a = (x1-x2);
   b = (y1-y2);
   distance = hypot (a, b);
-  return distance; 
+  return distance;
 }
 
 static int
@@ -80,20 +80,20 @@ check_line_callback (const BoxType * box, void *cl)
       return 1;
     }
 
-  if (distance_between_points(l->Point1.X,l->Point1.Y,px,py) < MAX_DISTANCE) 
+  if (distance_between_points(l->Point1.X,l->Point1.Y,px,py) < MAX_DISTANCE)
     {
       x1 = l->Point1.X;
       y1 = l->Point1.Y;
       x2 = l->Point2.X;
       y2 = l->Point2.Y;
-    } 
+    }
   else if (distance_between_points(l->Point2.X,l->Point2.Y,px,py) < MAX_DISTANCE)
     {
       x1 = l->Point2.X;
       y1 = l->Point2.Y;
       x2 = l->Point1.X;
       y2 = l->Point1.Y;
-    } 
+    }
   else
     return 1;
 
@@ -243,7 +243,7 @@ Example:
 
 With the lesstif HID you can add this action to your menu or a hotkey by
 editing $HOME/.pcb/pcb-menu.res (grab a copy from the pcb source if you
-haven't one there yet). 
+haven't one there yet).
 
 Known Bugs:
 
