@@ -68,6 +68,10 @@
 #    cnc -- Excellon drill file
 #    gbx -- RS274-X (Gerber) file
 #
+# OPENSCAD
+#
+#    scad -- OpenSCAD file
+#
 # PS
 #
 #    ps  -- PostScript file
@@ -170,6 +174,26 @@ hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.g
 # per page.
 #
 hid_ps1 | circles.pcb | ps | --psfile circles.ps | | ps:circles.ps
+#
+######################################################################
+# ---------------------------------------------
+# OpenSCAD export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#   --include-dir <string>         Name of the OpenSCAD 3D models include directory
+#   --output-file <string>         Basename for OpenSCAD output file
+#   --metric <unit>                Unit of OpenSCAD dimensions. Defaults to centi-mil
+#   --pcb-thickness <real>         Printed circuit board thickness
+#   --modules <boolean>            Include basic modules in the toplevel 3D model file
+#
+# Produces OpenSCAD files
+#
+hid_openscad1 | openscad_general.pcb | openscad | --output-file openscad_general.scad |  | scad:openscad_general.scad
+hid_openscad2 | openscad_general.pcb | openscad | --modules --output-file openscad_general.scad |  | scad:openscad_general.scad
+hid_openscad3 | openscad_general.pcb | openscad | --metric --output-file openscad_general.scad |  | scad:openscad_general.scad
+hid_openscad4 | openscad_general.pcb | openscad | --metric --modules --output-file openscad_general.scad |  | scad:openscad_general.scad
 #
 ######################################################################
 # ---------------------------------------------
