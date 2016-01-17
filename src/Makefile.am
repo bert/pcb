@@ -13,7 +13,8 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a
+	libgcode.a \
+	libscad.a
 
 pcblib_DATA= \
 	default_font \
@@ -243,6 +244,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
+	$(srcdir)/hid/scad/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
 	gpcb-menu.res.h \
@@ -476,6 +478,12 @@ liblpr_a_CPPFLAGS = -I$(top_srcdir)
 liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
+
+libscad_a_SOURCES = \
+	hid/hidint.h \
+	hid/scad/scad.c \
+	hid/scad/scadproto.c \
+	hid/scad/scadcomp.c
 
 DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \
