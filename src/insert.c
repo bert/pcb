@@ -1,32 +1,34 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/insert.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Functions used to insert points into objects.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* functions used to insert points into objects
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -83,8 +85,8 @@ static ObjectFunctionType InsertFunctions = {
   InsertPointIntoRat
 };
 
-/* ---------------------------------------------------------------------------
- * inserts a point into a rat-line
+/*!
+ * \brief Inserts a point into a rat-line.
  */
 static void *
 InsertPointIntoRat (RatType *Rat)
@@ -112,8 +114,8 @@ InsertPointIntoRat (RatType *Rat)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * inserts a point into a line
+/*!
+ * \brief Inserts a point into a line.
  */
 static void *
 InsertPointIntoLine (LayerType *Layer, LineType *Line)
@@ -154,8 +156,8 @@ InsertPointIntoLine (LayerType *Layer, LineType *Line)
   return (line);
 }
 
-/* ---------------------------------------------------------------------------
- * inserts a point into a polygon
+/*!
+ * \brief Inserts a point into a polygon.
  */
 static void *
 InsertPointIntoPolygon (LayerType *Layer, PolygonType *Polygon)
@@ -206,8 +208,8 @@ InsertPointIntoPolygon (LayerType *Layer, PolygonType *Polygon)
   return (&Polygon->Points[InsertAt]);
 }
 
-/* ---------------------------------------------------------------------------
- * inserts point into objects
+/*!
+ * \brief Inserts point into objects.
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
@@ -230,8 +232,8 @@ InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
   return (ptr);
 }
 
-/* ---------------------------------------------------------------------------
- *  adjusts the insert point to make 45 degree lines as necessary
+/*!
+ * \brief Adjusts the insert point to make 45 degree lines as necessary.
  */
 PointType *
 AdjustInsertPoint (void)
