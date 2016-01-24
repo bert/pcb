@@ -1,36 +1,38 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/intersect.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Rectangle intersection/union routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \author this file, intersect.c, was written and is
+ * Copyright (c) 2001 C. Scott Ananian.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
+ * PCB, interactive printed circuit board design
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
  */
 
-/* this file, intersect.c, was written and is
- * Copyright (c) 2001 C. Scott Ananian
- */
-
-/* rectangle intersection/union routines.
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -81,8 +83,8 @@ typedef struct
 }
 LocationList;
 
-/* ---------------------------------------------------------------------------
- * Create a sorted list of unique y coords from a BoxList.
+/*!
+ * \brief Create a sorted list of unique y coords from a BoxList.
  */
 static LocationList
 createSortedYList (BoxListType *boxlist)
@@ -108,8 +110,9 @@ createSortedYList (BoxListType *boxlist)
   return yCoords;
 }
 
-/* ---------------------------------------------------------------------------
- * Create an empty segment tree from the given sorted list of uniq y coords.
+/*!
+ * \brief Create an empty segment tree from the given sorted list of
+ * unique y coords.
  */
 static SegmentTree
 createSegmentTree (Coord * yCoords, int N)
@@ -187,12 +190,14 @@ deleteSegment (SegmentTree * st, int n, Coord Y1, Coord Y2)
     st->nodes[n * 2].area + st->nodes[n * 2 + 1].area;
 }
 
-/* ---------------------------------------------------------------------------
- * Compute the area of the intersection of the given rectangles; that is,
- * the area covered by more than one rectangle (counted twice if the area is
- * covered by three rectangles, three times if covered by four rectangles,
- * etc.).
- * Runs in O(N ln N) time.
+/*!
+ * \brief Compute the area of the intersection of the given rectangles.
+ *
+ * That is the area covered by more than one rectangle (counted twice if
+ * the area is covered by three rectangles, three times if covered by
+ * four rectangles, etc.).
+ *
+ * \note Runs in O(N ln N) time.
  */
 double
 ComputeIntersectionArea (BoxListType *boxlist)
@@ -207,9 +212,10 @@ ComputeIntersectionArea (BoxListType *boxlist)
   return area * 0.0001 - ComputeUnionArea (boxlist);
 }
 
-/* ---------------------------------------------------------------------------
- * Compute the area of the union of the given rectangles.
- * O(N ln N) time.
+/*!
+ * \brief Compute the area of the union of the given rectangles.
+ *
+ * \note Runs in O(N ln N) time.
  */
 double
 ComputeUnionArea (BoxListType *boxlist)
@@ -280,6 +286,7 @@ ComputeUnionArea (BoxListType *boxlist)
   free (segtree.nodes);
   return area * 0.0001;
 }
+
 static int
 compareleft (const void *ptr1, const void *ptr2)
 {
@@ -287,6 +294,7 @@ compareleft (const void *ptr1, const void *ptr2)
   BoxType **b2 = (BoxType **) ptr2;
   return (*b1)->X1 - (*b2)->X1;
 }
+
 static int
 compareright (const void *ptr1, const void *ptr2)
 {
@@ -294,11 +302,13 @@ compareright (const void *ptr1, const void *ptr2)
   BoxType **b2 = (BoxType **) ptr2;
   return (*b1)->X2 - (*b2)->X2;
 }
+
 static int
 comparepos (const void *ptr1, const void *ptr2)
 {
   return *((Coord *) ptr1) - *((Coord *) ptr2);
 }
+
 static int
 nextpwrof2 (int n)
 {
