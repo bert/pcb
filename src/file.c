@@ -1,33 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/file.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996,1997,1998,2005,2006 Thomas Nau
+ * \brief File save, load, merge ... routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996,1997,1998,2005,2006 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA, <http://www.gnu.org/licenses/>.
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  *
- */
-
-/* file save, load, merge ... routines
- * getpid() needs a cast to (int) to get rid of compiler warnings
- * on several architectures
+ * \note getpid() needs a cast to (int) to get rid of compiler warnings
+ * on several architectures.
  */
 
 #if HAVE_CONFIG_H
@@ -96,7 +100,6 @@ static int  WritePCB (FILE *);
 static int  WritePCBFile (char *);
 static int  WritePipe (char *, bool);
 static int  ParseLibraryTree (char *libpath);
-//static int  LoadNewlibFootprintsFromDir(char *path, char *toppath);
 static int  LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive);
 
 /* ---------------------------------------------------------------------------
@@ -128,9 +131,10 @@ static int  LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursiv
 
 */
 
-/* Hole[] in Polygon.  */
+/*! \def PCB_FILE_VERSION_HOLES Hole[] in Polygon.  */
 #define PCB_FILE_VERSION_HOLES 20100606
-/* First version ever saved.  */
+
+/*! \def PCB_FILE_VERSION_BASELINE First version ever saved.  */
 #define PCB_FILE_VERSION_BASELINE 20091103
 
 int
@@ -157,6 +161,7 @@ string_cmp (const char *a, const char *b)
 
       int ia = atoi (a);
       int ib = atoi (b);
+
       if (ia != ib)
         return ia - ib;
       while (isdigit ((int) *a) && *(a+1))
@@ -164,8 +169,9 @@ string_cmp (const char *a, const char *b)
       while (isdigit ((int) *b) && *(b+1))
         b++;
     }
-    else if (tolower ((int) *a) != tolower ((int) *b))
+    else if (tolower ((int) *a) != tolower ((int) *b)) {
       return tolower ((int) *a) - tolower ((int) *b);
+    }
     a++;
     b++;
   }
@@ -220,8 +226,8 @@ sort_netlist ()
   netlist_sort_offset = 0;
 }
 
-/* ---------------------------------------------------------------------------
- * opens a file and check if it exists
+/*!
+ * \brief Opens a file and check if it exists.
  */
 FILE *
 CheckAndOpenFile (char *Filename, bool Confirm, bool AllButton,
@@ -266,8 +272,8 @@ CheckAndOpenFile (char *Filename, bool Confirm, bool AllButton,
   return (fp);
 }
 
-/* ---------------------------------------------------------------------------
- * opens a file for saving connection data
+/*!
+ * \brief Opens a file for saving connection data.
  */
 FILE *
 OpenConnectionDataFile (void)
@@ -300,8 +306,8 @@ OpenConnectionDataFile (void)
   return fp;
 }
 
-/* ---------------------------------------------------------------------------
- * save elements in the current buffer
+/*!
+ * \brief Save elements in the current buffer.
  */
 int
 SaveBufferElements (char *Filename)
@@ -316,8 +322,8 @@ SaveBufferElements (char *Filename)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * save PCB
+/*!
+ * \brief Save PCB.
  */
 int
 SavePCB (char *file)
@@ -334,10 +340,11 @@ SavePCB (char *file)
   return retcode;
 }
 
-/* ---------------------------------------------------------------------------
- * set the route style to the first one, if the current one doesn't
- * happen to match any.  This way, "revert" won't change the route
- * style.
+/*!
+ * \brief Set the route style to the first one, if the current one
+ * doesn't happen to match any.
+ *
+ * This way, "revert" won't change the route style.
  */
 static void
 set_some_route_style ()
@@ -350,13 +357,14 @@ set_some_route_style ()
   SetKeepawayWidth (PCB->RouteStyle[0].Keepaway);
 }
 
-/* ---------------------------------------------------------------------------
- * load PCB
- * parse the file with enabled 'PCB mode' (see parser)
- * if successful, update some other stuff
+/*!
+ * \brief Load PCB.
  *
- * If revert is true, we pass "revert" as a parameter
- * to the HID's PCBChanged action.
+ * Parse the file with enabled 'PCB mode' (see parser) if successful,
+ * update some other stuff.
+ *
+ * If revert is true, we pass "revert" as a parameter to the HID's
+ * PCBChanged action.
  */
 static int
 real_load_pcb (char *Filename, bool revert)
@@ -456,8 +464,8 @@ real_load_pcb (char *Filename, bool revert)
   return (1);
 }
 
-/* ---------------------------------------------------------------------------
- * Load PCB
+/*!
+ * \brief Load PCB.
  */
 int
 LoadPCB (char *file)
@@ -465,8 +473,8 @@ LoadPCB (char *file)
   return real_load_pcb (file, false);
 }
 
-/* ---------------------------------------------------------------------------
- * Revert PCB
+/*!
+ * \brief Revert PCB.
  */
 int
 RevertPCB (void)
@@ -474,8 +482,8 @@ RevertPCB (void)
   return real_load_pcb (PCB->Filename, true);
 }
 
-/* ---------------------------------------------------------------------------
- * writes the quoted string created by another subroutine
+/*!
+ * \brief Writes the quoted string created by another subroutine.
  */
 static void
 PrintQuotedString (FILE * FP, char *S)
@@ -486,8 +494,8 @@ PrintQuotedString (FILE * FP, char *S)
   fputs (ds.Data, FP);
 }
 
-/* ---------------------------------------------------------------------------
- * writes out an attribute list
+/*!
+ * \brief Writes out an attribute list.
  */
 static void
 WriteAttributeList (FILE * FP, AttributeListType *list, char *prefix)
@@ -499,8 +507,8 @@ WriteAttributeList (FILE * FP, AttributeListType *list, char *prefix)
 	     prefix, list->List[i].name, list->List[i].value);
 }
 
-/* ---------------------------------------------------------------------------
- * writes layout header information
+/*!
+ * \brief Writes layout header information.
  */
 static void
 WritePCBInfoHeader (FILE * FP)
@@ -513,10 +521,11 @@ WritePCBInfoHeader (FILE * FP)
    */
 }
 
-/* ---------------------------------------------------------------------------
- * writes data header
- * the name of the PCB, cursor location, zoom and grid
- * layergroups and some flags
+/*!
+ * \brief Writes data header.
+ *
+ * The name of the PCB, cursor location, zoom and grid layergroups and
+ * some flags.
  */
 static void
 WritePCBDataHeader (FILE * FP)
@@ -541,7 +550,8 @@ WritePCBDataHeader (FILE * FP)
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, (char *)EMPTY (PCB->Name));
   pcb_fprintf (FP, " %mr %mr]\n\n", PCB->MaxWidth, PCB->MaxHeight);
-  pcb_fprintf (FP, "Grid[%mr %mr %mr %d]\n", PCB->Grid, PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
+  pcb_fprintf (FP, "Grid[%mr %mr %mr %d]\n", PCB->Grid,
+               PCB->GridOffsetX, PCB->GridOffsetY, Settings.DrawGrid);
   /* PolyArea should be output in square cmils, no suffix */
   fprintf (FP, "PolyArea[%s]\n", c_dtostr (COORD_TO_MIL (COORD_TO_MIL (PCB->IsleArea) * 100) * 100));
   pcb_fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
@@ -561,8 +571,8 @@ WritePCBDataHeader (FILE * FP)
 	       PCB->RouteStyle[group].Hole, PCB->RouteStyle[group].Keepaway);
 }
 
-/* ---------------------------------------------------------------------------
- * writes font data of non empty symbols
+/*!
+ * \brief Writes font data of non empty symbols.
  */
 static void
 WritePCBFontData (FILE * FP)
@@ -590,8 +600,8 @@ WritePCBFontData (FILE * FP)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes via data
+/*!
+ * \brief Writes via data.
  */
 static void
 WriteViaData (FILE * FP, DataType *Data)
@@ -608,8 +618,8 @@ WriteViaData (FILE * FP, DataType *Data)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes rat-line data
+/*!
+ * \brief Writes rat-line data.
  */
 static void
 WritePCBRatData (FILE * FP)
@@ -626,8 +636,8 @@ WritePCBRatData (FILE * FP)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes netlist data
+/*!
+ * \brief Writes netlist data.
  */
 static void
 WritePCBNetlistData (FILE * FP)
@@ -659,8 +669,8 @@ WritePCBNetlistData (FILE * FP)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes element data
+/*!
+ * \brief Writes element data.
  */
 static void
 WriteElementData (FILE * FP, DataType *Data)
@@ -742,8 +752,8 @@ WriteElementData (FILE * FP, DataType *Data)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes layer data
+/*!
+ * \brief Writes layer data.
  */
 static void
 WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
@@ -821,8 +831,8 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * writes just the elements in the buffer to file
+/*!
+ * \brief Writes just the elements in the buffer to file.
  */
 static int
 WriteBuffer (FILE * FP)
@@ -836,8 +846,8 @@ WriteBuffer (FILE * FP)
   return (STATUS_OK);
 }
 
-/* ---------------------------------------------------------------------------
- * writes PCB to file
+/*!
+ * \brief Writes PCB to file.
  */
 static int
 WritePCB (FILE * FP)
@@ -865,8 +875,8 @@ WritePCB (FILE * FP)
   return (STATUS_OK);
 }
 
-/* ---------------------------------------------------------------------------
- * writes PCB to file
+/*!
+ * \brief Writes PCB to file.
  */
 static int
 WritePCBFile (char *Filename)
@@ -884,9 +894,9 @@ WritePCBFile (char *Filename)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * writes to pipe using the command defined by Settings.SaveCommand
- * %f are replaced by the passed filename
+/*!
+ * \brief Writes to pipe using the command defined by Settings.SaveCommand
+ * %f are replaced by the passed filename.
  */
 static int
 WritePipe (char *Filename, bool thePcb)
@@ -950,10 +960,11 @@ WritePipe (char *Filename, bool thePcb)
   return (fclose (fp) ? STATUS_ERROR : result);
 }
 
-/* ---------------------------------------------------------------------------
- * saves the layout in a temporary file
- * this is used for fatal errors and does not call the program specified
- * in 'saveCommand' for safety reasons
+/*!
+ * \brief Saves the layout in a temporary file.
+ *
+ * This is used for fatal errors and does not call the program specified
+ * in 'saveCommand' for safety reasons.
  */
 void
 SaveInTMP (void)
@@ -969,9 +980,10 @@ SaveInTMP (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * front-end for 'SaveInTMP()'
- * just makes sure that the routine is only called once
+/*!
+ * \brief Front-end for 'SaveInTMP()'.
+ *
+ * Just makes sure that the routine is only called once.
  */
 static bool dont_save_any_more = false;
 void
@@ -991,16 +1003,15 @@ DisableEmergencySave (void)
   dont_save_any_more = true;
 }
 
-/* ----------------------------------------------------------------------
- * Callback for the autosave
- */
-
 static hidval backup_timer;
 
-/*
- * If the backup interval is > 0 then set another timer.  Otherwise
- * we do nothing and it is up to the GUI to call EnableAutosave()
- * after setting Settings.BackupInterval > 0 again.
+/*!
+ * \brief Callback for the autosave.
+ *
+ * If the backup interval is > 0 then set another timer.\n
+ * Otherwise we do nothing and it is up to the GUI to call
+ * EnableAutosave() after setting Settings.\n
+ * BackupInterval > 0 again.
  */
 static void
 backup_cb (hidval data)
@@ -1032,10 +1043,12 @@ EnableAutosave (void)
                                    1000 * Settings.BackupInterval, x);
 }
 
-/* ---------------------------------------------------------------------------
- * creates backup file.  The default is to use the pcb file name with
- * a "~" appended (like "foo.pcb~") and if we don't have a pcb file name
- * then use the template in BACKUP_NAME
+/*!
+ * \brief Creates a backup file.
+ *
+ * The default is to use the pcb file name with a "~" appended (like
+ * "foo.pcb~") and if we don't have a pcb file name then use the
+ * template in BACKUP_NAME.
  */
 void
 Backup (void)
@@ -1070,11 +1083,13 @@ Backup (void)
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
 
-/* ---------------------------------------------------------------------------
- * makes a temporary copy of the data. This is useful for systems which
- * doesn't support calling functions on exit. We use this to save the data
- * before LEX and YACC functions are called because they are able to abort
- * the program.
+/*!
+ * \brief Makes a temporary copy of the data.
+ *
+ * This is useful for systems which do not support calling functions on
+ * exit.\n
+ * We use this to save the data before LEX and YACC functions are called
+ * because they are able to abort the program.
  */
 void
 SaveTMPData (void)
@@ -1083,8 +1098,8 @@ SaveTMPData (void)
   WritePCBFile (TMPFilename);
 }
 
-/* ---------------------------------------------------------------------------
- * removes the temporary copy of the data file
+/*!
+ * \brief Removes the temporary copy of the data file.
  */
 void
 RemoveTMPData (void)
@@ -1105,15 +1120,14 @@ pcb_basename (char *fullname)
   return fullname;
 }
 
-/* ---------------------------------------------------------------------------
- * Parse the directory tree where stdlib footprints are found
+/*!
+ * \brief Parse the directory tree where newlib footprints are found.
+ *
+ * This is a helper function for ParseLibrary Tree.\n
+ * Given a char *path, it finds all newlib footprints in that dir,
+ * sticks them into the library menu structure named entry, and recurses
+ * into subdirectories.
  */
-
- /* This is a helper function for ParseLibrary Tree. Given a char *path,
-  * the function finds all footprints in that dir and add a pointer them
-  * into the library menu structure named entry, and recurses into sub
-  * directories.
-  */
 static int
 LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
 {
@@ -1475,10 +1489,9 @@ ReadLibraryContents (void)
 #define BLANK(x) ((x) == ' ' || (x) == '\t' || (x) == '\n' \
 		|| (x) == '\0')
 
-/* ---------------------------------------------------------------------------
- * Read in a netlist and store it in the netlist menu
+/*!
+ * \brief Read in a netlist and store it in the netlist menu.
  */
-
 int
 ReadNetlist (char *filename)
 {
@@ -1635,4 +1648,3 @@ static int ReadEdifNetlist (char *filename)
 
     return 0;
 }
-
