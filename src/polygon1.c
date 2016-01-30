@@ -1667,7 +1667,7 @@ Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
   PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
   if ((errc =
-       Gather (dir == FORW ? cur : cur->next, &p, j_rule, dir)) != err_ok)
+    Gather (cur, &p, j_rule, dir)) != err_ok)
     {
       if (p != NULL)
 	poly_DelContour (&p);
@@ -1702,14 +1702,21 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
   DIRECTION dir;
 
   cur = &a->head;
-  do
-    {
-      if (s_rule (cur, &dir) && cur->Flags.mark == 0)
-	Collect1 (e, cur, dir, contours, holes, j_rule);
-      other = cur;
-      if ((other->cvc_prev && jump (&other, &dir, j_rule)))
-	Collect1 (e, other, dir, contours, holes, j_rule);
+  do {
+    /* avoid uninitialized variable with XOR rule (side note:
+     * XOR not used in PCB anyway) */
+    dir = FORW;
+    if (s_rule (cur, &dir) && cur->Flags.mark == 0) {
+      /* Note: when the direction is not FORW, move to the vertex, Gather()
+       * should actually start from. */
+      Collect1 (e, dir == FORW ? cur : cur->next, dir, contours, holes, j_rule);
     }
+
+    other = cur;
+
+    if ((other->cvc_prev && jump (&other, &dir, j_rule)))
+      Collect1 (e, other, dir, contours, holes, j_rule);
+  }
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
 
