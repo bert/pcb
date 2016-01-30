@@ -858,6 +858,11 @@ png_do_export (HID_Attr_Val * options)
   if (options[HA_only_visible].int_value) {
 
       bbox = GetDataBoundingBox (PCB->Data);
+      if (bbox == NULL) {
+        fprintf (stderr, "ERROR: Unable to determine bounding box limits\n");
+        fprintf (stderr, "ERROR: Does the file contain any data?\n");
+        return;
+      }
       x_shift = bbox->X1;
       y_shift = bbox->Y1;
       h = bbox->Y2 - bbox->Y1;
