@@ -41,6 +41,7 @@ src/hid/gtk/gui-output-events.c
 src/hid/gtk/gui-top-window.c
 src/hid/lesstif/dialogs.c
 src/hid/lpr/lpr.c
+src/hid/png/png.c
 src/hid/ps/ps.c
 src/hid/gtk/gui-trackball.c
 src/layerflags.c

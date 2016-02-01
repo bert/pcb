@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pcb VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-29 23:00-0600\n"
+"POT-Creation-Date: 2016-01-31 21:42-0600\n"
 "PO-Revision-Date: 2011-09-09 23:10+0100\n"
 "Last-Translator: Bert Timmerman <bert.timmerman@xs4all.nl>\n"
 "Language-Team: Bert Timmerman <bert.timmerman@xs4all.nl>\n"
@@ -569,41 +569,41 @@ msgid "File '%s' has no font information, using default font\n"
 msgstr ""
 "Bestand '%s' heeft geen lettertype informatie, gebruik standaard lettertype\n"
 
-#: ../src/file.c:978
+#: ../src/file.c:983
 #, c-format
 msgid "Trying to save your layout in '%s'\n"
 msgstr "Probeer jouw opmaak op te slaan in '%s'\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1151
+#: ../src/file.c:1156
 #, fuzzy, c-format
 msgid "%s: Could not determine initial working directory\n"
 msgstr "ParseLibraryTree: Kon geen initieele werkmap vaststellen\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1171 ../src/file.c:1343
+#: ../src/file.c:1176 ../src/file.c:1348
 #, fuzzy, c-format
 msgid "%s: Could not determine new working directory\n"
 msgstr "ParseLibraryTree: Kon geen nieuwe werkmap vaststellen\n"
 
 # FIXME: is this an Error:  or a Warning:   ?
-#: ../src/file.c:1416
+#: ../src/file.c:1421
 #, fuzzy
 msgid "ReadLibraryContents: Could not determine initial working directory\n"
 msgstr "ParseLibraryTree: Kon geen initieele werkmap vaststellen\n"
 
-#: ../src/file.c:1444 ../src/file.c:1473
+#: ../src/file.c:1449 ../src/file.c:1478
 #, c-format
 msgid "%s: Error reading library contents:%s\n"
 msgstr ""
 
 #. nothing to do
-#: ../src/file.c:1512
+#: ../src/file.c:1517
 #, c-format
 msgid "Importing PCB netlist %s\n"
 msgstr "Importeer PCB netlijst %s\n"
 
-#: ../src/file.c:1550
+#: ../src/file.c:1555
 #, c-format
 msgid ""
 "Line length (%i) exceeded in netlist file.\n"
@@ -612,11 +612,11 @@ msgstr ""
 "Lijn lengte (%i) overschreden in netlijst bestand.\n"
 "toegevoegde karakters worden genegeerd.\n"
 
-#: ../src/file.c:1604
+#: ../src/file.c:1609
 msgid "Empty netlist file!\n"
 msgstr "Leeg netlijst bestand!\n"
 
-#: ../src/file.c:1646
+#: ../src/file.c:1651
 #, c-format
 msgid "Importing edif netlist %s\n"
 msgstr "Importeer edif netlijst %s\n"
