@@ -5,10 +5,10 @@
 
 Element(0x00 "SMT transistor, 3 pins" "" "SC70_3" 114 0 3 100 0x00)
 (
-	ElementLine(0 0 0 119 10)
-	ElementLine(0 119 94 119 10)
-	ElementLine(94 119 94 0 10)
-	ElementLine(94 0 0 0 10)
+	ElementLine(0 0 0 119 5)
+	ElementLine(0 119 94 119 5)
+	ElementLine(94 119 94 0 5)
+	ElementLine(94 0 0 0 5)
 	# 1st side, 1st pin
 	Pad(21 91
 	       21 97
