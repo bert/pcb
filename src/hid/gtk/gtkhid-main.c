@@ -59,7 +59,6 @@ ghid_pan_view_rel (Coord dx, Coord dy)
   pan_common (gport);
 }
 
-
 /* gport->view.coord_per_px:
  * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
  * out - the largest value means you are looking at the whole board.
@@ -67,20 +66,75 @@ ghid_pan_view_rel (Coord dx, Coord dy)
  * gport->view_width and gport->view_height are in PCB coordinates
  */
 
-#define ALLOW_ZOOM_OUT_BY 10 /* Arbitrary, and same as the lesstif HID */
+#define ALLOW_ZOOM_OUT_BY 10
+  /*!< Arbitrary, and same as the lesstif HID.\n
+   * This is the maximum screen_size / board_size (in the limiting
+   * dimension) that we're ever going to allow.\n
+   * For large boards the limit may actually be lower to avoid overflow
+   * issues (see max_safe_zoom()).\n
+   * This lets you scroll out until the board is pretty small relative
+   * to the screen, to make it easy to get your bearings, but not scroll
+   * out so far that the board vanishes. */
+
+/*!
+ * \brief For most boards it's just a matter of deciding how far out we
+ * want to allow user to zoom, which this does.
+ *
+ * For zoom to work correctly, we need to not overflow gport->view.width
+ * or gport->view.height (which are the view port width/height in pcb
+ * coordinates).\n
+ * This function gives a maximum "safe" zoom for this purpose.\n
+ * It works by considering how large the entire screen would be in pcb
+ * coordinates and clamping zoom such that that value won't overflow.\n
+ * It is therefore overly conservative for small windows.\n
+ * This is good enough, because:
+ *
+ * <ul>
+ *   <li>Tiny windows are rare for pcb editing.</li>
+ *   <li>Gigantic boards are rare.</li>
+ *   <li>32 bit Coord is going to get rarer.</li>
+ *   <li>The "right" fix is harder and needs re-zoom on window re-size.</li>
+ * </ul>
+ *
+ * \note Zoom might still blow up if we move between screens of
+ * different sizes (multi-monitor setup with different size monitors).\n
+ */
+static double
+max_safe_zoom (void)
+{
+  double result = (
+      ALLOW_ZOOM_OUT_BY *
+      MAX (PCB->MaxWidth  / gport->width, PCB->MaxHeight / gport->height) );
+
+  /* Get current screen width and height */
+  GdkScreen *current_screen
+    = gtk_window_get_screen (GTK_WINDOW (gport->top_window));
+  gint csw = gdk_screen_get_width (current_screen); /* Current Screen Width */
+  gint csh = gdk_screen_get_height (current_screen); /* Current Screen Height */
+
+  /* We don't want to end up trying to use the very largest possible
+   * gport->view.width because we're going through floating point on the way,
+   * so cheat a tiny bit. */
+  double const safety_factor = 0.9842; /*Arbitrary safety factor less than one. */
+
+  result = MIN (result, safety_factor * ((double) COORD_MAX) / MAX (csw, csh));
+
+  return result;
+}
+
+/*!
+ * \brief Limit the "minimum" zoom constant (maximum zoom), at 1 pixel
+ * per PCB unit, and set the "maximum" zoom constant (minimum zoom),
+ * such that the entire board just fits inside the viewport.
+ */
 static void
 ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
 {
   double min_zoom, max_zoom;
   double xtmp, ytmp;
 
-  /* Limit the "minimum" zoom constant (maximum zoom), at 1 pixel per PCB
-   * unit, and set the "maximum" zoom constant (minimum zoom), such that
-   * the entire board just fits inside the viewport
-   */
   min_zoom = 1;
-  max_zoom = MAX (PCB->MaxWidth  / gport->width,
-                  PCB->MaxHeight / gport->height) * ALLOW_ZOOM_OUT_BY;
+  max_zoom = max_safe_zoom ();
   new_zoom = MIN (MAX (min_zoom, new_zoom), max_zoom);
 
   if (gport->view.coord_per_px == new_zoom)
