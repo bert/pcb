@@ -10,6 +10,7 @@
  * PCB, interactive printed circuit board design
  *
  * Copyright (C) 2007 DJ Delorie <dj@delorie.com>
+ *
  * Copyright (C) 2015 Markus "Traumflug" Hitter <mah@jump-ing.de>
  *
  * This program is free software; you can redistribute it and/or modify

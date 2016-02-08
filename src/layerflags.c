@@ -10,6 +10,7 @@
  * PCB, interactive printed circuit board design
  *
  * Copyright (C) 2007 DJ Delorie <dj@delorie.com>
+ *
  * Copyright (C) 2015 Markus "Traumflug" Hitter <mah@jump-ing.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,10 +50,10 @@
 #include "strflags.h"
 
 
-/**
- * These are the names of all the Layertypes defined in hid.h. Order here
- * has to match the order of typedef enum LayertypeType there.
+/*!
+ * \brief These are the names of all the Layertypes defined in hid.h.
  *
+ * Order here has to match the order of typedef enum LayertypeType there.
  * They're used for parsing/writing layer types from/to the layout file.
  */
 static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
@@ -108,7 +109,9 @@ layertype_to_string (LayertypeType type)
 }
 
 /*!
- * Given a layer without type, try to guess its type, mostly from its name.
+ * \brief Given a layer without type, try to guess its type, mostly from
+ * its name.
+ *
  * This is used by parse_y.y for compatibility with old file formats and
  * _not_ used when such flags are already present in the file.
  */
