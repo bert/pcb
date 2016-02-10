@@ -48,6 +48,7 @@
 #include "error.h"
 #include "hid.h"
 #include "strflags.h"
+#include "layerflags.h"
 
 
 /*!
