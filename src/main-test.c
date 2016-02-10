@@ -1,27 +1,33 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/main-test.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2015 Andrew Poelstra
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Andrew Poelstra, 16966 60A Ave, V3S 8X5 Surrey, BC, Canada
- *  asp11@sfu.ca
+ * Copyright (C) 2015 Andrew Poelstra
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Andrew Poelstra, 16966 60A Ave, V3S 8X5 Surrey, BC, Canada
+ * asp11@sfu.ca
  */
 
 #ifdef HAVE_CONFIG_H
