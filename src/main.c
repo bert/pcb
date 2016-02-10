@@ -1,32 +1,36 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/main.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
+ * \brief Main program, initializes some stuff and handles user input.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996, 2004 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 
-/* main program, initializes some stuff and handles user input
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -78,8 +82,8 @@ extern void stroke_init (void);
 #endif
 
 
-/* ----------------------------------------------------------------------
- * initialize signal and error handlers
+/*!
+ * \brief Initialize signal and error handlers.
  */
 static void
 InitHandler (void)
@@ -107,6 +111,9 @@ InitHandler (void)
    */
 static char *command_line_pcb;
 
+/*!
+ * \brief Print the copyright notice.
+ */
 void
 copyright (void)
 {
@@ -1624,10 +1631,9 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
 }
 
-/* ---------------------------------------------------------------------- 
- * Print help or version messages.
+/*!
+ * \brief Print help or version messages.
  */
-
 static void
 print_version ()
 {
@@ -1647,6 +1653,14 @@ char *pcbtreedir = NULL;
 char *pcbtreepath = NULL;
 char *homedir = NULL;
 
+/*!
+ * \brief See if argv0 has enough of a path to let lrealpath give the
+ * real path.
+ *
+ * This should be the case if you invoke pcb with something like
+ * /usr/local/bin/pcb or ./pcb or ./foo/pcb but if you just use pcb and
+ * it exists in your path, you'll just get back pcb again.
+ */
 static void
 InitPaths (char *argv0)
 {
@@ -1655,13 +1669,6 @@ InitPaths (char *argv0)
   int haspath;
   char *t1, *t2;
   int found_bindir = 0;
-
-  /* see if argv0 has enough of a path to let lrealpath give the
-   * real path.  This should be the case if you invoke pcb with
-   * something like /usr/local/bin/pcb or ./pcb or ./foo/pcb
-   * but if you just use pcb and it exists in your path, you'll
-   * just get back pcb again.
-   */
 
   haspath = 0;
   for (i = 0; i < strlen (argv0) ; i++)
@@ -1860,21 +1867,24 @@ char *program_directory = 0;
 
 #include "dolists.h"
 
+/*!
+ * \brief Main program.
+ *
+ * Init application:
+ *
+ * - make program name available for error handlers
+ * - evaluate special options
+ * - initialize toplevel shell and resources
+ * - create an empty PCB with default symbols
+ * - initialize all other widgets
+ * - update screen and get size of drawing area
+ * - evaluate command-line arguments
+ * - register 'call on exit()' function
+ */
 int
 main (int argc, char *argv[])
 {
   int i;
-
-  /* init application:
-   * - make program name available for error handlers
-   * - evaluate special options
-   * - initialize toplevel shell and resources
-   * - create an empty PCB with default symbols
-   * - initialize all other widgets
-   * - update screen and get size of drawing area
-   * - evaluate command-line arguments
-   * - register 'call on exit()' function
-   */
 
 #include "core_lists.h"
   setbuf (stdout, 0);
