@@ -147,6 +147,8 @@ static ConfigAttribute config_attributes[] = {
   {"netlist-window-height", CONFIG_Integer, &_ghidgui.netlist_window_height},
   {"keyref-window-width", CONFIG_Integer, &_ghidgui.keyref_window_width},
   {"keyref-window-height", CONFIG_Integer, &_ghidgui.keyref_window_height},
+  {"elements-window-width", CONFIG_Integer, &_ghidgui.elements_window_width},
+  {"elements-window-height", CONFIG_Integer, &_ghidgui.elements_window_height},
   {"text-scale", CONFIG_Unused, NULL},
   {"via-thickness", CONFIG_Unused, NULL},
   {"via-drilling-hole", CONFIG_Unused, NULL},

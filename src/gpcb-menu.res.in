@@ -460,6 +460,7 @@ MainMenu =
    {"Netlist" DoWindows(Netlist)}
    {"Command Entry" Command() a={":" "<Key>:"}}
    {"Pinout" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
+   {"Elements" DoWindows(Elements)}
    -
    {"About..." About()}
   }

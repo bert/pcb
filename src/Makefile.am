@@ -311,6 +311,8 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-dialog.c \
 	hid/gtk/gui-drc-window.c \
 	hid/gtk/gui-drc-window.h \
+	hid/gtk/gui-elements-window.c \
+	hid/gtk/gui-elements-search-bar.c \
 	hid/gtk/gui-keyref-window.c \
 	hid/gtk/gui-library-window.c \
 	hid/gtk/gui-library-window.h \

@@ -150,6 +150,8 @@ typedef struct
     library_window_height,
     netlist_window_width,
     netlist_window_height,
+    elements_window_width,
+    elements_window_height,
     history_size,
     settings_mode;
 

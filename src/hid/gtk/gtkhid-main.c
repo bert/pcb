@@ -16,6 +16,7 @@
 #include "error.h"
 #include "../hidint.h"
 #include "gui.h"
+#include "gui-elements-window.h"
 #include "hid/common/hidnogui.h"
 #include "hid/common/draw_helpers.h"
 #include "pcb-printf.h"
@@ -1757,8 +1758,8 @@ CursorAction(int argc, char **argv, Coord x, Coord y)
 /* ------------------------------------------------------------ */
 
 static const char dowindows_syntax[] =
-"DoWindows(1|2|3|4|5|6)\n"
-"DoWindows(Layout|Library|Log|Netlist|Preferences|DRC)";
+"DoWindows(1|2|3|4|5|6|7)\n"
+"DoWindows(Layout|Library|Log|Netlist|Preferences|DRC|Elements)";
 
 static const char dowindows_help[] =
 N_("Open various GUI windows.");
@@ -1823,6 +1824,10 @@ DoWindows (int argc, char **argv, Coord x, Coord y)
   else if (strcmp (a, "6") == 0 || strcasecmp (a, "DRC") == 0)
     {
       ghid_drc_window_show (TRUE);
+    }
+  else if( strcmp (a, "7") == 0 || strcasecmp (a, "Elements") == 0 )
+    {
+      ghid_elements_window_show();
     }
   else
     {
