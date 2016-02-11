@@ -1065,6 +1065,8 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element, int which
 static void *
 ChangeElementName (ElementType *Element)
 {
+  char* ret;
+
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
   if (NAME_INDEX (PCB) == NAMEONPCB_INDEX)
@@ -1077,7 +1079,9 @@ ChangeElementName (ElementType *Element)
 	}
     }
 
-  return ChangeElementText (PCB, PCB->Data, Element, NAME_INDEX (PCB), NewName);
+  ret = ChangeElementText (PCB, PCB->Data, Element, NAME_INDEX (PCB), NewName);
+  hid_action("ElementsChanged");
+  return ret;
 }
 
 /*!

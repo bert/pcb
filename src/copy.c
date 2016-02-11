@@ -298,6 +298,9 @@ CopyElement (ElementType *Element)
 
   /* this call clears the polygons */
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
+
+  hid_action("ElementsChanged");
+
   if (PCB->ElementOn && (FRONT (element) || PCB->InvisibleObjectsOn))
     {
       DrawElementName (element);

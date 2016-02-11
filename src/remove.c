@@ -284,6 +284,8 @@ DestroyElement (ElementType *Element)
 
   g_slice_free (ElementType, Element);
 
+  hid_action("ElementsChanged");
+
   return NULL;
 }
 
@@ -585,6 +587,7 @@ RemoveElement (ElementType *Element)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (ELEMENT_TYPE, Element, Element, Element);
+  hid_action("ElementsChanged");
   return NULL;
 }
 
