@@ -44,6 +44,7 @@
 #include "misc.h"
 #include "find.h"
 
+#include <assert.h>
 #include <sys/types.h>
 #ifdef HAVE_REGEX_H
 #include <regex.h>
@@ -824,6 +825,59 @@ regexec_match_all (const  regex_t  *preg,  const  char  *string)
 }
 #endif
 
+/* Select an element, but don't redraw GUI */
+static bool
+select_element_no_draw(ElementType* element, bool select)
+{
+  assert(element != NULL);
+
+  if (!TEST_FLAG (LOCKFLAG, element)
+      && ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
+	  || PCB->InvisibleObjectsOn)
+      && TEST_FLAG (SELECTEDFLAG, element) != select)
+  {
+    AddObjectToFlagUndoList (ELEMENT_TYPE, element, element, element);
+    ASSIGN_FLAG (SELECTEDFLAG, select, element);
+    PIN_LOOP (element);
+    {
+      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+      ASSIGN_FLAG (SELECTEDFLAG, select, pin);
+    }
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
+      ASSIGN_FLAG (SELECTEDFLAG, select, pad);
+    }
+    END_LOOP;
+    ELEMENTTEXT_LOOP (element);
+    {
+      AddObjectToFlagUndoList (ELEMENTNAME_TYPE, element, text, text);
+      ASSIGN_FLAG (SELECTEDFLAG, select, text);
+    }
+    END_LOOP;
+    DrawElementName (element);
+    DrawElement (element);
+
+    return true;
+  }
+
+  /* Nothing was changed */
+  return false;
+}
+
+bool
+SelectElement(ElementType* element, bool select)
+{
+  if( select_element_no_draw(element, select) ) {
+    IncrementUndoSerialNumber ();
+    Draw ();
+    return true;
+  }
+
+  return false;
+}
+
 bool
 SelectObjectByName (int Type, char *Pattern, bool select)
 {
@@ -880,39 +934,11 @@ SelectObjectByName (int Type, char *Pattern, bool select)
   if (PCB->ElementOn && (Type & ELEMENT_TYPE))
     ELEMENT_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (LOCKFLAG, element)
-	&& ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
-	    || PCB->InvisibleObjectsOn)
-	&& TEST_FLAG (SELECTEDFLAG, element) != select)
-      {
-	String name = ELEMENT_NAME (PCB, element);
-	if (name && REGEXEC (name))
-	  {
-	    AddObjectToFlagUndoList (ELEMENT_TYPE, element, element, element);
-	    ASSIGN_FLAG (SELECTEDFLAG, select, element);
-	    PIN_LOOP (element);
-	    {
-	      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	      ASSIGN_FLAG (SELECTEDFLAG, select, pin);
-	    }
-	    END_LOOP;
-	    PAD_LOOP (element);
-	    {
-	      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	      ASSIGN_FLAG (SELECTEDFLAG, select, pad);
-	    }
-	    END_LOOP;
-	    ELEMENTTEXT_LOOP (element);
-	    {
-	      AddObjectToFlagUndoList (ELEMENTNAME_TYPE, element, text, text);
-	      ASSIGN_FLAG (SELECTEDFLAG, select, text);
-	    }
-	    END_LOOP;
-	    DrawElementName (element);
-	    DrawElement (element);
-	    changed = true;
-	  }
-      }
+    String name = ELEMENT_NAME (PCB, element);
+    if (name && REGEXEC (name)
+	&& select_element_no_draw(element, select)) {
+      changed = true;
+    }
   }
   END_LOOP;
   if (PCB->PinOn && (Type & PIN_TYPE))

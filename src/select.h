@@ -46,4 +46,6 @@ bool SelectByFlag (int flag, bool select);
 bool SelectObjectByName (int, char *, bool);
 #endif
 
+bool SelectElement(ElementType* element, bool select);
+
 #endif
