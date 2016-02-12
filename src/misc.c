@@ -1,31 +1,35 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/misc.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996,2004,2006 Thomas Nau
+ * \brief Misc functions used by several modules.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996,2004,2006 Thomas Nau
  *
- */
-
-
-/* misc functions used by several modules
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #ifdef HAVE_CONFIG_H
@@ -86,11 +90,10 @@ static void GetGridLockCoordinates (int, void *, void *, void *,
 
 /* Local variables */
 
-/* 
- * Used by SaveStackAndVisibility() and 
- * RestoreStackAndVisibility()
+/*! 
+ * \brief Used by SaveStackAndVisibility() and 
+ * RestoreStackAndVisibility().
  */
-
 static struct
 {
   bool ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
@@ -99,8 +102,9 @@ static struct
   int cnt;
 } SavedStack;
 
-/* Distance() should be used so that there is only one
- *  place to deal with overflow/precision errors
+/*!
+ * \brief Distance() should be used so that there is only one place to
+ * deal with overflow/precision errors.
  */
 double
 Distance (double x1, double y1, double x2, double y2)
@@ -110,7 +114,9 @@ Distance (double x1, double y1, double x2, double y2)
   return sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
-/* Bring an angle into [0, 360) range */
+/*!
+ * \brief Bring an angle into [0, 360] range.
+ */
 Angle
 NormalizeAngle (Angle a)
 {
@@ -121,8 +127,10 @@ NormalizeAngle (Angle a)
   return a;
 }
 
-/* Get Value returns a numeric value passed from the string and sets the
- * bool variable absolute to false if it leads with a +/- character
+/*!
+ * \brief GetValue() returns a numeric value passed from the string and
+ * sets the bool variable absolute to false if it leads with a +/-
+ * character.
  */
 double
 GetValue (const char *val, const char *units, bool * absolute)
@@ -220,7 +228,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
  *
  * \return The value read, with sign.
  *
- * This is the same as GetValue() and GetValueEX(), but totally ignoring units.
+ * This is the same as GetValue() and GetValueEx(), but totally ignoring units.
  * Typical application is a list selector, like the type of thermal to apply
  * to a pin.
  */
@@ -246,8 +254,8 @@ double GetUnitlessValue (const char *val, bool *absolute) {
   return value;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of a point (which is silly)
+/*!
+ * \brief Sets the bounding box of a point (which is silly).
  */
 void
 SetPointBoundingBox (PointType *Pnt)
@@ -256,8 +264,8 @@ SetPointBoundingBox (PointType *Pnt)
   Pnt->Y2 = Pnt->Y + 1;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of a pin or via
+/*!
+ * \brief Sets the bounding box of a pin or via.
  */
 void
 SetPinBoundingBox (PinType *Pin)
@@ -279,8 +287,8 @@ SetPinBoundingBox (PinType *Pin)
   close_box(&Pin->BoundingBox);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of a pad
+/*!
+ * \brief Sets the bounding box of a pad.
  */
 void
 SetPadBoundingBox (PadType *Pad)
@@ -332,8 +340,8 @@ SetPadBoundingBox (PadType *Pad)
   close_box(&Pad->BoundingBox);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of a line
+/*!
+ * \brief Sets the bounding box of a line.
  */
 void
 SetLineBoundingBox (LineType *Line)
@@ -352,8 +360,8 @@ SetLineBoundingBox (LineType *Line)
   SetPointBoundingBox (&Line->Point2);
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of a polygons
+/*!
+ * \brief Sets the bounding box of a polygons.
  */
 void
 SetPolygonBoundingBox (PolygonType *Polygon)
@@ -372,8 +380,8 @@ SetPolygonBoundingBox (PolygonType *Polygon)
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the bounding box of an elements
+/*!
+ * \brief Sets the bounding box of an element.
  */
 void
 SetElementBoundingBox (DataType *Data, ElementType *Element,
@@ -521,8 +529,8 @@ SetElementBoundingBox (DataType *Data, ElementType *Element,
     r_insert_entry (Data->element_tree, box, 0);
 }
 
-/* ---------------------------------------------------------------------------
- * creates the bounding box of a text object
+/*!
+ * \brief Creates the bounding box of a text object.
  */
 void
 SetTextBoundingBox (FontType *FontPtr, TextType *Text)
@@ -643,8 +651,8 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
   close_box(&Text->BoundingBox);
 }
 
-/* ---------------------------------------------------------------------------
- * returns true if data area is empty
+/*!
+ * \brief Returns true if data area is empty.
  */
 bool
 IsDataEmpty (DataType *Data)
@@ -732,10 +740,11 @@ hole_counting_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * counts the number of plated and unplated holes in the design within
- * a given area of the board. To count for the whole board, pass NULL
- * within_area.
+/*!
+ * \brief Counts the number of plated and unplated holes in the design
+ * within a given area of the board.
+ *
+ * To count for the whole board, pass NULL to the within_area.
  */
 void
 CountHoles (int *plated, int *unplated, const BoxType *within_area)
@@ -750,9 +759,10 @@ CountHoles (int *plated, int *unplated, const BoxType *within_area)
 }
 
 
-/* ---------------------------------------------------------------------------
- * gets minimum and maximum coordinates
- * returns NULL if layout is empty
+/*!
+ * \brief Gets minimum and maximum coordinates.
+ *
+ * \return NULL if layout is empty.
  */
 BoxType *
 GetDataBoundingBox (DataType *Data)
@@ -827,9 +837,11 @@ GetDataBoundingBox (DataType *Data)
   return (IsDataEmpty (Data) ? NULL : &box);
 }
 
-/* ---------------------------------------------------------------------------
- * centers the displayed PCB around the specified point (X,Y), and move the
- * crosshair there.  If warp_pointer is true warp the pointer to the crosshair
+/*!
+ * \brief Centers the displayed PCB around the specified point (X,Y),
+ * and move the crosshair there.
+ *
+ * If warp_pointer is true warp the pointer to the crosshair.
  */
 void
 CenterDisplay (Coord X, Coord Y, bool warp_pointer)
@@ -850,9 +862,11 @@ CenterDisplay (Coord X, Coord Y, bool warp_pointer)
   PCB->Grid = save_grid;
 }
 
-/* ---------------------------------------------------------------------------
- * transforms symbol coordinates so that the left edge of each symbol
- * is at the zero position. The y coordinates are moved so that min(y) = 0
+/*!
+ * \brief Transforms symbol coordinates so that the left edge of each
+ * symbol is at the zero position.
+ *
+ * The y coordinates are moved so that min(y) = 0.
  * 
  */
 void
@@ -931,8 +945,9 @@ GetNum (char **s, const char *default_unit)
   return ret_val;
 }
 
-/*! \brief Serializes the route style list 
- *  \par Function Description
+/*!
+ * \brief Serializes the route style list .
+ *
  *  Right now n_styles should always be set to NUM_STYLES,
  *  since that is the number of route styles ParseRouteString()
  *  expects to parse.
@@ -955,10 +970,13 @@ make_route_string (RouteStyleType rs[], int n_styles)
   return g_string_free (str, FALSE);
 }
 
-/* ----------------------------------------------------------------------
- * parses the routes definition string which is a colon separated list of
- * comma separated Name, Dimension, Dimension, Dimension, Dimension
- * e.g. Signal,20,40,20,10:Power,40,60,28,10:...
+/*!
+ * \brief Parses the routes definition string
+ * 
+ * Which is a colon separated list of comma separated Name, Dimension,
+ * Dimension, Dimension, Dimension.
+ *
+ * \example Signal,20,40,20,10:Power,40,60,28,10:...
  */
 int
 ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
@@ -1026,9 +1044,12 @@ error:
   return (1);
 }
 
-/* ----------------------------------------------------------------------
- * parses the group definition string which is a colon separated list of
- * comma separated layer numbers (1,2,b:4,6,8,t)
+/*!
+ * \brief Parses the group definition string.
+ *
+ * Which is a colon separated list of comma separated layer numbers.
+ *
+ * \example (1,2,b:4,6,8,t)
  */
 int
 ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
@@ -1167,13 +1188,16 @@ error:
   return (1);
 }
 
+/*!
+ * \brief Sets up any remaining layer type guesses.
+ */
 void
 AssignDefaultLayerTypes()
 {
   int num_found;
   Cardinal outline_layer = -1;
 
-  /**
+  /*
    * There can be only one outline layer. During parsing guess_layertype()
    * applied well known cases already, but as this function operates on a
    * single layer only, it might end up with more than one hit for the whole
@@ -1225,8 +1249,8 @@ AssignDefaultLayerTypes()
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * quits application
+/*!
+ * \brief Quits application.
  */
 void
 QuitApplication (void)
@@ -1250,10 +1274,12 @@ QuitApplication (void)
   exit (0);
 }
 
-/* ---------------------------------------------------------------------------
- * creates a filename from a template
- * %f is replaced by the filename 
- * %p by the searchpath
+/*!
+ * \brief Creates a filename from a template.
+ *
+ * "%f" is replaced by the filename.
+ *
+ * "%p" is replaced by the searchpath.
  */
 char *
 EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
@@ -1299,9 +1325,11 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
   return strdup (command.Data);
 }
 
-/* ---------------------------------------------------------------------------
- * concatenates directory and filename if directory != NULL,
- * expands them with a shell and returns the found name(s) or NULL
+/*!
+ * \brief Concatenates directory and filename.
+ *
+ * If directory != NULL expands them with a shell and returns the found
+ * name(s) or NULL.
  */
 char *
 ExpandFilename (char *Dirname, char *Filename)
@@ -1348,8 +1376,8 @@ ExpandFilename (char *Dirname, char *Filename)
 }
 
 
-/* ---------------------------------------------------------------------------
- * returns the layer number for the passed pointer
+/*!
+ * \brief Returns the layer number for the passed pointer.
  */
 int
 GetLayerNumber (DataType *Data, LayerType *Layer)
@@ -1362,8 +1390,8 @@ GetLayerNumber (DataType *Data, LayerType *Layer)
   return (i);
 }
 
-/* ---------------------------------------------------------------------------
- * move layer (number is passed in) to top of layerstack
+/*!
+ * \brief Move layer (number is passed in) to top of layerstack.
  */
 static void
 PushOnTopOfLayerStack (int NewTop)
@@ -1386,9 +1414,10 @@ PushOnTopOfLayerStack (int NewTop)
 }
 
 
-/* ----------------------------------------------------------------------
- * changes the visibility of all layers in a group
- * returns the number of changed layers
+/*!
+ * \brief Changes the visibility of all layers in a group.
+ *
+ * \return The number of changed layers.
  */
 int
 ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
@@ -1431,11 +1460,10 @@ ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
   return (changed);
 }
 
-/* ----------------------------------------------------------------------
- * Given a string description of a layer stack, adjust the layer stack
- * to correspond.
-*/
-
+/*!
+ * \brief Given a string description of a layer stack, adjust the layer
+ * stack to correspond.
+ */
 void
 LayerStringToLayerStack (char *s)
 {
@@ -1532,8 +1560,8 @@ LayerStringToLayerStack (char *s)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * returns the layergroup number for the passed pointer
+/*!
+ * \brief Returns the layergroup number for the passed pointer.
  */
 int
 GetLayerGroupNumberByPointer (LayerType *Layer)
@@ -1541,8 +1569,8 @@ GetLayerGroupNumberByPointer (LayerType *Layer)
   return (GetLayerGroupNumberByNumber (GetLayerNumber (PCB->Data, Layer)));
 }
 
-/* ---------------------------------------------------------------------------
- * returns the layergroup number for the passed layernumber
+/*!
+ * \brief Returns the layergroup number for the passed layer number.
  */
 int
 GetLayerGroupNumberByNumber (Cardinal Layer)
@@ -1560,8 +1588,9 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
   return (group);
 }
 
-/* ---------------------------------------------------------------------------
- * returns the layergroup number for the passed side (TOP_SIDE or BOTTOM_SIDE)
+/*!
+ * \brief Returns the layergroup number for the passed side (TOP_SIDE or
+ * BOTTOM_SIDE).
  */
 int
 GetLayerGroupNumberBySide (int side)
@@ -1573,9 +1602,10 @@ GetLayerGroupNumberBySide (int side)
       side == TOP_SIDE ? top_silk_layer : bottom_silk_layer);
 }
 
-/* ---------------------------------------------------------------------------
- * returns a pointer to an objects bounding box;
- * data is valid until the routine is called again
+/*!
+ * \brief Returns a pointer to an objects bounding box.
+ *
+ * Data is valid until the routine is called again.
  */
 BoxType *
 GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -1602,8 +1632,8 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * computes the bounding box of an arc
+/*!
+ * \brief Computes the bounding box of an arc.
  */
 void
 SetArcBoundingBox (ArcType *Arc)
@@ -1674,8 +1704,8 @@ SetArcBoundingBox (ArcType *Arc)
   Arc->Point2.Y = Arc->Y + (double)Arc->Height * sa2;
 }
 
-/* ---------------------------------------------------------------------------
- * resets the layerstack setting
+/*!
+ * \brief Resets the layerstack setting.
  */
 void
 ResetStackAndVisibility (void)
@@ -1700,8 +1730,8 @@ ResetStackAndVisibility (void)
   ChangeGroupVisibility (PCB->LayerGroups.Entries[top_group][0], 1, 1);
 }
 
-/* ---------------------------------------------------------------------------
- * saves the layerstack setting
+/*!
+ * \brief Saves the layerstack setting.
  */
 void
 SaveStackAndVisibility (void)
@@ -1736,8 +1766,8 @@ SaveStackAndVisibility (void)
   SavedStack.cnt++;
 }
 
-/* ---------------------------------------------------------------------------
- * restores the layerstack setting
+/*!
+ * \brief Restores the layerstack setting.
  */
 void
 RestoreStackAndVisibility (void)
@@ -1771,10 +1801,11 @@ RestoreStackAndVisibility (void)
   SavedStack.cnt--;
 }
 
-/* ----------------------------------------------------------------------
- * returns pointer to current working directory.  If 'path' is not
- * NULL, then the current working directory is copied to the array
- * pointed to by 'path'
+/*!
+ * \brief Returns pointer to current working directory.
+ *
+ * If 'path' is not NULL, then the current working directory is copied
+ * to the array pointed to by 'path'.
  */
 char *
 GetWorkingDirectory (char *path)
@@ -1788,9 +1819,10 @@ GetWorkingDirectory (char *path)
 
 }
 
-/* ---------------------------------------------------------------------------
- * writes a string to the passed file pointer
- * some special characters are quoted
+/*!
+ * \brief Write a string to the passed file pointer.
+ *
+ * Some special characters are quoted.
  */
 void
 CreateQuotedString (DynamicStringType *DS, char *S)
@@ -1818,7 +1850,9 @@ GetArcEnds (ArcType *Arc)
 }
 
 
-/* doesn't this belong in change.c ?? */
+/*!
+ * \todo Doesn't this belong in change.c ??
+ */
 void
 ChangeArcAngles (LayerType *Layer, ArcType *a,
                  Angle new_sa, Angle new_da)
@@ -1865,9 +1899,10 @@ BumpName (char *Name)
   return (temp);
 }
 
-/*
- * make a unique name for the name on board 
- * this can alter the contents of the input string
+/*!
+ * \brief Make a unique name for the name on board.
+ *
+ * This can alter the contents of the input string.
  */
 char *
 UniqueElementName (DataType *Data, char *Name)
@@ -1994,8 +2029,8 @@ AttachForCopy (Coord PlaceX, Coord PlaceY)
                     Crosshair.AttachedObject.Ptr3);
 }
 
-/*
- * Return nonzero if the given file exists and is readable.
+/*!
+ * \brief Return nonzero if the given file exists and is readable.
  */
 int
 FileExists (const char *name)
@@ -2044,7 +2079,9 @@ mem_any_set (unsigned char *ptr, int bytes)
   return 0;
 }
 
-/* This just fills in a FlagType with current flags.  */
+/*!
+ * \brief This just fills in a FlagType with current flags.
+ */
 FlagType
 MakeFlags (unsigned int flags)
 {
@@ -2054,7 +2091,10 @@ MakeFlags (unsigned int flags)
   return rv;
 }
 
-/* This converts old flag bits (from saved PCB files) to new format.  */
+/*!
+ * \brief This converts old flag bits (from saved PCB files) to new
+ * format.
+ */
 FlagType
 OldFlags (unsigned int flags)
 {
@@ -2088,10 +2128,12 @@ MaskFlags (FlagType flag, unsigned int flags)
   return flag;
 }
 
-/***********************************************************************
- * Layer Group Functions
- */
+/* Layer Group Functions. */
 
+/*!
+ * \brief Returns group actually moved to (i.e. either group or
+ * previous).
+ */
 int
 MoveLayerToGroup (int layer, int group)
 {
@@ -2120,6 +2162,9 @@ MoveLayerToGroup (int layer, int group)
   return group;
 }
 
+/*!
+ * \brief Returns pointer to private buffer.
+ */
 char *
 LayerGroupsToString (LayerGroupType *lg)
 {
@@ -2202,6 +2247,10 @@ pcb_author (void)
 }
 
 
+/*!
+ * \brief Returns NULL if the name isn't found, else the value for that
+ * named attribute.
+ */
 char *
 AttributeGetFromList (AttributeListType *list, char *name)
 {
@@ -2212,6 +2261,14 @@ AttributeGetFromList (AttributeListType *list, char *name)
   return NULL;
 }
 
+/*!
+ * \brief Adds an attribute to the list.
+ *
+ * If the attribute already exists, whether it's replaced or a second
+ * copy added depends on REPLACE.
+ *
+ * \return Non-zero if an existing attribute was replaced.
+ */
 int
 AttributePutToList (AttributeListType *list, const char *name, const char *value, int replace)
 {
@@ -2247,6 +2304,9 @@ AttributePutToList (AttributeListType *list, const char *name, const char *value
   return 0;
 }
 
+/*!
+ * \brief Remove an attribute by name.
+ */
 void
 AttributeRemoveFromList(AttributeListType *list, char *name)
 {
@@ -2262,8 +2322,12 @@ AttributeRemoveFromList(AttributeListType *list, char *name)
       }
 }
 
-/* In future all use of this should be supplanted by
- * pcb-printf and %mr/%m# spec */
+/*!
+ * \todo In future all use of this should be supplanted by pcb-printf
+ * and %mr/%m# spec.
+ *
+ * These act like you'd expect, except always in the C locale.
+ */
 const char *
 c_dtostr (double d)
 {
@@ -2310,11 +2374,12 @@ r_delete_element (DataType * data, ElementType * element)
 }
 
 
-/* ---------------------------------------------------------------------------
- * Returns a string that has a bunch of information about the program.
+/*!
+ * \brief Returns a string that has a bunch of information about the
+ * program.
+ *
  * Can be used for things like "about" dialog boxes.
  */
-
 char *
 GetInfoString (void)
 {
@@ -2399,28 +2464,31 @@ GetInfoString (void)
   return info.Data;
 }
 
-/* ---------------------------------------------------------------------------
- * mkdir() implentation, mostly for plugins, which don't have our config.h.
- */
-
 #ifdef MKDIR_IS_PCBMKDIR
 #error "Don't know how to create a directory on this system."
 #endif
 
+/*!
+ * \brief mkdir() implentation, mostly for plugins, which don't have our
+ * config.h.
+ */
 int
 pcb_mkdir (const char *path, int mode)
 {
   return MKDIR (path, mode);
 }
 
-/* ---------------------------------------------------------------------------
- * Returns a best guess about the orientation of an element.  The
- * value corresponds to the rotation; a difference is the right value
- * to pass to RotateElementLowLevel.  However, the actual value is no
- * indication of absolute rotation; only relative rotation is
- * meaningful.
+/*!
+ * \brief Returns a best guess about the orientation of an element.
+ *
+ * The value corresponds to the rotation; a difference is the right
+ * value to pass to RotateElementLowLevel.
+ * However, the actual value is no indication of absolute rotation; only
+ * relative rotation is meaningful.
+ *
+ * \return a relative rotation for an element, useful only for comparing
+ * two similar footprints.
  */
-
 int 
 ElementOrientation (ElementType *e)
 {
