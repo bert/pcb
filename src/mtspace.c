@@ -1,37 +1,46 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/mtspace.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Implementation for "empty space" routines (needed for
+ * via-space tracking in the auto-router.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * mtspace data structures are built on r-trees.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This file, mtspace.c, was written and is
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-
-/* this file, mtspace.c, was written and is
  * Copyright (c) 2001 C. Scott Ananian.
+ *
  * Copyright (c) 2006 harry eaton.
- */
-
-/* implementation for "empty space" routines (needed for via-space tracking
- * in the auto-router.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ *
+ * haceaton@aplcomm.jhuapl.edu
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,8 +62,6 @@
 #include <dmalloc.h>
 #endif
 
-/* mtspace data structures are built on r-trees. */
-
 /* ---------------------------------------------------------------------------
  * some local types
  */
@@ -62,15 +69,19 @@
 typedef struct mtspacebox
 {
   const BoxType box;
-  Coord keepaway;		/* the smallest keepaway around this box */
+  Coord keepaway; /*!< the smallest keepaway around this box */
 }
 mtspacebox_t;
 
-/* this is an mtspace_t */
+/*!
+ * \brief This is an mtspace_t.
+ *
+ * \c rtrees keeping track of regions expanded by their required
+ * clearance.
+ * One for fixed, even, and odd.
+ */
 struct mtspace
 {
-  /* rtrees keeping track of regions expanded by their required clearance. */
-  /* one for fixed, even, and odd */
   rtree_t *ftree, *etree, *otree;
 };
 
@@ -80,7 +91,9 @@ typedef union
   heap_t * h;
 } heap_or_vector;
 
-/* this is a vetting_t */
+/*!
+ * \brief This is a vetting_t.
+ */
 struct vetting
 {
   heap_or_vector untested;
@@ -107,7 +120,10 @@ mtspace_create_box (const BoxType * box, Coord keepaway)
   return mtsb;
 }
 
-/* create an "empty space" representation */
+/*!
+ * \brief Create an "empty space" representation with a shrunken
+ * boundary.
+ */
 mtspace_t *
 mtspace_create (void)
 {
@@ -122,7 +138,9 @@ mtspace_create (void)
   return mtspace;
 }
 
-/* destroy an "empty space" representation. */
+/*!
+ * \brief Destroy an "empty space" representation.
+ */
 void
 mtspace_destroy (mtspace_t ** mtspacep)
 {
@@ -174,7 +192,12 @@ which_tree (mtspace_t * mtspace, mtspace_type_t which)
     }
 }
 
-/* add a space-filler to the empty space representation.  */
+/*!
+ * \brief Add a space-filler to the empty space representation.
+ *
+ * The given box should *not* be bloated; it should be "true".
+ * The feature will fill *at least* a radius of keepaway around it;
+ */
 void
 mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
 	     Coord keepaway)
@@ -183,7 +206,12 @@ mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
   r_insert_entry (which_tree (mtspace, which), (const BoxType *) filler, 1);
 }
 
-/* remove a space-filler from the empty space representation. */
+/*!
+ * \brief Remove a space-filler from the empty space representation.
+ *
+ * The given box should *not* be bloated; it should be "true".
+ * The feature will fill *at least* a radius of keepaway around it;
+ */
 void
 mtspace_remove (mtspace_t * mtspace,
 		const BoxType * box, mtspace_type_t which,
@@ -232,9 +260,11 @@ append (struct query_closure * qc, BoxType *newone)
     vector_append (qc->checking.v, newone);
 }
 
-/* we found some space filler that may intersect this query.
- * First check if it does intersect, then break it into
- * overlaping regions that don't intersect this box.
+/*!
+ * \brief We found some space filler that may intersect this query.
+ *
+ * First check if it does intersect, then break it into overlaping
+ * regions that don't intersect this box.
  */
 static int
 query_one (const BoxType * box, void *cl)
@@ -330,12 +360,16 @@ query_one (const BoxType * box, void *cl)
   return 1;			/* never reached */
 }
 
-/* qloop takes a vector (or heap) of regions to check (checking) if they don't intersect
- * anything. If a region does intersect something, it is broken into
- * pieces that don't intersect that thing (if possible) which are
- * put back into the vector/heap of regions to check.
- * qloop returns false when it finds the first empty region
- * it returns true if it has exhausted the region vector/heap and never
+/*!
+ * \brief qloop takes a vector (or heap) of regions to check (checking)
+ * if they don't intersect anything.
+ *
+ * If a region does intersect something, it is broken into pieces that
+ * don't intersect that thing (if possible) which are put back into the
+ * vector/heap of regions to check.
+ *
+ * \return qloop returns false when it finds the first empty region.
+ * It returns true if it has exhausted the region vector/heap and never
  * found an empty area.
  */
 static void
@@ -372,7 +406,9 @@ qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, bool is_vec
     }
 }
 
-/* free the memory used by the vetting structure */
+/*!
+ * \brief Free the memory used by the vetting structure.
+ */
 void
 mtsFreeWork (vetting_t ** w)
 {
@@ -408,20 +444,26 @@ mtsFreeWork (vetting_t ** w)
 }
 
 
-/* returns some empty spaces in 'region' (or former narrowed regions)
+/*!
+ * \brief .
+ *
+ * It tries first to find Completely empty regions (which are
+ * appended to the free_space_vec vector).
+ * If that fails, it looks for regions filled only by objects generated
+ * by the previous pass (which are appended to the lo_conflict_space_vec
+ * vector).
+ * Then it looks for regions that are filled by objects generated during
+ * *this* pass (which  are appended to the hi_conflict_space_vec vector).
+ * The current pass identity is given by 'is_odd'.
+ * As soon as one completely free region is found, it returns with that
+ * answer.
+ * It saves partially searched regions in vectors "untested", "no_fix",
+ * "no_hi", and "hi_candidate" which can be passed to future calls of
+ * this function to search harder for such regions if the computation
+ * becomes necessary.
+ *
+ * \return returns some empty spaces in 'region' (or former narrowed regions)
  * that may hold a feature with the specified radius and keepaway
- * It tries first to find Completely empty regions (which are appended
- * to the free_space_vec vector). If that fails, it looks for regions
- * filled only by objects generated by the previous pass (which are
- * appended to the lo_conflict_space_vec vector). Then it looks for
- * regions that are filled by objects generated during *this* pass
- * (which  are appended to the hi_conflict_space_vec vector). The
- * current pass identity is given by 'is_odd'.  As soon as one completely
- * free region is found, it returns with that answer. It saves partially
- * searched regions in vectors "untested", "no_fix", "no_hi", and
- * "hi_candidate" which can be passed to future calls of this function
- * to search harder for such regions if the computation becomes
- * necessary.
  */
 vetting_t *
 mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
