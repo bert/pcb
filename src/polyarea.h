@@ -1,25 +1,31 @@
-/*
-      poly_Boolean: a polygon clip library
-      Copyright (C) 1997  Alexey Nikitin, Michael Leonov
-      leonov@propro.iis.nsk.su
-
-      This library is free software; you can redistribute it and/or
-      modify it under the terms of the GNU Library General Public
-      License as published by the Free Software Foundation; either
-      version 2 of the License, or (at your option) any later version.
-
-      This library is distributed in the hope that it will be useful,
-      but WITHOUT ANY WARRANTY; without even the implied warranty of
-      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      Library General Public License for more details.
-
-      You should have received a copy of the GNU Library General Public
-      License along with this library; if not, write to the Free
-      Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-      polyarea.h
-      (C) 1997 Alexey Nikitin, Michael Leonov
-      (C) 1997 Klamer Schutte (minor patches)
+/*!
+ * \file src/polyarea.h
+ *
+ * \brief poly_Boolean: a polygon clip library.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * Copyright (C) 1997  Alexey Nikitin, Michael Leonov
+ *
+ * leonov@propro.iis.nsk.su
+ *
+ * Copyright (C) 1997 Klamer Schutte (minor patches)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
 #ifndef	PCB_POLYAREA_H
@@ -51,8 +57,7 @@ enum {
 #endif
 
 
-typedef Coord vertex[2];  /* longing point representation of
-                             coordinates */
+typedef Coord vertex[2]; /*!< longing point representation of coordinates. */
 typedef vertex Vector;
 
 #define VertexEqu(a,b) (memcmp((a),(b),sizeof(Vector))==0)
@@ -124,7 +129,6 @@ VNODE *poly_CreateNode(Vector v);
 void poly_InclVertex(VNODE * after, VNODE * node);
 void poly_ExclVertex(VNODE * node);
 
-/**********************************************************************/
 
 typedef struct POLYAREA POLYAREA;
 struct POLYAREA
@@ -149,13 +153,12 @@ BOOLp poly_ChkContour(PLINE * a);
 BOOLp poly_CheckInside(POLYAREA * c, Vector v0);
 BOOLp Touching(POLYAREA *p1, POLYAREA *p2);
 
-/**********************************************************************/
-
 /* tools for clipping */
 
-/* checks whether point lies within contour
-independently of its orientation */
-
+/*!
+ * \brief Checks whether point lies within contour independently of its
+ * orientation.
+ */
 int poly_InsideContour(PLINE *c, Vector v);
 int poly_ContourInContour(PLINE * poly, PLINE * inner);
 POLYAREA *poly_Create(void);
