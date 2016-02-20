@@ -1,38 +1,43 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/print.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2003 Thomas Nau
+ * \brief Printing routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \note Change History:\n
+ * 10/11/96 11:37 AJF Added support for a Text() driver function.\n
+ * This was done out of a pressing need to force text to be printed on
+ * the silkscreen layer.\n
+ * Perhaps the design is not the best.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 1994,1995,1996, 2003 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-/* Change History:
- * 10/11/96 11:37 AJF Added support for a Text() driver function.
- * This was done out of a pressing need to force text to be printed on the
- * silkscreen layer. Perhaps the design is not the best.
- */
-
-
-/* printing routines
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -86,7 +91,11 @@ fab_circle (hidGC gc, int x, int y, int r)
   gui->graphics->draw_arc (gc, x, y, r, r, 180, 180);
 }
 
-/* align is 0=left, 1=center, 2=right, add 8 for underline */
+/*!
+ * \brief Align text ?
+ *
+ * align is 0=left, 1=center, 2=right, add 8 for underline.
+ */
 static void
 text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
 {
@@ -119,7 +128,11 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
               t.Y + SCALE_TEXT (font->MaxHeight, t.Scale) + MIL_TO_COORD(10));
 }
 
-/* Y, +, X, circle, square */
+/*!
+ * \brief .
+ *
+ * Y, +, X, circle, square.
+ */
 static void
 drill_sym (hidGC gc, int idx, int x, int y)
 {
