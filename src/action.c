@@ -7255,7 +7255,7 @@ ActionElementSetAttr (int argc, char **argv, Coord x, Coord y)
 
   if (argc < 2)
     {
-      AFAIL (changepinname);
+      AFAIL (elementsetattr);
     }
 
   refdes = argv[0];
