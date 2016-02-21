@@ -113,7 +113,9 @@ pcb_files=	\
 	unjaggy.pcb \
 	unjaggy.out.pcb \
 	vianudge.pcb \
-	vianudge.out.pcb
+	vianudge.out.pcb \
+	viatrim.pcb \
+	viatrim.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -137,7 +139,9 @@ images= \
 	unjaggy.eps \
 	unjaggy.out.eps \
 	vianudge.eps \
-	vianudge.out.eps
+	vianudge.out.eps \
+	viatrim.eps \
+	viatrim.out.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
