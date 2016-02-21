@@ -109,7 +109,9 @@ pcb_files=	\
 	miter.pcb \
 	miter.out.pcb \
 	orthopull.pcb \
-	orthopull.out.pcb
+	orthopull.out.pcb \
+	unjaggy.pcb \
+	unjaggy.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -129,7 +131,9 @@ images= \
 	miter.eps \
 	miter.out.eps \
 	orthopull.eps \
-	orthopull.out.eps
+	orthopull.out.eps \
+	unjaggy.eps \
+	unjaggy.out.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
