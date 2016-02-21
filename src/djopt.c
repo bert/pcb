@@ -2935,6 +2935,17 @@ Looks for vias where all traces leave in the same direction.  Tries to
 move via in that direction to eliminate one of the traces (and thus a
 corner).
 
+Example:
+
+Before vianudge:
+
+@center @image{vianudge,,,Example pcb before vianudge,png}
+
+After vianudge:
+
+@center @image{vianudge.out,,,Example pcb after vianudge,png}
+
+
 @item viatrim
 Looks for traces that go from via to via, where moving that trace to a
 different layer eliminates one or both vias.
