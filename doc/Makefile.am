@@ -107,7 +107,9 @@ pcb_files=	\
 	debumpify.pcb \
 	debumpify.out.pcb \
 	miter.pcb \
-	miter.out.pcb
+	miter.out.pcb \
+	orthopull.pcb \
+	orthopull.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -125,7 +127,9 @@ images= \
 	debumpify.eps \
 	debumpify.out.eps \
 	miter.eps \
-	miter.out.eps
+	miter.out.eps \
+	orthopull.eps \
+	orthopull.out.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
