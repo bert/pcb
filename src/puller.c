@@ -1,48 +1,49 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/puller.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2006 DJ Delorie
- *  Copyright (C) 2011 PCB Contributers (See ChangeLog for details)
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \todo Things that need to be fixed before this is "perfect".\n
+ * Add to this list as we find things.
+ * - respect the outline layer.
+ * - don't consider points that are perpendicular to our start_arc.
+ *   I.e. when we have busses going around corners, we have a *lot* of
+ *   arcs and endpoints that are all in the same direction and all
+ *   equally "good", but rounding the arc angles to integers causes
+ *   all sorts of tiny differences that result in bumps, reversals,
+ *   and other messes.
+ * - Store the X,Y values in our shadow struct so we don't fill up the
+ *   undo buffer with all our line reversals.
+ * - at least check the other layers in our layer group.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
- *  dj@delorie.com
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 2006 DJ Delorie
+ *
+ * Copyright (C) 2011 PCB Contributers (See ChangeLog for details)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * DJ Delorie, 334 North Road, Deerfield NH 03037-1110, USA
+ * dj@delorie.com
  */
-
-/* FIXME: Things that need to be fixed before this is "perfect".
-   Add to this list as we find things.
-
-   - respect the outline layer.
-
-   - don't consider points that are perpendicular to our start_arc.
-     I.e. when we have busses going around corners, we have a *lot* of
-     arcs and endpoints that are all in the same direction and all
-     equally "good", but rounding the arc angles to integers causes
-     all sorts of tiny differences that result in bumps, reversals,
-     and other messes.
-
-   - Store the X,Y values in our shadow struct so we don't fill up the
-     undo buffer with all our line reversals.
-
-   - at least check the other layers in our layer group.
-
-*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -76,7 +77,7 @@
 #define TRACE0 0
 #define TRACE1 0
 
-/* sine of one degree */
+/*! Sine of one degree. */
 #define SIN1D	0.0174524064372835
 
 static jmp_buf abort_buf;
@@ -142,7 +143,9 @@ arc_endpoint_is (ArcType *a, int angle, Coord x, Coord y)
   return arc_dist < a->Thickness / 2;
 }
 
-/* Cross c->u and c->v, return the magnitute */
+/*!
+ * brief Cross c->u and c->v, return the magnitude.
+ */
 static double
 cross2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
@@ -153,7 +156,9 @@ cross2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
   return (double)ux * vy - (double)uy * vx;
 }
 
-/* Likewise, for dot product. */
+/*!
+ * \brief Likewise, for dot product.
+ */
 static double
 dot2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
@@ -165,7 +170,12 @@ dot2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 }
 
 #if 0
-/* angle of c->v, relative to c->u, in radians.  Range is -pi..pi */
+/*!
+ * \brief .
+ *
+ * angle of c->v, relative to c->u, in radians.
+ * Range is -pi..pi.
+ */
 static double
 angle2d (Coord cx, Coord cy, Coord ux, Coord uy, Coord vx, Coord vy)
 {
@@ -210,16 +220,26 @@ d2r (double d)
   return M_PI * d / 180.0;
 }
 
-/* | a b |
-   | c d | */
+/*!
+ * \brief .
+ *
+ * | a b |
+ *
+ * | c d |
+ */
 static double
 det (double a, double b, double c, double d)
 {
   return a * d - b * c;
 }
 
-/* The lines are x1y1-x2y2 and x3y3-x4y4.  Returns true if they
-   intersect.  */
+/*!
+ * \brief .
+ *
+ * The lines are \f$ x_1y_1-x_2y_2 \f$ and \f$ x_3y_3-x_4y_4 \f$.
+ *
+ * \return True if they intersect.
+ */
 static int
 intersection_of_lines (Coord x1, Coord y1, Coord x2, Coord y2,
                        Coord x3, Coord y3, Coord x4, Coord y4,
@@ -238,8 +258,14 @@ intersection_of_lines (Coord x1, Coord y1, Coord x2, Coord y2,
   return 1;
 }
 
-/* Same, for line segments.  Returns true if they intersect.  For this
-   function, xr and yr may be NULL if you don't need the values.  */
+/*!
+ * \brief Same, for line segments.
+ *
+ * \return True if they intersect.
+ *
+ * For this function, \c xr and \c yr may be \c NULL if you don't need
+ * the values.
+ */
 static int
 intersection_of_linesegs (Coord x1, Coord y1, Coord x2, Coord y2,
                           Coord x3, Coord y3, Coord x4, Coord y4,
@@ -266,7 +292,9 @@ intersection_of_linesegs (Coord x1, Coord y1, Coord x2, Coord y2,
   return 1;
 }
 
-/* distance between a line and a point */
+/*!
+ * \brief Distance between a line and a point.
+ */
 static double
 dist_lp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
 {
@@ -281,7 +309,9 @@ dist_lp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
   return rv;
 }
 
-/* distance between a line segment and a point */
+/*!
+ * \brief Distance between a line segment and a point.
+ */
 static double
 dist_lsp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
 {
@@ -296,11 +326,7 @@ dist_lsp (Coord x1, Coord y1, Coord x2, Coord y2, Coord px, Coord py)
   return d;
 }
 
-/*****************************************************************************/
-/*                                                                           */
 /*                       Single Point Puller                                 */
-/*                                                                           */
-/*****************************************************************************/
 
 static int
 line_callback (const BoxType * b, void *cl)
@@ -531,11 +557,7 @@ Puller (int argc, char **argv, Coord Ux, Coord Uy)
   return 1;
 }
 
-/*****************************************************************************/
-/*                                                                           */
 /*                          Global Puller                                    */
-/*                                                                           */
-/*****************************************************************************/
 
 static const char globalpuller_syntax[] =
 "GlobalPuller()";
@@ -596,7 +618,10 @@ status ()
   fprintf(stderr, "%6d loops, %d pulled   \r", nloops, npulled);
 }
 
-/* Extra data we need to temporarily attach to all lines and arcs.  */
+/*!
+ * \brief Extra data we need to temporarily attach to all lines and
+ * arcs.
+ */
 typedef struct End {
   /* These point to "multi_next" if there are more than one.  */
   struct Extra *next;
@@ -843,8 +868,8 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
     return 0;
 
   /* See if the line passes through this pin.  */
-  /* FIXME: this assumes round pads, but it's good enough for square
-     ones for now.  */
+  /*! \todo This assumes round pads, but it's good enough for square
+   * ones for now. */
   if (dist_lsp (line->Point1.X, line->Point1.Y,
 		line->Point2.X, line->Point2.Y,
 		pin->X, pin->Y) <= pin->Thickness/2)
@@ -967,8 +992,8 @@ find_pair_padline_callback (const BoxType * b, void *cl)
      mark it anyway.  */
 
   t = (pad->Thickness + 1)/2;
-  /* FIXME: this is for round pads.  Good enough for now, but add
-     square pad support later.  */
+  /*! \todo This is for round pads. Good enough for now, but add
+   * square pad support later. */
   intersect = intersection_of_linesegs (pad->Point1.X, pad->Point1.Y,
 					 pad->Point2.X, pad->Point2.Y,
 					 line->Point1.X, line->Point1.Y,
@@ -984,7 +1009,7 @@ find_pair_padline_callback (const BoxType * b, void *cl)
   if (intersect || p1_d < t || p2_d < t)
     {
       /* It does.  */
-      /* FIXME: we should split the line.  */
+      /*! \todo We should split the line.  */
 #if TRACE1
       pcb_printf("splitting line %#mD-%#mD because it passes through pad %#mD-%#mD r %#mS\n",
 	     line->Point1.X, line->Point1.Y,
@@ -1755,8 +1780,8 @@ gp_pin_cb (const BoxType *b, void *cb)
   if (p == start_pinpad || p == end_pinpad)
     return 0;
 
-  /* FIXME: we lump octagonal pins in with square; safe, but not
-     optimal.  */
+  /*! \todo We lump octagonal pins in with square; safe, but not
+   * optimal. */
   if (TEST_FLAG (SQUAREFLAG, p) || TEST_FLAG (OCTAGONFLAG, p))
     {
       gp_point (p->X - t2, p->Y - t2, 0, 0);
@@ -1791,8 +1816,8 @@ gp_pad_cb (const BoxType *b, void *cb)
 	return 0;
     }
 
-  /* FIXME: we lump octagonal pads in with square; safe, but not
-     optimal.  I don't think we even support octagonal pads.  */
+  /*! \todo We lump octagonal pads in with square; safe, but not
+     optimal. I don't think we even support octagonal pads. */
   if (TEST_FLAG (SQUAREFLAG, p) || TEST_FLAG (OCTAGONFLAG, p))
     {
       if (p->Point1.X == p->Point2.X)
@@ -1980,19 +2005,24 @@ mark_arc_for_deletion (ArcType *a)
 #endif
 }
 
-/* Given a starting line, which may be attached to an arc, and which
-   intersects with an ending line, which also may be attached to an
-   arc, maybe pull them.  We assume start_line is attached to the arc
-   via Point1, and attached to the end line via Point2.  Likewise, we
-   make end_line attach to the start_line via Point1 and the arc via
-   Point 2.  We also make the arcs attach on the Delta end, not the
-   Start end.  Here's a picture:
-
+/*!
+ * \brief .
+ *
+ * Given a starting line, which may be attached to an arc, and which
+ * intersects with an ending line, which also may be attached to an
+ * arc, maybe pull them.\n
+ * We assume start_line is attached to the arc via Point1, and attached
+ * to the end line via Point2.\n
+ * Likewise, we make end_line attach to the start_line via Point1 and
+ * the arc via Point 2.\n
+ * We also make the arcs attach on the Delta end, not the Start end.\n
+ * Here's a picture:
+ * <pre>
      S            S+D  P1            P2   P1          P2  S+D          S
    *--- start_arc ---*--- start_line ---*--- end_line ---*--- end_arc ---*
      S             E   S              E   S            E   E           S
-*/
-
+ * </pre>
+ */
 static void
 maybe_pull_1 (LineType *line)
 {
@@ -2462,7 +2492,9 @@ maybe_pull_1 (LineType *line)
   maybe_pull_1 (new_line);
 }
 
-/* Given a line with a end_next, attempt to pull both ends.  */
+/*!
+ * \brief Given a line with a end_next, attempt to pull both ends.
+ */
 static void
 maybe_pull (LineType *line, Extra *e)
 {
@@ -2670,11 +2702,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
-/*****************************************************************************/
-/*                                                                           */
 /*                             Actions                                       */
-/*                                                                           */
-/*****************************************************************************/
 
 HID_Action puller_action_list[] = {
   {"Puller", "Click on a line-arc intersection or line segment", Puller,
