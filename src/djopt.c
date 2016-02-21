@@ -2946,6 +2946,17 @@ can be made.
 Replaces 90 degree corners with a pair of 45 degree corners, to reduce
 RF losses and trace length.
 
+Example:
+
+Before miter:
+
+@center @image{miter,,,Example pcb before miter,png}
+
+After miter:
+
+@center @image{miter.out,,,Example pcb after miter,png}
+
+
 @end table
 
 %end-doc */

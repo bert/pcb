@@ -105,7 +105,9 @@ pcb_files=	\
 	thermal.pcb \
 	gcode.pcb \
 	debumpify.pcb \
-	debumpify.out.pcb
+	debumpify.out.pcb \
+	miter.pcb \
+	miter.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -121,7 +123,9 @@ images= \
 	gcode_tool_path.eps \
 	td_ex1.eps \
 	debumpify.eps \
-	debumpify.out.eps
+	debumpify.out.eps \
+	miter.eps \
+	miter.out.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
