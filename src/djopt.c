@@ -2899,6 +2899,17 @@ reduce the total trace length and via count.
 @item debumpify
 Looks for U-shaped traces that can be shortened or eliminated.
 
+Example:
+
+Before debumpify:
+
+@center @image{debumpify,,,Example pcb before debumpify,png}
+
+After debumpify:
+
+@center @image{debumpify.out,,,Example pcb after debumpify,png}
+
+
 @item unjaggy
 Looks for corners which could be flipped to eliminate one or more
 corners (i.e. jaggy lines become simpler).

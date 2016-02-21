@@ -103,7 +103,9 @@ pcb_files=	\
 	pad.pcb \
 	puller.pcb \
 	thermal.pcb \
-	gcode.pcb
+	gcode.pcb \
+	debumpify.pcb \
+	debumpify.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -117,7 +119,9 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 images= \
 	gcode_control_img.eps \
 	gcode_tool_path.eps \
-	td_ex1.eps
+	td_ex1.eps \
+	debumpify.eps \
+	debumpify.out.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
