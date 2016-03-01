@@ -129,19 +129,7 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 images= \
 	gcode_control_img.eps \
 	gcode_tool_path.eps \
-	td_ex1.eps \
-	debumpify.eps \
-	debumpify.out.eps \
-	miter.eps \
-	miter.out.eps \
-	orthopull.eps \
-	orthopull.out.eps \
-	unjaggy.eps \
-	unjaggy.out.eps \
-	vianudge.eps \
-	vianudge.out.eps \
-	viatrim.eps \
-	viatrim.out.eps
+	td_ex1.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
