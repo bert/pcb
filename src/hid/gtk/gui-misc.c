@@ -293,7 +293,14 @@ run_get_location_loop (const gchar * message)
   gulong button_handler, key_handler;
   gint oldObjState, oldLineState, oldBoxState;
 
-  ghid_status_line_set_text (message);
+  /* Make the text cue bold so it hides less and looks like command prompt  */
+  GString *bold_message = g_string_new (message);
+  g_string_prepend (bold_message, "<b>");
+  g_string_append (bold_message, "</b>");
+
+  ghid_status_line_set_text (bold_message->str);
+
+  g_string_free (bold_message, TRUE);
 
   oldObjState = Crosshair.AttachedObject.State;
   oldLineState = Crosshair.AttachedLine.State;
