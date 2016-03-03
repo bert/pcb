@@ -1133,27 +1133,32 @@ static const char getxy_help[] =
 N_("Get a coordinate.");
 
 /*!
- * \brief Get a coordinate.
+ * \brief Get a coordinate to be used by subsequent actions.
  *
- * Each action is registered with a flag for the core ("need_coord_msg")
- * that says whether it requires an X,Y location from the user, and if
- * so, provides a prompt for that X,Y location.
+ * Any action that always requires a point should have it's need_coord_msg
+ * field set to a message to be used when prompting the user for that point.
+ * A call to this function isn't required to obtain a coordinate for these
+ * actions when they occur in isolation, because hid_actionv() arranges to
+ * call gui->get_coords() on their behalf anyway.  Actions for which a
+ * coordinate argument is optional, required only conditionally depending on
+ * other arguments, or not used at all will have their need_coord_msg field
+ * set to NULL.
  *
- * The GUIs display that prompt while waiting for the user to click.
+ * GetXY() exists *only* to request a point for actions that don't always
+ * use one, or for interface elements that execute sequences of actions some
+ * of which can or must use a point.  In the former case there would not be a
+ * correct coordinate available without a prior GetXY() call.  In the latter
+ * case an action which only conditionally requires a point might occur earlier
+ * in the sequence than any that require a point, or the first action with a
+ * non-NULL need_coord_msg field might contain a message inappropriate for the
+ * group results of the operation, so GetXY() should be used at the start of
+ * the sequence.  It works by setting the effective global point value to be
+ * used by the rest of the action sequence.
  *
- * GetXY() is a "filler" action which exists *only* to request an X,Y
- * click from the user, for actions that don't (or optionally) need
- * coords, or don't have a message appropriate for the case being issued
- * (i.e. if there are multiple actions to be executed, the GetXY() might
- * be appropriate for the *group* results, not the first action that
- * happens to need a coordinate).
+ * It isn't possible to use multiple GetXY() calls in a single action sequence
+ * to obtain distinct points, because all subsequent calls after the first will
+ * end up getting the first value.
  *
- * The catch is that the core asks for the X,Y click *before* the action
- * is called, so there's no way for any argument to GetXY() to have any
- * effect.
- *
- * The string "printed" is the empty one in the struct where GetXY() is
- * registered.
  */
 /* %start-doc actions GetXY
 
@@ -1164,6 +1169,8 @@ Prompts the user for a coordinate, if one is not already selected.
 static int
 GetXY (int argc, char **argv, Coord x, Coord y)
 {
+  gui->get_coords (argv[0], &x, &y);
+
   return 0;
 }
 
@@ -2078,7 +2085,7 @@ HID_Action ghid_main_action_list[] = {
   {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
-  {"GetXY", "", GetXY, getxy_help, getxy_syntax},
+  {"GetXY", 0, GetXY, getxy_help, getxy_syntax},
   {"ImportGUI", 0, ImportGUI, importgui_help, importgui_syntax},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
