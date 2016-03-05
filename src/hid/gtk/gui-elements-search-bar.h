@@ -1,26 +1,40 @@
-/* gEDA - GPL Electronic Design Automation
- * Copyright (C) 2016 Rob Spanton
+/*!
+ * \file src/hid/gtk/gui-elements-search-bar.h
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * \brief Prototypes for the element window search bar.
  *
- * This library is distributed in the hope that it will be useful,
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design.
+ *
+ * Copyright (C) 2016 Rob Spanton <rob@robspanton.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Rob Spanton: rob@robspanton.com
+ * Contact addresses for paper mail and Email:
+ * Harry Eaton, 6697 Buttonhole Ct, Columbia, MD 21044, USA
+ * haceaton@aplcomm.jhuapl.edu
  */
+
 #ifndef PCB_HID_GTK_GUI_ELEMENTS_SEARCH_BAR_H
 #define PCB_HID_GTK_GUI_ELEMENTS_SEARCH_BAR_H
 #include <glib-object.h>
 #include <gtk/gtk.h>
+
 G_BEGIN_DECLS
 
 /* GhidElementsSearchBar */
@@ -32,28 +46,28 @@ G_BEGIN_DECLS
 
 GType ghid_elements_search_bar_get_type (void);
 
-typedef struct {
-	GtkEntryClass parent_class;
-
+typedef struct
+{
+  GtkEntryClass parent_class;
 } GhidElementsSearchBarClass;
 
-typedef struct {
-	GtkEntry parent_instance;
+typedef struct
+{
+  GtkEntry parent_instance;
 
-	/*** The popup search menu ***/
-	GtkWidget *menu;
+  GtkWidget *menu;
+  /*!< The popup search menu. */
 
-	/* Entries in that menu: */
+  /* Entries in that menu: */
+  GtkWidget *enable_regex;
+  /*!< The enable/disable regex option */
 
-	/* The enable/disable regex option */
-	GtkWidget *enable_regex;
-
-	/* The case sensitive option */
-	GtkWidget *case_sense;
-
+  GtkWidget *case_sense;
+  /*!< The case sensitive option */
 } GhidElementsSearchBar;
 
-GhidElementsSearchBar* ghid_elements_search_bar_new(void);
+GhidElementsSearchBar* ghid_elements_search_bar_new (void);
 
 G_END_DECLS
+
 #endif /* PCB_HID_GTK_GUI_ELEMENTS_SEARCH_BAR_H */
