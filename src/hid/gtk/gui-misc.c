@@ -448,15 +448,15 @@ ghid_set_cursor_position_labels (void)
       Coord r  = Distance (Crosshair.X, Crosshair.Y, Marked.X, Marked.Y);
       double a = atan2 (dy, dx) * RAD_TO_DEG;
 
-      text = pcb_g_strdup_printf (_("%m+r %-mS; phi %-.1f; %-mS %-mS"),
+      text = pcb_g_strdup_printf (_("%m+r %-mS;\nphi %-.1f;\n%-mS %-mS"),
                                   Settings.grid_unit->allow,
                                   r, a, dx, dy);
       ghid_cursor_position_relative_label_set_text (text);
       g_free (text);
     }
   else
-    ghid_cursor_position_relative_label_set_text (
-                                  _("r __.__; phi __._; __.__ __.__"));
+    ghid_cursor_position_relative_label_set_text (_("r __.__;\nphi __._;\n__.__ __.__"));
+
 
   text = pcb_g_strdup_printf (_("%m+%-mS %-mS"),
                               Settings.grid_unit->allow,
