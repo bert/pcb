@@ -71,6 +71,10 @@ static void CheckLinePointForRubberbandConnection (LayerType *,
 						   LineType *,
 						   PointType *,
 						   bool);
+static void CheckArcPointForRubberbandConnection (LayerType *Layer,
+                                                  ArcType *Arc,
+                                                  PointType *ArcPoint,
+                                                  bool Exact);
 static void CheckPolygonForRubberbandConnection (LayerType *,
 						 PolygonType *);
 static void CheckLinePointForRat (LayerType *, PointType *);
@@ -438,8 +442,45 @@ CheckLinePointForRubberbandConnection (LayerType *Layer,
 
 /*!
  * \brief Checks all visible lines which belong to the same group as the
- * passed polygon.
+ * passed arc.
  *
+ * If one of the endpoints of the line lays inside the passed arc,
+ * the scanned line is added to the 'rubberband' list
+ */
+static void
+CheckArcPointForRubberbandConnection (LayerType *Layer,
+				      ArcType *Arc,
+				      PointType *ArcPoint,
+				      bool Exact)
+{
+  Cardinal group;
+  struct rubber_info info;
+  Coord t = Arc->Thickness / 2;
+
+  /* lookup layergroup and check all visible lines in this group */
+  info.radius = Exact ? -1 : MAX(Arc->Thickness / 2, 1);
+  info.box.X1 = ArcPoint->X - t;
+  info.box.X2 = ArcPoint->X + t;
+  info.box.Y1 = ArcPoint->Y - t;
+  info.box.Y2 = ArcPoint->Y + t;
+  info.line = NULL;
+  info.X = ArcPoint->X;
+  info.Y = ArcPoint->Y;
+  group = GetLayerGroupNumberByPointer (Layer);
+  GROUP_LOOP (PCB->Data, group);
+  {
+    /* check all visible lines of the group member */
+    if (layer->On)
+      {
+	info.layer = layer;
+	r_search (layer->line_tree, &info.box, NULL, rubber_callback, &info);
+      }
+  }
+  END_LOOP;
+}
+
+/* ---------------------------------------------------------------------------
+ * checks all visible lines which belong to the same group as the passed polygon.
  * If one of the endpoints of the line lays inside the passed polygon,
  * the scanned line is added to the 'rubberband' list.
  */
@@ -538,6 +579,20 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 					       (LineType *) Ptr2,
 					       (PointType *) Ptr3, true);
       break;
+
+    case ARC_TYPE:
+      {
+	LayerType *layer = (LayerType *) Ptr1;
+	ArcType *arc = (ArcType *) Ptr2;
+	if (GetLayerNumber (PCB->Data, layer) < max_copper_layer)
+	  {
+	    CheckArcPointForRubberbandConnection (layer, arc,
+						  &arc->Point1, false);
+	    CheckArcPointForRubberbandConnection (layer, arc,
+						  &arc->Point2, false);
+	  }
+	break;
+      }
 
     case VIA_TYPE:
       CheckPinForRubberbandConnection ((PinType *) Ptr1);
