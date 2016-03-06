@@ -4842,7 +4842,7 @@ line_segments_can_merge (VNODE *s1, VNODE *s2)
 {
   Vector p1, p2;
 
-  assert (EDGE_FOWARD_VERTEX (s1) == EDGE_BACKWARD_VERTEX (s2));
+  assert (EDGE_FORWARD_VERTEX (s1) == EDGE_BACKWARD_VERTEX (s2));
   Vsub2 (p1, EDGE_BACKWARD_VERTEX (s2)->point, EDGE_BACKWARD_VERTEX (s1)->point); /* See assert above for first arg */
   Vsub2 (p2, EDGE_FORWARD_VERTEX (s2)->point, EDGE_BACKWARD_VERTEX (s2)->point);
 

@@ -91,6 +91,8 @@
 #include <sys/wait.h>
 #endif
 
+#define DEBUG
+
 /* ---------------------------------------------------------------------------
  * some local types
  */

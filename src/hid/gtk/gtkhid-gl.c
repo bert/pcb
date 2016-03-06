@@ -23,6 +23,10 @@
 #include "hid/common/face3d.h"
 #include "hid/common/object3d.h"
 
+#include "hid/step/step.h" // XXX: Abstraction breaking
+#include "hid/step/model.h" // XXX: Abstraction breaking
+#include "hid/step/assembly.h" // XXX: Abstraction breaking
+
 /* The Linux OpenGL ABI 1.0 spec requires that we define
  * GL_GLEXT_PROTOTYPES before including gl.h or glx.h for extensions
  * in order to get prototypes:
@@ -58,6 +62,10 @@ extern PFNGLUSEPROGRAMPROC         glUseProgram;
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+#define STEP_TO_COORD_X(pcb, x) (  MM_TO_COORD((x)))
+#define STEP_TO_COORD_Y(pcb, y) ((pcb->MaxHeight) - MM_TO_COORD((y)))
+#define STEP_TO_COORD_Z(pcb, z) ( MM_TO_COORD((z)))
 
 //#define VIEW_ORTHO
 
@@ -128,6 +136,7 @@ static bool ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, double *pcb_
 
 void ghid_set_lock_effects (hidGC gc, AnyObjectType *object);
 
+object3d *step_read_test = NULL;
 
 
 /* Coordinate conversions */
@@ -174,7 +183,7 @@ Py (int y)
 #define BOARD_THICKNESS         MM_TO_COORD(1.60)
 #define MASK_COPPER_SPACING     MM_TO_COORD(0.05)
 #define SILK_MASK_SPACING       MM_TO_COORD(0.01)
-static int
+static Coord
 compute_depth (int group)
 {
   static int last_depth_computed = 0;
@@ -196,7 +205,8 @@ compute_depth (int group)
   min_copper_group = MIN (bottom_group, top_group);
   max_copper_group = MAX (bottom_group, top_group);
   num_copper_groups = max_copper_group - min_copper_group;// + 1;
-  middle_copper_group = min_copper_group + num_copper_groups / 2;
+//  middle_copper_group = min_copper_group + num_copper_groups / 2;
+  middle_copper_group = min_copper_group;
 
   if (group >= 0 && group < max_group) {
     if (group >= min_copper_group && group <= max_copper_group) {
@@ -1145,6 +1155,7 @@ void
 ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 {
   render_priv *priv;
+  step_model *test_model;
 
   port->render_priv = priv = g_new0 (render_priv, 1);
 
@@ -1171,6 +1182,22 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   ghid_graphics_class.fill_pcb_polygon = ghid_fill_pcb_polygon;
   ghid_graphics_class.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
   ghid_graphics_class.fill_pcb_pv = ghid_fill_pcb_pv_2d; /* 2D, BB Via aware (with layer end-point annotations) */
+
+  test_model =
+    NULL;
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/Resistor_vr68.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/Ceramite_2500z_10kV.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/Filament_Transformer.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/object3d_test.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/step_interlayer_manual.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/DPAK.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/Inductor_R1.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/Capacitor_100V_10uF.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/shape_rep.step");
+//    step_model_to_shape_master ("/home/pcjc2/gedasrc/pcb/git/src/example_step/7446722007_handfixed.stp");
+
+  if (test_model != NULL)
+    step_read_test = test_model->object;
 }
 
 void
@@ -1770,8 +1797,8 @@ fill_board_outline (hidGC gc, const BoxType *drawn_area)
     polygon.BoundingBox = *drawn_area;
   polygon.Flags = NoFlags ();
   SET_FLAG (FULLPOLYFLAG, &polygon);
-//  hid_draw_fill_pcb_polygon (gc, &polygon, drawn_area);
-  hid_draw_thin_pcb_polygon (gc, &polygon, drawn_area);
+  hid_draw_fill_pcb_polygon (gc, &polygon, drawn_area);
+//  hid_draw_thin_pcb_polygon (gc, &polygon, drawn_area);
   poly_FreeContours (&polygon.NoHoles);
 }
 
@@ -2215,10 +2242,87 @@ via_hole_cyl_callback (const BoxType * b, void *cl)
   return 0;
 }
 
+static void
+hidgl_draw_step_model_instance (struct assembly_model_instance *instance)
+{
+  render_priv *priv = gport->render_priv;
+  step_model *step_model = instance->model->step_model;
+  GLfloat m[4][4];
+  double ox, oy, oz;
+
+  if (step_model == NULL)
+    return;
+
+  hidgl_flush_triangles (priv->hidgl);
+  glPushAttrib (GL_CURRENT_BIT);
+  glPushMatrix ();
+
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
+
+//  /* KLUDGE */
+//  glTranslatef (0.0, 0.0, BOARD_THICKNESS / 2.0);
+
+
+  // OpenGL matrix layout (numbers are memory offsets)
+  // [ 0  4   8  12 ]
+  // [ 1  5   9  13 ]
+  // [ 2  6  10  14 ]
+  // [ 3  7  11  15 ]
+
+  glTranslatef (STEP_TO_COORD_X (PCB, instance->ox),
+                STEP_TO_COORD_Y (PCB, instance->oy),
+                STEP_TO_COORD_Z (PCB, instance->oz));
+
+  /* Undo -Y coord scaling */
+  glScalef (1.0f, -1.0f, 1.0f);
+
+  ox = instance->ay * instance->rz - instance->az * instance->ry;
+  oy = instance->az * instance->rx - instance->ax * instance->rz;
+  oz = instance->ax * instance->ry - instance->ay * instance->rx;
+  m[0][0] = instance->rx;  m[1][0] = ox;    m[2][0] = instance->ax;    m[3][0] = 0.0f;
+  m[0][1] = instance->ry;  m[1][1] = oy;    m[2][1] = instance->ay;    m[3][1] = 0.0f;
+  m[0][2] = instance->rz;  m[1][2] = oz;    m[2][2] = instance->az;    m[3][2] = 0.0f;
+  m[0][3] = 0.0f;          m[1][3] = 0.0f;  m[2][3] = 0.0f;            m[3][3] = 1.0f;
+  glMultMatrixf(&m[0][0]);
+
+  ox = step_model->ay * step_model->rz - step_model->az * step_model->ry;
+  oy = step_model->az * step_model->rx - step_model->ax * step_model->rz;
+  oz = step_model->ax * step_model->ry - step_model->ay * step_model->rx;
+  // NB: The matrix indexes below are transposed from the visual layout
+  // As the matrix is orthogonal, this should give us the inverse matrix
+  m[0][0] = step_model->rx;  m[0][1] = ox;    m[0][2] = step_model->ax;  m[0][3] = 0.0f;
+  m[1][0] = step_model->ry;  m[1][1] = oy;    m[1][2] = step_model->ay;  m[1][3] = 0.0f;
+  m[2][0] = step_model->rz;  m[2][1] = oz;    m[2][2] = step_model->az;  m[2][3] = 0.0f;
+  m[3][0] = 0.0f;            m[3][1] = 0.0f;  m[3][2] = 0.0f;            m[3][3] = 1.0f;
+  glMultMatrixf(&m[0][0]);
+
+  /* Undo -Y coord scaling */
+  glScalef (1.0f, -1.0f, 1.0f);
+
+  glTranslatef (-STEP_TO_COORD_X (PCB, step_model->ox),
+                -STEP_TO_COORD_Y (PCB, step_model->oy),
+                -STEP_TO_COORD_Z (PCB, step_model->oz));
+
+  object3d_draw (step_model->object);
+
+  hidgl_flush_triangles (priv->hidgl);
+
+  glPopMatrix ();
+  glPopAttrib ();
+}
+
 static int
-frontE_package_callback (const BoxType * b, void *cl)
+E_package_callback (const BoxType * b, void *cl)
 {
   ElementType *element = (ElementType *) b;
+  int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+  Coord depth = compute_depth (layer_group);
+
+
+  if (element->assembly_model_instance != NULL)
+    {
+      hidgl_draw_step_model_instance (element->assembly_model_instance);
+    }
 
   if (FRONT (element))
     {
@@ -2226,33 +2330,27 @@ frontE_package_callback (const BoxType * b, void *cl)
         return 0;
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "ACY400") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_acy_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_acy_resistor (element, depth, BOARD_THICKNESS);
       }
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "800mil_resistor.fp") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_800mil_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_800mil_resistor (element, depth, BOARD_THICKNESS);
       }
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "2300mil_resistor.fp") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_2300mil_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_2300mil_resistor (element, depth, BOARD_THICKNESS);
       }
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "diode_700mil_surface.fp") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_700mil_diode_smd (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_700mil_diode_smd (element, depth, BOARD_THICKNESS);
       }
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "cap_100V_10uF.fp") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_1650mil_cap (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_1650mil_cap (element, depth, BOARD_THICKNESS);
       }
 
       if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "cap_15000V_2500pF.fp") == 0) {
-        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
-        hidgl_draw_350x800mil_cap (element, compute_depth (layer_group), BOARD_THICKNESS);
+        hidgl_draw_350x800mil_cap (element, depth, BOARD_THICKNESS);
       }
     }
   return 1;
@@ -2261,8 +2359,7 @@ frontE_package_callback (const BoxType * b, void *cl)
 static void
 ghid_draw_packages (BoxType *drawn_area)
 {
-  /* XXX: Just the front elements for now */
-  r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_package_callback, NULL);
+  r_search (PCB->Data->element_tree, drawn_area, NULL, E_package_callback, NULL);
 }
 
 void
@@ -2470,6 +2567,8 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     do_once = false;
     object3d_test_init ();
   }
+
+  step_load_models (BOARD_THICKNESS);
 
 //  printf ("Expose event at (%i,%i): %i x %i\n", ev->area.x, ev->area.y, ev->area.width, ev->area.height);
 //  printf ("Event type %i, send_event %i\n", ev->type, ev->send_event);
@@ -2797,7 +2896,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     hidgl_flush_triangles (priv->hidgl);
   }
 
-  glEnable (GL_LIGHTING);
+//  glEnable (GL_LIGHTING);
 
   glShadeModel (GL_SMOOTH);
 
@@ -2856,7 +2955,9 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glDisable (GL_LIGHTING);
 
   draw_crosshair (Output.fgGC, priv);
-//  object3d_draw_debug ();
+  //object3d_draw_debug ();
+  if (step_read_test != NULL)
+    object3d_draw (step_read_test);
 
   hidgl_flush_triangles (priv->hidgl);
 

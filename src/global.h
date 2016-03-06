@@ -430,6 +430,7 @@ typedef struct
   GList *Arc;
   BoxType VBox;
   AttributeListType Attributes;
+  void *assembly_model_instance; /* XXX: Opaque type? */
 } ElementType;
 
 /* ---------------------------------------------------------------------------
@@ -736,7 +737,7 @@ typedef struct
 {
   bool status;
   Coord X, Y;
-} MarkType;
+} _MarkType;
 
 /*!
  * \brief Our resources.

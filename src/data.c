@@ -45,7 +45,7 @@
  */
 
 CrosshairType Crosshair;	/*!< information about cursor settings. */
-MarkType Marked;		/*!< a cross-hair mark. */
+_MarkType Marked;		/*!< a cross-hair mark. */
 OutputType Output;		/*!< some widgets ... used for drawing. */
 PCBType *PCB;			/*!< pointer to layout struct. */
 

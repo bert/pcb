@@ -94,6 +94,7 @@
 #include <glib.h>
 
 extern "C" {
+typedef struct step_model step_model;
 #include "assembly.h"
 }
 

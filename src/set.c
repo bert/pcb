@@ -358,7 +358,7 @@ SetRouteStyle (char *name)
 void
 SetLocalRef (Coord X, Coord Y, bool Showing)
 {
-  static MarkType old;
+  static _MarkType old;
   static int count = 0;
 
   if (Showing)

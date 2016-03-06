@@ -13,6 +13,18 @@ typedef struct
   double nz;
   double radius;
 
+  /* For b-splines */
+  bool is_bspline;
+  int degree;
+  int num_control_points; /* Number of (triplet x,y,z) control points - control points array holds 3x more doubles */
+  double *control_points; /* Pointer to array of control points (in x,y,z triplets) */
+  /* Number of knots is (num_control_points + degree + 1) */
+  double *knots;          /* Pointer to array of knot values */
+
+  /* Rational b-splines */
+  double *weights; /* Pointer to array of weights for the control points */
+
+
   /* XXX: STEP specific - breaks encapsulation */
   step_id infinite_line_identifier;
   step_id edge_identifier;

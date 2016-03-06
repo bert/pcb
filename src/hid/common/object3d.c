@@ -153,11 +153,72 @@ float colors[12][3] = {{1., 0., 0.},
                        {0.5, 1., 1.}};
 
 
-#define CIRC_SEGS 64
+#define CIRC_SEGS_D 64.0
+
+
+static void
+evaluate_bspline (edge_info *info, double u, double *x, double *y, double *z)
+{
+//  info->
+}
+
+static void
+draw_bspline (edge_ref e)
+{
+  edge_info *info = UNDIR_DATA(e);
+  double x1, y1, z1;
+  double x2, y2, z2;
+  double lx, ly, lz;
+  double x, y, z;
+  int i;
+
+  x1 = ((vertex3d *)ODATA(e))->x;
+  y1 = ((vertex3d *)ODATA(e))->y;
+  z1 = ((vertex3d *)ODATA(e))->z;
+
+  x2 = ((vertex3d *)DDATA(e))->x;
+  y2 = ((vertex3d *)DDATA(e))->y;
+  z2 = ((vertex3d *)DDATA(e))->z;
+
+  glBegin (GL_LINES);
+
+#if 0
+  for (i = 0; i < 20; i++, lx = x, ly = y, lz = z) /* Pieces */
+    {
+      evaluate_bspline (edge_info, i / 20.0, &x, &y, &z);
+
+      if (i > 0)
+        {
+          glVertex3f (STEP_X_TO_COORD (PCB, lx), STEP_Y_TO_COORD (PCB, ly), STEP_Z_TO_COORD (PCB, lz));
+          glVertex3f (STEP_X_TO_COORD (PCB,  x), STEP_Y_TO_COORD (PCB,  y), STEP_Z_TO_COORD (PCB,  z));
+        }
+    }
+#endif
+
+  /* Just draw the control points for now... */
+  for (i = 0; i < info->num_control_points; i++, lx = x, ly = y, lz = z) /* Pieces */
+    {
+      x = info->control_points[i * 3 + 0];
+      y = info->control_points[i * 3 + 1];
+      z = info->control_points[i * 3 + 2];
+
+      if (i > 0)
+        {
+          glVertex3f (STEP_X_TO_COORD (PCB, lx), STEP_Y_TO_COORD (PCB, ly), STEP_Z_TO_COORD (PCB, lz));
+          glVertex3f (STEP_X_TO_COORD (PCB,  x), STEP_Y_TO_COORD (PCB,  y), STEP_Z_TO_COORD (PCB,  z));
+        }
+    }
+
+  glEnd ();
+}
 
 static void
 draw_quad_edge (edge_ref e, void *data)
 {
+  double x1, y1, z1;
+  double x2, y2, z2;
+  int i;
+
 #if 0
   int id = ID(e) % 12;
 
@@ -166,47 +227,172 @@ draw_quad_edge (edge_ref e, void *data)
   glColor3f (1., 1., 1.);
 #endif
 
+  x1 = ((vertex3d *)ODATA(e))->x;
+  y1 = ((vertex3d *)ODATA(e))->y;
+  z1 = ((vertex3d *)ODATA(e))->z;
+
+  x2 = ((vertex3d *)DDATA(e))->x;
+  y2 = ((vertex3d *)DDATA(e))->y;
+  z2 = ((vertex3d *)DDATA(e))->z;
+
   if (UNDIR_DATA(e) != NULL)
     {
       edge_info *info = UNDIR_DATA(e);
+
 //      if (info->is_stitch)
 //        return;
+
+      if (info->is_bspline)
+        {
+          draw_bspline (e);
+          return;
+        }
+
       if (info->is_round)
         {
           int i;
-          glBegin (GL_LINES);
-          for (i = 0; i < CIRC_SEGS; i++)
+          double cx, cy, cz;
+          double nx, ny, nz;
+          double refx, refy, refz;
+          double endx, endy, endz;
+          double ortx, orty, ortz;
+          double cosa;
+          double sina;
+          double recip_length;
+          double da;
+          int segs;
+          double angle_step;
+
+          cx = ((edge_info *)UNDIR_DATA(e))->cx;
+          cy = ((edge_info *)UNDIR_DATA(e))->cy;
+          cz = ((edge_info *)UNDIR_DATA(e))->cz;
+
+          nx = ((edge_info *)UNDIR_DATA(e))->nx;
+          ny = ((edge_info *)UNDIR_DATA(e))->ny;
+          nz = ((edge_info *)UNDIR_DATA(e))->nz;
+
+          /* STEP MAY ACTUALLY SPECIFY A DIFFERENT REF DIRECTION, BUT FOR NOW, LETS ASSUME IT POINTS
+           * TOWARDS THE FIRST POINT. (We don't record the STEP ref direction in our data-structure at the moment).
+           */
+          refx = x1 - cx;
+          refy = y1 - cy;
+          refz = z1 - cz;
+
+          /* Normalise refx */
+          recip_length = 1. / hypot (hypot (refx, refy), refz);
+          refx *= recip_length;
+          refy *= recip_length;
+          refz *= recip_length;
+
+          endx = x2 - cx;
+          endy = y2 - cy;
+          endz = z2 - cz;
+
+          /* Normalise endx */
+          recip_length = 1. / hypot (hypot (endx, endy), endz);
+          endx *= recip_length;
+          endy *= recip_length;
+          endz *= recip_length;
+
+          /* ref cross normal */
+          /* ort will be orthogonal to normal and ref vector */
+          ortx = ny * refz - nz * refy;
+          orty = nz * refx - nx * refz;
+          ortz = nx * refy - ny * refx;
+
+          /* Cosine is dot product of ref (normalised) and end (normalised) */
+          cosa = refx * endx + refy * endy + refz * endz; // cos (phi)
+          /* Sine is dot product of ort (normalised) and end (normalised) */
+          sina = ortx * endx + orty * endy + ortz * endz; // sin (phi) = cos (phi - 90)
+
+          if (x1 == x2 &&
+              y1 == y2 &&
+              z1 == z2)
             {
-              /* XXX: THIS ASSUMES THE CIRCLE LIES IN THE X-Y PLANE */
-              glVertex3f (STEP_X_TO_COORD (PCB, info->cx + info->radius * cos (i * 2. * M_PI / (double)CIRC_SEGS)),
-                          STEP_Y_TO_COORD (PCB, info->cy + info->radius * sin (i * 2. * M_PI / (double)CIRC_SEGS)),
-                          STEP_Z_TO_COORD (PCB, info->cz));
-              glVertex3f (STEP_X_TO_COORD (PCB, info->cx + info->radius * cos ((i + 1) * 2. * M_PI / (double)CIRC_SEGS)),
-                          STEP_Y_TO_COORD (PCB, info->cy + info->radius * sin ((i + 1) * 2. * M_PI / (double)CIRC_SEGS)),
-                          STEP_Z_TO_COORD (PCB, info->cz));
+              da = 2.0 * M_PI;
             }
+          else
+            {
+              /* Delta angled */
+              da = atan2 (sina, cosa);
+
+              if (da < 0.0)
+                da += 2.0 * M_PI;
+            }
+
+#if 0
+          printf ("(%f, %f, %f)  (%f, %f, %f)\n", x1, y1, z1, x2, y2, z2);
+          printf ("ref (%f, %f, %f)\n", refx, refy, refz);
+          printf ("end (%f, %f, %f)\n", endx, endy, endz);
+          printf ("ort (%f, %f, %f)\n", ortx, orty, ortz);
+          printf ("n (%f, %f, %f)\n", nx, ny, nz);
+          printf ("cosa %f, sina %f\n", cosa, sina);
+          printf ("Got an arc with angle %f\n", da * 180. / M_PI);
+#endif
+
+          /* Scale up ref and ort to the actual vector length */
+          refx *= info->radius;
+          refy *= info->radius;
+          refz *= info->radius;
+
+          ortx *= info->radius;
+          orty *= info->radius;
+          ortz *= info->radius;
+
+          /* XXX: NEED TO COMPUTE WHICH SEGMENT OF THE CURVE TO ACTUALLY DRAW! */
+          segs = CIRC_SEGS_D * da / (2.0 * M_PI);
+          segs = MAX(segs, 1);
+          angle_step = da / (double)segs;
+
+          glBegin (GL_LINES);
+
+          for (i = 0; i < segs; i++)
+            {
+              cosa = cos (i * angle_step);
+              sina = sin (i * angle_step);
+              glVertex3f (STEP_X_TO_COORD (PCB, info->cx + refx * cosa + ortx * sina),
+                          STEP_Y_TO_COORD (PCB, info->cy + refy * cosa + orty * sina),
+                          STEP_Z_TO_COORD (PCB, info->cz + refz * cosa + ortz * sina));
+
+              cosa = cos ((i + 1) * angle_step);
+              sina = sin ((i + 1) * angle_step);
+              glVertex3f (STEP_X_TO_COORD (PCB, info->cx + refx * cosa + ortx * sina),
+                          STEP_Y_TO_COORD (PCB, info->cy + refy * cosa + orty * sina),
+                          STEP_Z_TO_COORD (PCB, info->cz + refz * cosa + ortz * sina));
+            }
+
           glEnd ();
+
           return;
         }
     }
 
+//  printf ("Drawing line (%f, %f, %f)-(%f, %f, %f)\n", x1, y1, z1, x2, y2, z2);
   glBegin (GL_LINES);
-  glVertex3f (STEP_X_TO_COORD (PCB, ((vertex3d *)ODATA(e))->x),
-              STEP_Y_TO_COORD (PCB, ((vertex3d *)ODATA(e))->y),
-              STEP_X_TO_COORD (PCB, ((vertex3d *)ODATA(e))->z));
-  glVertex3f (STEP_X_TO_COORD (PCB, ((vertex3d *)DDATA(e))->x),
-              STEP_Y_TO_COORD (PCB, ((vertex3d *)DDATA(e))->y),
-              STEP_X_TO_COORD (PCB, ((vertex3d *)DDATA(e))->z));
+  glVertex3f (STEP_X_TO_COORD (PCB, x1),
+              STEP_Y_TO_COORD (PCB, y1),
+              STEP_X_TO_COORD (PCB, z1));
+  glVertex3f (STEP_X_TO_COORD (PCB, x2),
+              STEP_Y_TO_COORD (PCB, y2),
+              STEP_X_TO_COORD (PCB, z2));
   glEnd ();
+}
+
+void
+object3d_draw (object3d *object)
+{
+  g_return_if_fail (object->edges != NULL);
+
+//  quad_enum ((edge_ref)object->edges->data, draw_quad_edge, NULL);
+//  printf ("BEGIN DRAW...\n");
+  g_list_foreach (object->edges, (GFunc)draw_quad_edge, NULL);
+//  printf ("....ENDED\n");
 }
 
 static void
 object3d_draw_debug_single (object3d *object, void *user_data)
 {
-  g_return_if_fail (object->edges != NULL);
-
-//  quad_enum ((edge_ref)object->edges->data, draw_quad_edge, NULL);
-  g_list_foreach (object->edges, (GFunc)draw_quad_edge, NULL);
+  object3d_draw (object);
 }
 
 void
@@ -673,7 +859,7 @@ object3d_from_contours (POLYAREA *contours,
         }
 
 #ifndef NDEBUG
-      ct = contour;
+      ct = outer_contour;
       start_of_ct = 0;
       offset_in_ct = 0;
       ct_npoints = get_contour_npoints (ct);
@@ -1551,7 +1737,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 
   min_copper_group = MIN (bottom_group, top_group);
   max_copper_group = MAX (bottom_group, top_group);
-  group_step = max_copper_group - min_copper_group;
+//  group_step = max_copper_group - min_copper_group; // OUTER LAYERS ONLY
 
   group_m_polyarea = calloc (max_copper_group + 1, sizeof (POLYAREA *));
 

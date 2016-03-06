@@ -49,10 +49,12 @@
 #  define DEBUG_PRODUCT_DEFINITION_SEARCH
 #  define DEBUG_CHILD_REMOVAL
 #  define DEBUG_PRODUCT_DEFINITION
+#  define DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
 #else
 #  undef DEBUG_PRODUCT_DEFINITION_SEARCH
 #  undef DEBUG_CHILD_REMOVAL
 #  undef DEBUG_PRODUCT_DEFINITION
+#  undef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
 #endif
 
 #include <glib.h>
@@ -62,7 +64,12 @@ void
 find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list, int start_after_id)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
-  int search_index = instance_list->GetIndex (mnode) + 1;
+  int search_index;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
 
   // Loop over the instances of SHAPE_DEFITION_REPRESENTATION in the file
   SdaiShape_definition_representation *sdr;
@@ -119,7 +126,12 @@ void
 find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, int start_after_id, const char *entityName)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
-  int search_index = instance_list->GetIndex (mnode) + 1;
+  int search_index;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
 
   SdaiAssembly_component_usage *acu;
   while (ENTITY_NULL != (acu = (SdaiAssembly_component_usage *)
@@ -152,7 +164,12 @@ static SdaiProduct_definition *
 find_pd_for_sr (InstMgr *instance_list, int start_after_id, SdaiShape_representation *target_sr)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
-  int search_index = instance_list->GetIndex (mnode) + 1;
+  int search_index;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
 
   // Loop over the instances of SHAPE_DEFITION_REPRESENTATION in the file
   SdaiShape_definition_representation *sdr;
@@ -178,7 +195,12 @@ void
 find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list, int start_after_id)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
-  int search_index = instance_list->GetIndex (mnode) + 1;
+  int search_index;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
 
   SdaiMapped_item *mi;
   while (ENTITY_NULL != (mi = (SdaiMapped_item *)
@@ -267,4 +289,165 @@ find_axis2_placement_3d_in_sr (SdaiShape_representation *sr)
     }
 
   return NULL;
+}
+
+void
+find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_after_id, SdaiRepresentation *rep_1)
+{
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
+
+  // Loop over the instances of SHAPE_REPRESENTATION_RELATIONSHIP in the file
+  SdaiShape_representation_relationship *srr;
+  while (ENTITY_NULL != (srr = (SdaiShape_representation_relationship *)
+                               instance_list->GetApplication_instance ("Shape_representation_relationship", search_index)))
+    {
+      SdaiRepresentation *found_rep_1 = srr->rep_1_ ();
+#ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
+      SdaiRepresentation *found_rep_2 = srr->rep_2_ ();
+#endif
+
+      if (srr->IsComplex())
+        {
+          std::cout << "ERROR: Found a complex SRR when we were expecting a simplex" << std::endl;
+          return;
+        }
+
+      if (found_rep_1 == rep_1)
+        srr_list->push_back (srr);
+
+#ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
+      std::cout << "Got a SRR, #" << srr->StepFileId ();
+      std::cout << " rep_1 = #" << found_rep_1->StepFileId ();
+      std::cout << " rep_2 = #" << found_rep_2->StepFileId ();
+      std::cout << std::endl;
+#endif
+
+      int id = srr->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+}
+
+void
+find_all_srr_rrwt_with_rep_1( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_list, int start_after_id, SdaiRepresentation *rep_1)
+{
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index;
+  SDAI_Application_instance *entity;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
+
+  while (ENTITY_NULL != (entity = instance_list->GetApplication_instance ("Representation_relationship", search_index)))
+    {
+      STEPcomplex *stepcomplex;
+      STEPattribute *attr;
+      SdaiRepresentation *found_rep_1 = NULL;
+      SdaiRepresentation *found_rep_2 = NULL;
+      SdaiTransformation *transform = NULL;
+      SdaiItem_defined_transformation *idt = NULL;
+
+      bool found_srr = false;
+      bool found_rrwt = false;
+
+      if (!entity->IsComplex())
+        {
+          std::cout << "WARNING: Found a non-complex Representation_relationship when looking for SRR + RRWT" << std::endl;
+          continue;
+        }
+
+      stepcomplex = dynamic_cast<STEPcomplex *>(entity)->head;
+
+      /* Assume the first is always the RR */
+      stepcomplex->ResetAttributes ();
+      while ((attr = stepcomplex->NextAttribute()) != NULL) {
+          if (!strcmp (attr->Name (), "rep_1"))
+            found_rep_1 = dynamic_cast<SdaiRepresentation *>(attr->Entity ());
+          if (!strcmp (attr->Name (), "rep_2"))
+            found_rep_2 = dynamic_cast<SdaiRepresentation *>(attr->Entity ());
+      }
+
+      while (stepcomplex) {
+          if (stepcomplex->EntityName() == NULL)
+            {
+              std::cout << "ERROR: NULL whilst traversing complex" << std::endl;
+              return;
+            }
+          else if (!strcmp (stepcomplex->EntityName (), "Shape_Representation_Relationship"))
+            {
+              found_srr = true;
+            }
+          else if (!strcmp (stepcomplex->EntityName (), "Representation_Relationship_With_Transformation"))
+            {
+              found_rrwt = true;
+
+              stepcomplex->ResetAttributes ();
+              while ((attr = stepcomplex->NextAttribute()) != NULL)
+                {
+                  if (!strcmp (attr->Name (), "transformation_operator"))
+                    {
+                      transform = dynamic_cast<SdaiTransformation *>(attr->Select ());
+                      idt = *transform;
+                    }
+                }
+            }
+          stepcomplex = stepcomplex->sc;
+      }
+
+#ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
+      std::cout << "GOT A complex, #" << entity->StepFileId () << ":" << std::endl;
+      std::cout << "    RR";
+
+      if (found_rep_1 != NULL)
+        std::cout << " rep_1 = #" << found_rep_1->StepFileId ();
+      else
+        std::cout << " rep_1 = NIL";
+
+      if (found_rep_2 != NULL)
+        std::cout << " rep_2 = #" << found_rep_2->StepFileId ();
+      else
+        std::cout << " rep_2 = NIL";
+
+      std::cout << std::endl;
+
+      if (found_srr)
+        std::cout << "    SRR" << std::endl;
+
+      if (found_rrwt)
+        {
+          std::cout << "    RRWT, transform = ";
+          if (transform != NULL)
+            std::cout << "#" << idt->StepFileId () << std::endl;
+          else
+            std::cout << "NIL" << std::endl;
+        }
+
+      std::cout << std::endl;
+#endif
+
+      if (found_rep_1 == rep_1 &&
+          found_srr &&
+          found_rrwt)
+        {
+          srr_rrwt *item = new srr_rrwt;
+
+          item->rep_2 = found_rep_2;
+          item->idt = idt;
+
+          srr_rrwt_list->push_back (item);
+        }
+
+      int id = entity->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+
 }
