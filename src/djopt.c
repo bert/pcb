@@ -3068,6 +3068,8 @@ ActionDJopt (int argc, char **argv, Coord x, Coord y)
   for (layn = 0; layn < max_copper_layer; layn++)
     {
       LayerType *layer = LAYER_PTR (layn);
+      if (layer->Type != LT_COPPER)
+	continue;
 
       LINE_LOOP (layer);
 	{
