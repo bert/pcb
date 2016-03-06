@@ -830,7 +830,7 @@ static int
 check_point_in_pin (PinType *pin, Coord x, Coord y, End *e)
 {
   int inside_p;
-  Coord t = (pin->Thickness+1)/2;
+  Coord t = (PIN_SIZE(pin)+1)/2;
   if (TEST_FLAG (SQUAREFLAG, pin))
     inside_p = (x >= pin->X - t && x <= pin->X + t
 		&& y >= pin->Y - t && y <= pin->Y + t);
@@ -872,13 +872,13 @@ find_pair_pinline_callback (const BoxType * b, void *cl)
    * ones for now. */
   if (dist_lsp (line->Point1.X, line->Point1.Y,
 		line->Point2.X, line->Point2.Y,
-		pin->X, pin->Y) <= pin->Thickness/2)
+		pin->X, pin->Y) <= PIN_SIZE(pin)/2)
     {
 #if TRACE1
       pcb_printf("splitting line %#mD-%#mD because it passes through pin %#mD r%d\n",
 	     line->Point1.X, line->Point1.Y,
 	     line->Point2.X, line->Point2.Y,
-	     pin->X, pin->Y, pin->Thickness/2);
+	      pin->X, pin->Y, PIN_SIZE(pin)/2);
 #endif
       unlink_end (e, &e->start.next);
       unlink_end (e, &e->end.next);
@@ -1111,20 +1111,20 @@ find_pairs ()
 
   ALLPIN_LOOP (PCB->Data); {
     BoxType box;
-    box.X1 = pin->X - pin->Thickness/2;
-    box.Y1 = pin->Y - pin->Thickness/2;
-    box.X2 = pin->X + pin->Thickness/2;
-    box.Y2 = pin->Y + pin->Thickness/2;
+    box.X1 = pin->X - PIN_SIZE(pin)/2;
+    box.Y1 = pin->Y - PIN_SIZE(pin)/2;
+    box.X2 = pin->X + PIN_SIZE(pin)/2;
+    box.Y2 = pin->Y + PIN_SIZE(pin)/2;
     r_search (CURRENT->line_tree, &box, NULL, find_pair_pinline_callback, pin);
     r_search (CURRENT->arc_tree, &box, NULL, find_pair_pinarc_callback, pin);
   } ENDALL_LOOP;
 
   VIA_LOOP (PCB->Data); {
     BoxType box;
-    box.X1 = via->X - via->Thickness/2;
-    box.Y1 = via->Y - via->Thickness/2;
-    box.X2 = via->X + via->Thickness/2;
-    box.Y2 = via->Y + via->Thickness/2;
+    box.X1 = via->X - PIN_SIZE(via)/2;
+    box.Y1 = via->Y - PIN_SIZE(via)/2;
+    box.X2 = via->X + PIN_SIZE(via)/2;
+    box.Y2 = via->Y + PIN_SIZE(via)/2;
     r_search (CURRENT->line_tree, &box, NULL, find_pair_pinline_callback, via);
     r_search (CURRENT->arc_tree, &box, NULL, find_pair_pinarc_callback, via);
   } END_LOOP;
@@ -1775,7 +1775,7 @@ static int
 gp_pin_cb (const BoxType *b, void *cb)
 {
   const PinType *p = (PinType *) b;
-  Coord t2 = (p->Thickness+1)/2;
+  Coord t2 = (PIN_SIZE(p)+1)/2;
 
   if (p == start_pinpad || p == end_pinpad)
     return 0;
