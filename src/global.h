@@ -48,6 +48,7 @@
 #include "const.h"
 #include "macro.h"
 
+#include <locale.h>
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
