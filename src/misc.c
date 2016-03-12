@@ -964,6 +964,7 @@ make_route_string (RouteStyleType rs[], int n_styles)
       if (i > 0)
         g_string_append_c (str, ':');
       g_string_append (str, r_string);
+      g_free (r_string);
     }
   return g_string_free (str, FALSE);
 }
