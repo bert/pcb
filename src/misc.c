@@ -622,7 +622,7 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
 {
   SymbolType *symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  int i;
+  Cardinal i;
   int space;
 
   Coord minx, miny, maxx, maxy, tx;

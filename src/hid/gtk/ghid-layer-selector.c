@@ -195,8 +195,9 @@ toggle_visibility (GHidLayerSelector *ls, GtkTreeIter *iter, gboolean emit)
 
 /*! \brief Decide if a GtkListStore entry is a layer or separator */
 static gboolean
-tree_view_separator_func (GtkTreeModel *model, GtkTreeIter *iter,
-                          gpointer data)
+tree_view_separator_func (GtkTreeModel *model,
+                          GtkTreeIter *iter,
+            G_GNUC_UNUSED gpointer data)
 {
   gboolean ret_val;
   gtk_tree_model_get (model, iter, SEPARATOR_COL, &ret_val, -1);
@@ -205,8 +206,11 @@ tree_view_separator_func (GtkTreeModel *model, GtkTreeIter *iter,
 
 /*! \brief Decide if a GtkListStore entry may be selected */
 static gboolean
-tree_selection_func (GtkTreeSelection *selection, GtkTreeModel *model,
-                     GtkTreePath *path, gboolean selected, gpointer data)
+tree_selection_func (G_GNUC_UNUSED GtkTreeSelection *selection,
+                     GtkTreeModel *model,
+                     GtkTreePath *path,
+                     G_GNUC_UNUSED gboolean selected,
+                     G_GNUC_UNUSED gpointer data)
 {
   GtkTreeIter iter;
 
@@ -284,10 +288,10 @@ selection_changed_cb (GtkTreeSelection *selection, GHidLayerSelector *ls)
 
 /*! \brief Callback for when a layer name has been edited  */
 static void
-layer_name_editing_started_cb (GtkCellRenderer *renderer,
-                               GtkCellEditable *editable,
-                               gchar           *path,
-                               gpointer         user_data)
+layer_name_editing_started_cb (G_GNUC_UNUSED GtkCellRenderer *renderer,
+                               G_GNUC_UNUSED GtkCellEditable *editable,
+                               G_GNUC_UNUSED gchar           *path,
+                               G_GNUC_UNUSED gpointer         user_data)
 {
   /* When editing begins, we need to detach PCB's accelerators
    * so they don't steal all the user's keystrokes.
@@ -302,8 +306,8 @@ layer_name_editing_started_cb (GtkCellRenderer *renderer,
 
 /*! \brief Callback for when layer name editing has been canceled */
 static void
-layer_name_editing_canceled_cb (GtkCellRenderer *renderer,
-                                 gpointer         user_data)
+layer_name_editing_canceled_cb (G_GNUC_UNUSED GtkCellRenderer *renderer,
+                                G_GNUC_UNUSED gpointer         user_data)
 {
   /* Put PCB's accelerators back.
    *
@@ -316,7 +320,7 @@ layer_name_editing_canceled_cb (GtkCellRenderer *renderer,
 
 /*! \brief Callback for when a layer name has been edited  */
 static void
-layer_name_edited_cb (GtkCellRendererText *renderer,
+layer_name_edited_cb (G_GNUC_UNUSED GtkCellRendererText *renderer,
                       gchar               *path,
                       gchar               *new_text,
                       gpointer             user_data)
@@ -539,6 +543,7 @@ ghid_layer_selector_get_type (void)
 	sizeof (GHidLayerSelector),
 	0,    /* n_preallocs */
 	(GInstanceInitFunc) ghid_layer_selector_init,
+	NULL  /* value_table */
       };
 
       ls_type = g_type_register_static (GTK_TYPE_TREE_VIEW,
@@ -829,8 +834,10 @@ struct layer_data {
 
 /*! \brief used internally */
 static gboolean
-toggle_foreach_func (GtkTreeModel *model, GtkTreePath *path,
-                     GtkTreeIter *iter, gpointer user_data)
+toggle_foreach_func (GtkTreeModel *model,
+                     G_GNUC_UNUSED GtkTreePath *path,
+                     GtkTreeIter *iter,
+                     gpointer user_data)
 {
   struct layer_data *data = (struct layer_data *) user_data;
   gint id;

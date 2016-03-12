@@ -440,7 +440,7 @@ original_poly (PolygonType * p)
   POLYAREA *np = NULL;
   Cardinal n;
   Vector v;
-  int hole = 0;
+  unsigned int hole = 0;
 
   if ((np = poly_Create ()) == NULL)
     return NULL;

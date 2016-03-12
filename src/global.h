@@ -178,7 +178,7 @@ typedef struct
 	BoxType		BoundingBox;	\
 	long int	ID;		\
 	FlagType	Flags;		\
-	Coord		ExtraDrcClearance; \
+	Coord		ExtraDrcClearance \
 	//	struct LibraryEntryType *net
 
 /* Lines, pads, and rats all use this so they can be cross-cast.  */

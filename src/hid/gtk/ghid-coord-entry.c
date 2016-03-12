@@ -59,7 +59,9 @@ menu_item_activate_cb (GtkMenuItem *item, GHidCoordEntry *ce)
 
 /*! \brief Callback for context menu creation */
 static void
-ghid_coord_entry_popup_cb (GHidCoordEntry *ce, GtkMenu *menu, gpointer data)
+ghid_coord_entry_popup_cb (GHidCoordEntry *ce,
+                           GtkMenu *menu,
+             G_GNUC_UNUSED gpointer data)
 {
   int i, n;
   const Unit *unit_list;
@@ -92,7 +94,8 @@ ghid_coord_entry_popup_cb (GHidCoordEntry *ce, GtkMenu *menu, gpointer data)
 
 /*! \brief Callback for user output */
 static gboolean
-ghid_coord_entry_output_cb (GHidCoordEntry *ce, gpointer data)
+ghid_coord_entry_output_cb (GHidCoordEntry *ce,
+              G_GNUC_UNUSED gpointer data)
 {
   GtkAdjustment *adj = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (ce));
   double value = gtk_adjustment_get_value (adj);
@@ -107,7 +110,8 @@ ghid_coord_entry_output_cb (GHidCoordEntry *ce, gpointer data)
 
 /*! \brief Callback for user input */
 static gboolean
-ghid_coord_text_changed_cb (GHidCoordEntry *entry, gpointer data)
+ghid_coord_text_changed_cb (GHidCoordEntry *entry,
+              G_GNUC_UNUSED gpointer data)
 {
   const char *text;
   char *suffix;
@@ -225,6 +229,7 @@ ghid_coord_entry_get_type (void)
 	sizeof (GHidCoordEntry),
 	0,    /* n_preallocs */
 	(GInstanceInitFunc) ghid_coord_entry_init,
+        NULL  /* value_table */
       };
 
       ce_type = g_type_register_static (GTK_TYPE_SPIN_BUTTON,

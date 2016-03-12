@@ -86,7 +86,7 @@ static void
 ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
                                       GdkWindow            *window,
                                       GtkWidget            *widget,
-                                      GdkRectangle         *background_area,
+                        G_GNUC_UNUSED GdkRectangle         *background_area,
                                       GdkRectangle         *cell_area,
                                       GdkRectangle         *expose_area,
                                       GtkCellRendererState  flags)
@@ -177,12 +177,12 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
 /*! \brief Toggless the swatch */
 static gint
 ghid_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
-                                        GdkEvent             *event,
-                                        GtkWidget            *widget,
+                          G_GNUC_UNUSED GdkEvent             *event,
+                          G_GNUC_UNUSED GtkWidget            *widget,
                                         const gchar          *path,
-                                        GdkRectangle         *background_area,
-                                        GdkRectangle         *cell_area,
-                                        GtkCellRendererState  flags)
+                          G_GNUC_UNUSED GdkRectangle         *background_area,
+                          G_GNUC_UNUSED GdkRectangle         *cell_area,
+                          G_GNUC_UNUSED GtkCellRendererState  flags)
 {
   g_signal_emit (cell, toggle_cell_signals[TOGGLED], 0, path);
   return TRUE;
@@ -193,7 +193,7 @@ static void
 ghid_cell_renderer_visibility_get_property (GObject     *object,
                                             guint        param_id,
                                             GValue      *value,
-                                            GParamSpec  *pspec)
+                              G_GNUC_UNUSED GParamSpec  *pspec)
 {
   GHidCellRendererVisibility *pcb_cell =
     GHID_CELL_RENDERER_VISIBILITY (object);
@@ -211,9 +211,9 @@ ghid_cell_renderer_visibility_get_property (GObject     *object,
 
 static void
 ghid_cell_renderer_visibility_set_property (GObject      *object,
-                                               guint         param_id,
-                                               const GValue *value,
-                                               GParamSpec   *pspec)
+                                            guint         param_id,
+                                            const GValue *value,
+                              G_GNUC_UNUSED GParamSpec   *pspec)
 {
   GHidCellRendererVisibility *pcb_cell =
     GHID_CELL_RENDERER_VISIBILITY (object);
@@ -303,6 +303,7 @@ ghid_cell_renderer_visibility_get_type (void)
 	sizeof (GHidCellRendererVisibility),
 	0,    /* n_preallocs */
 	(GInstanceInitFunc) ghid_cell_renderer_visibility_init,
+        NULL  /* value_table */
       };
 
       ls_type = g_type_register_static (GTK_TYPE_CELL_RENDERER,
