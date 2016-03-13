@@ -1515,3 +1515,8 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
 
   return mb;
 }
+
+void lesstif_uninit_menu (void)
+{
+/*! \todo XtDestroyWidget (...); */
+}

@@ -430,6 +430,12 @@ typedef enum
        * main window, print, export, etc).
        */
 
+    void (*uninit) (HID *hid);
+    /*!< uninit a GUI hid. */
+
+    void (*do_exit) (HID *hid);
+    /*!< uninit a GUI hid. */
+
     void (*parse_arguments) (int *argc_, char ***argv_);
       /*!< Parse the command line.
        *
@@ -761,6 +767,11 @@ typedef enum
    * No other HID calls are valid until this is called.
    */
   void hid_init (void);
+
+  /*!
+   * \brief Call this at exit.
+   */
+  void hid_uninit (void);
 
   /*!
    * \brief When PCB runs in interactive mode, this is called to

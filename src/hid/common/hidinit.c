@@ -148,6 +148,12 @@ hid_init ()
 }
 
 void
+hid_uninit (void)
+{
+
+}
+
+void
 hid_register_hid (HID * hid)
 {
   int i;
