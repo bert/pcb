@@ -591,6 +591,7 @@ pcbflags
 		| T_FLAGS '(' STRING ')'
 			{
 			  yyPCB->Flags = string_to_pcbflags ($3, yyerror);
+                          free ($3);
 			}
 		|
 		;
@@ -627,6 +628,7 @@ pcbgroups
 			      Message(_("illegal layer-group string\n"));
 			      YYABORT;
 			    }
+                            free ($3);
 			}
 		|
 		;
@@ -679,6 +681,7 @@ pcbstyles
 					Message(_("illegal route-style string\n"));
 					YYABORT;
 				}
+                                free ($3);
 			}
 		| T_STYLES '[' STRING ']'
 			{
@@ -687,6 +690,7 @@ pcbstyles
 					Message(_("illegal route-style string\n"));
 					YYABORT;
 				}
+                                free ($3);
 			}
 		|
 		;
@@ -899,6 +903,8 @@ layer
                                   Layer->Type = string_to_layertype ($5, yyerror);
                                 else
                                   Layer->Type = guess_layertype ($4, $3, yyData);
+                                if ($5 != NULL)
+                                  free ($5);
 			}
 		  layerdata ')'
 		;
@@ -1725,7 +1731,7 @@ pad
 		;
 
 flags		: INTEGER	{ $$ = OldFlags($1); }
-		| STRING	{ $$ = string_to_flags ($1, yyerror); }
+		| STRING	{ $$ = string_to_flags ($1, yyerror); free($1); }
 		;
 
 symbols
