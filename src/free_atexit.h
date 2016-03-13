@@ -20,6 +20,7 @@
 #define leaky_malloc(size) malloc(size)
 #define leaky_calloc(nmemb, size) calloc(nmemb, size)
 #define leaky_realloc(old_memory, size) realloc(old_memory, size)
+#define leaky_strdup(str) strdup(str)
 #else
 
 void leaky_init (void);
@@ -27,6 +28,7 @@ void leaky_uninit (void);
 void *leaky_malloc (size_t size);
 void *leaky_calloc (size_t nmemb, size_t size);
 void *leaky_realloc (void* old_memory, size_t size);
+char *leaky_strdup (const char *src);
 
 
 #endif

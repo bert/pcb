@@ -11,6 +11,7 @@
 #include "global.h"
 #include "resource.h"
 #include "res_parse.h"
+#include "free_atexit.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -39,21 +40,21 @@ COMMENT		#[^\n]*
 
 %%
 
-\"[^"]*\"	{ reslval.sval = strdup(yytext+1);
+\"[^"]*\"	{ reslval.sval = leaky_strdup (yytext+1);
 		  reslval.sval[strlen(reslval.sval) - 1] = 0;
 		  return STRING; }
 
-\'[^']*\'	{ reslval.sval = strdup(yytext+1);
+\'[^']*\'	{ reslval.sval = leaky_strdup (yytext+1);
 		  reslval.sval[strlen(reslval.sval) - 1] = 0;
 		  return STRING; }
 
 {COMMENT}\n	{ res_lineno++; }
 [ \t\r\n]	{ if (yytext[0] == '\n') res_lineno++; }
 
-{INCSTR}	{ reslval.sval = strdup(yytext);
+{INCSTR}	{ reslval.sval = leaky_strdup (yytext);
 		  	  return INCLUDE; }
 
-{PARENSTR}	{ reslval.sval = strdup(yytext);
+{PARENSTR}	{ reslval.sval = leaky_strdup (yytext);
 		  	  return STRING; }
 
 .		{ return yytext[0]; }
