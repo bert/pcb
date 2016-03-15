@@ -1891,6 +1891,12 @@ pcb_main_uninit (void)
 
   for (i = 0; i < MAX_LAYER; i++)
     free (Settings.DefaultLayerName[i]);
+
+  if (Settings.FontFile != NULL)
+    {
+      free (Settings.FontFile);
+      Settings.FontFile = NULL;
+    }
 }
 
 /*!
