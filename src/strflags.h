@@ -46,5 +46,6 @@ char *flags_to_string (FlagType flags, int object_type);
 FlagType string_to_pcbflags (const char *flagstring,
 			  int (*error) (const char *msg));
 char *pcbflags_to_string (FlagType flags);
+void uninit_strflags_buf (void);
 
 #endif /* PCB_STRFLAGS_H */
