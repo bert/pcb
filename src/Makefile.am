@@ -35,6 +35,8 @@ PCB_SRCS = \
 	autoplace.h \
 	autoroute.c \
 	autoroute.h \
+	backtrace.c \
+	backtrace.h \
 	box.h \
 	buffer.c \
 	buffer.h \
