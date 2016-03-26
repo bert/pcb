@@ -26,7 +26,7 @@
  */
 
 #ifndef PCB_TOPOROUTER_H
-#define PCH_TOPOROUTER_H
+#define PCB_TOPOROUTER_H
 
 #include <assert.h>
 #include "data.h"

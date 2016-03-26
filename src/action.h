@@ -31,7 +31,7 @@
  */
 
 #ifndef	PCB_ACTION_H
-#define	PCH_ACTION_H
+#define	PCB_ACTION_H
 
 #include "global.h"
 

@@ -5,7 +5,7 @@
  */
 
 #ifndef PCB_LREALPATH_H
-#define PCH_LREALPATH_H
+#define PCB_LREALPATH_H
 
 char *lrealpath (const char *);
 
