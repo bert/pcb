@@ -1,0 +1,36 @@
+language: c
+
+os:
+  - linux
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    packages:
+      - graphviz
+
+before_install:
+  - sudo apt-get -qq update
+
+script: scripts/build.sh
+
+# blacklist
+branches:
+  except:
+    - master
+
+# whitelist
+branches:
+  only:
+    - devel
+
+notifications:
+  recipients:
+    - bert.timmerman@xs4all.nl
+  email:
+    on_success: change
+    on_failure: always
+
