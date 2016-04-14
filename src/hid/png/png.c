@@ -252,7 +252,7 @@ Scale factor in pixels/inch. Set to 0 to scale to size specified in the layout.
 %end-doc
 */
   {"dpi", "Scale factor (pixels/inch). 0 to scale to specified size",
-   HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
+   HID_Integer, 0, 10000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
 /* %start-doc options "93 PNG Options"
