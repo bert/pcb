@@ -1,5 +1,5 @@
 /*!
- * \file src/global.c
+ * \file src/global.h
  *
  * \brief Definition of types.
  *
