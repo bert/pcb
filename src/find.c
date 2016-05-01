@@ -2444,11 +2444,11 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
     return TRUE;
 
   /* now the difficult case of bloated */
-  if (Bloat > 0)
-    {
+  if (Bloat > 0) {
+
       PLINE *c;
-      for (c = P1->Clipped->contours; c; c = c->next)
-        {
+      for (c = P1->Clipped->contours; c; c = c->next) {
+
           LineType line;
           VNODE *v = &c->head;
           if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
@@ -2459,11 +2459,16 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
 
               line.Point1.X = v->point[0];
               line.Point1.Y = v->point[1];
-              line.Thickness = 2 * Bloat;
+              line.Thickness = Bloat;
+              /* Another Bloat is added by IsLineInPolygon, making the correct
+               * 2x Bloat. Perhaps we should change it there, but doing so
+               * breaks some other DRC checks which rely on the behaviour
+               * in IsLineInPolygon.
+               */
               line.Clearance = 0;
               line.Flags = NoFlags ();
-              for (v = v->next; v != &c->head; v = v->next)
-                {
+              for (v = v->next; v != &c->head; v = v->next) {
+
                   line.Point2.X = v->point[0];
                   line.Point2.Y = v->point[1];
                   SetLineBoundingBox (&line);
