@@ -26,6 +26,21 @@
       as well as in scripts.
     </_p>
   </description>
+  <keywords>
+    <keyword>pcb</keyword>
+    <keyword>circuit</keyword>
+    <keyword>board</keyword>
+    <keyword>layout</keyword>
+    <keyword>editor</keyword>
+    <keyword>gerber</keyword>
+    <keyword>gcode</keyword>
+    <keyword>layout</keyword>
+    <keyword>eda</keyword>
+    <keyword>electronics</keyword>
+    <keyword>cad</keyword>
+    <keyword>design</keyword>
+    <keyword>autorouter</keyword>
+  </keywords>
   <screenshots>
     <screenshot type="default" width="892" height="619">http://wiki.geda-project.org/_media/geda:screenshot_pcb.png</screenshot>
   </screenshots>
