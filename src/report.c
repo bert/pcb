@@ -1,29 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/report.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996,1997,1998,1999 Thomas Nau
+ * \brief .
  *
- *  This module, report.c, was written and is Copyright (C) 1997 harry eaton
+ * <hr>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * PCB, interactive printed circuit board design
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Copyright (C) 1994,1995,1996,1997,1998,1999 Thomas Nau
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * This module, report.c, was written and is Copyright (C) 1997 harry eaton
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 
@@ -554,8 +562,10 @@ ReportFoundPins (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
-/* Assumes that we start with a blank connection state,
+/*!
+ * \brief Assumes that we start with a blank connection state,
  * e.g. ClearFlagOnAllObjects() has been run.
+ *
  * Does not add its own changes to the undo system
  */
 static double
@@ -942,11 +952,6 @@ ReportNetLengthByName (char *tofind, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * reports on an object 
- * syntax: 
- */
-
 static const char report_syntax[] =
   N_("Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths|[,name])");
 
@@ -980,7 +985,9 @@ units
 @end table
 
 %end-doc */
-
+/*!
+ * \brief Reports on an object.
+ */
 static int
 Report (int argc, char **argv, Coord x, Coord y)
 {
