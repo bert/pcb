@@ -1974,7 +1974,7 @@ main (int argc, char *argv[])
     }
   else
     {
-      program_directory = ".";
+      program_directory = strdup (".");
       program_basename = program_name;
     }
   Progname = program_basename;
