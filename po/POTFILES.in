@@ -10,6 +10,7 @@ src/create.c
 src/crosshair.c
 src/drc/drc.c
 src/drc/drc_violation.c
+src/differential.c
 src/edif.y
 src/error.c
 src/file.c
