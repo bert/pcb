@@ -1,33 +1,39 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/search.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Search routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Some of the functions use dummy parameters.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* search routines
- * some of the functions use dummy parameters
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -91,16 +97,13 @@ static bool SearchElementByLocation (int, ElementType **,
 					ElementType **, ElementType **,
 					bool);
 
-/* ---------------------------------------------------------------------------
- * searches a via
- */
 struct ans_info
 {
   void **ptr1, **ptr2, **ptr3;
   bool BackToo;
   double area;
   jmp_buf env;
-  int locked;			/* This will be zero or LOCKFLAG */
+  int locked; /*!< This will be zero or \c LOCKFLAG. */
   bool found_anything;
   double nearest_sq_dist;
 };
@@ -123,6 +126,9 @@ pinorvia_callback (const BoxType * box, void *cl)
   return 1;			/* never reached */
 }
 
+/*!
+ * \brief Searches a via.
+ */
 static bool
 SearchViaByLocation (int locked, PinType ** Via, PinType ** Dummy1,
 		     PinType ** Dummy2)
@@ -147,9 +153,10 @@ SearchViaByLocation (int locked, PinType ** Via, PinType ** Dummy1,
   return true;
 }
 
-/* ---------------------------------------------------------------------------
- * searches a pin
- * starts with the newest element
+/*!
+ * \brief Searches a pin.
+ *
+ * Starts with the newest element.
  */
 static bool
 SearchPinByLocation (int locked, ElementType ** Element, PinType ** Pin,
@@ -204,9 +211,10 @@ pad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches a pad
- * starts with the newest element
+/*!
+ * \brief Searches a pad.
+ *
+ * Starts with the newest element.
  */
 static bool
 SearchPadByLocation (int locked, ElementType ** Element, PadType ** Pad,
@@ -226,10 +234,6 @@ SearchPadByLocation (int locked, ElementType ** Element, PadType ** Pad,
   r_search (PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
   return info.found_anything;
 }
-
-/* ---------------------------------------------------------------------------
- * searches ordinary line on the SearchLayer 
- */
 
 struct line_info
 {
@@ -258,6 +262,9 @@ line_callback (const BoxType * box, void *cl)
 }
 
 
+/*!
+ * \brief Searches ordinary line on the SearchLayer.
+ */
 static bool
 SearchLineByLocation (int locked, LayerType ** Layer, LineType ** Line,
 		      LineType ** Dummy)
@@ -298,8 +305,8 @@ rat_callback (const BoxType * box, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches rat lines if they are visible
+/*!
+ * \brief Searches rat lines if they are visible.
  */
 static bool
 SearchRatLineByLocation (int locked, RatType ** Line, RatType ** Dummy1,
@@ -320,9 +327,6 @@ SearchRatLineByLocation (int locked, RatType ** Line, RatType ** Dummy1,
   return (true);
 }
 
-/* ---------------------------------------------------------------------------
- * searches arc on the SearchLayer 
- */
 struct arc_info
 {
   ArcType **Arc, **Dummy;
@@ -350,6 +354,9 @@ arc_callback (const BoxType * box, void *cl)
 }
 
 
+/*!
+ * \brief Searches arc on the SearchLayer.
+ */
 static bool
 SearchArcByLocation (int locked, LayerType ** Layer, ArcType ** Arc,
 		     ArcType ** Dummy)
@@ -386,8 +393,8 @@ text_callback (const BoxType * box, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches text on the SearchLayer
+/*!
+ * \brief Searches text on the SearchLayer.
  */
 static bool
 SearchTextByLocation (int locked, LayerType ** Layer, TextType ** Text,
@@ -427,8 +434,8 @@ polygon_callback (const BoxType * box, void *cl)
 }
 
 
-/* ---------------------------------------------------------------------------
- * searches a polygon on the SearchLayer 
+/*!
+ * \brief Searches a polygon on the SearchLayer.
  */
 static bool
 SearchPolygonByLocation (int locked, LayerType ** Layer,
@@ -482,8 +489,8 @@ linepoint_callback (const BoxType * b, void *cl)
   return ret_val;
 }
 
-/* ---------------------------------------------------------------------------
- * searches a line-point on all the search layer
+/*!
+ * \brief Searches a line-point on all the search layer.
  */
 static bool
 SearchLinePointByLocation (int locked, LayerType ** Layer,
@@ -533,8 +540,8 @@ arcpoint_callback (const BoxType * b, void *cl)
   return ret_val;
 }
 
-/* ---------------------------------------------------------------------------
- * searches an arc-point on all the search layer
+/*!
+ * \brief Searches an arc-point on all the search layer.
  */
 static bool
 SearchArcPointByLocation (int locked, LayerType **Layer,
@@ -552,9 +559,9 @@ SearchArcPointByLocation (int locked, LayerType **Layer,
     return true;
   return false;
 }
-/* ---------------------------------------------------------------------------
- * searches a polygon-point on all layers that are switched on
- * in layerstack order
+/*!
+ * \brief Searches a polygon-point on all layers that are switched on
+ * in layerstack order.
  */
 static bool
 SearchPointByLocation (int locked, LayerType ** Layer,
@@ -614,9 +621,11 @@ name_callback (const BoxType * box, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches the name of an element
- * the search starts with the last element and goes back to the beginning
+/*!
+ * \brief Searches the name of an element.
+ *
+ * The search starts with the last element and goes back to the
+ * beginning.
  */
 static bool
 SearchElementNameByLocation (int locked, ElementType ** Element,
@@ -667,10 +676,13 @@ element_callback (const BoxType * box, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * searches an element
- * the search starts with the last element and goes back to the beginning
- * if more than one element matches, the smallest one is taken
+/*!
+ * \brief Searches an element.
+ *
+ * The search starts with the last element and goes back to the
+ * beginning.
+ *
+ * If more than one element matches, the smallest one is taken.
  */
 static bool
 SearchElementByLocation (int locked,
@@ -697,8 +709,8 @@ SearchElementByLocation (int locked,
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a point is on a pin
+/*!
+ * \brief Checks if a point is on a pin.
  */
 bool
 IsPointOnPin (Coord X, Coord Y, Coord Radius, PinType *pin)
@@ -720,8 +732,8 @@ IsPointOnPin (Coord X, Coord Y, Coord Radius, PinType *pin)
   return false;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a rat-line end is on a PV
+/*!
+ * \brief Checks if a rat-line end is on a PV.
  */
 bool
 IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
@@ -732,9 +744,10 @@ IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a line intersects with a PV
+/*!
+ * \brief Checks if a line intersects with a PV.
  *
+ * <pre>
  * let the point be (X,Y) and the line (X1,Y1)(X2,Y2)
  * the length of the line is
  *
@@ -763,6 +776,7 @@ IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
  *
  * Finally, D1 and D2 are orthogonal, so we can sum them easily
  * by pythagorean theorem.
+ * </pre>
  */
 bool
 IsPointOnLine (Coord X, Coord Y, Coord Radius, LineType *Line)
@@ -788,8 +802,8 @@ IsPointOnLine (Coord X, Coord Y, Coord Radius, LineType *Line)
   return hypot (D1, D2) <= Radius + Line->Thickness / 2;
 }
 
-/* ---------------------------------------------------------------------------
- * checks if a line crosses a rectangle
+/*!
+ * \brief Checks if a line crosses a rectangle.
  */
 bool
 IsLineInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, LineType *Line)
@@ -836,7 +850,10 @@ IsLineInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, LineType *Line)
   return (false);
 }
 
-static int /*checks if a point (of null radius) is in a slanted rectangle*/
+/*!
+ * \brief Checks if a point (of null radius) is in a slanted rectangle.
+ */
+static int
 IsPointInQuadrangle(PointType p[4], PointType *l)
 {
   Coord dx, dy, x, y;
@@ -863,9 +880,12 @@ IsPointInQuadrangle(PointType p[4], PointType *l)
     }
   return false;
 }
-/* ---------------------------------------------------------------------------
- * checks if a line crosses a quadrangle: almost copied from IsLineInRectangle()
- * Note: actually this quadrangle is a slanted rectangle
+
+/*!
+ * \brief Checks if a line crosses a quadrangle: almost copied from
+ * IsLineInRectangle().
+ *
+ * \note Actually this quadrangle is a slanted rectangle.
  */
 bool
 IsLineInQuadrangle (PointType p[4], LineType *Line)
@@ -905,8 +925,8 @@ IsLineInQuadrangle (PointType p[4], LineType *Line)
 
   return (false);
 }
-/* ---------------------------------------------------------------------------
- * checks if an arc crosses a square
+/*!
+ * \brief Checks if an arc crosses a square.
  */
 bool
 IsArcInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, ArcType *Arc)
@@ -948,8 +968,10 @@ IsArcInRectangle (Coord X1, Coord Y1, Coord X2, Coord Y2, ArcType *Arc)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * Check if a circle of Radius with center at (X, Y) intersects a Pad.
+/*!
+ * \brief Check if a circle of Radius with center at (X, Y) intersects
+ * a Pad.
+ *
  * Written to enable arbitrary pad directions; for rounded pads, too.
  */
 bool
@@ -1026,12 +1048,16 @@ IsPointInPad (Coord X, Coord Y, Coord Radius, PadType *Pad)
   return range < Radius;
 }
 
+/*!
+ * \brief .
+ *
+ * \note Assumes box has point1 with numerically lower X and Y
+ * coordinates.
+ */
 bool
 IsPointInBox (Coord X, Coord Y, BoxType *box, Coord Radius)
 {
   Coord width, height, range;
-
-  /* NB: Assumes box has point1 with numerically lower X and Y coordinates */
 
   /* Compute coordinates relative to Point1 */
   X -= box->X1;
@@ -1071,9 +1097,11 @@ IsPointInBox (Coord X, Coord Y, BoxType *box, Coord Radius)
   return range < Radius;
 }
 
-/* TODO: this code is BROKEN in the case of non-circular arcs,
- *       and in the case that the arc thickness is greater than
- *       the radius.
+/*!
+ * \brief .
+ *
+ * \todo This code is BROKEN in the case of non-circular arcs, and in
+ * the case that the arc thickness is greater than the radius.
  */
 bool
 IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
@@ -1129,19 +1157,23 @@ IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
   return fabs (Distance (X, Y, Arc->X, Arc->Y) - Arc->Width) < Radius + Arc->Thickness / 2;
 }
 
-/* ---------------------------------------------------------------------------
- * searches for any kind of object or for a set of object types
- * the calling routine passes two pointers to allocated memory for storing
- * the results. 
- * A type value is returned too which is NO_TYPE if no objects has been found.
+/*!
+ * \brief Searches for any kind of object or for a set of object types
+ * the calling routine passes two pointers to allocated memory for
+ * storing the results.
+ *
+ * A type value is returned too which is NO_TYPE if no objects has been
+ * found.
+ *
  * A set of object types is passed in.
+ *
  * The object is located by it's position.
  *
  * The layout is checked in the following order:
  *   polygon-point, pin, via, line, text, elementname, polygon, element
  *
- * Note that if Type includes LOCKED_TYPE, then the search includes
- * locked items.  Otherwise, locked items are ignored.
+ * \note That if Type includes LOCKED_TYPE, then the search includes
+ * locked items. Otherwise, locked items are ignored.
  */
 int
 SearchObjectByLocation (unsigned Type,
@@ -1376,13 +1408,18 @@ SearchObjectByLocation (unsigned Type,
   return (NO_TYPE);
 }
 
-/* ---------------------------------------------------------------------------
- * searches for a object by it's unique ID. It doesn't matter if
- * the object is visible or not. The search is performed on a PCB, a
- * buffer or on the remove list.
- * The calling routine passes two pointers to allocated memory for storing
- * the results. 
- * A type value is returned too which is NO_TYPE if no objects has been found.
+/*!
+ * \brief Searches for a object by it's unique ID.
+ *
+ * It doesn't matter if the object is visible or not.
+ *
+ * The search is performed on a PCB, a buffer or on the remove list.
+ *
+ * The calling routine passes two pointers to allocated memory for
+ * storing the results.
+ *
+ * \return A type value is returned too which is NO_TYPE if no objects
+ * has been found.
  */
 int
 SearchObjectByID (DataType *Base,
@@ -1582,9 +1619,11 @@ SearchObjectByID (DataType *Base,
   return (NO_TYPE);
 }
 
-/* ---------------------------------------------------------------------------
- * searches for an element by its board name.
- * The function returns a pointer to the element, NULL if not found
+/*!
+ * \brief Searches for an element by its board name.
+ *
+ * \return The function returns a pointer to the element, NULL if not
+ * found.
  */
 ElementType *
 SearchElementByName (DataType *Base, char *Name)
@@ -1604,8 +1643,8 @@ SearchElementByName (DataType *Base, char *Name)
   return result;
 }
 
-/* ---------------------------------------------------------------------------
- * searches the cursor position for the type 
+/*!
+ * \brief Searches the cursor position for the type.
  */
 int
 SearchScreen (Coord X, Coord Y, int Type, void **Result1,
