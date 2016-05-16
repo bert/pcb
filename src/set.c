@@ -1,33 +1,38 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/set.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Routines to update widgets and global settings (except output
+ * window and dialogs).
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* routines to update widgets and global settings
- * (except output window and dialogs)
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -63,8 +68,8 @@
 static int mode_position = 0;
 static int mode_stack[MAX_MODESTACK_DEPTH];
 
-/* ---------------------------------------------------------------------------
- * sets cursor grid with respect to grid offset values
+/*!
+ * \brief Sets cursor grid with respect to grid offset values.
  */
 void
 SetGrid (Coord Grid, bool align)
@@ -87,8 +92,8 @@ SetGrid (Coord Grid, bool align)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets a new line thickness
+/*!
+ * \brief Sets a new line thickness.
  */
 void
 SetLineSize (Coord Size)
@@ -101,8 +106,8 @@ SetLineSize (Coord Size)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets a new via thickness
+/*!
+ * \brief Sets a new via thickness.
  */
 void
 SetViaSize (Coord Size, bool Force)
@@ -115,8 +120,8 @@ SetViaSize (Coord Size, bool Force)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets a new via drilling hole
+/*!
+ * \brief Sets a new via drilling hole.
  */
 void
 SetViaDrillingHole (Coord Size, bool Force)
@@ -138,8 +143,8 @@ pcb_use_route_style (RouteStyleType * rst)
   Settings.Keepaway = rst->Keepaway;
 }
 
-/* ---------------------------------------------------------------------------
- * sets a keepaway width
+/*!
+ * \brief Sets a keepaway width.
  */
 void
 SetKeepawayWidth (Coord Width)
@@ -150,8 +155,8 @@ SetKeepawayWidth (Coord Width)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets a text scaling
+/*!
+ * \brief Sets a text scaling.
  */
 void
 SetTextScale (int Scale)
@@ -162,8 +167,8 @@ SetTextScale (int Scale)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets or resets changed flag and redraws status
+/*!
+ * \brief Sets or resets changed flag and redraws status.
  */
 void
 SetChangedFlag (bool New)
@@ -175,8 +180,8 @@ SetChangedFlag (bool New)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets the crosshair range to the current buffer extents 
+/*!
+ * \brief Sets the crosshair range to the current buffer extents.
  */
 void
 SetCrosshairRangeToBuffer (void)
@@ -193,8 +198,8 @@ SetCrosshairRangeToBuffer (void)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * sets a new buffer number
+/*!
+ * \brief Sets a new buffer number.
  */
 void
 SetBufferNumber (int Number)
@@ -208,9 +213,9 @@ SetBufferNumber (int Number)
     }
 }
 
-/* ---------------------------------------------------------------------------
+/*!
+ * \brief Save mode.
  */
-
 void
 SaveMode (void)
 {
@@ -219,6 +224,9 @@ SaveMode (void)
     mode_position++;
 }
 
+/*!
+ * \brief Restore mode.
+ */
 void
 RestoreMode (void)
 {
@@ -231,17 +239,19 @@ RestoreMode (void)
 }
 
 
-/* ---------------------------------------------------------------------------
- * set a new mode and update X cursor
+/*!
+ * \brief Set a new mode and update X cursor.
+ *
+ * Protect the cursor while changing the mode.
+ *
+ * Perform some additional stuff depending on the new mode.
+ *
+ * Reset 'state' of attached objects.
  */
 void
 SetMode (int Mode)
 {
   static bool recursing = false;
-  /* protect the cursor while changing the mode
-   * perform some additional stuff depending on the new mode
-   * reset 'state' of attached objects
-   */
   if (recursing)
     return;
   recursing = true;
@@ -325,6 +335,9 @@ SetMode (int Mode)
   notify_crosshair_change (true);
 }
 
+/*!
+ * \brief Set route style.
+ */
 void
 SetRouteStyle (char *name)
 {
