@@ -211,7 +211,7 @@ msgstr ""
 "Estilo = 0 significa sem térmico.\n"
 "Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
 "Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
-"Estilo = 3 é uma conecção sólida ao plano.Style = 4 tem deos em diagonal com "
+"Estilo = 3 é uma conexão sólida ao plano.Style = 4 tem deos em diagonal com "
 "arestas arredondadas.\n"
 "Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
 
@@ -242,11 +242,11 @@ msgstr "Connection(Encontra|ResetLinesAndPolygons|ResetPinsAndVias|Reset)"
 
 #: ../src/action.c:2292
 msgid "Searches connections of the object at the cursor position."
-msgstr "Busca por conecções de objetos na posição do cursor."
+msgstr "Busca por conexões de objetos na posição do cursor."
 
 #: ../src/action.c:2327 ../src/report.c:700
 msgid "Click on a connection"
-msgstr "Clique sobre uma conecção"
+msgstr "Clique sobre uma conexão"
 
 #: ../src/action.c:2366
 msgid "DisperseElements(All|Selected)"
@@ -1337,11 +1337,11 @@ msgstr "Arquivo '%s' existe, usar mesmo assim?"
 #. CheckAndOpenFile deals with the case where fname already exists
 #: ../src/file.c:309
 msgid "Save Connection Data As ..."
-msgstr "Grava Dados de Conecção Como ..."
+msgstr "Grava Dados de Conexão Como ..."
 
 #: ../src/file.c:310
 msgid "Choose a file to save all connection data to."
-msgstr "Escolha um arquivo para gravar todos os dados de conecção."
+msgstr "Escolha um arquivo para gravar todos os dados de conexão."
 
 #: ../src/file.c:433
 #, c-format
@@ -1529,7 +1529,7 @@ msgid ""
 msgstr ""
 "Auréolas anelares que são muito pequenas podem danificar durante a "
 "corrosão,\n"
-"resultando em uma conecção defeituosa"
+"resultando em uma conexão defeituosa"
 
 #: ../src/find.c:3842
 msgid "Pin drill size is too small"
@@ -1552,7 +1552,7 @@ msgid ""
 "resulting in a broken or unreliable connection"
 msgstr ""
 "Pastilhas muito finas podem sofrer erosão durante a corrosão,\n"
-"resultando em uma conecção defeituosa e sem confiabilidade"
+"resultando em uma conexão defeituosa e sem confiabilidade"
 
 #: ../src/find.c:3930
 msgid "Via annular ring too small"
@@ -1686,7 +1686,7 @@ msgstr "Colocar na memória arquivo de recursos de fornecedor"
 
 #: ../src/gpcb-menu.res:70
 msgid "Save connection data of"
-msgstr "Grava dados de conecção de"
+msgstr "Grava dados de conexão de"
 
 #: ../src/gpcb-menu.res:71 ../src/pcb-menu.res:47
 msgid " a single element"
@@ -2608,11 +2608,11 @@ msgstr "Shift<Tecla>5"
 
 #: ../src/gpcb-menu.res:323
 msgid "Connects"
-msgstr "Conecções"
+msgstr "Conexões"
 
 #: ../src/gpcb-menu.res:324
 msgid "Lookup connection"
-msgstr "Procura conecção"
+msgstr "Procura conexão"
 
 #: ../src/gpcb-menu.res:324 ../src/pcb-menu.res:301
 msgid "Ctrl-F"
@@ -2632,7 +2632,7 @@ msgstr "Zere polígonos/linhas examinados"
 
 #: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
 msgid "Reset all connections"
-msgstr "Zere todas as conecções"
+msgstr "Zere todas as conexões"
 
 #: ../src/gpcb-menu.res:327 ../src/pcb-menu.res:304
 msgid "Shift-F"
@@ -2880,7 +2880,7 @@ msgstr "<Tecla>b"
 
 #: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:381
 msgid "Find Connections"
-msgstr "Encontra Conecções"
+msgstr "Encontra Conexões"
 
 #: ../src/gpcb-menu.res:399 ../src/pcb-menu.res:381
 msgid "F"
@@ -4674,15 +4674,15 @@ msgstr "Apaga os ratos selecionados\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:81
 msgid "Highlight connections to object\n"
-msgstr "Seleciona conecções a objeto\n"
+msgstr "Seleciona conexões a objeto\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:83
 msgid "Reset highlighted connections\n"
-msgstr "Remova conecções selecionadas\n"
+msgstr "Remova conexões selecionadas\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:85
 msgid "Cumulative highlight connections to object\n"
-msgstr "Seleção cumulativa de conecções a objeto\n"
+msgstr "Seleção cumulativa de conexões a objeto\n"
 
 #: ../src/hid/gtk/gui-keyref-window.c:89
 msgid "Increment grid by configured grid increment\n"
@@ -6073,7 +6073,7 @@ msgstr "Exporta Traçado..."
 
 #: ../src/pcb-menu.res:46
 msgid "Save connection data of..."
-msgstr "Grava Dados de Conecção de ..."
+msgstr "Grava Dados de Conexão de ..."
 
 #: ../src/pcb-menu.res:51
 msgid "Start new layout"
@@ -6237,7 +6237,7 @@ msgstr "#5"
 
 #: ../src/pcb-menu.res:301
 msgid "Lookup connection to object"
-msgstr "Procura conecção a objeto"
+msgstr "Procura conexão a objeto"
 
 #: ../src/pcb-menu.res:306
 msgid "Optimize rats-nest"
@@ -6348,7 +6348,7 @@ msgstr "Você deve nomear o componente final primeiramente\n"
 
 #: ../src/rats.c:953
 msgid "Both connections already in netlist - cannot merge nets\n"
-msgstr "Ambas as conecções já estão na netlist - não posso associar fiação\n"
+msgstr "Ambas as conexões já estão na netlist - não posso associar fiação\n"
 
 #: ../src/report.c:94
 #, c-format
