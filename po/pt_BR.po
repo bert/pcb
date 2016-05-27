@@ -211,7 +211,7 @@ msgstr ""
 "Estilo = 0 significa sem térmico.\n"
 "Estilo = 1 tem dedos em diagonal com arestas afiadas.\n"
 "Estilo = 2 tem dedos horizontais e verticais com arestas afiadas.\n"
-"Estilo = 3 é uma conexão sólida ao plano.Style = 4 tem deos em diagonal com "
+"Estilo = 3 é uma conexão sólida ao plano.Style = 4 tem dedos em diagonal com "
 "arestas arredondadas.\n"
 "Estilo = 5 tem dedos horizontais e verticais com arestas arredondadas.\n"
 
