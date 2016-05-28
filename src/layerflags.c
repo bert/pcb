@@ -27,7 +27,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -49,10 +49,10 @@
 #include "strflags.h"
 
 
-/**
- * These are the names of all the Layertypes defined in hid.h. Order here
- * has to match the order of typedef enum LayertypeType there.
+/*!
+ * \brief These are the names of all the Layertypes defined in hid.h.
  *
+ * Order here has to match the order of typedef enum LayertypeType there.
  * They're used for parsing/writing layer types from/to the layout file.
  */
 static char *layertype_name[LT_NUM_LAYERTYPES + 1] = {
@@ -108,7 +108,9 @@ layertype_to_string (LayertypeType type)
 }
 
 /*!
- * Given a layer without type, try to guess its type, mostly from its name.
+ * \brief Given a layer without type, try to guess its type
+ *  mostly from the layer name.
+ *
  * This is used by parse_y.y for compatibility with old file formats and
  * _not_ used when such flags are already present in the file.
  */
