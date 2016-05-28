@@ -1,28 +1,35 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/line.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 2004 harry eaton
+ * \brief Routines for inserting points into objects.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * Copyright (C) 2004 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #if HAVE_CONFIG_H
@@ -31,6 +38,7 @@
 
 #include <setjmp.h>
 #include <stdlib.h>
+
 
 #include "global.h"
 #include "data.h"
@@ -46,8 +54,8 @@
 
 static double drc_lines (PointType *end, bool way);
 
-/* ---------------------------------------------------------------------------
- * Adjust the attached line to 45 degrees if necessary
+/*!
+ * \brief Adjust the attached line to 45 degrees if necessary.
  */
 void
 AdjustAttachedLine (void)
@@ -75,16 +83,17 @@ AdjustAttachedLine (void)
   FortyFiveLine (line);
 }
 
-/* ---------------------------------------------------------------------------
- * makes the attached line fit into a 45 degree direction
+/*!
+ * \brief Makes the attached line fit into a 45 degree direction.
  *
- * directions:
- *
- *           4
- *          5 3
- *         6   2
- *          7 1
- *           0
+ * Directions:\n
+<pre>
+           4
+          5 3
+         6   2
+          7 1
+           0
+</pre>
  */
 void
 FortyFiveLine (AttachedLineType *Line)
@@ -165,8 +174,8 @@ FortyFiveLine (AttachedLineType *Line)
     }
 }
 
-/* ---------------------------------------------------------------------------
- *  adjusts the insert lines to make them 45 degrees as necessary
+/*!
+ * \brief Adjusts the insert lines to make them 45 degrees as necessary.
  */
 void
 AdjustTwoLine (bool way)
@@ -276,16 +285,17 @@ drcArc_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* drc_lines() checks for intersectors against two lines and
+/*!
+ * \brief drc_lines() checks for intersectors against two lines and
  * adjusts the end point until there is no intersection or
- * it winds up back at the start. If way is false it checks
- * straight start, 45 end lines, otherwise it checks 45 start,
- * straight end.
+ * it winds up back at the start.
+ *
+ * If way is false it checks straight start, 45 end lines, otherwise it
+ * checks 45 start, straight end.
  *
  * It returns the straight-line length of the best answer, and
  * changes the position of the input point to the best answer.
  */
-
 static double
 drc_lines (PointType *end, bool way)
 {
@@ -302,7 +312,7 @@ drc_lines (PointType *end, bool way)
   s = 0.5;
   last = -1;
   line1.Flags = line2.Flags = NoFlags ();
-  line1.Thickness = Settings.LineThickness + 2 * (PCB->Bloat);
+  line1.Thickness = Settings.LineThickness + 2 * PCB->Bloat;
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;
   line1.Point1.X  = Crosshair.AttachedLine.Point1.X;
@@ -311,15 +321,13 @@ drc_lines (PointType *end, bool way)
   dx = end->X - line1.Point1.X;
 
   if (abs (dx) > abs (dy)) {
-
       x_is_long = true;
       length = abs (dx);
-  }
+    }
   else {
-
       x_is_long = false;
       length = abs (dy);
-  }
+    }
 
   group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
 
@@ -333,46 +341,44 @@ drc_lines (PointType *end, bool way)
   ans.Y = line1.Point1.Y;
   while (length != last) {
 
-      last = length;
-      if (x_is_long) {
+    last = length;
+    if (x_is_long) {
 
-	  dx = SGN (dx) * length;
-	  dy = end->Y - line1.Point1.Y;
-	  length2 = abs (dy);
+      dx = SGN (dx) * length;
+      dy = end->Y - line1.Point1.Y;
+      length2 = abs (dy);
+    }
+    else {
+
+      dy = SGN (dy) * length;
+      dx = end->X - line1.Point1.X;
+      length2 = abs (dx);
+    }
+    temp2 = length2;
+    f2 = 1.0;
+    s2 = 0.5;
+    last2 = -1;
+    blocker = true;
+    while (length2 != last2) {
+
+      if (x_is_long)
+        dy = SGN (dy) * length2;
+      else
+        dx = SGN (dx) * length2;
+      two_lines = true;
+      if (abs (dx) > abs (dy) && x_is_long) {
+
+        line1.Point2.X = line1.Point1.X +
+        (way ? SGN (dx) * abs (dy) : dx - SGN (dx) * abs (dy));
+        line1.Point2.Y = line1.Point1.Y + (way ? dy : 0);
       }
-      else {
+      else if (abs (dy) >= abs (dx) && !x_is_long) {
 
-	  dy = SGN (dy) * length;
-	  dx = end->X - line1.Point1.X;
-	  length2 = abs (dx);
+        line1.Point2.X = line1.Point1.X + (way ? dx : 0);
+        line1.Point2.Y = line1.Point1.Y +
+        (way ? SGN (dy) * abs (dx) : dy - SGN (dy) * abs (dx));
       }
-
-      temp2 = length2;
-      f2 = 1.0;
-      s2 = 0.5;
-      last2 = -1;
-      blocker = true;
-      while (length2 != last2) {
-
-	  if (x_is_long)
-	    dy = SGN (dy) * length2;
-	  else
-	    dx = SGN (dx) * length2;
-	  two_lines = true;
-
-	  if (abs (dx) > abs (dy) && x_is_long) {
-
-	      line1.Point2.X = line1.Point1.X +
-		(way ? SGN (dx) * abs (dy) : dx - SGN (dx) * abs (dy));
-	      line1.Point2.Y = line1.Point1.Y + (way ? dy : 0);
-      }
-	  else if (abs (dy) >= abs (dx) && !x_is_long) {
-
-	      line1.Point2.X = line1.Point1.X + (way ? dx : 0);
-	      line1.Point2.Y = line1.Point1.Y +
-		(way ? SGN (dy) * abs (dx) : dy - SGN (dy) * abs (dx));
-      }
-	  else if (x_is_long) {
+      else if (x_is_long) {
 
         /* we've changed which axis is long, so only do one line */
         line1.Point2.X = line1.Point1.X + dx;
@@ -380,110 +386,103 @@ drc_lines (PointType *end, bool way)
         line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
         two_lines = false;
       }
-	  else {
-
+      else
+      {
         /* we've changed which axis is long, so only do one line */
         line1.Point2.Y = line1.Point1.Y + dy;
         line1.Point2.X =
         line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
         two_lines = false;
       }
-
-	  line2.Point1.X = line1.Point2.X;
-	  line2.Point1.Y = line1.Point2.Y;
-
-	  if (!two_lines) {
-
-	      line2.Point2.Y = line1.Point2.Y;
-	      line2.Point2.X = line1.Point2.X;
+      line2.Point1.X = line1.Point2.X;
+      line2.Point1.Y = line1.Point2.Y;
+      if (!two_lines)
+      {
+        line2.Point2.Y = line1.Point2.Y;
+        line2.Point2.X = line1.Point2.X;
       }
-	  else {
-
-	      line2.Point2.X = line1.Point1.X + dx;
-	      line2.Point2.Y = line1.Point1.Y + dy;
+      else
+      {
+        line2.Point2.X = line1.Point1.X + dx;
+        line2.Point2.Y = line1.Point1.Y + dy;
       }
-
-	  SetLineBoundingBox (&line1);
-	  SetLineBoundingBox (&line2);
-	  last2 = length2;
-
-	  if (setjmp (info.env) == 0) {
-
+      SetLineBoundingBox (&line1);
+      SetLineBoundingBox (&line2);
+      last2 = length2;
+      if (setjmp (info.env) == 0)
+      {
         info.line = &line1;
         r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL,
                   drcVia_callback, &info);
         r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL,
                   drcVia_callback, &info);
-
-        if (info.bottom_side || info.top_side) {
+        if (info.bottom_side || info.top_side)
           r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL,
                     drcPad_callback, &info);
-        }
-
-        if (two_lines) {
-
-          info.line = &line2;
-          r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL,
-                    drcVia_callback, &info);
-          r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL,
-                    drcVia_callback, &info);
-          if (info.bottom_side || info.top_side) {
-            r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
-                      drcPad_callback, &info);
+          if (two_lines)
+          {
+            info.line = &line2;
+            r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL,
+                      drcVia_callback, &info);
+            r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL,
+                      drcVia_callback, &info);
+            if (info.bottom_side || info.top_side)
+              r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
+                        drcPad_callback, &info);
           }
-        }
-	      GROUP_LOOP (PCB->Data, group);
-	      {
-		info.line = &line1;
-		r_search (layer->line_tree, &line1.BoundingBox, NULL,
-			  drcLine_callback, &info);
-		r_search (layer->arc_tree, &line1.BoundingBox, NULL,
-			  drcArc_callback, &info);
-		if (two_lines)
-		  {
-		    info.line = &line2;
-		    r_search (layer->line_tree, &line2.BoundingBox,
-			      NULL, drcLine_callback, &info);
-		    r_search (layer->arc_tree, &line2.BoundingBox,
-			      NULL, drcArc_callback, &info);
-		  }
-	      }
-	      END_LOOP;
-	      /* no intersector! */
-	      blocker = false;
-	      f2 += s2;
-	      len = (line2.Point2.X - line1.Point1.X);
-	      len *= len;
-	      len += (double) (line2.Point2.Y - line1.Point1.Y) *
-		(line2.Point2.Y - line1.Point1.Y);
-	      if (len > best)
-		{
-		  best = len;
-		  ans.X = line2.Point2.X;
-		  ans.Y = line2.Point2.Y;
-		}
+          GROUP_LOOP (PCB->Data, group);
+          {
+            info.line = &line1;
+            r_search (layer->line_tree, &line1.BoundingBox, NULL,
+                      drcLine_callback, &info);
+            r_search (layer->arc_tree, &line1.BoundingBox, NULL,
+                      drcArc_callback, &info);
+            if (two_lines)
+            {
+              info.line = &line2;
+              r_search (layer->line_tree, &line2.BoundingBox,
+                        NULL, drcLine_callback, &info);
+              r_search (layer->arc_tree, &line2.BoundingBox,
+                        NULL, drcArc_callback, &info);
+            }
+          }
+          END_LOOP;
+          /* no intersector! */
+          blocker = false;
+          f2 += s2;
+          len = (line2.Point2.X - line1.Point1.X);
+          len *= len;
+          len += (double) (line2.Point2.Y - line1.Point1.Y) *
+          (line2.Point2.Y - line1.Point1.Y);
+          if (len > best)
+          {
+            best = len;
+            ans.X = line2.Point2.X;
+            ans.Y = line2.Point2.Y;
+          }
 #if 0
-	      if (f2 > 1.0)
-		f2 = 0.5;
+          if (f2 > 1.0)
+            f2 = 0.5;
 #endif
-	    }
-	  else
-	    {
-	      /* bumped into something, back off */
-	      f2 -= s2;
-	    }
-	  s2 *= 0.5;
-	  length2 = MIN (f2 * temp2, temp2);
-	}
-      if (!blocker && ((x_is_long && line2.Point2.X - line1.Point1.X == dx)
-		       || (!x_is_long
-			   && line2.Point2.Y - line1.Point1.Y == dy)))
-	f += s;
-      else
-	f -= s;
-      s *= 0.5;
-      length = MIN (f * temp, temp);
+      }
+      else {
+
+        /* bumped into something, back off */
+        f2 -= s2;
+      }
+      s2 *= 0.5;
+      length2 = MIN (f2 * temp2, temp2);
     }
+
+    if (!blocker && ((x_is_long && line2.Point2.X - line1.Point1.X == dx)
+      || (!x_is_long
+      && line2.Point2.Y - line1.Point1.Y == dy)))
+      f += s;
+    else
+      f -= s;
+    s *= 0.5;
+    length = MIN (f * temp, temp);
+  }
 
   end->X = ans.X;
   end->Y = ans.Y;
