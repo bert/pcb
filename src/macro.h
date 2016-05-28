@@ -1,36 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/macro.h
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Some commonly used macros not related to a special C-file.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * The file is included by global.h after const.h
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-/* some commonly used macros not related to a special C-file
- * the file is included by global.h after const.h
- */
-/*
- * WEH Comment out UNKNOWN_NAME, this is not used any where
- *
- */
 #ifndef	PCB_MACRO_H
 #define	PCB_MACRO_H
 
@@ -65,13 +66,16 @@
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
-// #define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
+//#define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))
 #define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
 #define	EMPTY_STRING_P(a)	((a) ? (a)[0]==0 : 1)
 #define XOR(a,b)		(((a) && !(b)) || (!(a) && (b)))
 #define SQUARE(x)		((float) (x) * (float) (x))
 #define TO_RADIANS(degrees)	(M180 * (degrees))
+
+/* Proper rounding for double -> Coord. */
+#define DOUBLE_TO_COORD(x) ((x) >= 0 ? (Coord)((x) + 0.5) : (Coord)((x) - 0.5))
 
 /* ---------------------------------------------------------------------------
  * layer macros
