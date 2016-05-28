@@ -91,7 +91,7 @@ static FlagBitsType object_flagbits[] = {
   { DISPLAYNAMEFLAG, N ("showname"), ELEMENT_TYPE },
   { CLEARLINEFLAG, N ("clearline"), LINE_TYPE | ARC_TYPE | TEXT_TYPE },
   { SELECTEDFLAG, N ("selected"), ALL_TYPES },
-  { ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE | TEXT_TYPE },
+  { ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE | TEXT_TYPE | ELEMENTNAME_TYPE },
   { AUTOFLAG, N ("auto"), ALL_TYPES },
   { SQUAREFLAG, N ("square"), PIN_TYPES | PAD_TYPE },
   { RUBBERENDFLAG, N ("rubberend"), LINE_TYPE | ARC_TYPE },
