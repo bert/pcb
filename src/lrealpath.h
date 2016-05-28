@@ -1,7 +1,12 @@
-#ifndef PCB_LREALPATH_H
-#define PCH_LREALPATH_H
+/*!
+ * \file src/lrealpath.h
+ *
+ * \brief Prototypes for Libiberty realpath.
+ */
 
-/* A well-defined realpath () that is always compiled in.  */
+#ifndef PCB_LREALPATH_H
+#define PCB_LREALPATH_H
+
 char *lrealpath (const char *);
 
 #endif /* PCB_LREALPATH_H */
