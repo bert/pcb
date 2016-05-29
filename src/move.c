@@ -1,31 +1,35 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/move.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Functions used to move pins, elements ...
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
- */
-
-
-/* functions used to move pins, elements ...
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #if HAVE_CONFIG_H
@@ -98,8 +102,8 @@ MoveLineToLayer,
     MovePolygonToLayer,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, MoveArcToLayer, MoveRatToLayer};
 
-/* ---------------------------------------------------------------------------
- * moves a element by +-X and +-Y
+/*!
+ * \brief Moves a element by +-X and +-Y.
  */
 void
 MoveElementLowLevel (DataType *Data, ElementType *Element,
@@ -163,8 +167,8 @@ MoveElementLowLevel (DataType *Data, ElementType *Element,
     r_insert_entry (Data->element_tree, (BoxType *)Element, 0);
 }
 
-/* ----------------------------------------------------------------------
- * moves all names of an element to a new position
+/*!
+ * \brief Moves all names of an element to a new position.
  */
 static void *
 MoveElementName (ElementType *Element)
@@ -199,8 +203,8 @@ MoveElementName (ElementType *Element)
   return (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * moves an element
+/*!
+ * \brief Moves an element.
  */
 static void *
 MoveElement (ElementType *Element)
@@ -231,8 +235,8 @@ MoveElement (ElementType *Element)
   return (Element);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a via
+/*!
+ * \brief Moves a via.
  */
 static void *
 MoveVia (PinType *Via)
@@ -252,8 +256,8 @@ MoveVia (PinType *Via)
   return (Via);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a line
+/*!
+ * \brief Moves a line.
  */
 static void *
 MoveLine (LayerType *Layer, LineType *Line)
@@ -273,8 +277,8 @@ MoveLine (LayerType *Layer, LineType *Line)
   return (Line);
 }
 
-/* ---------------------------------------------------------------------------
- * moves an arc
+/*!
+ * \brief Moves an arc.
  */
 static void *
 MoveArc (LayerType *Layer, ArcType *Arc)
@@ -297,8 +301,8 @@ MoveArc (LayerType *Layer, ArcType *Arc)
   return (Arc);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a text object
+/*!
+ * \brief Moves a text object.
  */
 static void *
 MoveText (LayerType *Layer, TextType *Text)
@@ -319,8 +323,8 @@ MoveText (LayerType *Layer, TextType *Text)
   return (Text);
 }
 
-/* ---------------------------------------------------------------------------
- * low level routine to move a polygon
+/*!
+ * \brief Low level routine to move a polygon.
  */
 void
 MovePolygonLowLevel (PolygonType *Polygon, Coord DeltaX, Coord DeltaY)
@@ -333,8 +337,8 @@ MovePolygonLowLevel (PolygonType *Polygon, Coord DeltaX, Coord DeltaY)
   MOVE_BOX_LOWLEVEL (&Polygon->BoundingBox, DeltaX, DeltaY);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a polygon
+/*!
+ * \brief Moves a polygon.
  */
 static void *
 MovePolygon (LayerType *Layer, PolygonType *Polygon)
@@ -355,8 +359,8 @@ MovePolygon (LayerType *Layer, PolygonType *Polygon)
   return (Polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * moves one end of a line
+/*!
+ * \brief Moves one end of a line.
  */
 static void *
 MoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
@@ -395,8 +399,8 @@ MoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * moves a polygon-point
+/*!
+ * \brief Moves a polygon-point.
  */
 static void *
 MovePolygonPoint (LayerType *Layer, PolygonType *Polygon,
@@ -420,8 +424,8 @@ MovePolygonPoint (LayerType *Layer, PolygonType *Polygon,
   return (Point);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a line between layers; lowlevel routines
+/*!
+ * \brief Moves a line between layers; lowlevel routines.
  */
 static void *
 MoveLineToLayerLowLevel (LayerType *Source, LineType *line,
@@ -440,8 +444,8 @@ MoveLineToLayerLowLevel (LayerType *Source, LineType *line,
   return line;
 }
 
-/* ---------------------------------------------------------------------------
- * moves an arc between layers; lowlevel routines
+/*!
+ * \brief Moves an arc between layers; lowlevel routines.
  */
 static void *
 MoveArcToLayerLowLevel (LayerType *Source, ArcType *arc,
@@ -461,8 +465,8 @@ MoveArcToLayerLowLevel (LayerType *Source, ArcType *arc,
 }
 
 
-/* ---------------------------------------------------------------------------
- * moves an arc between layers
+/*!
+ * \brief Moves an arc between layers.
  */
 static void *
 MoveArcToLayer (LayerType *Layer, ArcType *Arc)
@@ -493,8 +497,8 @@ MoveArcToLayer (LayerType *Layer, ArcType *Arc)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a line between layers
+/*!
+ * \brief Moves a line between layers.
  */
 static void *
 MoveRatToLayer (RatType *Rat)
@@ -524,8 +528,8 @@ MoveRatToLayer (RatType *Rat)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a line between layers
+/*!
+ * \brief Moves a line between layers.
  */
 
 struct via_info
@@ -621,8 +625,8 @@ MoveLineToLayer (LayerType *Layer, LineType *Line)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * moves a text object between layers; lowlevel routines
+/*!
+ * \brief Moves a text object between layers; lowlevel routines.
  */
 static void *
 MoveTextToLayerLowLevel (LayerType *Source, TextType *text,
@@ -652,8 +656,8 @@ MoveTextToLayerLowLevel (LayerType *Source, TextType *text,
   return text;
 }
 
-/* ---------------------------------------------------------------------------
- * moves a text object between layers
+/*!
+ * \brief Moves a text object between layers.
  */
 static void *
 MoveTextToLayer (LayerType *layer, TextType *text)
@@ -677,8 +681,8 @@ MoveTextToLayer (LayerType *layer, TextType *text)
   return text;
 }
 
-/* ---------------------------------------------------------------------------
- * moves a polygon between layers; lowlevel routines
+/*!
+ * \brief Moves a polygon between layers; lowlevel routines.
  */
 static void *
 MovePolygonToLayerLowLevel (LayerType *Source, PolygonType *polygon,
@@ -723,8 +727,8 @@ mptl_pin_callback (const BoxType *b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * moves a polygon between layers
+/*!
+ * \brief Moves a polygon between layers.
  */
 static void *
 MovePolygonToLayer (LayerType *Layer, PolygonType *Polygon)
@@ -760,9 +764,9 @@ MovePolygonToLayer (LayerType *Layer, PolygonType *Polygon)
   return (newone);
 }
 
-/* ---------------------------------------------------------------------------
- * moves the object identified by its data pointers and the type
- * not we don't bump the undo serial number
+/*!
+ * \brief Moves the object identified by its data pointers and the type
+ * not we don't bump the undo serial number.
  */
 void *
 MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3, Coord DX, Coord DY)
@@ -776,9 +780,9 @@ MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3, Coord DX, Coord DY)
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * moves the object identified by its data pointers and the type
- * as well as all attached rubberband lines
+/*!
+ * \brief Moves the object identified by its data pointers and the type
+ * as well as all attached rubberband lines.
  */
 void *
 MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -818,9 +822,9 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (ptr2);
 }
 
-/* ---------------------------------------------------------------------------
- * moves the object identified by its data pointers and the type
- * to a new layer without changing it's position
+/*!
+ * \brief Moves the object identified by its data pointers and the type
+ * to a new layer without changing it's position.
  */
 void *
 MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -836,9 +840,9 @@ MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   return (result);
 }
 
-/* ---------------------------------------------------------------------------
- * moves the selected objects to a new layer without changing their
- * positions
+/*!
+ * \brief Moves the selected objects to a new layer without changing
+ * their positions.
  */
 bool
 MoveSelectedObjectsToLayer (LayerType *Target)
@@ -853,10 +857,9 @@ MoveSelectedObjectsToLayer (LayerType *Target)
   return (changed);
 }
 
-/* ---------------------------------------------------------------------------
- * moves the selected layers to a new index in the layer list.
+/*!
+ * \brief Moves the selected layers to a new index in the layer list.
  */
-
 static void
 move_one_thermal (int old_index, int new_index, PinType *pin)
 {
@@ -915,6 +918,15 @@ LastNormalLayerInSideGroup (int side, int layer)
   return 0;
 }
 
+/*!
+ * \brief Moves the selected layers to a new index in the layer list.
+ *
+ * index is 0..MAX_ALL_LAYER-1.
+ * If old_index is -1, a new layer is inserted at that index.
+ * If new_index is -1, the specified layer is deleted.
+ *
+ * \return non-zero on error, zero if OK.
+ */
 int
 MoveLayer (int old_index, int new_index)
 {
@@ -928,13 +940,14 @@ MoveLayer (int old_index, int new_index)
   if (old_index < -1 || old_index >= max_copper_layer)
     {
       Message ("Invalid old layer %d for move: must be -1..%d\n",
-           old_index, max_copper_layer - 1);
+	       old_index, max_copper_layer - 1);
       return 1;
     }
-  if (new_index < -1 || new_index > max_copper_layer || new_index >= MAX_LAYER)
+  if (new_index < -1 || new_index > max_copper_layer ||
+      new_index >= MAX_LAYER)
     {
       Message ("Invalid new layer %d for move: must be -1..%d\n",
-           new_index, max_copper_layer);
+	       new_index, max_copper_layer);
       return 1;
     }
   if (old_index == new_index)
@@ -967,21 +980,19 @@ MoveLayer (int old_index, int new_index)
   if (old_index == -1) {
 
       LayerType *lp;
-
       if (max_copper_layer == MAX_LAYER) {
 
-        Message ("No room for new layers\n");
-        return 1;
+	  Message ("No room for new layers\n");
+	  return 1;
       }
-
       /* Create a new layer at new_index. */
       lp = &PCB->Data->Layer[new_index];
       memmove (&PCB->Data->Layer[new_index + 1],
-           &PCB->Data->Layer[new_index],
-           (max_copper_layer + SILK_LAYER - new_index) * sizeof (LayerType));
+	       &PCB->Data->Layer[new_index],
+	       (max_copper_layer + SILK_LAYER - new_index) * sizeof (LayerType));
       memmove (&group_of_layer[new_index + 1],
-           &group_of_layer[new_index],
-           (max_copper_layer + SILK_LAYER - new_index) * sizeof (int));
+         &group_of_layer[new_index],
+         (max_copper_layer + SILK_LAYER - new_index) * sizeof (int));
       max_copper_layer++;
       memset (lp, 0, sizeof (LayerType));
       lp->On = 1;
@@ -989,63 +1000,64 @@ MoveLayer (int old_index, int new_index)
       lp->Color = Settings.LayerColor[new_index];
       lp->SelectedColor = Settings.LayerSelectedColor[new_index];
       for (l = 0; l < max_copper_layer; l++)
-    if (LayerStack[l] >= new_index)
-      LayerStack[l]++;
+	if (LayerStack[l] >= new_index)
+	  LayerStack[l]++;
       LayerStack[max_copper_layer - 1] = new_index;
     }
   else if (new_index == -1)
     {
       /* Delete the layer at old_index */
       memmove (&PCB->Data->Layer[old_index],
-           &PCB->Data->Layer[old_index + 1],
-           (max_copper_layer + SILK_LAYER - old_index - 1) * sizeof (LayerType));
-      memset (&PCB->Data->Layer[max_copper_layer + SILK_LAYER - 1], 0, sizeof (LayerType));
+	       &PCB->Data->Layer[old_index + 1],
+         (max_copper_layer + SILK_LAYER - old_index - 1) *
+            sizeof (LayerType));
+      memset (&PCB->Data->Layer[max_copper_layer + SILK_LAYER - 1],
+              0, sizeof (LayerType));
       memmove (&group_of_layer[old_index],
-           &group_of_layer[old_index + 1],
-           (max_copper_layer + SILK_LAYER - old_index - 1) * sizeof (int));
+	       &group_of_layer[old_index + 1],
+	       (max_copper_layer + SILK_LAYER - old_index - 1) * sizeof (int));
       for (l = 0; l < max_copper_layer; l++)
-    if (LayerStack[l] == old_index)
-      memmove (LayerStack + l,
-           LayerStack + l + 1,
-           (max_copper_layer - l - 1) * sizeof (LayerStack[0]));
+	if (LayerStack[l] == old_index)
+	  memmove (LayerStack + l,
+		   LayerStack + l + 1,
+		   (max_copper_layer - l - 1) * sizeof (LayerStack[0]));
       max_copper_layer--;
       for (l = 0; l < max_copper_layer; l++)
-    if (LayerStack[l] > old_index)
-      LayerStack[l]--;
+	if (LayerStack[l] > old_index)
+	  LayerStack[l]--;
     }
   else
-    {
-      /* Move an existing layer */
-      memcpy (&saved_layer, &PCB->Data->Layer[old_index], sizeof (LayerType));
-      saved_group = group_of_layer[old_index];
-      if (old_index < new_index)
+  {
+    /* Move an existing layer */
+    memcpy (&saved_layer, &PCB->Data->Layer[old_index], sizeof (LayerType));
+    saved_group = group_of_layer[old_index];
+    if (old_index < new_index)
     {
       memmove (&PCB->Data->Layer[old_index],
-           &PCB->Data->Layer[old_index + 1],
-           (new_index - old_index) * sizeof (LayerType));
+               &PCB->Data->Layer[old_index + 1],
+               (new_index - old_index) * sizeof (LayerType));
       memmove (&group_of_layer[old_index],
-           &group_of_layer[old_index + 1],
-           (new_index - old_index) * sizeof (int));
+               &group_of_layer[old_index + 1],
+               (new_index - old_index) * sizeof (int));
     }
-      else
+    else
     {
       memmove (&PCB->Data->Layer[new_index + 1],
-           &PCB->Data->Layer[new_index],
-           (old_index - new_index) * sizeof (LayerType));
+               &PCB->Data->Layer[new_index],
+               (old_index - new_index) * sizeof (LayerType));
       memmove (&group_of_layer[new_index + 1],
-           &group_of_layer[new_index],
-           (old_index - new_index) * sizeof (int));
+               &group_of_layer[new_index],
+               (old_index - new_index) * sizeof (int));
     }
-      memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof (LayerType));
-      group_of_layer[new_index] = saved_group;
-    }
+    memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof (LayerType));
+    group_of_layer[new_index] = saved_group;
+  }
 
   move_all_thermals(old_index, new_index);
 
   for (g = 0; g < MAX_GROUP; g++) {
     PCB->LayerGroups.Number[g] = 0;
   }
-
   for (l = 0; l < max_copper_layer + SILK_LAYER; l++) {
 
     g = group_of_layer[l];
