@@ -7285,10 +7285,9 @@ ActionElementSetAttr (int argc, char **argv, Coord x, Coord y)
   char *refdes, *name, *value;
   AttributeType *attr;
 
-  if (argc < 2)
-    {
-      AFAIL (changepinname);
-    }
+  if (argc < 2) {
+      AFAIL (elementsetattr);
+  }
 
   refdes = argv[0];
   name = argv[1];
