@@ -2949,6 +2949,17 @@ After vianudge:
 Looks for traces that go from via to via, where moving that trace to a
 different layer eliminates one or both vias.
 
+Example:
+
+Before viatrim:
+
+@center @image{viatrim,,,Example pcb before viatrim,png}
+
+After viatrim:
+
+@center @image{viatrim.out,,,Example pcb after viatrim,png}
+
+
 @item orthopull
 Looks for chains of traces all going in one direction, with more
 traces orthogonal on one side than on the other.  Moves the chain in

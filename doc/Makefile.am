@@ -113,7 +113,9 @@ pcb_files=	\
 	unjaggy.pcb \
 	unjaggy.out.pcb \
 	vianudge.pcb \
-	vianudge.out.pcb
+	vianudge.out.pcb \
+	viatrim.pcb \
+	viatrim.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
