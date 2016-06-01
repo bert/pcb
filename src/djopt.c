@@ -2933,6 +2933,17 @@ traces orthogonal on one side than on the other.  Moves the chain in
 that direction, causing a net reduction in trace length, possibly
 eliminating traces and/or corners.
 
+Example:
+
+Before orthopull:
+
+@center @image{orthopull,,,Example pcb before orthopull,png}
+
+After orthopull:
+
+@center @image{orthopull.out,,,Example pcb after orthopull,png}
+
+
 @item splitlines
 Looks for lines that pass through vias, pins, or pads, and splits them
 into separate lines so they can be managed separately.
