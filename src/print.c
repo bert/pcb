@@ -271,10 +271,10 @@ PrintFab (hidGC gc)
 	}
       gui->graphics->set_color (gc, PCB->ElementColor);
       text_at (gc, MIL_TO_COORD(450), yoff, MIL_TO_COORD(2), "%0.3f",
-	       COORD_TO_INCH(drill->DrillSize) + 0.0004);
+           COORD_TO_INCH(drill->DrillSize));
       if (plated_sym != -1 && unplated_sym != -1)
 	text_at (gc, MIL_TO_COORD(450), yoff + TEXT_LINE, MIL_TO_COORD(2), "%0.3f",
-	         COORD_TO_INCH(drill->DrillSize) + 0.0004);
+             COORD_TO_INCH(drill->DrillSize));
       yoff -= TEXT_LINE;
       total_drills += drill->PinCount;
       total_drills += drill->ViaCount;
