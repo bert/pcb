@@ -111,7 +111,9 @@ pcb_files=	\
 	orthopull.pcb \
 	orthopull.out.pcb \
 	unjaggy.pcb \
-	unjaggy.out.pcb
+	unjaggy.out.pcb \
+	vianudge.pcb \
+	vianudge.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
