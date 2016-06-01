@@ -109,7 +109,9 @@ pcb_files=	\
 	miter.pcb \
 	miter.out.pcb \
 	orthopull.pcb \
-	orthopull.out.pcb
+	orthopull.out.pcb \
+	unjaggy.pcb \
+	unjaggy.out.pcb
 
 pcb_output_noinst=	\
 	${pcb_files:.pcb=.pdf}
@@ -123,13 +125,7 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 images= \
 	gcode_control_img.eps \
 	gcode_tool_path.eps \
-	td_ex1.eps \
-	debumpify.out.eps \
-	miter.eps \
-	miter.out.eps \
-	orthopull.eps \
-	orthopull.out.eps
-
+	td_ex1.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}

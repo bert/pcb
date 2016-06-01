@@ -2913,6 +2913,17 @@ After debumpify:
 Looks for corners which could be flipped to eliminate one or more
 corners (i.e. jaggy lines become simpler).
 
+Example:
+
+Before unjaggy:
+
+@center @image{unjaggy,,,Example pcb before unjaggy,png}
+
+After unjaggy:
+
+@center @image{unjaggy.out,,,Example pcb after unjaggy,png}
+
+
 @item simple
 Removing uneeded vias, replacing two or more trace segments in a row
 with a single segment.  This is usually performed automatically after
