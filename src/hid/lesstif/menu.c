@@ -50,6 +50,29 @@ static const char getxy_syntax[] =
 static const char getxy_help[] =
 "Get a coordinate.";
 
+/*!
+ * \brief Get a coordinate.
+ *
+ * Each action is registered with a flag for the core ("need_coord_msg")
+ * that says whether it requires an X,Y location from the user, and if
+ * so, provides a prompt for that X,Y location.
+ *
+ * The GUIs display that prompt while waiting for the user to click.
+ *
+ * GetXY() is a "filler" action which exists *only* to request an X,Y
+ * click from the user, for actions that don't (or optionally) need
+ * coords, or don't have a message appropriate for the case being issued
+ * (i.e. if there are multiple actions to be executed, the GetXY() might
+ * be appropriate for the *group* results, not the first action that
+ * happens to need a coordinate).
+ *
+ * The catch is that the core asks for the X,Y click *before* the action
+ * is called, so there's no way for any argument to GetXY() to have any
+ * effect.
+ *
+ * The string "printed" is the empty one in the struct where GetXY() is
+ * registered.
+ */
 /* %start-doc actions GetXY
 
 Prompts the user for a coordinate, if one is not already selected.
