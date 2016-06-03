@@ -3068,6 +3068,9 @@ ActionDJopt (int argc, char **argv, Coord x, Coord y)
     {
       LayerType *layer = LAYER_PTR (layn);
 
+      if (layer->Type != LT_COPPER)
+        continue;
+
       LINE_LOOP (layer);
 	{
 	  line_s *ls;
