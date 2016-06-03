@@ -51,11 +51,7 @@
 
 #include "global.h"
 
-//#include <math.h>
-//#include <memory.h>
-//#include <limits.h>
 #include <setjmp.h>
-
 
 #include "create.h"
 #include "data.h"
@@ -65,7 +61,6 @@
 #include "pcb-printf.h"
 #include "remove.h"
 #include "rtree.h"
-//#include "strflags.h"
 #include "undo.h"
 
 #if HAVE_LIBDMALLOC
@@ -830,7 +825,7 @@ static int
 check_point_in_pin (PinType *pin, Coord x, Coord y, End *e)
 {
   int inside_p;
-  int t = (pin->Thickness+1)/2;
+  Coord t = (PIN_SIZE(pin)+1)/2;
   if (TEST_FLAG (SQUAREFLAG, pin))
     inside_p = (x >= pin->X - t && x <= pin->X + t
 		&& y >= pin->Y - t && y <= pin->Y + t);
@@ -2597,14 +2592,14 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   setbuf(stdout, 0);
   nloops = 0;
   npulled = 0;
-  Message ("puller! %s\n", argc > 0 ? argv[0] : "");
+  printf("puller! %s\n", argc > 0 ? argv[0] : "");
 
   if (argc > 0 && strcasecmp (argv[0], "selected") == 0)
     select_flags = SELECTEDFLAG;
   if (argc > 0 && strcasecmp (argv[0], "found") == 0)
     select_flags = FOUNDFLAG;
 
-  Message ("optimizing...\n");
+  printf("optimizing...\n");
   /* This canonicalizes all the lines, and cleans up near-misses.  */
   /* hid_actionl ("djopt", "puller", 0); */
 
@@ -2616,7 +2611,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   lines = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
   arcs  = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
 
-  Message ("pairing...\n");
+  printf("pairing...\n");
   find_pairs ();
   validate_pairs ();
 
@@ -2633,7 +2628,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   trace_paths ();
 #endif
 
-  Message ("pulling...\n");
+  printf("pulling...\n");
   if (setjmp(abort_buf) == 0)
     {
 #if TRACE0
