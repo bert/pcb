@@ -121,13 +121,14 @@ hidgl_flush_triangles (triangle_buffer *buffer)
 void
 hidgl_ensure_triangle_space (triangle_buffer *buffer, int count)
 {
-  if (count > TRIANGLE_ARRAY_SIZE)
-    {
+  if (count > TRIANGLE_ARRAY_SIZE) {
+
       fprintf (stderr, "Not enough space in vertex buffer\n");
       fprintf (stderr, "Requested %i triangles, %i available\n",
                        count, TRIANGLE_ARRAY_SIZE);
       exit (1);
-    }
+  }
+
   if (count > TRIANGLE_ARRAY_SIZE - buffer->triangle_count)
     hidgl_flush_triangles (buffer);
 }
@@ -252,7 +253,7 @@ hidgl_draw_line (int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, d
   deltax = x2 - x1;
   deltay = y2 - y1;
 
-  length = sqrt (deltax * deltax + deltay * deltay);
+  length = hypot (deltax, deltay);
 
   if (length == 0) {
     /* Assume the orientation of the line is horizontal */

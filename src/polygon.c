@@ -513,9 +513,8 @@ ArcPolyNoIntersect (ArcType * a, Coord thick)
   ry = MAX (a->Height - half, 0);
   segs = 1;
   if(thick > 0)
-    segs = MAX (segs, a->Delta * M_PI / 360 *
-                      sqrt (sqrt ((double)rx * rx + (double)ry * ry) /
-                            POLY_ARC_MAX_DEVIATION / 2 / thick));
+    segs = MAX (segs, a->Delta * M_PI / 360 * sqrt (hypot (rx, ry) /
+                POLY_ARC_MAX_DEVIATION / 2 / thick));
   segs = MAX(segs, a->Delta / ARC_ANGLE);
 
   ang = a->StartAngle;
@@ -603,9 +602,7 @@ LinePoly (LineType * L, Coord thick)
   if (thick <= 0)
     return NULL;
   half = (thick + 1) / 2;
-  d =
-    sqrt (SQUARE (l->Point1.X - l->Point2.X) +
-          SQUARE (l->Point1.Y - l->Point2.Y));
+  d = hypot (l->Point1.X - l->Point2.X, l->Point1.Y - l->Point2.Y);
   if (!TEST_FLAG (SQUAREFLAG,l))
     if (d == 0)                   /* line is a point */
       return CirclePoly (l->Point1.X, l->Point1.Y, half);
@@ -669,9 +666,7 @@ SquarePadPoly (PadType * pad, Coord clear)
   int halfthick = (pad->Thickness + 1) / 2;
   int halfclear = (clear + 1) / 2;
 
-  d =
-    sqrt (SQUARE (pad->Point1.X - pad->Point2.X) +
-          SQUARE (pad->Point1.Y - pad->Point2.Y));
+  d = hypot (pad->Point1.X - pad->Point2.X, pad->Point1.Y - pad->Point2.Y);
   if (d != 0)
     {
       double a = halfthick / d;
@@ -896,13 +891,13 @@ SubtractPad (PadType * pad, PolygonType * p)
 struct cpInfo
 {
   const BoxType *other;
-  DataType *data;
-  LayerType *layer;
-  PolygonType *polygon;
-  bool bottom;
-  POLYAREA *accumulate;
-  int batch_size;
-  jmp_buf env;
+  DataType      *data;
+  LayerType     *layer;
+  PolygonType   *polygon;
+  bool           bottom;
+  POLYAREA      *accumulate;
+  int            batch_size;
+  jmp_buf        env;
 };
 
 static void
@@ -1567,7 +1562,7 @@ plow_callback (const BoxType * b, void *cl)
 }
 
 int
-PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
+PlowsPolygon (DataType *Data, int type, void *ptr1, void *ptr2,
               int (*call_back) (DataType *data, LayerType *lay,
                                 PolygonType *poly, int type, void *ptr1,
                                 void *ptr2, void *userdata),
@@ -1925,24 +1920,29 @@ debug_polygon (PolygonType *p)
   Cardinal i;
   POLYAREA *pa;
   fprintf (stderr, "POLYGON %p  %d pts\n", p, p->PointN);
-  for (i=0; i<p->PointN; i++)
+
+  for (i=0; i<p->PointN; i++) {
     pcb_fprintf(stderr, "\t%d: %#mD\n", i, p->Points[i].X, p->Points[i].Y);
-  if (p->HoleIndexN)
-    {
+  }
+
+  if (p->HoleIndexN) {
       fprintf (stderr, "%d holes, starting at indices\n", p->HoleIndexN);
       for (i=0; i<p->HoleIndexN; i++)
         fprintf(stderr, "\t%d: %d\n", i, p->HoleIndex[i]);
-    }
-  else
+  }
+  else {
     fprintf (stderr, "it has no holes\n");
+  }
+
   pa = p->Clipped;
-  while (pa)
-    {
-      debug_polyarea (pa);
-      pa = pa->f;
-      if (pa == p->Clipped)
-	break;
+
+  while (pa) {
+    debug_polyarea (pa);
+    pa = pa->f;
+    if (pa == p->Clipped) {
+      break;
     }
+  }
 }
 
 /*!
@@ -1954,50 +1954,54 @@ PolyToPolygonsOnLayer (DataType *Destination, LayerType *Layer,
                        POLYAREA *Input, FlagType Flags)
 {
   PolygonType *Polygon;
-  POLYAREA *pa;
-  PLINE *pline;
-  VNODE *node;
-  bool outer;
+  POLYAREA    *pa;
+  PLINE       *pline;
+  VNODE       *node;
+  bool         outer;
 
   if (Input == NULL)
     return;
 
   pa = Input;
-  do
-    {
-      Polygon = CreateNewPolygon (Layer, Flags);
 
-      pline = pa->contours;
-      outer = true;
+  do {
 
-      do
-        {
-          if (!outer)
-            CreateNewHoleInPolygon (Polygon);
-          outer = false;
+    Polygon = CreateNewPolygon (Layer, Flags);
 
-          node = &pline->head;
-          do
-            {
-              CreateNewPointInPolygon (Polygon, node->point[0],
-                                                node->point[1]);
-            }
-          while ((node = node->next) != &pline->head);
+    pline = pa->contours;
+    outer = true;
 
-        }
-      while ((pline = pline->next) != NULL);
+    do {
 
-      InitClip (Destination, Layer, Polygon);
-      SetPolygonBoundingBox (Polygon);
-      if (!Layer->polygon_tree)
-        Layer->polygon_tree = r_create_tree (NULL, 0, 0);
-      r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+      if (!outer)
+        CreateNewHoleInPolygon (Polygon);
+      outer = false;
 
-      DrawPolygon (Layer, Polygon);
-      /* add to undo list */
-      AddObjectToCreateUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
+      node = &pline->head;
+
+      do {
+
+        CreateNewPointInPolygon (Polygon, node->point[0], node->point[1]);
+
+      } while ((node = node->next) != &pline->head);
+
+    } while ((pline = pline->next) != NULL);
+
+    InitClip (Destination, Layer, Polygon);
+    SetPolygonBoundingBox (Polygon);
+
+    if (!Layer->polygon_tree) {
+      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
     }
-  while ((pa = pa->f) != Input);
+
+    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+
+    DrawPolygon (Layer, Polygon);
+
+    /* add to undo list */
+    AddObjectToCreateUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
+
+  } while ((pa = pa->f) != Input);
 
   SetChangedFlag (true);
 }

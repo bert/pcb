@@ -220,7 +220,7 @@ tb_project_to_sphere(float r, float x, float y)
 {
     float d, t, z;
 
-    d = (float) sqrt(x*x + y*y);
+    d = hypotf(x, y);
     if (d < r * 0.70710678118654752440) {    /* Inside sphere */
         z = (float) sqrt(r*r - d*d);
     } else {           /* On hyperbola */

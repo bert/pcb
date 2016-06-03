@@ -1180,7 +1180,7 @@ vertices_on_line (toporouter_spoint_t *a,
   }
 
   c = a->y - m * a->x;
-  dx = r / sqrt (1 + pow (m, 2));
+  dx = r / hypot (1, m);
 
   b0->x = a->x + dx;
   b0->y = m * b0->x + c;
@@ -1216,7 +1216,7 @@ coords_on_line (double ax, double ay,
   }
 
   c = ay - m * ax;
-  dx = r / sqrt (1 + pow (m, 2));
+  dx = r / hypot (1, m);
 
   *b0x = ax + dx;
   *b0y = m * *b0x + c;
@@ -1282,7 +1282,7 @@ perpendicular_gradient(double m)
  */
 double
 vertices_plane_distance(toporouter_spoint_t *a, toporouter_spoint_t *b) {
-  return sqrt( pow(a->x - b->x, 2) + pow(a->y - b->y, 2) );
+  return hypot(a->x - b->x, a->y - b->y);
 }
 
 /*
@@ -2007,7 +2007,7 @@ create_board_edge (double x0, double y0,
                    GList **vlist)
 {
   GtsVertexClass *vertex_class = GTS_VERTEX_CLASS (toporouter_vertex_class ());
-  double edge_length = sqrt (pow (x0 - x1, 2) + pow (y0 - y1, 2));
+  double edge_length = hypot (x0 - x1, y0 - y1);
   unsigned int vertices_per_edge = MIN (1, edge_length / BOARD_EDGE_RESOLUTION);
   unsigned int count;
   double inc = edge_length / vertices_per_edge;
@@ -2672,8 +2672,6 @@ import_geometry(toporouter_t *r)
       }
       END_LOOP;
 
-
-
 #if DEBUG_IMPORT
       printf("building CDT\n");
 #endif
@@ -3165,10 +3163,9 @@ triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v)
      x <= MAX(vx(edge_v1(e)),vx(edge_v2(e))) &&
      y >= MIN(vy(edge_v1(e)),vy(edge_v2(e))) &&
      y <= MAX(vy(edge_v1(e)),vy(edge_v2(e))))
-
-//  if( (pow(vx(edge_v1(e)) - x, 2) + pow(vy(edge_v1(e)) - y, 2)) < len && (pow(vx(edge_v2(e)) - x, 2) + pow(vy(edge_v2(e)) - y, 2)) < len )
-    return sqrt(pow(vx(v) - x, 2) + pow(vy(v) - y, 2));
-
+  {
+    return hypot(vx(v) - x, vy(v) - y);
+  }
   return INFINITY;
 }
 
@@ -3412,26 +3409,20 @@ candidate_vertices(toporouter_vertex_t *v1, toporouter_vertex_t *v2, toporouter_
 
     vs = g_list_prepend(vs, new_temp_toporoutervertex(x1, y1, e));
 
-    d = sqrt(pow(x0-x1,2) + pow(y0-y1,2));
+    d = hypot(x0-x1,y0-y1);
 
     if(ms < d) {
-//      unsigned int nint = d / ms;
-//      double dif = d / (nint + 1);
+
       double dif = d / 2;
+      double x, y;
 
-//      for(unsigned int j=0;j<nint;j++) {
-        double x, y;
+      coord_move_towards_coord_values(x0, y0, x1, y1, dif, &x, &y);
 
-//        coord_move_towards_coord_values(x0, y0, x1, y1, dif * j, &x, &y);
-        coord_move_towards_coord_values(x0, y0, x1, y1, dif, &x, &y);
-
-        vs = g_list_prepend(vs, new_temp_toporoutervertex(x, y, e));
-
-//      }
+      vs = g_list_prepend(vs, new_temp_toporoutervertex(x, y, e));
 
     }
-
   }
+
 #if DEBUG_ROUTE
   printf("candidate vertices returning %d\n", g_list_length(vs));
 #endif
@@ -5172,7 +5163,7 @@ export_pcb_drawline(unsigned int layer, unsigned int x0, unsigned int y0, unsign
 
   if(line) {
     AddObjectToCreateUndoList (LINE_TYPE, LAYER_PTR(layer), line, line);
-    d = coord_distance((double)x0, (double)y0, (double)x1, (double)y1);
+    d = hypot(x0 - x1, y0 - y1);
   }
   return d;
 }
@@ -5187,7 +5178,7 @@ arc_angle(toporouter_arc_t *arc)
   y0 = arc->y0 - vy(arc->centre);
   y1 = arc->y1 - vy(arc->centre);
 
-  return fabs(acos(((x0*x1)+(y0*y1))/(sqrt(pow(x0,2)+pow(y0,2))*sqrt(pow(x1,2)+pow(y1,2)))));
+  return fabs(acos(((x0*x1)+(y0*y1))/(hypot(x0,y0)*hypot(x1,y1))));
 }
 
 double
@@ -5277,7 +5268,7 @@ calculate_term_to_arc(toporouter_vertex_t *v, toporouter_arc_t *arc, unsigned in
 void
 arc_ortho_projections(toporouter_arc_t *arc, toporouter_arc_t *narc, double *b1, double *b2)
 {
-  double nax, nay, ax, ay, alen2, c;
+  double nax, nay, ax, ay, alen, c;
   double b1x, b1y, b2x, b2y;
 
 #if DEBUG_EXPORT
@@ -5289,17 +5280,16 @@ arc_ortho_projections(toporouter_arc_t *arc, toporouter_arc_t *narc, double *b1,
 
   nax = vx(narc->centre) - vx(arc->centre);
   nay = vy(narc->centre) - vy(arc->centre);
-  alen2 = pow(nax,2) + pow(nay,2);
-
+  alen = hypot(nax, nay);
 
   ax = arc->x0 - vx(arc->centre);
   ay = arc->y0 - vy(arc->centre);
 
 #if DEBUG_EXPORT
-  printf("norm narc = %f,%f - %f\tA=%f,%f\n", nax, nay, sqrt(alen2), ax, ay);
+  printf("norm narc = %f,%f - %f\tA=%f,%f\n", nax, nay, alen, ax, ay);
 #endif
 
-  c = ((ax*nax)+(ay*nay)) / alen2;
+  c = ((ax*nax)+(ay*nay)) / (alen*alen);
 
   b1x = c * nax;
   b1y = c * nay;
@@ -5310,9 +5300,8 @@ arc_ortho_projections(toporouter_arc_t *arc, toporouter_arc_t *narc, double *b1,
   printf("proj = %f,%f perp proj = %f,%f\n", b1x, b1y, b2x, b2y);
 #endif
 
-  *b1 = sqrt(pow(b1x,2) + pow(b1y,2));
-  *b2 = sqrt(pow(b2x,2) + pow(b2y,2));
-
+  *b1 = hypot(b1x,b1y);
+  *b2 = hypot(b2x,b2y);
 }
 
 unsigned int
@@ -5540,10 +5529,11 @@ export_oproutes(toporouter_t *ar, toporouter_oproute_t *oproute)
   while(arcs) {
     arc = TOPOROUTER_ARC(arcs->data);
 
-    if(parc && arc) {
+    if (parc && arc) {
       ar->wiring_score += export_pcb_drawarc(layer, parc, thickness, keepaway);
       ar->wiring_score += export_pcb_drawline(layer, parc->x1, parc->y1, arc->x0, arc->y0, thickness, keepaway);
-    }else if(!parc) {
+    }
+    else if(!parc) {
       ar->wiring_score += export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, thickness, keepaway);
     }
 
@@ -5586,14 +5576,16 @@ oproute_calculate_tof(toporouter_oproute_t *oproute)
     return;
   }
 
-  while(arcs) {
+  while (arcs) {
+
     arc = TOPOROUTER_ARC(arcs->data);
 
-    if(parc && arc) {
+    if (parc && arc) {
       oproute->tof += arc_angle(parc) * parc->r;
-      oproute->tof += sqrt(pow(parc->x1-arc->x0,2)+pow(parc->y1-arc->y0,2));
-    }else if(!parc) {
-      oproute->tof += sqrt(pow(arc->x0-vx(oproute->term1),2)+pow(arc->y0-vy(oproute->term1),2));
+      oproute->tof += hypot(parc->x1-arc->x0,parc->y1-arc->y0);
+    }
+    else if(!parc) {
+      oproute->tof += hypot(arc->x0-vx(oproute->term1), arc->y0-vy(oproute->term1));
     }
 
     parc = arc;
@@ -5601,8 +5593,7 @@ oproute_calculate_tof(toporouter_oproute_t *oproute)
   }
 
   oproute->tof += arc_angle(parc) * parc->r;
-  oproute->tof += sqrt(pow(arc->x1-vx(oproute->term2),2)+pow(arc->y1-vy(oproute->term2),2));
-
+  oproute->tof += hypot(arc->x1-vx(oproute->term2), arc->y1-vy(oproute->term2));
 }
 
 double
@@ -5626,7 +5617,7 @@ line_line_distance_at_normal(
 
   inty = (isinf(m2)) ? (m1 * intx) + c1 : (m2 * intx) + c2;
 
-  return sqrt(pow(x-intx,2)+pow(y-inty,2));
+  return hypot(x-intx,y-inty);
 }
 
 void
@@ -5651,8 +5642,8 @@ oproute_min_spacing(toporouter_oproute_t *a, toporouter_oproute_t *b)
 double
 vector_angle(double ox, double oy, double ax, double ay, double bx, double by)
 {
-  double alen = sqrt(pow(ax-ox,2)+pow(ay-oy,2));
-  double blen = sqrt(pow(bx-ox,2)+pow(by-oy,2));
+  double alen = hypot(ax-ox,ay-oy);
+  double blen = hypot(bx-ox,by-oy);
   return acos( ((ax-ox)*(bx-ox)+(ay-oy)*(by-oy)) / (alen * blen) );
 }
 
@@ -5696,13 +5687,20 @@ check_non_intersect_vertex(double x0, double y0, double x1, double y1, toporoute
   }
 
 
-  if(!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y)) {
+  if (!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y)) {
 
-    if(coord_distance2(x0, y0, line_int_x, line_int_y) < coord_distance2(x1, y1, line_int_x, line_int_y))
-    { line_int_x = x0; line_int_y = y0; }else{ line_int_x = x1; line_int_y = y1; }
+    if (hypot(x0 - line_int_x, y0 - line_int_y) < hypot(x1 - line_int_x, y1 - line_int_y))
+    {
+      line_int_x = x0; line_int_y = y0;
+    }
+    else
+    {
+      line_int_x = x1; line_int_y = y1;
+    }
 
     m = perpendicular_gradient(cartesian_gradient(vx(arcv), vy(arcv), line_int_x, line_int_y));
-  }else{
+  }
+  else{
     m = cartesian_gradient(x0, y0, x1, y1);
   }
 
@@ -5714,21 +5712,35 @@ check_non_intersect_vertex(double x0, double y0, double x1, double y1, toporoute
   if(!wind2 || wind1 == wind2) return -1.;
 
   if(!wind) {
+
     coords_on_line(line_int_x, line_int_y, perpendicular_gradient(m), ms, &tx0, &ty0, &tx1, &ty1);
-    if(coord_distance2(tx0, ty0, vx(opv), vy(opv)) < coord_distance2(tx1, ty1, vx(opv), vy(opv)))
-    { x = tx0; y = ty0; }else{ x = tx1; y = ty1; }
-  }else{
+
+    if (hypot(tx0 - vx(opv), ty0 - vy(opv)) < hypot(tx1 - vx(opv), ty1 - vy(opv)))
+    {
+      x = tx0; y = ty0;
+    }
+    else
+    {
+      x = tx1; y = ty1;
+    }
+  }
+  else
+  {
     toporouter_vertex_t *parent = pathv->parent, *child = pathv->child;
     unsigned int windtests = 0;
 
-    d = coord_distance(vx(arcv), vy(arcv), line_int_x, line_int_y);
+    d = hypot(vx(arcv) - line_int_x, vy(arcv) - line_int_y);
     coord_move_towards_coord_values(line_int_x, line_int_y, vx(arcv), vy(arcv), ms + d, &x, &y);
+
 rewind_test:
+
     wind1 = coord_wind(line_int_x, line_int_y, x, y, vx(parent), vy(parent));
     wind2 = coord_wind(line_int_x, line_int_y, x, y, vx(child), vy(child));
+
     if(wind1 && wind2 && wind1 == wind2) {
-//      return -1.;
-      if(windtests++ == 2) return -1.;
+
+      if(windtests++ == 2)
+        return -1.;
 
       if(parent->flags & VERTEX_FLAG_ROUTE) parent = parent->parent;
       if(child->flags & VERTEX_FLAG_ROUTE) child = child->child;
@@ -5759,15 +5771,15 @@ check_intersect_vertex(double x0, double y0, double x1, double y1, toporouter_ve
     double d = tvdistance(tedge_v1(pathv->routingedge), tedge_v2(pathv->routingedge)) / 2.;
     ms = min_spacing(pathv, arcv);
     if(ms > d) ms = d;
-  }else {
+  }
+  else {
     ms = edge_min_spacing(g_list_find(edge_routing(pathv->routingedge), pathv), pathv->routingedge, arcv, debug);
   }
 
-  if(!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y))
+  if (!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y))
     return -1.;
 
-  d = coord_distance(line_int_x, line_int_y, vx(arcv), vy(arcv));
-
+  d = hypot(line_int_x - vx(arcv), line_int_y - vy(arcv));
 
   if(d > ms - EPSILON)
     return -1.;
@@ -5868,23 +5880,26 @@ check_adj_pushing_vertex(toporouter_oproute_t *oproute, double x0, double y0, do
   double maxd = 0.;
 
   while(i) {
+
     toporouter_vertex_t *n = TOPOROUTER_VERTEX(i->data);
     double seintx, seinty;
-    if(vertex_line_normal_intersection(x0, y0, x1, y1, vx(n), vy(n), &seintx, &seinty)) {
+
+    if (vertex_line_normal_intersection(x0, y0, x1, y1, vx(n), vy(n), &seintx, &seinty)) {
+
       toporouter_edge_t *e = tedge(n, v);
-      double ms = 0., d = coord_distance(seintx, seinty, vx(n), vy(n));
-      //toporouter_vertex_t *a;
+      double ms = 0.0;
+      double  d = hypot(seintx - vx(n), seinty - vy(n));
+
       toporouter_vertex_t *b;
       GList *closestnet = NULL;
 
       g_assert(e);
 
       if(v == tedge_v1(e)) {
-        //a = tedge_v1(e);
         b = tedge_v2(e);
         closestnet = edge_routing(e);
-      }else{
-        //a = tedge_v2(e);
+      }
+      else{
         b = tedge_v1(e);
         closestnet = g_list_last(edge_routing(e));
       }
@@ -5892,7 +5907,8 @@ check_adj_pushing_vertex(toporouter_oproute_t *oproute, double x0, double y0, do
       if(closestnet) {
         ms = edge_min_spacing(closestnet, e, b, 0);
         ms += min_oproute_net_spacing(oproute, TOPOROUTER_VERTEX(closestnet->data));
-      }else{
+      }
+      else{
         ms = min_oproute_vertex_spacing(oproute, b);
       }
 
@@ -6504,7 +6520,7 @@ toporouter_export(toporouter_t *r)
    *     PCB is built with Coord as a 32-bit integer.
    */
   Message (_("Wiring cost: %f inches\n"), COORD_TO_INCH (r->wiring_score));
-  printf ("Wiring cost: %f inches\n", COORD_TO_INCH (r->wiring_score));
+  printf (_("Wiring cost: %f inches\n"), COORD_TO_INCH (r->wiring_score));
 
   g_list_free(oproutes);
 
@@ -7474,17 +7490,16 @@ hybrid_router(toporouter_t *r)
   failcount = rubix_router(r, failcount);
 
   Message(_("RUBIX router: %d nets remaining\n"), failcount);
-  printf("RUBIX router: %d nets remaining\n", failcount);
+  printf(_("RUBIX router: %d nets remaining\n"), failcount);
 
   r->flags |= TOPOROUTER_FLAG_GOFAR;
 
   for(unsigned int i=0;i<6 && failcount;i++) {
     if(i % 2 == 1) {
       failcount = roar_router(r, failcount, 5);
-  //    printf("THRESH 5\n");
-    }else{
+    }
+    else{
       failcount = roar_router(r, failcount, 2);
-  //    printf("THRESH 2\n");
     }
 
     detour_router(r);
@@ -7641,28 +7656,26 @@ static int
 escape (int argc, char **argv, Coord x, Coord y)
 {
   unsigned int dir, viax, viay;
-  double pitch, length, dx, dy;
+  double pitch, dx, dy;
 
   if(argc != 1) return 0;
 
   dir = atoi(argv[0]);
 
-
   ALLPAD_LOOP(PCB->Data);
   {
     if( TEST_FLAG(SELECTEDFLAG, pad) ) {
+
       PinType *via;
       LineType *line;
 
       PadType *pad0 = element->Pad->data;
       PadType *pad1 = g_list_next (element->Pad)->data;
 
-      pitch = sqrt (pow (abs (pad0->Point1.X - pad1->Point1.X), 2) +
-                    pow (abs (pad0->Point1.Y - pad1->Point1.Y), 2) );
-      length = sqrt(pow(pitch,2) + pow(pitch,2)) / 2.;
+      pitch = hypot (pad0->Point1.X - pad1->Point1.X, pad0->Point1.Y - pad1->Point1.Y);
 
-      dx = length * sin(M_PI/4.);
-      dy = length * cos(M_PI/4.);
+      dx = pitch / 2;
+      dy = pitch / 2;
 
       switch(dir) {
         case 1:
@@ -7683,18 +7696,18 @@ escape (int argc, char **argv, Coord x, Coord y)
           break;
         case 2:
           viax = pad->Point1.X;
-          viay = pad->Point1.Y + (pitch/2);
+          viay = pad->Point1.Y + dy;
           break;
         case 8:
           viax = pad->Point1.X;
-          viay = pad->Point1.Y - (pitch/2);
+          viay = pad->Point1.Y - dy;
           break;
         case 4:
-          viax = pad->Point1.X - (pitch/2);
+          viax = pad->Point1.X - dx;
           viay = pad->Point1.Y;
           break;
         case 6:
-          viax = pad->Point1.X + (pitch/2);
+          viax = pad->Point1.X + dx;
           viay = pad->Point1.Y;
           break;
         default:
@@ -7703,26 +7716,20 @@ escape (int argc, char **argv, Coord x, Coord y)
       }
 
       if ((via = CreateNewVia (PCB->Data, viax, viay,
-              Settings.ViaThickness, 2 * Settings.Keepaway,
-              0, Settings.ViaDrillingHole, NULL,
-              NoFlags ())) != NULL)
+        Settings.ViaThickness, 2 * Settings.Keepaway,
+        0, Settings.ViaDrillingHole, NULL,
+        NoFlags ())) != NULL)
       {
         AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-//        if (gui->shift_is_pressed ())
-//          ChangeObjectThermal (VIA_TYPE, via, via, via, PCB->ThermStyle);
         DrawVia (via);
         if((line = CreateDrawnLineOnLayer (CURRENT, pad->Point1.X + 1., pad->Point1.Y + 1., viax + 1., viay + 1.,
-                Settings.LineThickness, 2 * Settings.Keepaway,
-                NoFlags())))
+          Settings.LineThickness, 2 * Settings.Keepaway,
+          NoFlags())))
         {
-
           AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
           DrawLine (CURRENT, line);
-
         }
-
       }
-
     }
   }
   END_LOOP;

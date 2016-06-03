@@ -334,17 +334,11 @@ djmin (int x, int y)
 static int
 dist (int x1, int y1, int x2, int y2)
 {
-  double dx1, dy1, dx2, dy2, d;
+  double d;
 
-  dx1 = (double) x1;
-  dy1 = (double) y1;
-  dx2 = (double) x2;
-  dy2 = (double) y2;
+  d = hypot ((double) x1 - (double) x2, (double) y1 - (double) y2);
 
-  d = sqrt ((dx1 - dx2) * (dx1 - dx2) + (dy1 - dy2) * (dy1 - dy2));
-  d = rint (d);
-
-  return (int) d;
+  return rint (d);
 }
 
 static int
@@ -369,12 +363,6 @@ dist_ltp2 (int dx, int y, int y1, int y2)
   return djabs (dx);
 }
 
-int
-sqr (int a)
-{
-  return a * a;
-}
-
 static int
 intersecting_layers (int l1, int l2)
 {
@@ -391,24 +379,29 @@ static int
 dist_line_to_point (line_s * l, corner_s * c)
 {
   double len, r, d;
+
   /* We can do this quickly if l is vertical or horizontal.  */
   if (l->s->x == l->e->x)
     return dist_ltp2 (l->s->x - c->x, c->y, l->s->y, l->e->y);
+
   if (l->s->y == l->e->y)
     return dist_ltp2 (l->s->y - c->y, c->x, l->s->x, l->e->x);
 
-  /* Do it the hard way.  See comments for IsPointOnLine() in search.c */
-  len = sqrt (sqr (l->s->x - l->e->x) + sqr (l->s->y - l->e->y));
+  len = hypot (l->s->x - l->e->x, l->s->y - l->e->y);
+
   if (len == 0)
     return dist (l->s->x, l->s->y, c->x, c->y);
   r =
     (l->s->y - c->y) * (l->s->y - l->e->y) + (l->s->x - c->x) * (l->s->x -
 								 l->e->x);
   r /= len * len;
+
   if (r < 0)
     return dist (l->s->x, l->s->y, c->x, c->y);
+
   if (r > 1)
     return dist (l->e->x, l->e->y, c->x, c->y);
+
   d =
     (l->e->y - l->s->y) * (c->x * l->s->x) + (l->e->x - l->s->x) * (c->y -
 								    l->s->y);
