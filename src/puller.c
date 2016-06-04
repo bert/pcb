@@ -62,6 +62,7 @@
 #include "remove.h"
 #include "rtree.h"
 #include "undo.h"
+#include "error.h"
 
 #if HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -76,7 +77,6 @@
 #define SIN1D	0.0174524064372835
 
 static jmp_buf abort_buf;
-
 static int multi, line_exact, arc_exact;
 static LineType *the_line;
 static ArcType *the_arc;
@@ -608,7 +608,7 @@ static int nloops, npulled;
 static void
 status ()
 {
-  fprintf(stderr, "%6d loops, %d pulled   \r", nloops, npulled);
+  Message ("%6d loops, %d pulled   \r", nloops, npulled);
 }
 
 /*!
@@ -2590,14 +2590,14 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   setbuf(stdout, 0);
   nloops = 0;
   npulled = 0;
-  printf("puller! %s\n", argc > 0 ? argv[0] : "");
+  Message ("puller! %s\n", argc > 0 ? argv[0] : "");
 
   if (argc > 0 && strcasecmp (argv[0], "selected") == 0)
     select_flags = SELECTEDFLAG;
   if (argc > 0 && strcasecmp (argv[0], "found") == 0)
     select_flags = FOUNDFLAG;
 
-  printf("optimizing...\n");
+  Message ("optimizing...\n");
   /* This canonicalizes all the lines, and cleans up near-misses.  */
   /* hid_actionl ("djopt", "puller", 0); */
 
@@ -2609,7 +2609,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   lines = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
   arcs  = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify)FreeExtra);
 
-  printf("pairing...\n");
+  Message ("pairing...\n");
   find_pairs ();
   validate_pairs ();
 
@@ -2626,7 +2626,7 @@ GlobalPuller(int argc, char **argv, Coord x, Coord y)
   trace_paths ();
 #endif
 
-  printf("pulling...\n");
+  Message ("pulling...\n");
   if (setjmp(abort_buf) == 0)
     {
 #if TRACE0
