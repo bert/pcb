@@ -27,7 +27,7 @@
  */
 
 #ifndef PCB_COMPAT_H
-#define PCH_COMPAT_H
+#define PCB_COMPAT_H
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
