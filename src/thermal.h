@@ -34,7 +34,7 @@
  */
 
 #ifndef	PCB_THERMAL_H
-#define	PCH_THERMAL_H
+#define	PCB_THERMAL_H
 
 #include <stdlib.h>
 #include "global.h"
