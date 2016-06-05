@@ -118,9 +118,10 @@ PCB_SRCS = \
 	print.h \
 	rats.c \
 	rats.h \
-	renumber.c \
+	relocate.c \
 	remove.c \
 	remove.h \
+	renumber.c \
 	report.c \
 	report.h \
 	res_parse.y \
