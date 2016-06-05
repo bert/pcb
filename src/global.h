@@ -62,6 +62,8 @@
 #include "const.h"
 #include "macro.h"
 
+#include <locale.h>
+
 /* Forward declarations for structures the HIDs need.  */
 typedef struct BoxType BoxType;
 typedef struct polygon_st PolygonType;
