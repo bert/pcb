@@ -2664,6 +2664,87 @@ CrosshairShapeIncrement (enum crosshair_shape shape)
   return shape;
 }
 
+static inline void
+toggle_display_pin_pan_via_name(void)
+{
+  void *ptr1, *ptr2, *ptr3;
+  Coord x, y;
+  int type;
+
+  gui->get_coords(_("Click on an element"), &x, &y);
+
+  type = SearchScreen (x, y, ELEMENT_TYPE | PIN_TYPE | PAD_TYPE | VIA_TYPE,
+                       (void **) &ptr1, (void **) &ptr2, (void **) &ptr3);
+
+  switch (type)
+  {
+    case ELEMENT_TYPE:
+      PIN_LOOP ((ElementType *) ptr1);
+      {
+        if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+          ErasePinName (pin);
+        else
+          DrawPinName (pin);
+        AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
+        TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
+      }
+      END_LOOP;
+      PAD_LOOP ((ElementType*) ptr1);
+      {
+        if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+          ErasePadName (pad);
+        else
+          DrawPadName (pad);
+        AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
+        TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
+      }
+      END_LOOP;
+      SetChangedFlag (true);
+      IncrementUndoSerialNumber ();
+      Draw ();
+      break;
+
+    case PIN_TYPE:
+      if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType*) ptr2))
+        ErasePinName ((PinType *) ptr2);
+      else
+        DrawPinName ((PinType *) ptr2);
+      AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
+      TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType*) ptr2);
+      SetChangedFlag (true);
+      IncrementUndoSerialNumber ();
+      Draw ();
+      break;
+
+    case PAD_TYPE:
+      if (TEST_FLAG (DISPLAYNAMEFLAG, (PadType*) ptr2))
+        ErasePadName ((PadType *) ptr2);
+      else
+        DrawPadName ((PadType *) ptr2);
+      AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
+      TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadType*) ptr2);
+      SetChangedFlag (true);
+      IncrementUndoSerialNumber ();
+      Draw ();
+      break;
+
+    case VIA_TYPE:
+      if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType*) ptr2))
+        EraseViaName ((PinType*) ptr2);
+      else
+        DrawViaName ((PinType*) ptr2);
+      AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
+      TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType*) ptr2);
+      SetChangedFlag (true);
+      IncrementUndoSerialNumber ();
+      Draw ();
+      break;
+
+    default:
+      break;
+  }
+}
+
 static int
 ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 {
@@ -2889,83 +2970,13 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 
 	  /* toggle displaying of pin/pad/via names */
 	case F_PinOrPadName:
-	  {
-	    void *ptr1, *ptr2, *ptr3;
-        Coord x, y;
+	  toggle_display_pin_pan_via_name();
+      break;
 
-        gui->get_coords(_("Click on an element"), &x, &y);
-	    switch (SearchScreen (x, y,
-				  ELEMENT_TYPE | PIN_TYPE | PAD_TYPE |
-				  VIA_TYPE, (void **) &ptr1, (void **) &ptr2,
-				  (void **) &ptr3))
-	      {
-	      case ELEMENT_TYPE:
-		PIN_LOOP ((ElementType *) ptr1);
-		{
-		  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-		    ErasePinName (pin);
-		  else
-		    DrawPinName (pin);
-		  AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
-		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
-		}
-		END_LOOP;
-		PAD_LOOP ((ElementType *) ptr1);
-		{
-		  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-		    ErasePadName (pad);
-		  else
-		    DrawPadName (pad);
-		  AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
-		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
-		}
-		END_LOOP;
-		SetChangedFlag (true);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-
-	      case PIN_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2))
-		  ErasePinName ((PinType *) ptr2);
-		else
-		  DrawPinName ((PinType *) ptr2);
-		AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2);
-		SetChangedFlag (true);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-
-	      case PAD_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PadType *) ptr2))
-		  ErasePadName ((PadType *) ptr2);
-		else
-		  DrawPadName ((PadType *) ptr2);
-		AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadType *) ptr2);
-		SetChangedFlag (true);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-	      case VIA_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2))
-		  EraseViaName ((PinType *) ptr2);
-		else
-		  DrawViaName ((PinType *) ptr2);
-		AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinType *) ptr2);
-		SetChangedFlag (true);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-	      }
-	    break;
-	  }
 	default:
 	  err = 1;
 	}
-    }
+  }
   else if (function && str_dir) {
 
     switch (GetFunctionID (function))
