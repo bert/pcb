@@ -2674,10 +2674,10 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
   function = ARG (0);
   str_dir = ARG (1);
 
-  if (function && (!str_dir || !*str_dir))
-    {
-      switch (id = GetFunctionID (function))
-	{
+  if (function && (!str_dir || !*str_dir)) {
+
+    switch (id = GetFunctionID (function)) {
+
 
 	  /* redraw layout */
 	case F_ClearAndRedraw:
@@ -2804,13 +2804,14 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  notify_crosshair_change (false);
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-	    {
-	      if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
+      {
+	     if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
 		{
 		  IncrementUndoSerialNumber ();
 		  Draw ();
 		}
-	      if (Crosshair.AttachedLine.State != STATE_FIRST)
+
+         if (Crosshair.AttachedLine.State != STATE_FIRST)
 		{
 		  LookupConnection (Crosshair.AttachedLine.Point1.X,
 		                    Crosshair.AttachedLine.Point1.Y,
@@ -2819,7 +2820,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 		                    Crosshair.AttachedLine.Point1.Y,
 		                    true, 1, FOUNDFLAG, true);
 		}
-	    }
+      }
 	  notify_crosshair_change (true);
 	  break;
 
@@ -2890,8 +2891,10 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	case F_PinOrPadName:
 	  {
 	    void *ptr1, *ptr2, *ptr3;
+        Coord x, y;
 
-	    switch (SearchScreen (Crosshair.X, Crosshair.Y,
+        gui->get_coords(_("Click on an element"), &x, &y);
+	    switch (SearchScreen (x, y,
 				  ELEMENT_TYPE | PIN_TYPE | PAD_TYPE |
 				  VIA_TYPE, (void **) &ptr1, (void **) &ptr2,
 				  (void **) &ptr3))
