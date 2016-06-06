@@ -230,6 +230,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/../gts
