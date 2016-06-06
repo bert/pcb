@@ -224,6 +224,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
