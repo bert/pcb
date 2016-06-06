@@ -50,7 +50,8 @@ void SelectPasteBuffer (int);
 void SwapBuffers (void);
 void MirrorBuffer (BufferType *);
 void InitBuffers (void);
-void *MoveObjectToBuffer (DataType *, DataType *, int, void *, void *, void *); 
+void UninitBuffers (void);
+void *MoveObjectToBuffer (DataType *, DataType *, int, void *, void *, void *);
 void *CopyObjectToBuffer (DataType *, DataType *, int,
 			  void *, void *, void *);
 

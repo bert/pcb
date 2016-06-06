@@ -1404,6 +1404,18 @@ InitBuffers (void)
 }
 
 void
+UninitBuffers (void)
+{
+  int i;
+
+  for (i = 0; i < MAX_BUFFER; i++) {
+
+    ClearBuffer (Buffers+i);
+    free (Buffers[i].Data);
+  }
+}
+
+void
 SwapBuffers (void)
 {
   int i;

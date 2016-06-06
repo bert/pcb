@@ -1867,6 +1867,8 @@ char *program_directory = NULL;
 void
 pcb_main_uninit (void)
 {
+  UninitBuffers ();
+
   FreePCBMemory (PCB);
 
   if (gui->uninit != NULL)
