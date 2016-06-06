@@ -1261,6 +1261,9 @@ AssignDefaultLayerTypes()
   END_LOOP;
 }
 
+
+extern void pcb_main_uninit(void);
+
 /*!
  * \brief Quits the application.
  */
@@ -1276,11 +1279,14 @@ QuitApplication (void)
   else
     DisableEmergencySave ();
 
-  /* Free up memory allocated to the PCB. Why bother when we're about to exit ?
-   * Because it removes some false positives from heap bug detectors such as
-   * lib dmalloc.
-   */
-  FreePCBMemory(PCB);
+  if (gui->do_exit == NULL) {
+
+      pcb_main_uninit ();
+      exit (0);
+  }
+  else {
+    gui->do_exit (gui);
+  }
 
   exit (0);
 }
