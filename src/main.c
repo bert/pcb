@@ -1867,14 +1867,15 @@ char *program_directory = NULL;
 void
 pcb_main_uninit (void)
 {
-  UninitBuffers ();
-
-  FreePCBMemory (PCB);
-
   if (gui->uninit != NULL)
     gui->uninit (gui);
 
   hid_uninit ();
+
+  UninitBuffers ();
+
+  FreePCBMemory (PCB);
+  free (PCB);
 }
 
 /*!
