@@ -110,6 +110,18 @@ void *leaky_realloc (void* old_memory, size_t size)
 }
 
 /*!
+ * \brief strdup() using leaky_malloc().
+ */
+char *
+leaky_strdup (const char *src)
+{
+  int len = strlen (src)+1;
+  char *res = leaky_malloc (len);
+  memcpy (res, src, len);
+  return res;
+}
+
+/*!
  * \brief Free all allocations.
  */
 void leaky_uninit (void)
