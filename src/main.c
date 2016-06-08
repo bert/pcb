@@ -62,7 +62,7 @@
 #include "polygon.h"
 #include "gettext.h"
 #include "pcb-printf.h"
-
+#include "strflags.h"
 #include "hid/common/actions.h"
 
 /* This next one is so we can print the help messages. */
@@ -1887,6 +1887,8 @@ pcb_main_uninit (void)
     free (Settings.FontFile);
     Settings.FontFile = NULL;
   }
+
+  uninit_strflags_buf ();
 }
 
 /*!
