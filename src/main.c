@@ -1890,6 +1890,7 @@ pcb_main_uninit (void)
   }
 
   uninit_strflags_buf ();
+  uninit_strflags_layerlist ();
 
 #define free0(ptr) \
   do { \
