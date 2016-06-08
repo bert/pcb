@@ -1889,6 +1889,25 @@ pcb_main_uninit (void)
   }
 
   uninit_strflags_buf ();
+
+#define free0(ptr) \
+  do { \
+      if (ptr != NULL) \
+        { \
+          free (ptr); \
+          ptr = 0; \
+        } \
+  } while (0)
+
+  free0 (pcblibdir);
+  free0 (homedir);
+  free0 (bindir);
+  free0 (exec_prefix);
+  free0 (program_directory);
+  free0 (Settings.MakeProgram);
+  free0 (Settings.GnetlistProgram);
+
+#undef free0
 }
 
 /*!
