@@ -2050,11 +2050,18 @@ main (int argc, char *argv[])
   SetMode (ARROW_MODE);
 
   if (command_line_pcb) {
-    /* keep filename even if initial load command failed;
-     * file might not exist
-     */
-    if (LoadPCB (command_line_pcb)) {
+
+    if (access(command_line_pcb, F_OK)) {
+
+      /* File does not exist, save the filename and continue with empty board */
       PCB->Filename = strdup (command_line_pcb);
+    }
+    else {
+      /* Hard fail if file exists and fails to load */
+      if (LoadPCB (command_line_pcb)) {
+        fprintf(stderr, "LoadPCB: Failed to load existing file \"%s\". Is it supported PCB file?\n", command_line_pcb);
+        exit(1);
+      }
     }
   }
 
