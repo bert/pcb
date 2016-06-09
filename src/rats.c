@@ -1,26 +1,36 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/rats.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Rats nest routines.
  *
- *  This module, rats.c, was written and is Copyright (C) 1997 by harry eaton
- *  this module is also subject to the GNU GPL as described below
+ * <hr>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * PCB, interactive printed circuit board design
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * Copyright (C) 1997, harry eaton
+ *
+ * This module, rats.c, was written and is Copyright (C) 1997 by
+ * harry eaton.
+ *
+ * This module is also subject to the GNU GPL as described below.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 /* Change History:
@@ -30,9 +40,7 @@
  * support for netlist window 10/24/98
  */
 
-/* rats nest routines
- */
-#ifdef HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
@@ -55,7 +63,7 @@
 #include "set.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
+#if HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
@@ -76,14 +84,16 @@ static void TransferNet (NetListType *, NetType *, NetType *);
  * some local identifiers
  */
 static bool badnet = false;
-static Cardinal top_group, bottom_group; /* layer group holding top/bottom side */
+static Cardinal top_group, bottom_group;	/* layer group holding top/bottom side */
 
-/* ---------------------------------------------------------------------------
- * parse a connection description from a string
- * puts the element name in the string and the pin number in
- * the number.  If a valid connection is found, it returns the
- * number of characters processed from the string, otherwise
- * it returns 0
+/*!
+ * \brief Parse a connection description from a string.
+ *
+ * Puts the element name in the string and the pin number in
+ * the number.
+ *
+ * \return If a valid connection is found, it returns the number of characters
+ * processed from the string, otherwise it returns 0.
  */
 static bool
 ParseConnection (char *InString, char *ElementName, char *PinNum)
@@ -111,8 +121,8 @@ ParseConnection (char *InString, char *ElementName, char *PinNum)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * Find a particular pad from an element name and pin number
+/*!
+ * \brief Find a particular pad from an element name and pin number.
  */
 static bool
 FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
@@ -125,29 +135,29 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
 
   for (i = element->Pad; i != NULL; i = g_list_next (i)) {
 
-    PadType *pad = i->data;
+      PadType *pad = i->data;
 
-    if (NSTRCMP (PinNum, pad->Number) == 0 &&
-      (!Same || !TEST_FLAG (DRCFLAG, pad)))
-    {
-      conn->type  = PAD_TYPE;
-      conn->ptr1  = element;
-      conn->ptr2  = pad;
-      conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
+      if (NSTRCMP (PinNum, pad->Number) == 0 &&
+          (!Same || !TEST_FLAG (DRCFLAG, pad)))
+        {
+          conn->type  = PAD_TYPE;
+          conn->ptr1  = element;
+          conn->ptr2  = pad;
+          conn->group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
 
-      if (TEST_FLAG (EDGE2FLAG, pad)) {
-
-        conn->X = pad->Point2.X;
-        conn->Y = pad->Point2.Y;
-      }
-      else {
-
-        conn->X = pad->Point1.X;
-        conn->Y = pad->Point1.Y;
-      }
-      return true;
+          if (TEST_FLAG (EDGE2FLAG, pad))
+            {
+              conn->X = pad->Point2.X;
+              conn->Y = pad->Point2.Y;
+            }
+          else
+            {
+              conn->X = pad->Point1.X;
+              conn->Y = pad->Point1.Y;
+            }
+          return true;
+        }
     }
-  }
 
   for (i = element->Pin; i != NULL; i = g_list_next (i)) {
 
@@ -160,7 +170,7 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
           conn->type  = PIN_TYPE;
           conn->ptr1  = element;
           conn->ptr2  = pin;
-          conn->group = bottom_group; /* any layer will do */
+          conn->group = bottom_group;        /* any layer will do */
           conn->X     = pin->X;
           conn->Y     = pin->Y;
           return true;
@@ -170,9 +180,10 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
   return false;
 }
 
-/*--------------------------------------------------------------------------
- * parse a netlist menu entry and locate the corresponding pad
- * returns true if found, and fills in Connection information
+/*!
+ * \brief Parse a netlist menu entry and locate the corresponding pad.
+ *
+ * \return true if found, and fills in Connection information.
  */
 bool
 SeekPad (LibraryEntryType * entry, ConnectionType * conn, bool Same)
@@ -183,7 +194,9 @@ SeekPad (LibraryEntryType * entry, ConnectionType * conn, bool Same)
 
   if (ParseConnection (entry->ListEntry, ElementName, PinNum))
     return (false);
+
   for (j = 0; PinNum[j] != '\0'; j++);
+
   if (j == 0)
     {
       Message (_("Error! Netlist file is missing pin!\n"
@@ -208,10 +221,9 @@ SeekPad (LibraryEntryType * entry, ConnectionType * conn, bool Same)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * Read the library-netlist build a true Netlist structure
+/*!
+ * \brief Read the library-netlist build a true Netlist structure.
  */
-
 NetListType *
 ProcNetlist (LibraryType *net_menu)
 {
@@ -328,9 +340,9 @@ ProcNetlist (LibraryType *net_menu)
   return (Wantlist);
 }
 
-/*
- * copy all connections from one net into another
- * and then remove the first net from its netlist
+/*!
+ * \brief Copy all connections from one net into another and then remove
+ * the first net from its netlist.
  */
 static void
 TransferNet (NetListType *Netl, NetType *SourceNet, NetType *DestNet)
@@ -442,11 +454,13 @@ CheckShorts (LibraryMenuType *theNet)
 }
 
 
-/* ---------------------------------------------------------------------------
- * Determine existing interconnections of the net and gather into sub-nets
+/*!
+ * \brief Determine existing interconnections of the net and gather into
+ * sub-nets.
  *
- * initially the netlist has each connection in its own individual net
- * afterwards there can be many fewer nets with multiple connections each
+ * Initially the netlist has each connection in its own individual net
+ * afterwards there can be many fewer nets with multiple connections
+ * each.
  */
 static bool
 GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
@@ -456,7 +470,7 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
   Cardinal m, n;
   bool Warned = false;
 
-  for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++) {
+  for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++)  {
 
     a = &Netl->Net[m];
     ClearFlagOnAllObjects (false, DRCFLAG);
@@ -542,16 +556,40 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
   return (Warned);
 }
 
-/* ---------------------------------------------------------------------------
- * Draw a rat net (tree) having the shortest lines
- * this also frees the subnet memory as they are consumed
+/*!
+ * \brief Draw a rat net (tree) having the shortest lines.
  *
- * Note that the Netl we are passed is NOT the main netlist - it's the
- * connectivity for ONE net.  It represents the CURRENT connectivity
- * state for the net, with each Netl->Net[N] representing one
- * copper-connected subset of the net.
+ * This also frees the subnet memory as they are consumed.
+ *
+ * \note The \c Netl we are passed is NOT the main netlist - it's the
+ * connectivity for ONE net.
+ * It represents the CURRENT connectivity state for the net, with each
+ * Netl->Net[N] representing one copper-connected subset of the net.
+ *
+ * Everything inside the NetList Netl should be connected together.
+ *
+ * Each Net in \c Netl is a group of Connections which are already
+ * connected together somehow, either by real wires or by rats we've
+ * already drawn.
+ *
+ * Each Connection is a vertex within that blob of connected items.
+ *
+ * This loop finds the closest vertex pairs between each blob and draws
+ * rats that merge the blobs until there's just one big blob.
+ *
+ * Just to clarify, with some examples:
+ *
+ * Each \c Netl is one full net from a netlist, like from gnetlist.
+ *
+ * Each Netl->Net[N] is a subset of that net that's already
+ * physically connected on the pcb.
+ *
+ * So a new design with no traces yet, would have a huge list of Net[N],
+ * each with one pin in it.
+ *
+ * A fully routed design would have one Net[N] with all the pins
+ * (for that net) in it.
  */
-
 static bool
 DrawShortestRats (NetListType *Netl, void (*funcp) (register ConnectionType *, register ConnectionType *, register RouteStyleType *))
 {
@@ -569,28 +607,6 @@ DrawShortestRats (NetListType *Netl, void (*funcp) (register ConnectionType *, r
    */
   if (!Netl || Netl->NetN < 1)
     return false;
-
-  /*
-   * Everything inside the NetList Netl should be connected together.
-   * Each Net in Netl is a group of Connections which are already
-   * connected together somehow, either by real wires or by rats we've
-   * already drawn.  Each Connection is a vertex within that blob of
-   * connected items.  This loop finds the closest vertex pairs between
-   * each blob and draws rats that merge the blobs until there's just
-   * one big blob.
-   *
-   * Just to clarify, with some examples:
-   *
-   * Each Netl is one full net from a netlist, like from gnetlist.
-   * Each Netl->Net[N] is a subset of that net that's already
-   * physically connected on the pcb.
-   *
-   * So a new design with no traces yet, would have a huge list of Net[N],
-   * each with one pin in it.
-   *
-   * A fully routed design would have one Net[N] with all the pins
-   * (for that net) in it.
-   */
 
   /*
    * We keep doing this do/while loop until everything's connected.
@@ -717,9 +733,12 @@ DrawShortestRats (NetListType *Netl, void (*funcp) (register ConnectionType *, r
 }
 
 
-/* ---------------------------------------------------------------------------
- *  AddAllRats puts the rats nest into the layout from the loaded netlist
- *  if SelectedOnly is true, it will only draw rats to selected pins and pads
+/*!
+ * \brief AddAllRats puts the rats nest into the layout from the loaded
+ * netlist.
+ *
+ * If SelectedOnly is true, it will only draw rats to selected pins and
+ * pads.
  */
 bool
 AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionType *, register ConnectionType *, register RouteStyleType *))
@@ -810,9 +829,11 @@ AddAllRats (bool SelectedOnly, void (*funcp) (register ConnectionType *, registe
   return (false);
 }
 
-/* XXX: This is copied in large part from AddAllRats above; for
+/*!
+ * \todo This is copied in large part from AddAllRats above; for
  * maintainability, AddAllRats probably wants to be tweaked to use this
- * version of the code so that we don't have duplication. */
+ * version of the code so that we don't have duplication.
+ */
 NetListListType
 CollectSubnets (bool SelectedOnly)
 {
@@ -869,9 +890,9 @@ CollectSubnets (bool SelectedOnly)
   return result;
 }
 
-/*
- * Check to see if a particular name is the name of an already existing rats
- * line
+/*!
+ * \brief Check to see if a particular name is the name of an already
+ * existing rats line.
  */
 static int
 rat_used (char *name)
@@ -889,9 +910,10 @@ rat_used (char *name)
   return 0;
 }
 
-  /* These next two functions moved from the original netlist.c as part of the
-     |  gui code separation for the Gtk port.
-   */
+/*!
+ * \brief This function is moved from the original netlist.c as
+ * part of the gui code separation for the Gtk port.
+ */
 RatType *
 AddNet (void)
 {
@@ -1009,7 +1031,10 @@ ratIt:
 			group1, group2, Settings.RatThickness, NoFlags ()));
 }
 
-
+/*!
+ * \brief This function is moved from the original netlist.c as
+ * part of the gui code separation for the Gtk port.
+ */
 char *
 ConnectionName (int type, void *ptr1, void *ptr2)
 {
