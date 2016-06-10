@@ -408,7 +408,6 @@ int
 IPCD356_Netlist (void)
 {
   FILE *fp;
-//  char *filename;
   char *nodename;
   char *net;
   LibraryMenuType *netname;
