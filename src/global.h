@@ -175,19 +175,19 @@ typedef struct
 /* Any object that uses the "object flags" defined in const.h, or
    exists as an object on the pcb, MUST be defined using this as the
    first fields, either directly or through ANYLINEFIELDS.  */
-#define ANYOBJECTFIELDS         \
-    BoxType     BoundingBox;    \
-    long int    ID;     \
-    FlagType    Flags;      \
+#define ANYOBJECTFIELDS      \
+    BoxType     BoundingBox; \
+    long int    ID;          \
+    FlagType    Flags;       \
     //  struct LibraryEntryType *net
 
 /* Lines, pads, and rats all use this so they can be cross-cast.  */
-#define ANYLINEFIELDS           \
-    ANYOBJECTFIELDS;        \
-    Coord       Thickness,      \
-                        Clearance;      \
-    PointType   Point1,     \
-            Point2
+#define ANYLINEFIELDS        \
+    ANYOBJECTFIELDS;         \
+    Coord       Thickness,   \
+                Clearance;   \
+    PointType   Point1,      \
+                Point2
 
 /* ---------------------------------------------------------------------------
  * some useful values of our widgets
@@ -201,8 +201,7 @@ typedef struct
   hidGC bgGC, /*!< Background; changed from some routines. */
     fgGC, /*!< Foreground; changed from some routines. */
     pmGC; /*!< Depth 1 pixmap GC to store clip. */
-}
-OutputType;
+} OutputType;
 
 /*!
  * \brief Layer group.
@@ -283,10 +282,10 @@ typedef struct
 typedef struct
 {
   ANYOBJECTFIELDS;
-  int Scale; /*!< Text scaling in percent. */
-  Coord X; /*!< X-coordinate of origin. */
-  Coord Y; /*!< Y-coordinate of origin. */
-  BYTE Direction;
+  int   Scale;      /*!< Text scaling in percent. */
+  Coord X;          /*!< X-coordinate of origin. */
+  Coord Y;          /*!< Y-coordinate of origin. */
+  BYTE  Direction;
   char *TextString; /*!< String. */
   void *Element;
 } TextType;
@@ -297,16 +296,15 @@ typedef struct
 struct polygon_st
 {
   ANYOBJECTFIELDS;
-  Cardinal PointN; /*!< Number of points in polygon. */
-  Cardinal PointMax; /*!< Max number from malloc(). */
-  POLYAREA *Clipped; /*!< The clipped region of this polygon. */
-  PLINE *NoHoles; /*!< The polygon broken into hole-less regions */
-  int NoHolesValid; /*!< Is the NoHoles polygon up to date? */
-  PointType *Points; /*!< Data. */
-  Cardinal *HoleIndex; /*!< Index of hole data within the Points array. */
-  Cardinal HoleIndexN; /*!< Number of holes in polygon. */
-  Cardinal HoleIndexMax; /*!< Max number from malloc(). */
-
+  Cardinal   PointN;       /*!< Number of points in polygon. */
+  Cardinal   PointMax;     /*!< Max number from malloc(). */
+  POLYAREA  *Clipped;      /*!< The clipped region of this polygon. */
+  PLINE     *NoHoles;      /*!< The polygon broken into hole-less regions */
+  int        NoHolesValid; /*!< Is the NoHoles polygon up to date? */
+  PointType *Points;       /*!< Data. */
+  Cardinal  *HoleIndex;    /*!< Index of hole data within the Points array. */
+  Cardinal   HoleIndexN;   /*!< Number of holes in polygon. */
+  Cardinal   HoleIndexMax; /*!< Max number from malloc(). */
 };
 
 /*!
@@ -315,46 +313,45 @@ struct polygon_st
 typedef struct
 {
   ANYOBJECTFIELDS;
-  Coord Thickness, Clearance;
+  Coord     Thickness;
+  Coord     Clearance;
   PointType Point1;
   PointType Point2;
-  Coord Width; /*!< Length of axis */
-  Coord Height; /*!< Width of axis */
-  Coord X; /*!< X-value of the center coordinates. */
-  Coord Y; /*!< Y-value of the center coordinates. */
-  Angle StartAngle; /*!< The start angle in degrees. */
-  Angle Delta; /*!< The described angle in degrees. */
+  Coord     Width;         /*!< Length of axis */
+  Coord     Height;        /*!< Width of axis */
+  Coord     X;             /*!< X-value of the center coordinates. */
+  Coord     Y;             /*!< Y-value of the center coordinates. */
+  Angle     StartAngle;    /*!< The start angle in degrees. */
+  Angle     Delta;         /*!< The described angle in degrees. */
 } ArcType;
 
 struct rtree
 {
   struct rtree_node *root;
-  int size; /*!< Number of entries in tree */
+  int size;             /*!< Number of entries in tree */
 };
 
 /*!
  * \brief Holds information about one layer. */
 typedef struct
 {
-  LayertypeType Type; /*!< LT_* from hid.h */
-  char *Name; /*!< Layer name. */
-  Cardinal LineN; /*!< Number of lines. */
-  Cardinal TextN; /*!< Labels. */
-  Cardinal PolygonN; /*!< Polygons. */
-  Cardinal ArcN; /*!< Arcs. */
-  GList *Line;
-  GList *Text;
-  GList *Polygon;
-  GList *Arc;
+  LayertypeType Type;   /*!< LT_* from hid.h */
+  char    *Name;        /*!< Layer name. */
+  Cardinal LineN;       /*!< Number of lines. */
+  Cardinal TextN;       /*!< Labels. */
+  Cardinal PolygonN;    /*!< Polygons. */
+  Cardinal ArcN;        /*!< Arcs. */
+  GList   *Line;
+  GList   *Text;
+  GList   *Polygon;
+  GList   *Arc;
   rtree_t *line_tree, *text_tree, *polygon_tree, *arc_tree;
-  bool On; /*!< Visible flag. */
-  char *Color, /*!< Color. */
-   *SelectedColor;
+  bool     On;          /*!< Visible flag. */
+  char    *Color,       /*!< Color. */
+          *SelectedColor;
   AttributeListType Attributes;
-  int no_drc; /*!< Whether to ignore the layer when checking the design
-    rules */
-}
-LayerType;
+  int no_drc;           /*!< Whether to ignore the layer when checking design rules */
+} LayerType;
 
 /*!
  * \brief A rat line.
@@ -388,8 +385,8 @@ struct pin_st
   Coord Clearance;
   Coord Mask;
   Coord DrillingHole; /*!< Diameter of the drill hole. */
-  Coord X; /*!< X-value of the center coordinates. */
-  Coord Y; /*!< Y-value of the center coordinates. */
+  Coord X;            /*!< X-value of the center coordinates. */
+  Coord Y;            /*!< Y-value of the center coordinates. */
   char *Name;
   char *Number;
   void *Element;
@@ -415,17 +412,17 @@ typedef struct
      * - value third.
      * see macro.h.
      */
-  Coord MarkX; /*!< X-value of the position mark. */
-  Coord MarkY; /*!< Y-value of the position mark. */
-  Cardinal PinN; /*!< Number of pins. */
-  Cardinal PadN; /*!< Number of pads. */
+  Coord    MarkX; /*!< X-value of the position mark. */
+  Coord    MarkY; /*!< Y-value of the position mark. */
+  Cardinal PinN;  /*!< Number of pins. */
+  Cardinal PadN;  /*!< Number of pads. */
   Cardinal LineN; /*!< Number of lines. */
-  Cardinal ArcN; /*!< Number of arcs. */
-  GList *Pin;
-  GList *Pad;
-  GList *Line;
-  GList *Arc;
-  BoxType VBox;
+  Cardinal ArcN;  /*!< Number of arcs. */
+  GList   *Pin;
+  GList   *Pad;
+  GList   *Line;
+  GList   *Arc;
+  BoxType  VBox;
   AttributeListType Attributes;
 } ElementType;
 
@@ -438,12 +435,12 @@ typedef struct
 typedef struct
 {
   LineType *Line;
-  bool Valid;
-  Cardinal LineN; /*!< Number of lines. */
-  Cardinal LineMax;
-  Coord Width; /*!< Width of cell. */
-  Coord Height; /*!< Height of cell. */
-  Coord Delta; /*!< Distance to next symbol. */
+  bool      Valid;
+  Cardinal  LineN;   /*!< Number of lines. */
+  Cardinal  LineMax;
+  Coord     Width;   /*!< Width of cell. */
+  Coord     Height;  /*!< Height of cell. */
+  Coord     Delta;   /*!< Distance to next symbol. */
 } SymbolType;
 
 /*!
@@ -451,11 +448,11 @@ typedef struct
  */
 typedef struct
 {
-  Coord MaxHeight; /*!< Maximum cell width. */
-  Coord MaxWidth; /*!< Maximum cell height. */
-  BoxType DefaultSymbol; /*!< The default symbol is a filled box. */
+  Coord      MaxHeight;     /*!< Maximum cell width. */
+  Coord      MaxWidth;      /*!< Maximum cell height. */
+  BoxType    DefaultSymbol; /*!< The default symbol is a filled box. */
   SymbolType Symbol[MAX_FONTPOSITION + 1];
-  bool Valid;
+  bool       Valid;
 } FontType;
 
 /*!
@@ -463,15 +460,15 @@ typedef struct
  */
 typedef struct
 {
-  Cardinal ViaN; /*!< Number of vias. */
+  Cardinal ViaN;     /*!< Number of vias. */
   Cardinal ElementN; /*!< Number of elements. */
-  Cardinal RatN; /*!< Number of rat-lines. */
-  int LayerN; /*!< Number of layers in this board. */
-  GList *Via;
-  GList *Element;
-  GList *Rat;
+  Cardinal RatN;     /*!< Number of rat-lines. */
+  int      LayerN;   /*!< Number of layers in this board. */
+  GList   *Via;
+  GList   *Element;
+  GList   *Rat;
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],    /* for element names */
-   *rat_tree;
+          *rat_tree;
   struct PCBType *pcb;
   LayerType Layer[MAX_ALL_LAYER];
   int polyClip;
@@ -482,16 +479,16 @@ typedef struct
  */
 typedef struct
 {
-  Coord DrillSize; /*!< This drill's diameter. */
-  Cardinal ElementN; /*!< The number of elements using this drill size. */
-  Cardinal ElementMax; /*!< Max. number of elements from malloc(). */
-  Cardinal PinCount; /*!< Number of pins drilled this size. */
-  Cardinal ViaCount; /*!< Number of vias drilled this size. */
+  Coord    DrillSize;     /*!< This drill's diameter. */
+  Cardinal ElementN;      /*!< The number of elements using this drill size. */
+  Cardinal ElementMax;    /*!< Max. number of elements from malloc(). */
+  Cardinal PinCount;      /*!< Number of pins drilled this size. */
+  Cardinal ViaCount;      /*!< Number of vias drilled this size. */
   Cardinal UnplatedCount; /*!< Number of these holes that are unplated. */
-  Cardinal PinN; /*!< Number of drill coordinates in the list. */
-  Cardinal PinMax; /*!< Max. number of coordinates from malloc(). */
-  PinType **Pin; /*!< Coordinates to drill. */
-  ElementType **Element; /*!< A pointer to an array of element pointers. */
+  Cardinal PinN;          /*!< Number of drill coordinates in the list. */
+  Cardinal PinMax;        /*!< Max. number of coordinates from malloc(). */
+  PinType     **Pin;      /*!< Coordinates to drill. */
+  ElementType **Element;  /*!< A pointer to an array of element pointers. */
 } DrillType;
 
 /*!
@@ -499,16 +496,16 @@ typedef struct
  */
 typedef struct
 {
-  Cardinal DrillN; /*!< Number of drill sizes. */
-  Cardinal DrillMax; /*!< Max. number from malloc(). */
-  DrillType *Drill; /*!< Plated holes. */
+  Cardinal   DrillN;   /*!< Number of drill sizes. */
+  Cardinal   DrillMax; /*!< Max. number from malloc(). */
+  DrillType *Drill;    /*!< Plated holes. */
 } DrillInfoType;
 
 typedef struct
 {
-  Coord Thick; /*!< Line thickness. */
+  Coord Thick;    /*!< Line thickness. */
   Coord Diameter; /*!< Via diameter. */
-  Coord Hole; /*!< Via drill hole. */
+  Coord Hole;     /*!< Via drill hole. */
   Coord Keepaway; /*!< Min. separation from other nets. */
   char *Name;
   int index;
@@ -519,13 +516,13 @@ typedef struct
  */
 typedef struct
 {
-  char *ListEntry; /*!< The string for the selection box. */
+  char *ListEntry;       /*!< The string for the selection box. */
   char *AllocatedMemory; /*!< Pointer to allocated memory;
-    all others point to parts of the string. */
-  char *Template; /*!< m4 template name. */
-  char *Package; /*!< Package. */
-  char *Value; /*!< The value field. */
-  char *Description; /*!< Some descriptional text. */
+                              all others point to parts of the string. */
+  char *Template;        /*!< m4 template name. */
+  char *Package;         /*!< Package. */
+  char *Value;           /*!< The value field. */
+  char *Description;     /*!< Some descriptional text. */
 } LibraryEntryType;
 
 /*!
@@ -538,28 +535,28 @@ typedef struct
  */
 typedef struct
 {
-  char *Name; /*!< Name of the menu entry. */
-  char *directory; /*!< Directory name library elements are from. */
-  char *Style; /*!< Routing style. */
-  Cardinal EntryN; /*!< Number of objects. */
+  char *Name;        /*!< Name of the menu entry. */
+  char *directory;   /*!< Directory name library elements are from. */
+  char *Style;       /*!< Routing style. */
+  Cardinal EntryN;   /*!< Number of objects. */
   Cardinal EntryMax; /*!< Number of reserved memory locations. */
   LibraryEntryType *Entry; /*!< The entries. */
-  char flag; /*!< Used by the netlist window to enable/disable nets. */
-  char internal; /*!< If set, this is an internal-only entry, not
-                  * part of the global netlist. */
+  char flag;         /*!< Used by the netlist window to enable/disable nets. */
+  char internal;     /*!< If set, this is an internal-only entry, not
+                      * part of the global netlist. */
 } LibraryMenuType;
 
 typedef struct
 {
-  Cardinal MenuN; /*!< Number of objects. */
-  Cardinal MenuMax; /*!< Number of reserved memory locations. */
+  Cardinal MenuN;        /*!< Number of objects. */
+  Cardinal MenuMax;      /*!< Number of reserved memory locations. */
   LibraryMenuType *Menu; /*!< The entries. */
 } LibraryType;
 
 
 /*!
- * \brief The PCBType struct holds information about board layout most
- * of which is saved with the layout.
+ * \brief The PCBType struct holds information about board layout
+ *  most of which is saved with the layout.
  *
  * A new PCB layout struct is first initialized with values from the
  * user configurable \c Settings struct and then reset to the saved
@@ -571,57 +568,57 @@ typedef struct PCBType
 {
   long ID; /*!< See macro.h. */
   FlagType Flags;
-  char *Name, /*!< Name of board. */
-   *Filename, /*!< Name of file (from load). */
-   *PrintFilename, /*!< From print dialog. */
-   *Netlistname, /*!< Name of netlist file. */
-    ThermStyle; /*!< Type of thermal to place with thermal tool. */
-  bool Changed, /*!< Layout has been changed. */
-    ViaOn, /*!< Visibility flag for vias. */
-    ElementOn, /*!< Visibility flag for elements. */
-    RatOn, /*!< Visibility flag for rat lines. */
-    InvisibleObjectsOn,
-    PinOn, /*!< Visibility flag for pins. */
-    SilkActive, /*!< Active layer is actually silk. */
-    RatDraw; /*!< We're drawing rats. */
-  char *ViaColor, /*!< Via color. */
-   *ViaSelectedColor, /*!< Selected via color. */
-    *PinColor, /*!< Pin color. */
-    *PinSelectedColor, /*!< Selected pin color. */
-    *PinNameColor, /*!< Pin name color. */
-    *ElementColor, /*!< Element color. */
-    *RatColor, /*!< Rat line color. */
-    *InvisibleObjectsColor, /*!< Invisible objects color. */
-    *InvisibleMarkColor, /*!< Invisible mark color. */
-    *ElementSelectedColor, /*!< Selected elements color. */
-    *RatSelectedColor, /*!< Selected rat line color. */
-    *ConnectedColor, /*!< Connected color. */
-    *FoundColor, /*!< Found color. */
-    *WarnColor, /*!< Warning color. */
-    *MaskColor; /*!< Mask color. */
-  long CursorX, /*!< Cursor position as saved with layout (X value). */
-    CursorY, /*!< Cursor position as saved with layout (Y value). */
-    Clipping;
-  Coord Bloat, /*!< DRC bloat size saved with layout. */
-    Shrink, /*!< DRC shrink size saved with layout. */
-    minWid, /*!< DRC minimum width size saved with layout. */
-    minSlk, /*!< DRC minimum silk size saved with layout. */
-    minDrill, /*!< DRC minimum drill size saved with layout. */
-    minRing; /*!< DRC minimum annular ring size saved with layout. */
-  Coord GridOffsetX, /*!< As saved with layout (X value). */
-    GridOffsetY, /*!< As saved with layout (Y value). */
-    MaxWidth, /*!< Maximum allowed width size. */
-    MaxHeight; /*!< Maximum allowed height size. */
+  char *Name,                /*!< Name of board. */
+       *Filename,            /*!< Name of file (from load). */
+       *PrintFilename,       /*!< From print dialog. */
+       *Netlistname,         /*!< Name of netlist file. */
+        ThermStyle;          /*!< Type of thermal to place with thermal tool. */
+  bool  Changed,             /*!< Layout has been changed. */
+        ViaOn,               /*!< Visibility flag for vias. */
+        ElementOn,           /*!< Visibility flag for elements. */
+        RatOn,               /*!< Visibility flag for rat lines. */
+        InvisibleObjectsOn,
+        PinOn,               /*!< Visibility flag for pins. */
+        SilkActive,          /*!< Active layer is actually silk. */
+        RatDraw;             /*!< We're drawing rats. */
+  char *ViaColor,            /*!< Via color. */
+       *ViaSelectedColor,    /*!< Selected via color. */
+       *PinColor,            /*!< Pin color. */
+       *PinSelectedColor,    /*!< Selected pin color. */
+       *PinNameColor,        /*!< Pin name color. */
+       *ElementColor,        /*!< Element color. */
+       *RatColor,            /*!< Rat line color. */
+       *InvisibleObjectsColor, /*!< Invisible objects color. */
+       *InvisibleMarkColor,    /*!< Invisible mark color. */
+       *ElementSelectedColor,  /*!< Selected elements color. */
+       *RatSelectedColor,      /*!< Selected rat line color. */
+       *ConnectedColor,      /*!< Connected color. */
+       *FoundColor,          /*!< Found color. */
+       *WarnColor,           /*!< Warning color. */
+       *MaskColor;           /*!< Mask color. */
+  long  CursorX,             /*!< Cursor position as saved with layout (X value). */
+        CursorY,             /*!< Cursor position as saved with layout (Y value). */
+        Clipping;
+        Coord Bloat,         /*!< DRC bloat size saved with layout. */
+        Shrink,              /*!< DRC shrink size saved with layout. */
+        minWid,              /*!< DRC minimum width size saved with layout. */
+        minSlk,              /*!< DRC minimum silk size saved with layout. */
+        minDrill,            /*!< DRC minimum drill size saved with layout. */
+        minRing;             /*!< DRC minimum annular ring size saved with layout. */
+  Coord GridOffsetX,         /*!< As saved with layout (X value). */
+        GridOffsetY,         /*!< As saved with layout (Y value). */
+        MaxWidth,            /*!< Maximum allowed width size. */
+        MaxHeight,           /*!< Maximum allowed height size. */
+        Grid;                /*!< Used grid with offsets. */
+  double IsleArea,           /*!< Minimum poly island to retain. */
+         ThermScale;         /*!< Scale factor used with thermals. */
 
-  Coord Grid; /*!< Used grid with offsets. */
-  double IsleArea, /*!< Minimum poly island to retain. */
-    ThermScale; /*!< Scale factor used with thermals. */
-  FontType Font;
-  LayerGroupType LayerGroups;
-  RouteStyleType RouteStyle[NUM_STYLES];
-  LibraryType NetlistLib;
+  FontType          Font;
+  LayerGroupType    LayerGroups;
+  RouteStyleType    RouteStyle[NUM_STYLES];
+  LibraryType       NetlistLib;
   AttributeListType Attributes;
-  DataType *Data; /*!< Entire database. */
+  DataType          *Data;   /*!< Entire database. */
 
   bool is_footprint; /*!< If set, the user has loaded a footprint, not a pcb. */
 }
@@ -649,17 +646,17 @@ typedef struct
 typedef struct
 {
   LayerType *Layer;      /*!< Layer that holds the line. */
-  LineType *Line;        /*!< The line itself. */
+  LineType  *Line;       /*!< The line itself. */
   PointType *MovedPoint; /*!< And finally the point. */
 } RubberbandType;
 
 /*!
  * \brief Current marked line.
  */
-typedef struct			/*!< current marked line */
+typedef struct          /*!< current marked line */
 {
-  PointType Point1,		/*!< start- and end-position */
-    Point2;
+  PointType Point1,     /*!< start- and end-position */
+            Point2;
   long int State;
   bool draw;
 } AttachedLineType;
@@ -684,12 +681,12 @@ typedef struct
   Coord X, Y;                /*!< saved position when MOVE_MODE */
   BoxType BoundingBox;
   long int Type,             /*!< object type */
-    State;
+           State;
   void *Ptr1,                /*!< three pointers to data, see */
-   *Ptr2,                    /*!< search.c */
-   *Ptr3;
+       *Ptr2,                /*!< search.c */
+       *Ptr3;
   Cardinal RubberbandN,      /*!< number of lines in array */
-    RubberbandMax;
+           RubberbandMax;
   RubberbandType *Rubberband;
 } AttachedObjectType;
 
@@ -707,13 +704,13 @@ enum crosshair_shape
 typedef struct
 {
   hidGC GC,                            /*!< GC for cursor drawing */
-    AttachGC;                          /*!< and for displaying buffer contents */
+        AttachGC;                      /*!< and for displaying buffer contents */
   Coord X, Y,                          /*!< position in PCB coordinates */
-    MinX, MinY,                        /*!< lowest and highest coordinates */
-    MaxX, MaxY;
-  AttachedLineType AttachedLine;       /*!< data of new lines... */
-  AttachedBoxType AttachedBox;
-  PolygonType AttachedPolygon;
+        MinX, MinY,                    /*!< lowest and highest coordinates */
+        MaxX, MaxY;
+  AttachedLineType   AttachedLine;     /*!< data of new lines... */
+  AttachedBoxType    AttachedBox;
+  PolygonType        AttachedPolygon;
   AttachedObjectType AttachedObject;   /*!< data of attached objects */
   enum crosshair_shape shape;          /*!< shape of crosshair */
 } CrosshairType;
