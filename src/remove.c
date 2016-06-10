@@ -1,32 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/remove.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Functions used to remove vias, pins ...
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design.
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* functions used to remove vias, pins ...
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -107,8 +112,8 @@ static ObjectFunctionType DestroyFunctions = {
 static DataType *DestroyTarget;
 static bool Bulk = false;
 
-/* ---------------------------------------------------------------------------
- * remove PCB
+/*!
+ * \brief Remove PCB.
  */
 void
 RemovePCB (PCBType *Ptr)
@@ -118,8 +123,8 @@ RemovePCB (PCBType *Ptr)
   free (Ptr);
 }
 
-/* ---------------------------------------------------------------------------
- * destroys a via
+/*!
+ * \brief Destroys a via.
  */
 static void *
 DestroyVia (PinType *Via)
@@ -135,8 +140,8 @@ DestroyVia (PinType *Via)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * destroys a line from a layer 
+/*!
+ * \brief Destroys a line from a layer.
  */
 static void *
 DestroyLine (LayerType *Layer, LineType *Line)
@@ -152,8 +157,8 @@ DestroyLine (LayerType *Layer, LineType *Line)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * destroys an arc from a layer 
+/*!
+ * \brief Destroys an arc from a layer.
  */
 static void *
 DestroyArc (LayerType *Layer, ArcType *Arc)
@@ -168,8 +173,8 @@ DestroyArc (LayerType *Layer, ArcType *Arc)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * destroys a polygon from a layer
+/*!
+ * \brief Destroys a polygon from a layer.
  */
 static void *
 DestroyPolygon (LayerType *Layer, PolygonType *Polygon)
@@ -185,8 +190,8 @@ DestroyPolygon (LayerType *Layer, PolygonType *Polygon)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a polygon-point from a polygon and destroys the data
+/*!
+ * \brief Removes a polygon-point from a polygon and destroys the data.
  */
 static void *
 DestroyPolygonPoint (LayerType *Layer,
@@ -225,8 +230,8 @@ DestroyPolygonPoint (LayerType *Layer,
   return (Polygon);
 }
 
-/* ---------------------------------------------------------------------------
- * destroys a text from a layer
+/*!
+ * \brief Destroys a text from a layer.
  */
 static void *
 DestroyText (LayerType *Layer, TextType *Text)
@@ -282,8 +287,8 @@ DestroyElement (ElementType *Element)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * destroys a rat
+/*!
+ * \brief Destroys a rat.
  */
 static void *
 DestroyRat (RatType *Rat)
@@ -300,8 +305,8 @@ DestroyRat (RatType *Rat)
 }
 
 
-/* ---------------------------------------------------------------------------
- * removes a via
+/*!
+ * \brief Removes a via.
  */
 static void *
 RemoveVia (PinType *Via)
@@ -317,8 +322,8 @@ RemoveVia (PinType *Via)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a rat
+/*!
+ * \brief Removes a rat.
  */
 static void *
 RemoveRat (RatType *Rat)
@@ -365,8 +370,9 @@ remove_point (const BoxType * b, void *cl)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a line point, or a line if the selected point is the end
+/*!
+ * \brief Removes a line point, or a line if the selected point is the
+ * end.
  */
 static void *
 RemoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
@@ -390,8 +396,8 @@ RemoveLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
   return (RemoveLine (Layer, Line));
 }
 
-/* ---------------------------------------------------------------------------
- * removes a line from a layer 
+/*!
+ * \brief Removes a line from a layer.
  */
 void *
 RemoveLine (LayerType *Layer, LineType *Line)
@@ -407,8 +413,8 @@ RemoveLine (LayerType *Layer, LineType *Line)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes an arc from a layer 
+/*!
+ * \brief Removes an arc from a layer.
  */
 void *
 RemoveArc (LayerType *Layer, ArcType *Arc)
@@ -424,8 +430,8 @@ RemoveArc (LayerType *Layer, ArcType *Arc)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a text from a layer
+/*!
+ * \brief Removes a text from a layer.
  */
 void *
 RemoveText (LayerType *Layer, TextType *Text)
@@ -441,8 +447,8 @@ RemoveText (LayerType *Layer, TextType *Text)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a polygon from a layer
+/*!
+ * \brief Removes a polygon from a layer.
  */
 void *
 RemovePolygon (LayerType *Layer, PolygonType *Polygon)
@@ -458,8 +464,9 @@ RemovePolygon (LayerType *Layer, PolygonType *Polygon)
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a contour from a polygon.
+/*!
+ * \brief Removes a contour from a polygon.
+ *
  * If removing the outer contour, it removes the whole polygon.
  */
 static void *
@@ -509,8 +516,8 @@ RemovePolygonContour (LayerType *Layer,
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes a polygon-point from a polygon
+/*!
+ * \brief Removes a polygon-point from a polygon.
  */
 static void *
 RemovePolygonPoint (LayerType *Layer,
@@ -563,8 +570,8 @@ RemovePolygonPoint (LayerType *Layer,
   return NULL;
 }
 
-/* ---------------------------------------------------------------------------
- * removes an element
+/*!
+ * \brief Removes an element.
  */
 void *
 RemoveElement (ElementType *Element)
@@ -581,9 +588,10 @@ RemoveElement (ElementType *Element)
   return NULL;
 }
 
-/* ----------------------------------------------------------------------
- * removes all selected and visible objects
- * returns true if any objects have been removed
+/*!
+ * \brief Removes all selected and visible objects.
+ *
+ * \return true if any objects have been removed.
  */
 bool
 RemoveSelected (void)
@@ -600,9 +608,9 @@ RemoveSelected (void)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * remove object as referred by pointers and type,
- * allocated memory is passed to the 'remove undo' list
+/*!
+ * \brief Remove object as referred by pointers and type,
+ * allocated memory is passed to the 'remove undo' list.
  */
 void *
 RemoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
@@ -611,11 +619,11 @@ RemoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   return (ptr);
 }
 
-/* ---------------------------------------------------------------------------
- * DeleteRats - deletes rat lines only
- * can delete all rat lines, or only selected one
+/*!
+ * \brief Deletes rat lines only.
+ *
+ * Can delete all rat lines, or only selected one.
  */
-
 bool
 DeleteRats (bool selected)
 {
@@ -639,9 +647,10 @@ DeleteRats (bool selected)
   return (changed);
 }
 
-/* ---------------------------------------------------------------------------
- * remove object as referred by pointers and type
- * allocated memory is destroyed assumed to already be erased
+/*!
+ * \brief Remove object as referred by pointers and type.
+ *
+ * Allocated memory is destroyed assumed to already be erased.
  */
 void *
 DestroyObject (DataType *Target, int Type, void *Ptr1,
