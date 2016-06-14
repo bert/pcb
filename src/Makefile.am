@@ -331,6 +331,7 @@ hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	true > $@
 	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 # If we are building with dbus support, we need some extra files
 if WITH_DBUS
@@ -340,6 +341,7 @@ dbus-introspect.h : dbus.xml Makefile
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/"/' < $(srcdir)/dbus.xml >> $@.tmp
 	echo ";" >> $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 PCB_SRCS+=	${DBUS_SRCS}
 BUILT_SOURCES+=	dbus-introspect.h
@@ -385,6 +387,7 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	true > $@
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 libbatch_a_CPPFLAGS = -I$(top_srcdir) -I./hid/batch
 LIBBATCH_SRCS = \
@@ -397,6 +400,7 @@ hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	true > $@
 	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 libgerber_a_CPPFLAGS = -I$(top_srcdir)
 libgerber_a_SOURCES = \
@@ -422,6 +426,7 @@ hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 	true > $@
 	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 libpng_a_CPPFLAGS = -I$(top_srcdir) -I./hid/png
 LIBPNG_SRCS = \
@@ -436,6 +441,7 @@ hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	true > $@
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 libgcode_a_CPPFLAGS = -I$(top_srcdir) -I./hid/gcode
 LIBGCODE_SRCS = \
@@ -459,6 +465,7 @@ hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
 	true > $@
 	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 libnelma_a_CPPFLAGS = -I$(top_srcdir) -I./hid/nelma
 LIBNELMA_SRCS = \
@@ -472,6 +479,7 @@ hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
 	true > $@
 	(for f in ${LIBNELMA_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+	chmod 666 $@
 
 liblpr_a_CPPFLAGS = -I$(top_srcdir)
 liblpr_a_SOURCES = \
