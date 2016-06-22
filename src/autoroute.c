@@ -5246,8 +5246,8 @@ AutoRoute (bool selected)
   for (i = 0; i < NUM_STYLES; i++)
     {
       if (PCB->RouteStyle[i].Thick == 0 ||
-	  PCB->RouteStyle[1].Diameter == 0 ||
-	  PCB->RouteStyle[1].Hole == 0 || PCB->RouteStyle[i].Keepaway == 0)
+	  PCB->RouteStyle[i].Diameter == 0 ||
+	  PCB->RouteStyle[i].Hole == 0 || PCB->RouteStyle[i].Keepaway == 0)
 	{
 	  Message ("You must define proper routing styles\n"
 		   "before auto-routing.\n");
