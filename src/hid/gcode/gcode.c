@@ -1,36 +1,41 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/hid/gcode/gcode.c
  *
- *  PCB, interactive printed circuit board design
+ * \brief GCODE export HID.
  *
- *  GCODE export HID
- *  Copyright (c) 2010 Alberto Maccioni
- *  Copyright (c) 2012 Markus Hitter (mah@jump-ing.de)
- *  This code is based on the NELMA export HID, the PNG export HID,
- *  and potrace, a tracing program by Peter Selinger
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- */
-
-/*
  * This HID exports a PCB layout into:
- * one layer mask file (PNG format) per copper layer,
- * one G-CODE CNC drill file per drill size
- * one G-CODE CNC file per copper layer.
+ * - one layer mask file (PNG format) per copper layer,
+ * - one G-CODE CNC drill file per drill size
+ * - one G-CODE CNC file per copper layer.
+ *
  * The latter is used by a CNC milling machine to mill the pcb.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (c) 2010 Alberto Maccioni
+ *
+ * Copyright (c) 2012 Markus Hitter (mah@jump-ing.de)
+ *
+ * This code is based on the NELMA export HID, the PNG export HID,
+ * and potrace, a tracing program by Peter Selinger
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -81,8 +86,7 @@ static HID_DRAW gcode_graphics;
 
 struct color_struct
 {
-  /* the descriptor used by the gd library */
-  int c;
+  int c; /*!< The descriptor used by the gd library. */
 
   /* so I can figure out what rgb value c refers to */
   unsigned int r, g, b;
@@ -103,53 +107,52 @@ static struct color_struct *black = NULL, *white = NULL;
 static int linewidth = -1;
 static gdImagePtr lastbrush = (gdImagePtr)((void *) -1);
 
-/* gd image and file for PNG export */
-static gdImagePtr gcode_im = NULL;
+static gdImagePtr gcode_im = NULL; /*!< gd image and file for PNG export */
 static FILE *gcode_f = NULL;
 
 static int is_mask;
 static int is_drill;
 static int is_bottom;
 
-/*
- * Which groups of layers to export into PNG layer masks. 1 means export, 0
- * means do not export.
- */
 static int gcode_export_group[MAX_GROUP];
+        /*!< Which groups of layers to export into PNG layer masks.\n
+         * 1 means export, 0 means do not export. */
 
-/* Group that is currently exported. */
-static int gcode_cur_group;
+static int gcode_cur_group; /*!< Group that is currently exported. */
 
-/* Filename prefix and suffix that will be used when saving files. */
 static const char *gcode_basename = NULL;
+        /*!< Filename prefix and suffix that will be used when saving files. */
 
-/* Horizontal DPI (grid points per inch) */
-static int gcode_dpi = -1;
+static int gcode_dpi = -1; /*!< Horizontal DPI (grid points per inch). */
 
-static double gcode_cutdepth = 0;       /* milling depth (inch) */
-static double gcode_isoplunge = 0;      /* isolation milling plunge feedrate */
-static double gcode_isofeedrate = 0;    /* isolation milling feedrate */
+static double gcode_cutdepth = 0;       /*!< Milling depth (inch). */
+static double gcode_isoplunge = 0;      /*!< Isolation milling plunge feedrate. */
+static double gcode_isofeedrate = 0;    /*!< Isolation milling feedrate. */
 static char gcode_predrill;
-static double gcode_drilldepth = 0;     /* drilling depth (mm or in) */
-static double gcode_drillfeedrate = 0;  /* drilling feedrate */
-static double gcode_safeZ = 100;        /* safe Z (mm or in) */
-static int gcode_toolradius = 0;        /* iso-mill tool radius (1/100 mil) */
-static char gcode_drillmill = 0;        /* wether to drill with the mill tool */
-static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
-static double gcode_milltoolradius = 0; /* outline-mill tool radius (mm or in)*/
-static double gcode_millplunge = 0;     /* outline-milling plunge feedrate */
-static double gcode_millfeedrate = 0;   /* outline-milling feedrate */
+static double gcode_drilldepth = 0;     /*!< Drilling depth (mm or in). */
+static double gcode_drillfeedrate = 0;  /*!< Drilling feedrate. */
+static double gcode_safeZ = 100;        /*!< Safe Z (mm or in). */
+static int gcode_toolradius = 0;        /*!< Iso-mill tool radius (1/100 mil). */
+static char gcode_drillmill = 0;        /*!< Wether to drill with the mill tool. */
+static double gcode_milldepth = 0;      /*!< Outline milling depth (mm or in). */
+static double gcode_milltoolradius = 0; /*!< Outline-mill tool radius (mm or in). */
+static double gcode_millplunge = 0;     /*!< Outline-milling plunge feedrate. */
+static double gcode_millfeedrate = 0;   /*!< Outline-milling feedrate. */
 static char gcode_advanced = 0;
 static int save_drill = 0;
 
-/* structure to represent a single hole */
+/*!
+ * \brief Structure to represent a single hole.
+ */
 struct drill_hole
 {
   double x;
   double y;
 };
 
-/* structure to represent all holes of a given size */
+/*!
+ * \brief Structure to represent all holes of a given size.
+ */
 struct single_size_drills
 {
   double diameter_inches;
@@ -159,8 +162,8 @@ struct single_size_drills
   struct drill_hole* holes;
 };
 
-/* at the start we have no drills at all */
 static struct single_size_drills* drills             = NULL;
+        /*!< At the start we have no drills at all */
 static int                        n_drills           = 0;
 static int                        n_drills_allocated = 0;
 
@@ -255,13 +258,18 @@ REGISTER_ATTRIBUTES (gcode_attribute_list)
 
 /* *** Utility funcions **************************************************** */
 
-/* convert from default PCB units to gcode units */
+/*!
+ * \brief Convert from default PCB units to gcode units.
+ */
 static int pcb_to_gcode (int pcb)
 {
   return round(COORD_TO_INCH(pcb) * gcode_dpi);
 }
 
-/* Fits the given layer name into basename, just before the suffix */
+/*!
+ * \brief Fits the given layer name into basename, just before the
+ * suffix.
+ */
 static void
 gcode_get_filename (char *filename, const char *layername)
 {
@@ -285,11 +293,19 @@ gcode_get_filename (char *filename, const char *layername)
   // result is in char *filename
 }
 
-/* Sorts drills to produce a short tool path. I start with the hole nearest
- * (0,0) and for each subsequent one, find the hole nearest to the previous.
- * This isn't guaranteed to find the shortest path, but should be good enough.
- * Note that this is O(N^2). We can't use the O(N logN) sort, since our
- * shortest-distance origin changes with every point */
+/*!
+ * \brief Sorts drills to produce a short tool path.
+ *
+ * I start with the hole nearest (0,0) and for each subsequent one, find
+ * the hole nearest to the previous.
+ *
+ * This isn't guaranteed to find the shortest path, but should be good
+ * enough.
+ *
+ * \note This is O(N^2).
+ * We can't use the O(N logN) sort, since our shortest-distance origin
+ * changes with every point.
+ */
 static void
 sort_drill (struct drill_hole *drill, int n_drill)
 {
@@ -368,7 +384,9 @@ gcode_get_export_options (int *n)
   return gcode_attribute_list;
 }
 
-/* Populates gcode_export_group array */
+/*!
+ * \brief Populates gcode_export_group array.
+ */
 static void
 gcode_choose_groups ()
 {
@@ -403,14 +421,14 @@ gcode_choose_groups ()
     }
 }
 
+/*!
+ * \brief Allocate white and black.
+ *
+ * The first color allocated becomes the background color.
+ */
 static void
 gcode_alloc_colors ()
 {
-  /*
-   * Allocate white and black -- the first color allocated becomes the
-   * background color
-   */
-
   white = (struct color_struct *) malloc (sizeof (*white));
   white->r = white->g = white->b = 255;
   white->c = gdImageColorAllocate (gcode_im, white->r, white->g, white->b);
@@ -1437,8 +1455,12 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
               gdBrushed);
 }
 
-/* given a hole size, return the structure that currently holds the data for
-   that hole size. If there isn't one, make it */
+/*!
+ * \brief Given a hole size, return the structure that currently holds
+ * the data for that hole size.
+ *
+ * If there isn't one, make it.
+ */
 static int _drill_size_comparator(const void* _size0, const void* _size1)
 {
   double size0 = ((const struct single_size_drills*)_size0)->diameter_inches;
@@ -1451,6 +1473,7 @@ static int _drill_size_comparator(const void* _size0, const void* _size1)
 
   return 1;
 }
+
 static struct single_size_drills*
 get_drill(double diameter_inches)
 {
