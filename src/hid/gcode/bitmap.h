@@ -1,6 +1,20 @@
-/* Copyright (C) 2001-2007 Peter Selinger.
-   This file is part of Potrace. It is free software and it is covered
-   by the GNU General Public License. See the file COPYING for details. */
+/*!
+ * \file src/hid/gcode/bitmap.h
+ *
+ * \brief This header file collects some general-purpose macros (and
+ * static inline functions) that are used in various places.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2001-2007 Peter Selinger.
+ *
+ * This file is part of Potrace. It is free software and it is covered
+ * by the GNU General Public License. See the file COPYING for details.
+ */
 
 #ifndef BITMAP_H
 #define BITMAP_H
@@ -12,7 +26,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* The bitmap type is defined in potracelib.h */
+/*!
+ * \brief The bitmap type is defined in potracelib.h.
+ */
 #include "potracelib.h"
 
 /* The present file defines some convenient macros and static inline
@@ -47,7 +63,9 @@
 #define BM_INV(bm, x, y) (bm_safe(bm, x, y) ? BM_UINV(bm, x, y) : 0)
 #define BM_PUT(bm, x, y, b) (bm_safe(bm, x, y) ? BM_UPUT(bm, x, y, b) : 0)
 
-/* free the given bitmap. Leaves errno untouched. */
+/*!
+ * \brief Free the given bitmap. Leaves errno untouched.
+ */
 static inline void
 bm_free (potrace_bitmap_t * bm)
 {
@@ -58,7 +76,11 @@ bm_free (potrace_bitmap_t * bm)
   free (bm);
 }
 
-/* return new un-initialized bitmap. NULL with errno on error */
+/*!
+ * \brief Create a new bitmap.
+ *
+ * \return New un-initialized bitmap, NULL with errno on error.
+ */
 static inline potrace_bitmap_t *
 bm_new (int w, int h)
 {
@@ -82,14 +104,22 @@ bm_new (int w, int h)
   return bm;
 }
 
-/* clear the given bitmap. Set all bits to c. */
+/*!
+ * \brief Clear the given bitmap.
+ *
+ * Set all bits to c.
+ */
 static inline void
 bm_clear (potrace_bitmap_t * bm, int c)
 {
   memset (bm->map, c ? -1 : 0, bm->dy * bm->h * BM_WORDSIZE);
 }
 
-/* duplicate the given bitmap. Return NULL on error with errno set. */
+/*!
+ * \brief Duplicate the given bitmap.
+ *
+ * \return NULL on error with errno set.
+ */
 static inline potrace_bitmap_t *
 bm_dup (const potrace_bitmap_t * bm)
 {
@@ -102,7 +132,9 @@ bm_dup (const potrace_bitmap_t * bm)
   return bm1;
 }
 
-/* invert the given bitmap. */
+/*!
+ * \brief Invert the given bitmap.
+ */
 static inline void
 bm_invert (potrace_bitmap_t * bm)
 {
