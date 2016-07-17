@@ -1,6 +1,19 @@
-/* Copyright (C) 2001-2007 Peter Selinger.
-   This file is part of Potrace. It is free software and it is covered
-   by the GNU General Public License. See the file COPYING for details. */
+/*!
+ * \file src/hid/gcode/decompose.c
+ *
+ * \brief Auxiliary bitmap manipulations.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2001-2007 Peter Selinger.
+ *
+ * This file is part of Potrace. It is free software and it is covered
+ * by the GNU General Public License. See the file COPYING for details.
+ */
 
 /* decompose.c 146 2007-04-09 00:43:46Z selinger */
 
@@ -17,10 +30,9 @@
 #include "decompose.h"
 //#include "progress.h"
 
-/* ---------------------------------------------------------------------- */
-/* auxiliary bitmap manipulations */
-
-/* set the excess padding to 0 */
+/*!
+ * \brief Set the excess padding to 0.
+ */
 static void
 bm_clearexcess (potrace_bitmap_t * bm)
 {
@@ -43,8 +55,11 @@ struct bbox_s
 };
 typedef struct bbox_s bbox_t;
 
-/* clear the bm, assuming the bounding box is set correctly (faster
-   than clearing the whole bitmap) */
+/*!
+ * \brief Clear the bm, assuming the bounding box is set correctly.
+ *
+ * This is faster than clearing the whole bitmap.
+ */
 static void
 clear_bm_with_bbox (potrace_bitmap_t * bm, bbox_t * bbox)
 {
@@ -64,7 +79,10 @@ clear_bm_with_bbox (potrace_bitmap_t * bm, bbox_t * bbox)
 /* ---------------------------------------------------------------------- */
 /* auxiliary functions */
 
-/* deterministically and efficiently hash (x,y) into a pseudo-random bit */
+/*!
+ * \brief Deterministically and efficiently hash (x,y) into a pseudo-
+ * random bit.
+ */
 static inline int
 detrand (int x, int y)
 {
@@ -94,8 +112,12 @@ detrand (int x, int y)
   return z & 1;
 }
 
-/* return the "majority" value of bitmap bm at intersection (x,y). We
-   assume that the bitmap is balanced at "radius" 1.  */
+/*!
+ * \brief Return the "majority" value of bitmap bm at intersection
+ * (x,y).
+ *
+ * We assume that the bitmap is balanced at "radius" 1.
+ */
 static int
 majority (potrace_bitmap_t * bm, int x, int y)
 {
@@ -126,8 +148,11 @@ majority (potrace_bitmap_t * bm, int x, int y)
 /* ---------------------------------------------------------------------- */
 /* decompose image into paths */
 
-/* efficiently invert bits [x,infty) and [xa,infty) in line y. Here xa
-   must be a multiple of BM_WORDBITS. */
+/*!
+ * \brief Efficiently invert bits [x,infty) and [xa,infty) in line y.
+ *
+ * Here xa must be a multiple of BM_WORDBITS.
+ */
 static void
 xor_to_ref (potrace_bitmap_t * bm, int x, int y, int xa)
 {
@@ -157,14 +182,17 @@ xor_to_ref (potrace_bitmap_t * bm, int x, int y, int xa)
     }
 }
 
-/* a path is represented as an array of points, which are thought to
-   lie on the corners of pixels (not on their centers). The path point
-   (x,y) is the lower left corner of the pixel (x,y). Paths are
-   represented by the len/pt components of a path_t object (which
-   also stores other information about the path) */
-
-/* xor the given pixmap with the interior of the given path. Note: the
-   path must be within the dimensions of the pixmap. */
+/*!
+ * \brief xor the given pixmap with the interior of the given path.
+ *
+ * A path is represented as an array of points, which are thought to
+ * lie on the corners of pixels (not on their centers). The path point
+ * (x,y) is the lower left corner of the pixel (x,y). Paths are
+ * represented by the len/pt components of a path_t object (which
+ * also stores other information about the path).
+ *
+ * \note The path must be within the dimensions of the pixmap.
+ */
 static void
 xor_path (potrace_bitmap_t * bm, path_t * p)
 {
@@ -192,8 +220,11 @@ xor_path (potrace_bitmap_t * bm, path_t * p)
     }
 }
 
-/* Find the bounding box of a given path. Path is assumed to be of
-   non-zero length. */
+/*!
+ * \brief Find the bounding box of a given path.
+ *
+ * Path is assumed to be of non-zero length.
+ */
 static void
 setbbox_path (bbox_t * bbox, path_t * p)
 {
@@ -229,12 +260,16 @@ setbbox_path (bbox_t * bbox, path_t * p)
     }
 }
 
-/* compute a path in the given pixmap, separating black from white.
-   Start path at the point (x0,x1), which must be an upper left corner
-   of the path. Also compute the area enclosed by the path. Return a
-   new path_t object, or NULL on error (note that a legitimate path
-   cannot have length 0). Sign is required for correct interpretation
-   of turnpolicies. */
+/*!
+ * \brief Compute a path in the given pixmap, separating black from
+ * white.
+ *
+ * Start path at the point (x0,x1), which must be an upper left corner
+ * of the path. Also compute the area enclosed by the path. Return a
+ * new path_t object, or NULL on error (note that a legitimate path
+ * cannot have length 0). Sign is required for correct interpretation
+ * of turnpolicies.
+ */
 static path_t *
 findpath (potrace_bitmap_t * bm, int x0, int y0, int sign, int turnpolicy)
 {
@@ -340,22 +375,27 @@ error:
   return NULL;
 }
 
-/* Give a tree structure to the given path list, based on "insideness"
-   testing. I.e., path A is considered "below" path B if it is inside
-   path B. The input pathlist is assumed to be ordered so that "outer"
-   paths occur before "inner" paths. The tree structure is stored in
-   the "childlist" and "sibling" components of the path_t
-   structure. The linked list structure is also changed so that
-   negative path components are listed immediately after their
-   positive parent.  Note: some backends may ignore the tree
-   structure, others may use it e.g. to group path components. We
-   assume that in the input, point 0 of each path is an "upper left"
-   corner of the path, as returned by bm_to_pathlist. This makes it
-   easy to find an "interior" point. The bm argument should be a
-   bitmap of the correct size (large enough to hold all the paths),
-   and will be used as scratch space. Return 0 on success or -1 on
-   error with errno set. */
-
+/*!
+ * \brief Give a tree structure to the given path list, based on
+ * "insideness" testing.
+ *
+ * I.e., path A is considered "below" path B if it is inside
+ * path B. The input pathlist is assumed to be ordered so that "outer"
+ * paths occur before "inner" paths. The tree structure is stored in
+ * the "childlist" and "sibling" components of the path_t
+ * structure. The linked list structure is also changed so that
+ * negative path components are listed immediately after their
+ * positive parent.
+ *
+ * \note Some backends may ignore the tree structure, others may use it
+ * e.g. to group path components. We assume that in the input, point 0
+ * of each path is an "upper left" corner of the path, as returned by
+ * bm_to_pathlist. This makes it easy to find an "interior" point. The
+ * bm argument should be a bitmap of the correct size (large enough to
+ * hold all the paths), and will be used as scratch space.
+ *
+ * \return 0 on success or -1 on error with errno set.
+ */
 static void
 pathlist_to_tree (path_t * plist, potrace_bitmap_t * bm)
 {
@@ -489,11 +529,16 @@ pathlist_to_tree (path_t * plist, potrace_bitmap_t * bm)
   return;
 }
 
-/* find the next set pixel in a row <= y. Pixels are searched first
-   left-to-right, then top-down. In other words, (x,y)<(x',y') if y>y'
-   or y=y' and x<x'. If found, return 0 and store pixel in
-   (*xp,*yp). Else return 1. Note that this function assumes that
-   excess bytes have been cleared with bm_clearexcess. */
+/*!
+ * \brief Find the next set pixel in a row <= y.
+ *
+ * Pixels are searched first left-to-right, then top-down. In other
+ * words, (x,y)<(x',y') if y>y' or y=y' and x<x'. If found, return 0 and
+ * store pixel in (*xp,*yp). Else return 1.
+ *
+ * \note This function assumes that excess bytes have been cleared with
+ * bm_clearexcess.
+ */
 static int
 findnext (potrace_bitmap_t * bm, int *xp, int *yp)
 {
@@ -521,11 +566,14 @@ findnext (potrace_bitmap_t * bm, int *xp, int *yp)
   return 1;
 }
 
-/* Decompose the given bitmap into paths. Returns a linked list of
-   path_t objects with the fields len, pt, area, sign filled
-   in. Returns 0 on success with plistp set, or -1 on error with errno
-   set. */
-
+/*!
+ * \brief Decompose the given bitmap into paths.
+ *
+ * Returns a linked list of path_t objects with the fields len, pt,
+ * area, sign filled in.
+ *
+ * \return 0 on success with plistp set, or -1 on error with errno set.
+ */
 int
 bm_to_pathlist (const potrace_bitmap_t * bm, path_t ** plistp,
 		const potrace_param_t * param)
