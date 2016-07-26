@@ -12,6 +12,7 @@ addons:
     packages:
       - graphviz
       - autopoint
+      - intltool
 
 before_install:
   - sudo apt-get -qq update
