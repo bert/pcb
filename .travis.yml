@@ -11,6 +11,7 @@ addons:
   apt:
     packages:
       - graphviz
+      - autopoint
 
 before_install:
   - sudo apt-get -qq update
