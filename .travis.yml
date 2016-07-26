@@ -13,6 +13,7 @@ addons:
       - graphviz
       - autopoint
       - intltool
+      - dbus-1
 
 before_install:
   - sudo apt-get -qq update
