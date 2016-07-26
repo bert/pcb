@@ -13,7 +13,9 @@ addons:
       - graphviz
       - autopoint
       - intltool
-      - dbus-1
+      - libsqlite3-dev
+      - libdbus-glib-1-dev
+      - libdbus-1-dev
 
 before_install:
   - sudo apt-get -qq update
