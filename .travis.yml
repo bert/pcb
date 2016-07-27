@@ -14,6 +14,7 @@ addons:
       - autopoint
       - intltool
       - texinfo
+      - texlive
       - libgd2-xpm
       - libgd2-xpm-dev
       - lesstif2
