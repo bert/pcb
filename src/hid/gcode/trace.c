@@ -1,11 +1,24 @@
-/* This file was slightly modified by Alberto Maccioni to be used with PCB G-CODE exporter*/
-
-/* Copyright (C) 2001-2007 Peter Selinger.
-   This file is part of Potrace. It is free software and it is covered
-   by the GNU General Public License. See the file COPYING for details. */
+/*!
+ * \file src/hid/gcode/trace.c
+ *
+ * \brief Transform jaggy paths into smooth curves.
+ *
+ * This file was slightly modified by Alberto Maccioni to be used with
+ * PCB G-CODE exporter.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2001-2007 Peter Selinger.
+ *
+ * This file is part of Potrace. It is free software and it is covered
+ * by the GNU General Public License. See the file COPYING for details.
+ */
 
 /* trace.c 147 2007-04-09 00:44:09Z selinger */
-/* transform jaggy paths into smooth curves */
 
 #include <stdio.h>
 #include <math.h>
@@ -21,9 +34,14 @@
 #include "pcb-printf.h"
 //#include "progress.h"
 
-#define INFTY 10000000		/* it suffices that this is longer than any
-				   path; it need not be really infinite */
-#define COS179 -0.999847695156	/* the cosine of 179 degrees */
+/*!
+ * \brief It suffices that this is longer than any path; it need not
+ * be really infinite. */
+#define INFTY 10000000
+/*!
+ * \brief The cosine of 179 degrees.
+ */
+#define COS179 -0.999847695156
 
 /* ---------------------------------------------------------------------- */
 #define SAFE_MALLOC(var, n, typ) \
@@ -32,8 +50,11 @@
 /* ---------------------------------------------------------------------- */
 /* auxiliary functions */
 
-/* return a direction that is 90 degrees counterclockwise from p2-p0,
-   but then restricted to one of the major wind directions (n, nw, w, etc) */
+/*!
+ * \brief Return a direction that is 90 degrees counterclockwise from
+ * p2-p0, but then restricted to one of the major wind directions
+ * (n, nw, w, etc).
+ */
 static inline point_t
 dorth_infty (dpoint_t p0, dpoint_t p2)
 {
@@ -45,7 +66,9 @@ dorth_infty (dpoint_t p0, dpoint_t p2)
   return r;
 }
 
-/* return (p1-p0)x(p2-p0), the area of the parallelogram */
+/*!
+ * \brief Return (p1-p0)x(p2-p0), the area of the parallelogram.
+ */
 static inline double
 dpara (dpoint_t p0, dpoint_t p1, dpoint_t p2)
 {
@@ -59,8 +82,11 @@ dpara (dpoint_t p0, dpoint_t p1, dpoint_t p2)
   return x1 * y2 - x2 * y1;
 }
 
-/* ddenom/dpara have the property that the square of radius 1 centered
-   at p1 intersects the line p0p2 iff |dpara(p0,p1,p2)| <= ddenom(p0,p2) */
+/*!
+ * \brief ddenom/dpara have the property that the square of radius 1
+ * centered at p1 intersects the line p0p2 if
+ * |dpara(p0,p1,p2)| <= ddenom(p0,p2).
+ */
 static inline double
 ddenom (dpoint_t p0, dpoint_t p2)
 {
@@ -69,7 +95,9 @@ ddenom (dpoint_t p0, dpoint_t p2)
   return r.y * (p2.x - p0.x) - r.x * (p2.y - p0.y);
 }
 
-/* return 1 if a <= b < c < a, in a cyclic sense (mod n) */
+/*!
+ * \brief Return 1 if a <= b < c < a, in a cyclic sense (mod n).
+ */
 static inline int
 cyclic (int a, int b, int c)
 {
@@ -83,8 +111,11 @@ cyclic (int a, int b, int c)
     }
 }
 
-/* determine the center and slope of the line i..j. Assume i<j. Needs
-   "sum" components of p to be set. */
+/*!
+ * \brief Determine the center and slope of the line i..j.
+ *
+ * Assume i<j. Needs "sum" components of p to be set.
+ */
 static void
 pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
 {
@@ -164,12 +195,18 @@ pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
     }
 }
 
-/* the type of (affine) quadratic forms, represented as symmetric 3x3
-   matrices.  The value of the quadratic form at a vector (x,y) is v^t
-   Q v, where v = (x,y,1)^t. */
+/*!
+ * \brief The type of (affine) quadratic forms, represented as symmetric
+ * 3x3 matrices.
+ *
+ * The value of the quadratic form at a vector (x,y) is v^t Q v, where
+ * v = (x,y,1)^t.
+ */
 typedef double quadform_t[3][3];
 
-/* Apply quadratic form Q to vector w = (w.x,w.y) */
+/*!
+ * \brief Apply quadratic form Q to vector w = (w.x,w.y).
+ */
 static inline double
 quadform (quadform_t Q, dpoint_t w)
 {
@@ -192,14 +229,18 @@ quadform (quadform_t Q, dpoint_t w)
   return sum;
 }
 
-/* calculate p1 x p2 */
+/*!
+ * \brief Calculate p1 x p2.
+ */
 static inline int
 xprod (point_t p1, point_t p2)
 {
   return p1.x * p2.y - p1.y * p2.x;
 }
 
-/* calculate (p1-p0)x(p3-p2) */
+/*!
+ * \brief Calculate (p1-p0)x(p3-p2).
+ */
 static inline double
 cprod (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
 {
@@ -213,7 +254,9 @@ cprod (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
   return x1 * y2 - x2 * y1;
 }
 
-/* calculate (p1-p0)*(p2-p0) */
+/*!
+ * \brief Calculate (p1-p0)*(p2-p0).
+ */
 static inline double
 iprod (dpoint_t p0, dpoint_t p1, dpoint_t p2)
 {
@@ -227,7 +270,9 @@ iprod (dpoint_t p0, dpoint_t p1, dpoint_t p2)
   return x1 * x2 + y1 * y2;
 }
 
-/* calculate (p1-p0)*(p3-p2) */
+/*!
+ * \brief Calculate (p1-p0)*(p3-p2).
+ */
 static inline double
 iprod1 (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
 {
@@ -241,14 +286,18 @@ iprod1 (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
   return x1 * x2 + y1 * y2;
 }
 
-/* calculate distance between two points */
+/*!
+ * \brief Calculate distance between two points.
+ */
 static inline double
 ddist (dpoint_t p, dpoint_t q)
 {
   return hypot (p.x - q.x, p.y - q.y);
 }
 
-/* calculate point of a bezier curve */
+/*!
+ * \brief Calculate point of a bezier curve.
+ */
 static inline dpoint_t
 bezier (double t, dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
 {
@@ -269,9 +318,12 @@ bezier (double t, dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3)
   return res;
 }
 
-/* calculate the point t in [0..1] on the (convex) bezier curve
-   (p0,p1,p2,p3) which is tangent to q1-q0. Return -1.0 if there is no
-   solution in [0..1]. */
+/*!
+ * \brief Calculate the point t in [0..1] on the (convex) bezier curve
+ * (p0,p1,p2,p3) which is tangent to q1-q0.
+ *
+ * \return -1.0 if there is no solution in [0..1].
+ */
 static double
 tangent (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3, dpoint_t q0,
 	 dpoint_t q1)
@@ -314,10 +366,12 @@ tangent (dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3, dpoint_t q0,
     }
 }
 
-/* ---------------------------------------------------------------------- */
-/* Preparation: fill in the sum* fields of a path (used for later
-   rapid summing). Return 0 on success, 1 with errno set on
-   failure. */
+/*!
+ * \brief Preparation: fill in the sum* fields of a path (used for later
+ * rapid summing).
+ *
+ * \return 0 on success, 1 with errno set on failure.
+ */
 static int
 calc_sums (privpath_t * pp)
 {
@@ -349,36 +403,38 @@ malloc_error:
   return 1;
 }
 
-/* ---------------------------------------------------------------------- */
-/* Stage 1: determine the straight subpaths (Sec. 2.2.1). Fill in the
-   "lon" component of a path object (based on pt/len).	For each i,
-   lon[i] is the furthest index such that a straight line can be drawn
-   from i to lon[i]. Return 1 on error with errno set, else 0. */
-
-/* this algorithm depends on the fact that the existence of straight
-   subpaths is a triplewise property. I.e., there exists a straight
-   line through squares i0,...,in iff there exists a straight line
-   through i,j,k, for all i0<=i<j<k<=in. (Proof?) */
-
-/* this implementation of calc_lon is O(n^2). It replaces an older
-   O(n^3) version. A "constraint" means that future points must
-   satisfy xprod(constraint[0], cur) >= 0 and xprod(constraint[1],
-   cur) <= 0. */
-
-/* Remark for Potrace 1.1: the current implementation of calc_lon is
-   more complex than the implementation found in Potrace 1.0, but it
-   is considerably faster. The introduction of the "nc" data structure
-   means that we only have to test the constraints for "corner"
-   points. On a typical input file, this speeds up the calc_lon
-   function by a factor of 31.2, thereby decreasing its time share
-   within the overall Potrace algorithm from 72.6% to 7.82%, and
-   speeding up the overall algorithm by a factor of 3.36. On another
-   input file, calc_lon was sped up by a factor of 6.7, decreasing its
-   time share from 51.4% to 13.61%, and speeding up the overall
-   algorithm by a factor of 1.78. In any case, the savings are
-   substantial. */
-
-/* returns 0 on success, 1 on error with errno set */
+/*!
+ * \brief Stage 1: Determine the straight subpaths (Sec. 2.2.1).
+ *
+ * Fill in the "lon" component of a path object (based on pt/len). For
+ * each i, lon[i] is the furthest index such that a straight line can be
+ * drawn from i to lon[i].
+ *
+ * This algorithm depends on the fact that the existence of straight
+ * subpaths is a triplewise property. I.e., there exists a straight
+ * line through squares i0,...,in iff there exists a straight line
+ * through i,j,k, for all i0<=i<j<k<=in. (Proof?).
+ *
+ * This implementation of calc_lon is O(n^2). It replaces an older
+ * O(n^3) version. A "constraint" means that future points must
+ * satisfy xprod(constraint[0], cur) >= 0 and xprod(constraint[1],
+ * cur) <= 0.
+ *
+ * \note Remark for Potrace 1.1: the current implementation of calc_lon
+ * is more complex than the implementation found in Potrace 1.0, but it
+ * is considerably faster. The introduction of the "nc" data structure
+ * means that we only have to test the constraints for "corner"
+ * points. On a typical input file, this speeds up the calc_lon
+ * function by a factor of 31.2, thereby decreasing its time share
+ * within the overall Potrace algorithm from 72.6% to 7.82%, and
+ * speeding up the overall algorithm by a factor of 3.36. On another
+ * input file, calc_lon was sped up by a factor of 6.7, decreasing its
+ * time share from 51.4% to 13.61%, and speeding up the overall
+ * algorithm by a factor of 1.78. In any case, the savings are
+ * substantial.
+ *
+ * \return 1 on error with errno set, else 0.
+ */
 static int
 calc_lon (privpath_t * pp)
 {
@@ -554,12 +610,12 @@ malloc_error:
 }
 
 
-/* ---------------------------------------------------------------------- */
-/* Stage 2: calculate the optimal polygon (Sec. 2.2.2-2.2.4). */
-
-/* Auxiliary function: calculate the penalty of an edge from i to j in
-   the given path. This needs the "lon" and "sum*" data. */
-
+/*!
+ * \brief Stage 2: Calculate the optimal polygon (Sec. 2.2.2-2.2.4).
+ *
+ * Auxiliary function: calculate the penalty of an edge from i to j in
+ * the given path. This needs the "lon" and "sum*" data.
+ */
 static double
 penalty3 (privpath_t * pp, int i, int j)
 {
@@ -602,9 +658,16 @@ penalty3 (privpath_t * pp, int i, int j)
   return sqrt (s);
 }
 
-/* find the optimal polygon. Fill in the m and po components. Return 1
-   on failure with errno set, else 0. Non-cyclic version: assumes i=0
-   is in the polygon. Fixme: ### implement cyclic version. */
+/*!
+ * \brief Find the optimal polygon.
+ *
+ * Fill in the m and po components.
+ *
+ * Non-cyclic version: assumes i=0 is in the polygon.
+ * 
+ * \todo Implement cyclic version.
+ * \return 1 on failure with errno set, else 0.
+ */
 static int
 bestpolygon (privpath_t * pp)
 {
@@ -727,14 +790,15 @@ malloc_error:
   return 1;
 }
 
-/* ---------------------------------------------------------------------- */
-/* Stage 3: vertex adjustment (Sec. 2.3.1). */
-
-/* Adjust vertices of optimal polygon: calculate the intersection of
-   the two "optimal" line segments, then move it into the unit square
-   if it lies outside. Return 1 with errno set on error; 0 on
-   success. */
-
+/*!
+ * \brief Stage 3: Vertex adjustment (Sec. 2.3.1).
+ *
+ * Adjust vertices of optimal polygon: calculate the intersection of
+ * the two "optimal" line segments, then move it into the unit square
+ * if it lies outside.
+ *
+ * \return 1 with errno set on error; 0 on success.
+ */
 static int
 adjust_vertices (privpath_t * pp)
 {
@@ -965,10 +1029,11 @@ malloc_error:
   return 1;
 }
 
-/* ---------------------------------------------------------------------- */
-/* Stage 4: smoothing and corner analysis (Sec. 2.3.3) */
-
-/* Always succeeds and returns 0 */
+/*!
+ * \brief Stage 4: Smoothing and corner analysis (Sec. 2.3.3).
+ *
+ * \return Always succeeds and returns 0.
+ */
 static int
 ATTRIBUTE_UNUSED smooth (privcurve_t * curve, int sign, double alphamax)
 {
@@ -1047,19 +1112,27 @@ ATTRIBUTE_UNUSED smooth (privcurve_t * curve, int sign, double alphamax)
 /* ---------------------------------------------------------------------- */
 /* Stage 5: Curve optimization (Sec. 2.4) */
 
-/* a private type for the result of opti_penalty */
+/*!
+ * \brief A private type for the result of opti_penalty.
+ */
 struct opti_s
 {
-  double pen;			/* penalty */
-  dpoint_t c[2];		/* curve parameters */
-  double t, s;			/* curve parameters */
-  double alpha;			/* curve parameter */
+  double pen; /*!< Penalty. */
+  dpoint_t c[2]; /*!< Curve parameters. */
+  double t; /*!< Curve parameter. */
+  double s; /*!< Curve parameter. */
+  double alpha; /*!< Curve parameter. */
 };
 typedef struct opti_s opti_t;
 
-/* calculate best fit from i+.5 to j+.5.  Assume i<j (cyclically).
-   Return 0 and set badness and parameters (alpha, beta), if
-   possible. Return 1 if impossible. */
+/*!
+ * \brief Calculate best fit from i+.5 to j+.5.
+ *
+ * Assume i<j (cyclically).
+ *
+ * \return 0 and set badness and parameters (alpha, beta), if
+ * possible. Return 1 if impossible.
+ */
 static int
 opti_penalty (privpath_t * pp, int i, int j, opti_t * res,
 	      double opttolerance, int *convc, double *areac)
@@ -1231,9 +1304,12 @@ opti_penalty (privpath_t * pp, int i, int j, opti_t * res,
   return 0;
 }
 
-/* optimize the path p, replacing sequences of Bezier segments by a
-   single segment when possible. Return 0 on success, 1 with errno set
-   on failure. */
+/*!
+ * \brief Optimize the path p, replacing sequences of Bezier segments by
+ * a single segment when possible.
+ *
+ * \return 0 on success, 1 with errno set on failure.
+ */
 static int
 ATTRIBUTE_UNUSED opticurve (privpath_t * pp, double opttolerance)
 {
@@ -1438,7 +1514,11 @@ plotpolygon (privpath_t * pp, FILE * f, double scale,
 
 #define TRY(x) if (x) goto try_error
 
-/* return distance on success, -1 on error with errno set. */
+/*!
+ * \brief Process path.
+ *
+ * \return distance on success, -1 on error with errno set.
+ */
 double
 process_path (path_t * plist, const potrace_param_t * param,
 	      const potrace_bitmap_t * bm, FILE * f, double scale,
