@@ -16,8 +16,8 @@ addons:
       - texinfo
       - texlive
       - texlive-latex-extra
-      - libgd2-xpm
-      - libgd2-xpm-dev
+      - libgd2-noxpm
+      - libgd2-noxpm-dev
       - lesstif2
       - lesstif2-dev
       - libghc-gtkglext-prof
