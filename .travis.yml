@@ -13,6 +13,8 @@ addons:
       - graphviz
       - autopoint
       - intltool
+      - libgd2-xpm
+      - libgd2-xpm-dev
       - lesstif-bin
       - libghc-gtkglext-prof
       - libsqlite3-dev
