@@ -13,6 +13,7 @@ addons:
       - graphviz
       - autopoint
       - intltool
+      - texinfo
       - libgd2-xpm
       - libgd2-xpm-dev
       - lesstif-bin
