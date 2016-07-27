@@ -15,6 +15,7 @@ addons:
       - intltool
       - texinfo
       - texlive
+      - texlive-latex-extra
       - libgd2-xpm
       - libgd2-xpm-dev
       - lesstif2
