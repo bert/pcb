@@ -225,7 +225,7 @@ CreateNewPCB (void)
     ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
   }
 
-	CreateDefaultFont (ptr);
+  CreateDefaultFont (ptr);
 
   return (ptr);
 }
@@ -265,9 +265,9 @@ CreateNewPCBPost (PCBType *pcb, int use_defaults)
  */
 PinType *
 CreateNewVia (DataType *Data,
-	      Coord X, Coord Y,
-	      Coord Thickness, Coord Clearance, Coord Mask,
-	      Coord DrillingHole, char *Name, FlagType Flags)
+              Coord X, Coord Y,
+              Coord Thickness, Coord Clearance, Coord Mask,
+              Coord DrillingHole, char *Name, FlagType Flags)
 {
   PinType *Via;
 
