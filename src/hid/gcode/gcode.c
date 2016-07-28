@@ -483,6 +483,7 @@ gcode_start_gcode (const char *layername, bool metric)
   if ( ! file)
     {
       perror (buffer);
+      Message ("Can't open file %s\n", buffer);
       return NULL;
     }
   fprintf (file, "(Created by G-code exporter)\n");
