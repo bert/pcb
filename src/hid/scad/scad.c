@@ -66,9 +66,9 @@
 
 #include "scad.h"
 
-/****************************************************************************************************
-* SCAD export filter parameters and options
-****************************************************************************************************/
+/*
+ * SCAD export filter parameters and options
+ */
 
 static const char *board_outlines[] =
 {

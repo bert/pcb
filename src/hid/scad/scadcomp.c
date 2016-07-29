@@ -79,7 +79,7 @@ static int nprojectvars, mprojectvars;
 #define SCAD_MODEL_OVERLAY	1
 
 /*!
- * \briefLoads database of footprints and the corresponding map files.
+ * \brief Loads database of footprints and the corresponding map files.
  */
 static int
 scad_load_footprints (char *libpath, char *toppath)
