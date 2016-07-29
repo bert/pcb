@@ -480,27 +480,30 @@ TrackFootprintName(ElementType *element,  char *Footprint, bool strip_path)
   char *fp,*s;
   int l;
 
+  if (!Settings.EnableTrackingAttributes)
+    return;
+
   if (Footprint == NULL) 
     return;
 
   if (strip_path)
-  {
-    if ((fp = strdup(Footprint))==NULL)
-      return;
-
-    s = basename(fp);
-
-    /* now remove .fp extension */
-    l = strlen(s);
-    if (( l > 3 ) && !strcmp(s+l-3, ".fp"))
     {
-	s[l-3]='\0';
+      if ((fp = strdup (Footprint)) == NULL)
+        return;
+
+      s = basename (fp);
+
+      /* now remove .fp extension */
+      l = strlen (s);
+      if ((l > 3) && !strcmp( s+l-3, ".fp"))
+        {
+	  s[l-3] = '\0';
+        }
+      AttributePutToList (&(element->Attributes), "Footprint::File", s, 1);
+      free (fp);
     }
-    AttributePutToList (&(element->Attributes), "Footprint::File", s, 1);
-    free(fp);
-  } else {
+  else
     AttributePutToList (&(element->Attributes), "Footprint::File", Footprint, 1);
-  }
 }
 
 /*!

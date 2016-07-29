@@ -1550,6 +1550,16 @@ Execute the bell command when all rats are routed.
 */
   BSET (RingBellWhenFinished, 0, "ring-bell-finished",
        "Execute the bell command when all rats are routed"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --enable-tracking-attributes
+Enables tracking of rotation angle and footprint filename
+@end ftable
+%end-doc
+*/
+  BSET (EnableTrackingAttributes, 0, "enable-tracking-attributes",
+       "Enable tracking attributes for 3D models"),
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)

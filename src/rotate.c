@@ -208,35 +208,31 @@ RotateArcLowLevel (ArcType *Arc, Coord X, Coord Y, unsigned Number)
 }
 
 void
-TrackRotationAngle ( ElementType *Element, Angle angle)
+TrackRotationAngle (ElementType *Element, Angle angle)
 {
   Angle tmp_angle = (Angle)0;
   char *attr, newattr[12];
 
-  if ((attr = AttributeGetFromList (&(Element->Attributes), "Footprint::RotationTracking"))!=NULL)
-  {
-    sscanf(attr, "%lf", &tmp_angle);
-  }
+  if (!Settings.EnableTrackingAttributes)
+    return;
+
+  if ((attr = AttributeGetFromList (&(Element->Attributes), "Footprint::RotationTracking")) != NULL)
+      sscanf (attr, "%lf", &tmp_angle);
 
   /* change direction for objects on far side of PCB */
   if (ON_SIDE(Element,(Settings.ShowBottomSide)?BOTTOM_SIDE:TOP_SIDE))
-  {
-    tmp_angle = tmp_angle + angle;
-  } else {
-    tmp_angle = tmp_angle - angle;
-  }
+      tmp_angle = tmp_angle + angle;
+  else
+      tmp_angle = tmp_angle - angle;
 
   /* Normalize angle 0 - 360 degrees */
-  while (tmp_angle >= 360.0 )
-  {
+  while (tmp_angle >= 360.0)
     tmp_angle -= 360.0;
-  }
-  while (tmp_angle < 0.0 )
-  {
-    tmp_angle += 360.0;
-  }
 
-  snprintf(newattr,sizeof(newattr),"%.6lf", tmp_angle);
+  while (tmp_angle < 0.0)
+    tmp_angle += 360.0;
+
+  snprintf (newattr, sizeof(newattr),"%.6lf", tmp_angle);
   AttributePutToList (&(Element->Attributes), "Footprint::RotationTracking", newattr, 1);
 }
 

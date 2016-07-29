@@ -843,9 +843,10 @@ typedef struct
     RingBellWhenFinished,
       /*!< flag if a signal should be produced when searching of
        * connections is done. */
-    AutoPlace;
+    AutoPlace,
       /*!< Flag which says we should force placement of the windows on
        * startup. */
+    EnableTrackingAttributes;
 }
 SettingType;
 
