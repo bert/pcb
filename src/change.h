@@ -80,6 +80,7 @@ bool ChangeSelectedSquare (int);
 bool SetSelectedSquare (int);
 bool ClrSelectedSquare (int);
 bool ChangeSelectedThermals (int, int);
+bool ChangeSelectedViaLayers (int, int);
 bool ChangeSelectedHole (void);
 bool ChangeSelectedPaste (void);
 bool ChangeSelectedOctagon (int);
@@ -91,6 +92,7 @@ bool ChangeHole (PinType *);
 bool ChangePaste (PadType *);
 bool ChangeObjectSize (int, void *, void *, void *, Coord, bool);
 bool ChangeObjectThermal (int, void *, void *, void *, int);
+bool ChangeObjectViaLayers (void *, void *, void *, int, int);
 bool ChangeObjectClearSize (int, void *, void *, void *, Coord,
 			       bool);
 bool ChangeObject2ndSize (int, void *, void *, void *, Coord,

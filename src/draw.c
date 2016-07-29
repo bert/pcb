@@ -77,6 +77,8 @@ static BoxType Block = {MAXINT, MAXINT, -MAXINT, -MAXINT};
 static int doing_pinout = 0;
 static bool doing_assy = false;
 
+static int current_layergroup; /* used by via_callback */
+
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
@@ -190,8 +192,28 @@ _draw_pv (PinType *pv, bool draw_hole)
 {
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
+  else if (!ViaIsOnAnyVisibleLayer (pv))
+    gui->graphics->thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, false, false);
   else
-    gui->graphics->fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
+    {
+      gui->graphics->fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
+      if (gui->gui
+          && VIA_IS_BURIED (pv)
+          && !(TEST_FLAG (SELECTEDFLAG,  pv)
+	       || TEST_FLAG (CONNECTEDFLAG, pv)
+	       || TEST_FLAG (FOUNDFLAG,     pv)))
+        {
+          int w = (pv->Thickness - pv->DrillingHole) / 4;
+	  int r = pv->DrillingHole / 2 + w  / 2;
+          gui->graphics->set_line_cap (Output.fgGC, Square_Cap);
+	  gui->graphics->set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedFrom].Color);
+          gui->graphics->set_line_width (Output.fgGC, w);
+          gui->graphics->draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 270, 180);
+	  gui->graphics->set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedTo].Color);
+          gui->graphics->set_line_width (Output.fgGC, w);
+          gui->graphics->draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 90, 170);
+	}
+    }
 
   if ((!TEST_FLAG (HOLEFLAG, pv) && TEST_FLAG (DISPLAYNAMEFLAG, pv)) || doing_pinout)
     _draw_pv_name (pv);
@@ -230,10 +252,23 @@ draw_via (PinType *via, bool draw_hole)
   _draw_pv (via, draw_hole);
 }
 
+static bool
+via_visible_on_layer_group (PinType *via)
+{
+  if (current_layergroup == -1)
+     return true;
+  else
+   return ViaIsOnLayerGroup (via, current_layergroup);
+}
+
 static int
 via_callback (const BoxType * b, void *cl)
 {
-  draw_via ((PinType *)b, false);
+  PinType *via = (PinType *)b;
+
+  if (via_visible_on_layer_group (via))
+    draw_via (via, false);
+
   return 1;
 }
 
@@ -376,15 +411,50 @@ EMark_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+typedef struct
+{
+  int plated;
+  bool drill_pair;
+  Cardinal group_from;
+  Cardinal group_to;
+} hole_info;
+
 static int
 hole_callback (const BoxType * b, void *cl)
 {
+  hole_info his = {-1, false, 0, 0};
+  hole_info *hi = &his;
   PinType *pv = (PinType *) b;
-  int plated = cl ? *(int *) cl : -1;
 
-  if ((plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
-      (plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))
+  if (cl)
+    hi = (hole_info *)cl;
+
+  if (hi->drill_pair)
+    {
+      if (hi->group_from != 0
+          || hi->group_to != 0)
+	{
+          if (VIA_IS_BURIED (pv))
+            {
+              if (hi->group_from == GetLayerGroupNumberByNumber (pv->BuriedFrom)
+                  && hi->group_to == GetLayerGroupNumberByNumber (pv->BuriedTo))
+	        goto via_ok;
+	    }
+	}
+      else
+        if (!VIA_IS_BURIED (pv))
+	  goto via_ok;
+
+      return 1;
+    }
+
+via_ok:
+  if ((hi->plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
+      (hi->plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))
     return 1;
+
+  if (!via_visible_on_layer_group (pv))
+     return 1;
 
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
@@ -398,7 +468,16 @@ hole_callback (const BoxType * b, void *cl)
         }
     }
   else
-    gui->graphics->fill_circle (Output.bgGC, pv->X, pv->Y, pv->DrillingHole / 2);
+    if (ViaIsOnAnyVisibleLayer (pv))
+      gui->graphics->fill_circle (Output.bgGC, pv->X, pv->Y, pv->DrillingHole / 2);
+    else
+      {
+          gui->graphics->set_line_cap (Output.fgGC, Round_Cap);
+          gui->graphics->set_line_width (Output.fgGC, 0);
+          gui->graphics->draw_arc (Output.fgGC,
+                                   pv->X, pv->Y, pv->DrillingHole / 2,
+                                   pv->DrillingHole / 2, 0, 360);
+      }
 
   if (TEST_FLAG (HOLEFLAG, pv))
     {
@@ -416,15 +495,17 @@ hole_callback (const BoxType * b, void *cl)
 }
 
 void
-DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area)
+DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area, Cardinal g_from, Cardinal g_to)
 {
-  int plated = -1;
+  hole_info hi = {-1, true, g_from, g_to};
 
-  if ( draw_plated && !draw_unplated) plated = 1;
-  if (!draw_plated &&  draw_unplated) plated = 0;
+  if ( draw_plated && !draw_unplated) hi.plated = 1;
+  if (!draw_plated &&  draw_unplated) hi.plated = 0;
 
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+  current_layergroup = -1;
+
+  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &hi);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &hi);
 }
 
 static int
@@ -548,6 +629,8 @@ DrawEverything (const BoxType *drawn_area)
   int drawn_groups[MAX_GROUP];
   int plated, unplated;
   bool paste_empty;
+  int g_from, g_to;
+  char s[22];
 
   PCB->Data->SILKLAYER.Color = PCB->ElementColor;
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
@@ -608,15 +691,36 @@ DrawEverything (const BoxType *drawn_area)
 
       if (plated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
         {
-          DrawHoles (true, false, drawn_area);
+          DrawHoles (true, false, drawn_area, 0, 0);
           gui->end_layer ();
         }
 
       if (unplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0), 0))
         {
-          DrawHoles (false, true, drawn_area);
+          DrawHoles (false, true, drawn_area, 0, 0);
           gui->end_layer ();
         }
+
+      for (g_from = 0; g_from < (max_group - 1); g_from++)
+        for (g_to = g_from+1 ; g_to < max_group; g_to++ )
+	  {
+            CountHolesEx (&plated, &unplated, drawn_area, g_from, g_to);
+	    sprintf (s, "plated-drill_%02d-%02d", g_from+1, g_to+1);
+            if (plated && gui->set_layer (s, SL (PDRILL, 0), 0))
+              {
+                DrawHoles (true, false, drawn_area, g_from, g_to);
+                gui->end_layer ();
+              }
+
+	    sprintf (s, "unplated-drill_%02d-%02d", g_from+1, g_to+1);
+            if (unplated && gui->set_layer (s, SL (UDRILL, 0), 0))
+              {
+                DrawHoles (false, true, drawn_area, g_from, g_to);
+                gui->end_layer ();
+              }
+	  }
+
+
     }
 
   /* Draw the solder mask if turned on */
@@ -767,6 +871,9 @@ DrawPPV (int group, const BoxType *drawn_area)
   /* draw vias */
   if (PCB->ViaOn || !gui->gui)
     {
+
+      current_layergroup = (gui->gui)?(-1):group; /* Limit vias only for layer group */
+
       r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
     }

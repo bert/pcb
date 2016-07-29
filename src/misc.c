@@ -724,6 +724,8 @@ typedef struct
 {
   int nplated;
   int nunplated;
+  Cardinal group_from;
+  Cardinal group_to;
 } HoleCountStruct;
 
 static int
@@ -731,6 +733,20 @@ hole_counting_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
+
+  if (hcs->group_from != 0
+          || hcs->group_to != 0)
+    {
+      if (VIA_IS_BURIED (pin))
+        {
+          if (hcs->group_from == GetLayerGroupNumberByNumber (pin->BuriedFrom)
+              && hcs->group_to == GetLayerGroupNumberByNumber (pin->BuriedTo))
+	    goto count;
+	}
+      return 1;
+    }
+
+count:
   if (TEST_FLAG (HOLEFLAG, pin))
     hcs->nunplated++;
   else
@@ -747,7 +763,7 @@ hole_counting_callback (const BoxType * b, void *cl)
 void
 CountHoles (int *plated, int *unplated, const BoxType *within_area)
 {
-  HoleCountStruct hcs = {0, 0};
+  HoleCountStruct hcs = {0, 0, 0, 0};
 
   r_search (PCB->Data->pin_tree, within_area, NULL, hole_counting_callback, &hcs);
   r_search (PCB->Data->via_tree, within_area, NULL, hole_counting_callback, &hcs);
@@ -756,6 +772,23 @@ CountHoles (int *plated, int *unplated, const BoxType *within_area)
   if (unplated != NULL) *unplated = hcs.nunplated;
 }
 
+/*!
+ * \brief Counts the number of plated and unplated holes in the design
+ * within a given area of the board.
+ *
+ * To count for the whole board, pass NULL to the within_area.
+ */
+void
+CountHolesEx (int *plated, int *unplated, const BoxType *within_area, Cardinal group_from, Cardinal group_to)
+{
+  HoleCountStruct hcs = {0, 0, group_from, group_to};
+
+  r_search (PCB->Data->pin_tree, within_area, NULL, hole_counting_callback, &hcs);
+  r_search (PCB->Data->via_tree, within_area, NULL, hole_counting_callback, &hcs);
+
+  if (plated != NULL)   *plated   = hcs.nplated;
+  if (unplated != NULL) *unplated = hcs.nunplated;
+}
 
 /*!
  * \brief Gets minimum and maximum coordinates.
@@ -1599,7 +1632,7 @@ GetLayerGroupNumberBySide (int side)
   /* Find the relavant board side layer group by determining the
    * layer group associated with the relevant side's silk-screen
    */
-  return GetLayerGroupNumberByNumber(
+  return GetLayerGroupNumberByNumber (
       side == TOP_SIDE ? top_silk_layer : bottom_silk_layer);
 }
 
@@ -2206,6 +2239,271 @@ LayerGroupsToString (LayerGroupType *lg)
   *cp++ = 0;
   return buf;
 }
+
+int
+GetMaxBottomLayer ()
+{
+  int l = 0;
+  int group, i;
+
+  group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
+    {
+      if (PCB->LayerGroups.Entries[group][i] < max_copper_layer)
+        l = max (l, PCB->LayerGroups.Entries[group][i]);
+    }
+  return l;
+}
+
+
+/*!
+ * \brief Sanitize buried via
+ *
+ * - remove degraded vias
+ * - ensure correct order of layers
+ * - change full size vias to TH vias
+ */
+void
+SanitizeBuriedVia (PinType *via)
+{
+  /* we expect that via is burried/blind */
+
+  if (via->BuriedFrom > via->BuriedTo)
+    {
+      int tmp = via->BuriedFrom;
+      via->BuriedFrom = via->BuriedTo;
+      via->BuriedTo = tmp;
+    }
+
+  /* check, if via was extended to full stack (after first layer removal)*/
+  /* convert it in TH via in such case */
+  if (via->BuriedTo == GetMaxBottomLayer ()
+      && via->BuriedFrom == 0)
+    via->BuriedTo = 0;
+}
+
+#if 0
+bool
+IsLayerMoveSafe (int old_index, int new_index)
+{
+  VIA_LOOP (PCB->Data);
+    {
+      if (VIA_IS_BURIED (via))
+        {
+          /* moving from below to inside */
+          if ((old_index < via->BuriedFrom)
+              && (new_index < via->BuriedTo))
+            return false;
+
+          /* moving from above to inside */
+          if ((old_index > via->BuriedTo)
+              && (new_index > via->BuriedFrom))
+            return false;
+        }
+    }
+  END_LOOP;
+
+  return true;
+}
+
+#endif
+
+/*!
+ * \brief Update buried vias after layer move
+ *
+ */
+
+void
+ChangeBuriedViasAfterLayerMove (int old_index, int new_index)
+{
+  VIA_LOOP (PCB->Data);
+    {
+      if (VIA_IS_BURIED (via))
+        {
+          /* do nothing, if both layers are below the via */
+          if ((old_index < via->BuriedFrom)
+              && (new_index < via->BuriedFrom))
+            continue;
+
+          /* do nothing, if both layers are above the via */
+          if ((old_index > via->BuriedTo)
+              && (new_index > via->BuriedTo))
+            continue;
+
+          /* moving via top layer - via top follows layer */
+          if (old_index == via->BuriedFrom)
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+              via->BuriedFrom = new_index;
+            }
+
+          /* moving via bottom layer - via bottom follows layer */
+          else if (old_index == via->BuriedTo)
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+              via->BuriedTo = new_index;
+            }
+
+          /* moving layer covered by via inside the via (except top and bottom) - do nothing */
+          else if (VIA_ON_LAYER (via, old_index)
+              && VIA_ON_LAYER (via, new_index))
+            continue;
+
+          /* moving from inside to below - shrink via DANGEROUS op*/
+          else if (VIA_ON_LAYER (via, old_index)
+              && (new_index < via->BuriedFrom))
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+	      via->BuriedFrom++;
+            }
+
+          /* moving from inside to above - shrink via DANGEROUS op*/
+          else if (VIA_ON_LAYER (via, old_index)
+              && (new_index > via->BuriedTo))
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+	      via->BuriedTo--;
+            }
+
+          /* moving from above to below - shift via up */
+          else if ((old_index > via->BuriedTo)
+              && (new_index < via->BuriedFrom))
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+              via->BuriedFrom++;
+              via->BuriedTo++;
+            }
+
+          /* moving from below to above - shift via down */
+          else if ((old_index < via->BuriedFrom)
+              && (new_index >= via->BuriedTo))
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+              via->BuriedFrom--;
+              via->BuriedTo--;
+            }
+
+          /* moving from below to inside - extend via down DANGEROUS op*/
+          else if ((old_index < via->BuriedFrom)
+              && (new_index < via->BuriedTo))
+            {
+	      AddObjectToSetViaLayersUndoList (via, via, via);
+              via->BuriedFrom--;
+            }
+
+          /* moving from above to inside - extend via up DANGEROUS op*/
+          else if ((old_index > via->BuriedTo)
+              && (new_index > via->BuriedFrom))
+            {
+	      AddObjectToSetViaLayersUndoList ( via, via, via);
+              via->BuriedTo++;
+            }
+          else
+            {
+              Message (_("Layer move: failed via update: %d -> %d, via: %d:%d\n"), old_index, new_index, via->BuriedFrom, via->BuriedTo);
+              continue;
+            }
+
+          SanitizeBuriedVia (via);
+        }
+    }
+  END_LOOP;
+  RemoveDegradedVias ();
+}
+
+/*!
+ * \brief Update buried vias after new layer create
+ *
+ */
+void
+ChangeBuriedViasAfterLayerCreate (int index)
+{
+  VIA_LOOP (PCB->Data);
+    {
+      if (VIA_IS_BURIED (via))
+        {
+          if (index <= via->BuriedFrom
+	      || index <= via->BuriedTo)
+            AddObjectToSetViaLayersUndoList (via, via, via);
+
+          if (index <= via->BuriedFrom)
+            via->BuriedFrom++;
+          if (index <= via->BuriedTo)
+            via->BuriedTo++;
+        }
+    }
+  END_LOOP;
+}
+
+/*!
+ * \brief Update buried vias after layer delete
+ *
+ */
+void
+ChangeBuriedViasAfterLayerDelete (int index)
+{
+  VIA_LOOP (PCB->Data);
+    {
+      if (VIA_IS_BURIED (via))
+        {
+          if (index < via->BuriedFrom
+	      || index <= via->BuriedTo)
+            AddObjectToSetViaLayersUndoList (via, via, via);
+
+          if (index < via->BuriedFrom)
+            via->BuriedFrom--;
+          if (index <= via->BuriedTo)
+            via->BuriedTo--;
+
+          SanitizeBuriedVia (via);
+        }
+    }
+  END_LOOP;
+  RemoveDegradedVias ();
+}
+
+/*!
+ * \brief Check if via penetrates layer group
+ *
+ */
+bool
+ViaIsOnLayerGroup (PinType *via, int group)
+{
+  Cardinal layer;
+
+  if (!VIA_IS_BURIED (via))
+    return true;
+
+  for (layer = via->BuriedFrom; layer <= via->BuriedTo; layer++)
+    {
+       if (GetLayerGroupNumberByNumber (layer) == group)
+         return true;
+    }
+
+  return false;
+}
+
+/*!
+ * \brief Check if via penetrates any visible layer
+ *
+ */
+bool
+ViaIsOnAnyVisibleLayer (PinType *via)
+{
+  Cardinal layer;
+
+  if (!VIA_IS_BURIED (via))
+    return true;
+
+  for (layer = via->BuriedFrom; layer <= via->BuriedTo; layer ++)
+    {
+      if (PCB->Data->Layer[layer].On)
+        return true;
+    }
+
+  return false;
+}
+
 
 char *
 pcb_author (void)

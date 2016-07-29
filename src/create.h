@@ -42,6 +42,7 @@ void pcb_colors_from_settings (PCBType *);
 PCBType * CreateNewPCB ();
 int CreateNewPCBPost (PCBType *, int /* set defaults */);
 PinType * CreateNewVia (DataType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, FlagType);
+PinType * CreateNewViaEx (DataType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, FlagType, Cardinal buried_from, Cardinal buried_to);
 LineType * CreateDrawnLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
 LineType * CreateNewLineOnLayer (LayerType *, Coord, Coord, Coord, Coord, Coord, Coord, FlagType);
 RatType * CreateNewRat (DataType *, Coord, Coord, Coord, Coord, Cardinal, Cardinal, Coord, FlagType);

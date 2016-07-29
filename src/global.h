@@ -393,6 +393,8 @@ struct pin_st
   char *Number;
   void *Element;
   void *Spare;
+  Cardinal BuriedFrom;
+  Cardinal BuriedTo;
 };
 
 /* This is the extents of a Pin or Via, depending on whether it's a
@@ -840,6 +842,7 @@ typedef struct
     OrthogonalMoves, /*!< . */
     ResetAfterElement, /*!< Reset connections after each element. */
     liveRouting, /*!< Autorouter shows tracks in progress. */
+    AutoBuriedVias,
     RingBellWhenFinished,
       /*!< flag if a signal should be produced when searching of
        * connections is done. */
@@ -973,7 +976,7 @@ struct drc_violation_st
 #define	UNDO_LAYERCHANGE	       0x20000	/*!< Layer new/delete/move. */
 #define	UNDO_CLEAR		       0x40000	/*!< Clear/restore to polygons. */
 #define	UNDO_NETLISTCHANGE	       0x80000	/*!< Netlist change. */
-
+#define UNDO_CHANGESETVIALAYERS        0x100000  /*!< Buried data change. */
 /* ---------------------------------------------------------------------------
  */
 #if (__GNUC__ * 1000 + __GNUC_MINOR__) > 2007

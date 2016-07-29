@@ -56,5 +56,6 @@ bool RemoveSelected (void);
 bool DeleteRats (bool);
 void *RemoveObject (int, void *, void *, void *);
 void *DestroyObject (DataType *, int, void *, void *, void *);
+void RemoveDegradedVias (void);
 
 #endif

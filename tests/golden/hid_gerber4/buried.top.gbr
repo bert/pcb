@@ -1,0 +1,17 @@
+G04 start of page 2 for group 0 idx 0 *
+G04 Title: Basic Single Trace RS274-X Test, component *
+G04 Creator: pcb 1.99z *
+G04 CreationDate: Thu Sep  1 21:23:26 2016 UTC *
+G04 For: milan *
+G04 Format: Gerber/RS-274X *
+G04 PCB-Dimensions (mil): 2000.00 1000.00 *
+G04 PCB-Coordinate-Origin: lower left *
+%MOIN*%
+%FSLAX25Y25*%
+%LNTOP*%
+%ADD13C,0.0350*%
+%ADD12C,0.0600*%
+%ADD11C,0.0400*%
+G54D11*X10000Y50000D02*X90000D01*
+G54D12*D03*
+G54D13*M02*

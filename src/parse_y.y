@@ -715,7 +715,8 @@ pcbdefinition
 		;
 
 via
-		: via_hi_format
+		: via_ehi_format
+		| via_hi_format
 		| via_2.0_format
 		| via_1.7_format
 		| via_newformat
@@ -725,6 +726,7 @@ via
 /* %start-doc pcbfile Via
 
 @syntax
+Via [X Y Thickness Clearance Mask Drill BuriedFrom BuriedTo "Name" SFlags]
 Via [X Y Thickness Clearance Mask Drill "Name" SFlags]
 Via (X Y Thickness Clearance Mask Drill "Name" NFlags)
 Via (X Y Thickness Clearance Drill "Name" NFlags)
@@ -752,6 +754,16 @@ numerical flags only
 @end table
 
 %end-doc */
+
+via_ehi_format
+		/* x, y, thickness, clearance, mask, drilling-hole, buried_from, buried_to, name, flags */
+		: T_VIA '[' measure measure measure measure measure measure INTEGER INTEGER STRING flags ']'
+			{
+				CreateNewViaEx (yyData, NU ($3), NU ($4), NU ($5), NU ($6), NU ($7),
+						     NU ($8), $11, $12, $9, $10);
+				free ($11);
+			}
+		;
 
 via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */

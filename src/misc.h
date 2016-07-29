@@ -64,6 +64,7 @@ bool IsLayerNumEmpty (int);
 bool IsLayerGroupEmpty (int);
 bool IsPasteEmpty (int);
 void CountHoles (int *, int *, const BoxType *);
+void CountHolesEx (int *, int *, const BoxType *, Cardinal, Cardinal);
 BoxType * GetDataBoundingBox (DataType *);
 void CenterDisplay (Coord, Coord, bool warp_pointer);
 void SetFontInfo (FontType *);
@@ -132,6 +133,19 @@ extern const char *c_dtostr(double d);
 char * GetInfoString (void);
 void AssignDefaultLayerTypes ();
 int ElementOrientation (ElementType *e);
+
+/* Buried vias Functions */
+bool IsLayerMoveSafe (int, int);
+void ChangeBuriedViasAfterLayerMove (int, int);
+void ChangeBuriedViasAfterLayerCreate (int);
+void ChangeBuriedViasAfterLayerDelete (int);
+bool ViaIsOnLayerGroup (PinType *, int);
+bool ViaIsOnAnyVisibleLayer (PinType *);
+void SanitizeBuriedVia (PinType *);
+
+int GetMaxBottomLayer ();
+
+
 
 /*!
  * \todo These are in netlist.c

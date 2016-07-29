@@ -538,6 +538,7 @@ MoveRatToLayer (RatType *Rat)
 struct via_info
 {
   Coord X, Y;
+  Cardinal layer_from, layer_to;
   jmp_buf env;
 };
 
@@ -548,10 +549,10 @@ moveline_callback (const BoxType * b, void *cl)
   PinType *via;
 
   if ((via =
-       CreateNewVia (PCB->Data, i->X, i->Y,
+       CreateNewViaEx (PCB->Data, i->X, i->Y,
 		     Settings.ViaThickness, 2 * Settings.Keepaway,
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
-		     NoFlags ())) != NULL)
+		     NoFlags (), i->layer_from, i->layer_to)) != NULL)
     {
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
       DrawVia (via);
@@ -596,6 +597,17 @@ MoveLineToLayer (LayerType *Layer, LineType *Line)
       TEST_SILK_LAYER(Layer) ||
       TEST_SILK_LAYER(Dest))
     return (newone);
+
+  if (TEST_FLAG (AUTOBURIEDVIASFLAG, PCB))
+    {
+      info.layer_from = GetLayerNumber (PCB->Data, Layer);
+      info.layer_to = GetLayerNumber (PCB->Data, Dest);
+    }
+  else
+    {
+      info.layer_from = 0;
+      info.layer_to = 0;
+    }
   /* consider via at Point1 */
   sb.X1 = newone->Point1.X - newone->Thickness / 2;
   sb.X2 = newone->Point1.X + newone->Thickness / 2;
@@ -910,8 +922,8 @@ move_all_thermals (int old_index, int new_index)
 static int
 LastNormalLayerInSideGroup (int side, int layer)
 {
-  int side_group = GetLayerGroupNumberBySide(side);
-  int lgroup = GetLayerGroupNumberByNumber(layer);
+  int side_group = GetLayerGroupNumberBySide (side);
+  int lgroup = GetLayerGroupNumberByNumber (layer);
   if (side_group == lgroup
       && PCB->LayerGroups.Number[lgroup] == 2)
     return 1;
@@ -935,7 +947,6 @@ MoveLayer (int old_index, int new_index)
   int saved_group;
 
   AddLayerChangeToUndoList (old_index, new_index);
-  IncrementUndoSerialNumber ();
 
   if (old_index < -1 || old_index >= max_copper_layer)
     {
@@ -1000,6 +1011,9 @@ MoveLayer (int old_index, int new_index)
 	if (LayerStack[l] >= new_index)
 	  LayerStack[l]++;
       LayerStack[max_copper_layer - 1] = new_index;
+
+      if (!Undoing ())
+        ChangeBuriedViasAfterLayerCreate (new_index);
     }
   else if (new_index == -1)
     {
@@ -1022,6 +1036,9 @@ MoveLayer (int old_index, int new_index)
       for (l = 0; l < max_copper_layer; l++)
 	if (LayerStack[l] > old_index)
 	  LayerStack[l]--;
+
+      if (!Undoing ())
+        ChangeBuriedViasAfterLayerDelete (old_index);
     }
   else
     {
@@ -1048,7 +1065,12 @@ MoveLayer (int old_index, int new_index)
 	}
       memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof (LayerType));
       group_of_layer[new_index] = saved_group;
+
+      if (!Undoing ())
+         ChangeBuriedViasAfterLayerMove (old_index, new_index);
     }
+
+  IncrementUndoSerialNumber ();
 
   move_all_thermals(old_index, new_index);
 

@@ -54,7 +54,8 @@ void sort_netlist (void);
 int PCBFileVersionNeeded (void);
         /*!< This is the version needed by the file we're saving. */
 
-#define PCB_FILE_VERSION 20110603
+#define PCB_FILE_VERSION 20160729
+
         /*!< \brief This is the version we support.
          *
          * Whenever the pcb file format is modified, this version number

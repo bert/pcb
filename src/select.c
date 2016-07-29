@@ -1017,3 +1017,27 @@ SelectObjectByName (int Type, char *Pattern, bool select)
   return (changed);
 }
 #endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
+
+/*!
+ * \brief Selects all blind/buried vias
+ *
+ * \return true if any object has been selected.
+ */
+bool
+SelectBuriedVias (bool select)
+{
+  bool changed = false;
+
+  VIA_LOOP (PCB->Data)
+   if (TEST_FLAG (LOCKFLAG, via))
+     continue;
+   if (VIA_IS_BURIED (via))
+      {
+	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+	ASSIGN_FLAG (SELECTEDFLAG, select, via);
+	changed = true;
+      }
+  END_LOOP;
+
+  return changed;
+}

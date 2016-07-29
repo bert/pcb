@@ -61,6 +61,7 @@ enum File_Name_Style {
 
 /* Returns a filename base that can be used to output the layer.  */
 const char *layer_type_to_file_name (int idx, int style);
+const char *layer_type_to_file_name_ex (int idx, int style, const char *layer_name);
 
 /* Convenience function that calls the expose callback for the item,
    and returns the extents of what was drawn.  */

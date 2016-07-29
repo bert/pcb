@@ -88,5 +88,5 @@ int SearchObjectByLocation (unsigned, void **, void **, void **, Coord, Coord, C
 int SearchScreen (Coord, Coord, int, void **, void **, void **);
 int SearchObjectByID (DataType *, void **, void **, void **, int, int);
 ElementType * SearchElementByName (DataType *, char *);
-
+int SearchLayerByName (DataType *Base, char *Name);
 #endif

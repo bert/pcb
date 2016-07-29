@@ -482,3 +482,6 @@ extern int mem_any_set (unsigned char *, int);
             continue;
 
 #endif
+
+#define VIA_IS_BURIED(via) (via->BuriedFrom != 0 || via->BuriedTo != 0)
+#define VIA_ON_LAYER(via, layer) (layer >= via->BuriedFrom && layer <= via->BuriedTo )

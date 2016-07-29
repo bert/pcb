@@ -190,10 +190,10 @@ CopyVia (PinType *Via)
 {
   PinType *via;
 
-  via = CreateNewVia (PCB->Data, Via->X + DeltaX, Via->Y + DeltaY,
+  via = CreateNewViaEx (PCB->Data, Via->X + DeltaX, Via->Y + DeltaY,
 		      Via->Thickness, Via->Clearance, Via->Mask,
 		      Via->DrillingHole, Via->Name,
-		      MaskFlags (Via->Flags, NOCOPY_FLAGS));
+		      MaskFlags (Via->Flags, NOCOPY_FLAGS), Via->BuriedFrom, Via->BuriedTo);
   if (!via)
     return (via);
   DrawVia (via);

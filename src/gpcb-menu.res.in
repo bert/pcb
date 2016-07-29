@@ -115,6 +115,12 @@ MainMenu =
     -
     {"Edit..." AdjustStyle(0)}
    }
+   -
+   {"Via type"
+     {"Through-hole"  a={"Xtrl-Shift-P" "Ctrl Shift<Key>p"} SetViaLayers(Object,th)}
+     {"Buried from" a={"Xtrl-Shift-F" "Ctrl Shift<Key>f"} SetViaLayers(Object,c,-)}
+     {"Buried to" a={"Xtrl-Shift-T" "Ctrl Shift<Key>t"} SetViaLayers(Object,-,c)}
+   }
   }
 
 #
@@ -217,7 +223,8 @@ MainMenu =
    {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
    {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
-   -
+   {"Auto buried vias" checked=autoburiedvias Display(ToggleAutoBuriedVias)}
+
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
    {"Import New Elements at" m=I
     {" Center" Import(setnewpoint,center) m=C}
@@ -235,6 +242,7 @@ MainMenu =
    {"Select all visible" Select(All)}
    {"Select all found" Select(Found)}
    {"Select all connected" Select(Connection)}
+   {"Select all buried vias" Select(BuriedVias)}
    -
    {"Unselect all" Unselect(All)}
    {"Unselect all found" Unselect(Found)}
@@ -285,6 +293,12 @@ MainMenu =
    {"Change square-flag of selected objects"
     {"Elements" ChangeSquare(SelectedElements)}
     {"Pins" ChangeSquare(SelectedPins)}
+   }
+   -
+   {"Change type of selected vias"
+    {"Through-hole" SetViaLayers(selected,th)}
+    {"Buried from current layer" SetViaLayers(selected,c,-)}
+    {"Buried to current layer" SetViaLayers(selected,-,c)}
    }
   }
 

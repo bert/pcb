@@ -216,3 +216,13 @@ layer_type_to_file_name (int idx, int style)
       break;
     }
 }
+
+const char *
+layer_type_to_file_name_ex (int idx, int style, const char *layer_name)
+{
+  if (idx == SL (PDRILL, 0)
+      || idx == SL (UDRILL, 0))
+    return layer_name;
+  else
+    return layer_type_to_file_name (idx,  style);
+}

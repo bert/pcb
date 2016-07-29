@@ -681,10 +681,10 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
     {
       /* %%Page DSC requires both a label and an ordinal */
       fprintf (the_file, "%%%%Page: TableOfContents 1\n");
-      fprintf (the_file, "/Times-Roman findfont 24 scalefont setfont\n");
+      fprintf (the_file, "/Times-Roman findfont 14 scalefont setfont\n");
       fprintf (the_file, "/rightshow { /s exch def s stringwidth pop -1 mul 0 rmoveto s show } def\n");
       fprintf (the_file, "/y 72 9 mul def /toc { 100 y moveto show /y y 24 sub def } bind def\n");
-      fprintf (the_file, "/tocp { /y y 12 sub def 90 y moveto rightshow } bind def\n");
+      fprintf (the_file, "/tocp { /y y 0 sub def 90 y moveto rightshow } bind def\n");
 
       global.doing_toc = 1;
       global.pagecount = 1;  /* 'pagecount' is modified by hid_expose_callback() call */
@@ -853,7 +853,7 @@ ps_set_layer (const char *name, int group, int empty)
               ps_end_file (global.f);
               fclose (global.f);
             }
-	  global.f = psopen (global.filename, layer_type_to_file_name (idx, FNS_fixed));
+	  global.f = psopen (global.filename, layer_type_to_file_name_ex (idx, FNS_fixed, name));
 	  if (!global.f)
 	  {
 	    perror (global.filename);
@@ -871,7 +871,7 @@ ps_set_layer (const char *name, int group, int empty)
        * ordinal page number must reflect the position of that page in
        * the body of the PostScript file and must start with 1, not 0.
        */
-      fprintf (global.f, "%%%%Page: %s %d\n", layer_type_to_file_name(idx, FNS_fixed), global.pagecount);
+      fprintf (global.f, "%%%%Page: %s %d\n", layer_type_to_file_name_ex (idx, FNS_fixed, name), global.pagecount);
 
       if (global.mirror)
 	mirror_this = !mirror_this;
@@ -887,10 +887,10 @@ ps_set_layer (const char *name, int group, int empty)
 	  fprintf (global.f, "30 30 moveto (%s) show\n", PCB->Filename);
 	  if (PCB->Name)
 	    fprintf (global.f, "30 41 moveto (%s, %s) show\n",
-		     PCB->Name, layer_type_to_file_name (idx, FNS_fixed));
+		     PCB->Name, layer_type_to_file_name_ex (idx, FNS_fixed, name));
 	  else
 	    fprintf (global.f, "30 41 moveto (%s) show\n",
-		     layer_type_to_file_name (idx, FNS_fixed));
+		     layer_type_to_file_name_ex (idx, FNS_fixed, name));
 	  if (mirror_this)
 	    fprintf (global.f, "( \\(mirrored\\)) show\n");
 

@@ -1644,6 +1644,31 @@ SearchElementByName (DataType *Base, char *Name)
 }
 
 /*!
+ * \brief Searches for an layer by its board name.
+ *
+ * \return The function returns an index of the layer, -1 if not
+ * found.
+ */
+int
+SearchLayerByName (DataType *Base, char *Name)
+{
+  int result = 0;
+
+  LAYER_LOOP (Base, max_copper_layer);
+  {
+    if (layer->Name &&
+	NSTRCMP (layer->Name, Name) == 0)
+      {
+	return result;
+      }
+    else
+      result++;
+  }
+  END_LOOP;
+  return -1;
+}
+
+/*!
  * \brief Searches the cursor position for the type.
  */
 int

@@ -189,6 +189,8 @@ CreateNewPCB (void)
     SET_FLAG (SHOWDRCFLAG, ptr);
   if (Settings.AutoDRC)
     SET_FLAG (AUTODRCFLAG, ptr);
+  if (Settings.AutoBuriedVias)
+    SET_FLAG (AUTOBURIEDVIASFLAG, ptr);
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
   STYLE_LOOP (ptr);
@@ -290,6 +292,8 @@ CreateNewVia (DataType *Data,
 
   Via->Name = STRDUP (Name);
   Via->Flags = Flags;
+  Via->BuriedFrom = 0;
+  Via->BuriedTo = 0;
   CLEAR_FLAG (WARNFLAG, Via);
   SET_FLAG (VIAFLAG, Via);
   Via->ID = ID++;
@@ -313,6 +317,42 @@ CreateNewVia (DataType *Data,
   r_insert_entry (Data->via_tree, (BoxType *) Via, 0);
   return (Via);
 }
+
+/*!
+ *  * \brief Creates a new via with buried info.
+ *   */
+PinType *
+CreateNewViaEx (DataType *Data,
+              Coord X, Coord Y,
+              Coord Thickness, Coord Clearance, Coord Mask,
+              Coord DrillingHole, char *Name, FlagType Flags,
+	      Cardinal buried_from, Cardinal buried_to)
+{
+  PinType *Via;
+
+  Via = CreateNewVia (Data, X, Y, Thickness, Clearance, Mask,
+              DrillingHole, Name, Flags);
+  if (Via)
+    {
+      if (buried_from == buried_to)
+        {
+          Via->BuriedFrom = 0;
+          Via->BuriedTo = 0;
+	}
+      else if (buried_from <= buried_to)
+        {
+          Via->BuriedFrom = buried_from;
+          Via->BuriedTo = buried_to;
+	}
+      else
+        {
+          Via->BuriedFrom = buried_to;
+          Via->BuriedTo = buried_from;
+	}
+    }
+  return Via;
+}
+
 
 struct line_info
 {

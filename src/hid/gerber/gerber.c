@@ -548,7 +548,7 @@ assign_hackvana_file_suffix (char *dest, int idx)
 }
 
 static void
-assign_file_suffix (char *dest, int idx)
+assign_file_suffix (char *dest, int idx, const char *layer_name)
 {
   int fns_style;
   const char *sext = ".gbr";
@@ -577,7 +577,7 @@ assign_file_suffix (char *dest, int idx)
       break;
     }
 
-  strcpy (dest, layer_type_to_file_name (idx, fns_style));
+  strcpy (dest, layer_type_to_file_name_ex (idx, fns_style, layer_name));
   strcat (dest, sext);
 }
 
@@ -796,7 +796,7 @@ gerber_set_layer (const char *name, int group, int empty)
       f = NULL;
 
       pagecount++;
-      assign_file_suffix (filesuff, idx);
+      assign_file_suffix (filesuff, idx, name);
       f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
       if (f == NULL) 
 	{

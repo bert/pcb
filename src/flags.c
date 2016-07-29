@@ -252,6 +252,7 @@ HID_Flag flags_flag_list[] = {
   {"onlynames",            FlagTESTFLAG,     GINT_TO_POINTER (ONLYNAMESFLAG)},
   {"newfullpoly",          FlagTESTFLAG,     GINT_TO_POINTER (NEWFULLPOLYFLAG)},
   {"hidenames",            FlagTESTFLAG,     GINT_TO_POINTER (HIDENAMESFLAG)},
+  {"autoburiedvias",       FlagTESTFLAG,     GINT_TO_POINTER (AUTOBURIEDVIASFLAG)},
 
   {"grid_units_mm",        FlagUnitsMm,      NULL},
   {"grid_units_mil",       FlagUnitsMil,     NULL},

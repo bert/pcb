@@ -159,6 +159,7 @@ hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcod
 hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.bottom.gbr  gbx:gerber_oneline.top.gbr cnc:gerber_oneline.plated-drill.cnc
 hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.bottom.gbr  gbx:out.top.gbr cnc:out.plated-drill.cnc
 hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.gbr gbx:arcs.top.gbr gbx:arcs.group1.gbr gbx:arcs.group4.gbr cnc:arcs.plated-drill.cnc
+hid_gerber4 | buried.pcb | gerber | --gerberfile buried | | gbx:buried.bottom.gbr gbx:buried.top.gbr gbx:buried.group2.gbr gbx:buried.group4.gbr gbx:buried.group7.gbr cnc:buried.plated-drill.cnc cnc:buried.plated-drill_03-08.cnc
 #
 ######################################################################
 # ---------------------------------------------
@@ -170,6 +171,7 @@ hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.g
 # per page.
 #
 hid_ps1 | circles.pcb | ps | --psfile circles.ps | | ps:circles.ps
+hid_ps2 | buried.pcb | ps | --psfile buried.ps | | ps:buried.ps
 #
 ######################################################################
 # ---------------------------------------------
