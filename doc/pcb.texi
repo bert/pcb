@@ -1910,7 +1910,7 @@ select the desired exporter.
 * gcode::              G-code.
 * gerber::             Gerber.
 * nelma::              Nelma.
-* scad::               Advanced OpenSCAD.
+* scad::               OpenSCAD.
 * png::		       Image.
 * ps::		       Postscript.
 * eps::		       Eps.
@@ -2015,114 +2015,100 @@ Numerical analysis package export.
 @c ------------------- Advanced OpenSCAD exporter paragraph ---------------------
 
 @node scad
-@subsection OpenSCAD (advanced) (scad)
+@subsection OpenSCAD (scad)
 @cindex scad
 
-@c @subsubsection Advanced OpenSCAD exporter overview
+@c @subsubsection OpenSCAD exporter overview
 
-This is an enhanced version of the OpenSCAD exporter. The exported model optionally includes copper tracks, silk screen, solder mask, board outline and components.
+This export filter creates 3D model in OpenSCAD format. The exported model optionally includes copper tracks, silk screen, solder mask, board outline and components.
 
-The Advanced OpenSCAD exporter creates single, monolithic file. All component models are embedded into the output file, including first-level include files.
+The OpenSCAD exporter creates single, monolithic file. All component models are embedded into the output file together with first-level include files.
 
-@subsubsection Component models processing
+Following parameters can be used to customize final 3D model:
 
-The component models are stored in the directory tree at @code{<path_to_pcb_binary>/../share/pcb/models/scad/}
+@itemize @bullet
 
-The model name (without extension) is stored in component's attributes or component's @emph{Description} field. The @code{.scad} extension is appended automatically.
-
-The comomponent's attributes are evaluated in following order:
+@item
+@emph{Board outline} - several options are available to create board outline:
 @itemize @bullet
 @item
-attribute @code{OpenSCAD::Model} - this attribute is specific to OpenSCAD export and have the highest priority; this atribute is supposed to be part of footprint file.
+@emph{None} - no board is created; allows to inspect the copper paths on inner layers
 @item
-attribute @code{Footprint::File} - this is the default attribute, it's value is set automatically when footprint is loaded
+@emph{Board} - board is created as simple rectangle. Size is taken from board size parameters, as defined in @emph{Preferences}.
 @item
-component's @emph{Description} field - used mostly for compatibility with older releases of OpenSCAD export filter
+@emph{Outline} - board is generated from @emph{Outline layer}. Only lines are taken into account. The board outline must be created from closed polygons, otherwise the result is unpredictable.
 @end itemize
-
-There is also special attribute for secondary model (overlay) - this model is combined with the standard model; it can be used to combine heatsink with transistor model or DIP socket with DIP IC:
+@item
+@emph{Components} - several options are available to populate board with components:
 @itemize @bullet
 @item
-attribute @code{OpenSCAD::Overlay}
+@emph{None} - no components are exported
+@item
+@emph{Realistic} - realistic models are used to populate board
+@item
+@emph{Simple} - simple models are used to populate board
+@item
+@emph{Boxes} - boxes are used as aproximation of components
 @end itemize
 
-The model name can contain relative path to the model root directory @code{<path_to_pcb_binary>/../share/pcb/models/scad/}.
+@item
+@emph{Copper} - Copper paths, pins, vias and pads are exported.
+@item
+@emph{Silk Layers} - Top and bottom silk layers are exported.
+@item
+@emph{Inner Layers} - Inner layers are exported. Makes sense only if no board outline is exported.
+@item
+@emph{Solder mask} - color of solder mask or @emph{None} to skip solder mask in output file
+@item
+@emph{Copper finish} - surface finish: @emph{Copper}, @emph{Gold} or @emph{HAL}.
 
-If @emph{Simple} models are selected, the suffix @code{-simple} is added to model name. So we should have @emph{Realistic} model with name @code{0805.scad} and corresponding @emph{Simple} model @code{0805-simple.scad}.
+@item
+@emph{Minimal drill} - Minimal hole diameter. Holes with smaller diameter are not exported. This option can eliminate all via and pin holes, thus significantly reduces the model complexity. 
+@item
+@emph{Board cut} - Options to export top or bottom half only (wihh full or half thicknes of board). Intended to create 3D-printable models. Printed top and bottom half with half-thick board can be glued together to get double-sided board.
 
-Because the component rotation is not stored in internal data structures, it is tracked using the @code{Footprint::RotationTracking} attribute. It's value is maintained automatically but it can be adjusted manually.
+@end itemize
 
 
+@subsubsection Component model types
+@itemize @bullet
+@item
+@emph{Realistic models} - high-quality 3D models. Realistic models are created as OpenSCAD source files. File with the model definition is resolved by contents of respective attributed or by contents of @emph{Description} field.
+@item
+@emph{Simple models} - simplified models, sufficient for mechanical modelling. Realistic models are created as OpenSCAD source files. File with the model definition is resolved as for realistic models, with @code{-simple} suffix automatically appended.
+@item
+@emph{Box models} - create component models as simple boxes. These models do not require external models, they are completely described by @code{Footprint::BoundingBox} attribute.
+@end itemize
+
+The types of models used is selectable during export. Currently there is no fallback from one category to another implemented.
 
 
-@subsubsection Project map file - obsolete
+@subsubsection Processing of component models
 
-Project map file helps to map models to individual components whenever the automatic selecton is not sufficient - for example the single footprint is used for several mechanically different components.
-The @code{0805} footprint is good example - one footprint is used for SMD resistors and SMD capacitors as well.
+All component models are stored in the directory tree at @code{<path_to_pcb_binary>/../share/pcb/models/scad/}
 
-The project map file is located in the same directory as the board layout; it have the same base file name with extension @code{.3dm}.
+The model name (without extension) is stored in component's attributes or component's @emph{Description} field. The @code{.scad} extension is appended automatically. The model name can contain relative path to the model root directory @code{<path_to_pcb_binary>/../share/pcb/models/scad/}.
 
-The project map file contains records (one record per line) in the following format:
-@sp 1
-@smallexample
-<refdes>:<variable>:<value>
-@end smallexample
-@sp 1
+The model name is evaluated in following order:
+@itemize @bullet
+@item
+attribute @code{OpenSCAD::Model} - this attribute is specific to OpenSCAD export filter and have the highest priority; this atribute is supposed to be part of footprint file.
+@item
+attribute @code{Footprint::File} - this attribute holds the original footprint name. Model name is derived from it in case @code{OpenSCAD::Model} attribute is not defined. This attribute is shared with another export filters, thus it cannot contain any additional information. This attribute can be tracked automatically when footprint is loaded.
+@item
+component's @emph{Description} field - used for compatibility with previous releases of OpenSCAD export filter
+@item
+attribute @code{OpenSCAD::Overlay} - this attribute specifies secondary model (overlay). This model is combined with the standard model; it can be used to combine heatsink with transistor model or DIP socket with DIP IC, for example.
+@end itemize
 
-@table @emph
-@item <refdes>
-reference designator of the component
-@item <variable>
-one of predefined variable names
-@item <value>
-the value of the variable (everything up to end of the line)
-@c if the <value> starts with @code{@@} character, it represents the name of the script (located in @code{<path_to_pcb_binary>/../share/pcb/scad/scripts}), which is used to create value on-fly.
-@c For models all script output is used; for other variables only the first line of script output is used.
-@c The map file entry can contain command line parameters of the script; the contents of component's @emph{Value} fiels is appended to the list of parameters. For example, for the resistor R1 with value @code{10k} and the map entry:
-@c @sp 1
-@c @smallexample
-@c R1:model:@@genmodel.pl 0805
-@c @end smallexample
-@c @sp 1
-@c the script @code{<path_to_pcb_binary>/../share/pcb/scad/scripts/genmodel.pl 0805 10k} is called.
-@end table
+All attributes can be attached to components placed already on board or they can be part of library footprints. Complete list of attributes will be described later. 
 
-The empty lines and lines starting with @code{#} (comment lines) are ignored.
 
-Following variables are available:
+If @emph{Simple} models are selected, the suffix @code{-simple} is added to model name. For example, for @emph{Realistic} model with name @code{0805.scad} we should define corresponding @emph{Simple} model @code{0805-simple.scad}.
 
-@table @b
-@item model
-model name (with or without @code{.scad} extension) @c or script name (prepended by @code{@@}) with parameters;
-@item translate
-relative position adjustment of the model, defined as OpenSCAD vector @code{[x,y,z]}
-@item rotate
-Z-axis rotation of the model
-@item scale
-size adjustment (scaling) of the model, defined as OpenSCAD vector @code{[sx,sy,sz]}
-@item overlay
-overlay model name (with or without @code{.scad} extension);
-@c or script name (prepended by @code{@@}) with parameters;
-overlay model is placed over the standard model; the overlay model can be used to combine two models with one footprint, like DIP package in the socket or transistor with cooler.
-@item overlay_translate
-relative position adjustment of the overlay model, defined as OpenSCAD vector @code{[x,y,z]}
-@item overlay_rotate
-Z-axis rotation of the overlay model
-@item overlay_scale
-size adjustment (scaling) of the overlay model, defined as OpenSCAD vector @code{[sx,sy,sz]}
-@end table
+The component rotation is not stored in internal data structures. To identify the correct model rotation we need to define @code{Footprint::RotationTracking} attribute. It's value can be maintained automatically. It can be adjusted manually as well.
 
-Example of map file:
-@sp 1
-@smallexample
-C1:model:CAP0805
-C2:model:CAP0805
-U1:translate:[0,0,4.5]
-U1:overlay:DIPSOCKET14
-R1:model:RES0805
-R2:model:RES0805
-@end smallexample
-@sp 1
+Both tracking attributes (@code{Footprint::File} and @code{Footprint::RotationTracking}) are disabled by default. They have to be enabled by setting @code{enable-tracking-attributes = 1} in PCB settings file.
 
 @subsubsection Component model design
 
@@ -2142,10 +2128,10 @@ The Z=0 plane of the component is aligned with top of copper plane on PCB
 It must be possible to enclose whole model inside another @code{module} definition. The @code{include} directives are allowed, as they are processed special way.
 @end itemize
 
-The model definitions can include other OpenSCAD source files. @b{Only one level of inclusion is supported}; 2nd level @code{include} directives are not processed and they are copied into the final model.
+The model definitions can include other OpenSCAD source files. @b{Only one level of inclusion is supported}; 2nd level @code{include} directives are not processed and they are copied into the final model unchanged.
 
 The OpenSCAD exporter removes all 1st level @code{include} directives from model definitions and collects the included file names. After all components are processed, the include files are embedded into output file.
-If the include file cannot be found or opened, new @code{include} directive is emitted. There is always only one copy of the include file processed.
+If the include file cannot be found or opened, new @code{include} directive is emitted. There is always only one copy of the include file embedded in final file.
 
 Here is example of simple model. It illustrates the recommended model design - parametrized model prototype is defined in separate include file and it is instantiated in the component model file.
 @sp 1
@@ -2190,12 +2176,39 @@ module chip_r(
 @subsubsection Summary of attributes
 
 @table @emph
-@item xxx
-xxx
-@item xxx
-xxx
-@item xxx
-xxx
+@item @code{Footprint::File}
+contains filename of original footprint, without @code{.fp} extension. 
+@item @code{Footprint::RotationTracking}
+.
+@item @code{Footprint::BoundingBox}
+Specifies the dimensions of the box model. This attribute is used when "Boxes" output option is selected. Attribute specifies size and offset of the box.
+Value: @code{x_size y_size z_size x_offset y_offset} or @code{x_size y_size z_size}. All dimensions accept UOM, for example @emph{"2mm 2mm 1mm"}. Optinal offset specifies distance of box center from component x-mark.
+@item @code{OpenSCAD::Model}
+Model name (without extension). It can contain relative path inside model library tree.
+@c @item @code{OpenSCAD::Model:type}
+@c .
+@item @code{OpenSCAD::Overlay}
+Overlay name (without extension). Overlay is placed over the regular model. It can contain relative path inside model library tree.
+@c @item @code{OpenSCAD::Overlay:type}
+@c .
+@item @code{OpenSCAD::Model:translate}
+Attribute can be used to additionally change the position of the model.
+Value: @code{x_offset y_offset z_offset}. All offsets accept UOM, for example @emph{"2mm 2mm 1mm"}.
+@item @code{OpenSCAD::Model:rotate}
+Attribute can be used to additionally change the rotation of the model.
+Value: @code{x_angle y_angle z_angle}. All angles are expressed in degrees.
+@item @code{OpenSCAD::Model:scale}
+Attribute can be used to additionally change the size of the model.
+Value: @code{x_scale y_scale z_scale}. Value "1" means unchanges size.
+@item @code{OpenSCAD::Overlay:translate}
+Attribute can be used to additionally change the position of the overlay model.
+Value: @code{x_offset y_offset z_offset}. All offsets accept UOM, for example @emph{"2mm 2mm 1mm"}.
+@item @code{OpenSCAD::Overlay:rotate}
+Attribute can be used to additionally change the rotation of the overlay model.
+Value: @code{x_angle y_angle z_angle}. All angles are expressed in degrees.
+@item @code{OpenSCAD::Overlay:scale}
+Attribute can be used to additionally change the size of the overlay model.
+Value: @code{x_scale y_scale z_scale}. Value "1" means unchanges size.
 @end table
 
 @c ---------------- End of OpenSCAD V2 exporter paragraph -----------------

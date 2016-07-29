@@ -259,7 +259,7 @@ Minimal drill to be exported. Default: @samp{1mm}.
 %end-doc
 */
   {
-   "min_drill", "Export inner layers", HID_Coord, MM_TO_COORD (0),
+   "min_drill", "Minimal drill to export", HID_Coord, MM_TO_COORD (0),
    MM_TO_COORD (10),
    {
     0, 0, 0, MM_TO_COORD (1)}, 0, 0},
