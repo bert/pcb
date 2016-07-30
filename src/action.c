@@ -1462,19 +1462,21 @@ NotifyMode (void)
 			    &Crosshair.AttachedObject.Ptr2,
 			    &Crosshair.AttachedObject.Ptr3);
 
-	    if (Crosshair.AttachedObject.Type != NO_TYPE)
-	      {
-		if (TEST_FLAG (LOCKFLAG, (PolygonType *)
-			       Crosshair.AttachedObject.Ptr2))
-		  {
-		    Message (_("Sorry, the object is locked\n"));
-		    Crosshair.AttachedObject.Type = NO_TYPE;
-		    break;
-		  }
-		else
-		  Crosshair.AttachedObject.State = STATE_SECOND;
-	      }
-	    /* Fall thru: first click is also the first point of the
+          if (Crosshair.AttachedObject.Type == NO_TYPE)
+            {
+              Message (_("The first point of a polygon hole must be on a polygon.\n"));
+              break; /* don't start doing anything if clicked outside of polys */
+            }
+
+          if (TEST_FLAG(LOCKFLAG, (PolygonType *) Crosshair.AttachedObject.Ptr2)) 
+            {
+              Message (_("Sorry, the object is locked\n"));
+              Crosshair.AttachedObject.Type = NO_TYPE;
+              break;
+            }
+          else
+            Crosshair.AttachedObject.State = STATE_SECOND;
+            /* Fall thru: first click is also the first point of the
              * poly hole. */
 
             /* second notify, insert new point into object */
