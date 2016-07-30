@@ -118,31 +118,36 @@ draw_dashed_line (hidGC GC, Coord x1, Coord y1, Coord x2, Coord y2)
  * system.
  */
 static void
-XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy)
+XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
 {
   Cardinal i;
   for (i = 0; i < polygon->PointN; i++)
     {
       Cardinal next = next_contour_point (polygon, i);
+
       if (next == 0)
-        {
-          /* the implicit closing line */
-          if (i != 1) /* corner case: don't draw two lines on top of eachother - with XOR it looks bad */
+        { /* last line: sometimes the implicit closing line */
+          if (i == 1) /* corner case: don't draw two lines on top of
+                       * each other - with XOR it looks bad */
+            continue;
+
+        if (dash_last)
+          {
             draw_dashed_line (Crosshair.GC,
                               polygon->Points[i].X + dx,
                               polygon->Points[i].Y + dy,
                               polygon->Points[next].X + dx,
                               polygon->Points[next].Y + dy);
+            break; /* skip normal line draw below */
+          }
         }
-      else
-        {
-          /* any other line */
-          gui->graphics->draw_line (Crosshair.GC,
-                                    polygon->Points[i].X + dx,
-                                    polygon->Points[i].Y + dy,
-                                    polygon->Points[next].X + dx,
-                                    polygon->Points[next].Y + dy);
-        }
+
+      /* normal contour line */
+      gui->graphics->draw_line (Crosshair.GC,
+                                polygon->Points[i].X + dx,
+                                polygon->Points[i].Y + dy,
+                                polygon->Points[next].X + dx,
+                                polygon->Points[next].Y + dy);
     }
 }
 
@@ -379,7 +384,7 @@ XORDrawBuffer (hidGC gc, BufferType *Buffer)
 	 */
 	POLYGON_LOOP (layer);
 	{
-	  XORPolygon (gc, polygon, x, y);
+	  XORPolygon (gc, polygon, x, y, 0);
 	}
 	END_LOOP;
       }
@@ -467,7 +472,7 @@ XORDrawMoveOrCopyObject (hidGC gc)
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
 	 */
-	XORPolygon (gc, polygon, dx, dy);
+	XORPolygon (gc, polygon, dx, dy, 0);
 	break;
       }
 
@@ -633,7 +638,7 @@ DrawAttached (hidGC gc)
       /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
       if (Crosshair.AttachedPolygon.PointN > 1)
 	{
-	  XORPolygon (gc, &Crosshair.AttachedPolygon, 0, 0);
+	  XORPolygon (gc, &Crosshair.AttachedPolygon, 0, 0, 1);
 	}
       break;
 
