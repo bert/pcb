@@ -1518,7 +1518,7 @@ NotifyMode (void)
 
 		/* reset state of attached line */
 		memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
-		Crosshair.AttachedLine.State = STATE_FIRST;
+		Crosshair.AttachedObject.State = STATE_FIRST;
 		addedLines = 0;
 
 		  break;
