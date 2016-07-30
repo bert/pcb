@@ -75,6 +75,36 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
 }
 
 /*!
+ * \brief Draw a dashed line.
+ */
+static void
+draw_dashed_line (hidGC GC, Coord x1, Coord y1, Coord x2, Coord y2)
+{
+  /*! \todo we need a real geometrical library, using double here is
+   * plain wrong. */
+  double dx = x2-x1;
+  double dy = y2-y1;
+  double len_squared = dx*dx + dy*dy;
+  int n;
+  const int segs = 10;
+
+  if (len_squared < 1000000)
+  {
+    /*! \todo line too short, just draw it -> magic value;
+     * with a proper geo lib this would be gone anyway. */
+    gui->graphics->draw_line (Crosshair.GC, x1, y1, x2, y2);
+    return;
+  }
+
+  for (n = 1; n < segs; n += 2)
+    gui->graphics->draw_line (Crosshair.GC,
+                              x1 + (dx * (double)(n-1) / (double)segs),
+                              y1 + (dy * (double)(n-1) / (double)segs),
+                              x1 + (dx * (double)n / (double)segs),
+                              y1 + (dy * (double)n / (double)segs));
+}
+
+/*!
  * \brief Creates a tmp polygon with coordinates converted to screen
  * system.
  */
@@ -85,11 +115,25 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy)
   for (i = 0; i < polygon->PointN; i++)
     {
       Cardinal next = next_contour_point (polygon, i);
-      gui->graphics->draw_line (gc,
-                                polygon->Points[i].X + dx,
-                                polygon->Points[i].Y + dy,
-                                polygon->Points[next].X + dx,
-                                polygon->Points[next].Y + dy);
+      if (next == 0)
+        {
+          /* the implicit closing line */
+          if (i != 1) /* corner case: don't draw two lines on top of eachother - with XOR it looks bad */
+            draw_dashed_line (Crosshair.GC,
+                              polygon->Points[i].X + dx,
+                              polygon->Points[i].Y + dy,
+                              polygon->Points[next].X + dx,
+                              polygon->Points[next].Y + dy);
+        }
+      else
+        {
+          /* any other line */
+          gui->graphics->draw_line (Crosshair.GC,
+                                    polygon->Points[i].X + dx,
+                                    polygon->Points[i].Y + dy,
+                                    polygon->Points[next].X + dx,
+                                    polygon->Points[next].Y + dy);
+        }
     }
 }
 
