@@ -78,7 +78,7 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
  * \brief Draw a dashed line.
  */
 static void
-draw_dashed_line (hidGC GC, Coord x1, Coord y1, Coord x2, Coord y2)
+draw_dashed_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   /*! \todo we need a real geometrical library, using double here is
    * plain wrong. */
@@ -92,13 +92,13 @@ draw_dashed_line (hidGC GC, Coord x1, Coord y1, Coord x2, Coord y2)
   {
     /*! \todo line too short, just draw it -> magic value;
      * with a proper geo lib this would be gone anyway. */
-    gui->graphics->draw_line (Crosshair.GC, x1, y1, x2, y2);
+    gui->graphics->draw_line (gc, x1, y1, x2, y2);
     return;
   }
 
   /* first seg is drawn from x1, y1 with no rounding error due to n-1 == 0 */
   for (n = 1; n < segs; n += 2)
-    gui->graphics->draw_line (Crosshair.GC,
+    gui->graphics->draw_line (gc,
                               x1 + (dx * (double) (n-1) / (double) segs),
                               y1 + (dy * (double) (n-1) / (double) segs),
                               x1 + (dx * (double) n / (double) segs),
@@ -106,7 +106,7 @@ draw_dashed_line (hidGC GC, Coord x1, Coord y1, Coord x2, Coord y2)
 
   /* make sure the last segment is drawn properly to x2 and y2,
    * don't leave room for rounding errors. */
-  gui->graphics->draw_line (Crosshair.GC,
+  gui->graphics->draw_line (gc,
                             x2 - (dx / (double) segs),
                             y2 - (dy / (double) segs),
                             x2,
@@ -133,7 +133,7 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
 
         if (dash_last)
           {
-            draw_dashed_line (Crosshair.GC,
+            draw_dashed_line (gc,
                               polygon->Points[i].X + dx,
                               polygon->Points[i].Y + dy,
                               polygon->Points[next].X + dx,
@@ -143,7 +143,7 @@ XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
         }
 
       /* normal contour line */
-      gui->graphics->draw_line (Crosshair.GC,
+      gui->graphics->draw_line (gc,
                                 polygon->Points[i].X + dx,
                                 polygon->Points[i].Y + dy,
                                 polygon->Points[next].X + dx,
