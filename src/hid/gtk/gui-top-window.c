@@ -20,8 +20,6 @@
  *
  */
 
-/* #define DEBUG_MENUS */
-
 #ifdef DAN_FIXME
 TODO:
 
@@ -359,9 +357,6 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
   for (i = 1; i < node->c; i++)
     if (resource_type (node->v[i]) == 10)
       {
-#ifdef DEBUG_MENUS
-        printf ("    %s\n", node->v[i].value);
-#endif
         hid_parse_actions (node->v[i].value);
       }
 
@@ -1890,10 +1885,6 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
 {
   int i, l;
 
-#ifdef DEBUG_MENUS
-  puts ("Starting ToggleView().");
-#endif
-
   if (argc == 0)
     {
       AFAIL (toggleview);
@@ -1969,10 +1960,6 @@ SelectLayer (int argc, char **argv, Coord x, Coord y)
     newl = LAYER_BUTTON_RATS;
   else if (newl == -1)
     newl = atoi (argv[0]) - 1;
-
-#ifdef DEBUG_MENUS
-  printf ("SelectLayer():  newl = %d\n", newl);
-#endif
 
   /* Now that we've figured out which radio button ought to select
    * this layer, simply hit the button and let the pre-existing code deal
@@ -2156,10 +2143,6 @@ ghid_load_menus (void)
           ghid_main_menu_add_popup_resource (GHID_MAIN_MENU (menu_bar),
                                              mr->v[i].name, mr->v[i].subres);
     }
-
-#ifdef DEBUG_MENUS
-   puts ("Finished loading menus.");
-#endif
 
     mr = resource_subres (r, "Mouse");
     if (!mr)
