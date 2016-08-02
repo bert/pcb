@@ -61,8 +61,8 @@ MainMenu =
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
    {"Import Schematics" Import() }
-   {"Load element to buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
-   {"Load layout to buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
+   {"Load element to buffer" tip="Load an element (footprint) from a file into the paste buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
+   {"Load layout to buffer" tip="Load a layout (other pcb file) from a file into the paste buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist" Load(Netlist)}
    {"Load vendor resource file" LoadVendorFrom()}
    -
@@ -71,10 +71,10 @@ MainMenu =
      {" all elements" Save(AllConnections)}
      {" unused pins" Save(AllUnusedPins)}
    }
-   {"Export..." Export()}
+   {"Export..." tip="Export layout as something else (e.g. bom, gerber, png, etc.)" Export()}
    -
-   {"Calibrate Printer..." PrintCalibrate()}
-   {"Print..." Print()}
+   {"Calibrate Printer..." tip="Print a calibration page, then prompt for calibration values based on its actual size"PrintCalibrate()}
+   {"Print..." tip="Print layout layers, assembly diagrams, drill guides etc. in a form suitable for fabrication.  See also File->Export->ps."Print()}
    -
    {"Preferences..." DoWindows(Preferences)}
    -
@@ -89,26 +89,27 @@ MainMenu =
    {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
    #{"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
    -
-   {"Cut to buffer" GetXY(Click to set the snap point for this buffer)
+   {"Cut to buffer" tip="Cut the clicked-on selection to the paste buffer.  Note that the objects to be cut must already be selected.  If the hotkey is used the cut happens immediately and no additional click is required." GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
     a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Copy to buffer" GetXY(Click to set the snap point for this buffer)
+   {"Copy to buffer" tip="Copy the clicked-on selection to the paste buffer.  Note that the objects to be copied must already be selected.  If the hotkey is used the copy happens immediately and no additional click is required." GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
     a={"Ctrl-C" "Ctrl<Key>c"}}
-   {"Paste buffer" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
+   {"Paste buffer" tip="Prepare to paste the contents of the paste buffer.  The paste is completed with an additional click.  Note that some actions (e.g. Copy, Cut) leave interface in a ready-to-paste state, and activation of this menu item is not required in those cases." Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
    -
+   # FIXME: these names should match those used under "Edit attributes of" when they mean the same, and should be first-letter-cap as elsewhere
    {"Edit name of"
-     {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
-     {"layout" ChangeName(Layout)}
-     {"active layer" ChangeName(Layer)}
+     {"text on layout" tip="Edit name of the next object clicked" ChangeName(Object) a={"N" "<Key>n"}}
+     {"layout" tip="Edit name of the entire layout" ChangeName(Layout)}
+     {"active layer" tip="Edit name of the current layer" ChangeName(Layer)}
    }
    {"Edit attributes of"
-    {"Layout" Attributes(Layout)}
-    {"CurrentLayer" Attributes(Layer)}
-    {"Element" Attributes(Element)}
+    {"Layout" tip="Edit attributes of the entire layer" Attributes(Layout)}
+    {"CurrentLayer" tip="Edit attributes of the current layer" Attributes(Layer)}
+    {"Element" tip="Edit attributes of the next element clicked, or of the currently selected element if exactly one element is selected" Attributes(Element)}
    }
    -
    {"Route Styles" @routestyles
@@ -148,15 +149,15 @@ MainMenu =
     {"Grid -" SetValue(Grid,-) a={"Shift-G" "Shift<Key>g"}}
     {"Grid +" SetValue(Grid,+) a={"G" "<Key>g"}}
    }
-   {"Realign grid" tip="Set the grid origin" GetXY(Click to set the grid origin) Display(ToggleGrid)}
+   {"Realign grid" tip="Realign the global grid with the next point clicked.  This is best used by allowing the cursor to snap to a (possibly off-grid) element centroid, or by enabling 'Settings->Crosshair snaps to pins and pads'." GetXY(Click to set the grid origin) Display(ToggleGrid)}
    -
-   {"Displayed element name"
+   {"Displayed element name" tip="What to show on silk for elements"
     {"Description" Display(Description) checked=elementname,1}
     {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
     {"Value" Display(Value) checked=elementname,3}
    }
-   {"Enable Pinout shows number" checked=shownumber Display(ToggleName)}
-   {"Pins/Via show Name/Number" Display(PinOrPadName) a={"D" "<Key>d"}}
+   {"Show pin/pad/via numbers instead of names" tip="For elements for which pin/pad/via name/number display is enabled (via the D hot key), show numbers instead of names" checked=shownumber Display(ToggleName)}
+   {"Pins/Pads/Vias show name/number" tip="Enable/Disable display of pin/pad/via names or numbers for the hovered object FIXME: activating this via the menu doesn't seem to work, only the hot key does" Display(PinOrPadName) a={"D" "<Key>d"}}
    -
    {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
    {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
@@ -180,7 +181,7 @@ MainMenu =
     {"Center cursor" Center() a={"C" "<Key>c"}}
    }
    -
-   {"Shown Layers"
+   {"Shown Layers" tip="Control which layers are displayed, or edit layer groups.  Note that it's also possible to control which layers are displayed by clicking the colored boxes in the layers sidebar."
     @layerview
     -
     {"Edit Layer Groups" EditLayerGroups()}
@@ -199,27 +200,27 @@ MainMenu =
 # Settings menu
 #
   {"Settings" m=S
-   {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
-   {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
-   {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
+   {"'All-direction' lines" tip="Allow lines and polygon edges to be drawn in any direction, not just at increments of 45 degrees" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
+   {"Auto swap line start angle" tip="When 'All-direction' lines is not enabled, enabling this option will cause successively drawn lines to alternate between starting with a vertical or horizontal segment and starting with an off-axis segment" checked=swapstartdir Display(ToggleStartDirection)}
+   {"Orthogonal moves" tip="When objects which are not first selected are moved, their movement is constrained to either the X or Y dimension exclusively.  Selecting an object before moving it allows it to be moved arbitrarily regardless of this mode." checked=orthomove Display(ToggleOrthoMove)}
    {"Crosshair snaps to pins and pads" checked=snappin Display(ToggleSnapPin)}
-   {"Crosshair shows DRC clearance" checked=showdrc Display(ToggleShowDRC)}
-   {"Auto enforce DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
-   {"Lock Names" checked=locknames Display(ToggleLockNames)}
-   {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
-   {"Hide Names" checked=hidenames Display(ToggleHideNames)}
+   {"Show DRC clearance" tip="During line drawing (but not line or object moving or other operations), show the required DRC clearance" checked=showdrc Display(ToggleShowDRC)}
+   {"Auto enforce DRC clearance" tip="During line drawing (but not line or object moving or other operations), automatically enforce the required DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
+   {"Lock names" tip="Prevent element names from being moved with respect to their element" checked=locknames Display(ToggleLockNames)}
+   {"Only names" tip="Prevent anything from being move except element names" checked=onlynames Display(ToggleOnlyNames)}
+   {"Hide names" tip="Don't display element names.  Note that they are actually still present and will be included in print, export, etc." checked=hidenames Display(ToggleHideNames)}
    -
-   {"Rubber band mode" checked=rubberband Display(ToggleRubberBandMode)}
-   {"Require unique element names" checked=uniquename Display(ToggleUniqueNames)}
-   {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
-   {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
-   {"New polygons are full ones" checked=newfullpoly Display(ToggleFullPoly)}
+   {"Rubber band mode" tip="When moving lines or elements, lines and objects connected to them rotate and stretch to maintain the connection" checked=rubberband Display(ToggleRubberBandMode)}
+   {"Ensure unique element refdeses" tip="Disallow explicit setting of an element refdes value to be identical to any other.  When an element is added which would have an identical reference designator to that of an existing element (e.g. by copy), automatically set the refdes of the new element such that it is unique." checked=uniquename Display(ToggleUniqueNames)}
+   {"Auto-zero delta measurements" tip="When drawing lines or moving line ends or other objects, automatically set the distance measurement reference point to the line end or point clicked during the operation.  When the operation is complete the pre-existing reference is restored (or cleared if it wasn't set)." checked=localref Display(ToggleLocalRef)}
+   {"New lines, arcs clear polygons" tip="Newly drawn lines and arcs will have their `clearpoly' flag set, so they will clear one line width worth of space in all directions when drawn over existing polygons" checked=clearnew Display(ToggleClearLine)}
+   {"New polygons have `fullpoly' set" tip="WARNING: there are currently problems with connectivity tests for polygons created under this option, use with care.  New polygons will have their `full polygon' flag set, so all their fragments will be maintained even if subsequent lines or arcs divide the polygon into fragments.  Without this flag, only the largest remaining fragment is maintained as long as the bisecting line or arc exists." checked=newfullpoly Display(ToggleFullPoly)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
-   {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
-   {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
-   {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
+   {"Thin draw" tip="Display most objects as outlines or single thin lines, and polygons as thin outlines with shaded interiors" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
+   {"Thin draw poly" tip="Display polygons as thin outlines with shaded interiors" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
+   {"Check polygons" tip="Hide everything except polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
-   {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
+   {"Vendor drill mapping" tip="New instances of pins and vias will have their drill holes mapped to one of the allowed drill sizes specified in the currently loaded vendor drill table.  To enable drill mapping, a vendor resource file containing a drill table must be loaded first." ToggleVendor() checked=VendorMapOn}
    {"Import New Elements at" m=I
     {" Center" Import(setnewpoint,center) m=C}
     {" Mark" Import(setnewpoint,mark) m=M}
@@ -233,15 +234,16 @@ MainMenu =
 # Select menu
 #
   {"Select" m=l
-   {"Select all visible" Select(All)}
-   {"Select all found" Select(Found)}
-   {"Select all connected" Select(Connection)}
+   {"Select all visible" tip="Select all visible objects" Select(All)}
+   {"Select all found" tip="Select everything connected to the net found using the Find button in the Netlist dialog (Window->Netlist)" Select(Found)}
+# FIXME: mentioning hotkeys like this is bad because they could easily fall out of sync with what's actually set, some macros or something should be made so that they can by synced automatically.
+   {"Select all connected" tip="Select everything currently found to be connected according to Connects->Lookup connection (Ctrl-F)" Select(Connection)}
    -
-   {"Unselect all" Unselect(All)}
-   {"Unselect all found" Unselect(Found)}
-   {"Unselect all connected" Unselect(Connection)}
+   {"Unselect all" tip="Unselect all objects" Unselect(All)}
+   {"Unselect all found" tip="Unselect everything connected to the net found using the Find button in the Netlist dialog (Window->Netlist)" Unselect(Found)}
+   {"Unselect all connected" tip="Unselect everything currently found to be connected according to Connects->Lookup connection (Ctrl-F)" Unselect(Connection)}
    -
-   {"Select by name"
+   {"Select by name" tip="Select by object type (chosen in sub-menu) and case-insensitive POSIX extended regex.  The regex must match the entire name, so leading and trailing '.*' may be required.  The names searched are the ones set to be displayed by the 'View->Displayed element name' menu item (so by setting this option first it's possible to search by description or value as well as refdes)." 
     {"All objects" Select(ObjectByName) active=have_regex}
     {"Elements" Select(ElementByName) active=have_regex}
     {"Pads" Select(PadByName) active=have_regex}
