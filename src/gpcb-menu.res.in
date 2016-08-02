@@ -148,7 +148,7 @@ MainMenu =
     {"Grid -" SetValue(Grid,-) a={"Shift-G" "Shift<Key>g"}}
     {"Grid +" SetValue(Grid,+) a={"G" "<Key>g"}}
    }
-   {"Realign grid" tip="FIXM: i need a tip I look useful" GetXY(Click to set the grid origin) Display(ToggleGrid)}
+   {"Realign grid" tip="Set the grid origin" GetXY(Click to set the grid origin) Display(ToggleGrid)}
    -
    {"Displayed element name"
     {"Description" Display(Description) checked=elementname,1}
