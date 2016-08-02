@@ -2597,9 +2597,11 @@ When set, the clear-line flag causes new lines and arcs to have their
 to any polygons they overlap.
 
 @item ToggleFullPoly
-When set, the full-poly flag causes new polygons to have their
-``full polygon'' flag set, so all parts of them will be displayed
-instead of only the biggest one.
+
+When set, the full-poly flag causes new polygons to have their ``full polygon''
+flag set, so all their fragments will be maintained even if subsequent lines or
+arcs divide the polygon into fragments.  Without this flag, only the largest
+remaining fragment is maintained as long as the bisecting line or arc exists.
 
 @item ToggleGrid
 Resets the origin of the current grid to be wherever the mouse pointer
