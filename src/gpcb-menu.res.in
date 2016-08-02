@@ -57,7 +57,7 @@ MainMenu =
    {"Open..." Load(Layout) tip="Load a layout from a file"}
    -
    {"Save" Save(Layout) tip="Saves current layout" m=S a={"Ctrl-S" "Ctrl<Key>s"}}
-   {"Save As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
+   {"Save As..." Save(LayoutAs) tip="Saves current layout into a given file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
    {"Import Schematics" Import() }
@@ -221,7 +221,10 @@ MainMenu =
    {"Check polygons" tip="Hide everything except polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Vendor drill mapping" tip="New instances of pins and vias will have their drill holes mapped to one of the allowed drill sizes specified in the currently loaded vendor drill table.  To enable drill mapping, a vendor resource file containing a drill table must be loaded first." ToggleVendor() checked=VendorMapOn}
+# FIXME: capitalization problem here
    {"Import New Elements at" m=I
+# FIXME: check out how these work especially the mark one, might need to change
+# mark tooltip if it's overloaded for import purpose as well as measuring
     {" Center" Import(setnewpoint,center) m=C}
     {" Mark" Import(setnewpoint,mark) m=M}
     {" Crosshair" Import(setnewpoint) m=h}
