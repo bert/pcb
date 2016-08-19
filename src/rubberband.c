@@ -1,32 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/rubberband.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Functions used by 'rubberband moves'.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* functions used by 'rubberband moves'
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -213,10 +218,12 @@ rubber_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * checks all visible lines which belong to the same layergroup as the
- * passed pad. If one of the endpoints of the line lays inside the pad,
- * the line is added to the 'rubberband' list
+/*!
+ * \brief Checks all visible lines which belong to the same layergroup
+ * as the passed pad.
+ *
+ * If one of the endpoints of the line lays inside the pad, the line is
+ * added to the 'rubberband' list.
  */
 static void
 CheckPadForRubberbandConnection (PadType *Pad)
@@ -352,13 +359,16 @@ CheckLinePointForRat (LayerType *Layer, PointType *Point)
 	    &info);
 }
 
-/* ---------------------------------------------------------------------------
- * checks all visible lines. If one of the endpoints of the line lays
- * inside the pin, the line is added to the 'rubberband' list
+/*!
+ * \brief Checks all visible lines.
  *
- * Square pins are handled as if they were round. Speed
- * and readability is more important then the few %
- * of failures that are immediately recognized
+ * If one of the endpoints of the line lays inside the pin, the line is
+ * added to the 'rubberband' list.
+ *
+ * Square pins are handled as if they were round.
+ *
+ * Speed and readability is more important then the few % of failures
+ * that are immediately recognized.
  */
 static void
 CheckPinForRubberbandConnection (PinType *Pin)
@@ -389,10 +399,12 @@ CheckPinForRubberbandConnection (PinType *Pin)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * checks all visible lines which belong to the same group as the passed line.
+/*!
+ * \brief Checks all visible lines which belong to the same group as the
+ * passed line.
+ *
  * If one of the endpoints of the line lays * inside the passed line,
- * the scanned line is added to the 'rubberband' list
+ * the scanned line is added to the 'rubberband' list.
  */
 static void
 CheckLinePointForRubberbandConnection (LayerType *Layer,
@@ -426,10 +438,12 @@ CheckLinePointForRubberbandConnection (LayerType *Layer,
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * checks all visible lines which belong to the same group as the passed polygon.
+/*!
+ * \brief Checks all visible lines which belong to the same group as the
+ * passed polygon.
+ *
  * If one of the endpoints of the line lays inside the passed polygon,
- * the scanned line is added to the 'rubberband' list
+ * the scanned line is added to the 'rubberband' list.
  */
 static void
 CheckPolygonForRubberbandConnection (LayerType *Layer,
@@ -468,10 +482,11 @@ CheckPolygonForRubberbandConnection (LayerType *Layer,
   END_LOOP;
 }
 
-/* ---------------------------------------------------------------------------
- * lookup all lines that are connected to an object and save the
- * data to 'Crosshair.AttachedObject.Rubberband'
- * lookup is only done for visible layers
+/*!
+ * \brief Lookup all lines that are connected to an object and save the
+ * data to 'Crosshair.AttachedObject.Rubberband'.
+ *
+ * Lookup is only done for visible layers.
  */
 void
 LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
