@@ -1,39 +1,46 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/rtree.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001,2002,2003,2004 harry eaton
+ * \brief Implements r-tree structures.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * These should be much faster for the auto-router because the recursive
+ * search is much more efficient and that's where the auto-router spends
+ * all its time.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * \author this file, rtree.c, was written and is Copyright (c) 2004,
+ * harry eaton
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * <hr>
  *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
+ * <h1><b>Copyright.</b></h1>\n
  *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001,2002,2003,2004 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ *
+ * haceaton@aplcomm.jhuapl.edu
  */
 
-/* this file, rtree.c, was written and is
- * Copyright (c) 2004, harry eaton
- */
-
-/* implements r-tree structures.
- * these should be much faster for the auto-router
- * because the recursive search is much more efficient
- * and that's where the auto-router spends all its time.
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -188,7 +195,9 @@ __r_node_is_good (struct rtree_node *node)
   return 1;
 }
 
-/* check the whole tree from this node down for consistency */
+/*!
+ * \brief Check the whole tree from this node down for consistency.
+ */
 static bool
 __r_tree_is_good (struct rtree_node *node)
 {
@@ -211,7 +220,9 @@ __r_tree_is_good (struct rtree_node *node)
 #endif
 
 #ifndef NDEBUG
-/* print out the tree */
+/*!
+ * \brief Print out the tree.
+ */
 void
 __r_dump_tree (struct rtree_node *node, int depth)
 {
@@ -282,18 +293,20 @@ __r_dump_tree (struct rtree_node *node, int depth)
 }
 #endif
 
-/* Sort the children or entries of a node
- * according to the largest side.
- */
 #ifdef SORT
+/*!
+ * \brief Sort the children or entries of a node according to the
+ * largest side.
+ *
+ * Compare two box coordinates so that the __r_search will fail at the
+ * earliest comparison possible.
+ *
+ * It needs to see the biggest X1 first, then the smallest X2, the
+ * biggest Y1 and smallest Y2.
+ */
 static int
 cmp_box (const BoxType * a, const BoxType * b)
 {
-  /* compare two box coordinates so that the __r_search
-   * will fail at the earliest comparison possible.
-   * It needs to see the biggest X1 first, then the
-   * smallest X2, the biggest Y1 and smallest Y2
-   */
   if (a->X1 < b->X1)
     return 0;
   if (a->X1 > b->X1)
@@ -357,8 +370,9 @@ sort_node (struct rtree_node *node)
 #define sort_node(x)
 #endif
 
-/* set the node bounds large enough to encompass all
- * of the children's rectangles
+/*!
+ * \brief Set the node bounds large enough to encompass all of the
+ * children's rectangles.
  */
 static void
 adjust_bounds (struct rtree_node *node)
@@ -395,10 +409,17 @@ adjust_bounds (struct rtree_node *node)
     }
 }
 
-/* create an r-tree from an unsorted list of boxes.
- * the r-tree will keep pointers into
- * it, so don't free the box list until you've called r_destroy_tree.
- * if you set 'manage' to true, r_destroy_tree will free your boxlist.
+/*!
+ * \brief Create an r-tree from an unsorted list of boxes.
+ *
+ * Create an rtree from the list of boxes.  If 'manage' is true, then
+ * the tree will take ownership of 'boxlist' and free it when the tree
+ * is destroyed.
+ *
+ * The r-tree will keep pointers into it, so don't free the box list
+ * until you've called r_destroy_tree.
+ *
+ * If you set 'manage' to true, r_destroy_tree will free your boxlist.
  */
 rtree_t *
 r_create_tree (const BoxType * boxlist[], int N, int manage)
@@ -426,6 +447,9 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   return rtree;
 }
 
+/*!
+ * \brief Destroy an rtree.
+ */
 static void
 __r_destroy_tree (struct rtree_node *node)
 {
@@ -450,7 +474,9 @@ __r_destroy_tree (struct rtree_node *node)
   free (node);
 }
 
-/* free the memory associated with an rtree. */
+/*!
+ * \brief Free the memory associated with an rtree.
+ */
 void
 r_destroy_tree (rtree_t ** rtree)
 {
@@ -467,20 +493,23 @@ typedef struct
   void *closure;
 } r_arg;
 
-/* most of the auto-routing time is spent in this routine
- * so some careful thought has been given to maximizing the speed
+/*!
+ * \brief .
+ *
+ * Most of the auto-routing time is spent in this routine so some
+ * careful thought has been given to maximizing the speed.
  *
  */
 int
 __r_search (struct rtree_node *node, const BoxType * query, r_arg * arg)
 {
   assert (node);
-  /** assert that starting_region is well formed */
+  /* assert that starting_region is well formed */
   assert (query->X1 < query->X2 && query->Y1 < query->Y2);
   assert (node->box.X1 < query->X2 && node->box.X2 > query->X1 &&
           node->box.Y1 < query->Y2 && node->box.Y2 > query->Y1);
 #ifdef SLOW_ASSERTS
-  /** assert that node is well formed */
+  /* assert that node is well formed */
   assert (__r_node_is_good (node));
 #endif
   /* the check for bounds is done before entry. This saves the overhead
@@ -551,11 +580,33 @@ __r_search (struct rtree_node *node, const BoxType * query, r_arg * arg)
     }
 }
 
-/* Parameterized search in the rtree.
- * Returns the number of rectangles found.
- * calls found_rectangle for each intersection seen
- * and calls check_region with the current sub-region
- * to see whether deeper searching is desired
+/*!
+ * \brief Parameterized search in the rtree.
+ *
+ * Calls found_rectangle for each intersection seen and calls
+ * \c check_region with the current sub-region to see whether deeper
+ * searching is desired.
+ *
+ * Generic search routine.
+ *
+ * \c region_in_search should return true if "what you're looking for"
+ * is within the specified region; regions, like rectangles, are closed
+ * on top and left and open on bottom and right.
+ *
+ * rectangle_in_region should return true if the given rectangle is
+ * "what you're looking for".
+ *
+ * The search will find all rectangles matching the criteria given
+ * by region_in_search and rectangle_in_region and return a count of
+ * how many things rectangle_in_region returned true for.
+ *
+ * Closure is used to abort the search if desired from within
+ * rectangel_in_region.
+ *
+ * Look at the implementation of r_region_is_empty for how to abort the
+ * search if that is the desired behavior.
+ *
+ * \return the number of rectangles found.
  */
 int
 r_search (rtree_t * rtree, const BoxType * query,
@@ -595,7 +646,9 @@ r_search (rtree_t * rtree, const BoxType * query,
     }
 }
 
-/*------ r_region_is_empty ------*/
+/*!
+ * \brief r_region_is_empty.
+ */
 static int
 __r_region_is_empty_rect_in_reg (const BoxType * box, void *cl)
 {
@@ -603,7 +656,11 @@ __r_region_is_empty_rect_in_reg (const BoxType * box, void *cl)
   longjmp (*envp, 1);           /* found one! */
 }
 
-/* return 0 if there are any rectangles in the given region. */
+/*!
+ * \brief Special-purpose searches build upon r_search.
+ *
+ * \return 0 if there are any rectangles in the given region.
+ */
 int
 r_region_is_empty (rtree_t * rtree, const BoxType * region)
 {
@@ -629,8 +686,9 @@ struct centroid
   float x, y, area;
 };
 
-/* split the node into two nodes putting clusters in each
- * use the k-means clustering algorithm
+/*!
+ * \brief Split the node into two nodes putting clusters in each use the
+ * k-means clustering algorithm.
  */
 struct rtree_node *
 find_clusters (struct rtree_node *node)
@@ -781,7 +839,8 @@ find_clusters (struct rtree_node *node)
   return (new_node);
 }
 
-/* split a node according to clusters
+/*!
+ * \brief Split a node according to clusters.
  */
 static void
 split_node (struct rtree_node *node)
@@ -846,15 +905,16 @@ contained (struct rtree_node *node, const BoxType * query)
 }
 
 
+/*!
+ * \brief Compute the area penalty for inserting here and return.
+ *
+ * The penalty is the increase in area necessary to include the query.
+ */
 static inline double
 penalty (struct rtree_node *node, const BoxType * query)
 {
   double score;
 
-  /* Compute the area penalty for inserting here and return.
-   * The penalty is the increase in area necessary
-   * to include the query->
-   */
   score  = (MAX (node->box.X2, query->X2) - MIN (node->box.X1, query->X1));
   score *= (MAX (node->box.Y2, query->Y2) - MIN (node->box.Y1, query->Y1));
   score -=
