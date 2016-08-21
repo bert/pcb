@@ -1,32 +1,37 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/select.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief Select routines.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for paper mail and Email:
- *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
- *  Thomas.Nau@rz.uni-ulm.de
+ * Copyright (C) 1994,1995,1996 Thomas Nau
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
-
-/* select routines
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -57,9 +62,10 @@
 #include <dmalloc.h>
 #endif
 
-/* ---------------------------------------------------------------------------
- * toggles the selection of any kind of object
- * the different types are defined by search.h
+/*!
+ * \brief Toggles the selection of any kind of object.
+ *
+ * The various types are defined in search.h.
  */
 bool
 SelectObject (void)
@@ -207,10 +213,12 @@ SelectObject (void)
   return (changed);
 }
 
-/* ----------------------------------------------------------------------
- * selects/unselects all visible objects within the passed box
- * "select" determines if the block is to be selected or unselected
- * returns true if the state of any object has changed
+/*!
+ * \brief Selects/unselects all visible objects within the passed box.
+ *
+ * "select" determines if the block is to be selected or unselected.
+ *
+ * \return true if the state of any object has changed.
  */
 bool
 SelectBlock (BoxType *Box, bool select)
@@ -434,8 +442,8 @@ SelectBlock (BoxType *Box, bool select)
   return (changed);
 }
 
-/* ----------------------------------------------------------------------
- * performs several operations on the passed object
+/*!
+ * \brief Performs several operations on the passed object.
  */
 void *
 ObjectOperation (ObjectFunctionType *F,
@@ -508,11 +516,16 @@ ObjectOperation (ObjectFunctionType *F,
   return (NULL);
 }
 
-/* ----------------------------------------------------------------------
- * performs several operations on selected objects which are also visible
- * The lowlevel procedures are passed together with additional information
- * resets the selected flag if requested
- * returns true if anything has changed
+/*!
+ * \brief Performs several operations on selected objects which are also
+ * visible.
+ *
+ * The lowlevel procedures are passed together with additional
+ * information.
+ *
+ * Resets the selected flag if requested.
+ *
+ * \return true if anything has changed.
  */
 bool
 SelectedOperation (ObjectFunctionType *F, bool Reset, int type)
@@ -699,14 +712,17 @@ SelectedOperation (ObjectFunctionType *F, bool Reset, int type)
   return (changed);
 }
 
-/* ----------------------------------------------------------------------
- * selects/unselects all objects which have (any of) the specified flag(s)
- * set. (Typically the FOUNDFLAG, assigned during a connection scan).
- * "select" determines if they are to be selected or unselected
+/*!
+ * \brief Selects/unselects all objects which have (any of) the
+ * specified flag(s) set.
  *
- * returns true if the state of any object has changed
+ * This is typically the FOUNDFLAG, assigned during a connection scan.
  *
- * text objects and elements cannot be selected by this routine
+ * "select" determines if they are to be selected or unselected.
+ *
+ * \return true if the state of any object has changed.
+ *
+ * \note Text objects and elements cannot be selected by this routine.
  */
 bool
 SelectByFlag (int flag, bool select)
@@ -802,12 +818,12 @@ SelectByFlag (int flag, bool select)
 }
 
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-/* ---------------------------------------------------------------------------
- * selects objects as defined by Type by name;
- * it's a case insensitive match
- * returns true if any object has been selected
+/*!
+ * \brief Selects objects as defined by Type by name; it's a case
+ * insensitive match.
+ *
+ * \return true if any object has been selected.
  */
-
 #if defined (HAVE_REGCOMP)
 static int
 regexec_match_all (const  regex_t  *preg,  const  char  *string)
