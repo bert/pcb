@@ -754,8 +754,6 @@ create_lib_treeview (GhidLibraryWindow * library_window)
 
   /* add the treeview to the scrolled window */
   gtk_container_add (GTK_CONTAINER (scrolled_win), libtreeview);
-  /* set directory/footprint treeview of library_window */
-  library_window->libtreeview = GTK_TREE_VIEW (libtreeview);
 
   /* add the scrolled window for directories to the vertical box */
   gtk_box_pack_start (GTK_BOX (vbox), scrolled_win, TRUE, TRUE, 0);
@@ -837,6 +835,7 @@ create_lib_treeview (GhidLibraryWindow * library_window)
   /* add the filter area to the vertical box */
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
+  /* save pointer to libtreeview in library_window */
   library_window->libtreeview = GTK_TREE_VIEW (libtreeview);
 
   return vbox;
