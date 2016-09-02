@@ -24,6 +24,7 @@ bin_PROGRAMS=	pcb
 
 if DEBUG_BUILD
 # don't disable assert()
+AM_CFLAGS= -DDEBUG
 else
 AM_CFLAGS= -DNDEBUG
 endif
