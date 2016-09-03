@@ -609,7 +609,7 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
 				MENU_SUBPATH_COLUMN, rel_path,
 				MENU_NAME_COLUMN,
 				  tok_end == rel_path ?
-				    basename(menu->directory) : tok_start,
+				    g_path_get_basename(menu->directory) : tok_start,
 				MENU_LIBRARY_COLUMN,
 				  saved_ch == '\0' ? menu : NULL,
 				MENU_ENTRY_COLUMN, NULL, -1);
