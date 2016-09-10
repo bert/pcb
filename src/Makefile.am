@@ -69,7 +69,7 @@ PCB_SRCS = \
 	find.c \
 	find.h \
 	flags.c \
-	fontmode.c \
+	font.c \
 	free_atexit.c \
 	free_atexit.h \
 	gettext.h \

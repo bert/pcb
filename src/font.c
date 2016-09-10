@@ -62,6 +62,26 @@
 #include <dmalloc.h>
 #endif
 
+
+static const char loadfont_syntax[] = "LoadFont(filename)";
+
+static const char loadfont_help[] = "Load font data from a file.";
+
+static int
+LoadFont (int argc, char **argv, Coord x, Coord y)
+{
+    if (argc < 1) {
+        Message (_("Tell me what font-file to load\n"));
+        return -1;
+    }
+    // This will successfully load and install the new font, but it will change
+    // the font of all text on the board. Text that was already there also changes
+    // to the new font the next time the screen is redrawn.
+    if (ParseFont(&PCB->Font, argv[0]))
+        Message (_("Failed to load font file '%s'\n"), argv[0]);
+    return 0;
+}
+
 #define CELL_SIZE	MIL_TO_COORD (100)
 #define CELL_OFFSET	MIL_TO_COORD (10)
 
@@ -260,6 +280,8 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 }
 
 HID_Action fontmode_action_list[] = {
+  {"LoadFont", 0, LoadFont,
+   loadfont_help, loadfont_syntax},
   {"FontEdit", 0, FontEdit,
    fontedit_help, fontedit_syntax},
   {"FontSave", 0, FontSave,
