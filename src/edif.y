@@ -3889,6 +3889,16 @@ static Context *FindContext(register int cod)
   return (wlk);
 }
 /*
+ *	Parser state variables.
+ */
+static FILE *Input = NULL;		/* input stream */
+static FILE *Error = NULL;		/* error stream */
+static char *InFile;			/* file name on the input stream */
+static long LineNumber;			/* current input line number */
+static ContextCar *CSP = NULL;		/* top of context stack */
+static char yytext[IDENT_LENGTH + 1];	/* token buffer */
+static char CharBuf[IDENT_LENGTH + 1];	/* garbage buffer */
+/*
  *	Token stacking variables.
  */
 #ifdef	DEBUG
@@ -3942,11 +3952,11 @@ static DumpStack()
       else if (tok = FindToken(TokenType[(TSP + i) & TS_MASK]))
         nam = tok->Name;
       else switch (TokenType[(TSP + i) & TS_MASK]){
-      	case IDENT:	nam = "IDENT";		break;
-      	case INT:	nam = "INT";		break;
-      	case KEYWORD:	nam = "KEYWORD";	break;
-      	case STR:	nam = "STR";		break;
-      	default:	nam = "?";		break;
+      	case EDIF_TOK_IDENT:	nam = "IDENT";		break;
+      	case EDIF_TOK_INT:	    nam = "INT";		break;
+      	case EDIF_TOK_KEYWORD:	nam = "KEYWORD";	break;
+      	case EDIF_TOK_STR:	    nam = "STR";		break;
+      	default:	            nam = "?";	    	break;
       }
       /*
        *	Now print the token state.
@@ -3959,16 +3969,6 @@ static DumpStack()
 #else
 #define	Stack(s,t)
 #endif	/* DEBUG */
-/*
- *	Parser state variables.
- */
-static FILE *Input = NULL;		/* input stream */
-static FILE *Error = NULL;		/* error stream */
-static char *InFile;			/* file name on the input stream */
-static long LineNumber;			/* current input line number */
-static ContextCar *CSP = NULL;		/* top of context stack */
-static char yytext[IDENT_LENGTH + 1];	/* token buffer */
-static char CharBuf[IDENT_LENGTH + 1];	/* garbage buffer */
 /*
  *	yyerror:
  *
