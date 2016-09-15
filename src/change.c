@@ -515,7 +515,7 @@ ChangePinSize (ElementType *Element, PinType *Pin)
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
       /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      SetElementBoundingBox (PCB->Data, Element, Settings.Font);
       ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
       DrawPin (Pin);
       return (Pin);
@@ -550,7 +550,7 @@ ChangePinClearSize (ElementType *Element, PinType *Pin)
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
   /* SetElementBB updates all associated rtrees */
-  SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+  SetElementBoundingBox (PCB->Data, Element, Settings.Font);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin);
   return (Pin);
@@ -578,7 +578,7 @@ ChangePadSize (ElementType *Element, PadType *Pad)
       Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
       /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      SetElementBoundingBox (PCB->Data, Element, Settings.Font);
       ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       DrawPad (Pad);
       return (Pad);
@@ -613,7 +613,7 @@ ChangePadClearSize (ElementType *Element, PadType *Pad)
   r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
   Pad->Clearance = value;
   /* SetElementBB updates all associated rtrees */
-  SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+  SetElementBoundingBox (PCB->Data, Element, Settings.Font);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   DrawPad (Pad);
   return Pad;
@@ -865,7 +865,7 @@ ChangeTextSize (LayerType *Layer, TextType *Text)
       r_delete_entry (Layer->text_tree, (BoxType *) Text);
       RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       Text->Scale = value;
-      SetTextBoundingBox (&PCB->Font, Text);
+      SetTextBoundingBox (Settings.Font, Text);
       r_insert_entry (Layer->text_tree, (BoxType *) Text, 0);
       ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       DrawText (Layer, Text);
@@ -944,7 +944,7 @@ ChangeElementNameSize (ElementType *Element)
 	AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
 	r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
 	text->Scale = value;
-	SetTextBoundingBox (&PCB->Font, text);
+	SetTextBoundingBox (Settings.Font, text);
 	r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
@@ -1051,7 +1051,7 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element, int which
 		  & Element->Name[which].BoundingBox);
 
   Element->Name[which].TextString = new_name;
-  SetTextBoundingBox (&PCB->Font, &Element->Name[which]);
+  SetTextBoundingBox (Settings.Font, &Element->Name[which]);
 
   r_insert_entry (data->name_tree[which],
 		  & Element->Name[which].BoundingBox, 0);
@@ -1100,7 +1100,7 @@ ChangeTextName (LayerType *Layer, TextType *Text)
   Text->TextString = NewName;
 
   /* calculate size of the bounding box */
-  SetTextBoundingBox (&PCB->Font, Text);
+  SetTextBoundingBox (Settings.Font, Text);
   r_insert_entry(Layer->text_tree, (BoxType *) Text, 0);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   DrawText (Layer, Text);
@@ -2436,7 +2436,7 @@ ChangePadMaskSize (ElementType *Element, PadType *Pad)
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask = value;
-      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      SetElementBoundingBox (PCB->Data, Element, Settings.Font);
       DrawPad (Pad);
       return (Pad);
     }
@@ -2462,7 +2462,7 @@ ChangePinMaskSize (ElementType *Element, PinType *Pin)
       ErasePin (Pin);
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask = value;
-      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      SetElementBoundingBox (PCB->Data, Element, Settings.Font);
       DrawPin (Pin);
       return (Pin);
     }

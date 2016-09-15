@@ -1,7 +1,7 @@
 /*!
- * \file src/fontmode.c
+ * \file src/font.c
  *
- * \brief .
+ * \brief Functions for loading and manipulating fonts
  *
  * \todo We currently hardcode the grid and PCB size.\n
  * What we should do in the future is scan the font for its extents, and
@@ -42,21 +42,17 @@
 
 #include "global.h"
 
-#include <math.h>
-#include <memory.h>
-#include <limits.h>
+#include "font.h"
 
-
-#include "create.h"
-#include "data.h"
-#include "draw.h"
-#include "misc.h"
-#include "move.h"
-#include "remove.h"
-#include "rtree.h"
-#include "strflags.h"
-#include "undo.h"
-#include "pcb-printf.h"
+#include "create.h"     // CreateNewLineInSymbol
+#include "const.h"      // MIL_TO_COORD
+#include "data.h"       // Settings, PCB
+#include "error.h"      // Message
+#include "misc.h"       // MoveLayerToGroup, NoFlags, SetFontInfo
+#include "move.h"       // MoveLayer
+#include "hid.h"        // hid_action, hid_actionl
+#include "parse_l.h"    // ParseFont
+#include "pcb-printf.h" // get_unit_struct
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -66,20 +62,36 @@
 static const char loadfont_syntax[] = "LoadFont(filename)";
 
 static const char loadfont_help[] = "Load font data from a file.";
-
+/*!
+ * \brief User Action to load a new font
+ */
 static int
-LoadFont (int argc, char **argv, Coord x, Coord y)
+LoadFontAction (int argc, char **argv, Coord x, Coord y)
 {
     if (argc < 1) {
-        Message (_("Tell me what font-file to load\n"));
+        Message (_("Tell me what font file to load\n"));
         return -1;
     }
+    LoadFont(argv[0]);
+    return 0;
+}
+/*!
+ * \brief Loads a new font from a file
+ *
+ * Presently this doesn't create a new FontType structure, it just overwrites 
+ * the existing font data stored in Settings.Font. The parser does wipe out all
+ * the existing data, so you wont end up with a mixed font if the new font
+ * doesn't have a particular character.
+ */
+FontType *
+LoadFont(char * filename)
+{
     // This will successfully load and install the new font, but it will change
     // the font of all text on the board. Text that was already there also changes
     // to the new font the next time the screen is redrawn.
-    if (ParseFont(&PCB->Font, argv[0]))
-        Message (_("Failed to load font file '%s'\n"), argv[0]);
-    return 0;
+    if (ParseFont(Settings.Font, filename))
+        Message(_("Failed to load font file '%s'\n"), filename);
+    return Settings.Font;
 }
 
 #define CELL_SIZE	MIL_TO_COORD (100)
@@ -144,7 +156,7 @@ FontEdit (int argc, char **argv, Coord Ux, Coord Uy)
   lwidth = PCB->Data->Layer + 2;
   lgrid = PCB->Data->Layer + 3;
 
-  font = &PCB->Font;
+  font = Settings.Font;
   for (s = 0; s <= MAX_FONTPOSITION; s++)
     {
       Coord ox = (s % 16 + 1) * CELL_SIZE;
@@ -219,7 +231,7 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
   GList *ii;
   LayerType *lfont, *lwidth;
 
-  font = &PCB->Font;
+  font = Settings.Font;
   lfont = PCB->Data->Layer + 0;
   lwidth = PCB->Data->Layer + 2;
 
@@ -242,7 +254,7 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
       s = XYtoSym (x1, y1);
       ox = (s % 16 + 1) * CELL_SIZE;
       oy = (s / 16 + 1) * CELL_SIZE;
-      symbol = &PCB->Font.Symbol[s];
+      symbol = &Settings.Font->Symbol[s];
 
       x1 -= ox;
       y1 -= oy;
@@ -267,7 +279,7 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 
       s = XYtoSym (x1, y1);
       ox = (s % 16 + 1) * CELL_SIZE;
-      symbol = &PCB->Font.Symbol[s];
+      symbol = &Settings.Font->Symbol[s];
 
       x1 -= ox;
 
@@ -280,7 +292,7 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 }
 
 HID_Action fontmode_action_list[] = {
-  {"LoadFont", 0, LoadFont,
+  {"LoadFont", 0, LoadFontAction,
    loadfont_help, loadfont_syntax},
   {"FontEdit", 0, FontEdit,
    fontedit_help, fontedit_syntax},

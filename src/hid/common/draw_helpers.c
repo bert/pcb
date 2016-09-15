@@ -45,7 +45,7 @@ common_draw_pcb_text (hidGC gc, TextType *Text, Coord min_line_width)
   Coord x = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
-  FontType *font = &PCB->Font;
+  FontType *font = Settings.Font;
 
   while (string && *string)
     {

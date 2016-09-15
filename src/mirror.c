@@ -112,6 +112,6 @@ MirrorElementCoordinates (DataType *Data, ElementType *Element,
   /* now toggle the solder-side flag */
   TOGGLE_FLAG (ONSOLDERFLAG, Element);
   /* this inserts all of the rtree data too */
-  SetElementBoundingBox (Data, Element, &PCB->Font);
+  SetElementBoundingBox (Data, Element, Settings.Font);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
 }

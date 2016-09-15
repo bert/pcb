@@ -103,7 +103,7 @@ text_at (hidGC gc, int x, int y, int align, char *fmt, ...)
   int w = 0, i;
   TextType t;
   va_list a;
-  FontType *font = &PCB->Font;
+  FontType *font = Settings.Font;
   va_start (a, fmt);
   vsprintf (tmp, fmt, a);
   va_end (a);

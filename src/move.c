@@ -650,7 +650,7 @@ MoveTextToLayerLowLevel (LayerType *Source, TextType *text,
     CLEAR_FLAG (ONSOLDERFLAG, text);
 
   /* re-calculate the bounding box (it could be mirrored now) */
-  SetTextBoundingBox (&PCB->Font, text);
+  SetTextBoundingBox (Settings.Font, text);
   if (!Destination->text_tree)
     Destination->text_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Destination->text_tree, (BoxType *)text, 0);

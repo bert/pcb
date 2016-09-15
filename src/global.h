@@ -820,6 +820,7 @@ typedef struct
   Coord PinoutTextOffsetY; /*!< Offset of text from pin center (Y value). */
   RouteStyleType RouteStyle[NUM_STYLES]; /*!< Default routing styles. */
   LayerGroupType LayerGroups; /*!< Default layer groups. */
+  FontType * Font;
   bool ClearLine,
     FullPoly,
     UniqueNames, /*!< Force unique names. */

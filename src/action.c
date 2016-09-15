@@ -1399,7 +1399,7 @@ NotifyMode (void)
 		if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
 		    GetLayerGroupNumberBySide (BOTTOM_SIDE))
 		  flag |= ONSOLDERFLAG;
-		if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
+		if ((text = CreateNewText (CURRENT, Settings.Font, Note.X,
 					   Note.Y, 0, Settings.TextScale,
 					   string, MakeFlags (flag))) != NULL)
 		  {
@@ -1592,7 +1592,7 @@ NotifyMode (void)
 				    (BoxType *) & (e->Name[i]));
 		    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
 		    e->Name[i].Element = e;
-		    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
+		    SetTextBoundingBox (Settings.Font, &(e->Name[i]));
 		    r_insert_entry (PCB->Data->name_tree[i],
 				    (BoxType *) & (e->Name[i]), 0);
 		    if (i == save_n)

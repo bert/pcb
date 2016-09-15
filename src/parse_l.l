@@ -299,7 +299,7 @@ ParseElementFile (DataType *Ptr, char *Filename)
 {
 	yyPCB = NULL;
 	yyData = Ptr;
-	yyFont = &PCB->Font;
+	yyFont = Settings.Font;
 	yyElement = NULL;
 	return(Parse(NULL,NULL,Filename,NULL));
 }
@@ -312,7 +312,7 @@ ParseLibraryEntry (DataType *Ptr, char *Template)
 {
 	yyPCB = NULL;
 	yyData = Ptr;
-	yyFont = &PCB->Font;
+	yyFont = Settings.Font;
 	yyElement = NULL;
 	return(Parse(Settings.LibraryCommand, Settings.LibraryPath,
 		Settings.LibraryFilename, Template));

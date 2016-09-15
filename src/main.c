@@ -52,6 +52,7 @@
 #include "draw.h"
 #include "error.h"
 #include "file.h"
+#include "font.h"
 #include "set.h"
 #include "action.h"
 #include "misc.h"
@@ -1279,7 +1280,7 @@ The name of the default font.
 @end ftable
 %end-doc
 */
-  SSET (FontFile, "default_font", "default-font",
+  SSET (FontFile, "Default.pcb_font", "default-font",
 	"File name of default font"),
 
 /* %start-doc options "1 General Options"
@@ -1556,7 +1557,9 @@ REGISTER_ATTRIBUTES (main_attribute_list)
 /* ---------------------------------------------------------------------- 
  * post-process settings.
  */
-     static void settings_post_process ()
+
+static void
+settings_post_process ()
 {
   char *tmps;
 
@@ -1630,6 +1633,11 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   copy_nonzero_increments (get_increments_struct (IMPERIAL), &increment_mil);
 
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
+
+  Settings.Font = (FontType*) malloc(sizeof(FontType));
+  LoadFont(Settings.FontFile);
+
+  free(tmps);
 }
 
 /*!
@@ -1900,6 +1908,10 @@ pcb_main_uninit (void)
       Settings.FontFile = NULL;
     }
 
+  for (i = 0; i <= MAX_FONTPOSITION; i++)
+      free (Settings.Font->Symbol[i].Line);
+  free(Settings.Font);
+    
   uninit_strflags_buf ();
   uninit_strflags_layerlist ();
 
