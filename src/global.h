@@ -450,6 +450,7 @@ typedef struct
  */
 typedef struct
 {
+  char * Name;
   Coord MaxHeight; /*!< Maximum cell width. */
   Coord MaxWidth; /*!< Maximum cell height. */
   BoxType DefaultSymbol; /*!< The default symbol is a filled box. */

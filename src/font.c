@@ -36,6 +36,9 @@
  * dj@delorie.com
  */
 
+#include <glib.h>
+#include <string.h>     // memset
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -58,6 +61,152 @@
 #include <dmalloc.h>
 #endif
 
+GSList * SystemFontLibrary = NULL;
+
+
+int
+check_font_name(FontType * font, char * name)
+{
+    return g_strcmp0(font->Name, name);
+}
+/*!
+ * \brief Finds a font by name in the system font library
+ */
+FontType *
+FindFont(char * fontname)
+{
+    GSList * font = g_slist_find_custom(SystemFontLibrary,
+                                        fontname,
+                                        (GCompareFunc)check_font_name);
+    if (font) return font->data;
+    return NULL;
+}
+
+/*!
+ * \brief Finds a font by name in the system font library
+ */
+FontType *
+ChangeFont(char * fontname)
+{
+    FontType * font = FindFont(fontname);
+    if (!font)
+    {
+        Message(_("Could not change font to %s because it isn't in the library\n"
+               "Leaving the font set to %s.\n"), fontname, Settings.Font->Name);
+        return NULL;
+    }
+    Message(_("Switching to font %s\n"), fontname);
+    Settings.Font = font;
+    return font;
+}
+
+/*!
+ * \brief Loads a new font from a file
+ */
+FontType *
+LoadFont(char * filename)
+{
+    // This will successfully load and install the new font, but it will change
+    // the font of all text on the board. Text that was already there also changes
+    // to the new font the next time the screen is redrawn.
+    FontType * newfont;
+    if (FindFont(filename)) {
+        Message(_("Font %s already loaded. Switching to it.\n"), filename);
+        return ChangeFont(filename);
+    }
+    newfont = g_new(FontType, 1);
+    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
+    if (ParseFont(newfont, filename)){
+        Message(_("Failed to load font file '%s'\n"), filename);
+        g_free(newfont);
+        return NULL;
+    }
+    Settings.Font = newfont;
+    Settings.Font->Name = g_strdup(filename);
+    SystemFontLibrary = g_slist_append(SystemFontLibrary, newfont);
+    Message(_("New font loaded: %s\n"), Settings.Font->Name);
+    return Settings.Font;
+}
+
+int
+FreeFontMemory(FontType * font)
+{
+    int i;
+    Message(_("Freeing font memory: %s\n"), font->Name);
+    /* Free any lines allocated to font symbols */
+    for (i = 0; i <= MAX_FONTPOSITION; i++) free (font->Symbol[i].Line);
+    /* Release the memory holding the font name */
+    free(font->Name);
+    /* Free the memory holding the font structure itself */
+    free(font);
+    return 0;
+}
+
+int
+UnloadFont(char * fontname)
+{
+    FontType * font;
+    if (g_strcmp0(fontname, "all") == 0)
+    {
+        g_slist_foreach(SystemFontLibrary, (GFunc)FreeFontMemory, NULL);
+        g_slist_free(SystemFontLibrary);
+        SystemFontLibrary = NULL;
+        Settings.Font = NULL;
+    } else
+    {
+        font = FindFont(fontname);
+        if (!font)
+        {
+            Message(_("Could not unload font %s, font not found in list\n"),
+                   fontname);
+            return -1;
+        }
+        FreeFontMemory(font);
+        SystemFontLibrary = g_slist_remove(SystemFontLibrary, font);
+        /* 
+         * if we unloaded the current font, either switch to the first one in
+         * the list, or if there are no more, set the font pointer to NULL.
+         */
+        if (font == Settings.Font)
+        {
+            if (g_slist_length(SystemFontLibrary) >= 1)
+                ChangeFont(((FontType*)SystemFontLibrary->data)->Name);
+            else
+                Settings.Font = NULL;
+        }
+    }
+    return 0;
+}
+
+static const char changefont_syntax[] = "ChangeFonts(fontname)";
+
+static const char changefont_help[] = "Change the current font";
+
+static int
+ChangeFontAction(int argc, char **argv, Coord x, Coord y)
+{
+    if (argc < 1)
+    {
+        Message (_("Tell me what font use\n"));
+        return -1;
+    }
+    ChangeFont(argv[0]);
+    return 0;
+}
+
+static const char listfonts_syntax[] = "ListFonts()";
+
+static const char listfonts_help[] = "List fonts in library.";
+
+static int
+ListFontsAction(int argc, char **argv, Coord x, Coord y)
+{
+    GSList * itt;
+    Message(_("Fonts in library: \n"));
+    for (itt = SystemFontLibrary; itt; itt = itt->next)
+        Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
+    return 0;
+}
 
 static const char loadfont_syntax[] = "LoadFont(filename)";
 
@@ -68,30 +217,42 @@ static const char loadfont_help[] = "Load font data from a file.";
 static int
 LoadFontAction (int argc, char **argv, Coord x, Coord y)
 {
-    if (argc < 1) {
+    if (argc < 1)
+    {
         Message (_("Tell me what font file to load\n"));
         return -1;
     }
     LoadFont(argv[0]);
     return 0;
 }
+
+static const char unloadfont_syntax[] = "UnloadFont(filename)";
+
+static const char unloadfont_help[] = "Unload font data from the system library.";
 /*!
- * \brief Loads a new font from a file
- *
- * Presently this doesn't create a new FontType structure, it just overwrites 
- * the existing font data stored in Settings.Font. The parser does wipe out all
- * the existing data, so you wont end up with a mixed font if the new font
- * doesn't have a particular character.
+ * \brief User Action to load a new font
  */
-FontType *
-LoadFont(char * filename)
+static int
+UnloadFontAction (int argc, char **argv, Coord x, Coord y)
 {
-    // This will successfully load and install the new font, but it will change
-    // the font of all text on the board. Text that was already there also changes
-    // to the new font the next time the screen is redrawn.
-    if (ParseFont(Settings.Font, filename))
-        Message(_("Failed to load font file '%s'\n"), filename);
-    return Settings.Font;
+    if (argc < 1)
+    {
+        Message (_("Tell me what font to unload\n"));
+        return -1;
+    }
+    UnloadFont(argv[0]);
+    /* 
+     * Don't let the user get rid of all the fonts, there has to be at least one
+     * in order to create any kind of text object. Do this here, because we do 
+     * want to let the system unload all fonts when exiting.
+     */
+    if (g_slist_length(SystemFontLibrary) < 1)
+    {
+        Message(_("You have to leave at least one font in the libary.\n"
+               "Loading the default font.\n"));
+        LoadFont(Settings.FontFile);
+    }
+    return 0;
 }
 
 #define CELL_SIZE	MIL_TO_COORD (100)
@@ -292,8 +453,14 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 }
 
 HID_Action fontmode_action_list[] = {
+  {"ChangeFont", 0, ChangeFontAction,
+   changefont_help, changefont_syntax},
   {"LoadFont", 0, LoadFontAction,
    loadfont_help, loadfont_syntax},
+  {"UnloadFont", 0, UnloadFontAction,
+   unloadfont_help, unloadfont_syntax},
+  {"ListFonts", 0, ListFontsAction,
+   listfonts_help, listfonts_syntax},
   {"FontEdit", 0, FontEdit,
    fontedit_help, fontedit_syntax},
   {"FontSave", 0, FontSave,

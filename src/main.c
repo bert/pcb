@@ -1901,16 +1901,14 @@ pcb_main_uninit (void)
 
   for (i = 0; i < MAX_LAYER; i++)
     free (Settings.DefaultLayerName[i]);
-
+    
   if (Settings.FontFile != NULL)
     {
       free (Settings.FontFile);
       Settings.FontFile = NULL;
     }
-
-  for (i = 0; i <= MAX_FONTPOSITION; i++)
-      free (Settings.Font->Symbol[i].Line);
-  free(Settings.Font);
+    
+  UnloadFont("all");
     
   uninit_strflags_buf ();
   uninit_strflags_layerlist ();

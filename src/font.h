@@ -34,7 +34,11 @@
 #define	PCB_FONT_H
 
 #include "global.h"
+#include <glib.h>
+
+extern GSList * SystemFontLibrary;
 
 FontType * LoadFont(char * filename);
+int UnloadFont(char * fontname);
 
 #endif
