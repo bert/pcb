@@ -1908,7 +1908,7 @@ pcb_main_uninit (void)
       Settings.FontFile = NULL;
     }
     
-  UnloadFont("all");
+  UnloadFont(&Settings.FontLibrary, "all");
     
   uninit_strflags_buf ();
   uninit_strflags_layerlist ();

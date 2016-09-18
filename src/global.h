@@ -617,6 +617,7 @@ typedef struct PCBType
   double IsleArea, /*!< Minimum poly island to retain. */
     ThermScale; /*!< Scale factor used with thermals. */
   FontType Font;
+  GSList * FontLibrary;
   LayerGroupType LayerGroups;
   RouteStyleType RouteStyle[NUM_STYLES];
   LibraryType NetlistLib;
@@ -821,6 +822,7 @@ typedef struct
   Coord PinoutTextOffsetY; /*!< Offset of text from pin center (Y value). */
   RouteStyleType RouteStyle[NUM_STYLES]; /*!< Default routing styles. */
   LayerGroupType LayerGroups; /*!< Default layer groups. */
+  GSList * FontLibrary;
   FontType * Font;
   bool ClearLine,
     FullPoly,

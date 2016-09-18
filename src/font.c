@@ -61,9 +61,6 @@
 #include <dmalloc.h>
 #endif
 
-GSList * SystemFontLibrary = NULL;
-
-
 int
 check_font_name(FontType * font, char * name)
 {
@@ -73,9 +70,9 @@ check_font_name(FontType * font, char * name)
  * \brief Finds a font by name in the system font library
  */
 FontType *
-FindFont(char * fontname)
+FindFont(GSList * library, char * fontname)
 {
-    GSList * font = g_slist_find_custom(SystemFontLibrary,
+    GSList * font = g_slist_find_custom(library,
                                         fontname,
                                         (GCompareFunc)check_font_name);
     if (font) return font->data;
@@ -88,7 +85,7 @@ FindFont(char * fontname)
 FontType *
 ChangeFont(char * fontname)
 {
-    FontType * font = FindFont(fontname);
+    FontType * font = FindFont(Settings.FontLibrary, fontname);
     if (!font)
     {
         Message(_("Could not change font to %s because it isn't in the library\n"
@@ -110,7 +107,7 @@ LoadFont(char * filename)
     // the font of all text on the board. Text that was already there also changes
     // to the new font the next time the screen is redrawn.
     FontType * newfont;
-    if (FindFont(filename)) {
+    if (FindFont(Settings.FontLibrary, filename)) {
         Message(_("Font %s already loaded. Switching to it.\n"), filename);
         return ChangeFont(filename);
     }
@@ -123,7 +120,7 @@ LoadFont(char * filename)
     }
     Settings.Font = newfont;
     Settings.Font->Name = g_strdup(filename);
-    SystemFontLibrary = g_slist_append(SystemFontLibrary, newfont);
+    Settings.FontLibrary = g_slist_append(Settings.FontLibrary, newfont);
     Message(_("New font loaded: %s\n"), Settings.Font->Name);
     return Settings.Font;
 }
@@ -142,19 +139,25 @@ FreeFontMemory(FontType * font)
     return 0;
 }
 
+/*
+ * \brief Removes a font from a font libary
+ * 
+ * UnloadFont removes the named font out of the libary indicated. The library
+ * has to be a double pointer because if you may need to modify the actual
+ * list pointer, for example, if you remove the first element in the list.
+ */
 int
-UnloadFont(char * fontname)
+UnloadFont(GSList ** pLibrary, char * fontname)
 {
     FontType * font;
     if (g_strcmp0(fontname, "all") == 0)
-    {
-        g_slist_foreach(SystemFontLibrary, (GFunc)FreeFontMemory, NULL);
-        g_slist_free(SystemFontLibrary);
-        SystemFontLibrary = NULL;
-        Settings.Font = NULL;
-    } else
-    {
-        font = FindFont(fontname);
+    {  /* Unload all fonts */
+        g_slist_foreach(*pLibrary, (GFunc)FreeFontMemory, NULL);
+        if (*pLibrary == Settings.FontLibrary) Settings.Font = NULL;
+    }
+    else
+    { /* Unload a particular font */
+        font = FindFont(*pLibrary, fontname);
         if (!font)
         {
             Message(_("Could not unload font %s, font not found in list\n"),
@@ -162,18 +165,23 @@ UnloadFont(char * fontname)
             return -1;
         }
         FreeFontMemory(font);
-        SystemFontLibrary = g_slist_remove(SystemFontLibrary, font);
+        *pLibrary = g_slist_remove(*pLibrary, font);
         /* 
          * if we unloaded the current font, either switch to the first one in
          * the list, or if there are no more, set the font pointer to NULL.
          */
         if (font == Settings.Font)
         {
-            if (g_slist_length(SystemFontLibrary) >= 1)
-                ChangeFont(((FontType*)SystemFontLibrary->data)->Name);
+            if (g_slist_length(Settings.FontLibrary) >= 1)
+                ChangeFont(((FontType*)Settings.FontLibrary->data)->Name);
             else
                 Settings.Font = NULL;
         }
+    }
+    if (g_slist_length(*pLibrary) < 1)
+    {
+        g_slist_free(*pLibrary);
+        *pLibrary = NULL;
     }
     return 0;
 }
@@ -203,7 +211,7 @@ ListFontsAction(int argc, char **argv, Coord x, Coord y)
 {
     GSList * itt;
     Message(_("Fonts in library: \n"));
-    for (itt = SystemFontLibrary; itt; itt = itt->next)
+    for (itt = Settings.FontLibrary; itt; itt = itt->next)
         Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
     return 0;
 }
@@ -231,6 +239,11 @@ static const char unloadfont_syntax[] = "UnloadFont(filename)";
 static const char unloadfont_help[] = "Unload font data from the system library.";
 /*!
  * \brief User Action to load a new font
+ *
+ * UnloadFontAction is the users way of removing a font from the system library.
+ * The user can only modify the SystemFontLibrary. The EmbeddedFontLibrary is
+ * generated only by loading font data from PCB files.
+ *
  */
 static int
 UnloadFontAction (int argc, char **argv, Coord x, Coord y)
@@ -240,13 +253,13 @@ UnloadFontAction (int argc, char **argv, Coord x, Coord y)
         Message (_("Tell me what font to unload\n"));
         return -1;
     }
-    UnloadFont(argv[0]);
+    UnloadFont(&Settings.FontLibrary, argv[0]);
     /* 
      * Don't let the user get rid of all the fonts, there has to be at least one
      * in order to create any kind of text object. Do this here, because we do 
      * want to let the system unload all fonts when exiting.
      */
-    if (g_slist_length(SystemFontLibrary) < 1)
+    if (g_slist_length(Settings.FontLibrary) < 1)
     {
         Message(_("You have to leave at least one font in the libary.\n"
                "Loading the default font.\n"));
