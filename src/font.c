@@ -3,12 +3,6 @@
  *
  * \brief Functions for loading and manipulating fonts
  *
- * \todo We currently hardcode the grid and PCB size.\n
- * What we should do in the future is scan the font for its extents, and
- * size the grid appropriately.\n
- * Also, when we convert back to a font, we should search the grid for
- * the gridlines and use them to figure out where the symbols are.
- *
  * <hr>
  *
  * <h1><b>Copyright.</b></h1>\n
@@ -36,14 +30,15 @@
  * dj@delorie.com
  */
 
-#include <glib.h>
+#include <glib.h>       // GSList type and functions
 #include <string.h>     // memset
+#include <stdio.h>      // asprintf
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "global.h"
+#include "global.h"     // PCB type definitions
 
 #include "font.h"
 
@@ -85,19 +80,26 @@ FindFont(GSList * library, char * fontname)
 FontType *
 ChangeFont(char * fontname)
 {
-    FontType * font = FindFont(Settings.FontLibrary, fontname);
+    FontType * font;
+    bool embedded;
+    /* check the embedded library first, these should always have priority */
+    font = FindFont(PCB->FontLibrary, fontname);
+    if (font) embedded = true;
+    /* if the font isn't there, check the system library. */
+    if (!font) font = FindFont(Settings.FontLibrary, fontname);
     if (!font)
     {
         Message(_("Could not change font to %s because it isn't in the library\n"
                "Leaving the font set to %s.\n"), fontname, Settings.Font->Name);
         return NULL;
     }
-    Message(_("Switching to font %s\n"), fontname);
+    Message(_("Switching to font %s from the %s library\n"),
+            fontname, embedded ? "embedded" : "system");
     Settings.Font = font;
     return font;
 }
 
-/*!
+/*
  * \brief Loads a new font from a file
  */
 FontType *
@@ -123,6 +125,21 @@ LoadFont(char * filename)
     Settings.FontLibrary = g_slist_append(Settings.FontLibrary, newfont);
     Message(_("New font loaded: %s\n"), Settings.Font->Name);
     return Settings.Font;
+}
+
+/*
+ * /brief Creates a new empty font structure in the indicated library
+ *
+ * /todo add a "name" argument
+ */
+FontType *
+CreateNewFontInLibrary(GSList ** library){
+    FontType * newfont = g_new(FontType, 1);
+    asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
+    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
+    newfont->Valid = false;
+    *library = g_slist_append(*library, newfont);
+    return newfont;
 }
 
 int
@@ -160,7 +177,8 @@ UnloadFont(GSList ** pLibrary, char * fontname)
         font = FindFont(*pLibrary, fontname);
         if (!font)
         {
-            Message(_("Could not unload font %s, font not found in list\n"),
+            Message(_("Could not unload font %s, "
+                      "font not found in system library\n"),
                    fontname);
             return -1;
         }
@@ -210,9 +228,13 @@ static int
 ListFontsAction(int argc, char **argv, Coord x, Coord y)
 {
     GSList * itt;
-    Message(_("Fonts in library: \n"));
+    Message(_("Fonts in system library: \n"));
     for (itt = Settings.FontLibrary; itt; itt = itt->next)
         Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
+    Message(_("Fonts in embedded library: \n"));
+    for (itt = PCB->FontLibrary; itt; itt = itt->next)
+        Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
+    Message(_("Currently selected font is: %s"), Settings.Font->Name);
     return 0;
 }
 

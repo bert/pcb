@@ -45,6 +45,7 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "font.h"
 #include "misc.h"
 #include "move.h"
 #include "mymem.h"
@@ -119,6 +120,7 @@ void
 RemovePCB (PCBType *Ptr)
 {
   ClearUndoList (true);
+  UnloadFont(&(Ptr->FontLibrary), "all");
   FreePCBMemory (Ptr);
   free (Ptr);
 }

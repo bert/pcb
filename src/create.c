@@ -212,8 +212,8 @@ CreateNewPCB (void)
   for (i = 0; i < MAX_LAYER; i++)
     ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
 
-	CreateDefaultFont (ptr);
-
+  ptr->FontLibrary = NULL;
+    
   return (ptr);
 }
 

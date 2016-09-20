@@ -46,6 +46,7 @@
 #include "data.h"
 #include "error.h"
 #include "file.h"
+#include "font.h"
 #include "layerflags.h"
 #include "mymem.h"
 #include "misc.h"
@@ -268,18 +269,15 @@ pcbfont
 parsefont
 		:
 			{
-					/* mark all symbols invalid */
-				int	i;
-
-				if (!yyFont)
+				if (!yyFont && !yyPCB)
 				{
 					Message(_("illegal fileformat\n"));
 					YYABORT;
 				}
+                if (yyPCB) 
+                    yyFont = CreateNewFontInLibrary(&yyPCB->FontLibrary);
 				yyFont->Valid = false;
-				for (i = 0; i <= MAX_FONTPOSITION; i++)
-					free (yyFont->Symbol[i].Line);
-				bzero(yyFont->Symbol, sizeof(yyFont->Symbol));
+
 			}
 		  symbols
 			{

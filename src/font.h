@@ -36,7 +36,9 @@
 #include "global.h"
 #include <glib.h>
 
+FontType * CreateNewFontInLibrary(GSList ** library);
 FontType * LoadFont(char * filename);
+FontType * ChangeFont(char * fontname);
 int UnloadFont(GSList ** library, char * fontname);
 
 #endif

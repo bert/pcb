@@ -86,6 +86,7 @@
 #include "edif_parse.h"
 #include "error.h"
 #include "file.h"
+#include "font.h"
 #include "hid.h"
 #include "layerflags.h"
 #include "misc.h"
@@ -427,13 +428,14 @@ real_load_pcb (char *Filename, bool revert)
       ChangePCBSize (PCB->MaxWidth, PCB->MaxHeight);
 
       /* enable default font if necessary */
-      if (!PCB->Font.Valid)
+      if (g_slist_length(PCB->FontLibrary) < 1)
 	{
 	  Message (_
 		   ("File '%s' has no font information, using default font\n"),
 		   new_filename);
-	  PCB->Font.Valid = true;
-	}
+      ChangeFont("Default.pcb_font");
+	} else /* Switch to the font found in the PCB file */
+      ChangeFont(((FontType*)PCB->FontLibrary->data)->Name);
 
       /* clear 'changed flag' */
       SetChangedFlag (false);
