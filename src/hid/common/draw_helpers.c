@@ -93,7 +93,7 @@ common_draw_pcb_text (hidGC gc, TextType *Text, Coord min_line_width)
       else
         {
           /* the default symbol is a filled box */
-          BoxType defaultsymbol = PCB->Font.DefaultSymbol;
+          BoxType defaultsymbol = font->DefaultSymbol;
           Coord size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
           defaultsymbol.X1 = SCALE_TEXT (defaultsymbol.X1 + x, Text->Scale);
