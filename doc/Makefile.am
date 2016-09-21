@@ -154,10 +154,10 @@ endif
 SUFFIXES = .eps .pcb .pdf .png .tab .tex
 
 .pcb.eps :
-	${PCB} -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
+	${PCB} -x eps --only-visible --font-path $(top_srcdir)/fonts --eps-file $@ $<
 
 .pcb.png :
-	${PCB} -x png --only-visible --font-path $(top_srcdir)/src --outfile $@ $<
+	${PCB} -x png --only-visible --font-path $(top_srcdir)/fonts --outfile $@ $<
 
 .eps.pdf :
 if MISSING_PS2PDF

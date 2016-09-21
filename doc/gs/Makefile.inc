@@ -118,11 +118,11 @@ pcb_output=	\
 SUFFIXES = .dvi .eps .pcb .pdf .png .tab .tex
 
 %.png %.eps : %.pcb
-	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
+	$(PCB) -x eps --font-path $(top_srcdir)/fonts --eps-file $*.eps $<
 	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.fp
-	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
+	$(PCB) -x eps --font-path $(top_srcdir)/fonts --eps-file $*.eps $<
 	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.sch
