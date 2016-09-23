@@ -66,7 +66,6 @@ bool IsPasteEmpty (int);
 void CountHoles (int *, int *, const BoxType *);
 BoxType * GetDataBoundingBox (DataType *);
 void CenterDisplay (Coord, Coord, bool warp_pointer);
-void SetFontInfo (FontType *);
 char *make_route_string (RouteStyleType rs[], int n_styles);
 int ParseGroupString (char *, LayerGroupType *, int * /* LayerN */);
 int ParseRouteString (char *, RouteStyleType *, const char *);
