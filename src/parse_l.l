@@ -118,6 +118,7 @@ ElementArc	{ return(T_ELEMENTARC); }
 Element		{ return(T_ELEMENT); }
 SymbolLine	{ return(T_SYMBOLLINE); }
 Symbol		{ return(T_SYMBOL); }
+Font        { return(T_FONT); }
 Mark		{ return(T_MARK); }
 Groups		{ return(T_GROUPS); }
 Styles		{ return(T_STYLES); }

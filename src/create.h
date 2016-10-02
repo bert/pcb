@@ -57,7 +57,6 @@ ArcType * CreateNewArcInElement (ElementType *, Coord, Coord, Coord, Coord, Angl
 PinType * CreateNewPin (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
 PadType * CreateNewPad (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);
 LineType * CreateNewLineInSymbol (SymbolType *, Coord, Coord, Coord, Coord, Coord);
-void CreateDefaultFont (PCBType *);
 RubberbandType * CreateNewRubberbandEntry (LayerType *, LineType *, PointType *);
 LibraryMenuType * CreateNewNet (LibraryType *, char *, char *);
 LibraryEntryType * CreateNewConnection (LibraryMenuType *, char *);

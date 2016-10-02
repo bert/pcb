@@ -3,6 +3,9 @@
  *
  * \brief Functions for loading and manipulating fonts
  *
+ * \TODO Some of the user actions are very similar and may be able to be
+ *       consolidated.
+ *
  * <hr>
  *
  * <h1><b>Copyright.</b></h1>\n
@@ -81,7 +84,7 @@ FontType *
 ChangeFont(char * fontname)
 {
     FontType * font;
-    bool embedded;
+    bool embedded = false;
     /* check the embedded library first, these should always have priority */
     font = FindFont(PCB->FontLibrary, fontname);
     if (font) embedded = true;
@@ -133,9 +136,10 @@ LoadFont(char * filename)
  * /todo add a "name" argument
  */
 FontType *
-CreateNewFontInLibrary(GSList ** library){
+CreateNewFontInLibrary(GSList ** library, char * name){
     FontType * newfont = g_new(FontType, 1);
-    asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
+    if (name) newfont->Name = g_strdup(name);
+    else asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     newfont->Valid = false;
     *library = g_slist_append(*library, newfont);
@@ -167,9 +171,11 @@ int
 UnloadFont(GSList ** pLibrary, char * fontname)
 {
     FontType * font;
+    GSList *itt;
     if (g_strcmp0(fontname, "all") == 0)
     {  /* Unload all fonts */
-        g_slist_foreach(*pLibrary, (GFunc)FreeFontMemory, NULL);
+        for(itt = *pLibrary; itt; itt = itt->next)
+            UnloadFont(pLibrary, ((FontType*)itt->data)->Name);
         if (*pLibrary == Settings.FontLibrary) Settings.Font = NULL;
     }
     else
@@ -191,7 +197,11 @@ UnloadFont(GSList ** pLibrary, char * fontname)
         if (font == Settings.Font)
         {
             if (g_slist_length(Settings.FontLibrary) >= 1)
+            {
+                Message(_("Current font unloaded. Switching to %s.\n"),
+                        ((FontType*)Settings.FontLibrary->data)->Name);
                 ChangeFont(((FontType*)Settings.FontLibrary->data)->Name);
+            }
             else
                 Settings.Font = NULL;
         }
@@ -201,6 +211,53 @@ UnloadFont(GSList ** pLibrary, char * fontname)
         g_slist_free(*pLibrary);
         *pLibrary = NULL;
     }
+    return 0;
+}
+
+int SetPCBDefaultFont(char * fontname)
+{
+    FontType * font;
+    /* Check the embedded library */
+    font = FindFont(PCB->FontLibrary, fontname);
+    /* Check the system library */
+    if (!font) font = FindFont(Settings.FontLibrary, fontname);
+    /* Don't allow setting to an unknown font */
+    if (!font)
+    {
+        Message(_("Could not change PCB default font, font '%s' not found\n"),
+                fontname);
+        return -1;
+    }
+    /* the font was found in one or the other libraries */
+    if (PCB->DefaultFontName) free(PCB->DefaultFontName);
+    PCB->DefaultFontName = g_strdup(fontname);
+    return 0;
+}
+
+static const char setpcbfont_syntax[] = "SetPCBDefaultFont(fontname)";
+
+static const char
+setpcbfont_help[] = "Set the default font for the current layout";
+/*!
+ * \brief User Action to change the default font for a PCB file
+ *
+ * Set the default font for text elements in a layout.
+ * When a text element is read from a file, if the font is not specified, the 
+ * font set here will be used. This does not set the "current" font, so, new 
+ * text objects created by the user may not use this font. Use ChangeFont to set
+ * that font. Note that changing this setting could cause the layout to be
+ * different if it is saved and reloaded.
+ *
+ */
+static int
+SetPCBDefaultFontAction(int argc, char **argv, Coord x, Coord y)
+{
+    if (argc < 1)
+    {
+        Message (_("Tell me what font use\n"));
+        return -1;
+    }
+    SetPCBDefaultFont(argv[0]);
     return 0;
 }
 
@@ -234,7 +291,8 @@ ListFontsAction(int argc, char **argv, Coord x, Coord y)
     Message(_("Fonts in embedded library: \n"));
     for (itt = PCB->FontLibrary; itt; itt = itt->next)
         Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
-    Message(_("Currently selected font is: %s"), Settings.Font->Name);
+    Message(_("Currently selected font is: %s\n"), Settings.Font->Name);
+    Message(_("PCB file default font is: %s\n"), PCB->DefaultFontName);
     return 0;
 }
 
@@ -561,6 +619,8 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 }
 
 HID_Action fontmode_action_list[] = {
+  {"SetPCBDefaultFont", 0, SetPCBDefaultFontAction,
+   setpcbfont_help, setpcbfont_syntax},
   {"ChangeFont", 0, ChangeFontAction,
    changefont_help, changefont_syntax},
   {"LoadFont", 0, LoadFontAction,

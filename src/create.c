@@ -212,6 +212,7 @@ CreateNewPCB (void)
   for (i = 0; i < MAX_LAYER; i++)
     ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
 
+  ptr->DefaultFontName = NULL;
   ptr->FontLibrary = NULL;
     
   return (ptr);
@@ -946,20 +947,6 @@ CreateNewLineInSymbol (SymbolType *Symbol,
   line->Point2.Y = Y2;
   line->Thickness = Thickness;
   return (line);
-}
-
-/*!
- * \brief Parses a file with font information and installs it into the
- * provided PCB.
- *
- * Checks directories given as colon separated list by resource fontPath
- * if the fonts filename doesn't contain a directory component.
- */
-void
-CreateDefaultFont (PCBType *pcb)
-{
-  if (ParseFont (&pcb->Font, Settings.FontFile))
-    Message (_("Can't find font-symbol-file '%s'\n"), Settings.FontFile);
 }
 
 /*!

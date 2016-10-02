@@ -616,7 +616,7 @@ typedef struct PCBType
   Coord Grid; /*!< Used grid with offsets. */
   double IsleArea, /*!< Minimum poly island to retain. */
     ThermScale; /*!< Scale factor used with thermals. */
-  FontType Font;
+  char * DefaultFontName; /* Default font for read objects that don't specify */
   GSList * FontLibrary;
   LayerGroupType LayerGroups;
   RouteStyleType RouteStyle[NUM_STYLES];

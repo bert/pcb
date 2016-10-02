@@ -712,8 +712,6 @@ FreeElementMemory (ElementType *element)
 void
 FreePCBMemory (PCBType *pcb)
 {
-  int i;
-
   if (pcb == NULL)
     return;
 
@@ -722,9 +720,6 @@ FreePCBMemory (PCBType *pcb)
   free (pcb->PrintFilename);
   FreeDataMemory (pcb->Data);
   free (pcb->Data);
-  /* release font symbols */
-  for (i = 0; i <= MAX_FONTPOSITION; i++)
-    free (pcb->Font.Symbol[i].Line);
   FreeLibraryMemory (&pcb->NetlistLib);
   NetlistChanged (0);
   FreeAttributeListMemory (&pcb->Attributes);
