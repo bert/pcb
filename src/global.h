@@ -451,11 +451,12 @@ typedef struct
 typedef struct
 {
   char * Name;
+  char * SourceFile;
   Coord MaxHeight; /*!< Maximum cell width. */
   Coord MaxWidth; /*!< Maximum cell height. */
   BoxType DefaultSymbol; /*!< The default symbol is a filled box. */
   SymbolType Symbol[MAX_FONTPOSITION + 1];
-  bool Valid;
+  int nSymbols;
 } FontType;
 
 /*!

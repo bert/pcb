@@ -427,6 +427,7 @@ real_load_pcb (char *Filename, bool revert)
       if (PCB->DefaultFontName)
       { /* the file specified a default font */
         ChangeFont(PCB->DefaultFontName);
+        /* what should we do if we can't find the requested font? */
       } else if (g_slist_length(PCB->FontLibrary) > 0)
 	  { /* Switch to the font found in the PCB file */
         ChangeFont(((FontType*)PCB->FontLibrary->data)->Name);

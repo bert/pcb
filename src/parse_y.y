@@ -1,4 +1,4 @@
-/*
+ /*
  * ************************** README *******************
  *
  * If the file format is modified in any way, update
@@ -135,7 +135,7 @@ static Coord new_units (PLMeasure m);
 parse
 		: parsepcb
 		| parsedata
-		| parsesymbols
+		| pcbfont
 		| error { YYABORT; }
 		;
 
@@ -265,25 +265,21 @@ parsedata
 pcbfont
 		: /* Empty */
         | pcbfont parsesymbols /* Old formats had only symbols */
-		| fontname 
+		| pcbfont fontname 
+/*        | pcbfont fontname '(' symbols ')'*/
+        | pcbfont embeddedfont
 		;
 
 parsesymbols
 		:
 			{
-				if (!yyFont && !yyPCB)
-				{
-					Message(_("illegal fileformat\n"));
-					YYABORT;
-				}
-                if (yyPCB) 
-                    yyFont = CreateNewFontInLibrary(&yyPCB->FontLibrary, NULL);
-				yyFont->Valid = false;
-
+             if (yyPCB) /* symbols in a pcb file, not wrapped in a font */
+                yyFont = CreateNewFontInLibrary(&yyPCB->FontLibrary, NULL);
+             else /* file with only symbols and no font name */
+                yyFont = CreateNewFontInLibrary(&Settings.FontLibrary, NULL);
 			}
 		  symbols
 			{
-				yyFont->Valid = true;
 		  		SetFontInfo(yyFont);
 			}
 		;
@@ -291,8 +287,20 @@ parsesymbols
 fontname
         : T_FONT '(' STRING ')'
             {
-                yyPCB->DefaultFontName = strdup($3);
+                if(yyPCB) yyPCB->DefaultFontName = strdup($3);
             }
+
+embeddedfont
+        : T_FONT '(' STRING ')' {
+                if(yyPCB)
+                  yyFont = CreateNewFontInLibrary(&yyPCB->FontLibrary, $3);
+                else
+                  yyFont = CreateNewFontInLibrary(&Settings.FontLibrary, $3);
+            } '(' symbols ')' {
+                SetFontInfo(yyFont);
+            }
+
+
 
 /* %start-doc pcbfile FileVersion
 
@@ -1781,6 +1789,7 @@ symbolhead	: T_SYMBOL '[' symbolid measure ']' '('
 				}
 				Symbol->Valid = true;
 				Symbol->Delta = NU ($4);
+                yyFont->nSymbols += 1;
 			}
 		| T_SYMBOL '(' symbolid measure ')' '('
 			{
@@ -1797,6 +1806,7 @@ symbolhead	: T_SYMBOL '[' symbolid measure ']' '('
 				}
 				Symbol->Valid = true;
 				Symbol->Delta = OU ($4);
+                yyFont->nSymbols += 1;
 			}
 		;
 

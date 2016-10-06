@@ -1,4 +1,5 @@
 # PCB default font (2016)
+Font("Default") (
 Symbol(' ' 18)
 (
 )
@@ -772,3 +773,4 @@ Symbol('@' 12)
 	SymbolLine(20 5 15 10 8)
 	SymbolLine(40 25 50 25 8)
 )
+) # end font

@@ -59,20 +59,32 @@
 #include <dmalloc.h>
 #endif
 
+/* 
+ * Some compare functions for searching through the lists
+ */
 int
 check_font_name(FontType * font, char * name)
 {
     return g_strcmp0(font->Name, name);
 }
+int
+check_font_source(FontType * font, char * filename)
+{
+    return g_strcmp0(font->SourceFile, filename);
+}
+
 /*!
- * \brief Finds a font by name in the system font library
+ * \brief Finds a font by name or source file in the system font library
  */
 FontType *
-FindFont(GSList * library, char * fontname)
+FindFont(GSList * library, char * name)
 {
-    GSList * font = g_slist_find_custom(library,
-                                        fontname,
+    /* search first by name */
+    GSList * font = g_slist_find_custom(library, name,
                                         (GCompareFunc)check_font_name);
+    /* then check the source file */
+    if (!font) font = g_slist_find_custom(library, name,
+                                        (GCompareFunc)check_font_source);
     if (font) return font->data;
     return NULL;
 }
@@ -85,6 +97,7 @@ ChangeFont(char * fontname)
 {
     FontType * font;
     bool embedded = false;
+    if (!fontname) return NULL;
     /* check the embedded library first, these should always have priority */
     font = FindFont(PCB->FontLibrary, fontname);
     if (font) embedded = true;
@@ -111,21 +124,21 @@ LoadFont(char * filename)
     // This will successfully load and install the new font, but it will change
     // the font of all text on the board. Text that was already there also changes
     // to the new font the next time the screen is redrawn.
-    FontType * newfont;
     if (FindFont(Settings.FontLibrary, filename)) {
         Message(_("Font %s already loaded. Switching to it.\n"), filename);
         return ChangeFont(filename);
     }
-    newfont = g_new(FontType, 1);
-    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
-    if (ParseFont(newfont, filename)){
+
+//    newfont = g_new(FontType, 1);
+//    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
+    if (ParseFont(NULL, filename)){
         Message(_("Failed to load font file '%s'\n"), filename);
-        g_free(newfont);
+        //g_free(newfont);
         return NULL;
     }
-    Settings.Font = newfont;
-    Settings.Font->Name = g_strdup(filename);
-    Settings.FontLibrary = g_slist_append(Settings.FontLibrary, newfont);
+    /* new fonts are appended to the end of the list */
+    Settings.Font = g_slist_last(Settings.FontLibrary)->data;
+    Settings.Font->SourceFile = g_strdup(filename);
     Message(_("New font loaded: %s\n"), Settings.Font->Name);
     return Settings.Font;
 }
@@ -133,15 +146,16 @@ LoadFont(char * filename)
 /*
  * /brief Creates a new empty font structure in the indicated library
  *
- * /todo add a "name" argument
  */
 FontType *
 CreateNewFontInLibrary(GSList ** library, char * name){
     FontType * newfont = g_new(FontType, 1);
+    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     if (name) newfont->Name = g_strdup(name);
     else asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
-    newfont->Valid = false;
+    newfont->SourceFile = NULL;
+    newfont->nSymbols = 0;
     *library = g_slist_append(*library, newfont);
     return newfont;
 }
@@ -155,6 +169,7 @@ FreeFontMemory(FontType * font)
     for (i = 0; i <= MAX_FONTPOSITION; i++) free (font->Symbol[i].Line);
     /* Release the memory holding the font name */
     free(font->Name);
+    free(font->SourceFile);
     /* Free the memory holding the font structure itself */
     free(font);
     return 0;

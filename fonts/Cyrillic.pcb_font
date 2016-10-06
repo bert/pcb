@@ -1,4 +1,6 @@
-Symbol(' ' 12) ( )Symbol('%' 12)
+Font("Cyrillic")(
+Symbol(' ' 12) ( )
+Symbol('%' 12)
 (
     SymbolLine[3428 -2666 0 1333 1000]
     SymbolLine[952 -2666 1334 -2286 1000]
@@ -829,4 +831,5 @@ Symbol('~' 12)
     SymbolLine[2857 -23 3238 -214 1000]
     SymbolLine[3238 -214 3429 -785 1000]
     SymbolLine[3429 -785 3429 -1166 1000]
+)
 )
