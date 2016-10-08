@@ -125,6 +125,12 @@ pcb_output_inst=	\
 
 pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 
+pcb_paths= --lib-path ${top_srcdir}/lib \
+           --lib-newlib ${top_srcdir}/newlib:${top_srcdir}/lib/pcblib-newlib \
+           --element-path ${top_srcdir}/lib \
+           --font-path $(top_srcdir)/src \
+           --lib-command-dir ${top_srcdir}/lib
+
 # Additional images
 images= \
 	gcode_control_img.eps \
@@ -154,10 +160,10 @@ endif
 SUFFIXES = .eps .pcb .pdf .png .tab .tex
 
 .pcb.eps :
-	${PCB} -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
+	${PCB} -x eps --only-visible ${pcb_paths} --eps-file $@ $<
 
 .pcb.png :
-	${PCB} -x png --only-visible --font-path $(top_srcdir)/src --outfile $@ $<
+	${PCB} -x png --only-visible ${pcb_paths} --outfile $@ $<
 
 .eps.pdf :
 if MISSING_PS2PDF
