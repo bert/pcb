@@ -1551,6 +1551,15 @@ Execute the bell command when all rats are routed.
 */
   BSET (RingBellWhenFinished, 0, "ring-bell-finished",
        "Execute the bell command when all rats are routed"),
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --save-symbols
+Write font symbols in pcb files.
+@end ftable
+%end-doc
+*/
+    BSET (SaveSymbols, 0, "save-symbols",
+          "Write font symbols in pcb files"),
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)

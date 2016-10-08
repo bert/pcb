@@ -608,15 +608,14 @@ WritePCBFontData (FILE * FP)
   if (PCB->DefaultFontName)
       fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
 
-  for (font = Settings.Font, i = 0; i <= MAX_FONTPOSITION; i++)
+  if (Settings.SaveSymbols) {
+    for (font = Settings.Font, i = 0; i <= MAX_FONTPOSITION; i++)
     {
-      if (!font->Symbol[i].Valid)
-	continue;
-
+      if (!font->Symbol[i].Valid) continue;
       if (isprint (i))
-	pcb_fprintf (FP, "Symbol['%c' %mr]\n(\n", i, font->Symbol[i].Delta);
+        pcb_fprintf (FP, "Symbol['%c' %mr]\n(\n", i, font->Symbol[i].Delta);
       else
-	pcb_fprintf (FP, "Symbol[%i %mr]\n(\n", i, font->Symbol[i].Delta);
+        pcb_fprintf (FP, "Symbol[%i %mr]\n(\n", i, font->Symbol[i].Delta);
 
       line = font->Symbol[i].Line;
       for (j = font->Symbol[i].LineN; j; j--, line++)
@@ -625,6 +624,7 @@ WritePCBFontData (FILE * FP)
                      line->Point2.X, line->Point2.Y, line->Thickness);
       fputs (")\n", FP);
     }
+  }
 }
 
 /*!
