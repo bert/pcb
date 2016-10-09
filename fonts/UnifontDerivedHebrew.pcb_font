@@ -1,0 +1,1255 @@
+#
+#gEDA PCB compatible Hebrew font ported from Gnu Unifont unicode U+0591 -> U+05F4 by Erich Heinzle
+#licensed under same terms as gnu Unifont, i.e. GPL2 or at your option GPL3 with font exception 
+#
+Font("Hebrew")(
+Symbol[' ' 1800]
+(
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05B6
+#Symbol['U+05B6' 1200]
+Symbol['!' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 11400 2600 11400 800]
+	SymbolLine[5000 11400 5800 11400 800]
+	SymbolLine[3400 13000 4200 13000 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05B6'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05C7
+#Symbol['U+05C7' 1200]
+Symbol['"' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 10600 5800 10600 800]
+#the vertical elements
+	SymbolLine[4200 10600 4200 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05C7'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05B8
+#Symbol['U+05B8' 1200]
+Symbol['#' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[4200 11400 4200 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05B8'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05B9
+#Symbol['U+05B9' 1200]
+Symbol['$' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 2600 3400 2600 800]
+	SymbolLine[2600 3400 3400 3400 800]
+#the vertical elements
+	SymbolLine[2600 2600 2600 3400 800]
+	SymbolLine[3400 2600 3400 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 2600 2600 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 2600 3400 3400 800]
+)   #end symbol 'U+05B9'
+
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05BA
+#Symbol['U+05BA' 1200]
+Symbol['%' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 2600 2600 2600 800]
+	SymbolLine[1800 3400 2600 3400 800]
+#the vertical elements
+	SymbolLine[1800 2600 1800 3400 800]
+	SymbolLine[2600 2600 2600 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 2600 1800 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 2600 2600 3400 800]
+)   #end symbol 'U+05BA'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05BC
+#Symbol['U+05BC' 1200]
+Symbol['&' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 7400 4200 7400 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05BC'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05F3
+#Symbol['U+05F3' 1200]
+Symbol[''' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 2600 4200 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05F3'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05BE
+#Symbol['U+05BE' 1200]
+Symbol['(' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 2600 5800 2600 800]
+	SymbolLine[1800 3400 5000 3400 800]
+#the vertical elements
+	SymbolLine[2600 2600 2600 3400 800]
+	SymbolLine[3400 2600 3400 3400 800]
+	SymbolLine[4200 2600 4200 3400 800]
+	SymbolLine[5000 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 2600 1800 3400 800]
+	SymbolLine[5800 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05BE'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05BF
+#Symbol['U+05BF' 1200]
+Symbol[')' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 3400 5000 3400 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05BF'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05BD
+#Symbol['U+05BD' 1200]
+Symbol['*' 1200]
+(
+#the horizontal elements
+#the vertical elements
+	SymbolLine[4200 10600 4200 12200 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05BD'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05C1
+#Symbol['U+05C1' 1200]
+Symbol['+' 1200]
+(
+#the horizontal elements
+	SymbolLine[5000 2600 5800 2600 800]
+	SymbolLine[5000 3400 5800 3400 800]
+#the vertical elements
+	SymbolLine[5000 2600 5000 3400 800]
+	SymbolLine[5800 2600 5800 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[5000 2600 5800 3400 800]
+)   #end symbol 'U+05C1'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05F0
+#Symbol['U+05F0' 1200]
+Symbol[',' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 3400 5000 800]
+	SymbolLine[5000 5000 6600 5000 800]
+#the vertical elements
+	SymbolLine[3400 5000 3400 11400 800]
+	SymbolLine[6600 5000 6600 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05F0'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05C2
+#Symbol['U+05C2' 1200]
+Symbol['-' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 2600 2600 2600 800]
+	SymbolLine[1800 3400 2600 3400 800]
+#the vertical elements
+	SymbolLine[1800 2600 1800 3400 800]
+	SymbolLine[2600 2600 2600 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 2600 1800 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 2600 2600 3400 800]
+)   #end symbol 'U+05C2'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05F1
+#Symbol['U+05F1' 1200]
+Symbol['.' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 3400 5000 800]
+	SymbolLine[5000 5000 6600 5000 800]
+#the vertical elements
+	SymbolLine[3400 5000 3400 7400 800]
+	SymbolLine[6600 5000 6600 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05F1'
+
+Symbol['/' 1200]
+(
+	SymbolLine[0 4000 4000 4000 800]
+	SymbolLine[4000 4000 4000 12000 800]
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05B4
+#Symbol['U+05B4' 1200]
+Symbol['0' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 10600 4200 10600 800]
+	SymbolLine[3400 11400 4200 11400 800]
+#the vertical elements
+	SymbolLine[3400 10600 3400 11400 800]
+	SymbolLine[4200 10600 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 10600 3400 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 10600 4200 11400 800]
+)   #end symbol 'U+05B4'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AB
+#Symbol['U+05AB' 1200]
+Symbol['1' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 1800 2600 2600 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 2600 3400 3400 800]
+)   #end symbol 'U+05AB'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AC
+#Symbol['U+05AC' 1200]
+Symbol['2' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 3400 5000 3400 800]
+#the vertical elements
+	SymbolLine[5000 1800 5000 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05AC'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AD
+#Symbol['U+05AD' 1200]
+Symbol['3' 1200]
+(
+#the horizontal elements
+	SymbolLine[5800 12200 6600 12200 800]
+#the vertical elements
+	SymbolLine[5000 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[5000 11400 5800 12200 800]
+)   #end symbol 'U+05AD'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AE
+#Symbol['U+05AE' 1200]
+Symbol['4' 1200]
+(
+#the horizontal elements
+#the vertical elements
+	SymbolLine[1000 2600 1000 4200 800]
+	SymbolLine[2600 2600 2600 3400 800]
+	SymbolLine[4200 1800 4200 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[1800 1800 1000 2600 800]
+	SymbolLine[4200 3400 3400 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 3400 3400 4200 800]
+	SymbolLine[1800 1800 2600 2600 800]
+)   #end symbol 'U+05AE'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AF
+#Symbol['U+05AF' 1200]
+Symbol['5' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 1800 4200 1800 800]
+	SymbolLine[3400 4200 4200 4200 800]
+#the vertical elements
+	SymbolLine[2600 2600 2600 3400 800]
+	SymbolLine[5000 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 1800 2600 2600 800]
+	SymbolLine[5000 3400 4200 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 3400 3400 4200 800]
+	SymbolLine[4200 1800 5000 2600 800]
+)   #end symbol 'U+05AF'
+#gEDA PCB compatible symbol with drawn elements depicting U+05B0
+#Symbol['U+05B0' 1200]
+Symbol['6' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 10600 4200 10600 800]
+	SymbolLine[3400 12200 4200 12200 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05B0'
+#gEDA PCB compatible symbol with drawn elements depicting U+05B1
+#Symbol['U+05B1' 1200]
+Symbol['7' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+#an orphaned pixel follows:
+	SymbolLine[3400 12200 3410 12200 800]
+#an orphaned pixel follows:
+	SymbolLine[2600 10600 2610 10600 800]
+#an orphaned pixel follows:
+	SymbolLine[4200 10600 4210 10600 800]
+#an orphaned pixel follows:
+	SymbolLine[5800 12200 5810 12200 800]
+#an orphaned pixel follows:
+	SymbolLine[5800 10600 5810 10600 800]
+)   #end symbol 'U+05B1'
+#gEDA PCB compatible symbol with drawn elements depicting U+05B2
+#Symbol['U+05B2' 1200]
+Symbol['8' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 10600 4200 10600 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+#an orphaned pixel follows:
+	SymbolLine[5800 12200 5810 12200 800]
+#an orphaned pixel follows:
+	SymbolLine[5800 10600 5810 10600 800]
+)   #end symbol 'U+05B2'
+#gEDA PCB compatible symbol with drawn elements depicting U+05B3
+#Symbol['U+05B3' 1200]
+Symbol['9' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 10600 4200 10600 800]
+#the vertical elements
+	SymbolLine[3400 10600 3400 12200 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+#an orphaned pixel follows:
+	SymbolLine[5800 12200 5810 12200 800]
+#an orphaned pixel follows:
+	SymbolLine[5800 10600 5810 10600 800]
+)   #end symbol 'U+05B3'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05C6
+#Symbol['U+05C6' 1200]
+Symbol[':' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 4200 5000 800]
+	SymbolLine[2600 11400 5000 11400 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05C6'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05F2
+#Symbol['U+05F2' 1200]
+Symbol[';' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 3400 5000 800]
+	SymbolLine[5000 5000 6600 5000 800]
+#the vertical elements
+	SymbolLine[3400 5000 3400 7400 800]
+	SymbolLine[6600 5000 6600 7400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05F2'
+
+Symbol['<' 1200]
+(
+	SymbolLine[0 4000 4000 4000 800]
+	SymbolLine[800 4000 800 12000 800]
+	SymbolLine[3200 6400 3200 7200 800]
+	SymbolLine[4000 4000 4000 5600 800]
+	SymbolLine[4000 5600 3200 6400 800]
+	SymbolLine[3200 7200 2400 8000 800]
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05C3
+#Symbol['U+05C3' 1200]
+Symbol['=' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 6600 5000 6600 800]
+	SymbolLine[3400 10600 5000 10600 800]
+#the vertical elements
+	SymbolLine[4200 5800 4200 7400 800]
+	SymbolLine[4200 9800 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 5800 3400 6600 800]
+	SymbolLine[5000 6600 4200 7400 800]
+	SymbolLine[4200 9800 3400 10600 800]
+	SymbolLine[5000 10600 4200 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 10600 4200 11400 800]
+	SymbolLine[4200 9800 5000 10600 800]
+	SymbolLine[3400 6600 4200 7400 800]
+	SymbolLine[4200 5800 5000 6600 800]
+)   #end symbol 'U+05C3'
+
+Symbol['>' 1200]
+(
+	SymbolLine[0 4000 0 10400 800]
+	SymbolLine[2400 4000 2400 10400 800]
+	SymbolLine[4800 4000 4800 10400 800]
+)
+Symbol['?' 1200]
+(
+	SymbolLine[800 4000 4000 4000 800]
+	SymbolLine[0 10400 800 10400 800]
+	SymbolLine[800 4000 800 10400 800]
+	SymbolLine[4000 4000 4000 10400 800]
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05B7
+#Symbol['U+05B7' 1200]
+Symbol['@' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 11400 5000 11400 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05B7'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05D0
+#Symbol['U+05D0' 1200]
+Symbol['A' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 8200 5000 8200 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 5800 800]
+	SymbolLine[1800 9000 1800 11400 800]
+	SymbolLine[4200 8200 4200 9000 800]
+	SymbolLine[5800 5000 5800 7400 800]
+	SymbolLine[5800 10600 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 7400 1800 9000 800]
+	SymbolLine[5800 7400 4200 9000 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[4200 9000 5800 10600 800]
+	SymbolLine[1800 5800 4200 8200 800]
+)   #end symbol 'U+05D0'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D1
+#Symbol['U+05D1' 1200]
+Symbol['B' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5000 5000 800]
+	SymbolLine[1800 11400 6600 11400 800]
+#the vertical elements
+	SymbolLine[5000 5000 5000 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D1'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D2
+#Symbol['U+05D2' 1200]
+Symbol['C' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 3400 5000 800]
+	SymbolLine[4200 9000 5000 9000 800]
+#the vertical elements
+	SymbolLine[4200 5800 4200 7400 800]
+	SymbolLine[5000 8200 5000 9800 800]
+	SymbolLine[5800 10600 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5000 8200 1800 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[4200 9000 5800 10600 800]
+	SymbolLine[4200 7400 5000 8200 800]
+	SymbolLine[3400 5000 4200 5800 800]
+)   #end symbol 'U+05D2'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D3
+#Symbol['U+05D3' 1200]
+Symbol['D' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[5000 5000 5000 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D3'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D4
+#Symbol['U+05D4' 1200]
+Symbol['E' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[2600 7400 2600 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D4'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D5
+#Symbol['U+05D5' 1200]
+Symbol['F' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 4200 5000 800]
+#the vertical elements
+	SymbolLine[4200 5000 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D5'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D6
+#Symbol['U+05D6' 1200]
+Symbol['G' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 3400 5000 800]
+	SymbolLine[4200 5800 5000 5800 800]
+#the vertical elements
+	SymbolLine[4200 5800 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 5000 4200 5800 800]
+	SymbolLine[5000 5800 5800 6600 800]
+)   #end symbol 'U+05D6'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D7
+#Symbol['U+05D7' 1200]
+Symbol['H' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D7'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D8
+#Symbol['U+05D8' 1200]
+Symbol['I' 1200]
+(
+#the horizontal elements
+	SymbolLine[5000 5000 5800 5000 800]
+	SymbolLine[1800 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5000 5000 4200 5800 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D8'
+#gEDA PCB compatible symbol with drawn elements depicting U+05D9
+#Symbol['U+05D9' 1200]
+Symbol['J' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 4200 5000 800]
+#the vertical elements
+	SymbolLine[4200 5000 4200 7400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05D9'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DA
+#Symbol['U+05DA' 1200]
+Symbol['K' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[5800 5000 5800 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05DA'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DB
+#Symbol['U+05DB' 1200]
+Symbol['L' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+	SymbolLine[1800 11400 5000 11400 800]
+#the vertical elements
+	SymbolLine[5800 5000 5800 10600 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05DB'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DC
+#Symbol['U+05DC' 1200]
+Symbol['M' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 5800 5000 800]
+	SymbolLine[2600 11400 3400 11400 800]
+#the vertical elements
+	SymbolLine[2600 3400 2600 5000 800]
+	SymbolLine[5000 9000 5000 9800 800]
+	SymbolLine[5800 5000 5800 8200 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 8200 5000 9000 800]
+	SymbolLine[5000 9800 3400 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05DC'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DD
+#Symbol['U+05DD' 1200]
+Symbol['N' 1200]
+(
+#the horizontal elements
+	SymbolLine[1000 5000 5800 5000 800]
+	SymbolLine[2600 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05DD'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DE
+#Symbol['U+05DE' 1200]
+Symbol['O' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 5000 5800 5000 800]
+	SymbolLine[2600 5800 3400 5800 800]
+	SymbolLine[5000 11400 6600 11400 800]
+#the vertical elements
+	SymbolLine[1800 7400 1800 11400 800]
+	SymbolLine[2600 5800 2600 6600 800]
+	SymbolLine[6600 5800 6600 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 5000 1800 7400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 5000 2600 5800 800]
+	SymbolLine[5800 5000 6600 5800 800]
+)   #end symbol 'U+05DE'
+#gEDA PCB compatible symbol with drawn elements depicting U+05DF
+#Symbol['U+05DF' 1200]
+Symbol['P' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 4200 5000 800]
+#the vertical elements
+	SymbolLine[4200 5000 4200 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05DF'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E0
+#Symbol['U+05E0' 1200]
+Symbol['Q' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 5000 5000 5000 800]
+	SymbolLine[2600 11400 5000 11400 800]
+#the vertical elements
+	SymbolLine[5000 5000 5000 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E0'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E1
+#Symbol['U+05E1' 1200]
+Symbol['R' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+	SymbolLine[1800 11400 4200 11400 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 11400 800]
+	SymbolLine[5800 5000 5800 9800 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 9800 4200 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E1'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E2
+#Symbol['U+05E2' 1200]
+Symbol['S' 1200]
+(
+#the horizontal elements
+	SymbolLine[1000 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[3400 5000 3400 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E2'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E3
+#Symbol['U+05E3' 1200]
+Symbol['T' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+	SymbolLine[1800 8200 3400 8200 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 8200 800]
+	SymbolLine[5800 5000 5800 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E3'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E4
+#Symbol['U+05E4' 1200]
+Symbol['U' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+	SymbolLine[1800 8200 3400 8200 800]
+	SymbolLine[1800 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 8200 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E4'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E5
+#Symbol['U+05E5' 1200]
+Symbol['V' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 8200 3400 8200 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 13000 800]
+	SymbolLine[5800 5000 5800 5800 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 5800 3400 8200 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E5'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E6
+#Symbol['U+05E6' 1200]
+Symbol['W' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 7400 4200 7400 800]
+	SymbolLine[1800 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 5800 800]
+	SymbolLine[4200 7400 4200 8200 800]
+	SymbolLine[5800 5000 5800 5800 800]
+	SymbolLine[5800 9800 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 5800 4200 7400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 5800 5800 9800 800]
+)   #end symbol 'U+05E6'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E7
+#Symbol['U+05E7' 1200]
+Symbol['X' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 13000 800]
+	SymbolLine[5000 7400 5000 8200 800]
+	SymbolLine[5800 5000 5800 6600 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 6600 5000 7400 800]
+	SymbolLine[5000 8200 4200 9000 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E7'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E8
+#Symbol['U+05E8' 1200]
+Symbol['Y' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 5000 5800 5000 800]
+#the vertical elements
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E8'
+#gEDA PCB compatible symbol with drawn elements depicting U+05E9
+#Symbol['U+05E9' 1200]
+Symbol['Z' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 11400 6600 11400 800]
+#the vertical elements
+	SymbolLine[1800 5000 1800 11400 800]
+	SymbolLine[4200 5000 4200 11400 800]
+	SymbolLine[6600 5000 6600 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05E9'
+#gEDA PCB compatible symbol with drawn elements depicting U+05EA
+#Symbol['U+05EA' 1200]
+Symbol['[' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 5000 5800 5000 800]
+	SymbolLine[1800 11400 2600 11400 800]
+#the vertical elements
+	SymbolLine[2600 5000 2600 11400 800]
+	SymbolLine[5800 5000 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05EA'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05F4
+#Symbol['U+05F4' 1200]
+Symbol['\' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 2600 1800 4200 800]
+	SymbolLine[5800 2600 4200 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05F4'
+
+Symbol[']' 1200]
+(
+	SymbolLine[1600 1600 0 3200 800]
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05BB
+#Symbol['U+05BB' 1200]
+Symbol['^' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+#an orphaned pixel follows:
+	SymbolLine[2600 10600 2610 10600 800]
+#an orphaned pixel follows:
+	SymbolLine[4200 11400 4210 11400 800]
+#an orphaned pixel follows:
+	SymbolLine[5800 12200 5810 12200 800]
+)   #end symbol 'U+05BB'
+
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05C0
+#Symbol['U+05C0' 1200]
+Symbol['_' 1200]
+(
+#the horizontal elements
+#the vertical elements
+	SymbolLine[4200 5000 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05C0'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+0591
+#Symbol['U+0591' 1200]
+Symbol['a' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 11400 5000 11400 800]
+#the vertical elements
+	SymbolLine[4200 9800 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 11400 2600 12200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[5000 11400 5800 12200 800]
+)   #end symbol 'U+0591'
+#gEDA PCB compatible symbol with drawn elements depicting U+0592
+#Symbol['U+0592' 1200]
+Symbol['b' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 2600 4200 2600 800]
+	SymbolLine[1800 4200 2600 4200 800]
+	SymbolLine[5000 4200 5800 4200 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+0592'
+#gEDA PCB compatible symbol with drawn elements depicting U+0593
+#Symbol['U+0593' 1200]
+Symbol['c' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 1000 5000 1000 800]
+	SymbolLine[2600 1800 3400 1800 800]
+	SymbolLine[4200 2600 5000 2600 800]
+	SymbolLine[2600 3400 3400 3400 800]
+	SymbolLine[4200 4200 5000 4200 800]
+	SymbolLine[2600 5000 3400 5000 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 1000 3400 1800 800]
+	SymbolLine[4200 2600 3400 3400 800]
+	SymbolLine[4200 4200 3400 5000 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 3400 4200 4200 800]
+	SymbolLine[3400 1800 4200 2600 800]
+)   #end symbol 'U+0593'
+#gEDA PCB compatible symbol with drawn elements depicting U+0594
+#Symbol['U+0594' 1200]
+Symbol['d' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 1800 4200 1800 800]
+	SymbolLine[3400 3400 4200 3400 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+0594'
+#gEDA PCB compatible symbol with drawn elements depicting U+0595
+#Symbol['U+0595' 1200]
+Symbol['e' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 1800 5000 1800 800]
+	SymbolLine[4200 3400 5000 3400 800]
+#the vertical elements
+	SymbolLine[2600 1800 2600 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+0595'
+#gEDA PCB compatible symbol with drawn elements depicting U+0596
+#Symbol['U+0596' 1200]
+Symbol['f' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 12200 5000 12200 800]
+#the vertical elements
+	SymbolLine[3400 10600 3400 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 11400 4200 12200 800]
+)   #end symbol 'U+0596'
+#gEDA PCB compatible symbol with drawn elements depicting U+0597
+#Symbol['U+0597' 1200]
+Symbol['g' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 1800 5000 1800 800]
+	SymbolLine[2600 2600 5800 2600 800]
+	SymbolLine[3400 3400 5000 3400 800]
+#the vertical elements
+	SymbolLine[3400 1800 3400 3400 800]
+	SymbolLine[4200 1000 4200 4200 800]
+	SymbolLine[5000 1800 5000 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 1000 2600 2600 800]
+	SymbolLine[4200 1800 3400 2600 800]
+	SymbolLine[5000 1800 3400 3400 800]
+	SymbolLine[5000 2600 4200 3400 800]
+	SymbolLine[5800 2600 4200 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 2600 4200 4200 800]
+	SymbolLine[3400 2600 4200 3400 800]
+	SymbolLine[3400 1800 5000 3400 800]
+	SymbolLine[4200 1800 5000 2600 800]
+	SymbolLine[4200 1000 5800 2600 800]
+)   #end symbol 'U+0597'
+#gEDA PCB compatible symbol with drawn elements depicting U+0598
+#Symbol['U+0598' 1200]
+Symbol['h' 1200]
+(
+#the horizontal elements
+#the vertical elements
+	SymbolLine[1800 2600 1800 3400 800]
+	SymbolLine[5800 2600 5800 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 1800 1800 2600 800]
+	SymbolLine[5800 3400 5000 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 3400 2600 4200 800]
+	SymbolLine[2600 1800 5000 4200 800]
+	SymbolLine[5000 1800 5800 2600 800]
+)   #end symbol 'U+0598'
+#gEDA PCB compatible symbol with drawn elements depicting U+0599
+#Symbol['U+0599' 1200]
+Symbol['i' 1200]
+(
+#the horizontal elements
+	SymbolLine[1000 2600 1800 2600 800]
+#the vertical elements
+	SymbolLine[2600 3400 2600 4200 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 2600 2600 3400 800]
+)   #end symbol 'U+0599'
+#gEDA PCB compatible symbol with drawn elements depicting U+059A
+#Symbol['U+059A' 1200]
+Symbol['j' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[5000 11400 5800 12200 800]
+)   #end symbol 'U+059A'
+#gEDA PCB compatible symbol with drawn elements depicting U+059B
+#Symbol['U+059B' 1200]
+Symbol['k' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 10600 2600 10600 800]
+	SymbolLine[1800 11400 2600 11400 800]
+	SymbolLine[1800 13000 3400 13000 800]
+#the vertical elements
+	SymbolLine[1800 10600 1800 11400 800]
+	SymbolLine[2600 10600 2600 11400 800]
+	SymbolLine[4200 10600 4200 12200 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 10600 1800 11400 800]
+	SymbolLine[4200 12200 3400 13000 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 10600 2600 11400 800]
+)   #end symbol 'U+059B'
+#gEDA PCB compatible symbol with drawn elements depicting U+059C
+#Symbol['U+059C' 1200]
+Symbol['l' 1200]
+(
+#the horizontal elements
+	SymbolLine[4200 1800 5000 1800 800]
+#the vertical elements
+	SymbolLine[3400 2600 3400 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 1800 3400 2600 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+059C'
+#gEDA PCB compatible symbol with drawn elements depicting U+059D
+#Symbol['U+059D' 1200]
+Symbol['m' 1200]
+(
+#the horizontal elements
+	SymbolLine[5800 2600 6600 2600 800]
+#the vertical elements
+	SymbolLine[5000 3400 5000 4200 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+059D'
+#gEDA PCB compatible symbol with drawn elements depicting U+059E
+#Symbol['U+059E' 1200]
+Symbol['n' 1200]
+(
+#the horizontal elements
+	SymbolLine[5000 1000 5800 1000 800]
+	SymbolLine[5800 2600 6600 2600 800]
+#the vertical elements
+	SymbolLine[3400 2600 3400 3400 800]
+	SymbolLine[5000 3400 5000 4200 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5000 1000 3400 2600 800]
+	SymbolLine[5800 2600 5000 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+059E'
+#gEDA PCB compatible symbol with drawn elements depicting U+059F
+#Symbol['U+059F' 1200]
+Symbol['o' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[1800 1800 1000 2600 800]
+	SymbolLine[2600 2600 1800 3400 800]
+	SymbolLine[5800 1800 5000 2600 800]
+	SymbolLine[6600 2600 5000 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1000 2600 2600 4200 800]
+	SymbolLine[1800 1800 2600 2600 800]
+	SymbolLine[5000 2600 5800 3400 800]
+	SymbolLine[5800 1800 6600 2600 800]
+)   #end symbol 'U+059F'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A0
+#Symbol['U+05A0' 1200]
+Symbol['p' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 1800 5000 2600 800]
+	SymbolLine[6600 2600 5000 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[5000 2600 5800 3400 800]
+	SymbolLine[5800 1800 6600 2600 800]
+)   #end symbol 'U+05A0'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A1
+#Symbol['U+05A1' 1200]
+Symbol['q' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 4200 2600 4200 800]
+#the vertical elements
+	SymbolLine[1800 3400 1800 4200 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[1800 4200 1000 5000 800]
+	SymbolLine[3400 3400 2600 4200 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 3400 2600 4200 800]
+)   #end symbol 'U+05A1'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A2
+#Symbol['U+05A2' 1200]
+Symbol['r' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 12200 4200 12200 800]
+#the vertical elements
+	SymbolLine[3400 12200 3400 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5000 11400 3400 13000 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 11400 3400 13000 800]
+)   #end symbol 'U+05A2'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A3
+#Symbol['U+05A3' 1200]
+Symbol['s' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 12200 4200 12200 800]
+#the vertical elements
+	SymbolLine[4200 10600 4200 12200 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05A3'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A4
+#Symbol['U+05A4' 1200]
+Symbol['t' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 10600 3400 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 11400 4200 12200 800]
+)   #end symbol 'U+05A4'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A5
+#Symbol['U+05A5' 1200]
+Symbol['u' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 12200 3400 12200 800]
+#the vertical elements
+	SymbolLine[4200 10600 4200 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 11400 3400 12200 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05A5'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A6
+#Symbol['U+05A6' 1200]
+Symbol['v' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 11400 2600 11400 800]
+	SymbolLine[2600 13000 3400 13000 800]
+#the vertical elements
+	SymbolLine[5000 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 10600 2600 11400 800]
+	SymbolLine[5000 11400 3400 13000 800]
+#diagonal elements, strokes going downwards and rightwards
+)   #end symbol 'U+05A6'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A7
+#Symbol['U+05A7' 1200]
+Symbol['w' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 9800 4200 9800 800]
+	SymbolLine[3400 11400 4200 11400 800]
+	SymbolLine[3400 13000 4200 13000 800]
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[3400 9800 2600 10600 800]
+	SymbolLine[5000 12200 4200 13000 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 10600 3400 11400 800]
+	SymbolLine[4200 11400 5000 12200 800]
+)   #end symbol 'U+05A7'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A8
+#Symbol['U+05A8' 1200]
+Symbol['x' 1200]
+(
+#the horizontal elements
+	SymbolLine[2600 2600 3400 2600 800]
+#the vertical elements
+	SymbolLine[4200 3400 4200 4200 800]
+#diagonal elements, strokes going downwards and leftwards
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 2600 4200 3400 800]
+)   #end symbol 'U+05A8'
+#gEDA PCB compatible symbol with drawn elements depicting U+05A9
+#Symbol['U+05A9' 1200]
+Symbol['y' 1200]
+(
+#the horizontal elements
+#the vertical elements
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 1800 1800 2600 800]
+	SymbolLine[3400 2600 2600 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 2600 3400 4200 800]
+	SymbolLine[2600 1800 3400 2600 800]
+)   #end symbol 'U+05A9'
+#gEDA PCB compatible symbol with drawn elements depicting U+05AA
+#Symbol['U+05AA' 1200]
+Symbol['z' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 11400 5000 11400 800]
+#the vertical elements
+	SymbolLine[4200 11400 4200 13000 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[5800 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[2600 10600 3400 11400 800]
+)   #end symbol 'U+05AA'
+#gEDA PCB compatible symbol with drawn elements depicting U+05C4
+#Symbol['U+05C4' 1200]
+Symbol['{' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 2600 4200 2600 800]
+	SymbolLine[3400 3400 4200 3400 800]
+#the vertical elements
+	SymbolLine[3400 2600 3400 3400 800]
+	SymbolLine[4200 2600 4200 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 2600 3400 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 2600 4200 3400 800]
+)   #end symbol 'U+05C4'
+
+Symbol['|' 1200]
+(
+	SymbolLine[0 0 0 4000 800]
+)
+#gEDA PCB compatible symbol with drawn elements depicting U+05C5
+#Symbol['U+05C5' 1200]
+Symbol['}' 1200]
+(
+#the horizontal elements
+	SymbolLine[3400 2600 4200 2600 800]
+	SymbolLine[3400 3400 4200 3400 800]
+#the vertical elements
+	SymbolLine[3400 2600 3400 3400 800]
+	SymbolLine[4200 2600 4200 3400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[4200 2600 3400 3400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[3400 2600 4200 3400 800]
+)   #end symbol 'U+05C5'
+
+#gEDA PCB compatible symbol with drawn elements depicting U+05B5
+#Symbol['U+05B5' 1200]
+Symbol['~' 1200]
+(
+#the horizontal elements
+	SymbolLine[1800 10600 2600 10600 800]
+	SymbolLine[5000 10600 5800 10600 800]
+	SymbolLine[1800 11400 2600 11400 800]
+	SymbolLine[5000 11400 5800 11400 800]
+#the vertical elements
+	SymbolLine[1800 10600 1800 11400 800]
+	SymbolLine[2600 10600 2600 11400 800]
+	SymbolLine[5000 10600 5000 11400 800]
+	SymbolLine[5800 10600 5800 11400 800]
+#diagonal elements, strokes going downwards and leftwards
+	SymbolLine[2600 10600 1800 11400 800]
+	SymbolLine[5800 10600 5000 11400 800]
+#diagonal elements, strokes going downwards and rightwards
+	SymbolLine[1800 10600 2600 11400 800]
+	SymbolLine[5000 10600 5800 11400 800]
+)   #end symbol 'U+05B5'
+) # end font
