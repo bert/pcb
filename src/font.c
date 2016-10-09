@@ -232,20 +232,24 @@ UnloadFont(GSList ** pLibrary, char * fontname)
 int SetPCBDefaultFont(char * fontname)
 {
     FontType * font;
-    /* Check the embedded library */
-    font = FindFont(PCB->FontLibrary, fontname);
-    /* Check the system library */
-    if (!font) font = FindFont(Settings.FontLibrary, fontname);
-    /* Don't allow setting to an unknown font */
-    if (!font)
-    {
+    if (!fontname) PCB->DefaultFontName = NULL;
+    else {
+      /* Check the embedded library */
+      font = FindFont(PCB->FontLibrary, fontname);
+      /* Check the system library */
+      if (!font) font = FindFont(Settings.FontLibrary, fontname);
+      /* Don't allow setting to an unknown font */
+      if (!font)
+      {
         Message(_("Could not change PCB default font, font '%s' not found\n"),
                 fontname);
         return -1;
+      }
+      /* the font was found in one or the other libraries */
+      if (PCB->DefaultFontName) free(PCB->DefaultFontName);
+      PCB->DefaultFontName = g_strdup(fontname);
     }
-    /* the font was found in one or the other libraries */
-    if (PCB->DefaultFontName) free(PCB->DefaultFontName);
-    PCB->DefaultFontName = g_strdup(fontname);
+    Message(_("PCB default font set to '%s'\n"), PCB->DefaultFontName);
     return 0;
 }
 
@@ -267,12 +271,8 @@ setpcbfont_help[] = "Set the default font for the current layout";
 static int
 SetPCBDefaultFontAction(int argc, char **argv, Coord x, Coord y)
 {
-    if (argc < 1)
-    {
-        Message (_("Tell me what font use\n"));
-        return -1;
-    }
-    SetPCBDefaultFont(argv[0]);
+    if (argc < 1) SetPCBDefaultFont(NULL);
+    else SetPCBDefaultFont(argv[0]);
     return 0;
 }
 

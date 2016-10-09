@@ -851,9 +851,11 @@ typedef struct
     AutoPlace,
       /*!< Flag which says we should force placement of the windows on
        * startup. */
-    SaveSymbols;
+    SaveSymbols,
       /* Store the symbols of the current font in the pcb files. This is for
        * backwards compatibility with older versions of pcb. */
+    SaveFonts;
+      /* Store fonts in save files */
 }
 SettingType;
 

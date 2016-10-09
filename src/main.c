@@ -1560,6 +1560,15 @@ Write font symbols in pcb files.
 */
     BSET (SaveSymbols, 0, "save-symbols",
           "Write font symbols in pcb files"),
+/* %start-doc options "1 General Options"
+@ftable @code
+@item --save-fontss
+Write fonts in pcb files.
+@end ftable
+%end-doc
+*/
+    BSET (SaveFonts, 0, "save-fonts",
+          "Write font symbols in pcb files"),
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)

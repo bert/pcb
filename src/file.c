@@ -157,6 +157,8 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 
 */
 
+/*!< Default font, font data, and fonts for text elements */
+#define PCB_FILE_VERSION_FONTS 20161008
 
 #define PCB_FILE_VERSION_HOLES 20100606 /*!< Hole[] in Polygon. */
 
@@ -171,6 +173,9 @@ PCBFileVersionNeeded (void)
       return PCB_FILE_VERSION_HOLES;
   }
   ENDALL_LOOP;
+  
+  if (PCB->DefaultFontName || (Settings.SaveFonts && !Settings.SaveSymbols))
+      return PCB_FILE_VERSION_FONTS;
 
   return PCB_FILE_VERSION_BASELINE;
 }
@@ -597,34 +602,62 @@ WritePCBDataHeader (FILE * FP)
 }
 
 /*!
- * \brief Writes font data of non empty symbols.
+ * \brief Writes data of non empty symbols.
+ */
+static void
+WriteFontSymbols (FILE * FP, FontType * font)
+{
+  Cardinal i, j;
+  LineType * line;
+  for (i = 0; i <= MAX_FONTPOSITION; i++)
+  {
+    if (!font->Symbol[i].Valid) continue;
+    if (isprint (i))
+      pcb_fprintf (FP, "Symbol['%c' %mr]\n(\n", i, font->Symbol[i].Delta);
+    else
+      pcb_fprintf (FP, "Symbol[%i %mr]\n(\n", i, font->Symbol[i].Delta);
+
+    line = font->Symbol[i].Line;
+    for (j = font->Symbol[i].LineN; j; j--, line++)
+        pcb_fprintf (FP, "\tSymbolLine[%mr %mr %mr %mr %mr]\n",
+                     line->Point1.X, line->Point1.Y,
+                     line->Point2.X, line->Point2.Y, line->Thickness);
+    fputs (")\n", FP);
+  }
+}
+
+/*!
+ * \brief Writes a font into a file.
+ */
+static void
+WriteFont (FILE * FP, FontType * font)
+{
+  fprintf(FP, "Font(\"%s\") (\n", Settings.Font->Name);
+  WriteFontSymbols(FP, Settings.Font);
+  fprintf(FP, ") # end of font %s\n", Settings.Font->Name);
+}
+
+/*!
+ * \brief Write the default font and font/fonts/symbols into the pcb file.
  */
 static void
 WritePCBFontData (FILE * FP)
 {
-  Cardinal i, j;
-  LineType *line;
-  FontType *font;
+  /* 
+   * If this is not null, then either the source file had a font directive
+   * or the user set a font as the default with a command. Either is an 
+   * indicator that the user wants to use the newer file format. 
+   */
   if (PCB->DefaultFontName)
-      fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
+    fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
 
-  if (Settings.SaveSymbols) {
-    for (font = Settings.Font, i = 0; i <= MAX_FONTPOSITION; i++)
-    {
-      if (!font->Symbol[i].Valid) continue;
-      if (isprint (i))
-        pcb_fprintf (FP, "Symbol['%c' %mr]\n(\n", i, font->Symbol[i].Delta);
-      else
-        pcb_fprintf (FP, "Symbol[%i %mr]\n(\n", i, font->Symbol[i].Delta);
-
-      line = font->Symbol[i].Line;
-      for (j = font->Symbol[i].LineN; j; j--, line++)
-        pcb_fprintf (FP, "\tSymbolLine[%mr %mr %mr %mr %mr]\n",
-                     line->Point1.X, line->Point1.Y,
-                     line->Point2.X, line->Point2.Y, line->Thickness);
-      fputs (")\n", FP);
-    }
-  }
+  /* 
+   * The only reason SaveSymbols would be set is if the user wants the old
+   * format. So, don't allow the user to write both symbols and fonts (although
+   * I think reading such a configuration should work).
+   */
+  if (Settings.SaveSymbols) WriteFontSymbols(FP, Settings.Font);
+  else if (Settings.SaveFonts) WriteFont(FP, Settings.Font);
 }
 
 /*!
