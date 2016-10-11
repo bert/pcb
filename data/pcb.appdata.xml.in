@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Bert Timmerman <bert.timmerman@xs4all.nl> -->
+<!-- Copyright 2014 ... 2016 Bert Timmerman <bert.timmerman@xs4all.nl> -->
 <application>
   <id type="desktop">pcb.desktop</id>
   <metadata_license>GFDL-1.3</metadata_license>
@@ -46,4 +46,5 @@
   </screenshots>
   <url type="homepage">http://pcb.geda-project.org/</url>
   <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
+  <url type="translate">https://translations.launchpad.net/pcb</url>
 </application>
