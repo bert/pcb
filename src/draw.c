@@ -177,6 +177,7 @@ _draw_pv_name (PinType *pv)
   text.X = box.X1;
   text.Y = box.Y1;
   text.Direction = vert ? 1 : 0;
+  text.Font=NULL;
 
   if (gui->gui)
     doing_pinout++;
@@ -275,6 +276,7 @@ draw_pad_name (PadType *pad)
   text.X = box.X1;
   text.Y = box.Y1;
   text.Direction = vert ? 1 : 0;
+  text.Font = NULL;
 
   gui->graphics->draw_pcb_text (Output.fgGC, &text, 0);
 }
