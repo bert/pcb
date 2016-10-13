@@ -128,7 +128,7 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 pcb_paths= --lib-path ${top_srcdir}/lib \
            --lib-newlib ${top_srcdir}/newlib:${top_srcdir}/lib/pcblib-newlib \
            --element-path ${top_srcdir}/lib \
-           --font-path $(top_srcdir)/src \
+           --font-path $(top_srcdir)/src:$(top_srcdir)/fonts \
            --lib-command-dir ${top_srcdir}/lib
 
 # Additional images
