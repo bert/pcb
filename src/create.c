@@ -606,7 +606,7 @@ CreateNewPolygonFromRectangle (LayerType *Layer,
  * \brief Creates a new text on a layer.
  */
 TextType *
-CreateNewText (LayerType *Layer, FontType *PCBFont,
+CreateNewText (LayerType *Layer, FontType *Font,
 	       Coord X, Coord Y,
 	       unsigned Direction, int Scale, char *TextString, FlagType Flags)
 {
@@ -628,9 +628,10 @@ CreateNewText (LayerType *Layer, FontType *PCBFont,
   text->Flags = Flags;
   text->Scale = Scale;
   text->TextString = strdup (TextString);
+  text->Font = Font;
 
   /* calculate size of the bounding box */
-  SetTextBoundingBox (PCBFont, text);
+  SetTextBoundingBox (Font, text);
   text->ID = ID++;
   if (!Layer->text_tree)
     Layer->text_tree = r_create_tree (NULL, 0, 0);
