@@ -631,7 +631,7 @@ CreateNewText (LayerType *Layer, FontType *Font,
   text->Font = Font;
 
   /* calculate size of the bounding box */
-  SetTextBoundingBox (Font, text);
+  SetTextBoundingBox (text);
   text->ID = ID++;
   if (!Layer->text_tree)
     Layer->text_tree = r_create_tree (NULL, 0, 0);
@@ -904,7 +904,7 @@ CreateNewPad (ElementType *Element,
  * Copies the values to the appropriate text object.
  */
 static void
-AddTextToElement (TextType *Text, FontType *PCBFont,
+AddTextToElement (TextType *Text, FontType *Font,
 		  Coord X, Coord Y,
 		  unsigned Direction, char *TextString, int Scale, FlagType Flags)
 {
@@ -915,9 +915,10 @@ AddTextToElement (TextType *Text, FontType *PCBFont,
   Text->Direction = Direction;
   Text->Flags = Flags;
   Text->Scale = Scale;
+  Text->Font = Font;
 
   /* calculate size of the bounding box */
-  SetTextBoundingBox (PCBFont, Text);
+  SetTextBoundingBox (Text);
   Text->ID = ID++;
 }
 

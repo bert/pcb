@@ -865,7 +865,7 @@ ChangeTextSize (LayerType *Layer, TextType *Text)
       r_delete_entry (Layer->text_tree, (BoxType *) Text);
       RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       Text->Scale = value;
-      SetTextBoundingBox (Settings.Font, Text);
+      SetTextBoundingBox (Text);
       r_insert_entry (Layer->text_tree, (BoxType *) Text, 0);
       ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       DrawText (Layer, Text);
@@ -944,7 +944,7 @@ ChangeElementNameSize (ElementType *Element)
 	AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
 	r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
 	text->Scale = value;
-	SetTextBoundingBox (Settings.Font, text);
+	SetTextBoundingBox (text);
 	r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
@@ -1051,7 +1051,7 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementType *Element, int which
 		  & Element->Name[which].BoundingBox);
 
   Element->Name[which].TextString = new_name;
-  SetTextBoundingBox (Settings.Font, &Element->Name[which]);
+  SetTextBoundingBox (&Element->Name[which]);
 
   r_insert_entry (data->name_tree[which],
 		  & Element->Name[which].BoundingBox, 0);
@@ -1100,7 +1100,7 @@ ChangeTextName (LayerType *Layer, TextType *Text)
   Text->TextString = NewName;
 
   /* calculate size of the bounding box */
-  SetTextBoundingBox (Settings.Font, Text);
+  SetTextBoundingBox (Text);
   r_insert_entry(Layer->text_tree, (BoxType *) Text, 0);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   DrawText (Layer, Text);

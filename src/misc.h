@@ -72,7 +72,7 @@ int ParseRouteString (char *, RouteStyleType *, const char *);
 void QuitApplication (void);
 char *EvaluateFilename (char *, char *, char *, char *);
 char *ExpandFilename (char *, char *);
-void SetTextBoundingBox (FontType *, TextType *);
+void SetTextBoundingBox (TextType *);
 
 void SaveOutputWindow (void);
 int GetLayerNumber (DataType *, LayerType *);

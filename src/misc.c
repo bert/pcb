@@ -394,7 +394,7 @@ SetElementBoundingBox (DataType *Data, ElementType *Element,
   {
     if (Data && Data->name_tree[n])
       r_delete_entry (Data->name_tree[n], (BoxType *) text);
-    SetTextBoundingBox (Font, text);
+    SetTextBoundingBox (text);
     if (Data && !Data->name_tree[n])
       Data->name_tree[n] = r_create_tree (NULL, 0, 0);
     if (Data)
@@ -531,9 +531,10 @@ SetElementBoundingBox (DataType *Data, ElementType *Element,
  * \brief Creates the bounding box of a text object.
  */
 void
-SetTextBoundingBox (FontType *FontPtr, TextType *Text)
+SetTextBoundingBox (TextType *Text)
 {
-  SymbolType *symbol = FontPtr->Symbol;
+  FontType * FontPtr;
+  SymbolType *symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
   int i;
   int space;
@@ -542,6 +543,11 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
   Coord min_final_radius;
   Coord min_unscaled_radius;
   bool first_time = true;
+
+  if (Text->Font) FontPtr = Text->Font;
+  else FontPtr = Settings.Font;
+
+  symbol = FontPtr->Symbol;
 
   minx = miny = maxx = maxy = tx = 0;
 

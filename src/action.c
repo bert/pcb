@@ -1592,7 +1592,7 @@ NotifyMode (void)
 				    (BoxType *) & (e->Name[i]));
 		    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
 		    e->Name[i].Element = e;
-		    SetTextBoundingBox (Settings.Font, &(e->Name[i]));
+		    SetTextBoundingBox (&(e->Name[i]));
 		    r_insert_entry (PCB->Data->name_tree[i],
 				    (BoxType *) & (e->Name[i]), 0);
 		    if (i == save_n)

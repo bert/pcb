@@ -1558,7 +1558,7 @@ SwapBuffer (BufferType *Buffer)
     text->X = SWAP_X (text->X);
     text->Y = SWAP_Y (text->Y);
     TOGGLE_FLAG (ONSOLDERFLAG, text);
-    SetTextBoundingBox (Settings.Font, text);
+    SetTextBoundingBox(text);
     r_insert_entry (layer->text_tree, (BoxType *)text, 0);
   }
   ENDALL_LOOP;
