@@ -180,7 +180,7 @@ AddTextToBuffer (LayerType *Layer, TextType *Text)
 {
   LayerType *layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
 
-  return (CreateNewText (layer, Settings.Font, Text->X, Text->Y,
+  return (CreateNewText (layer, Text->Font, Text->X, Text->Y,
 			 Text->Direction, Text->Scale, Text->TextString,
 			 MaskFlags (Text->Flags, ExtraFlag)));
 }

@@ -251,7 +251,7 @@ CopyText (LayerType *Layer, TextType *Text)
 {
   TextType *text;
 
-  text = CreateNewText (Layer, Settings.Font, Text->X + DeltaX,
+  text = CreateNewText (Layer, Text->Font, Text->X + DeltaX,
 			Text->Y + DeltaY, Text->Direction,
 			Text->Scale, Text->TextString,
 			MaskFlags (Text->Flags, NOCOPY_FLAGS));
