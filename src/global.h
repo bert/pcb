@@ -279,6 +279,40 @@ typedef struct
   char *Number;
 } LineType;
 
+/* ---------------------------------------------------------------------------
+ * symbol and font related stuff
+ */
+/*!
+ * \brief A single symbol.
+ */
+typedef struct
+{
+    LineType *Line;
+    bool Valid;
+    Cardinal LineN; /*!< Number of lines. */
+    Cardinal LineMax;
+    Coord Width; /*!< Width of cell. */
+    Coord Height; /*!< Height of cell. */
+    Coord Delta; /*!< Distance to next symbol. */
+} SymbolType;
+
+/*!
+ * \brief Complete set of symbols.
+ */
+typedef struct
+{
+    char * Name;
+    char * SourceFile;
+    Coord MaxHeight; /*!< Maximum cell width. */
+    Coord MaxWidth; /*!< Maximum cell height. */
+    BoxType DefaultSymbol; /*!< The default symbol is a filled box. */
+    SymbolType Symbol[MAX_FONTPOSITION + 1];
+    int nSymbols;
+} FontType;
+
+/*!
+ * Text objects and refdes
+ */
 typedef struct
 {
   ANYOBJECTFIELDS;
@@ -286,6 +320,7 @@ typedef struct
   Coord X; /*!< X-coordinate of origin. */
   Coord Y; /*!< Y-coordinate of origin. */
   BYTE Direction;
+  FontType * Font;
   char *TextString; /*!< String. */
   void *Element;
 } TextType;
@@ -427,37 +462,6 @@ typedef struct
   BoxType VBox;
   AttributeListType Attributes;
 } ElementType;
-
-/* ---------------------------------------------------------------------------
- * symbol and font related stuff
- */
-/*!
- * \brief A single symbol.
- */
-typedef struct
-{
-  LineType *Line;
-  bool Valid;
-  Cardinal LineN; /*!< Number of lines. */
-  Cardinal LineMax;
-  Coord Width; /*!< Width of cell. */
-  Coord Height; /*!< Height of cell. */
-  Coord Delta; /*!< Distance to next symbol. */
-} SymbolType;
-
-/*!
- * \brief Complete set of symbols.
- */
-typedef struct
-{
-  char * Name;
-  char * SourceFile;
-  Coord MaxHeight; /*!< Maximum cell width. */
-  Coord MaxWidth; /*!< Maximum cell height. */
-  BoxType DefaultSymbol; /*!< The default symbol is a filled box. */
-  SymbolType Symbol[MAX_FONTPOSITION + 1];
-  int nSymbols;
-} FontType;
 
 /*!
  * \brief Holds all objects.
