@@ -30,7 +30,9 @@
 
 # If the first argument is "-gdb" then run PCB inside the gdb
 # debugger.  
-#
+
+GDB=${GDB:-gdb}
+
 # Use  --g-fatal-warnings with the gtk HID to cause gtk-WARNING's to
 # abort.
 
@@ -81,7 +83,7 @@ if test $use_gdb = yes ; then
 	cat > $tmpf << EOF
 set args $arg_list "$file"
 EOF
-	gdb -x $tmpf @TOP_BUILDDIR@/src/pcb
+	$GDB -x $tmpf @TOP_BUILDDIR@/src/pcb
 	rm -f $tmpf
 else
 	exec @TOP_BUILDDIR@/src/pcb $arg_list "$file"
