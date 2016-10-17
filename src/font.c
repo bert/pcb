@@ -436,11 +436,11 @@ SetFontInfo (FontType *Ptr)
 }
 
 
-#define CELL_SIZE	MIL_TO_COORD (100)
-#define CELL_OFFSET	MIL_TO_COORD (10)
+#define CELL_SIZE	((Coord)MIL_TO_COORD (100))
+#define CELL_OFFSET	((Coord)MIL_TO_COORD (10))
 
-#define XYtoSym(x,y) ((x1 + CELL_OFFSET) / CELL_SIZE - 1 \
-		      + 16 * ((y1 + CELL_OFFSET) / CELL_SIZE - 1))
+#define XYtoSym(x,y) ((x + CELL_OFFSET) / CELL_SIZE - 1 \
+		      + 16 * ((y + CELL_OFFSET) / CELL_SIZE - 1))
 
 static const char fontedit_syntax[] = "FontEdit()";
 
