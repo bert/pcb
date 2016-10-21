@@ -431,15 +431,15 @@ real_load_pcb (char *Filename, bool revert)
 
       if (PCB->DefaultFontName)
       { /* the file specified a default font */
-        ChangeFont(PCB->DefaultFontName);
+        ChangeSystemFont(PCB->DefaultFontName);
         /* what should we do if we can't find the requested font? */
       } else if (g_slist_length(PCB->FontLibrary) > 0)
 	  { /* Switch to the font found in the PCB file */
-        ChangeFont(((FontType*)PCB->FontLibrary->data)->Name);
+        ChangeSystemFont(((FontType*)PCB->FontLibrary->data)->Name);
 	  } else
       { /* no font specified, and no font in file. Use the system default */        Message (_("File '%s' has no font information, using default font\n"),
                  new_filename);
-        ChangeFont("Default.pcb_font");
+        ChangeSystemFont("Default.pcb_font");
       }
 
       /* clear 'changed flag' */

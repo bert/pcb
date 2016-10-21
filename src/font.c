@@ -42,18 +42,21 @@
 #endif
 
 #include "global.h"     // PCB type definitions
+#include "macro.h"      // Text loop macros
 
 #include "font.h"
 
 #include "create.h"     // CreateNewLineInSymbol
 #include "const.h"      // MIL_TO_COORD
-#include "data.h"       // Settings, PCB
+#include "data.h"       // Settings, PCB, Crosshair
+#include "draw.h"       // Redraw, DrawText
 #include "error.h"      // Message
 #include "misc.h"       // MoveLayerToGroup, NoFlags, SetFontInfo
 #include "move.h"       // MoveLayer
 #include "hid.h"        // hid_action, hid_actionl
 #include "parse_l.h"    // ParseFont
 #include "pcb-printf.h" // get_unit_struct
+#include "search.h"     // search screen
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -77,7 +80,7 @@ check_font_source(FontType * font, char * filename)
  * \brief Finds a font by name or source file in the system font library
  */
 FontType *
-FindFont(GSList * library, char * name)
+FindFontInLibrary(GSList * library, char * name)
 {
     /* search first by name */
     GSList * font = g_slist_find_custom(library, name,
@@ -89,20 +92,32 @@ FindFont(GSList * library, char * name)
     return NULL;
 }
 
+FontType *
+FindFont(char * fontname)
+{
+    FontType * font;
+    /* Check the embedded library */
+    font = FindFontInLibrary(PCB->FontLibrary, fontname);
+    /* Check the system library */
+    if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
+    if (font) return font;
+    else Message(_("Font %s not found"), fontname);
+    return NULL;
+}
 /*!
  * \brief Finds a font by name in the system font library
  */
 FontType *
-ChangeFont(char * fontname)
+ChangeSystemFont(char * fontname)
 {
     FontType * font;
     bool embedded = false;
     if (!fontname) return NULL;
     /* check the embedded library first, these should always have priority */
-    font = FindFont(PCB->FontLibrary, fontname);
+    font = FindFontInLibrary(PCB->FontLibrary, fontname);
     if (font) embedded = true;
     /* if the font isn't there, check the system library. */
-    if (!font) font = FindFont(Settings.FontLibrary, fontname);
+    if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
     if (!font)
     {
         Message(_("Could not change font to %s because it isn't in the library\n"
@@ -124,9 +139,9 @@ LoadFont(char * filename)
     // This will successfully load and install the new font, but it will change
     // the font of all text on the board. Text that was already there also changes
     // to the new font the next time the screen is redrawn.
-    if (FindFont(Settings.FontLibrary, filename)) {
+    if (FindFontInLibrary(Settings.FontLibrary, filename)) {
         Message(_("Font %s already loaded. Switching to it.\n"), filename);
-        return ChangeFont(filename);
+        return ChangeSystemFont(filename);
     }
 
 //    newfont = g_new(FontType, 1);
@@ -195,7 +210,8 @@ UnloadFont(GSList ** pLibrary, char * fontname)
     }
     else
     { /* Unload a particular font */
-        font = FindFont(*pLibrary, fontname);
+        /* Here we need to check to see if the font is used anywhere */
+        font = FindFontInLibrary(*pLibrary, fontname);
         if (!font)
         {
             Message(_("Could not unload font %s, "
@@ -215,7 +231,7 @@ UnloadFont(GSList ** pLibrary, char * fontname)
             {
                 Message(_("Current font unloaded. Switching to %s.\n"),
                         ((FontType*)Settings.FontLibrary->data)->Name);
-                ChangeFont(((FontType*)Settings.FontLibrary->data)->Name);
+                ChangeSystemFont(((FontType*)Settings.FontLibrary->data)->Name);
             }
             else
                 Settings.Font = NULL;
@@ -235,9 +251,9 @@ int SetPCBDefaultFont(char * fontname)
     if (!fontname) PCB->DefaultFontName = NULL;
     else {
       /* Check the embedded library */
-      font = FindFont(PCB->FontLibrary, fontname);
+      font = FindFontInLibrary(PCB->FontLibrary, fontname);
       /* Check the system library */
-      if (!font) font = FindFont(Settings.FontLibrary, fontname);
+      if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
       /* Don't allow setting to an unknown font */
       if (!font)
       {
@@ -276,19 +292,136 @@ SetPCBDefaultFontAction(int argc, char **argv, Coord x, Coord y)
     return 0;
 }
 
-static const char changefont_syntax[] = "ChangeFonts(fontname)";
+static const char changefont_syntax[] =
+  "ChangeFont(fontname)\n"
+  "ChangeFont([All|Selected|Object|System|PCB], fontname)";
 
-static const char changefont_help[] = "Change the current font";
+static const char changefont_help[] =
+"Change the current font of a(n) object(s) or the system, or the default font "
+"of the PCB.";
 
+/* %start-doc actions ChangeFont
+ 
+ @table @code
+ 
+ @item All
+ Change the font of all text objects to the specified font.
+ 
+ @item Selected
+ Change the font of all the selected text objects.
+ 
+ @item Object
+ The font of a text object under the crosshair will be changed to the specified
+ font.
+ 
+ @item System
+ Change the system font to the specified font.
+ 
+ @item PCB
+ Change the PCB default font to the specified value. Objects with no designated
+ font are assigned this font when PCB files are loaded.
+ 
+ @end table
+ 
+ %end-doc */
+/* 
+ * Note:
+ * For now we only allow the changing of the font for text, and not for refdes
+ * because there's no obvious easy way to save the name of the font used in the
+ * element format. However, when the file is loaded, the element texts will be
+ * initiailized to the PCB default font, so at least you can set/save the font
+ * for *ALL* refdes, if not individual ones.
+ */
 static int
 ChangeFontAction(int argc, char **argv, Coord x, Coord y)
 {
+    bool changeAll = false;
+    int type = NO_TYPE;
+    void *ptr1 = 0, *ptr2 = 0, *ptr3 = 0;
+    FontType * font;
+    
     if (argc < 1)
     {
-        Message (_("Tell me what font use\n"));
+        Message (_("ChangeFont: Tell me what font use\n"));
         return -1;
     }
-    ChangeFont(argv[0]);
+    else if (argc == 1) ChangeSystemFont(argv[0]);
+    else if (argc == 2)
+    {
+        /* Check for the font */
+        font = FindFont(argv[1]);
+        if (!font)
+        {
+            Message(_("Unknown font: %s\n"), argv[1]);
+            return -1;
+        }
+        
+        if (strcmp(argv[0], "All") == 0)
+        {
+            /* We'll loop over objects in a moment */
+            changeAll = true;
+            /* continue below */
+        }
+        else if (strcmp(argv[0], "Selected") == 0)
+        {
+            /* not really necessary, but for completeness*/
+            changeAll = false;
+            /* continue below */
+        }
+        else if (strcmp(argv[0], "Object") == 0)
+        {
+            /* find the object the cursor is pointing at and change it */
+            type = SearchScreen (Crosshair.X, Crosshair.Y,
+                                 TEXT_TYPE, &ptr1, &ptr2, &ptr3);
+            if (type == TEXT_TYPE)
+            {
+                ((TextType*)ptr2)->Font = font;
+                DrawText(NULL, (TextType*)ptr2);
+            }
+            else
+            {
+                Message(_("No object found. Type: %x\n"), type);
+            }
+            return 0;
+        }
+        else if (strcmp(argv[0], "System") == 0)
+        {
+            /* Change the system font */
+            ChangeSystemFont(argv[1]);
+            return 0;
+        }
+        else if (strcmp(argv[0], "PCB") == 0)
+        {
+            /* Change the PCB default font*/
+            SetPCBDefaultFont(argv[1]);
+            return 0;
+        }
+        else
+        {
+            Message(_("ChangeFont: Unknown operand.\n"));
+            return -1;
+        }
+        
+        /* We're only here if the option was "All" or "Selected" */
+        /* Loop over all text objects */
+        /* If changeAll is true, change every text object we find */
+        /* If changeAll is false, change only objects with the selected flag set
+         */
+        ALLTEXT_LOOP(PCB->Data);
+        {
+            if (changeAll || TEST_FLAG(SELECTEDFLAG, text))
+            {
+                text->Font = font;
+            }
+        }
+        ENDALL_LOOP;
+        Redraw();
+    }
+    else
+    {
+        Message(_("ChangeFont: I don't know what you want me to do.\n"));
+        return -1;
+    }
     return 0;
 }
 
