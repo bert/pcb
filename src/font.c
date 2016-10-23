@@ -482,9 +482,14 @@ UnloadFontAction (int argc, char **argv, Coord x, Coord y)
         Message (_("Tell me what font to unload\n"));
         return -1;
     }
-    /* Don't remove fonts that are being used in a particular layout */
     font = FindFontInLibrary(Settings.FontLibrary, argv[0]);
     if (!font) return -1;
+    if (strcmp(font->Name, "Default")==0)
+    {
+        Message(_("Don't unload the default font.\n"));
+        return -1;
+    }
+    /* Don't remove fonts that are being used in a particular layout */
     ALLTEXT_LOOP(PCB->Data);
     {
         if (text->Font == font) inUse++;
