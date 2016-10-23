@@ -196,6 +196,10 @@ FreeFontMemory(FontType * font)
  * UnloadFont removes the named font out of the libary indicated. The library
  * has to be a double pointer because if you may need to modify the actual
  * list pointer, for example, if you remove the first element in the list.
+ *
+ * Note: This function doesn't check to see if a font is used before it is
+ * unloaded. That should be done in the action, because we want the system to be
+ * able to force the unload, for example, on exit.
  */
 int
 UnloadFont(GSList ** pLibrary, char * fontname)
@@ -210,7 +214,6 @@ UnloadFont(GSList ** pLibrary, char * fontname)
     }
     else
     { /* Unload a particular font */
-        /* Here we need to check to see if the font is used anywhere */
         font = FindFontInLibrary(*pLibrary, fontname);
         if (!font)
         {
@@ -352,7 +355,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
         font = FindFont(argv[1]);
         if (!font)
         {
-            Message(_("Unknown font: %s\n"), argv[1]);
+            Message(_("ChangeFont: Unknown font: %s\n"), argv[1]);
             return -1;
         }
         
@@ -377,10 +380,6 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             {
                 ((TextType*)ptr2)->Font = font;
                 DrawText(NULL, (TextType*)ptr2);
-            }
-            else
-            {
-                Message(_("No object found. Type: %x\n"), type);
             }
             return 0;
         }
@@ -466,7 +465,7 @@ static const char unloadfont_syntax[] = "UnloadFont(filename)";
 
 static const char unloadfont_help[] = "Unload font data from the system library.";
 /*!
- * \brief User Action to load a new font
+ * \brief User Action to unload a font
  *
  * UnloadFontAction is the users way of removing a font from the system library.
  * The user can only modify the SystemFontLibrary. The EmbeddedFontLibrary is
@@ -476,12 +475,43 @@ static const char unloadfont_help[] = "Unload font data from the system library.
 static int
 UnloadFontAction (int argc, char **argv, Coord x, Coord y)
 {
+    FontType * font;
+    int inUse = 0;
     if (argc < 1)
     {
         Message (_("Tell me what font to unload\n"));
         return -1;
     }
-    UnloadFont(&Settings.FontLibrary, argv[0]);
+    /* Don't remove fonts that are being used in a particular layout */
+    font = FindFontInLibrary(Settings.FontLibrary, argv[0]);
+    if (!font) return -1;
+    ALLTEXT_LOOP(PCB->Data);
+    {
+        if (text->Font == font) inUse++;
+    }
+    ENDALL_LOOP;
+    /* Presently, there's no way to store the font of an elementtext in the 
+       file format, but if the font is the one used for the element text, we 
+       don't want to remove that either. And this file format limitation could
+       change some day, so, this takes care of that limitation (at the expense
+       of a little speed, but really, this action will almost never actually 
+       be executed).
+     */
+    ELEMENT_LOOP(PCB->Data);
+    {
+        ELEMENTTEXT_LOOP(element);
+        {
+            if (text->Font == font) inUse++;
+        }
+        END_LOOP;
+    }
+    END_LOOP;
+    if (!inUse) UnloadFont(&Settings.FontLibrary, argv[0]);
+    else {
+        Message(_("Cannot unload font %s: Font used in %i places.\n"),
+                argv[0], inUse);
+        return -1;
+    }
     /* 
      * Don't let the user get rid of all the fonts, there has to be at least one
      * in order to create any kind of text object. Do this here, because we do 
