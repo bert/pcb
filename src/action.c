@@ -678,9 +678,15 @@ ReleaseMode (void)
 	      return;
 	    }
 	}
-      RestoreUndoSerialNumber ();
-      if (SelectObject ())
-	SetChangedFlag (true);
+        /* Restore the SN so that if we select something the deselect/select combo
+         gets the same SN. */
+        RestoreUndoSerialNumber();
+        if (SelectObject ())
+            SetChangedFlag (true);
+        else
+        /* We didn't select anything new, so, the deselection should get its
+         own SN. */
+            IncrementUndoSerialNumber();
       Note.Hit = 0;
       Note.Moving = 0;
     }
