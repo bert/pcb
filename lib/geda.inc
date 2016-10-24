@@ -1164,6 +1164,7 @@ define(`PKG_SOD110',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 21, 14)');
 define(`PKG_SOD123',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 40, 15)');
 # BUG: pads are only 0.60 mm wide:
 define(`PKG_SOD323',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 27, 13)');
+define(`PKG_SOD523',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 12,  8)');
 define(`PKG_DO214',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 77, 33)'); #JG
 define(`PKG_DO214AB',   `PKG_SMT_DIODE(       `$1', `$2', `$3', 79, 34)'); #JG
 define(`PKG_SOT23D',   `PKG_SMT_TRANSISTOR2( `$1', `$2', `$3', 20, 21)');

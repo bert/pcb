@@ -445,7 +445,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices: bom gerber gcode nelma png ps [[default=bom gerber gcode nelma png ps]]],
+[  --with-exporters=       Enable export devices: bom gerber gcode nelma png ps ipcd356 [[default=bom gerber gcode nelma png ps ipcd356]]],
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do

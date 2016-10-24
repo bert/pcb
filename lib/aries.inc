@@ -88,7 +88,7 @@ Element(0x00 "$1" "`$2'" "$3" 0 REFDESY 0 200 0x00)
 
         # the mounting holes
         PIN(0, eval(MAXY + 180), eval(MTPADSIZE), eval(MTDRILLSIZE), eval(1 + $4))
-        PIN(0, eval(MAXY + 180 - 415 - MAXY),  eval(MTPADSIZE), eval(MTDRILLSIZE), eval(2 + $4))
+        PIN(0, -335,  eval(MTPADSIZE), eval(MTDRILLSIZE), eval(2 + $4))
 
 	ElementLine(SILKXL SILKYT SILKXL SILKYB 10)
 	ElementLine(SILKXL SILKYB SILKXR SILKYB 10)
