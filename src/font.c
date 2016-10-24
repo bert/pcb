@@ -57,6 +57,7 @@
 #include "parse_l.h"    // ParseFont
 #include "pcb-printf.h" // get_unit_struct
 #include "search.h"     // search screen
+#include "undo.h"       // undo functions
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -378,8 +379,10 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
                                  TEXT_TYPE, &ptr1, &ptr2, &ptr3);
             if (type == TEXT_TYPE)
             {
+                AddObjectToChangeFontUndoList(type, ptr1, ptr2, ptr3);
                 ((TextType*)ptr2)->Font = font;
-                DrawText(NULL, (TextType*)ptr2);
+                IncrementUndoSerialNumber();
+                Redraw();
             }
             return 0;
         }
@@ -410,10 +413,12 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
         {
             if (changeAll || TEST_FLAG(SELECTEDFLAG, text))
             {
+                AddObjectToChangeFontUndoList(TEXT_TYPE, NULL, text, NULL);
                 text->Font = font;
             }
         }
         ENDALL_LOOP;
+        IncrementUndoSerialNumber();
         Redraw();
     }
     else

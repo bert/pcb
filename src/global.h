@@ -987,6 +987,7 @@ struct drc_violation_st
 #define	UNDO_LAYERCHANGE	       0x20000	/*!< Layer new/delete/move. */
 #define	UNDO_CLEAR		       0x40000	/*!< Clear/restore to polygons. */
 #define	UNDO_NETLISTCHANGE	       0x80000	/*!< Netlist change. */
+#define UNDO_CHANGEFONT     0x100000 /*!< Font Change. */
 
 /* ---------------------------------------------------------------------------
  */
