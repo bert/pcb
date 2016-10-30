@@ -162,7 +162,6 @@ LoadFont(char * filename)
 
     if (ParseFont(NULL, filename)){
         Message(_("Failed to load font file '%s'\n"), filename);
-        //g_free(newfont);
         return NULL;
     }
     /* new fonts are appended to the end of the list */
@@ -390,7 +389,13 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
     {
         /* Check for the font */
         font = FindFont(argv[1]);
-        if (!font)
+        if (strcmp(argv[1], "None") == 0)
+        {
+            Message(_("Warning: Setting (a) font(s) to none will result in the "
+                      "text being displayed using the system default font.\n"));
+            font = NULL;
+        }
+        else if (!font)
         {
             Message(_("ChangeFont: Unknown font: %s\n"), argv[1]);
             return -1;
@@ -431,7 +436,8 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
         else if (strcmp(argv[0], "PCB") == 0)
         {
             /* Change the PCB default font*/
-            SetPCBDefaultFont(argv[1]);
+            if (font) SetPCBDefaultFont(argv[1]);
+            else SetPCBDefaultFont(NULL);
             return 0;
         }
         else
