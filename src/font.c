@@ -68,10 +68,18 @@
  * /brief Creates a new empty font structure in the indicated library
  */
 FontType *
-CreateNewFontInLibrary(GSList ** library, char * name){
+CreateNewFontInLibrary(GSList ** library, char * name)
+{
     FontType * newfont = g_new(FontType, 1);
+    FontType * font;
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
-    if (name) newfont->Name = g_strdup(name);
+    if (name)
+    {
+      font = FindFontInLibrary(*library, name);
+      if (font)
+          asprintf(&newfont->Name, "%s (%d)", name, g_slist_length(*library));
+      else newfont->Name = g_strdup(name);
+    }
     else asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     newfont->SourceFile = NULL;
