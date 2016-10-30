@@ -78,7 +78,7 @@ check_font_source(FontType * font, char * filename)
 }
 
 /*!
- * \brief Finds a font by name or source file in the system font library
+ * \brief Finds a font by name or source file in the given font library
  */
 FontType *
 FindFontInLibrary(GSList * library, char * name)
@@ -102,9 +102,62 @@ FindFont(char * fontname)
     /* Check the system library */
     if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
     if (font) return font;
-    else Message(_("Font %s not found"), fontname);
+    else Message(_("Font %s not found\n"), fontname);
     return NULL;
 }
+
+/*!
+ * \brief Create a list of the fonts used in a design.
+ *
+ * This function iterates over all of the text objects and refdes in the design and 
+ * builds up a GSList of pointers to all of the fonts that are used by at least one
+ * object. 
+ *
+ * The GSList is dynamically allocated, so, when the calling function is
+ * done with the list, it should also free it using g_slist_free.
+ */
+GSList *
+FontsUsed(void)
+{
+    GSList * usedlib = NULL, * entry = NULL;
+    
+    ALLTEXT_LOOP(PCB->Data);
+    {
+        if(text->Font)
+        {
+            entry = g_slist_find(usedlib, text->Font);
+            if(!entry) usedlib = g_slist_append(usedlib, text->Font);
+        }
+        else
+        {
+            entry = g_slist_find(usedlib, Settings.Font);
+            if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
+        }
+    }
+    ENDALL_LOOP;
+    ELEMENT_LOOP(PCB->Data);
+    {
+        ELEMENTTEXT_LOOP(element);
+        {
+            if(text->Font)
+            {
+                entry = g_slist_find(usedlib, text->Font);
+                if(!entry) usedlib = g_slist_append(usedlib, text->Font);
+            }
+            else
+            {
+                entry = g_slist_find(usedlib, Settings.Font);
+                if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
+            }
+        }
+        END_LOOP;
+    }
+    END_LOOP;
+    
+    return usedlib;
+}
+
+
 /*!
  * \brief Finds a font by name in the system font library
  */
@@ -448,6 +501,10 @@ ListFontsAction(int argc, char **argv, Coord x, Coord y)
         Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
     Message(_("Currently selected font is: %s\n"), Settings.Font->Name);
     Message(_("PCB file default font is: %s\n"), PCB->DefaultFontName);
+    Message(_("Fonts currently in use:\n"));
+    for (itt = FontsUsed(); itt; itt = itt->next)
+        Message(_("\t%s\n"), ((FontType*)itt->data)->Name);
+    g_slist_free(itt);
     return 0;
 }
 
