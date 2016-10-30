@@ -853,6 +853,11 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
                        text->X, text->Y,
                        text->Direction, text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
+      if (text->Font)
+      {
+        fprintf(FP, " ");
+        PrintQuotedString(FP, (char *)EMPTY(text->Font->Name));
+      }
 	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
       for (n = layer->Polygon; n != NULL; n = g_list_next (n))
