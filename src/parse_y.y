@@ -288,6 +288,7 @@ fontname
         : T_FONT '(' STRING ')'
             {
                 if(yyPCB) yyPCB->DefaultFontName = strdup($3);
+                free($3);
             }
 
 embeddedfont
@@ -296,6 +297,7 @@ embeddedfont
                   yyFont = CreateNewFontInLibrary(&yyPCB->FontLibrary, $3);
                 else
                   yyFont = CreateNewFontInLibrary(&Settings.FontLibrary, $3);
+                free($3);
             } '(' symbols ')' {
                 SetFontInfo(yyFont);
             }
@@ -946,7 +948,8 @@ layerdefinition
 				CreateNewPolygonFromRectangle(Layer,
 					OU ($3), OU ($4), OU ($3) + OU ($5), OU ($4) + OU ($6), OldFlags($7));
 			}
-		| text_hi_format
+		| text_20161008_format
+        | text_hi_format
 		| text_newformat
 		| text_oldformat
 		| { attr_list = & Layer->Attributes; } attribute
@@ -1104,7 +1107,7 @@ text_oldformat
 		: T_TEXT '(' measure measure number STRING INTEGER ')'
 			{
 					/* use a default scale of 100% */
-				CreateNewText(Layer,yyFont,OU ($3), OU ($4), $5, 100, $6, OldFlags($7));
+				CreateNewText(Layer,NULL,OU ($3), OU ($4), $5, 100, $6, OldFlags($7));
 				free ($6);
 			}
 		;
@@ -1118,11 +1121,11 @@ text_newformat
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
 						(($8 & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
-					CreateNewText(lay ,yyFont, OU ($3), OU ($4), $5, $6, $7,
+					CreateNewText(lay ,NULL, OU ($3), OU ($4), $5, $6, $7,
 						      OldFlags($8));
 				}
 				else
-					CreateNewText(Layer, yyFont, OU ($3), OU ($4), $5, $6, $7,
+					CreateNewText(Layer, NULL, OU ($3), OU ($4), $5, $6, $7,
 						      OldFlags($8));
 				free ($7);
 			}
@@ -1143,14 +1146,24 @@ text_hi_format
 					LayerType *lay = &yyData->Layer[yyData->LayerN +
 						(($8.f & ONSOLDERFLAG) ? BOTTOM_SILK_LAYER : TOP_SILK_LAYER)];
 
-					CreateNewText(lay, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
+					CreateNewText(lay, NULL, NU ($3), NU ($4), $5, $6, $7, $8);
 				}
 				else
-					CreateNewText(Layer, yyFont, NU ($3), NU ($4), $5, $6, $7, $8);
+					CreateNewText(Layer, NULL, NU ($3), NU ($4), $5, $6, $7, $8);
 				free ($7);
 			}
 		;
-
+text_20161008_format
+			/* x, y, direction, scale, text, flags */
+		: T_TEXT '[' measure measure number number STRING STRING flags ']'
+			{
+                FontType * font = FindFont($8);
+                if(!font) Message(_("Warning: Could not find font %s for text \"%s\"\n"), $8, $7);
+				CreateNewText(Layer, font, NU ($3), NU ($4), $5, $6, $7, $9);
+				free ($7);
+                free ($8);
+			}
+		;
 /* %start-doc pcbfile Polygon
 
 @syntax

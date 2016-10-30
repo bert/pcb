@@ -39,6 +39,7 @@
 FontType * CreateNewFontInLibrary(GSList ** library, char * name);
 FontType * LoadFont(char * filename);
 FontType * ChangeSystemFont(char * fontname);
+FontType * FindFont(char * fontname);
 int UnloadFont(GSList ** library, char * fontname);
 void SetFontInfo (FontType *);
 
