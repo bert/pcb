@@ -342,6 +342,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
     bool changeAll = false;
     int type = NO_TYPE;
     void *ptr1 = 0, *ptr2 = 0, *ptr3 = 0;
+    unsigned count = 0;
     FontType * font;
     
     if (argc < 1)
@@ -415,10 +416,12 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             {
                 AddObjectToChangeFontUndoList(TEXT_TYPE, NULL, text, NULL);
                 text->Font = font;
+                count++;
             }
         }
         ENDALL_LOOP;
-        IncrementUndoSerialNumber();
+        /* only increment if something changed */
+        if (count > 0) IncrementUndoSerialNumber();
         Redraw();
     }
     else
