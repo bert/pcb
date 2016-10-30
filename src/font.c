@@ -63,6 +63,38 @@
 #include <dmalloc.h>
 #endif
 
+
+/*
+ * /brief Creates a new empty font structure in the indicated library
+ */
+FontType *
+CreateNewFontInLibrary(GSList ** library, char * name){
+    FontType * newfont = g_new(FontType, 1);
+    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
+    if (name) newfont->Name = g_strdup(name);
+    else asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
+    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
+    newfont->SourceFile = NULL;
+    newfont->nSymbols = 0;
+    *library = g_slist_append(*library, newfont);
+    return newfont;
+}
+
+int
+FreeFontMemory(FontType * font)
+{
+    int i;
+    Message(_("Freeing font memory: %s\n"), font->Name);
+    /* Free any lines allocated to font symbols */
+    for (i = 0; i <= MAX_FONTPOSITION; i++) free (font->Symbol[i].Line);
+    /* Release the memory holding the font name */
+    free(font->Name);
+    free(font->SourceFile);
+    /* Free the memory holding the font structure itself */
+    free(font);
+    return 0;
+}
+
 /* 
  * Some compare functions for searching through the lists
  */
@@ -106,84 +138,6 @@ FindFont(char * fontname)
     return NULL;
 }
 
-/*!
- * \brief Create a list of the fonts used in a design.
- *
- * This function iterates over all of the text objects and refdes in the design and 
- * builds up a GSList of pointers to all of the fonts that are used by at least one
- * object. 
- *
- * The GSList is dynamically allocated, so, when the calling function is
- * done with the list, it should also free it using g_slist_free.
- */
-GSList *
-FontsUsed(void)
-{
-    GSList * usedlib = NULL, * entry = NULL;
-    
-    ALLTEXT_LOOP(PCB->Data);
-    {
-        if(text->Font)
-        {
-            entry = g_slist_find(usedlib, text->Font);
-            if(!entry) usedlib = g_slist_append(usedlib, text->Font);
-        }
-        else
-        {
-            entry = g_slist_find(usedlib, Settings.Font);
-            if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
-        }
-    }
-    ENDALL_LOOP;
-    ELEMENT_LOOP(PCB->Data);
-    {
-        ELEMENTTEXT_LOOP(element);
-        {
-            if(text->Font)
-            {
-                entry = g_slist_find(usedlib, text->Font);
-                if(!entry) usedlib = g_slist_append(usedlib, text->Font);
-            }
-            else
-            {
-                entry = g_slist_find(usedlib, Settings.Font);
-                if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
-            }
-        }
-        END_LOOP;
-    }
-    END_LOOP;
-    
-    return usedlib;
-}
-
-
-/*!
- * \brief Finds a font by name in the system font library
- */
-FontType *
-ChangeSystemFont(char * fontname)
-{
-    FontType * font;
-    bool embedded = false;
-    if (!fontname) return NULL;
-    /* check the embedded library first, these should always have priority */
-    font = FindFontInLibrary(PCB->FontLibrary, fontname);
-    if (font) embedded = true;
-    /* if the font isn't there, check the system library. */
-    if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
-    if (!font)
-    {
-        Message(_("Could not change font to %s because it isn't in the library\n"
-               "Leaving the font set to %s.\n"), fontname, Settings.Font->Name);
-        return NULL;
-    }
-    Message(_("Switching to font %s from the %s library\n"),
-            fontname, embedded ? "embedded" : "system");
-    Settings.Font = font;
-    return font;
-}
-
 /*
  * \brief Loads a new font from a file
  */
@@ -198,8 +152,6 @@ LoadFont(char * filename)
         return ChangeSystemFont(filename);
     }
 
-//    newfont = g_new(FontType, 1);
-//    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     if (ParseFont(NULL, filename)){
         Message(_("Failed to load font file '%s'\n"), filename);
         //g_free(newfont);
@@ -210,38 +162,6 @@ LoadFont(char * filename)
     Settings.Font->SourceFile = g_strdup(filename);
     Message(_("New font loaded: %s\n"), Settings.Font->Name);
     return Settings.Font;
-}
-
-/*
- * /brief Creates a new empty font structure in the indicated library
- *
- */
-FontType *
-CreateNewFontInLibrary(GSList ** library, char * name){
-    FontType * newfont = g_new(FontType, 1);
-    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
-    if (name) newfont->Name = g_strdup(name);
-    else asprintf(&newfont->Name, "Font %d", g_slist_length(*library));
-    memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
-    newfont->SourceFile = NULL;
-    newfont->nSymbols = 0;
-    *library = g_slist_append(*library, newfont);
-    return newfont;
-}
-
-int
-FreeFontMemory(FontType * font)
-{
-    int i;
-    Message(_("Freeing font memory: %s\n"), font->Name);
-    /* Free any lines allocated to font symbols */
-    for (i = 0; i <= MAX_FONTPOSITION; i++) free (font->Symbol[i].Line);
-    /* Release the memory holding the font name */
-    free(font->Name);
-    free(font->SourceFile);
-    /* Free the memory holding the font structure itself */
-    free(font);
-    return 0;
 }
 
 /*
@@ -302,6 +222,83 @@ UnloadFont(GSList ** pLibrary, char * fontname)
     return 0;
 }
 
+/*!
+ * \brief Create a list of the fonts used in a design.
+ *
+ * This function iterates over all of the text objects and refdes in the design and
+ * builds up a GSList of pointers to all of the fonts that are used by at least one
+ * object.
+ *
+ * The GSList is dynamically allocated, so, when the calling function is
+ * done with the list, it should also free it using g_slist_free.
+ */
+GSList *
+FontsUsed(void)
+{
+    GSList * usedlib = NULL, * entry = NULL;
+    
+    ALLTEXT_LOOP(PCB->Data);
+    {
+        if(text->Font)
+        {
+            entry = g_slist_find(usedlib, text->Font);
+            if(!entry) usedlib = g_slist_append(usedlib, text->Font);
+        }
+        else
+        {
+            entry = g_slist_find(usedlib, Settings.Font);
+            if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
+        }
+    }
+    ENDALL_LOOP;
+    ELEMENT_LOOP(PCB->Data);
+    {
+        ELEMENTTEXT_LOOP(element);
+        {
+            if(text->Font)
+            {
+                entry = g_slist_find(usedlib, text->Font);
+                if(!entry) usedlib = g_slist_append(usedlib, text->Font);
+            }
+            else
+            {
+                entry = g_slist_find(usedlib, Settings.Font);
+                if(!entry) usedlib = g_slist_append(usedlib, Settings.Font);
+            }
+        }
+        END_LOOP;
+    }
+    END_LOOP;
+    
+    return usedlib;
+}
+
+/*!
+ * \brief Set the system font to the specified font.
+ */
+FontType *
+ChangeSystemFont(char * fontname)
+{
+    FontType * font;
+    bool embedded = false;
+    if (!fontname) return NULL;
+    /* check the embedded library first, these should always have priority */
+    font = FindFontInLibrary(PCB->FontLibrary, fontname);
+    if (font) embedded = true;
+    /* if the font isn't there, check the system library. */
+    if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
+    if (!font)
+    {
+        Message(_("Could not change font to %s because it isn't in the library\n"
+                  "Leaving the font set to %s.\n"), fontname, Settings.Font->Name);
+        return NULL;
+    }
+    Message(_("Switching to font %s from the %s library\n"),
+            fontname, embedded ? "embedded" : "system");
+    Settings.Font = font;
+    return font;
+}
+
 int SetPCBDefaultFont(char * fontname)
 {
     FontType * font;
@@ -323,29 +320,6 @@ int SetPCBDefaultFont(char * fontname)
       PCB->DefaultFontName = g_strdup(fontname);
     }
     Message(_("PCB default font set to '%s'\n"), PCB->DefaultFontName);
-    return 0;
-}
-
-static const char setpcbfont_syntax[] = "SetPCBDefaultFont(fontname)";
-
-static const char
-setpcbfont_help[] = "Set the default font for the current layout";
-/*!
- * \brief User Action to change the default font for a PCB file
- *
- * Set the default font for text elements in a layout.
- * When a text element is read from a file, if the font is not specified, the 
- * font set here will be used. This does not set the "current" font, so, new 
- * text objects created by the user may not use this font. Use ChangeFont to set
- * that font. Note that changing this setting could cause the layout to be
- * different if it is saved and reloaded.
- *
- */
-static int
-SetPCBDefaultFontAction(int argc, char **argv, Coord x, Coord y)
-{
-    if (argc < 1) SetPCBDefaultFont(NULL);
-    else SetPCBDefaultFont(argv[0]);
     return 0;
 }
 
@@ -867,8 +841,6 @@ FontSave (int argc, char **argv, Coord Ux, Coord Uy)
 }
 
 HID_Action fontmode_action_list[] = {
-  {"SetPCBDefaultFont", 0, SetPCBDefaultFontAction,
-   setpcbfont_help, setpcbfont_syntax},
   {"ChangeFont", 0, ChangeFontAction,
    changefont_help, changefont_syntax},
   {"LoadFont", 0, LoadFontAction,
