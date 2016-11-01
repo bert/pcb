@@ -232,9 +232,9 @@ UnloadFont(GSList ** pLibrary, char * fontname)
 /*!
  * \brief Create a list of the fonts used in a design.
  *
- * This function iterates over all of the text objects and refdes in the design and
- * builds up a GSList of pointers to all of the fonts that are used by at least one
- * object.
+ * This function iterates over all of the text objects and refdes in the design 
+ * and builds up a GSList of pointers to all of the fonts that are used by at 
+ * least one object.
  *
  * The GSList is dynamically allocated, so, when the calling function is
  * done with the list, it should also free it using g_slist_free.
@@ -326,6 +326,15 @@ int SetPCBDefaultFont(char * fontname)
       if (PCB->DefaultFontName) free(PCB->DefaultFontName);
       PCB->DefaultFontName = g_strdup(fontname);
     }
+    ELEMENT_LOOP(PCB->Data);
+    {
+      ELEMENTTEXT_LOOP(element);
+      {
+        text->Font=font;
+      }
+      END_LOOP;
+    }
+    END_LOOP;
     Message(_("PCB default font set to '%s'\n"), PCB->DefaultFontName);
     return 0;
 }
