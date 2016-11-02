@@ -303,7 +303,7 @@ ChangeSystemFont(char * fontname)
     Message(_("Switching to font %s from the %s library\n"),
             fontname, embedded ? "embedded" : "system");
     Settings.Font = font;
-    Redraw()
+    Redraw();
     return font;
 }
 

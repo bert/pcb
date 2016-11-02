@@ -167,15 +167,31 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 int
 PCBFileVersionNeeded (void)
 {
+  /* Check for font data */
+  /* Saving symbols is the older way, so, we'll give that precidence. If this
+   * option is set, then the user has specifically requested the old format. 
+   */
+  if (!Settings.SaveSymbols)
+  {
+    int fcount = 0;
+    ALLTEXT_LOOP(PCB->Data);
+    {
+      if (text->Font) fcount++;
+    }
+    ENDALL_LOOP;
+    if (PCB->DefaultFontName /* Specifies which font to use */
+     || Settings.SaveFonts   /* Specifically record fonts used in the file */
+     || (fcount > 0)         /* Any objects with fonts specified */
+        )
+        return PCB_FILE_VERSION_FONTS;
+    }
+  /* Check for holes in polygons */
   ALLPOLYGON_LOOP (PCB->Data);
   {
     if (polygon->HoleIndexN > 0)
       return PCB_FILE_VERSION_HOLES;
   }
   ENDALL_LOOP;
-  
-  if (PCB->DefaultFontName || (Settings.SaveFonts && !Settings.SaveSymbols))
-      return PCB_FILE_VERSION_FONTS;
 
   return PCB_FILE_VERSION_BASELINE;
 }
@@ -432,6 +448,7 @@ real_load_pcb (char *Filename, bool revert)
       if (PCB->DefaultFontName)
       { /* the file specified a default font */
         ChangeSystemFont(PCB->DefaultFontName);
+        SetPCBDefaultFont(PCB->DefaultFontName);
         /* what should we do if we can't find the requested font? */
       } else if (g_slist_length(PCB->FontLibrary) > 0)
 	  { /* Switch to the font found in the PCB file */
@@ -857,6 +874,12 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
       {
         fprintf(FP, " ");
         PrintQuotedString(FP, (char *)EMPTY(text->Font->Name));
+      }
+      else if (PCB->DefaultFontName
+            && (strcmp(PCB->DefaultFontName, Settings.Font->Name) != 0))
+      {
+        fprintf(FP, " ");
+        PrintQuotedString(FP, Settings.Font->Name);
       }
 	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
