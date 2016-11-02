@@ -303,10 +303,12 @@ ChangeSystemFont(char * fontname)
     Message(_("Switching to font %s from the %s library\n"),
             fontname, embedded ? "embedded" : "system");
     Settings.Font = font;
+    Redraw()
     return font;
 }
 
-int SetPCBDefaultFont(char * fontname)
+int
+SetPCBDefaultFont(char * fontname)
 {
     FontType * font;
     if (!fontname) PCB->DefaultFontName = NULL;
@@ -336,6 +338,7 @@ int SetPCBDefaultFont(char * fontname)
     }
     END_LOOP;
     Message(_("PCB default font set to '%s'\n"), PCB->DefaultFontName);
+    Redraw();
     return 0;
 }
 
