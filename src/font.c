@@ -152,12 +152,12 @@ FindFont(char * fontname)
 FontType *
 LoadFont(char * filename)
 {
-    // This will successfully load and install the new font, but it will change
-    // the font of all text on the board. Text that was already there also changes
-    // to the new font the next time the screen is redrawn.
-    if (FindFontInLibrary(Settings.FontLibrary, filename)) {
+    FontType * font;
+    font = FindFontInLibrary(Settings.FontLibrary, filename);
+    if (font)
+    {
         Message(_("Font %s already loaded. Switching to it.\n"), filename);
-        return ChangeSystemFont(filename);
+        return font;
     }
 
     if (ParseFont(NULL, filename)){
@@ -165,10 +165,10 @@ LoadFont(char * filename)
         return NULL;
     }
     /* new fonts are appended to the end of the list */
-    Settings.Font = g_slist_last(Settings.FontLibrary)->data;
-    Settings.Font->SourceFile = g_strdup(filename);
-    Message(_("New font loaded: %s\n"), Settings.Font->Name);
-    return Settings.Font;
+    font = g_slist_last(Settings.FontLibrary)->data;
+    font->SourceFile = g_strdup(filename);
+    Message(_("New font loaded: %s\n"), font->Name);
+    return font;
 }
 
 /*
