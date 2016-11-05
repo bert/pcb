@@ -1259,7 +1259,7 @@ ChangeTextJoin (LayerType *Layer, TextType *Text)
   AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, false);
   RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   }
-  AddObjectToFlagUndoList (LINE_TYPE, Layer, Text, Text);
+  AddObjectToFlagUndoList (TEXT_TYPE, Layer, Text, Text);
   TOGGLE_FLAG (CLEARLINEFLAG, Text);
   if (TEST_FLAG(CLEARLINEFLAG, Text))
   {
