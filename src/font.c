@@ -123,9 +123,10 @@ check_font_source(FontType * font, char * filename)
 FontType *
 FindFontInLibrary(GSList * library, char * name)
 {
+    GSList * font;
+    if(!library) return NULL;
     /* search first by name */
-    GSList * font = g_slist_find_custom(library, name,
-                                        (GCompareFunc)check_font_name);
+    font = g_slist_find_custom(library, name, (GCompareFunc)check_font_name);
     /* then check the source file */
     if (!font) font = g_slist_find_custom(library, name,
                                         (GCompareFunc)check_font_source);
@@ -142,7 +143,6 @@ FindFont(char * fontname)
     /* Check the system library */
     if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
     if (font) return font;
-    else Message(_("Font %s not found\n"), fontname);
     return NULL;
 }
 
@@ -290,7 +290,7 @@ ChangeSystemFont(char * fontname)
     bool embedded = false;
     if (!fontname) return NULL;
     /* check the embedded library first, these should always have priority */
-    font = FindFontInLibrary(PCB->FontLibrary, fontname);
+    if (PCB) font = FindFontInLibrary(PCB->FontLibrary, fontname);
     if (font) embedded = true;
     /* if the font isn't there, check the system library. */
     if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
@@ -303,7 +303,6 @@ ChangeSystemFont(char * fontname)
     Message(_("Switching to font %s from the %s library\n"),
             fontname, embedded ? "embedded" : "system");
     Settings.Font = font;
-    Redraw();
     return font;
 }
 
@@ -314,7 +313,7 @@ SetPCBDefaultFont(char * fontname)
     if (!fontname) PCB->DefaultFontName = NULL;
     else {
       /* Check the embedded library */
-      font = FindFontInLibrary(PCB->FontLibrary, fontname);
+      if (PCB) font = FindFontInLibrary(PCB->FontLibrary, fontname);
       /* Check the system library */
       if (!font) font = FindFontInLibrary(Settings.FontLibrary, fontname);
       /* Don't allow setting to an unknown font */
@@ -338,7 +337,6 @@ SetPCBDefaultFont(char * fontname)
     }
     END_LOOP;
     Message(_("PCB default font set to '%s'\n"), PCB->DefaultFontName);
-    Redraw();
     return 0;
 }
 
@@ -444,6 +442,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
         {
             /* Change the system font */
             ChangeSystemFont(argv[1]);
+            Redraw();
             return 0;
         }
         else if (strcmp(argv[0], "PCB") == 0)
@@ -451,6 +450,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             /* Change the PCB default font*/
             if (font) SetPCBDefaultFont(argv[1]);
             else SetPCBDefaultFont(NULL);
+            Redraw();
             return 0;
         }
         else
@@ -477,13 +477,13 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
         ENDALL_LOOP;
         /* only increment if something changed */
         if (count > 0) IncrementUndoSerialNumber();
-        Redraw();
     }
     else
     {
         Message(_("ChangeFont: I don't know what you want me to do.\n"));
         return -1;
     }
+    Redraw();
     return 0;
 }
 
