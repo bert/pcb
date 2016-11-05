@@ -434,6 +434,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             {
                 AddObjectToChangeFontUndoList(type, ptr1, ptr2, ptr3);
                 ((TextType*)ptr2)->Font = font;
+                SetTextBoundingBox (ptr2);
                 IncrementUndoSerialNumber();
                 Redraw();
             }
@@ -469,6 +470,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             {
                 AddObjectToChangeFontUndoList(TEXT_TYPE, NULL, text, NULL);
                 text->Font = font;
+                SetTextBoundingBox (text);
                 count++;
             }
         }
