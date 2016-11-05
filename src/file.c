@@ -649,9 +649,9 @@ WriteFontSymbols (FILE * FP, FontType * font)
 static void
 WriteFont (FILE * FP, FontType * font)
 {
-  fprintf(FP, "Font(\"%s\") (\n", Settings.Font->Name);
-  WriteFontSymbols(FP, Settings.Font);
-  fprintf(FP, ") # end of font %s\n", Settings.Font->Name);
+  fprintf(FP, "Font(\"%s\") (\n", font->Name);
+  WriteFontSymbols(FP, font);
+  fprintf(FP, ") # end of font %s\n", font->Name);
 }
 
 /*!
@@ -660,6 +660,7 @@ WriteFont (FILE * FP, FontType * font)
 static void
 WritePCBFontData (FILE * FP)
 {
+  GSList * iter;
   /* 
    * If this is not null, then either the source file had a font directive
    * or the user set a font as the default with a command. Either is an 
@@ -674,7 +675,11 @@ WritePCBFontData (FILE * FP)
    * I think reading such a configuration should work).
    */
   if (Settings.SaveSymbols) WriteFontSymbols(FP, Settings.Font);
-  else if (Settings.SaveFonts) WriteFont(FP, Settings.Font);
+  else if (Settings.SaveFonts)
+  {
+    for (iter = FontsUsed(); iter; iter = iter->next)
+        WriteFont(FP, (FontType*)(iter->data));
+  }
 }
 
 /*!
