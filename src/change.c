@@ -1096,6 +1096,7 @@ ChangeTextName (LayerType *Layer, TextType *Text)
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
   EraseText (Layer, Text);
+  r_delete_entry (Layer->text_tree, (BoxType *) Text);
   RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   Text->TextString = NewName;
 
