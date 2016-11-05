@@ -51,7 +51,7 @@ TextType * CreateNewText (LayerType *, FontType *, Coord, Coord, unsigned, int, 
 PolygonType * CreateNewPolygon (LayerType *, FlagType);
 PointType * CreateNewPointInPolygon (PolygonType *, Coord, Coord);
 PolygonType * CreateNewHoleInPolygon (PolygonType *polygon);
-ElementType * CreateNewElement (DataType *, FontType *, FlagType, char *, char *, char *, Coord, Coord, BYTE, int, FlagType, bool);
+ElementType * CreateNewElement (DataType *, FlagType, char *, char *, char *, Coord, Coord, BYTE, int, FlagType, bool);
 LineType * CreateNewLineInElement (ElementType *, Coord, Coord, Coord, Coord, Coord);
 ArcType * CreateNewArcInElement (ElementType *, Coord, Coord, Coord, Coord, Angle, Angle, Coord);
 PinType * CreateNewPin (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord, char *, char *, FlagType);

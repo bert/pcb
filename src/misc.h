@@ -57,7 +57,7 @@ void SetPointBoundingBox (PointType *);
 void SetPinBoundingBox (PinType *);
 void SetPadBoundingBox (PadType *);
 void SetPolygonBoundingBox (PolygonType *);
-void SetElementBoundingBox (DataType *, ElementType *, FontType *);
+void SetElementBoundingBox (DataType *, ElementType *);
 bool IsDataEmpty (DataType *);
 bool IsLayerEmpty (LayerType *);
 bool IsLayerNumEmpty (int);

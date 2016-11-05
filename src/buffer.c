@@ -391,7 +391,7 @@ MoveElementToBuffer (ElementType *element)
     CLEAR_FLAG (WARNFLAG | NOCOPY_FLAGS, pad);
   }
   END_LOOP;
-  SetElementBoundingBox (Dest, element, Settings.Font);
+  SetElementBoundingBox (Dest, element);
   /*
    * Now clear the from the polygons in the destination
    */
@@ -512,7 +512,7 @@ LoadElementToBuffer (BufferType *Buffer, char *Name, bool FromFile)
 	  /* always add elements using top-side coordinates */
 	  if (Settings.ShowBottomSide)
 	    MirrorElementCoordinates (Buffer->Data, element, 0);
-	  SetElementBoundingBox (Buffer->Data, element, Settings.Font);
+	  SetElementBoundingBox (Buffer->Data, element);
 
 	  /* set buffer offset to 'mark' position */
 	  Buffer->X = element->MarkX;
@@ -982,7 +982,7 @@ ConvertBufferToElement (BufferType *Buffer)
   if (Buffer->Data->pcb == 0)
     Buffer->Data->pcb = PCB;
 
-  Element = CreateNewElement (PCB->Data, Settings.Font, NoFlags (),
+  Element = CreateNewElement (PCB->Data, NoFlags (),
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
 			      MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG),
@@ -1124,7 +1124,7 @@ ConvertBufferToElement (BufferType *Buffer)
   Element->MarkY = Buffer->Y;
   if (SWAP_IDENT)
     SET_FLAG (ONSOLDERFLAG, Element);
-  SetElementBoundingBox (PCB->Data, Element, Settings.Font);
+  SetElementBoundingBox (PCB->Data, Element);
   ClearBuffer (Buffer);
   MoveObjectToBuffer (Buffer->Data, PCB->Data, ELEMENT_TYPE, Element, Element,
 		      Element);
@@ -1293,7 +1293,7 @@ FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
   END_LOOP;
 
   free_rotate (&Element->MarkX, &Element->MarkY, X, Y, cosa, sina);
-  SetElementBoundingBox (Data, Element, Settings.Font);
+  SetElementBoundingBox (Data, Element);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
 }
 

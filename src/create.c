@@ -45,6 +45,7 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "font.h"
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
@@ -71,8 +72,7 @@ static bool be_lenient = false;
 /* ----------------------------------------------------------------------
  * some local prototypes
  */
-static void AddTextToElement (TextType *, FontType *,
-			      Coord, Coord, unsigned, char *, int,
+static void AddTextToElement (TextType *, Coord, Coord, unsigned, char *, int,
 			      FlagType);
 
 /*!
@@ -688,7 +688,7 @@ CreateNewHoleInPolygon (PolygonType *Polygon)
  * \note Memory is allocated if needed.
  */
 ElementType *
-CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
+CreateNewElement (DataType *Data, FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
 		  Coord TextX, Coord TextY, BYTE Direction,
 		  int TextScale, FlagType TextFlags, bool uniqueName)
@@ -703,13 +703,13 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
 
   /* copy values and set additional information */
   TextScale = MAX (MIN_TEXTSCALE, TextScale);
-  AddTextToElement (&DESCRIPTION_TEXT (Element), PCBFont, TextX, TextY,
+  AddTextToElement (&DESCRIPTION_TEXT (Element), TextX, TextY,
 		    Direction, Description, TextScale, TextFlags);
   if (uniqueName)
     NameOnPCB = UniqueElementName (Data, NameOnPCB);
-  AddTextToElement (&NAMEONPCB_TEXT (Element), PCBFont, TextX, TextY,
+  AddTextToElement (&NAMEONPCB_TEXT (Element), TextX, TextY,
 		    Direction, NameOnPCB, TextScale, TextFlags);
-  AddTextToElement (&VALUE_TEXT (Element), PCBFont, TextX, TextY,
+  AddTextToElement (&VALUE_TEXT (Element), TextX, TextY,
 		    Direction, Value, TextScale, TextFlags);
   DESCRIPTION_TEXT (Element).Element = Element;
   NAMEONPCB_TEXT (Element).Element = Element;
@@ -904,8 +904,7 @@ CreateNewPad (ElementType *Element,
  * Copies the values to the appropriate text object.
  */
 static void
-AddTextToElement (TextType *Text, FontType *Font,
-		  Coord X, Coord Y,
+AddTextToElement (TextType *Text, Coord X, Coord Y,
 		  unsigned Direction, char *TextString, int Scale, FlagType Flags)
 {
   free (Text->TextString);
@@ -915,7 +914,7 @@ AddTextToElement (TextType *Text, FontType *Font,
   Text->Direction = Direction;
   Text->Flags = Flags;
   Text->Scale = Scale;
-  Text->Font = Font;
+  Text->Font = FindFont(PCB->DefaultFontName);
 
   /* calculate size of the bounding box */
   SetTextBoundingBox (Text);

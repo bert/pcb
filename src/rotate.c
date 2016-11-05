@@ -256,7 +256,7 @@ RotateElementLowLevel (DataType *Data, ElementType *Element,
   END_LOOP;
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
   /* SetElementBoundingBox reenters the rtree data */
-  SetElementBoundingBox (Data, Element, Settings.Font);
+  SetElementBoundingBox (Data, Element);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
 }
 

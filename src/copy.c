@@ -126,8 +126,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Src,
   ElementType *Dest;
 
   /* both coordinates and flags are the same */
-  Dest = CreateNewElement (Data, Settings.Font,
-			   MaskFlags (Src->Flags, mask_flags),
+  Dest = CreateNewElement (Data, MaskFlags (Src->Flags, mask_flags),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
 			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X + dx,
 			   DESCRIPTION_TEXT (Src).Y + dy,
@@ -178,7 +177,7 @@ CopyElementLowLevel (DataType *Data, ElementType *Src,
   Dest->MarkX = Src->MarkX + dx;
   Dest->MarkY = Src->MarkY + dy;
 
-  SetElementBoundingBox (Data, Dest, Settings.Font);
+  SetElementBoundingBox (Data, Dest);
   return (Dest);
 }
 

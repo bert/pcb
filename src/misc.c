@@ -382,8 +382,7 @@ SetPolygonBoundingBox (PolygonType *Polygon)
  * \brief Sets the bounding box of an element.
  */
 void
-SetElementBoundingBox (DataType *Data, ElementType *Element,
-                       FontType *Font)
+SetElementBoundingBox (DataType *Data, ElementType *Element)
 {
   BoxType *box, *vbox;
 
