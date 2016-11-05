@@ -1652,8 +1652,8 @@ settings_post_process ()
 
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
 
-  Settings.Font = (FontType*) malloc(sizeof(FontType));
   LoadFont(Settings.FontFile);
+  Settings.Font = Settings.FontLibrary->data;
 
   free(tmps);
 }
