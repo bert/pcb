@@ -1652,8 +1652,11 @@ settings_post_process ()
 
   Settings.increments = get_increments_struct (Settings.grid_unit->family);
 
+  // Load the default font
   LoadFont(Settings.FontFile);
   Settings.Font = Settings.FontLibrary->data;
+  // Check for and load other fonts in the font path
+  ScanFontPaths();
 
   free(tmps);
 }

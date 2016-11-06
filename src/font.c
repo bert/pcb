@@ -34,8 +34,11 @@
  */
 
 #include <glib.h>       // GSList type and functions
-#include <string.h>     // memset
+#include <string.h>     // memset, strdup
 #include <stdio.h>      // asprintf
+#include <dirent.h>     // for scanning font paths
+#include <sys/types.h>  // for scanning font paths
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -146,6 +149,43 @@ FindFont(char * fontname)
     return NULL;
 }
 
+int
+ScanFontPaths(void)
+{
+    DIR *dp;
+    struct dirent *ep;
+    char *path, *p, *ext;
+    
+    path = strdup(Settings.FontPath);
+    
+    /* Loop over font paths */
+    for (p = strtok(path, PCB_PATH_DELIMETER);
+         p && *p;
+         p = strtok(NULL, PCB_PATH_DELIMETER))
+    {
+      /* Open a directory */
+      dp = opendir(p);
+      if (!dp)
+      {
+        Message(_("Could not open font path for reading: %s\n"), p);
+        continue;
+      }
+      /* Loop over the files */
+      while ((ep = readdir(dp)))
+      {
+        /* check the file extension */
+        ext = strrchr(ep->d_name, '.');
+        if (!ext || ext == ep->d_name) continue;
+        /* TODO: Maybe make a global setting called FONTFILEEXTENSION? */
+        if (strcmp(ext, ".pcb_font") == 0)
+        {
+          LoadFont(ep->d_name);
+        }
+      }
+    }
+    return 0;
+}
+
 /*
  * \brief Loads a new font from a file
  */
@@ -156,7 +196,7 @@ LoadFont(char * filename)
     font = FindFontInLibrary(Settings.FontLibrary, filename);
     if (font)
     {
-        Message(_("Font %s already loaded. Switching to it.\n"), filename);
+        Message(_("Font %s already loaded.\n"), filename);
         return font;
     }
 
@@ -524,7 +564,8 @@ LoadFontAction (int argc, char **argv, Coord x, Coord y)
         Message (_("Tell me what font file to load\n"));
         return -1;
     }
-    LoadFont(argv[0]);
+    if (strcmp(argv[0], "All") == 0) ScanFontPaths();
+    else LoadFont(argv[0]);
     return 0;
 }
 

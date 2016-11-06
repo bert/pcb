@@ -36,14 +36,21 @@
 #include "global.h"
 #include <glib.h>
 
+
 FontType * CreateNewFontInLibrary(GSList ** library, char * name);
-FontType * LoadFont(char * filename);
-FontType * ChangeSystemFont(char * fontname);
-int SetPCBDefaultFont(char * fontname);
 FontType * FindFontInLibrary(GSList * library, char * name);
 FontType * FindFont(char * fontname);
+
+int        ScanFontPaths(void);
+FontType * LoadFont(char * filename);
+int        UnloadFont(GSList ** library, char * fontname);
+
+
+FontType * ChangeSystemFont(char * fontname);
+int        SetPCBDefaultFont(char * fontname);
+
 GSList * FontsUsed();
-int UnloadFont(GSList ** library, char * fontname);
+
 void SetFontInfo (FontType *);
 
 
