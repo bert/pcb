@@ -1437,8 +1437,7 @@ EraseElementName (ElementType *Element)
 {
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
-  DrawText (NULL, &ELEMENT_TEXT (PCB, Element));
-}
+  EraseText (NULL, &ELEMENT_TEXT (PCB, Element));}
 
 
 void
@@ -1451,8 +1450,10 @@ EraseObject (int type, void *lptr, void *ptr)
       ErasePin ((PinType *) ptr);
       break;
     case TEXT_TYPE:
-    case ELEMENTNAME_TYPE:
       EraseText ((LayerType *)lptr, (TextType *) ptr);
+      break;
+    case ELEMENTNAME_TYPE:
+      EraseElementName(lptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonType *) ptr);
