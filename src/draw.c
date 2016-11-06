@@ -1453,7 +1453,7 @@ EraseObject (int type, void *lptr, void *ptr)
       EraseText ((LayerType *)lptr, (TextType *) ptr);
       break;
     case ELEMENTNAME_TYPE:
-      EraseElementName(lptr);
+      EraseElementName ((ElementType *) ptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonType *) ptr);
