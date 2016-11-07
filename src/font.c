@@ -380,6 +380,23 @@ SetPCBDefaultFont(char * fontname)
     return 0;
 }
 
+int ChangeObjectFont(LayerType * Layer, TextType * Text, FontType * Font)
+{
+  if (TEST_FLAG (LOCKFLAG, Text)) return -1;
+  EraseText (Layer, Text);
+  r_delete_entry (Layer->text_tree, (BoxType *) Text);
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
+
+  Text->Font = Font;
+
+  /* calculate size of the bounding box */
+  SetTextBoundingBox (Text);
+  r_insert_entry(Layer->text_tree, (BoxType *) Text, 0);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
+  DrawText (Layer, Text);
+  return 0;
+}
+
 static const char changefont_syntax[] =
   "ChangeFont(fontname)\n"
   "ChangeFont([All|Selected|Object|System|PCB], fontname)";
@@ -470,11 +487,17 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
                                  TEXT_TYPE, &ptr1, &ptr2, &ptr3);
             if (type == TEXT_TYPE)
             {
-                AddObjectToChangeFontUndoList(type, ptr1, ptr2, ptr3);
-                ((TextType*)ptr2)->Font = font;
-                SetTextBoundingBox (ptr2);
-                IncrementUndoSerialNumber();
-                Redraw();
+                if (TEST_FLAG(LOCKFLAG, (TextType*)ptr2))
+                {
+                    Message(_("Cannot change font: text is locked."));
+                }
+                else
+                {
+                  AddObjectToChangeFontUndoList(type, ptr1, ptr2, ptr3);
+                  ChangeObjectFont((LayerType*)ptr1, (TextType*)ptr2, font);
+                  IncrementUndoSerialNumber();
+                  Redraw();
+                }
             }
             return 0;
         }
@@ -509,8 +532,7 @@ ChangeFontAction(int argc, char **argv, Coord x, Coord y)
             if (changeAll || TEST_FLAG(SELECTEDFLAG, text))
             {
                 AddObjectToChangeFontUndoList(TEXT_TYPE, NULL, text, NULL);
-                text->Font = font;
-                SetTextBoundingBox (text);
+                ChangeObjectFont(layer, text, font);
                 count++;
             }
         }
