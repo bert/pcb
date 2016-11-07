@@ -75,16 +75,74 @@ thindraw_moved_pv (hidGC gc, PinType *pv, Coord x, Coord y)
 }
 
 /*!
+ * \brief Draw a dashed line.
+ */
+static void
+draw_dashed_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
+{
+  /*! \todo we need a real geometrical library, using double here is
+   * plain wrong. */
+  double dx = x2-x1;
+  double dy = y2-y1;
+  double len_squared = dx*dx + dy*dy;
+  int n;
+  const int segs = 11; /* must be odd */
+
+  if (len_squared < 1000000)
+  {
+    /*! \todo line too short, just draw it -> magic value;
+     * with a proper geo lib this would be gone anyway. */
+    gui->graphics->draw_line (gc, x1, y1, x2, y2);
+    return;
+  }
+
+  /* first seg is drawn from x1, y1 with no rounding error due to n-1 == 0 */
+  for (n = 1; n < segs; n += 2)
+    gui->graphics->draw_line (gc,
+                              x1 + (dx * (double) (n-1) / (double) segs),
+                              y1 + (dy * (double) (n-1) / (double) segs),
+                              x1 + (dx * (double) n / (double) segs),
+                              y1 + (dy * (double) n / (double) segs));
+
+  /* make sure the last segment is drawn properly to x2 and y2,
+   * don't leave room for rounding errors. */
+  gui->graphics->draw_line (gc,
+                            x2 - (dx / (double) segs),
+                            y2 - (dy / (double) segs),
+                            x2,
+                            y2);
+}
+
+/*!
  * \brief Creates a tmp polygon with coordinates converted to screen
  * system.
  */
 static void
-XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy)
+XORPolygon (hidGC gc, PolygonType *polygon, Coord dx, Coord dy, int dash_last)
 {
   Cardinal i;
   for (i = 0; i < polygon->PointN; i++)
     {
       Cardinal next = next_contour_point (polygon, i);
+
+      if (next == 0)
+        { /* last line: sometimes the implicit closing line */
+          if (i == 1) /* corner case: don't draw two lines on top of
+                       * each other - with XOR it looks bad */
+            continue;
+
+        if (dash_last)
+          {
+            draw_dashed_line (gc,
+                              polygon->Points[i].X + dx,
+                              polygon->Points[i].Y + dy,
+                              polygon->Points[next].X + dx,
+                              polygon->Points[next].Y + dy);
+            break; /* skip normal line draw below */
+          }
+        }
+
+      /* normal contour line */
       gui->graphics->draw_line (gc,
                                 polygon->Points[i].X + dx,
                                 polygon->Points[i].Y + dy,
@@ -326,7 +384,7 @@ XORDrawBuffer (hidGC gc, BufferType *Buffer)
 	 */
 	POLYGON_LOOP (layer);
 	{
-	  XORPolygon (gc, polygon, x, y);
+	  XORPolygon (gc, polygon, x, y, 0);
 	}
 	END_LOOP;
       }
@@ -414,7 +472,7 @@ XORDrawMoveOrCopyObject (hidGC gc)
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
 	 */
-	XORPolygon (gc, polygon, dx, dy);
+	XORPolygon (gc, polygon, dx, dy, 0);
 	break;
       }
 
@@ -580,7 +638,7 @@ DrawAttached (hidGC gc)
       /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
       if (Crosshair.AttachedPolygon.PointN > 1)
 	{
-	  XORPolygon (gc, &Crosshair.AttachedPolygon, 0, 0);
+	  XORPolygon (gc, &Crosshair.AttachedPolygon, 0, 0, 1);
 	}
       break;
 
