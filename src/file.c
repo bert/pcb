@@ -662,23 +662,28 @@ WritePCBFontData (FILE * FP)
 {
   GSList * iter;
   /* 
-   * If this is not null, then either the source file had a font directive
-   * or the user set a font as the default with a command. Either is an 
-   * indicator that the user wants to use the newer file format. 
-   */
-  if (PCB->DefaultFontName)
-    fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
-
-  /* 
    * The only reason SaveSymbols would be set is if the user wants the old
    * format. So, don't allow the user to write both symbols and fonts (although
    * I think reading such a configuration should work).
    */
-  if (Settings.SaveSymbols) WriteFontSymbols(FP, Settings.Font);
-  else if (Settings.SaveFonts)
   {
-    for (iter = FontsUsed(); iter; iter = iter->next)
-        WriteFont(FP, (FontType*)(iter->data));
+    if (Settings.SaveSymbols) WriteFontSymbols(FP, Settings.Font);
+    else
+    {
+      /*
+       * If this is not null, then either the source file had a font directive
+       * or the user set a font as the default with a command. Either is an
+       * indicator that the user wants to use the newer file format.
+       */
+        if (PCB->DefaultFontName)
+            fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
+        if (Settings.SaveFonts)
+        {
+          for (iter = FontsUsed(); iter; iter = iter->next)
+              WriteFont(FP, (FontType*)(iter->data));
+            g_slist_free(iter);
+        }
+    }
   }
 }
 
@@ -875,18 +880,21 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
                        text->X, text->Y,
                        text->Direction, text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
-      if (text->Font)
+      if(!Settings.SaveSymbols)
       {
-        fprintf(FP, " ");
-        PrintQuotedString(FP, (char *)EMPTY(text->Font->Name));
+        if (text->Font)
+        {
+          fprintf(FP, " ");
+          PrintQuotedString(FP, (char *)EMPTY(text->Font->Name));
+        }
+        else if (PCB->DefaultFontName
+              && (strcmp(PCB->DefaultFontName, Settings.Font->Name) != 0))
+        {
+          fprintf(FP, " ");
+          PrintQuotedString(FP, Settings.Font->Name);
+        }
       }
-      else if (PCB->DefaultFontName
-            && (strcmp(PCB->DefaultFontName, Settings.Font->Name) != 0))
-      {
-        fprintf(FP, " ");
-        PrintQuotedString(FP, Settings.Font->Name);
-      }
-	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
+      fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
       for (n = layer->Polygon; n != NULL; n = g_list_next (n))
 	{
