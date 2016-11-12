@@ -82,7 +82,6 @@ CreateNewFontInLibrary(GSList ** library, char * name)
 {
     FontType * newfont = g_new(FontType, 1);
     FontType * font;
-    GSList *iter;
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     if (name)
     {
