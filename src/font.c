@@ -59,6 +59,8 @@
 #include "hid.h"        // hid_action, hid_actionl
 #include "parse_l.h"    // ParseFont
 #include "pcb-printf.h" // get_unit_struct
+#include "polygon.h"    // [ClearFrom,RestoreTo]Polygon
+#include "rtree.h"      // r_delete_entry, r_insert_entry
 #include "search.h"     // search screen
 #include "undo.h"       // undo functions
 
@@ -67,6 +69,11 @@
 #endif
 
 
+int
+compare_font_names(FontType * a, FontType * b)
+{
+    return g_ascii_strcasecmp(a->Name, b->Name);
+}
 /*
  * /brief Creates a new empty font structure in the indicated library
  */
@@ -75,6 +82,7 @@ CreateNewFontInLibrary(GSList ** library, char * name)
 {
     FontType * newfont = g_new(FontType, 1);
     FontType * font;
+    GSList *iter;
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     if (name)
     {
@@ -87,7 +95,13 @@ CreateNewFontInLibrary(GSList ** library, char * name)
     memset(newfont->Symbol, 0, sizeof(newfont->Symbol));
     newfont->SourceFile = NULL;
     newfont->nSymbols = 0;
-    *library = g_slist_append(*library, newfont);
+    if (*library == Settings.FontLibrary)
+      /* LoadFont wants it at the end of the list so it can add the filename
+         to the structure. It will sort the list after that. */
+      *library = g_slist_append(*library, newfont);
+    else
+      *library = g_slist_insert_sorted(*library, newfont,
+                                       (GCompareFunc)compare_font_names);
     return newfont;
 }
 
@@ -207,6 +221,8 @@ LoadFont(char * filename)
     /* new fonts are appended to the end of the list */
     font = g_slist_last(Settings.FontLibrary)->data;
     font->SourceFile = g_strdup(filename);
+    Settings.FontLibrary = g_slist_sort(Settings.FontLibrary,
+                                        (GCompareFunc)compare_font_names);
     Message(_("New font loaded: %s\n"), font->Name);
     return font;
 }
@@ -371,7 +387,10 @@ SetPCBDefaultFont(char * fontname)
     {
       ELEMENTTEXT_LOOP(element);
       {
+        r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
         text->Font=font;
+        SetTextBoundingBox (text);
+        r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
     }
