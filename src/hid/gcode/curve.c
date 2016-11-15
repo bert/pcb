@@ -1,9 +1,21 @@
-/* Copyright (C) 2001-2007 Peter Selinger.
-   This file is part of Potrace. It is free software and it is covered
-   by the GNU General Public License. See the file COPYING for details. */
+/*!
+ * \file src/hid/gcode/curve.c
+ *
+ * \brief Private part of the path and curve data structures.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2001-2007 Peter Selinger.
+ *
+ * This file is part of Potrace. It is free software and it is covered
+ * by the GNU General Public License. See the file COPYING for details.
+ */
 
 /* curve.c 147 2007-04-09 00:44:09Z selinger */
-/* private part of the path and curve data structures */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,9 +28,11 @@
 #define SAFE_MALLOC(var, n, typ) \
   if ((var = (typ *)malloc((n)*sizeof(typ))) == NULL) goto malloc_error
 
-/* ---------------------------------------------------------------------- */
 /* allocate and free path objects */
 
+/*!
+ * \brief Create a new path.
+ */
 path_t *
 path_new (void)
 {
@@ -38,7 +52,11 @@ malloc_error:
   return NULL;
 }
 
-/* free the members of the given curve structure. Leave errno unchanged. */
+/*!
+ * \brief Free the members of the given curve structure.
+ *
+ * Leave errno unchanged.
+ */
 static void
 privcurve_free_members (privcurve_t * curve)
 {
@@ -50,7 +68,11 @@ privcurve_free_members (privcurve_t * curve)
   free (curve->beta);
 }
 
-/* free a path. Leave errno untouched. */
+/*!
+ * \brief Free a path.
+ *
+ * Leave errno untouched.
+ */
 void
 path_free (path_t * p)
 {
@@ -71,7 +93,11 @@ path_free (path_t * p)
   free (p);
 }
 
-/* free a pathlist, leaving errno untouched. */
+/*!
+ * \brief Free a pathlist.
+ *
+ * Leave errno untouched.
+ */
 void
 pathlist_free (path_t * plist)
 {
@@ -83,13 +109,15 @@ pathlist_free (path_t * plist)
   }
 }
 
-/* ---------------------------------------------------------------------- */
 /* initialize and finalize curve structures */
 
 typedef dpoint_t dpoint3_t[3];
 
-/* initialize the members of the given curve structure to size m.
-   Return 0 on success, 1 on error with errno set. */
+/*!
+ * \brief Initialize the members of the given curve structure to size m.
+ *
+ * \return 0 on success, 1 on error with errno set.
+ */
 int
 privcurve_init (privcurve_t * curve, int n)
 {
@@ -113,7 +141,9 @@ malloc_error:
   return 1;
 }
 
-/* copy private to public curve structure */
+/*!
+ * \brief Copy private to public curve structure.
+ */
 void
 privcurve_to_curve (privcurve_t * pc, potrace_curve_t * c)
 {
