@@ -1,9 +1,20 @@
-/* Copyright (C) 2001-2007 Peter Selinger.
-   This file is part of Potrace. It is free software and it is covered
-   by the GNU General Public License. See the file COPYING for details. */
-
-/* This header file collects some general-purpose macros (and static
-   inline functions) that are used in various places. */
+/*!
+ * \file src/hid/gcode/auxiliary.h
+ *
+ * \brief This header file collects some general-purpose macros (and
+ * static inline functions) that are used in various places.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2001-2007 Peter Selinger.
+ *
+ * This file is part of Potrace. It is free software and it is covered
+ * by the GNU General Public License. See the file COPYING for details.
+ */
 
 #ifndef AUXILIARY_H
 #define AUXILIARY_H
@@ -26,7 +37,9 @@ typedef struct point_s point_t;
 
 typedef potrace_dpoint_t dpoint_t;
 
-/* convert point_t to dpoint_t */
+/*!
+ * \brief Convert point_t to dpoint_t.
+ */
 static inline dpoint_t
 dpoint (point_t p)
 {
@@ -36,7 +49,10 @@ dpoint (point_t p)
   return res;
 }
 
-/* range over the straight line segment [a,b] when lambda ranges over [0,1] */
+/*!
+ * \brief Range over the straight line segment [a,b] when lambda ranges
+ * over [0,1].
+ */
 static inline dpoint_t
 interval (double lambda, dpoint_t a, dpoint_t b)
 {
@@ -48,22 +64,29 @@ interval (double lambda, dpoint_t a, dpoint_t b)
 }
 
 /* ---------------------------------------------------------------------- */
-/* some useful macros. Note: the "mod" macro works correctly for
-   negative a. Also note that the test for a>=n, while redundant,
-   speeds up the mod function by 70% in the average case (significant
-   since the program spends about 16% of its time here - or 40%
-   without the test). The "floordiv" macro returns the largest integer
-   <= a/n, and again this works correctly for negative a, as long as
-   a,n are integers and n>0. */
+/* some useful macros. */
 
 /* integer arithmetic */
 
+/*!
+ * \brief .
+ *
+ * The "mod" macro works correctly for negative a.
+ * Also note that the test for a>=n, while redundant, speeds up the mod
+ * function by 70% in the average case (significant since the program
+ * spends about 16% of its time here - or 40% without the test).
+ */
 static inline int
 mod (int a, int n)
 {
   return a >= n ? a % n : a >= 0 ? a : n - 1 - (-1 - a) % n;
 }
 
+/*!
+ * \brief The "floordiv" macro returns the largest integer
+ * <= a/n, and again this works correctly for negative a, as long as
+ * a,n are integers and n>0.
+ */
 static inline int
 floordiv (int a, int n)
 {
