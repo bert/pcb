@@ -1553,22 +1553,32 @@ Execute the bell command when all rats are routed.
        "Execute the bell command when all rats are routed"),
 /* %start-doc options "1 General Options"
 @ftable @code
+@item --save-font-data
+Write font information in pcb files. If false, options save-symbols and
+save-embedded-fonts are ignored.
+@end ftable
+%end-doc
+*/
+    BSET (SaveFontData, 1, "save-font-data",
+          "Write font data in pcb files"),
+/* %start-doc options "1 General Options"
+@ftable @code
 @item --save-symbols
-Write font symbols in pcb files.
+Write font data as only symbols in pcb files.
 @end ftable
 %end-doc
 */
     BSET (SaveSymbols, 0, "save-symbols",
-          "Write font symbols in pcb files"),
+          "Write font data as only symbols in pcb files"),
 /* %start-doc options "1 General Options"
 @ftable @code
-@item --save-fontss
-Write fonts in pcb files.
+@item --save-embedded-fonts
+Write data for all used fonts in pcb files.
 @end ftable
 %end-doc
 */
-    BSET (SaveFonts, 0, "save-fonts",
-          "Write font symbols in pcb files"),
+    BSET (EmbedFonts, 0, "embed-fonts",
+          "Write data for all used fonts in pcb files"),
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)

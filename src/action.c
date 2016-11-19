@@ -1405,7 +1405,7 @@ NotifyMode (void)
 		if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
 		    GetLayerGroupNumberBySide (BOTTOM_SIDE))
 		  flag |= ONSOLDERFLAG;
-		if ((text = CreateNewText (CURRENT, NULL, Note.X,
+		if ((text = CreateNewText (CURRENT, Settings.Font, Note.X,
 					   Note.Y, 0, Settings.TextScale,
 					   string, MakeFlags (flag))) != NULL)
 		  {

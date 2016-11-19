@@ -171,7 +171,7 @@ PCBFileVersionNeeded (void)
   /* Saving symbols is the older way, so, we'll give that precidence. If this
    * option is set, then the user has specifically requested the old format. 
    */
-  if (!Settings.SaveSymbols)
+  if (Settings.SaveFontData && !Settings.SaveSymbols)
   {
     int fcount = 0;
     ALLTEXT_LOOP(PCB->Data);
@@ -180,7 +180,8 @@ PCBFileVersionNeeded (void)
     }
     ENDALL_LOOP;
     if (PCB->DefaultFontName /* Specifies which font to use */
-     || Settings.SaveFonts   /* Specifically record fonts used in the file */
+     || Settings.EmbedFonts
+                             /* Specifically record fonts used in the file */
      || (fcount > 0)         /* Any objects with fonts specified */
         )
         return PCB_FILE_VERSION_FONTS;
@@ -666,10 +667,10 @@ WritePCBFontData (FILE * FP)
    * format. So, don't allow the user to write both symbols and fonts (although
    * I think reading such a configuration should work).
    */
-  {
     if (Settings.SaveSymbols) WriteFontSymbols(FP, Settings.Font);
-    else
+    else if (Settings.SaveFontData)
     {
+      {
       /*
        * If this is not null, then either the source file had a font directive
        * or the user set a font as the default with a command. Either is an
@@ -677,7 +678,7 @@ WritePCBFontData (FILE * FP)
        */
         if (PCB->DefaultFontName)
             fprintf(FP, "Font(\"%s\")\n", PCB->DefaultFontName);
-        if (Settings.SaveFonts)
+        if (Settings.EmbedFonts)
         {
           for (iter = FontsUsed(); iter; iter = iter->next)
               WriteFont(FP, (FontType*)(iter->data));
@@ -880,7 +881,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerType *layer)
                        text->X, text->Y,
                        text->Direction, text->Scale);
 	  PrintQuotedString (FP, (char *)EMPTY (text->TextString));
-      if(!Settings.SaveSymbols)
+      if(Settings.SaveFontData)
       {
         if (text->Font)
         {
