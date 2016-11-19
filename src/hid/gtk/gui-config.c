@@ -41,6 +41,7 @@
 #include "action.h"
 #include "change.h"
 #include "file.h"
+#include "font.h"
 #include "error.h"
 #include "draw.h"
 #include "misc.h" /* MKDIR() */
@@ -166,6 +167,9 @@ static ConfigAttribute config_attributes[] = {
   {"route-styles", CONFIG_Unused, NULL},
   {"library-newlib", CONFIG_String, &lib_newlib_config},
   {"color-file", CONFIG_String, &color_file},
+  {"save-font-data", CONFIG_Unused, NULL},
+  {"save-symbols", CONFIG_Unused, NULL},
+  {"embed-fonts", CONFIG_Unused, NULL},
 /* FIXME: construct layer-names- in a list */
   {"layer-name-1", CONFIG_Unused, NULL},
   {"layer-name-2", CONFIG_Unused, NULL},
@@ -2048,6 +2052,265 @@ config_colors_tab_create (GtkWidget * tab_vbox)
   gtk_widget_show_all (config_colors_vbox);
 }
 
+/* -------------- The Fonts config page ----------------
+ */
+static GtkWidget *config_fonts_vbox;
+static GtkWidget *list_embfont, *list_sysfont;
+static GtkWidget *lab_sysfont, *lab_pcbfont;
+static GtkWidget *xbox_savefonts, *xbox_savesyms, *xbox_embedfonts;
+static GtkWidget *lab_warnfonts;
+static void config_fonts_tab_create (GtkWidget * tab_vbox);
+
+void init_font_list(GtkWidget *list, char * name) {
+    
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+    GtkListStore *store;
+    
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes(name,
+                                                      renderer, "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
+    
+    store = gtk_list_store_new(1, G_TYPE_STRING);
+    
+    gtk_tree_view_set_model(GTK_TREE_VIEW(list),
+                            GTK_TREE_MODEL(store));
+    
+    g_object_unref(store);
+}
+
+void add_to_font_list(GtkWidget *list, const gchar *str) {
+    
+    GtkListStore *store;
+    GtkTreeIter iter;
+    
+    store = GTK_LIST_STORE(gtk_tree_view_get_model
+                           (GTK_TREE_VIEW(list)));
+    
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, str, -1);
+}
+
+void on_sel_font_changed(GtkWidget *widget, gpointer label) {
+
+    /*
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    gchar *value;
+     */
+    GtkTreeView * treeview;
+    GtkTreeSelection * sel;
+    
+    /* Leaving this code as a placeholder/reminder for updating a font preview
+     * in the config window */
+    /*
+    if (gtk_tree_selection_get_selected(
+            GTK_TREE_SELECTION(widget), &model, &iter))
+    {
+        
+        gtk_tree_model_get(model, &iter, 0, &value,  -1);
+        // do somethign
+        g_free(value);
+    }*/
+    
+    /* TODO: This logic doesn't work quite right. If something else had the
+             focus, like one of the set buttons or a checkbox, and something
+             in the other list is selected, both lists become unselected.
+     */
+    /* Only one font selected at a time, so if unselect everything in the list
+       that wasn't clicked on. */
+    treeview = gtk_tree_selection_get_tree_view(GTK_TREE_SELECTION(widget));
+    if(treeview == GTK_TREE_VIEW(list_sysfont))
+        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_embfont));
+    else
+        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_sysfont));
+    if(!gtk_widget_has_focus(GTK_WIDGET(treeview)))
+        gtk_tree_selection_unselect_all(sel);
+}
+
+static void
+config_fonts_xb_cb(GtkToggleButton * btn, gpointer p)
+{
+    gboolean active = gtk_toggle_button_get_active(btn);
+    *((bool*)p) = active;
+    
+    if (Settings.SaveFontData) Settings.SaveSymbols = FALSE;
+    else Settings.EmbedFonts = FALSE;
+
+    gtk_widget_set_sensitive(xbox_embedfonts, Settings.SaveFontData);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(xbox_embedfonts), Settings.EmbedFonts);
+    gtk_widget_set_sensitive(xbox_savesyms, !Settings.SaveFontData);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(xbox_savesyms), Settings.SaveSymbols);
+
+    ghidgui->config_modified = TRUE;
+}
+
+static void
+config_fonts_setbtn_cb(GtkWidget * btn, gpointer p)
+{
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    gchar *value, *str;
+    GtkTreeSelection * sel;
+    
+    /* Figure out which font is selected */
+    /* Check the system font list */
+    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_sysfont));
+    /* If not, check the embedded font list */
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+      sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_embfont));
+    /* If nothing's selected, don't do anything. */
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+      return;
+    
+    gtk_tree_model_get(model, &iter, 0, &value,  -1);
+    
+    if (p == &Settings.Font) ChangeSystemFont(value);
+    else if (p == &PCB->DefaultFontName) SetPCBDefaultFont(value);
+    else if ((p == (void*)1) || (p == (void*)2)) /* Change fonts of all objects */
+    {
+        asprintf(&str, "ChangeFont(%s, %s)", (p==(void*)1) ? "All":"Selected", value);
+        hid_parse_command(str);
+        free(str);
+    }
+
+    g_free(value);
+    
+    asprintf(&str, "Current System Font: %s", Settings.Font->Name);
+    gtk_label_set_text(GTK_LABEL(lab_sysfont), str);
+    free(str);
+    
+    asprintf(&str, "Current PCB Font: %s", PCB->DefaultFontName);
+    gtk_label_set_text(GTK_LABEL(lab_pcbfont), str);
+    free(str);
+    
+    Redraw();
+}
+
+static void
+config_fonts_tab_create(GtkWidget * tab_vbox)
+{
+    GtkWidget *hbox, *vbox, *align, *btn;
+    GtkTreeSelection *selection;
+    GSList * iter;
+    char * str;
+   
+    config_fonts_vbox = tab_vbox;
+    vbox = ghid_category_vbox (config_fonts_vbox, _("File Settings"), 4, 2, TRUE, TRUE);
+    ghid_check_button_connected (vbox, &xbox_savefonts, Settings.SaveFontData,
+                                 TRUE, FALSE, FALSE, 2,
+                                 config_fonts_xb_cb, &Settings.SaveFontData,
+                                 _("Save font data in files."));
+    gtk_widget_set_tooltip_text(xbox_savefonts,
+        "Enable or disable the storage of font information in saved files. "
+        "Disable this setting to make saved files readable by older version of "
+        "pcb.");
+    ghid_check_button_connected (vbox, &xbox_savesyms, Settings.SaveSymbols,
+                                 TRUE, FALSE, FALSE, 2,
+                                 config_fonts_xb_cb, &Settings.SaveSymbols,
+                                 _("Save current system font as symbols in pcb files (old format)."));
+    gtk_widget_set_tooltip_text(xbox_savesyms,
+        "This options allows a single font to be exported with the design in "
+        "a way that can be read by older versions of pcb. This font will be "
+        "used for all text elements, reference designators, and system text "
+        "(e.g. pin numbers) in the design.");
+    gtk_widget_set_sensitive(xbox_savesyms, !Settings.SaveFontData);
+    ghid_check_button_connected (vbox, &xbox_embedfonts, Settings.EmbedFonts,
+                                 TRUE, FALSE, FALSE, 2,
+                                 config_fonts_xb_cb, &Settings.EmbedFonts,
+                                 _("Embed used fonts in pcb files"));
+    gtk_widget_set_tooltip_text(xbox_embedfonts,
+        "Enabling this option includes font data for all used fonts in saved "
+        "files. This ensures portability of files in case the destination "
+        "doesn't have, or has a different version of, one of the used fonts.");
+    gtk_widget_set_sensitive(xbox_embedfonts, Settings.SaveFontData);
+    lab_warnfonts = gtk_label_new(
+        "Warning: if you disable the saving of font data all font information\n"
+        "will be lost when saved to disk. Please use File > Revert after saving\n"
+        "to keep the displayed data consistent with that saved in the file.");
+    gtk_box_pack_start(GTK_BOX(vbox), lab_warnfonts, FALSE, FALSE, 5);
+    
+    vbox = ghid_category_vbox (config_fonts_vbox, _("Fonts"), 4, 2, TRUE, TRUE);
+
+    asprintf(&str, "Current System Font: %s", Settings.Font->Name);
+    lab_sysfont = gtk_label_new(str);
+    align = gtk_alignment_new(0,0,0,0);
+    gtk_container_add(GTK_CONTAINER(align), lab_sysfont);
+    gtk_box_pack_start(GTK_BOX(vbox), align, FALSE, FALSE, 5);
+    free(str);
+    gtk_widget_set_tooltip_text(lab_sysfont,
+        "The system font is used for all new text elements, and generated text "
+        "such as pin numbers and functions.");
+  
+    asprintf(&str, "Current PCB Font: %s", PCB->DefaultFontName ? PCB->DefaultFontName : "(null)");
+    lab_pcbfont = gtk_label_new(str);
+    align = gtk_alignment_new(0,0,0,0);
+    gtk_container_add(GTK_CONTAINER(align), lab_pcbfont);
+    gtk_box_pack_start(GTK_BOX(vbox), align, FALSE, FALSE, 5);
+    free(str);
+    gtk_widget_set_tooltip_text(lab_pcbfont,
+        "The PCB font is used for all board object text that cannot be "
+        "specifically assigned a font, such as element text (e.g. ref des).");
+
+    
+    hbox = gtk_hbox_new (TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+    
+    list_sysfont = gtk_tree_view_new();
+    gtk_box_pack_start(GTK_BOX(hbox), list_sysfont, TRUE, TRUE, 5);
+
+    list_embfont = gtk_tree_view_new();
+    gtk_box_pack_start(GTK_BOX(hbox), list_embfont, TRUE, TRUE, 5);
+    
+    hbox = gtk_hbox_new (TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+    
+    
+    /* The gpointer passed to these callbacks is only used as an indicator of
+     what the callback should do. So, we can really pass any value we want.
+     We have to cast to a pointer though in order to avoid compile warnings.
+     */
+    btn = gtk_button_new_with_mnemonic("Set System Font");
+    gtk_box_pack_start (GTK_BOX (hbox), btn, FALSE, FALSE, 0);
+    g_signal_connect(btn, "clicked", G_CALLBACK(config_fonts_setbtn_cb), &Settings.Font);
+    
+    btn = gtk_button_new_with_mnemonic("Set PCB Font");
+    gtk_box_pack_start (GTK_BOX (hbox), btn, FALSE, FALSE, 0);
+    g_signal_connect(btn, "clicked", G_CALLBACK(config_fonts_setbtn_cb), &PCB->DefaultFontName);
+
+    btn = gtk_button_new_with_mnemonic("Change All");
+    gtk_box_pack_start (GTK_BOX (hbox), btn, FALSE, FALSE, 0);
+    g_signal_connect(btn, "clicked", G_CALLBACK(config_fonts_setbtn_cb), (void*)1);
+
+    btn = gtk_button_new_with_mnemonic("Change Selected");
+    gtk_box_pack_start (GTK_BOX (hbox), btn, FALSE, FALSE, 0);
+    g_signal_connect(btn, "clicked", G_CALLBACK(config_fonts_setbtn_cb), (void*)2);
+    
+    /* Populate the font lists */
+    init_font_list(list_sysfont, "System Fonts");
+    for (iter=Settings.FontLibrary; iter; iter=iter->next)
+        add_to_font_list(list_sysfont, ((FontType*)iter->data)->Name);
+    init_font_list(list_embfont, "Embedded Fonts");
+    if (PCB->FontLibrary)
+      for (iter = PCB->FontLibrary; iter; iter=iter->next)
+        add_to_font_list(list_embfont, ((FontType*)iter->data)->Name);
+    
+    
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_sysfont));
+    
+    g_signal_connect(selection, "changed",
+                     G_CALLBACK(on_sel_font_changed), lab_sysfont);
+    
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_embfont));
+    
+    g_signal_connect(selection, "changed",
+                     G_CALLBACK(on_sel_font_changed), lab_sysfont);
+    
+    
+    gtk_widget_show_all (config_fonts_vbox);
+
+}
 
   /* --------------- The main config page -----------------
    */
@@ -2236,6 +2499,13 @@ ghid_config_window_show (void)
   config_colors_tab_create (vbox);
 
 
+  /* -- Fonts -- */
+  gtk_tree_store_append (model, &iter, NULL);
+  gtk_tree_store_set (model, &iter, CONFIG_NAME_COLUMN, _("Fonts"), -1);
+  vbox = config_page_create (model, &iter, config_notebook);
+  config_fonts_tab_create (vbox);
+
+    
   /* Create the tree view
    */
   treeview =
