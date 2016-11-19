@@ -2259,10 +2259,14 @@ config_fonts_tab_create(GtkWidget * tab_vbox)
     
     list_sysfont = gtk_tree_view_new();
     gtk_box_pack_start(GTK_BOX(hbox), list_sysfont, TRUE, TRUE, 5);
+    gtk_widget_set_tooltip_text(list_sysfont,
+        "System fonts are fonts pcb found in your font path.");
 
     list_embfont = gtk_tree_view_new();
     gtk_box_pack_start(GTK_BOX(hbox), list_embfont, TRUE, TRUE, 5);
-    
+    gtk_widget_set_tooltip_text(list_embfont,
+        "Embedded fonts stored in the current pcb file.");
+
     hbox = gtk_hbox_new (TRUE, 0);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     
