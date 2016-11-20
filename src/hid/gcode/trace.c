@@ -190,8 +190,8 @@ pointslope (privpath_t * pp, int i, int j, dpoint_t * ctr, dpoint_t * dir)
   }
   if (l == 0)
     {
-      dir->x = dir->y = 0;	/* sometimes this can happen when k=4:
-				   the two eigenvalues coincide */
+      dir->x = dir->y = 0;  /* sometimes this can happen when k=4:
+                   the two eigenvalues coincide */
     }
 }
 
