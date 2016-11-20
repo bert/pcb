@@ -1101,6 +1101,7 @@ ChangeTextName (LayerType *Layer, TextType *Text)
 
   /* calculate size of the bounding box */
   SetTextBoundingBox (&PCB->Font, Text);
+  r_insert_entry(Layer->text_tree, (BoxType *) Text, 0);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   DrawText (Layer, Text);
   return (old);
