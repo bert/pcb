@@ -97,13 +97,13 @@ Scale EPS output by the parameter @samp{num}.
 
 /* %start-doc options "92 Encapsulated Postscript Export"
 @ftable @code
-@cindex as-shown (EPS)
-@item --as-shown
+@cindex screen-layer-order (EPS)
+@item --screen-layer-order
 Export layers as shown on screen.
 @end ftable
 %end-doc
 */
-  {"as-shown", "Export layers as shown on screen",
+  {"screen-layer-order", "Export layers in the order shown on screen",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_as_shown 2
 

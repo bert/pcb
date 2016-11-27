@@ -290,12 +290,12 @@ Maximum width and height of the PNG output in pixels. No constraint, when set to
 
 /* %start-doc options "93 PNG Options"
 @ftable @code
-@item --as-shown
-Export layers as shown on screen.
+@item --screen-layer-order
+Export layers in the order shown on screen.
 @end ftable
 %end-doc
 */
-  {"as-shown", "Export layers as shown on screen",
+  {"screen-layer-order", "Export layers in the order shown on screen",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_as_shown 5
 
