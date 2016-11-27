@@ -1465,15 +1465,18 @@ MirrorBuffer (BufferType *Buffer)
   ENDALL_LOOP;
   ALLARC_LOOP (Buffer->Data);
   {
+    r_delete_entry(layer->arc_tree, (BoxType*)arc);
     arc->X = SWAP_X (arc->X);
     arc->Y = SWAP_Y (arc->Y);
     arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
     arc->Delta = SWAP_DELTA (arc->Delta);
     SetArcBoundingBox (arc);
+    r_insert_entry(layer->arc_tree, (BoxType*)arc, 0);
   }
   ENDALL_LOOP;
   ALLPOLYGON_LOOP (Buffer->Data);
   {
+    r_delete_entry(layer->polygon_tree, (BoxType*)polygon);
     POLYGONPOINT_LOOP (polygon);
     {
       point->X = SWAP_X (point->X);
@@ -1481,6 +1484,7 @@ MirrorBuffer (BufferType *Buffer)
     }
     END_LOOP;
     SetPolygonBoundingBox (polygon);
+    r_insert_entry(layer->polygon_tree, (BoxType*)polygon, 0);
   }
   ENDALL_LOOP;
   SetBufferBoundingBox (Buffer);
