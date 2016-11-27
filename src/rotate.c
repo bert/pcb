@@ -299,8 +299,11 @@ RotateArc (LayerType *Layer, ArcType *Arc)
 {
   EraseArc (Arc);
   r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
+  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   RotateArcLowLevel (Arc, CenterX, CenterY, Number);
   r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
+  ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
+
   DrawArc (Layer, Arc);
   Draw ();
   return (Arc);
