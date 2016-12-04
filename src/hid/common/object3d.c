@@ -248,6 +248,8 @@ get_contour_coord_n_in_step_mm (PLINE *contour, int n, double *x, double *y)
 static bool
 get_contour_edge_n_is_round (PLINE *contour, int n)
 {
+  VNODE *edge = &contour->head;
+
 #ifdef PERFECT_ROUND_CONTOURS
   if (contour->is_round)
     {
@@ -256,12 +258,44 @@ get_contour_edge_n_is_round (PLINE *contour, int n)
     }
 #endif
 
-  return false;
+  while (n > 0)
+    {
+      edge = edge->next; /* The VNODE structure is circularly linked, so wrapping is OK */
+      n--;
+    }
+
+  return edge->is_round;
+}
+
+/* Copied from polygon1.c */
+#define Vsub2(r,a,b)	{(r)[0] = (a)[0] - (b)[0]; (r)[1] = (a)[1] - (b)[1];}
+#define EDGE_BACKWARD_VERTEX(e) ((e))
+#define EDGE_FORWARD_VERTEX(e) ((e)->next)
+
+static int compare_ccw_cw (Vector a, Vector b, Vector c)
+{
+  double cross;
+  Vector ab;
+  Vector ac;
+
+  Vsub2 (ab, b, a);
+  Vsub2 (ac, c, a);
+
+  cross = (double) ab[0] * ac[1] - (double) ac[0] * ab[1];
+  if (cross > 0.0)
+    return 1;
+  else if (cross < 0.0)
+    return -1;
+  else
+    return 0;
 }
 
 static void
 get_contour_edge_n_round_geometry_in_step_mm (PLINE *contour, int n, double *cx, double *cy, double *r, bool *cw)
 {
+  VNODE *edge = &contour->head;
+  Vector center;
+
 #ifdef PERFECT_ROUND_CONTOURS
   if (contour->is_round)
     {
@@ -270,8 +304,23 @@ get_contour_edge_n_round_geometry_in_step_mm (PLINE *contour, int n, double *cx,
       *cy = COORD_TO_STEP_Y (PCB, contour->cy);
       *r = COORD_TO_MM (contour->radius);
       *cw = (contour->Flags.orient == PLF_INV);
+      return;
     }
 #endif
+
+  while (n > 0)
+    {
+      edge = edge->next; /* The VNODE structure is circularly linked, so wrapping is OK */
+      n--;
+    }
+
+  center[0] = edge->cx;
+  center[1] = edge->cy;
+
+  *cx = COORD_TO_STEP_X (PCB, edge->cx);
+  *cy = COORD_TO_STEP_Y (PCB, edge->cy);
+  *r = COORD_TO_MM (edge->radius);
+  *cw = (compare_ccw_cw (EDGE_BACKWARD_VERTEX (edge)->point, center, EDGE_FORWARD_VERTEX (edge)->point) > 0);
 }
 
 GList *
