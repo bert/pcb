@@ -3553,6 +3553,10 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
   (*dst)->xmin = src->xmin, (*dst)->xmax = src->xmax;
   (*dst)->ymin = src->ymin, (*dst)->ymax = src->ymax;
   (*dst)->area = src->area;
+  (*dst)->is_round = src->is_round;
+  (*dst)->cx = src->cx;
+  (*dst)->cy = src->cy;
+  (*dst)->radius = src->radius;
 
   for (cur = NEXT_EDGE (&src->head); cur != &src->head; cur = NEXT_VERTEX (cur))
     {
