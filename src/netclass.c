@@ -295,11 +295,14 @@ find_netname_for_object (int type, void *ptr1, void *ptr2, void *ptr3)
 {
   char *netname;
   int flag = CONNECTEDFLAG;
-  ClearFlagOnAllObjects (false /*AndDraw*/, flag, true /* store_undo */);
+  bool changed = false;
+
+  changed |= ClearFlagOnAllObjects (false /*AndDraw*/, flag, true /* store_undo */);
   /* Find a pin / pad which is connected, and grab the netname from this */
-  LookupConnectionByObject (type, ptr1, ptr2, ptr3, false /*AndDraw*/, flag, true /*AndRats*/, true /*store_undo*/);
+  LookupConnectionByObject (type, ptr1, ptr2, ptr3, false /*AndDraw*/, flag, true /*AndRats*/, true /*store_undo*/); /* This call bumps the undo serial number */
   netname = find_first_flagged_netname (flag);
-  Undo (true);
+//  if (changed)
+    Undo (true);
   return netname;
 }
 
@@ -308,11 +311,14 @@ find_netname_at_xy (LayerType *layer, Coord x, Coord y)
 {
   char *netname;
   int flag = CONNECTEDFLAG;
-  ClearFlagOnAllObjects (false /*AndDraw*/, flag, true /*store_undo*/);
+  bool changed = false;
+
+  changed |= ClearFlagOnAllObjects (false /*AndDraw*/, flag, true /*store_undo*/);
   /* Find a pin / pad which is connected, and grab the netname from this */
-  LookupConnection (x, y, false /*AndDraw*/, 0 /*Range*/, flag, true /*AndRats*/, true /*store_undo*/);
+  LookupConnection (x, y, false /*AndDraw*/, 0 /*Range*/, flag, true /*AndRats*/, true /*store_undo*/); /* This call bumps the undo serial number */
   netname = find_first_flagged_netname (flag);
-  Undo (true);
+//  if (changed)
+    Undo (true);
   return netname;
 }
 

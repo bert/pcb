@@ -913,6 +913,7 @@ NotifyLine (void)
                                    &ptr3);
               LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false, true);
               LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true, true);
+              /* XXX: What about undo serial number? */
             }
           /* XXX: NEED TO FIGURE OUT WHAT NET CLASS THIS IS, AND/OR STORE FOR USE WITH DRC */
 	  Crosshair.Netclass = get_netclass_at_xy (LAYER_ON_STACK(0), Crosshair.X, Crosshair.Y); /* XXX: Not sure about the layer! */
