@@ -63,3 +63,5 @@ step_id step_styled_item (step_file *file, char *name, step_id_list styles, step
 step_id step_over_riding_styled_item (step_file *file, char *name, step_id_list styles, step_id item, step_id over_ridden_style);
 step_id step_presentation_layer_assignment (step_file *file, char *name, char *description, step_id_list assigned_items);
 step_id step_mechanical_design_geometric_presentation_representation (step_file *file, char *name, step_id_list items, step_id context_of_items);
+step_id step_representation_map (step_file *file, step_id mapping_origin, step_id mapped_representation);
+step_id step_mapped_item (step_file *file, char *name, step_id mapping_source, step_id mapping_target);

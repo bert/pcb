@@ -491,3 +491,19 @@ step_mechanical_design_geometric_presentation_representation (step_file *file, c
 
   return file->next_id++;
 }
+
+step_id
+step_representation_map (step_file *file, step_id mapping_origin, step_id mapped_representation)
+{
+  fprintf (file->f, "#%i=REPRESENTATION_MAP(#%i,#%i);\n", file->next_id, mapping_origin, mapped_representation);
+
+  return file->next_id++;
+}
+
+step_id
+step_mapped_item (step_file *file, char *name, step_id mapping_source, step_id mapping_target)
+{
+  fprintf (file->f, "#%i=MAPPED_ITEM('%s',#%i,#%i);\n", file->next_id, name, mapping_source, mapping_target);
+
+  return file->next_id++;
+}

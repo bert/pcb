@@ -372,6 +372,14 @@ object3d_to_step_body_fragment (step_file *step,
 #undef REV
 }
 
+static step_id
+make_origin_axis (step_file *step)
+{
+  return step_axis2_placement_3d (step, "NONE",
+                                  step_cartesian_point (step, "NONE", 0.0, 0.0, 0.0),
+                                        step_direction (step, "NONE", 0.0, 0.0, 1.0),
+                                        step_direction (step, "NONE", 1.0, 0.0, 0.0));
+}
 
 static void
 step_absr_fragment (step_file *step,
@@ -388,10 +396,16 @@ step_absr_fragment (step_file *step,
   step_id shape_definition_representation_identifier;
 
   /* Need an anchor in 3D space to orient the shape */
-  anchor_axis_identifier = step_axis2_placement_3d (step, "NONE",
-                                                    step_cartesian_point (step, "NONE", 0.0, 0.0, 0.0),
-                                                          step_direction (step, "NONE", 0.0, 0.0, 1.0),
-                                                          step_direction (step, "NONE", 1.0, 0.0, 0.0)),
+  if (placement_axis == NULL || *placement_axis == 0)
+    {
+      anchor_axis_identifier = make_origin_axis (step);
+      if (placement_axis != NULL)
+        *placement_axis = anchor_axis_identifier;
+    }
+  else
+    {
+      anchor_axis_identifier = *placement_axis;
+    }
 
   shape_representation_identifier =
     step_advanced_brep_shape_representation (step, "test_pcb_absr_name",
@@ -404,11 +418,12 @@ step_absr_fragment (step_file *step,
   /* Emit references to the styled and over_ridden styled items */
   step_mechanical_design_geometric_presentation_representation (step, "", styled_item_list, geometric_representation_context_identifier);
 
+  if (shape_representation != NULL)
+    *shape_representation = shape_representation_identifier;
+
   if (shape_definition_representation != NULL)
     *shape_definition_representation = shape_definition_representation_identifier;
 
-  if (placement_axis != NULL)
-    *placement_axis = anchor_axis_identifier;
 }
 
 void
@@ -419,7 +434,6 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
   step_id product_definition_shape;
   step_id shape_representation;
   step_id shape_definition_representation;
-  step_id placement_axis;
   step_id comp_brep;
   GList *object_iter;
   int part;
@@ -482,7 +496,7 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
                       product_definition_shape,
                       &shape_representation,
                       &shape_definition_representation,
-                      &placement_axis);
+                      NULL /* placement_axis */);
 
   g_hash_table_destroy (appear_hash);
   finish_ap214_file (step);
@@ -490,7 +504,8 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
 
 static void
 object3d_to_step_fragment (step_file *step, object3d *object, char *part_id, char *part_name, char *part_description, char *body_name,
-                           step_id *shape_definition_representation, step_id *placement_axis, GHashTable *appear_hash)
+                           step_id *shape_representation,step_id *shape_definition_representation,
+                           step_id *placement_axis, GHashTable *appear_hash)
 {
   step_id product_definition_shape_identifier;
   step_id geometric_representation_context_identifier;
@@ -508,7 +523,7 @@ object3d_to_step_fragment (step_file *step, object3d *object, char *part_id, cha
                       styled_item_identifiers,
                       geometric_representation_context_identifier,
                       product_definition_shape_identifier,
-                      NULL /* shape_representation */,
+                      shape_representation,
                       shape_definition_representation,
                       placement_axis);
 }
@@ -517,25 +532,33 @@ void
 object3d_list_export_to_step_assy (GList *objects, const char *filename)
 {
   step_file *step;
-  step_id comp_shape_definition_representation;
-  step_id comp_placement_axis;
+  step_id origin_axis;
+  step_id comp_shape_representation;
+  step_id_list sub_items;
   GList *object_iter;
   int part;
   bool multiple_parts;
   GHashTable *appear_hash;
+
+  step_id assy_product_definition_shape_identifier;
+  step_id assy_geometric_representation_context_identifier;
 
   appear_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)g_list_free);
 
   multiple_parts = (g_list_next (objects) != NULL);
 
   step = start_ap214_file (filename);
+  sub_items = make_step_id_list (0);
+  origin_axis = make_origin_axis (step);
 
   for (object_iter = objects, part = 1;
        object_iter != NULL;
        object_iter = g_list_next (object_iter), part++)
     {
-
       object3d *object = object_iter->data;
+      step_id comp_placement_axis = 0;
+      step_id representation_map;
+      step_id mapped_item;
       GString *part_id;
       GString *part_name;
       GString *body_name;
@@ -563,17 +586,39 @@ object3d_list_export_to_step_assy (GList *objects, const char *filename)
         }
 
       object3d_to_step_fragment (step, object, part_id->str, part_name->str, "PCB model", body_name->str,
-                                 &comp_shape_definition_representation, &comp_placement_axis, appear_hash);
+                                 &comp_shape_representation, NULL /*shape_definition_representation*/, &comp_placement_axis, appear_hash);
+
+      representation_map = step_representation_map (step, origin_axis, comp_shape_representation);
+      mapped_item = step_mapped_item (step, "", representation_map, origin_axis /*new_axis*/);
+      sub_items = step_id_list_append (sub_items, mapped_item);
 
       g_string_free (part_id, true);
       g_string_free (part_name, true);
       g_string_free (body_name, true);
     }
 
+  /* XXX: TODO: MAKE AN ASSEMBLY PRODUCT AND GATHER THE ABOVE PIECES INSIDE IT */
+
+  sub_items = step_id_list_append (sub_items, origin_axis);
+
+  step_product_fragment (step, "Assem1", "Assem1", "PART-Assem1-DESC",
+                         &assy_geometric_representation_context_identifier,
+                         &assy_product_definition_shape_identifier);
+
+//  object3d_to_step_body_fragment (step, object, body_name, &brep_identifier, &styled_item_identifiers, appear_hash);
+
+  step_absr_fragment (step,
+                      sub_items,
+                      NULL, //styled_item_identifiers,
+                      assy_geometric_representation_context_identifier,
+                      assy_product_definition_shape_identifier,
+                      NULL /* shape_representation */,
+                      NULL /* shape_definition_representation */,
+                      &origin_axis); /* This is set, not NULL so is taken as an input */
+
+
   g_hash_table_destroy (appear_hash);
   finish_ap214_file (step);
-
-  /* XXX: TODO: MAKE AN ASSEMBLY PRODUCT AND GATHER THE ABOVE PIECES INSIDE IT */
 }
 
 void
@@ -582,6 +627,6 @@ object3d_export_to_step (object3d *object, const char *filename)
   step_file *step;
 
   step = start_ap214_file (filename);
-  object3d_to_step_fragment (step, object, "board", "PCB board", "PCB model", "PCB board body", NULL, NULL, NULL);
+  object3d_to_step_fragment (step, object, "board", "PCB board", "PCB model", "PCB board body", NULL, NULL, NULL, NULL);
   finish_ap214_file (step);
 }

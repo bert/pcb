@@ -146,6 +146,71 @@ find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, const char *
 #endif
 }
 
+static SdaiProduct_definition *
+find_pd_for_sr (InstMgr *instance_list, SdaiShape_representation *target_sr)
+{
+  int search_index = 0;
+
+  // Loop over the instances of SHAPE_DEFITION_REPRESENTATION in the file
+  SdaiShape_definition_representation *sdr;
+  while (ENTITY_NULL != (sdr = (SdaiShape_definition_representation *)
+                               instance_list->GetApplication_instance ("Shape_definition_representation", search_index)))
+    {
+      SdaiShape_representation *sr = (SdaiShape_representation *)sdr->used_representation_ ();
+      SdaiProduct_definition_shape *pds = (SdaiProduct_definition_shape *)(SdaiProperty_definition_ptr)(*sdr->definition_ ());
+      SdaiProduct_definition *pd = *(SdaiCharacterized_product_definition_ptr)(*pds->definition_ ());
+
+      if (sr == target_sr)
+        return pd;
+
+      int id = sdr->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+
+  return NULL;
+}
+
+void
+find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list)
+{
+  int search_index = 0;
+
+  SdaiMapped_item *mi;
+  while (ENTITY_NULL != (mi = (SdaiMapped_item *)
+                               instance_list->GetApplication_instance ("Mapped_item", search_index)))
+    {
+      SdaiRepresentation_map *mapping_source = mi->mapping_source_ ();
+//      SdaiRepresentation_item *mapping_item = mi->mapping_item_ (); // E.g. an axis
+
+//      SdaiRepresentation_item *mapping_origin = mapping_source->mapping_origin_ (); // <- Eg. an axis
+      SdaiRepresentation *mapped_representation = mapping_source->mapped_representation_ (); // <- Shape representation of the product which is a child
+
+      SdaiProduct_definition *child_pd = find_pd_for_sr (instance_list, (SdaiShape_representation *)mapped_representation);
+      /* Need to find product_definition which has PD<-PDS.definition_<-SDR.definition_SDR.used_representation->SR */
+
+//      SdaiProduct_definition *related_pd = mi->related_product_definition_ ();
+
+#ifdef DEBUG_CHILD_REMOVAL
+//      SdaiProduct_definition *relating_pd = acu->relating_product_definition_ ();
+
+      std::cout << "Product " << child_pd->formation_ ()->of_product_ ()->id_ ().c_str ();
+      std::cout << " is a child of " << "???"; // << relating_pd->formation_ ()->of_product_ ()->id_ ().c_str ();
+      std::cout << ".. removing it from list of possible root products";
+      std::cout << std::endl;
+#endif
+
+      /* Remove related_pd from the list of viable product definitions */
+      pd_list->remove (child_pd);
+
+      int id = mi->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+#ifdef DEBUG_CHILD_REMOVAL
+  std::cout << std::endl;
+#endif
+}
 
 SdaiShape_definition_representation *
 find_sdr_for_pd (InstMgr *instance_list, SdaiProduct_definition *target_pd)

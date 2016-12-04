@@ -744,6 +744,7 @@ append_model_from_file (Registry *registry,
   /*  Try to determine the root product */
   find_and_remove_child_pd (instance_list, &pd_list, "Next_assembly_usage_occurrence"); // Remove any PD which are children of another via NAUO
   find_and_remove_child_pd (instance_list, &pd_list, "Assembly_component_usage");       // Remove any PD which are children of another via ACU
+  find_and_remove_child_pd_mi_rm_sr (instance_list, &pd_list); // Remove any PD which are children of another via MAPPED_ITEM->REPRESENTATION_MAP->SHAPE_REPRESENTATION
 
 #ifdef DEBUG_PRODUCT_DEFINITION_SEARCH
   std::cout << "Hopefully left with the root product definition" << std::endl;

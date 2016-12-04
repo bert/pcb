@@ -35,6 +35,7 @@ void find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list);
  * typically this will be "Assembly_component_usage" or "Next_assembly_usage_occurance"
  */
 void find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, const char *entityName);
+void find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list);
 
 SdaiShape_definition_representation *find_sdr_for_pd (InstMgr *instance_list, SdaiProduct_definition *target_pd);
 
