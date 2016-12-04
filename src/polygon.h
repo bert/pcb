@@ -39,7 +39,7 @@
 
 /* Implementation constants */
 
-#define POLY_CIRC_SEGS 24 //20 //8 //40
+#define POLY_CIRC_SEGS 40 //24 //20 //8 //40
 #define POLY_CIRC_SEGS_D ((double)POLY_CIRC_SEGS)
 
 #if 0
