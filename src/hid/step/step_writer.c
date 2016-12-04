@@ -71,12 +71,27 @@ step_file
   file->f = f;
   file->next_id = 1;
 
+  file->cartesian_point_hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->direction_hash =       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->vector_hash =          g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->axis2_hash =           g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->colour_hash =          g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->cylindrical_hash =     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  file->circle_hash =          g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
   return file;
 }
 
 void
 destroy_step_output_file (step_file *file)
 {
+  g_hash_table_destroy (file->cartesian_point_hash);
+  g_hash_table_destroy (file->direction_hash);
+  g_hash_table_destroy (file->vector_hash);
+  g_hash_table_destroy (file->axis2_hash);
+  g_hash_table_destroy (file->colour_hash);
+  g_hash_table_destroy (file->cylindrical_hash);
+  g_hash_table_destroy (file->circle_hash);
   g_free (file);
 }
 
@@ -95,6 +110,23 @@ make_3d_metric_step_geometric_representation_context (step_file *file)
                           "REPRESENTATION_CONTEXT('NONE','WORKASPACE'));\n",
                     file->next_id + 4, file->next_id + 3, file->next_id, file->next_id + 1, file->next_id + 2);
   file->next_id += 4;
+
+  return file->next_id++;
+}
+
+static step_id
+lookup_or_create (step_file *file, GHashTable *hash, const char *entity, char *content)
+{
+  step_id id;
+
+  if ((id = GPOINTER_TO_INT (g_hash_table_lookup (hash, content))) != 0)
+    {
+      g_free (content);
+      return id;
+    }
+
+  g_hash_table_insert (hash, content, GINT_TO_POINTER (file->next_id));
+  fprintf (file->f, "#%i=%s(%s);\n", file->next_id, entity, content);
 
   return file->next_id++;
 }
@@ -191,25 +223,22 @@ step_product_definition_shape (step_file *file, char *name, char *description, s
 step_id
 step_cartesian_point (step_file *file, char *name, double x, double y, double z)
 {
-  fprintf (file->f, "#%i=CARTESIAN_POINT('%s',(%f,%f,%f));\n",
-                    file->next_id, name, x, y, z);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',(%f,%f,%f)", name, x, y, z);
+  return lookup_or_create (file, file->cartesian_point_hash, "CARTESIAN_POINT", content);
 }
 
 step_id
 step_direction (step_file *file, char *name, double x, double y, double z)
 {
-  fprintf (file->f, "#%i=DIRECTION('%s',(%f,%f,%f));\n",
-                    file->next_id, name, x, y, z);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',(%f,%f,%f)", name, x, y, z);
+  return lookup_or_create (file, file->direction_hash, "DIRECTION", content);
 }
 
 step_id
 step_axis2_placement_3d (step_file *file, char *name, step_id location, step_id axis, step_id ref_direction)
 {
-  fprintf (file->f, "#%i=AXIS2_PLACEMENT_3D('%s',#%i,#%i,#%i);\n",
-                    file->next_id, name, location, axis, ref_direction);
-  return file->next_id++;
+  char *content =  g_strdup_printf ("'%s',#%i,#%i,#%i", name, location, axis, ref_direction);
+  return lookup_or_create (file, file->axis2_hash, "AXIS2_PLACEMENT_3D", content);
 }
 
 step_id
@@ -223,25 +252,22 @@ step_plane (step_file *file, char *name, step_id position)
 step_id
 step_cylindrical_surface (step_file *file, char *name, step_id position, double radius)
 {
-  fprintf (file->f, "#%i=CYLINDRICAL_SURFACE('%s',#%i,%f);\n",
-                    file->next_id, name, position, radius);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',#%i,%f", name, position, radius);
+  return lookup_or_create (file, file->cylindrical_hash, "CYLINDRICAL_SURFACE", content);
 }
 
 step_id
 step_circle (step_file *file, char *name, step_id position, double radius)
 {
-  fprintf (file->f, "#%i=CIRCLE('%s',#%i,%f);\n",
-                    file->next_id, name, position, radius);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',#%i,%f", name, position, radius);
+  return lookup_or_create (file, file->circle_hash, "CIRCLE", content);
 }
 
 step_id
 step_vector (step_file *file, char *name, step_id orientation, double magnitude)
 {
-  fprintf (file->f, "#%i=VECTOR('%s',#%i,%f);\n",
-                    file->next_id, name, orientation, magnitude);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',#%i,%f", name, orientation, magnitude);
+  return lookup_or_create (file, file->vector_hash, "VECTOR", content);
 }
 
 step_id
@@ -357,9 +383,8 @@ step_shape_definition_representation (step_file *file, step_id definition, step_
 step_id
 step_colour_rgb (step_file *file, char *name, double red, double green, double blue)
 {
-  fprintf (file->f, "#%i=COLOUR_RGB('%s',%f,%f,%f);\n",
-                    file->next_id, name, red, green, blue);
-  return file->next_id++;
+  char *content = g_strdup_printf ("'%s',%f,%f,%f", name, red, green, blue);
+  return lookup_or_create (file, file->colour_hash, "COLOUR_RGB", content);
 }
 
 step_id
