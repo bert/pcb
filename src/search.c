@@ -1157,6 +1157,74 @@ IsPointOnArc (Coord X, Coord Y, Coord Radius, ArcType *Arc)
   return fabs (Distance (X, Y, Arc->X, Arc->Y) - Arc->Width) < Radius + Arc->Thickness / 2;
 }
 
+static unsigned int
+SearchLayerObjectInternal (LayerType *layer,
+                           unsigned int Type,
+                           unsigned int HigherAvail,
+                           double HigherBound,
+                           void **Result1,
+                           void **Result2,
+                           void **Result3)
+{
+  int locked = Type & LOCKED_TYPE;
+
+  if (!layer->On)
+    return NO_TYPE;
+
+  SearchLayer = layer;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+      Type & POLYGONPOINT_TYPE &&
+      SearchPointByLocation (locked, (LayerType **)Result1, (PolygonType **) Result2, (PointType **) Result3))
+    return POLYGONPOINT_TYPE;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+      Type & LINEPOINT_TYPE &&
+      SearchLinePointByLocation (locked, (LayerType **)Result1, (LineType **) Result2, (PointType **) Result3))
+    return LINEPOINT_TYPE;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & LINE_TYPE
+      && SearchLineByLocation (locked, (LayerType **)Result1, (LineType **) Result2, (LineType **) Result3))
+    return LINE_TYPE;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+      Type & ARCPOINT_TYPE &&
+      SearchArcPointByLocation (locked, (LayerType **)Result1, (ArcType **) Result2, (PointType **) Result3))
+    return ARCPOINT_TYPE;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & ARC_TYPE &&
+      SearchArcByLocation (locked, (LayerType **)Result1, (ArcType **) Result2, (ArcType **) Result3))
+    return ARC_TYPE;
+
+  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & TEXT_TYPE
+      && SearchTextByLocation (locked, (LayerType **)Result1, (TextType **) Result2, (TextType **) Result3))
+    return TEXT_TYPE;
+
+  if (Type & POLYGON_TYPE &&
+      SearchPolygonByLocation (locked, (LayerType **)Result1, (PolygonType **) Result2, (PolygonType **) Result3))
+    {
+      if (HigherAvail)
+        {
+          BoxType *box =
+            &(*(PolygonType **) Result2)->BoundingBox;
+          double area =
+            (double) (box->X2 - box->X1) * (double) (box->X2 - box->X1);
+          /* XXX: BEHAVIOURAL CHANGE */
+          if (HigherBound < area)
+//            break;
+            return NO_TYPE;
+          else
+            return POLYGON_TYPE;
+        }
+      else
+        {
+          return POLYGON_TYPE;
+        }
+    }
+
+  return NO_TYPE;
+}
+
 /*!
  * \brief Searches for any kind of object or for a set of object types
  * the calling routine passes two pointers to allocated memory for
@@ -1184,8 +1252,9 @@ SearchObjectByLocation (unsigned Type,
   void **pr1 = &r1, **pr2 = &r2, **pr3 = &r3;
   int i;
   double HigherBound = 0;
-  int HigherAvail = NO_TYPE;
+  unsigned int HigherAvail = NO_TYPE;
   int locked = Type & LOCKED_TYPE;
+  unsigned int type;
   /* setup variables used by local functions */
   PosX = X;
   PosY = Y;
@@ -1265,88 +1334,35 @@ SearchObjectByLocation (unsigned Type,
       HigherBound = (double) (box->X2 - box->X1) * (double) (box->Y2 - box->Y1);
       HigherAvail = ELEMENT_TYPE;
     }
+/* uncomment if merged with peterc_layers
+  type = SearchLayerObjectInternal (&PCB->Data->SOLDERMASKLAYER, Type, HigherAvail, HigherBound, Result1, Result2, Result3);
+  if (type != NO_TYPE)
+    return type;
+*/
+  type = SearchLayerObjectInternal (&PCB->Data->SILKLAYER, Type, HigherAvail, HigherBound, Result1, Result2, Result3);
+  if (type != NO_TYPE)
+    return type;
 
-  for (i = -1; i < max_copper_layer + 1; i++)
+  for (i = 0; i < max_copper_layer; i++)
     {
-      if (i < 0)
-	SearchLayer = &PCB->Data->SILKLAYER;
-      else if (i < max_copper_layer)
-	SearchLayer = LAYER_ON_STACK (i);
-      else
-	{
-	  SearchLayer = &PCB->Data->BACKSILKLAYER;
-	  if (!PCB->InvisibleObjectsOn)
-	    continue;
-	}
-      if (SearchLayer->On)
-	{
-	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
-	      Type & POLYGONPOINT_TYPE &&
-	      SearchPointByLocation (locked,
-				     (LayerType **) Result1,
-				     (PolygonType **) Result2,
-				     (PointType **) Result3))
-	    return (POLYGONPOINT_TYPE);
-
-	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
-	      Type & LINEPOINT_TYPE &&
-	      SearchLinePointByLocation (locked,
-					 (LayerType **) Result1,
-					 (LineType **) Result2,
-					 (PointType **) Result3))
-	    return (LINEPOINT_TYPE);
-
-	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & LINE_TYPE
-	      && SearchLineByLocation (locked,
-				       (LayerType **) Result1,
-				       (LineType **) Result2,
-				       (LineType **) Result3))
-	    return (LINE_TYPE);
-
-    if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
-	      Type & ARCPOINT_TYPE &&
-	      SearchArcPointByLocation (locked,
-					(LayerType **) Result1,
-					(ArcType **) Result2,
-					(PointType **) Result3))
-	    return (ARCPOINT_TYPE);
-
-	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & ARC_TYPE &&
-	      SearchArcByLocation (locked,
-				   (LayerType **) Result1,
-				   (ArcType **) Result2,
-				   (ArcType **) Result3))
-	    return (ARC_TYPE);
-
-	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & TEXT_TYPE
-	      && SearchTextByLocation (locked,
-				       (LayerType **) Result1,
-				       (TextType **) Result2,
-				       (TextType **) Result3))
-	    return (TEXT_TYPE);
-
-	  if (Type & POLYGON_TYPE &&
-	      SearchPolygonByLocation (locked,
-				       (LayerType **) Result1,
-				       (PolygonType **) Result2,
-				       (PolygonType **) Result3))
-	    {
-	      if (HigherAvail)
-		{
-		  BoxType *box =
-		    &(*(PolygonType **) Result2)->BoundingBox;
-		  double area =
-		    (double) (box->X2 - box->X1) * (double) (box->X2 - box->X1);
-		  if (HigherBound < area)
-		    break;
-		  else
-		    return (POLYGON_TYPE);
-		}
-	      else
-		return (POLYGON_TYPE);
-	    }
-	}
+      type = SearchLayerObjectInternal (LAYER_ON_STACK (i), Type, HigherAvail, HigherBound, Result1, Result2, Result3);
+      if (type != NO_TYPE)
+        return type;
     }
+
+  if (PCB->InvisibleObjectsOn)
+    {
+      type = SearchLayerObjectInternal (&PCB->Data->BACKSILKLAYER, Type, HigherAvail, HigherBound, Result1, Result2, Result3);
+      if (type != NO_TYPE)
+        return type;
+
+/* uncomment if merged with peterc_layers
+      type = SearchLayerObjectInternal (&PCB->Data->BACKSOLDERMASKLAYER, Type, HigherAvail, HigherBound, Result1, Result2, Result3);
+      if (type != NO_TYPE)
+        return type;
+*/
+    }
+
   /* return any previously found objects */
   if (HigherAvail & PIN_TYPE)
     {
