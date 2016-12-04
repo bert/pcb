@@ -890,7 +890,8 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   ptr = Crosshair.AttachedObject.Rubberband;
   while (Crosshair.AttachedObject.RubberbandN)
     {
-      if (Type == LINE_TYPE)
+      if (Type == LINE_TYPE &&
+          ptr->Layer != NULL)
         {
           double x, y, multiplier;
 
