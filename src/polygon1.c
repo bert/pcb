@@ -108,6 +108,9 @@ double vect_len2 (Vector v1);
 
 int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 		  Vector S2);
+int vect_inters2_fp (double p1[2], double p2[2],
+                     double q1[2], double q2[2],
+                     double S1[2], double S2[2]);
 
 /* note that a vertex v's Flags.status represents the edge defined by
  * v to v->next (i.e. the edge is forward of v)
@@ -150,6 +153,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #undef DEBUG_GATHER
 #undef DEBUG_ANGLE
 #undef DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define DEBUGP(...) pcb_fprintf(stderr, ## __VA_ARGS__)
 #else
@@ -661,7 +665,7 @@ edge_label (VNODE * pn, int existing_label)
        */
       region = (l->side == 'P') ? SHARED2 : SHARED;
       pn->shared = VERTEX_SIDE_DIR_EDGE (l->parent, l->side);
-      cvc_list_dump (l);
+//      cvc_list_dump (l);
     }
   else
     {
@@ -738,18 +742,21 @@ struct _insert_node_task
   insert_node_task *next;
   seg * node_seg;
   VNODE *new_node;
+  POLYAREA *poly;
 };
 
 typedef struct info
 {
   double m, b;
-  rtree_t *tree;
+//  rtree_t *tree;
   VNODE *v;
   struct seg *s;
   jmp_buf *env, sego, *touch;
   int need_restart;
   insert_node_task *node_insert_list;
   bool debug;
+  POLYAREA *looping_over_poly;
+  POLYAREA *rtree_over_poly;
 } info;
 
 typedef struct contour_info
@@ -759,6 +766,8 @@ typedef struct contour_info
   jmp_buf *getout;
   int need_restart;
   insert_node_task *node_insert_list;
+  POLYAREA *looping_over_poly;
+  POLYAREA *rtree_over_poly;
 } contour_info;
 
 
@@ -829,12 +838,13 @@ seg_in_region (const BoxType * b, void *cl)
  * \brief Prepend a deferred node-insersion task to a list.
  */
 static insert_node_task *
-prepend_insert_node_task (insert_node_task *list, seg *seg, VNODE *new_node)
+prepend_insert_node_task (insert_node_task *list, POLYAREA *poly, seg *seg, VNODE *new_node)
 {
   insert_node_task *task = (insert_node_task *)malloc (sizeof (*task));
   task->node_seg = seg;
   task->new_node = new_node;
   task->next = list;
+  task->poly = poly;
   return task;
 }
 
@@ -890,7 +900,7 @@ seg_in_seg (const BoxType * b, void *cl)
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
 	  i->node_insert_list =
-	    prepend_insert_node_task (i->node_insert_list, i->s, new_node);
+	    prepend_insert_node_task (i->node_insert_list, i->looping_over_poly, i->s, new_node);
 	  i->s->intersected = 1;
 	  done_insert_on_i = true;
 	}
@@ -902,7 +912,7 @@ seg_in_seg (const BoxType * b, void *cl)
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
 	  i->node_insert_list =
-	    prepend_insert_node_task (i->node_insert_list, s, new_node);
+	    prepend_insert_node_task (i->node_insert_list, i->rtree_over_poly, s, new_node);
 	  s->intersected = 1;
 	  return 0; /* Keep looking for intersections with segment "i" */
 	}
@@ -970,6 +980,287 @@ get_seg (const BoxType * b, void *cl)
 }
 
 /*!
+ * \brief intersect_rounded() (and helpers).
+ *
+ * (C) 2006, harry eaton.
+ *
+ * (C) 2016, Peter Clifton
+ *
+ * Handling of snap-rounding edges against other vertex end-points
+ *
+ * This uses an rtree to find A-B intersections. Whenever a new vertex is
+ * added, the search for intersections is re-started because the rounding
+ * could alter the topology otherwise.
+ * This should use a faster algorithm for snap rounding intersection finding.
+ * The best algorthim is probably found in:
+ *
+ * "Improved output-sensitive snap rounding," John Hershberger,
+ * Proceedings of the 22nd annual symposium on Computational geomerty,
+ * 2006, pp 357-366.
+ *
+ * http://doi.acm.org/10.1145/1137856.1137909
+ *
+ * Algorithms described by de Berg, or Goodrich or Halperin, or Hobby
+ * would probably work as well.
+ */
+
+static bool
+process_deferred_intersections (/*POLYAREA *b, */insert_node_task *task)
+{
+  bool any_inserted = false;
+
+  while (task != NULL)
+    {
+      insert_node_task *next = task->next;
+
+      /* XXX: If a node was inserted due to an intersection, don't assume we're on the a round contour any more */
+      task->node_seg->v->is_round = false;
+
+      /* Do insersion */
+      PREV_VERTEX (task->new_node) = EDGE_BACKWARD_VERTEX (task->node_seg->v);
+      NEXT_VERTEX (task->new_node) = EDGE_FORWARD_VERTEX (task->node_seg->v);
+      PREV_VERTEX (EDGE_FORWARD_VERTEX (task->node_seg->v)) = task->new_node;
+      EDGE_FORWARD_VERTEX (task->node_seg->v) = task->new_node;
+      task->node_seg->p->Count++;
+
+      if (cntrbox_check (task->node_seg->p, task->new_node->point))
+        {
+          /* First delete the contour from the contour r-tree, as its bounds
+           * may be adjusted whilst inserting nodes
+           */
+          r_delete_entry (task->poly->contour_tree, (const BoxType *) task->node_seg->p);
+          cntrbox_adjust (task->node_seg->p, task->new_node->point);
+          r_insert_entry (task->poly->contour_tree, (const BoxType *) task->node_seg->p, 0);
+        }
+
+      if (adjust_tree (task->node_seg->p->tree, task->node_seg))
+        assert (0); /* XXX: Memory allocation failure */
+
+      any_inserted = true; /* Any new nodes could intersect */
+
+      free (task);
+      task = next;
+    }
+
+  return any_inserted;
+}
+
+/*!
+ * \brief line_point_inters
+ *
+ * Based upon vect_inters2
+ *
+ * (C) 1993 Klamer Schutte.
+ *
+ * (C) 1997 Michael Leonov, Alexey Nikitin.
+ */
+static bool
+line_point_inters (Vector p1, Vector p2, Vector point)
+{
+  double p1_fp[2] = {p1[0], p1[1]};
+  double p2_fp[2] = {p2[0], p2[1]};
+  double q1_fp[2];
+  double q2_fp[2];
+  double s1_fp[2];
+  double s2_fp[2];
+
+  q1_fp[0] = point[0] - 0.5;
+  q2_fp[0] = point[0] + 0.5;
+  q1_fp[1] = point[1] - 0.5;
+  q2_fp[1] = point[1] - 0.5;
+
+  if (vect_inters2_fp (p1_fp, p2_fp, q1_fp, q2_fp, /* out */s1_fp, s2_fp) > 0)
+    return true;
+
+  q1_fp[0] = point[0] + 0.5;
+  q2_fp[0] = point[0] + 0.5;
+  q1_fp[1] = point[1] - 0.5;
+  q2_fp[1] = point[1] + 0.5;
+
+  if (vect_inters2_fp (p1_fp, p2_fp, q1_fp, q2_fp, /* out */s1_fp, s2_fp) > 0)
+    return true;
+
+  q1_fp[0] = point[0] - 0.5;
+  q2_fp[0] = point[0] + 0.5;
+  q1_fp[1] = point[1] + 0.5;
+  q2_fp[1] = point[1] + 0.5;
+
+  if (vect_inters2_fp (p1_fp, p2_fp, q1_fp, q2_fp, /* out */s1_fp, s2_fp) > 0)
+    return true;
+
+  q1_fp[0] = point[0] - 0.5;
+  q2_fp[0] = point[0] - 0.5;
+  q1_fp[1] = point[1] - 0.5;
+  q2_fp[1] = point[1] + 0.5;
+
+  if (vect_inters2_fp (p1_fp, p2_fp, q1_fp, q2_fp, /* out */s1_fp, s2_fp) > 0)
+    return true;
+
+  return false;
+}
+
+/*!
+ * \brief vertex_in_seg_rounded().
+ *
+ * (C) 2006 harry eaton.
+ *
+ * (C) 2016 Peter Clifton
+ *
+ * This routine checks if the segment in the tree intersect the search
+ * segment.
+ * If it does, the plines are marked as intersected and the point is
+ * marked for the cvclist.
+ * If the point is not already a vertex, a new vertex is inserted and
+ * the search for intersections starts over at the beginning.
+ * That is potentially a significant time penalty, but it does solve the
+ * snap rounding problem.
+ *
+ * \todo There are efficient algorithms for finding intersections with
+ * snap rounding, but I don't have time to implement them right now.
+ */
+static int
+vertex_in_seg_rounded (const BoxType * b, void *cl)
+{
+  struct info *i = (struct info *) cl;
+  struct seg *s = (struct seg *) b;
+  VNODE *new_node;
+
+  /* When new nodes are added at the end of a pass due to an intersection
+   * the segments may be altered. If either segment we're looking at has
+   * already been intersected this pass, skip it until the next pass.
+   */
+  if (s->intersected)
+    return 0;
+
+  if (!line_point_inters (EDGE_BACKWARD_VERTEX (s->v)->point, EDGE_FORWARD_VERTEX (s->v)->point, i->v->point))
+    return 0;
+
+  if (i->touch)			/* if checking touches one find and we're done */
+    longjmp (*i->touch, TOUCHES);
+
+//  i->s->p->Flags.status = ISECTED; /* XXX */
+  s->p->Flags.status = ISECTED;
+
+  new_node = node_add_single_point (s->v, i->v->point);
+  if (new_node != NULL)
+    {
+#ifdef DEBUG_INTERSECT
+      DEBUGP ("found new rounded intersection on segment \"s\" at (%$mn, %$mn)\n",
+              i->v->point[0], i->v->point[1]);
+#endif
+      i->node_insert_list =
+        prepend_insert_node_task (i->node_insert_list, i->rtree_over_poly, s, new_node);
+      s->intersected = 1;
+      return 0; /* Keep looking for intersections with the test vertex */
+    }
+  return 0;
+}
+
+
+static int
+rounded_contour_bounds_touch (const BoxType * b, void *cl)
+{
+  contour_info *c_info = (contour_info *) cl;
+  PLINE *pa = c_info->pa;
+  PLINE *pb = (PLINE *) b;
+  PLINE *rtree_over;
+  PLINE *looping_over;
+  VNODE *av; /* node iterators */ /* av is considered an edge */
+  struct info info;
+  BoxType box;
+
+  /* Have vertex_in_seg_rounded return to our desired location if it touches */
+  info.env = NULL;
+  info.touch = c_info->getout;
+  info.need_restart = 0;
+  info.node_insert_list = c_info->node_insert_list;
+  info.looping_over_poly = c_info->looping_over_poly;
+  info.rtree_over_poly = c_info->rtree_over_poly;
+
+  looping_over = pa;
+  rtree_over = pb;
+
+  av = &looping_over->head;
+  do  /* Loop over the edges in the a contour */
+    {
+      /* check this vertex for any insertions */
+      info.v = av;
+
+      /* NB: We expand the search box to ensure we catch edges which may round to this coordinate */
+      box.X2 = (box.X1 = av->point[0] - 1) + 3;
+      box.Y2 = (box.Y1 = av->point[1] - 1) + 3;
+
+      /* NB: If this actually hits anything, we are teleported back to the beginning */
+      if (rtree_over->tree &&
+          UNLIKELY (r_search (rtree_over->tree, &box, NULL, vertex_in_seg_rounded, &info)))
+        assert (0); /* XXX: Memory allocation failure */
+    }
+  while ((av = NEXT_VERTEX (av)) != &looping_over->head);
+
+  c_info->node_insert_list = info.node_insert_list;
+  if (info.need_restart)
+    c_info->need_restart = 1;
+  return 0;
+}
+
+static int
+intersect_rounded_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+{
+  PLINE *pa;
+  contour_info c_info;
+  int need_restart = 0;
+  c_info.need_restart = 0;
+  c_info.node_insert_list = NULL;
+  c_info.looping_over_poly = a;
+  c_info.rtree_over_poly = b;
+
+  for (pa = a->contours; pa; pa = pa->next)     /* Loop over the contours of POLYAREA "a" */
+    {
+      BoxType sb;
+      jmp_buf out;
+      int retval;
+
+      c_info.getout = NULL;
+      c_info.pa = pa;
+
+      if (!add)
+        {
+          retval = setjmp (out);
+          if (retval)
+            {
+              /* The intersection test short-circuited back here,
+               * we need to clean up, then longjmp to jb */
+              longjmp (*jb, retval);
+            }
+          c_info.getout = &out;
+        }
+
+      sb.X1 = pa->xmin;
+      sb.Y1 = pa->ymin;
+      sb.X2 = pa->xmax + 1;
+      sb.Y2 = pa->ymax + 1;
+
+      r_search (b->contour_tree, &sb, NULL, rounded_contour_bounds_touch, &c_info);
+      if (c_info.need_restart)
+        need_restart = 1;
+    }
+
+  /* Process any deferred node insersions */
+  need_restart |= process_deferred_intersections (c_info.node_insert_list);
+
+  return need_restart;
+}
+
+static int
+intersect_rounded (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+{
+  int call_count = 1;
+  while (intersect_rounded_impl (jb, b, a, add))
+    call_count++;
+  return 0;
+}
+
+/*!
  * \brief intersect() (and helpers).
  *
  * (C) 2006, harry eaton.
@@ -1018,11 +1309,15 @@ contour_bounds_touch (const BoxType * b, void *cl)
     {
       rtree_over = pb;
       looping_over = pa;
+      info.rtree_over_poly = c_info->rtree_over_poly;
+      info.looping_over_poly = c_info->looping_over_poly;
     }
   else
     {
       rtree_over = pa;
       looping_over = pb;
+      info.rtree_over_poly = c_info->looping_over_poly;
+      info.looping_over_poly = c_info->rtree_over_poly;
     }
 
   av = &looping_over->head;
@@ -1059,9 +1354,11 @@ contour_bounds_touch (const BoxType * b, void *cl)
 	continue;
 
       /* NB: If this actually hits anything, we are teleported back to the beginning */
-      info.tree = rtree_over->tree;
-      if (info.tree)
-	if (UNLIKELY (r_search (info.tree, &info.s->box,
+//      info.tree = rtree_over->tree;
+//      if (info.tree)
+//	if (UNLIKELY (r_search (info.tree, &info.s->box,
+      if (rtree_over->tree)
+	if (UNLIKELY (r_search (rtree_over->tree, &info.s->box,
 				seg_in_region, seg_in_seg, &info)))
 	  assert (0); /* XXX: Memory allocation failure */
     }
@@ -1073,6 +1370,7 @@ contour_bounds_touch (const BoxType * b, void *cl)
   return 0;
 }
 
+
 static int
 intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
 {
@@ -1080,7 +1378,6 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
   PLINE *pa;
   contour_info c_info;
   int need_restart = 0;
-  insert_node_task *task;
   c_info.need_restart = 0;
   c_info.node_insert_list = NULL;
 
@@ -1092,6 +1389,13 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       t = b;
       b = a;
       a = t;
+      c_info.looping_over_poly = b;
+      c_info.rtree_over_poly = a;
+    }
+  else
+    {
+      c_info.looping_over_poly = a;
+      c_info.rtree_over_poly = b;
     }
 
   for (pa = a->contours; pa; pa = pa->next)	/* Loop over the contours of POLYAREA "a" */
@@ -1126,39 +1430,7 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
     }
 
   /* Process any deferred node insersions */
-  task = c_info.node_insert_list;
-  while (task != NULL)
-    {
-      insert_node_task *next = task->next;
-
-      /* XXX: If a node was inserted due to an intersection, don't assume we're on the a round contour any more */
-      task->node_seg->v->is_round = false;
-
-      /* Do insersion */
-      PREV_VERTEX (task->new_node) = EDGE_BACKWARD_VERTEX (task->node_seg->v);
-      NEXT_VERTEX (task->new_node) = EDGE_FORWARD_VERTEX (task->node_seg->v);
-      PREV_VERTEX (EDGE_FORWARD_VERTEX (task->node_seg->v)) = task->new_node;
-      EDGE_FORWARD_VERTEX (task->node_seg->v) = task->new_node;
-      task->node_seg->p->Count++;
-
-      if (cntrbox_check (task->node_seg->p, task->new_node->point))
-        {
-          /* First delete the contour from the contour r-tree, as its bounds
-           * may be adjusted whilst inserting nodes
-           */
-          r_delete_entry (b->contour_tree, (const BoxType *) task->node_seg->p);
-          cntrbox_adjust (task->node_seg->p, task->new_node->point);
-          r_insert_entry (b->contour_tree, (const BoxType *) task->node_seg->p, 0);
-        }
-
-      if (adjust_tree (task->node_seg->p->tree, task->node_seg))
-	assert (0); /* XXX: Memory allocation failure */
-
-      need_restart = 1; /* Any new nodes could intersect */
-
-      free (task);
-      task = next;
-    }
+  need_restart |= process_deferred_intersections (c_info.node_insert_list);
 
   return need_restart;
 }
@@ -1181,6 +1453,29 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst, int add, CV
 
   if (a == NULL || b == NULL)
     error (err_bad_parm);
+
+  if (1)
+    {
+#if 1
+      do
+        {
+          do
+            {
+              if (a->contours->xmax >= b->contours->xmin &&
+                  a->contours->ymax >= b->contours->ymin &&
+                  a->contours->xmin <= b->contours->xmax &&
+                  a->contours->ymin <= b->contours->ymax)
+                {
+                  intersect_rounded (e, a, b, add);
+                  intersect_rounded (e, b, a, add);
+                }
+            }
+          while (add && (a = a->f) != afst);
+        }
+      while (add && (b = b->f) != bfst);
+#endif
+    }
+
   do
     {
       do
@@ -2714,7 +3009,7 @@ next_cvc_from_same_poly (CVCList *start)
   return n;
 }
 
-
+#if 0
 static seg *
 find_edge_seg (VNODE *edge, PLINE *contour)
 {
@@ -2770,6 +3065,7 @@ find_cvc_at_point (CVCList *start, Vector point)
     }
   while (1);
 }
+#endif
 
 /* NOTE: If any contour is split into multiple pieces due to hairline edge pairs
  * will not necessarily be inserted into the correct location. Hole contours
@@ -4295,7 +4591,7 @@ vect_det2 (Vector v1, Vector v2)
 }
 
 static double
-vect_m_dist (Vector v1, Vector v2)
+vect_m_dist_fp (double v1[2], double v2[2])
 {
   double dx = v1[0] - v2[0];
   double dy = v1[1] - v2[1];
@@ -4308,18 +4604,21 @@ vect_m_dist (Vector v1, Vector v2)
   if (dy > 0)
     return +dd;
   return -dd;
-}				/* vect_m_dist */
+}				/* vect_m_dist_fp */
 
 /*!
- * \brief vect_inters2.
+ * \brief vect_inters2_fp.
  *
  * (C) 1993 Klamer Schutte.
  *
  * (C) 1997 Michael Leonov, Alexey Nikitin.
+ *
+ * (C) 2016 Peter Clifton
  */
 int
-vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
-	      Vector S1, Vector S2)
+vect_inters2_fp (double p1[2], double p2[2],
+                 double q1[2], double q2[2],
+                 double S1[2], double S2[2])
 {
   double s, t, deel;
   double rpx, rpy, rqx, rqy;
@@ -4337,10 +4636,13 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 
   deel = rpy * rqx - rpx * rqy;	/* -vect_det(rp,rq); */
 
+  /* XXX: THIS IS NOT NECESSARILY TRUE ANY MORE...
+   *      deel MAY NEED TO BE COMPARED USING
+   *      SOME EPSILON VALUE
+   */
   /* coordinates are 30-bit integers so deel will be exactly zero
    * if the lines are parallel
    */
-
   if (deel == 0)		/* parallel */
     {
       double dc1, dc2, d1, d2, h;	/* Check to see whether p1-p2 and q1-q2 are on the same line */
@@ -4355,9 +4657,9 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 	return 0;
       dc1 = 0;			/* m_len(p1 - p1) */
 
-      dc2 = vect_m_dist (p1, p2);
-      d1 = vect_m_dist (p1, q1);
-      d2 = vect_m_dist (p1, q2);
+      dc2 = vect_m_dist_fp (p1, p2);
+      d1 = vect_m_dist_fp (p1, q1);
+      d2 = vect_m_dist_fp (p1, q2);
 
 /* Sorting the independent points from small to large */
       Vcpy2 (hp1, p1);
@@ -4458,6 +4760,31 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
     }
 }				/* vect_inters2 */
 
+int
+vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
+              Vector S1, Vector S2)
+{
+  double p1_fp[2] = {p1[0], p1[1]};
+  double p2_fp[2] = {p2[0], p2[1]};
+  double q1_fp[2] = {q1[0], q1[1]};
+  double q2_fp[2] = {q2[0], q2[1]};
+  double s1_fp[2];
+  double s2_fp[2];
+  int cnt;
+
+  cnt = vect_inters2_fp (p1_fp, p2_fp,
+                         q1_fp, q2_fp,
+                         /* out */
+                         s1_fp,
+                         s2_fp);
+
+  S1[0] = s1_fp[0];
+  S1[1] = s1_fp[1];
+  S2[0] = s2_fp[0];
+  S2[1] = s2_fp[1];
+
+  return cnt;
+}
 
 /*! \brief line_segments_can_merge
  *
@@ -4524,8 +4851,8 @@ simplify_contour (PLINE *contour)
       if (!VERTEX_FORWARD_EDGE (p)->is_round && !VERTEX_FORWARD_EDGE (c)->is_round)
         {
           delete_vertex_c = line_segments_can_merge (VERTEX_FORWARD_EDGE (p), VERTEX_FORWARD_EDGE (c));
-          if (delete_vertex_c)
-            fprintf (stderr, "Merging adjacent line segments\n");
+//          if (delete_vertex_c)
+//            fprintf (stderr, "Merging adjacent line segments\n");
         }
       else if (VERTEX_FORWARD_EDGE (p)->is_round && VERTEX_FORWARD_EDGE (c)->is_round)
         {
@@ -4538,7 +4865,7 @@ simplify_contour (PLINE *contour)
             }
           if (delete_vertex_c)
             {
-              fprintf (stderr, "Merging adjacent arc segments\n");
+//              fprintf (stderr, "Merging adjacent arc segments\n");
               count++;
             }
         }
