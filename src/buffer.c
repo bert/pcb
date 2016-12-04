@@ -1315,6 +1315,7 @@ FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
   /* XXX: Should parse a unit suffix, e.g. "degrees" */
   parse_numeric_attribute (Element, "PCB::rotation", &rotation);
   rotation += angle;
+  rotation = fmod (rotation, 360.L);
   value = g_strdup_printf ("%f degrees", rotation);
   AttributePutToList (&Element->Attributes, "PCB::rotation", value, true);
   g_free (value);
