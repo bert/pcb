@@ -118,19 +118,19 @@ object3d_set_appearance (object3d *object, appearance *appear)
 void
 object3d_add_edge (object3d *object, edge_ref edge)
 {
-  object->edges = g_list_append (object->edges, (void *)edge);
+  object->edges = g_list_prepend (object->edges, (void *)edge);
 }
 
 void
 object3d_add_vertex (object3d *object, vertex3d *vertex)
 {
-  object->vertices = g_list_append (object->vertices, vertex);
+  object->vertices = g_list_prepend (object->vertices, vertex);
 }
 
 void
 object3d_add_face (object3d *object, face3d *face)
 {
-  object->faces = g_list_append (object->faces, face);
+  object->faces = g_list_prepend (object->faces, face);
 }
 
 
@@ -695,7 +695,7 @@ object3d_from_contours (POLYAREA *contours,
         }
 #endif
 
-      objects = g_list_append (objects, object);
+      objects = g_list_prepend (objects, object);
 
       link = malloc (sizeof (polygon_3d_link));
       pa->user_data = link;
