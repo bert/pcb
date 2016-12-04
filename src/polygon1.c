@@ -72,7 +72,7 @@
  * for arcs
  */
 
-#undef NDEBUG
+//#undef NDEBUG
 #include	<assert.h>
 #include	<stdlib.h>
 #include	<stdio.h>
@@ -142,13 +142,13 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 
 #define error(code)  longjmp(*(e), code)
 
-#define DEBUG_INTERSECT
-#define DEBUG_LABEL
-#define DEBUG_ALL_LABELS
-#define DEBUG_JUMP
-#define DEBUG_GATHER
-#define DEBUG_ANGLE
-#define DEBUG
+#undef DEBUG_INTERSECT
+#undef DEBUG_LABEL
+#undef DEBUG_ALL_LABELS
+#undef DEBUG_JUMP
+#undef DEBUG_GATHER
+#undef DEBUG_ANGLE
+#undef DEBUG
 #ifdef DEBUG
 #define DEBUGP(...) pcb_fprintf(stderr, ## __VA_ARGS__)
 #else
@@ -3036,9 +3036,13 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 
   *res = NULL;
 
+#if 0
   /* Make copies for tracking polygon parentage (DEBUG) */
   if (!poly_M_Copy0 (&a_copy, a) || !poly_M_Copy0 (&b_copy, b))
       return err_no_memory;
+#endif
+  a_copy = NULL;
+  b_copy = NULL;
 
   /* Move the parentage information over onto the copy */
   if (a_copy != NULL)
