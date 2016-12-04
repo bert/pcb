@@ -163,6 +163,7 @@ struct POLYAREA
     PLINE *contours;
     rtree_t *contour_tree;
     POLYPARENTAGE parentage;
+    void *user_data; /* To be used at will by the owner of this polygon */
 };
 
 void poly_dump (POLYAREA *p);
