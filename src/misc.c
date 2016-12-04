@@ -2328,14 +2328,15 @@ MoveLayerToGroup (int layer, int group)
 {
   int prev, i, j;
 
-  if (layer < 0 || layer >= max_copper_layer + 2)
-    return -1;
+  assert (layer >= 0 && layer < max_copper_layer + 2);
+  assert (group >= 0 && group < max_group);
+
   prev = GetLayerGroupNumberByNumber (layer);
   if ((layer == bottom_silk_layer
         && group == GetLayerGroupNumberByNumber (top_silk_layer))
       || (layer == top_silk_layer
           && group == GetLayerGroupNumberByNumber (bottom_silk_layer))
-      || (group < 0 || group >= max_group) || (prev == group))
+      || prev == group)
     return prev;
 
   /* Remove layer from prev group */
