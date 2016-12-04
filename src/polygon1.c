@@ -72,6 +72,7 @@
  * for arcs
  */
 
+#undef NDEBUG
 #include	<assert.h>
 #include	<stdlib.h>
 #include	<stdio.h>
@@ -141,13 +142,13 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 
 #define error(code)  longjmp(*(e), code)
 
-#undef DEBUG_INTERSECT
-#undef DEBUG_LABEL
-#undef DEBUG_ALL_LABELS
-#undef DEBUG_JUMP
-#undef DEBUG_GATHER
-#undef DEBUG_ANGLE
-#undef DEBUG
+#define DEBUG_INTERSECT
+#define DEBUG_LABEL
+#define DEBUG_ALL_LABELS
+#define DEBUG_JUMP
+#define DEBUG_GATHER
+#define DEBUG_ANGLE
+#define DEBUG
 #ifdef DEBUG
 #define DEBUGP(...) pcb_fprintf(stderr, ## __VA_ARGS__)
 #else

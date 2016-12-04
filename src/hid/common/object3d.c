@@ -1187,19 +1187,19 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
         {
           fprintf (stderr, "Accumulating elements from layer %i\n", GetLayerNumber (PCB->Data, layer));
 
-          r_search (layer->line_tree, &bounds, NULL, line_copper_callback, &info);
-          r_search (layer->arc_tree,  &bounds, NULL, arc_copper_callback, &info);
-          r_search (layer->text_tree, &bounds, NULL, text_copper_callback, &info);
+//          r_search (layer->line_tree, &bounds, NULL, line_copper_callback, &info);
+//          r_search (layer->arc_tree,  &bounds, NULL, arc_copper_callback, &info);
+//          r_search (layer->text_tree, &bounds, NULL, text_copper_callback, &info);
           r_search (layer->polygon_tree, &bounds, NULL, polygon_copper_callback, &info);
         }
       END_LOOP;
 
-      fprintf (stderr, "Accumulating pin + via pads\n");
-      r_search (PCB->Data->pin_tree, &bounds, NULL, pv_copper_callback, &info);
-      r_search (PCB->Data->via_tree, &bounds, NULL, pv_copper_callback, &info);
+//      fprintf (stderr, "Accumulating pin + via pads\n");
+//      r_search (PCB->Data->pin_tree, &bounds, NULL, pv_copper_callback, &info);
+//      r_search (PCB->Data->via_tree, &bounds, NULL, pv_copper_callback, &info);
 #endif
 
-#if 1
+#if 0
       if (group == top_group ||
           group == bottom_group)
         {
@@ -1252,7 +1252,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
                                 copper_appearance,
                                 NULL));
 
-
+      break;
     }
 
 
@@ -1263,7 +1263,11 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 //  PCB->Data->outline_valid = true;
 //  gui->invalidate_all ();
 
-  poly_Free (&info.poly);
+  /* ASSUME THERE IS A POLYGON WHERE WE KNOW WE PUT ONE... */
+  ((PolygonType *)PCB->Data->Layer[1].Polygon->data)->Clipped = info.poly;
+  gui->invalidate_all ();
+
+//  poly_Free (&info.poly);
 
   return objects;
 }
