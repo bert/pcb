@@ -1483,8 +1483,10 @@ ghid_build_pcb_top_window (void)
 
   gtk_tree_view_append_column (GTK_TREE_VIEW (ghidgui->polygon_debug_tv), column);
 
+#if 0
   gtk_box_pack_end (GTK_BOX (hbox_middle),
                     ghidgui->polygon_debug_tv, TRUE, TRUE, 0);
+#endif
 
   g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (ghidgui->polygon_debug_tv))),
                     "changed",
