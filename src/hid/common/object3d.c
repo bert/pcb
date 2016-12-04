@@ -406,7 +406,7 @@ object3d_from_contours (POLYAREA *contours,
   do
     {
 
-      outer_contour = pa->contours;
+      outer_contour = pa->simple_contours;
       ncontours = 0;
       npoints = 0;
 
@@ -417,7 +417,7 @@ object3d_from_contours (POLYAREA *contours,
         ct = ct->next;
       }
 
-      object_name = make_object_name (base_name, pa->contours->name);
+      object_name = make_object_name (base_name, pa->simple_contours->name);
       object = make_object3d (object_name);
       g_free (object_name);
 
@@ -766,6 +766,8 @@ object3d_from_board_outline (void)
   top_bot_appearance = NULL;
   appearance_set_color (board_appearance,   1.0, 1.0, 0.6);
 
+  poly_Simplify (board_outline);
+
   objects = object3d_from_contours (board_outline,
 #ifdef REVERSED_PCB_CONTOURS
                                     -HACK_BOARD_THICKNESS, /* Bottom */
@@ -1029,6 +1031,8 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
   LayerType *layer;
   POLYAREA *pa;
 
+  return NULL;
+
   poly_Copy0 (&info.poly, area);
   info.side = side;
 
@@ -1063,6 +1067,8 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
 
   mask_appearance = make_appearance ();
   appearance_set_color (mask_appearance, 0.2, 0.8, 0.2);
+
+  poly_Simplify (info.poly);
 
   objects = object3d_from_contours (info.poly,
 #ifdef REVERSED_PCB_CONTOURS
@@ -1550,8 +1556,11 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
           while ((pa = pa->f) != info.poly);
         }
 
+      group_m_polyarea[group] = info.poly;
+      poly_Simplify (group_m_polyarea[group]);
+
       group_objects = g_list_concat (group_objects,
-        object3d_from_contours (info.poly,
+        object3d_from_contours (group_m_polyarea[group],
 #ifdef REVERSED_PCB_CONTOURS
                                 depth,                         /* Bottom */
                                 depth + HACK_COPPER_THICKNESS, /* Top */
@@ -1563,8 +1572,6 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
                                 NULL,  /* top_bot_appearance */
                                 false, /* Don't invert */
                                 "Net")); /* Name */
-
-      group_m_polyarea[group] = info.poly;
     }
 
   /* Now need to punch drill-holes through the inter-layers..
@@ -1577,6 +1584,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   r_search (PCB->Data->via_tree, &bounds, NULL, pv_barrel_callback, &info);
 
   barrel_m_polyarea = info.poly;
+  poly_Simplify (barrel_m_polyarea);
 
   info.poly = NULL;
 
@@ -1585,6 +1593,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   r_search (PCB->Data->via_tree, &bounds, NULL, pv_drill_callback, &info);
 
   drill_m_polyarea = info.poly;
+  poly_Simplify (drill_m_polyarea);
 
   info.poly = NULL;
 
@@ -1739,7 +1748,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
               /* Steal the data from the old bottom object */
               steal_object_geometry (top_group_object, bottom_group_object);
 
-              printf ("Merging object with name %s and %s\n", top_group_object->name, bottom_group_object->name);
+//              printf ("Merging object with name %s and %s\n", top_group_object->name, bottom_group_object->name);
               top_group_object->name = merge_contour_name (top_group_object->name, bottom_group_object->name);
 
               /* Delete the old bottom object */
