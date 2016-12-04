@@ -302,6 +302,7 @@ object3d_to_step_body_fragment (step_file *step,
       face3d *face = face_iter->data;
       bool outer_contour = true;
       step_id_list face_contour_list = NULL;
+      char *face_name;
 
       for (contour_iter = face->contours;
            contour_iter != NULL;
@@ -331,7 +332,8 @@ object3d_to_step_body_fragment (step_file *step,
         }
 
       face_contour_list = g_list_reverse (face_contour_list);
-      face->face_identifier = step_advanced_face (step, "NONE", face_contour_list, face->surface_identifier, !face->surface_orientation_reversed);
+      face_name = (face->name != NULL) ? face->name : "NONE";
+      face->face_identifier = step_advanced_face (step, face_name, face_contour_list, face->surface_identifier, !face->surface_orientation_reversed);
       shell_face_list = g_list_prepend (shell_face_list, GINT_TO_POINTER (face->face_identifier));
     }
 
@@ -455,9 +457,16 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
       object3d *object = object_iter->data;
       GString *body_name;
 
-      body_name = g_string_new ("part body");
-      if (multiple_bodies)
-        g_string_append_printf (body_name, " - %i", part);
+      if (object->name != NULL)
+        {
+          body_name = g_string_new (object->name);
+        }
+      else
+        {
+          body_name = g_string_new ("part body");
+          if (multiple_bodies)
+            g_string_append_printf (body_name, " - %i", part);
+        }
 
       object3d_to_step_body_fragment (step, object, body_name->str, &comp_brep, &styled_items, appear_hash);
 
@@ -535,10 +544,21 @@ object3d_list_export_to_step_assy (GList *objects, const char *filename)
       part_name = g_string_new ("PCB board");
       body_name = g_string_new ("PCB board body");
 
+      if (object->name != NULL)
+        {
+          part_name = g_string_new (object->name);
+        }
+      else
+        {
+          part_name = g_string_new ("part");
+          if (multiple_parts)
+            g_string_append_printf (body_name, " - %i", part);
+        }
+
       if (multiple_parts)
         {
           g_string_append_printf (part_id, "-%i", part);
-          g_string_append_printf (part_name, " - %i", part);
+//          g_string_append_printf (part_name, " - %i", part);
           g_string_append_printf (body_name, " - %i", part);
         }
 

@@ -8,11 +8,12 @@
 #include "face3d.h"
 
 face3d *
-make_face3d (void)
+make_face3d (char *name)
 {
   face3d *face;
 
   face = g_new0 (face3d, 1);
+  face->name = g_strdup (name);
 
   return face;
 }
@@ -21,6 +22,7 @@ void
 destroy_face3d (face3d *face)
 {
   g_list_free_full (face->contours, (GDestroyNotify)destroy_contour3d);
+  g_free (face->name);
   g_free (face);
 }
 

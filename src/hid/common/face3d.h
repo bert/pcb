@@ -2,6 +2,7 @@ typedef struct {
   double nx, ny, nz; /* Face normal?*/
   bool surface_orientation_reversed;
   GList *contours;
+  char *name;
 
   /* For cylindrical surfaces */
   bool is_cylindrical;
@@ -17,7 +18,7 @@ typedef struct {
   step_id face_bound_identifier;
 } face3d;
 
-face3d *make_face3d (void);
+face3d *make_face3d (char *name);
 void destroy_face3d (face3d *face);
 void face3d_add_contour (face3d *face, contour3d *contour);
 void face3d_set_appearance (face3d *face, appearance *appear);

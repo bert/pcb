@@ -295,7 +295,7 @@ node_add_single (VNODE * dest, Vector po)
  * (C) 2006 harry eaton.
  */
 static CVCList *
-new_descriptor (VNODE * a, char poly, char side)
+new_descriptor (VNODE * a, PLINE *pl, char poly, char side)
 {
   CVCList *l = (CVCList *) malloc (sizeof (CVCList));
   Vector v;
@@ -305,6 +305,7 @@ new_descriptor (VNODE * a, char poly, char side)
     return NULL;
   l->head = NULL;
   l->parent = a;
+  l->parent_contour = pl;
   l->poly = poly;
   l->side = side;
   l->next = l->prev = l;
@@ -386,11 +387,11 @@ static int compare_cvc_nodes (CVCList *a, CVCList *b)
  * \param start is the head of the list of cvclists.
  */
 static CVCList *
-insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
+insert_descriptor (VNODE * a, PLINE *pl, char poly, char side, CVCList * start)
 {
   CVCList *l, *newone, *big, *small;
 
-  if (!(newone = new_descriptor (a, poly, side)))
+  if (!(newone = new_descriptor (a, pl, poly, side)))
     return NULL;
   /* search for the CVCList for this point */
   if (!start)
@@ -689,10 +690,10 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
 	{
 	  assert (node->cvc_prev == (CVCList *) - 1
 		  && node->cvc_next == (CVCList *) - 1);
-	  list = node->cvc_prev = insert_descriptor (node, poly, 'P', list);
+	  list = node->cvc_prev = insert_descriptor (node, pl, poly, 'P', list);
 	  if (!node->cvc_prev)
 	    return NULL;
-	  list = node->cvc_next = insert_descriptor (node, poly, 'N', list);
+	  list = node->cvc_next = insert_descriptor (node, pl, poly, 'N', list);
 	  if (!node->cvc_next)
 	    return NULL;
 	}
@@ -1589,6 +1590,28 @@ find_inside (const BoxType * b, void *cl)
   return 0;
 }
 
+/* Returns a string allocated with g_malloc family of functions */
+static char *
+merge_contour_name (char *old, const char *new)
+{
+  char *combined;
+
+  if (old == NULL)
+    return g_strdup (new);
+
+  if (new == NULL)
+    return old;
+
+  if (strcmp (old, new) == 0)
+    return old;
+
+  /* XXX: BUG.. AS SOON AS WE GET A NAME CLASH, WE KEEP APPENDING ALL NEW NET-NAMES WE ENCOUNTER.... WE SHOULD ACTUALLY GATHER A LIST OF NAMES USED, THEN COLLATE AT THE END */
+  combined = g_strdup_printf ("%s_%s", old, new);
+  g_free (old);
+
+  return combined;
+}
+
 static void
 InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 {
@@ -1736,6 +1759,9 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 	  container->next = curh;
 	  r_insert_entry (pa_info->pa->contour_tree, (BoxType *) curh, 0);
 
+	  /* Merge hole names into the outer contour name */
+	  container->name = merge_contour_name (container->name, curh->name);
+
 	}
     }
   r_destroy_tree (&tree);
@@ -1825,7 +1851,7 @@ SubJ_Rule (char p, VNODE *e, DIRECTION * cdir)
  */
 /* *curv is considered a vertex */
 static int
-jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
+jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule, char **contour_name)
 {
   CVCList *d, *start, *incoming;
   VNODE *e; /* e is considered an edge */
@@ -1864,6 +1890,7 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 #endif
 	      *curv = d->parent;
 	      *cdir = newone;
+	      *contour_name = merge_contour_name (*contour_name, d->parent_contour->name);
 	      return TRUE;
 	    }
 	}
@@ -1890,6 +1917,7 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 #endif
 	      *curv = d->parent;
 	      *cdir = newone;
+	      *contour_name = merge_contour_name (*contour_name, d->parent_contour->name);
 	      return TRUE;
 	    }
 	}
@@ -1900,7 +1928,7 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 
 /* start is considered a vertex */
 static int
-Gather (VNODE *startv, PLINE **result, J_Rule j_rule, DIRECTION initdir)
+Gather (VNODE *startv, PLINE **result, J_Rule j_rule, DIRECTION initdir, char **contour_name)
 {
   VNODE *curv = startv; /* curv is considered a vertex */
   VNODE *newn;
@@ -1942,21 +1970,31 @@ Gather (VNODE *startv, PLINE **result, J_Rule j_rule, DIRECTION initdir)
       curv = (dir == FORW) ? NEXT_VERTEX (curv) : PREV_VERTEX (curv);
 
       /* see where to go next */
-      if (!jump (&curv, &dir, j_rule))
+      if (!jump (&curv, &dir, j_rule, contour_name))
 	break;
     }
   while (1);
+
+  if (*contour_name != NULL)
+    {
+      fprintf (stderr, "Setting contour name on intersected contour as %s\n", *contour_name);
+      (*result)->name = strdup (*contour_name);
+    }
+
+  g_free (*contour_name);
+  *contour_name = NULL;
+
   return err_ok;
 }				/* Gather */
 
 /* curv is considered a vertex */
 static void
 Collect1 (jmp_buf *e, VNODE *curv, DIRECTION dir, POLYAREA **contours,
-          PLINE **holes, J_Rule j_rule)
+          PLINE **holes, J_Rule j_rule, char **contour_name)
 {
   PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
-  if ((errc = Gather (curv, &p, j_rule, dir)) != err_ok)
+  if ((errc = Gather (curv, &p, j_rule, dir, contour_name)) != err_ok)
     {
       if (p != NULL)
 	poly_DelContour (&p);
@@ -1988,6 +2026,7 @@ Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes
          J_Rule j_rule)
 {
   VNODE *cure; /* cure is considered an edge */
+  char *contour_name = merge_contour_name (NULL, a->name);
   DIRECTION dir = UNINITIALISED;
 
   cure = (&a->head);
@@ -2006,7 +2045,7 @@ Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes
       if (j_rule (poly, cure, &dir) && cure->Flags.mark == 0)
         Collect1 (e, (dir == FORW) ? EDGE_BACKWARD_VERTEX (cure) :
                                      EDGE_FORWARD_VERTEX (cure),
-                  dir, contours, holes, j_rule);
+                  dir, contours, holes, j_rule, &contour_name);
     }
   while ((cure = NEXT_EDGE (cure)) != &a->head);
 }				/* Collect */
@@ -2137,6 +2176,8 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		PutContour (e, tmp, contours, holes, b, NULL, NULL);
 		break;
 	      case PBO_UNITE:
+                if ((*cur)->name != NULL)
+                  printf ("XXX: Dropping named contour %s during UNITE operation... name shold be merged into containing contour!!\n", (*cur)->name);
 		break;		/* nothing to do - already included */
 	      }
 	  else if ((*cur)->Flags.status == OUTSIDE)
@@ -2224,6 +2265,8 @@ M_POLYAREA_separate_isected (jmp_buf * e, POLYAREA ** pieces,
 	  int is_first = contour_is_first (a, curc);
 	  int is_last = contour_is_last (curc);
 	  int isect_contour = (curc->Flags.status == ISECTED);
+          if (isect_contour && curc->name != NULL)
+            printf ("A contour with name %s was ISECTED\n", curc->name);
 
 	  next = curc->next;
 
@@ -2375,6 +2418,8 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
 
 	      /* Delete the outer contour */
 	      curc = a->contours;
+              if (curc->name != NULL)
+                printf ("XXX: Dropping named contour %s during operation (1)... name shold be merged into containing contour??\n", curc->name);
 	      remove_contour (a, NULL, curc, FALSE);	/* Rtree deleted in poly_Free below */
 	      /* a->contours now points to the remaining holes */
 	      poly_DelContour (&curc);
@@ -2386,6 +2431,8 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
 		  while (curc->next != NULL)
 		    curc = curc->next;
 
+                  if (curc->name != NULL)
+                    printf ("XXX: Placing holes after deleted outer contour into the holes list\n");
 		  /* Take the holes and prepend to the holes queue */
 		  curc->next = *holes;
 		  *holes = a->contours;
@@ -2433,6 +2480,8 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
 		}
 
 	      /* Remove hole from the contour */
+              if (info.result->name != NULL)
+                printf ("XXX: Dropping named contour %s during operation (2)... name shold be merged into containing contour??\n", info.result->name);
 	      remove_contour (a, prev, info.result, TRUE);
 	      poly_DelContour (&info.result);
 	    }
@@ -2488,10 +2537,14 @@ M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
 	      if (del_contour)
 		{
 		  /* Delete the contour */
+                  if (curc->name != NULL)
+                    printf ("XXX: Dropping named contour %s during operation (3)... name shold be merged into containing contour??\n", curc->name);
 		  poly_DelContour (&curc);	/* NB: Sets curc to NULL */
 		}
 	      else if (hole_contour)
 		{
+                  if (curc->name != NULL)
+                    printf ("XXX: Placing named contour %s into the holes list\n", curc->name);
 		  /* Link into the list of holes */
 		  curc->next = *holes;
 		  *holes = curc;
@@ -2602,12 +2655,12 @@ add_dummy_descriptors_at_point_from_pline (Vector point, PLINE * pl, char poly, 
         {
           if (node->cvc_prev == NULL)
             {
-              list = node->cvc_prev = insert_descriptor (node, poly, 'P', list);
+              list = node->cvc_prev = insert_descriptor (node, pl, poly, 'P', list);
               g_return_val_if_fail (node->cvc_prev != NULL, NULL);
             }
           if (node->cvc_next == NULL)
             {
-              list = node->cvc_next = insert_descriptor (node, poly, 'N', list);
+              list = node->cvc_next = insert_descriptor (node, pl, poly, 'N', list);
               g_return_val_if_fail (node->cvc_next != NULL, NULL);
             }
         }
@@ -3562,6 +3615,9 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
   (*dst)->cx = src->cx;
   (*dst)->cy = src->cy;
   (*dst)->radius = src->radius;
+
+  if (src->name != NULL)
+    (*dst)->name = strdup (src->name);
 
   for (cur = NEXT_EDGE (&src->head); cur != &src->head; cur = NEXT_VERTEX (cur))
     {

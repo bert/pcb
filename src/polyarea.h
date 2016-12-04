@@ -76,10 +76,12 @@ enum
 
 typedef struct CVCList CVCList;
 typedef struct VNODE VNODE;
+typedef struct PLINE PLINE;
 struct CVCList
 {
     double angle;
     VNODE *parent;
+    PLINE *parent_contour;
     CVCList *prev, *next, *head;
     char poly, side;
     bool skip_me;
@@ -99,7 +101,6 @@ struct VNODE
     Coord radius;
 };
 
-typedef struct PLINE PLINE;
 struct PLINE
 {
     Coord xmin, ymin, xmax, ymax;
