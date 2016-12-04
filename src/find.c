@@ -3026,7 +3026,7 @@ LookupElementConnections (ElementType *Element, FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (true, FOUNDFLAG, true);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, FOUNDFLAG, true);
   SetChangedFlag (true);
@@ -3046,7 +3046,7 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = false;
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  ClearFlagOnAllObjects (false, FOUNDFLAG, false);
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3056,12 +3056,12 @@ LookupConnectionsToAllElements (FILE * FP)
       break;
     SEPARATE (FP);
     if (Settings.ResetAfterElement && n != 1)
-      ClearFlagOnAllObjects (false, FOUNDFLAG);
+      ClearFlagOnAllObjects (false, FOUNDFLAG, false);
   }
   END_LOOP;
   if (Settings.RingBellWhenFinished)
     gui->beep ();
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  ClearFlagOnAllObjects (false, FOUNDFLAG, false);
   FreeConnectionLookupMemory ();
   Redraw ();
 }
@@ -3144,7 +3144,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
  */
 void
 LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
-                  bool AndRats)
+                  bool AndRats, bool store_undo)
 {
   void *ptr1, *ptr2, *ptr3;
   char *name;
@@ -3177,7 +3177,7 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
   name = ConnectionName (type, ptr1, ptr2);
   hid_actionl ("NetlistShow", name, NULL);
 
-  User = AndDraw;
+  User = store_undo;
   InitConnectionLookup ();
 
   /* now add the object to the appropriate list and start scanning
@@ -3185,7 +3185,7 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
    */
   ListStart (type, ptr1, ptr2, ptr3, flag);
   DoIt (flag, AndRats, AndDraw);
-  if (AndDraw)
+  if (store_undo)
     IncrementUndoSerialNumber ();
   User = false;
 
@@ -3235,7 +3235,7 @@ LookupUnusedPins (FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (true, FOUNDFLAG, true);
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3260,7 +3260,7 @@ LookupUnusedPins (FILE * FP)
  * \brief Resets all used flags of pins and vias.
  */
 bool
-ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
+ClearFlagOnPinsViasAndPads (bool AndDraw, int flag, bool store_undo)
 {
   bool change = false;
 
@@ -3268,7 +3268,7 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, via))
       {
-        if (AndDraw)
+        if (store_undo)
           AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
         CLEAR_FLAG (flag, via);
         if (AndDraw)
@@ -3283,7 +3283,7 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
     {
       if (TEST_FLAG (flag, pin))
         {
-          if (AndDraw)
+          if (store_undo)
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
           CLEAR_FLAG (flag, pin);
           if (AndDraw)
@@ -3296,7 +3296,7 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
     {
       if (TEST_FLAG (flag, pad))
         {
-          if (AndDraw)
+          if (store_undo)
             AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
           CLEAR_FLAG (flag, pad);
           if (AndDraw)
@@ -3316,7 +3316,7 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
  * \brief Resets all used flags of LOs.
  */
 bool
-ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
+ClearFlagOnLinesAndPolygons (bool AndDraw, int flag, bool store_undo)
 {
   bool change = false;
 
@@ -3324,7 +3324,7 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, line))
       {
-        if (AndDraw)
+        if (store_undo)
           AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
         CLEAR_FLAG (flag, line);
         if (AndDraw)
@@ -3337,7 +3337,7 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, line))
       {
-        if (AndDraw)
+        if (store_undo)
           AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
         CLEAR_FLAG (flag, line);
         if (AndDraw)
@@ -3350,7 +3350,7 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, arc))
       {
-        if (AndDraw)
+        if (store_undo)
           AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
         CLEAR_FLAG (flag, arc);
         if (AndDraw)
@@ -3363,7 +3363,7 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, polygon))
       {
-        if (AndDraw)
+        if (store_undo)
           AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
         CLEAR_FLAG (flag, polygon);
         if (AndDraw)
@@ -3381,12 +3381,12 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
  * \brief Resets all found connections.
  */
 bool
-ClearFlagOnAllObjects (bool AndDraw, int flag)
+ClearFlagOnAllObjects (bool AndDraw, int flag, bool store_undo)
 {
   bool change = false;
 
-  change = ClearFlagOnPinsViasAndPads  (AndDraw, flag) || change;
-  change = ClearFlagOnLinesAndPolygons (AndDraw, flag) || change;
+  change = ClearFlagOnPinsViasAndPads  (AndDraw, flag, store_undo) || change;
+  change = ClearFlagOnLinesAndPolygons (AndDraw, flag, store_undo) || change;
 
   return change;
 }
@@ -3471,7 +3471,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
         {
           DumpList ();
           /* make the flag changes undoable */
-          ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+          ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG, false);
           User = true;
           start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
           start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
@@ -3504,7 +3504,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DumpList ();
     }
   /* now check the bloated condition */
-  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG, false);
   start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, false, 0, false);
   flag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3, flag);
@@ -3514,7 +3514,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     {
       DumpList ();
       /* make the flag changes undoable */
-      ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+      ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG, false);
       User = true;
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
@@ -3551,7 +3551,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     }
   drc = false;
   DumpList ();
-  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG, false);
   return (false);
 }
 
@@ -3704,7 +3704,7 @@ DRCAll (void)
   hid_action ("LayersChanged");
   InitConnectionLookup ();
 
-  if (ClearFlagOnAllObjects (true, FOUNDFLAG | DRCFLAG | SELECTEDFLAG))
+  if (ClearFlagOnAllObjects (true, FOUNDFLAG | DRCFLAG | SELECTEDFLAG, true))
     {
       IncrementUndoSerialNumber ();
       Draw ();
@@ -3757,7 +3757,7 @@ DRCAll (void)
   }
   END_LOOP;
 
-  ClearFlagOnAllObjects (false, IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG));
+  ClearFlagOnAllObjects (false, IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
   info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
   if (!IsBad)

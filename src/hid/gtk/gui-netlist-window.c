@@ -536,14 +536,14 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
     node_selected_net = NULL;
 
   InitConnectionLookup ();
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (true, FOUNDFLAG, true);
 
   for (i = selected_net->EntryN, entry = selected_net->Entry; i; i--, entry++)
     if (SeekPad (entry, &conn, false))
       RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, true, FOUNDFLAG, true);
 
   SelectByFlag (FOUNDFLAG, select_flag);
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  ClearFlagOnAllObjects (false, FOUNDFLAG, false);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   Draw ();

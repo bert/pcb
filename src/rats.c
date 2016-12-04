@@ -470,7 +470,7 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
   for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++)
     {
       a = &Netl->Net[m];
-      ClearFlagOnAllObjects (false, DRCFLAG);
+      ClearFlagOnAllObjects (false, DRCFLAG, false);
       RatFindHook (a->Connection[0].type, a->Connection[0].ptr1,
                    a->Connection[0].ptr2, a->Connection[0].ptr2,
                    false, DRCFLAG, AndRats);
@@ -549,7 +549,7 @@ GatherSubnets (NetListType *Netl, bool NoWarn, bool AndRats)
       if (!NoWarn)
 	Warned |= CheckShorts (a->Connection[0].menu);
     }
-  ClearFlagOnAllObjects (false, DRCFLAG);
+  ClearFlagOnAllObjects (false, DRCFLAG, false);
   return (Warned);
 }
 

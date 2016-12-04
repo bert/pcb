@@ -908,8 +908,8 @@ NotifyLine (void)
 	  type = SearchScreen (Crosshair.X, Crosshair.Y,
 			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
 			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true);
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false, true);
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true, true);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{
@@ -1371,7 +1371,7 @@ NotifyMode (void)
 		}
 	    }
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && !TEST_SILK_LAYER (CURRENT))
-	    LookupConnection (Note.X, Note.Y, true, 1, CONNECTEDFLAG, false);
+	    LookupConnection (Note.X, Note.Y, true, 1, CONNECTEDFLAG, false, true);
 	  Draw ();
 	}
       break;
@@ -2362,13 +2362,13 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	case F_Find:
 	  {
 	    gui->get_coords (_("Click on a connection"), &x, &y);
-	    LookupConnection (x, y, true, 1, CONNECTEDFLAG, false);
-	    LookupConnection (x, y, true, 1, FOUNDFLAG, true);
+	    LookupConnection (x, y, true, 1, CONNECTEDFLAG, false, true);
+	    LookupConnection (x, y, true, 1, FOUNDFLAG, true, true);
 	    break;
 	  }
 
 	case F_ResetLinesAndPolygons:
-	  if (ClearFlagOnLinesAndPolygons (true, CONNECTEDFLAG | FOUNDFLAG))
+	  if (ClearFlagOnLinesAndPolygons (true, CONNECTEDFLAG | FOUNDFLAG, true))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2376,7 +2376,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_ResetPinsViasAndPads:
-	  if (ClearFlagOnPinsViasAndPads (true, CONNECTEDFLAG | FOUNDFLAG))
+	  if (ClearFlagOnPinsViasAndPads (true, CONNECTEDFLAG | FOUNDFLAG, true))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2384,7 +2384,7 @@ ActionConnection (int argc, char **argv, Coord x, Coord y)
 	  break;
 
 	case F_Reset:
-	  if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
+	  if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG, true))
 	    {
 	      IncrementUndoSerialNumber ();
 	      Draw ();
@@ -2830,7 +2830,7 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
-	      if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG))
+	      if (ClearFlagOnAllObjects (true, CONNECTEDFLAG | FOUNDFLAG, true))
 		{
 		  IncrementUndoSerialNumber ();
 		  Draw ();
@@ -2839,10 +2839,10 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 		{
 		  LookupConnection (Crosshair.AttachedLine.Point1.X,
 		                    Crosshair.AttachedLine.Point1.Y,
-		                    true, 1, CONNECTEDFLAG, false);
+		                    true, 1, CONNECTEDFLAG, false, true);
 		  LookupConnection (Crosshair.AttachedLine.Point1.X,
 		                    Crosshair.AttachedLine.Point1.Y,
-		                    true, 1, FOUNDFLAG, true);
+		                    true, 1, FOUNDFLAG, true, true);
 		}
 	    }
 	  notify_crosshair_change (true);
