@@ -350,7 +350,7 @@ new_descriptor (VNODE * a, char poly, char side)
   l->angle = ang;
   assert (ang >= 0.0 && ang <= 4.0);
 #ifdef DEBUG_ANGLE
-  DEBUGP ("node on %c at %#mD assigned angle %g on side %c\n", poly,
+  DEBUGP ("node on %c at (%$mn, %$mn) assigned angle %g on side %c\n", poly,
 	  a->point[0], a->point[1], ang, side);
 #endif
   return l;
@@ -548,6 +548,46 @@ next_cvc_from_other_poly (CVCList *start)
   return l;
 }
 
+static void
+cvc_list_dump (CVCList *list)
+{
+  VNODE *node;
+  CVCList *iter;
+  int count = 0;
+
+  if (list == NULL)
+    {
+      fprintf (stderr, "CVC list is NULL\n");
+      return;
+    }
+
+  node = list->parent;
+
+  pcb_fprintf (stderr, "Dumping CVC list at (%$mn, %$mn)\n", node->point[0], node->point[1]);
+
+  iter = list;
+  do {
+    count ++;
+#if 1
+    pcb_fprintf (stderr, "%p: angle = %.30e, poly = %c, side = %c, (%mn, %mn)-(%mn, %mn), Vertices: %p-%p Edge: %p\n",
+                 iter,
+                 iter->angle,
+                 iter->poly,
+                 iter->side,
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
+                 VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side));
+#endif
+  } while ((iter = iter->next) != list);
+
+  if ((count & 1) != 0)
+    g_critical ("Ended up with odd number of entries in CVC list");
+}
+
 /*!
  * \brief edge_label.
  *
@@ -619,6 +659,7 @@ edge_label (VNODE * pn, int existing_label)
        */
       region = (l->side == 'P') ? SHARED2 : SHARED;
       pn->shared = VERTEX_SIDE_DIR_EDGE (l->parent, l->side);
+      cvc_list_dump (l);
     }
   else
     {
@@ -843,7 +884,7 @@ seg_in_seg (const BoxType * b, void *cl)
       if (new_node != NULL)
 	{
 #ifdef DEBUG_INTERSECT
-	  DEBUGP ("new intersection on segment \"i\" at %#mD\n",
+	  DEBUGP ("new intersection on segment \"i\" at (%$mn, %$mn)\n",
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
 	  i->node_insert_list =
@@ -855,7 +896,7 @@ seg_in_seg (const BoxType * b, void *cl)
       if (new_node != NULL)
 	{
 #ifdef DEBUG_INTERSECT
-	  DEBUGP ("new intersection on segment \"s\" at %#mD\n",
+	  DEBUGP ("new intersection on segment \"s\" at (%$mn, %$mn)\n",
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
 	  i->node_insert_list =
@@ -1284,7 +1325,7 @@ print_labels (PLINE * a)
 
   do
     {
-      DEBUGP ("%#mD->%#mD labeled %s\n",
+      DEBUGP ("(%$mn, %$mn)->(%$mn, %$mn) labeled %s\n",
               EDGE_BACKWARD_VERTEX (e)->point[0], EDGE_BACKWARD_VERTEX (e)->point[1],
                EDGE_FORWARD_VERTEX (e)->point[0],  EDGE_FORWARD_VERTEX (e)->point[1], theState (e));
     }
@@ -1336,6 +1377,7 @@ label_contour (PLINE * a)
           g_warning ("Walked entire contour and couldn't find anything we could label - it is either all INSIDE or OUTSIDE");
           /* Mark the contour as NOT intersected, so it can be treated separately below. */
           /* XXX: Does this work with separated out intersected contours? */
+#warning... WE PROBABLY PRE-MARKED SOME EDGES TO AVOID TRAVERSAL.. (DUE TO SHARING WITHIN THE SAME POLYGON.. CAN WE JUST PASS IT ON??
           a->Flags.status = UNKNWN;
         }
       else
@@ -1785,7 +1827,7 @@ SubJ_Rule (char p, VNODE *e, DIRECTION * cdir)
 static int
 jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 {
-  CVCList *d, *start;
+  CVCList *d, *start, *incoming;
   VNODE *e; /* e is considered an edge */
   DIRECTION newone;
 
@@ -1796,13 +1838,41 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
       return TRUE;
     }
 #ifdef DEBUG_JUMP
-  DEBUGP ("jump entering node at %$mD\n", (*curv)->point[0], (*curv)->point[1]);
+  DEBUGP ("jump entering node at (%$mn, %$mn)\n", (*curv)->point[0], (*curv)->point[1]);
 #endif
-  /* Pick the descriptor of the edge we came into this vertex with, then spin (anti?)clock-wise one edge descriptor */
-  if (*cdir == FORW)
-    d = (*curv)->cvc_prev->prev; /* If we start with a CVC Vertex.. this previous edge has not been vetted for whether it belongs in the polygon or not!! */
-  else
-    d = (*curv)->cvc_next->prev;
+
+  /* Pick the descriptor of the edge we came into this vertex with */
+  incoming = (*cdir == FORW) ? (*curv)->cvc_prev : (*curv)->cvc_next;
+
+
+  /* First check for any shared edge.. might be sorted inconsistently */
+
+  d = incoming;
+  while (compare_cvc_nodes (d, d->next) == 0)
+    {
+      /* Get the edge e, associated with that descriptor */
+      e = VERTEX_SIDE_DIR_EDGE (d->parent, d->side);
+      newone = *cdir;
+      if (!e->Flags.mark && j_rule (d->poly, e, &newone))
+	{
+	  if ((d->side == 'N' && newone == FORW) ||
+	      (d->side == 'P' && newone == BACKW))
+	    {
+#ifdef DEBUG_JUMP
+	      DEBUGP ("REVERSE SPIN jump leaving node at (%$mn, %$mn)\n",
+	              EDGE_DIRECTION_VERTEX (e, newone)->point[0], EDGE_DIRECTION_VERTEX (e, newone)->point[1]);
+#endif
+	      *curv = d->parent;
+	      *cdir = newone;
+	      return TRUE;
+	    }
+	}
+      d = d->next;
+    }
+
+  /* Spin (anti?)clock-wise one edge descriptor (normal case) */
+  d = incoming->prev;
+
   start = d;
   do
     {
@@ -1815,7 +1885,7 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 	      (d->side == 'P' && newone == BACKW))
 	    {
 #ifdef DEBUG_JUMP
-	      DEBUGP ("jump leaving node at %#mD\n",
+	      DEBUGP ("jump leaving node at (%$mn, %$mn)\n",
 	              EDGE_DIRECTION_VERTEX (e, newone)->point[0], EDGE_DIRECTION_VERTEX (e, newone)->point[1]);
 #endif
 	      *curv = d->parent;
@@ -1858,7 +1928,7 @@ Gather (VNODE *startv, PLINE **result, J_Rule j_rule, DIRECTION initdir)
 	  poly_InclVertex (PREV_VERTEX (&(*result)->head), newn);
 	}
 #ifdef DEBUG_GATHER
-      DEBUGP ("gather vertex at %$mn, %$mn, Dir=%i\n", curv->point[0], curv->point[1], dir);
+      DEBUGP ("gather vertex at (%$mn, %$mn), Dir=%i\n", curv->point[0], curv->point[1], dir);
 #endif
 
       /* Now mark the edge as included.  */
@@ -4048,7 +4118,7 @@ poly_Valid (POLYAREA * p)
       do
 	{
 	  n = NEXT_VERTEX (v);
-	  pcb_fprintf (stderr, "Line [%#mS %#mS %#mS %#mS 100 100 \"\"]\n",
+	  pcb_fprintf (stderr, "Line [%$mn %$mn %$mn %$mn 100 100 \"\"]\n",
 		   v->point[0], v->point[1], n->point[0], n->point[1]);
 	}
       while ((v = NEXT_VERTEX (v)) != &p->contours->head);
@@ -4073,7 +4143,7 @@ poly_Valid (POLYAREA * p)
 	  do
 	    {
 	      n = NEXT_VERTEX (v);
-	      pcb_fprintf (stderr, "Line [%#mS %#mS %#mS %#mS 100 100 \"\"]\n",
+	      pcb_fprintf (stderr, "Line [%$mn %$mn %$mn %$mn 100 100 \"\"]\n",
 		       v->point[0], v->point[1], n->point[0], n->point[1]);
 	    }
 	  while ((v = NEXT_VERTEX (v)) != &c->head);
