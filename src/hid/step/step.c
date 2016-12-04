@@ -61,7 +61,7 @@
 
 
 #define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
-
+#define HACK_COPPER_THICKNESS MM_TO_COORD(0.035)
 
 HID step_hid;
 
@@ -408,9 +408,9 @@ step_do_export (HID_Attr_Val * options)
         instance->ox += COORD_TO_STEP_X (PCB, element->MarkX);
         instance->oy += COORD_TO_STEP_Y (PCB, element->MarkY);
 #ifdef REVERSED_PCB_CONTOURS
-        instance->oz += COORD_TO_STEP_Z (PCB, on_solder ? -HACK_BOARD_THICKNESS : 0);
+        instance->oz += COORD_TO_STEP_Z (PCB, on_solder ? -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS : HACK_COPPER_THICKNESS);
 #else
-        instance->oz += COORD_TO_STEP_Z (PCB, on_solder_negate * -HACK_BOARD_THICKNESS / 2);
+        instance->oz += COORD_TO_STEP_Z (PCB, on_solder_negate * (-HACK_BOARD_THICKNESS / 2 -HACK_COPPER_THICKNESS));
 #endif
 
         model->instances = g_list_append (model->instances, instance);
