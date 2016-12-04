@@ -579,10 +579,9 @@ object3d_from_contours (POLYAREA *contours,
 
               /* NOTE: Surface orientation is only fixed up during emission if we flag the need here..
                *       cylindrical surface orientation is always pointing outward from its axis, so
-               *       orientation reversed is used for holes
+               *       orientation reversed is used for holes and convave contour segments.
                */
-              /* XXX: DEPENDS ON INSIDE / OUTSIDE CORNER!! - THIS IS NOT EXACTLY CORRECT!.. NEEDS TO TAKE ACOUNT FOR cw / ccw WHEN DEALING WITH ARC CONTOUR SEGMENTS */
-              if ((ct->Flags.orient == PLF_INV) != extrude_inverted)
+              if (cw != extrude_inverted)
                 face3d_set_surface_orientation_reversed (faces[i]);
 
               face3d_set_normal (faces[i], 1., 0., 0.);  /* A normal to the axis direction */
