@@ -214,20 +214,26 @@ step_do_export (HID_Attr_Val * options)
         poly_DelContour (&curc);
       }
 
+#if 1
     silk_objects = object3d_from_silk_within_area (piece, TOP_SIDE);
     board_outline_list = g_list_concat (board_outline_list, silk_objects);
 
     silk_objects = object3d_from_silk_within_area (piece, BOTTOM_SIDE);
     board_outline_list = g_list_concat (board_outline_list, silk_objects);
+#endif
 
+#if 1
     mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
     board_outline_list = g_list_concat (board_outline_list, mask_objects);
 
     mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
     board_outline_list = g_list_concat (board_outline_list, mask_objects);
+#endif
 
+#if 1
     copper_layer_objects = object3d_from_copper_layers_within_area (piece);
     board_outline_list = g_list_concat (board_outline_list, copper_layer_objects);
+#endif
 
   } while ((piece = piece->f) != board_outline);
   poly_Free (&board_outline);
