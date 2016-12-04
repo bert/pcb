@@ -100,7 +100,7 @@ POLYAREA * CirclePoly (Coord x, Coord y, Coord radius, char *name);
 POLYAREA * OctagonPoly(Coord x, Coord y, Coord radius);
 POLYAREA * LinePoly(LineType *l, Coord thick, char *name);
 POLYAREA * ArcPoly(ArcType *l, Coord thick, char *name);
-POLYAREA * PinPoly(PinType *l, Coord thick, Coord clear);
+POLYAREA * PinPoly(PinType *l, Coord thick);
 POLYAREA * BoxPolyBloated (BoxType *box, Coord radius);
 POLYAREA * PadPoly (PadType *pad, Coord size);
 void frac_circle (PLINE *, Coord, Coord, Vector, int);

@@ -1078,7 +1078,28 @@ Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
  * \brief Create a polygon of the pin clearance.
  */
 POLYAREA *
-PinPoly (PinType * pin, Coord thick, Coord clear)
+PinPoly (PinType * pin, Coord thick)
+{
+  int size = (thick + 1) / 2;
+
+  if (TEST_FLAG (SQUAREFLAG, pin))
+    {
+      return RectPoly (pin->X - size, pin->X + size,
+                       pin->Y - size, pin->Y + size);
+    }
+  else if (TEST_FLAG (OCTAGONFLAG, pin))
+    {
+      return OctagonPoly (pin->X, pin->Y, thick);
+    }
+  else
+    {
+      return CirclePoly (pin->X, pin->Y, size, NULL);
+    }
+}
+
+/* create a polygon of the pin clearance */
+static POLYAREA *
+PinClearPoly (PinType * pin, Coord thick, Coord clear)
 {
   int size;
 
@@ -1144,7 +1165,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     }
   else
     {
-      np = PinPoly (pin, PIN_SIZE (pin), pin->Clearance);
+      np = PinClearPoly (pin, PIN_SIZE (pin), pin->Clearance);
       if (!np)
         return -1;
     }
@@ -1253,7 +1274,7 @@ pin_sub_callback (const BoxType * b, void *cl)
     }
   else
     {
-      np = PinPoly (pin, PIN_SIZE (pin), pin->Clearance);
+      np = PinClearPoly (pin, PIN_SIZE (pin), pin->Clearance);
       if (!np)
         longjmp (info->env, 1);
     }

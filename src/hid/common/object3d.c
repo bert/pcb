@@ -938,7 +938,23 @@ pv_mask_callback (const BoxType * b, void *cl)
   struct mask_info *info = cl;
   POLYAREA *np, *res;
 
-  if (!(np = CirclePoly (pv->X, pv->Y, pv->Mask / 2, NULL)))
+  if (!(np = PinPoly (pv, pv->Mask)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+pv_drill_callback (const BoxType * b, void *cl)
+{
+  PinType *pv = (PinType *)b;
+  struct mask_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = CirclePoly (pv->X, pv->Y, (pv->DrillingHole + 1) / 2, NULL)))
     return 0;
 
   poly_Boolean_free (info->poly, np, &res, PBO_SUB);
@@ -1176,7 +1192,7 @@ pv_copper_callback (const BoxType * b, void *cl)
   struct copper_info *info = cl;
   POLYAREA *np, *res;
 
-  if (!(np = CirclePoly (pv->X, pv->Y, pv->Thickness / 2, NULL)))
+  if (!(np = PinPoly (pv, PIN_SIZE (pv))))
     return 0;
 
   poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
