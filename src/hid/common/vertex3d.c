@@ -11,7 +11,7 @@ make_vertex3d (double x, double y, double z)
 {
   vertex3d *v;
 
-  v = g_new0 (vertex3d, 1);
+  v = g_slice_new0 (vertex3d);
   v->x = x;
   v->y = y;
   v->z = z;
@@ -23,5 +23,5 @@ make_vertex3d (double x, double y, double z)
 void
 destroy_vertex3d (vertex3d *v)
 {
-  g_free (v);
+  g_slice_free (vertex3d, v);
 }

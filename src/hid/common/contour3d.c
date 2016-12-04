@@ -10,7 +10,7 @@ make_contour3d (edge_ref first_edge)
 {
   contour3d *contour;
 
-  contour = g_new0 (contour3d, 1);
+  contour = g_slice_new0 (contour3d);
   contour->first_edge = first_edge;
 
   return contour;
@@ -19,5 +19,5 @@ make_contour3d (edge_ref first_edge)
 void
 destroy_contour3d (contour3d *contour)
 {
-  g_free (contour);
+  g_slice_free (contour3d, contour);
 }

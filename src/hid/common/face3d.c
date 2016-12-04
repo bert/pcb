@@ -12,7 +12,7 @@ make_face3d (char *name)
 {
   face3d *face;
 
-  face = g_new0 (face3d, 1);
+  face = g_slice_new0 (face3d);
   face->name = g_strdup (name);
 
   return face;
@@ -23,7 +23,7 @@ destroy_face3d (face3d *face)
 {
   g_list_free_full (face->contours, (GDestroyNotify)destroy_contour3d);
   g_free (face->name);
-  g_free (face);
+  g_slice_free (face3d, face);
 }
 
 void

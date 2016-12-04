@@ -9,7 +9,7 @@ make_edge_info (void)
 {
   edge_info *info;
 
-  info = g_new0 (edge_info, 1);
+  info = g_slice_new0 (edge_info);
 
   return info;
 }
@@ -35,5 +35,5 @@ void edge_info_set_stitch (edge_info *info)
 void
 destroy_edge_info (edge_info *info)
 {
-  g_free (info);
+  g_slice_free (edge_info, info);
 }
