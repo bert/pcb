@@ -248,21 +248,19 @@ netlist_style (LibraryMenuType *net, const char *style)
   net->Style = STRDUP ((char *)style);
 }
 
-#if 0
 static void
 netlist_netclass (LibraryMenuType *net, const char *netclass)
 {
   free (net->Netclass);
-  net->Style = STRDUP ((char *)netclass);
+  net->Netclass = STRDUP ((char *)netclass);
 }
-#endif
 
 /*!
  * \brief The primary purpose of this action is to rebuild a netlist
  * from a script, in conjunction with the clear action above.
  */
 static int
-netlist_add (const char *netname, const char *pinname, const char *netclass)
+netlist_add (const char *netname, const char *pinname)
 {
   int ni, pi;
   LibraryType *netlist = &PCB->NetlistLib;
@@ -277,12 +275,7 @@ netlist_add (const char *netname, const char *pinname, const char *netclass)
       }
   if (net == NULL)
     {
-      net = CreateNewNet (netlist, (char *)netname, NULL, (char *)netclass); /* XXX: Only takes class from the first net */
-    }
-  else
-    {
-      if (strcmp (net->Netclass, netclass) != 0)
-        g_warning ("Netclass '%s' different to initial '%s'... being ignored", netclass, net->Netclass);
+      net = CreateNewNet (netlist, (char *)netname, NULL, NULL);
     }
 
   for (pi=0; pi<net->EntryN; pi++)
@@ -407,10 +400,12 @@ Netlist (int argc, char **argv, Coord x, Coord y)
     }
   else if (strcasecmp (argv[0], "style") == 0)
     func = (NFunc)netlist_style;
+  else if (strcasecmp (argv[0], "class") == 0)
+    func = (NFunc)netlist_netclass;
   else if (strcasecmp (argv[0], "add") == 0)
     {
       /* Add is different, because the net/pin won't already exist.  */
-      return netlist_add (ARG(1), ARG(2), NULL); /* Net class? */
+      return netlist_add (ARG(1), ARG(2)); /* Net class? */
     }
   else if (strcasecmp (argv[0], "sort") == 0)
     {
@@ -513,6 +508,10 @@ Netlist (int argc, char **argv, Coord x, Coord y)
 	{
 	  netlist_style (net, ARG(2));
 	}
+      else if (func == (void *)netlist_netclass)
+	{
+	  netlist_netclass (net, ARG(2));
+	}
       else if (argc > 2)
 	{
 	  int l = strlen (argv[2]);
@@ -522,7 +521,7 @@ Netlist (int argc, char **argv, Coord x, Coord y)
 		    && net->Entry[j].ListEntry[l] == '-'))
 	      {
 		pin = net->Entry + j;
-		pin_found = 1;
+	pin_found = 1;
 		func (net, pin);
 	      }
 	}

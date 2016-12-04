@@ -49,10 +49,16 @@
 	(format port "Netlist(Add,~a,~a)~%" net (pcbfwd:pinfmt pin))
 	(pcbfwd:each-pin net (cdr pins) port))))
 
+(define (pcbfwd:net-class netname port)
+  (let ((netclass (gnetlist:get-net-class netname)))
+  (if (not (null? netclass))
+    (format port "Netlist(Class,~a,~a)~%" netname netclass))))
+
 (define (pcbfwd:each-net netnames port)
   (if (not (null? netnames))
       (let ((netname (car netnames)))
 	(pcbfwd:each-pin netname (gnetlist:get-all-connections netname) port)
+	(pcbfwd:net-class netname port)
 	(pcbfwd:each-net (cdr netnames) port))))
 
 (define (pcbfwd:each-attr refdes attrs port)
