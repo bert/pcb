@@ -1383,6 +1383,26 @@ pv_copper_callback (const BoxType * b, void *cl)
 }
 
 
+static int
+hole_sub_copper_callback (const BoxType * b, void *cl)
+{
+  PinType *pv = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!TEST_FLAG (HOLEFLAG, pv))
+    return 0;
+
+  if (!(np = CirclePoly (pv->X, pv->Y, (pv->DrillingHole + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
+
 static void
 steal_object_geometry (object3d *src, object3d *dst)
 {
@@ -1583,6 +1603,9 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
           fprintf (stderr, "Accumulating SMT pads for side %i\n", info.side);
           r_search (PCB->Data->pad_tree, &bounds, NULL, pad_copper_callback, &info);
         }
+
+      r_search (PCB->Data->pin_tree, &bounds, NULL, hole_sub_copper_callback, &info);
+      r_search (PCB->Data->via_tree, &bounds, NULL, hole_sub_copper_callback, &info);
 
       /* TODO: Inter-layer features
        *
