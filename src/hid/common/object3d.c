@@ -1040,7 +1040,7 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
   LayerType *layer;
   POLYAREA *pa;
 
-  return NULL;
+//  return NULL;
 
   poly_Copy0 (&info.poly, area);
   info.side = side;
