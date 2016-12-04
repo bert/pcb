@@ -227,7 +227,7 @@ object3d_to_step_body_fragment (step_file *step,
           dir_y = dv->y - ov->y;
           dir_z = dv->z - ov->z;
 
-#if 1
+#if 0
           /* XXX: This avoids the test file step_outline_test.pcb failing to display properly in freecad when coordinates are slightly rounded */
           if (dir_x < EPSILON && -dir_x < EPSILON &&
               dir_y < EPSILON && -dir_y < EPSILON &&
