@@ -1,3 +1,12 @@
+/* TODO ITEMS:
+ *
+ * Add PLINE simplification operation to consolidate co-circular segments for reduced geometry output.
+ * Look at whether arc-* intersections can be re-constructed back to original geometry, not fall back to line-line.
+ * Work on snap-rounding any edge which passes through the pixel square containing an any vertex (or intersection).
+ * Avoid self-touching output in contours, where that self-touching instance creates two otherwise distinct contours or holes.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
