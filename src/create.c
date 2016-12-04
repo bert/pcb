@@ -368,6 +368,13 @@ line_callback (const BoxType * b, void *cl)
   LineType *line = (LineType *) b;
   struct line_info *i = (struct line_info *) cl;
 
+  if (line->Thickness != i->Thickness ||
+      /* don't merge lines if the clearances differ  */
+      line->Clearance != i->Clearance ||
+      /* don't merge lines if the clear flags differ  */
+      TEST_FLAG (CLEARLINEFLAG, line) != TEST_FLAG (CLEARLINEFLAG, i))
+    return 0;
+
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
       line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
@@ -391,60 +398,53 @@ line_callback (const BoxType * b, void *cl)
       longjmp (i->env, 1);
     }
   /* remove unnecessary line points */
-  if (line->Thickness == i->Thickness &&
-      /* don't merge lines if the clearances differ  */
-      line->Clearance == i->Clearance &&
-      /* don't merge lines if the clear flags differ  */
-      TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARLINEFLAG, i))
+  if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
     {
-      if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
-	{
-	  i->test.Point1.X = line->Point2.X;
-	  i->test.Point1.Y = line->Point2.Y;
-	  i->test.Point2.X = i->X2;
-	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
-	    {
-	      i->ans = line;
-	      longjmp (i->env, 1);
-	    }
-	}
-      else if (line->Point2.X == i->X1 && line->Point2.Y == i->Y1)
-	{
-	  i->test.Point1.X = line->Point1.X;
-	  i->test.Point1.Y = line->Point1.Y;
-	  i->test.Point2.X = i->X2;
-	  i->test.Point2.Y = i->Y2;
-	  if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
-	    {
-	      i->ans = line;
-	      longjmp (i->env, 1);
-	    }
-	}
-      else if (line->Point1.X == i->X2 && line->Point1.Y == i->Y2)
-	{
-	  i->test.Point1.X = line->Point2.X;
-	  i->test.Point1.Y = line->Point2.Y;
-	  i->test.Point2.X = i->X1;
-	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
-	    {
-	      i->ans = line;
-	      longjmp (i->env, 1);
-	    }
-	}
-      else if (line->Point2.X == i->X2 && line->Point2.Y == i->Y2)
-	{
-	  i->test.Point1.X = line->Point1.X;
-	  i->test.Point1.Y = line->Point1.Y;
-	  i->test.Point2.X = i->X1;
-	  i->test.Point2.Y = i->Y1;
-	  if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
-	    {
-	      i->ans = line;
-	      longjmp (i->env, 1);
-	    }
-	}
+      i->test.Point1.X = line->Point2.X;
+      i->test.Point1.Y = line->Point2.Y;
+      i->test.Point2.X = i->X2;
+      i->test.Point2.Y = i->Y2;
+      if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
+        {
+          i->ans = line;
+          longjmp (i->env, 1);
+        }
+    }
+  else if (line->Point2.X == i->X1 && line->Point2.Y == i->Y1)
+    {
+      i->test.Point1.X = line->Point1.X;
+      i->test.Point1.Y = line->Point1.Y;
+      i->test.Point2.X = i->X2;
+      i->test.Point2.Y = i->Y2;
+      if (IsPointOnLine (i->X1, i->Y1, 0.0, &i->test))
+        {
+          i->ans = line;
+          longjmp (i->env, 1);
+        }
+    }
+  else if (line->Point1.X == i->X2 && line->Point1.Y == i->Y2)
+    {
+      i->test.Point1.X = line->Point2.X;
+      i->test.Point1.Y = line->Point2.Y;
+      i->test.Point2.X = i->X1;
+      i->test.Point2.Y = i->Y1;
+      if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
+        {
+          i->ans = line;
+          longjmp (i->env, 1);
+        }
+    }
+  else if (line->Point2.X == i->X2 && line->Point2.Y == i->Y2)
+    {
+      i->test.Point1.X = line->Point1.X;
+      i->test.Point1.Y = line->Point1.Y;
+      i->test.Point2.X = i->X1;
+      i->test.Point2.Y = i->Y1;
+      if (IsPointOnLine (i->X2, i->Y2, 0.0, &i->test))
+        {
+          i->ans = line;
+          longjmp (i->env, 1);
+        }
     }
   return 0;
 }
