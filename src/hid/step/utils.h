@@ -29,13 +29,13 @@
 typedef std::list<SdaiProduct_definition *> pd_list;
 
 
-void find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list);
+void find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list, int start_after_id);
 
 /* entityName should be the name of entity Assembly_component_usage or one of its subtypes
  * typically this will be "Assembly_component_usage" or "Next_assembly_usage_occurance"
  */
-void find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, const char *entityName);
-void find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list);
+void find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, int start_after_id, const char *entityName);
+void find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list, int start_after_id);
 
 SdaiShape_definition_representation *find_sdr_for_pd (InstMgr *instance_list, SdaiProduct_definition *target_pd);
 

@@ -59,9 +59,10 @@
 
 
 void
-find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list)
+find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list, int start_after_id)
 {
-  int search_index = 0;
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index = instance_list->GetIndex (mnode) + 1;
 
   // Loop over the instances of SHAPE_DEFITION_REPRESENTATION in the file
   SdaiShape_definition_representation *sdr;
@@ -115,9 +116,10 @@ find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list)
  * typically this will be "Assembly_component_usage" or "Next_assembly_usage_occurance"
  */
 void
-find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, const char *entityName)
+find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, int start_after_id, const char *entityName)
 {
-  int search_index = 0;
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index = instance_list->GetIndex (mnode) + 1;
 
   SdaiAssembly_component_usage *acu;
   while (ENTITY_NULL != (acu = (SdaiAssembly_component_usage *)
@@ -147,9 +149,10 @@ find_and_remove_child_pd (InstMgr *instance_list, pd_list *pd_list, const char *
 }
 
 static SdaiProduct_definition *
-find_pd_for_sr (InstMgr *instance_list, SdaiShape_representation *target_sr)
+find_pd_for_sr (InstMgr *instance_list, int start_after_id, SdaiShape_representation *target_sr)
 {
-  int search_index = 0;
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index = instance_list->GetIndex (mnode) + 1;
 
   // Loop over the instances of SHAPE_DEFITION_REPRESENTATION in the file
   SdaiShape_definition_representation *sdr;
@@ -172,9 +175,10 @@ find_pd_for_sr (InstMgr *instance_list, SdaiShape_representation *target_sr)
 }
 
 void
-find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list)
+find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list, int start_after_id)
 {
-  int search_index = 0;
+  MgrNode * mnode = instance_list->FindFileId (start_after_id);
+  int search_index = instance_list->GetIndex (mnode) + 1;
 
   SdaiMapped_item *mi;
   while (ENTITY_NULL != (mi = (SdaiMapped_item *)
@@ -186,7 +190,7 @@ find_and_remove_child_pd_mi_rm_sr (InstMgr *instance_list, pd_list *pd_list)
 //      SdaiRepresentation_item *mapping_origin = mapping_source->mapping_origin_ (); // <- Eg. an axis
       SdaiRepresentation *mapped_representation = mapping_source->mapped_representation_ (); // <- Shape representation of the product which is a child
 
-      SdaiProduct_definition *child_pd = find_pd_for_sr (instance_list, (SdaiShape_representation *)mapped_representation);
+      SdaiProduct_definition *child_pd = find_pd_for_sr (instance_list, start_after_id, (SdaiShape_representation *)mapped_representation);
       /* Need to find product_definition which has PD<-PDS.definition_<-SDR.definition_SDR.used_representation->SR */
 
 //      SdaiProduct_definition *related_pd = mi->related_product_definition_ ();
