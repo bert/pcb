@@ -207,6 +207,19 @@ RotateArcLowLevel (ArcType *Arc, Coord X, Coord Y, unsigned Number)
   ROTATE (Arc->Point2.X, Arc->Point2.Y, X, Y, Number);
 }
 
+static void
+parse_numeric_attribute (ElementType *element, char *attr_name, double *res)
+{
+  const char *attr_value = AttributeGet (element, attr_name);
+  bool absolute;
+
+  *res = 0.0;
+  if (attr_value == NULL)
+    return;
+
+  *res = COORD_TO_MM (GetValueEx (attr_value, NULL, &absolute, NULL, "mm")); /* KLUDGE */
+}
+
 /*!
  * \brief Rotate an element in 90 degree steps.
  */
@@ -214,6 +227,9 @@ void
 RotateElementLowLevel (DataType *Data, ElementType *Element,
 		       Coord X, Coord Y, unsigned Number)
 {
+  double rotation;
+  char *value;
+
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
@@ -258,6 +274,14 @@ RotateElementLowLevel (DataType *Data, ElementType *Element,
   /* SetElementBoundingBox reenters the rtree data */
   SetElementBoundingBox (Data, Element, &PCB->Font);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
+
+
+  /* XXX: Should parse a unit suffix, e.g. "degrees" */
+  parse_numeric_attribute (Element, "PCB::rotation", &rotation);
+  rotation += Number * 90.;
+  value = g_strdup_printf ("%f degrees", rotation);
+  AttributePutToList (&Element->Attributes, "PCB::rotation", value, true);
+  g_free (value);
 }
 
 /*!

@@ -1238,11 +1238,27 @@ free_rotate (Coord *x, Coord *y, Coord cx, Coord cy, double cosa, double sina)
   *y = ny + cy;
 }
 
+static void
+parse_numeric_attribute (ElementType *element, char *attr_name, double *res)
+{
+  const char *attr_value = AttributeGet (element, attr_name);
+  bool absolute;
+
+  *res = 0.0;
+  if (attr_value == NULL)
+    return;
+
+  *res = COORD_TO_MM (GetValueEx (attr_value, NULL, &absolute, NULL, "mm")); /* KLUDGE */
+}
+
 void
 FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
 			   Coord X, Coord Y,
 			   double cosa, double sina, Angle angle)
 {
+  double rotation;
+  char *value;
+
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
@@ -1295,6 +1311,13 @@ FreeRotateElementLowLevel (DataType *Data, ElementType *Element,
   free_rotate (&Element->MarkX, &Element->MarkY, X, Y, cosa, sina);
   SetElementBoundingBox (Data, Element, &PCB->Font);
   ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
+
+  /* XXX: Should parse a unit suffix, e.g. "degrees" */
+  parse_numeric_attribute (Element, "PCB::rotation", &rotation);
+  rotation += angle;
+  value = g_strdup_printf ("%f degrees", rotation);
+  AttributePutToList (&Element->Attributes, "PCB::rotation", value, true);
+  g_free (value);
 }
 
 void
