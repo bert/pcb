@@ -898,8 +898,12 @@ EnforceLineDRC (void)
     }
   END_LOOP;
 
-  rs.X = /*r45.X =*/ Crosshair.X;
-  rs.Y = /*r45.Y =*/ Crosshair.Y;
+  rs.X = Crosshair.X;
+  rs.Y = Crosshair.Y;
+#if 1
+  r45.X = Crosshair.X;
+  r45.Y = Crosshair.Y;
+#endif
 
   if (!TEST_FLAG (AUTODRCFLAG, PCB))
     {
@@ -919,7 +923,7 @@ EnforceLineDRC (void)
     }
   else
     {
-#if 1 /* Auto switch starting angle */
+#if 0 /* Auto switch starting angle */
       /* first try starting straight */
       r1 = drc_lines (&rs, false);
       /* then try starting at 45 */
@@ -941,7 +945,8 @@ EnforceLineDRC (void)
           Crosshair.Y = r45.Y;
         }
 #else /* Fixed starting angle */
-      drc_lines (&rs, (PCB->Clipping == 1) != gui->shift_is_pressed ());
+//      drc_lines (&rs, (PCB->Clipping == 1) != gui->shift_is_pressed ());
+      drc_lines (&rs, false);
       Crosshair.X = rs.X;
       Crosshair.Y = rs.Y;
 #endif
