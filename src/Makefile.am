@@ -387,11 +387,7 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-pinout-preview.h \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
-	hid/gtk/gui-utils.c \
-	hid/step/step_writer.c \
-	hid/step/step_writer.h \
-	hid/step/object3d_step.c \
-	hid/step/object3d_step.h
+	hid/gtk/gui-utils.c
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
 hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
@@ -520,7 +516,11 @@ LIBSTEP_SRCS = \
 	hid/step/assembly.cpp \
 	hid/step/assembly.h \
 	hid/step/utils.cpp \
-	hid/step/utils.h
+	hid/step/utils.h \
+	hid/step/step_writer.c \
+	hid/step/step_writer.h \
+	hid/step/object3d_step.c \
+	hid/step/object3d_step.h
 libstep_a_SOURCES = ${LIBSTEP_SRCS} hid/step/step_lists.h
 
 pcb_LDFLAGS = \
