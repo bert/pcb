@@ -48,6 +48,29 @@ presentation_style_assignments_from_appearance (step_file *step, appearance *app
   return psa_list;
 }
 
+static step_id_list
+lookup_or_create_psa (step_file *step, GHashTable *hash, appearance *appear)
+{
+  step_id_list psa_list;
+
+  if (hash != NULL)
+    psa_list = g_hash_table_lookup (hash, appear);
+
+  if (hash == NULL || psa_list == NULL)
+    {
+      psa_list = presentation_style_assignments_from_appearance (step, appear);
+
+      if (hash != NULL)
+        g_hash_table_insert (hash, appear, psa_list);
+    }
+
+  /* The caller will free the list, so we need to make a copy if the hash table exists */
+  if (hash != NULL)
+    psa_list = g_list_copy (psa_list);
+
+  return psa_list;
+}
+
 static step_file *
 start_ap214_file (const char *filename)
 {
@@ -134,7 +157,8 @@ object3d_to_step_body_fragment (step_file *step,
                                 object3d *object,
                                 char *body_name,
                                 step_id *brep,
-                                step_id_list *styled_item_identifiers)
+                                step_id_list *styled_item_identifiers,
+                                GHashTable *appear_hash)
 {
   step_id brep_identifier;
   step_id pcb_shell_identifier;
@@ -319,7 +343,7 @@ object3d_to_step_body_fragment (step_file *step,
 
   /* Body style */
   /* XXX: THERE MUST BE A BODY STYLE, CERTAINLY IF WE WANT TO OVER RIDE FACE COLOURS */
-  brep_style_identifier = step_styled_item (step, "NONE", presentation_style_assignments_from_appearance (step, object->appear), brep_identifier);
+  brep_style_identifier = step_styled_item (step, "NONE", lookup_or_create_psa (step, appear_hash, object->appear), brep_identifier);
   step_presentation_layer_assignment (step, "1", "Layer 1", make_step_id_list (1, brep_style_identifier));
 
   *styled_item_identifiers = step_id_list_append (*styled_item_identifiers, brep_style_identifier);
@@ -332,7 +356,7 @@ object3d_to_step_body_fragment (step_file *step,
       if (face->appear != NULL)
         {
           step_id orsi = step_over_riding_styled_item (step, "NONE",
-                                                       presentation_style_assignments_from_appearance (step, face->appear),
+                                                       lookup_or_create_psa (step, appear_hash, face->appear),
                                                        face->face_identifier, brep_style_identifier);
           *styled_item_identifiers = step_id_list_append (*styled_item_identifiers, orsi);
         }
@@ -402,6 +426,9 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
   GString *part_name;
   step_id_list breps;
   step_id_list styled_items;
+  GHashTable *appear_hash;
+
+  appear_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)g_list_free);
 
   multiple_bodies = (g_list_next (objects) != NULL);
 
@@ -432,7 +459,7 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
       if (multiple_bodies)
         g_string_append_printf (body_name, " - %i", part);
 
-      object3d_to_step_body_fragment (step, object, body_name->str, &comp_brep, &styled_items);
+      object3d_to_step_body_fragment (step, object, body_name->str, &comp_brep, &styled_items, appear_hash);
 
       g_string_free (body_name, true);
 
@@ -448,12 +475,13 @@ object3d_list_export_to_step_part (GList *objects, const char *filename)
                       &shape_definition_representation,
                       &placement_axis);
 
+  g_hash_table_destroy (appear_hash);
   finish_ap214_file (step);
 }
 
 static void
 object3d_to_step_fragment (step_file *step, object3d *object, char *part_id, char *part_name, char *part_description, char *body_name,
-                           step_id *shape_definition_representation, step_id *placement_axis)
+                           step_id *shape_definition_representation, step_id *placement_axis, GHashTable *appear_hash)
 {
   step_id product_definition_shape_identifier;
   step_id geometric_representation_context_identifier;
@@ -464,7 +492,7 @@ object3d_to_step_fragment (step_file *step, object3d *object, char *part_id, cha
                          &geometric_representation_context_identifier,
                          &product_definition_shape_identifier);
 
-  object3d_to_step_body_fragment (step, object, body_name, &brep_identifier, &styled_item_identifiers);
+  object3d_to_step_body_fragment (step, object, body_name, &brep_identifier, &styled_item_identifiers, appear_hash);
 
   step_absr_fragment (step,
                       make_step_id_list (1, brep_identifier),
@@ -485,6 +513,9 @@ object3d_list_export_to_step_assy (GList *objects, const char *filename)
   GList *object_iter;
   int part;
   bool multiple_parts;
+  GHashTable *appear_hash;
+
+  appear_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)g_list_free);
 
   multiple_parts = (g_list_next (objects) != NULL);
 
@@ -512,13 +543,14 @@ object3d_list_export_to_step_assy (GList *objects, const char *filename)
         }
 
       object3d_to_step_fragment (step, object, part_id->str, part_name->str, "PCB model", body_name->str,
-                                 &comp_shape_definition_representation, &comp_placement_axis);
+                                 &comp_shape_definition_representation, &comp_placement_axis, appear_hash);
 
       g_string_free (part_id, true);
       g_string_free (part_name, true);
       g_string_free (body_name, true);
     }
 
+  g_hash_table_destroy (appear_hash);
   finish_ap214_file (step);
 
   /* XXX: TODO: MAKE AN ASSEMBLY PRODUCT AND GATHER THE ABOVE PIECES INSIDE IT */
@@ -530,6 +562,6 @@ object3d_export_to_step (object3d *object, const char *filename)
   step_file *step;
 
   step = start_ap214_file (filename);
-  object3d_to_step_fragment (step, object, "board", "PCB board", "PCB model", "PCB board body", NULL, NULL);
+  object3d_to_step_fragment (step, object, "board", "PCB board", "PCB model", "PCB board body", NULL, NULL, NULL);
   finish_ap214_file (step);
 }
