@@ -65,6 +65,8 @@ AdjustAttachedLine (void)
 {
   AttachedLineType *line = &Crosshair.AttachedLine;
 
+  printf ("AdjustAttachedLine\n");
+
   /* I need at least one point */
   if (line->State == STATE_FIRST)
     return;
@@ -242,6 +244,7 @@ struct drc_info
   bool top_side;
   jmp_buf env;
   ElementType *element;
+  Cardinal group;
   LayerType *layer;
   char *drawn_line_netclass;
   Coord drawn_line_clearance;
@@ -268,7 +271,6 @@ drcVia_callback (const BoxType * b, void *cl)
   if (PinLineIntersect (via, i->line))
     {
       via->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
-//      printf ("Setting ExtraDrcClearance on object to %li\n", via->ExtraDrcClearance);
       i->line->Thickness = tmp;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         longjmp (i->env, 1);
@@ -297,7 +299,6 @@ drcPin_callback (const BoxType * b, void *cl)
   if (PinLineIntersect (pin, i->line))
     {
       pin->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
-//      printf ("Setting ExtraDrcClearance on object to %li\n", pin->ExtraDrcClearance);
       i->line->Thickness = tmp;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         longjmp (i->env, 1);
@@ -326,7 +327,6 @@ drcPad_callback (const BoxType * b, void *cl)
   if (LinePadIntersect (i->line, pad))
     {
       pad->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
-//      printf ("Setting ExtraDrcClearance on object to %li\n", pad->ExtraDrcClearance);
       i->line->Thickness = tmp;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         longjmp (i->env, 1);
@@ -355,7 +355,6 @@ drcLine_callback (const BoxType * b, void *cl)
   if (LineLineIntersect (line, i->line))
     {
       line->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
-//      printf ("Setting ExtraDrcClearance on object to %li\n", line->ExtraDrcClearance);
       i->line->Thickness = tmp;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         longjmp (i->env, 1);
@@ -384,13 +383,286 @@ drcArc_callback (const BoxType * b, void *cl)
   if (LineArcIntersect (i->line, arc))
     {
       arc->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
-//      printf ("Setting ExtraDrcClearance on object to %li\n", arc->ExtraDrcClearance);
       i->line->Thickness = tmp;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         longjmp (i->env, 1);
     }
   i->line->Thickness = tmp;
   return 1;
+}
+
+static bool
+lines_hit_obstacle (struct drc_info *info, LineType *line1, LineType *line2)
+{
+  if (setjmp (info->env) == 0)
+    {
+      info->line = line1;
+      r_search (PCB->Data->via_tree, &info->line->BoundingBox, NULL, drcVia_callback, info);
+      r_search (PCB->Data->pin_tree, &info->line->BoundingBox, NULL, drcPin_callback, info);
+      if (info->bottom_side || info->top_side)
+        r_search (PCB->Data->pad_tree, &info->line->BoundingBox, NULL, drcPad_callback, info);
+      if (line2 != NULL)
+        {
+          info->line = line2;
+          r_search (PCB->Data->via_tree, &info->line->BoundingBox, NULL, drcVia_callback, info);
+          r_search (PCB->Data->pin_tree, &info->line->BoundingBox, NULL, drcPin_callback, info);
+          if (info->bottom_side || info->top_side)
+            r_search (PCB->Data->pad_tree, &info->line->BoundingBox, NULL, drcPad_callback, info);
+        }
+      GROUP_LOOP (PCB->Data, info->group);
+      {
+        info->line = line1;
+        info->layer = layer;
+        r_search (layer->line_tree, &info->line->BoundingBox, NULL, drcLine_callback, info);
+        r_search (layer->arc_tree,  &info->line->BoundingBox, NULL, drcArc_callback,  info);
+        if (line2 != NULL)
+          {
+            info->line = line2;
+            r_search (layer->line_tree, &info->line->BoundingBox, NULL, drcLine_callback, info);
+            r_search (layer->arc_tree,  &info->line->BoundingBox, NULL, drcArc_callback,  info);
+          }
+      }
+      END_LOOP;
+
+      return false;
+    }
+  else
+    {
+      return true;
+    }
+}
+
+static bool
+line_hits_obstacle (struct drc_info *info, LineType *line)
+{
+  return lines_hit_obstacle (info, line, NULL);
+}
+
+
+
+/* \brief drc_line() checks for intersectors against a line and
+ * adjusts the end point until there is no intersection or
+ * it winds up back at the start.
+
+ * If way is false it checks straight start, 45 end lines,
+ * otherwise it checks 45 start, straight end.
+ *
+ * It returns the straight-line length of the best answer, and
+ * changes the position of the input point to the best answer.
+ */
+static double
+drc_line (PointType *end)
+{
+  double f, s;
+  Coord dx, dy, initial_length, last, length;
+  LineType line1;
+  struct drc_info info;
+
+  info.group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
+  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == info.group);
+  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
+  info.drawn_line_netclass = Crosshair.Netclass;
+  info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
+  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+
+  f = 1.0;
+  s = 0.5;
+  last = -1;
+
+  line1.Flags = NoFlags ();
+  line1.Thickness = Settings.LineThickness + 2 * info.max_clearance;
+  line1.Clearance = 0;
+  line1.Point1.X = Crosshair.AttachedLine.Point1.X;
+  line1.Point1.Y = Crosshair.AttachedLine.Point1.Y;
+  dx = end->X - line1.Point1.X;
+  dy = end->Y - line1.Point1.Y;
+  length = initial_length = hypot (dx, dy);
+
+  while (length != last)
+    {
+      last = length;
+
+      dx = (double)(end->X - line1.Point1.X) * f;
+      dy = (double)(end->Y - line1.Point1.Y) * f;
+      line1.Point2.X = line1.Point1.X + dx;
+      line1.Point2.Y = line1.Point1.Y + dy;
+      SetLineBoundingBox (&line1);
+
+      if (line_hits_obstacle (&info, &line1))
+        f -= s; /* bumped into something, back off */
+      else
+        f += s; /* no intersector! */
+
+      f = MIN (f, 1.0); /* Avoid extending the line beyond the mouse pointer */
+
+      s *= 0.5;
+
+      length = f * initial_length;
+    }
+
+  end->X = line1.Point2.X;
+  end->Y = line1.Point2.Y;
+  return length;
+}
+
+
+/*!
+ * \brief drc_lines2() checks for intersectors against two lines and
+ * adjusts the end point until there is no intersection or
+ * it winds up back at the start.
+ *
+ * If way is false it checks straight start, 45 end lines, otherwise it
+ * checks 45 start, straight end. 
+ *
+ * It returns the straight-line length of the best answer, and
+ * changes the position of the input point to the best answer.
+ */
+static double
+drc_lines2 (PointType *end, bool way)
+{
+  double f, s;
+  double f2, s2;
+  double len, best;
+  Coord dx, dy;
+  Coord temp, last, length;
+  Coord temp2, last2, length2;
+  LineType line1, line2;
+  bool two_lines, x_is_long, blocker;
+  PointType ans;
+  struct drc_info info;
+
+  info.group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
+  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == info.group);
+  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
+  info.drawn_line_netclass = Crosshair.Netclass;
+  info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
+  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+
+  f = 1.0;
+  s = 0.5;
+  last = -1;
+  line1.Flags = line2.Flags = NoFlags ();
+  line1.Thickness = Settings.LineThickness + 2 * info.max_clearance;
+  line2.Thickness = line1.Thickness;
+  line1.Clearance = line2.Clearance = 0;
+  line1.Point1.X = Crosshair.AttachedLine.Point1.X;
+  line1.Point1.Y = Crosshair.AttachedLine.Point1.Y;
+  dx = end->X - line1.Point1.X;
+  dy = end->Y - line1.Point1.Y;
+
+  x_is_long = (abs (dx) > abs (dy));
+
+  if (x_is_long)
+    length = abs (dx);
+  else
+    length = abs (dy);
+
+  temp = length;
+  /* assume the worst */
+  best = 0.0;
+  ans.X = line1.Point1.X;
+  ans.Y = line1.Point1.Y;
+  while (length != last)
+    {
+      last = length;
+      if (x_is_long)
+        {
+          dx = SGN (dx) * length;
+          dy = end->Y - line1.Point1.Y;
+          length2 = abs (dy);
+        }
+      else
+        {
+          dx = end->X - line1.Point1.X;
+          dy = SGN (dy) * length;
+          length2 = abs (dx);
+        }
+      temp2 = length2;
+      f2 = 1.0;
+      s2 = 0.5;
+      last2 = -1;
+      blocker = true;
+      while (length2 != last2)
+        {
+          if (x_is_long)
+            dy = SGN (dy) * length2;
+          else
+            dx = SGN (dx) * length2;
+          two_lines = true;
+          if (abs (dx) > abs (dy) && x_is_long)
+            {
+              line1.Point2.X = line1.Point1.X +
+                (way ? SGN (dx) * abs (dy) : dx - SGN (dx) * abs (dy));
+              line1.Point2.Y = line1.Point1.Y + (way ? dy : 0);
+            }
+          else if (abs (dy) >= abs (dx) && !x_is_long)
+            {
+              line1.Point2.X = line1.Point1.X + (way ? dx : 0);
+              line1.Point2.Y = line1.Point1.Y +
+                (way ? SGN (dy) * abs (dx) : dy - SGN (dy) * abs (dx));
+            }
+          else if (x_is_long)
+            {
+              /* we've changed which axis is long, so only do one line */
+              line1.Point2.X = line1.Point1.X + dx;
+              line1.Point2.Y = line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
+              two_lines = false;
+            }
+          else
+            {
+              /* we've changed which axis is long, so only do one line */
+              line1.Point2.X = line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
+              line1.Point2.Y = line1.Point1.Y + dy;
+              two_lines = false;
+            }
+          line2.Point1.X = line1.Point2.X;
+          line2.Point1.Y = line1.Point2.Y;
+          if (two_lines)
+            {
+              line2.Point2.X = line1.Point1.X + dx;
+              line2.Point2.Y = line1.Point1.Y + dy;
+            }
+          else
+            {
+              line2.Point2.Y = line1.Point2.Y;
+              line2.Point2.X = line1.Point2.X;
+            }
+          SetLineBoundingBox (&line1);
+          SetLineBoundingBox (&line2);
+          last2 = length2;
+
+          if (lines_hit_obstacle (&info, &line1, two_lines ? &line2 : NULL))
+            {
+              f2 -= s2; /* bumped into something, back off */
+            }
+          else
+            {
+              f2 += s2; /* no intersector! */
+              blocker = false;
+              len = hypot (line2.Point2.X - line1.Point1.X, line2.Point2.Y - line1.Point1.Y);
+              if (len > best)
+                {
+                  best = len;
+                  ans.X = line2.Point2.X;
+                  ans.Y = line2.Point2.Y;
+                }
+            }
+
+          s2 *= 0.5;
+          length2 = MIN (f2 * temp2, temp2);
+        }
+      if (!blocker && (( x_is_long && line2.Point2.X - line1.Point1.X == dx) ||
+                       (!x_is_long && line2.Point2.Y - line1.Point1.Y == dy)))
+        f += s;
+      else
+        f -= s;
+      s *= 0.5;
+      length = MIN (f * temp, temp);
+    }
+
+  end->X = ans.X;
+  end->Y = ans.Y;
+  return best;
 }
 
 /*!
@@ -411,7 +683,6 @@ drc_lines (PointType *end, bool way)
   Coord dx, dy, temp, last, length;
   Coord temp2, last2, length2;
   LineType line1, line2;
-  Cardinal group;
   struct drc_info info;
   bool two_lines, x_is_long, blocker;
   PointType ans;
@@ -442,9 +713,9 @@ drc_lines (PointType *end, bool way)
       length = abs (dy);
     }
 
-  group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
-  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == group);
-  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == group);
+  info.group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
+  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == info.group);
+  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
 
   temp = length;
   /* assume the worst */
@@ -521,38 +792,15 @@ drc_lines (PointType *end, bool way)
 	  SetLineBoundingBox (&line1);
 	  SetLineBoundingBox (&line2);
 	  last2 = length2;
-	  if (setjmp (info.env) == 0)
-	    {
-	      info.line = &line1;
-	      r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL, drcVia_callback, &info);
-	      r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL, drcPin_callback, &info);
-	      if (info.bottom_side || info.top_side)
-		r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL, drcPad_callback, &info);
-	      if (two_lines)
-		{
-		  info.line = &line2;
-		  r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL, drcVia_callback, &info);
-		  r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL, drcPin_callback, &info);
-		  if (info.bottom_side || info.top_side)
-		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL, drcPad_callback, &info);
-		}
-	      GROUP_LOOP (PCB->Data, group);
-	      {
-		info.line = &line1;
-		info.layer = layer;
-		r_search (layer->line_tree, &line1.BoundingBox, NULL, drcLine_callback, &info);
-		r_search (layer->arc_tree,  &line1.BoundingBox, NULL, drcArc_callback,  &info);
-		if (two_lines)
-		  {
-		    info.line = &line2;
-		    r_search (layer->line_tree, &line2.BoundingBox, NULL, drcLine_callback, &info);
-		    r_search (layer->arc_tree,  &line2.BoundingBox, NULL, drcArc_callback,  &info);
-		  }
-	      }
-	      END_LOOP;
-	      /* no intersector! */
+          if (lines_hit_obstacle (&info, &line1, two_lines ? &line2 : NULL))
+            {
+              f2 -= s2; /* bumped into something, back off */
+            }
+          else
+            {
+	      f2 += s2; /* no intersector! */
+
 	      blocker = false;
-	      f2 += s2;
 	      len = (line2.Point2.X - line1.Point1.X);
 	      len *= len;
 	      len += (double) (line2.Point2.Y - line1.Point1.Y) *
@@ -568,22 +816,11 @@ drc_lines (PointType *end, bool way)
 		f2 = 0.5;
 #endif
 	    }
-	  else
-	    {
-	      /* bumped into something, back off */
-	      f2 -= s2;
-	      //SET_FLAG (WARNFLAG, info.object);
-//	      if (TEST_FLAG (AUTODRCFLAG, PCB))
-//	        info.object->ExtraDrcClearance = MM_TO_COORD (1.0);
-//	      Draw (type, info.ptr1, info.ptr2); /* XXX: Need info */
-//	      Redraw (); /* XXX: Sledgehammer */
-	    }
 	  s2 *= 0.5;
 	  length2 = MIN (f2 * temp2, temp2);
 	}
-      if (!blocker && ((x_is_long && line2.Point2.X - line1.Point1.X == dx)
-		       || (!x_is_long
-			   && line2.Point2.Y - line1.Point1.Y == dy)))
+      if (!blocker && (( x_is_long && line2.Point2.X - line1.Point1.X == dx) ||
+                       (!x_is_long && line2.Point2.Y - line1.Point1.Y == dy)))
 	f += s;
       else
 	f -= s;
@@ -599,9 +836,12 @@ drc_lines (PointType *end, bool way)
 void
 EnforceLineDRC (void)
 {
-  PointType r45, rs;
+  PointType rs;
+#if 1
+  PointType r45;
   bool shift;
   double r1, r2;
+#endif
 
   /* Silence a bogus compiler warning by storing this in a variable */
   int layer_idx = INDEXOFCURRENT;
@@ -658,40 +898,52 @@ EnforceLineDRC (void)
     }
   END_LOOP;
 
-  rs.X = r45.X = Crosshair.X;
-  rs.Y = r45.Y = Crosshair.Y;
+  rs.X = /*r45.X =*/ Crosshair.X;
+  rs.Y = /*r45.Y =*/ Crosshair.Y;
 
   if (!TEST_FLAG (AUTODRCFLAG, PCB))
     {
-      if (TEST_FLAG (ALLDIRECTIONFLAG, PCB)) /* We don't have code to handle this case! */
-        return;
-
       /* Just run drc_lines to update clearances, without accepting any of its adjustment, when AUTODRCFLAG is not set */
-      drc_lines (&rs, (PCB->Clipping == 2) != gui->shift_is_pressed ());
+      if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
+        drc_line (&rs);
+      else
+        drc_lines (&rs, (PCB->Clipping == 2) != gui->shift_is_pressed ());
       return;
     }
 
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB)) /* We don't have code to handle this case! */
-    return;
-
-  /* first try starting straight */
-  r1 = drc_lines (&rs, false);              /* XXX: This code doesn't cope well with all-direction lines (?) */
-  /* then try starting at 45 */
-  r2 = drc_lines (&r45, true);              /* XXX: This code doesn't cope well with all-direction lines (?) */
-
-  shift = gui->shift_is_pressed ();
-  if (XOR (r1 > r2, shift))
+  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
-      if (PCB->Clipping)
-	PCB->Clipping = shift ? 2 : 1;
+      drc_line (&rs);
       Crosshair.X = rs.X;
       Crosshair.Y = rs.Y;
     }
   else
     {
-      if (PCB->Clipping)
-	PCB->Clipping = shift ? 1 : 2;
-      Crosshair.X = r45.X;
-      Crosshair.Y = r45.Y;
+#if 1 /* Auto switch starting angle */
+      /* first try starting straight */
+      r1 = drc_lines (&rs, false);
+      /* then try starting at 45 */
+      r2 = drc_lines (&r45, true);
+
+      shift = gui->shift_is_pressed ();
+      if (XOR (r1 > r2, shift))
+        {
+          if (PCB->Clipping)
+            PCB->Clipping = shift ? 2 : 1;
+          Crosshair.X = rs.X;
+          Crosshair.Y = rs.Y;
+        }
+      else
+        {
+          if (PCB->Clipping)
+            PCB->Clipping = shift ? 1 : 2;
+          Crosshair.X = r45.X;
+          Crosshair.Y = r45.Y;
+        }
+#else /* Fixed starting angle */
+      drc_lines (&rs, (PCB->Clipping == 1) != gui->shift_is_pressed ());
+      Crosshair.X = rs.X;
+      Crosshair.Y = rs.Y;
+#endif
     }
 }

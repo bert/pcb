@@ -802,7 +802,7 @@ DrawAttached (hidGC gc)
 	                           Crosshair.AttachedLine.Point2.Y,
 	                           PCB->RatDraw ? 10 : Settings.LineThickness);
 	  /* draw two lines ? */
-	  if (PCB->Clipping)
+	  if (PCB->Clipping && !TEST_FLAG (ALLDIRECTIONFLAG, PCB))
 	    XORDrawAttachedLine (gc, Crosshair.AttachedLine.Point2.X,
 	                             Crosshair.AttachedLine.Point2.Y,
 	                         Crosshair.X, Crosshair.Y,
@@ -1130,10 +1130,12 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   struct snap_data snap_data;
   int ans;
 
+#if 0
   Coord old_x, old_y;
 
   old_x = Crosshair.X;
   old_y = Crosshair.Y;
+#endif
 
   Crosshair.X = CLAMP (X, Crosshair.MinX, Crosshair.MaxX);
   Crosshair.Y = CLAMP (Y, Crosshair.MinY, Crosshair.MaxY);
@@ -1174,11 +1176,13 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
     }
 #endif
 
+#if 0
   if (labs (nearest_grid_x - Crosshair.X) > PCB->Grid / 3)
     snap_data.x = old_x;
 
   if (labs (nearest_grid_y - Crosshair.Y) > PCB->Grid / 3)
     snap_data.y = old_y;
+#endif
 
   snap_data.nearest_sq_dist = crosshair_sq_dist (&Crosshair, snap_data.x, snap_data.y);
 
