@@ -1499,6 +1499,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   int bottom_group;
   int min_copper_group;
   int max_copper_group;
+  int group_step = 1;
 
   POLYAREA **group_m_polyarea;
   POLYAREA *barrel_m_polyarea;
@@ -1528,6 +1529,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 
   min_copper_group = MIN (bottom_group, top_group);
   max_copper_group = MAX (bottom_group, top_group);
+  group_step = max_copper_group - min_copper_group;
 
   group_m_polyarea = calloc (max_copper_group + 1, sizeof (POLYAREA *));
 
@@ -1544,7 +1546,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   pinvia_m_polyarea = info.poly;
 #endif
 
-  for (group = min_copper_group; group <= max_copper_group; group++)
+  for (group = min_copper_group; group <= max_copper_group; group += group_step)
     {
       GList *new_objects;
       Coord depth = compute_depth (group);
@@ -1686,7 +1688,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   // Repeat for each contour in the accumulated barrel M_POLYAERA
 
 
-  for (group = min_copper_group; group < max_copper_group; group++)
+  for (group = min_copper_group; group < max_copper_group; group += group_step)
     {
       Coord top_depth;
       Coord bottom_depth;
@@ -1698,14 +1700,14 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
         break;
 
       /* Extrude barrel from group to group + 1 */
-      fprintf (stderr, "Extruding barrels from layer group %i to %i\n", group, group + 1);
+      fprintf (stderr, "Extruding barrels from layer group %i to %i\n", group, group + group_step);
 
       g_assert (group_m_polyarea[group] != NULL);
-      g_assert (group_m_polyarea[group + 1] != NULL);
+      g_assert (group_m_polyarea[group + group_step] != NULL);
 
       /* Depth is the bottom? of the layer? */
       top_depth = compute_depth (group);
-      bottom_depth = compute_depth (group + 1);
+      bottom_depth = compute_depth (group + group_step);
 
       barrel_objects = object3d_from_contours (barrel_m_polyarea,
 #ifdef REVERSED_PCB_CONTOURS
@@ -1746,7 +1748,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
           edge_ref e;
 
           POLYAREA *top_pa    = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[group    ] , false);
-          POLYAREA *bottom_pa = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[group + 1] , false);
+          POLYAREA *bottom_pa = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[group + group_step] , false);
 
           /* These conditions should not occur, and can likely only happen because some other
            * bug in the polygon processing code has created an inconsistent m_polyarea somewhere.
@@ -1976,7 +1978,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   poly_Free (&barrel_m_polyarea);
   poly_Free (&drill_m_polyarea);
 
-  for (group = min_copper_group; group <= max_copper_group; group++)
+  for (group = min_copper_group; group <= max_copper_group; group += group_step)
     {
       if (group_m_polyarea[group] != NULL)
         {
