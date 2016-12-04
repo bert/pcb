@@ -75,7 +75,9 @@
 #endif
 
 
-#define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
+static Coord board_thickness;
+#define HACK_BOARD_THICKNESS board_thickness
+//#define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
 #define HACK_COPPER_THICKNESS MM_TO_COORD(0.035)
 #define HACK_PLATED_BARREL_THICKNESS MM_TO_COORD(0.08)
 #define HACK_MASK_THICKNESS MM_TO_COORD(0.01)
@@ -2227,4 +2229,10 @@ object3d_from_silk_within_area (POLYAREA *area, int side)
   poly_Free (&info.poly);
 
   return objects;
+}
+
+void
+object3d_set_board_thickness (Coord thickness)
+{
+  board_thickness = thickness;
 }

@@ -60,7 +60,9 @@
 #endif
 
 
-#define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
+static Coord board_thickness;
+#define HACK_BOARD_THICKNESS board_thickness
+//#define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
 #define HACK_COPPER_THICKNESS MM_TO_COORD(0.035)
 
 HID step_hid;
@@ -88,7 +90,7 @@ Name of the STEP output file. Can contain a path.
    @end ftable
    %end-doc
    */
-    {N_("copper"), N_("Export copper objects"),
+    {"copper", N_("Export copper objects"),
          HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_copper 1
 
@@ -100,7 +102,7 @@ Name of the STEP output file. Can contain a path.
    @end ftable
    %end-doc
    */
-    {N_("soldermask"), N_("Export soldermask"),
+    {"soldermask", N_("Export soldermask"),
          HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_soldermask 2
 
@@ -112,7 +114,7 @@ Name of the STEP output file. Can contain a path.
    @end ftable
    %end-doc
    */
-    {N_("silk"), N_("Export silk"),
+    {"silk", N_("Export silk"),
          HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_silk 3
 
@@ -124,9 +126,21 @@ Name of the STEP output file. Can contain a path.
    @end ftable
    %end-doc
    */
-    {N_("models"), N_("Export component models"),
+    {"models", N_("Export component models"),
          HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_models 4
+
+  /* %start-doc options "91 STEP Export"
+   @ftable @code
+   @cindex thickness
+   @item --thickness
+   Board thickness
+   @end ftable
+   %end-doc
+   */
+    {"thickness", N_("Board thickness"),
+         HID_Coord, 0, 0, {0, 0, 0, MM_TO_COORD (1.6)}, 0, 0},
+#define HA_thickness 5
 };
 
 #define NUM_OPTIONS (sizeof(step_attribute_list)/sizeof(step_attribute_list[0]))
@@ -211,6 +225,9 @@ step_do_export (HID_Attr_Val * options)
         step_option_values[i] = step_attribute_list[i].default_val;
       options = step_option_values;
     }
+
+  board_thickness = options[HA_thickness].coord_value;
+  object3d_set_board_thickness (board_thickness);
 
   filename = options[HA_stepfile].str_value;
   if (filename == NULL)
