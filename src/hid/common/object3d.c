@@ -1252,7 +1252,7 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
                                 copper_appearance,
                                 NULL));
 
-      break;
+      //break;
     }
 
 
@@ -1264,10 +1264,10 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 //  gui->invalidate_all ();
 
   /* ASSUME THERE IS A POLYGON WHERE WE KNOW WE PUT ONE... */
-  ((PolygonType *)PCB->Data->Layer[1].Polygon->data)->Clipped = info.poly;
-  gui->invalidate_all ();
+//  ((PolygonType *)PCB->Data->Layer[1].Polygon->data)->Clipped = info.poly;
+//  gui->invalidate_all ();
 
-//  poly_Free (&info.poly);
+  poly_Free (&info.poly);
 
   return objects;
 }
