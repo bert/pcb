@@ -143,8 +143,8 @@ static void
 thindraw_contour (hidGC gc, PLINE *pl)
 {
   VNODE *v;
-  Coord last_x, last_y;
   Coord this_x, this_y;
+  Coord next_x, next_y;
 
   hid_draw_set_line_width (gc, 0);
   hid_draw_set_line_cap (gc, Round_Cap);
@@ -162,27 +162,27 @@ thindraw_contour (hidGC gc, PLINE *pl)
   if (pl->head.next == NULL)
     return;
 
-  last_x = pl->head.point[0];
-  last_y = pl->head.point[1];
-  v = pl->head.next;
+  this_x = pl->head.point[0];
+  this_y = pl->head.point[1];
+  v = &pl->head;
 
   do
     {
-      this_x = v->point[0];
-      this_y = v->point[1];
+      next_x = v->next->point[0];
+      next_y = v->next->point[1];
 
-      if (v->prev->is_round)
+      if (v->is_round)
         {
           Angle start_angle, end_angle, delta_angle;
 
-          start_angle = TO_DEGREES (atan2 ((v->prev->point[1] - v->prev->cy), -(v->prev->point[0] - v->prev->cx)));
-          end_angle   = TO_DEGREES (atan2 ((      v->point[1] - v->prev->cy), -(      v->point[0] - v->prev->cx)));
+          start_angle = TO_DEGREES (atan2 ((v->      point[1] - v->cy), -(v->      point[0] - v->cx)));
+          end_angle   = TO_DEGREES (atan2 ((v->next->point[1] - v->cy), -(v->next->point[0] - v->cx)));
           delta_angle = end_angle - start_angle;
 
           if (delta_angle > 180.) delta_angle -= 360.;
           if (delta_angle < -180.) delta_angle += 360.;
 
-          hid_draw_arc (gc, v->prev->cx, v->prev->cy, v->prev->radius, v->prev->radius, start_angle, delta_angle);
+          hid_draw_arc (gc, v->cx, v->cy, v->radius, v->radius, start_angle, delta_angle);
 
           /* Fill the head vertex */
           if (v == &pl->head)
@@ -196,13 +196,13 @@ thindraw_contour (hidGC gc, PLINE *pl)
             hid_draw_fill_circle (gc, this_x, this_y, MIL_TO_COORD (1.5));
           else
             hid_draw_arc (gc, this_x, this_y, MIL_TO_COORD (1.5), MIL_TO_COORD (1.5), 0, 360);
-          hid_draw_line (gc, last_x, last_y, this_x, this_y);
+          hid_draw_line (gc, this_x, this_y, next_x, next_y);
         }
 
-      last_x = this_x;
-      last_y = this_y;
+      this_x = next_x;
+      this_y = next_y;
     }
-  while ((v = v->next) != pl->head.next);
+  while ((v = v->next) != &pl->head);
 }
 
 static void
