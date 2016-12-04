@@ -3722,18 +3722,30 @@ poly_DelContour (PLINE ** c)
   for (cur = PREV_EDGE (&(*c)->head); cur != &(*c)->head; cur = prev)
     {
       prev = PREV_EDGE (cur);
-      if (cur->cvc_next != NULL)
-	{
-	  free (cur->cvc_next);
-	  free (cur->cvc_prev);
-	}
+
+      if (cur->cvc_next == -1)
+        fprintf (stderr, "WHY DID THIS HAPPEN?? cvc_next == -1 in poly_DelContour() !\n");
+      else
+        free (cur->cvc_next);
+
+      if (cur->cvc_prev == -1)
+        fprintf (stderr, "WHY DID THIS HAPPEN?? cvc_prev == -1 in poly_DelContour() !\n");
+      else
+        free (cur->cvc_prev);
+
       g_slice_free (VNODE, cur);
     }
-  if ((*c)->head.cvc_next != NULL)
-    {
-      free ((*c)->head.cvc_next);
-      free ((*c)->head.cvc_prev);
-    }
+
+  if ((*c)->head.cvc_next == -1)
+    fprintf (stderr, "WHY DID THIS HAPPEN?? cvc_next == -1 in poly_DelContour() !\n");
+  else
+    free ((*c)->head.cvc_next);
+
+  if ((*c)->head.cvc_prev == -1)
+    fprintf (stderr, "WHY DID THIS HAPPEN?? cvc_prev == -1 in poly_DelContour() !\n");
+  else
+    free ((*c)->head.cvc_prev);
+
   /*! \todo FIXME -- strict aliasing violation. */
   if ((*c)->tree)
     {
