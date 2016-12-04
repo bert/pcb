@@ -137,6 +137,7 @@ polygon_init (void)
 
   bw_rotate_circle_seg[0] =  cos_ang;  bw_rotate_circle_seg[1] =  sin_ang;
   bw_rotate_circle_seg[2] = -sin_ang;  bw_rotate_circle_seg[3] =  cos_ang;
+return;
 
   /* DEBUG - AVOID PCB running the system out of memory! */
   getrlimit (RLIMIT_AS, &limit);
