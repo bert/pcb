@@ -225,8 +225,8 @@ step_do_export (HID_Attr_Val * options)
   } while ((piece = piece->f) != board_outline);
   poly_Free (&board_outline);
 
-//  object3d_list_export_to_step_part (board_outline_list, temp_pcb_filename);
-  object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
+  object3d_list_export_to_step_part (board_outline_list, temp_pcb_filename);
+//  object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
   g_list_free_full (board_outline_list, (GDestroyNotify)destroy_object3d);
 
   if (1) {
