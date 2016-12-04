@@ -930,6 +930,14 @@ ghid_invalidate_lr (int left, int right, int top, int bottom)
   ghid_invalidate_all ();
 }
 
+static gboolean
+force_redraw (gpointer user_data)
+{
+  gdk_window_process_all_updates ();
+
+  return G_SOURCE_REMOVE;
+}
+
 #define MAX_ELAPSED (50. / 1000.) /* 50ms */
 void
 ghid_invalidate_all ()
@@ -940,7 +948,7 @@ ghid_invalidate_all ()
   ghid_draw_area_update (gport, NULL);
 
   if (elapsed > MAX_ELAPSED)
-    gdk_window_process_all_updates ();
+    g_idle_add_full (G_PRIORITY_HIGH, force_redraw, NULL, NULL);
 }
 
 void
