@@ -34,7 +34,7 @@
 #define PERFECT_ROUND_CONTOURS
 
 #define REVERSED_PCB_CONTOURS 1 /* PCB Contours are reversed from the expected CCW for outer ordering - once the Y-coordinate flip is taken into account */
-#undef REVERSED_PCB_CONTOURS
+//#undef REVERSED_PCB_CONTOURS
 
 #ifdef REVERSED_PCB_CONTOURS
 #define COORD_TO_STEP_X(pcb, x) (COORD_TO_MM(                   (x)))
@@ -1016,8 +1016,8 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
 
   objects = object3d_from_contours (info.poly,
 #ifdef REVERSED_PCB_CONTOURS
-                                    (side == TOP_SIDE) ? 0                   - HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS, /* Bottom */
-                                    (side == TOP_SIDE) ? HACK_MASK_THICKNESS - HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS,                       /* Top */
+                                    (side == TOP_SIDE) ? 0                   + HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS, /* Bottom */
+                                    (side == TOP_SIDE) ? HACK_MASK_THICKNESS + HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS,                       /* Top */
 #else
                                     (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS                       : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS + HACK_MASK_THICKNESS, /* Bottom */
                                     (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS, /* Top */
