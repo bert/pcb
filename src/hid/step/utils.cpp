@@ -70,7 +70,15 @@ find_all_pd_with_sdr (InstMgr *instance_list, pd_list *pd_list)
     {
       SdaiRepresented_definition *sdr_definition = sdr->definition_ ();
       SdaiProduct_definition_shape *pds = (SdaiProduct_definition_shape *)(SdaiProperty_definition_ptr)(*sdr_definition);
-      SdaiProduct_definition *pd = *(SdaiCharacterized_product_definition_ptr)(*pds->definition_ ());
+      SdaiProduct_definition *pd;
+
+      if (pds == NULL)
+        {
+          fprintf (stderr, "pds == NULL in find_all_pd_with_sdr\n");
+          return;
+        }
+
+      pd = *(SdaiCharacterized_product_definition_ptr)(*pds->definition_ ());
 
       pd_list->push_back (pd);
 
