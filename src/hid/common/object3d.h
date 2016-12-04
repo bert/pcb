@@ -20,3 +20,4 @@ GList *object3d_from_contours (POLYAREA *contours, double zbot, double ztop, con
 GList *object3d_from_board_outline (void);
 GList *object3d_from_soldermask_within_area (POLYAREA *area, int side);
 GList *object3d_from_copper_layers_within_area (POLYAREA *area);
+GList *object3d_from_silk_within_area (POLYAREA *area, int side);

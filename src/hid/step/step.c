@@ -172,6 +172,7 @@ step_do_export (HID_Attr_Val * options)
   board_outline = board_outline_poly (true);
   piece = board_outline;
   do {
+    GList *silk_objects;
     GList *mask_objects;
     GList *copper_layer_objects;
     PLINE *curc;
@@ -212,6 +213,12 @@ step_do_export (HID_Attr_Val * options)
         r_delete_entry (piece->contour_tree, (BoxType *) curc);
         poly_DelContour (&curc);
       }
+
+    silk_objects = object3d_from_silk_within_area (piece, TOP_SIDE);
+    board_outline_list = g_list_concat (board_outline_list, silk_objects);
+
+    silk_objects = object3d_from_silk_within_area (piece, BOTTOM_SIDE);
+    board_outline_list = g_list_concat (board_outline_list, silk_objects);
 
     mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
     board_outline_list = g_list_concat (board_outline_list, mask_objects);

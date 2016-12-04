@@ -1990,3 +1990,216 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 #endif
   return group_objects;
 }
+
+
+struct silk_info {
+  POLYAREA *poly;
+  int side;
+};
+
+static int
+line_silk_callback (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *) b;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = LinePoly (line, line->Thickness, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+arc_silk_callback (const BoxType * b, void *cl)
+{
+  ArcType *arc = (ArcType *) b;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = ArcPoly (arc, arc->Thickness, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+
+static int
+text_silk_callback (const BoxType * b, void *cl)
+{
+  TextType *text = (TextType *) b;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = TextToPoly (text, PCB->minWid))) /* XXX: Min silk cutout width should be separate */
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+polygon_silk_callback (const BoxType * b, void *cl)
+{
+  PolygonType *poly = (PolygonType *) b;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = PolygonToPoly (poly)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+element_silk_callback (const BoxType * b, void *cl)
+{
+  ElementType *element = (ElementType *) b;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!ON_SIDE (element, info->side))
+    return 0;
+
+  /* draw lines, arcs, text and pins */
+  ELEMENTLINE_LOOP (element);
+  {
+    if (!(np = LinePoly (line, line->Thickness, NULL)))
+      return 0;
+
+    poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+    info->poly = res;
+  }
+  END_LOOP;
+  ARC_LOOP (element);
+  {
+    if (!(np = ArcPoly (arc, arc->Thickness, NULL)))
+      return 0;
+
+    poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+    info->poly = res;
+  }
+  END_LOOP;
+
+  return 1;
+}
+
+static int
+name_silk_callback (const BoxType * b, void *cl)
+{
+  TextType *text = (TextType *) b;
+  ElementType *element = text->Element;
+  struct silk_info *info = (struct silk_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!ON_SIDE (element, info->side))
+    return 0;
+
+  if (TEST_FLAG (HIDENAMEFLAG, element))
+    return 0;
+
+  if (!(np = TextToPoly (text, PCB->minWid)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+GList *
+object3d_from_silk_within_area (POLYAREA *area, int side)
+{
+  appearance *silk_appearance;
+  GList *objects;
+  struct silk_info info;
+  BoxType bounds;
+  LayerType *layer;
+  POLYAREA *pa;
+
+  info.poly = NULL;
+  info.side = side;
+
+  bounds.X1 = area->contours->xmin;
+  bounds.X2 = area->contours->xmax;
+  bounds.Y1 = area->contours->ymin;
+  bounds.Y2 = area->contours->ymax;
+
+  layer = LAYER_PTR ((side == TOP_SIDE) ? top_silk_layer : bottom_silk_layer);
+
+  r_search (layer->line_tree, &bounds, NULL, line_silk_callback, &info);
+  r_search (layer->arc_tree,  &bounds, NULL, arc_silk_callback, &info);
+  r_search (layer->text_tree, &bounds, NULL, text_silk_callback, &info);
+  r_search (layer->polygon_tree, &bounds, NULL, polygon_silk_callback, &info);
+  r_search (PCB->Data->element_tree, &bounds, NULL, element_silk_callback, &info);
+  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], &bounds, NULL, name_silk_callback, &info);
+
+#if 0
+  ELEMENT_LOOP (&PCB->Data);
+  {
+    ELEMNETTEXT_LOOP (element);
+    {
+    }
+    END_LOOP;
+
+    ELEMNETLINE_LOOP (element);
+    {
+    }
+    END_LOOP;
+
+    ELEMNETARC_LOOP (element);
+    {
+    }
+    END_LOOP;
+  }
+  END_LOOP;
+#endif
+
+  if (info.poly == NULL)
+    return NULL;
+
+  /* Erase outer contour naming from the polygon - we don't want all the
+   * hole names that get combined into the outer name! */
+  pa = info.poly;
+  do
+    {
+      free (pa->contours->name);
+      pa->contours->name = NULL;
+    }
+  while ((pa = pa->f) != info.poly);
+
+  silk_appearance = make_appearance ();
+  appearance_set_color (silk_appearance, 1.0, 1.0, 1.0);
+
+  poly_Simplify (info.poly);
+
+  objects = object3d_from_contours (info.poly,
+#ifdef REVERSED_PCB_CONTOURS
+                                    (side == TOP_SIDE) ? 0                   + HACK_MASK_THICKNESS + HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS - HACK_SILK_THICKNESS, /* Bottom */
+                                    (side == TOP_SIDE) ? HACK_SILK_THICKNESS + HACK_MASK_THICKNESS + HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS,                       /* Top */
+#else
+                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS                       : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS + HACK_MASK_THICKNESS + HACK_SILK_THICKNESS, /* Bottom */
+                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS - HACK_SILK_THICKNESS : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS + HACK_MASK_THICKNESS, /* Top */
+#endif
+                                    silk_appearance,
+                                    NULL,  /* top_bot_appearance */
+                                    false, /* Don't invert */
+                                    (side == TOP_SIDE) ? "Top silk" : "Bottom silk"); /* Name */
+
+//  destroy_appearance (silk_appearance); /* XXX: HANGING ON TO THIS FOR NOW */
+
+  poly_Free (&info.poly);
+
+  return objects;
+}
