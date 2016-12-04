@@ -102,6 +102,7 @@ POLYAREA * LinePoly(LineType *l, Coord thick, char *name);
 POLYAREA * ArcPoly(ArcType *l, Coord thick, char *name);
 POLYAREA * PinPoly(PinType *l, Coord thick, Coord clear);
 POLYAREA * BoxPolyBloated (BoxType *box, Coord radius);
+POLYAREA * PadPoly (PadType *pad, Coord size);
 void frac_circle (PLINE *, Coord, Coord, Vector, int);
 int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);

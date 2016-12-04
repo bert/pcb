@@ -6,7 +6,7 @@
 //#include <stdarg.h> /* not used */
 //#include <stdlib.h>
 //#include <string.h>
-//#include <assert.h> /* not used */
+#include <assert.h>
 #include <time.h>
 
 #include "global.h"
@@ -25,6 +25,7 @@
 #include "hid/common/hidinit.h"
 #include "polygon.h"
 #include "misc.h"
+#include "rtree.h"
 
 #include "hid/common/step_id.h"
 #include "hid/common/quad.h"
@@ -136,6 +137,8 @@ step_do_export (HID_Attr_Val * options)
   const char *filename;
   const char *temp_pcb_filename = "_pcb.step";
   GList *board_outline_list;
+  POLYAREA *board_outline;
+  POLYAREA *piece;
 
   if (!options)
     {
@@ -150,7 +153,61 @@ step_do_export (HID_Attr_Val * options)
     filename = "pcb-out.step";
 
   board_outline_list = object3d_from_board_outline ();
-  object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
+
+  board_outline = board_outline_poly (true);
+  piece = board_outline;
+  do {
+    GList *mask_objects;
+    PLINE *curc;
+    PLINE *next;
+    PLINE **prev_next;
+
+    // Remove any complete internal contours due to vias, so we may
+    // more realistically show tented vias without loosing the ability
+    // to split the soldermask body with a contour partly formed of vias.
+    //
+    // Should have the semantics that via holes in the mask are only due
+    // to the clearance size, not the drill size - IFF they are on the
+    // interior of a board body piece.
+    //
+    // If the via wall forms part of the board piece outside contour, the
+    // soldermask will be the maximum of the drilling hole, or the clearance;
+    // via drill-hole walls are not removed from the piece outside contour.
+
+    prev_next = &piece->contours;
+    for (curc = piece->contours; curc != NULL; curc = next)
+      {
+        next = curc->next;
+
+        /* XXX: Insufficient test for via contour.. really need to KNOW this was a pin/via,
+         *      as we may start using round tagged contours for circular cutouts etc...
+         */
+        if (!curc->is_round)
+          {
+            prev_next = &curc->next;
+            continue;
+          }
+
+        /* Remove contour... */
+        assert (*prev_next == curc);
+        *prev_next = curc->next;
+        curc->next = NULL;
+
+        r_delete_entry (piece->contour_tree, (BoxType *) curc);
+        poly_DelContour (&curc);
+      }
+
+    mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
+    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+
+    mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
+    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+
+  } while ((piece = piece->f) != board_outline);
+  poly_Free (&board_outline);
+
+  object3d_list_export_to_step_part (board_outline_list, temp_pcb_filename);
+//  object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
   g_list_free_full (board_outline_list, (GDestroyNotify)destroy_object3d);
 
   {
