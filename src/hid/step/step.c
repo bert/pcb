@@ -70,6 +70,7 @@ HID_Attribute step_attribute_list[] = {
 
 /* %start-doc options "91 STEP Export"
 @ftable @code
+@cindex stepfile
 @item --stepfile <string>
 Name of the STEP output file. Can contain a path.
 @end ftable
@@ -78,6 +79,54 @@ Name of the STEP output file. Can contain a path.
   {"stepfile", "STEP output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_stepfile 0
+
+  /* %start-doc options "91 STEP Export"
+   @ftable @code
+   @cindex copper
+   @item --copper
+   Export copper tracking
+   @end ftable
+   %end-doc
+   */
+    {N_("copper"), N_("Export copper objects"),
+         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_copper 1
+
+  /* %start-doc options "91 STEP Export"
+   @ftable @code
+   @cindex solder-mask
+   @item --solder-mask
+   Export solder mask
+   @end ftable
+   %end-doc
+   */
+    {N_("soldermask"), N_("Export soldermask"),
+         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_soldermask 2
+
+  /* %start-doc options "91 STEP Export"
+   @ftable @code
+   @cindex silk
+   @item --silk
+   Export silkscreen
+   @end ftable
+   %end-doc
+   */
+    {N_("silk"), N_("Export silk"),
+         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_silk 3
+
+  /* %start-doc options "91 STEP Export"
+   @ftable @code
+   @cindex models
+   @item --models
+   Export component models
+   @end ftable
+   %end-doc
+   */
+    {N_("models"), N_("Export component models"),
+         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_models 4
 };
 
 #define NUM_OPTIONS (sizeof(step_attribute_list)/sizeof(step_attribute_list[0]))
@@ -215,24 +264,33 @@ step_do_export (HID_Attr_Val * options)
       }
 
 #if 1
-    silk_objects = object3d_from_silk_within_area (piece, TOP_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, silk_objects);
+    if (options[HA_silk].int_value)
+      {
+        silk_objects = object3d_from_silk_within_area (piece, TOP_SIDE);
+        board_outline_list = g_list_concat (board_outline_list, silk_objects);
 
-    silk_objects = object3d_from_silk_within_area (piece, BOTTOM_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, silk_objects);
+        silk_objects = object3d_from_silk_within_area (piece, BOTTOM_SIDE);
+        board_outline_list = g_list_concat (board_outline_list, silk_objects);
+      }
 #endif
 
 #if 1
-    mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+    if (options[HA_soldermask].int_value)
+      {
+        mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
+        board_outline_list = g_list_concat (board_outline_list, mask_objects);
 
-    mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+        mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
+        board_outline_list = g_list_concat (board_outline_list, mask_objects);
+      }
 #endif
 
 #if 1
-    copper_layer_objects = object3d_from_copper_layers_within_area (piece);
-    board_outline_list = g_list_concat (board_outline_list, copper_layer_objects);
+    if (options[HA_copper].int_value)
+      {
+        copper_layer_objects = object3d_from_copper_layers_within_area (piece);
+        board_outline_list = g_list_concat (board_outline_list, copper_layer_objects);
+      }
 #endif
 
   } while ((piece = piece->f) != board_outline);
@@ -259,177 +317,180 @@ step_do_export (HID_Attr_Val * options)
     instance->rx = 1.0,  instance->ry = 0.0,  instance->rz = 0.0;
     model->instances = g_list_append (model->instances, instance);
 
-
-    ELEMENT_LOOP (PCB->Data);
+    if (options[HA_models].int_value)
       {
-        bool on_solder = TEST_FLAG (ONSOLDERFLAG, element);
-        double on_solder_negate = on_solder ? -1.0 : 1.0;
-        const char *model_filename;
-        double ox, oy, oz;
-        double ax, ay, az;
-        double rx, ry, rz;
-        double rotation;
-        double cos_rot;
-        double sin_rot;
-        GList *model_iter;
 
-        /* Skip if the component doesn't have a STEP-AP214 3d_model */
-        attribute = AttributeGet (element, "PCB::3d_model::type");
-        if (attribute == NULL || strcmp (attribute, "STEP-AP214") != 0)
-          continue;
+        ELEMENT_LOOP (PCB->Data);
+          {
+            bool on_solder = TEST_FLAG (ONSOLDERFLAG, element);
+            double on_solder_negate = on_solder ? -1.0 : 1.0;
+            const char *model_filename;
+            double ox, oy, oz;
+            double ax, ay, az;
+            double rx, ry, rz;
+            double rotation;
+            double cos_rot;
+            double sin_rot;
+            GList *model_iter;
 
-        attribute = AttributeGet (element, "PCB::3d_model::filename");
-        if (attribute == NULL)
-          continue;
-        model_filename = attribute;
+            /* Skip if the component doesn't have a STEP-AP214 3d_model */
+            attribute = AttributeGet (element, "PCB::3d_model::type");
+            if (attribute == NULL || strcmp (attribute, "STEP-AP214") != 0)
+              continue;
+
+            attribute = AttributeGet (element, "PCB::3d_model::filename");
+            if (attribute == NULL)
+              continue;
+            model_filename = attribute;
 
 #if 0   /* Rather than write a parser for three floats in a string, separate X, Y, Z explicitly for quicker testing */
 
-        attribute = AttributeGet (element, "PCB::3d_model::origin");
-        if (attribute == NULL)
-          continue;
-        parse_cartesian_point_3d_string (attribute, &ox, &oy, &oz);
+            attribute = AttributeGet (element, "PCB::3d_model::origin");
+            if (attribute == NULL)
+              continue;
+            parse_cartesian_point_3d_string (attribute, &ox, &oy, &oz);
 
-        attribute = AttributeGet (element, "PCB::3d_model::axis");
-        if (attribute == NULL)
-          continue;
-        parse_direction_3d_string (attribute, &ax, &ay, &az);
-        ax = 0.0, ay = 0.0, az = 1.0;
+            attribute = AttributeGet (element, "PCB::3d_model::axis");
+            if (attribute == NULL)
+              continue;
+            parse_direction_3d_string (attribute, &ax, &ay, &az);
+            ax = 0.0, ay = 0.0, az = 1.0;
 
-        attribute = AttributeGet (element, "PCB::3d_model::ref_dir");
-        if (attribute == NULL)
-          continue;
-        parse_direction_3d_string (attribute, &rx, &ry, &rz);
-        rx = 1.0, ry = 0.0, rz = 0.0;
+            attribute = AttributeGet (element, "PCB::3d_model::ref_dir");
+            if (attribute == NULL)
+              continue;
+            parse_direction_3d_string (attribute, &rx, &ry, &rz);
+            rx = 1.0, ry = 0.0, rz = 0.0;
 #endif
 
-        /* XXX: Should parse a unit suffix, e.g. "degrees" */
-        attribute = AttributeGet (element, "PCB::rotation");
-        if (attribute == NULL)
-          continue;
-        parse_rotation_string (attribute, &rotation);
+            /* XXX: Should parse a unit suffix, e.g. "degrees" */
+            attribute = AttributeGet (element, "PCB::rotation");
+            if (attribute == NULL)
+              continue;
+            parse_rotation_string (attribute, &rotation);
 
-        /* XXX: QUICKER TO CODE INDIVIDULAL VALUES NOT SPACE SEPARATED */
-        parse_position_attribute (element, "PCB::3d_model::origin::X", &ox);
-        parse_position_attribute (element, "PCB::3d_model::origin::Y", &oy);
-        parse_position_attribute (element, "PCB::3d_model::origin::Z", &oz);
-        parse_numeric_attribute (element, "PCB::3d_model::axis::X", &ax);
-        parse_numeric_attribute (element, "PCB::3d_model::axis::Y", &ay);
-        parse_numeric_attribute (element, "PCB::3d_model::axis::Z", &az);
-        parse_numeric_attribute (element, "PCB::3d_model::ref_dir::X", &rx);
-        parse_numeric_attribute (element, "PCB::3d_model::ref_dir::Y", &ry);
-        parse_numeric_attribute (element, "PCB::3d_model::ref_dir::Z", &rz);
-        parse_numeric_attribute (element, "PCB::rotation", &rotation);
+            /* XXX: QUICKER TO CODE INDIVIDULAL VALUES NOT SPACE SEPARATED */
+            parse_position_attribute (element, "PCB::3d_model::origin::X", &ox);
+            parse_position_attribute (element, "PCB::3d_model::origin::Y", &oy);
+            parse_position_attribute (element, "PCB::3d_model::origin::Z", &oz);
+            parse_numeric_attribute (element, "PCB::3d_model::axis::X", &ax);
+            parse_numeric_attribute (element, "PCB::3d_model::axis::Y", &ay);
+            parse_numeric_attribute (element, "PCB::3d_model::axis::Z", &az);
+            parse_numeric_attribute (element, "PCB::3d_model::ref_dir::X", &rx);
+            parse_numeric_attribute (element, "PCB::3d_model::ref_dir::Y", &ry);
+            parse_numeric_attribute (element, "PCB::3d_model::ref_dir::Z", &rz);
+            parse_numeric_attribute (element, "PCB::rotation", &rotation);
 
 #if 1  /* Write the intended final syntax attributes */
-        if (1)
-          {
-            GString *value = g_string_new (NULL);
-
-            attribute = AttributeGet (element, "PCB::3d_model::origin::X");
-            g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0mm");
-            attribute = AttributeGet (element, "PCB::3d_model::origin::Y");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0mm");
-            attribute = AttributeGet (element, "PCB::3d_model::origin::Z");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0mm");
-            AttributePutToList (&element->Attributes, "PCB::3d_model::origin", value->str, true);
-
-            attribute = AttributeGet (element, "PCB::3d_model::axis::X");
-            g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0");
-            attribute = AttributeGet (element, "PCB::3d_model::axis::Y");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
-            attribute = AttributeGet (element, "PCB::3d_model::axis::Z");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
-            AttributePutToList (&element->Attributes, "PCB::3d_model::axis", value->str, true);
-
-            attribute = AttributeGet (element, "PCB::3d_model::ref_dir::X");
-            g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0");
-            attribute = AttributeGet (element, "PCB::3d_model::ref_dir::Y");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
-            attribute = AttributeGet (element, "PCB::3d_model::ref_dir::Z");
-            g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
-            AttributePutToList (&element->Attributes, "PCB::3d_model::ref_dir", value->str, true);
-
-            g_string_free (value, true);
-          }
-#endif
-
-        printf ("Transform (%f, %f, %f), (%f, %f, %f), (%f, %f, %f). Rotation of part is %f\n", ox, oy, oz, ax, ay, az, rx, ry, rz, rotation);
-
-        model = NULL;
-
-        /* Look for prior usage of this model */
-        for (model_iter = models;
-             model_iter != NULL;
-             model_iter = g_list_next (model_iter))
-          {
-            struct assembly_model *possible_model;
-            possible_model = model_iter->data;
-            if (strcmp (possible_model->filename, model_filename) == 0)
+            if (1)
               {
-                model = possible_model;
-                break;
+                GString *value = g_string_new (NULL);
+
+                attribute = AttributeGet (element, "PCB::3d_model::origin::X");
+                g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0mm");
+                attribute = AttributeGet (element, "PCB::3d_model::origin::Y");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0mm");
+                attribute = AttributeGet (element, "PCB::3d_model::origin::Z");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0mm");
+                AttributePutToList (&element->Attributes, "PCB::3d_model::origin", value->str, true);
+
+                attribute = AttributeGet (element, "PCB::3d_model::axis::X");
+                g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0");
+                attribute = AttributeGet (element, "PCB::3d_model::axis::Y");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
+                attribute = AttributeGet (element, "PCB::3d_model::axis::Z");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
+                AttributePutToList (&element->Attributes, "PCB::3d_model::axis", value->str, true);
+
+                attribute = AttributeGet (element, "PCB::3d_model::ref_dir::X");
+                g_string_printf (value, "%s", attribute != NULL ? attribute : "0.0");
+                attribute = AttributeGet (element, "PCB::3d_model::ref_dir::Y");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
+                attribute = AttributeGet (element, "PCB::3d_model::ref_dir::Z");
+                g_string_append_printf (value, " %s", attribute != NULL ? attribute : "0.0");
+                AttributePutToList (&element->Attributes, "PCB::3d_model::ref_dir", value->str, true);
+
+                g_string_free (value, true);
               }
-          }
-
-        /* If we didn't find this model used already, add it to the list */
-        if (model == NULL)
-          {
-            model = g_new0 (struct assembly_model, 1);
-            model->filename = model_filename;
-            models = g_list_append (models, model);
-          }
-
-        cos_rot = cos (rotation * M_PI / 180.);
-        sin_rot = sin (rotation * M_PI / 180.);
-
-        // Rotation of part on board
-        // (NB: Y flipped from normal right handed convention)
-        //[cos -sin   0] [x] = [xcos - ysin]
-        //[sin  cos   0] [y]   [xsin + ycos]
-        //[  0    0   1] [z]   [z          ]
-
-        // Flip of part to backside of board
-        // [  1   0   0] [x] = [ x]
-        // [  0  -1   0] [y] = [-y]
-        // [  0   0  -1] [z] = [-z]
-
-        instance = g_new0 (struct assembly_model_instance, 1);
-        instance->name = NAMEONPCB_NAME (element);
-#ifdef REVERSED_PCB_CONTOURS
-        instance->ox =                     ( ox * cos_rot + oy * sin_rot);
-        instance->oy = -on_solder_negate * (-ox * sin_rot + oy * cos_rot);
-        instance->oz = -on_solder_negate * oz; /* <--- ????: -ve on on_solder_negative seems inconsistent w.r.t. others! */
-        instance->ax =                     ( ax * cos_rot + ay * sin_rot);
-        instance->ay = -on_solder_negate * (-ax * sin_rot + ay * cos_rot);
-        instance->az = -on_solder_negate * az;
-        instance->rx =                     ( rx * cos_rot + ry * sin_rot);
-        instance->ry = -on_solder_negate * (-rx * sin_rot + ry * cos_rot);
-        instance->rz = -on_solder_negate * rz;
-#else
-        instance->ox =                     ( ox * cos_rot + oy * sin_rot);
-        instance->oy =  on_solder_negate * (-ox * sin_rot + oy * cos_rot);
-        instance->oz =  on_solder_negate * oz;
-        instance->ax =                     ( ax * cos_rot + ay * sin_rot);
-        instance->ay =  on_solder_negate * (-ax * sin_rot + ay * cos_rot);
-        instance->az =  on_solder_negate * az;
-        instance->rx =                     ( rx * cos_rot + ry * sin_rot);
-        instance->ry =  on_solder_negate * (-rx * sin_rot + ry * cos_rot);
-        instance->rz =  on_solder_negate * rz;
 #endif
 
-        instance->ox += COORD_TO_STEP_X (PCB, element->MarkX);
-        instance->oy += COORD_TO_STEP_Y (PCB, element->MarkY);
+            printf ("Transform (%f, %f, %f), (%f, %f, %f), (%f, %f, %f). Rotation of part is %f\n", ox, oy, oz, ax, ay, az, rx, ry, rz, rotation);
+
+            model = NULL;
+
+            /* Look for prior usage of this model */
+            for (model_iter = models;
+                 model_iter != NULL;
+                 model_iter = g_list_next (model_iter))
+              {
+                struct assembly_model *possible_model;
+                possible_model = model_iter->data;
+                if (strcmp (possible_model->filename, model_filename) == 0)
+                  {
+                    model = possible_model;
+                    break;
+                  }
+              }
+
+            /* If we didn't find this model used already, add it to the list */
+            if (model == NULL)
+              {
+                model = g_new0 (struct assembly_model, 1);
+                model->filename = model_filename;
+                models = g_list_append (models, model);
+              }
+
+            cos_rot = cos (rotation * M_PI / 180.);
+            sin_rot = sin (rotation * M_PI / 180.);
+
+            // Rotation of part on board
+            // (NB: Y flipped from normal right handed convention)
+            //[cos -sin   0] [x] = [xcos - ysin]
+            //[sin  cos   0] [y]   [xsin + ycos]
+            //[  0    0   1] [z]   [z          ]
+
+            // Flip of part to backside of board
+            // [  1   0   0] [x] = [ x]
+            // [  0  -1   0] [y] = [-y]
+            // [  0   0  -1] [z] = [-z]
+
+            instance = g_new0 (struct assembly_model_instance, 1);
+            instance->name = NAMEONPCB_NAME (element);
 #ifdef REVERSED_PCB_CONTOURS
-        instance->oz += COORD_TO_STEP_Z (PCB, on_solder ? -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS : HACK_COPPER_THICKNESS);
+            instance->ox =                     ( ox * cos_rot + oy * sin_rot);
+            instance->oy = -on_solder_negate * (-ox * sin_rot + oy * cos_rot);
+            instance->oz = -on_solder_negate * oz; /* <--- ????: -ve on on_solder_negative seems inconsistent w.r.t. others! */
+            instance->ax =                     ( ax * cos_rot + ay * sin_rot);
+            instance->ay = -on_solder_negate * (-ax * sin_rot + ay * cos_rot);
+            instance->az = -on_solder_negate * az;
+            instance->rx =                     ( rx * cos_rot + ry * sin_rot);
+            instance->ry = -on_solder_negate * (-rx * sin_rot + ry * cos_rot);
+            instance->rz = -on_solder_negate * rz;
 #else
-        instance->oz += COORD_TO_STEP_Z (PCB, on_solder_negate * (-HACK_BOARD_THICKNESS / 2 -HACK_COPPER_THICKNESS));
+            instance->ox =                     ( ox * cos_rot + oy * sin_rot);
+            instance->oy =  on_solder_negate * (-ox * sin_rot + oy * cos_rot);
+            instance->oz =  on_solder_negate * oz;
+            instance->ax =                     ( ax * cos_rot + ay * sin_rot);
+            instance->ay =  on_solder_negate * (-ax * sin_rot + ay * cos_rot);
+            instance->az =  on_solder_negate * az;
+            instance->rx =                     ( rx * cos_rot + ry * sin_rot);
+            instance->ry =  on_solder_negate * (-rx * sin_rot + ry * cos_rot);
+            instance->rz =  on_solder_negate * rz;
 #endif
 
-        model->instances = g_list_append (model->instances, instance);
+            instance->ox += COORD_TO_STEP_X (PCB, element->MarkX);
+            instance->oy += COORD_TO_STEP_Y (PCB, element->MarkY);
+#ifdef REVERSED_PCB_CONTOURS
+            instance->oz += COORD_TO_STEP_Z (PCB, on_solder ? -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS : HACK_COPPER_THICKNESS);
+#else
+            instance->oz += COORD_TO_STEP_Z (PCB, on_solder_negate * (-HACK_BOARD_THICKNESS / 2 -HACK_COPPER_THICKNESS));
+#endif
 
+            model->instances = g_list_append (model->instances, instance);
+
+          }
+        END_LOOP;
       }
-    END_LOOP;
 
     export_step_assembly (filename, models);
 
