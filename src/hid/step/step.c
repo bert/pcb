@@ -45,6 +45,21 @@
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented STEP function %s.\n", __FUNCTION__); abort()
 
+#define REVERSED_PCB_CONTOURS 1
+//#undef REVERSED_PCB_CONTOURS
+
+#ifdef REVERSED_PCB_CONTOURS
+#define COORD_TO_STEP_X(pcb, x) (COORD_TO_MM(                   (x)))
+#define COORD_TO_STEP_Y(pcb, y) (COORD_TO_MM((pcb)->MaxHeight - (y)))
+#define COORD_TO_STEP_Z(pcb, z) (COORD_TO_MM(                   (z)))
+#else
+/* XXX: BROKEN UPSIDE DOWN OUTPUT */
+#define COORD_TO_STEP_X(pcb, x) (COORD_TO_MM((x)))
+#define COORD_TO_STEP_Y(pcb, y) (COORD_TO_MM((y)))
+#define COORD_TO_STEP_Z(pcb, z) (COORD_TO_MM((z)))
+#endif
+
+
 #define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
 
 
@@ -214,7 +229,7 @@ step_do_export (HID_Attr_Val * options)
   object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
   g_list_free_full (board_outline_list, (GDestroyNotify)destroy_object3d);
 
-  if (0) {
+  if (1) {
     GList *models = NULL;
     struct assembly_model *model;
     struct assembly_model_instance *instance;
@@ -368,15 +383,27 @@ step_do_export (HID_Attr_Val * options)
 
         instance = g_new0 (struct assembly_model_instance, 1);
         instance->name = NAMEONPCB_NAME (element);
-        instance->ox = COORD_TO_MM (element->MarkX) +                    ( ox * cos_rot + oy * sin_rot),
-        instance->oy = COORD_TO_MM (element->MarkY) + on_solder_negate * (-ox * sin_rot + oy * cos_rot),
-        instance->oz = on_solder_negate * -COORD_TO_MM (HACK_BOARD_THICKNESS) / 2.0 + on_solder_negate * oz;
+#ifdef REVERSED_PCB_CONTOURS
+        instance->ox = COORD_TO_STEP_X (PCB, element->MarkX) +                    ( ox * cos_rot + oy * sin_rot),
+        instance->oy = COORD_TO_STEP_Y (PCB, element->MarkY) - on_solder_negate * (-ox * sin_rot + oy * cos_rot),
+        instance->oz = (on_solder ? -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) : 0.0) - on_solder_negate * oz;
+        instance->ax =                    ( ax * cos_rot + ay * sin_rot),
+        instance->ay = -on_solder_negate * (-ax * sin_rot + ay * cos_rot),
+        instance->az = on_solder_negate * az;
+        instance->rx =                    ( rx * cos_rot + ry * sin_rot), /* XXX: SHOULD THIS FACTOR IN on_solder_negate? */
+        instance->ry = -on_solder_negate * (-rx * sin_rot + ry * cos_rot), /* XXX: SHOULD THIS FACTOR IN ol_solder_negaet? */
+        instance->rz = on_solder_negate * rz;
+#else
+        instance->ox = COORD_TO_STEP_X (PCB, element->MarkX) +                    ( ox * cos_rot + oy * sin_rot),
+        instance->oy = COORD_TO_STEP_Y (PCB, element->MarkY) + on_solder_negate * (-ox * sin_rot + oy * cos_rot),
+        instance->oz = on_solder_negate * -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2.0 + on_solder_negate * oz;
         instance->ax =                    ( ax * cos_rot + ay * sin_rot),
         instance->ay = on_solder_negate * (-ax * sin_rot + ay * cos_rot),
         instance->az = on_solder_negate * az;
         instance->rx =                    ( rx * cos_rot + ry * sin_rot), /* XXX: SHOULD THIS FACTOR IN on_solder_negate? */
         instance->ry = on_solder_negate * (-rx * sin_rot + ry * cos_rot), /* XXX: SHOULD THIS FACTOR IN ol_solder_negaet? */
         instance->rz = on_solder_negate * rz;
+#endif
         model->instances = g_list_append (model->instances, instance);
 
       }
