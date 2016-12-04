@@ -1234,9 +1234,9 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   destroy_appearance (copper_appearance);
 
   /* DEBUG */
-  poly_M_Copy0 (&PCB->Data->outline, info.poly);
-  PCB->Data->outline_valid = true;
-  gui->invalidate_all ();
+//  poly_M_Copy0 (&PCB->Data->outline, info.poly);
+//  PCB->Data->outline_valid = true;
+//  gui->invalidate_all ();
 
   poly_Free (&info.poly);
 
