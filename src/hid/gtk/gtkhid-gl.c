@@ -2834,7 +2834,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glDisable (GL_LIGHTING);
 
   draw_crosshair (Output.fgGC, priv);
-  object3d_draw_debug ();
+//  object3d_draw_debug ();
 
   hidgl_flush_triangles (priv->hidgl);
 
