@@ -962,6 +962,7 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       MoveLinePoint (Ptr1, moving_line, &moving_line->Point2);
 
       ptr2 = moving_line;
+      IncrementUndoSerialNumber ();
     }
   else
     {
