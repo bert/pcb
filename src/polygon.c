@@ -573,7 +573,7 @@ frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
  * 2 for a half circle.
  * or 4 for a quarter circle.
  */
-static void
+void
 frac_circle2 (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
 {
   double e1, e2, t1;

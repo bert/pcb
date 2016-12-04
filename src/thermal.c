@@ -134,9 +134,26 @@ diag_line (Coord X, Coord Y, Coord l, Coord w, bool rt)
 }
 
 static POLYAREA *
+M_Poly_prepend (POLYAREA *a, POLYAREA *b)
+{
+  if (a == NULL)
+    return b;
+
+  if (b == NULL)
+    return a;
+
+  a->f->b = b->b;
+  b->b->f = a->f;
+  a->f = b;
+  b->b = a;
+
+  return a;
+}
+
+static POLYAREA *
 square_therm (PinType *pin, Cardinal style)
 {
-  POLYAREA *p, *p2;
+  POLYAREA *p;
   PLINE *c;
   Vector v;
   Coord d, in, out;
@@ -172,9 +189,7 @@ square_therm (PinType *pin, Cardinal style)
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + out - d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
-      p2 = ContourToPoly (c);
-      p->f = p2;
-      p2->b = p;
+      p = M_Poly_prepend (p, ContourToPoly (c));
       /* left */
       v[0] = pin->X - in;
       v[1] = pin->Y - in + d;
@@ -187,9 +202,7 @@ square_therm (PinType *pin, Cardinal style)
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y - out + d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
-      p2 = ContourToPoly (c);
-      p->f->f = p2;
-      p2->b = p->f;
+      p = M_Poly_prepend (p, ContourToPoly (c));
       /* bottom (actually top since +y is down) */
       v[0] = pin->X + in - d;
       v[1] = pin->Y - in;
@@ -202,11 +215,7 @@ square_therm (PinType *pin, Cardinal style)
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X + out - d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
-      p2 = ContourToPoly (c);
-      p->f->f->f = p2;
-      p2->f = p;
-      p2->b = p->f->f;
-      p->b = p2;
+      p = M_Poly_prepend (p, ContourToPoly (c));
       return p;
     case 4:
       {
@@ -224,25 +233,17 @@ square_therm (PinType *pin, Cardinal style)
         l.Point1.X = l.Point2.X = pin->X + out;
         l.Point1.Y = pin->Y - d;
         l.Point2.Y = pin->Y + d;
-        p2 = LinePoly (&l, in, NULL);
-        p->f = p2;
-        p2->b = p;
+        p = M_Poly_prepend (p, LinePoly (&l, in, NULL));
         /* bottom */
         l.Point1.X = pin->X - d;
         l.Point2.Y = l.Point1.Y = pin->Y - out;
         l.Point2.X = pin->X + d;
-        p2 = LinePoly (&l, in, NULL);
-        p->f->f = p2;
-        p2->b = p->f;
+        p = M_Poly_prepend (p, LinePoly (&l, in, NULL));
         /* left */
         l.Point1.X = l.Point2.X = pin->X - out;
         l.Point1.Y = pin->Y - d;
         l.Point2.Y = pin->Y + d;
-        p2 = LinePoly (&l, in, NULL);
-        p->f->f->f = p2;
-        p2->b = p->f->f;
-        p->b = p2;
-        p2->f = p;
+        p = M_Poly_prepend (p, LinePoly (&l, in, NULL));
         return p;
       }
     default:                   /* style 2 and 5 */
@@ -264,11 +265,20 @@ square_therm (PinType *pin, Cardinal style)
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
         }
       else
-        frac_circle (c, v[0] + pin->Clearance / 4, v[1], v, 2);
+        {
+          frac_circle2 (c, v[0] + pin->Clearance / 4, v[1], v, 2);
+          v[0] = pin->X + out;
+          v[1] = pin->Y + d;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
       v[1] = pin->Y + in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       /* pivot 1/4 circle to next point */
-      frac_circle (c, pin->X + in, pin->Y + in, v, 4);
+      frac_circle2 (c, pin->X + in, pin->Y + in, v, 4);
+      v[0] = pin->X + in;
+      v[1] = pin->Y + out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+
       v[0] = pin->X + d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       if (style == 2)
@@ -278,7 +288,12 @@ square_therm (PinType *pin, Cardinal style)
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
         }
       else
-        frac_circle (c, v[0], v[1] - pin->Clearance / 4, v, 2);
+        {
+          frac_circle2 (c, v[0], v[1] - pin->Clearance / 4, v, 2);
+          v[0] = pin->X + d;
+          v[1] = pin->Y + in;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
       p = ContourToPoly (c);
       /* bottom right */
       v[0] = pin->X + in;
@@ -295,18 +310,29 @@ square_therm (PinType *pin, Cardinal style)
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
         }
       else
-        frac_circle (c, v[0], v[1] - pin->Clearance / 4, v, 2);
+        {
+          frac_circle2 (c, v[0], v[1] - pin->Clearance / 4, v, 2);
+          v[0] = pin->X + d;
+          v[1] = pin->Y - out;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
       v[0] = pin->X + in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       /* pivot 1/4 circle to next point */
-      frac_circle (c, pin->X + in, pin->Y - in, v, 4);
+      frac_circle2 (c, pin->X + in, pin->Y - in, v, 4);
+      v[0] = pin->X + out;
+      v[1] = pin->Y - in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y - d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       if (style == 5)
-        frac_circle (c, v[0] - pin->Clearance / 4, v[1], v, 2);
-      p2 = ContourToPoly (c);
-      p->f = p2;
-      p2->b = p;
+        {
+          frac_circle2 (c, v[0] - pin->Clearance / 4, v[1], v, 2);
+          v[0] = pin->X + in;
+          v[1] = pin->Y - d;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
+      p = M_Poly_prepend (p, ContourToPoly (c));
       /* bottom left */
       v[0] = pin->X - d;
       v[1] = pin->Y - in;
@@ -322,18 +348,29 @@ square_therm (PinType *pin, Cardinal style)
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
         }
       else
-        frac_circle (c, v[0] - pin->Clearance / 4, v[1], v, 2);
+        {
+          frac_circle2 (c, v[0] - pin->Clearance / 4, v[1], v, 2);
+          v[0] = pin->X - out;
+          v[1] = pin->Y - d;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
       v[1] = pin->Y - in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       /* pivot 1/4 circle to next point */
-      frac_circle (c, pin->X - in, pin->Y - in, v, 4);
+      frac_circle2 (c, pin->X - in, pin->Y - in, v, 4);
+      v[0] = pin->X - in;
+      v[1] = pin->Y - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       if (style == 5)
-        frac_circle (c, v[0], v[1] + pin->Clearance / 4, v, 2);
-      p2 = ContourToPoly (c);
-      p->f->f = p2;
-      p2->b = p->f;
+        {
+          frac_circle2 (c, v[0], v[1] + pin->Clearance / 4, v, 2);
+          v[0] = pin->X - d;
+          v[1] = pin->Y - in;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
+      p = M_Poly_prepend (p, ContourToPoly (c));
       /* top left */
       v[0] = pin->X - d;
       v[1] = pin->Y + out;
@@ -342,7 +379,10 @@ square_therm (PinType *pin, Cardinal style)
       v[0] = pin->X - in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       /* pivot 1/4 circle to next point (x-out, y+in) */
-      frac_circle (c, pin->X - in, pin->Y + in, v, 4);
+      frac_circle2 (c, pin->X - in, pin->Y + in, v, 4);
+      v[0] = pin->X - out;
+      v[1] = pin->Y + in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       if (style == 2)
@@ -351,18 +391,19 @@ square_therm (PinType *pin, Cardinal style)
           poly_InclVertex (c->head.prev, poly_CreateNode (v));
         }
       else
-        frac_circle (c, v[0] + pin->Clearance / 4, v[1], v, 2);
+        {
+          frac_circle2 (c, v[0] + pin->Clearance / 4, v[1], v, 2);
+          v[0] = pin->X - in;
+          v[1] = pin->Y + d;
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
       v[1] = pin->Y + in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - d;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       if (style == 5)
-        frac_circle (c, v[0], v[1] + pin->Clearance / 4, v, 2);
-      p2 = ContourToPoly (c);
-      p->f->f->f = p2;
-      p2->f = p;
-      p2->b = p->f->f;
-      p->b = p2;
+        frac_circle2 (c, v[0], v[1] + pin->Clearance / 4, v, 2);
+      p = M_Poly_prepend (p, ContourToPoly (c));
       return p;
     }
 }

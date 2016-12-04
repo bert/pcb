@@ -104,6 +104,7 @@ POLYAREA * PinPoly(PinType *l, Coord thick);
 POLYAREA * BoxPolyBloated (BoxType *box, Coord radius);
 POLYAREA * PadPoly (PadType *pad, Coord size);
 void frac_circle (PLINE *, Coord, Coord, Vector, int);
+void frac_circle2 (PLINE *, Coord, Coord, Vector, int);
 int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);
 void ClearFromPolygon(DataType *, int, void *, void *);
