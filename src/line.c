@@ -39,7 +39,7 @@
 #include <math.h>
 #include <setjmp.h>
 #include <stdlib.h>
-
+#include <assert.h>
 
 #include "global.h"
 #include "data.h"
@@ -444,6 +444,84 @@ line_hits_obstacle (struct drc_info *info, LineType *line)
   return lines_hit_obstacle (info, line, NULL);
 }
 
+/* NB: Assumes old_line and new_line are parallel? NO.. morphs from one to the other.
+ * NB: Might be better to test for the whole area at once (not just test lots of lines)
+ * NB: If we keep the test for lots of lines, we might return info which avoids needing
+ *     to iterate so many times to find the edge of the obstacle.
+ */
+static bool
+line_sweeps_obstacle (struct drc_info *info, LineType *old_line, LineType *new_line)
+{
+  LineType line;
+  Coord end1_dist;
+  Coord end2_dist;
+  //Coord min_dist;
+  Coord max_dist;
+  Coord vec1[2];
+  Coord vec2[2];
+  double increment;
+  double fraction;
+
+#if 0
+  pcb_printf ("Testing line sweep in region (%mn,%mn)-(%mn,%mn) to (%mn,%mn)-(%mn,%mn)\n",
+              old_line->Point1.X, old_line->Point1.Y, old_line->Point2.X, old_line->Point2.Y,
+              new_line->Point1.X, new_line->Point1.Y, new_line->Point2.X, new_line->Point2.Y);
+#endif
+
+  assert (old_line->Thickness == new_line->Thickness);
+
+  vec1[0] = new_line->Point1.X - old_line->Point1.X;
+  vec1[1] = new_line->Point1.Y - old_line->Point1.Y;
+
+  vec2[0] = new_line->Point2.X - old_line->Point2.X;
+  vec2[1] = new_line->Point2.Y - old_line->Point2.Y;
+
+  end1_dist = hypot (vec1[0], vec1[1]);
+  end2_dist = hypot (vec2[0], vec2[1]);
+
+  //min_dist = MIN (end1_dist, end2_dist);
+  max_dist = MAX (end1_dist, end2_dist);
+
+  line = *new_line;
+
+  increment = 0.95 * /* Arbitrary constant close, but less than 1.0 */
+              (double)new_line->Thickness / (double)max_dist;
+
+  for (fraction = 0.0; fraction < 1.0; fraction += increment)
+    {
+      line.Point1.X = old_line->Point1.X + vec1[0] * fraction;
+      line.Point1.Y = old_line->Point1.Y + vec1[1] * fraction;
+      line.Point2.X = old_line->Point2.X + vec2[0] * fraction;
+      line.Point2.Y = old_line->Point2.Y + vec2[1] * fraction;
+      SetLineBoundingBox (&line);
+
+      if (line_hits_obstacle (info, &line))
+        return true;
+    }
+
+  line.Point1.X = old_line->Point1.X + vec1[0];
+  line.Point1.Y = old_line->Point1.Y + vec1[1];
+  line.Point2.X = old_line->Point2.X + vec2[0];
+  line.Point2.Y = old_line->Point2.Y + vec2[1];
+  SetLineBoundingBox (&line);
+  if (line_hits_obstacle (info, &line))
+    return true;
+
+  line.Point1 = old_line->Point1;
+  line.Point2 = new_line->Point1;
+  SetLineBoundingBox (&line);
+  if (line_hits_obstacle (info, &line))
+    return true;
+
+  line.Point1 = old_line->Point2;
+  line.Point2 = new_line->Point2;
+  SetLineBoundingBox (&line);
+  if (line_hits_obstacle (info, &line))
+    return true;
+
+  return false;
+}
+
 
 
 /* \brief drc_line() checks for intersectors against a line and
@@ -511,7 +589,159 @@ drc_line (PointType *end)
   return length;
 }
 
+/*! /brief drc_lines3() checks for intersectors against two lines and
+ * adjusts the end point until there is no intersection or
+ * it winds up back at the start. If way is false it checks
+ * straight start, 45 end lines, otherwise it checks 45 start,
+ * straight end.
+ *
+ * It returns the straight-line length of the best answer, and
+ * changes the position of the input point to the best answer.
+ */
+static double
+drc_lines3 (PointType *old, PointType *end, bool way)
+{
+  double f, s;
+  double f2, s2;
+  Coord initial_dx, initial_dy;
+  Coord dx, dy;
+  Coord crosshair_dx, crosshair_dy;
+  Coord initial_length, last, length;
+  LineType line1, line2;
+  bool two_lines, x_is_long;
+  PointType ans;
+  struct drc_info info;
+  LineType old_line;
 
+  info.group = GetLayerGroupNumberByNumber (INDEXOFCURRENT);
+  info.bottom_side = (GetLayerGroupNumberBySide (BOTTOM_SIDE) == info.group);
+  info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
+  info.drawn_line_netclass = Crosshair.Netclass;
+  info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
+  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+
+  f = 1.0;
+  s = 0.5;
+  last = -1;
+  line1.Flags = line2.Flags = NoFlags ();
+  line1.Thickness = Settings.LineThickness + 2 * info.max_clearance;
+  line2.Thickness = line1.Thickness;
+  line1.Clearance = line2.Clearance = 0;
+  line1.Point1.X = Crosshair.AttachedLine.Point1.X;
+  line1.Point1.Y = Crosshair.AttachedLine.Point1.Y;
+  initial_dx = old->X - line1.Point1.X;
+  initial_dy = old->Y - line1.Point1.Y;
+
+  old_line = line1;
+  old_line.Point1.X = Crosshair.AttachedLine.Point2.X;
+  old_line.Point1.Y = Crosshair.AttachedLine.Point2.Y;
+  old_line.Point2.X = old->X; //Crosshair.AttachedLine.Point3.X;
+  old_line.Point2.Y = old->Y; //Crosshair.AttachedLine.Point3.Y;
+
+  crosshair_dx = end->X - old->X;
+  crosshair_dy = end->Y - old->Y;
+
+  x_is_long = (abs (initial_dx) > abs (initial_dy));
+
+#if 0
+  if (x_is_long)
+    length = abs (dx);
+  else
+    length = abs (dy);
+#endif
+
+  length = hypot (crosshair_dx, crosshair_dy);
+  initial_length = length;
+
+  while (length != last)
+    {
+      last = length;
+#if 0
+      if (x_is_long)
+        {
+          dx = SGN (dx) * length;
+          dy = end->Y - line1.Point1.Y;
+        }
+      else
+        {
+          dx = end->X - line1.Point1.X;
+          dy = SGN (dy) * length;
+        }
+#endif
+      dx = initial_dx + f * crosshair_dx;
+      dy = initial_dy + f * crosshair_dy;
+
+      two_lines = true;
+      if (abs (dx) > abs (dy) && x_is_long)
+        {
+          line1.Point2.X = line1.Point1.X + (way ? SGN (dx) * abs (dy) : dx - SGN (dx) * abs (dy));
+          line1.Point2.Y = line1.Point1.Y + (way ? dy                  : 0);
+        }
+      else if (abs (dy) >= abs (dx) && !x_is_long)
+        {
+          line1.Point2.X = line1.Point1.X + (way ? dx                  : 0);
+          line1.Point2.Y = line1.Point1.Y + (way ? SGN (dy) * abs (dx) : dy - SGN (dy) * abs (dx));
+        }
+      else if (x_is_long)
+        {
+          /* we've changed which axis is long, so only do one line */
+          line1.Point2.X = line1.Point1.X + dx;
+          line1.Point2.Y = line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
+          two_lines = false;
+          printf ("Untested case 1\n");
+        }
+      else
+        {
+          /* we've changed which axis is long, so only do one line */
+          line1.Point2.X = line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
+          line1.Point2.Y = line1.Point1.Y + dy;
+          two_lines = false;
+          printf ("Untested case 2\n");
+        }
+      line2.Point1.X = line1.Point2.X;
+      line2.Point1.Y = line1.Point2.Y;
+      if (two_lines)
+        {
+          line2.Point2.X = line1.Point1.X + dx;
+          line2.Point2.Y = line1.Point1.Y + dy;
+        }
+      else
+        {
+          line2.Point2.Y = line1.Point2.Y;
+          line2.Point2.X = line1.Point2.X;
+        }
+      SetLineBoundingBox (&line1);
+      SetLineBoundingBox (&line2);
+
+      if (line_sweeps_obstacle (&info, &old_line, &line2))
+        f -= s; /* bumped into something, back off */
+      else
+        f += s; /* no intersector! */
+
+      f = MIN (f, 1.0); /* Avoid extending the line beyond the mouse pointer */
+
+      s *= 0.5;
+
+      length = f * initial_length;
+    }
+
+#if 1
+  if (lines_hit_obstacle (&info, &line1, two_lines ? &line2 : NULL))
+    {
+      dx = initial_dx;
+      dy = initial_dy;
+    }
+#endif
+
+//  end->X = ans.X;
+//  end->Y = ans.Y;
+  end->X = line1.Point1.X + dx;
+  end->Y = line1.Point1.Y + dy;
+  return length;
+}
+
+
+#if 0
 /*!
  * \brief drc_lines2() checks for intersectors against two lines and
  * adjusts the end point until there is no intersection or
@@ -670,6 +900,7 @@ drc_lines2 (PointType *end, bool way)
   end->Y = ans.Y;
   return best;
 }
+#endif
 
 /*!
  * \brief drc_lines() checks for intersectors against two lines and
@@ -842,8 +1073,9 @@ drc_lines (PointType *end, bool way)
 void
 EnforceLineDRC (void)
 {
+  PointType old;
   PointType rs;
-#if 1
+#if 0
   PointType r45;
   bool shift;
   double r1, r2;
@@ -904,12 +1136,15 @@ EnforceLineDRC (void)
     }
   END_LOOP;
 
+  old.X = Crosshair.AttachedLine.Point3.X;
+  old.Y = Crosshair.AttachedLine.Point3.Y;
+
   Crosshair.AttachedLine.Point3.X = Crosshair.X;
   Crosshair.AttachedLine.Point3.Y = Crosshair.Y;
 
   rs.X = Crosshair.AttachedLine.Point3.X;
   rs.Y = Crosshair.AttachedLine.Point3.Y;
-#if 1
+#if 0
   r45.X = Crosshair.AttachedLine.Point3.X;
   r45.Y = Crosshair.AttachedLine.Point3.Y;
 #endif
@@ -955,7 +1190,7 @@ EnforceLineDRC (void)
         }
 #else /* Fixed starting angle */
 //      drc_lines (&rs, (PCB->Clipping == 1) != gui->shift_is_pressed ());
-      drc_lines (&rs, false);
+      drc_lines3 (&old, &rs, false);
       Crosshair.X = Crosshair.AttachedLine.Point3.X = rs.X;
       Crosshair.Y = Crosshair.AttachedLine.Point3.Y = rs.Y;
 #endif
