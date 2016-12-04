@@ -48,6 +48,8 @@
 #include "line.h"
 #include "misc.h"
 #include "rtree.h"
+#include "netclass.h"
+#include "draw.h" /* For Redraw */
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -239,6 +241,11 @@ struct drc_info
   bool bottom_side;
   bool top_side;
   jmp_buf env;
+  ElementType *element;
+  LayerType *layer;
+  char *drawn_line_netclass;
+  Coord drawn_line_clearance;
+  Coord max_clearance;
 };
 
 static int
@@ -246,9 +253,56 @@ drcVia_callback (const BoxType * b, void *cl)
 {
   PinType *via = (PinType *) b;
   struct drc_info *i = (struct drc_info *) cl;
+  char *netclass;
+  Coord required_drc_clearance;
+  Coord tmp;
 
-  if (!TEST_FLAG (FOUNDFLAG, via) && PinLineIntersect (via, i->line))
-    longjmp (i->env, 1);
+  if (TEST_FLAG (FOUNDFLAG, via))
+    return 1;
+
+  tmp = i->line->Thickness;
+  netclass = get_netclass_for_via (via);
+  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
+
+  if (PinLineIntersect (via, i->line))
+    {
+      via->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
+//      printf ("Setting ExtraDrcClearance on object to %li\n", via->ExtraDrcClearance);
+      i->line->Thickness = tmp;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        longjmp (i->env, 1);
+    }
+  i->line->Thickness = tmp;
+  return 1;
+}
+
+static int
+drcPin_callback (const BoxType * b, void *cl)
+{
+  PinType *pin = (PinType *) b;
+  struct drc_info *i = (struct drc_info *) cl;
+  char *netclass;
+  Coord required_drc_clearance;
+  Coord tmp;
+
+  if (TEST_FLAG (FOUNDFLAG, pin))
+    return 1;
+
+  tmp = i->line->Thickness;
+  netclass = get_netclass_for_pin (pin);
+  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
+
+  if (PinLineIntersect (pin, i->line))
+    {
+      pin->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
+//      printf ("Setting ExtraDrcClearance on object to %li\n", pin->ExtraDrcClearance);
+      i->line->Thickness = tmp;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        longjmp (i->env, 1);
+    }
+  i->line->Thickness = tmp;
   return 1;
 }
 
@@ -257,10 +311,27 @@ drcPad_callback (const BoxType * b, void *cl)
 {
   PadType *pad = (PadType *) b;
   struct drc_info *i = (struct drc_info *) cl;
+  char *netclass;
+  Coord required_drc_clearance;
+  Coord tmp;
 
-  if (TEST_FLAG (ONSOLDERFLAG, pad) == i->bottom_side &&
-      !TEST_FLAG (FOUNDFLAG, pad) && LinePadIntersect (i->line, pad))
-    longjmp (i->env, 1);
+  if (TEST_FLAG (FOUNDFLAG, pad) || TEST_FLAG (ONSOLDERFLAG, pad) != i->bottom_side)
+    return 1;
+
+  tmp = i->line->Thickness;
+  netclass = get_netclass_for_pad (pad);
+  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
+
+  if (LinePadIntersect (i->line, pad))
+    {
+      pad->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
+//      printf ("Setting ExtraDrcClearance on object to %li\n", pad->ExtraDrcClearance);
+      i->line->Thickness = tmp;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        longjmp (i->env, 1);
+    }
+  i->line->Thickness = tmp;
   return 1;
 }
 
@@ -269,9 +340,27 @@ drcLine_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
   struct drc_info *i = (struct drc_info *) cl;
+  char *netclass;
+  Coord required_drc_clearance;
+  Coord tmp;
 
-  if (!TEST_FLAG (FOUNDFLAG, line) && LineLineIntersect (line, i->line))
-    longjmp (i->env, 1);
+  if (TEST_FLAG (FOUNDFLAG, line))
+    return 1;
+
+  tmp = i->line->Thickness;
+  netclass = get_netclass_for_line (i->layer, line);
+  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
+
+  if (LineLineIntersect (line, i->line))
+    {
+      line->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
+//      printf ("Setting ExtraDrcClearance on object to %li\n", line->ExtraDrcClearance);
+      i->line->Thickness = tmp;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        longjmp (i->env, 1);
+    }
+  i->line->Thickness = tmp;
   return 1;
 }
 
@@ -280,9 +369,27 @@ drcArc_callback (const BoxType * b, void *cl)
 {
   ArcType *arc = (ArcType *) b;
   struct drc_info *i = (struct drc_info *) cl;
+  char *netclass;
+  Coord required_drc_clearance;
+  Coord tmp;
 
-  if (!TEST_FLAG (FOUNDFLAG, arc) && LineArcIntersect (i->line, arc))
-    longjmp (i->env, 1);
+  if (TEST_FLAG (FOUNDFLAG, arc))
+    return 1;
+
+  tmp = i->line->Thickness;
+  netclass = get_netclass_for_arc (i->layer, arc);
+  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
+
+  if (LineArcIntersect (i->line, arc))
+    {
+      arc->ExtraDrcClearance = required_drc_clearance - i->drawn_line_clearance;
+//      printf ("Setting ExtraDrcClearance on object to %li\n", arc->ExtraDrcClearance);
+      i->line->Thickness = tmp;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        longjmp (i->env, 1);
+    }
+  i->line->Thickness = tmp;
   return 1;
 }
 
@@ -309,11 +416,15 @@ drc_lines (PointType *end, bool way)
   bool two_lines, x_is_long, blocker;
   PointType ans;
 
+  info.drawn_line_netclass = Crosshair.Netclass;
+  info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
+  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+
   f = 1.0;
   s = 0.5;
   last = -1;
   line1.Flags = line2.Flags = NoFlags ();
-  line1.Thickness = Settings.LineThickness + 2 * PCB->Bloat;
+  line1.Thickness = Settings.LineThickness + 2 * info.max_clearance;
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;
   line1.Point1.X = Crosshair.AttachedLine.Point1.X;
@@ -413,38 +524,29 @@ drc_lines (PointType *end, bool way)
 	  if (setjmp (info.env) == 0)
 	    {
 	      info.line = &line1;
-	      r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL,
-			drcVia_callback, &info);
-	      r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL,
-			drcVia_callback, &info);
+	      r_search (PCB->Data->via_tree, &line1.BoundingBox, NULL, drcVia_callback, &info);
+	      r_search (PCB->Data->pin_tree, &line1.BoundingBox, NULL, drcPin_callback, &info);
 	      if (info.bottom_side || info.top_side)
-		r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL,
-			  drcPad_callback, &info);
+		r_search (PCB->Data->pad_tree, &line1.BoundingBox, NULL, drcPad_callback, &info);
 	      if (two_lines)
 		{
 		  info.line = &line2;
-		  r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL,
-			    drcVia_callback, &info);
-		  r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL,
-			    drcVia_callback, &info);
+		  r_search (PCB->Data->via_tree, &line2.BoundingBox, NULL, drcVia_callback, &info);
+		  r_search (PCB->Data->pin_tree, &line2.BoundingBox, NULL, drcPin_callback, &info);
 		  if (info.bottom_side || info.top_side)
-		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
-			      drcPad_callback, &info);
+		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL, drcPad_callback, &info);
 		}
 	      GROUP_LOOP (PCB->Data, group);
 	      {
 		info.line = &line1;
-		r_search (layer->line_tree, &line1.BoundingBox, NULL,
-			  drcLine_callback, &info);
-		r_search (layer->arc_tree, &line1.BoundingBox, NULL,
-			  drcArc_callback, &info);
+		info.layer = layer;
+		r_search (layer->line_tree, &line1.BoundingBox, NULL, drcLine_callback, &info);
+		r_search (layer->arc_tree,  &line1.BoundingBox, NULL, drcArc_callback,  &info);
 		if (two_lines)
 		  {
 		    info.line = &line2;
-		    r_search (layer->line_tree, &line2.BoundingBox,
-			      NULL, drcLine_callback, &info);
-		    r_search (layer->arc_tree, &line2.BoundingBox,
-			      NULL, drcArc_callback, &info);
+		    r_search (layer->line_tree, &line2.BoundingBox, NULL, drcLine_callback, &info);
+		    r_search (layer->arc_tree,  &line2.BoundingBox, NULL, drcArc_callback,  &info);
 		  }
 	      }
 	      END_LOOP;
@@ -470,6 +572,11 @@ drc_lines (PointType *end, bool way)
 	    {
 	      /* bumped into something, back off */
 	      f2 -= s2;
+	      //SET_FLAG (WARNFLAG, info.object);
+//	      if (TEST_FLAG (AUTODRCFLAG, PCB))
+//	        info.object->ExtraDrcClearance = MM_TO_COORD (1.0);
+//	      Draw (type, info.ptr1, info.ptr2); /* XXX: Need info */
+//	      Redraw (); /* XXX: Sledgehammer */
 	    }
 	  s2 *= 0.5;
 	  length2 = MIN (f2 * temp2, temp2);
@@ -499,16 +606,79 @@ EnforceLineDRC (void)
   /* Silence a bogus compiler warning by storing this in a variable */
   int layer_idx = INDEXOFCURRENT;
 
+  if (!TEST_FLAG (AUTODRCFLAG, PCB) && !TEST_FLAG (SHOWDRCFLAG, PCB))
+    return;
+
   if ( gui->mod1_is_pressed() || gui->control_is_pressed () || PCB->RatDraw
       || layer_idx >= max_copper_layer)
     return;
 
+  /* Reset ExtraDrcClearance on all objects */
+  GROUP_LOOP (PCB->Data, GetLayerGroupNumberByNumber (INDEXOFCURRENT));
+    {
+      LINE_LOOP (layer);
+        {
+          line->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+      ARC_LOOP (layer);
+        {
+          arc->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+      POLYGON_LOOP (layer);
+        {
+          polygon->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+      TEXT_LOOP (layer);
+        {
+          text->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+    }
+  END_LOOP;
+  ELEMENT_LOOP (PCB->Data);
+    {
+      PIN_LOOP (element);
+        {
+          pin->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+      PAD_LOOP (element);
+        {
+          pad->ExtraDrcClearance = 0;
+        }
+      END_LOOP;
+    }
+  END_LOOP;
+  VIA_LOOP (PCB->Data);
+    {
+      via->ExtraDrcClearance = 0;
+    }
+  END_LOOP;
+
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;
+
+  if (!TEST_FLAG (AUTODRCFLAG, PCB))
+    {
+      if (TEST_FLAG (ALLDIRECTIONFLAG, PCB)) /* We don't have code to handle this case! */
+        return;
+
+      /* Just run drc_lines to update clearances, without accepting any of its adjustment, when AUTODRCFLAG is not set */
+      drc_lines (&rs, (PCB->Clipping == 2) != gui->shift_is_pressed ());
+      return;
+    }
+
+  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB)) /* We don't have code to handle this case! */
+    return;
+
   /* first try starting straight */
-  r1 = drc_lines (&rs, false);
+  r1 = drc_lines (&rs, false);              /* XXX: This code doesn't cope well with all-direction lines (?) */
   /* then try starting at 45 */
-  r2 = drc_lines (&r45, true);
+  r2 = drc_lines (&r45, true);              /* XXX: This code doesn't cope well with all-direction lines (?) */
+
   shift = gui->shift_is_pressed ();
   if (XOR (r1 > r2, shift))
     {

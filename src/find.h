@@ -52,6 +52,8 @@ bool ArcPadIntersect (ArcType *, PadType *);
 void LookupElementConnections (ElementType *, FILE *);
 void LookupConnectionsToAllElements (FILE *);
 void LookupConnection (Coord, Coord, bool, Coord, int, bool AndRats, bool store_undo);
+void LookupConnectionByObject (int, void *, void *, void *, bool, int, bool AndRats, bool store_undo);
+void LookupConnectionByPin (int , void *);
 void LookupUnusedPins (FILE *);
 bool ClearFlagOnLinesAndPolygons (bool, int flag, bool store_undo);
 bool ClearFlagOnPinsViasAndPads (bool, int flag, bool store_undo);
@@ -60,6 +62,5 @@ void InitConnectionLookup (void);
 void FreeConnectionLookupMemory (void);
 void RatFindHook (int, void *, void *, void *, bool, int flag, bool);
 int DRCAll (void);
-void LookupConnectionByPin (int , void *);
 
 #endif

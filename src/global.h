@@ -178,6 +178,7 @@ typedef struct
 	BoxType		BoundingBox;	\
 	long int	ID;		\
 	FlagType	Flags;		\
+	Coord		ExtraDrcClearance; \
 	//	struct LibraryEntryType *net
 
 /* Lines, pads, and rats all use this so they can be cross-cast.  */
@@ -545,6 +546,7 @@ typedef struct
   char *Name; /*!< Name of the menu entry. */
   char *directory; /*!< Directory name library elements are from. */
   char *Style; /*!< Routing style. */
+  char *Netclass; /*!< Net class */
   Cardinal EntryN; /*!< Number of objects. */
   Cardinal EntryMax; /*!< Number of reserved memory locations. */
   LibraryEntryType *Entry; /*!< The entries. */
@@ -726,6 +728,7 @@ typedef struct
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject; /*!< Data of attached objects. */
   enum crosshair_shape shape; /*!< Shape of Crosshair. */
+  char *Netclass;
 } CrosshairType;
 
 typedef struct

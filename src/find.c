@@ -3196,8 +3196,39 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
     gui->beep ();
   FreeConnectionLookupMemory ();
 }
+/*! /brief LookupConnectionByObject
+ * looks up all connections from the object at the given coordinates
+ * the TheFlag (normally 'FOUNDFLAG') is set for all objects found
+ * the objects are re-drawn if AndDraw is true
+ * also the action is marked as undoable if AndDraw is true
+ */
+void
+LookupConnectionByObject (int type, void *ptr1, void *ptr2, void *ptr3, bool AndDraw, int flag,
+                          bool AndRats, bool store_undo)
+{
+  reassign_no_drc_flags ();
 
-void 
+  User = store_undo;
+  InitConnectionLookup ();
+
+  /* now add the object to the appropriate list and start scanning
+   * This is step (1) from the description
+   */
+  ListStart (type, ptr1, ptr2, ptr3, flag);
+  DoIt (flag, AndRats, AndDraw);
+  if (store_undo)
+    IncrementUndoSerialNumber ();
+  User = false;
+
+  /* we are done */
+  if (AndDraw)
+    Draw ();
+  if (AndDraw && Settings.RingBellWhenFinished)
+    gui->beep ();
+  FreeConnectionLookupMemory ();
+}
+
+void
 LookupConnectionByPin (int type, void *ptr1)
 {
 /*  int TheFlag = FOUNDFLAG; */

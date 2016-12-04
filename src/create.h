@@ -60,7 +60,7 @@ PadType * CreateNewPad (ElementType *, Coord, Coord, Coord, Coord, Coord, Coord,
 LineType * CreateNewLineInSymbol (SymbolType *, Coord, Coord, Coord, Coord, Coord);
 void CreateDefaultFont (PCBType *);
 RubberbandType * CreateNewRubberbandEntry (LayerType *, LineType *, PointType *, bool);
-LibraryMenuType * CreateNewNet (LibraryType *, char *, char *);
+LibraryMenuType * CreateNewNet (LibraryType *, char *, char *, char *);
 LibraryEntryType * CreateNewConnection (LibraryMenuType *, char *);
 AttributeType * CreateNewAttribute (AttributeListType *list, char *name, char *value);
 

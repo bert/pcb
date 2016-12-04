@@ -17,6 +17,7 @@
 #include "../hidint.h"
 #include "gui.h"
 #include "hid/common/hidnogui.h"
+#include "hid/common/draw_drc.h"
 #include "hid/common/draw_helpers.h"
 #include "pcb-printf.h"
 
@@ -2250,6 +2251,7 @@ hid_gtk_init ()
 
   common_nogui_graphics_class_init (&ghid_graphics_class);
   common_draw_helpers_class_init (&ghid_graphics_class);
+  common_draw_drc_class_init (&ghid_graphics_class); /* XXX: Some vfuncs are overridden below, and the drc helpers won't be drawn! */
 
   ghid_graphics_class.set_layer      = ghid_set_layer;
   ghid_graphics_class.make_gc        = ghid_make_gc;

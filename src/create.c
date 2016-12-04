@@ -1028,7 +1028,7 @@ CreateNewRubberbandEntry (LayerType *Layer,
  * \brief Add a new net to the netlist menu.
  */
 LibraryMenuType *
-CreateNewNet (LibraryType *lib, char *name, char *style)
+CreateNewNet (LibraryType *lib, char *name, char *style, char *class)
 {
   LibraryMenuType *menu;
   char temp[64];
@@ -1041,6 +1041,7 @@ CreateNewNet (LibraryType *lib, char *name, char *style)
     menu->Style = NULL;
   else
     menu->Style = strdup (style);
+  menu->Netclass = STRDUP (class);
   return (menu);
 }
 

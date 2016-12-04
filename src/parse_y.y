@@ -1879,9 +1879,17 @@ The routing style that should be used when autorouting this net.
 
 net
 			/* name style pin pin ... */
-		: T_NET '(' STRING STRING ')' '('
+		: T_NET '(' STRING STRING STRING ')' '('
 			{
-				Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4);
+				Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4, $5);
+				free ($3);
+				free ($4);
+				free ($5);
+			}
+		 connections ')'
+		| T_NET '(' STRING STRING ')' '('
+			{
+				Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4, NULL);
 				free ($3);
 				free ($4);
 			}

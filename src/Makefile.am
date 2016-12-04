@@ -112,6 +112,8 @@ PCB_SRCS = \
 	mtspace.h \
 	mymem.c \
 	mymem.h \
+	netclass.c \
+	netclass.h \
 	netlist.c \
 	parse_l.h \
 	parse_l.l \
@@ -170,6 +172,8 @@ PCB_SRCS = \
 	hid/common/hidnogui.c \
 	hid/common/hidnogui.h \
 	hid/common/extents.c \
+	hid/common/draw_drc.c \
+	hid/common/draw_drc.h \
 	hid/common/draw_helpers.c \
 	hid/common/draw_helpers.h \
 	hid/common/hid_resource.c \

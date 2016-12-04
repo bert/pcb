@@ -1390,7 +1390,7 @@ common_tail:
 
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
-      && TEST_FLAG (AUTODRCFLAG, PCB))
+     )//      && TEST_FLAG (AUTODRCFLAG, PCB))
     EnforceLineDRC ();
 
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_DO_NOTHING);

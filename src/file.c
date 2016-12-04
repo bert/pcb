@@ -687,6 +687,11 @@ WritePCBNetlistData (FILE * FP)
 	  PrintQuotedString(FP, &menu->Name[2]);
 	  fprintf (FP, " ");
 	  PrintQuotedString(FP, (char *)UNKNOWN (menu->Style));
+	  if (menu->Netclass != NULL)
+	    {
+	      fprintf (FP, " ");
+	      PrintQuotedString(FP, menu->Netclass);
+	    }
 	  fprintf (FP, ")\n\t(\n");
 	  for (p = 0; p < menu->EntryN; p++)
 	    {

@@ -73,6 +73,7 @@
 #include "rtree.h"
 #include "macro.h"
 #include "pcb-printf.h"
+#include "netclass.h"
 
 #include <assert.h>
 #include <stdlib.h> /* rand() */
@@ -903,13 +904,19 @@ NotifyLine (void)
 	  gui->beep ();
 	  break;
 	}
-      if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
+      if (Settings.Mode == LINE_MODE)
 	{
-	  type = SearchScreen (Crosshair.X, Crosshair.Y,
-			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
-			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false, true);
-	  LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true, true);
+          if (TEST_FLAG (AUTODRCFLAG, PCB))
+            {
+              type = SearchScreen (Crosshair.X, Crosshair.Y,
+                                   PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
+                                   &ptr3);
+              LookupConnection (Crosshair.X, Crosshair.Y, true, 1, CONNECTEDFLAG, false, true);
+              LookupConnection (Crosshair.X, Crosshair.Y, true, 1, FOUNDFLAG, true, true);
+            }
+          /* XXX: NEED TO FIGURE OUT WHAT NET CLASS THIS IS, AND/OR STORE FOR USE WITH DRC */
+	  Crosshair.Netclass = get_netclass_at_xy (LAYER_ON_STACK(0), Crosshair.X, Crosshair.Y); /* XXX: Not sure about the layer! */
+	  PCB->Bloat = get_min_clearance_for_netclass (Crosshair.Netclass);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{
