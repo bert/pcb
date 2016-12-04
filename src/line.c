@@ -107,9 +107,12 @@ FortyFiveLine (AttachedLineType *Line)
   unsigned direction = 0;
   double m;
 
+  Line->Point3.X = Crosshair.X;
+  Line->Point3.Y = Crosshair.Y;
+
   /* first calculate direction of line */
-  dx = Crosshair.X - Line->Point1.X;
-  dy = Crosshair.Y - Line->Point1.Y;
+  dx = Line->Point3.X - Line->Point1.X;
+  dy = Line->Point3.Y - Line->Point1.Y;
 
   /* zero length line, don't draw anything */
   if (dx == 0 && dy == 0)
@@ -188,6 +191,9 @@ AdjustTwoLine (bool way)
   Coord dx, dy;
   AttachedLineType *line = &Crosshair.AttachedLine;
 
+  line->Point3.X = Crosshair.X;
+  line->Point3.Y = Crosshair.Y;
+
   if (Crosshair.AttachedLine.State == STATE_FIRST)
     return;
   /* don't draw outline when ctrl key is pressed */
@@ -200,26 +206,26 @@ AdjustTwoLine (bool way)
     line->draw = true;
   if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
-      line->Point2.X = Crosshair.X;
-      line->Point2.Y = Crosshair.Y;
+      line->Point2.X = line->Point3.X;
+      line->Point2.Y = line->Point3.Y;
       return;
     }
   /* swap the modes if shift is held down */
   if (gui->shift_is_pressed ())
     way = !way;
-  dx = Crosshair.X - line->Point1.X;
-  dy = Crosshair.Y - line->Point1.Y;
+  dx = line->Point3.X - line->Point1.X;
+  dy = line->Point3.Y - line->Point1.Y;
   if (!way)
     {
       if (abs (dx) > abs (dy))
 	{
-	  line->Point2.X = Crosshair.X - SGN (dx) * abs (dy);
+	  line->Point2.X = line->Point3.X - SGN (dx) * abs (dy);
 	  line->Point2.Y = line->Point1.Y;
 	}
       else
 	{
 	  line->Point2.X = line->Point1.X;
-	  line->Point2.Y = Crosshair.Y - SGN (dy) * abs (dx);
+	  line->Point2.Y = line->Point3.Y - SGN (dy) * abs (dx);
 	}
     }
   else
@@ -227,11 +233,11 @@ AdjustTwoLine (bool way)
       if (abs (dx) > abs (dy))
 	{
 	  line->Point2.X = line->Point1.X + SGN (dx) * abs (dy);
-	  line->Point2.Y = Crosshair.Y;
+	  line->Point2.Y = line->Point3.Y;
 	}
       else
 	{
-	  line->Point2.X = Crosshair.X;
+	  line->Point2.X = line->Point3.X;
 	  line->Point2.Y = line->Point1.Y + SGN (dy) * abs (dx);;
 	}
     }
@@ -898,11 +904,14 @@ EnforceLineDRC (void)
     }
   END_LOOP;
 
-  rs.X = Crosshair.X;
-  rs.Y = Crosshair.Y;
+  Crosshair.AttachedLine.Point3.X = Crosshair.X;
+  Crosshair.AttachedLine.Point3.Y = Crosshair.Y;
+
+  rs.X = Crosshair.AttachedLine.Point3.X;
+  rs.Y = Crosshair.AttachedLine.Point3.Y;
 #if 1
-  r45.X = Crosshair.X;
-  r45.Y = Crosshair.Y;
+  r45.X = Crosshair.AttachedLine.Point3.X;
+  r45.Y = Crosshair.AttachedLine.Point3.Y;
 #endif
 
   if (!TEST_FLAG (AUTODRCFLAG, PCB))
@@ -918,8 +927,8 @@ EnforceLineDRC (void)
   if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
       drc_line (&rs);
-      Crosshair.X = rs.X;
-      Crosshair.Y = rs.Y;
+      Crosshair.X = Crosshair.AttachedLine.Point3.X = rs.X;
+      Crosshair.Y = Crosshair.AttachedLine.Point3.Y = rs.Y;
     }
   else
     {
@@ -947,8 +956,8 @@ EnforceLineDRC (void)
 #else /* Fixed starting angle */
 //      drc_lines (&rs, (PCB->Clipping == 1) != gui->shift_is_pressed ());
       drc_lines (&rs, false);
-      Crosshair.X = rs.X;
-      Crosshair.Y = rs.Y;
+      Crosshair.X = Crosshair.AttachedLine.Point3.X = rs.X;
+      Crosshair.Y = Crosshair.AttachedLine.Point3.Y = rs.Y;
 #endif
     }
 }

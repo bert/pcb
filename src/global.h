@@ -668,7 +668,8 @@ typedef struct
 typedef struct
 {
   PointType Point1; /*!< Start position. */
-  PointType Point2; /*!< End position. */
+  PointType Point2; /*!< Middle position. */
+  PointType Point3; /*!< End position. */
   long int State;
   bool draw;
 } AttachedLineType;
