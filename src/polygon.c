@@ -123,20 +123,29 @@
 
 static double rotate_circle_seg[4];
 static double bw_rotate_circle_seg[4];
+static double circle_points[POLY_CIRC_SEGS][2];
 
 void
 polygon_init (void)
 {
+  int i;
   struct rlimit limit;
 
-  double cos_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_F);
-  double sin_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_F);
+  double cos_ang = cos (2.0 * M_PI / POLY_CIRC_SEGS_D);
+  double sin_ang = sin (2.0 * M_PI / POLY_CIRC_SEGS_D);
 
   rotate_circle_seg[0] = cos_ang;  rotate_circle_seg[1] = -sin_ang;
   rotate_circle_seg[2] = sin_ang;  rotate_circle_seg[3] =  cos_ang;
 
   bw_rotate_circle_seg[0] =  cos_ang;  bw_rotate_circle_seg[1] =  sin_ang;
   bw_rotate_circle_seg[2] = -sin_ang;  bw_rotate_circle_seg[3] =  cos_ang;
+
+  for (i = 0; i < POLY_CIRC_SEGS; i++)
+    {
+      circle_points[i][0] = cos ((double)i * 2.0 * M_PI / POLY_CIRC_SEGS_D);
+      circle_points[i][1] = sin ((double)i * 2.0 * M_PI / POLY_CIRC_SEGS_D); /* NB: PCB has a funny idea of coordinates! */
+    }
+
 return;
 
   /* DEBUG - AVOID PCB running the system out of memory! */
@@ -307,7 +316,12 @@ degree_circle (PLINE * c, Coord X, Coord Y /* <- Center */, Coord radius, Vector
 {
   /* We don't re-add a point at v, nor do we add the last point, sweep degrees around from (X,Y)-v */
   double e1, e2, t1;
-  int i, range;
+  int i;
+  int range;
+  double start_angle;
+  double end_angle;
+  int start_index;
+  int end_index;
 
 //  poly_InclVertex (c->head.prev, poly_CreateNode (v));
 
@@ -327,6 +341,7 @@ degree_circle (PLINE * c, Coord X, Coord Y /* <- Center */, Coord radius, Vector
   e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
   e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
 
+#if 0
   if (sweep > 0)
     {
       /* NB: the caller added the first vertex, and will add the last vertex, hence the -1 */
@@ -356,6 +371,65 @@ degree_circle (PLINE * c, Coord X, Coord Y /* <- Center */, Coord radius, Vector
           v[1] = Y + ROUND (e2);
           poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
         }
+    }
+#endif
+
+  if (sweep > 0)
+    {
+      // Compute angle (segment number) we started at, find next pre-computed vector
+      // Increment vector index if too close to starting point
+      start_angle = atan2 (v[1] - Y, v[0] - X);
+      if (start_angle < 0.0)
+        start_angle += 2.0 * M_PI;
+      start_index = (int)trunc (start_angle / (2.0 * M_PI) * POLY_CIRC_SEGS_D + 1.50); /* 1.50 gives a half segment offset on the next index */
+
+      // Compute angle (segment number) the caller will end at, find previous pre-computed vector index
+      // Decrement vector index if too close to ending point (NB: end_index >= start_index, and is not wrapped).
+      //  end_angle = start_angle + 2.0 * M_PI / fraction;
+      end_index = (int)trunc ((start_angle / (2.0 * M_PI) + sweep / 360.0) * POLY_CIRC_SEGS_D + 0.5); /* 0.50 gives a half segment offset */
+
+      for (i = start_index; i < end_index; i++)
+        {
+          v[0] = X + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][0]);
+          v[1] = Y + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][1]);
+          poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
+        }
+    }
+  else
+    {
+#if 1
+      // Compute angle (segment number) we started at, find next pre-computed vector
+      // Increment vector index if too close to starting point
+      end_angle = atan2 (v[1] - Y, v[0] - X) + sweep / 180.0 * M_PI;
+      while (end_angle < 0.0)
+        end_angle += 2.0 * M_PI;
+      end_index = (int)trunc (end_angle / (2.0 * M_PI) * POLY_CIRC_SEGS_D + 0.50); /* 0.50 gives a half segment offset on the next index */
+
+      // Compute angle (segment number) the caller will end at, find previous pre-computed vector index
+      // Decrement vector index if too close to ending point (NB: end_index >= start_index, and is not wrapped).
+      //  end_angle = start_angle + 2.0 * M_PI / fraction;
+      start_index = (int)trunc ((end_angle / (2.0 * M_PI) - sweep / 360.0) * POLY_CIRC_SEGS_D - 0.5); /* 0.50 gives a half segment offset */
+
+      for (i = start_index; i > end_index; i--)
+        {
+          v[0] = X + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][0]);
+          v[1] = Y + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][1]);
+          poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
+        }
+#else
+      /* NB: the caller added the first vertex, and will add the last vertex, hence the -1 */
+      range = POLY_CIRC_SEGS * -sweep / 360 - 1;
+      for (i = 0; i < range; i++)
+        {
+          /* rotate the vector */
+          t1 = bw_rotate_circle_seg[0] * e1 + bw_rotate_circle_seg[1] * e2;
+          e2 = bw_rotate_circle_seg[2] * e1 + bw_rotate_circle_seg[3] * e2;
+          e1 = t1;
+          v[0] = X + ROUND (e1);
+          v[1] = Y + ROUND (e2);
+          poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
+        }
+#endif
     }
 }
 
@@ -525,61 +599,15 @@ OctagonPoly (Coord x, Coord y, Coord radius)
  * or 4 for a quarter circle.
  */
 void
-frac_circle (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
-{
-  double e1, e2, t1;
-  int i, range;
-  double radius = sqrt ((v[0] - X) * (v[0] - X) + (v[1] - Y) * (v[1] - Y));
-
-  /* XXX: Circle already has the first node added */
-//  if (fraction > 1)
-//    poly_InclVertex (c->head.prev, poly_CreateNode (v));
-
-  if (c->head.prev->point[0] == v[0] &&
-      c->head.prev->point[1] == v[1])
-    {
-      /* Re-use any existing vertex point we got lumbered with (if it matches the coordinate we want) */
-      c->head.prev->is_round = true;
-      c->head.prev->cx = X;
-      c->head.prev->cy = Y;
-      c->head.prev->radius = radius;
-    }
-  else
-    poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
-
-  /* move vector to origin */
-  e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
-  e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
-
-  /* XXX */ /* NB: the caller adds the last vertex, hence the -1 */
-  range = POLY_CIRC_SEGS / fraction;
-  for (i = 0; i < range; i++)
-    {
-      /* rotate the vector */
-      t1 = rotate_circle_seg[0] * e1 + rotate_circle_seg[1] * e2;
-      e2 = rotate_circle_seg[2] * e1 + rotate_circle_seg[3] * e2;
-      e1 = t1;
-      v[0] = X + ROUND (e1);
-      v[1] = Y + ROUND (e2);
-      poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
-    }
-}
-
-/*!
- * \brief Add vertices in a fractional-circle starting from v 
- * centered at X, Y and going counter-clockwise.
- *
- * Does not include the first point.
- * last argument is 1 for a full circle.
- * 2 for a half circle.
- * or 4 for a quarter circle.
- */
-void
 frac_circle2 (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
 {
-  double e1, e2, t1;
-  int i, range;
+//  double e1, e2, t1;
+  int i;
+//  int range;
   double radius = sqrt ((v[0] - X) * (v[0] - X) + (v[1] - Y) * (v[1] - Y));
+  double start_angle;
+  int start_index;
+  int end_index;
 
   /* XXX: Circle already has the first node added */
 //  if (fraction > 1)
@@ -597,6 +625,7 @@ frac_circle2 (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
   else
     poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
 
+#if 0
   /* move vector to origin */
   e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
   e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
@@ -611,6 +640,26 @@ frac_circle2 (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
       e1 = t1;
       v[0] = X + ROUND (e1);
       v[1] = Y + ROUND (e2);
+      poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
+    }
+#endif
+
+  // Compute angle (segment number) we started at, find next pre-computed vector
+  // Increment vector index if too close to starting point
+  start_angle = atan2 (v[1] - Y, v[0] - X);
+  if (start_angle < 0.0)
+    start_angle += 2.0 * M_PI;
+  start_index = (int)trunc (start_angle / (2.0 * M_PI) * POLY_CIRC_SEGS_D + 1.50); /* 1.50 gives a half segment offset on the next index */
+
+  // Compute angle (segment number) the caller will end at, find previous pre-computed vector index
+  // Decrement vector index if too close to ending point (NB: end_index >= start_index, and is not wrapped).
+  //  end_angle = start_angle + 2.0 * M_PI / fraction;
+  end_index = (int)trunc ((start_angle / (2.0 * M_PI) + 1.0 / (double)fraction) * POLY_CIRC_SEGS_D + 0.5); /* 0.50 gives a half segment offset */
+
+  for (i = start_index; i < end_index; i++)
+    {
+      v[0] = X + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][0]);
+      v[1] = Y + ROUND (radius * circle_points[i % POLY_CIRC_SEGS][1]);
       poly_InclVertex (c->head.prev, poly_CreateNodeArcApproximation (v, X, Y, radius));
     }
 }
@@ -663,25 +712,25 @@ RoundRect (Coord x1, Coord x2, Coord y1, Coord y2, Coord t)
     return NULL;
   v[0] = x1 - t;
   v[1] = y1;
-  frac_circle (contour, x1, y1, v, 4);
+  frac_circle2 (contour, x1, y1, v, 4);
   v[0] = x1;
   v[1] = y1 - t;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = x2;
   v[1] = y1 - t;
-  frac_circle (contour, x2, y1, v, 4);
+  frac_circle2 (contour, x2, y1, v, 4);
   v[0] = x2 + t;
   v[1] = y1;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = x2 + t;
   v[1] = y2;
-  frac_circle (contour, x2, y2, v, 4);
+  frac_circle2 (contour, x2, y2, v, 4);
   v[0] = x2;
   v[1] = y2 + t;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = x1;
   v[1] = y2 + t;
-  frac_circle (contour, x1, y2, v, 4);
+  frac_circle2 (contour, x1, y2, v, 4);
   return ContourToPoly (contour);
 }
 
@@ -749,7 +798,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick, char *name)
   v[0] = a->X - rx * cos (ang * M180) * (1 - radius_adj);
   v[1] = a->Y + ry * sin (ang * M180) * (1 - radius_adj);
   /* add the round cap at the end */
-  frac_circle (contour, ends->X2, ends->Y2, v, 2);
+  frac_circle2 (contour, ends->X2, ends->Y2, v, 2);
   /* and now do the outer arc (going backwards) */
   rx = (a->Width + half) * (1+radius_adj);
   ry = (a->Width + half) * (1+radius_adj);
@@ -770,7 +819,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick, char *name)
   ang = a->StartAngle;
   v[0] = a->X - rx * cos (ang * M180) * (1 - radius_adj);
   v[1] = a->Y + ry * sin (ang * M180) * (1 - radius_adj);
-  frac_circle (contour, ends->X1, ends->Y1, v, 2);
+  frac_circle2 (contour, ends->X1, ends->Y1, v, 2);
   /* now we have the whole contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;
@@ -995,7 +1044,7 @@ SquarePadClearPoly (PadType * pad, Coord clear)
 
   v[0] = c->Point1.X - tx;
   v[1] = c->Point1.Y - ty;
-  frac_circle (contour, (t->Point1.X - tx), (t->Point1.Y - ty), v, 4);
+  frac_circle2 (contour, (t->Point1.X - tx), (t->Point1.Y - ty), v, 4);
 
   v[0] = t->Point1.X - cx;
   v[1] = t->Point1.Y - cy;
@@ -1003,7 +1052,7 @@ SquarePadClearPoly (PadType * pad, Coord clear)
 
   v[0] = t->Point2.X - cx;
   v[1] = t->Point2.Y - cy;
-  frac_circle (contour, (t->Point2.X - tx), (t->Point2.Y - ty), v, 4);
+  frac_circle2 (contour, (t->Point2.X - tx), (t->Point2.Y - ty), v, 4);
 
   v[0] = c->Point2.X - tx;
   v[1] = c->Point2.Y - ty;
@@ -1011,7 +1060,7 @@ SquarePadClearPoly (PadType * pad, Coord clear)
 
   v[0] = c->Point2.X + tx;
   v[1] = c->Point2.Y + ty;
-  frac_circle (contour, (t->Point2.X + tx), (t->Point2.Y + ty), v, 4);
+  frac_circle2 (contour, (t->Point2.X + tx), (t->Point2.Y + ty), v, 4);
 
   v[0] = t->Point2.X + cx;
   v[1] = t->Point2.Y + cy;
@@ -1019,7 +1068,7 @@ SquarePadClearPoly (PadType * pad, Coord clear)
 
   v[0] = t->Point1.X + cx;
   v[1] = t->Point1.Y + cy;
-  frac_circle (contour, (t->Point1.X + tx), (t->Point1.Y + ty), v, 4);
+  frac_circle2 (contour, (t->Point1.X + tx), (t->Point1.Y + ty), v, 4);
 
   /* now we have the line contour */
   if (!(np = ContourToPoly (contour)))

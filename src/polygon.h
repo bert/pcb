@@ -39,8 +39,8 @@
 
 /* Implementation constants */
 
-#define POLY_CIRC_SEGS 20 //8 //40
-#define POLY_CIRC_SEGS_F ((float)POLY_CIRC_SEGS)
+#define POLY_CIRC_SEGS 24 //20 //8 //40
+#define POLY_CIRC_SEGS_D ((double)POLY_CIRC_SEGS)
 
 #if 0
 /* THIS IS BROKEN:
@@ -61,8 +61,8 @@
  * connect points on the circle:
  * \f$ 1 - cos ( \frac {\alpha} {2} ) < \frac { ( \frac {\alpha} {2} ) ^ 2 } {2} \f$
  */
-#define POLY_CIRC_RADIUS_ADJ (1.0 + M_PI / POLY_CIRC_SEGS_F * \
-                                    M_PI / POLY_CIRC_SEGS_F / 2.0)
+#define POLY_CIRC_RADIUS_ADJ (1.0 + M_PI / POLY_CIRC_SEGS_D * \
+                                    M_PI / POLY_CIRC_SEGS_D / 2.0)
 #else
 #define POLY_CIRC_RADIUS_ADJ 1.0
 #endif
