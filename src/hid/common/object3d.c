@@ -19,6 +19,8 @@
 #include "rotate.h"
 
 #include "pcb-printf.h"
+#include "misc.h"
+#include "hid/hidint.h"
 
 #define PERFECT_ROUND_CONTOURS
 
@@ -62,7 +64,9 @@
 
 
 #define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
+#define HACK_COPPER_THICKNESS MM_TO_COORD(0.035)
 #define HACK_MASK_THICKNESS MM_TO_COORD(0.01)
+#define HACK_SILK_THICKNESS MM_TO_COORD(0.01)
 
 static GList *object3d_test_objects = NULL;
 
@@ -918,6 +922,7 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
   r_search (layer->arc_tree,  &bounds, NULL, arc_mask_callback, &info);
   r_search (layer->text_tree, &bounds, NULL, text_mask_callback, &info);
   r_search (layer->polygon_tree, &bounds, NULL, polygon_mask_callback, &info);
+
   r_search (PCB->Data->pad_tree, &bounds, NULL, pad_mask_callback, &info);
   r_search (PCB->Data->pin_tree, &bounds, NULL, pv_mask_callback, &info);
   r_search (PCB->Data->via_tree, &bounds, NULL, pv_mask_callback, &info);
@@ -927,16 +932,311 @@ object3d_from_soldermask_within_area (POLYAREA *area, int side)
 
   objects = object3d_from_contours (info.poly,
 #ifdef REVERSED_PCB_CONTOURS
-                                    (side == TOP_SIDE) ? 0                    : -HACK_BOARD_THICKNESS - HACK_MASK_THICKNESS, /* Bottom */
-                                    (side == TOP_SIDE) ? HACK_MASK_THICKNESS  : -HACK_BOARD_THICKNESS,                       /* Top */
+                                    (side == TOP_SIDE) ? 0                   - HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS, /* Bottom */
+                                    (side == TOP_SIDE) ? HACK_MASK_THICKNESS - HACK_COPPER_THICKNESS : -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS,                       /* Top */
 #else
-                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2                       : HACK_BOARD_THICKNESS / 2 + HACK_MASK_THICKNESS, /* Bottom */
-                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_MASK_THICKNESS : HACK_BOARD_THICKNESS / 2, /* Top */
+                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS                       : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS + HACK_MASK_THICKNESS, /* Bottom */
+                                    (side == TOP_SIDE) ? -HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS : HACK_BOARD_THICKNESS / 2 + HACK_COPPER_THICKNESS, /* Top */
 #endif
                                     mask_appearance,
                                     NULL);
 
   destroy_appearance (mask_appearance);
+
+  poly_Free (&info.poly);
+
+  return objects;
+}
+
+static Coord
+compute_depth (int group)
+{
+  int top_group;
+  int bottom_group;
+  int min_copper_group;
+  int max_copper_group;
+  int num_copper_groups;
+  int depth;
+
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+
+  min_copper_group = MIN (bottom_group, top_group);
+  max_copper_group = MAX (bottom_group, top_group);
+  num_copper_groups = max_copper_group - min_copper_group;// + 1;
+
+  if (group >= 0 && group < max_group)
+    {
+      if (group >= min_copper_group && group <= max_copper_group)
+        {
+          /* XXX: IS THIS INCORRECT FOR REVERSED GROUP ORDERINGS? */
+          depth = -(group - min_copper_group) * (HACK_BOARD_THICKNESS + HACK_COPPER_THICKNESS) / num_copper_groups;
+        }
+      else
+        {
+          depth = 0;
+        }
+#if 1
+    }
+  else if (SL_TYPE (group) == SL_MASK)
+    {
+      if (SL_SIDE (group) == SL_TOP_SIDE)
+        {
+          depth = HACK_COPPER_THICKNESS;
+        }
+      else
+        {
+          depth = -HACK_BOARD_THICKNESS - HACK_BOARD_THICKNESS - HACK_MASK_THICKNESS;
+        }
+    }
+  else if (SL_TYPE (group) == SL_SILK)
+    {
+      if (SL_SIDE (group) == SL_TOP_SIDE)
+        {
+          depth = HACK_COPPER_THICKNESS + HACK_SILK_THICKNESS;
+        }
+      else
+        {
+          depth = -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS - HACK_SILK_THICKNESS;
+        }
+    }
+  else if (SL_TYPE (group) == SL_INVISIBLE)
+    {
+      /* Same as silk, but for the back-side layer */
+      if (Settings.ShowBottomSide)
+        {
+          depth = HACK_COPPER_THICKNESS + HACK_SILK_THICKNESS;
+        }
+      else
+        {
+          depth = -HACK_BOARD_THICKNESS - HACK_COPPER_THICKNESS - HACK_MASK_THICKNESS - HACK_SILK_THICKNESS;
+        }
+#endif
+    }
+  else
+    {
+      /* DEFAULT CASE */
+      printf ("Unknown layer group to set depth for: %i\n", group);
+      depth = 0.0;
+    }
+
+  return depth;
+}
+
+struct copper_info {
+  POLYAREA *poly;
+  int side;
+};
+
+static int
+line_copper_callback (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *) b;
+  struct mask_info *info = (struct mask_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = LinePoly (line, line->Thickness, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+arc_copper_callback (const BoxType * b, void *cl)
+{
+  ArcType *arc = (ArcType *) b;
+  struct mask_info *info = (struct mask_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = ArcPoly (arc, arc->Thickness, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+
+static int
+text_copper_callback (const BoxType * b, void *cl)
+{
+  TextType *text = (TextType *) b;
+  struct mask_info *info = (struct mask_info *) cl;
+  POLYAREA *np, *res;
+
+  if (!(np = TextToPoly (text, PCB->minWid)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+polygon_copper_callback (const BoxType * b, void *cl)
+{
+  PolygonType *poly = (PolygonType *) b;
+  struct mask_info *info = (struct mask_info *) cl;
+  POLYAREA *np, *res;
+
+  if (poly->Clipped == NULL)
+    {
+      fprintf (stderr, "poly_copper_callback(): polygon->Clipped == NULL\n");
+      return 0;
+    }
+
+  if (TEST_FLAG (FULLPOLYFLAG, poly))
+    poly_M_Copy0 (&np, poly->Clipped); /* Copy the whole polygon */
+  else
+    poly_Copy0 (&np, poly->Clipped); /* Just copy the first polygon piece */
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+pad_copper_callback (const BoxType * b, void *cl)
+{
+  PadType *pad = (PadType *) b;
+  struct copper_info *info = (struct copper_info *) cl;
+  POLYAREA *np, *res;
+
+  if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), (info->side == BOTTOM_SIDE)))
+    return 0;
+
+  if (!(np = PadPoly (pad, pad->Thickness)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+pv_copper_callback (const BoxType * b, void *cl)
+{
+  PinType *pv = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = CirclePoly (pv->X, pv->Y, pv->Thickness / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+GList *
+object3d_from_copper_layers_within_area (POLYAREA *area)
+{
+  appearance *copper_appearance;
+  GList *objects;
+  struct copper_info info;
+  BoxType bounds;
+
+  int group;
+  int top_group;
+  int bottom_group;
+  int min_phys_group;
+  int max_phys_group;
+
+//  poly_Copy0 (&info.poly, area);
+
+  copper_appearance = make_appearance ();
+//  appearance_set_color (copper_appearance, 0.5, 0.1, 0.1);
+  appearance_set_color (copper_appearance, 0.76, 0.49, 0.0);
+//  appearance_set_color (copper_appearance, 0.8, 0.8, 0.8);
+
+  bounds.X1 = area->contours->xmin;
+  bounds.X2 = area->contours->xmax;
+  bounds.Y1 = area->contours->ymin;
+  bounds.Y2 = area->contours->ymax;
+
+  top_group =    GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+
+  min_phys_group = MIN (bottom_group, top_group);
+  max_phys_group = MAX (bottom_group, top_group);
+
+  objects = NULL;
+
+  for (group = min_phys_group; group <= max_phys_group; group++)
+    {
+
+#ifdef REVERSED_PCB_CONTOURS
+      Coord depth = compute_depth (group) - HACK_BOARD_THICKNESS;
+#else
+      Coord depth = compute_depth (group) + HACK_BOARD_THICKNESS / 2;
+#endif
+      info.poly = NULL;
+
+      fprintf (stderr, "Computing copper geometry for group %i\n", group);
+
+#if 1
+      GROUP_LOOP (PCB->Data, group);
+        {
+          fprintf (stderr, "Accumulating elements from layer %i\n", GetLayerNumber (PCB->Data, layer));
+
+          r_search (layer->line_tree, &bounds, NULL, line_copper_callback, &info);
+          r_search (layer->arc_tree,  &bounds, NULL, arc_copper_callback, &info);
+          r_search (layer->text_tree, &bounds, NULL, text_copper_callback, &info);
+          r_search (layer->polygon_tree, &bounds, NULL, polygon_copper_callback, &info);
+        }
+      END_LOOP;
+
+      fprintf (stderr, "Accumulating pin + via pads\n");
+      r_search (PCB->Data->pin_tree, &bounds, NULL, pv_copper_callback, &info);
+      r_search (PCB->Data->via_tree, &bounds, NULL, pv_copper_callback, &info);
+#endif
+
+#if 1
+      if (group == top_group ||
+          group == bottom_group)
+        {
+          info.side = (group == top_group) ? TOP_SIDE : BOTTOM_SIDE;
+          fprintf (stderr, "Accumulating SMT pads for side %i\n", info.side);
+          r_search (PCB->Data->pad_tree, &bounds, NULL, pad_copper_callback, &info);
+        }
+#endif
+
+      if (info.poly == NULL)
+        {
+          fprintf (stderr, "Skipping layer group %i, info.poly was NULL\n", group);
+          continue;
+        }
+
+      objects = g_list_concat (objects,
+        object3d_from_contours (info.poly,
+#ifdef REVERSED_PCB_CONTOURS
+                                depth,                         /* Bottom */
+                                depth + HACK_COPPER_THICKNESS, /* Top */
+#else
+                                -depth,                         /* Bottom */
+                                -depth - HACK_COPPER_THICKNESS, /* Top */
+#endif
+                                copper_appearance,
+                                NULL));
+
+
+    }
+
+
+  destroy_appearance (copper_appearance);
+
+  /* DEBUG */
+  poly_M_Copy0 (&PCB->Data->outline, info.poly);
+  PCB->Data->outline_valid = true;
+  gui->invalidate_all ();
 
   poly_Free (&info.poly);
 

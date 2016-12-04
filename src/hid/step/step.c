@@ -152,12 +152,14 @@ step_do_export (HID_Attr_Val * options)
   if (filename == NULL)
     filename = "pcb-out.step";
 
-  board_outline_list = object3d_from_board_outline ();
+//  board_outline_list = object3d_from_board_outline ();
+  board_outline_list = NULL;
 
   board_outline = board_outline_poly (true);
   piece = board_outline;
   do {
     GList *mask_objects;
+    GList *copper_layer_objects;
     PLINE *curc;
     PLINE *next;
     PLINE **prev_next;
@@ -197,11 +199,14 @@ step_do_export (HID_Attr_Val * options)
         poly_DelContour (&curc);
       }
 
-    mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+//    mask_objects = object3d_from_soldermask_within_area (piece, TOP_SIDE);
+//    board_outline_list = g_list_concat (board_outline_list, mask_objects);
 
-    mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
-    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+//    mask_objects = object3d_from_soldermask_within_area (piece, BOTTOM_SIDE);
+//    board_outline_list = g_list_concat (board_outline_list, mask_objects);
+
+    copper_layer_objects = object3d_from_copper_layers_within_area (piece);
+    board_outline_list = g_list_concat (board_outline_list, copper_layer_objects);
 
   } while ((piece = piece->f) != board_outline);
   poly_Free (&board_outline);
@@ -210,7 +215,7 @@ step_do_export (HID_Attr_Val * options)
 //  object3d_list_export_to_step_assy (board_outline_list, temp_pcb_filename);
   g_list_free_full (board_outline_list, (GDestroyNotify)destroy_object3d);
 
-  {
+  if (0) {
     GList *models = NULL;
     struct assembly_model *model;
     struct assembly_model_instance *instance;
