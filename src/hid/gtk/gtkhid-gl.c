@@ -2471,6 +2471,17 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     object3d_test_init ();
   }
 
+//  printf ("Expose event at (%i,%i): %i x %i\n", ev->area.x, ev->area.y, ev->area.width, ev->area.height);
+//  printf ("Event type %i, send_event %i\n", ev->type, ev->send_event);
+
+  /* For some reason we get horrible glitching when we don't repaint the whole event region...
+   * It also appears that we get spurious small repaints interleaved with full area re-paints,
+   * so lets try just droping the small ones.
+   * NB: Currently, all our programmatically triggered repaints cover the whole region.
+   */
+  if (ev->area.x != 0 || ev->area.y != 0)
+    return FALSE;
+
   gtk_widget_get_allocation (widget, &allocation);
 
   ghid_start_drawing (port, widget);
