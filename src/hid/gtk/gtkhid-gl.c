@@ -2470,6 +2470,7 @@ ghid_draw_everything (BoxType *drawn_area)
 
 #if 1
     if (!global_view_2d && is_this_physical && is_next_physical) {
+      glDepthMask (FALSE); // Temporary kludge - lets us see objects through the sides of the board
       cyl_info.from_layer_group = drawn_groups[i];
       cyl_info.to_layer_group = drawn_groups[i - 1];
       cyl_info.scale = gport->view.coord_per_px;
@@ -2478,6 +2479,7 @@ ghid_draw_everything (BoxType *drawn_area)
       ghid_draw_outline_between_layers (cyl_info.from_layer_group, cyl_info.to_layer_group, drawn_area);
       if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_cyl_callback, &cyl_info);
       if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_cyl_callback, &cyl_info);
+      glDepthMask (TRUE); // Temporary kludge - lets us see objects through the sides of the board
     }
 #endif
   }
@@ -2900,7 +2902,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
 
   glShadeModel (GL_SMOOTH);
 
-  glEnable (GL_LIGHT0);
+//  glEnable (GL_LIGHT0);
 
   /* XXX: FIX OUR NORMALS */
   glEnable (GL_NORMALIZE);
@@ -2945,8 +2947,13 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     glPopMatrix ();
   }
 
+//  glDisable (GL_DEPTH_TEST); /* TEST */
+  glDepthMask (FALSE); /* TEST */
+
   if (!global_view_2d)
     ghid_draw_packages (&region);
+
+  glDepthMask (TRUE); /* TEST */
 
   glDisable (GL_CULL_FACE);
   glDisable (GL_DEPTH_TEST);

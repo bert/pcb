@@ -75,4 +75,6 @@ extern FlagType no_flags;
 
 extern int netlist_frozen;
 
+extern int debug_integer;
+
 #endif

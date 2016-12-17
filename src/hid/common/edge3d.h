@@ -24,6 +24,8 @@ typedef struct
   /* Rational b-splines */
   double *weights; /* Pointer to array of weights for the control points */
 
+  /* Debug */
+  bool is_placeholder; /* For some edge type we don't know how to draw */
 
   /* XXX: STEP specific - breaks encapsulation */
   step_id infinite_line_identifier;

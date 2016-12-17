@@ -1289,6 +1289,15 @@ ghid_polygon_debug_selection_changed_cb (GtkTreeSelection *treeselection, gpoint
   ghid_invalidate_all ();
 }
 
+static void
+debug_spin_changed_cb (GtkSpinButton *spinbutton, void *user_data)
+{
+  GHidPort *port = user_data;
+
+  debug_integer = gtk_spin_button_get_value_as_int (spinbutton);
+  ghid_invalidate_all (port);
+}
+
 /* 
  * Create the top_window contents.  The config settings should be loaded
  * before this is called.
@@ -1300,6 +1309,7 @@ ghid_build_pcb_top_window (void)
   GtkWidget *vbox_main, *hbox_middle, *hbox;
   GtkWidget *vbox, *frame;
   GtkWidget *label;
+  GtkWidget *debug_spin;
   GtkTreeViewColumn *column;
   GtkTreeIter iter;
   /* FIXME: IFDEF HACK */
@@ -1394,6 +1404,12 @@ ghid_build_pcb_top_window (void)
                     G_CALLBACK (ghid_view_2d), NULL);
   gtk_box_pack_start (GTK_BOX(ghidgui->left_toolbar),
                       trackball, FALSE, FALSE, 0);
+
+  debug_spin = gtk_spin_button_new_with_range (0.0, 10000.0, 1.0);
+  gtk_box_pack_start (GTK_BOX(ghidgui->left_toolbar),
+                      debug_spin, FALSE, FALSE, 0);
+  g_signal_connect (G_OBJECT (debug_spin), "value_changed",
+                    G_CALLBACK (debug_spin_changed_cb), ghidgui);
 #endif
 
   /* ghidgui->mode_buttons_frame was created above in the call to

@@ -218,13 +218,14 @@ draw_quad_edge (edge_ref e, void *data)
   double x1, y1, z1;
   double x2, y2, z2;
   int i;
+  bool debug = GPOINTER_TO_INT (data);
 
 #if 0
   int id = ID(e) % 12;
 
   glColor3f (colors[id][0], colors[id][1], colors[id][2]);
 #else
-  glColor3f (1., 1., 1.);
+  glColor4f (1., 1., 1., 0.3);
 #endif
 
   x1 = ((vertex3d *)ODATA(e))->x;
@@ -238,6 +239,14 @@ draw_quad_edge (edge_ref e, void *data)
   if (UNDIR_DATA(e) != NULL)
     {
       edge_info *info = UNDIR_DATA(e);
+
+
+//        if (info->is_placeholder)
+        if (debug)
+          {
+            glColor4f (1.0, 0.0, 0.0, 1.0);
+            glDepthMask (TRUE);
+          }
 
 //      if (info->is_stitch)
 //        return;
@@ -270,6 +279,27 @@ draw_quad_edge (edge_ref e, void *data)
           nx = ((edge_info *)UNDIR_DATA(e))->nx;
           ny = ((edge_info *)UNDIR_DATA(e))->ny;
           nz = ((edge_info *)UNDIR_DATA(e))->nz;
+
+          /* XXX: Do this without breaking abstraction? */
+          /* Detect SYM edges, reverse the circle normal */
+          if ((e & 2) == 2)
+            {
+#if 0
+              /* Option 1, just draw the forward copy, which agrees with the normal */
+              x1 = ((vertex3d *)ODATA(SYM(e)))->x;
+              y1 = ((vertex3d *)ODATA(SYM(e)))->y;
+              z1 = ((vertex3d *)ODATA(SYM(e)))->z;
+
+              x2 = ((vertex3d *)DDATA(SYM(e)))->x;
+              y2 = ((vertex3d *)DDATA(SYM(e)))->y;
+              z2 = ((vertex3d *)DDATA(SYM(e)))->z;
+#else
+              /* Option 2, flip the normal */
+              nx = -nx;
+              ny = -ny;
+              nz = -nz;
+#endif
+            }
 
           /* STEP MAY ACTUALLY SPECIFY A DIFFERENT REF DIRECTION, BUT FOR NOW, LETS ASSUME IT POINTS
            * TOWARDS THE FIRST POINT. (We don't record the STEP ref direction in our data-structure at the moment).
@@ -363,6 +393,7 @@ draw_quad_edge (edge_ref e, void *data)
 
           glEnd ();
 
+          glDepthMask (FALSE);
           return;
         }
     }
@@ -376,6 +407,48 @@ draw_quad_edge (edge_ref e, void *data)
               STEP_Y_TO_COORD (PCB, y2),
               STEP_X_TO_COORD (PCB, z2));
   glEnd ();
+  glDepthMask (FALSE);
+}
+
+static void
+draw_contour (contour3d *contour, void *data)
+{
+  edge_ref e;
+  bool debug = GPOINTER_TO_INT (data);
+  int edge_no = 0;
+
+  e = contour->first_edge;
+
+//  printf ("Drawing contour\n");
+
+  do
+    {
+      edge_info *info = UNDIR_DATA(e);
+//      printf ("Edge %i: %p (%i%s)\n", edge_no++, e, info->edge_identifier, ((e & 2) == 2) ? "R" : "");
+      draw_quad_edge (e, data);
+
+      /* Stop if e was the only edge in a face - which we re-trace */
+      /* XXX: Probably only a development bug until we get the quad-edge links correct */
+//      if (LNEXT(e) == SYM(e))
+//        break;
+
+      /* LNEXT should take us counter-clockwise around the face */
+      /* LPREV should take us clockwise around the face */
+    }
+  while ((e = LNEXT(e)) != contour->first_edge);
+}
+
+static int face_no;
+
+static void
+draw_face (face3d *face, void *data)
+{
+//  if (face->contours != NULL)
+//      draw_contour (face->contours->data, NULL);
+//  printf ("Drawing face\n");
+  g_list_foreach (face->contours, (GFunc)draw_contour, GINT_TO_POINTER(face_no == debug_integer));
+
+  face_no++;
 }
 
 void
@@ -385,7 +458,14 @@ object3d_draw (object3d *object)
 
 //  quad_enum ((edge_ref)object->edges->data, draw_quad_edge, NULL);
 //  printf ("BEGIN DRAW...\n");
-  g_list_foreach (object->edges, (GFunc)draw_quad_edge, NULL);
+//  g_list_foreach (object->edges, (GFunc)draw_quad_edge, NULL);
+
+//  printf ("\nDrawing object\n");
+
+  face_no = 0;
+
+  g_list_foreach (object->faces, (GFunc)draw_face, NULL);
+
 //  printf ("....ENDED\n");
 }
 

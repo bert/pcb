@@ -82,6 +82,7 @@
 extern void stroke_init (void);
 #endif
 
+int debug_integer;
 
 /*!
  * \brief Initialize signal and error handlers.
