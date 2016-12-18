@@ -29,6 +29,7 @@
 typedef struct srr_rrwt {
   SdaiRepresentation *rep_2;
   SdaiItem_defined_transformation *idt;
+  bool forwards;
 } srr_rrwt;
 
 typedef std::list<SdaiProduct_definition *> pd_list;
@@ -50,5 +51,5 @@ SdaiShape_representation *find_sr_for_pd (InstMgr *instance_list, SdaiProduct_de
 
 SdaiAxis2_placement_3d *find_axis2_placement_3d_in_sr (SdaiShape_representation *sr);
 
-void find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_after_id, SdaiRepresentation *rep_1);
-void find_all_srr_rrwt_with_rep_1( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_list, int start_after_id, SdaiRepresentation *rep_1);
+void find_all_srr_with_rep_1_or_2( InstMgr *instance_list, srr_list *srr_list, int start_after_id, SdaiRepresentation *desired);
+void find_all_srr_rrwt_with_rep_1_or_2( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_list, int start_after_id, SdaiRepresentation *desired);

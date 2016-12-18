@@ -1,8 +1,14 @@
 typedef struct {
+  double ox, oy, oz;
+  double rx, ry, rz;
+
   double nx, ny, nz; /* Face normal?*/
+
   bool surface_orientation_reversed;
   GList *contours;
   char *name;
+
+  bool is_planar;
 
   /* For cylindrical surfaces */
   bool is_cylindrical;
@@ -16,6 +22,13 @@ typedef struct {
   step_id surface_identifier;
   step_id face_identifier;
   step_id face_bound_identifier;
+
+  /* Rendering cache */
+  int tristrip_num_vertices;
+  float *tristrip_vertices;
+  bool triangulate_failed;
+
+  bool is_debug;
 } face3d;
 
 face3d *make_face3d (char *name);

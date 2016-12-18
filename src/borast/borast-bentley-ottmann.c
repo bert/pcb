@@ -134,6 +134,14 @@ typedef struct _borast_bo_sweep_line {
     borast_bo_edge_t *current_edge;
 } borast_bo_sweep_line_t;
 
+/* A rasteriser instance */
+struct _borast {
+  borast_bo_start_event_t *events;
+  borast_bo_event_t **event_ptrs;
+  int num_events;
+  int max_events;
+};
+
 
 /*static*/ borast_fixed_t
 _line_compute_intersection_x_for_y (const borast_line_t *line,
@@ -1154,7 +1162,8 @@ static borast_status_t
 _borast_bentley_ottmann_tessellate_bo_edges (borast_bo_event_t   **start_events,
                                             int                  num_events,
                                             borast_traps_t       *traps,
-                                            int                 *num_intersections)
+                                            int                  *num_intersections,
+                                            bool                 combine_y_traps)
 {
     borast_status_t status = BORAST_STATUS_SUCCESS; /* silence compiler */
     int intersection_count = 0;
@@ -1237,7 +1246,7 @@ _borast_bentley_ottmann_tessellate_bo_edges (borast_bo_event_t   **start_events,
             /* XXX change to an infinitesimal lengthening rule */
             for (left = sweep_line.stopped; left; left = left->next) {
                 if (e1->edge.top <= left->edge.bottom &&
-                    edges_colinear (e1, left))
+                 combine_y_traps && edges_colinear (e1, left))
                 {
                     e1->deferred_trap = left->deferred_trap;
                     if (left->prev != NULL)
@@ -1440,7 +1449,8 @@ bo_poly_to_traps (hidGC gc, POLYAREA *poly, borast_traps_t *traps)
   _borast_bentley_ottmann_tessellate_bo_edges (event_ptrs,
                                                num_events,
                                                traps,
-                                               &intersections);
+                                               &intersections,
+                                               true);
 
   for (n = 0; n < traps->num_traps; n++) {
     int x1, y1, x2, y2, x3, y3, x4, y4;
@@ -1501,6 +1511,67 @@ bo_poly_to_traps (hidGC gc, POLYAREA *poly, borast_traps_t *traps)
 }
 
 borast_status_t
+bo_poly_to_traps_no_draw (POLYAREA *poly, borast_traps_t *traps)
+{
+  int intersections;
+  borast_bo_start_event_t stack_events[BORAST_STACK_ARRAY_LENGTH (borast_bo_start_event_t)];
+  borast_bo_start_event_t *events;
+  borast_bo_event_t *stack_event_ptrs[ARRAY_LENGTH (stack_events) + 1];
+  borast_bo_event_t **event_ptrs;
+  int num_events = 0;
+  int i;
+  POLYAREA *pa;
+  PLINE *contour;
+
+  pa = poly;
+  do {
+    for (contour = pa->contours; contour != NULL; contour = contour->next)
+      num_events += contour->Count;
+    /* FIXME: Remove horizontal edges? */
+    break;
+  } while ((pa = pa->f) != poly);
+
+  if (unlikely (0 == num_events))
+      return BORAST_STATUS_SUCCESS;
+
+  events = stack_events;
+  event_ptrs = stack_event_ptrs;
+  if (num_events > ARRAY_LENGTH (stack_events)) {
+      events = _borast_malloc_ab_plus_c (num_events,
+                                        sizeof (borast_bo_start_event_t) +
+                                        sizeof (borast_bo_event_t *),
+                                        sizeof (borast_bo_event_t *));
+      if (unlikely (events == NULL))
+          return BORAST_STATUS_NO_MEMORY;
+
+      event_ptrs = (borast_bo_event_t **) (events + num_events);
+  }
+
+  i = 0;
+
+  poly_area_to_start_events (poly, events, event_ptrs, &i);
+
+  /* XXX: This would be the convenient place to throw in multiple
+   * passes of the Bentley-Ottmann algorithm. It would merely
+   * require storing the results of each pass into a temporary
+   * borast_traps_t. */
+  _borast_bentley_ottmann_tessellate_bo_edges (event_ptrs,
+                                               num_events,
+                                               traps,
+                                               &intersections,
+                                               true);
+
+#if DEBUG_TRAPS
+  dump_traps (traps, "bo-polygon-out.txt");
+#endif
+
+  if (events != stack_events)
+      free (events);
+
+  return BORAST_STATUS_SUCCESS;
+}
+
+borast_status_t
 bo_contour_to_traps (hidGC gc, PLINE *contour, borast_traps_t *traps)
 {
   int intersections;
@@ -1541,7 +1612,8 @@ bo_contour_to_traps (hidGC gc, PLINE *contour, borast_traps_t *traps)
   _borast_bentley_ottmann_tessellate_bo_edges (event_ptrs,
                                               num_events,
                                               traps,
-                                              &intersections);
+                                              &intersections,
+                                              true);
 
   for (n = 0; n < traps->num_traps; n++) {
     int x1, y1, x2, y2, x3, y3, x4, y4;
@@ -1630,7 +1702,8 @@ bo_contour_to_traps_no_draw (PLINE *contour, borast_traps_t *traps)
    _borast_bentley_ottmann_tessellate_bo_edges (event_ptrs,
                                                 num_events,
                                                 traps,
-                                                &intersections);
+                                                &intersections,
+                                                true);
 
 #if DEBUG_TRAPS
   dump_traps (traps, "bo-polygon-out.txt");
@@ -1640,4 +1713,121 @@ bo_contour_to_traps_no_draw (PLINE *contour, borast_traps_t *traps)
       free (events);
 
   return BORAST_STATUS_SUCCESS;
+}
+
+
+borast_t *
+bo_init (int max_num_edges)
+{
+  borast_t *bo = malloc (sizeof (borast_t));
+  if (unlikely (bo == NULL)) {
+      return NULL;
+  }
+
+  bo->events = _borast_malloc_ab_plus_c (max_num_edges,
+                                         sizeof (borast_bo_start_event_t) +
+                                         sizeof (borast_bo_event_t *),
+                                         sizeof (borast_bo_event_t *));
+      if (unlikely (bo->events == NULL)) {
+          free (bo);
+          return NULL;
+      }
+
+  bo->event_ptrs = (borast_bo_event_t **) (bo->events + max_num_edges);
+  bo->num_events = 0;
+  bo->max_events = max_num_edges;
+
+  return bo;
+}
+
+
+void
+bo_add_edge (borast_t *bo,
+             Coord sx, Coord sy,
+             Coord ex, Coord ey,
+             bool outer_contour)
+{
+  int i = bo->num_events;
+
+  Coord x1, y1, x2, y2;
+  borast_edge_t borast_edge;
+
+  /* Silently drop edges if more are added than we allocated storage for */
+  if (bo->num_events == bo->max_events)
+    return;
+
+  /* Node is between bv->point[0,1] and bv->next->point[0,1] */
+
+  if (sy == ey) {
+      if (sx < ex) {
+        x1 = sx;
+        y1 = sy;
+        x2 = ex;
+        y2 = ey;
+      } else {
+        x1 = ex;
+        y1 = ey;
+        x2 = sx;
+        y2 = sy;
+      }
+  } else if (sy < ey) {
+    x1 = sx;
+    y1 = sy;
+    x2 = ex;
+    y2 = ey;
+  } else {
+    x1 = ex;
+    y1 = ey;
+    x2 = sx;
+    y2 = sy;
+  }
+
+  borast_edge.line.p1.x = x1;
+  borast_edge.line.p1.y = y1;
+  borast_edge.line.p2.x = x2;
+  borast_edge.line.p2.y = y2;
+  borast_edge.top = y1;
+  borast_edge.bottom = y2;
+  borast_edge.dir = outer_contour ? 1 : -1;
+
+  bo->event_ptrs[i] = (borast_bo_event_t *) &bo->events[i];
+
+  bo->events[i].type = BORAST_BO_EVENT_TYPE_START;
+  bo->events[i].point.y = borast_edge.line.p1.y;
+  bo->events[i].point.x = borast_edge.line.p1.x;
+
+  bo->events[i].edge.edge = borast_edge;
+  bo->events[i].edge.deferred_trap.right = NULL;
+  bo->events[i].edge.prev = NULL;
+  bo->events[i].edge.next = NULL;
+  i++;
+
+  bo->num_events = i;
+}
+
+
+borast_status_t
+bo_tesselate_to_traps (borast_t *bo, bool combine_y_traps, borast_traps_t *traps)
+{
+  int intersections;
+
+  /* XXX: This would be the convenient place to throw in multiple
+   * passes of the Bentley-Ottmann algorithm. It would merely
+   * require storing the results of each pass into a temporary
+   * borast_traps_t. */
+  _borast_bentley_ottmann_tessellate_bo_edges (bo->event_ptrs,
+                                               bo->num_events,
+                                               traps,
+                                               &intersections,
+                                               combine_y_traps);
+
+  return BORAST_STATUS_SUCCESS;
+}
+
+
+void
+bo_free (borast_t *bo)
+{
+  free (bo->events);
+  free (bo);
 }

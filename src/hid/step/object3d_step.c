@@ -291,7 +291,7 @@ object3d_to_step_body_fragment (step_file *step,
       step_id ev = ((vertex3d *)DDATA (edge))->vertex_identifier;
 
       /* XXX: The lookup of these edges by adding to info->edge_identifier requires the step_* functions to assign sequential identifiers */
-      info->edge_identifier = step_edge_curve (step, "NONE", sv, ev, info->infinite_line_identifier, true);
+      info->edge_identifier = step_edge_curve (step, "NONE", sv, ev, info->infinite_line_identifier, info->same_sense);
       step_oriented_edge (step, "NONE", info->edge_identifier, true);  /* Add 1 to info->edge_identifier to find this (same) oriented edge */
       step_oriented_edge (step, "NONE", info->edge_identifier, false); /* Add 2 to info->edge_identifier to find this (back) oriented edge */
     }

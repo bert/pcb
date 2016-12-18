@@ -186,8 +186,12 @@ PCB_SRCS = \
 	hid/common/edge3d.h \
 	hid/common/face3d.c \
 	hid/common/face3d.h \
+	hid/common/face3d_gl.c \
+	hid/common/face3d_gl.h \
 	hid/common/object3d.c \
 	hid/common/object3d.h \
+	hid/common/object3d_gl.c \
+	hid/common/object3d_gl.h \
 	hid/common/quad.c \
 	hid/common/quad.h \
 	hid/common/step_id.h \

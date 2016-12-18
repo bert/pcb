@@ -5,7 +5,30 @@
 #include "quad.h"
 #include "contour3d.h"
 #include "appearance.h"
+
+
+#ifndef WIN32
+/* The Linux OpenGL ABI 1.0 spec requires that we define
+ * GL_GLEXT_PROTOTYPES before including gl.h or glx.h for extensions
+ * in order to get prototypes:
+ *   http://www.opengl.org/registry/ABI/
+ */
+#   define GL_GLEXT_PROTOTYPES 1
+#endif
+
+#ifdef HAVE_OPENGL_GL_H
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
+#include "data.h"
+#include "hid_draw.h"
+#include "hidgl.h"
+
 #include "face3d.h"
+
+#define MEMCPY_VERTEX_DATA
 
 face3d *
 make_face3d (char *name)

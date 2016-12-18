@@ -263,7 +263,7 @@ hidgl_flush_triangles (hidgl_instance *hidgl)
 }
 
 void
-hidgl_ensure_vertex_space (hidGC gc, int count)
+hidgl_ensure_vertex_space (hidGC gc, unsigned int count)
 {
   hidglGC hidgl_gc = (hidglGC)gc;
   hidgl_instance *hidgl = hidgl_gc->hidgl;
@@ -283,7 +283,7 @@ hidgl_ensure_vertex_space (hidGC gc, int count)
 }
 
 void
-hidgl_ensure_triangle_space (hidGC gc, int count)
+hidgl_ensure_triangle_space (hidGC gc, unsigned int count)
 {
   CHECK_IS_IN_CONTEXT ();
 

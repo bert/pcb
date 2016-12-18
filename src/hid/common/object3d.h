@@ -8,9 +8,6 @@ typedef struct {
   void *user_data;
 } object3d;
 
-void object3d_test_init (void);
-void object3d_draw (object3d *object);
-void object3d_draw_debug (void);
 object3d *make_object3d (char *name);
 void destroy_object3d (object3d *object);
 void object3d_set_appearance (object3d *object, appearance *appear);

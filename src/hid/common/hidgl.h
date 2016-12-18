@@ -76,8 +76,8 @@ extern hidgl_shader *circular_program;
 extern hidgl_shader *resistor_program;
 
 void hidgl_flush_triangles (hidgl_instance *hidgl);
-void hidgl_ensure_vertex_space (hidGC gc, int count);
-void hidgl_ensure_triangle_space (hidGC gc, int count);
+void hidgl_ensure_vertex_space (hidGC gc, unsigned int count);
+void hidgl_ensure_triangle_space (hidGC gc, unsigned int count);
 
 
 static inline void

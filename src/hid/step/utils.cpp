@@ -292,7 +292,7 @@ find_axis2_placement_3d_in_sr (SdaiShape_representation *sr)
 }
 
 void
-find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_after_id, SdaiRepresentation *rep_1)
+find_all_srr_with_rep_1_or_2( InstMgr *instance_list, srr_list *srr_list, int start_after_id, SdaiRepresentation *desired)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
   int search_index;
@@ -308,9 +308,9 @@ find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_a
                                instance_list->GetApplication_instance ("Shape_representation_relationship", search_index)))
     {
       SdaiRepresentation *found_rep_1 = srr->rep_1_ ();
-#ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
+//#ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
       SdaiRepresentation *found_rep_2 = srr->rep_2_ ();
-#endif
+//#endif
 
       if (srr->IsComplex())
         {
@@ -318,7 +318,8 @@ find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_a
           return;
         }
 
-      if (found_rep_1 == rep_1)
+      if (found_rep_1 == desired ||
+          found_rep_2 == desired)
         srr_list->push_back (srr);
 
 #ifdef DEBUG_SHAPE_REPRESENTATION_RELATIONSHIP_SEARCH
@@ -335,7 +336,7 @@ find_all_srr_with_rep_1( InstMgr *instance_list, srr_list *srr_list, int start_a
 }
 
 void
-find_all_srr_rrwt_with_rep_1( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_list, int start_after_id, SdaiRepresentation *rep_1)
+find_all_srr_rrwt_with_rep_1_or_2( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_list, int start_after_id, SdaiRepresentation *desired)
 {
   MgrNode * mnode = instance_list->FindFileId (start_after_id);
   int search_index;
@@ -433,7 +434,8 @@ find_all_srr_rrwt_with_rep_1( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_li
       std::cout << std::endl;
 #endif
 
-      if (found_rep_1 == rep_1 &&
+#if 1
+      if (found_rep_1 == desired &&
           found_srr &&
           found_rrwt)
         {
@@ -441,9 +443,27 @@ find_all_srr_rrwt_with_rep_1( InstMgr *instance_list, srr_rrwt_list *srr_rrwt_li
 
           item->rep_2 = found_rep_2;
           item->idt = idt;
+          item->forwards = true;
 
           srr_rrwt_list->push_back (item);
         }
+#endif
+
+#if 1
+      /* Model is confused about rep1 / rep2 case */
+      if (found_rep_2 == desired &&
+          found_srr &&
+          found_rrwt)
+        {
+          srr_rrwt *item = new srr_rrwt;
+
+          item->rep_2 = found_rep_1;
+          item->idt = idt;
+          item->forwards = false;
+
+          srr_rrwt_list->push_back (item);
+        }
+#endif
 
       int id = entity->StepFileId ();
       MgrNode * mnode = instance_list->FindFileId (id);
