@@ -1651,7 +1651,7 @@ HID_Action rotate_action_list[] = {
   {"FreeRotateBuffer", 0, ActionFreeRotateBuffer,
    freerotatebuffer_syntax, freerotatebuffer_help},
   {"LoadFootprint", 0, LoadFootprint,
-   0,0}
+   loadfootprint_syntax, loadfootprint_help}
 };
 
 REGISTER_ACTIONS (rotate_action_list)
