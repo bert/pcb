@@ -2,7 +2,6 @@
 @comment %**start of header
 @setfilename pcb.info
 @settitle Pcb
-@setcontentsaftertitlepage
 @macro pcb{}
 @code{Pcb}
 @end macro
@@ -57,6 +56,8 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 @subtitle layout system
 @author harry eaton
 @end titlepage
+
+@contents
 
 @ifnottex
 @node Top
