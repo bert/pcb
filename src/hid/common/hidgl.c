@@ -452,7 +452,8 @@ myCombine ( GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **
       if (combined_num_to_free < MAX_COMBINED_MALLOCS)
         combined_to_free [combined_num_to_free ++] = new_vertex;
       else
-        printf ("myCombine leaking %u bytes of memory\n", 3 * sizeof (GLdouble));
+        printf ("myCombine leaking %lu bytes of memory\n",
+                    (unsigned long)3 * sizeof (GLdouble));
     }
 
   new_vertex[0] = coords[0];
