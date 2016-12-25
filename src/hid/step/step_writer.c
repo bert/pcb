@@ -107,7 +107,7 @@ make_3d_metric_step_geometric_representation_context (step_file *file)
   fprintf (file->f, "#%i=(GEOMETRIC_REPRESENTATION_CONTEXT(3)"
                           "GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#%i))"
                           "GLOBAL_UNIT_ASSIGNED_CONTEXT((#%i,#%i,#%i))"
-                          "REPRESENTATION_CONTEXT('NONE','WORKASPACE'));\n",
+                          "REPRESENTATION_CONTEXT('NONE','WORKSPACE'));\n",
                     file->next_id + 4, file->next_id + 3, file->next_id, file->next_id + 1, file->next_id + 2);
   file->next_id += 4;
 

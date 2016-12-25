@@ -69,7 +69,7 @@ extern PFNGLUSEPROGRAMPROC         glUseProgram;
 #define STEP_TO_COORD_Y(pcb, y) ((pcb->MaxHeight) - MM_TO_COORD((y)))
 #define STEP_TO_COORD_Z(pcb, z) ( MM_TO_COORD((z)))
 
-//#define VIEW_ORTHO
+#define VIEW_ORTHO
 
 extern HID ghid_hid;
 extern HID_DRAW ghid_graphics;

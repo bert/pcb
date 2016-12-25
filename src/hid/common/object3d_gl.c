@@ -89,10 +89,42 @@
 
 static GList *object3d_test_objects = NULL;
 
+static appearance *object_default_face_appearance;
+static appearance *object_debug_face_appearance;
+static appearance *object_selected_face_appearance;
+static appearance *object_default_edge_appearance;
+static appearance *object_debug_edge_appearance;
+static appearance *object_selected_edge_appearance;
+
 void
 object3d_test_init (void)
 {
   object3d_test_objects = object3d_from_board_outline ();
+
+  object_default_face_appearance = make_appearance();
+  appearance_set_color (object_default_face_appearance, 0.8f, 0.8f, 0.8f); /* 1.0f */
+  appearance_set_alpha (object_default_face_appearance, 1.0f);
+
+  object_debug_face_appearance = make_appearance();
+  appearance_set_color (object_debug_face_appearance, 1.0f, 0.0f, 0.0f); /* 0.5f */
+  appearance_set_alpha (object_debug_face_appearance, 0.5f);
+
+  object_selected_face_appearance = make_appearance();
+  appearance_set_color (object_selected_face_appearance, 0.0f, 1.0f, 1.0f); /* 0.5f */
+  appearance_set_alpha (object_selected_face_appearance, 0.5f);
+
+  object_default_edge_appearance = make_appearance();
+  appearance_set_color (object_default_edge_appearance, 0.0f, 0.0f, 0.0f); /* 1.0f */
+  appearance_set_alpha (object_default_edge_appearance, 1.0f);
+
+  object_debug_edge_appearance = make_appearance();
+  appearance_set_color (object_debug_edge_appearance, 1.0f, 0.0f, 0.0f); /* 1.0f */
+  appearance_set_alpha (object_debug_edge_appearance, 1.0f);
+
+  object_selected_edge_appearance = make_appearance();
+  appearance_set_color (object_selected_edge_appearance, 0.0f, 1.0f, 1.0f); /* 1.0f */
+  appearance_set_alpha (object_selected_edge_appearance, 1.0f);
+
 }
 
 float colors[12][3] = {{1., 0., 0.},
@@ -114,6 +146,7 @@ float colors[12][3] = {{1., 0., 0.},
 
 struct draw_info {
   hidGC gc;
+  object3d *object;
   bool selected;
   bool debug_face;
 };
@@ -152,15 +185,14 @@ draw_quad_edge (edge_ref e, void *data)
 {
   edge_info *info = UNDIR_DATA(e);
   struct draw_info *d_info = data;
-  double x1, y1, z1;
-  double x2, y2, z2;
+#if 0
   int i;
 
-#if 0
   int id = ID(e) % 12;
 
   glColor3f (colors[id][0], colors[id][1], colors[id][2]);
-#else
+#endif
+#if 0
   if (d_info->selected)
     glColor4f (0.0, 1.0, 1., 1.0);
 //    glColor4f (0.0, 1.0, 1., 0.5);
@@ -169,14 +201,6 @@ draw_quad_edge (edge_ref e, void *data)
 //    glColor4f (1., 1., 1., 0.3);
 #endif
 
-  x1 = ((vertex3d *)ODATA(e))->x;
-  y1 = ((vertex3d *)ODATA(e))->y;
-  z1 = ((vertex3d *)ODATA(e))->z;
-
-  x2 = ((vertex3d *)DDATA(e))->x;
-  y2 = ((vertex3d *)DDATA(e))->y;
-  z2 = ((vertex3d *)DDATA(e))->z;
-
   if (info == NULL)
     return;
 
@@ -184,7 +208,7 @@ draw_quad_edge (edge_ref e, void *data)
       (info->is_placeholder ||
       d_info->debug_face))
     {
-      glColor4f (1.0, 0.0, 0.0, 1.0);
+//      glColor4f (1.0, 0.0, 0.0, 1.0);
       glDepthMask (TRUE);
       glDisable(GL_DEPTH_TEST);
     }
@@ -208,7 +232,6 @@ draw_contour (contour3d *contour, void *data)
 
   do
     {
-      edge_info *info = UNDIR_DATA(e);
       draw_quad_edge (e, data);
 
       /* LNEXT should take us counter-clockwise around the face */
@@ -225,6 +248,18 @@ draw_face_edges (face3d *face, void *data)
 
   info->debug_face = (face_no == debug_integer);
 //  info->debug_face = face->is_debug;
+
+  if (face->is_debug)
+    appearance_apply_gl (object_debug_edge_appearance);
+  else if (info->selected)
+    appearance_apply_gl (object_selected_edge_appearance);
+//  else if (face->appearance)
+//    appearance_apply_gl (face->apper);
+//  else if (info->object)
+//    appearance_apply_gl (info->object->apper);
+  else
+    appearance_apply_gl (object_default_edge_appearance);
+
   g_list_foreach (face->contours, (GFunc)draw_contour, info);
 
   face_no++;
@@ -236,6 +271,20 @@ draw_face (face3d *face, void *data)
   struct draw_info *info = data;
 
   face->is_debug = (face_no == debug_integer);
+
+  if (face->is_debug)
+    appearance_apply_gl (object_debug_face_appearance);
+  else if (info->selected)
+    appearance_apply_gl (object_selected_face_appearance);
+  else if (face->appear)
+    appearance_apply_gl (face->appear);
+  else if (info->object->appear)
+    appearance_apply_gl (info->object->appear);
+  else
+    appearance_apply_gl (object_default_face_appearance);
+
+  /* Object inherited appearances? */
+
   face3d_fill (info->gc, face, info->selected);
 //  face3d_fill (info->gc, face, (face_no == debug_integer));
 
@@ -263,6 +312,7 @@ object3d_draw (hidGC gc, object3d *object, bool selected)
   g_return_if_fail (object->edges != NULL);
 
   info.gc = gc;
+  info.object = object;
   info.selected = selected;
 
 //  quad_enum ((edge_ref)object->edges->data, draw_quad_edge, NULL);

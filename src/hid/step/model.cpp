@@ -189,6 +189,233 @@ find_mapped_item (SdaiShape_representation *sr,
     }
 }
 
+/* XXX: This doesn't really follow the correct STEP approach here,
+ *      but we just start by looking whether we can find a styled_item
+ *      or overriding_styled_item pointing towards the item in question,
+ *      then retrieve its styling.
+ */
+
+static GHashTable *
+build_hash_of_styled_items (InstMgr *instance_list)
+{
+  /* NB: NULLs give g_direct_hash and g_direct_equal */
+  GHashTable *table = g_hash_table_new (NULL, NULL);
+
+  MgrNode * mnode = NULL;
+  int search_index;
+  SDAI_Application_instance *entity;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
+
+  while (ENTITY_NULL != (entity = instance_list->GetApplication_instance ("Styled_Item", search_index)))
+    {
+      SdaiStyled_item *si = static_cast<SdaiStyled_item *>(entity);
+
+      g_hash_table_insert (table, si->item_ (), (void *)si);
+
+      int id = entity->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+
+  mnode = NULL;
+
+  if (mnode == NULL)
+    search_index = 0;
+  else
+    search_index = instance_list->GetIndex (mnode) + 1;
+
+  while (ENTITY_NULL != (entity = instance_list->GetApplication_instance ("Over_Riding_Styled_Item", search_index)))
+    {
+      SdaiStyled_item *si = static_cast<SdaiStyled_item *>(entity);
+
+      g_hash_table_insert (table, si->item_ (), (void *)si);
+
+      int id = entity->StepFileId ();
+      MgrNode * mnode = instance_list->FindFileId (id);
+      search_index = instance_list->GetIndex (mnode) + 1;
+    }
+
+  return table;
+}
+
+static EntityAggregate *
+find_styles_for_item (GHashTable *table, SDAI_Application_instance *item)
+{
+  /* When reading a STYLED_ITEM with item pointing to an ABSR entity (as Solidworks
+   * likes to emit, for product-wide colouring, STEPcode reads the item entity
+   * pointer as NULL_ENTITY, since ABSR doesn't match the type expected by
+   * the item property.
+   *
+   * We take a guess, and assume this is the only one - so if we look up NULL_ENTITY
+   * in the hash table, we find the correct corresponding STYLED_ITEM.
+   *
+   * XXX: This might not be the case unfortunately, e.g. an assembly with multiple
+   *      ABSR with errant STYLED_ITEM pointers associated. (Need to teach STEPcode
+   *      to store the incorrect pointer for us, or to be more lenient with this case.
+   */
+  if (!strcmp (item->EntityName (), "Advanced_Brep_Shape_Representation"))
+    {
+      item = NULL_ENTITY;
+    }
+
+  auto si = static_cast<SdaiStyled_item *>(g_hash_table_lookup (table, item));
+
+  if (si == NULL)
+    return NULL;
+
+  return si->styles_ ();
+}
+
+/* XXX: Does not pay paticularly much attention to specifics of how the STEP style
+ *      is defined to apply. Surface side, edge/face, etc... all we are really
+ *      interested in is extracting the required colour in the majority of cases.
+ */
+static appearance *
+make_appearance_for_styles (EntityAggregate *styles)
+{
+  /* Try to find path through from styles:
+   *
+   * SdaiPresentation_style_assignment *psa = styles[i];
+   * SdaiPresentation_style_select *pss = psa->styles[j];
+   * (One of:
+   *    pre_defined_presentation_style
+   *    point_style
+   *    curve_style
+   *    surface_style_usage          <--- Likely to find this one first
+   *    symbol_style
+   *    fill_area_style              <--- Eventually looking for this one?
+   *    text_style,
+   *    approximation_tolerance
+   *    externally_defined_style
+   *    null_style
+   * )
+   *
+   * SdaiSurface_style_usage *ssu = *pss;
+   * Ignore side specification given by ssu->side;
+   * SdaiSurface_side_style_select *ssss = ssu->style;
+   * SdaiSurface_side_style *sss = *ssss;
+   * SdaiSurface_style_element_select *sses = sss->styles[k]; 1-7 parts
+   * (One of:
+   *    surface_style_fill_area          <--- Looking for this one
+   *    surface_style_boundary
+   *    surface_style_silhouette
+   *    surface_style_segmentation_curve
+   *    surface_style_control_grid
+   *    surface_style_parameter_line
+   *    surface_style_rendering
+   * )
+   * SdaiSurface_style_fill_area *ssfa = *sses;
+   * SdaiFill_area_style *fas = ssfa->fill_area;   <--- WOOT.. NEARLY THERE!!
+   * SdaiFill_style_select *fss = fas->fill_styles[l];
+   * (One of:
+   *    fill_area_style_colour               <--- Looking for this one
+   *    externally_defined_tile_style
+   *    fill_area_style_tiles
+   *    externally_defined_hatch_style
+   *    fill_area_style_hatching
+   * )
+   * SdaiFill_area_style_colour *fasc = *fss;
+   * SdaiColour *fc = fasc->fill_colour;
+   * SdaiColour_Rgb *scr = dynamic_cast<SdaiColour_Rgb *>(fc);
+   * r = scr->red;
+   * g = scr->green;
+   * b = scr->blue;
+   */
+
+  for (EntityNode * psa_iter = static_cast<EntityNode *>(styles->GetHead ());
+       psa_iter != NULL;
+       psa_iter = static_cast<EntityNode *>(psa_iter->NextNode ()))
+    {
+      auto *psa = dynamic_cast<SdaiPresentation_style_assignment *>(psa_iter->node);
+
+      if (psa == NULL)
+        {
+          printf ("psa == NULL\n");
+          continue;
+        }
+
+      for (SelectNode * pss_iter = static_cast<SelectNode *>(psa->styles_ ()->GetHead ());
+           pss_iter != NULL;
+           pss_iter = static_cast<SelectNode *>(pss_iter->NextNode ()))
+        {
+          auto *pss = static_cast<SdaiPresentation_style_select *>(pss_iter->node);
+
+          if (pss == NULL)
+            {
+              printf ("pss == NULL\n");
+              continue;
+            }
+
+          if (pss->IsFill_area_style ())
+            {
+              printf ("Found a FILL_AREA_STYLE example... investigate!\n");
+            }
+          else if (!pss->IsSurface_style_usage ())
+            {
+              continue;
+            }
+
+          SdaiSurface_style_usage *ssu = *pss;
+
+//          printf ("Found a SSU.. (Side = %i)\n", (int)ssu->side_ ());
+
+          SdaiSurface_side_style_select *ssss = ssu->style_ ();
+          SdaiSurface_side_style *sss = *ssss;
+
+          for (SelectNode * sses_iter = static_cast<SelectNode *>(sss->styles_ ()->GetHead ());
+               sses_iter != NULL;
+               sses_iter = static_cast<SelectNode *>(sses_iter->NextNode ()))
+            {
+              auto *sses = static_cast<SdaiSurface_style_element_select *>(sses_iter->node);
+
+              if (!sses->IsSurface_style_fill_area ())
+                {
+                  continue;
+                }
+
+              SdaiSurface_style_fill_area *ssfa = *sses;
+              SdaiFill_area_style *fas = ssfa->fill_area_ ();
+
+              for (SelectNode * fss_iter = static_cast<SelectNode *>(fas->fill_styles_ ()->GetHead ());
+                   fss_iter != NULL;
+                   fss_iter = static_cast<SelectNode *>(fss_iter->NextNode ()))
+                {
+                  auto *fss = static_cast<SdaiFill_style_select *>(fss_iter->node);
+
+                  if (!fss->IsFill_area_style_colour ())
+                    {
+                      continue;
+                    }
+
+                  SdaiFill_area_style_colour *fasc = *fss;
+                  SdaiColour *fc = fasc->fill_colour_ ();
+                  SdaiColour_rgb *scr = dynamic_cast<SdaiColour_rgb *>(fc);
+
+                  if (scr == NULL)
+                    {
+                      printf ("Colour appears not to be COLOUR_RGB\n");
+                      continue;
+                    }
+
+                  float r = scr->red_ ();
+                  float g = scr->green_ ();
+                  float b = scr->blue_ ();
+
+                  appearance *appear = make_appearance ();
+                  appearance_set_color (appear, r, g, b);
+                  return appear;
+                }
+            }
+        }
+    }
+
+  return NULL;
+}
+
 static void
 unpack_axis_geom (SdaiAxis2_placement_3d *axis,
                   double *ox, double *oy, double *oz,
@@ -212,6 +439,7 @@ typedef struct process_step_info {
   face3d *current_face;
   contour3d *current_contour;
   double current_transform[4][4];
+  GHashTable *styled_items;
 
 } process_step_info;
 
@@ -753,7 +981,6 @@ process_bscwk (SDAI_Application_instance *start_entity, edge_ref our_edge, proce
 static void
 process_edge_geometry (SdaiEdge *edge, bool orientation, edge_ref our_edge, process_step_info *info)
 {
-  GHashTableIter iter;
   vertex3d *vertex;
   double x1, y1, z1;
   double x2, y2, z2;
@@ -1199,6 +1426,19 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
       return NULL;
     }
 
+  /* XXX: Solidworks seems to attach a STYLED_ITEM entity to the ABSR, however this is NOT legal AP214,
+   *      so STEPcode may not correctly read the STYLED_ITEM instance. (It does type checking of the item
+   *      pointed to in the STYLED_ITEM.
+   */
+  EntityAggregate *illegal_absr_styles = find_styles_for_item (info->styled_items, sr);
+  appearance *illegal_absr_appear = NULL;
+  if (illegal_absr_styles != NULL)
+    {
+      printf ("Found style list for ABSR (illegal, but Solidworks does this))\n");
+//      destroy_appearance (info->object->appear);
+      illegal_absr_appear = make_appearance_for_styles (illegal_absr_styles);
+    }
+
 //  object = make_object3d ((char *)"Test");
 
   step_model = g_new0(struct step_model, 1);
@@ -1229,12 +1469,46 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
 
   for (msb_list::iterator iter = msb_list.begin (); iter != msb_list.end (); iter++)
     {
+
+      /* XXX: Default to the illegal ABSR appearance (Thanks Solidworks!) */
+      info->object->appear = illegal_absr_appear;
+
+      EntityAggregate *solid_styles = find_styles_for_item (info->styled_items, (*iter));
+      if (solid_styles != NULL)
+        {
+//          printf ("Found style list for solid\n");
+//          destroy_appearance (info->object->appear);
+          info->object->appear = make_appearance_for_styles (solid_styles);
+#if 0
+          printf ("Colour %f, %f, %f\n",
+                  (double)info->object->appear->r,
+                  (double)info->object->appear->g,
+                  (double)info->object->appear->b);
+#endif
+        }
+
+
 //      std::cout << "Found MANIFOLD_SOLID_BREP; processing" << std::endl;
       SdaiClosed_shell *cs = (*iter)->outer_ ();
 
       /* XXX: Need to check if msb is actually an instance of BREP_WITH_VOIDS, whereupon we also need to iterate over the void shell(s) */
 
 //      std::cout << "Closed shell is " << cs << std::endl;
+
+      EntityAggregate *shell_styles = find_styles_for_item (info->styled_items, cs);
+      if (shell_styles != NULL)
+        {
+//          printf ("Found style list for shell\n");
+//          destroy_appearance (info->object->appear);
+          info->object->appear = make_appearance_for_styles (shell_styles);
+#if 0
+          printf ("Colour %f, %f, %f\n",
+                  (double)info->object->appear->r,
+                  (double)info->object->appear->g,
+                  (double)info->object->appear->b);
+#endif
+        }
+
 
       /* NB: NULLs give g_direct_hash and g_direct_equal */
       edges_hash_set = g_hash_table_new (NULL, NULL);
@@ -1244,6 +1518,7 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
            iter = iter->NextNode ())
         {
           SdaiFace *face = (SdaiFace *)((EntityNode *)iter)->node;
+          EntityAggregate *face_styles = find_styles_for_item (info->styled_items, face);
 
           /* XXX: Do we look for specific types of face at this point? (Expect ADVANCED_FACE usually?) */
           if (strcmp (face->EntityName (), "Advanced_Face") != 0)
@@ -1265,6 +1540,36 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
           info->current_face = make_face3d ((char *)"");
           info->current_face->face_identifier = fs->StepFileId ();
           object3d_add_face (info->object, info->current_face);
+
+          if (face_styles != NULL)
+            {
+//              printf ("Found style list for face\n");
+//              destroy_appearance (info->current_face->appear);
+              info->current_face->appear = make_appearance_for_styles (face_styles);
+#if 0
+              printf ("Colour %f, %f, %f\n",
+                      (double)info->current_face->appear->r,
+                      (double)info->current_face->appear->g,
+                      (double)info->current_face->appear->b);
+#endif
+               }
+
+          /* XXX: KLUDGE TO FIX THE FACT WE DON'T SUPPORT MULTIPLE BODIES, HENCE KEEP
+           *      OVER-WRITING THE VARIOUS PARENT STYLES IN THE object3d EACH TIME WE
+           *      ENCOUNTER A NEW SOLID BODY, OR SUB-ASSEMBLY PART
+           */
+          if (info->current_face->appear == NULL)
+            {
+//              printf ("Defauting face to solid appearance\n");
+              info->current_face->appear = info->object->appear;
+#if 0
+              printf ("Colour %f, %f, %f\n",
+                      (double)info->current_face->appear->r,
+                      (double)info->current_face->appear->g,
+                      (double)info->current_face->appear->b);
+#endif
+            }
+
 
           if (surface->IsComplex ())
             {
@@ -1678,6 +1983,8 @@ step_model_to_shape_master (const char *filename)
 
   info.object = make_object3d ((char *)"Test");
   identity_4x4 (info.current_transform);
+
+  info.styled_items = build_hash_of_styled_items (instance_list);
 
   step_model = process_sr_or_subtype (instance_list, sr, &info);
 

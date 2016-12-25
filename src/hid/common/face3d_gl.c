@@ -1151,6 +1151,7 @@ face3d_fill(hidGC gc, face3d *face, bool selected)
       return;
     }
 
+#if 0
   if (face->is_debug)
     glColor4f (1.0f, 0.0f, 0.0f, 0.5f);
   else if (selected)
@@ -1160,6 +1161,7 @@ face3d_fill(hidGC gc, face3d *face, bool selected)
   else
     glColor4f (0.8f, 0.8f, 0.8f, 1.0f);
 //    glColor4f (0.8f, 0.8f, 0.8f, 0.3f);
+#endif
 
   emit_tristrip (face);
 }
