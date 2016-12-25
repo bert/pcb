@@ -1038,7 +1038,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           nms = min_spacing(tv,nextv);
           pms = min_spacing(tv,prevv);
 
-          g_assert(finite(nms)); g_assert(finite(pms));
+          g_assert(isfinite(nms)); g_assert(isfinite(pms));
 
           point_from_point_to_point(tv, nextv, nms, &tempx, &tempy);
 
@@ -6861,8 +6861,8 @@ netscore_create(toporouter_t *r, toporouter_route_t *routedata, guint n, guint i
   netscore->routedata = routedata;
   routedata->detourscore = netscore->score = routedata->score;
 
-  if(!finite(routedata->detourscore)) {
-    printf("WARNING: !finite(detourscore)\n");
+  if(!isfinite(routedata->detourscore)) {
+    printf("WARNING: !isfinite(detourscore)\n");
     print_cluster(routedata->src);
     print_cluster(routedata->dest);
     return NULL;
@@ -6931,7 +6931,7 @@ netscore_pairwise_calculation(toporouter_netscore_t *netscore, GPtrArray *netsco
         netscore->pairwise_nodetour[i-netscores_base] = 1;
         (*i)->pairwise_nodetour[netscore->id] = 1;
       }else 
-      if(!finite(temproutedata->score)) {
+      if(!isfinite(temproutedata->score)) {
         netscore->pairwise_fails += 1;
       }else{
         netscore->pairwise_detour_sum += temproutedata->score - (*i)->score;
@@ -6952,9 +6952,9 @@ gint
 netscore_pairwise_size_compare(toporouter_netscore_t **a, toporouter_netscore_t **b)
 {
   // infinite scores are last
-  if(!finite((*a)->score) && !finite((*b)->score)) return 0;
-  if(finite((*a)->score) && !finite((*b)->score)) return -1;
-  if(finite((*b)->score) && !finite((*a)->score)) return 1;
+  if(!isfinite((*a)->score) && !isfinite((*b)->score)) return 0;
+  if(isfinite((*a)->score) && !isfinite((*b)->score)) return -1;
+  if(isfinite((*b)->score) && !isfinite((*a)->score)) return 1;
 
   // order by pairwise fails
   if((*a)->pairwise_fails < (*b)->pairwise_fails) return -1;
@@ -6975,9 +6975,9 @@ gint
 netscore_pairwise_compare(toporouter_netscore_t **a, toporouter_netscore_t **b)
 {
   // infinite scores are last
-  if(!finite((*a)->score) && !finite((*b)->score)) return 0;
-  if(finite((*a)->score) && !finite((*b)->score)) return -1;
-  if(finite((*b)->score) && !finite((*a)->score)) return 1;
+  if(!isfinite((*a)->score) && !isfinite((*b)->score)) return 0;
+  if(isfinite((*a)->score) && !isfinite((*b)->score)) return -1;
+  if(isfinite((*b)->score) && !isfinite((*a)->score)) return 1;
 
   // order by pairwise fails
   if((*a)->pairwise_fails < (*b)->pairwise_fails) return -1;
@@ -7016,7 +7016,7 @@ order_nets_preroute_greedy(toporouter_t *r, GList *nets, GList **rnets)
   *rnets = NULL;
   FOREACH_NETSCORE(netscores) {
     *rnets = g_list_prepend(*rnets, netscore->routedata);
-    if(!finite(netscore->score)) failcount++;
+    if(!isfinite(netscore->score)) failcount++;
     netscore_destroy(netscore);
   } FOREACH_END;
 
@@ -7554,7 +7554,7 @@ detour_router(toporouter_t *r)
   for(toporouter_route_t **i = (toporouter_route_t **) scores->pdata; i < (toporouter_route_t **) scores->pdata + scores->len; i++) {
     toporouter_route_t *curroute = (*i);
    
-    if(finite(curroute->score) && finite(curroute->detourscore)) {
+    if(isfinite(curroute->score) && isfinite(curroute->detourscore)) {
 //    printf("%15s %15f \t %8f,%8f - %8f,%8f\n", (*i)->src->netlist + 2, (*i)->score - (*i)->detourscore,
 //        vx(curroute->mergebox1->point), vy(curroute->mergebox1->point),
 //        vx(curroute->mergebox2->point), vy(curroute->mergebox2->point));
