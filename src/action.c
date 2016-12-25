@@ -4349,12 +4349,12 @@ ActionMinMaskGap (int argc, char **argv, Coord x, Coord y)
   {
     PIN_LOOP (element);
     {
-      if (!TEST_FLAGS (flags, pin) || ! pin->Mask)
-	continue;
+      if (!TEST_FLAGS (flags, pin) || ! pin->Mask) continue;
 
-	thickness = pin->DrillingHole;
-      if (pin->Thickness > thickness)
-	thickness = pin->Thickness;
+      thickness = pin->DrillingHole;
+      
+      if (pin->Thickness > thickness) thickness = pin->Thickness;
+
       thickness += value;
 
       if (pin->Mask < thickness)

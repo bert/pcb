@@ -1303,7 +1303,7 @@ SearchObjectByLocation (unsigned Type,
 				       (LineType **) Result3))
 	    return (LINE_TYPE);
 
-	    if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+    if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
 	      Type & ARCPOINT_TYPE &&
 	      SearchArcPointByLocation (locked,
 					(LayerType **) Result1,
