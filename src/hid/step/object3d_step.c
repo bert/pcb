@@ -198,6 +198,7 @@ object3d_to_step_body_fragment (step_file *step,
           vertex3d *dv = DDATA (outer_contour->first_edge);
 
           double rx, ry, rz;
+          double length;
 
           rx = dv->x - ov->x;
           ry = dv->y - ov->y;
@@ -210,6 +211,11 @@ object3d_to_step_body_fragment (step_file *step,
             {
               rx = 1., ry = 0., rz = 0.;
             }
+
+          length = hypot (hypot (rx, ry), rz);
+          rx /= length;
+          ry /= length;
+          rz /= length;
 
           face->surface_identifier =
             step_plane (step, "NONE",
