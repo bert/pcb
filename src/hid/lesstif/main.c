@@ -1334,7 +1334,7 @@ Pan (int mode, int x, int y)
 static void
 mod_changed (XKeyEvent * e, int set)
 {
-  switch (XKeycodeToKeysym (display, e->keycode, 0))
+  switch (XkbKeycodeToKeysym (display, e->keycode, 0, e->state & ShiftMask ? 1:0))
     {
     case XK_Shift_L:
     case XK_Shift_R:
