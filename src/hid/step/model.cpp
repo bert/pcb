@@ -1629,7 +1629,7 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
             }
           else if (strcmp (surface->EntityName (), "Cylindrical_Surface") == 0)
             {
-              SdaiCylindrical_surface *cylinder = dynamic_cast<SdaiCylindrical_surface *>(surface);
+              auto *cylinder = dynamic_cast<SdaiCylindrical_surface *>(surface);
 //              printf ("WARNING: cylindrical surfaces are not supported yet\n");
 
               unpack_axis_geom (cylinder->position_ (),
@@ -1673,7 +1673,50 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
             }
           else if (strcmp (surface->EntityName (), "Conical_Surface") == 0)
             {
+              auto *cone = dynamic_cast<SdaiConical_surface *>(surface);
 //              printf ("WARNING: conical surfaces are not supported yet\n");
+
+              unpack_axis_geom (cone->position_ (),
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              transform_vertex (info->current_transform,
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              info->current_face->is_conical = true;
+              info->current_face->radius = cone->radius_ ();
+              /* XXX: Need to check the coordinate reference frames... testing currently against a file which uses radians */
+              info->current_face->semi_angle = cone->semi_angle_ () * 180. / M_PI;
+              printf ("Semi-angle = %f\n", info->current_face->semi_angle);
+
+              if (fs->same_sense_ ())
+                {
+                  info->current_face->surface_orientation_reversed = false;
+                }
+              else
+                {
+                  info->current_face->surface_orientation_reversed = true;
+                }
+
             }
           else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0)
             {

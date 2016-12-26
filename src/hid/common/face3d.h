@@ -16,6 +16,10 @@ typedef struct {
   double ax, ay, az; /* Direction of the axis */
   double radius;
 
+  /* For conical surfaces */
+  bool is_conical;
+  double semi_angle;
+
   appearance *appear;
 
   /* XXX: STEP specific - breaks encapsulation */
