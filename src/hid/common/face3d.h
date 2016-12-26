@@ -20,6 +20,11 @@ typedef struct {
   bool is_conical;
   double semi_angle;
 
+  /* For torioidal surfaces */
+  bool is_toroidal;
+  /* NB: Use radius above for major_radius */
+  double minor_radius;
+
   appearance *appear;
 
   /* XXX: STEP specific - breaks encapsulation */
@@ -30,6 +35,10 @@ typedef struct {
   /* Rendering cache */
   int tristrip_num_vertices;
   float *tristrip_vertices;
+
+  int line_num_indices;
+  int *line_indices;
+
   bool triangulate_failed;
 
   bool is_debug;

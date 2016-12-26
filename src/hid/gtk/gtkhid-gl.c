@@ -2915,7 +2915,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glDepthFunc (GL_LESS);
   glDisable (GL_STENCIL_TEST);
 
-  glEnable (GL_CULL_FACE); /* XXX: Fix model face filling */
+//  glEnable (GL_CULL_FACE); /* XXX: Fix model face filling */
   glCullFace (GL_BACK);
 
   glEnable (GL_COLOR_MATERIAL);

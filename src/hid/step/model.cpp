@@ -1725,7 +1725,48 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
             }
           else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0)
             {
+              auto *toroid = dynamic_cast<SdaiToroidal_surface *>(surface);
 //              printf ("WARNING: toroidal surfaces are not supported yet\n");
+
+              unpack_axis_geom (toroid->position_ (),
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              transform_vertex (info->current_transform,
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              info->current_face->is_toroidal = true;
+              info->current_face->radius = toroid->major_radius_ ();
+              info->current_face->minor_radius = toroid->minor_radius_ ();
+
+              if (fs->same_sense_ ())
+                {
+                  info->current_face->surface_orientation_reversed = false;
+                }
+              else
+                {
+                  info->current_face->surface_orientation_reversed = true;
+                }
+
             }
           else if (strcmp (surface->EntityName (), "Spherical_Surface") == 0)
             {
