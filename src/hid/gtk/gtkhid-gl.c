@@ -2932,7 +2932,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   if (1) {
     GLfloat diffuse[] =  {0.6, 0.6, 0.6, 1.0};
     GLfloat ambient[] =  {0.4, 0.4, 0.4, 1.0};
-    GLfloat specular[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat specular[] = {0.4, 0.4, 0.4, 1.0};
     glLightfv (GL_LIGHT0, GL_DIFFUSE,  diffuse);
     glLightfv (GL_LIGHT0, GL_AMBIENT,  ambient);
     glLightfv (GL_LIGHT0, GL_SPECULAR, specular);

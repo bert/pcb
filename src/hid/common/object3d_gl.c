@@ -269,6 +269,8 @@ static void
 draw_face (face3d *face, void *data)
 {
   struct draw_info *info = data;
+  float white[] = {0.4f, 0.4f, 0.4f};
+  float shininess[] = {10.0f};
 
   face->is_debug = (face_no == debug_integer);
 
@@ -284,6 +286,11 @@ draw_face (face3d *face, void *data)
     appearance_apply_gl (object_default_face_appearance);
 
   /* Object inherited appearances? */
+
+  glUseProgram (0);
+
+  glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, white);
+  glMaterialfv (GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 
   face3d_fill (info->gc, face, info->selected);
 //  face3d_fill (info->gc, face, (face_no == debug_integer));
