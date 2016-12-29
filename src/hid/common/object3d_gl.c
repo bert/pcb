@@ -115,6 +115,7 @@ object3d_test_init (void)
 
   object_default_edge_appearance = make_appearance();
   appearance_set_color (object_default_edge_appearance, 0.0f, 0.0f, 0.0f); /* 1.0f */
+//  appearance_set_color (object_default_edge_appearance, 1.0f, 0.0f, 1.0f); /* 1.0f */
   appearance_set_alpha (object_default_edge_appearance, 1.0f);
 
   object_debug_edge_appearance = make_appearance();
@@ -287,10 +288,17 @@ draw_face (face3d *face, void *data)
 
   /* Object inherited appearances? */
 
+//  glDisable (GL_LIGHTING);
+
   glUseProgram (0);
 
   glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, white);
   glMaterialfv (GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+
+  face_no++;
+
+//  if (!face->is_debug)
+//    return;
 
   face3d_fill (info->gc, face, info->selected);
 //  face3d_fill (info->gc, face, (face_no == debug_integer));
@@ -304,7 +312,6 @@ draw_face (face3d *face, void *data)
 //  printf ("Drawing face\n");
 //  g_list_foreach (face->contours, (GFunc)draw_contour, info);
 
-  face_no++;
 }
 
 void

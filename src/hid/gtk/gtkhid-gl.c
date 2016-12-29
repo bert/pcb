@@ -2957,7 +2957,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     glPopMatrix ();
   }
 
-//  glDisable (GL_DEPTH_TEST); /* TEST */
+  glDisable (GL_DEPTH_TEST); /* TEST */
 //  glDepthMask (FALSE); /* TEST */
 
   if (!global_view_2d)
