@@ -1615,17 +1615,22 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
               info->current_face->ny = info->current_face->ay;
               info->current_face->nz = info->current_face->az;
 
-              if (!fs->same_sense_ ())
+              if (fs->same_sense_ ())
                 {
+                  info->current_face->surface_orientation_reversed = false;
+                }
+              else
+                {
+                  /* XXX: Should we bother flipping the display normal, as we now set surface_orientation_reversed */
                   info->current_face->nx = -info->current_face->nx;
                   info->current_face->ny = -info->current_face->ny;
                   info->current_face->nz = -info->current_face->nz;
 
                   /* XXX: Could use face->surface_orientation_reversed ? */
 //                  printf ("Not same sense, flipping normal\n");
+                  info->current_face->surface_orientation_reversed = true;
                 }
 
-              info->current_face->surface_orientation_reversed = false;
             }
           else if (strcmp (surface->EntityName (), "Cylindrical_Surface") == 0)
             {

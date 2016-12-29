@@ -1239,9 +1239,9 @@ plane_xyz_to_uv (face3d *face, float x, float y, float z, float *u, float *v)
 {
   double ortx, orty, ortz;
 
-  ortx = face->ny * face->rz - face->nz * face->ry;
-  orty = face->nz * face->rx - face->nx * face->rz;
-  ortz = face->nx * face->ry - face->ny * face->rx;
+  ortx = face->ay * face->rz - face->az * face->ry;
+  orty = face->az * face->rx - face->ax * face->rz;
+  ortz = face->ax * face->ry - face->ay * face->rx;
 
   *u = (x - face->ox) * face->rx +
        (y - face->oy) * face->ry +
@@ -1253,17 +1253,29 @@ plane_xyz_to_uv (face3d *face, float x, float y, float z, float *u, float *v)
 }
 
 static void
-plane_uv_to_xyz (face3d *face, float u, float v, float *x, float *y, float *z)
+plane_uv_to_xyz_and_normal (face3d *face, float u, float v, float *x, float *y, float *z,
+                            float *nx, float *ny, float *nz)
 {
   float ortx, orty, ortz;
 
-  ortx = face->ny * face->rz - face->nz * face->ry;
-  orty = face->nz * face->rx - face->nx * face->rz;
-  ortz = face->nx * face->ry - face->ny * face->rx;
+  ortx = face->ay * face->rz - face->az * face->ry;
+  orty = face->az * face->rx - face->ax * face->rz;
+  ortz = face->ax * face->ry - face->ay * face->rx;
 
   *x = STEP_X_TO_COORD(PCB, face->ox + u * face->rx + v * ortx);
   *y = STEP_Y_TO_COORD(PCB, face->oy + u * face->ry + v * orty);
   *z = STEP_Z_TO_COORD(PCB, face->oz + u * face->rz + v * ortz);
+
+  *nx =  face->ax;
+  *ny = -face->ay; /* XXX: Note this is minus, presumably due to PCB's coordinate space */
+  *nz =  face->az;
+
+  if (face->surface_orientation_reversed)
+    {
+      *nx = -*nx;
+      *ny = -*ny;
+      *nz = -*nz;
+    }
 }
 
 static void
@@ -1362,7 +1374,8 @@ plane_ensure_tristrip (face3d *face)
 
       /* make sure it is a positive contour (outer) or negative (hole) */
 //      if (p_contour->Flags.orient != (hole ? PLF_INV : PLF_DIR))
-//      poly_InvContour (p_contour);
+      if (face->surface_orientation_reversed)
+        poly_InvContour (p_contour);
 
       if (p_contour->Flags.orient == PLF_DIR)
         {
@@ -1444,10 +1457,20 @@ plane_ensure_tristrip (face3d *face)
     y_top = traps.traps[i].top;
     y_bot = traps.traps[i].bottom;
 
-    x1 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_top);
-    x2 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
-    x3 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_bot);
-    x4 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_bot);
+    if (face->surface_orientation_reversed)
+      {
+        x2 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_top);
+        x1 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
+        x4 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_bot);
+        x3 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_bot);
+      }
+    else
+      {
+        x1 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_top);
+        x2 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
+        x3 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_bot);
+        x4 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_bot);
+      }
 
     if (x1 == x2) {
       /* NB: Repeated first virtex to separate from other tri-strip */
@@ -1499,17 +1522,16 @@ plane_ensure_tristrip (face3d *face)
   vertex_comp = 0;
   for (i = 0; i < num_uv_points; i++)
     {
-      plane_uv_to_xyz(face,
-                      COORD_TO_MM (uv_points[2 * i + 0]), /* Inverse of arbitrary transformation above */
-                      COORD_TO_MM (uv_points[2 * i + 1]), /* Inverse of arbitrary transformation above */
-                      &face->tristrip_vertices[vertex_comp + 0],
-                      &face->tristrip_vertices[vertex_comp + 1],
-                      &face->tristrip_vertices[vertex_comp + 2]);
-
-      /* Vertex normal */
-      face->tristrip_vertices[vertex_comp + 3] = face->nx;
-      face->tristrip_vertices[vertex_comp + 4] = -face->ny; /* XXX: -ny */
-      face->tristrip_vertices[vertex_comp + 5] = face->nz;
+      plane_uv_to_xyz_and_normal (face,
+                                  COORD_TO_MM (uv_points[2 * i + 0]),
+                                  COORD_TO_MM (uv_points[2 * i + 1]),
+                                  &face->tristrip_vertices[vertex_comp + 0],
+                                  &face->tristrip_vertices[vertex_comp + 1],
+                                  &face->tristrip_vertices[vertex_comp + 2],
+                                  /* Vertex normal */
+                                  &face->tristrip_vertices[vertex_comp + 3],
+                                  &face->tristrip_vertices[vertex_comp + 4],
+                                  &face->tristrip_vertices[vertex_comp + 5]);
 
       vertex_comp += BUFFER_STRIDE;
     }
