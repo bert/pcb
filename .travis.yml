@@ -12,6 +12,7 @@ addons:
     packages:
       - graphviz
       - autopoint
+      - autoconf
       - intltool
       - texinfo
       - texlive-full
