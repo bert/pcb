@@ -14,8 +14,7 @@ addons:
       - autopoint
       - intltool
       - texinfo
-      - texlive
-      - texlive-latex-extra
+      - texlive-full
       - libgd2-noxpm
       - libgd2-noxpm-dev
       - lesstif2
