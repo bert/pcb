@@ -26,6 +26,7 @@ addons:
       - libdbus-1-dev
       - desktop-file-utils
       - gerbv
+      - geda-gschem
 
 before_install:
   - sudo apt-get -qq update
