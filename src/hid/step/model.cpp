@@ -1533,6 +1533,12 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
           SdaiFace_surface *fs = (SdaiFace_surface *) face;
 
           SdaiSurface *surface = fs->face_geometry_ ();
+
+          if (surface == NULL_ENTITY)
+            {
+              printf ("ERROR: Got a NULL_ENTITY for surface - did the file not load properly?\n");
+              continue;
+            }
 #if 0
           std::cout << "Face " << face->name_ ().c_str () << " has surface of type " << surface->EntityName () << " and same_sense = " << fs->same_sense_ () << std::endl;
 #endif
@@ -1770,7 +1776,47 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
             }
           else if (strcmp (surface->EntityName (), "Spherical_Surface") == 0)
             {
+              auto *sphere = dynamic_cast<SdaiSpherical_surface *>(surface);
 //              printf ("WARNING: spherical surfaces are not supported yet\n");
+
+              unpack_axis_geom (sphere->position_ (),
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              transform_vertex (info->current_transform,
+                                &info->current_face->ox,
+                                &info->current_face->oy,
+                                &info->current_face->oz);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->ax,
+                                &info->current_face->ay,
+                                &info->current_face->az);
+
+              transform_vector (info->current_transform,
+                                &info->current_face->rx,
+                                &info->current_face->ry,
+                                &info->current_face->rz);
+
+              info->current_face->is_spherical = true;
+              info->current_face->radius = sphere->radius_ ();
+
+              if (fs->same_sense_ ())
+                {
+                  info->current_face->surface_orientation_reversed = false;
+                }
+              else
+                {
+                  info->current_face->surface_orientation_reversed = true;
+                }
+
             }
           else
             {

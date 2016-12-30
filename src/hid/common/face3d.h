@@ -25,6 +25,9 @@ typedef struct {
   /* NB: Use radius above for major_radius */
   double minor_radius;
 
+  /* For spherical surfaces */
+  bool is_spherical;
+
   appearance *appear;
 
   /* XXX: STEP specific - breaks encapsulation */
