@@ -1,4 +1,0 @@
-# pcb.xpm is provided by pcb-common, which is in pcb-lesstif's Depends
-pcb-lesstif: menu-icon-missing pcb.xpm
-# Not a spelling mistake, ang is for angle
-pcb-lesstif: spelling-error-in-binary usr/bin/pcb-lesstif ang and

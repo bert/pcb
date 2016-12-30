@@ -1,4 +1,0 @@
-# pcb.xpm is provided by pcb-common, which is in pcb-gtk's Depends
-pcb-gtk: menu-icon-missing pcb.xpm
-# Not a spelling mistake, ang is for angle
-pcb-gtk: spelling-error-in-binary usr/bin/pcb-gtk ang and

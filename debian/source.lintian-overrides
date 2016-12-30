@@ -1,3 +1,0 @@
-# Added a patch to use updated config.{sub,guess}
-pcb source: outdated-autotools-helper-file config.sub 2005-07-08
-pcb source: outdated-autotools-helper-file config.guess 2005-07-08

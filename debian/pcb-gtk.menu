@@ -1,5 +1,0 @@
-?package(pcb-gtk):needs="x11" section="Applications/Science/Electronics" \
-	title="PCB (GTK+ interface)"                                           \
-	longtitle="Printed Circuit Board Design Program"      \
-	hotkey="P" icon="pcb.xpm"                             \
-	command="/usr/bin/pcb-gtk"

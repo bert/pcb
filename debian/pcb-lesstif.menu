@@ -1,5 +1,0 @@
-?package(pcb-lesstif):needs="x11" section="Applications/Science/Electronics" \
-	title="PCB (LessTif interface)"                                           \
-	longtitle="Printed Circuit Board Design Program"      \
-	hotkey="P" icon="pcb.xpm"                             \
-	command="/usr/bin/pcb-lesstif"
