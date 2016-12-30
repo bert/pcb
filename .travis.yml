@@ -25,6 +25,7 @@ addons:
       - libdbus-glib-1-dev
       - libdbus-1-dev
       - desktop-file-utils
+      - gerbv
 
 before_install:
   - sudo apt-get -qq update
