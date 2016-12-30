@@ -61,7 +61,7 @@
 //#define MEMCPY_VERTEX_DATA
 
 #define CIRC_SEGS_D 64.0
-
+#define TRAP_WIDTH_EPSILON 0.001
 
 #define BUFFER_STRIDE 6 /* 3x vertex + 3x normal */
 
@@ -283,8 +283,6 @@ toroid_bo_add_edge_uwrap (borast_t *bo,
                           double  u, double  v,
                           bool is_outer)
 {
-  double minu;
-
   /* XXX: Not absolutely sure about this! */
   if (fabs (u - lu) > fabs (u + 360.0 - lu))
     {
@@ -296,15 +294,6 @@ toroid_bo_add_edge_uwrap (borast_t *bo,
                    MM_TO_COORD (lu - 360.0), MM_TO_COORD (lv),
                    MM_TO_COORD ( u        ), MM_TO_COORD ( v),
                    is_outer);
-      /* Extra edge to keep the in/out regions correct */
-//      minu = MIN (lu - 360.0, u);
-      printf ("Wrapped u edge, lu = %f, u=%f, lu-360=%f, minu=%f\n",
-             lu, u, lu - 360.0, minu);
-      minu = 0;
-      bo_add_edge (bo,
-                   MM_TO_COORD (minu), MM_TO_COORD (lv),
-                   MM_TO_COORD (minu), MM_TO_COORD (v),
-                   is_outer);
     }
   else if (fabs (u - lu) > fabs (u - 360.0 - lu))
     {
@@ -315,15 +304,6 @@ toroid_bo_add_edge_uwrap (borast_t *bo,
       bo_add_edge (bo,
                    MM_TO_COORD (lu + 360.0), MM_TO_COORD (lv),
                    MM_TO_COORD ( u        ), MM_TO_COORD ( v),
-                   is_outer);
-      /* Extra edge to keep the in/out regions correct */
-      minu = MIN (lu, u - 360.0);
-      printf ("Wrapped u edge, lu = %f, u=%f, u-360=%f, minu=%f\n",
-             lu, u, u - 360.0, minu);
-      minu = 0;
-      bo_add_edge (bo,
-                   MM_TO_COORD (minu), MM_TO_COORD (lv),
-                   MM_TO_COORD (minu), MM_TO_COORD (v),
                    is_outer);
     }
   else
@@ -337,6 +317,18 @@ toroid_bo_add_edge_uwrap (borast_t *bo,
 }
 
 static void
+toroid_bo_add_edge_no_uwrap (borast_t *bo,
+                             double lu, double lv,
+                             double  u, double  v,
+                             bool is_outer)
+{
+  bo_add_edge (bo,
+               MM_TO_COORD (lu), MM_TO_COORD (lv),
+               MM_TO_COORD ( u), MM_TO_COORD ( v),
+               is_outer);
+}
+
+static void
 toroid_bo_add_edge (borast_t *bo,
                   double lu, double lv,
                   double  u, double  v,
@@ -345,29 +337,29 @@ toroid_bo_add_edge (borast_t *bo,
   /* XXX: Not absolutely sure about this! */
   if (fabs (v - lv) > fabs (v + 360.0 - lv))
     {
-      toroid_bo_add_edge_uwrap (bo,
+      toroid_bo_add_edge_no_uwrap (bo,
                                 lu, lv,
                                  u,  v + 360.0,
                                 is_outer);
-      toroid_bo_add_edge_uwrap (bo,
+      toroid_bo_add_edge_no_uwrap (bo,
                                 lu, lv - 360.0,
                                  u,  v,
                                 is_outer);
     }
   else if (fabs (v - lv) > fabs (v - 360.0 - lv))
     {
-      toroid_bo_add_edge_uwrap (bo,
+      toroid_bo_add_edge_no_uwrap (bo,
                                 lu, lv,
                                  u,  v - 360.0,
                                 is_outer);
-      toroid_bo_add_edge_uwrap (bo,
+      toroid_bo_add_edge_no_uwrap (bo,
                                 lu, lv + 360.0,
                                  u,  v,
                                 is_outer);
     }
   else
     {
-      toroid_bo_add_edge_uwrap (bo,
+      toroid_bo_add_edge_no_uwrap (bo,
                                 lu, lv,
                                  u,  v,
                                 is_outer);
@@ -376,6 +368,79 @@ toroid_bo_add_edge (borast_t *bo,
 }
 
 static void plane_uv_to_xyz_and_normal (face3d *face, float u, float v, float *x, float *y, float *z, float *nx, float *ny, float *nz);
+
+typedef struct {
+  double v;     /* v-coordinate at u=0 */
+  bool is_left; /* True if crossing is from u-pos towards u-neg */
+  bool is_right; /* True if crossing is from u-neg towards u-pos */
+  /* Could be neither... if we get fed an edge colinear with u=0... not sure if we need to cope with that or not */
+} u0_crossing;
+
+typedef struct {
+  u0_crossing *crossings; /* Pointer to array of crossigns */
+  int num_crossings;
+  int max_crossings;
+} crossing_info;
+
+/* Add a crossing to be considered to the u=0 crossing list */
+static void
+crossing_list_init (crossing_info *info)
+{
+  info->num_crossings = 0;
+  info->max_crossings = 20; /* Arbitrary start */
+  info->crossings = g_new0 (u0_crossing, info->max_crossings);
+}
+
+static void
+crossing_list_destroy (crossing_info *info)
+{
+  g_free (info->crossings);
+  /* NB: Don't free info its-self, allows it to be stack allocated */
+}
+
+/* Add a crossing to be considered to the u=0 crossing list */
+static double
+crossing_list_add (crossing_info *info,
+                   double u1, double v1,
+                   double u2, double v2)
+{
+  u0_crossing *cross;
+  double m;
+  double v;
+
+  if (info->num_crossings == info->max_crossings)
+    {
+      /* XXX: Reallocate more memory, copy old data etc.. */
+      printf ("Too many crossings, sorry!\n");
+      exit (-1);
+    }
+
+  cross = &info->crossings[info->num_crossings];
+  info->num_crossings++;
+
+  /* XXX: Not sure this is the most robust way to calculate the line intercept at u=0 */
+  m = (v2 - v1) / (u2 - u1);
+  v = v1 - m * u1;
+
+  cross->v = v;
+  cross->is_left = u1 > u2;
+  cross->is_right = u1 < u2;
+
+  return v;
+}
+
+/* Sort in ascending order of v */
+static int
+compare_crossings (const u0_crossing *c1, const u0_crossing *c2)
+{
+  return (c1->v < c2->v) ? -1 : ((c1->v > c2->v) ? 1 : 0);
+}
+
+static void
+crossing_list_sort (crossing_info *info)
+{
+  qsort (info->crossings, info->num_crossings, sizeof (*info->crossings), compare_crossings);
+}
 
 static void
 toroid_ensure_tristrip (face3d *face)
@@ -393,6 +458,11 @@ toroid_ensure_tristrip (face3d *face)
   borast_t *bo;
   borast_traps_t traps;
   int edge_count = 0;
+  crossing_info crosslist;
+  double current_u_with_vwrap = 0.0;
+  double min_u_with_vwrap = 360.0;
+  bool min_u_with_vwrap_is_end = false;
+//  int discarded_traps = 0;
 
   /* Nothing to do if vertices are already cached */
   if (face->tristrip_vertices != NULL)
@@ -422,28 +492,18 @@ toroid_ensure_tristrip (face3d *face)
 
     }
 
+  crossing_list_init (&crosslist);
+
 #if 1
-  /* Worst case, we need 2x number of edges, since we repeat any which span the u=0, u=360 wrap-around. */
-  bo = bo_init (2 * edge_count + 2 * 37  + 2); /* NB +37 is kludge for our vertical bars */
+  /* Worst case, we need 2x number of edges, since we repeat any which span the u=0, u=360 wrap-around,
+   * and add additional vertical edges to segment the u,v space, plus more to initialise the rasterisation
+   * along the u=0 and u=360 edges.
+   */
+  bo = bo_init (2 * edge_count + 2 * 36 * 37  + 2 * crosslist.max_crossings); /* NB + 2 * 36 * 37 is kludge for our vertical bars */
 
 #if 1
   {
     int i;
-
-#if 0
-    /* Add a line at the start of our bounds to get things started */
-    bo_add_edge (bo,
-                 MM_TO_COORD(0), MM_TO_COORD(0.0),
-                 MM_TO_COORD(0), MM_TO_COORD(360.0),
-                 false);
-#endif
-
-#if 0
-    bo_add_edge (bo,
-                 MM_TO_COORD(360.0), MM_TO_COORD(0.0),
-                 MM_TO_COORD(360.0), MM_TO_COORD(360.0),
-                 false);
-#endif
 
     for (i = 0; i <= 360; i += 10)
       {
@@ -454,10 +514,10 @@ toroid_ensure_tristrip (face3d *face)
                          MM_TO_COORD(i), MM_TO_COORD(j + 10.0),
                          true);
 
-#if 0
+#if 1
             bo_add_edge (bo,
-                         MM_TO_COORD(i + 0.01), MM_TO_COORD(j),
-                         MM_TO_COORD(i + 0.01), MM_TO_COORD(j + 10.0),
+                         MM_TO_COORD(i), MM_TO_COORD(j),
+                         MM_TO_COORD(i), MM_TO_COORD(j + 10.0),
                          false);
 #endif
           }
@@ -465,14 +525,21 @@ toroid_ensure_tristrip (face3d *face)
   }
 #endif
 
+//  printf ("About to walk toroid face bounds\n");
+
   /* Throw the edges to the rasteriser */
   for (c_iter = face->contours; c_iter != NULL; c_iter = g_list_next (c_iter))
     {
+      float lost_u_phase = 0.0;
+      float lost_v_phase = 0.0;
       double fu = 0.0, fv = 0.0;
       double lu = 0.0, lv = 0.0;
       double u, v;
       bool first_vertex = true;
       bool is_outer;
+      double intercept_v = 0.;
+
+//      printf ("Investigating a face bound\n");
 
       /* XXX: How can we tell if a contour is inner or outer??? */
       is_outer = true;
@@ -521,6 +588,10 @@ toroid_ensure_tristrip (face3d *face)
                       (double)z - info->linearised_vertices[vertex_idx * 3 + 2]);
 #endif
 
+              /* Add back on any wrapped phase */
+//              u += lost_u_phase;
+//              v += lost_v_phase;
+
               if (first_vertex)
                 {
                   fu = u;
@@ -528,10 +599,53 @@ toroid_ensure_tristrip (face3d *face)
                 }
               else
                 {
-                  toroid_bo_add_edge (bo,
-                                      lu, lv,
-                                       u,  v,
-                                      is_outer);
+#if 1
+//                  printf ("u = %f, delta since last u = %f\n", (double)u, (double)(u - lu));
+
+                  if (fabs (u - lu) > fabs (u + 360.0f - lu))
+                    {
+//                      printf ("Adding 360 degrees to lost u phase\n");
+                      lost_u_phase += 360.0f;
+//                      u += 360.0f;
+                        intercept_v = crossing_list_add (&crosslist, lu - 360., lv, u, v);
+
+                        toroid_bo_add_edge (bo, 0., intercept_v, u,    v       ,    is_outer);
+                        toroid_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+                    }
+                  else if (fabs (u - lu) > fabs (u - 360.0f - lu))
+                    {
+//                      printf ("Subtracting 360 degrees to lost u phase\n");
+                      lost_u_phase -= 360.0f;
+//                      u -= 360.0f;
+                        intercept_v = crossing_list_add (&crosslist, lu, lv, u - 360., v);
+
+                        toroid_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
+                        toroid_bo_add_edge (bo, 360., intercept_v, u,  v,           is_outer);
+                    }
+                  else
+                    {
+                      toroid_bo_add_edge (bo,  lu, lv, u,  v, is_outer);
+                    }
+#endif
+#if 1
+//                  printf ("v = %f, delta since last v = %f\n", (double)v, (double)(v - lv));
+
+                  if (fabs (v - lv) > fabs (v + 360.0f - lv))
+                    {
+//                      printf ("Adding 360 degrees to lost v phase\n");
+                      lost_v_phase += 360.0f;
+//                      v += 360.0f;
+                      current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+                    }
+                  else if (fabs (v - lv) > fabs (v - 360.0f - lv))
+                    {
+//                      printf ("Subtracting 360 degrees to lost v phase\n");
+                      lost_v_phase -= 360.0f;
+//                      v -= 360.0f;
+                      current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+                    }
+#endif
+
                 }
 
               lu = u;
@@ -542,10 +656,157 @@ toroid_ensure_tristrip (face3d *face)
         }
       while ((e = LNEXT(e)) != contour->first_edge);
 
+      if (fabs (fu - lu) > fabs (fu + 360.0f - lu))
+        {
+          lost_u_phase += 360.0f;
+            intercept_v = crossing_list_add (&crosslist, lu - 360., lv, fu, fv);
+
+            toroid_bo_add_edge (bo, 0., intercept_v, fu,   fv,          is_outer);
+            toroid_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+        }
+      else if (fabs (fu - lu) > fabs (fu - 360.0f - lu))
+        {
+          lost_u_phase -= 360.0f;
+            intercept_v = crossing_list_add (&crosslist, lu, lv, fu - 360., fv);
+
+            toroid_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
+            toroid_bo_add_edge (bo, 360., intercept_v, fu, fv,          is_outer);
+        }
+      else
+        {
+          toroid_bo_add_edge (bo,  lu, lv, fu, fv, is_outer);
+        }
+
+#if 1
+      if (fabs (fv - lv) > fabs (fv + 360.0f - lv))
+        {
+          lost_v_phase += 360.0f;
+          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+        }
+      else if (fabs (fv - lv) > fabs (fv - 360.0f - lv))
+        {
+          lost_v_phase -= 360.0f;
+          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+        }
+#endif
+
+#if 1
+      if (lost_v_phase > 1.0)
+        {
+          if (min_u_with_vwrap > current_u_with_vwrap)
+            {
+              min_u_with_vwrap = current_u_with_vwrap;
+              min_u_with_vwrap_is_end = true;
+            }
+        }
+      else if (lost_v_phase < 1.0)
+        {
+          if (min_u_with_vwrap > current_u_with_vwrap)
+            {
+              min_u_with_vwrap = current_u_with_vwrap;
+              min_u_with_vwrap_is_end = false;
+            }
+        }
+#endif
+//      printf ("Toroid contour has remaining lost phases u=%f, v=%f\n", lost_u_phase, lost_v_phase);
+
+#if 0
       toroid_bo_add_edge (bo,
                           lu, lv,
                           fu, fv,
                           is_outer);
+#endif
+    }
+
+  /* If required, invert start for the case where we have 2x v-wrapped outer-contours */
+  if (min_u_with_vwrap_is_end)
+    {
+      toroid_bo_add_edge_no_uwrap (bo,   0.00, 0.0,   0.00, 360.0, true);
+      toroid_bo_add_edge_no_uwrap (bo, 360.00, 0.0, 360.00, 360.0, true);
+    }
+
+  crossing_list_sort (&crosslist);
+
+  if (face->surface_orientation_reversed)
+    {
+      bool first_event = true;
+      double lstartv = 0.0;
+      bool started = false;
+
+      for (i = 0; i < crosslist.num_crossings; i++)
+        {
+#if 0
+          printf ("Got u=0 crossing at v=%f, is_left=%s, is_right=%s\n",
+                  crosslist.crossings[i].v,
+                  crosslist.crossings[i].is_left ? "true" : "false",
+                  crosslist.crossings[i].is_right ? "true" : "false");
+#endif
+
+          if (crosslist.crossings[i].is_left)
+            {
+              if (!started)
+                {
+                  /* Start */
+                  lstartv = crosslist.crossings[i].v;
+                }
+              /* Start */
+              started = true;
+            }
+          else if (crosslist.crossings[i].is_right)
+            {
+              /* Stop */
+              toroid_bo_add_edge_no_uwrap (bo, 0.0, lstartv, 0.0, crosslist.crossings[i].v, true);
+              toroid_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, crosslist.crossings[i].v, true);
+              started = false;
+            }
+
+
+        }
+
+      if (started)
+        {
+          toroid_bo_add_edge_no_uwrap (bo, 0.0,   lstartv, 0.0,   360.0, true);
+          toroid_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, 360.0, true);
+        }
+    }
+  else
+    {
+//      toroid_bo_add_edge_no_uwrap (bo, 0.0,   0.0, 0.0,   360.0, true);
+//      toroid_bo_add_edge_no_uwrap (bo, 360.0, 0.0, 360.0, 360.0, true);
+
+      bool first_event = true;
+      double lstartv = 0.0;
+      bool started = false;
+
+      for (i = 0; i < crosslist.num_crossings; i++)
+        {
+
+          if (crosslist.crossings[i].is_right)
+            {
+              if (!started)
+                {
+                  /* Start */
+                  lstartv = crosslist.crossings[i].v;
+                }
+              /* Start */
+              started = true;
+            }
+          else if (crosslist.crossings[i].is_left)
+            {
+              /* Stop */
+              toroid_bo_add_edge_no_uwrap (bo, 0.0, lstartv, 0.0, crosslist.crossings[i].v, true);
+              toroid_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, crosslist.crossings[i].v, true);
+              started = false;
+            }
+
+
+        }
+
+      if (started)
+        {
+          toroid_bo_add_edge_no_uwrap (bo, 0.0,   lstartv, 0.0,   360.0, true);
+          toroid_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, 360.0, true);
+        }
     }
 
   _borast_traps_init (&traps);
@@ -559,10 +820,28 @@ toroid_ensure_tristrip (face3d *face)
     y_top = traps.traps[i].top;
     y_bot = traps.traps[i].bottom;
 
+    /* Clamp evaluation coordinates otherwise (strips straddling the boundary)
+     * NB: Due to input parameter-space geometry duplication, the bit we trim
+     *     here will be duplicated on the other side of the wrap-around anyway
+     */
+    y_top = MAX(MM_TO_COORD(0.0f), y_top);
+    y_bot = MIN(y_bot, MM_TO_COORD(360.0f));
+
     x1 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_top);
     x2 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
     x3 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_bot);
     x4 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_bot);
+
+    /* Discard skinny traps (due to the way we split the u space with zero-width changes in inside/outside
+     * (Also discard skinny traps in v direction, presumably generated due to clamping y_top and y_bot)
+     */
+    if ((fabs(x1 - x2) < TRAP_WIDTH_EPSILON &&
+         fabs(x3 - x4) < TRAP_WIDTH_EPSILON) ||
+        fabs(y_top - y_bot) < TRAP_WIDTH_EPSILON)
+      {
+//        discarded_traps ++;
+        continue;
+      }
 
     if ((x1 == x2) || (x3 == x4)) {
       num_uv_points += 5 + 1; /* Three vertices + repeated start and end, extra repeat to sync backface culling */
@@ -577,8 +856,10 @@ toroid_ensure_tristrip (face3d *face)
     return;
   }
 
+//  printf ("Tesselated to %i traps, discarded %i\n", traps.num_traps, discarded_traps);
+
   uv_points = g_new0 (double, 2 * num_uv_points + 8);
-  line_indices = g_new0 (int, 10 * traps.num_traps + 8);
+  line_indices = g_new0 (unsigned int, 10 * traps.num_traps + 8);
 
   vertex_comp = 0;
   num_uv_points = 0;
@@ -605,8 +886,8 @@ toroid_ensure_tristrip (face3d *face)
     y_top = MAX(MM_TO_COORD(0.0f), y_top);
     y_bot = MIN(y_bot, MM_TO_COORD(360.0f));
 
-
-    if (face->surface_orientation_reversed)
+    /* NB: Backwards to other face types due to parameterisation differencs? */
+    if (!face->surface_orientation_reversed)
       {
         x2 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_top);
         x1 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
@@ -619,6 +900,16 @@ toroid_ensure_tristrip (face3d *face)
         x2 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_top);
         x3 = _line_compute_intersection_x_for_y (&traps.traps[i].right, y_bot);
         x4 = _line_compute_intersection_x_for_y (&traps.traps[i].left,  y_bot);
+      }
+
+    /* Discard skinny traps (due to the way we split the u space with zero-width changes in inside/outside
+     * (Also discard skinny traps in v direction, presumably generated due to clamping y_top and y_bot)
+     */
+    if ((fabs(x1 - x2) < TRAP_WIDTH_EPSILON &&
+         fabs(x3 - x4) < TRAP_WIDTH_EPSILON) ||
+        fabs(y_top - y_bot) < TRAP_WIDTH_EPSILON)
+      {
+        continue;
       }
 
 #if 1
@@ -688,6 +979,7 @@ toroid_ensure_tristrip (face3d *face)
     }
   }
 
+#if 0
   uv_points[vertex_comp++] = MM_TO_COORD(0.0  );  uv_points[vertex_comp++] = MM_TO_COORD(0.0  );
   uv_points[vertex_comp++] = MM_TO_COORD(0.0  );  uv_points[vertex_comp++] = MM_TO_COORD(360.0);
   uv_points[vertex_comp++] = MM_TO_COORD(360.0);  uv_points[vertex_comp++] = MM_TO_COORD(360.0);
@@ -701,6 +993,7 @@ toroid_ensure_tristrip (face3d *face)
   line_indices[num_line_indices++] = num_uv_points + 3;
   line_indices[num_line_indices++] = num_uv_points + 3;
   line_indices[num_line_indices++] = num_uv_points + 0;
+#endif
 
   face->line_indices = line_indices;
   face->line_num_indices = num_line_indices;
@@ -773,7 +1066,7 @@ toroid_ensure_tristrip (face3d *face)
   vertex_comp = 0;
   for (i = 0; i < num_uv_points; i++)
     {
-#if 1
+#if 0
       plane_uv_to_xyz_and_normal (face,
                                   COORD_TO_MM (uv_points[2 * i + 0] * 0.1),
                                   COORD_TO_MM (uv_points[2 * i + 1] * 0.1),
@@ -2236,9 +2529,7 @@ face3d_fill(hidGC gc, face3d *face, bool selected)
 {
   hidglGC hidgl_gc = (hidglGC)gc;
   hidgl_instance *hidgl = hidgl_gc->hidgl;
-#ifdef MEMCPY_VERTEX_DATA
-  hidgl_priv *priv = hidgl->priv;
-#endif
+  GLfloat matrix[16];
 
   hidgl_flush_triangles (hidgl);
 
@@ -2256,7 +2547,7 @@ face3d_fill(hidGC gc, face3d *face, bool selected)
     }
   else if (face->is_toroidal)
     {
-//      toroid_ensure_tristrip (face);
+      toroid_ensure_tristrip (face);
     }
   else
     {
@@ -2278,6 +2569,20 @@ face3d_fill(hidGC gc, face3d *face, bool selected)
 
   emit_tristrip (face);
 
+
+  glPushAttrib (GL_TRANSFORM_BIT);
+  glMatrixMode(GL_PROJECTION);
+
+  glPushMatrix ();
+
+  glGetFloatv (GL_PROJECTION_MATRIX, matrix);
+  matrix[10] += 1e-5;
+  glLoadMatrixf (matrix);
+
   if (face->is_debug)
     emit_lines (face);
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix ();
+  glPopAttrib ();
 }

@@ -37,7 +37,7 @@ typedef struct {
   float *tristrip_vertices;
 
   int line_num_indices;
-  int *line_indices;
+  unsigned int *line_indices;
 
   bool triangulate_failed;
 

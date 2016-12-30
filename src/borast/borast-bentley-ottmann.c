@@ -1047,7 +1047,8 @@ static inline borast_status_t
 _active_edges_to_traps (borast_bo_edge_t		*left,
 			int32_t			 top,
 			borast_fill_rule_t	 fill_rule,
-			borast_traps_t	        *traps)
+			borast_traps_t	        *traps,
+			bool                    combine_traps)
 {
     borast_bo_edge_t *right;
     borast_status_t status;
@@ -1071,7 +1072,7 @@ _active_edges_to_traps (borast_bo_edge_t		*left,
 		while (right != NULL && right->deferred_trap.right == NULL)
 		    right = right->next;
 
-		if (right != NULL && edges_colinear (left, right)) {
+		if (right != NULL && combine_traps && edges_colinear (left, right)) {
 		    /* continuation on left */
 		    left->deferred_trap = right->deferred_trap;
 		    right->deferred_trap.right = NULL;
@@ -1095,7 +1096,7 @@ _active_edges_to_traps (borast_bo_edge_t		*left,
 		    /* skip co-linear edges */
 		    next = right->next;
 		    if (next != NULL)
-			skip = edges_colinear (right, next);
+			skip = combine_traps && edges_colinear (right, next);
 
 		    if (! skip)
 			break;
@@ -1132,7 +1133,7 @@ _active_edges_to_traps (borast_bo_edge_t		*left,
 		    /* skip co-linear edges */
 		    next = right->next;
 		    if (next != NULL)
-			skip = edges_colinear (right, next);
+			skip = combine_traps && edges_colinear (right, next);
 
 		    if (! skip)
 			break;
@@ -1214,7 +1215,8 @@ _borast_bentley_ottmann_tessellate_bo_edges (borast_bo_event_t   **start_events,
                                              sweep_line.current_y,
 //                                             BORAST_FILL_RULE_WINDING,
                                              BORAST_FILL_RULE_EVEN_ODD,
-                                             traps);
+                                             traps,
+                                             combine_y_traps);
             if (unlikely (status))
                 goto unwind;
 
@@ -1754,7 +1756,10 @@ bo_add_edge (borast_t *bo,
 
   /* Silently drop edges if more are added than we allocated storage for */
   if (bo->num_events == bo->max_events)
-    return;
+    {
+      printf ("Dropping event, too many\n");
+      return;
+    }
 
   /* Node is between bv->point[0,1] and bv->next->point[0,1] */
 
