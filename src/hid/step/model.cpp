@@ -1084,21 +1084,14 @@ process_edge_geometry (SdaiEdge *edge, bool orientation, edge_ref our_edge, proc
 
           SdaiAxis2_placement_3d *placement = *circle->position_ ();
           unpack_axis_geom (placement, &cx, &cy, &cz, &nx, &ny, &nz, &rx, &ry, &rz);
-#if 0
-          double cx = ((RealNode *)circle->position_ ()->location_ ()->coordinates_ ()->GetHead ())->value;
-          double cy = ((RealNode *)circle->position_ ()->location_ ()->coordinates_ ()->GetHead ()->NextNode ())->value;
-          double cz = ((RealNode *)circle->position_ ()->location_ ()->coordinates_ ()->GetHead ()->NextNode ()->NextNode ())->value;
-          double nx = ((RealNode *)circle->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ())->value;
-          double ny = ((RealNode *)circle->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ()->NextNode ())->value;
-          double nz = ((RealNode *)circle->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ()->NextNode ()->NextNode ())->value;
-#endif
 
           double radius = circle->radius_();
 
-          transform_vertex (info->current_transform, &cx, &cy, &cz);
           transform_vertex (info->current_transform, &x1, &y1, &z1);
           transform_vertex (info->current_transform, &x2, &y2, &z2);
 
+          transform_vertex (info->current_transform, &cx, &cy, &cz);
+          transform_vector (info->current_transform, &rx, &ry, &rz);
           transform_vector (info->current_transform, &nx, &ny, &nz);
 
           if (orientation) // NOT REQUIRED, SINCE WE ADDED same_sense to the edge info ----> (orientation == same_sense)
@@ -1126,26 +1119,18 @@ process_edge_geometry (SdaiEdge *edge, bool orientation, edge_ref our_edge, proc
 
           SdaiAxis2_placement_3d *placement = *ellipse->position_ ();
           unpack_axis_geom (placement, &cx, &cy, &cz, &nx, &ny, &nz, &rx, &ry, &rz);
-#if 0
-          double cx = ((RealNode *)ellipse->position_ ()->location_ ()->coordinates_ ()->GetHead ())->value;
-          double cy = ((RealNode *)ellipse->position_ ()->location_ ()->coordinates_ ()->GetHead ()->NextNode ())->value;
-          double cz = ((RealNode *)ellipse->position_ ()->location_ ()->coordinates_ ()->GetHead ()->NextNode ()->NextNode ())->value;
-          double nx = ((RealNode *)ellipse->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ())->value;
-          double ny = ((RealNode *)ellipse->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ()->NextNode ())->value;
-          double nz = ((RealNode *)ellipse->position_ ()->axis_ ()->direction_ratios_ ()->GetHead ()->NextNode ()->NextNode ())->value;
-#endif
 
           transform_vertex (info->current_transform, &x1, &y1, &z1);
           transform_vertex (info->current_transform, &x2, &y2, &z2);
+
+          transform_vertex (info->current_transform, &cx, &cy, &cz);
+          transform_vector (info->current_transform, &rx, &ry, &rz);
+          transform_vector (info->current_transform, &nx, &ny, &nz);
 
           our_edge_info->is_ellipse = true;
 
           double radius1 = ellipse->semi_axis_1_ ();
           double radius2 = ellipse->semi_axis_2_ ();
-
-          transform_vertex (info->current_transform, &cx, &cy, &cz);
-
-          transform_vector (info->current_transform, &nx, &ny, &nz);
 
           if (orientation) // NOT REQUIRED, SINCE WE ADDED same_sense to the edge info ----> (orientation == same_sense)
             {
@@ -1156,6 +1141,7 @@ process_edge_geometry (SdaiEdge *edge, bool orientation, edge_ref our_edge, proc
               edge_info_set_round2 (our_edge_info, cx, cy, cz, -nx, -ny, -nz, rx, ry, rz, radius1);
             }
           our_edge_info->radius2 = radius2;
+          our_edge_info->is_round = false; /* NB: set_round* makes us a circle.. this cancels it! */
 
           object3d_add_edge (info->object, our_edge);
           vertex = make_vertex3d (x1, y1, z1);

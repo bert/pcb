@@ -116,6 +116,7 @@ object3d_test_init (void)
   object_default_edge_appearance = make_appearance();
   appearance_set_color (object_default_edge_appearance, 0.0f, 0.0f, 0.0f); /* 1.0f */
   appearance_set_alpha (object_default_edge_appearance, 1.0f);
+//  appearance_set_color (object_default_edge_appearance, 1.0f, 0.0f, 1.0f); /* 1.0f */
 //  appearance_set_color (object_default_edge_appearance, 1.0f, 1.0f, 1.0f); /* 1.0f */
 //  appearance_set_alpha (object_default_edge_appearance, 0.3f);
 
@@ -210,7 +211,7 @@ draw_quad_edge (edge_ref e, void *data)
       (info->is_placeholder ||
       d_info->debug_face))
     {
-//      glColor4f (1.0, 0.0, 0.0, 1.0);
+      glColor4f (1.0, 0.0, 0.0, 1.0);
       glDepthMask (TRUE);
       glDisable(GL_DEPTH_TEST);
     }

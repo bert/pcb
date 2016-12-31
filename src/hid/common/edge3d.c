@@ -165,7 +165,7 @@ sample_ellipse (edge_ref e)
   double cosa;
   double sina;
   double recip_length;
-  double sa;
+  double sa, ea;
   double da;
   int segs;
   double angle_step;
@@ -197,29 +197,22 @@ sample_ellipse (edge_ref e)
       nz = -nz;
     }
 
-  startx = x1 - cx;
-  starty = y1 - cy;
-  startz = z1 - cz;
-
-  /* Normalise startx */
-  recip_length = 1. / hypot (hypot (startx, starty), startz);
-  startx *= recip_length;
-  starty *= recip_length;
-  startz *= recip_length;
-
-
-  /* Find start angle (w.r.t. ellipse parameterisation */
-
-  /* start cross normal */
   /* ort will be orthogonal to normal and r vector */
   ortx = ny * rz - nz * ry;
   orty = nz * rx - nx * rz;
   ortz = nx * ry - ny * rx;
 
+
+  /* Find start angle (w.r.t. ellipse parameterisation */
+
+  startx = x1 - cx;
+  starty = y1 - cy;
+  startz = z1 - cz;
+
   /* Cosine is dot product of start (normalised) and start (normalised) */
-  cosa = rx * startx + ry * starty + rz * startz; // cos (phi)
+  cosa = (rx * startx + ry * starty + rz * startz) / info->radius; // cos (phi)
   /* Sine is dot product of ort (normalised) and start (normalised) */
-  sina = ortx * startx + orty * starty + ortz * startz; // sin (phi) = cos (phi - 90)
+  sina = (ortx * startx + orty * starty + ortz * startz) / info->radius2; // sin (phi) = cos (phi - 90)
 
   /* Start angle */
   sa = atan2 (sina, cosa);
@@ -227,28 +220,22 @@ sample_ellipse (edge_ref e)
   if (sa < 0.0)
     sa += 2.0 * M_PI;
 
+  /* Find end angle (w.r.t ellipse parameterisation) */
+
   endx = x2 - cx;
   endy = y2 - cy;
   endz = z2 - cz;
 
-  /* Normalise endx */
-  recip_length = 1. / hypot (hypot (endx, endy), endz);
-  endx *= recip_length;
-  endy *= recip_length;
-  endz *= recip_length;
-
-  /* Find delta angle */
-
-  /* start cross normal */
-  /* ort will be orthogonal to normal and start vector */
-  ortx = ny * startz - nz * starty;
-  orty = nz * startx - nx * startz;
-  ortz = nx * starty - ny * startx;
-
   /* Cosine is dot product of start (normalised) and end (normalised) */
-  cosa = startx * endx + starty * endy + startz * endz; // cos (phi)
+  cosa = (rx * endx + ry * endy + rz * endz) / info->radius; // cos (phi)
   /* Sine is dot product of ort (normalised) and end (normalised) */
-  sina = ortx * endx + orty * endy + ortz * endz; // sin (phi) = cos (phi - 90)
+  sina = (ortx * endx + orty * endy + ortz * endz) / info->radius2; // sin (phi) = cos (phi - 90)
+
+  /* Start angle */
+  ea = atan2 (sina, cosa);
+
+  if (ea < 0.0)
+    ea += 2.0 * M_PI;
 
   if (x1 == x2 &&
       y1 == y2 &&
@@ -258,8 +245,7 @@ sample_ellipse (edge_ref e)
     }
   else
     {
-      /* Delta angled */
-      da = atan2 (sina, cosa);
+      da = ea - sa;
 
       if (da < 0.0)
         da += 2.0 * M_PI;
