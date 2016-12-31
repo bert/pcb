@@ -203,6 +203,8 @@ pcb_DEPENDENCIES = @HIDLIBS@
 
 if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
+pcb_LDADD += ../gts/libgts.a
+pcb_DEPENDENCIES += ../gts/libgts.a
 endif
 
 # All these -I$(top_srcdir) in this file are for globalconst.h.
@@ -224,6 +226,9 @@ core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+
+# for globalconst.h
+INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/../gts
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 

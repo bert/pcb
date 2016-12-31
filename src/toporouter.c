@@ -7687,6 +7687,8 @@ toporouter_new(void)
 
   ltime=time(NULL); 
 
+  gts_predicates_init();
+
   Message(_("Topological Autorouter\n"));
   Message(_("Started %s"),asctime(localtime(&ltime)));  
   Message(_("-------------------------------------\n"));

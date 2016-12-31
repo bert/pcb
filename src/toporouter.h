@@ -55,7 +55,7 @@
 #include "undo.h"
 #include "global.h"
 
-#include <gts.h>
+#include "gts.h"
 
 #include <stdlib.h>
 #include <getopt.h>

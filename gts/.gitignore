@@ -1,1 +1,4 @@
 *.[oa]
+.dirstamp
+predicates_init.h
+
