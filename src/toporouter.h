@@ -228,14 +228,30 @@ typedef struct _toporouter_vertex_class_t toporouter_vertex_class_t;
 #define TOPOROUTER_CONSTRAINT(obj)          GTS_OBJECT_CAST (obj, toporouter_constraint_t, toporouter_constraint_class ())
 #define TOPOROUTER_CONSTRAINT_CLASS(klass)  GTS_OBJECT_CLASS_CAST (klass, toporouter_constraint_class_t, toporouter_constraint_class ())
 
+/* Strangely, structs _GtsConstraint and _GtsConstraintClass are missing in
+  the headers of the package coming with Debian but was present in the set of
+  GTS sources formerly being part of pcb sources. Both claim to be library
+  version 0.7.6.
+
+  TODO: remove usage of GtsConstraint and GtsConstraintClass by using
+        GtsEdge/GtsEdgeClass directly. */
+
+struct _GtsConstraint {
+  GtsEdge edge;
+};
+
+struct _GtsConstraintClass {
+  GtsEdgeClass parent_class;
+};
+
 struct _toporouter_constraint_t {
-  GtsEdge c;
+  GtsConstraint c;
   toporouter_bbox_t *box;
   GList *routing;
 };
 
 struct _toporouter_constraint_class_t {
-  GtsEdgeClass parent_class;
+  GtsConstraintClass parent_class;
 };
 
 typedef struct {
