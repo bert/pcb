@@ -275,7 +275,7 @@ draw_face (face3d *face, void *data)
   float white[] = {0.4f, 0.4f, 0.4f};
   float shininess[] = {10.0f};
 
-  face->is_debug = (face_no == debug_integer);
+//  face->is_debug = (face_no == debug_integer);
 
   if (face->is_debug)
     appearance_apply_gl (object_debug_face_appearance);

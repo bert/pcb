@@ -209,8 +209,11 @@ crossing_list_add (crossing_info *info,
 
 /* Sort in ascending order of v */
 static int
-compare_crossings (const u0_crossing *c1, const u0_crossing *c2)
+compare_crossings (const void *void_p_c1, const void *void_p_c2)
 {
+  const u0_crossing *c1 = void_p_c1;
+  const u0_crossing *c2 = void_p_c2;
+
   return (c1->v < c2->v) ? -1 : ((c1->v > c2->v) ? 1 : 0);
 }
 
@@ -235,8 +238,6 @@ sphere_xyz_to_uv (face3d *face, double x, double y, double z, double *u, double 
   double refx, refy, refz;
   double ortx, orty, ortz;
   double rayx, rayy, rayz;
-  double vx, vy, vz;
-  double mx, my, mz;
   double recip_length;
   double cosu, sinu;
   double rsinv;
@@ -348,37 +349,10 @@ sphere_bo_add_edge (borast_t *bo,
                     double  u, double  v,
                     bool is_outer)
 {
-  /* XXX: Not absolutely sure about this! */
-  if (fabs (v - lv) > fabs (v + 180.0 - lv))
-    {
-      sphere_bo_add_edge_no_uwrap (bo,
-                                lu, lv,
-                                 u,  v + 180.0,
-                                is_outer);
-      sphere_bo_add_edge_no_uwrap (bo,
-                                lu, lv - 180.0,
-                                 u,  v,
-                                is_outer);
-    }
-  else if (fabs (v - lv) > fabs (v - 180.0 - lv))
-    {
-      sphere_bo_add_edge_no_uwrap (bo,
-                                lu, lv,
-                                 u,  v - 180.0,
-                                is_outer);
-      sphere_bo_add_edge_no_uwrap (bo,
-                                lu, lv + 180.0,
-                                 u,  v,
-                                is_outer);
-    }
-  else
-    {
-      sphere_bo_add_edge_no_uwrap (bo,
-                                lu, lv,
-                                 u,  v,
-                                is_outer);
-    }
-
+  sphere_bo_add_edge_no_uwrap (bo,
+                            lu, lv,
+                             u,  v,
+                            is_outer);
 }
 
 static void
@@ -398,9 +372,7 @@ sphere_ensure_tristrip (face3d *face)
   borast_traps_t traps;
   int edge_count = 0;
   crossing_info crosslist;
-  double current_u_with_vwrap = 0.0;
-  double min_u_with_vwrap = 360.0;
-  bool min_u_with_vwrap_is_end = false;
+  double contour_uv_area = 0.0;
 //  int discarded_traps = 0;
 
   /* Nothing to do if vertices are already cached */
@@ -469,13 +441,17 @@ sphere_ensure_tristrip (face3d *face)
   for (c_iter = face->contours; c_iter != NULL; c_iter = g_list_next (c_iter))
     {
       float lost_u_phase = 0.0;
-      float lost_v_phase = 0.0;
       double fu = 0.0, fv = 0.0;
       double lu = 0.0, lv = 0.0;
       double u, v;
+      double lu_with_lost = 0.0;
+      double u_with_lost = 0.0;
       bool first_vertex = true;
       bool is_outer;
       double intercept_v = 0.;
+
+      /* XXX: Probably just need to work this out for the OUTER contour?? */
+      contour_uv_area = 0.0; /* NB: We calc 2x area to avoid unnecessary * 0.5 each time */
 
 //      printf ("Investigating a face bound\n");
 
@@ -499,7 +475,6 @@ sphere_ensure_tristrip (face3d *face)
           for (i = 0; i < info->num_linearised_vertices - 1; i++)
             {
               int vertex_idx = i;
-              float x, y, z, nx, ny, nz;
 
               if (backwards_edge)
                 vertex_idx = info->num_linearised_vertices - 1 - i;
@@ -510,17 +485,27 @@ sphere_ensure_tristrip (face3d *face)
                                 info->linearised_vertices[vertex_idx * 3 + 2],
                                 &u, &v);
 
+//              printf ("(%f, %f)\n", u, v);
+
               /* Add back on any wrapped phase */
 //              u += lost_u_phase;
-//              v += lost_v_phase;
 
               if (first_vertex)
                 {
                   fu = u;
                   fv = v;
+                  u_with_lost = u;
                 }
               else
                 {
+                  /* Kludge at poles, remember last u
+                   * XXX: Not a complete fix
+                   */
+                  if (fabs (v - 90) < 0.0001 ||
+                      fabs (v + 90) < 0.0001)
+                    {
+                      u = lu;
+                    }
 #if 1
 //                  printf ("u = %f, delta since last u = %f\n", (double)u, (double)(u - lu));
 
@@ -529,119 +514,98 @@ sphere_ensure_tristrip (face3d *face)
 //                      printf ("Adding 360 degrees to lost u phase\n");
                       lost_u_phase += 360.0f;
 //                      u += 360.0f;
-                        intercept_v = crossing_list_add (&crosslist, lu - 360., lv, u, v);
+                      intercept_v = crossing_list_add (&crosslist, lu - 360., lv, u, v);
 
-                        sphere_bo_add_edge (bo, 0., intercept_v, u,    v       ,    is_outer);
-                        sphere_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+                      sphere_bo_add_edge (bo, 0., intercept_v, u,    v       ,    is_outer);
+                      sphere_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+                      printf ("C\n");
                     }
                   else if (fabs (u - lu) > fabs (u - 360.0f - lu))
                     {
 //                      printf ("Subtracting 360 degrees to lost u phase\n");
                       lost_u_phase -= 360.0f;
 //                      u -= 360.0f;
-                        intercept_v = crossing_list_add (&crosslist, lu, lv, u - 360., v);
+                      intercept_v = crossing_list_add (&crosslist, lu, lv, u - 360., v);
 
-                        sphere_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
-                        sphere_bo_add_edge (bo, 360., intercept_v, u,  v,           is_outer);
+                      sphere_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
+                      sphere_bo_add_edge (bo, 360., intercept_v, u,  v,           is_outer);
+                      printf ("D\n");
                     }
                   else
                     {
                       sphere_bo_add_edge (bo,  lu, lv, u,  v, is_outer);
                     }
 #endif
-#if 1
-//                  printf ("v = %f, delta since last v = %f\n", (double)v, (double)(v - lv));
 
-                  if (fabs (v - lv) > fabs (v + 180.0f - lv))
-                    {
-//                      printf ("Adding 180 degrees to lost v phase\n");
-                      lost_v_phase += 180.0f;
-//                      v += 180.0f;
-                      current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
-                    }
-                  else if (fabs (v - lv) > fabs (v - 180.0f - lv))
-                    {
-//                      printf ("Subtracting 180 degrees to lost v phase\n");
-                      lost_v_phase -= 180.0f;
-//                      v -= 180.0f;
-                      current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
-                    }
-#endif
+                  u_with_lost = u + lost_u_phase;
+
+                  contour_uv_area += lu_with_lost * v - lv * u_with_lost; /* XXX: Probably breaks with wrapping! */
 
                 }
 
               lu = u;
               lv = v;
+              lu_with_lost = u_with_lost;
               first_vertex = false;
             }
 
         }
       while ((e = LNEXT(e)) != contour->first_edge);
 
+      /* Kludge at poles, remember last u
+       * XXX: Not a complete fix
+       */
+      if (fabs (fv - 90) < 0.0001 ||
+          fabs (fv + 90) < 0.0001)
+        {
+          printf ("Fixing up u at pole\n");
+          fu = lu;
+        }
+
+      /* NB: We start with zero lost phase, so fu and fv don't need any addition */
+      contour_uv_area += lu_with_lost * fv - lv * fu; /* XXX: Probably breaks with wrapping! */
+      printf ("Computed contour uv area %f\n", contour_uv_area);
+
       if (fabs (fu - lu) > fabs (fu + 360.0f - lu))
         {
           lost_u_phase += 360.0f;
-            intercept_v = crossing_list_add (&crosslist, lu - 360., lv, fu, fv);
+          intercept_v = crossing_list_add (&crosslist, lu - 360., lv, fu, fv);
 
-            sphere_bo_add_edge (bo, 0., intercept_v, fu,   fv,          is_outer);
-            sphere_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+          sphere_bo_add_edge (bo, 0., intercept_v, fu,   fv,          is_outer);
+          sphere_bo_add_edge (bo, lu, lv,          360., intercept_v, is_outer);
+          printf ("A\n");
         }
       else if (fabs (fu - lu) > fabs (fu - 360.0f - lu))
         {
           lost_u_phase -= 360.0f;
-            intercept_v = crossing_list_add (&crosslist, lu, lv, fu - 360., fv);
+          intercept_v = crossing_list_add (&crosslist, lu, lv, fu - 360., fv);
 
-            sphere_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
-            sphere_bo_add_edge (bo, 360., intercept_v, fu, fv,          is_outer);
+          sphere_bo_add_edge (bo, lu,   lv,          0., intercept_v, is_outer);
+          sphere_bo_add_edge (bo, 360., intercept_v, fu, fv,          is_outer);
+          printf ("B\n");
         }
       else
         {
           sphere_bo_add_edge (bo,  lu, lv, fu, fv, is_outer);
         }
 
-#if 1
-      if (fabs (fv - lv) > fabs (fv + 180.0f - lv))
-        {
-          lost_v_phase += 180.0f;
-          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
-        }
-      else if (fabs (fv - lv) > fabs (fv - 180.0f - lv))
-        {
-          lost_v_phase -= 180.0f;
-          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
-        }
-#endif
-
-#if 1
-      if (lost_v_phase > 1.0)
-        {
-          if (min_u_with_vwrap > current_u_with_vwrap)
-            {
-              min_u_with_vwrap = current_u_with_vwrap;
-              min_u_with_vwrap_is_end = true;
-            }
-        }
-      else if (lost_v_phase < 1.0)
-        {
-          if (min_u_with_vwrap > current_u_with_vwrap)
-            {
-              min_u_with_vwrap = current_u_with_vwrap;
-              min_u_with_vwrap_is_end = false;
-            }
-        }
-#endif
-//      printf ("Sphere contour has remaining lost phases u=%f, v=%f\n", lost_u_phase, lost_v_phase);
+      printf ("Sphere contour has remaining lost phases u=%f\n", lost_u_phase);
 
 #if 0
-      sphere_bo_add_edge (bo,
-                          lu, lv,
-                          fu, fv,
-                          is_outer);
+      if (lost_u_phase > 1.0)
+        {
+          face->is_debug = true;
+        }
+      else if (lost_u_phase < -1.0)
+        {
+          face->is_debug = true;
+        }
 #endif
+
     }
 
   /* If required, invert start for the case where we have 2x v-wrapped outer-contours */
-  if (min_u_with_vwrap_is_end)
+  if (contour_uv_area < 0.0)
     {
       sphere_bo_add_edge_no_uwrap (bo,   0.00, -90.0,   0.00, 90.0, true);
       sphere_bo_add_edge_no_uwrap (bo, 360.00, -90.0, 360.00, 90.0, true);
@@ -651,12 +615,26 @@ sphere_ensure_tristrip (face3d *face)
 
   if (face->surface_orientation_reversed)
     {
-      bool first_event = true;
       double lstartv = -90.0;
       bool started = false;
 
       for (i = 0; i < crosslist.num_crossings; i++)
         {
+          /* Peek at this and next crossing (if it exists), checking to see if they
+           * are close enough together to cancel. (If the sort order is ambiguous,
+           * we could end up with polarity inversion.
+           */
+
+          if (i + 1 < crosslist.num_crossings &&
+              fabs (crosslist.crossings[i].v - crosslist.crossings[i + 1].v) < TRAP_WIDTH_EPSILON &&
+              crosslist.crossings[i].is_left != crosslist.crossings[i + 1].is_left &&
+              crosslist.crossings[i].is_right != crosslist.crossings[i + 1].is_right)
+            {
+              /* Increment i so we skip the i + 1 iteration, when we continue */
+              i += 1;
+              continue;
+            }
+
 #if 0
           printf ("Got u=0 crossing at v=%f, is_left=%s, is_right=%s\n",
                   crosslist.crossings[i].v,
@@ -696,12 +674,32 @@ sphere_ensure_tristrip (face3d *face)
 //      sphere_bo_add_edge_no_uwrap (bo, 0.0,   -90.0, 0.0,   90.0, true);
 //      sphere_bo_add_edge_no_uwrap (bo, 360.0, -90.0, 360.0, 90.0, true);
 
-      bool first_event = true;
       double lstartv = -90.0;
       bool started = false;
 
       for (i = 0; i < crosslist.num_crossings; i++)
         {
+          /* Peek at this and next crossing (if it exists), checking to see if they
+           * are close enough together to cancel. (If the sort order is ambiguous,
+           * we could end up with polarity inversion.
+           */
+
+          if (i + 1 < crosslist.num_crossings &&
+              fabs (crosslist.crossings[i].v - crosslist.crossings[i + 1].v) < TRAP_WIDTH_EPSILON &&
+              crosslist.crossings[i].is_left != crosslist.crossings[i + 1].is_left &&
+              crosslist.crossings[i].is_right != crosslist.crossings[i + 1].is_right)
+            {
+              /* Increment i so we skip the i + 1 iteration, when we continue */
+              i += 1;
+              continue;
+            }
+
+#if 1
+          printf ("Got u=0 crossing at v=%f, is_left=%s, is_right=%s\n",
+                  crosslist.crossings[i].v,
+                  crosslist.crossings[i].is_left ? "true" : "false",
+                  crosslist.crossings[i].is_right ? "true" : "false");
+#endif
 
           if (crosslist.crossings[i].is_right)
             {
@@ -730,6 +728,8 @@ sphere_ensure_tristrip (face3d *face)
           sphere_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, 90.0, true);
         }
     }
+
+  crossing_list_destroy (&crosslist);
 
   _borast_traps_init (&traps);
   bo_tesselate_to_traps (bo, false /* Don't combine adjacent y traps */,  &traps);
@@ -1105,45 +1105,6 @@ toroid_uv_to_xyz_and_normal (face3d *face,
 }
 
 static void
-toroid_bo_add_edge_uwrap (borast_t *bo,
-                          double lu, double lv,
-                          double  u, double  v,
-                          bool is_outer)
-{
-  /* XXX: Not absolutely sure about this! */
-  if (fabs (u - lu) > fabs (u + 360.0 - lu))
-    {
-      bo_add_edge (bo,
-                   MM_TO_COORD (lu        ), MM_TO_COORD (lv),
-                   MM_TO_COORD ( u + 360.0), MM_TO_COORD ( v),
-                   is_outer);
-      bo_add_edge (bo,
-                   MM_TO_COORD (lu - 360.0), MM_TO_COORD (lv),
-                   MM_TO_COORD ( u        ), MM_TO_COORD ( v),
-                   is_outer);
-    }
-  else if (fabs (u - lu) > fabs (u - 360.0 - lu))
-    {
-      bo_add_edge (bo,
-                   MM_TO_COORD (lu        ), MM_TO_COORD (lv),
-                   MM_TO_COORD ( u - 360.0), MM_TO_COORD ( v),
-                   is_outer);
-      bo_add_edge (bo,
-                   MM_TO_COORD (lu + 360.0), MM_TO_COORD (lv),
-                   MM_TO_COORD ( u        ), MM_TO_COORD ( v),
-                   is_outer);
-    }
-  else
-    {
-      bo_add_edge (bo,
-                   MM_TO_COORD (lu), MM_TO_COORD (lv),
-                   MM_TO_COORD ( u), MM_TO_COORD ( v),
-                   is_outer);
-    }
-
-}
-
-static void
 toroid_bo_add_edge_no_uwrap (borast_t *bo,
                              double lu, double lv,
                              double  u, double  v,
@@ -1313,7 +1274,6 @@ toroid_ensure_tristrip (face3d *face)
           for (i = 0; i < info->num_linearised_vertices - 1; i++)
             {
               int vertex_idx = i;
-              float x, y, z, nx, ny, nz;
 
               if (backwards_edge)
                 vertex_idx = info->num_linearised_vertices - 1 - i;
@@ -1324,20 +1284,26 @@ toroid_ensure_tristrip (face3d *face)
                                 info->linearised_vertices[vertex_idx * 3 + 2],
                                 &u, &v);
 
-#if 0
-              toroid_uv_to_xyz_and_normal (face, u, v, &x, &y, &z, &nx, &ny, &nz);
-              x = COORD_TO_STEP_X(PCB, x);
-              y = COORD_TO_STEP_Y(PCB, y);
-              z = COORD_TO_STEP_Z(PCB, z);
+//              printf ("(%f, %f)\n", u, v);
 
-              printf ("(%f, %f, %f) -> (%f, %f) -> (%f, %f, %f)  DELTA: (%f, %f, %f)\n",
-                      (double)info->linearised_vertices[vertex_idx * 3 + 0],
-                      (double)info->linearised_vertices[vertex_idx * 3 + 1],
-                      (double)info->linearised_vertices[vertex_idx * 3 + 2],
-                      u, v, x, y, z,
-                      (double)x - info->linearised_vertices[vertex_idx * 3 + 0],
-                      (double)y - info->linearised_vertices[vertex_idx * 3 + 1],
-                      (double)z - info->linearised_vertices[vertex_idx * 3 + 2]);
+#if 0
+              {
+                float x, y, z, nx, ny, nz;
+
+                toroid_uv_to_xyz_and_normal (face, u, v, &x, &y, &z, &nx, &ny, &nz);
+                x = COORD_TO_STEP_X(PCB, x);
+                y = COORD_TO_STEP_Y(PCB, y);
+                z = COORD_TO_STEP_Z(PCB, z);
+
+                printf ("(%f, %f, %f) -> (%f, %f) -> (%f, %f, %f)  DELTA: (%f, %f, %f)\n",
+                        (double)info->linearised_vertices[vertex_idx * 3 + 0],
+                        (double)info->linearised_vertices[vertex_idx * 3 + 1],
+                        (double)info->linearised_vertices[vertex_idx * 3 + 2],
+                        u, v, x, y, z,
+                        (double)x - info->linearised_vertices[vertex_idx * 3 + 0],
+                        (double)y - info->linearised_vertices[vertex_idx * 3 + 1],
+                        (double)z - info->linearised_vertices[vertex_idx * 3 + 2]);
+              }
 #endif
 
               /* Add back on any wrapped phase */
@@ -1433,12 +1399,12 @@ toroid_ensure_tristrip (face3d *face)
       if (fabs (fv - lv) > fabs (fv + 360.0f - lv))
         {
           lost_v_phase += 360.0f;
-          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+          current_u_with_vwrap = fu; /* XXX: Don't necessarily assume current line is in u direction? */
         }
       else if (fabs (fv - lv) > fabs (fv - 360.0f - lv))
         {
           lost_v_phase -= 360.0f;
-          current_u_with_vwrap = u; /* XXX: Don't necessarily assume current line is in u direction? */
+          current_u_with_vwrap = fu; /* XXX: Don't necessarily assume current line is in u direction? */
         }
 #endif
 
@@ -1451,7 +1417,7 @@ toroid_ensure_tristrip (face3d *face)
               min_u_with_vwrap_is_end = true;
             }
         }
-      else if (lost_v_phase < 1.0)
+      else if (lost_v_phase < -1.0)
         {
           if (min_u_with_vwrap > current_u_with_vwrap)
             {
@@ -1481,12 +1447,25 @@ toroid_ensure_tristrip (face3d *face)
 
   if (face->surface_orientation_reversed)
     {
-      bool first_event = true;
       double lstartv = 0.0;
       bool started = false;
 
       for (i = 0; i < crosslist.num_crossings; i++)
         {
+          /* Peek at this and next crossing (if it exists), checking to see if they
+           * are close enough together to cancel. (If the sort order is ambiguous,
+           * we could end up with polarity inversion.
+           */
+
+          if (i + 1 < crosslist.num_crossings &&
+              fabs (crosslist.crossings[i].v - crosslist.crossings[i + 1].v) < TRAP_WIDTH_EPSILON &&
+              crosslist.crossings[i].is_left != crosslist.crossings[i + 1].is_left &&
+              crosslist.crossings[i].is_right != crosslist.crossings[i + 1].is_right)
+            {
+              /* Increment i so we skip the i + 1 iteration, when we continue */
+              i += 1;
+              continue;
+            }
 #if 0
           printf ("Got u=0 crossing at v=%f, is_left=%s, is_right=%s\n",
                   crosslist.crossings[i].v,
@@ -1526,12 +1505,33 @@ toroid_ensure_tristrip (face3d *face)
 //      toroid_bo_add_edge_no_uwrap (bo, 0.0,   0.0, 0.0,   360.0, true);
 //      toroid_bo_add_edge_no_uwrap (bo, 360.0, 0.0, 360.0, 360.0, true);
 
-      bool first_event = true;
       double lstartv = 0.0;
       bool started = false;
 
       for (i = 0; i < crosslist.num_crossings; i++)
         {
+
+          /* Peek at this and next crossing (if it exists), checking to see if they
+           * are close enough together to cancel. (If the sort order is ambiguous,
+           * we could end up with polarity inversion.
+           */
+
+          if (i + 1 < crosslist.num_crossings &&
+              fabs (crosslist.crossings[i].v - crosslist.crossings[i + 1].v) < TRAP_WIDTH_EPSILON &&
+              crosslist.crossings[i].is_left != crosslist.crossings[i + 1].is_left &&
+              crosslist.crossings[i].is_right != crosslist.crossings[i + 1].is_right)
+            {
+              /* Increment i so we skip the i + 1 iteration, when we continue */
+              i += 1;
+              continue;
+            }
+
+#if 0
+          printf ("Got u=0 crossing at v=%f, is_left=%s, is_right=%s\n",
+                  crosslist.crossings[i].v,
+                  crosslist.crossings[i].is_left ? "true" : "false",
+                  crosslist.crossings[i].is_right ? "true" : "false");
+#endif
 
           if (crosslist.crossings[i].is_right)
             {
@@ -1560,6 +1560,8 @@ toroid_ensure_tristrip (face3d *face)
           toroid_bo_add_edge_no_uwrap (bo, 360.0, lstartv, 360.0, 360.0, true);
         }
     }
+
+  crossing_list_destroy (&crosslist);
 
   _borast_traps_init (&traps);
   bo_tesselate_to_traps (bo, false /* Don't combine adjacent y traps */,  &traps);
