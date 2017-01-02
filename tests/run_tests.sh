@@ -397,7 +397,8 @@ normalize_gcode() {
     local f1="$1"
     local f2="$2"
     # matches string such as '( Tue Mar  9 17:45:43 2010 )'
-    $AWK --posix '!/^\( *[A-Z][a-z]{2} [A-Z][a-z]{2} [0123 ][0-9] [0-9]{2}:[0-9]{2}:[0-9]{2} [0-9]{4} *\)$/' \
+    $AWK  '/^\( *[A-Z][a-z][a-z] [A-Z][a-z][a-z] [0123 ][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9] *\)$/ {print "( Date String )"; next}
+	{print}' \
 	$f1 > $f2
 }
 
