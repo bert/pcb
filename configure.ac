@@ -663,7 +663,7 @@ test $GERBV != notfound || have_test_tools=no
 
 
 AM_CONDITIONAL(HAVE_TEST_TOOLS, test x$have_test_tools = xyes)
-AC_MSG_CHECKING([if all the requried testsuite tools were found])
+AC_MSG_CHECKING([if all the required testsuite tools were found])
 if test x$have_test_tools = xyes ; then
 	AC_MSG_RESULT([yes])
 else
