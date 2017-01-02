@@ -99,9 +99,9 @@ case $host_cpu in
 esac
 ax_save_CPPFLAGS=$CPPFLAGS
 CPPFLAGS="$CPPFLAGS $GL_CFLAGS"
-ax_save_LDFLAGS=$LDFLAGS
 AS_IF([test X$no_x != Xyes -a -n "$x_libraries"],
       [LDFLAGS="$LDFLAGS -L$x_libraries"])
+ax_save_LDFLAGS=$LDFLAGS
 ax_save_LIBS=$LIBS
 ax_check_libs="-lopengl32 -lGL"
 for ax_lib in $ax_check_libs; do
