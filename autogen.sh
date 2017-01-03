@@ -72,7 +72,7 @@ sed \
 # Menu i18n
 echo "
 %.res.h: %.res
-	make -C ../src \$@" >> po/Makefile.in.in
+	\$(MAKE) -C ../src \$@" >> po/Makefile.in.in
 
 rm -f po/Makefile.in.in.orig
 
