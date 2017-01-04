@@ -2,3 +2,5 @@ intl/plural.c
 src/edif.c
 src/parse_y.c
 src/res_parse.c
+sub/src/gpcb-menu.res.h
+sub/src/pcb-menu.res.h
