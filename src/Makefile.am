@@ -277,7 +277,12 @@ gpcb-menu.h : gpcb-menu.res
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < gpcb-menu.res >> $@
 	echo '0};' >> $@
 
-# Menus i18n
+# Menus i18n.  The .res.h files are used simply to give strings which
+# feed into ../po/pcb.pot for translation.  This is the only place
+# these files are used.  When menu resources are parsed, the strings
+# are translated.  We likely should find a way to not try to copy
+# back to srcdir all the time but it is possible that the gettext/intltool
+# flow can't really deal with getting strings from built sources.
 %.res.h : %.res
 	$(INTLTOOL_EXTRACT) --type=gettext/quoted $^
 	mv -f $@ ${srcdir}/$@ || true
