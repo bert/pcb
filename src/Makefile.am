@@ -208,7 +208,7 @@ pcb_DEPENDENCIES += ../gts/libgts.a
 endif
 
 # All these -I$(top_srcdir) in this file are for globalconst.h.
-pcb_CPPFLAGS = -I$(top_srcdir)
+pcb_CPPFLAGS = -I$(top_srcdir) -I$(srcdir)/../gts
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 TEST_SRCS = \
@@ -226,9 +226,6 @@ core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
-
-# for globalconst.h
-INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/../gts
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
