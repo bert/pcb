@@ -72,6 +72,7 @@ PCB_SRCS = \
 	fontmode.c \
 	free_atexit.c \
 	free_atexit.h \
+	getline.c \
 	gettext.h \
 	global.h \
 	heap.c \
@@ -137,6 +138,7 @@ PCB_SRCS = \
 	set.c \
 	set.h \
 	smartdisperse.c \
+	strcasestr.c \
 	strflags.c \
 	strflags.h \
 	teardrops.c \

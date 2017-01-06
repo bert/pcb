@@ -665,6 +665,10 @@ AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(xnet, gethostbyname)
 AC_CHECK_LIB(fl, yywrap)
+
+dnl Checks for functions
+AC_CHECK_FUNCS(getline)
+AC_CHECK_FUNCS(strcasestr)
 AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
