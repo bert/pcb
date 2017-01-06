@@ -5,18 +5,28 @@ On Debian and derivatives, you can type 'sudo apt-get install mingw32.'.
 You can also build your own by using the build script provided by the
 MinGW project.
 
+On NetBSD use the cross/mingw package.
+
 2) Install native (non-cross) dependencies.
 
-* autoconf, automake, libtool, gettext, intltool.
+* autoconf
+* automake
+* libtool, gettext, intltool.
 * glib and gtk+.
+* wget (used for fetching tarballs)
+* wine (the tiff build fails without it)
 
 3) Edit the w32/minipack.conf file to suit your compiler setup.
+   FIXME -- can we make this take arguments?
 
-4) Enter the w32 directory and run ./build_all.
+4) Copy the pcb tarball to w32/sources
 
-5) Wait while the script fetches and compiles the PCB dependencies and PCB itself.
+5) Enter the w32 directory and run ./build_all.
 
-6) Run the result with wine: wine result/bin/pcb.exe
+6) Wait while the script fetches and compiles the PCB dependencies and PCB itself.
 
-7) Copy the result directory to a Windows installation (packaging script is not supplied).
+7) Run the result with wine: wine result/bin/pcb.exe
+   [NOTE:  This didn't work for me but copying everything to an actual windows machine worked]
+
+8) Copy the result directory to a Windows installation (packaging script is not supplied).
 

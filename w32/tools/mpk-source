@@ -49,7 +49,7 @@ do_get_source()
   mkdir -p $sourcedir/partial
   cd $sourcedir/partial
   echo Downloading $name from $pkg_download ...
-  wget -c $pkg_download
+  wget $wget_flags -c $pkg_download
 
   if [ $? != 0 ]; then
     echo >&2 "$(basename $0) source: Failed to download $name"

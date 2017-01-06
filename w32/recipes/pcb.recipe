@@ -1,13 +1,26 @@
 name=pcb
+version=1.99z
+release=1
 
-pkg_builddir=$(cd $bindir/.. && pwd)
+#pkg_builddir=$(cd $bindir/.. && pwd)
+#echo "pkg_builddir = $pkg_builddir"
 
-configure_opt="--disable-update-desktop-database --disable-update-mime-database --disable-dbus"
+configure_opt="--disable-update-desktop-database --disable-update-mime-database --disable-dbus --disable-gl --disable-doc --disable-m4lib-png"
 
 # configure-time test fails because of stdcall signature
+ac_cv_func_gdImageGif=yes
 export ac_cv_func_gdImageGif=yes
+
+ac_cv_func_gdImageJpeg=yes
 export ac_cv_func_gdImageJpeg=yes
+
+ac_cv_func_gdImagePng=yes
 export ac_cv_func_gdImagePng=yes
+
+get_source()
+{
+  echo "Skipping source download for $name because it is local"
+}
 
 src_configure()
 {

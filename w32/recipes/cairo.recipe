@@ -7,5 +7,23 @@ case "$host" in
   *mingw*)
     configure_opt=--without-x
     CPPFLAGS="-D ffs=__builtin_ffs"
+
+    # the 128 bit types were triggering a gcc internal error
+    ac_cv_type___uint128_t=no
+    export ac_cv_type___uint128_t
   ;;
 esac
+
+src_configure()
+{
+  do_configure
+
+#  echo "Reducing optimization level to avoid compiler bug"
+#  for f in `find . -name Makefile` ; do
+#	echo "$f"
+#  	cp $f ${f}.orig
+#  	sed \
+#		-e 's;-O[0-9];-O3;g' \
+#		${f}.orig > ${f}
+#  done
+}

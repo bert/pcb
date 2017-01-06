@@ -39,6 +39,17 @@ succeed()
   echo "====================="
 }
 
+MPK_VERBOSE=no
+export MPK_VERBOSE
+
+while test $# -gt 0 ; do
+  case $1 in
+    --verbose) MPK_VERBOSE=yes ; shift ;;
+    -*) echo "Error:  $1 unknown"; exit 1 ;;
+    *) break;;
+  esac
+done
+
 for D in $BUILD; do
   ./mpk source $D || fail
 done

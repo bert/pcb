@@ -9,10 +9,10 @@ configure_opt="
   --without-x
 "
 
-src_prep()
-{
-  autoreconf -ivf
-}
+#src_prep()
+#{
+#  autoreconf -ivf
+#}
 
 # Compatibility with existing binary package
 src_install()

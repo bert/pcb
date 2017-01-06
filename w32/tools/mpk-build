@@ -20,6 +20,12 @@ build_source()
 
   : ${pkg_builddir:=$builddir/$name-$version-$release/$top_srcdir}
 
+  if [ -f $build_stamp ] ; then
+    echo "Skipping build because stamp file $build_stamp exists"
+    success
+    exit 0
+  fi
+
   if [ ! -d $pkg_builddir ]; then
     $mpk unpack $pkg
     if [ $? != 0 -o ! -d $pkg_builddir ]; then
@@ -29,7 +35,7 @@ build_source()
   fi
   
   cd $pkg_builddir
-  
+
   src_build && success
 }
 
@@ -66,22 +72,42 @@ do_configure()
 
   echo "Configuring $pkg..."
   mkdir -p ../logs
-  echo "$pkg_configure_opt" | xargs ./configure > ../logs/configure.log
+  logfile="../logs/configure.log"
+  if test "X$MPK_VERBOSE" = "Xyes" ; then
+    ( ( ( echo "$pkg_configure_opt" | xargs ./configure 2>&1 ; echo $? >&4) | \
+	      tee ${logfile} 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
+  else
+    echo "$pkg_configure_opt" | xargs ./configure 2>&1  > ${logfile}
+  fi
 }
 
 do_compile()
 {
   echo "Compiling $pkg..."
   mkdir -p ../logs
-  make $default_make_opts $make_opts > ../logs/make.log
+  logfile="../logs/make.log"
+  if test "X$MPK_VERBOSE" = "Xyes" ; then
+    ( ( ( ${MAKE} $default_make_opts $make_opts 2>&1 ; echo $? >&4) | \
+	      tee ${logfile} 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
+  else
+    ${MAKE} $default_make_opts $make_opts 2>&1 > ${logfile}
+  fi
+
 }
 
 do_install()
 {
   echo "Installing $pkg..."
   mkdir -p ../logs
-  make install > ../logs/install.log
+  logfile="../logs/install.log"
+  if test "X$MPK_VERBOSE" = "Xyes" ; then
+    ( ( ( ${MAKE} install 2>&1 ; echo $? >&4) | \
+	      tee ${logfile} 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
+  else
+    ${MAKE} install 2>&1 > ${logfile}
+  fi
 }
+
 
 fail()
 {
@@ -91,6 +117,7 @@ fail()
   echo "  Build failed."
   echo "================="
   echo
+  rm -f "$build_stamp"
   exit 1
 }
 
@@ -102,6 +129,7 @@ success()
   echo "  Build succeeded."
   echo "===================="
   echo
+  echo "Success: `date`" > "$build_stamp"
 }
 
 if [ -z "$1" ]; then
@@ -118,6 +146,8 @@ fi
 recipe=$(get_recipe_name $pkg) || exit 1
 
 . $recipe
+
+build_stamp="$builddir/${pkg}.done"
 
 build_source
 

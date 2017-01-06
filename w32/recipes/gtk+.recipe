@@ -1,7 +1,7 @@
 name=gtk+
-version=2.16.6
+version=2.18.9
 release=1
-download=http://ftp.gnome.org/pub/gnome/sources/gtk+/2.16
+download=http://ftp.gnome.org/pub/gnome/sources/gtk+/2.18
 
 configure_opt="
   --without-libjasper

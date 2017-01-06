@@ -38,11 +38,15 @@ unpack_source()
   mkdir -p $buildroot
   cd $buildroot
   
-  echo "Unpacking $pkg..."
+  echo "Unpacking $pkg, file $sourcename, type $source_package_type..."
 
   case $source_package_type in
-    tar.*)
+    tar)
       tar -xf $sourcename ;;
+    tgz)
+      tar -zxf $sourcename ;;
+    tar.gz)
+      tar -zxf $sourcename ;;
     zip)
       unzip $sourcename ;;
   esac

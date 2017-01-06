@@ -1,5 +1,5 @@
 name=gettext
-version=0.18
+version=0.18.3
 release=1
 origin=gnu
 configure_opt="
@@ -7,4 +7,8 @@ configure_opt="
 "
 
 # Solve an incompatibility with newer MinGW runtimes
-export ac_cv_func_getopt_long_only=no
+ac_cv_func_getopt_long_only=no
+export ac_cv_func_getopt_long_only
+
+ac_cv_have_decl__snprintf__snwprintf=yes
+export ac_cv_have_decl__snprintf__snwprintf

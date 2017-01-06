@@ -1,9 +1,6 @@
-diff --git a/configure b/configure
-index b81ed63..864bba2 100755
---- a/configure
-+++ b/configure
-@@ -41,10 +41,10 @@ old_cflags="$CFLAGS"
- while test $# -ge 1
+--- configure.orig	2017-01-04 16:25:04.000000000 -0500
++++ configure	2017-01-04 17:26:03.000000000 -0500
+@@ -42,8 +42,8 @@
  do
  case "$1" in
 -    -h* | --h*)
@@ -14,18 +11,14 @@ index b81ed63..864bba2 100755
 +      echo '     [--libdir=LIBDIR] [--includedir=INCLUDEDIR] [--host=HOST]'
          exit 0;;
      -p*=* | --p*=*) prefix=`echo $1 | sed 's/[-a-z_]*=//'`; shift;;
-     -e*=* | --e*=*) exec_prefix=`echo $1 | sed 's/[-a-z_]*=//'`; shift;;
-@@ -55,6 +55,8 @@ case "$1" in
-     -l* | --l*) libdir="$2"; shift; shift;;
+@@ -56,4 +56,6 @@
      -i* | --i*) includedir="$2"; shift; shift;;
      -s* | --s*) shared=1; shift;;
 +    -host=* | --host=*) host=`echo $1 | sed 's/[-a-z_]*=//'`;shift;;
 +    -host | --host) host="$2"; shift; shift;;
      *) echo "unknown option: $1"; echo "$0 --help for help"; exit 1;;
      esac
- done
-@@ -66,7 +68,8 @@ int hello() {return getchar();}
- EOF
+@@ -67,5 +69,6 @@
  
  test -z "$CC" && echo Checking for gcc...
 -cc=${CC-gcc}
@@ -33,29 +26,35 @@ index b81ed63..864bba2 100755
 +cc=${CC-${cross_gcc-gcc}}
  cflags=${CFLAGS-"-O3"}
  # to force the asm version use: CFLAGS="-O3 -DASMV" ./configure
- case "$cc" in
-@@ -74,13 +77,13 @@ case "$cc" in
- esac
+@@ -75,5 +78,9 @@
  
  BUILDPLATFORM=`(uname -s || echo unknown) 2>/dev/null`;
 -TARGETPLATFORM=${target-${BUILDPLATFORM}}
 +HOSTPLATFORM=${host-${BUILDPLATFORM}}
++cat << EOF
++BUILDPLATFORM : $BUILDPLATFORM
++HOSTPLATFORM  : $HOSTPLATFORM
++EOF
  
  if test "$gcc" -eq 1 && ($cc -c $cflags $test.c) 2>/dev/null; then
-   CC="$cc"
+@@ -81,5 +88,5 @@
    SFLAGS=${CFLAGS-"-fPIC -O3"}
    CFLAGS="$cflags"
 -  case ${TARGETPLATFORM} in
 +  case ${HOSTPLATFORM} in
    Linux | linux | GNU | GNU/*) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1"};;
    OS/2* )
-              EXE='.exe';;
-@@ -184,7 +187,7 @@ else
-              LDSHARED=${LDSHARED-"cc -shared"};;
+@@ -185,5 +192,5 @@
    esac
  fi
 -case ${TARGETPLATFORM} in
 +case ${HOSTPLATFORM} in
    *CYGWIN* | *Cygwin* | *cygwin* )
      # On cygwin, we always build both shared and static libs
+@@ -195,5 +202,5 @@
+     # On Mingw-cygwin-special, we always build both shared and static libs
      LIBS="${SHAREDLIB} ${STATICLIB}"
+-    SHAREDLIBPOST='/bin/true'
++    SHAREDLIBPOST='true'
+     SHAREDTARGET=${SHAREDLIB}
+     ;;

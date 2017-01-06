@@ -1,4 +1,7 @@
 name=tiff
-version=3.9.1
+version=3.9.7
 release=1
-download=ftp://ftp.remotesensing.org/pub/libtiff
+# fails DNS
+#download=ftp://ftp.remotesensing.org/pub/libtiff
+configure_opt="--without-x"
+download=ftp://download.osgeo.org/libtiff
