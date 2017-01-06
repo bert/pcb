@@ -2163,7 +2163,7 @@ hid_gtk_init ()
   snprintf (share_dir, buffer_size, "%s%s", tmps, REST_OF_PATH);
 
   /* Point to our gdk-pixbuf loader cache.  */
-  buffer_size = strlen (bindir) + strlen (REST_OF_CACHE) + 1);
+  buffer_size = strlen (bindir) + strlen (REST_OF_CACHE) + 1;
   loader_cache = (char *)malloc (buffer_size);
   snprintf (loader_cache, buffer_size, "%s%s", bindir, REST_OF_CACHE);
   loader_file = fopen (loader_cache, "r");
