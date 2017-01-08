@@ -2615,7 +2615,7 @@ AttributeRemoveFromList(AttributeListType *list, char *name)
       {
 	free (list->List[i].name);
 	free (list->List[i].value);
-	for (j=i; j<list->Number-i; j++)
+	for (j=i; j<list->Number-1; j++)
 	  list->List[j] = list->List[j+1];
 	list->Number --;
       }
