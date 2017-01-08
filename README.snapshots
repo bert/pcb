@@ -62,7 +62,7 @@ To make a pcb release do the following:
 =)	update the NEWS file with some sort of release notes
 	summary.  You can find the number of commits with something like
 
-	    awk '/^2008-11-28/ {print "Changes: " c ; exit} /^20[01][0-9]/ {c++}' ChangeLog
+            git rev-list [first hash]..[second hash] --count
 
 	Commit and push NEWS and ChangeLog.
         git commit NEWS ChangeLog
