@@ -71,7 +71,12 @@ EXTRA_DIST= \
 	${pcb_output_noinst} \
 	${tab_files} \
 	${tab_texi} \
-	${images}
+	${images} \
+	doxygen/create_pcb_dox.sh \
+	doxygen/pcb.dox \
+	doxygen/pcb-logo-small.png \
+	doxygen/pcb-main.txt \
+	doxygen/what-is-pcb.html
 
 if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
