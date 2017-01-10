@@ -524,13 +524,29 @@ EOF
 #
 # PCB (layout) comparison routines
 #
+# used to remove things like creation date from BOM files
+normalize_pcb() {
+    local f1="$1"
+    local f2="$2"
+    sed -e 's/#.*$//' -e '/^$/d' $f1 > $f2
+}
+
 
 compare_pcb() {
     local f1="$1"
     local f2="$2"
+
     compare_check "compare_pcb" "$f1" "$f2" || return 1
 
-    run_diff "$f1" "$f2" || test_failed=yes
+    #  For comparison, we need to ignore changes in the Date and Author lines.
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
+
+    normalize_pcb $f1 $cf1
+    normalize_pcb $f2 $cf2
+
+
+    run_diff "$cf1" "$cf2" || test_failed=yes
 }
 
 ##########################################################################
