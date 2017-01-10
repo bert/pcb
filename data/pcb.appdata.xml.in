@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 ... 2016 Bert Timmerman <bert.timmerman@xs4all.nl> -->
+<!-- Copyright 2014 ... 2017 Bert Timmerman <bert.timmerman@xs4all.nl> -->
 <application>
   <id type="desktop">pcb.desktop</id>
   <metadata_license>GFDL-1.3</metadata_license>
@@ -12,13 +12,14 @@
     <_p>
       PCB includes a rats nest feature and schematic/netlist import,
       design rule checking, and can provide industry standard RS-274X
-      (Gerber), NC drill, and centroid data (X-Y data) output for use in
-      the board fabrication and assembly process, as well as
-      photorealistic and design review images.
+      (Gerber), NC drill, IPC-D-356 netlist and centroid data (X-Y data)
+      output for use in the board fabrication and assembly process, as
+      well as photorealistic and design review images.
     </_p>
     <_p>
-      PCB offers high end features such as an autorouter and trace
-      optimizer which can tremendously reduce layout time.
+      PCB offers high end features such as an autorouter, a topological
+      router and various trace optimizers which can tremendously reduce
+      layout time.
     </_p>
     <_p>
       For custom requirements, PCB offers a plug-in API for inserting
