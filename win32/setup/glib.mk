@@ -1,0 +1,7 @@
+NAME= glib
+VER=  2.28.8
+WVER= 1
+LICENSE=	lgpl2
+DEV_DISTURLS+=	${MASTER_SITE_GNOME_W32}/glib/2.28/glib-dev_2.28.8-1_win32.zip
+RUN_DISTURLS+=	${MASTER_SITE_GNOME_W32}/glib/2.28/glib_2.28.8-1_win32.zip
+SRC_DISTURLS+=	${MASTER_SITE_GNOME_SRC}/glib/2.28/glib-2.28.8.tar.bz2

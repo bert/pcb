@@ -1,0 +1,6 @@
+distfiles
+gtk_win32_devel
+gtk_win32_runtime
+gtk_win32_srcs
+gtk_win32_stamps
+pcb.nsi

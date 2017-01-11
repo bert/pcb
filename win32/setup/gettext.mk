@@ -1,0 +1,9 @@
+NAME= gettext
+VER=  0.18.1
+WVER= 2
+LICENSE=	gpl3
+DEV_DISTURLS+=	${MASTER_SITE_GNOME_W32}/dependencies/gettext-runtime-dev_0.18.1.1-2_win32.zip
+RUN_DISTURLS+=	${MASTER_SITE_GNOME_W32}/dependencies/gettext-runtime_0.18.1.1-2_win32.zip
+DEV_DISTURLS+=	${MASTER_SITE_GNOME_W32}/dependencies/gettext-tools-dev_0.18.1.1-2_win32.zip
+RUN_DISTURLS+=	${MASTER_SITE_GNOME_W32}/dependencies/gettext-tools_0.18.1.1-2_win32.zip
+SRC_DISTURLS+=	${MASTER_SITE_GNOME_W32}/dependencies/gettext-0.18.1.1.tar.gz

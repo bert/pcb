@@ -1,0 +1,7 @@
+NAME= pango
+VER=  1.29.4
+WVER= 1
+LICENSE=	lgpl2
+DEV_DISTURLS+=	${MASTER_SITE_GNOME_W32}/pango/1.29/pango-dev_1.29.4-1_win32.zip
+RUN_DISTURLS+=	${MASTER_SITE_GNOME_W32}/pango/1.29/pango_1.29.4-1_win32.zip
+SRC_DISTURLS+=	${MASTER_SITE_GNOME_SRC}/pango/1.29/pango-1.29.4.tar.bz2
