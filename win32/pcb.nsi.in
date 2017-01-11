@@ -21,7 +21,7 @@
 
 
 ;--------------------------------
-;Include macros for associating file 
+;Include macros for associating file
 ;extensions
 !include "registerExtension.nsh"
 
@@ -63,16 +63,16 @@
   #!insertmacro MUI_PAGE_LICENSE "@gtk_win32_runtime@\LICENSE-gpl2"
 ;  !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
-  
+
   ;Start Menu Folder Page Configuration
-  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\PCB-@pcb_version@" 
+  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\PCB-@pcb_version@"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
-  
+
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
-  
+
   !insertmacro MUI_PAGE_INSTFILES
-  
+
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
 
@@ -155,7 +155,7 @@ Section "Uninstall"
 
   RMDir /r "$INSTDIR\*.*"
   RMDir "$INSTDIR"
-  
+
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 
   Delete "$SMPROGRAMS\$MUI_TEMP\HTML Manual.lnk"
@@ -163,7 +163,7 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\$MUI_TEMP\PDF Manual.lnk"
   Delete "$SMPROGRAMS\$MUI_TEMP\Readme.lnk"
   Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall.lnk"
-  
+
   ;Delete empty start menu parent diretories
   StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"
 
