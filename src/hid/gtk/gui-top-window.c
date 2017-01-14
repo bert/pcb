@@ -1745,7 +1745,7 @@ ghid_parse_arguments (int *argc, char ***argv)
 #ifdef WIN32
   char * tmps;
   char * libdir;
-  tmps = g_win32_get_package_installation_directory(PACKAGE "-" VERSION, NULL);
+  tmps = g_win32_get_package_installation_directory_of_module (NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE  G_DIR_SEPARATOR_S "newlib"
   libdir = (char *) malloc(strlen(tmps) +
                           strlen(REST_OF_PATH) +
