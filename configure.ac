@@ -826,58 +826,15 @@ $GTKGLEXT_PKG_ERRORS])]
 done
 
 if test "$need_gdlib" = "yes"; then
-	# Check for gdlib-config for gd (www.boutell.com/gd)
-	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
-	if test "$GDLIB_CONFIG" = "no"; then
-		AC_MSG_RESULT([Cannot find gdlib-config.
-Make sure it is installed and in your PATH.
-gdlib-config is part of the GD library available from www.boutell.com/gd.
-This is needed for the png HID.  I will look for libgd anyway and maybe
-you will get lucky.
-])
-		if test "$WIN32" != "yes" ; then
-			AC_CHECK_LIB(gd,main,,
-			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lgd could not be found]]))
-		else 
-			AC_CHECK_LIB(bgd,main,,
-			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lbgd could not be found]]))
-		fi
-	else
-		if test "$WIN32" = "yes" ; then
-			GD=bgd
-		else
-			GD=gd
-		fi
-		AC_MSG_CHECKING([for libgd cflags])
-		GD_CFLAGS="`$GDLIB_CONFIG --cflags`"
-		AC_MSG_RESULT([$GD_CFLAGS])
-		AC_MSG_CHECKING([for libgd libs])
-		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -l${GD}"
-		AC_MSG_RESULT([$GD_LIBS])
-	fi
-   
-	# since some linux systems evidently install gdlib-config but fail to
-	# install the headers (nice), check for the header too and fail if it
-	# is not there.
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $GD_CFLAGS"
-	AC_CHECK_HEADERS(gd.h)
-	CPPFLASS="$save_CPPFLAGS"
-	case $ac_cv_header_gd_h in
-	     no )
-		AC_MSG_ERROR([
-You evidentally do not have a complete installation of the GD library available from www.boutell.com/gd.
-This is needed for the nelma and/or png HID.
-])
-		;;
-	     * ) ;;
-	esac
-	
-	# Some versions of gd (prior to the expiration of the
-	# patent related to gif compression) do not support
-	# gif output.  Check for that here.
+	# Search for glib
+	PKG_CHECK_MODULES(GDLIB, gdlib, ,
+		[AC_MSG_ERROR([Note: cannot find gdlib.
+This is required for gcode, nelma, png HIDs 
+You may want to review the following errors:
+$GDLIB_PKG_ERRORS])]
+)
 	save_LIBS="$LIBS"
-	LIBS="$save_LIBS $GD_LIBS $X_LIBS"
+	LIBS="$LIBS $GDLIB_LIBS"
 
 	if test "X$with_gif" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImageGif)
@@ -1122,8 +1079,8 @@ AC_DEFINE_UNQUOTED([COORD_MAX],[$COORD_MAX],
 
 # ------------- Complete set of CPPFLAGS and LIBS -------------------
 
-CPPFLAGS="$CPPFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $GD_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS $GL_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS $GL_LIBS"
+CPPFLAGS="$CPPFLAGS $X_CFLAGS $DBUS_CFLAGS $GDLIB_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $GD_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS $GL_CFLAGS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GDLIB_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS $GL_LIBS"
 
 
 # if we have gcc then add -Wall
