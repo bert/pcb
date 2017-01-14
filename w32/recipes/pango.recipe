@@ -3,6 +3,7 @@ major=1.28
 minor=3
 release=1
 version=$major.$minor
+license=lgpl2
 download=http://ftp.gnome.org/pub/gnome/sources/$name/$major
 
 configure_opt="

@@ -1,4 +1,5 @@
 name=pixman
 version=0.20.2
 release=1
+license=pixman
 download=http://www.cairographics.org/releases

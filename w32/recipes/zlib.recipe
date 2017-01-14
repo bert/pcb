@@ -4,3 +4,4 @@ release=1
 pkg_download=http://prdownloads.sourceforge.net/libpng/zlib-1.2.3.tar.gz
 unset build
 configure_no_more_flags=true
+license=zlib
