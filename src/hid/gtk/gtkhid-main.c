@@ -2136,6 +2136,7 @@ REGISTER_FLAGS (ghid_main_flag_list)
  * footprint libraries.
  */
 #ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winreg.h>
 #endif
