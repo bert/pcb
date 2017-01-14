@@ -4,3 +4,5 @@ gtk_win32_runtime
 gtk_win32_srcs
 gtk_win32_stamps
 pcb.nsi
+run_install.bat
+license_include.nsh

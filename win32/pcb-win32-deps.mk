@@ -109,3 +109,19 @@ show-license:
 config-variables:
 	@${ECHO} "gtk_win32_runtime=${RUNTIMEDIR}"
 	@${ECHO} "gtk_win32_devel=${DEVTIMEDIR}"
+
+.PHONY: patch
+patch:
+	echo "not implemented"
+
+.PHONY: configure
+configure:
+	echo "not implemented"
+
+.PHONY: build
+build:
+	echo "not implemented"
+
+.PHONY: install
+install:
+	echo "not implemented"

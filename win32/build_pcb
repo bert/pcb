@@ -1,12 +1,26 @@
 #!/bin/sh
 #
 
+
+# BUGS:
+#   - use 
+#          cygcheck -c | grep mingw 
+#     to  get a list of mingw packages installed.  See about 
+#     extracting a runtime subset of the required ones because
+#     we really don't want to have a ton of extra stuff get in 
+#     our installer.  Maybe also use cygcheck to get versions
+#     and see if we know what license those are under.
+#
+#  -  we don't have to do all the downloading of stuff here!
+#     cygwin has the packages we need already.
+
+
 # error out on failed commands whose return code wasn't explicitly
 # checked
 set -e
 
 MAKE=${MAKE:-make}
-
+HOST="i686-w64-mingw32"
 
 usage() {
 cat << EOF
@@ -26,6 +40,8 @@ Supported options:
 
   --help          - Show this message and exit.
 
+  --host <host>   - Sets the host target.  [$HOST]
+
   --force-autogen - Force running ./autogen.sh.  Normally this is
                     only done if the configure script is not present.
 
@@ -37,6 +53,8 @@ Supported options:
   --skip-clean    - Skip the "make clean" step of the process.
 
   --skip-config   - Skip the "./configure" step of the process.
+
+  --skip-deps     - Skip the "./configure" step of the process.
 
   --skip-install  - Skip the "make install" step of the process.
 
@@ -61,6 +79,7 @@ do_autogen=no
 do_config=yes
 do_build=yes
 do_clean=yes
+do_deps=yes
 do_install=yes
 config_args=""
 tex_flag="TEX=tex"
@@ -86,10 +105,16 @@ while test $# -ne 0 ; do
 			shift
 			;;
 
+		--host)
+			HOST=$2
+			shift 2
+			;;
+
 		--nsis-only)
 			do_build=no
 			do_clean=no
 			do_config=no
+			do_deps=no
 			do_install=no
 			shift
 			;;
@@ -106,6 +131,11 @@ while test $# -ne 0 ; do
 
 		--skip-config)
 			do_config=no
+			shift
+			;;
+
+		--skip-deps)
+			do_deps=no
 			shift
 			;;
 
@@ -141,79 +171,102 @@ while test $# -ne 0 ; do
 	esac
 done
 
-${MAKE} -f pcb-win32-deps.mk DEPMK= config-variables
+# where only the runtime components are installed
+# oh, the joy of escaping...  \\ gets processed into \ by the
+# shell.  \\\\ gets processed into \\ by the shell and sed then
+# turns it into \.  So the big craziness is just to convert
+# a single \ into double \\ so when it later is stubstituted into
+# the pcb.nsi file we have single \.
 
-exit
+win32_runtime="/usr/$HOST/sys-root/mingw"
+win32_runtime_dos="`cygpath --windows ${win32_runtime} | sed 's;\\\\;\\\\\\\\;g'`"
 
-lic=./license.tmp.1
-lic2=./license.tmp.2
-echo "" > ${lic}
+
+# pcb version
+
+pcb_version=`awk '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
+echo "pcb_version extracted from configure.ac = ${pcb_version}"
+
+# location of the NSIS makensis executible (see http://nsis.sourceforge.net)
+MAKENSIS="/cygdrive/c/Program Files (x86)/NSIS/makensis.exe"
+
+# where to install pcb
+pcb_inst=`pwd`/pcb_inst
+
+
+# DOS version
+pcb_inst_dos="`cygpath --windows ${pcb_inst} | sed 's;\\\\;\\\\\\\\;g'`"
+
+
+lic_inst=`pwd`/lic_inst
+lic_inst_dos="`cygpath --windows ${lic_inst}`"
+
+tmpdir="./tmpdir"
+mkdir -p -m 0700 $tmpdir
+rc=$?
+if test $rc -ne 0 ; then
+	echo "Couldn't generate secure temp directory"
+	exit 1
+fi
+tmp_sh="${tmpdir}/tmp.sh"
+${MAKE} -f pcb-win32-deps.mk DEPMK= config-variables > "${tmp_sh}"
+chmod 755 "${tmp_sh}"
+. "${tmp_sh}"
+rm "${tmp_sh}"
+
+
+
+if test "X${do_deps}" = "Xyes" ; then
+lic="${tmpdir}/license.tmp.1"
+lic2="${tmpdir}/license.tmp.2"
+if test -d "${lic_inst}" ; then
+       rm -fr "${lic_inst}"
+fi
+mkdir -p "${lic_inst}"
+
+echo "" > "${lic}"
 for f in setup/*.mk ; do
-	echo "${MAKE} -f pcb-win32-deps.mk DEPMK=$f fetch"
+	echo "Process $f"
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f fetch
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f checksum
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f extract
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f configure
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f build
 	#${MAKE} -f pcb-win32-deps.mk DEPMK=$f install
-	${MAKE} -f pcb-win32-deps.mk DEPMK=$f show-license >> ${lic}
+	${MAKE} -f pcb-win32-deps.mk DEPMK=$f show-license >> "${lic}"
 done
 
-sort $lic > $lic2
+sort "${lic}" > "${lic2}"
 
 lic_nsh=license_include.nsh
-echo "" > ${lic_nsh}
+echo "" > "${lic_nsh}"
 
-for l in `awk '{print $1}' $lic2 | sort -u` ; do
-	lout=${gtk_win32_runtime}/LICENSE-${l}
+for l in `awk '{print $1}' "${lic2}" | sort -u` ; do
+	lout="${lic_inst}/LICENSE-${l}"
+	echo "Creating ${lout}"
 cat << EOF > "${lout}"
 The following libraries are covered by the $l license:
 
 EOF
-	awk '$1==lic {print $2}' lic=$l $lic2 >> ${lout}
+	awk '$1==lic {print $2}' lic=$l "${lic2}" >> "${lout}"
 cat << EOF >> "${lout}"
 
 -------------------------------------------------------------------
 EOF
 	cat licenses/LICENSE-${l} >> ${lout}
 cat << EOF >> ${lic_nsh}
-  !insertmacro MUI_PAGE_LICENSE "${gtk_win32_runtime}\LICENSE-${l}"^M
+  !insertmacro MUI_PAGE_LICENSE "${lic_inst_dos}\LICENSE-${l}"
 EOF
 
 done
+fi
 
-exit
 
-if test ! -f win32/build_pcb ; then
-	echo "$0:  ERROR.  This script must be run from the top level of the pcb source tree."
+if test ! -f ./build_pcb ; then
+	echo "$0:  ERROR.  This script must be run from the win32 level of the pcb source tree."
 	exit 1
 fi
 
-# Run this under cygwin to build pcb and create a windows installer for
-# it.  Thanks to Bob Paddock for pointing me to NSIS and answering some
-# beginner windows questions.
-
-# where gtk_win32 is installed
-gtk_win32_dos=c:\\cygwin\\home\\${USER}\\gtk_win32
-
-# where only the runtime components are installed
-gtk_win32_runtime_dos=c:\\\\cygwin\\\\home\\\\${USER}\\\\gtk_win32_runtime
-
-
-# where the gdwin32.zip archive has been extracted
-# gdwin32.zip can be downloaded from http://www.boutell.com/gd/http/gdwin32.zip
-# I have used 2.0.33
-gd_win32_dos=c:\\cygwin\\home\\${USER}\\gd_win32
-gd_win32_runtime_dos=c:\\\\cygwin\\\\home\\\\${USER}\\\\gd_win32_runtime
-
-
-# pcb version
-
-pcb_version=`awk '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
-echo "pcb_version=${pcb_version}"
-
-# location of the NSIS makensis executible (see http://nsis.sourceforge.net)
-makensis="/cygdrive/c/Program Files/NSIS/makensis.exe"
 
 
 # ########################################################################
@@ -227,37 +280,23 @@ makensis="/cygdrive/c/Program Files/NSIS/makensis.exe"
 srcdir=`pwd.exe`
 top_srcdir=${srcdir}/..
 
-if test ! -f configure -o $do_autogen = yes ; then
+if test ! -f ../configure -o $do_autogen = yes ; then
 	echo "Bootstrapping autotools"
-	(cd .. && ACLOCAL_FLAGS="-I ${gtk_win32}\\share\\aclocal" ./autogen.sh)
+	(cd .. && ./autogen.sh)
 fi
 
-src_dir=c:\\\\cygwin`echo ${srcdir} | sed 's;/;\\\\\\\\;g'`
-top_src_dir=c:\\\\cygwin`echo ${top_srcdir} | sed 's;/;\\\\\\\\;g'`
 
+PKG_CONFIG=${HOST}-pkg-config
 
-# where to install pcb
-pcb_inst=`pwd`/pcb_inst
-
-# DOS version
-pcb_inst_dir=c:\\\\cygwin`echo ${pcb_inst} | sed 's;/;\\\\\\\\;g'`
-
-PKG_CONFIG_PATH=${gtk_win32_dos}\\lib\\pkgconfig
-export PKG_CONFIG_PATH
-
-PATH=${gd_win32_runtime}/bin:${gtk_win32_runtime}/bin:${PATH}
-export PATH
-echo "Set PATH=${PATH}"
-
-echo "Showing packages known to pkg-config:"
-pkg-config --list-all
+#echo "Showing packages known to pkg-config (${PKG_CONFIG}:"
+#${PKG_CONFIG} --list-all
 
 
 # do not try to use libpng-config, it seems broken on win32
 LIBPNG_CONFIG=/usr/bin/true
 export LIBPNG_CONFIG
-LIBPNG_CFLAGS="-I${gtk_win32}/include"
-LIBPNG_LDFLAGS="-L${gtk_win32}/lib"
+LIBPNG_CFLAGS="-I${gtk_win32_devel}/include"
+LIBPNG_LDFLAGS="-L${gtk_win32_devel}/lib"
 LIBPNG_LIBS="-lpng"
 
 # do not try and build the tk based QFP footprint
@@ -265,31 +304,32 @@ LIBPNG_LIBS="-lpng"
 WISH=/usr/bin/true
 export WISH
 
-# do not try and use the gdlib-config script to
-# configure gdlib
-GDLIB_CONFIG=/usr/bin/true
-export GDLIB_CONFIG
-
-GDLIB_CFLAGS="-I${gd_win32}/include"
-GDLIB_LDFLAGS="-L${gd_win32}/lib -lbgd"
-
 # add the gcc options to produce a native windows binary that
 # does not need cygwin to run
 if test "x${debug}" = "xno" ; then
 	EXTRA_FLAGS="-mwindows"
 fi
 
-CYGWIN_CFLAGS="-mms-bitfields -mno-cygwin ${EXTRA_FLAGS}"
+CYGWIN_CFLAGS="-mms-bitfields ${EXTRA_FLAGS}"
 export CYGWIN_CFLAGS
 
-CYGWIN_CPPFLAGS="-mms-bitfields -mno-cygwin ${EXTRA_FLAGS}"
+CYGWIN_CPPFLAGS="-mms-bitfields ${EXTRA_FLAGS}"
 export CYGWIN_CPPFLAGS
+
+cat << EOF
+
+PKG_CONFIG       =  ${PKG_CONFIG}
+PKG_CONFIG_PATH  =  ${PKG_CONFIG_PATH}
+
+EOF
 
 # setting WIN32=yes will make sure that the desktop icon
 # gets compiled in
 if test "$do_config" = "yes" ; then
 cd ${top_srcdir}
 
+#        CFLAGS="${GDLIB_CFLAGS}" \
+#        LDFLAGS="${GDLIB_LDFLAGS}" \
 rm -fr src/.deps
 echo "Configuring for cygwin"
 ( ( ( env WIN32=yes \
@@ -303,12 +343,13 @@ echo "Configuring for cygwin"
        ac_cv_func_gdImageJpeg="yes" \
        ac_cv_func_gdImagePng="yes" \
 	--disable-dependency-tracking \
+	--disable-gl \
 	--disable-nls \
 	--disable-update-desktop-database \
 	--disable-update-mime-database \
+	--host ${HOST} \
 	${config_args} \
-        CFLAGS="${GDLIB_CFLAGS}" \
-        LDFLAGS="${GDLIB_LDFLAGS}" \
+	CPPFLAGS="-DWIN32_LEAN_AND_MEAN" \
 	WIN32=yes \
 	2>&1 ; echo $? >&4 ) | tee c.log 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
 
@@ -320,12 +361,12 @@ fi
 # If the win32 pkg-config is used, then you end up with spurious CR's
 # in the generated Makefile's and we need to get rid of them.
 
-cd ${top_srcdir}
-for f in `find . -name Makefile -print`; do
-	mv $f $f.bak
-	cat $f.bak | tr '\r' ' ' > $f
-	rm $f.bak
-done
+#cd ${top_srcdir}
+#for f in `find . -name Makefile -print`; do
+#	mv $f $f.bak
+#	cat $f.bak | tr '\r' ' ' > $f
+#	rm $f.bak
+#done
 
 fi
 
@@ -365,6 +406,7 @@ fi
 fi
 
 cd ${srcdir}
+
 cat << EOF
 Creating NSIS script
 
@@ -373,20 +415,26 @@ src_dir = ${src_dir}
 top_srcdir = ${top_srcdir}
 top_src_dir = ${top_src_dir}
 
+gtk_win32_runtime     = ${gtk_win32_runtime}
+gtk_win32_runtime_dos = ${gtk_win32_runtime_dos}
+
+win32_runtime     = ${win32_runtime}
+win32_runtime_dos = ${win32_runtime_dos}
+
+pcb_inst              = ${pcb_inst}
+pcb_inst_dos          = ${pcb_inst_dos}
+
 EOF
 
 sed \
 	-e "s;@pcb_version@;${pcb_version};g" \
-	-e "s;@pcb_prefix@;${pcb_inst_dir};g" \
+	-e "s;@pcb_prefix@;${pcb_inst_dos};g" \
 	-e "s;@pcb_srcdir@;${top_src_dir};g" \
-	-e "s;@gtk_win32_runtime@;${gtk_win32_runtime_dos};g" \
-	-e "s;@gd_win32@;${gd_win32_dos};g" \
-	-e "s;@gd_win32_runtime@;${gd_win32_runtime_dos};g" \
+	-e "s;@gtk_win32_runtime_dos@;${win32_runtime_dos};g" \
 	${srcdir}/pcb.nsi.in > ${srcdir}/pcb.nsi
 
 echo "Creating windows installer"
-"${makensis}" ${src_dir}/pcb.nsi
-
+"${MAKENSIS}" pcb.nsi 
 
 echo "Windows installer left in ${srcdir}:"
 ls -l ${srcdir}/*.exe
@@ -407,7 +455,11 @@ EOF
 
 cat > ${bat} << EOF
 
-.\win32\pcbinst-${pcb_version}.exe
+.\pcbinst-${pcb_version}.exe
 
 EOF
 chmod 755 ${bat}
+
+if test -d "${tmpdir}" ; then
+	rm -fr "${tmpdir}" 
+fi

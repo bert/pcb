@@ -28,3 +28,4 @@ HASHTYPE?=	sha1
 OPENSSL?=	openssl
 SED?=		sed
 WGET?= 		wget --no-check-certificate
+#WGET?= 		curl

@@ -57,7 +57,7 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "@pcb_srcdir@\COPYING"
+  !insertmacro MUI_PAGE_LICENSE "../COPYING"
   !include "license_include.nsh"
   #!insertmacro MUI_PAGE_LICENSE "@gd_win32_runtime@\gd-license.txt"
   #!insertmacro MUI_PAGE_LICENSE "@gtk_win32_runtime@\LICENSE-gpl2"
@@ -91,8 +91,7 @@ Section "Dummy Section" SecDummy
 
 
   ;ADD YOUR OWN FILES HERE...
-  File /a /r "@gtk_win32_runtime@\*.*"
-  File /a /r "@gd_win32_runtime@\*.*"
+  File /a /r "@gtk_win32_runtime_dos@\*.*"
   File /a /r "@pcb_prefix@\*.*"
 
   ;Associate file types and icons
