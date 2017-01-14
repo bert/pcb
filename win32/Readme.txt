@@ -1,5 +1,3 @@
-#
-
 This is the windows port of the pcb printed circuit board
 layout editor.
 

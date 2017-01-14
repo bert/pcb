@@ -19,6 +19,7 @@
 # checked
 set -e
 
+AWK=${AWK:-awk}
 MAKE=${MAKE:-make}
 HOST="i686-w64-mingw32"
 
@@ -184,7 +185,7 @@ win32_runtime_dos="`cygpath --windows ${win32_runtime} | sed 's;\\\\;\\\\\\\\;g'
 
 # pcb version
 
-pcb_version=`awk '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
+pcb_version=`${AWK} '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
 echo "pcb_version extracted from configure.ac = ${pcb_version}"
 
 # location of the NSIS makensis executible (see http://nsis.sourceforge.net)
@@ -241,14 +242,14 @@ sort "${lic}" > "${lic2}"
 lic_nsh=license_include.nsh
 echo "" > "${lic_nsh}"
 
-for l in `awk '{print $1}' "${lic2}" | sort -u` ; do
+for l in `${AWK} '{print $1}' "${lic2}" | sort -u` ; do
 	lout="${lic_inst}/LICENSE-${l}"
 	echo "Creating ${lout}"
 cat << EOF > "${lout}"
 The following libraries are covered by the $l license:
 
 EOF
-	awk '$1==lic {print $2}' lic=$l "${lic2}" >> "${lout}"
+	${AWK} '$1==lic {print $2}' lic=$l "${lic2}" >> "${lout}"
 cat << EOF >> "${lout}"
 
 -------------------------------------------------------------------
@@ -425,6 +426,13 @@ pcb_inst              = ${pcb_inst}
 pcb_inst_dos          = ${pcb_inst_dos}
 
 EOF
+
+docdir="${pcb_inst}/doc"
+readme="${docdir}/Readme.txt"
+# git doesn't seem to appreciate a CRLF terminated file so build the
+# DOS version on the fly
+test -d "${docdir}" || mkdir -p "${docdir}"
+${AWK} '{printf("%s\r\n", $0)}' Readme.txt > "${readme}"
 
 sed \
 	-e "s;@pcb_version@;${pcb_version};g" \
