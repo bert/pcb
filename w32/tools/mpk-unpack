@@ -47,6 +47,8 @@ unpack_source()
       tar -zxf $sourcename ;;
     tar.gz)
       tar -zxf $sourcename ;;
+    tar.xz)
+      tar -Jxf $sourcename ;;
     zip)
       unzip $sourcename ;;
   esac
