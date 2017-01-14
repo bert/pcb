@@ -23,6 +23,10 @@
 #ifndef PCB_HID_COMMON_HIDGL_H
 #define PCB_HID_COMMON_HIDGL_H
 
+#ifdef WIN32
+#define _GLUfuncptr void *
+#endif
+
 #define TRIANGLE_ARRAY_SIZE 5461
 typedef struct {
   GLfloat triangle_array [3 * 3 * TRIANGLE_ARRAY_SIZE];

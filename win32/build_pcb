@@ -344,7 +344,6 @@ echo "Configuring for cygwin"
        ac_cv_func_gdImageJpeg="yes" \
        ac_cv_func_gdImagePng="yes" \
 	--disable-dependency-tracking \
-	--disable-gl \
 	--disable-nls \
 	--disable-update-desktop-database \
 	--disable-update-mime-database \
