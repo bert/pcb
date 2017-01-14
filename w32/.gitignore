@@ -1,3 +1,5 @@
 build
 result
 sources
+license_include.nsh
+pcb.nsi

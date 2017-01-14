@@ -2,5 +2,6 @@ name=freetype
 version=2.4.4
 release=1
 origin=sf
+license=gpl2
 GNUMAKE=${MAKE}
 export GNUMAKE

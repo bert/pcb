@@ -6,6 +6,7 @@ qfp-ui
 pcblib-newlib
 pcblib.contents
 amp.m4
+aries.m4
 bourns.m4
 candk.m4
 cts.m4
@@ -17,6 +18,7 @@ optek.m4
 panasonic.m4
 pcblib
 amp.list
+aries.list
 bourns.list
 candk.list
 cts.list

@@ -79,6 +79,7 @@ define(`args',`
 
 include(amp.inc)
 include(amphenol.inc)
+include(aries.inc)
 include(bga.inc)
 include(bourns.inc)
 include(candk.inc)

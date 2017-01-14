@@ -1,6 +1,7 @@
 name=gettext
 version=0.18.3
 release=1
+license=gpl3
 origin=gnu
 configure_opt="
   --enable-relocatable

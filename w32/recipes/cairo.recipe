@@ -1,6 +1,7 @@
 name=cairo
 version=1.10.2
 release=1
+license=lgpl2-1
 download=http://www.cairographics.org/releases
 
 case "$host" in

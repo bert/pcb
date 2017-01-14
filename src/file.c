@@ -1323,6 +1323,7 @@ ParseLibraryTree (void)
   char *libpaths;                  /* String holding list of library paths to search */
   char *p;                         /* Helper string used in iteration */
   int n_footprints = 0;            /* Running count of footprints found */
+  bool is_abs = false;             /* If we are processing an absolute path */
 
   /* Initialize path, working by writing 0 into every byte. */
   memset (toppath, 0, sizeof toppath);
@@ -1372,13 +1373,23 @@ ParseLibraryTree (void)
           continue;
         }
 
+      /* figure out if this is an absolute path.  Make sure it works on win32 as well. */
+      if (*p == PCB_DIR_SEPARATOR_C)
+	{
+         is_abs = true;
+        }
+      else if (strlen(p) > 3 && isalpha ((int) p[0]) && p[1] == ':' && p[2] == PCB_DIR_SEPARATOR_C)
+	{
+         is_abs = true;
+        }
+
 #ifdef DEBUG
       printf("In ParseLibraryTree, looking for newlib footprints inside top level directory %s ... \n", 
 	     toppath);
 #endif
 
       /* Next read in any footprints in the top level dir and below */
-      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath, *p == '/');
+      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath, is_abs);
     }
 
   /* restore the original working directory */

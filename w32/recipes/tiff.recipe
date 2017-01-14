@@ -4,4 +4,5 @@ release=1
 # fails DNS
 #download=ftp://ftp.remotesensing.org/pub/libtiff
 configure_opt="--without-x"
+license=tiff
 download=ftp://download.osgeo.org/libtiff

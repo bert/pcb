@@ -1,6 +1,7 @@
 name=libgd
 version=2.1.0
 release=1
+license=libgd
 download=https://bitbucket.org/libgd/gd-libgd/downloads
 
 configure_opt="

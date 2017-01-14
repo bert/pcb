@@ -1,6 +1,7 @@
 name=pcb
 version=1.99z
 release=1
+license=gpl2
 
 #pkg_builddir=$(cd $bindir/.. && pwd)
 #echo "pkg_builddir = $pkg_builddir"
