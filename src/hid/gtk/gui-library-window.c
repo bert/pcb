@@ -568,7 +568,7 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
       {
 	if (rel_path[strlen(menu->directory)] == '\0')
 	  rel_path = empty_string;
-	else if (rel_path[strlen(menu->directory)] == '/')
+	else if (rel_path[strlen(menu->directory)] == PCB_DIR_SEPARATOR_C)
 	  rel_path += strlen(menu->directory) + 1;
       }
 
@@ -619,9 +619,9 @@ create_lib_tree_model (GhidLibraryWindow * library_window)
 	*tok_end = saved_ch;
 
 	tok_start = tok_end;
-	if (*tok_start == '/')
+	if (*tok_start == PCB_DIR_SEPARATOR_C)
 	  tok_start++;
-	tok_end = strchr(tok_start, '/');
+	tok_end = strchr(tok_start, PCB_DIR_SEPARATOR_C);
     if (!tok_end) tok_end = tok_start + strlen(tok_start);
       }
     while (*tok_start != '\0');
