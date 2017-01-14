@@ -152,6 +152,7 @@ INC_FILES= \
 	bga.inc \
 	amp.inc \
 	amphenol.inc \
+	aries.inc \
 	bourns.inc \
 	candk.inc \
 	connector.inc \
@@ -179,8 +180,8 @@ INC_FILES= \
 DAT_FILES= \
 	qfp.dat
 
-M4_FILES=	${M4_DIST_FILES} amp.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 optek.m4 panasonic.m4
-LIST_FILES=	${LIST_DIST_FILES} amp.list bourns.list candk.list cts.list geda.list johnstech.list minicircuits.list nichicon.list \
+M4_FILES=	${M4_DIST_FILES} amp.m4 aries.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 optek.m4 panasonic.m4
+LIST_FILES=	${LIST_DIST_FILES} amp.list aries.list bourns.list candk.list cts.list geda.list johnstech.list minicircuits.list nichicon.list \
 		optek.list panasonic.list
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
@@ -190,7 +191,7 @@ EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${OBSOLETE_L
 		${LIBCONTENTS} \
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
-DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list \
+DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list aries.m4 aries.list \
 	cts.m4 cts.list bourns.m4 bourns.list \
 	candk.m4 candk.list \
 	geda.m4 geda.list johnstech.m4 johnstech.list minicircuits.m4 minicircuits.list \
@@ -209,6 +210,12 @@ amp.list: amp.inc gen_list.awk
 
 amp.m4: amp.inc gen_m4.awk
 	${AWK} -f $(srcdir)/gen_m4.awk name=amp $(srcdir)/amp.inc > $@
+
+aries.list: aries.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=aries $(srcdir)/aries.inc > $@
+
+aries.m4: aries.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=aries $(srcdir)/aries.inc > $@
 
 bourns.list: bourns.inc gen_list.awk
 	${AWK} -f $(srcdir)/gen_list.awk name=bourns $(srcdir)/bourns.inc > $@
