@@ -2155,7 +2155,7 @@ hid_gtk_init ()
 #endif
 
 #ifdef WIN32
-  tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
+  tmps = g_win32_get_package_installation_directory_of_module (NULL);
 #define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"
   buffer_size = strlen (tmps) + strlen (REST_OF_PATH) + 1;
