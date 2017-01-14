@@ -1266,6 +1266,9 @@ AC_CONFIG_FILES(gts/Makefile)
 dnl win32 build scripts
 AC_CONFIG_FILES(w32/Makefile)
 
+dnl for building under cygwin
+AC_CONFIG_FILES(win32/Makefile)
+
 AC_OUTPUT
 
 with_gui=`echo $with_gui`
