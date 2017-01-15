@@ -34,7 +34,7 @@ Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
-Copyright (C) 2010-2017 PCB Contributors
+Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,7 +58,6 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 @subtitle layout system
 @author harry eaton
 @end titlepage
-
 @contents
 
 @ifnottex
@@ -105,7 +104,7 @@ Copyright @copyright{} 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright @copyright{} 2004 DJ Delorie
 
-Copyright @copyright{} 2010-2017 PCB Contributors
+Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -207,6 +206,8 @@ Albert John FitzPatrick III (ajf_nylorac@@acm.org)
 Boerge Strand (borges@@ifi.uio.no)
 Andre M. Hedrick (hedrick@@Astro.Dyer.Vanderbilt.Edu)
 Anthony Blake (who wrote the toporouter code).
+
+PCB Contributors:
 Peter Clifton, Andrew Poelstra, Markus Hitter, Ben Jackson, Felix Ruoff,
 Sergey Alyoshin, Dima Kogan, Jerome Marchand, Jean Richard, Bob Paddock,
 Milan Prochac, Britton Leo Kerin, Roland Lutz, Charles Parker,
