@@ -237,8 +237,10 @@ can be set as high as needed.
 @item RS-274X (Gerber) output
 @item NC Drill output
 @item Centroid (X-Y) data output
+@item IPC-D-356 (rev. 0) netlist data output
 @item Postscript and Encapsulated Postscript output
 @item Autorouter
+@item Topological router
 @item Trace optimizer
 @item Rats nest
 @item Design Rule Checker (DRC)
