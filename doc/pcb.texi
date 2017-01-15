@@ -198,6 +198,20 @@ Erland Unruh (Erland.Unruh@@malmo.trab.se)
 Albert John FitzPatrick III (ajf_nylorac@@acm.org)
 Boerge Strand (borges@@ifi.uio.no)
 Andre M. Hedrick (hedrick@@Astro.Dyer.Vanderbilt.Edu)
+Anthony Blake (who wrote the toporouter code).
+Peter Clifton, Andrew Poelstra, Markus Hitter, Ben Jackson, Felix Ruoff,
+Sergey Alyoshin, Dima Kogan, Jerome Marchand, Jean Richard, Bob Paddock,
+Milan Prochac, Britton Leo Kerin, Roland Lutz, Charles Parker,
+Jared Casper, Stuart Brorson, aelmahmoudy, Krzysztof Ko@'sciuszkiewicz,
+Wiley E. Hill, Sergey Stepanov, Vladimir Zhbanov, Peter Brett,
+Steven Michalske, Leo B@"arring, Gareth Edwards, Anton Dubniak,
+Kai-Martin Knaak, Keith Packard, Patrick Bernaud, Robert Drehmel,
+Erich Heinzle, Marco Ciampa, Eugene Mikhantiev, Jorge Barros de Abreu,
+Richard Hughes, Eric Brombaugh, Benjamin Bergman, Braddock Gaskill,
+Dan White, Alan Somers, Richard Barlow, Bdale Garbee, Stanislav Brabec,
+Levente Kovacs, Ed Maste, Uwe Hermann, Ivan Stankovic, Peter S. May,
+Igor2, Felix K (kuhlix), rosvall, Martin, Christian Ams@"uss,
+Bert Timmerman.
 @end display
 
 @noindent
