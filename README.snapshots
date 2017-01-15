@@ -64,6 +64,10 @@ To make a pcb release do the following:
 
 	    awk '/^2008-11-28/ {print "Changes: " c ; exit} /^20[01][0-9]/ {c++}' ChangeLog
 
+        or
+
+            git rev-list [first SHA-1 hash]..[last SHA-1 hash] --count
+
 	Commit and push NEWS and ChangeLog.
         git commit NEWS ChangeLog
 	git push
