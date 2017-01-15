@@ -1,13 +1,11 @@
-name=gtk+
-major=2.24
-minor=31
+name=gdk-pixbuf
+major=2.23
+minor=5
 release=1
 version=$major.$minor
-license=lgpl2
 download=http://ftp.gnome.org/pub/gnome/sources/$name/$major
+license=lgpl2
 source_package_type=tar.xz
 
 configure_opt="
-  --disable-cups
-  --with-included-immodules
 "

@@ -13,10 +13,12 @@ freetype
 pixman
 libiconv
 gettext
+libffi
 glib
 atk
 cairo
 pango
+gdk-pixbuf
 gtk+
 gd
 pcb

@@ -1,0 +1,44 @@
+diff -urN atk-1.33.6/atk/Makefile.am atk-1.33.6-fixed/atk/Makefile.am
+--- atk-1.33.6/atk/Makefile.am	2011-02-01 04:01:54.000000000 +0000
++++ atk-1.33.6-fixed/atk/Makefile.am	2017-01-15 01:15:31.009944881 +0000
+@@ -15,7 +15,6 @@
+ 
+ INCLUDES = \
+ 	-I$(top_srcdir)		\
+-	-DG_DISABLE_DEPRECATED	\
+ 	-DATK_DISABLE_DEPRECATED	\
+ 	-DATK_COMPILATION	\
+ 	-DATK_LOCALEDIR="\"$(datadir)/locale\""	\
+diff -urN atk-1.33.6/atk/Makefile.in atk-1.33.6-fixed/atk/Makefile.in
+--- atk-1.33.6/atk/Makefile.in	2011-02-01 04:25:37.000000000 +0000
++++ atk-1.33.6-fixed/atk/Makefile.in	2017-01-15 01:15:33.725479845 +0000
+@@ -311,7 +311,6 @@
+ @PLATFORM_WIN32_TRUE@no_undefined = -no-undefined
+ INCLUDES = \
+ 	-I$(top_srcdir)		\
+-	-DG_DISABLE_DEPRECATED	\
+ 	-DATK_DISABLE_DEPRECATED	\
+ 	-DATK_COMPILATION	\
+ 	-DATK_LOCALEDIR="\"$(datadir)/locale\""	\
+diff -urN atk-1.33.6/tests/Makefile.am atk-1.33.6-fixed/tests/Makefile.am
+--- atk-1.33.6/tests/Makefile.am	2010-09-06 07:45:45.000000000 +0100
++++ atk-1.33.6-fixed/tests/Makefile.am	2017-01-15 01:15:36.501001676 +0000
+@@ -11,7 +11,6 @@
+ libatk = $(top_builddir)/atk/libatk-$(ATK_API_VERSION).la
+ 
+ INCLUDES = -I$(top_srcdir)	\
+-	-DG_DISABLE_DEPRECATED	\
+ 	$(DEP_CFLAGS)
+ DEPS = \
+ 	$(libatk)
+diff -urN atk-1.33.6/tests/Makefile.in atk-1.33.6-fixed/tests/Makefile.in
+--- atk-1.33.6/tests/Makefile.in	2011-02-01 04:25:37.000000000 +0000
++++ atk-1.33.6-fixed/tests/Makefile.in	2017-01-15 01:15:39.164540101 +0000
+@@ -276,7 +276,6 @@
+ 
+ libatk = $(top_builddir)/atk/libatk-$(ATK_API_VERSION).la
+ INCLUDES = -I$(top_srcdir)	\
+-	-DG_DISABLE_DEPRECATED	\
+ 	$(DEP_CFLAGS)
+ 
+ DEPS = \

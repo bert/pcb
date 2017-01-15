@@ -1,0 +1,5 @@
+name=libffi
+version=3.2.1
+release=1
+license=libffi
+download=ftp://sourceware.org/pub/libffi/$version

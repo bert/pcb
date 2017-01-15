@@ -1,8 +1,11 @@
 name=glib
-version=2.22.2
+major=2.30
+minor=3
+version=$major.$minor
 release=1
 license=lgpl2
-download=http://ftp.gnome.org/pub/gnome/sources/glib/2.22
+download=http://ftp.gnome.org/pub/gnome/sources/glib/$major
+source_package_type=tar.xz
 
 configure_opt="
   CXX=${host:+$host-g++}

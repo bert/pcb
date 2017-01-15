@@ -1,5 +1,7 @@
 name=atk
-version=1.28.0
+major=1.33
+minor=6
 release=1
+version=$major.$minor
 license=lgpl2
-download=http://ftp.gnome.org/pub/gnome/sources/atk/1.28
+download=http://ftp.gnome.org/pub/gnome/sources/$name/$major
