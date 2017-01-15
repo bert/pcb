@@ -26,13 +26,15 @@ END-INFO-DIR-ENTRY
 This file documents how to use Pcb,
 the open source, interactive printed circuit board layout system.
 
-Copyright (C) 1994,1995,1996, 2004 Thomas Nau
+Copyright (C) 1994, 1995, 1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
 Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
+
+Copyright (C) 2010-2017 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -95,9 +97,15 @@ board layout system.
 @node Copying
 @unnumbered Copying
 
-Copyright @copyright{} 1994,1995,1996,1997 Thomas Nau
+Copyright @copyright{} 1994, 1995, 1996, 1997 Thomas Nau
 
-Copyright @copyright{} 1998,1999,2000,2001,2002 harry eaton
+Copyright @copyright{} 1998, 1999, 2000, 2001, 2002 harry eaton
+
+Copyright @copyright{} 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
+
+Copyright @copyright{} 2004 DJ Delorie
+
+Copyright @copyright{} 2010-2017 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
