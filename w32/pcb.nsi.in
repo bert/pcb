@@ -101,7 +101,10 @@ Section "Dummy Section" SecDummy
   
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
-  
+
+  ;Generate GDK loaders cache
+  ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" "--update-cache"'
+
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     
     ;Create shortcuts
