@@ -1,4 +1,211 @@
 ========================================================================
+Release notes for pcb-4.0.0
+========================================================================
+
+Dear Users,
+
+It has been quite some time since the last snapshot of pcb was released
+in March 2014.
+
+Since then quite a lot of bugs were fixed and new features added, below
+this introduction a summary is given of the improvements and additions
+since the latest snapshot "pcb-20140316".
+
+This release represents over 480 commits (mostly bugfixes and code
+refactoring) and as such this summary clearly is not complete.
+
+This pcb release 4.0.0 has a significant change in the major version
+number.
+
+This is done to make a fresh start and to get away from the 1.99z
+version with YYYYMMDD snapshots.
+
+Kind regards,
+
+The pcb development team
+
+
+User experience improvements
+----------------------------
+- added the command-line option --save-metric-only.
+- added escaping of Attribute values.
+- added a translation of the Getting Started with PCB for pt_BR.
+- added translatable tooltips for toolbar buttons.
+- added "Report net length" to Menu -> Info in Gtk.
+- added a script for generating a key binding list.
+- added tooltips in the GTK HID UI.
+- the puller no longer crosses unplated holes.
+- solder/component outer layer names changed to top/bottom.
+- pcb now uses a tilde instead of a dash for backup filenames.
+- corrections in the user documentation.
+- the position "delta" display no longer forces the GTK HID window to
+  grow.
+- write time in ASCII locale into exported files.
+- allow for up to 10000 dpi on png exporter output.
+
+
+Plugins
+-------
+- added smartdisperse for dispersing elements better, contributed by
+  Ben Jackson.
+- added relocate for relocating elements, contributed by Jean Richard.
+- added RenumberBlock() and RenumberBuffer(), contributed by DJ Delorie.
+- added teardrops(), contributed by DJ Delorie.
+
+
+Exporters
+---------
+- added a netlister conforming to the IPC-D-356 standard, contributed by
+  Jerome Marchand.
+- changed "as-shown" to "screen-layer-order" in the png and eps hids.
+
+
+Footprints library
+------------------
+- added a SC88A footprint.
+- added a LQFP80-10 footprint.
+- added QFN24_5 and TQFN24_5 footprints.
+- added a SOD523 footprint.
+- the SOT325 package had a wrong numbering.
+- renamed the SOT325 footprint to SOT353.
+- in the ALF footprint the drill holes were too tight.
+- an infinite loop in the SIL m4 macro was fixed.
+
+
+Developer experience improvements
+---------------------------------
+- made a start with adding Doxygen developer documentation tags in the
+  source files.
+  A pcb.dox configuration file is available in the "doc/doxygen"
+  directory so developers can build the documentation there by invoking
+  "doxygen pcb.dox" from the CLI.
+  This is not done by configuring with --enable-docs, which is solely
+  reserved for the generation of User documentation.
+- added numerous fixes in the win32 target.
+
+
+Notes for early adapters
+------------------------
+In the git repository two tags have been added to allow for checking
+out of pcb-4.0.0 at the branch point (git checkout pcb-4.0.0-base) or at
+the release point (git checkout pcb-4.0.0-RELEASE).
+This is in line with tagging done in former snapshots.
+
+
+Changed dependencies
+--------------------
+- autoconf 2.60 --> 2.69.
+- gettext 0.14 --> 0.19.3.
+
+
+Contributors
+------------
+The following authors contributed to the 4.0.0 release:
+- Milan Prochac
+- WileyECoyote
+- DJ Delorie
+- Britton Leo Kerin
+- Jerome Marchand
+- chrysn
+- Sergey Stepanov
+- Gareth Edwards
+- Peter Clifton
+- Anton Dubniak
+- Markus Hitter
+- Kai-Martin Knaak
+- Martin
+- Adrian Pardini
+- Keith Packard
+- Patrick Bernaud
+- Robert Drehmel
+- erich_heinzle
+- Andrew Poelstra
+- Marco Ciampa
+- Roland Lutz
+- Eugene Mikhantiev
+- Jorge Barros de Abreu
+- Richard Hughes
+- Ivan Stankovic
+- Charles Parker
+- Dan McMahill
+- Igor2
+- Jean Richard
+- Ben Jackson
+- Morvan
+- dima
+- Peter S. May
+- Felix K (kuhlix)
+- rosvall
+- Sergey Alyoshin
+- bert
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#699149   infinite loop in the SIL m4 macro.
+#699164   Position "delta" display forces GTK HID window to grow.
+#699209   DSP dances.
+#699243   SOT325 Package wrong numbering.
+#699286   ALF footprint drill holes too tight.
+#699413   Doxygenation of action.c and hid.h.
+#699539   Request: tooltips.
+#699543   Request: key binding list.
+#701133   Export to PNG always shows pads on other side of board.
+#996319   ipc-d-356 netlist creation.
+#1005137  Build fails when DEBUG constant defined.
+#1013358  Auto-enforce-DRC : cannot draw with exact clearance.
+#1035979  default silk layer names are the same for top and bottom.
+#1048256  pcb crashes when GUI-lessly exporting a PNG.
+#1074268  gcode tests fail.
+#1280748  Print non localized date string.
+#1308221  Use tilde instead of dash for backup files.
+#1309579  Adding descriptive Tooltips to the toolbar buttons.
+#1339383  Segfault on PS export with completely clipped polygon.
+#1408399  small fix in source text.
+#1408615  added pcb.pot to the gitignore.
+#1413254  Value of 1umil incorrectly set to 10µmil.
+#1413350  Drill report - wrong hole count.
+#1486582  pcb doesn't build.
+#1487761  Antifork.
+#1488220  Allow automated tests of actions.
+#1490264  Remove vi command line interface.
+#1490284  Compile error in src/hid/lesstif/dialogs.c and
+          src/hid/lesstif/main.c.
+#1491953  Dispersing elements better.
+#1492497  Documentation for "Arc" is wrong.
+#1497628  We need a PPA.
+#1500224  Unit tests fail on 32-bit.
+#1500241  pcb/gtk: buggy definition of LAYER_BUTTON_SILK.
+#1500244  pcb/gtk: order of layer groups in preference dialogue.
+#1505262  The N_ macro is spoiling the user documentation
+#1506204  Quotes in attribute name or value make the PCB file
+          unreadable.
+#1521597  PCB includes invalid vertex into merged polygon.
+#1532298  add the relocate plugin.
+#1532329  add keywords to appdata.
+#1534373  Improper handling of files specified on cmdline.
+#1542858  strchrnull not in OSX C library.
+#1550382  puller crosses unplated holes.
+#1551970  Install failure in doc subdirectory.
+#1553255  djopt(splitlines) does not behave as expected.
+#1553281  djopt(miter) affects outline.
+#1580837  Cleanup code causes core dumps.
+#1586020  Bad Translation Menu Entry: PCB (Portuguese).
+#1604524  polygon "twin hole" bug.
+#1609542  text bug.
+#1616803  Remove redundant setting of library_window->libtreeview.
+#1631059  Crash during undo of element text resize.
+#1631646  Non-fatal errors when building docs.
+#1633924  FontSave distorts symbols.
+#1636221  Undo serial number not incremented when deselecting.
+#1639518  Joining Text Fails to Undo.
+#1645100  Arc rtree/polygon clearance bugs.
+
+
+========================================================================
 Release Notes for PCB snapshot 20140316
 ========================================================================
 This release represents over 421 commits (mostly bugfixes and code

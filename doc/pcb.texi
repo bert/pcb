@@ -191,6 +191,10 @@ files (and libraries) that can contain whole sub-layouts, metric grids, improved
 user interface, a GNU autoconf/automake based build system, and a host
 of other improvements.
 
+Release 4.0.0 adds a IPC-D-356 netlister, relocate plugin, smartdisperse
+plugin, RenumberBlock and RenumberBuffer plugin, teardrops plugin,
+tooltips in the GTK UI and footprints.
+
 Special thanks goes to:
 @display
 Thomas Nau (who started the project and wrote the early versions).
