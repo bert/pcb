@@ -1,6 +1,2833 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2017-01-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Update for release pcb-4.0.0  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/pcb.nsi.in: Fixup the nsis installer script to trigger
+	creation of the gdk-pixbuf loaders cache Required if we want working icons in PCB
+
+2017-01-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/pcb.recipe: Added --with-included-gettext when
+	building pcb The w32 build still uses an old gettext (one which builds more
+	readily), and if we don't apply this option, the intl/ directory in
+	the pcb source gets replaced with a version which fails to compile.  This lets us use the older gettext tools build, but keep the
+	included (more up to date) intl library shipped with the pcb
+	tarball.
+
+2017-01-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/build-all.sh, w32/licenses/LICENSE-libffi,
+	w32/patches/atk/01-reenable-deprecated-glib.patch,
+	w32/patches/gtk+/01-mousewheel.patch, w32/recipes/atk.recipe,
+	w32/recipes/gdk-pixbuf.recipe, w32/recipes/glib.recipe,
+	w32/recipes/gtk+.recipe, w32/recipes/libffi.recipe: w32: Bump gtk
+	version (and atk, glib + sundry dependencies) This is the latest GTK2 release, and should be the best supported on
+	Win32. Added / bumped some dependencies as required to support this
+	later version.
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: pcb.texi: nitpicking on contribution years according
+	FSF.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: pcb.texi: updated the copyright notices.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: pcb.texi: updated features.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: pcb.texi: updated authors and contributors.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac: Bump the autoconf version from 2.60 to 2.69.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* README.snapshots: README.snapshots: added an alternative to
+	counting commits.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: pcb.appdata.xml.in: updated.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* configure.ac: Bump the minimum required version of gettext from
+	0.14 to 0.19.3  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/run_tests.sh: Add a normalize_pcb function to run_tests.sh The normalize_pcb function strips comments and blank lines from the
+	golden file and the test output file prior to comparison.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/what-is-pcb.html: Updating the front page of the
+	doxygen docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am: Include the doxygen infrastructure in the
+	distribution tarball.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-15   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/patches/zlib/02-cross-build.patch: Fix zlib patch for minipack This failed to apply on Linux without a level or prexfix
+
+2017-01-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/compat.c, src/hid/common/hidinit.c, src/hid/gtk/gtkhid-main.c: 
+	Add #define WIN32_LEAN_AND_MEAN where appropriate.  (This define can now be taken out of the CPP_FLAGS override)
+
+2017-01-14   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/tools/mpk-unpack: w32: Add support for .xz archives to
+	minipack
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* Makefile.am, README.win32, configure.ac, win32/Makefile.am: Add a
+	few missing files related to a cygwin build.  With this I'm able to
+	build a windows installer from git sources or from a tarball under
+	cygwin.  The installer then does not depend on cygwin at runtime.
+	Added notes to the README.win32 pointing users who wish to build
+	with minpack to README.w32
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/common/hidgl.h, win32/build_pcb: provide a _GLUfuncptr
+	definition under WIN32 and enable gl on the win32 build.
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/Makefile.am, win32/Readme.txt, win32/build_pcb: Get this
+	working the rest of the way.  PCB builds to completion and produces
+	a working installer.  The build is done under cygwin and the
+	resulting installer does not require cygwin.  TODO:  remove the code
+	       for downloading dependencies, it isn't needed since there are cygwin
+	packages for everything we need TODO:  prune what we install from
+	       the cygwin packages to not install more than what we need TODO:
+	       make sure we find the license info for the cygwin packages that make
+	it into the installer
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit 3157d37473a4db3249699acb098ea28cd8a2c74a  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Sat Jan 14 13:40:29
+	2017 -0500
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit ee863b2779d9b1035eac4e250c3580bde03694b3 Merge: 4560ac3
+	f08393f  Author: Dan McMahill * dan AT mcmahill dot net * Date:
+	Sat Jan 14 13:26:41 2017 -0500
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/.gitignore, win32/build_pcb, win32/config.mk,
+	win32/pcb-win32-deps.mk, win32/pcb.nsi.in, win32/setup/libgd.mk: 
+	Make lots of progress towards getting this to work again.  Turns out
+	cygwin has packages for mingw targets and so it is possible to avoid
+	most of the building of external libs.  This framework is working
+	but has a few things to address before making it prime-time.
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-top-window.c: replace
+	g_win32_get_package_installation_directory() with
+	g_win32_get_package_installation_directory_of_module() as the former
+	has been deprecated since glib-2.18 which was 8 years ago.
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/file.c: When searching for newlib libraries, we can't just
+	check if the first character of the search path is '/' and expect it
+	to work on win32 systems.  Add some expanded logic to try and handle
+	this case.  Now we get libraries displayed again.
+
+2017-01-14   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gui-library-window.c: Fix the display of library
+	elements on win32 which was broken by d80224b3.  Replaces '/' with
+	PCB_DIR_SEPARATOR_C.
+
+2017-01-13   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/.gitignore, lib/Makefile.am, lib/common.m4: Enable the Aries
+	library.  This was somehow missed when aries.inc was added.  This
+	has footprints for ZIF sockets from Aries.
+
+2017-01-13   Dan McMahill * dan AT mcmahill dot net *
+
+	* w32/.gitignore, w32/Makefile.am, w32/Readme.txt.in,
+	w32/build-all.sh, w32/build-installer.sh,
+	w32/licenses/LICENSE-expat, w32/licenses/LICENSE-fontconfig,
+	w32/licenses/LICENSE-gpl2, w32/licenses/LICENSE-gpl3,
+	w32/licenses/LICENSE-jpeg, w32/licenses/LICENSE-lgpl2,
+	w32/licenses/LICENSE-lgpl2-1, w32/licenses/LICENSE-libgd,
+	w32/licenses/LICENSE-libpng, w32/licenses/LICENSE-pixman,
+	w32/licenses/LICENSE-tiff, w32/licenses/LICENSE-zlib,
+	w32/minipack.conf, w32/pcb.nsi.in, w32/recipes/atk.recipe,
+	w32/recipes/cairo.recipe, w32/recipes/freetype.recipe,
+	w32/recipes/gd.recipe, w32/recipes/gettext.recipe,
+	w32/recipes/glib.recipe, w32/recipes/gtk+.recipe,
+	w32/recipes/jpeg.recipe, w32/recipes/libiconv.recipe,
+	w32/recipes/libpng.recipe, w32/recipes/pango.recipe,
+	w32/recipes/pcb.recipe, w32/recipes/pixman.recipe,
+	w32/recipes/tiff.recipe, w32/recipes/zlib.recipe,
+	w32/registerExtension.nsh, w32/tools/mpk-license: - add license files - add an entry in the recipe files to indicate which license - add mpk-license tool to report the license - use this info to feed into an installer build
+
+2017-01-12   Dan McMahill * dan AT mcmahill dot net *
+
+	* config.guess, config.sub: Update some infrastructure files that
+	were > 10 years old.  config.guess was failing on a fresh (as of Jan
+	2017) cygwin64 install.
+
+2017-01-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/pcb.nsi.in: installer template
+
+2017-01-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/.cvsignore, win32/.gitignore, win32/Makefile.am,
+	win32/Readme.txt, win32/build_pcb, win32/config.mk,
+	win32/licenses/LICENSE-expat, win32/licenses/LICENSE-fontconfig,
+	win32/licenses/LICENSE-gpl2, win32/licenses/LICENSE-gpl3,
+	win32/licenses/LICENSE-lgpl2, win32/licenses/LICENSE-lgpl2-1,
+	win32/licenses/LICENSE-libgd, win32/licenses/LICENSE-libpng,
+	win32/licenses/LICENSE-pixman, win32/licenses/LICENSE-zlib,
+	win32/pcb-win32-deps.mk, win32/pcb.nsi.in,
+	win32/registerExtension.nsh, win32/setup/atk.distinfo,
+	win32/setup/atk.mk, win32/setup/cairo.distinfo,
+	win32/setup/cairo.mk, win32/setup/expat.distinfo,
+	win32/setup/expat.mk, win32/setup/fontconfig.distinfo,
+	win32/setup/fontconfig.mk, win32/setup/freetype.distinfo,
+	win32/setup/freetype.mk, win32/setup/gdk-pixbuf.distinfo,
+	win32/setup/gdk-pixbuf.mk, win32/setup/gettext.distinfo,
+	win32/setup/gettext.mk, win32/setup/glib.distinfo,
+	win32/setup/glib.mk, win32/setup/gtk+.distinfo,
+	win32/setup/gtk+.mk, win32/setup/intltool.distinfo,
+	win32/setup/intltool.mk, win32/setup/libgd.distinfo,
+	win32/setup/libgd.mk, win32/setup/libpng.distinfo,
+	win32/setup/libpng.mk, win32/setup/pango.distinfo,
+	win32/setup/pango.mk, win32/setup/pixman.distinfo,
+	win32/setup/pixman.mk, win32/setup/pkg-config.distinfo,
+	win32/setup/pkg-config.mk, win32/setup/zlib.distinfo,
+	win32/setup/zlib.mk, win32/setup_deps, win32/tools/extract.sh: Bring
+	back some of the old win32 infrastructure which uses pre-built
+	dependencies.  WIP checkin before moving to a cygwin environment to
+	continue. Code now fetches verifies checksums, and unpacks the
+	dependency libs.
+
+2016-12-30   Charles Parker * parker dot charles AT gmail dot com *
+
+	* debian/README.Debian, debian/changelog, debian/compat,
+	debian/control, debian/copyright, debian/pcb-common-dev.dirs,
+	debian/pcb-common-dev.install, debian/pcb-common.dirs,
+	debian/pcb-common.doc-base, debian/pcb-common.docs,
+	debian/pcb-common.examples, debian/pcb-common.info,
+	debian/pcb-common.install, debian/pcb-common.lintian-overrides,
+	debian/pcb-gtk-dev.dirs, debian/pcb-gtk-dev.install,
+	debian/pcb-gtk.dirs, debian/pcb-gtk.links,
+	debian/pcb-gtk.lintian-overrides, debian/pcb-gtk.menu,
+	debian/pcb-gtk.postinst, debian/pcb-gtk.prerm,
+	debian/pcb-lesstif-dev.dirs, debian/pcb-lesstif-dev.install,
+	debian/pcb-lesstif.dirs, debian/pcb-lesstif.links,
+	debian/pcb-lesstif.lintian-overrides, debian/pcb-lesstif.menu,
+	debian/pcb-lesstif.postinst, debian/pcb-lesstif.prerm,
+	debian/pcb.xpm, debian/rules, debian/source.lintian-overrides,
+	debian/watch: Remove debian directory to make life easier for the
+	official packagers.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h: Fix
+	deprecation compile warnings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* doc/pcb.texi: Fix a compile warning when building documentation  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/common/hidgl.c: Fix type in format string  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/toporouter.c: Replace 'finite' function with 'isfinite' to
+	remove depreciation warnings on osx.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/buffer.c: Fix warning about unused variable loadfootprint_help
+
+2016-12-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/search.c: Fix indentation that was causing
+	compile warnings.
+
+2017-01-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* doc/.gitignore: ignore directory created by running texi2pdf
+
+2017-01-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* .gitignore: ignore distfile and log files which are often created
+	here
+
+2017-01-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* README.w32, w32/build-all.sh, w32/minipack.conf,
+	w32/patches/gettext/01-AC_PROG_CXX.patch,
+	w32/patches/gettext/01-decl-snwprintf.patch,
+	w32/patches/gettext/02-AC_CHECK_TOOLS.patch,
+	w32/patches/gettext/03-include_memchr.patch,
+	w32/patches/jpeg/01-int32.patch,
+	w32/patches/zlib/02-cross-build.patch, w32/recipes/cairo.recipe,
+	w32/recipes/freetype.recipe, w32/recipes/gd.recipe,
+	w32/recipes/gettext.recipe, w32/recipes/gtk+.recipe,
+	w32/recipes/pcb.recipe, w32/recipes/tiff.recipe,
+	w32/tools/mpk-build, w32/tools/mpk-source, w32/tools/mpk-unpack: 
+	Several adjustments to get the win32 cross build working again.
+	Bumped the rev of a few of the dependencies (gtk for example needed
+	to be newer for pcb), updated some download urls, fixed compilation
+	issues.
+
+2017-01-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, src/Makefile.am, src/getline.c, src/strcasestr.c: 
+	strcasestr is non-standard so provide a configure check for it and a
+	replacement if it is missing.  Also getline is not present on all
+	systems either (solaris, mingw, etc) so do the same.
+
+2017-01-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gtkhid-main.c: fix a syntax error in some win32 code
+
+2017-01-04   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: add some comments about how the *-menu.res.h
+	files are used
+
+2017-01-04   Dan McMahill * dan AT mcmahill dot net *
+
+	* po/POTFILES.skip: Add sub/src/{g,}pcb-menu.res.h because during
+	'make distcheck' the build directory is under sub/ and these built
+	files show up.  There is discussion about intltool being updated to
+	account for the sub/ directory but until then, this fixes distcheck
+	failures.
+
+2017-01-04   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: Remove the use of INCLUDES (came back with bring
+	gts sources back)
+
+2017-01-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* autogen.sh: improve quoting in the resulting po/Makefile.in.in
+
+2017-01-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* autogen.sh: do not call make directly but use $(MAKE) instead.
+	Critical on systems where make is not gnu make.
+
+2016-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/toporouter.h: toporouter: removed duplicate definitions of
+	_GtsConstraint and _GtsConstraintClass structs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/toporouter.c, src/toporouter.h: Revert "Toporouter: get rid of
+	GtsConstraint* in favour of GtsEdge*." This reverts commit 8e79d4c0f707e25f91df7f73d3ea9792fa94734a.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* Makefile.am, configure.ac, doc/doxygen/pcb.dox, gts/.gitignore,
+	gts/Makefile.am, gts/NOTES, gts/bbtree.c, gts/boolean.c, gts/cdt.c,
+	gts/container.c, gts/curvature.c, gts/edge.c, gts/eheap.c,
+	gts/face.c, gts/fifo.c, gts/graph.c, gts/gts-private.h, gts/gts.h,
+	gts/heap.c, gts/hsurface.c, gts/iso.c, gts/isotetra.c,
+	gts/kdtree.c, gts/matrix.c, gts/misc.c, gts/named.c, gts/object.c,
+	gts/oocs.c, gts/partition.c, gts/pgraph.c, gts/point.c,
+	gts/predicates.c, gts/predicates.h, gts/psurface.c, gts/refine.c,
+	gts/rounding.h, gts/segment.c, gts/split.c, gts/stripe.c,
+	gts/surface.c, gts/triangle.c, gts/tribox3.c, gts/vertex.c,
+	gts/vopt.c, src/Makefile.am, src/toporouter.c, src/toporouter.h: 
+	Revert "Remove GTS sources in favour of the libgts package." This reverts commit 825caea4fe0dfe32b572017961a7f357fae97022.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-02   Dan McMahill * dan AT mcmahill dot net *
+
+	* m4/ax_check_gl.m4: When the GL libraries are installed in the
+	$x_libraries area, the configure check was failing to find libGL and
+	libGLU.  This is because the code tried to add $x_libraries slightly
+	too late.
+
+2017-01-02   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Fix a spelling error in one of the output messages.
+
+2017-01-02   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/run_tests.sh: The awk expression for normalize_gcode was not
+	portable to nawk and was causing false failures in the testsuite.
+	Replace [a-z]{2} constructs with [a-z][a-z] which is less compact
+	but more portable.
+
+2016-11-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/rotate.c: add calls to clear/restore polygon when rotating
+	arcs
+
+2016-11-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/buffer.c: add rtree delete/inserts when mirroring
+	arcs/polygons in buffers
+
+2016-11-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Revert "Free settings default layer names." and "Don't
+	leak fontfile paths." This reverts commit 3049589c28ff2b04bdc7e3fb8ca2c6db3649eb91.  This
+	reverts commit b3f58ab6e8533c3566a072888cd470ff34191c08.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/edif.y: Fix some compile errors when the DEBUG symbol is
+	defined Had to push some variable declarations forward, and prefix some
+	tokens with EDIF_TOK_
+
+2016-11-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/png/png.c, src/hid/ps/eps.c: Change "as-shown" to
+	"screen-layer-order" in the png and eps hids.
+
+2016-11-05   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/change.c: Fix ChangeTextJoin adding to the undo list with the
+	wrong type.
+
+2016-11-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/vector.c: src/vector.c: minor correction in doxygen comment.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/vector.c, src/vector.h: src/vector.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/vector.c: src/vector.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/undo.h: src/undo.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/undo.c: src/undo.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/toporouter.h: src/toporouter.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/toporouter.c: src/toporouter.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/draw.c, src/remove.c: Cast to ElementType pointer.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-06   Milan Prochac * milan AT prochac dot sk *
+
+	* src/draw.c, src/remove.c, src/undo.c: FIXED fix for crash during
+	undo of refdes resize  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-11-05   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/change.c: Added a call to r_delete_entry in ChangeTextName We missed this one previously.
+
+2016-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/crosshair.c: Fixed the "poly twin hole" bug.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-08-27   WileyECoyote * wileyhill AT gmail dot com *
+
+	* src/hid/gtk/gui-library-window.c: Remove redundant setting of
+	library_window->libtreeview
+
+2016-10-23   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c: Fix deselect not incrementing undo serial number.
+
+2016-10-23   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: added SOD523.  Verified with real hardware
+
+2016-10-23   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/aries.inc: Move the mounting hole near the pin 1 end to match
+	reality (based on the Aries mechanical drawings and also a physical
+	specimen)
+
+2016-08-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, src/Makefile.am, src/find.c, src/find.h,
+	src/hid/ipcd356/hid.conf, src/hid/ipcd356/ipcd356.c: IPC-D-356
+	netlist exporter.   Reported-by: Jerome Marchand * Jerome dot Marchand AT gmail dot com
+	*  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-10-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/fontmode.c: Fix FontSave by casting CELL_SIZE and CELL_OFFSET
+	to Coord.
+
+2016-10-08   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/draw.c, src/undo.c: Fix for bug LP1631059, patch by Milan
+	Prochac.  Fixes segfaults when undoing selections and changes in the size of
+	element names.
+
+2016-10-08   Charles Parker * parker dot charles AT gmail dot com *
+
+	* doc/Makefile.am: Fixed errors when building images for docs.  Added appropriate paths to the pcb invocation when building docs so
+	that pcb can find the component libraries.
+
+2016-10-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/lesstif/main.c: lesstif: print angle as 2 digit float.   Reported-by: Igor2 * gedau AT igo2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-09-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated the appdata file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-09-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/create.c: Correction of type for ID.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-09-02   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-library-window.c: switch "basename" to
+	"g_path_get_basename" g_path_get_basename is part of glib, and has a more consistent
+	behavior than basename which has some platform dependent
+	peculiarities.
+
+2016-09-01   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-library-window.c: Changed usage of strchrnul to
+	strchr strchrnul is a GNU specific extension to the string library and is
+	not included in the OSX C library. strchr can be substituted by
+	checking for the null return value and manually setting the pointer
+	to the end of the string.
+
+2016-08-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/change.c, src/draw.c: Fix bug with expanding text.  This fixes #1609542.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-misc.c, src/hid/gtk/gui-top-window.c: Allow the
+	coordinate position_hbox to expand and fill.  By allowing to fill and expand, shrinking becomes possible.  Changed
+	the width of the relative coordinate label.  By changing the single
+	line label into a multi line label, width is traded for height.
+	Removed padding pixels.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/trace.h: gcode/trace.h: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/trace.c: gcode/trace.c: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/potracelib.h: gcode/potracelib.h: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/lists.h: gcode/lists.h: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/decompose.h: gcode/decompose.h: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/decompose.c: gcode/decompose.c: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/curve.h: gcode/curve.h: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/curve.c: gcode/curve.c: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/bitmap.h: gcode/bitmap.h: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/auxiliary.h: gcode/auxiliary.h: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/gcode.c: gcode: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/thermal.c, src/thermal.h: src/thermal.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/strflags.c, src/strflags.h: src/strflags.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/set.c, src/set.h: src/set.[ch]: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/select.c, src/select.h: src/select.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/search.c, src/search.h: src/search.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/rubberband.c, src/rubberband.h: src/rubberband.[ch]: Converted
+	plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/rtree.c, src/rtree.h: src/rtree.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-06-22   DJ Delorie * dj AT delorie dot com *
+
+	* src/autoroute.c: Fix autorouter typo [1] -> [i]
+
+2016-05-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/gcode.c: gcode: do not return silent on a file open
+	error.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/gcode.c: gcode: correction of typos in a comment.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/pt_BR.po: po/pt_BR.po: correction of a typo.   Reported-by: Morvan * morvan000 AT gmail dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/pt_BR.po: po/pt_BR.po: correction of grammar.   Reported-by: Morvan * morvan000 AT gmail dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-11   Milan Prochac * milan AT prochac dot sk *
+
+	* src/renumber.c: Fix crashes of RenumberBlock and RenumberBufer on
+	empty refdes
+
+2016-05-12   Milan Prochac * milan AT prochac dot sk *
+
+	* src/main.c: FIX crashdumps due freeing static memory  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/rotate.c, src/rotate.h: src/rotate.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-05-04   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/report.c, src/report.h: src/report.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-04-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/remove.c, src/remove.h: src/remove.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-04-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/rats.c, src/rats.h: src/rats.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-14   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/main.c: Die if arg file exists and LoadPCB fails Because it probably ins't a pcb file and we don't want to end up
+	nuking it with a Save
+
+2015-10-02   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/find.c: Always produce a DRC warn about undected stuff DRC will catch a near-short, but not a short.  It will catch a
+	near-break in a trace, but not an actual break.  This is pretty
+	confusing and potentially harmful to users not familiar with the
+	behavior, so always produce a DRC entry warning user about the
+	situation and what to do about it.
+
+2016-03-03   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/hid/gtk/gui-misc.c: Make click prompt bold
+
+2016-03-03   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-main.c: GetXY() calls get_coords internaly so
+	prompts work
+
+2015-12-20   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* configure.ac: Check that compiler supports C99
+
+2016-03-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c, src/strflags.c, src/strflags.h: Free layer list in
+	strflags.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Set PCB to NULL after free()'ing it.  Avoid emergency save to save it after it's free()'d.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Free some global variables and settings.  Free paths allocated on startup.  Free program_directory at the end.
+	Free gnetlist and make settings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c, src/strflags.c, src/strflags.h: strflags should free
+	buf() at the end.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Don't leak fontfile paths.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Free settings default layer names.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Free parse strings.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Free PCB data.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/free_atexit.c, src/free_atexit.h, src/res_lex.l: Resource
+	strdups() are leaky.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/buffer.c, src/buffer.h, src/main.c: Uninit paste buffers.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid.h, src/hid/common/hidinit.c, src/hid/lesstif/main.c,
+	src/hid/lesstif/menu.c, src/main.c, src/misc.c: Added central
+	infrastructure for un-init'ing GUI hids.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-04-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c: Use gui->get_coords to get the crosshair
+	coordinates.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-07   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/global.h, src/hid/gtk/gui.h: Included missing locale.h header  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-04   chrysn * chrysn AT fsfe dot org *
+
+	* src/djopt.c: djopt(splitlines): Affect lines and not pads This does commit f6fa32e22dadd5b8770b730e9dd056e5ef288591 right;
+	that commit's intention was to skip pinsnapping when the only
+	optimization to be run is splitlines.  Closes: https://bugs.launchpad.net/pcb/+bug/1553255  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/polygon1.c: src/polygon1.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/POTFILES.in, src/Makefile.am, src/relocate.c: Added the
+	relocate action by Jean Richard.   Reported-by: Jean Richard * jean AT geemoo dot ca *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* utils/keylist.sh: Fix utils/keylist.sh: resets locale to avoid
+	broken table.  gawk tries to be too clever.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-11-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* utils/keylist.sh: Added revised version from pcb-rnd.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-11-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* utils/keylist.sh: Added the keylist script in the utils directory.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-04-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/puller.c: Send puller messages to the log window.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-04-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Allow for up to 10000 dpi on png exporter
+	output.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.h, src/hid/common/hid_resource.h, src/lrealpath.h,
+	src/polygon.h, src/thermal.h, src/toporouter.h: More corrections in
+	header guard define.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/compat.h: src/compat.h: correction in header guard define.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/misc.c: Cleanup r_string when leaving make_route_string().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-28   Sergey Stepanov * no dot such dot process AT gmail dot com *
+
+	* src/autoroute.c, src/crosshair.c, src/djopt.c,
+	src/hid/common/draw_helpers.c, src/hid/common/hidgl.c,
+	src/hid/common/trackball.c, src/hid/gcode/trace.c, src/misc.c,
+	src/polygon.c, src/puller.c, src/report.c, src/search.c,
+	src/toporouter.c, src/toporouter.h: change sqrt(x*x+y*y) ->
+	hypot(x,y) this change has 3 benefits: * hypot() calculation is performed without undue overflow or
+	underflow; * code behavoiur less compiler dependant, than pow(x, 2), which
+	(probably) may fail if x is negative; * code is a bit simpler, and less error prone if x or y is a complex
+	expression.
+
+2016-03-06   DJ Delorie * dj AT delorie dot com *
+
+	* src/puller.c: Fix LP 1550382 Replace pin->Thickness with PIN_SIZE(pin) Closes-bug: lp-1550382
+
+2016-03-06   chrysn * chrysn AT fsfe dot org *
+
+	* src/djopt.c: djopt: Exclude outline from line gathering The optimizations run in this module are targetted at copper layers,
+	and only cause trouble on the outline layer.  Changed "== LT_OUTLINE" in the original patch to "!= LT_COPPER".  Closes: https://bugs.launchpad.net/pcb/+bug/1553281  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-01   Gareth Edwards * gareth AT edwardsfamily dot org dot uk *
+
+	* doc/.gitignore: doc: add intermediate files to .gitignore  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-01   Gareth Edwards * gareth AT edwardsfamily dot org dot uk *
+
+	* doc/Makefile.am: doc: fix installation failure.  In current pcb HEAD (6a6340a3) the doc/ subdirectory fails to
+	install when the --enable-doc configuration option is set. Remove
+	duplication in the file list between pcb_files and images
+	definitions.  Resolves LP1551970.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/lesstif/menu.c: src/hid/lesstif/menu.c: Added doxygen
+	comments for GetXY().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: src/hid/gtk/gtkhid-main.c: Added
+	doxygen comments for GetXY().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/puller.c: src/puller.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/print.c, src/print.h: src/print.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/viatrim.out.pcb, doc/viatrim.pcb,
+	src/djopt.c: Added a description of djopt(viatrim) in the user docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/vianudge.out.pcb, doc/vianudge.pcb,
+	src/djopt.c: Added a description of djopt(vianudge) in the user
+	docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/unjaggy.out.pcb, doc/unjaggy.pcb,
+	src/djopt.c: Added a description of djopt(unjaggy) in the user docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/orthopull.out.pcb, doc/orthopull.pcb,
+	src/djopt.c: Added a description of djopt(orthopull) in the user
+	docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/miter.out.pcb, doc/miter.pcb, src/djopt.c: 
+	Added a description of djopt(miter) in the user docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/debumpify.out.pcb, doc/debumpify.pcb,
+	src/djopt.c: Added a description of djopt(debumpify) in the user
+	docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-21   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Fix error message for ActionElementSetAttr Pointed out by Igor2
+
+2016-02-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/polygon.c, src/polygon.h: src/polygon.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/polyarea.h: src/polyarea.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_l.h: src/parse_l.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/netlist.c: src/netlist.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/mymem.c, src/mymem.h: src/mymem.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/mtspace.c, src/mtspace.h: src/mtspace.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/move.c, src/move.h: src/move.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/misc.c, src/misc.h: src/misc.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/mirror.c, src/mirror.h: src/mirror.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/layerflags.c: src/layerflags.c: include layerflags.h  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main-test.c: src/main-test.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: src/main.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-09   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/macro.h: src/macro.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/lrealpath.c, src/lrealpath.h: src/lrealpath.[ch]: Converted
+	plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/line.c, src/line.h: line.[ch]: minor corrections in doygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/layerflags.c, src/layerflags.h: layerflags.[ch]: corrections
+	in doygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-02-09   DJ Delorie * dj AT delorie dot com *
+
+	* src/strflags.c: Fix auto/onsolder flag for element names Element names use the shared bit as "onsolder" so add that to the
+	list of types which use it.
+
+2016-01-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/line.c, src/line.h: src/line: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/intersect.c, src/intersect.h: src/intersect.[ch]: Converted
+	plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/insert.c, src/insert.h: src/insert.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid_draw.h: src/hid_draw.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-17   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/find.c: drc: Fix polygon-polygon clearance checks IsPolygonInPolygon was applying 2x bloat to the line it uses to test
+	with against the second polygon, and IsLineInPolygon was applying a
+	further bloat offset - making the clearance used incorrect.  This caused false DRC violation reports of polygons being too close
+	to one-another, despite there being adequate clearance.  Note for future - a cleaner fix regarding "Bloat", and the DRC, is
+	that we should probably pass it more explicitly as a parameter where
+	it is to be used, in order to avoid surprises as to where it gets
+	applied.
+
+2016-01-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Added keywords to the appdata file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-01-04   Anton Dubniak * twister AT tfsoft dot org dot ua *
+
+	* src/misc.c: Add measurement units to route-styles string in
+	preferences file.  This avoids unit conversion to cmil on save of preferences, and
+	avoids the rounding errors associated with that.
+
+2015-12-30   Anton Dubniak * twister AT tfsoft dot org dot ua *
+
+	* src/crosshair.c, src/line.c: Fix Auto-enforce-DRC check to allow
+	the exact minimum spacing Removes an improper "+ 1" (COORD - e.g. nm) condition applied in the
+	auto-drc code, and similar from the XOR rendering code.   Reviewed-by: Peter Clifton * Peter dot Clifton AT
+	clifton-electronics dot co dot uk * Closes-bug: lp-1013358
+
+2015-12-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid.h: src/hid.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-12-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/heap.c, src/heap.h: src/heap.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/global.h: src/global.h: correction of a typo in the Doxygen
+	header.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-11-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc: Added QFN24_5 and TQFN24_5.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-11-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc: Added LQFP80-10.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-14   Milan Prochac * milan AT prochac dot sk *
+
+	* src/file.c: Added escaping of Attribute value  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-12-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Corrections in documentation.  Reported-by: dima  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-12-16   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/aries.inc: Add some comments and improve default refdes silk
+	screen
+
+2015-12-16   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/aries.inc: Add generator for Aries Electronics, Inc.
+	footprints Added footprint generator and definitions for the High-Temp
+	Universal ZIF DIP Burn-in and Test sockets from Aries Electronics.
+	See for example www.arieselec.com for information on their ZIF
+	sockets.
+
+2015-12-01   Martin * martin AT mb5 dot cz *
+
+	* src/polygon1.c: Fix invalid jump to next VNODE in Collect1()
+	function When constructing polygon Collect1() function jumps to cur->next
+	vertex when calling Gather() which results in inclusion of invalid
+	vertex into resulting polygon.  Fixed by moving the test and the cur->next expression into
+	parameters of first call to Collect1() only where it is valid (in
+	contrast to second call after jump() test).   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/macro.h, src/pcb-printf.c: unit_to_coord(): explicitely cast
+	the result.  Previously 32-bit machines would return 999999999 as the result of
+	"1.0 m", making the unit test fail.  This introduces the DOUBLE_TO_COORD() macro which should be used
+	everywhere where doubles are used for calculating coordinates.  Wisdom about rounding found at:   https://www.cs.tut.fi/~jkorpela/round.html
+
+2015-10-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/POTFILES.in, src/Makefile.am, src/renumber.c: Added
+	RenumberBlock() and RenumberBuffer().  Converted from plug-in sources from DJ Delorie.  Source file adapted
+	for nm resolution and added user documentation and a file header for
+	Doxygen.  Added to the build system, so it gets always compiled in.  Found on http://www.delorie.com/pcb/renumberblock.c  Reported-by: DJ Delorie * dj AT delorie dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* : commit b02b6e710930636a352d4a8cc5a9c30a0c5c3298  Author:
+	Kai-Martin Knaak * kmk AT lilalaser dot de * Date:   Sat Oct 24
+	22:08:31 2015 +0200
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* po/LINGUAS, po/de.po: + translation file de.po Add German to the list of translation goals
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* po/fr.po, po/nl.po, po/pt_BR.po, po/ru.po: Update of the
+	translation files
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* po/POTFILES.in, src/hid/png/png.c: Add translation infrastructure
+	to the empty layout error message
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/png/png.c: png HID should exit with warning when layout
+	contains no data Instead of segfault exit decently with an error message on stdout.  Original patch by Amit Dhingra fixes bug #1048256
+	https://bugs.launchpad.net/geda-project/+bug/1048256
+
+2015-10-24   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* : sync my local master with upstream master
+
+2015-10-19   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/teardrops.c: Use some computed vars to make them used
+
+2015-10-19   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/rtree.c: Use wide types for comfortable Coord output
+
+2015-10-19   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/polygon1.c: Added missing #include
+
+2015-10-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/td_ex1.pcb, doc/td_ex1_.pcb: Changed name of teardrop example
+	pcb file as to avoid make interference.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/td_ex1.eps, doc/td_ex1.pcb, src/teardrops.c: 
+	Added an example figure and more edits to the user doumentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/teardrops.c: Added user documentation for teardrops.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/POTFILES.in, src/Makefile.am, src/teardrop.c, src/teardrops.c: 
+	Renamed to teardrops.c.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/POTFILES.in: Added teardrop.c to POTFILES.in.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/teardrop.c: Add teardrops.c from DJ Delorie.  Source file unchanged, just prettyfied file header for Doxygen.
+	Added to the build system, so it gets always compiled in.  Found on http://www.delorie.com/pcb/teardrops/
+
+2015-10-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/common/hidgl.c: Make compiler warning go away.  hid/common/hidgl.c:455: warning: format ‘%lu’ expects type
+	‘long unsigned int’, but argument 2 has type ‘unsigned int’  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/extract-docs: Remove the unwanted N_("..."); macro cruft from
+	the user documentation.  This commit solves LP bug #1505262.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-12   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/smartdisperse.c: Added user documentatation for SmartDisperse.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-10   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/global.h: src/global.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/gettext.h: src/gettext.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/free_atexit.c, src/free_atexit.h: src/free_atexit.[ch]:
+	Converted plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-10-03   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gtkhid-main.c: gtkhid-main.c: swap sprintf() for
+	snprintf().  It's good practice to use the 'n' variant even if it's reasonably
+	sure the string will never overflow.  This should satisfy bug 1069317.
+
+2015-09-30   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: Gtk: right-aligned static strings in
+	layer groups dialogue.  The static strings are a little more easy to the eye when right
+	aligned. A colon was added for extra legibility.
+
+2015-09-30   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: Gtk: use radio buttons in layer groups
+	dialogue.
+
+2015-09-30   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: Gtk: more explicit comment in the layer
+	group code.
+
+2015-09-29   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: Gtk: change the order of top and bottom
+	in preference dialogue.
+
+2015-09-28   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: gtk/gui-config.c: swap the order of silk
+	layer groups in GUI.  The silk layers double as layer groups for top and bottom copper.
+	Current pcb/gtk GUI shows them bottom above top in File ->
+	Preferences -> Layers -> Groups.  This is inconsistent with the
+	general order of layers.  The patch swaps the order the silk layers are displayed in the
+	Groups dialogue.
+
+2015-09-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/png/png.c: hid/png/png.c: more checks wether a layer
+	actually exists.  Especially when considering the move to layer types there is no
+	guarantee a mask and/or silk layer actually exists.
+
+2011-06-12   Adrian Pardini * adrian dot pardini AT solar dot org dot ar *
+
+	* src/hid/png/png.c: hid/png/png.c: check wether a bottom layer
+	actually exists.  This should fix LP796389: fixes segfault with --photo-mode                           --photo-flip if the layer "solder" is                           not in the "Solder side".
+
+2015-10-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/global.h: global.h: eliminate GCC_VERSION macro.  It was used in this place, only, so no need to clutter the
+	namespace.
+
+2015-10-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/global.h: global.h: remove forgotten comment.  RCS IDs and the macro described by the comment were removed with
+	commit 02a720280796e439015f in December 2011.
+
+2015-09-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/ps/ps.c, tests/golden/hid_ps1/circles.ps: hid/ps/ps.c:
+	deal with zero sized circles even better.  Instead of hardcoding a size, actually calculate the best fit.  This also makes the PostScript output of the circles test case
+	matching what's shown on the screen.
+
+2015-09-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/hid_ps1/circles.ps, tests/inputs/circles.pcb: 
+	Tests:more challenging circles.pcb.  This time several circles of varying size, along with ruler lines
+	for measuring them on non-screen output, e.g. a PostScript file.  Note that the zero sized circle with 50 mil line width is drawn
+	differently in PostScript than on screen.
+
+2015-09-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/Makefile.am, tests/golden/hid_ps1/circles.ps,
+	tests/inputs/circles.pcb, tests/run_tests.sh, tests/tests.list: 
+	Introduce regression tests for PostScript exporter.  Not the most fancy testing, but at least it recognizes invalid
+	PostScript. It triggers with the bug reported in LP1497963.
+
+2015-09-25   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/ps/ps.c: hid/ps/ps.c: avoid division by zero.  Given a linewidth of zero, 'inf' was written as line width to the
+	PostScript file, which made the file invalid. Now we at least get
+	valid PostScript.  Not yet solved: why is there an attempt to draw a circle of zero
+	size? This is related to bug LP1497963.
+
+2015-09-30   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui-config.c: swap the order of silk layer groups in
+	GUI The silk layers double as layer groups for top and bottom
+	copper. Current pcb/gtk GUI shows them bottom above top in
+	File->Preferences->Layers->Groups.  This is inconsistent with the
+	general order of layers.  The patch swaps the order the silk layers
+	are displayed in the groups dialog.
+
+2015-09-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/common/hidgl.c: Follow autoconf's recommendation for
+	including glu.h.
+
+2015-09-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/common/hidgl.c, src/hid/gtk/gtkhid-gl.c: Follow autoconf's
+	recommendation for including gl.h.
+
+2015-09-25   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/control: Debian: 'gerbv' isn't a package build dependency.  It's needed for running regression tests, only, and these tests
+	aren't run when building packages.  Tested with pbuilder.
+
+2015-09-25   Markus Hitter * mah AT jump-ing dot de *
+
+	* README.ppa: README.ppa: also set the actual uploader in
+	debian/control.  ... or at least provide instructions on how to do so.
+
+2015-09-25   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/control: debian/control: remove obsolete field
+	DM-Upload-Allowed.  This also fixes the corresponding warning while building the
+	package.
+
+2015-09-24   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/control: Debian: add dependencies for building straight
+	from Git.  When building from the bare repository there are quite a few
+	additional dependencies, almost all of them for documentation and
+	tutorials.
+
+2015-09-24   Markus Hitter * mah AT jump-ing dot de *
+
+	* README.ppa: README.ppa: add instructions on how to build in a
+	chroot.  After many failures with many different tools, 'pbuilder' was
+	finally found to be the one to work as described.
+
+2015-09-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/README.source, debian/source/format: Debian: remove Quilt
+	entirely.  All patches were removed earlier already, because there should never
+	be a need for packaging patches when packaging straight from the Git
+	repository. Accordingly there's no need to have a patch system at
+	all.
+
+2015-09-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* README.ppa: Debian: add instructions on how to build for the PPA.
+
+2015-09-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/patches/hid_get_extents, debian/patches/series: Debian:
+	remove all patches.  When building straight from the Git repo there should never be a
+	need for packaging patches.
+
+2015-09-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/pcb-common.docs, debian/rules: Debian: additional rules to
+	build straight from Git.  Previous rules were set to build from a distribution tarball, so
+	'configure' was expected to exist already.  These fixes are just enough to get the packages building, no or
+	sanity checks happened.
+
+2015-09-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/control: Debian: adjust build dependencies to recent
+	development.   - Relax dependency on 'tk8.5' to just 'tk'.   - Add 'libgts-dev' and 'texlive-binaries'.  So far only changes to get it building. All these dependencies
+	likely need a review, like trying to build without them in a chroot,
+	one by one, and keeping only the neccessary ones.
+
+2015-09-21   Markus Hitter * mah AT jump-ing dot de *
+
+	* debian/README.Debian, debian/README.source, debian/changelog,
+	debian/compat, debian/control, debian/copyright,
+	debian/patches/hid_get_extents, debian/patches/series,
+	debian/pcb-common-dev.dirs, debian/pcb-common-dev.install,
+	debian/pcb-common.dirs, debian/pcb-common.doc-base,
+	debian/pcb-common.docs, debian/pcb-common.examples,
+	debian/pcb-common.info, debian/pcb-common.install,
+	debian/pcb-common.lintian-overrides, debian/pcb-gtk-dev.dirs,
+	debian/pcb-gtk-dev.install, debian/pcb-gtk.dirs,
+	debian/pcb-gtk.links, debian/pcb-gtk.lintian-overrides,
+	debian/pcb-gtk.menu, debian/pcb-gtk.postinst, debian/pcb-gtk.prerm,
+	debian/pcb-lesstif-dev.dirs, debian/pcb-lesstif-dev.install,
+	debian/pcb-lesstif.dirs, debian/pcb-lesstif.links,
+	debian/pcb-lesstif.lintian-overrides, debian/pcb-lesstif.menu,
+	debian/pcb-lesstif.postinst, debian/pcb-lesstif.prerm,
+	debian/pcb.xpm, debian/rules, debian/source.lintian-overrides,
+	debian/source/format, debian/watch, src/hid/lesstif/main.c: Debian:
+	import debian/ as-is from Eugene Mikhantievs PPA.  Fetched from
+	https://launchpad.net/~mehanik/+archive/ubuntu/geda-unstable
+
+2015-09-27   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-main.c: Move gdk_window_process_all_updates to
+	safest spot Because it might be a tiny bit inefficient for zoom where it was.
+	This way nothing hits this except the case where we're about to do a
+	pointer warp
+
+2015-09-27   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/action.c, src/find.c, src/hid.h, src/hid/gtk/gtkhid-main.c,
+	src/hid/gtk/gui-drc-window.c, src/misc.c, src/misc.h: Do not warp
+	pointer too easily...  * Pointer warping bug people so now you have to double-click to get
+	it * Tooltip for the drc window
+
+2015-09-18   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/hid.h, src/hid/gtk/gtkhid-main.c,
+	src/hid/gtk/gui-drc-window.c, src/hid/lesstif/main.c, src/misc.c: 
+	Fix CenterWindow, DRC activation pointer warping.  CenterWindow didn't do what it's name said, it just warped the
+	pointer.  Now it does both for the gtk hid, so DRC checking works
+	consistently when the violation is off-screen or not.  It's still
+	broken in lesstif HID but no worse than it was, and there's a
+	warning about the pan-and-warp action not being implemented there.
+
+2015-09-18   Britton Leo Kerin * britton dot kerin AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-main.c: gtkhid-main.c: remove seemingly useless
+	double conversion.  They don't do anything.  The locals event_x/y are just copied out
+	then straight back into gport->pcb_x/y, none of which are use at all
+	in the interim.
+
+2015-09-27   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gui.h: hid/gtk/gui.h: fix definition of
+	LAYER_BUTTON_SILK LAYER_BUTTON_SILK should give the number of the layer after all
+	copper layers. Since the copper layers are enumerated starting with
+	zero, this is equal to the number of copper layers MAX_LAYER.  The previous definition erreously added LAYER_BUTTON_SILK to this
+	number.  This only worked, because src/const.h sets this constant to
+	zero.
+
+2015-09-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* po/POTFILES.in: Fix the recent addition of smartdisperse.c.  Before committing something, please run a 'make distcheck'. This is
+	considered to be the most safe way we have to make sure there is no
+	regression.  If this isn't possible, please build with and without NLS and run a
+	'make check' each time. Like:   ./autogen.sh && ./configure --disable-nls --disable-doc && make   make check   ./autogen.sh && ./configure && make   make check This is a bit more manual work but gives similar confidence.  All these tests pass now again.
+
+2014-07-08   Keith Packard * keithp AT keithp dot com *
+
+	* src/hid/ps/ps.c: Ignore completely clipped polygons in PS export This avoids dereferencing a null pointer and crashing.   Signed-off-by: Keith Packard * keithp AT keithp dot com *
+	 Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/Makefile.am, src/smartdisperse.c: Added smartdisperse.c from
+	Ben Jackson.  Removed bitrot, and prettyfied the file header for Doxygen.  Added
+	to the build system, so it gets always compiled in.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* configure.ac: configure.ac: report tests enablement in the
+	summary.  Also moved CPP_FLAGS & Co. upwards to have the more important part
+	last.
+
+2015-09-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/Makefile.am: Consider build tests not run to be a failure.  Previously a missing test environment would go unnoticed, the
+	distinction between a successful test run and a test not run at all
+	was (almost) not noticeable.
+
+2015-09-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/fontmode.c: src/fontmode.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/flags.c: src/flags.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/find.c, src/find.h: src/find.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c, src/file.h: src/file.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-15   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/run_tests.sh: run_tests.sh: make sure the test candidate is
+	writable.  This makes a distinction when running 'make distcheck', because the
+	file is written read-only to the distribution.
+
+2015-09-14   Markus Hitter * mah AT jump-ing dot de *
+
+	* configure.ac, tests/Makefile.am, tests/README.txt,
+	tests/golden/Makefile.am, tests/golden/hid_bom1/Makefile.am,
+	tests/golden/hid_bom2/Makefile.am,
+	tests/golden/hid_bom3/Makefile.am,
+	tests/golden/hid_bom4/Makefile.am,
+	tests/golden/hid_gcode1/Makefile.am,
+	tests/golden/hid_gcode10/Makefile.am,
+	tests/golden/hid_gcode11/Makefile.am,
+	tests/golden/hid_gcode2/Makefile.am,
+	tests/golden/hid_gcode3/Makefile.am,
+	tests/golden/hid_gcode4/Makefile.am,
+	tests/golden/hid_gcode5/Makefile.am,
+	tests/golden/hid_gcode6/Makefile.am,
+	tests/golden/hid_gcode7/Makefile.am,
+	tests/golden/hid_gcode8/Makefile.am,
+	tests/golden/hid_gcode9/Makefile.am,
+	tests/golden/hid_gerber1/Makefile.am,
+	tests/golden/hid_gerber2/Makefile.am,
+	tests/golden/hid_gerber3/Makefile.am,
+	tests/golden/hid_png1/Makefile.am,
+	tests/golden/hid_png2/Makefile.am,
+	tests/golden/hid_png3/Makefile.am, tests/inputs/Makefile.am,
+	tests/run_tests.sh: Remove these almost 25 Makefiles for just
+	copying tests.  Before there was a Makefile/.am/.in in each test directory, just to
+	define the EXTRA_DIST variable for this directory. A rather complex
+	approach.  The new strategy is to list all these files in one place, in
+	tests/Makefile.am. This almost doubles the speed of compilation
+	after small changes and reduces clutter sent to the command line a
+	lot, so a great improvement for developers.  Creation of new tests is also simplified, creating a Makefile.am and
+	editing configure.ac is no longer neccessary.  Previous versions of this commit used wildcards to include new tests
+	automatically. This strategy was discarded in favour of a
+	hand-edited list, because some developers aren't exactly excited by
+	using wildcards.  As we're on the topic, here are a few informative readings regarding
+	recursive makes and regarding wildcards:   "Recursive Make Considered Harmful"   Peter Miller, 2008   http://aegis.sourceforge.net/auug97.pdf   GNU automake about recursion:
+	http://www.gnu.org/software/automake/manual/html_node/Directories.html  GNU make about wildcards:
+	http://www.gnu.org/software/make/manual/html_node/Wildcard-Function.html  GNU automake about wildcards:
+	http://www.gnu.org/software/automake/manual/html_node/Wildcards.html
+
+2015-09-16   Markus Hitter * mah AT jump-ing dot de *
+
+	* w32/Makefile.am: w32/Makefile.am: refine the move to wildcards.  As per discussion in #geda IRC, liberal use of wildcards isn't
+	exactly a good idea. Some even prefer to use no wildcards at all.
+	Others want to make situations, where files are often added or
+	removed, less forget-prone.  As a compromise, move towards more strict, unambiguous wildcards.
+
+2015-09-15   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am: Makefile.am: refine the move from INCLUDES to
+	AM_CPPFLAGS.  The key is apparently this sentence in the autoconf docs:  "AM_CPPFLAGS is ignored in preference to a per-executable   (or per-library) _CPPFLAGS variable if it is defined." Accordingly we have to add -I$(top_srcdir) to every target-specific
+	*_CPPFLAGS.  This fixes a 'make distcheck' more, it builds now, but fails on the
+	checks.
+
+2015-09-15   Markus Hitter * mah AT jump-ing dot de *
+
+	* w32/Makefile.am: w32/Makefile.am: use wildcards to include
+	minipack stuff.  This should end the need for the often required commits to let the
+	Makefile catch up with actual development.  This partially fixes 'make distcheck', it runs a lot further.
+
+2015-09-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/error.c, src/error.h: src/error.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/drill.c, src/drill.h: src/drill.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/draw.c, src/draw.h: src/draw.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* configure.ac: configure.ac: remove test for maintainer mode.  The test is now pointless since usage of maintainer mode was
+	removed.
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* README.snapshots: A README shouldn't be run as shell script.  Not that the file had the executable bit set, but having a #!/bin/sh
+	on top fools some syntax coloring editors.
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am: Fix a configuration warning.  This was the warning message: src/Makefile.am:224: warning: 'INCLUDES' is the old name for   'AM_CPPFLAGS' (or '*_CPPFLAGS')
+
+2015-09-04   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/toporouter.c, src/toporouter.h: Toporouter: get rid of
+	GtsConstraint* in favour of GtsEdge*.  They were just single line structs, so unneccessary wrapping.  These
+	two GtsConstraint* aren't present in the Debian libgts package, so
+	their use is apparently deprecated.
+
+2015-09-04   Markus Hitter * mah AT jump-ing dot de *
+
+	* Makefile.am, configure.ac, doc/doxygen/pcb.dox, gts/.gitignore,
+	gts/Makefile.am, gts/NOTES, gts/bbtree.c, gts/boolean.c, gts/cdt.c,
+	gts/container.c, gts/curvature.c, gts/edge.c, gts/eheap.c,
+	gts/face.c, gts/fifo.c, gts/graph.c, gts/gts-private.h, gts/gts.h,
+	gts/heap.c, gts/hsurface.c, gts/iso.c, gts/isotetra.c,
+	gts/kdtree.c, gts/matrix.c, gts/misc.c, gts/named.c, gts/object.c,
+	gts/oocs.c, gts/partition.c, gts/pgraph.c, gts/point.c,
+	gts/predicates.c, gts/predicates.h, gts/psurface.c, gts/refine.c,
+	gts/rounding.h, gts/segment.c, gts/split.c, gts/stripe.c,
+	gts/surface.c, gts/triangle.c, gts/tribox3.c, gts/vertex.c,
+	gts/vopt.c, src/Makefile.am, src/toporouter.c, src/toporouter.h: 
+	Remove GTS sources in favour of the libgts package.  Tests done: - 'make check' - Builds with --disable-toporouter with no libgts present.  - Errors at config stage with default options, but libgts not   present.  - Errors with libgts runtime package installed, but not the -dev   package.  - Builds fine with libgts present and toporouter enabled.  - Builds fine with --enable-toporouter-output, too.
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/layerflags.c: Layer flags: document ListLayertypes() and
+	SetLayertype().
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* doc/pcb.texi: pcb.texi: remove the no longer existing vi-like
+	commands.
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* doc/pcb.texi: pcb.texi: rewrite Actions intro a bit more
+	newbie-friendly.
+
+2015-09-13   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/parse_y.y: Layer flags: update file format documentation.
+
+2015-09-11   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid.h, src/layerflags.c: hid.h: de-deprecate most SL_* layer
+	types.  They make sense, because not every "layer" drawn to the screen or
+	written to a file has also a direct pysical representation.  An example would be SL_PDRILL and SL_UDRILL, which are not drawn by
+	the user, but derived from pins and vias. Other layer types, like
+	for example the mask layer, exist as both, derived and physical
+	layer. The physical, user-drawn layer complements the derived one in
+	such cases.
+
+2015-09-13   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/menu.c: Add missing header layertypes.h Fixes build warning
+
+2015-09-13   DJ Delorie * dj AT delorie dot com *
+
+	* src/create.c: Define default silk layer types as LT_SILK
+
+2015-09-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* antifork/mirage335: Found another fork.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/djopt.c, src/djopt.h: src/djopt.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-12   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/menu.c: Fix lesstif HID wrt layer changes Fix a case of max_layer->max_copper_layer that got missed.
+
+2015-09-11   Markus Hitter * mah AT jump-ing dot de *
+
+	* po/POTFILES.in, src/layerflags.c: Implement Actions
+	ListLayertypes() and SetLayertype().  With all this pcb magic as easy as a beginners exercise. -- if one
+	knows how the magic works. :-)
+
+2015-09-11   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/file.c, src/layerflags.c, src/layerflags.h: layerflags.c:
+	simplify layertype_to_string().  Currently there can be only one value, so it's much easier to return
+	just the static string, without quotes.
+
+2015-09-11   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/file.c, src/layerflags.c, src/layerflags.h,
+	src/parse_y.y, src/strflags.c, src/strflags.h: Move layer flags
+	stuff into a separate file.  This may make files more readable by sorting stuff in a more object
+	oriented fashion.
+
+2015-09-11   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/strflags.c: strflags.c: remove standalone debugging code.  Flags work fine, so if issues come up, it's likely much easier to
+	write a few lines of code for investigating the issue at hand
+	instead of finding out how this standalone testing works.
+
+2015-09-07   Markus Hitter * mah AT jump-ing dot de *
+
+	* globalconst.h, src/buffer.c, src/const.h, src/copy.c,
+	src/crosshair.c, src/file.c, src/global.h,
+	src/hid/common/extents.c, src/hid/common/flags.c,
+	src/hid/gcode/gcode.c, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui.h, src/hid/hidint.h, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/macro.h, src/misc.c, src/move.c, src/move.h,
+	src/mymem.c, src/parse_y.y, src/select.c: Clear the situation about
+	MAX_LAYER.  This poked into my eye: 'MAX_LAYER + 2' or 'max_copper_layer + 2' was used in many places.
+	This '2' usually means the number of all layers, including the silk
+	ones. Using fixed values in such cases is less than ideal.  To relax the situation, SILK_LAYER was introduced to mark all these
+	places by using 'SILK_LAYER' instead of using a plain 2.  Great
+	efforts were done to find them, I hope it's complete.  Additionally, MAX_ALL_LAYER was introduced to replace 'MAX_LAYER +
+	2'. This shall mark these places for grepping.  A pure refactoring, behaviour should be exactly identical.  Well, except that in 2 or 3 places I was pretty sure a choosen array
+	size of MAX_LAYER was too small and should be MAX_ALL_LAYER.  These
+	size increases were done. So, behaviour should be actually more
+	reliable.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/parse_y.y, src/strflags.c, src/strflags.h: strflags.c,
+	guess_layertype(): overhaul and document a bit.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/misc.c: misc.c: make sure a loaded layout has only one outline
+	layer.  This is for compatibility with older files.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/macro.h: macro.h: add a loop for layers of a specific type.  Test code was this:   #include "strflags.h"   printf ("All layer:\n");   LAYER_LOOP (PCB->Data, max_copper_layer + 2)     printf ("Layer %d: %s\n", n, layertype_to_string(layer->Type));   END_LOOP;   printf ("Outline layer:\n");   LAYER_TYPE_LOOP (PCB->Data, max_copper_layer + 2, LT_OUTLINE)     printf ("Layer %d: %s\n", n, layertype_to_string(layer->Type));   END_LOOP;   printf ("Copper layer:\n");   LAYER_TYPE_LOOP (PCB->Data, max_copper_layer + 2, LT_COPPER)     printf ("Layer %d: %s\n", n, layertype_to_string(layer->Type));   END_LOOP;
+
+2015-09-10   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid.h, src/strflags.c: Layer flags: add a layer type "route".  Such a type is often seen and _not_ to confuse with the outline
+	layer.
+
+2015-09-10   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/global.h, src/hid.h, src/strflags.c: Layer flags: make layer
+	type an enum.  This brings the safety of typing and makes code even faster.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid.h, src/hid/common/extents.c, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/hidint.h, src/hid/lesstif/main.c, src/hid/nelma/nelma.c,
+	src/hid/png/png.c, src/hid/ps/eps.c, src/hid/ps/ps.c, src/macro.h,
+	src/misc.c, src/strflags.c, tests/golden/MinMaskGap/minmaskgap.pcb: 
+	Layer flags: revert the concept of layers having a "side".  Removing features? This deserves an explanation: 1. The whole current concept of gEDA/pcb is that physical layers    map not to single virtual layers, but to layer groups.     Accordingly, and this is the strongest reason for this revert,    all layers in a group and the group its self hold the same    information and have to be kept in sync. The need to keep    a whole bunch of locations synchonized is a can of worms I    do not want to open.  2. The above isn't going to change, unless the concept of groups    is given up.  3. GUI and exporters code have currently a pretty complicated    system of finding layer types, so solving this first and    postponing reckoning the similarly complicated mechanism for    finding the side is a good idea.  4. Pulling out type finding code will also make a lot of the group    handling code obsolete.  5. The implementation found in the patch mixed properties 'side'    and 'type' into a single variable by using bitfields. Requiring    bit mask decoding is slower and, because it was done by manual    masks instead of C bitfields, error prone.  6. Additional layer properties, like 'side' or even 'color' can be    added later without much hassle, so if it turns out this commit    was a poor decision, catching up then is likely even easier    then pulling through both at once now.  7. "Do one thing at a time and do this right!" :-)
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/hidint.h, src/strflags.c: Layer flags code may use its own
+	macros.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* pcb-layertypes.patch: Layer flags: remove the original patch.
+
+2015-09-09   Markus Hitter * mah AT jump-ing dot de *
+
+	* pcb-layertypes.patch, src/file.c, src/global.h, src/hid.h,
+	src/hid/common/extents.c, src/hid/gerber/gerber.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/hidint.h, src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/macro.h, src/misc.c, src/misc.h,
+	src/parse_y.y, src/strflags.c, src/strflags.h,
+	tests/golden/MinMaskGap/minmaskgap.pcb: Layer flags: apply DJ's
+	patch as is.  Origin: http://www.delorie.com/pcb/pcb-layertypes.patch Patch was applied manually, line by line. Some obvious cases were
+	corrected. To get it compiling a few changes in misc.c were
+	neccessary. Regression tests were updated to match the now saved
+	layer flags.
+
+2015-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/dbus-pcbmain.c, src/dbus-pcbmain.h: src/dbus-pcbmain.[ch]:
+	Converted plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/dbus.c, src/dbus.h: src/dbus.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/data.c, src/data.h: src/data.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/crosshair.c, src/crosshair.h: src/crosshair.[ch]: Converted
+	plain comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-08   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/file.c, src/parse_y.y: Two comment adjustments.
+
+2015-09-07   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/find.c, src/misc.c: Get rid of now unused TOP_LAYER,
+	BOTTOM_LAYER.  If used, these #defines were misplaced anyways, as this property is
+	a board/application wide property.
+
+2015-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/create.c, src/create.h: src/create.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/copy.c, src/copy.h: src/copy.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/const.h: src/const.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/compat.c, src/compat.h: src/compat.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/clip.c, src/clip.h: src/clip.[ch]: Converted plain comments
+	into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/change.c, src/change.h: src/change.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/print.c: Write time in ASCII locale into exported files.  Yet again with bending the locale, but this time done properly.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-08-13   Patrick Bernaud * patrickb AT chez dot com *
+
+	* antifork/bert, src/hid/png/png.c: PNG: avoid overflow when
+	determining the size of constrained images.  This should close bug 1036195.  Antifork update ammended by Markus Hitter.
+
+2015-09-06   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c: ActionDisplay: show help on failure.
+
+2015-09-06   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-top-window.c: gui-top-window.c: no need to check
+	arguments if not used.
+
+2015-09-05   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/common/draw_helpers.c: Non-OpenGL GUIs: fix drawing of
+	rotated square pads.  Reported and patch supplied by Ineiev. Thank you very much, Ineiev! This should fix bug #699209. With non-OpenGL views, rotated square
+	pads were always displayed unrotated unless one zoomed in very
+	closely. No longer, rotated square pads appear now fine at any zoom
+	level.  Some whitespace editing by me, Traumflug, after applying the patch.
+
+2015-09-05   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-config.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/gtk/gui.h: Gtk: store netlist window width in user
+	preferences as well.  For some unknown reason, all windows stored height as well as width,
+	but the netlist window only height. Now it's consistent.  This also solves a Gtk assertion failure, as setting a window width
+	of -1 isn't allowed. Still missing is a default size.
+
+2015-09-05   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-trackball.c: Gtk: replace deprecated
+	GTK_WIDGET_STATE().  Gtk+ 2 Manual deprecates it and recommends to replace it with
+	gtk_widget_get_state().  This follows commit d1c3fdb0b9bca15ee163acaa61c1fdeb2a67f8d9 of
+	geda-gaf.
+
+2015-09-05   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-keyref-window.c,
+	src/hid/gtk/gui-library-window.c, src/hid/gtk/gui-log-window.c,
+	src/hid/gtk/gui-netlist-window.c, src/hid/gtk/gui-pinout-window.c,
+	src/hid/gtk/gui-top-window.c: Gtk: replace deprecated
+	gtk_window_set_default_size().  Following commit 6b3064863ea4fc57ab3773de50663eae131ff8a5 of
+	geda-gaf, but replacing it with gtk_window_resize() instead of
+	removing it entirely.  Trying without sizing resulted in a log window height of just one
+	pixel for the message box. Also, pcb stores window sizes as user
+	preferences, while gschem apparently always used fixed sizes.
+
+2015-09-04   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-top-window.c: Gtk: remove deprecated
+	gtk_set_locale().  Gtk+ 2 Manual deprecates it and recommends to use setlocale()
+	directly. This, in turn, is done early in main() already.  Following commit 17066fd5739c1fdf3f9dba38c730409ac9e865eb of
+	geda-gaf.
+
+2015-09-04   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gui-output-events.c: Replace
+	gdk_pixmap_unref() with g_object_unref().  According to GTK+ manual gdk_pixmap_unref is deprecated equivalent
+	of g_object_unref().  Following commit a615040e76f0441f246163bcd8a8f191777d6109 of
+	geda-gaf.
+
+2015-09-02   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c, src/hid/lesstif/main.c, src/hid/lesstif/menu.c: Fix
+	a number of obvious invalid dereferences.  One of them led to a reliable segfault, so I searched all sources
+	for invalid argv[] usage.
+
+2015-09-02   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/inputs/minmaskgap.script: Fix regression tests for the batch
+	HID.
+
+2015-09-02   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/command.c: Remove command.c.  This mostly duplicated actions available elsewhere already, leading
+	to triple redundancy of CLI commands: - Actions like SaveTo().  - The GUI menu accelerator ('s' or 'ctrl-s') - The now removed 's'.  Double redundancy is sufficient :-)
+
+2015-09-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcbtest.sh.in: Fix pcbtest.sh another time.  The recent change to allow file paths with spaces broke running
+	tests, because not all parameters not starting with a '-' are layout
+	files. For example, there can be script files as well.  ==> Markus: do remember to run 'make check' before committing.
+
+2015-08-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/bert, antifork/clifton: Antifork: more ignores for bert
+	and clifton.
+
+2015-09-01   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/antifork.sh: Antifork: use 'git branch -M' instead of
+	'... --move --force'.  Moving with '--move --force' doesn't work when the target branch
+	exists already, the '--force' flag has apparently a meaning
+	different from intuition.
+
+2015-08-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/action.c, src/command.c, src/command.h,
+	src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-dialog.c,
+	src/hid/gtk/gui-top-window.c, src/netlist.c: Remove src/command.h.  Just old cruft, nowhere used.
+
+2015-08-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcbtest.sh.in: pcbtest.sh: allow spaces in file paths.
+
+2015-08-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcbtest.sh.in: pcbtest.sh: simplify, fix running with gdb.
+
+2015-08-31   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c, src/djopt.c, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/styles.c, src/report.c: 
+	Refine the move from pcb_sprintf() to pcb_snprintf().  Using 'const' variables to define buffer sizes wasn't a good idea,
+	such variables aren't really constant in C. It works for stack-
+	allocated buffers, but not 'static' ones. Changed all of them to
+	have one strategy for all cases.  Code builds now fine with --with-gui=gtk, --with-gui=lesstif and
+	--with-gui=batch.
+
+2015-08-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c, src/hid/gtk/gui-command-window.c, src/misc.c,
+	src/misc.h: Fix action SetThermal(), implement GetUnitlessValue().  The situation before was double-broken. In opposition to the
+	documentation in the commandline window, SetThermal() required a
+	second parameter.  The other broken thing was parsing that value, which is just an
+	index into a list, but was interpreted like a coordinate given in
+	centimil.  Both are fixed and on top of this, 'style' is now omittable.
+	There's a default style in every layout, so no need to stress the
+	user with finding the number of the wanted style.
+
+2015-08-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gtk/gui-command-window.c: Gtk GUI: get help message for
+	(un)loadvendor right.
+
+2011-01-15   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc: Renaming SOT325 footprint to SOT353, adding SC88A
+	footprint.  The current SOT325 footprint (as included in pcb 20100929) gives a
+	wrong footprint w.r.t. pin orientation: 1 |  | 5   |  | 4 2 |  | 3 this should have been: 1 |  | 5 2 |  | 3 |  | 4 Furthermore, googling for "SOT325" gives: 1) footprints in gedasymbols.org created by DJ.  2) according to www.nxp.com SOT-325-1 is a SDIP20 package (300 mil
+	DIP).  IMO SOT325 should be renamed to SOT-353-1 --> SOT353, or SC-88A
+	(JEITA standard) -->SC88A, or MO-203 (JEDEC standard).  The latter
+	is not a regular name designation in pcb (yet).  All names to be
+	converted without dashes, as not to frustrate M4.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2015-08-30   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/gpcb-menu.res.in: Add "Report net length" to Menu -> Info in
+	Gtk.  Such a useful feature and the Gtk GUI hided it :-/ Lesstif had it
+	already.
+
+2014-05-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-top-window.c: Added translatable tooltips for
+	toolbar buttons.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2011-12-12   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* lib/misc.inc: Use drillsize in ALF packages.  Drillsizes copied from radial can type.  Test for pitch sizes from
+	ALF packages reused.
+
+2012-09-14   Bert Timmerman * bert dot timmerman AT xs4all dot nl *
+
+	* lib/common.m4, lib/misc.inc: Corrections on the infinite loop in
+	the SIL m4 macro.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*
+
+2015-08-25   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/golden/MinMaskGap/minmaskgap.pcb,
+	tests/inputs/minmaskgap.script, tests/run_tests.sh,
+	tests/tests.list: Implement regression tests for actions.  First test candidate is MinMaskGap().  Reference files of actions aren't automatically added to
+	distribution files on --regen, because they're pretty identical to
+	the original. If it was me, I'd remove all these test result
+	references from the distribution. They're pointless, too trivial to
+	learn from.
+
+2015-08-24   Markus Hitter * mah AT jump-ing dot de *
+
+	* tests/inputs/Makefile.am, tests/inputs/minmaskgap.pcb: Add a
+	regression test file for action MinMaskGap().  Unfortunately the test suite doesn't support running actions, yet,
+	so it's added for later usage.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/file.c: Write grid size with units.  Apparently this was forgotten earlier.  Reading/parsing code unchanged, so no compatibility issues expected.
+	Also not considered to be a file format change, because values are
+	ordered the same, are of the same number and versions reading this
+	file format must be capable of reading units already.  This was found when hand-editing a testcase for LP1022076, the grid
+	size was saved to "funny" numbers, breaking regression tests.
+
+2015-08-24   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c: src/action.c: make Rolands patch for MinMaskGap()
+	complete.  Moved to a more general solution. Instead of looking at the Hole
+	flag, the mask offset is now always related to the bigger of
+	Thickness and DrillingHole.  Also applied the same for vias, which are the GUI way of defining
+	holes.  Last, all this in only applied if a mask hole existed before at all.
+	Typical non-mounting-hole vias are fully covered by solder resist.
+
+2012-09-13   Robert Drehmel * robert AT zoot dot drehmel dot com *
+
+	* src/action.c: MinMaskGap() should care about holes.  MinMaskGap() should care about holes as it does about pins, pads,
+	and vias. Otherwise, fab houses might complain because the solder
+	mask doesn't have enough distance to holes.  The problem in detail: ActionMinMaskGap() checks whether the hole's thickness plus the
+	specified minimum mask gap is larger than the currently set mask
+	value. If so, it sets the new mask to be the hole's thickness plus
+	the specified minimum mask gap value. ActionMinMaskGap() should
+	check a hole's drilling diameter and base the mask calculation upon
+	that.  This patch fixes the issue.  ... only for pins declared as hole. --Traumflug
+
+2015-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/bert: Antifork: more ignores for bert.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/antifork.sh: Antifork: another small speedup.  Also avoids a message "deleting branch" when the branch is actually
+	only replaced.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/antifork.sh: Antifork: get away without checkouts.  This is not only faster and leaves less garbage behind, it also
+	solves an important point: checking out an older branch means that
+	the whole directory antifork/ vanishes, so the script's working
+	directory gets lost. Git relies on having an existing working
+	directory.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/main.c: Enforce LC_NUMERIC = "C" on the command line, too.  This was set in the GUI already, but this is too late for command
+	line processing and not happening at all if there is not GUI.  Finally(!) all tests pass, 'make check' succeeds even with NLS
+	enabled.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c: gcode.c: fix file name creation.  Here we want file mode names, too. '.' instead of ','.  Regression tests no almost pass, even with NLS enabled:   Passed 19, failed 2, skipped 0 out of 21 tests.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/ascii-printf.c, src/ascii-printf.h: Remove
+	ascii-printf.c/.h.  Fare well, ascii_printf() ! You were coded and documented very
+	carefully. Doing so I learned enough to finally enhance pcb_printf()
+	to write floats/doubles in file mode, too.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c, src/hid/gcode/trace.c, src/main-test.c: 
+	Replace/remove of ascii_fprintf() in favour of pcb_fprintf().  Now that pcb_vprintf() respects file mode for generic floats, too,
+	this works just as fine.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/action.c, src/djopt.c, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/styles.c, src/pcb-printf.c,
+	src/pcb-printf.h, src/report.c: pcb-printf: replace pcb_sprintf()
+	with pcb_snprintf().  Using the types without 'n' is just asking for buffer overflows.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcb-printf.c: pcb-printf: teach float/double specifiers to
+	respect `.  Not too complicated and works quite fine.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcb-printf.c: pcb-printf: remove impossible case.  '*' is handled directly, never added to the spec string.
+
+2015-08-29   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/pcb-printf.c: pcb-printf: allow arbitrary order of
+	sub-specifiers.  It was simply too confusing to sort all these modifier characters in
+	the right order. It should make code more robust.  Yes, '#' is a duplicate, but it was one before, too.
+
+2015-08-28   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/bom/bom.c, src/hid/gcode/gcode.c: gcode.c, bom.c: adjust
+	more pcb_fprintf() usage for NLS.  We slowly get closer to tests passing:   Passed 12, failed 2, skipped 7 out of 21 tests.
+
+2015-08-28   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am, src/ascii-printf.c, src/ascii-printf.h,
+	src/hid/gcode/gcode.c, src/hid/gcode/trace.c, src/main-test.c: 
+	Implement ascii-printf.c/.h.  Main purpose of this is formatting independent from a users locale,
+	e.g. when writing G-code file contents.  This commit includes application to the G-code exporter. It doesn't
+	make the tests pass with NLS enabled, but the diffs became much
+	smaller. 'make check' passes as before with NLS disabled.
+
+2015-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/hid/gcode/gcode.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui-utils.c, src/main.c: Stop experimenting with LC_ALL,
+	LC_NUMERIC & Co.  Adjusting printf(), fprintf() output via environment variables can't
+	ever work, because there is only one such variable globally.  How
+	should this work if the exporter and some GUI part wants to printf()
+	something at the same time? Clash.  The standards comittees very apparently simply forgot or ignored
+	that not all printf() output is meant to be human readable. Bummer.  I almost imported an older printf() implementation to have one
+	ignoring the locale, but then I found g_ascii_formatd() on Glib.
+	This line works independently from the locale:   char b[100];   fputs(g_ascii_formatd(b, 100, "%3.2f\n", 125.646), stdout); Fine. Now we know on how to go ahead.  Regarding regression tests: 'make check' passes now without NLS (it
+	didn't before), but fails even uglier with NLS enabled.  Both on a
+	system with de_DE locale.
+
+2015-08-27   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/main.c: main.c: include gettext.h in favour of libintl.h.  gettext.h handles ENABLE_NLS already and likely does it better.
+
+2015-08-24   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/antifork.sh: antifork/antifork.sh: extend the intro
+	comment.  Add a copyright notice and explain more in detail what this tool is
+	about. Also try to comment in a fashion parseable by Doxygen.
+
+2015-08-23   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/bert: Antifork: ignore duplicates in bert.
+
+2015-08-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* antifork/antifork.sh: Changed a comment in the antifork script.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* antifork/bgamari, antifork/dti, antifork/gde, antifork/kupson,
+	antifork/leaky, antifork/see: Found even more forks.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* antifork/BenBergman, antifork/WileyECoyote, antifork/alyoshin,
+	antifork/dparnell, antifork/fruoff, antifork/jaredcasper,
+	antifork/jpmatsci, antifork/rlutz, antifork/russdill,
+	antifork/thequux, antifork/whiteaudio: More forks found  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-22   Markus Hitter * mah AT jump-ing dot de *
+
+	* antifork/antifork.sh, antifork/bert, antifork/clifton,
+	antifork/rnd: Introduce antifork.  This is a measure to deal with all these forks spread around the
+	globe and not contributing back. We simply pull all of them and take
+	measures to trash the obsolete stuff immediately.
+
+2015-08-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/drill.c, src/print.c, src/report.c: Don't round and join drill
+	sets for display.  This was confusing, because the number of required drills on display
+	(drill report) and in the Gerber fab file could be different from
+	the actual CNC files.  Note that pcb features applying a vendor drill map, so one can round
+	all drills consistently to what a board house offers.
+
+2015-08-26   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/drill.c, src/print.c: drill.c: fix RoundDrillInfo() for the
+	case with just one size.  Previously one would get different drill sizes depending on wether
+	there were other drills, too.  This makes the addition of 0.004 in print.c obsolete and should also
+	fix bug #699318.
+
+2015-08-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/change.c: src/change.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/buffer.c, src/buffer.h: src/buffer.[ch]: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2012-08-14   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui.h: Show the actual name of silk layers in the GUI.  This patch makes the GTK GUI show the actual name of the silk layer,
+	rather than a hard coded "silk". The layer name in silk gets updated
+	if the view is swapped.   Signed-off-by: Bert Timmerman * bert dot timmerman AT xs4all dot nl
+	*  Signed-off-by: Markus Hitter * mah AT jump-ing dot de *
+
+2015-08-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/buffer.c: src/buffer.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/box.h: src/box.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/autoroute.h: src/autoroute.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-04-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Corrected scale value for `umil` unit.   Reported-by: Peter S. May * me AT psmay dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-08-19   Markus Hitter * mah AT jump-ing dot de *
+
+	* configure.ac: Don't configure with AM_MAINTAINER_MODE.  As the automake manual explains it's self, maintainer mode
+	intentionally attempts to build old, possibly broken code:
+	https://www.gnu.org/software/automake/manual/html_node/maintainer_002dmode.htmlThe manual also explains why this is a bad idea:  "If one user has to modify a Makefile.am, then either   Makefile.in should be updated [...] but the last thing you   want is that nothing happens and the user doesn’t notice it   (this is what happens when rebuild rules are disabled by   AM_MAINTAINER_MODE)." It also sees a reason why this pitfall is kept at all:  "it [still] helps them working on projects where all files are   kept under version control" However, gEDA/pcb does NOT keep these generated files under version
+	control.  That said, maintainer mode can be enabled at any time by passing
+	--enable-maintainer-mode to 'configure'.
+
+2015-08-19   Markus Hitter * mah AT jump-ing dot de *
+
+	* src/Makefile.am: src/Makefile.am: parse_y.h isn't a source file.
+	https://www.gnu.org/software/automake/manual/html_node/Yacc-and-Lex.html: "You should never explicitly mention the intermediate (C or C++)   file in any SOURCES variable; only list the source file."
+
+2015-08-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/nl.po: Updated the Dutch translation file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *  Suggested-by: Richard Rasker * rasker AT linetec dot nl *
+
+2015-07-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/autoroute.c: autoroute.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.h: action.h: minor changes in Doxygen header.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c: action.c: minor changes in Doxygen header.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/autoplace.h: src/autoplace.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/autoplace.c: src/autoplace.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/action.h: action: edits in the Doxygen file
+	headers.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-20   erich_heinzle * a1039181 AT gmail dot com *
+
+	* doc/pcb.texi, src/fontmode.c: Added font information to pcb
+	manual.   Reviewed-by: Vladimir Zhbanov * vzhbanov AT gmail dot com *
+
+2015-07-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.h: src/action.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-07-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c: src/action.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-01-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/.gitignore, doc/doxygen/create_pcb_dox.sh,
+	doc/doxygen/pcb-main.txt, doc/doxygen/pcb.dox,
+	doc/doxygen/what-is-pcb.html: Added files for generation of
+	developer documentation with Doxygen.  Ignore output files generated in html and latex directories.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-02-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c: action.c: clean up before return.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-02-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c: action.c: added cast to int.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-02-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid.h: hid.h: removed duplicate forward declaration.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-06-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/find.c: Correction of word-wrap in duplicate text.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-04-14   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/report.c: Correction in "drill report" window (GTK GUI), a
+	wrong total count was reported.  Reported-by: Felix K (kuhlix)  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-02-06   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/pcb-printf.c, src/pcb-printf.h: pcb-printf: add (incomplete)
+	specifier unit test; allow # and $ to be in any order
+
+2015-02-05   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/main-test.c: src/main-test.c: remove unused variables from
+	main()
+
+2015-02-05   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/.gitignore, src/Makefile.am, src/main-test.c,
+	src/pcb-printf.c, src/pcb-printf.h: Add unit test framework and
+	simple unit-conversion test This adds a single unit test using the GLib test framework. To run
+	the unit tests, just run `make check` as usual. If there is a
+	failure, output can be seen by directly running the produced
+	`src/unittest` binary.  This also fixes the coord_to_unit function to provide correct
+	output.  Before there were some rounding errors.
+
+2015-01-08   Marco Ciampa * ciampix AT libero dot it *
+
+	* po/.gitignore: Added pcb.pot to the gitignore file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/buffer.c, src/create.c, src/create.h,
+	src/file.c, src/main.c: Remove unused parameter SetDefaultNames from
+	CreateNewPCB The SetDefaultNames parameter to CreateNewPCB was not used (despite
+	various callers passing both true and false), so remove it.
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/create.c: Rename default silk layers from "silk" to "top silk"
+	and "bottom silk"
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/create.c: Always set default layernames for silk layers This avoids incorrect layernames being left over from our layer
+	stack should a board be loaded with missing layers
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/pango.recipe: w32: Update pango recipe to 1.28.3 (Probably not the latest available, but one I successfully used with
+	gEDA and PCB before)
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/cairo.recipe: w32: Update cairo recipe to 1.10.2 (Probably not the latest available, but one I successfully used with
+	gEDA and PCB before)
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/build-all.sh, w32/recipes/freetype.recipe: w32: Add recipe for
+	freetype (Probably not the latest available, but one I successfully used with
+	gEDA and PCB before)
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/pixman.recipe: w32: Update pixman recipe to 0.20.2 (Probably not the latest available, but one I've successfully use
+	with gEDA and PCB before)
+
+2015-01-11   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/patches/gettext/01-AC_PROG_CXX.patch,
+	w32/patches/gettext/02-AC_CHECK_TOOLS.patch,
+	w32/patches/gettext/03-include_memchr.patch,
+	w32/recipes/gettext.recipe: w32: Attempt to make gettext build
+	successfully Patch the configure.ac files as necessary to avoid the need to
+	override CXX at configure time.  Fixup gettext-tools/libgettextpo/Makefile.gnulib to include a
+	replacement memchr function (which is assumed to be broken on the
+	target system when cross-compiling).
+
+2015-01-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/patches/gettext/01-revert-sed-string.patch,
+	w32/patches/gettext/02-Avoid-missing-open-argument-error.patch,
+	w32/recipes/gettext.recipe: w32: Update gettext recipe to 0.18
+
+2015-01-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/zlib.recipe: w32: Update zlib recipie to drop
+	?download.  It appears this is not required any more, and its presence breaks
+	things
+
+2015-01-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* w32/recipes/gd.recipe: w32: Update gd recipie to new version and
+	download location for libgd
+
+2015-01-08   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-main.c: hid/gtk: Improve accuracy of
+	"Benchmark" action somewhat Divide by the actual time taken, not exactly 10. (To get _good_
+	accuracy we'd also need to use timers more accurate than 1s!)
+
+2015-01-07   Marco Ciampa * ciampix AT libero dot it *
+
+	* src/action.c: Small fix in text source.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* missing: Update "missing" (automake) script to a later version Avoids some warnings at configure time noted with automake 1.14
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c, src/crosshair.h, src/hid/gtk/gtkhid-gdk.c,
+	src/hid/gtk/gtkhid-gl.c, src/hid/lesstif/main.c: Pass an explicit
+	graphics context to DrawAttached and DrawMark
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: lesstif: Fix lesstif_use_mask and
+	associated state to use the mask_mode enum
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/hidint.h: hid/hidint.h: Remove header guard check, it
+	appears not to be required
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/hidint.h: Update header guard macro check in hidint.h to
+	match rename The header guard in global.h was renamed in commit
+	f6c2d4907583614a10918a121f45670620f1946e Fixes an implicitly defined function warning in lesstif/main.c
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/netlist.c: lesstif: Silence two set but unused
+	variable warnings
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: lesstif: Silence set but unused variable
+	warning
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: lesstif: Silence set but unused variable
+	warning
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/lesstif/main.c: lesstif: Silence set but unused variable
+	warning
+
+2015-01-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c: Fix typo converting request_debug_draw
+	to return a HID_DRAW structure Fixes GTK HID built without OpenGL
+
+2015-01-02   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid.h: hid.h: Update comment to reflect change in API
+
+2015-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c, src/hid.h, src/hid/common/hidnogui.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui.h, src/hid/lesstif/main.c: Pass a HID_DRAW structure
+	for debug drawing, not HID Avoids passing the caller access to more functionality than
+	required.
+
+2015-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoroute.c: autoroute.c: Add missing include required for
+	debug drawing
+
+2015-01-01   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c: Don't use abuse mask drawing of pin/via drawing
+	routines to show DRC clearance during placement Explicitly call the graphical drawing routines as necessary.
+
+2014-12-09   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/.gitignore, src/Makefile.am, src/gpcb-menu.res.h,
+	src/pcb-menu.res.h: Don't put generated i18n helper files under
+	version control  Reported-by: Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+2014-12-08   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/Makefile.am: Skip prompt on `make distcheck'
+
+2014-12-08   Roland Lutz * rlutz AT hedmen dot org *
+
+	* po/POTFILES.in, po/POTFILES.skip, src/.gitignore,
+	src/Makefile.am, src/gpcb-menu.res.h, src/pcb-menu.res.h: Fix menus
+	not being translated
+
+2014-11-12   Eugene Mikhantiev * mikhantiev AT gmail dot com *
+
+	* tests/golden/hid_png3/Makefile.am: PCB make distcheck
+
+2014-11-12   Roland Lutz * rlutz AT hedmen dot org *
+
+	* po/POTFILES.in, po/POTFILES.skip: List real source files, not
+	generated C files, in po/POTFILES.in
+
+2014-10-29   Roland Lutz * rlutz AT hedmen dot org *
+
+	* : Add support for arbitrary-depth footprint libraries  Tested-by: Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de
+	*
+
+2014-09-10   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/hid/gtk/gui-config.c: Remove 509-character limit on
+	configuration values  Tested-by: Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de
+	*
+
+2014-09-11   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/hid/gtk/gui-library-window.c: If there is only one library
+	root node, keep it expanded
+
+2014-09-11   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/file.c: Load footprints recursively from subdirectories
+
+2014-09-11   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/hid/gtk/gui-library-window.c: Add support for recursive
+	directories to GTK library dialog
+
+2014-09-11   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/file.c, src/hid/gtk/gui-library-window.c,
+	src/hid/lesstif/library.c: Store full library path with menus
+
+2014-09-10   Roland Lutz * rlutz AT hedmen dot org *
+
+	* src/hid/gtk/gui-config.c: Remove 511-character limit on
+	configuration file lines  Tested-by: Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot de
+	*
+
+2014-09-10   Roland Lutz * rlutz AT hedmen dot org *
+
+	* doc/.gitignore, doc/mdate-sh: Remove outdated copy of `mdate-sh'
+
+2014-09-10   Roland Lutz * rlutz AT hedmen dot org *
+
+	* .gitignore: Add `test-driver' to the list of ignored files
+
+2014-07-10   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/change.c, src/print.c, src/thermal.c: Remove unused #include
+	"setjmp.h" from a few files
+
+2014-07-05   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c, src/search.c, src/search.h: Remove function
+	SearchScreenGridSlop() and use SearchObjectByLocation() directly
+
+2014-07-05   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c: action.c: Fix handling of the case where a segment
+	already exists when drawing lines We cancel creating any segment which would overlay an existing, but
+	we previously failed to move the start-point and toggle the
+	line-start direction so as to continue drawing from the desired
+	point as if we HAD created the line.
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-output-events.c: hid/gtk: Remove debugging printf
+	accidentally committed
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* : commit 4ca484d4f6c4ae3159c19c723036f980e93d19ce  Author: Peter
+	Clifton * peter AT clifton-electronics dot co dot uk * Date:   Fri
+	Jul 4 01:45:02 2014 +0100
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/change.c, src/change.h, src/global.h: Revert "Introduce
+	dynamic board size." This reverts commit d91daad65c3ea7e2e1b6ce876b7d41550f6a784e.      The goal is to eventually define the board's extent by the
+	    outline layer, only. That way, all the exporters can export
+	    properly sized layouts.      Undoubtly, this can also influence the GUIs. For example, "zoom
+	    to fit" becomes a slightly different meaning and drawing outside
+	    the board's extent becomes possible. Autorouting and similars can be
+	    limited to the actual board size. Resizing a board to the lower left
+	    no longer requires the error-prone moving of all the stuff and keeps
+	    file diffs small.  The code in question does NOT dynamically update the desired
+	information when the outline layer changes, and it adds yet more
+	 magic meaning to the "outline" layer which I'm trying slowly to
+	remove from PCB. This is the wrong way to cope with unlimited board
+	sizes.
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gcode/gcode.c: hid/gcode: Don't use
+	PCB->Extent{Min,Max}{X,Y}.. they are about to be killed The extent updating code is broken, and adds yet more special-case
+	code which handles the "outline" layer. Use PCB->MaxWidth and
+	PCB->MaxHeight, these represent the size the of board, and are the
+	values which the extents code defaulted to if it did not find any
+	lines on the "outline" layer.
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui.h: hid/gtk: Don't use a static local variable for
+	the tooltip id, it is ugly.
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gerber/gerber.c: hid/gerber: Fix broken eagle-suffix
+	filename assignemnt This was broken carelessly in commit
+	c812fbae2dfe74cd3d39dd2dcc5cdbb08e07555a NB: Please pay attention to compiler warnings... they are there for
+	a reason!
+
+2014-07-04   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-utils.c, src/hid/gtk/gui.h: constify name argument
+	to ghid_notebook_page() Avoids a compiler warning when building the GTK hid.
+
+2014-07-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/line.c, src/misc.c, src/misc.h: Remove function
+	GetGroupOfLayer, use GetLayerGroupNumberByNumber() instead.  These functions are virtually identical, the only difference being
+	special-case handling in the deleted function to force returning
+	max_group if passed layer number "max_copper_layer".  This actually (as it happens), corresponds to the bottom silk layer,
+	and this handling is suspect at best. GetLayerGroupNumberByNumber()
+	will return the group corresponding to the bottom of the board
+	(whichever that may be).
+
+2014-07-03   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/misc.c: Avoid walking off the layer group string in
+	ParseGroupString Oops - fix bug introduced in previous commit
+
+2014-06-28   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* globalconst.h, src/action.c, src/create.c,
+	src/hid/gtk/gui-config.c, src/main.c, src/misc.c, src/misc.h,
+	src/parse_y.y: Determine layer count in ParseGroupString This may break support for reading a board without a valid Groups()
+	construct, although that will only affect ancient PCB files.
+
+2014-06-28   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/parse_y.y: parse_y.y: Don't bother setting LayerFlag[1,2] for
+	elements - it isn't used
+
+2014-06-28   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/file.c, src/file.h, src/parse_y.y: Move contents of
+	PreLoadElementPCB and PostLoadElementPCB into parse_y.y These functions are only called from parse_y.y, and access yy
+	prefixed variables which should be private to the parser/lexer.
+
+2014-06-28   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* globalconst.h, src/autoroute.c, src/draw.c, src/global.h,
+	src/hid.h, src/hid/batch/batch.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gui-config.c,
+	src/hid/lesstif/dialogs.c, src/hid/nelma/nelma.c,
+	src/hid/png/png.c, src/hid/ps/eps.c, src/hid/ps/ps.c, src/move.c: 
+	Create a new constant MAX_GROUP to size arrays of layer groups.  This is clearer than using MAX_LAYER. (Although the numbers are
+	identical).
+
+2014-06-26   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/autoplace.c, src/autoroute.c, src/buffer.c, src/create.c,
+	src/crosshair.c, src/data.h, src/djopt.c, src/flags.c,
+	src/global.h, src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-config.c,
+	src/hid/gtk/gui-misc.c, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/main.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/macro.h, src/misc.c, src/polygon.c: Rename
+	"{component,solder}_silk_layer" to "{top,bottom}_silk_layer" This will avoid confusion when we start adding "soldermask" layers.  The resulting variables solder_soldermask_layer and
+	component_soldermask_layer are not ideal (repeated use of the word
+	solder), so lets start using "top_" and "bottom_" to define the
+	board sides. The corresponding new layer names are then
+	"top_soldermask_layer" and "bottom_soldermask_layer", which is less
+	confusing.  Patch includes various other renaming of component -> top and solder
+	-> bottom.
+
+2014-06-26   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/action.c, src/autoplace.c, src/autoroute.c, src/buffer.c,
+	src/crosshair.c, src/draw.c, src/hid/batch/batch.c,
+	src/hid/common/flags.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/misc.c, src/move.c, src/puller.c, src/rats.c,
+	src/rubberband.c, src/toporouter.c: Use new function
+	GetLayerGroupNumberBySide() to make code clearer Replaces code calling GetLayerGroupNumberByNumber() against one of
+	the silk-screen layers in order to find the layer group containing
+	the top or bottom side of the board.  Patch includes various renaming of component -> top, and solder ->
+	bottom
+
+2014-06-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/line.c: line.c: Cleanup group checking in drc_lines() Avoid using an out-of-bounds layer number which might be used in
+	future.
+
+2014-06-27   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/misc.c, src/misc.h: Create new function
+	GetLayerGroupNumberBySide()
+
+2014-06-26   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/const.h, src/data.h, src/draw.c, src/find.c, src/fontmode.c,
+	src/macro.h, src/misc.c, src/parse_y.y: Replace
+	{COMPONENT,SOLDER}_LAYER with {TOP,BOTTOM}_{SILK_LAYER,SIDE}
+	depending on usage We used the {COMPONENT,SOLDER}_LAYER constants for two distinct
+	meanings: 1. To identify board sides, ie. use as an integer constant
+	representing top / bottom 2. As an offset at the end of the layer array to index the two
+	silk-screen layers Split the usage of these constants as appropriate, so the difference
+	in meaning is clear. {TOP,BOTTOM}_SIDE are used where we need an
+	integer constant (1 and 0 respectively) refering to the side of the
+	board. This is used, for example, as a side specifier in draw.c, and
+	for indexing arrays of pads per board-side in find.c.  Usage as an offset into the layer for referencing the silk-screen
+	layers is now {TOP,BOTTOM}_SILK_LAYER. The relevant offset of
+	PCB->LayerN must still be added.
+
+2014-06-26   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/move.c: move.c: Fix incorrect usage of max_group Numerically correct (at the moment), semantically wrong.
+
+2014-06-13   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/polygon1.c: Fix some broken assumptions regarding 32-bit
+	integer coordinates in polygon1.c
+
+2014-06-12   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/polygon.c: polygon.c: Readability cleanup for frac_circle()
+
+2014-06-08   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/hid/png/png.c, tests/golden/hid_png3/Makefile.am: png: add
+	explicit round() calls to the scaling After this commit the tests pass on both 32- and 64-bit builds.
+	Hopefully this time it's really dead; the previous "fix" af27c2d by
+	myself merely increased the DPI of the output, but this one attempts
+	to get deterministic rounding behaviour.  Tests from folks with actual 32-bit machines are welcome.  Closes-bug: lp-860037
+
+2014-06-06   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/hid/gtk/gui-dialog.c: hid/gtk: Focus file save dialog at exit
+	to "Save", not "Close without saving".  Avoids inadvertently loosing work when closing the application.
+	"Cancel" would also be a safe choice of default focus, but the
+	choice of "Save" is copied from gedit to help give better platform
+	consistency on Gnome systems.
+
+2014-02-23   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* doc/gs/pt_BR/fb-blinker-pt_BR.texi,
+	doc/gs/pt_BR/fb-led-pt_BR.texi, doc/gs/pt_BR/fb-smt-pt_BR.texi,
+	doc/gs/pt_BR/firstboard-pt_BR.texi, doc/gs/pt_BR/gs-pt_BR.texi,
+	doc/gs/pt_BR/installation-pt_BR.texi,
+	doc/gs/pt_BR/introduction-pt_BR.texi,
+	doc/gs/pt_BR/terminology-pt_BR.texi: Translation of Getting Started
+	with PCB to pt_BR  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-04-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c: Changed the backup file suffix from dash to tilde.  Reported-by: rosvall  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-05-22   Richard Hughes * richard AT hughsie dot com *
+
+	* data/pcb.appdata.xml.in: Fix the AppData and update to the latest
+	spec version Also, include the full size screenshot as the old one was too small
+	to be used.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-05-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/puller.c: puller.c: Fix some cases where we use int rather
+	than Coord
+
+2014-05-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/puller.c: puller.c: Fix trace printf in find_pair() to reflect
+	actual arguments
+
+2014-05-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c: crosshair.c: Clean up MoveCrosshairAbsolute() to
+	make the logic more readable
+
+2014-05-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
+
+	* src/crosshair.c, src/crosshair.h, src/set.c: Remove
+	MoveCrosshairRelative function and convert old usage to
+	FitCrosshairIntoGrid() The two places this function was used passed (0, 0) as the position
+	delta, and intend only to force a re-calculation of the grid-snap.  Make the intent more clear by calling FitCrosshairIntoGrid()
+	directly.
+
+2014-05-03   Jorge Barros de Abreu * ficmatin10 AT gmail dot com *
+
+	* po/pt_BR.po: Update pt_BR.po  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2014-04-26   Ivan Stankovic * pokemon AT fly dot srk dot fer dot hr *
+
+	* src/hid/gtk/gui-output-events.c: hid/gtk: reset
+	tooltip_update_timeout_id properly check_object_tooltips may run before cancel_tooltip_update, causing
+	its GSource to be removed, but leaving the old timeout id.  This
+	results in warnings such as   (pcb:7135): GLib-CRITICAL **: Source ID 258 was not found when   attempting to remove it So we simply reset the id to zero before returning from
+	check_object_tooltips.   Signed-off-by: Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+2014-04-23   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/hid/gtk/gui-config.c: gtk: add option to Preferencs dialog to
+	save in metric-only mode
+
+2014-04-23   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/file.c, src/global.h, src/main.c: Add command-line option
+	--save-metric-only When passed --save-metric-only, pcb will only use the 'mm' suffix
+	when saving pcb files, rather than using both mm and mil.
+
+2014-04-23   Andrew Poelstra * apoelstra AT wpsoftware dot net *
+
+	* src/pcb-printf.c, src/pcb-printf.h: pcb-printf: make
+	ALLOW_READABLE constant changeable at runtime The ALLOW_READABLE constant is a bitmask of units which old versions
+	of pcb can read, which is currently hardcoded to ALLOW_MIL |
+	ALLOW_MM.  This patch replaces the constant with a function call
+	whose return value can be changed at runtime. (By default the
+	function returns the old ALLOW_READABLE value, so this commit makes
+	no user-visible changes.) In a later commit I will add a user-settable option to change the
+	effective ALLOW_READABLE value, at least to allow reducing it to
+	simply ALLOW_MM.
+
+2014-03-16   DJ Delorie * dj AT delorie dot com *
+
+	* ChangeLog, NEWS: Update for release
+
 2014-03-16   DJ Delorie * dj AT delorie dot com *
 
 	* tests/golden/hid_gcode4/gcode_oneline-bottom.gcode,
