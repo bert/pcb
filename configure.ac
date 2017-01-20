@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([pcb], m4_esyscmd([git describe | tr -d '\n']))
+AC_INIT([pcb], m4_esyscmd([git describe --abbrev=8 --dirty --always --tags | awk '{printf "%s+", $0}']))
 AC_CONFIG_SRCDIR([src/draw.c])
 AC_PREREQ([2.69])
 AM_INIT_AUTOMAKE([1.9])
