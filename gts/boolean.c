@@ -25,8 +25,14 @@
 /*#define CHECK_ORIENTED*/
 
 #ifdef DEBUG
-#  include "gts-private.h"
-#endif /* DEBUG */
+#ifdef DEBUG_FUNCTIONS
+#include "gts-private.h"
+#else
+#define DEBUG_FUNCTIONS
+#include "gts-private.h"
+#undef DEBUG_FUNCTIONS
+#endif
+#endif
 
 static void surface_inter_destroy (GtsObject * object)
 {
@@ -133,13 +139,14 @@ static EdgeInter * edge_inter_new (GtsVertex * v1, GtsVertex * v2,
 }
 
 #ifdef DEBUG
+static void add_to_list (gpointer data, GSList ** l) {
+  *l = g_slist_prepend (*l, data);
+}
+
 static void write_surface_graph (GtsSurface * s, FILE * fp)
 {
   GSList * l = NULL;
   GtsGraph * g;
-  static void add_to_list (gpointer data, GSList ** l) {
-    *l = g_slist_prepend (*l, data);
-  }
 
   gts_surface_foreach_vertex (s, (GtsFunc) gts_object_reset_reserved, NULL);
   gts_surface_foreach_edge (s, (GtsFunc) gts_object_reset_reserved, NULL);

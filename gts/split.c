@@ -20,6 +20,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gts.h"
+#ifdef DEBUG
+  #ifdef DEBUG_FUNCTIONS
+    #include "gts-private.h"
+  #else
+    #define DEBUG_FUNCTIONS
+    #include "gts-private.h"
+    #undef DEBUG_FUNCTIONS
+  #endif
+#endif
 
 #define DYNAMIC_SPLIT
 #define NEW
