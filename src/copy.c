@@ -286,16 +286,16 @@ CopyPolygon (LayerType *Layer, PolygonType *Polygon)
 static void *
 CopyElement (ElementType *Element)
 {
+  ElementType *element;
 
 #ifdef DEBUG
   printf("Entered CopyElement, trying to copy element %s\n",
-	 Element->Name[1].TextString);
+         Element->Name[1].TextString);
 #endif
 
-  ElementType *element = CopyElementLowLevel (PCB->Data, Element,
-                                              TEST_FLAG (UNIQUENAMEFLAG, PCB),
-                                              DeltaX, DeltaY, NOCOPY_FLAGS);
-
+  element = CopyElementLowLevel (PCB->Data, Element,
+                                 TEST_FLAG (UNIQUENAMEFLAG, PCB),
+                                 DeltaX, DeltaY, NOCOPY_FLAGS);
   /* this call clears the polygons */
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
   if (PCB->ElementOn && (FRONT (element) || PCB->InvisibleObjectsOn))
