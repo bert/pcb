@@ -1516,7 +1516,7 @@ Print (int argc, char **argv, Coord x, Coord y)
 
   if (printer == NULL)
     {
-      gui->log (_("Can't find a suitable printer HID"));
+      gui->log (_("Can't find a suitable printer HID\n"));
       return -1;
     }
 
@@ -1526,7 +1526,7 @@ Print (int argc, char **argv, Coord x, Coord y)
       ghid_dialog_print (printer);
     }
   else
-    gui->log (_("Can't print empty layout"));
+    gui->log (_("Can't print empty layout\n"));
 
   return 0;
 }
@@ -1586,7 +1586,7 @@ Export (int argc, char **argv, Coord x, Coord y)
       ghid_dialog_export ();
     }
   else
-    gui->log (_("Can't export empty layout"));
+    gui->log (_("Can't export empty layout\n"));
 
   return 0;
 }
