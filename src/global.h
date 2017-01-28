@@ -986,8 +986,8 @@ struct drc_violation_st
  * Macros called by various action routines to show usage or to report
  * a syntax error and fail
  */
-#define AUSAGE(x) Message ("Usage:\n%s\n", (x##_syntax))
-#define AFAIL(x) { Message ("Syntax error.  Usage:\n%s\n", (x##_syntax)); return 1; }
+#define AUSAGE(x) Message (_("Usage:\n%s\n"), _(x##_syntax))
+#define AFAIL(x) { Message (_("Syntax error.  Usage:\n%s\n"), _(x##_syntax)); return 1; }
 
 /* ---------------------------------------------------------------------------
  * Variables with absolute paths to various directories.  These are deduced
