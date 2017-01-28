@@ -113,7 +113,7 @@ ReportDrills (int argc, char **argv, Coord x, Coord y)
   for (n = 0; n < AllDrills->DrillN; n++)
     {
       pcb_snprintf (thestring, size_left,
-	       "%10m*\t\t%d\t\t%d\t\t%d\t\t%d\n",
+	       _("%10m*\t\t%d\t\t%d\t\t%d\t\t%d\n"),
 	       Settings.grid_unit->suffix,
 	       AllDrills->Drill[n].DrillSize,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
@@ -689,7 +689,7 @@ ReportAllNetLengths (int argc, char **argv, Coord x, Coord y)
           ClearFlagOnAllObjects (false, FOUNDFLAG);
 
           pcb_snprintf(buf, sizeof (buf), _("%$m*"), units_name, length);
-          gui->log(_("Net %s length %s\n"), netname, buf);
+          gui->log(_("Net \"%s\" length: %s\n"), netname, buf);
         }
     }
 
@@ -904,7 +904,7 @@ ReportNetLengthByName (char *tofind, int x, int y)
 
   if (!net_found)
     {
-      gui->log (_("No net named %s\n"), tofind);
+      gui->log (_("No net named \"%s\"\n"), tofind);
       return 1;
     }
 
