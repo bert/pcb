@@ -3470,7 +3470,7 @@ ActionRenumber (int argc, char **argv, Coord x, Coord y)
 	      cnt_list = (struct _cnt_list *)realloc (cnt_list, cnt_list_sz);
 	      if (cnt_list == NULL)
 		{
-		  fprintf (stderr, _("realloc failed() in %s\n"), __FUNCTION__);
+		  fprintf (stderr, _("realloc() failed in %s()\n"), __FUNCTION__);
 		  exit (1);
 		}
 	      /* zero out the memory that we added */
