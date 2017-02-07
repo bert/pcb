@@ -240,7 +240,8 @@ Alternatively, you can disable building the documentation with
         AC_MSG_ERROR([You have requested a build
 of the documentation.  For this to work, you must have a functional install of
 TeX and LaTeX that includes epsf.tex.  On some linux distributions this is
-part of the texlive-generic-recommended package.
+part of the texlive-generic-recommended package.  On NetBSD this is is part
+of the tex-epsf package.
 Alternatively, you can disable building the documentation with
 --disable-doc.])
    fi
@@ -615,6 +616,7 @@ AC_PATH_PROG(IM_COMPOSITE, composite, notfound)
 AC_PATH_PROG(IM_CONVERT, convert, notfound)
 AC_PATH_PROG(IM_DISPLAY, display, notfound)
 AC_PATH_PROG(IM_MONTAGE, montage, notfound)
+AC_PATH_PROG(XHOST, xhost, notfound)
 missing_magick=""
 test "${IM_ANIMATE}" != "notfound" || missing_magick="${missing_magick} animate"
 test "${IM_COMPARE}" != "notfound" || missing_magick="${missing_magick} compare"

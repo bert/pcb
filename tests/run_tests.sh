@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009, 2010 Dan McMahill
+# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2017 Dan McMahill
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of version 2 of the GNU General Public License as
@@ -184,6 +184,9 @@ IM_CONVERT=${IM_CONVERT:-convert}
 IM_DISPLAY=${IM_DISPLAY:-display}
 IM_MONTAGE=${IM_MONTAGE:-montage}
 
+# xhost program to check for a working display
+XHOST=${XHOST:-xhost}
+
 # golden directories
 INDIR=${INDIR:-${srcdir}/inputs}
 OUTDIR=outputs
@@ -222,6 +225,22 @@ if test -z "${all_tests}" ; then
 fi
 
 
+# check if we have a working display.  Without it we will
+# fail the action script checks unless pcb was built as 
+# batch HID.   I'm open to suggestions on improving
+# the robustness of this check
+
+echo "Checking for working X display"
+${XHOST} >/dev/null 2>&1
+rc=$?
+if test $rc -eq 0 ; then
+	have_display=yes
+	echo "yes"
+else
+	have_display=no
+	echo "no.  Certain tests will be skipped."
+fi
+
 # fail/pass/total counts
 fail=0
 pass=0
@@ -259,6 +278,10 @@ IM_COMPOSITE             ${IM_COMPOSITE}
 IM_CONVERT               ${IM_CONVERT}
 IM_DISPLAY               ${IM_DISPLAY}
 IM_MONTAGE               ${IM_MONTAGE}
+
+Working Display (for Action tests):
+
+have_display             ${have_display}
 
 EOF
 
@@ -605,6 +628,11 @@ for t in $all_tests ; do
     if test "X${hid}" = "Xaction" ; then
 	script_file=${files%.pcb}.script
 	pcb_flags="--action-script ../../${INDIR}/${script_file}"
+	if test "X${have_display}" = "Xno" ; then
+		echo "Skipping action test because there is currently no X display available"
+		skip=`expr $skip + 1`
+		continue
+	fi
     else
 	# hidden here, still in effect for all HID tests
 	pcb_flags="-x ${hid} ${pcb_flags}"
