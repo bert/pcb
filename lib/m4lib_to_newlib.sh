@@ -197,7 +197,17 @@ first == 1 {
 	comment = a[4];
 
 	# pick out the name of the footprint
-	match (comment, /(.*)\[(.*)\]/, fp);
+	loc = match(comment, /.*\[.*\]/);
+	if(loc > 0) {
+		fp[0] = substr(comment, RSTART, RLENGTH);
+		loc2 =  index(fp[0], "[");
+		fp[1] = substr(fp[0], 0, loc2-1);
+		loc3 = length(fp[0]) - (loc2 + 1);
+		fp[2] = substr(fp[0], loc2+1, loc3);
+	} else {
+		printf("Bad line (could not extract component name): %s\n", $0) > "/dev/stderr";
+		exit(1);
+	}
 	comp = fp[2];
 	comment = a[3] ", " fp[1];
 
