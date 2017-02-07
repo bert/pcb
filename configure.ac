@@ -121,6 +121,30 @@ AC_SUBST(GETTEXT_PACKAGE)
 
 AM_GNU_GETTEXT_VERSION([0.19.3])
 AM_GNU_GETTEXT
+
+AC_MSG_CHECKING([if $MSGFMT understands msgctxt (message context)])
+cat > conftest.po <<EOF
+[#]line __oline__ "configure"
+[#]. -- Info tab
+[#]: myfile.c:lineno
+msgctxt "tab"
+msgid "Info"
+msgstr ""
+EOF
+if ($MSGFMT -o conftest.gmo conftest.po >/dev/null; exit) 2>&AC_FD_CC
+then
+dnl
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([It appears that your gettext tools ($MSGFMT) is too old.
+You should install a newer gettext tools (>= 0.19.3 suggested).  You may
+specify the location of the msgfmt executible with MSGFMT=/path/to/msgfmt
+on the configure command line.
+])
+fi
+rm -f conftest.po conftest.gmo
+
 IT_PROG_INTLTOOL([0.35.0])
 
 AC_C_INLINE
