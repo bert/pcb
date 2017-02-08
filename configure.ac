@@ -829,12 +829,29 @@ done
 
 if test "$need_gdlib" = "yes"; then
 	# Search for glib
-	PKG_CHECK_MODULES(GDLIB, gdlib, ,
-		[AC_MSG_ERROR([Note: cannot find gdlib.
-This is required for gcode, nelma, png HIDs 
-You may want to review the following errors:
-$GDLIB_PKG_ERRORS])]
-)
+	PKG_CHECK_MODULES(GDLIB, gdlib,[found_gdlib=yes] , [found_gdlib=no])
+
+	if test "X$found_gdlib" = "Xno"; then
+		# older installs came with gdlib-config and not the .pc file
+		# to work with pkg-config
+		AC_PATH_PROG([GDLIB_CONFIG], [gdlib-config], [notfound])
+		if test "$GDLIB_CONFIG" = "notfound" ; then
+			AC_MSG_ERROR([cannot find gdlib-config.  gdlib
+is required for gcode, nelma, png HIDs 
+You may want to review the following errors
+from $PKG_CONFIG:
+$GDLIB_PKG_ERRORS])
+		else
+			AC_MSG_CHECKING([for gdlib cflags])
+			GDLIB_CFLAGS=`${GDLIB_CONFIG} --cflags`
+			AC_MSG_RESULT([$GDLIB_CFLAGS])
+
+			AC_MSG_CHECKING([for gdlib libraries])
+			GDLIB_LIBS=`${GDLIB_CONFIG} --libs`
+			AC_MSG_RESULT([$GDLIB_LIBS])
+		fi
+	fi
+
 	save_LIBS="$LIBS"
 	LIBS="$LIBS $GDLIB_LIBS"
 
