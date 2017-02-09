@@ -1,3 +1,37 @@
+/*!
+ * \file src/common/hidinit.c
+ *
+ * \brief General initialization routines for HIDs.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ * haceaton@aplcomm.jhuapl.edu
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -49,6 +83,17 @@ HID *exporter = NULL;
 
 int pixel_slop = 1;
 
+/*!
+ * \brief Search a directory for plugins and load them if found
+ *
+ * The specified path is searched for shared library objects and dynamic link
+ * libraries. If any are found, check their symbols for a "hid_x_init" (where
+ * x is the basename of the library file) or a pcb_plugin_init, and call it as 
+ * a function if found.
+ * 
+ * \todo the MacOS .dylib should be added to this list
+ *
+ */
 static void
 hid_load_dir (char *dirname)
 {
@@ -117,16 +162,25 @@ hid_load_dir (char *dirname)
   closedir (dir);
 }
 
+/*!
+ * \brief Initialize the available hids and load plugins
+ *
+ * The file hid/common/hidlist.h contains a list of HID_DEF statements, compiled
+ * by the build system. The HID_DEF macro is redefined here to call the init
+ * function for each of those hids.
+ */
 void
 hid_init ()
 {
   /* Setup a "nogui" default HID */
   gui = hid_nogui_get_hid ();
 
+  /* Call all of the hid initialization functions */
 #define HID_DEF(x) hid_ ## x ## _init();
 #include "hid/common/hidlist.h"
 #undef HID_DEF
 
+  /* Search the exec_prefix for plugins and load them */
   hid_load_dir (Concat (exec_prefix, PCB_DIR_SEPARATOR_S, "lib",
 	PCB_DIR_SEPARATOR_S, "pcb",
 	PCB_DIR_SEPARATOR_S, "plugins",
@@ -135,7 +189,8 @@ hid_init ()
 	PCB_DIR_SEPARATOR_S, "pcb",
 	PCB_DIR_SEPARATOR_S, "plugins", NULL));
 
-  /* homedir is set by the core immediately on startup */
+  /* Search homedir for plugins and load them. homedir is set by the core
+   * immediately on startup */
   if (homedir != NULL)
     {
       hid_load_dir (Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
@@ -154,6 +209,9 @@ hid_uninit (void)
 
 }
 
+/*!
+ * \brief Add an HID to the list of HIDs.
+ */
 void
 hid_register_hid (HID * hid)
 {
