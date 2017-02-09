@@ -131,7 +131,7 @@ msgctxt "tab"
 msgid "Info"
 msgstr ""
 EOF
-if ($MSGFMT -o conftest.gmo conftest.po >/dev/null; exit) 2>&AC_FD_CC
+if ($MSGFMT -o conftest.gmo conftest.po >/dev/null; exit) 2>&AS_MESSAGE_LOG_FD
 then
 dnl
   AC_MSG_RESULT([yes])
