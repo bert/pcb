@@ -124,6 +124,9 @@ hidgl_set_depth (float depth)
   global_depth = depth;
 }
 
+/*!
+ * \brief Draw the grid on the 3D canvas
+ */
 void
 hidgl_draw_grid (BoxType *drawn_area)
 {
@@ -133,8 +136,9 @@ hidgl_draw_grid (BoxType *drawn_area)
   double x, y;
 
   if (!Settings.DrawGrid)
-    return;
+    return; /* grid hidden */
 
+  /* Find the bounding grid points, all others lay between them */
   x1 = GridFit (MAX (0, drawn_area->X1), PCB->Grid, PCB->GridOffsetX);
   y1 = GridFit (MAX (0, drawn_area->Y1), PCB->Grid, PCB->GridOffsetY);
   x2 = GridFit (MIN (PCB->MaxWidth, drawn_area->X2), PCB->Grid, PCB->GridOffsetX);
@@ -154,9 +158,9 @@ hidgl_draw_grid (BoxType *drawn_area)
       y2 = tmp;
     }
 
-  n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
+  n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1; /* Number of points in one row */
   if (n > npoints)
-    {
+    { /* [n]points are static, reallocate if we need more memory */
       npoints = n + 10;
       points = realloc (points, npoints * 3 * sizeof (GLfloat));
     }
@@ -166,15 +170,16 @@ hidgl_draw_grid (BoxType *drawn_area)
 
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
-    {
+    { /* compute all the x coordinates */
       points[3 * n + 0] = x;
       points[3 * n + 2] = global_depth;
       n++;
     }
   for (y = y1; y <= y2; y += PCB->Grid)
-    {
+    { /* reuse the row of points at each y */
       for (i = 0; i < n; i++)
         points[3 * i + 1] = y;
+      /* draw all the points in a row for a given y */
       glDrawArrays (GL_POINTS, 0, n);
     }
 
