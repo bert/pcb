@@ -1,3 +1,36 @@
+/*!
+ * \file src/hid/gtk/gtkhid-gdk.c
+ *
+ * \brief Functions for drawing on the GTK 2D graphics canvas
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996,1997,1998,2005,2006 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -139,6 +172,9 @@ set_clip (render_priv *priv, GdkGC *gc)
     gdk_gc_set_clip_mask (gc, NULL);
 }
 
+/*!
+ * \brief Draw the grid on the 2D canvas
+ */
 static void
 ghid_draw_grid (void)
 {
@@ -149,10 +185,10 @@ ghid_draw_grid (void)
   render_priv *priv = gport->render_priv;
 
   if (!Settings.DrawGrid)
-    return;
+    return; /* grid hidden */
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
-    return;
-  if (!priv->grid_gc)
+    return; /* zoomed in too far, no grid points */
+  if (!priv->grid_gc) /* create a graphics context if we don't have one */
     {
       if (gdk_color_parse (Settings.GridColor, &gport->grid_color))
 	{
@@ -166,7 +202,7 @@ ghid_draw_grid (void)
       gdk_gc_set_foreground (priv->grid_gc, &gport->grid_color);
       gdk_gc_set_clip_origin (priv->grid_gc, 0, 0);
       set_clip (priv, priv->grid_gc);
-    }
+    } /* end if (!priv->grid_gc) */
   x1 = GridFit (SIDE_X (gport->view.x0), PCB->Grid, PCB->GridOffsetX);
   y1 = GridFit (SIDE_Y (gport->view.y0), PCB->Grid, PCB->GridOffsetY);
   x2 = GridFit (SIDE_X (gport->view.x0 + gport->view.width - 1),
@@ -185,6 +221,8 @@ ghid_draw_grid (void)
       y1 = y2;
       y2 = tmp;
     }
+  
+  /* The bounding points could have been outside of the drawing area */
   if (Vx (x1) < 0)
     x1 += PCB->Grid;
   if (Vy (y1) < 0)
@@ -193,24 +231,26 @@ ghid_draw_grid (void)
     x2 -= PCB->Grid;
   if (Vy (y2) >= gport->height)
     y2 -= PCB->Grid;
-  n = (x2 - x1) / PCB->Grid + 1;
+  
+  n = (x2 - x1) / PCB->Grid + 1; /* Number of points in one row */
   if (n > npoints)
-    {
+    { /* [n]points are static, reallocate if we need more memory */
       npoints = n + 10;
       points = (GdkPoint *)realloc (points, npoints * sizeof (GdkPoint));
     }
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
-    {
+    { /* compute all the x coordinates */
       points[n].x = Vx (x);
       n++;
     }
   if (n == 0)
     return;
   for (y = y1; y <= y2; y += PCB->Grid)
-    {
+    { /* reuse the row of points at each y */
       for (i = 0; i < n; i++)
 	points[i].y = Vy (y);
+      /* draw all the points in a row for a given y */
       gdk_draw_points (gport->drawable, priv->grid_gc, points, n);
     }
 }
