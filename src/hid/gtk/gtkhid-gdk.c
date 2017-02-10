@@ -189,20 +189,20 @@ ghid_draw_grid (void)
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
     return; /* zoomed in too far, no grid points */
   if (!priv->grid_gc) /* create a graphics context if we don't have one */
+  {
+    if (gdk_color_parse (Settings.GridColor, &gport->grid_color))
     {
-      if (gdk_color_parse (Settings.GridColor, &gport->grid_color))
-	{
-	  gport->grid_color.red ^= gport->bg_color.red;
-	  gport->grid_color.green ^= gport->bg_color.green;
-	  gport->grid_color.blue ^= gport->bg_color.blue;
-	  gdk_color_alloc (gport->colormap, &gport->grid_color);
-	}
-      priv->grid_gc = gdk_gc_new (gport->drawable);
-      gdk_gc_set_function (priv->grid_gc, GDK_XOR);
-      gdk_gc_set_foreground (priv->grid_gc, &gport->grid_color);
-      gdk_gc_set_clip_origin (priv->grid_gc, 0, 0);
-      set_clip (priv, priv->grid_gc);
-    } /* end if (!priv->grid_gc) */
+      gport->grid_color.red ^= gport->bg_color.red;
+      gport->grid_color.green ^= gport->bg_color.green;
+      gport->grid_color.blue ^= gport->bg_color.blue;
+      gdk_color_alloc (gport->colormap, &gport->grid_color);
+    }
+    priv->grid_gc = gdk_gc_new (gport->drawable);
+    gdk_gc_set_function (priv->grid_gc, GDK_XOR);
+    gdk_gc_set_foreground (priv->grid_gc, &gport->grid_color);
+    gdk_gc_set_clip_origin (priv->grid_gc, 0, 0);
+    set_clip (priv, priv->grid_gc);
+  } /* end if (!priv->grid_gc) */
   x1 = GridFit (SIDE_X (gport->view.x0), PCB->Grid, PCB->GridOffsetX);
   y1 = GridFit (SIDE_Y (gport->view.y0), PCB->Grid, PCB->GridOffsetY);
   x2 = GridFit (SIDE_X (gport->view.x0 + gport->view.width - 1),
@@ -223,14 +223,10 @@ ghid_draw_grid (void)
     }
   
   /* The bounding points could have been outside of the drawing area */
-  if (Vx (x1) < 0)
-    x1 += PCB->Grid;
-  if (Vy (y1) < 0)
-    y1 += PCB->Grid;
-  if (Vx (x2) >= gport->width)
-    x2 -= PCB->Grid;
-  if (Vy (y2) >= gport->height)
-    y2 -= PCB->Grid;
+  if (Vx (x1) < 0)    x1 += PCB->Grid;
+  if (Vy (y1) < 0)    y1 += PCB->Grid;
+  if (Vx (x2) >= gport->width)    x2 -= PCB->Grid;
+  if (Vy (y2) >= gport->height)    y2 -= PCB->Grid;
   
   n = (x2 - x1) / PCB->Grid + 1; /* Number of points in one row */
   if (n > npoints)
@@ -248,8 +244,7 @@ ghid_draw_grid (void)
     return;
   for (y = y1; y <= y2; y += PCB->Grid)
     { /* reuse the row of points at each y */
-      for (i = 0; i < n; i++)
-	points[i].y = Vy (y);
+      for (i = 0; i < n; i++)   points[i].y = Vy (y);
       /* draw all the points in a row for a given y */
       gdk_draw_points (gport->drawable, priv->grid_gc, points, n);
     }
