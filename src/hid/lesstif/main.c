@@ -2364,37 +2364,29 @@ draw_grid ()
     {
       x2 = GridFit (Px (0), PCB->Grid, PCB->GridOffsetX);
       x1 = GridFit (Px (view_width), PCB->Grid, PCB->GridOffsetX);
-      if (Vx (x2) < 0)
-	x2 -= PCB->Grid;
-      if (Vx (x1) >= view_width)
-	x1 += PCB->Grid;
+      if (Vx (x2) < 0)    x2 -= PCB->Grid;
+      if (Vx (x1) >= view_width)    x1 += PCB->Grid;
     }
   else
     {
       x1 = GridFit (Px (0), PCB->Grid, PCB->GridOffsetX);
       x2 = GridFit (Px (view_width), PCB->Grid, PCB->GridOffsetX);
-      if (Vx (x1) < 0)
-	x1 += PCB->Grid;
-      if (Vx (x2) >= view_width)
-	x2 -= PCB->Grid;
+      if (Vx (x1) < 0)    x1 += PCB->Grid;
+      if (Vx (x2) >= view_width)    x2 -= PCB->Grid;
     }
   if (flip_y)
     {
       y2 = GridFit (Py (0), PCB->Grid, PCB->GridOffsetY);
       y1 = GridFit (Py (view_height), PCB->Grid, PCB->GridOffsetY);
-      if (Vy (y2) < 0)
-	y2 -= PCB->Grid;
-      if (Vy (y1) >= view_height)
-	y1 += PCB->Grid;
+      if (Vy (y2) < 0)    y2 -= PCB->Grid;
+      if (Vy (y1) >= view_height)    y1 += PCB->Grid;
     }
   else
     {
       y1 = GridFit (Py (0), PCB->Grid, PCB->GridOffsetY);
       y2 = GridFit (Py (view_height), PCB->Grid, PCB->GridOffsetY);
-      if (Vy (y1) < 0)
-	y1 += PCB->Grid;
-      if (Vy (y2) >= view_height)
-	y2 -= PCB->Grid;
+      if (Vy (y1) < 0)    y1 += PCB->Grid;
+      if (Vy (y2) >= view_height)    y2 -= PCB->Grid;
     }
   n = (x2 - x1) / PCB->Grid + 1; /* Number of points in one row */
   if (n > npoints)
@@ -2405,26 +2397,26 @@ draw_grid ()
   n = 0;
   prevx = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
+  {
+    int temp = Vx (x);
+    points[n].x = temp;
+    if (n)
     {
-      int temp = Vx (x);
-      points[n].x = temp;
-      if (n)
-	{
-	  points[n].x -= prevx;
-	  points[n].y = 0;
-	}
-      prevx = temp;
-      n++;
+      points[n].x -= prevx;
+      points[n].y = 0;
     }
+    prevx = temp;
+    n++;
+  }
   for (y = y1; y <= y2; y += PCB->Grid)
-    {
-      int vy = Vy (y);
-      points[0].y = vy;
-      /* Draw a row of points. CoordModePrevious makes next point relative to
+  {
+    int vy = Vy (y);
+    points[0].y = vy;
+    /* Draw a row of points. CoordModePrevious makes next point relative to
        previous point */
-      XDrawPoints (display, pixmap, grid_gc, points, n, CoordModePrevious);
-    }
-}
+    XDrawPoints (display, pixmap, grid_gc, points, n, CoordModePrevious);
+  }
+} /* end draw_grid */
 
 static void
 mark_delta_to_widget (Coord dx, Coord dy, Widget w)
