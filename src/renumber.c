@@ -185,7 +185,7 @@ static HID_Action renumber_block_action_list[] =
 REGISTER_ACTIONS (renumber_block_action_list)
 
 void
-pcb_plugin_init()
+hid_renumber_init()
 {
   register_renumber_block_action_list();
 }
