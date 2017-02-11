@@ -34,6 +34,7 @@ EXTRA_DIST = \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
+  inputs/ipcd356_board.pcb \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   golden/hid_bom1/bom_general.bom \
