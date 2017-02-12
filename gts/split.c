@@ -541,28 +541,6 @@ static gboolean edge_collapse_is_valid (GtsEdge * e)
 }
 #endif /* DEBUG */
 
-/* Not currently used.  May be useful for some debug code */
-#ifdef DEBUG
-static void print_split (GtsSplit * vs, FILE * fptr)
-{
-  guint j;
-  GtsSplitCFace * cf;
-
-  g_return_if_fail (vs != NULL);
-  g_return_if_fail (fptr != NULL);
-
-  fprintf (fptr, "%p: v: %p v1: %p v2: %p ncf: %u cfaces: %p\n",
-	   vs, vs->v, vs->v1, vs->v2, vs->ncf, vs->cfaces);
-  cf = vs->cfaces;
-  j = vs->ncf;
-  while (j--) {
-    fprintf (stderr, "  f: %p a1: %p a2: %p\n",
-	     cf->f, cf->a1, cf->a2);
-    cf++;
-  }
-}
-#endif
-
 /**
  * gts_split_collapse:
  * @vs: a #GtsSplit.
@@ -732,8 +710,7 @@ void gts_split_collapse (GtsSplit * vs,
     char fname[80];
     FILE * fptr;
     GSList * triangles, * i;
-    GtsSurface * surface = NULL;
-
+    
     sprintf (fname, "invalid_after.%d", ninvalid);
     fptr = fopen (fname, "wt");
     triangles = gts_vertex_triangles (v, NULL);
@@ -743,7 +720,6 @@ void gts_split_collapse (GtsSplit * vs,
       fprintf (stderr, "checking %p->%d\n", t, id (t));
       g_assert (GTS_IS_FACE (t));
       gts_write_triangle (t, GTS_POINT (v), fptr);
-      surface = GTS_FACE (t)->surfaces->data;
       if (gts_triangle_is_duplicate (t))
 	fprintf (stderr, "%p->%d is duplicate\n", t, id (t));
       if (gts_segment_is_duplicate (GTS_SEGMENT (t->e1)))

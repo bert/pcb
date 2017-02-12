@@ -138,26 +138,6 @@ static EdgeInter * edge_inter_new (GtsVertex * v1, GtsVertex * v2,
   return object;
 }
 
-#ifdef DEBUG
-static void add_to_list (gpointer data, GSList ** l) {
-  *l = g_slist_prepend (*l, data);
-}
-
-static void write_surface_graph (GtsSurface * s, FILE * fp)
-{
-  GSList * l = NULL;
-  GtsGraph * g;
-
-  gts_surface_foreach_vertex (s, (GtsFunc) gts_object_reset_reserved, NULL);
-  gts_surface_foreach_edge (s, (GtsFunc) gts_object_reset_reserved, NULL);
-  gts_surface_foreach_edge (s, (GtsFunc) add_to_list, &l);
-  g = gts_segments_graph_new (gts_graph_class (), l);
-  gts_graph_write_dot (g, fp);
-  gts_object_destroy (GTS_OBJECT (g));
-  g_slist_free (l);
-}
-#endif /* DEBUG */
-
 static GtsPoint * segment_triangle_intersection (GtsSegment * s,
 						 GtsTriangle * t,
 						 GtsPointClass * klass)
@@ -565,22 +545,6 @@ typedef enum {
 #define NEXT(s)  (GTS_OBJECT (s)->reserved)
 
 #ifdef DEBUG
-static void print_segment (GtsSegment * s)
-{
-  fprintf (stderr, "%p: %s->%s ", s,
-	   GTS_NVERTEX (s->v1)->name,
-	   GTS_NVERTEX (s->v2)->name);
-  if (NEXT (s)) {
-    GtsSegment * next = NEXT (s);
-
-    fprintf (stderr, "next %p: %s->%s\n", next,
-	     GTS_NVERTEX (next->v1)->name,
-	     GTS_NVERTEX (next->v2)->name);
-  }
-  else
-    fprintf (stderr, "next NULL\n");
-}
-
 static void write_nodes (GSList * i, GHashTable * hash, guint * nn,
 			 FILE * fp)
 {
@@ -630,27 +594,6 @@ static void write_graph (GSList * boundary, GSList * interior,
   write_edges (interior, hash, surface, fp);
   fprintf (fp, "}\n");
   g_hash_table_destroy (hash);
-}
-
-static void write_graph1 (GtsSegment * start, GSList * i,
-			  GtsSurface * surface,
-			  FILE * fp)
-{
-  GSList * boundary = NULL, * interior = NULL;
-  GtsSegment * s = start;
-
-  do {
-    boundary = g_slist_prepend (boundary, s);
-    s = NEXT (s);
-  } while (s != start);
-  while (i) {
-    if (IS_SET (i->data, INTERIOR))
-      interior = g_slist_prepend (interior, i->data);
-    i = i->next;
-  }
-  write_graph (boundary, interior, surface, fp);
-  g_slist_free (boundary);
-  g_slist_free (interior);
 }
 
 static void print_loop (GtsSegment * start, FILE * fp)
