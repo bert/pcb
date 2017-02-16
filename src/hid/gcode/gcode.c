@@ -1581,8 +1581,8 @@ gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
       points[i].x = pcb_to_gcode (x[i]);
       points[i].y = pcb_to_gcode (y[i]);
     }
-  gdImageSetThickness (gcode_im, 0);
-  linewidth = 0;
+  linewidth = pcb_to_gcode (2 * gcode_toolradius);
+  gdImageSetThickness (gcode_im, linewidth);
   gdImageFilledPolygon (gcode_im, points, n_coords, gc->color->c);
   free (points);
 /*      printf("FillPoly\n"); */
