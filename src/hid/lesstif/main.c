@@ -2351,8 +2351,8 @@ lesstif_parse_arguments (int *argc, char ***argv)
 /*!
  * \brief Draw the grid on the lesstif canvas
  */
-static void
-draw_grid ()
+void
+draw_grid (BoxType * region)
 {
   static XPoint *points = 0;
   static int npoints = 0;
