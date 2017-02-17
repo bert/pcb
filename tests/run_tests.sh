@@ -913,7 +913,7 @@ show_sep
 echo "Passed $pass, failed $fail, skipped $skip out of $tot tests."
 
 rc=0
-if test $fail -gt 0 ; then
+if test $fail -ne 0 ; then
     rc=1
 fi
 
