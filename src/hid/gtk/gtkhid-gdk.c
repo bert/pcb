@@ -175,8 +175,8 @@ set_clip (render_priv *priv, GdkGC *gc)
 /*!
  * \brief Draw the grid on the 2D canvas
  */
-static void
-ghid_draw_grid (void)
+void
+ghid_draw_grid (BoxType * region)
 {
   static GdkPoint *points = 0;
   static int npoints = 0;

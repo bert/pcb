@@ -213,7 +213,7 @@ ghid_make_gc (void)
   return rv;
 }
 
-static void
+void
 ghid_draw_grid (BoxType *drawn_area)
 {
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
