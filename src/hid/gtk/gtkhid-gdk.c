@@ -160,6 +160,12 @@ ghid_make_gc (void)
   return rv;
 }
 
+/*!
+ * \brief Set the drawing clip region.
+ * 
+ * The clip region restricts drawing. Anything outside the clip region cannot
+ * be changed.
+ */
 static void
 set_clip (render_priv *priv, GdkGC *gc)
 {
@@ -734,23 +740,26 @@ ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 		      x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 }
 
+/*!
+ * \brief Redraw a region of the pcb workspace
+ */
 static void
 redraw_region (GdkRectangle *rect)
 {
   int eleft, eright, etop, ebottom;
-  BoxType region;
+  BoxType region; /* section to draw in PCB coordinates */
   render_priv *priv = gport->render_priv;
 
   if (!gport->pixmap)
     return;
 
   if (rect != NULL)
-    {
+    { /* draw the region passed as an argument */
       priv->clip_rect = *rect;
       priv->clip = true;
     }
   else
-    {
+    { /* specified region was null, draw the entire area */
       priv->clip_rect.x = 0;
       priv->clip_rect.y = 0;
       priv->clip_rect.width = gport->width;
@@ -758,11 +767,14 @@ redraw_region (GdkRectangle *rect)
       priv->clip = false;
     }
 
+  /* set the clip to prevent changes to anything outside the region */
   set_clip (priv, priv->bg_gc);
   set_clip (priv, priv->offlimits_gc);
   set_clip (priv, priv->mask_gc);
   set_clip (priv, priv->grid_gc);
 
+  /* Compute the PCB coordinates of the area to redraw */
+  /* Find the upper and lower corners of the drawing area */
   region.X1 = MIN(Px(priv->clip_rect.x),
                   Px(priv->clip_rect.x + priv->clip_rect.width + 1));
   region.Y1 = MIN(Py(priv->clip_rect.y),
@@ -772,11 +784,13 @@ redraw_region (GdkRectangle *rect)
   region.Y2 = MAX(Py(priv->clip_rect.y),
                   Py(priv->clip_rect.y + priv->clip_rect.height + 1));
 
+  /* Restrict the drawing region to inside the PCB area */
   region.X1 = MAX (0, MIN (PCB->MaxWidth,  region.X1));
   region.X2 = MAX (0, MIN (PCB->MaxWidth,  region.X2));
   region.Y1 = MAX (0, MIN (PCB->MaxHeight, region.Y1));
   region.Y2 = MAX (0, MIN (PCB->MaxHeight, region.Y2));
 
+  /* Compute the viewport coordinates of the edges of the PCB area */
   eleft = Vx (0);
   eright = Vx (PCB->MaxWidth);
   etop = Vy (0);
@@ -794,34 +808,38 @@ redraw_region (GdkRectangle *rect)
       ebottom = tmp;
     }
 
-  if (eleft > 0)
+  /* If the PCB isn't filling the entire screen, draw the dead area around it */
+  if (eleft > 0) /* draw dead area on the left side */
     gdk_draw_rectangle (gport->drawable, priv->offlimits_gc,
                         1, 0, 0, eleft, gport->height);
   else
     eleft = 0;
-  if (eright < gport->width)
+  if (eright < gport->width) /* draw dead area on the right side */
     gdk_draw_rectangle (gport->drawable, priv->offlimits_gc,
                         1, eright, 0, gport->width - eright, gport->height);
   else
     eright = gport->width;
-  if (etop > 0)
+  if (etop > 0) /* draw dead area on the top */
     gdk_draw_rectangle (gport->drawable, priv->offlimits_gc,
                         1, eleft, 0, eright - eleft + 1, etop);
   else
     etop = 0;
-  if (ebottom < gport->height)
+  if (ebottom < gport->height) /* draw dead area on the bottom */
     gdk_draw_rectangle (gport->drawable, priv->offlimits_gc,
                         1, eleft, ebottom, eright - eleft + 1,
                         gport->height - ebottom);
   else
     ebottom = gport->height;
 
+  /* Draw the PCB background color */
   gdk_draw_rectangle (gport->drawable, priv->bg_gc, 1,
                       eleft, etop, eright - eleft + 1, ebottom - etop + 1);
 
   ghid_draw_bg_image();
 
+  /* Draw all of the PCB stuff, elements, traces, etc. */
   hid_expose_callback (&ghid_hid, &region, 0);
+  
   ghid_draw_grid ();
 
   /* In some cases we are called with the crosshair still off */
@@ -834,9 +852,10 @@ redraw_region (GdkRectangle *rect)
 
   draw_lead_user (priv);
 
+  /* Turn clipping off */
   priv->clip = false;
 
-  /* Rest the clip for bg_gc, as it is used outside this function */
+  /* Reset the clip for bg_gc, as it is used outside this function */
   gdk_gc_set_clip_mask (priv->bg_gc, NULL);
 }
 
