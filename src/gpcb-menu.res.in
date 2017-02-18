@@ -60,7 +60,10 @@ MainMenu =
    {"Save As..." Save(LayoutAs) tip="Saves current layout into a new file" m=A a={"Shift Ctrl-S" "Shift Ctrl<Key>s"}}
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
-   {"Import Schematics" Import() }
+   {"Import Schematics"
+     {"gschem" Import() }
+     {"TinyCAD" ImportTinyCAD() }
+   }
    {"Load element to buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout to buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist" Load(Netlist)}
