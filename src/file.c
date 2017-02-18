@@ -157,7 +157,7 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 */
 
 
-#define PCB_FILE_VERSION_BURIED_VIAS 20160729 /*!< Buried vias */
+#define PCB_FILE_VERSION_BURIED_VIAS 20170218 /*!< Buried vias */
 
 #define PCB_FILE_VERSION_HOLES 20100606 /*!< Hole[] in Polygon. */
 
