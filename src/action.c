@@ -324,6 +324,8 @@ static struct
 }
 Note;
 
+static bool netlist_loaded;
+
 static int defer_updates = 0;
 static int defer_needs_update = 0;
 
@@ -5942,6 +5944,7 @@ ActionLoadFrom (int argc, char **argv, Coord x, Coord y)
       FreeLibraryMemory (&PCB->NetlistLib);
       ImportNetlist (PCB->Netlistname);
       NetlistChanged (1);
+      netlist_loaded = true;
     }
   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename
 	   && (!PCB->Changed
@@ -7548,6 +7551,229 @@ tempfile_unlink (char * name)
 }
 
 /* ---------------------------------------------------------------- */
+static const char tcad_import_syntax[] =
+  N_("ImportTinyCAD()\n"
+  "ImportTinyCAD(netlistfile)\n");
+
+static const char tcad_import_help[] = N_("Import schematics from TinyCAD.");
+
+/* %start-doc actions ImportTinyCAD
+
+Imports netlist and parts from the TinyCAD. TinyCAD allows to export
+netlist in gEDA compatible format and part list in standard CSV format.
+
+The footprints should be defined as parameters of TinyCAD symbols.
+@code{Package} and @code{Footprint} parameters can be used, @code{Footprint} parameter has priority.
+
+Netlist and partlist files should have the same base name with @code{.net} and @code{.csv} extensions.
+During import only the netlist filename can be specified, parlist filename is derived from netlist
+filename by replacing @code{.net} extension by @code{.csv} extension or by adding @code{.csv} extension
+if netlist file does not have @code{.net} extension.
+
+@table @code
+
+@item ImportTinyCAD()
+
+Prompts the user to select netlist file. The netlist is imported, followed by partlist import.
+Parts are imported by sequence of @code{ElementList} actions. If existing schematics is being updated,
+existing parts are updated, new parts are added, removed parts are pre-selected to be easily
+deleted by user.
+
+@item ImportTinyCAD(netlistfile)
+
+Same as above, but specified file is used as netlist filename.
+
+@end table
+
+%end-doc */
+
+
+#define CSVLEN	4096
+
+static int
+ActionImportTinyCAD (int argc, char **argv, Coord x, Coord y)
+{
+
+  netlist_loaded = false;
+
+  if (argc < 2 )
+    {
+      hid_actionl ("Load", "Netlist", NULL);
+    }
+  else
+    {
+      hid_actionl ("LoadFrom", "Netlist", argv[1], NULL);
+    }
+
+  if (netlist_loaded)
+    {
+      int l = strlen (PCB->Netlistname);
+      char *s, *s2, *csvname = alloca(l+5);
+      char line[CSVLEN];
+      FILE *f;
+      bool header = TRUE;
+      bool first_entry = TRUE;
+      int maxhdr;
+      int ix;
+      int rhdr = -1,
+          vhdr = -1,
+	  fhdr = -1,
+	  phdr = -1;
+      char *rs, *vs, *fs, *ps;
+
+      if (csvname == NULL)
+          return 0;
+
+      strcpy (csvname, PCB->Netlistname);
+      if (l > 4 && strcasecmp (csvname+l-4, ".net") == 0)
+	  csvname[l-4] = '\0';
+      strcat(csvname, ".csv");
+
+      Message ("Importing TinyCAD Parts file (CSV): %s\n", csvname);
+
+      f = fopen (csvname, "r");
+      if (f == NULL)
+        return 0;
+
+      fgets (line, sizeof(line), f);
+
+      do {
+        if((s = strchr (line, '\r')) != NULL)
+          *s = '\0';
+        if((s = strchr (line, '\n')) != NULL)
+          *s = '\0';
+        if (header)
+          {
+	    /* Parse header line, no quotes expcted */
+	    ix = 0;
+	    s = strtok (line, ",");
+	    while (s != NULL)
+	      {
+	        if (strcasecmp (s, "Reference") == 0)
+	          rhdr = ix;
+	        else if (strcasecmp (s, "Value") == 0)
+	          vhdr = ix;
+	        else if (strcasecmp (s, "Footprint") == 0)
+	          fhdr = ix;
+	        else if (strcasecmp (s, "Package") == 0)
+	          phdr = ix;
+
+	        s  = strtok (NULL, ",");
+	        ix++;
+	      }
+	    if (rhdr == -1 || (fhdr == -1 && phdr == -1))
+	      {
+	        Message ("Missing Reference and/or Footprint or Package column. Part list cannot be imported.\n");
+	        return 0;
+	      }
+	    header = false;
+	    maxhdr = max (rhdr, max (vhdr, max (fhdr, phdr)));
+	  }
+        else
+          {
+	    s = line;
+	    ix = 0;
+	    rs = NULL;
+	    vs = NULL;
+	    fs = NULL;
+	    ps = NULL;
+
+	    while (s != NULL)
+	      {
+	        if (*s == '"')
+	          {
+		    s2 = strstr (s,"\",");
+		    if (s2 != NULL)
+		      {
+		        /* remove quote and move end pointer to conmma */
+		        *s2 = '\0';
+		        s2++;
+		      }
+		    else
+		      {
+		        s2 = strchr (s, '"');
+		      }
+		    if (s2 != NULL)
+		      {
+		        /* skip leading quote */
+		        s++;
+		      }
+	          }
+	        else
+	          s2 = strchr (s, ',');
+
+	        if (s2 != NULL)
+	          {
+	            *s2 = '\0';
+		    s2++;
+		  }
+
+	        if (ix == rhdr)
+	          rs = s;
+	        else if (ix == vhdr)
+	          vs = s;
+	        else if (ix == fhdr)
+	          fs = s;
+	        else if (ix == phdr)
+	          ps = s;
+
+                if (ix == maxhdr)
+	          break;
+
+	        s =  s2;
+	        ix++;
+	      }
+
+	    if (ix == maxhdr)
+	      {
+	        char *afs;
+
+		if (fs != NULL && strcmp (fs, "..") != 0 && strlen (fs) > 0)
+		  afs = fs;
+		else if (ps != NULL && strcmp (ps, "..") != 0 && strlen (ps) > 0)
+		  afs = ps;
+		else
+		  afs = NULL;
+
+		if (afs != NULL)
+		  {
+		    if (strcmp (vs, "..") == 0)
+		      vs = "";
+
+	            s = strtok (rs, ",");
+	            while (s != NULL)
+	              {
+#ifdef DEBUG
+		        Message ("Importing element: Refdes: \"%s\" - Value: \"%s\" - Footprint: \"%s\"\n", s, vs, afs);
+#endif
+                        if (first_entry)
+			  {
+			    hid_actionl("ElementList","Start", NULL);
+			    first_entry = FALSE;
+			  }
+			hid_actionl("ElementList","Need", s, afs, vs, NULL);
+	                s  = strtok (NULL, ",");
+	              }
+		  }
+	        else
+	          Message ("Element(s) \"%s\" have no Footprint or Package attribute. They cannot be imported.\n", rs);
+	      }
+	  }
+
+        fgets (line, sizeof (line), f);
+      } while (!feof (f));
+      fclose (f);
+
+      if (!first_entry)
+        {
+          hid_actionl("ElementList","Done", NULL);
+        }
+  }
+  return 0;
+
+}
+
+/* ---------------------------------------------------------------- */
 static const char import_syntax[] =
   N_("Import()\n"
   "Import([gnetlist|make[,source,source,...]])\n"
@@ -8414,6 +8640,9 @@ HID_Action action_action_list[] = {
   ,
   {"ExecCommand", 0, ActionExecCommand,
    execcommand_help, execcommand_syntax}
+  ,
+  {"ImportTinyCAD", 0, ActionImportTinyCAD,
+   tcad_import_help, tcad_import_syntax}
   ,
   {"Import", 0, ActionImport,
    import_help, import_syntax}
