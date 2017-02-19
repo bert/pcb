@@ -112,6 +112,38 @@ button_release_cb (GtkWidget *widget, GdkEventButton *ev, gpointer userdata)
 }
 
 
+void
+ghid_trackball_external_rotate (GhidTrackball *ball, float dx, float dy, float dz)
+{
+  float axis[3];
+  float quart[4];
+#if 0
+  float quart_accum[4];
+
+  axis[0] = 1.; axis[1] = 0.; axis[2] = 0.;
+  axis_to_quat (axis, dx, quart_accum);
+
+  axis[0] = 0.; axis[1] = 1.; axis[2] = 0.;
+  axis_to_quat (axis, dy, quart);
+  add_quats (quart, quart_accum, quart_accum);
+
+  axis[0] = 0.; axis[1] = 0.; axis[2] = 1.;
+  axis_to_quat (axis, dz, quart);
+  add_quats (quart, quart_accum, quart_accum);
+
+  add_quats (quart_accum, ball->quart1, ball->quart1);
+#endif
+
+  if (dx == 0. && dy == 0. && dz == 0.) return;
+
+  axis[0] = dx; axis[1] = dy; axis[2] = dz;
+  axis_to_quat (axis, sqrt (dx * dx + dy * dy + dz * dz), quart);
+  add_quats (quart, ball->quart1, ball->quart1);
+
+  g_signal_emit (ball, ghid_trackball_signals[ROTATION_CHANGED], 0, ball->quart1);
+}
+
+
 static gboolean
 motion_notify_cb (GtkWidget *widget, GdkEventMotion *ev, gpointer userdata)
 {

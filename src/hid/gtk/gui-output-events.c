@@ -45,6 +45,8 @@
 #include "find.h"
 #include "search.h"
 #include "rats.h"
+#include "snavi.h"
+#include "gui-trackball.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -552,6 +554,8 @@ ghid_port_window_enter_cb (GtkWidget * widget,
       /* Make sure drawing area has keyboard focus when we are in it.
        */
       gtk_widget_grab_focus (out->drawing_area);
+      if (ghidgui->snavi != NULL)
+        snavi_set_led (ghidgui->snavi, TRUE);
     }
   ghidgui->in_popup = FALSE;
 
@@ -583,6 +587,9 @@ ghid_port_window_leave_cb (GtkWidget * widget,
     {
       return FALSE;
     }
+
+  if (out->has_entered && !ghidgui->in_popup && ghidgui->snavi != NULL)
+    snavi_set_led (ghidgui->snavi, FALSE);
 
   out->has_entered = FALSE;
 
@@ -622,4 +629,32 @@ ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
   do_mouse_action(button, mk);
 
   return TRUE;
+}
+
+void ndof_pan_cb (int dx, int dy, int dz, gpointer data)
+{
+  if (dx || dy)
+    ghid_pan_view_rel (-gport->view.coord_per_px * 5 * dx,
+                       -gport->view.coord_per_px * 5 * dy);
+  if (dz)
+    ghid_zoom_view_rel (gport->pcb_x, gport->pcb_y, 1.0 - (dz / 100.0));
+}
+
+void ndof_roll_cb (int dx, int dy, int dz, gpointer data)
+{
+  /* FIXME: IFDEF HACK */
+#ifdef ENABLE_GL
+  ghid_trackball_external_rotate (GHID_TRACKBALL (gport->trackball),
+                                  dy / 100., dx / 100., dz / 100.);
+#endif
+}
+
+void ndof_done_cb (gpointer data)
+{
+}
+
+void ndof_button_cb (int button, int value, gpointer data)
+{
+  if (value == 1)
+    hid_actionl ("SwapSides", (button == 0) ? "V" : "H", NULL);
 }

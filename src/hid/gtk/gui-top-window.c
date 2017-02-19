@@ -117,6 +117,7 @@ a zoom in/out.
 #include "gui-icons-mode-buttons.data"
 #include "gui-icons-misc.data"
 #include "gui-trackball.h"
+#include "snavi.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -1355,6 +1356,7 @@ ghid_build_pcb_top_window (void)
   /* FIXME: IFDEF HACK */
 #ifdef ENABLE_GL
   trackball = ghid_trackball_new ();
+  gport->trackball = trackball;
   g_signal_connect (trackball, "rotation-changed",
                     G_CALLBACK (ghid_port_rotate), NULL);
   g_signal_connect (trackball, "view-2d-changed",
@@ -1838,6 +1840,12 @@ ghid_do_export (HID_Attr_Val * options)
 
   if (stdin_listen)
     ghid_create_listener ();
+
+  ghidgui->snavi = setup_snavi (ndof_pan_cb,
+                                ndof_roll_cb,
+                                ndof_done_cb,
+                                ndof_button_cb,
+                                NULL);
 
   ghid_notify_gui_is_up ();
 

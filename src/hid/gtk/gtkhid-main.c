@@ -101,7 +101,7 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
   ghid_set_status_line_label ();
 }
 
-static void
+void
 ghid_zoom_view_rel (Coord center_x, Coord center_y, double factor)
 {
   ghid_zoom_view_abs (center_x, center_y, gport->view.coord_per_px * factor);

@@ -63,6 +63,7 @@ struct _GhidTrackball
 
 GType ghid_trackball_get_type (void);
 
+void ghid_trackball_external_rotate (GhidTrackball *ball, float dx, float dy, float dz);
 GtkWidget *ghid_trackball_new (void);
 
 #endif /* __GHID_TRACKBALL_H__ */
