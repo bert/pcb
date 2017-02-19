@@ -1171,7 +1171,21 @@ draw_pin (PinType *pin, bool draw_hole)
 static int
 pin_callback (const BoxType * b, void *cl)
 {
-  draw_pin ((PinType *)b, TEST_FLAG (THINDRAWFLAG, PCB));
+  PinType *pin = (PinType *) b;
+
+  if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (DISPLAYNAMEFLAG, pin))
+    _draw_pv_name (pin);
+  draw_pin (pin, TEST_FLAG (THINDRAWFLAG, PCB));
+  return 1;
+}
+
+static int
+pin_name_callback (const BoxType * b, void *cl)
+{
+  PinType *pin = (PinType *) b;
+
+  if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (DISPLAYNAMEFLAG, pin))
+    _draw_pv_name (pin);
   return 1;
 }
 
@@ -1298,8 +1312,11 @@ pad_callback (const BoxType * b, void *cl)
   PadType *pad = (PadType *) b;
   int *side = cl;
 
-  if (ON_SIDE (pad, *side))
+  if (ON_SIDE (pad, *side)) {
+    if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+      draw_pad_name (pad);
     draw_pad (pad);
+  }
   return 1;
 }
 
@@ -1607,6 +1624,9 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
 
       /* Draw pins, vias and pads on this layer */
       if (!global_view_2d && !is_outline) {
+        if (PCB->PinOn &&
+            (group == bottom_group || group == top_group))
+          r_search (PCB->Data->pin_tree, screen, NULL, pin_name_callback, Layer);
         if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, pin_inlayer_callback, Layer);
         if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, via_inlayer_callback, Layer);
         if (PCB->PinOn && group == top_group)
