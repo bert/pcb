@@ -1569,11 +1569,8 @@ GhidDrawMask (int side, BoxType * screen)
   polygon.BoundingBox = *screen;
   polygon.Flags = NoFlags ();
   SET_FLAG (FULLPOLYFLAG, &polygon);
-  common_fill_pcb_polygon (out->fgGC, &polygon, screen);
+  hid_draw_fill_pcb_polygon (out->fgGC, &polygon, screen);
   poly_FreeContours (&polygon.NoHoles);
-  /* THE GL fill_pcb_polygon doesn't work whilst masking */
-//  hid_draw_fill_pcb_polygon (out->fgGC, &polygon, screen);
-//  hid_draw_fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
   ghid_set_alpha_mult (out->fgGC, 1.0);
 
   hid_draw_use_mask (&ghid_graphics, HID_MASK_OFF);
