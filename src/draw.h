@@ -71,7 +71,7 @@ void EraseObject (int, void *, void *);
 
 void DrawLayerGroup (int side, const BoxType *drawn_area);
 void DrawPaste (int side, const BoxType *drawn_area);
-void DrawSilk (int side, const BoxType *drawn_area);
+void DrawSilk (HID_DRAW *hid_draw, int side, const BoxType *drawn_area);
 void DrawMask (int side, const BoxType *drawn_area);
 void DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area, Cardinal g_from, Cardinal g_to);
 void PrintAssembly (int side, const BoxType *drawn_area);
@@ -84,7 +84,7 @@ void DrawPlainVia (PinType *, bool);
 void DrawRegularText (LayerType *, TextType *);
 void DrawEMark (ElementType *, Coord, Coord, bool);
 void DrawHole (PinType *);
-void DrawRats (const BoxType *);
+void DrawRats (HID_DRAW *hid_draw, const BoxType *);
 /* TEMPORARY */
 
 #endif

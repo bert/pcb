@@ -1658,7 +1658,7 @@ ghid_draw_everything (BoxType *drawn_area)
 
   if (!TEST_FLAG (CHECKPLANESFLAG, PCB) &&
       hid_draw_set_layer (&ghid_graphics, "invisible", SL (INVISIBLE, 0), 0)) {
-    DrawSilk (side, drawn_area);
+    DrawSilk (&ghid_graphics, side, drawn_area);
 
     if (global_view_2d)
       r_search (PCB->Data->pad_tree, drawn_area, NULL, pad_callback, &side);
@@ -1732,7 +1732,7 @@ ghid_draw_everything (BoxType *drawn_area)
 
   if (hid_draw_set_layer (&ghid_graphics, SWAP_IDENT ? "bottomsilk" : "topsilk",
                       SWAP_IDENT ? SL (SILK, BOTTOM) : SL (SILK, TOP), 0)) {
-      DrawSilk (side, drawn_area);
+      DrawSilk (&ghid_graphics, side, drawn_area);
       hid_draw_end_layer (&ghid_graphics);
   }
 
@@ -1742,7 +1742,7 @@ ghid_draw_everything (BoxType *drawn_area)
 
   /* Draw rat lines on top */
   if (PCB->RatOn && hid_draw_set_layer (&ghid_graphics, "rats", SL (RATS, 0), 0)) {
-    DrawRats(drawn_area);
+    DrawRats (&ghid_graphics, drawn_area);
     hid_draw_end_layer (&ghid_graphics);
   }
 
