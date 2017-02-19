@@ -84,6 +84,7 @@
 #include <math.h>
 #include <memory.h>
 #include <setjmp.h>
+#include <glib.h>
 
 #include "global.h"
 #include "box.h"
@@ -2021,4 +2022,186 @@ PolyToPolygonsOnLayer (DataType *Destination, LayerType *Layer,
   while ((pa = pa->f) != Input);
 
   SetChangedFlag (true);
+}
+
+
+struct clip_outline_info {
+  POLYAREA *poly;
+};
+
+#define ROUTER_THICKNESS MIL_TO_COORD (10)
+//#define ROUTER_THICKNESS MIL_TO_COORD (0.1)
+
+static int
+arc_outline_callback (const BoxType * b, void *cl)
+{
+  ArcType *arc = (ArcType *)b;
+  struct clip_outline_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = ArcPoly (arc, ROUTER_THICKNESS)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+line_outline_callback (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *)b;
+  struct clip_outline_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = LinePoly (line, ROUTER_THICKNESS)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
+static void
+delete_piece_cb (gpointer data, gpointer userdata)
+{
+  POLYAREA *piece = data;
+  POLYAREA **res = userdata;
+
+  /* If this item was the start of the list, advance that pointer */
+  if (*res == piece)
+    *res = (*res)->f;
+
+  /* But reset it to NULL if it wraps around and hits us again */
+  if (*res == piece)
+    *res = NULL;
+
+  piece->b->f = piece->f;
+  piece->f->b = piece->b;
+  piece->f = piece->b = piece;
+
+  poly_Free (&piece);
+}
+
+POLYAREA *board_outline_poly (void)
+{
+  int i;
+  int count;
+  int found_outline = 0;
+  LayerType *Layer = NULL;
+  BoxType region;
+  struct clip_outline_info info;
+  POLYAREA *whole_world;
+  POLYAREA *clipped;
+  POLYAREA *piece;
+  POLYAREA *check;
+  GList *pieces_to_delete = NULL;
+  bool any_pieces_kept = false;
+
+#define BLOAT_WORLD MIL_TO_COORD (10)
+
+  whole_world = RectPoly (-BLOAT_WORLD, BLOAT_WORLD + PCB->MaxWidth,
+                          -BLOAT_WORLD, BLOAT_WORLD + PCB->MaxHeight);
+
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      Layer = PCB->Data->Layer + i;
+
+      if (strcmp (Layer->Name, "outline") == 0 ||
+          strcmp (Layer->Name, "route") == 0)
+        {
+          found_outline = 1;
+          break;
+        }
+    }
+
+  if (!found_outline) {
+    printf ("Didn't find outline\n");
+    return whole_world;
+  }
+
+  /* Do stuff to turn the outline layer into a polygon */
+
+  /* Ideally, we just want to look at centre-lines, but that is hard!
+   *
+   * Lets add all lines, arcs etc.. together to form a polygon comprising
+   * the bits we presume a router would remove.
+   *
+   * Then we need to subtract that from some notional "infinite" plane
+   * polygon, leaving the remaining pieces.
+   *
+   * OR.. we could just look at the holes in the resulting polygon?
+   *
+   * Given these holes, we need to know which are inside and outside.
+   *   _____________
+   *  / ___________ \
+   *  ||           ||
+   *  ||   //=\\   ||
+   *  ||   || ||   ||
+   *  ||   \\=//   ||
+   *  ||___________||
+   *  \_____________/
+   */
+
+  info.poly = whole_world;
+
+  region.X1 = 0;
+  region.Y1 = 0;
+  region.X2 = PCB->MaxWidth;
+  region.Y2 = PCB->MaxHeight;
+
+  r_search (Layer->line_tree, &region, NULL, line_outline_callback, &info);
+  r_search (Layer->arc_tree,  &region, NULL, arc_outline_callback, &info);
+
+  clipped = info.poly;
+
+  /* Now we just need to work out which pieces of polygon are inside
+     and outside the board! */
+
+  /* If there is no result, or only one piece, return that */
+  if (clipped == NULL || clipped->f == clipped)
+    return clipped;
+
+  /* WARNING: This next check is O(n^2), where n is the number of clipped
+   *          pieces, hopefully the outline layer isn't too complex!
+   */
+
+  piece = clipped;
+  do { /* LOOP OVER POLYGON PIECES */
+
+    if (piece->contours == NULL)
+      printf ("WTF?\n");
+
+    count = 0;
+    check = clipped;
+    do { /* LOOP OVER POLYGON PIECES */
+      if (check == piece)
+        continue;
+      if (poly_ContourInContour (check->contours, piece->contours))
+        count ++;
+    } while ((check = check->f) != clipped);
+
+    /* If the piece is inside an odd number of others, keep it */
+    if ((count & 1) == 1)
+      any_pieces_kept = true;
+    else
+      pieces_to_delete = g_list_prepend (pieces_to_delete, piece);
+
+  } while ((piece = piece->f) != clipped);
+
+  /* If we did not find an enclosed area (the board) trimmed from the world polygon,
+     return the entire subtracted result. This keeps the behaviour similar to what
+     you see when individual lines on the outline layer don't close to form an
+     enclosed region. (This fixes being able to cope with such a case where the
+     outline layer geometry lies outside the world rect polygon above, and divides
+     that world rect into multiple pieces.
+   */
+  if (any_pieces_kept)
+    g_list_foreach (pieces_to_delete, delete_piece_cb, &clipped);
+
+  g_list_free (pieces_to_delete);
+
+  return clipped;
 }

@@ -11,6 +11,7 @@
 #include "draw.h"
 #include "draw_funcs.h"
 #include "rtree.h"
+#include "polygon.h"
 #include "gui-pinout-preview.h"
 
 /* The Linux OpenGL ABI 1.0 spec requires that we define
@@ -1514,6 +1515,8 @@ GhidDrawMask (int side, BoxType * screen)
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
   LayerType *Layer = LAYER_PTR (side == TOP_SIDE ? top_soldermask_layer : bottom_soldermask_layer);
   struct poly_info info;
+  PolygonType polygon;
+
   OutputType *out = &Output;
 
   if (thin)
@@ -1542,7 +1545,18 @@ GhidDrawMask (int side, BoxType * screen)
   hid_draw_use_mask (&ghid_graphics, HID_MASK_AFTER);
   hid_draw_set_color (out->fgGC, PCB->MaskColor);
   ghid_set_alpha_mult (out->fgGC, thin ? 0.35 : 1.0);
-  hid_draw_fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+
+  memset (&polygon, 0, sizeof (polygon));
+  polygon.Clipped = board_outline_poly ();
+  polygon.BoundingBox = *screen;
+  polygon.Flags = NoFlags ();
+  SET_FLAG (FULLPOLYFLAG, &polygon);
+  common_fill_pcb_polygon (out->fgGC, &polygon, screen);
+  poly_Free (&polygon.Clipped);
+  poly_FreeContours (&polygon.NoHoles);
+  /* THE GL fill_pcb_polygon doesn't work whilst masking */
+//  hid_draw_fill_pcb_polygon (out->fgGC, &polygon, screen);
+//  hid_draw_fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
   ghid_set_alpha_mult (out->fgGC, 1.0);
 
   hid_draw_use_mask (&ghid_graphics, HID_MASK_OFF);
