@@ -74,6 +74,7 @@
 #include "hid_draw.h"
 #include "hidgl.h"
 #include "rtree.h"
+#include "sweep.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -658,6 +659,13 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, double scale)
   PLINE *contour;
   struct do_hole_info info;
   int stencil_bit;
+  borast_traps_t traps;
+
+  _borast_traps_init (&traps);
+  bo_poly_to_traps (gc, pa, &traps);
+  _borast_traps_fini (&traps);
+
+  return;
 
   info.scale = scale;
   global_scale = scale;

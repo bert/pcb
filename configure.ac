@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
 AC_CONFIG_HEADERS([config.h])
 
+m4_include(configure.ac.system)	dnl checks for system functions, headers, libs
+
 ##########################################################################
 #
 # Try to figure out if we are building from git sources.
