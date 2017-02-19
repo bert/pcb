@@ -2351,7 +2351,7 @@ draw_grid ()
   if (!Settings.DrawGrid)
     return; /* grid hidden */
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
-    return; /* zoomed in too far, no grid points */
+    return; /* zoomed out too far, points too close together */
   if (!grid_gc)
     {
       grid_gc = XCreateGC (display, window, 0, 0);
