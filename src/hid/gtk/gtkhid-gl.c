@@ -289,13 +289,13 @@ ghid_set_layer (const char *name, int group, int empty)
 	}
     }
 
-  end_subcomposite ();
+  end_subcomposite (hidgl);
 
   if (group_visible && subcomposite)
-    start_subcomposite ();
+    start_subcomposite (hidgl);
 
   /* Drawing is already flushed by {start,end}_subcomposite */
-  hidgl_set_depth (compute_depth (group));
+  set_depth_on_all_active_gc (priv, compute_depth (group));
 
   return group_visible;
 }
@@ -1414,6 +1414,7 @@ GhidDrawMask (int side, BoxType * screen)
 static int
 GhidDrawLayerGroup (int group, const BoxType * screen)
 {
+  render_priv *priv = gport->render_priv;
   int i, rv = 1;
   int layernum;
   int side;
@@ -1446,13 +1447,13 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
 
       if (rv && !TEST_FLAG (THINDRAWFLAG, PCB)) {
         /* Mask out drilled holes on this layer */
-        hidgl_flush_triangles (&buffer);
+        hidgl_flush_triangles (priv->hidgl);
         glPushAttrib (GL_COLOR_BUFFER_BIT);
         glColorMask (0, 0, 0, 0);
         hid_draw_set_color (Output.bgGC, PCB->MaskColor);
         if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
         if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
-        hidgl_flush_triangles (&buffer);
+        hidgl_flush_triangles (priv->hidgl);
         glPopAttrib ();
       }
 
@@ -1468,13 +1469,13 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
         hid_draw_set_layer (&ghid_graphics, 0, group, 0);
 
         if (rv && !TEST_FLAG (THINDRAWFLAG, PCB)) {
-          hidgl_flush_triangles (&buffer);
+          hidgl_flush_triangles (priv->hidgl);
           glPushAttrib (GL_COLOR_BUFFER_BIT);
           glColorMask (0, 0, 0, 0);
           /* Mask out drilled holes on this layer */
           if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
           if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
-          hidgl_flush_triangles (&buffer);
+          hidgl_flush_triangles (priv->hidgl);
           glPopAttrib ();
         }
       }
@@ -1510,7 +1511,7 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
 }
 
 static void
-DrawDrillChannel (int vx, int vy, int vr, int from_layer, int to_layer, double scale)
+DrawDrillChannel (hidGC gc, int vx, int vy, int vr, int from_layer, int to_layer, double scale)
 {
 #define PIXELS_PER_CIRCLINE 5.
 #define MIN_FACES_PER_CYL 6
@@ -1536,13 +1537,13 @@ DrawDrillChannel (int vx, int vy, int vr, int from_layer, int to_layer, double s
   x1 = vx + vr;
   y1 = vy;
 
-  hidgl_ensure_triangle_space (&buffer, 2 * slices);
+  hidgl_ensure_triangle_space (gc, 2 * slices);
   for (i = 0; i < slices; i++)
     {
       x2 = radius * cosf (((float)(i + 1)) * 2. * M_PI / (float)slices) + vx;
       y2 = radius * sinf (((float)(i + 1)) * 2. * M_PI / (float)slices) + vy;
-      hidgl_add_triangle_3D (&buffer, x1, y1, z1,  x2, y2, z1,  x1, y1, z2);
-      hidgl_add_triangle_3D (&buffer, x2, y2, z1,  x1, y1, z2,  x2, y2, z2);
+      hidgl_add_triangle_3D (gc, x1, y1, z1,  x2, y2, z1,  x1, y1, z2);
+      hidgl_add_triangle_3D (gc, x2, y2, z1,  x1, y1, z2,  x2, y2, z2);
       x1 = x2;
       y1 = y2;
     }
@@ -1571,7 +1572,7 @@ draw_hole_cyl (PinType *Pin, struct cyl_info *info, int Type)
     color = "drill";
 
   hid_draw_set_color (Output.fgGC, color);
-  DrawDrillChannel (Pin->X, Pin->Y, Pin->DrillingHole / 2, info->from_layer, info->to_layer, info->scale);
+  DrawDrillChannel (Output.fgGC, Pin->X, Pin->Y, Pin->DrillingHole / 2, info->from_layer, info->to_layer, info->scale);
   return 0;
 }
 
@@ -1702,16 +1703,16 @@ ghid_draw_everything (BoxType *drawn_area)
 
   /* Draw pins, pads, vias below silk */
   if (global_view_2d) {
-    start_subcomposite ();
+    start_subcomposite (priv->hidgl);
 
     if (!TEST_FLAG (THINDRAWFLAG, PCB)) {
       /* Mask out drilled holes */
-      hidgl_flush_triangles (&buffer);
+      hidgl_flush_triangles (priv->hidgl);
       glPushAttrib (GL_COLOR_BUFFER_BIT);
       glColorMask (0, 0, 0, 0);
       if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
       if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
-      hidgl_flush_triangles (&buffer);
+      hidgl_flush_triangles (priv->hidgl);
       glPopAttrib ();
     }
 
@@ -1719,7 +1720,7 @@ ghid_draw_everything (BoxType *drawn_area)
     if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback, NULL);
     if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
 
-    end_subcomposite ();
+    end_subcomposite (priv->hidgl);
   }
 
   /* Draw the solder mask if turned on */
@@ -1947,7 +1948,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   draw_crosshair (Output.fgGC, priv);
   hidgl_flush_triangles (priv->hidgl);
 
-  draw_lead_user (priv->crosshair_gc, priv);
+  draw_lead_user (Output.fgGC, priv);
 
   ghid_end_drawing (port, widget);
 
