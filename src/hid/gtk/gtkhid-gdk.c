@@ -193,7 +193,7 @@ ghid_draw_grid (BoxType * region)
   if (!Settings.DrawGrid)
     return; /* grid hidden */
   if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
-    return; /* zoomed in too far, no grid points */
+    return; /* zoomed out too far, points to close together */
   if (!priv->grid_gc) /* create a graphics context if we don't have one */
   {
     if (gdk_color_parse (Settings.GridColor, &gport->grid_color))
