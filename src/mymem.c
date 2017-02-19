@@ -744,6 +744,9 @@ FreeDataMemory (DataType *data)
   if (data == NULL)
     return;
 
+  if (data->outline)
+    poly_Free (&data->outline);
+
   VIA_LOOP (data);
   {
     free (via->Name);
