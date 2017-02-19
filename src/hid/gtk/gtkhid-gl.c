@@ -736,10 +736,13 @@ ghid_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 void
 ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
+  gtkGC gtk_gc = (gtkGC)gc;
+
+  double old_alpha_mult = gtk_gc->alpha_mult;
   common_thindraw_pcb_polygon (gc, poly, clip_box);
-  ghid_set_alpha_mult (gc, 0.25);
+  ghid_set_alpha_mult (gc, gtk_gc->alpha_mult * 0.25);
   hid_draw_fill_pcb_polygon (gc, poly, clip_box);
-  ghid_set_alpha_mult (gc, 1.0);
+  ghid_set_alpha_mult (gc, old_alpha_mult);
 }
 
 void
@@ -1722,6 +1725,7 @@ ghid_draw_everything (BoxType *drawn_area)
 {
   render_priv *priv = gport->render_priv;
   int i, ngroups;
+  int number_phys_on_top;
   int side;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
@@ -1804,26 +1808,39 @@ ghid_draw_everything (BoxType *drawn_area)
   }
 
   /* draw all layers in layerstack order */
+#define FADE_FACTOR 0.8
+  number_phys_on_top = max_phys_group - min_phys_group;
   for (i = ngroups - 1; i >= 0; i--) {
+    bool is_this_physical = drawn_groups[i] >= min_phys_group &&
+                            drawn_groups[i] <= max_phys_group;
+    bool is_next_physical = i > 0 &&
+                            drawn_groups[i - 1] >= min_phys_group &&
+                            drawn_groups[i - 1] <= max_phys_group;
+
+    double alpha_mult = global_view_2d ? pow (FADE_FACTOR, i) :
+      (is_this_physical ? pow (FADE_FACTOR, number_phys_on_top) : 1.);
+
+    if (is_this_physical)
+      number_phys_on_top --;
+
+    ghid_set_alpha_mult (Output.fgGC, alpha_mult);
     GhidDrawLayerGroup (drawn_groups [i], drawn_area);
 
 #if 1
-    if (!global_view_2d && i > 0 &&
-        drawn_groups[i] >= min_phys_group &&
-        drawn_groups[i] <= max_phys_group &&
-        drawn_groups[i - 1] >= min_phys_group &&
-        drawn_groups[i - 1] <= max_phys_group) {
+    if (!global_view_2d && is_this_physical && is_next_physical) {
       cyl_info.from_layer_group = drawn_groups[i];
       cyl_info.to_layer_group = drawn_groups[i - 1];
       cyl_info.scale = gport->view.coord_per_px;
       hid_draw_set_color (Output.fgGC, "drill");
-      ghid_set_alpha_mult (Output.fgGC, 0.75);
+      ghid_set_alpha_mult (Output.fgGC, alpha_mult * 0.75);
       if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_cyl_callback, &cyl_info);
       if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_cyl_callback, &cyl_info);
-      ghid_set_alpha_mult (Output.fgGC, 1.0);
     }
 #endif
   }
+#undef FADE_FACTOR
+
+  ghid_set_alpha_mult (Output.fgGC, 1.0);
 
   if (TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
