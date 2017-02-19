@@ -1952,6 +1952,7 @@ select the desired exporter.
 * bom::                Bill of materials.
 * gcode::              G-code.
 * gerber::             Gerber.
+* ipc-d-356::          IPC-D-356.
 * nelma::              Nelma.
 * png::		       Image.
 * ps::		       Postscript.
@@ -2047,6 +2048,12 @@ The final tool path follows the perimeter of all elements:
 @cindex gerber
 
 Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files.
+
+@node ipc-d-356
+@subsection IPC-D-356 (ipcd356)
+@cindex ipc-d-356
+
+Produces an IPC-D-356 compliant netlist file for bare board testing.
 
 @node nelma
 @subsection Nelma (nelma)
