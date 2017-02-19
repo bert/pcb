@@ -1859,7 +1859,7 @@ ghid_draw_everything (BoxType *drawn_area)
   }
 
   /* draw all layers in layerstack order */
-#define FADE_FACTOR 0.8
+#define FADE_FACTOR 1
   number_phys_on_top = max_phys_group - min_phys_group;
   for (i = ngroups - 1; i >= 0; i--) {
     bool is_this_physical = drawn_groups[i] >= min_phys_group &&
