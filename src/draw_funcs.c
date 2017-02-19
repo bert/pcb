@@ -604,6 +604,10 @@ draw_layer (LayerType *layer, const BoxType *drawn_area, void *userdata)
   if (layer_num >= max_copper_layer)
     return;
 
+  /* Pins, pads and vias are handled in elsewhere by exporters, don't duplicate */
+  if (!gui->gui)
+    return;
+
   r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_inlayer_callback, layer);
 
   /* draw element pads */
