@@ -160,7 +160,7 @@
 #endif
 
 #if (defined(__WIN32__) && !defined(__WINE__)) || defined(_MSC_VER)
-#define snprintf _snprintf
+//#define snprintf _snprintf
 #define popen _popen
 #define pclose _pclose
 #define hypot _hypot
