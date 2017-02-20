@@ -160,6 +160,12 @@ MainMenu =
     -
     {"Edit..." AdjustStyle(0)}
    }
+   -
+   {"Via type"
+    {"Through-hole" a={"Xtrl-Shift-P" "Ctrl Shift<Key>p"} SetViaLayers(Object,th)}
+    {"Buried from" a={"Xtrl-Shift-F" "Ctrl Shift<Key>f"} SetViaLayers(Object,c,-)}
+    {"Buried to" a={"Xtrl-Shift-T" "Ctrl Shift<Key>t"} SetViaLayers(Object,-,c)}
+   }
   }
   {Tools
    {"None" checked=nomode,1 Mode(None)}
