@@ -849,11 +849,27 @@ $GDLIB_PKG_ERRORS])
 			AC_MSG_CHECKING([for gdlib libraries])
 			GDLIB_LIBS=`${GDLIB_CONFIG} --libs`
 			AC_MSG_RESULT([$GDLIB_LIBS])
+
+			AC_MSG_CHECKING([for gdlib ldflags])
+			GDLIB_LDFLAGS=`${GDLIB_CONFIG} --ldflags`
+			AC_MSG_RESULT([$GDLIB_LDFLAGS])
 		fi
 	fi
 
 	save_LIBS="$LIBS"
-	LIBS="$LIBS $GDLIB_LIBS"
+	LIBS="$LIBS $GDLIB_LDFLAGS $GDLIB_LIBS"
+
+	# some older installs, Ubuntu Precise for example, leave off the "-lgd" part.
+	# try to see if it needs to be added
+	before_LIBS="$LIBS"
+	AC_SEARCH_LIBS([gdImageCreate],[gd],[],[
+			AC_MSG_ERROR([Unable to figure out how to link gd applications.
+It is likely that your system has a broken gdlib-config or gdlib.pc file used by
+pkg-config.
+])],[])
+	if test "$LIBS" != "${before_LIBS}" ; then
+		GDLIB_LIBS="${GDLIB_LIBS} -lgd"
+	fi
 
 	if test "X$with_gif" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImageGif)
@@ -1099,7 +1115,7 @@ AC_DEFINE_UNQUOTED([COORD_MAX],[$COORD_MAX],
 # ------------- Complete set of CPPFLAGS and LIBS -------------------
 
 CPPFLAGS="$CPPFLAGS $X_CFLAGS $DBUS_CFLAGS $GDLIB_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $GD_CFLAGS $CAIRO_CFLAGS $GTKGLEXT_CFLAGS $GLU_CFLAGS $GL_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GDLIB_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS $GL_LIBS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GDLIB_LDFLAGS $GDLIB_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS $GTKGLEXT_LIBS $GLU_LIBS $GL_LIBS"
 
 
 # if we have gcc then add -Wall
