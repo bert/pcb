@@ -191,7 +191,7 @@ LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES}
 EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${OBSOLETE_LIST_DIST_FILES} \
 		${LIST_DIST_FILES} ${INC_FILES} \
 		${LIBCONTENTS} \
-		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
+		${DAT_FILES} gen_list.awk gen_m4.awk 
 
 DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list aries.m4 aries.list \
 	cts.m4 cts.list bourns.m4 bourns.list \
@@ -269,11 +269,11 @@ panasonic.list: panasonic.inc gen_list.awk
 panasonic.m4: panasonic.inc gen_m4.awk
 	${AWK} -f $(srcdir)/gen_m4.awk name=panasonic $(srcdir)/panasonic.inc > $@
 
-geda.m4: geda.inc gen_geda_m4.awk
-	${AWK} -f $(srcdir)/gen_geda_m4.awk $(srcdir)/geda.inc > $@
+geda.m4: geda.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=geda $(srcdir)/geda.inc > $@
 
-geda.list: geda.inc gen_geda_list.awk
-	${AWK} -f $(srcdir)/gen_geda_list.awk $(srcdir)/geda.inc > $@
+geda.list: geda.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=geda $(srcdir)/geda.inc > $@
 
 tdk.list: tdk.inc gen_list.awk
 	${AWK} -f $(srcdir)/gen_list.awk name=tdk $(srcdir)/tdk.inc > $@

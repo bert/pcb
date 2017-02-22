@@ -8,6 +8,8 @@
 #   Oct 10 2002
 #
 
+# EXTRACT_BEGIN
+
 #
 ##  Dual in-line package, narrow (300 mil)
 #   DIP6 .. DIP64, DIP24N, DIP28N
@@ -1232,3 +1234,4 @@ define(`PKG_SC70_6',   `PKG_SMT_TRANSISTOR6( `$1', `$2', `$3', 13, 18)');
 ## Pressure transducer
 define(`PKG_MPAK',     `COMMON_SMT_TRANSISTORX_MIL(`$1', `$2', `$3', 150, 437, 20, `12345')');
 
+# EXTRACT_END
