@@ -348,6 +348,46 @@ Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 )')
 
 # -------------------------------------------------------------------
+# the definition of a more general axial package
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad drill diameter [1/100 mm]
+# $5:  pad diameter [1/100 mm]
+# $6:  pad clearance diameter [1/100 mm]
+# $7:  pad center to center [1/100 mm]
+# $8:  courtyard in direction perpendicular to axis of part [1/100 mm] 
+# $9:  courtyard in direction parallel to axis of part [1/100 mm]
+# $10: 1 for polarized, 0 for non polarized
+define(`PKG_AXIAL_H_MM100',
+	# grab the input values and convert to 1/100 mil
+	`define(`PX', `eval( ($7 * 10000) / 254 / 2)')
+	define(`DRILLSIZE', `eval( ($4 * 10000) / 254)')
+	define(`PINSIZE', `eval( ($5 * 10000) / 254)')
+	define(`PINANTI', `eval( ($6 * 10000) / 254)')
+	define(`PINCLEAR', `eval((PINANTI - PINSIZE)/2)')
+	define(`SILKW', `800')
+	define(`SILKX', `eval(($8 * 10000) / 254 / 2 )')
+	define(`SILKY', `eval(($9 * 10000) / 254 / 2)')
+# element_flags, description, pcb-name, value, mark_x, mark_y,
+# text_x, text_y, text_direction, text_scale, text_flags
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 -SILKX -SILKY 0 100 ""]
+(
+# Pin[x, y, thickness, clearance, mask, drilling hole, name,
+#     number, flags 
+Pin[ -PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "1" "1" 0x0]
+Pin[  PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "2" "2" 0x0]
+
+# Silk screen around package
+ElementLine[ SILKX  SILKY  SILKX -SILKY SILKW]
+ElementLine[ SILKX -SILKY -SILKX -SILKY SILKW]
+ElementLine[-SILKX -SILKY -SILKX  SILKY SILKW]
+ElementLine[-SILKX  SILKY  SILKX  SILKY SILKW] 
+
+
+)')
+
+# -------------------------------------------------------------------
 #
 # general purpose crystal standing, 2 or 3 pins
 # $1: canonical name

@@ -102,6 +102,7 @@ include(qfpdj.inc)
 include(resistor_adjust.inc)
 include(rules.inc)
 include(smt.inc)
+include(tdk.inc)
 include(to.inc)
 include(zif.inc)
 

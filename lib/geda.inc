@@ -571,6 +571,39 @@ define(`PKG_ALF900', `PKG_DIODE_LAY(`$1', `$2', `$3',  900)');
 define(`PKG_ALF1000',`PKG_DIODE_LAY(`$1', `$2', `$3', 1000)');
 
 #
+##  Axial inductors, horizontally mounted, IPC-7251 compliant
+#
+# The following are recommendations from IPC-7251
+# The naming convention, here follows the IPC standard.
+# Any additions to this section should follow the IPC naming convention and size.  
+# Yes, I know they are very verbose.
+#
+# INDAD + lead spacing + W + lead width (diameter) + L + body length (axial) + D + body diameter (width) + {A,B,C}
+#
+# A = most material condition
+# B = nominal material condition
+# C = least material condition
+#
+# The base macro accepts the numbers directly (after multiplying by 100) from the IPC
+# standard so they are fairly simple to add.
+
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad drill diameter [1/100 mm]
+# $5:  pad diameter [1/100 mm]
+# $6:  pad clearance diameter [1/100 mm]
+# $7:  pad center to center [1/100 mm]
+# $8:  courtyard in direction perpendicular to axis of part [1/100 mm]
+# $9:  courtyard in direction parallel to axis of part [1/100 mm]
+
+# perp  x parallel
+# 6.5mm x 12mm body, 0.8 mm max lead.  TDK HLBC series for example
+define(`PKG_INDAD1600W80L1200D650A', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  105,   204,  405,  1600,  1300,  750)');
+define(`PKG_INDAD1560W80L1200D650B', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  100,   170,  309,  1560,  1250,  700)');
+define(`PKG_INDAD1520W80L1200D650C', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',   95,   155,  254,  1520,  1220,  670)');
+
+#
 ##  Bottom lead non-polar circular component (typically capacitor)
 #   pin spacing 100 mil and up
 #   RCY100 .. RCY1000
