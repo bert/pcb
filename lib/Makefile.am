@@ -176,14 +176,15 @@ INC_FILES= \
 	smt.inc \
 	tdk.inc \
 	to.inc \
+	toko.inc \
 	zif.inc 
 
 DAT_FILES= \
 	qfp.dat
 
-M4_FILES=	${M4_DIST_FILES} amp.m4 aries.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 optek.m4 panasonic.m4 tdk.m4
+M4_FILES=	${M4_DIST_FILES} amp.m4 aries.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 optek.m4 panasonic.m4 tdk.m4 toko.m4
 LIST_FILES=	${LIST_DIST_FILES} amp.list aries.list bourns.list candk.list cts.list geda.list johnstech.list minicircuits.list nichicon.list \
-		optek.list panasonic.list tdk.list
+		optek.list panasonic.list tdk.list toko.list
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
@@ -199,7 +200,8 @@ DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list 
 	nichicon.m4 nichicon.list \
 	optek.m4 optek.list \
 	panasonic.m4 panasonic.list \
-	tdk.m4 tdk.list
+	tdk.m4 tdk.list \
+	toko.m4 toko.list
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}
@@ -278,4 +280,10 @@ tdk.list: tdk.inc gen_list.awk
 
 tdk.m4: tdk.inc gen_m4.awk
 	${AWK} -f $(srcdir)/gen_m4.awk name=tdk $(srcdir)/tdk.inc > $@
+
+toko.list: toko.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=toko $(srcdir)/toko.inc > $@
+
+toko.m4: toko.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=toko $(srcdir)/toko.inc > $@
 

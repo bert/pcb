@@ -104,6 +104,7 @@ include(rules.inc)
 include(smt.inc)
 include(tdk.inc)
 include(to.inc)
+include(toko.inc)
 include(zif.inc)
 
 # if any of these files exist, then include them.  
