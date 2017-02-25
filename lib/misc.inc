@@ -1,4 +1,4 @@
-.#
+#
 #                             COPYRIGHT
 # 
 #   PCB, interactive printed circuit board design
