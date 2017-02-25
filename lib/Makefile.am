@@ -74,7 +74,7 @@ uninstall-local:
 	chmod -R a+w $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 	rm -fr $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 
-EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh
+EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh README-m4libs
 
 if BUILD_PCBLIB_NEWLIB
 DISTCLEANFILES=	${NEWLIB}.stamp

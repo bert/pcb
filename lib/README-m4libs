@@ -1,0 +1,54 @@
+This note applies to any developers touching the m4 libraries.  Quite
+a bit of caution is needed here.  A number of these footprints are
+being used by users who may now want them changing from underneath
+them.  Obviously broken things should be fixed but we should clearly
+identify affected footprints at release time.  
+
+Also, since M4 is not the most commonly used language, there may be
+some useful debug tips.
+
+
+= ********************************************************************** 
+= Regression testing
+= ********************************************************************** 
+
+Due to the M4 system being somewhat fragile and some macros having
+far reaching effects, it is good to rebuild pcblib-newlib for comparison.
+
+With a fresh set of sources, build, and then
+cp -r pcblib-newlib pcblib-newlib-orig
+
+now make changes, rebuild (in this lib/ directory), and then
+diff -U2 -r pcblib-newlib-orig pcblib-newlib
+
+This lets you verify that no unexpected changes happened.
+
+= ********************************************************************** 
+= Full syntax testing
+= ********************************************************************** 
+
+If pcb is configured with --enable-m4lib-png then when pcblib-newlib
+is built, a PNG of each footprint will be created.  As part of this, a list
+of any footprints which failed to be loaded will be created.  In addition,
+ImageMagick can be used to compare the png results before and after any
+changes.
+
+
+= ********************************************************************** 
+= Testing a footprint 
+= ********************************************************************** 
+
+The footprints in PCB take 3 arguments.  Here is an example of checking
+to see what the MTGNP610H370V6L package will produce:
+
+echo "PKG_MTGNP610H370V6L(MTHOLE, HL, MTHOLE4)" | gm4 common.m4 -
+
+I often times like to pipe to
+
+awk '/^[ \t]*$/{next} {print}'
+
+to remove empty lines to make it easier to read.  You can
+redirect the output to a file and then directly launch PCB pointing
+at that file or File->Load Element To buffer to be able to
+paste the element into a layout and examine it.
+
