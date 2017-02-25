@@ -368,6 +368,7 @@ define(`PKG_AXIAL_H_MM100',
 	define(`PINCLEAR', `eval((PINANTI - PINSIZE)/2)')
 	define(`SILKW', `800')
 	define(`SILKX', `eval(($8 * 10000) / 254 / 2 )')
+	define(`SILKXC',`eval(-SILKX - 2*SILKW)')
 	define(`SILKY', `eval(($9 * 10000) / 254 / 2)')
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
@@ -375,7 +376,7 @@ Element[0x00000000 "$1" "`$2'" "$3" 0 0 -SILKX -SILKY 0 100 ""]
 (
 # Pin[x, y, thickness, clearance, mask, drilling hole, name,
 #     number, flags 
-Pin[ -PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "1" "1" 0x0]
+Pin[ -PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "1" "1" "square"]
 Pin[  PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "2" "2" 0x0]
 
 # Silk screen around package
@@ -384,6 +385,9 @@ ElementLine[ SILKX -SILKY -SILKX -SILKY SILKW]
 ElementLine[-SILKX -SILKY -SILKX  SILKY SILKW]
 ElementLine[-SILKX  SILKY  SILKX  SILKY SILKW] 
 
+ifelse( 1, $10,
+	ElementLine[ SILKXC SILKY SILKXC -SILKY SILKW]
+)
 
 )')
 
