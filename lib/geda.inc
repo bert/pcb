@@ -647,6 +647,38 @@ define(`PKG_RCY1100P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2200, 1)');
 define(`PKG_RCY1200P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2400, 1)');
 
 #
+##  Capacitors, radial IPC-7251 compliant
+#
+# The following are recommendations from IPC-7251
+# The naming convention, here follows the IPC standard.
+# Any additions to this section should follow the IPC naming convention and size.
+# Yes, I know they are very verbose.
+#
+# CAPPRD + lead spacing + W + lead width (diameter) + D + body diameter + H + body height + {A,B,C}
+#
+# A = most material condition
+# B = nominal material condition
+# C = least material condition
+#
+# The base macro accepts the numbers directly (after multiplying by 100) from the IPC
+# standard so they are fairly simple to add.
+
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad drill diameter [1/100 mm]
+# $5:  pad diameter [1/100 mm]
+# $6:  pad clearance diameter [1/100 mm]
+# $7:  pad center to center [1/100 mm]
+# $8:  courtyard radius [1/100 mm]
+# $9:  0 for non polarized, 1 for polarized
+
+# 16x30mm (dia x height), 0.8mm max lead, 7.5mm pitch.  Nippon Chemi-Con GPA series for example
+define(`PKG_CAPPRD750W80D1600H3150A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   105,    204,    405,    750,   1700,  1)');
+define(`PKG_CAPPRD750W80D1600H3150B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   100,    170,    309,    750,   1650,  1)');
+define(`PKG_CAPPRD750W80D1600H3150C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    95,    154,    254,    750,   1620,  1)');
+
+#
 ##  Crystals
 #
 #

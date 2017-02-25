@@ -105,6 +105,7 @@ include(smt.inc)
 include(tdk.inc)
 include(to.inc)
 include(toko.inc)
+include(united_chemicon.inc)
 include(zif.inc)
 
 # if any of these files exist, then include them.  

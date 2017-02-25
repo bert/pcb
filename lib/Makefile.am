@@ -177,14 +177,16 @@ INC_FILES= \
 	tdk.inc \
 	to.inc \
 	toko.inc \
+	united_chemicon.inc \
 	zif.inc 
 
 DAT_FILES= \
 	qfp.dat
 
-M4_FILES=	${M4_DIST_FILES} amp.m4 aries.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 optek.m4 panasonic.m4 tdk.m4 toko.m4
+M4_FILES=	${M4_DIST_FILES} amp.m4 aries.m4 bourns.m4 candk.m4 cts.m4 geda.m4 johnstech.m4 minicircuits.m4 nichicon.m4 \
+		optek.m4 panasonic.m4 tdk.m4 toko.m4 united_chemicon.m4
 LIST_FILES=	${LIST_DIST_FILES} amp.list aries.list bourns.list candk.list cts.list geda.list johnstech.list minicircuits.list nichicon.list \
-		optek.list panasonic.list tdk.list toko.list
+		optek.list panasonic.list tdk.list toko.list united_chemicon.list
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
@@ -286,4 +288,10 @@ toko.list: toko.inc gen_list.awk
 
 toko.m4: toko.inc gen_m4.awk
 	${AWK} -f $(srcdir)/gen_m4.awk name=toko $(srcdir)/toko.inc > $@
+
+united_chemicon.list: united_chemicon.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=united_chemicon $(srcdir)/united_chemicon.inc > $@
+
+united_chemicon.m4: united_chemicon.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=united_chemicon $(srcdir)/united_chemicon.inc > $@
 
