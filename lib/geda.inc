@@ -573,6 +573,49 @@ define(`PKG_ALF900', `PKG_DIODE_LAY(`$1', `$2', `$3',  900)');
 define(`PKG_ALF1000',`PKG_DIODE_LAY(`$1', `$2', `$3', 1000)');
 
 #
+##  Axial diodes, horizontally mounted, IPC-7251 compliant, 1 is cathode
+#
+# The following are recommendations from IPC-7251
+# The naming convention, here follows the IPC standard.
+# Any additions to this section should follow the IPC naming convention and size.
+# Yes, I know they are very verbose.
+#
+# DIOAD + lead spacing + W + lead width (diameter) + L + body length (axial) + D + body diameter (width) + {A,B,C}
+#
+# A = most material condition
+# B = nominal material condition
+# C = least material condition
+#
+# The base macro accepts the numbers directly (after multiplying by 100) from the IPC
+# standard so they are fairly simple to add.
+
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad drill diameter [1/100 mm]
+# $5:  pad diameter [1/100 mm]
+# $6:  pad clearance diameter [1/100 mm]
+# $7:  pad center to center [1/100 mm]
+# $8:  courtyard in direction perpendicular to axis of part [1/100 mm]
+# $9:  courtyard in direction parallel to axis of part [1/100 mm]
+# $10: 1 for polarized
+
+# DO-41 package, www.diodes.com/assets/Datasheets/ds28002.pdf for example
+#define(`PKG_DO41_H_M', `PKG_DIOAD1290W87L521D272A(`$1', `$2', `$3')');
+#define(`PKG_DO41_H_N', `PKG_DIOAD1290W87L521D272B(`$1', `$2', `$3')');
+#define(`PKG_DO41_H_L', `PKG_DIOAD1290W87L521D272C(`$1', `$2', `$3')');
+
+
+define(`PKG_DIOAD1290W87L521D272A', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  111,   211,  411,  1290,  621,  372, 1)');
+define(`PKG_DO41_H_M',              `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  111,   211,  411,  1290,  621,  372, 1)');
+define(`PKG_DIOAD1221W87L521D272B', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  106,   176,  316,  1221,  571,  322, 1)');
+define(`PKG_DO41_H_N',              `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  106,   176,  316,  1221,  571,  322, 1)');
+define(`PKG_DIOAD1170W87L521D272C', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  101,   161,  261,  1170,  541,  292, 1)');
+define(`PKG_DO41_H_L',              `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  101,   161,  261,  1170,  541,  292, 1)');
+
+
+
+#
 ##  Axial inductors, horizontally mounted, IPC-7251 compliant
 #
 # The following are recommendations from IPC-7251
@@ -598,7 +641,7 @@ define(`PKG_ALF1000',`PKG_DIODE_LAY(`$1', `$2', `$3', 1000)');
 # $7:  pad center to center [1/100 mm]
 # $8:  courtyard in direction perpendicular to axis of part [1/100 mm]
 # $9:  courtyard in direction parallel to axis of part [1/100 mm]
-
+# $10: 1 for polarized
 # perp  x parallel
 # 6.5mm x 12mm body, 0.8 mm max lead.  TDK HLBC series for example
 define(`PKG_INDAD1600W80L1200D650A', `PKG_AXIAL_H_MM100(  `$1', `$2', `$3',  105,   204,  405,  1600,  1300,  750)');
