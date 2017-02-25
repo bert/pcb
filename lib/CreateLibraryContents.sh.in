@@ -108,7 +108,7 @@ while [ $# -ne 0 ]; do
 	# for foo.list spit out "TYPE=~foo".  This defines the library
 	# in the PCB library window
 	##
-	echo "TYPE=~`basename $PlainFile | sed -e 's/_/ /g'`"
+	echo "TYPE=~`basename $PlainFile`"
 
 	sed -e 's/'"$SPACE"'*#.*$//' \
 		-e 's/'"$SPACE"'*:'"$SPACE"'*/:/g' \
