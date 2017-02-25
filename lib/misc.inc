@@ -677,6 +677,53 @@ Element(0x00 "$1" "`$2'" "$3" eval(`$4') 0 0 100 0x00)
 	Mark (X1 Y)
 )')
 
+# -------------------------------------------------------------------
+# the definition of a more general radial package
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad drill diameter [1/100 mm]
+# $5:  pad diameter [1/100 mm]
+# $6:  pad clearance diameter [1/100 mm]
+# $7:  pad center to center [1/100 mm]
+# $8:  courtyard diameter [1/100 mm]
+# $9: 1 for polarized, 0 for non polarized
+define(`PKG_RADIAL_MM100',
+	# grab the input values and convert to 1/100 mil
+	`define(`PX', `eval( ($7 * 10000) / 254 / 2)')
+	define(`DRILLSIZE', `eval( ($4 * 10000) / 254)')
+	define(`PINSIZE', `eval( ($5 * 10000) / 254)')
+	define(`PINANTI', `eval( ($6 * 10000) / 254)')
+	define(`PINCLEAR', `eval((PINANTI - PINSIZE)/2)')
+	define(`SILKW', `800')
+	define(`SILKRAD', `eval(($8 * 10000) / 254 / 2 )')
+	define(`MARKL', `5000')
+	define(`MARKS', `1000')
+	define(`PX1', `eval(-SILKRAD - MARKL - MARKS)')
+	define(`PXM', `eval(-SILKRAD - MARKL/2 - MARKS)')
+	define(`PX2', `eval(-SILKRAD - MARKS)')
+	define(`PY1', `eval(-MARKL)')
+	define(`PY2', `eval(PY1 + MARKL)')
+	define(`PYM', `eval( (PY1 + PY2) / 2)')
+# element_flags, description, pcb-name, value, mark_x, mark_y,
+# text_x, text_y, text_direction, text_scale, text_flags
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 PX1 0 0 100 ""]
+(
+# Pin[x, y, thickness, clearance, mask, drilling hole, name,
+#     number, flags
+Pin[ -PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "1" "1" "square"]
+Pin[  PX 0  PINSIZE PINCLEAR PINSIZE DRILLSIZE "2" "2" 0x0]
+
+# Silk screen around package
+ElementArc[0 0 SILKRAD SILKRAD 0 360 SILKW]
+
+ifelse( 1, $9,
+	ElementLine[ PX1 PYM PX2 PYM SILKW]
+	ElementLine[ PXM PY1 PXM PY2 SILKW]
+)
+
+)')
+
 # a core surface mount package
 # 12/99 Larry Doolittle <LRDoolittle@lbl.gov>
 #
