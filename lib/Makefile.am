@@ -203,7 +203,8 @@ DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list 
 	optek.m4 optek.list \
 	panasonic.m4 panasonic.list \
 	tdk.m4 tdk.list \
-	toko.m4 toko.list
+	toko.m4 toko.list \
+	united_chemicon.m4 united_chemicon.list
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}
