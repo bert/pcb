@@ -210,6 +210,8 @@ IPCD356_WriteNet (FILE * fd, char *net)
       padx = (pad->Point1.X + pad->Point2.X) / 2; /* X location in PCB units. */
       pady = (PCB->MaxHeight - ((pad->Point1.Y + pad->Point2.Y) / 2)); /* Y location in PCB units. */
 
+#warning THIS CODE ASSUMES Coords are nm. BAD BAD BAD. Use COORD_TO_MM or similar.
+#warning BETTER YET - use pcb_printf
       if (strcmp (Settings.grid_unit->suffix, "mil") == 0)
         {
           padx = padx / 2540; /* X location in 0.0001". */
@@ -226,6 +228,7 @@ IPCD356_WriteNet (FILE * fd, char *net)
       padx = (pad->Thickness + (pad->Point2.X - pad->Point1.X)); /* Pad dimension X in PCB units. */
       pady = (pad->Thickness + (pad->Point2.Y - pad->Point1.Y)); /* Pad dimension Y in PCB units. */
 
+#warning Using current grid here is evil magic. Exporters should ideally not depend on what is effectively GUI state.
       if (strcmp(Settings.grid_unit->suffix, "mil") == 0)
         {
           padx = padx / 2540; /* X location in 0.0001". */
@@ -489,6 +492,7 @@ IPCD356_Netlist (void)
   PIN_LOOP (element);
   if (!TEST_FLAG (VISITFLAG, pin))
     {
+#warning DO WE EVER MANAGE THE "undo" OF THE FLAGS WE CLEAR AND SET HERE?
       ClearFlagOnLinesAndPolygons (true, FOUNDFLAG, store_undo);
       ClearFlagOnPinsViasAndPads (true, FOUNDFLAG, store_undo);
       LookupConnectionByPin (PIN_TYPE, pin);
