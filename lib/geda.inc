@@ -169,11 +169,7 @@ dnl
 	define(`PADCLEAR_MM', `eval( 100 + 2*RING_MM)')
         define(`SILKR_MM',    `eval( (PADSIZE_MM + 2*RING_MM + SILKW_MM)/2)')
 	define(`SILKR',       `eval( (SILKR_MM*10000)/254)')
-	define(`HOLEFLAG', `ifelse(
-		0, PADFLAG,   `hole',
-		0, PLATEFLAG, `hole',
-		""
-		)')
+	define(`HOLEFLAG', `ifelse( 0, PADFLAG,   `hole', 0, PLATEFLAG, `hole', `' )')
 	define(`PADSIZE',  `eval((PADSIZE_MM*10000)/254)')
 	define(`PADCLEAR', `eval((PADCLEAR_MM*10000)/254)')
 	define(`PADMASK',  `eval( PADSIZE + 1000)')
