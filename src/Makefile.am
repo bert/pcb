@@ -33,8 +33,9 @@ bin_PROGRAMS=	pcb
 
 if DEBUG_BUILD
 # don't disable assert()
+AM_CFLAGS= -Wno-unused-parameter
 else
-AM_CFLAGS= -DNDEBUG
+AM_CFLAGS= -DNDEBUG -Wno-unused-parameter
 endif
 
 PCB_SRCS = \
