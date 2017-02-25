@@ -3229,17 +3229,14 @@ LookupConnectionByObject (int type, void *ptr1, void *ptr2, void *ptr3, bool And
 }
 
 void
-LookupConnectionByPin (int type, void *ptr1)
+LookupConnectionByPin (int type, void *ptr2)
 {
-/*  int TheFlag = FOUNDFLAG; */
-
-  User = 0;
-  InitConnectionLookup ();
-  ListStart (type, NULL, ptr1, NULL, FOUNDFLAG);
-
-  DoIt (FOUNDFLAG, true, false);
-
-  FreeConnectionLookupMemory ();
+  return LookupConnectionByObject (type,
+                                   NULL, ptr2, NULL,
+                                   false /* AndDraw */,
+                                   FOUNDFLAG,
+                                   true /* AndRats */,
+                                   false /* store_undo */);
 }
 
 /*!
