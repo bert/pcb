@@ -169,7 +169,7 @@ dnl
 	define(`PADCLEAR_MM', `eval( 100 + 2*RING_MM)')
         define(`SILKR_MM',    `eval( (PADSIZE_MM + 2*RING_MM + SILKW_MM)/2)')
 	define(`SILKR',       `eval( (SILKR_MM*10000)/254)')
-	define(`HOLEFLAG', `ifelse( 0, PADFLAG,   `hole', 0, PLATEFLAG, `hole', `' )')
+	define(`HOLEFLAG', `ifelse( 0, PADFLAG,   `hole,thermal(0S)', 0, PLATEFLAG, `hole,thermal(0S)', `thermal(0S)' )')
 	define(`PADSIZE',  `eval((PADSIZE_MM*10000)/254)')
 	define(`PADCLEAR', `eval((PADCLEAR_MM*10000)/254)')
 	define(`PADMASK',  `eval( PADSIZE + 1000)')
@@ -198,7 +198,7 @@ Element[ "" "$1" "`$2'" "$3" 0 0 SILKR -SILKR 0 100 ""]
 dnl
 # Pin[x, y, thickness, clearance, mask, drilling hole, name,
 #     number, flags.  By default, add a solid connection to the plane
-Pin[ 0 0  PADSIZE  PADCLEAR PADMASK DRILLSIZE "1" "1" "HOLEFLAG,thermal(0S)"]
+Pin[ 0 0  PADSIZE  PADCLEAR PADMASK DRILLSIZE "1" "1" "HOLEFLAG"]
 
 ifelse( 1, SILKFLAG,
 	ElementArc[0 0 SILKR SILKR 0 360 SILKW]
