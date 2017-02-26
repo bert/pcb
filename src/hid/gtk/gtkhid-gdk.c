@@ -96,6 +96,64 @@ typedef struct gtk_gc_struct
 
 static void draw_lead_user (render_priv *priv);
 
+#define	DRAW_X(x)         (gint)((SIDE_X(x) - gport->view.x0) / gport->view.coord_per_px)
+#define	DRAW_Y(y)         (gint)((SIDE_Y(y) - gport->view.y0) / gport->view.coord_per_px)
+
+/* Coordinate conversions */
+/* Px converts view->pcb, Vx converts pcb->view */
+static inline int
+Vx (Coord x)
+{
+  int rv;
+  if (gport->view.flip_x)
+    rv = (PCB->MaxWidth - x - gport->view.x0) / gport->view.coord_per_px + 0.5;
+  else
+    rv = (x - gport->view.x0) / gport->view.coord_per_px + 0.5;
+  return rv;
+}
+
+static inline int
+Vy (Coord y)
+{
+  int rv;
+  if (gport->view.flip_y)
+    rv = (PCB->MaxHeight - y - gport->view.y0) / gport->view.coord_per_px + 0.5;
+  else
+    rv = (y - gport->view.y0) / gport->view.coord_per_px + 0.5;
+  return rv;
+}
+
+static inline int
+Vz (Coord z)
+{
+  return z / gport->view.coord_per_px + 0.5;
+}
+
+static inline Coord
+Px (int x)
+{
+  Coord rv = x * gport->view.coord_per_px + gport->view.x0;
+  if (gport->view.flip_x)
+    rv = PCB->MaxWidth - (x * gport->view.coord_per_px + gport->view.x0);
+  return  rv;
+}
+
+static inline Coord
+Py (int y)
+{
+  Coord rv = y * gport->view.coord_per_px + gport->view.y0;
+  if (gport->view.flip_y)
+    rv = PCB->MaxHeight - (y * gport->view.coord_per_px + gport->view.y0);
+  return  rv;
+}
+
+static inline Coord
+Pz (int z)
+{
+  return (z * gport->view.coord_per_px);
+}
+
+
 /* Compute group visibility based upon on copper layers only */
 static bool
 is_layer_group_visible (int group)
@@ -1308,8 +1366,8 @@ ghid_finish_debug_draw (void)
 bool
 ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
 {
-  *pcb_x = EVENT_TO_PCB_X (event_x);
-  *pcb_y = EVENT_TO_PCB_Y (event_y);
+  *pcb_x = SIDE_X((gint)(event_x * gport->view.coord_per_px + gport->view.x0));
+  *pcb_y = SIDE_Y((gint)(event_y * gport->view.coord_per_px + gport->view.y0));
 
   return true;
 }

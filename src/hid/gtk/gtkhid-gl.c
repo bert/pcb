@@ -116,10 +116,52 @@ typedef struct gtk_gc_struct
 } *gtkGC;
 
 static void draw_lead_user (hidGC gc, render_priv *priv);
-static bool ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb_y);
+static bool ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, double *pcb_x, double *pcb_y);
 
 void ghid_set_lock_effects (hidGC gc, AnyObjectType *object);
 
+
+
+/* Coordinate conversions */
+/* Px converts view->pcb, Vx converts pcb->view */
+static inline int
+Vz (Coord z)
+{
+  return z / gport->view.coord_per_px + 0.5;
+}
+
+static inline Coord
+Px (int x)
+{
+  double rv = (double)x * gport->view.coord_per_px + gport->view.x0;
+
+  if (gport->view.flip_x)
+    rv = PCB->MaxWidth - rv;
+
+  if (rv > G_MAXINT / 4)
+    rv = G_MAXINT / 4;
+
+  if (rv < -G_MAXINT / 4)
+    rv = -G_MAXINT / 4;
+
+  return  rv;
+}
+
+static inline Coord
+Py (int y)
+{
+  double rv = (double)y * gport->view.coord_per_px + gport->view.y0;
+  if (gport->view.flip_y)
+    rv = PCB->MaxHeight - rv;
+
+  if (rv > G_MAXINT / 4)
+    rv = G_MAXINT / 4;
+
+  if (rv < -G_MAXINT / 4)
+    rv = -G_MAXINT / 4;
+
+  return  rv;
+}
 
 #define BOARD_THICKNESS         MM_TO_COORD(1.60)
 #define MASK_COPPER_SPACING     MM_TO_COORD(0.05)
@@ -2221,9 +2263,9 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   render_priv *priv = port->render_priv;
   GtkAllocation allocation;
   BoxType region;
-  Coord min_x, min_y;
-  Coord max_x, max_y;
-  Coord new_x, new_y;
+  double min_x, min_y;
+  double max_x, max_y;
+  double new_x, new_y;
   Coord min_depth;
   Coord max_depth;
   float aspect;
@@ -2417,6 +2459,15 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     max_y = PCB->MaxHeight;
   }
 
+  if (min_x < (double)-G_MAXINT / 4.) min_x = -G_MAXINT / 4;
+  if (min_y < (double)-G_MAXINT / 4.) min_y = -G_MAXINT / 4;
+  if (max_x < (double)-G_MAXINT / 4.) max_x = -G_MAXINT / 4;
+  if (max_y < (double)-G_MAXINT / 4.) max_y = -G_MAXINT / 4;
+  if (min_x > (double) G_MAXINT / 4.) min_x =  G_MAXINT / 4;
+  if (min_y > (double) G_MAXINT / 4.) min_y =  G_MAXINT / 4;
+  if (max_x > (double) G_MAXINT / 4.) max_x =  G_MAXINT / 4;
+  if (max_y > (double) G_MAXINT / 4.) max_y =  G_MAXINT / 4;
+
   region.X1 = min_x;  region.X2 = max_x + 1;
   region.Y1 = min_y;  region.Y2 = max_y + 1;
 
@@ -2481,7 +2532,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glColor3f (1., 1., 1.);
 
   if (0) {
-    Coord x, y;
+    double x, y;
     Coord z = max_depth;
 
     glBegin (GL_LINES);
@@ -3046,7 +3097,7 @@ invert_4x4 (float m[4][4], float out[4][4])
 
 
 static bool
-ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb_y)
+ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, double *pcb_x, double *pcb_y)
 {
   double mat[2][2];
   double inv_mat[2][2];
@@ -3164,8 +3215,11 @@ ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb
 //  if (fvx < (double)-G_MAXINT/5.) {fvx = (double)-G_MAXINT/5.; printf ("fvx underflow clamped\n"); }
 //  if (fvy < (double)-G_MAXINT/5.) {fvy = (double)-G_MAXINT/5.; printf ("fvy underflow clamped\n"); }
 
-  *pcb_x = (Coord)fvx;
-  *pcb_y = (Coord)fvy;
+//  *pcb_x = (Coord)fvx;
+//  *pcb_y = (Coord)fvy;
+
+  *pcb_x = fvx;
+  *pcb_y = fvy;
 
   {
     /* Reproject the computed board plane coordinates to eye space */
@@ -3195,8 +3249,15 @@ bool
 ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
 {
   render_priv *priv = gport->render_priv;
+  double tmp_x, tmp_y;
+  bool retval;
 
-  return ghid_unproject_to_z_plane (event_x, event_y, priv->edit_depth, pcb_x, pcb_y);
+  retval = ghid_unproject_to_z_plane (event_x, event_y, priv->edit_depth, &tmp_x, &tmp_y);
+
+  *pcb_x = tmp_x;
+  *pcb_y = tmp_y;
+
+  return retval;
 }
 
 bool

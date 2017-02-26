@@ -69,7 +69,7 @@ ghid_pan_view_rel (Coord dx, Coord dy)
 
 #define ALLOW_ZOOM_OUT_BY 10 /* Arbitrary, and same as the lesstif HID */
 static void
-ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
+ghid_zoom_view_abs (double center_x, double center_y, double new_zoom)
 {
   double min_zoom, max_zoom;
   double xtmp, ytmp;
@@ -102,7 +102,7 @@ ghid_zoom_view_abs (Coord center_x, Coord center_y, double new_zoom)
 }
 
 void
-ghid_zoom_view_rel (Coord center_x, Coord center_y, double factor)
+ghid_zoom_view_rel (double center_x, double center_y, double factor)
 {
   ghid_zoom_view_abs (center_x, center_y, gport->view.coord_per_px * factor);
 }
