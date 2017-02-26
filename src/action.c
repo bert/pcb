@@ -110,6 +110,9 @@ typedef enum
   F_ClearAndRedraw,
   F_ClearList,
   F_Close,
+  F_CreatePins,
+  F_CreateVias,
+  F_CreateHoles,
   F_Found,
   F_Connection,
   F_Convert,
@@ -348,6 +351,9 @@ static FunctionType Functions[] = {
   {"ClearAndRedraw", F_ClearAndRedraw},
   {"ClearList", F_ClearList},
   {"Close", F_Close},
+  {"CreatePins", F_CreatePins},
+  {"CreateVias", F_CreateVias},
+  {"CreateHoles", F_CreateHoles},
   {"Found", F_Found},
   {"Connection", F_Connection},
   {"Convert", F_Convert},
@@ -8273,6 +8279,131 @@ ActionSmash (int argc, char **argv, Coord x, Coord y)
   AFAIL (smash);
 }
 
+
+static const char repairdrills_syntax[] = N_("RepairDrills(CreatePins|CreateVias|CreateHoles,<layername>)");
+static const char repairdrills_help[] = N_("Repair and reconstruct elements containing pins, or discrete vias, where two matching single-pad elements are found (top and bottom sides, and a 0-length line represeting the drill size on the named layer.");
+
+static LayerType *
+GetLayerByName (char *name)
+{
+  int i;
+  LayerType *layer;
+
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      layer = PCB->Data->Layer + i;
+
+      if (strcmp (layer->Name, name) == 0)
+        return layer;
+    }
+
+  return NULL;
+}
+
+/*---------------------------------------------------------------------------
+ *
+ * break selected element(s) into pieces
+ */
+static int
+ActionRepairDrills (int argc, char **argv, Coord x, Coord y)
+{
+  int function;
+  bool save_show_bottom_side;
+  bool save_invisible_objects;
+
+  LayerType *drill_layer;
+
+  if (argc != 2)
+    AFAIL (repairdrills);
+
+  function = GetFunctionID (ARG(0));
+  drill_layer = GetLayerByName (ARG(1));
+
+  if (drill_layer == NULL ||
+      (function != F_CreatePins &&
+       function != F_CreateVias &&
+       function != F_CreateHoles))
+    AFAIL (repairdrills);
+
+  save_show_bottom_side = Settings.ShowBottomSide;
+  save_invisible_objects = PCB->InvisibleObjectsOn;
+
+  PCB->InvisibleObjectsOn = false;
+
+  /* ITERATE OVER ALL LINE SEGMENTS ON "drill_layer" */
+  LINE_LOOP (drill_layer);
+    {
+      ElementType *top_pad_element;
+      ElementType *bottom_pad_element;
+      PadType *top_pad;
+      PadType *bottom_pad;
+      PadType *dummy;
+
+      /* Pass over any lines which are not zero length */
+      if (line->Point1.X != line->Point2.X ||
+          line->Point1.Y != line->Point2.Y)
+        continue;
+
+      /* Now we have a target "drill", of width line->Thickness, we need to check
+       * for corresponding pads on the top and bottom layers for it to mate with.
+       *
+       * XXX: Should we delete those here, and make a list of new vias / pins to add?
+       */
+      pcb_printf ("Found potential drill at (%$ms, %$ms) width is %$ms\t", line->Point1.X, line->Point1.Y, line->Thickness);
+
+      /* Find a top side pad which corresponds to the drill location */
+      Settings.ShowBottomSide = false;
+      if (SearchObjectByLocation (PAD_TYPE, (void **)&top_pad_element, (void **)&top_pad, (void **)&dummy, line->Point1.X, line->Point1.Y, 0) != PAD_TYPE ||
+          top_pad->Point1.X != line->Point1.X ||
+          top_pad->Point1.Y != line->Point1.Y ||
+          top_pad->Point2.X != line->Point1.X ||
+          top_pad->Point2.Y != line->Point1.Y)
+        {
+          printf ("Could not find top-side pad\n");
+          continue;
+        }
+
+      if (function == F_CreateHoles) {
+        /* Create a hole at given location */
+
+        pcb_printf ("Found a viable pin/via at (%$ms, %$ms), pad width %$ms, drill size %$ms\n",
+                    line->Point1.X, line->Point1.Y, top_pad->Thickness, line->Thickness);
+        continue;
+      }
+
+      /* Find a bottom side pad which corresponds to the drill location */
+      Settings.ShowBottomSide = true;
+      if (SearchObjectByLocation (PAD_TYPE, (void **)&bottom_pad_element, (void **)&bottom_pad, (void **)&dummy, line->Point1.X, line->Point1.Y, 0) != PAD_TYPE ||
+          bottom_pad->Point1.X != line->Point1.X ||
+          bottom_pad->Point1.Y != line->Point1.Y ||
+          bottom_pad->Point2.X != line->Point1.X ||
+          bottom_pad->Point2.Y != line->Point1.Y)
+        {
+          printf ("Could not find bottom-side pad\n");
+          continue;
+        }
+
+      /* If the top and bottom pads are not the same radius, give up */
+      if (top_pad->Thickness != bottom_pad->Thickness)
+        {
+          printf ("top-side and bottom-side pad are not equal thickness\n");
+          continue;
+        }
+
+      printf ("\n");
+
+      pcb_printf ("Found a viable pin/via at (%$ms, %$ms), pad width %$ms, drill size %$ms\n",
+                  line->Point1.X, line->Point1.Y, top_pad->Thickness, line->Thickness);
+
+    }
+  END_LOOP;
+
+  Settings.ShowBottomSide= save_show_bottom_side;
+  PCB->InvisibleObjectsOn= save_invisible_objects;
+
+  return 0;
+}
+
 /* --------------------------------------------------------------------------- */
 
 static const char setvialayers_syntax[] =
@@ -8534,6 +8665,9 @@ HID_Action action_action_list[] = {
   ,
   {"Renumber", 0, ActionRenumber,
    renumber_help, renumber_syntax}
+  ,
+  {"RepairDrills", 0, ActionRepairDrills,
+   repairdrills_help, repairdrills_syntax}
   ,
   {"RipUp", 0, ActionRipUp,
    ripup_help, ripup_syntax}
