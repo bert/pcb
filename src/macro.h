@@ -483,5 +483,5 @@ extern int mem_any_set (unsigned char *, int);
 
 #endif
 
-#define VIA_IS_BURIED(via) (via->BuriedFrom != 0 || via->BuriedTo != 0)
+#define VIA_IS_BURIED(via) (via->BuriedFrom != 0 || via->BuriedTo != 0) /*!< Despite the naming, this identifies any blind or buried via (any via which does not go right through the PCB) */
 #define VIA_ON_LAYER(via, layer) (layer >= via->BuriedFrom && layer <= via->BuriedTo )
