@@ -21,10 +21,12 @@
 
 static BoxType box;
 
-typedef struct hid_gc_struct
+typedef struct extents_gc_struct
 {
+  struct hid_gc_struct hid_gc; /* Parent */
+
   int width;
-} hid_gc_struct;
+} *extentsGC;
 
 static int
 extents_set_layer (const char *name, int group, int empty)
@@ -56,9 +58,9 @@ extents_set_layer (const char *name, int group, int empty)
 static hidGC
 extents_make_gc (void)
 {
-  hidGC rv = (hidGC)malloc (sizeof (hid_gc_struct));
-  memset (rv, 0, sizeof (hid_gc_struct));
-  return rv;
+  hidGC gc = (hidGC)calloc (1, sizeof (struct extents_gc_struct));
+
+  return gc;
 }
 
 static void
@@ -85,7 +87,9 @@ extents_set_line_cap (hidGC gc, EndCapStyle style)
 static void
 extents_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  extentsGC extents_gc = (extentsGC)gc;
+
+  extents_gc->width = width;
 }
 
 static void
@@ -101,28 +105,34 @@ extents_set_draw_xor (hidGC gc, int xor_)
 static void
 extents_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  PEX (x1, gc->width);
-  PEY (y1, gc->width);
-  PEX (x2, gc->width);
-  PEY (y2, gc->width);
+  extentsGC extents_gc = (extentsGC)gc;
+
+  PEX (x1, extents_gc->width);
+  PEY (y1, extents_gc->width);
+  PEX (x2, extents_gc->width);
+  PEY (y2, extents_gc->width);
 }
 
 static void
 extents_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 		  Angle start_angle, Angle end_angle)
 {
+  extentsGC extents_gc = (extentsGC)gc;
+
   /* Naive but good enough.  */
-  PEX (cx, width + gc->width);
-  PEY (cy, height + gc->width);
+  PEX (cx, width + extents_gc->width);
+  PEY (cy, height + extents_gc->width);
 }
 
 static void
 extents_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  PEX (x1, gc->width);
-  PEY (y1, gc->width);
-  PEX (x2, gc->width);
-  PEY (y2, gc->width);
+  extentsGC extents_gc = (extentsGC)gc;
+
+  PEX (x1, extents_gc->width);
+  PEY (y1, extents_gc->width);
+  PEX (x2, extents_gc->width);
+  PEY (y2, extents_gc->width);
 }
 
 static void

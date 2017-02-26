@@ -92,16 +92,17 @@ struct color_struct
   unsigned int r, g, b;
 };
 
-struct hid_gc_struct
+typedef struct gcode_gc_struct
 {
-  HID *me_pointer;
+  struct hid_gc_struct hid_gc; /* Parent */
+
   EndCapStyle cap;
   int width;
   unsigned char r, g, b;
   int erase;
   struct color_struct *color;
   gdImagePtr brush;
-};
+} *gcodeGC;
 
 static struct color_struct *black = NULL, *white = NULL;
 static int linewidth = -1;
@@ -1194,14 +1195,18 @@ gcode_set_layer (const char *name, int group, int empty)
 static hidGC
 gcode_make_gc (void)
 {
-  hidGC rv = (hidGC) malloc (sizeof (struct hid_gc_struct));
-  rv->me_pointer = &gcode_hid;
-  rv->cap = Trace_Cap;
-  rv->width = 1;
-  rv->color = (struct color_struct *) malloc (sizeof (*rv->color));
-  rv->color->r = rv->color->g = rv->color->b = 0;
-  rv->color->c = 0;
-  return rv;
+  hidGC gc = (hidGC) calloc (1, sizeof (struct gcode_gc_struct));
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
+  gc->me_pointer = &gcode_hid;
+
+  gcode_gc->cap = Trace_Cap;
+  gcode_gc->width = 1;
+  gcode_gc->color = (struct color_struct *) malloc (sizeof (*gcode_gc->color));
+  gcode_gc->color->r = gcode_gc->color->g = gcode_gc->color->b = 0;
+  gcode_gc->color->c = 0;
+
+  return gc;
 }
 
 static void
@@ -1219,6 +1224,8 @@ gcode_use_mask (enum mask_mode mode)
 static void
 gcode_set_color (hidGC gc, const char *name)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   if (gcode_im == NULL)
     {
       return;
@@ -1229,32 +1236,36 @@ gcode_set_color (hidGC gc, const char *name)
     }
   if (!strcmp (name, "drill"))
     {
-      gc->color = black;
-      gc->erase = 0;
+      gcode_gc->color = black;
+      gcode_gc->erase = 0;
       return;
     }
   if (!strcmp (name, "erase"))
     {
       /* FIXME -- should be background, not white */
-      gc->color = white;
-      gc->erase = 1;
+      gcode_gc->color = white;
+      gcode_gc->erase = 1;
       return;
     }
-  gc->color = black;
-  gc->erase = 0;
+  gcode_gc->color = black;
+  gcode_gc->erase = 0;
   return;
 }
 
 static void
 gcode_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
+  gcode_gc->cap = style;
 }
 
 static void
 gcode_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
+  gcode_gc->width = width;
 }
 
 static void
@@ -1271,6 +1282,8 @@ gcode_set_draw_faded (hidGC gc, int faded)
 static void
 use_gc (hidGC gc)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   int need_brush = 0;
 
   if (gc->me_pointer != &gcode_hid)
@@ -1278,20 +1291,20 @@ use_gc (hidGC gc)
       fprintf (stderr, "Fatal: GC from another HID passed to gcode HID\n");
       abort ();
     }
-  if (linewidth != gc->width)
+  if (linewidth != gcode_gc->width)
     {
       /* Make sure the scaling doesn't erase lines completely */
       /*
-         if (SCALE (gc->width) == 0 && gc->width > 0)
+         if (SCALE (gcode_gc->width) == 0 && gcode_gc->width > 0)
          gdImageSetThickness (im, 1);
          else
        */
       gdImageSetThickness (gcode_im,
-                           pcb_to_gcode (gc->width + 2 * gcode_toolradius));
-      linewidth = gc->width;
+                           pcb_to_gcode (gcode_gc->width + 2 * gcode_toolradius));
+      linewidth = gcode_gc->width;
       need_brush = 1;
     }
-  if (lastbrush != gc->brush || need_brush)
+  if (lastbrush != gcode_gc->brush || need_brush)
     {
       static void *bcache = 0;
       hidval bval;
@@ -1300,58 +1313,58 @@ use_gc (hidGC gc)
       char type;
       int r;
 
-      switch (gc->cap)
+      switch (gcode_gc->cap)
         {
         case Round_Cap:
         case Trace_Cap:
           type = 'C';
-          r = pcb_to_gcode (gc->width / 2 + gcode_toolradius);
+          r = pcb_to_gcode (gcode_gc->width / 2 + gcode_toolradius);
           break;
         default:
         case Square_Cap:
-          r = pcb_to_gcode (gc->width + gcode_toolradius * 2);
+          r = pcb_to_gcode (gcode_gc->width + gcode_toolradius * 2);
           type = 'S';
           break;
         }
-      snprintf (name, name_len, "#%.2x%.2x%.2x_%c_%d", gc->color->r,
-                gc->color->g, gc->color->b, type, r);
+      snprintf (name, name_len, "#%.2x%.2x%.2x_%c_%d", gcode_gc->color->r,
+                gcode_gc->color->g, gcode_gc->color->b, type, r);
 
       if (hid_cache_color (0, name, &bval, &bcache))
         {
-          gc->brush = (gdImagePtr)bval.ptr;
+          gcode_gc->brush = (gdImagePtr)bval.ptr;
         }
       else
         {
           int bg, fg;
           if (type == 'C')
-            gc->brush = gdImageCreate (2 * r + 1, 2 * r + 1);
+            gcode_gc->brush = gdImageCreate (2 * r + 1, 2 * r + 1);
           else
-            gc->brush = gdImageCreate (r + 1, r + 1);
-          bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
+            gcode_gc->brush = gdImageCreate (r + 1, r + 1);
+          bg = gdImageColorAllocate (gcode_gc->brush, 255, 255, 255);
           fg =
-            gdImageColorAllocate (gc->brush, gc->color->r, gc->color->g,
-                                  gc->color->b);
-          gdImageColorTransparent (gc->brush, bg);
+            gdImageColorAllocate (gcode_gc->brush, gcode_gc->color->r, gcode_gc->color->g,
+                                  gcode_gc->color->b);
+          gdImageColorTransparent (gcode_gc->brush, bg);
 
           /*
            * if we shrunk to a radius/box width of zero, then just use
            * a single pixel to draw with.
            */
           if (r == 0)
-            gdImageFilledRectangle (gc->brush, 0, 0, 0, 0, fg);
+            gdImageFilledRectangle (gcode_gc->brush, 0, 0, 0, 0, fg);
           else
             {
               if (type == 'C')
-                gdImageFilledEllipse (gc->brush, r, r, 2 * r, 2 * r, fg);
+                gdImageFilledEllipse (gcode_gc->brush, r, r, 2 * r, 2 * r, fg);
               else
-                gdImageFilledRectangle (gc->brush, 0, 0, r, r, fg);
+                gdImageFilledRectangle (gcode_gc->brush, 0, 0, r, r, fg);
             }
-          bval.ptr = gc->brush;
+          bval.ptr = gcode_gc->brush;
           hid_cache_color (1, name, &bval, &bcache);
         }
 
-      gdImageSetBrush (gcode_im, gc->brush);
-      lastbrush = gc->brush;
+      gdImageSetBrush (gcode_im, gcode_gc->brush);
+      lastbrush = gcode_gc->brush;
 
     }
 }
@@ -1359,19 +1372,23 @@ use_gc (hidGC gc)
 static void
 gcode_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   use_gc (gc);
   gdImageRectangle (gcode_im,
                     pcb_to_gcode (x1 - gcode_toolradius),
                     pcb_to_gcode (y1 - gcode_toolradius),
                     pcb_to_gcode (x2 + gcode_toolradius),
                     pcb_to_gcode (y2 + gcode_toolradius),
-                    gc->color->c);
+                    gcode_gc->color->c);
 /*      printf("Rect %d %d %d %d\n",x1,y1,x2,y2); */
 }
 
 static void
 gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   use_gc (gc);
   gdImageSetThickness (gcode_im, 0);
   linewidth = 0;
@@ -1380,16 +1397,18 @@ gcode_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
                       pcb_to_gcode (y1 - gcode_toolradius),
                       pcb_to_gcode (x2 + gcode_toolradius),
                       pcb_to_gcode (y2 + gcode_toolradius),
-                      gc->color->c);
+                      gcode_gc->color->c);
 /*      printf("FillRect %d %d %d %d\n",x1,y1,x2,y2); */
 }
 
 static void
 gcode_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   if (x1 == x2 && y1 == y2)
     {
-      Coord w = gc->width / 2;
+      Coord w = gcode_gc->width / 2;
       gcode_fill_rect (gc,
                        x1 - w, y1 - w,
                        x1 + w, y1 + w);
@@ -1442,7 +1461,7 @@ gcode_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
           cx, cy, width, height, start_angle, delta_angle, sa, ea);
   printf ("gdImageArc (%p, %d, %d, %d, %d, %d, %d, %d)\n",
           im, SCALE_X (cx), SCALE_Y (cy),
-          SCALE (width), SCALE (height), sa, ea, gc->color->c);
+          SCALE (width), SCALE (height), sa, ea, gcode_gc->color->c);
 #endif
   use_gc (gc);
   gdImageSetThickness (gcode_im, 0);
@@ -1540,6 +1559,8 @@ add_hole (struct single_size_drills* drill,
 static void
 gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
+
   use_gc (gc);
 
   gdImageSetThickness (gcode_im, 0);
@@ -1549,7 +1570,7 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
                         pcb_to_gcode (cy),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
                         pcb_to_gcode (2 * radius + gcode_toolradius * 2),
-                        gc->color->c);
+                        gcode_gc->color->c);
   if (save_drill && is_drill)
     {
       double diameter_inches = COORD_TO_INCH(radius*2);
@@ -1566,6 +1587,7 @@ gcode_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 static void
 gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
+  gcodeGC gcode_gc = (gcodeGC)gc;
   int i;
   gdPoint *points;
 
@@ -1583,7 +1605,7 @@ gcode_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
     }
   linewidth = pcb_to_gcode (2 * gcode_toolradius);
   gdImageSetThickness (gcode_im, linewidth);
-  gdImageFilledPolygon (gcode_im, points, n_coords, gc->color->c);
+  gdImageFilledPolygon (gcode_im, points, n_coords, gcode_gc->color->c);
   free (points);
 /*      printf("FillPoly\n"); */
 }

@@ -104,10 +104,11 @@ extern "C"
   } hidval;
 
   /*!
-   * This graphics context is an opaque pointer defined by the HID.
-   *
+   * This graphics context is an semi-opaque pointer defined by the HID.
    * GCs are HID-specific; attempts to use one HID's GC for a different
-   * HID will result in a fatal error.
+   * HID will result in a fatal error. Certain elements are defined in
+   * hid_draw.h are visible for use in draw.c, but the full structure
+   * size may not be determined from that definition.
    */
   typedef struct hid_gc_struct *hidGC;
 

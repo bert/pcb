@@ -94,16 +94,17 @@ typedef struct color_struct
 
 } color_struct;
 
-typedef struct hid_gc_struct
+typedef struct png_gc_struct
 {
-  HID *me_pointer;
+  struct hid_gc_struct hid_gc; /* Parent */
+
   EndCapStyle cap;
   int width;
   unsigned char r, g, b;
   color_struct *color;
   gdImagePtr brush;
   int is_erase;
-} hid_gc_struct;
+} *pngGC;
 
 static color_struct *black = NULL, *white = NULL;
 static gdImagePtr im = NULL, master_im, mask_im = NULL;
@@ -1361,15 +1362,19 @@ png_set_layer (const char *name, int group, int empty)
 static hidGC
 png_make_gc (void)
 {
-  hidGC rv = (hidGC) malloc (sizeof (hid_gc_struct));
-  rv->me_pointer = &png_hid;
-  rv->cap = Trace_Cap;
-  rv->width = 1;
-  rv->color = (color_struct *) malloc (sizeof (color_struct));
-  rv->color->r = rv->color->g = rv->color->b = rv->color->a = 0;
-  rv->color->c = 0;
-  rv->is_erase = 0;
-  return rv;
+  hidGC gc = (hidGC) calloc (1, sizeof (struct png_gc_struct));
+  pngGC png_gc = (pngGC)gc;
+
+  gc->me_pointer = &png_hid;
+
+  png_gc->cap = Trace_Cap;
+  png_gc->width = 1;
+  png_gc->color = (color_struct *) malloc (sizeof (color_struct));
+  png_gc->color->r = png_gc->color->g = png_gc->color->b = png_gc->color->a = 0;
+  png_gc->color->c = 0;
+  png_gc->is_erase = 0;
+
+  return gc;
 }
 
 static void
@@ -1423,6 +1428,7 @@ png_use_mask (enum mask_mode mode)
 static void
 png_set_color (hidGC gc, const char *name)
 {
+  pngGC png_gc = (pngGC)gc;
   hidval cval;
 
   if (im == NULL)
@@ -1433,41 +1439,41 @@ png_set_color (hidGC gc, const char *name)
 
   if (strcmp (name, "erase") == 0 || strcmp (name, "drill") == 0)
     {
-      gc->color = white;
-      gc->is_erase = 1;
+      png_gc->color = white;
+      png_gc->is_erase = 1;
       return;
     }
-  gc->is_erase = 0;
+  png_gc->is_erase = 0;
 
   if (in_mono || (strcmp (name, "#000000") == 0))
     {
-      gc->color = black;
+      png_gc->color = black;
       return;
     }
 
   if (hid_cache_color (0, name, &cval, &color_cache))
     {
-      gc->color = (color_struct *)cval.ptr;
+      png_gc->color = (color_struct *)cval.ptr;
     }
   else if (name[0] == '#')
     {
-      gc->color = (color_struct *) malloc (sizeof (color_struct));
-      sscanf (name + 1, "%2x%2x%2x", &(gc->color->r), &(gc->color->g),
-	      &(gc->color->b));
-      gc->color->c =
-	gdImageColorAllocate (master_im, gc->color->r, gc->color->g, gc->color->b);
-      if (gc->color->c == BADC) 
+      png_gc->color = (color_struct *) malloc (sizeof (color_struct));
+      sscanf (name + 1, "%2x%2x%2x", &(png_gc->color->r), &(png_gc->color->g),
+	      &(png_gc->color->b));
+      png_gc->color->c =
+	gdImageColorAllocate (master_im, png_gc->color->r, png_gc->color->g, png_gc->color->b);
+      if (png_gc->color->c == BADC)
 	{
 	  Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	  return;
 	}
-      cval.ptr = gc->color;
+      cval.ptr = png_gc->color;
       hid_cache_color (1, name, &cval, &color_cache);
     }
   else
     {
       printf ("WE SHOULD NOT BE HERE!!!\n");
-      gc->color = black;
+      png_gc->color = black;
     }
 
 }
@@ -1475,13 +1481,17 @@ png_set_color (hidGC gc, const char *name)
 static void
 png_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  pngGC png_gc = (pngGC)gc;
+
+  png_gc->cap = style;
 }
 
 static void
 png_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  pngGC png_gc = (pngGC)gc;
+
+  png_gc->width = width;
 }
 
 static void
@@ -1493,6 +1503,8 @@ png_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc)
 {
+  pngGC png_gc = (pngGC)gc;
+
   int need_brush = 0;
 
   if (gc->me_pointer != &png_hid)
@@ -1501,25 +1513,25 @@ use_gc (hidGC gc)
       abort ();
     }
 
-  if (linewidth != gc->width)
+  if (linewidth != png_gc->width)
     {
       /* Make sure the scaling doesn't erase lines completely */
-      if (SCALE (gc->width) == 0 && gc->width > 0)
+      if (SCALE (png_gc->width) == 0 && png_gc->width > 0)
 	gdImageSetThickness (im, 1);
       else
-	gdImageSetThickness (im, SCALE (gc->width + 2*bloat));
-      linewidth = gc->width;
+	gdImageSetThickness (im, SCALE (png_gc->width + 2*bloat));
+      linewidth = png_gc->width;
       need_brush = 1;
     }
 
-  if (lastbrush != gc->brush || need_brush)
+  if (lastbrush != png_gc->brush || need_brush)
     {
       hidval bval;
       char name[256];
       char type;
       int r;
 
-      switch (gc->cap)
+      switch (png_gc->cap)
         {
         case Round_Cap:
         case Trace_Cap:
@@ -1530,8 +1542,8 @@ use_gc (hidGC gc)
           type = 'S';
           break;
         }
-      if (gc->width)
-	r = SCALE (gc->width + 2*bloat);
+      if (png_gc->width)
+	r = SCALE (png_gc->width + 2*bloat);
       else
 	r = 1;
 
@@ -1541,65 +1553,64 @@ use_gc (hidGC gc)
 	  r = 1;
         }
 
-      sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
-	       gc->color->b, type, r);
+      sprintf (name, "#%.2x%.2x%.2x_%c_%d", png_gc->color->r, png_gc->color->g,
+	       png_gc->color->b, type, r);
 
       if (hid_cache_color (0, name, &bval, &brush_cache))
 	{
-	  gc->brush = (gdImagePtr)bval.ptr;
+	  png_gc->brush = (gdImagePtr)bval.ptr;
 	}
       else
 	{
 	  int bg, fg;
-	  gc->brush = gdImageCreate (r, r);
-	  if (gc->brush == NULL) 
+	  png_gc->brush = gdImageCreate (r, r);
+	  if (png_gc->brush == NULL)
 	    {
 	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, r, r);
 	      return;
 	    }
 
-	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
+	  bg = gdImageColorAllocate (png_gc->brush, 255, 255, 255);
 	  if (bg == BADC) 
 	    {
 	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return;
 	    }
 	  fg =
-	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
-				       gc->color->b, 0); 
+	    gdImageColorAllocateAlpha (png_gc->brush, png_gc->color->r, png_gc->color->g, png_gc->color->b, 0);
 	  if (fg == BADC) 
 	    {
 	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
 	      return;
 	    }
-	  gdImageColorTransparent (gc->brush, bg);
+	  gdImageColorTransparent (png_gc->brush, bg);
 
 	  /*
 	   * if we shrunk to a radius/box width of zero, then just use
 	   * a single pixel to draw with.
 	   */
 	  if (r <= 1)
-	    gdImageFilledRectangle (gc->brush, 0, 0, 0, 0, fg);
+	    gdImageFilledRectangle (png_gc->brush, 0, 0, 0, 0, fg);
 	  else
 	    {
 	      if (type == 'C')
 		{
-		  gdImageFilledEllipse (gc->brush, r/2, r/2, r, r, fg);
+		  gdImageFilledEllipse (png_gc->brush, r/2, r/2, r, r, fg);
 		  /* Make sure the ellipse is the right exact size.  */
-		  gdImageSetPixel (gc->brush, 0, r/2, fg);
-		  gdImageSetPixel (gc->brush, r-1, r/2, fg);
-		  gdImageSetPixel (gc->brush, r/2, 0, fg);
-		  gdImageSetPixel (gc->brush, r/2, r-1, fg);
+		  gdImageSetPixel (png_gc->brush, 0, r/2, fg);
+		  gdImageSetPixel (png_gc->brush, r-1, r/2, fg);
+		  gdImageSetPixel (png_gc->brush, r/2, 0, fg);
+		  gdImageSetPixel (png_gc->brush, r/2, r-1, fg);
 		}
 	      else
-		gdImageFilledRectangle (gc->brush, 0, 0, r-1, r-1, fg);
+		gdImageFilledRectangle (png_gc->brush, 0, 0, r-1, r-1, fg);
 	    }
-	  bval.ptr = gc->brush;
+	  bval.ptr = png_gc->brush;
 	  hid_cache_color (1, name, &bval, &brush_cache);
 	}
 
-      gdImageSetBrush (im, gc->brush);
-      lastbrush = gc->brush;
+      gdImageSetBrush (im, png_gc->brush);
+      lastbrush = png_gc->brush;
 
     }
 }
@@ -1607,15 +1618,19 @@ use_gc (hidGC gc)
 static void
 png_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  pngGC png_gc = (pngGC)gc;
+
   use_gc (gc);
   gdImageRectangle (im,
 		    SCALE_X (x1), SCALE_Y (y1),
-		    SCALE_X (x2), SCALE_Y (y2), gc->color->c);
+		    SCALE_X (x2), SCALE_Y (y2), png_gc->color->c);
 }
 
 static void
 png_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  pngGC png_gc = (pngGC)gc;
+
   use_gc (gc);
   gdImageSetThickness (im, 0);
   linewidth = 0;
@@ -1625,17 +1640,19 @@ png_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   SWAP_IF_SOLDER (y1, y2);
 
   gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1),
-			  SCALE_X (x2+bloat)-1, SCALE_Y (y2)-1, gc->color->c);
+			  SCALE_X (x2+bloat)-1, SCALE_Y (y2)-1, png_gc->color->c);
   have_outline |= doing_outline;
 }
 
 static void
 png_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  pngGC png_gc = (pngGC)gc;
+
   if (x1 == x2 && y1 == y2)
     {
-      Coord w = gc->width / 2;
-      if (gc->cap != Square_Cap)
+      Coord w = png_gc->width / 2;
+      if (png_gc->cap != Square_Cap)
 	png_fill_circle (gc, x1, y1, w);
       else
 	png_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
@@ -1664,7 +1681,7 @@ png_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  if(gc->cap != Square_Cap || x1 == x2 || y1 == y2 )
+  if(png_gc->cap != Square_Cap || x1 == x2 || y1 == y2 )
     {
       gdImageLine (im, SCALE_X (x1), SCALE_Y (y1),
 		   SCALE_X (x2), SCALE_Y (y2), gdBrushed);
@@ -1676,9 +1693,9 @@ png_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
        * not purely horizontal or vertical, then we need to draw
        * it as a filled polygon.
        */
-      int fg = gdImageColorResolve (im, gc->color->r, gc->color->g,
-				    gc->color->b);
-      Coord w = gc->width;
+      int fg = gdImageColorResolve (im, png_gc->color->r, png_gc->color->g,
+				    png_gc->color->b);
+      Coord w = png_gc->width;
       Coord dwx, dwy;
 
       gdPoint p[4];
@@ -1698,6 +1715,7 @@ static void
 png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	      Angle start_angle, Angle delta_angle)
 {
+  pngGC png_gc = (pngGC)gc;
   Angle sa, ea;
 
   /*
@@ -1709,7 +1727,7 @@ png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
     Coord y = (width * sin (start_angle * M_PI / 180));
     x = cx - x;
     y = cy + y;
-    png_fill_circle (gc, x, y, gc->width / 2);
+    png_fill_circle (gc, x, y, png_gc->width / 2);
     return;
   }
 
@@ -1749,7 +1767,7 @@ png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
   printf ("gdImageArc (%p, %d, %d, %d, %d, %d, %d, %d)\n",
 	  im, SCALE_X (cx), SCALE_Y (cy),
-	  SCALE (width), SCALE (height), sa, ea, gc->color->c);
+	  SCALE (width), SCALE (height), sa, ea, png_gc->color->c);
 #endif
   use_gc (gc);
   gdImageSetThickness (im, 0);
@@ -1761,14 +1779,15 @@ png_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 png_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+  pngGC png_gc = (pngGC)gc;
   Coord my_bloat;
 
   use_gc (gc);
 
-  if (fill_holes && gc->is_erase && is_copper)
+  if (fill_holes && png_gc->is_erase && is_copper)
     return;
 
-  if (gc->is_erase)
+  if (png_gc->is_erase)
     my_bloat = -2 * bloat;
   else
     my_bloat = 2 * bloat;
@@ -1779,13 +1798,14 @@ png_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   gdImageSetThickness (im, 0);
   linewidth = 0;
   gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy),
-			SCALE (2 * radius + my_bloat), SCALE (2 * radius + my_bloat), gc->color->c);
+			SCALE (2 * radius + my_bloat), SCALE (2 * radius + my_bloat), png_gc->color->c);
 
 }
 
 static void
 png_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
+  pngGC png_gc = (pngGC)gc;
   int i;
   gdPoint *points;
 
@@ -1806,7 +1826,7 @@ png_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
     }
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageFilledPolygon (im, points, n_coords, gc->color->c);
+  gdImageFilledPolygon (im, points, n_coords, png_gc->color->c);
   free (points);
 }
 

@@ -79,16 +79,17 @@
 #define MAX_ZOOM_SCALE	10
 #define UUNIT	Settings.grid_unit->allow
 
-typedef struct hid_gc_struct
+typedef struct lesstif_gc_struct
 {
-  HID *me_pointer;
+  struct hid_gc_struct hid_gc /* Parent */;
+
   Pixel color;
   const char *colorname;
   int width;
   EndCapStyle cap;
   char xor_set;
   char erase;
-} hid_gc_struct;
+} *lesstifGC;
 
 static HID lesstif_hid;
 static HID_DRAW lesstif_graphics;
@@ -3108,10 +3109,11 @@ lesstif_set_layer (const char *name, int group, int empty)
 static hidGC
 lesstif_make_gc (void)
 {
-  hidGC rv = (hid_gc_struct *) malloc (sizeof (hid_gc_struct));
-  memset (rv, 0, sizeof (hid_gc_struct));
-  rv->me_pointer = &lesstif_hid;
-  return rv;
+  hidGC gc = (hidGC)calloc (1, sizeof (struct lesstif_gc_struct));
+
+  gc->me_pointer = &lesstif_hid;
+
+  return gc;
 }
 
 static void
@@ -3177,6 +3179,7 @@ lesstif_use_mask (enum mask_mode mode)
 static void
 lesstif_set_color (hidGC gc, const char *name)
 {
+  lesstifGC lesstif_gc = (lesstifGC)gc;
   static void *cache = 0;
   hidval cval;
   static XColor color, exact_color;
@@ -3185,21 +3188,21 @@ lesstif_set_color (hidGC gc, const char *name)
     return;
   if (!name)
     name = "red";
-  gc->colorname = name;
+  lesstif_gc->colorname = name;
   if (strcmp (name, "erase") == 0)
     {
-      gc->color = bgcolor;
-      gc->erase = 1;
+      lesstif_gc->color = bgcolor;
+      lesstif_gc->erase = 1;
     }
   else if (strcmp (name, "drill") == 0)
     {
-      gc->color = offlimit_color;
-      gc->erase = 0;
+      lesstif_gc->color = offlimit_color;
+      lesstif_gc->erase = 0;
     }
   else if (hid_cache_color (0, name, &cval, &cache))
     {
-      gc->color = cval.lval;
-      gc->erase = 0;
+      lesstif_gc->color = cval.lval;
+      lesstif_gc->erase = 0;
     }
   else
     {
@@ -3209,26 +3212,26 @@ lesstif_set_color (hidGC gc, const char *name)
       printf ("lesstif_set_color `%s' %08x rgb/%d/%d/%d\n",
 	      name, color.pixel, color.red, color.green, color.blue);
 #endif
-      cval.lval = gc->color = color.pixel;
+      cval.lval = lesstif_gc->color = color.pixel;
       hid_cache_color (1, name, &cval, &cache);
-      gc->erase = 0;
+      lesstif_gc->erase = 0;
     }
   if (autofade)
     {
       static int lastcolor = -1, lastfade = -1;
-      if (gc->color == lastcolor)
-	gc->color = lastfade;
+      if (lesstif_gc->color == lastcolor)
+	lesstif_gc->color = lastfade;
       else
 	{
-	  lastcolor = gc->color;
-	  color.pixel = gc->color;
+	  lastcolor = lesstif_gc->color;
+	  color.pixel = lesstif_gc->color;
 
 	  XQueryColor (display, colormap, &color);
 	  color.red = (bgred + color.red) / 2;
 	  color.green = (bggreen + color.green) / 2;
 	  color.blue = (bgblue + color.blue) / 2;
 	  XAllocColor (display, colormap, &color);
-	  lastfade = gc->color = color.pixel;
+	  lastfade = lesstif_gc->color = color.pixel;
 	}
     }
 }
@@ -3236,6 +3239,7 @@ lesstif_set_color (hidGC gc, const char *name)
 static void
 set_gc (hidGC gc)
 {
+  lesstifGC lesstif_gc = (lesstifGC)gc;
   int cap, join, width;
   if (gc->me_pointer != &lesstif_hid)
     {
@@ -3244,9 +3248,9 @@ set_gc (hidGC gc)
     }
 #if 0
   pcb_printf ("set_gc c%s %08lx w%#mS c%d x%d e%d\n",
-	  gc->colorname, gc->color, gc->width, gc->cap, gc->xor_set, gc->erase);
+	  lesstif_gc->colorname, lesstif_gc->color, lesstif_gc->width, lesstif_gc->cap, lesstif_gc->xor_set, lesstif_gc->erase);
 #endif
-  switch (gc->cap)
+  switch (lesstif_gc->cap)
     {
     case Square_Cap:
       cap = CapProjecting;
@@ -3266,12 +3270,12 @@ set_gc (hidGC gc)
       join = JoinBevel;
       break;
     }
-  if (gc->xor_set)
+  if (lesstif_gc->xor_set)
     {
       XSetFunction (display, my_gc, GXxor);
-      XSetForeground (display, my_gc, gc->color ^ bgcolor);
+      XSetForeground (display, my_gc, lesstif_gc->color ^ bgcolor);
     }
-  else if (gc->erase)
+  else if (lesstif_gc->erase)
     {
       XSetFunction (display, my_gc, GXcopy);
       XSetForeground (display, my_gc, offlimit_color);
@@ -3279,20 +3283,20 @@ set_gc (hidGC gc)
   else
     {
       XSetFunction (display, my_gc, GXcopy);
-      XSetForeground (display, my_gc, gc->color);
+      XSetForeground (display, my_gc, lesstif_gc->color);
     }
-  width = Vz (gc->width);
+  width = Vz (lesstif_gc->width);
   if (width < 0)
     width = 0;
   XSetLineAttributes (display, my_gc, width, LineSolid, cap,
 		      join);
   if (use_mask)
     {
-      if (gc->erase)
+      if (lesstif_gc->erase)
 	mask_gc = bclear_gc;
       else
 	mask_gc = bset_gc;
-      XSetLineAttributes (display, mask_gc, Vz (gc->width), LineSolid, cap,
+      XSetLineAttributes (display, mask_gc, Vz (lesstif_gc->width), LineSolid, cap,
 			  join);
     }
 }
@@ -3300,19 +3304,25 @@ set_gc (hidGC gc)
 static void
 lesstif_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+
+  lesstif_gc->cap = style;
 }
 
 static void
 lesstif_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+
+  lesstif_gc->width = width;
 }
 
 static void
 lesstif_set_draw_xor (hidGC gc, int xor_set)
 {
-  gc->xor_set = xor_set;
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+
+  lesstif_gc->xor_set = xor_set;
 }
 
 #define ISORT(a,b) if (a>b) { a^=b; b^=a; a^=b; }
@@ -3320,19 +3330,20 @@ lesstif_set_draw_xor (hidGC gc, int xor_set)
 static void
 lesstif_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  lesstifGC lesstif_gc = (lesstifGC)gc;
   double dx1, dy1, dx2, dy2;
-  int vw = Vz (gc->width);
-  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
+  int vw = Vz (lesstif_gc->width);
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && lesstif_gc->erase)
     return;
 #if 0
-  pcb_printf ("draw_line %#mD-%#mD @%#mS", x1, y1, x2, y2, gc->width);
+  pcb_printf ("draw_line %#mD-%#mD @%#mS", x1, y1, x2, y2, lesstif_gc->width);
 #endif
   dx1 = Vx (x1);
   dy1 = Vy (y1);
   dx2 = Vx (x2);
   dy2 = Vy (y2);
 #if 0
-  pcb_printf (" = %#mD-%#mD %s\n", x1, y1, x2, y2, gc->colorname);
+  pcb_printf (" = %#mD-%#mD %s\n", x1, y1, x2, y2, lesstif_gc->colorname);
 #endif
 
 #if 1
@@ -3347,7 +3358,7 @@ lesstif_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
   y2 = dy2;
 
   set_gc (gc);
-  if (gc->cap == Square_Cap && x1 == x2 && y1 == y2)
+  if (lesstif_gc->cap == Square_Cap && x1 == x2 && y1 == y2)
     {
       XFillRectangle (display, pixmap, my_gc, x1 - vw / 2, y1 - vw / 2, vw,
 		      vw);
@@ -3367,7 +3378,9 @@ static void
 lesstif_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 		  Angle start_angle, Angle delta_angle)
 {
-  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && lesstif_gc->erase)
     return;
 #if 0
   pcb_printf ("draw_arc %#mD %#mSx%#mS s %d d %d", cx, cy, width, height, start_angle, delta_angle);
@@ -3390,8 +3403,8 @@ lesstif_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
   if (start_angle >= 180)
     start_angle -= 360;
 #if 0
-  pcb_printf (" = %#mD %#mSx%#mS %d %s\n", cx, cy, width, height, gc->width,
-	  gc->colorname);
+  pcb_printf (" = %#mD %#mSx%#mS %d %s\n", cx, cy, width, height, lesstif_gc->width,
+	  lesstif_gc->colorname);
 #endif
   set_gc (gc);
   XDrawArc (display, pixmap, my_gc, cx, cy,
@@ -3422,8 +3435,10 @@ lesstif_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 lesstif_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  int vw = Vz (gc->width);
-  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+  int vw = Vz (lesstif_gc->width);
+
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && lesstif_gc->erase)
     return;
   x1 = Vx (x1);
   y1 = Vy (y1);
@@ -3449,9 +3464,11 @@ lesstif_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 static void
 lesstif_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
-  if (pinout && use_mask && gc->erase)
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+
+  if (pinout && use_mask && lesstif_gc->erase)
     return;
-  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
+  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && lesstif_gc->erase)
     return;
 #if 0
   pcb_printf ("fill_circle %#mD %#mS", cx, cy, radius);
@@ -3464,7 +3481,7 @@ lesstif_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   if (cy < -2 * radius || cy > view_height)
     return;
 #if 0
-  pcb_printf (" = %#mD %#mS %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
+  pcb_printf (" = %#mD %#mS %lx %s\n", cx, cy, radius, lesstif_gc->color, lesstif_gc->colorname);
 #endif
   set_gc (gc);
   XFillArc (display, pixmap, my_gc, cx, cy,
@@ -3509,8 +3526,10 @@ lesstif_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 static void
 lesstif_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  int vw = Vz (gc->width);
-  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
+  lesstifGC lesstif_gc = (lesstifGC)gc;
+  int vw = Vz (lesstif_gc->width);
+
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && lesstif_gc->erase)
     return;
   x1 = Vx (x1);
   y1 = Vy (y1);

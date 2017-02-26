@@ -51,13 +51,15 @@ static void eps_calibrate (double xval, double yval);
 static void eps_set_crosshair (int x, int y, int action);
 /*----------------------------------------------------------------------------*/
 
-typedef struct hid_gc_struct
+typedef struct eps_gc_struct
 {
+  struct hid_gc_struct hid_gc; /* Parent */
+
   EndCapStyle cap;
   Coord width;
   int color;
   int erase;
-} hid_gc_struct;
+} *epsGC;
 
 static HID eps_hid;
 static HID_DRAW eps_graphics;
@@ -419,11 +421,16 @@ eps_set_layer (const char *name, int group, int empty)
 static hidGC
 eps_make_gc (void)
 {
-  hidGC rv = (hidGC) malloc (sizeof (hid_gc_struct));
-  rv->cap = Trace_Cap;
-  rv->width = 0;
-  rv->color = 0;
-  return rv;
+  hidGC gc = (hidGC) calloc (1, sizeof (struct eps_gc_struct));
+  epsGC eps_gc = (epsGC)gc;
+
+  gc->me_pointer = &eps_hid;
+
+  eps_gc->cap = Trace_Cap;
+  eps_gc->width = 0;
+  eps_gc->color = 0;
+
+  return gc;
 }
 
 static void
@@ -462,50 +469,55 @@ eps_use_mask (enum mask_mode mode)
 static void
 eps_set_color (hidGC gc, const char *name)
 {
+  epsGC eps_gc = (epsGC)gc;
   static void *cache = 0;
   hidval cval;
 
   if (strcmp (name, "erase") == 0)
     {
-      gc->color = 0xffffff;
-      gc->erase = fast_erase ? 0 : 1;
+      eps_gc->color = 0xffffff;
+      eps_gc->erase = fast_erase ? 0 : 1;
       return;
     }
   if (strcmp (name, "drill") == 0)
     {
-      gc->color = 0xffffff;
-      gc->erase = 0;
+      eps_gc->color = 0xffffff;
+      eps_gc->erase = 0;
       return;
     }
-  gc->erase = 0;
+  eps_gc->erase = 0;
   if (hid_cache_color (0, name, &cval, &cache))
     {
-      gc->color = cval.lval;
+      eps_gc->color = cval.lval;
     }
   else if (in_mono)
     {
-      gc->color = 0;
+      eps_gc->color = 0;
     }
   else if (name[0] == '#')
     {
       unsigned int r, g, b;
       sscanf (name + 1, "%2x%2x%2x", &r, &g, &b);
-      gc->color = (r << 16) + (g << 8) + b;
+      eps_gc->color = (r << 16) + (g << 8) + b;
     }
   else
-    gc->color = 0;
+    eps_gc->color = 0;
 }
 
 static void
 eps_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  epsGC eps_gc = (epsGC)gc;
+
+  eps_gc->cap = style;
 }
 
 static void
 eps_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  epsGC eps_gc = (epsGC)gc;
+
+  eps_gc->width = width;
 }
 
 static void
@@ -517,15 +529,17 @@ eps_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc)
 {
-  if (linewidth != gc->width)
+  epsGC eps_gc = (epsGC)gc;
+
+  if (linewidth != eps_gc->width)
     {
-      pcb_fprintf (f, "%mi setlinewidth\n", gc->width);
-      linewidth = gc->width;
+      pcb_fprintf (f, "%mi setlinewidth\n", eps_gc->width);
+      linewidth = eps_gc->width;
     }
-  if (lastcap != gc->cap)
+  if (lastcap != eps_gc->cap)
     {
       int c;
-      switch (gc->cap)
+      switch (eps_gc->cap)
 	{
 	case Round_Cap:
 	case Trace_Cap:
@@ -537,14 +551,14 @@ use_gc (hidGC gc)
 	  break;
 	}
       fprintf (f, "%d setlinecap\n", c);
-      lastcap = gc->cap;
+      lastcap = eps_gc->cap;
     }
-  if (lastcolor != gc->color)
+  if (lastcolor != eps_gc->color)
     {
-      int c = gc->color;
+      int c = eps_gc->color;
 #define CV(x,b) (((x>>b)&0xff)/255.0)
       fprintf (f, "%g %g %g setrgbcolor\n", CV (c, 16), CV (c, 8), CV (c, 0));
-      lastcolor = gc->color;
+      lastcolor = eps_gc->color;
     }
 }
 
@@ -561,17 +575,19 @@ eps_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 static void
 eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
-  Coord w = gc->width / 2;
+  epsGC eps_gc = (epsGC)gc;
+  Coord w = eps_gc->width / 2;
+
   if (x1 == x2 && y1 == y2)
     {
-      if (gc->cap == Square_Cap)
+      if (eps_gc->cap == Square_Cap)
 	eps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       else
 	eps_fill_circle (gc, x1, y1, w);
       return;
     }
   use_gc (gc);
-  if (gc->erase && gc->cap != Square_Cap)
+  if (eps_gc->erase && eps_gc->cap != Square_Cap)
     {
       double ang = atan2 (y2 - y1, x2 - x1);
       double dx = w * sin (ang);
@@ -587,7 +603,7 @@ eps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
       return;
     }
-  pcb_fprintf (f, "%mi %mi %mi %mi %s\n", x1, y1, x2, y2, gc->erase ? "tc" : "t");
+  pcb_fprintf (f, "%mi %mi %mi %mi %s\n", x1, y1, x2, y2, eps_gc->erase ? "tc" : "t");
 }
 
 static void
@@ -617,8 +633,10 @@ eps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 eps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+  epsGC eps_gc = (epsGC)gc;
+
   use_gc (gc);
-  pcb_fprintf (f, "%mi %mi %mi %s\n", cx, cy, radius, gc->erase ? "cc" : "c");
+  pcb_fprintf (f, "%mi %mi %mi %s\n", cx, cy, radius, eps_gc->erase ? "cc" : "c");
 }
 
 static void

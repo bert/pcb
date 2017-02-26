@@ -293,14 +293,16 @@ setLayerApertureList (int layer_idx)
 static HID gerber_hid;
 static HID_DRAW gerber_graphics;
 
-typedef struct hid_gc_struct
+typedef struct gerber_gc_struct
 {
+  struct hid_gc_struct hid_gc; /* Parent */
+
   EndCapStyle cap;
   int width;
   int color;
   int erase;
   int drill;
-} hid_gc_struct;
+} *gerberGC;
 
 static FILE *f = NULL;
 static char *filename = NULL;
@@ -935,9 +937,14 @@ gerber_set_layer (const char *name, int group, int empty)
 static hidGC
 gerber_make_gc (void)
 {
-  hidGC rv = (hidGC) calloc (1, sizeof (*rv));
-  rv->cap = Trace_Cap;
-  return rv;
+  hidGC gc = (hidGC) calloc (1, sizeof (struct gerber_gc_struct));
+  gerberGC gerber_gc = (gerberGC)gc;
+
+  gc->me_pointer = &gerber_hid;
+
+  gerber_gc->cap = Trace_Cap;
+
+  return gc;
 }
 
 static void
@@ -955,36 +962,42 @@ gerber_use_mask (enum mask_mode mode)
 static void
 gerber_set_color (hidGC gc, const char *name)
 {
+  gerberGC gerber_gc = (gerberGC)gc;
+
   if (strcmp (name, "erase") == 0)
     {
-      gc->color = 1;
-      gc->erase = 1;
-      gc->drill = 0;
+      gerber_gc->color = 1;
+      gerber_gc->erase = 1;
+      gerber_gc->drill = 0;
     }
   else if (strcmp (name, "drill") == 0)
     {
-      gc->color = 1;
-      gc->erase = 0;
-      gc->drill = 1;
+      gerber_gc->color = 1;
+      gerber_gc->erase = 0;
+      gerber_gc->drill = 1;
     }
   else
     {
-      gc->color = 0;
-      gc->erase = 0;
-      gc->drill = 0;
+      gerber_gc->color = 0;
+      gerber_gc->erase = 0;
+      gerber_gc->drill = 0;
     }
 }
 
 static void
 gerber_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  gerberGC gerber_gc = (gerberGC)gc;
+
+  gerber_gc->cap = style;
 }
 
 static void
 gerber_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  gerberGC gerber_gc = (gerberGC)gc;
+
+  gerber_gc->width = width;
 }
 
 static void
@@ -996,6 +1009,8 @@ gerber_set_draw_xor (hidGC gc, int xor_)
 static void
 use_gc (hidGC gc, int radius)
 {
+  gerberGC gerber_gc = (gerberGC)gc;
+
   if (radius)
     {
       radius *= 2;
@@ -1010,14 +1025,14 @@ use_gc (hidGC gc, int radius)
 	  lastcap = Round_Cap;
 	}
     }
-  else if (linewidth != gc->width || lastcap != gc->cap)
+  else if (linewidth != gerber_gc->width || lastcap != gerber_gc->cap)
     {
       Aperture *aptr;
       ApertureShape shape;
 
-      linewidth = gc->width;
-      lastcap = gc->cap;
-      switch (gc->cap)
+      linewidth = gerber_gc->width;
+      lastcap = gerber_gc->cap;
+      switch (gerber_gc->cap)
 	{
 	case Round_Cap:
 	case Trace_Cap:
@@ -1049,9 +1064,10 @@ gerber_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 static void
 gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  gerberGC gerber_gc = (gerberGC)gc;
   bool m = false;
 
-  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
+  if (x1 != x2 && y1 != y2 && gerber_gc->cap == Square_Cap)
     {
       Coord x[5], y[5];
       double tx, ty, theta;
@@ -1060,8 +1076,8 @@ gerber_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
       /* T is a vector half a thickness long, in the direction of
 	 one of the corners.  */
-      tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
-      ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
+      tx = gerber_gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
+      ty = gerber_gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
 
       x[0] = x1 - tx;      y[0] = y1 - ty;
       x[1] = x2 + ty;      y[1] = y2 - tx;
@@ -1114,11 +1130,12 @@ static void
 gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 		 Angle start_angle, Angle delta_angle)
 {
+  gerberGC gerber_gc = (gerberGC)gc;
   bool m = false;
   double arcStartX, arcStopX, arcStartY, arcStopY;
 
   /* we never draw zero-width lines */
-  if (gc->width == 0)
+  if (gerber_gc->width == 0)
     return;
 
   use_gc (gc, 0);
@@ -1137,7 +1154,7 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
     {
       double step, angle;
       Coord max = width > height ? width : height;
-      Coord minr = max - gc->width / 10;
+      Coord minr = max - gerber_gc->width / 10;
       int nsteps;
       Coord x0, y0, x1, y1;
 
@@ -1195,6 +1212,8 @@ gerber_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+  gerberGC gerber_gc = (gerberGC)gc;
+
   if (radius <= 0)
     return;
   if (is_drill)
@@ -1217,7 +1236,7 @@ gerber_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
       n_pending_drills++;
       return;
     }
-  else if (gc->drill && !flash_drills)
+  else if (gerber_gc->drill && !flash_drills)
     return;
   if (cx != lastX)
     {

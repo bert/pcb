@@ -29,10 +29,6 @@
 /* This is a text-line "batch" HID, which exists for scripting and
    non-GUI needs.  */
 
-typedef struct hid_gc_struct
-{
-  int nothing_interesting_here;
-} hid_gc_struct;
 
 static HID_Attribute *
 batch_get_export_options (int *n_ret)

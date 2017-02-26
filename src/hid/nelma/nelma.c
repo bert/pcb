@@ -95,15 +95,16 @@ struct color_struct {
 	unsigned int    r, g, b;
 };
 
-struct hid_gc_struct {
-	HID            *me_pointer;
+typedef struct nelma_gc_struct {
+	struct hid_gc_struct hid_gc; /* Parent */
+
 	EndCapStyle     cap;
 	Coord           width;
 	unsigned char   r, g, b;
 	int             erase;
 	struct color_struct *color;
 	gdImagePtr      brush;
-};
+} *nelmaGC;
 
 static HID nelma_hid;
 static HID_DRAW nelma_graphics;
@@ -761,14 +762,18 @@ nelma_set_layer(const char *name, int group, int empty)
 static hidGC 
 nelma_make_gc(void)
 {
-	hidGC           rv = (hidGC) malloc(sizeof(struct hid_gc_struct));
-	rv->me_pointer = &nelma_hid;
-	rv->cap = Trace_Cap;
-	rv->width = 1;
-	rv->color = (struct color_struct *) malloc(sizeof(*rv->color));
-	rv->color->r = rv->color->g = rv->color->b = 0;
-	rv->color->c = 0;
-	return rv;
+	hidGC gc = (hidGC) calloc (1, sizeof(struct hid_gc_struct));
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
+	gc->me_pointer = &nelma_hid;
+
+	nelma_gc->cap = Trace_Cap;
+	nelma_gc->width = 1;
+	nelma_gc->color = (struct color_struct *) malloc(sizeof(*nelma_gc->color));
+	nelma_gc->color->r = nelma_gc->color->g = nelma_gc->color->b = 0;
+	nelma_gc->color->c = 0;
+
+	return gc;
 }
 
 static void 
@@ -786,6 +791,8 @@ nelma_use_mask(enum mask_mode mode)
 static void 
 nelma_set_color(hidGC gc, const char *name)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
 	if (nelma_im == NULL) {
 		return;
 	}
@@ -793,31 +800,35 @@ nelma_set_color(hidGC gc, const char *name)
 		name = "#ff0000";
 	}
 	if (!strcmp(name, "drill")) {
-		gc->color = black;
-		gc->erase = 0;
+		nelma_gc->color = black;
+		nelma_gc->erase = 0;
 		return;
 	}
 	if (!strcmp(name, "erase")) {
 		/* FIXME -- should be background, not white */
-		gc->color = white;
-		gc->erase = 1;
+		nelma_gc->color = white;
+		nelma_gc->erase = 1;
 		return;
 	}
-	gc->color = black;
-	gc->erase = 0;
+	nelma_gc->color = black;
+	nelma_gc->erase = 0;
 	return;
 }
 
 static void
 nelma_set_line_cap(hidGC gc, EndCapStyle style)
 {
-	gc->cap = style;
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
+	nelma_gc->cap = style;
 }
 
 static void
 nelma_set_line_width(hidGC gc, Coord width)
 {
-	gc->width = width;
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
+	nelma_gc->width = width;
 }
 
 static void
@@ -834,77 +845,78 @@ nelma_set_draw_faded(hidGC gc, int faded)
 static void
 use_gc(hidGC gc)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
 	int             need_brush = 0;
 
 	if (gc->me_pointer != &nelma_hid) {
 		fprintf(stderr, "Fatal: GC from another HID passed to nelma HID\n");
 		abort();
 	}
-	if (linewidth != gc->width) {
+	if (linewidth != nelma_gc->width) {
 		/* Make sure the scaling doesn't erase lines completely */
 		/*
-	        if (SCALE (gc->width) == 0 && gc->width > 0)
+	        if (SCALE (nelma_gc->width) == 0 && nelma_gc->width > 0)
 		  gdImageSetThickness (im, 1);
 	        else
 	        */
-		gdImageSetThickness(nelma_im, pcb_to_nelma(gc->width));
-		linewidth = gc->width;
+		gdImageSetThickness(nelma_im, pcb_to_nelma(nelma_gc->width));
+		linewidth = nelma_gc->width;
 		need_brush = 1;
 	}
-	if (lastbrush != gc->brush || need_brush) {
+	if (lastbrush != nelma_gc->brush || need_brush) {
 		static void    *bcache = 0;
 		hidval          bval;
 		char            name[256];
 		char            type;
 		int             r;
 
-		switch (gc->cap) {
+		switch (nelma_gc->cap) {
 		case Round_Cap:
 		case Trace_Cap:
 			type = 'C';
-			r = pcb_to_nelma(gc->width / 2);
+			r = pcb_to_nelma(nelma_gc->width / 2);
 			break;
 		default:
 		case Square_Cap:
-			r = pcb_to_nelma(gc->width);
+			r = pcb_to_nelma(nelma_gc->width);
 			type = 'S';
 			break;
 		}
-		sprintf(name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
-			gc->color->b, type, r);
+		sprintf(name, "#%.2x%.2x%.2x_%c_%d", nelma_gc->color->r, nelma_gc->color->g,
+			nelma_gc->color->b, type, r);
 
 		if (hid_cache_color(0, name, &bval, &bcache)) {
-		  gc->brush = (gdImagePtr)bval.ptr;
+		  nelma_gc->brush = (gdImagePtr)bval.ptr;
 		} else {
 			int             bg, fg;
 			if (type == 'C')
-				gc->brush = gdImageCreate(2 * r + 1, 2 * r + 1);
+				nelma_gc->brush = gdImageCreate(2 * r + 1, 2 * r + 1);
 			else
-				gc->brush = gdImageCreate(r + 1, r + 1);
-			bg = gdImageColorAllocate(gc->brush, 255, 255, 255);
+				nelma_gc->brush = gdImageCreate(r + 1, r + 1);
+			bg = gdImageColorAllocate(nelma_gc->brush, 255, 255, 255);
 			fg =
-				gdImageColorAllocate(gc->brush, gc->color->r, gc->color->g,
-						     gc->color->b);
-			gdImageColorTransparent(gc->brush, bg);
+				gdImageColorAllocate(nelma_gc->brush, nelma_gc->color->r, nelma_gc->color->g,
+						     nelma_gc->color->b);
+			gdImageColorTransparent(nelma_gc->brush, bg);
 
 			/*
 		         * if we shrunk to a radius/box width of zero, then just use
 		         * a single pixel to draw with.
 		         */
 			if (r == 0)
-				gdImageFilledRectangle(gc->brush, 0, 0, 0, 0, fg);
+				gdImageFilledRectangle(nelma_gc->brush, 0, 0, 0, 0, fg);
 			else {
 				if (type == 'C')
-					gdImageFilledEllipse(gc->brush, r, r, 2 * r, 2 * r, fg);
+					gdImageFilledEllipse(nelma_gc->brush, r, r, 2 * r, 2 * r, fg);
 				else
-					gdImageFilledRectangle(gc->brush, 0, 0, r, r, fg);
+					gdImageFilledRectangle(nelma_gc->brush, 0, 0, r, r, fg);
 			}
-			bval.ptr = gc->brush;
+			bval.ptr = nelma_gc->brush;
 			hid_cache_color(1, name, &bval, &bcache);
 		}
 
-		gdImageSetBrush(nelma_im, gc->brush);
-		lastbrush = gc->brush;
+		gdImageSetBrush(nelma_im, nelma_gc->brush);
+		lastbrush = nelma_gc->brush;
 
 	}
 }
@@ -912,27 +924,33 @@ use_gc(hidGC gc)
 static void
 nelma_draw_rect(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
 	use_gc(gc);
 	gdImageRectangle(nelma_im,
 			 pcb_to_nelma(x1), pcb_to_nelma(y1),
-			 pcb_to_nelma(x2), pcb_to_nelma(y2), gc->color->c);
+			 pcb_to_nelma(x2), pcb_to_nelma(y2), nelma_gc->color->c);
 }
 
 static void
 nelma_fill_rect(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
 	use_gc(gc);
 	gdImageSetThickness(nelma_im, 0);
 	linewidth = 0;
 	gdImageFilledRectangle(nelma_im, pcb_to_nelma(x1), pcb_to_nelma(y1),
-			  pcb_to_nelma(x2), pcb_to_nelma(y2), gc->color->c);
+			  pcb_to_nelma(x2), pcb_to_nelma(y2), nelma_gc->color->c);
 }
 
 static void
 nelma_draw_line(hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
 	if (x1 == x2 && y1 == y2) {
-		Coord             w = gc->width / 2;
+		Coord             w = nelma_gc->width / 2;
 		nelma_fill_rect(gc, x1 - w, y1 - w, x1 + w, y1 + w);
 		return;
 	}
@@ -976,7 +994,7 @@ nelma_draw_arc(hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 	       cx, cy, width, height, start_angle, delta_angle, sa, ea);
 	printf("gdImageArc (%p, %d, %d, %d, %d, %d, %d, %d)\n",
 	       im, SCALE_X(cx), SCALE_Y(cy),
-	       SCALE(width), SCALE(height), sa, ea, gc->color->c);
+	       SCALE(width), SCALE(height), sa, ea, nelma_gc->color->c);
 #endif
 	use_gc(gc);
 	gdImageSetThickness(nelma_im, 0);
@@ -988,18 +1006,21 @@ nelma_draw_arc(hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 nelma_fill_circle(hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
+
 	use_gc(gc);
 
 	gdImageSetThickness(nelma_im, 0);
 	linewidth = 0;
 	gdImageFilledEllipse(nelma_im, pcb_to_nelma(cx), pcb_to_nelma(cy),
-	  pcb_to_nelma(2 * radius), pcb_to_nelma(2 * radius), gc->color->c);
+	  pcb_to_nelma(2 * radius), pcb_to_nelma(2 * radius), nelma_gc->color->c);
 
 }
 
 static void
 nelma_fill_polygon(hidGC gc, int n_coords, Coord *x, Coord *y)
 {
+	nelmaGC nelma_gc = (nelmaGC)gc;
 	int             i;
 	gdPoint        *points;
 
@@ -1015,7 +1036,7 @@ nelma_fill_polygon(hidGC gc, int n_coords, Coord *x, Coord *y)
 	}
 	gdImageSetThickness(nelma_im, 0);
 	linewidth = 0;
-	gdImageFilledPolygon(nelma_im, points, n_coords, gc->color->c);
+	gdImageFilledPolygon(nelma_im, points, n_coords, nelma_gc->color->c);
 	free(points);
 }
 

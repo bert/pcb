@@ -22,11 +22,6 @@
 
 #define CRASH fprintf(stderr, "HID error: pcb called GUI function %s without having a GUI available.\n", __FUNCTION__); abort()
 
-typedef struct hid_gc_struct
-{
-  int nothing_interesting_here;
-} hid_gc_struct;
-
 static HID_Attribute *
 nogui_get_export_options (int *n_ret)
 {

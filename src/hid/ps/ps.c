@@ -34,15 +34,16 @@
 static int ps_set_layer (const char *name, int group, int empty);
 static void use_gc (hidGC gc);
 
-typedef struct hid_gc_struct
+typedef struct ps_gc_struct
 {
-  HID *me_pointer;
+  struct hid_gc_struct hid_gc; /* Parent */
+
   EndCapStyle cap;
   Coord width;
   unsigned char r, g, b;
   int erase;
   int faded;
-} hid_gc_struct;
+} *psGC;
 
 static const char *medias[] = {
   "A0", "A1", "A2", "A3", "A4", "A5",
@@ -1011,10 +1012,13 @@ ps_set_layer (const char *name, int group, int empty)
 static hidGC
 ps_make_gc (void)
 {
-  hidGC rv = (hidGC) calloc (1, sizeof (hid_gc_struct));
-  rv->me_pointer = &ps_hid;
-  rv->cap = Trace_Cap;
-  return rv;
+  hidGC gc = (hidGC) calloc (1, sizeof (struct ps_gc_struct));
+  psGC ps_gc = (psGC)gc;
+
+  gc->me_pointer = &ps_hid;
+  ps_gc->cap = Trace_Cap;
+
+  return gc;
 }
 
 static void
@@ -1032,37 +1036,43 @@ ps_use_mask (enum mask_mode mode)
 static void
 ps_set_color (hidGC gc, const char *name)
 {
+  psGC ps_gc = (psGC)gc;
+
   if (strcmp (name, "erase") == 0 || strcmp (name, "drill") == 0)
     {
-      gc->r = gc->g = gc->b = 255;
-      gc->erase = 1;
+      ps_gc->r = ps_gc->g = ps_gc->b = 255;
+      ps_gc->erase = 1;
     }
   else if (global.incolor)
     {
       int r, g, b;
       sscanf (name + 1, "%02x%02x%02x", &r, &g, &b);
-      gc->r = r;
-      gc->g = g;
-      gc->b = b;
-      gc->erase = 0;
+      ps_gc->r = r;
+      ps_gc->g = g;
+      ps_gc->b = b;
+      ps_gc->erase = 0;
     }
   else
     {
-      gc->r = gc->g = gc->b = 0;
-      gc->erase = 0;
+      ps_gc->r = ps_gc->g = ps_gc->b = 0;
+      ps_gc->erase = 0;
     }
 }
 
 static void
 ps_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  gc->cap = style;
+  psGC ps_gc = (psGC)gc;
+
+  ps_gc->cap = style;
 }
 
 static void
 ps_set_line_width (hidGC gc, Coord width)
 {
-  gc->width = width;
+  psGC ps_gc = (psGC)gc;
+
+  ps_gc->width = width;
 }
 
 static void
@@ -1074,12 +1084,15 @@ ps_set_draw_xor (hidGC gc, int xor_)
 static void
 ps_set_draw_faded (hidGC gc, int faded)
 {
-  gc->faded = faded;
+  psGC ps_gc = (psGC)gc;
+
+  ps_gc->faded = faded;
 }
 
 static void
 use_gc (hidGC gc)
 {
+  psGC ps_gc = (psGC)gc;
   static int lastcap = -1;
   static int lastcolor = -1;
 
@@ -1093,16 +1106,16 @@ use_gc (hidGC gc)
       fprintf (stderr, "Fatal: GC from another HID passed to ps HID\n");
       abort ();
     }
-  if (global.linewidth != gc->width)
+  if (global.linewidth != ps_gc->width)
     {
       pcb_fprintf (global.f, "%mi setlinewidth\n",
-                   gc->width + (gc->erase ? -2 : 2) * global.bloat);
-      global.linewidth = gc->width;
+                   ps_gc->width + (ps_gc->erase ? -2 : 2) * global.bloat);
+      global.linewidth = ps_gc->width;
     }
-  if (lastcap != gc->cap)
+  if (lastcap != ps_gc->cap)
     {
       int c;
-      switch (gc->cap)
+      switch (ps_gc->cap)
 	{
 	case Round_Cap:
 	case Trace_Cap:
@@ -1114,29 +1127,29 @@ use_gc (hidGC gc)
 	  break;
 	}
       fprintf (global.f, "%d setlinecap %d setlinejoin\n", c, c);
-      lastcap = gc->cap;
+      lastcap = ps_gc->cap;
     }
-#define CBLEND(gc) (((gc->r)<<24)|((gc->g)<<16)|((gc->b)<<8)|(gc->faded))
+#define CBLEND(gc) (((ps_gc->r)<<24)|((ps_gc->g)<<16)|((ps_gc->b)<<8)|(ps_gc->faded))
   if (lastcolor != CBLEND (gc))
     {
       if (global.is_drill || global.is_mask)
 	{
-	  fprintf (global.f, "%d gray\n", gc->erase ? 0 : 1);
+	  fprintf (global.f, "%d gray\n", ps_gc->erase ? 0 : 1);
 	  lastcolor = 0;
 	}
       else
 	{
 	  double r, g, b;
-	  r = gc->r;
-	  g = gc->g;
-	  b = gc->b;
-	  if (gc->faded)
+	  r = ps_gc->r;
+	  g = ps_gc->g;
+	  b = ps_gc->b;
+	  if (ps_gc->faded)
 	    {
 	      r = (1 - global.fade_ratio) * 255 + global.fade_ratio * r;
 	      g = (1 - global.fade_ratio) * 255 + global.fade_ratio * g;
 	      b = (1 - global.fade_ratio) * 255 + global.fade_ratio * b;
 	    }
-	  if (gc->r == gc->g && gc->g == gc->b)
+	  if (ps_gc->r == ps_gc->g && ps_gc->g == ps_gc->b)
 	    fprintf (global.f, "%g gray\n", r / 255.0);
 	  else
 	    fprintf (global.f, "%g %g %g rgb\n", r / 255.0, g / 255.0, b / 255.0);
@@ -1158,11 +1171,13 @@ static void ps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius);
 static void
 ps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
+  psGC ps_gc = (psGC)gc;
+
 #if 0
   /* If you're etching your own paste mask, this will reduce the
      amount of brass you need to etch by drawing outlines for large
      pads.  See also ps_fill_rect.  */
-  if (is_paste && gc->width > 2500 && gc->cap == Square_Cap
+  if (is_paste && ps_gc->width > 2500 && ps_gc->cap == Square_Cap
       && (x1 == x2 || y1 == y2))
     {
       Coord t, w;
@@ -1170,15 +1185,15 @@ ps_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 	{ t = x1; x1 = x2; x2 = t; }
       if (y1 > y2)
 	{ t = y1; y1 = y2; y2 = t; }
-      w = gc->width/2;
+      w = ps_gc->width/2;
       ps_fill_rect (gc, x1-w, y1-w, x2+w, y2+w);
       return;
     }
 #endif
   if (x1 == x2 && y1 == y2)
     {
-      Coord w = gc->width / 2;
-      if (gc->cap == Square_Cap)
+      Coord w = ps_gc->width / 2;
+      if (ps_gc->cap == Square_Cap)
 	ps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       else
 	ps_fill_circle (gc, x1, y1, w);
@@ -1237,14 +1252,16 @@ ps_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height,
 static void
 ps_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
+  psGC ps_gc = (psGC)gc;
+
   use_gc (gc);
-  if (!gc->erase || !global.is_copper || global.drillcopper)
+  if (!ps_gc->erase || !global.is_copper || global.drillcopper)
     {
-      if (gc->erase && global.is_copper && global.drill_helper
+      if (ps_gc->erase && global.is_copper && global.drill_helper
 	  && radius >= PCB->minDrill / 4)
 	radius = PCB->minDrill / 4;
       pcb_fprintf (global.f, "%mi %mi %mi c\n",
-                   cx, cy, radius + (gc->erase ? -1 : 1) * global.bloat);
+                   cx, cy, radius + (ps_gc->erase ? -1 : 1) * global.bloat);
     }
 }
 
