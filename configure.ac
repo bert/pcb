@@ -790,6 +790,16 @@ $GTKGLEXT_PKG_ERRORS])]
 	GTKGLEXT_VER=`$PKG_CONFIG gtkglext-1.0 --modversion`
 	fi
 
+	AC_MSG_CHECKING([if linux/input.h is available (to build SpaceNavivator driver])
+	AC_CHECK_HEADERS([linux/input.h])
+	AC_MSG_RESULT([$HAVE_LINUX_INPUT_H])
+	AM_CONDITIONAL(WITH_SNAVI, test "x$ac_cv_header_linux_input_h" = xyes)
+	if test "x$ac_cv_header_linux_input_h" = xyes ; then
+		AC_DEFINE([WITH_SNAVI], 1, [Define to 1 if SpaceNavigator driver is available])
+		with_snavi=yes
+	else
+		with_snavi=no
+	fi
 	;;
 
       png)
@@ -1362,4 +1372,5 @@ AC_MSG_RESULT([
    dmalloc debugging:        $with_dmalloc
    ElectricFence debugging:  $with_efence
    Regression tests enabled: $have_test_tools
+   SpaceNavigator driver:    $with_snavi
 ])

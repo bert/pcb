@@ -45,8 +45,11 @@
 #include "find.h"
 #include "search.h"
 #include "rats.h"
-#include "snavi.h"
 #include "gui-trackball.h"
+
+#ifdef WITH_SNAVI
+#include "snavi.h"
+#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -554,8 +557,10 @@ ghid_port_window_enter_cb (GtkWidget * widget,
       /* Make sure drawing area has keyboard focus when we are in it.
        */
       gtk_widget_grab_focus (out->drawing_area);
+#ifdef WITH_SNAVI
       if (ghidgui->snavi != NULL)
         snavi_set_led (ghidgui->snavi, TRUE);
+#endif
     }
   ghidgui->in_popup = FALSE;
 
@@ -588,8 +593,10 @@ ghid_port_window_leave_cb (GtkWidget * widget,
       return FALSE;
     }
 
+#ifdef WITH_SNAVI
   if (out->has_entered && !ghidgui->in_popup && ghidgui->snavi != NULL)
     snavi_set_led (ghidgui->snavi, FALSE);
+#endif
 
   out->has_entered = FALSE;
 

@@ -166,7 +166,7 @@ PCB_SRCS = \
 	hid/common/hid_resource.h \
 	hid/hidint.h 
 
-EXTRA_pcb_SOURCES = ${DBUS_SRCS} ${GL_SRCS} ${LIBGTK_GL_SRCS} toporouter.c toporouter.h
+EXTRA_pcb_SOURCES = ${DBUS_SRCS} ${GL_SRCS} ${LIBGTK_GL_SRCS} ${LIBGTK_SNAVI_SRCS} toporouter.c toporouter.h
 DBUS_SRCS= \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
@@ -186,6 +186,11 @@ GL_SRCS= \
 	hid/common/hidgl.h \
 	hid/common/trackball.c \
 	hid/common/trackball.h
+
+LIBGTK_SNAVI_SRCS= \
+	hid/gtk/snavi.c \
+	hid/gtk/snavi.h
+
 
 BUILT_SOURCES = \
 	core_lists.h \
@@ -334,9 +339,7 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-pinout-preview.h \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
-	hid/gtk/gui-utils.c \
-	hid/gtk/snavi.c \
-	hid/gtk/snavi.h
+	hid/gtk/gui-utils.c
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
 hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
@@ -364,6 +367,11 @@ PCB_SRCS+=	${GL_SRCS}
 LIBGTK_SRCS+=	${LIBGTK_GL_SRCS}
 else
 LIBGTK_SRCS+=	${LIBGTK_GDK_SRCS}
+endif
+
+# If we are building with SpaceNavigator support, we need some extra files
+if WITH_SNAVI
+LIBGTK_SRCS+=	${LIBGTK_SNAVI_SRCS}
 endif
 
 # If we are building on win32, then compile in some icons for the
