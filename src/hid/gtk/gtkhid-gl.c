@@ -1724,15 +1724,108 @@ clearPad_callback_solid (const BoxType * b, void *cl)
 }
 
 static void
-GhidDrawMask (int side, BoxType * screen)
+ensure_board_outline (void)
+{
+  if (!PCB->Data->outline_valid) {
+
+    if (PCB->Data->outline != NULL)
+      poly_Free (&PCB->Data->outline);
+
+    PCB->Data->outline = board_outline_poly ();
+    PCB->Data->outline_valid = true;
+  }
+}
+
+static void
+fill_board_outline (hidGC gc, const BoxType *drawn_area)
+{
+  PolygonType polygon;
+
+  ensure_board_outline ();
+
+  memset (&polygon, 0, sizeof (polygon));
+  polygon.Clipped = PCB->Data->outline;
+  if (drawn_area)
+    polygon.BoundingBox = *drawn_area;
+  polygon.Flags = NoFlags ();
+  SET_FLAG (FULLPOLYFLAG, &polygon);
+  hid_draw_fill_pcb_polygon (gc, &polygon, drawn_area);
+  poly_FreeContours (&polygon.NoHoles);
+}
+
+struct outline_info {
+  hidGC gc;
+  float z1;
+  float z2;
+};
+
+static int
+fill_outline_hole_cb (PLINE *pl, void *user_data)
+{
+  struct outline_info *info = (struct outline_info *)user_data;
+  PolygonType polygon;
+  PLINE *pl_copy = NULL;
+
+  poly_CopyContour (&pl_copy, pl);
+  poly_InvContour (pl_copy);
+
+  memset (&polygon, 0, sizeof (polygon));
+  polygon.Clipped = poly_Create ();
+  poly_InclContour (polygon.Clipped, pl_copy);
+
+//  if (polygon.Clipped->contours == NULL)
+//    return 0;
+
+  polygon.Flags = NoFlags ();
+  SET_FLAG (FULLPOLYFLAG, &polygon);
+
+  /* XXX: For some reason, common_fill_pcb_polygon doesn't work for all contours here.. not sure why */
+//  common_fill_pcb_polygon (info->gc, &polygon, NULL);
+  hid_draw_fill_pcb_polygon (info->gc, &polygon, NULL);
+
+  poly_FreeContours (&polygon.NoHoles);
+
+  poly_Free (&polygon.Clipped);
+
+  return 0;
+}
+
+static void
+fill_board_outline_holes (hidGC gc, const BoxType *drawn_area)
 {
   render_priv *priv = gport->render_priv;
+  PolygonType polygon, p;
+  struct outline_info info;
+
+  ensure_board_outline ();
+
+  memset (&polygon, 0, sizeof (polygon));
+  polygon.Clipped = PCB->Data->outline;
+  if (drawn_area)
+    polygon.BoundingBox = *drawn_area;
+  polygon.Flags = NoFlags ();
+  SET_FLAG (FULLPOLYFLAG, &polygon);
+
+  info.gc = gc;
+
+  p = polygon;
+  do {
+    PolygonHoles (&p, drawn_area, fill_outline_hole_cb, &info);
+  } while ((p.Clipped = p.Clipped->f) != polygon.Clipped);
+
+//  poly_FreeContours (&polygon.NoHoles);
+
+  hidgl_flush_triangles (priv->hidgl);
+}
+
+static void
+GhidDrawMask (int side, BoxType * screen)
+{
 //  static bool first_run = true;
 //  static GLuint texture;
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
   LayerType *Layer = LAYER_PTR (side == TOP_SIDE ? top_soldermask_layer : bottom_soldermask_layer);
   struct poly_info info;
-  PolygonType polygon;
 
   OutputType *out = &Output;
 
@@ -1793,14 +1886,8 @@ GhidDrawMask (int side, BoxType * screen)
   glEnable (GL_TEXTURE_2D);
 #endif
 
-  if (!PCB->Data->outline_valid) {
-
-    if (PCB->Data->outline != NULL)
-      poly_Free (&PCB->Data->outline);
-
-    PCB->Data->outline = board_outline_poly ();
-    PCB->Data->outline_valid = true;
-  }
+#if 0
+  ensure_board_outline ();
 
   memset (&polygon, 0, sizeof (polygon));
   polygon.Clipped = PCB->Data->outline;
@@ -1810,8 +1897,12 @@ GhidDrawMask (int side, BoxType * screen)
   SET_FLAG (FULLPOLYFLAG, &polygon);
   hid_draw_fill_pcb_polygon (out->fgGC, &polygon, screen);
   poly_FreeContours (&polygon.NoHoles);
+#endif
+
+  fill_board_outline (out->fgGC, screen);
+
   ghid_set_alpha_mult (out->fgGC, 1.0);
-  hidgl_flush_triangles (priv->hidgl);
+//  hidgl_flush_triangles (priv->hidgl);
 #if 0
   glDisable (GL_TEXTURE_GEN_S);
   glDisable (GL_TEXTURE_GEN_T);
@@ -1823,6 +1914,79 @@ GhidDrawMask (int side, BoxType * screen)
   hid_draw_use_mask (&ghid_graphics, HID_MASK_OFF);
 
 //  first_run = false;
+}
+
+static void
+draw_outline_contour (hidGC gc, PLINE *pl, float z1, float z2)
+{
+  VNODE *v;
+  GLfloat x, y;
+
+  hidgl_ensure_vertex_space (gc, 2 * pl->Count + 2 + 2);
+
+  /* NB: Repeated first virtex to separate from other tri-strip */
+
+  x = pl->head.point[0];
+  y = pl->head.point[1];
+
+  hidgl_add_vertex_3D_tex (gc, x, y, z1, 0.0, 0.0);
+  hidgl_add_vertex_3D_tex (gc, x, y, z1, 0.0, 0.0);
+  hidgl_add_vertex_3D_tex (gc, x, y, z2, 0.0, 0.0);
+
+  v = pl->head.next;
+
+  do
+    {
+      x = v->point[0];
+      y = v->point[1];
+
+      hidgl_add_vertex_3D_tex (gc, x, y, z1, 0.0, 0.0);
+      hidgl_add_vertex_3D_tex (gc, x, y, z2, 0.0, 0.0);
+    }
+  while ((v = v->next) != pl->head.next);
+
+  /* NB: Repeated last virtex to separate from other tri-strip */
+  hidgl_add_vertex_3D_tex (gc, x, y, z2, 0.0, 0.0);
+}
+
+static int
+outline_hole_cb (PLINE *pl, void *user_data)
+{
+  struct outline_info *info = (struct outline_info *)user_data;
+
+  draw_outline_contour (info->gc, pl, info->z1, info->z2);
+  return 0;
+}
+
+static void
+ghid_draw_outline_between_layers (int from_layer, int to_layer, BoxType *drawn_area)
+{
+  render_priv *priv = gport->render_priv;
+  PolygonType polygon, p;
+  struct outline_info info;
+
+  ensure_board_outline ();
+
+  memset (&polygon, 0, sizeof (polygon));
+  polygon.Clipped = PCB->Data->outline;
+  if (drawn_area)
+    polygon.BoundingBox = *drawn_area;
+  polygon.Flags = NoFlags ();
+  SET_FLAG (FULLPOLYFLAG, &polygon);
+
+  info.gc = Output.fgGC;
+  info.z1 = compute_depth (from_layer);
+  info.z2 = compute_depth (to_layer);
+
+  p = polygon;
+  do {
+    draw_outline_contour (info.gc, p.Clipped->contours, info.z1, info.z2);
+    PolygonHoles (&p, drawn_area, outline_hole_cb, &info);
+  } while ((p.Clipped = p.Clipped->f) != polygon.Clipped);
+
+  poly_FreeContours (&polygon.NoHoles);
+
+  hidgl_flush_triangles (priv->hidgl);
 }
 
 static int
@@ -1873,6 +2037,7 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
         hid_draw_set_color (Output.bgGC, PCB->MaskColor);
         if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
         if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, &h_info);
+        fill_board_outline_holes (Output.bgGC, screen);
         hidgl_flush_triangles (priv->hidgl);
         glPopAttrib ();
       }
@@ -1897,6 +2062,7 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
           /* Mask out drilled holes on this layer */
           if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
           if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, &h_info);
+          fill_board_outline_holes (Output.bgGC, screen);
           hidgl_flush_triangles (priv->hidgl);
           glPopAttrib ();
         }
@@ -2190,6 +2356,7 @@ ghid_draw_everything (BoxType *drawn_area)
       cyl_info.scale = gport->view.coord_per_px;
       hid_draw_set_color (Output.fgGC, "drill");
       ghid_set_alpha_mult (Output.fgGC, alpha_mult * 0.75);
+      ghid_draw_outline_between_layers (cyl_info.from_layer_group, cyl_info.to_layer_group, drawn_area);
       if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_cyl_callback, &cyl_info);
       if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_cyl_callback, &cyl_info);
     }
@@ -2217,6 +2384,7 @@ ghid_draw_everything (BoxType *drawn_area)
       glDepthMask (GL_FALSE);
       if (PCB->PinOn) r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
       if (PCB->ViaOn) r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
+      fill_board_outline_holes (Output.bgGC, drawn_area);
       hidgl_flush_triangles (priv->hidgl);
       glPopAttrib ();
     }
