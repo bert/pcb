@@ -192,6 +192,7 @@ PCB_SRCS = \
 	hid/hidint.h 
 
 EXTRA_pcb_SOURCES = ${DBUS_SRCS} ${GL_SRCS} ${LIBGTK_GL_SRCS} ${LIBGTK_SNAVI_SRCS} toporouter.c toporouter.h
+nodist_EXTRA_pcb_SOURCES = dummy.cpp
 DBUS_SRCS= \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
@@ -500,13 +501,38 @@ hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-libstep_a_CPPFLAGS = -I$(top_srcdir) -I./hid/step
+libstep_a_CPPFLAGS = \
+	-I$(top_srcdir) \
+	-I./hid/step \
+	-I${STEPCODEDIR}/include \
+	-I${STEPCODEDIR}/src/base \
+	-I${STEPCODEDIR}/src/clutils \
+	-I${STEPCODEDIR}/src/cldai \
+	-I${STEPCODEDIR}/src/clstepcore \
+	-I${STEPCODEDIR}/src/cleditor \
+	-I${STEPCODEDIR}/schemas/sdai_ap214e3
+
 LIBSTEP_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/step/step.c \
-	hid/step/step.h
+	hid/step/step.h \
+	hid/step/assembly.cpp \
+	hid/step/assembly.h \
+	hid/step/utils.cpp \
+	hid/step/utils.h
 libstep_a_SOURCES = ${LIBSTEP_SRCS} hid/step/step_lists.h
+
+pcb_LDFLAGS = \
+	-Wl,-rpath,${STEPCODEDIR}/lib # HACK FOR EASIER DEBUG
+
+pcb_LDADD += \
+	-L${STEPCODEDIR}/lib \
+	-lstepcore \
+	-lstepeditor \
+	-lstepdai \
+	-lsteputils \
+	-lsdai_ap214e3
 
 hid/step/step_lists.h : ${LIBPS_SRCS} Makefile
 	$(MKDIR_P) hid/step

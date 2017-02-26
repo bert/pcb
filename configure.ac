@@ -482,6 +482,23 @@ which exporters you want and do not list png there.])
 	esac
 fi
 
+# Location of STEPcode sources to build against
+AC_ARG_WITH(stepcodedir, [  --with-stepcodedir=path  Change where the STEPcode source tree is located [[]]], [stepcodedir=$withval])
+
+if test x$stepcodedir = x ; then
+	case " ${HIDLIST} " in
+		*\ step\ *)
+			AC_MSG_ERROR([you have requested the STEP export HID but not specified the location
+of the STEPcode sources to build against])
+			;;
+
+		*)
+			;;
+	esac
+fi
+STEPCODEDIR=$stepcodedir
+AC_SUBST(STEPCODEDIR)
+
 for hid in $HIDLIST; do
     F=$srcdir/src/hid/$hid/hid.conf
     if test -f $F ; then
