@@ -2084,6 +2084,22 @@ line_outline_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static int
+pv_outline_callback (const BoxType * b, void *cl)
+{
+  PinType *pv = (PinType *)b;
+  struct clip_outline_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = CirclePoly (pv->X, pv->Y, pv->DrillingHole / 2)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
 static void
 delete_piece_cb (gpointer data, gpointer userdata)
 {
@@ -2105,7 +2121,7 @@ delete_piece_cb (gpointer data, gpointer userdata)
   poly_Free (&piece);
 }
 
-POLYAREA *board_outline_poly (void)
+POLYAREA *board_outline_poly (bool include_holes)
 {
   int i;
   int count;
@@ -2137,10 +2153,8 @@ POLYAREA *board_outline_poly (void)
         }
     }
 
-  if (!found_outline) {
+  if (!found_outline)
     printf ("Didn't find outline\n");
-    return whole_world;
-  }
 
   /* Do stuff to turn the outline layer into a polygon */
 
@@ -2172,8 +2186,17 @@ POLYAREA *board_outline_poly (void)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-  r_search (Layer->line_tree, &region, NULL, line_outline_callback, &info);
-  r_search (Layer->arc_tree,  &region, NULL, arc_outline_callback, &info);
+  if (found_outline)
+    {
+      r_search (Layer->line_tree, &region, NULL, line_outline_callback, &info);
+      r_search (Layer->arc_tree,  &region, NULL, arc_outline_callback, &info);
+    }
+
+  if (include_holes)
+    {
+      r_search (PCB->Data->pin_tree, &region, NULL, pv_outline_callback, &info);
+      r_search (PCB->Data->via_tree, &region, NULL, pv_outline_callback, &info);
+    }
 
   clipped = info.poly;
 

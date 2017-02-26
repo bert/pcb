@@ -1731,7 +1731,7 @@ ensure_board_outline (void)
     if (PCB->Data->outline != NULL)
       poly_Free (&PCB->Data->outline);
 
-    PCB->Data->outline = board_outline_poly ();
+    PCB->Data->outline = board_outline_poly (false);
     PCB->Data->outline_valid = true;
   }
 }
