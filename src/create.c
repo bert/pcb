@@ -334,21 +334,8 @@ CreateNewViaEx (DataType *Data,
               DrillingHole, Name, Flags);
   if (Via)
     {
-      if (buried_from == buried_to)
-        {
-          Via->BuriedFrom = 0;
-          Via->BuriedTo = 0;
-	}
-      else if (buried_from <= buried_to)
-        {
-          Via->BuriedFrom = buried_from;
-          Via->BuriedTo = buried_to;
-	}
-      else
-        {
-          Via->BuriedFrom = buried_to;
-          Via->BuriedTo = buried_from;
-	}
+      Via->BuriedFrom = buried_from;
+      Via->BuriedTo = buried_to;
     }
   return Via;
 }

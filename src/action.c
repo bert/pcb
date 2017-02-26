@@ -1277,6 +1277,7 @@ NotifyMode (void)
 	       Crosshair.AttachedLine.Point2.Y))
             {
               PinType *via;
+	      Cardinal last_layer_num, current_layer_num;
 	      Cardinal layer_from, layer_to;
 
               if ((line =
@@ -1300,6 +1301,9 @@ NotifyMode (void)
 		{
 		  layer_from = GetLayerNumber (PCB->Data, lastLayer);
 		  layer_to = GetLayerNumber (PCB->Data, CURRENT);
+
+		  layer_from = MIN (last_layer_num, current_layer_num);
+		  layer_to =   MAX (last_layer_num, current_layer_num);
 		}
 	      else
 		{
