@@ -162,13 +162,13 @@ struct hid_gc_struct {
 
 
 /* Getters for class properties */
-inline bool
+static inline bool
 hid_draw_is_gui (HID_DRAW *hid_draw)
 {
   return hid_draw->klass->gui;
 }
 
-inline bool
+static inline bool
 hid_draw_can_draw_in_mask_clear (HID_DRAW *hid_draw)
 {
   return hid_draw->klass->can_draw_in_mask_clear;
@@ -177,159 +177,159 @@ hid_draw_can_draw_in_mask_clear (HID_DRAW *hid_draw)
 
 /* Calling wrappers to access the vfunc table */
 
-inline int
+static inline int
 hid_draw_set_layer (HID_DRAW *hid_draw, const char *name, int group, int empty)
 {
   return hid_draw->klass->set_layer (name, group, empty);
 }
 
-inline void
+static inline void
 hid_draw_end_layer (HID_DRAW *hid_draw)
 {
   hid_draw->klass->end_layer ();
 }
 
-inline hidGC
+static inline hidGC
 hid_draw_make_gc (HID_DRAW *hid_draw)
 {
   return hid_draw->klass->make_gc ();
 }
 
-inline void
+static inline void
 hid_draw_destroy_gc (hidGC gc)
 {
   gc->hid_draw->klass->destroy_gc (gc);
 }
 
-inline void
+static inline void
 hid_draw_use_mask (HID_DRAW *hid_draw, enum mask_mode mode)
 {
   hid_draw->klass->use_mask (mode);
 }
 
-inline void
+static inline void
 hid_draw_set_color (hidGC gc, char *name)
 {
   gc->hid_draw->klass->set_color (gc, name);
 }
 
-inline void
+static inline void
 hid_draw_set_line_cap (hidGC gc, EndCapStyle style)
 {
   gc->hid_draw->klass->set_line_cap (gc, style);
 }
 
-inline void
+static inline void
 hid_draw_set_line_width (hidGC gc, Coord width)
 {
   gc->hid_draw->klass->set_line_width (gc, width);
 }
 
-inline void
+static inline void
 hid_draw_set_draw_xor (hidGC gc, int xor_)
 {
   gc->hid_draw->klass->set_draw_xor (gc, xor_);
 }
 
-inline void
+static inline void
 hid_draw_set_draw_faded (hidGC gc, int faded)
 {
   gc->hid_draw->klass->set_draw_faded (gc, faded);
 }
 
-inline void
+static inline void
 hid_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gc->hid_draw->klass->draw_line (gc, x1, y1, x2, y2);
 }
 
-inline void
+static inline void
 hid_draw_arc (hidGC gc, Coord cx, Coord cy, Coord xradius, Coord yradius, Angle start_angle, Angle delta_angle)
 {
   gc->hid_draw->klass->draw_arc (gc, cx, cy, xradius, yradius, start_angle, delta_angle);
 }
 
-inline void
+static inline void
 hid_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gc->hid_draw->klass->draw_rect (gc, x1, y1, x2, y2);
 }
 
-inline void
+static inline void
 hid_draw_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
 {
   gc->hid_draw->klass->fill_circle (gc, cx, cy, radius);
 }
 
-inline void
+static inline void
 hid_draw_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 {
   gc->hid_draw->klass->fill_polygon (gc, n_coords, x, y);
 }
 
-inline void
+static inline void
 hid_draw_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   gc->hid_draw->klass->fill_rect (gc, x1, y1, x2, y2);
 }
 
 
-inline void
+static inline void
 hid_draw_pcb_line (hidGC gc, LineType *line)
 {
   gc->hid_draw->klass->draw_pcb_line (gc, line);
 }
 
-inline void
+static inline void
 hid_draw_pcb_arc (hidGC gc, ArcType *arc)
 {
   gc->hid_draw->klass->draw_pcb_arc (gc, arc);
 }
 
-inline void
+static inline void
 hid_draw_pcb_text (hidGC gc, TextType *text, Coord min_width)
 {
   gc->hid_draw->klass->draw_pcb_text (gc, text, min_width);
 }
 
-inline void
+static inline void
 hid_draw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   gc->hid_draw->klass->draw_pcb_polygon (gc, poly, clip_box);
 }
 
 
-inline void
+static inline void
 hid_draw_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   gc->hid_draw->klass->fill_pcb_polygon (gc, poly, clip_box);
 }
 
-inline void
+static inline void
 hid_draw_thin_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   gc->hid_draw->klass->thindraw_pcb_polygon (gc, poly, clip_box);
 }
 
-inline void
+static inline void
 hid_draw_fill_pcb_pad (hidGC gc, PadType *pad, bool clip, bool mask)
 {
   gc->hid_draw->klass->fill_pcb_pad (gc, pad, clip, mask);
 }
 
-inline void
+static inline void
 hid_draw_thin_pcb_pad (hidGC gc, PadType *pad, bool clip, bool mask)
 {
   gc->hid_draw->klass->thindraw_pcb_pad (gc, pad, clip, mask);
 }
 
-inline void
+static inline void
 hid_draw_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool draw_hole, bool mask)
 {
   fg_gc->hid_draw->klass->fill_pcb_pv (fg_gc, bg_gc, pv, draw_hole, mask);
 }
 
-inline void
+static inline void
 hid_draw_thin_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool draw_hole, bool mask)
 {
   fg_gc->hid_draw->klass->thindraw_pcb_pv (fg_gc, bg_gc, pv, draw_hole, mask);
