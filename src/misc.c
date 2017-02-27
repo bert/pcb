@@ -2193,7 +2193,7 @@ MoveLayerToGroup (int layer, int group)
 {
   int prev, i, j;
 
-  if (layer < 0 || layer > max_copper_layer + 1)
+  if (layer < 0 || layer >= max_copper_layer + 2)
     return -1;
   prev = GetLayerGroupNumberByNumber (layer);
   if ((layer == bottom_silk_layer
