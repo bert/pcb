@@ -805,6 +805,8 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
   Cardinal i, group, layer, ratposition,
     lineposition[MAX_LAYER],
     polyposition[MAX_LAYER], arcposition[MAX_LAYER], padposition[2];
+  Cardinal top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  Cardinal bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
 
   /* copy the current LO list positions; the original data is changed
    * by 'LookupPVConnectionsToLOList()' which has to check the same
@@ -877,22 +879,18 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
                         (POLYGONLIST_ENTRY (layer, *position), group, flag, AndRats))
                       return (true);
                 }
-              else
-                {
-                  /* try all new pads */
-                  layer -= max_copper_layer;
-                  if (layer > 1)
-                    {
-                      Message (_("bad layer number %d max_copper_layer=%d in find.c\n"),
-                               layer, max_copper_layer);
-                      return false;
-                    }
-                  position = &padposition[layer];
-                  for (; *position < PadList[layer].Number; (*position)++)
-                    if (LookupLOConnectionsToPad
-                        (PADLIST_ENTRY (layer, *position), group, flag, AndRats))
-                      return (true);
-                }
+            }
+
+          /* try all new pads */
+          if (group == top_group || group == bottom_group)
+            {
+              int side = (group == top_group) ? TOP_SIDE : BOTTOM_SIDE;
+
+              position = &padposition[side];
+              for (; *position < PadList[side].Number; (*position)++)
+                if (LookupLOConnectionsToPad
+                    (PADLIST_ENTRY (side, *position), group, flag, AndRats))
+                  return (true);
             }
         }
 
