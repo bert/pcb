@@ -546,6 +546,11 @@ draw_layer (LayerType *layer, const BoxType *drawn_area, void *userdata)
                       -1 /* to_group */,
                       group /* current_group */};
 
+  if (layer_num < max_copper_layer)
+    {
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, &h_info);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &h_info);
+    }
 
   /* print the non-clearing polys */
   r_search (layer->polygon_tree, drawn_area, NULL, poly_callback, &p_info);
@@ -553,6 +558,13 @@ draw_layer (LayerType *layer, const BoxType *drawn_area, void *userdata)
   if (TEST_FLAG (CHECKPLANESFLAG, PCB))
     return;
 
+  if (layer_num < max_copper_layer)
+    {
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, &h_info);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &h_info);
+    }
+
+  /* draw all visible lines this layer */
   r_search (layer->line_tree, drawn_area, NULL, line_callback, layer);
   r_search (layer->arc_tree,  drawn_area, NULL, arc_callback,  layer);
   r_search (layer->text_tree, drawn_area, NULL, text_callback, layer);
@@ -606,8 +618,6 @@ draw_layer (LayerType *layer, const BoxType *drawn_area, void *userdata)
 
   /* draw vias */
   r_search (PCB->Data->via_tree, drawn_area, NULL, via_inlayer_callback, layer);
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, &h_info);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &h_info);
 }
 
 struct draw_funcs d_f = {
