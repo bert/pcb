@@ -184,12 +184,12 @@ DumpKeys (int argc, char **argv, Coord x, Coord y)
 
 #define LB_SILK (MAX_LAYER + 0)
 #define LB_RATS (MAX_LAYER + 1)
-#define LB_NUMPICK (LB_RATS+1)
+#define LB_MASK (MAX_LAYER + 2)
+#define LB_NUMPICK (LB_MASK + 1)
 /* more */
-#define LB_PINS (MAX_LAYER + 2)
-#define LB_VIAS (MAX_LAYER + 3)
-#define LB_BACK (MAX_LAYER + 4)
-#define LB_MASK (MAX_LAYER + 5)
+#define LB_PINS (MAX_LAYER + 3)
+#define LB_VIAS (MAX_LAYER + 4)
+#define LB_BACK (MAX_LAYER + 5)
 #define LB_NUM  (MAX_LAYER + 6)
 
 typedef struct
@@ -246,6 +246,8 @@ LayersChanged (int argc, char **argv, Coord x, Coord y)
     current_layer = LB_RATS;
   else if (PCB->SilkActive)
     current_layer = LB_SILK;
+  else if (PCB->SolderMaskActive)
+    current_layer = LB_MASK;
   else
     current_layer = LayerStack[0];
 
@@ -422,6 +424,7 @@ layerpick_button_callback (Widget w, int layer,
   char *name;
   PCB->RatDraw = (layer == LB_RATS);
   PCB->SilkActive = (layer == LB_SILK);
+  PCB->SolderMaskActive = (layer == LB_MASK);
   if (layer < max_copper_layer)
     ChangeGroupVisibility (layer, 1, 1);
   for (l = 0; l < num_layer_buttons; l++)
@@ -439,6 +442,9 @@ layerpick_button_callback (Widget w, int layer,
       break;
     case LB_SILK:
       name = "Silk";
+      break;
+    case LB_MASK:
+      name = "Mask";
       break;
     default:
       name = PCB->Data->Layer[layer].Name;
@@ -656,6 +662,11 @@ insert_layerpick_buttons (Widget menu)
 	  name = "Rat Lines";
           accel_idx = max_copper_layer + 1;
           strcpy (av, "SelectLayer(Rats)");
+          break;
+	case LB_MASK:
+	  name = "Solder Mask";
+          accel_idx = max_copper_layer + 2;
+          strcpy (av, "SelectLayer(Mask)");
           break;
         default:
           sprintf (av, "SelectLayer(%d)", i + 1);

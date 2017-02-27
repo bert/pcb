@@ -584,6 +584,7 @@ typedef struct PCBType
     InvisibleObjectsOn,
     PinOn, /*!< Visibility flag for pins. */
     SilkActive, /*!< Active layer is actually silk. */
+    SolderMaskActive, /*!< Active layer is actually solder mask. */
     RatDraw; /*!< We're drawing rats. */
   char *ViaColor, /*!< Via color. */
    *ViaSelectedColor, /*!< Selected via color. */
@@ -599,7 +600,8 @@ typedef struct PCBType
     *ConnectedColor, /*!< Connected color. */
     *FoundColor, /*!< Found color. */
     *WarnColor, /*!< Warning color. */
-    *MaskColor; /*!< Mask color. */
+    *MaskColor, /*!< Mask color. */
+    *MaskSelectedColor; /*!< Slected mask elements color. */
   long CursorX, /*!< Cursor position as saved with layout (X value). */
     CursorY, /*!< Cursor position as saved with layout (Y value). */
     Clipping;
@@ -763,7 +765,8 @@ typedef struct
     *LayerColor[MAX_LAYER],
     *LayerSelectedColor[MAX_LAYER],
     *WarnColor, /*!< Warning color. */
-    *MaskColor; /*!< Mask color. */
+    *MaskColor, /*!< Mask color. */
+    *MaskSelectedColor; /*!< Selected mask color. */
   Coord ViaThickness, /*!< Default via thickness value. */
     ViaDrillingHole, /*!< Default via drill hole value. */
     LineThickness, /*!< Default line thickness value. */

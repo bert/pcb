@@ -863,6 +863,15 @@ Color of the mask layer. Default value is @code{"#ff0000"}
 */
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
+/* %start-doc options "3 Colors"
+@ftable @code
+@item --mask-color <string>
+Color of the mask layer. Default value is @code{"#ff0000"}
+@end ftable
+%end-doc
+*/
+  COLOR (MaskSelectedColor, "#00ffff", "mask-selected-color", "color of selected solder mask cutouts"),
+
 
 /* %start-doc options "5 Sizes"
 All parameters should be given with an unit. If no unit is given, 1/100 mil

@@ -83,7 +83,7 @@
  *       inner or bottom.
  */
 
-#define EXTRA_LAYERS 2 /* 2x silkscreen layers */
+#define EXTRA_LAYERS 4 /* 2x silkscreen, 2x soldermask layers */
 
 /* ---------------------------------------------------------------------------
  * the layer-numbers of the two additional special (silkscreen) layers
@@ -92,6 +92,8 @@
 #define SILK_LAYERS             2
 #define BOTTOM_SILK_LAYER       0
 #define TOP_SILK_LAYER          1
+#define BOTTOM_SOLDERMASK_LAYER 2
+#define TOP_SOLDERMASK_LAYER    3
 
 /* ---------------------------------------------------------------------------
  * the resulting maximum number of layers, including additional silk layers

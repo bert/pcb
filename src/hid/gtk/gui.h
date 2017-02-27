@@ -48,12 +48,12 @@
    */
 #define LAYER_BUTTON_SILK     (MAX_LAYER)
 #define LAYER_BUTTON_RATS     (MAX_LAYER + 1)
-#define N_SELECTABLE_LAYER_BUTTONS (LAYER_BUTTON_RATS + 1)
+#define LAYER_BUTTON_MASK     (MAX_LAYER + 2)
+#define N_SELECTABLE_LAYER_BUTTONS (LAYER_BUTTON_MASK + 1)
 
-#define LAYER_BUTTON_PINS     (MAX_LAYER + 2)
-#define LAYER_BUTTON_VIAS     (MAX_LAYER + 3)
-#define LAYER_BUTTON_FARSIDE  (MAX_LAYER + 4)
-#define LAYER_BUTTON_MASK     (MAX_LAYER + 5)
+#define LAYER_BUTTON_PINS     (MAX_LAYER + 3)
+#define LAYER_BUTTON_VIAS     (MAX_LAYER + 4)
+#define LAYER_BUTTON_FARSIDE  (MAX_LAYER + 5)
 #define N_LAYER_BUTTONS       (MAX_LAYER + 6)
 
   /* Go from from the grid units in use (millimeters or mils) to PCB units

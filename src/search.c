@@ -1266,15 +1266,23 @@ SearchObjectByLocation (unsigned Type,
       HigherAvail = ELEMENT_TYPE;
     }
 
-  for (i = -1; i < max_copper_layer + 1; i++)
+  for (i = -2; i < max_copper_layer + 2; i++)
     {
-      if (i < 0)
+      if (i == -2)
+	SearchLayer = &PCB->Data->SOLDERMASKLAYER;
+      else if (i == -1)
 	SearchLayer = &PCB->Data->SILKLAYER;
       else if (i < max_copper_layer)
 	SearchLayer = LAYER_ON_STACK (i);
-      else
+      else if (i == max_copper_layer)
 	{
 	  SearchLayer = &PCB->Data->BACKSILKLAYER;
+	  if (!PCB->InvisibleObjectsOn)
+	    continue;
+	}
+      else if (i == max_copper_layer + 1)
+	{
+	  SearchLayer = &PCB->Data->BACKSOLDERMASKLAYER;
 	  if (!PCB->InvisibleObjectsOn)
 	    continue;
 	}
