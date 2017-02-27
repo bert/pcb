@@ -97,6 +97,79 @@ static void draw_lead_user (hidGC gc, render_priv *priv);
 static void ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb_y);
 
 
+#define BOARD_THICKNESS         MM_TO_COORD(1.60)
+#define MASK_COPPER_SPACING     MM_TO_COORD(0.05)
+#define SILK_MASK_SPACING       MM_TO_COORD(0.01)
+static int
+compute_depth (int group)
+{
+  static int last_depth_computed = 0;
+
+  int top_group;
+  int bottom_group;
+  int min_copper_group;
+  int max_copper_group;
+  int num_copper_groups;
+  int middle_copper_group;
+  int depth;
+
+  top_group = GetLayerGroupNumberBySide (TOP_SIDE);
+  bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+
+  min_copper_group = MIN (bottom_group, top_group);
+  max_copper_group = MAX (bottom_group, top_group);
+  num_copper_groups = max_copper_group - min_copper_group + 1;
+  middle_copper_group = min_copper_group + num_copper_groups / 2;
+
+  if (group >= 0 && group < max_group) {
+    if (group >= min_copper_group && group <= max_copper_group) {
+      /* XXX: IS THIS INCORRECT FOR REVERSED GROUP ORDERINGS? */
+      depth = -(group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups;
+    } else {
+      depth = 0;
+    }
+
+  } else if (SL_TYPE (group) == SL_MASK) {
+    if (SL_SIDE (group) == SL_TOP_SIDE) {
+      depth = -((min_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups - MASK_COPPER_SPACING);
+    } else {
+      depth = -((max_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups + MASK_COPPER_SPACING);
+    }
+  } else if (SL_TYPE (group) == SL_SILK) {
+    if (SL_SIDE (group) == SL_TOP_SIDE) {
+      depth = -((min_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups - MASK_COPPER_SPACING - SILK_MASK_SPACING);
+    } else {
+      depth = -((max_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups + MASK_COPPER_SPACING + SILK_MASK_SPACING);
+    }
+
+  } else if (SL_TYPE (group) == SL_INVISIBLE) {
+    /* Same as silk, but for the back-side layer */
+    if (Settings.ShowBottomSide) {
+      depth = -((min_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups - MASK_COPPER_SPACING - SILK_MASK_SPACING);
+    } else {
+      depth = -((max_copper_group - middle_copper_group) * BOARD_THICKNESS / num_copper_groups + MASK_COPPER_SPACING + SILK_MASK_SPACING);
+    }
+  } else if (SL_TYPE (group) == SL_RATS   ||
+             SL_TYPE (group) == SL_PDRILL ||
+             SL_TYPE (group) == SL_UDRILL) {
+    /* Draw these at the depth we last rendered at */
+    depth = last_depth_computed;
+  } else if (SL_TYPE (group) == SL_PASTE  ||
+             SL_TYPE (group) == SL_FAB    ||
+             SL_TYPE (group) == SL_ASSY) {
+    /* Layer types we don't use, which draw.c asks us about, so
+     * we just return _something_ to avoid the warnign below. */
+    depth = last_depth_computed;
+  } else {
+    /* DEFAULT CASE */
+    printf ("Unknown layer group to set depth for: %i\n", group);
+    depth = last_depth_computed;
+  }
+
+  last_depth_computed = depth;
+  return depth;
+}
+
 static void
 start_subcomposite (hidgl_instance *hidgl)
 {
@@ -157,11 +230,15 @@ ghid_set_layer (const char *name, int group, int empty)
   end_subcomposite (hidgl);
   start_subcomposite (hidgl);
 
+  /* Drawing is already flushed by {start,end}_subcomposite */
+  hidgl_set_depth (compute_depth (group));
+
   if (idx >= 0 && idx < max_copper_layer + EXTRA_LAYERS)
     {
       priv->trans_lines = true;
       return PCB->Data->Layer[idx].On;
     }
+
   if (idx < 0)
     {
       switch (SL_TYPE (idx))
@@ -778,7 +855,7 @@ draw_crosshair (render_priv *priv)
 
   x = gport->crosshair_x;
   y = gport->crosshair_y;
-  z = 0;
+  z = global_depth;
 
   glEnable (GL_COLOR_LOGIC_OP);
   glLogicOp (GL_XOR);
@@ -1049,6 +1126,9 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   hid_expose_callback (&ghid_graphics, &region, 0);
   hidgl_flush_triangles (priv->hidgl);
 
+  /* Set the current depth to the right value for the layer we are editing */
+  hidgl_set_depth (compute_depth (GetLayerGroupNumberByNumber (INDEXOFCURRENT)));
+
   ghid_draw_grid (priv->crosshair_gc, &region);
 
   ghid_invalidate_current_gc ();
@@ -1200,6 +1280,7 @@ ghid_pinout_preview_expose (GtkWidget *widget,
                 gport->view.flip_y ? gport->view.y0 - PCB->MaxHeight :
                                     -gport->view.y0, 0);
 
+  hidgl_set_depth (0.);
   hid_expose_callback (&ghid_graphics, NULL, pinout->element);
   hidgl_flush_triangles (priv->hidgl);
   glPopMatrix ();
@@ -1567,7 +1648,7 @@ ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb
 bool
 ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
 {
-  ghid_unproject_to_z_plane (event_x, event_y, 0, pcb_x, pcb_y);
+  ghid_unproject_to_z_plane (event_x, event_y, global_depth, pcb_x, pcb_y);
 
   return true;
 }
@@ -1583,11 +1664,11 @@ ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
 
   *event_x = (last_modelview_matrix[0][0] * (float)pcb_x +
               last_modelview_matrix[1][0] * (float)pcb_y +
-              last_modelview_matrix[2][0] * 0. +
+              last_modelview_matrix[2][0] * global_depth +
               last_modelview_matrix[3][0] * 1.) / w;
   *event_y = (last_modelview_matrix[0][1] * (float)pcb_x +
               last_modelview_matrix[1][1] * (float)pcb_y +
-              last_modelview_matrix[2][1] * 0. +
+              last_modelview_matrix[2][1] * global_depth +
               last_modelview_matrix[3][1] * 1.) / w;
 
   return true;
