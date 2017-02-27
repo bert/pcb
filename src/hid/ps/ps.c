@@ -15,6 +15,7 @@
 #include "error.h"
 #include "draw.h"
 #include "pcb-printf.h"
+#include "draw_funcs.h"
 
 #include "hid.h"
 #include "hid_draw.h"
@@ -1007,7 +1008,7 @@ ps_set_layer (const char *name, int group, int empty)
       strcmp (name, "route") != 0
       )
     {
-      DrawLayer (global.outline_layer, &global.region);
+      dapi->draw_layer (global.outline_layer, &global.region, NULL);
     }
 
   return 1;
