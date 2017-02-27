@@ -80,6 +80,8 @@ typedef struct render_priv {
 
   hidGC crosshair_gc;
   hidgl_instance *hidgl;
+  GList *active_gc_list;
+  double edit_depth;
 
 } render_priv;
 
@@ -206,6 +208,20 @@ end_subcomposite (hidgl_instance *hidgl)
   priv->subcomposite_stencil_bit = 0;
 }
 
+static void
+set_depth_on_all_active_gc (render_priv *priv, float depth)
+{
+  GList *iter;
+
+  for (iter = priv->active_gc_list;
+       iter != NULL;
+       iter = g_list_next (iter))
+    {
+      hidGC gc = iter->data;
+
+      hidgl_set_depth (gc, depth);
+    }
+}
 
 int
 ghid_set_layer (const char *name, int group, int empty)
@@ -231,7 +247,7 @@ ghid_set_layer (const char *name, int group, int empty)
   start_subcomposite (hidgl);
 
   /* Drawing is already flushed by {start,end}_subcomposite */
-  hidgl_set_depth (compute_depth (group));
+   set_depth_on_all_active_gc (priv, compute_depth (group));
 
   if (idx >= 0 && idx < max_copper_layer + EXTRA_LAYERS)
     {
@@ -280,6 +296,10 @@ ghid_end_layer ()
 void
 ghid_destroy_gc (hidGC gc)
 {
+  render_priv *priv = gport->render_priv;
+
+  priv->active_gc_list = g_list_remove (priv->active_gc_list, gc);
+
   hidgl_finish_gc (gc);
   g_free (gc);
 }
@@ -298,6 +318,8 @@ ghid_make_gc (void)
 
   gtk_gc->colorname = Settings.BackgroundColor;
   gtk_gc->alpha_mult = 1.0;
+
+  priv->active_gc_list = g_list_prepend (priv->active_gc_list, gc);
 
   return gc;
 }
@@ -840,8 +862,9 @@ draw_dozen_cross (gint x, gint y, gint z)
 }
 
 static void
-draw_crosshair (render_priv *priv)
+draw_crosshair (hidGC gc, render_priv *priv)
 {
+  gtkGC gtk_gc = (gtkGC)gc;
   gint x, y, z;
   static int done_once = 0;
   static GdkColor cross_color;
@@ -855,7 +878,7 @@ draw_crosshair (render_priv *priv)
 
   x = gport->crosshair_x;
   y = gport->crosshair_y;
-  z = global_depth;
+  z = gtk_gc->hidgl_gc.depth;
 
   glEnable (GL_COLOR_LOGIC_OP);
   glLogicOp (GL_XOR);
@@ -1127,7 +1150,8 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   hidgl_flush_triangles (priv->hidgl);
 
   /* Set the current depth to the right value for the layer we are editing */
-  hidgl_set_depth (compute_depth (GetLayerGroupNumberByNumber (INDEXOFCURRENT)));
+  priv->edit_depth = compute_depth (GetLayerGroupNumberByNumber (INDEXOFCURRENT));
+  hidgl_set_depth (priv->crosshair_gc, priv->edit_depth);
 
   ghid_draw_grid (priv->crosshair_gc, &region);
 
@@ -1137,7 +1161,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   DrawMark (priv->crosshair_gc);
   hidgl_flush_triangles (priv->hidgl);
 
-  draw_crosshair (priv);
+  draw_crosshair (priv->crosshair_gc, priv);
   hidgl_flush_triangles (priv->hidgl);
 
   draw_lead_user (priv->crosshair_gc, priv);
@@ -1280,7 +1304,6 @@ ghid_pinout_preview_expose (GtkWidget *widget,
                 gport->view.flip_y ? gport->view.y0 - PCB->MaxHeight :
                                     -gport->view.y0, 0);
 
-  hidgl_set_depth (0.);
   hid_expose_callback (&ghid_graphics, NULL, pinout->element);
   hidgl_flush_triangles (priv->hidgl);
   glPopMatrix ();
@@ -1648,7 +1671,9 @@ ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb
 bool
 ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
 {
-  ghid_unproject_to_z_plane (event_x, event_y, global_depth, pcb_x, pcb_y);
+  render_priv *priv = gport->render_priv;
+
+  ghid_unproject_to_z_plane (event_x, event_y, priv->edit_depth, pcb_x, pcb_y);
 
   return true;
 }
@@ -1656,6 +1681,8 @@ ghid_event_to_pcb_coords (int event_x, int event_y, Coord *pcb_x, Coord *pcb_y)
 bool
 ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
 {
+  render_priv *priv = gport->render_priv;
+
   /* NB: last_modelview_matrix is transposed in memory */
   float w = last_modelview_matrix[0][3] * (float)pcb_x +
             last_modelview_matrix[1][3] * (float)pcb_y +
@@ -1664,11 +1691,11 @@ ghid_pcb_to_event_coords (Coord pcb_x, Coord pcb_y, int *event_x, int *event_y)
 
   *event_x = (last_modelview_matrix[0][0] * (float)pcb_x +
               last_modelview_matrix[1][0] * (float)pcb_y +
-              last_modelview_matrix[2][0] * global_depth +
+              last_modelview_matrix[2][0] * priv->edit_depth +
               last_modelview_matrix[3][0] * 1.) / w;
   *event_y = (last_modelview_matrix[0][1] * (float)pcb_x +
               last_modelview_matrix[1][1] * (float)pcb_y +
-              last_modelview_matrix[2][1] * global_depth +
+              last_modelview_matrix[2][1] * priv->edit_depth +
               last_modelview_matrix[3][1] * 1.) / w;
 
   return true;
