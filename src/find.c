@@ -3265,6 +3265,15 @@ struct drc_info
   int flag;
 };
 
+static void
+start_do_it_and_dump (int type, void *ptr1, void *ptr2, void *ptr3,
+                      int flag, bool AndDraw)
+{
+  ListStart (type, ptr1, ptr2, ptr3, flag);
+  DoIt (flag, true, AndDraw);
+  DumpList ();
+}
+
 /*!
  * \brief Check for DRC violations on a single net starting from the pad
  * or pin.
@@ -3285,10 +3294,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   if (PCB->Shrink != 0)
     {
       Bloat = -PCB->Shrink;
-      ListStart (What, ptr1, ptr2, ptr3, DRCFLAG | SELECTEDFLAG);
-      DoIt (DRCFLAG | SELECTEDFLAG, true, false);
+      start_do_it_and_dump (What, ptr1, ptr2, ptr3, DRCFLAG | SELECTEDFLAG, false);
       /* ok now the shrunk net has the SELECTEDFLAG set */
-      DumpList ();
       ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
       Bloat = 0;
       drc = true;               /* abort the search if we find anything not already found */
@@ -3300,14 +3307,10 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           User = true;
           drc = false;
           Bloat = -PCB->Shrink;
-          ListStart (What, ptr1, ptr2, ptr3, SELECTEDFLAG);
-          DoIt (SELECTEDFLAG, true, true);
-          DumpList ();
-          ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
+          start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true);
           Bloat = 0;
           drc = true;
-          DoIt (FOUNDFLAG, true, true);
-          DumpList ();
+          start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true);
           User = false;
           drc = false;
           drcerr_count++;
@@ -3340,9 +3343,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   drc = false;
   ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
   Bloat = 0;
-  ListStart (What, ptr1, ptr2, ptr3, SELECTEDFLAG);
-  DoIt (SELECTEDFLAG, true, false);
-  DumpList ();
+  start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, false);
   flag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3, flag);
   Bloat = PCB->Bloat;
@@ -3355,14 +3356,10 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       User = true;
       drc = false;
       Bloat = 0;
-      ListStart (What, ptr1, ptr2, ptr3, SELECTEDFLAG);
-      DoIt (SELECTEDFLAG, true, true);
-      DumpList ();
-      ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
+      start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true);
       Bloat = PCB->Bloat;
       drc = true;
-      DoIt (FOUNDFLAG, true, true);
-      DumpList ();
+      start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true);
       drcerr_count++;
       LocateError (&x, &y);
       BuildObjectList (&object_count, &object_id_list, &object_type_list);
@@ -3390,9 +3387,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       /* highlight the rest of the encroaching net so it's not reported again */
       flag = FOUNDFLAG | SELECTEDFLAG;
       Bloat = 0;
-      ListStart (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag);
-      DoIt (flag, true, true);
-      DumpList ();
+      start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true);
       drc = true;
       Bloat = PCB->Bloat;
       ListStart (What, ptr1, ptr2, ptr3, flag);
