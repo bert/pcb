@@ -3154,7 +3154,7 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
    */
   ListStart (type, ptr1, ptr2, ptr3, flag);
   DoIt (flag, AndRats, AndDraw);
-  if (User)
+  if (AndDraw)
     IncrementUndoSerialNumber ();
   User = false;
 
