@@ -1316,8 +1316,8 @@ static Widget lg_buttonform = 0;
 
 static int lg_setcol[MAX_ALL_LAYER];
 static int lg_width, lg_height;
-static int lg_r[MAX_ALL_LAYER + 1];
-static int lg_c[MAX_ALL_LAYER + 1];
+static int lg_r[MAX_LAYER + 3];
+static int lg_c[MAX_LAYER + 3];
 static int lg_label_width, lg_fa, lg_fd;
 static GC lg_gc = 0;
 
@@ -1380,9 +1380,9 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   XSetForeground (display, lg_gc, lgr.fg);
   for (i = 0; i < max_group; i++)
     XDrawLine(display, win, lg_gc, lg_c[i], 0, lg_c[i], lg_height);
-  for (i = 1; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 1; i < max_copper_layer + 2; i++)
     XDrawLine(display, win, lg_gc, lg_label_width, lg_r[i], lg_width, lg_r[i]);
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int dir;
       XCharStruct size;
@@ -1403,7 +1403,7 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 		  name, strlen(name));
     }
   XSetForeground (display, lg_gc, lgr.sel);
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int c = lg_setcol[i];
       int x1 = lg_c[c] + 2;
@@ -1420,7 +1420,7 @@ lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   int layer, group;
   if (cbs->event->type != ButtonPress)
     return;
-  layer = cbs->event->xbutton.y * (max_copper_layer + SILK_LAYER) /
+  layer = cbs->event->xbutton.y * (max_copper_layer + 2) /
           lg_height;
   group = (cbs->event->xbutton.x - lg_label_width) * max_group / (lg_width - lg_label_width);
   group = MoveLayerToGroup (layer, group);
@@ -1443,8 +1443,8 @@ lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 
   for (i=0; i<=max_group; i++)
     lg_c[i] = lg_label_width + (lg_width - lg_label_width) * i / max_group;
-  for (i=0; i<=max_copper_layer + SILK_LAYER; i++)
-    lg_r[i] = lg_height * i / (max_copper_layer + SILK_LAYER);
+  for (i=0; i<=max_copper_layer + 2; i++)
+    lg_r[i] = lg_height * i / (max_copper_layer + 2);
   lgbutton_expose (w, 0, 0);
 }
 
@@ -1468,7 +1468,7 @@ lesstif_update_layer_groups ()
       }
 
   lg_label_width = 0;
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int dir;
       XCharStruct size;
@@ -1490,12 +1490,12 @@ lesstif_update_layer_groups ()
 
   n = 0;
   stdarg(XmNwidth, lg_label_width + (lg_fa+lg_fd) * max_group);
-  stdarg(XmNheight, (lg_fa+lg_fd) * (max_copper_layer + SILK_LAYER));
+  stdarg(XmNheight, (lg_fa+lg_fd) * (max_copper_layer + 2));
   XtSetValues(lg_buttonform, args, n);
   lgbutton_expose (lg_buttonform, 0, 0);
 
 #if 0
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       char *name = "unknown";
       n = 0;
@@ -1519,12 +1519,12 @@ lesstif_update_layer_groups ()
   for (i = 0; i < MAX_ALL_LAYER; i++)
     for (j = 0; j < MAX_GROUP; j++)
       {
-	if (i < max_copper_layer + SILK_LAYER && j < max_group)
+	if (i < max_copper_layer + 2 && j < max_group)
 	  {
 	    XtManageChild(lgbuttons[i][j]);
 	    n = 0;
-	    stdarg (XmNleftPosition, j * (max_copper_layer + SILK_LAYER));
-	    stdarg (XmNrightPosition, (j + 1) * (max_copper_layer + SILK_LAYER));
+	    stdarg (XmNleftPosition, j * (max_copper_layer + 2));
+	    stdarg (XmNrightPosition, (j + 1) * (max_copper_layer + 2));
 	    stdarg (XmNtopPosition, i * max_group);
 	    stdarg (XmNbottomPosition, (i + 1) * max_group);
 	    XtSetValues(lgbuttons[i][j], args, n);
@@ -1533,10 +1533,10 @@ lesstif_update_layer_groups ()
 	  XtUnmanageChild(lgbuttons[i][j]);
       }
   n = 0;
-  stdarg (XmNfractionBase, max_copper_layer + SILK_LAYER);
+  stdarg (XmNfractionBase, max_copper_layer + 2);
   XtSetValues (layer_groups_form, args, n);
   n = 0;
-  stdarg (XmNfractionBase, max_group * (max_copper_layer + SILK_LAYER));
+  stdarg (XmNfractionBase, max_group * (max_copper_layer + 2));
   XtSetValues (lg_buttonform, args, n);
   XtManageChild(lg_buttonform);
 #endif
@@ -1567,7 +1567,7 @@ EditLayerGroups (int argc, char **argv, Coord x, Coord y)
     {
 
       n = 0;
-      stdarg (XmNfractionBase, max_copper_layer + SILK_LAYER);
+      stdarg (XmNfractionBase, max_copper_layer + 2);
       stdarg (XmNtitle, "Layer Groups");
       layer_groups_form = XmCreateFormDialog (mainwind, "layers", args, n);
 

@@ -186,11 +186,11 @@ DumpKeys (int argc, char **argv, Coord x, Coord y)
 #define LB_RATS (MAX_LAYER + 1)
 #define LB_NUMPICK (LB_RATS+1)
 /* more */
-#define LB_PINS (MAX_ALL_LAYER)
-#define LB_VIAS (MAX_ALL_LAYER + 1)
-#define LB_BACK (MAX_ALL_LAYER + 2)
-#define LB_MASK (MAX_ALL_LAYER + 3)
-#define LB_NUM  (MAX_ALL_LAYER + 4)
+#define LB_PINS (MAX_LAYER + 2)
+#define LB_VIAS (MAX_LAYER + 3)
+#define LB_BACK (MAX_LAYER + 4)
+#define LB_MASK (MAX_LAYER + 5)
+#define LB_NUM  (MAX_LAYER + 6)
 
 typedef struct
 {
