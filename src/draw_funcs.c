@@ -8,12 +8,42 @@
 #include "hid_draw.h"
 
 static void
+set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
+                  char *connected_color, char *found_color, char *normal_color);
+
+
+static void
 _draw_pv (PinType *pv, bool draw_hole)
 {
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     hid_draw_thin_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
+  else if (!ViaIsOnAnyVisibleLayer (pv))
+    hid_draw_thin_pcb_pv (Output.fgGC, Output.fgGC, pv, false, false);
   else
-    hid_draw_fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
+#warning XXX: REFACTOR TO BE CLEAN PLEASE
+    {
+      hid_draw_fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
+      if (hid_draw_is_gui (Output.fgGC->hid_draw) /*!< Kludge */
+          && VIA_IS_BURIED (pv)
+          && !(TEST_FLAG (SELECTEDFLAG,  pv)
+               || TEST_FLAG (CONNECTEDFLAG, pv)
+               || TEST_FLAG (FOUNDFLAG,     pv)))
+        {
+          int w = (pv->Thickness - pv->DrillingHole) / 4;
+          int r = pv->DrillingHole / 2 + w  / 2;
+          hid_draw_set_line_cap (Output.fgGC, Square_Cap);
+          hid_draw_set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedFrom].Color);
+          hid_draw_set_line_width (Output.fgGC, w);
+          hid_draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 270, 180);
+          hid_draw_set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedTo].Color);
+          hid_draw_set_line_width (Output.fgGC, w);
+          hid_draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 90, 170);
+        }
+    }
+
+  // XXX: We don't draw these currently
+  //if ((!TEST_FLAG (HOLEFLAG, pv) && TEST_FLAG (DISPLAYNAMEFLAG, pv)) || doing_pinout)
+  //  _draw_pv_name (pv);
 }
 
 static void
@@ -49,11 +79,18 @@ draw_via_mask (PinType *via, const BoxType *drawn_area, void *userdata)
 static void
 draw_hole (PinType *pv, const BoxType *drawn_area, void *userdata)
 {
-  if (!TEST_FLAG (THINDRAWFLAG, PCB))
+  bool via_on_any_visible_layer = ViaIsOnAnyVisibleLayer (pv);
+
+  if (!TEST_FLAG (THINDRAWFLAG, PCB) && via_on_any_visible_layer)
     hid_draw_fill_circle (Output.bgGC, pv->X, pv->Y, pv->DrillingHole / 2);
 
-  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (HOLEFLAG, pv))
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (HOLEFLAG, pv) || !via_on_any_visible_layer)
     {
+      /* XXX: Kludge */
+      set_object_color ((AnyObjectType *)pv,
+                        PCB->WarnColor, PCB->ViaSelectedColor,
+                        PCB->ConnectedColor, PCB->FoundColor, PCB->ViaColor);
+
       hid_draw_set_line_cap (Output.fgGC, Round_Cap);
       hid_draw_set_line_width (Output.fgGC, 0);
 
@@ -266,15 +303,65 @@ pad_inlayer_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static bool
+via_visible_on_layer_group (PinType *via, int layer_group)
+{
+  if (layer_group == -1)
+     return true;
+  else
+    return ViaIsOnLayerGroup (via, layer_group);
+}
+
+typedef struct
+{
+  int plated;
+  bool drill_pair;
+  int from_group;
+  int to_group;
+  int current_group;
+} hole_info;
+
 static int
 pin_hole_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *)b;
-  int plated = cl ? *(int *) cl : -1;
+  hole_info default_info = {-1 /* plated = don't care */,
+                            false /* drill_pair */,
+                            -1 /* from_group */,
+                            -1 /* to_group */,
+                            -1 /* current_group */};
+  hole_info *info = &default_info;
 
-  if ((plated == 0 && !TEST_FLAG (HOLEFLAG, pin)) ||
-      (plated == 1 &&  TEST_FLAG (HOLEFLAG, pin)))
+  if (cl != NULL)
+    info = (hole_info *)cl;
+
+  if (info->drill_pair)
+    {
+      if (info->from_group == -1 && info->to_group == -1)
+        {
+          if (!VIA_IS_BURIED (pin))
+            goto pin_ok;
+        }
+      else
+        {
+          if (VIA_IS_BURIED (pin))
+            {
+              if (info->from_group == GetLayerGroupNumberByNumber (pin->BuriedFrom) &&
+                  info->to_group   == GetLayerGroupNumberByNumber (pin->BuriedTo))
+                goto pin_ok;
+            }
+        }
+
+      return 1;
+    }
+
+pin_ok:
+  if ((info->plated == 0 && !TEST_FLAG (HOLEFLAG, pin)) ||
+      (info->plated == 1 &&  TEST_FLAG (HOLEFLAG, pin)))
     return 1;
+
+  if (!via_visible_on_layer_group (pin, info->current_group))
+     return 1;
 
   set_object_color ((AnyObjectType *) pin, PCB->WarnColor,
                     PCB->PinSelectedColor, NULL, NULL, Settings.BlackColor);
@@ -287,11 +374,44 @@ static int
 via_hole_callback (const BoxType * b, void *cl)
 {
   PinType *via = (PinType *)b;
-  int plated = cl ? *(int *) cl : -1;
+  hole_info default_info = {-1 /* plated = don't care */,
+                            false /* drill_pair */,
+                            -1 /* from_group */,
+                            -1 /* to_group */,
+                            -1 /* current_group */};
+  hole_info *info = &default_info;
 
-  if ((plated == 0 && !TEST_FLAG (HOLEFLAG, via)) ||
-      (plated == 1 &&  TEST_FLAG (HOLEFLAG, via)))
+  if (cl != NULL)
+    info = (hole_info *)cl;
+
+  if (info->drill_pair)
+    {
+      if (info->from_group == -1 && info->to_group == -1)
+        {
+          if (!VIA_IS_BURIED (via))
+            goto via_ok;
+        }
+      else
+        {
+          if (VIA_IS_BURIED (via))
+            {
+              if (info->from_group == GetLayerGroupNumberByNumber (via->BuriedFrom) &&
+                  info->to_group   == GetLayerGroupNumberByNumber (via->BuriedTo))
+                goto via_ok;
+            }
+        }
+
+      return 1;
+    }
+
+via_ok:
+  if ((info->plated == 0 && !TEST_FLAG (HOLEFLAG, via)) ||
+      (info->plated == 1 &&  TEST_FLAG (HOLEFLAG, via)))
     return 1;
+
+  if (!via_visible_on_layer_group (via, info->current_group))
+     return 1;
+
 
   set_object_color ((AnyObjectType *) via, PCB->WarnColor,
                     PCB->ViaSelectedColor, NULL, NULL, Settings.BlackColor);
@@ -311,14 +431,24 @@ pin_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+typedef struct {
+  int layer_group;
+} via_info;
+
 static int
 via_callback (const BoxType * b, void *cl)
 {
-  set_object_color ((AnyObjectType *)b,
-                    PCB->WarnColor, PCB->ViaSelectedColor,
-                    PCB->ConnectedColor, PCB->FoundColor, PCB->ViaColor);
+  PinType *via = (PinType *)b;
+  via_info *info = (via_info *)cl;
 
-  dapi->draw_via ((PinType *)b, NULL, NULL);
+  if (via_visible_on_layer_group (via, info->layer_group))
+    {
+      set_object_color ((AnyObjectType *)b,
+                        PCB->WarnColor, PCB->ViaSelectedColor,
+                        PCB->ConnectedColor, PCB->FoundColor, PCB->ViaColor);
+
+      dapi->draw_via ((PinType *)b, NULL, NULL);
+    }
   return 1;
 }
 
@@ -339,6 +469,10 @@ pad_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+/*!
+ * \brief Draws pins pads and vias - Always draws for non-gui HIDs,
+ * otherwise drawing depends on PCB->PinOn and PCB->ViaOn.
+ */
 static void
 draw_ppv (int group, const BoxType *drawn_area, void *userdata)
 {
@@ -366,20 +500,51 @@ draw_ppv (int group, const BoxType *drawn_area, void *userdata)
         }
     }
 
+  // XXX: Should vias be moved to DrawLayerGroup? (Possibly Including gui targets)
   /* draw vias */
   if (PCB->ViaOn)
-    r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, NULL);
+    {
+      int layer_group = (is_gui) ? -1 : group; /* Limit to vias with pads on the current layer group */
+      via_info v_info = {layer_group};
+      hole_info h_info = {-1 /* plated */,
+                          false /* drill_pair */,
+                          -1 /* from_group */,
+                          -1 /* to_group */,
+                          layer_group /* current_group */};
 
-  dapi->draw_holes (-1, drawn_area, NULL);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, via_callback, &v_info);
+
+      // XXX: Old BBV code drew holes here too... need to ensure we figure out where to put that now - or where the equivelant call moved */
+      r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &h_info);
+    }
+
+  // NB: As called, this will only draw pin-holes and through vias. (NO BB vias)
+  dapi->draw_holes (-1 /* plated */, -1 /* from_group */, -1 /* to_group */, drawn_area, NULL);
 }
 
+/*! \brief draw_holes
+ *
+ * plated = -1: Don't care - draw both plated and non-plated
+ * plated =  0: Only draw non-plated holes
+ * plated =  1: Only draw plated holes
+ *
+ * from_group, to_group define the matching rules for blind / buried vias
+ * Only those which match are drawn. (-1,-1) is an additional special-case
+ * for rendering though holes.
+ */
 static void
-draw_holes (int plated, const BoxType *drawn_area, void *userdata)
+draw_holes (int plated, int from_group, int to_group, const BoxType *drawn_area, void *userdata)
 {
+  hole_info info = {plated,
+                    true /* drill_pair */,
+                    from_group,
+                    to_group,
+                    -1 /* current_group */};
+
   if (PCB->PinOn)
-    r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, &plated);
+    r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, &info);
   if (PCB->ViaOn)
-    r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &plated);
+    r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, &info);
 }
 
 static void
@@ -450,8 +615,8 @@ draw_layer (LayerType *layer, const BoxType *drawn_area, void *userdata)
 
   /* draw vias */
   r_search (PCB->Data->via_tree, drawn_area, NULL, via_inlayer_callback, layer);
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, NULL);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, NULL);
+  r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_hole_callback, NULL); /* XXX: Should we set an info with current_group? */
+  r_search (PCB->Data->via_tree, drawn_area, NULL, via_hole_callback, NULL); /* XXX: Should we set an info with current_group? */
 }
 
 struct draw_funcs d_f = {

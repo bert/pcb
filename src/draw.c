@@ -79,8 +79,6 @@ static int doing_pinout = 0;
 static bool doing_assy = false;
 static HID_DRAW *hid_draw = NULL;
 
-static int current_layergroup; /* used by via_callback */
-
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
@@ -301,106 +299,6 @@ EMark_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-#if 0
-|||<<<<<<< current
-typedef struct
-{
-  int plated;
-  bool drill_pair;
-  Cardinal group_from;
-  Cardinal group_to;
-} hole_info;
-
-static int
-hole_callback (const BoxType * b, void *cl)
-{
-  hole_info his = {-1, false, 0, 0};
-  hole_info *hi = &his;
-  PinType *pv = (PinType *) b;
-
-  if (cl)
-    hi = (hole_info *)cl;
-
-  if (hi->drill_pair)
-    {
-      if (hi->group_from != 0
-          || hi->group_to != 0)
-	{
-          if (VIA_IS_BURIED (pv))
-            {
-              if (hi->group_from == GetLayerGroupNumberByNumber (pv->BuriedFrom)
-                  && hi->group_to == GetLayerGroupNumberByNumber (pv->BuriedTo))
-	        goto via_ok;
-	    }
-	}
-      else
-        if (!VIA_IS_BURIED (pv))
-	  goto via_ok;
-
-      return 1;
-    }
-
-via_ok:
-  if ((hi->plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
-      (hi->plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))
-    return 1;
-
-  if (!via_visible_on_layer_group (pv, current_layergroup))
-     return 1;
-
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
-    {
-      if (!TEST_FLAG (HOLEFLAG, pv))
-        {
-          hid_draw_set_line_cap (Output.fgGC, Round_Cap);
-          hid_draw_set_line_width (Output.fgGC, 0);
-          hid_draw_arc (Output.fgGC, pv->X, pv->Y,
-                        pv->DrillingHole / 2, pv->DrillingHole / 2, 0, 360);
-        }
-    }
-  else
-#warning XXX: REFACTOR TO BE CLEAN PLEASE
-    if (ViaIsOnAnyVisibleLayer (pv))
-      hid_draw_fill_circle (Output.bgGC, pv->X, pv->Y, pv->DrillingHole / 2);
-    else
-      {
-        hid_draw_set_line_cap (Output.fgGC, Round_Cap);
-          hid_draw_set_line_width (Output.fgGC, 0);
-          hid_draw_arc (Output.fgGC, pv->X, pv->Y,
-                        pv->DrillingHole / 2, pv->DrillingHole / 2, 0, 360);
-      }
-
-  if (TEST_FLAG (HOLEFLAG, pv))
-    {
-      set_object_color ((AnyObjectType *) pv,
-                        PCB->WarnColor, PCB->ViaSelectedColor,
-                        NULL, NULL, Settings.BlackColor);
-
-      hid_draw_set_line_cap (Output.fgGC, Round_Cap);
-      hid_draw_set_line_width (Output.fgGC, 0);
-      hid_draw_arc (Output.fgGC, pv->X, pv->Y,
-                    pv->DrillingHole / 2, pv->DrillingHole / 2, 0, 360);
-    }
-  return 1;
-}
-
-void
-DrawHoles (bool draw_plated, bool draw_unplated, const BoxType *drawn_area, Cardinal g_from, Cardinal g_to)
-{
-  hole_info hi = {-1, true, g_from, g_to};
-
-  if ( draw_plated && !draw_unplated) hi.plated = 1;
-  if (!draw_plated &&  draw_unplated) hi.plated = 0;
-
-  current_layergroup = -1;
-
-  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &hi);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &hi);
-}
-|||=======
-|||>>>>>>> patched
-#endif
-
 static int
 rat_callback (const BoxType * b, void *cl)
 {
@@ -547,29 +445,13 @@ DrawEverything (const BoxType *drawn_area)
 
       if (plated && hid_draw_set_layer (hid_draw, "plated-drill", SL (PDRILL, 0), 0))
         {
-#if 0
-|||<<<<<<< current
-          DrawHoles (true, false, drawn_area, 0, 0);
-|||=======
-#endif
-          dapi->draw_holes (1, drawn_area, NULL);
-#if 0
-|||>>>>>>> patched
-#endif
+          dapi->draw_holes (1 /* plated */, -1 /* from_group */, -1 /* to_group */, drawn_area, NULL);
           hid_draw_end_layer (hid_draw);
         }
 
       if (unplated && hid_draw_set_layer (hid_draw, "unplated-drill", SL (UDRILL, 0), 0))
         {
-#if 0
-|||<<<<<<< current
-          DrawHoles (false, true, drawn_area, 0, 0);
-|||=======
-#endif
-          dapi->draw_holes (0, drawn_area, NULL);
-#if 0
-|||>>>>>>> patched
-#endif
+          dapi->draw_holes (0 /* plated */, -1 /* from_group */, -1 /* to_group */, drawn_area, NULL);
           hid_draw_end_layer (hid_draw);
         }
 
@@ -580,16 +462,14 @@ DrawEverything (const BoxType *drawn_area)
 	    sprintf (s, "plated-drill_%02d-%02d", g_from+1, g_to+1);
             if (plated && hid_draw_set_layer (hid_draw, s, SL (PDRILL, 0), 0))
               {
-#warning XXX: Missing BB via drawing
-//                DrawHoles (true, false, drawn_area, g_from, g_to);
+                dapi->draw_holes (1 /* plated */, g_from, g_to, drawn_area, NULL);
                 hid_draw_end_layer (hid_draw);
               }
 
 	    sprintf (s, "unplated-drill_%02d-%02d", g_from+1, g_to+1);
             if (unplated && hid_draw_set_layer (hid_draw, s, SL (UDRILL, 0), 0))
               {
-#warning XXX: Missing BB via drawing
-//                DrawHoles (false, true, drawn_area, g_from, g_to);
+                dapi->draw_holes (0 /* plated */, g_from, g_to, drawn_area, NULL);
                 hid_draw_end_layer (hid_draw);
               }
 	  }
