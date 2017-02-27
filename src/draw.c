@@ -979,6 +979,50 @@ DrawMaskBoardArea (int mask_type, const BoxType *drawn_area)
                                      drawn_area->X2, drawn_area->Y2);
 }
 
+static int
+mask_poly_callback (const BoxType * b, void *cl)
+{
+  struct poly_info *i = cl;
+  PolygonType *polygon = (PolygonType *)b;
+
+  hid_draw_pcb_polygon (Output.pmGC, polygon, i->drawn_area);
+  return 1;
+}
+
+static int
+mask_line_callback (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *)b;
+
+  hid_draw_pcb_line (Output.pmGC, line);
+  return 1;
+}
+
+static int
+mask_arc_callback (const BoxType * b, void *cl)
+{
+  ArcType *arc = (ArcType *)b;
+
+  hid_draw_pcb_arc (Output.pmGC, arc);
+  return 1;
+}
+
+static int
+mask_text_callback (const BoxType * b, void *cl)
+{
+  LayerType *layer = cl;
+  TextType *text = (TextType *)b;
+  int min_silk_line;
+
+  if (layer == &PCB->Data->SILKLAYER ||
+      layer == &PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  hid_draw_pcb_text (Output.fgGC, text, min_silk_line);
+  return 1;
+}
+
 /*!
  * \brief Draws solder mask layer - this will cover nearly everything.
  */
@@ -986,6 +1030,8 @@ void
 DrawMask (int side, const BoxType *screen)
 {
   int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
+  LayerType *Layer = LAYER_PTR (side == TOP_SIDE ? top_soldermask_layer : bottom_soldermask_layer);
+  struct poly_info info;
 
   if (thin)
     hid_draw_set_color (Output.pmGC, PCB->MaskColor);
@@ -995,7 +1041,12 @@ DrawMask (int side, const BoxType *screen)
       hid_draw_use_mask (hid_draw, HID_MASK_CLEAR);
     }
 
-  DrawLayer (LAYER_PTR (side == TOP_SIDE ? top_soldermask_layer : bottom_soldermask_layer), screen);
+  info.layer = Layer;
+  info.drawn_area = screen;
+  r_search (Layer->polygon_tree, screen, NULL, mask_poly_callback, &info);
+  r_search (Layer->line_tree,    screen, NULL, mask_line_callback, Layer);
+  r_search (Layer->arc_tree,     screen, NULL, mask_arc_callback,  Layer);
+  r_search (Layer->text_tree,    screen, NULL, mask_text_callback, Layer);
 
   r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, NULL);
   r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, NULL);
