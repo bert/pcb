@@ -147,7 +147,7 @@ ghid_set_layer (const char *name, int group, int empty)
       for (idx = 0; idx < n-1; idx ++)
 	{
 	  int ni = PCB->LayerGroups.Entries[group][idx];
-	  if (ni >= 0 && ni < max_copper_layer + SILK_LAYER
+	  if (ni >= 0 && ni < max_copper_layer + EXTRA_LAYERS
 	      && PCB->Data->Layer[ni].On)
 	    break;
 	}
@@ -157,7 +157,7 @@ ghid_set_layer (const char *name, int group, int empty)
   end_subcomposite (hidgl);
   start_subcomposite (hidgl);
 
-  if (idx >= 0 && idx < max_copper_layer + SILK_LAYER)
+  if (idx >= 0 && idx < max_copper_layer + EXTRA_LAYERS)
     {
       priv->trans_lines = true;
       return PCB->Data->Layer[idx].On;

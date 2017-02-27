@@ -120,7 +120,7 @@ Debug (int argc, char **argv, Coord x, Coord y)
   for (i = 0; i < argc; i++)
     printf (" [%d] `%s'", i, argv[i]);
   pcb_printf (" x,y %$mD\n", x, y);
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
     {
       printf("0x%08x %s (%s)\n",
              PCB->Data->Layer[i].Type,
@@ -182,7 +182,7 @@ DumpKeys (int argc, char **argv, Coord x, Coord y)
 
 /*-----------------------------------------------------------------------------*/
 
-#define LB_SILK (MAX_LAYER + BOTTOM_SILK_LAYER)
+#define LB_SILK (MAX_LAYER + 0)
 #define LB_RATS (MAX_LAYER + 1)
 #define LB_NUMPICK (LB_RATS+1)
 /* more */
@@ -535,7 +535,7 @@ ToggleView (int argc, char **argv, Coord x, Coord y)
   else
     {
       l = -1;
-      for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+      for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;

@@ -1457,7 +1457,7 @@ config_layers_apply (void)
       for (group = 0; group < max_group; group++)
 	layer_groups.Number[group] = 0;
 
-      for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+      for (i = 0; i < max_copper_layer + SILK_LAYERS; i++)
 	{
 	  group = config_layer_group[i] - 1;
 	  layer_groups.Entries[group][layer_groups.Number[group]++] = i;
@@ -1564,7 +1564,7 @@ ghid_config_groups_changed(void)
   gtk_widget_show (scrolled_window);
 
 
-  table = gtk_table_new (max_copper_layer + SILK_LAYER + 1,
+  table = gtk_table_new (max_copper_layer + SILK_LAYERS + 1,
                          max_group + 1, FALSE);
   config_groups_table = table;
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);

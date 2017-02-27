@@ -129,7 +129,7 @@ void
 hid_save_and_show_layer_ons (int *save_array)
 {
   int i;
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
     {
       save_array[i] = PCB->Data->Layer[i].On;
       PCB->Data->Layer[i].On = 1;
@@ -140,7 +140,7 @@ void
 hid_restore_layer_ons (int *save_array)
 {
   int i;
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
     PCB->Data->Layer[i].On = save_array[i];
 }
 

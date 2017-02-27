@@ -333,7 +333,7 @@ XORDrawBuffer (hidGC gc, BufferType *Buffer)
   y = Crosshair.Y - Buffer->Y;
 
   /* draw all visible layers */
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
     if (PCB->Data->Layer[i].On)
       {
 	LayerType *layer = &Buffer->Data->Layer[i];

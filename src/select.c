@@ -241,7 +241,7 @@ SelectBlock (BoxType *Box, bool select)
   END_LOOP;
 
   /* check layers */
-  LAYER_LOOP(PCB->Data, max_copper_layer + SILK_LAYER);
+  LAYER_LOOP(PCB->Data, max_copper_layer + EXTRA_LAYERS);
   {
     if (layer == & PCB->Data->SILKLAYER)
       {

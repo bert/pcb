@@ -194,10 +194,10 @@ ActionSetLayertype (int argc, char **argv, Coord x, Coord y)
 
   /* layer array is zero-based, file format counts layers starting at 1. */
   index = atoi (argv[0]) - 1;
-  if (index < 0 || index >= max_copper_layer + SILK_LAYER)
+  if (index < 0 || index >= max_copper_layer + EXTRA_LAYERS)
     {
       Message (N_("Layer index %d out of range, must be 0 ... %d\n"),
-               index + 1, max_copper_layer + SILK_LAYER);
+               index + 1, max_copper_layer + EXTRA_LAYERS);
       return 1;
     }
 

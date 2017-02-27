@@ -52,9 +52,13 @@
  * layer types now, iterating through any kind of distinct layer type has
  * become simple, see LAYER_TYPE_LOOP() in macro.h.
  *
+ * *** XXX: FIXME HORRIBLE BADNESS ***
+ *
  * Accordingly, the separation of these two silk layers should go away, they
  * should return to be "normal" layers. One might want to have more than two
  * silk layers, after all.
+ *
+ * *** XXX: FIXME HORRIBLE BADNESS ***
  *
  * Anyways, here's the current setup:
  *
@@ -63,13 +67,13 @@
  *   Outline layer              >- in unspecified order
  *   Routing layer              |
  *   (...additional layers...)  /     <== max_copper_layer
- *   Bottom silk layer
- *   Top silk layer                   <== max_copper_layer + SILK_LAYER
+ *   Bottom silk layer                <== max_copper_layer + BOTTOM_SILK_LAYER
+ *   Top silk layer                   <== max_copper_layer + TOP_SILK_LAYER
  *   (...unused layers...)
  *   (last layer - 2)                 <== MAX_LAYER
  *   (last layer - 1)
  *   (last layer)                     <== MAX_ALL_LAYER
- *                                        ( == MAX_LAYER + SILK_LAYER)
+ *                                        ( == MAX_LAYER + EXTRA_LAYERS)
  *
  * With all layers in use (rarely the case), max_copper_layer == MAX_LAYER.
  *
@@ -79,19 +83,20 @@
  *       inner or bottom.
  */
 
+#define EXTRA_LAYERS 2 /* 2x silkscreen layers */
 
 /* ---------------------------------------------------------------------------
  * the layer-numbers of the two additional special (silkscreen) layers
  * 'bottom' and 'top'. The offset of MAX_LAYER is not added
  */
-#define SILK_LAYER              2
+#define SILK_LAYERS             2
 #define BOTTOM_SILK_LAYER       0
 #define TOP_SILK_LAYER          1
 
 /* ---------------------------------------------------------------------------
  * the resulting maximum number of layers, including additional silk layers
  */
-#define MAX_ALL_LAYER           (MAX_LAYER + SILK_LAYER)
+#define MAX_ALL_LAYER           (MAX_LAYER + EXTRA_LAYERS)
 
 /* ---------------------------------------------------------------------------
  * misc constants

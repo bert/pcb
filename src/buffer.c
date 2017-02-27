@@ -1437,7 +1437,7 @@ MirrorBuffer (BufferType *Buffer)
       Message (_("You can't mirror a buffer that has elements!\n"));
       return;
     }
-  for (i = 0; i < max_copper_layer + SILK_LAYER; i++)
+  for (i = 0; i < max_copper_layer + EXTRA_LAYERS; i++)
     {
       LayerType *layer = Buffer->Data->Layer + i;
       if (layer->TextN)
