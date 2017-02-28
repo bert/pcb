@@ -175,7 +175,7 @@ dnl
 	define(`PADMASK',  `eval( PADSIZE + 1000)')
 	define(`DRILLSIZE',`eval((DRILLSIZE_MM*10000)/254)')
 	define(`VIADRILL', `eval((VIADRILL_MM*10000)/254)')
-	define(`VIAPAD',   `eval(VIADRILL)')
+	define(`VIAPAD',   `eval((PADSIZE - DRILLSIZE)/2)')
 dnl
 dnl find coordinates for the supporting vias
 dnl
