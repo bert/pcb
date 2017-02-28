@@ -47,7 +47,7 @@ define(`PKG_TOKO_INDV_SQ',
 
 	define(`PINPAD_MM100', `eval(PINDRILL_MM100 + 70)')
 	define(`PINPAD', `eval((PINPAD_MM100 * 10000) / 254 )')
-	define(`PINCLEAR', `1000')
+	define(`PINCLEAR', `2000')
 	define(`PINMASK', `eval(PINPAD + 500)')
 
 	define(`GNDDRILL_MM100', `eval(5*( (GNDD_MM100 + 20 + 3)/5 ) )')
@@ -55,7 +55,7 @@ define(`PKG_TOKO_INDV_SQ',
 
 	define(`GNDPAD_MM100', `eval(GNDDRILL_MM100 + 70)')
 	define(`GNDPAD', `eval((GNDPAD_MM100 * 10000) / 254 )')
-	define(`GNDCLEAR', `1000')
+	define(`GNDCLEAR', `2000')
 	define(`GNDMASK', `eval(GNDPAD + 500)')
 	
 # element_flags, description, pcb-name, value, mark_x, mark_y,
