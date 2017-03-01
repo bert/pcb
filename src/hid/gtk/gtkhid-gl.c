@@ -918,6 +918,44 @@ draw_crosshair (hidGC gc, render_priv *priv)
   glDisable (GL_COLOR_LOGIC_OP);
 }
 
+/* 2D, BB Via aware (with layer end-point annotations) */
+static void
+ghid_fill_pcb_pv_2d (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask)
+{
+  if (!ViaIsOnAnyVisibleLayer (pv)) /*!< XXX: Should the HID_DRAW rendering functions be aware of layer visibility? */
+    {
+      /* Display BB vias which are hidden due to layer selection in thindraw */
+      common_thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, drawHole, mask);
+    }
+  else
+    {
+      /* First draw BB Via layer identifications if appropriate */
+      if (VIA_IS_BURIED (pv) && !(TEST_FLAG (SELECTEDFLAG,  pv) ||
+                                  TEST_FLAG (CONNECTEDFLAG, pv) ||
+                                  TEST_FLAG (FOUNDFLAG,     pv)))
+        {
+          /* Need to save the colour first */
+          gtkGC gtk_fg_gc = (gtkGC)fg_gc;
+          char *prev_colorname = gtk_fg_gc->colorname;
+
+          int w = (pv->Thickness - pv->DrillingHole) / 4;
+          int r = pv->DrillingHole / 2 + w  / 2;
+          hid_draw_set_line_cap (fg_gc, Square_Cap);
+          hid_draw_set_color (fg_gc, PCB->Data->Layer[pv->BuriedFrom].Color);
+          hid_draw_set_line_width (fg_gc, w);
+          hid_draw_arc (fg_gc, pv->X, pv->Y, r, r, 270, 180);
+          hid_draw_set_color (fg_gc, PCB->Data->Layer[pv->BuriedTo].Color);
+          hid_draw_set_line_width (fg_gc, w);
+          hid_draw_arc (fg_gc, pv->X, pv->Y, r, r, 90, 170);
+
+          hid_draw_set_color (fg_gc, prev_colorname);
+        }
+
+      /* Finally draw the normal via on top*/
+      common_fill_pcb_pv (fg_gc, bg_gc, pv, drawHole, mask);
+    }
+}
+
 void
 ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
 {
@@ -946,6 +984,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   ghid_graphics_class.end_layer = ghid_end_layer;
   ghid_graphics_class.fill_pcb_polygon = ghid_fill_pcb_polygon;
   ghid_graphics_class.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
+  ghid_graphics_class.fill_pcb_pv = ghid_fill_pcb_pv_2d; /* 2D, BB Via aware (with layer end-point annotations) */
 }
 
 void
@@ -1093,7 +1132,6 @@ _draw_pv_name (PinType *pv)
       box.X1 = pv->X + pv->DrillingHole / 2 + Settings.PinoutTextOffsetX;
       box.Y1 = pv->Y - pv->Thickness    / 2 + Settings.PinoutTextOffsetY;
     }
-
   hid_draw_set_color (Output.fgGC, PCB->PinNameColor);
 
   text.Flags = NoFlags ();
@@ -1151,18 +1189,35 @@ draw_via (PinType *via, bool draw_hole)
   _draw_pv (via, draw_hole);
 }
 
+typedef struct {
+  int layer_group;
+} via_info;
+
+
 static int
 via_callback (const BoxType * b, void *cl)
 {
-  draw_via ((PinType *)b, TEST_FLAG (THINDRAWFLAG, PCB));
+  PinType *via = (PinType *)b;
+
+  /* NB: Called for all vias, whether BB via or not */
+  draw_via (via, TEST_FLAG (THINDRAWFLAG, PCB) || !ViaIsOnAnyVisibleLayer (via));
+
   return 1;
 }
 
 static int
 via_inlayer_callback (const BoxType * b, void *cl)
 {
-  set_pv_inlayer_color ((PinType *) b, cl, VIA_TYPE);
-  _draw_pv ((PinType *) b, TEST_FLAG (THINDRAWFLAG, PCB));
+  PinType *via = (PinType *)b;
+  LayerType *layer = (LayerType *)cl;
+  int layer_group = GetLayerGroupNumberByPointer (layer);
+
+  if (ViaIsOnLayerGroup (via, layer_group))
+    {
+      set_pv_inlayer_color (via, layer, VIA_TYPE);
+      _draw_pv (via, TEST_FLAG (THINDRAWFLAG, PCB));
+    }
+
   return 1;
 }
 
@@ -1245,16 +1300,69 @@ pad_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static bool
+via_visible_on_layer_group (PinType *via, int layer_group)
+{
+  if (layer_group == -1)
+     return true;
+  else
+    return ViaIsOnLayerGroup (via, layer_group);
+}
+
+typedef struct
+{
+  int plated;
+  bool drill_pair;
+  int from_group;
+  int to_group;
+  int current_group;
+} hole_info;
 
 static int
 hole_callback (const BoxType * b, void *cl)
 {
   PinType *pv = (PinType *) b;
-  int plated = cl ? *(int *) cl : -1;
+  hole_info default_info = {-1 /* plated = don't care */,
+                            false /* drill_pair */,
+                            -1 /* from_group */,
+                            -1 /* to_group */,
+                            -1 /* current_group */};
+  hole_info *info = &default_info;
 
-  if ((plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
-      (plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))
+  if (cl != NULL)
+    info = (hole_info *)cl;
+
+  if (info->drill_pair)
+    {
+      if (info->from_group == -1 && info->to_group == -1)
+        {
+          if (!VIA_IS_BURIED (pv))
+            goto pv_ok;
+        }
+      else
+        {
+          if (VIA_IS_BURIED (pv))
+            {
+              if (info->from_group == GetLayerGroupNumberByNumber (pv->BuriedFrom) &&
+                  info->to_group   == GetLayerGroupNumberByNumber (pv->BuriedTo))
+                goto pv_ok;
+            }
+        }
+
+      return 1;
+    }
+
+pv_ok:
+  if ((info->plated == 0 && !TEST_FLAG (HOLEFLAG, pv)) ||
+      (info->plated == 1 &&  TEST_FLAG (HOLEFLAG, pv)))
     return 1;
+
+  if (!via_visible_on_layer_group (pv, info->current_group))
+     return 1;
+
+  /* Don't mask out the hole if it will be "thin-drawn" due to being invisible */
+  if (!ViaIsOnAnyVisibleLayer (pv))
+     return 1;
 
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
@@ -1425,6 +1533,11 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
   int first_run = 1;
   int top_group = GetLayerGroupNumberBySide (TOP_SIDE);
   int bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  hole_info h_info = {-1 /* plated = don't care */,
+                      false /* drill_pair */,
+                      -1 /* from_group */,
+                      -1 /* to_group */,
+                      group /* current_group */};
 
   if (!hid_draw_set_layer (&ghid_graphics, 0, group, 0))
     return 0;
@@ -1452,7 +1565,7 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
         glColorMask (0, 0, 0, 0);
         hid_draw_set_color (Output.bgGC, PCB->MaskColor);
         if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
-        if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
+        if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, &h_info);
         hidgl_flush_triangles (priv->hidgl);
         glPopAttrib ();
       }
@@ -1474,7 +1587,7 @@ GhidDrawLayerGroup (int group, const BoxType * screen)
           glColorMask (0, 0, 0, 0);
           /* Mask out drilled holes on this layer */
           if (PCB->PinOn) r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
-          if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
+          if (PCB->ViaOn) r_search (PCB->Data->via_tree, screen, NULL, hole_callback, &h_info);
           hidgl_flush_triangles (priv->hidgl);
           glPopAttrib ();
         }
@@ -1550,8 +1663,8 @@ DrawDrillChannel (hidGC gc, int vx, int vy, int vr, int from_layer, int to_layer
 }
 
 struct cyl_info {
-  int from_layer;
-  int to_layer;
+  int from_layer_group;
+  int to_layer_group;
   double scale;
 };
 
@@ -1572,7 +1685,7 @@ draw_hole_cyl (PinType *Pin, struct cyl_info *info, int Type)
     color = "drill";
 
   hid_draw_set_color (Output.fgGC, color);
-  DrawDrillChannel (Output.fgGC, Pin->X, Pin->Y, Pin->DrillingHole / 2, info->from_layer, info->to_layer, info->scale);
+  DrawDrillChannel (Output.fgGC, Pin->X, Pin->Y, Pin->DrillingHole / 2, info->from_layer_group, info->to_layer_group, info->scale);
   return 0;
 }
 
@@ -1585,7 +1698,14 @@ pin_hole_cyl_callback (const BoxType * b, void *cl)
 static int
 via_hole_cyl_callback (const BoxType * b, void *cl)
 {
-  return draw_hole_cyl ((PinType *)b, (struct cyl_info *)cl, VIA_TYPE);
+  PinType *via = (PinType *)b;
+  struct cyl_info *info = (struct cyl_info *)cl;
+
+  if (ViaIsOnLayerGroup (via, info->from_layer_group) &&
+      ViaIsOnLayerGroup (via, info->to_layer_group))
+    draw_hole_cyl ((PinType *)b, info, VIA_TYPE);
+
+  return 0;
 }
 
 void
@@ -1684,8 +1804,8 @@ ghid_draw_everything (BoxType *drawn_area)
         drawn_groups[i] <= max_phys_group &&
         drawn_groups[i - 1] >= min_phys_group &&
         drawn_groups[i - 1] <= max_phys_group) {
-      cyl_info.from_layer = drawn_groups[i];
-      cyl_info.to_layer = drawn_groups[i - 1];
+      cyl_info.from_layer_group = drawn_groups[i];
+      cyl_info.to_layer_group = drawn_groups[i - 1];
       cyl_info.scale = gport->view.coord_per_px;
       hid_draw_set_color (Output.fgGC, "drill");
       ghid_set_alpha_mult (Output.fgGC, 0.75);
@@ -1703,6 +1823,7 @@ ghid_draw_everything (BoxType *drawn_area)
 
   /* Draw pins, pads, vias below silk */
   if (global_view_2d) {
+
     start_subcomposite (priv->hidgl);
 
     if (!TEST_FLAG (THINDRAWFLAG, PCB)) {
@@ -2496,6 +2617,16 @@ void
 ghid_view_2d (void *ball, gboolean view_2d, gpointer userdata)
 {
   global_view_2d = view_2d;
+
+  if (view_2d)
+    {
+      ghid_graphics_class.fill_pcb_pv = ghid_fill_pcb_pv_2d; /* 2D, BB Via aware (with layer end-point annotations) */
+    }
+  else
+    {
+      ghid_graphics_class.fill_pcb_pv = common_fill_pcb_pv; /* Physical model only */
+    }
+
   ghid_invalidate_all ();
 }
 
