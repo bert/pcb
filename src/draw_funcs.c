@@ -15,31 +15,15 @@ set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
 static void
 _draw_pv (PinType *pv, bool draw_hole)
 {
+  /* XXX: Why isn't there just a hid_draw_pcb_pv like for polygons?
+   *      Pins, pads, vias are the only solid PCB geometry cases where
+   *      thindraw is decided here, not by the HID_DRAW class in use.
+   */
+
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     hid_draw_thin_pcb_pv (Output.fgGC, Output.fgGC, pv, draw_hole, false);
-  else if (!ViaIsOnAnyVisibleLayer (pv))
-    hid_draw_thin_pcb_pv (Output.fgGC, Output.fgGC, pv, false, false);
   else
-#warning XXX: REFACTOR TO BE CLEAN PLEASE
-    {
-      hid_draw_fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
-      if (hid_draw_is_gui (Output.fgGC->hid_draw) /*!< Kludge */
-          && VIA_IS_BURIED (pv)
-          && !(TEST_FLAG (SELECTEDFLAG,  pv)
-               || TEST_FLAG (CONNECTEDFLAG, pv)
-               || TEST_FLAG (FOUNDFLAG,     pv)))
-        {
-          int w = (pv->Thickness - pv->DrillingHole) / 4;
-          int r = pv->DrillingHole / 2 + w  / 2;
-          hid_draw_set_line_cap (Output.fgGC, Square_Cap);
-          hid_draw_set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedFrom].Color);
-          hid_draw_set_line_width (Output.fgGC, w);
-          hid_draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 270, 180);
-          hid_draw_set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedTo].Color);
-          hid_draw_set_line_width (Output.fgGC, w);
-          hid_draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 90, 170);
-        }
-    }
+    hid_draw_fill_pcb_pv (Output.fgGC, Output.bgGC, pv, draw_hole, false);
 
   // XXX: We don't draw these currently
   //if ((!TEST_FLAG (HOLEFLAG, pv) && TEST_FLAG (DISPLAYNAMEFLAG, pv)) || doing_pinout)

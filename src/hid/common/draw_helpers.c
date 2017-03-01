@@ -617,6 +617,37 @@ common_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool m
 }
 
 void
+common_gui_fill_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask)
+{
+  if (!ViaIsOnAnyVisibleLayer (pv)) /*!< XXX: Should the HID_DRAW rendering functions be aware of layer visibility? */
+    {
+      /* Display BB vias which are hidden due to layer selection in thindraw */
+      common_thindraw_pcb_pv (Output.fgGC, Output.fgGC, pv, drawHole, mask);
+    }
+  else
+    {
+      /* Start by drawing the normal via */
+      common_fill_pcb_pv (fg_gc, bg_gc, pv, drawHole, mask);
+
+      /* Then draw BB Via layer identifications if appropriate */
+      if (VIA_IS_BURIED (pv) && !(TEST_FLAG (SELECTEDFLAG,  pv) ||
+                                  TEST_FLAG (CONNECTEDFLAG, pv) ||
+                                  TEST_FLAG (FOUNDFLAG,     pv)))
+        {
+          int w = (pv->Thickness - pv->DrillingHole) / 4;
+          int r = pv->DrillingHole / 2 + w  / 2;
+          hid_draw_set_line_cap (fg_gc, Square_Cap);
+          hid_draw_set_color (fg_gc, PCB->Data->Layer[pv->BuriedFrom].Color);
+          hid_draw_set_line_width (fg_gc, w);
+          hid_draw_arc (fg_gc, pv->X, pv->Y, r, r, 270, 180);
+          hid_draw_set_color (fg_gc, PCB->Data->Layer[pv->BuriedTo].Color);
+          hid_draw_set_line_width (fg_gc, w);
+          hid_draw_arc (fg_gc, pv->X, pv->Y, r, r, 90, 170);
+        }
+    }
+}
+
+void
 common_thindraw_pcb_pv (hidGC fg_gc, hidGC bg_gc, PinType *pv, bool drawHole, bool mask)
 {
   Coord w = mask ? pv->Mask : pv->Thickness;
@@ -684,7 +715,7 @@ common_draw_helpers_class_init (HID_DRAW_CLASS *klass)
   klass->thindraw_pcb_polygon = common_thindraw_pcb_polygon;
   klass->fill_pcb_pad         = common_fill_pcb_pad;
   klass->thindraw_pcb_pad     = common_thindraw_pcb_pad;
-  klass->fill_pcb_pv          = common_fill_pcb_pv;
+  klass->fill_pcb_pv          = common_fill_pcb_pv; /* Default is the non-GUI case */
   klass->thindraw_pcb_pv      = common_thindraw_pcb_pv;
 }
 
