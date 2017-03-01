@@ -35,6 +35,12 @@
 #  error autoconf couldnt find gl.h
 #endif
 
+#ifdef WIN32
+#   include "hid/common/glext.h"
+
+extern PFNGLUSEPROGRAMPROC         glUseProgram;
+#endif
+
 #include <gtk/gtkgl.h>
 #include "hid/common/hidgl.h"
 

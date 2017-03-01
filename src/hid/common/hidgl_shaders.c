@@ -66,6 +66,33 @@
 #include <dmalloc.h>
 #endif
 
+#ifdef WIN32
+#   include "glext.h"
+
+extern PFNGLGENBUFFERSPROC         glGenBuffers;
+extern PFNGLDELETEBUFFERSPROC      glDeleteBuffers;
+extern PFNGLBINDBUFFERPROC         glBindBuffer;
+extern PFNGLBUFFERDATAPROC         glBufferData;
+extern PFNGLBUFFERSUBDATAPROC      glBufferSubData;
+extern PFNGLMAPBUFFERPROC          glMapBuffer;
+extern PFNGLUNMAPBUFFERPROC        glUnmapBuffer;
+
+extern PFNGLATTACHSHADERPROC       glAttachShader;
+extern PFNGLCOMPILESHADERPROC      glCompileShader;
+extern PFNGLCREATEPROGRAMPROC      glCreateProgram;
+extern PFNGLCREATESHADERPROC       glCreateShader;
+extern PFNGLDELETEPROGRAMPROC      glDeleteProgram;
+extern PFNGLDELETESHADERPROC       glDeleteShader;
+extern PFNGLGETPROGRAMINFOLOGPROC  glGetProgramInfoLog;
+extern PFNGLGETPROGRAMIVPROC       glGetProgramiv;
+extern PFNGLGETSHADERINFOLOGPROC   glGetShaderInfoLog;
+extern PFNGLGETSHADERIVPROC        glGetShaderiv;
+extern PFNGLISSHADERPROC           glIsShader;
+extern PFNGLLINKPROGRAMPROC        glLinkProgram;
+extern PFNGLSHADERSOURCEPROC       glShaderSource;
+extern PFNGLUSEPROGRAMPROC         glUseProgram;
+#endif
+
 /* Opaque data-structure keeping a shader object */
 struct _hidgl_shader {
   char *name;

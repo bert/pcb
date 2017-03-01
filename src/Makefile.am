@@ -185,6 +185,7 @@ LIBGTK_GL_SRCS= \
 GL_SRCS= \
 	hid/common/hidgl.c \
 	hid/common/hidgl.h \
+	hid/common/glext.h \
 	hid/common/hidgl_shaders.c \
 	hid/common/hidgl_shaders.h \
 	hid/common/trackball.c \
