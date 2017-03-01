@@ -96,48 +96,49 @@ typedef struct gtk_gc_struct
 
 static void draw_lead_user (render_priv *priv);
 
+/* Compute group visibility based upon on copper layers only */
+static bool
+is_layer_group_visible (int group)
+{
+  int entry;
+  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+    {
+      int layer_idx = PCB->LayerGroups.Entries[group][entry];
+      if (layer_idx >= 0 && layer_idx < max_copper_layer &&
+          LAYER_PTR (layer_idx)->On)
+        return true;
+    }
+  return false;
+}
 
 int
 ghid_set_layer (const char *name, int group, int empty)
 {
-  int idx = group;
-  if (idx >= 0 && idx < max_group)
-    {
-      int n = PCB->LayerGroups.Number[group];
-      for (idx = 0; idx < n-1; idx ++)
-	{
-	  int ni = PCB->LayerGroups.Entries[group][idx];
-	  if (ni >= 0 && ni < max_copper_layer + EXTRA_LAYERS
-	      && PCB->Data->Layer[ni].On)
-	    break;
-	}
-      idx = PCB->LayerGroups.Entries[group][idx];
-    }
+  if (group >= 0 && group < max_group)
+    return is_layer_group_visible (group);
 
-  if (idx >= 0 && idx < max_copper_layer + EXTRA_LAYERS)
-    return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
-  if (idx < 0)
+  /* If we didn't hit a match above, group is being used as a
+     special symbolic layer type, and will be negative. */
+
+  switch (SL_TYPE (group))
     {
-      switch (SL_TYPE (idx))
-	{
-	case SL_INVISIBLE:
-	  return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
-	case SL_MASK:
-	  if (SL_MYSIDE (idx) /*&& !pinout */ )
-	    return TEST_FLAG (SHOWMASKFLAG, PCB);
-	  return 0;
-	case SL_SILK:
-	  if (SL_MYSIDE (idx) /*|| pinout */ )
-	    return PCB->ElementOn;
-	  return 0;
-	case SL_ASSY:
-	  return 0;
-	case SL_PDRILL:
-	case SL_UDRILL:
-	  return 1;
-	case SL_RATS:
-	  return PCB->RatOn;
-	}
+    case SL_INVISIBLE:
+      return /* pinout ? 0 : */ PCB->InvisibleObjectsOn;
+    case SL_MASK:
+      if (SL_MYSIDE (group) /*&& !pinout */ )
+        return TEST_FLAG (SHOWMASKFLAG, PCB);
+      return 0;
+    case SL_SILK:
+      if (SL_MYSIDE (group) /*|| pinout */ )
+        return PCB->ElementOn;
+      return 0;
+    case SL_ASSY:
+      return 0;
+    case SL_PDRILL:
+    case SL_UDRILL:
+      return 1;
+    case SL_RATS:
+      return PCB->RatOn;
     }
   return 0;
 }
