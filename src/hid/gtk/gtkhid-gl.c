@@ -1936,6 +1936,31 @@ frontE_package_callback (const BoxType * b, void *cl)
         int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
         hidgl_draw_acy_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
       }
+
+      if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "800mil_resistor.fp") == 0) {
+        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+        hidgl_draw_800mil_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
+      }
+
+      if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "2300mil_resistor.fp") == 0) {
+        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+        hidgl_draw_2300mil_resistor (element, compute_depth (layer_group), BOARD_THICKNESS);
+      }
+
+      if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "diode_700mil_surface.fp") == 0) {
+        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+        hidgl_draw_700mil_diode_smd (element, compute_depth (layer_group), BOARD_THICKNESS);
+      }
+
+      if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "cap_100V_10uF.fp") == 0) {
+        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+        hidgl_draw_1650mil_cap (element, compute_depth (layer_group), BOARD_THICKNESS);
+      }
+
+      if (strcmp (element->Name[DESCRIPTION_INDEX].TextString, "cap_15000V_2500pF.fp") == 0) {
+        int layer_group = FRONT (element) ? 0 : max_copper_layer - 1; /* XXX: FIXME */
+        hidgl_draw_350x800mil_cap (element, compute_depth (layer_group), BOARD_THICKNESS);
+      }
     }
   return 1;
 }
