@@ -2266,9 +2266,9 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   glEnable (GL_STENCIL_TEST);
   glEnable (GL_DEPTH_TEST);
   glDepthFunc (GL_ALWAYS);
-  glClearColor (port->bg_color.red / 65535.,
-                port->bg_color.green / 65535.,
-                port->bg_color.blue / 65535.,
+  glClearColor (port->offlimits_color.red / 65535.,
+                port->offlimits_color.green / 65535.,
+                port->offlimits_color.blue / 65535.,
                 1.);
   glStencilMask (~0);
   glClearStencil (0);
@@ -2381,7 +2381,6 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   /* glStencilFunc (GL_GREATER, 1, 1); */           /* Draw only where stencil buffer is 0 */
 
   glDepthMask (GL_FALSE);
-#if 0
   if (global_view_2d) {
     glBegin (GL_QUADS);
     glVertex3i (0,             0,              0);
@@ -2412,7 +2411,6 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
     }
     glEnd ();
   }
-#endif
 
   glDepthMask (GL_TRUE);
 
