@@ -215,6 +215,12 @@ hidgl_flush_triangles (hidgl_instance *hidgl)
   glEnableClientState (GL_TEXTURE_COORD_ARRAY);
   glEnableClientState (GL_VERTEX_ARRAY);
   glDrawArrays (GL_TRIANGLE_STRIP, 0, priv->buffer.vertex_count);
+#if 0
+  glPushAttrib (GL_CURRENT_BIT);
+  glColor4f (1., 1., 1., 1.);
+  glDrawArrays (GL_LINE_STRIP, 0, priv->buffer.vertex_count);
+  glPopAttrib ();
+#endif
   glDisableClientState (GL_VERTEX_ARRAY);
   glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 
@@ -410,24 +416,31 @@ hidgl_draw_line (hidGC gc, int cap, Coord width, Coord x1, Coord y1, Coord x2, C
   /* Don't bother capping hairlines */
   if (circular_caps && !hairline)
     {
-      float capx = deltax * width / 2. / length;
-      float capy = deltay * width / 2. / length;
+      if (length == 0)
+        {
+          hidgl_fill_circle (gc, x1, y1, width / 2.);
+        }
+      else
+        {
+          float capx = deltax * width / 2. / length;
+          float capy = deltay * width / 2. / length;
 
-      hidgl_ensure_vertex_space (gc, 10);
+          hidgl_ensure_vertex_space (gc, 10);
 
-      /* NB: Repeated first virtex to separate from other tri-strip */
-      hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
-      hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
-      hidgl_add_vertex_tex (gc, x1 + wdx - capx, y1 + wdy - capy, -1.0,  1.0);
-      hidgl_add_vertex_tex (gc, x1 - wdx,        y1 - wdy,         0.0, -1.0);
-      hidgl_add_vertex_tex (gc, x1 + wdx,        y1 + wdy,         0.0,  1.0);
+          /* NB: Repeated first virtex to separate from other tri-strip */
+          hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
+          hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
+          hidgl_add_vertex_tex (gc, x1 + wdx - capx, y1 + wdy - capy, -1.0,  1.0);
+          hidgl_add_vertex_tex (gc, x1 - wdx,        y1 - wdy,         0.0, -1.0);
+          hidgl_add_vertex_tex (gc, x1 + wdx,        y1 + wdy,         0.0,  1.0);
 
-      hidgl_add_vertex_tex (gc, x2 - wdx,        y2 - wdy,         0.0, -1.0);
-      hidgl_add_vertex_tex (gc, x2 + wdx,        y2 + wdy,         0.0,  1.0);
-      hidgl_add_vertex_tex (gc, x2 - wdx + capx, y2 - wdy + capy,  1.0, -1.0);
-      hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
-      hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
-      /* NB: Repeated last virtex to separate from other tri-strip */
+          hidgl_add_vertex_tex (gc, x2 - wdx,        y2 - wdy,         0.0, -1.0);
+          hidgl_add_vertex_tex (gc, x2 + wdx,        y2 + wdy,         0.0,  1.0);
+          hidgl_add_vertex_tex (gc, x2 - wdx + capx, y2 - wdy + capy,  1.0, -1.0);
+          hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
+          hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
+          /* NB: Repeated last virtex to separate from other tri-strip */
+        }
     }
   else
     {
