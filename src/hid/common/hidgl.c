@@ -871,8 +871,14 @@ do_hole (const BoxType *b, void *cl)
   return 1;
 }
 
+static bool
+polygon_contains_user_holes (PolygonType *polygon)
+{
+  return (polygon->HoleIndexN > 0);
+}
+
 static void
-fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
+fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, bool use_new_stencil)
 {
   hidglGC hidgl_gc = (hidglGC)gc;
   hidgl_instance *hidgl = hidgl_gc->hidgl;
@@ -887,14 +893,18 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
     return;
   }
 
-  /* Polygon has holes */
-
-  stencil_bit = hidgl_assign_clear_stencil_bit (hidgl);
-  if (!stencil_bit)
+  /* Polygon has holes.. does it have any user-drawn holes? (caller tells us)
+   * If so, it must be masked with a _new_ stencil bit.
+   */
+  if (use_new_stencil)
     {
-      printf ("hidgl_fill_pcb_polygon: No free stencil bits, aborting polygon\n");
-      /* XXX: Could use the GLU tesselator or the full BO polygon tesselator */
-      return;
+      stencil_bit = hidgl_assign_clear_stencil_bit (hidgl);
+      if (!stencil_bit)
+        {
+          printf ("hidgl_fill_pcb_polygon: No free stencil bits, aborting polygon\n");
+          /* XXX: Could use the GLU tesselator or the full BO polygon tesselator */
+          return;
+        }
     }
 
   /* Flush out any existing geoemtry to be rendered */
@@ -902,12 +912,15 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
 
   glPushAttrib (GL_STENCIL_BUFFER_BIT |                 /* Resave the stencil write-mask etc.., and */
                 GL_COLOR_BUFFER_BIT);                   /* the colour buffer write mask etc.. for part way restore */
-  glStencilMask (stencil_bit);                          /* Only write to our stencil bit */
-  glStencilFunc (GL_ALWAYS, stencil_bit, stencil_bit);  /* Always pass stencil test, ref value is our bit */
   glEnable (GL_STENCIL_TEST);                           /* Enable the stencil test, just in case it wasn't already on */
   glColorMask (0, 0, 0, 0);                             /* Disable writting in color buffer */
 
-  glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE);           /* Stencil pass => replace stencil value */
+  if (use_new_stencil)
+    {
+      glStencilMask (stencil_bit);                            /* Only write to our stencil bit */
+      glStencilFunc (GL_ALWAYS, stencil_bit, stencil_bit);    /* Always pass stencil test, ref value is our bit */
+      glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE);             /* Stencil pass => replace stencil value */
+    }
 
   /* Drawing operations now set our reference bit in the stencil buffer */
 
@@ -933,7 +946,8 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
   hidgl_flush_triangles (hidgl);
 
   /* Unassign our stencil buffer bit */
-  hidgl_return_stencil_bit (hidgl, stencil_bit);
+  if (use_new_stencil)
+    hidgl_return_stencil_bit (hidgl, stencil_bit);
 
   glPopAttrib ();                               /* Restore the stencil buffer op and function */
 }
@@ -941,17 +955,22 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
 void
 hidgl_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
+  bool use_new_stencil;
+
   if (poly->Clipped == NULL)
     return;
 
-  fill_polyarea (gc, poly->Clipped, clip_box);
+  use_new_stencil = polygon_contains_user_holes (poly) ||
+                    TEST_FLAG (FULLPOLYFLAG, poly);
+
+  fill_polyarea (gc, poly->Clipped, clip_box, use_new_stencil);
 
   if (TEST_FLAG (FULLPOLYFLAG, poly))
     {
       POLYAREA *pa;
 
       for (pa = poly->Clipped->f; pa != poly->Clipped; pa = pa->f)
-        fill_polyarea (gc, pa, clip_box);
+        fill_polyarea (gc, pa, clip_box, use_new_stencil);
     }
 }
 
