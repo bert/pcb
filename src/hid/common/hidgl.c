@@ -80,6 +80,7 @@
 #include <dmalloc.h>
 #endif
 
+hidgl_shader *circular_program = NULL;
 
 static bool in_context = false;
 
@@ -93,41 +94,137 @@ static bool in_context = false;
   } while (0)
 
 
+#define BUFFER_STRIDE (5 * sizeof (GLfloat))
+#define BUFFER_SIZE (BUFFER_STRIDE * 3 * TRIANGLE_ARRAY_SIZE)
+
+/* NB: If using VBOs, the caller must ensure the VBO is bound to the GL_ARRAY_BUFFER */
 static void
 hidgl_reset_triangle_array (hidgl_instance *hidgl)
 {
   hidgl_priv *priv = hidgl->priv;
 
+  if (priv->buffer.use_map) {
+    /* Hint to the driver that we're done with the previous buffer contents */
+    glBufferData (GL_ARRAY_BUFFER, BUFFER_SIZE, NULL, GL_STREAM_DRAW);
+    /* Map the new memory to upload vertices into. */
+    priv->buffer.triangle_array = glMapBuffer (GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+  }
+
+  /* If mapping the VBO fails (or if we aren't using VBOs) fall back to
+   * local storage.
+   */
+  if (priv->buffer.triangle_array == NULL) {
+    priv->buffer.triangle_array = malloc (BUFFER_SIZE);
+    priv->buffer.use_map = false;
+  }
+
+  /* Don't want this bound for now */
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
+
   priv->buffer.triangle_count = 0;
   priv->buffer.coord_comp_count = 0;
+  priv->buffer.vertex_count = 0;
 }
 
 static void
 hidgl_init_triangle_array (hidgl_instance *hidgl)
 {
+  hidgl_priv *priv = hidgl->priv;
+
+  CHECK_IS_IN_CONTEXT ();
+
+  priv->buffer.use_vbo = true;
+  // priv->buffer.use_vbo = false;
+
+  if (priv->buffer.use_vbo) {
+    glGenBuffers (1, &priv->buffer.vbo_id);
+    glBindBuffer (GL_ARRAY_BUFFER, priv->buffer.vbo_id);
+  }
+
+  if (priv->buffer.vbo_id == 0)
+    priv->buffer.use_vbo = false;
+
+  priv->buffer.use_map = priv->buffer.use_vbo;
+
+  /* NB: Mapping the whole buffer can be expensive since we ask the driver
+   *     to discard previous data and give us a "new" buffer to write into
+   *     each time. If it is still rendering from previous buffer, we end
+   *     up causing a lot of unnecessary allocation in the driver this way.
+   *
+   *     On intel drivers at least, glBufferSubData does not block. It uploads
+   *     into a temporary buffer and queues a GPU copy of the uploaded data
+   *     for when the "main" buffer has finished rendering.
+   */
+  priv->buffer.use_map = false;
+
+  /* If using VBOs (but not mapping), we only need to this once */
+  if (priv->buffer.use_vbo && !priv->buffer.use_map)
+    glBufferData (GL_ARRAY_BUFFER, BUFFER_SIZE, NULL, GL_STREAM_DRAW);
+
+  priv->buffer.triangle_array = NULL;
   hidgl_reset_triangle_array (hidgl);
+}
+
+static void
+hidgl_finish_triangle_array (hidgl_instance *hidgl)
+{
+  hidgl_priv *priv = hidgl->priv;
+
+  if (priv->buffer.use_map) {
+    glBindBuffer (GL_ARRAY_BUFFER, priv->buffer.vbo_id);
+    glUnmapBuffer (GL_ARRAY_BUFFER);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
+  } else {
+    free (priv->buffer.triangle_array);
+  }
+
+  if (priv->buffer.use_vbo) {
+    glDeleteBuffers (1, &priv->buffer.vbo_id);
+    priv->buffer.vbo_id = 0;
+  }
 }
 
 void
 hidgl_flush_triangles (hidgl_instance *hidgl)
 {
   hidgl_priv *priv = hidgl->priv;
+  GLfloat *data_pointer = NULL;
 
   CHECK_IS_IN_CONTEXT ();
 
-  if (priv->buffer.triangle_count == 0)
+  if (priv->buffer.vertex_count == 0)
     return;
 
+  if (priv->buffer.use_vbo) {
+    glBindBuffer (GL_ARRAY_BUFFER, priv->buffer.vbo_id);
+
+    if (priv->buffer.use_map) {
+      glUnmapBuffer (GL_ARRAY_BUFFER);
+      priv->buffer.triangle_array = NULL;
+    } else {
+      /* NB: We only upload the portion of the buffer we've used */
+      glBufferSubData (GL_ARRAY_BUFFER, 0,
+                       BUFFER_STRIDE * priv->buffer.vertex_count,
+                       priv->buffer.triangle_array);
+    }
+  } else {
+    data_pointer = priv->buffer.triangle_array;
+  }
+
+  glTexCoordPointer (2, GL_FLOAT, BUFFER_STRIDE, data_pointer + 3);
+  glVertexPointer   (3, GL_FLOAT, BUFFER_STRIDE, data_pointer + 0);
+
+  glEnableClientState (GL_TEXTURE_COORD_ARRAY);
   glEnableClientState (GL_VERTEX_ARRAY);
-  glVertexPointer   (3, GL_FLOAT, 0, priv->buffer.triangle_array);
-  glDrawArrays (GL_TRIANGLES, 0, priv->buffer.triangle_count * 3);
+  glDrawArrays (GL_TRIANGLE_STRIP, 0, priv->buffer.vertex_count);
   glDisableClientState (GL_VERTEX_ARRAY);
+  glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 
   hidgl_reset_triangle_array (hidgl);
 }
 
 void
-hidgl_ensure_triangle_space (hidGC gc, int count)
+hidgl_ensure_vertex_space (hidGC gc, int count)
 {
   hidglGC hidgl_gc = (hidglGC)gc;
   hidgl_instance *hidgl = hidgl_gc->hidgl;
@@ -135,15 +232,24 @@ hidgl_ensure_triangle_space (hidGC gc, int count)
 
   CHECK_IS_IN_CONTEXT ();
 
-  if (count > TRIANGLE_ARRAY_SIZE)
+  if (count > 3 * TRIANGLE_ARRAY_SIZE)
     {
       fprintf (stderr, "Not enough space in vertex buffer\n");
-      fprintf (stderr, "Requested %i triangles, %i available\n",
-                       count, TRIANGLE_ARRAY_SIZE);
+      fprintf (stderr, "Requested %i vertices, %i available\n",
+                       count, 3 * TRIANGLE_ARRAY_SIZE);
       exit (1);
     }
-  if (count > TRIANGLE_ARRAY_SIZE - priv->buffer.triangle_count)
+  if (count > 3 * TRIANGLE_ARRAY_SIZE - priv->buffer.vertex_count)
     hidgl_flush_triangles (hidgl);
+}
+
+void
+hidgl_ensure_triangle_space (hidGC gc, int count)
+{
+  CHECK_IS_IN_CONTEXT ();
+
+  /* NB: 5 = 3 + 2 extra vertices to separate from other triangle strips */
+  hidgl_ensure_vertex_space (gc, count * 5);
 }
 
 void
@@ -231,42 +337,34 @@ int calc_slices (float pix_radius, float sweep_angle)
   return (int)ceilf (slices);
 }
 
-#define MIN_TRIANGLES_PER_CAP 3
-#define MAX_TRIANGLES_PER_CAP 90
-static void draw_cap (hidGC gc, Coord width, Coord x, Coord y, Angle angle, double scale)
+static void draw_cap (hidGC gc, Coord width, Coord x, Coord y, Angle angle)
 {
-  float last_capx, last_capy;
-  float capx, capy;
   float radius = width / 2.;
-  int slices = calc_slices (radius / scale, M_PI);
-  int i;
 
   CHECK_IS_IN_CONTEXT ();
-  if (slices < MIN_TRIANGLES_PER_CAP)
-    slices = MIN_TRIANGLES_PER_CAP;
 
-  if (slices > MAX_TRIANGLES_PER_CAP)
-    slices = MAX_TRIANGLES_PER_CAP;
+  hidgl_ensure_vertex_space (gc, 6);
 
-  hidgl_ensure_triangle_space (gc, slices);
-
-  last_capx =  radius * cosf (angle * M_PI / 180.) + x;
-  last_capy = -radius * sinf (angle * M_PI / 180.) + y;
-  for (i = 0; i < slices; i++) {
-    capx =  radius * cosf (angle * M_PI / 180. + ((float)(i + 1)) * M_PI / (float)slices) + x;
-    capy = -radius * sinf (angle * M_PI / 180. + ((float)(i + 1)) * M_PI / (float)slices) + y;
-    hidgl_add_triangle (gc, last_capx, last_capy, capx, capy, x, y);
-    last_capx = capx;
-    last_capy = capy;
-  }
+  /* FIXME: Should draw an offset rectangle at the appropriate angle,
+   *        avoiding relying on the subcompositing between layers to
+   *        stop us creating an artaefact by drawing a full circle.
+   */
+  /* NB: Repeated first virtex to separate from other tri-strip */
+  hidgl_add_vertex_tex (gc, x - radius, y - radius, -1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x - radius, y - radius, -1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x - radius, y + radius, -1.0,  1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y - radius,  1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y + radius,  1.0,  1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y + radius,  1.0,  1.0);
+  /* NB: Repeated last virtex to separate from other tri-strip */
 }
 
 void
 hidgl_draw_line (hidGC gc, int cap, Coord width, Coord x1, Coord y1, Coord x2, Coord y2, double scale)
 {
-  double angle;
   double deltax, deltay, length;
   float wdx, wdy;
+  float cosine, sine;
   int circular_caps = 0;
   int hairline = 0;
 
@@ -284,17 +382,15 @@ hidgl_draw_line (hidGC gc, int cap, Coord width, Coord x1, Coord y1, Coord x2, C
 
   if (length == 0) {
     /* Assume the orientation of the line is horizontal */
-    wdx = -width / 2.;
-    wdy = 0;
-    length = 1.;
-    deltax = 1.;
-    deltay = 0.;
+    cosine = 1.0;
+    sine   = 0.0;
   } else {
-    wdy = deltax * width / 2. / length;
-    wdx = -deltay * width / 2. / length;
+    cosine = deltax / length;
+    sine   = deltay / length;
   }
 
-  angle = -180. / M_PI * atan2 (deltay, deltax);
+  wdy =  width / 2. * cosine;
+  wdx = -width / 2. * sine;
 
   switch (cap) {
     case Trace_Cap:
@@ -304,26 +400,50 @@ hidgl_draw_line (hidGC gc, int cap, Coord width, Coord x1, Coord y1, Coord x2, C
 
     case Square_Cap:
     case Beveled_Cap:
-      x1 -= deltax * width / 2. / length;
-      y1 -= deltay * width / 2. / length;
-      x2 += deltax * width / 2. / length;
-      y2 += deltay * width / 2. / length;
+      /* Use wdx and wdy (which already have the correct numbers), just in
+       * case the compiler doesn't spot it can avoid recomputing these. */
+      x1 -= wdy; /* x1 -= width / 2. * cosine;   */
+      y1 += wdx; /* y1 -= width / 2. * sine;     */
+      x2 += wdy; /* x2 += width / 2. * cosine;   */
+      y2 -= wdx; /* y2 += width / 2. / sine;     */
       break;
   }
-
-  hidgl_ensure_triangle_space (gc, 2);
-  hidgl_add_triangle (gc, x1 - wdx, y1 - wdy,
-                          x2 - wdx, y2 - wdy,
-                          x2 + wdx, y2 + wdy);
-  hidgl_add_triangle (gc, x1 - wdx, y1 - wdy,
-                          x2 + wdx, y2 + wdy,
-                          x1 + wdx, y1 + wdy);
 
   /* Don't bother capping hairlines */
   if (circular_caps && !hairline)
     {
-      draw_cap (gc, width, x1, y1, angle + 90., scale);
-      draw_cap (gc, width, x2, y2, angle - 90., scale);
+      float capx = deltax * width / 2. / length;
+      float capy = deltay * width / 2. / length;
+
+      hidgl_ensure_vertex_space (gc, 10);
+
+      /* NB: Repeated first virtex to separate from other tri-strip */
+      hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
+      hidgl_add_vertex_tex (gc, x1 - wdx - capx, y1 - wdy - capy, -1.0, -1.0);
+      hidgl_add_vertex_tex (gc, x1 + wdx - capx, y1 + wdy - capy, -1.0,  1.0);
+      hidgl_add_vertex_tex (gc, x1 - wdx,        y1 - wdy,         0.0, -1.0);
+      hidgl_add_vertex_tex (gc, x1 + wdx,        y1 + wdy,         0.0,  1.0);
+
+      hidgl_add_vertex_tex (gc, x2 - wdx,        y2 - wdy,         0.0, -1.0);
+      hidgl_add_vertex_tex (gc, x2 + wdx,        y2 + wdy,         0.0,  1.0);
+      hidgl_add_vertex_tex (gc, x2 - wdx + capx, y2 - wdy + capy,  1.0, -1.0);
+      hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
+      hidgl_add_vertex_tex (gc, x2 + wdx + capx, y2 + wdy + capy,  1.0,  1.0);
+      /* NB: Repeated last virtex to separate from other tri-strip */
+    }
+  else
+    {
+      hidgl_ensure_vertex_space (gc, 6);
+
+      /* NB: Repeated first virtex to separate from other tri-strip */
+      hidgl_add_vertex_tex (gc, x1 - wdx, y1 - wdy, 0.0, -1.0);
+      hidgl_add_vertex_tex (gc, x1 - wdx, y1 - wdy, 0.0, -1.0);
+      hidgl_add_vertex_tex (gc, x1 + wdx, y1 + wdy, 0.0,  1.0);
+
+      hidgl_add_vertex_tex (gc, x2 - wdx, y2 - wdy, 0.0, -1.0);
+      hidgl_add_vertex_tex (gc, x2 + wdx, y2 + wdy, 0.0,  1.0);
+      hidgl_add_vertex_tex (gc, x2 + wdx, y2 + wdy, 0.0,  1.0);
+      /* NB: Repeated last virtex to separate from other tri-strip */
     }
 }
 
@@ -402,10 +522,10 @@ hidgl_draw_arc (hidGC gc, Coord width, Coord x, Coord y, Coord rx, Coord ry,
 
   draw_cap (gc, width, x + rx * -cosf (start_angle_rad),
                        y + rx *  sinf (start_angle_rad),
-                       start_angle, scale);
+                       start_angle);
   draw_cap (gc, width, x + rx * -cosf (start_angle_rad + delta_angle_rad),
                        y + rx *  sinf (start_angle_rad + delta_angle_rad),
-                       start_angle + delta_angle + 180., scale);
+                       start_angle + delta_angle + 180.);
 }
 
 void
@@ -425,37 +545,20 @@ hidgl_draw_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 
 
 void
-hidgl_fill_circle (hidGC gc, Coord vx, Coord vy, Coord vr, double scale)
+hidgl_fill_circle (hidGC gc, Coord x, Coord y, Coord radius)
 {
-#define MIN_TRIANGLES_PER_CIRCLE 6
-#define MAX_TRIANGLES_PER_CIRCLE 360
-  float last_x, last_y;
-  float radius = vr;
-  int slices;
-  int i;
-
   CHECK_IS_IN_CONTEXT ();
-  slices = calc_slices (vr / scale, 2 * M_PI);
 
-  if (slices < MIN_TRIANGLES_PER_CIRCLE)
-    slices = MIN_TRIANGLES_PER_CIRCLE;
+  hidgl_ensure_vertex_space (gc, 6);
 
-  if (slices > MAX_TRIANGLES_PER_CIRCLE)
-    slices = MAX_TRIANGLES_PER_CIRCLE;
-
-  hidgl_ensure_triangle_space (gc, slices);
-
-  last_x = vx + vr;
-  last_y = vy;
-
-  for (i = 0; i < slices; i++) {
-    float x, y;
-    x = radius * cosf (((float)(i + 1)) * 2. * M_PI / (float)slices) + vx;
-    y = radius * sinf (((float)(i + 1)) * 2. * M_PI / (float)slices) + vy;
-    hidgl_add_triangle (gc, vx, vy, last_x, last_y, x, y);
-    last_x = x;
-    last_y = y;
-  }
+  /* NB: Repeated first virtex to separate from other tri-strip */
+  hidgl_add_vertex_tex (gc, x - radius, y - radius, -1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x - radius, y - radius, -1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x - radius, y + radius, -1.0,  1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y - radius,  1.0, -1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y + radius,  1.0,  1.0);
+  hidgl_add_vertex_tex (gc, x + radius, y + radius,  1.0,  1.0);
+  /* NB: Repeated last virtex to separate from other tri-strip */
 }
 
 #define MAX_COMBINED_MALLOCS 2500
@@ -516,7 +619,6 @@ myBegin (GLenum type)
   triangle_comp_idx = 0;
 }
 
-static double global_scale;
 static hidGC tesselator_gc = NULL;
 
 static void CALLBACK
@@ -621,20 +723,14 @@ hidgl_fill_polygon (hidGC gc, int n_coords, Coord *x, Coord *y)
 }
 
 static void
-fill_contour (hidGC gc, PLINE *contour, double scale)
+fill_contour (hidGC gc, PLINE *contour)
 {
   borast_traps_t traps;
 
-  /* If the contour is round, and hidgl_fill_circle would use
-   * less slices than we have vertices to draw it, then call
-   * hidgl_fill_circle to draw this contour.
-   */
+  /* If the contour is round, then call hidgl_fill_circle to draw it. */
   if (contour->is_round) {
-    double slices = calc_slices (contour->radius / scale, 2 * M_PI);
-    if (slices < contour->Count) {
-      hidgl_fill_circle (gc, contour->cx, contour->cy, contour->radius, scale);
-      return;
-    }
+    hidgl_fill_circle (gc, contour->cx, contour->cy, contour->radius);
+    return;
   }
 
   _borast_traps_init (&traps);
@@ -642,44 +738,34 @@ fill_contour (hidGC gc, PLINE *contour, double scale)
   _borast_traps_fini (&traps);
 }
 
-struct do_hole_info {
-  hidGC gc;
-  double scale;
-};
-
 static int
 do_hole (const BoxType *b, void *cl)
 {
-  struct do_hole_info *info = cl;
   PLINE *curc = (PLINE *) b;
+  hidGC gc = (hidGC)cl;
 
   /* Ignore the outer contour - we draw it first explicitly*/
   if (curc->Flags.orient == PLF_DIR) {
     return 0;
   }
 
-  fill_contour (info->gc, curc, info->scale);
+  fill_contour (gc, curc);
   return 1;
 }
 
 static void
-fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, double scale)
+fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box)
 {
   hidglGC hidgl_gc = (hidglGC)gc;
   hidgl_instance *hidgl = hidgl_gc->hidgl;
   hidgl_priv *priv = hidgl->priv;
-  struct do_hole_info info;
   int stencil_bit;
 
   CHECK_IS_IN_CONTEXT ();
 
-  info.gc = gc;
-  info.scale = scale;
-  global_scale = scale;
-
   /* Special case non-holed polygons which don't require a stencil bit */
   if (pa->contour_tree->size == 1) {
-    fill_contour (gc, pa->contours, scale);
+    fill_contour (gc, pa->contours);
     return;
   }
 
@@ -707,7 +793,7 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, double scale)
 
   /* Drawing operations now set our reference bit in the stencil buffer */
 
-  r_search (pa->contour_tree, clip_box, NULL, do_hole, &info);
+  r_search (pa->contour_tree, clip_box, NULL, do_hole, gc);
   hidgl_flush_triangles (hidgl);
 
   glPopAttrib ();                               /* Restore the colour and stencil buffer write-mask etc.. */
@@ -725,7 +811,7 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, double scale)
   /* Drawing operations as masked to areas where the stencil buffer is '0' */
 
   /* Draw the polygon outer */
-  fill_contour (gc, pa->contours, scale);
+  fill_contour (gc, pa->contours);
   hidgl_flush_triangles (hidgl);
 
   /* Unassign our stencil buffer bit */
@@ -735,19 +821,19 @@ fill_polyarea (hidGC gc, POLYAREA *pa, const BoxType *clip_box, double scale)
 }
 
 void
-hidgl_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box, double scale)
+hidgl_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
   if (poly->Clipped == NULL)
     return;
 
-  fill_polyarea (gc, poly->Clipped, clip_box, scale);
+  fill_polyarea (gc, poly->Clipped, clip_box);
 
   if (TEST_FLAG (FULLPOLYFLAG, poly))
     {
       POLYAREA *pa;
 
       for (pa = poly->Clipped->f; pa != poly->Clipped; pa = pa->f)
-        fill_polyarea (gc, pa, clip_box, scale);
+        fill_polyarea (gc, pa, clip_box);
     }
 }
 
@@ -756,9 +842,32 @@ hidgl_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   CHECK_IS_IN_CONTEXT ();
 
-  hidgl_ensure_triangle_space (gc, 2);
-  hidgl_add_triangle (gc, x1, y1, x1, y2, x2, y2);
-  hidgl_add_triangle (gc, x2, y1, x2, y2, x1, y1);
+  hidgl_ensure_vertex_space (gc, 6);
+
+  /* NB: Repeated first virtex to separate from other tri-strip */
+  hidgl_add_vertex_tex (gc, x1, y1, 0.0, 0.0);
+  hidgl_add_vertex_tex (gc, x1, y1, 0.0, 0.0);
+  hidgl_add_vertex_tex (gc, x1, y2, 0.0, 0.0);
+  hidgl_add_vertex_tex (gc, x2, y1, 0.0, 0.0);
+  hidgl_add_vertex_tex (gc, x2, y2, 0.0, 0.0);
+  hidgl_add_vertex_tex (gc, x2, y2, 0.0, 0.0);
+  /* NB: Repeated last virtex to separate from other tri-strip */
+}
+
+static void
+load_built_in_shaders (void)
+{
+  char *circular_fs_source =
+          "void main()\n"
+          "{\n"
+          "  float sqdist;\n"
+          "  sqdist = dot (gl_TexCoord[0].st, gl_TexCoord[0].st);\n"
+          "  if (sqdist > 1.0)\n"
+          "    discard;\n"
+          "  gl_FragColor = gl_Color;\n"
+          "}\n";
+
+  /*priv->*/circular_program = hidgl_shader_new ("circular_rendering", NULL, circular_fs_source);
 }
 
 void
@@ -773,6 +882,13 @@ hidgl_init (void)
     }
 
   /* Any one-time (hopefully!) hidgl setup goes in here */
+
+#if 0 /* Need to initialise shaders with a current GL context */
+  if (hidgl_shader_init_shaders ())
+    load_built_in_shaders ();
+  else
+    printf ("Failed to initialise shader support\n");
+#endif
 
   called = true;
 }
@@ -805,7 +921,7 @@ hidgl_new_instance (void)
 
   hidgl_reset_stencil_usage (hidgl);
 #endif
-  hidgl_init_triangle_array (hidgl);
+//  hidgl_init_triangle_array (hidgl);
 
   return hidgl;
 }
@@ -837,6 +953,7 @@ void
 hidgl_start_render (hidgl_instance *hidgl)
 {
   hidgl_priv *priv = hidgl->priv;
+  static bool called = false;
 
   if (in_context)
     fprintf (stderr, "hidgl: hidgl_start_render() - Already in rendering context!\n");
@@ -859,8 +976,19 @@ hidgl_start_render (hidgl_instance *hidgl)
       /* Do we need to disable that somewhere? */
     }
 
-  hidgl_reset_stencil_usage (hidgl);
+#if 1 /* Need to initialise shaders with a current GL context */
+  if (!called)
+    {
+      if (hidgl_shader_init_shaders ())
+        load_built_in_shaders ();
+      else
+        printf ("Failed to initialise shader support\n");
+      called = true;
+    }
+#endif
+
   hidgl_init_triangle_array (hidgl);
+  hidgl_shader_activate (/*priv->*/circular_program);
 }
 
 void
@@ -869,6 +997,8 @@ hidgl_finish_render (hidgl_instance *hidgl)
   if (!in_context)
     fprintf (stderr, "hidgl: hidgl_finish_render() - Not currently in rendering context!\n");
 
+  hidgl_finish_triangle_array (hidgl);
+  hidgl_shader_activate (NULL);
   in_context = false;
 }
 
