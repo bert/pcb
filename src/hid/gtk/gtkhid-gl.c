@@ -2072,6 +2072,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
 #endif
 
   /* Push the space coordinates board back into the middle of the z-view volume */
+  /* XXX: THIS CAUSES NEED FOR SCALING BY 11 IN ghid_unproject_to_z_plane(), FOR ORTHO VIEW ONLY! */
   glTranslatef (0., 0., -11.);
 
   /* Rotate about the center of the board space */
@@ -2769,11 +2770,57 @@ ghid_unproject_to_z_plane (int ex, int ey, Coord pcb_z, Coord *pcb_x, Coord *pcb
   J = last_modelview_matrix[1][2];
   K = last_modelview_matrix[2][2];
   L = last_modelview_matrix[3][2];
+
   /* I could assert that the last row is (as assumed) [0 0 0 1], but again.. I'm lazy */
+
+  /* XXX: Actually the last element is not 1, we use it to scale the PCB coordinates! */
+#if 0
+  printf ("row %f %f %f %f\n", last_modelview_matrix[0][0],
+                               last_modelview_matrix[1][0],
+                               last_modelview_matrix[2][0],
+                               last_modelview_matrix[3][0]);
+  printf ("row %f %f %f %f\n", last_modelview_matrix[0][1],
+                               last_modelview_matrix[1][1],
+                               last_modelview_matrix[2][1],
+                               last_modelview_matrix[3][1]);
+  printf ("row %f %f %f %f\n", last_modelview_matrix[0][2],
+                               last_modelview_matrix[1][2],
+                               last_modelview_matrix[2][2],
+                               last_modelview_matrix[3][2]);
+  printf ("Last row %f %f %f %f\n", last_modelview_matrix[0][3],
+                                    last_modelview_matrix[1][3],
+                                    last_modelview_matrix[2][3],
+                                    last_modelview_matrix[3][3]);
+#endif
+
+/*
+    ex = view_matrix[0][0] * vx +
+         view_matrix[0][1] * vy +
+         view_matrix[0][2] * vz +
+         view_matrix[0][3] * 1;
+    ey = view_matrix[1][0] * vx +
+         view_matrix[1][1] * vy +
+         view_matrix[1][2] * vz +
+         view_matrix[1][3] * 1;
+    UNKNOWN ez = view_matrix[2][0] * vx +
+                 view_matrix[2][1] * vy +
+                 view_matrix[2][2] * vz +
+                 view_matrix[2][3] * 1;
+    UNKNOWN ew = view_matrix[3][0] * vx +
+                 view_matrix[3][1] * vy +
+                 view_matrix[3][2] * vz +
+                 view_matrix[3][3] * 1;
+*/
 
   /* Convert from event coordinates to viewport coordinates */
   vpx = (float)ex / (float)widget->allocation.width * 2. - 1.;
   vpy = (float)ey / (float)widget->allocation.height * 2. - 1.;
+
+#ifdef VIEW_ORTHO
+  /* XXX: NOT SURE WHAT IS WRONG TO REQUIRE THIS... SOMETHING IS INCONSISTENT */
+  vpx /= 11.;
+  vpy /= 11.;
+#endif
 
   /* Convert our model space Z plane coordinte to float for convenience */
   fvz = (float)pcb_z;
