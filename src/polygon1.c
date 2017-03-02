@@ -1280,7 +1280,24 @@ label_contour (PLINE * a)
       assert (label == INSIDE || label == OUTSIDE);
       LABEL_EDGE (cure, label);
     }
-  while ((cure = NEXT_EDGE (cure)) != first_labelled);
+  while ((cure = NEXT_EDGE (cure)) != first_labelled && (first_labelled != NULL || cure != &a->head));
+
+  if (first_labelled == NULL)
+    {
+      if (EDGE_LABEL (&a->head) == UNKNWN)
+        {
+          g_warning ("Walked entire contour and couldn't find anything we could label - it is either all INSIDE or OUTSIDE");
+          /* Mark the contour as NOT intersected, so it can be treated separately below. */
+          /* XXX: Does this work with separated out intersected contours? */
+          a->Flags.status = UNKNWN;
+        }
+      else
+        {
+          g_warning ("Walked entire contour and couldn't find anything we could label - it is either all SHARED OR SHARED2");
+          /* Head was marked, so presumably the entire contour is either SHARED or SHARED2 */
+        }
+    }
+
 #warning The above loop could run forever if we encounter a contour where the only intersection gets nuked due to shared edges
 #ifdef DEBUG_ALL_LABELS
   print_labels (a);
@@ -1297,7 +1314,12 @@ cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl, BOOLp test)
     {
       label_contour (poly);	/* should never get here when BOOLp is true */
     }
-  else if (cntr_in_M_POLYAREA (poly, ppl, test))
+
+  /* label_contour may decide the contour is NOT intersected, and we must fall through to the tests below */
+  if (poly->Flags.status == ISECTED)
+    return false;
+
+  if (cntr_in_M_POLYAREA (poly, ppl, test))
     {
       if (test)
 	return TRUE;
@@ -2395,6 +2417,7 @@ M_POLYAREA_Collect_separated (jmp_buf * e, PLINE * afst, POLYAREA ** contours,
       if (cntr_Collect (e, cur, contours, holes, action, NULL, NULL, NULL))
 	next = cur;
     }
+  /* XXX: What about rogue contours we re-labelled as INSIDE or OUTSIDE - ARE THEY DEALT WITH OK? */
 }
 
 static void
