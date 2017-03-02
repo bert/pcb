@@ -262,7 +262,6 @@ object3d_from_board_outline (void)
 
       /* Define the vertices */
       ct = contour;
-      start_of_ct = 0;
       offset_in_ct = 0;
       ct_npoints = get_contour_npoints (ct);
 
