@@ -2949,8 +2949,6 @@ M_Set_Parentage (POLYAREA *poly, POLYPARENTAGE parentage)
 
 }
 
-static void test_polyInvContour (void);
-
 /*!
  * \brief Just like poly_Boolean but frees the input polys.
  */
@@ -2964,8 +2962,6 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
   int code;
   CVCList *the_list;
   POLYAREA *a_copy, *b_copy;
-
-  test_polyInvContour ();
 
   *res = NULL;
 
@@ -3349,32 +3345,6 @@ flip_cb (const BoxType * b, void *cl)
   struct seg *s = (struct seg *) b;
   s->v = PREV_EDGE (s->v);
   return 1;
-}
-
-static void
-test_polyInvContour (void)
-{
-  static bool done = false;
-  PLINE *contour;
-  Vector v;
-
-  if (done)
-    return;
-
-  printf ("Testing inv_contour\n");
-
-  v[0] = 0, v[1] = 0;           contour = poly_NewContour (poly_CreateNodeArcApproximation (v, 0, 0, 1));
-  v[0] = 0, v[1] = 2; poly_InclVertex (contour->head.prev, poly_CreateNodeArcApproximation (v, 0, 0, 3));
-  v[0] = 0, v[1] = 4; poly_InclVertex (contour->head.prev, poly_CreateNodeArcApproximation (v, 0, 0, 5));
-  v[0] = 0; v[1] = 6; poly_InclVertex (contour->head.prev, poly_CreateNodeArcApproximation (v, 0, 0, 7));
-
-  pline_dump (&contour->head);
-  poly_InvContour (contour);
-  pline_dump (&contour->head);
-
-  poly_FreeContours (&contour);
-
-  done = true;
 }
 
 void
