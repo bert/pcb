@@ -2863,6 +2863,25 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
 
 /* polygon routines */
 
+static BOOLp
+poly_Copy1 (POLYAREA * dst, const POLYAREA * src)
+{
+  PLINE *cur, **last = &dst->contours;
+
+  *last = NULL;
+  dst->f = dst->b = dst;
+
+  for (cur = src->contours; cur != NULL; cur = cur->next)
+    {
+      if (!poly_CopyContour (last, cur))
+        return FALSE;
+      r_insert_entry (dst->contour_tree, (BoxType *) * last, 0);
+      last = &(*last)->next;
+    }
+
+  return TRUE;
+}
+
 BOOLp
 poly_Copy0 (POLYAREA ** dst, const POLYAREA * src)
 {
@@ -2874,24 +2893,6 @@ poly_Copy0 (POLYAREA ** dst, const POLYAREA * src)
   (*dst)->contour_tree = r_create_tree (NULL, 0, 0);
 
   return poly_Copy1 (*dst, src);
-}
-
-BOOLp
-poly_Copy1 (POLYAREA * dst, const POLYAREA * src)
-{
-  PLINE *cur, **last = &dst->contours;
-
-  *last = NULL;
-  dst->f = dst->b = dst;
-
-  for (cur = src->contours; cur != NULL; cur = cur->next)
-    {
-      if (!poly_CopyContour (last, cur))
-	return FALSE;
-      r_insert_entry (dst->contour_tree, (BoxType *) * last, 0);
-      last = &(*last)->next;
-    }
-  return TRUE;
 }
 
 void

@@ -144,7 +144,6 @@ BOOLp poly_M_Copy0(POLYAREA ** dst, const POLYAREA * srcfst);
 void poly_M_Incl(POLYAREA **list, POLYAREA *a);
 
 BOOLp poly_Copy0(POLYAREA **dst, const POLYAREA *src);
-BOOLp poly_Copy1(POLYAREA  *dst, const POLYAREA *src);
 
 BOOLp poly_InclContour(POLYAREA * p, PLINE * c);
 BOOLp poly_ExclContour(POLYAREA * p, PLINE * c);
