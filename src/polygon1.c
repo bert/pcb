@@ -2396,6 +2396,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org,
 {
   POLYAREA *a = NULL, *b = NULL;
 
+  *res = NULL;
+
   if (!poly_M_Copy0 (&a, a_org) || !poly_M_Copy0 (&b, b_org))
     return err_no_memory;
 
