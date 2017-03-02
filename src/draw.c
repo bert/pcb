@@ -69,6 +69,7 @@
 #define	LARGE_TEXT_SIZE			3
 #define	N_TEXT_SIZES			4
 
+void ghid_set_lock_effects (hidGC gc, AnyObjectType *object);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -234,6 +235,7 @@ draw_element_name (ElementType *element)
   if ((TEST_FLAG (HIDENAMESFLAG, PCB) && hid_draw_is_gui (hid_draw)) ||
       TEST_FLAG (HIDENAMEFLAG, element))
     return;
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)element);
   if (doing_pinout || doing_assy)
     hid_draw_set_color (Output.fgGC, PCB->ElementColor);
   else if (TEST_FLAG (SELECTEDFLAG, &ELEMENT_TEXT (PCB, element)))
@@ -314,6 +316,7 @@ rat_callback (const BoxType * b, void *cl)
 static void
 draw_element_package (ElementType *element)
 {
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)element);
   /* set color and draw lines, arcs, text and pins */
   if (doing_pinout || doing_assy)
     hid_draw_set_color (Output.fgGC, PCB->ElementColor);
@@ -571,6 +574,7 @@ DrawEMark (ElementType *e, Coord X, Coord Y, bool invisible)
       mark_size = MIN (mark_size, pad0->Thickness / 2);
     }
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)e);
   hid_draw_set_color (Output.fgGC, invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
   hid_draw_set_line_cap (Output.fgGC, Trace_Cap);
   hid_draw_set_line_width (Output.fgGC, 0);

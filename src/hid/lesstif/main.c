@@ -4208,3 +4208,9 @@ hid_lesstif_init ()
   hid_register_hid (&lesstif_hid);
 #include "lesstif_lists.h"
 }
+
+/* XXX: DUMMY FUNCTION TO ENABLE BUILD */
+void
+ghid_set_lock_effects (hidGC gc, AnyObjectType *object)
+{
+}

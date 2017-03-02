@@ -7,6 +7,8 @@
 #include "draw.h"
 #include "hid_draw.h"
 
+void ghid_set_lock_effects (hidGC gc, AnyObjectType *object);
+
 static void
 set_object_color (AnyObjectType *obj, char *warn_color, char *selected_color,
                   char *connected_color, char *found_color, char *normal_color);
@@ -187,6 +189,7 @@ line_callback (const BoxType * b, void *cl)
   LayerType *layer = cl;
   LineType *line = (LineType *)b;
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)line);
   set_layer_object_color (layer, (AnyObjectType *) line);
   dapi->draw_line (line, NULL, NULL);
   return 1;
@@ -198,6 +201,7 @@ arc_callback (const BoxType * b, void *cl)
   LayerType *layer = cl;
   ArcType *arc = (ArcType *)b;
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)arc);
   set_layer_object_color (layer, (AnyObjectType *) arc);
   dapi->draw_arc (arc, NULL, NULL);
   return 1;
@@ -214,6 +218,7 @@ poly_callback (const BoxType * b, void *cl)
   struct poly_info *i = cl;
   PolygonType *polygon = (PolygonType *)b;
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)polygon);
   set_layer_object_color (i->layer, (AnyObjectType *) polygon);
   dapi->draw_poly (polygon, i->drawn_area, NULL);
   return 1;
@@ -226,6 +231,7 @@ text_callback (const BoxType * b, void *cl)
   TextType *text = (TextType *)b;
   int min_silk_line;
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)text);
   if (TEST_FLAG (SELECTEDFLAG, text))
     hid_draw_set_color (Output.fgGC, layer->SelectedColor);
   else
@@ -242,6 +248,7 @@ text_callback (const BoxType * b, void *cl)
 static void
 set_pv_inlayer_color (PinType *pv, LayerType *layer, int type)
 {
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)pv);
   if (TEST_FLAG (WARNFLAG, pv))          hid_draw_set_color (Output.fgGC, PCB->WarnColor);
   else if (TEST_FLAG (SELECTEDFLAG, pv)) hid_draw_set_color (Output.fgGC, (type == VIA_TYPE) ? PCB->ViaSelectedColor
                                                                                              : PCB->PinSelectedColor);
@@ -277,6 +284,7 @@ pad_inlayer_callback (const BoxType * b, void *cl)
 
   if (ON_SIDE (pad, side))
     {
+      ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)pad);
       if (TEST_FLAG (WARNFLAG, pad))          hid_draw_set_color (Output.fgGC, PCB->WarnColor);
       else if (TEST_FLAG (SELECTEDFLAG, pad)) hid_draw_set_color (Output.fgGC, PCB->PinSelectedColor);
       else if (TEST_FLAG (FOUNDFLAG, pad))    hid_draw_set_color (Output.fgGC, PCB->ConnectedColor);
@@ -347,6 +355,7 @@ pin_ok:
   if (!via_visible_on_layer_group (pin, info->current_group))
      return 1;
 
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)pin);
   set_object_color ((AnyObjectType *) pin, PCB->WarnColor,
                     PCB->PinSelectedColor, NULL, NULL, Settings.BlackColor);
 
@@ -396,7 +405,7 @@ via_ok:
   if (!via_visible_on_layer_group (via, info->current_group))
      return 1;
 
-
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)via);
   set_object_color ((AnyObjectType *) via, PCB->WarnColor,
                     PCB->ViaSelectedColor, NULL, NULL, Settings.BlackColor);
 
@@ -407,6 +416,7 @@ via_ok:
 static int
 pin_callback (const BoxType * b, void *cl)
 {
+  ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)b);
   set_object_color ((AnyObjectType *)b,
                     PCB->WarnColor, PCB->PinSelectedColor,
                     PCB->ConnectedColor, PCB->FoundColor, PCB->PinColor);
@@ -427,6 +437,7 @@ via_callback (const BoxType * b, void *cl)
 
   if (via_visible_on_layer_group (via, info->layer_group))
     {
+      ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)b);
       set_object_color ((AnyObjectType *)b,
                         PCB->WarnColor, PCB->ViaSelectedColor,
                         PCB->ConnectedColor, PCB->FoundColor, PCB->ViaColor);
@@ -444,6 +455,7 @@ pad_callback (const BoxType * b, void *cl)
 
   if (ON_SIDE (pad, *side))
     {
+      ghid_set_lock_effects (Output.fgGC, (AnyObjectType *)pad);
       set_object_color ((AnyObjectType *)pad, PCB->WarnColor,
                         PCB->PinSelectedColor, PCB->ConnectedColor, PCB->FoundColor,
                         FRONT (pad) ? PCB->PinColor : PCB->InvisibleObjectsColor);

@@ -384,3 +384,9 @@ hid_batch_init ()
   hid_register_hid (&batch_hid);
 #include "batch_lists.h"
 }
+
+/* XXX: DUMMY FUNCTION TO ENABLE BUILD */
+void
+ghid_set_lock_effects (hidGC gc, AnyObjectType *object)
+{
+}
