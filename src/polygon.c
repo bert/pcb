@@ -714,6 +714,9 @@ ArcPoly (ArcType * a, Coord thick)
   return ArcPolyNoIntersect (a, thick);
 }
 
+void pline_dump (VNODE * v);
+void poly_dump (POLYAREA * p);
+
 POLYAREA *
 LinePoly (LineType * L, Coord thick)
 {
@@ -779,6 +782,8 @@ LinePoly (LineType * L, Coord thick)
   /* now we have the line contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;
+
+  poly_dump (np);
 
   return np;
 }
@@ -1153,9 +1158,27 @@ line_sub_callback (const BoxType * b, void *cl)
   if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
     longjmp (info->env, 1);
 
+  if (info->batch_size == 2)
+    {
+      printf ("Batch no %i, input:\n",info->batch_size);
+      poly_dump (info->accumulate);
+      printf ("---- subtract from it:\n");
+      poly_dump (np);
+    }
+
   poly_Boolean_free (info->accumulate, np, &merged, PBO_UNITE);
+
+  if (info->batch_size == 2)
+    {
+      printf ("Ouptut:\n");
+      poly_dump (merged);
+      printf ("-----------\n");
+    }
+
   info->accumulate = merged;
   info->batch_size ++;
+
+  pcb_printf ("Line %mm, %mm - %mm, %mm\n", line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
 
   if (info->batch_size == SUBTRACT_LINE_BATCH_SIZE)
     subtract_accumulated (info, polygon);
@@ -1228,7 +1251,8 @@ clearPoly (DataType *Data, LayerType *Layer, PolygonType * polygon,
         r +=
           r_search (layer->line_tree, &region, NULL, line_sub_callback,
                     &info);
-        subtract_accumulated (&info, polygon);
+//        subtract_accumulated (&info, polygon);
+      polygon->Clipped = info.accumulate;
         r +=
           r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
 	r +=
@@ -1237,7 +1261,7 @@ clearPoly (DataType *Data, LayerType *Layer, PolygonType * polygon,
       END_LOOP;
       r += r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
       r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
-      subtract_accumulated (&info, polygon);
+//      subtract_accumulated (&info, polygon);
     }
   polygon->NoHolesValid = 0;
   return r;
