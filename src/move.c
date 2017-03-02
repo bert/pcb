@@ -812,7 +812,7 @@ line_line_intersect (double x1, double y1, double x2, double y2,
 
   if (x != NULL) *x = 0.0;
   if (y != NULL) *y = 0.0;
-  if (multiplier != NULL) *y = 0.0;
+  if (multiplier != NULL) *multiplier = 0.0;
 
   denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
   numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
@@ -860,15 +860,20 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   LineType *moving_line = NULL;
   void *ptr2;
   int i;
-  double min_multiplier = 1.0;
+  bool first_pass = true;
+  double min_multiplier = 0.0;
   double max_multiplier = 0.0;
+  bool found_line_at_0_end = false;
+  bool found_line_at_1_end = false;
 
-  if (Type == LINE_TYPE)
+  if (Type == LINE_TYPE) {
     moving_line = Ptr2;
+//    CLEAR_FLAG (RUBBERENDFLAG, moving_line);
+  }
 
   /* first clear any marks that we made in the line flags */
   for (i = 0, ptr = Crosshair.AttachedObject.Rubberband;
-       i > Crosshair.AttachedObject.RubberbandN;
+       i < Crosshair.AttachedObject.RubberbandN;
        i++, ptr++)
     CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
 
@@ -889,12 +894,32 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
         {
           double x, y, multiplier;
 
+          line_line_intersect (moving_line->Point1.X, moving_line->Point1.Y,
+                               moving_line->Point2.X, moving_line->Point2.Y,
+                               ptr->Line->Point1.X,   ptr->Line->Point1.Y,
+                               ptr->Line->Point2.X,   ptr->Line->Point2.Y,
+                               NULL,                  NULL,
+                               &multiplier);
+
+          if (fabs (multiplier - 0.0) < EPS)
+            found_line_at_0_end = true;
+
+          if (fabs (multiplier - 1.0) < EPS)
+            found_line_at_1_end = true;
+
           line_line_intersect (moving_line->Point1.X + DX, moving_line->Point1.Y + DY,
                                moving_line->Point2.X + DX, moving_line->Point2.Y + DY,
                                ptr->Line->Point1.X,        ptr->Line->Point1.Y,
                                ptr->Line->Point2.X,        ptr->Line->Point2.Y,
                                &x,                         &y,
                                &multiplier);
+
+          if (first_pass)
+            {
+              min_multiplier = multiplier;
+              max_multiplier = multiplier;
+              first_pass = false;
+            }
 
           min_multiplier = MIN (min_multiplier, multiplier);
           max_multiplier = MAX (max_multiplier, multiplier);
@@ -910,6 +935,12 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
     }
+
+    if (!found_line_at_0_end)
+      min_multiplier = MIN (min_multiplier, 0.0);
+
+    if (!found_line_at_1_end)
+      max_multiplier = MAX (max_multiplier, 1.0);
 
   if (Type == LINE_TYPE)
     {
