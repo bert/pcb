@@ -20,6 +20,8 @@
 
 #include "pcb-printf.h"
 
+#define PERFECT_ROUND_CONTOURS
+
 #define REVERSED_PCB_CONTOURS 1 /* PCB Contours are reversed from the expected CCW for outer ordering - once the Y-coordinate flip is taken into account */
 
 #ifdef REVERSED_PCB_CONTOURS
@@ -198,9 +200,11 @@ object3d_draw_debug (void)
 static int
 get_contour_npoints (PLINE *contour)
 {
+#ifdef PERFECT_ROUND_CONTOURS
   /* HACK FOR ROUND CONTOURS */
   if (contour->is_round)
     return 1;
+#endif
 
   return contour->Count;
 }
@@ -210,6 +214,7 @@ get_contour_coord_n_in_step_mm (PLINE *contour, int n, double *x, double *y)
 {
   VNODE *vertex = &contour->head;
 
+#ifdef PERFECT_ROUND_CONTOURS
   if (contour->is_round)
     {
       /* HACK SPECIAL CASE FOR ROUND CONTOURS */
@@ -223,6 +228,7 @@ get_contour_coord_n_in_step_mm (PLINE *contour, int n, double *x, double *y)
 
       return;
     }
+#endif
 
   while (n > 0)
     {
@@ -232,6 +238,35 @@ get_contour_coord_n_in_step_mm (PLINE *contour, int n, double *x, double *y)
 
   *x = COORD_TO_STEP_X (PCB, vertex->point[0]);
   *y = COORD_TO_STEP_Y (PCB, vertex->point[1]);
+}
+
+static bool
+get_contour_edge_n_is_round (PLINE *contour, int n)
+{
+#ifdef PERFECT_ROUND_CONTOURS
+  if (contour->is_round)
+    {
+      /* HACK SPECIAL CASE FOR ROUND CONTOURS */
+      return true;
+    }
+#endif
+
+  return false;
+}
+
+static void
+get_contour_edge_n_round_geometry_in_step_mm (PLINE *contour, int n, double *cx, double *cy, double *r, bool *cw)
+{
+#ifdef PERFECT_ROUND_CONTOURS
+  if (contour->is_round)
+    {
+      /* HACK SPECIAL CASE FOR ROUND CONTOURS */
+      *cx = COORD_TO_STEP_X (PCB, contour->cx);
+      *cy = COORD_TO_STEP_Y (PCB, contour->cy);
+      *r = COORD_TO_MM (contour->radius);
+      *cw = (contour->Flags.orient == PLF_INV);
+    }
+#endif
 }
 
 GList *
@@ -462,32 +497,41 @@ object3d_from_contours (const POLYAREA *contours,
           splice (SYM(edges[2 * npoints + i]),  edges[npoints + i]);
 #endif
 
-          if (ct->is_round)
+          if (get_contour_edge_n_is_round (ct, offset_in_ct))
             {
-              face3d_set_cylindrical (faces[i],
-                                      COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), 0., /* A point on the axis of the cylinder */
-                                      0., 0., 1.,                                                       /* Direction of the cylindrical axis */
-                                      COORD_TO_MM (ct->radius));
-              face3d_set_surface_orientation_reversed (faces[i]); /* XXX: Assuming this is a hole, the cylindrical surface normal points in the wrong direction - INCORRECT IF THIS IS THE OUTER CONTOUR!*/
+              double cx;
+              double cy;
+              double radius;
+              double normal_z;
+              bool cw;
+
+              get_contour_edge_n_round_geometry_in_step_mm (ct, offset_in_ct, &cx, &cy, &radius, &cw);
+
+              face3d_set_cylindrical (faces[i], cx, cy, 0., /* A point on the axis of the cylinder */
+                                                0., 0., 1., /* Direction of the cylindrical axis */
+                                                radius);
+
+              /* XXX: DEPENDS ON INSIDE / OUTSIDE CORNER!! */
+              if (ct->Flags.orient == PLF_INV)
+                face3d_set_surface_orientation_reversed (faces[i]);
+
               face3d_set_normal (faces[i], 1., 0., 0.);  /* A normal to the axis direction */
                                         /* XXX: ^^^ Could line this up with the direction to the vertex in the corresponding circle edge */
 
 #ifdef REVERSED_PCB_CONTOURS
-              edge_info_set_round (UNDIR_DATA (edges[i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, zbot), /* Center of circle */ /* BOTTOM */
-                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
-              edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, ztop), /* Center of circle */ /* TOP */
-                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+              normal_z = cw ? 1. : -1.; /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #else
-              edge_info_set_round (UNDIR_DATA (edges[i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, zbot), /* Center of circle */ /* BOTTOM */
-                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
-              edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, ztop), /* Center of circle */ /* TOP */
-                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+              normal_z = cw ? -1. : 1.; /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #endif
-              edge_info_set_stitch (UNDIR_DATA (edges[2 * npoints + i]));
+
+              edge_info_set_round (UNDIR_DATA (edges[i]),
+                                   cx, cy, COORD_TO_STEP_Z (PCB, zbot), /* Center of circle */ /* BOTTOM */
+                                   0., 0., normal_z, /* Normal */ radius);
+              edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
+                                   cx, cy, COORD_TO_STEP_Z (PCB, ztop), /* Center of circle */ /* TOP */
+                                   0., 0., normal_z, /* Normal */ radius);
+              if (ct->is_round)
+                edge_info_set_stitch (UNDIR_DATA (edges[2 * npoints + i]));
             }
 
         }
