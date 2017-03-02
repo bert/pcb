@@ -1867,6 +1867,10 @@ ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
           strcmp (layer->Name, "route") == 0)
         Data->outline_valid = false;
     }
+  else if (type == PIN_TYPE || type == VIA_TYPE)
+    {
+        Data->outline_valid = false;
+    }
 
   if (type == POLYGON_TYPE)
     InitClip (PCB->Data, (LayerType *) ptr1, (PolygonType *) ptr2);
