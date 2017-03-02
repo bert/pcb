@@ -73,6 +73,7 @@
 #define XOR(a,b)		(((a) && !(b)) || (!(a) && (b)))
 #define SQUARE(x)		((float) (x) * (float) (x))
 #define TO_RADIANS(degrees)	(M180 * (degrees))
+#define TO_DEGREES(radians)	((radians) / M180)
 
 /* Proper rounding for double -> Coord. */
 #define DOUBLE_TO_COORD(x) ((x) >= 0 ? (Coord)((x) + 0.5) : (Coord)((x) - 0.5))

@@ -169,8 +169,33 @@ thindraw_contour (hidGC gc, PLINE *pl)
       this_x = v->point[0];
       this_y = v->point[1];
 
-      hid_draw_line (gc, last_x, last_y, this_x, this_y);
-      // hid_draw_fill_circle (gc, this_x, this_y, 30);
+      if (v->prev->is_round)
+        {
+          Angle start_angle, end_angle, delta_angle;
+
+          start_angle = TO_DEGREES (atan2 ((v->prev->point[1] - v->prev->cy), -(v->prev->point[0] - v->prev->cx)));
+          end_angle   = TO_DEGREES (atan2 ((      v->point[1] - v->prev->cy), -(      v->point[0] - v->prev->cx)));
+          delta_angle = end_angle - start_angle;
+
+          if (delta_angle > 180.) delta_angle -= 360.;
+          if (delta_angle < -180.) delta_angle += 360.;
+
+          hid_draw_arc (gc, v->prev->cx, v->prev->cy, v->prev->radius, v->prev->radius, start_angle, delta_angle);
+
+          /* Fill the head vertex */
+          if (v == &pl->head)
+            hid_draw_fill_circle (gc, this_x, this_y, MIL_TO_COORD (3));
+          else
+            hid_draw_arc (gc, this_x, this_y, MIL_TO_COORD (3), MIL_TO_COORD (3), 0, 360);
+        }
+      else
+        {
+          if (v == &pl->head)
+            hid_draw_fill_circle (gc, this_x, this_y, MIL_TO_COORD (1.5));
+          else
+            hid_draw_arc (gc, this_x, this_y, MIL_TO_COORD (1.5), MIL_TO_COORD (1.5), 0, 360);
+          hid_draw_line (gc, last_x, last_y, this_x, this_y);
+        }
 
       last_x = this_x;
       last_y = this_y;
