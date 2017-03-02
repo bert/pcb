@@ -136,10 +136,6 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 
 #define error(code)  longjmp(*(e), code)
 
-#define MemGet(ptr, type) \
-  if (UNLIKELY (((ptr) = (type *)malloc(sizeof(type))) == NULL))	\
-    error(err_no_memory);
-
 #undef DEBUG_LABEL
 #undef DEBUG_ALL_LABELS
 #undef DEBUG_JUMP
