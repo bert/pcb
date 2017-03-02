@@ -149,12 +149,14 @@ thindraw_contour (hidGC gc, PLINE *pl)
   hid_draw_set_line_width (gc, 0);
   hid_draw_set_line_cap (gc, Round_Cap);
 
+#if 0
   /* If the contour is round, use an arc drawing routine. */
   if (pl->is_round)
     {
       hid_draw_arc (gc, pl->cx, pl->cy, pl->radius, pl->radius, 0, 360);
       return;
     }
+#endif
 
   /* Need at least two points in the contour */
   if (pl->head.next == NULL)
