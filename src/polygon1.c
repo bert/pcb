@@ -278,6 +278,7 @@ new_descriptor (VNODE * a, char poly, char side)
 	    PREV_VERTEX (a)->cvc_prev = PREV_VERTEX (a)->cvc_next = NULL;
 	  poly_ExclVertex (PREV_VERTEX (a));
 	  vect_sub (v, PREV_VERTEX (a)->point, a->point);
+#warning DOES THIS LEAK A VERTEX?
 	}
       else
 	{
@@ -285,6 +286,7 @@ new_descriptor (VNODE * a, char poly, char side)
 	    NEXT_VERTEX (a)->cvc_prev = NEXT_VERTEX (a)->cvc_next = NULL;
 	  poly_ExclVertex (NEXT_VERTEX (a));
 	  vect_sub (v, NEXT_VERTEX (a)->point, a->point);
+#warning DOES THIS LEAK A VERTEX?
 	}
     }
   assert (!vect_equal (v, vect_zero));
@@ -2659,10 +2661,10 @@ poly_CreateNode (Vector v)
   Coord *c;
 
   assert (v);
-  res = (VNODE *) calloc (1, sizeof (VNODE));
+  res = g_slice_new0 (VNODE);
   if (res == NULL)
     return NULL;
-  // bzero (res, sizeof (VNODE) - sizeof(Vector));
+
   c = res->point;
   *c++ = *v++;
   *c = *v;
@@ -2697,7 +2699,7 @@ poly_NewContour (VNODE *node)
 
   Vcopy (res->head.point, node->point);
   cntrbox_adjust (res, res->head.point);
-  free (node);
+  g_slice_free (VNODE, node);
 
   return res;
 }
@@ -2711,7 +2713,7 @@ poly_ClrContour (PLINE * c)
   while ((cur = NEXT_EDGE (&c->head)) != &c->head)
     {
       poly_ExclVertex (cur);
-      free (cur);
+      g_slice_free (VNODE, cur);
     }
   free (c->tristrip_vertices);
   c->tristrip_vertices = NULL;
@@ -2734,7 +2736,7 @@ poly_DelContour (PLINE ** c)
 	  free (cur->cvc_next);
 	  free (cur->cvc_prev);
 	}
-      free (cur);
+      g_slice_free (VNODE, cur);
     }
   if ((*c)->head.cvc_next != NULL)
     {
@@ -2776,7 +2778,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 	  if (vect_det2 (p1, p2) == 0)
 	    {
 	      poly_ExclVertex (c);
-	      free (c);
+	      g_slice_free (VNODE, c);
 	      c = p;
 	    }
 	}
@@ -2879,7 +2881,7 @@ poly_InclVertex (VNODE * after, VNODE * node)
       VNODE *t = PREV_VERTEX (node);
       NEXT_VERTEX (PREV_VERTEX (t)) = node;
       PREV_VERTEX (node) = PREV_VERTEX (t);
-      free (t);
+      g_slice_free (VNODE, t);
     }
 }
 
