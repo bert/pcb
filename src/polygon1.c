@@ -1704,16 +1704,14 @@ Gather (VNODE *startv, PLINE **result, J_Rule j_rule, DIRECTION initdir)
   return err_ok;
 }				/* Gather */
 
-/* cure is considered an edge */
+/* curv is considered a vertex */
 static void
-Collect1 (jmp_buf *e, VNODE *cure, DIRECTION dir, POLYAREA **contours,
+Collect1 (jmp_buf *e, VNODE *curv, DIRECTION dir, POLYAREA **contours,
           PLINE **holes, J_Rule j_rule)
 {
   PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
-  if ((errc = Gather ((dir == FORW) ? EDGE_BACKWARD_VERTEX (cure) :
-                                      EDGE_FORWARD_VERTEX (cure),
-                      &p, j_rule, dir)) != err_ok)
+  if ((errc = Gather (curv, &p, j_rule, dir)) != err_ok)
     {
       if (p != NULL)
 	poly_DelContour (&p);
@@ -1761,7 +1759,9 @@ Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes
 #endif
 
       if (j_rule (poly, cure, &dir) && cure->Flags.mark == 0)
-	Collect1 (e, cure, dir, contours, holes, j_rule);
+        Collect1 (e, (dir == FORW) ? EDGE_BACKWARD_VERTEX (cure) :
+                                     EDGE_FORWARD_VERTEX (cure),
+                  dir, contours, holes, j_rule);
     }
   while ((cure = NEXT_EDGE (cure)) != &a->head);
 }				/* Collect */
