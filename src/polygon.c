@@ -306,7 +306,7 @@ original_poly (PolygonType * p)
       v[1] = p->Points[n].Y;
       if (contour == NULL)
         {
-          if ((contour = poly_NewContour (v)) == NULL)
+          if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
             return NULL;
         }
       else
@@ -353,7 +353,7 @@ RectPoly (Coord x1, Coord x2, Coord y1, Coord y2)
 
   v[0] = x1;
   v[1] = y1;
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return NULL;
   v[0] = x2;
   v[1] = y1;
@@ -375,7 +375,7 @@ OctagonPoly (Coord x, Coord y, Coord radius)
 
   v[0] = x + ROUND (radius * 0.5);
   v[1] = y + ROUND (radius * TAN_22_5_DEGREE_2);
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return NULL;
   v[0] = x + ROUND (radius * TAN_22_5_DEGREE_2);
   v[1] = y + ROUND (radius * 0.5);
@@ -445,7 +445,7 @@ CirclePoly (Coord x, Coord y, Coord radius)
     return NULL;
   v[0] = x + radius;
   v[1] = y;
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return NULL;
   frac_circle (contour, x, y, v, 1);
   contour->is_round = TRUE;
@@ -469,7 +469,7 @@ RoundRect (Coord x1, Coord x2, Coord y1, Coord y2, Coord t)
   assert (y2 > y1);
   v[0] = x1 - t;
   v[1] = y1;
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return NULL;
   frac_circle (contour, x1, y1, v, 4);
   v[0] = x2;
@@ -524,7 +524,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick)
   radius_adj = (M_PI*da/360)*(M_PI*da/360)/2;
   v[0] = a->X - rx * cos (ang * M180);
   v[1] = a->Y + ry * sin (ang * M180);
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return 0;
   for (i = 0; i < segs - 1; i++)
     {
@@ -628,7 +628,7 @@ LinePoly (LineType * L, Coord thick)
     }
   v[0] = l->Point1.X - dx;
   v[1] = l->Point1.Y - dy;
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return 0;
   v[0] = l->Point2.X - dx;
   v[1] = l->Point2.Y - dy;
@@ -702,7 +702,7 @@ SquarePadPoly (PadType * pad, Coord clear)
 
   v[0] = c->Point1.X - tx;
   v[1] = c->Point1.Y - ty;
-  if ((contour = poly_NewContour (v)) == NULL)
+  if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return 0;
   frac_circle (contour, (t->Point1.X - tx), (t->Point1.Y - ty), v, 4);
 

@@ -115,7 +115,7 @@ struct PLINE
     float *tristrip_vertices;
 };
 
-PLINE *poly_NewContour(Vector v);
+PLINE *poly_NewContour(VNODE *node);
 
 void poly_IniContour(PLINE *  c);
 void poly_ClrContour(PLINE *  c);  /* clears list of vertices */
