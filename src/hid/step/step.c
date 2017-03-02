@@ -267,6 +267,8 @@ step_emit_board_contour (FILE *f, PLINE *contour)
 
   PLINE *ct;
 
+  char *face_name;
+
   ncontours = 0;
   npoints = 0;
   ct = contour;
@@ -590,7 +592,7 @@ step_emit_board_contour (FILE *f, PLINE *contour)
       global.next_identifier = global.next_identifier + 2;
     }
 
-    fprintf (f, "#%i = ADVANCED_FACE ( 'NONE', ( ",
+    fprintf (f, "#%i = ADVANCED_FACE ( 'Bottom', ( ",
              global.next_identifier);
     for (icont = 0; icont < ncontours - 1; icont++)
       fprintf (f, "#%i, ",
@@ -621,7 +623,7 @@ step_emit_board_contour (FILE *f, PLINE *contour)
       global.next_identifier = global.next_identifier + 2;
     }
 
-    fprintf (f, "#%i = ADVANCED_FACE ( 'NONE', ( ",
+    fprintf (f, "#%i = ADVANCED_FACE ( 'Top', ( ",
              global.next_identifier);
     for (icont = 0; icont < ncontours - 1; icont++)
       fprintf (f, "#%i, ",
@@ -646,12 +648,14 @@ step_emit_board_contour (FILE *f, PLINE *contour)
       ct = ct->next;
     }
 
+    face_name = (ct->name != NULL) ? ct->name : "";
+
     fprintf (f, "#%i = EDGE_LOOP ( 'NONE', ( #%i, #%i, #%i, #%i ) ) ; "
                 "#%i = FACE_OUTER_BOUND ( 'NONE', #%i, .T. ) ; "
-                "#%i = ADVANCED_FACE ( 'NONE', ( #%i ), #%i, .F. ) ;\n",
+                "#%i = ADVANCED_FACE ( '%s', ( #%i ), #%i, .F. ) ;\n",
              global.next_identifier, side_edge_identifier[i_start + (adjusted_i + 1) % get_contour_npoints (ct)] + REV, top_edge_identifier[i] + FWD, side_edge_identifier[i] + FWD, bottom_edge_identifier[i] + REV,
              global.next_identifier + 1, global.next_identifier,
-             global.next_identifier + 2, global.next_identifier + 1, side_plane_identifier[i]);
+             global.next_identifier + 2, face_name, global.next_identifier + 1, side_plane_identifier[i]);
     side_face_identifier[i] = global.next_identifier + 2;
     global.next_identifier = global.next_identifier + 3;
   }

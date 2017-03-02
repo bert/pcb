@@ -96,7 +96,7 @@ void ComputeNoHoles (PolygonType *poly);
 POLYAREA * ContourToPoly (PLINE *);
 POLYAREA * PolygonToPoly (PolygonType *);
 POLYAREA * RectPoly (Coord x1, Coord x2, Coord y1, Coord y2);
-POLYAREA * CirclePoly (Coord x, Coord y, Coord radius);
+POLYAREA * CirclePoly (Coord x, Coord y, Coord radius, char *name);
 POLYAREA * OctagonPoly(Coord x, Coord y, Coord radius);
 POLYAREA * LinePoly(LineType *l, Coord thick);
 POLYAREA * ArcPoly(ArcType *l, Coord thick);

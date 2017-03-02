@@ -616,9 +616,14 @@ frac_circle2 (PLINE * c, Coord X, Coord Y, Vector v, int fraction)
 
 /*!
  * \brief Create a circle approximation from lines.
+ *
+ * NB: Name can be NULL, but once passed is owned by the contour.
+ *     It will be free'd with free() when no longer required, so
+ *     must be allocated by the standard library routines such as
+ *     malloc, calloc, realloc.
  */
 POLYAREA *
-CirclePoly (Coord x, Coord y, Coord radius)
+CirclePoly (Coord x, Coord y, Coord radius, char *name)
 {
   PLINE *contour;
   Vector v;
@@ -634,6 +639,7 @@ CirclePoly (Coord x, Coord y, Coord radius)
   contour->cx = x;
   contour->cy = y;
   contour->radius = radius;
+  contour->name = name;
   return ContourToPoly (contour);
 }
 
@@ -815,7 +821,7 @@ LinePoly (LineType * L, Coord thick)
   d = hypot (l->Point1.X - l->Point2.X, l->Point1.Y - l->Point2.Y);
   if (!TEST_FLAG (SQUAREFLAG,l))
     if (d == 0)                   /* line is a point */
-      return CirclePoly (l->Point1.X, l->Point1.Y, half);
+      return CirclePoly (l->Point1.X, l->Point1.Y, half, NULL);
   if (d != 0)
     {
       d = half / d;
@@ -1028,7 +1034,7 @@ PinPoly (PinType * pin, Coord thick, Coord clear)
           return OctagonPoly (pin->X, pin->Y, size + size);
         }
     }
-  return CirclePoly (pin->X, pin->Y, size);
+  return CirclePoly (pin->X, pin->Y, size, NULL);
 }
 
 POLYAREA *
@@ -2002,7 +2008,7 @@ IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonType *p)
     return true;
   if (r < 1)
     return false;
-  if (!(c = CirclePoly (X, Y, r)))
+  if (!(c = CirclePoly (X, Y, r, NULL)))
     return false;
   return isects (c, p, true);
 }
@@ -2359,11 +2365,36 @@ pv_outline_callback (const BoxType * b, void *cl)
   PinType *pv = (PinType *)b;
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
+  char *feature_name;
+
+  if (pv->Element != NULL)
+    {
+      char *element_name = ((ElementType *)pv->Element)->Name[NAMEONPCB_INDEX].TextString;
+      char *pin_number = pv->Number;
+
+      if (element_name != NULL && pin_number != NULL)
+        {
+          char *tmp;
+
+          feature_name = tmp = malloc (strlen (element_name) + 1 + strlen (pin_number) + 1);
+          tmp = stpcpy (tmp, element_name);
+          *(tmp++) = '-';
+          tmp = stpcpy (tmp, pin_number);
+        }
+      else
+        {
+          feature_name = NULL;
+        }
+    }
+  else
+    {
+      feature_name = STRDUP(pv->Name);
+    }
 
 #ifdef DEBUG_CIRCSEGS
-  if (!(np = CirclePoly (pv->X, pv->Y, pv->Thickness / 2)))
+  if (!(np = CirclePoly (pv->X, pv->Y, pv->Thickness / 2, feature_name)))
 #else
-  if (!(np = CirclePoly (pv->X, pv->Y, pv->DrillingHole / 2)))
+  if (!(np = CirclePoly (pv->X, pv->Y, pv->DrillingHole / 2, feature_name)))
 #endif
     return 0;
 

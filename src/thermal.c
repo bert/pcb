@@ -438,8 +438,8 @@ ThermPoly (PCBType *p, PinType *pin, Cardinal laynum)
         POLYAREA *m;
         Coord t = (pin->Thickness + pin->Clearance) / 2;
         Coord w = 0.5 * pcb->ThermScale * pin->Clearance;
-        pa = CirclePoly (pin->X, pin->Y, t);
-        arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2);
+        pa = CirclePoly (pin->X, pin->Y, t, NULL);
+        arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2, NULL);
         /* create a thin ring */
         poly_Boolean_free (pa, arc, &m, PBO_SUB);
         /* fix me needs error checking */
