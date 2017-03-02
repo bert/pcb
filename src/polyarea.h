@@ -92,7 +92,6 @@ struct VNODE
     } Flags;
     CVCList *cvc_prev;
     CVCList *cvc_next;
-    bool cvc_is_dummy;
     Vector point;
 };
 
