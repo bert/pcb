@@ -47,7 +47,6 @@
 
 #include "global.h"
 
-#undef NDEBUG
 #include <assert.h>
 #include <inttypes.h>
 #include <setjmp.h>

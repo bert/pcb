@@ -72,7 +72,6 @@
  * for arcs
  */
 
-#undef NDEBUG
 #include	<assert.h>
 #include	<stdlib.h>
 #include	<stdio.h>
@@ -142,12 +141,12 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 
 #define error(code)  longjmp(*(e), code)
 
-#define DEBUG_LABEL
-#define DEBUG_ALL_LABELS
-#define DEBUG_JUMP
-#define DEBUG_GATHER
-#define DEBUG_ANGLE
-#define DEBUG
+#undef DEBUG_LABEL
+#undef DEBUG_ALL_LABELS
+#undef DEBUG_JUMP
+#undef DEBUG_GATHER
+#undef DEBUG_ANGLE
+#undef DEBUG
 #ifdef DEBUG
 #define DEBUGP(...) pcb_fprintf(stderr, ## __VA_ARGS__)
 #else
@@ -1724,10 +1723,7 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
   if (!(*curv)->cvc_prev)	/* not a cross-vertex */
     {
       if (VERTEX_DIRECTION_EDGE (*curv, *cdir)->Flags.mark)
-        {
-          g_warning ("Nowhere to go at normal-vertex");
-	  return FALSE;
-        }
+	return FALSE;
       return TRUE;
     }
 #ifdef DEBUG_JUMP
@@ -1760,7 +1756,6 @@ jump (VNODE **curv, DIRECTION *cdir, J_Rule j_rule)
 	}
     }
   while ((d = d->prev) != start); /* Keep searching around the cvc vertex for a suitable exit edge */
-  g_warning ("Nowhere to go at cross-vertex");
   return FALSE;
 }
 
@@ -2453,33 +2448,21 @@ static CVCList *
 add_dummy_descriptors_at_point_from_pline (Vector point, PLINE * pl, char poly, CVCList * list)
 {
   VNODE *node = &pl->head; /* node is considered a vertex */
-  int count = 0;
-  int prev_count = 0;
-  int next_count = 0;
 
-  pcb_fprintf (stderr, "LOOKING FOR VERTICES AT POINT (%$mn, %$mn), from PLINE %p\n", point[0], point[1], pl);
-
-#warning THIS ONLY CATCHES NODES FROM THE CURRENT PLINE.. THERE MAY BE MULTIPLE PLINE TO CONSIDER!!
   do
     {
       if (vect_equal (node->point, point))
         {
-          count++;
-          if (node->cvc_prev == NULL &&
-1)//              !VERTEX_BACKWARD_EDGE (node)->Flags.mark) /* Don't bother re-adding an edge we've decided we don't want traversed */
+          if (node->cvc_prev == NULL)
             {
-              prev_count++;
               list = node->cvc_prev = insert_descriptor (node, poly, 'P', list);
               g_return_val_if_fail (node->cvc_prev != NULL, NULL);
             }
-          if (node->cvc_next == NULL &&
-1)//              !VERTEX_FORWARD_EDGE (node)->Flags.mark) /* Don't bother re-adding an edge we've decided we don't want traversed */
+          if (node->cvc_next == NULL)
             {
-              next_count++;
               list = node->cvc_next = insert_descriptor (node, poly, 'N', list);
               g_return_val_if_fail (node->cvc_next != NULL, NULL);
             }
-          fprintf (stderr, "Found a match (Total %i Prev %i, Next %i)\n", count, prev_count, next_count);
         }
     }
   while ((node = NEXT_VERTEX(node)) != &pl->head);
@@ -2491,8 +2474,6 @@ add_dummy_descriptors_at_point (Vector point, char poly, CVCList * list, POLYARE
 {
   POLYAREA *b = bfst;
   PLINE *cur;
-
-  pcb_fprintf (stderr, "LOOKING FOR VERTICES AT POINT (%$mn, %$mn)\n", point[0], point[1]);
 
   assert (b != NULL);
   do
@@ -2532,47 +2513,6 @@ next_cvc_from_same_poly (CVCList *start)
   return n;
 }
 
-#if 1
-static void
-cvc_list_dump (CVCList *list)
-{
-  VNODE *node;
-  CVCList *iter;
-  int count = 0;
-
-  if (list == NULL)
-    {
-      fprintf (stderr, "CVC list is NULL\n");
-      return;
-    }
-
-  node = list->parent;
-
-  pcb_fprintf (stderr, "Dumping CVC list at (%$mn, %$mn)\n", node->point[0], node->point[1]);
-
-  iter = list;
-  do {
-    count ++;
-#if 1
-    pcb_fprintf (stderr, "%p: angle = %.30e, poly = %c, side = %c, (%mn, %mn)-(%mn, %mn), Vertices: %p-%p Edge: %p\n",
-                 iter,
-                 iter->angle,
-                 iter->poly,
-                 iter->side,
-                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
-                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
-                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
-                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
-                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
-                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
-                 VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side));
-#endif
-  } while ((iter = iter->next) != list);
-
-  if ((count & 1) != 0)
-    g_critical ("Ended up with odd number of entries in CVC list");
-}
-#endif
 
 static seg *
 find_edge_seg (VNODE *edge, PLINE *contour)
@@ -2668,8 +2608,6 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
       l = first_l;
       do
         {
-          cvc_list_dump (l);
-
           n =  next_cvc_from_same_poly (l);
 
           /* Skip testing if we wrapped around, and only had one pair to test */
@@ -2682,8 +2620,6 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
             {
               g_warning ("Wrapped around and found ourselves in the CVCList.. not quite sure how we managed that\n"
                          "Did we perhaps delete the start descriptor? Odd number of entries in a CVCList??");
-
-              cvc_list_dump (l);
               break;
             }
 #endif
@@ -2698,15 +2634,9 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
               VNODE *l_otherend = EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side);
               VNODE *n_otherend = EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (n->parent, n->side), n->side);
               VNODE *point_v; /* As vertex */
-              Vector point;
-
-              Vcopy (point, l->parent->point);
 
               if (vect_equal (l_otherend->point, n_otherend->point))
                 {
-                  g_critical ("Finding hairline edge pair");
-
-
                   /* Mark the shared edges from being used in any possibly existing
                    * cross-connected node at their other ends.
                    *
@@ -2716,9 +2646,7 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
                    */
 
                   /* NOTE: 'P' at this node means 'N' at otherend */
-                  fprintf (stderr, "Removing CVC descriptor at %p\n", (l->side == 'P') ? l_otherend->cvc_next : l_otherend->cvc_prev);
                   mark_cvc_list_entry_as_skip ((l->side == 'P') ? l_otherend->cvc_next : l_otherend->cvc_prev);
-                  fprintf (stderr, "Removing CVC descriptor at %p\n", (n->side == 'P') ? n_otherend->cvc_next : n_otherend->cvc_prev);
                   mark_cvc_list_entry_as_skip ((n->side == 'P') ? n_otherend->cvc_next : n_otherend->cvc_prev);
 
                   point_v = l_otherend; /* Vertex end where we will ensure descriptors exist */
@@ -2732,21 +2660,6 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
                   char longer_side;
                   char shorter_side;
 //                  seg *node_seg;
-
-                  g_critical ("Check found hairline edge pair (by compare_cvc_nodes), but geometry of each edge is different!");
-                  /* XXX: Not sure how to handle this case... might get away with deleting the vertex in the middle of the
-                   *      two colinear edges, and fixing up any geometry accordingly. If that middle vertex was cross-connected,
-                   *      then - perhaps we just need to un-cross-connect it?
-                   */
-
-                  pcb_fprintf (stderr, "%p (%$mn, %$mn)-(%$mn, %$mn)\n",
-                               VERTEX_SIDE_DIR_EDGE (l->parent, l->side),
-                               l->parent->point[0], l->parent->point[1],
-                               l_otherend->point[0], l_otherend->point[1]);
-                  pcb_fprintf (stderr, "%p (%$mn, %$mn)-(%$mn, %$mn)\n",
-                               VERTEX_SIDE_DIR_EDGE (n->parent, n->side),
-                               n->parent->point[0], n->parent->point[1],
-                               n_otherend->point[0], n_otherend->point[1]);
 
                   /* Pick which edge is longer, to insert into.
                    * NOTE: Should work for arcs less than 180 degrees span
@@ -2780,8 +2693,6 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
                   new_node = node_add_single_point (VERTEX_SIDE_DIR_EDGE (longer, longer_side), point_v->point);
                   g_assert (new_node != NULL);
                   new_node->cvc_prev = new_node->cvc_next = NULL;
-
-                  pcb_fprintf (stderr, "Insertion node is (%$mn, %$mn)\n", point_v->point[0], point_v->point[1]);
 
                   {
                     /* Need a copy of the original longer edge pointer, as
@@ -2829,8 +2740,6 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
 
                 }
 
-              cvc_list_dump (l);
-
               /* Simple approach - just mark the edges as visited, so we don't traverse them!
                * Doing it this way ensures that both pieces of the contour are reachable if
                * the hairline edge pair splits this PLINE into two pieces. Since we will ensure
@@ -2839,31 +2748,16 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
                */
               VERTEX_SIDE_DIR_EDGE (l->parent, l->side)->Flags.mark = true;
               VERTEX_SIDE_DIR_EDGE (n->parent, n->side)->Flags.mark = true;
-              fprintf (stderr, "Marking EDGE %p as visited\n", VERTEX_SIDE_DIR_EDGE (l->parent, l->side));
-              fprintf (stderr, "Marking EDGE %p as visited\n", VERTEX_SIDE_DIR_EDGE (n->parent, n->side));
 
-              fprintf (stderr, "Dumping CVC list prior to adding our new nodes\n");
-              cvc_list_dump (find_cvc_at_point (the_list, point));
               add_dummy_descriptors_at_point (point_v->point, first_l->poly, l, bfst); /* Picking 'l' for an arbitrary start CVCList */
-              fprintf (stderr, "Dumping CVC list after adding our new nodes\n");
-              cvc_list_dump (find_cvc_at_point (the_list, point));
 
               /* Now mark the vertices from this CVC list, to avoid complicating the edge labeling code. */
-
-#if 0
-              /* NOTE: 'P' at this node means 'N' at otherend */
-              fprintf (stderr, "Removing CVC descriptor at %p\n", (l->side == 'P') ? l_otherend->cvc_next : l_otherend->cvc_prev);
-              mark_cvc_list_entry_as_skip ((l->side == 'P') ? l_otherend->cvc_next : l_otherend->cvc_prev);
-              fprintf (stderr, "Removing CVC descriptor at %p\n", (n->side == 'P') ? n_otherend->cvc_next : n_otherend->cvc_prev);
-              mark_cvc_list_entry_as_skip ((n->side == 'P') ? n_otherend->cvc_next : n_otherend->cvc_prev);
-#endif
 
               /* Find the next eligible edge to start from, since we're about to delete the
                * one we would otherwise have used in the next iteration
                */
               nn =  next_cvc_from_same_poly (n);
 
-              fprintf (stderr, "first_l = %p\n", first_l);
               if (l == first_l)
                 {
                   /* NOTE: Need to advance twice, as we're removing this, AND the next descriptor */
@@ -2873,19 +2767,12 @@ PLINE_check_hairline_edges (CVCList *the_list, PLINE *contour, POLYAREA *bfst)
                     terminate_after_this_iteration = true;
                 }
 
-              fprintf (stderr, "Removing CVC descriptor at %p\n", l);
               mark_cvc_list_entry_as_skip (l);
 
-#warning ACTUALLY, THIS IS HIT WHEN WE REMOVE THE FIRST EDGE IN l ABOVE.. NEED TO COPE MORE GRACEFULLY!
               if (n == first_l)
-                {
-                  fprintf (stderr, "NOTE (2)\n");
-                  terminate_after_this_iteration = true;
-                }
+                terminate_after_this_iteration = true;
 
-              fprintf (stderr, "Removing CVC descriptor at %p\n", n);
               mark_cvc_list_entry_as_skip (n);
-              cvc_list_dump (find_cvc_at_point (the_list, point));
 
               n = nn;
               // XXX: What if we delete the last cross-connected vertex?? Probably the labelling code fails, as it won't know if the
@@ -2985,8 +2872,6 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 
   *res = NULL;
 
-  g_warning ("BEGIN BOOLEAN");
-
   if (!a)
     {
       switch (action)
@@ -3075,7 +2960,6 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
     }
   assert (!*res || poly_Valid (*res));
 
-  g_warning ("END BOOLEAN");
   return code;
 }				/* poly_Boolean_free */
 
