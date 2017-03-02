@@ -24,6 +24,7 @@ object3d_export_to_step (object3d *object, const char *filename)
   struct tm utc;
   int next_step_identifier;
   int geometric_representation_context_identifier;
+  int shape_representation_identifier;
   int brep_identifier;
   int pcb_shell_identifier;
   int brep_style_identifier;
@@ -94,12 +95,13 @@ object3d_export_to_step (object3d *object, const char *filename)
               "#16 =( NAMED_UNIT ( * ) PLANE_ANGLE_UNIT ( ) SI_UNIT ( $, .RADIAN. ) );\n"
               "#17 =( NAMED_UNIT ( * ) SI_UNIT ( $, .STERADIAN. ) SOLID_ANGLE_UNIT ( ) );\n"
               "#18 =( GEOMETRIC_REPRESENTATION_CONTEXT ( 3 ) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT ( ( #14 ) ) GLOBAL_UNIT_ASSIGNED_CONTEXT ( ( #15, #16, #17 ) ) REPRESENTATION_CONTEXT ( 'NONE', 'WORKASPACE' ) );\n");
-
-  fprintf (f, "#19 = ADVANCED_BREP_SHAPE_REPRESENTATION ( '%s', ( /* Manifold_solid_brep */ #21, #13 ), #18 ) ;\n"
-              "#20 = SHAPE_DEFINITION_REPRESENTATION ( #9, #19 ) ;\n",
-              "test_pcb_absr_name");
-
   geometric_representation_context_identifier = 18;
+
+  /* Save a place for the advanced_brep_shape_representation identifier */
+  next_step_identifier = 19;
+  shape_representation_identifier = next_step_identifier++;
+
+  fprintf (f, "#20 = SHAPE_DEFINITION_REPRESENTATION ( #9, #%i ) ;\n", shape_representation_identifier);
 
   /* Save a place for the brep identifier */
   next_step_identifier = 21;
@@ -147,7 +149,6 @@ object3d_export_to_step (object3d *object, const char *filename)
                    next_step_identifier + 3, next_step_identifier, next_step_identifier + 1, next_step_identifier + 2,
                    next_step_identifier + 4, next_step_identifier + 3, face->radius);
 
-          face->surface_orientation_reversed = true;
           face->surface_identifier = next_step_identifier + 4;
           next_step_identifier = next_step_identifier + 5;
         }
@@ -190,7 +191,6 @@ object3d_export_to_step (object3d *object, const char *filename)
                    next_step_identifier + 3, next_step_identifier, next_step_identifier + 1, next_step_identifier + 2,
                    next_step_identifier + 4, next_step_identifier + 3);
 
-          face->surface_orientation_reversed = false;
           face->surface_identifier = next_step_identifier + 4;
           next_step_identifier = next_step_identifier + 5;
         }
@@ -210,7 +210,8 @@ object3d_export_to_step (object3d *object, const char *filename)
                       "#%i = AXIS2_PLACEMENT_3D ( 'NONE', #%i,  #%i,  #%i ) ; "
                       "#%i = CIRCLE ( 'NONE', #%i, %f ) ;\n",
                    next_step_identifier,     /* Center of the circle   */ info->cx, info->cy, info->cz, // <--- Center of coordinate placement
-                   next_step_identifier + 1, /* Normal of circle?      */ 0.0, 0.0, -1.0, // <--- Z-axis direction of placement             /* XXX: PULL FROM FACE DATA */
+                   next_step_identifier + 1, /* Normal of circle?      */ info->nx, info->ny, info->nz, // <--- Z-axis direction of placement             /* XXX: PULL FROM FACE DATA */
+//                   next_step_identifier + 1, /* Normal of circle?      */ 0.0, 0.0, -1.0, // <--- Z-axis direction of placement             /* XXX: PULL FROM FACE DATA */
                    next_step_identifier + 2, /* ??????                 */ -1.0, 0.0, 0.0, // <--- Approximate X-axis direction of placement /* XXX: PULL FROM FACE DATA */
                    next_step_identifier + 3, next_step_identifier, next_step_identifier + 1, next_step_identifier + 2,
                    next_step_identifier + 4, next_step_identifier + 3, info->radius);
@@ -283,7 +284,6 @@ object3d_export_to_step (object3d *object, const char *filename)
           contour3d *contour = contour_iter->data;
           edge_ref edge;
 
-          /* XXX: FWD / BWD NEEDS TO BE FUDGED IN HERE PERHAPS? */
           fprintf (f, "#%i = EDGE_LOOP ( 'NONE', ", next_step_identifier);
 
           /* Emit the edges.. */
@@ -294,43 +294,43 @@ object3d_export_to_step (object3d *object, const char *filename)
             {
               fprintf (f, "#%i, ", ORIENTED_EDGE_IDENTIFIER(edge)); /* XXX: IS ORIENTATION GOING TO BE CORRECT?? */
             }
-          fprintf (f, "#%i)", ORIENTED_EDGE_IDENTIFIER(edge)); /* XXX: IS ORIENTATION GOING TO BE CORRECT?? */
-          fprintf (f, " ) ; ");
+        fprintf (f, "#%i)", ORIENTED_EDGE_IDENTIFIER(edge)); /* XXX: IS ORIENTATION GOING TO BE CORRECT?? */
+        fprintf (f, " ) ; ");
 
-          fprintf (f, "#%i = FACE_%sBOUND ( 'NONE', #%i, .T. ) ;\n", next_step_identifier + 1, outer_contour ? "OUTER_" : "", next_step_identifier);
-          contour->face_bound_identifier = next_step_identifier + 1;
-          next_step_identifier = next_step_identifier + 2;
-        }
+        fprintf (f, "#%i = FACE_%sBOUND ( 'NONE', #%i, .T. ) ;\n", next_step_identifier + 1, outer_contour ? "OUTER_" : "", next_step_identifier);
+        contour->face_bound_identifier = next_step_identifier + 1;
+        next_step_identifier = next_step_identifier + 2;
+      }
 
-      fprintf (f, "#%i = ADVANCED_FACE ( 'NONE', ", next_step_identifier);
-      fprintf (f, "(");
-      for (contour_iter = face->contours;
-           contour_iter != NULL && g_list_next (contour_iter) != NULL;
-           contour_iter = g_list_next (contour_iter))
-        {
-          fprintf (f, "#%i, ", ((contour3d *)contour_iter->data)->face_bound_identifier);
-        }
-      fprintf (f, "#%i)", ((contour3d *)contour_iter->data)->face_bound_identifier);
-      fprintf (f, ", #%i, %s ) ;\n", face->surface_identifier, face->surface_orientation_reversed ? ".F." : ".T.");
-      face->face_identifier = next_step_identifier;
-      next_step_identifier = next_step_identifier + 1;
+    fprintf (f, "#%i = ADVANCED_FACE ( 'NONE', ", next_step_identifier);
+    fprintf (f, "(");
+    for (contour_iter = face->contours;
+         contour_iter != NULL && g_list_next (contour_iter) != NULL;
+         contour_iter = g_list_next (contour_iter))
+      {
+        fprintf (f, "#%i, ", ((contour3d *)contour_iter->data)->face_bound_identifier);
+      }
+    fprintf (f, "#%i)", ((contour3d *)contour_iter->data)->face_bound_identifier);
+    fprintf (f, ", #%i, %s ) ;\n", face->surface_identifier, face->surface_orientation_reversed ? ".F." : ".T.");
+    face->face_identifier = next_step_identifier;
+    next_step_identifier = next_step_identifier + 1;
 
-      if (face->appear != NULL)
-        {
-          /* Face styles */
-          fprintf (f, "#%i = COLOUR_RGB ( '', %f, %f, %f ) ;\n",             next_step_identifier, face->appear->r, face->appear->g, face->appear->b);
-          fprintf (f, "#%i = FILL_AREA_STYLE_COLOUR ( '', #%i ) ;\n",        next_step_identifier + 1, next_step_identifier);
-          fprintf (f, "#%i = FILL_AREA_STYLE ('', ( #%i ) ) ;\n",            next_step_identifier + 2, next_step_identifier + 1);
-          fprintf (f, "#%i = SURFACE_STYLE_FILL_AREA ( #%i ) ;\n",           next_step_identifier + 3, next_step_identifier + 2);
-          fprintf (f, "#%i = SURFACE_SIDE_STYLE ('', ( #%i ) ) ;\n",         next_step_identifier + 4, next_step_identifier + 3);
-          fprintf (f, "#%i = SURFACE_STYLE_USAGE ( .BOTH. , #%i ) ;\n",      next_step_identifier + 5, next_step_identifier + 4);
-          fprintf (f, "#%i = PRESENTATION_STYLE_ASSIGNMENT ( ( #%i ) ) ;\n", next_step_identifier + 6, next_step_identifier + 5);
-          fprintf (f, "#%i = OVER_RIDING_STYLED_ITEM ( 'NONE', ( #%i ), #%i, #%i ) ;\n",
-                   next_step_identifier + 7, next_step_identifier + 6, face->face_identifier, brep_style_identifier);
-          styled_item_identifiers = g_list_append (styled_item_identifiers, GINT_TO_POINTER (next_step_identifier + 7));
-          next_step_identifier = next_step_identifier + 8;
-        }
-    }
+    if (face->appear != NULL)
+      {
+        /* Face styles */
+        fprintf (f, "#%i = COLOUR_RGB ( '', %f, %f, %f ) ;\n",             next_step_identifier, face->appear->r, face->appear->g, face->appear->b);
+        fprintf (f, "#%i = FILL_AREA_STYLE_COLOUR ( '', #%i ) ;\n",        next_step_identifier + 1, next_step_identifier);
+        fprintf (f, "#%i = FILL_AREA_STYLE ('', ( #%i ) ) ;\n",            next_step_identifier + 2, next_step_identifier + 1);
+        fprintf (f, "#%i = SURFACE_STYLE_FILL_AREA ( #%i ) ;\n",           next_step_identifier + 3, next_step_identifier + 2);
+        fprintf (f, "#%i = SURFACE_SIDE_STYLE ('', ( #%i ) ) ;\n",         next_step_identifier + 4, next_step_identifier + 3);
+        fprintf (f, "#%i = SURFACE_STYLE_USAGE ( .BOTH. , #%i ) ;\n",      next_step_identifier + 5, next_step_identifier + 4);
+        fprintf (f, "#%i = PRESENTATION_STYLE_ASSIGNMENT ( ( #%i ) ) ;\n", next_step_identifier + 6, next_step_identifier + 5);
+        fprintf (f, "#%i = OVER_RIDING_STYLED_ITEM ( 'NONE', ( #%i ), #%i, #%i ) ;\n",
+                 next_step_identifier + 7, next_step_identifier + 6, face->face_identifier, brep_style_identifier);
+        styled_item_identifiers = g_list_append (styled_item_identifiers, GINT_TO_POINTER (next_step_identifier + 7));
+        next_step_identifier = next_step_identifier + 8;
+      }
+  }
 
   /* Closed shell which bounds the brep solid */
   pcb_shell_identifier = next_step_identifier;
@@ -363,10 +363,12 @@ object3d_export_to_step (object3d *object, const char *filename)
   fprintf (f, ", #%i ) ;\n", geometric_representation_context_identifier);
   next_step_identifier = next_step_identifier + 1;
 
+  fprintf (f, "#%i = ADVANCED_BREP_SHAPE_REPRESENTATION ( '%s', ( #%i, #13 ), #%i ) ;\n",
+           shape_representation_identifier, "test_pcb_absr_name", brep_identifier, geometric_representation_context_identifier);
 
+#undef ORIENTED_EDGE_IDENTIFIER
 #undef FWD
 #undef REV
-#undef ORIENTED_EDGE_IDENTIFIER
 
   fprintf (f, "ENDSEC;\n" );
   fprintf (f, "END-ISO-10303-21;\n" );
