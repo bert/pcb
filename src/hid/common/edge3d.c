@@ -1,6 +1,7 @@
 #include <glib.h>
 #include <stdbool.h>
 
+#include "step_id.h"
 #include "edge3d.h"
 
 edge_info *
