@@ -721,6 +721,13 @@ typedef enum
 
     void (*notify_filename_changed) (void);
       /*!< Notification to the GUI that the PCB file has been renamed. */
+
+    void (*normal_cursor) (void);
+      /*!< Instruct GUI to show normal mouse cursor */
+    void (*endpoint_cursor) (void);
+      /*!< Instruct GUI to show end-point mouse cursor */
+    void (*grip_cursor) (int allowed_directions);
+      /*!< Instruct GUI to show a "grip" adjustment cursor with movement allowed only in particular directions */
   };
 
   /*!

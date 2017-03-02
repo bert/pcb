@@ -143,6 +143,29 @@ ghid_watch_cursor (void)
     oldCursor = tmp;
 }
 
+/* Hacky translation between allowed_direction and a cursor.. TODO: Make some custom cursors */
+void
+ghid_grip_cursor (int allowed_directions)
+{
+  if      ((allowed_directions & ALLOWED_DIR_0_DEGREES  ||
+            allowed_directions & ALLOWED_DIR_180_DEGREES) &&
+           (allowed_directions & ALLOWED_DIR_90_DEGREES ||
+            allowed_directions & ALLOWED_DIR_270_DEGREES))
+    gport_set_cursor (GDK_FLEUR);
+  else if (allowed_directions & ALLOWED_DIR_0_DEGREES ||
+           allowed_directions & ALLOWED_DIR_180_DEGREES)
+    gport_set_cursor (GDK_SB_H_DOUBLE_ARROW);
+  else if (allowed_directions & ALLOWED_DIR_90_DEGREES ||
+           allowed_directions & ALLOWED_DIR_270_DEGREES)
+    gport_set_cursor (GDK_SB_V_DOUBLE_ARROW);
+  else if (allowed_directions & ALLOWED_DIR_45_DEGREES ||
+           allowed_directions & ALLOWED_DIR_225_DEGREES)
+    gport_set_cursor (GDK_TOP_RIGHT_CORNER);
+  else if (allowed_directions & ALLOWED_DIR_135_DEGREES ||
+           allowed_directions & ALLOWED_DIR_315_DEGREES)
+    gport_set_cursor (GDK_TOP_LEFT_CORNER);
+}
+
 void
 ghid_mode_cursor (int Mode)
 {

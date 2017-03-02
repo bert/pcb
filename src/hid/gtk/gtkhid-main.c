@@ -1188,6 +1188,16 @@ static int PointCursor (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
+static void ghid_endpoint_cursor (void)
+{
+  ghid_point_cursor ();
+}
+
+static void ghid_normal_cursor (void)
+{
+  ghid_mode_cursor (Settings.Mode);
+}
+
 /* ---------------------------------------------------------------------- */
 
 static int
@@ -2233,6 +2243,10 @@ hid_gtk_init ()
 
   ghid_hid.notify_save_pcb          = ghid_notify_save_pcb;
   ghid_hid.notify_filename_changed  = ghid_notify_filename_changed;
+
+  ghid_hid.normal_cursor            = ghid_normal_cursor;
+  ghid_hid.endpoint_cursor          = ghid_endpoint_cursor;
+  ghid_hid.grip_cursor              = ghid_grip_cursor;
 
   common_nogui_graphics_class_init (&ghid_graphics_class);
   common_draw_helpers_class_init (&ghid_graphics_class);

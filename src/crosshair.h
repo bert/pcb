@@ -42,6 +42,17 @@
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
 
+#define ALLOWED_DIR_0_DEGREES   (1 << 0)
+#define ALLOWED_DIR_45_DEGREES  (1 << 1)
+#define ALLOWED_DIR_90_DEGREES  (1 << 2)
+#define ALLOWED_DIR_135_DEGREES (1 << 3)
+#define ALLOWED_DIR_180_DEGREES (1 << 4)
+#define ALLOWED_DIR_225_DEGREES (1 << 5)
+#define ALLOWED_DIR_270_DEGREES (1 << 6)
+#define ALLOWED_DIR_315_DEGREES (1 << 7)
+
+
+
 Coord GridFit (Coord x, Coord grid_spacing, Coord grid_offset);
 void notify_crosshair_change (bool changes_complete);
 void notify_mark_change (bool changes_complete);

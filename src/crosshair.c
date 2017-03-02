@@ -1162,11 +1162,66 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       ans = SearchObjectByLocation (LINEPOINT_TYPE | ARCPOINT_TYPE,
                                     &ptr1, &ptr2, &ptr3,
                                     Crosshair.X, Crosshair.Y, PCB->Grid / 2);
-      if (ans == NO_TYPE)
-        hid_action("PointCursor");
-      else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
-        hid_actionl("PointCursor","True", NULL);
+      if (ans != NO_TYPE && !TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2)) {
+        if (gui->endpoint_cursor != NULL)
+          gui->endpoint_cursor ();
+        goto common_tail;
+      }
+
+      if (TEST_FLAG (RUBBERBANDFLAG, PCB))
+        {
+
+          ans = SearchObjectByLocation (LINE_TYPE,
+                                        &ptr1, &ptr2, &ptr3,
+                                        Crosshair.X, Crosshair.Y, PCB->Grid / 2);
+          if (ans != NO_TYPE) {
+            double angle;
+            int octant;
+            int dir;
+            int allowed_directions = 0;
+            LineType *line = ptr2;
+
+            /* XXX: FIX THIS FOR DEGENERATE (POINT) LINES */
+            angle = atan2 (-(line->Point2.Y - line->Point1.Y),
+                           line->Point2.X - line->Point1.X);
+    //      octant = nearbyint (angle / M_PI * 4.) * M_PI / 4.; /* Round to multiples of 45 degrees */
+            octant = lrint (angle / M_PI * 4.); /* Lies between -4 and 4 */
+            dir = (octant + 8) % 4;
+
+            /* Assume constraints are simple, and that we don't blank off motion directions,
+             * this means the user can drag the line perpendicular to its axis
+             */
+
+            switch (dir) {
+              case 0:
+                allowed_directions |= ALLOWED_DIR_90_DEGREES;
+                allowed_directions |= ALLOWED_DIR_270_DEGREES;
+                break;
+              case 1:
+                allowed_directions |= ALLOWED_DIR_135_DEGREES;
+                allowed_directions |= ALLOWED_DIR_315_DEGREES;
+                break;
+              case 2:
+                allowed_directions |= ALLOWED_DIR_0_DEGREES;
+                allowed_directions |= ALLOWED_DIR_180_DEGREES;
+                break;
+              case 3:
+                allowed_directions |= ALLOWED_DIR_45_DEGREES;
+                allowed_directions |= ALLOWED_DIR_225_DEGREES;
+                break;
+            }
+
+            if (gui->grip_cursor != NULL)
+              gui->grip_cursor (allowed_directions);
+            goto common_tail;
+          }
+        }
+
     }
+  if (gui->normal_cursor != NULL)
+    gui->normal_cursor ();
+
+common_tail:
 
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
