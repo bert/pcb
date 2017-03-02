@@ -1605,7 +1605,7 @@ SubJ_Rule (char p, VNODE * v, DIRECTION * cdir)
  */
 /* *cur is considered a vertex */
 static int
-jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
+jump (VNODE ** cur, DIRECTION * cdir, J_Rule j_rule)
 {
   CVCList *d, *start;
   VNODE *e; /* e is considered an edge */
@@ -1635,7 +1635,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
       else
         e = VERTEX_FORWARD_EDGE (d->parent);
       newone = *cdir;
-      if (!e->Flags.mark && rule (d->poly, e, &newone))
+      if (!e->Flags.mark && j_rule (d->poly, e, &newone))
 	{
 	  if ((d->side == 'N' && newone == FORW) ||
 	      (d->side == 'P' && newone == BACKW))
@@ -1660,7 +1660,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 
 /* start is considered a vertex */
 static int
-Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
+Gather (VNODE * start, PLINE ** result, J_Rule j_rule, DIRECTION initdir)
 {
   VNODE *cur = start, *newn; /* cur is considered a vertex */
   DIRECTION dir = initdir;
@@ -1671,7 +1671,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
   do
     {
       /* see where to go next */
-      if (!jump (&cur, &dir, v_rule))
+      if (!jump (&cur, &dir, j_rule))
 	break;
       /* add edge to polygon */
       if ((newn = poly_CreateNode (cur->point)) == NULL)
