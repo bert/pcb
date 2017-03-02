@@ -305,8 +305,13 @@ object3d_from_board_outline (void)
 
           get_contour_coord_n_in_step_mm (ct, offset_in_ct, &x1, &y1);
 
+#ifdef REVERSED_PCB_CONTOURS
           vertices[i]           = make_vertex3d (x1, y1, -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS)); /* Bottom */
           vertices[npoints + i] = make_vertex3d (x1, y1, 0);                                            /* Top */
+#else
+          vertices[i]           = make_vertex3d (x1, y1,  COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2.); /* Bottom */
+          vertices[npoints + i] = make_vertex3d (x1, y1, -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2.); /* Top */
+#endif
 
           object3d_add_vertex (object, vertices[i]);
           object3d_add_vertex (object, vertices[npoints + i]);
@@ -335,12 +340,20 @@ object3d_from_board_outline (void)
         }
 
       faces[npoints] = make_face3d (); /* bottom_face */
+#ifdef REVERSED_PCB_CONTOURS
       face3d_set_normal (faces[npoints], 0., 0., -1.);
+#else
+      face3d_set_normal (faces[npoints], 0., 0., 1.);
+#endif
       face3d_set_appearance (faces[npoints], top_bot_appearance);
       object3d_add_face (object, faces[npoints]);
 
       faces[npoints + 1] = make_face3d (); /* top_face */
+#ifdef REVERSED_PCB_CONTOURS
       face3d_set_normal (faces[npoints + 1], 0., 0., 1.);
+#else
+      face3d_set_normal (faces[npoints + 1], 0., 0., -1.);
+#endif
       face3d_set_appearance (faces[npoints + 1], top_bot_appearance);
       object3d_add_face (object, faces[npoints + 1]);
 
@@ -461,11 +474,11 @@ object3d_from_board_outline (void)
                                    0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #else
               edge_info_set_round (UNDIR_DATA (edges[i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, -HACK_BOARD_THICKNESS), /* Center of circle */
-                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy),  COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2., /* Center of circle */ /* BOTTOM */
+                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
               edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), 0., /* Center of circle */
-                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, -HACK_BOARD_THICKNESS) / 2. , /* Center of circle */ /* TOP */
+                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #endif
               edge_info_set_stitch (UNDIR_DATA (edges[2 * npoints + i]));
             }
