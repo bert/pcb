@@ -49,6 +49,7 @@ typedef struct step_gc_struct
 
 HID step_hid;
 static HID_DRAW step_graphics;
+static HID_DRAW_CLASS step_graphics_class;
 
 HID_Attribute step_attribute_list[] = {
   /* other HIDs expect this to be first.  */
@@ -1001,28 +1002,33 @@ void step_step_init (HID *hid)
   hid->get_export_options = step_get_export_options;
   hid->do_export          = step_do_export;
   hid->parse_arguments    = step_parse_arguments;
-  hid->set_layer          = step_set_layer;
   hid->set_crosshair      = step_set_crosshair;
 }
 
-void step_step_graphics_init (HID_DRAW *graphics)
+void step_step_graphics_class_init (HID_DRAW_CLASS *klass)
 {
-  graphics->make_gc            = step_make_gc;
-  graphics->destroy_gc         = step_destroy_gc;
-  graphics->use_mask           = step_use_mask;
-  graphics->set_color          = step_set_color;
-  graphics->set_line_cap       = step_set_line_cap;
-  graphics->set_line_width     = step_set_line_width;
-  graphics->set_draw_xor       = step_set_draw_xor;
-  graphics->set_draw_faded     = step_set_draw_faded;
-  graphics->draw_line          = step_draw_line;
-  graphics->draw_arc           = step_draw_arc;
-  graphics->draw_rect          = step_draw_rect;
-  graphics->fill_circle        = step_fill_circle;
-  graphics->fill_polygon       = step_fill_polygon;
-  graphics->fill_rect          = step_fill_rect;
+  klass->set_layer          = step_set_layer;
+  klass->make_gc            = step_make_gc;
+  klass->destroy_gc         = step_destroy_gc;
+  klass->use_mask           = step_use_mask;
+  klass->set_color          = step_set_color;
+  klass->set_line_cap       = step_set_line_cap;
+  klass->set_line_width     = step_set_line_width;
+  klass->set_draw_xor       = step_set_draw_xor;
+  klass->set_draw_faded     = step_set_draw_faded;
+  klass->draw_line          = step_draw_line;
+  klass->draw_arc           = step_draw_arc;
+  klass->draw_rect          = step_draw_rect;
+  klass->fill_circle        = step_fill_circle;
+  klass->fill_polygon       = step_fill_polygon;
+  klass->fill_rect          = step_fill_rect;
 
-  graphics->draw_pcb_polygon   = step_draw_pcb_polygon;
+  klass->draw_pcb_polygon   = step_draw_pcb_polygon;
+}
+
+void step_step_graphics_init (HID_DRAW *hid_draw)
+{
+  hid_draw->poly_before = true;
 }
 
 void
@@ -1032,17 +1038,18 @@ hid_step_init ()
   memset (&step_graphics, 0, sizeof (HID_DRAW));
 
   common_nogui_init (&step_hid);
-  common_draw_helpers_init (&step_graphics);
   step_step_init (&step_hid);
-  step_step_graphics_init (&step_graphics);
 
   step_hid.struct_size        = sizeof (HID);
   step_hid.name               = "step";
   step_hid.description        = "STEP AP214 export";
   step_hid.exporter           = 1;
-  step_hid.poly_before        = 1;
 
-  step_hid.graphics           = &step_graphics;
+  common_draw_helpers_class_init (&step_graphics_class);
+  step_step_graphics_class_init (&step_graphics_class);
+
+  common_nogui_graphics_init (&step_graphics);
+  common_draw_helpers_init (&step_graphics);
 
   hid_register_hid (&step_hid);
 
