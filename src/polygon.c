@@ -686,7 +686,7 @@ RoundRect (Coord x1, Coord x2, Coord y1, Coord y2, Coord t)
 
 #define ARC_ANGLE 5
 static POLYAREA *
-ArcPolyNoIntersect (ArcType * a, Coord thick)
+ArcPolyNoIntersect (ArcType * a, Coord thick, char *name)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -732,6 +732,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick)
   if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return 0;
 
+  contour->name = name;
   if (rx == ry)
     degree_circle (contour, a->X, a->Y, rx, v, -a->Delta);
   else
@@ -777,7 +778,7 @@ ArcPolyNoIntersect (ArcType * a, Coord thick)
 
 #define MIN_CLEARANCE_BEFORE_BISECT 10.
 POLYAREA *
-ArcPoly (ArcType * a, Coord thick)
+ArcPoly (ArcType * a, Coord thick, char *name)
 {
   double delta;
   ArcType seg1, seg2;
@@ -797,17 +798,17 @@ ArcPoly (ArcType * a, Coord thick)
       seg2.Delta -= half_delta;
       seg2.StartAngle += half_delta;
 
-      tmp1 = ArcPolyNoIntersect (&seg1, thick);
-      tmp2 = ArcPolyNoIntersect (&seg2, thick);
+      tmp1 = ArcPolyNoIntersect (&seg1, thick, name);
+      tmp2 = ArcPolyNoIntersect (&seg2, thick, name);
       poly_Boolean_free (tmp1, tmp2, &res, PBO_UNITE);
       return res;
     }
 
-  return ArcPolyNoIntersect (a, thick);
+  return ArcPolyNoIntersect (a, thick, name);
 }
 
 POLYAREA *
-LinePoly (LineType * L, Coord thick)
+LinePoly (LineType * L, Coord thick, char *name)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -821,7 +822,7 @@ LinePoly (LineType * L, Coord thick)
   d = hypot (l->Point1.X - l->Point2.X, l->Point1.Y - l->Point2.Y);
   if (!TEST_FLAG (SQUAREFLAG,l))
     if (d == 0)                   /* line is a point */
-      return CirclePoly (l->Point1.X, l->Point1.Y, half, NULL);
+      return CirclePoly (l->Point1.X, l->Point1.Y, half, name);
   if (d != 0)
     {
       d = half / d;
@@ -845,6 +846,7 @@ LinePoly (LineType * L, Coord thick)
   v[1] = l->Point1.Y - dy;
   if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
     return 0;
+  contour->name = name;
 
   v[0] = l->Point2.X - dx;
   v[1] = l->Point2.Y - dy;
@@ -1078,7 +1080,7 @@ SubtractLine (LineType * line, PolygonType * p)
 
   if (!TEST_FLAG (CLEARLINEFLAG, line))
     return 0;
-  if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance, NULL)))
     return -1;
   return Subtract (np, p, true);
 }
@@ -1090,7 +1092,7 @@ SubtractArc (ArcType * arc, PolygonType * p)
 
   if (!TEST_FLAG (CLEARLINEFLAG, arc))
     return 0;
-  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance)))
+  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance, NULL)))
     return -1;
   return Subtract (np, p, true);
 }
@@ -1125,7 +1127,7 @@ SubtractPad (PadType * pad, PolygonType * p)
   else
     {
       if (!
-          (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
+          (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance, NULL)))
         return -1;
     }
   return Subtract (np, p, true);
@@ -1255,7 +1257,7 @@ line_sub_callback (const BoxType * b, void *cl)
     return 0;
   polygon = info->polygon;
 
-  if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance, NULL)))
     longjmp (info->env, 1);
 
   poly_Boolean_free (info->accumulate, np, &merged, PBO_UNITE);
@@ -2317,11 +2319,14 @@ arc_outline_callback (const BoxType * b, void *cl)
   ArcType *arc = (ArcType *)b;
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
+  char *feature_name;
+
+  feature_name = NULL; /* XXX: PCB does not have any concept of naming arcs */
 
 #ifdef DEBUG_CIRCSEGS
-  if (!(np = ArcPoly (arc, arc->Thickness)))
+  if (!(np = ArcPoly (arc, arc->Thickness, feature_name)))
 #else
-  if (!(np = ArcPoly (arc, ROUTER_THICKNESS)))
+  if (!(np = ArcPoly (arc, ROUTER_THICKNESS, feature_name)))
 #endif
     return 0;
 
@@ -2341,11 +2346,14 @@ line_outline_callback (const BoxType * b, void *cl)
   LineType *line = (LineType *)b;
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
+  char *feature_name;
+
+  feature_name = STRDUP(line->Number);
 
 #ifdef DEBUG_CIRCSEGS
-  if (!(np = LinePoly (line, line->Thickness)))
+  if (!(np = LinePoly (line, line->Thickness, feature_name)))
 #else
-  if (!(np = LinePoly (line, ROUTER_THICKNESS)))
+  if (!(np = LinePoly (line, ROUTER_THICKNESS, feature_name)))
 #endif
     return 0;
 

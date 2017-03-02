@@ -219,26 +219,26 @@ square_therm (PinType *pin, Cardinal style)
         l.Point1.X = pin->X - d;
         l.Point2.Y = l.Point1.Y = pin->Y + out;
         l.Point2.X = pin->X + d;
-        p = LinePoly (&l, in);
+        p = LinePoly (&l, in, NULL);
         /* right */
         l.Point1.X = l.Point2.X = pin->X + out;
         l.Point1.Y = pin->Y - d;
         l.Point2.Y = pin->Y + d;
-        p2 = LinePoly (&l, in);
+        p2 = LinePoly (&l, in, NULL);
         p->f = p2;
         p2->b = p;
         /* bottom */
         l.Point1.X = pin->X - d;
         l.Point2.Y = l.Point1.Y = pin->Y - out;
         l.Point2.X = pin->X + d;
-        p2 = LinePoly (&l, in);
+        p2 = LinePoly (&l, in, NULL);
         p->f->f = p2;
         p2->b = p->f;
         /* left */
         l.Point1.X = l.Point2.X = pin->X - out;
         l.Point1.Y = pin->Y - d;
         l.Point2.Y = pin->Y + d;
-        p2 = LinePoly (&l, in);
+        p2 = LinePoly (&l, in, NULL);
         p->f->f->f = p2;
         p2->b = p->f->f;
         p->b = p2;
@@ -477,23 +477,23 @@ ThermPoly (PCBType *p, PinType *pin, Cardinal laynum)
         90 -
         (a.Clearance * (1. + 2. * pcb->ThermScale) * 180) / (M_PI * a.Width);
       a.StartAngle = 90 - a.Delta / 2 + (style == 4 ? 0 : 45);
-      pa = ArcPoly (&a, a.Clearance);
+      pa = ArcPoly (&a, a.Clearance, NULL);
       if (!pa)
         return NULL;
       a.StartAngle += 90;
-      arc = ArcPoly (&a, a.Clearance);
+      arc = ArcPoly (&a, a.Clearance, NULL);
       if (!arc)
         return NULL;
       pa->f = arc;
       arc->b = pa;
       a.StartAngle += 90;
-      arc = ArcPoly (&a, a.Clearance);
+      arc = ArcPoly (&a, a.Clearance, NULL);
       if (!arc)
         return NULL;
       pa->f->f = arc;
       arc->b = pa->f;
       a.StartAngle += 90;
-      arc = ArcPoly (&a, a.Clearance);
+      arc = ArcPoly (&a, a.Clearance, NULL);
       if (!arc)
         return NULL;
       pa->b = arc;

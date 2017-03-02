@@ -2444,7 +2444,7 @@ IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
     {
       POLYAREA *ap;
 
-      if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
+      if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat, NULL)))
         return false;           /* error */
       return isects (ap, Polygon, true);
     }
@@ -2486,7 +2486,7 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
       && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
       && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
     {
-      if (!(lp = LinePoly (Line, Line->Thickness + Bloat)))
+      if (!(lp = LinePoly (Line, Line->Thickness + Bloat, NULL)))
         return FALSE;           /* error */
       return isects (lp, Polygon, true);
     }
