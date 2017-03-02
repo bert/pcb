@@ -20,6 +20,20 @@
 #include "object3d_step.h"
 
 
+#define REVERSED_PCB_CONTOURS 1 /* PCB Contours are reversed from the expected CCW for outer ordering - once the Y-coordinate flip is taken into account */
+
+#define EPSILON 1e-5 /* XXX: Unknown  what this needs to be */
+
+#ifdef REVERSED_PCB_CONTOURS
+#define STEP_X_TO_COORD(pcb, x) (MM_TO_COORD((x)))
+#define STEP_Y_TO_COORD(pcb, y) ((pcb)->MaxHeight - MM_TO_COORD((y)))
+#else
+/* XXX: BROKEN UPSIDE DOWN OUTPUT */
+#define STEP_X_TO_COORD(pcb, x) (MM_TO_COORD((x)))
+#define STEP_Y_TO_COORD(pcb, y) (MM_TO_COORD((y)))
+#endif
+
+
 static step_id_list
 presentation_style_assignments_from_appearance (step_file *step, appearance *appear)
 {
@@ -144,6 +158,20 @@ object3d_export_to_step (object3d *object, const char *filename)
           vertex3d *ov = ODATA (outer_contour->first_edge);
           vertex3d *dv = DDATA (outer_contour->first_edge);
 
+          double rx, ry, rz;
+
+          rx = dv->x - ov->x;
+          ry = dv->y - ov->y;
+          rz = dv->z - ov->z;
+
+          /* Catch the circular face case where the start and end vertices are identical */
+          if (rx < EPSILON && -rx < EPSILON &&
+              ry < EPSILON && -ry < EPSILON &&
+              rz < EPSILON && -rz < EPSILON)
+            {
+              rx = 1., ry = 0., rz = 0.;
+            }
+
           face->surface_identifier =
             step_plane (step, "NONE",
                         step_axis2_placement_3d (step, "NONE",
@@ -151,9 +179,9 @@ object3d_export_to_step (object3d *object, const char *filename)
                                                                                      ov->y,      /* Set this to the origin vertex of the first edge */
                                                                                      ov->z),     /* this contour links to in the quad edge structure. */
                                                        step_direction (step, "NONE", face->nx, face->ny, face->nz), /* An axis direction normal to the the face - Gives z-axis */
-                                                       step_direction (step, "NONE", dv->x - ov->x,     /* Reference x-axis, orthogonal to z-axis. */
-                                                                                     dv->y - ov->y,         /* Define this to be along the first edge this */
-                                                                                     dv->z - ov->z)));      /* contour links to in the quad edge structure */
+                                                       step_direction (step, "NONE", rx,     /* Reference x-axis, orthogonal to z-axis. */
+                                                                                     ry,         /* Define this to be along the first edge this */
+                                                                                     rz)));      /* contour links to in the quad edge structure */
         }
     }
 
@@ -178,14 +206,31 @@ object3d_export_to_step (object3d *object, const char *filename)
           vertex3d *ov = ODATA (edge);
           vertex3d *dv = DDATA (edge);
 
+          double dir_x, dir_y, dir_z;
+
+          dir_x = dv->x - ov->x;
+          dir_y = dv->y - ov->y;
+          dir_z = dv->z - ov->z;
+
+#if 1
+          /* XXX: This avoids the test file step_outline_test.pcb failing to display properly in freecad when coordinates are slightly rounded */
+          if (dir_x < EPSILON && -dir_x < EPSILON &&
+              dir_y < EPSILON && -dir_y < EPSILON &&
+              dir_z < EPSILON && -dir_z < EPSILON)
+            {
+              printf ("EDGE TOO SHORT TO DETERMINE DIRECTION - GUESSING! Coords (%f, %f)\n", ov->x, ov->y);
+              pcb_printf ("Approx PCB coords of short edge: %#mr, %#mr\n", (Coord)STEP_X_TO_COORD (PCB, ov->x), (Coord)STEP_Y_TO_COORD (PCB, ov->y));
+              dir_x = 1.0; /* DUMMY TO AVOID A ZERO LENGTH DIRECTION VECTOR */
+            }
+#endif
+
           info->infinite_line_identifier =
             step_line (step, "NONE",
                        step_cartesian_point (step, "NONE", ov->x, ov->y, ov->z),  // <--- A point on the line (the origin vertex)
                        step_vector (step, "NONE",
-                                    step_direction (step, "NONE", dv->x - ov->x,
-                                                                  dv->y - ov->y,
-                                                                  dv->z - ov->z),  // <--- Direction along the line
+                                    step_direction (step, "NONE", dir_x, dir_y, dir_z), // <--- Direction along the line
                                     1000.0));     // <--- Arbitrary length in this direction for the parameterised coordinate "1".
+
         }
     }
 
