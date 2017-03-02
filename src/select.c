@@ -133,6 +133,7 @@ SelectObject (void)
 
     case POLYGON_TYPE:
       {
+	/* HACK */ extern void ghid_populate_polygon_parentage (PolygonType *);
 	PolygonType *poly = (PolygonType *) ptr2;
 
 	layer = (LayerType *) ptr1;
@@ -140,6 +141,9 @@ SelectObject (void)
 	TOGGLE_FLAG (SELECTEDFLAG, poly);
 	DrawPolygon (layer, poly);
 	/* changing memory order no longer effects draw order */
+
+	/* HACK */ ghid_populate_polygon_parentage (poly);
+
 	break;
       }
 

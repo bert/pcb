@@ -848,6 +848,8 @@ SquarePadPoly (PadType * pad, Coord clear)
   return np;
 }
 
+/* HACK */ extern void ghid_notify_polygon_changed (PolygonType *);
+
 /*!
  * \brief Clear np1 from the polygon.
  */
@@ -879,11 +881,13 @@ Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
       fprintf (stderr, "Error while clipping PBO_SUB: %d\n", x);
       poly_Free (&merged);
       p->Clipped = NULL;
+      /* HACK */ ghid_notify_polygon_changed (p);
       if (p->NoHoles) printf ("Just leaked in Subtract\n");
       p->NoHoles = NULL;
       return -1;
     }
   p->Clipped = biggest (merged);
+  /* HACK */ ghid_notify_polygon_changed (p);
   assert (!p->Clipped || poly_Valid (p->Clipped));
   if (!p->Clipped)
     Message ("Polygon cleared out of existence near (%d, %d)\n",
@@ -1255,11 +1259,13 @@ Unsubtract (POLYAREA * np1, PolygonType * p)
       goto fail;
     }
   p->Clipped = biggest (merged);
+  /* HACK */ ghid_notify_polygon_changed (p);
   assert (!p->Clipped || poly_Valid (p->Clipped));
   return 1;
 
 fail:
   p->Clipped = NULL;
+  /* HACK */ ghid_notify_polygon_changed (p);
   if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
   p->NoHoles = NULL;
   return 0;
@@ -1364,6 +1370,7 @@ InitClip (DataType *Data, LayerType *layer, PolygonType * p)
   if (p->Clipped)
     poly_Free (&p->Clipped);
   p->Clipped = original_poly (p);
+  /* HACK */ ghid_notify_polygon_changed (p);
   poly_FreeContours (&p->NoHoles);
   if (!p->Clipped)
     return 0;
@@ -1708,8 +1715,11 @@ plow_callback (const BoxType * b, void *cl)
   PolygonType *polygon = (PolygonType *) b;
 
   if (TEST_FLAG (CLEARPOLYFLAG, polygon))
-    return plow->callback (plow->data, plow->layer, polygon, plow->type,
-                           plow->ptr1, plow->ptr2, plow->userdata);
+    {
+      return plow->callback (plow->data, plow->layer, polygon, plow->type,
+                             plow->ptr1, plow->ptr2, plow->userdata);
+//      /* HACK */ ghid_notify_polygon_changed (polygon);
+    }
   return 0;
 }
 
@@ -1823,7 +1833,10 @@ RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
     }
 
   if (type == POLYGON_TYPE)
-    InitClip (PCB->Data, (LayerType *) ptr1, (PolygonType *) ptr2);
+    {
+      InitClip (PCB->Data, (LayerType *) ptr1, (PolygonType *) ptr2);
+//      /* HACK */ ghid_notify_polygon_changed (ptr2);
+    }
   else
     PlowsPolygon (Data, type, ptr1, ptr2, add_plow, NULL);
 }
@@ -2014,6 +2027,7 @@ MorphPolygon (LayerType *layer, PolygonType *poly)
    * we do this dirty work.
    */
   poly->Clipped = NULL;
+  /* HACK */ ghid_notify_polygon_changed (poly);
   if (poly->NoHoles) printf ("Just leaked in MorpyPolygon\n");
   poly->NoHoles = NULL;
   flags = poly->Flags;
@@ -2242,6 +2256,12 @@ delete_piece_cb (gpointer data, gpointer userdata)
   piece->b->f = piece->f;
   piece->f->b = piece->b;
   piece->f = piece->b = piece;
+
+  /* Detach the parentage information, so we don't free it.. copies still belong to the M_POLYAREA we are taking this piece from */
+  piece->parentage.immaculate_conception = true;
+  piece->parentage.action = PBO_NONE;
+  piece->parentage.a = NULL;
+  piece->parentage.b = NULL;
 
   poly_Free (&piece);
 }

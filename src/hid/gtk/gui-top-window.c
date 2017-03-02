@@ -122,6 +122,8 @@ a zoom in/out.
 #include "snavi.h"
 #endif
 
+#include "polyarea.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -1263,6 +1265,30 @@ fix_topbar_theming (void)
                     G_CALLBACK (do_fix_topbar_theming), NULL);
 }
 
+static void
+ghid_polygon_debug_selection_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
+{
+//  GHidPort *port = user_data;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+
+  if (!gtk_tree_selection_get_selected (treeselection, &model, &iter)) {
+    ghidgui->debugged_polyarea = NULL;
+    return;
+  }
+
+  gtk_tree_model_get (model, &iter,
+                      POLYGON_DEBUG_COLUMN_POLYAREA, &ghidgui->debugged_polyarea,
+                      -1);
+
+  if (ghidgui->debugged_polyarea != NULL) {
+    fprintf (stderr, "Printing polyarea %p\n", ghidgui->debugged_polyarea);
+    poly_dump (ghidgui->debugged_polyarea);
+  }
+
+  ghid_invalidate_all ();
+}
+
 /* 
  * Create the top_window contents.  The config settings should be loaded
  * before this is called.
@@ -1274,6 +1300,8 @@ ghid_build_pcb_top_window (void)
   GtkWidget *vbox_main, *hbox_middle, *hbox;
   GtkWidget *vbox, *frame;
   GtkWidget *label;
+  GtkTreeViewColumn *column;
+  GtkTreeIter iter;
   /* FIXME: IFDEF HACK */
 #ifdef ENABLE_GL
   GtkWidget *trackball;
@@ -1434,6 +1462,34 @@ ghid_build_pcb_top_window (void)
   g_signal_connect (G_OBJECT (ghidgui->h_adjustment), "value_changed",
 		    G_CALLBACK (h_adjustment_changed_cb), ghidgui);
 
+  /* Polygon debug */
+  ghidgui->polygon_debug_ts = gtk_tree_store_new (N_POLYGON_DEBUG_COLUMNS,
+                                                  G_TYPE_STRING,
+                                                  G_TYPE_POINTER);
+
+  gtk_tree_store_append (ghidgui->polygon_debug_ts, &iter, NULL);
+  gtk_tree_store_set (ghidgui->polygon_debug_ts,
+                      &iter,
+                      POLYGON_DEBUG_COLUMN_TEXT,     "Hello world",
+                      POLYGON_DEBUG_COLUMN_POLYAREA, NULL,
+                      -1);
+
+  ghidgui->polygon_debug_tv = gtk_tree_view_new_with_model (GTK_TREE_MODEL (ghidgui->polygon_debug_ts));
+
+  column = gtk_tree_view_column_new_with_attributes ("Polygon",
+                                                     gtk_cell_renderer_text_new (),
+                                                     "text", POLYGON_DEBUG_COLUMN_TEXT,
+                                                     NULL);
+
+  gtk_tree_view_append_column (GTK_TREE_VIEW (ghidgui->polygon_debug_tv), column);
+
+  gtk_box_pack_end (GTK_BOX (hbox_middle),
+                    ghidgui->polygon_debug_tv, TRUE, TRUE, 0);
+
+  g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (ghidgui->polygon_debug_tv))),
+                    "changed",
+                    G_CALLBACK (ghid_polygon_debug_selection_changed_cb), port);
+
   /* -- The bottom status line label */
   ghidgui->status_line_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (ghidgui->vbox_middle),
@@ -1495,6 +1551,79 @@ ghid_build_pcb_top_window (void)
   port->tooltip_update_timeout_id = 0;
 }
 
+static const char *
+pbo_operation_string (int action)
+{
+  switch (action) {
+    case PBO_NONE:
+      return "PBO_NONE";
+    case PBO_UNITE:
+      return "PBO_UNITE";
+    case PBO_ISECT:
+      return "PBO_ISECT";
+    case PBO_SUB:
+      return "PBO_SUB";
+    case PBO_XOR:
+      return "PBO_XOR";
+    default:
+      return "UNKNOWN POLYGON OPERATION";
+  }
+}
+
+static void
+recurse_populate_parentage (const char *prefix_string, GtkTreeIter *parent_iter, POLYAREA *pa)
+{
+  char *text;
+  GtkTreeIter iter;
+
+  if (pa == NULL || pa->parentage.immaculate_conception)
+    text = g_strdup_printf ("%s%s", prefix_string, (pa == NULL) ? "NULL" : "Input polygon");
+  else
+    text = g_strdup_printf ("%s%s", prefix_string, pbo_operation_string (pa->parentage.action));
+
+  gtk_tree_store_set (ghidgui->polygon_debug_ts,
+                      parent_iter,
+                      POLYGON_DEBUG_COLUMN_TEXT,     text,
+                      POLYGON_DEBUG_COLUMN_POLYAREA, pa,
+                      -1);
+  g_free (text);
+
+  if (pa == NULL || pa->parentage.immaculate_conception)
+    return;
+
+  gtk_tree_store_append (ghidgui->polygon_debug_ts, &iter, parent_iter);
+  recurse_populate_parentage ("A: ", &iter, pa->parentage.a);
+
+  gtk_tree_store_append (ghidgui->polygon_debug_ts, &iter, parent_iter);
+  recurse_populate_parentage ("B: ", &iter, pa->parentage.b);
+}
+
+void
+ghid_populate_polygon_parentage (PolygonType *polygon)
+{
+  POLYAREA *root = polygon->Clipped;
+  GtkTreeIter iter;
+
+  gtk_tree_store_clear (ghidgui->polygon_debug_ts);
+  gtk_tree_store_append (ghidgui->polygon_debug_ts, &iter, NULL);
+
+  recurse_populate_parentage ("", &iter, root);
+
+  ghidgui->debugged_polygon = polygon;
+  ghidgui->debugged_polyarea = NULL;
+}
+
+void
+ghid_notify_polygon_changed (PolygonType *polygon)
+{
+  if (ghidgui == NULL)
+    return;
+
+  if (ghidgui->debugged_polygon == polygon) {
+    ghid_populate_polygon_parentage (polygon);
+  }
+
+}
 
   /* Connect and disconnect just the signals a g_main_loop() will need.
      |  Cursor and motion events still need to be handled by the top level

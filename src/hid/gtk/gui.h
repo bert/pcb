@@ -116,6 +116,11 @@ typedef struct
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
 
+  GtkWidget *polygon_debug_tv;
+  GtkTreeStore *polygon_debug_ts;
+  PolygonType *debugged_polygon;
+  POLYAREA *debugged_polyarea;
+
   GdkPixbuf *bg_pixbuf;
 
   gchar *name_label_string;
@@ -151,6 +156,14 @@ typedef struct
   GIOChannel *snavi;
 }
 GhidGui;
+
+
+enum {
+  POLYGON_DEBUG_COLUMN_TEXT,
+  POLYGON_DEBUG_COLUMN_POLYAREA,
+  N_POLYGON_DEBUG_COLUMNS
+};
+
 
 extern GhidGui _ghidgui, *ghidgui;
 

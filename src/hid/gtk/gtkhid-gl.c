@@ -2748,6 +2748,16 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   DrawMark (Output.fgGC);
   hidgl_flush_triangles (priv->hidgl);
 
+  if (ghidgui->debugged_polyarea != NULL) {
+    PolygonType dummy_poly;
+    dummy_poly.Clipped = ghidgui->debugged_polyarea;
+    dummy_poly.Flags = NoFlags ();
+    SET_FLAG (FULLPOLYFLAG, &dummy_poly);
+
+    common_thindraw_pcb_polygon (Output.fgGC, &dummy_poly, &region);
+    hidgl_flush_triangles (priv->hidgl);
+  }
+
   glEnable (GL_LIGHTING);
 
   glShadeModel (GL_SMOOTH);
