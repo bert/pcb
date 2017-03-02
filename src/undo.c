@@ -452,6 +452,7 @@ UndoChangeAngles (UndoListType *Entry)
 	EraseObject (type, Layer, a);
       a->StartAngle = Entry->Data.Move.DX;
       a->Delta = Entry->Data.Move.DY;
+      SetArcEndpoints (a);
       SetArcBoundingBox (a);
       r_insert_entry (Layer->arc_tree, (BoxType *) a, 0);
       Entry->Data.Move.DX = old_sa;

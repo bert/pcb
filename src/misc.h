@@ -52,7 +52,9 @@ Angle  NormalizeAngle (Angle a);
 
 void r_delete_element (DataType *, ElementType *);
 void SetLineBoundingBox (LineType *);
+BoxType calc_thin_arc_bounds (Coord cx, Coord cy, Coord rx, Coord ry, Angle start_angle, Angle delta_angle);
 void SetArcBoundingBox (ArcType *);
+void SetArcEndpoints (ArcType *);
 void SetPointBoundingBox (PointType *);
 void SetPinBoundingBox (PinType *);
 void SetPadBoundingBox (PadType *);

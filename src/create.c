@@ -607,6 +607,7 @@ CreateNewArcOnLayer (LayerType *Layer,
   Arc->Height = height;
   Arc->StartAngle = sa;
   Arc->Delta = dir;
+  SetArcEndpoints (Arc);
   SetArcBoundingBox (Arc);
   if (!Layer->arc_tree)
     Layer->arc_tree = r_create_tree (NULL, 0, 0);
