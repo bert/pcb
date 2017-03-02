@@ -1506,7 +1506,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 
 typedef enum
 {
-  FORW, BACKW
+  UNINITIALISED, FORW, BACKW
 } DIRECTION;
 
 /*!
@@ -1559,14 +1559,16 @@ XorS_Rule (VNODE * cur, DIRECTION * initdir)
 static int
 IsectJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
-  assert (*cdir == FORW);
+//  assert (*cdir == FORW);
+  *cdir = FORW;
   return (v->Flags.status == INSIDE || v->Flags.status == SHARED);
 }
 
 static int
 UniteJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
-  assert (*cdir == FORW);
+//  assert (*cdir == FORW);
+  *cdir = FORW;
   return (v->Flags.status == OUTSIDE || v->Flags.status == SHARED);
 }
 
@@ -1583,6 +1585,9 @@ XorJ_Rule (char p, VNODE * v, DIRECTION * cdir)
       *cdir = FORW;
       return TRUE;
     }
+  // XXX: FIXME: NO cdir set for this case, e.g. possible no initialisation
+  if (*cdir == UNINITIALISED)
+    printf ("UNINITIALISED directin in XorJ_Rule\n");
   return FALSE;
 }
 
@@ -1606,6 +1611,15 @@ SubJ_Rule (char p, VNODE * v, DIRECTION * cdir)
       else
 	*cdir = BACKW;
       return TRUE;
+    }
+  // XXX: FIXME: NO cdir set for this case, e.g. possible no initialisation
+  if (*cdir == UNINITIALISED)
+    {
+      printf ("UNINITIALISED directin in SubJ_Rule\n");
+      if (p == 'A')
+	*cdir = FORW;
+      else
+	*cdir = BACKW;
     }
   return FALSE;
 }
@@ -1747,20 +1761,27 @@ Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
 }
 
 static void
-Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
+Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 	 S_Rule s_rule, J_Rule j_rule)
 {
-  VNODE *cur, *other;
-  DIRECTION dir;
+  VNODE *cur;
+  DIRECTION dir = UNINITIALISED;
 
-  cur = &a->head;
+  cur = (&a->head);
+//  cur = (&a->head)->next->next->next->next->next; /* Breaks circ_seg_test9.pcb */
   do
     {
-      if (s_rule (cur, &dir) && cur->Flags.mark == 0)
+#if 0
+      // The following may be a nice speedup, but not sure if it is correct.
+      // In particular, consider the case when we collect a 'B' polygon contour.
+      // Could some of that countour may already have been collected, and there
+      // still be a piece we are interested in after? (Can we reach it though??)
+      if (cur->Flags.mark != 0)
+        break;
+#endif
+
+      if (j_rule (poly, cur, &dir) && cur->Flags.mark == 0)
 	Collect1 (e, cur, dir, contours, holes, j_rule);
-      other = cur;
-      if ((other->cvc_prev && jump (&other, &dir, j_rule)))
-	Collect1 (e, other, dir, contours, holes, j_rule);
     }
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
@@ -1778,16 +1799,16 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
       switch (action)
 	{
 	case PBO_UNITE:
-	  Collect (e, *A, contours, holes, UniteS_Rule, UniteJ_Rule);
+	  Collect ('A', e, *A, contours, holes, UniteS_Rule, UniteJ_Rule);
 	  break;
 	case PBO_ISECT:
-	  Collect (e, *A, contours, holes, IsectS_Rule, IsectJ_Rule);
+	  Collect ('A', e, *A, contours, holes, IsectS_Rule, IsectJ_Rule);
 	  break;
 	case PBO_XOR:
-	  Collect (e, *A, contours, holes, XorS_Rule, XorJ_Rule);
+	  Collect ('A', e, *A, contours, holes, XorS_Rule, XorJ_Rule);
 	  break;
 	case PBO_SUB:
-	  Collect (e, *A, contours, holes, SubS_Rule, SubJ_Rule);
+	  Collect ('A', e, *A, contours, holes, SubS_Rule, SubJ_Rule);
 	  break;
 	};
     }
@@ -1850,9 +1871,33 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 	{
 	  next = &((*cur)->next);
 	  if ((*cur)->Flags.status == ISECTED)
-	    continue;
-
-	  if ((*cur)->Flags.status == INSIDE)
+	    {
+	      /* Check for missed intersect contours here. These can come from
+	       * cases where contours of A and B touch at a single-vertex, so
+	       * are labeled ISECTED for processing, yet our JUMP rules for a
+	       * particular operation does not deem to jump between A & B
+	       * contours at the shared vertex.
+	       *
+	       * NB: There Could be grief if the JUMP rule is inconsistent in
+	       *     its interpretation from each side of the vertex.
+	       */
+	    switch (action)
+	      {
+	      case PBO_UNITE:
+		Collect ('B', e, *cur, contours, holes, UniteS_Rule, UniteJ_Rule);
+		break;
+	      case PBO_ISECT:
+		Collect ('B', e, *cur, contours, holes, IsectS_Rule, IsectJ_Rule);
+		break;
+	      case PBO_XOR:
+		Collect ('B', e, *cur, contours, holes, XorS_Rule, XorJ_Rule);
+		break;
+	      case PBO_SUB:
+		Collect ('B', e, *cur, contours, holes, SubS_Rule, SubJ_Rule);
+		break;
+	      }
+	    }
+	  else if ((*cur)->Flags.status == INSIDE)
 	    switch (action)
 	      {
 	      case PBO_XOR:
