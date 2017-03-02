@@ -116,6 +116,7 @@
 #define SUBTRACT_LINE_BATCH_SIZE 20
 
 static double rotate_circle_seg[4];
+static double bw_rotate_circle_seg[4];
 
 void
 polygon_init (void)
@@ -125,6 +126,9 @@ polygon_init (void)
 
   rotate_circle_seg[0] = cos_ang;  rotate_circle_seg[1] = -sin_ang;
   rotate_circle_seg[2] = sin_ang;  rotate_circle_seg[3] =  cos_ang;
+
+  bw_rotate_circle_seg[0] =  cos_ang;  bw_rotate_circle_seg[1] =  sin_ang;
+  bw_rotate_circle_seg[2] = -sin_ang;  bw_rotate_circle_seg[3] =  cos_ang;
 }
 
 Cardinal
@@ -284,6 +288,51 @@ ContourToPoly (PLINE * contour)
   return p;
 }
 
+static void
+degree_circle (PLINE * c, Coord X, Coord Y /* <- Center */, Vector v /* First point, already laid by caller */, Angle sweep)
+{
+  /* We don't re-add a point at v, nor do we add the last point, sweep degrees around from (X,Y)-v */
+  double e1, e2, t1;
+  int i, range;
+
+//  poly_InclVertex (c->head.prev, poly_CreateNode (v));
+
+  /* move vector to origin */
+  e1 = (v[0] - X) * POLY_CIRC_RADIUS_ADJ;
+  e2 = (v[1] - Y) * POLY_CIRC_RADIUS_ADJ;
+
+  if (sweep > 0)
+    {
+      /* NB: the caller added the first vertex, and will add the last vertex, hence the -1 */
+      range = POLY_CIRC_SEGS * sweep / 360 - 1;
+      for (i = 0; i < range; i++)
+        {
+          /* rotate the vector */
+          t1 = rotate_circle_seg[0] * e1 + rotate_circle_seg[1] * e2;
+          e2 = rotate_circle_seg[2] * e1 + rotate_circle_seg[3] * e2;
+          e1 = t1;
+          v[0] = X + ROUND (e1);
+          v[1] = Y + ROUND (e2);
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
+    }
+  else
+    {
+      /* NB: the caller added the first vertex, and will add the last vertex, hence the -1 */
+      range = POLY_CIRC_SEGS * -sweep / 360 - 1;
+      for (i = 0; i < range; i++)
+        {
+          /* rotate the vector */
+          t1 = bw_rotate_circle_seg[0] * e1 + bw_rotate_circle_seg[1] * e2;
+          e2 = bw_rotate_circle_seg[2] * e1 + bw_rotate_circle_seg[3] * e2;
+          e1 = t1;
+          v[0] = X + ROUND (e1);
+          v[1] = Y + ROUND (e2);
+          poly_InclVertex (c->head.prev, poly_CreateNode (v));
+        }
+    }
+}
+
 static POLYAREA *
 original_poly (PolygonType * p)
 {
@@ -302,8 +351,7 @@ original_poly (PolygonType * p)
       /* No current contour? Make a new one starting at point */
       /*   (or) Add point to existing contour */
 
-      v[0] = p->Points[n].X;
-      v[1] = p->Points[n].Y;
+      v[0] = p->Points[n].X, v[1] = p->Points[n].Y;
       if (contour == NULL)
         {
           if ((contour = poly_NewContour (poly_CreateNode (v))) == NULL)
@@ -312,6 +360,77 @@ original_poly (PolygonType * p)
       else
         {
           poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+        }
+
+      if (p->Points[n].included_angle != 0)
+        {
+          Cardinal next_n;
+          Coord px, py;
+          Coord nx, ny;
+          Coord hx, hy;
+          Coord cx, cy;
+          double p_to_h_dist;
+          double c_to_h_dist;
+          double unit_hcx, unit_hcy;
+
+          next_n = n + 1;
+          if (next_n == p->PointN ||
+              (hole < p->HoleIndexN && next_n == p->HoleIndex[hole]))
+            next_n = (hole == 0) ? 0 : p->HoleIndex[hole - 1];
+
+          /* XXX: Compute center of arc */
+
+          px = p->Points[     n].X, py = p->Points[     n].Y;
+          nx = p->Points[next_n].X, ny = p->Points[next_n].Y;
+
+          /* Find the point halfway between the to points the arc spans */
+          hx = px + (nx - px) / 2;
+          hy = py + (ny - py) / 2;
+
+          /* The arc center lies on a line passing through hx, hy, perpendicular
+           * to the direction between our two end-points.
+           *
+           *              n
+           *            / |
+           *          /   |h
+           *    -----c----|-------------- line passing (hx, hy), perpendicular to p[n]-p[next_n]
+           *          \   |
+           *            \ |
+           *              p
+           *
+           *  Find cx, cy.
+           *
+           *  We know that c-p[n] = radius. (But we don't know that radius).
+           *  We have the included angle, /_ p[n].c.p[next_n]
+           *  |(hx,hy)-p[n]| = sin(angle/2) * radius
+           *
+           * tan(ang/2) = |(hx,hy)-p[n]| / |(hx,hy)-(cx,cy)|
+           *
+           * |(hx,hy)-(cx,cy)| = |(hx,hy)-p[n]| / tan(ang/2)
+           *
+           */
+
+          p_to_h_dist = sqrt (pow(nx - py, 2) + pow (ny - py, 2)) / 2.;
+          c_to_h_dist = p_to_h_dist / tan (TO_RADIANS (p->Points[n].included_angle) / 2.);
+
+          unit_hcx = (float)-(hy - py) / p_to_h_dist;
+          unit_hcy = (float)(hx - px) / p_to_h_dist;
+
+          cx = hx + unit_hcx * c_to_h_dist;
+          cy = hy + unit_hcy * c_to_h_dist;
+
+#if 0 /* DEBUG TO SHOW THE CENTER OF THE ARC */
+          v[0] = cx, v[1] = cy;
+          poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+          v[0] = p->Points[n].X, v[1] = p->Points[n].Y;
+#endif
+
+          degree_circle (contour, cx, cy, v, p->Points[n].included_angle);
+
+#if 0 /* DEBUG TO SHOW THE CENTER OF THE ARC */
+          v[0] = cx, v[1] = cy;  /* DEBUG TO SHOW THE CENTER OF THE ARC */
+          poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+#endif
         }
 
       /* Is current point last in contour? If so process it. */
@@ -1325,7 +1444,8 @@ RemoveExcessPolygonPoints (LayerType *Layer, PolygonType *Polygon)
       line.Point1 = Polygon->Points[prev];
       line.Point2 = Polygon->Points[next];
       line.Thickness = 0;
-      if (IsPointOnLine (p->X, p->Y, 0.0, &line))
+      if (Polygon->Points[prev].included_angle == Polygon->Points[n].included_angle &&
+          IsPointOnLine (p->X, p->Y, 0.0, &line))
         {
           RemoveObject (POLYGONPOINT_TYPE, Layer, Polygon, p);
           changed = true;
@@ -1949,9 +2069,9 @@ MorphPolygon (LayerType *layer, PolygonType *poly)
             return false;
           many = true;
           v = &p->contours->head;
-          CreateNewPointInPolygon (newone, v->point[0], v->point[1]);
+          CreateNewPointInPolygon (newone, v->point[0], v->point[1], 0);
           for (v = v->next; v != &p->contours->head; v = v->next)
-            CreateNewPointInPolygon (newone, v->point[0], v->point[1]);
+            CreateNewPointInPolygon (newone, v->point[0], v->point[1], 0);
           newone->BoundingBox.X1 = p->contours->xmin;
           newone->BoundingBox.X2 = p->contours->xmax + 1;
           newone->BoundingBox.Y1 = p->contours->ymin;
@@ -2064,7 +2184,8 @@ PolyToPolygonsOnLayer (DataType *Destination, LayerType *Layer,
           do
             {
               CreateNewPointInPolygon (Polygon, node->point[0],
-                                                node->point[1]);
+                                                node->point[1],
+                                                0);
             }
           while ((node = node->next) != &pline->head);
 

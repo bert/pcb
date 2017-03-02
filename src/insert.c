@@ -67,6 +67,7 @@ static void *InsertPointIntoRat (RatType *);
  * some local identifiers
  */
 static Coord InsertX, InsertY;	/* used by local routines as offset */
+static Angle InsertIncludedAngle; /* Only used by polygon point insert */
 static Cardinal InsertAt;
 static bool InsertLast;
 static bool Forcible;
@@ -182,7 +183,7 @@ InsertPointIntoPolygon (LayerType *Layer, PolygonType *Polygon)
    */
   ErasePolygon (Polygon);
   r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
-  save = *CreateNewPointInPolygon (Polygon, InsertX, InsertY);
+  save = *CreateNewPointInPolygon (Polygon, InsertX, InsertY, InsertIncludedAngle);
   for (n = Polygon->PointN - 1; n > InsertAt; n--)
     Polygon->Points[n] = Polygon->Points[n - 1];
 
@@ -213,7 +214,7 @@ InsertPointIntoPolygon (LayerType *Layer, PolygonType *Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       Coord DX, Coord DY, bool Force,
+		       Coord DX, Coord DY, Angle included_angle, bool Force,
 		       bool insert_last)
 {
   void *ptr;
@@ -221,6 +222,7 @@ InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
   /* setup offset */
   InsertX = DX;
   InsertY = DY;
+  InsertIncludedAngle = included_angle;
   InsertAt = *Ptr3;
   InsertLast = insert_last;
   Forcible = Force;

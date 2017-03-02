@@ -629,10 +629,10 @@ CreateNewPolygonFromRectangle (LayerType *Layer,
   if (!polygon)
     return (polygon);
 
-  CreateNewPointInPolygon (polygon, X1, Y1);
-  CreateNewPointInPolygon (polygon, X2, Y1);
-  CreateNewPointInPolygon (polygon, X2, Y2);
-  CreateNewPointInPolygon (polygon, X1, Y2);
+  CreateNewPointInPolygon (polygon, X1, Y1, 0);
+  CreateNewPointInPolygon (polygon, X2, Y1, 0);
+  CreateNewPointInPolygon (polygon, X2, Y2, 0);
+  CreateNewPointInPolygon (polygon, X1, Y2, 0);
   SetPolygonBoundingBox (polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
@@ -697,13 +697,14 @@ CreateNewPolygon (LayerType *Layer, FlagType Flags)
  * \brief Creates a new point in a polygon.
  */
 PointType *
-CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y)
+CreateNewPointInPolygon (PolygonType *Polygon, Coord X, Coord Y, Angle included_angle)
 {
   PointType *point = GetPointMemoryInPolygon (Polygon);
 
   /* copy values */
   point->X = X;
   point->Y = Y;
+  point->included_angle = included_angle;
   point->ID = ID++;
   return (point);
 }

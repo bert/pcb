@@ -1467,7 +1467,8 @@ NotifyMode (void)
 	  {
 	    CreateNewPointInPolygon (&Crosshair.AttachedPolygon,
 				     Crosshair.AttachedLine.Point2.X,
-				     Crosshair.AttachedLine.Point2.Y);
+				     Crosshair.AttachedLine.Point2.Y,
+				     0);
 
 	    /* copy the coordinates */
 	    Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
@@ -1561,7 +1562,8 @@ NotifyMode (void)
 		{
 		  CreateNewPointInPolygon (&Crosshair.AttachedPolygon,
 					   Crosshair.AttachedLine.Point2.X,
-					   Crosshair.AttachedLine.Point2.Y);
+					   Crosshair.AttachedLine.Point2.Y,
+					   0);
 
 		  /* copy the coordinates */
 		  Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
@@ -1784,13 +1786,13 @@ NotifyMode (void)
 	    InsertPointIntoObject (POLYGON_TYPE,
 				   Crosshair.AttachedObject.Ptr1, fake.poly,
 				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, false, false);
+				   InsertedPoint.X, InsertedPoint.Y, 0, false, false);
 	  else
 	    InsertPointIntoObject (Crosshair.AttachedObject.Type,
 				   Crosshair.AttachedObject.Ptr1,
 				   Crosshair.AttachedObject.Ptr2,
 				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, false, false);
+				   InsertedPoint.X, InsertedPoint.Y, 0, false, false);
 	  SetChangedFlag (true);
 
 	  /* reset identifiers */

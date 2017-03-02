@@ -106,7 +106,7 @@ CopyPolygonLowLevel (PolygonType *Dest, PolygonType *Src)
           CreateNewHoleInPolygon (Dest);
           hole++;
         }
-      CreateNewPointInPolygon (Dest, Src->Points[n].X, Src->Points[n].Y);
+      CreateNewPointInPolygon (Dest, Src->Points[n].X, Src->Points[n].Y, Src->Points[n].included_angle);
     }
   SetPolygonBoundingBox (Dest);
   Dest->Flags = Src->Flags;

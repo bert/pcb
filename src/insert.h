@@ -41,7 +41,7 @@
  * prototypes
  */
 void *InsertPointIntoObject (int, void *, void *, Cardinal *, Coord,
-			     Coord, bool, bool);
+			     Coord, Angle, bool, bool);
 PointType * AdjustInsertPoint (void);
 
 #endif

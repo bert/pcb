@@ -261,6 +261,7 @@ typedef struct
 {
   Coord X, Y, X2, Y2; /*!< So Point type can be cast as BoxType. */
   long int ID;
+  Angle included_angle;
 } PointType;
 
 /*!
