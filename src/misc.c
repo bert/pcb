@@ -438,6 +438,27 @@ SetPolygonBoundingBox (PolygonType *Polygon)
     MAKEMIN (Polygon->BoundingBox.Y1, point->Y);
     MAKEMAX (Polygon->BoundingBox.X2, point->X);
     MAKEMAX (Polygon->BoundingBox.Y2, point->Y);
+
+    if (point->included_angle != 0)
+      {
+        BoxType arc_bound;
+        Coord cx, cy, radius;
+        Angle start_angle, delta_angle;
+        PointType *next_point;
+
+        /* NB: This next line uses the polygon point index, n, defined by POLYGON_POINT_LOOP */
+        next_point = &Polygon->Points[next_contour_point (Polygon, n)];
+
+        calc_arc_from_points_and_included_angle (point, next_point, point->included_angle,
+                                                 &cx, &cy, &radius, &start_angle, &delta_angle);
+
+        arc_bound = calc_thin_arc_bounds (cx, cy, radius, radius, start_angle, delta_angle);
+
+        MAKEMIN (Polygon->BoundingBox.X1, arc_bound.X1);
+        MAKEMIN (Polygon->BoundingBox.Y1, arc_bound.Y1);
+        MAKEMAX (Polygon->BoundingBox.X2, arc_bound.X2);
+        MAKEMAX (Polygon->BoundingBox.Y2, arc_bound.Y2);
+      }
   }
   /* boxes don't include the lower right corner */
   close_box(&Polygon->BoundingBox);
