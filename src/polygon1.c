@@ -1265,23 +1265,25 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
 {
   POLYAREA *newp;
 
+  newp = poly_Create ();
+  if (newp == NULL)
+    error(err_no_memory);
+
   if (*dst == NULL)
     {
-      MemGet (*dst, POLYAREA);
-      (*dst)->f = (*dst)->b = *dst;
-      newp = *dst;
+      newp->f = newp->b = newp;
+      *dst = newp;
     }
   else
     {
-      MemGet (newp, POLYAREA);
       newp->f = *dst;
       newp->b = (*dst)->b;
       newp->f->b = newp->b->f = newp;
     }
-  newp->contours = c;
-  newp->contour_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry (newp->contour_tree, (BoxType *) c, 0);
+
   c->next = NULL;
+  newp->contours = c;
+  r_insert_entry (newp->contour_tree, (BoxType *) c, 0);
 }				/* InsCntr */
 
 static void
