@@ -177,6 +177,7 @@ PCB_SRCS = \
 	hid/common/object3d.h \
 	hid/common/quad.c \
 	hid/common/quad.h \
+	hid/common/step_id.h \
 	hid/common/vertex3d.c \
 	hid/common/vertex3d.h \
 	hid/hidint.h 
@@ -374,7 +375,9 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-pinout-preview.h \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
-	hid/gtk/gui-utils.c
+	hid/gtk/gui-utils.c \
+	hid/step/object3d_step.c \
+	hid/step/object3d_step.h
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
 hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
