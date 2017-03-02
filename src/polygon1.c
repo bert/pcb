@@ -2920,8 +2920,10 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
   *res = NULL;
 
   /* Make copies for tracking polygon parentage (DEBUG) */
-  if (!poly_M_Copy0 (&a_copy, a) || !poly_M_Copy0 (&b_copy, b))
-      return err_no_memory;
+//  if (!poly_M_Copy0 (&a_copy, a) || !poly_M_Copy0 (&b_copy, b))
+//      return err_no_memory;
+  a_copy = NULL;
+  b_copy = NULL;
 
   /* Move the parentage information over onto the copy */
   if (a_copy != NULL)
