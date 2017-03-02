@@ -361,6 +361,70 @@ SetLineBoundingBox (LineType *Line)
 }
 
 /*!
+ * \brief
+ * Calculates an arc center and radius for the arc described by
+ * two points and an included angle between them.
+ *
+ * Return locations for cx, cy are required. radius, start_angle
+ * and delta_angle are optional and may be NULL if not required.
+ */
+void
+calc_arc_from_points_and_included_angle (PointType *p1, PointType *p2, Angle included_angle,
+                                         Coord *cx, Coord *cy, Coord *radius,
+                                         Angle *start_angle, Angle *delta_angle)
+{
+  Coord hx, hy;
+  double p_to_h_dist;
+  double c_to_h_dist;
+  double unit_hcx, unit_hcy;
+
+  /* The arc center lies on a line passing through hx, hy, perpendicular
+   * to the direction between our two end-points.
+   *
+   *              p2
+   *            / |
+   *          /   |h
+   *    -----c----|-------------- line passing (hx, hy), perpendicular to p1-p2
+   *          \   |
+   *            \ |
+   *              p1
+   *
+   *  Find cx, cy.
+   *
+   *  We know that c-p1 = radius. (But we don't know that radius).
+   *  We have the included angle, /_ p1.c.p2
+   *  |(hx,hy)-p1| = sin(angle/2) * radius
+   *
+   * tan(ang/2) = |(hx,hy)-p1| / |(hx,hy)-(cx,cy)|
+   *
+   * |(hx,hy)-(cx,cy)| = |(hx,hy)-p1| / tan(ang/2)
+   *
+   */
+
+  /* Find the point halfway between the two points the arc spans */
+  hx = p1->X + (p2->X - p1->X) / 2;
+  hy = p1->Y + (p2->Y - p1->Y) / 2;
+
+  p_to_h_dist = hypot (p2->X - p1->X, p2->Y - p1->Y) / 2.;
+  c_to_h_dist = p_to_h_dist / tan (TO_RADIANS (included_angle) / 2.);
+
+  unit_hcx = (double)-(hy - p1->Y) / p_to_h_dist;
+  unit_hcy = (double) (hx - p1->X) / p_to_h_dist;
+
+  *cx = hx + unit_hcx * c_to_h_dist;
+  *cy = hy + unit_hcy * c_to_h_dist;
+
+  if (radius != NULL)
+    *radius = hypot (p1->X - *cx, p1->Y - *cy);
+
+  if (start_angle != NULL)
+    *start_angle = atan2 ((p1->Y - *cy), -(p1->X - *cx)) / M180;
+
+  if (delta_angle != NULL)
+    *delta_angle = included_angle;
+}
+
+/*!
  * \brief Sets the bounding box of a polygons.
  */
 void

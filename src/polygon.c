@@ -365,13 +365,7 @@ original_poly (PolygonType * p)
       if (p->Points[n].included_angle != 0)
         {
           Cardinal next_n;
-          Coord px, py;
-          Coord nx, ny;
-          Coord hx, hy;
           Coord cx, cy;
-          double p_to_h_dist;
-          double c_to_h_dist;
-          double unit_hcx, unit_hcy;
 
           next_n = n + 1;
           if (next_n == p->PointN ||
@@ -380,44 +374,9 @@ original_poly (PolygonType * p)
 
           /* XXX: Compute center of arc */
 
-          px = p->Points[     n].X, py = p->Points[     n].Y;
-          nx = p->Points[next_n].X, ny = p->Points[next_n].Y;
 
-          /* Find the point halfway between the to points the arc spans */
-          hx = px + (nx - px) / 2;
-          hy = py + (ny - py) / 2;
-
-          /* The arc center lies on a line passing through hx, hy, perpendicular
-           * to the direction between our two end-points.
-           *
-           *              n
-           *            / |
-           *          /   |h
-           *    -----c----|-------------- line passing (hx, hy), perpendicular to p[n]-p[next_n]
-           *          \   |
-           *            \ |
-           *              p
-           *
-           *  Find cx, cy.
-           *
-           *  We know that c-p[n] = radius. (But we don't know that radius).
-           *  We have the included angle, /_ p[n].c.p[next_n]
-           *  |(hx,hy)-p[n]| = sin(angle/2) * radius
-           *
-           * tan(ang/2) = |(hx,hy)-p[n]| / |(hx,hy)-(cx,cy)|
-           *
-           * |(hx,hy)-(cx,cy)| = |(hx,hy)-p[n]| / tan(ang/2)
-           *
-           */
-
-          p_to_h_dist = sqrt (pow(nx - py, 2) + pow (ny - py, 2)) / 2.;
-          c_to_h_dist = p_to_h_dist / tan (TO_RADIANS (p->Points[n].included_angle) / 2.);
-
-          unit_hcx = (float)-(hy - py) / p_to_h_dist;
-          unit_hcy = (float)(hx - px) / p_to_h_dist;
-
-          cx = hx + unit_hcx * c_to_h_dist;
-          cy = hy + unit_hcy * c_to_h_dist;
+          calc_arc_from_points_and_included_angle (&p->Points[n], &p->Points[next_n], p->Points[n].included_angle,
+                                                   &cx, &cy, NULL, NULL, NULL);
 
 #if 0 /* DEBUG TO SHOW THE CENTER OF THE ARC */
           v[0] = cx, v[1] = cy;

@@ -58,6 +58,7 @@ void SetArcEndpoints (ArcType *);
 void SetPointBoundingBox (PointType *);
 void SetPinBoundingBox (PinType *);
 void SetPadBoundingBox (PadType *);
+void calc_arc_from_points_and_included_angle (PointType *p1, PointType *p2, Angle included_angle, Coord *cx, Coord *cy, Coord *radius, Angle *start_angle, Angle *delta_angle);
 void SetPolygonBoundingBox (PolygonType *);
 void SetElementBoundingBox (DataType *, ElementType *, FontType *);
 bool IsDataEmpty (DataType *);
