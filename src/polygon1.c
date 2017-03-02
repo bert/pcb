@@ -2643,27 +2643,27 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       assert (poly_Valid (b));
 #endif
 
-      fprintf (stderr, "Non-trivial polygon boolean operation\n");
+//      fprintf (stderr, "Non-trivial polygon boolean operation\n");
 
       /* intersect needs to make a list of the contours in a and b which are intersected */
       M_POLYAREA_intersect (&e, a, b, TRUE);
 
-      fprintf (stderr, "Checking A intersected contours\n");
+//      fprintf (stderr, "Checking A intersected contours\n");
       //M_PLINE_check_hairline_edges (a_isected);
       M_POLYAREA_check_hairline_edges (a);
 
-      fprintf (stderr, "Checking B intersected contours\n");
+//      fprintf (stderr, "Checking B intersected contours\n");
       M_POLYAREA_check_hairline_edges (b);
 
       /* We could speed things up a lot here if we only processed the relevant contours */
       /* NB: Relevant parts of a are labeled below */
-      fprintf (stderr, "Labeling B intersected contours\n");
+//      fprintf (stderr, "Labeling B intersected contours\n");
       M_POLYAREA_label (b, a, FALSE);
 
       *res = a;
       M_POLYAREA_update_primary (&e, res, &holes, action, b);
       M_POLYAREA_separate_isected (&e, res, &holes, &a_isected);
-      fprintf (stderr, "Labeling A intersected contours\n");
+//      fprintf (stderr, "Labeling A intersected contours\n");
       M_POLYAREA_label_separated (a_isected, b, FALSE);
       M_POLYAREA_Collect_separated (&e, a_isected, res, &holes, action,
 				    FALSE);
@@ -2692,7 +2692,7 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       return code;
     }
   assert (!*res || poly_Valid (*res));
-  fprintf (stderr, "END OF BOOLEAN\n\n");
+//  fprintf (stderr, "END OF BOOLEAN\n\n");
   return code;
 }				/* poly_Boolean_free */
 
@@ -2952,6 +2952,9 @@ poly_PreContour (PLINE * C, BOOLp optimize)
   if (C->Count > 2)
     C->Flags.orient = ((area < 0) ? PLF_INV : PLF_DIR);
   C->tree = (rtree_t *)make_edge_tree (C);
+
+  if (poly_ChkContour (C))
+    g_critical ("poly_PreContour(): Creating bad contour!");
 }				/* poly_PreContour */
 
 static int
