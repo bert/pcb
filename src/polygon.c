@@ -1882,9 +1882,8 @@ NoHolesPolygonDicer (PolygonType *p, const BoxType * clip,
 {
   POLYAREA *main_contour, *cur, *next;
 
-  main_contour = poly_Create ();
   /* copy the main poly only */
-  poly_Copy1 (main_contour, p->Clipped);
+  poly_Copy0 (&main_contour, p->Clipped);
   /* clip to the bounding box */
   if (clip)
     {
