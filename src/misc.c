@@ -1198,7 +1198,14 @@ ParseGroupString (char *group_string, LayerGroupType *LayerGroup, int *LayerN)
           /* ignore white spaces and check for separator */
           while (*s && isspace ((int) *s))
             s++;
-          if (!*s || *s == ':')
+
+          /* Backup so the outer loop terminates on the NULL termination */
+          if (*s == '\0') {
+            s--;
+            break;
+          }
+
+          if (*s == ':')
             break;
         }
       LayerGroup->Number[group] = member;
