@@ -1394,6 +1394,7 @@ RemoveExcessPolygonPoints (LayerType *Layer, PolygonType *Polygon)
   if (Undoing ())
     return (false);
 
+if (0) {
   for (n = 0; n < Polygon->PointN; n++)
     {
       prev = prev_contour_point (Polygon, n);
@@ -1403,6 +1404,7 @@ RemoveExcessPolygonPoints (LayerType *Layer, PolygonType *Polygon)
       line.Point1 = Polygon->Points[prev];
       line.Point2 = Polygon->Points[next];
       line.Thickness = 0;
+#warning THIS TEST IS NOT SUFFICIENT.. DOESNT ACCOUNT FOR DIFFERENT ARC CENTERS
       if (Polygon->Points[prev].included_angle == Polygon->Points[n].included_angle &&
           IsPointOnLine (p->X, p->Y, 0.0, &line))
         {
@@ -1410,6 +1412,7 @@ RemoveExcessPolygonPoints (LayerType *Layer, PolygonType *Polygon)
           changed = true;
         }
     }
+}
   return (changed);
 }
 
