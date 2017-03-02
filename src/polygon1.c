@@ -114,13 +114,13 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
  * traverses edges and vertices..
  */
 #define VERTEX_FORWARD_EDGE(v) ((v))
-#define VERTEX_BACKWARD_EDGE(v) ((v)->_prev)
-#define EDGE_FORWARD_VERTEX(e) ((e)->_next)
+#define VERTEX_BACKWARD_EDGE(v) ((v)->prev)
+#define EDGE_FORWARD_VERTEX(e) ((e)->next)
 #define EDGE_BACKWARD_VERTEX(e) ((e))
-#define NEXT_VERTEX(v) ((v)->_next)
-#define PREV_VERTEX(v) ((v)->_prev)
-#define NEXT_EDGE(e) ((e)->_next)
-#define PREV_EDGE(e) ((e)->_prev)
+#define NEXT_VERTEX(v) ((v)->next)
+#define PREV_VERTEX(v) ((v)->prev)
+#define NEXT_EDGE(e) ((e)->next)
+#define PREV_EDGE(e) ((e)->prev)
 
 #define ISECTED 3
 #define UNKNWN  0
@@ -2580,7 +2580,7 @@ cntrbox_pointin (PLINE * c, Vector p)
 static inline int
 node_neighbours (VNODE * a, VNODE * b)
 {
-  return (a == b) || (a->_next == b) || (b->_next == a) || (a->_next == b->_next);
+  return (a == b) || (a->next == b) || (b->next == a) || (a->next == b->next);
 }
 
 VNODE *
@@ -3305,23 +3305,23 @@ poly_ChkContour (PLINE * a)
       do
 	{
 	  if (!node_neighbours (a1, a2) &&
-	      (icnt = vect_inters2 (a1->point, a1->_next->point,
-				    a2->point, a2->_next->point, i1, i2)) > 0)
+	      (icnt = vect_inters2 (a1->point, a1->next->point,
+				    a2->point, a2->next->point, i1, i2)) > 0)
 	    {
 	      if (icnt > 1)
 		return TRUE;
 
 	      if (vect_dist2 (i1, a1->point) < EPSILON)
 		hit1 = a1;
-	      else if (vect_dist2 (i1, a1->_next->point) < EPSILON)
-		hit1 = a1->_next;
+	      else if (vect_dist2 (i1, a1->next->point) < EPSILON)
+		hit1 = a1->next;
 	      else
 		hit1 = NULL;
 
 	      if (vect_dist2 (i1, a2->point) < EPSILON)
 		hit2 = a2;
-	      else if (vect_dist2 (i1, a2->_next->point) < EPSILON)
-		hit2 = a2->_next;
+	      else if (vect_dist2 (i1, a2->next->point) < EPSILON)
+		hit2 = a2->next;
 	      else
 		hit2 = NULL;
 
@@ -3337,7 +3337,7 @@ poly_ChkContour (PLINE * a)
 		/* An end-point of the second line touched somewhere along the
 		   length of the first line. Check where the second line leads. */
 		  if (inside_sector (hit2, a1->point) !=
-		      inside_sector (hit2, a1->_next->point))
+		      inside_sector (hit2, a1->next->point))
 		    return TRUE;
 		}
 	      else if (hit2 == NULL)
@@ -3345,21 +3345,21 @@ poly_ChkContour (PLINE * a)
 		/* An end-point of the first line touched somewhere along the
 		   length of the second line. Check where the first line leads. */
 		  if (inside_sector (hit1, a2->point) !=
-		      inside_sector (hit1, a2->_next->point))
+		      inside_sector (hit1, a2->next->point))
 		    return TRUE;
 		}
 	      else
 		{
 		/* Both lines intersect at an end-point. Check where they lead. */
-		  if (inside_sector (hit1, hit2->_prev->point) !=
-		      inside_sector (hit1, hit2->_next->point))
+		  if (inside_sector (hit1, hit2->prev->point) !=
+		      inside_sector (hit1, hit2->next->point))
 		    return TRUE;
 		}
 	    }
 	}
-      while ((a2 = a2->_next) != &a->head);
+      while ((a2 = a2->next) != &a->head);
     }
-  while ((a1 = a1->_next) != &a->head);
+  while ((a1 = a1->next) != &a->head);
   return FALSE;
 }
 
