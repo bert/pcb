@@ -2250,6 +2250,23 @@ pv_outline_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static int
+polygon_outline_callback (const BoxType * b, void *cl)
+{
+  PolygonType *poly = (PolygonType *)b;
+  struct clip_outline_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!(np = original_poly (poly)))
+    return 0;
+
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
 static void
 delete_piece_cb (gpointer data, gpointer userdata)
 {
@@ -2335,12 +2352,13 @@ POLYAREA *board_outline_poly (bool include_holes)
    *  \_____________/
    */
 
-  info.poly = whole_world;
-
   region.X1 = 0;
   region.Y1 = 0;
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
+
+#if 0
+  info.poly = whole_world;
 
   if (found_outline)
     {
@@ -2401,6 +2419,21 @@ POLYAREA *board_outline_poly (bool include_holes)
     g_list_foreach (pieces_to_delete, delete_piece_cb, &clipped);
 
   g_list_free (pieces_to_delete);
+#endif
+
+  // The actual operation we want is to split the test polygon into multiple pieces
+  // along the intersection with the polygon contours of any polygon on the outer layer.
+  // The result would be nested, touching (not normally produced by the PBO code),
+  // polygon pieces which could then be culled appropriately by the above contour
+  // classification code to delete the regions outside the board.
+  info.poly = NULL; //clipped;
+  r_search (Layer->polygon_tree, &region, NULL, polygon_outline_callback, &info);
+  clipped = info.poly;
+
+  if (clipped == NULL)
+    return whole_world;
+  else
+    poly_Free (&whole_world);
 
   return clipped;
 }
