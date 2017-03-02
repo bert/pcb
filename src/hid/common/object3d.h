@@ -16,4 +16,4 @@ void object3d_add_edge (object3d *object, edge_ref edge);
 void object3d_add_vertex (object3d *object, vertex3d *vertex);
 void object3d_add_face (object3d *object, face3d *face);
 object3d *object3d_create_test_cube (void);
-object3d *object3d_from_board_outline (void);
+GList *object3d_from_board_outline (void);
