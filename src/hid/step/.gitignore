@@ -1,0 +1,6 @@
+*~
+.deps
+.dirstamp
+Makefile
+Makefile.in
+step_lists.h
