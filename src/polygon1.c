@@ -533,6 +533,15 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
   return list;
 }
 
+static bool
+cntrbox_check (PLINE * c, Vector p)
+{
+  return (p[0]     < c->xmin ||
+          p[0] + 1 > c->xmax ||
+          p[1]     < c->ymin ||
+          p[1] + 1 > c->ymax);
+}
+
 static inline void
 cntrbox_adjust (PLINE * c, Vector p)
 {
@@ -955,7 +964,16 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       EDGE_FORWARD_VERTEX (task->node_seg->v) = task->new_node;
       task->node_seg->p->Count++;
 
-      cntrbox_adjust (task->node_seg->p, task->new_node->point);
+      if (cntrbox_check (task->node_seg->p, task->new_node->point))
+        {
+          /* First delete the contour from the contour r-tree, as its bounds
+           * may be adjusted whilst inserting nodes
+           */
+          r_delete_entry (b->contour_tree, (const BoxType *) task->node_seg->p);
+          cntrbox_adjust (task->node_seg->p, task->new_node->point);
+          r_insert_entry (b->contour_tree, (const BoxType *) task->node_seg->p, 0);
+        }
+
       if (adjust_tree (task->node_seg->p->tree, task->node_seg))
 	assert (0); /* XXX: Memory allocation failure */
 
