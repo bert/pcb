@@ -113,6 +113,8 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#define DEBUG_CIRCSEGS
+
 #define ROUND(x) ((long)(((x) >= 0 ? (x) + 0.5  : (x) - 0.5)))
 
 #define UNSUBTRACT_BLOAT 10
@@ -2213,10 +2215,18 @@ arc_outline_callback (const BoxType * b, void *cl)
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
 
+#ifdef DEBUG_CIRCSEGS
+  if (!(np = ArcPoly (arc, arc->Thickness)))
+#else
   if (!(np = ArcPoly (arc, ROUTER_THICKNESS)))
+#endif
     return 0;
 
+#ifdef DEBUG_CIRCSEGS
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+#else
   poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+#endif
   info->poly = res;
 
   return 1;
@@ -2229,10 +2239,18 @@ line_outline_callback (const BoxType * b, void *cl)
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
 
+#ifdef DEBUG_CIRCSEGS
+  if (!(np = LinePoly (line, line->Thickness)))
+#else
   if (!(np = LinePoly (line, ROUTER_THICKNESS)))
+#endif
     return 0;
 
+#ifdef DEBUG_CIRCSEGS
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+#else
   poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+#endif
   info->poly = res;
 
   return 1;
@@ -2245,10 +2263,18 @@ pv_outline_callback (const BoxType * b, void *cl)
   struct clip_outline_info *info = cl;
   POLYAREA *np, *res;
 
+#ifdef DEBUG_CIRCSEGS
+  if (!(np = CirclePoly (pv->X, pv->Y, pv->Thickness / 2)))
+#else
   if (!(np = CirclePoly (pv->X, pv->Y, pv->DrillingHole / 2)))
+#endif
     return 0;
 
+#ifdef DEBUG_CIRCSEGS
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+#else
   poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+#endif
   info->poly = res;
 
   return 1;
@@ -2264,8 +2290,11 @@ polygon_outline_callback (const BoxType * b, void *cl)
   if (!(np = original_poly (poly)))
     return 0;
 
-
+#ifdef DEBUG_CIRCSEGS
   poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+#else
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+#endif
   info->poly = res;
 
   return 1;
@@ -2361,8 +2390,12 @@ POLYAREA *board_outline_poly (bool include_holes)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-#if 0
+#if 1
+#ifdef DEBUG_CIRCSEGS
+  info.poly = NULL;
+#else
   info.poly = whole_world;
+#endif
 
   if (found_outline)
     {
@@ -2370,13 +2403,19 @@ POLYAREA *board_outline_poly (bool include_holes)
       r_search (Layer->arc_tree,  &region, NULL, arc_outline_callback, &info);
     }
 
+#ifndef DEBUG_CIRCSEGS
   if (include_holes)
+#endif
     {
       r_search (PCB->Data->pin_tree, &region, NULL, pv_outline_callback, &info);
       r_search (PCB->Data->via_tree, &region, NULL, pv_outline_callback, &info);
     }
 
   clipped = info.poly;
+
+#ifdef DEBUG_CIRCSEGS
+  return clipped;
+#endif
 
   /* Now we just need to work out which pieces of polygon are inside
      and outside the board! */
@@ -2425,6 +2464,7 @@ POLYAREA *board_outline_poly (bool include_holes)
   g_list_free (pieces_to_delete);
 #endif
 
+#ifdef DEBUG_CIRCSEGS
   // The actual operation we want is to split the test polygon into multiple pieces
   // along the intersection with the polygon contours of any polygon on the outer layer.
   // The result would be nested, touching (not normally produced by the PBO code),
@@ -2438,6 +2478,7 @@ POLYAREA *board_outline_poly (bool include_holes)
     return whole_world;
   else
     poly_Free (&whole_world);
+#endif
 
   return clipped;
 }
