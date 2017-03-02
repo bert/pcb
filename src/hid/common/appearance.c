@@ -23,3 +23,9 @@ appearance_set_color (appearance *appear, float r, float g, float b)
   appear->g = g;
   appear->b = b;
 }
+
+void
+appearance_set_appearance (appearance *appear, const appearance *from)
+{
+  *appear = *from;
+}

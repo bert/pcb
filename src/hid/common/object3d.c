@@ -4,6 +4,7 @@
 
 #include <glib.h>
 
+#include "data.h"
 #include "step_id.h"
 #include "quad.h"
 #include "vertex3d.h"
@@ -13,7 +14,9 @@
 #include "edge3d.h"
 #include "object3d.h"
 #include "polygon.h"
-#include "data.h"
+
+#include "rtree.h"
+#include "rotate.h"
 
 #include "pcb-printf.h"
 
@@ -232,14 +235,17 @@ get_contour_coord_n_in_step_mm (PLINE *contour, int n, double *x, double *y)
 }
 
 GList *
-object3d_from_board_outline (void)
+object3d_from_contours (const POLYAREA *contours,
+                        double zbot,
+                        double ztop,
+                        const appearance *master_object_appearance,
+                        const appearance *master_top_bot_appearance)
 {
   GList *objects = NULL;
   object3d *object;
-  appearance *board_appearance;
-  appearance *top_bot_appearance;
-  POLYAREA *outline;
-  POLYAREA *pa;
+  appearance *object_appearance = NULL;
+  appearance *top_bot_appearance = NULL;
+  const POLYAREA *pa;
   PLINE *contour;
   PLINE *ct;
   int ncontours;
@@ -252,13 +258,11 @@ object3d_from_board_outline (void)
   int offset_in_ct;
   int ct_npoints;
 
-  outline = board_outline_poly (true);
-
-  if (outline == NULL)
+  if (contours == NULL)
     return NULL;
 
   /* Loop over all board outline pieces */
-  pa = outline;
+  pa = contours;
   do
     {
 
@@ -275,12 +279,20 @@ object3d_from_board_outline (void)
         }
 
       object = make_object3d (PCB->Name);
-      board_appearance = make_appearance ();
-      top_bot_appearance = make_appearance ();
-      appearance_set_color (board_appearance,   1.0, 1.0, 0.6);
-      appearance_set_color (top_bot_appearance, 0.2, 0.8, 0.2);
 
-      object3d_set_appearance (object, board_appearance);
+      if (master_object_appearance != NULL)
+        {
+          object_appearance = make_appearance ();
+          appearance_set_appearance (object_appearance, master_object_appearance);
+        }
+
+      if (master_top_bot_appearance != NULL)
+        {
+          top_bot_appearance = make_appearance ();
+          appearance_set_appearance (top_bot_appearance, master_top_bot_appearance);
+        }
+
+      object3d_set_appearance (object, object_appearance);
 
       vertices = malloc (sizeof (vertex3d *) * 2 * npoints); /* (n-bottom, n-top) */
       edges    = malloc (sizeof (edge_ref  ) * 3 * npoints); /* (n-bottom, n-top, n-sides) */
@@ -305,13 +317,8 @@ object3d_from_board_outline (void)
 
           get_contour_coord_n_in_step_mm (ct, offset_in_ct, &x1, &y1);
 
-#ifdef REVERSED_PCB_CONTOURS
-          vertices[i]           = make_vertex3d (x1, y1, -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS)); /* Bottom */
-          vertices[npoints + i] = make_vertex3d (x1, y1, 0);                                            /* Top */
-#else
-          vertices[i]           = make_vertex3d (x1, y1,  COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2.); /* Bottom */
-          vertices[npoints + i] = make_vertex3d (x1, y1, -COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2.); /* Top */
-#endif
+          vertices[i]           = make_vertex3d (x1, y1, COORD_TO_STEP_Z (PCB, zbot)); /* Bottom */
+          vertices[npoints + i] = make_vertex3d (x1, y1, COORD_TO_STEP_Z (PCB, ztop)); /* Top */
 
           object3d_add_vertex (object, vertices[i]);
           object3d_add_vertex (object, vertices[npoints + i]);
@@ -467,18 +474,18 @@ object3d_from_board_outline (void)
 
 #ifdef REVERSED_PCB_CONTOURS
               edge_info_set_round (UNDIR_DATA (edges[i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, -HACK_BOARD_THICKNESS), /* Center of circle */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, zbot), /* Center of circle */ /* BOTTOM */
                                    0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
               edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), 0., /* Center of circle */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, ztop), /* Center of circle */ /* TOP */
                                    0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #else
               edge_info_set_round (UNDIR_DATA (edges[i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy),  COORD_TO_STEP_Z (PCB, HACK_BOARD_THICKNESS) / 2., /* Center of circle */ /* BOTTOM */
-                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, zbot), /* Center of circle */ /* BOTTOM */
+                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
               edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
-                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, -HACK_BOARD_THICKNESS) / 2. , /* Center of circle */ /* TOP */
-                                   0., 0., 1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+                                   COORD_TO_STEP_X (PCB, ct->cx), COORD_TO_STEP_Y (PCB, ct->cy), COORD_TO_STEP_Z (PCB, ztop), /* Center of circle */ /* TOP */
+                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
 #endif
               edge_info_set_stitch (UNDIR_DATA (edges[2 * npoints + i]));
             }
@@ -580,9 +587,39 @@ object3d_from_board_outline (void)
       objects = g_list_append (objects, object);
 
     }
-  while (pa = pa->f, pa != outline);
+  while (pa = pa->f, pa != contours);
 
-  poly_Free (&outline);
+  return objects;
+}
+
+GList *
+object3d_from_board_outline (void)
+{
+  POLYAREA *board_outline = board_outline_poly (true);
+  appearance *board_appearance;
+  appearance *top_bot_appearance;
+  GList *objects;
+
+  board_appearance = make_appearance ();
+  top_bot_appearance = make_appearance ();
+  appearance_set_color (board_appearance,   1.0, 1.0, 0.6);
+  appearance_set_color (top_bot_appearance, 0.2, 0.8, 0.2);
+
+  objects = object3d_from_contours (board_outline,
+#ifdef REVERSED_PCB_CONTOURS
+                                    -HACK_BOARD_THICKNESS, /* Bottom */
+                                    0                    ,  /* Top */
+#else
+                                     HACK_BOARD_THICKNESS / 2, /* Bottom */
+                                    -HACK_BOARD_THICKNESS / 2, /* Top */
+#endif
+                                    board_appearance,
+                                    top_bot_appearance);
+
+  destroy_appearance (board_appearance);
+  destroy_appearance (top_bot_appearance);
+
+  poly_Free (&board_outline);
 
   return objects;
 }
