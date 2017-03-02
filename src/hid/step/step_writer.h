@@ -8,6 +8,7 @@ typedef struct {
 
 } step_file;
 
+step_id_list step_id_list_append (step_id_list list, step_id id);
 step_id_list make_step_id_list (int count, ...);
 
 step_file *step_output_file (FILE *f);

@@ -35,6 +35,12 @@ destroy_step_id_list (step_id_list list)
   g_list_free (list);
 }
 
+step_id_list
+step_id_list_append (step_id_list list, step_id id)
+{
+  return g_list_append (list, GINT_TO_POINTER (id));
+}
+
 /* NB: The GList this produces will leak if not passed back to one of the step_* functions which uses the list and destroys it */
 step_id_list
 make_step_id_list (int count, ...)
