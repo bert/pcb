@@ -1734,10 +1734,10 @@ calc_thin_arc_bounds (Coord cx, Coord cy, Coord rx, Coord ry, Angle start_angle,
   sa2 = sin (M180 * ang2);
   ca2 = cos (M180 * ang2);
 
-  bound.X1 = MIN (ca1, ca2);
-  bound.X2 = MAX (ca1, ca2);
-  bound.Y1 = MIN (sa1, sa2);
-  bound.Y2 = MAX (sa1, sa2);
+  minx = MIN (ca1, ca2);
+  maxx = MAX (ca1, ca2);
+  miny = MIN (sa1, sa2);
+  maxy = MAX (sa1, sa2);
 
   /* Check for extreme angles */
   if ((ang1 <= 0   && ang2 >= 0)   || (ang1 <= 360 && ang2 >= 360)) maxx = 1;
