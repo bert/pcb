@@ -109,6 +109,19 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 /* note that a vertex v's Flags.status represents the edge defined by
  * v to v->next (i.e. the edge is forward of v)
  */
+
+/* Some macros which will hopefully aid readability of the code which
+ * traverses edges and vertices..
+ */
+#define VERTEX_FORWARD_EDGE(v) ((v))
+#define VERTEX_BACKWARD_EDGE(v) ((v)->_prev)
+#define EDGE_FORWARD_VERTEX(e) ((e)->_next)
+#define EDGE_BACKWARD_VERTEX(e) ((e))
+#define NEXT_VERTEX(v) ((v)->_next)
+#define PREV_VERTEX(v) ((v)->_prev)
+#define NEXT_EDGE(e) ((e)->_next)
+#define PREV_EDGE(e) ((e)->_prev)
+
 #define ISECTED 3
 #define UNKNWN  0
 #define INSIDE  1
@@ -163,12 +176,12 @@ pline_dump (VNODE * v)
   s = v;
   do
     {
-      n = v->next;
+      n = NEXT_VERTEX(v);
       pcb_fprintf (stderr, "Line [%#mS %#mS %#mS %#mS 10 10 \"%s\"]\n",
 	       v->point[0], v->point[1],
 	       n->point[0], n->point[1], theState (v));
     }
-  while ((v = v->next) != s);
+  while ((v = NEXT_VERTEX(v)) != s);
 }
 
 static void
@@ -206,16 +219,18 @@ poly_dump (POLYAREA * p)
  * \return a bit field in new_point that indicates where the point was.
  * 1 means a new node was created and inserted.
  * 4 means the intersection was not on the dest point.
+ *
+ * dest is considered an edge
  */
 static VNODE *
 node_add_single (VNODE * dest, Vector po)
 {
   VNODE *p;
 
-  if (vect_equal (po, dest->point))
-    return dest;
-  if (vect_equal (po, dest->next->point))
-    return dest->next;
+  if (vect_equal (po, EDGE_BACKWARD_VERTEX (dest)->point))
+    return EDGE_BACKWARD_VERTEX (dest);
+  if (vect_equal (po, EDGE_FORWARD_VERTEX (dest)->point))
+    return EDGE_FORWARD_VERTEX (dest);
   p = poly_CreateNode (po);
   if (p == NULL)
     return NULL;
@@ -248,9 +263,9 @@ new_descriptor (VNODE * a, char poly, char side)
   l->side = side;
   l->next = l->prev = l;
   if (side == 'P')		/* previous */
-    vect_sub (v, a->prev->point, a->point);
+    vect_sub (v, PREV_VERTEX (a)->point, a->point);
   else				/* next */
-    vect_sub (v, a->next->point, a->point);
+    vect_sub (v, NEXT_VERTEX (a)->point, a->point);
   /* Uses slope/(slope+1) in quadrant 1 as a proxy for the angle.
    * It still has the same monotonic sort result
    * and is far less expensive to compute than the real angle.
@@ -259,17 +274,17 @@ new_descriptor (VNODE * a, char poly, char side)
     {
       if (side == 'P')
 	{
-	  if (a->prev->cvc_prev == (CVCList *) - 1)
-	    a->prev->cvc_prev = a->prev->cvc_next = NULL;
-	  poly_ExclVertex (a->prev);
-	  vect_sub (v, a->prev->point, a->point);
+	  if (PREV_VERTEX (a)->cvc_prev == (CVCList *) - 1)
+	    PREV_VERTEX (a)->cvc_prev = PREV_VERTEX (a)->cvc_next = NULL;
+	  poly_ExclVertex (PREV_VERTEX (a));
+	  vect_sub (v, PREV_VERTEX (a)->point, a->point);
 	}
       else
 	{
-	  if (a->next->cvc_prev == (CVCList *) - 1)
-	    a->next->cvc_prev = a->next->cvc_next = NULL;
-	  poly_ExclVertex (a->next);
-	  vect_sub (v, a->next->point, a->point);
+	  if (NEXT_VERTEX (a)->cvc_prev == (CVCList *) - 1)
+	    NEXT_VERTEX (a)->cvc_prev = NEXT_VERTEX (a)->cvc_next = NULL;
+	  poly_ExclVertex (NEXT_VERTEX (a));
+	  vect_sub (v, NEXT_VERTEX (a)->point, a->point);
 	}
     }
   assert (!vect_equal (v, vect_zero));
@@ -387,20 +402,23 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
  *
  * \return 1 if new node in b, 2 if new node in a and 3 if new node in
  * both.
+ *
+ * a is considered an edge
  */
 static VNODE *
 node_add_single_point (VNODE * a, Vector p)
 {
-  VNODE *next_a, *new_node;
+  VNODE *a_backward_vertex, *a_forward_vertex, *new_node;
 
-  next_a = a->next;
+  a_backward_vertex = EDGE_BACKWARD_VERTEX (a);
+  a_forward_vertex = EDGE_FORWARD_VERTEX (a);
 
   new_node = node_add_single (a, p);
   assert (new_node != NULL);
 
   new_node->cvc_prev = new_node->cvc_next = (CVCList *) - 1;
 
-  if (new_node == a || new_node == next_a)
+  if (new_node == a_backward_vertex || new_node == a_forward_vertex)
     return NULL;
 
   return new_node;
@@ -410,6 +428,8 @@ node_add_single_point (VNODE * a, Vector p)
  * \brief edge_label.
  *
  * (C) 2006 harry eaton.
+ *
+ * pn is considered an edge (?)
  */
 static unsigned int
 edge_label (VNODE * pn)
@@ -441,11 +461,11 @@ edge_label (VNODE * pn)
     {
       if (l->side == 'P')
 	{
-	  if (l->parent->prev->point[0] == pn->next->point[0] &&
-	      l->parent->prev->point[1] == pn->next->point[1])
+	  if (EDGE_BACKWARD_VERTEX (VERTEX_BACKWARD_EDGE (l->parent))->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
+	      EDGE_BACKWARD_VERTEX (VERTEX_BACKWARD_EDGE (l->parent))->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1])
 	    {
 	      region = SHARED2;
-	      pn->shared = l->parent->prev;
+	      pn->shared = VERTEX_BACKWARD_EDGE (l->parent);
 	    }
 	  else
 	    region = INSIDE;
@@ -454,10 +474,10 @@ edge_label (VNODE * pn)
 	{
 	  if (l->angle == pn->cvc_next->angle)
 	    {
-	      assert (l->parent->next->point[0] == pn->next->point[0] &&
-		      l->parent->next->point[1] == pn->next->point[1]);
+	      assert (EDGE_FORWARD_VERTEX (VERTEX_FORWARD_EDGE (l->parent))->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
+	              EDGE_FORWARD_VERTEX (VERTEX_FORWARD_EDGE (l->parent))->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1]);
 	      region = SHARED;
-	      pn->shared = l->parent;
+	      pn->shared = VERTEX_FORWARD_EDGE (l->parent);
 	    }
 	  else
 	    region = OUTSIDE;
@@ -493,7 +513,7 @@ edge_label (VNODE * pn)
 static CVCList *
 add_descriptors (PLINE * pl, char poly, CVCList * list)
 {
-  VNODE *node = &pl->head;
+  VNODE *node = &pl->head; /* node is considered a vertex */
 
   do
     {
@@ -509,7 +529,7 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
 	    return NULL;
 	}
     }
-  while ((node = node->next) != &pl->head);
+  while ((node = NEXT_VERTEX(node)) != &pl->head);
   return list;
 }
 
@@ -581,21 +601,21 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q->intersected = 0;
   q->v = s->v;
   q->p = s->p;
-  q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
-  q->box.X2 = max (q->v->point[0], q->v->next->point[0]) + 1;
-  q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
-  q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
+  q->box.X1 = min (EDGE_BACKWARD_VERTEX (q->v)->point[0], EDGE_FORWARD_VERTEX (q->v)->point[0]);
+  q->box.X2 = max (EDGE_BACKWARD_VERTEX (q->v)->point[0], EDGE_FORWARD_VERTEX (q->v)->point[0]) + 1;
+  q->box.Y1 = min (EDGE_BACKWARD_VERTEX (q->v)->point[1], EDGE_FORWARD_VERTEX (q->v)->point[1]);
+  q->box.Y2 = max (EDGE_BACKWARD_VERTEX (q->v)->point[1], EDGE_FORWARD_VERTEX (q->v)->point[1]) + 1;
   r_insert_entry (tree, (const BoxType *) q, 1);
   q = (seg *)malloc (sizeof (struct seg));
   if (!q)
     return 1;
   q->intersected = 0;
-  q->v = s->v->next;
+  q->v = NEXT_EDGE (s->v);
   q->p = s->p;
-  q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
-  q->box.X2 = max (q->v->point[0], q->v->next->point[0]) + 1;
-  q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
-  q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
+  q->box.X1 = min (EDGE_BACKWARD_VERTEX (q->v)->point[0], EDGE_FORWARD_VERTEX (EDGE_BACKWARD_VERTEX (q->v))->point[0]);
+  q->box.X2 = max (EDGE_BACKWARD_VERTEX (q->v)->point[0], EDGE_FORWARD_VERTEX (EDGE_BACKWARD_VERTEX (q->v))->point[0]) + 1;
+  q->box.Y1 = min (EDGE_BACKWARD_VERTEX (q->v)->point[1], EDGE_FORWARD_VERTEX (EDGE_BACKWARD_VERTEX (q->v))->point[1]);
+  q->box.Y2 = max (EDGE_BACKWARD_VERTEX (q->v)->point[1], EDGE_FORWARD_VERTEX (EDGE_BACKWARD_VERTEX (q->v))->point[1]) + 1;
   r_insert_entry (tree, (const BoxType *) q, 1);
   r_delete_entry (tree, (const BoxType *) s);
   return 0;
@@ -671,8 +691,8 @@ seg_in_seg (const BoxType * b, void *cl)
   if (s->intersected || i->s->intersected)
     return 0;
 
-  cnt = vect_inters2 (s->v->point, s->v->next->point,
-		      i->v->point, i->v->next->point, s1, s2);
+  cnt = vect_inters2 (EDGE_BACKWARD_VERTEX (s->v)->point, EDGE_FORWARD_VERTEX (s->v)->point,
+		      EDGE_BACKWARD_VERTEX (i->v)->point, EDGE_FORWARD_VERTEX (i->v)->point, s1, s2);
   if (!cnt)
     return 0;
   if (i->touch)			/* if checking touches one find and we're done */
@@ -719,38 +739,38 @@ static void *
 make_edge_tree (PLINE * pb)
 {
   struct seg *s;
-  VNODE *bv;
+  VNODE *bv; /* bv is considred an edge */
   rtree_t *ans = r_create_tree (NULL, 0, 0);
   bv = &pb->head;
   do
     {
       s = (seg *)malloc (sizeof (struct seg));
       s->intersected = 0;
-      if (bv->point[0] < bv->next->point[0])
+      if (EDGE_BACKWARD_VERTEX (bv)->point[0] < EDGE_FORWARD_VERTEX (bv)->point[0])
 	{
-	  s->box.X1 = bv->point[0];
-	  s->box.X2 = bv->next->point[0] + 1;
+	  s->box.X1 = EDGE_BACKWARD_VERTEX (bv)->point[0];
+	  s->box.X2 = EDGE_FORWARD_VERTEX (bv)->point[0] + 1;
 	}
       else
 	{
-	  s->box.X2 = bv->point[0] + 1;
-	  s->box.X1 = bv->next->point[0];
+	  s->box.X2 = EDGE_BACKWARD_VERTEX (bv)->point[0] + 1;
+	  s->box.X1 = EDGE_FORWARD_VERTEX (bv)->point[0];
 	}
-      if (bv->point[1] < bv->next->point[1])
+      if (EDGE_BACKWARD_VERTEX (bv)->point[1] < EDGE_FORWARD_VERTEX (bv)->point[1])
 	{
-	  s->box.Y1 = bv->point[1];
-	  s->box.Y2 = bv->next->point[1] + 1;
+	  s->box.Y1 = EDGE_BACKWARD_VERTEX (bv)->point[1];
+	  s->box.Y2 = EDGE_FORWARD_VERTEX (bv)->point[1] + 1;
 	}
       else
 	{
-	  s->box.Y2 = bv->point[1] + 1;
-	  s->box.Y1 = bv->next->point[1];
+	  s->box.Y2 = EDGE_BACKWARD_VERTEX (bv)->point[1] + 1;
+	  s->box.Y1 = EDGE_FORWARD_VERTEX (bv)->point[1];
 	}
       s->v = bv;
       s->p = pb;
       r_insert_entry (ans, (const BoxType *) s, 1);
     }
-  while ((bv = bv->next) != &pb->head);
+  while ((bv = NEXT_EDGE (bv)) != &pb->head);
   return (void *) ans;
 }
 
@@ -797,7 +817,7 @@ contour_bounds_touch (const BoxType * b, void *cl)
   PLINE *pb = (PLINE *) b;
   PLINE *rtree_over;
   PLINE *looping_over;
-  VNODE *av;			/* node iterators */
+  VNODE *av; /* node iterators */ /* av is considered an edge */
   struct info info;
   BoxType box;
   jmp_buf restart;
@@ -824,22 +844,22 @@ contour_bounds_touch (const BoxType * b, void *cl)
     }
 
   av = &looping_over->head;
-  do				/* Loop over the nodes in the smaller contour */
+  do				/* Loop over the edges in the smaller contour */
     {
       /* check this edge for any insertions */
       double dx;
       info.v = av;
       /* compute the slant for region trimming */
-      dx = av->next->point[0] - av->point[0];
+      dx = EDGE_FORWARD_VERTEX (av)->point[0] - EDGE_BACKWARD_VERTEX (av)->point[0];
       if (dx == 0)
 	info.m = 0;
       else
 	{
-	  info.m = (av->next->point[1] - av->point[1]) / dx;
-	  info.b = av->point[1] - info.m * av->point[0];
+	  info.m = (EDGE_FORWARD_VERTEX (av)->point[1] - EDGE_BACKWARD_VERTEX (av)->point[1]) / dx;
+	  info.b = EDGE_BACKWARD_VERTEX (av)->point[1] - info.m * EDGE_BACKWARD_VERTEX (av)->point[0];
 	}
-      box.X2 = (box.X1 = av->point[0]) + 1;
-      box.Y2 = (box.Y1 = av->point[1]) + 1;
+      box.X2 = (box.X1 = EDGE_BACKWARD_VERTEX (av)->point[0]) + 1;
+      box.Y2 = (box.Y1 = EDGE_BACKWARD_VERTEX (av)->point[1]) + 1;
 
       /* fill in the segment in info corresponding to this node */
       if (setjmp (info.sego) == 0)
@@ -862,7 +882,7 @@ contour_bounds_touch (const BoxType * b, void *cl)
 				seg_in_region, seg_in_seg, &info)))
 	  assert (0); /* XXX: Memory allocation failure */
     }
-  while ((av = av->next) != &looping_over->head);
+  while ((av = NEXT_EDGE (av)) != &looping_over->head);
 
   c_info->node_insert_list = info.node_insert_list;
   if (info.need_restart)
@@ -929,10 +949,10 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       insert_node_task *next = task->next;
 
       /* Do insersion */
-      task->new_node->prev = task->node_seg->v;
-      task->new_node->next = task->node_seg->v->next;
-      task->node_seg->v->next->prev = task->new_node;
-      task->node_seg->v->next = task->new_node;
+      PREV_VERTEX (task->new_node) = EDGE_BACKWARD_VERTEX (task->node_seg->v);
+      NEXT_VERTEX (task->new_node) = EDGE_FORWARD_VERTEX (task->node_seg->v);
+      PREV_VERTEX (EDGE_FORWARD_VERTEX (task->node_seg->v)) = task->new_node;
+      EDGE_FORWARD_VERTEX (task->node_seg->v) = task->new_node;
       task->node_seg->p->Count++;
 
       cntrbox_adjust (task->node_seg->p, task->new_node->point);
@@ -1111,10 +1131,11 @@ print_labels (PLINE * a)
 
   do
     {
-      DEBUGP ("%#mD->%#mD labeled %s\n", c->point[0], c->point[1],
-	      c->next->point[0], c->next->point[1], theState (c));
+      DEBUGP ("%#mD->%#mD labeled %s\n",
+              EDGE_BACKWARD_VERTEX (c)->point[0], EDGE_BACKWARD_VERTEX (c)->point[1],
+               EDGE_FORWARD_VERTEX (c)->point[0],  EDGE_FORWARD_VERTEX (c)->point[1], theState (c));
     }
-  while ((c = c->next) != &a->head);
+  while ((c = NEXT_EDGE (c)) != &a->head);
 }
 #endif
 #endif
@@ -1132,7 +1153,7 @@ print_labels (PLINE * a)
 static BOOLp
 label_contour (PLINE * a)
 {
-  VNODE *cur = &a->head;
+  VNODE *cur = &a->head; /* cur is considered an edge */
   VNODE *first_labelled = NULL;
   int label = UNKNWN;
 
@@ -1153,7 +1174,7 @@ label_contour (PLINE * a)
       assert (label == INSIDE || label == OUTSIDE);
       LABEL_EDGE (cur, label);
     }
-  while ((cur = cur->next) != first_labelled);
+  while ((cur = NEXT_EDGE (cur)) != first_labelled);
 #ifdef DEBUG_ALL_LABELS
   print_labels (a);
   DEBUGP ("\n\n");
@@ -1511,9 +1532,12 @@ typedef enum
 
 /*!
  * \brief Jump Rule.
+ *
+ * VNODE * is considered an edge
  */
 typedef int (*J_Rule) (char, VNODE *, DIRECTION *);
 
+/* v is considered an edge */
 static int
 IsectJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
@@ -1521,6 +1545,7 @@ IsectJ_Rule (char p, VNODE * v, DIRECTION * cdir)
   return (v->Flags.status == INSIDE || v->Flags.status == SHARED);
 }
 
+/* v is considered an edge */
 static int
 UniteJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
@@ -1528,6 +1553,7 @@ UniteJ_Rule (char p, VNODE * v, DIRECTION * cdir)
   return (v->Flags.status == OUTSIDE || v->Flags.status == SHARED);
 }
 
+/* v is considered an edge */
 static int
 XorJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
@@ -1544,6 +1570,7 @@ XorJ_Rule (char p, VNODE * v, DIRECTION * cdir)
   return FALSE;
 }
 
+/* v is considered an edge */
 static int
 SubJ_Rule (char p, VNODE * v, DIRECTION * cdir)
 {
@@ -1576,32 +1603,37 @@ SubJ_Rule (char p, VNODE * v, DIRECTION * cdir)
  *
  * \return true if an edge is found, false otherwise.
  */
+/* *cur is considered a vertex */
 static int
 jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 {
   CVCList *d, *start;
-  VNODE *e;
+  VNODE *e; /* e is considered an edge */
   DIRECTION newone;
 
   if (!(*cur)->cvc_prev)	/* not a cross-vertex */
     {
-      if (*cdir == FORW ? (*cur)->Flags.mark : (*cur)->prev->Flags.mark)
+      if ((*cdir == FORW) ? VERTEX_FORWARD_EDGE (*cur)->Flags.mark :
+                           VERTEX_BACKWARD_EDGE (*cur)->Flags.mark)
 	return FALSE;
       return TRUE;
     }
 #ifdef DEBUG_JUMP
   DEBUGP ("jump entering node at %$mD\n", (*cur)->point[0], (*cur)->point[1]);
 #endif
+  /* Pick the descriptor of the edge we came into this vertex with, then spin (anti?)clock-wise one edge descriptor */
   if (*cdir == FORW)
-    d = (*cur)->cvc_prev->prev;
+    d = (*cur)->cvc_prev->prev; /* If we start with a CVC Vertex.. this previous edge has not been vetted for whether it belongs in the polygon or not!! */
   else
     d = (*cur)->cvc_next->prev;
   start = d;
   do
     {
-      e = d->parent;
+      /* Get the edge e, associated with that descriptor */
       if (d->side == 'P')
-	e = e->prev;
+        e = VERTEX_BACKWARD_EDGE (d->parent);
+      else
+        e = VERTEX_FORWARD_EDGE (d->parent);
       newone = *cdir;
       if (!e->Flags.mark && rule (d->poly, e, &newone))
 	{
@@ -1611,10 +1643,10 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 #ifdef DEBUG_JUMP
 	      if (newone == FORW)
 		DEBUGP ("jump leaving node at %#mD\n",
-			e->next->point[0], e->next->point[1]);
+			EDGE_FORWARD_VERTEX (e)->point[0], EDGE_FORWARD_VERTEX (e)->point[1]);
 	      else
 		DEBUGP ("jump leaving node at %#mD\n",
-			e->point[0], e->point[1]);
+			EDGE_BACKWARD_VERTEX (e)->point[0], EDGE_BACKWARD_VERTEX (e)->point[1]);
 #endif
 	      *cur = d->parent;
 	      *cdir = newone;
@@ -1622,14 +1654,15 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 	    }
 	}
     }
-  while ((d = d->prev) != start);
+  while ((d = d->prev) != start); /* Keep searching around the cvc vertex for a suitable exit edge */
   return FALSE;
 }
 
+/* start is considered a vertex */
 static int
 Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 {
-  VNODE *cur = start, *newn;
+  VNODE *cur = start, *newn; /* cur is considered a vertex */
   DIRECTION dir = initdir;
 #ifdef DEBUG_GATHER
   DEBUGP ("gather direction = %d\n", dir);
@@ -1651,33 +1684,35 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 	}
       else
 	{
-	  poly_InclVertex ((*result)->head.prev, newn);
+	  poly_InclVertex (PREV_VERTEX (&(*result)->head), newn);
 	}
 #ifdef DEBUG_GATHER
       DEBUGP ("gather vertex at %#mD\n", cur->point[0], cur->point[1]);
 #endif
       /* Now mark the edge as included.  */
-      newn = (dir == FORW ? cur : cur->prev);
+      newn = (dir == FORW) ? VERTEX_FORWARD_EDGE (cur) : VERTEX_BACKWARD_EDGE (cur);
       newn->Flags.mark = 1;
       /* for SHARED edge mark both */
       if (newn->shared)
 	newn->shared->Flags.mark = 1;
 
-      /* Advance to the next edge.  */
-      cur = (dir == FORW ? cur->next : cur->prev);
+      /* Advance to the next vertex.  */
+      cur = (dir == FORW) ? NEXT_VERTEX (cur) : PREV_VERTEX (cur);
     }
   while (1);
   return err_ok;
 }				/* Gather */
 
+/* cur is considered an edge */
 static void
 Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
 	  PLINE ** holes, J_Rule j_rule)
 {
   PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
-  if ((errc =
-       Gather (dir == FORW ? cur : cur->next, &p, j_rule, dir)) != err_ok)
+  if ((errc = Gather ((dir == FORW) ? EDGE_BACKWARD_VERTEX (cur) :
+                                      EDGE_FORWARD_VERTEX (cur),
+                      &p, j_rule, dir)) != err_ok)
     {
       if (p != NULL)
 	poly_DelContour (&p);
@@ -1708,7 +1743,7 @@ static void
 Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
          J_Rule j_rule)
 {
-  VNODE *cur;
+  VNODE *cur; /* cur is considered an edge */
   DIRECTION dir = UNINITIALISED;
 
   cur = (&a->head);
@@ -1727,7 +1762,7 @@ Collect (char poly, jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes
       if (j_rule (poly, cur, &dir) && cur->Flags.mark == 0)
 	Collect1 (e, cur, dir, contours, holes, j_rule);
     }
-  while ((cur = cur->next) != &a->head);
+  while ((cur = NEXT_EDGE (cur)) != &a->head);
 }				/* Collect */
 
 
@@ -2459,7 +2494,7 @@ clear_marks (POLYAREA * p)
 	    {
 	      v->Flags.mark = 0;
 	    }
-	  while ((v = v->next) != &c->head);
+	  while ((v = NEXT_EDGE (v)) != &c->head);
 	}
     }
   while ((n = n->f) != p);
@@ -2545,7 +2580,7 @@ cntrbox_pointin (PLINE * c, Vector p)
 static inline int
 node_neighbours (VNODE * a, VNODE * b)
 {
-  return (a == b) || (a->next == b) || (b->next == a) || (a->next == b->next);
+  return (a == b) || (a->_next == b) || (b->_next == a) || (a->_next == b->_next);
 }
 
 VNODE *
@@ -2571,7 +2606,7 @@ poly_IniContour (PLINE * c)
   if (c == NULL)
     return;
   /* bzero (c, sizeof(PLINE)); */
-  c->head.next = c->head.prev = &c->head;
+  NEXT_EDGE (&c->head) = PREV_EDGE (&c->head) = &c->head;
   c->xmin = c->ymin = COORD_MAX;
   c->xmax = c->ymax = -COORD_MAX - 1;
   c->is_round = FALSE;
@@ -2604,7 +2639,7 @@ poly_ClrContour (PLINE * c)
   VNODE *cur;
 
   assert (c != NULL);
-  while ((cur = c->head.next) != &c->head)
+  while ((cur = NEXT_EDGE (&c->head)) != &c->head)
     {
       poly_ExclVertex (cur);
       free (cur);
@@ -2622,9 +2657,9 @@ poly_DelContour (PLINE ** c)
 
   if (*c == NULL)
     return;
-  for (cur = (*c)->head.prev; cur != &(*c)->head; cur = prev)
+  for (cur = PREV_EDGE (&(*c)->head); cur != &(*c)->head; cur = prev)
     {
-      prev = cur->prev;
+      prev = PREV_EDGE (cur);
       if (cur->cvc_next != NULL)
 	{
 	  free (cur->cvc_next);
@@ -2658,11 +2693,11 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 
   if (optimize)
     {
-      for (c = (p = &C->head)->next; c != &C->head; c = (p = c)->next)
+      for (c = NEXT_VERTEX ((p = &C->head)); c != &C->head; c = NEXT_VERTEX (p = c))
 	{
 	  /* if the previous node is on the same line with this one, we should remove it */
 	  Vsub2 (p1, c->point, p->point);
-	  Vsub2 (p2, c->next->point, c->point);
+	  Vsub2 (p2, NEXT_VERTEX (c)->point, c->point);
 	  /* If the product below is zero then
 	   * the points on either side of c 
 	   * are on the same line!
@@ -2681,7 +2716,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
   C->xmin = C->xmax = C->head.point[0];
   C->ymin = C->ymax = C->head.point[1];
 
-  p = (c = &C->head)->prev;
+  p = PREV_VERTEX ((c = &C->head));
   if (c != p)
     {
       do
@@ -2693,7 +2728,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 	  cntrbox_adjust (C, c->point);
 	  C->Count++;
 	}
-      while ((c = (p = c)->next) != &C->head);
+      while ((c = NEXT_VERTEX (p = c)) != &C->head);
     }
   C->area = ABS (area);
   if (C->Count > 2)
@@ -2705,7 +2740,7 @@ static int
 flip_cb (const BoxType * b, void *cl)
 {
   struct seg *s = (struct seg *) b;
-  s->v = s->v->prev;
+  s->v = PREV_EDGE (s->v);
   return 1;
 }
 
@@ -2721,9 +2756,9 @@ poly_InvContour (PLINE * c)
   cur = &c->head;
   do
     {
-      next = cur->next;
-      cur->next = cur->prev;
-      cur->prev = next;
+      next = NEXT_EDGE (cur);
+      NEXT_EDGE(cur) = PREV_EDGE (cur);
+      PREV_EDGE (cur) = next;
       /* fix the segment tree */
     }
   while ((cur = next) != &c->head);
@@ -2749,8 +2784,8 @@ poly_ExclVertex (VNODE * node)
       free (node->cvc_next);
       free (node->cvc_prev);
     }
-  node->prev->next = node->next;
-  node->next->prev = node->prev;
+  NEXT_VERTEX (PREV_VERTEX (node)) = NEXT_VERTEX (node);
+  PREV_VERTEX (NEXT_VERTEX (node)) = PREV_VERTEX (node);
 }
 
 void
@@ -2760,21 +2795,21 @@ poly_InclVertex (VNODE * after, VNODE * node)
   assert (after != NULL);
   assert (node != NULL);
 
-  node->prev = after;
-  node->next = after->next;
-  after->next = after->next->prev = node;
+  PREV_VERTEX (node) = after;
+  NEXT_VERTEX (node) = NEXT_VERTEX (after);
+  NEXT_VERTEX (after) = PREV_VERTEX (NEXT_VERTEX (after)) = node;
   /* remove points on same line */
-  if (node->prev->prev == node)
+  if (PREV_VERTEX (PREV_VERTEX (node)) == node)
     return;			/* we don't have 3 points in the poly yet */
-  a = (node->point[1] - node->prev->prev->point[1]);
-  a *= (node->prev->point[0] - node->prev->prev->point[0]);
-  b = (node->point[0] - node->prev->prev->point[0]);
-  b *= (node->prev->point[1] - node->prev->prev->point[1]);
+  a = (node->point[1] - PREV_VERTEX (PREV_VERTEX (node))->point[1]);
+  a *= (PREV_VERTEX (node)->point[0] - PREV_VERTEX (PREV_VERTEX (node))->point[0]);
+  b = (node->point[0] - PREV_VERTEX (PREV_VERTEX (node))->point[0]);
+  b *= (PREV_VERTEX (node)->point[1] - PREV_VERTEX (PREV_VERTEX (node))->point[1]);
   if (fabs (a - b) < EPSILON)
     {
-      VNODE *t = node->prev;
-      t->prev->next = node;
-      node->prev = t->prev;
+      VNODE *t = PREV_VERTEX (node);
+      NEXT_VERTEX (PREV_VERTEX (t)) = node;
+      PREV_VERTEX (node) = PREV_VERTEX (t);
       free (t);
     }
 }
@@ -2796,12 +2831,12 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
   (*dst)->ymin = src->ymin, (*dst)->ymax = src->ymax;
   (*dst)->area = src->area;
 
-  for (cur = src->head.next; cur != &src->head; cur = cur->next)
+  for (cur = NEXT_EDGE (&src->head); cur != &src->head; cur = NEXT_VERTEX (cur))
     {
       if ((newnode = poly_CreateNode (cur->point)) == NULL)
 	return FALSE;
       // newnode->Flags = cur->Flags;
-      poly_InclVertex ((*dst)->head.prev, newnode);
+      poly_InclVertex (PREV_EDGE (&(*dst)->head), newnode);
     }
   (*dst)->tree = (rtree_t *)make_edge_tree (*dst);
   return TRUE;
@@ -2912,14 +2947,14 @@ crossing (const BoxType * b, void *cl)
   struct seg *s = (struct seg *) b;
   struct pip *p = (struct pip *) cl;
 
-  if (s->v->point[1] <= p->p[1])
+  if (EDGE_BACKWARD_VERTEX (s->v)->point[1] <= p->p[1])
     {
-      if (s->v->next->point[1] > p->p[1])
+      if (EDGE_FORWARD_VERTEX (s->v)->point[1] > p->p[1])
 	{
 	  Vector v1, v2;
 	  long long cross;
-	  Vsub2 (v1, s->v->next->point, s->v->point);
-	  Vsub2 (v2, p->p, s->v->point);
+	  Vsub2 (v1, EDGE_FORWARD_VERTEX (s->v)->point, EDGE_BACKWARD_VERTEX (s->v)->point);
+	  Vsub2 (v2, p->p, EDGE_BACKWARD_VERTEX (s->v)->point);
 	  cross = (long long) v1[0] * v2[1] - (long long) v2[0] * v1[1];
 	  if (cross == 0)
 	    {
@@ -2932,12 +2967,12 @@ crossing (const BoxType * b, void *cl)
     }
   else
     {
-      if (s->v->next->point[1] <= p->p[1])
+      if (EDGE_FORWARD_VERTEX (s->v)->point[1] <= p->p[1])
 	{
 	  Vector v1, v2;
 	  long long cross;
-	  Vsub2 (v1, s->v->next->point, s->v->point);
-	  Vsub2 (v2, p->p, s->v->point);
+	  Vsub2 (v1, EDGE_FORWARD_VERTEX (s->v)->point, EDGE_BACKWARD_VERTEX (s->v)->point);
+	  Vsub2 (v2, p->p, EDGE_BACKWARD_VERTEX (s->v)->point);
 	  cross = (long long) v1[0] * v2[1] - (long long) v2[0] * v1[1];
 	  if (cross == 0)
 	    {
@@ -3108,8 +3143,8 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
     {
       double dot_product;
 
-      pt2 = pt1->next;
-      pt3 = pt2->next;
+      pt2 = NEXT_VERTEX (pt1);
+      pt3 = NEXT_VERTEX (pt2);
 
       dot_product = dot_orthogonal_to_direction (pt1->point, pt2->point,
                                                  pt3->point, pt2->point);
@@ -3117,7 +3152,7 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
       if (dot_product * dir > 0.)
         break;
     }
-  while ((pt1 = pt1->next) != &poly->head);
+  while ((pt1 = NEXT_VERTEX (pt1)) != &poly->head);
 
   /* Loop over remaining vertices */
   q = pt3;
@@ -3135,7 +3170,7 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
         min_q = q;
       }
     }
-  while ((q = q->next) != pt2);
+  while ((q = NEXT_VERTEX (q)) != pt2);
 
   /* Were any "q" found inside pt1 pt2 pt3? */
   if (min_q == NULL) {
@@ -3237,8 +3272,8 @@ inside_sector (VNODE * pn, Vector p2)
 
   assert (pn != NULL);
   vect_sub (cdir, p2, pn->point);
-  vect_sub (pdir, pn->point, pn->prev->point);
-  vect_sub (ndir, pn->next->point, pn->point);
+  vect_sub (pdir, pn->point, PREV_VERTEX (pn)->point);
+  vect_sub (ndir, NEXT_VERTEX (pn)->point, pn->point);
 
   p_c = vect_det2 (pdir, cdir) >= 0;
   n_c = vect_det2 (ndir, cdir) >= 0;
@@ -3270,23 +3305,23 @@ poly_ChkContour (PLINE * a)
       do
 	{
 	  if (!node_neighbours (a1, a2) &&
-	      (icnt = vect_inters2 (a1->point, a1->next->point,
-				    a2->point, a2->next->point, i1, i2)) > 0)
+	      (icnt = vect_inters2 (a1->point, a1->_next->point,
+				    a2->point, a2->_next->point, i1, i2)) > 0)
 	    {
 	      if (icnt > 1)
 		return TRUE;
 
 	      if (vect_dist2 (i1, a1->point) < EPSILON)
 		hit1 = a1;
-	      else if (vect_dist2 (i1, a1->next->point) < EPSILON)
-		hit1 = a1->next;
+	      else if (vect_dist2 (i1, a1->_next->point) < EPSILON)
+		hit1 = a1->_next;
 	      else
 		hit1 = NULL;
 
 	      if (vect_dist2 (i1, a2->point) < EPSILON)
 		hit2 = a2;
-	      else if (vect_dist2 (i1, a2->next->point) < EPSILON)
-		hit2 = a2->next;
+	      else if (vect_dist2 (i1, a2->_next->point) < EPSILON)
+		hit2 = a2->_next;
 	      else
 		hit2 = NULL;
 
@@ -3302,7 +3337,7 @@ poly_ChkContour (PLINE * a)
 		/* An end-point of the second line touched somewhere along the
 		   length of the first line. Check where the second line leads. */
 		  if (inside_sector (hit2, a1->point) !=
-		      inside_sector (hit2, a1->next->point))
+		      inside_sector (hit2, a1->_next->point))
 		    return TRUE;
 		}
 	      else if (hit2 == NULL)
@@ -3310,21 +3345,21 @@ poly_ChkContour (PLINE * a)
 		/* An end-point of the first line touched somewhere along the
 		   length of the second line. Check where the first line leads. */
 		  if (inside_sector (hit1, a2->point) !=
-		      inside_sector (hit1, a2->next->point))
+		      inside_sector (hit1, a2->_next->point))
 		    return TRUE;
 		}
 	      else
 		{
 		/* Both lines intersect at an end-point. Check where they lead. */
-		  if (inside_sector (hit1, hit2->prev->point) !=
-		      inside_sector (hit1, hit2->next->point))
+		  if (inside_sector (hit1, hit2->_prev->point) !=
+		      inside_sector (hit1, hit2->_next->point))
 		    return TRUE;
 		}
 	    }
 	}
-      while ((a2 = a2->next) != &a->head);
+      while ((a2 = a2->_next) != &a->head);
     }
-  while ((a1 = a1->next) != &a->head);
+  while ((a1 = a1->_next) != &a->head);
   return FALSE;
 }
 
@@ -3349,11 +3384,11 @@ poly_Valid (POLYAREA * p)
       v = &p->contours->head;
       do
 	{
-	  n = v->next;
+	  n = NEXT_VERTEX (v);
 	  pcb_fprintf (stderr, "Line [%#mS %#mS %#mS %#mS 100 100 \"\"]\n",
 		   v->point[0], v->point[1], n->point[0], n->point[1]);
 	}
-      while ((v = v->next) != &p->contours->head);
+      while ((v = NEXT_VERTEX (v)) != &p->contours->head);
 #endif
       return FALSE;
     }
@@ -3374,11 +3409,11 @@ poly_Valid (POLYAREA * p)
 	  v = &c->head;
 	  do
 	    {
-	      n = v->next;
+	      n = NEXT_VERTEX (v);
 	      pcb_fprintf (stderr, "Line [%#mS %#mS %#mS %#mS 100 100 \"\"]\n",
 		       v->point[0], v->point[1], n->point[0], n->point[1]);
 	    }
-	  while ((v = v->next) != &c->head);
+	  while ((v = NEXT_VERTEX (v)) != &c->head);
 #endif
 	  return FALSE;
 	}

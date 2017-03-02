@@ -85,7 +85,7 @@ struct CVCList
 };
 struct VNODE
 {
-    VNODE *next, *prev, *shared;
+    VNODE *_next, *_prev, *shared;
     struct {
       unsigned int status:3;
       unsigned int mark:1;
