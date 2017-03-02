@@ -62,19 +62,6 @@
 #include <dmalloc.h>
 #endif
 
-/* ---------------------------------------------------------------------------
- * some local prototypes
- */
-static void CheckPadForRubberbandConnection (PadType *);
-static void CheckPinForRubberbandConnection (PinType *);
-static void CheckLinePointForRubberbandConnection (LayerType *,
-						   LineType *,
-						   PointType *,
-						   bool);
-static void CheckPolygonForRubberbandConnection (LayerType *,
-						 PolygonType *);
-static void CheckLinePointForRat (LayerType *, PointType *);
-static int rubber_callback (const BoxType * b, void *cl);
 
 struct rubber_info
 {
@@ -85,23 +72,69 @@ struct rubber_info
   LayerType *layer;
 };
 
+static bool
+test_circle_hits_box (PointType *point, Coord radius, BoxType *box)
+{
+  double x, y;
+  double sq_x, sq_y;
+  double sq_dist;
+
+  if (box->X1 - radius <= point->X && point->X <= box->X2 + radius &&
+      box->Y1 - radius <= point->Y && point->Y <= box->Y2 + radius)
+    {
+      /* We are close enough to the box boundary that we might touch
+       * it, althoguh it is possible that if we are near one of the
+       * box corners, the circle contour doesn't touch the box.
+       */
+
+      if ((box->X1 <= point->X && point->X <= box->X2) ||
+          (box->Y1 <= point->Y && point->Y <= box->Y2))
+        {
+          /* The circle is positioned such that the closest point
+           * on the rectangular region boundary is not at a corner
+           * of the rectangle.  i.e. the shortest line from circle
+           * center to rectangle intersects the rectangle at 90
+           * degrees.  In this case our first test is sufficient
+           */
+          return true;
+        }
+      else
+        {
+          /* Now we must check the distance from the center of the
+           * circle to the corners of the rectangle since the
+           * closest part of the rectangular region is the corner.
+           */
+          x = MIN (abs (box->X1 - point->X), abs (box->X2 - point->X));
+          y = MIN (abs (box->Y1 - point->Y), abs (box->Y2 - point->Y));
+
+          sq_x = x * x;
+          sq_y = y * y;
+          sq_dist = sq_x + sq_y;
+
+          if (sq_dist <= (double)radius * (double)radius)
+            return true;
+        }
+    }
+  return false;
+}
+
 static int
 rubber_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
   struct rubber_info *i = (struct rubber_info *) cl;
-  double x, y, rad, dist1, dist2;
-  Coord t;
-  int touches = 0;
+  double x, y, rad;
+  double sq_x, sq_y;
+  double sq_dist1, sq_dist2;
+  Coord t = line->Thickness / 2;
 
-  t = line->Thickness / 2;
+  if (line == i->line)
+    return 0;
 
   if (TEST_FLAG (LOCKFLAG, line))
     return 0;
-  if (line == i->line)
-    return 0;
-  /* 
-   * Check to see if the line touches a rectangular region.
+
+  /* Check to see if the line touches a rectangular region.
    * To do this we need to look for the intersection of a circular
    * region and a rectangular region.
    */
@@ -109,80 +142,21 @@ rubber_callback (const BoxType * b, void *cl)
     {
       int found = 0;
 
-      if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2
-	  && line->Point1.Y + t >= i->box.Y1
-	  && line->Point1.Y - t <= i->box.Y2)
-	{
-	  if (((i->box.X1 <= line->Point1.X) &&
-	       (line->Point1.X <= i->box.X2)) ||
-	      ((i->box.Y1 <= line->Point1.Y) &&
-	       (line->Point1.Y <= i->box.Y2)))
-	    {
-	      /* 
-	       * The circle is positioned such that the closest point
-	       * on the rectangular region boundary is not at a corner
-	       * of the rectangle.  i.e. the shortest line from circle
-	       * center to rectangle intersects the rectangle at 90
-	       * degrees.  In this case our first test is sufficient
-	       */
-	      touches = 1;
-	    }
-	  else
-	    {
-	      /* 
-	       * Now we must check the distance from the center of the
-	       * circle to the corners of the rectangle since the
-	       * closest part of the rectangular region is the corner.
-	       */
-	      x = MIN (abs (i->box.X1 - line->Point1.X),
-		       abs (i->box.X2 - line->Point1.X));
-	      x *= x;
-	      y = MIN (abs (i->box.Y1 - line->Point1.Y),
-		       abs (i->box.Y2 - line->Point1.Y));
-	      y *= y;
-	      x = x + y - (t * t);
+      if (test_circle_hits_box (&line->Point1, t, &i->box))
+        {
+          CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+          found++;
+        }
 
-	      if (x <= 0)
-		touches = 1;
-	    }
-	  if (touches)
-	    {
-	      CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-	      found++;
-	    }
-	}
-      if (line->Point2.X + t >= i->box.X1 && line->Point2.X - t <= i->box.X2
-	  && line->Point2.Y + t >= i->box.Y1
-	  && line->Point2.Y - t <= i->box.Y2)
-	{
-	  if (((i->box.X1 <= line->Point2.X) &&
-	       (line->Point2.X <= i->box.X2)) ||
-	      ((i->box.Y1 <= line->Point2.Y) &&
-	       (line->Point2.Y <= i->box.Y2)))
-	    {
-	      touches = 1;
-	    }
-	  else
-	    {
-	      x = MIN (abs (i->box.X1 - line->Point2.X),
-		       abs (i->box.X2 - line->Point2.X));
-	      x *= x;
-	      y = MIN (abs (i->box.Y1 - line->Point2.Y),
-		       abs (i->box.Y2 - line->Point2.Y));
-	      y *= y;
-	      x = x + y - (t * t);
+      if (test_circle_hits_box (&line->Point2, t, &i->box))
+        {
+          CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+          found++;
+        }
 
-	      if (x <= 0)
-		touches = 1;
-	    }
-	  if (touches)
-	    {
-	      CreateNewRubberbandEntry (i->layer, line, &line->Point2);
-	      found++;
-	    }
-	}
       return found;
     }
+
   /* circular search region */
   if (i->radius < 0)
     rad = 0;  /* require exact match */
@@ -190,18 +164,18 @@ rubber_callback (const BoxType * b, void *cl)
     rad = SQUARE(i->radius + t);
 
   x = (i->X - line->Point1.X);
-  x *= x;
   y = (i->Y - line->Point1.Y);
-  y *= y;
-  dist1 = x + y - rad;
+  sq_x = x * x;
+  sq_y = y * y;
+  sq_dist1 = sq_x + sq_y - rad;
 
   x = (i->X - line->Point2.X);
-  x *= x;
   y = (i->Y - line->Point2.Y);
-  y *= y;
-  dist2 = x + y - rad;
+  sq_x = x * x;
+  sq_y = y * y;
+  sq_dist2 = sq_x + sq_y - rad;
 
-  if (dist1 > 0 && dist2 > 0)
+  if (sq_dist1 > 0 && sq_dist2 > 0)
     return 0;
 
 #ifdef CLOSEST_ONLY	/* keep this to remind me */
@@ -210,9 +184,9 @@ rubber_callback (const BoxType * b, void *cl)
   else
     CreateNewRubberbandEntry (i->layer, line, &line->Point2);
 #else
-  if (dist1 <= 0)
+  if (sq_dist1 <= 0)
     CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-  if (dist2 <= 0)
+  if (sq_dist2 <= 0)
     CreateNewRubberbandEntry (i->layer, line, &line->Point2);
 #endif
   return 1;
