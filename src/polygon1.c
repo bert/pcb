@@ -83,6 +83,7 @@
 #include "pcb-printf.h"
 #include "rtree.h"
 #include "heap.h"
+#include "pcb-printf.h"
 
 #define ROUND(a) (long)((a) > 0 ? ((a) + 0.5) : ((a) - 0.5))
 
@@ -451,6 +452,30 @@ node_add_single_point (VNODE * a, Vector p)
   return new_node;
 }				/* node_add_point */
 
+static void
+cvc_list_dump (CVCList *list)
+{
+  VNODE *node = list->parent;
+  CVCList *iter;
+
+  pcb_fprintf (stderr, "Dumping CVC list at (%$mn, %$mn)\n", node->point[0], node->point[1]);
+
+  iter = list;
+  do {
+    pcb_fprintf (stderr, "angle = %.30e, poly = %c, side = %c, (%mn, %mn)-(%mn, %mn), Vertices: %p-%p Edge: %p\n",
+                 iter->angle,
+                 iter->poly,
+                 iter->side,
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[0],
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side))->point[1],
+                 EDGE_BACKWARD_VERTEX (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
+                 EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
+                 VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side));
+  } while ((iter = iter->next) != list);
+}
+
 /*!
  * \brief edge_label.
  *
@@ -548,7 +573,10 @@ edge_label (VNODE * pn)
        * are present.
        */
       if (!((l->poly != l->next->poly || compare_cvc_nodes (l, l->next) != 0)))
-        g_critical ("Encountered identical edge in the other polygon (hairline edge pair)");
+        {
+          g_critical ("Encountered identical edge in the other polygon (hairline edge pair)");
+//          cvc_list_dump (first_l);
+        }
 
       region = (l->side == 'P') ? INSIDE : OUTSIDE;
     }
@@ -2410,6 +2438,113 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
   while ((a = a->f) != afst);
 }
 
+static void
+PLINE_check_hairline_edges (PLINE *contour)
+{
+  VNODE *v;
+  CVCList *l, *first_l, *next;
+  int test_count;
+
+  /* Lets just try this for now */
+  if (poly_ChkContour (contour))
+    g_critical ("Wonky contour - oops\n");
+
+  /* Scan the PLINE and check for naughty shared edge segments */
+  v = &contour->head;
+  do
+    {
+      if (v->cvc_prev == NULL)
+        continue;
+
+//      fprintf (stderr, "Vertex is cross connected, checking for hairline edge pairs\n");
+
+      first_l = v->cvc_prev;
+
+//      cvc_list_dump (first_l);
+
+      test_count = 0;
+      l = first_l;
+      do
+        {
+          next = l->next;
+
+          /* Skip edges from the other polygon */
+          if (l->poly != first_l->poly)
+            continue;
+
+          /* Find the next edge from this polygon */
+          while (next->poly != first_l->poly && next != first_l)
+            next = next->next;
+
+          /* Skip testing if we wrapped around, and only had one pair to test */
+          if (next == first_l && test_count == 1)
+            break;
+
+          /* Check for hairline pairs of edges in the CVCList, they may be sorted in incorrect order,
+           * and would thus mislead as to whether we are inside or outside a given contour. It is a
+           * bug if such edges are present, so test for it here where we may detect it. We compare
+           * l->prev and l, as we know both are still in this_poly.. l->next may not be.
+           */
+//              fprintf (stderr, "Checking CVCNode %p against %p. (Angles %f and %f)\n", l, next, l->angle, next->angle);
+          if (compare_cvc_nodes (l, next) == 0)
+            {
+              if (EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l   ->parent, l   ->side), l   ->side)->point[0] ==
+                  EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (next->parent, next->side), next->side)->point[0] &&
+                  EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l   ->parent, l   ->side), l   ->side)->point[1] ==
+                  EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (next->parent, next->side), next->side)->point[1])
+                g_critical ("Check found hairline edge pair");
+              else
+                g_critical ("Check found hairline edge pair (by compare_cvc_nodes), but geometry of each edge is different!");
+            }
+
+          test_count++;
+
+          /* Stop if we wrapped around to the end of the list */
+          if (next == first_l)
+            break;
+        }
+      while ((l = next) != first_l);
+    }
+  while ((v = v->next) != &contour->head);
+
+}
+
+static void
+M_PLINE_check_hairline_edges (PLINE *first)
+{
+  PLINE *curc;
+//  fprintf (stderr, "Checking M_PLINE\n");
+  for (curc = first; curc != NULL; curc = curc->next)
+    {
+//      fprintf (stderr, "Checking PLINE\n");
+      PLINE_check_hairline_edges (curc);
+    }
+}
+
+static void
+M_POLYAREA_check_hairline_edges (POLYAREA *bfst)
+{
+  POLYAREA *b = bfst;
+  PLINE *cur;
+
+//  fprintf (stderr, "Checking M_POLYAREA_check_hairline_edges\n");
+  assert (b != NULL);
+  do
+    {
+//      fprintf (stderr, "Checking POLYAREA\n");
+      for (cur = b->contours; cur != NULL; cur = cur->next)
+        {
+//          fprintf (stderr, "Checking contour\n");
+          if (cur->Flags.status == ISECTED)
+            {
+//              fprintf (stderr, "Checking contour, it was ISECTED\n");
+              PLINE_check_hairline_edges (cur);
+            }
+        }
+    }
+  while ((b = b->f) != bfst);
+}
+
 /*!
  * \brief Determine if two polygons touch or overlap.
  */
@@ -2508,16 +2643,27 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       assert (poly_Valid (b));
 #endif
 
+      fprintf (stderr, "Non-trivial polygon boolean operation\n");
+
       /* intersect needs to make a list of the contours in a and b which are intersected */
       M_POLYAREA_intersect (&e, a, b, TRUE);
 
+      fprintf (stderr, "Checking A intersected contours\n");
+      //M_PLINE_check_hairline_edges (a_isected);
+      M_POLYAREA_check_hairline_edges (a);
+
+      fprintf (stderr, "Checking B intersected contours\n");
+      M_POLYAREA_check_hairline_edges (b);
+
       /* We could speed things up a lot here if we only processed the relevant contours */
       /* NB: Relevant parts of a are labeled below */
+      fprintf (stderr, "Labeling B intersected contours\n");
       M_POLYAREA_label (b, a, FALSE);
 
       *res = a;
       M_POLYAREA_update_primary (&e, res, &holes, action, b);
       M_POLYAREA_separate_isected (&e, res, &holes, &a_isected);
+      fprintf (stderr, "Labeling A intersected contours\n");
       M_POLYAREA_label_separated (a_isected, b, FALSE);
       M_POLYAREA_Collect_separated (&e, a_isected, res, &holes, action,
 				    FALSE);
@@ -2546,6 +2692,7 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       return code;
     }
   assert (!*res || poly_Valid (*res));
+  fprintf (stderr, "END OF BOOLEAN\n\n");
   return code;
 }				/* poly_Boolean_free */
 
