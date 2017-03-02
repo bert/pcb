@@ -167,6 +167,8 @@ PCB_SRCS = \
 	hid/common/hid_resource.h \
 	hid/common/appearance.c \
 	hid/common/appearance.h \
+	hid/common/contour3d.c \
+	hid/common/contour3d.h \
 	hid/common/edge3d.c \
 	hid/common/edge3d.h \
 	hid/common/face3d.c \

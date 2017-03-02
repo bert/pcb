@@ -6,6 +6,7 @@
 
 #include "quad.h"
 #include "vertex3d.h"
+#include "contour3d.h"
 #include "appearance.h"
 #include "face3d.h"
 #include "edge3d.h"
@@ -140,12 +141,15 @@ object3d_create_test_cube (void)
   for (i = 0; i < 12; i++)
     {
       cube_edges[i] = make_edge ();
+      UNDIR_DATA (cube_edges[i]) = make_edge_info ();
       object3d_add_edge (object, cube_edges[i]);
     }
 
   for (i = 0; i < 6; i++)
     {
       faces[i] = make_face3d ();
+      /* XXX: Face normal */
+      /* XXX: Face contours */
       object3d_add_face (object, faces[i]);
     }
 
@@ -221,12 +225,13 @@ draw_quad_edge (edge_ref e, void *data)
           glBegin (GL_LINES);
           for (i = 0; i < CIRC_SEGS; i++)
             {
+              /* XXX: THIS ASSUMES THE CIRCLE LIES IN THE X-Y PLANE */
               glVertex3f (MM_TO_COORD (info->cx + info->radius * cos (i * 2. * M_PI / (double)CIRC_SEGS)),
                           MM_TO_COORD (info->cy + info->radius * sin (i * 2. * M_PI / (double)CIRC_SEGS)),
-                          MM_TO_COORD (((vertex3d *)ODATA(e))->z));
+                          MM_TO_COORD (info->cz));
               glVertex3f (MM_TO_COORD (info->cx + info->radius * cos ((i + 1) * 2. * M_PI / (double)CIRC_SEGS)),
                           MM_TO_COORD (info->cy + info->radius * sin ((i + 1) * 2. * M_PI / (double)CIRC_SEGS)),
-                          MM_TO_COORD (((vertex3d *)ODATA(e))->z));
+                          MM_TO_COORD (info->cz));
             }
           glEnd ();
           return;
@@ -293,6 +298,7 @@ object3d_from_board_outline (void)
 {
   object3d *object;
   appearance *board_appearance;
+  appearance *top_bot_appearance;
   POLYAREA *outline;
   PLINE *contour;
   PLINE *ct;
@@ -326,7 +332,9 @@ object3d_from_board_outline (void)
 
       object = make_object3d (PCB->Name);
       board_appearance = make_appearance ();
-      appearance_set_color (board_appearance, 1., 1., 0.);
+      top_bot_appearance = make_appearance ();
+      appearance_set_color (board_appearance,   1.0, 1.0, 0.6);
+      appearance_set_color (top_bot_appearance, 0.2, 0.8, 0.2);
 
       object3d_set_appearance (object, board_appearance);
 
@@ -354,7 +362,7 @@ object3d_from_board_outline (void)
 
           get_contour_coord_n_in_mm (ct, offset_in_ct, &x1, &y1);
           vertices[i]           = make_vertex3d (x1, y1, -COORD_TO_MM (HACK_BOARD_THICKNESS)); /* Bottom */
-          vertices[npoints + i] = make_vertex3d (x1, y1, 0); /* Top */
+          vertices[npoints + i] = make_vertex3d (x1, y1, 0);                                   /* Top */
 
           object3d_add_vertex (object, vertices[i]);
           object3d_add_vertex (object, vertices[npoints + i]);
@@ -364,6 +372,7 @@ object3d_from_board_outline (void)
       for (i = 0; i < 3 * npoints; i++)
         {
           edges[i] = make_edge ();
+          UNDIR_DATA (edges[i]) = make_edge_info ();
           object3d_add_edge (object, edges[i]);
         }
 
@@ -371,15 +380,25 @@ object3d_from_board_outline (void)
       for (i = 0; i < npoints; i++)
         {
           faces[i] = make_face3d ();
-          /* Pick one of the upright edges which is within this face outer contour loop, and link it to the face */
-          face3d_add_contour (faces[i], edges[2 * npoints + i]);
-        }
-      faces[npoints] = make_face3d (); /* bottom_face */
-      faces[npoints + 1] = make_face3d (); /* top_face */
 
-      /* Pick the first bottom / top edge which within the bottom / top face outer contour loop, and link it to the face */
-      face3d_add_contour (faces[npoints], edges[0]);
-      face3d_add_contour (faces[npoints + 1], edges[npoints]);
+          object3d_add_face (object, faces[i]);
+          /* Pick one of the upright edges which is within this face outer contour loop, and link it to the face */
+          face3d_add_contour (faces[i], make_contour3d (SYM(edges[2 * npoints + i])));
+        }
+
+      faces[npoints] = make_face3d (); /* bottom_face */
+      face3d_set_normal (faces[npoints], 0., 0., -1.);
+      face3d_set_appearance (faces[npoints], top_bot_appearance);
+      object3d_add_face (object, faces[npoints]);
+
+      faces[npoints + 1] = make_face3d (); /* top_face */
+      face3d_set_normal (faces[npoints + 1], 0., 0., 1.);
+      face3d_set_appearance (faces[npoints + 1], top_bot_appearance);
+      object3d_add_face (object, faces[npoints + 1]);
+
+      /* Pick the first bottom / top edge within the bottom / top face outer contour loop, and link it to the face */
+      face3d_add_contour (faces[npoints], make_contour3d (SYM(edges[0])));
+      face3d_add_contour (faces[npoints + 1], make_contour3d (edges[npoints]));
 
       ct = contour;
       start_of_ct = 0;
@@ -400,12 +419,17 @@ object3d_from_board_outline (void)
               ct_npoints = get_contour_npoints (ct);
 
               /* If there is more than one contour, it will be an inner contour of the bottom and top faces. Refer to it here */
-              face3d_add_contour (faces[npoints], edges[i]);
-              face3d_add_contour (faces[npoints + 1], edges[npoints + i]);
+              face3d_add_contour (faces[npoints], make_contour3d (SYM(edges[i])));
+              face3d_add_contour (faces[npoints + 1], make_contour3d (edges[npoints + i]));
             }
 
           next_i_around_ct = start_of_ct + (offset_in_ct + 1) % ct_npoints;
           prev_i_around_ct = start_of_ct + (offset_in_ct + ct_npoints - 1) % ct_npoints;
+
+          /* Setup the face normals for the edges along the contour extrusion (top and bottom are handled separaetely) */
+          /* Define the (non-normalized) face normal to point to the outside of the contour */
+          face3d_set_normal (faces[i], (vertices[next_i_around_ct]->y - vertices[i]->y),
+                                      -(vertices[next_i_around_ct]->x - vertices[i]->x), 0.);
 
           /* Assign the appropriate vertex geometric data to each edge end */
           ODATA (edges[              i]) = vertices[i];
@@ -421,20 +445,39 @@ object3d_from_board_outline (void)
           LDATA (edges[2 * npoints + i]) = faces[prev_i_around_ct];
           RDATA (edges[2 * npoints + i]) = faces[i];
 
+          /* NB: Contours are counter clockwise in XY plane.
+           *     edges[          0-npoints-1] are the base of the extrusion, following in the counter clockwise order
+           *     edges[1*npoints-2*npoints-1] are the top  of the extrusion, following in the counter clockwise order
+           *     edges[2*npoints-3*npoints-1] are the upright edges, oriented from bottom to top
+           */
+
           /* Link edges orbiting around each bottom vertex i (0 <= i < npoints) */
-          splice (edges[i], edges[npoints + i]);
-          splice (edges[npoints + i], SYM(edges[next_i_around_ct]));
+          splice (edges[i], edges[2 * npoints + i]);
+          splice (edges[2 * npoints + i], SYM(edges[prev_i_around_ct]));
 
           /* Link edges orbiting around each top vertex (npoints + i) (0 <= i < npoints) */
-          splice (edges[npoints + i], SYM(edges[npoints + next_i_around_ct]));
-          splice (SYM(edges[npoints + next_i_around_ct]), SYM(edges[2 * npoints + i]));
+          splice (SYM(edges[2 * npoints + i]), edges[npoints + i]);
+          splice (edges[npoints + i], SYM(edges[npoints + prev_i_around_ct]));
 
           if (ct->is_round)
             {
-              UNDIR_DATA (edges[0 * npoints + i]) = make_edge_info (false, true, COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), COORD_TO_MM (ct->radius));
-              UNDIR_DATA (edges[1 * npoints + i]) = make_edge_info (false, true, COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), COORD_TO_MM (ct->radius));
-              UNDIR_DATA (edges[2 * npoints + i]) = make_edge_info (true,  true, COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), COORD_TO_MM (ct->radius));
+              face3d_set_cylindrical (faces[i],
+                                      COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), 0., /* A point on the axis of the cylinder */
+                                      0., 0., 1.,                                     /* Direction of the cylindrical axis */
+                                      COORD_TO_MM (ct->radius));
+              face3d_set_surface_orientation_reversed (faces[i]); /* XXX: Assuming this is a hole, the cylindrical surface normal points in the wrong direction - INCORRECT IF THIS IS THE OUTER CONTOUR!*/
+              face3d_set_normal (faces[i], 1., 0., 0.);  /* A normal to the axis direction */
+                                        /* XXX: ^^^ Could line this up with the direction to the vertex in the corresponding circle edge */
+
+              edge_info_set_round (UNDIR_DATA (edges[i]),
+                                   COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), -COORD_TO_MM (HACK_BOARD_THICKNESS), /* Center of circle */
+                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+              edge_info_set_round (UNDIR_DATA (edges[npoints + i]),
+                                   COORD_TO_MM (ct->cx), COORD_TO_MM (ct->cy), 0., /* Center of circle */
+                                   0., 0., -1., /* Normal */ COORD_TO_MM (ct->radius)); /* NORMAL POINTING TO -VE Z MAKES CIRCLE CLOCKWISE */
+              edge_info_set_stitch (UNDIR_DATA (edges[2 * npoints + i]));
             }
+
         }
     }
 
