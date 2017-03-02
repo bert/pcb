@@ -46,33 +46,19 @@ presentation_style_assignments_from_appearance (step_file *step, appearance *app
   return psa_list;
 }
 
-void
-object3d_export_to_step (object3d *object, const char *filename)
+static step_file *
+start_ap214_file (const char *filename)
 {
   FILE *f;
-  step_file *step;
   time_t currenttime;
   struct tm utc;
-  int geometric_representation_context_identifier;
-  int shape_representation_identifier;
-  int brep_identifier;
-  int pcb_shell_identifier;
-  int brep_style_identifier;
-  GList *styled_item_identifiers = NULL;
-  GList *shell_face_list = NULL;
-  GList *face_iter;
-  GList *edge_iter;
-  GList *vertex_iter;
-  GList *contour_iter;
 
   f = fopen (filename, "w");
   if (f == NULL)
     {
       perror (filename);
-      return;
+      return NULL;
     }
-
-  step = step_output_file (f);
 
   currenttime = time (NULL);
   gmtime_r (&currenttime, &utc);
@@ -97,38 +83,53 @@ object3d_export_to_step (object3d *object, const char *filename)
   fprintf (f, "\n");
   fprintf (f, "DATA;\n");
 
-  /* TEST */
+  return step_output_file (f);
+}
+
+static void
+finish_ap214_file (step_file *step)
+{
+  fprintf (step->f, "ENDSEC;\n" );
+  fprintf (step->f, "END-ISO-10303-21;\n" );
+  fclose (step->f);
+}
+
+static void
+object3d_to_step_fragment (step_file *step, object3d *object, char *part_id, char *part_name, char *part_description, char *body_name,
+                           step_id *shape_definition_representation, step_id *placement_axis)
+{
+  step_id application_context_identifier;
+  step_id product_identifier;
+  step_id product_definition_identifier;
+  step_id product_definition_shape_identifier;
+  step_id geometric_representation_context_identifier;
+  step_id shape_representation_identifier;
+  step_id brep_identifier;
+  step_id anchor_axis_identifier;
+  step_id pcb_shell_identifier;
+  step_id brep_style_identifier;
+  step_id shape_definition_representation_identifier;
+  GList *styled_item_identifiers = NULL;
+  GList *shell_face_list = NULL;
+  GList *face_iter;
+  GList *edge_iter;
+  GList *vertex_iter;
+  GList *contour_iter;
 
   /* Setup the context of the "product" we are defining", and that it is a 'part' */
-
-  fprintf (f, "#1 = APPLICATION_CONTEXT ( 'automotive_design' ) ;\n"
-              "#2 = APPLICATION_PROTOCOL_DEFINITION ( 'draft international standard', 'automotive_design', 1998, #1 );\n"
-              "#3 = PRODUCT_CONTEXT ( 'NONE', #1, 'mechanical' ) ;\n"
-              "#4 = PRODUCT ('%s', '%s', '%s', (#3)) ;\n"
-              "#5 = PRODUCT_RELATED_PRODUCT_CATEGORY ('part', $, (#4)) ;\n",
-              "test_pcb_id", "test_pcb_name", "test_pcb_description");
+  application_context_identifier = step_application_context (step, "automotive_design");
+  step_application_protocol_definition (step, "draft international standard", "automotive_design", "1998", application_context_identifier);
+  product_identifier = step_product (step, part_id, part_name /* This one is picked up by freecad */, part_description,
+                                     make_step_id_list (1, step_product_context (step, "NONE", application_context_identifier, "mechanical")));
+  step_product_related_product_category (step, "part", NULL, make_step_id_list (1, product_identifier));
 
   /* Setup the specific definition of the product we are defining */
-  fprintf (f, "#6 = PRODUCT_DEFINITION_CONTEXT ( 'detailed design', #1, 'design' ) ;\n"
-              "#7 = PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE ( 'ANY', '', #4, .NOT_KNOWN. ) ;\n"
-              "#8 = PRODUCT_DEFINITION ( 'UNKNOWN', '', #7, #6 ) ;\n"
-              "#9 = PRODUCT_DEFINITION_SHAPE ( 'NONE', 'NONE',  #8 ) ;\n");
+  product_definition_identifier = step_product_definition (step, "UNKNOWN", "",
+                                                           step_product_definition_formation (step, "any", "", product_identifier), /* Versioning for the product */
+                                                           step_product_definition_context (step, "detailed design", application_context_identifier, "design"));
+  product_definition_shape_identifier = step_product_definition_shape (step, "NONE", "NONE", product_definition_identifier);
 
-  /* Need an anchor in 3D space to orient the shape */
-  fprintf (f, "#10 =    CARTESIAN_POINT ( 'NONE', ( 0.0, 0.0, 0.0 ) ) ;\n"
-              "#11 =          DIRECTION ( 'NONE', ( 0.0, 0.0, 1.0 ) ) ;\n"
-              "#12 =          DIRECTION ( 'NONE', ( 1.0, 0.0, 0.0 ) ) ;\n"
-              "#13 = AXIS2_PLACEMENT_3D ( 'NONE', #10, #11, #12 ) ;\n");
-
-  /* Grr.. more boilerplate - this time unit definitions */
-
-  fprintf (f, "#14 = UNCERTAINTY_MEASURE_WITH_UNIT (LENGTH_MEASURE( 1.0E-005 ), #15, 'distance_accuracy_value', 'NONE');\n"
-              "#15 =( LENGTH_UNIT ( ) NAMED_UNIT ( * ) SI_UNIT ( .MILLI., .METRE. ) );\n"
-              "#16 =( NAMED_UNIT ( * ) PLANE_ANGLE_UNIT ( ) SI_UNIT ( $, .RADIAN. ) );\n"
-              "#17 =( NAMED_UNIT ( * ) SI_UNIT ( $, .STERADIAN. ) SOLID_ANGLE_UNIT ( ) );\n"
-              "#18 =( GEOMETRIC_REPRESENTATION_CONTEXT ( 3 ) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT ( ( #14 ) ) GLOBAL_UNIT_ASSIGNED_CONTEXT ( ( #15, #16, #17 ) ) REPRESENTATION_CONTEXT ( 'NONE', 'WORKASPACE' ) );\n");
-  geometric_representation_context_identifier = 18;
-  step->next_id = 19;
+  geometric_representation_context_identifier = make_3d_metric_step_geometric_representation_context (step);
 
 #define FWD 1
 #define REV 2
@@ -296,7 +297,7 @@ object3d_export_to_step (object3d *object, const char *filename)
 
   /* Closed shell which bounds the brep solid */
   pcb_shell_identifier = step_closed_shell (step, "NONE", shell_face_list);
-  brep_identifier = step_manifold_solid_brep (step, "PCB outline", pcb_shell_identifier);
+  brep_identifier = step_manifold_solid_brep (step, body_name /* This is picked up as the solid body name by Solidworks */, pcb_shell_identifier);
 
   /* Body style */
   /* XXX: THERE MUST BE A BODY STYLE, CERTAINLY IF WE WANT TO OVER RIDE FACE COLOURS */
@@ -322,18 +323,256 @@ object3d_export_to_step (object3d *object, const char *filename)
   /* Emit references to the styled and over_ridden styled items */
   step_mechanical_design_geometric_presentation_representation (step, "", styled_item_identifiers, geometric_representation_context_identifier);
 
+  /* Need an anchor in 3D space to orient the shape */
+  anchor_axis_identifier = step_axis2_placement_3d (step, "NONE",
+                                                    step_cartesian_point (step, "NONE", 0.0, 0.0, 0.0),
+                                                          step_direction (step, "NONE", 0.0, 0.0, 1.0),
+                                                          step_direction (step, "NONE", 1.0, 0.0, 0.0)),
+
   shape_representation_identifier =
     step_advanced_brep_shape_representation (step, "test_pcb_absr_name",
-                                             make_step_id_list (2, brep_identifier, 13 /* XXX */), geometric_representation_context_identifier);
+                                             make_step_id_list (2, brep_identifier, anchor_axis_identifier), geometric_representation_context_identifier);
 
-  step_shape_definition_representation (step, 9 /* XXX */, shape_representation_identifier);
+  shape_definition_representation_identifier =
+  step_shape_definition_representation (step, product_definition_shape_identifier, shape_representation_identifier);
+
+  if (shape_definition_representation != NULL)
+    *shape_definition_representation = shape_definition_representation_identifier;
+
+  if (placement_axis != NULL)
+    *placement_axis = anchor_axis_identifier;
 
 #undef ORIENTED_EDGE_IDENTIFIER
 #undef FWD
 #undef REV
+}
 
-  fprintf (f, "ENDSEC;\n" );
-  fprintf (f, "END-ISO-10303-21;\n" );
+void
+object3d_list_export_to_step_assy (GList *objects, const char *filename)
+{
+  step_file *step;
+  step_id comp_shape_definition_representation;
+  step_id comp_placement_axis;
+  GList *object_iter;
+  int part;
+  bool multiple_parts;
 
-  fclose (f);
+  multiple_parts = (g_list_next (objects) != NULL);
+
+  step = start_ap214_file (filename);
+
+  for (object_iter = objects, part = 1;
+       object_iter != NULL;
+       object_iter = g_list_next (object_iter), part++)
+    {
+
+      object3d *object = object_iter->data;
+      GString *part_id;
+      GString *part_name;
+      GString *body_name;
+
+      part_id   = g_string_new ("board");
+      part_name = g_string_new ("PCB board");
+      body_name = g_string_new ("PCB board body");
+
+      if (multiple_parts)
+        {
+          g_string_append_printf (part_id, "-%i", part);
+          g_string_append_printf (part_name, " - %i", part);
+          g_string_append_printf (body_name, " - %i", part);
+        }
+
+      object3d_to_step_fragment (step, object, part_id->str, part_name->str, "PCB model", body_name->str,
+                                 &comp_shape_definition_representation, &comp_placement_axis);
+
+      g_string_free (part_id, true);
+      g_string_free (part_name, true);
+      g_string_free (body_name, true);
+    }
+
+  finish_ap214_file (step);
+
+  /* XXX: TODO: MAKE AN ASSEMBLY PRODUCT AND GATHER THE ABOVE PIECES INSIDE IT */
+#if 0
+    // RELATE THE PRODUCT STRUCTURE --------------------
+    // Find the product definitions by following the definition
+    // attribute of the shape definition representations.
+    stp_product_definition * asm_pd =  get_property_pdef (asm_sdr);
+    stp_product_definition * comp_pd = get_property_pdef (comp_sdr);
+
+    // Create the association between the configuration management
+    // description of the assembly and component.
+    //
+    stp_next_assembly_usage_occurrence* nauo = createCMAsm(
+	"unique ID",    // any unique id string
+	"left tire",    // something that identifies the usage.
+	"",		// description, "" is fine.
+	0,     		// Optional reference_designator string used
+			// to separate multiple uses of a component.
+	asm_pd, comp_pd
+	);
+
+
+    // RELATE THE GEOMETRY --------------------
+    // We need locations for the assembly and the component, so we
+    // create some example axis2_placements
+    //
+    stp_cartesian_point* p1 = pnew stp_cartesian_point;
+    p1-> name("");
+    p1-> coordinates()->add(0);
+    p1-> coordinates()->add(0);
+    p1-> coordinates()->add(0);
+    stp_axis2_placement_3d* asmAxis = pnew stp_axis2_placement_3d("", p1, 0, 0);
+
+    stp_cartesian_point* p2 = pnew stp_cartesian_point;
+    p2-> name("");
+    p2-> coordinates()->add(0);
+    p2-> coordinates()->add(0);
+    p2-> coordinates()->add(0);
+    stp_axis2_placement_3d* compAxis = pnew stp_axis2_placement_3d("", p2, 0, 0);
+
+    // Create the association between the geometry description of the
+    // assembly and component.  There are two distinct ways to relate
+    // the geometry.
+    //
+    if (useMappedItem)
+      {
+          createGeomAsmMI(
+              asm_sdr->used_representation(), asmAxis,
+              comp_sdr->used_representation(), compAxis, 
+              nauo);
+      }
+    else
+      {
+          createGeomAsmCDSR(
+              asm_sdr->used_representation(), asmAxis,
+              comp_sdr->used_representation(), compAxis, 
+              nauo);
+      }
+
+
+  // Given two product_definitions this creates an assembly between them.
+  stp_next_assembly_usage_occurrence* createCMAsm(
+      const char* asm_id,
+      const char* asm_usage,
+      const char* asm_desc,
+      const char* ref_desig, 
+      stp_product_definition* asm_pdef, 
+      stp_product_definition* comp_pdef
+      )
+  {
+      // Create a next_assembly_usage occurrence to link the two.
+      stp_next_assembly_usage_occurrence* nauo = 
+          pnew stp_next_assembly_usage_occurrence();
+
+      // The id has no standard mapping, but it should be unique.
+      nauo->id (asm_id);
+
+      // The name should contain something that identifies the usage.
+      nauo->name (asm_usage);
+
+      // There's no mapping for the description, "" is fine..
+      nauo->description (asm_desc);
+
+      // The reference_designator is optional.  When specified, it
+      // should contain a unique location for the assembly.
+      nauo->reference_designator (ref_desig);
+
+      // The relating_product_definition is the assembly.
+      nauo->relating_product_definition (asm_pdef);
+
+      // The related_product_definition is the component.
+      nauo->related_product_definition (comp_pdef);
+
+      return nauo;
+  }
+
+
+  // This method should be used if the shape types are different.  Given
+  // two shape_representations and their axis2_placements, this creates
+  // the geometric portion of the assembly using a
+  // context_dependent_shape_representation.
+  //
+  void createGeomAsmCDSR(
+      stp_representation* asmSR, 
+      stp_representation_item* asmAxis,
+      stp_representation* compSR,
+      stp_representation_item* compAxis,
+      stp_next_assembly_usage_occurrence* nauo
+      )
+  {
+      /* We pass in representations to avoid having to do casts,
+       * but this should only be used to relate instances of the
+       * shape representation subtype.
+       */
+      if (!asmSR->  isa (ROSE_DOMAIN(stp_shape_representation)) ||
+          !compSR-> isa (ROSE_DOMAIN(stp_shape_representation)))
+      {
+          printf ("createGeomAsmCDSR: representations must be instances of");
+          printf ("  the shape representation subtype");
+          return;
+      }
+
+      // Create a product_definition_shape to link the cdsr to the nauo
+      stp_product_definition_shape* pds = pnew stp_product_definition_shape();
+
+      // There's no standard mapping for the name or description.
+      pds->name("");
+      pds->description("");
+
+      // The definition should point to next_assembly_usage_occurrence.
+      stp_characterized_definition* cd = pnew stp_characterized_definition();
+      stp_characterized_product_definition* cpd = 
+          pnew stp_characterized_product_definition();
+      cd->_characterized_product_definition(cpd);
+      cpd->_product_definition_relationship(nauo);
+      pds->definition(cd);
+
+      // Create a context_dependent_shape_representation.
+      stp_context_dependent_shape_representation* cdsr = 
+          pnew stp_context_dependent_shape_representation();
+
+      // The represented_product_relation is the pds.
+      cdsr->represented_product_relation(pds);
+
+      // A complex entity is used for the shape_representation_relationship.
+      stp_representation_relationship_with_transformation_and_shape_representation_relationship * repRel = 
+          pnew stp_representation_relationship_with_transformation_and_shape_representation_relationship();
+      cdsr->representation_relation(repRel);
+
+      // The name and description attributes have no standard mapping
+      repRel->name("");
+      repRel->description("");
+
+      // rep_1 is the assembly shape and rep_2 is the component.
+      repRel->rep_1(asmSR);
+      repRel->rep_2(compSR);
+
+      // The transformation_operator should be an item_defined_transform.
+      stp_item_defined_transformation* xform = pnew stp_item_defined_transformation();
+      stp_transformation* trans = pnew stp_transformation();
+      trans->_item_defined_transformation(xform);
+      repRel->transformation_operator(trans);
+
+      // The name and description fields have no standard mapping.
+      xform->name("");
+      xform->description("");
+
+      // The first transform_item is the axis of the assembly and the second is
+      // the component.
+      xform->transform_item_1(asmAxis);
+      xform->transform_item_2(compAxis);
+  }
+#endif
+
+}
+
+void
+object3d_export_to_step (object3d *object, const char *filename)
+{
+  step_file *step;
+
+  step = start_ap214_file (filename);
+  object3d_to_step_fragment (step, object, "board", "PCB board", "PCB model", "PCB board body", NULL, NULL);
+  finish_ap214_file (step);
 }

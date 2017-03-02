@@ -13,6 +13,18 @@ step_id_list make_step_id_list (int count, ...);
 step_file *step_output_file (FILE *f);
 void destroy_step_output_file (step_file *file);
 
+step_id make_3d_metric_step_geometric_representation_context (step_file *file); /* XXX: Just reading out boiler-plate at this point */
+
+step_id step_application_context (step_file *file, char *application);
+step_id step_application_protocol_definition (step_file *file, char *status, char *application_interpreted_model_schema_name, char *application_protocol_year, step_id application);
+step_id step_product_context (step_file *file, char *name, step_id frame_of_reference, char *discipline_type);
+step_id step_product (step_file *file, char *id, char *name, char *description, step_id_list frame_of_reference);
+step_id step_product_related_product_category (step_file *file, char *name, char *description, step_id_list products);
+step_id step_product_definition_context (step_file *file, char *name, step_id frame_of_reference, char *life_cycle_stage);
+step_id step_product_definition_formation (step_file *file, char *id, char *description, step_id of_product);
+step_id step_product_definition (step_file *file, char *id, char *description, step_id formation, step_id frame_of_reference);
+step_id step_product_definition_shape (step_file *file, char *name, char *description, step_id definition);
+
 step_id step_cartesian_point (step_file *file, char *name, double x, double y, double z);
 step_id step_direction (step_file *file, char *name, double x, double y, double z);
 step_id step_axis2_placement_3d (step_file *file, char *name, step_id location, step_id axis, step_id ref_direction);

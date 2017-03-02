@@ -74,6 +74,114 @@ destroy_step_output_file (step_file *file)
   g_free (file);
 }
 
+/* XXX: Just reading out boiler-plate at this point */
+step_id
+make_3d_metric_step_geometric_representation_context (step_file *file)
+{
+  fprintf (file->f, "#%i = ( LENGTH_UNIT ( ) NAMED_UNIT ( * ) SI_UNIT ( .MILLI., .METRE. ) );\n", file->next_id);
+  fprintf (file->f, "#%i = ( NAMED_UNIT ( * ) PLANE_ANGLE_UNIT ( ) SI_UNIT ( $, .RADIAN. ) );\n", file->next_id + 1);
+  fprintf (file->f, "#%i = ( NAMED_UNIT ( * ) SI_UNIT ( $, .STERADIAN. ) SOLID_ANGLE_UNIT ( ) );\n", file->next_id + 2);
+  fprintf (file->f, "#%i = UNCERTAINTY_MEASURE_WITH_UNIT (LENGTH_MEASURE( 1.0E-005 ), #%i, 'distance_accuracy_value', 'NONE');\n", file->next_id + 3, file->next_id);
+
+  fprintf (file->f, "#%i = ( GEOMETRIC_REPRESENTATION_CONTEXT ( 3 ) "
+                            "GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT ( ( #%i ) ) "
+                            "GLOBAL_UNIT_ASSIGNED_CONTEXT ( ( #%i, #%i, #%i ) ) "
+                            "REPRESENTATION_CONTEXT ( 'NONE', 'WORKASPACE' ) );\n",
+                    file->next_id + 4, file->next_id + 3, file->next_id, file->next_id + 1, file->next_id + 2);
+  file->next_id += 4;
+
+  return file->next_id++;
+}
+
+step_id
+step_application_context (step_file *file, char *application)
+{
+  fprintf (file->f, "#%i = APPLICATION_CONTEXT ( '%s' ) ;\n", file->next_id, application);
+
+  return file->next_id++;
+}
+
+step_id
+step_application_protocol_definition (step_file *file, char *status, char *application_interpreted_model_schema_name,
+                                      char *application_protocol_year, step_id application)
+{
+  fprintf (file->f, "#%i = APPLICATION_PROTOCOL_DEFINITION ( '%s', '%s', %s, #%i );\n",
+                    file->next_id, status, application_interpreted_model_schema_name, application_protocol_year, application);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_context (step_file *file, char *name, step_id frame_of_reference, char *discipline_type)
+{
+  fprintf (file->f, "#%i = PRODUCT_CONTEXT ( '%s', #%i, '%s' ) ;\n",
+                    file->next_id, name, frame_of_reference, discipline_type);
+
+  return file->next_id++;
+}
+
+step_id
+step_product (step_file *file, char *id, char *name, char *description, step_id_list frame_of_reference)
+{
+  fprintf (file->f, "#%i = PRODUCT ('%s', '%s', '%s', ", file->next_id, id, name, description);
+  fprint_id_list (file->f, frame_of_reference);
+  fprintf (file->f, ") ;\n");
+  destroy_step_id_list (frame_of_reference);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_related_product_category (step_file *file, char *name, char *description, step_id_list products)
+{
+  if (description != NULL)
+    fprintf (file->f, "#%i = PRODUCT_RELATED_PRODUCT_CATEGORY ('%s', '%s', ", file->next_id, name, description);
+  else
+    fprintf (file->f, "#%i = PRODUCT_RELATED_PRODUCT_CATEGORY ('%s', $, ", file->next_id, name);
+
+  fprint_id_list (file->f, products);
+  fprintf (file->f, ") ;\n");
+  destroy_step_id_list (products);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_definition_context (step_file *file, char *name, step_id frame_of_reference, char *life_cycle_stage)
+{
+  fprintf (file->f, "#%i = PRODUCT_DEFINITION_CONTEXT ( '%s', #%i, '%s' ) ;\n",
+                    file->next_id, name, frame_of_reference, life_cycle_stage);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_definition_formation (step_file *file, char *id, char *description, step_id of_product)
+{
+  fprintf (file->f, "#%i = PRODUCT_DEFINITION_FORMATION ( '%s', '%s', #%i) ;\n",
+                    file->next_id, id, description, of_product);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_definition (step_file *file, char *id, char *description, step_id formation, step_id frame_of_reference)
+{
+  fprintf (file->f, "#%i = PRODUCT_DEFINITION ( '%s', '%s', #%i, #%i ) ;\n",
+                    file->next_id, id, description, formation, frame_of_reference);
+
+  return file->next_id++;
+}
+
+step_id
+step_product_definition_shape (step_file *file, char *name, char *description, step_id definition)
+{
+  fprintf (file->f, "#%i = PRODUCT_DEFINITION_SHAPE ( '%s', '%s',  #%i ) ;\n",
+                    file->next_id, name, description, definition);
+
+  return file->next_id++;
+}
+
 step_id
 step_cartesian_point (step_file *file, char *name, double x, double y, double z)
 {
