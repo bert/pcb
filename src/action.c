@@ -8129,6 +8129,150 @@ ActionAttributes (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+
+static const char smash_syntax[] = N_("Smash(Object|Selected|SelectedElements)");
+static const char smash_help[] = N_("Smash an element or elements into pieces.");
+
+/* %start-doc actions Attributes
+
+This smashes the given object into pieces in-place on the PCB.
+
+%end-doc */
+
+
+static void
+SmashElement (ElementType *element)
+{
+  Cardinal group;
+  LayerType *top_copper, *bottom_copper;
+  LayerType *top_silk, *bottom_silk;
+  LayerType *layer;
+  LineType *new_line;
+  ArcType *new_arc;
+  PinType *new_via;
+
+  group = GetLayerGroupNumberBySide (TOP_SIDE);
+  top_copper = &PCB->Data->Layer[PCB->LayerGroups.Entries[group][0]];
+  group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
+  bottom_copper = &PCB->Data->Layer[PCB->LayerGroups.Entries[group][0]];
+  top_silk = &PCB->Data->Layer[top_silk_layer];
+  bottom_silk = &PCB->Data->Layer[bottom_silk_layer];
+
+  ELEMENTLINE_LOOP (element);
+  {
+    layer = TEST_FLAG (ONSOLDERFLAG, element) ? bottom_silk : top_silk;
+    new_line = CreateNewLineOnLayer (layer,
+                                     line->Point1.X, line->Point1.Y,
+                                     line->Point2.X, line->Point2.Y,
+                                     line->Thickness, 0, NoFlags ());
+    if (new_line)
+      {
+        new_line->Number = STRDUP (NAMEONPCB_NAME (element));
+        AddObjectToCreateUndoList (LINE_TYPE, layer, new_line, new_line);
+      }
+  }
+  END_LOOP;
+  ARC_LOOP (element);
+  {
+    layer = TEST_FLAG (ONSOLDERFLAG, element) ? bottom_silk : top_silk;
+    new_arc = CreateNewArcOnLayer (layer,
+                                   arc->X, arc->Y, arc->Width, arc->Height, arc->StartAngle,
+                                   arc->Delta, arc->Thickness, 0, NoFlags ());
+    if (new_arc)
+      AddObjectToCreateUndoList (LINE_TYPE, layer, new_arc, new_arc);
+
+  }
+  END_LOOP;
+  PIN_LOOP (element);
+  {
+    FlagType f = NoFlags ();
+    AddFlags (f, VIAFLAG);
+    if (TEST_FLAG (HOLEFLAG, pin))
+      AddFlags (f, HOLEFLAG);
+
+    new_via = CreateNewVia (PCB->Data, pin->X, pin->Y,
+                            pin->Thickness, pin->Clearance, pin->Mask,
+                            pin->DrillingHole, pin->Number, f);
+    if (new_via)
+      AddObjectToCreateUndoList (VIA_TYPE, new_via, new_via, new_via);
+  }
+  END_LOOP;
+  PAD_LOOP (element);
+  {
+    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_copper : top_copper;
+    new_line = CreateNewLineOnLayer (layer,
+                                      pad->Point1.X, pad->Point1.Y,
+                                      pad->Point2.X, pad->Point2.Y,
+                                      pad->Thickness, pad->Clearance, NoFlags ());
+    if (new_line)
+      {
+        new_line->Number = STRDUP (pad->Number);
+        AddObjectToCreateUndoList (LINE_TYPE, layer, new_line, new_line);
+      }
+  }
+  END_LOOP;
+  RemoveElement (element);
+}
+
+/*---------------------------------------------------------------------------
+ *
+ * break selected element(s) into pieces
+ */
+static int
+ActionSmash (int argc, char **argv, Coord x, Coord y)
+{
+  char *function = ARG (0);
+  ElementType *element;
+  void *ptr1, *ptr2, *ptr3;
+  bool change = false;
+
+  if (function)
+    {
+      switch (GetFunctionID (function))
+        {
+        case F_Object:
+          if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
+                            &ptr1, &ptr2, &ptr3) != NO_TYPE)
+            {
+              element = ptr1;
+              change = true;
+              SmashElement (element);
+            }
+          break;
+
+        case F_Selected:
+        case F_SelectedElements:
+          if (PCB->PinOn && PCB->ElementOn)
+            {
+              ELEMENT_LOOP (PCB->Data);
+                {
+                  if (TEST_FLAG (SELECTEDFLAG, element))
+                    {
+                      change = true;
+                      SmashElement (element);
+                    }
+                }
+              END_LOOP;
+            }
+          break;
+
+        default:
+          AFAIL (smash);
+        }
+
+      if (change)
+        {
+          SetChangedFlag (true);
+          Draw ();
+          IncrementUndoSerialNumber ();
+        }
+      return 0;
+    }
+
+  AFAIL (smash);
+}
+
 /* --------------------------------------------------------------------------- */
 
 static const char setvialayers_syntax[] =
@@ -8417,6 +8561,9 @@ HID_Action action_action_list[] = {
   ,
   {"SetValue", 0, ActionSetValue,
    setvalue_help, setvalue_syntax}
+  ,
+  {"Smash", 0, ActionSmash,
+   smash_help, smash_syntax}
   ,
   {"ToggleHideName", 0, ActionToggleHideName,
    togglehidename_help, togglehidename_syntax}

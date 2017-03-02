@@ -300,6 +300,8 @@ MainMenu =
     {"Buried from current layer" SetViaLayers(selected,c,-)}
     {"Buried to current layer" SetViaLayers(selected,-,c)}
    }
+   -
+   {"Break selected elements to pieces" Smash(SelectedElements)}
   }
 
 #
