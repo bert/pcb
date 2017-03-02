@@ -36,31 +36,9 @@
 
 static GList *object3d_test_objects = NULL;
 
-static void
-print_edge_id (edge_ref e)
-{
-  printf ("ID %i.%i", ID(e), (unsigned int)e & 3u);
-}
-
-static void
-debug_print_edge (edge_ref e, void *data)
-{
-  printf ("Edge ID %i.%i\n", ID(e), (int)e & 3u);
-
-  printf ("Edge ONEXT is "); print_edge_id (ONEXT(e)); printf ("\n");
-  printf ("Edge OPREV is "); print_edge_id (OPREV(e)); printf ("\n");
-  printf ("Edge DNEXT is "); print_edge_id (DNEXT(e)); printf ("\n");
-  printf ("Edge DPREV is "); print_edge_id (DPREV(e)); printf ("\n");
-  printf ("Edge RNEXT is "); print_edge_id (RNEXT(e)); printf ("\n");
-  printf ("Edge RPREV is "); print_edge_id (RPREV(e)); printf ("\n");
-  printf ("Edge LNEXT is "); print_edge_id (LNEXT(e)); printf ("\n");
-  printf ("Edge LPREV is "); print_edge_id (LPREV(e)); printf ("\n");
-}
-
 void
 object3d_test_init (void)
 {
-  //object3d_test_objects = g_list_append (NULL, object3d_create_test_cube ());
   object3d_test_objects = object3d_from_board_outline ();
 }
 
@@ -109,81 +87,6 @@ void
 object3d_add_face (object3d *object, face3d *face)
 {
   object->faces = g_list_append (object->faces, face);
-}
-
-#define XOFFSET 50
-#define YOFFSET 50
-#define ZOFFSET 0
-#define SCALE  10
-object3d *
-object3d_create_test_cube (void)
-{
-  object3d *object;
-  vertex3d *cube_vertices[8];
-  edge_ref cube_edges[12];
-  face3d *faces[6];
-  int i;
-
-  object = make_object3d ("TEST CUBE");
-
-  cube_vertices[0] = make_vertex3d (XOFFSET + SCALE * 0., YOFFSET + SCALE * 0., ZOFFSET + SCALE *  0.);
-  cube_vertices[1] = make_vertex3d (XOFFSET + SCALE * 1., YOFFSET + SCALE * 0., ZOFFSET + SCALE *  0.);
-  cube_vertices[2] = make_vertex3d (XOFFSET + SCALE * 1., YOFFSET + SCALE * 0., ZOFFSET + SCALE * -1.);
-  cube_vertices[3] = make_vertex3d (XOFFSET + SCALE * 0., YOFFSET + SCALE * 0., ZOFFSET + SCALE * -1.);
-  cube_vertices[4] = make_vertex3d (XOFFSET + SCALE * 0., YOFFSET + SCALE * 1., ZOFFSET + SCALE *  0.);
-  cube_vertices[5] = make_vertex3d (XOFFSET + SCALE * 1., YOFFSET + SCALE * 1., ZOFFSET + SCALE *  0.);
-  cube_vertices[6] = make_vertex3d (XOFFSET + SCALE * 1., YOFFSET + SCALE * 1., ZOFFSET + SCALE * -1.);
-  cube_vertices[7] = make_vertex3d (XOFFSET + SCALE * 0., YOFFSET + SCALE * 1., ZOFFSET + SCALE * -1.);
-
-  for (i = 0; i < 8; i++)
-    object3d_add_vertex (object, cube_vertices[i]);
-
-  for (i = 0; i < 12; i++)
-    {
-      cube_edges[i] = make_edge ();
-      UNDIR_DATA (cube_edges[i]) = make_edge_info ();
-      object3d_add_edge (object, cube_edges[i]);
-    }
-
-  for (i = 0; i < 6; i++)
-    {
-      faces[i] = make_face3d ();
-      /* XXX: Face normal */
-      /* XXX: Face contours */
-      object3d_add_face (object, faces[i]);
-    }
-
-  for (i = 0; i < 4; i++)
-    {
-      int next_vertex = (i + 1) % 4;
-      int prev_vertex = (i + 3) % 4;
-
-      /* Assign bottom edge endpoints */
-      ODATA (cube_edges[i]) = cube_vertices[i];
-      DDATA (cube_edges[i]) = cube_vertices[next_vertex];
-
-      /* Assign top edge endpoints */
-      ODATA (cube_edges[4 + i]) = cube_vertices[4 + i];
-      DDATA (cube_edges[4 + i]) = cube_vertices[4 + next_vertex];
-
-      /* Assign side edge endpoints */
-      ODATA (cube_edges[8 + i]) = cube_vertices[i];
-      DDATA (cube_edges[8 + i]) = cube_vertices[4 + i];
-
-      /* Link up edges orbiting around each bottom vertex */
-      splice (cube_edges[i], cube_edges[8 + i]);
-      splice (cube_edges[8 + i], SYM(cube_edges[prev_vertex]));
-
-      /* Link up edges orbiting around each bottom top */
-      splice (cube_edges[4 + i], SYM(cube_edges[4 + prev_vertex]));
-      splice (SYM(cube_edges[4 + prev_vertex]), SYM(cube_edges[8 + i]));
-
-    }
-
-  quad_enum (cube_edges[0], debug_print_edge, NULL);
-
-
-  return object;
 }
 
 
