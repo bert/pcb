@@ -82,6 +82,7 @@ struct CVCList
     VNODE *parent;
     CVCList *prev, *next, *head;
     char poly, side;
+    bool skip_me;
 };
 struct VNODE
 {
