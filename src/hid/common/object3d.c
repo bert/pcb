@@ -34,7 +34,7 @@
 
 #define HACK_BOARD_THICKNESS MM_TO_COORD(1.6)
 
-static object3d *object3d_test_object = NULL;
+static GList *object3d_test_objects = NULL;
 
 static void
 print_edge_id (edge_ref e)
@@ -60,8 +60,8 @@ debug_print_edge (edge_ref e, void *data)
 void
 object3d_test_init (void)
 {
-  //object3d_test_object = object3d_create_test_cube ();
-  object3d_test_object = object3d_from_board_outline ();
+  //object3d_test_objects = g_list_append (NULL, object3d_create_test_cube ());
+  object3d_test_objects = object3d_from_board_outline ();
 }
 
 object3d *
@@ -217,8 +217,8 @@ draw_quad_edge (edge_ref e, void *data)
   if (UNDIR_DATA(e) != NULL)
     {
       edge_info *info = UNDIR_DATA(e);
-      if (info->is_stitch)
-        return;
+//      if (info->is_stitch)
+//        return;
       if (info->is_round)
         {
           int i;
@@ -244,12 +244,19 @@ draw_quad_edge (edge_ref e, void *data)
   glEnd ();
 }
 
+static void
+object3d_draw_debug_single (object3d *object, void *user_data)
+{
+  g_return_if_fail (object->edges != NULL);
+
+//  quad_enum ((edge_ref)object->edges->data, draw_quad_edge, NULL);
+  g_list_foreach (object->edges, (GFunc)draw_quad_edge, NULL);
+}
+
 void
 object3d_draw_debug (void)
 {
-  g_return_if_fail (object3d_test_object->edges != NULL);
-
-  quad_enum ((edge_ref)object3d_test_object->edges->data, draw_quad_edge, NULL);
+  g_list_foreach (object3d_test_objects, (GFunc)object3d_draw_debug_single, NULL);
 }
 
 /*********************************************************************************************************/
@@ -293,13 +300,15 @@ get_contour_coord_n_in_mm (PLINE *contour, int n, double *x, double *y)
   *y = COORD_TO_MM (vertex->point[1]); /* FIXME: PCB's coordinate system has y increasing downwards */
 }
 
-object3d *
+GList *
 object3d_from_board_outline (void)
 {
+  GList *objects = NULL;
   object3d *object;
   appearance *board_appearance;
   appearance *top_bot_appearance;
   POLYAREA *outline;
+  POLYAREA *pa;
   PLINE *contour;
   PLINE *ct;
   int ncontours;
@@ -313,15 +322,19 @@ object3d_from_board_outline (void)
   int ct_npoints;
 
   outline = board_outline_poly (true);
-  //outline = board_outline_poly (false); /* (FOR NOW - just the outline, no holes) */
-  ncontours = 0;
-  npoints = 0;
 
-  /* XXX: There can be more than one contour, but for now we restrict ourselves to the first one */
-  contour = outline->contours;
+  if (outline == NULL)
+    return NULL;
 
-  if (1)
+  /* Loop over all board outline pieces */
+  pa = outline;
+  do
     {
+
+      contour = pa->contours;
+      ncontours = 0;
+      npoints = 0;
+
       ct = contour;
       while (ct != NULL)
         {
@@ -479,9 +492,24 @@ object3d_from_board_outline (void)
             }
 
         }
+
+      objects = g_list_append (objects, object);
+
     }
+  while (pa = pa->f, pa != outline);
 
   poly_Free (&outline);
 
-  return object;
+  return objects;
+}
+
+void
+object3d_test_board_outline (void)
+{
+  GList *objects;
+
+  objects = object3d_from_board_outline ();
+//  object3d_export_to_step (objects->data, "object3d_test.step");
+
+  g_list_free_full (objects, (GDestroyNotify)destroy_object3d);
 }
