@@ -501,13 +501,15 @@ edge_label (VNODE * pn)
       /* If this fires, we found a hairline edge pair within our own polygon, as no edge
        * from the same polygon should compare identically in the CVCList
        */
-      assert (l->poly != this_poly);
+      if (!(l->poly != this_poly))
+        g_critical ("Encountered edge from our polygon when expecting a shared edge");
 
       /* If this fires, we found two geometrically distinct edges which for some reason compare as equal in our cvc_list.
        * Shared edges should be geometrically identical (but may be in opposite directions).
        */
-      assert (EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
-              EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1]);
+      if (!(EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
+            EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1]))
+        g_critical ("Expected shared edge, but geometry doesn't match");
 
       /* SHARED is the same direction case,
        * SHARED2 is the opposite direction case.
@@ -526,7 +528,8 @@ edge_label (VNODE * pn)
            * bug if such edges are present, so test for it here where we may detect it. We compare
            * l->prev and l, as we know both are still in this_poly.. l->next may not be.
            */
-          assert (compare_cvc_nodes (l->prev, l) != 0);
+          if (!(compare_cvc_nodes (l->prev, l) != 0))
+            g_critical ("Encountered identical edge in our own polygon (hairline edge pair)");
 
           l = l->next;
         }
@@ -534,14 +537,16 @@ edge_label (VNODE * pn)
       /* If this fires, we must have wrapped around the entire CVCList wihthout finding any edges from
        * the other polygon.
        */
-      assert (l->poly != this_poly);
+      if (!(l->poly != this_poly))
+        g_critical ("Wrapped around entire CVCList without finding any edges from the other polygon");
 
       /* Check the other polygon edge we landed on in the CVCList is not a hairline edge pair
        * from the same polygon. If so, they may be sorted in incorrect order and would thus
        * mislead as to whether we are inside or outside that contour. It is a bug if such edges
        * are present.
        */
-      assert (l->poly != l->next->poly || compare_cvc_nodes (l, l->next) != 0);
+      if (!((l->poly != l->next->poly || compare_cvc_nodes (l, l->next) != 0)))
+        g_critical ("Encountered identical edge in the other polygon (hairline edge pair)");
 
       region = (l->side == 'P') ? INSIDE : OUTSIDE;
     }
