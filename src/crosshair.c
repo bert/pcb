@@ -407,6 +407,57 @@ XORDrawInsertPointObject (hidGC gc)
 }
 
 /*!
+ * \brief Determine the intersection point of two line segments
+ * Return FALSE if the lines don't intersect
+ *
+ * Based upon code from http://paulbourke.net/geometry/lineline2d/
+ */
+#define EPS 1e-6
+static bool
+line_line_intersect (double x1, double y1, double x2, double y2,
+                     double x3, double y3, double x4, double y4,
+                     double *x, double *y, double *multiplier)
+{
+  double mua,mub;
+  double denom,numera,numerb;
+
+  if (x != NULL) *x = 0.0;
+  if (y != NULL) *y = 0.0;
+
+  denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+  numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+  numerb = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+
+  /* Are the lines coincident or parallel? */
+  if (fabs (denom) < EPS)
+    {
+      /* Are the line coincident? */
+      if (fabs (numera) < EPS && fabs (numerb) < EPS)
+        {
+          if (x != NULL) *x = (x1 + x2) / 2;
+          if (y != NULL) *y = (y1 + y2) / 2;
+          return true;
+        }
+      /* The line parallel */
+      return false;
+    }
+
+  /* Is the intersection along the the segments */
+  mua = numera / denom;
+  mub = numerb / denom;
+//  if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
+//    return false;
+
+  if (x != NULL) *x = x1 + mua * (x2 - x1);
+  if (y != NULL) *y = y1 + mua * (y2 - y1);
+  if (multiplier != NULL) *multiplier = mua;
+
+  if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
+    return false;
+  return true;
+}
+
+/*!
  * \brief Draws the attached object while in MOVE_MODE or COPY_MODE.
  */
 static void
@@ -416,6 +467,14 @@ XORDrawMoveOrCopyObject (hidGC gc)
   Cardinal i;
   Coord dx = Crosshair.X - Crosshair.AttachedObject.X,
     dy = Crosshair.Y - Crosshair.AttachedObject.Y;
+
+#if 0
+  /* Kludgy demo */
+  if (dx > 500000)
+    dx =   500000;
+  dy = dx;
+  /* Kludgy demo */
+#endif
 
   switch (Crosshair.AttachedObject.Type)
     {
@@ -428,12 +487,60 @@ XORDrawMoveOrCopyObject (hidGC gc)
 
     case LINE_TYPE:
       {
-	LineType *line = (LineType *) Crosshair.AttachedObject.Ptr2;
+        LineType *moving_line = Crosshair.AttachedObject.Ptr2;
+        bool set_min = false;
+        bool set_max = false;
+        double min_multiplier = 0.0;
+        double max_multiplier = 1.0;
 
-	XORDrawAttachedLine (gc, line->Point1.X + dx, line->Point1.Y + dy,
-	                         line->Point2.X + dx, line->Point2.Y + dy,
-	                     line->Thickness);
-	break;
+        /* draw the attached rubberband lines too */
+        i = Crosshair.AttachedObject.RubberbandN;
+        ptr = Crosshair.AttachedObject.Rubberband;
+
+        while (i)
+          {
+            if (!TEST_FLAG (VIAFLAG, ptr->Line) &&
+                TEST_FLAG (RUBBERENDFLAG, ptr->Line))
+              {
+                double multiplier;
+
+                line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
+                                     moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
+                                     ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                                     ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                                     NULL, NULL, &multiplier);
+                if (multiplier < min_multiplier)
+                  {
+                    min_multiplier = multiplier;
+                    set_min = true;
+                  }
+                if (multiplier > max_multiplier)
+                  {
+                    max_multiplier = multiplier;
+                    set_max = true;
+                  }
+              }
+
+            ptr++;
+            i--;
+          }
+
+        /* If no constraints from the rubber band lines, then keep the old endpoints */
+#if 0
+        if (!set_min)
+          min_multiplier = 0.0;
+
+        if (!set_max)
+          max_multiplier = 1.0;
+#endif
+
+        XORDrawAttachedLine (gc,
+                             moving_line->Point1.X + dx + min_multiplier * (moving_line->Point2.X - moving_line->Point1.X),
+                             moving_line->Point1.Y + dy + min_multiplier * (moving_line->Point2.Y - moving_line->Point1.Y),
+                             moving_line->Point1.X + dx + max_multiplier * (moving_line->Point2.X - moving_line->Point1.X),
+                             moving_line->Point1.Y + dy + max_multiplier * (moving_line->Point2.Y - moving_line->Point1.Y),
+                             moving_line->Thickness);
+        break;
       }
 
     case ARC_TYPE:
@@ -535,27 +642,55 @@ XORDrawMoveOrCopyObject (hidGC gc)
 	}
       else if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
 	{
-	  /* 'point1' is always the fix-point */
-	  if (ptr->MovedPoint == &ptr->Line->Point1)
-	    {
-	      point1 = &ptr->Line->Point2;
-	      point2 = &ptr->Line->Point1;
-	    }
-	  else
-	    {
-	      point1 = &ptr->Line->Point1;
-	      point2 = &ptr->Line->Point2;
-	    }
-	  XORDrawAttachedLine (gc, point1->X, point1->Y,
-	                       point2->X + dx, point2->Y + dy,
-	                       ptr->Line->Thickness);
-	}
+          if (Crosshair.AttachedObject.Type == LINE_TYPE)
+            {
+              LineType *moving_line = Crosshair.AttachedObject.Ptr2;
+              PointType *fixed_point;
+              double x, y;
+
+              line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
+                                   moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
+                                   ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                                   ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                                   &x,                         &y,
+                                   NULL);
+
+              fixed_point = (ptr->MovedPoint == &ptr->Line->Point1) ?
+                              &ptr->Line->Point2 : &ptr->Line->Point1;
+
+              XORDrawAttachedLine (gc, fixed_point->X, fixed_point->Y, x, y,
+                                   ptr->Line->Thickness);
+            }
+          else
+            {
+              /* TODO: Project the extension or contraction of ptr->Line, such that it
+               *       intersects with the extended or contracted version of the
+               *       line(s) being moved
+               */
+
+              /* 'point1' is always the fix-point */
+              if (ptr->MovedPoint == &ptr->Line->Point1)
+                {
+                  point1 = &ptr->Line->Point2;
+                  point2 = &ptr->Line->Point1;
+                }
+              else
+                {
+                  point1 = &ptr->Line->Point1;
+                  point2 = &ptr->Line->Point2;
+                }
+
+              XORDrawAttachedLine (gc, point1->X,      point1->Y,
+                                       point2->X + dx, point2->Y + dy,
+                                   ptr->Line->Thickness);
+            }
+        }
       else if (ptr->MovedPoint == &ptr->Line->Point1)
-	XORDrawAttachedLine (gc,
-	                     ptr->Line->Point1.X + dx,
-	                     ptr->Line->Point1.Y + dy,
-	                     ptr->Line->Point2.X + dx,
-	                     ptr->Line->Point2.Y + dy, ptr->Line->Thickness);
+        XORDrawAttachedLine (gc,
+                             ptr->Line->Point1.X + dx,
+                             ptr->Line->Point1.Y + dy,
+                             ptr->Line->Point2.X + dx,
+                             ptr->Line->Point2.Y + dy, ptr->Line->Thickness);
 
       ptr++;
       i--;

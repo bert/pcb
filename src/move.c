@@ -796,6 +796,59 @@ MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3, Coord DX, Coord DY)
 }
 
 /*!
+ * \brief Determine the intersection point of two line segments
+ *  Return FALSE if the lines don't intersect
+ *
+ *  Based upon code from http://paulbourke.net/geometry/lineline2d/
+ */
+#define EPS 1e-6
+static bool
+line_line_intersect (double x1, double y1, double x2, double y2,
+                     double x3, double y3, double x4, double y4,
+                     double *x, double *y, double *multiplier)
+{
+  double mua,mub;
+  double denom,numera,numerb;
+
+  if (x != NULL) *x = 0.0;
+  if (y != NULL) *y = 0.0;
+  if (multiplier != NULL) *y = 0.0;
+
+  denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+  numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+  numerb = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+
+  /* Are the lines coincident or parallel? */
+  if (fabs (denom) < EPS)
+    {
+      /* Are the line coincident? */
+      if (fabs (numera) < EPS && fabs (numerb) < EPS)
+        {
+          if (x != NULL) *x = (x1 + x2) / 2;
+          if (y != NULL) *y = (y1 + y2) / 2;
+          if (multiplier != NULL) *multiplier = 0.5;
+          return true;
+        }
+      /* The line parallel */
+      return false;
+    }
+
+  /* Is the intersection along the the segments */
+  mua = numera / denom;
+  mub = numerb / denom;
+//  if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
+//    return false;
+
+  if (x != NULL) *x = x1 + mua * (x2 - x1);
+  if (y != NULL) *y = y1 + mua * (y2 - y1);
+  if (multiplier != NULL) *multiplier = mua;
+
+  if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
+    return false;
+  return true;
+}
+
+/*!
  * \brief Moves the object identified by its data pointers and the type
  * as well as all attached rubberband lines.
  */
@@ -804,9 +857,27 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 			 Coord DX, Coord DY)
 {
   RubberbandType *ptr;
+  LineType *moving_line = NULL;
   void *ptr2;
+  int i;
+  double min_multiplier = 1.0;
+  double max_multiplier = 0.0;
 
-  /* setup offset */
+  if (Type == LINE_TYPE)
+    moving_line = Ptr2;
+
+  /* first clear any marks that we made in the line flags */
+  for (i = 0, ptr = Crosshair.AttachedObject.Rubberband;
+       i > Crosshair.AttachedObject.RubberbandN;
+       i++, ptr++)
+    CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
+
+  if (DX == 0 && DY == 0)
+    {
+      Crosshair.AttachedObject.RubberbandN = 0;
+      return NULL;
+    }
+
   DeltaX = DX;
   DeltaY = DY;
 
@@ -814,27 +885,62 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   ptr = Crosshair.AttachedObject.Rubberband;
   while (Crosshair.AttachedObject.RubberbandN)
     {
-      /* first clear any marks that we made in the line flags */
-      CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
-      /* only update undo list if an actual movement happened */
-      if (DX != 0 || DY != 0)
+      if (Type == LINE_TYPE)
         {
-          AddObjectToMoveUndoList (LINEPOINT_TYPE,
-                                   ptr->Layer, ptr->Line,
-                                   ptr->MovedPoint, DX, DY);
-          MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
+          double x, y, multiplier;
+
+          line_line_intersect (moving_line->Point1.X + DX, moving_line->Point1.Y + DY,
+                               moving_line->Point2.X + DX, moving_line->Point2.Y + DY,
+                               ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                               ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                               &x,                         &y,
+                               &multiplier);
+
+          min_multiplier = MIN (min_multiplier, multiplier);
+          max_multiplier = MAX (max_multiplier, multiplier);
+
+          DeltaX = (Coord)x - ptr->MovedPoint->X;
+          DeltaY = (Coord)y - ptr->MovedPoint->Y;
         }
+
+      AddObjectToMoveUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
+                               ptr->MovedPoint, DeltaX, DeltaY);
+      MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
+
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
     }
 
-  if (DX == 0 && DY == 0)
-    return (NULL);
+  if (Type == LINE_TYPE)
+    {
+      Coord ldx, ldy;
+      ldx = (moving_line->Point2.X - moving_line->Point1.X);
+      ldy = (moving_line->Point2.Y - moving_line->Point1.Y);
 
-  AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DX, DY);
-  ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
-  IncrementUndoSerialNumber ();
-  return (ptr2);
+      DeltaX = DX + min_multiplier * ldx;
+      DeltaY = DY + min_multiplier * ldy;
+      AddObjectToMoveUndoList (LINEPOINT_TYPE, Ptr1, moving_line, &moving_line->Point1,
+                               DeltaX, DeltaY);
+      MoveLinePoint (Ptr1, moving_line, &moving_line->Point1);
+
+      DeltaX = DX + (max_multiplier - 1) * ldx;
+      DeltaY = DY + (max_multiplier - 1) * ldy;
+      AddObjectToMoveUndoList (LINEPOINT_TYPE, Ptr1, moving_line, &moving_line->Point2,
+                               DeltaX, DeltaY);
+      MoveLinePoint (Ptr1, moving_line, &moving_line->Point2);
+
+      ptr2 = moving_line;
+    }
+  else
+    {
+      DeltaX = DX;
+      DeltaY = DY;
+      AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DeltaX, DeltaY);
+      ptr2 = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
+      IncrementUndoSerialNumber ();
+    }
+
+  return ptr2;
 }
 
 /*!

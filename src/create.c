@@ -1008,7 +1008,7 @@ CreateDefaultFont (PCBType *pcb)
  */
 RubberbandType *
 CreateNewRubberbandEntry (LayerType *Layer,
-			  LineType *Line, PointType *MovedPoint)
+			  LineType *Line, PointType *MovedPoint, bool endpoint)
 {
   RubberbandType *ptr = GetRubberbandMemory ();
 
@@ -1018,6 +1018,7 @@ CreateNewRubberbandEntry (LayerType *Layer,
   ptr->Layer = Layer;
   ptr->Line = Line;
   ptr->MovedPoint = MovedPoint;
+  ptr->endpoint = endpoint;
   return (ptr);
 }
 

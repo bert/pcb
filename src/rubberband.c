@@ -144,13 +144,13 @@ rubber_callback (const BoxType * b, void *cl)
 
       if (test_circle_hits_box (&line->Point1, t, &i->box))
         {
-          CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+          CreateNewRubberbandEntry (i->layer, line, &line->Point1, true);
           found++;
         }
 
       if (test_circle_hits_box (&line->Point2, t, &i->box))
         {
-          CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+          CreateNewRubberbandEntry (i->layer, line, &line->Point2, true);
           found++;
         }
 
@@ -178,16 +178,17 @@ rubber_callback (const BoxType * b, void *cl)
   if (sq_dist1 > 0 && sq_dist2 > 0)
     return 0;
 
-#ifdef CLOSEST_ONLY	/* keep this to remind me */
-  if (dist1 < dist2)
-    CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+//#ifdef CLOSEST_ONLY	/* keep this to remind me */
+#if 1
+  if (sq_dist1 < sq_dist2)
+    CreateNewRubberbandEntry (i->layer, line, &line->Point1, true);
   else
-    CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+    CreateNewRubberbandEntry (i->layer, line, &line->Point2, true);
 #else
   if (sq_dist1 <= 0)
-    CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+    CreateNewRubberbandEntry (i->layer, line, &line->Point1, true);
   if (sq_dist2 <= 0)
-    CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+    CreateNewRubberbandEntry (i->layer, line, &line->Point2, true);
 #endif
   return 1;
 }
@@ -248,45 +249,45 @@ rat_callback (const BoxType * box, void *cl)
     {
     case PIN_TYPE:
       if (rat->Point1.X == i->pin->X && rat->Point1.Y == i->pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1, true);
       else if (rat->Point2.X == i->pin->X && rat->Point2.Y == i->pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2, true);
       break;
     case PAD_TYPE:
       if (rat->Point1.X == i->pad->Point1.X &&
 	  rat->Point1.Y == i->pad->Point1.Y && rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1, true);
       else
 	if (rat->Point2.X == i->pad->Point1.X &&
 	    rat->Point2.Y == i->pad->Point1.Y && rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2, true);
       else
 	if (rat->Point1.X == i->pad->Point2.X &&
 	    rat->Point1.Y == i->pad->Point2.Y && rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1, true);
       else
 	if (rat->Point2.X == i->pad->Point2.X &&
 	    rat->Point2.Y == i->pad->Point2.Y && rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2, true);
       else
 	if (rat->Point1.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
 	    rat->Point1.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
 	    rat->group1 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1, true);
       else
 	if (rat->Point2.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
 	    rat->Point2.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
 	    rat->group2 == i->group)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2, true);
       break;
     case LINEPOINT_TYPE:
       if (rat->group1 == i->group &&
 	  rat->Point1.X == i->point->X && rat->Point1.Y == i->point->Y)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point1, true);
       else
 	if (rat->group2 == i->group &&
 	    rat->Point2.X == i->point->X && rat->Point2.Y == i->point->Y)
-	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2);
+	CreateNewRubberbandEntry (NULL, (LineType *) rat, &rat->Point2, true);
       break;
     default:
       Message ("hace: bad rubber-rat lookup callback\n");
@@ -443,10 +444,10 @@ CheckPolygonForRubberbandConnection (LayerType *Layer,
 	  thick = (line->Thickness + 1) / 2;
 	  if (IsPointInPolygon (line->Point1.X, line->Point1.Y,
 				thick, Polygon))
-	    CreateNewRubberbandEntry (layer, line, &line->Point1);
+	    CreateNewRubberbandEntry (layer, line, &line->Point1, true);
 	  if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
 				thick, Polygon))
-	    CreateNewRubberbandEntry (layer, line, &line->Point2);
+	    CreateNewRubberbandEntry (layer, line, &line->Point2, true);
 	}
 	END_LOOP;
       }

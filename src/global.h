@@ -656,6 +656,7 @@ typedef struct
   LayerType *Layer; /*!< Layer that holds the line. */
   LineType *Line; /*!< The line itself. */
   PointType *MovedPoint; /*!< And finally the point. */
+  bool endpoint; /*!< Whether this line is at a terminus of the line being moved */
 } RubberbandType;
 
 /*!
