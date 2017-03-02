@@ -453,16 +453,19 @@ node_add_single_point (VNODE * a, Vector p)
   return new_node;
 }				/* node_add_point */
 
+#if 1
 static void
 cvc_list_dump (CVCList *list)
 {
   VNODE *node = list->parent;
   CVCList *iter;
+  int count = 0;
 
   pcb_fprintf (stderr, "Dumping CVC list at (%$mn, %$mn)\n", node->point[0], node->point[1]);
 
   iter = list;
   do {
+    count ++;
     pcb_fprintf (stderr, "angle = %.30e, poly = %c, side = %c, (%mn, %mn)-(%mn, %mn), Vertices: %p-%p Edge: %p\n",
                  iter->angle,
                  iter->poly,
@@ -475,7 +478,11 @@ cvc_list_dump (CVCList *list)
                  EDGE_FORWARD_VERTEX  (VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side)),
                  VERTEX_SIDE_DIR_EDGE (iter->parent, iter->side));
   } while ((iter = iter->next) != list);
+
+  if ((count & 1) != 0)
+    g_error ("Ended up with odd number of entries in CVC list");
 }
+#endif
 
 /*!
  * \brief edge_label.
@@ -573,7 +580,7 @@ edge_label (VNODE * pn, int existing_label)
        */
       if (!(l->poly != this_poly))
         {
-          g_warning ("Wrapped around entire CVCList without finding any edges from the other polygon");
+          g_info ("Wrapped around entire CVCList without finding any edges from the other polygon");
           /* This is now an expected condition for some cases where we deleted hairline edge pairs */
           region = existing_label;
           LABEL_EDGE (pn, region);
@@ -1293,6 +1300,7 @@ label_contour (PLINE * a)
       LABEL_EDGE (cure, label);
     }
   while ((cure = NEXT_EDGE (cure)) != first_labelled);
+#warning The above loop could run forever if we encounter a contour where the only intersection gets nuked due to shared edges
 #ifdef DEBUG_ALL_LABELS
   print_labels (a);
   DEBUGP ("\n\n");
@@ -2515,8 +2523,13 @@ add_dummy_descriptors_at_point (Vector point, PLINE * pl, char poly, CVCList * l
 static void
 remove_cvc_list_entry (CVCList *l)
 {
+  bool last = false;
+
   if (l == NULL)
     return;
+
+//  fprintf (stderr, "Removing node from CVC list..\nBEFORE:\n");
+  //cvc_list_dump (l);
 
   /* XXX: What about when we remove the last edge - e.g. likely
    *      inthe case of a dummy entry with connection degree 1.
@@ -2524,7 +2537,9 @@ remove_cvc_list_entry (CVCList *l)
 
   if (l->prev == l || l->next == l) /* XXX: Are these conditions equivalent for the last in list case? */
     {
-//      g_critical ("Removing last node in circular CVC list..");
+      last = true;
+//      fprintf (stderr, "EMPTY AFTERWARDS\n");
+      g_critical ("Removing last node in circular CVC list..");
     }
 
   {
@@ -2552,6 +2567,29 @@ remove_cvc_list_entry (CVCList *l)
    */
   l->parent = NULL;
 //  free (l);
+
+  if (!last)
+    {
+//      fprintf (stderr, "AFTERWARDS:\n");
+//      cvc_list_dump (l->prev);
+    }
+}
+
+static CVCList *
+next_cvc_from_same_poly (CVCList *start)
+{
+  CVCList *n;
+
+  n = start->next;
+
+  /* Find the next edge from the same polygon */
+  while (n->poly != start->poly && n != start)
+    n = n->next;
+
+//  if (n == start)
+//    return NULL;
+
+  return n;
 }
 
 /* NOTE: If any contour is split into multiple pieces due to hairline edge pairs
@@ -2566,31 +2604,46 @@ static void
 PLINE_check_hairline_edges (PLINE *contour)
 {
   VNODE *v;
-  CVCList *l, *first_l, *n, *nn;
+  CVCList *l, *first_l, /**new_first_l,*/*n, *nn;
   int test_count;
+  bool terminate_after_this_iteration;
 
-  /* Lets just try this for now */
-  if (poly_ChkContour (contour))
-    g_critical ("Wonky contour - oops\n");
+//  /* Lets just try this for now */
+//  if (poly_ChkContour (contour))
+//    g_critical ("Wonky contour - oops\n");
 
   /* Scan the PLINE and check for naughty shared edge segments */
   v = &contour->head;
   do
     {
-      if (v->cvc_prev == NULL)
+      if (v->cvc_prev == NULL &&
+          v->cvc_next == NULL) /* Careful, these can be NULL independantly now! */
         continue;
 
-      if (v->cvc_prev->parent == NULL)
+#if 0
+      if (v->cvc_prev != NULL && v->cvc_prev->parent == NULL &&
+          v->cvc_next != NULL && v->cvc_next->parent == NULL)
         {
           g_critical ("Skipping zombie vertex we left behind");
           continue;
         }
+#endif
 
 //      fprintf (stderr, "Vertex is cross connected, checking for hairline edge pairs\n");
 
-      first_l = v->cvc_prev;
+      /* Just pick one which isn't NULL, doesn't matter where we start
+       * circling the CVCList, as long as we start from a descriptor
+       * belonging to this polygon
+       */
+      if (v->cvc_prev != NULL)
+        first_l = v->cvc_prev;
+      else
+        first_l = v->cvc_next;
 
-//      cvc_list_dump (first_l);
+#if 0
+      fprintf (stderr, "Iteration begins with CVCList:\n");
+      cvc_list_dump (first_l);
+#endif
 
       test_count = 0;
       l = first_l;
@@ -2598,63 +2651,69 @@ PLINE_check_hairline_edges (PLINE *contour)
         {
           n = l->next;
 
+#if 0
+          if (l->parent == NULL) /* Deleted node we were too lazy to remove during this early development phase */
+            continue;
+#endif
+
           /* Skip edges from the other polygon */
           if (l->poly != first_l->poly)
             continue;
 
           /* Find the next edge from this polygon */
-          while (n->poly != first_l->poly && n != first_l)
+          while ((n->poly != first_l->poly /* || n->parent == NULL*/) && n != first_l)
             n = n->next;
 
           /* Skip testing if we wrapped around, and only had one pair to test */
           if (n == first_l && test_count == 1)
             break;
 
+          /* Not sure why we get this, but apparently we can! */
+          if (n == l)
+            {
+              g_warning ("Wrapped around and found ourselves in the CVCList.. not quite sure how we managed that\n"
+                         "Did we perhaps delete the start descriptor?");
+
+              cvc_list_dump (n);
+              break;
+            }
+#if 0
+          if (n->parent == NULL) /* Wrap-around to a node we deleted */
+            break;
+#endif
+
+          g_assert (l->parent != NULL);
+          g_assert (n->parent != NULL);
+
+          g_assert (l->poly == first_l->poly);
+          g_assert (n->poly == first_l->poly);
+
           /* Check for hairline pairs of edges in the CVCList, they may be sorted in incorrect order,
            * and would thus mislead as to whether we are inside or outside a given contour. It is a
            * bug if such edges are present, so test for it here where we may detect it. We compare
            * l->prev and l, as we know both are still in this_poly.. l->next may not be.
            */
-
-          g_assert (l->poly == first_l->poly);
-          g_assert (n->poly == first_l->poly);
 //              fprintf (stderr, "Checking CVCNode %p against %p. (Angles %f and %f)\n", l, n, l->angle, n->angle);
           if (compare_cvc_nodes (l, n) == 0)
             {
               VNODE *l_otherend = EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side);
               VNODE *n_otherend = EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (n->parent, n->side), n->side);
 
+              g_assert (l != n);
+
               if (vect_equal (l_otherend->point, n_otherend->point))
                 {
-                  g_warning ("Check found hairline edge pair");
+//                  g_warning ("Check found hairline edge pair");
 
                   if (vect_equal (l->parent->point, l_otherend->point))
                     g_error ("Edges are zero length");
 
-                  /* TODO: Remove the two offending edges, stitching up the contour as necessary, and
-                   *       potentially inserting the isolated contour piece into our list of other
-                   *       contours to scan. Remove the CVC status and entries if for whatever reason
-                   *       removing this edge leaves the node without being cross-connected. (Or does it matter?)
-                   *       Probably need to take care of removing the CVC status if we remove its last edge!
-                   */
-
-                  // XXX: Check if incoming and outgoing edges from hairline pair are linked by forward and next?
-                  // XXX: What if they are not? - Can this happen?
-                  // XXX: 
-                  // XXX: 
-                  // XXX: Note that the hairline edge pairs might well be sorted out of order.. need to explicitly get the incoming and outgoing??
-                  // Set incoming edge of outgoing hairline edge to point next at outgoing edge of incoming hairline edge.
-                  // XXX: Assert that the other end of our hairline edge pair is also CVC connected? -- NO, IT MIGHT NOT BE! CVC only applies for A-B vertex touching
-                  // Find other ends of hairline edge pair, and interconnect their from/to vertices (?)
-                  // Delete hairline edges
-                  // Delete any CVC entries associated with them
-                  // Delete the CVC node if it is empty. (Can probably allow a CVC node to have just one polygon present, IFF we update the labeling code to not assert
-
-                  /* TODO: Ensure that our shared edges land on a cross-connected vertex (even if it is just a dummy that only touches our polygon) */
+                  g_assert (l->parent != NULL);
+                  g_assert (n->parent != NULL);
 
                   /* Simple approach - just mark the edges as visited, so we don't traverse them!
                    * Doing it this way ensures that both pieces of the contour are reachable if
-                   * the hairline edge pair splits this PLINE into two pieces. Since we ensured
+                   * the hairline edge pair splits this PLINE into two pieces. Since we will ensure
                    * that both ends of the edges land on a cross-connected vertex, we should
                    * successfully skip over the pre-marked gap in the contour.
                    */
@@ -2680,17 +2739,46 @@ PLINE_check_hairline_edges (PLINE *contour)
                    */
                   nn = n->next;
                   /* Find the next edge from this polygon */
-                  while (nn->poly != first_l->poly && nn != first_l)
+                  //while (nn->poly != first_l->poly && nn != first_l)
+                  while ((nn->poly != first_l->poly || nn->parent == NULL) && nn != first_l)
                     nn = nn->next;
 
-                  remove_cvc_list_entry ((l->side == 'P') ? l->parent->cvc_prev : l->parent->cvc_next);
-                  remove_cvc_list_entry ((n->side == 'P') ? n->parent->cvc_prev : n->parent->cvc_next);
+                  g_assert (l->parent != NULL);
+//                  g_warn_if_fail (l != first_l);
+                  if (l == first_l)
+                    {
+                      first_l = next_cvc_from_same_poly (first_l);
+                      if (l == first_l)
+                        terminate_after_this_iteration = true;
+                    }
+                  g_warn_if_fail (l != NULL);
+                  remove_cvc_list_entry (l);
+                  g_assert (n->parent != NULL);
+//                  g_warn_if_fail (n != first_l);
+                  if (n == first_l)
+                    {
+                      terminate_after_this_iteration = true;
+#if 0
+                      /* Find the next edge from this polygon */
+                      new_first_l = first_l->next;
+                      while ((new_first_l->poly != first_l->poly) && new_first_l != first_l)
+                        new_first_l = new_first_l->next;
+                      if (new_first_l == first_l)
+                        new_first_l = NULL;
+                    }
+                  else
+                    {
+                      new_first_l = first_l;
+#endif
+                    }
+                  g_warn_if_fail (n != NULL);
+                  remove_cvc_list_entry (n);
 
                   n = nn;
+//                  first_l = new_first_l;
 
-                  /* Skip testing if we wrapped around */
-                  if (n == first_l)
-                    break;
+//                  if (first_l == NULL)
+//                    break;
 
                 }
               else
@@ -2704,10 +2792,80 @@ PLINE_check_hairline_edges (PLINE *contour)
                   // XXX: What if we delete the last cross-connected vertex?? Probably the labelling code fails, as it won't know if the
                   //      contours are entirely INSIDE / OUTSIDE eachother.... may require fix-up later on in the process, as the
                   //      conntours are actually no longer interected.
+
+#warning THIS IS ALMOST CERTAINLY VERY VERY WRONG
+
+                  if (vect_equal (l->parent->point, l_otherend->point))
+                    g_error ("Edges are zero length");
+
+                  g_assert (l->parent != NULL);
+                  g_assert (n->parent != NULL);
+
+//                  VERTEX_SIDE_DIR_EDGE (l->parent, l->side)->Flags.mark = true;
+//                  VERTEX_SIDE_DIR_EDGE (n->parent, n->side)->Flags.mark = true;
+
+#warning FOR SOME REASON THIS ENDS UP GIVING ODD-NUMBERS OF DESCRIPTORS IN THE CVCLIST - PROBABLY BECAUSE WE DONT ADD THE MARKED EDGES..
+#warning THIS IS ALMOST CERTAINLY VERY VERY WRONG, UNLESS WE ACTUALLY PERFORM THE INTERSECTION TO INSERT AN ADDITIONAL VERTEX IN THE APPROPRIATE EDGE
+                  add_dummy_descriptors_at_point (l_otherend->point, contour, first_l->poly, l); /* Picking 'l' for an arbitrary start CVCList */
+                  add_dummy_descriptors_at_point (n_otherend->point, contour, first_l->poly, l); /* Picking 'l' for an arbitrary start CVCList */
+
+                  /* NOTE: 'P' at this node means 'N' at otherend */
+//                  remove_cvc_list_entry ((l->side == 'P') ? l_otherend->cvc_next : l_otherend->cvc_prev);
+//                  remove_cvc_list_entry ((n->side == 'P') ? n_otherend->cvc_next : n_otherend->cvc_prev);
+
+                  nn = n->next;
+                  /* Find the next edge from this polygon */
+                  while (nn->poly != first_l->poly && nn != first_l)
+                    nn = nn->next;
+
+                  g_assert (l->parent != NULL);
+//                  g_warn_if_fail (l != first_l);
+                  if (l == first_l)
+                    {
+                      first_l = next_cvc_from_same_poly (first_l);
+                      if (l == first_l)
+                        terminate_after_this_iteration = true;
+                    }
+                  g_warn_if_fail (l != NULL);
+                  remove_cvc_list_entry (l);
+                  g_assert (n->parent != NULL);
+//                  g_warn_if_fail (n != first_l);
+                  if (n == first_l)
+                    {
+                      terminate_after_this_iteration = true;
+#if 0
+                      /* Find the next edge from this polygon */
+                      new_first_l = first_l->next;
+                      while ((new_first_l->poly != first_l->poly) && new_first_l != first_l)
+                        new_first_l = new_first_l->next;
+                      if (new_first_l == first_l)
+                        new_first_l = NULL;
+                    }
+                  else
+                    {
+                      new_first_l = first_l;
+#endif
+                    }
+                  g_warn_if_fail (n != NULL);
+                  remove_cvc_list_entry (n);
+
+                  n = nn;
+//                  first_l = new_first_l;
+
+#if 0
+                  if (first_l == NULL)
+                    break;
+#endif
                 }
             }
 
           test_count++;
+
+//          if (n->parent == NULL) /* Wrap-around to a node we deleted */
+//            break;
+
+          if (terminate_after_this_iteration)
+            break;
 
           /* Stop if we wrapped around to the end of the list */
           if (n == first_l)
@@ -2866,6 +3024,8 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 
 //      fprintf (stderr, "Checking B intersected contours\n");
       M_POLYAREA_check_hairline_edges (b);
+
+      M_POLYAREA_check_hairline_edges (a);
 
       /* We could speed things up a lot here if we only processed the relevant contours */
       /* NB: Relevant parts of a are labeled below */
