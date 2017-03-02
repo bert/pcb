@@ -118,8 +118,8 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 
 #define TOUCHES 99
 
-#define NODE_LABEL(n)  ((n)->Flags.status)
-#define LABEL_NODE(n,l) ((n)->Flags.status = (l))
+#define EDGE_LABEL(e)  ((e)->Flags.status)
+#define LABEL_EDGE(e,l) ((e)->Flags.status = (l))
 
 #define error(code)  longjmp(*(e), code)
 
@@ -407,12 +407,12 @@ node_add_single_point (VNODE * a, Vector p)
 }				/* node_add_point */
 
 /*!
- * \brief node_label.
+ * \brief edge_label.
  *
  * (C) 2006 harry eaton.
  */
 static unsigned int
-node_label (VNODE * pn)
+edge_label (VNODE * pn)
 {
   CVCList *first_l, *l;
   char this_poly;
@@ -478,12 +478,12 @@ node_label (VNODE * pn)
 	}
     }
   assert (region != UNKNWN);
-  assert (NODE_LABEL (pn) == UNKNWN || NODE_LABEL (pn) == region);
-  LABEL_NODE (pn, region);
+  assert (EDGE_LABEL (pn) == UNKNWN || EDGE_LABEL (pn) == region);
+  LABEL_EDGE (pn, region);
   if (region == SHARED || region == SHARED2)
     return UNKNWN;
   return region;
-}				/* node_label */
+}				/* edge_label */
 
 /*!
  * \brief add_descriptors.
@@ -1080,7 +1080,7 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst, BOOLp test)
 #ifdef DEBUG
 
 static char *
-theState (VNODE * v)
+theState (VNODE * e)
 {
   static char u[] = "UNKNOWN";
   static char i[] = "INSIDE";
@@ -1088,7 +1088,7 @@ theState (VNODE * v)
   static char s[] = "SHARED";
   static char s2[] = "SHARED2";
 
-  switch (NODE_LABEL (v))
+  switch (EDGE_LABEL (e))
     {
     case INSIDE:
       return i;
@@ -1140,7 +1140,7 @@ label_contour (PLINE * a)
     {
       if (cur->cvc_next)	/* examine cross vertex */
 	{
-	  label = node_label (cur);
+	  label = edge_label (cur);
 	  if (first_labelled == NULL)
 	    first_labelled = cur;
 	  continue;
@@ -1151,7 +1151,7 @@ label_contour (PLINE * a)
 
       /* This labels nodes which aren't cross-connected */
       assert (label == INSIDE || label == OUTSIDE);
-      LABEL_NODE (cur, label);
+      LABEL_EDGE (cur, label);
     }
   while ((cur = cur->next) != first_labelled);
 #ifdef DEBUG_ALL_LABELS
