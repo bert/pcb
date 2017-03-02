@@ -308,6 +308,24 @@ new_descriptor (VNODE * a, char poly, char side)
 }
 
 /*!
+ * \brief Compare the edge angles (and curvatures) to determine
+ * the ordering of two edges around a vertex.
+ *
+ * Returns <0 (ie -1) for a < b
+ * Returns =0         for a = b
+ * Returns >1 (ie +1) for a > b
+ */
+static int compare_cvc_nodes (CVCList *a, CVCList *b)
+{
+  if (a->angle < b->angle)
+    return -1;
+  else if (a->angle > b->angle)
+    return 1;
+  else
+    return 0;
+}
+
+/*!
  * \brief insert_descriptor.
  *
  * (C) 2006 harry eaton.
@@ -363,12 +381,13 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
   l = big = small = start;
   do
     {
-      if (l->next->angle < l->angle)	/* find start/end of list */
+      if (compare_cvc_nodes (l->next, l) < 0)
 	{
 	  small = l->next;
 	  big = l;
 	}
-      else if (newone->angle >= l->angle && newone->angle <= l->next->angle)
+      else if (compare_cvc_nodes (newone, l) >= 0 &&
+               compare_cvc_nodes (newone, l->next) <= 0)
 	{
 	  /* insert new cvc if it lies between existing points */
 	  newone->prev = l;
@@ -379,6 +398,11 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
     }
   while ((l = l->next) != start);
   /* didn't find it between points, it must go on an end */
+
+#if 0
+  /* XXX: DUH.. BOTH OF THESE CODE-PATHS BELOW ARE EQUIVELANT.. INSERT AFTER big, or BEFORE small.
+   *      The list rolls around, so big->next == small.
+   */
   if (big->angle <= newone->angle)
     {
       newone->prev = big;
@@ -387,6 +411,7 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
       return newone;
     }
   assert (small->angle >= newone->angle);
+#endif
   newone->next = small;
   newone->prev = small->prev;
   small->prev = small->prev->next = newone;
@@ -429,86 +454,98 @@ node_add_single_point (VNODE * a, Vector p)
  *
  * (C) 2006 harry eaton.
  *
- * pn is considered an edge (?)
+ * (C) 2016 Peter Clifton
+ *
+ * pn is considered an edge
  */
 static unsigned int
 edge_label (VNODE * pn)
 {
   CVCList *first_l, *l;
   char this_poly;
-  int region = UNKNWN;
+  int region;
+  bool shared_edge_case = false;
 
-  assert (pn);
-  assert (pn->cvc_next);
-  this_poly = pn->cvc_next->poly;
   /* search counter-clockwise in the cross vertex connectivity (CVC) list
    *
    * check for shared edges (that could be prev or next in the list since the angles are equal)
    * and check if this edge (pn -> pn->next) is found between the other poly's entry and exit
    */
 
-  if (pn->cvc_next->angle == pn->cvc_next->prev->angle)
-    l = pn->cvc_next->prev;
+  /* Start with l pointing to the CVCNode corresponding to this edge leaving its from vertex */
+  assert (pn);
+  l = EDGE_BACKWARD_VERTEX (pn)->cvc_next;
+
+  assert (l);
+  this_poly = l->poly;
+
+  /* Shared edges can be sorted in either order, so need to check l->prev as well */
+  if (compare_cvc_nodes (l, l->prev) == 0)
+    {
+      shared_edge_case = true;
+      l = l->prev;
+    }
   else
-    l = pn->cvc_next;
-
-  first_l = l;
-  while ((l->poly == this_poly) && (l != first_l->prev))
     {
+      if (compare_cvc_nodes (l, l->next) == 0)
+        shared_edge_case = true;
+
+      /* Both the shared with next, or general non-shared cases need l = l->next */
       l = l->next;
+    }
 
-      /* Skip over hairline pairs of edges from the other polygon, as they are not necessarily
-       * sorted in the correct order, and thus can mislead as to whether we are inside or outside
+  if (shared_edge_case)
+    {
+      /* Should be the shared edge case.. but we will make a few checks to be sure! */
+
+      /* If this fires, we found a hairline edge pair within our own polygon, as no edge
+       * from the same polygon should compare identically in the CVCList
        */
-      if (l->poly == l->next->poly &&
-          l->side != l->next->side && /* <-- PCJC: Not sure if this is required, including for sanity */
-          l->angle == l->next->angle)
-        l = l->next->next;
-    }
-  assert (l->poly != this_poly);
+      assert (l->poly != this_poly);
 
-  assert (l && l->angle >= 0 && l->angle <= 4.0);
-  if (l->poly != this_poly)
-    {
-      if (l->side == 'P')
-	{
-	  if (EDGE_BACKWARD_VERTEX (VERTEX_BACKWARD_EDGE (l->parent))->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
-	      EDGE_BACKWARD_VERTEX (VERTEX_BACKWARD_EDGE (l->parent))->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1])
-	    {
-	      region = SHARED2;
-	      pn->shared = VERTEX_BACKWARD_EDGE (l->parent);
-	    }
-	  else
-	    region = INSIDE;
-	}
-      else
-	{
-	  if (l->angle == pn->cvc_next->angle)
-	    {
-	      assert (EDGE_FORWARD_VERTEX (VERTEX_FORWARD_EDGE (l->parent))->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
-	              EDGE_FORWARD_VERTEX (VERTEX_FORWARD_EDGE (l->parent))->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1]);
-	      region = SHARED;
-	      pn->shared = VERTEX_FORWARD_EDGE (l->parent);
-	    }
-	  else
-	    region = OUTSIDE;
-	}
+      /* If this fires, we found two geometrically distinct edges which for some reason compare as equal in our cvc_list.
+       * Shared edges should be geometrically identical (but may be in opposite directions).
+       */
+      assert (EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[0] == EDGE_FORWARD_VERTEX (pn)->point[0] &&
+              EDGE_SIDE_DIR_VERTEX (VERTEX_SIDE_DIR_EDGE (l->parent, l->side), l->side)->point[1] == EDGE_FORWARD_VERTEX (pn)->point[1]);
+
+      /* SHARED is the same direction case,
+       * SHARED2 is the opposite direction case.
+       */
+      region = (l->side == 'P') ? SHARED2 : SHARED;
+      pn->shared = VERTEX_SIDE_DIR_EDGE (l->parent, l->side);
     }
-  if (region == UNKNWN)
+  else
     {
-      for (l = l->next; l != pn->cvc_next; l = l->next)
-	{
-	  if (l->poly != this_poly)
-	    {
-	      if (l->side == 'P')
-		region = INSIDE;
-	      else
-		region = OUTSIDE;
-	      break;
-	    }
-	}
+      first_l = l;
+      /* Skip edges unil we find one from the next polygon */
+      while ((l->poly == this_poly) && (l != first_l->prev))
+        {
+          /* Check for hairline pairs of edges in the CVCList, they may be sorted in incorrect order,
+           * and would thus mislead as to whether we are inside or outside a given contour. It is a
+           * bug if such edges are present, so test for it here where we may detect it. We compare
+           * l->prev and l, as we know both are still in this_poly.. l->next may not be.
+           */
+          assert (compare_cvc_nodes (l->prev, l) != 0);
+
+          l = l->next;
+        }
+
+      /* If this fires, we must have wrapped around the entire CVCList wihthout finding any edges from
+       * the other polygon.
+       */
+      assert (l->poly != this_poly);
+
+      /* Check the other polygon edge we landed on in the CVCList is not a hairline edge pair
+       * from the same polygon. If so, they may be sorted in incorrect order and would thus
+       * mislead as to whether we are inside or outside that contour. It is a bug if such edges
+       * are present.
+       */
+      assert (l->poly != l->next->poly || compare_cvc_nodes (l, l->next) != 0);
+
+      region = (l->side == 'P') ? INSIDE : OUTSIDE;
     }
-  assert (region != UNKNWN);
+
   assert (EDGE_LABEL (pn) == UNKNWN || EDGE_LABEL (pn) == region);
   LABEL_EDGE (pn, region);
   if (region == SHARED || region == SHARED2)
