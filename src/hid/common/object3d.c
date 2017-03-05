@@ -33,7 +33,7 @@
 #include "hid/hidint.h"
 
 #define PERFECT_ROUND_CONTOURS
-#define SUM_PINS_VIAS_ONCE
+#undef SUM_PINS_VIAS_ONCE /* Cannot do this for BB Vias, each inter-layer is unique */
 #define HASH_OBJECTS
 
 #define REVERSED_PCB_CONTOURS 1 /* PCB Contours are reversed from the expected CCW for outer ordering - once the Y-coordinate flip is taken into account */
@@ -906,46 +906,6 @@ pv_mask_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-#if 1
-static int
-pv_drill_callback (const BoxType * b, void *cl)
-{
-  PinType *pv = (PinType *)b;
-  struct mask_info *info = cl;
-  POLYAREA *np, *res;
-
-  if (TEST_FLAG (HOLEFLAG, pv))
-    return 0;
-
-  if (!(np = CirclePoly (pv->X, pv->Y, (pv->DrillingHole + 1) / 2, NULL)))
-    return 0;
-
-  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
-  info->poly = res;
-
-  return 1;
-}
-#endif
-
-static int
-pv_barrel_callback (const BoxType * b, void *cl)
-{
-  PinType *pv = (PinType *)b;
-  struct mask_info *info = cl;
-  POLYAREA *np, *res;
-
-  if (TEST_FLAG (HOLEFLAG, pv))
-    return 0;
-
-  if (!(np = CirclePoly (pv->X, pv->Y, (pv->DrillingHole + HACK_PLATED_BARREL_THICKNESS + 1) / 2, NULL)))
-    return 0;
-
-  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
-  info->poly = res;
-
-  return 1;
-}
-
 
 GList *
 object3d_from_soldermask_within_area (POLYAREA *area, int side)
@@ -1093,14 +1053,118 @@ compute_depth (int group)
 
 struct copper_info {
   POLYAREA *poly;
+  int from_layer_group;
+  int to_layer_group;
+  int current_group;
   int side;
 };
+
+
+static int
+pin_drill_callback (const BoxType * b, void *cl)
+{
+  PinType *pin = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (TEST_FLAG (HOLEFLAG, pin))
+    return 0;
+
+  if (!(np = CirclePoly (pin->X, pin->Y, (pin->DrillingHole + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+via_drill_callback (const BoxType * b, void *cl)
+{
+  PinType *via = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (TEST_FLAG (HOLEFLAG, via))
+    return 0;
+
+  if (info->from_layer_group == -1 && info->to_layer_group == -1)
+    {
+      if (!VIA_IS_BURIED (via))
+        goto via_ok;
+    }
+  else
+    {
+      if (VIA_IS_BURIED (via))
+        {
+          if (info->from_layer_group == GetLayerGroupNumberByNumber (via->BuriedFrom) &&
+              info->to_layer_group   == GetLayerGroupNumberByNumber (via->BuriedTo))
+            goto via_ok;
+        }
+    }
+
+  return 1;
+
+via_ok:
+
+  if (!(np = CirclePoly (via->X, via->Y, (via->DrillingHole + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+pin_barrel_callback (const BoxType * b, void *cl)
+{
+  PinType *pin = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (TEST_FLAG (HOLEFLAG, pin))
+    return 0;
+
+  if (!(np = CirclePoly (pin->X, pin->Y, (pin->DrillingHole + HACK_PLATED_BARREL_THICKNESS + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+via_barrel_callback (const BoxType * b, void *cl)
+{
+  PinType *via = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (TEST_FLAG (HOLEFLAG, via))
+    return 0;
+
+  if (!ViaIsOnLayerGroup (via, info->from_layer_group) ||
+      !ViaIsOnLayerGroup (via, info->to_layer_group))
+    return 0;
+
+  if (!(np = CirclePoly (via->X, via->Y, (via->DrillingHole + HACK_PLATED_BARREL_THICKNESS + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
 
 static int
 line_copper_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
-  struct mask_info *info = (struct mask_info *) cl;
+  struct copper_info *info = (struct copper_info *) cl;
   POLYAREA *np, *res;
 
   if (!(np = LinePoly (line, line->Thickness, NULL)))
@@ -1116,7 +1180,7 @@ static int
 arc_copper_callback (const BoxType * b, void *cl)
 {
   ArcType *arc = (ArcType *) b;
-  struct mask_info *info = (struct mask_info *) cl;
+  struct copper_info *info = (struct copper_info *) cl;
   POLYAREA *np, *res;
 
   if (!(np = ArcPoly (arc, arc->Thickness, NULL)))
@@ -1133,7 +1197,7 @@ static int
 text_copper_callback (const BoxType * b, void *cl)
 {
   TextType *text = (TextType *) b;
-  struct mask_info *info = (struct mask_info *) cl;
+  struct copper_info *info = (struct copper_info *) cl;
   POLYAREA *np, *res;
 
   if (!(np = TextToPoly (text, PCB->minWid)))
@@ -1149,7 +1213,7 @@ static int
 polygon_copper_callback (const BoxType * b, void *cl)
 {
   PolygonType *poly = (PolygonType *) b;
-  struct mask_info *info = (struct mask_info *) cl;
+  struct copper_info *info = (struct copper_info *) cl;
   POLYAREA *np, *res;
   POLYAREA *pa;
 
@@ -1273,20 +1337,20 @@ pad_copper_callback (const BoxType * b, void *cl)
 }
 
 static int
-pv_copper_callback (const BoxType * b, void *cl)
+pin_copper_callback (const BoxType * b, void *cl)
 {
-  PinType *pv = (PinType *)b;
+  PinType *pin = (PinType *)b;
   struct copper_info *info = cl;
   POLYAREA *np, *res;
   char *netname;
 
-  if (TEST_FLAG (HOLEFLAG, pv))
+  if (TEST_FLAG (HOLEFLAG, pin))
     return 0;
 
-  if (!(np = PinPoly (pv, PIN_SIZE (pv))))
+  if (!(np = PinPoly (pin, PIN_SIZE (pin))))
     return 0;
 
-  netname = netname_from_pin (pv);
+  netname = netname_from_pin (pin);
   if (netname != NULL)
     {
       np->contours->name = strdup (netname);
@@ -1299,18 +1363,62 @@ pv_copper_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-
 static int
-hole_sub_copper_callback (const BoxType * b, void *cl)
+via_copper_callback (const BoxType * b, void *cl)
 {
-  PinType *pv = (PinType *)b;
+  PinType *via = (PinType *)b;
   struct copper_info *info = cl;
   POLYAREA *np, *res;
 
-  if (!TEST_FLAG (HOLEFLAG, pv))
+  if (TEST_FLAG (HOLEFLAG, via))
     return 0;
 
-  if (!(np = CirclePoly (pv->X, pv->Y, (pv->DrillingHole + 1) / 2, NULL)))
+  if (!ViaIsOnLayerGroup (via, info->current_group))
+    return 0;
+
+  if (!(np = PinPoly (via, PIN_SIZE (via))))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_UNITE);
+  info->poly = res;
+
+  return 1;
+}
+
+
+static int
+pin_unplated_hole_sub_copper_callback (const BoxType * b, void *cl)
+{
+  PinType *pin = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!TEST_FLAG (HOLEFLAG, pin))
+    return 0;
+
+  if (!(np = CirclePoly (pin->X, pin->Y, (pin->DrillingHole + 1) / 2, NULL)))
+    return 0;
+
+  poly_Boolean_free (info->poly, np, &res, PBO_SUB);
+  info->poly = res;
+
+  return 1;
+}
+
+static int
+via_unplated_hole_sub_copper_callback (const BoxType * b, void *cl)
+{
+  PinType *via = (PinType *)b;
+  struct copper_info *info = cl;
+  POLYAREA *np, *res;
+
+  if (!TEST_FLAG (HOLEFLAG, via))
+    return 0;
+
+  if (!ViaIsOnLayerGroup (via, info->current_group))
+    return 0;
+
+  if (!(np = CirclePoly (via->X, via->Y, (via->DrillingHole + 1) / 2, NULL)))
     return 0;
 
   poly_Boolean_free (info->poly, np, &res, PBO_SUB);
@@ -1448,6 +1556,8 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 #ifdef HASH_OBJECTS
   GHashTable *object_hash;
 #endif
+  int g_from;
+  int g_to;
 
 //  poly_Copy0 (&info.poly, area);
 
@@ -1478,8 +1588,8 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 #ifdef SUM_PINS_VIAS_ONCE
   info.poly = NULL;
   fprintf (stderr, "Accumulating master pin + via polygon\n");
-  r_search (PCB->Data->pin_tree, &bounds, NULL, pv_copper_callback, &info);
-  r_search (PCB->Data->via_tree, &bounds, NULL, pv_copper_callback, &info);
+  r_search (PCB->Data->pin_tree, &bounds, NULL, pin_copper_callback, &info);
+  r_search (PCB->Data->via_tree, &bounds, NULL, /* Deliberate pin_-> */pin_copper_callback, &info);
   pinvia_m_polyarea = info.poly;
 #endif
 
@@ -1489,14 +1599,13 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
       Coord depth = compute_depth (group);
 
       info.poly = NULL;
+      info.current_group = group;
 
       fprintf (stderr, "Computing copper geometry for group %i\n", group);
 
-      fprintf (stderr, "Accumulating pin + via pads\n");
-
       GROUP_LOOP (PCB->Data, group);
         {
-          fprintf (stderr, "Accumulating copper from layer %i\n", GetLayerNumber (PCB->Data, layer));
+          fprintf (stderr, "  Accumulating copper from layer %i\n", GetLayerNumber (PCB->Data, layer));
 
           r_search (layer->line_tree, &bounds, NULL, line_copper_callback, &info);
           r_search (layer->arc_tree,  &bounds, NULL, arc_copper_callback, &info);
@@ -1505,24 +1614,27 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
         }
       END_LOOP;
 
+      fprintf (stderr, "  Accumulating pin + via pads\n");
+
 #ifdef SUM_PINS_VIAS_ONCE
       poly_M_Copy0 (&temp, pinvia_m_polyarea);
       poly_Boolean_free (info.poly, temp, &info.poly, PBO_UNITE);
 #else
-      r_search (PCB->Data->pin_tree, &bounds, NULL, pv_copper_callback, &info);
-      r_search (PCB->Data->via_tree, &bounds, NULL, pv_copper_callback, &info);
+      r_search (PCB->Data->pin_tree, &bounds, NULL, pin_copper_callback, &info);
+      r_search (PCB->Data->via_tree, &bounds, NULL, via_copper_callback, &info);
 #endif
 
       if (group == top_group ||
           group == bottom_group)
         {
           info.side = (group == top_group) ? TOP_SIDE : BOTTOM_SIDE;
-          fprintf (stderr, "Accumulating SMT pads for side %i\n", info.side);
+          fprintf (stderr, "  Accumulating SMT pads for side %i\n", info.side);
           r_search (PCB->Data->pad_tree, &bounds, NULL, pad_copper_callback, &info);
         }
 
-      r_search (PCB->Data->pin_tree, &bounds, NULL, hole_sub_copper_callback, &info);
-      r_search (PCB->Data->via_tree, &bounds, NULL, hole_sub_copper_callback, &info);
+      fprintf (stderr, "  Subtracting non-plated holes\n");
+      r_search (PCB->Data->pin_tree, &bounds, NULL, pin_unplated_hole_sub_copper_callback, &info);
+      r_search (PCB->Data->via_tree, &bounds, NULL, via_unplated_hole_sub_copper_callback, &info);
 
       /* TODO: Inter-layer features
        *
@@ -1533,12 +1645,12 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
        *
        * For each hole, add the via-barrel between layers... removing the Object3D
        * from the list of objects as they become joined with some other. (The final
-       * list of objects shuold match 1:1 with resultant bodies, and contain no
+       * list of objects should match 1:1 with resultant bodies, and contain no
        * duplicates.
        *
        * To accomodate overlapping drill holes, accumulate all via-barrels into a
        * polygon, and subtract that from the positive copper polygon. As we already
-       * added via-barrels to each copper layer, the each barrel extrusion contour
+       * added via-barrels to each copper layer, each barrel extrusion contour
        * should match only one body of copper on a given layer.
        *
        * Remove the drilled hole down each via by extruding the additional faces.
@@ -1598,35 +1710,11 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
   poly_Free (&pinvia_m_polyarea);
 #endif
 
-  /* Now need to punch drill-holes through the inter-layers..
-   * Ideally, we construct a polygon of drill-holes, so any overlapping are taken into account
-   */
-  info.poly = NULL;
-
-  fprintf (stderr, "Accumulating pin + via barrel outers\n");
-  r_search (PCB->Data->pin_tree, &bounds, NULL, pv_barrel_callback, &info);
-  r_search (PCB->Data->via_tree, &bounds, NULL, pv_barrel_callback, &info);
-
-  barrel_m_polyarea = info.poly;
-  poly_Simplify (barrel_m_polyarea);
-
-  info.poly = NULL;
-
-  fprintf (stderr, "Accumulating pin + via barrel drills\n");
-  r_search (PCB->Data->pin_tree, &bounds, NULL, pv_drill_callback, &info);
-  r_search (PCB->Data->via_tree, &bounds, NULL, pv_drill_callback, &info);
-
-  drill_m_polyarea = info.poly;
-  poly_Simplify (drill_m_polyarea);
-
-  info.poly = NULL;
-
   // Extrude barrel?
   // Grab top-face of barrel. Delete the face, stealing its contour.. find which top-side copper Object3D to paste in into, link it up.
-  // Grab bottom-fac of barrel. Delete the face, stealing its contour.. find which next-side copper Object3D to paste it into, link it up. (Might already be the same object as in step above.. how to find it?)
+  // Grab bottom-face of barrel. Delete the face, stealing its contour.. find which next-side copper Object3D to paste it into, link it up. (Might already be the same object as in step above.. how to find it?)
   // Repeat for each inter-layer barrel segment
   // Repeat for each contour in the accumulated barrel M_POLYAERA
-
 
   for (group = min_copper_group; group < max_copper_group; group += group_step)
     {
@@ -1634,6 +1722,19 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
       Coord bottom_depth;
       POLYAREA *pa;
       GList *barrel_objects;
+
+      info.poly = NULL;
+      info.from_layer_group = group;
+      info.to_layer_group = group + group_step;
+
+      fprintf (stderr, "Accumulating pin + via barrel outers\n");
+      r_search (PCB->Data->pin_tree, &bounds, NULL, pin_barrel_callback, &info);
+      r_search (PCB->Data->via_tree, &bounds, NULL, via_barrel_callback, &info);
+
+      barrel_m_polyarea = info.poly;
+      info.poly = NULL;
+
+      poly_Simplify (barrel_m_polyarea);
 
       /* HACK - LET US EMIT BLANK BOARDS.. SHOULD CHECK BEFORE WE START TO LOOP? */
       if (barrel_m_polyarea == NULL)
@@ -1791,116 +1892,181 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
         }
       while (pa = pa->f, pa != barrel_m_polyarea);
 
+      poly_Free (&barrel_m_polyarea);
       g_list_free (barrel_objects);
 #else
       group_objects = g_list_concat (group_objects, barrel_objects);
 #endif
     }
 
-  if (drill_m_polyarea != NULL) /* Drill holes */
-    {
-      Coord top_depth;
-      Coord bottom_depth;
-      POLYAREA *pa;
-      GList *drill_objects;
 
-      /* Extrude drill hole */
-      fprintf (stderr, "Extruding drill holes\n");
+  /* Now need to punch drill-holes through the inter-layers..
+   * We construct a polygon of drill-holes, so any overlapping are taken into account
+   */
 
-      /* Depth is the bottom? of the layer? */
-      top_depth = compute_depth (min_copper_group);
-      bottom_depth = compute_depth (max_copper_group);
 
-      drill_objects = object3d_from_contours (drill_m_polyarea,
+  /* XXX: This does not work for overlapping BB vias.. normally one wouldn't create
+   *      these, but if they are created - bad 3D objects will likely result
+   */
+
+
+  /* Test each from/to layer combination in turn */
+
+  for (g_from = min_copper_group; g_from < max_copper_group; g_from += group_step)
+    for (g_to = g_from + 1;       g_to  <= max_copper_group; g_to   += group_step)
+      {
+        int plated;
+        int unplated;
+        bool is_through_grouping = (g_from == min_copper_group && g_to == max_copper_group);
+
+        info.poly = NULL;
+
+        /* BB Vias */
+        CountHolesEx (&plated, &unplated, NULL, g_from, g_to);
+        if (plated > 0 || is_through_grouping)
+            printf ("Accumulating via drills from group %i to group %i\n", g_from, g_to);
+
+        if (plated > 0)
+          {
+            printf ("  Subtracting BB vias\n");
+
+            info.from_layer_group = g_from;
+            info.to_layer_group = g_to;
+            r_search (PCB->Data->pin_tree, &bounds, NULL, pin_drill_callback, &info);
+            r_search (PCB->Data->via_tree, &bounds, NULL, via_drill_callback, &info);
+          }
+
+        /* Through vias */
+        if (is_through_grouping)
+          {
+            CountHoles (&plated, &unplated, NULL);
+            if (plated > 0)
+              {
+                printf ("  Subtracting through vias\n");
+
+                info.from_layer_group = -1;
+                info.to_layer_group = -1;
+                r_search (PCB->Data->pin_tree, &bounds, NULL, pin_drill_callback, &info);
+                r_search (PCB->Data->via_tree, &bounds, NULL, via_drill_callback, &info);
+              }
+          }
+
+        drill_m_polyarea = info.poly;
+        info.poly = NULL;
+        poly_Simplify (drill_m_polyarea);
+
+        if (drill_m_polyarea != NULL) /* Drill holes */
+          {
+            Coord top_depth;
+            Coord bottom_depth;
+            POLYAREA *pa;
+            GList *drill_objects;
+
+            /* Extrude drill hole */
+            fprintf (stderr, "  Extruding drill holes\n");
+
+            /* Depth is the bottom? of the layer? */
+            top_depth = compute_depth (g_from);
+            bottom_depth = compute_depth (g_to);
+
+            drill_objects = object3d_from_contours (drill_m_polyarea,
 #ifdef REVERSED_PCB_CONTOURS
-                                               bottom_depth,                      /* Bottom */
-                                               top_depth + HACK_COPPER_THICKNESS, /* Top */
+                                                     bottom_depth,                      /* Bottom */
+                                                     top_depth + HACK_COPPER_THICKNESS, /* Top */
 #else
-                                              -bottom_depth - HACK_BOARD_THICKNESS / 2,                         /* Bottom */
-                                              -top_depth    - HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS, /* Top */
+                                                    -bottom_depth - HACK_BOARD_THICKNESS / 2,                         /* Bottom */
+                                                    -top_depth    - HACK_BOARD_THICKNESS / 2 - HACK_COPPER_THICKNESS, /* Top */
 #endif
-                                              copper_appearance,
-                                              NULL,  /* top_bot_appearance */
-                                              true,  /* Invert */
-                                              NULL); /* Name */
+                                                    copper_appearance,
+                                                    NULL,  /* top_bot_appearance */
+                                                    true,  /* Invert */
+                                                    NULL); /* Name */
 
-/* Connect the via drill holes in this block of code */
+      /* Connect the via drill holes in this block of code */
 #if 1
-      /* Loop over all barrel outline pieces */
-      pa = drill_m_polyarea;
-      do
-        {
-          /* For each drill hole, we want to find the Polyarea it hits on min_copper_group, and max_copper_group.. this tracks to the objects and faces we must manipulate */
-          polygon_3d_link *top_link    = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[min_copper_group] , false)->user_data;
-          polygon_3d_link *drill_link  = pa->user_data;
-          polygon_3d_link *bottom_link = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[max_copper_group] , false)->user_data;
-
-          object3d *top_group_object    = top_link->object;
-          object3d *drill_object        = drill_link->object;
-          object3d *bottom_group_object = bottom_link->object;
-
-          face3d *top_group_face    = top_link->top_face;
-          face3d *drill_top_face    = drill_link->top_face;
-          face3d *drill_bottom_face = drill_link->bottom_face;
-          face3d *bottom_group_face = bottom_link->bottom_face;
-
-          edge_ref drill_top_face_first_edge = ((contour3d *)drill_top_face->contours->data)->first_edge;
-          edge_ref drill_bottom_face_first_edge = ((contour3d *)drill_bottom_face->contours->data)->first_edge;
-          edge_ref e;
-
-          g_assert (top_group_object == bottom_group_object);
-
-          /* Do some magic to join the objects */
-
-          g_assert (g_list_length (drill_top_face->contours) == 1);
-          g_assert (g_list_length (drill_bottom_face->contours) == 1);
-
-          face3d_add_contour (top_group_face,    make_contour3d (drill_top_face_first_edge));
-          face3d_add_contour (bottom_group_face, make_contour3d (drill_bottom_face_first_edge));
-
-          /* Need to walk around the top / bottom edge contours, and re-connect with the linked up copper groups */
-
-          e = drill_top_face_first_edge;
-          do
-            {
-              /* Check and reassign the edge */
-              g_assert (LDATA (e) == drill_top_face);
-              LDATA (e) = top_group_face;
-            }
-          while ((e = LNEXT (e)) != drill_top_face_first_edge);
-
-          e = drill_bottom_face_first_edge;
-          do
-            {
-              /* Check and reassign the edge */
-              g_assert (LDATA (e) == drill_bottom_face);
-              LDATA (e) = bottom_group_face;
-            }
-          while ((e = LNEXT (e)) != drill_bottom_face_first_edge);
-
-          /* XXX: What about destroying the barrel top / bottom face appearance (if any?) */
-
-          drill_object->faces = g_list_remove (drill_object->faces, drill_top_face);
-          drill_object->faces = g_list_remove (drill_object->faces, drill_bottom_face);
-          destroy_face3d (drill_top_face);    /* This leaves the edges, vertices etc.. it only deletes the face contour list */
-          destroy_face3d (drill_bottom_face); /* This leaves the edges, vertices etc.. it only deletes the face contour list */
-          /* No vertices should be deleted */
-          /* All edges must end up in the top object, so we leave them */
-
-          /* Steal the data from the drill object */
-          steal_object_geometry (drill_object, top_group_object);
-          destroy_object3d (drill_object);
-
-          g_slice_free (polygon_3d_link, pa->user_data);
-        }
-      while (pa = pa->f, pa != drill_m_polyarea);
-
-      g_list_free (drill_objects);
-#else
-      group_objects = g_list_concat (group_objects, drill_objects);
+            /* Loop over all barrel outline pieces */
+            pa = drill_m_polyarea;
+            do
+              {
+#if 1
+                /* Quick spot check for drills not landing on copper */
+                if (cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[g_from], false) == NULL ||
+                    cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[g_to], false) == NULL)
+                  continue;
 #endif
-    }
 
+                /* For each drill hole, we want to find the Polyarea it hits on min_copper_group, and max_copper_group.. this tracks to the objects and faces we must manipulate */
+                polygon_3d_link *top_link    = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[g_from], false)->user_data;
+                polygon_3d_link *drill_link  = pa->user_data;
+                polygon_3d_link *bottom_link = cntr_in_M_POLYAREA (pa->contours, group_m_polyarea[g_to], false)->user_data;
+
+                object3d *top_group_object    = top_link->object;
+                object3d *drill_object        = drill_link->object;
+                object3d *bottom_group_object = bottom_link->object;
+
+                face3d *top_group_face    = top_link->top_face;
+                face3d *drill_top_face    = drill_link->top_face;
+                face3d *drill_bottom_face = drill_link->bottom_face;
+                face3d *bottom_group_face = bottom_link->bottom_face;
+
+                edge_ref drill_top_face_first_edge = ((contour3d *)drill_top_face->contours->data)->first_edge;
+                edge_ref drill_bottom_face_first_edge = ((contour3d *)drill_bottom_face->contours->data)->first_edge;
+                edge_ref e;
+
+                g_assert (top_group_object == bottom_group_object);
+
+                /* Do some magic to join the objects */
+
+                g_assert (g_list_length (drill_top_face->contours) == 1);
+                g_assert (g_list_length (drill_bottom_face->contours) == 1);
+
+                face3d_add_contour (top_group_face,    make_contour3d (drill_top_face_first_edge));
+                face3d_add_contour (bottom_group_face, make_contour3d (drill_bottom_face_first_edge));
+
+                /* Need to walk around the top / bottom edge contours, and re-connect with the linked up copper groups */
+
+                e = drill_top_face_first_edge;
+                do
+                  {
+                    /* Check and reassign the edge */
+                    g_assert (LDATA (e) == drill_top_face);
+                    LDATA (e) = top_group_face;
+                  }
+                while ((e = LNEXT (e)) != drill_top_face_first_edge);
+
+                e = drill_bottom_face_first_edge;
+                do
+                  {
+                    /* Check and reassign the edge */
+                    g_assert (LDATA (e) == drill_bottom_face);
+                    LDATA (e) = bottom_group_face;
+                  }
+                while ((e = LNEXT (e)) != drill_bottom_face_first_edge);
+
+                /* XXX: What about destroying the barrel top / bottom face appearance (if any?) */
+
+                drill_object->faces = g_list_remove (drill_object->faces, drill_top_face);
+                drill_object->faces = g_list_remove (drill_object->faces, drill_bottom_face);
+                destroy_face3d (drill_top_face);    /* This leaves the edges, vertices etc.. it only deletes the face contour list */
+                destroy_face3d (drill_bottom_face); /* This leaves the edges, vertices etc.. it only deletes the face contour list */
+                /* No vertices should be deleted */
+                /* All edges must end up in the top object, so we leave them */
+
+                /* Steal the data from the drill object */
+                steal_object_geometry (drill_object, top_group_object);
+                destroy_object3d (drill_object);
+
+                g_slice_free (polygon_3d_link, pa->user_data);
+              }
+            while (pa = pa->f, pa != drill_m_polyarea);
+
+            g_list_free (drill_objects);
+#else
+            group_objects = g_list_concat (group_objects, drill_objects);
+#endif
+          }
+
+      }
 
 //  destroy_appearance (copper_appearance); /* XXX: HANGING ON TO THIS FOR NOW */
 
@@ -1913,9 +2079,8 @@ object3d_from_copper_layers_within_area (POLYAREA *area)
 //  ((PolygonType *)PCB->Data->Layer[1].Polygon->data)->Clipped = info.poly;
 //  gui->invalidate_all ();
 
-  poly_Free (&info.poly);
+//  poly_Free (&info.poly);
 
-  poly_Free (&barrel_m_polyarea);
   poly_Free (&drill_m_polyarea);
 
   for (group = min_copper_group; group <= max_copper_group; group += group_step)
