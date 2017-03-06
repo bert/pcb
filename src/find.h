@@ -62,5 +62,6 @@ void InitConnectionLookup (void);
 void FreeConnectionLookupMemory (void);
 void RatFindHook (int, void *, void *, void *, bool, int flag, bool);
 int DRCAll (void);
+void UpdateLineNetnames (void);
 
 #endif

@@ -657,7 +657,7 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
                *     of 1/2 because some stupid reason we render our glyphs
                *     at half their defined stroke-width.
                */
-               Coord unscaled_radius = MAX (min_unscaled_radius, line->Thickness / 4);
+               Coord unscaled_radius = 0; //MAX (min_unscaled_radius, line->Thickness / 4);
 
               if (first_time)
                 {
@@ -676,6 +676,7 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
               maxy = MAX (maxy, line->Point2.Y + unscaled_radius);
             }
           space = symbol[*s].Delta;
+          tx += symbol[*s].Width + space;
         }
       else
         {
@@ -692,8 +693,8 @@ SetTextBoundingBox (FontType *FontPtr, TextType *Text)
           maxy = MAX (maxy, ds->Y2);
 
           space = w / 5;
+          tx += w + space;
         }
-      tx += symbol[*s].Width + space;
     }
 
   /* scale values */

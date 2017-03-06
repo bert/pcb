@@ -148,6 +148,7 @@ DestroyLine (LayerType *Layer, LineType *Line)
 {
   r_delete_entry (Layer->line_tree, (BoxType *) Line);
   free (Line->Number);
+  free (Line->netname);
 
   Layer->Line = g_list_remove (Layer->Line, Line);
   Layer->LineN --;

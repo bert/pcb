@@ -290,7 +290,7 @@ static bool LookupLOConnectionsToArc (ArcType *, Cardinal, int, bool);
 static bool LookupLOConnectionsToRatEnd (PointType *, Cardinal, int);
 static bool IsRatPointOnLineEnd (PointType *, LineType *);
 static bool ArcArcIntersect (ArcType *, ArcType *);
-static bool PrepareNextLoop (FILE *);
+static bool PrepareNextLoop (void);
 static void DrawNewConnections (void);
 static void DumpList (void);
 static void LocateError (Coord *, Coord *);
@@ -2793,7 +2793,7 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
               }
 
             /* reset found objects for the next pin */
-            if (PrepareNextLoop (FP))
+            if (PrepareNextLoop ())
               return (true);
           }
       }
@@ -2837,7 +2837,7 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
           }
 
         /* reset found objects for the next pin */
-        if (PrepareNextLoop (FP))
+        if (PrepareNextLoop ())
           return (true);
       }
   }
@@ -2856,7 +2856,7 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
  * \brief Resets some flags for looking up the next pin/pad.
  */
 static bool
-PrepareNextLoop (FILE * FP)
+PrepareNextLoop (void)
 {
   Cardinal layer;
 
@@ -2909,7 +2909,7 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
     PrintPadConnections (TOP_SIDE, FP, false);
     PrintPadConnections (BOTTOM_SIDE, FP, false);
     fputs ("\t}\n", FP);
-    if (PrepareNextLoop (FP))
+    if (PrepareNextLoop ())
       return (true);
   }
   END_LOOP;
@@ -2936,7 +2936,7 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
                          FP, false);
     PrintPinConnections (FP, false);
     fputs ("\t}\n", FP);
-    if (PrepareNextLoop (FP))
+    if (PrepareNextLoop ())
       return (true);
   }
   END_LOOP;
@@ -4337,4 +4337,153 @@ FreeConnectionLookupMemory (void)
 {
   FreeComponentLookupMemory ();
   FreeLayoutLookupMemory ();
+}
+
+/* XXX: Kludge, duplicated from netclass.c */
+static char *
+g_strdup_netname_for_pinpad (int type, ElementType *ele, void *pinpad)
+{
+  char *pinname;
+  char *netname = NULL;
+
+  pinname = ConnectionName (type, ele, pinpad);
+
+  if (pinname == NULL)
+    return NULL;
+
+  /* Find netlist entry */
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    if (!menu->Name)
+    continue;
+
+    ENTRY_LOOP (menu);
+    {
+      if (!entry->ListEntry)
+        continue;
+
+      if (strcmp (entry->ListEntry, pinname) == 0) {
+        netname = g_strdup (menu->Name);
+        /* For some reason, the netname has spaces in front of it, strip them */
+        g_strstrip (netname);
+        break;
+      }
+    }
+    END_LOOP;
+
+    if (netname != NULL)
+      break;
+  }
+  END_LOOP;
+
+  return netname;
+}
+
+
+static void
+set_netnames (char *new_netname)
+{
+  int layer_no;
+  int i;
+
+  for (layer_no = 0; layer_no < max_copper_layer; layer_no++)
+    for (i = 0; i < LineList[layer_no].Number; i++)
+      {
+        LineType *line = LINELIST_ENTRY (layer_no, i);
+
+        free (line->netname);
+        line->netname = (new_netname == NULL) ? NULL : strdup (new_netname);
+      }
+
+  for (i = 0; i < RatList.Number; i++)
+    {
+      RatType *rat = RATLIST_ENTRY (i);
+
+      free (rat->netname);
+      rat->netname = (new_netname == NULL) ? NULL : strdup (new_netname);
+    }
+}
+
+/*!
+ * \brief Finds all connections to the pins of the passed element.
+ *
+ * The result is written to file FP.
+ *
+ * \return true if operation was aborted.
+ */
+static bool
+UpdateNetnamesElementConnections (ElementType *Element, int flag, bool AndDraw)
+{
+  char *netname;
+
+  /* check all pins in element */
+  PIN_LOOP (Element);
+  {
+    /* pin might have been checked before, add to list if not */
+    if (TEST_FLAG (flag, pin))
+      continue;
+
+    netname = g_strdup_netname_for_pinpad (PIN_TYPE, Element, pin);
+    printf ("Found netname %s\n", netname);
+
+    if (ADD_PV_TO_LIST (pin, flag))
+      return true;
+    DoIt (flag, true, AndDraw);
+
+    /* Walk over everything we found, and add set netnames */
+    set_netnames (netname);
+    g_free (netname);
+
+    if (PrepareNextLoop ())
+      return true;
+  }
+  END_LOOP;
+
+  /* check all pads in element */
+  PAD_LOOP (Element);
+  {
+    Cardinal layer;
+
+    /* pad might have been checked before, add to list if not */
+    if (TEST_FLAG (flag, pad))
+      continue;
+
+    netname = g_strdup_netname_for_pinpad (PAD_TYPE, Element, pad);
+    printf ("Found netname %s\n", netname);
+
+    layer = TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE;
+    if (ADD_PAD_TO_LIST (layer, pad, flag))
+      return true;
+    DoIt (flag, true, AndDraw);
+
+    /* Walk over everything we found, and add set netnames */
+    set_netnames (netname);
+    g_free (netname);
+
+    if (PrepareNextLoop ())
+      return true;
+  }
+  END_LOOP;
+  return false;
+}
+
+void
+UpdateLineNetnames (void)
+{
+  /* reset all currently marked connections */
+  User = false;
+  ClearFlagOnAllObjects (false, FOUNDFLAG, false);
+  InitConnectionLookup ();
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    /* break if abort dialog returned true */
+    if (UpdateNetnamesElementConnections (element, FOUNDFLAG, false))
+      break;
+  }
+  END_LOOP;
+  ClearFlagOnAllObjects (false, FOUNDFLAG, false);
+  FreeConnectionLookupMemory ();
+  Redraw ();
+
 }

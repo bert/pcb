@@ -536,6 +536,7 @@ CreateNewLineOnLayer (LayerType *Layer,
   if (!Layer->line_tree)
     Layer->line_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
+//  Line->netname = "TEST NETNAME";
   return (Line);
 }
 

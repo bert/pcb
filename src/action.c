@@ -3850,6 +3850,7 @@ ActionAddRats (int argc, char **argv, Coord x, Coord y)
 	case F_AllRats:
 	  if (AddAllRats (false, NULL))
 	    SetChangedFlag (true);
+	  UpdateLineNetnames (); /* XXX: KLUDGE */
 	  break;
 	case F_SelectedRats:
 	case F_Selected:

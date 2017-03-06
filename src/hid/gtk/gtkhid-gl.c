@@ -928,6 +928,97 @@ ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 #endif
 }
 
+static void
+ghid_draw_pcb_line (hidGC gc, LineType *line)
+{
+  render_priv *priv = gport->render_priv;
+  hidgl_instance *hidgl = priv->hidgl;
+
+  if (line->netname != NULL)
+    {
+      gtkGC gtk_gc = (gtkGC)gc;
+      TextType text;
+      char *old_color;
+      Coord temp_bloat;
+      double line_length;
+
+      text.TextString = line->netname;
+
+      old_color = gtk_gc->colorname;
+      hid_draw_set_color (gc, "#FFFFFF");
+
+      text.Flags = NoFlags ();
+      /* Set font height to approx 70% of line thickness */
+      text.Scale = 70 * line->Thickness / FONT_CAPHEIGHT;
+      text.X = 0;
+      text.Y = 0;
+      text.Direction = 0; /* Horizontal */
+
+      temp_bloat = PCB->Bloat;
+      PCB->Bloat = 0;
+      SetTextBoundingBox (&PCB->Font, &text);
+      PCB->Bloat = temp_bloat;
+
+      line_length = hypot (line->Point2.X - line->Point1.X,
+                           line->Point2.Y - line->Point1.Y);
+
+//      text.X = line->Point1.X + (line->Point2.X - line->Point1.X) / 2 - text.BoundingBox.X1 - (text.BoundingBox.X2 - text.BoundingBox.X1) / 2;
+//      text.Y = line->Point1.Y + (line->Point2.Y - line->Point1.Y) / 2 - text.BoundingBox.Y1 - (text.BoundingBox.Y2 - text.BoundingBox.Y1) / 2;
+
+      // Translate text to center on 0,0
+      text.X = -text.BoundingBox.X1 - (text.BoundingBox.X2 - text.BoundingBox.X1) / 2;
+      text.Y = -text.BoundingBox.Y1 - (text.BoundingBox.Y2 - text.BoundingBox.Y1) / 2;
+
+      if (text.BoundingBox.X2 - text.BoundingBox.X1 < line_length * 0.8)
+        {
+          /* XXX: Todo - some GL matrix trasforms to allow arbitrary rotation text,
+           *  OR:        Add native support for aritraty rotation text.
+           *
+           */
+
+          double angle;
+
+          angle = atan2 (-(line->Point2.Y - line->Point1.Y),
+                         line->Point2.X - line->Point1.X);
+
+
+//          char *debug_string = g_strdup_printf ("%f", angle * 180. / M_PI);
+//          text.TextString = debug_string;
+
+          if (angle > M_PI / 2.0) angle -= M_PI;
+          if (angle <= -M_PI / 2.0) angle += M_PI;
+
+          hidgl_flush_triangles (priv->hidgl);
+//          glPushAttrib (GL_CURRENT_BIT);
+          glPushMatrix ();
+
+          glTranslatef (line->Point1.X + (line->Point2.X - line->Point1.X) / 2,
+                        line->Point1.Y + (line->Point2.Y - line->Point1.Y) / 2,
+                         0.0);
+          glRotatef (angle * 180. / M_PI, 0.0, 0.0, -1.0);
+
+          hid_draw_pcb_text (gc, &text, 0);
+          hidgl_flush_triangles (priv->hidgl);
+
+//          g_free (debug_string);
+
+          glPopMatrix ();
+//          glPopAttrib ();
+        }
+
+      hid_draw_set_color (gc, old_color);
+    }
+
+  hid_draw_set_line_cap (gc, Trace_Cap);
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    hid_draw_set_line_width (gc, 0);
+  else
+    hid_draw_set_line_width (gc, line->Thickness);
+
+  hid_draw_line (gc, line->Point1.X, line->Point1.Y,
+                     line->Point2.X, line->Point2.Y);
+}
+
 void
 ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
@@ -1184,6 +1275,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   ghid_graphics_class.fill_pcb_polygon = ghid_fill_pcb_polygon;
   ghid_graphics_class.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
   ghid_graphics_class.fill_pcb_pv = ghid_fill_pcb_pv_2d; /* 2D, BB Via aware (with layer end-point annotations) */
+  ghid_graphics_class.draw_pcb_line = ghid_draw_pcb_line;
 
   test_model =
     NULL;
