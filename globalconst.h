@@ -76,11 +76,11 @@
 #define	MAX_LINESIZE		LARGE_VALUE
 #define	MIN_TEXTSCALE		10	/* scaling of text objects in percent */
 #define	MAX_TEXTSCALE		10000
-#define	MIN_PINORVIASIZE	MIL_TO_COORD(20)	/* size of a pin or via */
-#define	MIN_PINORVIAHOLE	MIL_TO_COORD(4)	/* size of a pins or vias drilling hole */
+#define	MIN_PINORVIASIZE	MM_TO_COORD(0.02)	/* size of a pin or via */
+#define	MIN_PINORVIAHOLE	MM_TO_COORD(0.01)	/* size of a pins or vias drilling hole */
 #define	MAX_PINORVIASIZE	LARGE_VALUE
-#define	MIN_PINORVIACOPPER	MIL_TO_COORD(4)	/* min difference outer-inner diameter */
-#define	MIN_PADSIZE		MIL_TO_COORD(1)	/* min size of a pad */
+#define	MIN_PINORVIACOPPER	MM_TO_COORD(0.01)	/* min difference outer-inner diameter */
+#define	MIN_PADSIZE		MM_TO_COORD(0.02)	/* min size of a pad */
 #define	MAX_PADSIZE		LARGE_VALUE   /* max size of a pad */
 #define	MIN_DRC_VALUE		MIL_TO_COORD(0.1)
 #define	MAX_DRC_VALUE		MIL_TO_COORD(500)
