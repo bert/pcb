@@ -609,16 +609,25 @@ create_lib_tree_model (GhidLibraryWindow *library_window)
       }
       else {
 
+        char *path;
+
+        if (tok_end == rel_path)
+          path = g_path_get_basename(menu->directory);
+        else {
+          path = NULL;
+        }
+
         gtk_tree_store_append (tree, &p_iter, iter);
         gtk_tree_store_set (tree, &p_iter,
                             MENU_TOPPATH_COLUMN, menu->directory,
                             MENU_SUBPATH_COLUMN, rel_path,
-                            MENU_NAME_COLUMN,
-                            tok_end == rel_path ?
-                            basename(menu->directory) : tok_start,
+                            MENU_NAME_COLUMN, path ? path : tok_start,
                             MENU_LIBRARY_COLUMN,
                             saved_ch == '\0' ? menu : NULL,
                             MENU_ENTRY_COLUMN, NULL, -1);
+        if (path) {
+          g_free(path);
+        }
       }
 
       iter = &p_iter;
