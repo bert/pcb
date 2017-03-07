@@ -628,7 +628,10 @@ create_lib_tree_model (GhidLibraryWindow *library_window)
       tok_start = tok_end;
       if (*tok_start == '/')
         tok_start++;
-      tok_end = strchrnul(tok_start, '/');
+      tok_end = strchr(tok_start, '/');
+
+      if (!tok_end)
+        tok_end = tok_start + strlen(tok_start);
 
     } while (*tok_start != '\0');
 
