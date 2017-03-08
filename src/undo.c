@@ -473,24 +473,66 @@ UndoChangeSize (UndoListType *Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  Coord swap;
+  Coord swap = 0;
 
   /* lookup entry by ID */
   type =
     SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
-  if (type != NO_TYPE)
-    {
+  if (type != NO_TYPE) {
+
       /* Wow! can any object be treated as a pin type for size change?? */
       /* pins, vias, lines, and arcs can. Text can't but it has it's own mechanism */
-      swap = ((PinType *) ptr2)->Thickness;
+      switch (type) {
+
+        case PIN_TYPE:
+        case VIA_TYPE:
+          swap = ((PinType *) ptr2)->Thickness;
+          break;
+        case LINE_TYPE:
+        case ELEMENTLINE_TYPE:
+          swap = ((LineType *) ptr2)->Thickness;
+          break;
+        case TEXT_TYPE:
+        case ELEMENTNAME_TYPE:
+          swap = ((TextType *) ptr2)->Scale;
+          break;
+        case PAD_TYPE:
+          swap = ((PadType *) ptr2)->Thickness;
+          break;
+        case ARC_TYPE:
+        case ELEMENTARC_TYPE:
+          swap = ((ArcType *) ptr2)->Thickness;
+          break;
+      }
+
       RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
-	EraseObject (type, ptr1, ptr2);
-      ((PinType *) ptr2)->Thickness = Entry->Data.Size;
+        EraseObject (type, ptr1, ptr2);
+      switch (type) {
+        case PIN_TYPE:
+        case VIA_TYPE:
+          ((PinType *) ptr2)->Thickness = Entry->Data.Size;
+          break;
+        case LINE_TYPE:
+        case ELEMENTLINE_TYPE:
+          ((LineType *) ptr2)->Thickness = Entry->Data.Size;
+          break;
+        case TEXT_TYPE:
+        case ELEMENTNAME_TYPE:
+          ((TextType *) ptr2)->Scale = Entry->Data.Size;
+          break;
+        case PAD_TYPE:
+          ((PadType *) ptr2)->Thickness = Entry->Data.Size;
+          break;
+        case ARC_TYPE:
+        case ELEMENTARC_TYPE:
+          ((ArcType *) ptr2)->Thickness = Entry->Data.Size;
+          break;
+      }
       Entry->Data.Size = swap;
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
-	DrawObject (type, ptr1, ptr2);
+        DrawObject (type, ptr1, ptr2);
       return (true);
     }
   return (false);

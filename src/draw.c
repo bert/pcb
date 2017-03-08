@@ -1384,7 +1384,7 @@ EraseArc (ArcType *Arc)
 void
 EraseText (LayerType *Layer, TextType *Text)
 {
-  r_delete_entry (Layer->text_tree, (BoxType *) Text);
+/* r_delete_entry (Layer->text_tree, (BoxType *) Text); */
   AddPart (Text);
 }
 
