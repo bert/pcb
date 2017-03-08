@@ -229,7 +229,7 @@ static void
 CheckPadForRubberbandConnection (PadType *Pad)
 {
   Coord half = Pad->Thickness / 2;
-  Cardinal side, group;
+  Cardinal group;
   struct rubber_info info;
 
   info.box.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - half;
@@ -238,9 +238,8 @@ CheckPadForRubberbandConnection (PadType *Pad)
   info.box.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + half;
   info.radius = 0;
   info.line = NULL;
-
-  side  = TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE;
-  group = GetLayerGroupNumberBySide (side);
+  group = GetLayerGroupNumberBySide (
+      TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE);
 
   /* check all visible layers in the same group */
   GROUP_LOOP (PCB->Data, group);
@@ -325,15 +324,14 @@ static void
 CheckPadForRat (PadType *Pad)
 {
   struct rinfo info;
-  Cardinal side;
 
-  side       = TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE;
-  info.group = GetLayerGroupNumberBySide (side);
+  info.group = GetLayerGroupNumberBySide (
+                  TEST_FLAG (ONSOLDERFLAG, Pad) ? BOTTOM_SIDE : TOP_SIDE);
+  info.pad = Pad;
+  info.type = PAD_TYPE;
 
-  info.pad   = Pad;
-  info.type  = PAD_TYPE;
-
-  r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL, rat_callback, &info);
+  r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL, rat_callback,
+	    &info);
 }
 
 static void
