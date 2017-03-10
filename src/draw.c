@@ -1446,7 +1446,6 @@ EraseElementName (ElementType *Element)
   EraseText (NULL, &ELEMENT_TEXT (PCB, Element));
 }
 
-
 void
 EraseObject (int type, void *lptr, void *ptr)
 {
@@ -1460,7 +1459,7 @@ EraseObject (int type, void *lptr, void *ptr)
       EraseText ((LayerType *)lptr, (TextType *) ptr);
       break;
     case ELEMENTNAME_TYPE:
-      EraseElementName(lptr);
+      EraseElementName ((ElementType*) ptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonType *) ptr);
@@ -1484,8 +1483,6 @@ EraseObject (int type, void *lptr, void *ptr)
       Message ("hace: Internal ERROR, trying to erase an unknown type\n");
     }
 }
-
-
 
 void
 DrawObject (int type, void *ptr1, void *ptr2)
