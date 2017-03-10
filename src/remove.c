@@ -440,6 +440,7 @@ RemoveText (LayerType *Layer, TextType *Text)
   if (Layer->On)
     {
       EraseText (Layer, Text);
+      r_delete_entry(Layer->text_tree, (BoxType*)Text);
       if (!Bulk)
 	Draw ();
     }

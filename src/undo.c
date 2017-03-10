@@ -139,6 +139,7 @@ typedef struct			/* holds information about an operation */
     MoveToLayerType MoveToLayer;
     FlagType Flags;
     Coord Size;
+    int Scale;
     LayerChangeType LayerChange;
     ClearPolyType ClearPoly;
     NetlistChangeType NetlistChange;
@@ -472,7 +473,7 @@ static bool
 UndoChangeSize (UndoListType *Entry)
 {
   void *ptr1, *ptr2, *ptr3;
-  int type;
+  int type, iswap = 0;
   Coord swap = 0;
 
   /* lookup entry by ID */
@@ -494,7 +495,7 @@ UndoChangeSize (UndoListType *Entry)
           break;
         case TEXT_TYPE:
         case ELEMENTNAME_TYPE:
-          swap = ((TextType *) ptr2)->Scale;
+          iswap = ((TextType *) ptr2)->Scale;
           break;
         case PAD_TYPE:
           swap = ((PadType *) ptr2)->Thickness;
@@ -512,24 +513,29 @@ UndoChangeSize (UndoListType *Entry)
         case PIN_TYPE:
         case VIA_TYPE:
           ((PinType *) ptr2)->Thickness = Entry->Data.Size;
+          Entry->Data.Size = swap;
           break;
         case LINE_TYPE:
         case ELEMENTLINE_TYPE:
           ((LineType *) ptr2)->Thickness = Entry->Data.Size;
+          Entry->Data.Size = swap;
           break;
         case TEXT_TYPE:
         case ELEMENTNAME_TYPE:
-          ((TextType *) ptr2)->Scale = Entry->Data.Size;
+          ((TextType *) ptr2)->Scale = Entry->Data.Scale;
+          Entry->Data.Scale = iswap;
           break;
         case PAD_TYPE:
           ((PadType *) ptr2)->Thickness = Entry->Data.Size;
+          Entry->Data.Size = swap;
           break;
         case ARC_TYPE:
         case ELEMENTARC_TYPE:
           ((ArcType *) ptr2)->Thickness = Entry->Data.Size;
+          Entry->Data.Size = swap;
           break;
       }
-      Entry->Data.Size = swap;
+
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
         DrawObject (type, ptr1, ptr2);
@@ -1546,7 +1552,7 @@ AddObjectToSizeUndoList (int Type, void *ptr1, void *ptr2, void *ptr3)
 	  break;
 	case TEXT_TYPE:
 	case ELEMENTNAME_TYPE:
-	  undo->Data.Size = ((TextType *) ptr2)->Scale;
+	  undo->Data.Scale = ((TextType *) ptr2)->Scale;
 	  break;
 	case PAD_TYPE:
 	  undo->Data.Size = ((PadType *) ptr2)->Thickness;
