@@ -1495,7 +1495,24 @@ NotifyMode (void)
                 break;
               }
               else
+              {
+                /* get starting point of nearest segment */
+                if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
+                {
+                  fake.poly =
+                  (PolygonType *) Crosshair.AttachedObject.Ptr2;
+                  polyIndex =
+                  GetLowestDistancePolygonPoint (fake.poly, Note.X,
+                                                 Note.Y);
+                  fake.line.Point1 = fake.poly->Points[polyIndex];
+                  fake.line.Point2 = fake.poly->Points[
+                  prev_contour_point (fake.poly, polyIndex)];
+                  Crosshair.AttachedObject.Ptr2 = &fake.line;
+
+                }
                 Crosshair.AttachedObject.State = STATE_SECOND;
+                InsertedPoint = *AdjustInsertPoint ();
+              }
             }
             break;
 
@@ -1540,7 +1557,7 @@ NotifyMode (void)
 
                 /* reset state of attached line */
                 memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
-                Crosshair.AttachedLine.State = STATE_FIRST;
+                Crosshair.AttachedObject.State = STATE_FIRST;
                 addedLines = 0;
 
                 break;
