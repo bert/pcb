@@ -252,7 +252,7 @@ vector_remove_last (vector_t * vector)
 }
 
 /*!
- * \brief Rreturn and delete data at specified position of vector.
+ * \brief Return and delete data at specified position of vector.
  */
 vector_element_t
 vector_remove (vector_t * vector, int N)
