@@ -2250,6 +2250,8 @@ hid_gtk_init ()
   ghid_graphics.fill_circle         = ghid_fill_circle;
   ghid_graphics.fill_polygon        = ghid_fill_polygon;
   ghid_graphics.fill_rect           = ghid_fill_rect;
+  
+  ghid_graphics.draw_grid           = ghid_draw_grid;
 
   ghid_graphics.draw_pcb_polygon    = common_gui_draw_pcb_polygon;
 

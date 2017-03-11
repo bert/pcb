@@ -89,6 +89,9 @@ struct hid_draw_st
   void (*fill_polygon) (hidGC gc, int n_coords, Coord *x, Coord *y);
   void (*fill_rect)    (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
 
+  /* draw the grid in the specified region */
+  void (*draw_grid)    (BoxType * box);
+  
   /* The following APIs render using PCB data-structures, not immediate parameters */
 
   void (*draw_pcb_line) (hidGC gc, LineType *line);

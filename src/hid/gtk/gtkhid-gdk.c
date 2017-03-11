@@ -48,6 +48,7 @@
 #endif
 
 extern HID ghid_hid;
+extern HID_DRAW ghid_graphics;
 
 /* Sets priv->u_gc to the "right" GC to use (wrt mask or window)
 */
@@ -840,7 +841,7 @@ redraw_region (GdkRectangle *rect)
   /* Draw all of the PCB stuff, elements, traces, etc. */
   hid_expose_callback (&ghid_hid, &region, 0);
   
-  ghid_draw_grid ();
+  ghid_graphics.draw_grid (&region);
 
   /* In some cases we are called with the crosshair still off */
   if (priv->attached_invalidate_depth == 0)

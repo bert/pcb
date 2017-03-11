@@ -2339,7 +2339,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
  * \brief Draw the grid on the lesstif canvas
  */
 void
-draw_grid (BoxType * region)
+lesstif_draw_grid (BoxType * region)
 {
   static XPoint *points = 0;
   static int npoints = 0;
@@ -2629,7 +2629,7 @@ idle_proc (XtPointer dummy)
 	}
       DrawBackgroundImage();
       hid_expose_callback (&lesstif_hid, &region, 0);
-      draw_grid ();
+      lesstif_graphics.draw_grid (&region);
       lesstif_use_mask (HID_MASK_OFF);
       show_crosshair (0); /* To keep the drawn / not drawn info correct */
       XSetFunction (display, my_gc, GXcopy);
@@ -4174,6 +4174,8 @@ hid_lesstif_init ()
   lesstif_graphics.fill_polygon        = lesstif_fill_polygon;
   lesstif_graphics.fill_rect           = lesstif_fill_rect;
 
+  lesstif_graphics.draw_grid           = lesstif_draw_grid;
+  
   lesstif_graphics.draw_pcb_polygon    = common_gui_draw_pcb_polygon;
 
   hid_register_hid (&lesstif_hid);

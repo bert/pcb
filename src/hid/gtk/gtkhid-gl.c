@@ -1016,7 +1016,7 @@ ghid_drawing_area_expose_cb (GtkWidget *widget,
   hid_expose_callback (&ghid_hid, &region, 0);
   hidgl_flush_triangles (&buffer);
 
-  ghid_draw_grid (&region);
+  ghid_graphics.draw_grid (&region);
 
   ghid_invalidate_current_gc ();
 
