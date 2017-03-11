@@ -1,39 +1,47 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/toporouter.c
  *
- *  Topological Autorouter for
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2009 Anthony Blake
- *  Copyright (C) 2009-2011 PCB Contributors (see ChangeLog for details)
+ * \brief Topological Autorouter for PCB.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Topological Autorouter for
+ * PCB, interactive printed circuit board design
  *
- *  Contact addresses for email:
- *  Anthony Blake, tonyb33@gmail.com
+ * Copyright (C) 2009 Anthony Blake
+ *
+ * Copyright (C) 2009-2011 PCB Contributors (see ChangeLog for details)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for email:
+ * Anthony Blake, tonyb33@gmail.com
  *
  *
  *
- *                 This is *EXPERIMENTAL* code.
+ * \warning This is *EXPERIMENTAL* code.
  *
- *  As the code is experimental, the algorithms and code
- *  are likely to change. Which means it isn't documented
- *  or optimized. If you would like to learn about Topological
- *  Autorouters, the following papers are good starting points:
+ * As the code is experimental, the algorithms and code
+ * are likely to change. Which means it isn't documented
+ * or optimized. If you would like to learn about Topological
+ * Autorouters, the following papers are good starting points:
  *
- * This file implements a topological autorouter, and uses techniques from the
- * following publications:
+ *This file implements a topological autorouter, and uses techniques from the
+ *following publications:
  *
  * Dayan, T. and Dai, W.W.M., "Layer Assignment for a Rubber Band Router" Tech
  * Report UCSC-CRL-92-50, Univ. of California, Santa Cruz, 1992.
@@ -51,7 +59,6 @@
  *
  * David Staepelaere, "Geometric transformations for a rubber-band sketch"
  * Master's thesis, Univ. of California, Santa Cruz, September 1992.
- *
  */
 
 
@@ -63,6 +70,9 @@
 #define ROAR_DETOUR_THRESHOLD MIL_TO_COORD (10.)
 
 
+/*!
+ * \brief Initialise an edge.
+ */
 static void
 toporouter_edge_init (toporouter_edge_t *edge)
 {
@@ -70,7 +80,7 @@ toporouter_edge_init (toporouter_edge_t *edge)
   edge->flags = 0;
 }
 
-toporouter_edge_class_t *
+toporouter_edge_class_t*
 toporouter_edge_class(void)
 {
   static toporouter_edge_class_t *klass = NULL;
@@ -85,12 +95,15 @@ toporouter_edge_class(void)
       (GtsArgSetFunc) NULL,
       (GtsArgGetFunc) NULL
     };
-    klass = (toporouter_edge_class_t *)gts_object_class_new (GTS_OBJECT_CLASS (gts_edge_class ()), &constraint_info);
+    klass = (toporouter_edge_class_t*)gts_object_class_new (GTS_OBJECT_CLASS (gts_edge_class ()), &constraint_info);
   }
 
   return klass;
 }
 
+/*!
+ * \brief Initialise a bounding box.
+ */
 static void
 toporouter_bbox_init (toporouter_bbox_t *box)
 {
@@ -121,12 +134,18 @@ toporouter_bbox_class(void)
   return klass;
 }
 
+/*!
+ * \brief Initialise a vertex class.
+ */
 static void
 toporouter_vertex_class_init (toporouter_vertex_class_t *klass)
 {
 
 }
 
+/*!
+ * \brief Initialise a vertex.
+ */
 static void
 toporouter_vertex_init (toporouter_vertex_t *vertex)
 {
@@ -165,12 +184,18 @@ toporouter_vertex_class(void)
   return klass;
 }
 
+/*!
+ * \brief Initialise a constraint class.
+ */
 static void
 toporouter_constraint_class_init (toporouter_constraint_class_t *klass)
 {
 
 }
 
+/*!
+ * \brief Initialise a constraint.
+ */
 static void
 toporouter_constraint_init (toporouter_constraint_t *constraint)
 {
@@ -199,6 +224,9 @@ toporouter_constraint_class(void)
   return klass;
 }
 
+/*!
+ * \brief Initialise an arc.
+ */
 static void
 toporouter_arc_init (toporouter_arc_t *arc)
 {
@@ -239,6 +267,9 @@ toporouter_arc_class(void)
 
 #define MARGIN 10.0f
 
+/*!
+ * \brief Initialise output.
+ */
 drawing_context_t *
 toporouter_output_init(int w, int h, char *filename)
 {
@@ -274,6 +305,9 @@ toporouter_output_init(int w, int h, char *filename)
   return dc;
 }
 
+/*!
+ * \brief Close output.
+ */
 void
 toporouter_output_close(drawing_context_t *dc)
 {
@@ -284,6 +318,9 @@ toporouter_output_close(drawing_context_t *dc)
 #endif
 }
 
+/*!
+ * \brief Lookup a keepaway.
+ */
 double
 lookup_keepaway(char *name)
 {
@@ -298,6 +335,9 @@ lookup_keepaway(char *name)
   return Settings.Keepaway ;
 }
 
+/*!
+ * \brief Lookup thickness.
+ */
 double
 lookup_thickness(char *name)
 {
@@ -324,6 +364,9 @@ cluster_thickness(toporouter_cluster_t *cluster)
   return lookup_thickness(NULL);
 }
 
+/*!
+ * \brief Draw a vertex.
+ */
 int
 toporouter_draw_vertex(gpointer item, gpointer data)
 {
@@ -454,6 +497,9 @@ toporouter_draw_vertex(gpointer item, gpointer data)
 #endif
 }
 
+/*!
+ * \brief Draw an edge.
+ */
 int
 toporouter_draw_edge(gpointer item, gpointer data)
 {
@@ -569,6 +615,9 @@ epsilon_equals(double a, double b)
   return 0;
 }
 
+/*!
+ * \brief Print a bounding box.
+ */
 void
 print_bbox(toporouter_bbox_t *box)
 {
@@ -600,6 +649,9 @@ print_bbox(toporouter_bbox_t *box)
 
 }
 
+/*!
+ * \brief Print a vertex.
+ */
 void
 print_vertex(toporouter_vertex_t *v)
 {
@@ -704,7 +756,10 @@ vertex_net_keepaway(toporouter_vertex_t *v)
   return cluster_keepaway(box->cluster);
 }
 
-/* fills in x and y with coordinates of point from a towards b of distance d */
+/*!
+ * \brief Fills in x and y with coordinates of point from a towards b of
+ * distance d.
+ */
 static void
 point_from_point_to_point (toporouter_vertex_t *a,
                            toporouter_vertex_t *b,
@@ -727,8 +782,13 @@ coord_wind(double ax, double ay, double bx, double by, double cx, double cy)
   return (rval > EPSILON) ? 1 : ((rval < -EPSILON) ? -1 : 0);
 }
 
-/* wind_v:
- * returns 1,0,-1 for counterclockwise, collinear or clockwise, respectively.
+/*!
+ * \brief .
+ *
+ * wind_v:
+ *
+ * \return 1, 0, -1 for counterclockwise, collinear or clockwise,
+ * respectively.
  */
 int
 point_wind(GtsPoint *a, GtsPoint *b, GtsPoint *c)
@@ -752,7 +812,9 @@ tvertex_wind(toporouter_vertex_t  *a, toporouter_vertex_t  *b, toporouter_vertex
   return point_wind(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c));
 }
 
-/* moves vertex v d units in the direction of vertex p */
+/*!
+ * \brief Moves vertex v d units in the direction of vertex p.
+ */
 static void
 coord_move_towards_coord_values (double ax, double ay,
                                  double px, double py,
@@ -765,7 +827,9 @@ coord_move_towards_coord_values (double ax, double ay,
   *y = ay + d * sin (theta);
 }
 
-/* moves vertex v d units in the direction of vertex p */
+/*!
+ * \brief Moves vertex v d units in the direction of vertex p.
+ */
 static void
 vertex_move_towards_vertex_values (GtsVertex *v,
                                    GtsVertex *p,
@@ -794,7 +858,7 @@ min_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 
   ms = v1halfthick + v2halfthick + MAX(v1keepaway, v2keepaway);
 
-#if SPACING_DEBUG
+#ifdef SPACING_DEBUG
   printf("v1halfthick = %f v2halfthick = %f v1keepaway = %f v2keepaway = %f ms = %f\n",
       v1halfthick, v2halfthick, v1keepaway, v2keepaway, ms);
 #endif
@@ -1080,6 +1144,9 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
 }
 
 
+/*!
+ * \brief Free a layer.
+ */
 void
 toporouter_layer_free(toporouter_layer_t *l)
 {
@@ -1122,8 +1189,13 @@ toporouter_free(toporouter_t *r)
 
 }
 
-/* wind:
- * returns 1,0,-1 for counterclockwise, collinear or clockwise, respectively.
+/*!
+ * \brief .
+ *
+ * wind:
+ *
+ * \return 1, 0, -1 for counterclockwise, collinear or clockwise,
+ * respectively.
  */
 int
 wind(toporouter_spoint_t *p1, toporouter_spoint_t *p2, toporouter_spoint_t *p3)
@@ -1152,11 +1224,13 @@ print_toporouter_vertex(toporouter_vertex_t *tv)
 }
 
 
-/**
+/*!
+ * \brief .
+ *
  * vertices_on_line:
  * Given vertex a, gradient m, and radius r:
  *
- * Return vertices on line of a & m at r from a
+ * \return vertices on line of a & m at r from a.
  */
 static void
 vertices_on_line (toporouter_spoint_t *a,
@@ -1189,11 +1263,13 @@ vertices_on_line (toporouter_spoint_t *a,
   b1->y = m * b1->x + c;
 }
 
-/**
+/*!
+ * \brief .
+ *
  * coords_on_line:
  * Given coordinates ax, ay, gradient m, and radius r:
  *
- * Return coordinates on line of a & m at r from a
+ * \return coordinates on line of a & m at r from a.
  */
 static void
 coords_on_line (double ax, double ay,
@@ -1225,8 +1301,8 @@ coords_on_line (double ax, double ay,
   *b1y = m * *b1x + c;
 }
 
-/*
- * Returns gradient of segment given by a & b
+/*!
+ * \brief Returns gradient of segment given by a & b.
  */
 double
 vertex_gradient(toporouter_spoint_t *a, toporouter_spoint_t *b)
@@ -1236,8 +1312,8 @@ vertex_gradient(toporouter_spoint_t *a, toporouter_spoint_t *b)
   return ((b->y - a->y) / (b->x - a->x));
 }
 
-/*
- * Returns gradient of segment given by (x0,y0) & (x1,y1)
+/*!
+ * \brief Returns gradient of segment given by (x0,y0) & (x1,y1).
  */
 static inline double
 cartesian_gradient(double x0, double y0, double x1, double y1)
@@ -1247,8 +1323,8 @@ cartesian_gradient(double x0, double y0, double x1, double y1)
   return ((y1 - y0) / (x1 - x0));
 }
 
-/*
- * Returns gradient of segment given by (x0,y0) & (x1,y1)
+/*!
+ * \brief Returns gradient of segment given by (x0,y0) & (x1,y1).
  */
 static inline double
 point_gradient(GtsPoint *a, GtsPoint *b)
@@ -1266,8 +1342,8 @@ segment_gradient(GtsSegment *s)
       GTS_POINT(s->v2)->y);
 }
 
-/*
- * Returns gradient perpendicular to m
+/*!
+ * \brief Returns gradient perpendicular to m.
  */
 double
 perpendicular_gradient(double m)
@@ -1277,16 +1353,17 @@ perpendicular_gradient(double m)
   return -1.0f/m;
 }
 
-/*
- * Returns the distance between two vertices in the x-y plane
+/*!
+ * \brief Returns the distance between two vertices in the x-y plane.
  */
 double
 vertices_plane_distance(toporouter_spoint_t *a, toporouter_spoint_t *b) {
   return hypot(a->x - b->x, a->y - b->y);
 }
 
-/*
- * Finds the point p distance r away from a on the line segment of a & b
+/*!
+ * \brief Finds the point p distance r away from a on the line segment
+ * of a & b.
  */
 static inline void
 vertex_outside_segment(toporouter_spoint_t *a, toporouter_spoint_t *b, double r, toporouter_spoint_t *p)
@@ -1305,9 +1382,13 @@ vertex_outside_segment(toporouter_spoint_t *a, toporouter_spoint_t *b, double r,
 
 }
 
-/* proper intersection:
+/*!
+ * \brief .
+ *
+ * Proper intersection:
  * AB and CD must share a point interior to both segments.
- * returns TRUE if AB properly intersects CD.
+ *
+ * \return TRUE if AB properly intersects CD.
  */
 static bool
 coord_intersect_prop (double ax, double ay,
@@ -1327,9 +1408,13 @@ coord_intersect_prop (double ax, double ay,
   return (wind_abc != wind_abd) && (wind_cda != wind_cdb);
 }
 
-/* proper intersection:
+/*!
+ * \brief .
+ *
+ * proper intersection:
  * AB and CD must share a point interior to both segments.
- * returns TRUE if AB properly intersects CD.
+ *
+ * \return TRUE if AB properly intersects CD.
  */
 static bool
 point_intersect_prop (GtsPoint *a, GtsPoint *b, GtsPoint *c, GtsPoint *d)
@@ -1346,15 +1431,22 @@ point_intersect_prop (GtsPoint *a, GtsPoint *b, GtsPoint *c, GtsPoint *d)
   return (wind_abc != wind_abd) && (wind_cda != wind_cdb);
 }
 
+/*!
+ * \brief .
+ */
 static inline int
 vertex_intersect_prop(GtsVertex *a, GtsVertex *b, GtsVertex *c, GtsVertex *d)
 {
   return point_intersect_prop(GTS_POINT(a), GTS_POINT(b), GTS_POINT(c), GTS_POINT(d));
 }
 
-/* intersection vertex:
+/*!
+ * \brief .
+ *
+ * intersection vertex:
  * AB and CD must share a point interior to both segments.
- * returns vertex at intersection of AB and CD.
+ *
+ * \return vertex at intersection of AB and CD.
  */
 GtsVertex *
 vertex_intersect(GtsVertex *a, GtsVertex *b, GtsVertex *c, GtsVertex *d)
@@ -1379,9 +1471,13 @@ vertex_intersect(GtsVertex *a, GtsVertex *b, GtsVertex *c, GtsVertex *d)
   return rval;
 }
 
-/* intersection vertex:
+/*!
+ * \brief .
+ *
+ * intersection vertex:
  * AB and CD must share a point interior to both segments.
- * returns vertex at intersection of AB and CD.
+ *
+ * \return vertex at intersection of AB and CD.
  */
 void
 coord_intersect(double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy, double *rx, double *ry)
@@ -1397,8 +1493,10 @@ coord_intersect(double ax, double ay, double bx, double by, double cx, double cy
 }
 
 
-/*
- * returns true if c is between a and b
+/*!
+ * \brief .
+ *
+ * \return true if c is between a and b.
  */
 int
 point_between(GtsPoint *a, GtsPoint *b, GtsPoint *c)
@@ -1686,10 +1784,10 @@ rect_with_attachments(double rad,
 
 #define VERTEX_CENTRE(x) TOPOROUTER_VERTEX( vertex_bbox(x)->point )
 
-/*
- * Read pad data from layer into toporouter_layer_t struct
+/*!
+ * \brief Read pad data from layer into toporouter_layer_t struct.
  *
- * Inserts points and constraints into GLists
+ * Inserts points and constraints into GLists.
  */
 int
 read_pads(toporouter_t *r, toporouter_layer_t *l, unsigned int layer)
@@ -1860,10 +1958,10 @@ read_pads(toporouter_t *r, toporouter_layer_t *l, unsigned int layer)
   return 0;
 }
 
-/*
- * Read points data (all layers) into GList
+/*!
+ * \brief Read points data (all layers) into GList.
  *
- * Inserts pin and via points
+ * Inserts pin and via points.
  */
 int
 read_points(toporouter_t *r, toporouter_layer_t *l, int layer)
@@ -1960,10 +2058,10 @@ read_points(toporouter_t *r, toporouter_layer_t *l, int layer)
   return 0;
 }
 
-/*
- * Read line data from layer into toporouter_layer_t struct
+/*!
+ * \brief Read line data from layer into toporouter_layer_t struct.
  *
- * Inserts points and constraints into GLists
+ * Inserts points and constraints into GLists.
  */
 int
 read_lines(toporouter_t *r, toporouter_layer_t *l, LayerType *layer, int ln)
@@ -2953,7 +3051,9 @@ split_path(GList *path)
     GTS_POINT(GTS_SEGMENT(e)->v2)->x, GTS_POINT(GTS_SEGMENT(e)->v2)->y))
 
 
-/* sorting into ascending distance from v1 */
+/*!
+ * \brief Sorting into ascending distance from v1.
+ */
 int
 routing_edge_insert(gconstpointer a, gconstpointer b, gpointer user_data)
 {
@@ -3011,7 +3111,9 @@ new_temp_toporoutervertex(double x, double y, toporouter_edge_t *e)
 }
 
 
-/* create vertex on edge e at radius r from v, closest to ref */
+/*!
+ * \brief Create vertex on edge e at radius r from v, closest to ref.
+ */
 toporouter_vertex_t *
 new_temp_toporoutervertex_in_segment(toporouter_edge_t *e, toporouter_vertex_t *v, double r, toporouter_vertex_t *ref)
 {
@@ -3125,7 +3227,9 @@ closest_dest_vertex(toporouter_t *r, toporouter_vertex_t *v, toporouter_route_t 
 #define toporouter_edge_gradient(e) (cartesian_gradient(vx(edge_v1(e)), vy(edge_v1(e)), vx(edge_v2(e)), vy(edge_v2(e))))
 
 
-/* returns the capacity of the triangle cut through v */
+/*!
+ * \brief Returns the capacity of the triangle cut through v.
+ */
 double
 triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v)
 {
@@ -3214,8 +3318,10 @@ edges_third_edge(GtsSegment *s1, GtsSegment *s2, toporouter_vertex_t **v1, topor
   return 0;
 }
 
-/* returns the flow from e1 to e2, and the flow from the vertex oppisate e1 to
- * e1 and the vertex oppisate e2 to e2 */
+/*!
+ * \brief Returns the flow from e1 to e2, and the flow from the vertex
+ * oppisate e1 to e1 and the vertex oppisate e2 to e2.
+ */
 double
 flow_from_edge_to_edge(GtsTriangle *t, toporouter_edge_t *e1, toporouter_edge_t *e2,
     toporouter_vertex_t *common_v, toporouter_vertex_t *curpoint)
@@ -5264,7 +5370,12 @@ calculate_term_to_arc(toporouter_vertex_t *v, toporouter_arc_t *arc, unsigned in
 
 
 
-// b1 is the projection in the direction of narc, while b2 is the perpendicular projection
+/*!
+ * \brief .
+ *
+ * b1 is the projection in the direction of narc, while b2 is the
+ * perpendicular projection.
+ */
 void
 arc_ortho_projections(toporouter_arc_t *arc, toporouter_arc_t *narc, double *b1, double *b2)
 {
@@ -5523,17 +5634,17 @@ export_oproutes(toporouter_t *ar, toporouter_oproute_t *oproute)
     return;
   }
 
-
 //  calculate_term_to_arc(oproute->term1, TOPOROUTER_ARC(arcs->data), 0, layer);
 
-  while(arcs) {
+  while (arcs) {
+
     arc = TOPOROUTER_ARC(arcs->data);
 
     if (parc && arc) {
       ar->wiring_score += export_pcb_drawarc(layer, parc, thickness, keepaway);
       ar->wiring_score += export_pcb_drawline(layer, parc->x1, parc->y1, arc->x0, arc->y0, thickness, keepaway);
     }
-    else if(!parc) {
+    else if (!parc) {
       ar->wiring_score += export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, thickness, keepaway);
     }
 
@@ -5542,9 +5653,7 @@ export_oproutes(toporouter_t *ar, toporouter_oproute_t *oproute)
   }
   ar->wiring_score += export_pcb_drawarc(layer, arc, thickness, keepaway);
   ar->wiring_score += export_pcb_drawline(layer, arc->x1, arc->y1, vx(oproute->term2), vy(oproute->term2), thickness, keepaway);
-
 }
-
 
 
 void
@@ -5584,7 +5693,7 @@ oproute_calculate_tof(toporouter_oproute_t *oproute)
       oproute->tof += arc_angle(parc) * parc->r;
       oproute->tof += hypot(parc->x1-arc->x0,parc->y1-arc->y0);
     }
-    else if(!parc) {
+    else if (!parc) {
       oproute->tof += hypot(arc->x0-vx(oproute->term1), arc->y0-vy(oproute->term1));
     }
 
@@ -5798,7 +5907,9 @@ check_intersect_vertex(double x0, double y0, double x1, double y1, toporouter_ve
   return ms - d;
 }
 
-/* returns non-zero if arc has loops */
+/*!
+ * \brief Returns non-zero if arc has loops.
+ */
 unsigned int
 check_arc_for_loops(gpointer t1, toporouter_arc_t *arc, gpointer t2)
 {
@@ -5934,7 +6045,11 @@ check_adj_pushing_vertex(toporouter_oproute_t *oproute, double x0, double y0, do
 }
 
 
-// path is t1 path
+/*!
+ * \brief .
+ *
+ * path is t1 path.
+ */
 GList *
 oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList *path, gpointer t1, gpointer t2, unsigned int debug)
 {
@@ -6639,7 +6754,9 @@ delete_route(toporouter_route_t *routedata, unsigned int destroy)
   routedata->alltemppoints = NULL;
 }
 
-/* remove route can be later reapplied */
+/*!
+ * \brief Remove route can be later reapplied.
+ */
 void
 remove_route(GList *path)
 {
@@ -6945,7 +7062,7 @@ edge_closest_vertex(toporouter_edge_t *e, toporouter_vertex_t *v)
 void
 snapshot(toporouter_t *r, char *name, GList *datas)
 {
-/*
+///*
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -7116,6 +7233,7 @@ route_restore(toporouter_route_t *route)
   route->score = route->pscore;
   route->src = route->psrc;
   route->dest = route->pdest;
+
 }
 
 void
