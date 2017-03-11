@@ -1,35 +1,40 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/vector.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
- *  Copyright (C) 1998,1999,2000,2001 harry eaton
+ * \brief Operations on vectors.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  Contact addresses for paper mail and Email:
- *  harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
- *  haceaton@aplcomm.jhuapl.edu
- *
- */
-
-/* this file, vector.c, was written and is
+ * \author this file, vector.c, was written and is
  * Copyright (c) 2001 C. Scott Ananian.
- */
-
-/* operations on vectors.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * Copyright (C) 1998,1999,2000,2001 harry eaton
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Contact addresses for paper mail and Email:
+ *
+ * harry eaton, 6697 Buttonhole Ct, Columbia, MD 21044 USA
+ *
+ * haceaton@aplcomm.jhuapl.edu
  */
 
 #if HAVE_CONFIG_H
@@ -70,7 +75,9 @@ struct vector_struct
  * functions.
  */
 
-/* helper function for assertions */
+/*!
+ * \brief Helper function for assertions.
+ */
 #ifndef NDEBUG
 static int
 __vector_is_good (vector_t * vector)
@@ -81,7 +88,9 @@ __vector_is_good (vector_t * vector)
 }
 #endif /* !NDEBUG */
 
-/* create an empty vector */
+/*!
+ * \brief Create an empty vector.
+ */
 vector_t *
 vector_create ()
 {
@@ -93,7 +102,9 @@ vector_create ()
   return vector;
 }
 
-/* destroy a vector */
+/*!
+ * \brief Destroy a vector.
+ */
 void
 vector_destroy (vector_t ** vector)
 {
@@ -128,7 +139,9 @@ vector_element (vector_t * vector, int N)
   return vector->element[N];
 }
 
-/* return the first element of the vector. */
+/*!
+ * \brief Return the first element of the vector.
+ */
 vector_element_t
 vector_element_first (vector_t * vector)
 {
@@ -137,7 +150,9 @@ vector_element_first (vector_t * vector)
   return vector_element (vector, 0);
 }
 
-/* return the last element of the vector. */
+/*!
+ * \brief Return the last element of the vector.
+ */
 vector_element_t
 vector_element_last (vector_t * vector)
 {
@@ -147,7 +162,9 @@ vector_element_last (vector_t * vector)
 }
 
 /* -- mutation -- */
-/* add data to end of vector */
+/*!
+ * \brief Add data to end of vector.
+ */
 void
 vector_append (vector_t * vector, vector_element_t data)
 {
@@ -172,7 +189,9 @@ vector_insert (vector_t * vector, int N, vector_element_t data)
   vector_insert_many (vector, N, &data, 1);
 }
 
-/* add data at specified position of vector */
+/*!
+ * \brief Add data at specified position of vector.
+ */
 void
 vector_insert_many (vector_t * vector, int N,
 		    vector_element_t data[], int count)
@@ -209,7 +228,9 @@ vector_duplicate (vector_t * orig)
   return newone;
 }
 
-/* return and delete the *last* element of vector */
+/*!
+ * \brief Return and delete the *last* element of vector.
+ */
 vector_element_t
 vector_remove_last (vector_t * vector)
 {
@@ -217,7 +238,9 @@ vector_remove_last (vector_t * vector)
   return vector_remove (vector, vector->size - 1);
 }
 
-/* return and delete data at specified position of vector */
+/*!
+ * \brief Rreturn and delete data at specified position of vector.
+ */
 vector_element_t
 vector_remove (vector_t * vector, int N)
 {
@@ -232,8 +255,12 @@ vector_remove (vector_t * vector, int N)
   return old;
 }
 
-/* replace the data at the specified position with the given data.
- * returns the old data. */
+/*!
+ * \brief Replace the data at the specified position with the given
+ * data.
+ *
+ * \return the old data.
+ */
 vector_element_t
 vector_replace (vector_t * vector, vector_element_t data, int N)
 {
