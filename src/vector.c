@@ -37,6 +37,7 @@
  * haceaton@aplcomm.jhuapl.edu
  */
 
+
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -171,18 +172,27 @@ vector_append (vector_t * vector, vector_element_t data)
   vector_insert_many (vector, vector->size, &data, 1);
 }
 
+/*!
+ * \brief Add multiple elements to end of vector.
+ */
 void
 vector_append_many (vector_t * vector, vector_element_t data[], int count)
 {
   vector_insert_many (vector, vector->size, data, count);
 }
 
+/*!
+ * \brief Add a vector of elements to the end of vector.
+ */
 void
 vector_append_vector (vector_t * vector, vector_t * other_vector)
 {
   vector_append_many (vector, other_vector->element, other_vector->size);
 }
 
+/*!
+ * \brief Add data at specified position of vector.
+ */
 void
 vector_insert (vector_t * vector, int N, vector_element_t data)
 {
@@ -214,6 +224,9 @@ vector_insert_many (vector_t * vector, int N,
   assert (__vector_is_good (vector));
 }
 
+/*!
+ * \brief Copy a vector.
+ */
 vector_t *
 vector_duplicate (vector_t * orig)
 {
