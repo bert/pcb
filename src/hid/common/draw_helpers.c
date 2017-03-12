@@ -149,7 +149,7 @@ thindraw_contour (hidGC gc, PLINE *pl)
   hid_draw_set_line_width (gc, 0);
   hid_draw_set_line_cap (gc, Round_Cap);
 
-#if 0
+#if 1
   /* If the contour is round, use an arc drawing routine. */
   if (pl->is_round)
     {
@@ -184,18 +184,22 @@ thindraw_contour (hidGC gc, PLINE *pl)
 
           hid_draw_arc (gc, v->cx, v->cy, v->radius, v->radius, start_angle, delta_angle);
 
+#if 0
           /* Fill the head vertex */
           if (v == &pl->head)
             hid_draw_fill_circle (gc, this_x, this_y, MIL_TO_COORD (3));
           else
             hid_draw_arc (gc, this_x, this_y, MIL_TO_COORD (3), MIL_TO_COORD (3), 0, 360);
+#endif
         }
       else
         {
+#if 0
           if (v == &pl->head)
             hid_draw_fill_circle (gc, this_x, this_y, MIL_TO_COORD (1.5));
           else
             hid_draw_arc (gc, this_x, this_y, MIL_TO_COORD (1.5), MIL_TO_COORD (1.5), 0, 360);
+#endif
           hid_draw_line (gc, this_x, this_y, next_x, next_y);
         }
 
