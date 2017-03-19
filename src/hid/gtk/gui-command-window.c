@@ -503,12 +503,6 @@ ghid_handle_user_command (gboolean raise)
 	  hid_parse_command (command);
 	  g_free (command);
 	}
-      else if (previous)
-	{
-	  command = g_strdup (previous);
-	  hid_parse_command (command);
-	  g_free (command);
-	}
     }
   ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
