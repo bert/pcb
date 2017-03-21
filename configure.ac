@@ -884,7 +884,11 @@ $GDLIB_PKG_ERRORS])
 	LIBS="$LIBS $GDLIB_LDFLAGS $GDLIB_LIBS"
 
 	# some older installs, Ubuntu Precise for example, leave off the "-lgd" part.
-	# try to see if it needs to be added
+	# try to see if it needs to be added.  However this is currently broken
+	# under cygwin cross building for mingw because of interactions with
+	# __imp__ prefix added in the libgd.a static library.  Look at the declspec
+	# stuff in the mingw gd.h file.
+if test "x$WIN32" = "xno" ; then
 	before_LIBS="$LIBS"
 	AC_SEARCH_LIBS([gdImageCreate],[gd],[],[
 			AC_MSG_ERROR([Unable to figure out how to link gd applications.
@@ -894,6 +898,7 @@ pkg-config.
 	if test "$LIBS" != "${before_LIBS}" ; then
 		GDLIB_LIBS="${GDLIB_LIBS} -lgd"
 	fi
+fi
 
 	if test "X$with_gif" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImageGif)
