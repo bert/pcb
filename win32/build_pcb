@@ -82,6 +82,8 @@ do_build=yes
 do_clean=yes
 do_deps=yes
 do_install=yes
+do_nsis=yes
+
 config_args=""
 tex_flag="TEX=tex"
 while test $# -ne 0 ; do
@@ -111,12 +113,23 @@ while test $# -ne 0 ; do
 			shift 2
 			;;
 
+		--install-only)
+			do_build=no
+			do_clean=no
+			do_config=no
+			do_deps=no
+			do_install=yes
+			do_nsis=no
+			shift
+			;;
+
 		--nsis-only)
 			do_build=no
 			do_clean=no
 			do_config=no
 			do_deps=no
 			do_install=no
+			do_nsis=yes
 			shift
 			;;
 
@@ -142,6 +155,11 @@ while test $# -ne 0 ; do
 
 		--skip-install)
 			do_install=no
+			shift
+			;;
+
+		--skip-nsis)
+			do_nsis=no
 			shift
 			;;
 
@@ -185,7 +203,21 @@ win32_runtime_dos="`cygpath --windows ${win32_runtime} | sed 's;\\\\;\\\\\\\\;g'
 
 # pcb version
 
-pcb_version=`${AWK} '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
+if grep -q 'AC_INIT.*m4_esyscmd' ../configure.ac ; then
+	cat << EOF
+
+You appear to be building from git sources.  You may want to verify that
+the version extraction command in $0 matches the m4_esyscmd in the AC_INIT
+line of ../configure.ac.  They are shown here:
+EOF
+	grep 'AC_INIT.*m4_esyscmd' ../configure.ac /dev/null
+	awk '/git describe/ {if(p>0) {print} else { p = 1}}' $0 /dev/null
+	pcb_version=`git describe --abbrev=8 --always --tags | awk -F'-' '{printf "%s-%s", $1, $3}'`
+	slp=10
+else
+	pcb_version=`${AWK} '/AC_INIT/ {gsub(/.*,[ \t]*\[/, ""); gsub(/\]\).*/, ""); print}' ../configure.ac`
+	slp=0
+fi
 echo "pcb_version extracted from configure.ac = ${pcb_version}"
 
 # location of the NSIS makensis executible (see http://nsis.sourceforge.net)
@@ -293,13 +325,6 @@ PKG_CONFIG=${HOST}-pkg-config
 #${PKG_CONFIG} --list-all
 
 
-# do not try to use libpng-config, it seems broken on win32
-LIBPNG_CONFIG=/usr/bin/true
-export LIBPNG_CONFIG
-LIBPNG_CFLAGS="-I${gtk_win32_devel}/include"
-LIBPNG_LDFLAGS="-L${gtk_win32_devel}/lib"
-LIBPNG_LIBS="-lpng"
-
 # do not try and build the tk based QFP footprint
 # builder
 WISH=/usr/bin/true
@@ -327,96 +352,188 @@ EOF
 # setting WIN32=yes will make sure that the desktop icon
 # gets compiled in
 if test "$do_config" = "yes" ; then
-cd ${top_srcdir}
+	cd ${top_srcdir}
 
-#        CFLAGS="${GDLIB_CFLAGS}" \
-#        LDFLAGS="${GDLIB_LDFLAGS}" \
-rm -fr src/.deps
-echo "Configuring for cygwin"
-( ( ( env WIN32=yes \
-	./configure \
-	--prefix=${pcb_inst} \
-	--docdir=${pcb_inst}/doc \
-	--pdfdir=${pcb_inst}/doc/pdf \
-	--htmldir=${pcb_inst}/doc/html \
-	--datadir=${pcb_inst}/share \
-       ac_cv_func_gdImageGif="yes" \
-       ac_cv_func_gdImageJpeg="yes" \
-       ac_cv_func_gdImagePng="yes" \
-	--disable-dependency-tracking \
-	--disable-nls \
-	--disable-update-desktop-database \
-	--disable-update-mime-database \
-	--host ${HOST} \
-	${config_args} \
-	CPPFLAGS="-DWIN32_LEAN_AND_MEAN" \
-	WIN32=yes \
-	2>&1 ; echo $? >&4 ) | tee c.log 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
+	rm -fr src/.deps
+	echo "Configuring for cygwin"
+	( ( ( env WIN32=yes \
+		./configure \
+		--prefix=${pcb_inst} \
+		--docdir=${pcb_inst}/doc \
+		--pdfdir=${pcb_inst}/doc/pdf \
+		--htmldir=${pcb_inst}/doc/html \
+		--datadir=${pcb_inst}/share \
+		ac_cv_func_gdImageGif="yes" \
+		ac_cv_func_gdImageJpeg="yes" \
+		ac_cv_func_gdImagePng="yes" \
+		--disable-dependency-tracking \
+		--disable-nls \
+		--disable-update-desktop-database \
+		--disable-update-mime-database \
+		--host ${HOST} \
+		${config_args} \
+		CPPFLAGS="-DWIN32_LEAN_AND_MEAN" \
+		WIN32=yes \
+		2>&1 ; echo $? >&4 ) | tee c.log 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
 
-if test $? -ne 0 ; then
-	echo "**** ERROR **** Configure failed. See log in c.log"
-	exit 1
-fi
+	if test $? -ne 0 ; then
+		echo "**** ERROR **** Configure failed. See log in c.log"
+		exit 1
+	fi
 
-# If the win32 pkg-config is used, then you end up with spurious CR's
-# in the generated Makefile's and we need to get rid of them.
 
-#cd ${top_srcdir}
-#for f in `find . -name Makefile -print`; do
-#	mv $f $f.bak
-#	cat $f.bak | tr '\r' ' ' > $f
-#	rm $f.bak
-#done
-
-fi
-
-if test "$do_clean" = "yes" ; then
-cd ${top_srcdir}
-echo "Cleaning"
-( ( ( ${MAKE} clean 2>&1 ; echo $? >&4) | tee clean.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
-if test $? -ne 0 ; then
-	echo "**** ERROR **** Clean failed. See log in clean.log"
-	exit 1
-fi
+	if test "$do_clean" = "yes" ; then
+		cd ${top_srcdir}
+		echo "Cleaning"
+		( ( ( ${MAKE} clean 2>&1 ; echo $? >&4) | tee clean.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
+		if test $? -ne 0 ; then
+			echo "**** ERROR **** Clean failed. See log in clean.log"
+			exit 1
+		fi
+	fi
 fi
 
 if test "$do_build" = "yes" ; then
-cd ${top_srcdir}
-echo "Building for cygwin"
-( ( ( ${MAKE} $tex_flag 2>&1 ; echo $? >&4) | tee m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
-if test $? -ne 0 ; then
-	echo "**** ERROR **** Build failed. See log in m.log"
-	exit 1
-fi
+	cd ${top_srcdir}
+	echo "Building for cygwin"
+	( ( ( ${MAKE} $tex_flag 2>&1 ; echo $? >&4) | tee m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
+	if test $? -ne 0 ; then
+		echo "**** ERROR **** Build failed. See log in m.log"
+		exit 1
+	fi
 fi
 
 if test "$do_install" = "yes" ; then
-cd ${top_srcdir}
-echo "Installing for cygwin"
-# first clean out the installation directory to make sure
-# we don't have old junk lying around.
-if test -d ${pcb_inst} ; then
-	rm -fr ${pcb_inst}
-fi
-( ( ( ${MAKE} install 2>&1 ; echo $? >&4) | tee -a m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
-if test $? -ne 0 ; then
-	echo "**** ERROR **** Build failed. See log in m.log"
-	exit 1
-fi
+	cd ${top_srcdir}
+	echo "Installing for cygwin"
+	# first clean out the installation directory to make sure
+	# we don't have old junk lying around.
+	if test -d ${pcb_inst} ; then
+		rm -fr ${pcb_inst}
+	fi
+	( ( ( ${MAKE} install 2>&1 ; echo $? >&4) | tee -a m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
+	if test $? -ne 0 ; then
+		echo "**** ERROR **** Build failed. See log in m.log"
+		exit 1
+	fi
 fi
 
 cd ${srcdir}
 
+if test "$do_install" = "yes" ; then
+	echo "Copying runtime libraries to staging area"
+	for f in \
+		iconv.dll \
+		libasprintf-0.dll \
+		libatk-1.0-0.dll \
+		libatomic-1.dll \
+		libbz2-1.dll \
+		libcairo-2.dll \
+		libcairo-gobject-2.dll \
+		libcairo-script-interpreter-2.dll \
+		libdbus-1-3.dll \
+		libexpat-1.dll \
+		libffi-6.dll \
+		libfontconfig-1.dll \
+		libfreetype-6.dll \
+		libgailutil-18.dll \
+		libgcc_s_sjlj-1.dll \
+		libgd-3.dll \
+		libgdk_pixbuf-2.0-0.dll \
+		libgdkglext-win32-1.0-0.dll \
+		libgdk-win32-2.0-0.dll \
+		libgio-2.0-0.dll \
+		libglib-2.0-0.dll \
+		libgmodule-2.0-0.dll \
+		libgobject-2.0-0.dll \
+		libgomp-1.dll \
+		libgomp-plugin-host_nonshm-1.dll \
+		libgthread-2.0-0.dll \
+		libgtkglext-win32-1.0-0.dll \
+		libgtk-win32-2.0-0.dll \
+		libharfbuzz-0.dll \
+		libintl-8.dll \
+		libjasper-1.dll \
+		libjbig-2.dll \
+		libjbig85-2.dll \
+		libjpeg-8.dll \
+		liblzma-5.dll \
+		liblzo2-2.dll \
+		libpango-1.0-0.dll \
+		libpangocairo-1.0-0.dll \
+		libpangoft2-1.0-0.dll \
+		libpangowin32-1.0-0.dll \
+		libpixman-1-0.dll \
+		libpng16-16.dll \
+		libquadmath-0.dll \
+		libssp-0.dll \
+		libstdc++-6.dll \
+		libtiff-5.dll \
+		libtiffxx-5.dll \
+		libturbojpeg-0.dll \
+		libvtv_stubs-0.dll \
+		libvtv-0.dll \
+		libwebp-5.dll \
+		libwebpdecoder-1.dll \
+		libwebpdemux-1.dll \
+		libwebpmux-1.dll \
+		libwinpthread-1.dll \
+		libXpm-4.dll \
+		zlib1.dll \
+		; do
+
+		echo "${win32_runtime}/bin/${f} > ${pcb_inst}/bin/${f}"
+		cp "${win32_runtime}/bin/${f}" "${pcb_inst}/bin/${f}"
+	done
+
+	mkdir -p "${pcb_inst}/lib${pcb_inst}/lib"
+	cp -r "${win32_runtime}/lib/gdk-pixbuf-2.0"  "${pcb_inst}/lib/"
+fi
+
+##########################################################################
+#
+# Create DOS batch file wrapper to allow running
+# the staged program before running the installer
+#
+
+bat=test_pcb.bat
 cat << EOF
+
+Creating DOS batch file wrapper to test the built
+pcb which has been installed into the staging
+area ${pcb_inst}.
+
+To test pcb before installing:
+
+./${bat}
+
+EOF
+
+win32_runtime_dos1="`cygpath --windows ${win32_runtime}`"
+
+cat > ${bat} << EOF
+
+PATH=${win32_runtime_dos1}\bin:%PATH%
+
+
+EOF
+cygpath --windows ${pcb_inst}/bin/pcb >> ${bat}
+
+chmod 755 ${bat}
+
+##########################################################################
+#
+# Build the installer
+#
+
+if test "$do_nsis" = "yes" ; then
+	cat << EOF
 Creating NSIS script
 
 srcdir = ${srcdir}
 src_dir = ${src_dir}
 top_srcdir = ${top_srcdir}
 top_src_dir = ${top_src_dir}
-
-gtk_win32_runtime     = ${gtk_win32_runtime}
-gtk_win32_runtime_dos = ${gtk_win32_runtime_dos}
 
 win32_runtime     = ${win32_runtime}
 win32_runtime_dos = ${win32_runtime_dos}
@@ -426,29 +543,33 @@ pcb_inst_dos          = ${pcb_inst_dos}
 
 EOF
 
-docdir="${pcb_inst}/doc"
-readme="${docdir}/Readme.txt"
-# git doesn't seem to appreciate a CRLF terminated file so build the
-# DOS version on the fly
-test -d "${docdir}" || mkdir -p "${docdir}"
-${AWK} '{printf("%s\r\n", $0)}' Readme.txt > "${readme}"
+	docdir="${pcb_inst}/doc"
+	readme="${docdir}/Readme.txt"
+	# git doesn't seem to appreciate a CRLF terminated file so build the
+	# DOS version on the fly
+	test -d "${docdir}" || mkdir -p "${docdir}"
+	${AWK} '{printf("%s\r\n", $0)}' Readme.txt > "${readme}"
 
-sed \
-	-e "s;@pcb_version@;${pcb_version};g" \
-	-e "s;@pcb_prefix@;${pcb_inst_dos};g" \
-	-e "s;@pcb_srcdir@;${top_src_dir};g" \
-	-e "s;@gtk_win32_runtime_dos@;${win32_runtime_dos};g" \
-	${srcdir}/pcb.nsi.in > ${srcdir}/pcb.nsi
+	sed \
+		-e "s;@pcb_version@;${pcb_version};g" \
+		-e "s;@pcb_prefix@;${pcb_inst_dos};g" \
+		-e "s;@pcb_srcdir@;${top_src_dir};g" \
+		-e "s;@gtk_win32_runtime_dos@;${win32_runtime_dos};g" \
+		${srcdir}/pcb.nsi.in > ${srcdir}/pcb.nsi
 
-echo "Creating windows installer"
-"${MAKENSIS}" pcb.nsi 
+	echo "Creating windows installer"
+	"${MAKENSIS}" pcb.nsi 
 
-echo "Windows installer left in ${srcdir}:"
-ls -l ${srcdir}/*.exe
+	echo "Windows installer left in ${srcdir}:"
+	ls -l ${srcdir}/*.exe
 
-bat=run_install.bat
+##########################################################################
+#
+# Create DOS batch file wrapper around the installer
+#
+	bat=run_install.bat
 
-cat << EOF
+	cat << EOF
 
 Creating DOS batch file wrapper for the installer.
 If you have just built this under cygwin on Vista,
@@ -460,12 +581,21 @@ the cygwin shell with
 
 EOF
 
-cat > ${bat} << EOF
+	cat > ${bat} << EOF
 
 .\pcbinst-${pcb_version}.exe
 
 EOF
-chmod 755 ${bat}
+
+	chmod 755 ${bat}
+
+fi
+
+
+##########################################################################
+#
+# Cleanup and exit
+#
 
 if test -d "${tmpdir}" ; then
 	rm -fr "${tmpdir}" 

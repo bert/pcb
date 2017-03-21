@@ -91,7 +91,10 @@ Section "Dummy Section" SecDummy
 
 
   ;ADD YOUR OWN FILES HERE...
-  File /a /r "@gtk_win32_runtime_dos@\*.*"
+  ;the following have been installed into @pcb_prefix@
+  ;so no need to explicitly add.  This lets us control
+  ;what all gets distributed more easily
+  ;File /a /r "@gtk_win32_runtime_dos@\*.*"
   File /a /r "@pcb_prefix@\*.*"
 
   ;Associate file types and icons
