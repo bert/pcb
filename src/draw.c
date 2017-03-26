@@ -211,7 +211,7 @@ _draw_pv (PinType *pv, bool draw_hole)
           gui->graphics->draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 270, 180);
 	  gui->graphics->set_color (Output.fgGC, PCB->Data->Layer[pv->BuriedTo].Color);
           gui->graphics->set_line_width (Output.fgGC, w);
-          gui->graphics->draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 90, 180);
+          gui->graphics->draw_arc (Output.fgGC, pv->X, pv->Y, r, r, 90, 170);
 	}
     }
 
