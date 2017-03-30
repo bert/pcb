@@ -64,11 +64,28 @@ Element[0x00000000 "$1" "`$2'" "$3" 0 0 -SILKXY SILKXY 0 100 ""]
 (
 # Pin[x, y, thickness, clearance, mask, drilling hole, name,
 #     number, flags
-Pin[  PINXY  PINXY PINPAD PINCLEAR PINMASK PINDRILL "1" "1" 0x0]
-Pin[      0  PINXY PINPAD PINCLEAR PINMASK PINDRILL "2" "2" 0x0]
-Pin[ -PINXY  PINXY PINPAD PINCLEAR PINMASK PINDRILL "3" "3" 0x0]
-Pin[ -PINXY -PINXY PINPAD PINCLEAR PINMASK PINDRILL "4" "4" 0x0]
-Pin[  PINXY -PINXY PINPAD PINCLEAR PINMASK PINDRILL "6" "6" 0x0]
+# Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
+dnl
+dnl the craziness here is because these inductors in a can have a metal
+dnl case thar runs around the edge of the package and typically gets pretty
+dnl close to the holes to where you will cause a short if you try
+dnl to wire on the same side as the actual device.
+dnl
+dnl unfortunately pcb just is not so happy about connecting to these sort of
+dnl hacked together pads.  In particular complains about clearance to
+dnl a hole.  Until then do not add the "hole" flag to the pins and keep
+dnl the bottom side pads commented out
+dnl
+dnl Pad[  PINXY  PINXY PINXY PINXY PINPAD PINCLEAR PINMASK "1" "1" "onsolder"]
+dnl Pad[  0 PINXY 0 PINXY  PINPAD PINCLEAR PINMASK "2" "2" "onsolder"]
+dnl Pad[ -PINXY PINXY -PINXY PINXY  PINPAD PINCLEAR PINMASK "3" "3" "onsolder"]
+dnl Pad[ -PINXY -PINXY -PINXY -PINXY  PINPAD PINCLEAR PINMASK "4" "4" "onsolder"]
+dnl Pad[  PINXY -PINXY PINXY -PINXY  PINPAD PINCLEAR PINMASK "6" "6" "onsolder"]
+Pin[  PINXY  PINXY PINPAD PINCLEAR PINMASK PINDRILL "1" "1" ""]
+Pin[      0  PINXY PINPAD PINCLEAR PINMASK PINDRILL "2" "2" ""]
+Pin[ -PINXY  PINXY PINPAD PINCLEAR PINMASK PINDRILL "3" "3" ""]
+Pin[ -PINXY -PINXY PINPAD PINCLEAR PINMASK PINDRILL "4" "4" ""]
+Pin[  PINXY -PINXY PINPAD PINCLEAR PINMASK PINDRILL "6" "6" ""]
 
 Pin[  SILKXY  0 GNDPAD GNDCLEAR GNDMASK GNDDRILL "CASE1" "7" 0x0]
 Pin[ -SILKXY  0 GNDPAD GNDCLEAR GNDMASK GNDDRILL "CASE2" "8" 0x0]
