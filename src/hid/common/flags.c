@@ -177,6 +177,8 @@ layer_type_to_file_name (int idx, int style)
       return "topassembly";
     case SL (ASSY, BOTTOM):
       return "bottomassembly";
+    case SL (OUTLINE, 0):
+      return "outline";
     default:
       group = GetLayerGroupNumberByNumber(idx);
       nlayers = PCB->LayerGroups.Number[group];

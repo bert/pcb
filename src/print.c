@@ -333,14 +333,7 @@ PrintFab (hidGC gc)
     }
   if (i == max_copper_layer)
     {
-      gui->graphics->set_line_width (gc,  MIL_TO_COORD(10));
-      gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
-      gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
-      gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth,
-		      PCB->MaxHeight);
-      gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth,
-		      PCB->MaxHeight);
-      /*FPrintOutline (); */
+      PrintOutline (gc);
       gui->graphics->set_line_width (gc, FAB_LINE_W);
       text_at (gc, MIL_TO_COORD(2000), yoff, 0,
 	       "Maximum Dimensions: %f mils wide, %f mils high",
@@ -382,4 +375,17 @@ PrintFab (hidGC gc)
   yoff -= TEXT_LINE;
   text_at (gc, MIL_TO_COORD(2000), yoff, 0,
 	   "Title: %s - Fabrication Drawing", UNKNOWN (PCB->Name));
+}
+
+void
+PrintOutline (hidGC gc)
+{
+  gui->graphics->set_color (gc, PCB->ElementColor);
+  gui->graphics->set_line_width (gc,  MIL_TO_COORD(10));
+  gui->graphics->draw_line (gc, 0, 0, PCB->MaxWidth, 0);
+  gui->graphics->draw_line (gc, 0, 0, 0, PCB->MaxHeight);
+  gui->graphics->draw_line (gc, PCB->MaxWidth, 0, PCB->MaxWidth,
+			    PCB->MaxHeight);
+  gui->graphics->draw_line (gc, 0, PCB->MaxHeight, PCB->MaxWidth,
+			    PCB->MaxHeight);
 }

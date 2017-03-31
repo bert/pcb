@@ -793,6 +793,34 @@ DrawEverything (const BoxType *drawn_area)
       PrintFab (Output.fgGC);
       gui->end_layer ();
     }
+
+  /*
+   * figure out if we have a layer called "route" or "outline".
+   * if so, we do not need to generate an outline layer.
+   */
+  for (i = 0; i < max_copper_layer; i++)
+    {
+      LayerType *l = LAYER_PTR (i);
+      if (l->Name && (l->LineN || l->ArcN))
+	{
+	  if (strcmp ("route", l->Name) == 0)
+	    break;
+	  if (strcmp ("outline", l->Name) == 0)
+	    break;
+	}
+    }
+  if (i == max_copper_layer)
+    {
+      /*
+       * no explicitly drawn outline layer so make
+       * one from the board size
+       */
+      if (gui->set_layer ("outline", SL (OUTLINE, 0), 0))
+	{
+	  PrintOutline (Output.fgGC);
+	  gui->end_layer ();
+	}
+    }
 }
 
 static void

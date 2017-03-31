@@ -41,5 +41,6 @@
 
 int PrintFab_overhang(void);
 void PrintFab (hidGC gc);
+void PrintOutline (hidGC gc);
 
 #endif
