@@ -46,7 +46,6 @@ bool SelectBlock (BoxType *, bool);
 bool SelectedOperation (ObjectFunctionType *, bool, int);
 void *ObjectOperation (ObjectFunctionType *, int, void *, void *, void *);
 bool SelectByFlag (int flag, bool select);
-bool SelectBuriedVias (bool select);
 
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
 bool SelectObjectByName (int, char *, bool);

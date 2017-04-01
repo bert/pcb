@@ -609,20 +609,6 @@ RemoveSelected (void)
   return (false);
 }
 
-void
-RemoveDegradedVias (void)
-{
-  Bulk = true;
-  VIA_LOOP (PCB->Data);
-    {
-      if (VIA_IS_BURIED (via)
-          && (via->BuriedFrom == via->BuriedTo))
-        RemoveVia (via);
-    }
-  END_LOOP;
-  Bulk = false;
-}
-
 /*!
  * \brief Remove object as referred by pointers and type,
  * allocated memory is passed to the 'remove undo' list.

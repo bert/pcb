@@ -633,7 +633,7 @@ assign_oshpark_file_suffix (char *dest, int idx)
 }
 
 static void
-assign_file_suffix (char *dest, int idx, const char *layer_name)
+assign_file_suffix (char *dest, int idx)
 {
   int fns_style;
   const char *sext = ".gbr";
@@ -665,7 +665,7 @@ assign_file_suffix (char *dest, int idx, const char *layer_name)
       break;
     }
 
-  strcpy (dest, layer_type_to_file_name_ex (idx, fns_style, layer_name));
+  strcpy (dest, layer_type_to_file_name (idx, fns_style));
   strcat (dest, sext);
 }
 
@@ -884,7 +884,7 @@ gerber_set_layer (const char *name, int group, int empty)
       f = NULL;
 
       pagecount++;
-      assign_file_suffix (filesuff, idx, name);
+      assign_file_suffix (filesuff, idx);
       f = fopen (filename, "wb");   /* Binary needed to force CR-LF */
       if (f == NULL) 
 	{

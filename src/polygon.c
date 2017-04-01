@@ -926,13 +926,9 @@ pin_sub_callback (const BoxType * b, void *cl)
     return 0;
   polygon = info->polygon;
 
-  i = GetLayerNumber (info->data, info->layer);
-
-  if (VIA_IS_BURIED (pin) && (!VIA_ON_LAYER (pin, i)))
-    return 0;
-
   if (pin->Clearance == 0)
     return 0;
+  i = GetLayerNumber (info->data, info->layer);
   if (TEST_THERM (i, pin))
     {
       np = ThermPoly ((PCBType *) (info->data->pcb), pin, i);
@@ -1499,26 +1495,15 @@ static int
 subtract_plow (DataType *Data, LayerType *Layer, PolygonType *Polygon,
                int type, void *ptr1, void *ptr2, void *userdata)
 {
-  PinType *via;
-  int layer_n = GetLayerNumber (Data, Layer);
-
   if (!Polygon->Clipped)
     return 0;
   switch (type)
     {
     case PIN_TYPE:
+    case VIA_TYPE:
       SubtractPin (Data, (PinType *) ptr2, Layer, Polygon);
       Polygon->NoHolesValid = 0;
       return 1;
-    case VIA_TYPE:
-      via = (PinType *) ptr2;
-      if (!VIA_IS_BURIED (via) || VIA_ON_LAYER (via, layer_n))
-        {
-          SubtractPin (Data, via, Layer, Polygon);
-          Polygon->NoHolesValid = 0;
-          return 1;
-	}
-      break;
     case LINE_TYPE:
       SubtractLine ((LineType *) ptr2, Polygon);
       Polygon->NoHolesValid = 0;
@@ -1543,22 +1528,12 @@ static int
 add_plow (DataType *Data, LayerType *Layer, PolygonType *Polygon,
           int type, void *ptr1, void *ptr2, void *userdata)
 {
-  PinType *via;
-  int layer_n = GetLayerNumber (Data, Layer);
-
   switch (type)
     {
     case PIN_TYPE:
+    case VIA_TYPE:
       UnsubtractPin ((PinType *) ptr2, Layer, Polygon);
       return 1;
-    case VIA_TYPE:
-      via = (PinType *) ptr2;
-      if (!VIA_IS_BURIED (via) || VIA_ON_LAYER (via, layer_n))
-        {
-          UnsubtractPin ((PinType *) ptr2, Layer, Polygon);
-          return 1;
-	}
-	break;
     case LINE_TYPE:
       UnsubtractLine ((LineType *) ptr2, Layer, Polygon);
       return 1;

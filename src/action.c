@@ -211,10 +211,7 @@ typedef enum
   F_Value,
   F_ViaDrillingHole,
   F_ViaSize,
-  F_Zoom,
-  F_ThroughHole,
-  F_BuriedVias,
-  F_ToggleAutoBuriedVias
+  F_Zoom
 }
 FunctionID;
 
@@ -449,11 +446,7 @@ static FunctionType Functions[] = {
   {"ViaByName", F_ViaByName},
   {"ViaSize", F_ViaSize},
   {"ViaDrillingHole", F_ViaDrillingHole},
-  {"Zoom", F_Zoom},
-  {"ThroughHole", F_ThroughHole},
-  {"TH", F_ThroughHole},
-  {"BuriedVias", F_BuriedVias},
-  {"ToggleAutoBuriedVias", F_ToggleAutoBuriedVias}
+  {"Zoom", F_Zoom}
 };
 
 /* ---------------------------------------------------------------------------
@@ -1277,7 +1270,6 @@ NotifyMode (void)
 	       Crosshair.AttachedLine.Point2.Y))
             {
               PinType *via;
-	      Cardinal layer_from, layer_to;
 
               if ((line =
 		  CreateDrawnLineOnLayer (CURRENT,
@@ -1289,6 +1281,7 @@ NotifyMode (void)
 					  2 * Settings.Keepaway,
 					  MakeFlags (line_flags))) != NULL)
                 {
+
                   addedLines++;
                   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
                   DrawLine (CURRENT, line);
@@ -1296,17 +1289,6 @@ NotifyMode (void)
 	      /* place a via if vias are visible, the layer is
 	         in a new group since the last line and there
 	         isn't a pin already here */
-	      if (TEST_FLAG (AUTOBURIEDVIASFLAG, PCB))
-		{
-		  layer_from = GetLayerNumber (PCB->Data, lastLayer);
-		  layer_to = GetLayerNumber (PCB->Data, CURRENT);
-		}
-	      else
-		{
-		  layer_from = 0;
-		  layer_to = 0;
-		}
-
 	      if (PCB->ViaOn && GetLayerGroupNumberByPointer (CURRENT) !=
 		  GetLayerGroupNumberByPointer (lastLayer) &&
 		  SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
@@ -1315,13 +1297,13 @@ NotifyMode (void)
 					  Settings.ViaThickness / 2) ==
 		  NO_TYPE
 		  && (via =
-		      CreateNewViaEx (PCB->Data,
+		      CreateNewVia (PCB->Data,
 				    Crosshair.AttachedLine.Point1.X,
 				    Crosshair.AttachedLine.Point1.Y,
 				    Settings.ViaThickness,
 				    2 * Settings.Keepaway, 0,
 				    Settings.ViaDrillingHole, NULL,
-				    NoFlags (), layer_from, layer_to)) != NULL)
+				    NoFlags ())) != NULL)
 		{
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 		  DrawVia (via);
@@ -2645,9 +2627,6 @@ Toggles whether the names of pins, pads, or (yes) vias will be
 displayed.  If the cursor is over an element, all of its pins and pads
 are affected.
 
-@item ToggleAutoBuriedVias
-If set, automatically created vias are buried vias.
-
 @end table
 
 %end-doc */
@@ -2753,12 +2732,6 @@ ActionDisplay (int argc, char **argv, Coord childX, Coord childY)
 	case F_ToggleRubberBandMode:
 	  notify_crosshair_change (false);
 	  TOGGLE_FLAG (RUBBERBANDFLAG, PCB);
-	  notify_crosshair_change (true);
-	  break;
-
-	case F_ToggleAutoBuriedVias:
-	  notify_crosshair_change (false);
-	  TOGGLE_FLAG (AUTOBURIEDVIASFLAG, PCB);
 	  notify_crosshair_change (true);
 	  break;
 
@@ -5378,7 +5351,7 @@ ActionChangePaste (int argc, char **argv, Coord x, Coord y)
 
 static const char select_syntax[] =
   N_("Select(Object|ToggleObject)\n"
-  "Select(All|Block|Connection|BuriedVias)\n"
+  "Select(All|Block|Connection)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
   "Select(TextByName|ViaByName|NetByName)\n"
@@ -5419,9 +5392,6 @@ Selects all connections with the ``found'' flag set.
 
 @item Connection
 Selects all connections with the ``connected'' flag set.
-
-@item Connection
-Selects all blind and buried vias.
 
 @item Convert
 Converts the selected objects to an element.  This uses the highest
@@ -5542,15 +5512,6 @@ ActionSelect (int argc, char **argv, Coord x, Coord y)
 	  if (SelectByFlag (CONNECTEDFLAG, true))
 	    {
               Draw ();
-	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (true);
-	    }
-	  break;
-
-	case F_BuriedVias:
-	  if (SelectBuriedVias (true))
-	    {
-	      Draw ();
 	      IncrementUndoSerialNumber ();
 	      SetChangedFlag (true);
 	    }
@@ -8125,154 +8086,6 @@ ActionAttributes (int argc, char **argv, Coord x, Coord y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char setvialayers_syntax[] =
-  N_("SetViaLayers(Object|SelectedVias|Selected[,ThroughHole|TH])\n"
-     "SetViaLayers(Object|SelectedVias|Selected,from,to)\n"
-     "SetViaLayers(Object|SelectedVias|Selected,[c|-|from],[c|-|to])"
-     );
-
-static const char setvialayers_help[] =
-  N_("Sets starting and ending layer for burried/blind/standard vias.");
-
-/* %start-doc actions setvialayers
-
-Specifies layers, which are connected by via.
-
-@table @code
-
-@item TH|ThroughHole
-The vias will be set as through-hole, connecting all layers
-
-@item from
-layer name or layer number of the first layer to be connected by via; "-" stands for unchanged, "c" stands for currently selected layer
-
-@item to
-layer name or layer number of the last layer to be connected by via; "-" stands for unchanged, "c" stands for currently selected layer
-
-@end table
-
-If no parameter us used, dialog is displayed (if implemented in the respective GUI HID).
-
-
-%end-doc */
-
-static bool
-identify_layer (char *layer_name, Cardinal *layer_no)
-{
-  int layer;
-
-  if (strcmp (layer_name, "-") == 0)
-    {
-      *layer_no = -1;
-      return true;
-    }
-
-  if (strcmp (layer_name, "c") == 0)
-    {
-      if ((unsigned int)INDEXOFCURRENT < max_copper_layer)
-        {
-          *layer_no = INDEXOFCURRENT;
-          return true;
-        }
-    }
-
-  layer = SearchLayerByName (PCB->Data, layer_name);
-  if (layer == -1)
-    {
-      if (sscanf (layer_name, "%d", &layer) != 1)
-        layer = -1;
-    }
-
-  if (layer != -1)
-    *layer_no = layer;
-
-  return (layer != -1);
-}
-
-static int
-ActionSetViaLayers (int argc, char **argv, Coord x, Coord y)
-{
-  char *function = ARG (0);
-  char *layername_from = ARG (1);
-  char *layername_to = ARG (2);
-  Cardinal layer_from ;
-  Cardinal layer_to = -1;
-
-  if (!function)
-    AFAIL (setvialayers);
-
-  if ( /* !gui->edit_attributes  &&*/ argc < 2)
-    {
-      Message (_("This GUI doesn't support Via Layers editing\n"));
-      return 1;
-    }
-
-  if (GetFunctionID (layername_from) == F_ThroughHole)
-    {
-      layer_from = 0;
-      layer_to = 0;
-    }
-  else
-    {
-      if (!identify_layer (layername_from, &layer_from)
-          || !identify_layer (layername_to, &layer_to))
-	{
-	  Message (_("Sorry, wrong layers specified.\n"));
-          return 1;
-	}
-    }
-
-  /* ensure that layer_from < layer_to */
-  if (layer_from != -1
-      && layer_to != -1
-      && layer_from > layer_to)
-    {
-      int tmp;
-
-      tmp = layer_from;
-      layer_from = layer_to;
-      layer_to = tmp;
-    }
-
-  if (layer_to != -1)
-    layer_to = min (layer_to, max_copper_layer-1);
-
-  switch (GetFunctionID (function))
-    {
-    case F_Object:
-      {
-	int type;
-	void *ptr1, *ptr2, *ptr3;
-
-	if ((type =
-	     SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE,
-			   &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	  {
-	    if (TEST_FLAG (LOCKFLAG, (PinType *) ptr1))
-	      Message (_("Sorry, the object is locked\n"));
-	    else
-	      {
-	        if (ChangeObjectViaLayers (ptr1, ptr2, ptr3, layer_from, layer_to))
-		  {
-		    SetChangedFlag (true);
-		  }
-	      }
-	  }
-	break;
-    case F_SelectedVias:
-    case F_Selected:
-	if (ChangeSelectedViaLayers (layer_from, layer_to))
-	  {
-	    SetChangedFlag (true);
-	  }
-	break;
-      }
-  }
-
-  return 0;
-}
-/* --------------------------------------------------------------------------- */
-
 HID_Action action_action_list[] = {
   {"AddRats", 0, ActionAddRats,
    addrats_help, addrats_syntax}
@@ -8461,9 +8274,6 @@ HID_Action action_action_list[] = {
   ,
   {"Import", 0, ActionImport,
    import_help, import_syntax}
-  ,
-  {"SetViaLayers", 0, ActionSetViaLayers,
-   setvialayers_help, setvialayers_syntax}
   ,
 };
 

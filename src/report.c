@@ -139,20 +139,6 @@ static const char reportdialog_syntax[] = N_("ReportDialog()");
 static const char reportdialog_help[] =
   N_("Report on the object under the crosshair");
 
-
-static char*
-CreateBuriedViaDescription (int from, int to)
-{
-  static char s[32];
-
-  if ((from == 0) && (to == 0))
-    strcpy (s, "Through-hole");
-  else
-    sprintf (s, "Buried (%d:%d)", from, to);
-
-  return s;
-}
-
 /* %start-doc actions ReportDialog
 
 This is a shortcut for @code{Report(Object)}.
@@ -199,7 +185,6 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		   "Clearance width in polygons = %$mS.\n"
 		   "Annulus = %$mS.\n"
 		   "Solder mask hole = %$mS (gap = %$mS).\n"
-		   "Type = %s.\n"
 		   "Name = \"%s\"."
 		   "%s"), USER_UNITMASK, via->ID, flags_to_string (via->Flags, VIA_TYPE),
 		   via->X, via->Y,
@@ -209,7 +194,6 @@ ReportDialog (int argc, char **argv, Coord x, Coord y)
 		   (via->Thickness - via->DrillingHole) / 2,
 		   via->Mask,
 		   (via->Mask - via->Thickness) / 2,
-		   CreateBuriedViaDescription (via->BuriedFrom, via->BuriedTo),
 		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
 		   _("It is LOCKED.\n") : "");
 	break;
