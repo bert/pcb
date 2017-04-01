@@ -333,15 +333,9 @@ and also appear in the unplated drill file. @emph{Ctrl-H} key over
 a via switches it between being a pure-mounting hole and a regular via.
 You can assign a name to a via, which is useful during the creation
 of new element definitions.
+Each via exists on all copper layers. (@emph{i.e.}
+blind and buried vias are not supported)
 
-Blind and buried vias are supported. Blind and buried vias exist only
-on specified layer range. The first and last layer can be assigned using
-appropriate action, menu item or keys: @emph{Ctrl-Shift-F} to set active
-layer as first layer, @emph{Ctrl-Shift-T} to set last layer and
-@emph{Ctrl-Shift-P} to convert via to through-hole.
-
-Blind and buried vias have colored half-circles drawn on top to designate
-first and last layer..
 
 @node Element Objects
 @section Elements
@@ -581,8 +575,7 @@ point you can delete the intermediate point, otherwise the delete tool removes a
 Feel free to experiment
 since @pcb{} will allow you to undo and redo anything that materially affects your work.
 If you switch active layers in the midst of placing lines a via will automatically be
-placed, when necessary, in order to continue the connection. The via can be through-hole via or
-buried/blind via; the via type is controlled by option @emph{Auto buried vias}.
+placed, when necessary, in order to continue the connection.
 
 @cindex clearance
 If you draw a line inside a polygon, it will either plow through the
@@ -1574,12 +1567,6 @@ A good rule is to realize that holes in the board really are vias between
 the layers and so place them where they won't interfere with connectivity.
 You can convert a hole back into a normal via with the same keystroke used
 to convert it in the first place.
-
-The via can be converted to blind or buried via using
-appropriate action, menu item or keys: @emph{Ctrl-Shift-F} to set active
-layer as first layer, @emph{Ctrl-Shift-T} to set last layer and
-@emph{Ctrl-Shift-P} to convert via back to through-hole via.
-
 
 @node Elements
 @subsection Elements

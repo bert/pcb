@@ -121,9 +121,9 @@ static int ExtraFlag = 0;
 static void *
 AddViaToBuffer (PinType *Via)
 {
-  return (CreateNewViaEx (Dest, Via->X, Via->Y, Via->Thickness, Via->Clearance,
+  return (CreateNewVia (Dest, Via->X, Via->Y, Via->Thickness, Via->Clearance,
 			Via->Mask, Via->DrillingHole, Via->Name,
-			MaskFlags (Via->Flags, NOCOPY_FLAGS | ExtraFlag), Via->BuriedFrom, Via->BuriedTo));
+			MaskFlags (Via->Flags, NOCOPY_FLAGS | ExtraFlag)));
 }
 
 /*!

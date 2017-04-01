@@ -617,9 +617,6 @@ LOCtoPVline_callback (const BoxType * b, void *cl)
   LineType *line = (LineType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
-  if (!ViaIsOnLayerGroup (i->pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
-
   if (!TEST_FLAG (i->flag, line) && PinLineIntersect (i->pv, line) &&
       !TEST_FLAG (HOLEFLAG, i->pv))
     {
@@ -635,9 +632,6 @@ LOCtoPVarc_callback (const BoxType * b, void *cl)
   ArcType *arc = (ArcType *) b;
   struct pv_info *i = (struct pv_info *) cl;
 
-  if (!ViaIsOnLayerGroup (i->pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
-
   if (!TEST_FLAG (i->flag, arc) && IS_PV_ON_ARC (i->pv, arc) &&
       !TEST_FLAG (HOLEFLAG, i->pv))
     {
@@ -652,9 +646,6 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
 {
   PadType *pad = (PadType *) b;
   struct pv_info *i = (struct pv_info *) cl;
-
-  if (!ViaIsOnLayerGroup (i->pv, GetLayerGroupNumberBySide (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)))
-    return 0;
 
   if (!TEST_FLAG (i->flag, pad) && IS_PV_ON_PAD (i->pv, pad) &&
       !TEST_FLAG (HOLEFLAG, i->pv) &&
@@ -675,15 +666,11 @@ LOCtoPVrat_callback (const BoxType * b, void *cl)
     longjmp (i->env, 1);
   return 0;
 }
-
 static int
 LOCtoPVpoly_callback (const BoxType * b, void *cl)
 {
   PolygonType *polygon = (PolygonType *) b;
   struct pv_info *i = (struct pv_info *) cl;
-
-  if (!ViaIsOnLayerGroup (i->pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
 
   /* if the pin doesn't have a therm and polygon is clearing
    * then it can't touch due to clearance, so skip the expensive
@@ -917,22 +904,6 @@ pv_pv_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
   struct pv_info *i = (struct pv_info *) cl;
-  bool pv_overlap = false;
-  Cardinal l;
-
-  if (VIA_IS_BURIED (pin) && VIA_IS_BURIED (i->pv))
-    {
-      for (l = pin->BuriedFrom ; l <= pin->BuriedTo; l++)
-        {
-	   if (ViaIsOnLayerGroup (i->pv, GetLayerGroupNumberByNumber (l)))
-	     {
-	       pv_overlap = true;
-	       break;
-	     }
-	}
-      if (!pv_overlap)
-	return 0;
-    }
 
   if (!TEST_FLAG (i->flag, pin) && PV_TOUCH_PV (i->pv, pin))
     {
@@ -1006,9 +977,6 @@ pv_line_callback (const BoxType * b, void *cl)
   PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!ViaIsOnLayerGroup (pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
-
   if (!TEST_FLAG (i->flag, pv) && PinLineIntersect (pv, i->line))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
@@ -1028,9 +996,6 @@ pv_pad_callback (const BoxType * b, void *cl)
 {
   PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
-
-  if (!ViaIsOnLayerGroup (pv, GetLayerGroupNumberBySide (i->layer)))
-    return 0;
 
   if (!TEST_FLAG (i->flag, pv) && IS_PV_ON_PAD (pv, i->pad))
     {
@@ -1052,9 +1017,6 @@ pv_arc_callback (const BoxType * b, void *cl)
   PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!ViaIsOnLayerGroup (pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
-
   if (!TEST_FLAG (i->flag, pv) && IS_PV_ON_ARC (pv, i->arc))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
@@ -1074,9 +1036,6 @@ pv_poly_callback (const BoxType * b, void *cl)
 {
   PinType *pv = (PinType *) b;
   struct lo_info *i = (struct lo_info *) cl;
-
-  if (!ViaIsOnLayerGroup (pv, GetLayerGroupNumberByNumber (i->layer)))
-    return 0;
 
   /* note that holes in polygons are ok, so they don't generate warnings. */
   if (!TEST_FLAG (i->flag, pv) && !TEST_FLAG (HOLEFLAG, pv) &&
@@ -1153,7 +1112,6 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
           continue;
         }
 
-      info.layer = layer_no;
       /* check all lines */
       while (LineList[layer_no].Location < LineList[layer_no].Number)
         {
@@ -1236,7 +1194,6 @@ LookupPVConnectionsToLOList (int flag, bool AndRats)
         {
           BoxType search_box;
 
-          info.layer = layer_no;
           info.pad = PADLIST_ENTRY (layer_no, PadList[layer_no].Location);
           search_box = expand_bounds ((BoxType *)info.pad);
 
