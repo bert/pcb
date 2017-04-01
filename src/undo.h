@@ -69,7 +69,6 @@ void AddObjectToClearSizeUndoList (int, void *, void *, void *);
 void AddObjectToMaskSizeUndoList (int, void *, void *, void *);
 void AddObjectToChangeAnglesUndoList (int, void *, void *, void *);
 void AddObjectToClearPolyUndoList (int, void *, void *, void *, bool);
-void AddObjectToSetViaLayersUndoList (void *ptr1, void *ptr2, void *ptr3);
 void AddLayerChangeToUndoList (int, int);
 void AddNetlistLibToUndoList (LibraryType *);
 void LockUndo (void);

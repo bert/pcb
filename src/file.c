@@ -157,8 +157,6 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 */
 
 
-#define PCB_FILE_VERSION_BURIED_VIAS 20170218 /*!< Buried vias */
-
 #define PCB_FILE_VERSION_HOLES 20100606 /*!< Hole[] in Polygon. */
 
 #define PCB_FILE_VERSION_BASELINE 20091103 /*!< First version ever saved. */
@@ -172,11 +170,6 @@ PCBFileVersionNeeded (void)
       return PCB_FILE_VERSION_HOLES;
   }
   ENDALL_LOOP;
-
-  VIA_LOOP (PCB->Data);
-    if ((via->BuriedFrom != 0) || (via->BuriedTo != 0))
-      return PCB_FILE_VERSION_BURIED_VIAS;
-  END_LOOP;
 
   return PCB_FILE_VERSION_BASELINE;
 }
@@ -643,8 +636,6 @@ WriteViaData (FILE * FP, DataType *Data)
       PinType *via = iter->data;
       pcb_fprintf (FP, "Via[%mr %mr %mr %mr %mr %mr ", via->X, via->Y,
                    via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
-      if ((via->BuriedFrom != 0) || (via->BuriedTo != 0))
-        fprintf (FP, "%d %d ", via->BuriedFrom, via->BuriedTo);
       PrintQuotedString (FP, (char *)EMPTY (via->Name));
       fprintf (FP, " %s]\n", F2S (via, VIA_TYPE));
     }

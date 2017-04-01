@@ -1542,16 +1542,6 @@ If set, all found connections are reset before a new component is scanned.
        "If set, all found connections are reset before a new component is scanned"),
 
 /* %start-doc options "1 General Options"
- * @ftable @code
- * @item --auto-buried-vias
- * Enables automatically created vias (during line moves and layer switch) to be buriad/blind vias
- * @end ftable
- * %end-doc
- * */
-  BSET (AutoBuriedVias, 0, "auto-buried-vias",
-       "Enables automatically created vias to be buriad/blind vias"),
-
-/* %start-doc options "1 General Options"
 @ftable @code
 @item --ring-bell-finished
 Execute the bell command when all rats are routed.
