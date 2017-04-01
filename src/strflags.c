@@ -135,7 +135,6 @@ static FlagBitsType pcb_flagbits[] = {
   { LOCKNAMESFLAG, N ("locknames"), ALL_TYPES },
   { ONLYNAMESFLAG, N ("onlynames"), ALL_TYPES },
   { HIDENAMESFLAG, N ("hidenames"), ALL_TYPES },
-  { AUTOBURIEDVIASFLAG, N ("autoburiedvias"), ALL_TYPES },
 };
 
 #undef N
