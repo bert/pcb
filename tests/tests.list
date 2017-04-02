@@ -178,11 +178,16 @@ hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcod
 #
 # Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files
 #
-# we can't include gbx:gerber_oneline.fab.gbr yet because it has a name and a date stamp
+# we can't include gbx:gerber_oneline.fab.gbr yet because it has a date stamp
 hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.bottom.gbr  gbx:gerber_oneline.top.gbr cnc:gerber_oneline.plated-drill.cnc
 hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.bottom.gbr  gbx:out.top.gbr cnc:out.plated-drill.cnc
 hid_gerber3 | gerber_arcs.pcb | gerber | --gerberfile arcs | | gbx:arcs.bottom.gbr gbx:arcs.top.gbr gbx:arcs.group1.gbr gbx:arcs.group4.gbr cnc:arcs.plated-drill.cnc
 hid_gerber4 | buried.pcb | gerber | --gerberfile buried | | gbx:buried.bottom.gbr gbx:buried.top.gbr gbx:buried.group2.gbr gbx:buried.group4.gbr gbx:buried.group7.gbr cnc:buried.plated-drill.cnc cnc:buried.plated-drill_03-08.cnc
+# we can't include the fab drawings (which we really would like to on the outline tests) it has a date stamp
+# if/when we teach pcb --fab-date then those can be included
+hid_gerber5 | no_outline.pcb | gerber | | | gbx:no_outline.outline.gbr
+hid_gerber6 | empty_outline.pcb | gerber | | | gbx:empty_outline.outline.gbr
+hid_gerber7 | outline.pcb | gerber | | | gbx:outline.outline.gbr
 #
 ######################################################################
 # ---------------------------------------------
