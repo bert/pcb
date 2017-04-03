@@ -647,7 +647,7 @@ compare_ps() {
         test_failed=yes
     else if test "${ORG_COUNT}" != "${NEW_COUNT}"; then
         echo -n "Page count of generated PostScript is ${NEW_COUNT} "
-        echo    "instead of expected ${OLD_COUNT}."
+        echo    "instead of expected ${ORG_COUNT}."
         test_failed=yes
     fi; fi
 
