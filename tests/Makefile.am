@@ -53,6 +53,7 @@ EXTRA_DIST = \
   inputs/drctest-polygonclearance-pins.pcb \
   inputs/drctest-polygonclearance-vias.pcb \
   inputs/drctest.script \
+  inputs/empty_outline.pcb \
   inputs/fileversion-20091103.pcb \
   inputs/fileversion-20100606.pcb \
   inputs/fileversion-20170218.pcb \
@@ -80,6 +81,8 @@ EXTRA_DIST = \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   inputs/nelma_board.pcb \
+  inputs/no_outline.pcb \
+  inputs/outline.pcb \
   inputs/routestyles.script \
   golden/ChangeClearSize-Sel/clearance-min.pcb \
   golden/ChangeClearSize-Sel/clearance-non-zero.pcb \
@@ -150,6 +153,15 @@ EXTRA_DIST = \
   golden/hid_gerber4/buried.plated-drill.cnc \
   golden/hid_gerber4/buried.plated-drill_03-08.cnc \
   golden/hid_gerber4/buried.top.gbr \
+  golden/hid_gerber5/no_outline.fab.gbr \
+  golden/hid_gerber5/no_outline.outline.gbr \
+  golden/hid_gerber5/no_outline.top.gbr \
+  golden/hid_gerber6/empty_outline.fab.gbr \
+  golden/hid_gerber6/empty_outline.outline.gbr \
+  golden/hid_gerber6/empty_outline.top.gbr \
+  golden/hid_gerber7/outline.fab.gbr \
+  golden/hid_gerber7/outline.outline.gbr \
+  golden/hid_gerber7/outline.top.gbr \
   golden/hid_gcode1/gcode_oneline-bottom.gcode \
   golden/hid_gcode1/gcode_oneline-top.gcode \
   golden/hid_gcode1/gcode_oneline-outline.gcode \
@@ -221,6 +233,9 @@ EXTRA_DIST = \
   golden/hid_png1/gerber_oneline.png \
   golden/hid_png2/myfile.png \
   golden/hid_png3/gerber_oneline.png \
+  golden/hid_png4/no_outline.png \
+  golden/hid_png5/empty_outline.png \
+  golden/hid_png6/outline.png \
   golden/hid_ps1/circles.ps \
   golden/hid_ps2/buried.ps \
   golden/MinMaskGap/minmaskgap.pcb \
