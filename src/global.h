@@ -807,6 +807,7 @@ typedef struct
    *ScriptFilename, /*!< PCB Actions script to execute on startup. */
    *ActionString, /*!< PCB Actions string to execute on startup. */
    *FabAuthor, /*!< Full name of author for FAB drawings. */
+   *FabDate, /*!< Date string for FAB drawings. Generally only used for testing. */
    *GnetlistProgram, /*!< gnetlist program name. */
    *MakeProgram, /*!< make program name. */
    *InitialLayerStack; /*!< If set, the initial layer stack is set to this. */

@@ -769,8 +769,8 @@ for t in $all_tests ; do
 	pcb_flags="${args}"
     fi
 
-    if test "X${hid}" = "Xgerber" ; then
-	pcb_flags="--fab-author Fab_Author ${pcb_flags}"
+    if test "X${hid}" = "Xgerber" -o "X${hid}" = "Xps" ; then
+	pcb_flags="--fab-author Fab_Author --fab-date Fab_Date ${pcb_flags}"
     fi
 
     if test "X${hid}" = "Xaction" ; then

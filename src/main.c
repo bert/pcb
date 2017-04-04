@@ -1413,6 +1413,19 @@ Name of author to be put in the Gerber files.
 
 /* %start-doc options "1 General Options"
 @ftable @code
+@item --fab-date <string>
+Date to be placed in the RS-274X fab drawing.  This
+is largely used for test purposes where it is important
+to be able to obtain exactly the same result on subsequent
+runs.
+@end ftable
+%end-doc
+*/
+  SSET (FabDate, "", "fab-date",
+       "Date to be put in the RS-274X files"),
+
+/* %start-doc options "1 General Options"
+@ftable @code
 @item --layer-stack <string>
 Initial layer stackup, for setting up an export. A comma separated list of layer
 names, layer numbers and layer groups.

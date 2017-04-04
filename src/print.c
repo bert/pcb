@@ -369,7 +369,14 @@ PrintFab (hidGC gc)
 	       "Board outline is the centerline of this path");
     }
   yoff -= TEXT_LINE;
-  text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Date: %s", utcTime);
+  if (Settings.FabDate && Settings.FabDate[0])
+    {
+      text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Date: %s", Settings.FabDate);
+    }
+  else
+    {
+      text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Date: %s", utcTime);
+    }
   yoff -= TEXT_LINE;
   text_at (gc, MIL_TO_COORD(2000), yoff, 0, "Author: %s", pcb_author ());
   yoff -= TEXT_LINE;
