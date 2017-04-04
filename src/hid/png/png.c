@@ -1225,7 +1225,7 @@ png_set_layer (const char *name, int group, int empty)
 
   if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
     return 0;
-  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
+  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB || SL_TYPE (idx) == SL_OUTLINE)
     return 0;
 
   if (strcmp (name, "invisible") == 0)
