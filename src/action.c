@@ -918,8 +918,8 @@ NotifyLine (void)
               /* XXX: What about undo serial number? */
             }
           /* XXX: NEED TO FIGURE OUT WHAT NET CLASS THIS IS, AND/OR STORE FOR USE WITH DRC */
-	  Crosshair.Netclass = get_netclass_at_xy (LAYER_ON_STACK(0), Crosshair.X, Crosshair.Y); /* XXX: Not sure about the layer! */
-	  PCB->Bloat = get_min_clearance_for_netclass (Crosshair.Netclass);
+//	  Crosshair.Netclass = get_netclass_at_xy (LAYER_ON_STACK(0), Crosshair.X, Crosshair.Y); /* XXX: Not sure about the layer! */
+//	  PCB->Bloat = get_min_clearance_for_netclass (Crosshair.Netclass);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
 	{

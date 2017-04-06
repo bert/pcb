@@ -48,7 +48,7 @@
 #include "line.h"
 #include "misc.h"
 #include "rtree.h"
-#include "netclass.h"
+//#include "netclass.h"
 #include "draw.h" /* For Redraw */
 
 #ifdef HAVE_LIBDMALLOC
@@ -262,7 +262,7 @@ drcVia_callback (const BoxType * b, void *cl)
 {
   PinType *via = (PinType *) b;
   struct drc_info *i = (struct drc_info *) cl;
-  char *netclass;
+//  char *netclass;
   Coord required_drc_clearance;
   Coord tmp;
 
@@ -270,8 +270,9 @@ drcVia_callback (const BoxType * b, void *cl)
     return 1;
 
   tmp = i->line->Thickness;
-  netclass = get_netclass_for_via (via);
-  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+//  netclass = get_netclass_for_via (via);
+//  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  required_drc_clearance = PCB->Bloat;
   i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
 
   if (PinLineIntersect (via, i->line))
@@ -290,7 +291,7 @@ drcPin_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
   struct drc_info *i = (struct drc_info *) cl;
-  char *netclass;
+//  char *netclass;
   Coord required_drc_clearance;
   Coord tmp;
 
@@ -298,8 +299,9 @@ drcPin_callback (const BoxType * b, void *cl)
     return 1;
 
   tmp = i->line->Thickness;
-  netclass = get_netclass_for_pin (pin);
-  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+//  netclass = get_netclass_for_pin (pin);
+//  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  required_drc_clearance = PCB->Bloat;
   i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
 
   if (PinLineIntersect (pin, i->line))
@@ -318,7 +320,7 @@ drcPad_callback (const BoxType * b, void *cl)
 {
   PadType *pad = (PadType *) b;
   struct drc_info *i = (struct drc_info *) cl;
-  char *netclass;
+//  char *netclass;
   Coord required_drc_clearance;
   Coord tmp;
 
@@ -326,8 +328,9 @@ drcPad_callback (const BoxType * b, void *cl)
     return 1;
 
   tmp = i->line->Thickness;
-  netclass = get_netclass_for_pad (pad);
-  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+//  netclass = get_netclass_for_pad (pad);
+//  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  required_drc_clearance = PCB->Bloat;
   i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
 
   if (LinePadIntersect (i->line, pad))
@@ -346,7 +349,7 @@ drcLine_callback (const BoxType * b, void *cl)
 {
   LineType *line = (LineType *) b;
   struct drc_info *i = (struct drc_info *) cl;
-  char *netclass;
+//  char *netclass;
   Coord required_drc_clearance;
   Coord tmp;
 
@@ -354,8 +357,9 @@ drcLine_callback (const BoxType * b, void *cl)
     return 1;
 
   tmp = i->line->Thickness;
-  netclass = get_netclass_for_line (i->layer, line);
-  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+//  netclass = get_netclass_for_line (i->layer, line);
+//  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  required_drc_clearance = PCB->Bloat;
   i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
 
   if (LineLineIntersect (line, i->line))
@@ -374,7 +378,7 @@ drcArc_callback (const BoxType * b, void *cl)
 {
   ArcType *arc = (ArcType *) b;
   struct drc_info *i = (struct drc_info *) cl;
-  char *netclass;
+//  char *netclass;
   Coord required_drc_clearance;
   Coord tmp;
 
@@ -382,8 +386,9 @@ drcArc_callback (const BoxType * b, void *cl)
     return 1;
 
   tmp = i->line->Thickness;
-  netclass = get_netclass_for_arc (i->layer, arc);
-  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+//  netclass = get_netclass_for_arc (i->layer, arc);
+//  required_drc_clearance = get_clearance_between_netclasses (i->drawn_line_netclass, netclass);
+  required_drc_clearance = PCB->Bloat;
   i->line->Thickness = Settings.LineThickness + 2 * required_drc_clearance;
 
   if (LineArcIntersect (i->line, arc))
@@ -547,7 +552,8 @@ drc_line (PointType *end)
   info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
   info.drawn_line_netclass = Crosshair.Netclass;
   info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
-  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+  info.max_clearance = PCB->Bloat;
+//  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
 
   f = 1.0;
   s = 0.5;
@@ -618,7 +624,8 @@ drc_lines3 (PointType *old, PointType *end, bool way)
   info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
   info.drawn_line_netclass = Crosshair.Netclass;
   info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
-  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+  info.max_clearance = PCB->Bloat;
+//  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
 
   f = 1.0;
   s = 0.5;
@@ -772,7 +779,8 @@ drc_lines2 (PointType *end, bool way)
   info.top_side = (GetLayerGroupNumberBySide (TOP_SIDE) == info.group);
   info.drawn_line_netclass = Crosshair.Netclass;
   info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
-  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+  info.max_clearance = PCB->Bloat;
+//  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
 
   f = 1.0;
   s = 0.5;
@@ -926,7 +934,8 @@ drc_lines (PointType *end, bool way)
 
   info.drawn_line_netclass = Crosshair.Netclass;
   info.drawn_line_clearance = PCB->Bloat; /* XXX: PICK THIS UP FROM MIN CLEARANCE IN line_netclass -> * */
-  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
+  info.max_clearance = PCB->Bloat;
+//  info.max_clearance = get_max_clearance_for_netclass (info.drawn_line_netclass);
 
   f = 1.0;
   s = 0.5;
