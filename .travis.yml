@@ -11,8 +11,8 @@ addons:
   apt:
     packages:
       - graphviz
-      - autopoint
-      - autoconf
+      - autopoint 0.19.3
+      - autoconf 2.69
       - intltool
       - texinfo
       - texlive-full
