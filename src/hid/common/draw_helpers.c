@@ -18,6 +18,30 @@ common_draw_pcb_line (hidGC gc, LineType *line)
 
   hid_draw_line (gc, line->Point1.X, line->Point1.Y,
                      line->Point2.X, line->Point2.Y);
+
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    {
+      Coord dx, dy, ox, oy;
+      Angle angle;
+      double h;
+
+      dx = line->Point2.X - line->Point1.X;
+      dy = line->Point2.Y - line->Point1.Y;
+      if (dx != 0 || dy != 0)
+        h = 0.5 * line->Thickness / hypot (dx, dy);
+      else
+        h = 0.0;
+
+      ox = dy * h + 0.5 * SGN (dy);
+      oy = -(dx * h + 0.5 * SGN (dx));
+
+      hid_draw_line (gc, line->Point1.X + ox, line->Point1.Y + oy, line->Point2.X + ox, line->Point2.Y + oy);
+      hid_draw_line (gc, line->Point1.X - ox, line->Point1.Y - oy, line->Point2.X - ox, line->Point2.Y - oy);
+
+      angle = atan2 (dx, dy) * 57.295779;
+      hid_draw_arc (gc, line->Point1.X, line->Point1.Y, line->Thickness / 2, line->Thickness / 2, angle - 180, 180);
+      hid_draw_arc (gc, line->Point2.X, line->Point2.Y, line->Thickness / 2, line->Thickness / 2, angle, 180);
+    }
 }
 
 static void
@@ -33,6 +57,22 @@ common_draw_pcb_arc (hidGC gc, ArcType *arc)
   hid_draw_set_line_cap (gc, Trace_Cap);
 
   hid_draw_arc (gc, arc->X, arc->Y, arc->Width, arc->Height, arc->StartAngle, arc->Delta);
+
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    {
+      Coord cx, cy;
+
+      hid_draw_arc (gc, arc->X, arc->Y, arc->Width - arc->Thickness / 2, arc->Height - arc->Thickness / 2, arc->StartAngle, arc->Delta);
+      hid_draw_arc (gc, arc->X, arc->Y, arc->Width + arc->Thickness / 2, arc->Height + arc->Thickness / 2, arc->StartAngle, arc->Delta);
+
+      cx = arc->X + arc->Width * -cos (arc->StartAngle * M_PI / 180.);
+      cy = arc->Y + arc->Height * sin (arc->StartAngle * M_PI / 180.);
+      hid_draw_arc (gc, cx, cy, arc->Thickness / 2, arc->Thickness / 2, arc->StartAngle, -180 * SGN (arc->Delta));
+
+      cx = arc->X + arc->Width * -cos ((arc->StartAngle + arc->Delta) * M_PI / 180.);
+      cy = arc->Y + arc->Height * sin ((arc->StartAngle + arc->Delta) * M_PI / 180.);
+      hid_draw_arc (gc, cx, cy, arc->Thickness / 2, arc->Thickness / 2, arc->StartAngle + arc->Delta, 180 * SGN (arc->Delta));
+    }
 }
 
 /* ---------------------------------------------------------------------------

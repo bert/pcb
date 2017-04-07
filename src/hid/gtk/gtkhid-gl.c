@@ -928,6 +928,8 @@ ghid_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 #endif
 }
 
+void (*old_draw_pcb_line) (hidGC gc, LineType *line);
+
 static void
 ghid_draw_pcb_line (hidGC gc, LineType *line)
 {
@@ -1009,6 +1011,9 @@ ghid_draw_pcb_line (hidGC gc, LineType *line)
       hid_draw_set_color (gc, old_color);
     }
 
+  old_draw_pcb_line (gc, line);
+
+#if 0
   hid_draw_set_line_cap (gc, Trace_Cap);
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     hid_draw_set_line_width (gc, 0);
@@ -1017,6 +1022,7 @@ ghid_draw_pcb_line (hidGC gc, LineType *line)
 
   hid_draw_line (gc, line->Point1.X, line->Point1.Y,
                      line->Point2.X, line->Point2.Y);
+#endif
 }
 
 void
@@ -1275,6 +1281,7 @@ ghid_init_renderer (int *argc, char ***argv, GHidPort *port)
   ghid_graphics_class.fill_pcb_polygon = ghid_fill_pcb_polygon;
   ghid_graphics_class.thindraw_pcb_polygon = ghid_thindraw_pcb_polygon;
   ghid_graphics_class.fill_pcb_pv = ghid_fill_pcb_pv_2d; /* 2D, BB Via aware (with layer end-point annotations) */
+  old_draw_pcb_line = ghid_graphics_class.draw_pcb_line;
   ghid_graphics_class.draw_pcb_line = ghid_draw_pcb_line;
 
   test_model =
