@@ -11,8 +11,6 @@ addons:
   apt:
     packages:
       - graphviz
-      - autopoint
-      - autoconf
       - intltool
       - texinfo
       - texlive-full
@@ -25,10 +23,12 @@ addons:
       - libdbus-glib-1-dev
       - libdbus-1-dev
       - desktop-file-utils
-      - geda-gschem
 
 before_install:
   - sudo apt-get -qq update
+  - ./scripts/install_autoconf.sh
+  - ./scripts/install_gettext.sh
+  - ./scripts/install_geda_gaf.sh
   - ./scripts/install_gerbv.sh
 
 script: scripts/build.sh
