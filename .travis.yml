@@ -1,10 +1,3 @@
-# Very basic Travis CI (http://travis-ci.org) control file that allows
-# some basic Linux-based continuous integration testing (for free).
-
-sudo: required
-
-dist: trusty
-
 language: c
 
 os:
