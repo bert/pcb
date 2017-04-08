@@ -25,11 +25,11 @@ addons:
       - libdbus-glib-1-dev
       - libdbus-1-dev
       - desktop-file-utils
-      - gerbv
       - geda-gschem
 
 before_install:
   - sudo apt-get -qq update
+  - ./scripts/install_gerbv.sh
 
 script: scripts/build.sh
 
