@@ -28,6 +28,7 @@ before_install:
   - sudo apt-get -qq update
   - ./scripts/install_autoconf.sh
   - ./scripts/install_gettext.sh
+  - ./scripts/install_guile.sh
   - ./scripts/install_geda_gaf.sh
   - ./scripts/install_gerbv.sh
 
