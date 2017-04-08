@@ -12,8 +12,6 @@ addons:
     packages:
       - graphviz
       - intltool
-      - texinfo
-      - texlive-full
       - libgd2-noxpm
       - libgd2-noxpm-dev
       - lesstif2
@@ -26,9 +24,11 @@ addons:
 
 before_install:
   - sudo apt-get -qq update
+  - sudo apt-get install -y libgtk2.0-dev autopoint libgettextpo-dev
+    libstroke0-dev guile-2.0-dev flex bison groff texinfo texlive-base
+    texlive-generic-recommended texlive-latex-base texlive-full
   - ./scripts/install_autoconf.sh
   - ./scripts/install_gettext.sh
-  - ./scripts/install_guile.sh
   - ./scripts/install_geda_gaf.sh
   - ./scripts/install_gerbv.sh
 
