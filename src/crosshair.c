@@ -1060,12 +1060,22 @@ check_snap_offgrid_line (struct snap_data *snap_data,
    * the same layer), and when moving a line end-point
    * (but don't snap to the same line)
    */
+  if (!(Settings.Mode == LINE_MODE && CURRENT == ptr1) && /* Snap in line mode when current layer matches */
+      !(Settings.Mode == MOVE_MODE &&                     /* Snap in move mode when...                    */
+        Crosshair.AttachedObject.Ptr1 == ptr1 &&          /* the snapping object is on the same layer... */
+        Crosshair.AttachedObject.Type == LINEPOINT_TYPE && /* and the point we're moving is a line end-point */
+       1) && // Crosshair.AttachedObject.Ptr2 != line) &&         /* and we're not snapping to the same line */
+      (Settings.Mode == LINE_MODE || Settings.Mode == MOVE_MODE)) /* Only restrict line and move modes */
+    return;
+
+#if 0
   if ((Settings.Mode != LINE_MODE || CURRENT != ptr1) &&
       (Settings.Mode != MOVE_MODE ||
        Crosshair.AttachedObject.Ptr1 != ptr1 ||
        Crosshair.AttachedObject.Type != LINEPOINT_TYPE ||
        Crosshair.AttachedObject.Ptr2 == line))
     return;
+#endif
 
   dx = line->Point2.X - line->Point1.X;
   dy = line->Point2.Y - line->Point1.Y;
