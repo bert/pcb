@@ -727,7 +727,7 @@ IsPointOnPin (Coord X, Coord Y, Coord Radius, PinType *pin)
       if (IsPointInBox (X, Y, &b, Radius))
 	return true;
     }
-  else if (Distance (pin->X, pin->Y, X, Y) <= Radius + t)
+  else if (Distance (pin->X, pin->Y, X, Y) < Radius + t)
     return true;
   return false;
 }
