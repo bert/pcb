@@ -1052,7 +1052,15 @@ void
 ghid_invalidate_all ()
 {
   render_priv *priv = gport->render_priv;
-  double elapsed = g_timer_elapsed (priv->time_since_expose, NULL);
+  double elapsed;
+
+  /* We may be called before the GUI is started
+   * (e.g. due to an action string on command line)
+   */
+  if (gport->drawing_area == NULL)
+    return;
+
+  elapsed = g_timer_elapsed (priv->time_since_expose, NULL);
 
   ghid_draw_area_update (gport, NULL);
 
