@@ -635,7 +635,7 @@ ghid_notify_crosshair_change (bool changes_complete)
     return;
 
   /* FIXME: We could just invalidate the bounds of the crosshair attached objects? */
-  ghid_invalidate_all ();
+  if (changes_complete) ghid_invalidate_all ();
 }
 
 void
@@ -646,7 +646,7 @@ ghid_notify_mark_change (bool changes_complete)
     return;
 
   /* FIXME: We could just invalidate the bounds of the mark? */
-  ghid_invalidate_all ();
+  if (changes_complete) ghid_invalidate_all ();
 }
 
 static void
