@@ -844,7 +844,7 @@ line_line_intersect (double x1, double y1, double x2, double y2,
   if (multiplier != NULL) *multiplier = mua;
 
   if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
-    return false;
+    return true; /* Consider extension as intersection */
   return true;
 }
 
@@ -883,58 +883,71 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       return NULL;
     }
 
-  DeltaX = DX;
-  DeltaY = DY;
-
   /* move all the lines... and reset the counter */
-  ptr = Crosshair.AttachedObject.Rubberband;
-  while (Crosshair.AttachedObject.RubberbandN)
+  for (ptr = Crosshair.AttachedObject.Rubberband;
+       Crosshair.AttachedObject.RubberbandN > 0;
+       Crosshair.AttachedObject.RubberbandN--, ptr++)
     {
+      DeltaX = DX;
+      DeltaY = DY;
+
       if (Type == LINE_TYPE &&
           ptr->Layer != NULL)
         {
           double x, y, multiplier;
 
-          line_line_intersect (moving_line->Point1.X, moving_line->Point1.Y,
-                               moving_line->Point2.X, moving_line->Point2.Y,
-                               ptr->Line->Point1.X,   ptr->Line->Point1.Y,
-                               ptr->Line->Point2.X,   ptr->Line->Point2.Y,
-                               NULL,                  NULL,
-                               &multiplier);
-
-          if (fabs (multiplier - 0.0) < EPS)
-            found_line_at_0_end = true;
-
-          if (fabs (multiplier - 1.0) < EPS)
-            found_line_at_1_end = true;
-
-          line_line_intersect (moving_line->Point1.X + DX, moving_line->Point1.Y + DY,
-                               moving_line->Point2.X + DX, moving_line->Point2.Y + DY,
-                               ptr->Line->Point1.X,        ptr->Line->Point1.Y,
-                               ptr->Line->Point2.X,        ptr->Line->Point2.Y,
-                               &x,                         &y,
-                               &multiplier);
-
-          if (first_pass)
+          if (line_line_intersect (moving_line->Point1.X, moving_line->Point1.Y,
+                                   moving_line->Point2.X, moving_line->Point2.Y,
+                                   ptr->Line->Point1.X,   ptr->Line->Point1.Y,
+                                   ptr->Line->Point2.X,   ptr->Line->Point2.Y,
+                                   NULL,                  NULL,
+                                   &multiplier))
             {
-              min_multiplier = multiplier;
-              max_multiplier = multiplier;
-              first_pass = false;
+
+              if (fabs (multiplier - 0.0) < EPS)
+                found_line_at_0_end = true;
+
+              if (fabs (multiplier - 1.0) < EPS)
+                found_line_at_1_end = true;
+
             }
 
-          min_multiplier = MIN (min_multiplier, multiplier);
-          max_multiplier = MAX (max_multiplier, multiplier);
+          if (line_line_intersect (moving_line->Point1.X + DX, moving_line->Point1.Y + DY,
+                                   moving_line->Point2.X + DX, moving_line->Point2.Y + DY,
+                                   ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                                   ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                                   &x,                         &y,
+                                   &multiplier))
+            {
 
-          DeltaX = (Coord)x - ptr->MovedPoint->X;
-          DeltaY = (Coord)y - ptr->MovedPoint->Y;
+              if (first_pass)
+                {
+                  min_multiplier = multiplier;
+                  max_multiplier = multiplier;
+                  first_pass = false;
+                }
+
+              min_multiplier = MIN (min_multiplier, multiplier);
+              max_multiplier = MAX (max_multiplier, multiplier);
+
+              DeltaX = (Coord)x - ptr->MovedPoint->X;
+              DeltaY = (Coord)y - ptr->MovedPoint->Y;
+
+            }
+#if 1 /* Comment this block to have colinear line stubs rubber-band with the non-adjusted delta (and remain connected) */
+          else
+            {
+              continue;
+            }
+#endif
         }
+
+      /* XXX: If the movement shrinks a line to zero size, should we delete it instead? */
 
       AddObjectToMoveUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
                                ptr->MovedPoint, DeltaX, DeltaY);
       MoveLinePoint (ptr->Layer, ptr->Line, ptr->MovedPoint);
 
-      Crosshair.AttachedObject.RubberbandN--;
-      ptr++;
     }
 
     if (!found_line_at_0_end)

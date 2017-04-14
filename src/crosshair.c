@@ -455,7 +455,7 @@ line_line_intersect (double x1, double y1, double x2, double y2,
   if (multiplier != NULL) *multiplier = mua;
 
   if (mua < 0.0 || 1.0 < mua || mub < 0.0 || 1.0 < mub)
-    return false;
+    return true; /* Consider extension as intersection */
   return true;
 }
 
@@ -509,31 +509,36 @@ XORDrawMoveOrCopyObject (hidGC gc)
               {
                 double multiplier;
 
-                line_line_intersect (moving_line->Point1.X, moving_line->Point1.Y,
-                                     moving_line->Point2.X, moving_line->Point2.Y,
-                                     ptr->Line->Point1.X,   ptr->Line->Point1.Y,
-                                     ptr->Line->Point2.X,   ptr->Line->Point2.Y,
-                                     NULL, NULL, &multiplier);
-
-                if (fabs (multiplier - 0.0) < EPS)
-                  found_line_at_0_end = true;
-
-                if (fabs (multiplier - 1.0) < EPS)
-                  found_line_at_1_end = true;
-
-                line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
-                                     moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
-                                     ptr->Line->Point1.X,        ptr->Line->Point1.Y,
-                                     ptr->Line->Point2.X,        ptr->Line->Point2.Y,
-                                     NULL, NULL, &multiplier);
-                if (first_pass)
+                if (line_line_intersect (moving_line->Point1.X, moving_line->Point1.Y,
+                                         moving_line->Point2.X, moving_line->Point2.Y,
+                                         ptr->Line->Point1.X,   ptr->Line->Point1.Y,
+                                         ptr->Line->Point2.X,   ptr->Line->Point2.Y,
+                                         NULL, NULL, &multiplier))
                   {
-                    min_multiplier = multiplier;
-                    max_multiplier = multiplier;
-                    first_pass = false;
+
+                    if (fabs (multiplier - 0.0) < EPS)
+                      found_line_at_0_end = true;
+
+                    if (fabs (multiplier - 1.0) < EPS)
+                      found_line_at_1_end = true;
+
                   }
-                min_multiplier = MIN (min_multiplier, multiplier);
-                max_multiplier = MAX (max_multiplier, multiplier);
+
+                if (line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
+                                         moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
+                                         ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                                         ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                                         NULL, NULL, &multiplier))
+                  {
+                    if (first_pass)
+                      {
+                        min_multiplier = multiplier;
+                        max_multiplier = multiplier;
+                        first_pass = false;
+                      }
+                    min_multiplier = MIN (min_multiplier, multiplier);
+                    max_multiplier = MAX (max_multiplier, multiplier);
+                  }
               }
           }
 
@@ -674,15 +679,31 @@ XORDrawMoveOrCopyObject (hidGC gc)
               PointType *fixed_point;
               double x, y;
 
-              line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
-                                   moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
-                                   ptr->Line->Point1.X,        ptr->Line->Point1.Y,
-                                   ptr->Line->Point2.X,        ptr->Line->Point2.Y,
-                                   &x,                         &y,
-                                   NULL);
-
               fixed_point = (ptr->MovedPoint == &ptr->Line->Point1) ?
                               &ptr->Line->Point2 : &ptr->Line->Point1;
+
+
+              if (!line_line_intersect (moving_line->Point1.X + dx, moving_line->Point1.Y + dy,
+                                        moving_line->Point2.X + dx, moving_line->Point2.Y + dy,
+                                        ptr->Line->Point1.X,        ptr->Line->Point1.Y,
+                                        ptr->Line->Point2.X,        ptr->Line->Point2.Y,
+                                        &x,                         &y,
+                                        NULL))
+                {
+#if 0 /* Uncomment this block to have colinear line stubs rubber-band with the non-adjusted delta (and remain connected) */
+                  PointType *moving_point;
+
+                  moving_point = (ptr->MovedPoint == &ptr->Line->Point1) ?
+                                  &ptr->Line->Point1 : &ptr->Line->Point2;
+
+                  XORDrawAttachedLine (gc, fixed_point->X, fixed_point->Y,
+                                       moving_point->X + dx, moving_point->Y + dy,
+                                       ptr->Line->Thickness);
+#endif
+
+                  /* Avoid breakage in the colinear line segment case */
+                  continue;
+                }
 
               XORDrawAttachedLine (gc, fixed_point->X, fixed_point->Y, x, y,
                                    ptr->Line->Thickness);
