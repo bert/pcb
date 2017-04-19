@@ -245,16 +245,29 @@ command_combo_box_entry_create (void)
 }
 
 static void
-command_window_close_cb (void)
+command_window_disconnect_combobox ()
 {
   if (command_window)
-    {
-      gtk_container_remove (GTK_CONTAINER (combo_vbox),	/* Float it */
-			    ghidgui->command_combo_box);
-      gtk_widget_destroy (command_window);
-    }
+  {
+    gtk_container_remove (GTK_CONTAINER (combo_vbox),	/* Float it */
+                          ghidgui->command_combo_box);
+  }
   combo_vbox = NULL;
-  command_window = NULL;
+}
+
+static void
+command_window_close_cb (GtkWidget * widget, gpointer data)
+{
+  command_window_disconnect_combobox();
+  gtk_widget_destroy (command_window);
+}
+
+static gboolean
+command_window_delete_event_cb (GtkWidget * widget, GdkEvent * event,
+                                gpointer data)
+{
+  command_window_disconnect_combobox();
+  return FALSE;
 }
 
 static void
@@ -285,7 +298,7 @@ ghid_command_use_command_window_sync (void)
          |  so we can pack it back into the status line hbox.  If the window
          |  wasn't up, the command_combo_box was already floating.
        */
-      command_window_close_cb ();
+      if(command_window)  command_window_close_cb (NULL, NULL);
       gtk_widget_hide (ghidgui->command_combo_box);
       gtk_box_pack_start (GTK_BOX (ghidgui->status_line_hbox),
 			  ghidgui->command_combo_box, FALSE, FALSE, 0);
@@ -309,7 +322,9 @@ ghid_command_window_show (gboolean raise)
     }
   command_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (G_OBJECT (command_window), "destroy",
-		    G_CALLBACK (command_destroy_cb), NULL);
+                    G_CALLBACK (command_destroy_cb), NULL);
+  g_signal_connect (G_OBJECT (command_window), "delete-event",
+                    G_CALLBACK (command_window_delete_event_cb), NULL);
   gtk_window_set_title (GTK_WINDOW (command_window), _("PCB Command Entry"));
   gtk_window_set_wmclass (GTK_WINDOW (command_window), "PCB_Command", "PCB");
   gtk_window_set_resizable (GTK_WINDOW (command_window), FALSE);
