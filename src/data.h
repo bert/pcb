@@ -34,6 +34,7 @@
 #define	PCB_DATA_H
 
 #include "global.h"
+#include "crosshair.h"
 
 /* ---------------------------------------------------------------------------
  * some shared identifiers

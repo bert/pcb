@@ -41,6 +41,7 @@
 #include <memory.h>
 
 #include "data.h"
+#include "crosshair.h"
 #include "error.h"
 #include "mymem.h"
 #include "misc.h"

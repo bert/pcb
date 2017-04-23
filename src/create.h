@@ -34,6 +34,7 @@
 #define	PCB_CREATE_H
 
 #include "global.h"
+#include "crosshair.h"
 
 void CreateBeLenient (bool);
 

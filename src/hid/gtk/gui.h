@@ -28,6 +28,7 @@
 #include <locale.h>
 
 #include "global.h"
+#include "crosshair.h"
 #include "hid.h"
 #include "hid_draw.h"
 #include "hid/common/hid_resource.h"

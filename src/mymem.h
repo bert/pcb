@@ -41,6 +41,7 @@
 
 #include <stdlib.h>
 #include "global.h"
+#include "crosshair.h"
 
 /* ---------------------------------------------------------------------------
  * number of additional objects that are allocated with one system call

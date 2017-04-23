@@ -44,6 +44,7 @@
 #include "create.h"
 #include "data.h"
 #include "draw.h"
+#include "crosshair.h"
 #include "error.h"
 #include "mymem.h"
 #include "misc.h"
