@@ -48,6 +48,7 @@
 #include "misc.h"
 #include "mymem.h"
 #include "search.h"
+#include "snap.h"
 #include "polygon.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -1181,7 +1182,18 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       && TEST_FLAG (AUTODRCFLAG, PCB))
     EnforceLineDRC ();
 
-  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_DO_NOTHING);
+  //gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_DO_NOTHING);
+}
+
+bool
+FitCrosshairIntoGridWrapper(SnapType * snap, Coord x, Coord y)
+{
+  FitCrosshairIntoGrid(x, y);
+  snap->location.X = Crosshair.X;
+  snap->location.Y = Crosshair.Y;
+  snap->distsq = square(Crosshair.X - x) + square(Crosshair.Y - y);
+  snap->obj_type = 0;
+  return true;
 }
 
 /*!
@@ -1194,8 +1206,14 @@ MoveCrosshairAbsolute (Coord X, Coord Y)
 {
   Coord old_x = Crosshair.X;
   Coord old_y = Crosshair.Y;
+  SnapType * snap;
 
-  FitCrosshairIntoGrid (X, Y);
+  snap = Crosshair.snap(Crosshair.snaps, X, Y);
+  Crosshair.X = snap->location.X;
+  Crosshair.Y = snap->location.Y;
+  
+  gui->set_crosshair (snap->location.X, snap->location.Y,
+                      HID_SC_DO_NOTHING);
 
   if (Crosshair.X != old_x || Crosshair.Y != old_y)
     {
@@ -1278,6 +1296,10 @@ SetCrosshairRange (Coord MinX, Coord MinY, Coord MaxX, Coord MaxY)
  *
  * Clears the struct, allocates to graphical contexts.
  */
+
+SnapType default_snap = {"Default Snap", &FitCrosshairIntoGridWrapper,
+  true, 1000, 10, 0, {0,0,0,0,0}, 0};
+
 void
 InitCrosshair (void)
 {
@@ -1291,6 +1313,9 @@ InitCrosshair (void)
 
   /* clear the mark */
   Marked.status = false;
+  Crosshair.snap = &snap_list_search_snaps;
+  Crosshair.snaps = snap_list_new();
+  snap_list_add_snap(Crosshair.snaps, &default_snap);
 }
 
 /*!

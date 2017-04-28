@@ -34,6 +34,7 @@
 #define	PCB_CROSSHAIR_H
 
 #include "global.h"
+#include "snap.h"
 
 /* ---------------------------------------------------------------------------
  * all possible states of an attached object
@@ -41,7 +42,6 @@
 #define	STATE_FIRST		0	/*!< initial state. */
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
-
 /* ---------------------------------------------------------------------------
  * some types for cursor drawing, setting of block and lines
  * as well as for merging of elements
@@ -123,6 +123,8 @@ typedef struct
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject; /*!< Data of attached objects. */
   enum crosshair_shape shape; /*!< Shape of Crosshair. */
+  SnapType * (*snap)(SnapListType *, Coord, Coord); /*! Snapping function */
+  SnapListType * snaps; /*! List of snappables */
 } CrosshairType;
 
 typedef struct
