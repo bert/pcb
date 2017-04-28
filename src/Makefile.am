@@ -138,6 +138,8 @@ PCB_SRCS = \
 	set.c \
 	set.h \
 	smartdisperse.c \
+    snap.c \
+    snap.h \
 	strcasestr.c \
 	strflags.c \
 	strflags.h \
