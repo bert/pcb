@@ -42,10 +42,10 @@
  * Snap Type functions
  */
 
-SnapType *
-snap_new(char * name, int priority)
+SnapSpecType *
+snap_spec_new(char * name, int priority)
 {
-  SnapType * snap = malloc(sizeof(SnapType));
+  SnapSpecType * snap = malloc(sizeof(SnapSpecType));
   snap->name = strdup(name);
   snap->priority = priority;
   snap->enabled = false;
@@ -55,7 +55,7 @@ snap_new(char * name, int priority)
 }
 
 void
-snap_delete(SnapType * snap)
+snap_delete(SnapSpecType * snap)
 {
   free(snap->name);
   free(snap);
@@ -109,8 +109,8 @@ snap_list_delete(SnapListType * list)
  * the list.
  */
 
-SnapType *
-snap_list_add_snap(SnapListType * list, SnapType * snap)
+SnapSpecType *
+snap_list_add_snap(SnapListType * list, SnapSpecType * snap)
 {
   int i, in = list->n;
   
@@ -128,15 +128,15 @@ snap_list_add_snap(SnapListType * list, SnapType * snap)
   /* reallocate the memory to the new size */
   if (list->n + 1 > list->max)
   {
-    list->snaps = (SnapType *) realloc(list->snaps,
-                                       (list->n + 1) * sizeof(SnapType));
+    list->snaps = (SnapSpecType *) realloc(list->snaps,
+                                       (list->n + 1) * sizeof(SnapSpecType));
     list->max += 1;
   }
   /* shift everything after the new entry down */
   memmove(list->snaps + in + 1, list->snaps + in,
-          (list->n - in)*sizeof(SnapType));
+          (list->n - in)*sizeof(SnapSpecType));
   /* copy in the new entry */
-  memcpy(list->snaps+in, snap, sizeof(SnapType));
+  memcpy(list->snaps+in, snap, sizeof(SnapSpecType));
   /* increment the list counter */
   list->n += 1;
   return list->snaps+in;
@@ -155,13 +155,13 @@ snap_list_remove_snap_by_name(SnapListType * list, char * name)
       if (i+1 != list->n)
       /* item was not the last element in the list */
         memmove(list->snaps + i, list->snaps + i + 1,
-                (list->n - i - 1)*sizeof(SnapType));
+                (list->n - i - 1)*sizeof(SnapSpecType));
       list->n -= 1;
     }
   return i;
 }
 
-SnapType *
+SnapSpecType *
 snap_list_find_snap_by_name(SnapListType * list, char * name)
 {
   int i;
@@ -186,12 +186,13 @@ SnapType *
 snap_list_search_snaps(SnapListType * list, Coord x, Coord y)
 {
   int i;
-  bool snap_found;
+  static SnapType snap;
   
   for (i=0; i < list->n; i++){
     if (!list->snaps[i].enabled) continue;
-    snap_found = list->snaps[i].search(list->snaps+i, x, y);
-    if (snap_found) return list->snaps+i;
+    snap = list->snaps[i].search(x, y, list->snaps[i].radius);
+    snap.spec = list->snaps + i;
+    if (snap.valid) return &snap;
   }
   return NULL;
 }

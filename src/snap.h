@@ -41,25 +41,40 @@
  * Snap Type and functions
  */
 
-typedef struct SnapStruct
+struct SnapSpecStruct;
+typedef struct SnapSpecStruct SnapSpecType;
+
+/* should I include a pointer to the actual object? */
+typedef struct
+{
+  SnapSpecType * spec;
+  bool valid;
+  PointType loc;
+  Coord distsq;
+  unsigned obj_type;
+} SnapType;
+
+/*
+ * Snap Spec Type and functions
+ */
+
+struct SnapSpecStruct
 {
   char * name;
-  bool (*search)(struct SnapStruct * snap, Coord x, Coord y);
+  SnapType (*search)(Coord x, Coord y, Coord r);
   bool enabled;
   int priority;
   Coord radius;
-  unsigned obj_type;
-  PointType location;
-  Coord distsq;
-} SnapType;
+  int obj_type;
+};
 
 /* how many parameters ought to be specified in this constructor? 
    For insertion into a snap list it needs at least a name and a priority,
    so I'll go with that for now. */
 /* constructor */
-SnapType * snap_new(char * name, int priority);
+SnapSpecType * snap_spec_new(char * name, int priority);
 /* destructor */
-void snap_delete(SnapType * snap);
+void snap_spec_delete(SnapSpecType * snap);
 
 /*
  * Snap List Type and functions
@@ -67,7 +82,7 @@ void snap_delete(SnapType * snap);
 
 typedef struct {
   int n, max;
-  SnapType * snaps;
+  SnapSpecType * snaps;
 } SnapListType;
 
 /* constructor */
@@ -75,9 +90,9 @@ SnapListType * snap_list_new();
 /* destructor */
 void snap_list_delete(SnapListType * list);
 
-SnapType * snap_list_add_snap(SnapListType * list, SnapType * snap);
+SnapSpecType * snap_list_add_snap(SnapListType * list, SnapSpecType * snap);
 int snap_list_remove_snap_by_name(SnapListType * list, char * name);
-SnapType * snap_list_find_snap_by_name(SnapListType * list, char * name);
+SnapSpecType * snap_list_find_snap_by_name(SnapListType * list, char * name);
 int snap_list_list_snaps(SnapListType * list);
 SnapType * snap_list_search_snaps(SnapListType * list, Coord x, Coord y);
 
