@@ -1,3 +1,7 @@
+/*!
+ * \file src/hid/gtk/ghid-cell-renderer-visibility.h
+ */
+
 #ifndef GHID_CELL_RENDERER_VISIBILITY_H__
 #define GHID_CELL_RENDERER_VISIBILITY_H__
 

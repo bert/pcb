@@ -1,9 +1,11 @@
-/*! \file <gtk-pcb-cell-render-visibility.c>
- *  \brief Implementation of GtkCellRenderer for layer visibility toggler
- *  \par More Information
- *  For details on the functions implemented here, see the Gtk
- *  documentation for the GtkCellRenderer object, which defines
- *  the interface we are implementing.
+/*!
+ * \file src/hid/gtk/ghid-cell-renderer-visibility.c
+ *
+ * \brief Implementation of GtkCellRenderer for layer visibility toggler.
+ *
+ * For details on the functions implemented here, see the Gtk
+ * documentation for the GtkCellRenderer object, which defines
+ * the interface we are implementing.
  */
 
 #include <glib.h>
@@ -42,7 +44,10 @@ struct _GHidCellRendererVisibilityClass
 };
 
 /* RENDERER FUNCTIONS */
-/*! \brief Calculates the window area the renderer will use */
+
+/*!
+ * \brief Calculates the window area the renderer will use.
+ */
 static void
 ghid_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
                                         GtkWidget       *widget,
@@ -81,7 +86,9 @@ ghid_cell_renderer_visibility_get_size (GtkCellRenderer *cell,
     }
 }
 
-/*! \brief Actually renders the swatch */
+/*!
+ * \brief Actually renders the swatch.
+ */
 static void
 ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
                                       GdkWindow            *window,
@@ -174,7 +181,9 @@ ghid_cell_renderer_visibility_render (GtkCellRenderer      *cell,
     }
 }
 
-/*! \brief Toggless the swatch */
+/*!
+ * \brief Toggless the swatch.
+ */
 static gint
 ghid_cell_renderer_visibility_activate (GtkCellRenderer      *cell,
                                         GdkEvent             *event,
