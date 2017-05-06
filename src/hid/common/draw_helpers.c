@@ -430,9 +430,21 @@ common_get_pad_polygon(Coord x[4], Coord y[4], const PadType *l, int w)
 {
   Coord dX, dY;
   double dwx, dwy;
+  Coord x1, y1, x2, y2;
+  x1 = l->Point1.X;
+  y1 = l->Point1.Y;
+  x2 = l->Point2.X;
+  y2 = l->Point2.Y;
+  if (x1 > x2 || y1 > y2)
+    {
+      Coord temp_x = x1;
+      Coord temp_y = y1;
+      x1 = x2; x2 = temp_x;
+      y1 = y2; y2 = temp_y;
+    }
 
-  dX = l->Point2.X - l->Point1.X;
-  dY = l->Point2.Y - l->Point1.Y;
+  dX = x2 - x1;
+  dY = y2 - y1;
 
   if (dY == 0)
     {
@@ -453,17 +465,17 @@ common_get_pad_polygon(Coord x[4], Coord y[4], const PadType *l, int w)
       dwy =  w / r * dY;
     }
 
-  x[0] = l->Point1.X - dwx + dwy;
-  y[0] = l->Point1.Y - dwy - dwx;
+  x[0] = x1 - dwx + dwy;
+  y[0] = y1 - dwy - dwx;
 
-  x[1] = l->Point1.X - dwx - dwy;
-  y[1] = l->Point1.Y - dwy + dwx;
+  x[1] = x1 - dwx - dwy;
+  y[1] = y1 - dwy + dwx;
 
-  x[2] = l->Point2.X + dwx - dwy;
-  y[2] = l->Point2.Y + dwy + dwx;
+  x[2] = x2 + dwx - dwy;
+  y[2] = y2 + dwy + dwx;
 
-  x[3] = l->Point2.X + dwx + dwy;
-  y[3] = l->Point2.Y + dwy - dwx;
+  x[3] = x2 + dwx + dwy;
+  y[3] = y2 + dwy - dwx;
 }
 
 void
