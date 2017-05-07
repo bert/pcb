@@ -1,9 +1,426 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2017-05-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog, NEWS, doc/pcb.texi: Release notes for pcb-4.0.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-04-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.0.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-04-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi, src/action.c, src/buffer.c, src/change.c,
+	src/change.h, src/const.h, src/copy.c, src/create.c, src/create.h,
+	src/draw.c, src/draw.h, src/file.c, src/file.h, src/find.c,
+	src/flags.c, src/global.h, src/gpcb-menu.res.in,
+	src/hid/common/flags.c, src/hid/gerber/gerber.c, src/hid/hidint.h,
+	src/hid/ps/ps.c, src/macro.h, src/main.c, src/misc.c, src/misc.h,
+	src/move.c, src/parse_y.y, src/polygon.c, src/remove.c,
+	src/remove.h, src/report.c, src/search.c, src/search.h,
+	src/select.c, src/select.h, src/strflags.c, src/undo.c, src/undo.h,
+	tests/Makefile.am, tests/golden/hid_gerber4/buried.bottom.gbr,
+	tests/golden/hid_gerber4/buried.fab.gbr,
+	tests/golden/hid_gerber4/buried.group2.gbr,
+	tests/golden/hid_gerber4/buried.group4.gbr,
+	tests/golden/hid_gerber4/buried.group7.gbr,
+	tests/golden/hid_gerber4/buried.plated-drill.cnc,
+	tests/golden/hid_gerber4/buried.plated-drill_03-08.cnc,
+	tests/golden/hid_gerber4/buried.top.gbr,
+	tests/golden/hid_ps2/buried.ps, tests/inputs/buried.pcb,
+	tests/tests.list: Revert "Buried vias" This reverts commit 3982688c6dd1e71d5cb877430542284fe2544892.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-03-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-menu.res.in: Revert "Add blind/buried via feature commands
+	to the Lesstif pull down menu." This reverts commit 4b299900c8be752d150dd6cf2c2a3048f436c8c2.
+
+2017-03-26   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/draw.c: Revert "Correction in drawing end angle in "BuriedTo"
+	indicator arc." This reverts commit ee54e9bf567a74c79db1cef10a6311970a6c74d2.
+
+2017-01-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/misc.c: misc.c: correction in AttributeRemoveFromList().  Closes-bug: https://bugs.launchpad.net/pcb/+bug/1654821  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-03-19   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-command-window.c: Don't execute the previous
+	action when cancelling command entry.   Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-cell-renderer-visibility.c,
+	src/hid/gtk/ghid-cell-renderer-visibility.h: 
+	src/hid/gtk/ghid-cell-renderer-visibility.[ch]: corrections in
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-02   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-command-window.c: 
+	src/hid/gtk/gui-command-window.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-19   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/lesstif/main.c: Fix two comments
+	that were wrong  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-18   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c: Added comments to the gdk redraw_region
+	function  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-04-30   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit a44198b8d9c13b0cf69f185ecace12bbc4aa7e27  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Sun Apr 30 20:58:44
+	2017 -0400
+
+2017-04-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gui-command-window.c: Reorchestrate the closing of the
+	command window to not crash.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-04-13   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gl.c: Only invalidate the screen after changes
+	to the crosshair or mark are complete  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-04-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc, lib/nichicon.inc: Update pin diameters for Nichicon
+	LGY and LGX series after getting some parts on hand to compare to
+	the drawings.
+
+2017-03-31   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc, lib/nichicon.inc: Add all of the Nichicon LGX and
+	LGY series of aluminum electrolytics and one of the UPT series
+
+2017-03-30   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/toko.inc: add some comments about improvements to the toko
+	inductors in a can.  No physical change
+
+2017-03-21   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/build_pcb, win32/pcb.nsi.in: Cleanup the win32 build script
+	a good bit.  An important change is that instead of blindly
+	installing all of the mingw cross system root files, only install a
+	set of listed ones.  This not only reduces the size of the windows
+	installer but makes sure we have a more repeatable build and know
+	what we are actually bundling into the installer.
+
+2017-03-21   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: When building under cygwin, create a pcbtest.bat
+	batch file that allows testing the compiled pcb without installing.
+	This is somewhat analogous to the pcbtest.sh script generated on
+	linux and other unix-like systems.
+
+2017-03-21   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Disable one of the checks used to deal with older
+	gdlib installs on some linux systems when building under cygwin as
+	the test has problems.  Repairs building for mingw under cygwin.
+
+2017-02-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Added more documentation for the IPC-D-356 netlist
+	exporter.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-19   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/draw.c: Correction in drawing end angle in "BuriedTo"
+	indicator arc.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-27   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: In the mounting hole macro, change the calculation
+	of the pad size for the support vias to make them as large as
+	possible without actually changing the copper (the support vias are
+	covered by the main pad).  This does not affect the fabricated board
+	but it does remove some false positive DRC complaints.
+
+2017-02-27   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/toko.inc: fix clearance on the Toko 7P footprint.
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: remove an extra empty attribute which is not needed
+	and causes warnings in the mounting hole macro
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: fix problem in some possible invocations of the
+	generic mounting hole macro.  All footprints pass syntax checks
+	again.
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/Makefile.am: add two missing files to the list of what to
+	clean
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit 4d3f77e7a4d189cfe986c8cff7065355a426ff4e  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Sat Feb 25 12:35:58
+	2017 -0500
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: Add PKG_MTHOLE_GENERIC macro for fairly generic
+	mounting holes.  Use this to define IPC mounting holes for #4 and #6
+	machine screws with pan heads or flat washers for both "tight"
+	(board < 4") and "loose" (board > 4") fits.  Add TO-263 footprint.
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/geda.inc: add DO-41 diode package, horizontally mounted
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/Makefile.am, lib/common.m4, lib/geda.inc,
+	lib/united_chemicon.inc: Add some IPC radial capacitor footprints
+	and use those to create some united chemicon footprints.
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/misc.inc: add PKG_RADIAL_MM100 macro for doing more general
+	metric 2 pin radial packages
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/CreateLibraryContents.sh.in: Allow _ in the TYPE lines.
+	Verified with a complete pcblib-newlib build.  This lets a category
+	like united_chemicon keep the _ instead of converting to a space.
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/misc.inc: for the horizontally mounted axial macro add the
+	missing bits for marking polarity on parts like diodes
+
+2017-02-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/misc.inc: remove spurious . at the start of the file
+
+2017-02-22   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/Makefile.am, lib/geda.inc, lib/gen_geda_list.awk,
+	lib/gen_geda_m4.awk: gen_geda_*.awk were nearly identical to
+	gen_*.awk so add 2 lines to geda.inc so we can use the same script
+	for everything.  Verified that pcblib-newlib builds with identical
+	results before/after.
+
+2017-02-22   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/Makefile.am, lib/common.m4, lib/toko.inc: add toko category
+	and the 7P variable inductors
+
+2017-02-22   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/Makefile.am, lib/common.m4, lib/geda.inc, lib/misc.inc,
+	lib/tdk.inc: Add macro with more programmability for 2 pin axial
+	components.  Use this to add a few IPC-7251 compliant footprints for
+	axial inductors, horizontally mounted.  Use this in turn for the TDK
+	B82145A RF chokes family.
+
+2017-02-21   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Some older gdlib-config's in the wild (Ubuntu
+	precise for example) forget to add "-lgd" so check for this.
+
+2017-02-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-menu.res.in: Add blind/buried via feature commands to the
+	Lesstif pull down menu.   Reviewed-by: DJ Delorie * dj AT delorie dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-11   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/Makefile.am: Added missing input file to EXTRA_DIST  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/golden/hid_ipcd3561/ipcd356_board.net,
+	tests/inputs/ipcd356_board.pcb, tests/run_tests.sh,
+	tests/tests.list: IPC-D-356: added a regression test.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* configure.ac: Strip the number of commits from the version string
+	and get rid of the dirty tag  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/file.c, src/file.h: Bump the pcb file version to 20170218.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am: Added input and golden files to EXTRA_DIST.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-07-29   Milan Prochac * milan AT prochac dot sk *
+
+	* doc/pcb.texi, src/action.c, src/buffer.c, src/change.c,
+	src/change.h, src/const.h, src/copy.c, src/create.c, src/create.h,
+	src/draw.c, src/draw.h, src/file.c, src/file.h, src/find.c,
+	src/flags.c, src/global.h, src/gpcb-menu.res.in,
+	src/hid/common/flags.c, src/hid/gerber/gerber.c, src/hid/hidint.h,
+	src/hid/ps/ps.c, src/macro.h, src/main.c, src/misc.c, src/misc.h,
+	src/move.c, src/parse_y.y, src/polygon.c, src/remove.c,
+	src/remove.h, src/report.c, src/search.c, src/search.h,
+	src/select.c, src/select.h, src/strflags.c, src/undo.c, src/undo.h,
+	tests/golden/hid_gerber4/buried.bottom.gbr,
+	tests/golden/hid_gerber4/buried.fab.gbr,
+	tests/golden/hid_gerber4/buried.group2.gbr,
+	tests/golden/hid_gerber4/buried.group4.gbr,
+	tests/golden/hid_gerber4/buried.group7.gbr,
+	tests/golden/hid_gerber4/buried.plated-drill.cnc,
+	tests/golden/hid_gerber4/buried.plated-drill_03-08.cnc,
+	tests/golden/hid_gerber4/buried.top.gbr,
+	tests/golden/hid_ps2/buried.ps, tests/inputs/buried.pcb,
+	tests/tests.list: Buried vias  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-16   Milan Prochac * milan AT prochac dot sk *
+
+	* src/hid/gcode/gcode.c: Fix for gcode dimensions  Reviewed-by: Peter Clifton * Peter dot Clifton AT
+	clifton-electronics dot co dot uk *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-11   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/renumber.c: Correction in renumber initialisation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* antifork/BenBergman, antifork/WileyECoyote, antifork/alyoshin,
+	antifork/antifork.sh, antifork/bert, antifork/bgamari,
+	antifork/clifton, antifork/dparnell, antifork/dti, antifork/fruoff,
+	antifork/gde, antifork/jaredcasper, antifork/jpmatsci,
+	antifork/kupson, antifork/leaky, antifork/mirage335,
+	antifork/rlutz, antifork/rnd, antifork/russdill, antifork/see,
+	antifork/thequux, antifork/whiteaudio: Remove the antifork
+	abomination.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-09   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/common/hidinit.c: Added comments  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/main.c: Whitespace changes for conciseness and
+	readability  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/main.c: Added comments to grid drawing routine for
+	the lesstif canvas  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c: Whitespace changes for conciseness and
+	readability  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c: Add comments to the grid drawing routine
+	for the gdk canvas  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/common/hidgl.c: Add comments to grid drawing routine for
+	GL canvas  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/edif.y: If compile warnings in edif.y when DEBUG is defined.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/copy.c: Fix compile warning in copy.c when DEBUG is defined.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c: Fix compile warnings in action.c when DEBUG is
+	defined.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-12   Charles Parker * parker dot charles AT gmail dot com *
+
+	* gts/boolean.c, gts/split.c: Removed unused functions and variables
+	generating compile warnings  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* gts/boolean.c, gts/split.c: Fix GTS compile error, and warnings
+	due to missing include.  The compile error was the result of a function defined inside
+	another function. The warnings were from the missing include.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-08   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: change from AC_FD_CC to AS_MESSAGE_LOG_FD, noted by
+	Bert  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-07   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: mstctxt (message context) is not supported by all
+	versions of msgfmt so check at configure time to make sure we have a
+	tool that will work instead of waiting until well into the build for
+	failure.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-08   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Eugene Mikhantiev noted that Ubuntu precise does not
+	include the gdlib.pc file and still relies on gdlib-config.  Put
+	code in that tries gdlib-config if pkg-config can't find gdlib.
+
+2017-02-07   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/m4lib_to_newlib.sh: match() with 3 arguments is a gawk
+	extension.  Rework the code to avoid using a 3 argument call to
+	match() in one spot.  Lets the script run with gawk or NetBSD's awk
+	(20121220).  Verified that the generated result is identical to the
+	previous gawk result using both gawk and NetBSDs awk.
+
+2017-02-07   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, tests/Makefile.am, tests/run_tests.sh: In the test
+	suite, check for a working X display using xhost before running
+	action script tests because those will fail without a display.
+	Addresses part of LP1661348.
+
+2017-01-28   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-main.c: Add new line to messages  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-28   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/global.h: Add AUSAGE(x) and AFAIL(x) to translation  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-28   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/report.c: Internationalization Allow translators to change number of tabs in message.  Unification
+	of other messages.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-28   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/action.c: Fix message typo  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* configure.ac: Add switches to "git describe" and use awk instead
+	of tr  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-19   Charles Parker * parker dot charles AT gmail dot com *
+
+	* configure.ac: Dynamically generate a version string from git
+	commit Add macro m4_esyscmd to configure.ac to generate a version string
+	from the output of git-describe.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2017-01-16   bert * bert dot timmerman AT xs4all dot nl *
 
-	* configure.ac, doc/doxygen/pcb.dox: Update for release pcb-4.0.0  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+	* ChangeLog, NEWS, doc/pcb.texi: Release notes for pcb-4.0.0  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-01-16   Peter Clifton * peter AT clifton-electronics dot co dot uk *
 

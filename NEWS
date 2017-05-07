@@ -1,4 +1,137 @@
 ========================================================================
+Release notes for pcb-4.0.1
+========================================================================
+
+Dear Users,
+
+This release fixes a number of bugs.
+
+Kind regards,
+
+The pcb development team
+
+
+Contributors
+------------
+The following authors contributed to the 4.0.1 release:
+- Milan Prochac
+- Charles Parker
+- Dan McMahill
+- Sergey Alyoshin
+- Igor2
+- Peter Clifton
+- bert
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- reorchestrated the closing of the command window to not crash.
+- only invalidate the screen after changes to the crosshair or mark are
+  complete.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- fix for gcode dimensions.
+- added a regression test for the IPC-D-356 exporter.
+- added more documentation for the IPC-D-356 netlist exporter.
+
+
+Footprints library
+------------------
+- add macro with more programmability for 2 pin axial components. Use
+  this to add a few IPC-7251 compliant footprints for axial inductors,
+  horizontally mounted.  Use this in turn for the TDK B82145A RF chokes
+  family.
+- add toko category and the 7P variable inductors.
+- gen_geda_*.awk were nearly identical to gen_*.awk so add 2 lines to
+  geda.inc so we can use the same script for everything.  Verified that
+  pcblib-newlib builds with identical results before/after.
+- for the horizontally mounted axial macro add the missing bits for
+  marking polarity on parts like diodes.
+- add PKG_RADIAL_MM100 macro for doing more general metric 2 pin radial
+  packages.
+- add some IPC radial capacitor footprints and use those to create some
+  united chemicon footprints.
+- add DO-41 diode package, horizontally mounted.
+- add PKG_MTHOLE_GENERIC macro for fairly generic mounting holes.  Use
+  this to define IPC mounting holes for #4 and #6 machine screws with
+  pan heads or flat washers for both "tight" (board < 4") and "loose"
+  (board > 4") fits.
+- add TO-263 footprint.
+- add some notes about m4 library development.
+- fix problem in some possible invocations of the generic mounting hole
+  macro.  All footprints pass syntax checks again.
+- remove an extra empty attribute which is not needed and causes
+  warnings in the mounting hole macro.
+- fix clearance on the Toko 7P footprint.
+- in the mounting hole macro, change the calculation of the pad size for
+  the support vias to make them as large as possible without actually
+  changing the copper (the support vias are covered by the main pad).
+  This does not affect the fabricated board but it does remove some
+  false positive DRC complaints.
+
+
+Developer experience improvements
+---------------------------------
+- allow translators to change number of tabs in message.
+- In the test suite, check for a working X display using xhost before
+  running action script tests
+- match() with 3 arguments is a gawk extension. Rework the code to avoid
+  using a 3 argument call to match() in one spot.  Lets the script run
+  with gawk or NetBSD's awk (20121220).  Verified that the generated
+  result is identical to the previous gawk result using both gawk and
+  NetBSDs awk.
+- change from AC_FD_CC to AS_MESSAGE_LOG_FD
+- removed the antifork abomination.
+- disabled one of the checks used to deal with older gdlib installs on
+  some linux systems when building under cygwin as the test has
+  problems.  Repairs building for mingw under cygwin.
+- when building under cygwin, create a pcbtest.bat batch file that
+  allows testing the compiled pcb without installing.  This is somewhat
+  analogous to the pcbtest.sh script generated on linux and other
+  unix-like systems.
+- cleanup the win32 build script a good bit.  An important change is
+  that instead of blindly installing all of the mingw cross system root
+  files, only install a set of listed ones.  This not only reduces the
+  size of the windows installer but makes sure we have a more repeatable
+  build and know what we are actually bundling into the installer.
+- fixed the Attribute deletion code.
+
+
+Notes for early adapters
+------------------------
+- none
+
+
+Changed dependencies
+--------------------
+- none
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#700193   Append branch to version string.
+#917308   m4lib_to_newlib.sh does not work with mawk.
+#1528040  Gcode export smaller pad size.
+#1654821  Attribute deletion code is broken.
+#1659045  gts source do not compile when DEBUG symbol defined.
+#1659061  Compile warnings when DEBUG symbol is defined.
+#1660058  Several i18n fixes.
+#1672886  Crash when reopening command entry window in gtk.
+#1674133  Last action executed when escaping from command entry.
+#1682654  Drawing area redrawn twice when crosshair moves.
+
+
+========================================================================
 Release notes for pcb-4.0.0
 ========================================================================
 
