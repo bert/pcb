@@ -195,6 +195,8 @@ Release 4.0.0 adds a IPC-D-356 netlister, relocate plugin, smartdisperse
 plugin, RenumberBlock and RenumberBuffer plugin, teardrops plugin,
 tooltips in the GTK UI and footprints.
 
+Release 4.0.1 fixes a number of bugs.
+
 Special thanks goes to:
 @display
 Thomas Nau (who started the project and wrote the early versions).
