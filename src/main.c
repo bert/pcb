@@ -21,9 +21,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Contact addresses for paper mail and Email:
  * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -131,9 +131,9 @@ copyright (void)
 	  "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
 	  "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
 	  "    GNU General Public License for more details.\n\n"
-	  "    You should have received a copy of the GNU General Public License\n"
-	  "    along with this program; if not, write to the Free Software\n"
-	  "    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n",
+	  "    You should have received a copy of the GNU General Public License along\n"
+	  "    with this program; if not, write to the Free Software Foundation, Inc.,\n"
+	  "    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n\n",
 	  Progname, VERSION);
   exit (0);
 }
