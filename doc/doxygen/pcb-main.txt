@@ -1,5 +1,10 @@
 /*! \mainpage pcb - Printed Circuit Board editor.
 \image html pcb-logo-small.png
+<hr>
 \section pcb-intro PCB Introduction
     \htmlinclude what-is-pcb.html
+<hr>
+\section pcb-releases PCB Releases howto
+    \htmlinclude pcb-releases.html
+<hr>
 */

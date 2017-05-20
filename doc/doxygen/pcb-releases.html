@@ -1,0 +1,212 @@
+<p>This section describes what has to be done to create a pcb release.</p>
+<h2>Introduction</h2>
+<p>The releases as of pcb-4.0.0 are done by branching from the "master"
+development trunk, fixing up the release version number in the branch
+and then tagging the release branch sources.<br>
+The motivation for a branch rather than a tag is to make it easier to
+deal with setting the release version number in the documentation,
+distfile, and the "About" dialog box.</p>
+<p>
+<b>Note:</b><br>
+<p>We need to build where we explicitly add <u>all</u> the export HID's
+and where we explicitly build with each of the gui HID's (including
+batch).<br>
+This is needed to catch the case of missing src/hid/*/hid.conf files.
+<h2>How to create a pcb release</h2>
+<p>Do the following steps:
+<ol>
+<li>
+<p>Make sure you have up to date sources:</p>
+<pre>
+  git fetch
+  git rebase origin/master
+</pre>
+<li>
+<p>Make sure it makes distfiles ok (have to build before doing distcheck
+so pcb gets built so it can create some of the images in the doc
+directory).<br>
+Clean up, and build with the GTK HID (default GUI):</p>
+<pre>
+  make distclean
+  ./autogen.sh
+  ./configure --disable-update-desktop-database --disable-update-mime-database
+  make
+  make distcheck
+</pre>
+<li>
+<p>Check the build with lesstif HID:</p>
+<pre>
+  make distclean
+  ./autogen.sh
+  ./configure --disable-update-desktop-database --disable-update-mime-database --with-gui=lesstif
+  make
+  make distcheck
+</pre>
+<li>
+<p>Check the build with the batch HID:</p>
+<pre>
+  make distclean
+  ./autogen.sh
+  ./configure --disable-update-desktop-database --disable-update-mime-database --with-gui=batch
+  make
+  make distcheck
+</pre>
+<li>
+<p>Commit and push any changes which were needed to fix 'distcheck'
+problems.<br>
+Of course if the changes aren't related then they should be committed in
+multiple commits:</p>
+<pre>
+  git add &lt;files&gt;
+  git commit -m &lt;message&gt;
+  git push origin master
+</pre>
+<li>
+<p>If this is a bugfix release after 4.0.0, then create a branch named
+"pcb-4.0.1":</p>
+<pre>
+  git branch pcb-4.0.1
+  git checkout pcb-4.0.1
+</pre>
+<p>If this is a major feature release after 4.0.0, then create a branch
+named "pcb-4.1.0":<p>
+<pre>
+  git branch pcb-4.1.0
+  git checkout pcb-4.1.0
+</pre>
+<p>Note: You can also create a new local branch with:</p>
+<pre>
+  git checkout -b pcb-4.0.1 origin/master
+</pre>
+<p>You need to make sure we still get the correct branch and tag on the
+main server eventually.<br>
+For this write-up we continue with a bugfix release "pcb-4.0.1".<p>
+<li>
+<p>Update the version numbers in configure.ac and pcb.dox, in case of a
+bugfix release 4.0.1 after releasing 4.0.0, or 4.1.0 in case of a major
+feature release and push upstream.<br></p>
+<pre>
+  vi configure.ac
+  vi doc/doxygen/pcb.dox
+  git add configure.ac doc/doxygen/pcb.dox
+  git commit -m &lt;message&gt;
+  git push origin pcb-4.0.1
+</pre>
+<li>
+<p>Update the doc/pcb.texi file with a description of this release.
+<li>
+<p>Update the NEWS file with some sort of release notes summary.<br>
+If needed you can obtain the number of commits with commands like:</p>
+<pre>
+  awk '/^2008-11-28/ {print "Changes: " c ; exit} /^20[01][0-9]/ {c++}' ChangeLog
+</pre>
+<p>or:</p>
+<pre>
+  git rev-list &lt;first SHA-1 hash&gt;..&lt;last SHA-1 hash&gt; --count
+</pre>
+<li>
+<p>Update the ChangeLog with:</p>
+<pre>
+  ./utils/git2cl -O > ChangeLog
+</pre>
+<li>
+<p>Commit and push doc/pcb-texi, NEWS and ChangeLog:</p>
+<pre>
+  git add doc/pcb.texi NEWS ChangeLog
+  git commit -m &lt;message&gt;
+  git push origin pcb-4.0.1
+</pre>
+<li>
+<p>Create the release tarball with:</p>
+<pre>
+  make distclean
+  ./autogen.sh
+  ./configure --disable-update-desktop-database --disable-update-mime-database
+  make
+  make distcheck
+  make distclean
+</pre>
+<li>
+<p>Create checksums:</p>
+<pre>
+  openssl sha1 pcb-pcb-4.0.1.tar.gz > pcb-4.0.1.cksum
+  openssl md5 pcb-4.0.1.tar.gz >> pcb-4.0.1.cksum
+  openssl rmd160 pcb-4.0.1.tar.gz >> pcb-4.0.1.cksum
+  echo "File size (bytes):" >> pcb-4.0.1.cksum
+  wc -c pcb-4.0.1.tar.gz >> pcb-4.0.1.cksum
+</pre>
+<li>
+<p>Create a new file release for pcb with a release name of
+"pcb-4.0.1" (for pcb-4.0.1) on
+<a href="https://sourceforge.net/projects/pcb/files">SourceForge</a>.
+<p><u><b>Note:</b></u> You must be logged into SourceForge with an admin account.<br>
+<ol type=a>
+  <li>Copy the section from NEWS which are the release notes for this release.
+  <li>Paste the copied text into a file called pcb-4.0.1-README.txt.
+  <li>Click on "Files" to enter the folder.
+  <li>Click on "pcb" to enter the folder.
+  <li>Click on "Add Folder".
+  <li>Use "pcb-4.0.1" as the name for the new folder.
+  <li>Click on the new "pcb-4.0.1" folder to enter the folder.
+  <li>Click on "Add File".
+  <li>Click "Upload File" and upload the pcb-4.0.1.tar.gz,
+  pcb-4.0.1-README.txt and pcb-4.0.1.cksum files.
+  <li>Click on "Upload".
+  <li>Click on the information icon right of "pcb-4.0.1.tar.gz" to bring
+  up a form to edit the file details and check the tick boxes for all
+  the platforms, change the text for the "download button" to
+  "pcb-4.0.1.tar.gz" and click "Save".
+  <li>In a similar fashion, remove these settings from the previous
+  release tarball by clicking "Deselect all" to un-tick all the tick
+  boxes, and click "Save".
+</ol>
+<li>
+<p>Update the web pages.<br>
+In particular, update news.shtml and index.shtml and then rebuild the
+corresponding .html files.</p>
+<li>
+<p>Do an update on the geda-project wiki page 
+<a href="http://wiki.geda-project.org/geda:download">
+"Download"</a>
+<li>
+<p>Do an update ("release now") on the status of the
+<a href="https://launchpad.net/pcb/+milestones">"milestone"</a>
+for this release.
+<li>
+<p>Do an update on the status of all bug reports of this "milestone" to
+"Fix Released".
+<li>
+<p>Do an announcement on the pcb project page on
+<a href="https://launchpad.net/pcb">LaunchPad</a>.
+<li>
+<p>Add a tag at the HEAD of the release branch:</p>
+<pre>
+  git tag -a -m &lt;msg&gt; &lt;tagname&gt; &lt;SHA1 hash&gt;
+  git push --tags
+</pre>
+<li>
+<p>Return to your regularly scheduled trunk development and add a tag at
+the branch point:</p>
+<pre>
+  git checkout master
+  git tag -a -m &lt;msg&gt; &lt;tagname&gt; &lt;SHA1 hash&gt;
+  git push --tags
+</pre>
+<li>
+<p>If this is a bug fix release, then simply make desired changes to the
+master branch by cherry picking the commit(s) with the ChangeLog, NEWS and
+doc/pcb.texi additions for the release.</p>
+<pre>
+  git cherry-pick &lt;SHA1 hash&gt;
+  ./autogen.sh
+  ./configure --disable-update-desktop-database --disable-update-mime-database --with-gui=&lt;GUI of choice&gt;
+  make
+  make distcheck
+  git commit -m &lt;message&gt;
+  git push origin master
+</pre>
+<li>
+<p>Do an announcement on the geda-user mailing list and add links for
+pcb users to find locations to download from or read the release notes.
+</ol>
+
