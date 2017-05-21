@@ -83,6 +83,8 @@ extern "C" {
 #  undef DEBUG_NOT_IMPLEMENTED
 #endif
 
+#  define DEBUG_ASSEMBLY_TRAVERSAL
+
 #include <glib.h>
 
 extern "C" {
@@ -92,6 +94,8 @@ extern "C" {
 
 typedef std::list<SDAI_Application_instance *> ai_list;
 typedef std::list<SdaiManifold_solid_brep *> msb_list;
+typedef std::list<SdaiShell_based_surface_model *> sbsm_list;
+typedef std::list<SdaiConnected_face_set *> cfs_list;
 typedef std::list<SdaiMapped_item *> mi_list;
 
 
@@ -165,8 +169,44 @@ find_manifold_solid_brep_possible_voids (SdaiShape_representation *sr,
 
       if (strcmp (node->EntityName (), "Manifold_Solid_Brep") == 0 ||
           strcmp (node->EntityName (), "Brep_With_Voids") == 0)
-
         msb_list->push_back ((SdaiManifold_solid_brep *)node);
+
+      iter = iter->NextNode ();
+    }
+}
+
+static void
+find_shell_based_surface_model (SdaiShape_representation *sr,
+                                sbsm_list *sbsm_list)
+{
+  SingleLinkNode *iter = sr->items_ ()->GetHead ();
+
+  while (iter != NULL)
+    {
+      SDAI_Application_instance *node = ((EntityNode *)iter)->node;
+
+      if (strcmp (node->EntityName (), "Shell_Based_Surface_Model") == 0)
+        sbsm_list->push_back ((SdaiShell_based_surface_model *)node);
+
+      iter = iter->NextNode ();
+    }
+}
+
+static void
+list_cfs_in_sbsm (SdaiShell_based_surface_model *sbsm,
+                  cfs_list *cfs_list)
+{
+  SingleLinkNode *iter = sbsm->sbsm_boundary_ ()->GetHead ();
+
+  while (iter != NULL)
+    {
+//      SDAI_Application_instance *node = (SelectNode *)iter->node);
+     SdaiShell *shell = (SdaiShell *)((SelectNode *)iter)->node;
+
+      if (shell->IsOpen_shell ())
+        cfs_list->push_back ((SdaiOpen_shell *)*shell);
+      else if (shell->IsClosed_shell ())
+        cfs_list->push_back ((SdaiClosed_shell *)*shell);
 
       iter = iter->NextNode ();
     }
@@ -1206,7 +1246,7 @@ static step_model *
 process_shape_representation(InstMgr *instance_list, SdaiShape_representation *sr, process_step_info *info)
 {
   step_model *step_model;
-//  std::cout << "INFO: Processing raw SR" << std::endl;
+  std::cout << "INFO: Processing raw SR: #" << sr->StepFileId() << std::endl;
 
   step_model = g_new0(struct step_model, 1);
 //  step_model->filename = g_strdup(filename);
@@ -1264,8 +1304,10 @@ process_shape_representation(InstMgr *instance_list, SdaiShape_representation *s
     }
 
   /* Kludge... don't look for the complex transformed relationships if we already found a simple one. */
-  if (processed_any)
+  if (processed_any) {
+    std::cout << "INFO END Processing raw: #" << sr->StepFileId() << std::endl;
     return step_model;
+  }
 
   srr_rrwt_list srr_rrwt_list;
 
@@ -1290,12 +1332,13 @@ process_shape_representation(InstMgr *instance_list, SdaiShape_representation *s
       SdaiAxis2_placement_3d *child_axis;
 
       srr_rrwt *item = (*iter);
-//      std::cout << "Found SRR + RRWT; processing" << std::endl;
+      std::cout << "At #" << sr->StepFileId() << ", Found SRR + RRWT; processing" << std::endl;
 
       SdaiShape_representation *child_sr = dynamic_cast<SdaiShape_representation *>(item->rep_2);
+
       SdaiItem_defined_transformation *idt = item->idt;
 
-//      std::cout << "  child SR: #" << child_sr->StepFileId() << " IDT: #" << idt->StepFileId() << std::endl;
+      std::cout << "  child SR: #" << child_sr->StepFileId() << " IDT: #" << idt->StepFileId() << std::endl;
 
       copy_4x4 (info->current_transform, backup_transform);
 
@@ -1371,6 +1414,7 @@ process_shape_representation(InstMgr *instance_list, SdaiShape_representation *s
 
   // If SRR node was not complex, insert child with 1:1 tranformation
 
+  std::cout << "INFO END Processing raw: #" << sr->StepFileId() << std::endl;
   return step_model;
 }
 
@@ -1392,13 +1436,532 @@ debug_edge (edge_ref edge, const char *message)
 
 static int edge_no = 0;
 
+static void
+process_cfs(SdaiConnected_face_set *cfs, process_step_info *info)
+{
+  GHashTable *edges_hash_set;
+  int face_count = 0;
+
+//  std::cout << "Closed shell is " << cs << std::endl;
+
+  EntityAggregate *shell_styles = find_styles_for_item (info->styled_items, cfs);
+  if (shell_styles != NULL)
+    {
+//      printf ("Found style list for shell\n");
+//      destroy_appearance (info->object->appear);
+      info->object->appear = make_appearance_for_styles (shell_styles);
+#if 0
+      printf ("Colour %f, %f, %f\n",
+              (double)info->object->appear->r,
+              (double)info->object->appear->g,
+              (double)info->object->appear->b);
+#endif
+    }
+
+
+  /* NB: NULLs give g_direct_hash and g_direct_equal */
+  edges_hash_set = g_hash_table_new (NULL, NULL);
+
+  for (SingleLinkNode *iter = cfs->cfs_faces_ ()->GetHead ();
+       iter != NULL;
+       iter = iter->NextNode ())
+    {
+      SdaiFace *face = (SdaiFace *)((EntityNode *)iter)->node;
+      EntityAggregate *face_styles = find_styles_for_item (info->styled_items, face);
+
+      /* XXX: Do we look for specific types of face at this point? (Expect ADVANCED_FACE usually?) */
+      if (strcmp (face->EntityName (), "Advanced_Face") != 0)
+        {
+          printf ("WARNING: Found face of type %s (which we don't support yet)\n", face->EntityName ());
+          continue;
+        }
+
+      /* NB: ADVANCED_FACE is a FACE_SURFACE, which has SdaiSurface *face_geometry_ (), and Boolean same_sense_ () */
+      //SdaiAdvanced_face *af = (SdaiAdvanced_face *) face;
+      /* NB: FACE_SURFACE is a FACE, which has EntityAggreate bounds_ (), whos' members are SdaiFace_bound *  */
+      SdaiFace_surface *fs = (SdaiFace_surface *) face;
+
+      SdaiSurface *surface = fs->face_geometry_ ();
+
+      if (surface == NULL_ENTITY)
+        {
+          printf ("ERROR: Got a NULL_ENTITY for surface - did the file not load properly?\n");
+          continue;
+        }
+#if 0
+      std::cout << "Face " << face->name_ ().c_str () << " has surface of type " << surface->EntityName () << " and same_sense = " << fs->same_sense_ () << std::endl;
+#endif
+
+      info->current_face = make_face3d ((char *)"");
+      info->current_face->face_identifier = fs->StepFileId ();
+      object3d_add_face (info->object, info->current_face);
+
+      if (face_styles != NULL)
+        {
+//          printf ("Found style list for face\n");
+//          destroy_appearance (info->current_face->appear);
+          info->current_face->appear = make_appearance_for_styles (face_styles);
+#if 0
+          printf ("Colour %f, %f, %f\n",
+                  (double)info->current_face->appear->r,
+                  (double)info->current_face->appear->g,
+                  (double)info->current_face->appear->b);
+#endif
+           }
+
+      /* XXX: KLUDGE TO FIX THE FACT WE DON'T SUPPORT MULTIPLE BODIES, HENCE KEEP
+       *      OVER-WRITING THE VARIOUS PARENT STYLES IN THE object3d EACH TIME WE
+       *      ENCOUNTER A NEW SOLID BODY, OR SUB-ASSEMBLY PART
+       */
+      if (info->current_face->appear == NULL)
+        {
+//          printf ("Defauting face to solid appearance\n");
+          info->current_face->appear = info->object->appear;
+#if 0
+          printf ("Colour %f, %f, %f\n",
+                  (double)info->current_face->appear->r,
+                  (double)info->current_face->appear->g,
+                  (double)info->current_face->appear->b);
+#endif
+        }
+
+
+      if (surface->IsComplex ())
+        {
+#ifdef DEBUG_NOT_IMPLEMENTED
+          printf ("WARNING: Found a STEP Complex entity for our surface (which we don't support yet). Probably a B_SPLINE surface?\n");
+#endif
+        }
+      else if (strcmp (surface->EntityName (), "Plane") == 0)
+        {
+          SdaiPlane *plane = dynamic_cast<SdaiPlane *>(surface);
+
+//          printf ("WARNING: planar surfaces are not supported yet\n");
+
+          unpack_axis_geom (plane->position_ (),
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          transform_vertex (info->current_transform,
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          info->current_face->is_planar = true;
+
+          info->current_face->nx = info->current_face->ax;
+          info->current_face->ny = info->current_face->ay;
+          info->current_face->nz = info->current_face->az;
+
+          if (fs->same_sense_ ())
+            {
+              info->current_face->surface_orientation_reversed = false;
+            }
+          else
+            {
+              /* XXX: Should we bother flipping the display normal, as we now set surface_orientation_reversed */
+              info->current_face->nx = -info->current_face->nx;
+              info->current_face->ny = -info->current_face->ny;
+              info->current_face->nz = -info->current_face->nz;
+
+              /* XXX: Could use face->surface_orientation_reversed ? */
+//              printf ("Not same sense, flipping normal\n");
+              info->current_face->surface_orientation_reversed = true;
+            }
+
+        }
+      else if (strcmp (surface->EntityName (), "Cylindrical_Surface") == 0)
+        {
+          auto *cylinder = dynamic_cast<SdaiCylindrical_surface *>(surface);
+//          printf ("WARNING: cylindrical surfaces are not supported yet\n");
+
+          unpack_axis_geom (cylinder->position_ (),
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          transform_vertex (info->current_transform,
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          info->current_face->is_cylindrical = true;
+          info->current_face->radius = cylinder->radius_ ();
+
+          if (fs->same_sense_ ())
+            {
+              info->current_face->surface_orientation_reversed = false;
+            }
+          else
+            {
+              info->current_face->surface_orientation_reversed = true;
+            }
+
+        }
+      else if (strcmp (surface->EntityName (), "Conical_Surface") == 0)
+        {
+          auto *cone = dynamic_cast<SdaiConical_surface *>(surface);
+//          printf ("WARNING: conical surfaces are not supported yet\n");
+
+          unpack_axis_geom (cone->position_ (),
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          transform_vertex (info->current_transform,
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          info->current_face->is_conical = true;
+          info->current_face->radius = cone->radius_ ();
+          /* XXX: Need to check the coordinate reference frames... testing currently against a file which uses radians */
+          info->current_face->semi_angle = cone->semi_angle_ () * 180. / M_PI;
+          printf ("Semi-angle = %f\n", info->current_face->semi_angle);
+
+          if (fs->same_sense_ ())
+            {
+              info->current_face->surface_orientation_reversed = false;
+            }
+          else
+            {
+              info->current_face->surface_orientation_reversed = true;
+            }
+
+        }
+      else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0)
+        {
+          auto *toroid = dynamic_cast<SdaiToroidal_surface *>(surface);
+//          printf ("WARNING: toroidal surfaces are not supported yet\n");
+
+          unpack_axis_geom (toroid->position_ (),
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          transform_vertex (info->current_transform,
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          info->current_face->is_toroidal = true;
+          info->current_face->radius = toroid->major_radius_ ();
+          info->current_face->minor_radius = toroid->minor_radius_ ();
+
+          if (fs->same_sense_ ())
+            {
+              info->current_face->surface_orientation_reversed = false;
+            }
+          else
+            {
+              info->current_face->surface_orientation_reversed = true;
+            }
+
+        }
+      else if (strcmp (surface->EntityName (), "Spherical_Surface") == 0)
+        {
+          auto *sphere = dynamic_cast<SdaiSpherical_surface *>(surface);
+//          printf ("WARNING: spherical surfaces are not supported yet\n");
+
+          unpack_axis_geom (sphere->position_ (),
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          transform_vertex (info->current_transform,
+                            &info->current_face->ox,
+                            &info->current_face->oy,
+                            &info->current_face->oz);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->ax,
+                            &info->current_face->ay,
+                            &info->current_face->az);
+
+          transform_vector (info->current_transform,
+                            &info->current_face->rx,
+                            &info->current_face->ry,
+                            &info->current_face->rz);
+
+          info->current_face->is_spherical = true;
+          info->current_face->radius = sphere->radius_ ();
+
+          if (fs->same_sense_ ())
+            {
+              info->current_face->surface_orientation_reversed = false;
+            }
+          else
+            {
+              info->current_face->surface_orientation_reversed = true;
+            }
+
+        }
+      else
+        {
+#ifdef DEBUG_NOT_IMPLEMENTED
+          printf ("ERROR: Found an unknown surface type (which we obviously don't support). Surface name is %s\n", surface->EntityName ());
+#endif
+        }
+
+      for (SingleLinkNode *iter = fs->bounds_ ()->GetHead ();
+           iter != NULL;
+           iter = iter->NextNode ())
+        {
+          SdaiFace_bound *fb = (SdaiFace_bound *)((EntityNode *)iter)->node;
+          bool face_bound_orientation = fb->orientation_ ();
+
+#if 0
+          bool is_outer_bound = (strcmp (fb->EntityName (), "Face_Outer_Bound") == 0);
+
+          if (is_outer_bound)
+            std::cout << "  Outer bounds of face include ";
+          else
+            std::cout << "  Bounds of face include ";
+#endif
+
+          // NB: SdaiFace_bound has SdaiLoop *bound_ (), and Boolean orientation_ ()
+          // NB: SdaiLoop is a SdaiTopological_representation_item, which is a SdaiRepresentation_item, which has a name_ ().
+          // NB: Expect bounds_ () may return a SUBTYPE of SdaiLoop, such as, but not necessarily: SdaiEdge_loop
+          SdaiLoop *loop = fb->bound_ ();
+
+#if 0
+          std::cout << "loop #" << loop->StepFileId () << ", of type " << loop->EntityName () << ":" << std::endl;
+#endif
+//          printf ("FACE LOOP\n");
+          if (strcmp (loop->EntityName (), "Edge_Loop") == 0)
+            {
+              SdaiEdge_loop *el = (SdaiEdge_loop *)loop;
+              edge_ref first_edge_of_contour = 0;
+              edge_ref previous_edge_of_contour = 0;
+
+              // NB: EDGE_LOOP uses multiple inheritance from LOOP and PATH, thus needs special handling to
+              //     access the elements belonging to PATH, such as edge_list ...
+              //     (Not sure if this is a bug in STEPcode, as the SdaiEdge_loop class DOES define
+              //     an accessor edge_list_ (), yet it appears to return an empty aggregate.
+
+              char path_entity_name[] = "Path"; /* SDAI_Application_instance::GetMiEntity() should take const char *, but doesn't */
+              SdaiPath *path = (SdaiPath *)el->GetMiEntity (path_entity_name);
+
+              for (SingleLinkNode *iter = path->edge_list_ ()->GetHead ();
+                   iter != NULL;
+                   iter = iter->NextNode ())
+                {
+                  SdaiOriented_edge *oe = (SdaiOriented_edge *)((EntityNode *)iter)->node;
+                  /* XXX: Will it _always?_ be an SdaiOriented_edge? */
+
+                  edge_ref our_edge;
+
+                  // NB: Stepcode does not compute derived attributes, so we need to look at the EDGE
+                  //     "edge_element" referred to by the ORIENTED_EDGE, to find the start and end vertices
+
+                  SdaiEdge *edge = oe->edge_element_ ();
+                  bool orientation = oe->orientation_ ();
+
+                  if (strcmp (edge->edge_start_ ()->EntityName (), "Vertex_Point") != 0 ||
+                      strcmp (edge->edge_end_   ()->EntityName (), "Vertex_Point") != 0)
+                    {
+                      printf ("WARNING: Edge start and/or end vertices are not specified as VERTEX_POINT\n");
+                      continue;
+                    }
+
+                  // NB: Assuming edge points to an EDGE, or one of its subtypes that does not make edge_start and edge_end derived attributes.
+                  //     In practice, edge should point to an EDGE_CURVE sub-type
+                  SdaiVertex_point *edge_start = (SdaiVertex_point *) (orientation ? edge->edge_start_ () : edge->edge_end_ ());
+                  SdaiVertex_point *edge_end =  (SdaiVertex_point *) (!orientation ? edge->edge_start_ () : edge->edge_end_ ());
+
+                  // NB: XXX: SdaiVertex_point multiply inherits from vertex and geometric_representation_item
+
+                  SdaiPoint *edge_start_point = edge_start->vertex_geometry_ ();
+                  SdaiPoint *edge_end_point = edge_end->vertex_geometry_ ();
+
+                  if (strcmp (edge_start_point->EntityName (), "Cartesian_Point") == 0)
+                    {
+                      /* HAPPY WITH THIS TYPE */
+                    }
+                  else
+                    {
+                      // XXX: point_on_curve, point_on_surface, point_replica, degenerate_pcurve
+                      printf ("WARNING: Got Edge start point as unhandled point type (%s)\n", edge_start_point->EntityName ());
+                      continue;
+                    }
+
+                  if (strcmp (edge_end_point->EntityName (), "Cartesian_Point") == 0)
+                    {
+                      /* HAPPY WITH THIS TYPE */
+                    }
+                  else
+                    {
+                      // XXX: point_on_curve, point_on_surface, point_replica, degenerate_pcurve
+                      printf ("WARNING: Got Edge end point as unhandled point type (%s)\n", edge_end_point->EntityName ());
+                      continue;
+                    }
+
+                  our_edge = (edge_ref)g_hash_table_lookup (edges_hash_set, edge);
+
+                  if (our_edge != 0)
+                    {
+                      /* Already processed this edge (but hopefully in the other direction!) */
+//                      our_edge = SYM(our_edge);
+                    }
+                  else
+                    {
+                      our_edge = make_edge ();
+
+                      /* Temporary debug hack */
+                      edge_info *our_edge_info = make_edge_info ();
+                      our_edge_info->edge_identifier = ++edge_no;
+                      UNDIR_DATA(our_edge) = our_edge_info;
+
+                      /* Populate edge geometry
+                       *
+                       * NB: Forcing orientation to true, so we create the "forward" direction oriented edge
+                       *     with the non'SYM'd edge pointer. This lets us spot the reversed edges correctly
+                       *     when processing / rendering. (Which we do by spotting the poitner manipulation
+                       *     done by SYM on the original make_edge() pointer
+                       */
+                      process_edge_geometry (edge, true /*orientation*/, our_edge, info);
+//                      process_edge_geometry (edge, orientation, our_edge, info);
+
+                      g_hash_table_insert (edges_hash_set, edge, (void *)our_edge);
+                    }
+
+#if 1
+                  if (!orientation)
+                    our_edge = SYM(our_edge);
+#endif
+
+                  if (first_edge_of_contour == 0)
+                    {
+                      if (face_bound_orientation)
+                        info->current_contour = make_contour3d (our_edge);
+                      else
+                        info->current_contour = make_contour3d (SYM(our_edge));
+                      face3d_add_contour (info->current_face, info->current_contour);
+                      first_edge_of_contour = our_edge;
+                    }
+
+#if 0
+                  printf ("EDGE: (%f, %f, %f)-(%f, %f, %f)\n",
+                          ((vertex3d *)ODATA(our_edge))->x,
+                          ((vertex3d *)ODATA(our_edge))->y,
+                          ((vertex3d *)ODATA(our_edge))->x,
+                          ((vertex3d *)DDATA(our_edge))->x,
+                          ((vertex3d *)DDATA(our_edge))->y,
+                          ((vertex3d *)DDATA(our_edge))->x);
+#endif
+
+                  if (previous_edge_of_contour != 0)
+                    {
+                      /* Link up the edges around this face contour */
+                      if (face_bound_orientation)
+                        splice (our_edge, OPREV(SYM(previous_edge_of_contour)));
+                      else
+                        splice (OPREV(our_edge), SYM(previous_edge_of_contour));
+                    }
+
+                  /* Stash reference to this edge for linking next time */
+                  previous_edge_of_contour = our_edge;
+                }
+
+              /* Link up the edges around this face contour */
+              if (face_bound_orientation)
+                splice (first_edge_of_contour, OPREV(SYM(previous_edge_of_contour)));
+              else
+                splice (OPREV(first_edge_of_contour), SYM(previous_edge_of_contour));
+            }
+          else
+            {
+              printf ("WARNING: Face is bounded by an unhandled loop type (%s)\n", loop->EntityName ());
+              continue;
+            }
+        }
+      face_count ++;
+    }
+
+    /* Deal with edges hash set */
+    g_hash_table_destroy (edges_hash_set);
+}
+
 static step_model *
 process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, process_step_info *info)
 {
   step_model *step_model;
 //  object3d *object;
-  GHashTable *edges_hash_set;
-  int face_count = 0;
+  EntityAggregate *illegal_sr_styles;
+  appearance *illegal_sr_appear = NULL;
+
+  std::cout << "INFO: process_sr_or_subtype()" << std::endl;
 
   // If sr is an exact match for the step entity SHAPE_REPRESENTATION (not a subclass), call the specific hander
   if (strcmp (sr->EntityName (), "Shape_Representation") == 0)
@@ -1406,27 +1969,16 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
       return process_shape_representation (instance_list, sr, info);
     }
 
-  if (strcmp (sr->EntityName (), "Advanced_Brep_Shape_Representation") != 0)
+  std::cout << "INFO: Processing non raw SR: #" << sr->StepFileId() << std::endl;
+
+  if (strcmp (sr->EntityName (), "Advanced_Brep_Shape_Representation") != 0 &&
+      strcmp (sr->EntityName (), "Manifold_Surface_Shape_Representation") != 0)
     {
-      printf ("step_model_to_shape_master: Looking for Advanced_Brep_Shape_Representation, but found %s (which we don't support yet)\n", sr->EntityName ());
+      printf ("step_model_to_shape_master: Looking for a Shape_Representation we understand, but found %s (which we don't support yet)\n", sr->EntityName ());
       return NULL;
     }
 
-  /* XXX: Solidworks seems to attach a STYLED_ITEM entity to the ABSR, however this is NOT legal AP214,
-   *      so STEPcode may not correctly read the STYLED_ITEM instance. (It does type checking of the item
-   *      pointed to in the STYLED_ITEM.
-   */
-  EntityAggregate *illegal_absr_styles = find_styles_for_item (info->styled_items, sr);
-  appearance *illegal_absr_appear = NULL;
-  if (illegal_absr_styles != NULL)
-    {
-      printf ("Found style list for ABSR (illegal, but Solidworks does this))\n");
-//      destroy_appearance (info->object->appear);
-      illegal_absr_appear = make_appearance_for_styles (illegal_absr_styles);
-    }
-
-//  object = make_object3d ((char *)"Test");
-
+  //  object = make_object3d ((char *)"Test");
   step_model = g_new0(struct step_model, 1);
 //  step_model->filename = g_strdup(filename);
 //  step_model->instances = NULL;    /* ??? */
@@ -1450,544 +2002,105 @@ process_sr_or_subtype(InstMgr *instance_list, SdaiShape_representation *sr, proc
     }
 #endif
 
-  msb_list msb_list;
-  find_manifold_solid_brep_possible_voids (sr, &msb_list);
-
-  for (msb_list::iterator iter = msb_list.begin (); iter != msb_list.end (); iter++)
+  if (strcmp (sr->EntityName (), "Advanced_Brep_Shape_Representation") == 0)
     {
+      msb_list msb_list;
 
-      /* XXX: Default to the illegal ABSR appearance (Thanks Solidworks!) */
-      info->object->appear = illegal_absr_appear;
-
-      EntityAggregate *solid_styles = find_styles_for_item (info->styled_items, (*iter));
-      if (solid_styles != NULL)
+      /* XXX: Solidworks seems to attach a STYLED_ITEM entity to the ABSR, however this is NOT legal AP214,
+       *      so STEPcode may not correctly read the STYLED_ITEM instance. (It does type checking of the item
+       *      pointed to in the STYLED_ITEM.
+       */
+      illegal_sr_styles = find_styles_for_item (info->styled_items, sr);
+      if (illegal_sr_styles != NULL)
         {
-//          printf ("Found style list for solid\n");
-//          destroy_appearance (info->object->appear);
-          info->object->appear = make_appearance_for_styles (solid_styles);
-#if 0
-          printf ("Colour %f, %f, %f\n",
-                  (double)info->object->appear->r,
-                  (double)info->object->appear->g,
-                  (double)info->object->appear->b);
-#endif
+          printf ("Found style list for ABSR (illegal, but Solidworks does this))\n");
+    //      destroy_appearance (info->object->appear);
+          illegal_sr_appear = make_appearance_for_styles (illegal_sr_styles);
         }
 
+      find_manifold_solid_brep_possible_voids (sr, &msb_list);
 
-//      std::cout << "Found MANIFOLD_SOLID_BREP; processing" << std::endl;
-      SdaiClosed_shell *cs = (*iter)->outer_ ();
-
-      /* XXX: Need to check if msb is actually an instance of BREP_WITH_VOIDS, whereupon we also need to iterate over the void shell(s) */
-
-//      std::cout << "Closed shell is " << cs << std::endl;
-
-      EntityAggregate *shell_styles = find_styles_for_item (info->styled_items, cs);
-      if (shell_styles != NULL)
+      for (msb_list::iterator iter = msb_list.begin (); iter != msb_list.end (); iter++)
         {
-//          printf ("Found style list for shell\n");
-//          destroy_appearance (info->object->appear);
-          info->object->appear = make_appearance_for_styles (shell_styles);
-#if 0
-          printf ("Colour %f, %f, %f\n",
-                  (double)info->object->appear->r,
-                  (double)info->object->appear->g,
-                  (double)info->object->appear->b);
-#endif
-        }
 
+          /* XXX: Default to the illegal ABSR appearance (Thanks Solidworks!) */
+          info->object->appear = illegal_sr_appear;
 
-      /* NB: NULLs give g_direct_hash and g_direct_equal */
-      edges_hash_set = g_hash_table_new (NULL, NULL);
-
-      for (SingleLinkNode *iter = cs->cfs_faces_ ()->GetHead ();
-           iter != NULL;
-           iter = iter->NextNode ())
-        {
-          SdaiFace *face = (SdaiFace *)((EntityNode *)iter)->node;
-          EntityAggregate *face_styles = find_styles_for_item (info->styled_items, face);
-
-          /* XXX: Do we look for specific types of face at this point? (Expect ADVANCED_FACE usually?) */
-          if (strcmp (face->EntityName (), "Advanced_Face") != 0)
+          EntityAggregate *solid_styles = find_styles_for_item (info->styled_items, (*iter));
+          if (solid_styles != NULL)
             {
-              printf ("WARNING: Found face of type %s (which we don't support yet)\n", face->EntityName ());
-              continue;
-            }
-
-          /* NB: ADVANCED_FACE is a FACE_SURFACE, which has SdaiSurface *face_geometry_ (), and Boolean same_sense_ () */
-          //SdaiAdvanced_face *af = (SdaiAdvanced_face *) face;
-          /* NB: FACE_SURFACE is a FACE, which has EntityAggreate bounds_ (), whos' members are SdaiFace_bound *  */
-          SdaiFace_surface *fs = (SdaiFace_surface *) face;
-
-          SdaiSurface *surface = fs->face_geometry_ ();
-
-          if (surface == NULL_ENTITY)
-            {
-              printf ("ERROR: Got a NULL_ENTITY for surface - did the file not load properly?\n");
-              continue;
-            }
-#if 0
-          std::cout << "Face " << face->name_ ().c_str () << " has surface of type " << surface->EntityName () << " and same_sense = " << fs->same_sense_ () << std::endl;
-#endif
-
-          info->current_face = make_face3d ((char *)"");
-          info->current_face->face_identifier = fs->StepFileId ();
-          object3d_add_face (info->object, info->current_face);
-
-          if (face_styles != NULL)
-            {
-//              printf ("Found style list for face\n");
-//              destroy_appearance (info->current_face->appear);
-              info->current_face->appear = make_appearance_for_styles (face_styles);
-#if 0
+    //          printf ("Found style list for solid\n");
+    //          destroy_appearance (info->object->appear);
+              info->object->appear = make_appearance_for_styles (solid_styles);
+    #if 0
               printf ("Colour %f, %f, %f\n",
-                      (double)info->current_face->appear->r,
-                      (double)info->current_face->appear->g,
-                      (double)info->current_face->appear->b);
-#endif
-               }
-
-          /* XXX: KLUDGE TO FIX THE FACT WE DON'T SUPPORT MULTIPLE BODIES, HENCE KEEP
-           *      OVER-WRITING THE VARIOUS PARENT STYLES IN THE object3d EACH TIME WE
-           *      ENCOUNTER A NEW SOLID BODY, OR SUB-ASSEMBLY PART
-           */
-          if (info->current_face->appear == NULL)
-            {
-//              printf ("Defauting face to solid appearance\n");
-              info->current_face->appear = info->object->appear;
-#if 0
-              printf ("Colour %f, %f, %f\n",
-                      (double)info->current_face->appear->r,
-                      (double)info->current_face->appear->g,
-                      (double)info->current_face->appear->b);
-#endif
+                      (double)info->object->appear->r,
+                      (double)info->object->appear->g,
+                      (double)info->object->appear->b);
+    #endif
             }
 
 
-          if (surface->IsComplex ())
-            {
-#ifdef DEBUG_NOT_IMPLEMENTED
-              printf ("WARNING: Found a STEP Complex entity for our surface (which we don't support yet). Probably a B_SPLINE surface?\n");
-#endif
-            }
-          else if (strcmp (surface->EntityName (), "Plane") == 0)
-            {
-              SdaiPlane *plane = dynamic_cast<SdaiPlane *>(surface);
+    //      std::cout << "Found MANIFOLD_SOLID_BREP; processing" << std::endl;
 
-//              printf ("WARNING: planar surfaces are not supported yet\n");
+          process_cfs ((*iter)->outer_ (), info);
+          /* XXX: Need to check if msb is actually an instance of BREP_WITH_VOIDS, whereupon we also need to iterate over the void shell(s) */
 
-              unpack_axis_geom (plane->position_ (),
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              transform_vertex (info->current_transform,
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              info->current_face->is_planar = true;
-
-              info->current_face->nx = info->current_face->ax;
-              info->current_face->ny = info->current_face->ay;
-              info->current_face->nz = info->current_face->az;
-
-              if (fs->same_sense_ ())
-                {
-                  info->current_face->surface_orientation_reversed = false;
-                }
-              else
-                {
-                  /* XXX: Should we bother flipping the display normal, as we now set surface_orientation_reversed */
-                  info->current_face->nx = -info->current_face->nx;
-                  info->current_face->ny = -info->current_face->ny;
-                  info->current_face->nz = -info->current_face->nz;
-
-                  /* XXX: Could use face->surface_orientation_reversed ? */
-//                  printf ("Not same sense, flipping normal\n");
-                  info->current_face->surface_orientation_reversed = true;
-                }
-
-            }
-          else if (strcmp (surface->EntityName (), "Cylindrical_Surface") == 0)
-            {
-              auto *cylinder = dynamic_cast<SdaiCylindrical_surface *>(surface);
-//              printf ("WARNING: cylindrical surfaces are not supported yet\n");
-
-              unpack_axis_geom (cylinder->position_ (),
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              transform_vertex (info->current_transform,
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              info->current_face->is_cylindrical = true;
-              info->current_face->radius = cylinder->radius_ ();
-
-              if (fs->same_sense_ ())
-                {
-                  info->current_face->surface_orientation_reversed = false;
-                }
-              else
-                {
-                  info->current_face->surface_orientation_reversed = true;
-                }
-
-            }
-          else if (strcmp (surface->EntityName (), "Conical_Surface") == 0)
-            {
-              auto *cone = dynamic_cast<SdaiConical_surface *>(surface);
-//              printf ("WARNING: conical surfaces are not supported yet\n");
-
-              unpack_axis_geom (cone->position_ (),
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              transform_vertex (info->current_transform,
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              info->current_face->is_conical = true;
-              info->current_face->radius = cone->radius_ ();
-              /* XXX: Need to check the coordinate reference frames... testing currently against a file which uses radians */
-              info->current_face->semi_angle = cone->semi_angle_ () * 180. / M_PI;
-              printf ("Semi-angle = %f\n", info->current_face->semi_angle);
-
-              if (fs->same_sense_ ())
-                {
-                  info->current_face->surface_orientation_reversed = false;
-                }
-              else
-                {
-                  info->current_face->surface_orientation_reversed = true;
-                }
-
-            }
-          else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0)
-            {
-              auto *toroid = dynamic_cast<SdaiToroidal_surface *>(surface);
-//              printf ("WARNING: toroidal surfaces are not supported yet\n");
-
-              unpack_axis_geom (toroid->position_ (),
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              transform_vertex (info->current_transform,
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              info->current_face->is_toroidal = true;
-              info->current_face->radius = toroid->major_radius_ ();
-              info->current_face->minor_radius = toroid->minor_radius_ ();
-
-              if (fs->same_sense_ ())
-                {
-                  info->current_face->surface_orientation_reversed = false;
-                }
-              else
-                {
-                  info->current_face->surface_orientation_reversed = true;
-                }
-
-            }
-          else if (strcmp (surface->EntityName (), "Spherical_Surface") == 0)
-            {
-              auto *sphere = dynamic_cast<SdaiSpherical_surface *>(surface);
-//              printf ("WARNING: spherical surfaces are not supported yet\n");
-
-              unpack_axis_geom (sphere->position_ (),
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              transform_vertex (info->current_transform,
-                                &info->current_face->ox,
-                                &info->current_face->oy,
-                                &info->current_face->oz);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->ax,
-                                &info->current_face->ay,
-                                &info->current_face->az);
-
-              transform_vector (info->current_transform,
-                                &info->current_face->rx,
-                                &info->current_face->ry,
-                                &info->current_face->rz);
-
-              info->current_face->is_spherical = true;
-              info->current_face->radius = sphere->radius_ ();
-
-              if (fs->same_sense_ ())
-                {
-                  info->current_face->surface_orientation_reversed = false;
-                }
-              else
-                {
-                  info->current_face->surface_orientation_reversed = true;
-                }
-
-            }
-          else
-            {
-#ifdef DEBUG_NOT_IMPLEMENTED
-              printf ("ERROR: Found an unknown surface type (which we obviously don't support). Surface name is %s\n", surface->EntityName ());
-#endif
-            }
-
-          for (SingleLinkNode *iter = fs->bounds_ ()->GetHead ();
-               iter != NULL;
-               iter = iter->NextNode ())
-            {
-              SdaiFace_bound *fb = (SdaiFace_bound *)((EntityNode *)iter)->node;
-              bool face_bound_orientation = fb->orientation_ ();
-
-#if 0
-              bool is_outer_bound = (strcmp (fb->EntityName (), "Face_Outer_Bound") == 0);
-
-              if (is_outer_bound)
-                std::cout << "  Outer bounds of face include ";
-              else
-                std::cout << "  Bounds of face include ";
-#endif
-
-              // NB: SdaiFace_bound has SdaiLoop *bound_ (), and Boolean orientation_ ()
-              // NB: SdaiLoop is a SdaiTopological_representation_item, which is a SdaiRepresentation_item, which has a name_ ().
-              // NB: Expect bounds_ () may return a SUBTYPE of SdaiLoop, such as, but not necessarily: SdaiEdge_loop
-              SdaiLoop *loop = fb->bound_ ();
-
-#if 0
-              std::cout << "loop #" << loop->StepFileId () << ", of type " << loop->EntityName () << ":" << std::endl;
-#endif
-//              printf ("FACE LOOP\n");
-              if (strcmp (loop->EntityName (), "Edge_Loop") == 0)
-                {
-                  SdaiEdge_loop *el = (SdaiEdge_loop *)loop;
-                  edge_ref first_edge_of_contour = 0;
-                  edge_ref previous_edge_of_contour = 0;
-
-                  // NB: EDGE_LOOP uses multiple inheritance from LOOP and PATH, thus needs special handling to
-                  //     access the elements belonging to PATH, such as edge_list ...
-                  //     (Not sure if this is a bug in STEPcode, as the SdaiEdge_loop class DOES define
-                  //     an accessor edge_list_ (), yet it appears to return an empty aggregate.
-
-                  char path_entity_name[] = "Path"; /* SDAI_Application_instance::GetMiEntity() should take const char *, but doesn't */
-                  SdaiPath *path = (SdaiPath *)el->GetMiEntity (path_entity_name);
-
-                  for (SingleLinkNode *iter = path->edge_list_ ()->GetHead ();
-                       iter != NULL;
-                       iter = iter->NextNode ())
-                    {
-                      SdaiOriented_edge *oe = (SdaiOriented_edge *)((EntityNode *)iter)->node;
-                      /* XXX: Will it _always?_ be an SdaiOriented_edge? */
-
-                      edge_ref our_edge;
-
-                      // NB: Stepcode does not compute derived attributes, so we need to look at the EDGE
-                      //     "edge_element" referred to by the ORIENTED_EDGE, to find the start and end vertices
-
-                      SdaiEdge *edge = oe->edge_element_ ();
-                      bool orientation = oe->orientation_ ();
-
-                      if (strcmp (edge->edge_start_ ()->EntityName (), "Vertex_Point") != 0 ||
-                          strcmp (edge->edge_end_   ()->EntityName (), "Vertex_Point") != 0)
-                        {
-                          printf ("WARNING: Edge start and/or end vertices are not specified as VERTEX_POINT\n");
-                          continue;
-                        }
-
-                      // NB: Assuming edge points to an EDGE, or one of its subtypes that does not make edge_start and edge_end derived attributes.
-                      //     In practice, edge should point to an EDGE_CURVE sub-type
-                      SdaiVertex_point *edge_start = (SdaiVertex_point *) (orientation ? edge->edge_start_ () : edge->edge_end_ ());
-                      SdaiVertex_point *edge_end =  (SdaiVertex_point *) (!orientation ? edge->edge_start_ () : edge->edge_end_ ());
-
-                      // NB: XXX: SdaiVertex_point multiply inherits from vertex and geometric_representation_item
-
-                      SdaiPoint *edge_start_point = edge_start->vertex_geometry_ ();
-                      SdaiPoint *edge_end_point = edge_end->vertex_geometry_ ();
-
-                      if (strcmp (edge_start_point->EntityName (), "Cartesian_Point") == 0)
-                        {
-                          /* HAPPY WITH THIS TYPE */
-                        }
-                      else
-                        {
-                          // XXX: point_on_curve, point_on_surface, point_replica, degenerate_pcurve
-                          printf ("WARNING: Got Edge start point as unhandled point type (%s)\n", edge_start_point->EntityName ());
-                          continue;
-                        }
-
-                      if (strcmp (edge_end_point->EntityName (), "Cartesian_Point") == 0)
-                        {
-                          /* HAPPY WITH THIS TYPE */
-                        }
-                      else
-                        {
-                          // XXX: point_on_curve, point_on_surface, point_replica, degenerate_pcurve
-                          printf ("WARNING: Got Edge end point as unhandled point type (%s)\n", edge_end_point->EntityName ());
-                          continue;
-                        }
-
-                      our_edge = (edge_ref)g_hash_table_lookup (edges_hash_set, edge);
-
-                      if (our_edge != 0)
-                        {
-                          /* Already processed this edge (but hopefully in the other direction!) */
-//                          our_edge = SYM(our_edge);
-                        }
-                      else
-                        {
-                          our_edge = make_edge ();
-
-                          /* Temporary debug hack */
-                          edge_info *our_edge_info = make_edge_info ();
-                          our_edge_info->edge_identifier = ++edge_no;
-                          UNDIR_DATA(our_edge) = our_edge_info;
-
-                          /* Populate edge geometry
-                           *
-                           * NB: Forcing orientation to true, so we create the "forward" direction oriented edge
-                           *     with the non'SYM'd edge pointer. This lets us spot the reversed edges correctly
-                           *     when processing / rendering. (Which we do by spotting the poitner manipulation
-                           *     done by SYM on the original make_edge() pointer
-                           */
-                          process_edge_geometry (edge, true /*orientation*/, our_edge, info);
-//                          process_edge_geometry (edge, orientation, our_edge, info);
-
-                          g_hash_table_insert (edges_hash_set, edge, (void *)our_edge);
-                        }
-
-#if 1
-                      if (!orientation)
-                        our_edge = SYM(our_edge);
-#endif
-
-                      if (first_edge_of_contour == 0)
-                        {
-                          if (face_bound_orientation)
-                            info->current_contour = make_contour3d (our_edge);
-                          else
-                            info->current_contour = make_contour3d (SYM(our_edge));
-                          face3d_add_contour (info->current_face, info->current_contour);
-                          first_edge_of_contour = our_edge;
-                        }
-
-#if 0
-                      printf ("EDGE: (%f, %f, %f)-(%f, %f, %f)\n",
-                              ((vertex3d *)ODATA(our_edge))->x,
-                              ((vertex3d *)ODATA(our_edge))->y,
-                              ((vertex3d *)ODATA(our_edge))->x,
-                              ((vertex3d *)DDATA(our_edge))->x,
-                              ((vertex3d *)DDATA(our_edge))->y,
-                              ((vertex3d *)DDATA(our_edge))->x);
-#endif
-
-                      if (previous_edge_of_contour != 0)
-                        {
-                          /* Link up the edges around this face contour */
-                          if (face_bound_orientation)
-                            splice (our_edge, OPREV(SYM(previous_edge_of_contour)));
-                          else
-                            splice (OPREV(our_edge), SYM(previous_edge_of_contour));
-                        }
-
-                      /* Stash reference to this edge for linking next time */
-                      previous_edge_of_contour = our_edge;
-                    }
-
-                  /* Link up the edges around this face contour */
-                  if (face_bound_orientation)
-                    splice (first_edge_of_contour, OPREV(SYM(previous_edge_of_contour)));
-                  else
-                    splice (OPREV(first_edge_of_contour), SYM(previous_edge_of_contour));
-                }
-              else
-                {
-                  printf ("WARNING: Face is bounded by an unhandled loop type (%s)\n", loop->EntityName ());
-                  continue;
-                }
-            }
-          face_count ++;
         }
+    }
+  else if (strcmp (sr->EntityName (), "Manifold_Surface_Shape_Representation") == 0)
+    {
+      sbsm_list sbsm_list;
 
-        /* Deal with edges hash set */
-        g_hash_table_destroy (edges_hash_set);
+#if 0
+      /* XXX: Solidworks seems to attach a STYLED_ITEM entity to the MSSR, however this is NOT legal AP214,
+       *      so STEPcode may not correctly read the STYLED_ITEM instance. (It does type checking of the item
+       *      pointed to in the STYLED_ITEM.
+       */
+      illegal_sr_styles = find_styles_for_item (info->styled_items, sr);
+      if (illegal_sr_styles != NULL)
+        {
+          printf ("Found style list for MSSR (illegal, but Solidworks does this))\n");
+    //      destroy_appearance (info->object->appear);
+          illegal_sr_appear = make_appearance_for_styles (illegal_sr_styles);
+        }
+#endif
+
+      find_shell_based_surface_model (sr, &sbsm_list);
+
+      for (sbsm_list::iterator iter = sbsm_list.begin (); iter != sbsm_list.end (); iter++)
+        {
+          cfs_list cfs_list;
+
+          /* XXX: Default to the illegal MSSR appearance (Thanks Solidworks!) */
+          info->object->appear = illegal_sr_appear;
+
+          EntityAggregate *solid_styles = find_styles_for_item (info->styled_items, (*iter));
+          if (solid_styles != NULL)
+            {
+    //          printf ("Found style list for solid\n");
+    //          destroy_appearance (info->object->appear);
+              info->object->appear = make_appearance_for_styles (solid_styles);
+    #if 0
+              printf ("Colour %f, %f, %f\n",
+                      (double)info->object->appear->r,
+                      (double)info->object->appear->g,
+                      (double)info->object->appear->b);
+    #endif
+            }
+
+          list_cfs_in_sbsm (*iter, &cfs_list);
+
+          for (cfs_list::iterator cfs_iter = cfs_list.begin (); cfs_iter != cfs_list.end (); cfs_iter++)
+            {
+              process_cfs (*cfs_iter, info);
+            }
+
+        }
+    }
+  else
+    {
+      g_assert_not_reached ();
     }
 
   mi_list mi_list;
