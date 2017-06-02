@@ -332,8 +332,8 @@ add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3
   list->Number++;
 
 #ifdef DEBUG
-  if (list.Number > list.Size)
-    printf ("add_object_to_list overflow! type=%i num=%d size=%d\n", type, list.Number, list.Size);
+  if (list->Number > list->Size)
+    printf ("add_object_to_list overflow! type=%i num=%d size=%d\n", type, list->Number, list->Size);
 #endif
 
   if (drc && !TEST_FLAG (SELECTEDFLAG, object))

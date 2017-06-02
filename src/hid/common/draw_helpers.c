@@ -7,7 +7,7 @@
 #include "draw_helpers.h"
 
 
-static void
+void
 common_draw_pcb_line (hidGC gc, LineType *line)
 {
   gui->graphics->set_line_cap (gc, Trace_Cap);
@@ -21,7 +21,7 @@ common_draw_pcb_line (hidGC gc, LineType *line)
                             line->Point2.X, line->Point2.Y);
 }
 
-static void
+void
 common_draw_pcb_arc (hidGC gc, ArcType *arc)
 {
   if (!arc->Thickness)
