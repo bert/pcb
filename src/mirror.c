@@ -83,8 +83,8 @@ MirrorElementCoordinates (DataType *Data, ElementType *Element,
   END_LOOP;
   PAD_LOOP (Element);
   {
-    RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     Coord X1,X2,Y1,Y2;
+    RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     X1 = SWAP_X (pad->Point1.X);
     Y1 = SWAP_Y (pad->Point1.Y) + yoff;
     X2 = SWAP_X (pad->Point2.X);
