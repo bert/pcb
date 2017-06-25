@@ -14,7 +14,7 @@
  * type in.  It also requires a coordinating flag so the drawing area
  * won't grab focus while the command entry is up.
  *
- * I thought the interface should be cleaner, so so I made an alternate
+ * I thought the interface should be cleaner, so I made an alternate
  * command window interface which works better I think as a gui interface.
  * The user must focus onto the command window, but since it's a separate
  * window, there's no confusion.  It has the restriction that objects to
@@ -234,6 +234,7 @@ command_entry_activate_cb (GtkWidget * widget, gpointer data)
     }
 }
 
+
 /*!
  * \brief Create the command_combo_box.
  *
@@ -264,6 +265,7 @@ command_combo_box_entry_create (void)
   g_object_ref (G_OBJECT (ghidgui->command_combo_box));	/* so can move it */
 }
 
+
 static void
 command_window_disconnect_combobox ()
 {
@@ -275,12 +277,14 @@ command_window_disconnect_combobox ()
   combo_vbox = NULL;
 }
 
+
 static void
 command_window_close_cb (GtkWidget * widget, gpointer data)
 {
   command_window_disconnect_combobox();
   gtk_widget_destroy (command_window);
 }
+
 
 static gboolean
 command_window_delete_event_cb (GtkWidget * widget, GdkEvent * event,
@@ -290,11 +294,34 @@ command_window_delete_event_cb (GtkWidget * widget, GdkEvent * event,
   return FALSE;
 }
 
+
 static void
 command_destroy_cb (GtkWidget * widget, gpointer data)
 {
   command_window = NULL;
 }
+
+
+static gboolean
+command_escape_cb (GtkWidget * widget, GdkEventKey * kev, gpointer data)
+{
+  gint ksym = kev->keyval;
+
+  if (ksym != GDK_Escape)
+    return FALSE;
+
+  if (command_window) {
+    command_window_disconnect_combobox();
+    gtk_widget_destroy (command_window);
+  }
+
+  if (loop && g_main_loop_is_running (loop))	/* should always be */
+    g_main_loop_quit (loop);
+  command_entered = NULL;	/* We are aborting */
+
+  return TRUE;
+}
+
 
 /*!
  * \brief If ghidgui->use_command_window toggles, the config code calls
@@ -326,6 +353,7 @@ ghid_command_use_command_window_sync (void)
     }
 }
 
+
 /*!
  * \brief If ghidgui->use_command_window is TRUE this will get called
  * from ActionCommand() to show the command window.
@@ -347,6 +375,8 @@ ghid_command_window_show (gboolean raise)
                     G_CALLBACK (command_destroy_cb), NULL);
   g_signal_connect (G_OBJECT (command_window), "delete-event",
                     G_CALLBACK (command_window_delete_event_cb), NULL);
+  g_signal_connect (G_OBJECT (command_window), "key_press_event",
+		    G_CALLBACK (command_escape_cb), NULL);
   gtk_window_set_title (GTK_WINDOW (command_window), _("PCB Command Entry"));
   gtk_window_set_wmclass (GTK_WINDOW (command_window), "PCB_Command", "PCB");
   gtk_window_set_resizable (GTK_WINDOW (command_window), FALSE);
@@ -387,22 +417,6 @@ ghid_command_window_show (gboolean raise)
   gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
   gtk_widget_show_all (command_window);
-}
-
-
-static gboolean
-command_escape_cb (GtkWidget * widget, GdkEventKey * kev, gpointer data)
-{
-  gint ksym = kev->keyval;
-
-  if (ksym != GDK_Escape)
-    return FALSE;
-
-  if (loop && g_main_loop_is_running (loop))	/* should always be */
-    g_main_loop_quit (loop);
-  command_entered = NULL;	/* We are aborting */
-
-  return TRUE;
 }
 
 
