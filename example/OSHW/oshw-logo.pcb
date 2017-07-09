@@ -1,10 +1,10 @@
-# release: pcb 20091103
-# date:    Fri Apr  8 04:59:56 2011
-# user:    oskay (Windell H. Oskay)
-# host:    atom-smasher.local
+# release: pcb 20100929
+# date:    Sun Jul  9 15:43:11 2017
+# user:    bert (Bert Timmerman)
+# host:    draaikolk
 
-# To read pcb files, the pcb version (or the cvs source date) must be >= the file version
-FileVersion[20070407]
+# To read pcb files, the pcb version (or the git source date) must be >= the file version
+FileVersion[20100606]
 
 PCB["OSHW LOGOS" 400000 400000]
 
@@ -13,8 +13,8 @@ Cursor[0 0 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
 DRC[800 800 800 700 1500 1200]
-Flags("nameonpcb,clearnew,snappin")
-Groups("1,c:2,s:3:4:5:6:7:8")
+Flags("nameonpcb,clearnew,snappin,showmask")
+Groups("1,c:2,s")
 Styles["Signal,1500,4000,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600"]
 
 Symbol(' ' 18)
@@ -842,28 +842,10 @@ Layer(1 "component")
 Layer(2 "solder")
 (
 )
-Layer(3 "GND")
+Layer(3 "signal9")
 (
 )
-Layer(4 "power")
-(
-)
-Layer(5 "signal1")
-(
-)
-Layer(6 "signal2")
-(
-)
-Layer(7 "signal3")
-(
-)
-Layer(8 "signal4")
-(
-)
-Layer(9 "signal9")
-(
-)
-Layer(10 "silk")
+Layer(4 "silk")
 (
 	Line[73022 10738 72839 10775 700 2000 "clearline"]
 	Line[72839 10775 72676 10873 700 2000 "clearline"]

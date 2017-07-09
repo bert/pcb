@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Fri Jul  7 20:20:31 2017
+# date:    Sun Jul  9 15:53:03 2017
 # user:    bert (Bert Timmerman)
 # host:    draaikolk
 
@@ -13,8 +13,8 @@ Cursor[0 0 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
 DRC[800 800 800 700 1500 1200]
-Flags("nameonpcb,clearnew,snappin")
-Groups("1,c:2,s:3:4:5:6:7:8")
+Flags("nameonpcb,clearnew,snappin,showmask")
+Groups("1,c:2,s")
 Styles["Signal,1500,4000,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600"]
 
 Symbol(' ' 18)
@@ -803,28 +803,10 @@ Layer(1 "component")
 Layer(2 "solder")
 (
 )
-Layer(3 "GND")
+Layer(3 "signal9")
 (
 )
-Layer(4 "power")
-(
-)
-Layer(5 "signal1")
-(
-)
-Layer(6 "signal2")
-(
-)
-Layer(7 "signal3")
-(
-)
-Layer(8 "signal4")
-(
-)
-Layer(9 "signal9")
-(
-)
-Layer(10 "silk")
+Layer(4 "silk")
 (
 	Polygon("clearpoly")
 	(
