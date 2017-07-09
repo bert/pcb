@@ -1290,6 +1290,7 @@ fi
 if test -d $srcdir/example; then
    AC_CONFIG_FILES(example/Makefile)
    AC_CONFIG_FILES(example/libraries/Makefile)
+   AC_CONFIG_FILES(example/OSHW/Makefile)
 fi
 if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/CreateLibraryContents.sh)

@@ -1,7 +1,7 @@
 examplesdir=	@docdir@/examples
 examples_DATA=	${EXAMPLES}
 
-SUBDIRS=	libraries
+SUBDIRS=	libraries OSHW
 
 EXTRA_DIST=	${EXAMPLES}
 
