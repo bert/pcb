@@ -1678,7 +1678,8 @@ process_cfs(SdaiConnected_face_set *cfs, process_step_info *info)
             }
 
         }
-      else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0)
+      else if (strcmp (surface->EntityName (), "Toroidal_Surface") == 0 ||
+               strcmp (surface->EntityName (), "Degenerate_Toroidal_Surface") == 0)
         {
           auto *toroid = dynamic_cast<SdaiToroidal_surface *>(surface);
 //          printf ("WARNING: toroidal surfaces are not supported yet\n");
