@@ -509,13 +509,13 @@ hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 libstep_a_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I./hid/step \
-	-I${STEPCODEDIR}/include \
-	-I${STEPCODEDIR}/src/base \
-	-I${STEPCODEDIR}/src/clutils \
-	-I${STEPCODEDIR}/src/cldai \
-	-I${STEPCODEDIR}/src/clstepcore \
-	-I${STEPCODEDIR}/src/cleditor \
-	-I${STEPCODEDIR}/schemas/sdai_ap214e3
+	-I${STEPCODEDIR}/include/stepcode/ \
+	-I${STEPCODEDIR}/include/stepcode/base \
+	-I${STEPCODEDIR}/include/stepcode/clutils \
+	-I${STEPCODEDIR}/include/stepcode/cldai \
+	-I${STEPCODEDIR}/include/stepcode/clstepcore \
+	-I${STEPCODEDIR}/include/stepcode/cleditor \
+	-I${STEPCODEDIR}/include/schemas/sdai_ap214e3
 
 LIBSTEP_SRCS = \
 	dolists.h \
