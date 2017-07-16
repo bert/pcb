@@ -16,3 +16,5 @@ stamp-*
 /missing
 *.backup
 test-driver
+doc/*.eps
+
