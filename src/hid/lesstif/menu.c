@@ -1110,9 +1110,13 @@ dump_multi (int ix, int ind, acc_table_t *a, int n)
 static acc_table_t *cur_table = 0;
 static int cur_ntable = 0;
 
-/* We sort these such that the ones with explicit modifiers come
-   before the ones with implicit modifiers.  That way, a
-   Shift<Key>Code gets chosen before a <Key>Code.  */
+/*!
+ * \brief .
+ *
+ * We sort these such that the ones with explicit modifiers come before
+ * the ones with implicit modifiers.
+ * That way, a Shift<Key>Code gets chosen before a <Key>Code.
+ */
 static int
 acc_sort_rev (const void *va, const void *vb)
 {
