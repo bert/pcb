@@ -92,7 +92,7 @@ Name of the STEP output file. Can contain a path.
    %end-doc
    */
     {"copper", N_("Export copper objects"),
-         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+         HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_copper 1
 
   /* %start-doc options "91 STEP Export"
@@ -104,7 +104,7 @@ Name of the STEP output file. Can contain a path.
    %end-doc
    */
     {"soldermask", N_("Export soldermask"),
-         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+         HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_soldermask 2
 
   /* %start-doc options "91 STEP Export"
@@ -116,7 +116,7 @@ Name of the STEP output file. Can contain a path.
    %end-doc
    */
     {"silk", N_("Export silk"),
-         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+         HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_silk 3
 
   /* %start-doc options "91 STEP Export"
@@ -128,7 +128,7 @@ Name of the STEP output file. Can contain a path.
    %end-doc
    */
     {"models", N_("Export component models"),
-         HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+         HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_models 4
 
   /* %start-doc options "91 STEP Export"
