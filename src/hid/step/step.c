@@ -4,10 +4,11 @@
 
 #include <stdio.h>
 //#include <stdarg.h> /* not used */
-//#include <stdlib.h>
+#include <stdlib.h>
 //#include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "global.h"
 #include "data.h"
@@ -432,15 +433,39 @@ step_load_models(Coord board_thickness_)
   END_LOOP;
 }
 
+static char* create_temp_pcb_file(void)
+{
+  char *fname = g_strdup("/tmp/pcb-XXXXXX");
+  int fd;
+
+  /* mkstemp overwrites the input buffer with the actual filename */
+  fd = mkstemp(fname);
+  if(fd == -1) {
+    g_error("Failed to open temporary file\n");
+    return NULL;
+  }
+
+  /* We don't actually want the fd in this case, so close it.
+     This makes this procedure insecure, as another process
+     could get hold of the temporary file in the meantime. */
+  close(fd);
+
+  return fname;
+}
+
 static void
 step_do_export (HID_Attr_Val * options)
 {
   int i;
   const char *filename;
-  const char *temp_pcb_filename = "_pcb.step";
+  char *temp_pcb_filename = create_temp_pcb_file();
   GList *board_outline_list;
   POLYAREA *board_outline;
   POLYAREA *piece;
+
+  if(temp_pcb_filename == NULL) {
+    return;
+  }
 
   if (!options)
     {
@@ -740,6 +765,11 @@ step_do_export (HID_Attr_Val * options)
 
     /* XXX: LEAK ALL THE MODEL DATA.. BEING LAZY RIGHT NOW */
   }
+
+  if(unlink(temp_pcb_filename) == -1) {
+    g_error("Failed to delete temporary file '%s': %m\n", temp_pcb_filename);
+  }
+  g_free(temp_pcb_filename);
 }
 
 static void
