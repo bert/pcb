@@ -215,8 +215,6 @@ static GList *loaded_models = NULL;
 void
 step_load_models(Coord board_thickness_)
 {
-  int i;
-  const char *filename;
   struct assembly_model *model;
   struct assembly_model_instance *instance;
   const char *attribute;
