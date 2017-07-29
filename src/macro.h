@@ -116,7 +116,7 @@
 #define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
 #define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? 1 : 0)
 
-#define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
+#define FLAGS_EQUAL(F1,F2)	pcb_flag_eq(&(F1), &(F2))
 
 #define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
 

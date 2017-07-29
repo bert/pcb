@@ -48,6 +48,23 @@
 #include <dmalloc.h>
 #endif
 
+int pcb_flag_eq (FlagType *f1, FlagType *f2);
+
+/*!
+ * \brief .
+ *
+ * \warning ignore unknowns for now: the only place where we use this
+ * function, undo.c, won't care.
+ */
+int
+pcb_flag_eq (FlagType *f1, FlagType *f2)
+{
+  if (f1->f != f2->f)
+    return 0;
+
+  return (memcmp(f1->t, &f2->t, sizeof(f1->t)) == 0);
+}
+
 static int
 FlagCurrentStyle (void *data)
 {
