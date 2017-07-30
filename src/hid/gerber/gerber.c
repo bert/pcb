@@ -348,7 +348,7 @@ static HID_Attribute gerber_options[] = {
 /* %start-doc options "90 Gerber Export"
 @ftable @code
 @item --gerberfile <string>
-Gerber output file prefix. Can include a path.
+Gerber output file prefix. Parameter @code{<string>} can include a path.
 @end ftable
 %end-doc
 */
@@ -377,19 +377,40 @@ Print file names and aperture counts on stdout.
   {"verbose", "Print file names and aperture counts on stdout",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_verbose 2
+
 /* %start-doc options "90 Gerber Export"
 @ftable @code
 @item --metric
-generate metric Gerber and drill files
+Generate metric Gerber and drill files
 @end ftable
 %end-doc
 */
   {"metric", "Generate metric Gerber and drill files",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_metric 3
+
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --copy-outline <string>
+Copy the outline onto other layers.
+Parameter @code{<string>} can be @samp{none}, @samp{mask},
+@samp{silk} or @samp{all}.
+@end ftable
+%end-doc
+*/
   {"copy-outline", "Copy outline onto other layers",
    HID_Enum, 0, 0, {0, 0, 0}, copy_outline_names, 0},
 #define HA_copy_outline 4
+
+/* %start-doc options "90 Gerber Export"
+@ftable @code
+@item --name-style <string>
+Naming style for individual gerber files.
+Parameter @code{<string>} can be @samp{fixed}, @samp{single},
+@samp{first}, @samp{eagle} or @samp{hackvana}.
+@end ftable
+%end-doc
+*/
   {"name-style", "Naming style for individual gerber files",
    HID_Enum, 0, 0, {0, 0, 0}, name_style_names, 0},
 #define HA_name_style 5
