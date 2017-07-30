@@ -406,8 +406,9 @@ In photo-realistic mode, export the reverse side of the layout. Up-down flip.
 @ftable @code
 @cindex photo-mask-colour
 @item --photo-mask-colour <colour>
-In photo-realistic mode, export the solder mask as this colour. Parameter
-@code{<colour>} can be @samp{green}, @samp{red}, @samp{blue}, or @samp{purple}.
+In photo-realistic mode, export the solder mask as this colour.
+Parameter @code{<colour>} can be @samp{green}, @samp{red}, @samp{blue},
+@samp{purple}, @samp{black}, or @samp{white}.
 @end ftable
 %end-doc
 */
@@ -418,7 +419,7 @@ In photo-realistic mode, export the solder mask as this colour. Parameter
 /* %start-doc options "93 PNG Options"
 @ftable @code
 @cindex photo-plating
-@item --photo-plating
+@item --photo-plating <colour>
 In photo-realistic mode, export the exposed copper as though it has this type
 of plating. Parameter @code{<colour>} can be @samp{tinned}, @samp{gold},
 @samp{silver}, or @samp{copper}.
@@ -432,7 +433,7 @@ of plating. Parameter @code{<colour>} can be @samp{tinned}, @samp{gold},
 /* %start-doc options "93 PNG Options"
 @ftable @code
 @cindex photo-silk-colour
-@item --photo-silk-colour
+@item --photo-silk-colour <colour>
 In photo-realistic mode, export the silk screen as this colour. Parameter
 @code{<colour>} can be @samp{white}, @samp{black}, or @samp{yellow}.
 @end ftable
