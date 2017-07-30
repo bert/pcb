@@ -27,6 +27,7 @@ static HID_Attribute bom_options[] = {
 @ftable @code
 @item --bomfile <string>
 Name of the BOM output file.
+Parameter @code{<string>} can include a path.
 @end ftable
 %end-doc
 */
@@ -37,6 +38,7 @@ Name of the BOM output file.
 @ftable @code
 @item --xyfile <string>
 Name of the XY output file.
+Parameter @code{<string>} can include a path.
 @end ftable
 %end-doc
 */
@@ -48,6 +50,9 @@ Name of the XY output file.
 @ftable @code
 @item --xy-unit <unit>
 Unit of XY dimensions. Defaults to mil.
+Parameter @code{<unit>} can be @samp{km}, @samp{m}, @samp{cm}, @samp{mm},
+@samp{um}, @samp{nm}, @samp{px}, @samp{in}, @samp{mil}, @samp{dmil},
+@samp{cmil}, or @samp{inch}.
 @end ftable
 %end-doc
 */
