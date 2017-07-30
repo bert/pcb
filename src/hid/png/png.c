@@ -236,7 +236,8 @@ HID_Attribute png_attribute_list[] = {
 /* %start-doc options "93 PNG Options"
 @ftable @code
 @item --outfile <string>
-Name of the file to be exported to. Can contain a path.
+Name of the file to be exported to.
+Parameter @code{<string>} can include a path.
 @end ftable
 %end-doc
 */
