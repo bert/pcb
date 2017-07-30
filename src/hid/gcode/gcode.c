@@ -169,80 +169,216 @@ static int                        n_drills_allocated = 0;
 
 HID_Attribute gcode_attribute_list[] = {
   /* other HIDs expect this to be first.  */
+
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --basename <string>
+File name prefix and suffix, layer names will be inserted before the
+suffix.
+Parameter @code{<string>} can include a path.
+@end ftable
+%end-doc
+*/
   {"basename", "File name prefix and suffix,\n"
                "layer names will be inserted before the suffix.",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --measurement-unit <unit>
+Measurement unit used in the G-code output.
+Defaults to mil.
+Parameter @code{<unit>} can be @samp{km}, @samp{m}, @samp{cm}, @samp{mm},
+@samp{um}, @samp{nm}, @samp{px}, @samp{in}, @samp{mil}, @samp{dmil},
+@samp{cmil}, or @samp{inch}.
+@end ftable
+%end-doc
+*/
   {"measurement-unit", "Measurement unit used in the G-code output.",
    HID_Unit, 0, 0, {3, 0, 0}, NULL, 0},
 #define HA_unit 1
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --dpi <int>
+Accuracy of the mill path generation in pixels/inch.
+@end ftable
+%end-doc
+*/
   {"dpi", "Accuracy of the mill path generation in pixels/inch.",
    HID_Integer, 0, 2000, {600, 0, 0}, 0, 0},
 #define HA_dpi 2
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --safe-Z <real>
+Safe Z for traverse movements of all operations.
+@end ftable
+%end-doc
+*/
   {"safe-Z", "Safe Z for traverse movements of all operations.",
    HID_Real, -1000, 10000, {0, 0, 2}, 0, 0},
 #define HA_safeZ 3
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --iso-mill-depth <real>
+Isolation milling depth.
+@end ftable
+%end-doc
+*/
   {"iso-mill-depth", "Isolation milling depth.",
    HID_Real, -1000, 1000, {0, 0, -0.05}, 0, 0},
 #define HA_cutdepth 4
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --iso-tool-diameter <real>
+Isolation milling tool diameter.
+@end ftable
+%end-doc
+*/
   {"iso-tool-diameter", "Isolation milling tool diameter.",
    HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
 #define HA_tooldiameter 5
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --iso-tool-plunge <real>
+Isolation milling feedrate when plunging into the material.
+@end ftable
+%end-doc
+*/
   {"iso-tool-plunge", "Isolation milling feedrate when plunging into\n"
                       "the material.",
    HID_Real, 0.1, 10000, {0, 0, 25.}, 0, 0},
 #define HA_isoplunge 6
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --iso-tool-feedrate <real>
+Isolation milling feedrate.
+@end ftable
+%end-doc
+*/
   {"iso-tool-feedrate", "Isolation milling feedrate.",
    HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
 #define HA_isofeedrate 7
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --predrill
+Wether to pre-drill all drill spots with the isolation milling tool.
+Drill depth is iso-mill-depth here.
+This feature eases and enhances accuracy of manual drilling.
+@end ftable
+%end-doc
+*/
   {"predrill", "Wether to pre-drill all drill spots with the isolation milling\n"
                "tool. Drill depth is iso-mill-depth here. This feature eases\n"
                "and enhances accuracy of manual drilling.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_predrill 8
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --drill-depth <real>
+Drilling depth.
+@end ftable
+%end-doc
+*/
   {"drill-depth", "Drilling depth.",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
 #define HA_drilldepth 9
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --drill-feedrate <real>
+Drilling feedrate.
+@end ftable
+%end-doc
+*/
   {"drill-feedrate", "Drilling feedrate.",
    HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
 #define HA_drillfeedrate 10
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --drill-mill
+Wether to produce drill holes equal or bigger than the milling tool
+diameter with the milling tool.
+With the milling tool bigger holes can be accurately sized without
+changing the tool.
+@end ftable
+%end-doc
+*/
   {"drill-mill", "Wether to produce drill holes equal or bigger than the\n"
                  "milling tool diameter with the milling tool.\n"
                  "With the milling tool bigger holes can be accurately sized\n"
-                 "without changing the tool",
+                 "without changing the tool.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_drillmill 11
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --outline-mill-depth <real>
+Milling depth when milling the outline.
+Currently, only the rectangular extents of the board are milled, no
+polygonal outlines or holes.
+@end ftable
+%end-doc
+*/
   {"outline-mill-depth", "Milling depth when milling the outline.\n"
                          "Currently, only the rectangular extents of the\n"
                          "board are milled, no polygonal outlines or holes.",
    HID_Real, -10000, 10000, {0, 0, -1}, 0, 0},
 #define HA_milldepth 12
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --outline-tool-diameter <real>
+Diameter of the tool used for outline milling.
+@end ftable
+%end-doc
+*/
   {"outline-tool-diameter", "Diameter of the tool used for outline milling.",
    HID_Real, 0, 10000, {0, 0, 1}, 0, 0},
 #define HA_milltooldiameter 13
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --outline-mill-plunge <real>
+Outline milling feedrate when plunging into the material.
+@end ftable
+%end-doc
+*/
   {"outline-mill-plunge", "Outline milling feedrate when plunging into\n"
-                          "the material",
+                          "the material.",
    HID_Real, 0.1, 10000, {0, 0, 25.}, 0, 0},
 #define HA_millplunge 14
 
-  {"outline-mill-feedrate", "Outline milling feedrate",
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --outline-mill-feedrate <real>
+Outline milling feedrate.
+@end ftable
+%end-doc
+*/
+  {"outline-mill-feedrate", "Outline milling feedrate.",
    HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
 #define HA_millfeedrate 15
 
+/* %start-doc options "85 G-code Options"
+@ftable @code
+@item --advanced-gcode
+Wether to produce G-code for advanced interpreters, like using variables
+or drill cycles.
+Not all machine controllers understand this, but it allows better
+hand-editing of the resulting files.
+@end ftable
+%end-doc
+*/
   {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
