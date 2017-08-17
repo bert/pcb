@@ -1,7 +1,35 @@
-/*! \file <ghid-main-menu.c>
- *  \brief Implementation of GHidMainMenu widget
- *  \par Description
- *  This widget is the main pcb menu.
+/*!
+ * \file src/hid/gtk/ghid-main-menu.c
+ *
+ * \brief Implementation of GHidMainMenu widget.
+ *
+ * This widget is the main pcb menu.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996, 2004 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
  */
 
 #include <glib.h>
@@ -57,8 +85,10 @@ struct _GHidMainMenuClass
 /* SIGNAL HANDLERS */
 
 /* RESOURCE HANDLER */
-/* \brief Translate gpcb-menu.res accelerators to gtk ones
- * \par Function Description
+
+/*!
+ * \brief Translate gpcb-menu.res accelerators to gtk ones.
+ *
  * Some keys need to be replaced by a name for the gtk accelerators to
  * work.  This table contains the translations.  The "in" character is
  * what would appear in gpcb-menu.res and the "out" string is what we
@@ -149,7 +179,9 @@ g_str_case_equal (gconstpointer v1, gconstpointer v2)
   return strcasecmp (v1, v2);
 }
 
-/*! \brief Check that translated accelerators are unique; warn otherwise. */
+/*!
+ * \brief Check that translated accelerators are unique; warn otherwise.
+ */
 static const char *
 check_unique_accel (const char *accelerator)
 {
@@ -176,11 +208,12 @@ check_unique_accel (const char *accelerator)
 }
 
 
-/*! \brief Translate a resource tree into a menu structure
+/*!
+ * \brief Translate a resource tree into a menu structure.
  *
- *  \param [in] menu    The GHidMainMenu widget to be acted on
- *  \param [in] shall   The base menu shell (a menu bar or popup menu)
- *  \param [in] res     The base of the resource tree
+ * \param [in] menu    The GHidMainMenu widget to be acted on.
+ * \param [in] shall   The base menu shell (a menu bar or popup menu).
+ * \param [in] res     The base of the resource tree.
  * */
 void
 ghid_main_menu_real_add_resource (GHidMainMenu *menu, GtkMenuShell *shell,
@@ -437,9 +470,10 @@ ghid_main_menu_get_type (void)
   return mm_type;
 }
 
-/*! \brief Create a new GHidMainMenu
+/*!
+ * \brief Create a new GHidMainMenu.
  *
- *  \return a freshly-allocated GHidMainMenu
+ * \return a freshly-allocated GHidMainMenu
  */
 GtkWidget *
 ghid_main_menu_new (GCallback action_cb,
@@ -470,14 +504,18 @@ ghid_main_menu_new (GCallback action_cb,
   return GTK_WIDGET (mm);
 }
 
-/*! \brief Turn a pcb resource into the main menu */
+/*!
+ * \brief Turn a pcb resource into the main menu.
+ */
 void
 ghid_main_menu_add_resource (GHidMainMenu *menu, const Resource *res)
 {
   ghid_main_menu_real_add_resource (menu, GTK_MENU_SHELL (menu), res);
 }
 
-/*! \brief Turn a pcb resource into a popup menu */
+/*!
+ * \brief Turn a pcb resource into a popup menu.
+ */
 void
 ghid_main_menu_add_popup_resource (GHidMainMenu *menu, const char *name,
                                    const Resource *res)
@@ -489,7 +527,9 @@ ghid_main_menu_add_popup_resource (GHidMainMenu *menu, const char *name,
   gtk_widget_show_all (new_menu);
 }
 
-/*! \brief Returns a registered popup menu by name */
+/*!
+ * \brief Returns a registered popup menu by name.
+ */
 GtkMenu *
 ghid_main_menu_get_popup (GHidMainMenu *menu, const char *name)
 {
@@ -497,15 +537,16 @@ ghid_main_menu_get_popup (GHidMainMenu *menu, const char *name)
 }
 
 
-/*! \brief Updates the toggle/active state of all items 
- *  \par Function Description
- *  Loops through all actions, passing the action, its toggle
- *  flag (maybe NULL), and its active flag (maybe NULL), to a
- *  callback function. It is the responsibility of the function
- *  to actually change the state of the action.
+/*!
+ * \brief Updates the toggle/active state of all items.
  *
- *  \param [in] menu    The menu to be acted on.
- *  \param [in] cb      The callback that toggles the actions
+ * Loops through all actions, passing the action, its toggle
+ * flag (maybe NULL), and its active flag (maybe NULL), to a
+ * callback function. It is the responsibility of the function
+ * to actually change the state of the action.
+ *
+ * \param [in] menu    The menu to be acted on.
+ * \param [in] cb      The callback that toggles the actions.
  */
 void
 ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
@@ -529,7 +570,9 @@ ghid_main_menu_update_toggle_state (GHidMainMenu *menu,
     }
 }
 
-/*! \brief Installs or updates layer selector items */
+/*!
+ * \brief Installs or updates layer selector items.
+ */
 void
 ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
                                        GHidLayerSelector *ls)
@@ -573,7 +616,9 @@ ghid_main_menu_install_layer_selector (GHidMainMenu *mm,
     }
 }
 
-/*! \brief Installs or updates route style selector items */
+/*!
+ * \brief Installs or updates route style selector items.
+ */
 void
 ghid_main_menu_install_route_style_selector (GHidMainMenu *mm,
                                              GHidRouteStyleSelector *rss)
@@ -597,7 +642,9 @@ ghid_main_menu_install_route_style_selector (GHidMainMenu *mm,
     }
 }
 
-/*! \brief Returns the menu bar's accelerator group */
+/*!
+ * \brief Returns the menu bar's accelerator group.
+ */
 GtkAccelGroup *
 ghid_main_menu_get_accel_group (GHidMainMenu *menu)
 {
