@@ -1,71 +1,70 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/hid/gtk/gui-top-window.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ * \brief This handles creation of the top level window and all its
+ * widgets.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * \note Events for the Output.drawing_area widget are handled in a separate
+ * file gui-output-events.c
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Some caveats with menu shorcut keys:  Some keys are trapped out by
+ * Gtk and can't be used as shortcuts (eg. '|', TAB, etc).
+ * For these cases we have our own shortcut table and capture the keys
+ * and send the events there in ghid_port_key_press_cb().
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * \todo Figure out when we need to call this everytime ?\n
+ * <pre>
+    ghid_set_status_line_label ();\n
+ * </pre>
  *
+ * \todo The old quit callback had:\n
+ * <pre>
+    ghid_config_files_write ();
+    hid_action ("Quit");\n
+ * </pre>
+ *
+ * \todo What about stuff like this:\n
+    Set to ! because ActionDisplay toggles it
+ * <pre>
+    Settings.DrawGrid = !gtk_toggle_action_get_active (action);
+    ghidgui->config_modified = TRUE;
+    hid_actionl ("Display", "Grid", "", NULL);
+    ghid_set_status_line_label ();
+ * </pre>
+ *
+ * \todo We need to do the status line thing.
+ * For example shift-alt-v to change the via size.
+ * Note: The status line label does not get updated properly until
+ * a zoom in/out.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This file was originally written by Bill Wilson for the PCB Gtk
+ * port. It was later heavily modified by Dan McMahill to provide
+ * user customized menus.
  */
 
 /* #define DEBUG_MENUS */
-
-#ifdef DAN_FIXME
-TODO:
-
-- figure out when we need to call this:
-  ghid_set_status_line_label ();
-  Everytime? 
-
-- the old quit callback had:
-
-  ghid_config_files_write ();
-  hid_action ("Quit");
-
-- what about stuff like this:
-
-  /* Set to ! because ActionDisplay toggles it */
-  Settings.DrawGrid = !gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  hid_actionl ("Display", "Grid", "", NULL);
-  ghid_set_status_line_label ();
-
-
-I NEED TO DO THE STATUS LINE THING.  for example shift-alt-v to change the
-via size.  NOte the status line label does not get updated properly until
-a zoom in/out.
-
-#endif
-
-/* This file was originally written by Bill Wilson for the PCB Gtk
- * port.  It was later heavily modified by Dan McMahill to provide
- * user customized menus.
-*/
-
-
-/* gui-top-window.c
-|  This handles creation of the top level window and all its widgets.
-|  events for the Output.drawing_area widget are handled in a separate
-|  file gui-output-events.c
-|
-|  Some caveats with menu shorcut keys:  Some keys are trapped out by Gtk
-|  and can't be used as shortcuts (eg. '|', TAB, etc).  For these cases
-|  we have our own shortcut table and capture the keys and send the events
-|  there in ghid_port_key_press_cb().
-*/
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -138,7 +137,9 @@ static struct { GtkAction *action; const Resource *node; }
         (sizeof (ghid_hotkey_actions) / sizeof (ghid_hotkey_actions[0]))
 
 
-/*! \brief callback for ghid_main_menu_update_toggle_state () */
+/*!
+ * \brief Callback for ghid_main_menu_update_toggle_state ().
+ */
 void
 menu_toggle_update_cb (GtkAction *act, const char *tflag, const char *aflag)
 {
@@ -154,7 +155,9 @@ menu_toggle_update_cb (GtkAction *act, const char *tflag, const char *aflag)
     }
 }
 
-/*! \brief sync the menu checkboxes with actual pcb state */
+/*!
+ * \brief sync the menu checkboxes with actual pcb state.
+ */
 void
 ghid_update_toggle_flags ()
 {
@@ -334,18 +337,19 @@ top_window_enter_cb (GtkWidget *widget, GdkEvent  *event, GHidPort *port)
   return FALSE;
 }
 
-/*! \brief Menu action callback function
- *  \par Function Description
- *  This is the main menu callback function.  The callback receives
- *  the original Resource pointer containing the HID actions to be
- *  executed.
+/*!
+ * \brief Menu action callback function.
  *
- *  All hotkeys go through the menus which means they go through here.
- *  Some, such as tab, are caught by Gtk instead of passed here, so
- *  pcb calls this function directly through ghid_hotkey_cb() for them.
+ * This is the main menu callback function.  The callback receives
+ * the original Resource pointer containing the HID actions to be
+ * executed.
  *
- *  \param [in]   The action that was activated
- *  \param [in]   The menu resource associated with the action
+ * All hotkeys go through the menus which means they go through here.
+ * Some, such as tab, are caught by Gtk instead of passed here, so
+ * pcb calls this function directly through ghid_hotkey_cb() for them.
+ *
+ * \param [in]   The action that was activated.
+ * \param [in]   The menu resource associated with the action.
  */
 
 static void
@@ -376,7 +380,10 @@ ghid_menu_cb (GtkAction *action, const Resource *node)
   ghid_set_status_line_label ();
 }
 
-/* \brief Accelerator callback for accelerators gtk tries to hide from us */
+/*!
+ * \brief Accelerator callback for accelerators gtk tries to hide from
+ * us.
+ */
 void ghid_hotkey_cb (int which)
 {
   if (ghid_hotkey_actions[which].action != NULL)
@@ -412,9 +419,10 @@ update_board_mtime_from_disk (void)
   ghidgui->last_seen_mtime = ghidgui->our_mtime;
 }
 
-  /* Sync toggle states that were saved with the layout and notify the
-     |  config code to update Settings values it manages.
-   */
+/*!
+ * \brief Sync toggle states that were saved with the layout and notify
+ * the config code to update Settings values it manages.
+ */
 void
 ghid_sync_with_new_layout (void)
 {
@@ -450,13 +458,11 @@ ghid_notify_filename_changed (void)
   update_board_mtime_from_disk ();
 }
 
-/* ---------------------------------------------------------------------------
+/*!
+ * \brief Takes the index into the layers and produces the text string
+ * for the layer and if the layer is currently visible or not.
  *
- * layer_process()
- *
- * Takes the index into the layers and produces the text string for
- * the layer and if the layer is currently visible or not.  This is
- * used by a couple of functions.
+ * This is used by a couple of functions.
  *
  */
 void
@@ -522,7 +528,9 @@ layer_process (gchar **color_string, char **text, int *set, int i)
     }
 }
 
-/*! \brief Callback for GHidLayerSelector layer selection */
+/*!
+ * \brief Callback for GHidLayerSelector layer selection.
+ */
 static void
 layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
 {
@@ -548,7 +556,9 @@ layer_selector_select_callback (GHidLayerSelector *ls, int layer, gpointer d)
   ghid_invalidate_all ();
 }
 
-/*! \brief Callback for GHidLayerSelector layer renaming */
+/*!
+ * \brief Callback for GHidLayerSelector layer renaming.
+ */
 static void
 layer_selector_rename_callback (GHidLayerSelector *ls,
                                 int layer_id,
@@ -575,7 +585,9 @@ layer_selector_rename_callback (GHidLayerSelector *ls,
     }
 }
 
-/*! \brief Callback for GHidLayerSelector layer toggling */
+/*!
+ * \brief Callback for GHidLayerSelector layer toggling.
+ */
 static void
 layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
 {
@@ -638,7 +650,9 @@ layer_selector_toggle_callback (GHidLayerSelector *ls, int layer, gpointer d)
     ghid_invalidate_all();
 }
 
-/*! \brief Install menu bar and accelerator groups */
+/*!
+ * \brief Install menu bar and accelerator groups.
+ */
 void
 ghid_install_accel_groups (GtkWindow *window, GhidGui *gui)
 {
@@ -653,7 +667,9 @@ ghid_install_accel_groups (GtkWindow *window, GhidGui *gui)
                (GHID_ROUTE_STYLE_SELECTOR (gui->route_style_selector)));
 }
 
-/*! \brief Remove menu bar and accelerator groups */
+/*!
+ * \brief Remove menu bar and accelerator groups.
+ */
 void
 ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui)
 {
@@ -668,8 +684,9 @@ ghid_remove_accel_groups (GtkWindow *window, GhidGui *gui)
                (GHID_ROUTE_STYLE_SELECTOR (gui->route_style_selector)));
 }
 
-/* Refreshes the window title bar and sets the PCB name to the
- * window title bar or to a seperate label
+/*!
+ * \brief Refreshes the window title bar and sets the PCB name to the
+ * window title bar or to a seperate label.
  */
 void
 ghid_window_set_name_label (gchar * name)
@@ -708,8 +725,8 @@ grid_units_button_cb (GtkWidget * widget, gpointer data)
     hid_actionl ("SetUnits", "mm", NULL);
 }
 
-/*
- * The two following callbacks are used to keep the absolute
+/*!
+ * \brief The two following callbacks are used to keep the absolute
  * and relative cursor labels from growing and shrinking as you
  * move the cursor around.
  */
@@ -783,7 +800,9 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
 
 }
 
-/* \brief Add "virtual layers" to a layer selector */
+/*!
+ * \brief Add "virtual layers" to a layer selector.
+ */
 static void
 make_virtual_layer_buttons (GtkWidget *layer_selector)
 {
@@ -812,7 +831,9 @@ make_virtual_layer_buttons (GtkWidget *layer_selector)
                                  text, color_string, active, FALSE, FALSE);
 }
 
-/*! \brief callback for ghid_layer_selector_update_colors */
+/*!
+ * \brief Callback for ghid_layer_selector_update_colors.
+ */
 const gchar *
 get_layer_color (gint layer)
 {
@@ -821,7 +842,9 @@ get_layer_color (gint layer)
   return rv;
 }
 
-/*! \brief Update a layer selector's color scheme */
+/*!
+ * \brief Update a layer selector's color scheme.
+ */
 void
 ghid_layer_buttons_color_update (void)
 {
@@ -830,7 +853,9 @@ ghid_layer_buttons_color_update (void)
   pcb_colors_from_settings (PCB);
 }
  
-/*! \brief Populate a layer selector with all layers Gtk is aware of */
+/*!
+ * \brief Populate a layer selector with all layers Gtk is aware of.
+ */
 static void
 make_layer_buttons (GtkWidget *layersel)
 {
@@ -848,17 +873,20 @@ make_layer_buttons (GtkWidget *layersel)
 }
 
 
-/*! \brief callback for ghid_layer_selector_delete_layers */
+/*!
+ * \brief Callback for ghid_layer_selector_delete_layers.
+ */
 gboolean
 get_layer_delete (gint layer)
 {
   return layer >= max_copper_layer;
 }
 
-/*! \brief Synchronize layer selector widget with current PCB state
- *  \par Function Description
- *  Called when user toggles layer visibility or changes drawing layer,
- *  or when layer visibility is changed programatically.
+/*!
+ * \brief Synchronize layer selector widget with current PCB state.
+ *
+ * Called when user toggles layer visibility or changes drawing layer,
+ * or when layer visibility is changed programatically.
  */
 void
 ghid_layer_buttons_update (void)
@@ -889,7 +917,9 @@ ghid_layer_buttons_update (void)
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector), layer);
 }
 
-/*! \brief Called when user clicks OK on route style dialog */
+/*!
+ * \brief Called when user clicks OK on route style dialog.
+ */
 static void
 route_styles_edited_cb (GHidRouteStyleSelector *rss, gboolean save,
                         gpointer data)
@@ -906,7 +936,9 @@ route_styles_edited_cb (GHidRouteStyleSelector *rss, gboolean save,
        GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 }
 
-/*! \brief Called when a route style is selected */
+/*!
+ * \brief Called when a route style is selected.
+ */
 static void
 route_style_changed_cb (GHidRouteStyleSelector *rss, RouteStyleType *rst,
                         gpointer data)
@@ -915,7 +947,9 @@ route_style_changed_cb (GHidRouteStyleSelector *rss, RouteStyleType *rst,
   ghid_set_status_line_label();
 }
 
-/*! \brief Configure the route style selector */
+/*!
+ * \brief Configure the route style selector.
+ */
 void
 make_route_style_buttons (GHidRouteStyleSelector *rss)
 {
@@ -931,9 +965,8 @@ make_route_style_buttons (GHidRouteStyleSelector *rss)
        GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
 }
 
-/*
- *  ---------------------------------------------------------------
- * Mode buttons
+/*!
+ * \brief Mode buttons.
  */
 typedef struct
 {
@@ -1229,8 +1262,11 @@ do_fix_topbar_theming (void)
   gtk_widget_set_style (ghidgui->grid_units_label, tool_button_label_style);
 }
 
-/* Attempt to produce a conststent style for our extra menu-bar items by
- * copying aspects from the menu bar style set by the user's GTK theme.
+/*!
+ * \brief Attempt to produce a conststent style for our extra menu-bar
+ * items by copying aspects from the menu bar style set by the user's
+ * GTK theme.
+ *
  * Setup signal handlers to update our efforts if the user changes their
  * theme whilst we are running.
  */
@@ -1248,9 +1284,10 @@ fix_topbar_theming (void)
                     G_CALLBACK (do_fix_topbar_theming), NULL);
 }
 
-/* 
- * Create the top_window contents.  The config settings should be loaded
- * before this is called.
+/*!
+ * \brief Create the top_window contents.
+ *
+ * The config settings should be loaded before this is called.
  */
 static void
 ghid_build_pcb_top_window (void)
@@ -1494,6 +1531,16 @@ static gulong scroll_event_handler;
 static gulong key_press_handler;
 static gulong key_release_handler;
 
+/*!
+ * \brief Connect just the signals a g_main_loop() will need.
+ *
+ * Cursor and motion events still need to be handled by the top level
+ * loop, so don't connect/reconnect these.
+ * A g_main_loop will be running when PCB wants the user to select a
+ * location or if command entry is needed in the status line hbox.
+ * During these times normal button/key presses are intercepted, either
+ * by new signal handlers or the command_combo_box entry.
+ */
 void
 ghid_interface_input_signals_connect (void)
 {
@@ -1518,6 +1565,16 @@ ghid_interface_input_signals_connect (void)
 		      G_CALLBACK (ghid_port_key_release_cb), NULL);
 }
 
+/*!
+ * \brief Disconnect just the signals a g_main_loop() will need.
+ *
+ * Cursor and motion events still need to be handled by the top level
+ * loop, so don't disconnect these.
+ * A g_main_loop will be running when PCB wants the user to select a
+ * location or if command entry is needed in the status line hbox.
+ * During these times normal button/key presses are intercepted, either
+ * by new signal handlers or the command_combo_box entry.
+ */
 void
 ghid_interface_input_signals_disconnect (void)
 {
@@ -1544,10 +1601,11 @@ ghid_interface_input_signals_disconnect (void)
 }
 
 
-  /* We'll set the interface insensitive when a g_main_loop is running so the
-     |  Gtk menus and buttons don't respond and interfere with the special entry
-     |  the user needs to be doing.
-   */
+/*!
+ * \brief We'll set the interface insensitive when a g_main_loop is
+ * running so the Gtk menus and buttons don't respond and interfere with
+ * the special entry the user needs to be doing.
+ */
 void
 ghid_interface_set_sensitive (gboolean sensitive)
 {
@@ -1556,8 +1614,8 @@ ghid_interface_set_sensitive (gboolean sensitive)
 }
 
 
-/* ----------------------------------------------------------------------
- * initializes icon pixmap and also cursor bit maps
+/*!
+ * \brief Initializes icon pixmap and also cursor bit maps.
  */
 static void
 ghid_init_icons (GHidPort * port)
@@ -1731,9 +1789,10 @@ ghid_get_export_options (int *n_ret)
   return ghid_attribute_list;
 }
 
-  /* Create top level window for routines that will need top_window
-     |  before ghid_create_pcb_widgets() is called.
-   */
+/*!
+ * \brief Create top level window for routines that will need top_window
+ * before ghid_create_pcb_widgets() is called.
+ */
 void
 ghid_parse_arguments (int *argc, char ***argv)
 {
@@ -1835,7 +1894,9 @@ ghid_do_export (HID_Attr_Val * options)
 
 }
 
-/*! \brief callback for */
+/*!
+ * \brief callback for.
+ */
 static gboolean
 get_layer_visible_cb (int id)
 {
@@ -1855,11 +1916,11 @@ LayersChanged (int argc, char **argv, Coord x, Coord y)
   ghid_layer_selector_show_layers
     (GHID_LAYER_SELECTOR (ghidgui->layer_selector), get_layer_visible_cb);
 
-  /* FIXME - if a layer is moved it should retain its color.  But layers
-  |  currently can't do that because color info is not saved in the
-  |  pcb file.  So this makes a moved layer change its color to reflect
-  |  the way it will be when the pcb is reloaded.
-  */
+  /*! \todo If a layer is moved it should retain its color. But layers
+   * currently can't do that because color info is not saved in the
+   * pcb file.  So this makes a moved layer change its color to reflect
+   * the way it will be when the pcb is reloaded.
+   */
   pcb_colors_from_settings (PCB);
   return 0;
 }
@@ -1995,13 +2056,15 @@ HID_Action gtk_topwindow_action_list[] = {
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
 
-/* 
- * This function is used to check if a specified hotkey in the menu
- * resource file is "special".  In this case "special" means that gtk
- * assigns a particular meaning to it and the normal menu setup will
- * never see these key presses.  We capture those and feed them back
- * into the menu callbacks.  This function is called as new
- * accelerators are added when the menus are being built
+/*!
+ * \brief This function is used to check if a specified hotkey in the
+ * menu resource file is "special".
+ *
+ * In this case "special" means that gtk assigns a particular meaning to
+ * it and the normal menu setup will never see these key presses.
+ * We capture those and feed them back into the menu callbacks.
+ * This function is called as new accelerators are added when the menus
+ * are being built.
  */
 static void
 ghid_check_special_key (const char *accel, GtkAction *action,
@@ -2077,7 +2140,9 @@ ghid_check_special_key (const char *accel, GtkAction *action,
     }
 }
 
-/*! \brief Finds the gpcb-menu.res file */
+/*!
+ * \brief Finds the gpcb-menu.res file.
+ */
 char *
 get_menu_filename (void)
 {
