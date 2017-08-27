@@ -6,7 +6,7 @@ As you may have noticed already, Launchpad and Ubuntu are tightly connected,
 so this HowTo assumes you run Ubuntu or an Ubuntu derivate. It may work similar
 on Debian, but no guarantees.
 
-This HowTo also assumes you build for Ubuntu release 'vivid'. In case you build
+This howto also assumes you build for Ubuntu release 'vivid'. In case you build
 for another release, simply replace each occurence of 'vivid' with that other
 release name.
 
@@ -19,8 +19,9 @@ What a PPA, a Personal Package Archive, is:
   https://help.launchpad.net/Packaging/PPA
 
 
-Packaging for a PPA happens the same way as packaging for Debian or Ubuntu it's
-self. Ubuntu wiki pages about packaging start here:
+Packaging for a PPA happens the same way as packaging for Debian or Ubuntu
+itself.
+Ubuntu wiki pages about packaging start here:
 
   http://packaging.ubuntu.com/html/
 
@@ -31,15 +32,15 @@ number):
   https://help.launchpad.net/Packaging
 
 
-Required packages, next to the environment to build gEDA it's self:
+Required packages, next to the environment to build pcb itself:
 
   sudo apt-get install packaging-dev ubuntu-dev-tools
 
 
-Other than that you also have to be member of the gEDAhead Launchpad team,
-signed Ubuntus Code of Conduct and uploaded the public part of your SSH key.
+Other than that you also have to be member of the "gEDA Adminstrators" Launchpad team,
+signed the Ubuntu Code of Conduct and uploaded the public part of your SSH key.
 
-  https://launchpad.net/~geda
+  https://launchpad.net/pcb
   https://launchpad.net/codeofconduct
   https://launchpad.net/people/+me/+editsshkeys
 
@@ -78,7 +79,7 @@ similar to packaging from the original repo. See
 
   https://wiki.debian.org/PackagingWithGit
 
-The debian/ directory is already part of our Git repo.
+Note: the debian/ directory is no longer part of the pcb git repo.
 
 Central tool is 'git-buildpackage'. It creates a temporary "upstream" tarball
 straight from a Git stored object (usually a branch), not from the currently
@@ -128,7 +129,7 @@ GPG key.
   TIMESTAMP=$(date -R)
   REL=vivid
   mv debian/changelog temp
-  echo "pcb (${TODAY}-gedahead-weekly) ${REL};" \
+  echo "pcb (${TODAY}-weekly) ${REL};" \
        "urgency=low"                                    > debian/changelog
   echo                                                 >> debian/changelog
   echo "  * Weekly build."                             >> debian/changelog
@@ -157,7 +158,7 @@ Then build as explained above:
   unset THIS
 
 
-Launchpad PPAs accept only sources, they build binaries them selfs. Trying
+Launchpad PPAs accept only sources, Launchpad builds the binaries. Trying
 to upload binaries results in a rejection of the whole package, so let's see
 the above as a preparation and build test and rebuild for source-only packages.
 It takes only a few seconds.
@@ -170,9 +171,9 @@ It takes only a few seconds.
   unset THIS
 
 
-Last build step is to upload the package to the gEDAhead PPA:
+Last build step is to upload the package to the pcb PPA:
 
-  dput ppa:geda/weekly packagebuild/pcb_*-gedahead-weekly_source.changes
+  dput ppa:pcb/weekly_packagebuild/pcb_*-weekly_source.changes
 
 
 To round up, remove this committed changelog entry and the build:
@@ -229,7 +230,7 @@ Cleaning:
 TODO:
 -----
 
-pcb version isn't set, after packaging the application its self still reports
+pcb version isn't set, after packaging the application itself still reports
 "pcb-1.99z". The --git-prebuild=COMMAND parameter for git-buildpackage might
 come in handy here for setting this on the fly (citation for its man page):
 
@@ -251,3 +252,6 @@ There are tools to create a package changelog from Git history. Might be
 better than putting a link to the public Git repository.
 
   https://marquiz.github.io/git-buildpackage-rpm/man.gbp.dch.html
+
+# EOF #
+
