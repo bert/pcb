@@ -260,7 +260,7 @@ AdjustInsertPoint (void)
       InsertedPoint.Y = myline.Point2.Y;
       return &InsertedPoint;
     }
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
+  if (PCB->RatDraw || TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
       InsertedPoint.X = Crosshair.X;
       InsertedPoint.Y = Crosshair.Y;
