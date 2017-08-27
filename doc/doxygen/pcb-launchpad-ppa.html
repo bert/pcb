@@ -1,0 +1,236 @@
+<p>This section describes what has to be done to create a pcb Launchpad
+Personal Package Archives (PPA).</p>
+
+<h2>Introduction</h2>
+<p>As you may have noticed already, Launchpad and Ubuntu are tightly
+connected, so this howto assumes you run Ubuntu or an Ubuntu derivate.<br>
+It may work similar on Debian, but no guarantees.</p>
+<p>This howto also assumes you build for Ubuntu release 'vivid'.<br>
+In case you build for another release, simply replace each occurence of
+'vivid' with that other release name.</p>
+
+<h2>Web references, prerequisites</h2>
+<p>What a PPA, a Personal Package Archive, is can be read here:
+<a href="https://help.launchpad.net/Packaging/PPA">
+https://help.launchpad.net/Packaging/PPA</a><br>
+<p>Packaging for a PPA happens the same way as packaging for Debian or
+Ubuntu itself.<br>
+Ubuntu wiki pages about packaging start here:
+<a href="http://packaging.ubuntu.com/html/">
+http://packaging.ubuntu.com/html/</a></p>
+<p>About the few differences between PPAs and regular packages
+(e.g. version number):
+<a href="https://help.launchpad.net/Packaging">
+https://help.launchpad.net/Packaging</a></p>
+<p>Required packages, next to the environment to build pcb itself:<br>
+<pre>
+  sudo apt-get install packaging-dev ubuntu-dev-tools
+</pre>
+<p>Other than that you also have to have signed the
+<a href="https://launchpad.net/codeofconduct">Ubuntu Code of Conduct</a> and
+uploaded the public part of your
+<a href="https://launchpad.net/people/+me/+editsshkeys">SSH key</a>.</p>
+
+<h2>Getting started</h2>
+<p>If you want to upload the packages later, you need your personal GPG
+key.<br>
+On how to create such a key, see
+<a href="https://help.ubuntu.com/community/GnuPrivacyGuardHowto">
+https://help.ubuntu.com/community/GnuPrivacyGuardHowto</a></p>
+<p>To use this key it has to be added to your personal Launchpad
+account.<br>
+Visit <a href ="https://launchpad.net/people/+me/+editpgpkeys">
+https://launchpad.net/people/+me/+editpgpkeys</a> and follow the
+instructions:<br>
+<pre>
+ 'gpg --fingerprint'
+</pre> lists your keys with fingerprints.</p>
+<p>After the fingerprint is imported, Launchpad will send you an
+encrypted email and being able to decrypt it (your emailer should do
+this) means this part works fine.<br>
+Click the activation link in the email and be done.<br>
+Without the key you can still build the package, e.g. to find out
+whether packaging works or to install it locally.<br>
+The build process will abort a moment before completion, but after
+creating the packages.</p>
+We want to build straight from the pcb git repo.<br>
+However, Debian packaging builds much on the assumption that developers
+("upstream") and packagers are two different entities.<br>
+Some packaging tools assume source code tarballs in specific places,
+which we don't have, unless we create them just for building the
+package.</p>
+<p>Luckily, the existence of Git has come to the attention of Debianers
+these days, so they start to use repository clones for packaging ...
+which is very similar to packaging from the original repo.<br>
+See <a href="https://wiki.debian.org/PackagingWithGit">
+https://wiki.debian.org/PackagingWithGit</a></p>
+<p>Note: the debian/ directory is <u>no longer part</u> of the pcb git
+repository.</p>
+<p>Central tool is 'git-buildpackage'.<br>
+It creates a temporary "upstream" tarball straight from a git stored
+object (usually a branch), not from the currently checked out files of
+this repository.<br>
+This temporary tarball is then passed to the usual packaging tools,
+which in turn unpack it again.</p>
+<p>To deal with the upstream-less situation 'git-buildpackage' needs a
+few parameters.<br>
+This is how it's run:<br>
+<pre>
+  git-buildpackage --git-ignore-new --git-force-create \
+                   --git-upstream-branch=master --git-upstream-tree=BRANCH \
+                   --git-export-dir=packagebuild
+</pre>
+Explanation:<br>
+<dl>
+  <dt>--git-ignore-new</dt>
+  <dd>Ignores that there are uncommitted files when fetching the temporary
+      build tarball from git.<br>
+      Without this flag, such files cause an abort.
+  </dd>
+  <dt>--git-force-create</dt>
+  <dd>Overwrites an eventually already existing result tarball.
+  </dd>
+  <dt>--git-upstream-branch=master</dt>
+  <dd>.
+  </dd>
+  <dt>--git-upstream-tree=BRANCH</dt>
+  <dd>Tells which branch to fetch the temporary build tarball from and
+      that 'master' is a branch.</dd>
+  <dt>--git-export-dir=packagebuild</dt>
+  <dd>Unpacks the temporary build tarball in 'packagebuild'.<br>
+      Without this flag, this happens in the main directory and then
+      dpkg-buildpackage complains about files existing, but not being
+      part of the build tarball.
+  </dd>
+</dl>
+
+<h2>Doing a (weekly) PPA upload</h2>
+<p>First you have to update the <b>ChangeLog</b>.<br>
+Debian packaging insists on this and also uses the signature of the top
+<b>ChangeLog</b> entry to look for the signature GPG key.<br>
+<pre>
+  # For simplicity, take the first available signature.
+  MY_SIGNATURE=$(gpg --list-secret-keys | \
+                 awk '/^uid/ { $1 = ""; sub(/^[ ]+/, ""); print; }' | \
+                 head -1)
+  echo "My signature is ${MY_SIGNATURE}."
+  TODAY=$(date +%Y%m%d)
+  TIMESTAMP=$(date -R)
+  REL=vivid
+  mv debian/changelog temp
+  echo "pcb (${TODAY}-weekly) ${REL};" \
+       "urgency=low"                                    > debian/changelog
+  echo                                                 >> debian/changelog
+  echo "  * Weekly build."                             >> debian/changelog
+  echo                                                 >> debian/changelog
+  echo "  For changes see" \
+       "http://git.geda-project.org/pcb/log/"          >> debian/changelog
+  echo                                                 >> debian/changelog
+  echo " -- ${MY_SIGNATURE}  ${TIMESTAMP}"             >> debian/changelog
+  echo                                                 >> debian/changelog
+  cat temp >>debian/changelog
+  rm temp
+  sed -i "s/^Uploaders:.*/Uploaders: ${MY_SIGNATURE}/" debian/control
+  unset MY_SIGNATURE TODAY TIMESTAMP REL
+  # git-buildpackage picks up comitted stuff, only, so commit the above.
+  git commit debian/changelog debian/control -m "weekly build"
+</pre></p>
+<p>Then build as explained above:<br>
+<pre>
+  # We want to build from our current branch, which is not always 'master'.
+  THIS=$(git symbolic-ref --short HEAD)
+  rm -rf packagebuild
+  git-buildpackage --git-ignore-new --git-force-create \
+                   --git-upstream-branch=${THIS} --git-upstream-tree=BRANCH \
+                   --git-export-dir=packagebuild
+  unset THIS
+</pre></p>
+<p>Launchpad PPAs accept only sources, Launchpad builds the binaries.<br>
+Trying to upload binaries results in a rejection of the whole package,
+so let's see the above as a preparation and build test and rebuild for
+source-only packages.<br>
+It takes only a few seconds.<br>
+<pre>
+  THIS=$(git symbolic-ref --short HEAD)
+  rm -rf packagebuild
+  git-buildpackage --git-ignore-new --git-force-create \
+                   --git-upstream-branch=${THIS} --git-upstream-tree=BRANCH \
+                   --git-export-dir=packagebuild --git-builder='debuild -S'
+  unset THIS
+</pre>
+<p>Last build step is to upload the package to the pcb PPA:<br>
+<pre>
+  dput ppa:pcb/weekly_packagebuild/pcb_*-weekly_source.changes
+</pre></p>
+<p>To round up, remove this committed changelog entry and the build:<br>
+<pre>
+  git reset --hard HEAD^
+  rm -rf packagebuild
+</pre><p>
+
+<h2>Building with pbuilder</h2>
+<p>If you want to modify the packaging system, e.g. for testing
+dependencies, it's a good idea to build in a chroot'ed environment.<br>
+There are many tools out there to make this easy ... and almost as many
+which I (Traumflug) found to not work as described.<br>
+If you think that's me, well, have a look at
+<a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=779255">
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=779255</a>.<br>
+The tool which was found to actually work is 'pbuilder'.<br>
+It's very similar to the tool used by these build farm machines
+(sbuild).</p>
+<p>We have build dependencies in 'universe', so let's pbuilder know
+this:<br>
+<pre>
+  echo "COMPONENTS=\"main restricted universe multiverse\"" > ${HOME}/.pbuilderrc
+</pre></p>
+<p>Then build a base chroot image:<br>
+<pre>
+  # To build for 32-bit on a 64-bit machine, add --architecture i386
+  # To build for a different distribution, add --distribution vivid
+  sudo pbuilder create --debootstrapopts --variant=buildd
+</pre>
+It's recommended to update this chroot image once daily:<br>
+<pre>
+  sudo pbuilder update
+</pre>
+The above has to be done only once.<br>
+To actually build the package, prepare the source package as shown in
+the previous section, but don't upload to Launchpad and also don't
+remove packagebuild/.<br>
+Then it's as simple as this:<br>
+<pre>
+  (cd packagebuild && sudo pbuilder build *.dsc)
+</pre>
+Built packages end up in /var/cache/pbuilder/result/.</p>
+<p>Cleaning up:<br>
+<pre>
+  sudo rm -r /var/cache/pbuilder  # remove chroot image and apt cache
+</pre>
+... and don't forget to remove the stuff made in the previous section.</p>
+
+<h2>TODO:</h2>
+<p>The pcb version isn't set, after packaging the application itself
+still reports "pcb-1.99z" or similar.<br>
+The --git-prebuild=COMMAND parameter for git-buildpackage might come in
+handy here for setting this on the fly.<br>
+The following citation comes from its
+<a href="http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/man.gbp.buildpackage.html">
+man page</a>:<br>
+<blockquote cite="http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/man.gbp.buildpackage.html">
+  execute COMMAND from the build directory before calling debuild or the
+  application specified via --git-builder. Exported environment variables
+  are: GBP_GIT_DIR (the repository the package is being built from),
+  GBP_BUILD_DIR (the build dir).
+</blockquote>
+Put all this into a script, perhaps a Makefile target.</p>
+<p>Review each dependency.<br>
+Like removing it from the build machine, then trying to build and run
+the binary.<br>
+Likely this dependency list is a decade old, so it well might contain
+obsolete entries.</p>
+<p>There are tools to create a package changelog from git history.<br>
+Might be better than putting a link to the public git repository:
+<a href="https://marquiz.github.io/git-buildpackage-rpm/man.gbp.dch.html">
+https://marquiz.github.io/git-buildpackage-rpm/man.gbp.dch.html</a></p>
+

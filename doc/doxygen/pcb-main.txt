@@ -7,4 +7,6 @@
 \section pcb-releases PCB Releases howto
     \htmlinclude pcb-releases.html
 <hr>
+\section pcb-launchpad-ppa PCB Launchpad PPA howto
+    \htmlinclude pcb-launchpad-ppa.html
 */
