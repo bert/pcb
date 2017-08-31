@@ -1,4 +1,94 @@
 ========================================================================
+Release notes for pcb-4.0.2
+========================================================================
+
+Dear Users,
+
+This release fixes a number of bugs.
+
+Kind regards,
+
+The pcb development team
+
+
+Contributors
+------------
+The following authors contributed to the 4.0.1 release:
+- Charles Parker
+- Newell Jensen
+- Johann Klammer
+- Igor2
+- Peter Clifton
+- Dan McMahill
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- include board outline on assembly drawings.
+- fixed the SMD pads resizing bug (fix a drawing routine).
+- fixed a segmentation fault when loading a pcb file with an empty style
+  field.
+- added an escape callback to the command window.
+  this allows the command window to now be closed with the escape key.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- improvements in documentation.
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- some more doxygenation of source code files.
+- added a "pcb release" howto in the developer docs.
+- corrections in the FSF address as to keep rpmlint quiet.
+- Small enhancements to the pcbtest.sh script.
+  allow the binary for gdb to be specified on the command line
+  make the definition of test paths more readable.
+- exclude eps files in the doc directory.
+- removed unused code when inserting points on rats.
+- fix of incorrect flag struct comparison.
+
+
+Notes for early adapters
+------------------------
+- none
+
+
+Changed dependencies
+--------------------
+- none
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#1658514  Specify which gdb to use on the command line of pcbtest.sh.
+#1645143  Unused code when inserting points on rats.
+#1692219  Include board outline on assembly drawings when the "outline"
+          option is checked in the PS exporter.
+#1690529  Incorrect FSF address in files.
+#1651440  FLAGS_EQUAL attempts to compare two flags using memcmp() on
+          the full struct.
+#1688402  Pads change size when element flipped to other side.
+#1687776  <esc> should close command entry window.
+#1670023  LessTif HID: XmScrollBar Warnings.
+#1670040  Segfault when loading file with empty Styles directive.
+
+========================================================================
 Release notes for pcb-4.0.1
 ========================================================================
 
