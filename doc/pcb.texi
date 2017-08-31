@@ -197,6 +197,8 @@ tooltips in the GTK UI and footprints.
 
 Release 4.0.1 fixes a number of bugs.
 
+Release 4.0.2 fixes a number of bugs.
+
 Special thanks goes to:
 @display
 Thomas Nau (who started the project and wrote the early versions).

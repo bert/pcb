@@ -1,13 +1,9 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
-2017-05-02   bert * bert dot timmerman AT xs4all dot nl *
+2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
 
-	* ChangeLog, NEWS, doc/pcb.texi: Release notes for pcb-4.0.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2017-04-01   bert * bert dot timmerman AT xs4all dot nl *
-
-	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.0.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.0.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-04-01   bert * bert dot timmerman AT xs4all dot nl *
 
@@ -34,12 +30,219 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2017-03-26   bert * bert dot timmerman AT xs4all dot nl *
 
 	* src/pcb-menu.res.in: Revert "Add blind/buried via feature commands
-	to the Lesstif pull down menu." This reverts commit 4b299900c8be752d150dd6cf2c2a3048f436c8c2.
+	to the Lesstif pull down menu." This reverts commit 4b299900c8be752d150dd6cf2c2a3048f436c8c2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
-2017-03-26   bert * bert dot timmerman AT xs4all dot nl *
+2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
 
 	* src/draw.c: Revert "Correction in drawing end angle in "BuriedTo"
-	indicator arc." This reverts commit ee54e9bf567a74c79db1cef10a6311970a6c74d2.
+	indicator arc." This reverts commit ee54e9bf567a74c79db1cef10a6311970a6c74d2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gerber/gerber.c: Added correct file suffixes for OSH Park
+	pcb boards.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gcode/gcode.c: Corrections and additions in the G-code
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: More corrections in the png documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/ipcd356/ipcd356.c: Corrections and additions in the
+	IPC-D-356 documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/bom/bom.c: Corrections and additions in the bom
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/png/png.c: Corrections and additions in the png
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gerber/gerber.c: Corrections and additions in the gerber
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-08-18   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gui-top-window.c: src/hid/gtk/gui-top-window.c:
+	corrections and reformatting doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-08-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/ghid-main-menu.c: src/hid/gtk/ghid-main-menu.c:
+	corrections in doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/flags.c, src/macro.h: Fix of incorrect flag struct comparison.  May have caused unpredictable undo bugs.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/insert.c: Removed unused code when inserting points on rats.  Insert point in rat line has code that never runs.  See r5309 on
+	pcb-rnd.   Reported-by: Igor2 * gedau AT igor2 dot repo dot hu *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/lesstif/menu.c: lesstif/menu.c: doxygenation of
+	acc_sort_rev().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-07-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* .gitignore: Exclude eps files in the doc directory.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-06-25   Newell Jensen * newell dot jensen AT canonical dot com *
+
+	* src/hid/gtk/gui-command-window.c: Added escape callback to the
+	command window.  This allows the command window to now be closed with the escape key.   Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-06-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/parse_y.y: Don't send ParseRouteString a null pointer if the
+	file contains an empty style field.   Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-06-07   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/mirror.c: Moved declaration to beginning of block  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-06   Johann Klammer * klammerj AT a1 dot net *
+
+	* src/hid/common/draw_helpers.c: Fix a drawing routine  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-04   Johann Klammer * klammerj AT a1 dot net *
+
+	* src/mirror.c: fix the SMD pads resizing bug (is this needed for lines, too?)  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-01-22   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/pcbtest.sh.in: Small enhancements to the pcbtest.sh script Allow the binary for gdb to be specified on the command line Make
+	the definition of test paths more readable.   Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/parse_y.y: Correction to the FSF address in parse_y.y.
+
+2017-05-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tools/gerbertotk.c: Corrections in the FSF address in some tools
+	source files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/common/hidgl.c, src/hid/common/hidgl.h,
+	src/hid/common/hidinit.c, src/hid/gcode/gcode.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gui-command-window.c,
+	src/hid/gtk/gui-config.c, src/hid/gtk/gui-dialog-print.c,
+	src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-drc-window.c,
+	src/hid/gtk/gui-drc-window.h, src/hid/gtk/gui-icons-misc.data,
+	src/hid/gtk/gui-icons-mode-buttons.data,
+	src/hid/gtk/gui-keyref-window.c, src/hid/gtk/gui-library-window.c,
+	src/hid/gtk/gui-library-window.h, src/hid/gtk/gui-log-window.c,
+	src/hid/gtk/gui-misc.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-pinout-preview.c,
+	src/hid/gtk/gui-pinout-preview.h, src/hid/gtk/gui-pinout-window.c,
+	src/hid/gtk/gui-top-window.c, src/hid/gtk/gui-trackball.c,
+	src/hid/gtk/gui-trackball.h, src/hid/gtk/gui-utils.c,
+	src/hid/gtk/gui.h, src/hid/ipcd356/ipcd356.c,
+	src/hid/lesstif/main.c, src/hid/nelma/nelma.c, src/hid/png/png.c: 
+	Corrections in the FSF address in some src/hid/* files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/action.h, src/autoplace.c, src/autoplace.h,
+	src/autoroute.c, src/autoroute.h, src/box.h, src/buffer.c,
+	src/buffer.h, src/change.c, src/change.h, src/clip.c, src/clip.h,
+	src/compat.c, src/compat.h, src/const.h, src/copy.c, src/copy.h,
+	src/create.c, src/create.h, src/crosshair.c, src/crosshair.h,
+	src/data.c, src/data.h, src/dbus-pcbmain.c, src/dbus-pcbmain.h,
+	src/dbus.c, src/dbus.h, src/djopt.c, src/djopt.h, src/draw.c,
+	src/draw.h, src/drill.c, src/drill.h, src/edif_parse.h,
+	src/error.c, src/error.h, src/file.c, src/file.h, src/find.h,
+	src/flags.c, src/fontmode.c, src/free_atexit.c, src/gather-actions,
+	src/heap.c, src/heap.h, src/hid.h, src/hid_draw.h, src/icon.data,
+	src/insert.c, src/insert.h, src/intersect.c, src/intersect.h,
+	src/layerflags.c, src/layerflags.h, src/line.c, src/line.h,
+	src/lrealpath.c, src/macro.h, src/main-test.c, src/main.c,
+	src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
+	src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
+	src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
+	src/parse_l.h, src/parse_l.l, src/pcb-printf.c, src/pcb-printf.h,
+	src/pcbtest.sh.in, src/polyarea.h, src/polygon.c, src/polygon.h,
+	src/polygon1.c, src/print.c, src/print.h, src/puller.c, src/rats.c,
+	src/rats.h, src/remove.c, src/remove.h, src/renumber.c,
+	src/report.c, src/report.h, src/rotate.c, src/rotate.h,
+	src/rtree.c, src/rtree.h, src/rubberband.c, src/rubberband.h,
+	src/search.c, src/search.h, src/select.c, src/select.h, src/set.c,
+	src/set.h, src/smartdisperse.c, src/strcasestr.c, src/strflags.c,
+	src/strflags.h, src/teardrops.c, src/thermal.c, src/thermal.h,
+	src/toporouter.c, src/toporouter.h, src/undo.c, src/undo.h,
+	src/vector.c, src/vector.h, src/vendor.c, src/vendor.h: Corrections
+	in the FSF address in some src files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/Makefile.am, doc/eps2png, doc/pcb.1, doc/refcard.tex: 
+	Corrections in the FSF address in some doc files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tools/gnet-pcbfwd.scm: Corrections in the FSF address in gschem
+	forward annotation scheme file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* COPYING: Corrections in the FSF address in the COPYING file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/CreateLibrary.sh.in, lib/CreateLibraryContents.sh.in,
+	lib/ListLibraryContents.sh.in, lib/QueryLibrary.sh.in,
+	lib/TTL_74xx_DIL.list, lib/TTL_74xx_DIL.m4, lib/amp.inc,
+	lib/amphenol.inc, lib/amphenol.list, lib/amphenol.m4,
+	lib/aries.inc, lib/bourns.inc, lib/candk.inc, lib/common.m4,
+	lib/connector.inc, lib/connector.list, lib/connector.m4,
+	lib/crystal.list, lib/crystal.m4, lib/cts.inc, lib/dil.inc,
+	lib/gen_list.awk, lib/gen_m4.awk, lib/generic.list, lib/generic.m4,
+	lib/jerry.list, lib/jerry.m4, lib/johnstech.inc, lib/linear.list,
+	lib/linear.m4, lib/logic.list, lib/logic.m4, lib/lsi.list,
+	lib/lsi.m4, lib/memory.list, lib/memory.m4, lib/minicircuits.inc,
+	lib/misc.inc, lib/nichicon.inc, lib/optek.inc, lib/optical.list,
+	lib/optical.m4, lib/panasonic.inc, lib/plcc.inc, lib/qfn.inc,
+	lib/qfp.inc, lib/qfp2.inc, lib/qfpdj.inc, lib/resistor_0.25W.list,
+	lib/resistor_0.25W.m4, lib/resistor_adjust.inc,
+	lib/resistor_adjust.list, lib/resistor_adjust.m4,
+	lib/resistor_array.list, lib/resistor_array.m4, lib/tdk.inc,
+	lib/texas_inst_amplifier.list, lib/texas_inst_amplifier.m4,
+	lib/texas_inst_voltage_reg.list, lib/texas_inst_voltage_reg.m4,
+	lib/to.inc, lib/toko.inc, lib/transistor.list, lib/transistor.m4,
+	lib/united_chemicon.inc: Corrections in the FSF address in m4
+	library files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/what-is-pcb.html: We do not need "body" tags for
+	included html sections.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb-main.txt, doc/doxygen/pcb-releases.html: Added a
+	pcb-releases howto to the doxygen developer docs.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-20   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/ps/ps.c: Include board outline on assembly drawings  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-05-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog, NEWS, doc/pcb.texi: Release notes for pcb-4.0.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-01-08   bert * bert dot timmerman AT xs4all dot nl *
 
