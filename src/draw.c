@@ -1019,10 +1019,28 @@ DrawPaste (int side, const BoxType *drawn_area)
   {
     if (ON_SIDE (pad, side) && !TEST_FLAG (NOPASTEFLAG, pad) && pad->Mask > 0)
       {
+        Coord save_thickness = pad->Thickness;
+	Coord save_mask = pad->Mask;
+
+        if (Settings.PasteAdjust != 0)
+	{
+	  pad->Thickness = pad->Thickness + Settings.PasteAdjust;
+	  pad->Mask = pad->Mask + Settings.PasteAdjust;
+	  if (pad->Thickness < 0) {
+	  printf ("adjust thickness %8.4f -> %8.4f mask  %8.4f -> %8.4f\n",
+		  COORD_TO_MM(save_thickness), COORD_TO_MM(pad->Thickness),
+		  COORD_TO_MM(save_mask), COORD_TO_MM(pad->Mask));
+	    pad->Thickness = 0;
+	  }
+	  if (pad->Mask < 0)
+	    pad->Mask = 0;
+	}
         if (pad->Mask < pad->Thickness)
           _draw_pad (Output.fgGC, pad, true, true);
         else
           _draw_pad (Output.fgGC, pad, false, false);
+        pad->Thickness = save_thickness;
+	pad->Mask = save_mask;
       }
   }
   ENDALL_LOOP;

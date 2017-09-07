@@ -781,6 +781,7 @@ typedef struct
   int TextScale; /*!< Text scaling in %. */
   Coord Grid; /*!< Grid in pcb-units. */
   double IsleArea; /*!< Polygon min area. */
+  Coord PasteAdjust; /*!< Paste adjustment. */
   int PinoutNameLength, /*!< Max displayed length of a pinname. */
     Volume, /*!< The speakers volume -100 .. 100. */
     CharPerLine, /*!< Width of an output line in characters. */
