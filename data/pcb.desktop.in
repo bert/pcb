@@ -7,4 +7,4 @@ Type=Application
 Exec=pcb %f
 Icon=pcb
 MimeType=application/x-pcb-layout;application/x-pcb-footprint;
-Categories=Engineering;Electronics;
+Categories=Engineering;Electronics;Development;
