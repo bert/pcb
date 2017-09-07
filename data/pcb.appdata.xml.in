@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 ... 2017 Bert Timmerman <bert.timmerman@xs4all.nl> -->
-<application>
+<component>
   <id type="desktop">pcb.desktop</id>
   <metadata_license>GFDL-1.3</metadata_license>
   <project_license>GPL-2.0</project_license>
@@ -48,4 +48,4 @@
   <url type="homepage">http://pcb.geda-project.org/</url>
   <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
   <url type="translate">https://translations.launchpad.net/pcb</url>
-</application>
+</component>
