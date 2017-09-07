@@ -43,7 +43,7 @@ desktop_in_files = pcb.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 @INTLTOOL_XML_RULE@
-appdatadir = $(datadir)/appdata
+appdatadir = $(datadir)/metainfo
 appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 appdata_in_files = pcb.appdata.xml.in
 
