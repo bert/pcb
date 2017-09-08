@@ -1068,6 +1068,12 @@ Minimum polygon area.
 @ftable @code
 @item --paste-adjust <num>
 Adjust pad thickness in paste layer. Default value is @code{0}.
+Shrinking the pads is done with a negative amount.
+
+Example:
+@example
+pcb -x gerber --paste-adjust -0.07mm filename.pcb
+@end example
 @end ftable
 %end-doc
 */
