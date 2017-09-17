@@ -409,7 +409,7 @@ Parameter @code{<string>} can be @samp{none}, @samp{mask},
 @item --name-style <string>
 Naming style for individual gerber files.
 Parameter @code{<string>} can be @samp{fixed}, @samp{single},
-@samp{first}, @samp{eagle} or @samp{hackvana}.
+@samp{first}, @samp{eagle}, @samp{hackvana} or @samp{oshpark}.
 @end ftable
 %end-doc
 */
