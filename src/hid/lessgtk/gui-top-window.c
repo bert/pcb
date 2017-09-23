@@ -1365,31 +1365,31 @@ ghid_build_pcb_top_window (void)
    * a modal button GetLocation button press.
    */
   ghidgui->left_toolbar = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (hbox_middle),
-                      ghidgui->left_toolbar, FALSE, FALSE, 0);
+//  gtk_box_pack_start (GTK_BOX (hbox_middle),
+//                      ghidgui->left_toolbar, FALSE, FALSE, 0);
 
   vbox = ghid_scrolled_vbox (ghidgui->left_toolbar, &scrolled,
                              GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
-                      FALSE, FALSE, 0);
+//  gtk_box_pack_start (GTK_BOX(vbox), ghidgui->layer_selector,
+//                      FALSE, FALSE, 0);
 
   /* ghidgui->mode_buttons_frame was created above in the call to
    * make_mode_buttons_and_toolbar (...);
    */
-  gtk_box_pack_start (GTK_BOX (ghidgui->left_toolbar),
-                      ghidgui->mode_buttons_frame, FALSE, FALSE, 0);
+//  gtk_box_pack_start (GTK_BOX (ghidgui->left_toolbar),
+//                      ghidgui->mode_buttons_frame, FALSE, FALSE, 0);
 
   frame = gtk_frame_new(NULL);
-  gtk_box_pack_end (GTK_BOX (ghidgui->left_toolbar), frame, FALSE, FALSE, 0);
+//  gtk_box_pack_end (GTK_BOX (ghidgui->left_toolbar), frame, FALSE, FALSE, 0);
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(frame), vbox);
   hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX (vbox), hbox, FALSE, FALSE, 1);
+//  gtk_box_pack_start(GTK_BOX (vbox), hbox, FALSE, FALSE, 1);
   ghidgui->route_style_selector = ghid_route_style_selector_new ();
   make_route_style_buttons
     (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector));
-  gtk_box_pack_start(GTK_BOX(hbox), ghidgui->route_style_selector,
-                     FALSE, FALSE, 0);
+//  gtk_box_pack_start(GTK_BOX(hbox), ghidgui->route_style_selector,
+//                     FALSE, FALSE, 0);
 
   ghidgui->vbox_middle = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (hbox_middle),
