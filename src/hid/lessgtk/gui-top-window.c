@@ -92,7 +92,7 @@
 #include "error.h"
 #include "file.h"
 #include "find.h"
-#include "gpcb-menu.h"
+#include "lessgtkpcb-menu.h"
 #include "insert.h"
 #include "line.h"
 #include "mymem.h"
@@ -2139,13 +2139,13 @@ get_menu_filename (void)
     {
       Message (_("Note:  home directory is \"%s\"\n"), homedir);
       home_pcbmenu = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
-                             PCB_DIR_SEPARATOR_S, "gpcb-menu.res", NULL);
+                             PCB_DIR_SEPARATOR_S, "lessgtkpcb-menu.res", NULL);
     }
   else
     Message (_("Warning:  could not determine home directory\n"));
 
-  if (access ("gpcb-menu.res", R_OK) == 0)
-    rv = strdup ("gpcb-menu.res");
+  if (access ("lessgtkpcb-menu.res", R_OK) == 0)
+    rv = strdup ("lessgtkpcb-menu.res");
   else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0) )
     rv = home_pcbmenu;
   else if (access (pcbmenu_path, R_OK) == 0)
@@ -2169,7 +2169,7 @@ ghid_load_menus (void)
       ghid_hotkey_actions[i].node = NULL;
     }
  
-  bir = resource_parse (0, gpcb_menu_default);
+  bir = resource_parse (0, lessgtkpcb_menu_default);
   if (!bir)
     {
       fprintf (stderr, _("Error: internal menu resource didn't parse\n"));

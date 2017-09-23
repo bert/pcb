@@ -14,6 +14,7 @@ pcb
 pcb.exe
 pcb_icon.ico
 gpcb-menu.res
+lessgtkpcb-menu.res
 pcb-menu.res
 parse_y.output
 unittest

@@ -195,6 +195,7 @@ BUILT_SOURCES = \
 	core_lists.h \
 	gpcb-menu.h \
 	hid/gtk/gtk_lists.h \
+	lessgtkpcb-menu.h \
 	hid/lessgtk/lessgtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
@@ -301,6 +302,16 @@ gpcb-menu.h : gpcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM gpcb-menu.res DO NOT EDIT */' > $@
 	echo 'const char *gpcb_menu_default[] = {' >> $@
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < gpcb-menu.res >> $@
+	echo '0};' >> $@
+
+lessgtkpcb-menu.res : lessgtkpcb-menu.res.in
+	echo '/* AUTOMATICALLY GENERATED FROM lessgtkpcb-menu.res.in DO NOT EDIT */' > $@
+	cat ${srcdir}/lessgtkpcb-menu.res.in >> $@
+
+lessgtkpcb-menu.h : lessgtkpcb-menu.res
+	echo '/* AUTOMATICALLY GENERATED FROM lessgtkpcb-menu.res DO NOT EDIT */' > $@
+	echo 'const char *lessgtkpcb_menu_default[] = {' >> $@
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < lessgtkpcb-menu.res >> $@
 	echo '0};' >> $@
 
 # Menus i18n.  The .res.h files are used simply to give strings which
