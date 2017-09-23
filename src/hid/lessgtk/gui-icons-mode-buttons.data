@@ -1,0 +1,508 @@
+/*
+ *                            COPYRIGHT
+ *
+ *  PCB, interactive printed circuit board design
+ *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
+/* XPM */
+static char *arc[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #4E85b7",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooo.ooooooooooooooo",
+"ooooo.ooooooooooooooo",
+"ooooo.ooooooooooooooo",
+"ooooo.ooooooooooooooo",
+"oooooo.oooooooooooooo",
+"oooooo.oooooooooooooo",
+"ooooooo.ooooooooooooo",
+"ooooooo..oooooooooooo",
+"oooooooo..ooooooooooo",
+"oooooooooo..ooooooooo",
+"oooooooooooo....ooooo",
+"ooooooooooooooooooooo",
+"ooo oooo    oooo   oo",
+"oo o ooo ooo oo ooo o",
+"oo o ooo ooo oo ooo o",
+"o ooo oo    ooo ooooo",
+"o     oo  ooooo ooooo",
+"o ooo oo o oooo ooooo",
+"o ooo oo oo ooo ooo o",
+"o ooo oo ooo ooo   oo",
+"ooooooooooooooooooooo"
+};
+
+
+/* XPM */
+static char *buf[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #D0C7AD",
+"X c gray100",
+"o c None",
+/* pixels */
+"oooooooo  oo  ooooooo",
+"oooooo.. o  o ..ooooo",
+"oooooooo oooo ooooooo",
+"oooooo.. oooo ..ooooo",
+"oooooooo oooo ooooooo",
+"oooooo.. oooo ..ooooo",
+"oooooooo oooo ooooooo",
+"oooooo.. oooo ..ooooo",
+"oooooooo oooo ooooooo",
+"oooooo.. oooo ..ooooo",
+"oooooooo      ooooooo",
+"ooooooooooooooooooooo",
+"oo     oo ooo o     o",
+"ooo ooo o ooo o ooooo",
+"ooo ooo o ooo o ooooo",
+"ooo ooo o ooo o    oo",
+"ooo    oo ooo o ooooo",
+"ooo ooo o ooo o ooooo",
+"ooo ooo o ooo o ooooo",
+"oo     ooo   oo ooooo",
+"ooooooooooooooooooooo"
+};
+
+
+/* XPM */
+static char *del[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 3 1",
+"  c black",
+". c gray100",
+"X c None",
+/* pixels */
+"XXX XXXXXXXXXXXX XXXX",
+"XXXX XXX    XXX XXXXX",
+"XXXXX X      X XXXXXX",
+"XXXXXX XX  XX XXXXXXX",
+"XXXXX  XX  XX  XXXXXX",
+"XXXXX          XXXXXX",
+"XXXXXX        XXXXXXX",
+"XXXXXXX  XX  XXXXXXXX",
+"XXXXXXX  XX XXXXXXXXX",
+"XXXXXX X XX  XXXXXXXX",
+"XXXX  XX    X  XXXXXX",
+"XX  XXXXX  XXXX  XXXX",
+"XXXXXXXXXXXXXXXXXXXXX",
+"XX     XX     X XXXXX",
+"XXX XXX X XXXXX XXXXX",
+"XXX XXX X XXXXX XXXXX",
+"XXX XXX X XXXXX XXXXX",
+"XXX XXX X    XX XXXXX",
+"XXX XXX X XXXXX XXXXX",
+"XXX XXX X XXXXX XXXXX",
+"XX     XX     X     X"
+};
+
+
+/* XPM */
+static char *ins[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #7A8584",
+"X c gray100",
+"o c None",
+/* pixels */
+"oooooo...oooooooooooo",
+"ooooo.ooo.ooooooooooo",
+"ooooo.o.o.ooooooooooo",
+"oooooo....ooooooooooo",
+"ooooooooooooooooooooo",
+"oooo  ooooo  oooooooo",
+"ooooooooooooooooooooo",
+"oo...ooooooooooo...oo",
+"o.oo..ooooooooo.ooo.o",
+"o.o o...........o o.o",
+"o.ooo.ooooooooo.ooo.o",
+"oo...ooooooooooo...oo",
+"ooooooooooooooooooooo",
+"ooo   o ooo oo    ooo",
+"oooo oo ooo o ooooooo",
+"oooo oo  oo o ooooooo",
+"oooo oo o o oo   oooo",
+"oooo oo oo  ooooo ooo",
+"oooo oo ooo ooooo ooo",
+"oooo oo ooo ooooo ooo",
+"ooo   o ooo o    oooo"
+};
+
+
+/* XPM */
+static char *line[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 5 1",
+"  c black",
+". c #7A8584",
+"X c #4E85b7",
+"o c gray100",
+"O c None",
+/* pixels */
+"OOOOOOOOOOOOOOOOOOOOO",
+"OO...OOOOOOOOOOOOOOOO",
+"O.OOO.OOOOOOOOOOOOOOO",
+"O.OXXXOOOOOOOOOOOOOOO",
+"O.OOO.XXXOOOOOOOOOOOO",
+"OO...OOOOXXXOOOO...OO",
+"OOOOOOOOOOOOXXX.OOO.O",
+"OOOOOOOOOOOOOOOXXXO.O",
+"OOOOOOOOOOOOOOO.OOO.O",
+"OOOOOOOOOOOOOOOO...OO",
+"OOOOOOOOOOOOOOOOOOOOO",
+"OOOOOOOOOOOOOOOOOOOOO",
+" OOOO   O OOOO O    O",
+" OOOOO OO  OOO O OOOO",
+" OOOOO OO O OO O OOOO",
+" OOOOO OO O OO O OOOO",
+" OOOOO OO OO O O   OO",
+" OOOOO OO OO O O OOOO",
+" OOOOO OO OOO  O OOOO",
+"    O   O OOOO O    O",
+"OOOOOOOOOOOOOOOOOOOOO"
+};
+
+
+/* XPM */
+static char *lock[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 3 1",
+"  c black",
+". c gray100",
+"X c None",
+/* pixels */
+"XXXXXXXX     XXXXXXXX",
+"XXXXXXX  XXX  XXXXXXX",
+"XXXXXXX XXXXX XXXXXXX",
+"XXXXXX  XXXXX  XXXXXX",
+"XXXXXX XXXXXXX XXXXXX",
+"XXXXXX XXXXXXX XXXXXX",
+"XXXX             XXXX",
+"XXXX XXXXXXXXXXX XXXX",
+"XXXX             XXXX",
+"XXXX XXXXXXXXXXX XXXX",
+"XXXX             XXXX",
+"XXXX XXXXXXXXXXX XXXX",
+"XXXX             XXXX",
+"XXXXXXXXXXXXXXXXXXXXX",
+"XX XXXX  XXX  X XX XX",
+"XX XXX XX X XXX XX XX",
+"XX XXX XX X XXX X XXX",
+"XX XXX XX X XXX  XXXX",
+"XX XXX XX X XXX X XXX",
+"XX XXX XX X XXX XX XX",
+"XX   XX  XXX  X XX XX"
+};
+
+#if 0
+/* XPM */
+static char *pan[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 3 1",
+"  c black",
+". c #E7E3E7",
+"X c None",
+/* pixels */
+"XXXXXXXXXX XXXXXXXXXX",
+"XXXXXX XX X XX XXXXXX",
+"XXXXX X X X X X XX XX",
+"XXXXX X X X X X X X X",
+"XXXXX X X X X X X X X",
+"X  XX X  XX X X  X  X",
+"X X X XX XXX XX XX XX",
+"X XX  XXXXXXXXX X XXX",
+"XX XX XXXXXXXXXXX XXX",
+"XXX XXXXXXXXXXXX XXXX",
+"XXXX XXXXXXXXXXX XXXX",
+"XXXXX XXXXXXXXXX XXXX",
+"XXXXXX          XXXXX",
+"XXXXXXXXXXXXXXXXXXXXX",
+"XXXX   XXX  XX XXX XX",
+"XXXX XX X XX X  XX XX",
+"XXXX XX X XX X   X XX",
+"XXXX   XX    X X X XX",
+"XXXX XXXX XX X X   XX",
+"XXXX XXXX XX X XX  XX",
+"XXXX XXXX XX X XXX XX"
+};
+
+#endif
+/* XPM */
+static char *poly[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #6EA5D7",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooo.ooooooooo",
+"oooooooooo..ooooooooo",
+"ooooooooo...ooooooooo",
+"oooooooo....ooooooooo",
+"ooooooo.....ooooooooo",
+"oooooo.......oooooooo",
+"ooooo.........ooooooo",
+"oooo...........oooooo",
+"oooo............ooooo",
+"oooo.............oooo",
+"oooo..............ooo",
+"ooooooooooooooooooooo",
+"o    ooo   oo oo ooo ",
+"o ooo o ooo o oo ooo ",
+"o ooo o ooo o ooo o o",
+"o    oo ooo o oooo oo",
+"o ooooo ooo o oooo oo",
+"o ooooo ooo o oooo oo",
+"o ooooo ooo o oooo oo",
+"o oooooo   oo    o oo",
+"ooooooooooooooooooooo"
+};
+
+/* XPM */
+static char * polyhole[] = {
+"21 21 3 1",
+" 	c None",
+".	c #6EA5D7",
+"+	c #000000",
+"        ..           ",
+"       ...           ",
+"      .....          ",
+"     .......         ",
+"    .........        ",
+"  ....+++++...       ",
+"  ....+   +....      ",
+"  ...+    +.....     ",
+"  ...++++++......    ",
+"  ................   ",
+"  .................  ",
+"                     ",
+"  +  +  ++  +   +++  ",
+"  +  + +  + +   +    ",
+"  +  + +  + +   +    ",
+"  ++++ +  + +   +++  ",
+"  +  + +  + +   +    ",
+"  +  + +  + +   +    ",
+"  +  + +  + +   +    ",
+"  +  +  ++  +++ +++  ",
+"                     "
+};
+
+/* XPM */
+static char *rect[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #6EA5D7",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooooooooooooo",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"oo..................o",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"o   oo    oo  oo     ",
+"o oo o oooo oo ooo oo",
+"o oo o oooo oooooo oo",
+"o   oo oooo oooooo oo",
+"o o oo   oo oooooo oo",
+"o oo o oooo oooooo oo",
+"o oo o oooo oo ooo oo",
+"o oo o    oo  oooo oo",
+"ooooooooooooooooooooo"
+};
+
+
+/* XPM */
+static char *rot[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #4E85b7",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooo.ooooooooo",
+"oooooooooo..ooooooooo",
+"ooooooooo....oooooooo",
+"oooooooooo..o.ooooooo",
+"ooooooooooo.oo.oooooo",
+"oooooooooooooo.oooooo",
+"oooooooooooooo.oooooo",
+"oooooooooooooo.oooooo",
+"oooooooooooooo.oooooo",
+"ooooooooooooo.ooooooo",
+"oooooooooooo.oooooooo",
+"oooooooooo..ooooooooo",
+"ooooooooooooooooooooo",
+"ooo    ooo   oo     o",
+"ooo ooo o ooo ooo ooo",
+"ooo ooo o ooo ooo ooo",
+"ooo    oo ooo ooo ooo",
+"ooo   ooo ooo ooo ooo",
+"ooo o  oo ooo ooo ooo",
+"ooo oo  o ooo ooo ooo",
+"ooo ooo oo   oooo ooo"
+};
+
+
+/* XPM */
+static char *sel[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #6EA5D7",
+"X c gray100",
+"o c None",
+/* pixels */
+"oo .. ooooooooooooooo",
+"oo .... ooooooooooooo",
+"ooo ...... oooooooooo",
+"ooo ........ oooooooo",
+"ooo ....... ooooooooo",
+"oooo ..... oooooooooo",
+"oooo ...... ooooooooo",
+"ooooo .. ... oooooooo",
+"ooooo . o ... ooooooo",
+"oooooooooo ... oooooo",
+"ooooooooooo .. oooooo",
+"oooooooooooo  ooooooo",
+"ooooooooooooooooooooo",
+"ooo   oo     o oooooo",
+"oo ooo o ooooo oooooo",
+"ooo oooo ooooo oooooo",
+"oooo ooo    oo oooooo",
+"ooooo oo ooooo oooooo",
+"oooooo o ooooo oooooo",
+"oo ooo o ooooo oooooo",
+"ooo   oo     o     oo"
+};
+
+
+/* XPM */
+static char *text[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #4E85b7",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"oo.ooo.ooo.ooo.ooo.oo",
+"o.o.o.o.o.o.o.o.o.o.o",
+"oo.ooo.ooo.ooo.ooo.oo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"     o   o ooo o     ",
+"oo ooo ooo ooo ooo oo",
+"oo ooo oooo o oooo oo",
+"oo ooo ooooo ooooo oo",
+"oo ooo  ooo o oooo oo",
+"oo ooo ooo ooo ooo oo",
+"oo ooo ooo ooo ooo oo",
+"oo ooo   o ooo ooo oo",
+"ooooooooooooooooooooo"
+};
+
+
+/* XPM */
+static char *thrm[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #69E1B0",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooooooooooooo",
+"oooo ooooooooo oooooo",
+"ooooo ooooooo ooooooo",
+"oooooo o...o oooooooo",
+"ooooooo ooo ooooooooo",
+"oooooo.ooooo.oooooooo",
+"oooooo.ooooo.oooooooo",
+"oooooo.ooooo.oooooooo",
+"ooooooo ooo ooooooooo",
+"oooooo o...o oooooooo",
+"ooooo ooooooo ooooooo",
+"oooo ooooooooo oooooo",
+"ooooooooooooooooooooo",
+"     o oo o   oo ooo ",
+"oo ooo oo o oo o  o  ",
+"oo ooo oo o oo o o o ",
+"oo ooo oo o   oo o o ",
+"oo ooo    o o oo ooo ",
+"oo ooo oo o oo o ooo ",
+"oo ooo oo o oo o ooo ",
+"oo ooo oo o oo o ooo "
+};
+
+
+/* XPM */
+static char *via[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 4 1",
+"  c black",
+". c #7A8584",
+"X c gray100",
+"o c None",
+/* pixels */
+"ooooooooooooooooooooo",
+"ooooooooo...ooooooooo",
+"oooooooo.....oooooooo",
+"ooooooo..ooo..ooooooo",
+"oooooo..ooooo..oooooo",
+"oooooo..ooooo..oooooo",
+"oooooo..ooooo..oooooo",
+"ooooooo..ooo..ooooooo",
+"oooooooo.....oooooooo",
+"ooooooooo...ooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooooooooooooooooooooo",
+"ooo ooo o   ooo ooooo",
+"ooo ooo oo ooo o oooo",
+"ooo ooo oo oo ooo ooo",
+"oooo o ooo oo ooo ooo",
+"oooo o ooo oo     ooo",
+"oooo o ooo oo ooo ooo",
+"ooooo ooo   o ooo ooo",
+"ooooooooooooooooooooo"
+};

@@ -1,0 +1,110 @@
+/*
+ *                            COPYRIGHT
+ *
+ *  PCB, interactive printed circuit board design
+ *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *  Contact addresses for paper mail and Email:
+ *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *  Thomas.Nau@rz.uni-ulm.de
+ *
+ */
+
+
+/* XPM */
+static char *icon_bits[] = {
+/* columns rows colors chars-per-pixel */
+"32 32 6 1",
+"  c black",
+". c #53E336",
+"X c #E34736",
+"o c #BED7E3",
+"O c #E7E3E7",
+"+ c None",
+/* pixels */
+"++++++++++++++++++++++++++++++++",
+"++++++++++++++++++++++++++++++++",
+"++++++++++++++++++++++++++++++++",
+"++++++++++++++++++++++++++++++++",
+"+                              +",
+"+ o   oo   o   oo   o   oo   o +",
+"+ o + oo + o + oo + o + oo + o +",
+"+ o   oo   o   oo   o   oo   o +",
+"+ oooooooooooooooooooooooooooo +",
+"+   oooooooooooooooooooooooooo +",
+"+   oooooooooooooooooooooooooo +",
+"+   oooooooooooooooooooooooooo +",
+"+   oooooooooooooooooooooooooo +",
+"+ oooooooooooooooooooooooooooo +",
+"+ o   oo   o   oo   o   oo   o +",
+"+ o + oo + o + oo + o + oo + o +",
+"+ o   oo . o   oo   o   oo X o +",
+"+        .                 X   +",
+"+++++++++.+++++++++++++++++X++++",
+"+++++++++.+++++++++++++++++X++++",
+"+++++++++.+++++++++++++++++X++++",
+"+++++++++.+++++++++++++++++X++++",
+"++++++++.++++++++++++++++++X++++",
+"+++++++.++++ +++ ++++++++++X++++",
+"+++++++.++++ ++  +++++++++XX++++",
+"++++++ . +++ + o ++++   +XX+++++",
+"++++++ .      oo      XXXX++++++",
+"++++++   +++ + o ++++   ++++++++",
+"++++++++++++ ++  +++++++++++++++",
+"++++++++++++ +++ +++++++++++++++",
+"++++++++++++++++++++++++++++++++",
+"++++++++++++++++++++++++++++++++"
+};
+
+#define rotateIcon_width 16
+#define rotateIcon_height 16
+static unsigned char rotateIcon_bits[] = {
+   0xf0, 0x03, 0xf8, 0x87, 0x0c, 0xcc, 0x06, 0xf8, 0x03, 0xb0, 0x01, 0x98,
+   0x00, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x19, 0x80, 0x0d, 0xc0,
+   0x1f, 0x60, 0x3b, 0x30, 0xe1, 0x3f, 0xc0, 0x0f};
+
+#define rotateMask_width 16
+#define rotateMask_height 16
+static unsigned char rotateMask_bits[] = {
+   0xf0, 0x03, 0xf8, 0x87, 0x0c, 0xcc, 0x06, 0xf8, 0x03, 0xf0, 0x01, 0xf8,
+   0x00, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x1f, 0x80, 0x0f, 0xc0,
+   0x1f, 0x60, 0x3b, 0x30, 0xe1, 0x3f, 0xc0, 0x0f};
+
+#define handIcon_width 16
+#define handIcon_height 16
+static unsigned char handIcon_bits[] = {
+   0x80, 0x00, 0x48, 0x09, 0x54, 0x15, 0x54, 0x15, 0x54, 0x15, 0x64, 0xcb,
+   0x68, 0xab, 0x2b, 0x5b, 0x05, 0x58, 0x05, 0x20, 0x01, 0x20, 0x02, 0x20,
+   0x02, 0x30, 0x04, 0x10, 0x08, 0x08, 0xf0, 0x0f};
+#define handMask_width 16
+#define handMask_height 16
+static unsigned char handMask_bits[] = {
+   0x80, 0x00, 0xc8, 0x09, 0xdc, 0x1d, 0xdc, 0x1d, 0xdc, 0x1d, 0xfc, 0xcf,
+   0x38, 0xee, 0x1f, 0x78, 0x0f, 0x78, 0x07, 0x30, 0x07, 0x30, 0x0e, 0x38,
+   0x1e, 0x3c, 0x3c, 0x1e, 0xf8, 0x0f, 0xf0, 0x0f};
+#define lockIcon_width 16
+#define lockIcon_height 16
+static unsigned char lockIcon_bits[] = {
+   0x00, 0x00, 0xe0, 0x07, 0x30, 0x0c, 0x10, 0x08, 0x18, 0x18, 0x08, 0x10,
+   0x08, 0x00, 0xfc, 0x3f, 0x04, 0x20, 0xfc, 0x3f, 0x04, 0x20, 0xfc, 0x3f,
+   0x04, 0x20, 0xfc, 0x3f, 0x04, 0x20, 0xfc, 0x3f};
+#define lockMask_width 16
+#define lockMask_height 16
+static unsigned char lockMask_bits[] = {
+   0xf0, 0x0f, 0xf0, 0x0f, 0xf8, 0x1f, 0x38, 0x1c, 0x1c, 0x3c, 0x1c, 0x38,
+   0x1c, 0x30, 0xfe, 0x7f, 0xfe, 0x7f, 0xfe, 0x7f, 0xfe, 0x7f, 0xfe, 0x7f,
+   0xfe, 0x7f, 0xfe, 0x7f, 0xfe, 0x7f, 0xfe, 0x7f};

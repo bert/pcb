@@ -12,7 +12,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@ libdrc.a
 EXTRA_LIBRARIES = \
 	libdrc.a \
-	libgtk.a liblesstif.a libbatch.a \
+	libgtk.a liblessgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
 	libgcode.a libipcd356.a libgsvit.a
 
@@ -195,6 +195,7 @@ BUILT_SOURCES = \
 	core_lists.h \
 	gpcb-menu.h \
 	hid/gtk/gtk_lists.h \
+	hid/lessgtk/lessgtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
@@ -245,6 +246,10 @@ EXTRA_DIST= \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
 	$(srcdir)/hid/gtk/hid.conf \
 	$(srcdir)/hid/gtk/pcb.rc \
+	$(srcdir)/hid/lessgtk/gui-icons-misc.data \
+	$(srcdir)/hid/lessgtk/gui-icons-mode-buttons.data \
+	$(srcdir)/hid/lessgtk/hid.conf \
+	$(srcdir)/hid/lessgtk/pcb.rc \
 	$(srcdir)/hid/ipcd356/hid.conf \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
@@ -374,6 +379,49 @@ hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+liblessgtk_a_CPPFLAGS = -I$(top_srcdir) -I./hid/lessgtk
+LIBLESSGTK_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/lessgtk/ghid-cell-renderer-visibility.c \
+	hid/lessgtk/ghid-cell-renderer-visibility.h \
+	hid/lessgtk/ghid-coord-entry.c \
+	hid/lessgtk/ghid-coord-entry.h \
+	hid/lessgtk/ghid-layer-selector.c \
+	hid/lessgtk/ghid-layer-selector.h \
+	hid/lessgtk/ghid-main-menu.c \
+	hid/lessgtk/ghid-main-menu.h \
+	hid/lessgtk/ghid-route-style-selector.c \
+	hid/lessgtk/ghid-route-style-selector.h \
+	hid/lessgtk/gtkhid-main.c \
+	hid/lessgtk/gtkhid.h \
+	hid/lessgtk/gui.h \
+	hid/lessgtk/gui-command-window.c \
+	hid/lessgtk/gui-config.c \
+	hid/lessgtk/gui-dialog-print.c \
+	hid/lessgtk/gui-dialog.c \
+	hid/lessgtk/gui-drc-window.c \
+	hid/lessgtk/gui-drc-window.h \
+	hid/lessgtk/gui-keyref-window.c \
+	hid/lessgtk/gui-library-window.c \
+	hid/lessgtk/gui-library-window.h \
+	hid/lessgtk/gui-log-window.c \
+	hid/lessgtk/gui-misc.c \
+	hid/lessgtk/gui-netlist-window.c \
+	hid/lessgtk/gui-output-events.c \
+	hid/lessgtk/gui-pinout-preview.c \
+	hid/lessgtk/gui-pinout-preview.h \
+	hid/lessgtk/gui-pinout-window.c \
+	hid/lessgtk/gui-top-window.c \
+	hid/lessgtk/gui-utils.c
+liblessgtk_a_SOURCES = ${LIBLESSGTK_SRCS} hid/lessgtk/lessgtk_lists.h
+
+hid/lessgtk/lessgtk_lists.h : ${LIBLESSGTK_SRCS} Makefile
+	$(MKDIR_P) hid/lessgtk
+	true > $@
+	(for f in ${LIBLESSGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 # If we are building with dbus support, we need some extra files
 if WITH_DBUS
 dbus-introspect.h : dbus.xml Makefile
@@ -391,8 +439,10 @@ endif
 if USE_GL
 PCB_SRCS+=	${GL_SRCS}
 LIBGTK_SRCS+=	${LIBGTK_GL_SRCS}
+LIBLESSGTK_SRCS+=	${LIBGTK_GL_SRCS}
 else
 LIBGTK_SRCS+=	${LIBGTK_GDK_SRCS}
+LIBLESSGTK_SRCS+=	${LIBGTK_GDK_SRCS}
 endif
 
 # If we are building on win32, then compile in some icons for the
@@ -543,6 +593,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
+	hid/lessgtk/lessgtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
