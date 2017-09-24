@@ -43,21 +43,30 @@ the Free Software Foundation; either version 2 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-@b{GNU General Public License} for more details.
+MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the @b{GNU General Public License} for more details.
 
 @end copying
 
+
+@c ---- Frontmatter ----
 @titlepage
 @title User Manual for PCB-@value{VERSION}
 @subtitle an open source, interactive
 @subtitle printed circuit board
 @subtitle layout program
-@author Harry Eaton
+@author by Harry Eaton and PCB Contributors
 @page
 @vskip 0pt plus 1filll
+
+
+@c ---- Rear side of frontmatter ----
 @insertcopying
 @end titlepage
+
+
+@c ---- Contents ----
 @contents
 
 @setchapternewpage on
@@ -94,7 +103,8 @@ board layout system.
 * Index::                  The Index.
 @end menu
 
-@c --------------------------- chapter 0 -------------------------------
+
+@c ---- History chapter ----
 @node History
 @unnumbered History
 
@@ -219,7 +229,7 @@ files.  Thanks to all of them. If you feel left out of this list, I
 apologize; please send me an e-mail and I'll try to correct the omission.
 
 
-@c --------------------------- overview chapter -------------------------------
+@c ---- Overview chapter ----
 @node Overview
 @chapter Overview
 @cindex PCB, an overview
@@ -248,7 +258,8 @@ systems.
 @item Windows version is available
 @end itemize
 
-@c --------------------------- chapter 1 -------------------------------
+
+@c ---- Introduction chapter ----
 @node Intro
 @chapter Introduction
 @cindex layout objects, an overview
@@ -713,7 +724,8 @@ browse through the net list. You can display the rat's-nest by selecting
 the rat's-nest will automatically follow the movements, but they won't
 necessarily show the shortest paths until you optimize them again.
 
-@c --------------------------- chapter 2 -------------------------------
+
+@c ---- Getting Started chapter ----
 @node Getting Started
 @chapter Getting Started
 @cindex how to start
@@ -906,7 +918,7 @@ arcs touch or clear intersecting polygons from this menu.
 This menu covers most of the operations that work with selected objects.
 You may either (un)select all visible objects on a layout or only the ones
 which have been found by the last connection scan see
-@c DRM: not sure where this was suppose to xfef to.
+@c DRM: not sure where this was suppose to reference to.
 @c @ref{find connections}
 .
 You can delete all selected objects from this menu.
@@ -2455,7 +2467,8 @@ Note that the expressions used in the @code{skips} section are regular
 expressions.  See @ref{Regular Expressions} for an introduction to
 regular expressions.  
 
-@c --------------------------- Autorouter Chapter -------------------------------
+
+@c ---- Autorouter chapter ----
 @node Autorouter
 @chapter Autorouter
 @cindex autorouter
@@ -2533,7 +2546,7 @@ optimizer.  See section @ref{Trace Optimizer} for more information on
 the trace optimizer.
 
 
-@c --------------------------- User Commands chapter -------------------------------
+@c ---- User Commands chapter ----
 @node User Commands
 @chapter User Commands
 
@@ -2602,7 +2615,7 @@ the cursor where you want before entering the command.  For more actions, see
 the @ref{Actions} section.
 
 
-@c --------------------------- chapter 4 -------------------------------
+@c ---- Command-Line Options chapter ----
 @node Command-Line Options
 @chapter Command-Line Options
 @cindex starting @pcb{}
@@ -2651,7 +2664,7 @@ standard toolkit command-line options. For a complete list refer to
 
 
 
-@c --------------------------- chapter 5 -------------------------------
+@c ---- X11 Interface chapter ----
 @node X11 Interface
 @chapter X11 Interface
 @cindex X11
@@ -4145,7 +4158,7 @@ element names.
 @end table
 
 
-@c --------------------------- chapter 6 -------------------------------
+@c ---- File Formats chapter ----
 @node File Formats
 @chapter File Formats
 @cindex file formats
@@ -4514,7 +4527,7 @@ look at the comments and follow the macros step by step.
 
 @include pcbfile.texi
 
-@c --------------------------- chapter 7 -------------------------------
+@c ---- Library Creation chapter ----
 @node Library Creation
 @chapter Library Creation
 @cindex library creation
@@ -4948,7 +4961,7 @@ from scratch on a new footprint.
 @end enumerate
 
 
-@c --------------------------- chapter 8 -------------------------------
+@c ---- Schematic Capture for PCB chapter ----
 @node Schematic Frontends
 @chapter Schematic Capture for PCB
 @cindex schematic capture
@@ -5055,7 +5068,6 @@ output-name  preamp
 
 @end example
 
-
 @subsection Capture Schematics Using @code{gschem}
 This section is fairly brief and assumes familiarity with using the
 @code{gschem} schematic capture program.  As you are creating your
@@ -5091,7 +5103,6 @@ To start your layout,
 run @samp{gsch2pcb project} where @file{project} is the project file
 created previously.  This will create a new netlist file,
 @file{preamp.net}, and a new layout file, @file{preamp.pcb}.
-
 
 @subsection Layout Circuit Board
 Run PCB on the new layout by running @samp{pcb preamp.pcb}.
@@ -5174,8 +5185,8 @@ If anyone cares to contribute this section, it will get added.  Please
 submit changes to the bug tracking system for PCB which can be found from
 the PCB homepage at @url{http://pcb.geda-project.org}.
 
-@c --------------------------- Appendix A -------------------------------
 
+@c ---- Installation and Troubleshooting appendix ----
 @node Installation
 @appendix Installation and Troubleshooting
 
@@ -5428,8 +5439,7 @@ FTP sites.
 @emph{ftp.uni-ulm.de} for ready-to-print versions of the manuals.
 
 
-@c --------------------------- Appendix B -------------------------------
-
+@c ---- Customizing the Menus appendix ----
 @node Custom Menus
 @appendix Customizing the Menus
 
@@ -5604,7 +5614,8 @@ application itself.  The master file for all this is the file
 used to create the internal menu definition as well as being installed
 in @file{$pcblibdir}.
 
-@c --------------------------- Appendix C -------------------------------
+
+@c ---- Element Search/Regular Expressions appendix ----
 @node Regular Expressions
 @appendix Element Search/Regular Expressions
 @cindex Element Search
@@ -5730,7 +5741,7 @@ R34, but not D34.
 @end table
 
 
-@c --------------------------- Appendix -- drill sizes -------------------------------
+@c ---- Standard Drill Size Tables appendix ----
 @node Standard Drill Sizes
 @appendix Standard Drill Size Tables
 @cindex drill sizes, list of standard
@@ -5748,7 +5759,7 @@ R34, but not D34.
 @section Metric Drills
 @include metric_size.texi
 
-@c --------------------------- Appendix -- Centroid File Format ----------------------
+@c ---- Centroid (X-Y) File Format appendix ----
 @node Centroid File Format
 @appendix Centroid (X-Y) File Format
 @cindex centroid file format
@@ -5813,7 +5824,7 @@ for the definitions of rotation.  In other words, when pin #1 is at
 the centroid of the part and pin #2 is in the upper left quadrant, the
 rotation is declared to be zero degrees.
 
-@c --------------------------- Appendix -- Annotation File Format ----------------------
+@c ----  Annotation File Format appendix ----
 @node Annotation File Format
 @appendix Annotation File Format
 @cindex annotation file format
@@ -5880,14 +5891,15 @@ and the new name.
 @end format
 @end cartouche
 
-@c --------------------------- Appendix -- Actions ----------------------
+@c ---- Action Reference appendix ----
 @node Action Reference
 @appendix Action Reference
 @cindex action reference
 
 @include actions.texi
 
-@c --------------------------- Appendix -- Glossary ----------------------
+
+@c ---- Glossary appendix ----
 @node Glossary
 @appendix Glossary
 @cindex glossary
@@ -5925,7 +5937,8 @@ make both a solid connection and one with thermal relief (see @ref{Polygon Objec
 
 @end table
 
-@c ---------------------------------------------------------------------
+
+@c ---- Indexes ----
 @node Index
 @unnumbered Index of Resources
 @printindex vr
