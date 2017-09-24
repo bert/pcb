@@ -22,19 +22,19 @@ END-INFO-DIR-ENTRY
 @finalout
 @end iftex
 
-@ifinfo
-This file documents how to use Pcb,
-the open source, interactive printed circuit board layout system.
+@copying
+This User Manual documents how to use PCB-@value{VERSION}, the open
+source, interactive printed circuit board layout program.
 
-Copyright (C) 1994, 1995, 1996, 2004 Thomas Nau
+Copyright @copyright{} 1994, 1995, 1996, 1997, 2004 Thomas Nau
 
-Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
+Copyright @copyright{} 1997, 1998, 1999, 2000, 2001, 2002 Harry Eaton
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
+Copyright @copyright{} 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
-Copyright (C) 2004 DJ Delorie
+Copyright @copyright{} 2004 DJ Delorie
 
-Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
+Copyright @copyright{} 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -46,19 +46,22 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 @b{GNU General Public License} for more details.
 
-@end ifinfo
+@end copying
+
+@titlepage
+@title User Manual for PCB-@value{VERSION}
+@subtitle an open source, interactive
+@subtitle printed circuit board
+@subtitle layout program
+@author Harry Eaton
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+@contents
 
 @setchapternewpage on
 @headings single
-
-@titlepage
-@title Pcb-@value{VERSION}
-@subtitle an open source, interactive
-@subtitle printed circuit board
-@subtitle layout system
-@author harry eaton
-@end titlepage
-@contents
 
 @ifnottex
 @node Top
@@ -69,7 +72,6 @@ board layout system.
 @end ifnottex
 
 @menu
-* Copying::                @pcb{} is freely redistributable!
 * History::                How it all began.
 * Overview::               An overview of @pcb{}.
 * Intro::                  A short description of the basic objects.
@@ -91,31 +93,6 @@ board layout system.
 * Glossary::               Glossary
 * Index::                  The Index.
 @end menu
-
-@c ---------------------------------------------------------------------
-@node Copying
-@unnumbered Copying
-
-Copyright @copyright{} 1994, 1995, 1996, 1997 Thomas Nau
-
-Copyright @copyright{} 1998, 1999, 2000, 2001, 2002 harry eaton
-
-Copyright @copyright{} 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
-
-Copyright @copyright{} 2004 DJ Delorie
-
-Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
-
-This program is free software; you may redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-@b{GNU General Public License} for more details.
-
 
 @c --------------------------- chapter 0 -------------------------------
 @node History
