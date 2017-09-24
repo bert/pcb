@@ -788,7 +788,7 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
   /* The relative cursor position label
    */
   frame = gtk_frame_new (NULL);
-  gtk_box_pack_end (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
+//  gtk_box_pack_end (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame), 0);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
   label = gtk_label_new (" __.__  __.__ ");
