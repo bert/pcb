@@ -92,7 +92,8 @@ board layout system.
 * File Formats::           Description of @code{ASCII} files used by @pcb{}.
 * Library Creation::       Detailed description of symbol library creation.
 * Schematic Frontends::    Schematic capture programs that work with PCB.
-* Installation::           Compiling, installing and troubleshooting.
+* Installation::           Compiling and installing.
+* Trouble Shooting::       Trouble shooting and problem solving.
 * Custom Menus::           Customizing the menu bar.
 * Regular Expressions::    Searching for elements with regular expressions
 * Standard Drill Sizes::   Tables of standard drill sizes
@@ -753,7 +754,7 @@ If you get the error message:
 then the font searchpath or filename in the application resource
 file is wrong. Be sure that your @code{m4} program supports search paths.
 If not, get @code{GNU m4}.
-For other messages, see @ref{problems}.
+For other messages, see @ref{Trouble Shooting}.
 Another quick-start is provided by @code{pcbtest.sh} in the @file{src}
 directory. If some features don't seem to work, try running @code{pcbtest.sh},
 if that works, then @pcb{} hasn't been installed properly.
@@ -5182,29 +5183,22 @@ Centroid (X-Y) data for driving automated assembly equipment.
 @cindex xcircuit, how to interface with
 
 If anyone cares to contribute this section, it will get added.  Please
-submit changes to the bug tracking system for PCB which can be found from
-the PCB homepage at @url{http://pcb.geda-project.org}.
+submit changes to the bug tracking system for PCB which can be found on
+@url{https://bugs.launchpad.net/pcb}.
 
 
-@c ---- Installation and Troubleshooting appendix ----
+@c ---- Installation appendix ----
 @node Installation
-@appendix Installation and Troubleshooting
-
-Compiling and installing the package should be straightforward. If any problems
-occur, please contact the author @email{Thomas.Nau@@rz.uni-ulm.de}, or the
-current maintainer @email{haceaton@@aplcomm.jhuapl.edu} to find
-a solution and include it into the next release.
-
-@menu
-* compiling::     Compiling and installing.
-* problems::      Troubleshooting.
-@end menu
-
-
-@node compiling
-@section Compiling and Installing
+@appendix Installation
 @cindex install, how to
 @cindex compile, how to
+
+Compiling and installing the package should be straightforward.
+If any problems occur, please contact the current maintainers at
+@email{geda-user@@delorie.com} to find a solution and include it into
+the next release.
+
+Bug reports can also be filed on @url{https://bugs.launchpad.net/pcb}.
 
 This section covers the steps which are necessary to compile the package.
 
@@ -5214,7 +5208,7 @@ This section covers the steps which are necessary to compile the package.
 @end menu
 
 @node quickstart
-@subsection Quick Start
+@section Quick Start
 @cindex GNU build system
 
 Starting with version 2.0, @pcb{} has switched to a GNU
@@ -5228,14 +5222,13 @@ make install
 @end example
 
 @node running configure
-@subsection Running the configure Script
+@section Running the configure Script
 @cindex GNU configure script
 @cindex configure
 
 The @code{configure} script accepts all of the standard GNU configure
 options.  For a complete list of configuration options, run
 @code{./configure --help}.
-
 
 @table @samp
 @vindex INFOLIBDIR
@@ -5263,34 +5256,34 @@ the name of GNUs m4 version.
 If your window manager has already bound @emph{Mod1} together with some
 function keys you may want to change this setting. This is true for HP-VUE.
 
-
 @end table
-
-If you find things which must be changed to compile on your system,
-please add the appropriate autoconf tests (if you are familiar with
-that) and mail a copy to the maintainer, harry eaton,  at
-@email{haceaton@@aplcomm.jhuapl.edu}.
-
 
 If you do not have the appropriate permissions you should run
 @file{./pcbtest.sh} in the @file{src} directory to run @pcb{} from
 the installation directory.
 
+If you find things which must be changed to compile on your system,
+please add the appropriate autoconf tests (if you are familiar with
+that) and mail a copy to @email{geda-user@@delorie.com}, this is a
+mailing list with subscription required.
 
-@node problems
-@section Troubleshooting
+Bug reports can also be filed on @url{https://bugs.launchpad.net/pcb}.
+
+
+@c ---- Trouble Shooting appendix ----
+@node Trouble Shooting
+@appendix Trouble Shooting
 @cindex problems
 @cindex troubleshooting
 
 There are some known problems. Most of them are related to
 missing parts of a standard @code{X11} distribution. Some others are caused by
 third party applications such as @code{X} servers. To make this list more
-complete please mail your problems and, if available, solutions to the author.
-The mail address may be found at the beginning of this chapter.
+complete please report your problems and, if available, solutions to the
+bug report tracker on @url{https://bugs.launchpad.net/pcb}.
 In any case, read @ref{X11}.
 
 By the way, you @code{MUST HAVE AN ANSI COMPILER} to make @pcb{} work.
-
 
 Another source of problems are older versions of @code{flex} and @code{bison}.
 @pcb{} definitely works with @code{flex-2.4.7} and @code{bison-1.22} or
@@ -5314,7 +5307,7 @@ all @pcb{} releases on all platforms.
 @end menu
 
 @node HP
-@subsection HP Series 700 and 800
+@section HP Series 700 and 800
 @cindex architecture
 @cindex HP
 @cindex Hewlett Packard
@@ -5330,9 +5323,8 @@ Some of the tools are available as patches.
 In addition, @pcb{} has been successfully tested on these platforms with
 @code{HPUX 9.*, 10.*} running self-compiled @code{X11R5}.
 
-
 @node Sun
-@subsection Sun SPARC architecture
+@section Sun SPARC architecture
 @cindex architecture
 @cindex Sun
 @cindex Solaris
@@ -5345,7 +5337,7 @@ SPARCstations @code{Solaris-2.[345]}.
 For problems with @code{OpenWindows} refer to @ref{X11}.
 
 @node SGI
-@subsection Silicon Graphics
+@section Silicon Graphics
 @cindex architecture
 @cindex Silicon Graphics
 @cindex SGI
@@ -5358,7 +5350,7 @@ with @code{X11R4}, see @ref{X11}.
 
 
 @node DEC Alpha
-@subsection DEC Alpha
+@section DEC Alpha
 @cindex architecture
 @cindex DEC
 @cindex Alpha
@@ -5367,7 +5359,7 @@ with @code{X11R4}, see @ref{X11}.
 
 
 @node SCO
-@subsection SCO Unix
+@section SCO Unix
 @cindex architecture
 @cindex SCO
 @cindex PC UNIX
@@ -5381,19 +5373,18 @@ while loading/dropping elements...
 @end example
 I'll see what I am able to do as soon as I have access to an @code{SCO} system.
 
-
 @node Linux
-@subsection Linux
+@section Linux
 @cindex architecture
 @cindex Linux
 @cindex PC UNIX
 
 Since the @code{X11} version of @pcb{} has been developed on a Linux
-system here are no known problems.
-
+system here are no known problems other than the massive back log of bug
+reports on @url{https://bugs.launchpad.net/pcb}.
 
 @node BSD
-@subsection FreeBSD and NetBSD
+@section FreeBSD and NetBSD
 @cindex FreeBSD
 @cindex NetBSD
 @cindex PC UNIX
@@ -5405,7 +5396,7 @@ FreeBSD port at
 @url{http://www.freebsd.org/cgi/url.cgi?ports/cad/pcb/pkg-descr}.
 
 @node X11
-@subsection Problems related to X11
+@section Problems related to X11
 @cindex X11, problems
 
 There are a some problems related to @code{X11R4} or systems derived from
@@ -5427,16 +5418,17 @@ and later.
 
 
 @node TeX and Manuals
-@subsection Problems related to TeX
+@section Problems related to TeX
 @cindex TeX, problems
 
 If your @code{TeX} installation complains about a missing @file{texinfo.tex}
 file copy the one included in this release (directory @file{doc}
 to your @code{TeX} macro directory.
 Note, there are probably newer versions of this file available from some
-FTP sites.
-@code{TeX-3.0} failed, @code{TeX-3.14} worked just fine. Check our FTP server
-@emph{ftp.uni-ulm.de} for ready-to-print versions of the manuals.
+sites.
+@code{TeX-3.0} failed, @code{TeX-3.14} worked just fine.
+Check out @url{http://www.tug.org/begin.html} for more information and
+manuals.
 
 
 @c ---- Customizing the Menus appendix ----
