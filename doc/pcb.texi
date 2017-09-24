@@ -271,6 +271,7 @@ The sections in this chapter are sorted by the
 order of appearance of the objects within a layout file.
 
 @menu
+* Header Objects::         Information about the header in the pcb file
 * Symbol Objects::         Information about fonts and symbols.
 * Via Objects::            Vias and pins connect layers.
 * Element Objects::        Element, the basic type of circuits.
@@ -282,16 +283,29 @@ order of appearance of the objects within a layout file.
 * Net Objects::            Describes the desired connections on the board.
 @end menu
 
+@node Header Objects
+@section Header
+@cindex header, an overview
+
+The top object is the layout itself. It has a header with settings and
+layout values. Settings and layout values include the @samp{release}
+number, @samp{FileVersion}, @samp{PCB} name, @samp{PCB} layout main
+dimensions, @samp{Grid} settings, @samp{PolyArea} setting,
+@samp{Thermal} setting, @samp{DRC} settings, @samp{Flags}, @samp{Groups}
+layer stack, and routing @samp{Styles}
+
+
 @node Symbol Objects
 @section Symbols
 @cindex symbols, an overview
 @cindex font, an overview
 
-The top object is the layout itself. It uses a set of symbols
-that resides at the first logical level. Each symbol is uniquely identified
-by a seven bit @code{ASCII} code. All layout objects share the same set of
-symbols. These symbols are used to form text objects on the silkscreen
-and copper layers.  Undefined symbols are drawn as filled rectangles.
+The layout uses a set of symbols that resides at the first logical level.
+Each symbol is uniquely identified by a seven bit @code{ASCII} code.
+All layout objects share the same set of symbols.
+These symbols are used to form text objects on the silkscreen and copper
+layers.
+Undefined symbols are drawn as filled rectangles.
 
 Every font file is preprocessed by a user-defined command when it is loaded.
 For details see @samp{fontCommand}, @ref{Resources}.
