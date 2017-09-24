@@ -1344,8 +1344,8 @@ ghid_build_pcb_top_window (void)
 
   make_mode_buttons_and_toolbar (&ghidgui->mode_buttons_frame,
                                  &ghidgui->mode_toolbar);
-  gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
-                      ghidgui->mode_toolbar, FALSE, FALSE, 0);
+//  gtk_box_pack_start (GTK_BOX (ghidgui->menubar_toolbar_vbox),
+//                      ghidgui->mode_toolbar, FALSE, FALSE, 0);
 
 
   ghidgui->position_hbox = gtk_hbox_new (FALSE, 0);
