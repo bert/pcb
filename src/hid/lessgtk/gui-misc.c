@@ -396,8 +396,8 @@ ghid_get_pointer (int *x, int *y)
     *y = yp;
 }
 
-/* ---------------------------------------------------------------------------
- * output of status line
+/*!
+ * \brief Output of status line.
  */
 void
 ghid_set_status_line_label (void)
@@ -412,22 +412,32 @@ ghid_set_status_line_label (void)
   gchar *text = pcb_g_strdup_printf (
         _("%m+<b>view</b>=%s  "
           "<b>grid</b>=%$mS  "
-          "%s%s  "
           "<b>line</b>=%mS  "
-          "<b>via</b>=%mS (%mS)  %s"
+          "<b>via</b>=%mS (%mS)  "
           "<b>clearance</b>=%mS  "
           "<b>text</b>=%i%%  "
-          "<b>buffer</b>=#%i"),
+          "%s"
+          "<b>layer</b>=%s  "
+          "<b>direction</b>=%s  "
+          "<b>rubberband</b>=%s  "
+          "<b>auto DRC</b>=%s  "
+          "<b>snap to pin</b>=%s"
+          ),
       Settings.grid_unit->allow,
       Settings.ShowBottomSide ? C_("status", "bottom") : C_("status", "top"),
       PCB->Grid,
-      flag, TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
       Settings.LineThickness,
       Settings.ViaThickness,
       Settings.ViaDrillingHole,
-      ghidgui->compact_horizontal ? "\n" : "",
       Settings.Keepaway,
-      Settings.TextScale, Settings.BufferNumber + 1);
+      Settings.TextScale,
+      ghidgui->compact_horizontal ? "\n" : "",
+      CURRENT->Name,
+      flag,
+      TEST_FLAG (RUBBERBANDFLAG, PCB) ? "ON" : "Off",
+      TEST_FLAG (AUTODRCFLAG, PCB) ? "ON" : "Off",
+      TEST_FLAG (SNAPPINFLAG, PCB) ? "On" : "Off"
+      );
 
   ghid_status_line_set_text (text);
   g_free (text);
