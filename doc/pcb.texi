@@ -205,6 +205,7 @@ Richard Hughes, Eric Brombaugh, Benjamin Bergman, Braddock Gaskill,
 Dan White, Alan Somers, Richard Barlow, Bdale Garbee, Stanislav Brabec,
 Levente Kovacs, Ed Maste, Uwe Hermann, Ivan Stankovic, Peter S. May,
 Igor2, Felix K (kuhlix), rosvall, Martin, Christian Ams@"uss,
+Johann Klammer, Newell Jensen, Bdale Garbee, Keith Packard,
 Bert Timmerman.
 @end display
 
