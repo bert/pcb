@@ -82,67 +82,6 @@ MainMenu =
   }
 
 #
-# Draw Menu
-#
-  {"Draw" m=D
-   {"Via" checked=viamode,1 Mode(Via) a={"F1" "<Key>F1"}}
-   {"Line" checked=linemode,1 Mode(Line) a={"F2" "<Key>F2"}}
-   {"Arc" checked=arcmode,1 Mode(Arc) a={"F3" "<Key>F3"}}
-   {"Text" checked=textmode,1 Mode(Text) a={"F4" "<Key>F4"}}
-   {"Rectangle" checked=rectanglemode,1 Mode(Rectangle) a={"F5" "<Key>F5"}}
-   {"Polygon" checked=polygonmode,1 Mode(Polygon) a={"F6" "<Key>F6"}}
-   {"Polygon Hole" checked=polygonholemode,1 Mode(PolygonHole)}
-   {"Thermal" checked=thermalmode,1 Mode(Thermal) a={"F10" "<Key>F10"}}
-  }
-
-#
-# Edit Menu
-#
-  {"Edit" m=E
-   {"Undo" Undo() a={"U" "<Key>u"}}
-   {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
-   {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
-   -
-   {"Cut" GetXY(Click to set the snap point for this buffer)
-    PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
-    a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Copy" GetXY(Click to set the snap point for this buffer)
-    PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
-    a={"Ctrl-C" "Ctrl<Key>c"}}
-   {"Paste" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
-   -
-   {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
-   {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
-   -
-   {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
-   {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
-   {"Lock" checked=lockmode,1 Mode(Lock) a={"F12" "<Key>F12"}}
-   {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
-   -
-   {"Edit name of"
-     {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
-     {"layout" ChangeName(Layout)}
-     {"active layer" ChangeName(Layer)}
-   }
-   {"Edit attributes of"
-    {"Layout" Attributes(Layout)}
-    {"CurrentLayer" Attributes(Layer)}
-    {"Element" Attributes(Element)}
-   }
-   -
-   {"Route Styles" @routestyles
-    -
-    {"Edit..." AdjustStyle(0)}
-   }
-   -
-   {"Via type"
-     {"Through-hole"  a={"Xtrl-Shift-P" "Ctrl Shift<Key>p"} SetViaLayers(Object,th)}
-     {"Buried from" a={"Xtrl-Shift-F" "Ctrl Shift<Key>f"} SetViaLayers(Object,c,-)}
-     {"Buried to" a={"Xtrl-Shift-T" "Ctrl Shift<Key>t"} SetViaLayers(Object,-,c)}
-   }
-  }
-
-#
 # View Menu
 #
   {"View" m=V
@@ -217,6 +156,79 @@ MainMenu =
     {"Move current layer up" MoveLayer(c,up)}
     {"Move current layer down" MoveLayer(c,down)}
    }
+  }
+
+#
+# Edit Menu
+#
+  {"Edit" m=E
+   {"Undo" Undo() a={"U" "<Key>u"}}
+   {"Redo" Redo() a={"Shift-R" "Shift<Key>r"}}
+   {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
+   -
+   {"Cut" GetXY(Click to set the snap point for this buffer)
+    PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
+    a={"Ctrl-X" "Ctrl<Key>x"}}
+   {"Copy" GetXY(Click to set the snap point for this buffer)
+    PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
+    a={"Ctrl-C" "Ctrl<Key>c"}}
+   {"Paste" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
+   -
+   {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
+   {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
+   -
+   {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
+   {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
+   {"Lock" checked=lockmode,1 Mode(Lock) a={"F12" "<Key>F12"}}
+   {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
+   -
+   {"Edit name of"
+     {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
+     {"layout" ChangeName(Layout)}
+     {"active layer" ChangeName(Layer)}
+   }
+   {"Edit attributes of"
+    {"Layout" Attributes(Layout)}
+    {"CurrentLayer" Attributes(Layer)}
+    {"Element" Attributes(Element)}
+   }
+   -
+   {"Route Styles" @routestyles
+    -
+    {"Edit..." AdjustStyle(0)}
+   }
+   -
+   {"Via type"
+     {"Through-hole"  a={"Xtrl-Shift-P" "Ctrl Shift<Key>p"} SetViaLayers(Object,th)}
+     {"Buried from" a={"Xtrl-Shift-F" "Ctrl Shift<Key>f"} SetViaLayers(Object,c,-)}
+     {"Buried to" a={"Xtrl-Shift-T" "Ctrl Shift<Key>t"} SetViaLayers(Object,-,c)}
+   }
+  }
+
+#
+# Tools Menu
+#
+  {"Tools" m=T
+   {"None" checked=nomode,1 Mode(None)}
+   {"Via" checked=viamode,1 Mode(Via) a={"F1" "<Key>F1"}}
+   {"Line" checked=linemode,1 Mode(Line) a={"F2" "<Key>F2"}}
+   {"Arc" checked=arcmode,1 Mode(Arc) a={"F3" "<Key>F3"}}
+   {"Text" checked=textmode,1 Mode(Text) a={"F4" "<Key>F4"}}
+   {"Rectangle" checked=rectanglemode,1 Mode(Rectangle) a={"F5" "<Key>F5"}}
+   {"Polygon" checked=polygonmode,1 Mode(Polygon) a={"F6" "<Key>F6"}}
+   {"Polygon Hole" checked=polygonholemode,1 Mode(PolygonHole)}
+   {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer) a={"F7" "<Key>F7"}}
+   {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
+   {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
+   {"Thermal" checked=thermalmode,1 Mode(Thermal) a={"F10" "<Key>F10"}}
+   {"Arrow" checked=arrowmode,1 Mode(Arrow)  a={"F11" "<Key>F11"}}
+   {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
+   {"Move" checked=movemode,1 Mode(Move)}
+   {"Copy" checked=copymode,1 Mode(Copy)}
+   {"Lock" checked=lockmode,1 Mode(Lock) a={"F12" "<Key>F12"}}
+   {"Cancel" Mode(Cancel) a={"Esc" "<Key>Escape"}}
+   -
+   {"Command" Command() a={":" "<Key>:"}}
   }
 
 #
