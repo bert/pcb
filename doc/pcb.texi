@@ -1934,11 +1934,11 @@ select the desired exporter.
 * bom::                Bill of materials.
 * gcode::              G-code.
 * gerber::             Gerber.
-* ipc-d-356::          IPC-D-356.
+* ps::                 Postscript.
+* eps::	               Eps.
+* png::	               Image.
 * nelma::              Nelma.
-* png::		       Image.
-* ps::		       Postscript.
-* eps::		       Eps.
+* ipc-d-356::          IPC-D-356.
 @end menu
 
 @node bom
@@ -2031,25 +2031,6 @@ The final tool path follows the perimeter of all elements:
 
 Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files.
 
-@node ipc-d-356
-@subsection IPC-D-356 (ipcd356)
-@cindex ipc-d-356
-
-Produces an IPC-D-356 compliant netlist file for bare board testing.
-
-@node nelma
-@subsection Nelma (nelma)
-@cindex nelma
-
-Numerical analysis package export.
-
-@node png
-@subsection Image (png)
-@cindex png
-@cindex image export
-
-Produces GIF/JPEG/PNG image files.
-
 @node ps
 @subsection Postscript (ps)
 @cindex ps
@@ -2065,6 +2046,25 @@ Can be later converted to pdf.
 
 Export as eps (encapsulated postscript) for inclusion in other documents.
 Can be later converted to pdf.
+
+@node png
+@subsection Image (png)
+@cindex png
+@cindex image export
+
+Produces GIF/JPEG/PNG image files.
+
+@node nelma
+@subsection Nelma (nelma)
+@cindex nelma
+
+Numerical analysis package export.
+
+@node ipc-d-356
+@subsection IPC-D-356 (ipcd356)
+@cindex ipc-d-356
+
+Produces an IPC-D-356 compliant netlist file for bare board testing.
 
 
 @node Connection Lists

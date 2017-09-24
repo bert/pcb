@@ -152,7 +152,7 @@ static const double nelma_air_epsilon = 8.85e-12;
 HID_Attribute   nelma_attribute_list[] = {
 	/* other HIDs expect this to be first.  */
 
-/* %start-doc options "nelma Options"
+/* %start-doc options "94 Nelma Options"
 @ftable @code
 @item -- basename <string>
 File name prefix.
@@ -163,7 +163,7 @@ File name prefix.
 	HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
-/* %start-doc options "nelma Options"
+/* %start-doc options "94 Nelma Options"
 @ftable @code
 @item --dpi <num>
 Horizontal scale factor (grid points/inch).
@@ -174,7 +174,7 @@ Horizontal scale factor (grid points/inch).
 	HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
-/* %start-doc options "nelma Options"
+/* %start-doc options "94 Nelma Options"
 @ftable @code
 @item --copper-height <num>
 Copper layer height (um).
@@ -185,7 +185,7 @@ Copper layer height (um).
 	HID_Integer, 0, 200, {100, 0, 0}, 0, 0},
 #define HA_copperh 2
 
-/* %start-doc options "nelma Options"
+/* %start-doc options "94 Nelma Options"
 @ftable @code
 @item --substrate-height <num>
 Substrate layer height (um).
@@ -196,7 +196,7 @@ Substrate layer height (um).
 	HID_Integer, 0, 10000, {2000, 0, 0}, 0, 0},
 #define HA_substrateh 3
 
-/* %start-doc options "nelma Options"
+/* %start-doc options "94 Nelma Options"
 @ftable @code
 @item --substrate-epsilon <num>
 Substrate relative epsilon.

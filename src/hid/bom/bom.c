@@ -23,7 +23,7 @@
 #endif
 
 static HID_Attribute bom_options[] = {
-/* %start-doc options "8 BOM Creation"
+/* %start-doc options "80 BOM Creation"
 @ftable @code
 @item --bomfile <string>
 Name of the BOM output file.
@@ -34,7 +34,7 @@ Parameter @code{<string>} can include a path.
   {"bomfile", "Name of the BOM output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_bomfile 0
-/* %start-doc options "8 BOM Creation"
+/* %start-doc options "80 BOM Creation"
 @ftable @code
 @item --xyfile <string>
 Name of the XY output file.
@@ -46,7 +46,7 @@ Parameter @code{<string>} can include a path.
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_xyfile 1
 
-/* %start-doc options "8 BOM Creation"
+/* %start-doc options "80 BOM Creation"
 @ftable @code
 @item --xy-unit <unit>
 Unit of XY dimensions. Defaults to mil.

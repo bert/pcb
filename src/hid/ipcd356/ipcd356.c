@@ -61,7 +61,7 @@
 
 static HID_Attribute IPCD356_options[] =
 {
-/* %start-doc options "91 IPC-D-356 Netlist Export"
+/* %start-doc options "95 IPC-D-356 Netlist Export"
 @ftable @code
 @item --netlist-file <string>
 Name of the IPC-D-356 Netlist output file.
