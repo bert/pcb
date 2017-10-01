@@ -1,8 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-_Comment=PCB netlist
-MimeType=application/x-pcb-netlist
-Type=MimeType
-Icon=application-x-pcb-netlist
-Patterns=*.net
-X-KDE-IsAlso=text/plain

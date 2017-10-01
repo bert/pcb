@@ -1,8 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-_Comment=PCB footprint
-MimeType=application/x-pcb-footprint
-Type=MimeType
-Icon=application-x-pcb-footprint
-Patterns=*.fp
-X-KDE-IsAlso=text/plain

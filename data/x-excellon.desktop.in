@@ -1,8 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-_Comment=Excellon drill file
-MimeType=application/x-excellon
-Type=MimeType
-Icon=application-x-excellon
-Patterns=*.cnc
-X-KDE-IsAlso=text/plain

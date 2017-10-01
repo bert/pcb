@@ -61,14 +61,6 @@ kdedatadir=@KDEDATADIR@
 mimelnkdir = $(kdedatadir)/mimelnk
 applicationdir = $(mimelnkdir)/application
 
-application_in_files = \
-	x-pcb-layout.desktop.in \
-	x-pcb-footprint.desktop.in \
-	x-pcb-netlist.desktop.in \
-	x-gerber.desktop.in \
-	x-excellon.desktop.in
-application_DATA = $(application_in_files:.desktop.in=.desktop)
-
 install_icon_exec = \
 	$(SETENV) GTK_UPDATE_ICON_CACHE_BIN="@GTK_UPDATE_ICON_CACHE_BIN@" \
 	$(SHELL) $(top_srcdir)/icon-theme-installer \
@@ -100,7 +92,7 @@ endif
 	$(install_icon_exec) -u $(theme_icons)
 
 MAINTAINERCLEANFILES = *.log core FILE *~ Makefile.in
-DISTCLEANFILES = $(xml_DATA) $(appdata_DATA) $(application_DATA) $(desktop_DATA)
+DISTCLEANFILES = $(xml_DATA) $(appdata_DATA) $(desktop_DATA)
 EXTRA_DIST = $(mime_icon_files) $(mime_icon_sources) \
              $(appdata_in_files) $(appdata_DATA) \
              $(xml_in_files) $(xml_DATA) \

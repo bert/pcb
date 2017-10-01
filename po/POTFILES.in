@@ -1,11 +1,6 @@
 data/pcb.appdata.xml.in
 data/pcb.desktop.in
 data/pcb.xml.in
-data/x-excellon.desktop.in
-data/x-gerber.desktop.in
-data/x-pcb-footprint.desktop.in
-data/x-pcb-layout.desktop.in
-data/x-pcb-netlist.desktop.in
 src/action.c
 src/autoplace.c
 src/autoroute.c
