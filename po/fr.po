@@ -3707,7 +3707,7 @@ msgstr ""
 #, c-format
 msgid ""
 "Duplicate accelerator found: \"%s\"\n"
-"The second occurance will be dropped\n"
+"The second occurrence will be dropped\n"
 msgstr ""
 
 #. if we got this far it is supposed to be an X

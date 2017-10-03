@@ -73,7 +73,7 @@
  *
  * With all layers in use (rarely the case), max_copper_layer == MAX_LAYER.
  *
- * \note Position on the layer stack does not decide wether a layer is on the
+ * \note Position on the layer stack does not decide whether a layer is on the
  *       top side, on the bottom side or in between. Each layer is part of a
  *       layer group, and this group represents the physical layer, like top,
  *       inner or bottom.

@@ -222,7 +222,7 @@ GetValueEx (const char *val, const char *units, bool * absolute, UnitList extra_
  *
  * \param val       String containing the value to be read.
  *
- * \param absolute  Returns wether the returned value is an absolute one.
+ * \param absolute  Returns whether the returned value is an absolute one.
  *
  * \return The value read, with sign.
  *

@@ -119,11 +119,11 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 # --iso-tool-plunge <num>        Isolation milling feedrate when plunging into
 #                                the material.
 # --iso-tool-feedrate <num>      Isolation milling feedrate.
-# --predrill                     Wether to pre-drill all drill spots with the
+# --predrill                     Whether to pre-drill all drill spots with the
 #                                isolation milling tool.
 # --drill-depth <num>            Drilling depth.
 # --drill-feedrate <num>         Drilling feedrate.
-# --drill-mill                   Wether to produce drill holes equal or bigger
+# --drill-mill                   Whether to produce drill holes equal or bigger
 #                                than the milling tool diameter with the milling
 #                                tool.
 # --outline-mill-depth <num>     Milling depth when milling the outline.
@@ -131,7 +131,7 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 # --outline-mill-plunge <num>    Outline milling feedrate when plunging into
 #                                the material.
 # --outline-mill-feedrate <num>  Outline milling feedrate.
-# --advanced-gcode               Wether to produce G-code for advanced interpreters.
+# --advanced-gcode               Whether to produce G-code for advanced interpreters.
 hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline-0.8890.drill.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-outline.gcode gcode:gcode_oneline-top.gcode
 hid_gcode2 | gcode_oneline.pcb | gcode | --basename out.gcode | | gcode:out-0.8890.drill.gcode gcode:out-bottom.gcode gcode:out-outline.gcode gcode:out-top.gcode
 hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline-0.8890.drill.gcode gcode:gcode_oneline-bottom.gcode gcode:gcode_oneline-outline.gcode gcode:gcode_oneline-top.gcode

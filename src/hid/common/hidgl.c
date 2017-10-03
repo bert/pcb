@@ -744,7 +744,7 @@ hidgl_init (void)
     }
   else if (stencil_bits == 1)
     {
-      printf ("Only one stencil bitplane avilable\n"
+      printf ("Only one stencil bitplane available\n"
               "Cannot use stencil buffer to sub-composite layers.\n");
       /* Do we need to disable that somewhere? */
     }

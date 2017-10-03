@@ -532,8 +532,8 @@ compare_ps() {
 
     # PostScript output is difficult to compare, because the last page
     # ( = fab page) contains a date stamp written not as text, but drawn
-    # with lines. For now we only check wether the file contains valid
-    # PostScript and wether the page count matches.
+    # with lines. For now we only check whether the file contains valid
+    # PostScript and whether the page count matches.
     TEMP_FILE=`mktemp`
     echo "%!"                                      > ${TEMP_FILE}
     echo "currentpagedevice /PageCount get"       >> ${TEMP_FILE}

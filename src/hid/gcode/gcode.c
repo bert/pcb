@@ -133,7 +133,7 @@ static double gcode_drilldepth = 0;     /*!< Drilling depth (mm or in). */
 static double gcode_drillfeedrate = 0;  /*!< Drilling feedrate. */
 static double gcode_safeZ = 100;        /*!< Safe Z (mm or in). */
 static int gcode_toolradius = 0;        /*!< Iso-mill tool radius (1/100 mil). */
-static char gcode_drillmill = 0;        /*!< Wether to drill with the mill tool. */
+static char gcode_drillmill = 0;        /*!< Whether to drill with the mill tool. */
 static double gcode_milldepth = 0;      /*!< Outline milling depth (mm or in). */
 static double gcode_milltoolradius = 0; /*!< Outline-mill tool radius (mm or in). */
 static double gcode_millplunge = 0;     /*!< Outline-milling plunge feedrate. */
@@ -269,7 +269,7 @@ Isolation milling feedrate.
 /* %start-doc options "85 G-code Options"
 @ftable @code
 @item --predrill
-Wether to pre-drill all drill spots with the isolation milling tool.
+Whether to pre-drill all drill spots with the isolation milling tool.
 Drill depth is iso-mill-depth here.
 This feature eases and enhances accuracy of manual drilling.
 @end ftable
@@ -306,7 +306,7 @@ Drilling feedrate.
 /* %start-doc options "85 G-code Options"
 @ftable @code
 @item --drill-mill
-Wether to produce drill holes equal or bigger than the milling tool
+Whether to produce drill holes equal or bigger than the milling tool
 diameter with the milling tool.
 With the milling tool bigger holes can be accurately sized without
 changing the tool.
@@ -372,7 +372,7 @@ Outline milling feedrate.
 /* %start-doc options "85 G-code Options"
 @ftable @code
 @item --advanced-gcode
-Wether to produce G-code for advanced interpreters, like using variables
+Whether to produce G-code for advanced interpreters, like using variables
 or drill cycles.
 Not all machine controllers understand this, but it allows better
 hand-editing of the resulting files.

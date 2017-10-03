@@ -3741,7 +3741,7 @@ msgstr ""
 #, c-format
 msgid ""
 "Duplicate accelerator found: \"%s\"\n"
-"The second occurance will be dropped\n"
+"The second occurrence will be dropped\n"
 msgstr ""
 "Encontrado acelerador duplicado: \"%s\"\n"
 "A segunda ocorrência irá ser descartada\n"

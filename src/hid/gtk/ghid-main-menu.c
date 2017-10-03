@@ -196,7 +196,7 @@ check_unique_accel (const char *accelerator)
   if (g_hash_table_lookup (accel_table, accelerator))
     {
        Message (_("Duplicate accelerator found: \"%s\"\n"
-                  "The second occurance will be dropped\n"),
+                  "The second occurrence will be dropped\n"),
                 accelerator);
         return NULL;
     }
