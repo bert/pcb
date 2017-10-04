@@ -213,12 +213,15 @@ SelectObject (void)
   return (changed);
 }
 
-/* ----------------------------------------------------------------------
- * selects/unselects or lists visible objects within the passed box
+/*!
+ * \brief selects/unselects or lists visible objects within the passed
+ * box.
+ *
  * If len is NULL:
  *  Flag determines if the block is to be selected or unselected
- *  returns non-NULL if the state of any object has changed
- * if len is non-NULLL
+ *  returns non-NULL if the state of any object has changed.
+ *
+ * If len is non-NULL
  *  returns a list of object IDs matched the search and loads len with the
  *  length of the list. Returns NULL on no match.
  */
@@ -468,8 +471,8 @@ SelectBlock (BoxType *Box, bool Flag)
 	return (ListBlock_ (Box, Flag, NULL) == NULL) ? false : true;
 }
 
-/* ----------------------------------------------------------------------
- * List all visible objects within the passed box
+/*!
+ * \brief List all visible objects within the passed box.
  */
 long int *
 ListBlock (BoxType *Box, int *len)
