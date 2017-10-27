@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
-_Name=PCB Designer
-_GenericName=PCB Design
-_Comment=Create and edit printed circuit board designs
+_Name=gEDA PCB
+_GenericName=gEDA PCB Layout Editor
+_Comment=Create and edit printed circuit board layouts
 Type=Application
 Exec=pcb %f
 Icon=pcb
