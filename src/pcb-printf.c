@@ -618,7 +618,7 @@ gchar *pcb_vprintf(const char *fmt, va_list args)
                     unit_str = CoordsToString(value, 1, spec->str, mask & ALLOW_ALL, suffix);
                   break;
                 case 'a':
-                  g_string_append (spec, ".0f");
+                  g_string_append (spec, "f");
                   if (suffix == SUFFIX)
                     g_string_append (spec, " deg");
                   unit_str = g_strdup_printf (spec->str, (double) va_arg(args, Angle));
