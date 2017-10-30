@@ -1,8 +1,61 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/pcb-printf.h
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2011 Andrew Poelstra
+ * \brief This file defines a wrapper around sprintf, that
+ * defines new specifiers that take pcb Coord objects
+ * as input.
+ *
+ * There is a fair bit of nasty (repetitious) code in
+ * here, but I feel the gain in clarity for output
+ * code elsewhere in the project will make it worth
+ * it.
+ *
+ * The new specifiers are: \n
+ *   %mk    output a measure in km \n
+ *   %mf    output a measure in meters \n
+ *   %me    output a measure in cm \n
+ *   %mm    output a measure in mm \n
+ *   %mu    output a measure in um \n
+ *   %mn    output a measure in nm \n
+ *   %mM    output a measure in scaled (mm/um) metric \n
+ *   %ml    output a measure in mil \n
+ *   %mc    output a measure in cmil \n
+ *   %mt    output a measure in 1/10 of mils (for Excellon drill files) \n
+ *   %mL    output a measure in scaled (mil/in) imperial \n
+ *   %ms    output a measure in most natural mm/mil units \n
+ *   %mS    output a measure in most natural scaled units \n
+ *   %md    output a pair of measures in most natural mm/mil units \n
+ *   %mD    output a pair of measures in most natural scaled units \n
+ *   %m3    output 3 measures in most natural scaled units \n
+ *     ... \n
+ *   %m9    output 9 measures in most natural scaled units \n
+ *   %m*    output a measure with unit given as an additional
+ *          const char* parameter \n
+ *   %m+    accepts an e_allow parameter that masks all subsequent
+ *          "natural" (S/D/3/.../9) specifiers to only use certain
+ *          units \n
+ *   %mr    output a measure in a unit readable by parse_l.l
+ *          (this will always append a unit suffix) \n
+ *   %ma    output an angle in degrees (expects degrees)
+ *
+ * These accept the usual printf modifiers for %f, as well as \n
+ *     $    output a unit suffix after the measure \n
+ *     #    prevents all scaling for %mS/D/1/.../9 (this should
+ *          ONLY be used for debug code since its output exposes
+ *          pcb's base units).
+ *     `    always use '.' as decimal separator (note that %mr uses
+ *          this by default).
+ *
+ * KNOWN ISSUES: \n
+ *   No support for %zu size_t printf spec
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2011 Andrew Poelstra
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,54 +77,6 @@
  *
  */
 
-/* This file defines a wrapper around sprintf, that
- *  defines new specifiers that take pcb Coord objects
- *  as input.
- *
- * There is a fair bit of nasty (repetitious) code in
- *  here, but I feel the gain in clarity for output
- *  code elsewhere in the project will make it worth
- *  it.
- *
- * The new specifiers are:
- *   %mk    output a measure in km
- *   %mf    output a measure in meters
- *   %me    output a measure in cm
- *   %mm    output a measure in mm
- *   %mu    output a measure in um
- *   %mn    output a measure in nm
- *   %mM    output a measure in scaled (mm/um) metric
- *   %ml    output a measure in mil
- *   %mc    output a measure in cmil
- *   %mt    output a measure in 1/10 of mils (for Excellon drill files)
- *   %mL    output a measure in scaled (mil/in) imperial
- *   %ms    output a measure in most natural mm/mil units
- *   %mS    output a measure in most natural scaled units
- *   %md    output a pair of measures in most natural mm/mil units
- *   %mD    output a pair of measures in most natural scaled units
- *   %m3    output 3 measures in most natural scaled units
- *     ...
- *   %m9    output 9 measures in most natural scaled units
- *   %m*    output a measure with unit given as an additional
- *          const char* parameter
- *   %m+    accepts an e_allow parameter that masks all subsequent
- *          "natural" (S/D/3/.../9) specifiers to only use certain
- *          units
- *   %mr    output a measure in a unit readable by parse_l.l
- *          (this will always append a unit suffix)
- *   %ma    output an angle in degrees (expects degrees)
- *
- * These accept the usual printf modifiers for %f, as well as
- *     $    output a unit suffix after the measure
- *     #    prevents all scaling for %mS/D/1/.../9 (this should
- *          ONLY be used for debug code since its output exposes
- *          pcb's base units).
- *     `    always use '.' as decimal separator (note that %mr uses
- *          this by default).
- *
- * KNOWN ISSUES:
- *   No support for %zu size_t printf spec
- */
 
 #ifndef	PCB_PCB_PRINTF_H
 #define	PCB_PCB_PRINTF_H
@@ -107,16 +112,16 @@ enum e_allow {
 
 enum e_family { METRIC, IMPERIAL };
 enum e_suffix {
-  NO_SUFFIX,			/* no suffix  */
-  SUFFIX,			/* suffix, prefixed with ' ' */
-  FILE_MODE_NO_SUFFIX,		/* no suffix, force '.' as decimal */
-  FILE_MODE			/* suffix, force '.' as decimal */
+  NO_SUFFIX,			/*!< no suffix. */
+  SUFFIX,			/*!< suffix, prefixed with ' '. */
+  FILE_MODE_NO_SUFFIX,		/*!< no suffix, force '.' as decimal. */
+  FILE_MODE			/*!< suffix, force '.' as decimal. */
 };
 
 struct unit {
-  int index;			/* Index into Unit[] list */
+  int index;			/*!< Index into Unit[] list. */
   const char *suffix;
-  const char *in_suffix;	/* internationalized suffix */
+  const char *in_suffix;	/*!< internationalized suffix. */
   char printf_code;
   double scale_factor;
   enum e_family family;
