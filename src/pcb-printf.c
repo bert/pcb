@@ -1,35 +1,40 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/pcb-printf.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2011 Andrew Poelstra
+ * \brief Implementation of printf wrapper to output pcb coords and
+ * angles.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * For details of all supported specifiers, see the comment at the
+ * top of pcb-printf.h
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <hr>
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  Contact addresses for paper mail and Email:
- *  Andrew Poelstra, 16966 60A Ave, V3S 8X5 Surrey, BC, Canada
- *  asp11@sfu.ca
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 2011 Andrew Poelstra
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ * Andrew Poelstra, 16966 60A Ave, V3S 8X5 Surrey, BC, Canada
+ * asp11@sfu.ca
+ * <hr>
  */
 
-/*! \file <pcb-printf.c>
- *  \brief Implementation of printf wrapper to output pcb coords and angles
- *  \par Description
- *  For details of all supported specifiers, see the comment at the
- *  top of pcb-printf.h
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -47,10 +52,13 @@
 #define MIL_TO_COORD5(a,b,c,d,e)	MIL_TO_COORD (a), MIL_TO_COORD (b), MIL_TO_COORD (c),	\
                                		MIL_TO_COORD (d), MIL_TO_COORD (e)
 
-/* These should be kept in order of smallest scale_factor
+/*!
+ * \brief .
+ *
+ * These should be kept in order of smallest scale_factor
  * to largest -- the code uses this ordering when finding
- * the best scale to use for a group of measures. */
- 
+ * the best scale to use for a group of measures.
+ */
 static Unit Units[] = {
   { 0, "km", NULL, 'k', 0.000001, METRIC, ALLOW_KM, 5,
              0.00005, 0.0005, 0.0025, 0.05, 0.25,
@@ -92,8 +100,10 @@ static Unit Units[] = {
                { "pcb" } }
 };
 #define N_UNITS ((int) (sizeof Units / sizeof Units[0]))
-/* \brief Initialize non-static data for pcb-printf
- * \par Function Description
+
+/*!
+ * \brief Initialize non-static data for pcb-printf.
+ *
  * Assigns each unit its index for quick access through the
  * main units array, and internationalize the units for GUI
  * display.
@@ -108,8 +118,9 @@ void initialize_units()
     }
 }
 
-/* \brief Get/set a mask of units to use when saving .pcb files
- * \par Function Description
+/*!
+ * \brief Get/set a mask of units to use when saving .pcb files.
+ *
  * If passed 0, returns the current mask of units to use in a .pcb
  * file; if passed anything else, replaces the current mask. This
  * mask should only contain units which are readable by recent versions
@@ -150,15 +161,16 @@ static Increments increments_imperial = {
   MIL_TO_COORD3 (2,  0.5, 10)
 };
 
-/* \brief Obtain a unit object from its suffix
- * \par Function Description
+/*!
+ * \brief Obtain a unit object from its suffix.
+ *
  * Looks up a given suffix in the main units array. Internationalized
  * unit suffixes are not supported, though pluralized units are, for
  * backward-compatibility.
  *
- * \param [in] const_suffix   The suffix to look up
+ * \param [in] const_suffix   The suffix to look up.
  *
- * \return A const pointer to the Unit struct, or NULL if none was found
+ * \return A const pointer to the Unit struct, or NULL if none was found.
  */
 const Unit *get_unit_struct (const char *const_suffix)
 {
@@ -210,19 +222,27 @@ void copy_nonzero_increments (Increments *dst, const Increments *src)
 }
 
 /* ACCESSORS */
-/* \brief Returns the master unit list. This may not be modified. */
+
+/*!
+ * \brief Returns the master unit list.
+ *
+ * This may not be modified.
+ */
 const Unit *get_unit_list (void)
 {
 	return Units;
 }
-/* \brief Returns the length of the master unit list. */
+
+/*!
+ * \brief Returns the length of the master unit list.
+ */
 int get_n_units (void)
 {
 	return N_UNITS;
 }
 
-/* \brief Obtain the increment values for a given family of units
- * \par Function Description
+/*!
+ * \brief Obtain the increment values for a given family of units.
  *
  * \param [in] family   One of METRIC or IMPERIAL.
  *
@@ -240,12 +260,13 @@ Increments *get_increments_struct (enum e_family family)
   return NULL;
 }
 
-/* \brief Convert a pcb coord to the given unit
+/*!
+ * \brief Convert a pcb coord to the given unit.
  *
- * \param [in] unit  The unit to convert to
- * \param [in] x     The quantity to convert
+ * \param [in] unit  The unit to convert to.
+ * \param [in] x     The quantity to convert.
  *
- * \return The converted measure
+ * \return The converted measure.
  */
 double coord_to_unit (const Unit *unit, Coord x)
 {
@@ -258,12 +279,13 @@ double coord_to_unit (const Unit *unit, Coord x)
   return unit->scale_factor * base;
 }
 
-/* \brief Convert a given unit to pcb coords
+/*!
+ * \brief Convert a given unit to pcb coords.
  *
- * \param [in] unit  The unit to convert from
- * \param [in] x     The quantity to convert
+ * \param [in] unit  The unit to convert from.
+ * \param [in] x     The quantity to convert.
  *
- * \return The converted measure
+ * \return The converted measure.
  */
 Coord unit_to_coord (const Unit *unit, double x)
 {
@@ -292,20 +314,22 @@ static int min_sig_figs(double d)
   return rv;
 }
 
-/* \brief Internal coord-to-string converter for pcb-printf
- * \par Function Description
+/*!
+ * \brief Internal coord-to-string converter for pcb-printf.
+ *
  * Converts a (group of) measurement(s) to a comma-deliminated
  * string, with appropriate units. If more than one coord is
  * given, the list is enclosed in parens to make the scope of
  * the unit suffix clear.
  *
- * \param [in] coord        Array of coords to convert
- * \param [in] n_coords     Number of coords in array
- * \param [in] printf_spec  printf sub-specifier to use with %f
- * \param [in] e_allow      Bitmap of units the function may use
- * \param [in] suffix_type  Whether to add a suffix
+ * \param [in] coord        Array of coords to convert.
+ * \param [in] n_coords     Number of coords in array.
+ * \param [in] printf_spec  printf sub-specifier to use with %f.
+ * \param [in] e_allow      Bitmap of units the function may use.
+ * \param [in] suffix_type  Whether to add a suffix.
  *
- * \return A string containing the formatted coords. Must be freed with g_free.
+ * \return A string containing the formatted coords. Must be freed with
+ * g_free.
  */
 static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spec, enum e_allow allow, enum e_suffix suffix_type)
 {
@@ -445,14 +469,15 @@ static gchar *CoordsToString(Coord coord[], int n_coords, const char *printf_spe
   return g_string_free (buff, FALSE);
 }
 
-/* \brief Main pcb-printf function
- * \par Function Description
+/*!
+ * \brief Main pcb-printf function.
+ *
  * This is a printf wrapper that accepts new format specifiers to
  * output pcb coords as various units. See the comment at the top
  * of pcb-printf.h for full details.
  *
- * \param [in] fmt    Format specifier
- * \param [in] args   Arguments to specifier
+ * \param [in] fmt    Format specifier.
+ * \param [in] args   Arguments to specifier.
  *
  * \return A formatted string. Must be freed with g_free.
  */
@@ -687,12 +712,13 @@ int pcb_snprintf(char *string, size_t size, const char *fmt, ...)
   return length;
 }
 
-/* \brief Wrapper for pcb_vprintf that outputs to a file
+/*!
+ * \brief Wrapper for pcb_vprintf that outputs to a file.
  *
- * \param [in] fh   File to output to
- * \param [in] fmt  Format specifier
+ * \param [in] fh   File to output to.
+ * \param [in] fmt  Format specifier.
  *
- * \return The length of the written string
+ * \return The length of the written string.
  */
 int pcb_fprintf(FILE *fh, const char *fmt, ...)
 {
@@ -715,11 +741,12 @@ int pcb_fprintf(FILE *fh, const char *fmt, ...)
   return rv;
 }
 
-/* \brief Wrapper for pcb_vprintf that outputs to stdout
+/*!
+ * \brief Wrapper for pcb_vprintf that outputs to stdout.
  *
- * \param [in] fmt  Format specifier
+ * \param [in] fmt  Format specifier.
  *
- * \return The length of the written string
+ * \return The length of the written string.
  */
 int pcb_printf(const char *fmt, ...)
 {
@@ -737,9 +764,11 @@ int pcb_printf(const char *fmt, ...)
   return rv;
 }
 
-/* \brief Wrapper for pcb_vprintf that outputs to a newly allocated string
+/*!
+ * \brief Wrapper for pcb_vprintf that outputs to a newly allocated
+ * string.
  *
- * \param [in] fmt  Format specifier
+ * \param [in] fmt  Format specifier.
  *
  * \return The newly allocated string. Must be freed with g_free.
  */
