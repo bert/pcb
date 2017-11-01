@@ -1,23 +1,29 @@
-/*
- *                            COPYRIGHT
+/*!
+ * \file src/vendor.c
  *
- *  PCB, interactive printed circuit board design
- *  Copyright (C) 2004, 2007 Dan McMahill
+ * \brief .
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * <hr>
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * <h1><b>Copyright.</b></h1>\n
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * PCB, interactive printed circuit board design
  *
+ * Copyright (C) 2004, 2007 Dan McMahill
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -82,14 +88,20 @@ static int n_value = 0;
 static char **ignore_descr = NULL;
 static int n_descr = 0;
 
-/* vendor name */
+/*!
+ * \brief Vendor name.
+ */
 static char *vendor_name = NULL;
 
-/* resource file to PCB units scale factor */
+/*!
+ * \brief Resource file to PCB units scale factor.
+ */
 static double sf;
 
 
-/* enable/disable mapping */
+/*!
+ * \brief Enable/disable mapping.
+ */
 static bool vendorMapEnable = false;
 
 /* type of drill mapping */
@@ -610,7 +622,9 @@ apply_vendor_map (void)
   vendorMapEnable = state;
 }
 
-/* for a given drill size, find the closest vendor drill size */
+/*!
+ * \brief For a given drill size, find the closest vendor drill size.
+ */
 int
 vendorDrillMap (int in)
 {
@@ -682,7 +696,9 @@ vendorDrillMap (int in)
 
 }
 
-/* add a drill size to the vendor drill list */
+/*!
+ * \brief Add a drill size to the vendor drill list.
+ */
 static void
 add_to_drills (char *sval)
 {
@@ -731,7 +747,9 @@ add_to_drills (char *sval)
     }
 }
 
-/* deal with the "skip" subresource */
+/*!
+ * \brief Deal with the "skip" subresource.
+ */
 static void
 process_skips (Resource * res)
 {
