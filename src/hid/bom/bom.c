@@ -1,3 +1,44 @@
+/*!
+ * \file src/hid/bom/bom.c
+ *
+ * \brief Prints a centroid file in a format which includes data needed
+ * by a pick and place machine.
+ *
+ * Further formatting for a particular factory setup can easily be
+ * generated with awk or perl.
+ * In addition, a bill of materials file is generated which can be used
+ * for checking stock and purchasing needed materials.
+ * returns != zero on error.
+ *
+ * <hr>
+ *
+ * <h1><b>Copyright.</b></h1>\n
+ *
+ * PCB, interactive printed circuit board design
+ *
+ * Copyright (C) 2006 DJ Delorie
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Contact addresses for paper mail and Email:
+ * Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ * Thomas.Nau@rz.uni-ulm.de
+ *
+ * <hr>
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -111,16 +152,6 @@ bom_get_export_options (int *n)
     *n = NUM_OPTIONS;
   return bom_options;
 }
-
-/* ---------------------------------------------------------------------------
- * prints a centroid file in a format which includes data needed by a
- * pick and place machine.  Further formatting for a particular factory setup
- * can easily be generated with awk or perl.  In addition, a bill of materials
- * file is generated which can be used for checking stock and purchasing needed
- * materials.
- * returns != zero on error
- */
-
 
 static char *
 CleanBOMString (char *in)
@@ -283,9 +314,10 @@ bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 
 }
 
-/* 
- * If fp is not NULL then print out the bill of materials contained in
- * bom.  Either way, free all memory which has been allocated for bom.
+/*!
+ * \brief If \c fp is not NULL then print out the bill of materials
+ * contained in \c bom.
+ * Either way, free all memory which has been allocated for bom.
  */
 static void
 print_and_free (FILE *fp, BomList *bom)
@@ -326,12 +358,17 @@ print_and_free (FILE *fp, BomList *bom)
     }
 }
 
-/*
+/*!
+ * Maximum length of following list.
+ */
+#define MAXREFPINS 32
+
+/*!
+ * \brief Includes numbered and BGA pins.
+ *
  * In order of preference.
- * Includes numbered and BGA pins.
  * Possibly BGA pins can be missing, so we add a few to try.
  */
-#define MAXREFPINS 32 /* max length of following list */
 static char *reference_pin_names[] = {"1", "2", "A1", "A2", "B1", "B2", 0};
 
 static int
