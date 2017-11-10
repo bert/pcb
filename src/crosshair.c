@@ -1264,6 +1264,48 @@ MoveCrosshairAbsolute (Coord X, Coord Y)
 }
 
 /*!
+ * \brief Update the valid range for the crosshair cursor
+ */
+
+void
+crosshair_update_range(void)
+{
+  Coord xmin, xmax, ymin, ymax;
+  BoxType *box;
+  
+  /* limit the crosshair to being on the working area */
+  xmin = 0;  xmax = PCB->MaxWidth;
+  ymin = 0;  ymax = PCB->MaxHeight;
+  
+  /* limit the crosshair so attached objects stay on the working area */
+  /* note: There are presently two ways this is done in the code, the first uses
+   *       the pastebuffer bounding box, the second uses the attached object
+   *       bounding box.
+   */
+  if (Settings.Mode == PASTEBUFFER_MODE) {
+    xmin = MAX(xmin, PASTEBUFFER->X - PASTEBUFFER->BoundingBox.X1);
+    ymin = MAX(ymin, PASTEBUFFER->Y - PASTEBUFFER->BoundingBox.Y1);
+    xmax = MIN(xmax, PCB->MaxWidth - (PASTEBUFFER->BoundingBox.X2 - PASTEBUFFER->X));
+    ymax = MIN(ymax, PCB->MaxHeight - (PASTEBUFFER->BoundingBox.Y2 - PASTEBUFFER->Y));
+  }
+  
+  /* if there's an attached object, */
+  if (Crosshair.AttachedObject.Type != NO_TYPE) {
+    box = GetObjectBoundingBox (Crosshair.AttachedObject.Type,
+                                Crosshair.AttachedObject.Ptr1,
+                                Crosshair.AttachedObject.Ptr2,
+                                Crosshair.AttachedObject.Ptr3);
+    xmin = MAX(xmin, Crosshair.AttachedObject.X - box->X1);
+    ymin = MAX(ymin, Crosshair.AttachedObject.Y - box->Y1);
+    xmax = MIN(xmax, PCB->MaxWidth - (box->X2 - Crosshair.AttachedObject.X));
+    ymax = MIN(ymax, PCB->MaxHeight - (box->Y2 - Crosshair.AttachedObject.Y));
+  }
+  
+  SetCrosshairRange(xmin, ymin, xmax, ymax);
+  
+}
+
+/*!
  * \brief Sets the valid range for the crosshair cursor.
  */
 void

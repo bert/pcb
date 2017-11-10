@@ -1229,6 +1229,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
   ghid_port_ranges_scale ();
   ghid_zoom_view_fit ();
   ghid_sync_with_new_layout ();
+  crosshair_update_range();
   return 0;
 }
 

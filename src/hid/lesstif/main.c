@@ -438,6 +438,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
       stdarg (XmNtitle, cp ? cp + 1 : PCB->Filename);
       XtSetValues (appwidget, args, n);
     }
+  crosshair_update_range();
   return 0;
 }
 
