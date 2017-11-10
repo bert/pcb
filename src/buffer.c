@@ -1221,7 +1221,7 @@ RotateBuffer (BufferType *Buffer, BYTE Number)
   /* finally the origin and the bounding box */
   ROTATE (Buffer->X, Buffer->Y, Buffer->X, Buffer->Y, Number);
   RotateBoxLowLevel (&Buffer->BoundingBox, Buffer->X, Buffer->Y, Number);
-  SetCrosshairRangeToBuffer ();
+  crosshair_update_range();
 }
 
 static void
@@ -1356,7 +1356,7 @@ FreeRotateBuffer (BufferType *Buffer, Angle angle)
   ENDALL_LOOP;
 
   SetBufferBoundingBox (Buffer);
-  SetCrosshairRangeToBuffer ();
+  crosshair_update_range();
 }
 
 
@@ -1424,7 +1424,7 @@ SwapBuffers (void)
 
   for (i = 0; i < MAX_BUFFER; i++)
     SwapBuffer (&Buffers[i]);
-  SetCrosshairRangeToBuffer ();
+  crosshair_update_range();
 }
 
 void
@@ -1488,7 +1488,7 @@ MirrorBuffer (BufferType *Buffer)
   }
   ENDALL_LOOP;
   SetBufferBoundingBox (Buffer);
-  SetCrosshairRangeToBuffer ();
+  crosshair_update_range();
 }
 
 
@@ -1615,7 +1615,7 @@ SwapBuffer (BufferType *Buffer)
 	}
     }
   SetBufferBoundingBox (Buffer);
-  SetCrosshairRangeToBuffer ();
+  crosshair_update_range();
 }
 
 /*!

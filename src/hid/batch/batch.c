@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "global.h"
+#include "crosshair.h"
 #include "hid.h"
 #include "data.h"
 #include "misc.h"
@@ -63,6 +64,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
     }
   else
     prompt = "no-board";
+  crosshair_update_range();
   return 0;
 }
 

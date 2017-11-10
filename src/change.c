@@ -2525,23 +2525,6 @@ ChangePCBSize (Coord Width, Coord Height)
 {
   PCB->MaxWidth = Width;
   PCB->MaxHeight = Height;
-
-  /* crosshair range is different if pastebuffer-mode
-   * is enabled
-   */
-  if (Settings.Mode == PASTEBUFFER_MODE)
-    SetCrosshairRange (PASTEBUFFER->X - PASTEBUFFER->BoundingBox.X1,
-		       PASTEBUFFER->Y - PASTEBUFFER->BoundingBox.Y1,
-		       MAX (0,
-			    Width - (PASTEBUFFER->BoundingBox.X2 -
-				     PASTEBUFFER->X)), MAX (0,
-							    Height -
-							    (PASTEBUFFER->
-							     BoundingBox.Y2 -
-							     PASTEBUFFER->
-							     Y)));
-  else
-    SetCrosshairRange (0, 0, Width, Height);
   hid_action ("PCBChanged");
 }
 

@@ -44,7 +44,6 @@ void SetKeepawayWidth (Coord);
 void SetChangedFlag (bool);
 void SetBufferNumber (int);
 void SetMode (int);
-void SetCrosshairRangeToBuffer (void);
 void SetRouteStyle (char *);
 void SetLocalRef (Coord, Coord, bool);
 void SaveMode (void);
