@@ -952,6 +952,11 @@ define(`PKG_CAPPRD750W80D1800H3150A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   10
 define(`PKG_CAPPRD750W80D1800H3150B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   100,    170,    309,    750,   1850,  1)');
 define(`PKG_CAPPRD750W80D1800H3150C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    95,    154,    254,    750,   1820,  1)');
 
+# 18x35.5mm (dia x height), 0.8mm max lead, 7.5mm pitch.  Nichicon UPT series for example
+define(`PKG_CAPPRD750W80D1800H3550A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   105,    204,    405,    750,   1900,  1)');
+define(`PKG_CAPPRD750W80D1800H3550B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   100,    170,    309,    750,   1850,  1)');
+define(`PKG_CAPPRD750W80D1800H3550C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    95,    154,    254,    750,   1820,  1)');
+
 # 18x40mm (dia x height), 0.8mm max lead, 7.5mm pitch.  Nichicon UPT series for example
 define(`PKG_CAPPRD750W80D1800H4000A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   105,    204,    405,    750,   1900,  1)');
 define(`PKG_CAPPRD750W80D1800H4000B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   100,    170,    309,    750,   1850,  1)');
