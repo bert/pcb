@@ -947,6 +947,11 @@ define(`PKG_CAPPRD500W60D1000H3150A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    8
 define(`PKG_CAPPRD500W60D1000H3150B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    80,    170,    309,    500,   1050,  1)');
 define(`PKG_CAPPRD500W60D1000H3150C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    75,    154,    254,    500,   1020,  1)');
 
+# 12.5x25mm (dia x height), 0.6mm max lead, 5mm pitch.  Nichicon UPT series for example
+define(`PKG_CAPPRD500W60D1250H2500A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    85,    204,    405,    500,   1350,  1)');
+define(`PKG_CAPPRD500W60D1250H2500B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    80,    170,    309,    500,   1300,  1)');
+define(`PKG_CAPPRD500W60D1250H2500C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',    75,    154,    254,    500,   1270,  1)');
+
 # 16x30mm (dia x height), 0.8mm max lead, 7.5mm pitch.  Nippon Chemi-Con GPA series for example
 define(`PKG_CAPPRD750W80D1600H3150A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   105,    204,    405,    750,   1700,  1)');
 define(`PKG_CAPPRD750W80D1600H3150B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   100,    170,    309,    750,   1650,  1)');
