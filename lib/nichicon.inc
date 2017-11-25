@@ -257,6 +257,11 @@ define(`PKG_NICHICON_LGX_35_50_M', `PKG_CAPPRD1000W170D3500H5000A(  `$1', `$2', 
 define(`PKG_NICHICON_LGX_35_50_N', `PKG_CAPPRD1000W170D3500H5000B(  `$1', `$2', `$3')');
 define(`PKG_NICHICON_LGX_35_50_L', `PKG_CAPPRD1000W170D3500H5000C(  `$1', `$2', `$3')');
 
+# 35x58mm
+define(`PKG_NICHICON_LGX_35_58_M', `PKG_CAPPRD1000W170D3500H5800A(  `$1', `$2', `$3')');
+define(`PKG_NICHICON_LGX_35_58_N', `PKG_CAPPRD1000W170D3500H5800B(  `$1', `$2', `$3')');
+define(`PKG_NICHICON_LGX_35_58_L', `PKG_CAPPRD1000W170D3500H5800C(  `$1', `$2', `$3')');
+
 #
 ## Nichicon LGY Series of Radial Snap-in Aluminum Electrolytic Capacitors
 #

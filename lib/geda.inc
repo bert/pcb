@@ -1072,6 +1072,11 @@ define(`PKG_CAPPRD1000W170D3500H5000A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   
 define(`PKG_CAPPRD1000W170D3500H5000B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   190,    259,    399,   1000,   3550,  1)');
 define(`PKG_CAPPRD1000W170D3500H5000C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   185,    245,    345,   1000,   3520,  1)');
 
+# 35x58 mm, 1.5mm nom, 1.7mm max lead, 10.0mm pitch.  Nichicon LGX series for example
+define(`PKG_CAPPRD1000W170D3500H5800A', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   195,    295,    495,   1000,   3600,  1)');
+define(`PKG_CAPPRD1000W170D3500H5800B', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   190,    259,    399,   1000,   3550,  1)');
+define(`PKG_CAPPRD1000W170D3500H5800C', `PKG_RADIAL_MM100(  `$1', `$2', `$3',   185,    245,    345,   1000,   3520,  1)');
+
 
 #
 ##  Crystals
