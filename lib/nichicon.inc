@@ -408,6 +408,11 @@ define(`PKG_NICHICON_LGY_35_50_L', `PKG_CAPPRD1000W170D3500H5000C(  `$1', `$2', 
 # d   06  |  0.6  |  0.8 |  0.8  |  1.0 |  1.0 |  1.0 | pin diameter
 # d*      |  0.8  |                                   | alternate pin diameter for L > 25
 
+# 16x31.5mm
+define(`PKG_NICHICON_UPT_16_31p5_M', `PKG_CAPPRD750W80D1600H3150A(  `$1', `$2', `$3')');
+define(`PKG_NICHICON_UPT_16_31p5_N', `PKG_CAPPRD750W80D1600H3150B(  `$1', `$2', `$3')');
+define(`PKG_NICHICON_UPT_16_31p5_L', `PKG_CAPPRD750W80D1600H3150C(  `$1', `$2', `$3')');
+
 # 18x31.5mm
 define(`PKG_NICHICON_UPT_18_31p5_M', `PKG_CAPPRD750W80D1800H3150A(  `$1', `$2', `$3')');
 define(`PKG_NICHICON_UPT_18_31p5_N', `PKG_CAPPRD750W80D1800H3150B(  `$1', `$2', `$3')');
