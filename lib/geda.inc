@@ -939,7 +939,7 @@ define(`PKG_RCY1200P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2400, 1)');
 # $5:  pad diameter [1/100 mm]
 # $6:  pad clearance diameter [1/100 mm]
 # $7:  pad center to center [1/100 mm]
-# $8:  courtyard radius [1/100 mm]
+# $8:  courtyard diameter [1/100 mm]
 # $9:  0 for non polarized, 1 for polarized
 
 # 10x31.5mm (dia x height), 0.6mm max lead, 5mm pitch.  Nichicon UPT series for example
