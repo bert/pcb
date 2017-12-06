@@ -1,3 +1,5 @@
+void common_draw_pcb_line (hidGC gc, LineType *line);
+void common_draw_pcb_arc (hidGC gc, ArcType *arc);
 void common_gui_draw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box);
 void common_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box);
 void common_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box);

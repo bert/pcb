@@ -13,7 +13,7 @@ noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
-	libgcode.a libipcd356.a
+	libgcode.a libipcd356.a libgsvit.a
 
 pcblib_DATA= \
 	default_font \
@@ -194,6 +194,7 @@ BUILT_SOURCES = \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
+	hid/gsvit/gsvit_lists.h \
 	hid/ps/ps_lists.h \
 	parse_y.h \
 	pcb-menu.h \
@@ -247,6 +248,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/nelma/hid.conf \
+	$(srcdir)/hid/gsvit/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	gpcb-menu.res.in \
 	pcb-menu.res.in \
@@ -485,6 +487,20 @@ hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
 	$(MKDIR_P) hid/nelma
 	true > $@
 	(for f in ${LIBNELMA_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
+libgsvit_a_CPPFLAGS = -I$(top_srcdir) -I./hid/gsvit
+LIBGSVIT_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/gsvit/xmlout.h \
+	hid/gsvit/gsvit.c
+libgsvit_a_SOURCES = ${LIBGSVIT_SRCS} hid/gsvit/gsvit_lists.h
+
+hid/gsvit/gsvit_lists.h : ${LIBGSVIT_SRCS} Makefile
+	$(MKDIR_P) hid/gsvit
+	true > $@
+	(for f in ${LIBGSVIT_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 liblpr_a_CPPFLAGS = -I$(top_srcdir)
