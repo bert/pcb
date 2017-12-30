@@ -1195,8 +1195,6 @@ gsvit_finish_png ()
   gdImageDestroy (gsvit_im);
   fclose (gsvit_f);
 
-  free (white);
-  free (black);
   for (i = 0; i < 0x100; i++) {
     free (color_array[i]);
   }
