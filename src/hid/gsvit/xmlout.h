@@ -23,6 +23,8 @@ char* indent[] =
   "\n\t\t\t\t\t\t\t"
 };
 
+#define XPUTS fputs
+
 #define XPRINTF fprintf
 
 #define XNEWLINE indent[xmlout.count]
@@ -30,6 +32,9 @@ char* indent[] =
 #define XOUT_DETENT() if(xmlout.count) xmlout.count--
 
 #define XOUT_INDENT() xmlout.count++
+
+#define XOUT_ELEMENT_2ATTR_START( name, id1, val1, id2, val2) XPRINTF(xmlout.fd, "<%s %s=\"%s\" %s=\"%s\">", name, id1, val1, id2, val2);\
+		XOUT_INDENT()
 
 #define XOUT_ELEMENT_ATTR_START( name, id, val) XPRINTF(xmlout.fd, "<%s %s=\"%s\">", name, id, val);\
 		XOUT_INDENT()
@@ -46,8 +51,7 @@ char* indent[] =
 
 #define XOUT_ELEMENT_DATA(data) XPRINTF(xmlout.fd, "%s", data)
 
-#define XOUT_NEWLINE() XPRINTF( xmlout.fd, XNEWLINE)
-
+#define XOUT_NEWLINE() XPUTS( XNEWLINE, xmlout.fd)
 
 #define XOUT_ELEMENT(name, data) XOUT_ELEMENT_START(name);\
 		XOUT_ELEMENT_DATA(data);\

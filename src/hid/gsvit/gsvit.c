@@ -77,12 +77,15 @@
 #include "xmlout.h"
 
 #include "hid/common/hidinit.h"
+#include "pcb-printf.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
+#define MAXREFPINS 32 /* max length of following list */
+static char *reference_pin_names[] = {"1", "2", "A1", "A2", "B1", "B2", 0};
 
 /* Needed for PNG export */
 
@@ -92,8 +95,6 @@ struct color_struct {
   /* so I can figure out what rgb value c refers to */
   unsigned int r, g, b;
 };
-
-static void gsvit_write_xnets(void);
 
 struct hid_gc_struct {
   HID *me_pointer;
@@ -120,6 +121,53 @@ struct gsvit_netlist {
   struct color_struct color;
   int colorIndex;
 };
+
+
+/*!
+ * \brief Structure to represent a single hole.
+  */
+struct drill_hole
+{
+  int cx;
+  int cy;
+  int is_plated;
+}; 
+
+/*!
+* \brief Structure to represent all holes of a given size.
+*/
+struct single_size_drills
+{
+  double diameter_inches;
+  Coord radius;
+  int n_holes;
+  int n_holes_allocated;   
+  struct drill_hole* holes;
+};
+static struct single_size_drills* drills = NULL;
+
+typedef struct _StringList
+{
+  char *str;
+  struct _StringList *next;
+} StringList;
+
+typedef struct _BomList
+{
+  char *descr;
+  char *value;
+  int num;
+  StringList *refdes;
+  struct _BomList *next;
+} BomList;
+
+static int n_drills = 0; /*!< At the start we have no drills at all */
+
+static int n_drills_allocated = 0;
+
+static int save_drill = 0;
+
+static int is_plated = 0;        
 
 struct gsvit_netlist* gsvit_netlist = NULL;
 
@@ -173,29 +221,6 @@ static const char *gsvit_basename = NULL;
  */
 static int gsvit_dpi = -1;
 
-/*!
- * \brief Height of the copper layers in micrometers.
- *
- * The height of the copper layer is currently taken as the vertical
- * grid step, since this is the smallest vertical feature in the layout.
- */
-static int gsvit_copperh = -1;
-
-/*!
- * \brief Height of the substrate layers in micrometers.
- */
-static int gsvit_substrateh = -1;
-
-/*!
- * \brief Relative permittivity of the substrate.
- */
-static double gsvit_substratee = -1;
-
-/*!
- * \brief Permittivity of empty space (As/Vm).
- */
-static const double gsvit_air_epsilon = 8.85e-12;
-
 HID_Attribute   gsvit_attribute_list[] = {
 /* other HIDs expect this to be first.  */
 
@@ -221,38 +246,6 @@ Horizontal scale factor (grid points/inch).
    HID_Integer, 0, 1000, {1000, 0, 0}, 0, 0}, /* 1000 --> 1 mil (25.4 um) resolution */
 #define HA_dpi 1
 
-/* %start-doc options "96 gsvit Options"
-@ftable @code
-@item --copper-height <num>
-Copper layer height (um).
-@end ftable
-%end-doc
-*/
-  {"copper-height", "Copper layer height (um)",
-   HID_Integer, 0, 200, {35, 0, 0}, 0, 0}, /* 1 oz cu-->34.79 um. */
-#define HA_copperh 2
-
-/* %start-doc options "96 gsvit Options"
-@ftable @code
-@item --substrate-height <num>
-Substrate layer height (um).
-@end ftable
-%end-doc
-*/
-  {"substrate-height", "Substrate layer height (um)",
-   HID_Integer, 0, 10000, {1588, 0, 0}, 0, 0}, /* 62.5 mil --> 1588 um. */
-#define HA_substrateh 3
-
-/* %start-doc options "96 gsvit Options"
-@ftable @code
-@item --substrate-epsilon <num>
-Substrate relative epsilon.
-@end ftable
-%end-doc
-*/
-  {"substrate-epsilon", "Substrate relative epsilon",
-   HID_Real, 0, 100, {0, 0, 4.4}, 0, 0}, /* FR-4 Er = 4.4. */
-#define HA_substratee 4
 };
 
 #define NUM_OPTIONS (sizeof (gsvit_attribute_list) / sizeof (gsvit_attribute_list[0]))
@@ -262,6 +255,10 @@ REGISTER_ATTRIBUTES(gsvit_attribute_list)
 
 void gsvit_create_netlist (void);
 void gsvit_destroy_netlist (void);
+static void gsvit_xml_out (char* gsvit_basename);
+static void gsvit_build_net_from_selected (struct gsvit_netlist* currNet);
+static void gsvit_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2);
+static void gsvit_write_xnets (void);
 
 
 /*!
@@ -308,37 +305,37 @@ hslToRgb (int h, uint8_t s, uint8_t l)
     case 0:
       Rp = C;
       Gp = X;
-      Bp = 0.0;	
+      Bp = 0.0;
       break;
     case 1:
       Rp = X;
       Gp = C;
-      Bp = 0.0;	
+      Bp = 0.0;
       break;
     case 2:
       Rp = 0.0;
       Gp = C;
-      Bp = X;	
+      Bp = X;
       break;
     case 3:
       Rp = 0.0;
       Gp = X;
-      Bp = C;	
+      Bp = C;
       break;
     case 4:
       Rp = X;
       Gp = 0.0;
-      Bp = C;	
+      Bp = C;
       break;
     case 5:
       Rp = C;
       Gp = 0.0;
-      Bp = X;	
+      Bp = X;
       break;
     default:
       Rp = 0.0;
       Gp = 0.0;
-      Bp = 0.0;	
+      Bp = 0.0;
       break;
   }
 
@@ -483,7 +480,7 @@ void
 gsvit_destroy_netlist (void)
 {
   int i;
-  for ( i = 0; i < PCB->NetlistLib.MenuN; i++)
+  for (i = 0; i < PCB->NetlistLib.MenuN; i++)
   { /* For each net in the netlist. */
     struct gsvit_netlist* currNet = &gsvit_netlist[i];
     int j;
@@ -525,72 +522,6 @@ gsvit_get_png_name (const char *basename, const char *suffix)
   return buf;
 }
 
-/*!
- * \brief Retrieves coordinates (in default PCB units) of a pin or pad.
- *
- * Copied from netlist.c
- */
-static int 
-pin_name_to_xy (LibraryEntryType * pin, Coord *x, Coord *y)
-{
-  ConnectionType  conn;
-  if (!SeekPad(pin, &conn, false))
-    return 1;
-
-  switch (conn.type)
-  {
-    case PIN_TYPE:
-      *x = ((PinType *) (conn.ptr2))->X;
-      *y = ((PinType *) (conn.ptr2))->Y;
-      return 0;
-    case PAD_TYPE:
-      *x = ((PadType *) (conn.ptr2))->Point1.X;
-      *y = ((PadType *) (conn.ptr2))->Point1.Y;
-      return 0;
-  }
-
-  return 1;
-}
-
-/* *** Exporting netlist data and geometry to the gsvit config file ******** */
-
-static void 
-gsvit_write_space (FILE *out)
-{
-  double xh, zh;
-  int z;
-  int i, idx;
-  const char *ext;
-
-  xh = 2.54e-2 / ((double) gsvit_dpi);
-  zh = gsvit_copperh * 1e-6;
-
-  fprintf (out, "\n/* **** Space **** */\n\n");
-  fprintf (out, "space pcb {\n");
-  fprintf (out, "\tstep = { %e, %e, %e }\n", xh, xh, zh);
-  fprintf (out, "\tlayers = {\n");
-  fprintf (out, "\t\t\"air-top\",\n");
-  fprintf (out, "\t\t\"air-bottom\"");
-
-  z = 10;
-  for (i = 0; i < MAX_GROUP; i++)
-    if (gsvit_export_group[i]) {
-      idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
-      ext = layer_type_to_file_name (idx, FNS_fixed);
-
-      if (z != 10) {
-        fprintf (out, ",\n");
-        fprintf (out, "\t\t\"substrate-%d\"", z);
-        z++;
-      }
-      fprintf (out, ",\n");
-      fprintf (out, "\t\t\"%s\"", ext);
-      z++;
-    }
-
-  fprintf (out, "\n\t}\n");
-  fprintf (out, "}\n");
-}
 
 static void
 gsvit_write_xspace (void)
@@ -629,17 +560,6 @@ gsvit_write_xspace (void)
       ext = layer_type_to_file_name (idx, FNS_fixed);
       src = gsvit_get_png_name (gsvit_basename, ext);
       XOUT_ELEMENT_ATTR ("layer", "name", ext, src);
-/*
-      if (z != 10)
-        {
-          fprintf (out, ",\n");
-          fprintf (out, "\t\t\"substrate-%d\"", z);
-          z++;
-        }
-      fprintf (out, ",\n");
-      fprintf (out, "\t\t\"%s\"", ext);
-      z++;
-*/
     }
   XOUT_DETENT ();
   XOUT_NEWLINE ();
@@ -651,71 +571,6 @@ gsvit_write_xspace (void)
 }
 
 
-static void 
-gsvit_write_material (FILE *out, char *name, char *type, double e)
-{
-  fprintf (out, "material %s {\n", name);
-  fprintf (out, "\ttype = \"%s\"\n", type);
-  fprintf (out, "\tpermittivity = %e\n", e);
-  fprintf (out, "\tconductivity = 0.0\n");
-  fprintf (out, "\tpermeability = 0.0\n");
-  fprintf (out, "}\n");
-}
-
-
-static void 
-gsvit_write_materials (FILE *out)
-{
-  fprintf (out, "\n/* **** Materials **** */\n\n");
-  gsvit_write_material (out, "copper", "metal", gsvit_air_epsilon);
-  gsvit_write_material (out, "air", "dielectric", gsvit_air_epsilon);
-  gsvit_write_material (out, "composite", "dielectric",
-    gsvit_air_epsilon * gsvit_substratee);
-}
-
-static void 
-gsvit_write_nets (FILE *out)
-{
-  LibraryType netlist;
-  LibraryMenuType *net;
-  LibraryEntryType *pin;
-  int n, m, i, idx;
-  const char *ext;
-
-  netlist = PCB->NetlistLib;
-
-  fprintf (out, "\n/* **** Nets **** */\n\n");
-
-  for (n = 0; n < netlist.MenuN; n++) {
-    net = &netlist.Menu[n];
-
-    /* Weird, but correct */
-    fprintf (out, "net %s {\n", &net->Name[2]);
-    fprintf (out, "\tobjects = {\n");
-
-    for (m = 0; m < net->EntryN; m++) {
-      pin = &net->Entry[m];
-
-      /* pin_name_to_xy (pin, &x, &y); */
-
-      for (i = 0; i < MAX_GROUP; i++)
-        if (gsvit_export_group[i]) {
-          idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
-          ext = layer_type_to_file_name (idx, FNS_fixed);
-
-          if (m != 0 || i != 0)
-            fprintf (out, ",\n");
-          fprintf (out, "\t\t\"%s-%s\"", pin->ListEntry, ext);
-        }
-    }
-
-    fprintf (out, "\n");
-    fprintf (out, "\t}\n");
-    fprintf (out, "}\n");
-  }
-}
-
-
 static void
 gsvit_write_xnets (void)
 {
@@ -723,7 +578,6 @@ gsvit_write_xnets (void)
   LibraryMenuType *net;
   LibraryEntryType *pin;
   int n, m, i, idx;
-  const char *ext;
 
   netlist = PCB->NetlistLib;
 
@@ -732,10 +586,13 @@ gsvit_write_xnets (void)
   XOUT_ELEMENT ("comment", "***** Nets ****");
 
   for (n = 0; n < netlist.MenuN; n++) {
+    char buff[0x100];
     net = &netlist.Menu[n];
 
     /* Weird, but correct */
     XOUT_ELEMENT_ATTR_START ("net", "name", &net->Name[2]);
+//    snprintf(buff, 0x100, "%d,%d,%d", net->color.r, net->color.g, net->color.b);
+//    XOUT_ELEMENT_2ATTR_START("net", "name", &net->Name[2], "color", buff );
 
     for (m = 0; m < net->EntryN; m++) {
       pin = &net->Entry[m];
@@ -744,9 +601,8 @@ gsvit_write_xnets (void)
 
       for (i = 0; i < MAX_GROUP; i++)
         if (gsvit_export_group[i]) {
-          char buff[0x100];
           idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
-          ext = layer_type_to_file_name (idx, FNS_fixed);
+          layer_type_to_file_name (idx, FNS_fixed);
 
           if (m != 0 || i != 0)
             XOUT_ELEMENT_DATA (", ");
@@ -777,140 +633,134 @@ gsvit_write_xnets (void)
 }
 
 
-static void 
-gsvit_write_layer (FILE *out, int z, int h, const char *name, int full, char *mat)
+static StringList *
+string_insert (char *str, StringList *list)
 {
-  LibraryType netlist;
-  LibraryMenuType *net;
-  LibraryEntryType *pin;
-  int n, m;
+  StringList *newlist, *cur;
 
-  fprintf (out, "layer %s {\n", name);
-  fprintf (out, "\theight = %d\n", h);
-  fprintf (out, "\tz-order = %d\n", z);
-  fprintf (out, "\tmaterial = \"%s\"\n", mat);
-
-  if (full) {
-    fprintf (out, "\tobjects = {\n");
-    netlist = PCB->NetlistLib;
-
-    for (n = 0; n < netlist.MenuN; n++) {
-      net = &netlist.Menu[n];
-
-      for (m = 0; m < net->EntryN; m++) {
-        pin = &net->Entry[m];
-
-        if (m != 0 || n != 0)
-          fprintf (out, ",\n");
-        fprintf (out, "\t\t\"%s-%s\"", pin->ListEntry, name);
-      }
-
-    }
-
-  fprintf (out, "\n\t}\n");
+  if ((newlist = (StringList *) malloc (sizeof (StringList))) == NULL)
+  {
+    fprintf (stderr, "malloc() failed in string_insert()\n");
+    exit (1);
   }
-  fprintf (out, "}\n");
+
+  newlist->next = NULL;
+  newlist->str = strdup (str);
+
+  if (list == NULL)
+    return (newlist);
+
+  cur = list;
+  while (cur->next != NULL)
+    cur = cur->next;
+
+  cur->next = newlist;
+
+  return (list);
 }
 
 
-static void 
-gsvit_write_layers (FILE *out)
+static BomList *
+bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 {
-  int i, idx;
-  int z;
-  const char *ext;
-  char buf[100];
-  int subh;
+  BomList *newlist, *cur, *prev = NULL;
 
-  subh = gsvit_substrateh / gsvit_copperh;
-
-  fprintf (out, "\n/* **** Layers **** */\n\n");
-
-  /* Air layers on top and bottom of the stack */
-  /* Their height is double substrate height. */
-  gsvit_write_layer (out, 1, 2 * subh, "air-top", 0, "air");
-  gsvit_write_layer (out, 1000, 2 * subh, "air-bottom", 0, "air");
-
-  z = 10;
-  for (i = 0; i < MAX_GROUP; i++)
-    if (gsvit_export_group[i]) {
-      idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
-      ext = layer_type_to_file_name (idx, FNS_fixed);
-
-      if (z != 10) {
-        sprintf (buf, "substrate-%d", z);
-        gsvit_write_layer (out, z, subh, buf, 0, "composite");
-        z++;
-      }
-      /*!
-       * \todo For layers that are not on top or bottom, the material
-       * should be "composite".
-       */
-      gsvit_write_layer (out, z, 1, ext, 1, "air");
-
-      z++;
+  if (bom == NULL)
+  {
+    /* this is the first element so automatically create an entry */
+    if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
+    {
+      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      exit (1);
     }
-}
 
-static void 
-gsvit_write_object (FILE *out, LibraryEntryType *pin)
-{
-  int i, idx;
-  Coord px = 0, py = 0;
-  int x, y;
-  char *f;
-  const char *ext;
+    newlist->next = NULL;
+    newlist->descr = strdup (descr);
+    newlist->value = strdup (value);
+    newlist->num = 1;
+    newlist->refdes = string_insert (refdes, NULL);
+    return (newlist);
+  }
 
-  pin_name_to_xy (pin, &px, &py);
-
-  x = pcb_to_gsvit (px);
-  y = pcb_to_gsvit (py);
-
-  for (i = 0; i < MAX_GROUP; i++)
-    if (gsvit_export_group[i]) {
-      idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
-      ext = layer_type_to_file_name (idx, FNS_fixed);
-
-      fprintf (out, "object %s-%s {\n", pin->ListEntry, ext);
-      fprintf (out, "\tposition = { 0, 0 }\n");
-      fprintf (out, "\tmaterial = \"copper\"\n");
-      fprintf (out, "\ttype = \"image\"\n");
-      fprintf (out, "\trole = \"net\"\n");
-
-      f = gsvit_get_png_name (gsvit_basename, ext);
-
-      fprintf (out, "\tfile = \"%s\"\n", f);
-
-      free (f);
-
-      fprintf (out, "\tfile-pos = { %d, %d }\n", x, y);
-      fprintf (out, "}\n");
+  /* search and see if we already have used one of these
+  components */
+  cur = bom;
+  while (cur != NULL)
+  {
+    if ((NSTRCMP (descr, cur->descr) == 0) && (NSTRCMP (value, cur->value) == 0))
+    {
+      cur->num++;
+      cur->refdes = string_insert (refdes, cur->refdes);
+      break;
     }
+    prev = cur;
+    cur = cur->next;
+  }
+
+  if (cur == NULL)
+  {
+    if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
+    {
+      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      exit (1);
+    }
+
+    prev->next = newlist;
+
+    newlist->next = NULL;
+    newlist->descr = strdup (descr);
+    newlist->value = strdup (value);
+    newlist->num = 1;
+    newlist->refdes = string_insert (refdes, NULL);
+  }
+  return (bom);
 }
 
 
-static void 
-gsvit_write_objects (FILE *out)
+static double
+xyToAngle (double x, double y, bool morethan2pins)
 {
-  LibraryType netlist;
-  LibraryMenuType *net;
-  LibraryEntryType *pin;
-  int n, m;
+  double d = atan2 (-y, x) * 180.0 / M_PI;
 
-  netlist = PCB->NetlistLib;
-
-  fprintf (out, "\n/* **** Objects **** */\n\n");
-
-  for (n = 0; n < netlist.MenuN; n++) {
-    net = &netlist.Menu[n];
-
-    for (m = 0; m < net->EntryN; m++) {
-      pin = &net->Entry[m];
-
-      gsvit_write_object (out, pin);
-    }
+  /* IPC 7351 defines different rules for 2 pin elements */
+  if (morethan2pins)
+  {
+    /* Multi pin case:
+    * Output 0 degrees if pin1 in is top left or top, i.e. between angles of
+    * 80 to 170 degrees.
+    * Pin #1 can be at dead top (e.g. certain PLCCs) or anywhere in the top
+    * left.
+    */
+    if (d < -100)
+      return 90; /* -180 to -100 */
+    else if (d < -10)
+      return 180; /* -100 to -10 */
+    else if (d < 80)
+      return 270; /* -10 to 80 */
+    else if (d < 170)
+      return 0; /* 80 to 170 */
+    else
+      return 90; /* 170 to 180 */
+  }
+  else
+  {
+    /* 2 pin element:
+    * Output 0 degrees if pin #1 is in top left or left, i.e. in sector
+    * between angles of 95 and 185 degrees.
+    */
+    if (d < -175)
+      return 0; /* -180 to -175 */
+    else if (d < -85)
+      return 90; /* -175 to -85 */
+    else if (d < 5)
+      return 180; /* -85 to 5 */
+    else if (d < 95)
+      return 270; /* 5 to 95 */
+    else
+      return 0; /* 95 to 180 */
   }
 }
+
 
 /*!
  * \brief Main export callback.
@@ -924,13 +774,14 @@ gsvit_parse_arguments (int *argc, char ***argv)
   hid_parse_command_line(argc, argv);
 }
 
+
 static HID_Attribute *
 gsvit_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
 
   if (PCB) {
-    derive_default_filename(PCB->Filename, &gsvit_attribute_list[HA_basename],
+    derive_default_filename (PCB->Filename, &gsvit_attribute_list[HA_basename],
       ".gsvit", &last_made_filename);
   }
 
@@ -939,6 +790,299 @@ gsvit_get_export_options (int *n)
   }
 
   return gsvit_attribute_list;
+}
+
+
+static char* CleanXBOMString (char *in)
+{
+  char *out;
+//  int i;
+  char* src;
+  char* dest;
+
+  if ((out = (char *)malloc ((strlen (in) + 1+0x40) * sizeof (char))) == NULL)
+  {
+    fprintf (stderr, "Error:  CleanBOMString() malloc() failed\n");
+    exit (1);
+  }
+  dest = out;
+  src = in;
+  while(*src != '\0')
+  {
+    switch (*src)
+    {
+    case '<':
+      *dest++ = '&';
+      *dest++ = 'l';
+      *dest++ = 't';
+      *dest = ';';
+    break;
+    case '&':
+      *dest++ = '&';
+      *dest++ = 'a';
+      *dest++ = 'm';
+      *dest++ = 'p';
+      *dest = ';';
+    break;
+    default:
+      *dest = *src;
+    }
+    src++;
+    dest++;
+  }
+  return out;
+}
+
+
+static void gsvit_write_xdrills (void)
+{
+  int i = 0;
+  int j;
+  char buff[0x100];
+  XOUT_INDENT();
+  XOUT_NEWLINE();
+
+  XOUT_ELEMENT_START ("drills");
+  XOUT_NEWLINE ();
+  XOUT_ELEMENT ("comment", "***** Drills ****");
+  XOUT_DETENT ();
+  for (i  = 0; i < n_drills; i++)
+  {
+    snprintf (buff, 0x100, "D%d", i);
+    XOUT_ELEMENT_ATTR_START ("drill", "id", buff);
+    XOUT_INDENT ();
+    XOUT_NEWLINE ();
+    snprintf (buff, 0x100, "%g", drills[i].diameter_inches);
+    XOUT_ELEMENT ("dia_inches", buff);
+    snprintf (buff, 0x100, "%d", pcb_to_gsvit(drills[i].radius));
+    XOUT_ELEMENT ("radius", buff);
+    for (j = 0; j < drills[i].n_holes; j++)
+    {
+      snprintf (buff, 0x100, "%d,%d", drills[i].holes[j].cx, drills[i].holes[j].cy);
+      if (drills[i].holes[j].is_plated)
+      {
+        XOUT_ELEMENT_ATTR_START ("pos", "type", "plated");
+      }
+      else
+      {
+        XOUT_ELEMENT_ATTR_START ("pos", "type", "unplated");
+      }
+      XOUT_ELEMENT_DATA (buff);
+      XOUT_ELEMENT_END ("pos");
+      XOUT_NEWLINE ();
+    }
+    XOUT_ELEMENT_END ("drill");
+  }
+//      if (drills[i].diameter_inches >= diameter_inches)
+//        break;
+    XOUT_DETENT ();
+  XOUT_ELEMENT_END ("drills");
+  XOUT_DETENT ();
+  XOUT_NEWLINE ();
+}
+
+
+static void gsvit_write_xcentroids (void)
+{
+  char buff[0x100];
+
+  Coord x, y;
+  double theta = 0.0;
+  double sumx, sumy;
+  int pinfound[MAXREFPINS];
+  double pinx[MAXREFPINS];
+  double piny[MAXREFPINS];
+  double pinangle[MAXREFPINS];
+  double padcentrex, padcentrey;
+  double centroidx, centroidy;
+  double pin1x, pin1y;
+  int pin_cnt;
+  int found_any_not_at_centroid;
+  int found_any;
+  BomList *bom = NULL;
+  char *name, *descr, *value,*fixed_rotation;
+  int rpindex;
+
+  XOUT_INDENT ();
+  XOUT_NEWLINE ();
+
+  XOUT_ELEMENT_START ("centroids");
+  XOUT_NEWLINE ();
+  XOUT_ELEMENT ("comment", "***** Centroids ****");
+  XOUT_DETENT ();
+
+  /*
+  * For each element we calculate the centroid of the footprint.
+  * In addition, we need to extract some notion of rotation.
+  * While here generate the BOM list
+  */
+  ELEMENT_LOOP (PCB->Data);
+  {
+
+    /* Initialize our pin count and our totals for finding the centroid. */
+    pin_cnt = 0;
+    sumx = 0.0;
+    sumy = 0.0;
+    for (rpindex = 0; rpindex < MAXREFPINS; rpindex++)
+      pinfound[rpindex] = 0;
+
+    /* Insert this component into the bill of materials list. */
+    bom = bom_insert ((char *)UNKNOWN (NAMEONPCB_NAME (element)),
+                      (char *)UNKNOWN (DESCRIPTION_NAME (element)),
+                      (char *)UNKNOWN (VALUE_NAME (element)), bom);
+
+
+    /*
+     * Iterate over the pins and pads keeping a running count of how
+     * many pins/pads total and the sum of x and y coordinates
+     *
+     * While we're at it, store the location of pin/pad #1 and #2 if
+     * we can find them.
+     */
+
+    PIN_LOOP (element);
+    {
+      sumx += (double) pin->X;
+      sumy += (double) pin->Y;
+      pin_cnt++;
+
+      for (rpindex = 0; reference_pin_names[rpindex]; rpindex++) {
+        if (NSTRCMP (pin->Number, reference_pin_names[rpindex]) == 0){
+          pinx[rpindex] = (double) pin->X;
+          piny[rpindex] = (double) pin->Y;
+          pinangle[rpindex] = 0.0; /* pins have no notion of angle */
+          pinfound[rpindex] = 1;
+        }
+      }
+    }
+    END_LOOP;
+
+    PAD_LOOP (element);
+    {
+      sumx += (pad->Point1.X + pad->Point2.X) / 2.0;
+      sumy += (pad->Point1.Y + pad->Point2.Y) / 2.0;
+      pin_cnt++;
+
+      for (rpindex = 0; reference_pin_names[rpindex]; rpindex++) {
+        if (NSTRCMP (pad->Number, reference_pin_names[rpindex]) == 0) {
+          padcentrex = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
+          padcentrey = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
+          pinx[rpindex] = padcentrex;
+          piny[rpindex] = padcentrey;
+          /*
+           * NOTE: We swap the Y points because in PCB, the Y-axis
+           * is inverted.  Increasing Y moves down.  We want to deal
+           * in the usual increasing Y moves up coordinates though.
+           */
+          pinangle[rpindex] = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
+          pad->Point2.X - pad->Point1.X);
+          pinfound[rpindex]=1;
+        }
+      }
+    }
+    END_LOOP;
+
+    if (pin_cnt > 0) {
+      centroidx = sumx / (double) pin_cnt;
+      centroidy = sumy / (double) pin_cnt;
+
+      if (NSTRCMP (AttributeGetFromList (&element->Attributes,"xy-centre"), "origin") == 0 ) {
+        x = element->MarkX;
+        y = element->MarkY;
+      }
+      else {
+        x = centroidx;
+        y = centroidy;
+      }
+
+      fixed_rotation = AttributeGetFromList (&element->Attributes, "xy-fixed-rotation");
+      if (fixed_rotation) {
+        /* The user specified a fixed rotation */
+        theta = atof (fixed_rotation);
+        found_any_not_at_centroid = 1;
+        found_any = 1;
+      }
+      else {
+        /* Find first reference pin not at the  centroid  */
+        found_any_not_at_centroid = 0;
+        found_any = 0;
+        theta = 0.0;
+        for (rpindex = 0;
+             reference_pin_names[rpindex] && !found_any_not_at_centroid;
+             rpindex++) {
+          if (pinfound[rpindex]) {
+            found_any = 1;
+
+            /* Recenter pin "#1" onto the axis which cross at the part
+             * centroid. */
+            pin1x = pinx[rpindex] - x;
+            pin1y = piny[rpindex] - y;
+
+            /* flip x, to reverse rotation for elements on back. */
+            if (FRONT (element) != 1)
+              pin1x = -pin1x;
+
+            /* if only 1 pin, use pin 1's angle */
+            if (pin_cnt == 1) {
+              theta = pinangle[rpindex];
+              found_any_not_at_centroid = 1;
+            }
+            else if ((pin1x != 0.0) || (pin1y != 0.0)) {
+              theta = xyToAngle (pin1x, pin1y, pin_cnt > 2);
+              found_any_not_at_centroid = 1;
+            }
+          }
+        }
+
+        if (!found_any) {
+          Message
+            ("PrintBOM(): unable to figure out angle because I could\n"
+             "     not find a suitable reference pin of element %s\n"
+             "     Setting to %g degrees\n",
+             UNKNOWN (NAMEONPCB_NAME (element)), theta);
+        }
+        else if (!found_any_not_at_centroid) {
+          Message
+            ("PrintBOM(): unable to figure out angle of element\n"
+             "     %s because the reference pin(s) are at the centroid of the part.\n"
+             "     Setting to %g degrees\n",
+             UNKNOWN (NAMEONPCB_NAME (element)), theta);
+        }
+      }
+      name = CleanXBOMString ((char *)UNKNOWN (NAMEONPCB_NAME (element)));
+      descr = CleanXBOMString ((char *)UNKNOWN (DESCRIPTION_NAME (element)));
+      value = CleanXBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
+
+      y = PCB->MaxHeight - y;
+      XOUT_INDENT ();
+      XOUT_ELEMENT_ATTR_START ("xy", "name", name);
+      XOUT_NEWLINE ();
+
+//      pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2`mS,%.2`mS,%g,%s\n",
+//        xy_unit->allow, name, descr, value, x, y,
+//        theta, FRONT (element) == 1 ? "top" : "bottom");
+      XOUT_ELEMENT ("description", descr);
+      XOUT_ELEMENT ("value", value);
+      snprintf (buff, 0x100,  "%d,%d", pcb_to_gsvit(x), pcb_to_gsvit(y));
+      XOUT_ELEMENT ("pos", buff);
+      pcb_snprintf (buff, 0x100, "%g", theta);
+      XOUT_ELEMENT ("rotation", buff);
+      XOUT_DETENT ();
+      XOUT_ELEMENT ("side", FRONT (element) == 1 ? "top" : "bottom");
+
+      XOUT_ELEMENT_END ("xy");
+      XOUT_NEWLINE ();
+
+      free (name);
+      free (descr);
+      free (value);
+    }
+  }
+  END_LOOP;
+  XOUT_DETENT ();
+  XOUT_ELEMENT_END ("centroids");
+  XOUT_DETENT ();
+  XOUT_NEWLINE ();
 }
 
 
@@ -1002,9 +1146,6 @@ gsvit_alloc_colors ()
     color_array[i]->r = gsvit_netlist[i].color.r;
     color_array[i]->g = gsvit_netlist[i].color.g;
     color_array[i]->b = gsvit_netlist[i].color.b;
-/*
-    printf ("%d %d <%02x:%02x:%02x>\n", i, phase, (uint8_t)(color_array[i]->r), (uint8_t)(color_array[i]->g), (uint8_t)(color_array[i]->b));
- */
 
     color_array[i]->c = gdImageColorAllocate (gsvit_im, color_array[i]->r,  color_array[i]->g,  color_array[i]->b);
   }
@@ -1043,7 +1184,7 @@ gsvit_start_png (const char *basename, const char *suffix)
 
 
 static void 
-gsvit_finish_png()
+gsvit_finish_png ()
 {
   int i;
 #ifdef HAVE_GDIMAGEPNG
@@ -1090,11 +1231,9 @@ gsvit_do_export (HID_Attr_Val *options)
 {
   int save_ons[MAX_ALL_LAYER];
   int i, idx;
-  FILE *gsvit_config;
   char *buf;
   int len;
 
-  time_t t;
 
   if (!options) {
     gsvit_get_export_options(0);
@@ -1119,10 +1258,6 @@ gsvit_do_export (HID_Attr_Val *options)
     return;
   }
 
-  gsvit_copperh = options[HA_copperh].int_value;
-  gsvit_substrateh = options[HA_substrateh].int_value;
-  gsvit_substratee = options[HA_substratee].real_value;
-
   gsvit_create_netlist ();
   gsvit_choose_groups ();
 
@@ -1131,6 +1266,8 @@ gsvit_do_export (HID_Attr_Val *options)
       gsvit_cur_group = i;
       /* Magic. */
       idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
+      save_drill = (GetLayerGroupNumberByNumber (idx) == GetLayerGroupNumberBySide (BOTTOM_SIDE)) ? 1 : 0;
+      /* save drills for one layer only */
       gsvit_start_png (gsvit_basename, layer_type_to_file_name (idx, FNS_fixed));
       hid_save_and_show_layer_ons (save_ons);
       gsvit_start_png_export ();
@@ -1142,22 +1279,6 @@ gsvit_do_export (HID_Attr_Val *options)
   len = strlen (gsvit_basename) + 4;
   buf = (char *) malloc (sizeof (*buf) * len);
 
-  sprintf (buf, "%s.em", gsvit_basename);
-  gsvit_config = fopen (buf, "w");
-
-  free (buf);
-
-  fprintf (gsvit_config, "/* Made with PCB gsvit export HID */");
-  t = time (NULL);
-  fprintf (gsvit_config, "/* %s */", ctime(&t));
-
-  gsvit_write_nets (gsvit_config);
-  gsvit_write_objects (gsvit_config);
-  gsvit_write_layers (gsvit_config);
-  gsvit_write_materials (gsvit_config);
-  gsvit_write_space (gsvit_config);
-
-  fclose (gsvit_config);
   gsvit_xml_out ((char*) gsvit_basename);
   gsvit_destroy_netlist ();
 }
@@ -1198,12 +1319,8 @@ gsvit_xml_out (char *gsvit_basename)
   }
   gsvit_write_xspace ();
   gsvit_write_xnets ();
-/*
-  gsvit_write_objects (gsvit_config);
-  gsvit_write_layers (gsvit_config);
-  gsvit_write_materials (gsvit_config);
-  gsvit_write_space (gsvit_config);
- */
+  gsvit_write_xcentroids();
+  gsvit_write_xdrills();
 
   XOUT_ELEMENT_END ("gsvit");
   XOUT_NEWLINE ();
@@ -1234,6 +1351,11 @@ gsvit_set_layer (const char *name, int group, int empty)
   }
 
   if (is_drill) {
+    if (SL_TYPE(idx) == SL_PDRILL)
+      is_plated =1;
+    else if (SL_TYPE(idx) == SL_UDRILL)
+      is_plated =0;
+
     /* Print 'holes', so that we can fill gaps in the copper layer. */
     return 1;
   }
@@ -1582,6 +1704,83 @@ gsvit_lookup_net_from_pv (PinType *targetPv)
 
 
 static void
+add_hole (struct single_size_drills* drill, int cx, int cy)
+{
+  if (drill->n_holes == drill->n_holes_allocated) {
+    drill->n_holes_allocated += 100;
+    drill->holes = (struct drill_hole *) realloc (drill->holes,drill->n_holes_allocated *sizeof (struct drill_hole));
+  }
+  drill->holes[drill->n_holes].cx = cx;
+  drill->holes[drill->n_holes].cy = cy;
+  drill->holes[drill->n_holes].is_plated = is_plated;
+  drill->n_holes++;
+  printf ("holes %d\n", drill->n_holes);
+}
+
+
+/*!
+* \brief Given a hole size, return the structure that currently holds
+* the data for that hole size.
+*
+* If there isn't one, make it.
+*/
+static int
+_drill_size_comparator (const void* _size0, const void* _size1)
+{
+  double size0 = ((const struct single_size_drills*)_size0)->diameter_inches;
+  double size1 = ((const struct single_size_drills*)_size1)->diameter_inches;
+  if (size0 == size1)
+    return 0;
+  if (size0 < size1)
+    return -1;
+  return 1;
+}
+
+
+static struct single_size_drills *
+get_drill (double diameter_inches, Coord radius)
+{
+  /* See if we already have this size. If so, return that structure. */
+  struct single_size_drills* drill = bsearch (&diameter_inches,
+    drills, n_drills, sizeof (drills[0]),
+    _drill_size_comparator);
+
+  if (drill != NULL)
+    return( drill);
+
+  /* Haven't seen this hole size before, so make a new structure for it. */
+  if (n_drills == n_drills_allocated) {
+    n_drills_allocated += 100;
+    drills = (struct single_size_drills *) realloc (drills,
+      n_drills_allocated * sizeof (struct single_size_drills));
+  }
+
+  /* I now add the structure to the list, making sure to keep the list
+   * sorted. Ideally the bsearch() call above would have given me the location
+   * to insert this element while keeping things sorted, but it doesn't. For
+   * simplicity I manually lsearch() to find this location myself */
+  {
+    int i = 0;
+    for (i = 0; i<n_drills; i++)
+      if (drills[i].diameter_inches >= diameter_inches)
+        break;
+
+    if (n_drills != i)
+      memmove (&drills[i+1], &drills[i],
+        (n_drills-i) * sizeof (struct single_size_drills));
+
+    drills[i].diameter_inches = diameter_inches;
+    drills[i].radius = radius;
+    drills[i].n_holes = 0;
+    drills[i].n_holes_allocated = 0;
+    drills[i].holes = NULL;
+    n_drills++;
+    return &drills[i];
+  }
+}
+
+
+static void
 gsvit_draw_line (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 {
   if (x1 == x2 && y1 == y2) {
@@ -1628,7 +1827,7 @@ gsvit_draw_arc (hidGC gc, Coord cx, Coord cy, Coord width, Coord height, Angle s
 
 #if 0
   printf("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
-   cx, cy, width, height, start_angle, delta_angle, sa, ea);
+    cx, cy, width, height, start_angle, delta_angle, sa, ea);
   printf("gdImageArc (%p, %d, %d, %d, %d, %d, %d, %d)\n",
     im, SCALE_X (cx), SCALE_Y (cy), SCALE (width), SCALE (height), sa, ea,
     gc->color->c);
@@ -1650,6 +1849,17 @@ gsvit_fill_circle (hidGC gc, Coord cx, Coord cy, Coord radius)
   linewidth = 0;
   gdImageFilledEllipse (gsvit_im, pcb_to_gsvit (cx), pcb_to_gsvit (cy),
     pcb_to_gsvit (2 * radius), pcb_to_gsvit (2 * radius), color_array[hashColor]->c);
+
+  if (save_drill && is_drill)
+  {
+    double diameter_inches = COORD_TO_INCH(radius*2);
+    struct single_size_drills* drill = get_drill (diameter_inches, radius);
+    add_hole(drill, pcb_to_gsvit(cx), pcb_to_gsvit(cy));
+      /* convert to inch, flip: will drill from bottom side */
+//      COORD_TO_INCH(PCB->MaxWidth  - cx),
+      /* PCB reverses y axis */
+//      COORD_TO_INCH(PCB->MaxHeight - cy));
+  }
 }
 
 
@@ -1806,6 +2016,7 @@ hid_gsvit_init ()
   common_nogui_init (&gsvit_hid);
   common_draw_helpers_init (&gsvit_graphics);
 
+//hid_gtk_init();
   gsvit_hid.struct_size         = sizeof (HID);
   gsvit_hid.name                = "gsvit";
   gsvit_hid.description         = "Numerical analysis package export";
