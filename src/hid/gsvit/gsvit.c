@@ -540,34 +540,37 @@ gsvit_write_xspace (void)
 
   sprintf (buff, "%f", xh);
   XOUT_ELEMENT_START ("space");
+  XOUT_INDENT ();
   XOUT_NEWLINE ();
-  XOUT_ELEMENT ("comment", " **** Space **** ");
+  XOUT_ELEMENT ("comment", "***** Space *****");
+  XOUT_NEWLINE ();
 
   XOUT_ELEMENT_ATTR ("resolution", "units", "mm", buff);
+  XOUT_NEWLINE ();
 
   sprintf (buff, "%d", w);
   XOUT_ELEMENT ("width", buff);
-  sprintf (buff, "%d", h);
-/*
-  XOUT_DETENT ();
-*/
-  XOUT_ELEMENT ("height", buff);
-  XOUT_ELEMENT_START ("layers");
   XOUT_NEWLINE ();
+  sprintf (buff, "%d", h);
+  XOUT_ELEMENT ("height", buff);
+  XOUT_NEWLINE ();
+  XOUT_ELEMENT_START ("layers");
+  XOUT_INDENT ();
   for (i = 0; i < MAX_GROUP; i++)
     if (gsvit_export_group[i]) {
       idx = (i >= 0 && i < max_group) ? PCB->LayerGroups.Entries[i][0] : i;
       ext = layer_type_to_file_name (idx, FNS_fixed);
       src = gsvit_get_png_name (gsvit_basename, ext);
+      XOUT_NEWLINE ();
       XOUT_ELEMENT_ATTR ("layer", "name", ext, src);
     }
   XOUT_DETENT ();
   XOUT_NEWLINE ();
   XOUT_ELEMENT_END ("layers");
+  XOUT_DETENT ();
   XOUT_NEWLINE ();
   XOUT_ELEMENT_END ("space");
-  XOUT_INDENT ();
-  XOUT_NEWLINE ();
+  XOUT_DETENT ();
 }
 
 
@@ -581,9 +584,13 @@ gsvit_write_xnets (void)
 
   netlist = PCB->NetlistLib;
 
-  XOUT_ELEMENT_START ("nets");
+  XOUT_INDENT ();
   XOUT_NEWLINE ();
-  XOUT_ELEMENT ("comment", "***** Nets ****");
+  XOUT_ELEMENT_START ("nets");
+  XOUT_INDENT ();
+  XOUT_NEWLINE ();
+  XOUT_ELEMENT ("comment", "***** Nets *****");
+  XOUT_NEWLINE ();
 
   for (n = 0; n < netlist.MenuN; n++) {
     char buff[0x100];
@@ -629,7 +636,6 @@ gsvit_write_xnets (void)
   }
   XOUT_ELEMENT_END ("nets");
   XOUT_DETENT ();
-  XOUT_NEWLINE ();
 }
 
 
@@ -839,26 +845,28 @@ static void gsvit_write_xdrills (void)
   int i = 0;
   int j;
   char buff[0x100];
-  XOUT_INDENT();
-  XOUT_NEWLINE();
 
-  XOUT_ELEMENT_START ("drills");
   XOUT_NEWLINE ();
-  XOUT_ELEMENT ("comment", "***** Drills ****");
-  XOUT_DETENT ();
+  XOUT_ELEMENT_START ("drills");
+  XOUT_INDENT ();
+  XOUT_NEWLINE ();
+  XOUT_ELEMENT ("comment", "***** Drills *****");
   for (i  = 0; i < n_drills; i++)
   {
     snprintf (buff, 0x100, "D%d", i);
+    XOUT_NEWLINE ();
     XOUT_ELEMENT_ATTR_START ("drill", "id", buff);
     XOUT_INDENT ();
-    XOUT_NEWLINE ();
     snprintf (buff, 0x100, "%g", drills[i].diameter_inches);
+    XOUT_NEWLINE ();
     XOUT_ELEMENT ("dia_inches", buff);
     snprintf (buff, 0x100, "%d", pcb_to_gsvit(drills[i].radius));
+    XOUT_NEWLINE ();
     XOUT_ELEMENT ("radius", buff);
     for (j = 0; j < drills[i].n_holes; j++)
     {
       snprintf (buff, 0x100, "%d,%d", drills[i].holes[j].cx, drills[i].holes[j].cy);
+      XOUT_NEWLINE ();
       if (drills[i].holes[j].is_plated)
       {
         XOUT_ELEMENT_ATTR_START ("pos", "type", "plated");
@@ -869,13 +877,15 @@ static void gsvit_write_xdrills (void)
       }
       XOUT_ELEMENT_DATA (buff);
       XOUT_ELEMENT_END ("pos");
-      XOUT_NEWLINE ();
     }
+    XOUT_DETENT ();
+    XOUT_NEWLINE ();
     XOUT_ELEMENT_END ("drill");
   }
 //      if (drills[i].diameter_inches >= diameter_inches)
 //        break;
-    XOUT_DETENT ();
+  XOUT_DETENT ();
+  XOUT_NEWLINE ();
   XOUT_ELEMENT_END ("drills");
   XOUT_DETENT ();
   XOUT_NEWLINE ();
@@ -907,9 +917,9 @@ static void gsvit_write_xcentroids (void)
   XOUT_NEWLINE ();
 
   XOUT_ELEMENT_START ("centroids");
+  XOUT_INDENT ();
   XOUT_NEWLINE ();
-  XOUT_ELEMENT ("comment", "***** Centroids ****");
-  XOUT_DETENT ();
+  XOUT_ELEMENT ("comment", "***** Centroids *****");
 
   /*
   * For each element we calculate the centroid of the footprint.
@@ -1054,24 +1064,24 @@ static void gsvit_write_xcentroids (void)
       value = CleanXBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
       y = PCB->MaxHeight - y;
-      XOUT_INDENT ();
-      XOUT_ELEMENT_ATTR_START ("xy", "name", name);
       XOUT_NEWLINE ();
-
-//      pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2`mS,%.2`mS,%g,%s\n",
-//        xy_unit->allow, name, descr, value, x, y,
-//        theta, FRONT (element) == 1 ? "top" : "bottom");
+      XOUT_ELEMENT_ATTR_START ("xy", "name", name);
+      XOUT_INDENT ();
+      XOUT_NEWLINE ();
       XOUT_ELEMENT ("description", descr);
+      XOUT_NEWLINE ();
       XOUT_ELEMENT ("value", value);
+      XOUT_NEWLINE ();
       snprintf (buff, 0x100,  "%d,%d", pcb_to_gsvit(x), pcb_to_gsvit(y));
       XOUT_ELEMENT ("pos", buff);
+      XOUT_NEWLINE ();
       pcb_snprintf (buff, 0x100, "%g", theta);
       XOUT_ELEMENT ("rotation", buff);
-      XOUT_DETENT ();
-      XOUT_ELEMENT ("side", FRONT (element) == 1 ? "top" : "bottom");
-
-      XOUT_ELEMENT_END ("xy");
       XOUT_NEWLINE ();
+      XOUT_ELEMENT ("side", FRONT (element) == 1 ? "top" : "bottom");
+      XOUT_DETENT ();
+      XOUT_NEWLINE ();
+      XOUT_ELEMENT_END ("xy");
 
       free (name);
       free (descr);
@@ -1079,10 +1089,10 @@ static void gsvit_write_xcentroids (void)
     }
   }
   END_LOOP;
-  XOUT_DETENT ();
-  XOUT_ELEMENT_END ("centroids");
+
   XOUT_DETENT ();
   XOUT_NEWLINE ();
+  XOUT_ELEMENT_END ("centroids");
 }
 
 
@@ -1221,9 +1231,6 @@ gsvit_start_png_export ()
 }
 
 
-void gsvit_xml_out (char *gsvit_basename);
-
-
 static void 
 gsvit_do_export (HID_Attr_Val *options)
 {
@@ -1297,9 +1304,12 @@ gsvit_xml_out (char *gsvit_basename)
   free (buf);
 
   XOUT_HEADER ();
+  XOUT_NEWLINE ();
   XOUT_ELEMENT_START ("gsvit");
+  XOUT_INDENT ();
   XOUT_NEWLINE ();
   XOUT_ELEMENT ("comment", "Made with PCB gsvit export HID");
+  XOUT_NEWLINE ();
   {
     char buff[0x100];
     char* src = buff;
@@ -1314,6 +1324,7 @@ gsvit_xml_out (char *gsvit_basename)
       src++;
     }
     XOUT_ELEMENT ("genTime", buff);
+    XOUT_NEWLINE ();
   }
   gsvit_write_xspace ();
   gsvit_write_xnets ();
