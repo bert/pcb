@@ -475,6 +475,36 @@ compare_cnc() {
 
 ##########################################################################
 #
+# gsvit comparison
+#
+
+# used to remove things like job name and creation date from gsvit files
+normalize_xem() {
+    local f1="$1"
+    local f2="$2"
+    $AWK '
+	/<genTime>Thu Jan 11 23:25:46 2018</genTime>/ {print} "<genTime>today</genTime>"; next}
+	{print}' \
+	$f1 > $f2
+}
+
+# top level function to compare gsvit output (*.xem)
+compare_gsvit() {
+    local f1="$1"
+    local f2="$2"
+    compare_check "compare_gsvit" "$f1" "$f2" || return 1
+
+    #  For comparison, we need to ignore changes in the Date line.
+    local cf1=${tmpd}/`basename $f1`-ref
+    local cf2=${tmpd}/`basename $f2`-out
+
+    normalize_xem $f1 $cf1
+    normalize_xem $f2 $cf2
+    run_diff $cf1 $cf2 || test_failed=yes
+}
+
+##########################################################################
+#
 # IPC-D-356 netlist comparison
 #
 
@@ -778,6 +808,11 @@ for t in $all_tests ; do
 
 		gbx)
 		    compare_rs274x ${refdir}/${fn} ${rundir}/${fn}
+		    ;;
+
+		# GSVIT HID
+		xem)
+		    compare_gsvit ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
 
 		# IPC-D-356 HID

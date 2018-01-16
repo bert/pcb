@@ -34,6 +34,7 @@ EXTRA_DIST = \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
+  inputs/gsvit_board.pcb \
   inputs/ipcd356_board.pcb \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
@@ -111,6 +112,10 @@ EXTRA_DIST = \
   golden/hid_gcode11/gcode_oneline-top.gcode \
   golden/hid_gcode11/gcode_oneline-outline.gcode \
   golden/hid_gcode11/gcode_oneline-0.0350.drill.gcode \
+  golden/hid_gsvit1/gsvit_board.top.png \
+  golden/hid_gsvit2/gsvit_board.bottom.png \
+  golden/hid_gsvit3/gsvit_board.outline.png \
+  golden/hid_gsvit4/gsvit_board.xem \
   golden/hid_ipcd3561/ipcd356_board.net \
   golden/hid_png1/gerber_oneline.png \
   golden/hid_png2/myfile.png \

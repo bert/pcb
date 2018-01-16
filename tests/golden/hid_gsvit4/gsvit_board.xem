@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gsvit>
+	<comment>Made with PCB gsvit export HID</comment>
+	<genTime>Thu Jan 11 23:25:46 2018</genTime>
+	<space>
+		<comment>***** Space *****</comment>
+		<resolution units="mm">0.025400</resolution>
+		<width>866</width>
+		<height>700</height>
+		<layers>
+			<layer name="bottom">devel/LP1695534/gsvit_board.gsvit.bottom.png</layer>
+			<layer name="top">devel/LP1695534/gsvit_board.gsvit.top.png</layer>
+			<layer name="outline">devel/LP1695534/gsvit_board.gsvit.outline.png</layer>
+		</layers>
+	</space>
+	<nets>
+		<comment>***** Nets *****</comment>
+		<net name="GND">C1.1, P1.4, R1.2, R3.2</net>
+		<net name="mstrip1">R1.1, R2.1, R20.2, START.1</net>
+		<net name="unnamed_net1">R2.2, R3.1, R19.2</net>
+		<net name="unnamed_net2">P1.3, R20.1</net>
+		<net name="unnamed_net3">P1.2, R19.1</net>
+		<net name="Vbus">C1.2, P1.1</net>
+	</nets>
+	<centroids>
+		<comment>***** Centroids *****</comment>
+		<xy name="START">
+			<description>test_point_smt_50</description>
+			<value>unknown</value>
+			<pos>295,608</pos>
+			<rotation>0</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="R1">
+			<description>0603__ROHM</description>
+			<value>10k</value>
+			<pos>662,456</pos>
+			<rotation>270</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="R20">
+			<description>0603__ROHM</description>
+			<value>27</value>
+			<pos>433,424</pos>
+			<rotation>0</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="R19">
+			<description>0603__ROHM</description>
+			<value>27</value>
+			<pos>433,306</pos>
+			<rotation>0</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="P1">
+			<description>CON_USB_TYPEA_Molex_48037-1000</description>
+			<value>USB_2.0</value>
+			<pos>208,345</pos>
+			<rotation>180</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="C1">
+			<description>1206</description>
+			<value>10uF</value>
+			<pos>590,188</pos>
+			<rotation>180</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="R2">
+			<description>0603__ROHM</description>
+			<value>10k</value>
+			<pos>551,385</pos>
+			<rotation>270</rotation>
+			<side>top</side>
+		</xy>
+		<xy name="R3">
+			<description>0603__ROHM</description>
+			<value>10k</value>
+			<pos>669,306</pos>
+			<rotation>0</rotation>
+			<side>top</side>
+		</xy>
+	</centroids>
+	<drills>
+		<comment>***** Drills *****</comment>
+		<drill id="D0">
+			<dia_inches>0.012</dia_inches>
+			<radius>6</radius>
+			<pos type="plated">662,323</pos>
+			<pos type="plated">787,393</pos>
+			<pos type="plated">354,196</pos>
+			
+		</drill>
+		<drill id="D1">
+			<dia_inches>0.035</dia_inches>
+			<radius>17</radius>
+			<pos type="plated">748,511</pos>
+			
+		</drill>
+		<drill id="D2">
+			<dia_inches>0.04331</dia_inches>
+			<radius>21</radius>
+			<pos type="unplated">157,265</pos>
+			<pos type="unplated">157,442</pos>
+			
+		</drill>
+		<drill id="D3">
+			<dia_inches>0.09842</dia_inches>
+			<radius>49</radius>
+			<pos type="plated">157,129</pos>
+			<pos type="plated">157,578</pos>
+			
+		</drill>
+	</drills>
+</gsvit>
