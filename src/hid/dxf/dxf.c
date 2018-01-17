@@ -231,13 +231,13 @@ typedef struct _DxfList
 } DxfList;
 
 
-#define NOSHAPE 0
-#define ROUND 1 /* shaped like a circle */
-#define OCTAGON 2 /* shape like an octagon */
-#define SQUARE 3 /* shaped like a square */
-#define ROUNDCLEAR 4 /* round clearance in negatives */
-#define SQUARECLEAR 5 /* square clearance in negatives */
-#define THERMAL 6 /* negative thermal relief */
+#define DXF_NOSHAPE 0
+#define DXF_ROUND 1 /* shaped like a circle */
+#define DXF_OCTAGON 2 /* shape like an octagon */
+#define DXF_SQUARE 3 /* shaped like a square */
+#define DXF_ROUNDCLEAR 4 /* round clearance in negatives */
+#define DXF_SQUARECLEAR 5 /* square clearance in negatives */
+#define DXF_THERMAL 6 /* negative thermal relief */
 
 
 /*
@@ -374,9 +374,9 @@ void hid_dxf_init ();
 #define DXF_YOffset(pcb,y) (-(y))
 
 /*!
- * \brief Round of value to the nearest multiple of 100.
+ * \brief Round-off of value to the nearest multiple of 100.
  */
-#define DXF_ROUND(x) ((int)(((x)+50)/100)*100)
+#define DXF_ROUNDOFF(x) ((int)(((x)+50)/100)*100)
 
 /*!
  * \brief DXF color definition, entities with this color follow the color
@@ -5162,10 +5162,10 @@ dxf_use_gc
     radius *= 2;
     if (radius != linewidth || lastcap != Round_Cap)
     {
-//      c = dxf_find_aperture_code (radius, ROUND);
+//      c = dxf_find_aperture_code (radius, DXF_ROUND);
       if (c <= 0)
       {
-        fprintf (stderr, "DXF: Error, aperture for radius %d type ROUND is %d\n", radius, c);
+        fprintf (stderr, "DXF: Error, aperture for radius %d type DXF_ROUND is %d\n", radius, c);
       }
       if (fp && !is_drill)
       {
@@ -5183,11 +5183,11 @@ dxf_use_gc
     {
       case Round_Cap:
       case Trace_Cap:
-        c = ROUND;
+        c = DXF_ROUND;
         break;
       default:
       case Square_Cap:
-        c = SQUARE;
+        c = DXF_SQUARE;
         break;
     }
     if (fp)
@@ -5461,9 +5461,9 @@ dxf_draw_rect
  * X,Y,Z-coordinates.\n
  * Add layer, linetype, color and width values.\n
  * Write a series of polylines and vertices by calling low level functions.\n
- * If the endcap style is ROUND add a donut at the begin and end coordinates
+ * If the endcap style is DXF_ROUND add a donut at the begin and end coordinates
  * of the line segment.\n
- * If the endcap style is SQUARE elongate the line segment with half its
+ * If the endcap style is DXF_SQUARE elongate the line segment with half its
  * width.\n
  * Remarks:\n
  * <ul>
@@ -5586,7 +5586,7 @@ dxf_draw_line
    * Donuts can not be implementend in the trace polyline since donuts
    * are a closed polyline themselves.
    */
-  if (gc->cap == ROUND)
+  if (gc->cap == DXF_ROUND)
   {
     /* place a donut at the start of the trace segment */
     dxf_write_polyline
@@ -5737,20 +5737,20 @@ dxf_draw_line
      */
     dxf_write_endseq (fp);
   }
-  /* if the end cap style is an OCTAGON: ?? */
-  if (gc->cap == OCTAGON)
+  /* if the end cap style is an DXF_OCTAGON: ?? */
+  if (gc->cap == DXF_OCTAGON)
   {
     /*!
      * \todo This end cap style has yet to be implemented at the
      * start and end point of a trace.
-     * Note: done for ROUND and SQUARE.
+     * Note: done for DXF_ROUND and DXF_SQUARE.
      */
   }
   /*
-   * if the end cap style is SQUARE: recompute the start and end
+   * if the end cap style is DXF_SQUARE: recompute the start and end
    * coordinates, that is, elongate the trace with half of the width.
    */
-  if (gc->cap == SQUARE)
+  if (gc->cap == DXF_SQUARE)
   {
     double length; /* trace length */
     double dxf_x0_1; /* extended start point */
@@ -6039,7 +6039,7 @@ dxf_draw_arc
    * Donuts can not be implemented in the trace polyline since donuts
    * are a closed polyline themselves.
    */
-  if (gc->cap == ROUND)
+  if (gc->cap == DXF_ROUND)
   {
     /* place a donut at the start of the trace segment */
     dxf_write_polyline
@@ -6270,7 +6270,7 @@ dxf_fill_circle
    */
   if (is_drill)
   {
-    radius = DXF_ROUND(radius*2) / 2;
+    radius = DXF_ROUNDOFF(radius*2) / 2;
   }
   dxf_use_gc (gc, radius);
   if (is_drill)
