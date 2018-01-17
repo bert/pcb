@@ -28,7 +28,7 @@
 /*!
  * \file dxf.c
  *
- * \author Copyright (C) 2007 .. 2011 by Bert Timmerman <bert.timmerman@xs4all.nl>
+ * \author Copyright (C) 2018 by Bert Timmerman <bert.timmerman@xs4all.nl>
  * for DXF relevant code.\n
  *
  * \brief This file contains the DXF HID (Human Interface Device) exporter to
