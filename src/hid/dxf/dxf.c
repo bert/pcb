@@ -649,7 +649,7 @@ typedef struct hid_gc_struct
 static HID_Attribute dxf_options[] =
 {
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --dxffile <string>
 DXF output file prefix. Can include a path.
@@ -661,7 +661,7 @@ DXF output file prefix. Can include a path.
 #define HA_dxffile 0
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --metric <boolean>
 Export DXF files in mm. Default is mil
@@ -673,7 +673,7 @@ Export DXF files in mm. Default is mil
 #define HA_metric 1
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --layer-color-BYBLOCK <boolean>
 Export entities in color BYBLOCK. Default is BYLAYER.
@@ -685,7 +685,7 @@ Export entities in color BYBLOCK. Default is BYLAYER.
 #define HA_color_byblock 2
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --xrefs <boolean>
 Export a DXF file with XREFS. Default is no XREFS.
@@ -697,7 +697,7 @@ Export a DXF file with XREFS. Default is no XREFS.
 #define HA_xrefs 3
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --xreffile <string>
 DXF Xrefs filename. Can include a path.
@@ -709,7 +709,7 @@ DXF Xrefs filename. Can include a path.
 #define HA_xreffile 4
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --verbose <boolean>
 Verbose output to stderr (comments).
@@ -721,7 +721,7 @@ Verbose output to stderr (comments).
 #define HA_verbose 5
 
 /*
-%start-doc options "DXF Export"
+%start-doc options "97 DXF Export"
 @ftable @code
 @item --export-all-layers <boolean>
 Export all layers.
