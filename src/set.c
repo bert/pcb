@@ -181,6 +181,24 @@ SetChangedFlag (bool New)
 }
 
 /*!
+ * \brief Sets the crosshair range to the current buffer extents.
+ */
+void
+SetCrosshairRangeToBuffer (void)
+{
+  if (Settings.Mode == PASTEBUFFER_MODE)
+    {
+      SetBufferBoundingBox (PASTEBUFFER);
+      SetCrosshairRange (PASTEBUFFER->X - PASTEBUFFER->BoundingBox.X1,
+			 PASTEBUFFER->Y - PASTEBUFFER->BoundingBox.Y1,
+			 PCB->MaxWidth -
+			 (PASTEBUFFER->BoundingBox.X2 - PASTEBUFFER->X),
+			 PCB->MaxHeight -
+			 (PASTEBUFFER->BoundingBox.Y2 - PASTEBUFFER->Y));
+    }
+}
+
+/*!
  * \brief Sets a new buffer number.
  */
 void
@@ -191,7 +209,7 @@ SetBufferNumber (int Number)
       Settings.BufferNumber = Number;
 
       /* do an update on the crosshair range */
-      crosshair_update_range();
+      SetCrosshairRangeToBuffer ();
     }
 }
 
@@ -301,10 +319,19 @@ SetMode (int Mode)
     }
 
   Settings.Mode = Mode;
-  crosshair_update_range();
+
+  if (Mode == PASTEBUFFER_MODE)
+    /* do an update on the crosshair range */
+    SetCrosshairRangeToBuffer ();
+  else
+    SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
 
   recursing = false;
 
+  /* force a crosshair grid update because the valid range
+   * may have changed
+   */
+  FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
   notify_crosshair_change (true);
 }
 

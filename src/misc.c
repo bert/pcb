@@ -2014,6 +2014,7 @@ GetGridLockCoordinates (int type, void *ptr1,
 void
 AttachForCopy (Coord PlaceX, Coord PlaceY)
 {
+  BoxType *box;
   Coord mx = 0, my = 0;
 
   Crosshair.AttachedObject.RubberbandN = 0;
@@ -2036,7 +2037,14 @@ AttachForCopy (Coord PlaceX, Coord PlaceY)
   Crosshair.AttachedObject.State = STATE_SECOND;
 
   /* get boundingbox of object and set cursor range */
-  crosshair_update_range();
+  box = GetObjectBoundingBox (Crosshair.AttachedObject.Type,
+                              Crosshair.AttachedObject.Ptr1,
+                              Crosshair.AttachedObject.Ptr2,
+                              Crosshair.AttachedObject.Ptr3);
+  SetCrosshairRange (Crosshair.AttachedObject.X - box->X1,
+                     Crosshair.AttachedObject.Y - box->Y1,
+                     PCB->MaxWidth - (box->X2 - Crosshair.AttachedObject.X),
+                     PCB->MaxHeight - (box->Y2 - Crosshair.AttachedObject.Y));
 
   /* get all attached objects if necessary */
   if ((Settings.Mode != COPY_MODE) && TEST_FLAG (RUBBERBANDFLAG, PCB))

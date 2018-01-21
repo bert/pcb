@@ -54,6 +54,5 @@ void SetCrosshairRange (Coord, Coord, Coord, Coord);
 void InitCrosshair (void);
 void DestroyCrosshair (void);
 void FitCrosshairIntoGrid (Coord, Coord);
-void crosshair_update_range(void);
 
 #endif

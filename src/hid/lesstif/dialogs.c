@@ -1163,7 +1163,7 @@ sizes_set ()
   Settings.minDrill = PCB->minDrill;
   Settings.minRing = PCB->minRing;
 
-  crosshair_update_range();
+  SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
   lesstif_pan_fixup ();
 }
 
