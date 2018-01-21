@@ -2091,7 +2091,8 @@ main (int argc, char *argv[])
 
   ResetStackAndVisibility ();
 
-  InitCrosshair ();
+  if (gui->gui)
+    InitCrosshair ();
   InitHandler ();
   InitBuffers ();
   SetMode (ARROW_MODE);
