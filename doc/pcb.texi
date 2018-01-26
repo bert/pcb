@@ -34,7 +34,7 @@ Copyright @copyright{} 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright @copyright{} 2004 DJ Delorie
 
-Copyright @copyright{} 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 PCB Contributors
+Copyright @copyright{} 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 PCB Contributors
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -240,11 +240,14 @@ apologize; please send me an e-mail and I'll try to correct the omission.
 @itemize @bullet
 @item Up to 16 copper layer designs by default.  By changing a compile time setting, this
 can be set as high as needed.
+@item Blind and Buried Vias
 @item RS-274X (Gerber) output
 @item NC Drill output
 @item Centroid (X-Y) data output
 @item IPC-D-356 (rev. 0) netlist data output
 @item Postscript and Encapsulated Postscript output
+@item Nelma numerical analysis package export
+@item GSvit numerical analysis package export
 @item Autorouter
 @item Topological router
 @item Trace optimizer
@@ -1965,6 +1968,7 @@ select the desired exporter.
 * eps::	               Eps.
 * png::	               Image.
 * nelma::              Nelma.
+* gsvit::              gsvit.
 * ipc-d-356::          IPC-D-356.
 @end menu
 
@@ -2081,11 +2085,61 @@ Can be later converted to pdf.
 
 Produces GIF/JPEG/PNG image files.
 
+
 @node nelma
 @subsection Nelma (nelma)
 @cindex nelma
 
 Numerical analysis package export.
+
+@code{Nelma} is a (command line) tool for numerically calculating various
+electrical properties of printed circuit boards or similar objects
+composed of conductors and dielectrics (however code is optimized for
+circuit board-like geometry).
+
+It is currently capable of calculating capacitances between objects
+- nets on a PCB.
+
+It returns a spice-compatible description of an equivalent circuit of
+stray capacitances that can be for example used for more accurate
+circuit simulation.
+
+Alternatively it can also produce field data that can be plotted for
+example with Gnuplot.
+
+Support for calculating resistances existed for a while but was later
+removed because it didn't receive much testing.
+
+The @code{Nelma} exporter produces a PNG image file for every copper
+layer and an input file (.em).
+
+The home page of @code{Nelma} can be found at
+https://www.tablix.org/~avian/nelma/.
+
+
+@node gsvit
+@subsection GSvit (gsvit)
+@cindex gsvit
+
+Numerical analysis package export.
+
+@code{GSvit} covers set of numerical tools for Finite Difference in Time
+Domain calculations supporting use of Nvidia CUDA environment compatible
+graphics cards.
+
+Main scientific purposes include research in nanotechnology and
+nanoscale optics, like scanning near-field optical microscopy, tip
+enhanced Raman scattering, rough surface scattering, etc.
+
+However, as FDTD is an universal method, it can be used for any other
+purposes.
+
+The @code{GSvit} exporter produces a PNG image file for every copper
+layer and a xml input file (.xem).
+
+The home page of @code{GSvit} can be found at
+http://gsvit.net.
+
 
 @node ipc-d-356
 @subsection IPC-D-356 (ipcd356)
