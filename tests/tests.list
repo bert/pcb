@@ -68,6 +68,16 @@
 #    cnc -- Excellon drill file
 #    gbx -- RS274-X (Gerber) file
 #
+# GSVIT
+#
+#    png -- Portable network graphics (PNG) file
+#    xem -- Import file for numerical analysis package
+#
+# NELMA
+#
+#    png -- Portable network graphics (PNG) file
+#    em  -- Import file for numerical analysis package
+#
 # PS
 #
 #    ps  -- PostScript file
@@ -183,6 +193,19 @@ hid_gsvit4 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | xem
 # Produces one netlist file.
 #
 hid_ipcd3561 | ipcd356_board.pcb | IPC-D-356 | --netlistfile ipcd356_board.net | | net:ipcd356_board.net
+#
+######################################################################
+# ---------------------------------------------
+# nelma export HID
+# ---------------------------------------------
+######################################################################
+#
+# Produces one em file and a png file for every layer group.
+#
+hid_nelma1 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.top.png
+hid_nelma2 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.bottom.png
+hid_nelma3 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | png:nelma_board.outline.png
+hid_nelma4 | nelma_board.pcb | nelma | --basename nelma_board --dpi 100 --copper-height 100 --substrate-height 2000 --substrate-epsilon 4.000 | | em:nelma_board.em
 #
 ######################################################################
 # ---------------------------------------------

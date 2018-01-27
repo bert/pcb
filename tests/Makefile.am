@@ -38,6 +38,7 @@ EXTRA_DIST = \
   inputs/ipcd356_board.pcb \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
+  inputs/nelma_board.pcb \
   golden/hid_bom1/bom_general.bom \
   golden/hid_bom1/bom_general.xy \
   golden/hid_bom2/test.bom \
@@ -117,6 +118,10 @@ EXTRA_DIST = \
   golden/hid_gsvit3/gsvit_board.outline.png \
   golden/hid_gsvit4/gsvit_board.xem \
   golden/hid_ipcd3561/ipcd356_board.net \
+  golden/hid_nelma1/nelma_board.top.png \
+  golden/hid_nelma2/nelma_board.bottom.png \
+  golden/hid_nelma3/nelma_board.outline.png \
+  golden/hid_nelma4/nelma_board.em \
   golden/hid_png1/gerber_oneline.png \
   golden/hid_png2/myfile.png \
   golden/hid_png3/gerber_oneline.png \
