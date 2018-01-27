@@ -110,12 +110,28 @@ If needed you can obtain the number of commits with commands like:</p>
   ./utils/git2cl -O > ChangeLog
 </pre>
 <li>
-<p>Commit and push doc/pcb-texi, NEWS and ChangeLog:</p>
+<p>Update the <b>&lt;releases&gt;</b> section of the application data in:
+data/pcb.appdata.xml.in<br>
+Add a section similar to the example below, in <u>reverse</u> order
+(<u>latest</u> on top), and edit for the correct version, date of
+release and description.</p>
 <pre>
-  git add doc/pcb.texi NEWS ChangeLog
+​    &lt;release version="4.0.2" date="2017-09-03"&gt;
+​      &lt;description&gt;
+​        &lt;p&gt;Bug fix release&lt;/p&gt;
+​      &lt;/description&gt;
+​    &lt;/release&gt;
+​​</pre>
+<li>
+<p>Commit and push data/pcb.appdata.xml.in, doc/pcb-texi, NEWS and
+ChangeLog:</p>
+<pre>
+  git add data/pcb.appdata.xml.in doc/pcb.texi NEWS ChangeLog
   git commit -m &lt;message&gt;
   git push origin pcb-4.0.1
 </pre>
+Please note that these files can be committed in seperate commits as
+well.
 <li>
 <p>Create the release tarball with:</p>
 <pre>
