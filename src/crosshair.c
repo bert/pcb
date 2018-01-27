@@ -41,6 +41,8 @@
 #include "hid_draw.h"
 
 #include "crosshair.h"
+
+#include "buffer.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
@@ -1283,6 +1285,7 @@ crosshair_update_range(void)
    *       bounding box.
    */
   if (Settings.Mode == PASTEBUFFER_MODE) {
+	SetBufferBoundingBox(PASTEBUFFER);
     xmin = MAX(xmin, PASTEBUFFER->X - PASTEBUFFER->BoundingBox.X1);
     ymin = MAX(ymin, PASTEBUFFER->Y - PASTEBUFFER->BoundingBox.Y1);
     xmax = MIN(xmax, PCB->MaxWidth - (PASTEBUFFER->BoundingBox.X2 - PASTEBUFFER->X));
