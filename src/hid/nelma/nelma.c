@@ -154,7 +154,7 @@ HID_Attribute   nelma_attribute_list[] = {
 
 /* %start-doc options "94 Nelma Options"
 @ftable @code
-@item -- basename <string>
+@item --basename <string>
 File name prefix.
 @end ftable
 %end-doc
