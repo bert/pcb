@@ -187,6 +187,8 @@ Release 4.0.1 fixes a number of bugs.
 
 Release 4.0.2 fixes a number of bugs.
 
+Release 4.1.0 is a new features release (pcb file format change).
+
 Special thanks goes to:
 @display
 Thomas Nau (who started the project and wrote the early versions).
