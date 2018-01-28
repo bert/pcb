@@ -169,12 +169,12 @@ well.
   pcb-4.0.1-README.txt and pcb-4.0.1.cksum files.
   <li>Click on "Upload".
   <li>Click on the information icon right of "pcb-4.0.1.tar.gz" to bring
-  up a form to edit the file details and check the tick boxes for all
-  the platforms, change the text for the "download button" to
-  "pcb-4.0.1.tar.gz" and click "Save".
+  up a form to edit the file details, and check the tick boxes for all
+  the platforms to "default download" for "pcb-4.0.1.tar.gz" and
+  click "Save".
   <li>In a similar fashion, remove these settings from the previous
-  release tarball by clicking "Deselect all" to un-tick all the tick
-  boxes, and click "Save".
+  release tarball (if needed) by clicking "Deselect all" to un-tick all
+  the tick boxes, and click "Save".
 </ol>
 <li>
 <p>Update the web pages.<br>
@@ -198,7 +198,7 @@ for this release.
 <p>Add a tag at the HEAD of the release branch:</p>
 <pre>
   git tag -a -m &lt;msg&gt; &lt;tagname&gt; &lt;SHA1 hash&gt;
-  git push --tags
+  git push origin --tags
 </pre>
 <li>
 <p>Return to your regularly scheduled trunk development and add a tag at
@@ -206,7 +206,7 @@ the branch point:</p>
 <pre>
   git checkout master
   git tag -a -m &lt;msg&gt; &lt;tagname&gt; &lt;SHA1 hash&gt;
-  git push --tags
+  git push origin --tags
 </pre>
 <li>
 <p>If this is a bug fix release, then simply make desired changes to the
