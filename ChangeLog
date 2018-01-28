@@ -1,41 +1,333 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated the NEWS for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated the appdata for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated the User Manual for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Update for release pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb-releases.html: Updated the pcb releases howto for
+	developers.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/nelma/nelma.c: White space correction in the User Manual
+	(nelma).   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/golden/hid_nelma4/nelma_board.em,
+	tests/inputs/nelma_board.pcb, tests/run_tests.sh, tests/tests.list: 
+	Added a set of regression tests for the nelma HID.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated the User Manual for nelma and gsvit
+	exporters.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated pcb contributors.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-16   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/golden/hid_gsvit4/gsvit_board.xem,
+	tests/inputs/gsvit_board.pcb, tests/run_tests.sh, tests/tests.list: 
+	Added a set of regression tests for the gsvit HID.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-15   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gsvit/gsvit.c, src/hid/gsvit/xmlout.h: Fix indentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-12-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gsvit/gsvit.c: Avoid double free().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-12-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gsvit/gsvit.c, src/hid/gsvit/xmlout.h: Applied patches by
+	Mike Crowe.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-12-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, src/Makefile.am, src/hid/common/draw_helpers.h,
+	src/hid/gsvit/gsvit.c, src/hid/gsvit/hid.conf,
+	src/hid/gsvit/xmlout.h: Added gsvit HID.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/action.c, src/buffer.c, src/change.c, src/crosshair.c,
+	src/crosshair.h, src/hid/batch/batch.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c, src/misc.c,
+	src/set.c, src/set.h: Revert "Allow the crosshair to compute its own
+	limits." This reverts commit f79c6f8a3c53df61e1d139ba8b6e264fbbfa28c3.  See also bug report LP1744589
+	(https://bugs.launchpad.net/pcb/+bug/1744589)  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Revert "Since non-guis may need it, always initialize
+	the crosshair." This reverts commit 683b191cd7cecb388609fffbb519ab1484fbb005.  See also bug report LP1744589
+	(https://bugs.launchpad.net/pcb/+bug/1744589)  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 12.5mm dia. x 40mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 12.5mm dia. x 35.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 12.5mm dia. x 31.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 12.5mm dia. x 25mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc: geda.inc: minor correction in comment.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 10mm dia. x 31.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 16mm dia. x 40mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 16mm dia. x 35.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 16mm dia. x 31.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 18mm dia. x 35.5mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the UPT 18mm dia. x 40mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-25   bert * bert dot timmerman AT xs4all dot nl *
+
+	* lib/geda.inc, lib/nichicon.inc: Added the LGX 35mm dia. x 58mm
+	height footprint definitions.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/batch/batch.c: src/hid/batch/batch.c: Converted plain
+	comments into doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/bom/bom.c: src/bom/bom.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/hidint.h: src/hid/hidint.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/vendor.h: src/vendor.h: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/vendor.c: src/vendor.c: Converted plain comments into doxygen
+	comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-printf.h: src/pcb-printf.h: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-printf.c: src/pcb-printf.c: Converted plain comments into
+	doxygen comments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/main.c: Since non-guis may need it, always initialize the
+	crosshair.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-09   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/buffer.c, src/change.c, src/crosshair.c,
+	src/crosshair.h, src/hid/batch/batch.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c, src/misc.c,
+	src/set.c, src/set.h: Allow the crosshair to compute its own limits.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcb-printf.c: When writing file, write arc angles with decimal
+	places.  pcb currently will read a file with non-integer angles, but rounds
+	to the nearest integer when writing arcs with such angles. Precision
+	greater than 1 degree is needed when creating complex shapes using
+	arcs, e.g. board outlines to fit some enclosures.   Reported-by: Andrew Armenia * armena AT ultradian dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2015-12-25   Jan Damborsky * dambi AT tio dot cz *
+
+	* src/gettext.h, src/main.c, src/print.c: Building from source fails
+	on Solaris due to missing locale.h  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-01   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am, data/x-excellon.desktop.in,
+	data/x-gerber.desktop.in, data/x-pcb-footprint.desktop.in,
+	data/x-pcb-layout.desktop.in, data/x-pcb-netlist.desktop.in,
+	po/POTFILES.in: Remove deprecated mimelnk files.  Bug-Debian: http://bugs.debian.org/875526  Reported-by: أحمد المحمودي (Ahmed El-Mahmoudy) *
+	aelmahmoudy AT users dot sourceforge dot net *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-27   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.desktop.in: Correction in desktop integration name and
+	comment.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-03   bert * bert dot timmerman AT xs4all dot nl *
+
+	* po/de.po, po/fr.po, po/nl.po, po/pt_BR.po, po/ru.po, src/const.h,
+	src/hid/common/hidgl.c, src/hid/gcode/gcode.c,
+	src/hid/gtk/ghid-main-menu.c, src/misc.c, tests/run_tests.sh,
+	tests/tests.list: Fix typos.   Reported-by: أحمد المحمودي (Ahmed El-Mahmoudy) *
+	aelmahmoudy AT users dot sourceforge dot net *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Splitted the Installation and Troubleshooting
+	appendix.  - removed obsolete e-mail addresses, links and cruft.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Various edits in the user manual.  - get rid of misaligned chapter numbers in comments, - attribution of co-editors, - minor edits.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Added a section describing Header objects to the
+	Introduction chapter.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi, src/hid/bom/bom.c, src/hid/ipcd356/ipcd356.c,
+	src/hid/nelma/nelma.c: Reordered exporter options in the user
+	manual.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/find.c: Access members with ".".   Reported-by: Mike Crowe * mpcrowe AT gmail dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/common/draw_helpers.c: Correction in function types.   Reported-by: Mike Crowe * mpcrowe AT gmail dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2016-03-06   DJ Delorie * dj AT delorie dot com *
+
+	* src/rubberband.c: Checks all visible lines which belong to the
+	same group as the passed arc.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Added recent contributors to the user manual.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-24   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: pcb.texi: better front matter and copyrights.  By international treaty, the copyright notice for a book must be
+	either on the title page or on the back of the title page. When the
+	copyright notice is on the back of the title page, that page is
+	customarily not numbered. Therefore, in Texinfo, the information on
+	the copyright page should be  within @titlepage and @end titlepage
+	commands.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-17   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gerber/gerber.c: gerber: update the docs for --name-style
+	'oshpark'.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Correction in the User Manual/General options
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/main.c: Elaboration on --paste-adjust.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   Keith Packard * keithp AT keithp dot com *
+
+	* src/draw.c, src/global.h, src/main.c: This parameter changes how
+	pads in the paste layer are drawn, generally so that they can be
+	made smaller to account for tool width when cutting a stencil.  The adjustment factor is in 1/100 of a mil; shrinking the pads is
+	done with a negative amount.   Signed-off-by: Keith Packard * keithp AT keithp dot com *  Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: appdata: added releases section.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/run_tests.sh: Test for fail in the test suite.   Reported-by: Bdale Garbee * bdale AT gag dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.desktop.in: pcb.desktop: added Development category.   Reported-by: Bdale Garbee * bdale AT gag dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/Makefile.am: appdata moved to metainfo directory.   Reported-by: Bdale Garbee * bdale AT gag dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-09-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: appdata format change: <application> tag
+	is now <component>.   Reported-by: Bdale Garbee * bdale AT gag dot com *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-08-31   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog, NEWS, doc/pcb.texi: Release notes for pcb-4.0.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-08-28   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/lesstif/main.c: Added check to suppress runtime scrollbar
+	warnings.   Reviewed-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
 
-	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.0.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2017-04-01   bert * bert dot timmerman AT xs4all dot nl *
-
-	* doc/pcb.texi, src/action.c, src/buffer.c, src/change.c,
-	src/change.h, src/const.h, src/copy.c, src/create.c, src/create.h,
-	src/draw.c, src/draw.h, src/file.c, src/file.h, src/find.c,
-	src/flags.c, src/global.h, src/gpcb-menu.res.in,
-	src/hid/common/flags.c, src/hid/gerber/gerber.c, src/hid/hidint.h,
-	src/hid/ps/ps.c, src/macro.h, src/main.c, src/misc.c, src/misc.h,
-	src/move.c, src/parse_y.y, src/polygon.c, src/remove.c,
-	src/remove.h, src/report.c, src/search.c, src/search.h,
-	src/select.c, src/select.h, src/strflags.c, src/undo.c, src/undo.h,
-	tests/Makefile.am, tests/golden/hid_gerber4/buried.bottom.gbr,
-	tests/golden/hid_gerber4/buried.fab.gbr,
-	tests/golden/hid_gerber4/buried.group2.gbr,
-	tests/golden/hid_gerber4/buried.group4.gbr,
-	tests/golden/hid_gerber4/buried.group7.gbr,
-	tests/golden/hid_gerber4/buried.plated-drill.cnc,
-	tests/golden/hid_gerber4/buried.plated-drill_03-08.cnc,
-	tests/golden/hid_gerber4/buried.top.gbr,
-	tests/golden/hid_ps2/buried.ps, tests/inputs/buried.pcb,
-	tests/tests.list: Revert "Buried vias" This reverts commit 3982688c6dd1e71d5cb877430542284fe2544892.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2017-03-26   bert * bert dot timmerman AT xs4all dot nl *
-
-	* src/pcb-menu.res.in: Revert "Add blind/buried via feature commands
-	to the Lesstif pull down menu." This reverts commit 4b299900c8be752d150dd6cf2c2a3048f436c8c2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+	* doc/doxygen/README.ppa, doc/doxygen/pcb-launchpad-ppa.html,
+	doc/doxygen/pcb-main.txt: Converted the README.ppa into a html file.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-08-27   bert * bert dot timmerman AT xs4all dot nl *
 
-	* src/draw.c: Revert "Correction in drawing end angle in "BuriedTo"
-	indicator arc." This reverts commit ee54e9bf567a74c79db1cef10a6311970a6c74d2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+	* README.ppa, doc/doxygen/README.ppa: README.ppa: moved to
+	doc/doxygen.  Added corrections and changes.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2017-07-30   bert * bert dot timmerman AT xs4all dot nl *
 
