@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 ... 2017 Bert Timmerman <bert.timmerman@xs4all.nl> -->
+<!-- Copyright 2014, 2016, 2017, 2018 Bert Timmerman <bert.timmerman@xs4all.nl> -->
 <component>
   <id type="desktop">pcb.desktop</id>
   <metadata_license>GFDL-1.3</metadata_license>
@@ -49,7 +49,12 @@
   <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
   <url type="translate">https://translations.launchpad.net/pcb</url>
 ​  <releases>
-​    <release version="4.0.2" date="2017-09-03">
+​    <release version="4.1.0" date="2018-01-28">
+​      <description>
+​        <p>New features release (pcb file format change)</p>
+​      </description>
+​    </release>
+​​​    <release version="4.0.2" date="2017-09-03">
 ​      <description>
 ​        <p>Bug fix release</p>
 ​      </description>
