@@ -1,4 +1,96 @@
 ========================================================================
+Release notes for pcb-4.1.0
+========================================================================
+
+Dear Users,
+
+This release introduces a file format change.
+
+This is required by the added Blind and Buried Via capabilities of pcb.
+
+Kind regards,
+
+The pcb development team
+
+
+Contributors
+------------
+The following authors contributed to the 4.1.0 release:
+- Charles Parker
+- Mike Crowe
+- Andrew Armenia
+- Bdale Garbee
+- Keith Packard
+- DJ Delorie
+- Jan Damborsky
+- Ahmed El-Mahmoudy
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- the blind and buried via feature is introduced.
+- removed the deprecated mimelnk files.
+- added a releases section to the appdata.
+- corrections in the User Manual.
+- reordered the exporter options in the User manual.
+- better front matter and copyrights for the User Manual.
+- splitted the Installation and Troubleshooting appendix in the User
+  Manual.
+- correction in desktop integration name and comment.
+- when writing a pcb file, write arc angles with decimal places.
+- added the "Development" category in the desktop integration.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- gsvit exporter added.
+
+
+Footprints library
+------------------
+- several Nichicon radial capacitor footprints were added to the pcblib.
+
+
+Developer experience improvements
+---------------------------------
+- some more doxygenation of source code files.
+- added regression tests for the Nelma exporter.
+
+
+Notes for early adapters
+------------------------
+- none
+
+
+Changed dependencies
+--------------------
+- none
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#1270886  When saving file, angles are rounded to nearest degree.
+#1529233  Building from source fails on Solaris due to missing locale.h.
+#1545170  Arcs don't honor Rubber band mode.
+#1656661  Blind/Buried vias - new feature.
+#1665992  Lesstif needs blind and buried via support.
+#1695534  Patch to enchance features of NELMA.
+#1717254  Remove deprecated mimelnk files.
+#1720629  Spelling errors in pcb.
+#1731369  Crosshair limits update.
+#1744589  Cannot move selection.
+
+
+========================================================================
 Release notes for pcb-4.0.2
 ========================================================================
 
@@ -87,6 +179,7 @@ Fixed and committed Launchpad bug reports
 #1687776  <esc> should close command entry window.
 #1670023  LessTif HID: XmScrollBar Warnings.
 #1670040  Segfault when loading file with empty Styles directive.
+
 
 ========================================================================
 Release notes for pcb-4.0.1
