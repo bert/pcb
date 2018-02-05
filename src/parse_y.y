@@ -1180,11 +1180,17 @@ text_hi_format
 
 @syntax
 Polygon (SFlags) (
-@ @ @ @dots{} (X Y) @dots{}
 @ @ @ @dots{} [X Y] @dots{}
 @ @ @ Hole (
-@ @ @ @ @ @ @dots{} (X Y) @dots{}
 @ @ @ @ @ @ @dots{} [X Y] @dots{}
+@ @ @ )
+@ @ @ @dots{}
+)
+
+Polygon (SFlags) (
+@ @ @ @dots{} (X Y) @dots{}
+@ @ @ Hole (
+@ @ @ @ @ @ @dots{} (X Y) @dots{}
 @ @ @ )
 @ @ @ @dots{}
 )
