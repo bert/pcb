@@ -756,6 +756,10 @@ add to thickness to get clearance diameter
 diameter of solder mask opening
 @item Drill
 diameter of drill
+@item BuriedFrom
+upper layer from which the buried via starts
+@item BuriedTo
+lower layer to which the buried via ends
 @item Name
 string, name of via (vias have names?)
 @item SFlags
@@ -763,6 +767,18 @@ symbolic or numerical flags
 @item NFlags
 numerical flags only
 @end table
+
+Example:
+
+@example
+Via[15.0000mm 11.0000mm 24.00mil 12.00mil 0.0000 11.81mil 0 5 "" ""]
+@end example
+
+The above example give a via at coordinates x=15.0000 mm, y=11.0000mm,
+with a 24.00mil thickness, a 6.00mil clearance, a 0.0000 gap,
+a -12.00mil mask (tented), a 11.81mil drill width, starting at the top
+layer ("0"), ending at the 3rd copper layer ("2"), and has no names and
+no flags.
 
 %end-doc */
 
