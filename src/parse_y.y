@@ -152,6 +152,17 @@ variants and use 1 mil units.  Note that when multiple variants
 are listed, the most recent (and most preferred) format is the first
 listed.
 
+The square bracket syntax specifies only the enclosed values as high
+resolution. Whenever child elements need high resolution, they have to
+use square brackets on their own, as in this example:
+
+@example  
+   Symbol['!' 12]                       # 12 is a high resolution value
+   (  # <--- this pair is only for grouping and can never be a square
+           SymbolLine[0 4500 0 5000 8]  # high resolution
+           SymbolLine(0   10 0   35 8)  # standard resolution
+@end example
+
 Symbolic and numeric flags (SFlags and NFlags) are described in
 @ref{Object Flags}.
 

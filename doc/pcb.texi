@@ -209,7 +209,7 @@ PCB Contributors:
 Peter Clifton, Andrew Poelstra, Markus Hitter, Ben Jackson, Felix Ruoff,
 Sergey Alyoshin, Dima Kogan, Jerome Marchand, Jean Richard, Bob Paddock,
 Milan Prochac, Britton Leo Kerin, Roland Lutz, Charles Parker,
-Jared Casper, Stuart Brorson, Ahmed El-Mahmoudy,
+Jared Casper, Stuart Brorson, Ahmed El-Mahmoudy, Josef Wolf,
 Krzysztof Ko@'sciuszkiewicz, Mike Crowe, Andrew Armenia, Jan Damborsky,
 Wiley E. Hill, Sergey Stepanov, Vladimir Zhbanov, Peter Brett,
 Steven Michalske, Leo B@"arring, Gareth Edwards, Anton Dubniak,
