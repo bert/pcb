@@ -331,9 +331,18 @@ T_FILEVERSION '[' INTEGER ']'
 
 /* %start-doc pcbfile PCB
 
+@noindent
+Current syntax:
+
 @syntax
 PCB ["Name" Width Height]
-PCB ("Name" Width Height]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
+PCB ("Name" Width Height)
 PCB ("Name")
 @end syntax
 
@@ -372,8 +381,17 @@ pcbname
 
 /* %start-doc pcbfile Grid
 
+@noindent
+Current syntax:
+
 @syntax
 Grid [Step OffsetX OffsetY Visible]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Grid (Step OffsetX OffsetY Visible)
 Grid (Step OffsetX OffsetY)
 @end syntax
@@ -430,6 +448,9 @@ pcbhigrid
 		;
 
 /* %start-doc pcbfile Cursor
+
+@noindent
+Legacy syntax:
 
 @syntax
 Cursor [X Y Zoom]
@@ -672,10 +693,19 @@ Minimum spacing to other nets.  If omitted, 10 mils is the default.
 
 @end table
 
+@noindent
+Current syntax example:
+
 @example
-Styles("Signal,10,40,20:Power,25,60,35:Fat,40,60,35:Skinny,8,36,20")
 Styles["Logic,1000,3600,2000,1000:Power,2500,6000,3500,1000:
 @ @ @ Line,4000,6000,3500,1000:Breakout,600,2402,1181,600"]
+@end example
+
+@noindent
+Legacy syntax example:
+
+@example
+Styles("Signal,10,40,20:Power,25,60,35:Fat,40,60,35:Skinny,8,36,20")
 @end example
 
 @noindent
@@ -736,9 +766,18 @@ via
 
 /* %start-doc pcbfile Via
 
+@noindent
+Current syntax:
+
 @syntax
 Via [X Y Thickness Clearance Mask Drill BuriedFrom BuriedTo "Name" SFlags]
 Via [X Y Thickness Clearance Mask Drill "Name" SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Via (X Y Thickness Clearance Mask Drill "Name" NFlags)
 Via (X Y Thickness Clearance Drill "Name" NFlags)
 Via (X Y Thickness Drill "Name" NFlags)
@@ -852,8 +891,17 @@ via_oldformat
 
 /* %start-doc pcbfile Rat
 
+@noindent
+Current syntax:
+
 @syntax
 Rat [X1 Y1 Group1 X2 Y2 Group2 SFlags]
+@end syntax
+
+@noindent
+Legacy Syntax:
+
+@syntax
 Rat (X1 Y1 Group1 X2 Y2 Group2 NFlags)
 @end syntax
 
@@ -979,8 +1027,17 @@ layerdefinition
 
 /* %start-doc pcbfile Line
 
+@noindent
+Current syntax:
+
 @syntax
 Line [X1 Y1 X2 Y2 Thickness Clearance SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Line (X1 Y1 X2 Y2 Thickness Clearance NFlags)
 Line (X1 Y1 X2 Y2 Thickness NFlags)
 @end syntax
@@ -1034,8 +1091,17 @@ line_oldformat
 
 /* %start-doc pcbfile Arc
 
+@noindent
+Current syntax:
+
 @syntax
 Arc [X Y RadiusX RadiusY Thickness Clearance StartAngle DeltaAngle SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Arc (X Y RadiusX RadiusY Thickness Clearance StartAngle DeltaAngle NFlags)
 Arc (X Y RadiusX RadiusY Thickness StartAngle DeltaAngle NFlags)
 @end syntax
@@ -1098,8 +1164,17 @@ arc_oldformat
 
 /* %start-doc pcbfile Text
 
+@noindent
+Current syntax:
+
 @syntax
 Text [X Y Direction Scale "String" SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Text (X Y Direction Scale "String" NFlags)
 Text (X Y Direction "String" NFlags)
 @end syntax
@@ -1178,6 +1253,9 @@ text_hi_format
 
 /* %start-doc pcbfile Polygon
 
+@noindent
+Current syntax:
+
 @syntax
 Polygon (SFlags) (
 @ @ @ @dots{} [X Y] @dots{}
@@ -1186,7 +1264,12 @@ Polygon (SFlags) (
 @ @ @ )
 @ @ @ @dots{}
 )
+@end syntax
 
+@noindent
+Legacy syntax:
+
+@syntax
 Polygon (SFlags) (
 @ @ @ @dots{} (X Y) @dots{}
 @ @ @ Hole (
@@ -1281,8 +1364,19 @@ polygonpoint
 
 /* %start-doc pcbfile Element
 
+@noindent
+Current syntax:
+
 @syntax
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags] (
+@ @ @ @dots{} contents @dots{}
+)
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Element (NFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TNFlags) (
 Element (NFlags "Desc" "Name" "Value" TX TY TDir TScale TNFlags) (
 Element (NFlags "Desc" "Name" TX TY TDir TScale TNFlags) (
@@ -1441,8 +1535,17 @@ element_hi_format
 
 /* %start-doc pcbfile ElementLine
 
+@noindent
+Current syntax:
+
 @syntax
 ElementLine [X1 Y1 X2 Y2 Thickness]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 ElementLine (X1 Y1 X2 Y2 Thickness)
 @end syntax
 
@@ -1459,8 +1562,17 @@ The width of the silk for this line.
 
 /* %start-doc pcbfile ElementArc
 
+@noindent
+Current syntax:
+
 @syntax
 ElementArc [X Y Width Height StartAngle DeltaAngle Thickness]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 ElementArc (X Y Width Height StartAngle DeltaAngle Thickness)
 @end syntax
 
@@ -1487,6 +1599,9 @@ The width of the silk line which forms the arc.
 %end-doc */
 
 /* %start-doc pcbfile Mark
+
+@noindent
+Legacy syntax:
 
 @syntax
 Mark [X Y]
@@ -1585,8 +1700,17 @@ relementdef
 
 /* %start-doc pcbfile Pin
 
+@noindent
+Current syntax:
+
 @syntax
 Pin [rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Pin (rX rY Thickness Clearance Mask Drill "Name" "Number" NFlags)
 Pin (aX aY Thickness Drill "Name" "Number" NFlags)
 Pin (aX aY Thickness Drill "Name" NFlags)
@@ -1691,8 +1815,17 @@ pin_oldformat
 
 /* %start-doc pcbfile Pad
 
+@noindent
+Current syntax:
+
 @syntax
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" SFlags]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Pad (rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" NFlags)
 Pad (aX1 aY1 aX2 aY2 Thickness "Name" "Number" NFlags)
 Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
@@ -1786,8 +1919,19 @@ symbols
 
 /* %start-doc pcbfile Symbol
 
+@noindent
+Current syntax:
+
 @syntax
 Symbol [Char Delta] (
+@ @ @ @dots{} symbol lines @dots{}
+)
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 Symbol (Char Delta) (
 @ @ @ @dots{} symbol lines @dots{}
 )
@@ -1852,8 +1996,17 @@ symboldata
 
 /* %start-doc pcbfile SymbolLine
 
+@noindent
+Current syntax:
+
 @syntax
 SymbolLine [X1 Y1 X2 Y2 Thickness]
+@end syntax
+
+@noindent
+Legacy syntax:
+
+@syntax
 SymbolLine (X1 Y1 X2 Y2 Thickness)
 @end syntax
 
