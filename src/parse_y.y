@@ -1991,6 +1991,35 @@ if the value is interpreted as, for example, a number.
 
 @end table
 
+Below examples for global (board wide) attributes:
+
+@example
+
+Attribute("PCB::grid::unit" "mil")
+
+Attribute("PCB::grid::size" "39.37mil")
+
+Attribute("PCB::grid::unit" "mm")
+
+@end example
+
+and some examples for attributes in an element (local):
+
+@example
+
+Element["lock" "BGA676N100P26X26-2700X2700X260" "U?" "FG676" 20.0000mm 20.0000mm 0.0000 -631.49mil 0 100 ""]
+(
+	Attribute("author" "PCB Contributors")
+	Attribute("dist-license" "GPL2")
+	Attribute("use-license" "unlimited2")
+	Attribute("status" "Experimental")
+	Attribute("attributes in footprint" "1")
+	Attribute("package body length" "27.000000")
+	Attribute("package body width" "27.000000")
+	Attribute("package height" "2.600000")
+
+@end example
+
 %end-doc */
 
 attribute
