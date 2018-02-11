@@ -456,6 +456,8 @@ real_load_pcb (char *Filename, bool revert)
             Settings.grid_unit = new_unit;
         }
       AttributePut (PCB, "PCB::grid::unit", Settings.grid_unit->suffix);
+      Settings.increments = get_increments_struct (Settings.grid_unit->family);
+
       /* Use attribute PCB::grid::size as size, if we can */
       grid_size = AttributeGet (PCB, "PCB::grid::size");
       if (grid_size)
