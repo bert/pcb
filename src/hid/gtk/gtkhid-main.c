@@ -1594,6 +1594,22 @@ Export (int argc, char **argv, Coord x, Coord y)
 
 /* ------------------------------------------------------------ */
 
+static const char benchmark_syntax[] =
+"Benchmark()\n";
+
+static const char benchmark_help[] =
+N_("Report the amount of redraws per second.");
+
+/* %start-doc actions Benchmark
+
+This action is invoked by typing the command given above in the command
+entry dialog.
+
+@noindent This action reports the number of redraws per second on the command
+line interface.
+
+%end-doc */
+
 static int
 Benchmark (int argc, char **argv, Coord x, Coord y)
 {
@@ -2079,7 +2095,7 @@ Busy (int argc, char **argv, Coord x, Coord y)
 
 HID_Action ghid_main_action_list[] = {
   {"About", 0, About, about_help, about_syntax},
-  {"Benchmark", 0, Benchmark},
+  {"Benchmark", 0, Benchmark, benchmark_help, benchmark_syntax},
   {"Busy", 0, Busy},
   {"Center", N_("Click on a location to center"), Center, center_help, center_syntax},
   {"Command", 0, Command},
