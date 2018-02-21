@@ -1264,6 +1264,26 @@ Command (int argc, char **argv, Coord x, Coord y)
 
 /* ---------------------------------------------------------------------- */
 
+static const char load_syntax[] =
+"Load(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)";
+
+static const char load_help[] =
+N_("Load layout data from a user-selected file.");
+
+/* %start-doc actions Load
+
+This action is invoked by typing the command given above in the command
+entry dialog.
+This action is a GUI front-end to the core's @code{LoadFrom}
+action (@pxref{LoadFrom Action}).
+If you happen to pass a filename, like @code{LoadFrom}, then
+@code{LoadFrom} is called directly.
+Else this action opens a file chooser dialog window.
+The user is to select a filename to load, and then that layout
+file is loaded into pcb.
+
+%end-doc */
+
 static int
 Load (int argc, char **argv, Coord x, Coord y)
 {
@@ -2144,7 +2164,7 @@ HID_Action ghid_main_action_list[] = {
   {"ImportGUI", 0, ImportGUI, importgui_help, importgui_syntax},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
-  {"Load", 0, Load},
+  {"Load", 0, Load, load_help, load_syntax},
   {"Pan", 0, PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
