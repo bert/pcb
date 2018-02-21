@@ -1577,6 +1577,21 @@ PrintCalibrate (int argc, char **argv, Coord x, Coord y)
 
 /* ------------------------------------------------------------ */
 
+static const char export_syntax[] =
+"Export()\n";
+
+static const char export_help[] =
+N_("Open the Export dialog window.");
+
+/* %start-doc actions Export
+
+This action is invoked by typing the command given above in the command
+entry dialog.
+
+@noindent This action opens the Export dialog window.
+
+%end-doc */
+
 static int
 Export (int argc, char **argv, Coord x, Coord y)
 {
@@ -2124,7 +2139,7 @@ HID_Action ghid_main_action_list[] = {
   {"Command", 0, Command},
   {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
-  {"Export", 0, Export},
+  {"Export", 0, Export, export_help, export_syntax},
   {"GetXY", 0, GetXY, getxy_help, getxy_syntax},
   {"ImportGUI", 0, ImportGUI, importgui_help, importgui_syntax},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
