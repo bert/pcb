@@ -2086,6 +2086,29 @@ ImportGUI (int argc, char **argv, Coord x, Coord y)
 }
 
 /* ------------------------------------------------------------ */
+
+static const char busy_syntax[] =
+"Busy()\n";
+
+static const char busy_help[] =
+N_("Show a busy cursor.");
+
+/* %start-doc actions Busy
+
+This action is invoked by the program when there is a waiting state for
+the user.
+
+@noindent This action shows a "watch" like cursor graphic to indicate
+the pcb program is chewing on a task taking significant time.
+
+@noindent The cursor graphic is reset when the task is finished.
+
+When invoked by the user from the command entry window (no program task
+running) the cursor graphic is reset when the user enters a coordinate
+(left mouse button click).
+
+%end-doc */
+
 static int
 Busy (int argc, char **argv, Coord x, Coord y)
 {
@@ -2096,7 +2119,7 @@ Busy (int argc, char **argv, Coord x, Coord y)
 HID_Action ghid_main_action_list[] = {
   {"About", 0, About, about_help, about_syntax},
   {"Benchmark", 0, Benchmark, benchmark_help, benchmark_syntax},
-  {"Busy", 0, Busy},
+  {"Busy", 0, Busy, busy_help, busy_syntax},
   {"Center", N_("Click on a location to center"), Center, center_help, center_syntax},
   {"Command", 0, Command},
   {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
