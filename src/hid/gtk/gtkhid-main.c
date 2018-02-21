@@ -1112,7 +1112,7 @@ N_("Tell the user about this version of PCB.");
 
 /* %start-doc actions About
 
-This just pops up a dialog telling the user which version of
+This just pops up an about dialog telling the user which version of
 @code{pcb} they're running.
 
 %end-doc */
