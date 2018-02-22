@@ -5997,5 +5997,4 @@ make both a solid connection and one with thermal relief (see @ref{Polygon Objec
 @unnumbered Index of Concepts
 @printindex cp
 
-@contents
 @bye
