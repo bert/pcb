@@ -1255,6 +1255,58 @@ LibraryChanged (int argc, char **argv, Coord x, Coord y)
 
 /* ---------------------------------------------------------------------- */
 
+static const char command_syntax[] =
+"Command()";
+
+static const char command_help[] =
+"Displays the command line input window.";
+
+/* %start-doc actions Command
+
+The command window allows the user to manually enter actions to be
+executed.
+Action syntax can be done one of two ways:
+
+@itemize @bullet
+
+@item
+Follow the action name by an open parenthesis, arguments separated by
+commas, end with a close parenthesis.
+Example:
+
+@example
+@code{Abc(1,2,3)}
+@end example
+
+@item
+Separate the action name and arguments by spaces.
+Example:
+
+@example
+@code{Abc 1 2 3}
+@end example
+
+@end itemize
+
+The first option allows you to have arguments with spaces in them,
+but the second is more ``natural'' to type for most people.
+
+Note that action names are not case sensitive, but arguments normally
+are.  However, most actions will check for ``keywords'' in a case
+insensitive way.
+
+There are three ways to finish with the command window.
+If you press the @code{Enter} key, the command is invoked, the window
+goes away, and the next time you bring up the command window it's empty.
+If you press the @code{Esc} key, the window goes away without invoking
+anything, and the next time you bring up the command window it resumes
+entering the command you were entering before.
+If you change focus away from the command window (i.e. click on some
+other window), the command window goes away but the next time you bring
+it up it resumes entering the command you were entering before.
+
+%end-doc */
+
 static int
 Command (int argc, char **argv, Coord x, Coord y)
 {
@@ -2156,7 +2208,7 @@ HID_Action ghid_main_action_list[] = {
   {"Benchmark", 0, Benchmark, benchmark_help, benchmark_syntax},
   {"Busy", 0, Busy, busy_help, busy_syntax},
   {"Center", N_("Click on a location to center"), Center, center_help, center_syntax},
-  {"Command", 0, Command},
+  {"Command", 0, Command, command_help, command_syntax},
   {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export, export_help, export_syntax},
