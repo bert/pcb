@@ -788,17 +788,27 @@ static const char command_help[] =
 /* %start-doc actions Command
 
 The command window allows the user to manually enter actions to be
-executed.  Action syntax can be done one of two ways:
+executed.
+Action syntax can be done one of two ways:
 
 @itemize @bullet
 
 @item
 Follow the action name by an open parenthesis, arguments separated by
-commas, end with a close parenthesis.  Example: @code{Abc(1,2,3)}
+commas, end with a close parenthesis.
+Example:
+
+@example
+@code{Abc(1,2,3)}
+@end example
 
 @item
-Separate the action name and arguments by spaces.  Example: @code{Abc
-1 2 3}.
+Separate the action name and arguments by spaces.
+Example:
+
+@example
+@code{Abc 1 2 3}
+@end example
 
 @end itemize
 
@@ -806,18 +816,19 @@ The first option allows you to have arguments with spaces in them,
 but the second is more ``natural'' to type for most people.
 
 Note that action names are not case sensitive, but arguments normally
-are.  However, most actions will check for ``keywords'' in a case
+are.
+However, most actions will check for ``keywords'' in a case
 insensitive way.
 
-There are three ways to finish with the command window.  If you press
-the @code{Enter} key, the command is invoked, the window goes away,
-and the next time you bring up the command window it's empty.  If you
-press the @code{Esc} key, the window goes away without invoking
+There are three ways to finish with the command window.
+If you press the @code{Enter} key, the command is invoked, the window
+goes away, and the next time you bring up the command window it's empty.
+If you press the @code{Esc} key, the window goes away without invoking
 anything, and the next time you bring up the command window it's
-empty.  If you change focus away from the command window (i.e. click
-on some other window), the command window goes away but the next time
-you bring it up it resumes entering the command you were entering
-before.
+empty.
+If you change focus away from the command window (i.e. click on some
+other window), the command window goes away but the next time you bring
+it up it resumes entering the command you were entering before.
 
 %end-doc */
 
