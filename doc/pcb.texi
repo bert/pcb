@@ -86,6 +86,7 @@ board layout system.
 * Intro::                  A short description of the basic objects.
 * Getting Started::        Introduction to @pcb{}.
 * Autorouter::             Using the autorouter.
+* Toporouter::             Using the Topological autorouter.
 * User Commands::          User commands of @pcb{}.
 * Command-Line Options::   Calling @pcb{} from a shell.
 * X11 Interface::          Action routines, resources and default translation.
@@ -251,7 +252,7 @@ can be set as high as needed.
 @item Nelma numerical analysis package export
 @item GSvit numerical analysis package export
 @item Autorouter
-@item Topological router
+@item Toporouter
 @item Trace optimizer
 @item Rats nest
 @item Design Rule Checker (DRC)
@@ -2601,6 +2602,57 @@ new vias.
 After the design has been autorouted, you may want to run the trace
 optimizer.  See section @ref{Trace Optimizer} for more information on
 the trace optimizer.
+
+
+@c ---- Topological router chapter ----
+@node Toporouter
+@chapter Toporouter
+@cindex Topological router
+@cindex Toporouter
+
+@pcb{} includes an Topological autorouter (Toporouter) which can greatly
+speed up the layout of a circuit board.
+
+The Topological autorouter is implemented by Anthony Blake and is a
+topological type of autorouter based on:
+
+``Layer Assignment for a Rubber Band Router''
+by Dayan, T. and Dai, W.W.M.,
+Tech Report UCSC-CRL-92-50, Univ. of California, Santa Cruz, 1992.
+
+``Topological Routing in SURF: Generating a Rubber-Band Sketch''
+by Dai, W.W.M and Dayan, T. and Staepelaere, D.,
+Proc. 28th ACM/IEEE Design Automation Conference, 1991, pp. 39-44.
+
+``SURF: Rubber-Band Routing System for Multichip Modules,''
+by David Staepelaere, Jeffrey Jue, Tal Dayan, Wayne Wei-Ming Dai,
+IEEE Design and Test of Computers ,vol. 10, no. 4,  pp. 18-26,
+October/December, 1993.
+
+``Rubber-band based topological router''
+by Dayan, T., PhD Thesis, Univ. of California, Santa Cruz, 1997.
+
+``Geometric transformations for a rubber-band sketch''
+by David Staepelaere, Master's thesis, Univ. of California, Santa Cruz,
+September 1992.
+
+These reference papers are not needed for using the Topological
+autorouter.
+
+Before using the Topological autorouter, all elements need to be loaded
+into the layout and placed and the connectivity netlist must be loaded.
+
+Once the elements have been placed and the netlist loaded, the following
+steps will route your design:
+
+@enumerate
+@item Turn off visibility of any layers that you don't want the router
+to use.
+
+@item Set the current routing style to whatever you'd like the router to
+use for any nets not having a defined route style in the netlist.
+
+@end enumerate
 
 
 @c ---- User Commands chapter ----
