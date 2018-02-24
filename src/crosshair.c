@@ -999,23 +999,40 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   struct snap_data snap_data;
   int ans;
 
+  /* limit the crosshair location to the board area */
   Crosshair.X = CLAMP (X, Crosshair.MinX, Crosshair.MaxX);
   Crosshair.Y = CLAMP (Y, Crosshair.MinY, Crosshair.MaxY);
 
+  /*
+   * GRID SNAPPING
+   *
+   * First figure out where the nearest grid point that would snap to is. Then
+   * if we don't find an object that we would prefer, snap to the grid point.
+   *
+   */
+  
+  /* if we're drawing rats, don't snap to the grid */
   if (PCB->RatDraw)
     {
+    /* set the "nearest grid" somewhere off the board so that everything else
+     is closer */
       nearest_grid_x = -MIL_TO_COORD (6);
       nearest_grid_y = -MIL_TO_COORD (6);
     }
   else
     {
+    /* not drawing rats */
+    /* find the closest grid point */
       nearest_grid_x = GridFit (Crosshair.X, PCB->Grid, PCB->GridOffsetX);
       nearest_grid_y = GridFit (Crosshair.Y, PCB->Grid, PCB->GridOffsetY);
 
+    /* if something is marked and we're forcing orthogonal moves... */
       if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
 	{
 	  Coord dx = Crosshair.X - Marked.X;
 	  Coord dy = Crosshair.Y - Marked.Y;
+      /* restrict motion along the x or y axis
+       this assumes we're always snapped to a grid point... */
 	  if (ABS (dx) > ABS (dy))
 	    nearest_grid_y = Marked.Y;
 	  else
@@ -1024,6 +1041,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
     }
 
+  /* The snap_data structure contains all of the information about where we're
+   * going to snap to. */
   snap_data.crosshair = &Crosshair;
   snap_data.nearest_sq_dist =
     crosshair_sq_dist (&Crosshair, nearest_grid_x, nearest_grid_y);
@@ -1032,16 +1051,19 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
   snap_data.y = nearest_grid_y;
 
   ans = NO_TYPE;
+  /* if we're not drawing rats, check for elements first */
   if (!PCB->RatDraw)
     ans = SearchObjectByLocation (ELEMENT_TYPE, &ptr1, &ptr2, &ptr3,
                                   Crosshair.X, Crosshair.Y, PCB->Grid / 2);
 
   if (ans & ELEMENT_TYPE)
     {
+    /* if we found an element, check to see if we should snap to it */
       ElementType *el = (ElementType *) ptr1;
       check_snap_object (&snap_data, el->MarkX, el->MarkY, false);
     }
 
+  /* try snapping to a pad if we're drawing rats, or pad snapping is turned on */
   ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchObjectByLocation (PAD_TYPE, &ptr1, &ptr2, &ptr3,
@@ -1054,25 +1076,29 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       ptr1 == Crosshair.AttachedObject.Ptr1)
     ans = NO_TYPE;
 
-  if (ans != NO_TYPE &&
-      ( Settings.Mode == LINE_MODE ||
-       (Settings.Mode == MOVE_MODE &&
-        Crosshair.AttachedObject.Type == LINEPOINT_TYPE)))
+  if (ans != NO_TYPE &&                  /* we found a pad */
+      ( Settings.Mode == LINE_MODE ||    /* we're in line drawing mode, or... */
+       (Settings.Mode == MOVE_MODE &&    /* we're moving something and ... */
+        Crosshair.AttachedObject.Type == LINEPOINT_TYPE))) /* it's a line */
     {
+    /* we found a pad and we're drawing or moving a line */
       PadType *pad = (PadType *) ptr2;
       LayerType *desired_layer;
       Cardinal desired_group;
       Cardinal bottom_group, top_group;
       int found_our_layer = false;
 
+    /* the layer we'd like to snap to, start with the current layer */
       desired_layer = CURRENT;
       if (Settings.Mode == MOVE_MODE &&
           Crosshair.AttachedObject.Type == LINEPOINT_TYPE)
         {
+      /* if we're moving something, the desired layer is the layer it's on */
           desired_layer = (LayerType *)Crosshair.AttachedObject.Ptr1;
         }
 
-      /* find layer groups of the top and bottom sides */
+    /* pads must be on the top or bottom sides.
+     * find layer groups of the top and bottom sides */
       top_group = GetLayerGroupNumberBySide (TOP_SIDE);
       bottom_group = GetLayerGroupNumberBySide (BOTTOM_SIDE);
       desired_group = TEST_FLAG (ONSOLDERFLAG, pad) ? bottom_group : top_group;
@@ -1081,6 +1107,8 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       {
         if (layer == desired_layer)
           {
+        /* the layer the pad is on is the same as the layer of the line
+         * that we're moving. */
             found_our_layer = true;
             break;
           }
@@ -1088,17 +1116,21 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
       END_LOOP;
 
       if (found_our_layer == false)
+    /* different layers, so don't snap */
         ans = NO_TYPE;
     }
 
   if (ans != NO_TYPE)
     {
+    /* we found a pad we want to snap to, check to see if we should */
       PadType *pad = (PadType *)ptr2;
       check_snap_object (&snap_data, pad->Point1.X + (pad->Point2.X - pad->Point1.X) / 2,
                                      pad->Point1.Y + (pad->Point2.Y - pad->Point1.Y) / 2,
                          true);
     }
 
+  /* try snapping to a pin
+   * similar to snapping to a pad, but without the layer restriction */
   ans = NO_TYPE;
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchObjectByLocation (PIN_TYPE, &ptr1, &ptr2, &ptr3,
@@ -1113,10 +1145,12 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (ans != NO_TYPE)
     {
+    /* we found a pin, try to snap to it */
       PinType *pin = (PinType *)ptr2;
       check_snap_object (&snap_data, pin->X, pin->Y, true);
     }
 
+  /* if snapping to pins and pads is turned on, try snapping to vias */
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchObjectByLocation (VIA_TYPE, &ptr1, &ptr2, &ptr3,
@@ -1130,10 +1164,12 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (ans != NO_TYPE)
     {
+    /* found a via, try snapping to it */
       PinType *pin = (PinType *)ptr2;
       check_snap_object (&snap_data, pin->X, pin->Y, true);
     }
 
+  /* try snapping to the end points of lines and arcs */
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchObjectByLocation (LINEPOINT_TYPE | ARCPOINT_TYPE,
@@ -1142,12 +1178,15 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (ans != NO_TYPE)
     {
+    /* found an end point, try to snap to it */
       PointType *pnt = (PointType *)ptr3;
       check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
+  /* try snapping to a point on a line that's not on the grid */
   check_snap_offgrid_line (&snap_data, nearest_grid_x, nearest_grid_y);
 
+  /* try snapping to a point defining a polygon */
   ans = NO_TYPE;
   if (TEST_FLAG (SNAPPINFLAG, PCB))
     ans = SearchObjectByLocation (POLYGONPOINT_TYPE, &ptr1, &ptr2, &ptr3,
@@ -1155,16 +1194,22 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (ans != NO_TYPE)
     {
+    /* found a polygon point, try snapping to it */
       PointType *pnt = (PointType *)ptr3;
       check_snap_object (&snap_data, pnt->X, pnt->Y, true);
     }
 
+  /* if snap_data.[x,y] are >= 0, then we found something,
+   * so move the crosshair */
   if (snap_data.x >= 0 && snap_data.y >= 0)
     {
       Crosshair.X = snap_data.x;
       Crosshair.Y = snap_data.y;
     }
 
+  /* If we're in arrow mode and we're over the end point of a line,
+   * change the cursor to the "draped box" to indicate that clicking would
+   * grab the line endpoint */
   if (Settings.Mode == ARROW_MODE)
     {
       ans = SearchObjectByLocation (LINEPOINT_TYPE | ARCPOINT_TYPE,
