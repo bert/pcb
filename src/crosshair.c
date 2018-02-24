@@ -1078,8 +1078,10 @@ FitCrosshairIntoGrid (Coord X, Coord Y)
 
   if (ans != NO_TYPE &&                  /* we found a pad */
       ( Settings.Mode == LINE_MODE ||    /* we're in line drawing mode, or... */
+        Settings.Mode == ARC_MODE  ||    /* we're in arc drawing mode, or... */
        (Settings.Mode == MOVE_MODE &&    /* we're moving something and ... */
-        Crosshair.AttachedObject.Type == LINEPOINT_TYPE))) /* it's a line */
+        ((Crosshair.AttachedObject.Type == LINEPOINT_TYPE) || /* it's a line */
+         (Crosshair.AttachedObject.Type == ARCPOINT_TYPE))))) /* it's an arc */
     {
     /* we found a pad and we're drawing or moving a line */
       PadType *pad = (PadType *) ptr2;
