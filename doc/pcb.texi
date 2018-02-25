@@ -2613,7 +2613,7 @@ the trace optimizer.
 @pcb{} includes an Topological autorouter (Toporouter) which can greatly
 speed up the layout of a circuit board.
 
-The Topological autorouter is implemented by Anthony Blake and is a
+The Topological autorouter was implemented by Anthony Blake and is a
 topological type of autorouter based on:
 
 ``Layer Assignment for a Rubber Band Router''
@@ -2640,7 +2640,7 @@ These reference papers are not needed for using the Topological
 autorouter.
 
 Before using the Topological autorouter, all elements need to be loaded
-into the layout and placed and the connectivity netlist must be loaded.
+into the layout and placed, and the connectivity netlist must be loaded.
 
 Once the elements have been placed and the netlist loaded, the following
 steps will route your design:

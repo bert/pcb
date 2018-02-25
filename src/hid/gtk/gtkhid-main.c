@@ -1295,15 +1295,10 @@ Note that action names are not case sensitive, but arguments normally
 are.  However, most actions will check for ``keywords'' in a case
 insensitive way.
 
-There are three ways to finish with the command window.
-If you press the @code{Enter} key, the command is invoked, the window
-goes away, and the next time you bring up the command window it's empty.
-If you press the @code{Esc} key, the window goes away without invoking
+@code{Esc} closes the command window if pressed while the command window has 
+focus. If you press the @code{Esc} key, the window goes away without invoking
 anything, and the next time you bring up the command window it resumes
 entering the command you were entering before.
-If you change focus away from the command window (i.e. click on some
-other window), the command window goes away but the next time you bring
-it up it resumes entering the command you were entering before.
 
 %end-doc */
 
@@ -1324,7 +1319,7 @@ N_("Load layout data from a user-selected file.");
 
 /* %start-doc actions Load
 
-This action is invoked by typing the command given above in the command
+This action is invoked by typing Load() in the command
 entry dialog.
 This action is a GUI front-end to the core's @code{LoadFrom}
 action (@pxref{LoadFrom Action}).
@@ -1657,7 +1652,7 @@ N_("Open the Export dialog window.");
 
 /* %start-doc actions Export
 
-This action is invoked by typing the command given above in the command
+This action is invoked by typing Export() in the command
 entry dialog.
 
 @noindent This action opens the Export dialog window.
@@ -1689,7 +1684,7 @@ N_("Report the amount of redraws per second.");
 
 /* %start-doc actions Benchmark
 
-This action is invoked by typing the command given above in the command
+This action is invoked by typing Benchmark() in the command
 entry dialog.
 
 @noindent This action reports the number of redraws per second on the command

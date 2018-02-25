@@ -813,7 +813,7 @@ Example:
 Via[15.0000mm 11.0000mm 24.00mil 12.00mil 0.0000 11.81mil 0 5 "" ""]
 @end example
 
-The above example give a via at coordinates x=15.0000 mm, y=11.0000mm,
+The above example gives a via at coordinates x=15.0000 mm, y=11.0000mm,
 with a 24.00mil thickness, a 6.00mil clearance, a 0.0000 gap,
 a -12.00mil mask (tented), a 11.81mil drill width, starting at the top
 layer ("0"), ending at the 3rd copper layer ("2"), and has no names and
@@ -2131,7 +2131,7 @@ Attribute ("Name" "Value")
 @end syntax
 
 Attributes allow boards and elements to have arbitrary data attached
-to them, which is not directly used by PCB itself but may be of use by
+to them, which may or may not be used by PCB itself, but may be of use by
 other programs or users.
 
 @table @var
@@ -2144,7 +2144,7 @@ if the value is interpreted as, for example, a number.
 
 @end table
 
-Below examples for global (board wide) attributes:
+Below are some examples of global (board wide) attributes:
 
 @example
 
