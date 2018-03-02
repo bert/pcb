@@ -142,7 +142,49 @@ pcb_paths= --lib-path ${top_srcdir}/lib \
 images= \
 	gcode_control_img.eps \
 	gcode_tool_path.eps \
-	td_ex1.eps
+	td_ex1.eps \
+	gs/fb-led-1.eps \
+	gs/fb-led-2.eps \
+	gs/fb-led-3.eps \
+	gs/fb-led-4.eps \
+	gs/fb-led-6.eps \
+	gs/fb-led-7.eps \
+	gs/fb-led-8.eps \
+	gs/fb-led-9.eps \
+	gs/fb-led-10.eps \
+	gs/fb-led-11.eps \
+	gs/fb-led-12.eps \
+	gs/fb-led-13.eps \
+	gs/fb-led-14.eps \
+	gs/fb-led-15.eps \
+	gs/fb-led-16.eps \
+	gs/fb-led-17.eps \
+	gs/fb-led-18.eps \
+	gs/fb-led-19.eps \
+	gs/fb-led-20.eps \
+	gs/fb-led-21.eps \
+	gs/fb-led-22.eps \
+	gs/fb-led-23.eps \
+	gs/fb-led-24.eps \
+	gs/fb-led-25.eps \
+	gs/fb-led-26.eps \
+	gs/fb-led-27.eps \
+	gs/fb-led-28.eps \
+	gs/fb-led-29.eps \
+	gs/fb-led-30.eps \
+	gs/fb-led-31.eps \
+	gs/fb-led-32.eps \
+	gs/fb-led-33.eps \
+	gs/fb-led-34.eps \
+	gs/fb-led-35.eps \
+	gs/fb-led-36.eps \
+	gs/fb-led-37.eps \
+	gs/fb-led-38.eps \
+	gs/fb-led-39.eps \
+	gs/fb-led-40.eps \
+	gs/fb-led-41.eps \
+	gs/fb-led-42.eps \
+	gs/fb-led-43.eps
 
 images_output_noinst= \
 	${images:.eps=.pdf}
