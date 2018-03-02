@@ -798,6 +798,7 @@ if that works, then @pcb{} hasn't been installed properly.
 * Searching for elements:: Searching for elements
 * Measuring distances::    Measuring distances
 * Vendor drill mapping::   Mapping drills to a vendor specified list
+* Your First Board::       Your First Board
 @end menu
 
 
@@ -2547,6 +2548,421 @@ with vendor drill mapping.
 Note that the expressions used in the @code{skips} section are regular
 expressions.  See @ref{Regular Expressions} for an introduction to
 regular expressions.  
+
+
+@node Your First Board
+@section Your First Board
+
+In this chapter, we're going to walk you through creating a few very
+simple boards, just to give you an idea of the way the programs work
+and how to do the things that are common to all project.  Each board
+will build upon techniques learned from the previous board.
+
+While this manual is not intended to cover the @code{gschem} program,
+we will be instructing you on the minimum you'll need to know to use
+@code{gschem} with @code{pcb}.  Please refer to the @code{gschem}
+documentation for further details.
+
+The first board will be a simple LED and resistor.  It will show you
+how to create a board, place elements, and route traces.  The second
+board will be a simple LED blinker, which will involve creating
+schematics, setting up a project, and creating new symbols and
+footprints.  The third board will be another blinker, this time with
+surface mount devices and four layers, which will introduce power
+planes, vias, and thermals.
+
+@menu
+* LED Board::      LED Board
+* Blinker Board::  Blinker Board
+* SMT Blinker::    SMT Blinker
+@end menu
+
+@node LED Board
+@subsection LED Board
+
+This first board will show you the basic operation of @code{pcb}.
+Each new command or operation that is introduced will be described in
+full the first time, but not subsequent times.  Many operations can be
+invoked either by a menu option, like @emph{File,Quit Program} to
+select the ``Quit'' option in the ``File'' menu, or by a keyboard
+shortcut, like @kbd{Ctrl-Q}.  When we say @kbd{Ctrl-Q} we mean to hold
+the @key{Ctrl} key while pressing the @key{Q} key.  When we say
+@kbd{Shift-Q} we mean to hold either @key{Shift} key while pressing
+the @key{Q} key.
+
+For example, the first time we describe the Quit command, we'd say,
+``now exit @code{pcb} by using the Quit command (@emph{File,Quit} or
+@kbd{Ctrl-Q})''.  Any other time, we'd just say ``now Quit.''
+
+The first step in this project is to run @code{pcb}.  Since @code{pcb}
+defaults to using the current directory for its files, it's a good
+idea to create a new subdirectory for this project, @code{cd} into it
+in a terminal window, and then run pcb from there:
+
+@center @image{gs/fb-led-1,1.13in,0.81in,FIXME,png} @c 169x121px 150dpi
+
+Now is a good time to practice that Quit command :-)
+
+To use this use the "File" menu in the menubar and select the "Quit"
+command from the pull down options (@emph{File,Quit}).
+
+Another method is to use @kbd{Ctrl-Q}, mentioned before.
+
+@center @image{gs/fb-led-2,1.13in,0.81in,FIXME,png} @c 169x121px 150dpi
+
+Also, if you ever ask for @code{pcb} help from someone else, they'll
+probably want to know what version and GUI you're using.  To see this,
+use the About command (@emph{Window,About...}).
+
+Note that when @code{pcb} starts, it creates not only its main window
+(pictured above), but two additional windows.  One is the ``PCB
+Library'', which we'll talk about later, and the other is the ``PCB
+Log'' that contains all the messages - warnings, errors, etc.  For
+now, you can just move these out of the way.  If you close these, you
+can re-open them using @emph{Window,Library} and @emph{Window,Message
+Log}.
+
+For any board you create, one of the first things you need to decide
+on is how big the board is going to be.  If you want it to be ``as
+small as possible'', then you can create it bigger than you need and
+change the size later.  For this simple board, we can guess - we want
+it to be one inch by one inch.  The board size controls are located in
+the Preferences window (@emph{File,Preferences}), which contains both
+board-specific and user-specific preferences.  We want the @b{Sizes}
+preferences, so click on the word @b{Sizes}.  The window should look
+like this:
+
+@center @image{gs/fb-led-3,4.08in,1.45in,FIXME,png} @c 612x218px 150dpi
+
+We won't be using the Text Scale or DRC preferences yet.  Note that
+the units are mils, so the default board size is six inches wide and
+five inches high.  Change these numbers to @code{1000.0} each:
+
+@center @image{gs/fb-led-4,4.08in,1.38in,FIXME,png} @c 612x207px 150dpi
+
+We will next set up our layers, which define how many copper layers
+we'll have and what they'll be called.  Select the @b{Layers}
+preferences.  You'll see three tabs along the top; click on the
+@b{Groups} tab to show the layer group preferences.  For this project,
+all we want to do is make sure that the solder layer is on the solder
+side, and the component layer is on the component side.  Click in the
+boxes to make ``component'' and ``component side'' in group 1, and
+``solder'' and ``solder side'' in group 2, then click on @b{OK}:
+
+@center @image{gs/fb-led-6,4.08in,3.65in,FIXME,png} @c 612x548px 150dpi
+
+There's a couple of settings you'll want to set up now, as they get
+saved with the board.  First, let's turn on the grid
+(@emph{View,Enable visible grid} if it isn't already checked) and set
+it to 0.1" or 100 mil (@emph{View,Grid Size,100 mil}).  The grid is
+drawn as a field of tiny dots, which may be hard to see on our board
+but would be easier to see if there were more of them.  For example,
+switch to a 10 mil grid and note the difference (don't forget to
+switch back to 100 mil).
+
+Next, we want to make sure any new traces we create won't
+automatically connect with any polygons we might add - for example,
+adding a ground plane or ``flood fill''.  The @b{Settings} menu has
+many settings in it, but for now, just make sure that @b{New lines,
+arcs clear polygons} and @b{Crosshair snaps to pins and pads} are
+checked, and @b{Auto enforce DRC clearance} is not checked.
+
+Now that we've set up our board, it's a good time to save it.  Use the
+Save command (@emph{File,Save layout}).  Since this is the first time,
+it will ask you for a layout name.  We're going to call this layout
+@code{fb-led.pcb} so type that in where it says @b{Name} and click OK.
+Now that your board has a file associated with it, you can just
+@emph{File,Save layout} whenever you want to save your work.
+
+Now we'll start adding the actual circuit.  This circuit will be a
+simple LED in series with a resistor, and a header for a battery.  We
+won't need schematics, we'll just add the parts and connections
+manually.  The first step is to choose a @emph{route style} for your
+new traces.  The lower left corner lists the four available route
+styles.  Make sure @b{Signal} is selected, then click @b{Route Style}
+to bring up the route style window.  We're going to use fairly large
+traces, which is typical of a simple board.  In that window, set the
+Line width to 20, Via hole to 36, Via size of 76, and Clearance to 20;
+then click @b{OK}:
+
+@center @image{gs/fb-led-7,1.11in,1.23in,FIXME,png} @image{gs/fb-led-8,2.56in,1.62in,FIXME,png} @c 167x185px 384x243px 150dpi
+
+Next we'll add the three parts we need.  In larger projects, this will
+be done by @code{gsch2pcb} but you'll need to know the footprint names
+for that.  Find the library window (if you left it open) or open it
+(if you closed it) with @emph{Window,Library}.  Click on the triangle next
+to @b{pcblib} to open the pcblib library.  Scroll down to @b{~geda} and
+click on it, to open the ~geda library.
+
+@center @image{gs/fb-led-9,1.24in,2.14in,FIXME,png} @image{gs/fb-led-10,1.36in,2.14in,FIXME,png} @c 186x321px 204x321px 150dpi
+
+@center @image{gs/fb-led-11,5.21in,2.14in,FIXME,png} @c 782x321px 150dpi
+
+When you choose the parts out of the library, notice that there is
+some text in square brackets - this is the footprint name you'll need
+for @code{gsch2pcb}.  The first we want is the LED.  We'll use
+@code{RCY100P} for the LED, which is a radial cylinder, polarized, 100
+mil spacing.  Scroll down until you find it, and click on it.  When
+you move the cursor back to the @code{pcb} window, you'll see that it
+now carries the outline of the part with it:
+
+@center @image{gs/fb-led-12,6.19in,4.87in,FIXME,png} @c 929x731 px 150dpi
+
+Press the left mouse button to place a part on your board.  We'll move
+it later.  Do the same for an @code{ACY400} footprint for the
+resistor, and a @code{HEADER2_1}.  Your board should now look
+something like this:
+
+@center @image{gs/fb-led-13,6.35in,4.87in,FIXME,png} @c 952x731px 150dpi
+
+We will use the selection and rotate tools to position the parts where
+we want them.  The palette of tools is just above the route styles, on
+the left.  The two we want are @b{SEL} and @b{ROT}:
+
+@center @image{gs/fb-led-14,0.98in,1.37in,FIXME,png} @c 147x205px 150dpi
+
+First click on the ROT (rotate) tool.  The cursor should change shape to act as
+a hint that you'll rotate whatever you click on.  Position the cursor
+over the square pad on the header and click the left mouse button:
+
+@center @image{gs/fb-led-15,1.87in,1.53in,FIXME,png} @image{gs/fb-led-16,1.87in,1.53in,FIXME,png} @c 2x 280x230px 150dpi
+Now click on the SEL (selection) tool, also known as the ``arrow
+tool''.  You move parts by pressing the left mouse button while the
+cursor is over the part, and moving the mouse while holding the mouse
+button down.  The part itself doesn't move; instead, a wire-frame
+outline of the part is moved (much like when placing parts).  When you
+release the mouse button, the part is moved.
+
+@center @image{gs/fb-led-17,3.04in,2.22in,FIXME,png} @c 457x333px 150dpi
+
+@center @image{gs/fb-led-18,3.04in,2.22in,FIXME,png} @c 457x333px 150dpi
+
+@center @image{gs/fb-led-19,3.04in,2.22in,FIXME,png} @c 457x333px 150dpi
+
+Move the header so that the square pin is at 200,600 (the crosshair's
+coordinates are shown in the upper right corner of the window), the
+resistor's square pin at 400,400, and the LED's square pin at 500,700.
+Your board should now look like this:
+
+@image{gs/fb-led-20,6.35in,4.87in,FIXME,png} @c 952x731px 150dpi
+
+Now is a really good time to save your layout.
+
+Next we'll start adding the traces that connect the parts.  We'll use
+the LINE tool to add them.  Since this is a simple board, it's likely
+to be built as a single-sided board, with the traces on the ``back''
+side, so we want the @b{solder} layer to be the drawing layer.  On the
+left side of the window is a collection of buttons named after various
+layers in your board.  One of them is named @b{solder}.  To the left
+of that button is a small indicator.  Click on it.  Don't click on the
+button itself - that changes the visibility of the layer.  Click on
+the indicator.
+
+@center @image{gs/fb-led-21,0.94in,1.37in,FIXME,png} @image{gs/fb-led-22,0.93in,1.33in,FIXME,png} @c 141x206px 139x170px 150dpi
+
+The way the line tool works is that you click on the starting point,
+move the crosshair to the end point, and click again.  By not
+requiring you to hold the mouse button down, you have the ability to
+scroll and zoom to find the endpoint.  You can also click on
+intermediate points to make lines with multiple corners.  To end the
+trace, or start a new trace elsewhere, press the @kbd{Esc} key.  If
+you press the @kbd{Esc} key again, you return to the selection tool.
+
+If you attempt to connect two points that aren't on the same vertical,
+horizontal, or diagonal line, the line tool will create a pair of
+traces to connect them.  One will be either vertical or horizontal,
+and the other will be diagonal.  The vertical/horizontal segment will
+be connected to the starting point, and the diagonal segment will
+follow the crosshair.  If you look in the status bar, you'll see a
+@code{_/} symbol that indicates this:
+
+@image{gs/fb-led-23,5.45in,0.34in,FIXME,png} @c 817x51px 150dpi
+
+Pressing the @kbd{/} key changes this mode.  If it says @code{\_} the
+diagonal will attach to the starting point, and the
+vertical/horizontal will attach to the crosshair.  If it says neither,
+only one segment at a time will be drawn, instead of two.  Also, you
+can use the @kbd{Shift} key to temporarily toggle between @code{\_}
+and @code{_/} modes.
+
+@center @image{gs/fb-led-24,1.47in,1.34in,FIXME,png} @image{gs/fb-led-25,1.47in,1.34in,FIXME,png} @image{gs/fb-led-26,1.47in,1.34in,FIXME,png} @c 3x 220x201px 150dpi
+
+So let's add the three traces we need.  Press the @kbd{/} key until
+@code{_/} is shown (this is the default when you start @code{pcb}) and
+connect the left resistor pin to the top header pin.  Click, move,
+click, @kbd{Esc}.  Connect the left LED pin to the bottom header pin.
+Connect the right resistor pin to the right LED pin.
+
+@center @image{gs/fb-led-27,3.37in,2.21in,FIXME,png} @c 506x332px 150dpi
+
+@center @image{gs/fb-led-28,3.37in,2.21in,FIXME,png} @c 506x332px 150dpi
+
+Next we'll make some adjustments to our PCB.  Unless you have your own
+library that you've tweaked to be ``just right'', it's likely that
+you'll need to adjust some things during the board layout process.
+For example, you might need to make room for a trace between two pins.
+In our case, we're going to make some adjustments that are appropriate
+for home-made boards.  We're going to make the pads bigger, in case we
+drill off-center.  There is a generic ``change size'' command that's
+tied to the @kbd{S} key.  Place the crosshair over one of the pins and
+type @kbd{S} and the pin gets bigger.  Press @kbd{Shift-S} and the pin
+gets smaller.  You can change the size of pins, pads, traces, and even
+silk this way.  However, if you want to change a lot of things at
+once, there's a simpler way.  Use the @emph{Select,Select all visible
+objects} menu entry to select everything.  Now you can use the
+@emph{Select,Change size of selected objects} menu to change all the
+selected things at once.  In our case, we want the @emph{Pins +10 mil}
+option to make our pins a little bigger.  After clicking that, see
+that all the pins are a little bigger.  Now you can
+@emph{Select,Unselect all objects} to unselect them all.
+
+You can also use the Select tool (@b{SEL}) to select and deselect.  To
+select, either click with the left mouse button on the object you want
+to select, or drag a rectangle around a group of things.  To deselect,
+just click somewhere where there isn't anything.  You can also
+Shift-click to select something without deselecting anything else,
+like if you wanted to select two or three things that aren't grouped
+nicely.
+
+Next we will label our components.  Each element has three text
+strings it can display; you choose which through a @emph{View} menu
+option.  The default is to display the reference designator (refdes),
+which is what we want for now.
+
+Since both pins and elements can have labels, turn off the grid so we
+can select the elements (@emph{View,Grid size,No Grid}).  Now
+select the @emph{Edit,Edit name of,text on layout} menu.  Most of
+the GUI goes ``grey'' and @code{pcb} asks you to @b{Select an Object}.
+Left-click on the resistor (on the body, not on the pins).  A dialog
+box pops up asking you for the new name.  Make sure it says
+``Element'' and not ``Pin'', and type in @code{R1}:
+
+@center @image{gs/fb-led-29,1.67in,1.30in,FIXME,png} @image{gs/fb-led-30,1.67in,1.30in,FIXME,png} @c 2x 250x195px 150dpi
+
+You can now drag and drop the name to where you want it, being careful
+to pick up the label and not any traces:
+
+@center @image{gs/fb-led-31,2.09in,1.30in,FIXME,png} @image{gs/fb-led-32,2.09in,1.30in,FIXME,png} @c 2x 313x195px 150dpi
+
+You can also use keyboard shortcuts.  Position the crosshair over the
+LED, but not over the pins, and press the @kbd{n} key (for ``name'').
+Type in @code{D1}.  Set the name of the header to @code{J1} and arrange
+the names so they look like this:
+
+@center @image{gs/fb-led-33,3.33in,2.17in,FIXME,png} @c 499x325px 150dpi
+
+Don't forget to save your work occasionally.  @code{pcb} will normally
+save a copy automatically every once in a while, but it's a good habit
+to save it manually when you're at a good stopping point.
+
+We can also add additional text to the silkscreen and copper layers.
+Let's add some text to the header, so we know which way to plug the
+battery in.  We want to use the text tool:
+
+@center @image{gs/fb-led-34,0.93in,1.33in,FIXME,png} @c 139x199px 150dpi
+
+We also want the silkscreen layer to be the default drawing layer:
+
+@center @image{gs/fb-led-35,0.92in,0.52in,FIXME,png} @c 138x78px 150dpi
+
+Now, click below the header's square pin, and enter @code{+} in the
+dialog that pops up.  Use the @kbd{S} key a whole bunch of times to
+make it bigger, then use the selection tool to move it in place.  Do
+the same for the @code{-} label.
+
+@center @image{gs/fb-led-36,0.76in,1.00in,FIXME,png} @image{gs/fb-led-37,0.76in,1.00in,FIXME,png} @image{gs/fb-led-38,0.76in,1.00in,FIXME,png} @c 3x 114x150px 150dpi
+
+Now that we're done with the labels, set the grid back to 100 mil in
+case you move any of the traces or parts; once they're off-grid it's
+hard to get them back on to the grid.
+
+We're done editing the board now, so if you haven't already, save your
+work.  But now that the board is done, what do we do with it?  Well,
+that depends on how you're going to make your board.  If you want to
+do it yourself, you probably want to send it to your printer.  If you
+want someone else to make it, they'll probably want gerber files.
+
+In your @emph{File} menu, there are three options we're interested in.
+
+@center @image{gs/fb-led-39,2.29in,0.74in,FIXME,png} @c 343x111px 150dpi
+
+The @emph{Print Layout...} option prints your layout, but note that it
+will print 11 pages of board layers!  This probably isn't what you
+normally want, but let's do it anyway.
+
+@center @image{gs/fb-led-40,1.97in,3.80in,FIXME,png} @c 295x570px 150dpi
+
+There are a lot of options there, but there's only a couple you need
+to worry about right now.  Select ``fill-page'' and ``ps-color'' and
+click @b{OK}.  ``Fill-page'' zooms your prints to fill the page.
+``PS-color'' causes each layer to be printed in the same color as you
+see on the screen.  If you're making boards at home using toner
+transfer, you want these options @emph{off}, and you want ``mirror''
+on.
+
+In most cases, you don't want to just print the whole design.  Usually
+you'll use the @emph{Export Layout...} option to export your layout in
+a format that others can use.  When you export, a list of possible
+export types is offered:
+
+@center @image{gs/fb-led-41,0.75in,1.91in,FIXME,png} @c 112x287px 150dpi
+
+Click on @emph{gerber} so we can create some Gerber (RS-274X) files,
+which are industry standard file for describing circuit boards.
+
+@center @image{gs/fb-led-42,1.84in,1.17in,FIXME,png} @c 276x176px 150dpi
+
+Click on @b{verbose} then @b{OK}.  You'll see something like this in
+your terminal:
+
+@smallexample
+Gerber: 5 apertures in fb-led.front.gbr
+Gerber: 5 apertures in fb-led.back.gbr
+Gerber: 3 apertures in fb-led.frontmask.gbr
+Gerber: 3 apertures in fb-led.backmask.gbr
+Gerber: 2 apertures in fb-led.plated-drill.cnc
+Gerber: 3 apertures in fb-led.frontsilk.gbr
+Gerber: 3 apertures in fb-led.fab.gbr
+@end smallexample
+
+For a single sided board, most fab houses will need the back,
+backmask, plated-drill, frontsilk, and fab files.  @code{pcb} always
+produces ``positive'' gerbers in case the fab asks.
+
+For home fabrication, you'll want to print (see above) without the
+ps-color or fill-page options.  For this simple board, printer
+calibration is not needed.  If you're drilling your own holes, you may
+want to select the @b{drill helper} option, which reduces the diameter
+of the holes in the copper wherever you're drilling to help you center
+the drill properly.  If you use the @b{ps} exporter, selecting the
+``multi-file'' option puts each layer in a separate file.  That way,
+you can print only the layers you're interested in.
+
+So let's see what we've produced.  Exit from @code{pcb} with
+@emph{File,Quit Program} and find your terminal again.  I use the free
+programs @code{gv} and @code{gerbv} to view my exported files;
+@code{gv} is GhostScript, but your desktop probably knows what to do
+if you double click on a .ps file in your file browser.  @code{gerbv}
+is a gerber file viewer that's part of gEDA:
+
+@smallexample
+$ gerbv fb-led.*.gbr fb-led.*.cnc
+@end smallexample
+
+@center @image{gs/fb-led-43,2.04in,2.15in,FIXME,png} @c 306x322px 150dpi
+
+That's it!  The next step is to actually make the board (or have them
+made), which is beyond the scope of this tutorial.
+
+@node Blinker Board
+@subsection Blinker Board
+
+FIXME
+
+@node SMT Blinker
+@subsection SMT Blinker
+
+FIXME
 
 
 @c ---- Autorouter chapter ----
