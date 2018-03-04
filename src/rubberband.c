@@ -96,10 +96,15 @@ rubber_callback (const BoxType * b, void *cl)
   struct rubber_info *i = (struct rubber_info *) cl;
   double x, y, rad, dist1, dist2;
   Coord t;
-  int touches = 0;
+  int touches = 0, n = 0 ;
 
   t = line->Thickness / 2;
 
+  /* Check to see if the line is already in the rubberband list */
+  for (n = 0; n < Crosshair.AttachedObject.RubberbandN; n++)
+    if (Crosshair.AttachedObject.Rubberband[n].Line == line)
+      return 0;
+    
   if (TEST_FLAG (LOCKFLAG, line))
     return 0;
   if (line == i->line)
