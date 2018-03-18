@@ -49,14 +49,14 @@ static int n;
 
 typedef enum
 {
-  SSthick, SSdiam, SShole, SSkeep,
+  SSthick, SSdiam, SShole, SSkeep, SSviamask,
   SSNUM
 } StyleValues;
 
 static Widget style_dialog = 0;
 static Widget style_values[SSNUM];
 static Widget style_pb[NUM_STYLES];
-static Widget units_pb[NUM_STYLES];
+static Widget units_pb[SSNUM];
 static int name_hashes[NUM_STYLES];
 static Widget value_form, value_labels, value_texts, units_form;
 static int local_update = 0;
@@ -87,7 +87,7 @@ static StyleButtons *style_button_list = 0;
 static int num_style_buttons = 0;
 
 static char *value_names[] = {
-  "Thickness", "Diameter", "Hole", "Keepaway"
+  "Thickness", "Diameter", "Hole", "Keepaway", "ViaMask"
 };
 
 static int RouteStylesChanged (int argc, char **argv, Coord x, Coord y);
@@ -112,6 +112,7 @@ update_values ()
   update_one_value (SSdiam, Settings.ViaThickness);
   update_one_value (SShole, Settings.ViaDrillingHole);
   update_one_value (SSkeep, Settings.Keepaway);
+  update_one_value (SSviamask, Settings.ViaSolderMaskClearance);
   local_update = 0;
   lesstif_update_status_line ();
 }
@@ -136,21 +137,21 @@ update_style_buttons ()
   int j, n;
 
   for (n = 0; n < num_style_buttons; n++)
-    {
-      for (j = 0; j < NUM_STYLES; j++)
-	if (j != i - 1)
-	  XmToggleButtonSetState (style_button_list[n].w[j], 0, 0);
-	else
-	  XmToggleButtonSetState (style_button_list[n].w[j], 1, 0);
-    }
+  {
+    for (j = 0; j < NUM_STYLES; j++)
+	    if (j != i - 1)
+	      XmToggleButtonSetState (style_button_list[n].w[j], 0, 0);
+	    else
+	      XmToggleButtonSetState (style_button_list[n].w[j], 1, 0);
+  }
   if (style_dialog)
-    {
-      for (j = 0; j < NUM_STYLES; j++)
-	if (j != i - 1)
-	  XmToggleButtonSetState (style_pb[j], 0, 0);
-	else
-	  XmToggleButtonSetState (style_pb[j], 1, 0);
-    }
+  {
+    for (j = 0; j < NUM_STYLES; j++)
+	    if (j != i - 1)
+	      XmToggleButtonSetState (style_pb[j], 0, 0);
+	    else
+	      XmToggleButtonSetState (style_pb[j], 1, 0);
+  }
 }
 
 static void
@@ -176,6 +177,9 @@ style_value_cb (Widget w, int i, void *cbs)
       break;
     case SSkeep:
       Settings.Keepaway = n;
+      break;
+    case SSviamask:
+      Settings.ViaSolderMaskClearance = n;
       break;
     }
   update_style_buttons ();
@@ -252,6 +256,7 @@ style_set_cb (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
   PCB->RouteStyle[i].Diameter = Settings.ViaThickness;
   PCB->RouteStyle[i].Hole = Settings.ViaDrillingHole;
   PCB->RouteStyle[i].Keepaway = Settings.Keepaway;
+  PCB->RouteStyle[i].ViaMask = Settings.ViaSolderMaskClearance;
   update_style_buttons ();
 }
 
@@ -270,6 +275,7 @@ style_selected (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
   SetViaSize (style->Diameter, true);
   SetViaDrillingHole (style->Hole, true);
   SetKeepawayWidth (style->Keepaway);
+  SetViaSolderMaskClearance(style->ViaMask);
   if (style_dialog)
     {
       for (j = 0; j < NUM_STYLES; j++)
@@ -371,7 +377,7 @@ AdjustStyle (int argc, char **argv, Coord x, Coord y)
       stdarg (XmNtopAttachment, XmATTACH_FORM);
       stdarg (XmNrightAttachment, XmATTACH_FORM);
       stdarg (XmNbottomAttachment, XmATTACH_FORM);
-      stdarg (XmNfractionBase, 4);
+      stdarg (XmNfractionBase, SSNUM);
       stdarg (XmNresizePolicy, XmRESIZE_GROW);
       units_form = XmCreateForm (value_form, "units", args, n);
       XtManageChild (units_form);
@@ -380,7 +386,7 @@ AdjustStyle (int argc, char **argv, Coord x, Coord y)
       stdarg (XmNtopAttachment, XmATTACH_FORM);
       stdarg (XmNbottomAttachment, XmATTACH_FORM);
       stdarg (XmNleftAttachment, XmATTACH_FORM);
-      stdarg (XmNfractionBase, 4);
+      stdarg (XmNfractionBase, SSNUM);
       value_labels = XmCreateForm (value_form, "values", args, n);
       XtManageChild (value_labels);
 
@@ -391,17 +397,20 @@ AdjustStyle (int argc, char **argv, Coord x, Coord y)
       stdarg (XmNrightWidget, units_form);
       stdarg (XmNleftAttachment, XmATTACH_WIDGET);
       stdarg (XmNleftWidget, value_labels);
-      stdarg (XmNfractionBase, 4);
+      stdarg (XmNfractionBase, SSNUM);
       value_texts = XmCreateForm (value_form, "values", args, n);
       XtManageChild (value_texts);
 
       for (i = 0; i < SSNUM; i++)
-	{
-	  style_values[i] = style_value (i);
-	  name_hashes[i] = hash (PCB->RouteStyle[i].Name);
-	}
+      {
+	      style_values[i] = style_value (i);
+      }
+      
       for (i = 0; i < NUM_STYLES; i++)
-	style_pb[i] = style_button (i);
+      {
+        name_hashes[i] = hash (PCB->RouteStyle[i].Name);
+        style_pb[i] = style_button (i);
+      }
       update_values ();
       update_style_buttons ();
     }

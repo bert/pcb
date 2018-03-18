@@ -40,6 +40,7 @@ void SetGrid (Coord, bool);
 void SetLineSize (Coord);
 void SetViaSize (Coord, bool);
 void SetViaDrillingHole (Coord, bool);
+void SetViaMaskAperture(Coord);
 void SetKeepawayWidth (Coord);
 void SetChangedFlag (bool);
 void SetBufferNumber (int);
