@@ -156,6 +156,7 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 
 */
 
+#define PCB_FILE_VERSION_VSM_STYLES 20180318 /*!< Solder mask clearance in route styles */
 
 #define PCB_FILE_VERSION_BURIED_VIAS 20170218 /*!< Buried vias */
 
@@ -173,6 +174,10 @@ int
 PCBFileVersionNeeded (void)
 {
   /* NOTE: New features tests should be executed before older feature tests. */
+  STYLE_LOOP(PCB);
+    if(style->ViaMask != 0)
+      return PCB_FILE_VERSION_VSM_STYLES;
+  END_LOOP;
 
   VIA_LOOP (PCB->Data);
     if ((via->BuriedFrom != 0) || (via->BuriedTo != 0))
@@ -570,7 +575,7 @@ WritePCBInfoHeader (FILE * FP)
 static void
 WritePCBDataHeader (FILE * FP)
 {
-  Cardinal group;
+  char *str;
 
   /*
    * ************************** README *******************
@@ -599,16 +604,9 @@ WritePCBDataHeader (FILE * FP)
 	       PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
   fprintf (FP, "Flags(%s)\n", pcbflags_to_string(PCB->Flags));
   fprintf (FP, "Groups(\"%s\")\n", LayerGroupsToString (&PCB->LayerGroups));
-  fputs ("Styles[\"", FP);
-  for (group = 0; group < NUM_STYLES - 1; group++)
-    pcb_fprintf (FP, "%s,%mr,%mr,%mr,%mr:", PCB->RouteStyle[group].Name,
-	         PCB->RouteStyle[group].Thick,
-	         PCB->RouteStyle[group].Diameter,
-	         PCB->RouteStyle[group].Hole, PCB->RouteStyle[group].Keepaway);
-  pcb_fprintf (FP, "%s,%mr,%mr,%mr,%mr\"]\n\n", PCB->RouteStyle[group].Name,
-	       PCB->RouteStyle[group].Thick,
-	       PCB->RouteStyle[group].Diameter,
-	       PCB->RouteStyle[group].Hole, PCB->RouteStyle[group].Keepaway);
+  str = make_route_string(PCB->RouteStyle, NUM_STYLES);
+  fprintf (FP, "Styles[\"%s\"]\n", str);
+  g_free(str);
 }
 
 /*!

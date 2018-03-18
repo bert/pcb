@@ -991,9 +991,18 @@ make_route_string (RouteStyleType rs[], int n_styles)
 
   for (i = 0; i < n_styles; ++i)
     {
-      char *r_string = pcb_g_strdup_printf ("%s,%$mr,%$mr,%$mr,%$mr", rs[i].Name,
+      char *r_string;
+      // don't much like how this is done, but it'll have to do for now
+      if (rs[i].ViaMask != 0)
+        r_string = pcb_g_strdup_printf ("%s,%$mr,%$mr,%$mr,%$mr,%$mr",
+                                            rs[i].Name,
                                             rs[i].Thick, rs[i].Diameter,
-                                            rs[i].Hole, rs[i].Keepaway);
+                                            rs[i].Hole, rs[i].Keepaway,
+                                            rs[i].ViaMask);
+      else
+        r_string = pcb_g_strdup_printf ("%s,%$mr,%$mr,%$mr,%$mr", rs[i].Name,
+                                        rs[i].Thick, rs[i].Diameter,
+                                        rs[i].Hole, rs[i].Keepaway);
       if (i > 0)
         g_string_append_c (str, ':');
       g_string_append (str, r_string);
@@ -1006,72 +1015,73 @@ make_route_string (RouteStyleType rs[], int n_styles)
  * \brief Parses the routes definition string
  * 
  * Which is a colon separated list of comma separated Name, Dimension,
- * Dimension, Dimension, Dimension.
+ * Dimension, Dimension[, Dimension, Dimension].
  *
- * \example Signal,20,40,20,10:Power,40,60,28,10:...
+ * \example Signal,20,40,20,10,0:Power,40,60,28,10,0:...
  */
 int
 ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
 {
-  int i, style;
+  int i, n, style;
   char Name[256];
+  char *orig_s = s;
+  
+  Coord *style_items[5];
 
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
-  for (style = 0; style < NUM_STYLES; style++, routeStyle++)
+  style = 0;
+  while (style < NUM_STYLES)
     {
-      while (*s && isspace ((int) *s))
-        s++;
-      for (i = 0; *s && *s != ','; i++)
-        Name[i] = *s++;
+      // Extract the name
+      while (*s && isspace ((int) *s))  s++;
+      // this will break for style names greater than 256 characters
+      for (i = 0; *s && *s != ','; i++)  Name[i] = *s++;
       Name[i] = '\0';
       routeStyle->Name = strdup (Name);
-      if (!isdigit ((int) *++s))
-        goto error;
-      routeStyle->Thick = GetNum (&s, default_unit);
-      while (*s && isspace ((int) *s))
-        s++;
-      if (*s++ != ',')
-        goto error;
-      while (*s && isspace ((int) *s))
-        s++;
-      if (!isdigit ((int) *s))
-        goto error;
-      routeStyle->Diameter = GetNum (&s, default_unit);
-      while (*s && isspace ((int) *s))
-        s++;
-      if (*s++ != ',')
-        goto error;
-      while (*s && isspace ((int) *s))
-        s++;
-      if (!isdigit ((int) *s))
-        goto error;
-      routeStyle->Hole = GetNum (&s, default_unit);
-      /* for backwards-compatibility, we use a 10-mil default
-       * for styles which omit the keepaway specification. */
-      if (*s != ',')
-        routeStyle->Keepaway = MIL_TO_COORD(10);
-      else
+      
+      // setup some default values
+      routeStyle->Keepaway = MIL_TO_COORD(10);
+      routeStyle->ViaMask = 0;
+
+      // Now extract the numerical parameters
+      style_items[0] = &(routeStyle->Thick);
+      style_items[1] = &(routeStyle->Diameter);
+      style_items[2] = &(routeStyle->Hole);
+      style_items[3] = &(routeStyle->Keepaway);
+      style_items[4] = &(routeStyle->ViaMask);
+      for (n = 0; n < 5; n++)
         {
-          s++;
-          while (*s && isspace ((int) *s))
-            s++;
-          if (!isdigit ((int) *s))
-            goto error;
-          routeStyle->Keepaway = GetNum (&s, default_unit);
-          while (*s && isspace ((int) *s))
-            s++;
+        if (!isdigit ((int) *++s))  goto error;
+        *style_items[n] = GetNum(&s, default_unit);
+        // find the next field, skipping any white space
+        while (*s && isspace ((int) *s))  s++;
+        if (*s != ',')  break;
+        while (*s && isspace ((int) *s))  s++;
         }
-      if (style < NUM_STYLES - 1)
-        {
-          while (*s && isspace ((int) *s))
-            s++;
-          if (*s++ != ':')
-            goto error;
-        }
+
+      // how did we get out of the loop?
+      // if we're at the end of the string, we're done
+      if (*s == '\0')  break;
+      // there's another route style to parse, advance past the delimiter
+      else if (*s == ':')  s++;
+      // otherwise, we got an unexpected character, which is an error
+      else {
+        fprintf(stderr, "unexpected character: %c\n", *s);
+        goto error;
+      }
+      
+      // otherwise, prepare for the next loop
+      style++; routeStyle++;
     }
   return (0);
 
 error:
+  fprintf(stderr, "error parsing route string: %s\n", orig_s);
+  fprintf(stderr, "parsed %ld characters.\n", s - orig_s);
+  fprintf(stderr, "on style number %d\n", style+1);
+  fprintf(stderr, "character that caused the error: %c\n", *s);
+  fprintf(stderr, "values of current struct: \n");
+  for (n=0; n < 5; n++) fprintf(stderr, "%d: %ld ", n, *style_items[n]);
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   return (1);
 }

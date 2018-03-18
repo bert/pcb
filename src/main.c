@@ -913,6 +913,16 @@ Default diameter of holes. Default value is @code{28mil}.
 */
   CSET (ViaDrillingHole, MIL_TO_COORD(28), "via-drilling-hole",
   "default diameter of holes"),
+  
+/* %start-doc options "5 Sizes"
+@ftable @code
+@item --via-solder-mask-clerance <num>
+Default soldermask clearance around vias. Default value is @code{0mil}.
+@end ftable
+%end-doc
+*/
+  CSET (ViaSolderMaskClearance, MIL_TO_COORD(0), "via-solder-mask-clearance",
+        "default solder mask clearance around vias"),
 
 /* %start-doc options "5 Sizes"
 @ftable @code
@@ -1306,14 +1316,16 @@ The name of the default font.
 /* %start-doc options "1 General Options"
 @ftable @code
 @item --route-styles <string>
-A string that defines the route styles. Defaults to @*
-@code{"Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000
-	:Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600"}
+A string that defines the route styles. Parameters are (in order):
+line width, via hole size, via ring size, clearance, solder mask clearance.
+The units are cmils. Defaults to @*
+@code{"Signal,1000,3600,2000,1000,0:Power,2500,6000,3500,1000,0
+	:Fat,4000,6000,3500,1000,0:Skinny,600,2402,1181,600,0"}
 @end ftable
 %end-doc
 */
-  SSET (Routes, "Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000"
-	":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600", "route-styles",
+  SSET (Routes, "Signal,1000,3600,2000,1000,0:Power,2500,6000,3500,1000,0"
+	":Fat,4000,6000,3500,1000,0:Skinny,600,2402,1181,600,0", "route-styles",
 	"A string that defines the route styles"),
 
 /* %start-doc options "5 Paths"
