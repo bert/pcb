@@ -1199,7 +1199,7 @@ RouteStylesChanged (int argc, char **argv, Coord x, Coord y)
   ghid_route_style_selector_sync
     (GHID_ROUTE_STYLE_SELECTOR (ghidgui->route_style_selector),
      Settings.LineThickness, Settings.ViaDrillingHole,
-     Settings.ViaThickness, Settings.Keepaway);
+     Settings.ViaThickness, Settings.Keepaway, Settings.ViaSolderMaskClearance);
 
   return 0;
 }

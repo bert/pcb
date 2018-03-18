@@ -110,6 +110,7 @@ struct _dialog
   GtkWidget *via_hole_entry;
   GtkWidget *via_size_entry;
   GtkWidget *clearance_entry;
+  GtkWidget *mask_clearance_entry;
 };
 
 /*! \brief Callback for dialog box's combobox being changed
@@ -147,6 +148,8 @@ dialog_style_changed_cb (GtkComboBox *combo, struct _dialog *dialog)
                               style->rst->Diameter);
   ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->clearance_entry),
                               style->rst->Keepaway);
+  ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->mask_clearance_entry),
+                              style->rst->ViaMask);
 
 }
 
@@ -208,7 +211,7 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
 
   sub_vbox = ghid_category_vbox (vbox, _("Route Style Data"),
                                  4, 2, TRUE, TRUE);
-  table = gtk_table_new (5, 2, FALSE);
+  table = gtk_table_new (6, 2, FALSE);
   gtk_box_pack_start (GTK_BOX (sub_vbox), table, TRUE, TRUE, 4);
   label = gtk_label_new (_("Name:"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
@@ -230,6 +233,9 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
   _table_attach (table, 4, _("Clearance:"),
                  &dialog_data.clearance_entry,
                  MIN_LINESIZE, MAX_LINESIZE);
+  _table_attach (table, 5, _("Mask clearance:"),
+                 &dialog_data.mask_clearance_entry,
+                 0, MAX_LINESIZE);
 
   sub_vbox = ghid_category_vbox (vbox, _("Set as Default"),
                                  4, 2, TRUE, TRUE);
@@ -276,6 +282,8 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
                         (GHID_COORD_ENTRY (dialog_data.via_size_entry));
       rst->Keepaway = ghid_coord_entry_get_value
                         (GHID_COORD_ENTRY (dialog_data.clearance_entry));
+      rst->ViaMask = ghid_coord_entry_get_value
+                        (GHID_COORD_ENTRY (dialog_data.mask_clearance_entry));
       save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_box));
 
       if (style == NULL)
@@ -600,11 +608,12 @@ ghid_route_style_selector_get_accel_group (GHidRouteStyleSelector *rss)
  *  \param [in] Hole      Coord to match selection to
  *  \param [in] Diameter  Coord to match selection to
  *  \param [in] Keepaway  Coord to match selection to
+ *  \param [in] ViaMask   Coord to match selection to
  */
 void
 ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
                                 Coord Thick, Coord Hole,
-                                Coord Diameter, Coord Keepaway)
+                                Coord Diameter, Coord Keepaway, Coord ViaMask)
 {
   gboolean found_match = FALSE;
   GtkTreeIter iter;
@@ -617,7 +626,8 @@ ghid_route_style_selector_sync (GHidRouteStyleSelector *rss,
       if (style->rst->Thick == Thick &&
           style->rst->Hole == Hole &&
           style->rst->Diameter == Diameter &&
-          style->rst->Keepaway == Keepaway)
+          style->rst->Keepaway == Keepaway &&
+          style->rst->ViaMask == ViaMask)
         {
           g_signal_handler_block (G_OBJECT (style->action), style->sig_id);
           gtk_toggle_action_set_active
