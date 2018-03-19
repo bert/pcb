@@ -1228,6 +1228,7 @@ if test -d $srcdir/scripts; then
 fi
 if test -d $srcdir/stdlib; then
    AC_CONFIG_FILES(stdlib/Makefile)
+   AC_CONFIG_FILES(stdlib/battery/Makefile)
    AC_CONFIG_FILES(stdlib/capacitor/Makefile)
    AC_CONFIG_FILES(stdlib/connector/Makefile)
    AC_CONFIG_FILES(stdlib/connector/BNC/Makefile)

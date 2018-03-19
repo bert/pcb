@@ -4,6 +4,7 @@ htmldir=	@PCBLIBDIR@/stdlib
 html_DATA=	${HTML}
 
 SUBDIRS=\
+        battery \
         capacitor \
         connector \
         crystal \
