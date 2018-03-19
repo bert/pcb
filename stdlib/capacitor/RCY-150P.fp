@@ -3,7 +3,7 @@ Element(0x00 "Bottom lead polar circular component (typically capacitor)" "" "RC
 	Pin(75 150 60 30 "1" 0x101)
 	Pin(225 150 60 30 "2" 0x01)
 	ElementArc(150 150 150 150 0 360 10)
-	ElementLine(-60 150            -20 150 10)
+	ElementLine(-60 150 -20 150 10)
 	ElementLine(-40 130 -40 170 10)
 	ElementLine(320 150 360  150 10)
 	Mark (75 150)
