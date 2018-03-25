@@ -2978,7 +2978,7 @@ lesstif_need_idle_proc ()
 }
 
 static void
-lesstif_invalidate_lr (int l, int r, int t, int b)
+lesstif_invalidate_lr (Coord l, Coord r, Coord t, Coord b)
 {
   if (!window)
     return;

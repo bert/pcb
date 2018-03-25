@@ -446,7 +446,8 @@ typedef enum
        * names behind.
        */
 
-    void (*invalidate_lr) (int left_, int right_, int top_, int bottom_);
+    void (*invalidate_lr) (Coord left_, Coord right_,
+                           Coord top_, Coord bottom_);
       /*!< This may be called to ask the GUI to force a redraw of a
        * given area.
        */

@@ -860,10 +860,10 @@ redraw_region (GdkRectangle *rect)
 }
 
 void
-ghid_invalidate_lr (int left, int right, int top, int bottom)
+ghid_invalidate_lr (Coord left, Coord right, Coord top, Coord bottom)
 {
-  int dleft, dright, dtop, dbottom;
-  int minx, maxx, miny, maxy;
+  Coord dleft, dright, dtop, dbottom;
+  Coord minx, maxx, miny, maxy;
   GdkRectangle rect;
 
   dleft = Vx (left);

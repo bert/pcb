@@ -47,7 +47,7 @@ nogui_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-nogui_invalidate_lr (int l, int r, int t, int b)
+nogui_invalidate_lr (Coord l, Coord r, Coord t, Coord b)
 {
   printf("pcb: invalidate_lr() called without a GUI\n");
   printf("This is ok, if you run an action script\n");

@@ -609,7 +609,7 @@ ghid_fill_rect (hidGC gc, Coord x1, Coord y1, Coord x2, Coord y2)
 }
 
 void
-ghid_invalidate_lr (int left, int right, int top, int bottom)
+ghid_invalidate_lr (Coord left, Coord right, Coord top, Coord bottom)
 {
   ghid_invalidate_all ();
 }

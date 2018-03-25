@@ -188,7 +188,7 @@ batch_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-batch_invalidate_lr (int l, int r, int t, int b)
+batch_invalidate_lr (Coord l, Coord r, Coord t, Coord b)
 {
 }
 
