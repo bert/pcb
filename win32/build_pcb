@@ -420,6 +420,16 @@ fi
 
 cd ${srcdir}
 
+# TODO - it would be a probably improvement if rather than hard coding every version here
+# we used something like
+#
+# $ cygcheck -l mingw64-i686-jasper | grep "mingw/bin"
+# /usr/i686-w64-mingw32/sys-root/mingw/bin/libjasper.dll
+#
+# to find them.  Perhaps maintain a list of the packages which should be included and
+# let the script figure out the version?  Maybe need to have a table
+# of minimum versions needed?
+#
 if test "$do_install" = "yes" ; then
 	echo "Copying runtime libraries to staging area"
 	for f in \
@@ -447,13 +457,12 @@ if test "$do_install" = "yes" ; then
 		libgmodule-2.0-0.dll \
 		libgobject-2.0-0.dll \
 		libgomp-1.dll \
-		libgomp-plugin-host_nonshm-1.dll \
 		libgthread-2.0-0.dll \
 		libgtkglext-win32-1.0-0.dll \
 		libgtk-win32-2.0-0.dll \
 		libharfbuzz-0.dll \
 		libintl-8.dll \
-		libjasper-1.dll \
+		libjasper.dll \
 		libjbig-2.dll \
 		libjbig85-2.dll \
 		libjpeg-8.dll \
@@ -471,12 +480,10 @@ if test "$do_install" = "yes" ; then
 		libtiff-5.dll \
 		libtiffxx-5.dll \
 		libturbojpeg-0.dll \
-		libvtv_stubs-0.dll \
-		libvtv-0.dll \
-		libwebp-5.dll \
-		libwebpdecoder-1.dll \
-		libwebpdemux-1.dll \
-		libwebpmux-1.dll \
+		libwebp-7.dll \
+		libwebpdecoder-3.dll \
+		libwebpdemux-2.dll \
+		libwebpmux-3.dll \
 		libwinpthread-1.dll \
 		libXpm-4.dll \
 		zlib1.dll \
