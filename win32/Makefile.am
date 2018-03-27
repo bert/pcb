@@ -5,6 +5,7 @@
 EXTRA_DIST= \
 	build_pcb \
 	config.mk \
+	mingw_required_pkgs \
 	pcb.nsi.in \
 	pcb-win32-deps.mk \
 	Readme.txt \

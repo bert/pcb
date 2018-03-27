@@ -420,75 +420,20 @@ fi
 
 cd ${srcdir}
 
-# TODO - it would be a probably improvement if rather than hard coding every version here
-# we used something like
-#
 # $ cygcheck -l mingw64-i686-jasper | grep "mingw/bin"
 # /usr/i686-w64-mingw32/sys-root/mingw/bin/libjasper.dll
-#
-# to find them.  Perhaps maintain a list of the packages which should be included and
-# let the script figure out the version?  Maybe need to have a table
-# of minimum versions needed?
-#
+
+dll_list=""
+for pkg in `${AWK} '{print $1}' ${srcdir}/mingw_required_pkgs` ; do
+	dll_add=`cygcheck -l $pkg | grep 'bin/.*\.dll$'`
+	for dll in ${dll_add} ; do
+		dll_list="${dll_list} `basename ${dll}`"
+	done
+done
+
 if test "$do_install" = "yes" ; then
 	echo "Copying runtime libraries to staging area"
-	for f in \
-		iconv.dll \
-		libasprintf-0.dll \
-		libatk-1.0-0.dll \
-		libatomic-1.dll \
-		libbz2-1.dll \
-		libcairo-2.dll \
-		libcairo-gobject-2.dll \
-		libcairo-script-interpreter-2.dll \
-		libdbus-1-3.dll \
-		libexpat-1.dll \
-		libffi-6.dll \
-		libfontconfig-1.dll \
-		libfreetype-6.dll \
-		libgailutil-18.dll \
-		libgcc_s_sjlj-1.dll \
-		libgd-3.dll \
-		libgdk_pixbuf-2.0-0.dll \
-		libgdkglext-win32-1.0-0.dll \
-		libgdk-win32-2.0-0.dll \
-		libgio-2.0-0.dll \
-		libglib-2.0-0.dll \
-		libgmodule-2.0-0.dll \
-		libgobject-2.0-0.dll \
-		libgomp-1.dll \
-		libgthread-2.0-0.dll \
-		libgtkglext-win32-1.0-0.dll \
-		libgtk-win32-2.0-0.dll \
-		libharfbuzz-0.dll \
-		libintl-8.dll \
-		libjasper.dll \
-		libjbig-2.dll \
-		libjbig85-2.dll \
-		libjpeg-8.dll \
-		liblzma-5.dll \
-		liblzo2-2.dll \
-		libpango-1.0-0.dll \
-		libpangocairo-1.0-0.dll \
-		libpangoft2-1.0-0.dll \
-		libpangowin32-1.0-0.dll \
-		libpixman-1-0.dll \
-		libpng16-16.dll \
-		libquadmath-0.dll \
-		libssp-0.dll \
-		libstdc++-6.dll \
-		libtiff-5.dll \
-		libtiffxx-5.dll \
-		libturbojpeg-0.dll \
-		libwebp-7.dll \
-		libwebpdecoder-3.dll \
-		libwebpdemux-2.dll \
-		libwebpmux-3.dll \
-		libwinpthread-1.dll \
-		libXpm-4.dll \
-		zlib1.dll \
-		; do
-
+	for f in ${dll_list} ; do
 		echo "${win32_runtime}/bin/${f} > ${pcb_inst}/bin/${f}"
 		cp "${win32_runtime}/bin/${f}" "${pcb_inst}/bin/${f}"
 	done
