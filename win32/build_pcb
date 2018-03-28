@@ -59,6 +59,9 @@ Supported options:
 
   --skip-install  - Skip the "make install" step of the process.
 
+  --skip-dllinstall - Skip the step after "make install" that copies
+                    the run time DLLs to the staging area.
+
   --with-make <gmake>
 		  - Set MAKE to the listed GNU make program
 
@@ -82,6 +85,7 @@ do_build=yes
 do_clean=yes
 do_deps=yes
 do_install=yes
+do_dllinstall=yes
 do_nsis=yes
 
 config_args=""
@@ -129,6 +133,7 @@ while test $# -ne 0 ; do
 			do_config=no
 			do_deps=no
 			do_install=no
+			do_dllinstall=no
 			do_nsis=yes
 			shift
 			;;
@@ -150,6 +155,11 @@ while test $# -ne 0 ; do
 
 		--skip-deps)
 			do_deps=no
+			shift
+			;;
+
+		--skip-dllinstall)
+			do_dllinstall=no
 			shift
 			;;
 
@@ -396,7 +406,7 @@ fi
 if test "$do_build" = "yes" ; then
 	cd ${top_srcdir}
 	echo "Building for cygwin"
-	( ( ( ${MAKE} $tex_flag 2>&1 ; echo $? >&4) | tee m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
+	( ( ( ${MAKE} $tex_flag PCB="../src/pcbtest.bat"  2>&1 ; echo $? >&4) | tee m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
 	if test $? -ne 0 ; then
 		echo "**** ERROR **** Build failed. See log in m.log"
 		exit 1
@@ -416,22 +426,29 @@ if test "$do_install" = "yes" ; then
 		echo "**** ERROR **** Build failed. See log in m.log"
 		exit 1
 	fi
+	echo "Finished with install target.  Proceeding to runtime DLL install".
 fi
 
-cd ${srcdir}
+if test "$do_dllinstall" = "yes" ; then
+	cd ${srcdir}
 
-# $ cygcheck -l mingw64-i686-jasper | grep "mingw/bin"
-# /usr/i686-w64-mingw32/sys-root/mingw/bin/libjasper.dll
+	# $ cygcheck -l mingw64-i686-jasper | grep "mingw/bin"
+	# /usr/i686-w64-mingw32/sys-root/mingw/bin/libjasper.dll
 
-dll_list=""
-for pkg in `${AWK} '{print $1}' ${srcdir}/mingw_required_pkgs` ; do
-	dll_add=`cygcheck -l $pkg | grep 'bin/.*\.dll$'`
-	for dll in ${dll_add} ; do
-		dll_list="${dll_list} `basename ${dll}`"
+	echo "Extracting runtime DLL list."
+	dll_list=""
+	for pkg in `${AWK} '/^[ \t]*$/ {next} {print $1}' mingw_required_pkgs` ; do
+		# grep won't always find something and this script has 'set -e'
+		# which will cause the script to quit if grep doesn't find anything
+		dll_add=`cygcheck -l ${pkg} | grep 'bin/.*\.dll$' || true`
+		if test -n "${dll_add}" ; then
+			for dll in ${dll_add} ; do
+				dll_base="`basename ${dll}`"
+				dll_list="${dll_list} ${dll_base}"
+			done
+		fi
 	done
-done
 
-if test "$do_install" = "yes" ; then
 	echo "Copying runtime libraries to staging area"
 	for f in ${dll_list} ; do
 		echo "${win32_runtime}/bin/${f} > ${pcb_inst}/bin/${f}"
@@ -480,6 +497,7 @@ chmod 755 ${bat}
 
 if test "$do_nsis" = "yes" ; then
 	cat << EOF
+
 Creating NSIS script
 
 srcdir = ${srcdir}
