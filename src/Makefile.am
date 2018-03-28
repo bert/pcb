@@ -539,12 +539,13 @@ pcbtest.bat:	$(srcdir)/pcbtest.bat.in Makefile
 	cygpath --windows ${abs_top_builddir} | awk '{printf("set PCB_TOP_BUILD=%s\n", $$0)}' > $@
 	cygpath --windows ${abs_top_srcdir} | awk '{printf("set PCB_TOP_SRC=%s\n", $$0)}' >> $@
 	cygpath --windows `${CC}  -print-sysroot`  | awk '{printf("set SYS_ROOT=%s\n", $$0)}' >> $@
+	echo 'set PCBSRCDIR=%PCB_TOP_BUILD%\src' >> $@
 	echo 'set PCBLIBDIR=%PCB_TOP_BUILD%\lib' >> $@
 	echo 'set PCBLIBNEWLIBDIR=%PCB_TOP_BUILD%\lib\pcblib-newlib' >> $@
 	echo 'set PCBNEWLIBDIR=%PCB_TOP_BUILD%\newlib' >> $@
 	echo 'set PCBFONTDIR=%PCB_TOP_SRC%\lib' >> $@
 	echo 'set PATH=%SYS_ROOT%\mingw\bin;%SYS_ROOT%\mingw\lib;%PATH%' >> $@
-	echo '.\pcb.exe --lib-path %PCBLIBDIR% --lib-newlib %PCBLIBNEWLIBDIR% --element-path %PCBNEWLIBDIR% --font-path %PCBFONTDIR% --lib-command-dir %PCBLIBDIR%' >> $@
+	echo '%PCBSRCDIR%\pcb.exe %* --lib-path %PCBLIBDIR% --lib-newlib %PCBLIBNEWLIBDIR% --element-path %PCBNEWLIBDIR% --font-path %PCBFONTDIR% --lib-command-dir %PCBLIBDIR%' >> $@
 	chmod 755 $@
 PCBTEST_BAT=	pcbtest.bat
 endif
