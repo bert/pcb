@@ -1,4 +1,130 @@
 ========================================================================
+Release notes for pcb-4.1.1
+========================================================================
+
+Dear Users,
+
+This is a bug fixes release.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to the 4.1.1 release:
+- Charles Parker
+- Dan McMahill
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- MS Windows (MinGW) installer available from SourceForge
+  (https://sourceforge.net/projects/pcb/files/pcb/).
+- Corrections and improvements in the User Manual.
+- Avoid instant 'CRASH' if an action script implies
+          'invalidate_lr'.
+- Fixed a bug in moving a selection.
+- Snapping to pins and pads whilst drawing a line trace.
+- Fixed a bug in rubberband functionality.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- none
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- Add draw_grid to the hid graphics structure.
+
+
+Notes for early adapters
+------------------------
+- MS Windows (MinGW) installer can be build again.
+
+
+Changed dependencies
+--------------------
+- For mingw cross builds the following minimum package versions are
+  required:
+    mingw64-i686-atk1.0 >= 2.26.1-1
+    mingw64-i686-binutils >= 2.29.1.787c9873-1
+    mingw64-i686-bzip2 >= 1.0.6-4
+    mingw64-i686-cairo >= 1.14.12-1
+    mingw64-i686-dbus >= 1.10.22-1
+    mingw64-i686-expat >= 2.2.2-1
+    mingw64-i686-fontconfig >= 2.12.6-1
+    mingw64-i686-freetype2 >= 2.6.5-1
+    mingw64-i686-gcc-core >= 6.4.0-1
+    mingw64-i686-gcc-g++ >= 6.4.0-1
+    mingw64-i686-gd >= 2.2.5-1
+    mingw64-i686-gdk-pixbuf2.0 >= 2.36.11-1
+    mingw64-i686-gettext >= 0.19.8.1-2
+    mingw64-i686-glib2.0 >= 2.54.3-1
+    mingw64-i686-gtk2.0 >= 2.24.31-1
+    mingw64-i686-gtkglext1.0 >= 1.2.0-1
+    mingw64-i686-harfbuzz >= 1.7.4-1
+    mingw64-i686-headers >= 5.0.3-1
+    mingw64-i686-jasper >= 2.0.14-1
+    mingw64-i686-jbigkit >= 2.1-1
+    mingw64-i686-libffi >= 3.2.1-1
+    mingw64-i686-libimagequant >= 2.10.0-1
+    mingw64-i686-libjpeg-turbo >= 1.5.3-1
+    mingw64-i686-libpng >= 1.6.34-1
+    mingw64-i686-libwebp >= 0.6.1-1
+    mingw64-i686-libXpm >= 3.5.12-1
+    mingw64-i686-lzo2 >= 2.08-1
+    mingw64-i686-pango1.0 >= 1.40.14-1
+    mingw64-i686-pcre >= 8.40-3
+    mingw64-i686-pixman >= 0.34.0-1
+    mingw64-i686-pkg-config >= 0.29.1-1
+    mingw64-i686-pkg-config-debuginfo >= 0.29.1-1
+    mingw64-i686-runtime >= 5.0.3-1
+    mingw64-i686-tiff >= 4.0.9-1
+    mingw64-i686-win-iconv >= 0.0.6-2
+    mingw64-i686-windows-default-manifest >= 6.4-1
+    mingw64-i686-winpthreads >= 5.0.3-1
+    mingw64-i686-xz >= 5.2.3-1
+    mingw64-i686-zlib >= 1.2.11-1
+
+  This allows for building a MS windows (MinGW) installer to work again.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#699012   File format documentation out-of-date.
+#884046   snap to pins and pads does not work when trying to draw line.
+#1545165  PIns/Via show Name/Number menu item doesn't work, only D
+          hotkey does.
+#1645101  Inconsistent argument type to invalidate_lr.
+#1653280  MinMaskGap test fails.
+#1654884  rubberband.
+#1672093  Add draw_grid to the hid graphics structure.
+#1731369  crosshair limits update.
+#1731375  Crosshair Initialization.
+#1748679  Increments are incorrect after loading file.
+#1744589  Cannot move selection.
+#1754479  avoid instant 'CRASH' if an action script implies
+          'invalidate_lr'.
+#1759742  win32 build updates.
+
+========================================================================
 Release notes for pcb-4.1.0
 ========================================================================
 
