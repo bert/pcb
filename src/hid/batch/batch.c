@@ -96,7 +96,7 @@ PCBChanged (int argc, char **argv, Coord x, Coord y)
     }
   else
     prompt = "no-board";
-  update_crosshair_range();
+  crosshair_update_range();
   return 0;
 }
 
