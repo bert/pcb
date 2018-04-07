@@ -1,6 +1,203 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2018-04-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated the NEWS for pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated the appdata for pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated the User Manual for pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Update for release pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/batch/batch.c: Correction in function call in the batch
+	HID.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-28   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/build_pcb: win32:  build_win32 script improvements to use a
+	more automatic DLL list  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-28   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: pcbtest.bat: use the absolute path to the .exe
+	and pass cmd args down.  This is a built batch file used when building under cygwin to be
+	able to run pcb for testing prior to install.  By adding the full
+	path to the .exe and also passing down additional command line
+	arguments, it can also be used for building the documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-27   Dan McMahill * dan AT mcmahill dot net *
+
+	* README.win32, win32/Makefile.am, win32/build_pcb,
+	win32/mingw_required_pkgs: win32:  Use cygcheck to find DLL list for
+	win32 install.  Instead of hard coding the list of DLLs needed for the win32
+	package, use cygcheck and a list of mingw packages to generate the
+	list.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-26   Dan McMahill * dan AT mcmahill dot net *
+
+	* README.win32, win32/build_pcb: Update the win32 mingw cross
+	package list to the latest I have installed.  This lets building a
+	windows installer work again.  Leave some notes for future
+	improvement.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-03-11   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c, src/hid_draw.h: 
+	Add draw_grid to the graphics structure.  Moving the draw_grid function allows it to be replaced by a plugin.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui.h, src/hid/lesstif/main.c: Make the prototypes of
+	the grid drawing routines the same Still need to make gdk and less tif use the box that's passed to
+	them  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid.h, src/hid/batch/batch.c, src/hid/common/hidnogui.c,
+	src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gtkhid-gl.c,
+	src/hid/gtk/gui.h, src/hid/lesstif/main.c: Make argument type of
+	invalidate_lr consistent with BoxType arguments.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-02-16   Charles Parker * parker dot charles AT gmail dot com *
+
+	* tests/run_tests.sh: Change test success condition to none failed.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-25   Charles Parker * parker dot charles AT gmail dot com *
+
+	* doc/pcb.texi, src/hid/gtk/gtkhid-main.c, src/parse_y.y: Misc
+	documentation fixes  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-04   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/rubberband.c: Check the rubberband list to make sure the
+	object isn't already on it.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-03-09   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/common/hidnogui.c: Prevent crashes when printing with
+	actionscript.   Reported-by: Kai-Martin Knaak * knaak AT iqo dot uni-hannover dot
+	de *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-23   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Added the start of a Toporouter chapter.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Removed an obsolete Table of Contents.  Duplicated at the end of the Manual.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/lesstif/main.c: Edited documentation for the lesstif
+	action Command().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-22   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Added documentation for the GTK action
+	Command().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Minor edit of the GTK About() action
+	documentation.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Reformatting for improved readability.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Added documentation for the GTK action
+	Load().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Added documentation for the GTK action
+	Export().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-21   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Added documentation for the GTK action
+	Busy().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-20   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/hid/gtk/gtkhid-main.c: Added documentation for the GTK action
+	Benchmark().   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Distinction between current and legacy syntax.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-06   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Added Attribute examples.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Do not mix high-res and low-res syntax in the
+	Polygon section.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/parse_y.y: Added missing BuriedFrom and BuriedTo arguments in
+	the via section.  Added an example.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-05   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi, src/parse_y.y: Added an elaboration for square
+	brackets in the file format.   Reported-by: Josef Wolf * jw AT raven dot inka dot de *  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-27   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/crosshair.c: Update the pastebuffer BB before computing
+	crosshair limits.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-10-29   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/main.c: Since non-guis may need it, always initialize the
+	crosshair.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2017-11-09   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/action.c, src/buffer.c, src/change.c, src/crosshair.c,
+	src/crosshair.h, src/hid/batch/batch.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c, src/misc.c,
+	src/set.c, src/set.h: Allow the crosshair to compute its own limits.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/crosshair.c: Drawing arcs shouldn't snap to pads on other
+	layers  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-24   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/crosshair.c: Add comments to FitCrosshairIntoGrid  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-02-10   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/file.c: Update Settings.increments after loading files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb-releases.html: Updated the pcb releases howto.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog: Updated the ChangeLog for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
 
 	* NEWS: Updated the NEWS for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
@@ -12,10 +209,6 @@ during the snapshot process.  See README.snapshots and utils/git2cl.
 2018-01-28   bert * bert dot timmerman AT xs4all dot nl *
 
 	* doc/pcb.texi: Updated the User Manual for pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
-
-2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
-
-	* configure.ac, doc/doxygen/pcb.dox: Update for release pcb-4.1.0.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
 
 2018-01-27   bert * bert dot timmerman AT xs4all dot nl *
 
