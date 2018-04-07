@@ -49,7 +49,12 @@
   <updatecontact>bert.timmerman@xs4all.nl</updatecontact>
   <url type="translate">https://translations.launchpad.net/pcb</url>
 ​  <releases>
-​    <release version="4.1.0" date="2018-01-28">
+​    <release version="4.1.1" date="2018-04-07">
+​      <description>
+​        <p>Bug fix release</p>
+​      </description>
+​​    </release>
+​​​    <release version="4.1.0" date="2018-01-28">
 ​      <description>
 ​        <p>New features release (pcb file format change)</p>
 ​      </description>
