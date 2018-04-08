@@ -535,7 +535,7 @@ pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
 if WIN32
 # create a wrapper script that lets you test pcb prior to installation
 # when building under cygwin with the mingw cross compilers
-pcbtest.bat:	$(srcdir)/pcbtest.bat.in Makefile
+pcbtest.bat:	Makefile
 	cygpath --windows ${abs_top_builddir} | awk '{printf("set PCB_TOP_BUILD=%s\n", $$0)}' > $@
 	cygpath --windows ${abs_top_srcdir} | awk '{printf("set PCB_TOP_SRC=%s\n", $$0)}' >> $@
 	cygpath --windows `${CC}  -print-sysroot`  | awk '{printf("set SYS_ROOT=%s\n", $$0)}' >> $@
