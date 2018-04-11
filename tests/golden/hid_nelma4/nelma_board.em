@@ -85,7 +85,7 @@ object C1-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 64, 50 }
 }
 object C1-1-top {
@@ -93,7 +93,7 @@ object C1-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 64, 50 }
 }
 object C1-1-outline {
@@ -101,7 +101,7 @@ object C1-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 64, 50 }
 }
 object P1-4-bottom {
@@ -109,7 +109,7 @@ object P1-4-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 24, 21 }
 }
 object P1-4-top {
@@ -117,7 +117,7 @@ object P1-4-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 24, 21 }
 }
 object P1-4-outline {
@@ -125,7 +125,7 @@ object P1-4-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 24, 21 }
 }
 object R1-2-bottom {
@@ -133,7 +133,7 @@ object R1-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 66, 27 }
 }
 object R1-2-top {
@@ -141,7 +141,7 @@ object R1-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 66, 27 }
 }
 object R1-2-outline {
@@ -149,7 +149,7 @@ object R1-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 66, 27 }
 }
 object R3-2-bottom {
@@ -157,7 +157,7 @@ object R3-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 70, 39 }
 }
 object R3-2-top {
@@ -165,7 +165,7 @@ object R3-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 70, 39 }
 }
 object R3-2-outline {
@@ -173,7 +173,7 @@ object R3-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 70, 39 }
 }
 object R1-1-bottom {
@@ -181,7 +181,7 @@ object R1-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 66, 20 }
 }
 object R1-1-top {
@@ -189,7 +189,7 @@ object R1-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 66, 20 }
 }
 object R1-1-outline {
@@ -197,7 +197,7 @@ object R1-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 66, 20 }
 }
 object R2-1-bottom {
@@ -205,7 +205,7 @@ object R2-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 55, 27 }
 }
 object R2-1-top {
@@ -213,7 +213,7 @@ object R2-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 55, 27 }
 }
 object R2-1-outline {
@@ -221,7 +221,7 @@ object R2-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 55, 27 }
 }
 object R20-2-bottom {
@@ -229,7 +229,7 @@ object R20-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 46, 27 }
 }
 object R20-2-top {
@@ -237,7 +237,7 @@ object R20-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 46, 27 }
 }
 object R20-2-outline {
@@ -245,7 +245,7 @@ object R20-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 46, 27 }
 }
 object START-1-bottom {
@@ -253,7 +253,7 @@ object START-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 29, 9 }
 }
 object START-1-top {
@@ -261,7 +261,7 @@ object START-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 29, 9 }
 }
 object START-1-outline {
@@ -269,7 +269,7 @@ object START-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 29, 9 }
 }
 object R2-2-bottom {
@@ -277,7 +277,7 @@ object R2-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 55, 34 }
 }
 object R2-2-top {
@@ -285,7 +285,7 @@ object R2-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 55, 34 }
 }
 object R2-2-outline {
@@ -293,7 +293,7 @@ object R2-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 55, 34 }
 }
 object R3-1-bottom {
@@ -301,7 +301,7 @@ object R3-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 63, 39 }
 }
 object R3-1-top {
@@ -309,7 +309,7 @@ object R3-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 63, 39 }
 }
 object R3-1-outline {
@@ -317,7 +317,7 @@ object R3-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 63, 39 }
 }
 object R19-2-bottom {
@@ -325,7 +325,7 @@ object R19-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 46, 39 }
 }
 object R19-2-top {
@@ -333,7 +333,7 @@ object R19-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 46, 39 }
 }
 object R19-2-outline {
@@ -341,7 +341,7 @@ object R19-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 46, 39 }
 }
 object P1-3-bottom {
@@ -349,7 +349,7 @@ object P1-3-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 24, 31 }
 }
 object P1-3-top {
@@ -357,7 +357,7 @@ object P1-3-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 24, 31 }
 }
 object P1-3-outline {
@@ -365,7 +365,7 @@ object P1-3-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 24, 31 }
 }
 object R20-1-bottom {
@@ -373,7 +373,7 @@ object R20-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 39, 27 }
 }
 object R20-1-top {
@@ -381,7 +381,7 @@ object R20-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 39, 27 }
 }
 object R20-1-outline {
@@ -389,7 +389,7 @@ object R20-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 39, 27 }
 }
 object P1-2-bottom {
@@ -397,7 +397,7 @@ object P1-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 24, 39 }
 }
 object P1-2-top {
@@ -405,7 +405,7 @@ object P1-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 24, 39 }
 }
 object P1-2-outline {
@@ -413,7 +413,7 @@ object P1-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 24, 39 }
 }
 object R19-1-bottom {
@@ -421,7 +421,7 @@ object R19-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 39, 39 }
 }
 object R19-1-top {
@@ -429,7 +429,7 @@ object R19-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 39, 39 }
 }
 object R19-1-outline {
@@ -437,7 +437,7 @@ object R19-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 39, 39 }
 }
 object C1-2-bottom {
@@ -445,7 +445,7 @@ object C1-2-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 53, 50 }
 }
 object C1-2-top {
@@ -453,7 +453,7 @@ object C1-2-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 53, 50 }
 }
 object C1-2-outline {
@@ -461,7 +461,7 @@ object C1-2-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 53, 50 }
 }
 object P1-1-bottom {
@@ -469,7 +469,7 @@ object P1-1-bottom {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.bottom.png"
+	file = "nelma_board.bottom.png"
 	file-pos = { 24, 49 }
 }
 object P1-1-top {
@@ -477,7 +477,7 @@ object P1-1-top {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.top.png"
+	file = "nelma_board.top.png"
 	file-pos = { 24, 49 }
 }
 object P1-1-outline {
@@ -485,7 +485,7 @@ object P1-1-outline {
 	material = "copper"
 	type = "image"
 	role = "net"
-	file = "/home/bert/workspace/git/pcb/devel/LP1695534/nelma_board.nelma.outline.png"
+	file = "nelma_board.outline.png"
 	file-pos = { 24, 49 }
 }
 
