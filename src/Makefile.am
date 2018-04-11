@@ -515,6 +515,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/gcode/gcode_lists.h \
+	hid/gsvit/gsvit_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	core_lists.h \
@@ -522,7 +523,9 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	gpcb-menu.res \
 	pcb-menu.res \
 	gpcb-menu.res.h \
-	pcb-menu.res.h
+	pcb-menu.res.h \
+	pcb_icon.ico \
+	${PCBTEST_BAT}
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
