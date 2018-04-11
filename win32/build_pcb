@@ -39,6 +39,12 @@ Supported options:
 
   --disable-doc   - Pass "--disable-doc" to the configure script.
 
+  --distcheck     - Run with --force-autogen and then build the
+                    distcheck target and exit.  This is generally
+                    only of interest for developers.
+
+  --enable-check  - enable the 'check' target after building.
+
   --help          - Show this message and exit.
 
   --host <host>   - Sets the host target.  [$HOST]
@@ -48,6 +54,8 @@ Supported options:
 
   --nsis-only     - Only run NSIS to create the installer.  This is
                     shorthand for all of the following --skip-* options.
+
+  --skip-all      - Skip all steps of the process.
 
   --skip-build    - Skip the "make" step of the process.
 
@@ -82,12 +90,14 @@ debug=no
 do_autogen=no
 do_config=yes
 do_build=yes
+do_check=no
 do_clean=yes
 do_deps=yes
+do_distcheck=no
 do_install=yes
 do_dllinstall=yes
 do_nsis=yes
-
+stop_after=none
 config_args=""
 tex_flag="TEX=tex"
 while test $# -ne 0 ; do
@@ -101,6 +111,25 @@ while test $# -ne 0 ; do
                        config_args="${config_args} --disable-doc"
                        shift
                        ;;
+
+		--distcheck)
+			do_autogen=yes
+			do_build=no
+			do_check=no
+			do_clean=no
+			do_config=no
+			do_deps=no
+			do_distcheck=yes
+			do_install=no
+			do_dllinstall=no
+			do_nsis=no
+			shift
+			;;
+
+		--enable-check)
+			do_check=yes
+			shift
+			;;
 
 		--help)
 			usage
@@ -138,8 +167,27 @@ while test $# -ne 0 ; do
 			shift
 			;;
 
+		--skip-all)
+			do_autogen=no
+			do_build=no
+			do_check=no
+			do_clean=no
+			do_config=no
+			do_deps=no
+			do_distcheck=no
+			do_install=no
+			do_dllinstall=no
+			do_nsis=no
+			shift
+			;;
+
 		--skip-build)
 			do_build=no
+			shift
+			;;
+
+		--skip-check)
+			do_check=no
 			shift
 			;;
 
@@ -171,6 +219,11 @@ while test $# -ne 0 ; do
 		--skip-nsis)
 			do_nsis=no
 			shift
+			;;
+
+		--stop-after)
+			stop_after=$2
+			shift 2
 			;;
 
 		--with-etex)
@@ -318,6 +371,13 @@ fi
 #
 # ########################################################################
 
+check_stop() {
+	if test "X${stop_after}" = "X$1" ; then
+		echo "Exiting build because stop_after = ${stop_after}"
+		exit 0
+	fi
+}
+
 
 # source directory
 srcdir=`pwd.exe`
@@ -327,6 +387,7 @@ if test ! -f ../configure -o $do_autogen = yes ; then
 	echo "Bootstrapping autotools"
 	(cd .. && ./autogen.sh)
 fi
+check_stop autogen
 
 
 PKG_CONFIG=${HOST}-pkg-config
@@ -359,6 +420,38 @@ PKG_CONFIG_PATH  =  ${PKG_CONFIG_PATH}
 
 EOF
 
+if test "$do_distcheck" = "yes" ; then
+	DISTCHECK_CONFIGURE_FLAGS="ac_cv_func_gdImageGif=yes ac_cv_func_gdImageJpeg=yes ac_cv_func_gdImagePng=yes"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} --disable-dependency-tracking"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} --disable-nls"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} --disable-update-desktop-database"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} --disable-update-mime-database"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} --host ${HOST}"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} CPPFLAGS=-DWIN32_LEAN_AND_MEAN"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} WIN32=yes"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} PCB_MAGIC_TEST_SKIP=yes"
+	DISTCHECK_CONFIGURE_FLAGS="${DISTCHECK_CONFIGURE_FLAGS} GERBV=/bin/true"
+	export DISTCHECK_CONFIGURE_FLAGS
+	WIN32=yes
+	export WIN32
+	PCB_MAGIC_TEST_SKIP=yes
+	export PCB_MAGIC_TEST_SKIP
+	echo "Distcheck for cygwin"
+	cd ${top_srcdir}
+	( ( ( \
+		${MAKE} distcheck
+		2>&1 ; echo $? >&4 ) | tee distcheck.log 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
+
+	if test $? -ne 0 ; then
+		echo "**** ERROR **** Distcheck failed. See log in distcheck.log"
+		exit 1
+	fi
+
+	echo "Finished with distcheck, exiting."
+	exit 0
+fi
+
+
 # setting WIN32=yes will make sure that the desktop icon
 # gets compiled in
 if test "$do_config" = "yes" ; then
@@ -390,6 +483,7 @@ if test "$do_config" = "yes" ; then
 		echo "**** ERROR **** Configure failed. See log in c.log"
 		exit 1
 	fi
+	check_stop config
 
 
 	if test "$do_clean" = "yes" ; then
@@ -401,7 +495,10 @@ if test "$do_config" = "yes" ; then
 			exit 1
 		fi
 	fi
+	check_stop clean
 fi
+check_stop config
+check_stop clean
 
 if test "$do_build" = "yes" ; then
 	cd ${top_srcdir}
@@ -412,6 +509,18 @@ if test "$do_build" = "yes" ; then
 		exit 1
 	fi
 fi
+check_stop build
+
+if test "$do_check" = "yes" ; then
+	cd ${top_srcdir}
+	echo "Building for cygwin"
+	( ( ( ${MAKE} check PCB="../../src/pcbtest.bat"  2>&1 ; echo $? >&4) | tee check.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
+	if test $? -ne 0 ; then
+		echo "**** ERROR **** Build failed. See log in check.log"
+		exit 1
+	fi
+fi
+check_stop check
 
 if test "$do_install" = "yes" ; then
 	cd ${top_srcdir}
@@ -428,6 +537,7 @@ if test "$do_install" = "yes" ; then
 	fi
 	echo "Finished with install target.  Proceeding to runtime DLL install".
 fi
+check_stop install
 
 if test "$do_dllinstall" = "yes" ; then
 	cd ${srcdir}
@@ -458,6 +568,7 @@ if test "$do_dllinstall" = "yes" ; then
 	mkdir -p "${pcb_inst}/lib${pcb_inst}/lib"
 	cp -r "${win32_runtime}/lib/gdk-pixbuf-2.0"  "${pcb_inst}/lib/"
 fi
+check_stop dllinstall
 
 ##########################################################################
 #
