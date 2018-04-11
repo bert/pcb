@@ -487,7 +487,7 @@ normalize_xem() {
     local f1="$1"
     local f2="$2"
     $AWK '
-	/<genTime>Thu Jan 11 23:25:46 2018</genTime>/ {print} "<genTime>today</genTime>"; next}
+	/<genTime>.*</genTime>/ {print "<genTime>today</genTime>" }; next}
 	{print}' \
 	$f1 > $f2
 }
@@ -563,8 +563,10 @@ compare_ipcd356() {
 normalize_em() {
     local f1="$1"
     local f2="$2"
+    # an example .em header has:
+    # /* Made with PCB Nelma export HID *//* Wed Apr 11 12:25:23 2018
     $AWK '
-	/Fri Jan 26 23:44:30 2018/ {print} "today"; next}
+	/Made with PCB Nelma export HID/ {print"/* PCB Nelma Export *//* today"; next}
 	{print}' \
 	$f1 > $f2
 }
