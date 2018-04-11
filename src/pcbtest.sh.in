@@ -38,7 +38,7 @@ GDB=${GDB:-gdb}
 
 TEST_PATHS=""
 TEST_PATHS="$TEST_PATHS --lib-path @TOP_BUILDDIR@/lib"
-TEST_PATHS="$TEST_PATHS --lib-newlib @TOPSRCDIR@/newlib:@TOPSRCDIR@/lib/pcblib-newlib"
+TEST_PATHS="$TEST_PATHS --lib-newlib @TOPSRCDIR@/newlib:@TOPBUILDDIR@/lib/pcblib-newlib"
 TEST_PATHS="$TEST_PATHS --element-path @TOP_BUILDDIR@/lib"
 TEST_PATHS="$TEST_PATHS --font-path @TOPSRCDIR@/src"
 TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
