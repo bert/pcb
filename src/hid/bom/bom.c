@@ -394,7 +394,7 @@ PrintBOM (void)
   char *name, *descr, *value,*fixed_rotation;
   int rpindex;
 
-  fp = fopen (xy_filename, "w");
+  fp = fopen (xy_filename, "wb");
   if (!fp)
     {
       gui->log ("Cannot open file %s for writing\n", xy_filename);
@@ -591,7 +591,7 @@ PrintBOM (void)
 
   /* Now print out a Bill of Materials file */
 
-  fp = fopen (bom_filename, "w");
+  fp = fopen (bom_filename, "wb");
   if (!fp)
     {
       gui->log ("Cannot open file %s for writing\n", bom_filename);

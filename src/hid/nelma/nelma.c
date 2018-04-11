@@ -707,7 +707,7 @@ nelma_do_export(HID_Attr_Val * options)
 	buf = (char *)malloc(sizeof(*buf) * len);
 
 	sprintf(buf, "%s.em", nelma_basename);
-	nelma_config = fopen(buf, "w");
+	nelma_config = fopen(buf, "wb");
 
 	free(buf);
 

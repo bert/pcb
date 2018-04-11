@@ -459,7 +459,7 @@ IPCD356_Netlist (void)
   if (IPCD356_filename == NULL)
     return 1;
 
-  fp = fopen (IPCD356_filename, "w+");
+  fp = fopen (IPCD356_filename, "wb+");
   if (fp == NULL)
     {
       Message ("error opening %s\n", IPCD356_filename);
