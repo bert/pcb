@@ -170,7 +170,11 @@ top_srcdir=${top_srcdir:-.}
 #
 # by default we will be running it from $(srcdir)/runs/testname
 # so we need to look 3 levels up and then down to src
-PCB=${PCB:-../../../src/pcbtest.sh}
+if test "X${WIN32}" = "Xyes" ; then
+	PCB=${PCB:-../../../src/pcbtest.bat}
+else
+	PCB=${PCB:-../../../src/pcbtest.sh}
+fi
 
 # The gerbv executible 
 GERBV=${GERBV:-gerbv}
