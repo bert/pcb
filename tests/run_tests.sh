@@ -487,7 +487,7 @@ normalize_xem() {
     local f1="$1"
     local f2="$2"
     $AWK '
-	/<genTime>.*</genTime>/ {print "<genTime>today</genTime>" }; next}
+	/<genTime>.*<\/genTime>/ {print "<genTime>today</genTime>"; next}
 	{print}' \
 	$f1 > $f2
 }
