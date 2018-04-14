@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gsvit>
 	<comment>Made with PCB gsvit export HID</comment>
-	<genTime>Thu Jan 11 23:25:46 2018</genTime>
+	<genTime>Sat Apr 14 15:35:13 2018</genTime>
 	<space>
 		<comment>***** Space *****</comment>
 		<resolution units="mm">0.025400</resolution>
 		<width>866</width>
 		<height>700</height>
 		<layers>
-			<layer name="bottom">devel/LP1695534/gsvit_board.gsvit.bottom.png</layer>
-			<layer name="top">devel/LP1695534/gsvit_board.gsvit.top.png</layer>
-			<layer name="outline">devel/LP1695534/gsvit_board.gsvit.outline.png</layer>
+			<layer name="bottom">gsvit_board.bottom.png</layer>
+			<layer name="top">gsvit_board.top.png</layer>
+			<layer name="outline">gsvit_board.outline.png</layer>
 		</layers>
 	</space>
 	<nets>
@@ -89,27 +89,23 @@
 			<pos type="plated">662,323</pos>
 			<pos type="plated">787,393</pos>
 			<pos type="plated">354,196</pos>
-			
 		</drill>
 		<drill id="D1">
 			<dia_inches>0.035</dia_inches>
 			<radius>17</radius>
 			<pos type="plated">748,511</pos>
-			
 		</drill>
 		<drill id="D2">
 			<dia_inches>0.04331</dia_inches>
 			<radius>21</radius>
 			<pos type="unplated">157,265</pos>
 			<pos type="unplated">157,442</pos>
-			
 		</drill>
 		<drill id="D3">
 			<dia_inches>0.09842</dia_inches>
 			<radius>49</radius>
 			<pos type="plated">157,129</pos>
 			<pos type="plated">157,578</pos>
-			
 		</drill>
 	</drills>
 </gsvit>
