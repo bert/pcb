@@ -4282,7 +4282,7 @@ ActionChangeClearSize (int argc, char **argv, Coord x, Coord y)
   if (function && delta)
     {
       value = 2 * GetValue (delta, units, &absolute);
-      if (value == 0)
+      if ((value == 0) && !absolute)
         value = delta[0] == '-' ? -Settings.increments->clear
                                 :  Settings.increments->clear;
       switch (GetFunctionID (function))
