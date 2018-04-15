@@ -125,8 +125,10 @@ static void *ChangePolyClear (LayerType *, PolygonType *);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static int Delta;		/* change of size */
-static int Absolute;		/* Absolute size */
+/*! Either the new value or the change in value  */
+static int Value; 
+/*! Used as boolean to indicate that Value is an absolute or delta */
+static int Absolute; 
 static char *NewName;		/* new name */
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
@@ -354,10 +356,10 @@ ChangeViaThermal (PinType *Via)
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-  if (!Delta)			/* remove the thermals */
+  if (!Value)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Via);
   else
-    ASSIGN_THERM (INDEXOFCURRENT, Delta, Via);
+    ASSIGN_THERM (INDEXOFCURRENT, Value, Via);
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   DrawVia (Via);
@@ -375,10 +377,10 @@ ChangePinThermal (ElementType *element, PinType *Pin)
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
-  if (!Delta)			/* remove the thermals */
+  if (!Value)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Pin);
   else
-    ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
+    ASSIGN_THERM (INDEXOFCURRENT, Value, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   DrawPin (Pin);
@@ -393,14 +395,14 @@ ChangePinThermal (ElementType *element, PinType *Pin)
 static void *
 ChangeViaSize (PinType *Via)
 {
-  Coord value = Absolute ? Absolute : Via->Thickness + Delta;
+  Coord new_value = Absolute ? Value : Via->Thickness + Value;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  if (!TEST_FLAG (HOLEFLAG, Via) && value <= MAX_PINORVIASIZE &&
-      value >= MIN_PINORVIASIZE &&
-      value >= Via->DrillingHole + MIN_PINORVIACOPPER &&
-      value != Via->Thickness)
+  if (!TEST_FLAG (HOLEFLAG, Via) && new_value <= MAX_PINORVIASIZE &&
+      new_value >= MIN_PINORVIASIZE &&
+      new_value >= Via->DrillingHole + MIN_PINORVIACOPPER &&
+      new_value != Via->Thickness)
     {
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
@@ -409,9 +411,9 @@ ChangeViaSize (PinType *Via)
       if (Via->Mask)
 	{
 	  AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
-	  Via->Mask += value - Via->Thickness;
+	  Via->Mask += new_value - Via->Thickness;
 	}
-      Via->Thickness = value;
+      Via->Thickness = new_value;
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
       ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
@@ -429,24 +431,24 @@ ChangeViaSize (PinType *Via)
 static void *
 ChangeVia2ndSize (PinType *Via)
 {
-  Coord value = (Absolute) ? Absolute : Via->DrillingHole + Delta;
+  Coord new_value = (Absolute) ? Value : Via->DrillingHole + Value;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  if (value <= MAX_PINORVIASIZE &&
-      value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Via) ||
-				    value <=
+  if (new_value <= MAX_PINORVIASIZE &&
+      new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Via) ||
+				    new_value <=
 				    Via->Thickness - MIN_PINORVIACOPPER)
-      && value != Via->DrillingHole)
+      && new_value != Via->DrillingHole)
     {
       AddObjectTo2ndSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
       RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
-      Via->DrillingHole = value;
+      Via->DrillingHole = new_value;
       if (TEST_FLAG (HOLEFLAG, Via))
 	{
 	  AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
-	  Via->Thickness = value;
+	  Via->Thickness = new_value;
 	}
       ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
       DrawVia (Via);
@@ -463,24 +465,24 @@ ChangeVia2ndSize (PinType *Via)
 static void *
 ChangeViaClearSize (PinType *Via)
 {
-  Coord value = (Absolute) ? Absolute : Via->Clearance + Delta;
+  Coord new_value = (Absolute) ? Value : Via->Clearance + Value;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  value = MIN (MAX_LINESIZE, value);
-  if (value < 0)
-    value = 0;
-  if (Delta < 0 && value < PCB->Bloat * 2)
-    value = 0;
-  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
-    value = PCB->Bloat * 2 + 2;
-  if (Via->Clearance == value)
+  new_value = MIN (MAX_LINESIZE, new_value);
+  if (new_value < 0)
+    new_value = 0;
+  if (Value < 0 && new_value < PCB->Bloat * 2)
+    new_value = 0;
+  if ((Value > 0 || Absolute) && new_value < PCB->Bloat * 2)
+    new_value = PCB->Bloat * 2 + 2;
+  if (Via->Clearance == new_value)
     return NULL;
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
-  Via->Clearance = value;
+  Via->Clearance = new_value;
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
@@ -498,22 +500,22 @@ ChangeViaClearSize (PinType *Via)
 static void *
 ChangePinSize (ElementType *Element, PinType *Pin)
 {
-  Coord value = (Absolute) ? Absolute : Pin->Thickness + Delta;
+  Coord new_value = (Absolute) ? Value : Pin->Thickness + Value;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  if (!TEST_FLAG (HOLEFLAG, Pin) && value <= MAX_PINORVIASIZE &&
-      value >= MIN_PINORVIASIZE &&
-      value >= Pin->DrillingHole + MIN_PINORVIACOPPER &&
-      value != Pin->Thickness)
+  if (!TEST_FLAG (HOLEFLAG, Pin) && new_value <= MAX_PINORVIASIZE &&
+      new_value >= MIN_PINORVIASIZE &&
+      new_value >= Pin->DrillingHole + MIN_PINORVIACOPPER &&
+      new_value != Pin->Thickness)
     {
       AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-      Pin->Mask += value - Pin->Thickness;
-      Pin->Thickness = value;
+      Pin->Mask += new_value - Pin->Thickness;
+      Pin->Thickness = new_value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
@@ -531,24 +533,24 @@ ChangePinSize (ElementType *Element, PinType *Pin)
 static void *
 ChangePinClearSize (ElementType *Element, PinType *Pin)
 {
-  Coord value = (Absolute) ? Absolute : Pin->Clearance + Delta;
+  Coord new_value = (Absolute) ? Value : Pin->Clearance + Value;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  value = MIN (MAX_LINESIZE, value);
-  if (value < 0)
-    value = 0;
-  if (Delta < 0 && value < PCB->Bloat * 2)
-    value = 0;
-  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
-    value = PCB->Bloat * 2 + 2;
-  if (Pin->Clearance == value)
+  new_value = MIN (MAX_LINESIZE, new_value);
+  if (new_value < 0)
+    new_value = 0;
+  if (Value < 0 && new_value < PCB->Bloat * 2)
+    new_value = 0;
+  if ((Value > 0 || Absolute) && new_value < PCB->Bloat * 2)
+    new_value = PCB->Bloat * 2 + 2;
+  if (Pin->Clearance == new_value)
     return NULL;
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
-  Pin->Clearance = value;
+  Pin->Clearance = new_value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
@@ -564,19 +566,19 @@ ChangePinClearSize (ElementType *Element, PinType *Pin)
 static void *
 ChangePadSize (ElementType *Element, PadType *Pad)
 {
-  Coord value = (Absolute) ? Absolute : Pad->Thickness + Delta;
+  Coord new_value = (Absolute) ? Value : Pad->Thickness + Value;
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Thickness)
+  if (new_value <= MAX_PADSIZE && new_value >= MIN_PADSIZE && new_value != Pad->Thickness)
     {
       AddObjectToSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
-      Pad->Mask += value - Pad->Thickness;
-      Pad->Thickness = value;
+      Pad->Mask += new_value - Pad->Thickness;
+      Pad->Thickness = new_value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
@@ -594,24 +596,24 @@ ChangePadSize (ElementType *Element, PadType *Pad)
 static void *
 ChangePadClearSize (ElementType *Element, PadType *Pad)
 {
-  Coord value = (Absolute) ? Absolute : Pad->Clearance + Delta;
+  Coord new_value = (Absolute) ? Value : Pad->Clearance + Value;
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  value = MIN (MAX_LINESIZE, value);
-  if (value < 0)
-    value = 0;
-  if (Delta < 0 && value < PCB->Bloat * 2)
-    value = 0;
-  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
-    value = PCB->Bloat * 2 + 2;
-  if (value == Pad->Clearance)
+  new_value = MIN (MAX_LINESIZE, new_value);
+  if (new_value < 0)
+    new_value = 0;
+  if (Value < 0 && new_value < PCB->Bloat * 2)
+    new_value = 0;
+  if ((Value > 0 || Absolute) && new_value < PCB->Bloat * 2)
+    new_value = PCB->Bloat * 2 + 2;
+  if (new_value == Pad->Clearance)
     return NULL;
   AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
   RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   ErasePad (Pad);
   r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
-  Pad->Clearance = value;
+  Pad->Clearance = new_value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
@@ -628,29 +630,29 @@ static void *
 ChangeElement2ndSize (ElementType *Element)
 {
   bool changed = false;
-  Coord value;
+  Coord new_value;
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
   PIN_LOOP (Element);
   {
-    value = (Absolute) ? Absolute : pin->DrillingHole + Delta;
-    if (value <= MAX_PINORVIASIZE &&
-	value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
-				      value <=
+    new_value = (Absolute) ? Value : pin->DrillingHole + Value;
+    if (new_value <= MAX_PINORVIASIZE &&
+	new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
+				      new_value <=
 				      pin->Thickness -
 				      MIN_PINORVIACOPPER)
-	&& value != pin->DrillingHole)
+	&& new_value != pin->DrillingHole)
       {
 	changed = true;
 	AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, pin, pin);
 	ErasePin (pin);
 	RestoreToPolygon (PCB->Data, PIN_TYPE, Element, pin);
-	pin->DrillingHole = value;
+	pin->DrillingHole = new_value;
 	if (TEST_FLAG (HOLEFLAG, pin))
 	  {
 	    AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
-	    pin->Thickness = value;
+	    pin->Thickness = new_value;
 	  }
 	ClearFromPolygon (PCB->Data, PIN_TYPE, Element, pin);
 	DrawPin (pin);
@@ -671,24 +673,24 @@ ChangeElement2ndSize (ElementType *Element)
 static void *
 ChangePin2ndSize (ElementType *Element, PinType *Pin)
 {
-  Coord value = (Absolute) ? Absolute : Pin->DrillingHole + Delta;
+  Coord new_value = (Absolute) ? Value : Pin->DrillingHole + Value;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  if (value <= MAX_PINORVIASIZE &&
-      value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Pin) ||
-				    value <=
+  if (new_value <= MAX_PINORVIASIZE &&
+      new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Pin) ||
+				    new_value <=
 				    Pin->Thickness - MIN_PINORVIACOPPER)
-      && value != Pin->DrillingHole)
+      && new_value != Pin->DrillingHole)
     {
       AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
       RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
-      Pin->DrillingHole = value;
+      Pin->DrillingHole = new_value;
       if (TEST_FLAG (HOLEFLAG, Pin))
 	{
 	  AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
-	  Pin->Thickness = value;
+	  Pin->Thickness = new_value;
 	}
       ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
       DrawPin (Pin);
@@ -705,18 +707,18 @@ ChangePin2ndSize (ElementType *Element, PinType *Pin)
 static void *
 ChangeLineSize (LayerType *Layer, LineType *Line)
 {
-  Coord value = (Absolute) ? Absolute : Line->Thickness + Delta;
+  Coord new_value = (Absolute) ? Value : Line->Thickness + Value;
 
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
-  if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-      value != Line->Thickness)
+  if (new_value <= MAX_LINESIZE && new_value >= MIN_LINESIZE &&
+      new_value != Line->Thickness)
     {
       AddObjectToSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxType *) Line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-      Line->Thickness = value;
+      Line->Thickness = new_value;
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxType *) Line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
@@ -734,18 +736,18 @@ ChangeLineSize (LayerType *Layer, LineType *Line)
 static void *
 ChangeLineClearSize (LayerType *Layer, LineType *Line)
 {
-  Coord value = (Absolute) ? Absolute : Line->Clearance + Delta;
+  Coord new_value = (Absolute) ? Value : Line->Clearance + Value;
 
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
-  if (value != Line->Clearance)
+  new_value = MIN (MAX_LINESIZE, MAX (new_value, PCB->Bloat * 2 + 2));
+  if (new_value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxType *) Line);
-      Line->Clearance = value;
+      Line->Clearance = new_value;
       if (Line->Clearance == 0)
 	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Line);
@@ -788,18 +790,18 @@ ChangePolygonClearSize (LayerType *Layer, PolygonType *poly)
 static void *
 ChangeArcSize (LayerType *Layer, ArcType *Arc)
 {
-  Coord value = (Absolute) ? Absolute : Arc->Thickness + Delta;
+  Coord new_value = (Absolute) ? Value : Arc->Thickness + Value;
 
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
-  if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-      value != Arc->Thickness)
+  if (new_value <= MAX_LINESIZE && new_value >= MIN_LINESIZE &&
+      new_value != Arc->Thickness)
     {
       AddObjectToSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
       r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-      Arc->Thickness = value;
+      Arc->Thickness = new_value;
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxType *) Arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
@@ -817,18 +819,18 @@ ChangeArcSize (LayerType *Layer, ArcType *Arc)
 static void *
 ChangeArcClearSize (LayerType *Layer, ArcType *Arc)
 {
-  Coord value = (Absolute) ? Absolute : Arc->Clearance + Delta;
+  Coord new_value = (Absolute) ? Value : Arc->Clearance + Value;
 
   if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
-  if (value != Arc->Clearance)
+  new_value = MIN (MAX_LINESIZE, MAX (new_value, PCB->Bloat * 2 + 2));
+  if (new_value != Arc->Clearance)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
       r_delete_entry (Layer->arc_tree, (BoxType *) Arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-      Arc->Clearance = value;
+      Arc->Clearance = new_value;
       if (Arc->Clearance == 0)
 	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Arc);
@@ -851,20 +853,20 @@ ChangeArcClearSize (LayerType *Layer, ArcType *Arc)
 static void *
 ChangeTextSize (LayerType *Layer, TextType *Text)
 {
-  int value = (Absolute != 0 ? 0 : Text->Scale) +
-              (double)(Absolute != 0 ? Absolute : Delta)
+  int new_value = (Absolute != 0 ? 0 : Text->Scale) +
+              (double)(Absolute != 0 ? Value : Value)
                 / (double)FONT_CAPHEIGHT * 100.;
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
-  if (value <= MAX_TEXTSCALE && value >= MIN_TEXTSCALE &&
-      value != Text->Scale)
+  if (new_value <= MAX_TEXTSCALE && new_value >= MIN_TEXTSCALE &&
+      new_value != Text->Scale)
     {
       AddObjectToSizeUndoList (TEXT_TYPE, Layer, Text, Text);
       EraseText (Layer, Text);
       r_delete_entry (Layer->text_tree, (BoxType *) Text);
       RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
-      Text->Scale = value;
+      Text->Scale = new_value;
       SetTextBoundingBox (&PCB->Font, Text);
       r_insert_entry (Layer->text_tree, (BoxType *) Text, 0);
       ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
@@ -882,7 +884,7 @@ ChangeTextSize (LayerType *Layer, TextType *Text)
 static void *
 ChangeElementSize (ElementType *Element)
 {
-  Coord value;
+  Coord new_value;
   bool changed = false;
 
   if (TEST_FLAG (LOCKFLAG, Element))
@@ -891,24 +893,24 @@ ChangeElementSize (ElementType *Element)
     EraseElement (Element);
   ELEMENTLINE_LOOP (Element);
   {
-    value = (Absolute) ? Absolute : line->Thickness + Delta;
-    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-	value != line->Thickness)
+    new_value = (Absolute) ? Value : line->Thickness + Value;
+    if (new_value <= MAX_LINESIZE && new_value >= MIN_LINESIZE &&
+	new_value != line->Thickness)
       {
 	AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line, line);
-	line->Thickness = value;
+	line->Thickness = new_value;
 	changed = true;
       }
   }
   END_LOOP;
   ARC_LOOP (Element);
   {
-    value = (Absolute) ? Absolute : arc->Thickness + Delta;
-    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-	value != arc->Thickness)
+    new_value = (Absolute) ? Value : arc->Thickness + Value;
+    if (new_value <= MAX_LINESIZE && new_value >= MIN_LINESIZE &&
+	new_value != arc->Thickness)
       {
 	AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
-	arc->Thickness = value;
+	arc->Thickness = new_value;
 	changed = true;
       }
   }
@@ -930,20 +932,20 @@ ChangeElementSize (ElementType *Element)
 static void *
 ChangeElementNameSize (ElementType *Element)
 {
-  int value = (Absolute != 0 ? 0 : DESCRIPTION_TEXT (Element).Scale) +
-              (double)(Absolute != 0 ? Absolute : Delta)
+  int new_value = (Absolute != 0 ? 0 : DESCRIPTION_TEXT (Element).Scale) +
+              (double)(Absolute != 0 ? Value : Value)
                 / (double)FONT_CAPHEIGHT * 100.;
 
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
-  if (value <= MAX_TEXTSCALE && value >= MIN_TEXTSCALE)
+  if (new_value <= MAX_TEXTSCALE && new_value >= MIN_TEXTSCALE)
     {
       EraseElementName (Element);
       ELEMENTTEXT_LOOP (Element);
       {
 	AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
 	r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
-	text->Scale = value;
+	text->Scale = new_value;
 	SetTextBoundingBox (&PCB->Font, text);
 	r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
@@ -1708,7 +1710,7 @@ ChangeSelectedThermals (int types, int therm_style)
 {
   bool change = false;
 
-  Delta = therm_style;
+  Value = therm_style;
   change = SelectedOperation (&ChangeThermalFunctions, false, types);
   if (change)
     {
@@ -1794,8 +1796,8 @@ ChangeSelectedSize (int types, Coord Difference, bool fixIt)
   bool change = false;
 
   /* setup identifiers */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
 
   change = SelectedOperation (&ChangeSizeFunctions, false, types);
   if (change)
@@ -1817,8 +1819,8 @@ ChangeSelectedClearSize (int types, Coord Difference, bool fixIt)
   bool change = false;
 
   /* setup identifiers */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
     change = SelectedOperation (&ChangeMaskSizeFunctions, false, types);
   else
@@ -1843,8 +1845,8 @@ ChangeSelected2ndSize (int types, Coord Difference, bool fixIt)
   bool change = false;
 
   /* setup identifiers */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   change = SelectedOperation (&Change2ndSizeFunctions, false, types);
   if (change)
     {
@@ -2095,8 +2097,8 @@ ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   bool change;
 
   /* setup identifier */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   change =
     (ObjectOperation (&ChangeSizeFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL);
   if (change)
@@ -2119,8 +2121,8 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   bool change;
 
   /* setup identifier */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
     change =
       (ObjectOperation (&ChangeMaskSizeFunctions, Type, Ptr1, Ptr2, Ptr3) !=
@@ -2149,7 +2151,7 @@ ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 {
   bool change;
 
-  Delta = Absolute = therm_type;
+  Value = Absolute = therm_type;
   change =
     (ObjectOperation (&ChangeThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
      NULL);
@@ -2235,8 +2237,8 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   bool change;
 
   /* setup identifier */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   change =
     (ObjectOperation (&Change2ndSizeFunctions, Type, Ptr1, Ptr2, Ptr3) !=
      NULL);
@@ -2261,8 +2263,8 @@ ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   bool change;
 
   /* setup identifier */
-  Absolute = (fixIt) ? Difference : 0;
-  Delta = Difference;
+  Absolute = (fixIt) ? 1 : 0;
+  Value = Difference;
   change =
     (ObjectOperation (&ChangeMaskSizeFunctions, Type, Ptr1, Ptr2, Ptr3) !=
      NULL);
@@ -2536,17 +2538,17 @@ ChangePCBSize (Coord Width, Coord Height)
 static void *
 ChangePadMaskSize (ElementType *Element, PadType *Pad)
 {
-  Coord value = (Absolute) ? Absolute : Pad->Mask + Delta;
+  Coord new_value = (Absolute) ? Value : Pad->Mask + Value;
 
-  value = MAX (value, 0);
-  if (value == Pad->Mask && Absolute == 0)
-    value = Pad->Thickness;
-  if (value != Pad->Mask)
+  new_value = MAX (new_value, 0);
+  if (new_value == Pad->Mask && Absolute == 0)
+    new_value = Pad->Thickness;
+  if (new_value != Pad->Mask)
     {
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
-      Pad->Mask = value;
+      Pad->Mask = new_value;
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPad (Pad);
       return (Pad);
@@ -2562,17 +2564,17 @@ ChangePadMaskSize (ElementType *Element, PadType *Pad)
 static void *
 ChangePinMaskSize (ElementType *Element, PinType *Pin)
 {
-  Coord value = (Absolute) ? Absolute : Pin->Mask + Delta;
+  Coord new_value = (Absolute) ? Value : Pin->Mask + Value;
 
-  value = MAX (value, 0);
-  if (value == Pin->Mask && Absolute == 0)
-    value = Pin->Thickness;
-  if (value != Pin->Mask)
+  new_value = MAX (new_value, 0);
+  if (new_value == Pin->Mask && Absolute == 0)
+    new_value = Pin->Thickness;
+  if (new_value != Pin->Mask)
     {
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
-      Pin->Mask = value;
+      Pin->Mask = new_value;
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPin (Pin);
       return (Pin);
@@ -2588,16 +2590,16 @@ ChangePinMaskSize (ElementType *Element, PinType *Pin)
 static void *
 ChangeViaMaskSize (PinType *Via)
 {
-  Coord value;
+  Coord new_value;
 
-  value = (Absolute) ? Absolute : Via->Mask + Delta;
-  value = MAX (value, 0);
-  if (value != Via->Mask)
+  new_value = (Absolute) ? Value : Via->Mask + Value;
+  new_value = MAX (new_value, 0);
+  if (new_value != Via->Mask)
     {
       AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
       r_delete_entry (PCB->Data->via_tree, &Via->BoundingBox);
-      Via->Mask = value;
+      Via->Mask = new_value;
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, &Via->BoundingBox, 0);
       DrawVia (Via);
