@@ -633,9 +633,9 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 		  photo_groups[i] = photo_groups[n];
 		  photo_groups[n] = tmp;
 		}
-	    }
-	}
-    }
+      } // end if (photo_flip)
+  } // end if (photo_mode)
+    } // end if (!options[HA_as_shown].int_value)
   linewidth = -1;
   lastbrush = (gdImagePtr)((void *) -1);
   lastcap = -1;
