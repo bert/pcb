@@ -1,0 +1,3 @@
+ChangeClearSize(SelectedVias, 0mm)
+SaveTo(Layout)
+Quit()
