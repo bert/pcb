@@ -128,6 +128,12 @@ static void *ChangePolyClear (LayerType *, PolygonType *);
 static int Delta;		/* change of size */
 static int Absolute;		/* Absolute size */
 static char *NewName;		/* new name */
+/*
+ * Note that "ObjectOperation" from select.c will call one of these functions 
+ * depending on the type of object that is passed. The call signatures for
+ * the functions for different types of objects are different, and are
+ * defined in ObjectOperation in select.c.
+ */
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
   ChangeTextSize,
