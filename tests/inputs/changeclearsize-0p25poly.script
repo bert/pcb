@@ -1,0 +1,6 @@
+# Turn the SM layer off so ChangeClearSize will affect polygon clearance
+Display(ToggleMask)
+# Set the SM clearance to non-zero
+ChangeClearSize(SelectedVias, 0.5mm)
+SaveTo(Layout)
+Quit()

@@ -1,9 +1,9 @@
-# release: pcb v4.1.1-g8ab2fac2
+# release: pcb v4.1.0-g2256aec2
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20091103]
 
-PCB["ChangeClearSize Action Test" 200.00mil 100.00mil]
+PCB["ChangeClearSize Action Test" 1500.00mil 1000.00mil]
 
 Grid[10.00mil 0.0000 0.0000 1]
 PolyArea[3100.006200]
@@ -785,10 +785,117 @@ Symbol['~' 12.00mil]
 	SymbolLine[15.00mil 35.00mil 20.00mil 35.00mil 8.00mil]
 	SymbolLine[20.00mil 35.00mil 25.00mil 30.00mil 8.00mil]
 )
-Via[50.00mil 50.00mil 36.00mil 20.00mil 0.0000 20.00mil "" "selected"]
-Via[150.00mil 50.00mil 36.00mil 20.00mil 52.00mil 20.00mil "" "selected"]
+Attribute("PCB::grid::unit" "mil")
+Via[400.00mil 250.00mil 36.00mil 20.00mil 0.0000 20.00mil "" "selected"]
+Via[700.00mil 250.00mil 36.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[550.00mil 250.00mil 36.00mil 20.00mil 1.0000mm 20.00mil "" "selected"]
+Via[850.00mil 250.00mil 36.00mil 20.00mil 1.0000mm 20.00mil "" ""]
+Via[400.00mil 350.00mil 36.00mil 0.0000 0.0000 20.00mil "" "selected"]
+Via[700.00mil 350.00mil 36.00mil 0.0000 0.0000 20.00mil "" ""]
+Via[550.00mil 350.00mil 36.00mil 0.0000 1.0000mm 20.00mil "" "selected"]
+Via[850.00mil 350.00mil 36.00mil 0.0000 1.0000mm 20.00mil "" ""]
+
+Element["" "" "" "" 700.00mil 450.00mil 0.0000 0.0000 0 100 ""]
+(
+	Pin[0.0000 0.0000 36.00mil 20.00mil 0.0000 20.00mil "" "1" ""]
+
+	)
+
+Element["" "" "" "" 850.00mil 450.00mil 0.0000 0.0000 0 100 ""]
+(
+	Pin[0.0000 0.0000 36.00mil 20.00mil 42.00mil 20.00mil "" "1" ""]
+
+	)
+
+Element["selected" "" "" "" 550.00mil 450.00mil 0.0000 0.0000 0 100 "selected"]
+(
+	Pin[0.0000 0.0000 36.00mil 20.00mil 42.00mil 20.00mil "" "1" "selected"]
+
+	)
+
+Element["selected" "" "" "" 400.00mil 450.00mil 0.0000 0.0000 0 100 "selected"]
+(
+	Pin[0.0000 0.0000 36.00mil 20.00mil 0.0000 20.00mil "" "1" "selected"]
+
+	)
+
+Element["" "" "" "" 700.00mil 550.00mil 0.0000 0.0000 0 100 ""]
+(
+	Pin[0.0000 0.0000 36.00mil 0.0000 0.0000 20.00mil "" "1" ""]
+
+	)
+
+Element["" "" "" "" 850.00mil 550.00mil 0.0000 0.0000 0 100 ""]
+(
+	Pin[0.0000 0.0000 36.00mil 0.0000 42.00mil 20.00mil "" "1" ""]
+
+	)
+
+Element["selected" "" "" "" 550.00mil 550.00mil 0.0000 0.0000 0 100 "selected"]
+(
+	Pin[0.0000 0.0000 36.00mil 0.0000 42.00mil 20.00mil "" "1" "selected"]
+
+	)
+
+Element["selected" "" "" "" 400.00mil 550.00mil 0.0000 0.0000 0 100 "selected"]
+(
+	Pin[0.0000 0.0000 36.00mil 0.0000 0.0000 20.00mil "" "1" "selected"]
+
+	)
+
+Element["selected" "" "" "" 400.00mil 650.00mil 40.00mil 10.00mil 0 100 "selected"]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 20.00mil 0.0000 "" "1" "selected"]
+
+	)
+
+Element["selected" "" "" "" 550.00mil 650.00mil 40.00mil 10.00mil 0 100 "selected"]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 20.00mil 60.00mil "" "1" "selected"]
+
+	)
+
+Element["" "" "" "" 700.00mil 650.00mil 40.00mil 10.00mil 0 100 ""]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 20.00mil 0.0000 "" "1" ""]
+
+	)
+
+Element["" "" "" "" 850.00mil 650.00mil 40.00mil 10.00mil 0 100 ""]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 20.00mil 60.00mil "" "1" ""]
+
+	)
+
+Element["selected" "" "" "" 400.00mil 750.00mil 40.00mil 10.00mil 0 100 "selected"]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 0.0000 0.0000 "" "1" "selected"]
+
+	)
+
+Element["selected" "" "" "" 550.00mil 750.00mil 40.00mil 10.00mil 0 100 "selected"]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 0.0000 60.00mil "" "1" "selected"]
+
+	)
+
+Element["" "" "" "" 700.00mil 750.00mil 40.00mil 10.00mil 0 100 ""]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 0.0000 0.0000 "" "1" ""]
+
+	)
+
+Element["" "" "" "" 850.00mil 750.00mil 40.00mil 10.00mil 0 100 ""]
+(
+	Pad[0.0000 -10.00mil 0.0000 10.00mil 40.00mil 0.0000 60.00mil "" "1" ""]
+
+	)
 Layer(1 "component" "copper")
 (
+	Polygon("clearpoly")
+	(
+		[360.00mil 210.00mil] [900.00mil 210.00mil] [900.00mil 800.00mil] [360.00mil 800.00mil] 
+	)
 )
 Layer(2 "solder" "copper")
 (
@@ -816,4 +923,22 @@ Layer(9 "bottom silk" "silk")
 )
 Layer(10 "top silk" "silk")
 (
+	Text[20.00mil 160.00mil 0 77 "Poly clearance" "clearline"]
+	Text[150.00mil 220.00mil 0 77 "0.25 mm" "clearline"]
+	Text[230.00mil 320.00mil 0 77 "none" "clearline"]
+	Text[150.00mil 420.00mil 0 77 "0.25 mm" "clearline"]
+	Text[230.00mil 520.00mil 0 77 "none" "clearline"]
+	Text[150.00mil 620.00mil 0 77 "0.25 mm" "clearline"]
+	Text[230.00mil 720.00mil 0 77 "none" "clearline"]
+	Text[950.00mil 270.00mil 0 77 "Vias" "clearline"]
+	Text[950.00mil 470.00mil 0 77 "Pins" "clearline"]
+	Text[950.00mil 670.00mil 0 77 "Pads" "clearline"]
+	Text[390.00mil 80.00mil 0 78 "Selected" "clearline"]
+	Text[660.00mil 80.00mil 0 78 "Unselected" "clearline"]
+	Text[650.00mil 130.00mil 0 78 "none" "clearline"]
+	Text[780.00mil 130.00mil 0 78 "0.5 mm" "clearline"]
+	Text[350.00mil 130.00mil 0 78 "none" "clearline"]
+	Text[480.00mil 130.00mil 0 78 "0.5 mm" "clearline"]
+	Text[950.00mil 130.00mil 0 78 "SM clearance" "clearline"]
+	Text[40.00mil 30.00mil 0 78 "Input values" "clearline"]
 )
