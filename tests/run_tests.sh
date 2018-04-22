@@ -739,8 +739,6 @@ for t in $all_tests ; do
     fi
 
     if test "X${hid}" = "Xaction" ; then
-	script_file=${files%.pcb}.script
-	pcb_flags="--action-script ../../${INDIR}/${script_file}"
 	if test "X${have_display}" = "Xno" ; then
 		echo "Skipping action test because there is currently no X display available"
 		skip=`expr $skip + 1`
@@ -794,9 +792,24 @@ for t in $all_tests ; do
     #
     # run PCB
     #
+    pcb_files=""
+    for f in ${files} ; do
+      case $f in
+        *.script)
+          pcb_flags="${pcb_flags} --action-script ${f}"
+          ;;
+        *.pcb)
+          pcb_files="${pcb_files} ${f}"
+          ;;
+        *)
+          echo "$f is not a supported input file"
+          exit 1
+          ;;
+      esac
+    done
 
-    echo "(cd ${rundir} && ${PCB} ${pcb_flags} ${files})"
-    (cd ${rundir} && ${PCB} ${pcb_flags} ${files})
+    echo "(cd ${rundir} && ${PCB} ${pcb_flags} ${pcb_files})"
+    (cd ${rundir} && ${PCB} ${pcb_flags} ${pcb_files})
     pcb_rc=$?
 
     if test $pcb_rc -ne 0 ; then
