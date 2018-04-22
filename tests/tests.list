@@ -312,5 +312,8 @@ hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 # Produces a change in the input layout.
 #
 MinMaskGap | minmaskgap.pcb | action | | | pcb:minmaskgap.pcb
-#ChangeClearSize | changeclearsize.pcb | action | | | pcb:changeclearsize.pcb
+ChangeClearSize1 | changeclearsize-0p5mask.script changeclearsize.pcb | action | | | pcb:changeclearsize.pcb
+ChangeClearSize2 | changeclearsize-0p25poly.script changeclearsize.pcb | action | | | pcb:changeclearsize.pcb
+ChangeClearSize3 | changeclearsize-zeromask.script changeclearsize.pcb | action | | | pcb:changeclearsize.pcb
+ChangeClearSize4 | changeclearsize-zeropoly.script changeclearsize.pcb | action | | | pcb:changeclearsize.pcb
 #
