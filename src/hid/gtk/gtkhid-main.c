@@ -167,8 +167,8 @@ to be drawn smaller; more of the board will be visible.
 @item =@var{factor}
  
 The @var{factor} is an absolute zoom factor; the unit for this value
-is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
-@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+is "PCB units per screen pixel".  Since PCB default units are 0.01 mil,
+a @var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
 about the actual resolution of most screens - resulting in an "actual
 size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
 size.
