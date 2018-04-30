@@ -194,6 +194,58 @@ hid_gsvit4 | gsvit_board.pcb | gsvit | --basename gsvit_board --dpi 1000 | | xem
 #
 hid_ipcd3561 | ipcd356_board.pcb | IPC-D-356 | --netlistfile ipcd356_board.net | | net:ipcd356_board.net
 #
+# test for inches and degrees
+hid_ipcd3562 | ipcd356_cust0.pcb | IPC-D-356 | --netlistfile ipcd356_cust0.net | | net:ipcd356_cust0.net
+#
+# test for milimeters and degrees
+hid_ipcd3563 | ipcd356_cust1.pcb | IPC-D-356 | --netlistfile ipcd356_cust1.net | | net:ipcd356_cust1.net
+#
+# a plain uncovered via
+hid_ipcd3564 | ipcd356_via_1.pcb | IPC-D-356 | --netlistfile ipcd356_via_1.net | | net:ipcd356_via_1.net
+#
+# a tented via
+hid_ipcd3565 | ipcd356_via_2.pcb | IPC-D-356 | --netlistfile ipcd356_via_2.net | | net:ipcd356_via_2.net
+#
+# a blind uncovered via (from top layer to layer 3 (power))
+# FIXME: generated "S0" soldermask info is wrong, this should give "S1" soldermask info
+#        via can only be tested on top layer (primary side)
+hid_ipcd3566 | ipcd356_via_3.pcb | IPC-D-356 | --netlistfile ipcd356_via_3.net | | net:ipcd356_via_3.net
+#
+# a tented blind via (from top layer to layer 3 (power))
+hid_ipcd3567 | ipcd356_via_4.pcb | IPC-D-356 | --netlistfile ipcd356_via_4.net | | net:ipcd356_via_4.net
+#
+# a blind uncovered via (from layer 1 (gnd) to bottom layer)
+# FIXME: generated "S0" soldermask info is wrong, this should give "S2" soldermask info
+#        via can only be tested on bottom layer (secondary side)
+hid_ipcd3568 | ipcd356_via_5.pcb | IPC-D-356 | --netlistfile ipcd356_via_5.net | | net:ipcd356_via_5.net
+#
+# a blind tented via (from layer 1 (gnd) to bottom layer)
+hid_ipcd3569 | ipcd356_via_6.pcb | IPC-D-356 | --netlistfile ipcd356_via_6.net | | net:ipcd356_via_6.net
+#
+# a buried uncovered via (from layer 1 (gnd) to bottom layer)
+# FIXME: generated "S0" soldermask info is wrong, this should give "S3" soldermask info
+#        via can not be tested 
+hid_ipcd35610 | ipcd356_via_7.pcb | IPC-D-356 | --netlistfile ipcd356_via_7.net | | net:ipcd356_via_7.net
+#
+# a buried tented via (from layer 1 (gnd) to bottom layer)
+hid_ipcd35611 | ipcd356_via_8.pcb | IPC-D-356 | --netlistfile ipcd356_via_8.net | | net:ipcd356_via_8.net
+#
+# a plain unplated and uncovered throuh hole
+hid_ipcd35612 | ipcd356_hole_1.pcb | IPC-D-356 | --netlistfile ipcd356_hole_1.net | | net:ipcd356_hole_1.net
+#
+# a soldermask covered unplated plain through hole
+hid_ipcd35613 | ipcd356_hole_2.pcb | IPC-D-356 | --netlistfile ipcd356_hole_2.net | | net:ipcd356_hole_2.net
+#
+# a smt capacitor on the top layer
+hid_ipcd35614 | ipcd356_smt_1.pcb | IPC-D-356 | --netlistfile ipcd356_smt_1.net | | net:ipcd356_smt_1.net
+#
+# a smt capacitor on the bottom layer
+hid_ipcd35615 | ipcd356_smt_2.pcb | IPC-D-356 | --netlistfile ipcd356_smt_2.net | | net:ipcd356_smt_2.net
+#
+# smt capacitor on both the top and the bottom layer
+hid_ipcd35616 | ipcd356_smt_3.pcb | IPC-D-356 | --netlistfile ipcd356_smt_3.net | | net:ipcd356_smt_3.net
+#
+#
 ######################################################################
 # ---------------------------------------------
 # nelma export HID

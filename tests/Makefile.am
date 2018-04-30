@@ -36,6 +36,21 @@ EXTRA_DIST = \
   inputs/gerber_oneline.pcb \
   inputs/gsvit_board.pcb \
   inputs/ipcd356_board.pcb \
+  inputs/ipcd356_cust0.pcb \
+  inputs/ipcd356_cust1.pcb \
+  inputs/ipcd356_via_1.pcb \
+  inputs/ipcd356_via_2.pcb \
+  inputs/ipcd356_via_3.pcb \
+  inputs/ipcd356_via_4.pcb \
+  inputs/ipcd356_via_5.pcb \
+  inputs/ipcd356_via_6.pcb \
+  inputs/ipcd356_via_7.pcb \
+  inputs/ipcd356_via_8.pcb \
+  inputs/ipcd356_hole_1.pcb \
+  inputs/ipcd356_hole_2.pcb \
+  inputs/ipcd356_smt_1.pcb \
+  inputs/ipcd356_smt_2.pcb \
+  inputs/ipcd356_smt_3.pcb \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   inputs/nelma_board.pcb \
@@ -118,6 +133,21 @@ EXTRA_DIST = \
   golden/hid_gsvit3/gsvit_board.outline.png \
   golden/hid_gsvit4/gsvit_board.xem \
   golden/hid_ipcd3561/ipcd356_board.net \
+  golden/hid_ipcd3562/ipcd356_cust0.net \
+  golden/hid_ipcd3563/ipcd356_cust1.net \
+  golden/hid_ipcd3564/ipcd356_via_1.net \
+  golden/hid_ipcd3565/ipcd356_via_2.net \
+  golden/hid_ipcd3566/ipcd356_via_3.net \
+  golden/hid_ipcd3567/ipcd356_via_4.net \
+  golden/hid_ipcd3568/ipcd356_via_5.net \
+  golden/hid_ipcd3569/ipcd356_via_6.net \
+  golden/hid_ipcd35610/ipcd356_via_7.net \
+  golden/hid_ipcd35611/ipcd356_via_8.net \
+  golden/hid_ipcd35612/ipcd356_hole_1.net \
+  golden/hid_ipcd35613/ipcd356_hole_2.net \
+  golden/hid_ipcd35614/ipcd356_smt_1.net \
+  golden/hid_ipcd35615/ipcd356_smt_2.net \
+  golden/hid_ipcd35616/ipcd356_smt_3.net \
   golden/hid_nelma1/nelma_board.top.png \
   golden/hid_nelma2/nelma_board.bottom.png \
   golden/hid_nelma3/nelma_board.outline.png \
