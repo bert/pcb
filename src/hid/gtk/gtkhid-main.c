@@ -2269,7 +2269,7 @@ hid_gtk_init ()
 {
 #ifdef WIN32
   char * tmps;
-  char * share_dir;
+  char * lib_dir;
   char *loader_cache;
   size_t buffer_size;
   FILE *loader_file;
@@ -2277,16 +2277,23 @@ hid_gtk_init ()
 
 #ifdef WIN32
   tmps = g_win32_get_package_installation_directory_of_module (NULL);
-#define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
+#define REST_OF_PATH G_DIR_SEPARATOR_S "lib" G_DIR_SEPARATOR_S "gdk-pixbuf-2.0" G_DIR_SEPARATOR_S "2.10.0"
 #define REST_OF_CACHE G_DIR_SEPARATOR_S "loaders.cache"
+  /*
+   * the gdk-pixbuf cache is typically installed in a location like:
+   * lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+   * however, we might be more robust here if we just searched through
+   * the directory specified above by tmps and looked for loaders.cache
+   */
+
   buffer_size = strlen (tmps) + strlen (REST_OF_PATH) + 1;
-  share_dir = (char *)malloc (buffer_size);
-  snprintf (share_dir, buffer_size, "%s%s", tmps, REST_OF_PATH);
+  lib_dir = (char *)malloc (buffer_size);
+  snprintf (lib_dir, buffer_size, "%s%s", tmps, REST_OF_PATH);
 
   /* Point to our gdk-pixbuf loader cache.  */
-  buffer_size = strlen (bindir) + strlen (REST_OF_CACHE) + 1;
+  buffer_size = strlen (lib_dir) + strlen (REST_OF_CACHE) + 1;
   loader_cache = (char *)malloc (buffer_size);
-  snprintf (loader_cache, buffer_size, "%s%s", bindir, REST_OF_CACHE);
+  snprintf (loader_cache, buffer_size, "%s%s", lib_dir, REST_OF_CACHE);
   loader_file = fopen (loader_cache, "r");
   if (loader_file)
     {
@@ -2296,8 +2303,7 @@ hid_gtk_init ()
 
   free (tmps);
 #undef REST_OF_PATH
-  printf ("\"Share\" installation path is \"%s\"\n", share_dir);
-  free (share_dir);
+#undef REST_OF_CACHE
 #endif
 
   memset (&ghid_hid, 0, sizeof (HID));

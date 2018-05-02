@@ -551,8 +551,9 @@ if test "$do_dllinstall" = "yes" ; then
 		# grep won't always find something and this script has 'set -e'
 		# which will cause the script to quit if grep doesn't find anything
 		dll_add=`cygcheck -l ${pkg} | grep 'bin/.*\.dll$' || true`
-		if test -n "${dll_add}" ; then
-			for dll in ${dll_add} ; do
+		bin_add=`cygcheck -l ${pkg} | grep 'bin/gdk-pixbuf-query-loaders.exe$' || true`
+		if test -n "${dll_add}"  -o -n "${bin_add}" ; then
+			for dll in ${dll_add} ${bin_add} ; do
 				dll_base="`basename ${dll}`"
 				dll_list="${dll_list} ${dll_base}"
 			done

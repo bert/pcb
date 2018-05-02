@@ -101,6 +101,8 @@ Section "Dummy Section" SecDummy
   ${registerExtension} "$INSTDIR\bin\pcb.exe" "" ".pcb" "PCB Layout File"
   ${registerExtension} "$INSTDIR\bin\pcb.exe" "" ".fp" "PCB Footprint File"
 
+  ;Generate GDK loaders cache
+  ExecWait '"$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" "--update-cache"'
 
   ;Store installation folder
   WriteRegStr HKCU "Software\pcb-@pcb_version@" "" $INSTDIR
