@@ -1,6 +1,0 @@
-# Turn the solder mask layer off
-Display(ToggleMask)
-# Set the size of everything to 0
-ChangeClearSize(Selected, 0mm)
-SaveTo(Layout)
-Quit()

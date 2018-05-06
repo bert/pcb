@@ -1,0 +1,70 @@
+# Change the soldermask and polygon clearances for selected objects.
+#
+# This test operates on clearance.pcb. This file should be saved with the
+# soldermask layer enabled and two of four columns of pins/pads/vias
+# selected.
+#
+# This test has three parts:
+#  * Part 1 sets the clearance to a specific value
+#  * Part 2 sets the clearance to zero
+#  * Part 3 sets the polygon clearance to something small, so as to invoke
+#    the minimum clearance as defined by the DRC rules.
+#
+# Author: Chad Parker <parker.charles@gmail.com>
+#
+# Change Log:
+#   * 20180506: Chad Parker <parker.charles@gmail.com>
+#               Initial revision.
+#
+
+#
+# PART 1: Set the soldermask and polygon clearances to specific values
+#
+
+# Set the SM clearance to non-zero
+ChangeClearSize(Selected, 0.5mm)
+
+# Turn the SM layer off so ChangeClearSize will affect polygon clearance
+Display(ToggleMask)
+
+# Set the poly clearance to non-zero
+ChangeClearSize(Selected, 0.5mm)
+
+SaveTo(LayoutAs, clearance-non-zero.pcb)
+
+#
+# PART 2: Set the soldermask and polygon clearances to zero
+#
+
+# Set the poly clearances to zero
+ChangeClearSize(Selected, -1)
+
+# Turn the mask back on
+Display(ToggleMask)
+
+# Set the SM clearance to zero
+ChangeClearSize(Selected, 0)
+
+SaveTo(LayoutAs, clearance-zero.pcb)
+
+#
+# PART 3:
+# Set the polygon clearance to something small, which will enforce a minimum
+# clearance. Solder mask doesn't have this enforcement. This test may need
+# to change in the future if the enforcement changes as I'd like it to.
+#
+
+# Turn the mask back off
+Display(ToggleMask)
+
+# Set the poly clearances to the minimum value
+ChangeClearSize(Selected, 0)
+
+SaveTo(LayoutAs, clearance-min.pcb)
+
+# Note: If the script is to be used in conjunction with an exporter, then
+# Quit() should not be called. If it needs to be used both with and without
+# an exporter, then add --action-string Quit() to the invocation for the
+# script only test.
+Quit()
+

@@ -1,4 +1,0 @@
-# Change the SM clearance of everything to zero
-ChangeClearSize(Selected, 0mm)
-SaveTo(Layout)
-Quit()

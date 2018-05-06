@@ -1,4 +1,0 @@
-# Set the SM clearance to non-zero
-ChangeClearSize(SelectedVias, 0.5mm)
-SaveTo(Layout)
-Quit()
