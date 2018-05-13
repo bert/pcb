@@ -76,7 +76,9 @@ EXTRA_DIST= \
 	doxygen/pcb.dox \
 	doxygen/pcb-logo-small.png \
 	doxygen/pcb-main.txt \
-	doxygen/what-is-pcb.html
+	doxygen/what-is-pcb.html \
+	doxygen/pcb-releases.html \
+	doxygen/pcb-launchpad-ppa.html
 
 if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
