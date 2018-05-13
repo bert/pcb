@@ -1,4 +1,67 @@
 ========================================================================
+Release notes for pcb-4.1.2
+========================================================================
+
+Dear Users,
+
+This is a bug fix release for a correction of the toolbar icons in the
+Microsoft Windows version of pcb.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to the 4.1.2 release:
+- Charles Parker
+- Dan McMahill
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+User experience improvements
+----------------------------
+- Correction of toolbar icons issue (Microsoft Windoes version of pcb).
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- none
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- Added IPC-D-356 tests.
+
+
+Notes for early adapters
+------------------------
+- none.
+
+
+Changed dependencies
+--------------------
+- none.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+##1660198  IPC-D-356 netlister needs a regression test.
+
+========================================================================
 Release notes for pcb-4.1.1
 ========================================================================
 
