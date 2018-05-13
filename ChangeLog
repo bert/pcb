@@ -1,6 +1,125 @@
 This ChangeLog is automatically generated from the git commit messages
 during the snapshot process.  See README.snapshots and utils/git2cl.
 
+2018-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* NEWS: Updated the NEWS for pcb-4.1.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* data/pcb.appdata.xml.in: Updated the appdata for pcb-4.1.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/pcb.texi: Updated the User Manual for pcb-4.1.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-05-13   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Update for release 4.1.2.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-05-01   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gtkhid-main.c, win32/build_pcb, win32/pcb.nsi.in: 
+	[win32] Repair tool icons on windows version.  - install gdk-pixbuf-query-loaders.exe to update loaders.cache at   win32 install time.  This is needed to correct the paths to the   libs for the loaders.  - in the installer, run gdk-pixbuf-query-loaders to rebuild the   cache.  This happens when the installer is running.  - fix the win32 specific code that looks for the loaders.cache file.
+
+2018-04-30   bert * bert dot timmerman AT xs4all dot nl *
+
+	* tests/Makefile.am, tests/golden/hid_ipcd35610/ipcd356_via_7.net,
+	tests/golden/hid_ipcd35611/ipcd356_via_8.net,
+	tests/golden/hid_ipcd35612/ipcd356_hole_1.net,
+	tests/golden/hid_ipcd35613/ipcd356_hole_2.net,
+	tests/golden/hid_ipcd35614/ipcd356_smt_1.net,
+	tests/golden/hid_ipcd35615/ipcd356_smt_2.net,
+	tests/golden/hid_ipcd35616/ipcd356_smt_3.net,
+	tests/golden/hid_ipcd3562/ipcd356_cust0.net,
+	tests/golden/hid_ipcd3563/ipcd356_cust1.net,
+	tests/golden/hid_ipcd3564/ipcd356_via_1.net,
+	tests/golden/hid_ipcd3565/ipcd356_via_2.net,
+	tests/golden/hid_ipcd3566/ipcd356_via_3.net,
+	tests/golden/hid_ipcd3567/ipcd356_via_4.net,
+	tests/golden/hid_ipcd3568/ipcd356_via_5.net,
+	tests/golden/hid_ipcd3569/ipcd356_via_6.net,
+	tests/inputs/ipcd356_cust0.pcb, tests/inputs/ipcd356_cust1.pcb,
+	tests/inputs/ipcd356_hole_1.pcb, tests/inputs/ipcd356_hole_2.pcb,
+	tests/inputs/ipcd356_smt_1.pcb, tests/inputs/ipcd356_smt_2.pcb,
+	tests/inputs/ipcd356_smt_3.pcb, tests/inputs/ipcd356_via_1.pcb,
+	tests/inputs/ipcd356_via_2.pcb, tests/inputs/ipcd356_via_3.pcb,
+	tests/inputs/ipcd356_via_4.pcb, tests/inputs/ipcd356_via_5.pcb,
+	tests/inputs/ipcd356_via_6.pcb, tests/inputs/ipcd356_via_7.pcb,
+	tests/inputs/ipcd356_via_8.pcb, tests/tests.list: Added a lot of
+	regression tests for the IPC-D-356 exporter.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-29   bert * bert dot timmerman AT xs4all dot nl *
+
+	* src/pcbtest.sh.in: Added an underscore.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-15   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/hid/png/png.c: Clarify some closing curly brances in png.c  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-15   Charles Parker * parker dot charles AT gmail dot com *
+
+	* doc/Makefile.am: Fix paths in the doc Makefile  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Charles Parker * parker dot charles AT gmail dot com *
+
+	* src/pcbtest.sh.in: pcblib-newlib is created under the build
+	directory  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/bom/bom.c, src/hid/ipcd356/ipcd356.c,
+	src/hid/nelma/nelma.c: Update some export HID output file modes - Some HIDs were using "w" and some "wb" for opening text output
+	  files.  The result is a mix of CRLF/CR files and so some HIDs were
+	  passing the testsuite under cygwin/mingw and others were failing.
+	  Now the cygwin/mingw results are consistent with the golden files.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: [build] add some missing files to DISTCLEANFILES - moving back towards a clean 'make distclean' - some changes for all systems, a few minor ones for cygwin  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/golden/hid_nelma4/nelma_board.em: [testsuite] Repair some
+	broken filenames in one of the nelma reference files.  - hand verified that the new file is the expected result - machine verified that pcb produces the expected result  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/run_tests.sh: [testsuite] fix bugs in normalize_xem and
+	normalize_em - the normalize_xem and normalize_em functions had broken awk   code.  Fix those.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/run_tests.sh: [win32] in the test script, use pcbtest.bat
+	under win32 This allows running the test suite under cygwin after building for
+	mingw.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* win32/build_pcb: [win32] build_pcb updates to better support
+	development on cygwin - add capability for trying 'make distcheck' - add more hooks for confguring stopping points in the different   steps  Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-08   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: [win32] Remove an obsolete dependency related to
+	win32.  pcbtest.bat is generated entirely at build time in the makefile and
+	no longer uses pcbtest.bat.in so remove the depencency on
+	pcbtest.bat.in (which we don't ship anyway).   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* configure.ac, doc/doxygen/pcb.dox: Revert "Update for release
+	pcb-4.1.1." This reverts commit d623dbc75292575dacfbaa43b8fd0ca49ffb6c29.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-08   bert * bert dot timmerman AT xs4all dot nl *
+
+	* doc/doxygen/pcb-releases.html: Minor correction in the releases
+	howto.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
+2018-04-07   bert * bert dot timmerman AT xs4all dot nl *
+
+	* ChangeLog: Updated the ChangeLog for pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
+
 2018-04-07   bert * bert dot timmerman AT xs4all dot nl *
 
 	* NEWS: Updated the NEWS for pcb-4.1.1.   Signed-off-by: bert * bert dot timmerman AT xs4all dot nl *
