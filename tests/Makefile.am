@@ -30,7 +30,9 @@ EXTRA_DIST = \
   README.txt \
   inputs/bom_general.pcb \
   inputs/buried.pcb \
+  inputs/changeclearsize-sel.script \
   inputs/circles.pcb \
+  inputs/clearance.pcb \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
@@ -54,6 +56,23 @@ EXTRA_DIST = \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   inputs/nelma_board.pcb \
+  golden/ChangeClearSize-Sel/clearance-min.pcb \
+  golden/ChangeClearSize-Sel/clearance-non-zero.pcb \
+  golden/ChangeClearSize-Sel/clearance-zero.pcb \
+  golden/Clearance/clearance.bottom.gbr \
+  golden/Clearance/clearance.bottommask.gbr \
+  golden/Clearance/clearance.fab.gbr \
+  golden/Clearance/clearance.group1.gbr \
+  golden/Clearance/clearance.group2.gbr \
+  golden/Clearance/clearance.group3.gbr \
+  golden/Clearance/clearance.plated-drill_01-03.cnc \
+  golden/Clearance/clearance.plated-drill_02-04.cnc \
+  golden/Clearance/clearance.plated-drill_03-05.cnc \
+  golden/Clearance/clearance.plated-drill.cnc \
+  golden/Clearance/clearance.top.gbr \
+  golden/Clearance/clearance.topmask.gbr \
+  golden/Clearance/clearance.toppaste.gbr \
+  golden/Clearance/clearance.topsilk.gbr \
   golden/hid_bom1/bom_general.bom \
   golden/hid_bom1/bom_general.xy \
   golden/hid_bom2/test.bom \

@@ -313,3 +313,13 @@ hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
 MinMaskGap | minmaskgap.script minmaskgap.pcb | action | | | pcb:minmaskgap.pcb
 #
+#
+# Check that clearances are properly exported for each object on each layer.
+# We have to do this because clearances are rendered on each layer, and some
+# layers don't get cleared.
+Clearance  | clearance.pcb | gerber | | | gbx:clearance.top.gbr gbx:clearance.group1.gbr gbx:clearance.group2.gbr gbx:clearance.group3.gbr gbx:clearance.bottom.gbr gbx:clearance.topmask.gbr gbx:clearance.bottommask.gbr
+
+# For the ChangeClearSize action, we don't have to check the export, because 
+# we know that the clearances are being applied to individual layers properly 
+# from the previous test. We can just check the output pcb files.
+ChangeClearSize-Sel | changeclearsize-sel.script clearance.pcb | action | | | pcb:clearance-non-zero.pcb pcb:clearance-min.pcb pcb:clearance-zero.pcb

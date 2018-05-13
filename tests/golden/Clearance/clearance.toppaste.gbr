@@ -1,0 +1,17 @@
+G04 start of page 14 for group -4015 idx -4015 *
+G04 Title: ChangeClearSize Action Test, toppaste *
+G04 Creator: pcb v4.1.0-g2256aec2 *
+G04 CreationDate: Sun May 13 23:37:25 2018 UTC *
+G04 For: parkecw1 *
+G04 Format: Gerber/RS-274X *
+G04 PCB-Dimensions (mil): 1400.00 1500.00 *
+G04 PCB-Coordinate-Origin: lower left *
+%MOIN*%
+%FSLAX25Y25*%
+%LNTOPPASTE*%
+%ADD37C,0.0400*%
+G54D37*X85000Y16000D02*Y14000D01*
+X55000Y16000D02*Y14000D01*
+X85000Y26000D02*Y24000D01*
+X55000Y26000D02*Y24000D01*
+M02*
