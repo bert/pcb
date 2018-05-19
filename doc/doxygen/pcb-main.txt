@@ -4,6 +4,9 @@
 \section pcb-intro PCB Introduction
     \htmlinclude what-is-pcb.html
 <hr>
+\section branches Development Branches howto
+    \htmlinclude branches.html
+<hr>
 \section pcb-releases PCB Releases howto
     \htmlinclude pcb-releases.html
 <hr>

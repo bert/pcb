@@ -1,0 +1,84 @@
+<p>This section describes the various branches that exist in the pcb
+development trunk.</p>
+<p>It is assumed you are familiar with the
+<a href="https://git-scm.com/docs/git-branch">git branch</a> feature.
+</p>
+<p>Some of these branches contain one or more
+<a href="https://git-scm.com/docs/git-tag">git tags</a>.
+Please note that it is considered good
+<a href="https://git-scm.com/book/en/v2/Git-Basics-Tagging">tagging
+practice</a> not to alter tags after they are pushed to the upstream
+repository.</p>
+<p>Below follows a list of branches:<br>
+<dl>
+<dt>master</dt>
+<dd>This is the development branch from which releases are branched.<br>
+It is considered good practice to have "master" in a stable state,
+having that "make distcheck" exits successful and that
+<a href="https://git-scm.com/docs/git-bisect">git bisect</a> has a
+chance to
+<a href="https://git-scm.com/docs/git-bisect-lk2009.html#_fighting_regressions_overview">
+fight regression</a>, and do its job properly.<br>
+Only senior developers and administrators can push to this branch.</dd>
+<br>
+<dt>pcb-$(x.y.z)</dt>
+<dd>These are tagged branches used for (major.minor.micro) releases.<br>
+Only senior developers and administrators can push to these branches.<br>
+<b>DO NOT REMOVE</b>.</dd>
+
+<br>
+<dt>pcb-$(yyyymmdd)</dt>
+<dd>see README.snapshots.
+These are tagged branches used by the snapshot releases.<br>
+Only senior developers and administrators can push to these branches.<br>
+<b>DO NOT REMOVE</b>.</dd>
+<br>
+<dt>LP$(Launchpad bug report number)</dt>
+<dd>Topic branches for fixing Launchpad Bugs.<br>
+All pcb developers can push to these branches.<br>
+Note that adding characters behind the bug report number renders the
+branch not pushable for all developers and restricts it to be pushable
+for senior developers and administrators only.<br>
+It is considered good practice to remove a topic branch once it is fully
+<a href="https://git-scm.com/docs/git-merge">merged</a> or 
+<a href="https://git-scm.com/docs/git-cherry-pick">git cherry picked</a>
+into "master".</dd>
+<br>
+<dt>home/$(user)/$(branch name)</dt>
+<dd>Private topic branch of pcb developer $(user).<br>
+Typical usage of these branches is in development of new features or
+using them as a scratch pad.<br>
+Only the branch owner $(user) can push to this branch.<br>
+It is considered good practice to remove a topic branch once it is fully
+<a href="https://git-scm.com/docs/git-merge">merged</a> or 
+<a href="https://git-scm.com/docs/git-cherry-pick">git cherry picked</a>
+into "master".</dd>
+</dl>
+</p>
+<p>Now follows a list of older branches which may be stale:
+<dl>
+<dt>clipper</dt>
+<dd>A topic branch by Harry Eaton and Dan McMahill.<br>
+It looks as if this topic branch has been merged into master (see the
+"clipper-base" tag).</dd>
+<br>
+<dt>pcb-xaw</dt>
+<dd>A stale topic branch containing old Xaw based pcb.<br>
+Superseded by the "pcb-20050315" release branch.</dd>
+<br>
+<dt>sdb-playpen</dt>
+<dd>A topic branch under suspicion of being stale/obsolete.</dd>
+<br>
+<dt>sourceforge</dt>
+<dd>A topic branch under suspicion of being stale/obsolete.</dd>
+<br>
+<dt>usermenu</dt>
+<dd>A topic branch where Dan was working on allowing the gtk HID to load
+its menus from a menu resource file like the lesstif HID.<br>
+No guarantees that this branch will even build, much less function.<br>
+Feel free to try it out, but wait until it is merged back to the trunk
+before using it for any serious work.<br>
+It looks as if this topic branch has been merged into master (see the
+"after-usermenu-20070420" tag).</dd>
+</dl>
+
