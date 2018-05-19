@@ -1,0 +1,51 @@
+<p>These are instructions on building a Windows installer under
+<a href="http://www.cygwin.com/">Cygwin</a> but with a
+<a href="http://www.mingw.org/">MinGW</a> toolchain and libraries.<br>
+The result is an installer which does not depend on Cygwin.<br>
+If you are looking for instructions on cross-compiling from linux
+or other systems, then refer to section above.</p>
+
+<p>These instructions were written based on cygwin64.<br>
+When you install cygwin64 on your system, you will need to ensure that
+you have installed:<br>
+  <ul>
+    <li>autoconf</li>
+    <li>automake</li>
+    <li>bash</li>
+    <li>bison</li>
+    <li>flex</li>
+    <li>gawk</li>
+    <li>intltool</li>
+    <li>make</li>
+    <li>m4</li>
+    <li>sed</li>
+  </ul>
+In addition, you will need the MinGW cross compilation packages.<br>
+At the time of writing this, the the list of packages installed which
+have been shown to work is contained in:<br>
+<pre>
+    win32/mingw_required_pkgs
+</pre>
+That list was obtained via:<br>
+<pre>
+    cygcheck -c | grep mingw
+</pre>
+In addition I have:<br>
+<pre>
+w32api-headers                        4.0.4-1                      OK
+w32api-runtime                        4.0.4-1                      OK
+</pre>
+<br>
+Once these have all been installed then when building from a tarball,
+extract, cd win32 and run;<br>
+<pre>
+    ./build_pcb
+</pre>
+This will create a windows installer.<br>
+<br>
+If you are building from git you will need additional tools to build
+the documentation which can be skipped using:<br>
+<pre>
+    ./build_pcb --disable-doc
+</pre>
+
