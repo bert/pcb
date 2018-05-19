@@ -885,10 +885,22 @@ static int
 clearPin_callback (const BoxType * b, void *cl)
 {
   PinType *pin = (PinType *) b;
-  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-    gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
-  else
-    gui->graphics->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+  bool do_clear=true;
+  int side;
+  if (TEST_FLAG (VIAFLAG, pin) && VIA_IS_BURIED (pin))
+    {
+      side=*((int*)cl);
+      if ((side == TOP_SIDE && pin->BuriedFrom != 0)
+          || (side == BOTTOM_SIDE && pin->BuriedTo != GetMaxBottomLayer ()))
+        do_clear = false;
+  }
+  if (do_clear)
+    {
+      if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+        gui->graphics->thindraw_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+      else
+        gui->graphics->fill_pcb_pv (Output.pmGC, Output.pmGC, pin, false, true);
+   }
   return 1;
 }
 
@@ -996,7 +1008,7 @@ DrawMask (int side, const BoxType *screen)
     }
 
   r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, NULL);
-  r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, NULL);
+  r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, &side);
   r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, &side);
 
   if (thin)
