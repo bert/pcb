@@ -311,5 +311,5 @@ hid_png3 | gerber_oneline.pcb | png | --dpi 600 | | png:gerber_oneline.png
 #
 # Produces a change in the input layout.
 #
-MinMaskGap | minmaskgap.pcb | action | | | pcb:minmaskgap.pcb
+MinMaskGap | minmaskgap.script minmaskgap.pcb | action | | | pcb:minmaskgap.pcb
 #
