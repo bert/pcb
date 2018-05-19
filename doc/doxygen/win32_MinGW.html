@@ -1,0 +1,41 @@
+<p>Building pcb for Windows with a MinGW cross-compiler requires:</p>
+<ol>
+<li>Install a MinGW cross-compiler.
+On Debian and derivatives, you can type 'sudo apt-get install
+mingw32.'.<br>
+You can also build your own by using the build script provided by the
+MinGW project.<br>
+On NetBSD use the cross/mingw package.</li>
+<br>
+<li>Install native (non-cross) dependencies.
+  <ul>
+    <li>autoconf</li>
+    <li>automake</li>
+    <li>libtool</li>
+    <li>gettext</li>
+    <li>intltool</li>
+    <li>glib</li>
+    <li>gtk+</li>
+    <li>wget (used for fetching tarballs)</li>
+    <li>wine (the tiff build fails without it)</li>
+  </ul>
+</li>
+<br>
+<li>Edit the w32/minipack.conf file to suit your compiler setup.<br>
+FIXME -- can we make this take arguments?</li>
+<br>
+<li>Copy the pcb tarball to w32/sources</li>
+<br>
+<li>Enter the w32 directory and run ./build_all.</li>
+<br>
+<li>Wait while the script fetches and compiles the PCB dependencies and
+PCB itself.</li>
+<br>
+<li>Run the result with wine: wine result/bin/pcb.exe<br>
+NOTE: This didn't work for me but copying everything to an actual
+windows machine worked.</li>
+<br>
+<li>Copy the result directory to a Windows installation (packaging
+script is not supplied).</li>
+</ol>
+

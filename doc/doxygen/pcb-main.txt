@@ -10,6 +10,9 @@
 \section pcb-releases PCB Releases howto
     \htmlinclude pcb-releases.html
 <hr>
+\section win32_mingw PCB for Windows with a MinGW cross-compiler howto
+    \htmlinclude win32_MinGW.html
+<hr>
 \section pcb-launchpad-ppa PCB Launchpad PPA howto
     \htmlinclude pcb-launchpad-ppa.html
 */
