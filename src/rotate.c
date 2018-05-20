@@ -266,6 +266,7 @@ RotateElementLowLevel (DataType *Data, ElementType *Element,
 static void *
 RotateLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
 {
+  PointType *center;
   EraseLine (Line);
   if (Layer)
     {
@@ -274,7 +275,13 @@ RotateLinePoint (LayerType *Layer, LineType *Line, PointType *Point)
     }
   else
     r_delete_entry (PCB->Data->rat_tree, (BoxType *) Line);
-  RotatePointLowLevel (Point, CenterX, CenterY, Number);
+
+  if ((Point->X == Line->Point1.X) && (Point->Y == Line->Point1.Y))
+    center = &Line->Point2;
+  else
+    center = &Line->Point1;
+
+  RotatePointLowLevel (Point, center->X, center->Y, Number);
   SetLineBoundingBox (Line);
   if (Layer)
     {

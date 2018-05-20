@@ -61,7 +61,7 @@
 #define	ROTATE_PAD_LOWLEVEL(p,x0,y0,n)	\
 	RotateLineLowLevel(((LineType *) (p)),(x0),(y0),(n))
 
-#define	ROTATE_TYPES	(ELEMENT_TYPE | TEXT_TYPE | ELEMENTNAME_TYPE | ARC_TYPE)
+#define	ROTATE_TYPES	(ELEMENT_TYPE | TEXT_TYPE | ELEMENTNAME_TYPE | ARC_TYPE | LINEPOINT_TYPE)
 
 
 void RotateLineLowLevel (LineType *, Coord, Coord, unsigned);
