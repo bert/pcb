@@ -106,27 +106,7 @@
  */
 #define	PASTEBUFFER		(&Buffers[Settings.BufferNumber])
 
-/* ---------------------------------------------------------------------------
- * some routines for flag setting, clearing, changing and testing
- */
-#define	SET_FLAG(F,P)		((P)->Flags.f |= (F))
-#define	CLEAR_FLAG(F,P)		((P)->Flags.f &= (~(F)))
-#define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? 1 : 0)
-#define	TOGGLE_FLAG(F,P)	((P)->Flags.f ^= (F))
-#define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
-#define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? 1 : 0)
-
-#define FLAGS_EQUAL(F1,F2)	pcb_flag_eq(&(F1), &(F2))
-
-#define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
-
-#define TEST_THERM(L,P)		((P)->Flags.t[(L)/2] & THERMFLAG(L) ? 1 : 0)
-#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf) 
-#define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/2] &= ~THERMFLAG(L)
-#define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/2] = ((P)->Flags.t[(L)/2] & ~THERMFLAG(L)) | ((V)  << (4 * ((L) % 2)))
-
-extern int mem_any_set (unsigned char *, int);
-#define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
+/* flag macros moved to flag.h */
 
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure

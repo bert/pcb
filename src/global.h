@@ -48,6 +48,8 @@
 #include "const.h"
 #include "macro.h"
 
+#include "flags.h"
+
 #include <locale.h>
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
@@ -115,17 +117,7 @@ typedef short Dimension;
 #endif
 typedef unsigned char BYTE;
 
-/*!
- * \brief Nobody should know about the internals of this except the
- * macros in macros.h that access it.
- *
- * This structure must be simple-assignable for now.
- */
-typedef struct
-{
-  unsigned long f;		/* generic flags */
-  unsigned char t[(MAX_LAYER + 1) / 2];  /* thermals */
-} FlagType;
+
 
 #ifndef __GNUC__
 #define __FUNCTION1(a,b) a ":" #b
