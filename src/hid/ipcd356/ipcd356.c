@@ -86,7 +86,7 @@ const char *IPCD356_filename;
 
 typedef struct
 {
-  char NName[11];
+  char NName[16];
   char NetName[256];
 } IPCD356_Alias;
 
@@ -652,7 +652,8 @@ int
 IPCD356_SanityCheck()
 {
   ELEMENT_LOOP (PCB->Data);
-    if (element->Name[1].TextString == '\0')
+    if (element->Name[1].TextString == NULL ||
+	    strlen(element->Name[1].TextString)==0)
       {
         Message("Error: Found unnamed element. All elements need to be named to create an IPC-D-356 netlist.\n");
         return(1);
