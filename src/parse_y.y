@@ -68,6 +68,8 @@ static	int		pin_num;
 static	LibraryMenuType	*Menu;
 static	bool			LayerFlag[MAX_ALL_LAYER];
 
+enum FileType {NOFILE=0, PCBFILE, DATAFILE, FONTFILE} file_type;
+
 extern	char		*yytext;		/* defined by LEX */
 extern	PCBType		*yyPCB;
 extern	DataType	*yyData;
@@ -168,13 +170,13 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 
 %end-doc */
 		
+/* This parses a full up PCB file */
 parsepcb
-		:	{
-					/* reset flags for 'used layers';
+		:	{       /* reset flags for 'used layers';
 					 * init font and data pointers
 					 */
 				int	i;
-
+                file_type = PCBFILE;
 				if (!yyPCB)
 				{
 					Message(_("illegal fileformat\n"));
@@ -220,45 +222,17 @@ parsepcb
 			}
 			ENDALL_LOOP;
 			PCB = pcb_save;
-			}
-			   
-		| {
-		    if (yyPCB != NULL)
-		      {
-			/* This case is when we load a footprint with file->open, or from the command line */
-			yyFont = &yyPCB->Font;
-			yyData = yyPCB->Data;
-			yyData->pcb = yyPCB;
-			yyData->LayerN = 0;
-		      }
-		  }
-		  element
-		  {
-		    PCBType *pcb_save = PCB;
-		    ElementType *e;
-		    if (yyPCB != NULL)
-		      {
-			/* This case is when we load a footprint with file->open, or from the command line */
-			CreateNewPCBPost (yyPCB, 0);
-			ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
-			e = yyPCB->Data->Element->data; /* we know there's only one */
-			PCB = yyPCB;
-			MoveElementLowLevel (yyPCB->Data, e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
-			PCB = pcb_save;
-			yyPCB->MaxWidth = e->BoundingBox.X2;
-			yyPCB->MaxHeight = e->BoundingBox.Y2;
-			yyPCB->is_footprint = 1;
-		      }
-		  }
-		;
+			}		   
+			;
 
+/* This is a file that has pcb data but none of the header stuff */
 parsedata
 		:	{
 					/* reset flags for 'used layers';
 					 * init font and data pointers
 					 */
 				int	i;
-
+                file_type = DATAFILE;
 				if (!yyData || !yyFont)
 				{
 					Message(_("illegal fileformat\n"));
@@ -272,7 +246,9 @@ parsedata
 		;
 
 pcbfont
-		: parsefont
+		: { 
+            file_type = FONTFILE;
+          } parsefont
 		|
 		;
 
@@ -751,8 +727,41 @@ pcbdefinition
 		| { attr_list = & yyPCB->Attributes; } attribute
 		| rats
 		| layer
-		| element
-		| error { YYABORT; }
+        | {
+            if ( file_type == DATAFILE ) {
+ 
+		      if (yyPCB != NULL)
+		        {
+			  /* This case is when we load a footprint with file->open, or from the command line */
+			  yyFont = &yyPCB->Font;
+			  yyData = yyPCB->Data;
+			  yyData->pcb = yyPCB;
+			  yyData->LayerN = 0;
+		        }
+		    }
+          }
+		  element
+		  {
+            if (file_type == DATAFILE){
+		      PCBType *pcb_save = PCB;
+		      ElementType *e;
+		      if (yyPCB != NULL)
+		        {
+			  /* This case is when we load a footprint with file->open, or from the command line */
+			  CreateNewPCBPost (yyPCB, 0);
+			  ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, &yyData->LayerN);
+			  e = yyPCB->Data->Element->data; /* we know there's only one */
+			  PCB = yyPCB;
+			  MoveElementLowLevel (yyPCB->Data, e, -e->BoundingBox.X1, -e->BoundingBox.Y1);
+			  PCB = pcb_save;
+			  yyPCB->MaxWidth = e->BoundingBox.X2;
+			  yyPCB->MaxHeight = e->BoundingBox.Y2;
+			  yyPCB->is_footprint = 1;
+		        }
+            }
+		  }
+
+/*		| element*/
 		;
 
 via

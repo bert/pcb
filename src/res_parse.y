@@ -34,7 +34,7 @@ int reslex();
 
 %}
 
-%name-prefix="res"
+%name-prefix "res"
 %start top_res
 
 %union {
