@@ -112,7 +112,7 @@ update_values ()
   update_one_value (SSdiam, Settings.ViaThickness);
   update_one_value (SShole, Settings.ViaDrillingHole);
   update_one_value (SSkeep, Settings.Keepaway);
-  update_one_value (SSviamask, Settings.ViaSolderMaskClearance);
+  update_one_value (SSviamask, Settings.ViaMaskAperture);
   local_update = 0;
   lesstif_update_status_line ();
 }
@@ -179,7 +179,7 @@ style_value_cb (Widget w, int i, void *cbs)
       Settings.Keepaway = n;
       break;
     case SSviamask:
-      Settings.ViaSolderMaskClearance = n;
+      Settings.ViaMaskAperture = n;
       break;
     }
   update_style_buttons ();
@@ -256,7 +256,7 @@ style_set_cb (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
   PCB->RouteStyle[i].Diameter = Settings.ViaThickness;
   PCB->RouteStyle[i].Hole = Settings.ViaDrillingHole;
   PCB->RouteStyle[i].Keepaway = Settings.Keepaway;
-  PCB->RouteStyle[i].ViaMask = Settings.ViaSolderMaskClearance;
+  PCB->RouteStyle[i].ViaMask = Settings.ViaMaskAperture;
   update_style_buttons ();
 }
 
@@ -275,7 +275,7 @@ style_selected (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
   SetViaSize (style->Diameter, true);
   SetViaDrillingHole (style->Hole, true);
   SetKeepawayWidth (style->Keepaway);
-  SetViaSolderMaskClearance(style->ViaMask);
+  SetViaMaskAperture(style->ViaMask);
   if (style_dialog)
     {
       for (j = 0; j < NUM_STYLES; j++)

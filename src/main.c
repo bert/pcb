@@ -921,8 +921,8 @@ Default soldermask clearance around vias. Default value is @code{0mil}.
 @end ftable
 %end-doc
 */
-  CSET (ViaSolderMaskClearance, MIL_TO_COORD(0), "via-solder-mask-clearance",
-        "default solder mask clearance around vias"),
+  CSET (ViaMaskAperture, MIL_TO_COORD(0), "via-solder-mask-aperture",
+        "default solder mask aperture for vias"),
 
 /* %start-doc options "5 Sizes"
 @ftable @code

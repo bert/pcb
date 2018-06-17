@@ -759,7 +759,7 @@ typedef struct
     *MaskColor; /*!< Mask color. */
   Coord ViaThickness, /*!< Default via thickness value. */
     ViaDrillingHole, /*!< Default via drill hole value. */
-    ViaSolderMaskClearance, /*!< Default solder mask clerance value. */
+    ViaMaskAperture, /*!< Default solder mask aperture value. */
     LineThickness, /*!< Default line thickness value. */
     RatThickness, /*!< Default rat thickness value. */
     Keepaway, /*!< Default keepaway value. */

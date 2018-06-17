@@ -110,7 +110,7 @@ struct _dialog
   GtkWidget *via_hole_entry;
   GtkWidget *via_size_entry;
   GtkWidget *clearance_entry;
-  GtkWidget *mask_clearance_entry;
+  GtkWidget *mask_aperture_entry;
 };
 
 /*! \brief Callback for dialog box's combobox being changed
@@ -148,7 +148,7 @@ dialog_style_changed_cb (GtkComboBox *combo, struct _dialog *dialog)
                               style->rst->Diameter);
   ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->clearance_entry),
                               style->rst->Keepaway);
-  ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->mask_clearance_entry),
+  ghid_coord_entry_set_value (GHID_COORD_ENTRY (dialog->mask_aperture_entry),
                               style->rst->ViaMask);
 
 }
@@ -233,8 +233,8 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
   _table_attach (table, 4, _("Clearance:"),
                  &dialog_data.clearance_entry,
                  MIN_LINESIZE, MAX_LINESIZE);
-  _table_attach (table, 5, _("Mask clearance:"),
-                 &dialog_data.mask_clearance_entry,
+  _table_attach (table, 5, _("Mask aperture:"),
+                 &dialog_data.mask_aperture_entry,
                  0, MAX_LINESIZE);
 
   sub_vbox = ghid_category_vbox (vbox, _("Set as Default"),
@@ -283,7 +283,7 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
       rst->Keepaway = ghid_coord_entry_get_value
                         (GHID_COORD_ENTRY (dialog_data.clearance_entry));
       rst->ViaMask = ghid_coord_entry_get_value
-                        (GHID_COORD_ENTRY (dialog_data.mask_clearance_entry));
+                        (GHID_COORD_ENTRY (dialog_data.mask_aperture_entry));
       save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_box));
 
       if (style == NULL)

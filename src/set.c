@@ -135,9 +135,9 @@ SetViaDrillingHole (Coord Size, bool Force)
 }
 
 void
-SetViaSolderMaskClearance(Coord Size)
+SetViaMaskAperture(Coord Size)
 {
-  Settings.ViaSolderMaskClearance = Size;
+  Settings.ViaMaskAperture = Size;
 }
 
 void
@@ -147,7 +147,7 @@ pcb_use_route_style (RouteStyleType * rst)
   Settings.ViaThickness = rst->Diameter;
   Settings.ViaDrillingHole = rst->Hole;
   Settings.Keepaway = rst->Keepaway;
-  Settings.ViaSolderMaskClearance = rst->ViaMask;
+  Settings.ViaMaskAperture = rst->ViaMask;
 }
 
 /*!
