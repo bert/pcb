@@ -41,6 +41,7 @@ TEST_PATHS="$TEST_PATHS --lib-path @TOP_BUILDDIR@/lib"
 TEST_PATHS="$TEST_PATHS --lib-newlib @TOPSRCDIR@/newlib:@TOP_BUILDDIR@/lib/pcblib-newlib"
 TEST_PATHS="$TEST_PATHS --element-path @TOP_BUILDDIR@/lib"
 TEST_PATHS="$TEST_PATHS --font-path @TOPSRCDIR@/src"
+TEST_PATHS="$TEST_PATHS --pcb-menu @TOP_BUILDDIR@/src"
 TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
 
 # note:  To do command line exporting, pcb requires the "-x <export_hid>" command to appear first.  For example
