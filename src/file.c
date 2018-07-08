@@ -163,20 +163,28 @@ static int LoadNewlibFootprintsFromDir(char *path, char *toppath, bool recursive
 
 #define PCB_FILE_VERSION_BASELINE 20091103 /*!< First version ever saved. */
 
+/*!
+ * \brief Find the oldest file version that supports the features of the
+ * current design.
+ *
+ * \return the oldest file version that supports the design.
+ */
 int
 PCBFileVersionNeeded (void)
 {
+  /* NOTE: New features tests should be executed before older feature tests. */
+
+  VIA_LOOP (PCB->Data);
+    if ((via->BuriedFrom != 0) || (via->BuriedTo != 0))
+      return PCB_FILE_VERSION_BURIED_VIAS;
+  END_LOOP;  
+  
   ALLPOLYGON_LOOP (PCB->Data);
   {
     if (polygon->HoleIndexN > 0)
       return PCB_FILE_VERSION_HOLES;
   }
   ENDALL_LOOP;
-
-  VIA_LOOP (PCB->Data);
-    if ((via->BuriedFrom != 0) || (via->BuriedTo != 0))
-      return PCB_FILE_VERSION_BURIED_VIAS;
-  END_LOOP;
 
   return PCB_FILE_VERSION_BASELINE;
 }
