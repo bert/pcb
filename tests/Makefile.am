@@ -33,6 +33,9 @@ EXTRA_DIST = \
   inputs/changeclearsize-sel.script \
   inputs/circles.pcb \
   inputs/clearance.pcb \
+  inputs/fileversion-20091103.pcb \
+  inputs/fileversion-20100606.pcb \
+  inputs/fileversion-20170218.pcb \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
@@ -73,6 +76,9 @@ EXTRA_DIST = \
   golden/Clearance/clearance.topmask.gbr \
   golden/Clearance/clearance.toppaste.gbr \
   golden/Clearance/clearance.topsilk.gbr \
+  golden/FileVersions/fileversion-20091103-out.pcb \
+  golden/FileVersions/fileversion-20100606-out.pcb \
+  golden/FileVersions/fileversion-20170218-out.pcb \
   golden/hid_bom1/bom_general.bom \
   golden/hid_bom1/bom_general.xy \
   golden/hid_bom2/test.bom \

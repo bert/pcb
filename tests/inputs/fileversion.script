@@ -1,0 +1,25 @@
+#
+# fileversion.script
+#
+# Purpose: ensure that pcb saves files with the right "version". 
+#
+# pcb calculates the oldest file version that can contain a particular
+# layout based on the features used in that layout. It then saves this
+# information in the file header so that an older version of pcb will
+# realize that it cannot load features contained in a file.
+#
+# This script loads and saves pcb that have different sets of features. I
+# think ideally this script would actually create those features instead of
+# loading files that have them, but this is what we have for now.
+#
+
+LoadFrom(Layout, fileversion-20091103.pcb)
+SaveTo(LayoutAs, fileversion-20091103-out.pcb)
+
+LoadFrom(Layout, fileversion-20100606.pcb)
+SaveTo(LayoutAs, fileversion-20100606-out.pcb)
+
+LoadFrom(Layout, fileversion-20170218.pcb)
+SaveTo(LayoutAs, fileversion-20170218-out.pcb)
+
+Quit()
