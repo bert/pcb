@@ -3780,23 +3780,19 @@ DRCAll (void)
     {
       COPPERLINE_LOOP (PCB->Data);
       {
+        bool plows_polygon;
         /* check line clearances in polygons */
         int old_clearance = line->Clearance;
         /* Create a bounding box with DRC clearance */
         line->Clearance = 2*PCB->Bloat;
         SetLineBoundingBox(line);
         line->Clearance = old_clearance;
-        if (PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info))
+        plows_polygon = PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info);
+        SetLineBoundingBox(line); /* Recover old bounding box */
+        if (plows_polygon)
           {
             IsBad = true;
-            /* Recover old bounding box */
-            SetLineBoundingBox(line);
             break;
-          }
-        else
-          {
-            /* Recover old bounding box */
-            SetLineBoundingBox(line);
           }
 
         if (line->Thickness < PCB->minWid)
