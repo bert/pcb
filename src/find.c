@@ -296,10 +296,10 @@ static void DumpList (void);
 static void LocateError (Coord *, Coord *);
 static void BuildObjectList (int *, long int **, int **);
 static bool SetThing (int, void *, void *, void *);
-static bool IsArcInPolygon (ArcType *, PolygonType *);
-static bool IsLineInPolygon (LineType *, PolygonType *);
-static bool IsPadInPolygon (PadType *, PolygonType *);
-static bool IsPolygonInPolygon (PolygonType *, PolygonType *);
+static bool IsArcInPolygon (ArcType *, PolygonType *, Coord);
+static bool IsLineInPolygon (LineType *, PolygonType *, Coord);
+static bool IsPadInPolygon (PadType *, PolygonType *, Coord);
+static bool IsPolygonInPolygon (PolygonType *, PolygonType *, Coord);
 
 /*!
  * \brief.
@@ -1821,7 +1821,7 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
           for (i = layer->Polygon; i != NULL; i = g_list_next (i))
             {
               PolygonType *polygon = i->data;
-              if (!TEST_FLAG (flag, polygon) && IsArcInPolygon (Arc, polygon)
+              if (!TEST_FLAG (flag, polygon) && IsArcInPolygon (Arc, polygon, Bloat)
                   && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
                 return true;
             }
@@ -1970,7 +1970,7 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
               for (i = layer->Polygon; i != NULL; i = g_list_next (i))
                 {
                   PolygonType *polygon = i->data;
-                  if (!TEST_FLAG (flag, polygon) && IsLineInPolygon (Line, polygon)
+                  if (!TEST_FLAG (flag, polygon) && IsLineInPolygon (Line, polygon, Bloat)
                       && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
                     return true;
                 }
@@ -2143,7 +2143,7 @@ LOCtoPadPoly_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (i->flag, polygon) &&
       (!TEST_FLAG (CLEARPOLYFLAG, polygon) || !i->pad->Clearance))
     {
-      if (IsPadInPolygon (i->pad, polygon) &&
+      if (IsPadInPolygon (i->pad, polygon, Bloat) &&
           ADD_POLYGON_TO_LIST (i->layer, polygon, i->flag))
         longjmp (i->env, 1);
     }
@@ -2277,7 +2277,7 @@ LOCtoPolyLine_callback (const BoxType * b, void *cl)
   LineType *line = (LineType *) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (i->flag, line) && IsLineInPolygon (line, i->polygon))
+  if (!TEST_FLAG (i->flag, line) && IsLineInPolygon (line, i->polygon, Bloat))
     {
       if (ADD_LINE_TO_LIST (i->layer, line, i->flag))
         longjmp (i->env, 1);
@@ -2293,7 +2293,7 @@ LOCtoPolyArc_callback (const BoxType * b, void *cl)
 
   if (!arc->Thickness)
     return 0;
-  if (!TEST_FLAG (i->flag, arc) && IsArcInPolygon (arc, i->polygon))
+  if (!TEST_FLAG (i->flag, arc) && IsArcInPolygon (arc, i->polygon, Bloat))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc, i->flag))
         longjmp (i->env, 1);
@@ -2309,7 +2309,7 @@ LOCtoPolyPad_callback (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (i->flag, pad) && i->layer ==
       (TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE)
-      && IsPadInPolygon (pad, i->polygon))
+      && IsPadInPolygon (pad, i->polygon, Bloat))
     {
       if (ADD_PAD_TO_LIST (i->layer, pad, i->flag))
         longjmp (i->env, 1);
@@ -2389,7 +2389,7 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
             {
               PolygonType *polygon = i->data;
               if (!TEST_FLAG (flag, polygon)
-                  && IsPolygonInPolygon (polygon, Polygon)
+                  && IsPolygonInPolygon (polygon, Polygon, Bloat)
                   && ADD_POLYGON_TO_LIST (layer_no, polygon, flag))
                 return true;
             }
@@ -2428,9 +2428,13 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
  *   evaluating the bounding boxes.
  * - check the two end points of the arc. If none of them matches
  * - check all segments of the polygon against the arc.
+ *
+ * The bloat parameter allows the calling function to specify if any additional
+ * width should be added to the arc when looking for overlap, e.g. to check
+ * clearances. bloat is a clearance, so, it's added on both sides of the arc.
  */
 static bool
-IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
+IsArcInPolygon (ArcType *Arc, PolygonType *Polygon, Coord bloat)
 {
   BoxType *Box = (BoxType *) Arc;
 
@@ -2439,14 +2443,14 @@ IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
     return false;
   if (!Polygon->Clipped)
     return false;
-  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
-      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
-      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
-      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - bloat)
     {
       POLYAREA *ap;
 
-      if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
+      if (!(ap = ArcPoly (Arc, Arc->Thickness + 2*bloat)))
         return false;           /* error */
       return isects (ap, Polygon, true);
     }
@@ -2460,9 +2464,17 @@ IsArcInPolygon (ArcType *Arc, PolygonType *Polygon)
  *   evaluating the bounding boxes
  * - check the two end points of the line. If none of them matches
  * - check all segments of the polygon against the line.
+ *
+ * The bloat parameter allows the calling function to specify if any additional
+ * width should be added to the arc when looking for overlap, e.g. to check
+ * clearances. bloat is a clearance, so, it's added on both sides of the arc.
+ *
+ * This function was corrected to use 2x bloat. Supposedly this breaks
+ * something. If we figure out what, then we should change the parameter this
+ * function is called with.
  */
 static bool
-IsLineInPolygon (LineType *Line, PolygonType *Polygon)
+IsLineInPolygon (LineType *Line, PolygonType *Polygon, Coord bloat)
 {
   BoxType *Box = (BoxType *) Line;
   POLYAREA *lp;
@@ -2474,7 +2486,7 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
     return false;
   if (TEST_FLAG(SQUAREFLAG,Line)&&(Line->Point1.X==Line->Point2.X||Line->Point1.Y==Line->Point2.Y))
      {
-       Coord wid = (Line->Thickness + Bloat + 1) / 2;
+       Coord wid = (Line->Thickness + 2*bloat + 1) / 2;
        Coord x1, x2, y1, y2;
 
        x1 = MIN (Line->Point1.X, Line->Point2.X) - wid;
@@ -2483,12 +2495,12 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
        y2 = MAX (Line->Point1.Y, Line->Point2.Y) + wid;
        return IsRectangleInPolygon (x1, y1, x2, y2, Polygon);
      }
-  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
-      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
-      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
-      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - bloat)
     {
-      if (!(lp = LinePoly (Line, Line->Thickness + Bloat)))
+      if (!(lp = LinePoly (Line, Line->Thickness + 2*bloat)))
         return FALSE;           /* error */
       return isects (lp, Polygon, true);
     }
@@ -2501,9 +2513,9 @@ IsLineInPolygon (LineType *Line, PolygonType *Polygon)
  * The polygon is assumed to already have been proven non-clearing.
  */
 static bool
-IsPadInPolygon (PadType *pad, PolygonType *polygon)
+IsPadInPolygon (PadType *pad, PolygonType *polygon, Coord bloat)
 {
-    return IsLineInPolygon ((LineType *) pad, polygon);
+    return IsLineInPolygon ((LineType *) pad, polygon, bloat);
 }
 
 /*!
@@ -2513,7 +2525,7 @@ IsPadInPolygon (PadType *pad, PolygonType *polygon)
  * If both fail check all lines of P1 against the ones of P2.
  */
 static bool
-IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
+IsPolygonInPolygon (PolygonType *P1, PolygonType *P2, Coord bloat)
 {
   if (!P1->Clipped || !P2->Clipped)
     return false;
@@ -2532,7 +2544,7 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
     return TRUE;
 
   /* now the difficult case of bloated */
-  if (Bloat > 0)
+  if (bloat > 0)
     {
       PLINE *c;
       for (c = P1->Clipped->contours; c; c = c->next)
@@ -2547,12 +2559,7 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
 
               line.Point1.X = v->point[0];
               line.Point1.Y = v->point[1];
-              line.Thickness = Bloat;
-              /* Another Bloat is added by IsLineInPolygon, making the correct
-               * 2x Bloat. Perhaps we should change it there, but doing so
-               * breaks some other DRC checks which rely on the behaviour
-               * in IsLineInPolygon.
-               */
+              line.Thickness = 0;
               line.Clearance = 0;
               line.Flags = NoFlags ();
               for (v = v->next; v != &c->head; v = v->next)
@@ -2560,7 +2567,7 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
                   line.Point2.X = v->point[0];
                   line.Point2.Y = v->point[1];
                   SetLineBoundingBox (&line);
-                  if (IsLineInPolygon (&line, P2))
+                  if (IsLineInPolygon (&line, P2, Bloat))
                     return (true);
                   line.Point1.X = line.Point2.X;
                   line.Point1.Y = line.Point2.Y;
@@ -3601,20 +3608,15 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
           /*
           * PlowsPolygon made a quick check (bounding box) of whether
           * the line plows through the polygon, throwing some false
-          * positives. Here we bloat the line and use IsLineInPolygon()
-          * to rule out the false positives.
+          * positives. Use IsLineInPolygon() to rule them out.
           * To use it, we need to clear CLEARLINEFLAG, and restore it later
           */
           int clearflag;
-          int old_bloat;
           bool is_line_in_polygon;
 
           clearflag = TEST_FLAG (CLEARLINEFLAG, line);
           CLEAR_FLAG (CLEARLINEFLAG, line);
-          old_bloat = Bloat;
-          Bloat = 2*PCB->Bloat;
-          is_line_in_polygon = IsLineInPolygon(line,polygon);
-          Bloat = old_bloat;
+          is_line_in_polygon = IsLineInPolygon(line,polygon, Bloat);
           if (clearflag)
           SET_FLAG (CLEARLINEFLAG, line);
 
@@ -3638,7 +3640,7 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
       break;
     case PAD_TYPE:
       if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
-	if (IsPadInPolygon(pad,polygon))
+	if (IsPadInPolygon(pad,polygon,Bloat))
 	  {
 	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	    SET_FLAG (i->flag, pad);
