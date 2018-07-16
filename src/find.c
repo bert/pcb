@@ -3598,10 +3598,33 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
     case LINE_TYPE:
       if (line->Clearance < 2 * PCB->Bloat)
         {
-          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-          SET_FLAG (i->flag, line);
-          message = _("Line with insufficient clearance inside polygon\n");
-          goto doIsBad;
+          /*
+          * PlowsPolygon made a quick check (bounding box) of whether
+          * the line plows through the polygon, throwing some false
+          * positives. Here we bloat the line and use IsLineInPolygon()
+          * to rule out the false positives.
+          * To use it, we need to clear CLEARLINEFLAG, and restore it later
+          */
+          int clearflag;
+          int old_bloat;
+          bool is_line_in_polygon;
+
+          clearflag = TEST_FLAG (CLEARLINEFLAG, line);
+          CLEAR_FLAG (CLEARLINEFLAG, line);
+          old_bloat = Bloat;
+          Bloat = 2*PCB->Bloat;
+          is_line_in_polygon = IsLineInPolygon(line,polygon);
+          Bloat = old_bloat;
+          if (clearflag)
+          SET_FLAG (CLEARLINEFLAG, line);
+
+          if (is_line_in_polygon)
+            {
+              AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
+              SET_FLAG (i->flag, line);
+              message = _("Line with insufficient clearance inside polygon\n");
+              goto doIsBad;
+            }
         }
       break;
     case ARC_TYPE:
