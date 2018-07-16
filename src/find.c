@@ -3781,11 +3781,24 @@ DRCAll (void)
       COPPERLINE_LOOP (PCB->Data);
       {
         /* check line clearances in polygons */
+        int old_clearance = line->Clearance;
+        /* Create a bounding box with DRC clearance */
+        line->Clearance = 2*PCB->Bloat;
+        SetLineBoundingBox(line);
+        line->Clearance = old_clearance;
         if (PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info))
           {
             IsBad = true;
+            /* Recover old bounding box */
+            SetLineBoundingBox(line);
             break;
           }
+        else
+          {
+            /* Recover old bounding box */
+            SetLineBoundingBox(line);
+          }
+
         if (line->Thickness < PCB->minWid)
           {
             AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
