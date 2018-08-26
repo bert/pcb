@@ -237,9 +237,19 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
+
+/* Bloat is used to change the size of objects before checking for overlaps.
+ * This is used in the DRC check to detect things that are too close, or
+ * don't overlap enough.*/
 static Coord Bloat = 0;
+
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
 static int thing_type;
+
+/* The only time the User flag is used is to determine if a flag
+ * change should be added to the undo list when an object is added
+ * to the connectivity list. 
+ */
 static bool User = false;    /*!< User action causing this. */
 static bool drc = false;     /*!< Whether to stop if finding something not found. */
 static Cardinal drcerr_count;   /*!< Count of drc errors */
@@ -286,15 +296,29 @@ ArcPadIntersect (ArcType *Arc, PadType *Pad)
   return LineArcIntersect ((LineType *) (Pad), (Arc));
 }
 
+/*
+ * Add an object to the specified list.
+ *
+ * Returning true will (always?) abort the algorithm, false will allow it to
+ * continue.
+ *
+ */
 static bool
 add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3, int flag)
 {
   AnyObjectType *object = (AnyObjectType *)ptr2;
 
+  /* If this is user initiated, we want to be able to restore state, so, add
+   * the flag change to the undo list */
   if (User)
     AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 
+  /* Set the appropriate flag to indicate the object appears in one of the
+   * lists. This is how we later compare runs.
+   */
   SET_FLAG (flag, object);
+
+  /* Add the object to the list. */  
   LIST_ENTRY (list, list->Number) = object;
   list->Number++;
 
@@ -303,6 +327,14 @@ add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3
     printf ("add_object_to_list overflow! type=%i num=%d size=%d\n", type, list->Number, list->Size);
 #endif
 
+  /* if drc is true, then we want to abort the algorithm if a new object is
+   * found. The first time through, the SELECTEDFLAG is set on all objects
+   * that are found. So, if SELECTEDFLAG is set, then the object is already
+   * known. 
+   *
+   * TODO: This is not very flexible and requires pre-ordained knowledge of
+   * how to use the SELECTEDFLAG.
+   */
   if (drc && !TEST_FLAG (SELECTEDFLAG, object))
     return (SetThing (type, ptr1, ptr2, ptr3));
   return false;
@@ -879,14 +911,25 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
   return (false);
 }
 
+/*
+ * This function is an r_search callback. It's called to check if a pin or
+ * via is overlapping with another pin or via.
+ */
 static int
 pv_pv_callback (const BoxType * b, void *cl)
 {
+  /* Cast the object found by the r_search, it's known to be a pin */
   PinType *pin = (PinType *) b;
   struct pv_info *i = (struct pv_info *) cl;
   bool pv_overlap = false;
   Cardinal l;
 
+  /* If both vias are buried, check if the layers of the found via (pin)
+   * overlap with the layers of the original via (i->pv).
+   *
+   * TODO: Why isn't PinPinIntersect called here?
+   * TODO: Why aren't we checking the other flags, like we do below?
+   */
   if (VIA_IS_BURIED (pin) && VIA_IS_BURIED (i->pv))
     {
       for (l = pin->BuriedFrom ; l <= pin->BuriedTo; l++)
@@ -901,8 +944,12 @@ pv_pv_callback (const BoxType * b, void *cl)
 	return 0;
     }
 
+  /* If either of the vias is a thru via, there is potential overlap. */
   if (!TEST_FLAG (i->flag, pin) && PV_TOUCH_PV (i->pv, pin))
     {
+	  /* If it's only a hole (no copper) then just issue a warning to the
+	   * log, and highlight the pin. It doesn't affect the netlist.
+	   */
       if (TEST_FLAG (HOLEFLAG, pin) || TEST_FLAG (HOLEFLAG, i->pv))
         {
           SET_FLAG (WARNFLAG, pin);
@@ -2685,9 +2732,6 @@ reassign_no_drc_flags (void)
     }
 }
 
-
-
-
 /*!
  * \brief Loops till no more connections are found.
  */
@@ -2700,7 +2744,12 @@ DoIt (int flag, bool AndRats, bool AndDraw)
     {
       /* lookup connections; these are the steps (2) to (4)
        * from the description
-       */
+       *
+       * If anything is added to any of the lists, newone will be true. Any
+       * new additions to the lists mean that there are potentially more things
+       * to add to the list, things that might overlap with only the new
+       * objects.
+	   */
       newone = LookupPVConnectionsToPVList (flag) ||
                LookupLOConnectionsToPVList (flag, AndRats) ||
                LookupLOConnectionsToLOList (flag, AndRats) ||
@@ -2708,6 +2757,7 @@ DoIt (int flag, bool AndRats, bool AndDraw)
       if (AndDraw)
         DrawNewConnections ();
     }
+  /* Keep executing the lookup until no new objects are found. */
   while (!newone && !ListsEmpty (AndRats));
   if (AndDraw)
     Draw ();
@@ -3282,7 +3332,16 @@ start_do_it_and_dump (int type, void *ptr1, void *ptr2, void *ptr3,
  * or pin.
  *
  * Sees if the connectivity changes when everything is bloated, or
- * shrunk.
+ * shrunk. The general algorithm is documented in the top comments, but,
+ * briefly...
+ *
+ * Start at a pin, and build a list of all the objects that touch it, and
+ * the objects that touch those, and the objects that touch those, etc. When
+ * the list is built, certain flags are also set (it's the flags that are
+ * important, not the list of objects). Then make everything slightly larger
+ * (increase the value of Bloat) and check again. If any object encountered
+ * the second time doesn't have the SELECTEDFLAG set, then it's a new object
+ * that is violating the DRC rule.
  */
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
@@ -3295,94 +3354,135 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   int flag;
 
   if (PCB->Shrink != 0)
-    {
-      start_do_it_and_dump (What, ptr1, ptr2, ptr3, DRCFLAG | SELECTEDFLAG, false, -PCB->Shrink, false);
-      /* ok now the shrunk net has the SELECTEDFLAG set */
-      ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
-      Bloat = 0;
-      drc = true;               /* abort the search if we find anything not already found */
-      if (DoIt (FOUNDFLAG, true, false))
-        {
-          DumpList ();
-          /* make the flag changes undoable */
-          ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
-          User = true;
-          start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
-          start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
-          User = false;
-          drc = false;
-          drcerr_count++;
-          LocateError (&x, &y);
-          BuildObjectList (&object_count, &object_id_list, &object_type_list);
-          violation = pcb_drc_violation_new (_("Potential for broken trace"),
-                                             _("Insufficient overlap between objects can lead to broken tracks\n"
-                                               "due to registration errors with old wheel style photo-plotters."),
-                                             x, y,
-                                             0,     /* ANGLE OF ERROR UNKNOWN */
-                                             FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
-                                             0,     /* MAGNITUDE OF ERROR UNKNOWN */
-                                             PCB->Shrink,
-                                             object_count,
-                                             object_id_list,
-                                             object_type_list);
-          append_drc_violation (violation);
-          pcb_drc_violation_free (violation);
-          free (object_id_list);
-          free (object_type_list);
+  {
+    /* Set the DRC and SELECTED flags on all objects that overlap with the
+     * passed object after shrinking them. 
+     * 
+     * The last parameter sets the global "drc" variable in find.c
+     * (through the call to DoIt). It's set to false here because we want
+     * to build a list of all the connections.
+     *
+     * Note that we do the shrunk condition first because it will presumably
+     * have fewer objects than the nominal object list.
+     */
+    start_do_it_and_dump (What, ptr1, ptr2, ptr3, DRCFLAG | SELECTEDFLAG, false, -PCB->Shrink, false);
+    /* ok now the shrunk net has the SELECTEDFLAG set */
 
-          if (!throw_drc_dialog())
-            return (true);
-          IncrementUndoSerialNumber ();
-          Undo (true);
-        }
-      DumpList ();
-    }
-  /* now check the bloated condition */
-  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
-  start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, false, 0, false);
-  flag = FOUNDFLAG;
-  ListStart (What, ptr1, ptr2, ptr3, flag);
-  Bloat = PCB->Bloat;
-  drc = true;
-  while (DoIt (flag, true, false))
+    /* Now build the list without shrinking objects, and set the FOUND
+     * flag in the process. If a new object is found, the connectivity has
+     * changed, indicating that the minimum overlap rule is violated for
+     * something connected to the original object.
+     *
+     * Note that an object is considered "new" if it doesn't have the
+     * SELECTEDFLAG set. This behavior is hard coded into the algorithm in
+     * add_object_to_list:find.c. This means that the first search must
+     * always set the SELECTEDFLAG.
+     *
+     * TODO: This means that we will only find one violation of this
+     * type for each seed object.
+     */
+    ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
+    Bloat = 0;
+    drc = true; /* abort the search if we find anything not already found */
+    if (DoIt (FOUNDFLAG, true, false))
     {
       DumpList ();
       /* make the flag changes undoable */
       ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
       User = true;
-      start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
-      start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
+      start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
+      start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
       User = false;
       drc = false;
       drcerr_count++;
       LocateError (&x, &y);
       BuildObjectList (&object_count, &object_id_list, &object_type_list);
-      violation = pcb_drc_violation_new (_("Copper areas too close"),
-                                         _("Circuits that are too close may bridge during imaging, etching,\n"
-                                           "plating, or soldering processes resulting in a direct short."),
-                                         x, y,
-                                         0,     /* ANGLE OF ERROR UNKNOWN */
-                                         FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
-                                         0,     /* MAGNITUDE OF ERROR UNKNOWN */
-                                         PCB->Bloat,
-                                         object_count,
-                                         object_id_list,
-                                         object_type_list);
+      violation = pcb_drc_violation_new (
+              _("Potential for broken trace"),
+              _("Insufficient overlap between objects can lead to broken "
+                "tracks\ndue to registration errors with old wheel style "
+                "photo-plotters."),
+              x, y,
+              0,     /* ANGLE OF ERROR UNKNOWN */
+              FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+              0,     /* MAGNITUDE OF ERROR UNKNOWN */
+              PCB->Shrink,
+              object_count,
+              object_id_list,
+              object_type_list);
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
       free (object_id_list);
       free (object_type_list);
-      if (!throw_drc_dialog())
-        return (true);
+      if (!throw_drc_dialog())  return (true);
       IncrementUndoSerialNumber ();
       Undo (true);
-      /* highlight the rest of the encroaching net so it's not reported again */
-      flag = FOUNDFLAG | SELECTEDFLAG;
-      start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
-      drc = true;
-      Bloat = PCB->Bloat;
-      ListStart (What, ptr1, ptr2, ptr3, flag);
     }
+    DumpList ();
+  }
+
+  /* Now check the bloated condition.
+   *
+   * TODO: Why isn't this wrapped in if (PCB->Bloat > 0) ?
+   */
+
+  /* Reset all of the flags */
+  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+  /* Set the DRC and SELECTED flags on all objects that overlap with the
+   * passed object. Here we do the nominal case first, because it will
+   * presumably have fewer objects than the bloated case.
+   *
+   * See above for additional notes.
+   */
+
+  /* Set the selected flag on anything connected to the pin */
+  start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, false, 0, false);
+  /* Now bloat everything, and find things are connected now that weren't
+   * before */
+  Bloat = PCB->Bloat;
+  flag = FOUNDFLAG;
+  ListStart (What, ptr1, ptr2, ptr3, flag);
+  drc = true;
+  /* Why is this one a "while" when it's an "if" above? */
+  while (DoIt (flag, true, false))
+  {
+    DumpList ();
+    /* make the flag changes undoable */
+    ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+    User = true;
+    start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
+    start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
+    User = false;
+    drc = false;
+    drcerr_count++;
+    LocateError (&x, &y);
+    BuildObjectList (&object_count, &object_id_list, &object_type_list);
+    violation = pcb_drc_violation_new (
+            _("Copper areas too close"),
+            _("Circuits that are too close may bridge during imaging, etching,"
+              "\nplating, or soldering processes resulting in a direct short."),
+            x, y,
+            0,     /* ANGLE OF ERROR UNKNOWN */
+            FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+            0,     /* MAGNITUDE OF ERROR UNKNOWN */
+            PCB->Bloat,
+            object_count,
+            object_id_list,
+            object_type_list);
+    append_drc_violation (violation);
+    pcb_drc_violation_free (violation);
+    free (object_id_list);
+    free (object_type_list);
+    if (!throw_drc_dialog())  return (true);
+    IncrementUndoSerialNumber ();
+    Undo (true);
+    /* highlight the rest of the encroaching net so it's not reported again */
+    flag = FOUNDFLAG | SELECTEDFLAG;
+    start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
+    drc = true;
+    Bloat = PCB->Bloat;
+    ListStart (What, ptr1, ptr2, ptr3, flag);
+  }
   drc = false;
   DumpList ();
   ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
@@ -3559,12 +3659,23 @@ DRCAll (void)
         0, 0, 0, TRUE, 0, 0, 0, NULL, NULL);
   append_drc_violation (violation);
   pcb_drc_violation_free (violation);
-  if (!throw_drc_dialog())
-    return (true);
+  if (!throw_drc_dialog())  return (true);
 
   IsBad = false;
   drcerr_count = 0;
+
+  /* Since the searching functions only operate on visible layers, we need
+   * to make sure that everything is turned on in order to check the entire
+   * design. 
+   *
+   * TODO: This could be a way of giving the user control over what area to
+   *       run the DRC on... ?
+   * 
+   */
+
+  /* Save the layer order and visibility settings so we can restore it later */
   SaveStackAndVisibility ();
+  /* Turn on everything */
   ResetStackAndVisibility ();
   hid_action ("LayersChanged");
   InitConnectionLookup ();
@@ -3626,299 +3737,308 @@ DRCAll (void)
   info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
   if (!IsBad)
+  {
+    COPPERLINE_LOOP (PCB->Data);
     {
-      COPPERLINE_LOOP (PCB->Data);
+      bool plows_polygon;
+      /* check line clearances in polygons */
+      int old_clearance = line->Clearance;
+      /* Create a bounding box with DRC clearance */
+      line->Clearance = 2*PCB->Bloat;
+      SetLineBoundingBox(line);
+      line->Clearance = old_clearance;
+      plows_polygon = PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info);
+      SetLineBoundingBox(line); /* Recover old bounding box */
+      if (plows_polygon)
       {
-        bool plows_polygon;
-        /* check line clearances in polygons */
-        int old_clearance = line->Clearance;
-        /* Create a bounding box with DRC clearance */
-        line->Clearance = 2*PCB->Bloat;
-        SetLineBoundingBox(line);
-        line->Clearance = old_clearance;
-        plows_polygon = PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info);
-        SetLineBoundingBox(line); /* Recover old bounding box */
-        if (plows_polygon)
-          {
-            IsBad = true;
-            break;
-          }
+        IsBad = true;
+        break;
+      }
 
-        if (line->Thickness < PCB->minWid)
-          {
-            AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-            SET_FLAG (SELECTEDFLAG, line);
-            DrawLine (layer, line);
-            drcerr_count++;
-            SetThing (LINE_TYPE, layer, line, line);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Line width is too thin"),
-                                               _("Process specifications dictate a minimum feature-width\n"
-                                                 "that can reliably be reproduced"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               line->Thickness,
-                                               PCB->minWid,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
-      }
-      ENDALL_LOOP;
-    }
-  if (!IsBad)
-    {
-      COPPERARC_LOOP (PCB->Data);
+      if (line->Thickness < PCB->minWid)
       {
-        if (PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info))
-          {
-            IsBad = true;
-            break;
-          }
-        if (arc->Thickness < PCB->minWid)
-          {
-            AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-            SET_FLAG (SELECTEDFLAG, arc);
-            DrawArc (layer, arc);
-            drcerr_count++;
-            SetThing (ARC_TYPE, layer, arc, arc);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Arc width is too thin"),
-                                               _("Process specifications dictate a minimum feature-width\n"
-                                                 "that can reliably be reproduced"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               arc->Thickness,
-                                               PCB->minWid,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
+        SET_FLAG (SELECTEDFLAG, line);
+        DrawLine (layer, line);
+        drcerr_count++;
+        SetThing (LINE_TYPE, layer, line, line);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Line width is too thin"),
+                _("Process specifications dictate a minimum feature-width\n"
+                  "that can reliably be reproduced"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                line->Thickness,
+                PCB->minWid,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
       }
-      ENDALL_LOOP;
     }
+    ENDALL_LOOP;
+  }
   if (!IsBad)
+  {
+    COPPERARC_LOOP (PCB->Data);
     {
-      ALLPIN_LOOP (PCB->Data);
+      if (PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info))
       {
-        if (PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback, &info))
-          {
-            IsBad = true;
-            break;
-          }
-        if (!TEST_FLAG (HOLEFLAG, pin) &&
-            pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
-          {
-            AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-            SET_FLAG (SELECTEDFLAG, pin);
-            DrawPin (pin);
-            drcerr_count++;
-            SetThing (PIN_TYPE, element, pin, pin);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Pin annular ring too small"),
-                                               _("Annular rings that are too small may erode during etching,\n"
-                                                 "resulting in a broken connection"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               (pin->Thickness - pin->DrillingHole) / 2,
-                                               PCB->minRing,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
-        if (pin->DrillingHole < PCB->minDrill)
-          {
-            AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-            SET_FLAG (SELECTEDFLAG, pin);
-            DrawPin (pin);
-            drcerr_count++;
-            SetThing (PIN_TYPE, element, pin, pin);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Pin drill size is too small"),
-                                               _("Process rules dictate the minimum drill size which can be used"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               pin->DrillingHole,
-                                               PCB->minDrill,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        IsBad = true;
+        break;
       }
-      ENDALL_LOOP;
+      if (arc->Thickness < PCB->minWid)
+      {
+        AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
+        SET_FLAG (SELECTEDFLAG, arc);
+        DrawArc (layer, arc);
+        drcerr_count++;
+        SetThing (ARC_TYPE, layer, arc, arc);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Arc width is too thin"),
+                _("Process specifications dictate a minimum feature-width\n"
+                  "that can reliably be reproduced"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                arc->Thickness,
+                PCB->minWid,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
     }
+    ENDALL_LOOP;
+  }
   if (!IsBad)
+  {
+    ALLPIN_LOOP (PCB->Data);
     {
-      ALLPAD_LOOP (PCB->Data);
+      if (PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback, &info))
       {
-        if (PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback, &info))
-          {
-            IsBad = true;
-            break;
-          }
-        if (pad->Thickness < PCB->minWid)
-          {
-            AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-            SET_FLAG (SELECTEDFLAG, pad);
-            DrawPad (pad);
-            drcerr_count++;
-            SetThing (PAD_TYPE, element, pad, pad);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Pad is too thin"),
-                                               _("Pads which are too thin may erode during etching,\n"
-                                                  "resulting in a broken or unreliable connection"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               pad->Thickness,
-                                               PCB->minWid,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        IsBad = true;
+        break;
       }
-      ENDALL_LOOP;
+      if (!TEST_FLAG (HOLEFLAG, pin) &&
+        pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
+      {
+        AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+        SET_FLAG (SELECTEDFLAG, pin);
+        DrawPin (pin);
+        drcerr_count++;
+        SetThing (PIN_TYPE, element, pin, pin);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Pin annular ring too small"),
+                _("Annular rings that are too small may erode during etching,\n"
+                  "resulting in a broken connection"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                (pin->Thickness - pin->DrillingHole) / 2,
+                PCB->minRing,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
+      if (pin->DrillingHole < PCB->minDrill)
+      {
+        AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+        SET_FLAG (SELECTEDFLAG, pin);
+        DrawPin (pin);
+        drcerr_count++;
+        SetThing (PIN_TYPE, element, pin, pin);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Pin drill size is too small"),
+                _("Process rules dictate the minimum drill size which can be "
+                  "used"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                pin->DrillingHole,
+                PCB->minDrill,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
     }
+    ENDALL_LOOP;
+  }
   if (!IsBad)
+  {
+    ALLPAD_LOOP (PCB->Data);
     {
-      VIA_LOOP (PCB->Data);
+      if (PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback, &info))
       {
-        if (PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback, &info))
-          {
-            IsBad = true;
-            break;
-          }
-        if (!TEST_FLAG (HOLEFLAG, via) &&
-            via->Thickness - via->DrillingHole < 2 * PCB->minRing)
-          {
-            AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-            SET_FLAG (SELECTEDFLAG, via);
-            DrawVia (via);
-            drcerr_count++;
-            SetThing (VIA_TYPE, via, via, via);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Via annular ring too small"),
-                                               _("Annular rings that are too small may erode during etching,\n"
-                                                 "resulting in a broken connection"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               (via->Thickness - via->DrillingHole) / 2,
-                                               PCB->minRing,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
-        if (via->DrillingHole < PCB->minDrill)
-          {
-            AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-            SET_FLAG (SELECTEDFLAG, via);
-            DrawVia (via);
-            drcerr_count++;
-            SetThing (VIA_TYPE, via, via, via);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Via drill size is too small"),
-                                               _("Process rules dictate the minimum drill size which can be used"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               via->DrillingHole,
-                                               PCB->minDrill,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        IsBad = true;
+        break;
       }
-      END_LOOP;
+      if (pad->Thickness < PCB->minWid)
+      {
+        AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
+        SET_FLAG (SELECTEDFLAG, pad);
+        DrawPad (pad);
+        drcerr_count++;
+        SetThing (PAD_TYPE, element, pad, pad);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Pad is too thin"),
+                _("Pads which are too thin may erode during etching,\n"
+                  "resulting in a broken or unreliable connection"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                pad->Thickness,
+                PCB->minWid,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
     }
+    ENDALL_LOOP;
+  }
+  if (!IsBad)
+  {
+    VIA_LOOP (PCB->Data);
+    {
+      if (PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback, &info))
+      {
+        IsBad = true;
+        break;
+      }
+      if (!TEST_FLAG (HOLEFLAG, via) &&
+          via->Thickness - via->DrillingHole < 2 * PCB->minRing)
+      {
+        AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+        SET_FLAG (SELECTEDFLAG, via);
+        DrawVia (via);
+        drcerr_count++;
+        SetThing (VIA_TYPE, via, via, via);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Via annular ring too small"),
+                _("Annular rings that are too small may erode during etching,\n"
+                  "resulting in a broken connection"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                (via->Thickness - via->DrillingHole) / 2,
+                PCB->minRing,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
+      if (via->DrillingHole < PCB->minDrill)
+      {
+        AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+        SET_FLAG (SELECTEDFLAG, via);
+        DrawVia (via);
+        drcerr_count++;
+        SetThing (VIA_TYPE, via, via, via);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Via drill size is too small"),
+                _("Process rules dictate the minimum drill size which can "
+                  "be used"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                via->DrillingHole,
+                PCB->minDrill,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
+    }
+    END_LOOP;
+  }
 
   FreeConnectionLookupMemory ();
   Bloat = 0;
@@ -3926,115 +4046,115 @@ DRCAll (void)
   /* check silkscreen minimum widths outside of elements */
   /* XXX - need to check text and polygons too! */
   if (!IsBad)
+  {
+    SILKLINE_LOOP (PCB->Data);
     {
-      SILKLINE_LOOP (PCB->Data);
+      if (line->Thickness < PCB->minSlk)
       {
-        if (line->Thickness < PCB->minSlk)
-          {
-            AddObjectToFlagUndoList(LINE_TYPE, layer, line, line);
-            SET_FLAG (SELECTEDFLAG, line);
-            DrawLine (layer, line);
-            drcerr_count++;
-            SetThing (LINE_TYPE, layer, line, line);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-            violation = pcb_drc_violation_new (_("Silk line is too thin"),
-                                               _("Process specifications dictate a minimum silkscreen\n"
-                                               "feature-width that can reliably be reproduced"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               line->Thickness,
-                                               PCB->minSlk,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        AddObjectToFlagUndoList(LINE_TYPE, layer, line, line);
+        SET_FLAG (SELECTEDFLAG, line);
+        DrawLine (layer, line);
+        drcerr_count++;
+        SetThing (LINE_TYPE, layer, line, line);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        violation = pcb_drc_violation_new (
+                _("Silk line is too thin"),
+                _("Process specifications dictate a minimum silkscreen\n"
+                  "feature-width that can reliably be reproduced"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                line->Thickness,
+                PCB->minSlk,
+                object_count,
+                object_id_list,
+                object_type_list);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
       }
-      ENDALL_LOOP;
     }
+    ENDALL_LOOP;
+  }
 
   /* check silkscreen minimum widths inside of elements */
   /* XXX - need to check text and polygons too! */
   if (!IsBad)
+  {
+    ELEMENT_LOOP (PCB->Data);
     {
-      ELEMENT_LOOP (PCB->Data);
+      tmpcnt = 0;
+      ELEMENTLINE_LOOP (element);
       {
-        tmpcnt = 0;
-        ELEMENTLINE_LOOP (element);
-        {
-          if (line->Thickness < PCB->minSlk)
-            tmpcnt++;
-        }
-        END_LOOP;
-        if (tmpcnt > 0)
-          {
-            char *title;
-            char *name;
-            char *buffer;
-            int buflen;
-            AddObjectToFlagUndoList(ELEMENT_TYPE, element, element, element);
-            SET_FLAG (SELECTEDFLAG, element);
-            DrawElement (element);
-            drcerr_count++;
-            SetThing (ELEMENT_TYPE, element, element, element);
-            LocateError (&x, &y);
-            BuildObjectList (&object_count, &object_id_list, &object_type_list);
-
-            title = _("Element %s has %i silk lines which are too thin");
-            name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
-
-            /* -4 is for the %s and %i place-holders */
-            /* +11 is the max printed length for a 32 bit integer */
-            /* +1 is for the \0 termination */
-            buflen = strlen (title) - 4 + strlen (name) + 11 + 1;
-            buffer = (char *)malloc (buflen);
-            snprintf (buffer, buflen, title, name, tmpcnt);
-
-            violation = pcb_drc_violation_new (buffer,
-                                               _("Process specifications dictate a minimum silkscreen\n"
-                                               "feature-width that can reliably be reproduced"),
-                                               x, y,
-                                               0,    /* ANGLE OF ERROR UNKNOWN */
-                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
-                                               0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
-                                               PCB->minSlk,
-                                               object_count,
-                                               object_id_list,
-                                               object_type_list);
-            free (buffer);
-            append_drc_violation (violation);
-            pcb_drc_violation_free (violation);
-            free (object_id_list);
-            free (object_type_list);
-            if (!throw_drc_dialog())
-              {
-                IsBad = true;
-                break;
-              }
-            IncrementUndoSerialNumber ();
-            Undo (false);
-          }
+        if (line->Thickness < PCB->minSlk)  tmpcnt++;
       }
       END_LOOP;
+      if (tmpcnt > 0)
+      {
+        char *title;
+        char *name;
+        char *buffer;
+        int buflen;
+
+        AddObjectToFlagUndoList(ELEMENT_TYPE, element, element, element);
+        SET_FLAG (SELECTEDFLAG, element);
+        DrawElement (element);
+        drcerr_count++;
+        SetThing (ELEMENT_TYPE, element, element, element);
+        LocateError (&x, &y);
+        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        title = _("Element %s has %i silk lines which are too thin");
+        name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
+
+        /* -4 is for the %s and %i place-holders */
+        /* +11 is the max printed length for a 32 bit integer */
+        /* +1 is for the \0 termination */
+        buflen = strlen (title) - 4 + strlen (name) + 11 + 1;
+        buffer = (char *)malloc (buflen);
+        snprintf (buffer, buflen, title, name, tmpcnt);
+
+        violation = pcb_drc_violation_new (buffer,
+                _("Process specifications dictate a minimum silkscreen\n"
+                  "feature-width that can reliably be reproduced"),
+                x, y,
+                0,    /* ANGLE OF ERROR UNKNOWN */
+                TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
+                PCB->minSlk,
+                object_count,
+                object_id_list,
+                object_type_list);
+        free (buffer);
+        append_drc_violation (violation);
+        pcb_drc_violation_free (violation);
+        free (object_id_list);
+        free (object_type_list);
+        if (!throw_drc_dialog())
+        {
+          IsBad = true;
+          break;
+        }
+        IncrementUndoSerialNumber ();
+        Undo (false);
+      }
     }
+    END_LOOP;
+  }
 
 
   if (IsBad)
-    {
-      IncrementUndoSerialNumber ();
-    }
+  {
+    IncrementUndoSerialNumber ();
+  }
 
 
   RestoreStackAndVisibility ();
@@ -4042,11 +4162,11 @@ DRCAll (void)
   gui->invalidate_all ();
 
   if (nopastecnt > 0) 
-    {
-      Message (ngettext ("Warning: %d pad has the nopaste flag set.\n",
-                         "Warning: %d pads have the nopaste flag set.\n",
+  {
+    Message (ngettext ("Warning: %d pad has the nopaste flag set.\n",
+                       "Warning: %d pads have the nopaste flag set.\n",
 			 nopastecnt), nopastecnt);
-    }
+  }
   return IsBad ? -drcerr_count : drcerr_count;
 }
 
