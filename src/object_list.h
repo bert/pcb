@@ -81,4 +81,14 @@ int object_list_remove(object_list * list, int n);
 int object_list_append(object_list * list, void * item);
 /* Get a pointer to the object at position n in the list */
 void * object_list_get_item(object_list * list, int n);
+
+
+/*
+ * Unit test
+ */
+#ifdef PCB_UNIT_TEST
+void object_list_register_tests(void);
+void object_list_test(void);
+#endif /* PCB_UNIT_TEST */
+
 #endif /* object_list_h */

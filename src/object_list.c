@@ -128,6 +128,12 @@ int object_list_remove(object_list * list, int n)
   /* move all items after the specified position up one position */
   nItemsToMove = list->count - n - 1;
   nptr = object_list_get_item(list, n);
+  if (list->ops && list->ops->clear_object){
+    DBG_MSG("Clearing with clear operation object\n");
+    list->ops->clear_object(nptr);
+  } 
+  /* no point in a memcpy condition since we're about to overwrite it anyway */
+
   memcpy(nptr, nptr+list->item_size, list->item_size*nItemsToMove);
   
   /* decrement the list count */
@@ -153,3 +159,210 @@ static void * object_list_position_pointer(object_list * list, int n)
   if (n >= list->size) return 0; /* position not in list */
   return list->items + list->item_size*n;
 }
+
+/*******************************************************************************
+                                    Tests
+*******************************************************************************/
+#ifdef PCB_UNIT_TEST
+#include <glib.h>
+
+void
+object_list_register_tests(void)
+{
+  g_test_add_func("/object-list/test", object_list_test);
+}
+
+typedef struct somestruct {
+    char string[16];
+    int n;
+} somestruct;
+
+void print_somestruct(somestruct * s)
+{
+    if(s > 0) printf("%d, %s\n", s->n, s->string);
+    else printf("(null)\n");
+}
+
+void copy_somestruct(void * a, void * b)
+{
+  somestruct *aa = (somestruct*)a, *bb = (somestruct*)b;
+  memcpy(aa->string, bb->string, 16);
+  aa->n = bb->n;
+}
+
+void clear_somestruct(void * a)
+{
+  somestruct *aa = (somestruct*)a;
+  memset(aa->string, 0, 16);
+  aa->n = 0;
+}
+
+object_operations somestruct_opts = {
+  .copy_object = &copy_somestruct,
+  .clear_object = &clear_somestruct
+};
+
+#define check_item(item, n) \
+          g_assert_cmpmem(&item, ss_size, object_list_get_item(list, n), ss_size);
+
+void object_list_test(void)
+{
+  int ss_size = sizeof(somestruct);
+  somestruct a={"A", 1}, b={"B", 2}, c={"C", 3}, 
+			 d={"D", 4}, e={"E", 5}, f={"F", 6};
+  object_list * list;
+ 
+  list = object_list_new(2, ss_size);
+  g_assert_cmpint(list->size, ==, 2);
+  g_assert_cmpint(list->count, ==, 0);
+  g_assert_cmpint(list->item_size, ==, sizeof(somestruct));
+  /* 0: (null), 1: (null)
+   */
+  
+  /*
+   * Insertion tests
+   */
+  
+  /* Appending object 'c' to list */
+  object_list_append(list, &c);
+  /* 0: c, 1: (null) */
+  check_item(c, 0);
+  /* Keeping this long form as a reminder of how it's done */
+  //g_assert_cmpmem(&c, ss_size, object_list_get_item(list, 0), ss_size);
+  g_assert_cmpint(list->size, ==, 2);
+  g_assert_cmpint(list->count, ==, 1);
+  
+  /* Inserting object 'a' at position 0 (initial position) */
+  object_list_insert(list, 0, &a);
+  /* 0: a, 1: c */
+  check_item(a, 0);
+  check_item(c, 1);
+  g_assert_cmpint(list->size, ==, 2);
+  g_assert_cmpint(list->count, ==, 2);
+ 
+  /* Inserting object 'd' at position 2 (append position) */
+  object_list_insert(list, 2, &d);
+  /* 0: a, 1: c, 2: d */
+  check_item(a, 0);
+  check_item(c, 1);
+  check_item(d, 2);
+  g_assert_cmpint(list->size, ==, 3);
+  g_assert_cmpint(list->count, ==, 3);
+
+  /* Inserting object 'b' at position 1 (middle position) */
+  object_list_insert(list, 1, &b);
+  /* 0: a, 1: b, 2: c, 3: d */
+  check_item(a, 0);
+  check_item(b, 1);
+  check_item(c, 2);
+  check_item(d, 3);
+  g_assert_cmpint(list->size, ==, 4);
+  g_assert_cmpint(list->count, ==, 4);
+ 
+  /* Inserting object 'f' at position 5 (past list, fails) */
+  object_list_insert(list, 5, &f);
+  /* 0: a, 1: b, 2: c, 3: d */
+  check_item(a, 0);
+  check_item(b, 1);
+  check_item(c, 2);
+  check_item(d, 3);
+  g_assert_cmpint(list->size, ==, 4);
+  g_assert_cmpint(list->count, ==, 4);
+
+  /* Appending object 'e' and expanding */
+  object_list_append(list, &e);
+  /* 0: a, 1: b, 2: c, 3: d, 4: e*/
+  check_item(a, 0);
+  check_item(b, 1);
+  check_item(c, 2);
+  check_item(d, 3);
+  check_item(e, 4);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 5);
+
+  /*
+   * Removal tests
+   */
+  
+  /* Removing object at position 0 (initial position) */
+  object_list_remove(list, 0);
+  /* 0: b, 1: c, 2: d, 3: e, 4: (null) */
+  check_item(b, 0);
+  check_item(c, 1);
+  check_item(d, 2);
+  check_item(e, 3);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 4);
+
+  /* Removing object at position 1 (middle position) */
+  object_list_remove(list, 1);
+  /* 0: b, 1: d, 2: e, 3: (null), 4: (null) */
+  check_item(b, 0);
+  check_item(d, 1);
+  check_item(e, 2);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 3);
+
+  /* Removing object at position 2 (final position) */
+  object_list_remove(list, 2);
+  /* 0: b, 1: d, 2: (null), 3: (null), 4: (null) */
+  check_item(b, 0);
+  check_item(d, 1);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 2);
+
+  /* Removing object at position 2 (no item) */
+  object_list_remove(list, 2);
+  /* 0: b, 1: d, 2: (null), 3: (null), 4: (null) */
+  check_item(b, 0);
+  check_item(d, 1);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 2);
+
+  /* Clearing list */
+  object_list_clear(list);
+  /* 0: (null), 1: (null), 2: (null), 3: (null), 4: (null) */
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 0);
+
+  /*
+   * Now do these things with the object operations instead of memcopy
+   */
+  list->ops = &somestruct_opts;
+
+  /* test use of copy_object */
+  object_list_append(list, &c);
+  object_list_insert(list, 0, &a);
+  object_list_insert(list, 1, &b);
+  /* 0: a, 1: b, 2: c, 3: (null), 4: (null) */
+  check_item(a, 0);
+  check_item(b, 1);
+  check_item(c, 2);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 3);
+  
+  /* test use of clear_object */
+  /* To do this properly, I would really need to have a pointer to allocated
+   * memory in somestruct, which the clear_object function could free. I'd
+   * then have to find a way to test whether or not that memory still
+   * belonged to me. */
+  object_list_remove(list, 1);
+  /* 0: a, 1: c, 2: (null), 3: (null), 4: (null) */
+  check_item(a, 0);
+  check_item(c, 1);
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 2);
+
+  /* Clearing list */
+  /* See earlier comment. The same applies here. */
+  object_list_clear(list);
+  /* 0: (null), 1: (null), 2: (null), 3: (null), 4: (null) */
+  g_assert_cmpint(list->size, ==, 5);
+  g_assert_cmpint(list->count, ==, 0);
+
+  /* Deleting list */
+  /* See earlier comment. The same applies here. */
+  object_list_delete(list);
+}
+
+#endif /* PCB_UNIT_TEST */
