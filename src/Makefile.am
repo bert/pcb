@@ -103,6 +103,8 @@ PCB_SRCS = \
 	mymem.c \
 	mymem.h \
 	netlist.c \
+	object_list.c \
+	object_list.h \
 	parse_l.h \
 	parse_l.l \
 	parse_y.y \
