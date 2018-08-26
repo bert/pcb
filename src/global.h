@@ -70,7 +70,6 @@ typedef struct BoxType BoxType;
 typedef struct polygon_st PolygonType;
 typedef struct pad_st PadType;
 typedef struct pin_st PinType;
-typedef struct drc_violation_st DrcViolationType;
 typedef struct rtree rtree_t;
 typedef struct AttributeListType AttributeListType;
 
@@ -933,19 +932,6 @@ typedef struct
   BoxType *Box;
 } BoxListType;
 
-struct drc_violation_st
-{
-  char *title;
-  char *explanation;
-  Coord x, y;
-  Angle angle;
-  int have_measured;
-  Coord measured_value;
-  Coord required_value;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
-};
 
 /* ---------------------------------------------------------------------------
  * define supported types of undo operations

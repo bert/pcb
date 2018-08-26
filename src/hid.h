@@ -68,6 +68,8 @@
 
 #include <stdarg.h>
 
+#include "drc.h" /* DrcViolationType */
+
 #if defined(__cplusplus) && __cplusplus
 extern "C"
 {
