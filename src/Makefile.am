@@ -219,6 +219,7 @@ pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 TEST_SRCS = \
 	pcb-printf.c	\
+	object_list.c \
 	main-test.c
 
 unittest_CPPFLAGS = -I$(top_srcdir) -DPCB_UNIT_TEST
