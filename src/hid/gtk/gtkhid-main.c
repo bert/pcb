@@ -1340,6 +1340,14 @@ Load (int argc, char **argv, Coord x, Coord y)
   static gchar *current_element_dir = NULL;
   static gchar *current_layout_dir = NULL;
   static gchar *current_netlist_dir = NULL;
+  static gchar *default_dir = NULL;
+
+  if (!default_dir)
+    if(PCB->Filename && *PCB->Filename)
+    {
+      default_dir = strdup(PCB->Filename);
+      *strrchr(default_dir, PCB_DIR_SEPARATOR_C) = 0;
+    }
 
   /* we've been given the file name */
   if (argc > 1)
@@ -1349,43 +1357,27 @@ Load (int argc, char **argv, Coord x, Coord y)
 
   if (strcasecmp (function, "Netlist") == 0)
     {
-	  if (!current_netlist_dir && *PCB->Filename){
-        current_netlist_dir = strdup(PCB->Filename);
-		*strrchr(current_netlist_dir, PCB_DIR_SEPARATOR_C) = 0;
-	  }
       name = ghid_dialog_file_select_open (_("Load netlist file"),
-					   &current_netlist_dir,
-					   Settings.FilePath);
+			   current_netlist_dir ? &current_netlist_dir : &default_dir,
+			   Settings.FilePath);
     }
   else if (strcasecmp (function, "ElementToBuffer") == 0)
     {
-	  if (!current_element_dir && *PCB->Filename){
-        current_element_dir = strdup(PCB->Filename);
-		*strrchr(current_element_dir, PCB_DIR_SEPARATOR_C) = 0;
-	  }	
       name = ghid_dialog_file_select_open (_("Load element to buffer"),
-					   &current_element_dir,
-					   Settings.LibraryTree);
+			   current_element_dir ? &current_element_dir : &default_dir,
+			   Settings.LibraryTree);
     }
   else if (strcasecmp (function, "LayoutToBuffer") == 0)
     {
-   	  if (!current_layout_dir && *PCB->Filename){
-        current_layout_dir = strdup(PCB->Filename);
-		*strrchr(current_layout_dir, PCB_DIR_SEPARATOR_C) = 0;
-	  }
 	  name = ghid_dialog_file_select_open (_("Load layout file to buffer"),
-					   &current_layout_dir,
+			   current_layout_dir ? &current_layout_dir : &default_dir,
 					   Settings.FilePath);
     }
   else if (strcasecmp (function, "Layout") == 0)
     {
-      if (!current_layout_dir && *PCB->Filename){
-        current_layout_dir = strdup(PCB->Filename);
-		*strrchr(current_layout_dir, PCB_DIR_SEPARATOR_C) = 0;
-	  }
 	  name = ghid_dialog_file_select_open (_("Load layout file"),
-					   &current_layout_dir,
-					   Settings.FilePath);
+			   current_layout_dir ? &current_layout_dir : &default_dir,
+			   Settings.FilePath);
     }
 
   if (name)
