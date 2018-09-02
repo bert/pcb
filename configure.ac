@@ -324,6 +324,9 @@ case " $hid_guis no none " in
      * ) AC_MSG_ERROR([$with_gui is not a valid gui]) ;;
 esac
 
+WITHGUI="$with_gui"
+AC_SUBST(WITHGUI)
+
 if test x"$with_gui" = x"none" -o x"$with_gui" = x"no"
 then
     HIDLIST=

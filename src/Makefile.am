@@ -528,10 +528,12 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	pcb_icon.ico \
 	${PCBTEST_BAT}
 
+with_gui= @WITHGUI@
+
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
 	sed -e 's;@BUILDDIR@;${abs_builddir};g' -e 's;@TOP_BUILDDIR@;${abs_top_builddir};g' \
-		-e 's;@TOPSRCDIR@;${abs_top_srcdir};g' \
+		-e 's;@TOPSRCDIR@;${abs_top_srcdir};g' -e 's;WITH_GUI;${with_gui};' \
 		$(srcdir)/pcbtest.sh.in > $@
 	chmod 755 $@
 
