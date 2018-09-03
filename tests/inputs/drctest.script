@@ -1,0 +1,137 @@
+#
+# DRC test script
+#
+# The script saves the pcb to null so that we don't get a "lose changes"
+# message when we try to open the next file.
+
+##
+# Minimum size tests
+## 
+LoadFrom(Layout, drctest-minsize-arcs.pcb)
+DumpFlags("drctest-minsize-arcs-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-arcs.txt")
+DumpFlags("drctest-minsize-arcs-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-minsize-lines.pcb)
+DumpFlags("drctest-minsize-lines-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-lines.txt")
+DumpFlags("drctest-minsize-lines-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-minsize-pads.pcb)
+DumpFlags("drctest-minsize-pads-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-pads.txt")
+DumpFlags("drctest-minsize-pads-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-minsize-pins.pcb)
+DumpFlags("drctest-minsize-pins-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-pins.txt")
+DumpFlags("drctest-minsize-pins-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-minsize-polygons.pcb)
+DumpFlags("drctest-minsize-polygons-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-polygons.txt")
+DumpFlags("drctest-minsize-polygons-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-minsize-vias.pcb)
+DumpFlags("drctest-minsize-vias-flags-before.txt")
+DRC()
+DRCReport("drctest-minsize-vias.txt")
+DumpFlags("drctest-minsize-vias-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+
+##
+# Normal object clearance tests
+## 
+LoadFrom(Layout, drctest-clearance-arcs.pcb)
+DumpFlags("drctest-clearance-arcs-flags-before.txt")
+DRC()
+DRCReport("drctest-clearance-arcs.txt")
+DumpFlags("drctest-clearance-arcs-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-clearance-lines.pcb)
+DumpFlags("drctest-clearance-lines-flags-before.txt")
+DRC()
+DRCReport("drctest-clearance-lines.txt")
+DumpFlags("drctest-clearance-lines-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+#LoadFrom(Layout, drctest-clearance-misc.pcb)
+#DumpFlags("drctest-clearance-misc-flags-before.txt")
+#DRC()
+#DRCReport("drctest-clearance-misc.txt")
+#DumpFlags("drctest-clearance-misc-flags-after.txt")
+#SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-clearance-pads.pcb)
+DumpFlags("drctest-clearance-pads-flags-before.txt")
+DRC()
+DRCReport("drctest-clearance-pads.txt")
+DumpFlags("drctest-clearance-pads-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-clearance-vias.pcb)
+DumpFlags("drctest-clearance-vias-flags-before.txt")
+DRC()
+DRCReport("drctest-clearance-vias.txt")
+DumpFlags("drctest-clearance-vias-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+
+##
+# Polygon clearance tests
+##
+LoadFrom(Layout, drctest-polygonclearance-arcs.pcb)
+DumpFlags("drctest-polygonclearance-arcs-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-arcs.txt")
+DumpFlags("drctest-polygonclearance-arcs-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-polygonclearance-lines.pcb)
+DumpFlags("drctest-polygonclearance-lines-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-lines.txt")
+DumpFlags("drctest-polygonclearance-lines-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-polygonclearance-misc.pcb)
+DumpFlags("drctest-polygonclearance-misc-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-misc.txt")
+DumpFlags("drctest-polygonclearance-misc-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-polygonclearance-pads.pcb)
+DumpFlags("drctest-polygonclearance-pads-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-pads.txt")
+DumpFlags("drctest-polygonclearance-pads-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-polygonclearance-pins.pcb)
+DumpFlags("drctest-polygonclearance-pins-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-pins.txt")
+DumpFlags("drctest-polygonclearance-pins-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+LoadFrom(Layout, drctest-polygonclearance-vias.pcb)
+DumpFlags("drctest-polygonclearance-vias-flags-before.txt")
+DRC()
+DRCReport("drctest-polygonclearance-vias.txt")
+DumpFlags("drctest-polygonclearance-vias-flags-after.txt")
+SaveTo(LayoutAs, "null.pcb")
+
+Quit(force)

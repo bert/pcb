@@ -35,9 +35,28 @@ EXTRA_DIST = \
   inputs/clearance.pcb \
   inputs/default.pcb \
   inputs/fileversion.script \
+  inputs/drctest-clearance-arcs.pcb \
+  inputs/drctest-clearance-lines.pcb \
+  inputs/drctest-clearance-misc.pcb \
+  inputs/drctest-clearance-pads.pcb \
+  inputs/drctest-clearance-vias.pcb \
+  inputs/drctest-minsize-arcs.pcb \
+  inputs/drctest-minsize-lines.pcb \
+  inputs/drctest-minsize-pads.pcb \
+  inputs/drctest-minsize-pins.pcb \
+  inputs/drctest-minsize-polygons.pcb \
+  inputs/drctest-minsize-vias.pcb \
+  inputs/drctest-polygonclearance-arcs.pcb \
+  inputs/drctest-polygonclearance-lines.pcb \
+  inputs/drctest-polygonclearance-misc.pcb \
+  inputs/drctest-polygonclearance-pads.pcb \
+  inputs/drctest-polygonclearance-pins.pcb \
+  inputs/drctest-polygonclearance-vias.pcb \
+  inputs/drctest.script \
   inputs/fileversion-20091103.pcb \
   inputs/fileversion-20100606.pcb \
   inputs/fileversion-20170218.pcb \
+  inputs/fileversion.script \
   inputs/gcode_oneline.pcb \
   inputs/gerber_arcs.pcb \
   inputs/gerber_oneline.pcb \
@@ -79,6 +98,22 @@ EXTRA_DIST = \
   golden/Clearance/clearance.topmask.gbr \
   golden/Clearance/clearance.toppaste.gbr \
   golden/Clearance/clearance.topsilk.gbr \
+  golden/DRCTests/drctest-clearance-arcs.txt \
+  golden/DRCTests/drctest-clearance-lines.txt \
+  golden/DRCTests/drctest-clearance-pads.txt \
+  golden/DRCTests/drctest-clearance-vias.txt \
+  golden/DRCTests/drctest-minsize-arcs.txt \
+  golden/DRCTests/drctest-minsize-lines.txt \
+  golden/DRCTests/drctest-minsize-pads.txt \
+  golden/DRCTests/drctest-minsize-pins.txt \
+  golden/DRCTests/drctest-minsize-polygons.txt \
+  golden/DRCTests/drctest-minsize-vias.txt \
+  golden/DRCTests/drctest-polygonclearance-arcs.txt \
+  golden/DRCTests/drctest-polygonclearance-lines.txt \
+  golden/DRCTests/drctest-polygonclearance-misc.txt \
+  golden/DRCTests/drctest-polygonclearance-pads.txt \
+  golden/DRCTests/drctest-polygonclearance-pins.txt \
+  golden/DRCTests/drctest-polygonclearance-vias.txt \
   golden/FileVersions/fileversion-20091103-out.pcb \
   golden/FileVersions/fileversion-20100606-out.pcb \
   golden/FileVersions/fileversion-20170218-out.pcb \

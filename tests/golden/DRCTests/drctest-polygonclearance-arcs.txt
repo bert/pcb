@@ -1,0 +1,302 @@
+********************************************************************************
+                                  Violation 0
+********************************************************************************
+title: WARNING: DRC doesn't catch everything
+explanation: Detection of outright shorts, missing connections, etc.
+is handled via rat's nest addition.  To catch these problems,
+display the message log using Window->Message Log, then use
+Connects->Optimize rats nest (O hotkey) and watch for messages.
+
+location: (x, y) = (0, 0), angle = 0.000000
+have_measured: true
+measured value: 0
+required value: 0
+object count: 0
+object IDs: 
+object types: 
+
+********************************************************************************
+                                  Violation 1
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5715000, 24765000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6438 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 2
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5715000, 22860000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6439 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 3
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5715000, 20955000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6440 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 4
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5715000, 19050000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6441 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 5
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (18415000, 24765000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6448 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 6
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (18415000, 22860000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6449 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 7
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (18415000, 20955000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6450 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 8
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (18415000, 19050000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6451 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 9
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21564600, 24765000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6458 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21539200, 22860000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6459 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 11
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21513800, 20955000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6460 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21488400, 19050000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6461 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 13
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21463000, 17145000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6462 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 14
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21437600, 15240000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6463 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 15
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21412200, 13335000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6464 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 16
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21386800, 11430000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6465 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 17
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21361400, 9525000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6466 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 18
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21336000, 7620000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6467 
+object types: 16384 
+
+********************************************************************************
+                                  Violation 19
+********************************************************************************
+title: Arc with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31902400, 24765000), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 1
+object IDs: 6477 
+object types: 16384 
+

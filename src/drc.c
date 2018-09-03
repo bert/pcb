@@ -123,11 +123,11 @@ pcb_drc_violation_print(FILE* fp, DrcViolationType * violation)
   fprintf(fp, "measured value: %ld\n", violation->measured_value);
   fprintf(fp, "required value: %ld\n", violation->required_value);
   fprintf(fp, "object count: %d\n", violation->object_count);
-  fprintf(fp, "object IDs:\n");
+  fprintf(fp, "object IDs: ");
   for (i = 0; i < violation->object_count; i++)
     fprintf(fp, "%ld ", violation->object_id_list[i]);
   fprintf(fp, "\n");
-  fprintf(fp, "object types:\n");
+  fprintf(fp, "object types: ");
   for (i = 0; i < violation->object_count; i++)
     fprintf(fp, "%d ", violation->object_type_list[i]);
   fprintf(fp, "\n");
