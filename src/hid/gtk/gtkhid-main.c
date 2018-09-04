@@ -1345,8 +1345,15 @@ Load (int argc, char **argv, Coord x, Coord y)
   if (!default_dir)
     if(PCB->Filename && *PCB->Filename)
     {
+      gchar* pos;
       default_dir = strdup(PCB->Filename);
-      *strrchr(default_dir, PCB_DIR_SEPARATOR_C) = 0;
+      pos = strrchr(default_dir, PCB_DIR_SEPARATOR_C);
+      if (pos != NULL)  *pos = 0;
+	  else
+	  {
+		free(default_dir);
+	    default_dir = NULL;
+      }
     }
 
   /* we've been given the file name */
