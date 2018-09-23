@@ -2736,9 +2736,11 @@ reassign_no_drc_flags (void)
  * \brief Loops till no more connections are found.
  */
 static bool
-DoIt (int flag, bool AndRats, bool AndDraw)
+DoIt (int flag, Coord bloat, bool AndRats, bool AndDraw, bool is_drc)
 {
   bool newone = false;
+  Bloat = bloat;
+  drc = is_drc;
   reassign_no_drc_flags ();
   do
     {
@@ -2786,7 +2788,7 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
             int i;
             if (ADD_PV_TO_LIST (pin, flag))
               return true;
-            DoIt (flag, true, true);
+            DoIt (flag, 0, true, true, false);
             number = PadList[TOP_SIDE].Number
               + PadList[BOTTOM_SIDE].Number + PVList.Number;
             /* the pin has no connection if it's the only
@@ -2830,7 +2832,7 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementType *Element, FILE * FP, int f
         if (ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
                              ? BOTTOM_SIDE : TOP_SIDE, pad, flag))
           return true;
-        DoIt (flag, true, true);
+        DoIt (flag, 0, true, true, false);
         number = PadList[TOP_SIDE].Number
           + PadList[BOTTOM_SIDE].Number + PVList.Number;
         /* the pin has no connection if it's the only
@@ -2922,7 +2924,7 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
       }
     if (ADD_PV_TO_LIST (pin, flag))
       return true;
-    DoIt (flag, true, AndDraw);
+    DoIt (flag, 0, true, AndDraw, false);
     /* printout all found connections */
     PrintPinConnections (FP, true);
     PrintPadConnections (TOP_SIDE, FP, false);
@@ -2947,7 +2949,7 @@ PrintElementConnections (ElementType *Element, FILE * FP, int flag, bool AndDraw
     layer = TEST_FLAG (ONSOLDERFLAG, pad) ? BOTTOM_SIDE : TOP_SIDE;
     if (ADD_PAD_TO_LIST (layer, pad, flag))
       return true;
-    DoIt (flag, true, AndDraw);
+    DoIt (flag, 0, true, AndDraw, false);
     /* print all found connections */
     PrintPadConnections (layer, FP, true);
     PrintPadConnections (layer ==
@@ -3203,7 +3205,7 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
    * This is step (1) from the description
    */
   ListStart (type, ptr1, ptr2, ptr3, flag);
-  DoIt (flag, AndRats, AndDraw);
+  DoIt (flag, 0, AndRats, AndDraw, false);
   if (AndDraw)
     IncrementUndoSerialNumber ();
   User = false;
@@ -3224,9 +3226,7 @@ LookupConnectionByPin (int type, void *ptr1)
   User = 0;
   InitConnectionLookup ();
   ListStart (type, NULL, ptr1, NULL, FOUNDFLAG);
-
-  DoIt (FOUNDFLAG, true, false);
-
+  DoIt (FOUNDFLAG, 0, true, false, false);
   FreeConnectionLookupMemory ();
 }
 
@@ -3242,7 +3242,7 @@ RatFindHook (int type, void *ptr1, void *ptr2, void *ptr3,
   User = undo;
   DumpList ();
   ListStart (type, ptr1, ptr2, ptr3, flag);
-  DoIt (flag, AndRats, false);
+  DoIt (flag, 0, AndRats, false, false);
   User = false;
 }
 
@@ -3320,10 +3320,8 @@ start_do_it_and_dump (int type, void *ptr1, void *ptr2, void *ptr3,
                       int flag, bool AndDraw,
                       Coord bloat, bool is_drc)
 {
-  Bloat = bloat;
-  drc = is_drc;
   ListStart (type, ptr1, ptr2, ptr3, flag);
-  DoIt (flag, true, AndDraw);
+  DoIt (flag, bloat, true, AndDraw, is_drc);
   DumpList ();
 }
 
@@ -3382,9 +3380,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
      * type for each seed object.
      */
     ListStart (What, ptr1, ptr2, ptr3, FOUNDFLAG);
-    Bloat = 0;
-    drc = true; /* abort the search if we find anything not already found */
-    if (DoIt (FOUNDFLAG, true, false))
+    /* The last parameter to DoIt sets the global drc flag. This causes the
+     * search to abort if we find anything not already found */
+    if (DoIt (FOUNDFLAG, 0, true, false, true))
     {
       DumpList ();
       /* make the flag changes undoable */
@@ -3393,7 +3391,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
       User = false;
-      drc = false;
       drcerr_count++;
       LocateError (&x, &y);
       BuildObjectList (&object_count, &object_id_list, &object_type_list);
@@ -3439,12 +3436,10 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, false, 0, false);
   /* Now bloat everything, and find things are connected now that weren't
    * before */
-  Bloat = PCB->Bloat;
   flag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3, flag);
-  drc = true;
   /* Why is this one a "while" when it's an "if" above? */
-  while (DoIt (flag, true, false))
+  while (DoIt (flag, PCB->Bloat, true, false, true))
   {
     DumpList ();
     /* make the flag changes undoable */
@@ -3453,7 +3448,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
     User = false;
-    drc = false;
     drcerr_count++;
     LocateError (&x, &y);
     BuildObjectList (&object_count, &object_id_list, &object_type_list);
@@ -3479,11 +3473,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     /* highlight the rest of the encroaching net so it's not reported again */
     flag = FOUNDFLAG | SELECTEDFLAG;
     start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
-    drc = true;
-    Bloat = PCB->Bloat;
     ListStart (What, ptr1, ptr2, ptr3, flag);
   }
-  drc = false;
   DumpList ();
   ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
   return (false);
