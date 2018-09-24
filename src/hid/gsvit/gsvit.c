@@ -66,6 +66,7 @@
 #include "misc.h"
 #include "rats.h"
 #include "find.h"
+#include "flags.h"
 
 #include "hid.h"
 #include "hid_draw.h"

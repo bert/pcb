@@ -35,6 +35,8 @@
 #ifndef	PCB_FLAGS_H
 #define	PCB_FLAGS_H
 
+#include <stdbool.h>
+
 /*!
  * \brief Nobody should know about the internals of this except the
  * macros below that access it.
@@ -72,5 +74,9 @@ int pcb_flag_eq (FlagType *f1, FlagType *f2);
 //defined in misc.c
 extern int mem_any_set (unsigned char *, int);
 #define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
+
+bool ClearFlagOnLinesAndPolygons (bool, int flag);
+bool ClearFlagOnPinsViasAndPads (bool, int flag);
+bool ClearFlagOnAllObjects (bool, int flag);
 
 #endif  // ifndef PCB_FLAGS_H

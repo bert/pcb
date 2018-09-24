@@ -46,6 +46,7 @@
 #include "data.h"
 #include "drill.h"
 #include "error.h"
+#include "flags.h"
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"

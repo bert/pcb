@@ -55,6 +55,7 @@
 #include "draw.h"
 #include "error.h"
 #include "find.h"
+#include "flags.h"
 #include "misc.h"
 #include "move.h"
 #include "set.h"

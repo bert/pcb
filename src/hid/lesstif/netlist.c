@@ -14,6 +14,7 @@
 #include "data.h"
 
 #include "find.h"
+#include "flags.h"
 #include "rats.h"
 #include "select.h"
 #include "undo.h"

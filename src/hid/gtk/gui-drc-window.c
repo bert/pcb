@@ -32,6 +32,7 @@
 #include "search.h"
 #include "draw.h"
 #include "find.h"
+#include "flags.h"
 #include "pcb-printf.h"
 #include "undo.h"
 #include "set.h"

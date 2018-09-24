@@ -55,6 +55,7 @@
 #include "error.h"
 #include "file.h"
 #include "find.h"
+#include "flags.h"
 #include "misc.h"
 #include "mymem.h"
 #include "polygon.h"

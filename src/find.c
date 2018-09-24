@@ -86,6 +86,7 @@
 #include "draw.h"
 #include "error.h"
 #include "find.h"
+#include "flags.h"
 #include "misc.h"
 #include "rtree.h"
 #include "polygon.h"
@@ -3256,141 +3257,6 @@ LookupUnusedPins (FILE * FP)
   IncrementUndoSerialNumber ();
   User = false;
   Draw ();
-}
-
-/*!
- * \brief Resets all used flags of pins and vias.
- */
-bool
-ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
-{
-  bool change = false;
-
-  VIA_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, via))
-      {
-        if (AndDraw)
-          AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-        CLEAR_FLAG (flag, via);
-        if (AndDraw)
-          DrawVia (via);
-        change = true;
-      }
-  }
-  END_LOOP;
-  ELEMENT_LOOP (PCB->Data);
-  {
-    PIN_LOOP (element);
-    {
-      if (TEST_FLAG (flag, pin))
-        {
-          if (AndDraw)
-            AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-          CLEAR_FLAG (flag, pin);
-          if (AndDraw)
-            DrawPin (pin);
-          change = true;
-        }
-    }
-    END_LOOP;
-    PAD_LOOP (element);
-    {
-      if (TEST_FLAG (flag, pad))
-        {
-          if (AndDraw)
-            AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-          CLEAR_FLAG (flag, pad);
-          if (AndDraw)
-            DrawPad (pad);
-          change = true;
-        }
-    }
-    END_LOOP;
-  }
-  END_LOOP;
-  if (change)
-    SetChangedFlag (true);
-  return change;
-}
-
-/*!
- * \brief Resets all used flags of LOs.
- */
-bool
-ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
-{
-  bool change = false;
-
-  RAT_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, line))
-      {
-        if (AndDraw)
-          AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-        CLEAR_FLAG (flag, line);
-        if (AndDraw)
-          DrawRat (line);
-        change = true;
-      }
-  }
-  END_LOOP;
-  COPPERLINE_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, line))
-      {
-        if (AndDraw)
-          AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-        CLEAR_FLAG (flag, line);
-        if (AndDraw)
-          DrawLine (layer, line);
-        change = true;
-      }
-  }
-  ENDALL_LOOP;
-  COPPERARC_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, arc))
-      {
-        if (AndDraw)
-          AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-        CLEAR_FLAG (flag, arc);
-        if (AndDraw)
-          DrawArc (layer, arc);
-        change = true;
-      }
-  }
-  ENDALL_LOOP;
-  COPPERPOLYGON_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (flag, polygon))
-      {
-        if (AndDraw)
-          AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-        CLEAR_FLAG (flag, polygon);
-        if (AndDraw)
-          DrawPolygon (layer, polygon);
-        change = true;
-      }
-  }
-  ENDALL_LOOP;
-  if (change)
-    SetChangedFlag (true);
-  return change;
-}
-
-/*!
- * \brief Resets all found connections.
- */
-bool
-ClearFlagOnAllObjects (bool AndDraw, int flag)
-{
-  bool change = false;
-
-  change = ClearFlagOnPinsViasAndPads  (AndDraw, flag) || change;
-  change = ClearFlagOnLinesAndPolygons (AndDraw, flag) || change;
-
-  return change;
 }
 
 /*!
