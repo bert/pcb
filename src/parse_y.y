@@ -97,8 +97,11 @@ static int integer_value (PLMeasure m);
 static Coord old_units (PLMeasure m);
 static Coord new_units (PLMeasure m);
 
+/*
 #define YYDEBUG 1
 #define YYERROR_VERBOSE 1
+int yydebug=1;
+*/
 
 #include "parse_y.h"
 
@@ -179,7 +182,7 @@ parsepcb
                 file_type = PCBFILE;
 				if (!yyPCB)
 				{
-					Message(_("illegal fileformat\n"));
+					Message(_("illegal pcb file format\n"));
 					YYABORT;
 				}
 				for (i = 0; i < MAX_ALL_LAYER; i++)
@@ -233,11 +236,20 @@ parsedata
 					 */
 				int	i;
                 file_type = DATAFILE;
-				if (!yyData || !yyFont)
+                /* Loading a footprint file as a layout */
+				if (yyPCB)
+                {
+				    yyFont = &yyPCB->Font;
+				    yyData = yyPCB->Data;
+    				yyData->pcb = yyPCB;
+                }
+                /* e.g. loading data to a buffer */ 
+                else if (!yyData || !yyFont)
 				{
-					Message(_("illegal fileformat\n"));
+					Message(_("PCB data not initialized! Cannot load data file\n"));
 					YYABORT;
 				}
+
 				for (i = 0; i < MAX_ALL_LAYER; i++)
 					LayerFlag[i] = false;
 				yyData->LayerN = 0;
@@ -260,7 +272,7 @@ parsefont
 
 				if (!yyFont)
 				{
-					Message(_("illegal fileformat\n"));
+					Message(_("illegal file format\n"));
 					YYABORT;
 				}
 				yyFont->Valid = false;
