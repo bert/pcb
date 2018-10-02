@@ -1,4 +1,93 @@
 ========================================================================
+Release notes for pcb-4.1.3
+========================================================================
+
+Dear Users,
+
+This is a bug fix release of pcb.
+
+Kind regards,
+
+The pcb development team.
+
+
+Contributors
+------------
+The following authors contributed to the 4.1.3 release:
+- Charles Parker
+- Milan Prochac
+- Bert Timmerman
+
+Please note that names are in no particular order and all e-mail
+addresses have been removed for privacy.
+
+
+User experience improvements
+----------------------------
+- Fixed potential data loss when currently opened PCB file is modified
+  on disk.
+- Blind/Burried vias clear soldermask on layers they don't intersect.
+- Fixed ChangeClearSize() for changing a via's solder mask clearance.
+- Fixed polygon to line separation DRC.
+- Fixed DRC flags lines that are cleared by other objects.
+- Fixed DRC misses lines near polygons if clearance < bloat.
+- Fixed the segfault on picking load netlist menu item.
+
+
+Plugins
+-------
+- none
+
+
+Exporters
+---------
+- none
+
+
+Footprints library
+------------------
+- none
+
+
+Developer experience improvements
+---------------------------------
+- Added file version tests.
+- Fixed some compile warnings.
+- Fixed some Bison warnings.
+
+
+Notes for early adapters
+------------------------
+- none.
+
+
+Changed dependencies
+--------------------
+- none.
+
+
+Fixed and committed Launchpad bug reports
+-----------------------------------------
+#746178   Polygon to line separation DRC wrong.
+#929123   ChangeClearSize() is broken for changing a via's solder mask
+          clearance.
+#1767812  Blind/Burried Vias Clear Soldermask on Layers they Don't
+          Intersect.
+#1773409  File operations, bugs and change requests.
+#1773652  Compile warnings on master.
+#1773852  Potential data loss when currently opened PCB file is modified
+          on disk.
+#1776089  Bison warnings.
+#1780676  pcbtest.sh needs to specify the appropriate menu resource
+          file.
+#1780682  PCBFileVersionNeeded tests features in the wrong order.
+#1782036  DRC flags lines that are cleared by other objects.
+#1782041  DRC misses lines near polygons if clearance < bloat.
+#1788845  Picking load netlist menu item causes segfault.
+#1790649  pcb refuses to load footprint files.
+
+
+========================================================================
 Release notes for pcb-4.1.2
 ========================================================================
 
