@@ -42,7 +42,9 @@
 #include "data.h"
 #include "draw.h"
 #include "pcb-printf.h"
+#include "search.h"
 #include "set.h" /* SetChangedFlag */
+#include "strflags.h"
 #include "undo.h"
 
 #include <glib.h>
@@ -403,6 +405,49 @@ ClearFlagOnAllObjects (bool AndDraw, int flag)
   
   return change;
 }
+
+static const char dump_flags_syntax[] = ("DumpFlags([Output file])");
+static const char dump_flags_help[] = ("Write out a list of objects and their flags.");
+
+static int
+ActionDumpFlags(int argc, char **argv, Coord x, Coord y)
+{
+  int i = -1;
+  bool found_something = false;
+  int type = 0;
+  FILE * fp;
+  void *p1, *p2, *p3, *p;
+
+  if (argc == 1) fp = fopen(argv[0], "w");
+  else fp = stdout;
+
+  while (1){
+    i++;
+    type = SearchObjectByID(PCB->Data, &p1, &p2, &p3, i, ALL_TYPES);
+    if (type == NO_TYPE){
+      /* There's a gap in the ID numbers at the beginning */
+      if (found_something) break;
+      else continue;
+    }
+    found_something = true;
+    /* Points don't use flags (I don't think) */
+    if (type & (LINEPOINT_TYPE | POLYGONPOINT_TYPE)) continue; /*p = p3;*/
+    else if (type && (LINE_TYPE | ARC_TYPE | TEXT_TYPE | POLYGON_TYPE | ELEMENTLINE_TYPE | ELEMENTARC_TYPE | ELEMENTNAME_TYPE | PIN_TYPE | PAD_TYPE)) p = p2;
+    else p = p1;
+    
+    fprintf(fp, "%4d %3d %s\n", i, type,
+            flags_to_string(((AnyObjectType*)p)->Flags, type));
+  }
+  
+  fclose(fp);
+  return 0;
+}
+
+HID_Action flag_action_list[] = {
+  {"DumpFlags", 0, ActionDumpFlags, dump_flags_help, dump_flags_syntax}
+};
+
+REGISTER_ACTIONS (flag_action_list)
 
 
 #define OFFSET_POINTER(a, b) (&(((a *)0)->b))
