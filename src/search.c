@@ -1426,7 +1426,7 @@ SearchObjectByID (DataType *Base,
 		  void **Result1, void **Result2, void **Result3, int ID,
 		  int type)
 {
-  if (type == LINE_TYPE || type == LINEPOINT_TYPE)
+  if (type & (LINE_TYPE | LINEPOINT_TYPE))
     {
       ALLLINE_LOOP (Base);
       {
@@ -1453,7 +1453,7 @@ SearchObjectByID (DataType *Base,
       }
       ENDALL_LOOP;
     }
-  if (type == ARC_TYPE)
+  if (type & ARC_TYPE)
     {
       ALLARC_LOOP (Base);
       {
@@ -1467,7 +1467,7 @@ SearchObjectByID (DataType *Base,
       ENDALL_LOOP;
     }
 
-  if (type == TEXT_TYPE)
+  if (type & TEXT_TYPE)
     {
       ALLTEXT_LOOP (Base);
       {
@@ -1481,7 +1481,7 @@ SearchObjectByID (DataType *Base,
       ENDALL_LOOP;
     }
 
-  if (type == POLYGON_TYPE || type == POLYGONPOINT_TYPE)
+  if (type & (POLYGON_TYPE | POLYGONPOINT_TYPE))
     {
       ALLPOLYGON_LOOP (Base);
       {
@@ -1491,7 +1491,7 @@ SearchObjectByID (DataType *Base,
 	    *Result2 = *Result3 = (void *) polygon;
 	    return (POLYGON_TYPE);
 	  }
-	if (type == POLYGONPOINT_TYPE)
+	if (type & POLYGONPOINT_TYPE)
 	  POLYGONPOINT_LOOP (polygon);
 	{
 	  if (point->ID == ID)
@@ -1506,7 +1506,7 @@ SearchObjectByID (DataType *Base,
       }
       ENDALL_LOOP;
     }
-  if (type == VIA_TYPE)
+  if (type & VIA_TYPE)
     {
       VIA_LOOP (Base);
       {
@@ -1519,7 +1519,7 @@ SearchObjectByID (DataType *Base,
       END_LOOP;
     }
 
-  if (type == RATLINE_TYPE || type == LINEPOINT_TYPE)
+  if (type & (RATLINE_TYPE | LINEPOINT_TYPE))
     {
       RAT_LOOP (Base);
       {
@@ -1546,9 +1546,9 @@ SearchObjectByID (DataType *Base,
       END_LOOP;
     }
 
-  if (type == ELEMENT_TYPE || type == PAD_TYPE || type == PIN_TYPE
-      || type == ELEMENTLINE_TYPE || type == ELEMENTNAME_TYPE
-      || type == ELEMENTARC_TYPE)
+  if (type & (ELEMENT_TYPE | PAD_TYPE | PIN_TYPE
+      | ELEMENTLINE_TYPE | ELEMENTNAME_TYPE
+      | ELEMENTARC_TYPE))
     /* check pins and elementnames too */
     ELEMENT_LOOP (Base);
   {
@@ -1557,7 +1557,7 @@ SearchObjectByID (DataType *Base,
 	*Result1 = *Result2 = *Result3 = (void *) element;
 	return (ELEMENT_TYPE);
       }
-    if (type == ELEMENTLINE_TYPE)
+    if (type & ELEMENTLINE_TYPE)
       ELEMENTLINE_LOOP (element);
     {
       if (line->ID == ID)
@@ -1568,7 +1568,7 @@ SearchObjectByID (DataType *Base,
 	}
     }
     END_LOOP;
-    if (type == ELEMENTARC_TYPE)
+    if (type & ELEMENTARC_TYPE)
       ARC_LOOP (element);
     {
       if (arc->ID == ID)
@@ -1579,7 +1579,7 @@ SearchObjectByID (DataType *Base,
 	}
     }
     END_LOOP;
-    if (type == ELEMENTNAME_TYPE)
+    if (type & ELEMENTNAME_TYPE)
       ELEMENTTEXT_LOOP (element);
     {
       if (text->ID == ID)
@@ -1590,7 +1590,7 @@ SearchObjectByID (DataType *Base,
 	}
     }
     END_LOOP;
-    if (type == PIN_TYPE)
+    if (type & PIN_TYPE)
       PIN_LOOP (element);
     {
       if (pin->ID == ID)
@@ -1601,7 +1601,7 @@ SearchObjectByID (DataType *Base,
 	}
     }
     END_LOOP;
-    if (type == PAD_TYPE)
+    if (type & PAD_TYPE)
       PAD_LOOP (element);
     {
       if (pad->ID == ID)
