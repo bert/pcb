@@ -217,17 +217,36 @@ if test ! -d $OUTDIR ; then
     fi
 fi
 
+if test ! -f ${TESTLIST} ; then
+  echo "ERROR: ($0)  Test list $TESTLIST does not exist"
+  exit 1
+fi
+
+# Read the file, and remove any escaped newlines.
+# Here's the low down on this sed program:
+#   :x             create a label "x"
+#   /\\\\$/        match a "\" at the end of a line
+#   N              add the next line to the buffer
+#   s/\\\\\n/ /g   replace the escaped newlines with spaces
+#   bx             jump back to label "x"
+# 
+TESTFILESTRING=`sed -e':x
+                 /\\\\$/ { N
+                           s/\\\\\n/ /g
+                           bx
+                         }'  $TESTLIST`
+
 if test -z "$all_tests" ; then
-    if test ! -f ${TESTLIST} ; then
-	echo "ERROR: ($0)  Test list $TESTLIST does not exist"
-	exit 1
-    fi
-    all_tests=`${AWK} 'BEGIN{FS="|"} /^#/{next} {print $1}' ${TESTLIST} | sed 's; ;;g'`
+    all_tests=`echo "${TESTFILESTRING}" \
+               | ${AWK} 'BEGIN{FS="|"} /^#/{next} {print $1}'\
+               | sed 's; ;;g'`
 fi
 
 if test -z "${all_tests}" ; then
     echo "$0:  No tests specified"
     exit 0
+else
+    echo "Tests to be executed: ${all_tests}"
 fi
 
 
@@ -691,7 +710,7 @@ compare_pcb() {
 #
 # The main program loop
 #
-
+    
 for t in $all_tests ; do
     show_sep
     echo "Test:  $t"
@@ -711,13 +730,17 @@ for t in $all_tests ; do
 
     # test_name | layout file(s) | [export hid name] | [optional arguments to pcb] |  [mismatch] 
     # | output files
-    name=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $1}'`
-    files=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $2}'`
-    hid=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {gsub(/[ \t]*/, ""); print $3}'`
-    args=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $4}'`
-    mismatch=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {if($5 == "mismatch"){print "yes"}else{print "no"}}'`
-    out_files=`grep "^[ \t]*${t}[ \t]*|" $TESTLIST | $AWK 'BEGIN{FS="|"} {print $6}'`
-   
+    # This string contains the line from the file with the fields for this test
+    TSTR=`echo "${TESTFILESTRING}" | grep "^[ \t]*${t}[ \t]*|"`
+
+    echo ${TSTR}
+    name=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {print $1}'`
+    files=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {print $2}'`
+    hid=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {gsub(/[ \t]*/, ""); print $3}'`
+    args=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {print $4}'`
+    mismatch=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {if($5 == "mismatch"){print "yes"}else{print "no"}}'`
+    out_files=`echo ${TSTR} | $AWK 'BEGIN{FS="|"} {print $6}'`
+
     # strip whitespace from single file names
     while test "X${files# }" != "X${files#}" ; do
 	files="${files# }"
