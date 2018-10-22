@@ -61,7 +61,7 @@
  * Master's thesis, Univ. of California, Santa Cruz, September 1992.
  */
 
-
+#include "flags.h"
 #include "toporouter.h"
 #include "pcb-printf.h"
 

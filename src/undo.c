@@ -65,6 +65,7 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "flags.h"
 #include "insert.h"
 #include "misc.h"
 #include "mirror.h"

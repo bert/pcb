@@ -112,13 +112,6 @@ void AttributeRemoveFromList(AttributeListType *list, char *name);
 /* Simplistic version of Remove.  */
 #define AttributeRemove(OBJ, name) AttributeRemoveFromList (&(OBJ->Attributes), name)
 
-/* For passing modified flags to other functions. */
-FlagType MakeFlags (unsigned int);
-FlagType OldFlags (unsigned int);
-FlagType AddFlags (FlagType, unsigned int);
-FlagType MaskFlags (FlagType, unsigned int);
-#define		NoFlags() MakeFlags(0)
-
 /* Layer Group Functions */
 
 int MoveLayerToGroup (int layer, int group);

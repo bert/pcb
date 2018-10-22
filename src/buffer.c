@@ -47,6 +47,7 @@
 #include "crosshair.h"
 #include "data.h"
 #include "error.h"
+#include "flags.h"
 #include "mymem.h"
 #include "mirror.h"
 #include "misc.h"

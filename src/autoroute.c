@@ -75,6 +75,7 @@
 #include "draw.h"
 #include "error.h"
 #include "find.h"
+#include "flags.h"
 #include "heap.h"
 #include "rtree.h"
 #include "misc.h"

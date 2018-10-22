@@ -46,6 +46,7 @@
 #include "data.h"
 #include "error.h"
 #include "file.h"
+#include "flags.h"
 #include "layerflags.h"
 #include "mymem.h"
 #include "misc.h"

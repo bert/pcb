@@ -36,7 +36,7 @@
 #define	PCB_FLAGS_H
 
 #include <stdbool.h>
-
+#include "globalconst.h"
 /*!
  * \brief Nobody should know about the internals of this except the
  * macros below that access it.
@@ -74,6 +74,13 @@ int pcb_flag_eq (FlagType *f1, FlagType *f2);
 //defined in misc.c
 extern int mem_any_set (unsigned char *, int);
 #define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
+
+/* For passing modified flags to other functions. */
+FlagType MakeFlags (unsigned int);
+FlagType OldFlags (unsigned int);
+FlagType AddFlags (FlagType, unsigned int);
+FlagType MaskFlags (FlagType, unsigned int);
+#define    NoFlags() MakeFlags(0)
 
 bool ClearFlagOnLinesAndPolygons (bool, int flag);
 bool ClearFlagOnPinsViasAndPads (bool, int flag);

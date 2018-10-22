@@ -51,6 +51,7 @@
 #include "error.h"
 #include "file.h"
 #include "find.h"
+#include "flags.h"
 #include "hid.h"
 #include "insert.h"
 #include "line.h"
