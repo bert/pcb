@@ -861,6 +861,14 @@ for t in $all_tests ; do
 	    fn=`echo $f | sed 's;.*:;;g'`
 
 	    case $type in
+        ascii)
+            compare_ascii ${refdir}/${fn} ${rundir}/${fn}
+            ;;
+        diff)
+            fn1=`echo ${fn} | sed 's/;.*//g'`
+            fn2=`echo ${fn} | sed 's/.*;//g'`
+            compare_ascii ${rundir}/${fn1} ${rundir}/${fn2}
+            ;;
 		# BOM HID
 		bom)
 		    compare_bom ${refdir}/${fn} ${rundir}/${fn}
