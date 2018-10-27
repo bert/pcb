@@ -4105,6 +4105,7 @@ DRCAll (void)
       {
         if (line->Thickness < PCB->minSlk)
           {
+            AddObjectToFlagUndoList(LINE_TYPE, layer, line, line);
             SET_FLAG (SELECTEDFLAG, line);
             DrawLine (layer, line);
             drcerr_count++;
@@ -4131,6 +4132,8 @@ DRCAll (void)
                 IsBad = true;
                 break;
               }
+            IncrementUndoSerialNumber ();
+            Undo (false);
           }
       }
       ENDALL_LOOP;
@@ -4155,7 +4158,7 @@ DRCAll (void)
             char *name;
             char *buffer;
             int buflen;
-
+            AddObjectToFlagUndoList(ELEMENT_TYPE, element, element, element);
             SET_FLAG (SELECTEDFLAG, element);
             DrawElement (element);
             drcerr_count++;
@@ -4194,6 +4197,8 @@ DRCAll (void)
                 IsBad = true;
                 break;
               }
+            IncrementUndoSerialNumber ();
+            Undo (false);
           }
       }
       END_LOOP;
