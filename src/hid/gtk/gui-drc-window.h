@@ -27,7 +27,13 @@
 #ifndef PCB_HID_GTK_GUI_DRC_WINDOW_H
 #define PCB_HID_GTK_GUI_DRC_WINDOW_H
 
-
+/*
+ * GhidDrcViolationClass
+ * A GObject based class used for keeping track and displaying DRC violations.
+ *
+ * This is basically just a copy of the structure from find.c/drc.c with an
+ * extra pointer for the image.
+ */
 #define GHID_TYPE_DRC_VIOLATION           (ghid_drc_violation_get_type())
 #define GHID_DRC_VIOLATION(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), GHID_TYPE_DRC_VIOLATION, GhidDrcViolation))
 #define GHID_DRC_VIOLATION_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST ((klass),  GHID_TYPE_DRC_VIOLATION, GhidDrcViolationClass))
@@ -67,6 +73,12 @@ GType ghid_drc_violation_get_type (void);
 GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
 					  GdkDrawable *pixmap);
 
+
+/*
+ * GhidViolationRenderer
+ * A GObject based class for rendering an image of the objects in a DRC
+ * violation.
+ */
 
 #define GHID_TYPE_VIOLATION_RENDERER           (ghid_violation_renderer_get_type())
 #define GHID_VIOLATION_RENDERER(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), GHID_TYPE_VIOLATION_RENDERER, GhidViolationRenderer))
