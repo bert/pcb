@@ -917,7 +917,7 @@ AddNet (void)
   static int ratDrawn = 0;
   char name1[256], *name2;
   Cardinal group1, group2;
-  char ratname[20];
+  char ratname[22];
   int found;
   void *ptr1, *ptr2, *ptr3;
   LibraryMenuType *menu;
