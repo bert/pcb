@@ -246,11 +246,6 @@ static Coord Bloat = 0;
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
 static int thing_type;
 
-/* The only time the User flag is used is to determine if a flag
- * change should be added to the undo list when an object is added
- * to the connectivity list. 
- */
-static bool User = false;    /*!< User action causing this. */
 static bool drc = false;     /*!< Whether to stop if finding something not found. */
 static Cardinal drcerr_count;   /*!< Count of drc errors */
 static Cardinal TotalP, TotalV;
@@ -308,14 +303,10 @@ add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3
 {
   AnyObjectType *object = (AnyObjectType *)ptr2;
 
-  /* If this is user initiated, we want to be able to restore state, so, add
-   * the flag change to the undo list */
-  if (User)
-    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-
   /* Set the appropriate flag to indicate the object appears in one of the
    * lists. This is how we later compare runs.
    */
+  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
   SET_FLAG (flag, object);
 
   /* Add the object to the list. */  
@@ -3046,7 +3037,6 @@ void
 LookupElementConnections (ElementType *Element, FILE * FP)
 {
   /* reset all currently marked connections */
-  User = true;
   ClearFlagOnAllObjects (FOUNDFLAG, true);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, FOUNDFLAG, true);
@@ -3055,7 +3045,6 @@ LookupElementConnections (ElementType *Element, FILE * FP)
     gui->beep ();
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
-  User = false;
   Draw ();
 }
 
@@ -3073,9 +3062,10 @@ LookupElementConnections (ElementType *Element, FILE * FP)
 void
 LookupConnectionsToAllElements (FILE * FP)
 {
+  LockUndo();
   /* reset all currently marked connections */
-  User = false;
   ClearFlagOnAllObjects (FOUNDFLAG, false);
+  
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3091,6 +3081,7 @@ LookupConnectionsToAllElements (FILE * FP)
   if (Settings.RingBellWhenFinished)
     gui->beep ();
   ClearFlagOnAllObjects (FOUNDFLAG, false);
+  UnlockUndo();
   FreeConnectionLookupMemory ();
   Redraw ();
 }
@@ -3211,7 +3202,6 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
   name = ConnectionName (type, ptr1, ptr2);
   hid_actionl ("NetlistShow", name, NULL);
 
-  User = AndDraw;
   InitConnectionLookup ();
 
   /* now add the object to the appropriate list and start scanning
@@ -3219,9 +3209,6 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
    */
   ListStart (type, ptr1, ptr2, ptr3, flag);
   DoIt (flag, 0, AndRats, AndDraw, false);
-  if (AndDraw)
-    IncrementUndoSerialNumber ();
-  User = false;
 
   /* we are done */
   if (AndDraw)
@@ -3236,11 +3223,12 @@ LookupConnectionByPin (int type, void *ptr1)
 {
 /*  int TheFlag = FOUNDFLAG; */
 
-  User = 0;
+  LockUndo();
   InitConnectionLookup ();
   ListStart (type, NULL, ptr1, NULL, FOUNDFLAG);
   DoIt (FOUNDFLAG, 0, true, false, false);
   FreeConnectionLookupMemory ();
+  UnlockUndo();
 }
 
 /*!
@@ -3252,11 +3240,13 @@ void
 RatFindHook (int type, void *ptr1, void *ptr2, void *ptr3,
              bool undo, int flag, bool AndRats)
 {
-  User = undo;
+  if(!undo) LockUndo();
   DumpList ();
   ListStart (type, ptr1, ptr2, ptr3, flag);
   DoIt (flag, 0, AndRats, false, false);
-  User = false;
+  /* This is potentially problematic if there is a higher level function
+   * that has locked the undo system. */
+  UnlockUndo();
 }
 
 /*!
@@ -3266,7 +3256,6 @@ void
 LookupUnusedPins (FILE * FP)
 {
   /* reset all currently marked connections */
-  User = true;
   ClearFlagOnAllObjects (FOUNDFLAG, true);
   InitConnectionLookup ();
 
@@ -3284,7 +3273,6 @@ LookupUnusedPins (FILE * FP)
     gui->beep ();
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
-  User = false;
   Draw ();
 }
 
@@ -3359,6 +3347,12 @@ start_do_it_and_dump (int type, void *ptr1, void *ptr2, void *ptr3,
  * lesstif HID goes through it one violation at a time and throws a dialog
  * box for each violation. This allows the user the opportunity to abort the
  * DRC check at any point. So, we need to behave well in either case.
+ *
+ * This function is entered exclusively from DRCAll. When we enter this
+ * function, DRCAll has already set User = false in order to not add lots of
+ * unnecessary changes to the undo system. To make anything undoable, we have
+ * to unlock it ourselves.
+ *
  */
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
@@ -3406,10 +3400,11 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DumpList ();
       /* make the flag changes undoable */
       ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
-      User = true;
+      UnlockUndo(); /* Was locked when we started by DRCAll */
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
-      User = false;
+      IncrementUndoSerialNumber ();
+      LockUndo(); /* Put it back the way it was. */
       drcerr_count++;
       LocateError (&x, &y);
       BuildObjectList (&object_count, &object_id_list, &object_type_list);
@@ -3431,8 +3426,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       free (object_id_list);
       free (object_type_list);
       if (!throw_drc_dialog())  return (true);
-      IncrementUndoSerialNumber ();
-      Undo (true);
+      //Undo (true);
     }
     DumpList ();
   }
@@ -3463,10 +3457,11 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     DumpList ();
     /* make the flag changes undoable */
     ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
-    User = true;
+    UnlockUndo(); /* Was locked when we started by DRCAll */
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
-    User = false;
+    IncrementUndoSerialNumber ();
+    LockUndo(); /* Put it back the way it was. */
     drcerr_count++;
     LocateError (&x, &y);
     BuildObjectList (&object_count, &object_id_list, &object_type_list);
@@ -3487,8 +3482,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     free (object_id_list);
     free (object_type_list);
     if (!throw_drc_dialog())  return (true);
-    IncrementUndoSerialNumber ();
-    Undo (true);
+    //Undo (true);
     /* highlight the rest of the encroaching net so it's not reported again */
     flag = FOUNDFLAG | SELECTEDFLAG;
     start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
@@ -3696,7 +3690,7 @@ DRCAll (void)
       Draw ();
     }
 
-  User = false;
+  LockUndo(); /* Don't need to add all of these things */
 
   ELEMENT_LOOP (PCB->Data);
   {
@@ -3743,7 +3737,10 @@ DRCAll (void)
   }
   END_LOOP;
 
+  /* We want to leave the found and selected flags set if the user aborted */
   ClearFlagOnAllObjects (IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
+  UnlockUndo();
+  
   info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
   if (!IsBad)
