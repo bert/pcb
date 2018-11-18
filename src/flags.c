@@ -275,7 +275,7 @@ MaskFlags (FlagType flag, unsigned int flags)
  * \brief Resets all used flags of pins and vias.
  */
 bool
-ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
+ClearFlagOnPinsViasAndPads (int flag, bool undoable)
 {
   bool change = false;
   
@@ -283,11 +283,9 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, via))
     {
-      if (AndDraw)
+      if (undoable)
         AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
       CLEAR_FLAG (flag, via);
-      if (AndDraw)
-        DrawVia (via);
       change = true;
     }
   }
@@ -298,11 +296,9 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
     {
       if (TEST_FLAG (flag, pin))
       {
-        if (AndDraw)
+        if (undoable)
           AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
         CLEAR_FLAG (flag, pin);
-        if (AndDraw)
-          DrawPin (pin);
         change = true;
       }
     }
@@ -311,11 +307,9 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
     {
       if (TEST_FLAG (flag, pad))
       {
-        if (AndDraw)
+        if (undoable)
           AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
         CLEAR_FLAG (flag, pad);
-        if (AndDraw)
-          DrawPad (pad);
         change = true;
       }
     }
@@ -331,7 +325,7 @@ ClearFlagOnPinsViasAndPads (bool AndDraw, int flag)
  * \brief Resets all used flags of LOs.
  */
 bool
-ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
+ClearFlagOnLinesAndPolygons (int flag, bool undoable)
 {
   bool change = false;
   
@@ -339,11 +333,9 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, line))
     {
-      if (AndDraw)
+      if (undoable)
         AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
       CLEAR_FLAG (flag, line);
-      if (AndDraw)
-        DrawRat (line);
       change = true;
     }
   }
@@ -352,11 +344,9 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, line))
     {
-      if (AndDraw)
+      if (undoable)
         AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
       CLEAR_FLAG (flag, line);
-      if (AndDraw)
-        DrawLine (layer, line);
       change = true;
     }
   }
@@ -365,11 +355,9 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, arc))
     {
-      if (AndDraw)
+      if (undoable)
         AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
       CLEAR_FLAG (flag, arc);
-      if (AndDraw)
-        DrawArc (layer, arc);
       change = true;
     }
   }
@@ -378,11 +366,9 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
   {
     if (TEST_FLAG (flag, polygon))
     {
-      if (AndDraw)
+      if (undoable)
         AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
       CLEAR_FLAG (flag, polygon);
-      if (AndDraw)
-        DrawPolygon (layer, polygon);
       change = true;
     }
   }
@@ -396,12 +382,12 @@ ClearFlagOnLinesAndPolygons (bool AndDraw, int flag)
  * \brief Resets all found connections.
  */
 bool
-ClearFlagOnAllObjects (bool AndDraw, int flag)
+ClearFlagOnAllObjects (int flag, bool undoable)
 {
   bool change = false;
   
-  change = ClearFlagOnPinsViasAndPads  (AndDraw, flag) || change;
-  change = ClearFlagOnLinesAndPolygons (AndDraw, flag) || change;
+  change = ClearFlagOnPinsViasAndPads  (flag, undoable) || change;
+  change = ClearFlagOnLinesAndPolygons (flag, undoable) || change;
   
   return change;
 }

@@ -426,7 +426,7 @@ gsvit_create_netlist (void)
     /*! \todo Add fancy color attachment here. */
 
     InitConnectionLookup ();
-    ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+    ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
     for (j = PCB->NetlistLib.Menu[i].EntryN, entry = PCB->NetlistLib.Menu[i].Entry; j; j--, entry++)
     { /* For each component (pin/pad) in the net. */
       if (SeekPad(entry, &conn, false))
@@ -440,7 +440,7 @@ gsvit_create_netlist (void)
      */
     gsvit_build_net_from_selected (currNet);
 
-    ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+    ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
     FreeConnectionLookupMemory ();
   }
 

@@ -82,8 +82,8 @@ FlagType AddFlags (FlagType, unsigned int);
 FlagType MaskFlags (FlagType, unsigned int);
 #define    NoFlags() MakeFlags(0)
 
-bool ClearFlagOnLinesAndPolygons (bool, int flag);
-bool ClearFlagOnPinsViasAndPads (bool, int flag);
-bool ClearFlagOnAllObjects (bool, int flag);
+bool ClearFlagOnLinesAndPolygons (int flag, bool undoable);
+bool ClearFlagOnPinsViasAndPads (int flag, bool undoable);
+bool ClearFlagOnAllObjects (int flag, bool undoable);
 
 #endif  // ifndef PCB_FLAGS_H

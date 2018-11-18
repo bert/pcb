@@ -489,8 +489,7 @@ IPCD356_Netlist (void)
   PIN_LOOP (element);
   if (!TEST_FLAG (VISITFLAG, pin))
     {
-      ClearFlagOnLinesAndPolygons (true, FOUNDFLAG);
-      ClearFlagOnPinsViasAndPads (true, FOUNDFLAG);
+      ClearFlagOnAllObjects(FOUNDFLAG, true);
       LookupConnectionByPin (PIN_TYPE, pin);
       sprintf (nodename, "%s-%s", element->Name[1].TextString, pin->Number);
       netname = netnode_to_netname (nodename);
@@ -510,8 +509,7 @@ IPCD356_Netlist (void)
   PAD_LOOP (element);
   if (!TEST_FLAG (VISITFLAG, pad))
     {
-      ClearFlagOnLinesAndPolygons (true, FOUNDFLAG);
-      ClearFlagOnPinsViasAndPads (true, FOUNDFLAG);
+      ClearFlagOnAllObjects(FOUNDFLAG, true);
       LookupConnectionByPin (PAD_TYPE, pad);
       sprintf (nodename, "%s-%s", element->Name[1].TextString, pad->Number);
       netname = netnode_to_netname (nodename);
@@ -534,8 +532,7 @@ IPCD356_Netlist (void)
   VIA_LOOP (PCB->Data);
   if (!TEST_FLAG (VISITFLAG, via))
     {
-      ClearFlagOnLinesAndPolygons (true, FOUNDFLAG);
-      ClearFlagOnPinsViasAndPads (true, FOUNDFLAG);
+      ClearFlagOnAllObjects(FOUNDFLAG, true);
       LookupConnectionByPin (PIN_TYPE, via);
       strcpy (net, "N/C");
       IPCD356_WriteNet (fp, net);
@@ -546,8 +543,7 @@ IPCD356_Netlist (void)
   fclose (fp);
   free (aliaslist);
   ResetVisitPinsViasAndPads ();
-  ClearFlagOnLinesAndPolygons (true, FOUNDFLAG);
-  ClearFlagOnPinsViasAndPads (true, FOUNDFLAG);
+  ClearFlagOnAllObjects(FOUNDFLAG, true);
   return 0;
 }
 

@@ -3047,7 +3047,7 @@ LookupElementConnections (ElementType *Element, FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG, true);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, FOUNDFLAG, true);
   SetChangedFlag (true);
@@ -3067,7 +3067,7 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = false;
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG, false);
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3077,12 +3077,12 @@ LookupConnectionsToAllElements (FILE * FP)
       break;
     SEPARATE (FP);
     if (Settings.ResetAfterElement && n != 1)
-      ClearFlagOnAllObjects (false, FOUNDFLAG);
+      ClearFlagOnAllObjects (FOUNDFLAG, false);
   }
   END_LOOP;
   if (Settings.RingBellWhenFinished)
     gui->beep ();
-  ClearFlagOnAllObjects (false, FOUNDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG, false);
   FreeConnectionLookupMemory ();
   Redraw ();
 }
@@ -3254,7 +3254,7 @@ LookupUnusedPins (FILE * FP)
 {
   /* reset all currently marked connections */
   User = true;
-  ClearFlagOnAllObjects (true, FOUNDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG, true);
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data);
@@ -3386,7 +3386,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     {
       DumpList ();
       /* make the flag changes undoable */
-      ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+      ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
       User = true;
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
       start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
@@ -3424,7 +3424,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
    */
 
   /* Reset all of the flags */
-  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
   /* Set the DRC and SELECTED flags on all objects that overlap with the
    * passed object. Here we do the nominal case first, because it will
    * presumably have fewer objects than the bloated case.
@@ -3443,7 +3443,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   {
     DumpList ();
     /* make the flag changes undoable */
-    ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+    ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
     User = true;
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
     start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
@@ -3476,7 +3476,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     ListStart (What, ptr1, ptr2, ptr3, flag);
   }
   DumpList ();
-  ClearFlagOnAllObjects (false, FOUNDFLAG | SELECTEDFLAG);
+  ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
   return (false);
 }
 
@@ -3671,7 +3671,7 @@ DRCAll (void)
   hid_action ("LayersChanged");
   InitConnectionLookup ();
 
-  if (ClearFlagOnAllObjects (true, FOUNDFLAG | DRCFLAG | SELECTEDFLAG))
+  if (ClearFlagOnAllObjects (FOUNDFLAG | DRCFLAG | SELECTEDFLAG, true))
     {
       IncrementUndoSerialNumber ();
       Draw ();
@@ -3724,7 +3724,7 @@ DRCAll (void)
   }
   END_LOOP;
 
-  ClearFlagOnAllObjects (false, IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG));
+  ClearFlagOnAllObjects (IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
   info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
   if (!IsBad)
