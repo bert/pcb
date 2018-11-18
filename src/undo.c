@@ -1322,8 +1322,10 @@ Redo (bool draw)
 
 /*!
  * \brief Restores the serial number of the undo list.
+ *
+ * Returns the current undo serial number, after the restore.
  */
-void
+int
 RestoreUndoSerialNumber (void)
 {
   if (added_undo_between_increment_and_restore)
@@ -1331,18 +1333,22 @@ RestoreUndoSerialNumber (void)
   between_increment_and_restore = false;
   added_undo_between_increment_and_restore = false;
   Serial = SavedSerial;
+  return Serial;
 }
 
 /*!
  * \brief Saves the serial number of the undo list.
+ *
+ * Returns the current undo serial number.
  */
-void
+int
 SaveUndoSerialNumber (void)
 {
   Bumped = false;
   between_increment_and_restore = false;
   added_undo_between_increment_and_restore = false;
   SavedSerial = Serial;
+  return Serial;
 }
 
 /*!
@@ -1350,8 +1356,10 @@ SaveUndoSerialNumber (void)
  *
  * It's not done automatically because some operations perform more
  * than one request with the same serial #.
+ *
+ * Returns the undo serial number after the increment.
  */
-void
+int
 IncrementUndoSerialNumber (void)
 {
   if (!Locked)
@@ -1362,7 +1370,40 @@ IncrementUndoSerialNumber (void)
       Serial++;
       Bumped = true;
       between_increment_and_restore = true;
+      return Serial;
     }
+  return -1;
+}
+
+/*!
+ * \brief Merge range of undo serial numbers into one.
+ *
+ * The purpose of this is to combine multiple undo operations into a
+ * single one.
+ *
+ * Any undo operation that has a serial number inclusively in the
+ * range (min, max) gets reassigned the number min. Everything > max is
+ * shifted down so that the serial numbers remain contiguous.
+ *
+ * This should not interfere with operations that have added things to the
+ * undo list but not yet incremented the serial number.
+ *
+ * Returns the current undo serial number, after the operations.
+ */
+int
+MergeUndoSerialRange(int min, int max)
+{
+  size_t n;
+  int dsn = max - min; /* delta serial number */
+  for(n = 0; n < UndoN; n++)
+  {
+    if (UndoList[n].Serial < min) continue;
+    else if (UndoList[n].Serial <= max) UndoList[n].Serial = min;
+    /* greater than max */
+    else UndoList[n].Serial -= dsn;
+  }
+  Serial -= dsn;
+  return Serial;
 }
 
 /*!

@@ -45,9 +45,10 @@
 
 int Undo (bool);
 int Redo (bool);
-void IncrementUndoSerialNumber (void);
-void SaveUndoSerialNumber (void);
-void RestoreUndoSerialNumber (void);
+int IncrementUndoSerialNumber (void);
+int SaveUndoSerialNumber (void);
+int RestoreUndoSerialNumber (void);
+int MergeUndoSerialRange (int, int);
 void ClearUndoList (bool);
 void MoveObjectToRemoveUndoList (int, void *, void *, void *);
 void AddObjectToRemovePointUndoList (int, void *, void *, Cardinal);
