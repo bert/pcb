@@ -3061,6 +3061,14 @@ LookupElementConnections (ElementType *Element, FILE * FP)
 
 /*!
  * \brief Find all connections to pins of all element.
+ *
+ * This is called by an action to write out a list of all of the pins and
+ * pads connected to each pin/pad of every element on the board. Kind of
+ * an element oriented netlist.
+ *
+ * Since this runs to completion without any user interaction, and should
+ * leave the database in the same state it was found, there's no reason to
+ * add all of the overhead of making everything undo-able.
  */
 void
 LookupConnectionsToAllElements (FILE * FP)
@@ -3156,12 +3164,10 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3, int flag)
 
 
 /*!
- * \brief Looks up all connections from the object at the given
- * coordinates the TheFlag (normally 'FOUNDFLAG') is set for all objects
- * found.
+ * \brief Set the specified flag on all objects that touch the object at
+ * the given coordinates.
  *
- * The objects are re-drawn if AndDraw is true, also the action is
- * marked as undoable if AndDraw is true.
+ * The objects are re-drawn if AndDraw is true.
  */
 void
 LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
@@ -3175,6 +3181,9 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
 
 	reassign_no_drc_flags ();
 
+  /* LOOKUP_FIRST = PIN_TYPE | PAD_TYPE */
+  /* LOOKUP_MORE = Vias, lines, ratlines, polygons, arcs */
+  /* SILK_TYPE = lines, arcs, polygons */
   type
     = SearchObjectByLocation (LOOKUP_FIRST, &ptr1, &ptr2, &ptr3, X, Y, Range);
   if (type == NO_TYPE)
@@ -3195,6 +3204,10 @@ LookupConnection (Coord X, Coord Y, bool AndDraw, Coord Range, int flag,
         }
     }
 
+  /* If the netlist window is open, this will highlight the entry
+   * corresponding to net of the pin or pad we just found. It does not open
+   * the window it is closed.
+   */
   name = ConnectionName (type, ptr1, ptr2);
   hid_actionl ("NetlistShow", name, NULL);
 
@@ -3340,6 +3353,12 @@ start_do_it_and_dump (int type, void *ptr1, void *ptr2, void *ptr3,
  * (increase the value of Bloat) and check again. If any object encountered
  * the second time doesn't have the SELECTEDFLAG set, then it's a new object
  * that is violating the DRC rule.
+ *
+ * Note: The gtk and lesstif HIDs use this a little differently. The gtk hid
+ * builds a list of all the violations and presents it to the user. The
+ * lesstif HID goes through it one violation at a time and throws a dialog
+ * box for each violation. This allows the user the opportunity to abort the
+ * DRC check at any point. So, we need to behave well in either case.
  */
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
