@@ -9,8 +9,9 @@ pcblibdir=	@PCBLIBDIR@
 
 AUTOMAKE_OPTIONS = subdir-objects
 HIDLIST = @HIDLIST@
-noinst_LIBRARIES = @HIDLIBS@
+noinst_LIBRARIES = @HIDLIBS@ libdrc.a
 EXTRA_LIBRARIES = \
+	libdrc.a \
 	libgtk.a liblesstif.a libbatch.a \
 	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a \
 	libgcode.a libipcd356.a libgsvit.a
@@ -58,8 +59,6 @@ PCB_SRCS = \
 	dolists.h \
 	draw.c \
 	draw.h \
-	drc.c \
-	drc.h \
 	drill.c \
 	drill.h \
 	edif.y \
@@ -169,6 +168,8 @@ PCB_SRCS = \
 	hid/common/hid_resource.h \
 	hid/hidint.h 
 
+LIST_SRCS = ${PCB_SRCS}
+
 EXTRA_pcb_SOURCES = ${DBUS_SRCS} ${GL_SRCS} toporouter.c toporouter.h
 DBUS_SRCS= \
 	dbus-pcbmain.c \
@@ -206,8 +207,8 @@ BUILT_SOURCES = \
 	res_parse.h \
 	hid/common/hidlist.h
 
-pcb_LDADD = @HIDLIBS@
-pcb_DEPENDENCIES = @HIDLIBS@
+pcb_LDADD = @HIDLIBS@ libdrc.a
+pcb_DEPENDENCIES = @HIDLIBS@ libdrc.a
 
 if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
@@ -230,11 +231,6 @@ check_PROGRAMS = unittest
 check_SCRIPTS = unittest
 TESTS = unittest
 
-# Action, Attribute, and Flag lists.
-core_lists.h : ${PCB_SRCS} Makefile
-	true > $@
-	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
-	mv $@.tmp $@
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
@@ -298,6 +294,20 @@ gpcb-menu.h : gpcb-menu.res
 	mv -f $@ ${srcdir}/$@ || true
 
 check-local: gpcb-menu.res.h pcb-menu.res.h
+
+libdrc_a_CPPFLAGS = -I$(top_srcdir) -I./drc
+LIBDRC_SRCS = drc/drc.h drc/drc.c \
+			  drc/drc_violation.h drc/drc_violation.c \
+			  drc/drc_object.h
+libdrc_a_SOURCES = ${LIBDRC_SRCS} 
+
+LIST_SRCS += ${LIBDRC_SRCS}
+
+# Action, Attribute, and Flag lists.
+core_lists.h : ${LIST_SRCS} Makefile
+	true > $@
+	(for f in ${LIST_SRCS}; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
 
 hid/common/hidlist.h : Makefile
 	$(MKDIR_P) hid/common

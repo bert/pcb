@@ -1,7 +1,7 @@
 /*!
- * \file src/drc.c
+ * \file src/drc_violation.c
  *
- * \brief DRC related structures and functions
+ * \brief Class for storing data about DRC violations
  *
  * <hr>
  *
@@ -33,16 +33,13 @@
 #endif
 
 #include "global.h" /* Coord */
-#include "drc.h"
+#include "drc_violation.h"
 
-#include "data.h" /* Settings and PCB structures */
-#include "error.h" /* Message */
-#include "find.h" /* DRCAll ... for now */
-#include "object_list.h"
-#include "pcb-printf.h"
 
-/* This list keeps track of DRCViolations */
-object_list * drc_violation_list = 0;
+/* ----------------------------------------------------------------------- *
+ * DRC Violation Type
+ * ----------------------------------------------------------------------- */
+
 
 DrcViolationType *
 pcb_drc_violation_new (const char *title,
@@ -135,87 +132,4 @@ pcb_drc_violation_print(FILE* fp, DrcViolationType * violation)
     fprintf(fp, "%d ", violation->object_type_list[i]);
   fprintf(fp, "\n");
 }
-
-static const char drc_report_syntax[] = N_("DRCReport([Output file])");
-static const char drc_report_help[] = 
-            N_("Write the DRC violation data from the last DRC to a file.");
-/* ----------------------------------------------------------------------- *
- * Actions
- * ----------------------------------------------------------------------- */
-
-static const char drc_syntax[] = N_("DRC()");
-
-static const char drc_help[] = N_("Invoke the DRC check.");
-
-/* %start-doc actions DRC
- 
- Note that the design rule check uses the current board rule settings,
- not the current style settings.
- 
- %end-doc */
-
-static int
-ActionDRCheck (int argc, char **argv, Coord x, Coord y)
-{
-  int count;
-  
-  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
-  {
-    Message (_("%m+Rules are minspace %$mS, minoverlap %$mS "
-               "minwidth %$mS, minsilk %$mS\n"
-               "min drill %$mS, min annular ring %$mS\n"),
-             Settings.grid_unit->allow,
-             PCB->Bloat, PCB->Shrink,
-             PCB->minWid, PCB->minSlk,
-             PCB->minDrill, PCB->minRing);
-  }
-  count = DRCAll ();
-  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
-  {
-    if (count == 0)
-      Message (_("No DRC problems found.\n"));
-    else if (count > 0)
-      Message (_("Found %d design rule errors.\n"), count);
-    else
-      Message (_("Aborted DRC after %d design rule errors.\n"), -count);
-  }
-  return 0;
-}
-
-static int
-ActionDRCReport (int argc, char **argv, Coord x, Coord y)
-{
-  int i=0, len=0;
-  FILE * fp;
-  char starliner[81];
-  char buffer[80];
-  
-  if (!drc_violation_list)
-  {
-	Message("DRCReport: Must run DRC check first.\n");
-	return 0;
-  }
-
-  memset(starliner, '*', 80);
-  starliner[80] = '\0';
-  if (argc == 1) fp = fopen(argv[0], "w");
-  else fp = stdout;
-  
-  for (i=0; i < drc_violation_list->count; i++){
-    len = sprintf(buffer, "Violation %d", i);
-    fprintf(fp, "%s\n%*s\n%s\n", starliner, 40+len/2, buffer, starliner);
-    pcb_drc_violation_print(fp,
-           (DrcViolationType*) object_list_get_item(drc_violation_list,i));
-    fprintf(fp, "\n");
-  }
-  if (argc == 1) fclose(fp);
-  return 0;
-}
-
-HID_Action drc_action_list[] = {
-  {"DRC", 0, ActionDRCheck, drc_help, drc_syntax},
-  {"DRCReport", 0, ActionDRCReport, drc_report_help, drc_report_syntax},
-};
-
-REGISTER_ACTIONS (drc_action_list)
 

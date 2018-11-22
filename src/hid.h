@@ -68,7 +68,7 @@
 
 #include <stdarg.h>
 
-#include "drc.h" /* DrcViolationType */
+#include "drc/drc_violation.h" /* DrcViolationType */
 
 #if defined(__cplusplus) && __cplusplus
 extern "C"

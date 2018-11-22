@@ -56,7 +56,17 @@ void LookupUnusedPins (FILE *);
 void InitConnectionLookup (void);
 void FreeConnectionLookupMemory (void);
 void RatFindHook (int, void *, void *, void *, bool, int flag, bool);
-int DRCAll (void);
 void LookupConnectionByPin (int , void *);
+
+/* remove these prototypes later */
+bool ListStart(int, void*, void*, void*, int);
+bool DoIt(int, Coord, bool, bool, bool);
+void DumpList(void);
+void start_do_it_and_dump(int, void*, void*, void*, int, bool, Coord, bool);
+
+bool IsArcInPolygon (ArcType *, PolygonType *);
+bool IsLineInPolygon (LineType *, PolygonType *);
+bool IsPadInPolygon (PadType *, PolygonType *);
+bool IsPolygonInPolygon (PolygonType *, PolygonType *);
 
 #endif

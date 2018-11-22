@@ -8,7 +8,8 @@ src/buffer.c
 src/change.c
 src/create.c
 src/crosshair.c
-src/drc.c
+src/drc/drc.c
+src/drc/drc_violation.c
 src/edif.y
 src/error.c
 src/file.c

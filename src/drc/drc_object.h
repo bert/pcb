@@ -1,7 +1,7 @@
 /*!
- * \file src/drc.h
+ * \file src/drc_object.h
  *
- * \brief DRC related structures and functions
+ * \brief A data structure that contains info about an object found by the DRC.
  *
  * <hr>
  *
@@ -25,35 +25,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef PCB_DRC_H
-#define PCB_DRC_H
+#ifndef PCB_DRC_OBJECT_H
+#define PCB_DRC_OBJECT_H
 
-#include "object_list.h"
+ 
+/*
+ * DRCObject
+ *
+ * An object identified by the DRC. 
+ *
+ */
+typedef struct drc_object_st {
+  long int id;
+  int type;
+  void *ptr1, *ptr2, *ptr3;
+} DRCObject;
 
-typedef struct drc_violation_st
-{
-  char *title;
-  char *explanation;
-  Coord x, y;
-  Angle angle;
-  int have_measured;
-  Coord measured_value;
-  Coord required_value;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
-} DrcViolationType;
-
-/* This list keeps track of DRCViolations */
-extern object_list * drc_violation_list;
-extern object_operations drc_violation_ops;
-
-DrcViolationType * pcb_drc_violation_new (
-		const char *title, const char *explanation,
-        Coord x, Coord y, Angle angle,                
-		bool have_measured,
-		Coord measured_value, Coord required_value,
-		int object_count, long int *object_id_list, int *object_type_list);
-void pcb_drc_violation_free (DrcViolationType *violation);
-
-#endif /* PCB_DRC_H */
+#endif /* PCB_DRC_OBJECT_H */
