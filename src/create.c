@@ -45,6 +45,7 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "hid.h" /* REGISTER_ACTIONS */
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
@@ -1071,3 +1072,48 @@ CreateNewAttribute (AttributeListType *list, char *name, char *value)
   list->Number++;
   return &list->List[list->Number - 1];
 }
+
+/*
+ * Actions
+ */
+
+#define ARG(n) (argc > (n) ? argv[n] : NULL)
+
+static const char create_via_syntax[] =
+N_("CreateVia(x,y,[unit])\n");
+
+static const char create_via_help[] =
+N_("Add a via to the board.");
+
+static int
+create_via_action(int argc, char **argv, Coord x, Coord y)
+{
+  char *x_str = ARG (0);
+  char *y_str = ARG (1);
+  char *units = ARG (2);
+  Coord nx, ny;
+  bool absolute1, absolute2;
+  PinType *via;
+  
+  ny = GetValue (y_str, units, &absolute1);
+  nx = GetValue (x_str, units, &absolute2);
+  
+  if (!absolute1 || !absolute2) {
+    Message(
+            "CreateVia action does not currently support relative placements.\n");
+  }
+  
+  via = CreateNewVia(PCB->Data, nx, ny, Settings.ViaThickness,
+                     2*Settings.Keepaway, Settings.ViaMaskAperture,
+                     Settings.ViaDrillingHole, NULL, NoFlags());
+  
+  return via->ID;
+}
+
+static HID_Action create_action_list[] =
+{
+  {"CreateVia", NULL, create_via_action,
+    create_via_help, create_via_syntax}
+};
+
+REGISTER_ACTIONS (create_action_list)
