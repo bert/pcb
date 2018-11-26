@@ -1028,10 +1028,11 @@ ParseRouteString (char *s, RouteStyleType *routeStyle, const char *default_unit)
   
   Coord *style_items[5];
 
-  memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   style = 0;
   while (style < NUM_STYLES)
     {
+      // Clear any existing data
+      memset (routeStyle, 0, sizeof (RouteStyleType));
       // Extract the name
       while (*s && isspace ((int) *s))  s++;
       // this will break for style names greater than 256 characters
