@@ -360,3 +360,70 @@ SetLocalRef (Coord X, Coord Y, bool Showing)
       notify_mark_change (true);
     }
 }
+
+/*
+ * Actions
+ */
+
+#define ARG(n) (argc > (n) ? argv[n] : NULL)
+
+/* %start-doc actions SetupRouteStyle
+ 
+ Sets the parameters of a route style.
+ 
+ TODO: Doesn't currently update the GUI widgets.
+ 
+ %end-doc */
+
+static const char setup_route_style_syntax[] =
+N_("SetupRouteStyle(num, style_string)\n"
+   "SetupRouteStyle(num, name, thickness, diameter, drill, keepaway, mask, units)\n");
+
+static const char setup_route_style_help[] =
+N_("Setup the routing style using the given parameters. Parameters can be "
+   "either a style string, or the values themselves.");
+
+static int
+setup_route_style_action (int argc, char **argv, Coord x, Coord y)
+{
+  char *nstyle = ARG (0);
+  char *name = ARG (1);
+  char *thickness = ARG (2);
+  char *diameter = ARG(3);
+  char *drill = ARG(4);
+  char *keepaway = ARG(5);
+  char *mask_aperture = ARG(6);
+  char *units = ARG(7);
+  
+  int n;
+  
+  bool absolute;
+  
+  n = atoi(nstyle);
+  
+  if (argc > 2)
+  {
+    /* we got the datams as parameters */
+    free(PCB->RouteStyle[n].Name);
+    PCB->RouteStyle[n].Name = strdup(name);
+    PCB->RouteStyle[n].Thick = GetValue(thickness, units, &absolute);
+    PCB->RouteStyle[n].Diameter = GetValue(diameter, units, &absolute);
+    PCB->RouteStyle[n].Hole = GetValue(drill, units, &absolute);
+    PCB->RouteStyle[n].Keepaway = GetValue(keepaway, units, &absolute);
+    PCB->RouteStyle[n].ViaMask = GetValue(mask_aperture, units, &absolute);
+  }
+  else
+  {
+    ParseRouteString(name, &PCB->RouteStyle[n], "mm");
+  }
+  hid_action ("RouteStylesChanged");
+  return 0;
+}
+
+static HID_Action set_action_list[] =
+{
+  {"SetupRouteStyle", NULL, setup_route_style_action,
+    setup_route_style_help, setup_route_style_syntax}
+};
+
+REGISTER_ACTIONS (set_action_list)
