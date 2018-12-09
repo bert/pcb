@@ -502,6 +502,7 @@ typedef struct
   Coord Thick; /*!< Line thickness. */
   Coord Diameter; /*!< Via diameter. */
   Coord Hole; /*!< Via drill hole. */
+  Coord ViaMask; /*!< Solder mask clearance. */
   Coord Keepaway; /*!< Min. separation from other nets. */
   char *Name;
   int index;
@@ -758,6 +759,7 @@ typedef struct
     *MaskColor; /*!< Mask color. */
   Coord ViaThickness, /*!< Default via thickness value. */
     ViaDrillingHole, /*!< Default via drill hole value. */
+    ViaMaskAperture, /*!< Default solder mask aperture value. */
     LineThickness, /*!< Default line thickness value. */
     RatThickness, /*!< Default rat thickness value. */
     Keepaway, /*!< Default keepaway value. */

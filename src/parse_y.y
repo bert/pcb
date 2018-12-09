@@ -676,6 +676,9 @@ Copper diameter of pins and vias.
 Drill diameter of pins and vias.
 @item Keepaway
 Minimum spacing to other nets.  If omitted, 10 mils is the default.
+@item Via Mask Aperture (optional)
+The diameter of the solder mask opening around vias. A value of 0 produces a
+tented via. This parameter is omitted if 0 for backwards compatibility.
 
 @end table
 
@@ -685,7 +688,7 @@ Minimum spacing to other nets.  If omitted, 10 mils is the default.
 Current syntax example:
 
 @example
-Styles["Logic,1000,3600,2000,1000:Power,2500,6000,3500,1000:
+Styles["Logic,1000,3600,2000,1000,0:Power,2500,6000,3500,1000,70mil:
 @ @ @ Line,4000,6000,3500,1000:Breakout,600,2402,1181,600"]
 @end example
 

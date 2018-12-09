@@ -60,6 +60,7 @@ EXTRA_DIST = \
   inputs/minmaskgap.pcb \
   inputs/minmaskgap.script \
   inputs/nelma_board.pcb \
+  inputs/routestyles.script \
   golden/ChangeClearSize-Sel/clearance-min.pcb \
   golden/ChangeClearSize-Sel/clearance-non-zero.pcb \
   golden/ChangeClearSize-Sel/clearance-zero.pcb \
@@ -183,7 +184,12 @@ EXTRA_DIST = \
   golden/hid_png3/gerber_oneline.png \
   golden/hid_ps1/circles.ps \
   golden/hid_ps2/buried.ps \
-  golden/MinMaskGap/minmaskgap.pcb
+  golden/MinMaskGap/minmaskgap.pcb \
+  golden/RouteStyles/mixed-apertures-load.pcb \
+  golden/RouteStyles/mixed-apertures-save.pcb \
+  golden/RouteStyles/non-zero-apertures-save.pcb \
+  golden/RouteStyles/zero-apertures-load.pcb \
+  golden/RouteStyles/zero-apertures-save.pcb
 
 .PHONY: missing_test
 missing_test:

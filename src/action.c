@@ -1038,7 +1038,7 @@ NotifyMode (void)
 	  }
 	if ((via = CreateNewVia (PCB->Data, Note.X, Note.Y,
 				 Settings.ViaThickness, 2 * Settings.Keepaway,
-				 0, Settings.ViaDrillingHole, NULL,
+				 Settings.ViaMaskAperture, Settings.ViaDrillingHole, NULL,
 				 NoFlags ())) != NULL)
 	  {
 	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
@@ -1319,7 +1319,7 @@ NotifyMode (void)
 				    Crosshair.AttachedLine.Point1.X,
 				    Crosshair.AttachedLine.Point1.Y,
 				    Settings.ViaThickness,
-				    2 * Settings.Keepaway, 0,
+				    2 * Settings.Keepaway, Settings.ViaMaskAperture,
 				    Settings.ViaDrillingHole, NULL,
 				    NoFlags (), layer_from, layer_to)) != NULL)
 		{
@@ -6565,6 +6565,7 @@ ActionRouteStyle (int argc, char **argv, Coord x, Coord y)
 	  SetViaSize (rts->Diameter, true);
 	  SetViaDrillingHole (rts->Hole, true);
 	  SetKeepawayWidth (rts->Keepaway);
+    SetViaMaskAperture(rts->ViaMask);
 	  hid_action("RouteStylesChanged");
 	}
     }

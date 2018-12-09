@@ -1,0 +1,133 @@
+#
+# Route Styles Tests
+#
+# Things to test:
+#  * Generation of new route strings (with mask apertures)
+#  * Generation of old route strings (without mask apertures)
+#  * Parsing of new route strings
+#  * Parsing of old route strings
+#  * File version is bumped if there are new route strings
+#  * File version is not bumped if all route strings are old
+#
+# TODO:
+#  * Lines and arcs
+#
+# Presently, we have no way through this interface of testing the
+# integration with the guis, so, that will have to be tested by hand.
+#
+
+# Turn on the solder mask
+Display(ToggleMask)
+
+#
+# This first set of tests addresses the generation of route strings. 
+#
+# The first tests saves a file that have all 0 mask aperture (old format). This
+# should save with the old file version, and be backwards compatible. 
+#
+
+#               #         name, line width, via dia., drill, keepaway, mask
+SetupRouteStyle(0, "Newstyle0",      10mil,    20mil, 10mil,    10mil, 0mil)
+SetupRouteStyle(1, "Newstyle1",      20mil,    30mil, 20mil,    20mil, 0mil)
+SetupRouteStyle(2, "Newstyle2",      30mil,    40mil, 30mil,    30mil, 0mil)
+SetupRouteStyle(3, "Newstyle3",      40mil,    50mil, 40mil,    40mil, 0mil)
+
+RouteStyle(1)
+CreateVia(100, 100, mil)
+RouteStyle(2)
+CreateVia(200, 100, mil)
+RouteStyle(3)
+CreateVia(300, 100, mil)
+RouteStyle(4)
+CreateVia(400, 100, mil)
+
+# This should save a pcb file in the old format.
+SaveTo(LayoutAs, zero-apertures-save.pcb)
+
+#
+# The second test saves a file with all styles having a non-zero mask
+# aperture. These should all save with the new style string format and the
+# file version bump.
+#
+
+#               #         name, line width, via dia., drill, keepaway, mask
+SetupRouteStyle(0, "Newstyle4",      10mil,    20mil, 10mil,    10mil, 30mil)
+SetupRouteStyle(1, "Newstyle5",      20mil,    30mil, 20mil,    20mil, 40mil)
+SetupRouteStyle(2, "Newstyle6",      30mil,    40mil, 30mil,    30mil, 50mil)
+SetupRouteStyle(3, "Newstyle7",      40mil,    50mil, 40mil,    40mil, 60mil)
+
+RouteStyle(1)
+CreateVia(100, 200, mil)
+RouteStyle(2)
+CreateVia(200, 200, mil)
+RouteStyle(3)
+CreateVia(300, 200, mil)
+RouteStyle(4)
+CreateVia(400, 200, mil)
+
+# This should save a pcb file with new style strings, and bump the file version.
+SaveTo(LayoutAs, non-zero-apertures-save.pcb)
+
+#
+# The third test saves a pcb that has some non-zero mask apertures and some
+# zero mask apertures. This should save with two old style strings, two new
+# style strings, and the file version bumped.
+#
+
+SetupRouteStyle(2, "Newstyle8",      30mil,    40mil, 30mil,    30mil, 0mil)
+SetupRouteStyle(3, "Newstyle9",      40mil,    50mil, 40mil,    40mil, 0mil)
+
+RouteStyle(1)
+CreateVia(100, 300, mil)
+RouteStyle(2)
+CreateVia(200, 300, mil)
+RouteStyle(3)
+CreateVia(300, 300, mil)
+RouteStyle(4)
+CreateVia(400, 300, mil)
+
+
+# This should save a pcb file with two new strings and two old strings.
+SaveTo(LayoutAs, mixed-apertures-save.pcb)
+
+#
+# The next set of tests test the loading the route strings from pcb files.
+#
+
+#
+# First, load the old format. Add some vias to demonstrate the route styles
+# that were loaded.
+#
+
+LoadFrom(Layout, zero-apertures-save.pcb)
+
+RouteStyle(1)
+CreateVia(100, 200, mil)
+RouteStyle(2)
+CreateVia(200, 200, mil)
+RouteStyle(3)
+CreateVia(300, 200, mil)
+RouteStyle(4)
+CreateVia(400, 200, mil)
+
+SaveTo(LayoutAs, zero-apertures-load.pcb)
+
+#
+# Now load a new style one. We'll load the mixed one since that covers both
+# cases.
+#
+
+LoadFrom(Layout, mixed-apertures-save.pcb)
+
+RouteStyle(1)
+CreateVia(100, 400, mil)
+RouteStyle(2)
+CreateVia(200, 400, mil)
+RouteStyle(3)
+CreateVia(300, 400, mil)
+RouteStyle(4)
+CreateVia(400, 400, mil)
+
+SaveTo(LayoutAs, mixed-apertures-load.pcb)
+
+Quit()

@@ -328,3 +328,5 @@ ChangeClearSize-Sel | changeclearsize-sel.script clearance.pcb | action | | | pc
 
 # Check that the presence of features causes the correct version to be written to the file header. 
 FileVersions | fileversion.script fileversion-20091103.pcb fileversion-20100606.pcb fileversion-20170218.pcb | action | | | pcb:fileversion-20091103-out.pcb pcb:fileversion-20100606-out.pcb pcb:fileversion-20170218-out.pcb
+
+RouteStyles | routestyles.script | action | --default-PCB-width 1000mil --default-PCB-height 1000mil| | pcb:zero-apertures-save.pcb pcb:non-zero-apertures-save.pcb pcb:mixed-apertures-save.pcb pcb:zero-apertures-load.pcb pcb:mixed-apertures-load.pcb
