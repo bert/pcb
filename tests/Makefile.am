@@ -33,6 +33,7 @@ EXTRA_DIST = \
   inputs/changeclearsize-sel.script \
   inputs/circles.pcb \
   inputs/clearance.pcb \
+  inputs/default.pcb \
   inputs/fileversion.script \
   inputs/fileversion-20091103.pcb \
   inputs/fileversion-20100606.pcb \

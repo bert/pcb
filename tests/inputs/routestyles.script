@@ -9,12 +9,61 @@
 #  * File version is bumped if there are new route strings
 #  * File version is not bumped if all route strings are old
 #
+#  This test produces 5 output files:
+#    * zero-apertures-save.pcb:
+#      This file tests that we can save files in the old format correctly if
+#      all of the mask aperture parameters are zeroed out.
+#      Evaluation criteria:
+#        1. This file should contain four tented (SM aperture = 0) vias of
+#           different sizes (see below)
+#        2. The file version should be 20091103.
+#        3. The route styles should be Newstyle0 .. Newstyle3.
+#        4. All route styles should have 4 parameters.
+#
+#    * non-zero-apertures-save.pcb
+#      This file tests that we can save files in the new format. (It may be
+#      unnecessary, as I think the mixed cases covers this)
+#      Evaluation criteria:
+#        1. This file should contain four tented vias, and four clear vias
+#        2. The file version should be 20180318
+#        3. The route styles should be Newstyle4 .. Newstyle7.
+#        4. All route styles should have 5 parameters.
+#
+#    * mixed-apertures-save.pcb
+#      This file tests that we can save files with mixed formats.
+#      Evaluation criteria:
+#        1. The file should have three rows of four vias. The first row should
+#           be tented, the second row should be clear, and the third row
+#           should have two clear, and two tented.
+#        2. The file version should be 20180318
+#        3. The route styles should be Newstyle[4,5,8,9]
+#        4. Styles 4 and 5 should have 5 paramters, styles 8 and 9 should have
+#           4 parameters.
+#
+#    * zero-apertures-load.pcb
+#      This file checks that we were able to load a file with the old
+#      format.
+#      1. The file should have two rows of 4 vias, all vias should be
+#         tented.
+#
+#    * mixed-apertures-load.pcb
+#      This file checks that we were able to load a file with both the new 
+#      format strings and the old format strings.
+#      1. The file should have four rows of four vias. The first row should
+#         be tented, the second should be clear, the third and fourth should
+#         both have two clear and two tented.
+#
 # TODO:
 #  * Lines and arcs
+#  * Include polygons for testing keep away
 #
 # Presently, we have no way through this interface of testing the
 # integration with the guis, so, that will have to be tested by hand.
 #
+
+# Start with the default pcb to prevent user preferences from sneaking into
+# the tests.
+LoadFrom(Layout, default.pcb)
 
 # Turn on the solder mask
 Display(ToggleMask)
