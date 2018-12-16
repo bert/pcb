@@ -1979,6 +1979,7 @@ select the desired exporter.
 * nelma::              Nelma.
 * gsvit::              gsvit.
 * ipc-d-356::          IPC-D-356.
+* shopper::            pcbshopper.com RFQ.
 @end menu
 
 @node bom
@@ -2155,6 +2156,13 @@ http://gsvit.net.
 @cindex ipc-d-356
 
 Produces an IPC-D-356 compliant netlist file for bare board testing.
+
+@node shopper
+@subsection pcbshopper.com RFQ.
+@cindex shopper
+@cindex rfq export
+
+Produces a Request For Quotation and sends it to pcbshopper.com.
 
 
 @node Connection Lists
