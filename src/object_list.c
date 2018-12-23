@@ -221,21 +221,62 @@ void clear_somestruct(void * a)
   aa->n = 0;
 }
 
+int compare_somestructs(void *a, void *b)
+{
+  somestruct *aa = (somestruct*)a, *bb = (somestruct*)b;
+  if(strncmp(aa->string, bb->string, 16) != 0) return -1;
+  if(aa->n != bb->n) return  1;
+  return 0;
+}
+
 object_operations somestruct_opts = {
   .copy_object = &copy_somestruct,
-  .clear_object = &clear_somestruct
+  .clear_object = &clear_somestruct,
+  .compare_objects = &compare_somestructs
 };
 
+/*
 #define check_item(item, n) \
           g_assert_cmpmem(&item, ss_size, object_list_get_item(list, n), ss_size);
+*/
+
+#define check_item(item, n) \
+          g_assert_cmpint(\
+              compare_somestructs(&item, object_list_get_item(list, n)), \
+              ==, 0);
 
 void object_list_test(void)
 {
   int ss_size = sizeof(somestruct);
   somestruct a={"A", 1}, b={"B", 2}, c={"C", 3}, 
 			 d={"D", 4}, e={"E", 5}, f={"F", 6};
+  somestruct x={"X", 24}, y={"Y", 25}, z={"Z", 26};
   object_list * list;
- 
+
+  /*
+   * First test our operations to make sure they work as advertised.
+   */
+
+  /* test clearing */
+  clear_somestruct(&z);
+  g_assert_cmpint(z.n, ==, 0);
+  g_assert_cmpint(strlen(z.string), ==, 0);
+
+  /* test copying */
+  copy_somestruct(&z, &y);
+  g_assert_cmpint(z.n, ==, y.n);
+  g_assert_cmpint(strncmp(z.string, y.string, 16), ==, 0);
+
+  /* test comparing */
+  /* should be equal by previous test */
+  g_assert_cmpint(compare_somestructs(&y, &z), ==, 0);
+  /* should be unequal */
+  g_assert_cmpint(compare_somestructs(&x, &z), !=, 0);
+
+  /*
+   * Okay, the operations are good to go. Now onto the object_list stuff.
+   */
+
   list = object_list_new(2, ss_size);
   g_assert_cmpint(list->size, ==, 2);
   g_assert_cmpint(list->count, ==, 0);

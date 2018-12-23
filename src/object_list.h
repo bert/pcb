@@ -44,6 +44,25 @@
  * functions, as these are used to make the list's copy of the object and move
  * its copies around.
  *
+ * To do:
+ *  * Allow the list to store objects anywhere instead of forcing a
+ *    contiguous memory allocation. 
+ * 
+ *    The list would store pointers to the objects which could reside
+ *    anywhere in memory. This would remove a lot of the reallocating of
+ *    memory since we'd basically have a list of pointers, which are much
+ *    smaller.
+ *
+ *    This should be an option that can be specified, but not required.
+ *
+ *  * Allow the list to take ownership of objects.
+ *
+ *    The list would not allocate memory and copy the object in this case,
+ *    but it would free the objects memory when removed from the list. 
+ *
+ *    A fun case would be the mixed case in which the list owned some objects 
+ *    but not others. Let's not go there for a while.
+ *
  */
 
 #ifndef object_list_h
@@ -61,11 +80,19 @@ typedef struct object_operations
    * needs to make a copy of those also.
    */
   void (*copy_object)(void * a, void * b);
+
   /* Clear an object.
    * This doesn't free the memory for the object itself, but, it should free any
    * memory that the object owns.
    */
   void (*clear_object)(void * a);
+
+  /* Compare objects
+   * Return 0 if the objects are "equal", < 0 if the first object is "less"
+   * than the second object and > 0 if the first object is "greater" than
+   * the second object.
+   */
+  int (*compare_objects)(void *a, void *b);
 } object_operations;
 
 /* Object list structure
