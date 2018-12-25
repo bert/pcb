@@ -109,12 +109,19 @@ typedef struct object_list
 } object_list;
 
 /*
- * Functions that change the properties of the list
+ * Constructors, destructors, etc.
  */
 /* Create a new object list with n items of size item_size */
 object_list * object_list_new(int n, unsigned item_size);
+/* Copy constructor, copies data too. */
+object_list * object_list_duplicate(object_list * list);
 /* Delete an object list */
 void object_list_delete(object_list * list);
+
+
+/*
+ * Functions that change the list itself
+ */
 /* Delete the data in an object list */
 int object_list_clear(object_list * list);
 /* Make the object list bigger by n items */

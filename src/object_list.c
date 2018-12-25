@@ -57,6 +57,20 @@ object_list * object_list_new(int n, unsigned item_size)
   return list;
 }
 
+object_list * object_list_duplicate(object_list * list)
+{
+  object_list * new_list;
+  int i;
+
+  /* can't duplicate a null pointer*/
+  if (!list) return 0;
+
+  new_list = object_list_new(list->size, list->item_size);
+  for (i=0; i< list->count; i++) 
+    object_list_append(new_list, object_list_get_item(list, i));
+  return new_list;
+}
+
 void object_list_delete(object_list * list)
 {
   object_list_clear(list);
@@ -240,9 +254,9 @@ object_operations somestruct_opts = {
           g_assert_cmpmem(&item, ss_size, object_list_get_item(list, n), ss_size);
 */
 
-#define check_item(item, n) \
+#define check_item(l, item, n) \
           g_assert_cmpint(\
-              compare_somestructs(&item, object_list_get_item(list, n)), \
+              compare_somestructs(&item, object_list_get_item(l, n)), \
               ==, 0);
 
 void object_list_test(void)
@@ -251,7 +265,7 @@ void object_list_test(void)
   somestruct a={"A", 1}, b={"B", 2}, c={"C", 3}, 
 			 d={"D", 4}, e={"E", 5}, f={"F", 6};
   somestruct x={"X", 24}, y={"Y", 25}, z={"Z", 26};
-  object_list * list;
+  object_list *list, *dup_list;
 
   /*
    * First test our operations to make sure they work as advertised.
@@ -285,13 +299,31 @@ void object_list_test(void)
    */
   
   /*
+   * Duplicate a null pointer
+   */
+  g_assert_cmpint(object_list_duplicate(0), ==, 0);
+
+  /*
+   * Duplicating an empty list
+   */
+  dup_list = object_list_duplicate(list);
+  g_assert_cmpint(dup_list->size, ==, 2);
+  g_assert_cmpint(dup_list->count, ==, 0);
+  g_assert_cmpint(dup_list->item_size, ==, sizeof(somestruct));
+
+  /*
+   * Delete an empty list
+   */
+  object_list_delete(dup_list);
+
+  /*
    * Insertion tests
    */
   
   /* Appending object 'c' to list */
   object_list_append(list, &c);
   /* 0: c, 1: (null) */
-  check_item(c, 0);
+  check_item(list, c, 0);
   /* Keeping this long form as a reminder of how it's done */
   //g_assert_cmpmem(&c, ss_size, object_list_get_item(list, 0), ss_size);
   g_assert_cmpint(list->size, ==, 2);
@@ -300,50 +332,70 @@ void object_list_test(void)
   /* Inserting object 'a' at position 0 (initial position) */
   object_list_insert(list, 0, &a);
   /* 0: a, 1: c */
-  check_item(a, 0);
-  check_item(c, 1);
+  check_item(list, a, 0);
+  check_item(list, c, 1);
   g_assert_cmpint(list->size, ==, 2);
   g_assert_cmpint(list->count, ==, 2);
  
   /* Inserting object 'd' at position 2 (append position) */
   object_list_insert(list, 2, &d);
   /* 0: a, 1: c, 2: d */
-  check_item(a, 0);
-  check_item(c, 1);
-  check_item(d, 2);
+  check_item(list, a, 0);
+  check_item(list, c, 1);
+  check_item(list, d, 2);
   g_assert_cmpint(list->size, ==, 3);
   g_assert_cmpint(list->count, ==, 3);
 
   /* Inserting object 'b' at position 1 (middle position) */
   object_list_insert(list, 1, &b);
   /* 0: a, 1: b, 2: c, 3: d */
-  check_item(a, 0);
-  check_item(b, 1);
-  check_item(c, 2);
-  check_item(d, 3);
+  check_item(list, a, 0);
+  check_item(list, b, 1);
+  check_item(list, c, 2);
+  check_item(list, d, 3);
   g_assert_cmpint(list->size, ==, 4);
   g_assert_cmpint(list->count, ==, 4);
  
   /* Inserting object 'f' at position 5 (past list, fails) */
   object_list_insert(list, 5, &f);
   /* 0: a, 1: b, 2: c, 3: d */
-  check_item(a, 0);
-  check_item(b, 1);
-  check_item(c, 2);
-  check_item(d, 3);
+  check_item(list, a, 0);
+  check_item(list, b, 1);
+  check_item(list, c, 2);
+  check_item(list, d, 3);
   g_assert_cmpint(list->size, ==, 4);
   g_assert_cmpint(list->count, ==, 4);
 
   /* Appending object 'e' and expanding */
   object_list_append(list, &e);
   /* 0: a, 1: b, 2: c, 3: d, 4: e*/
-  check_item(a, 0);
-  check_item(b, 1);
-  check_item(c, 2);
-  check_item(d, 3);
-  check_item(e, 4);
+  check_item(list, a, 0);
+  check_item(list, b, 1);
+  check_item(list, c, 2);
+  check_item(list, d, 3);
+  check_item(list, e, 4);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 5);
+
+  /*
+   * Duplicate a list with stuff in it
+   */ 
+
+  dup_list = object_list_duplicate(list);
+  /* 0: a, 1: b, 2: c, 3: d, 4: e*/
+  check_item(dup_list, a, 0);
+  check_item(dup_list, b, 1);
+  check_item(dup_list, c, 2);
+  check_item(dup_list, d, 3);
+  check_item(dup_list, e, 4);
+  g_assert_cmpint(dup_list->size, ==, 5);
+  g_assert_cmpint(dup_list->count, ==, 5);
+
+  /*
+   * Delete a list with stuff in it
+   */
+
+  object_list_delete(dup_list);
 
   /*
    * Removal tests
@@ -352,35 +404,35 @@ void object_list_test(void)
   /* Removing object at position 0 (initial position) */
   object_list_remove(list, 0);
   /* 0: b, 1: c, 2: d, 3: e, 4: (null) */
-  check_item(b, 0);
-  check_item(c, 1);
-  check_item(d, 2);
-  check_item(e, 3);
+  check_item(list, b, 0);
+  check_item(list, c, 1);
+  check_item(list, d, 2);
+  check_item(list, e, 3);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 4);
 
   /* Removing object at position 1 (middle position) */
   object_list_remove(list, 1);
   /* 0: b, 1: d, 2: e, 3: (null), 4: (null) */
-  check_item(b, 0);
-  check_item(d, 1);
-  check_item(e, 2);
+  check_item(list, b, 0);
+  check_item(list, d, 1);
+  check_item(list, e, 2);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 3);
 
   /* Removing object at position 2 (final position) */
   object_list_remove(list, 2);
   /* 0: b, 1: d, 2: (null), 3: (null), 4: (null) */
-  check_item(b, 0);
-  check_item(d, 1);
+  check_item(list, b, 0);
+  check_item(list, d, 1);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 2);
 
   /* Removing object at position 2 (no item) */
   object_list_remove(list, 2);
   /* 0: b, 1: d, 2: (null), 3: (null), 4: (null) */
-  check_item(b, 0);
-  check_item(d, 1);
+  check_item(list, b, 0);
+  check_item(list, d, 1);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 2);
 
@@ -400,9 +452,9 @@ void object_list_test(void)
   object_list_insert(list, 0, &a);
   object_list_insert(list, 1, &b);
   /* 0: a, 1: b, 2: c, 3: (null), 4: (null) */
-  check_item(a, 0);
-  check_item(b, 1);
-  check_item(c, 2);
+  check_item(list, a, 0);
+  check_item(list, b, 1);
+  check_item(list, c, 2);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 3);
   
@@ -413,8 +465,8 @@ void object_list_test(void)
    * belonged to me. */
   object_list_remove(list, 1);
   /* 0: a, 1: c, 2: (null), 3: (null), 4: (null) */
-  check_item(a, 0);
-  check_item(c, 1);
+  check_item(list, a, 0);
+  check_item(list, c, 1);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 2);
 
