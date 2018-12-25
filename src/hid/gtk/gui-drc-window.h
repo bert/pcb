@@ -27,6 +27,8 @@
 #ifndef PCB_HID_GTK_GUI_DRC_WINDOW_H
 #define PCB_HID_GTK_GUI_DRC_WINDOW_H
 
+#include "drc/drc_violation.h"
+
 /*
  * GhidDrcViolationClass
  * A GObject based class used for keeping track and displaying DRC violations.
@@ -52,18 +54,7 @@ struct _GhidDrcViolationClass
 struct _GhidDrcViolation
 {
   GObject parent_instance;
-
-  char *title;
-  char *explanation;
-  Coord x_coord;
-  Coord y_coord;
-  Angle angle;
-  bool have_measured;
-  Coord measured_value;
-  Coord required_value;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
+  DrcViolationType * v;
   GdkDrawable *pixmap;
 };
 

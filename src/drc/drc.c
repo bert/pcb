@@ -34,6 +34,8 @@
 
 #include "global.h" /* Coord */
 #include "drc.h"
+#include "drc_violation.h"
+#include "drc_object.h"
 
 #include "data.h" /* Settings and PCB structures */
 #include "draw.h" /* Drawing functions */
@@ -62,6 +64,16 @@ SetThing (int type, void *ptr1, void *ptr2, void *ptr3)
   thing_ptr3 = ptr3;
   thing_type = type;
   return true;
+}
+
+void 
+copy_thing_into_drcobject (DRCObject * obj)
+{
+  obj->ptr1 = thing_ptr1;
+  obj->ptr2 = thing_ptr2;
+  obj->ptr3 = thing_ptr3;
+  obj->type = thing_type;
+  obj->id = ((AnyObjectType *)thing_ptr3)->ID;
 }
 
 static Cardinal drcerr_count;   /*!< Count of drc errors */
@@ -147,6 +159,26 @@ throw_drc_dialog(void)
 }
 
 /*!
+ * \brief Present a dialog box to show the user a DRC violation
+ */
+static int
+pcb_drc_violation_prompt (DrcViolationType *violation)
+{
+  int r;
+  reset_drc_dialog_message();
+  append_drc_dialog_message ("%s\n", violation->title);
+  append_drc_dialog_message (_("%m+near %$mD\n"),
+                             Settings.grid_unit->allow,
+                             violation->x, violation->y);
+
+  CenterDisplay (violation->x, violation->y, true);
+  append_drc_dialog_message (DRC_CONTINUE);
+  r = gui->confirm_dialog (drc_dialog_message->str, DRC_CANCEL, DRC_NEXT);
+
+  return r;
+}
+
+/*!
  * \brief Locate the coordinatates of offending item (thing).
  */
 static void
@@ -212,43 +244,6 @@ struct drc_info
 };
 
 /*!
- * \brief Build a list of the of offending items by ID.
- *
- * (Currently just "thing").
- */
-static void
-BuildObjectList (int *object_count, long int **object_id_list, int **object_type_list)
-{
-  *object_count = 0;
-  *object_id_list = NULL;
-  *object_type_list = NULL;
-  
-  switch (thing_type)
-  {
-    case LINE_TYPE:
-    case ARC_TYPE:
-    case POLYGON_TYPE:
-    case PIN_TYPE:
-    case VIA_TYPE:
-    case PAD_TYPE:
-    case ELEMENT_TYPE:
-    case RATLINE_TYPE:
-      *object_count = 1;
-      *object_id_list = (long int *)malloc (sizeof (long int));
-      *object_type_list = (int *)malloc (sizeof (int));
-      **object_id_list = ((AnyObjectType *)thing_ptr3)->ID;
-      **object_type_list = thing_type;
-      return;
-      
-    default:
-      fprintf (stderr,
-               _("Internal error in BuildObjectList: unknown object type %i\n"),
-               thing_type);
-  }
-}
-
-
-/*!
  * \brief Center the display to show the offending item (thing).
  */
 static void
@@ -302,11 +297,10 @@ static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
   Coord x, y;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
   DrcViolationType *violation;
   int flag;
+  DRCObject obj;
+  object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   
   if (PCB->Shrink != 0)
   {
@@ -351,7 +345,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       LockUndo(); /* Put it back the way it was. */
       drcerr_count++;
       LocateError (&x, &y);
-      BuildObjectList (&object_count, &object_id_list, &object_type_list);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
       violation = pcb_drc_violation_new (
         _("Potential for broken trace"),
         _("Insufficient overlap between objects can lead to broken "
@@ -362,11 +358,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
         FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
         0,     /* MAGNITUDE OF ERROR UNKNOWN */
         PCB->Shrink,
-        object_count, object_id_list, object_type_list);
+        vobjs);
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
-      free (object_id_list);
-      free (object_type_list);
       if (!throw_drc_dialog())  return (true);
       //Undo (true);
     }
@@ -406,7 +400,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     LockUndo(); /* Put it back the way it was. */
     drcerr_count++;
     LocateError (&x, &y);
-    BuildObjectList (&object_count, &object_id_list, &object_type_list);
+    object_list_clear(vobjs);
+    copy_thing_into_drcobject(&obj);
+    object_list_append(vobjs, &obj);
     violation = pcb_drc_violation_new (
       _("Copper areas too close"),
       _("Circuits that are too close may bridge during imaging, etching,"
@@ -416,11 +412,9 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
       0,     /* MAGNITUDE OF ERROR UNKNOWN */
       PCB->Bloat,
-      object_count, object_id_list, object_type_list);
+      vobjs);
     append_drc_violation (violation);
     pcb_drc_violation_free (violation);
-    free (object_id_list);
-    free (object_type_list);
     if (!throw_drc_dialog())  return (true);
     //Undo (true);
     /* highlight the rest of the encroaching net so it's not reported again */
@@ -430,6 +424,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   }
   DumpList ();
   ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
+  object_list_delete(vobjs);
   return (false);
 }
 
@@ -450,9 +445,8 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   struct drc_info *i = (struct drc_info *) userdata;
   char *message;
   Coord x, y;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
+  DRCObject obj;
+  object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
   
   LineType *line = (LineType *) ptr2;
@@ -543,7 +537,9 @@ doIsBad:
   DrawObject (type, ptr1, ptr2);
   drcerr_count++;
   LocateError (&x, &y);
-  BuildObjectList (&object_count, &object_id_list, &object_type_list);
+  object_list_clear(vobjs);
+  copy_thing_into_drcobject(&obj);
+  object_list_append(vobjs, &obj);
   violation = pcb_drc_violation_new (message,
     _("Circuits that are too close may bridge during imaging, etching,\n"
       "plating, or soldering processes resulting in a direct short."),
@@ -552,12 +548,12 @@ doIsBad:
       FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
       0,     /* MAGNITUDE OF ERROR UNKNOWN */
       PCB->Bloat,
-      object_count, object_id_list, object_type_list);
+      vobjs);
   append_drc_violation (violation);
   pcb_drc_violation_free (violation);
-  free (object_id_list);
-  free (object_type_list);
   
+  object_list_delete(vobjs);
+
   if (!throw_drc_dialog())
     return 1;
   
@@ -575,9 +571,9 @@ int
 DRCAll (void)
 {
   Coord x, y;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
+  DRCObject obj;
+  /* violating object list */
+  object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
   int tmpcnt;
   int nopastecnt = 0;
@@ -602,7 +598,7 @@ DRCAll (void)
         "display the message log using Window->Message Log, then use\n"
         "Connects->Optimize rats nest (O hotkey) and watch for messages.\n"),
       /* All remaining arguments are not relevant to this application.  */
-        0, 0, 0, TRUE, 0, 0, 0, NULL, NULL);
+        0, 0, 0, TRUE, 0, 0, 0);
   append_drc_violation (violation);
   pcb_drc_violation_free (violation);
   if (!throw_drc_dialog())  return (true);
@@ -712,7 +708,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (LINE_TYPE, layer, line, line);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Line width is too thin"),
           _("Process specifications dictate a minimum feature-width\n"
@@ -722,11 +720,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           line->Thickness,
           PCB->minWid,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -755,7 +751,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (ARC_TYPE, layer, arc, arc);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Arc width is too thin"),
           _("Process specifications dictate a minimum feature-width\n"
@@ -765,11 +763,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           arc->Thickness,
           PCB->minWid,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -799,7 +795,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (PIN_TYPE, element, pin, pin);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj); 
         violation = pcb_drc_violation_new (
           _("Pin annular ring too small"),
           _("Annular rings that are too small may erode during etching,\n"
@@ -809,11 +807,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           (pin->Thickness - pin->DrillingHole) / 2,
           PCB->minRing,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -830,7 +826,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (PIN_TYPE, element, pin, pin);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj); 
         violation = pcb_drc_violation_new (
           _("Pin drill size is too small"),
           _("Process rules dictate the minimum drill size which can be "
@@ -840,11 +838,9 @@ DRCAll (void)
          TRUE, /* MEASUREMENT OF ERROR KNOWN */
          pin->DrillingHole,
          PCB->minDrill,
-         object_count, object_id_list, object_type_list);
+         vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -873,7 +869,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (PAD_TYPE, element, pad, pad);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Pad is too thin"),
           _("Pads which are too thin may erode during etching,\n"
@@ -883,11 +881,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           pad->Thickness,
           PCB->minWid,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -917,7 +913,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (VIA_TYPE, via, via, via);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Via annular ring too small"),
           _("Annular rings that are too small may erode during etching,\n"
@@ -927,11 +925,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           (via->Thickness - via->DrillingHole) / 2,
           PCB->minRing,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -948,7 +944,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (VIA_TYPE, via, via, via);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Via drill size is too small"),
           _("Process rules dictate the minimum drill size which can "
@@ -958,11 +956,9 @@ DRCAll (void)
             TRUE, /* MEASUREMENT OF ERROR KNOWN */
             via->DrillingHole,
             PCB->minDrill,
-            object_count, object_id_list, object_type_list);
+            vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -991,7 +987,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (LINE_TYPE, layer, line, line);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         violation = pcb_drc_violation_new (
           _("Silk line is too thin"),
           _("Process specifications dictate a minimum silkscreen\n"
@@ -1001,11 +999,9 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           line->Thickness,
           PCB->minSlk,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -1043,7 +1039,9 @@ DRCAll (void)
         drcerr_count++;
         SetThing (ELEMENT_TYPE, element, element, element);
         LocateError (&x, &y);
-        BuildObjectList (&object_count, &object_id_list, &object_type_list);
+        object_list_clear(vobjs);
+        copy_thing_into_drcobject(&obj);
+        object_list_append(vobjs, &obj);
         title = _("Element %s has %i silk lines which are too thin");
         name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
         
@@ -1062,12 +1060,10 @@ DRCAll (void)
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
           PCB->minSlk,
-          object_count, object_id_list, object_type_list);
+          vobjs);
         free (buffer);
         append_drc_violation (violation);
         pcb_drc_violation_free (violation);
-        free (object_id_list);
-        free (object_type_list);
         if (!throw_drc_dialog())
         {
           IsBad = true;
@@ -1097,6 +1093,7 @@ DRCAll (void)
                        "Warning: %d pads have the nopaste flag set.\n",
                        nopastecnt), nopastecnt);
   }
+  object_list_delete(vobjs);
   return IsBad ? -drcerr_count : drcerr_count;
 }
 
@@ -1178,9 +1175,34 @@ ActionDRCReport (int argc, char **argv, Coord x, Coord y)
   return 0;
 }
 
+static const char drc_review_syntax[] = N_("DRCReview()");
+static const char drc_review_help[] =
+N_("Iterate through the list of DRC violations and present them.");
+
+static int
+ActionDRCReview (int argc, char **argv, Coord x, Coord y)
+{
+  int i=0, cont=0;
+  
+  if (!drc_violation_list)
+  {
+  Message("DRCReview: Must run DRC check first.\n");
+  return 0;
+  }
+
+  for (i=0; i < drc_violation_list->count; i++){
+    cont = pcb_drc_violation_prompt(
+            (DrcViolationType*) object_list_get_item(drc_violation_list,i));
+    if (!cont) break;
+  }
+  return 0;
+}
+
+
 HID_Action drc_action_list[] = {
   {"DRC", 0, ActionDRCheck, drc_help, drc_syntax},
   {"DRCReport", 0, ActionDRCReport, drc_report_help, drc_report_syntax},
+  {"DRCReview", 0, ActionDRCReview, drc_review_help, drc_review_syntax},
 };
 
 REGISTER_ACTIONS (drc_action_list)

@@ -34,12 +34,20 @@
 
 #include "global.h" /* Coord */
 #include "drc_violation.h"
+#include "drc_object.h"
+
+#include "data.h" /* PCB structure */
+#include "error.h" /* Message */
+#include "flags.h" /* SET_FLAG */
+#include "misc.h" /* ChangeGroupVisibility*/
+#include "search.h" /* SearchObjectByID */
+#include "set.h" /* SetChangedFlag */
+#include "undo.h" /* AddObjectToFlagUndoList */
 
 
 /* ----------------------------------------------------------------------- *
  * DRC Violation Type
  * ----------------------------------------------------------------------- */
-
 
 DrcViolationType *
 pcb_drc_violation_new (const char *title,
@@ -49,9 +57,7 @@ pcb_drc_violation_new (const char *title,
                         bool have_measured,
                         Coord measured_value,
                         Coord required_value,
-                        int object_count,
-                        long int *object_id_list,
-                        int *object_type_list)
+                        object_list * objects)
 {
   DrcViolationType *violation = (DrcViolationType *)malloc (sizeof (DrcViolationType));
 
@@ -63,19 +69,11 @@ pcb_drc_violation_new (const char *title,
   violation->have_measured = have_measured;
   violation->measured_value = measured_value;
   violation->required_value = required_value;
-  violation->object_count = object_count;
-  violation->object_id_list = object_id_list;
-  violation->object_type_list = object_type_list;
-
+  if (objects)
+    violation->objects = object_list_duplicate(objects);
+  else
+    violation->objects = object_list_new(2, sizeof(DrcViolationType));
   return violation;
-}
-
-void
-pcb_drc_violation_free (DrcViolationType *violation)
-{
-  free (violation->title);
-  free (violation->explanation);
-  free (violation);
 }
 
 void
@@ -84,8 +82,7 @@ pcb_drc_violation_clear (void * v)
   DrcViolationType * violation = (DrcViolationType *) v;
   free (violation->title);
   free (violation->explanation);
-  free (violation->object_id_list);
-  free (violation->object_type_list);
+  if (violation->objects) object_list_delete(violation->objects);
 }
 
 void pcb_drc_violation_copy(void * d, void * s)
@@ -95,13 +92,7 @@ void pcb_drc_violation_copy(void * d, void * s)
   memcpy(dest, src, sizeof(DrcViolationType));
   dest->title = strdup(src->title);
   dest->explanation = strdup(src->explanation);
-  dest->object_id_list =
-      (long int *)malloc(dest->object_count * sizeof(long int));
-  memcpy(dest->object_id_list, src->object_id_list,
-         dest->object_count * sizeof(long int));
-  dest->object_type_list = (int *)malloc(dest->object_count * sizeof(int));
-  memcpy(dest->object_type_list, src->object_type_list,
-         dest->object_count * sizeof(int));
+  dest->objects = object_list_duplicate(src->objects);
 }
 
 object_operations drc_violation_ops = {
@@ -110,9 +101,17 @@ object_operations drc_violation_ops = {
 };
 
 void
+pcb_drc_violation_free (DrcViolationType *violation)
+{
+  pcb_drc_violation_clear(violation);
+  free(violation);
+}
+
+void
 pcb_drc_violation_print(FILE* fp, DrcViolationType * violation)
 {
   int i = 0;
+  DRCObject * obj;
   if (fp == NULL) fp = stdout;
   fprintf(fp, "title: %s\n", violation->title);
   fprintf(fp, "explanation: %s\n", violation->explanation);
@@ -122,14 +121,62 @@ pcb_drc_violation_print(FILE* fp, DrcViolationType * violation)
                   violation->have_measured ? "true":"false");
   fprintf(fp, "measured value: %ld\n", violation->measured_value);
   fprintf(fp, "required value: %ld\n", violation->required_value);
-  fprintf(fp, "object count: %d\n", violation->object_count);
+  fprintf(fp, "object count: %d\n", violation->objects->count);
   fprintf(fp, "object IDs: ");
-  for (i = 0; i < violation->object_count; i++)
-    fprintf(fp, "%ld ", violation->object_id_list[i]);
+  if (violation->objects)
+    for (i = 0; i < violation->objects->count; i++)
+    {
+      obj = object_list_get_item(violation->objects, i);
+      fprintf(fp, "%ld ", obj->id);
+    }
   fprintf(fp, "\n");
   fprintf(fp, "object types: ");
-  for (i = 0; i < violation->object_count; i++)
-    fprintf(fp, "%d ", violation->object_type_list[i]);
+  if (violation->objects)
+    for (i = 0; i < violation->objects->count; i++)
+    {
+      obj = object_list_get_item(violation->objects, i);
+      fprintf(fp, "%d ", obj->type);
+    }
   fprintf(fp, "\n");
 }
 
+void
+set_flag_on_violating_objects (DrcViolationType * v, int f)
+{
+  void *p1, *p2, *p3;
+  int obj_type, i;
+  DRCObject *drcobj;
+
+  /* If we get a null violation, or the violation has no objects, just
+   * return. There are no objects for us to operate on. */
+  if (!v || !v->objects || (v->objects->count == 0)) return;
+  
+  /* Flag the objects listed against this DRC violation */
+  for (i = 0; i < v->objects->count; i++)
+  {
+    drcobj = object_list_get_item(v->objects, i);
+    if (drcobj == 0) break;
+    /* We don't need to do this to get the pointers, but, it's probably a
+     * good idea to make sure that object still exists.
+     */
+    obj_type = SearchObjectByID(PCB->Data, &p1, &p2, &p3, 
+                                  drcobj->id, drcobj->type);
+    if (obj_type != drcobj->type)
+    {
+      Message (_("Object ID %i identified during DRC was not found, or "
+                 "changed type. Stale DRC window?\n"), drcobj->id);
+  	  continue;
+    }
+    AddObjectToFlagUndoList (obj_type, p1, p2, p3);
+    SET_FLAG (f, (AnyObjectType *)p2);
+    switch (drcobj->type)
+    {
+    case LINE_TYPE:
+    case ARC_TYPE:
+    case POLYGON_TYPE:
+  	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerType *) p1), true, true);
+  	} /* switch (drcobj->type) */
+  } /* for (violation->objects->count) */
+  SetChangedFlag (true);
+
+}

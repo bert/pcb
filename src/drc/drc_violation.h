@@ -40,9 +40,7 @@ typedef struct drc_violation_st
   int have_measured;
   Coord measured_value;
   Coord required_value;
-  int object_count;
-  long int *object_id_list;
-  int *object_type_list;
+  object_list * objects;
 } DrcViolationType;
 
 DrcViolationType * pcb_drc_violation_new (
@@ -50,12 +48,13 @@ DrcViolationType * pcb_drc_violation_new (
         Coord x, Coord y, Angle angle,                
 		bool have_measured,
 		Coord measured_value, Coord required_value,
-		int object_count, long int *object_id_list, int *object_type_list);
+        object_list * objects);
 
 void pcb_drc_violation_free (DrcViolationType *violation);
-void pcb_drc_violation_print(FILE*, DrcViolationType*);
+void pcb_drc_violation_print (FILE*, DrcViolationType*);
 
 extern object_operations drc_violation_ops;
 
+void set_flag_on_violating_objects (DrcViolationType * v, int f);
 
 #endif
