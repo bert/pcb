@@ -78,32 +78,6 @@ copy_thing_into_drcobject (DRCObject * obj)
 
 static Cardinal drcerr_count;   /*!< Count of drc errors */
 
-static GString *drc_dialog_message;
-static void
-reset_drc_dialog_message(void)
-{
-  if (drc_dialog_message)
-    g_string_free (drc_dialog_message, FALSE);
-  drc_dialog_message = g_string_new ("");
-  if (gui->drc_gui != NULL)
-  {
-    gui->drc_gui->reset_drc_dialog_message ();
-  }
-}
-static void
-append_drc_dialog_message(const char *fmt, ...)
-{
-  gchar *new_str;
-  va_list ap;
-  va_start (ap, fmt);
-  new_str = pcb_vprintf (fmt, ap);
-  g_string_append (drc_dialog_message, new_str);
-  va_end (ap);
-  g_free (new_str);
-}
-
-static void GotoError (void);
-
 static void
 append_drc_violation (DrcViolationType *violation)
 {
@@ -112,51 +86,12 @@ append_drc_violation (DrcViolationType *violation)
   {
     gui->drc_gui->append_drc_violation (violation);
   }
-  else
-  {
-    /* Fallback to formatting the violation message as text */
-    append_drc_dialog_message ("%s\n", violation->title);
-    append_drc_dialog_message (_("%m+near %$mD\n"),
-                               Settings.grid_unit->allow,
-                               violation->x, violation->y);
-    GotoError ();
-  }
-  
-  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_violations )
-  {
-    Message (_("WARNING!  Design Rule error - %s\n"), violation->title);
-    Message (_("%m+near location %$mD\n"),
-             Settings.grid_unit->allow,
-             violation->x, violation->y);
-  }
 }
 
 #define DRC_CONTINUE _("Press Next to continue DRC checking")
 #define DRC_NEXT _("Next")
 #define DRC_CANCEL _("Cancel")
 
-/*!
- * \brief Message when asked about continuing DRC checks after next
- * violation is found.
- */
-static int
-throw_drc_dialog(void)
-{
-  int r;
-  
-  if (gui->drc_gui != NULL)
-  {
-    r = gui->drc_gui->throw_drc_dialog ();
-  }
-  else
-  {
-    /* Fallback to formatting the violation message as text */
-    append_drc_dialog_message (DRC_CONTINUE);
-    r = gui->confirm_dialog (drc_dialog_message->str, DRC_CANCEL, DRC_NEXT);
-    reset_drc_dialog_message();
-  }
-  return r;
-}
 
 /*!
  * \brief Present a dialog box to show the user a DRC violation
@@ -164,17 +99,25 @@ throw_drc_dialog(void)
 static int
 pcb_drc_violation_prompt (DrcViolationType *violation)
 {
-  int r;
-  reset_drc_dialog_message();
-  append_drc_dialog_message ("%s\n", violation->title);
-  append_drc_dialog_message (_("%m+near %$mD\n"),
+  int r, serial;
+  char msg[1024];
+
+
+  r = pcb_snprintf(msg, 1024, _("%s\n%m+near %$mD\n%s"), violation->title,
                              Settings.grid_unit->allow,
-                             violation->x, violation->y);
+                             violation->x, violation->y,
+                             DRC_CONTINUE);
 
   CenterDisplay (violation->x, violation->y, true);
-  append_drc_dialog_message (DRC_CONTINUE);
-  r = gui->confirm_dialog (drc_dialog_message->str, DRC_CANCEL, DRC_NEXT);
-
+  ClearFlagOnAllObjects(FOUNDFLAG, true);
+  set_flag_on_violating_objects(violation, FOUNDFLAG);
+  serial = IncrementUndoSerialNumber();
+  Draw();
+  r = gui->confirm_dialog (msg, DRC_CANCEL, DRC_NEXT);
+  /* If we're moving on to the next one, we want to undo our flag changes,
+   * however, if the user has done some work first, we don't want to undo
+   * that. If the serial number hasn't changed, no work was done. */
+  if (r && SaveUndoSerialNumber() == serial) Undo(false);
   return r;
 }
 
@@ -242,28 +185,6 @@ struct drc_info
 {
   int flag;
 };
-
-/*!
- * \brief Center the display to show the offending item (thing).
- */
-static void
-GotoError (void)
-{
-  Coord X, Y;
-  
-  LocateError (&X, &Y);
-  
-  switch (thing_type)
-  {
-    case LINE_TYPE:
-    case ARC_TYPE:
-    case POLYGON_TYPE:
-      ChangeGroupVisibility (
-                             GetLayerNumber (PCB->Data, (LayerType *) thing_ptr1),
-                             true, true);
-  }
-  CenterDisplay (X, Y, false);
-}
 
 /*!
  * \brief Check for DRC violations on a single net starting from the pad
@@ -335,14 +256,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
      * search to abort if we find anything not already found */
     if (DoIt (FOUNDFLAG, 0, true, false, true))
     {
-      DumpList ();
-      /* make the flag changes undoable */
-      ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
-      UnlockUndo(); /* Was locked when we started by DRCAll */
-      start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, -PCB->Shrink, false);
-      start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, 0, true);
-      IncrementUndoSerialNumber ();
-      LockUndo(); /* Put it back the way it was. */
       drcerr_count++;
       LocateError (&x, &y);
       object_list_clear(vobjs);
@@ -361,8 +274,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
         vobjs);
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
-      if (!throw_drc_dialog())  return (true);
-      //Undo (true);
     }
     DumpList ();
   }
@@ -391,13 +302,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   while (DoIt (flag, PCB->Bloat, true, false, true))
   {
     DumpList ();
-    /* make the flag changes undoable */
-    ClearFlagOnAllObjects (FOUNDFLAG | SELECTEDFLAG, false);
-    UnlockUndo(); /* Was locked when we started by DRCAll */
-    start_do_it_and_dump (What, ptr1, ptr2, ptr3, SELECTEDFLAG, true, 0, false);
-    start_do_it_and_dump (What, ptr1, ptr2, ptr3, FOUNDFLAG, true, PCB->Bloat, true);
-    IncrementUndoSerialNumber ();
-    LockUndo(); /* Put it back the way it was. */
     drcerr_count++;
     LocateError (&x, &y);
     object_list_clear(vobjs);
@@ -415,8 +319,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       vobjs);
     append_drc_violation (violation);
     pcb_drc_violation_free (violation);
-    if (!throw_drc_dialog())  return (true);
-    //Undo (true);
     /* highlight the rest of the encroaching net so it's not reported again */
     flag = FOUNDFLAG | SELECTEDFLAG;
     start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
@@ -442,7 +344,6 @@ static int
 drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
               int type, void *ptr1, void *ptr2, void *userdata)
 {
-  struct drc_info *i = (struct drc_info *) userdata;
   char *message;
   Coord x, y;
   DRCObject obj;
@@ -481,8 +382,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
         
         if (is_line_in_polygon)
         {
-          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-          SET_FLAG (i->flag, line);
           message = _("Line with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
@@ -491,8 +390,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
     case ARC_TYPE:
       if (arc->Clearance < 2 * PCB->Bloat)
       {
-        AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-        SET_FLAG (i->flag, arc);
         message = _("Arc with insufficient clearance inside polygon\n");
         goto doIsBad;
       }
@@ -501,8 +398,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
       if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
         if (IsPadInPolygon(pad,polygon))
         {
-          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-          SET_FLAG (i->flag, pad);
           message = _("Pad with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
@@ -510,8 +405,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
     case PIN_TYPE:
       if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
       {
-        AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-        SET_FLAG (i->flag, pin);
         message = _("Pin with insufficient clearance inside polygon\n");
         goto doIsBad;
       }
@@ -519,8 +412,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
     case VIA_TYPE:
       if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
       {
-        AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-        SET_FLAG (i->flag, pin);
         message = _("Via with insufficient clearance inside polygon\n");
         goto doIsBad;
       }
@@ -531,10 +422,7 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   return 0;
   
 doIsBad:
-  AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-  SET_FLAG (FOUNDFLAG, polygon);
-  DrawPolygon (layer, polygon);
-  DrawObject (type, ptr1, ptr2);
+
   drcerr_count++;
   LocateError (&x, &y);
   object_list_clear(vobjs);
@@ -554,11 +442,6 @@ doIsBad:
   
   object_list_delete(vobjs);
 
-  if (!throw_drc_dialog())
-    return 1;
-  
-  IncrementUndoSerialNumber ();
-  Undo (true);
   return 0;
 }
 
@@ -575,12 +458,10 @@ DRCAll (void)
   /* violating object list */
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
+  int undo_flags;
   int tmpcnt;
   int nopastecnt = 0;
-  bool IsBad;
   struct drc_info info;
-  
-  reset_drc_dialog_message();
   
   if (!drc_violation_list)
   {
@@ -601,9 +482,7 @@ DRCAll (void)
         0, 0, 0, TRUE, 0, 0, 0);
   append_drc_violation (violation);
   pcb_drc_violation_free (violation);
-  if (!throw_drc_dialog())  return (true);
   
-  IsBad = false;
   drcerr_count = 0;
   
   /* Since the searching functions only operate on visible layers, we need
@@ -622,10 +501,10 @@ DRCAll (void)
   hid_action ("LayersChanged");
   InitConnectionLookup ();
   
-  if (ClearFlagOnAllObjects (FOUNDFLAG | DRCFLAG | SELECTEDFLAG, true))
-  {
+  /* We'll do this again when we're done, and use undo to restore state. */
+  if (ClearFlagOnAllObjects (FOUNDFLAG | DRCFLAG | SELECTEDFLAG, true)){
+    undo_flags = 1;
     IncrementUndoSerialNumber ();
-    Draw ();
   }
   
   LockUndo(); /* Don't need to add all of these things */
@@ -634,16 +513,11 @@ DRCAll (void)
   {
     PIN_LOOP (element);
     {
-      if (!TEST_FLAG (DRCFLAG, pin)
-          && DRCFind (PIN_TYPE, (void *) element, (void *) pin, (void *) pin))
-      {
-        IsBad = true;
-        break;
-      }
+      if (!TEST_FLAG (DRCFLAG, pin))
+        DRCFind (PIN_TYPE, (void *) element, (void *) pin, (void *) pin);
     }
     END_LOOP;
-    if (IsBad)
-      break;
+
     PAD_LOOP (element);
     {
       
@@ -651,437 +525,291 @@ DRCAll (void)
       if (TEST_FLAG (NOPASTEFLAG, pad))
         nopastecnt++;
       
-      if (!TEST_FLAG (DRCFLAG, pad)
-          && DRCFind (PAD_TYPE, (void *) element, (void *) pad, (void *) pad))
-      {
-        IsBad = true;
-        break;
-      }
+      if (!TEST_FLAG (DRCFLAG, pad))
+        DRCFind (PAD_TYPE, (void *) element, (void *) pad, (void *) pad);
     }
     END_LOOP;
-    if (IsBad)
-      break;
-  }
-  END_LOOP;
-  if (!IsBad)
-    VIA_LOOP (PCB->Data);
-  {
-    if (!TEST_FLAG (DRCFLAG, via)
-        && DRCFind (VIA_TYPE, (void *) via, (void *) via, (void *) via))
-    {
-      IsBad = true;
-      break;
-    }
   }
   END_LOOP;
   
-  /* We want to leave the found and selected flags set if the user aborted */
-  ClearFlagOnAllObjects (IsBad ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
-  UnlockUndo();
+  VIA_LOOP (PCB->Data);
+  {
+    if (!TEST_FLAG (DRCFLAG, via))
+      DRCFind (VIA_TYPE, (void *) via, (void *) via, (void *) via);
+  }
+  END_LOOP;
   
   info.flag = SELECTEDFLAG;
   /* check minimum widths and polygon clearances */
-  if (!IsBad)
+  COPPERLINE_LOOP (PCB->Data);
   {
-    COPPERLINE_LOOP (PCB->Data);
-    {
-      bool plows_polygon;
-      /* check line clearances in polygons */
-      int old_clearance = line->Clearance;
-      /* Create a bounding box with DRC clearance */
-      line->Clearance = 2*PCB->Bloat;
-      SetLineBoundingBox(line);
-      line->Clearance = old_clearance;
-      plows_polygon = PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info);
-      SetLineBoundingBox(line); /* Recover old bounding box */
-      if (plows_polygon)
-      {
-        IsBad = true;
-        break;
-      }
+    /* check line clearances in polygons */
+    int old_clearance = line->Clearance;
+    /* Create a bounding box with DRC clearance */
+    line->Clearance = 2*PCB->Bloat;
+    SetLineBoundingBox(line);
+    line->Clearance = old_clearance;
+    PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback, &info);
+    SetLineBoundingBox(line); /* Recover old bounding box */
       
-      if (line->Thickness < PCB->minWid)
-      {
-        AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-        SET_FLAG (SELECTEDFLAG, line);
-        DrawLine (layer, line);
-        drcerr_count++;
-        SetThing (LINE_TYPE, layer, line, line);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Line width is too thin"),
-          _("Process specifications dictate a minimum feature-width\n"
-            "that can reliably be reproduced"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          line->Thickness,
-          PCB->minWid,
-          vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
-    }
-    ENDALL_LOOP;
-  }
-  if (!IsBad)
-  {
-    COPPERARC_LOOP (PCB->Data);
+    if (line->Thickness < PCB->minWid)
     {
-      if (PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info))
-      {
-        IsBad = true;
-        break;
-      }
-      if (arc->Thickness < PCB->minWid)
-      {
-        AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-        SET_FLAG (SELECTEDFLAG, arc);
-        DrawArc (layer, arc);
-        drcerr_count++;
-        SetThing (ARC_TYPE, layer, arc, arc);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Arc width is too thin"),
-          _("Process specifications dictate a minimum feature-width\n"
-            "that can reliably be reproduced"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          arc->Thickness,
-          PCB->minWid,
-          vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      drcerr_count++;
+      SetThing (LINE_TYPE, layer, line, line);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Line width is too thin"),
+        _("Process specifications dictate a minimum feature-width\n"
+          "that can reliably be reproduced"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        line->Thickness,
+        PCB->minWid,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
     }
-    ENDALL_LOOP;
   }
-  if (!IsBad)
+  ENDALL_LOOP;
+  
+  COPPERARC_LOOP (PCB->Data);
   {
-    ALLPIN_LOOP (PCB->Data);
+    PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info);
+    if (arc->Thickness < PCB->minWid)
     {
-      if (PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback, &info))
-      {
-        IsBad = true;
-        break;
-      }
-      if (!TEST_FLAG (HOLEFLAG, pin) &&
-          pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
-      {
-        AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-        SET_FLAG (SELECTEDFLAG, pin);
-        DrawPin (pin);
-        drcerr_count++;
-        SetThing (PIN_TYPE, element, pin, pin);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj); 
-        violation = pcb_drc_violation_new (
-          _("Pin annular ring too small"),
-          _("Annular rings that are too small may erode during etching,\n"
-            "resulting in a broken connection"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          (pin->Thickness - pin->DrillingHole) / 2,
-          PCB->minRing,
-          vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
-      if (pin->DrillingHole < PCB->minDrill)
-      {
-        AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-        SET_FLAG (SELECTEDFLAG, pin);
-        DrawPin (pin);
-        drcerr_count++;
-        SetThing (PIN_TYPE, element, pin, pin);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj); 
-        violation = pcb_drc_violation_new (
-          _("Pin drill size is too small"),
-          _("Process rules dictate the minimum drill size which can be "
-            "used"),
-          x, y,
-         0,    /* ANGLE OF ERROR UNKNOWN */
-         TRUE, /* MEASUREMENT OF ERROR KNOWN */
-         pin->DrillingHole,
-         PCB->minDrill,
-         vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      drcerr_count++;
+      SetThing (ARC_TYPE, layer, arc, arc);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Arc width is too thin"),
+        _("Process specifications dictate a minimum feature-width\n"
+          "that can reliably be reproduced"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        arc->Thickness,
+        PCB->minWid,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
     }
-    ENDALL_LOOP;
   }
-  if (!IsBad)
+  ENDALL_LOOP;
+
+  ALLPIN_LOOP (PCB->Data);
   {
-    ALLPAD_LOOP (PCB->Data);
+    PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback, &info);
+    if (!TEST_FLAG (HOLEFLAG, pin) &&
+        pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
     {
-      if (PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback, &info))
-      {
-        IsBad = true;
-        break;
-      }
-      if (pad->Thickness < PCB->minWid)
-      {
-        AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-        SET_FLAG (SELECTEDFLAG, pad);
-        DrawPad (pad);
-        drcerr_count++;
-        SetThing (PAD_TYPE, element, pad, pad);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Pad is too thin"),
-          _("Pads which are too thin may erode during etching,\n"
-            "resulting in a broken or unreliable connection"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          pad->Thickness,
-          PCB->minWid,
-          vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      drcerr_count++;
+      SetThing (PIN_TYPE, element, pin, pin);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Pin annular ring too small"),
+        _("Annular rings that are too small may erode during etching,\n"
+          "resulting in a broken connection"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        (pin->Thickness - pin->DrillingHole) / 2,
+        PCB->minRing,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
     }
-    ENDALL_LOOP;
+    if (pin->DrillingHole < PCB->minDrill)
+    {
+      drcerr_count++;
+      SetThing (PIN_TYPE, element, pin, pin);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Pin drill size is too small"),
+        _("Process rules dictate the minimum drill size which can be "
+          "used"),
+        x, y,
+       0,    /* ANGLE OF ERROR UNKNOWN */
+       TRUE, /* MEASUREMENT OF ERROR KNOWN */
+       pin->DrillingHole,
+       PCB->minDrill,
+       vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
   }
-  if (!IsBad)
+  ENDALL_LOOP;
+
+  ALLPAD_LOOP (PCB->Data);
   {
-    VIA_LOOP (PCB->Data);
+    PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback, &info);
+    if (pad->Thickness < PCB->minWid)
     {
-      if (PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback, &info))
-      {
-        IsBad = true;
-        break;
-      }
-      if (!TEST_FLAG (HOLEFLAG, via) &&
-          via->Thickness - via->DrillingHole < 2 * PCB->minRing)
-      {
-        AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-        SET_FLAG (SELECTEDFLAG, via);
-        DrawVia (via);
-        drcerr_count++;
-        SetThing (VIA_TYPE, via, via, via);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Via annular ring too small"),
-          _("Annular rings that are too small may erode during etching,\n"
-            "resulting in a broken connection"),
+      drcerr_count++;
+      SetThing (PAD_TYPE, element, pad, pad);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Pad is too thin"),
+        _("Pads which are too thin may erode during etching,\n"
+          "resulting in a broken or unreliable connection"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        pad->Thickness,
+        PCB->minWid,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
+  }
+  ENDALL_LOOP;
+
+  VIA_LOOP (PCB->Data);
+  {
+    PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback, &info);
+    if (!TEST_FLAG (HOLEFLAG, via) &&
+        via->Thickness - via->DrillingHole < 2 * PCB->minRing)
+    {
+      drcerr_count++;
+      SetThing (VIA_TYPE, via, via, via);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Via annular ring too small"),
+        _("Annular rings that are too small may erode during etching,\n"
+          "resulting in a broken connection"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        (via->Thickness - via->DrillingHole) / 2,
+        PCB->minRing,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
+    if (via->DrillingHole < PCB->minDrill)
+    {
+      drcerr_count++;
+      SetThing (VIA_TYPE, via, via, via);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Via drill size is too small"),
+        _("Process rules dictate the minimum drill size which can "
+          "be used"),
           x, y,
           0,    /* ANGLE OF ERROR UNKNOWN */
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          (via->Thickness - via->DrillingHole) / 2,
-          PCB->minRing,
+          via->DrillingHole,
+          PCB->minDrill,
           vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
-      if (via->DrillingHole < PCB->minDrill)
-      {
-        AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-        SET_FLAG (SELECTEDFLAG, via);
-        DrawVia (via);
-        drcerr_count++;
-        SetThing (VIA_TYPE, via, via, via);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Via drill size is too small"),
-          _("Process rules dictate the minimum drill size which can "
-            "be used"),
-            x, y,
-            0,    /* ANGLE OF ERROR UNKNOWN */
-            TRUE, /* MEASUREMENT OF ERROR KNOWN */
-            via->DrillingHole,
-            PCB->minDrill,
-            vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
     }
-    END_LOOP;
   }
+  END_LOOP;
   
   FreeConnectionLookupMemory ();
   
   /* check silkscreen minimum widths outside of elements */
   /* XXX - need to check text and polygons too! */
-  if (!IsBad)
+  SILKLINE_LOOP (PCB->Data);
   {
-    SILKLINE_LOOP (PCB->Data);
+    if (line->Thickness < PCB->minSlk)
     {
-      if (line->Thickness < PCB->minSlk)
-      {
-        AddObjectToFlagUndoList(LINE_TYPE, layer, line, line);
-        SET_FLAG (SELECTEDFLAG, line);
-        DrawLine (layer, line);
-        drcerr_count++;
-        SetThing (LINE_TYPE, layer, line, line);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        violation = pcb_drc_violation_new (
-          _("Silk line is too thin"),
-          _("Process specifications dictate a minimum silkscreen\n"
-            "feature-width that can reliably be reproduced"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          line->Thickness,
-          PCB->minSlk,
-          vobjs);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      drcerr_count++;
+      SetThing (LINE_TYPE, layer, line, line);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      violation = pcb_drc_violation_new (
+        _("Silk line is too thin"),
+        _("Process specifications dictate a minimum silkscreen\n"
+          "feature-width that can reliably be reproduced"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        line->Thickness,
+        PCB->minSlk,
+        vobjs);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
     }
-    ENDALL_LOOP;
   }
+  ENDALL_LOOP;
   
   /* check silkscreen minimum widths inside of elements */
   /* XXX - need to check text and polygons too! */
-  if (!IsBad)
+  ELEMENT_LOOP (PCB->Data);
   {
-    ELEMENT_LOOP (PCB->Data);
+    tmpcnt = 0;
+    ELEMENTLINE_LOOP (element);
     {
-      tmpcnt = 0;
-      ELEMENTLINE_LOOP (element);
-      {
-        if (line->Thickness < PCB->minSlk)  tmpcnt++;
-      }
-      END_LOOP;
-      if (tmpcnt > 0)
-      {
-        char *title;
-        char *name;
-        char *buffer;
-        int buflen;
-        
-        AddObjectToFlagUndoList(ELEMENT_TYPE, element, element, element);
-        SET_FLAG (SELECTEDFLAG, element);
-        DrawElement (element);
-        drcerr_count++;
-        SetThing (ELEMENT_TYPE, element, element, element);
-        LocateError (&x, &y);
-        object_list_clear(vobjs);
-        copy_thing_into_drcobject(&obj);
-        object_list_append(vobjs, &obj);
-        title = _("Element %s has %i silk lines which are too thin");
-        name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
-        
-        /* -4 is for the %s and %i place-holders */
-        /* +11 is the max printed length for a 32 bit integer */
-        /* +1 is for the \0 termination */
-        buflen = strlen (title) - 4 + strlen (name) + 11 + 1;
-        buffer = (char *)malloc (buflen);
-        snprintf (buffer, buflen, title, name, tmpcnt);
-        
-        violation = pcb_drc_violation_new (buffer,
-          _("Process specifications dictate a minimum silkscreen\n"
-            "feature-width that can reliably be reproduced"),
-          x, y,
-          0,    /* ANGLE OF ERROR UNKNOWN */
-          TRUE, /* MEASUREMENT OF ERROR KNOWN */
-          0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
-          PCB->minSlk,
-          vobjs);
-        free (buffer);
-        append_drc_violation (violation);
-        pcb_drc_violation_free (violation);
-        if (!throw_drc_dialog())
-        {
-          IsBad = true;
-          break;
-        }
-        IncrementUndoSerialNumber ();
-        Undo (false);
-      }
+      if (line->Thickness < PCB->minSlk)  tmpcnt++;
     }
     END_LOOP;
+    if (tmpcnt > 0)
+    {
+      char *title;
+      char *name;
+      char *buffer;
+      int buflen;
+      drcerr_count++;
+      SetThing (ELEMENT_TYPE, element, element, element);
+      LocateError (&x, &y);
+      object_list_clear(vobjs);
+      copy_thing_into_drcobject(&obj);
+      object_list_append(vobjs, &obj);
+      title = _("Element %s has %i silk lines which are too thin");
+      name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
+      
+      /* -4 is for the %s and %i place-holders */
+      /* +11 is the max printed length for a 32 bit integer */
+      /* +1 is for the \0 termination */
+      buflen = strlen (title) - 4 + strlen (name) + 11 + 1;
+      buffer = (char *)malloc (buflen);
+      snprintf (buffer, buflen, title, name, tmpcnt);
+      
+      violation = pcb_drc_violation_new (buffer,
+        _("Process specifications dictate a minimum silkscreen\n"
+          "feature-width that can reliably be reproduced"),
+        x, y,
+        0,    /* ANGLE OF ERROR UNKNOWN */
+        TRUE, /* MEASUREMENT OF ERROR KNOWN */
+        0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
+        PCB->minSlk,
+        vobjs);
+      free (buffer);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+    }
   }
+  END_LOOP;
+    
+  ClearFlagOnAllObjects ((FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
+  UnlockUndo ();
   
-  
-  if (IsBad)
-  {
-    IncrementUndoSerialNumber ();
-  }
-  
+  if (undo_flags)  Undo(false);
   
   RestoreStackAndVisibility ();
   hid_action ("LayersChanged");
@@ -1094,7 +822,7 @@ DRCAll (void)
                        nopastecnt), nopastecnt);
   }
   object_list_delete(vobjs);
-  return IsBad ? -drcerr_count : drcerr_count;
+  return drcerr_count;
 }
 
 
@@ -1190,14 +918,14 @@ ActionDRCReview (int argc, char **argv, Coord x, Coord y)
   return 0;
   }
 
-  for (i=0; i < drc_violation_list->count; i++){
-    cont = pcb_drc_violation_prompt(
-            (DrcViolationType*) object_list_get_item(drc_violation_list,i));
+  for (i=0; i < drc_violation_list->count; i++)
+  {
+    cont = pcb_drc_violation_prompt (
+            (DrcViolationType*) object_list_get_item (drc_violation_list,i));
     if (!cont) break;
   }
   return 0;
 }
-
 
 HID_Action drc_action_list[] = {
   {"DRC", 0, ActionDRCheck, drc_help, drc_syntax},
