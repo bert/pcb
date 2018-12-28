@@ -62,6 +62,7 @@ wait_for_dialog (Widget w)
 
   /* Hide the dialog box. */
   XtUnmanageChild (w);
+  XmUpdateDisplay(mainwind);
 
   return ok;
 }
