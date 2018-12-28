@@ -46,15 +46,23 @@ dialog_callback (Widget w, void *v, void *cbs)
 static int
 wait_for_dialog (Widget w)
 {
+  /* Reset our callback return value */
   ok = -1;
+  /* Make sure the dialog box is visible */
   XtManageChild (w);
+  /* While our return value hasn't changed, and the dialog is still visible
+   * (the user may have x-ed out of it instead of pressing a button) */
   while (ok == -1 && XtIsManaged (w))
     {
+      /* Pretend we're the main loop and dispatch all events. */
       XEvent e;
       XtAppNextEvent (app_context, &e);
       XtDispatchEvent (&e);
     }
+
+  /* Hide the dialog box. */
   XtUnmanageChild (w);
+
   return ok;
 }
 
@@ -390,7 +398,14 @@ lesstif_log (const char *fmt, ...)
 }
 
 /* ------------------------------------------------------------ */
-
+/*
+ * Confirm Dialog
+ *
+ * This presents a dialog box with a message, okay, and cancel buttons. The
+ * dialog is created globally once, and then reused for subsequent
+ * presentations with the data appropriately modified.
+ *
+ */
 static Widget confirm_dialog = 0;
 static Widget confirm_cancel, confirm_ok, confirm_label;
 
@@ -406,20 +421,27 @@ lesstif_confirm_dialog (char *msg, ...)
 
   if (confirm_dialog == 0)
     {
+      /* Restart the argument list, and add the args for the dialog box. */
       n = 0;
       stdarg (XmNdefaultButtonType, XmDIALOG_OK_BUTTON);
       stdarg (XmNtitle, "Confirm");
+      /* Create the dialog box (args is a global argument structure) */
       confirm_dialog = XmCreateQuestionDialog (mainwind, "confirm", args, n);
+      /* Add callbacks for the two buttons. Same callback, return 0 for
+       * cancel, and 1 for affirmative */
       XtAddCallback (confirm_dialog, XmNcancelCallback,
 		     (XtCallbackProc) dialog_callback, (XtPointer) 0);
       XtAddCallback (confirm_dialog, XmNokCallback,
 		     (XtCallbackProc) dialog_callback, (XtPointer) 1);
 
+      /* Get pointers to the buttons and label so we can modify them. */
       confirm_cancel =
 	XmMessageBoxGetChild (confirm_dialog, XmDIALOG_CANCEL_BUTTON);
       confirm_ok = XmMessageBoxGetChild (confirm_dialog, XmDIALOG_OK_BUTTON);
       confirm_label =
 	XmMessageBoxGetChild (confirm_dialog, XmDIALOG_MESSAGE_LABEL);
+      /* The dialog has a help button that we don't want, so 
+       * hide (unmanage) it. */
       XtUnmanageChild (XmMessageBoxGetChild
 		       (confirm_dialog, XmDIALOG_HELP_BUTTON));
     }
@@ -429,6 +451,7 @@ lesstif_confirm_dialog (char *msg, ...)
   okmsg = va_arg (ap, char *);
   va_end (ap);
 
+  /* Ensure we have messages if none were passed. */
   if (!cancelmsg)
     {
       cancelmsg = "Cancel";
@@ -440,19 +463,27 @@ lesstif_confirm_dialog (char *msg, ...)
 
   if (okmsg)
     {
+      /* If we got an ok message, we'll use both buttons. */
+      /* Apply the label to the cancel button */
       stdarg (XmNcancelLabelString, xs);
       xs = XmStringCreatePCB (okmsg);
+      /* Make sure the cancel button is shown */
       XtManageChild (confirm_cancel);
     }
   else
+    /* Only got a cancel message, we'll use the "ok" button for it. */
     XtUnmanageChild (confirm_cancel);
 
+  /* Apply the message (cancelmsg or okmsg, depending) to the first button */
   stdarg (XmNokLabelString, xs);
 
+  /* Update the dialog message */
   xs = XmStringCreatePCB (msg);
   stdarg (XmNmessageString, xs);
+  /* Update the dialog widget with all of the changes */
   XtSetValues (confirm_dialog, args, n);
 
+  /* Show the dialog widget and wait for it to close (non-blocking) */
   wait_for_dialog (confirm_dialog);
 
   n = 0;
