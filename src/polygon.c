@@ -1633,9 +1633,8 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
     case LINE_TYPE:
     case ARC_TYPE:
     case TEXT_TYPE:
-      /* the cast works equally well for lines and arcs */
-      if (!TEST_FLAG (CLEARLINEFLAG, (LineType *) ptr2))
-        return 0;
+      /* Don't test clearlineflag here because the DRC still needs to check
+       * such objects. */
       /* silk doesn't plow */
       if (GetLayerNumber (Data, (LayerType *)ptr1) >= max_copper_layer)
         return 0;
