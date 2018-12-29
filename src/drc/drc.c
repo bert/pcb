@@ -38,12 +38,11 @@
 #include "drc_object.h"
 
 #include "data.h" /* Settings and PCB structures */
-#include "draw.h" /* Drawing functions */
 #include "error.h" /* Message */
 #include "find.h" /* Connection lookup functions */
 #include "misc.h" /* SaveStackAndVisibility */
 #include "object_list.h"
-#include "pcb-printf.h"
+#include "pcb-printf.h" /* Units */
 #include "polygon.h" /* PlowsPolygon */
 #include "undo.h" /* Lock/Unlock Undo*/
 
@@ -86,39 +85,6 @@ append_drc_violation (DrcViolationType *violation)
   {
     gui->drc_gui->append_drc_violation (violation);
   }
-}
-
-#define DRC_CONTINUE _("Press Next to continue DRC checking")
-#define DRC_NEXT _("Next")
-#define DRC_CANCEL _("Cancel")
-
-
-/*!
- * \brief Present a dialog box to show the user a DRC violation
- */
-static int
-pcb_drc_violation_prompt (DrcViolationType *violation)
-{
-  int r, serial;
-  char msg[1024];
-
-
-  r = pcb_snprintf(msg, 1024, _("%s\n%m+near %$mD\n%s"), violation->title,
-                             Settings.grid_unit->allow,
-                             violation->x, violation->y,
-                             DRC_CONTINUE);
-
-  CenterDisplay (violation->x, violation->y, true);
-  ClearFlagOnAllObjects(FOUNDFLAG, true);
-  set_flag_on_violating_objects(violation, FOUNDFLAG);
-  serial = IncrementUndoSerialNumber();
-  Draw();
-  r = gui->confirm_dialog (msg, DRC_CANCEL, DRC_NEXT);
-  /* If we're moving on to the next one, we want to undo our flag changes,
-   * however, if the user has done some work first, we don't want to undo
-   * that. If the serial number hasn't changed, no work was done. */
-  if (r && SaveUndoSerialNumber() == serial) Undo(false);
-  return r;
 }
 
 /*!

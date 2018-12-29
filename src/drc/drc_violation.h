@@ -43,6 +43,8 @@ typedef struct drc_violation_st
   object_list * objects;
 } DrcViolationType;
 
+extern object_operations drc_violation_ops;
+
 DrcViolationType * pcb_drc_violation_new (
 		const char *title, const char *explanation,
         Coord x, Coord y, Angle angle,                
@@ -52,8 +54,7 @@ DrcViolationType * pcb_drc_violation_new (
 
 void pcb_drc_violation_free (DrcViolationType *violation);
 void pcb_drc_violation_print (FILE*, DrcViolationType*);
-
-extern object_operations drc_violation_ops;
+int pcb_drc_violation_prompt(DrcViolationType *violation);
 
 void set_flag_on_violating_objects (DrcViolationType * v, int f);
 
