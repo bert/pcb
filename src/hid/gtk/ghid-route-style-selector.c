@@ -226,10 +226,10 @@ ghid_route_style_selector_edit_dialog (GHidRouteStyleSelector *rss)
                  MIN_LINESIZE, MAX_LINESIZE);
   _table_attach (table, 2, _("Via hole size:"),
                  &dialog_data.via_hole_entry,
-                 MIN_PINORVIAHOLE, MAX_PINORVIASIZE - MIN_PINORVIACOPPER);
+                 MIN_PINORVIAHOLE, MAX_PINORVIASIZE);
   _table_attach (table, 3, _("Via ring size:"),
                  &dialog_data.via_size_entry,
-                 MIN_PINORVIAHOLE + MIN_PINORVIACOPPER, MAX_PINORVIASIZE);
+                 MIN_PINORVIAHOLE, MAX_PINORVIASIZE);
   _table_attach (table, 4, _("Clearance:"),
                  &dialog_data.clearance_entry,
                  MIN_LINESIZE, MAX_LINESIZE);

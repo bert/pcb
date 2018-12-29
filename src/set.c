@@ -115,7 +115,7 @@ SetViaSize (Coord Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIASIZE &&
-		Size >= Settings.ViaDrillingHole + MIN_PINORVIACOPPER))
+		Size >= Settings.ViaDrillingHole))
     {
       Settings.ViaThickness = Size;
     }
@@ -129,7 +129,7 @@ SetViaDrillingHole (Coord Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIAHOLE &&
-		Size <= Settings.ViaThickness - MIN_PINORVIACOPPER))
+		Size <= Settings.ViaThickness))
     {
       Settings.ViaDrillingHole = Size;
     }

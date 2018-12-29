@@ -401,7 +401,7 @@ ChangeViaSize (PinType *Via)
     return (NULL);
   if (!TEST_FLAG (HOLEFLAG, Via) && new_value <= MAX_PINORVIASIZE &&
       new_value >= MIN_PINORVIASIZE &&
-      new_value >= Via->DrillingHole + MIN_PINORVIACOPPER &&
+      new_value > Via->DrillingHole &&
       new_value != Via->Thickness)
     {
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
@@ -437,8 +437,7 @@ ChangeVia2ndSize (PinType *Via)
     return (NULL);
   if (new_value <= MAX_PINORVIASIZE &&
       new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Via) ||
-				    new_value <=
-				    Via->Thickness - MIN_PINORVIACOPPER)
+				    new_value < Via->Thickness)
       && new_value != Via->DrillingHole)
     {
       AddObjectTo2ndSizeUndoList (VIA_TYPE, Via, Via, Via);
@@ -506,7 +505,7 @@ ChangePinSize (ElementType *Element, PinType *Pin)
     return (NULL);
   if (!TEST_FLAG (HOLEFLAG, Pin) && new_value <= MAX_PINORVIASIZE &&
       new_value >= MIN_PINORVIASIZE &&
-      new_value >= Pin->DrillingHole + MIN_PINORVIACOPPER &&
+      new_value > Pin->DrillingHole &&
       new_value != Pin->Thickness)
     {
       AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
@@ -639,9 +638,7 @@ ChangeElement2ndSize (ElementType *Element)
     new_value = (Absolute) ? Value : pin->DrillingHole + Value;
     if (new_value <= MAX_PINORVIASIZE &&
 	new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
-				      new_value <=
-				      pin->Thickness -
-				      MIN_PINORVIACOPPER)
+				      new_value <= pin->Thickness)
 	&& new_value != pin->DrillingHole)
       {
 	changed = true;
@@ -679,8 +676,7 @@ ChangePin2ndSize (ElementType *Element, PinType *Pin)
     return (NULL);
   if (new_value <= MAX_PINORVIASIZE &&
       new_value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Pin) ||
-				    new_value <=
-				    Pin->Thickness - MIN_PINORVIACOPPER)
+				    new_value < Pin->Thickness)
       && new_value != Pin->DrillingHole)
     {
       AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, Pin, Pin);

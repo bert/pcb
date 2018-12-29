@@ -903,11 +903,6 @@ via_oldformat
 			{
 				Coord	hole = (OU($5) * DEFAULT_DRILLINGHOLE);
 
-					/* make sure that there's enough copper left */
-				if (OU($5) - hole < MIN_PINORVIACOPPER && 
-					OU($5) > MIN_PINORVIACOPPER)
-					hole = OU($5) - MIN_PINORVIACOPPER;
-
 				CreateNewVia(yyData, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,
 					OU($5) + 2*MASKFRAME, hole, $6, OldFlags($7));
 				free ($6);
@@ -1825,11 +1820,6 @@ pin_oldformat
 			{
 				Coord	hole = OU ($5) * DEFAULT_DRILLINGHOLE;
 				char	p_number[8];
-
-					/* make sure that there's enough copper left */
-				if (OU ($5) - hole < MIN_PINORVIACOPPER && 
-					OU ($5) > MIN_PINORVIACOPPER)
-					hole = OU ($5) - MIN_PINORVIACOPPER;
 
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPin(yyElement, OU ($3), OU ($4), OU ($5), 2*GROUNDPLANEFRAME,

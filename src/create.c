@@ -299,17 +299,17 @@ CreateNewVia (DataType *Data,
   SET_FLAG (VIAFLAG, Via);
   Via->ID = ID++;
 
-  /* 
-   * don't complain about MIN_PINORVIACOPPER on a mounting hole (pure
-   * hole)
-   */
+  /* Increase copper diameter to drill hole size if it's lower (unless
+     it's a mounting hole).  This will at least make incrementing the
+     via's copper size reasonably intuitive (i.e. it won't take
+     several increments before the copper is visible). */
   if (!TEST_FLAG (HOLEFLAG, Via) &&
-      (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER))
+      (Via->Thickness < Via->DrillingHole))
     {
-      Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
-      Message (_("%m+Increased via thickness to %$mS to allow enough copper"
-		 " at %$mD.\n"),
-	       Settings.grid_unit->allow, Via->Thickness, Via->X, Via->Y);
+      Via->Thickness = Via->DrillingHole;
+      Message (_("%m+Warning: Via's pad diameter was below hole size, "
+		 "so pad diameter was increased to hole size at %$mD.\n"),
+	       Settings.grid_unit->allow, Via->X, Via->Y);
     }
 
   SetPinBoundingBox (Via);
@@ -878,9 +878,9 @@ CreateNewPin (ElementType *Element,
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (!TEST_FLAG (HOLEFLAG, pin)
-	       && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER))
+	       && (pin->DrillingHole > pin->Thickness))
 	{
-	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS does not leave enough copper\n"),
+	  Message (_("%m+Did not map pin #%s (%s) drill hole because %$mS does not leave any copper\n"),
 		   Settings.grid_unit->allow, UNKNOWN (Number), UNKNOWN (Name), pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
