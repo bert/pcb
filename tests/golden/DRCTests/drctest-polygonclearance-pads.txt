@@ -26,9 +26,9 @@ location: (x, y) = (22174200, 21590000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
-object count: 1
-object IDs: 6734 
-object types: 512 
+object count: 2
+object IDs: 6734 6821 
+object types: 512 8 
 
 ********************************************************************************
                                   Violation 2
@@ -41,9 +41,9 @@ location: (x, y) = (22199600, 23495000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
-object count: 1
-object IDs: 6739 
-object types: 512 
+object count: 2
+object IDs: 6739 6821 
+object types: 512 8 
 
 ********************************************************************************
                                   Violation 3
@@ -56,9 +56,9 @@ location: (x, y) = (6350000, 21590000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
-object count: 1
-object IDs: 6766 
-object types: 512 
+object count: 2
+object IDs: 6766 6821 
+object types: 512 8 
 
 ********************************************************************************
                                   Violation 4
@@ -71,7 +71,7 @@ location: (x, y) = (6350000, 23495000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
-object count: 1
-object IDs: 6767 
-object types: 512 
+object count: 2
+object IDs: 6767 6821 
+object types: 512 8 
 
