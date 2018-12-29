@@ -296,104 +296,117 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   return (false);
 }
 
+/* Create a new object not connected violation */
 static void
-bloat_line (LineType* line, Coord bloat)
+new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
 {
-  line->Thickness += bloat;
-  SetLineBoundingBox(line);
-}
-
-/*!
- * \brief DRC clearance callback.
- */
-static int
-drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
-              int type, void *ptr1, void *ptr2, void *userdata)
-{
-  char *message;
-  Coord x, y;
   DRCObject obj;
+  DrcViolationType * violation;
+  Coord x, y;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
-  DrcViolationType *violation;
-  
-  LineType *line = (LineType *) ptr2;
-  ArcType *arc = (ArcType *) ptr2;
-  PinType *pin = (PinType *) ptr2;
-  PadType *pad = (PadType *) ptr2;
-  
-  SetThing (type, ptr1, ptr2, ptr2);
-  
-  switch (type)
-  {
-    case LINE_TYPE:
-      if (line->Clearance < 2 * PCB->Bloat)
-      {
-        /*
-         * PlowsPolygon made a quick check (bounding box) of whether
-         * the line plows through the polygon, throwing some false
-         * positives. Here we bloat the line and use IsLineInPolygon()
-         * to rule out the false positives.
-         * To use it, we need to clear CLEARLINEFLAG, and restore it later
-         */
-        int clearflag;
-        bool is_line_in_polygon;
-        
-        clearflag = TEST_FLAG (CLEARLINEFLAG, line);
-        CLEAR_FLAG (CLEARLINEFLAG, line);
-        bloat_line(line, PCB->Bloat);
-        is_line_in_polygon = IsLineInPolygon(line,polygon);
-        bloat_line(line, -PCB->Bloat);
-        if (clearflag)
-          SET_FLAG (CLEARLINEFLAG, line);
-        
-        if (is_line_in_polygon)
-        {
-          message = _("Line with insufficient clearance inside polygon\n");
-          goto doIsBad;
-        }
-      }
-      break;
-    case ARC_TYPE:
-      if (arc->Clearance < 2 * PCB->Bloat)
-      {
-        message = _("Arc with insufficient clearance inside polygon\n");
-        goto doIsBad;
-      }
-      break;
-    case PAD_TYPE:
-      if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
-        if (IsPadInPolygon(pad,polygon))
-        {
-          message = _("Pad with insufficient clearance inside polygon\n");
-          goto doIsBad;
-        }
-      break;
-    case PIN_TYPE:
-      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
-      {
-        message = _("Pin with insufficient clearance inside polygon\n");
-        goto doIsBad;
-      }
-      break;
-    case VIA_TYPE:
-      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
-      {
-        message = _("Via with insufficient clearance inside polygon\n");
-        goto doIsBad;
-      }
-      break;
-    default:
-      Message ("hace: Bad Plow object in callback\n");
-  }
-  return 0;
-  
-doIsBad:
+  const char * fmstr = "Joined %s not connected to polygon\n";
+  char message[128];
+
+  LocateError (&x, &y);
 
   drcerr_count++;
-  LocateError (&x, &y);
   object_list_clear(vobjs);
   copy_thing_into_drcobject(&obj);
   object_list_append(vobjs, &obj);
+  
+  /* Add the polygon to the violation list*/
+  obj.id = poly->ID; obj.type = POLYGON_TYPE;
+  obj.ptr1 = l; obj.ptr2 = obj.ptr3 = poly;
+  object_list_append(vobjs, &obj);
+
+  switch (thing_type)
+  {
+  case LINE_TYPE:
+    sprintf(message, fmstr, "line");
+    break;
+  case ARC_TYPE:
+    sprintf(message, fmstr, "arc");
+    break;
+  case PIN_TYPE:
+    sprintf(message, fmstr, "pin");
+    break;
+  case PAD_TYPE:
+    sprintf(message, fmstr, "pad");
+    break;
+  case VIA_TYPE:
+    sprintf(message, fmstr, "via");
+    break;
+  default:
+    Message ("Warning: Unknown object type in poly not connected violation!\n");
+  }
+
+  violation = pcb_drc_violation_new (message,
+      "An object is flagged such that it should connect to the polygon, but\n"
+      "does not make electrical contact. If it is not supposed to connect to\n"
+      "the polygon, change the clearline flag and rerun the DRC as this can\n"
+      "cause violations to be missed.",
+      x, y,
+      0,     /* ANGLE OF ERROR UNKNOWN */
+      FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+      0,     /* MAGNITUDE OF ERROR UNKNOWN */
+      0,
+      vobjs);
+  append_drc_violation (violation);
+  pcb_drc_violation_free (violation);
+  
+  object_list_delete(vobjs);
+
+}
+
+/*
+ * Create a new polygon clearance violation.
+ *
+ * I really don't like that this almost completely duplicates the previous
+ * function...
+ */
+static void
+new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
+{
+  DRCObject obj;
+  DrcViolationType * violation;
+  Coord x, y;
+  object_list * vobjs = object_list_new(2, sizeof(DRCObject));
+  const char * fmstr = "%s with insufficient clearance inside polygon\n";
+  char message[128];
+
+  LocateError (&x, &y);
+
+  drcerr_count++;
+  object_list_clear(vobjs);
+  copy_thing_into_drcobject(&obj);
+  object_list_append(vobjs, &obj);
+  
+  /* Add the polygon to the violation list*/
+  obj.id = poly->ID; obj.type = POLYGON_TYPE;
+  obj.ptr1 = l; obj.ptr2 = obj.ptr3 = poly;
+  object_list_append(vobjs, &obj);
+
+  switch (thing_type)
+  {
+  case LINE_TYPE:
+    sprintf(message, fmstr, "Line");
+    break;
+  case ARC_TYPE:
+    sprintf(message, fmstr, "Arc");
+    break;
+  case PIN_TYPE:
+    sprintf(message, fmstr, "Pin");
+    break;
+  case PAD_TYPE:
+    sprintf(message, fmstr, "Pad");
+    break;
+  case VIA_TYPE:
+    sprintf(message, fmstr, "Via");
+    break;
+  default:
+    Message ("Warning: Unknown object type in poly clearance violation!\n");
+  }
+
   violation = pcb_drc_violation_new (message,
     _("Circuits that are too close may bridge during imaging, etching,\n"
       "plating, or soldering processes resulting in a direct short."),
@@ -408,7 +421,110 @@ doIsBad:
   
   object_list_delete(vobjs);
 
+}
+
+static void
+bloat_line (LineType* line, Coord bloat)
+{
+  line->Thickness += bloat;
+  SetLineBoundingBox(line);
+}
+
+/*!
+ * \brief DRC clearance callback.
+ */
+static int
+drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
+              int type, void *ptr1, void *ptr2, void *userdata)
+{
+  bool obj_is_in_polygon;
+  int clearflag;
+
+  LineType *line = (LineType *) ptr2;
+  ArcType *arc = (ArcType *) ptr2;
+  PinType *pin = (PinType *) ptr2;
+  PadType *pad = (PadType *) ptr2;
+  
+  SetThing (type, ptr1, ptr2, ptr2);
+  
+  /* If we're here, we know that the polygon and object have overlapping
+   * bounding boxes. 
+   */
+  switch (type)
+  {
+    case LINE_TYPE:
+      clearflag = TEST_FLAG (CLEARLINEFLAG, line);        
+      if (clearflag && (line->Clearance < 2 * PCB->Bloat))
+      {
+        /* The line should clear the polygon, but the clearance is
+         * insufficient. 
+         *
+         * This doesn't necessarily mean that there are two pieces of copper 
+         * with insufficient space between them. It's possible that one 
+         * object is completely within the * clearance of another object, 
+         * for example.
+         *
+         * In order to decide if there really is an error, we need a more
+         * detailed test. So, we bloat the line by twice the minimum
+         * clearance and see if the bloated object touches any other bit of
+         * polygon.
+         *
+         * We have to turn off the CLEARLINEFLAG for the object to be tested
+         * for intersection, however, we don't have to recompute the polygon
+         * contours. 
+         *
+         */
+        CLEAR_FLAG (CLEARLINEFLAG, line);
+        bloat_line(line, PCB->Bloat);
+        /* True if the bloated line touches the polygon, after taking clearances
+         * into account... note that IsLineInPolygon adds another bloat.
+         */
+        obj_is_in_polygon = IsLineInPolygon(line,polygon);
+        bloat_line(line, -PCB->Bloat);
+        /* Restore the state of the flag */
+        SET_FLAG (CLEARLINEFLAG, line);  
+        if (obj_is_in_polygon)
+          /* The bloated line touched the polygon, so there's a violation. */
+          new_polygon_clearance_violation (layer, polygon);
+      } 
+      else if (clearflag == 0)
+      {
+        /* If the line is supposed to join the polygon, make sure it's
+         * connected electrically.
+         */
+        ClearFlagOnAllObjects(DRCFLAG, false);
+        start_do_it_and_dump (LINE_TYPE, ptr1, ptr2, ptr2, DRCFLAG, 
+                              false, 0, false);
+        /* Now everything that touches the line should have the DRCFLAG
+         * set.
+         */
+        if (!TEST_FLAG (DRCFLAG, polygon))
+          new_polygon_not_connected_violation (layer, polygon);
+        ClearFlagOnAllObjects(DRCFLAG, false);
+      }
+      break;
+    case ARC_TYPE:
+      if (arc->Clearance < 2 * PCB->Bloat)
+        new_polygon_clearance_violation (layer, polygon);
+      break;
+    case PAD_TYPE:
+      if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
+        if (IsPadInPolygon(pad,polygon))
+          new_polygon_clearance_violation (layer, polygon);
+      break;
+    case PIN_TYPE:
+      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
+        new_polygon_clearance_violation (layer, polygon);
+      break;
+    case VIA_TYPE:
+      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
+        new_polygon_clearance_violation (layer, polygon);
+      break;
+    default:
+      Message ("hace: Bad Plow object in callback\n");
+  }
   return 0;
+
 }
 
 /*!
@@ -435,6 +551,7 @@ DRCAll (void)
     drc_violation_list->ops = &drc_violation_ops;
   } else {
     object_list_clear(drc_violation_list);
+    if (gui->drc_gui != NULL) gui->drc_gui->reset_drc_dialog_message();
   }
   
   /* This phony violation informs user about what DRC does NOT catch.  */
