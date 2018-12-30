@@ -58,6 +58,8 @@ PCB_SRCS = \
 	dolists.h \
 	draw.c \
 	draw.h \
+	drc.c \
+	drc.h \
 	drill.c \
 	drill.h \
 	edif.y \
@@ -103,6 +105,8 @@ PCB_SRCS = \
 	mymem.c \
 	mymem.h \
 	netlist.c \
+	object_list.c \
+	object_list.h \
 	parse_l.h \
 	parse_l.l \
 	parse_y.y \
@@ -217,6 +221,7 @@ pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 TEST_SRCS = \
 	pcb-printf.c	\
+	object_list.c \
 	main-test.c
 
 unittest_CPPFLAGS = -I$(top_srcdir) -DPCB_UNIT_TEST

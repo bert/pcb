@@ -84,11 +84,13 @@
 
 #include "data.h"
 #include "draw.h"
+#include "drc.h"
 #include "error.h"
 #include "find.h"
 #include "flags.h"
 #include "misc.h"
 #include "rtree.h"
+#include "object_list.h"
 #include "polygon.h"
 #include "pcb-printf.h"
 #include "search.h"
@@ -138,43 +140,6 @@
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
 
-static DrcViolationType
-*pcb_drc_violation_new (const char *title,
-                        const char *explanation,
-                        Coord x, Coord y,
-                        Angle angle,
-                        bool have_measured,
-                        Coord measured_value,
-                        Coord required_value,
-                        int object_count,
-                        long int *object_id_list,
-                        int *object_type_list)
-{
-  DrcViolationType *violation = (DrcViolationType *)malloc (sizeof (DrcViolationType));
-
-  violation->title = strdup (title);
-  violation->explanation = strdup (explanation);
-  violation->x = x;
-  violation->y = y;
-  violation->angle = angle;
-  violation->have_measured = have_measured;
-  violation->measured_value = measured_value;
-  violation->required_value = required_value;
-  violation->object_count = object_count;
-  violation->object_id_list = object_id_list;
-  violation->object_type_list = object_type_list;
-
-  return violation;
-}
-
-static void
-pcb_drc_violation_free (DrcViolationType *violation)
-{
-  free (violation->title);
-  free (violation->explanation);
-  free (violation);
-}
-
 static GString *drc_dialog_message;
 static void
 reset_drc_dialog_message(void)
@@ -204,6 +169,7 @@ static void GotoError (void);
 static void
 append_drc_violation (DrcViolationType *violation)
 {
+  object_list_append(drc_violation_list, violation);
   if (gui->drc_gui != NULL)
     {
       gui->drc_gui->append_drc_violation (violation);
@@ -3586,6 +3552,14 @@ DRCAll (void)
   struct drc_info info;
 
   reset_drc_dialog_message();
+
+  if (!drc_violation_list) 
+  {
+	drc_violation_list = object_list_new(10, sizeof(DrcViolationType));
+	drc_violation_list->ops = &drc_violation_ops;
+  } else {
+	object_list_clear(drc_violation_list);
+  }
 
   /* This phony violation informs user about what DRC does NOT catch.  */
   violation

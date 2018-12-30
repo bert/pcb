@@ -334,12 +334,14 @@ compare_check() {
     local f1="$2"
     local f2="$3"
 
+    debug "checking for $f1"
     if test ! -f "$f1" ; then 
 	echo "$0:  ${fn}(): $f1 does not exist"
 	test_skipped=yes
 	return 1
     fi
 
+    debug "checking for $f2"
     if test ! -f "$f2" ; then 
 	echo "$0:  ${fn}(): $f2 does not exist"
 	test_skipped=yes
@@ -362,6 +364,14 @@ run_diff() {
     diff -U 2 $f1 $f2
     if test $? -ne 0 ; then return 1 ; fi
     return 0
+}
+
+
+compare_ascii() {
+    local f1="$1"
+    local f2="$2"
+    compare_check "compare_ascii" "$f1" "$f2" || return 1
+    run_diff $f1 $f2 || test_failed=yes
 }
 
 ##########################################################################
@@ -869,6 +879,7 @@ for t in $all_tests ; do
             fn2=`echo ${fn} | sed 's/.*;//g'`
             compare_ascii ${rundir}/${fn1} ${rundir}/${fn2}
             ;;
+
 		# BOM HID
 		bom)
 		    compare_bom ${refdir}/${fn} ${rundir}/${fn}

@@ -215,12 +215,12 @@ ghid_drc_violation_finalize (GObject * object)
   G_OBJECT_CLASS (ghid_drc_violation_parent_class)->finalize (object);
 }
 
-typedef struct object_list
+typedef struct ghid_drc_object_list
 {
   int count;
   long int *id_list;
   int *type_list;
-} object_list;
+} ghid_drc_object_list;
 
 /*! \brief GObject property setter function
  *
@@ -239,7 +239,7 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
 				  const GValue * value, GParamSpec * pspec)
 {
   GhidDrcViolation *violation = GHID_DRC_VIOLATION (object);
-  object_list *obj_list;
+  ghid_drc_object_list *obj_list;
 
   switch (property_id)
     {
@@ -273,7 +273,7 @@ ghid_drc_violation_set_property (GObject * object, guint property_id,
       /* Copy the passed data to make new lists */
       g_free (violation->object_id_list);
       g_free (violation->object_type_list);
-      obj_list = (object_list *)g_value_get_pointer (value);
+      obj_list = (ghid_drc_object_list *)g_value_get_pointer (value);
       violation->object_count = obj_list->count;
       violation->object_id_list   = g_new (long int, obj_list->count);
       violation->object_type_list = g_new (int,      obj_list->count);
@@ -451,7 +451,7 @@ ghid_drc_violation_get_type ()
 GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
 					  GdkDrawable *pixmap)
 {
-  object_list obj_list;
+  ghid_drc_object_list obj_list;
 
   obj_list.count = violation->object_count;
   obj_list.id_list = violation->object_id_list;
