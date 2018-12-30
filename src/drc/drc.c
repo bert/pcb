@@ -509,7 +509,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
       break;
     case PAD_TYPE:
       if (pad->Clearance && pad->Clearance < 2 * PCB->Bloat)
-        if (IsPadInPolygon(pad,polygon))
           new_polygon_clearance_violation (layer, polygon);
       break;
     case PIN_TYPE:
@@ -540,7 +539,7 @@ DRCAll (void)
   /* violating object list */
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
-  int undo_flags;
+  int undo_flags = 0;
   int tmpcnt;
   int nopastecnt = 0;
   struct drc_info info;
