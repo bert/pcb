@@ -104,7 +104,8 @@ typedef struct object_list
   int count; /* number of items in the list */
   int size; /* number of items the list can hold */
   int item_size; /* the size of the items the list contains */
-  void * items; /* pointer to the memory where the objects are */
+  void ** items; /* array of pointers to objects */
+  void * data; /* pointer to the memory where the objects are stored */
   object_operations * ops; /* pointer to the function table of object ops */
 } object_list;
 

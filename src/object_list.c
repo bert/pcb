@@ -52,7 +52,9 @@ object_list * object_list_new(int n, unsigned item_size)
   list->size = n;
   list->count = 0;
   /* can I find a way to do this with expand? */
-  list->items = malloc(n*item_size);
+  list->items = malloc(n*sizeof(void*));
+  memset(list->items, 0, list->size*sizeof(void*)); 
+  list->data = malloc(n*item_size);
   list->ops = NULL;
   return list;
 }
@@ -74,6 +76,8 @@ object_list * object_list_duplicate(object_list * list)
 void object_list_delete(object_list * list)
 {
   object_list_clear(list);
+  free(list->items);
+  free(list->data);
   free(list);
 }
 
@@ -90,20 +94,29 @@ int object_list_clear(object_list * list)
   } else {
     DBG_MSG("Clearing with memset\n");
     /* By default, just use memset to clear the item memory. */
-    memset(list->items, 0, list->size*list->item_size);
+    memset(list->data, 0, list->size*list->item_size);
   }
+  memset(list->items, 0, list->size*sizeof(void*));
   list->count = 0;
   return 0; /* success */
 }
 
 int object_list_expand(object_list * list, int n)
 {
-  void * new_items = malloc((list->size + n)*list->item_size);
+  void * new_data = realloc(list->data, (list->size + n)*list->item_size);
+  void ** new_items = realloc(list->items, (list->size + n)*sizeof(void*));
+  int i=0;
   DBG_MSG("Expanding list by %d\n", n);
-  memcpy(new_items, list->items, list->size*list->item_size);
+  if (new_data) list->data = new_data;
+  else printf("[object list] Could not reallocate data memory!\n");
+  if (new_items) list->items = new_items;
+  else printf("[object list] Could not reallocate item vector memory!\n");
   list->size += n;
-  free(list->items);
-  list->items = new_items;
+  for (i=0; i < list->size; i++)
+  {
+    if (i < list->count) list->items[i] = object_list_position_pointer(list, i);
+    else list->items[i] = 0;
+  }
   return 0; /* success */
 }
 
@@ -151,7 +164,10 @@ int object_list_insert(object_list * list, int n, void * item)
     DBG_MSG("Copying with memcpy\n");
     memcpy(nptr, item, list->item_size);
   }
-  
+
+  /* Update the pointer list */  
+  list->items[list->count] = object_list_position_pointer(list, list->count);
+
   /* increment the list count */
   list->count++;
   return 0; /* success */
@@ -176,6 +192,9 @@ int object_list_remove(object_list * list, int n)
   
   /* decrement the list count */
   list->count--;
+
+  /* Update the pointer list */
+  list->items[list->count] = 0;
   return 0; /* success */
 }
 
@@ -195,7 +214,7 @@ void * object_list_get_item(object_list * list, int n)
 static void * object_list_position_pointer(object_list * list, int n)
 {
   if (n >= list->size) return 0; /* position not in list */
-  return list->items + list->item_size*n;
+  return list->data + list->item_size*n;
 }
 
 /*******************************************************************************
@@ -257,7 +276,10 @@ object_operations somestruct_opts = {
 #define check_item(l, item, n) \
           g_assert_cmpint(\
               compare_somestructs(&item, object_list_get_item(l, n)), \
-              ==, 0);
+              ==, 0); \
+          g_assert_cmpint(\
+              (gint64) object_list_get_item(l, n), ==, (gint64) l->items[n]);
+
 
 void object_list_test(void)
 {
@@ -301,7 +323,7 @@ void object_list_test(void)
   /*
    * Duplicate a null pointer
    */
-  g_assert_cmpint(object_list_duplicate(0), ==, 0);
+  g_assert_cmpint((gint64) object_list_duplicate(0), ==, 0);
 
   /*
    * Duplicating an empty list
