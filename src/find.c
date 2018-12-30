@@ -127,7 +127,11 @@
  * don't overlap enough.*/
 static Coord Bloat = 0;
 
-/*!< Whether to stop if finding something not found. */
+/*!< Whether to stop if finding something not found.
+ *
+ * Ultimately, this global state variable needs to disappear, along with the calls to set thing 1
+ * and thing 2.
+ */
 static bool drc = false; 
 
 /* ---------------------------------------------------------------------------
@@ -210,7 +214,7 @@ add_object_to_list (ListType *list, int type, void *ptr1, void *ptr2, void *ptr3
    * how to use the SELECTEDFLAG.
    */
   if (drc && !TEST_FLAG (SELECTEDFLAG, object))
-    return (SetThing (type, ptr1, ptr2, ptr3));
+    return (SetThing (2, type, ptr1, ptr2, ptr3));
   return false;
 }
 
@@ -1396,6 +1400,11 @@ LookupLOConnectionsToPVList (int flag, bool AndRats)
       info.pv = PVLIST_ENTRY (PVList.Location);
       search_box = expand_bounds (&info.pv->BoundingBox);
 
+      /* Keep track of what item we started from for the drc. */
+      if (drc) SetThing(1, info.pv->Element ? PIN_TYPE : VIA_TYPE,        /* type */
+                           info.pv->Element ? info.pv->Element : info.pv, /* ptr1 */
+                           info.pv, info.pv);                             /* ptr2, ptr3 */
+
       /* check pads */
       if (setjmp (info.env) == 0)
         r_search (PCB->Data->pad_tree, &search_box, NULL,
@@ -1511,23 +1520,29 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
                   /* try all new lines */
                   position = &lineposition[layer];
                   for (; *position < LineList[layer].Number; (*position)++)
+                  {
                     if (LookupLOConnectionsToLine
-                        (LINELIST_ENTRY (layer, *position), group, flag, true, AndRats))
+                          (LINELIST_ENTRY (layer, *position), group, flag, true, AndRats))
                       return (true);
+                  }
 
                   /* try all new arcs */
                   position = &arcposition[layer];
                   for (; *position < ArcList[layer].Number; (*position)++)
+                  {
                     if (LookupLOConnectionsToArc
-                        (ARCLIST_ENTRY (layer, *position), group, flag, AndRats))
+                          (ARCLIST_ENTRY (layer, *position), group, flag, AndRats))
                       return (true);
+                  }
 
                   /* try all new polygons */
                   position = &polyposition[layer];
                   for (; *position < PolygonList[layer].Number; (*position)++)
+                  {
                     if (LookupLOConnectionsToPolygon
                         (POLYGONLIST_ENTRY (layer, *position), group, flag, AndRats))
                       return (true);
+                  }
                 }
               else
                 {
@@ -1541,9 +1556,11 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
                     }
                   position = &padposition[layer];
                   for (; *position < PadList[layer].Number; (*position)++)
+                  {
                     if (LookupLOConnectionsToPad
                         (PADLIST_ENTRY (layer, *position), group, flag, AndRats))
                       return (true);
+                  }
                 }
             }
         }
@@ -1638,6 +1655,12 @@ LookupPVConnectionsToPVList (int flag)
       /* get pointer to data */
       info.pv = PVLIST_ENTRY (PVList.Location);
       search_box = expand_bounds ((BoxType *)info.pv);
+
+      /* Keep track of what item we started from for the drc. */
+      if (drc) SetThing(1, info.pv->Element ? PIN_TYPE : VIA_TYPE,        /* type */
+                           info.pv->Element ? info.pv->Element : info.pv, /* ptr1 */
+                           info.pv, info.pv);                             /* ptr2, ptr3 */
+
 
       if (setjmp (info.env) == 0)
         r_search (PCB->Data->via_tree, &search_box, NULL,
@@ -2010,6 +2033,9 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
   info.arc = Arc;
   search_box = expand_bounds ((BoxType *)info.arc);
 
+  /* Keep track of what item we started from for the drc. */
+  if (drc) SetThing(1, ARC_TYPE , LAYER_PTR(LayerGroup), info.arc, info.arc);
+
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2147,6 +2173,9 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
   info.layer = LayerGroup;
   info.line = Line;
   search_box = expand_bounds ((BoxType *)info.line);
+
+  /* Keep track of what item we started from for the drc. */
+  if (drc) SetThing(1, LINE_TYPE , LAYER_PTR(LayerGroup), info.line, info.line);
 
   if (AndRats)
     {
@@ -2433,6 +2462,9 @@ LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndR
   info.pad = Pad;
   search_box = expand_bounds ((BoxType *)info.pad);
 
+  /* Keep track of what item we started from for the drc. */
+  if (drc) SetThing(1, PAD_TYPE, info.pad->Element, info.pad, info.pad);
+
   /* add the new rat lines */
   info.layer = LayerGroup;
 
@@ -2577,6 +2609,9 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
   info.flag = flag;
   info.polygon = Polygon;
   search_box = expand_bounds ((BoxType *)info.polygon);
+
+  /* Keep track of what item we started from for the drc. */
+  if (drc) SetThing(1, POLYGON_TYPE, LAYER_PTR(LayerGroup), info.polygon, info.polygon);
 
   info.layer = LayerGroup;
 

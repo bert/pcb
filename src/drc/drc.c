@@ -52,27 +52,28 @@ object_list * drc_violation_list = 0;
  * DRC Functions
  * ----------------------------------------------------------------------- */
 
-static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
-static int thing_type;
+static DRCObject thing1, thing2;
 
 bool
-SetThing (int type, void *ptr1, void *ptr2, void *ptr3)
+SetThing (int n, int type, void *ptr1, void *ptr2, void *ptr3)
 {
-  thing_ptr1 = ptr1;
-  thing_ptr2 = ptr2;
-  thing_ptr3 = ptr3;
-  thing_type = type;
+  if (n == 1) 
+  {
+    thing1.ptr1 = ptr1;
+    thing1.ptr2 = ptr2;
+    thing1.ptr3 = ptr3;
+    thing1.type = type;
+    thing1.id = ((AnyObjectType *)ptr2)->ID;
+  } 
+  else 
+  {
+    thing2.ptr1 = ptr1;
+    thing2.ptr2 = ptr2;
+    thing2.ptr3 = ptr3;
+    thing2.type = type;
+    thing2.id = ((AnyObjectType *)ptr2)->ID;
+  }
   return true;
-}
-
-void 
-copy_thing_into_drcobject (DRCObject * obj)
-{
-  obj->ptr1 = thing_ptr1;
-  obj->ptr2 = thing_ptr2;
-  obj->ptr3 = thing_ptr3;
-  obj->type = thing_type;
-  obj->id = ((AnyObjectType *)thing_ptr3)->ID;
 }
 
 static Cardinal drcerr_count;   /*!< Count of drc errors */
@@ -93,25 +94,25 @@ append_drc_violation (DrcViolationType *violation)
 static void
 LocateError (Coord *x, Coord *y)
 {
-  switch (thing_type)
+  switch (thing1.type)
   {
     case LINE_TYPE:
     {
-      LineType *line = (LineType *) thing_ptr3;
+      LineType *line = (LineType *) thing1.ptr3;
       *x = (line->Point1.X + line->Point2.X) / 2;
       *y = (line->Point1.Y + line->Point2.Y) / 2;
       break;
     }
     case ARC_TYPE:
     {
-      ArcType *arc = (ArcType *) thing_ptr3;
+      ArcType *arc = (ArcType *) thing1.ptr3;
       *x = arc->X;
       *y = arc->Y;
       break;
     }
     case POLYGON_TYPE:
     {
-      PolygonType *polygon = (PolygonType *) thing_ptr3;
+      PolygonType *polygon = (PolygonType *) thing1.ptr3;
       *x =
       (polygon->Clipped->contours->xmin +
        polygon->Clipped->contours->xmax) / 2;
@@ -123,21 +124,21 @@ LocateError (Coord *x, Coord *y)
     case PIN_TYPE:
     case VIA_TYPE:
     {
-      PinType *pin = (PinType *) thing_ptr3;
+      PinType *pin = (PinType *) thing1.ptr3;
       *x = pin->X;
       *y = pin->Y;
       break;
     }
     case PAD_TYPE:
     {
-      PadType *pad = (PadType *) thing_ptr3;
+      PadType *pad = (PadType *) thing1.ptr3;
       *x = (pad->Point1.X + pad->Point2.X) / 2;
       *y = (pad->Point1.Y + pad->Point2.Y) / 2;
       break;
     }
     case ELEMENT_TYPE:
     {
-      ElementType *element = (ElementType *) thing_ptr3;
+      ElementType *element = (ElementType *) thing1.ptr3;
       *x = element->MarkX;
       *y = element->MarkY;
       break;
@@ -186,7 +187,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   Coord x, y;
   DrcViolationType *violation;
   int flag;
-  DRCObject obj;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   
   if (PCB->Shrink != 0)
@@ -225,8 +225,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drcerr_count++;
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
+      object_list_append(vobjs, &thing2);
       violation = pcb_drc_violation_new (
         _("Potential for broken trace"),
         _("Insufficient overlap between objects can lead to broken "
@@ -271,8 +271,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     drcerr_count++;
     LocateError (&x, &y);
     object_list_clear(vobjs);
-    copy_thing_into_drcobject(&obj);
-    object_list_append(vobjs, &obj);
+    object_list_append(vobjs, &thing1);
+    object_list_append(vobjs, &thing2);
     violation = pcb_drc_violation_new (
       _("Copper areas too close"),
       _("Circuits that are too close may bridge during imaging, etching,"
@@ -287,7 +287,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     pcb_drc_violation_free (violation);
     /* highlight the rest of the encroaching net so it's not reported again */
     flag = FOUNDFLAG | SELECTEDFLAG;
-    start_do_it_and_dump (thing_type, thing_ptr1, thing_ptr2, thing_ptr3, flag, true, 0, false);
+    start_do_it_and_dump (thing1.type, thing1.ptr1, thing1.ptr2, thing1.ptr3, flag, true, 0, false);
     ListStart (What, ptr1, ptr2, ptr3, flag);
   }
   DumpList ();
@@ -300,7 +300,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 static void
 new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
 {
-  DRCObject obj;
   DrcViolationType * violation;
   Coord x, y;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
@@ -311,15 +310,10 @@ new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
 
   drcerr_count++;
   object_list_clear(vobjs);
-  copy_thing_into_drcobject(&obj);
-  object_list_append(vobjs, &obj);
+  object_list_append(vobjs, &thing1);
+  object_list_append(vobjs, &thing2);
   
-  /* Add the polygon to the violation list*/
-  obj.id = poly->ID; obj.type = POLYGON_TYPE;
-  obj.ptr1 = l; obj.ptr2 = obj.ptr3 = poly;
-  object_list_append(vobjs, &obj);
-
-  switch (thing_type)
+  switch (thing1.type)
   {
   case LINE_TYPE:
     sprintf(message, fmstr, "line");
@@ -367,7 +361,6 @@ new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
 static void
 new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
 {
-  DRCObject obj;
   DrcViolationType * violation;
   Coord x, y;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
@@ -378,15 +371,10 @@ new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
 
   drcerr_count++;
   object_list_clear(vobjs);
-  copy_thing_into_drcobject(&obj);
-  object_list_append(vobjs, &obj);
-  
-  /* Add the polygon to the violation list*/
-  obj.id = poly->ID; obj.type = POLYGON_TYPE;
-  obj.ptr1 = l; obj.ptr2 = obj.ptr3 = poly;
-  object_list_append(vobjs, &obj);
+  object_list_append(vobjs, &thing1);
+  object_list_append(vobjs, &thing2);
 
-  switch (thing_type)
+  switch (thing1.type)
   {
   case LINE_TYPE:
     sprintf(message, fmstr, "Line");
@@ -445,7 +433,8 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   PinType *pin = (PinType *) ptr2;
   PadType *pad = (PadType *) ptr2;
   
-  SetThing (type, ptr1, ptr2, ptr2);
+  /* Thing 1 is the object on which PlowsPolygon was called */
+  SetThing (2, type, layer, polygon, polygon);
   
   /* If we're here, we know that the polygon and object have overlapping
    * bounding boxes. 
@@ -535,11 +524,11 @@ int
 DRCAll (void)
 {
   Coord x, y;
-  DRCObject obj;
   /* violating object list */
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
   int undo_flags = 0;
+  int old_clearance = 0;
   int tmpcnt;
   int nopastecnt = 0;
   struct drc_info info;
@@ -625,8 +614,9 @@ DRCAll (void)
   /* check minimum widths and polygon clearances */
   COPPERLINE_LOOP (PCB->Data);
   {
+    SetThing (1, LINE_TYPE, layer, line, line);
     /* check line clearances in polygons */
-    int old_clearance = line->Clearance;
+    old_clearance = line->Clearance;
     /* Create a bounding box with DRC clearance */
     line->Clearance = 2*PCB->Bloat;
     SetLineBoundingBox(line);
@@ -637,11 +627,9 @@ DRCAll (void)
     if (line->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      SetThing (LINE_TYPE, layer, line, line);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Line width is too thin"),
         _("Process specifications dictate a minimum feature-width\n"
@@ -660,15 +648,14 @@ DRCAll (void)
   
   COPPERARC_LOOP (PCB->Data);
   {
+    SetThing (1, ARC_TYPE, layer, arc, arc);
     PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info);
     if (arc->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      SetThing (ARC_TYPE, layer, arc, arc);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Arc width is too thin"),
         _("Process specifications dictate a minimum feature-width\n"
@@ -687,16 +674,15 @@ DRCAll (void)
 
   ALLPIN_LOOP (PCB->Data);
   {
+    SetThing (1, PIN_TYPE, element, pin, pin);
     PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback, &info);
     if (!TEST_FLAG (HOLEFLAG, pin) &&
         pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
     {
       drcerr_count++;
-      SetThing (PIN_TYPE, element, pin, pin);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pin annular ring too small"),
         _("Annular rings that are too small may erode during etching,\n"
@@ -713,11 +699,9 @@ DRCAll (void)
     if (pin->DrillingHole < PCB->minDrill)
     {
       drcerr_count++;
-      SetThing (PIN_TYPE, element, pin, pin);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pin drill size is too small"),
         _("Process rules dictate the minimum drill size which can be "
@@ -736,15 +720,14 @@ DRCAll (void)
 
   ALLPAD_LOOP (PCB->Data);
   {
+    SetThing (1, PAD_TYPE, element, pad, pad);
     PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback, &info);
     if (pad->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      SetThing (PAD_TYPE, element, pad, pad);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pad is too thin"),
         _("Pads which are too thin may erode during etching,\n"
@@ -763,16 +746,15 @@ DRCAll (void)
 
   VIA_LOOP (PCB->Data);
   {
+    SetThing (1, VIA_TYPE, via, via, via);
     PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback, &info);
     if (!TEST_FLAG (HOLEFLAG, via) &&
         via->Thickness - via->DrillingHole < 2 * PCB->minRing)
     {
       drcerr_count++;
-      SetThing (VIA_TYPE, via, via, via);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Via annular ring too small"),
         _("Annular rings that are too small may erode during etching,\n"
@@ -789,11 +771,9 @@ DRCAll (void)
     if (via->DrillingHole < PCB->minDrill)
     {
       drcerr_count++;
-      SetThing (VIA_TYPE, via, via, via);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Via drill size is too small"),
         _("Process rules dictate the minimum drill size which can "
@@ -816,14 +796,13 @@ DRCAll (void)
   /* XXX - need to check text and polygons too! */
   SILKLINE_LOOP (PCB->Data);
   {
+    SetThing (1, LINE_TYPE, layer, line, line);
     if (line->Thickness < PCB->minSlk)
     {
       drcerr_count++;
-      SetThing (LINE_TYPE, layer, line, line);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Silk line is too thin"),
         _("Process specifications dictate a minimum silkscreen\n"
@@ -844,6 +823,7 @@ DRCAll (void)
   /* XXX - need to check text and polygons too! */
   ELEMENT_LOOP (PCB->Data);
   {
+    SetThing (1, ELEMENT_TYPE, element, element, element);
     tmpcnt = 0;
     ELEMENTLINE_LOOP (element);
     {
@@ -857,11 +837,9 @@ DRCAll (void)
       char *buffer;
       int buflen;
       drcerr_count++;
-      SetThing (ELEMENT_TYPE, element, element, element);
       LocateError (&x, &y);
       object_list_clear(vobjs);
-      copy_thing_into_drcobject(&obj);
-      object_list_append(vobjs, &obj);
+      object_list_append(vobjs, &thing1);
       title = _("Element %s has %i silk lines which are too thin");
       name = (char *)UNKNOWN (NAMEONPCB_NAME (element));
       

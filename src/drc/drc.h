@@ -34,6 +34,12 @@
 /* This list keeps track of DRCViolations */
 extern object_list * drc_violation_list;
 
-bool SetThing(int, void*, void*, void*);
+/* There are two "things", which are just sets of object pointers used to
+ * keep track of objects. Thing 1 should be set to the "seed" object, and
+ * thing 2 should be set to the found object. 
+ *
+ * This is an ugly hack that needs to go away eventually. 
+ */
+bool SetThing(int n, int type, void *p1, void *p2, void *p3);
 
 #endif /* PCB_DRC_H */
