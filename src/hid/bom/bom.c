@@ -260,6 +260,7 @@ bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 {
   BomList *newlist, *cur, *prev = NULL;
 
+
   if (bom == NULL)
     {
       /* this is the first element so automatically create an entry */
@@ -393,6 +394,10 @@ PrintBOM (void)
   BomList *bom = NULL;
   char *name, *descr, *value,*fixed_rotation;
   int rpindex;
+  char fmt[256];
+
+  sprintf(fmt, "%%s,\"%%s\",\"%%s\",%%.2`m%c,%%.2`m%c,%%g,%%s\n", 
+          xy_unit->printf_code, xy_unit->printf_code);
 
   fp = fopen (xy_filename, "wb");
   if (!fp)
@@ -577,9 +582,9 @@ PrintBOM (void)
 	value = CleanBOMString ((char *)UNKNOWN (VALUE_NAME (element)));
 
  	y = PCB->MaxHeight - y;
-	pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2`mS,%.2`mS,%g,%s\n",
-		     xy_unit->allow, name, descr, value, x, y,
-		     theta, FRONT (element) == 1 ? "top" : "bottom");
+	//pcb_fprintf (fp, "%m+%s,\"%s\",\"%s\",%.2`mS,%.2`mS,%g,%s\n",
+	pcb_fprintf (fp, fmt, name, descr, value, x, y, theta, 
+                          FRONT (element) == 1 ? "top" : "bottom");
 	free (name);
 	free (descr);
 	free (value);
@@ -637,7 +642,12 @@ bom_do_export (HID_Attr_Val * options)
   if (options[HA_xymm].int_value)
     xy_unit = get_unit_struct ("mm");
   else
-    xy_unit = &get_unit_list ()[options[HA_unit].int_value];
+    /* options[HA_unit].int_value gets set to the index of the passed unit 
+     * in the Units structure (pcb-printf.c) by hid_parse_command_line 
+     * (hid/common/hidinit.c), so, this command gets a pointer to the desired 
+     * unit structure from that list.
+     * */
+    xy_unit = &(get_unit_list ()[options[HA_unit].int_value]);
   PrintBOM ();
 }
 

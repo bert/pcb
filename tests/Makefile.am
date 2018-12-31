@@ -121,10 +121,13 @@ EXTRA_DIST = \
   golden/hid_bom1/bom_general.xy \
   golden/hid_bom2/test.bom \
   golden/hid_bom2/bom_general.xy \
-  golden/hid_bom3/bom_general.bom \
-  golden/hid_bom3/test.xy \
-  golden/hid_bom4/bom_general.bom \
-  golden/hid_bom4/bom_general.xy \
+  golden/hid_bom3/mm.xy \
+  golden/hid_bom4/inches.xy \
+  golden/hid_bom5/mil.xy \
+  golden/hid_bom6/dmil.xy \
+  golden/hid_bom7/cmil.xy \
+  golden/hid_bom8/cm.xy \
+  golden/hid_bom9/um.xy \
   golden/hid_gerber1/gerber_oneline.top.gbr \
   golden/hid_gerber1/gerber_oneline.fab.gbr \
   golden/hid_gerber1/gerber_oneline.bottom.gbr \

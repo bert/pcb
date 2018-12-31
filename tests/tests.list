@@ -108,11 +108,22 @@
 #
 #
 # Produces a bill of materials (BOM) file and a centroid (XY) file
+# Note that the origin of the coordinate system is taken to be the lower left
+# corner of the board so that y increases in the "up" direction on the screen.
 #
-hid_bom1 | bom_general.pcb | bom | | | bom:bom_general.bom xy:bom_general.xy
-hid_bom2 | bom_general.pcb | bom | --bomfile test.bom | | bom:test.bom xy:bom_general.xy
-hid_bom3 | bom_general.pcb | bom | --xyfile  test.xy  | | bom:bom_general.bom xy:test.xy
-hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_general.xy
+# The best way to check the output is to set the mark at the lower left corner
+# so that the delta coordinate matches the output.
+#
+hid_bom1 | bom_general.pcb | bom |                                    | | bom:bom_general.bom xy:bom_general.xy
+hid_bom2 | bom_general.pcb | bom | --bomfile test.bom                 | | bom:test.bom xy:bom_general.xy
+hid_bom3 | bom_general.pcb | bom | --xy-in-mm     --xyfile mm.xy      | | xy:mm.xy
+hid_bom4 | bom_general.pcb | bom | --xy-unit in   --xyfile inches.xy  | | xy:inches.xy
+hid_bom5 | bom_general.pcb | bom | --xy-unit mil  --xyfile mil.xy     | | xy:mil.xy
+hid_bom6 | bom_general.pcb | bom | --xy-unit dmil --xyfile dmil.xy    | | xy:dmil.xy
+hid_bom7 | bom_general.pcb | bom | --xy-unit cmil --xyfile cmil.xy    | | xy:cmil.xy
+hid_bom8 | bom_general.pcb | bom | --xy-unit cm   --xyfile cm.xy      | | xy:cm.xy
+hid_bom9 | bom_general.pcb | bom | --xy-unit um   --xyfile um.xy      | | xy:um.xy
+
 #
 ######################################################################
 # ---------------------------------------------

@@ -1,0 +1,31 @@
+# PcbXY Version 1.0
+# Date: Mon 31 Dec 2018 03:58:47 PM GMT UTC
+# Author: Charles Parker
+# Title: Basic BOM/XY Test - PCB X-Y
+# RefDes, Description, Value, X, Y, rotation, top/bottom
+# X,Y in um.  rotation in degrees.
+# --------------------------------------------
+R0_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",15240.00,99060.00,180,bottom
+R90_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",25400.00,99060.00,270,bottom
+R180_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",33020.00,99060.00,0,bottom
+R270_BOT,"Standard SMT resistor, capacitor etc","RESC3216N",43180.00,99060.00,90,bottom
+USO0_BOT,"Small outline package, narrow (150mil)","SO8",15240.00,66040.00,180,bottom
+USO90_BOT,"Small outline package, narrow (150mil)","SO8",25400.00,66040.00,270,bottom
+USO180_BOT,"Small outline package, narrow (150mil)","SO8",33020.00,66040.00,0,bottom
+USO270_BOT,"Small outline package, narrow (150mil)","SO8",43180.00,66040.00,90,bottom
+UDIP0_BOT,"Dual in-line package, narrow (300 mil)","DIP8",13970.00,16510.00,180,bottom
+UDIP90_BOT,"Dual in-line package, narrow (300 mil)","DIP8",31750.00,16510.00,270,bottom
+UDIP180_BOT,"Dual in-line package, narrow (300 mil)","DIP8",49530.00,16510.00,0,bottom
+UDIP270_BOT,"Dual in-line package, narrow (300 mil)","DIP8",67310.00,16510.00,90,bottom
+USO0_TOP,"Small outline package, narrow (150mil)","SO8",15240.00,81280.00,0,top
+USO270_TOP,"Small outline package, narrow (150mil)","SO8",25400.00,81280.00,90,top
+USO180_TOP,"Small outline package, narrow (150mil)","SO8",33020.00,81280.00,180,top
+USO90_TOP,"Small outline package, narrow (150mil)","SO8",43180.00,81280.00,270,top
+UDIP0_TOP,"Dual in-line package, narrow (300 mil)","DIP8",13970.00,36830.00,0,top
+UDIP270_TOP,"Dual in-line package, narrow (300 mil)","DIP8",31750.00,36830.00,90,top
+UDIP180_TOP,"Dual in-line package, narrow (300 mil)","DIP8",49530.00,36830.00,180,top
+UDIP90_TOP,"Dual in-line package, narrow (300 mil)","DIP8",67310.00,36830.00,270,top
+R0_TOP,"Standard SMT resistor, capacitor etc","RESC3216N",15240.00,109220.00,0,top
+R270_TOP,"Standard SMT resistor, capacitor etc","RESC3216N",25400.00,109220.00,90,top
+R180_TOP,"Standard SMT resistor, capacitor etc","RESC3216N",33020.00,109220.00,180,top
+R90_TOP,"Standard SMT resistor, capacitor etc","RESC3216N",43180.00,109220.00,270,top
