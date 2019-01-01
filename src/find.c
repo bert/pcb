@@ -542,8 +542,8 @@ FreeConnectionLookupMemory (void)
 #define IS_PV_ON_ARC(PV, Arc)	\
 	(TEST_FLAG(SQUAREFLAG, (PV)) ? \
 		IsArcInRectangle( \
-			(PV)->X -MAX(((PV)->Thickness+1)/2 +Bloat,0), (PV)->Y -MAX(((PV)->Thickness+1)/2 +Bloat,0), \
-			(PV)->X +MAX(((PV)->Thickness+1)/2 +Bloat,0), (PV)->Y +MAX(((PV)->Thickness+1)/2 +Bloat,0), \
+			(PV)->X -MAX(((PV)->Thickness+1)/2,0), (PV)->Y -MAX(((PV)->Thickness+1)/2,0), \
+			(PV)->X +MAX(((PV)->Thickness+1)/2,0), (PV)->Y +MAX(((PV)->Thickness+1)/2,0), \
 			(Arc)) : \
 		IsPointOnArc((PV)->X,(PV)->Y,MAX((PV)->Thickness/2.0 + Bloat,0.0), (Arc)))
 
