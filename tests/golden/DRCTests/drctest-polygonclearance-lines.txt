@@ -157,6 +157,36 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21437600, 13944600), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6582 6627 
+object types: 4 4 
+
+********************************************************************************
+                                  Violation 11
+********************************************************************************
+title: Line with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21412200, 12039600), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6585 6627 
+object types: 4 4 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Line with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
 location: (x, y) = (31242000, 15849600), angle = 0.000000
 have_measured: true
 measured value: 254
@@ -166,7 +196,7 @@ object IDs: 6609 6627
 object types: 4 4 
 
 ********************************************************************************
-                                  Violation 11
+                                  Violation 13
 ********************************************************************************
 title: Line with insufficient clearance inside polygon
 
@@ -181,7 +211,7 @@ object IDs: 6612 6627
 object types: 4 4 
 
 ********************************************************************************
-                                  Violation 12
+                                  Violation 14
 ********************************************************************************
 title: Line with insufficient clearance inside polygon
 
@@ -196,7 +226,7 @@ object IDs: 6615 6627
 object types: 4 4 
 
 ********************************************************************************
-                                  Violation 13
+                                  Violation 15
 ********************************************************************************
 title: Line with insufficient clearance inside polygon
 
@@ -211,7 +241,7 @@ object IDs: 6618 6627
 object types: 4 4 
 
 ********************************************************************************
-                                  Violation 14
+                                  Violation 16
 ********************************************************************************
 title: Line with insufficient clearance inside polygon
 
@@ -226,7 +256,7 @@ object IDs: 6621 6627
 object types: 4 4 
 
 ********************************************************************************
-                                  Violation 15
+                                  Violation 17
 ********************************************************************************
 title: Line with insufficient clearance inside polygon
 

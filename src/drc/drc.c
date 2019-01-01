@@ -475,12 +475,12 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
          *
          */
         CLEAR_FLAG (CLEARLINEFLAG, line);
-        bloat_line(line, PCB->Bloat);
+        bloat_line(line, 2*PCB->Bloat);
         /* True if the bloated line touches the polygon, after taking clearances
          * into account... note that IsLineInPolygon adds another bloat.
          */
         obj_is_in_polygon = IsLineInPolygon(line,polygon);
-        bloat_line(line, -PCB->Bloat);
+        bloat_line(line, -2*PCB->Bloat);
         /* Restore the state of the flag */
         SET_FLAG (CLEARLINEFLAG, line);  
         if (obj_is_in_polygon)
