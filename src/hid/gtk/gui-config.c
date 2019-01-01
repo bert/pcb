@@ -1123,7 +1123,7 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
 			  _("Minimum copper width"));
 
   ghid_table_coord_entry (table, 2, 0, NULL,
-			  PCB->Shrink, MIN_DRC_VALUE, MAX_DRC_VALUE,
+			  PCB->Shrink, 0, MAX_DRC_VALUE,
 			  CE_SMALL, 0, coord_entry_cb,
 			  &PCB->Shrink, FALSE,
 			  _("Minimum touching copper overlap"));
