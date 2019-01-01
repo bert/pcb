@@ -1214,7 +1214,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
    */
   while ((subdirentry = readdir (subdirobj)) != NULL)
   {
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
 /*    printf("...  Examining file %s ... \n", subdirentry->d_name); */
 #endif
 
@@ -1234,7 +1234,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
       && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0)
       && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".pcb") != 0) )
       {
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
 /*	printf("...  Found a footprint %s ... \n", subdirentry->d_name); */
 #endif
 	n_footprints++;
@@ -1285,7 +1285,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath, bool recursive)
    */
   while ((subdirentry = readdir (subdirobj)) != NULL)
     {
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
       printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", subdirentry->d_name);
 #endif
       /* Find subdirectories.  Ignore entries beginning with "." and CVS
@@ -1400,7 +1400,7 @@ ParseLibraryTree (void)
          is_abs = true;
         }
 
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
       printf("In ParseLibraryTree, looking for newlib footprints inside top level directory %s ... \n", 
 	     toppath);
 #endif
@@ -1413,7 +1413,7 @@ ParseLibraryTree (void)
   if (chdir (working))
     ChdirErrorMessage (working);
 
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
   printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
 #endif
 
@@ -1451,7 +1451,7 @@ ReadLibraryContents (void)
 				  Settings.LibraryPath, Settings.LibraryFilename,
 				  NULL);
 
-#ifdef DEBUG
+#ifdef DEBUG_FILE_C
       printf("In ReadLibraryContents, about to execute command %s\n", command);
 #endif
 

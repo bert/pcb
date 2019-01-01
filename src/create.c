@@ -734,7 +734,7 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
 {
   ElementType *Element;
 
-#ifdef DEBUG
+#ifdef DEBUG_CREATE_C
   printf("Entered CreateNewElement.....\n");
 #endif
 
@@ -756,7 +756,7 @@ CreateNewElement (DataType *Data, FontType *PCBFont, FlagType Flags,
   Element->Flags = Flags;
   Element->ID = ID++;
 
-#ifdef DEBUG
+#ifdef DEBUG_CREATE_C
   printf("  .... Leaving CreateNewElement.\n");
 #endif
 
