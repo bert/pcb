@@ -1648,7 +1648,9 @@ SearchObjectByID (DataType *Base,
   }
   END_LOOP;
 
+#ifdef DEBUG
   Message ("hace: Internal error, search for ID %d failed\n", ID);
+#endif /* DEBUG */
   return (NO_TYPE);
 }
 
