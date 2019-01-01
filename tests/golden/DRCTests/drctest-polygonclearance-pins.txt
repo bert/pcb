@@ -23,8 +23,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (6350000, 17780000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 101600
 required value: 127000
 object count: 2
 object IDs: 6857 6978 
@@ -38,8 +38,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (6350000, 19685000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 76200
 required value: 127000
 object count: 2
 object IDs: 6858 6978 
@@ -53,8 +53,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (6350000, 21590000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 50800
 required value: 127000
 object count: 2
 object IDs: 6859 6978 
@@ -68,8 +68,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (6350000, 23495000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6860 6978 
@@ -83,8 +83,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (19050000, 17780000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 101600
 required value: 127000
 object count: 2
 object IDs: 6871 6978 
@@ -98,8 +98,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (19050000, 19685000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 76200
 required value: 127000
 object count: 2
 object IDs: 6872 6978 
@@ -113,8 +113,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (19050000, 21590000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 50800
 required value: 127000
 object count: 2
 object IDs: 6873 6978 
@@ -128,8 +128,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (19050000, 23495000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6874 6978 
@@ -143,8 +143,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22580600, 23495000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6879 6978 
@@ -158,8 +158,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22555200, 21590000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6884 6978 
@@ -173,8 +173,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22529800, 19685000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6889 6978 
@@ -188,8 +188,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22504400, 17780000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6894 6978 
@@ -203,8 +203,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22479000, 15875000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6899 6978 
@@ -218,8 +218,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22453600, 13970000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6904 6978 
@@ -233,8 +233,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22428200, 12065000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6909 6978 
@@ -248,8 +248,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22402800, 10160000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6914 6978 
@@ -263,8 +263,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22377400, 8255000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6919 6978 
@@ -278,8 +278,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22352000, 6350000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6924 6978 
@@ -293,8 +293,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30937200, 19685000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6964 6978 
@@ -308,8 +308,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30886400, 23495000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6969 6978 
@@ -323,8 +323,8 @@ title: Pin with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30911800, 21590000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6974 6978 

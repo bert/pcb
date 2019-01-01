@@ -362,7 +362,7 @@ static void
 new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
 {
   DrcViolationType * violation;
-  Coord x, y;
+  Coord x, y, cl;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   const char * fmstr = "%s with insufficient clearance inside polygon\n";
   char message[128];
@@ -374,25 +374,32 @@ new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
   object_list_append(vobjs, &thing1);
   object_list_append(vobjs, &thing2);
 
+
   switch (thing1.type)
   {
   case LINE_TYPE:
     sprintf(message, fmstr, "Line");
+    cl = ((LineType*) thing1.ptr2)->Clearance;
     break;
   case ARC_TYPE:
     sprintf(message, fmstr, "Arc");
+    cl = ((ArcType*) thing1.ptr2)->Clearance;
     break;
   case PIN_TYPE:
     sprintf(message, fmstr, "Pin");
+    cl = ((PinType*) thing1.ptr2)->Clearance;
     break;
   case PAD_TYPE:
     sprintf(message, fmstr, "Pad");
+    cl = ((PadType*) thing1.ptr2)->Clearance;
     break;
   case VIA_TYPE:
     sprintf(message, fmstr, "Via");
+    cl = ((PinType*) thing1.ptr2)->Clearance;
     break;
   default:
     Message ("Warning: Unknown object type in poly clearance violation!\n");
+    return;
   }
 
   violation = pcb_drc_violation_new (message,
@@ -400,8 +407,8 @@ new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
       "plating, or soldering processes resulting in a direct short."),
       x, y,
       0,     /* ANGLE OF ERROR UNKNOWN */
-      FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
-      0,     /* MAGNITUDE OF ERROR UNKNOWN */
+      true, /* MEASUREMENT OF ERROR UNKNOWN */
+      cl/2.,     /* MAGNITUDE OF ERROR UNKNOWN */
       PCB->Bloat,
       vobjs);
   append_drc_violation (violation);
@@ -420,6 +427,10 @@ bloat_line (LineType* line, Coord bloat)
 
 /*!
  * \brief DRC clearance callback.
+ *
+ * Note: An object's "clearance" is the amount that should be added to the
+ * objects width to get the width of the polygon cutout. This is two sided,
+ * so, clearance = 2 * Bloat.
  */
 static int
 drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,

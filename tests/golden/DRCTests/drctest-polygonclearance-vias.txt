@@ -23,8 +23,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21082000, 6985000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7004 7047 
@@ -38,8 +38,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21107400, 8890000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7005 7047 
@@ -53,8 +53,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21132800, 10795000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7006 7047 
@@ -68,8 +68,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21158200, 12700000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7007 7047 
@@ -83,8 +83,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21183600, 14605000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7008 7047 
@@ -98,8 +98,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21209000, 16510000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7009 7047 
@@ -113,8 +113,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21234400, 18415000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7010 7047 
@@ -128,8 +128,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21259800, 20320000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7011 7047 
@@ -143,8 +143,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21285200, 22225000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7012 7047 
@@ -158,8 +158,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (21310600, 24130000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7013 7047 
@@ -173,8 +173,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (17780000, 18415000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 101600
 required value: 127000
 object count: 2
 object IDs: 7020 7047 
@@ -188,8 +188,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (17780000, 20320000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 76200
 required value: 127000
 object count: 2
 object IDs: 7021 7047 
@@ -203,8 +203,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (17780000, 22225000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 50800
 required value: 127000
 object count: 2
 object IDs: 7022 7047 
@@ -218,8 +218,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (17780000, 24130000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7023 7047 
@@ -233,8 +233,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (5080000, 18415000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 101600
 required value: 127000
 object count: 2
 object IDs: 7030 7047 
@@ -248,8 +248,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (5080000, 20320000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 76200
 required value: 127000
 object count: 2
 object IDs: 7031 7047 
@@ -263,8 +263,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (5080000, 22225000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 50800
 required value: 127000
 object count: 2
 object IDs: 7032 7047 
@@ -278,8 +278,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (5080000, 24130000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7033 7047 
@@ -293,8 +293,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30962600, 18415000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 101600
 required value: 127000
 object count: 2
 object IDs: 7040 7047 
@@ -308,8 +308,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30937200, 20320000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 76200
 required value: 127000
 object count: 2
 object IDs: 7041 7047 
@@ -323,8 +323,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30911800, 22225000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 50800
 required value: 127000
 object count: 2
 object IDs: 7042 7047 
@@ -338,8 +338,8 @@ title: Via with insufficient clearance inside polygon
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
 location: (x, y) = (30886400, 24130000), angle = 0.000000
-have_measured: false
-measured value: 0
+have_measured: true
+measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 7043 7047 
