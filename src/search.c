@@ -748,17 +748,28 @@ IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
  * \brief Checks if a line intersects with a PV.
  *
  * <pre>
- * let the point be (X,Y) and the line (X1,Y1)(X2,Y2)
- * the length of the line is
+ * let the point be (X,Y) and the line (X1,Y1)(X2,Y2).
+ * Let L be a vector along the line: 
  *
- *   L = ((X2-X1)^2 + (Y2-Y1)^2)^0.5
+ *   vec(L) = (X2-X1, Y2-Y1)
+ *       L  = ((X2-X1)^2 + (Y2-Y1)^2)^0.5
+ *
+ * Let P be a vector from the endpoint of the line to the point in question:
+ * The vector P is: 
+ *
+ *   vec(P) = (X-X1, Y-Y1)
  * 
  * let Q be the point of perpendicular projection of (X,Y) onto the line
  *
  *   QX = X1 + D1*(X2-X1) / L
  *   QY = Y1 + D1*(Y2-Y1) / L
- * 
- * with (from vector geometry)
+ *
+ * where D1 is the distance from (X1, Y1) to (QX, QY). The magnitude of D1
+ * can be written as:
+ *
+ *   D1 = vec(L) . vec(P) / abs(L)    (dot product)
+ *
+ * or (from vector geometry):
  *
  *        (Y1-Y)(Y1-Y2)+(X1-X)(X1-X2)
  *   D1 = ---------------------------
@@ -768,7 +779,13 @@ IsPointOnLineEnd (Coord X, Coord Y, RatType *Line)
  *   D1 > L   Q is on forward extension of the line
  *   else     Q is on the line
  *
- * the signed distance from (X,Y) to Q is
+ * With some coordinate switcheroos, we can get a vector perpendicular to L
+ *
+ *                 Lp_x     Lp_y
+ *   vec (Lp) =  (Y2-Y1, -(X2-X1))
+ *
+ * The distance from the line to the point, D2, can be computed with a
+ * similar dot product. The signed distance from (X,Y) to Q is
  *
  *        (Y2-Y1)(X-X1)-(X2-X1)(Y-Y1)
  *   D2 = ----------------------------

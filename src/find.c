@@ -1017,15 +1017,41 @@ LineLineIntersect (LineType *Line1, LineType *Line2)
  * found in IsPointOnLine (search.c) see the detailed
  * discussion for the basics there.
  *
+ * Some definitions (as in search.c:IsPointOnLine): 
+ *
+ *     Q - The point on the line segment where a line perpendicular to the
+ *         segment would intersect the center of the circle.
+ *
+ *    D1 - The distance along the line from the first point to Q.
+ *    
+ *    D2 - The perpendicular distance from Q to the center of the circle.
+ *
+ *     L - The length of the line segment.
+ *
+ * delta - the distance along the line segment from Q to the location where
+ *         the circle intersects the line.
+ *
  * Since this is only an arc, not a full circle we need
  * to find the actual points of intersection with the
- * circle, and see if they are on the arc.
+ * circle, and see if they are on the arc. To do this, we translate along the 
+ * line from the point Q plus or minus delta:
  *
- * To do this, we translate along the line from the point Q
- * plus or minus a distance delta = sqrt(Radius^2 - d^2)
- * but it's handy to normalize with respect to l, the line
- * length so a single projection is done (e.g. we don't first
- * find the point Q.
+ *   delta = sqrt(Radius^2 - D2^2) 
+ *
+ * The coordinates of the points of intersection can be calculated using
+ * similar triangles:
+ *
+ *   Px = X1 + (D1 +/- delta)(X2 - X1) / L
+ *   Py = Y1 + (D1 +/- delta)(Y2 - Y1) / L
+ *
+ *
+ * The math below makes some substitutions: 
+ * 
+ * r = D1
+ * d = D2 * L
+ * r2 = delta = sqrt(Radius^2 * L^2 - d^2) / L^2
+ *
+ * Some older comments...
  *
  * <pre>
  * The projection is now of the form:
@@ -1050,18 +1076,30 @@ LineArcIntersect (LineType *Line, ArcType *Arc)
   dy = Line->Point2.Y - Line->Point1.Y;
   dx1 = Line->Point1.X - Arc->X;
   dy1 = Line->Point1.Y - Arc->Y;
-  l = dx * dx + dy * dy;
-  d = dx * dy1 - dy * dx1;
-  d *= d;
 
-  /* use the larger diameter circle first */
+  /* length of the line, squared */
+  l = dx * dx + dy * dy;    
+  
+  /* minimum distance from the line to the center of the arc, times the
+   * length of the line (D2*L from search.c equations) */
+  d = dx * dy1 - dy * dx1;      
+  d *= d;  /* (D2*L)^2 */
+
+  /* Check the outer edge of the arc first. 
+   * Note: I'm not not entirely sure that this is the right way to
+   *       incorporate the line thickness...
+   * */
   Radius =
     Arc->Width + MAX (0.5 * (Arc->Thickness + Line->Thickness) + Bloat, 0.0);
   Radius *= Radius;
+
+  /* If the argument to the square root is negative, then the arc is too far
+   * away to be able to intersect the line.
+   * */
   r2 = Radius * l - d;
-  /* projection doesn't even intersect circle when r2 < 0 */
   if (r2 < 0)
     return (false);
+
   /* check the ends of the line in case the projected point */
   /* of intersection is beyond the line end */
   if (IsPointOnArc
@@ -1072,22 +1110,39 @@ LineArcIntersect (LineType *Line, ArcType *Arc)
       (Line->Point2.X, Line->Point2.Y,
        MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
+
+  /* Zero length lines have some thickness, so, could still intersect.
+   * However, they would have been caught by the previous tests. So, at this
+   * point zero length means no intersection. 
+   * */
   if (l == 0.0)
     return (false);
-  r2 = sqrt (r2);
-  Radius = -(dx * dx1 + dy * dy1);
-  r = (Radius + r2) / l;
+
+  /* Okay, fine... I guess we have to do some math.
+   * */
+  r2 = sqrt (r2);  /* delta * L^2 */
+  Radius = -(dx * dx1 + dy * dy1); /* Actually D1*L */
+  r = (Radius + r2) / l; /* (D1*L + delta*L^2) / L = (D1 + delta*L) */
+
+  /* r is now (supposed to be) the distance from the first point to the 
+   * further intersection, normalized to the length of the segment. 
+   * If r < 0, we're behind the segment, and if r > 1 we're beyond the segment.
+   * */
   if (r >= 0 && r <= 1
       && IsPointOnArc (Line->Point1.X + r * dx,
                        Line->Point1.Y + r * dy,
                        MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
+
+  /* Now check the other side.
+   * */
   r = (Radius - r2) / l;
   if (r >= 0 && r <= 1
       && IsPointOnArc (Line->Point1.X + r * dx,
                        Line->Point1.Y + r * dy,
                        MAX (0.5 * Line->Thickness + Bloat, 0.0), Arc))
     return (true);
+
   /* check arc end points */
   box = GetArcEnds (Arc);
   if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + Bloat, (PadType *)Line))
