@@ -2033,9 +2033,6 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
   info.arc = Arc;
   search_box = expand_bounds ((BoxType *)info.arc);
 
-  /* Keep track of what item we started from for the drc. */
-  if (drc) SetThing(1, ARC_TYPE , LAYER_PTR(LayerGroup), info.arc, info.arc);
-
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2045,6 +2042,10 @@ LookupLOConnectionsToArc (ArcType *Arc, Cardinal LayerGroup, int flag, bool AndR
 
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
+
+      /* Keep track of what item we started from for the drc. */
+      if (drc) SetThing(1, ARC_TYPE, layer, info.arc, info.arc);
+
 
       /* handle normal layers */
       if (layer_no < max_copper_layer)
@@ -2174,9 +2175,6 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
   info.line = Line;
   search_box = expand_bounds ((BoxType *)info.line);
 
-  /* Keep track of what item we started from for the drc. */
-  if (drc) SetThing(1, LINE_TYPE , LAYER_PTR(LayerGroup), info.line, info.line);
-
   if (AndRats)
     {
       /* add the new rat lines */
@@ -2195,6 +2193,10 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
 
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
+
+      /* Keep track of what item we started from for the drc. */
+      if (drc) SetThing(1, LINE_TYPE, layer, info.line, info.line);
+
 
       /* handle normal layers */
       if (layer_no < max_copper_layer)
@@ -2610,9 +2612,6 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
   info.polygon = Polygon;
   search_box = expand_bounds ((BoxType *)info.polygon);
 
-  /* Keep track of what item we started from for the drc. */
-  if (drc) SetThing(1, POLYGON_TYPE, LAYER_PTR(LayerGroup), info.polygon, info.polygon);
-
   info.layer = LayerGroup;
 
   /* check rats */
@@ -2633,6 +2632,10 @@ LookupLOConnectionsToPolygon (PolygonType *Polygon, Cardinal LayerGroup, int fla
 
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
+
+      /* Keep track of what item we started from for the drc. */
+      if (drc) SetThing(1, POLYGON_TYPE, layer, info.polygon, info.polygon);
+
 
       /* handle normal layers */
       if (layer_no < max_copper_layer)

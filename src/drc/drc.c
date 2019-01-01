@@ -287,7 +287,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     pcb_drc_violation_free (violation);
     /* highlight the rest of the encroaching net so it's not reported again */
     flag = FOUNDFLAG | SELECTEDFLAG;
-    start_do_it_and_dump (thing1.type, thing1.ptr1, thing1.ptr2, thing1.ptr3, flag, true, 0, false);
+    start_do_it_and_dump (thing2.type, thing2.ptr1, thing2.ptr2, thing2.ptr3, flag, true, 0, false);
     ListStart (What, ptr1, ptr2, ptr3, flag);
   }
   DumpList ();
