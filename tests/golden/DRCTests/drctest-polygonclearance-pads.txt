@@ -22,81 +22,6 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21971000, 6350000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6694 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 2
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21996400, 8255000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6699 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 3
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22021800, 10160000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6704 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 4
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22047200, 12065000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6709 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 5
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22072600, 13970000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6714 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 6
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22098000, 15875000), angle = 0.000000
 have_measured: true
 measured value: 25400
@@ -106,7 +31,7 @@ object IDs: 6719 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 7
+                                  Violation 2
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -121,7 +46,7 @@ object IDs: 6724 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 8
+                                  Violation 3
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -136,7 +61,7 @@ object IDs: 6729 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 9
+                                  Violation 4
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -151,7 +76,7 @@ object IDs: 6734 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 10
+                                  Violation 5
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -166,67 +91,7 @@ object IDs: 6739 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 11
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 17805400), angle = 0.000000
-have_measured: true
-measured value: 101600
-required value: 127000
-object count: 2
-object IDs: 6750 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 12
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 19685000), angle = 0.000000
-have_measured: true
-measured value: 76200
-required value: 127000
-object count: 2
-object IDs: 6751 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 13
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 21590000), angle = 0.000000
-have_measured: true
-measured value: 50800
-required value: 127000
-object count: 2
-object IDs: 6752 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 14
-********************************************************************************
-title: Pad with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 23495000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6753 6821 
-object types: 512 512 
-
-********************************************************************************
-                                  Violation 15
+                                  Violation 6
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -241,7 +106,7 @@ object IDs: 6764 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 16
+                                  Violation 7
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -256,7 +121,7 @@ object IDs: 6765 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 17
+                                  Violation 8
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -271,7 +136,7 @@ object IDs: 6766 6821
 object types: 512 512 
 
 ********************************************************************************
-                                  Violation 18
+                                  Violation 9
 ********************************************************************************
 title: Pad with insufficient clearance inside polygon
 
@@ -283,5 +148,80 @@ measured value: 25400
 required value: 127000
 object count: 2
 object IDs: 6767 6821 
+object types: 512 512 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
+title: Pad with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31369000, 15875000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6797 6821 
+object types: 512 512 
+
+********************************************************************************
+                                  Violation 11
+********************************************************************************
+title: Pad with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31343600, 17805400), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6802 6821 
+object types: 512 512 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Pad with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31318200, 19685000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6807 6821 
+object types: 512 512 
+
+********************************************************************************
+                                  Violation 13
+********************************************************************************
+title: Pad with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31292800, 21590000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 6812 6821 
+object types: 512 512 
+
+********************************************************************************
+                                  Violation 14
+********************************************************************************
+title: Pad with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (31267400, 23495000), angle = 0.000000
+have_measured: true
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 6817 6821 
 object types: 512 512 
 

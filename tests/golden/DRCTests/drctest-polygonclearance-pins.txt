@@ -82,66 +82,6 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 17780000), angle = 0.000000
-have_measured: true
-measured value: 101600
-required value: 127000
-object count: 2
-object IDs: 6871 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 6
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 19685000), angle = 0.000000
-have_measured: true
-measured value: 76200
-required value: 127000
-object count: 2
-object IDs: 6872 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 7
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 21590000), angle = 0.000000
-have_measured: true
-measured value: 50800
-required value: 127000
-object count: 2
-object IDs: 6873 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 8
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (19050000, 23495000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6874 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 9
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
 location: (x, y) = (22580600, 23495000), angle = 0.000000
 have_measured: true
 measured value: 25400
@@ -151,7 +91,7 @@ object IDs: 6879 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 10
+                                  Violation 6
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -166,7 +106,7 @@ object IDs: 6884 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 11
+                                  Violation 7
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -181,7 +121,7 @@ object IDs: 6889 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 12
+                                  Violation 8
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -196,7 +136,7 @@ object IDs: 6894 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 13
+                                  Violation 9
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -211,82 +151,37 @@ object IDs: 6899 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 14
+                                  Violation 10
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22453600, 13970000), angle = 0.000000
+location: (x, y) = (30988000, 15875000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
 object count: 2
-object IDs: 6904 6978 
+object IDs: 6954 6978 
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 15
+                                  Violation 11
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22428200, 12065000), angle = 0.000000
+location: (x, y) = (30962600, 17780000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
 object count: 2
-object IDs: 6909 6978 
+object IDs: 6959 6978 
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 16
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22402800, 10160000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6914 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 17
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22377400, 8255000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6919 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 18
-********************************************************************************
-title: Pin with insufficient clearance inside polygon
-
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (22352000, 6350000), angle = 0.000000
-have_measured: true
-measured value: 25400
-required value: 127000
-object count: 2
-object IDs: 6924 6978 
-object types: 256 256 
-
-********************************************************************************
-                                  Violation 19
+                                  Violation 12
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -301,7 +196,7 @@ object IDs: 6964 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 20
+                                  Violation 13
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
@@ -316,7 +211,7 @@ object IDs: 6969 6978
 object types: 256 256 
 
 ********************************************************************************
-                                  Violation 21
+                                  Violation 14
 ********************************************************************************
 title: Pin with insufficient clearance inside polygon
 
