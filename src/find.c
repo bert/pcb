@@ -1307,6 +1307,41 @@ IsPolygonInPolygon (PolygonType *P1, PolygonType *P2)
   return (false);
 }
 
+
+/*!
+ * \brief Checks if a pin connects to a non-clearing polygon.
+ *
+ * The polygon is assumed to already have been proven non-clearing.
+ * The pin/via is assumed to have been checked to intersect the polygon's
+ * layer.
+ * 
+ */
+/*static*/ bool
+IsPinInPolygon (PinType *pin, PolygonType *polygon)
+{
+  double wide = MAX (0.5 * pin->Thickness + Bloat, 0);
+  if (TEST_FLAG (SQUAREFLAG, pin))
+  {
+    Coord x1 = pin->X - (pin->Thickness + 1 + Bloat) / 2;
+    Coord x2 = pin->X + (pin->Thickness + 1 + Bloat) / 2;
+    Coord y1 = pin->Y - (pin->Thickness + 1 + Bloat) / 2;
+    Coord y2 = pin->Y + (pin->Thickness + 1 + Bloat) / 2;
+    if (IsRectangleInPolygon (x1, y1, x2, y2, polygon))
+      return true;
+  }
+  else if (TEST_FLAG (OCTAGONFLAG, pin))
+  {
+    POLYAREA *oct = OctagonPoly (pin->X, pin->Y, pin->Thickness / 2);
+    if (isects (oct, polygon, true))
+      return true;
+  }
+  else if (IsPointInPolygon (pin->X, pin->Y, wide, polygon))
+    return true;
+
+  return false;
+}
+
+
 /* ----------------------------------------------------------------------- *
  *
  * Connection Lookup Stuff
@@ -1402,35 +1437,15 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
    * because it might not be inside the polygon, or it could
    * be on an edge such that it doesn't actually touch.
    */
-  if (!TEST_FLAG (i->flag, polygon) && !TEST_FLAG (HOLEFLAG, i->pv) &&
-                                       (TEST_THERM (i->layer, i->pv) ||
-                                        !TEST_FLAG (CLEARPOLYFLAG,
-                                                    polygon)
-                                        || !i->pv->Clearance))
-    {
-      double wide = MAX (0.5 * i->pv->Thickness + Bloat, 0);
-      if (TEST_FLAG (SQUAREFLAG, i->pv))
-        {
-          Coord x1 = i->pv->X - (i->pv->Thickness + 1 + Bloat) / 2;
-          Coord x2 = i->pv->X + (i->pv->Thickness + 1 + Bloat) / 2;
-          Coord y1 = i->pv->Y - (i->pv->Thickness + 1 + Bloat) / 2;
-          Coord y2 = i->pv->Y + (i->pv->Thickness + 1 + Bloat) / 2;
-          if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
-              && ADD_POLYGON_TO_LIST (i->layer, polygon, i->flag))
-            longjmp (i->env, 1);
-        }
-      else if (TEST_FLAG (OCTAGONFLAG, i->pv))
-        {
-          POLYAREA *oct = OctagonPoly (i->pv->X, i->pv->Y, i->pv->Thickness / 2);
-          if (isects (oct, polygon, true)
-              && ADD_POLYGON_TO_LIST (i->layer, polygon, i->flag))
-            longjmp (i->env, 1);
-        }
-      else if (IsPointInPolygon (i->pv->X, i->pv->Y, wide,
-                                 polygon)
-               && ADD_POLYGON_TO_LIST (i->layer, polygon, i->flag))
-        longjmp (i->env, 1);
-    }
+  if (!TEST_FLAG (i->flag, polygon) && !TEST_FLAG (HOLEFLAG, i->pv) 
+       && (TEST_THERM (i->layer, i->pv) 
+           || !TEST_FLAG (CLEARPOLYFLAG, polygon)
+           || !i->pv->Clearance)
+       && IsPinInPolygon(i->pv, polygon)
+       && ADD_POLYGON_TO_LIST (i->layer, polygon, i->flag))
+  {
+    longjmp (i->env, 1);
+  }
   return 0;
 }
 
@@ -2778,6 +2793,8 @@ DoIt (int flag, Coord bloat, bool AndRats, bool AndDraw, bool is_drc)
   while (!newone && !ListsEmpty (AndRats));
   if (AndDraw)
     Draw ();
+  /* We should leave global state variables in a consistent state... */
+  Bloat = 0;
   return (newone);
 }
 

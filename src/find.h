@@ -67,6 +67,7 @@ void start_do_it_and_dump(int, void*, void*, void*, int, bool, Coord, bool);
 bool IsArcInPolygon (ArcType *, PolygonType *);
 bool IsLineInPolygon (LineType *, PolygonType *);
 bool IsPadInPolygon (PadType *, PolygonType *);
+bool IsPinInPolygon (PinType *, PolygonType *);
 bool IsPolygonInPolygon (PolygonType *, PolygonType *);
 
 #endif
