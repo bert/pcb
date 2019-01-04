@@ -75,6 +75,7 @@ Parameter @code{<string>} can include a path.
   {"bomfile", "Name of the BOM output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_bomfile 0
+
 /* %start-doc options "80 BOM Creation"
 @ftable @code
 @item --xyfile <string>
@@ -89,6 +90,17 @@ Parameter @code{<string>} can include a path.
 
 /* %start-doc options "80 BOM Creation"
 @ftable @code
+@item --attrs <string>
+Name of the attributes input file.
+@end ftable
+%end-doc
+*/
+  {"attrs", "Name of the attributes input file",
+   HID_String, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_attrs 2
+
+/* %start-doc options "80 BOM Creation"
+@ftable @code
 @item --xy-unit <unit>
 Unit of XY dimensions. Defaults to mil.
 Parameter @code{<unit>} can be @samp{km}, @samp{m}, @samp{cm}, @samp{mm},
@@ -99,10 +111,11 @@ Parameter @code{<unit>} can be @samp{km}, @samp{m}, @samp{cm}, @samp{mm},
 */
   {"xy-unit", "XY units",
    HID_Unit, 0, 0, {-1, 0, 0}, NULL, 0},
-#define HA_unit 2
+#define HA_unit 3
+
   {"xy-in-mm", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_xymm 3
+#define HA_xymm 4
 };
 
 #define NUM_OPTIONS (sizeof(bom_options)/sizeof(bom_options[0]))
@@ -112,6 +125,10 @@ static HID_Attr_Val bom_values[NUM_OPTIONS];
 static const char *bom_filename;
 static const char *xy_filename;
 static const Unit *xy_unit;
+
+static char **attr_list = NULL;
+static int attr_count = 0;
+static int attr_max = 0;
 
 typedef struct _StringList
 {
@@ -125,6 +142,7 @@ typedef struct _BomList
   char *value;
   int num;
   StringList *refdes;
+  char **attrs;
   struct _BomList *next;
 } BomList;
 
@@ -147,6 +165,9 @@ bom_get_export_options (int *n)
     derive_default_filename(PCB->Filename, &bom_options[HA_bomfile], ".bom", &last_bom_filename);
     derive_default_filename(PCB->Filename, &bom_options[HA_xyfile ], ".xy" , &last_xy_filename );
   }
+
+  if (!bom_options[HA_attrs].default_val.str_value)
+    bom_options[HA_attrs].default_val.str_value = strdup("attribs");
 
   if (n)
     *n = NUM_OPTIONS;
@@ -256,60 +277,72 @@ string_insert (char *str, StringList * list)
 }
 
 static BomList *
-bom_insert (char *refdes, char *descr, char *value, BomList * bom)
+bom_insert (char *refdes, char *descr, char *value, ElementType *e, BomList * bom)
 {
-  BomList *newlist, *cur, *prev = NULL;
+  BomList *newlist = NULL, *cur = NULL, *prev = NULL;
+  int i;
+  char *val;
 
+
+  if (bom != NULL)
+    {
+      /* search and see if we already have used one of these
+	 components */
+      cur = bom;
+      while (cur != NULL)
+	{
+	  int attr_mismatch = 0;
+
+	  for (i=0; i<attr_count; i++)
+	    {
+	      val = AttributeGet (e, attr_list[i]);
+	      val = val ? val : "";
+	      if (strcmp (val, cur->attrs[i]) != 0)
+		attr_mismatch = 1;
+	    }
+
+	  if ((NSTRCMP (descr, cur->descr) == 0) &&
+	      (NSTRCMP (value, cur->value) == 0) &&
+	      ! attr_mismatch)
+	    {
+	      cur->num++;
+	      cur->refdes = string_insert (refdes, cur->refdes);
+	      return (bom);
+	    }
+	  prev = cur;
+	  cur = cur->next;
+	}
+    }
+
+  if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
+    {
+      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      exit (1);
+    }
+
+  if (prev)
+    prev->next = newlist;
+
+  newlist->next = NULL;
+  newlist->descr = strdup (descr);
+  newlist->value = strdup (value);
+  newlist->num = 1;
+  newlist->refdes = string_insert (refdes, NULL);
+
+  if ((newlist->attrs = (char **) malloc (attr_count * sizeof (char *))) == NULL)
+    {
+      fprintf (stderr, "malloc() failed in bom_insert()\n");
+      exit (1);
+    }
+
+  for (i=0; i<attr_count; i++)
+    {
+      val = AttributeGet (e, attr_list[i]);
+      newlist->attrs[i] = val ? val : "";
+    }
 
   if (bom == NULL)
-    {
-      /* this is the first element so automatically create an entry */
-      if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
-	{
-	  fprintf (stderr, "malloc() failed in bom_insert()\n");
-	  exit (1);
-	}
-
-      newlist->next = NULL;
-      newlist->descr = strdup (descr);
-      newlist->value = strdup (value);
-      newlist->num = 1;
-      newlist->refdes = string_insert (refdes, NULL);
-      return (newlist);
-    }
-
-  /* search and see if we already have used one of these
-     components */
-  cur = bom;
-  while (cur != NULL)
-    {
-      if ((NSTRCMP (descr, cur->descr) == 0) &&
-	  (NSTRCMP (value, cur->value) == 0))
-	{
-	  cur->num++;
-	  cur->refdes = string_insert (refdes, cur->refdes);
-	  break;
-	}
-      prev = cur;
-      cur = cur->next;
-    }
-
-  if (cur == NULL)
-    {
-      if ((newlist = (BomList *) malloc (sizeof (BomList))) == NULL)
-	{
-	  fprintf (stderr, "malloc() failed in bom_insert()\n");
-	  exit (1);
-	}
-
-      prev->next = newlist;
-
-      newlist->next = NULL;
-      newlist->descr = strdup (descr);
-      newlist->value = strdup (value);
-      newlist->num = 1;
-      newlist->refdes = string_insert (refdes, NULL);
-    }
+    bom = newlist;
 
   return (bom);
 
@@ -351,12 +384,62 @@ print_and_free (FILE *fp, BomList *bom)
 	}
       if (fp)
 	{
+	  int i;
+	  for (i=0; i<attr_count; i++)
+	    fprintf (fp, ",\"%s\"", bom->attrs[i]);
 	  fprintf (fp, "\n");
 	}
+      free (bom->attrs);
       lastb = bom;
       bom = bom->next;
       free (lastb);
     }
+}
+
+static void
+fetch_attr_list ()
+{
+  int i;
+  FILE *f;
+  char buf[1024];
+  char *fname;
+
+  if (attr_list != NULL)
+    {
+      for (i=0; i<attr_count; i++)
+	free (attr_list[i]);
+      attr_count = 0;
+    }
+
+  fname = (char *)bom_options[HA_attrs].value;
+  if (!fname)
+    fname = (char *)bom_options[HA_attrs].default_val.str_value;
+
+  printf("reading attrs from %s\n", fname);
+  f = fopen (fname, "r");
+  if (f == NULL)
+    return;
+
+  while (fgets (buf, 1023, f) != NULL)
+    {
+      char *c = buf + strlen (buf) - 1;
+      while (c >= buf && isspace (*c))
+	*c-- = 0;
+      c = buf;
+      while (*c && isspace (*c))
+	c++;
+
+      if (*c)
+	{
+	  if (attr_count == attr_max)
+	    {
+	      attr_max += 10;
+	      attr_list = (char **) realloc (attr_list, attr_max * sizeof (char *));
+	    }
+	  attr_list[attr_count++] = strdup (c);
+	}
+    }
+  fclose (f);
 }
 
 /*!
@@ -394,6 +477,7 @@ PrintBOM (void)
   BomList *bom = NULL;
   char *name, *descr, *value,*fixed_rotation;
   int rpindex;
+  int i;
   char fmt[256];
 
   sprintf(fmt, "%%s,\"%%s\",\"%%s\",%%.2`m%c,%%.2`m%c,%%g,%%s\n", 
@@ -405,6 +489,8 @@ PrintBOM (void)
       gui->log ("Cannot open file %s for writing\n", xy_filename);
       return 1;
     }
+
+  fetch_attr_list ();
 
   /* Create a portable timestamp. */
   currenttime = time (NULL);
@@ -442,7 +528,9 @@ PrintBOM (void)
     /* Insert this component into the bill of materials list. */
     bom = bom_insert ((char *)UNKNOWN (NAMEONPCB_NAME (element)),
                       (char *)UNKNOWN (DESCRIPTION_NAME (element)),
-                      (char *)UNKNOWN (VALUE_NAME (element)), bom);
+                      (char *)UNKNOWN (VALUE_NAME (element)),
+		      element,
+		      bom);
 
 
     /*
@@ -608,7 +696,10 @@ PrintBOM (void)
   fprintf (fp, "# Date: %s\n", utcTime);
   fprintf (fp, "# Author: %s\n", pcb_author ());
   fprintf (fp, "# Title: %s - PCB BOM\n", UNKNOWN (PCB->Name));
-  fprintf (fp, "# Quantity, Description, Value, RefDes\n");
+  fprintf (fp, "# Quantity, Description, Value, RefDes");
+  for (i=0; i<attr_count; i++)
+    fprintf (fp, ", %s", attr_list[i]);
+  fprintf (fp, "\n");
   fprintf (fp, "# --------------------------------------------\n");
 
   print_and_free (fp, bom);
