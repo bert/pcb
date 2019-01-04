@@ -92,6 +92,16 @@ Parameter @code{<string>} can include a path.
 @ftable @code
 @item --attrs <string>
 Name of the attributes input file.
+Parameter @code{<string>} can include a path.
+The input file can be any path, the format matches what gschem uses.
+One attribute per line, and whitespace is ignored.  Example:
+@example
+device
+manufacturer
+manufacturer_part_number
+vendor
+vendor_part_number
+@end example
 @end ftable
 %end-doc
 */
