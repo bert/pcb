@@ -45,7 +45,8 @@ __FILE__, __LINE__, __func__, ##args)
 
 static void * object_list_position_pointer(object_list * list, int n);
 
-object_list * object_list_new(int n, unsigned item_size)
+object_list * 
+object_list_new (int n, unsigned item_size)
 {
   object_list * list = (object_list*) malloc(sizeof(object_list));
   list->item_size = item_size;
@@ -59,7 +60,8 @@ object_list * object_list_new(int n, unsigned item_size)
   return list;
 }
 
-object_list * object_list_duplicate(object_list * list)
+object_list * 
+object_list_duplicate (object_list * list)
 {
   object_list * new_list;
   int i;
@@ -73,7 +75,8 @@ object_list * object_list_duplicate(object_list * list)
   return new_list;
 }
 
-void object_list_delete(object_list * list)
+void 
+object_list_delete (object_list * list)
 {
   object_list_clear(list);
   free(list->items);
@@ -81,7 +84,8 @@ void object_list_delete(object_list * list)
   free(list);
 }
 
-int object_list_clear(object_list * list)
+int 
+object_list_clear (object_list * list)
 {
   int i=0;
   DBG_MSG("Clearing list\n");
@@ -101,7 +105,8 @@ int object_list_clear(object_list * list)
   return 0; /* success */
 }
 
-int object_list_expand(object_list * list, int n)
+int
+object_list_expand (object_list * list, int n)
 {
   void * new_data = realloc(list->data, (list->size + n)*list->item_size);
   void ** new_items = realloc(list->items, (list->size + n)*sizeof(void*));
@@ -120,13 +125,15 @@ int object_list_expand(object_list * list, int n)
   return 0; /* success */
 }
 
-void object_list_describe(object_list * list)
+void 
+object_list_describe (object_list * list)
 {
   printf("object list at %p has %d / %d items of size %d bytes\n",
          list, list->count, list->size, list->item_size);
 }
 
-int object_list_insert(object_list * list, int n, void * item)
+int 
+object_list_insert (object_list * list, int n, void * item)
 {
   void * nptr, * tmp;
   int nItemsToMove, result;
@@ -173,7 +180,8 @@ int object_list_insert(object_list * list, int n, void * item)
   return 0; /* success */
 }
 
-int object_list_remove(object_list * list, int n)
+int 
+object_list_remove(object_list * list, int n)
 {
   int nItemsToMove;
   void * nptr;
@@ -198,23 +206,45 @@ int object_list_remove(object_list * list, int n)
   return 0; /* success */
 }
 
-int object_list_append(object_list * list, void * item)
+int 
+object_list_append (object_list * list, void * item)
 {
   DBG_MSG("Appending to list... item %d\n", list->count);
-  return object_list_insert(list, list->count, item);
+  return object_list_insert (list, list->count, item);
 }
 
 /* would be nice to allow for negative indexing */
-void * object_list_get_item(object_list * list, int n)
+void * 
+object_list_get_item (object_list * list, int n)
 {
   if (n >= list->count) return 0; /* not a valid item */
-  return object_list_position_pointer(list, n);
+  return object_list_position_pointer (list, n);
 }
 
-static void * object_list_position_pointer(object_list * list, int n)
+static void * 
+object_list_position_pointer (object_list * list, int n)
 {
   if (n >= list->size) return 0; /* position not in list */
   return list->data + list->item_size*n;
+}
+
+void * object_list_find_item (object_list * list, void * item)
+{
+  void * list_item;
+  int i;
+  /* We have to have a compare operator to do the testing.
+   * */
+  if (list->ops == 0) return 0;
+  if (list->ops->compare_objects == 0) return 0;
+
+  for (i=0; i < list->count; i++)
+  {
+    list_item = object_list_get_item(list, i);
+    if (list->ops->compare_objects(item, list_item) == 0) return list_item;
+  }
+
+  /* Item not in the list */
+  return 0;
 }
 
 /*******************************************************************************
@@ -268,10 +298,14 @@ object_operations somestruct_opts = {
   .compare_objects = &compare_somestructs
 };
 
-/*
-#define check_item(item, n) \
-          g_assert_cmpmem(&item, ss_size, object_list_get_item(list, n), ss_size);
-*/
+/* 
+ * check_item is used to validate that a particular item in the list matches
+ * the data of the original item. As a side-effect it also tests
+ * object_list_get_item.
+ *
+ * Note that this is a define rather than a function so that failures are
+ * easier to locate.
+ * */
 
 #define check_item(l, item, n) \
           g_assert_cmpint(\
@@ -287,6 +321,7 @@ void object_list_test(void)
   somestruct a={"A", 1}, b={"B", 2}, c={"C", 3}, 
 			 d={"D", 4}, e={"E", 5}, f={"F", 6};
   somestruct x={"X", 24}, y={"Y", 25}, z={"Z", 26};
+  somestruct * p;
   object_list *list, *dup_list;
 
   /*
@@ -400,6 +435,13 @@ void object_list_test(void)
   g_assert_cmpint(list->count, ==, 5);
 
   /*
+   * Check that find item returns zero, since there are no object operations
+   * yet.
+   */
+
+  g_assert_cmpint((gint64) object_list_find_item(list, &c), ==, 0);
+
+  /*
    * Duplicate a list with stuff in it
    */ 
 
@@ -491,6 +533,38 @@ void object_list_test(void)
   check_item(list, c, 1);
   g_assert_cmpint(list->size, ==, 5);
   g_assert_cmpint(list->count, ==, 2);
+
+  /*
+   * Test object_list_find_item
+   */
+
+  /* Make the list a little larger. */
+  object_list_append(list, &e);
+  /* Include a duplicate in the list (we'll never find it). */
+  object_list_append(list, &c);
+  /* To test finding the last object, last object must be unique */
+  object_list_append(list, &f);
+  /* 0: a, 1: c, 2: e, 3: c, 4: f */
+
+  /* Find the first item */
+  p = object_list_find_item(list, &a);
+  g_assert_cmpint (compare_somestructs (p, &a), ==, 0);
+  g_assert_cmpint ((gint64) p, ==, (gint64) list->items[0]);
+
+  /* Find a middle item */
+  p = object_list_find_item(list, &c);
+  g_assert_cmpint (compare_somestructs (p, &c), ==, 0);
+  g_assert_cmpint ((gint64) p, ==, (gint64) list->items[1]);
+
+  /* Find the last item */
+  p = object_list_find_item(list, &f);
+  g_assert_cmpint (compare_somestructs (p, &f), ==, 0);
+  g_assert_cmpint ((gint64) p, ==, (gint64) list->items[4]);
+
+  /* Find an item not in the list */
+  p = object_list_find_item(list, &d);
+  g_assert_cmpint ((gint64) p, ==, 0);
+
 
   /* Clearing list */
   /* See earlier comment. The same applies here. */

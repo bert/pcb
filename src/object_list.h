@@ -141,6 +141,10 @@ int object_list_remove(object_list * list, int n);
 int object_list_append(object_list * list, void * item);
 /* Get a pointer to the object at position n in the list */
 void * object_list_get_item(object_list * list, int n);
+/* Search the list for something equal to item
+ * Note: This returns the first match. 
+ * */
+void * object_list_find_item(object_list * list, void * item);
 
 
 /*
