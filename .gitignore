@@ -17,4 +17,4 @@ stamp-*
 *.backup
 test-driver
 doc/*.eps
-
+*~
