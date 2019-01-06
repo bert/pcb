@@ -844,7 +844,7 @@ for t in $all_tests ; do
     done
 
     echo "(cd ${rundir} && ${PCB} ${pcb_flags} ${pcb_files})"
-    (cd ${rundir} && ${PCB} ${pcb_flags} ${pcb_files})
+    (cd ${rundir} && ${PCB} ${pcb_flags} ${pcb_files} 2> run_tests.err.log)
     pcb_rc=$?
 
     if test $pcb_rc -ne 0 ; then
