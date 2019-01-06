@@ -1312,7 +1312,7 @@ gsvit_xml_out (char *gsvit_basename)
   XOUT_ELEMENT ("comment", "Made with PCB gsvit export HID");
   XOUT_NEWLINE ();
   {
-    char buff[0x100];
+    char buff[0x100 + 1];
     char* src = buff;
     t = time (NULL);
     strncpy (buff, ctime(&t), 0x100);
