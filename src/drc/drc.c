@@ -78,9 +78,22 @@ SetThing (int n, int type, void *ptr1, void *ptr2, void *ptr3)
 
 static Cardinal drcerr_count;   /*!< Count of drc errors */
 
+/*!< Count of duplicate errors. This is purely for development purposes. */
+static Cardinal drcdup_count;   
+
 static void
 append_drc_violation (DrcViolationType *violation)
 {
+  /* Check to see if we already have this violation in the list */
+  void * v = object_list_find_item(drc_violation_list, violation);
+
+  if (v != 0)
+  {
+    /* already in the list */
+    drcdup_count++;
+    return;
+  }
+
   object_list_append(drc_violation_list, violation);
   if (gui->drc_gui != NULL)
   {
@@ -657,6 +670,7 @@ DRCAll (void)
   pcb_drc_violation_free (violation);
   
   drcerr_count = 0;
+  drcdup_count = 0;
   
   /* Since the searching functions only operate on visible layers, we need
    * to make sure that everything is turned on in order to check the entire

@@ -32,20 +32,6 @@ object types: 8 4
 ********************************************************************************
                                   Violation 2
 ********************************************************************************
-title: Copper areas too close
-explanation: Circuits that are too close may bridge during imaging, etching,
-plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30505400, 14986000), angle = 0.000000
-have_measured: false
-measured value: 0
-required value: 127000
-object count: 2
-object IDs: 6672 6675 
-object types: 4 8 
-
-********************************************************************************
-                                  Violation 3
-********************************************************************************
 title: Joined line not connected to polygon
 
 explanation: An object is flagged such that it should connect to the polygon, but

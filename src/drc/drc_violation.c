@@ -27,6 +27,7 @@
  */
 
 #include <stdio.h>
+#include <string.h> /* strcmp */
 
 #ifdef HAVE_CONFIG_H
   #include "config.h"
@@ -87,7 +88,8 @@ pcb_drc_violation_clear (void * v)
   if (violation->objects) object_list_delete(violation->objects);
 }
 
-void pcb_drc_violation_copy(void * d, void * s)
+void 
+pcb_drc_violation_copy (void * d, void * s)
 {
   DrcViolationType * dest = (DrcViolationType *)d;
   DrcViolationType * src = (DrcViolationType *)s;
@@ -97,9 +99,59 @@ void pcb_drc_violation_copy(void * d, void * s)
   dest->objects = object_list_duplicate(src->objects);
 }
 
+/* 
+ * Compare two drc violations.
+ * DRC violations are considered equal if they reference the same objects
+ * and have the same title string. The order of the objects in the list does
+ * not have to be the same.
+ * */
+int 
+pcb_drc_violation_compare (void * a, void * b)
+{
+  DrcViolationType * A = (DrcViolationType*) a;
+  DrcViolationType * B = (DrcViolationType*) b;
+  DRCObject *oa, *ob;
+
+  int i = 0, j = 0;
+  int found = 0;
+
+  /* Objects are the same, check the title strings to make sure the
+   * violation is the same.
+   * */
+  if ( strcmp(A->title, B->title) != 0 ) return -1;
+
+  /* Check that both violations have the same objects.
+   * */
+  /* Must have the same number */
+  if (A->objects->count != B->objects->count) return -1;
+  
+  /* Loop over the objects in A, and try to find each in B. */
+  for (i = 0; i < A->objects->count; i++)
+  {
+    found = 0;
+    oa = (DRCObject*) object_list_get_item(A->objects, i);
+    for (j = 0; j < B->objects->count; j++)
+    {
+      ob = object_list_get_item(B->objects, j);
+      if (oa->id == ob->id)
+      {
+        found = 1;
+        break;
+      }
+    }
+    if (found == 0) 
+      /* Didn't find oa in violation B */
+      return -1;
+  }
+
+  /* Same titles, same objects.*/
+  return 0;
+}
+
 object_operations drc_violation_ops = {
   .clear_object = &pcb_drc_violation_clear,
-  .copy_object = &pcb_drc_violation_copy
+  .copy_object = &pcb_drc_violation_copy,
+  .compare_objects = &pcb_drc_violation_compare
 };
 
 void
