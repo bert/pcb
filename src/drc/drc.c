@@ -608,9 +608,19 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
 
     break;
 
+  case VIA_TYPE:
+    if (clearance == 0)
+    {
+      /* Vias with zero clearance are allowed, make sure it's connected. */
+      if (is_obj_in_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
+        break;
+      else
+        /* not connected to the polygon, raise an error*/
+        new_polygon_not_connected_violation (layer, polygon);
+    }
+    /* fall-through */
   case PAD_TYPE:
   case PIN_TYPE:
-  case VIA_TYPE:
     if (clearance < 2 * PCB->Bloat)
     {
       /* The clearance is too small, but it could be cleared by other
