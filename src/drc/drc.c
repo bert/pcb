@@ -542,7 +542,7 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   LineType *line = (LineType *) ptr2;
   
   /* Thing 1 is the object on which PlowsPolygon was called */
-  SetThing (2, type, layer, polygon, polygon);
+  SetThing (2, POLYGON_TYPE, layer, polygon, polygon);
   
   /* If we're here, we know that the polygon and object have overlapping
    * bounding boxes. 

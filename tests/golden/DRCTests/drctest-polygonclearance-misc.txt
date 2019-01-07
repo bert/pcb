@@ -44,5 +44,5 @@ measured value: 0
 required value: 0
 object count: 2
 object IDs: 6672 6675 
-object types: 4 4 
+object types: 4 8 
 
