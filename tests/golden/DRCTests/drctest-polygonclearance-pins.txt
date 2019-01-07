@@ -157,7 +157,7 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30988000, 15875000), angle = 0.000000
+location: (x, y) = (30466479, 15875000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -172,7 +172,7 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30962600, 17780000), angle = 0.000000
+location: (x, y) = (30453779, 17780000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -187,7 +187,7 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30937200, 19685000), angle = 0.000000
+location: (x, y) = (30441079, 19685000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -202,7 +202,7 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30886400, 23495000), angle = 0.000000
+location: (x, y) = (30415679, 23495000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -217,7 +217,7 @@ title: Pin with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (30911800, 21590000), angle = 0.000000
+location: (x, y) = (30428379, 21590000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000

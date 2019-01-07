@@ -189,7 +189,7 @@ object types: 4
 title: Element (unknown) has 4 silk lines which are too thin
 explanation: Process specifications dictate a minimum silkscreen
 feature-width that can reliably be reproduced
-location: (x, y) = (50800000, 5080000), angle = 0.000000
+location: (x, y) = (50800000, 11055350), angle = 0.000000
 have_measured: true
 measured value: 0
 required value: 127000

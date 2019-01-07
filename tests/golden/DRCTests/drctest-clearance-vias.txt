@@ -21,7 +21,7 @@ object types:
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (10160000, 7264400), angle = 0.000000
+location: (x, y) = (10668588, 7251700), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -35,7 +35,7 @@ object types: 1 4
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 9169400), angle = 0.000000
+location: (x, y) = (10655888, 9182100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -49,7 +49,7 @@ object types: 1 4
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 11074400), angle = 0.000000
+location: (x, y) = (10643188, 11112500), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -63,7 +63,7 @@ object types: 1 4
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 12979400), angle = 0.000000
+location: (x, y) = (10630488, 12992100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -77,7 +77,7 @@ object types: 1 4
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 14884400), angle = 0.000000
+location: (x, y) = (10617788, 14897100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -91,7 +91,7 @@ object types: 1 4
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 16789400), angle = 0.000000
+location: (x, y) = (10605088, 16802100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -105,7 +105,7 @@ object types: 1 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 18694400), angle = 0.000000
+location: (x, y) = (5639388, 18707100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -119,7 +119,7 @@ object types: 1 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 20599400), angle = 0.000000
+location: (x, y) = (5626688, 20612100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -133,7 +133,7 @@ object types: 1 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 22504400), angle = 0.000000
+location: (x, y) = (5613988, 22517100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -147,7 +147,7 @@ object types: 1 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 24409400), angle = 0.000000
+location: (x, y) = (5601288, 24422100), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -161,7 +161,7 @@ object types: 1 4
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (10160000, 32664400), angle = 0.000000
+location: (x, y) = (10781951, 32968851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -175,7 +175,7 @@ object types: 1 16384
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 34569400), angle = 0.000000
+location: (x, y) = (10769251, 34873851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -189,7 +189,7 @@ object types: 1 16384
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 36474400), angle = 0.000000
+location: (x, y) = (10756551, 36778851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -203,7 +203,7 @@ object types: 1 16384
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 38379400), angle = 0.000000
+location: (x, y) = (10731151, 38683851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -217,7 +217,7 @@ object types: 1 16384
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 40284400), angle = 0.000000
+location: (x, y) = (10731151, 40588851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -231,7 +231,7 @@ object types: 1 16384
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 42189400), angle = 0.000000
+location: (x, y) = (10718451, 42493851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -245,7 +245,7 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 44094400), angle = 0.000000
+location: (x, y) = (5752751, 44398851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -259,7 +259,7 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 45999400), angle = 0.000000
+location: (x, y) = (5740051, 46303851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -273,7 +273,7 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 47904400), angle = 0.000000
+location: (x, y) = (5727351, 48208851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -287,7 +287,7 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 49809400), angle = 0.000000
+location: (x, y) = (5714651, 50113851), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -301,7 +301,7 @@ object types: 1 16384
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (6223000, 67589400), angle = 0.000000
+location: (x, y) = (5651500, 67589400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -315,7 +315,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 58064400), angle = 0.000000
+location: (x, y) = (10668000, 58064400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -329,7 +329,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 59969400), angle = 0.000000
+location: (x, y) = (10655300, 59969400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -343,7 +343,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 61874400), angle = 0.000000
+location: (x, y) = (10642600, 61874400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -357,7 +357,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 63779400), angle = 0.000000
+location: (x, y) = (10629900, 63779400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -371,7 +371,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 65684400), angle = 0.000000
+location: (x, y) = (10617200, 65684400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -385,7 +385,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 69494400), angle = 0.000000
+location: (x, y) = (5638800, 69494400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -399,7 +399,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 71399400), angle = 0.000000
+location: (x, y) = (5626100, 71399400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -413,7 +413,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 73304400), angle = 0.000000
+location: (x, y) = (5613400, 73304400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -427,7 +427,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 75209400), angle = 0.000000
+location: (x, y) = (5600700, 75209400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -441,7 +441,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (6197600, 94894400), angle = 0.000000
+location: (x, y) = (5638800, 94894400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -455,7 +455,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 83464400), angle = 0.000000
+location: (x, y) = (10668000, 83464400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -469,7 +469,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 85369400), angle = 0.000000
+location: (x, y) = (10655300, 85369400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -483,7 +483,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 87274400), angle = 0.000000
+location: (x, y) = (10642600, 87274400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -497,7 +497,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 89179400), angle = 0.000000
+location: (x, y) = (10629900, 89179400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -511,7 +511,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 91084400), angle = 0.000000
+location: (x, y) = (10617200, 91084400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -525,7 +525,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 92989400), angle = 0.000000
+location: (x, y) = (5651500, 92989400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -539,7 +539,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 96799400), angle = 0.000000
+location: (x, y) = (5626100, 96799400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -553,7 +553,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 98704400), angle = 0.000000
+location: (x, y) = (5613400, 98704400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -567,7 +567,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 100609400), angle = 0.000000
+location: (x, y) = (5600700, 100609400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -581,7 +581,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 108864400), angle = 0.000000
+location: (x, y) = (10668000, 108864400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -595,7 +595,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 110769400), angle = 0.000000
+location: (x, y) = (10655300, 110769400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -609,7 +609,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 112674400), angle = 0.000000
+location: (x, y) = (10642600, 112674400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -623,7 +623,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 114579400), angle = 0.000000
+location: (x, y) = (10629900, 114579400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -637,7 +637,7 @@ object types: 1 1
 title: Potential for broken trace
 explanation: Insufficient overlap between objects can lead to broken tracks
 due to registration errors with old wheel style photo-plotters.
-location: (x, y) = (10160000, 116484400), angle = 0.000000
+location: (x, y) = (10617200, 116484400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -651,7 +651,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 118389400), angle = 0.000000
+location: (x, y) = (5651500, 118389400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -665,7 +665,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 120294400), angle = 0.000000
+location: (x, y) = (5638800, 120294400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -679,7 +679,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 122199400), angle = 0.000000
+location: (x, y) = (5626100, 122199400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -693,7 +693,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 124104400), angle = 0.000000
+location: (x, y) = (5613400, 124104400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -707,7 +707,7 @@ object types: 1 1
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5080000, 126009400), angle = 0.000000
+location: (x, y) = (5600700, 126009400), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000

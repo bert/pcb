@@ -104,63 +104,20 @@ append_drc_violation (DrcViolationType *violation)
 /*!
  * \brief Locate the coordinatates of offending item (thing).
  */
+/*
 static void
 LocateError (Coord *x, Coord *y)
 {
-  switch (thing1.type)
-  {
-    case LINE_TYPE:
-    {
-      LineType *line = (LineType *) thing1.ptr3;
-      *x = (line->Point1.X + line->Point2.X) / 2;
-      *y = (line->Point1.Y + line->Point2.Y) / 2;
-      break;
-    }
-    case ARC_TYPE:
-    {
-      ArcType *arc = (ArcType *) thing1.ptr3;
-      *x = arc->X;
-      *y = arc->Y;
-      break;
-    }
-    case POLYGON_TYPE:
-    {
-      PolygonType *polygon = (PolygonType *) thing1.ptr3;
-      *x =
-      (polygon->Clipped->contours->xmin +
-       polygon->Clipped->contours->xmax) / 2;
-      *y =
-      (polygon->Clipped->contours->ymin +
-       polygon->Clipped->contours->ymax) / 2;
-      break;
-    }
-    case PIN_TYPE:
-    case VIA_TYPE:
-    {
-      PinType *pin = (PinType *) thing1.ptr3;
-      *x = pin->X;
-      *y = pin->Y;
-      break;
-    }
-    case PAD_TYPE:
-    {
-      PadType *pad = (PadType *) thing1.ptr3;
-      *x = (pad->Point1.X + pad->Point2.X) / 2;
-      *y = (pad->Point1.Y + pad->Point2.Y) / 2;
-      break;
-    }
-    case ELEMENT_TYPE:
-    {
-      ElementType *element = (ElementType *) thing1.ptr3;
-      *x = element->MarkX;
-      *y = element->MarkY;
-      break;
-    }
-    default:
-      return;
-  }
+  AnyObjectType *t1 = (AnyObjectType*)(thing1.ptr3),
+                *t2 = (AnyObjectType*)(thing2.ptr3);
+  BoxType b = clip_box(&t1->BoundingBox, &t2->BoundingBox);
+  
+  *x = (b.X1 + b.X2) / 2;
+  *y = (b.Y1 + b.Y2) / 2;
+  
+  return;
 }
-
+*/
 struct drc_info
 {
   int flag;
@@ -197,7 +154,6 @@ struct drc_info
 static bool
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
-  Coord x, y;
   DrcViolationType *violation;
   int flag;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
@@ -236,7 +192,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     if (DoIt (FOUNDFLAG, 0, true, false, true))
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       object_list_append(vobjs, &thing2);
@@ -245,7 +200,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
         _("Insufficient overlap between objects can lead to broken "
           "tracks\ndue to registration errors with old wheel style "
           "photo-plotters."),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,     /* ANGLE OF ERROR UNKNOWN */
         FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
         0,     /* MAGNITUDE OF ERROR UNKNOWN */
@@ -282,7 +237,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   {
     DumpList ();
     drcerr_count++;
-    LocateError (&x, &y);
     object_list_clear(vobjs);
     object_list_append(vobjs, &thing1);
     object_list_append(vobjs, &thing2);
@@ -290,7 +244,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       _("Copper areas too close"),
       _("Circuits that are too close may bridge during imaging, etching,"
         "\nplating, or soldering processes resulting in a direct short."),
-      x, y,
+      -1, -1, /* x, y, compute automatically */
       0,     /* ANGLE OF ERROR UNKNOWN */
       FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
       0,     /* MAGNITUDE OF ERROR UNKNOWN */
@@ -314,12 +268,9 @@ static void
 new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
 {
   DrcViolationType * violation;
-  Coord x, y;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   const char * fmstr = "Joined %s not connected to polygon\n";
   char message[128];
-
-  LocateError (&x, &y);
 
   drcerr_count++;
   object_list_clear(vobjs);
@@ -352,7 +303,7 @@ new_polygon_not_connected_violation ( LayerType *l, PolygonType *poly )
       "does not make electrical contact. If it is not supposed to connect to\n"
       "the polygon, change the clearline flag and rerun the DRC as this can\n"
       "cause violations to be missed.",
-      x, y,
+      -1, -1, /* x, y, compute automatically */
       0,     /* ANGLE OF ERROR UNKNOWN */
       FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
       0,     /* MAGNITUDE OF ERROR UNKNOWN */
@@ -375,12 +326,10 @@ static void
 new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
 {
   DrcViolationType * violation;
-  Coord x, y, cl;
+  Coord cl;
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   const char * fmstr = "%s with insufficient clearance inside polygon\n";
   char message[128];
-
-  LocateError (&x, &y);
 
   drcerr_count++;
   object_list_clear(vobjs);
@@ -418,7 +367,7 @@ new_polygon_clearance_violation ( LayerType *l, PolygonType *poly )
   violation = pcb_drc_violation_new (message,
     _("Circuits that are too close may bridge during imaging, etching,\n"
       "plating, or soldering processes resulting in a direct short."),
-      x, y,
+      -1, -1, /* x, y, compute automatically */
       0,     /* ANGLE OF ERROR UNKNOWN */
       true, /* MEASUREMENT OF ERROR UNKNOWN */
       cl/2.,     /* MAGNITUDE OF ERROR UNKNOWN */
@@ -649,7 +598,6 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
 int
 DRCAll (void)
 {
-  Coord x, y;
   /* violating object list */
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
@@ -760,14 +708,13 @@ DRCAll (void)
     if (line->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Line width is too thin"),
         _("Process specifications dictate a minimum feature-width\n"
           "that can reliably be reproduced"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         line->Thickness,
@@ -788,14 +735,13 @@ DRCAll (void)
     if (arc->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Arc width is too thin"),
         _("Process specifications dictate a minimum feature-width\n"
           "that can reliably be reproduced"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         arc->Thickness,
@@ -817,14 +763,13 @@ DRCAll (void)
         pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pin annular ring too small"),
         _("Annular rings that are too small may erode during etching,\n"
           "resulting in a broken connection"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         (pin->Thickness - pin->DrillingHole) / 2,
@@ -836,14 +781,13 @@ DRCAll (void)
     if (pin->DrillingHole < PCB->minDrill)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pin drill size is too small"),
         _("Process rules dictate the minimum drill size which can be "
           "used"),
-        x, y,
+       -1, -1, /* x, y, compute automatically */
        0,    /* ANGLE OF ERROR UNKNOWN */
        TRUE, /* MEASUREMENT OF ERROR KNOWN */
        pin->DrillingHole,
@@ -864,14 +808,13 @@ DRCAll (void)
     if (pad->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Pad is too thin"),
         _("Pads which are too thin may erode during etching,\n"
           "resulting in a broken or unreliable connection"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         pad->Thickness,
@@ -893,14 +836,13 @@ DRCAll (void)
         via->Thickness - via->DrillingHole < 2 * PCB->minRing)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Via annular ring too small"),
         _("Annular rings that are too small may erode during etching,\n"
           "resulting in a broken connection"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         (via->Thickness - via->DrillingHole) / 2,
@@ -912,14 +854,13 @@ DRCAll (void)
     if (via->DrillingHole < PCB->minDrill)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Via drill size is too small"),
         _("Process rules dictate the minimum drill size which can "
           "be used"),
-          x, y,
+          -1, -1, /* x, y, compute automatically */
           0,    /* ANGLE OF ERROR UNKNOWN */
           TRUE, /* MEASUREMENT OF ERROR KNOWN */
           via->DrillingHole,
@@ -941,14 +882,13 @@ DRCAll (void)
     if (line->Thickness < PCB->minSlk)
     {
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       violation = pcb_drc_violation_new (
         _("Silk line is too thin"),
         _("Process specifications dictate a minimum silkscreen\n"
           "feature-width that can reliably be reproduced"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         line->Thickness,
@@ -978,7 +918,6 @@ DRCAll (void)
       char *buffer;
       int buflen;
       drcerr_count++;
-      LocateError (&x, &y);
       object_list_clear(vobjs);
       object_list_append(vobjs, &thing1);
       title = _("Element %s has %i silk lines which are too thin");
@@ -994,7 +933,7 @@ DRCAll (void)
       violation = pcb_drc_violation_new (buffer,
         _("Process specifications dictate a minimum silkscreen\n"
           "feature-width that can reliably be reproduced"),
-        x, y,
+        -1, -1, /* x, y, compute automatically */
         0,    /* ANGLE OF ERROR UNKNOWN */
         TRUE, /* MEASUREMENT OF ERROR KNOWN */
         0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */

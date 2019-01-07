@@ -22,7 +22,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5715000, 24765000), angle = 0.000000
+location: (x, y) = (5080000, 24130000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -37,7 +37,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5715000, 22860000), angle = 0.000000
+location: (x, y) = (5080000, 22225000), angle = 0.000000
 have_measured: true
 measured value: 50800
 required value: 127000
@@ -52,7 +52,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5715000, 20955000), angle = 0.000000
+location: (x, y) = (5080000, 20320000), angle = 0.000000
 have_measured: true
 measured value: 76200
 required value: 127000
@@ -67,7 +67,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (5715000, 19050000), angle = 0.000000
+location: (x, y) = (5080000, 18415000), angle = 0.000000
 have_measured: true
 measured value: 101600
 required value: 127000
@@ -82,7 +82,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21564600, 24765000), angle = 0.000000
+location: (x, y) = (20929600, 24130000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -97,7 +97,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21539200, 22860000), angle = 0.000000
+location: (x, y) = (20904200, 22225000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -112,7 +112,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21513800, 20955000), angle = 0.000000
+location: (x, y) = (20878800, 20320000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -127,7 +127,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21488400, 19050000), angle = 0.000000
+location: (x, y) = (20853400, 18415000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -142,7 +142,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (21463000, 17145000), angle = 0.000000
+location: (x, y) = (20828000, 16510000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -157,7 +157,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (32004000, 17145000), angle = 0.000000
+location: (x, y) = (30464507, 16510000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -172,7 +172,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31978600, 19050000), angle = 0.000000
+location: (x, y) = (30451807, 18415000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -187,7 +187,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31953200, 20955000), angle = 0.000000
+location: (x, y) = (30439107, 20320000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -202,7 +202,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31927800, 22860000), angle = 0.000000
+location: (x, y) = (30426407, 22225000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -217,7 +217,7 @@ title: Arc with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31902400, 24765000), angle = 0.000000
+location: (x, y) = (30413707, 24130000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000

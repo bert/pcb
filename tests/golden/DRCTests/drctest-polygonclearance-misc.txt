@@ -21,7 +21,7 @@ object types:
 title: Copper areas too close
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (16510000, 16510000), angle = 0.000000
+location: (x, y) = (30098766, 14986000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 127000
@@ -38,7 +38,7 @@ explanation: An object is flagged such that it should connect to the polygon, bu
 does not make electrical contact. If it is not supposed to connect to
 the polygon, change the clearline flag and rerun the DRC as this can
 cause violations to be missed.
-location: (x, y) = (30505400, 14986000), angle = 0.000000
+location: (x, y) = (30035266, 14986000), angle = 0.000000
 have_measured: false
 measured value: 0
 required value: 0

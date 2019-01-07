@@ -157,7 +157,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31242000, 15849600), angle = 0.000000
+location: (x, y) = (30479482, 15849600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000
@@ -172,7 +172,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31229300, 17754600), angle = 0.000000
+location: (x, y) = (30466782, 17754600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000
@@ -187,7 +187,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31216600, 19659600), angle = 0.000000
+location: (x, y) = (30454082, 19659600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000
@@ -202,7 +202,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31203900, 21564600), angle = 0.000000
+location: (x, y) = (30441382, 21564600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000
@@ -217,7 +217,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31191200, 23469600), angle = 0.000000
+location: (x, y) = (30428682, 23469600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000
@@ -232,7 +232,7 @@ title: Line with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31178500, 25374600), angle = 0.000000
+location: (x, y) = (30415982, 25374600), angle = 0.000000
 have_measured: true
 measured value: 254
 required value: 127000

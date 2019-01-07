@@ -157,7 +157,7 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31369000, 15875000), angle = 0.000000
+location: (x, y) = (30466870, 15875000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -172,7 +172,7 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31343600, 17805400), angle = 0.000000
+location: (x, y) = (30454170, 17805400), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -187,7 +187,7 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31318200, 19685000), angle = 0.000000
+location: (x, y) = (30441470, 19685000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -202,7 +202,7 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31292800, 21590000), angle = 0.000000
+location: (x, y) = (30428770, 21590000), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000
@@ -217,7 +217,7 @@ title: Pad with insufficient clearance inside polygon
 
 explanation: Circuits that are too close may bridge during imaging, etching,
 plating, or soldering processes resulting in a direct short.
-location: (x, y) = (31267400, 23495000), angle = 0.000000
+location: (x, y) = (30428810, 23495000), angle = 0.000000
 have_measured: true
 measured value: 0
 required value: 127000

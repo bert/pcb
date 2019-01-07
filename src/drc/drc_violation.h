@@ -55,6 +55,7 @@ DrcViolationType * pcb_drc_violation_new (
 void pcb_drc_violation_free (DrcViolationType *violation);
 void pcb_drc_violation_print (FILE*, DrcViolationType*);
 int pcb_drc_violation_prompt(DrcViolationType *violation);
+void pcb_drc_violation_update_location(DrcViolationType*);
 
 void set_flag_on_violating_objects (DrcViolationType * v, int f);
 

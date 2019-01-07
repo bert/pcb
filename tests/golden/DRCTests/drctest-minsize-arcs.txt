@@ -21,7 +21,7 @@ object types:
 title: Arc width is too thin
 explanation: Process specifications dictate a minimum feature-width
 that can reliably be reproduced
-location: (x, y) = (5080000, 13335000), angle = 0.000000
+location: (x, y) = (4762500, 13017500), angle = 0.000000
 have_measured: true
 measured value: 101600
 required value: 127000
@@ -35,7 +35,7 @@ object types: 16384
 title: Arc width is too thin
 explanation: Process specifications dictate a minimum feature-width
 that can reliably be reproduced
-location: (x, y) = (5080000, 14605000), angle = 0.000000
+location: (x, y) = (4762500, 14287500), angle = 0.000000
 have_measured: true
 measured value: 76200
 required value: 127000
@@ -49,7 +49,7 @@ object types: 16384
 title: Arc width is too thin
 explanation: Process specifications dictate a minimum feature-width
 that can reliably be reproduced
-location: (x, y) = (5080000, 15875000), angle = 0.000000
+location: (x, y) = (4762500, 15557500), angle = 0.000000
 have_measured: true
 measured value: 50800
 required value: 127000
@@ -63,7 +63,7 @@ object types: 16384
 title: Arc width is too thin
 explanation: Process specifications dictate a minimum feature-width
 that can reliably be reproduced
-location: (x, y) = (5080000, 17145000), angle = 0.000000
+location: (x, y) = (4762500, 16827500), angle = 0.000000
 have_measured: true
 measured value: 25400
 required value: 127000

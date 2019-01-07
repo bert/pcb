@@ -37,6 +37,7 @@
 #include "drc_violation.h"
 #include "drc_object.h"
 
+#include "box.h" /* clip_box */
 #include "data.h" /* PCB structure */
 #include "draw.h" /* Draw */
 #include "error.h" /* Message */
@@ -47,6 +48,12 @@
 #include "set.h" /* SetChangedFlag */
 #include "undo.h" /* AddObjectToFlagUndoList */
 
+#if defined(DEBUG_DRC) //&& DEBUG > 0
+#define DBG_MSG(fmt, args...) fprintf(stderr, "DEBUG: %s:%d:%s(): " fmt, \
+__FILE__, __LINE__, __func__, ##args)
+#else
+#define DBG_MSG(fmt, args...) /* Don't do anything in release builds */
+#endif
 
 /* ----------------------------------------------------------------------- *
  * DRC Violation Type
@@ -73,9 +80,13 @@ pcb_drc_violation_new (const char *title,
   violation->measured_value = measured_value;
   violation->required_value = required_value;
   if (objects)
+  {
     violation->objects = object_list_duplicate(objects);
+    if ((x < 0) && (y < 0)) pcb_drc_violation_update_location(violation);
+  }
   else
     violation->objects = object_list_new(2, sizeof(DrcViolationType));
+  
   return violation;
 }
 
@@ -265,4 +276,27 @@ pcb_drc_violation_prompt (DrcViolationType *violation)
    * that. If the serial number hasn't changed, no work was done. */
   if (r && SaveUndoSerialNumber() == serial) Undo(false);
   return r;
+}
+
+void
+pcb_drc_violation_update_location (DrcViolationType * v)
+{
+  DRCObject *a=0, *b=0;
+  AnyObjectType *t1, *t2;
+  BoxType box;
+  
+  a = (DRCObject*) object_list_get_item(v->objects, 0);
+  t1 = (AnyObjectType*)(a->ptr3);
+  box = t1->BoundingBox;
+  
+  if (v->objects->count == 2)
+  {
+    b = (DRCObject*) object_list_get_item(v->objects, 1);
+    t2 = (AnyObjectType*)(b->ptr3);
+    box = clip_box(&box, &(t2->BoundingBox));
+  }
+  
+  v->x = (box.X1 + box.X2) / 2;
+  v->y = (box.Y1 + box.Y2) / 2;
+  
 }
