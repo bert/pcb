@@ -1,0 +1,21 @@
+# PcbBOM Version 1.0
+# Date: Fri 04 Jan 2019 09:21:38 PM GMT UTC
+# Author: Bert Timmerman
+# Title: (unknown) - PCB BOM
+# Quantity, Description, Value, RefDes, device, manufacturer, manufacturer_part_number, vendor, vendor_part_number
+# --------------------------------------------
+3,"fuse-520.fp","3.5A",F1 F3 F2 ,"FUSE","Littelfuse","52000001009","digikey","WK6242-ND"
+4,"screw-4-40.fp","unknown",H4 H1 H3 H2 ,"HOLE","unknown","unknown","unknown","unknown"
+3,"0603dj","1k",R4 R5 R1 ,"RESISTOR","unknown","unknown","unknown","unknown"
+3,"0603dj","unknown",LED2 LED3 LED1 ,"LED","unknown","unknown","unknown","unknown"
+3,"HEADER8_1","unknown",CONN2 CONN3 CONN1 ,"CONNECTOR_8","unknown","unknown","unknown","unknown"
+3,"tb_2_3.5mm.fp","unknown",J2 J3 J1 ,"unknown","Pheonix","1984617","digikey","277-1721-ND"
+1,"PJ-102AH.fp","unknown",J4 ,"unknown","CUI","PJ-102AH","digikey","CP-102AH-ND"
+4,"1206","47uF",C4 C6 C7 C8 ,"POLARIZED_CAPACITOR","Samsung","CL31A476MQHNNNE","digikey","1276-1167-1-ND"
+1,"SO8_EP","unknown",U1 ,"unknown","Analog","ADP2303ARDZ-5.0-R7","digikey","ADP2303ARDZ-5.0-R7CT-ND"
+2,"0603dj","100k",R2 R3 ,"RESISTOR","unknown","unknown","unknown","unknown"
+2,"0603dj","0.1uF",C2 C5 ,"CAPACITOR","unknown","unknown","unknown","unknown"
+2,"CLF10060NIT","4.7uH",L1 L2 ,"INDUCTOR","TDK","CLF10060NIT-4R7N-D","digikey","445-174714-1-ND"
+2,"1206","10uF",C1 C3 ,"POLARIZED_CAPACITOR","Taiyo Yuden","TMK316BJ106ML-T","digikey","587-2259-1-ND"
+1,"SO8_EP","unknown",U2 ,"unknown","Analog","ADP2303ARDZ-3.3-R7","digikey","ADP2303ARDZ-3.3-R7CT-ND"
+2,"MBR320T3G.fp","unknown",D1 D2 ,"DIODE","ON Semi","MBRS330T3G","digikey","MBRS330T3GOSCT-ND"

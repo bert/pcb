@@ -28,6 +28,8 @@ EXTRA_DIST = \
   ${RUN_TESTS} \
   tests.list \
   README.txt \
+  inputs/bom.attrs \
+  inputs/bom_attribs.pcb \
   inputs/bom_general.pcb \
   inputs/buried.pcb \
   inputs/changeclearsize-sel.script \
@@ -128,6 +130,7 @@ EXTRA_DIST = \
   golden/hid_bom7/cmil.xy \
   golden/hid_bom8/cm.xy \
   golden/hid_bom9/um.xy \
+  golden/hid_bom10/bom_attribs.bom \
   golden/hid_gerber1/gerber_oneline.top.gbr \
   golden/hid_gerber1/gerber_oneline.fab.gbr \
   golden/hid_gerber1/gerber_oneline.bottom.gbr \

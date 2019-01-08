@@ -836,8 +836,11 @@ for t in $all_tests ; do
         *.pcb)
           pcb_files="${pcb_files} ${f}"
           ;;
+        *.attrs)
+          continue
+          ;;
         *)
-          echo "$f is not a supported input file"
+          echo "\"$f\" is not a supported input file"
           exit 1
           ;;
       esac

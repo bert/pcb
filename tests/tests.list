@@ -123,6 +123,7 @@ hid_bom6 | bom_general.pcb | bom | --xy-unit dmil --xyfile dmil.xy    | | xy:dmi
 hid_bom7 | bom_general.pcb | bom | --xy-unit cmil --xyfile cmil.xy    | | xy:cmil.xy
 hid_bom8 | bom_general.pcb | bom | --xy-unit cm   --xyfile cm.xy      | | xy:cm.xy
 hid_bom9 | bom_general.pcb | bom | --xy-unit um   --xyfile um.xy      | | xy:um.xy
+hid_bom10 | bom_attribs.pcb bom.attrs | bom | --attrs bom.attrs --bomfile bom_attribs.bom | | bom:bom_attribs.bom
 
 #
 ######################################################################
