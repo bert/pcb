@@ -25,7 +25,6 @@ before_install:
     texlive-full
     graphviz
     intltool
-    libgd
     libgd-dev
     libghc-gtkglext-prof
     libsqlite3-dev
