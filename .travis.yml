@@ -31,7 +31,7 @@ before_install:
     libdbus-glib-1-dev
     libdbus-1-dev
     desktop-file-utils
-  - ./scripts/install_gettext.sh
+  #- ./scripts/install_gettext.sh
   - ./scripts/install_autoconf.sh
   # FIXME[2017-02-15] This is required because Ubuntu Trusty only has
   # Guile-2.0.9, which doesn't include SRFI-64
