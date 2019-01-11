@@ -36,15 +36,11 @@ before_install:
     texlive-full
     texlive-generic-recommended
     texlive-latex-base
-  #- ./scripts/install_gettext.sh
-  #- ./scripts/install_autoconf.sh
   # FIXME[2017-02-15] This is required because Ubuntu Trusty only has
   # Guile-2.0.9, which doesn't include SRFI-64
   - sudo mkdir -p /usr/share/guile/2.0/srfi/srfi-64
   - sudo curl http://git.savannah.gnu.org/cgit/guile.git/plain/module/srfi/srfi-64.scm -o /usr/share/guile/2.0/srfi/srfi-64.scm 
   - sudo curl http://git.savannah.gnu.org/cgit/guile.git/plain/module/srfi/srfi-64/testing.scm -o /usr/share/guile/2.0/srfi/srfi-64/testing.scm
-  #- ./scripts/install_geda_gaf.sh
-  #- ./scripts/install_gerbv.sh
 
 script: scripts/build.sh
 
@@ -60,8 +56,8 @@ branches:
 
 notifications:
   recipients:
-    - pcb-travis-ci@lists.launchpad.net
+    - bert.timmerman@xs4all.nl
   email:
     on_success: always
-    on_failure: always
+    on_failure: change
 
