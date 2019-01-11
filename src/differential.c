@@ -195,6 +195,8 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
   }
   ENDALL_LOOP;
 
+  gui->invalidate_all ();
+
   return 0;
 }
 
