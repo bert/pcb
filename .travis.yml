@@ -29,7 +29,6 @@ before_install:
     graphviz
     intltool
     libgd-dev
-    libghc-gtkglext-prof
     libsqlite3-dev
     libdbus-glib-1-dev
     libdbus-1-dev
