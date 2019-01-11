@@ -27,7 +27,7 @@ before_install:
     libgd-dev
     libgettextpo-dev
     libghc-opengl-dev
-    libgtkglext2.0-dev
+    libgtkglext1-dev
     libmotif-dev
     libsqlite3-dev
     libstroke0-dev
