@@ -195,6 +195,9 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
   }
   ENDALL_LOOP;
 
+  /* Done with our action, so increment the undo # .*/
+  IncrementUndoSerialNumber ();
+
   gui->invalidate_all ();
 
   return 0;
