@@ -23,7 +23,6 @@ before_install:
     gtkgl-dev
     guile-2.0-dev
     intltool
-    lesstif-dev
     libdbus-1-dev
     libdbus-glib-1-dev
     libgd-dev
@@ -31,6 +30,7 @@ before_install:
     libghc-opengl-dev
     libgtkglext1
     libgtkglext1-dev
+    libmotif-dev
     libsqlite3-dev
     libstroke0-dev
     texinfo
@@ -62,7 +62,7 @@ branches:
 
 notifications:
   recipients:
-    - bert.timmerman@xs4all.nl
+    - pcb-travis-ci@lists.launchpad.net
   email:
     on_success: change
     on_failure: always
