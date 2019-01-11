@@ -18,25 +18,26 @@ before_install:
     desktop-file-utils
     flex
     gettext
+    graphviz
     groff
     gtkgl-dev
     guile-2.0-dev
+    intltool
+    lesstif-dev
+    libdbus-1-dev
+    libdbus-glib-1-dev
+    libgd-dev
     libgettextpo-dev
+    libghc-opengl-dev
+    libgtkglext1
+    libgtkglext1-dev
+    libsqlite3-dev
     libstroke0-dev
     texinfo
     texlive-base
     texlive-full
     texlive-generic-recommended
     texlive-latex-base
-    graphviz
-    intltool
-    libdbus-1-dev
-    libdbus-glib-1-dev
-    libgd-dev
-    libghc-opengl-dev
-    libgtkglext1
-    libgtkglext1-dev
-    libsqlite3-dev
   #- ./scripts/install_gettext.sh
   #- ./scripts/install_autoconf.sh
   # FIXME[2017-02-15] This is required because Ubuntu Trusty only has
