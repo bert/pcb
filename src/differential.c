@@ -112,7 +112,7 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       w = GetValue (width, NULL, NULL);
       g = GetValue (gap, NULL, NULL);
     }
-  t = (w - g) / 2;
+  t = abs ((w - g) / 2); /* Avoid a negative value. */
   offset = (double)((g+w)>>2);
   /* printf ("w=%d, g=%d, t=%d\n", w, g, t); */
 
