@@ -14,26 +14,27 @@ before_install:
   - sudo apt-get install -y libgtk2.0-dev
     autopoint
     autotools-dev
-    libgettextpo-dev
-    gettext
-    libstroke0-dev
-    guile-2.0-dev
-    flex
     bison
+    desktop-file-utils
+    flex
+    gettext
     groff
+    gtkgl-dev
+    guile-2.0-dev
+    libgettextpo-dev
+    libstroke0-dev
     texinfo
     texlive-base
+    texlive-full
     texlive-generic-recommended
     texlive-latex-base
-    texlive-full
     graphviz
     intltool
-    libghc-opengl-dev
-    libgd-dev
-    libsqlite3-dev
-    libdbus-glib-1-dev
     libdbus-1-dev
-    desktop-file-utils
+    libdbus-glib-1-dev
+    libgd-dev
+    libghc-opengl-dev
+    libsqlite3-dev
   #- ./scripts/install_gettext.sh
   #- ./scripts/install_autoconf.sh
   # FIXME[2017-02-15] This is required because Ubuntu Trusty only has
