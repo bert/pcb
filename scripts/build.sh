@@ -3,7 +3,7 @@
 ./autogen.sh
 ./configure --enable-update-desktop-database --enable-doc --enable-dbus --enable-toporouter --enable-nls --with-gui=batch
 make
-#make check
+make check
 make clean
 
 ./autogen.sh
