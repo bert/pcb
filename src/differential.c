@@ -71,8 +71,6 @@ Warnings:
 
 Back up your work before running.
 
-Doesn't support undo properly.
-
 Doesn't work well with straight line intersections, it creates gaps
 and overhangs at the intersections.
 
