@@ -57,7 +57,8 @@ branches:
 notifications:
   recipients:
     - bert.timmerman@xs4all.nl
+    - parker.charles@gmail.com
   email:
-    on_success: always
-    on_failure: change
+    on_success: change
+    on_failure: always
 
