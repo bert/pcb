@@ -366,8 +366,6 @@ SetLocalRef (Coord X, Coord Y, bool Showing)
  * Actions
  */
 
-#define ARG(n) (argc > (n) ? argv[n] : NULL)
-
 /* %start-doc actions SetupRouteStyle
  
  Sets the parameters of a route style.

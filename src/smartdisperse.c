@@ -150,8 +150,6 @@ padorder (ConnectionType *conna, ConnectionType *connb)
 #define VISITED(ELT)		(visited[ELEMENT_N(PCB->Data, (ELT))])
 #define IS_ELEMENT(CONN)	((CONN)->type == PAD_TYPE || (CONN)->type == PIN_TYPE)
 
-#define ARG(n) (argc > (n) ? argv[n] : 0)
-
 static const char smartdisperse_syntax[] = "SmartDisperse([All|Selected])";
 
 /* %start-doc actions SmartDisperse

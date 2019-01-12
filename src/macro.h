@@ -64,6 +64,8 @@
 #define MAKEMIN(a,b)            if ((b) < (a)) (a) = (b)
 #define MAKEMAX(a,b)            if ((b) > (a)) (a) = (b)
 
+#define ARG(n) (argc > (n) ? argv[n] : 0)
+
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
 #define	UNKNOWN_NAME(a, n)	((a) && *(a) ? (a) : (n))

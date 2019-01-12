@@ -474,8 +474,6 @@ extern int stroke_trans (char *s);
 #endif
 static void ChangeFlag (char *, char *, int, char *);
 
-#define ARG(n) (argc > (n) ? argv[n] : NULL)
-
 #ifdef HAVE_LIBSTROKE
 
 /*!

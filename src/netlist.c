@@ -345,8 +345,6 @@ updates the GUI.
 
 %end-doc */
 
-#define ARG(n) (argc > (n) ? argv[n] : 0)
-
 static int
 Netlist (int argc, char **argv, Coord x, Coord y)
 {

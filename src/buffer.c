@@ -84,8 +84,6 @@ static void *MovePolygonToBuffer (LayerType *, PolygonType *);
 static void *MoveElementToBuffer (ElementType *);
 static void SwapBuffer (BufferType *);
 
-#define ARG(n) (argc > (n) ? argv[n] : 0)
-
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */

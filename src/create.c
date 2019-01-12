@@ -1077,8 +1077,6 @@ CreateNewAttribute (AttributeListType *list, char *name, char *value)
  * Actions
  */
 
-#define ARG(n) (argc > (n) ? argv[n] : NULL)
-
 static const char create_via_syntax[] =
 N_("CreateVia(x,y,[unit])\n");
 
