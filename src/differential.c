@@ -112,9 +112,9 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       w = GetValue (width, NULL, NULL);
       g = GetValue (gap, NULL, NULL);
     }
+
   t = abs ((w - g) / 2); /* Avoid a negative value. */
   offset = (double)((g+w)>>2);
-  /* printf ("w=%d, g=%d, t=%d\n", w, g, t); */
 
   ALLLINE_LOOP (PCB->Data);
   {
@@ -194,6 +194,9 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
     }
   }
   ENDALL_LOOP;
+
+  Message ("Created Differential traces: width = %d, gap = %d, thickness = %d\n",
+    w, g, t);
 
   /* Done with our action, so increment the undo # .*/
   IncrementUndoSerialNumber ();
