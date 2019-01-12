@@ -44,6 +44,7 @@ enum {
 };
 #endif
 
+/* What do these stand for? */
 #define PLF_DIR 1
 #define PLF_INV 0
 #define PLF_MARK 1
@@ -73,7 +74,7 @@ enum
     err_ok = 0
 };
 
-
+/* Cross Vertex Connectivity List */
 typedef struct CVCList CVCList;
 typedef struct VNODE VNODE;
 struct CVCList
@@ -83,6 +84,11 @@ struct CVCList
     CVCList *prev, *next, *head;
     char poly, side;
 };
+
+/* A node of a PLINE. 
+ *
+ * A segment is defined by the current node and the next node. 
+ * */
 struct VNODE
 {
     VNODE *next, *prev, *shared;
@@ -95,9 +101,18 @@ struct VNODE
     Vector point;
 };
 
+/* This structure defines a contour. The segments are comprise the
+ * various VNODEs, which are organized in an ordered list. 
+ *
+ * PLINEs have an orientation, positive or negative, depending on if the 
+ * VNODES of the contour are organized in a generally clockwise or counter 
+ * clockwise order. Positive contours define the perimeters of polygons,
+ * negative contours define holes in contours.
+ * */
 typedef struct PLINE PLINE;
 struct PLINE
 {
+  /* segment bounding box */
     Coord xmin, ymin, xmax, ymax;
     PLINE *next;
     VNODE head;
@@ -133,8 +148,11 @@ void poly_ExclVertex(VNODE * node);
 typedef struct POLYAREA POLYAREA;
 struct POLYAREA
 {
+  /* this type is a double linked list, forward, backwards */
     POLYAREA *f, *b;
+  /* linked list of contours defining the perimeter and holes. */
     PLINE *contours;
+   /* rtree of segment bounding boxes, for faster searching */
     rtree_t *contour_tree;
 };
 

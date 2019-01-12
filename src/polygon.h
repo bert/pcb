@@ -76,6 +76,7 @@ int PlowsPolygon (DataType *, int, void *, void *,
                   int (*callback) (DataType *, LayerType *, PolygonType *, int, void *, void *, void *),
                   void *userdata);
 void ComputeNoHoles (PolygonType *poly);
+POLYAREA * original_poly(PolygonType *);
 POLYAREA * ContourToPoly (PLINE *);
 POLYAREA * PolygonToPoly (PolygonType *);
 POLYAREA * RectPoly (Coord x1, Coord x2, Coord y1, Coord y2);

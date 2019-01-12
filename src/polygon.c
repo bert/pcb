@@ -283,7 +283,13 @@ ContourToPoly (PLINE * contour)
   return p;
 }
 
-static POLYAREA *
+/*!
+ * \brief Generate the basic polygon shape.
+ *
+ * This includes the perimeter of the polygon with any holes removed, but no
+ * areas cleared by objects. 
+ * */
+POLYAREA *
 original_poly (PolygonType * p)
 {
   PLINE *contour = NULL;
@@ -292,10 +298,14 @@ original_poly (PolygonType * p)
   Vector v;
   int hole = 0;
 
+  /* If we can't create the structures, we can't do anything. */
   if ((np = poly_Create ()) == NULL)
     return NULL;
 
-  /* first make initial polygon contour */
+  /* Iterate over every point in the array. Note that this includes both the
+   * perimeter points and the points that define holes contours in the
+   * polygon. The indices at which the points of each hole start are
+   * recorded in the HoleIndex array. */
   for (n = 0; n < p->PointN; n++)
     {
       /* No current contour? Make a new one starting at point */
@@ -305,18 +315,26 @@ original_poly (PolygonType * p)
       v[1] = p->Points[n].Y;
       if (contour == NULL)
         {
+          /* This is the first VNODE in the contour, we need to initialize
+           * the contour.
+           * */
           if ((contour = poly_NewContour (v)) == NULL)
-            return NULL;
+            return NULL; /* Couldn't allocate memory*/
         }
       else
         {
+          /* Create a new VNODE at v, and insert it after head.prev */
           poly_InclVertex (contour->head.prev, poly_CreateNode (v));
         }
 
-      /* Is current point last in contour? If so process it. */
-      if (n == p->PointN - 1 ||
-          (hole < p->HoleIndexN && n == p->HoleIndex[hole] - 1))
+      /* Is current point last in contour (perimeter or hole)? 
+       * If so process it. 
+       * */
+      if (n == p->PointN - 1 /* last perimeter point */
+          /* or, last point of a hole contour.*/
+          || (hole < p->HoleIndexN && n == p->HoleIndex[hole] - 1)) 
         {
+          /* Process the contour */
           poly_PreContour (contour, TRUE);
 
           /* make sure it is a positive contour (outer) or negative (hole) */
@@ -324,11 +342,13 @@ original_poly (PolygonType * p)
             poly_InvContour (contour);
           assert (contour->Flags.orient == (hole ? PLF_INV : PLF_DIR));
 
+          /* Insert the contour in the POLYAREA PLINE chain */
           poly_InclContour (np, contour);
-          contour = NULL;
           assert (poly_Valid (np));
 
+          /* advance to the next hole contour and start over */
           hole++;
+          contour = NULL;
         }
   }
   return biggest (np);
@@ -736,14 +756,19 @@ Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
   int x;
   assert (np);
   assert (p);
+
   if (!p->Clipped)
-    {
-      if (fnp)
-        poly_Free (&np);
-      return 1;
-    }
+  /* polygon has no poly area, nothing to subtract from */
+  {
+    if (fnp)
+      poly_Free (&np);
+    return 1;
+  }
+
   assert (poly_Valid (p->Clipped));
   assert (poly_Valid (np));
+
+  /* subtract the polyarea, using a boolean subtraction operation */
   if (fnp)
     x = poly_Boolean_free (p->Clipped, np, &merged, PBO_SUB);
   else
@@ -751,6 +776,7 @@ Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
       x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
       poly_Free (&p->Clipped);
     }
+
   assert (!merged || poly_Valid (merged));
   if (x != err_ok)
     {
@@ -1234,18 +1260,30 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 
 static bool inhibit = false;
 
+/*!
+ * \brief Initialize low level polygon data structures.
+ * */
 int
 InitClip (DataType *Data, LayerType *layer, PolygonType * p)
 {
   if (inhibit)
     return 0;
+
+  /* Clear any existing data. */
   if (p->Clipped)
     poly_Free (&p->Clipped);
+
+  /* Compute the perimeter of the polygon */
   p->Clipped = original_poly (p);
+
+  /* NoHoles is a version of the polygon broken into pieces so that it is
+   * hole free. If we have one, we need to clear it. */
   poly_FreeContours (&p->NoHoles);
   if (!p->Clipped)
     return 0;
   assert (poly_Valid (p->Clipped));
+
+  /* If the polygon is clearing, we need to add all of the object cutouts. */
   if (TEST_FLAG (CLEARPOLYFLAG, p))
     clearPoly (Data, layer, p, NULL, 0);
   else
@@ -1703,6 +1741,12 @@ ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
     PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow, NULL);
 }
 
+/*!
+ * \brief Determine if a POLYAREA touches a polygon.
+ *
+ * if the third argument is true, this function will free the POLYAREA when
+ * finished.
+ * */
 bool
 isects (POLYAREA * a, PolygonType *p, bool fr)
 {
@@ -1716,7 +1760,9 @@ isects (POLYAREA * a, PolygonType *p, bool fr)
   return ans;
 }
 
-
+/*!
+ * \brief Determine if a point of radius r is inside a polygon.
+ * */
 bool
 IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonType *p)
 {
@@ -1724,12 +1770,20 @@ IsPointInPolygon (Coord X, Coord Y, Coord r, PolygonType *p)
   Vector v;
   v[0] = X;
   v[1] = Y;
+  /* If the center point is inside, then some part of the point must be too. */
   if (poly_CheckInside (p->Clipped, v))
     return true;
+
+  /* if the center isn't inside, then the point has to have a non-zero
+   * radius. 
+   * */
   if (r < 1)
     return false;
+  
+  /* Create a circular POLYAREA of radius r, and see if it intersects. */
   if (!(c = CirclePoly (X, Y, r)))
-    return false;
+    return false; /* failed to create POLYAREA */
+
   return isects (c, p, true);
 }
 

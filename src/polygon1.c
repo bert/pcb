@@ -212,13 +212,17 @@ node_add_single (VNODE * dest, Vector po)
 {
   VNODE *p;
 
+  /* If the new point is one of the segment end points, we don't need to 
+   * create a new node. */
   if (vect_equal (po, dest->point))
     return dest;
   if (vect_equal (po, dest->next->point))
     return dest->next;
+
+  /* Create a new one. */
   p = poly_CreateNode (po);
   if (p == NULL)
-    return NULL;
+    return NULL; /* couldn't allocate memory */
   p->cvc_prev = p->cvc_next = NULL;
   p->Flags.status = UNKNWN;
   return p;
@@ -395,11 +399,16 @@ node_add_single_point (VNODE * a, Vector p)
 
   next_a = a->next;
 
+  /* create a new VNODE. We get one of the existing VNODEs returned if p
+   * points to a or a->next */
   new_node = node_add_single (a, p);
   assert (new_node != NULL);
 
+  /* presumably -1 is used to indicate "uninitialized" */
   new_node->cvc_prev = new_node->cvc_next = (CVCList *) - 1;
 
+  /* we might have gotten one of our existing nodes back, in which case we
+   * didn't create anything. */
   if (new_node == a || new_node == next_a)
     return NULL;
 
@@ -616,6 +625,17 @@ seg_in_region (const BoxType * b, void *cl)
   /* for zero slope the search is aligned on the axis so it is already pruned */
   if (i->m == 0.)
     return 1;
+  /* Earlier we computed the parameters of the line on which our search 
+   * segment falls. Here, we compute the y coordinates of that line for the 
+   * extreme X values of the overlapping box we found with the r_search.
+   * If there isn't some overlap, the segments can't overlap, and we can 
+   * skip this segment. 
+   *
+   * This is equivalent to enforcing that the bounding box of the found 
+   * segment overlaps with the original segment. The r_search only tells 
+   * us that the bounding boxes of the two segments overlap, so, this applies
+   * a more restrictive condition.
+   * */
   y1 = i->m * b->X1 + i->b;
   y2 = i->m * b->X2 + i->b;
   if (min (y1, y2) >= b->Y2)
@@ -671,31 +691,50 @@ seg_in_seg (const BoxType * b, void *cl)
   if (s->intersected || i->s->intersected)
     return 0;
 
+  /* returns the number of intersecting points, 0, 1, or 2... I think. */
+  /* While it *looks* like s1 and s2 are used uninitialized here, they're actually
+   * pointers because the Vector type is a Coord[2]. We get the intersection points
+   * returned in these variables. */
   cnt = vect_inters2 (s->v->point, s->v->next->point,
 		      i->v->point, i->v->next->point, s1, s2);
   if (!cnt)
     return 0;
+
+  /* We found an intersection. */
   if (i->touch)			/* if checking touches one find and we're done */
     longjmp (*i->touch, TOUCHES);
+
+  /* Mark the segments are intersecting. */
   i->s->p->Flags.status = ISECTED;
   s->p->Flags.status = ISECTED;
+
   for (; cnt; cnt--)
+  /* for each intersection... */
+  {
+    bool done_insert_on_i = false;
+    /* create a new node at the intersection point. */
+    new_node = node_add_single_point (i->v, cnt > 1 ? s2 : s1);
+    /* new_node could be NULL if the new point is at one of the segment
+     * endpoints */
+    if (new_node != NULL)
     {
-      bool done_insert_on_i = false;
-      new_node = node_add_single_point (i->v, cnt > 1 ? s2 : s1);
-      if (new_node != NULL)
-	{
 #ifdef DEBUG_INTERSECT
 	  DEBUGP ("new intersection on segment \"i\" at %#mD\n",
 	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
+      /* We created a node, but it's not yet associated with any contour.
+       * We'll do that later. This list keeps track of the nodes we need to
+       * add. 
+       * */
 	  i->node_insert_list =
 	    prepend_insert_node_task (i->node_insert_list, i->s, new_node);
 	  i->s->intersected = 1;
 	  done_insert_on_i = true;
 	}
-      new_node = node_add_single_point (s->v, cnt > 1 ? s2 : s1);
-      if (new_node != NULL)
+
+    /* Now create one associated with the other segment.*/
+    new_node = node_add_single_point (s->v, cnt > 1 ? s2 : s1);
+    if (new_node != NULL)
 	{
 #ifdef DEBUG_INTERSECT
 	  DEBUGP ("new intersection on segment \"s\" at %#mD\n",
@@ -706,15 +745,17 @@ seg_in_seg (const BoxType * b, void *cl)
 	  s->intersected = 1;
 	  return 0; /* Keep looking for intersections with segment "i" */
 	}
-      /* Skip any remaining r_search hits against segment i, as any futher
-       * intersections will be rejected until the next pass anyway.
-       */
-      if (done_insert_on_i)
-	longjmp (*i->env, 1);
-    }
+    /* Skip any remaining r_search hits against segment i, as any futher
+     * intersections will be rejected until the next pass anyway.
+     */
+    if (done_insert_on_i)  longjmp (*i->env, 1);
+  }
   return 0;
 }
 
+/*!
+ * \brief Generate an r-tree structure for the edges of a PLINE contour.
+ * */
 static void *
 make_edge_tree (PLINE * pb)
 {
@@ -726,6 +767,8 @@ make_edge_tree (PLINE * pb)
     {
       s = (seg *)malloc (sizeof (struct seg));
       s->intersected = 0;
+
+      /* Generate a bounding box for the current segment */
       if (bv->point[0] < bv->next->point[0])
 	{
 	  s->box.X1 = bv->point[0];
@@ -746,10 +789,19 @@ make_edge_tree (PLINE * pb)
 	  s->box.Y2 = bv->point[1] + 1;
 	  s->box.Y1 = bv->next->point[1];
 	}
+
+      /* Add references to the current point, and the parent contour. We
+       * only need the current point because the segment will always be
+       * defined as being between this point and the next point in the
+       * chain. 
+       * */
       s->v = bv;
       s->p = pb;
+
+      /* Add the segment to the rtree. */
       r_insert_entry (ans, (const BoxType *) s, 1);
     }
+  /* Move to the next point in the contour. */
   while ((bv = bv->next) != &pb->head);
   return (void *) ans;
 }
@@ -802,6 +854,10 @@ contour_bounds_touch (const BoxType * b, void *cl)
   BoxType box;
   jmp_buf restart;
 
+  /* If we're here, it means that we have found that the bounding boxes of
+   * two different contours overlap. Our goal now is to determine if any of
+   * the segments of those contours intersect. */
+
   /* Have seg_in_seg return to our desired location if it touches */
   info.env = &restart;
   info.touch = c_info->getout;
@@ -813,56 +869,61 @@ contour_bounds_touch (const BoxType * b, void *cl)
    * faster, so we want to do that on the bigger contour.
    */
   if (pa->Count < pb->Count)
-    {
-      rtree_over = pb;
-      looping_over = pa;
-    }
+  {
+    rtree_over = pb;
+    looping_over = pa;
+  }
   else
+  {
+    rtree_over = pa;
+    looping_over = pb;
+  }
+
+  av = &looping_over->head; /* First VNODE of a contour */
+  do  /* Loop over the nodes in the smaller contour */
+  {
+    /* check this edge for any insertions */
+    double dx;
+    info.v = av;
+    /* compute the slant for region trimming */
+    dx = av->next->point[0] - av->point[0];
+    if (dx == 0)
+      /* line is vertical */
+	  info.m = 0;
+    else
     {
-      rtree_over = pa;
-      looping_over = pb;
+      /* compute the parameters of the line this segment falls on*/
+      info.m = (av->next->point[1] - av->point[1]) / dx;
+      info.b = av->point[1] - info.m * av->point[0];
     }
 
-  av = &looping_over->head;
-  do				/* Loop over the nodes in the smaller contour */
-    {
-      /* check this edge for any insertions */
-      double dx;
-      info.v = av;
-      /* compute the slant for region trimming */
-      dx = av->next->point[0] - av->point[0];
-      if (dx == 0)
-	info.m = 0;
-      else
-	{
-	  info.m = (av->next->point[1] - av->point[1]) / dx;
-	  info.b = av->point[1] - info.m * av->point[0];
-	}
-      box.X2 = (box.X1 = av->point[0]) + 1;
-      box.Y2 = (box.Y1 = av->point[1]) + 1;
+    /* This search box is 1 nm x 1 nm at the location of our VNODE */
+    box.X2 = (box.X1 = av->point[0]) + 1;
+    box.Y2 = (box.Y1 = av->point[1]) + 1;
 
-      /* fill in the segment in info corresponding to this node */
-      if (setjmp (info.sego) == 0)
-	{
-	  r_search (looping_over->tree, &box, NULL, get_seg, &info);
-	  assert (0);
-	}
+    /* fill in the segment in info corresponding to this node */
+    if (setjmp (info.sego) == 0)
+	  {
+        /* we put seg structs into the rtree, we want to find our struct 
+         * for this VNODE. Once we find it, it gets stored in info.s and 
+         * we longjmp back here and continue.
+         * */
+	    r_search (looping_over->tree, &box, NULL, get_seg, &info);
+	    assert (0);
+	  }
 
-      /* If we're going to have another pass anyway, skip this */
-      if (info.s->intersected && info.node_insert_list != NULL)
-	continue;
+    /* If we're going to have another pass anyway, skip this */
+    if (info.s->intersected && info.node_insert_list != NULL)  continue;
 
-      if (setjmp (restart))
-	continue;
+    if (setjmp (restart))  continue;
 
-      /* NB: If this actually hits anything, we are teleported back to the beginning */
-      info.tree = rtree_over->tree;
-      if (info.tree)
-	if (UNLIKELY (r_search (info.tree, &info.s->box,
-				seg_in_region, seg_in_seg, &info)))
-	  assert (0); /* XXX: Memory allocation failure */
-    }
-  while ((av = av->next) != &looping_over->head);
+    /* NB: If this actually hits anything, we are teleported back to the beginning */
+    info.tree = rtree_over->tree;
+    if (info.tree)
+      if (UNLIKELY (r_search (info.tree, &info.s->box,
+                              seg_in_region, seg_in_seg, &info)))
+        assert (0); /* XXX: Memory allocation failure */
+  } while ((av = av->next) != &looping_over->head);
 
   c_info->node_insert_list = info.node_insert_list;
   if (info.need_restart)
@@ -870,6 +931,9 @@ contour_bounds_touch (const BoxType * b, void *cl)
   return 0;
 }
 
+/*!
+ * \brief Determine if two polyareas touch each other
+ * */
 static int
 intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
 {
@@ -891,59 +955,63 @@ intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       a = t;
     }
 
-  for (pa = a->contours; pa; pa = pa->next)	/* Loop over the contours of POLYAREA "a" */
-    {
-      BoxType sb;
-      jmp_buf out;
-      int retval;
+  /* Loop over the contours of POLYAREA "a" */
+  for (pa = a->contours; pa; pa = pa->next)	
+  {
+    BoxType sb; /* search box */
+    jmp_buf out;
+    int retval;
 
-      c_info.getout = NULL;
-      c_info.pa = pa;
+    c_info.getout = NULL;
+    c_info.pa = pa;
 
-      if (!add)
-	{
-	  retval = setjmp (out);
-	  if (retval)
+    if (!add)
+	  {
+	    retval = setjmp (out);
+	    if (retval)
 	    {
 	      /* The intersection test short-circuited back here,
 	       * we need to clean up, then longjmp to jb */
 	      longjmp (*jb, retval);
 	    }
-	  c_info.getout = &out;
-	}
+	    c_info.getout = &out;
+	  }
 
-      sb.X1 = pa->xmin;
-      sb.Y1 = pa->ymin;
-      sb.X2 = pa->xmax + 1;
-      sb.Y2 = pa->ymax + 1;
+    sb.X1 = pa->xmin;
+    sb.Y1 = pa->ymin;
+    sb.X2 = pa->xmax + 1;
+    sb.Y2 = pa->ymax + 1;
 
-      r_search (b->contour_tree, &sb, NULL, contour_bounds_touch, &c_info);
-      if (c_info.need_restart)
-	need_restart = 1;
-    }
+    /* search the contours of b for a bounding box that overlaps with this 
+     * contour of a's bounding box.
+     * */
+    r_search (b->contour_tree, &sb, NULL, contour_bounds_touch, &c_info);
+    if (c_info.need_restart)
+	    need_restart = 1;
+  }
 
   /* Process any deferred node insersions */
   task = c_info.node_insert_list;
   while (task != NULL)
-    {
-      insert_node_task *next = task->next;
+  {
+    insert_node_task *next = task->next;
 
-      /* Do insersion */
-      task->new_node->prev = task->node_seg->v;
-      task->new_node->next = task->node_seg->v->next;
-      task->node_seg->v->next->prev = task->new_node;
-      task->node_seg->v->next = task->new_node;
-      task->node_seg->p->Count++;
+    /* Do insersion */
+    task->new_node->prev = task->node_seg->v;
+    task->new_node->next = task->node_seg->v->next;
+    task->node_seg->v->next->prev = task->new_node;
+    task->node_seg->v->next = task->new_node;
+    task->node_seg->p->Count++;
 
-      cntrbox_adjust (task->node_seg->p, task->new_node->point);
-      if (adjust_tree (task->node_seg->p->tree, task->node_seg))
-	assert (0); /* XXX: Memory allocation failure */
+    cntrbox_adjust (task->node_seg->p, task->new_node->point);
+    if (adjust_tree (task->node_seg->p->tree, task->node_seg))
+	    assert (0); /* XXX: Memory allocation failure */
 
-      need_restart = 1; /* Any new nodes could intersect */
+    need_restart = 1; /* Any new nodes could intersect */
 
-      free (task);
-      task = next;
-    }
+    free (task);
+    task = next;
+  }
 
   return need_restart;
 }
@@ -967,39 +1035,36 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst, int add)
   if (a == NULL || b == NULL)
     error (err_bad_parm);
   do
-    {
-      do
+  {
+    do
 	{
+      /* If the bounding box of A intersects bounding box of B */
 	  if (a->contours->xmax >= b->contours->xmin &&
 	      a->contours->ymax >= b->contours->ymin &&
 	      a->contours->xmin <= b->contours->xmax &&
 	      a->contours->ymin <= b->contours->ymax)
-	    {
-	      if (UNLIKELY (intersect (e, a, b, add)))
-		error (err_no_memory);
+	  {
+        /* BBs intersect */
+        if (UNLIKELY (intersect (e, a, b, add)))  error (err_no_memory);
+	  }
+    } while (add && (a = a->f) != afst);
+
+    for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
+	    if (curcB->Flags.status == ISECTED)
+      {
+	      the_list = add_descriptors (curcB, 'B', the_list);
+	      if (UNLIKELY (the_list == NULL))  error (err_no_memory);
 	    }
-	}
-      while (add && (a = a->f) != afst);
-      for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
-	if (curcB->Flags.status == ISECTED)
-	  {
-	    the_list = add_descriptors (curcB, 'B', the_list);
-	    if (UNLIKELY (the_list == NULL))
-	      error (err_no_memory);
-	  }
-    }
-  while (add && (b = b->f) != bfst);
+  } while (add && (b = b->f) != bfst);
   do
-    {
-      for (curcA = a->contours; curcA != NULL; curcA = curcA->next)
-	if (curcA->Flags.status == ISECTED)
-	  {
-	    the_list = add_descriptors (curcA, 'A', the_list);
-	    if (UNLIKELY (the_list == NULL))
-	      error (err_no_memory);
-	  }
-    }
-  while (add && (a = a->f) != afst);
+  {
+    for (curcA = a->contours; curcA != NULL; curcA = curcA->next)
+	    if (curcA->Flags.status == ISECTED)
+	    {
+	      the_list = add_descriptors (curcA, 'A', the_list);
+	      if (UNLIKELY (the_list == NULL))  error (err_no_memory);
+	    }
+  } while (add && (a = a->f) != afst);
 }				/* M_POLYAREA_intersect */
 
 static inline int
@@ -2383,10 +2448,12 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 	{
 	case PBO_XOR:
 	case PBO_UNITE:
+      /* if a was null, then the union or xor with b is b. */
 	  *res = bi;
 	  return err_ok;
 	case PBO_SUB:
 	case PBO_ISECT:
+      /* can't do these with out two operands. */
 	  if (b != NULL)
 	    poly_Free (&b);
 	  return err_ok;
@@ -2399,9 +2466,11 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 	case PBO_SUB:
 	case PBO_XOR:
 	case PBO_UNITE:
+      /* if b was null, the result of these operations is just a. */
 	  *res = ai;
 	  return err_ok;
 	case PBO_ISECT:
+      /* can't do this without two operands. */
 	  if (a != NULL)
 	    poly_Free (&a);
 	  return err_ok;
@@ -2561,6 +2630,9 @@ node_neighbours (VNODE * a, VNODE * b)
   return (a == b) || (a->next == b) || (b->next == a) || (a->next == b->next);
 }
 
+/*!
+ * \brief Create a new VNODE at the end of v
+ * */
 VNODE *
 poly_CreateNode (Vector v)
 {
@@ -2570,29 +2642,46 @@ poly_CreateNode (Vector v)
   assert (v);
   res = (VNODE *) calloc (1, sizeof (VNODE));
   if (res == NULL)
+    /* Couldn't allocate memory */
     return NULL;
+
   // bzero (res, sizeof (VNODE) - sizeof(Vector));
-  c = res->point;
-  *c++ = *v++;
-  *c = *v;
+  c = res->point; /* type(res->point) = Vector = vertex = Coord [2]*/
+  *c++ = *v++; /* Copy the first Coord and point to the second of each */
+  *c = *v; /* Copy the second Coord*/
   return res;
 }
 
+/*!
+ * \brief Initialize a PLINE contour.
+ * */
 void
 poly_IniContour (PLINE * c)
 {
   if (c == NULL)
     return;
   /* bzero (c, sizeof(PLINE)); */
+
+  /* Set up the linked list. This is the first object so we point to
+   * ourselves.
+   * */
   c->head.next = c->head.prev = &c->head;
+  
+  /* Set up the bounding box. */
   c->xmin = c->ymin = COORD_MAX;
   c->xmax = c->ymax = -COORD_MAX - 1;
+
+  /* Other parameters */
   c->is_round = FALSE;
   c->cx = 0;
   c->cy = 0;
   c->radius = 0;
 }
 
+
+/*!
+ * \brief Create a new PLINE with an initial point at v
+ * */
 PLINE *
 poly_NewContour (Vector v)
 {
@@ -2600,13 +2689,17 @@ poly_NewContour (Vector v)
 
   res = (PLINE *) calloc (1, sizeof (PLINE));
   if (res == NULL)
+    /* Failed to allocate memory */
     return NULL;
 
+  /* Initialize the list pointers and variables. */
   poly_IniContour (res);
 
   if (v != NULL)
     {
+      /* Copy Coords in v to res->head.point */
       Vcopy (res->head.point, v);
+      /* Update the contour box (bounding box) to include the new point */
       cntrbox_adjust (res, v);
     }
 
@@ -2658,6 +2751,12 @@ poly_DelContour (PLINE ** c)
   free (*c), *c = NULL;
 }
 
+/*!
+ * \brief Prepare (?) an initialized PLINE contour.
+ *
+ * If optimize is true, points that line on a line connected the previous
+ * and next points are removed.
+ * */
 void
 poly_PreContour (PLINE * C, BOOLp optimize)
 {
@@ -2671,23 +2770,22 @@ poly_PreContour (PLINE * C, BOOLp optimize)
     {
       for (c = (p = &C->head)->next; c != &C->head; c = (p = c)->next)
 	{
-	  /* if the previous node is on the same line with this one, we should remove it */
+	  /* if the previous node is on the same line with this one, 
+       * we should remove it. If the vector cross-product of the vectors
+       * connecting this point to the next and previous points is zero, the
+       * points are on the same line and we can remove point c.
+       * */
 	  Vsub2 (p1, c->point, p->point);
 	  Vsub2 (p2, c->next->point, c->point);
-	  /* If the product below is zero then
-	   * the points on either side of c 
-	   * are on the same line!
-	   * So, remove the point c
-	   */
-
 	  if (vect_det2 (p1, p2) == 0)
-	    {
-	      poly_ExclVertex (c);
-	      free (c);
-	      c = p;
-	    }
-	}
-    }
+      {
+	    poly_ExclVertex (c);
+	    free (c);
+	    c = p;
+      }
+	} /* for (each vertex) */
+    } /* optimize */
+  
   C->Count = 0;
   C->xmin = C->xmax = C->head.point[0];
   C->ymin = C->ymax = C->head.point[1];
@@ -2698,9 +2796,25 @@ poly_PreContour (PLINE * C, BOOLp optimize)
       do
 	{
 	  /* calculate area for orientation */
+      /* I don't understand how this part works. This is a funny area that
+       * is the difference in x with the sum in y. In pcb all coordinates are
+       * positive. So, dx = p.x - c.x, and therefore the area, is negative 
+       * if the current point (c) is further to the right than the previous
+       * point (p). The sum of the ys is greater when we're further from the
+       * axis, so, if we're going clockwise, we'll be adding larger numbers
+       * when the next point is to the left than when going to the right,
+       * and at the end we should have a positive number (remember that
+       * pcb's positive y-axis points down). If we're going CCW, then we'll
+       * be moving to the right a y coordinate that's greater than when
+       * we're moving to the left, and so the net area will be negative.
+       *
+       * However if this is the case, why do we save the absolute value of
+       * the area? I'm not sure how this value is meaningful...
+       * */
 	  area +=
 	    (double) (p->point[0] - c->point[0]) * (p->point[1] +
 						    c->point[1]);
+      /* expand the contour box to include the current vertex */
 	  cntrbox_adjust (C, c->point);
 	  C->Count++;
 	}
@@ -2709,6 +2823,8 @@ poly_PreContour (PLINE * C, BOOLp optimize)
   C->area = ABS (area);
   if (C->Count > 2)
     C->Flags.orient = ((area < 0) ? PLF_INV : PLF_DIR);
+
+  /* Generate an rtree for the contour. */
   C->tree = (rtree_t *)make_edge_tree (C);
 }				/* poly_PreContour */
 
@@ -2716,10 +2832,20 @@ static int
 flip_cb (const BoxType * b, void *cl)
 {
   struct seg *s = (struct seg *) b;
+  /* Adjust the node pointer so that the previous segment becomes the
+   * current segment. Note that this doesn't change the orientation, just
+   * which edge of the contour the segment points to. */
   s->v = s->v->prev;
   return 1;
 }
 
+/*!
+ * \brief Invert the orientation of a contour.
+ *
+ * If the contour is positive (CW?) we reverse it to be negative (CCW?) and
+ * vice versa. Positive contours are the perimeters of polygons, negative
+ * contours are holes in polygons.
+ * */
 void
 poly_InvContour (PLINE * c)
 {
@@ -2732,6 +2858,9 @@ poly_InvContour (PLINE * c)
   cur = &c->head;
   do
     {
+      /* Swap the next and prev pointers to reverse the direction of the
+       * segment.
+       * */ 
       next = cur->next;
       cur->next = cur->prev;
       cur->prev = next;
@@ -2883,6 +3012,9 @@ poly_M_Copy0 (POLYAREA ** dst, const POLYAREA * srcfst)
   return TRUE;
 }
 
+/*!
+ * \brief Insert a PLINE contour in a POLYAREA.
+ * */
 BOOLp
 poly_InclContour (POLYAREA * p, PLINE * c)
 {
@@ -2891,20 +3023,24 @@ poly_InclContour (POLYAREA * p, PLINE * c)
   if ((c == NULL) || (p == NULL))
     return FALSE;
   if (c->Flags.orient == PLF_DIR)
-    {
-      if (p->contours != NULL)
-	return FALSE;
-      p->contours = c;
-    }
+  {
+    /* c is a positive contour (perimeter) */
+    /* Only the first contour may be positive. */
+    if (p->contours != NULL)  return FALSE;
+    p->contours = c;
+  }
   else
-    {
-      if (p->contours == NULL)
-	return FALSE;
-      /* link at front of hole list */
-      tmp = p->contours->next;
-      p->contours->next = c;
-      c->next = tmp;
-    }
+  {
+    /* c is a negative contour (hole) */
+    /* Only subsequent contours may be negative */
+    if (p->contours == NULL) return FALSE;
+
+    /* link at front of hole list */
+    tmp = p->contours->next;
+    p->contours->next = c;
+    c->next = tmp;
+  }
+  /* Add the contour to the POLYAREAs contour rtree */
   r_insert_entry (p->contour_tree, (BoxType *) c, 0);
   return TRUE;
 }
@@ -2916,70 +3052,139 @@ typedef struct pip
   jmp_buf env;
 } pip;
 
-
+/*!
+ * \brief Callback to determine if a point is inside a polygon.
+ *
+ * A "bounding box" is generated from the point to the greatest X coordinate
+ * possible, and this function is called for each segment bounding box that 
+ * overlaps with the "ray" bounding box.
+ *
+ * If the ray intersects a segment that is going away from y=0, we add 1 to
+ * a counter, and if it intersects a segment that is going towards y=0 we
+ * subtract 1. If a point is inside the polygon, the net result must be
+ * non-zero.
+ * */
 static int
 crossing (const BoxType * b, void *cl)
 {
+  /* The contour segment our ray touches the bounding box of. */
   struct seg *s = (struct seg *) b;
+  /* Contains our point in question */
   struct pip *p = (struct pip *) cl;
 
+
   if (s->v->point[1] <= p->p[1])
-    {
-      if (s->v->next->point[1] > p->p[1])
+  /* First segment point is closer to y=0 than the point in question. */
+  {
+    if (s->v->next->point[1] > p->p[1])
+    /* Second segment point is further from zero than the point in question. */
 	{
+      /* The y coord of our point is between those of the segment end
+       * points, and our segment is directed towards increasing y.
+       */
 	  Vector v1, v2;
 	  long long cross;
+      /* Segment vector */
 	  Vsub2 (v1, s->v->next->point, s->v->point);
+      /* Vector from first end point of the segment to the point in question */
 	  Vsub2 (v2, p->p, s->v->point);
+      /* Compute the cross product */
 	  cross = (long long) v1[0] * v2[1] - (long long) v2[0] * v1[1];
 	  if (cross == 0)
-	    {
-	      p->f = 1;
-	      longjmp (p->env, 1);
-	    }
+      {
+        /* vectors are parallel, intersection not possible */
+	    p->f = 1;
+	    longjmp (p->env, 1);
+	  }
+      /* A positive cross product means that the point is to the left of
+       * the segment (remember positive y is down, so positive z is into
+       * the screen, and we know that the segment is directed away towards
+       * increasing y), and therefore intersects. Add one to the count since
+       * this is edge is going towards increasing y.
+       * */
 	  if (cross > 0)
 	    p->f += 1;
 	}
-    }
+  }
   else
-    {
-      if (s->v->next->point[1] <= p->p[1])
+  /* First segment point is further from y=0 than the point in question. */
+  {
+    if (s->v->next->point[1] <= p->p[1])
+    /* Second segment point is closer to zero that the point in question. */
 	{
+      /* The y coord of our point is between those of the segment end
+       * points, and our segment is directed towards decreasing y.
+       */
 	  Vector v1, v2;
 	  long long cross;
+      /* vector along the segment */
 	  Vsub2 (v1, s->v->next->point, s->v->point);
+      /* vector from the first point of the segment to the point in question. */
 	  Vsub2 (v2, p->p, s->v->point);
+      /* Compute the cross product*/
 	  cross = (long long) v1[0] * v2[1] - (long long) v2[0] * v1[1];
 	  if (cross == 0)
-	    {
-	      p->f = 1;
-	      longjmp (p->env, 1);
-	    }
+      {
+        /* vectors are parallel. */
+        p->f = 1;
+        longjmp (p->env, 1);
+	  }
+      /* A negative cross product means the point is to the left of the
+       * segment (see above). Since the ray is moving right, it must
+       * intersect. Subtract one from the count since this segment is going
+       * towards decreasing y. 
+       * */
 	  if (cross < 0)
 	    p->f -= 1;
 	}
-    }
+  }
   return 1;
 }
 
+/*!
+ * \brief Determine if a point is inside a contour
+ *
+ * Generate a vector from the specified point to the maximum x coordinate,
+ * and see what segments are intersected. If we intersect as many "positive
+ * going" segments as "negative going" segments (y direction), then we must
+ * not be inside the polygon.
+ *
+ * Return 0 if the point is outside, otherwise the net count of intersected
+ * segments (crossing a positive segment = +1, crossing a negative segment =
+ * -1).
+ * */
 int
 poly_InsideContour (PLINE * c, Vector p)
 {
   struct pip info;
   BoxType ray;
 
+  /* Quick bounding box check */
   if (!cntrbox_pointin (c, p))
     return FALSE;
+
+  /* Create a ray (bounding box) one nm tall that goes from the point to the
+   * furthest edge possible. 
+   * */
   info.f = 0;
   info.p[0] = ray.X1 = p[0];
   info.p[1] = ray.Y1 = p[1];
   ray.X2 = COORD_MAX;
   ray.Y2 = p[1] + 1;
+
+  /* Call the crossing callback for any segment for which this ray touches
+   * the bounding box
+   * */
   if (setjmp (info.env) == 0)
     r_search (c->tree, &ray, NULL, crossing, &info);
+
+  /* if info.f != 0, the specified point is inside the polygon */
   return info.f;
 }
 
+/*!
+ * \brief Check if a point is inside a POLYAREA, but not one of its holes.
+ * */
 BOOLp
 poly_CheckInside (POLYAREA * p, Vector v0)
 {
@@ -2987,31 +3192,44 @@ poly_CheckInside (POLYAREA * p, Vector v0)
 
   if ((p == NULL) || (v0 == NULL) || (p->contours == NULL))
     return FALSE;
+  /* first contour is the polygon perimeter*/
   cur = p->contours;
   if (poly_InsideContour (cur, v0))
-    {
-      for (cur = cur->next; cur != NULL; cur = cur->next)
-	if (poly_InsideContour (cur, v0))
-	  return FALSE;
-      return TRUE;
-    }
+  /* Inside the perimeter of the polygon */
+  {
+    /* loop over each hole */
+    for (cur = cur->next; cur != NULL; cur = cur->next)
+      /* If inside any hole, then false */
+      if (poly_InsideContour (cur, v0))  return FALSE;
+
+    /* Inside the polygon perimeter, but not a hole. */
+    return TRUE;
+  } /* if inside perimeter */
+
+  /* wasn't inside the perimeter */
   return FALSE;
 }
 
+/*!
+ * \brief Check if a point is inside this polyarea or any that it's linked to.
+ * */
 BOOLp
 poly_M_CheckInside (POLYAREA * p, Vector v0)
 {
   POLYAREA *cur;
 
   if ((p == NULL) || (v0 == NULL))
-    return FALSE;
+    return FALSE; /* bad input */
+
   cur = p;
   do
-    {
-      if (poly_CheckInside (cur, v0))
-	return TRUE;
-    }
+  {
+    /* If we're inside any POLYAREA, return true. */
+    if (poly_CheckInside (cur, v0))  return TRUE;
+  }
+  /* check the next POLYAREA until we get back to the start */
   while ((cur = cur->f) != p);
+
   return FALSE;
 }
 
@@ -3485,6 +3703,11 @@ vect_m_dist (Vector v1, Vector v2)
  * (C) 1993 Klamer Schutte.
  *
  * (C) 1997 Michael Leonov, Alexey Nikitin.
+ *
+ * Returns the number of intersecting points:
+ *   0 - no intersection
+ *   1 - segments cross, or are parallel and end to end
+ *   2 - segments are parallel and overlap each other
  */
 int
 vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
@@ -3499,6 +3722,9 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
       max (q1[1], q2[1]) < min (p1[1], p2[1]))
     return 0;
 
+  /* vec(rpx, rpy) points from p1 to p2, and vec(rqx, rqy) points 
+   * from q1 to q2
+   * */
   rpx = p2[0] - p1[0];
   rpy = p2[1] - p1[1];
   rqx = q2[0] - q1[0];
@@ -3518,13 +3744,13 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
       Vsub2 (q1p1, q1, p1);
       Vsub2 (q1q2, q1, q2);
 
-
       /* If this product is not zero then p1-p2 and q1-q2 are not on same line! */
-      if (vect_det2 (q1p1, q1q2) != 0)
-	return 0;
+      if (vect_det2 (q1p1, q1q2) != 0)  return 0;
+
       dc1 = 0;			/* m_len(p1 - p1) */
 
-      dc2 = vect_m_dist (p1, p2);
+
+      dc2 = vect_m_dist (p1, p2); /* signed dist^2 */
       d1 = vect_m_dist (p1, q1);
       d2 = vect_m_dist (p1, q2);
 
