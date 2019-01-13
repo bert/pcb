@@ -71,6 +71,7 @@ static const char makedifferential_help[] =
 @emph{All} line or arc segments of traces on all layers with
 @emph{width} will be split into parallel lines and arcs, separated by a
 distance @emph{gap}.
+Locked line or arc segments of traces will be ignored.
 
 @emph{Selected} line or arc segments of traces will be split into
 parallel lines and arcs with an @emph{offset} and @emph{thickness}.
