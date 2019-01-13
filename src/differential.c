@@ -157,30 +157,39 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       if (TEST_FLAG (LOCKFLAG, line) || line->Thickness != w)
         continue;
 
+      /* Remove the original line segment. */
       AddObjectToSizeUndoList (LINE_TYPE, layer, line, line);
       EraseLine (line);
       r_delete_entry (layer->line_tree, (BoxType *) line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, layer, line);
+
+      /* Define a new line segment. */
       line->Thickness = t;
       wx = (double) (line->Point2.X - line->Point1.X);
       wy = (double) (line->Point2.Y - line->Point1.Y);
       i = 1.0 / sqrt (wx * wx + wy * wy);
       nx = -wy * i * offset;
       ny = wx * i * offset;
+
+      /* Coordinates for the mirror line segment (line2). */
       x1 = line->Point1.X - (Coord) nx;
       y1 = line->Point1.Y - (Coord) ny;
       x2 = line->Point2.X - (Coord) nx;
       y2 = line->Point2.Y - (Coord) ny;
+
+      /* Coordinates for the new line. */
       line->Point1.X += (Coord) nx;
       line->Point1.Y += (Coord) ny;
       line->Point2.X += (Coord) nx;
       line->Point2.Y += (Coord) ny;
 
+      /* Create the new line segment. */
       SetLineBoundingBox (line);
       r_insert_entry (layer->line_tree, (BoxType *) line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, layer, line);
       DrawLine (layer, line);
 
+      /* Create a mirror line segment (line2). */
       if ((line2 = CreateDrawnLineOnLayer (layer, 
                                            x1, y1,
                                            x2, y2,
@@ -202,20 +211,24 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       if (TEST_FLAG (LOCKFLAG, arc) || arc->Thickness != w)
         continue;
 
+      /* Remove the original arc segment. */
       AddObjectToSizeUndoList (ARC_TYPE, layer, arc, arc);
       EraseArc (arc);
       r_delete_entry (layer->arc_tree, (BoxType *) arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, layer, arc);
 
+      /* Define a new arc segment. */
       arc->Thickness = t;
       arc->Width += (Coord) offset;
       arc->Height += (Coord) offset;
 
+      /* Create the new arc segment. */
       SetArcBoundingBox (arc);
       r_insert_entry (layer->arc_tree, (BoxType *) arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, layer, arc);
       DrawArc (layer, arc);
 
+      /* Create a mirror arc segment (arc2). */
       if ((arc2 = CreateNewArcOnLayer (layer,
                                        arc->X, arc->Y,
                                        arc->Width - 2 * (Coord)offset,
@@ -251,30 +264,39 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       if (!TEST_FLAG (SELECTEDFLAG, line))
         continue;
 
+      /* Remove the original line segment. */
       AddObjectToSizeUndoList (LINE_TYPE, layer, line, line);
       EraseLine (line);
       r_delete_entry (layer->line_tree, (BoxType *) line);
       RestoreToPolygon (PCB->Data, LINE_TYPE, layer, line);
+
+      /* Define a new line segment. */
       line->Thickness = t;
       wx = (double) (line->Point2.X - line->Point1.X);
       wy = (double) (line->Point2.Y - line->Point1.Y);
       i = 1.0 / sqrt (wx * wx + wy * wy);
       nx = -wy * i * offset;
       ny = wx * i * offset;
+
+      /* Coordinates for the mirror line segment (line2). */
       x1 = line->Point1.X - (Coord) nx;
       y1 = line->Point1.Y - (Coord) ny;
       x2 = line->Point2.X - (Coord) nx;
       y2 = line->Point2.Y - (Coord) ny;
+
+      /* Coordinates for the new line. */
       line->Point1.X += (Coord) nx;
       line->Point1.Y += (Coord) ny;
       line->Point2.X += (Coord) nx;
       line->Point2.Y += (Coord) ny;
 
+      /* Create the new line segment. */
       SetLineBoundingBox (line);
       r_insert_entry (layer->line_tree, (BoxType *) line, 0);
       ClearFromPolygon (PCB->Data, LINE_TYPE, layer, line);
       DrawLine (layer, line);
 
+      /* Create a mirror line segment (line2). */
       if ((line2 = CreateDrawnLineOnLayer (layer, 
                                            x1, y1,
                                            x2, y2,
@@ -295,20 +317,24 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
       if (!TEST_FLAG (SELECTEDFLAG, arc))
         continue;
 
+      /* Remove the original arc segment. */
       AddObjectToSizeUndoList (ARC_TYPE, layer, arc, arc);
       EraseArc (arc);
       r_delete_entry (layer->arc_tree, (BoxType *) arc);
       RestoreToPolygon (PCB->Data, ARC_TYPE, layer, arc);
 
+      /* Define a new arc segment. */
       arc->Thickness = t;
       arc->Width += (Coord) offset;
       arc->Height += (Coord) offset;
 
+      /* Create the new arc segment. */
       SetArcBoundingBox (arc);
       r_insert_entry (layer->arc_tree, (BoxType *) arc, 0);
       ClearFromPolygon (PCB->Data, ARC_TYPE, layer, arc);
       DrawArc (layer, arc);
 
+      /* Create a mirror arc segment (arc2). */
       if ((arc2 = CreateNewArcOnLayer (layer,
                                        arc->X, arc->Y,
                                        arc->Width - 2 * (Coord)offset,
