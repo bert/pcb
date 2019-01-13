@@ -95,12 +95,8 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
 {
   char *function = NULL;
   int all;
-  char *width;
-  char *gap;
-  char *offsat;
-  char *thickness;
-  Coord w = 1000000;
-  Coord g = 200000;
+  Coord w;
+  Coord g;
   Coord t;
   Coord o;
   Coord x1,y1,x2,y2;
@@ -148,14 +144,8 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
 
   if (all) /* "All" */
   {
-    width = argv[1];
-    gap = argv[2];
-
-    if (width && gap)
-      {
-        w = GetValue (width, NULL, NULL);
-        g = GetValue (gap, NULL, NULL);
-      }
+    w = GetValue (ARG(1), NULL, NULL);
+    g = GetValue (ARG(2), NULL, NULL);
 
     t = abs ((w - g) / 2); /* Avoid a negative value. */
     offset = (double) ((g + w) >> 2);
@@ -250,14 +240,8 @@ ActionMakeDifferential (int argc, char **argv, Coord x, Coord y)
   
   else /* "Selected". */
   {
-    offsat = argv[1];
-    thickness = argv[2];
-
-    if (offsat && thickness)
-      {
-        o = GetValue (offsat, NULL, NULL);
-        t = GetValue (thickness, NULL, NULL);
-      }
+    o = GetValue (ARG(1), NULL, NULL);
+    t = GetValue (ARG(2), NULL, NULL);
 
     offset = (double)(o);
 
