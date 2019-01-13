@@ -43,7 +43,8 @@
 #include "misc.h" /* SaveStackAndVisibility */
 #include "object_list.h"
 #include "pcb-printf.h" /* Units */
-#include "polygon.h" /* PlowsPolygon */
+/* PlowsPolygon, original_polygon, LinePoly, ArcPoly, Touching */
+#include "polygon.h" 
 #include "undo.h" /* Lock/Unlock Undo*/
 
 object_list * drc_violation_list = 0;
@@ -444,9 +445,10 @@ obj_clearance (DRCObject * obj)
   return 0;
 }
 
-/* Call the appropriate routine to determine if an object is in a polygon */
+/* Call the appropriate routine to determine if an object is actually
+ * touches a polygon */
 static Coord
-is_obj_in_poly (DRCObject * obj, PolygonType * poly, Cardinal layer)
+obj_touches_poly (DRCObject * obj, PolygonType * poly, Cardinal layer)
 {
   LineType *line = (LineType *) obj->ptr2;
   ArcType *arc = (ArcType *) obj->ptr2;
@@ -474,6 +476,53 @@ is_obj_in_poly (DRCObject * obj, PolygonType * poly, Cardinal layer)
   return 0;
 }
 
+/* Determine if an object is inside the perimeter of a polygon. This is not
+ * very efficient. */
+static int
+is_obj_in_polygon(DRCObject * obj, PolygonType * poly, Cardinal layer)
+{
+  /* original_poly gives us a POLYAREA the shape of the polygon, but without
+   * any of the clearances cut out by parts. */
+  POLYAREA * orig = original_poly(poly);
+  POLYAREA * pa_obj;
+  int touches = 0;
+  LineType *line = (LineType *) obj->ptr2;
+  ArcType *arc = (ArcType *) obj->ptr2;
+  PinType *pin = (PinType *) obj->ptr2;
+
+  /* Generate a POLYAREA in the shape of the object we're testing. */
+  switch (obj->type)
+  {
+  case LINE_TYPE:
+    pa_obj = LinePoly(line, line->Thickness + 2*PCB->Bloat);
+    break;
+  case ARC_TYPE:
+    pa_obj = ArcPoly(arc, arc->Thickness + 2*PCB->Bloat);
+    break;
+  case PIN_TYPE:
+  case VIA_TYPE:
+    if (!ViaIsOnLayerGroup (pin, GetLayerGroupNumberByNumber (layer)) 
+             || TEST_FLAG (HOLEFLAG, pin))
+      return 0;
+    pa_obj = PinPoly(pin, pin->Thickness + 2*PCB->Bloat, 0);
+    break;
+  case PAD_TYPE:
+    pa_obj = LinePoly(line, line->Thickness + 2*PCB->Bloat);
+    break;
+  default:
+    return 0;
+  }
+
+  /* If the uncleared polygon touches our object, then part of the object is
+   * inside the polygon. */
+  touches = Touching(orig, pa_obj);
+
+  poly_Free(&pa_obj);
+  poly_Free(&orig);
+  return touches;
+
+}
+
 /*!
  * \brief DRC clearance callback.
  *
@@ -489,13 +538,16 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
   Coord clearance = obj_clearance(&thing1);
 
   LineType *line = (LineType *) ptr2;
-  
+
+  /* If we're here, we know that the polygon and object have overlapping
+   * bounding boxes. If the object (or it's clearance) isn't actually inside 
+   * the polygon, we don't care. */ 
+  if (!is_obj_in_polygon(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
+    return 0;
+ 
   /* Thing 1 is the object on which PlowsPolygon was called */
   SetThing (2, POLYGON_TYPE, layer, polygon, polygon);
   
-  /* If we're here, we know that the polygon and object have overlapping
-   * bounding boxes. 
-   */
   switch (type)
   {
   case LINE_TYPE:
@@ -529,7 +581,7 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
        * into account... note that IsXInPolygon adds another bloat, but
        * that one should be zeroed out.
        */
-       if (is_obj_in_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
+       if (obj_touches_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
         /* The bloated line touched the polygon, so there's a violation. */
         new_polygon_clearance_violation (layer, polygon);
      
@@ -543,6 +595,8 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
       /* If the object is supposed to join the polygon, make sure it's
        * connected electrically.
        */
+
+
       ClearFlagOnAllObjects (DRCFLAG, false);
       start_do_it_and_dump (thing1.type, ptr1, ptr2, ptr2, DRCFLAG, 
                             false, 0, false);
@@ -561,11 +615,14 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
     if (clearance == 0)
     {
       /* Vias with zero clearance are allowed, make sure it's connected. */
-      if (is_obj_in_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
+      if (obj_touches_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
         break;
       else
+      {
         /* not connected to the polygon, raise an error*/
         new_polygon_not_connected_violation (layer, polygon);
+        break;
+      }
     }
     /* fall-through */
   case PAD_TYPE:
@@ -576,7 +633,7 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
        * objects. 
        * */
       bloat_obj(&thing1, 2*PCB->Bloat);
-      if (is_obj_in_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
+      if (obj_touches_poly(&thing1, polygon, GetLayerNumber(PCB->Data, layer)))
         /* The bloated line touched the polygon, so there's a violation. */
         new_polygon_clearance_violation (layer, polygon);
       bloat_obj (&thing1, -2*PCB->Bloat);
