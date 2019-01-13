@@ -1033,8 +1033,8 @@ UndoNetlistChange (UndoListType *Entry)
   return true;
 }
 
-/* ---------------------------------------------------------------------------
- * recovers an object from a Size change operation
+/*!
+ * \brief Recovers an object from a Size change operation.
  */
 static bool
 UndoSetViaLayers (UndoListType *Entry)
@@ -1065,8 +1065,8 @@ UndoSetViaLayers (UndoListType *Entry)
   return (false);
 }
 
-/* ---------------------------------------------------------------------------
- * \brief Undo of any 'hard to recover' operation
+/*!
+ * \brief Undo of any 'hard to recover' operation.
  *
  * \return The bitfield for the types of operations that were undone.
  */
@@ -1914,8 +1914,8 @@ AddNetlistLibToUndoList (LibraryType *lib)
     }
 }
 
-/* ---------------------------------------------------------------------------
- * adds an object to the list of objects with buried info data
+/*!
+ * \brief Adds an object to the list of objects with buried info data.
  */
 void
 AddObjectToSetViaLayersUndoList (void *ptr1, void *ptr2, void *ptr3)
@@ -1931,7 +1931,7 @@ AddObjectToSetViaLayersUndoList (void *ptr1, void *ptr2, void *ptr3)
 }
 
 
-/* ---------------------------------------------------------------------------
+/*!
  * \brief Set lock flag
  */
 void
