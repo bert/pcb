@@ -2638,22 +2638,19 @@ GetInfoString (void)
     {
       first_time = 0;
       DSAddString (&info,
-	  _("This is PCB, an interactive\n"
-	    "printed circuit board editor\n"
-	    "version "));
+	  _("This is PCB, an interactive printed circuit board editor\nversion "));
       DSAddString (&info,
 	    VERSION "\n\n"
-	    "Compiled on " __DATE__ " at " __TIME__ "\n\n"
-	    "by harry eaton\n\n"
+	    "Compiled on " __DATE__ " at " __TIME__ " by PCB Contributors\n\n"
 	    "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
 	    "Copyright (C) harry eaton 1998-2007\n"
 	    "Copyright (C) C. Scott Ananian 2001\n"
 	    "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006, 2007, 2008\n"
-	    "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n\n");
+	    "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006, 2007, 2008\n"
+            "Copyright (C) PCB Contributors 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019\n\n");
       DSAddString (&info,
-	  _("It is licensed under the terms of the GNU\n"
-	    "General Public License version 2\n"
-	    "See the LICENSE file for more information\n\n"
+	  _("PCB is licensed under the terms of the GNU General Public License version 2.  "
+	    "See the LICENSE file for more information.\n\n"
 	    "For more information see:\n"));
       DSAddString (&info, _("PCB homepage: "));
       DSAddString (&info, "http://pcb.geda-project.org\n");
