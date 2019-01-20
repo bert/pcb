@@ -96,10 +96,6 @@ append_drc_violation (DrcViolationType *violation)
   }
 
   object_list_append(drc_violation_list, violation);
-  if (gui->drc_gui != NULL)
-  {
-    gui->drc_gui->append_drc_violation (violation);
-  }
 }
 
 /*!
@@ -648,6 +644,47 @@ drc_callback (DataType *data, LayerType *layer, PolygonType *polygon,
 }
 
 /*!
+ * \brief Create a new line width violation.
+ * */
+static void 
+new_line_width_violation(DRCObject * obj)
+{
+  DrcViolationType * violation;
+  const char * fmstr = "%s width is too thin";
+  char message[128];
+
+  switch(obj->type)
+  {
+  case LINE_TYPE:
+    sprintf(message, fmstr, "Line");
+    break;
+  case ARC_TYPE:
+    sprintf(message, fmstr, "Arc");
+    break;
+  default:
+    fprintf(stderr, "In new_line_width_violation with bad type!");
+    break;
+  }
+
+  violation = pcb_drc_violation_new (
+     message,
+     _("Process specifications dictate a minimum feature-width\n"
+       "that can reliably be reproduced"),
+     -1, -1, /* x, y, compute automatically */
+      0,    /* ANGLE OF ERROR UNKNOWN */
+      TRUE, /* MEASUREMENT OF ERROR KNOWN */
+      ((LineType*)(obj->ptr2))->Thickness,
+      PCB->minWid,
+      0);
+
+  object_list_append(violation->objects, obj);
+  pcb_drc_violation_update_location(violation);
+  append_drc_violation (violation);
+  pcb_drc_violation_free (violation);
+  
+}
+
+/*!
  * \brief Check for DRC violations.
  *
  * See if the connectivity changes when everything is bloated, or shrunk.
@@ -658,6 +695,8 @@ DRCAll (void)
   /* violating object list */
   object_list * vobjs = object_list_new(2, sizeof(DRCObject));
   DrcViolationType *violation;
+  DrcViolationType * min_copper_warning;
+  int i;
   int undo_flags = 0;
   int tmpcnt;
   int nopastecnt = 0;
@@ -683,7 +722,18 @@ DRCAll (void)
         0, 0, 0, TRUE, 0, 0, 0);
   append_drc_violation (violation);
   pcb_drc_violation_free (violation);
-  
+
+  /* Create this violation now, but don't add it yet. We'll add it at the
+   * end if we detect any objects of concern. 
+   * Note: Creating the object will create a new empty object list that we
+   *       can use to keep track of objects of concern. 
+   * */
+  min_copper_warning = pcb_drc_violation_new(
+        "Warning: DRC minimum copper overlap",
+        "DRC does not catch all minimum copper overlap violations for\n"
+        "objects with thickness &lt; 2 x (min overlap).",
+        0, 0, 0, TRUE, 0, 0, 0); 
+
   drcerr_count = 0;
   drcdup_count = 0;
   
@@ -765,21 +815,11 @@ DRCAll (void)
     if (line->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      object_list_clear(vobjs);
-      object_list_append(vobjs, &thing1);
-      violation = pcb_drc_violation_new (
-        _("Line width is too thin"),
-        _("Process specifications dictate a minimum feature-width\n"
-          "that can reliably be reproduced"),
-        -1, -1, /* x, y, compute automatically */
-        0,    /* ANGLE OF ERROR UNKNOWN */
-        TRUE, /* MEASUREMENT OF ERROR KNOWN */
-        line->Thickness,
-        PCB->minWid,
-        vobjs);
-      append_drc_violation (violation);
-      pcb_drc_violation_free (violation);
+      new_line_width_violation(&thing1);
     }
+
+    if (line->Thickness < 2 * PCB->Shrink)
+      object_list_append(min_copper_warning->objects, &thing1);
   }
   ENDALL_LOOP;
   
@@ -789,24 +829,14 @@ DRCAll (void)
     expand_obj_bbox(&thing1, 2*PCB->Bloat);
     PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback, &info);
     SetArcBoundingBox(arc);
+
     if (arc->Thickness < PCB->minWid)
     {
       drcerr_count++;
-      object_list_clear(vobjs);
-      object_list_append(vobjs, &thing1);
-      violation = pcb_drc_violation_new (
-        _("Arc width is too thin"),
-        _("Process specifications dictate a minimum feature-width\n"
-          "that can reliably be reproduced"),
-        -1, -1, /* x, y, compute automatically */
-        0,    /* ANGLE OF ERROR UNKNOWN */
-        TRUE, /* MEASUREMENT OF ERROR KNOWN */
-        arc->Thickness,
-        PCB->minWid,
-        vobjs);
-      append_drc_violation (violation);
-      pcb_drc_violation_free (violation);
+      new_line_width_violation(&thing1);
     }
+    if (arc->Thickness < 2 * PCB->Shrink)
+      object_list_append(min_copper_warning->objects, &thing1);
   }
   ENDALL_LOOP;
 
@@ -853,6 +883,8 @@ DRCAll (void)
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
     }
+    if (pin->Thickness < 2 * PCB->Shrink)
+      object_list_append(min_copper_warning->objects, &thing1);
   }
   ENDALL_LOOP;
 
@@ -880,6 +912,8 @@ DRCAll (void)
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
     }
+    if (pad->Thickness < 2 * PCB->Shrink)
+      object_list_append(min_copper_warning->objects, &thing1);
   }
   ENDALL_LOOP;
 
@@ -926,6 +960,8 @@ DRCAll (void)
       append_drc_violation (violation);
       pcb_drc_violation_free (violation);
     }
+    if (via->Thickness < 2 * PCB->Shrink)
+      object_list_append(min_copper_warning->objects, &thing1);
   }
   END_LOOP;
   
@@ -1002,7 +1038,27 @@ DRCAll (void)
     }
   }
   END_LOOP;
-    
+   
+  if (PCB->Shrink > 0)
+  {
+    /* If we found any objects that are too thin, add the warning to the
+     * violation list.
+     * */
+    if (min_copper_warning->objects->count > 0)
+      object_list_insert(drc_violation_list, 1, min_copper_warning);
+  }
+
+  pcb_drc_violation_free(min_copper_warning);
+
+  /* If there's a GUI, tell it all about what we've found. */
+  if (gui->drc_gui != NULL)
+  {
+    for (i = 0; i < drc_violation_list->count; i++){
+      violation = object_list_get_item(drc_violation_list, i);
+      gui->drc_gui->append_drc_violation (violation);
+    }
+  }
+
   ClearFlagOnAllObjects ((FOUNDFLAG | DRCFLAG | SELECTEDFLAG), false);
   UnlockUndo ();
   
