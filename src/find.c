@@ -720,9 +720,9 @@ ArcArcIntersect (ArcType *Arc1, ArcType *Arc2)
   Coord pdx, pdy;
   Coord box[8];
 
-  t  = 0.5 * Arc1->Thickness + Bloat;
+  t  = MAX (0.5 * Arc1->Thickness + Bloat, 0);
   t2 = 0.5 * Arc2->Thickness;
-  t1 = t2 + Bloat;
+  t1 = MAX (t2 + Bloat, 0);
 
   /* too thin arc */
   if (t < 0 || t1 < 0)
