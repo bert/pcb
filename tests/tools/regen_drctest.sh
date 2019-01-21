@@ -1,9 +1,15 @@
 #!/bin/bash
 
-PCB=../../../pcbtest.sh ./run_tests.sh --regen DRCTests
+tests=`awk -F'|' '/^drc-/ {print $1}' tests.list`
 
-rm golden/DRCTests/*-flags-after.txt
-rm golden/DRCTests/*-flags-before.txt
-rm golden/DRCTests/*.pcb
-rm golden/DRCTests/drctest.script
+for t in $tests;
+do
+  echo "Regenerating $t..."
+  PCB=../../../pcbtest.sh ./run_tests.sh --regen $t
+  rm golden/$t/flags-after.txt
+  rm golden/$t/flags-before.txt
+  rm golden/$t/*.pcb
+  rm golden/$t/drctest.script
+  rm -f golden/$t/run_tests.err.log
+done
 

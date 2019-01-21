@@ -1,0 +1,194 @@
+********************************************************************************
+                                  Violation 0
+********************************************************************************
+title: WARNING: DRC doesn't catch everything
+explanation: Detection of outright shorts, missing connections, etc.
+is handled via rat's nest addition.  To catch these problems,
+display the message log using Window->Message Log, then use
+Connects->Optimize rats nest (O hotkey) and watch for messages.
+
+location: (x, y) = (0, 0), angle = 0.000000
+have_measured: true
+measured value: 0
+required value: 0
+object count: 0
+object IDs: 
+object types: 
+
+********************************************************************************
+                                  Violation 1
+********************************************************************************
+title: Via drill size is too small
+explanation: Process rules dictate the minimum drill size which can be used
+location: (x, y) = (6350000, 20320000), angle = 0.000000
+have_measured: true
+measured value: 228600
+required value: 254000
+object count: 1
+object IDs: 14 
+object types: 1 
+
+********************************************************************************
+                                  Violation 2
+********************************************************************************
+title: Via drill size is too small
+explanation: Process rules dictate the minimum drill size which can be used
+location: (x, y) = (6350000, 21590000), angle = 0.000000
+have_measured: true
+measured value: 203200
+required value: 254000
+object count: 1
+object IDs: 15 
+object types: 1 
+
+********************************************************************************
+                                  Violation 3
+********************************************************************************
+title: Via drill size is too small
+explanation: Process rules dictate the minimum drill size which can be used
+location: (x, y) = (6350000, 22860000), angle = 0.000000
+have_measured: true
+measured value: 177800
+required value: 254000
+object count: 1
+object IDs: 16 
+object types: 1 
+
+********************************************************************************
+                                  Violation 4
+********************************************************************************
+title: Via drill size is too small
+explanation: Process rules dictate the minimum drill size which can be used
+location: (x, y) = (6350000, 24130000), angle = 0.000000
+have_measured: true
+measured value: 152400
+required value: 254000
+object count: 1
+object IDs: 17 
+object types: 1 
+
+********************************************************************************
+                                  Violation 5
+********************************************************************************
+title: Via drill size is too small
+explanation: Process rules dictate the minimum drill size which can be used
+location: (x, y) = (6350000, 25400000), angle = 0.000000
+have_measured: true
+measured value: 127000
+required value: 254000
+object count: 1
+object IDs: 18 
+object types: 1 
+
+********************************************************************************
+                                  Violation 6
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 13970000), angle = 0.000000
+have_measured: true
+measured value: 228600
+required value: 254000
+object count: 1
+object IDs: 25 
+object types: 1 
+
+********************************************************************************
+                                  Violation 7
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 15240000), angle = 0.000000
+have_measured: true
+measured value: 203200
+required value: 254000
+object count: 1
+object IDs: 26 
+object types: 1 
+
+********************************************************************************
+                                  Violation 8
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 16510000), angle = 0.000000
+have_measured: true
+measured value: 177800
+required value: 254000
+object count: 1
+object IDs: 27 
+object types: 1 
+
+********************************************************************************
+                                  Violation 9
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31800800, 17780000), angle = 0.000000
+have_measured: true
+measured value: 152400
+required value: 254000
+object count: 1
+object IDs: 28 
+object types: 1 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 19050000), angle = 0.000000
+have_measured: true
+measured value: 127000
+required value: 254000
+object count: 1
+object IDs: 29 
+object types: 1 
+
+********************************************************************************
+                                  Violation 11
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 20320000), angle = 0.000000
+have_measured: true
+measured value: 101600
+required value: 254000
+object count: 1
+object IDs: 30 
+object types: 1 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 21590000), angle = 0.000000
+have_measured: true
+measured value: 76200
+required value: 254000
+object count: 1
+object IDs: 31 
+object types: 1 
+
+********************************************************************************
+                                  Violation 13
+********************************************************************************
+title: Via annular ring too small
+explanation: Annular rings that are too small may erode during etching,
+resulting in a broken connection
+location: (x, y) = (31775400, 22860000), angle = 0.000000
+have_measured: true
+measured value: 50800
+required value: 254000
+object count: 1
+object IDs: 32 
+object types: 1 
+

@@ -1,0 +1,59 @@
+********************************************************************************
+                                  Violation 0
+********************************************************************************
+title: WARNING: DRC doesn't catch everything
+explanation: Detection of outright shorts, missing connections, etc.
+is handled via rat's nest addition.  To catch these problems,
+display the message log using Window->Message Log, then use
+Connects->Optimize rats nest (O hotkey) and watch for messages.
+
+location: (x, y) = (0, 0), angle = 0.000000
+have_measured: true
+measured value: 0
+required value: 0
+object count: 0
+object IDs: 
+object types: 
+
+********************************************************************************
+                                  Violation 1
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (3987800, 15557500), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 7 28 
+object types: 4 4 
+
+********************************************************************************
+                                  Violation 2
+********************************************************************************
+title: Potential for broken trace
+explanation: Insufficient overlap between objects can lead to broken tracks
+due to registration errors with old wheel style photo-plotters.
+location: (x, y) = (8966200, 13017500), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 40 55 
+object types: 4 4 
+
+********************************************************************************
+                                  Violation 3
+********************************************************************************
+title: Copper areas too close
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (9017000, 7937500), angle = 0.000000
+have_measured: false
+measured value: 0
+required value: 127000
+object count: 2
+object IDs: 40 43 
+object types: 4 4 
+

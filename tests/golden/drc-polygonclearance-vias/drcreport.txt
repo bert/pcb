@@ -1,0 +1,212 @@
+********************************************************************************
+                                  Violation 0
+********************************************************************************
+title: WARNING: DRC doesn't catch everything
+explanation: Detection of outright shorts, missing connections, etc.
+is handled via rat's nest addition.  To catch these problems,
+display the message log using Window->Message Log, then use
+Connects->Optimize rats nest (O hotkey) and watch for messages.
+
+location: (x, y) = (0, 0), angle = 0.000000
+have_measured: true
+measured value: 0
+required value: 0
+object count: 0
+object IDs: 
+object types: 
+
+********************************************************************************
+                                  Violation 1
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21209000, 16510000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 8 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 2
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21234400, 18415000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 9 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 3
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21259800, 20320000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 10 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 4
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21285200, 22225000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 11 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 5
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (21310600, 24130000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 12 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 6
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5080000, 18415000), angle = 0.000000
+have_measured: true
+measured value: 101600
+required value: 127000
+object count: 2
+object IDs: 29 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 7
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5080000, 20320000), angle = 0.000000
+have_measured: true
+measured value: 76200
+required value: 127000
+object count: 2
+object IDs: 30 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 8
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5080000, 22225000), angle = 0.000000
+have_measured: true
+measured value: 50800
+required value: 127000
+object count: 2
+object IDs: 31 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 9
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (5080000, 24130000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 32 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 10
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (30415561, 18415000), angle = 0.000000
+have_measured: true
+measured value: 101600
+required value: 127000
+object count: 2
+object IDs: 39 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 11
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (30415600, 20320000), angle = 0.000000
+have_measured: true
+measured value: 76200
+required value: 127000
+object count: 2
+object IDs: 40 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 12
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (30415640, 22225000), angle = 0.000000
+have_measured: true
+measured value: 50800
+required value: 127000
+object count: 2
+object IDs: 41 46 
+object types: 1 8 
+
+********************************************************************************
+                                  Violation 13
+********************************************************************************
+title: Via with insufficient clearance inside polygon
+
+explanation: Circuits that are too close may bridge during imaging, etching,
+plating, or soldering processes resulting in a direct short.
+location: (x, y) = (30415679, 24130000), angle = 0.000000
+have_measured: true
+measured value: 25400
+required value: 127000
+object count: 2
+object IDs: 42 46 
+object types: 1 8 
+

@@ -1,0 +1,1110 @@
+# release: pcb v4.1.3-gbf4b7f13
+
+# To read pcb files, the pcb version (or the git source date) must be >= the file version
+FileVersion[20170218]
+
+PCB["" 1000.00mil 1100.00mil]
+
+Grid[1.00mil 0.0000 0.0000 1]
+PolyArea[3100.006200]
+Thermal[0.500000]
+DRC[5.00mil 5.00mil 5.00mil 5.00mil 10.00mil 10.00mil]
+Flags("nameonpcb,clearnew,snappin")
+Groups("1,c:2:3:4:5:6,s:7:8")
+Styles["Signal,10.00mil,30.00mil,10.00mil,1.00mil:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,10.00mil,20.00mil,10.00mil,6.00mil"]
+Symbol[' ' 18.00mil]
+(
+)
+Symbol['!' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 0.0000 35.00mil 8.00mil]
+)
+Symbol['"' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 20.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 10.00mil 20.00mil 8.00mil]
+)
+Symbol['#' 12.00mil]
+(
+	SymbolLine[0.0000 35.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 20.00mil 25.00mil 8.00mil]
+	SymbolLine[15.00mil 20.00mil 15.00mil 40.00mil 8.00mil]
+	SymbolLine[5.00mil 20.00mil 5.00mil 40.00mil 8.00mil]
+)
+Symbol['$' 12.00mil]
+(
+	SymbolLine[15.00mil 15.00mil 20.00mil 20.00mil 8.00mil]
+	SymbolLine[5.00mil 15.00mil 15.00mil 15.00mil 8.00mil]
+	SymbolLine[0.0000 20.00mil 5.00mil 15.00mil 8.00mil]
+	SymbolLine[0.0000 20.00mil 0.0000 25.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[15.00mil 45.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[5.00mil 45.00mil 15.00mil 45.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 5.00mil 45.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['%' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 0.0000 20.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 10.00mil 10.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 15.00mil 15.00mil 8.00mil]
+	SymbolLine[15.00mil 15.00mil 15.00mil 20.00mil 8.00mil]
+	SymbolLine[10.00mil 25.00mil 15.00mil 20.00mil 8.00mil]
+	SymbolLine[5.00mil 25.00mil 10.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 20.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 40.00mil 10.00mil 8.00mil]
+	SymbolLine[35.00mil 50.00mil 40.00mil 45.00mil 8.00mil]
+	SymbolLine[40.00mil 40.00mil 40.00mil 45.00mil 8.00mil]
+	SymbolLine[35.00mil 35.00mil 40.00mil 40.00mil 8.00mil]
+	SymbolLine[30.00mil 35.00mil 35.00mil 35.00mil 8.00mil]
+	SymbolLine[25.00mil 40.00mil 30.00mil 35.00mil 8.00mil]
+	SymbolLine[25.00mil 40.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[25.00mil 45.00mil 30.00mil 50.00mil 8.00mil]
+	SymbolLine[30.00mil 50.00mil 35.00mil 50.00mil 8.00mil]
+)
+Symbol['&' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 25.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 15.00mil 20.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 10.00mil 10.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 15.00mil 15.00mil 8.00mil]
+	SymbolLine[15.00mil 15.00mil 15.00mil 20.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+)
+Symbol[''' 12.00mil]
+(
+	SymbolLine[0.0000 20.00mil 10.00mil 10.00mil 8.00mil]
+)
+Symbol['(' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+)
+Symbol[')' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 5.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 15.00mil 5.00mil 45.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 5.00mil 45.00mil 8.00mil]
+)
+Symbol['*' 12.00mil]
+(
+	SymbolLine[0.0000 20.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 20.00mil 20.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 20.00mil 10.00mil 40.00mil 8.00mil]
+)
+Symbol['+' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 20.00mil 10.00mil 40.00mil 8.00mil]
+)
+Symbol[',' 12.00mil]
+(
+	SymbolLine[0.0000 60.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['-' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 20.00mil 30.00mil 8.00mil]
+)
+Symbol['.' 12.00mil]
+(
+	SymbolLine[0.0000 50.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['/' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 30.00mil 15.00mil 8.00mil]
+)
+Symbol['0' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 20.00mil 20.00mil 8.00mil]
+)
+Symbol['1' 12.00mil]
+(
+	SymbolLine[0.0000 18.00mil 8.00mil 10.00mil 8.00mil]
+	SymbolLine[8.00mil 10.00mil 8.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 15.00mil 50.00mil 8.00mil]
+)
+Symbol['2' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[25.00mil 15.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 25.00mil 50.00mil 8.00mil]
+)
+Symbol['3' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 28.00mil 15.00mil 28.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 23.00mil 8.00mil]
+	SymbolLine[20.00mil 33.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 33.00mil 15.00mil 28.00mil 8.00mil]
+	SymbolLine[20.00mil 23.00mil 15.00mil 28.00mil 8.00mil]
+)
+Symbol['4' 12.00mil]
+(
+	SymbolLine[0.0000 35.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 25.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['5' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 0.0000 30.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[5.00mil 25.00mil 15.00mil 25.00mil 8.00mil]
+	SymbolLine[15.00mil 25.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['6' 12.00mil]
+(
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 28.00mil 20.00mil 33.00mil 8.00mil]
+	SymbolLine[0.0000 28.00mil 15.00mil 28.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 33.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['7' 12.00mil]
+(
+	SymbolLine[5.00mil 50.00mil 25.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 25.00mil 10.00mil 8.00mil]
+)
+Symbol['8' 12.00mil]
+(
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 37.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 37.00mil 7.00mil 30.00mil 8.00mil]
+	SymbolLine[7.00mil 30.00mil 13.00mil 30.00mil 8.00mil]
+	SymbolLine[13.00mil 30.00mil 20.00mil 37.00mil 8.00mil]
+	SymbolLine[20.00mil 37.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 23.00mil 7.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 23.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 23.00mil 8.00mil]
+	SymbolLine[13.00mil 30.00mil 20.00mil 23.00mil 8.00mil]
+)
+Symbol['9' 12.00mil]
+(
+	SymbolLine[5.00mil 50.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 25.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+)
+Symbol[':' 12.00mil]
+(
+	SymbolLine[0.0000 25.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 35.00mil 8.00mil]
+)
+Symbol[';' 12.00mil]
+(
+	SymbolLine[0.0000 50.00mil 10.00mil 40.00mil 8.00mil]
+	SymbolLine[10.00mil 25.00mil 10.00mil 30.00mil 8.00mil]
+)
+Symbol['<' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 10.00mil 20.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 10.00mil 40.00mil 8.00mil]
+)
+Symbol['=' 12.00mil]
+(
+	SymbolLine[0.0000 25.00mil 20.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 20.00mil 35.00mil 8.00mil]
+)
+Symbol['>' 12.00mil]
+(
+	SymbolLine[0.0000 20.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 10.00mil 30.00mil 8.00mil]
+)
+Symbol['?' 12.00mil]
+(
+	SymbolLine[10.00mil 30.00mil 10.00mil 35.00mil 8.00mil]
+	SymbolLine[10.00mil 45.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 20.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 20.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 20.00mil 20.00mil 8.00mil]
+)
+Symbol['@' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 40.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 40.00mil 50.00mil 8.00mil]
+	SymbolLine[50.00mil 35.00mil 50.00mil 10.00mil 8.00mil]
+	SymbolLine[50.00mil 10.00mil 40.00mil 0.0000 8.00mil]
+	SymbolLine[40.00mil 0.0000 10.00mil 0.0000 8.00mil]
+	SymbolLine[10.00mil 0.0000 0.0000 10.00mil 8.00mil]
+	SymbolLine[15.00mil 20.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 30.00mil 35.00mil 8.00mil]
+	SymbolLine[30.00mil 35.00mil 35.00mil 30.00mil 8.00mil]
+	SymbolLine[35.00mil 30.00mil 40.00mil 35.00mil 8.00mil]
+	SymbolLine[35.00mil 30.00mil 35.00mil 15.00mil 8.00mil]
+	SymbolLine[35.00mil 20.00mil 30.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 30.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 15.00mil 20.00mil 8.00mil]
+	SymbolLine[40.00mil 35.00mil 50.00mil 35.00mil 8.00mil]
+)
+Symbol['A' 12.00mil]
+(
+	SymbolLine[0.0000 20.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 20.00mil 7.00mil 10.00mil 8.00mil]
+	SymbolLine[7.00mil 10.00mil 18.00mil 10.00mil 8.00mil]
+	SymbolLine[18.00mil 10.00mil 25.00mil 20.00mil 8.00mil]
+	SymbolLine[25.00mil 20.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 25.00mil 30.00mil 8.00mil]
+)
+Symbol['B' 12.00mil]
+(
+	SymbolLine[0.0000 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[25.00mil 33.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 28.00mil 25.00mil 33.00mil 8.00mil]
+	SymbolLine[5.00mil 28.00mil 20.00mil 28.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[25.00mil 15.00mil 25.00mil 23.00mil 8.00mil]
+	SymbolLine[20.00mil 28.00mil 25.00mil 23.00mil 8.00mil]
+)
+Symbol['C' 12.00mil]
+(
+	SymbolLine[7.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 43.00mil 7.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 17.00mil 0.0000 43.00mil 8.00mil]
+	SymbolLine[0.0000 17.00mil 7.00mil 10.00mil 8.00mil]
+	SymbolLine[7.00mil 10.00mil 20.00mil 10.00mil 8.00mil]
+)
+Symbol['D' 12.00mil]
+(
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[18.00mil 10.00mil 25.00mil 17.00mil 8.00mil]
+	SymbolLine[25.00mil 17.00mil 25.00mil 43.00mil 8.00mil]
+	SymbolLine[18.00mil 50.00mil 25.00mil 43.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 18.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 18.00mil 10.00mil 8.00mil]
+)
+Symbol['E' 12.00mil]
+(
+	SymbolLine[0.0000 28.00mil 15.00mil 28.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+)
+Symbol['F' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 28.00mil 15.00mil 28.00mil 8.00mil]
+)
+Symbol['G' 12.00mil]
+(
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[25.00mil 35.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 35.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+)
+Symbol['H' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[25.00mil 10.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 25.00mil 30.00mil 8.00mil]
+)
+Symbol['I' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 10.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['J' 12.00mil]
+(
+	SymbolLine[7.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 15.00mil 45.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 15.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 0.0000 40.00mil 8.00mil]
+)
+Symbol['K' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['L' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['M' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 30.00mil 10.00mil 8.00mil]
+	SymbolLine[30.00mil 10.00mil 30.00mil 50.00mil 8.00mil]
+)
+Symbol['N' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[25.00mil 10.00mil 25.00mil 50.00mil 8.00mil]
+)
+Symbol['O' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['P' 12.00mil]
+(
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[25.00mil 15.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+)
+Symbol['Q' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[15.00mil 10.00mil 20.00mil 15.00mil 8.00mil]
+	SymbolLine[20.00mil 15.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[10.00mil 35.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['R' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[25.00mil 15.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 25.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[13.00mil 30.00mil 25.00mil 50.00mil 8.00mil]
+)
+Symbol['S' 12.00mil]
+(
+	SymbolLine[20.00mil 10.00mil 25.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 15.00mil 0.0000 25.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 35.00mil 8.00mil]
+	SymbolLine[25.00mil 35.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['T' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['U' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 10.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['V' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 20.00mil 10.00mil 8.00mil]
+)
+Symbol['W' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 30.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[25.00mil 50.00mil 30.00mil 30.00mil 8.00mil]
+	SymbolLine[30.00mil 30.00mil 30.00mil 10.00mil 8.00mil]
+)
+Symbol['X' 12.00mil]
+(
+	SymbolLine[0.0000 50.00mil 25.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 25.00mil 50.00mil 8.00mil]
+)
+Symbol['Y' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 20.00mil 10.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['Z' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 25.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 25.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 25.00mil 50.00mil 8.00mil]
+)
+Symbol['[' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['\' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 30.00mil 45.00mil 8.00mil]
+)
+Symbol[']' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['^' 12.00mil]
+(
+	SymbolLine[0.0000 15.00mil 5.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 10.00mil 10.00mil 15.00mil 8.00mil]
+)
+Symbol['_' 12.00mil]
+(
+	SymbolLine[0.0000 50.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['a' 12.00mil]
+(
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 45.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['b' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+)
+Symbol['c' 12.00mil]
+(
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['d' 12.00mil]
+(
+	SymbolLine[20.00mil 10.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+)
+Symbol['e' 12.00mil]
+(
+	SymbolLine[5.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[0.0000 40.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[20.00mil 40.00mil 20.00mil 35.00mil 8.00mil]
+)
+Symbol['f' 10.00mil]
+(
+	SymbolLine[5.00mil 15.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 15.00mil 10.00mil 10.00mil 8.00mil]
+	SymbolLine[10.00mil 10.00mil 15.00mil 10.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 10.00mil 30.00mil 8.00mil]
+)
+Symbol['g' 12.00mil]
+(
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[0.0000 60.00mil 5.00mil 65.00mil 8.00mil]
+	SymbolLine[5.00mil 65.00mil 15.00mil 65.00mil 8.00mil]
+	SymbolLine[15.00mil 65.00mil 20.00mil 60.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 20.00mil 60.00mil 8.00mil]
+)
+Symbol['h' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['i' 10.00mil]
+(
+	SymbolLine[0.0000 20.00mil 0.0000 21.00mil 10.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 50.00mil 8.00mil]
+)
+Symbol['j' 10.00mil]
+(
+	SymbolLine[5.00mil 20.00mil 5.00mil 21.00mil 10.00mil]
+	SymbolLine[5.00mil 35.00mil 5.00mil 60.00mil 8.00mil]
+	SymbolLine[0.0000 65.00mil 5.00mil 60.00mil 8.00mil]
+)
+Symbol['k' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 10.00mil 25.00mil 8.00mil]
+)
+Symbol['l' 10.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['m' 12.00mil]
+(
+	SymbolLine[5.00mil 35.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 25.00mil 30.00mil 8.00mil]
+	SymbolLine[25.00mil 30.00mil 30.00mil 30.00mil 8.00mil]
+	SymbolLine[30.00mil 30.00mil 35.00mil 35.00mil 8.00mil]
+	SymbolLine[35.00mil 35.00mil 35.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 35.00mil 8.00mil]
+)
+Symbol['n' 12.00mil]
+(
+	SymbolLine[5.00mil 35.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 35.00mil 8.00mil]
+)
+Symbol['o' 12.00mil]
+(
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['p' 12.00mil]
+(
+	SymbolLine[5.00mil 35.00mil 5.00mil 65.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 35.00mil 8.00mil]
+	SymbolLine[25.00mil 35.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 45.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['q' 12.00mil]
+(
+	SymbolLine[20.00mil 35.00mil 20.00mil 65.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 15.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['r' 12.00mil]
+(
+	SymbolLine[5.00mil 35.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 35.00mil 8.00mil]
+)
+Symbol['s' 12.00mil]
+(
+	SymbolLine[5.00mil 50.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 40.00mil 25.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 40.00mil 20.00mil 40.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 40.00mil 8.00mil]
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 25.00mil 35.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+)
+Symbol['t' 10.00mil]
+(
+	SymbolLine[5.00mil 10.00mil 5.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 45.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 25.00mil 10.00mil 25.00mil 8.00mil]
+)
+Symbol['u' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['v' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['w' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 10.00mil 50.00mil 8.00mil]
+	SymbolLine[10.00mil 50.00mil 15.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 30.00mil 15.00mil 45.00mil 8.00mil]
+	SymbolLine[15.00mil 45.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 50.00mil 25.00mil 50.00mil 8.00mil]
+	SymbolLine[25.00mil 50.00mil 30.00mil 45.00mil 8.00mil]
+	SymbolLine[30.00mil 30.00mil 30.00mil 45.00mil 8.00mil]
+)
+Symbol['x' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 20.00mil 50.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 20.00mil 30.00mil 8.00mil]
+)
+Symbol['y' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 0.0000 45.00mil 8.00mil]
+	SymbolLine[0.0000 45.00mil 5.00mil 50.00mil 8.00mil]
+	SymbolLine[20.00mil 30.00mil 20.00mil 60.00mil 8.00mil]
+	SymbolLine[15.00mil 65.00mil 20.00mil 60.00mil 8.00mil]
+	SymbolLine[5.00mil 65.00mil 15.00mil 65.00mil 8.00mil]
+	SymbolLine[0.0000 60.00mil 5.00mil 65.00mil 8.00mil]
+	SymbolLine[5.00mil 50.00mil 15.00mil 50.00mil 8.00mil]
+	SymbolLine[15.00mil 50.00mil 20.00mil 45.00mil 8.00mil]
+)
+Symbol['z' 12.00mil]
+(
+	SymbolLine[0.0000 30.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 20.00mil 30.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 20.00mil 50.00mil 8.00mil]
+)
+Symbol['{' 12.00mil]
+(
+	SymbolLine[5.00mil 15.00mil 10.00mil 10.00mil 8.00mil]
+	SymbolLine[5.00mil 15.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[0.0000 30.00mil 5.00mil 35.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 5.00mil 45.00mil 8.00mil]
+	SymbolLine[5.00mil 45.00mil 10.00mil 50.00mil 8.00mil]
+)
+Symbol['|' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 0.0000 50.00mil 8.00mil]
+)
+Symbol['}' 12.00mil]
+(
+	SymbolLine[0.0000 10.00mil 5.00mil 15.00mil 8.00mil]
+	SymbolLine[5.00mil 15.00mil 5.00mil 25.00mil 8.00mil]
+	SymbolLine[5.00mil 25.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 35.00mil 5.00mil 45.00mil 8.00mil]
+	SymbolLine[0.0000 50.00mil 5.00mil 45.00mil 8.00mil]
+)
+Symbol['~' 12.00mil]
+(
+	SymbolLine[0.0000 35.00mil 5.00mil 30.00mil 8.00mil]
+	SymbolLine[5.00mil 30.00mil 10.00mil 30.00mil 8.00mil]
+	SymbolLine[10.00mil 30.00mil 15.00mil 35.00mil 8.00mil]
+	SymbolLine[15.00mil 35.00mil 20.00mil 35.00mil 8.00mil]
+	SymbolLine[20.00mil 35.00mil 25.00mil 30.00mil 8.00mil]
+)
+Attribute("PCB::grid::unit" "mil")
+Attribute("PCB::grid::size" "1.00mil")
+Via[250.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[400.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[440.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[630.00mil 5286.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[249.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[400.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[439.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[629.00mil 5361.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[248.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[438.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[628.00mil 5436.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[247.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[437.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[627.00mil 5511.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[246.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[436.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[626.00mil 5586.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[245.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[435.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[625.00mil 5661.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[244.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[434.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[624.00mil 5736.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[243.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[433.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[600.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[623.00mil 5811.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[242.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[432.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[600.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[622.00mil 5886.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[241.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[400.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[431.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[600.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 2 "" ""]
+Via[621.00mil 5961.00mil 40.00mil 20.00mil 0.0000 20.00mil 3 5 "" ""]
+Via[200.00mil 5201.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[250.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[400.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[440.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[630.00mil 4286.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[249.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[400.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[439.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[629.00mil 4361.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[248.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[438.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[628.00mil 4436.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[247.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[437.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[627.00mil 4511.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[246.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[436.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[626.00mil 4586.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[245.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[435.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[625.00mil 4661.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[244.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[434.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[624.00mil 4736.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[243.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[433.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[623.00mil 4811.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[242.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[432.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[622.00mil 4886.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[241.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[400.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[431.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[600.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 3 "" ""]
+Via[621.00mil 4961.00mil 40.00mil 20.00mil 0.0000 20.00mil 2 5 "" ""]
+Via[200.00mil 4201.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[200.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[350.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[390.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[580.00mil 335.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[199.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[350.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[389.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[579.00mil 410.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[198.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[388.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[578.00mil 485.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[197.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[387.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[577.00mil 560.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[196.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[386.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[576.00mil 635.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[195.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[385.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[575.00mil 710.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[194.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[384.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[574.00mil 785.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[193.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[383.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[573.00mil 860.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[192.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[382.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[572.00mil 935.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[191.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[350.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[381.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[550.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Via[571.00mil 1010.00mil 40.00mil 20.00mil 0.0000 20.00mil 0 1 "" ""]
+Via[150.00mil 250.00mil 40.00mil 20.00mil 0.0000 20.00mil "" ""]
+Layer(1 "top" "copper")
+(
+)
+Layer(2 "ground" "copper")
+(
+	Line[235.00mil 5286.00mil 235.00mil 5986.00mil 10.00mil 20.00mil "clearline"]
+	Line[280.00mil 5286.00mil 280.00mil 5986.00mil 10.00mil 20.00mil "clearline"]
+	Line[480.00mil 5286.00mil 480.00mil 5986.00mil 10.00mil 20.00mil "clearline"]
+	Line[680.00mil 5286.00mil 680.00mil 5986.00mil 10.00mil 20.00mil "clearline"]
+	Line[235.00mil 4286.00mil 235.00mil 4986.00mil 10.00mil 20.00mil "clearline"]
+	Line[280.00mil 4286.00mil 280.00mil 4986.00mil 10.00mil 20.00mil "clearline"]
+	Line[480.00mil 4286.00mil 480.00mil 4986.00mil 10.00mil 20.00mil "clearline"]
+	Line[680.00mil 4286.00mil 680.00mil 4986.00mil 10.00mil 20.00mil "clearline"]
+	Line[185.00mil 335.00mil 185.00mil 1035.00mil 10.00mil 20.00mil "clearline"]
+	Line[230.00mil 335.00mil 230.00mil 1035.00mil 10.00mil 20.00mil "clearline"]
+	Line[430.00mil 335.00mil 430.00mil 1035.00mil 10.00mil 20.00mil "clearline"]
+	Line[630.00mil 335.00mil 630.00mil 1035.00mil 10.00mil 20.00mil "clearline"]
+)
+Layer(3 "signal2" "copper")
+(
+)
+Layer(4 "signal3" "copper")
+(
+)
+Layer(5 "power" "copper")
+(
+)
+Layer(6 "bottom" "copper")
+(
+)
+Layer(7 "outline" "copper")
+(
+)
+Layer(8 "spare" "copper")
+(
+)
+Layer(9 "bottom silk" "silk")
+(
+)
+Layer(10 "top silk" "silk")
+(
+	Text[7.00mil -5.00mil 0 122 "DRC Test: Object Clearance" "clearline"]
+	Text[107.00mil 5144.00mil 0 49 "Burried via-to-burried via clearance (non-intersecting layers)" "clearline"]
+	Text[282.00mil 5270.00mil 0 49 "10 mil" "clearline"]
+	Text[482.00mil 5270.00mil 0 49 "0 mil" "clearline"]
+	Text[682.00mil 5270.00mil 0 49 "-10 mil" "clearline"]
+	Text[282.00mil 5345.00mil 0 49 "9 mil" "clearline"]
+	Text[482.00mil 5345.00mil 0 49 "-1 mil" "clearline"]
+	Text[682.00mil 5345.00mil 0 49 "-11 mil" "clearline"]
+	Text[282.00mil 5421.00mil 0 49 "8 mil" "clearline"]
+	Text[482.00mil 5421.00mil 0 49 "-2 mil" "clearline"]
+	Text[682.00mil 5421.00mil 0 49 "-12 mil" "clearline"]
+	Text[282.00mil 5496.00mil 0 49 "7 mil" "clearline"]
+	Text[482.00mil 5496.00mil 0 49 "-3 mil" "clearline"]
+	Text[682.00mil 5496.00mil 0 49 "-13 mil" "clearline"]
+	Text[282.00mil 5573.00mil 0 49 "6 mil" "clearline"]
+	Text[482.00mil 5573.00mil 0 49 "-4 mil" "clearline"]
+	Text[682.00mil 5573.00mil 0 49 "-14 mil" "clearline"]
+	Text[282.00mil 5647.00mil 0 49 "5 mil" "clearline"]
+	Text[482.00mil 5647.00mil 0 49 "-5 mil" "clearline"]
+	Text[682.00mil 5647.00mil 0 49 "-15 mil" "clearline"]
+	Text[282.00mil 5722.00mil 0 49 "4 mil" "clearline"]
+	Text[482.00mil 5722.00mil 0 49 "-6 mil" "clearline"]
+	Text[682.00mil 5722.00mil 0 49 "-16 mil" "clearline"]
+	Text[282.00mil 5795.00mil 0 49 "3 mil" "clearline"]
+	Text[482.00mil 5795.00mil 0 49 "-7 mil" "clearline"]
+	Text[682.00mil 5795.00mil 0 49 "-17 mil" "clearline"]
+	Text[282.00mil 5871.00mil 0 49 "2 mil" "clearline"]
+	Text[482.00mil 5871.00mil 0 49 "-8 mil" "clearline"]
+	Text[682.00mil 5871.00mil 0 49 "-18 mil" "clearline"]
+	Text[282.00mil 5947.00mil 0 49 "1 mil" "clearline"]
+	Text[482.00mil 5947.00mil 0 49 "-9 mil" "clearline"]
+	Text[682.00mil 5947.00mil 0 49 "-19 mil" "clearline"]
+	Text[107.00mil 4144.00mil 0 49 "Buried via-to-burried via clearance (intersecting layers)" "clearline"]
+	Text[282.00mil 4270.00mil 0 49 "10 mil" "clearline"]
+	Text[482.00mil 4270.00mil 0 49 "0 mil" "clearline"]
+	Text[682.00mil 4270.00mil 0 49 "-10 mil" "clearline"]
+	Text[282.00mil 4345.00mil 0 49 "9 mil" "clearline"]
+	Text[482.00mil 4345.00mil 0 49 "-1 mil" "clearline"]
+	Text[682.00mil 4345.00mil 0 49 "-11 mil" "clearline"]
+	Text[282.00mil 4421.00mil 0 49 "8 mil" "clearline"]
+	Text[482.00mil 4421.00mil 0 49 "-2 mil" "clearline"]
+	Text[682.00mil 4421.00mil 0 49 "-12 mil" "clearline"]
+	Text[282.00mil 4496.00mil 0 49 "7 mil" "clearline"]
+	Text[482.00mil 4496.00mil 0 49 "-3 mil" "clearline"]
+	Text[682.00mil 4496.00mil 0 49 "-13 mil" "clearline"]
+	Text[282.00mil 4573.00mil 0 49 "6 mil" "clearline"]
+	Text[482.00mil 4573.00mil 0 49 "-4 mil" "clearline"]
+	Text[682.00mil 4573.00mil 0 49 "-14 mil" "clearline"]
+	Text[282.00mil 4647.00mil 0 49 "5 mil" "clearline"]
+	Text[482.00mil 4647.00mil 0 49 "-5 mil" "clearline"]
+	Text[682.00mil 4647.00mil 0 49 "-15 mil" "clearline"]
+	Text[282.00mil 4722.00mil 0 49 "4 mil" "clearline"]
+	Text[482.00mil 4722.00mil 0 49 "-6 mil" "clearline"]
+	Text[682.00mil 4722.00mil 0 49 "-16 mil" "clearline"]
+	Text[282.00mil 4795.00mil 0 49 "3 mil" "clearline"]
+	Text[482.00mil 4795.00mil 0 49 "-7 mil" "clearline"]
+	Text[682.00mil 4795.00mil 0 49 "-17 mil" "clearline"]
+	Text[282.00mil 4871.00mil 0 49 "2 mil" "clearline"]
+	Text[482.00mil 4871.00mil 0 49 "-8 mil" "clearline"]
+	Text[682.00mil 4871.00mil 0 49 "-18 mil" "clearline"]
+	Text[282.00mil 4947.00mil 0 49 "1 mil" "clearline"]
+	Text[482.00mil 4947.00mil 0 49 "-9 mil" "clearline"]
+	Text[682.00mil 4947.00mil 0 49 "-19 mil" "clearline"]
+	Text[7.00mil 60.00mil 0 122 "Vias (pins) to burried vias" "clearline"]
+	Text[726.00mil 148.00mil 0 50 "Bloat: 5 mil" "clearline"]
+	Text[726.00mil 187.00mil 0 50 "Shrink: 5 mil" "clearline"]
+	Text[57.00mil 193.00mil 0 49 "Via-to-burried via clearance" "clearline"]
+	Text[232.00mil 319.00mil 0 49 "10 mil" "clearline"]
+	Text[432.00mil 319.00mil 0 49 "0 mil" "clearline"]
+	Text[632.00mil 319.00mil 0 49 "-10 mil" "clearline"]
+	Text[232.00mil 394.00mil 0 49 "9 mil" "clearline"]
+	Text[432.00mil 394.00mil 0 49 "-1 mil" "clearline"]
+	Text[632.00mil 394.00mil 0 49 "-11 mil" "clearline"]
+	Text[232.00mil 470.00mil 0 49 "8 mil" "clearline"]
+	Text[432.00mil 470.00mil 0 49 "-2 mil" "clearline"]
+	Text[632.00mil 470.00mil 0 49 "-12 mil" "clearline"]
+	Text[232.00mil 545.00mil 0 49 "7 mil" "clearline"]
+	Text[432.00mil 545.00mil 0 49 "-3 mil" "clearline"]
+	Text[632.00mil 545.00mil 0 49 "-13 mil" "clearline"]
+	Text[232.00mil 622.00mil 0 49 "6 mil" "clearline"]
+	Text[432.00mil 622.00mil 0 49 "-4 mil" "clearline"]
+	Text[632.00mil 622.00mil 0 49 "-14 mil" "clearline"]
+	Text[232.00mil 696.00mil 0 49 "5 mil" "clearline"]
+	Text[432.00mil 696.00mil 0 49 "-5 mil" "clearline"]
+	Text[632.00mil 696.00mil 0 49 "-15 mil" "clearline"]
+	Text[232.00mil 771.00mil 0 49 "4 mil" "clearline"]
+	Text[432.00mil 771.00mil 0 49 "-6 mil" "clearline"]
+	Text[632.00mil 771.00mil 0 49 "-16 mil" "clearline"]
+	Text[232.00mil 844.00mil 0 49 "3 mil" "clearline"]
+	Text[432.00mil 844.00mil 0 49 "-7 mil" "clearline"]
+	Text[632.00mil 844.00mil 0 49 "-17 mil" "clearline"]
+	Text[232.00mil 920.00mil 0 49 "2 mil" "clearline"]
+	Text[432.00mil 920.00mil 0 49 "-8 mil" "clearline"]
+	Text[632.00mil 920.00mil 0 49 "-18 mil" "clearline"]
+	Text[232.00mil 996.00mil 0 49 "1 mil" "clearline"]
+	Text[432.00mil 996.00mil 0 49 "-9 mil" "clearline"]
+	Text[632.00mil 996.00mil 0 49 "-19 mil" "clearline"]
+)

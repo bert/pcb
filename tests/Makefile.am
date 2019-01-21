@@ -37,11 +37,26 @@ EXTRA_DIST = \
   inputs/clearance.pcb \
   inputs/default.pcb \
   inputs/fileversion.script \
-  inputs/drctest-clearance-arcs.pcb \
-  inputs/drctest-clearance-lines.pcb \
+  inputs/drctest-clearance-arcs-arcs.pcb \
+  inputs/drctest-clearance-arcs-burriedvias.pcb \
+  inputs/drctest-clearance-arcs-lines.pcb \
+  inputs/drctest-clearance-arcs-pads.pcb \
+  inputs/drctest-clearance-arcs-vias.pcb \
+  inputs/drctest-clearance-lines-arcs.pcb \
+  inputs/drctest-clearance-lines-burriedvias.pcb \
+  inputs/drctest-clearance-lines-lines.pcb \
+  inputs/drctest-clearance-lines-pads.pcb \
+  inputs/drctest-clearance-lines-vias.pcb \
   inputs/drctest-clearance-misc.pcb \
-  inputs/drctest-clearance-pads.pcb \
-  inputs/drctest-clearance-vias.pcb \
+  inputs/drctest-clearance-pads-arcs.pcb \
+  inputs/drctest-clearance-pads-burriedvias.pcb \
+  inputs/drctest-clearance-pads-lines.pcb \
+  inputs/drctest-clearance-pads-pads.pcb \
+  inputs/drctest-clearance-pads-vias.pcb \
+  inputs/drctest-clearance-vias-arcs.pcb \
+  inputs/drctest-clearance-vias-burriedvias.pcb \
+  inputs/drctest-clearance-vias-lines.pcb \
+  inputs/drctest-clearance-vias-vias.pcb \
   inputs/drctest-minsize-arcs.pcb \
   inputs/drctest-minsize-lines.pcb \
   inputs/drctest-minsize-pads.pcb \
@@ -100,22 +115,38 @@ EXTRA_DIST = \
   golden/Clearance/clearance.topmask.gbr \
   golden/Clearance/clearance.toppaste.gbr \
   golden/Clearance/clearance.topsilk.gbr \
-  golden/DRCTests/drctest-clearance-arcs.txt \
-  golden/DRCTests/drctest-clearance-lines.txt \
-  golden/DRCTests/drctest-clearance-pads.txt \
-  golden/DRCTests/drctest-clearance-vias.txt \
-  golden/DRCTests/drctest-minsize-arcs.txt \
-  golden/DRCTests/drctest-minsize-lines.txt \
-  golden/DRCTests/drctest-minsize-pads.txt \
-  golden/DRCTests/drctest-minsize-pins.txt \
-  golden/DRCTests/drctest-minsize-polygons.txt \
-  golden/DRCTests/drctest-minsize-vias.txt \
-  golden/DRCTests/drctest-polygonclearance-arcs.txt \
-  golden/DRCTests/drctest-polygonclearance-lines.txt \
-  golden/DRCTests/drctest-polygonclearance-misc.txt \
-  golden/DRCTests/drctest-polygonclearance-pads.txt \
-  golden/DRCTests/drctest-polygonclearance-pins.txt \
-  golden/DRCTests/drctest-polygonclearance-vias.txt \
+  golden/drc-clearance-arcs-arcs/drcreport.txt \
+  golden/drc-clearance-arcs-burriedvias/drcreport.txt \
+  golden/drc-clearance-arcs-lines/drcreport.txt \
+  golden/drc-clearance-arcs-pads/drcreport.txt \
+  golden/drc-clearance-arcs-vias/drcreport.txt \
+  golden/drc-clearance-lines-arcs/drcreport.txt \
+  golden/drc-clearance-lines-burriedvias/drcreport.txt \
+  golden/drc-clearance-lines-lines/drcreport.txt \
+  golden/drc-clearance-lines-pads/drcreport.txt \
+  golden/drc-clearance-lines-vias/drcreport.txt \
+  golden/drc-clearance-misc/drcreport.txt \
+  golden/drc-clearance-pads-arcs/drcreport.txt \
+  golden/drc-clearance-pads-burriedvias/drcreport.txt \
+  golden/drc-clearance-pads-lines/drcreport.txt \
+  golden/drc-clearance-pads-pads/drcreport.txt \
+  golden/drc-clearance-pads-vias/drcreport.txt \
+  golden/drc-clearance-vias-arcs/drcreport.txt \
+  golden/drc-clearance-vias-burriedvias/drcreport.txt \
+  golden/drc-clearance-vias-lines/drcreport.txt \
+  golden/drc-clearance-vias-vias/drcreport.txt \
+  golden/drc-minsize-arcs/drcreport.txt \
+  golden/drc-minsize-lines/drcreport.txt \
+  golden/drc-minsize-pads/drcreport.txt \
+  golden/drc-minsize-pins/drcreport.txt \
+  golden/drc-minsize-polygons/drcreport.txt \
+  golden/drc-minsize-vias/drcreport.txt \
+  golden/drc-polygonclearance-arcs/drcreport.txt \
+  golden/drc-polygonclearance-lines/drcreport.txt \
+  golden/drc-polygonclearance-misc/drcreport.txt \
+  golden/drc-polygonclearance-pads/drcreport.txt \
+  golden/drc-polygonclearance-pins/drcreport.txt \
+  golden/drc-polygonclearance-vias/drcreport.txt \
   golden/FileVersions/fileversion-20091103-out.pcb \
   golden/FileVersions/fileversion-20100606-out.pcb \
   golden/FileVersions/fileversion-20170218-out.pcb \
