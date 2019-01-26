@@ -1555,98 +1555,101 @@ LookupLOConnectionsToLOList (int flag, bool AndRats)
    * more new connections in the layergroup were found
    */
   do
+  {
+    Cardinal *position;
+    if (AndRats)
     {
-      Cardinal *position;
+      position = &ratposition;
+      for (; *position < RatList.Number; (*position)++)
+      {
+        group = RATLIST_ENTRY (*position)->group1;
+        if (LookupLOConnectionsToRatEnd
+             (&(RATLIST_ENTRY (*position)->Point1), group, flag))
+          return (true);
+        group = RATLIST_ENTRY (*position)->group2;
+        if (LookupLOConnectionsToRatEnd
+             (&(RATLIST_ENTRY (*position)->Point2), group, flag))
+          return (true);
+       }
+     }
+     /* loop over all layergroups */
+     for (group = 0; group < max_group; group++)
+     {
+       Cardinal entry;
 
-      if (AndRats)
-        {
-          position = &ratposition;
-          for (; *position < RatList.Number; (*position)++)
-            {
-              group = RATLIST_ENTRY (*position)->group1;
-              if (LookupLOConnectionsToRatEnd
-                  (&(RATLIST_ENTRY (*position)->Point1), group, flag))
-                return (true);
-              group = RATLIST_ENTRY (*position)->group2;
-              if (LookupLOConnectionsToRatEnd
-                  (&(RATLIST_ENTRY (*position)->Point2), group, flag))
-                return (true);
-            }
-        }
-      /* loop over all layergroups */
-      for (group = 0; group < max_group; group++)
-        {
-          Cardinal entry;
+       for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+       {
+         layer = PCB->LayerGroups.Entries[group][entry];
 
-          for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-            {
-              layer = PCB->LayerGroups.Entries[group][entry];
+         /* be aware that the layer number equal max_copper_layer
+          * and max_copper_layer+1 have a special meaning for pads
+          */
+         if (layer < max_copper_layer)
+         {
+           /* try all new lines */
+           position = &lineposition[layer];
+           for (; *position < LineList[layer].Number; (*position)++)
+           {
+             LineType * line = LINELIST_ENTRY (layer, *position);
+             LayerType * pLayer = LAYER_PTR(layer);
+             /* Keep track of what item we started from for the drc. */
+             if (drc) SetThing(1, LINE_TYPE, pLayer, line, line);
 
-              /* be aware that the layer number equal max_copper_layer
-               * and max_copper_layer+1 have a special meaning for pads
-               */
-              if (layer < max_copper_layer)
-                {
-                  /* try all new lines */
-                  position = &lineposition[layer];
-                  for (; *position < LineList[layer].Number; (*position)++)
-                  {
-                    if (LookupLOConnectionsToLine
-                          (LINELIST_ENTRY (layer, *position), group, flag, true, AndRats))
-                      return (true);
-                  }
+             if (LookupLOConnectionsToLine (line, group, flag, true, AndRats))
+               return (true);
+           }
 
-                  /* try all new arcs */
-                  position = &arcposition[layer];
-                  for (; *position < ArcList[layer].Number; (*position)++)
-                  {
-                    if (LookupLOConnectionsToArc
-                          (ARCLIST_ENTRY (layer, *position), group, flag, AndRats))
-                      return (true);
-                  }
+           /* try all new arcs */
+           position = &arcposition[layer];
+           for (; *position < ArcList[layer].Number; (*position)++)
+           {
+             if (LookupLOConnectionsToArc
+                    (ARCLIST_ENTRY (layer, *position), group, flag, AndRats))
+               return (true);
+           }
 
-                  /* try all new polygons */
-                  position = &polyposition[layer];
-                  for (; *position < PolygonList[layer].Number; (*position)++)
-                  {
-                    if (LookupLOConnectionsToPolygon
-                        (POLYGONLIST_ENTRY (layer, *position), group, flag, AndRats))
-                      return (true);
-                  }
-                }
-              else
-                {
-                  /* try all new pads */
-                  layer -= max_copper_layer;
-                  if (layer > 1)
-                    {
-                      Message (_("bad layer number %d max_copper_layer=%d in find.c\n"),
-                               layer, max_copper_layer);
-                      return false;
-                    }
-                  position = &padposition[layer];
-                  for (; *position < PadList[layer].Number; (*position)++)
-                  {
-                    if (LookupLOConnectionsToPad
-                        (PADLIST_ENTRY (layer, *position), group, flag, AndRats))
-                      return (true);
-                  }
-                }
-            }
-        }
+           /* try all new polygons */
+           position = &polyposition[layer];
+           for (; *position < PolygonList[layer].Number; (*position)++)
+           {
+             if (LookupLOConnectionsToPolygon
+                  (POLYGONLIST_ENTRY (layer, *position), group, flag, AndRats))
+               return (true);
+           }
+         }
+         else
+         {
+           /* try all new pads */
+           layer -= max_copper_layer;
+           if (layer > 1)
+           {
+             Message (_("bad layer number %d max_copper_layer=%d in find.c\n"),
+                      layer, max_copper_layer);
+             return false;
+           }
+           position = &padposition[layer];
+           for (; *position < PadList[layer].Number; (*position)++)
+           {
+             if (LookupLOConnectionsToPad
+                   (PADLIST_ENTRY (layer, *position), group, flag, AndRats))
+               return (true);
+           }
+         }
+       }
+     }
 
-      /* check if all lists are done; Later for-loops
-       * may have changed the prior lists
-       */
-      done = !AndRats || ratposition >= RatList.Number;
-      done = done && padposition[0] >= PadList[0].Number &&
-                     padposition[1] >= PadList[1].Number;
-      for (layer = 0; layer < max_copper_layer; layer++)
-        done = done &&
+     /* check if all lists are done; Later for-loops
+      * may have changed the prior lists
+      */
+     done = !AndRats || ratposition >= RatList.Number;
+     done = done && padposition[0] >= PadList[0].Number &&
+                    padposition[1] >= PadList[1].Number;
+     for (layer = 0; layer < max_copper_layer; layer++)
+       done = done &&
                lineposition[layer] >= LineList[layer].Number &&
                arcposition[layer]  >= ArcList[layer].Number &&
                polyposition[layer] >= PolygonList[layer].Number;
-    }
+  } /* do */
   while (!done);
   return (false);
 }
@@ -2264,9 +2267,9 @@ LookupLOConnectionsToLine (LineType *Line, Cardinal LayerGroup,
       layer_no = PCB->LayerGroups.Entries[LayerGroup][entry];
       layer = LAYER_PTR (layer_no);
 
-      /* Keep track of what item we started from for the drc. */
-      if (drc) SetThing(1, LINE_TYPE, layer, info.line, info.line);
-
+      /* Note: for DRC, thing1 is set by the calling function, since this
+       * function also handles pads with rounded ends.
+       * */
 
       /* handle normal layers */
       if (layer_no < max_copper_layer)
@@ -2527,15 +2530,16 @@ LookupLOConnectionsToPad (PadType *Pad, Cardinal LayerGroup, int flag, bool AndR
   struct lo_info info;
   BoxType search_box;
 
+  info.flag = flag;
+  info.pad = Pad;
+  
+  /* Keep track of what item we started from for the drc. */
+  if (drc) SetThing(1, PAD_TYPE, info.pad->Element, info.pad, info.pad);
+
   if (!TEST_FLAG (SQUAREFLAG, Pad))
     return (LookupLOConnectionsToLine ((LineType *) Pad, LayerGroup, flag, false, AndRats));
 
-  info.flag = flag;
-  info.pad = Pad;
   search_box = expand_bounds ((BoxType *)info.pad);
-
-  /* Keep track of what item we started from for the drc. */
-  if (drc) SetThing(1, PAD_TYPE, info.pad->Element, info.pad, info.pad);
 
   /* add the new rat lines */
   info.layer = LayerGroup;

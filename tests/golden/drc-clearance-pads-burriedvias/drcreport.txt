@@ -27,7 +27,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 137 11 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 2
@@ -41,7 +41,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 146 12 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 3
@@ -55,7 +55,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 155 13 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 4
@@ -69,7 +69,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 164 14 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 5
@@ -83,7 +83,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 173 15 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 6
@@ -97,7 +97,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 182 16 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 7
@@ -111,7 +111,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 191 17 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 8
@@ -125,7 +125,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 200 18 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 9
@@ -139,7 +139,7 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 209 19 
-object types: 4 1 
+object types: 512 1 
 
 ********************************************************************************
                                   Violation 10
@@ -153,5 +153,5 @@ measured value: 0
 required value: 127000
 object count: 2
 object IDs: 218 20 
-object types: 4 1 
+object types: 512 1 
 
