@@ -2618,7 +2618,7 @@ the trace optimizer.
 @cindex Topological router
 @cindex Toporouter
 
-@pcb{} includes an Topological autorouter (Toporouter) which can greatly
+@pcb{} includes a Topological autorouter (Toporouter) which can greatly
 speed up the layout of a circuit board.
 
 The Topological autorouter was implemented by Anthony Blake and is a
@@ -2647,6 +2647,14 @@ September 1992.
 These reference papers are not needed for using the Topological
 autorouter.
 
+In difference to the autorouter, the Topological autorouter makes global
+optimization of routes, and uses lines and arcs that meet the current
+DRC. The current implementation is not capable to connect pads to
+rectangles and polygons.
+
+Choose ``Toporouter'' in the ``Connection'' menu to use Topological
+autorouter.
+
 Before using the Topological autorouter, all elements need to be loaded
 into the layout and placed, and the connectivity netlist must be loaded.
 
@@ -2661,6 +2669,9 @@ to use.
 use for any nets not having a defined route style in the netlist.
 
 @end enumerate
+
+Toporouter is an experimental code, so remember to save your design
+before calling Toporouter.
 
 
 @c ---- User Commands chapter ----
