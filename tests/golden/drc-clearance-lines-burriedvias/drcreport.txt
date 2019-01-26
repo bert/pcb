@@ -40,8 +40,8 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 11 83 
-object types: 1 4 
+object IDs: 83 11 
+object types: 4 1 
 
 ********************************************************************************
                                   Violation 3
@@ -54,8 +54,8 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 12 83 
-object types: 1 4 
+object IDs: 83 12 
+object types: 4 1 
 
 ********************************************************************************
                                   Violation 4
@@ -68,8 +68,8 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 13 83 
-object types: 1 4 
+object IDs: 83 13 
+object types: 4 1 
 
 ********************************************************************************
                                   Violation 5

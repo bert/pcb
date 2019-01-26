@@ -250,8 +250,22 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     append_drc_violation (violation);
     pcb_drc_violation_free (violation);
     /* highlight the rest of the encroaching net so it's not reported again */
-    flag = FOUNDFLAG | SELECTEDFLAG;
+    flag = SELECTEDFLAG;
+    DumpList ();
     start_do_it_and_dump (thing2.type, thing2.ptr1, thing2.ptr2, thing2.ptr3, flag, true, 0, false);
+    /* Now we have to start over because we lost our list when we
+     * highlighted the net. 
+     * If we just start over, FOUNDFLAG will be set on objects we've
+     * already found, so, we won't re-add them to the lists we just
+     * cleared. So, we have to clear that flag everywhere first.
+     *
+     * The next time through, we'll follow a bloated version of this net,
+     * and may find errors there too. We'll likely end up revisiting that
+     * net at some point when we start from a different pin, but, it's
+     * better to check it twice than to miss subsequent errors.
+     * */
+    flag = FOUNDFLAG;
+    ClearFlagOnAllObjects(flag, false);
     ListStart (What, ptr1, ptr2, ptr3, flag);
   }
   DumpList ();

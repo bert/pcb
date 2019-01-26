@@ -40,7 +40,7 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 15 14 
+object IDs: 14 15 
 object types: 1 1 
 
 ********************************************************************************
@@ -54,7 +54,7 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 21 20 
+object IDs: 20 21 
 object types: 1 1 
 
 ********************************************************************************
@@ -68,7 +68,7 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 27 26 
+object IDs: 26 27 
 object types: 1 1 
 
 ********************************************************************************
@@ -82,7 +82,7 @@ have_measured: false
 measured value: 0
 required value: 127000
 object count: 2
-object IDs: 33 32 
+object IDs: 32 33 
 object types: 1 1 
 
 ********************************************************************************
